@@ -48,6 +48,7 @@ func found(c, name: String, emblem) -> Dictionary:
 	game.account.sect = {"name": name, "emblem": emblem, "level": 1, "prestige": 0, "buildings": {"sect_hall": 1}, "queue": [],
 		"disciples": [], "candidates": [], "expeditions": [], "candidate_day": -1}
 	emit("sect_founded", {"name": name})
+	emit("system_used", {"actor": c.id, "system": "found_sect"})
 	emit("sect_level_changed", {"level": 1})
 	_refresh_candidates()
 	return ok()
@@ -116,6 +117,7 @@ func recruit(index: int) -> Dictionary:
 	sect().disciples.append(cands[index])
 	cands.remove_at(index)
 	emit("disciple_recruited", {})
+	emit("system_used", {"actor": game.active_id, "system": "recruit"})
 	return ok()
 
 func send_expedition(region: String, hours: int, disciples: Array) -> Dictionary:

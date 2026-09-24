@@ -1,0 +1,300 @@
+{
+  "schema_version": 1,
+  "valley_day": {
+    "sky": "#7FB0C2",
+    "horizon": "#F1E3B2",
+    "layers": [
+      {
+        "file": "res://art/backdrops/valley_day_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/valley_day_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/valley_day_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/valley_day_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "valley_dusk": {
+    "sky": "#2E2D58",
+    "horizon": "#FFD08A",
+    "layers": [
+      {
+        "file": "res://art/backdrops/valley_dusk_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/valley_dusk_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/valley_dusk_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/valley_dusk_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "valley_night": {
+    "sky": "#040B14",
+    "horizon": "#184250",
+    "layers": [
+      {
+        "file": "res://art/backdrops/valley_night_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/valley_night_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/valley_night_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/valley_night_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "marsh": {
+    "sky": "#6D7D7A",
+    "horizon": "#C9D0C0",
+    "layers": [
+      {
+        "file": "res://art/backdrops/marsh_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/marsh_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/marsh_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/marsh_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "bamboo": {
+    "sky": "#94B89A",
+    "horizon": "#EBEDCC",
+    "layers": [
+      {
+        "file": "res://art/backdrops/bamboo_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/bamboo_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/bamboo_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/bamboo_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "quarry": {
+    "sky": "#9B9E8C",
+    "horizon": "#E7D6A6",
+    "layers": [
+      {
+        "file": "res://art/backdrops/quarry_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/quarry_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/quarry_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/quarry_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "mist_peak": {
+    "sky": "#3A6795",
+    "horizon": "#EEF4F7",
+    "layers": [
+      {
+        "file": "res://art/backdrops/mist_peak_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/mist_peak_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/mist_peak_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/mist_peak_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "gorge": {
+    "sky": "#78A9BF",
+    "horizon": "#DFE8DA",
+    "layers": [
+      {
+        "file": "res://art/backdrops/gorge_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/gorge_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/gorge_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/gorge_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "cave": {
+    "sky": "#020708",
+    "horizon": "#0E2C2D",
+    "layers": [
+      {
+        "file": "res://art/backdrops/cave_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/cave_1.png",
+        "parallax": 0.06,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/cave_2.png",
+        "parallax": 0.16,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/cave_3.png",
+        "parallax": 0.3,
+        "bottom": 720
+      }
+    ]
+  },
+  "sect_jade": {
+    "sky": "#86B3B8",
+    "horizon": "#F1E2AE",
+    "layers": [
+      {
+        "file": "res://art/backdrops/sect_jade_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/sect_jade_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/sect_jade_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/sect_jade_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "sect_cloud": {
+    "sky": "#5F91BD",
+    "horizon": "#E4EEF4",
+    "layers": [
+      {
+        "file": "res://art/backdrops/sect_cloud_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/sect_cloud_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/sect_cloud_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/sect_cloud_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "interior": {
+    "sky": "#120C09",
+    "horizon": "#35241A",
+    "layers": [
+      {
+        "file": "res://art/backdrops/interior_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      }
+    ]
+  }
+}

@@ -302,7 +302,7 @@
    },
    {
     "kind": "teleport",
-    "room": "lf_lu_boat",
+    "target": "lf_lu_boat",
     "portal": "deck"
    }
   ],

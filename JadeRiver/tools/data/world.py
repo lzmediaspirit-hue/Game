@@ -232,6 +232,16 @@ class Room:
         return out
 
     def build(self):
+        # Shrines are revival points: keep monster spawns (and elites) well away from them.
+        shrines = [o["at"][0] for o in self.d["objects"] if o["type"] == "shrine"]
+        for sp in self.d["spawns"]:
+            if sp.get("boss") or sp.get("field_boss") or not shrines:
+                continue
+            kept = [p for p in sp["points"] if all(abs(p[0] - x) >= 380 for x in shrines)]
+            if kept:
+                sp["points"] = kept
+            else:
+                sp["points"] = [[p[0] + (420 if p[0] >= shrines[0] else -420), p[1]] for p in sp["points"]]
         return self.d
 
 
@@ -422,7 +432,7 @@ def lotus_ferry():
                                                                    "points": [[300, 880], [900, 930], [1400, 900], [2000, 930], [2400, 880]]},
                     "fixed_spawns": [{"enemy": "hollowed_eel", "at": [1900, 940], "level": 10}],
                     "on_complete": [{"kind": "set_flag", "flag": "night_survived"}, {"kind": "clear_flag", "flag": "night_active"},
-                                    {"kind": "teleport", "room": "lf_lu_boat", "portal": "deck"}],
+                                    {"kind": "teleport", "target": "lf_lu_boat", "portal": "deck"}],
                     "requires": all_of(noflag("night_survived"))})
     r.surface("ground", [0, GROUND_Y, 2560, 280], 0, kind="ground", stratum="ground")
     r.area("river", [0, 900, 2560, 120])
@@ -588,7 +598,7 @@ def stoneford():
         r.surface("step_1", [360, 700, 180, 50], 60, kind="rock_ledge")
         r.surface("step_2", [600, 660, 180, 50], 120, kind="rock_ledge")
         r.surface("step_3", [840, 700, 180, 50], 180, kind="rock_ledge")
-        r.obj("trial_bell", "bell", [930, 680], alt=180, set_flag="trial_climbed")
+        r.obj("trial_bell", "bell", [930, 724], alt=180, set_flag="trial_climbed")
         r.spawn("trial_puppet", [[1000, 840]], 1, respawn=9999, level=[2, 2], requires=all_of(flag("trial_climbed")))
         r.decor("banner_" + s, [200, 660])
         r.decor("banner_" + s, [1100, 660])
@@ -615,7 +625,7 @@ def willow_path():
         r.obj("stump_%d" % i, "training_stump", [x, 700 + i * 20])
     r.obj("lift_1", "lifting_stone", [1200, 720])
     r.obj("lift_2", "lifting_stone", [1320, 900])
-    r.obj("shrine_wp", "shrine", [1800, 700])
+    r.obj("shrine_wp", "shrine", [2330, 700])
     r.obj("sign_wpw", "signpost", [160, 860], text="West: Stoneford Gate · East: Willow Path East.")
     r.edge("east", "east", "wp_east", "west", y=850)
     r.edge("west", "west", "sf_gate", "east", y=850)
@@ -1115,7 +1125,7 @@ def valley():
     r = field("sr_frozen_shrine", "Frozen Shrine", "summit_ridge", 2, [58, 63], "mist_peak", "stone",
               [("cloudpeak_roc", 4, [58, 63])], ores=("mystic_ore",), jars=4, element="wind", music="summit", ambience="wind_ambience",
               trees=("pine_tree",), loot="jar_valley_mid")
-    r.obj("shrine_frozen", "shrine", [800, 700])
+    r.obj("shrine_frozen", "shrine", [2300, 700])
     r.obj("exchange_summit", "inspect", [1400, 720], prop="altar", text="An old moneychanger's altar.", open_page="exchange",
           requires=all_of(unlock("currency_exchange")), locked_text="The altar is cold.")
     r.obj("journal_frozen", "pickup", [1800, 900], item="lu_journal_page", count=1, prop="scroll_rack", set_flag="journal_frozen",

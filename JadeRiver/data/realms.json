@@ -35,7 +35,8 @@
        "fix": "room:wp_west"
       }
      ]
-    }
+    },
+    "guaranteed": true
    }
   },
   {

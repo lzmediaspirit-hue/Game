@@ -819,7 +819,7 @@
    "stack": 99,
    "icon": "old_net",
    "desc": "A torn fishing net. Old Ma buys these.",
-   "value_override": 6
+   "value_override": 40
   },
   {
    "id": "snapper_claw",

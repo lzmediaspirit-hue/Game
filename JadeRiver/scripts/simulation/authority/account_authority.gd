@@ -84,6 +84,8 @@ func create_character(intent: Dictionary) -> Dictionary:
 	c.pools.hp = c.pools.max_hp
 	game.account.characters[str(slot)] = summary(c)
 	emit("character_created", {"slot": slot, "actor": c.id, "skip_prologue": skip})
+	if game.characters.size() > 1 and game.active_id != "":
+		emit("system_used", {"actor": game.active_id, "system": "second_path"})
 	if skip: _apply_skip_prologue(c, start)
 	game.save_all()
 	return ok({"actor": c.id})
@@ -153,6 +155,7 @@ func set_idle_task(c, task: Dictionary) -> Dictionary:
 	var def := ContentDB.entry("idle_tasks", kind)
 	if def.is_empty(): return fail("unknown_task")
 	if def.has("requires") and not RequirementRules.passes(def.requires, game.ctx(c)): return fail("locked", {"text": RequirementRules.first_failure_text(def.requires, game.ctx(c))})
+	emit("system_used", {"actor": c.id, "system": "second_path"})
 	c.idle_task = {"task": kind, "room": str(task.get("room", c.position.get("room", ""))), "started_utc": Clock.now_utc(),
 		"focus": str(task.get("focus", "accumulate")), "item": str(task.get("item", ""))}
 	emit("idle_task_set", {"actor": c.id, "task": kind})

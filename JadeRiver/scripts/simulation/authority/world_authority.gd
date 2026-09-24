@@ -12,7 +12,7 @@ const TRAINING := ["training_stump", "training_dummy"]
 var pending_transfer: Dictionary = {}   # presentation performs the fade, then calls complete_transfer
 
 func intents() -> Array:
-	return ["use_portal", "interact", "teleport", "pick_up", "enter_world"]
+	return ["use_portal", "interact", "teleport", "pick_up", "enter_world", "sense_pulse"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 50)
@@ -26,6 +26,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"teleport": return teleport(c, str(intent.get("stone", "")))
 		"pick_up": return pick_up(c, int(intent.get("uid", -1)))
 		"enter_world": return enter_world(c)
+		"sense_pulse": return sense_pulse(c)
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ rooms
@@ -129,6 +130,7 @@ func use_portal(c, portal_id: String, crossing: bool) -> Dictionary:
 		emit("portal_blocked", {"actor": c.id, "portal": portal_id, "text": state.text})
 		return fail("sealed", {"text": state.text})
 	if c.cultivator.meditating: game.progression.stop_meditation(c, "portal")
+	emit("portal_used", {"actor": c.id, "portal": portal_id, "room": game.room_rt.room_id, "to": str(p.to)})
 	var r := load_room(c, str(p.to), str(p.get("to_portal", "")))
 	return r
 
@@ -165,6 +167,36 @@ func teleport(c, stone_id: String) -> Dictionary:
 	game.inventory.apply_remove(c.id, "spirit_stone_shard", fee, "teleport")
 	emit("teleported", {"actor": c.id, "stone": stone_id})
 	return load_room(c, str(stone.room), "", Vector2(float(stone.at[0]) + 60, float(stone.at[1]) + 10))
+
+## Spirit Sense (S17, SA1/SA2): a soul pulse that reveals hidden portals and
+## fog-hidden monsters within the sense radius.
+func sense_pulse(c) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "spirit_sense"): return fail("locked", {"text": Unlocks.locked_text("spirit_sense")})
+	if c.pools.cooldown("sense") > 0.0: return fail("cooldown")
+	var cost := 10.0
+	if c.pools.get_value("soul") < cost: return fail("no_soul", {"text": "Not enough Soul"})
+	c.pools.set_value("soul", c.pools.get_value("soul") - cost)
+	c.pools.cooldowns["sense"] = 6.0
+	var st: ActorState = game.actor_state(c.id)
+	var here: Vector2 = st.plane if st else Vector2(float(c.position.x), float(c.position.y))
+	var radius := maxf(420.0, c.stats.value("sense_radius"))
+	var found := 0
+	if game.room_rt:
+		for p in game.room_rt.def.get("portals", []):
+			if p.get("type", "") != "hidden" or not Unlocks.is_unlocked(c.id, "hidden_portals"): continue
+			var at: Array = p.get("at", [0, 0])
+			var f = "seen_" + game.room_rt.room_id + "_" + str(p.id)
+			if here.distance_to(Vector2(float(at[0]), float(at[1]))) <= radius and not c.quests.has_flag(f):
+				game.quest.apply_flag(c.id, f)
+				emit("hidden_portal_revealed", {"actor": c.id, "portal": str(p.id), "room": game.room_rt.room_id})
+				found += 1
+		for e in game.room_rt.living_enemies():
+			if e.hidden and here.distance_to(e.plane) <= radius:
+				e.hidden = false
+				e.ai["sensed"] = 8.0
+	emit("spirit_sense_pulsed", {"actor": c.id, "x": here.x, "y": here.y, "radius": radius, "found": found})
+	emit("system_used", {"actor": c.id, "system": "spirit_sense"})
+	return ok({"found": found})
 
 # ------------------------------------------------------------------ objects
 func _room_mem(c, room_id: String) -> Dictionary:
@@ -238,6 +270,8 @@ func interact(c, object_id: String) -> Dictionary:
 	var at: Array = o.get("at", [0, 0])
 	if st != null and st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) > float(o.get("radius", 110)) + 20.0:
 		return fail("too_far")
+	if st != null and absf(st.altitude - float(o.get("alt", 0.0))) > 48.0:
+		return fail("out_of_reach", {"text": "Out of reach from here."})
 	var avail := object_available(c, o)
 	if not avail.ok and o.type != "npc":
 		return fail("unavailable", {"text": avail.text})
@@ -258,7 +292,7 @@ func interact(c, object_id: String) -> Dictionary:
 			s.state = "open"
 			_room_mem(c, game.room_rt.room_id).opened[object_id] = true
 			var drop := LootRules.roll(str(o.get("loot", "chest_valley")), Rng.stream(c.id, "loot"), int(o.get("level", ProgressionRules.level(c))),
-				c.stats.value("drop_rate"), c.stats.value("coin_find"), {"no_equipment": not c.quests.is_done("the_weapon_hall")})
+				c.stats.value("drop_rate"), c.stats.value("coin_find"), {"no_equipment": not Unlocks.is_unlocked(c.id, "weapons")})
 			_drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0)
 		"teleport_stone":
 			var sid := str(o.get("stone", object_id))
@@ -275,10 +309,9 @@ func interact(c, object_id: String) -> Dictionary:
 			mem.opened[object_id] = true
 			game.room_rt.objects[object_id] = {"state": "open"}
 			game.inventory.apply_add(c.id, item, int(o.get("count", 1)), "pickup")
-			if o.has("set_flag"): game.quest.apply_flag(c.id, str(o.set_flag))
 		"inspect":
-			if o.has("set_flag"): game.quest.apply_flag(c.id, str(o.set_flag))
 			result.text = str(o.get("text", ""))
+			if o.has("open_page"): result.open_page = str(o.open_page)
 		"rite_circle":
 			return game.quest.start_set_piece(c, str(o.get("event", "")))
 		"storage_chest":
@@ -301,6 +334,7 @@ func interact(c, object_id: String) -> Dictionary:
 			emit("bell_rung", {"actor": c.id, "object": object_id})
 		_:
 			pass
+	if o.has("set_flag"): game.quest.apply_flag(c.id, str(o.set_flag))
 	emit("object_interacted", {"actor": c.id, "object": object_id, "type": o.type, "room": game.room_rt.room_id})
 	return result
 
@@ -391,7 +425,7 @@ func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float) -> void:
 	for it in drop.get("items", []):
 		if ContentDB.item(str(it.item)).is_empty() or int(it.count) <= 0: continue
 		drops.append({"item": str(it.item), "count": int(it.count)})
-	var allow_weapons: bool = c.quests.is_done("the_weapon_hall")
+	var allow_weapons: bool = Unlocks.is_unlocked(c.id, "weapons")
 	for eq in drop.get("equipment", []):
 		var inst := LootRules.make_equipment(Rng.stream(c.id, "affix"), int(eq.level), str(eq.min_quality), c.stats.value("fortune"), allow_weapons, c.inventory.next_uid)
 		if inst.is_empty(): continue

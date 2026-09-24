@@ -307,7 +307,9 @@ func _tick_channel(c, delta: float) -> void:
 	if ch.remaining > 0.0: return
 	channels.erase(c.id)
 	var rng := Rng.stream(c.id, "breakthrough")
-	if rng.randf() < ProgressionRules.success_chance(str(ch.risk)):
+	# The Prologue's first step on Lu's boat is taught, not gambled (realm flag `guaranteed`).
+	var guaranteed := bool(ProgressionRules.breakthrough_spec(str(ch.get("from", c.cultivator.realm_key))).get("guaranteed", false))
+	if guaranteed or rng.randf() < ProgressionRules.success_chance(str(ch.risk)):
 		_advance(c, str(ch.to), true)
 	else:
 		_fail_breakthrough(c, ProgressionRules.pick_failure(rng, ch.causes, c.cultivator.realm_key), rng)
@@ -422,7 +424,10 @@ func _on_gravely_wounded(p: Dictionary) -> void:
 		cu.qp = maxf(0.0, cu.qp - cu.need() * loss)
 	else:
 		cu.stored_qi = maxf(0.0, cu.stored_qi - cu.need() * loss)
-	apply_injury(c.id, "body", 1)
+	# "May carry an injury" (S31): a coin flip, and defeats alone never push it past severity 2.
+	var rng := Rng.stream(c.id, "combat")
+	if rng.randf() < float(ContentDB.stat_const("death.injury_chance", 0.5)) and int(cu.injuries.get("body", {}).get("severity", 0)) < 2:
+		apply_injury(c.id, "body", 1)
 	if p.get("cause", "") == "soul": apply_injury(c.id, "soul", 1)
 	emit("progress_changed", {"actor": c.id, "progress": cu.progress_fraction(), "stored": cu.stored_qi, "source": "wounded", "amount": 0})
 
@@ -665,7 +670,7 @@ func rank_up_technique(c, tid: String) -> Dictionary:
 func enter_seclusion(c, focus: String) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "seclusion"): return fail("locked", {"text": Unlocks.locked_text("seclusion")})
 	var allowed := {"accumulate": "seclusion", "temper_body": "seclusion", "heal": "seclusion", "contemplate": "insight_sites",
-		"refine_qi": "refine_qi_focus", "nourish_soul": "nourish_soul_focus"}
+		"refine_qi": "refine_qi", "nourish_soul": "nourish_soul"}
 	if not allowed.has(focus) or not Unlocks.is_unlocked(c.id, allowed[focus]): return fail("focus_locked")
 	var room = game.room_rt.def if game.room_rt else {}
 	var spot := str(room.get("id", ""))

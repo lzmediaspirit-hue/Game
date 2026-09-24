@@ -14,7 +14,7 @@
    "energy": "none",
    "ai": {
     "profile": "slow_melee",
-    "aggro_range": 200,
+    "aggro_range": 0,
     "flee_below": 0.0,
     "move_speed": 55,
     "patrol": 140
@@ -84,7 +84,7 @@
    "energy": "none",
    "ai": {
     "profile": "melee",
-    "aggro_range": 200,
+    "aggro_range": 150,
     "flee_below": 0.25,
     "move_speed": 120,
     "patrol": 140
@@ -204,7 +204,9 @@
    "appears_after": {
     "item": "crab_shell",
     "count": 5
-   }
+   },
+   "hp_mult": 0.42,
+   "attack_mult": 0.7
   },
   {
    "id": "hollow_minnow",
@@ -366,7 +368,7 @@
    "half_width": 22,
    "height": 60,
    "knockback_immune": true,
-   "spar": true
+   "no_death_penalty": true
   },
   {
    "id": "wild_boarlet",

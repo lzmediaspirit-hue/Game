@@ -16,8 +16,10 @@ var display_name := ""
 var title := ""
 var focus := false
 var t := 0.0
+var def: Dictionary = {}
 
 func setup(o: Dictionary) -> void:
+	def = o
 	object_id = str(o.id)
 	npc_id = str(o.npc)
 	var n := ContentDB.entry("npcs", npc_id)
@@ -43,6 +45,8 @@ func setup(o: Dictionary) -> void:
 func _process(delta: float) -> void:
 	t += delta
 	var c = Game.active()
+	visible = c == null or Game.world.object_visible(c, def)
+	if not visible: return
 	marker = Game.quest.npc_marker(c, npc_id) if c else ""
 	bark_timer -= delta
 	if bark_timer <= 0.0:

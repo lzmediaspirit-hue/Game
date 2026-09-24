@@ -26,7 +26,8 @@
   "qi": 0.0075,
   "soul": 0.00375,
   "combat_delay_s": 5,
-  "meditate_mult": 8
+  "meditate_mult": 8,
+  "rest_mult": 4
  },
  "attributes": {
   "base": 5,

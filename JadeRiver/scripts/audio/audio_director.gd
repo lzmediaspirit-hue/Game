@@ -9,6 +9,15 @@ const EVENT_SFX := {"quest_accepted": "quest_accept", "quest_completed": "quest_
 	"node_gathered": "gather", "fish_caught": "fish_bite", "craft_completed": "forge", "room_entered": "portal",
 	"boss_phase": "boss_roar", "field_boss_spawned": "boss_roar", "item_bought": "coin", "item_sold": "coin"}
 
+## Room data names music and ambience by mood; these map moods onto the synthesized tracks.
+const MUSIC_ALIAS := {"home": "village_day", "reeds_day": "river", "night_hollow": "village_night", "field_earth": "field",
+	"marsh": "river", "marsh_grey": "dungeon", "bamboo": "forest", "fair": "village_day", "trial": "battle",
+	"field_mountain": "peak", "mist": "peak", "summit": "peak"}
+const AMBIENCE_ALIAS := {"river_ambience": "water_ambience", "night_ambience": "water_ambience", "town_ambience": "crowd_ambience",
+	"birds_ambience": "wind_ambience", "marsh_ambience": "water_ambience", "bamboo_ambience": "wind_ambience",
+	"waterfall_ambience": "water_ambience"}
+const SFX_ALIAS := {"ui_back": "ui_close", "ui_error": "error", "punch": "swing", "hit_light": "hit"}
+
 var sfx_players: Array = []
 var music_a: AudioStreamPlayer
 var music_b: AudioStreamPlayer
@@ -55,15 +64,17 @@ func _stream(kind: String, id: String) -> AudioStream:
 	var path := str(e.get("file", ""))
 	var st: AudioStream = load(path) if path != "" and ResourceLoader.exists(path) else null
 	if st is AudioStreamWAV and (kind == "music" or id.ends_with("_ambience")):
+		# Loop points in samples from the stream length: correct for PCM and compressed imports alike.
 		var wav := st as AudioStreamWAV
 		wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
 		wav.loop_begin = 0
-		wav.loop_end = int(wav.data.size() / 2)
+		wav.loop_end = int(wav.get_length() * float(wav.mix_rate))
 	streams[key] = st
 	return st
 
 func play(id: String, bus := "SFX") -> void:
 	if not enabled or id == "": return
+	id = str(SFX_ALIAS.get(id, id))
 	var st := _stream("sfx", id)
 	if st == null: return
 	var vol := float(ContentDB.config("audio").get("sfx", {}).get(id, {}).get("volume_db", -4))
@@ -80,6 +91,7 @@ func ui(id := "ui_tap") -> void:
 	play(id, "UI")
 
 func music(id: String) -> void:
+	id = str(MUSIC_ALIAS.get(id, id))
 	if id == current_music: return
 	current_music = id
 	var st := _stream("music", id)
@@ -96,6 +108,7 @@ func music(id: String) -> void:
 		tw.chain().tween_callback(prev.stop)
 
 func ambient(id: String) -> void:
+	id = str(AMBIENCE_ALIAS.get(id, id))
 	if id == current_ambience: return
 	current_ambience = id
 	var st := _stream("sfx", id) if id != "" else null

@@ -80,6 +80,7 @@ func tick(delta: float) -> void:
 			_eel(e, delta)
 			continue
 		e.ai.summon_cd = maxf(0.0, float(e.ai.get("summon_cd", 0.0)) - delta)
+		e.ai.stun_guard = maxf(0.0, float(e.ai.get("stun_guard", 0.0)) - delta)
 		EnemyBrain.think(self, e, delta)
 		if e.def.get("ai", {}).get("profile", "") == "burrower":
 			e.hidden = e.ai.state in ["aggro", "patrol"] and e.velocity.length() > 5.0

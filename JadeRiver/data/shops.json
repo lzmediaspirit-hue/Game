@@ -8,13 +8,16 @@
    "buys_all": true,
    "stock": [
     {
-     "item": "herbal_tea"
+     "item": "herbal_tea",
+     "price": 6
     },
     {
-     "item": "rice_ball"
+     "item": "rice_ball",
+     "price": 4
     },
     {
-     "item": "rice"
+     "item": "rice",
+     "price": 2
     },
     {
      "item": "bamboo_rod",

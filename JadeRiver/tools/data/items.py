@@ -142,7 +142,7 @@ def build_items():
                              ("manual_ember_burst", "ember_burst", "earth")]:
         rows.append(item(mid, "scroll", grade, 99, "A technique manual. Read it to learn %s." % titled(tech), icon="manual_page",
                          use=[effect("learn_technique", technique=tech)]))
-    rows.append(item("old_net", "other", "plain", 99, "A torn fishing net. Old Ma buys these.", value_override=6))
+    rows.append(item("old_net", "other", "plain", 99, "A torn fishing net. Old Ma buys these.", value_override=40))
     rows.append(item("snapper_claw", "other", "common", 99, "Old Snapper's claw. Worth 40 taels to a trader.", value_override=40))
     for oid, grade in [("river_mud", "plain"), ("cloth", "common"), ("arrows", "common"), ("bow_parts", "common"), ("prayer_beads", "earth"),
                        ("talisman_paper", "earth"), ("ink", "earth"), ("formation_stone", "earth"), ("lantern_wick", "heaven"), ("rice", "plain"),
@@ -217,7 +217,7 @@ def build_artifacts():
             extra = {}
             if grade == "plain":
                 extra["ilv"] = 5
-                extra["requires"] = req(c("level_at_least", level=3), c("quest_done", quest="the_weapon_hall"))
+                extra["requires"] = req(c("level_at_least", level=3), c("unlock", system="weapons"))
                 extra["source"] = ["weapon_hall"]
             if fam == "bow":
                 extra["attribute_req"] = {"agility": {"plain": 8, "common": 18, "earth": 30, "heaven": 50, "mystic": 65}[grade]}

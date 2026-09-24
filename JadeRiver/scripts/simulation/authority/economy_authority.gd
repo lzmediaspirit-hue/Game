@@ -69,7 +69,7 @@ func stock(c, shop_id: String) -> Array:
 		var def := ContentDB.item(item_id)
 		if def.is_empty(): continue
 		var locked := ""
-		if def.get("slot", "") == "weapon" and not c.quests.is_done("the_weapon_hall"): continue
+		if def.get("slot", "") == "weapon" and not Unlocks.is_unlocked(c.id, "weapons"): continue
 		if s.has("requires") and not RequirementRules.passes(s.requires, game.ctx(c)):
 			if s.get("hide_locked", false): continue
 			locked = RequirementRules.first_failure_text(s.requires, game.ctx(c))

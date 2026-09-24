@@ -133,6 +133,8 @@ def build():
     for target, (source, event, requirements) in MAJOR.items():
         first = target if target in by_key else "%s_1" % target
         by_key[source]["major_breakthrough"] = {"to": first, "event": event, "requirements": requirements}
+        if source == "mortal":
+            by_key[source]["major_breakthrough"]["guaranteed"] = True
     # Advanced states chain: hhm -> dao_sigil -> heavens_threshold are accumulation plus flags.
     by_key["half_heaven_monarch"]["major_breakthrough"] = {"to": "dao_sigil", "event": None, "requirements": req(
         c("powers_refined_at_least", "structure", True, "page:cultivation", value=1))}

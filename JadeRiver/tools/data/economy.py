@@ -28,7 +28,7 @@ def shops():
         return d
     rows = [
         {"id": "old_ma", "name": "Old Ma's Store", "currency": "silver_tael", "buys_all": True,
-         "stock": [s("herbal_tea"), s("rice_ball"), s("rice"), s("bamboo_rod", requires=all_of(realm("bone_forging_8"))),
+         "stock": [s("herbal_tea", price=6), s("rice_ball", price=4), s("rice", price=2), s("bamboo_rod", requires=all_of(realm("bone_forging_8"))),
                    s("bonding_offering_common", requires=all_of(realm("qi_unfurling_5")))],
          "rotation": {"count": 1, "pool": [s("willow_moss"), s("boar_hide"), s("river_mud"), s("cloth")]}},
         {"id": "granny_liu", "name": "Granny Liu's Herb Hut", "currency": "silver_tael",

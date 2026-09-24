@@ -86,7 +86,7 @@ func _build_room() -> void:
 	portal_views.clear()
 	var rt: RoomRuntime = Game.room_rt
 	room_def = rt.def
-	map_data = {"background": room_def.get("backdrop", {}).get("biome", "settlement")}
+	map_data = {"background": str(room_def.get("backdrop", "valley_day"))}
 	geometry = rt.geometry
 	map_bounds = geometry.bounds
 	surfaces = geometry.surfaces

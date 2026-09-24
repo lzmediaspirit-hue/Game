@@ -265,6 +265,7 @@ func guard(c, on: bool) -> Dictionary:
 		if StatRules.family(c).get("guard", 0.0) <= 0.0: return fail("cannot_guard")
 		tl.guard = true
 		tl.guard_t = 0.0
+		emit("system_used", {"actor": c.id, "system": "guard"})
 	else:
 		tl.guard = false
 	emit("guard_changed", {"actor": c.id, "guard": tl.guard})
@@ -363,7 +364,9 @@ func _tick_pools(c, delta: float) -> void:
 	# Out-of-combat regeneration (S11) and Composure (S29).
 	var regen_delay := float(ContentDB.stat_const("regen_per_s.combat_delay_s", 5))
 	if not c.cultivator.meditating and p.since_hit >= regen_delay and not wounded.has(c.id) and not p.has_status("burn"):
-		if p.hp < p.max_hp: apply_resource_change(c.id, "hp", p.max_hp * c.stats.value("hp_regen") * delta, "regen", 0.0, true)
+		# Resting well away from a fight recovers faster (S11 regen, rest multiplier).
+		var rest := float(ContentDB.stat_const("regen_per_s.rest_mult", 4.0)) if p.since_hit >= regen_delay * 2.0 else 1.0
+		if p.hp < p.max_hp: apply_resource_change(c.id, "hp", p.max_hp * c.stats.value("hp_regen") * rest * delta, "regen", 0.0, true)
 		if p.max_qi > 0 and p.qi < p.max_qi: apply_resource_change(c.id, "qi", p.max_qi * c.stats.value("qi_regen") * delta, "regen", 0.0, true)
 		if p.max_soul > 0 and p.soul < p.max_soul: apply_resource_change(c.id, "soul", p.max_soul * c.stats.value("soul_regen") * delta, "regen", 0.0, true)
 	if Unlocks.is_unlocked(c.id, "composure") and p.composure < 100.0 and p.since_composure_use >= float(ContentDB.stat_const("composure.recover_delay_s", 3)):
@@ -443,6 +446,7 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		tl.stance = float(t.get("stance_s", 2.0))
 		tl.guard = true
 		tl.guard_t = 0.0
+		emit("system_used", {"actor": c.id, "system": "guard"})
 		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": 1, "targets": 0})
 		return
 	var attack := {"damage_type": "physical" if dtype == "movement" else dtype, "element": str(t.get("element", "none")),
@@ -496,6 +500,12 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 	if e.invulnerable or bool(e.def.get("invulnerable", false)):
 		emit("hit_immune", {"attacker": c.id, "target": str(e.uid), "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover})
 		return
+	# Guard-and-counter (Trial Puppet): frontal hits are blocked while it stands guard;
+	# a block triggers its counter, and it is open while recovering.
+	if str(e.def.get("ai", {}).get("profile", "")) == "guard_counter" and str(e.ai.get("state", "")) in ["idle", "patrol", "aggro", "return"] and facing != e.facing:
+		e.ai["counter"] = true
+		emit("hit_blocked", {"attacker": c.id, "target": str(e.uid), "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.height()})
+		return
 	var rng := Rng.stream(c.id, "combat")
 	var ev := enemy_view(e)
 	if attack.has("crit_bonus"): pv = pv.duplicate(); pv.crit_bonus = attack.crit_bonus
@@ -533,6 +543,12 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 	var kb := float(attack.get("knockback", 0.0))
 	if kb > 0.0 and not e.def.get("knockback_immune", false) and not e.is_boss():
 		e.knockback = kb * (facing if facing != 0 else 1)
+	# Hit-stun (S30): a normal monster struck during its wind-up flinches, then shrugs
+	# off further interrupts for a moment so it can never be stun-locked.
+	if e.role == "normal" and not e.def.get("steadfast", false) and str(e.ai.get("state", "")) == "windup" \
+			and float(e.ai.get("stun_guard", 0.0)) <= 0.0 and not attacker.begins_with("ally"):
+		game.enemies.stagger(e, float(ContentDB.stat_const("combat.hit_stun_s", 0.35)))
+		e.ai["stun_guard"] = float(ContentDB.stat_const("combat.hit_stun_guard_s", 1.6))
 	emit("hit_landed", {"attacker": attacker, "target": str(e.uid), "target_kind": "enemy", "amount": int(amount), "type": dtype,
 		"crit": crit, "element": element, "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover + e.height() * 0.8,
 		"hp": e.pools.hp, "max": e.pools.max_hp, "source": str(attack.get("source", ""))})
@@ -623,7 +639,8 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 		_gravely_wound(c, "soul" if pool == "soul" else "hp")
 
 func _gravely_wound(c, cause: String) -> void:
-	var no_penalty: bool = c.quests.has_flag("prologue_active") or bool(game.room_rt.def.get("no_death_penalty", false) if game.room_rt else false)
+	# The Prologue (before the Willow Path unlocks progress from fights) carries no penalty (S27).
+	var no_penalty: bool = not Unlocks.is_unlocked(c.id, "kill_progress") or bool(game.room_rt.def.get("no_death_penalty", false) if game.room_rt else false)
 	wounded[c.id] = {"cause": cause, "timer": 0.0, "no_penalty": no_penalty}
 	var tl := timeline(c.id)
 	tl.action = ""

@@ -33,7 +33,7 @@ def build():
             "qi": {"a": 20, "b": 8, "c": 0.5, "from_realm": "bone_forging_7"},
             "soul": {"a": 100, "b": 10, "c": 0.4, "offset": 46, "from_realm": "spirit_awakening_1"},
         },
-        "regen_per_s": {"hp": 0.005, "qi": 0.0075, "soul": 0.00375, "combat_delay_s": 5, "meditate_mult": 8},
+        "regen_per_s": {"hp": 0.005, "qi": 0.0075, "soul": 0.00375, "combat_delay_s": 5, "meditate_mult": 8, "rest_mult": 4},
         "attributes": {"base": 5, "per_level": 1, "body_per_body_level": 1, "essence_per_purity_grade": 3,
                        "spirit_per_soul_points": 0.1, "insight_per_dao_tier": 2, "essence_per_capacity": 10},
         "attribute_effects": {

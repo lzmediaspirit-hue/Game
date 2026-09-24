@@ -192,7 +192,10 @@ func press(id: int, p: Vector2):
 			guard_pressed = true
 			guard_hold = 0.0
 		"quick": use_quick()
-		"sense": if bound(): Game.submit({"type": "report_system_used", "system": "sense"})
+		"sense":
+			if bound():
+				var sr := Game.submit({"type": "sense_pulse"})
+				if not sr.ok and sr.has("text"): add_log(str(sr.text), UiKit.MIST)
 		"pet": if bound(): open_page.emit("spirit_animals", {})
 		"minimap": open_page.emit("world_map", {})
 		"portrait": open_page.emit("character", {})
@@ -293,7 +296,15 @@ func use_quick() -> void:
 		elif r.get("reason", "") == "cooldown": add_log("Not ready yet", UiKit.MIST)
 		elif r.has("text"): add_log(str(r.text), UiKit.MIST)
 
+## Pages and dialogue block world input; held controls are released at once.
+var blocked := false
+
+func set_blocked(value: bool) -> void:
+	if value and not blocked: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
+	blocked = value
+
 func _input(event):
+	if blocked: return
 	if event is InputEventMouse and event.device == -1: return
 	if event is InputEventScreenTouch:
 		if event.pressed and not event.canceled: press(event.index, event.position)

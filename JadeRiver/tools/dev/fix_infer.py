@@ -5,8 +5,8 @@ GODOT = os.environ.get("GODOT", "godot")
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 pat = re.compile(r'SCRIPT ERROR: Parse Error: (Cannot infer the type of "(\w+)"|The variable type is being inferred from a Variant value)[^\n]*\n\s+at: GDScript::reload \(res://([^:]+):(\d+)\)')
 for it in range(40):
-    out = subprocess.run([GODOT, "--headless", "--path", ROOT, "--quit"], capture_output=True, text=True, timeout=300).stdout + ""
-    out += subprocess.run([GODOT, "--headless", "--path", ROOT, "--quit"], capture_output=True, text=True, timeout=300).stderr
+    run = subprocess.run([GODOT, "--headless", "--path", ROOT, "-s", "tools/dev/check_scripts.gd"], capture_output=True, text=True, timeout=300)
+    out = run.stdout + run.stderr
     fixes = pat.findall(out)
     if not fixes:
         errs = [l for l in out.splitlines() if "ERROR" in l or "at: " in l]

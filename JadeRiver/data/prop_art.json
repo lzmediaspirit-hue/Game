@@ -21,6 +21,58 @@
       }
     }
   },
+  "altar": {
+    "anchor": [
+      60,
+      92
+    ],
+    "file": "res://art/props/altar.png",
+    "frame": [
+      120,
+      96
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "bamboo_cluster": {
+    "anchor": [
+      70,
+      316
+    ],
+    "file": "res://art/props/bamboo_cluster.png",
+    "frame": [
+      140,
+      320
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "bamboo_fence": {
+    "anchor": [
+      80,
+      60
+    ],
+    "file": "res://art/props/bamboo_fence.png",
+    "frame": [
+      160,
+      64
+    ],
+    "repeat": "x",
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "banner_cloud": {
     "anchor": [
       24,
@@ -47,6 +99,23 @@
     "frame": [
       48,
       128
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "barrel": {
+    "anchor": [
+      20,
+      48
+    ],
+    "file": "res://art/props/barrel.png",
+    "frame": [
+      40,
+      52
     ],
     "states": {
       "idle": {
@@ -89,6 +158,74 @@
       }
     }
   },
+  "bookcase": {
+    "anchor": [
+      55,
+      146
+    ],
+    "file": "res://art/props/bookcase.png",
+    "frame": [
+      110,
+      150
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "boulder_moss": {
+    "anchor": [
+      60,
+      96
+    ],
+    "file": "res://art/props/boulder_moss.png",
+    "frame": [
+      120,
+      100
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "bush": {
+    "anchor": [
+      40,
+      46
+    ],
+    "file": "res://art/props/bush.png",
+    "frame": [
+      80,
+      50
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "cart_broken": {
+    "anchor": [
+      80,
+      86
+    ],
+    "file": "res://art/props/cart_broken.png",
+    "frame": [
+      160,
+      90
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "chest": {
     "anchor": [
       26,
@@ -106,6 +243,40 @@
       },
       "open": {
         "col": 1,
+        "frames": 1
+      }
+    }
+  },
+  "cliff_face": {
+    "anchor": [
+      160,
+      356
+    ],
+    "file": "res://art/props/cliff_face.png",
+    "frame": [
+      320,
+      360
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "cliff_ledge": {
+    "anchor": [
+      128,
+      92
+    ],
+    "file": "res://art/props/cliff_ledge.png",
+    "frame": [
+      256,
+      96
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
         "frames": 1
       }
     }
@@ -242,6 +413,59 @@
       }
     }
   },
+  "cushion": {
+    "anchor": [
+      24,
+      14
+    ],
+    "file": "res://art/props/cushion.png",
+    "frame": [
+      48,
+      16
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "dead_tree_grey": {
+    "anchor": [
+      90,
+      256
+    ],
+    "file": "res://art/props/dead_tree_grey.png",
+    "frame": [
+      180,
+      260
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "dock_planks": {
+    "anchor": [
+      128,
+      40
+    ],
+    "decal": true,
+    "file": "res://art/props/dock_planks.png",
+    "frame": [
+      256,
+      40
+    ],
+    "repeat": "x",
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "door": {
     "anchor": [
       40,
@@ -280,6 +504,23 @@
       }
     }
   },
+  "drying_rack_fish": {
+    "anchor": [
+      60,
+      86
+    ],
+    "file": "res://art/props/drying_rack_fish.png",
+    "frame": [
+      120,
+      90
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "ember_pepper_bush": {
     "anchor": [
       28,
@@ -299,6 +540,24 @@
         "col": 0,
         "fps": 5,
         "frames": 3
+      }
+    }
+  },
+  "fence_wood": {
+    "anchor": [
+      80,
+      52
+    ],
+    "file": "res://art/props/fence_wood.png",
+    "frame": [
+      160,
+      56
+    ],
+    "repeat": "x",
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
       }
     }
   },
@@ -335,6 +594,40 @@
         "col": 0,
         "fps": 6,
         "frames": 4
+      }
+    }
+  },
+  "flag_pole_cloud": {
+    "anchor": [
+      30,
+      216
+    ],
+    "file": "res://art/props/flag_pole_cloud.png",
+    "frame": [
+      60,
+      220
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "flag_pole_jade": {
+    "anchor": [
+      30,
+      216
+    ],
+    "file": "res://art/props/flag_pole_jade.png",
+    "frame": [
+      60,
+      220
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
       }
     }
   },
@@ -394,6 +687,24 @@
       }
     },
     "tile": true
+  },
+  "flowers_wild": {
+    "anchor": [
+      32,
+      22
+    ],
+    "decal": true,
+    "file": "res://art/props/flowers_wild.png",
+    "frame": [
+      64,
+      24
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
   },
   "forge_anvil": {
     "anchor": [
@@ -474,6 +785,23 @@
       }
     },
     "tile": true
+  },
+  "hay_bale": {
+    "anchor": [
+      36,
+      44
+    ],
+    "file": "res://art/props/hay_bale.png",
+    "frame": [
+      72,
+      48
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
   },
   "herb_drawers": {
     "anchor": [
@@ -635,6 +963,23 @@
     },
     "tile": true
   },
+  "lamp_oil": {
+    "anchor": [
+      12,
+      36
+    ],
+    "file": "res://art/props/lamp_oil.png",
+    "frame": [
+      24,
+      40
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "lantern_post": {
     "anchor": [
       16,
@@ -650,6 +995,23 @@
         "col": 0,
         "fps": 4,
         "frames": 2
+      }
+    }
+  },
+  "lantern_string": {
+    "anchor": [
+      128,
+      0
+    ],
+    "file": "res://art/props/lantern_string.png",
+    "frame": [
+      256,
+      60
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
       }
     }
   },
@@ -738,6 +1100,25 @@
       }
     }
   },
+  "mist_bank": {
+    "anchor": [
+      160,
+      80
+    ],
+    "decal": true,
+    "file": "res://art/props/mist_bank.png",
+    "frame": [
+      320,
+      80
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 3,
+        "frames": 3
+      }
+    }
+  },
   "mist_lotus_patch": {
     "anchor": [
       32,
@@ -757,6 +1138,23 @@
         "col": 0,
         "fps": 5,
         "frames": 3
+      }
+    }
+  },
+  "mooring_post": {
+    "anchor": [
+      12,
+      68
+    ],
+    "file": "res://art/props/mooring_post.png",
+    "frame": [
+      24,
+      72
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
       }
     }
   },
@@ -794,6 +1192,74 @@
     "frame": [
       80,
       88
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "pagoda": {
+    "anchor": [
+      80,
+      356
+    ],
+    "file": "res://art/props/pagoda.png",
+    "frame": [
+      160,
+      360
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "paifang_gate": {
+    "anchor": [
+      150,
+      256
+    ],
+    "file": "res://art/props/paifang_gate.png",
+    "frame": [
+      300,
+      260
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "pine_tree": {
+    "anchor": [
+      100,
+      296
+    ],
+    "file": "res://art/props/pine_tree.png",
+    "frame": [
+      200,
+      300
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "plum_tree": {
+    "anchor": [
+      100,
+      256
+    ],
+    "file": "res://art/props/plum_tree.png",
+    "frame": [
+      200,
+      260
     ],
     "states": {
       "idle": {
@@ -963,6 +1429,40 @@
       }
     }
   },
+  "rock_large": {
+    "anchor": [
+      70,
+      86
+    ],
+    "file": "res://art/props/rock_large.png",
+    "frame": [
+      140,
+      90
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "rock_small": {
+    "anchor": [
+      32,
+      36
+    ],
+    "file": "res://art/props/rock_small.png",
+    "frame": [
+      64,
+      40
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "rope": {
     "anchor": [
       8,
@@ -981,6 +1481,92 @@
       }
     },
     "tile": true
+  },
+  "rug": {
+    "anchor": [
+      96,
+      48
+    ],
+    "decal": true,
+    "file": "res://art/props/rug.png",
+    "frame": [
+      192,
+      48
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "sack_pile": {
+    "anchor": [
+      40,
+      40
+    ],
+    "file": "res://art/props/sack_pile.png",
+    "frame": [
+      80,
+      44
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "scholar_rock": {
+    "anchor": [
+      50,
+      176
+    ],
+    "file": "res://art/props/scholar_rock.png",
+    "frame": [
+      100,
+      180
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "screen_folding": {
+    "anchor": [
+      60,
+      106
+    ],
+    "file": "res://art/props/screen_folding.png",
+    "frame": [
+      120,
+      110
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "scroll_rack": {
+    "anchor": [
+      48,
+      116
+    ],
+    "file": "res://art/props/scroll_rack.png",
+    "frame": [
+      96,
+      120
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
   },
   "sealed_gate": {
     "anchor": [
@@ -1144,6 +1730,23 @@
       }
     }
   },
+  "statue_guardian_lion": {
+    "anchor": [
+      40,
+      96
+    ],
+    "file": "res://art/props/statue_guardian_lion.png",
+    "frame": [
+      80,
+      100
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "stilt_house": {
     "anchor": [
       190,
@@ -1175,6 +1778,58 @@
       160
     ],
     "roof_split": 0.15,
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "stone_lantern": {
+    "anchor": [
+      28,
+      106
+    ],
+    "file": "res://art/props/stone_lantern.png",
+    "frame": [
+      56,
+      110
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "stone_steps": {
+    "anchor": [
+      100,
+      116
+    ],
+    "file": "res://art/props/stone_steps.png",
+    "frame": [
+      200,
+      120
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "stone_wall_low": {
+    "anchor": [
+      96,
+      52
+    ],
+    "file": "res://art/props/stone_wall_low.png",
+    "frame": [
+      192,
+      56
+    ],
+    "repeat": "x",
     "states": {
       "idle": {
         "col": 0,
@@ -1247,6 +1902,24 @@
       "idle": {
         "col": 0,
         "frames": 1
+      }
+    }
+  },
+  "tall_grass": {
+    "anchor": [
+      32,
+      44
+    ],
+    "file": "res://art/props/tall_grass.png",
+    "frame": [
+      64,
+      48
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 3,
+        "frames": 2
       }
     }
   },
@@ -1486,6 +2159,24 @@
     },
     "tile": true
   },
+  "waterfall": {
+    "anchor": [
+      80,
+      356
+    ],
+    "file": "res://art/props/waterfall.png",
+    "frame": [
+      160,
+      360
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 8,
+        "frames": 4
+      }
+    }
+  },
   "weapon_rack": {
     "anchor": [
       48,
@@ -1495,6 +2186,23 @@
     "frame": [
       96,
       96
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "weapon_rack_full": {
+    "anchor": [
+      55,
+      96
+    ],
+    "file": "res://art/props/weapon_rack_full.png",
+    "frame": [
+      110,
+      100
     ],
     "states": {
       "idle": {
@@ -1542,6 +2250,23 @@
       }
     }
   },
+  "willow_tree": {
+    "anchor": [
+      110,
+      296
+    ],
+    "file": "res://art/props/willow_tree.png",
+    "frame": [
+      220,
+      300
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "window": {
     "anchor": [
       32,
@@ -1576,6 +2301,23 @@
         "frames": 1
       },
       "intact": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "wooden_bridge": {
+    "anchor": [
+      160,
+      86
+    ],
+    "file": "res://art/props/wooden_bridge.png",
+    "frame": [
+      320,
+      90
+    ],
+    "states": {
+      "idle": {
         "col": 0,
         "frames": 1
       }

@@ -22,8 +22,8 @@
       "hard": true
      },
      {
-      "kind": "quest_done",
-      "quest": "the_weapon_hall",
+      "kind": "unlock",
+      "system": "weapons",
       "hard": true
      }
     ]
@@ -53,8 +53,8 @@
       "hard": true
      },
      {
-      "kind": "quest_done",
-      "quest": "the_weapon_hall",
+      "kind": "unlock",
+      "system": "weapons",
       "hard": true
      }
     ]
@@ -84,8 +84,8 @@
       "hard": true
      },
      {
-      "kind": "quest_done",
-      "quest": "the_weapon_hall",
+      "kind": "unlock",
+      "system": "weapons",
       "hard": true
      }
     ]
@@ -115,8 +115,8 @@
       "hard": true
      },
      {
-      "kind": "quest_done",
-      "quest": "the_weapon_hall",
+      "kind": "unlock",
+      "system": "weapons",
       "hard": true
      }
     ]
@@ -146,8 +146,8 @@
       "hard": true
      },
      {
-      "kind": "quest_done",
-      "quest": "the_weapon_hall",
+      "kind": "unlock",
+      "system": "weapons",
       "hard": true
      }
     ]
@@ -180,8 +180,8 @@
       "hard": true
      },
      {
-      "kind": "quest_done",
-      "quest": "the_weapon_hall",
+      "kind": "unlock",
+      "system": "weapons",
       "hard": true
      }
     ]

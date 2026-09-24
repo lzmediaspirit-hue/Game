@@ -385,8 +385,8 @@ func _match(c, o: Dictionary, p: Dictionary, ev: String) -> int:
 		"dodge_attacks": return 1
 		"learn_technique": return 1 if str(o.get("technique", "any")) in ["any", str(p.get("technique", ""))] else 0
 		"breakthrough": return 1
-		"buy_item": return 1 if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
-		"sell_item": return 1 if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
+		"buy_item": return int(p.get("count", 1)) if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
+		"sell_item": return int(p.get("count", 1)) if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
 		"open_page": return 1 if str(p.get("page", "")) == str(o.page) else 0
 		"use_system":
 			if ev == "dodged": return 1 if str(o.system) == "dodge" else 0

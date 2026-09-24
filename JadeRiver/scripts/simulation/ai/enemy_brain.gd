@@ -12,6 +12,9 @@ static func target_position(auth, e: EnemyState) -> Dictionary:
 	if c.pools.has_status("spawn_protection") and e.ai.state in ["idle", "patrol"]: return {}
 	return {"id": c.id, "pos": st.plane, "alt": st.altitude}
 
+const ATTACK_CD := {"slow_melee": 1.8, "melee": 1.1, "charger": 1.5, "ranged": 1.6, "ranged_melee": 1.4, "leaper": 1.5, "flyer": 1.4,
+	"flyer_ranged": 1.6, "burrower": 1.6, "caster": 1.8, "guard_counter": 1.4, "humanoid": 1.0, "duelist": 0.9, "snapper": 1.6}
+
 static func think(auth, e: EnemyState, delta: float) -> void:
 	var ai := e.ai
 	var def := e.def
@@ -69,11 +72,15 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 			e.facing = 1 if d.x >= 0 else -1
 			var keep := float(def.get("keep_distance", 0))
 			var depth := float(attack.hitbox.get("depth", 26))
+			if ai.get("counter", false):
+				ai.timer = 0.0
+				reach += 30.0
 			var in_x := absf(d.x) <= reach + 14.0 and (keep <= 0.0 or absf(d.x) >= keep * 0.5 or reach > 200)
 			var in_y := absf(d.y) <= depth * 0.8
 			if bool(def.get("flying", false)): in_y = absf(d.y) <= depth * 0.8 + 10
 			if in_x and in_y and float(ai.timer) <= 0.0:
 				ai.attack = attacks.find(attack)
+				ai.counter = false
 				_set_state(auth, e, "windup", float(attack.windup_s))
 				ai.hit_done = false
 				auth.emit("attack_started", {"actor": str(e.uid), "enemy": true, "attack": attack.id, "windup": float(attack.windup_s), "facing": e.facing})
@@ -121,7 +128,10 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 		"recover", "stagger":
 			e.velocity = Vector2.ZERO
 			e.action = "idle" if ai.state == "recover" else "hurt"
-			if float(ai.timer) <= 0.0: _set_state(auth, e, "aggro", auth.rng.randf_range(0.1, 0.5))
+			if float(ai.timer) <= 0.0:
+				# Pause between attacks so every monster's rhythm stays readable (S13).
+				var cd := float(def.get("ai", {}).get("attack_cd", ATTACK_CD.get(str(def.get("ai", {}).get("profile", "melee")), 1.0)))
+				_set_state(auth, e, "aggro", cd * auth.rng.randf_range(0.8, 1.2))
 		"flee":
 			if tgt.is_empty() or float(ai.timer) <= 0.0:
 				_set_state(auth, e, "aggro", 0.3)

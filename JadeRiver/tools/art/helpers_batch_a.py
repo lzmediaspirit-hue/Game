@@ -10,9 +10,9 @@ import numpy as np
 import pixel as px
 
 # ---- Hollow ramps (grey-white #87949A family; lights lean warm paper, shadows cool slate) --
-HOLLOW_BODY = px.material("hollow_body", "#eef0e8", "#bcc5c5", "#8a979d", "#5f6b74", outline="#12181d",
-                          thresholds=(0.9, 0.55, 0.2))
-HOLLOW_BELLY = px.material("hollow_belly", "#fbfaf2", "#dde2dd", "#b0babb", "#86929a", outline="#12181d")
+HOLLOW_BODY = px.material("hollow_body", "#d6ddd9", "#aab5b8", "#808d94", "#5a6770", outline="#12181d",
+                          thresholds=(0.84, 0.52, 0.2))
+HOLLOW_BELLY = px.material("hollow_belly", "#e9ece4", "#cdd4d0", "#a4afb1", "#7d8990", outline="#12181d")
 HOLLOW_FIN = px.material("hollow_fin", "#d3dbdb", "#a3aeb3", "#77848c", "#535f69", outline="#12181d")
 HOLLOW_DARK = px.material("hollow_dark", "#8d989d", "#67737b", "#4b565f", "#343e47", outline="#0c1116")
 # mist puffs / wisps: pale, low contrast, outlined in a soft slate (never ink)
@@ -20,9 +20,6 @@ MIST = px.material("hollow_mist", "#eef2ef", "#c9d2d3", "#a3aeb2", "#7f8b92", ou
 MIST_OUT = px.rgb("#4f5b64")
 EYE_WHITE = px.EYE_WHITE
 EYE_HALO = px.rgb("#cfe6ea")  # faint cold glow ring around glowing Hollow eyes
-# dark Hollow water (grey pools the Hollow fish live in)
-HOLLOW_WATER = px.material("hollow_water", "#aebbc0", "#56646d", "#3b4852", "#29343d", outline="#0c1217",
-                           thresholds=(0.95, 0.5, 0.2))
 RIPPLE = px.rgb("#c4d0d3")
 RIPPLE_DIM = px.rgb("#7f8e96")
 
@@ -100,27 +97,13 @@ def mist_puff(cv, x, y, t, size=1.0, seed=0, mat=MIST, count=4, spread=1.0):
             cv.pixels([(math.floor(sx), math.floor(sy)), (math.floor(sx) + 1, math.floor(sy))], speck, name="mist")
 
 
-def dissolve_mask(cv, t, seed=0, cells=3.0, direction=None, bbox=None):
-    """Boolean mask of canvas pixels to erase for a dissolve at progress ``t`` (0..1).
-
-    Pixels are grouped in blocky ``cells``-px clusters (never single pixels) that switch
-    off in a hashed order; ``direction`` (dx, dy) biases the order so the dissolve
-    sweeps across the body (e.g. (-1, 0): tail first)."""
-    h, w = cv.h, cv.w
-    ys, xs = np.mgrid[0:h, 0:w]
-    ci = np.floor(xs / cells).astype(int)
-    cj = np.floor(ys / cells).astype(int)
-    # stable hash per cluster
-    hv = ((ci * 73856093) ^ (cj * 19349663) ^ (seed * 83492791)) & 0xFFFF
-    r = (hv % 997) / 997.0
-    if direction is not None and bbox is not None:
-        x0, y0, x1, y1 = bbox
-        u = ((xs - x0) / max(1, x1 - x0)) if direction[0] >= 0 else ((x1 - xs) / max(1, x1 - x0))
-        v = ((ys - y0) / max(1, y1 - y0)) if direction[1] >= 0 else ((y1 - ys) / max(1, y1 - y0))
-        sweep = abs(direction[0]) * u + abs(direction[1]) * v
-        sweep = sweep / max(1e-6, abs(direction[0]) + abs(direction[1]))
-        r = 0.45 * r + 0.55 * (1.0 - sweep)
-    return r < t
+def sweep_mask(cv, x_edge, seed=0, jag=1.5, direction=-1):
+    """Pixels behind a ragged vertical front at ``x_edge`` (direction -1: everything left
+    of it).  The front wobbles per 2-row band so the edge looks torn, not ruled."""
+    rows = np.arange(cv.h)
+    j = np.array([px.hash01(seed, r // 2) for r in rows]) * 2 - 1
+    edge = x_edge + jag * j[:, None]
+    return (cv.X < edge) if direction < 0 else (cv.X > edge)
 
 
 def body_bbox(cv):
@@ -159,16 +142,18 @@ def clean_specks(cv, min_size=3):
                     cv._commit(m, np.full(m.shape, 1, np.int8), px.flat("#000000"), erase=True)
 
 
-def ripple(cv, x, y, rx, t=0.0, colour=RIPPLE, dim=RIPPLE_DIM, name="ripple"):
-    """Flat elliptical water ring on the ground plane at (x, y) (side view: a thin
-    ellipse).  Only the top arc is bright, the lower arc is dim."""
-    ry = max(1.0, rx * 0.22)
-    d = ((cv.X - x) / rx) ** 2 + ((cv.Y - y) / ry) ** 2
-    ring = (d <= 1.0) & (d >= (1.0 - 1.9 / max(ry, 1.0)) ** 2 * 0.95)
+def ripple(cv, x, y, rx, ry=None, colour=RIPPLE, dim=RIPPLE_DIM, clip=None, name="ripple"):
+    """Flat elliptical water ring on the ground plane centred at (x, y): a 1 px ring,
+    bright on its far (upper) arc and dim on its near arc.  ``clip`` keeps it on a pool."""
+    ry = max(1.2, rx * 0.2) if ry is None else ry
+    outer = ((cv.X - x) / rx) ** 2 + ((cv.Y - y) / ry) ** 2 <= 1.0
+    inner = ((cv.X - x) / max(0.5, rx - 1.6)) ** 2 + ((cv.Y - y) / max(0.5, ry - 1.0)) ** 2 <= 1.0
+    ring = outer & ~inner
+    kw = dict(decal=True, clip=clip) if clip is not None else {}
     top = ring & (cv.Y < y)
-    cv._commit(top, np.where(top, 1, -1).astype(np.int8), px.flat(colour, outline=dim), name=name)
+    cv._commit(top, np.where(top, 1, -1).astype(np.int8), px.flat(colour, outline=dim), name=name, **kw)
     bot = ring & ~top
-    cv._commit(bot, np.where(bot, 1, -1).astype(np.int8), px.flat(dim, outline=dim), name=name)
+    cv._commit(bot, np.where(bot, 1, -1).astype(np.int8), px.flat(dim, outline=dim), name=name, **kw)
 
 
 def eye_glow(cv, x, y, state="open", size=2, halo=True):
@@ -213,7 +198,8 @@ def fish_spine(C, length, amp=0.0, phase=0.0, n=7):
 
 def hollow_fish(cv, C, length, height, ang=0.0, amp=0.0, phase=0.0, tail=0.0, jaw=0.0, fin=0.0,
                 eye="open", eye_size=2, teeth=False, ragged=True, body=HOLLOW_BODY, belly=HOLLOW_BELLY,
-                finmat=HOLLOW_FIN, dorsal=1.0, draw_eye=True, eye_back=0.75, detail=True, tail_len=0.30, tail_spread=38):
+                finmat=HOLLOW_FIN, dorsal=1.0, draw_eye=True, eye_back=0.75, detail=True, tail_len=0.30, tail_spread=38, sep="deep",
+                jaw_open=34.0, hinge_back=0.7, form="limb", tall_dorsal=False):
     """Side-view Hollow fish facing right, centred at C, ``length`` nose-to-tail-tip,
     ``height`` body depth.  ``ang`` pitch (deg, + nose up), ``amp``/``phase`` swim wave,
     ``tail`` extra tail-fin swing (deg), ``jaw`` 0..1 gape, ``fin`` pectoral flap (deg),
@@ -232,10 +218,9 @@ def hollow_fish(cv, C, length, height, ang=0.0, amp=0.0, phase=0.0, tail=0.0, ja
         up = px.polar(root, base_a + tail_spread, lt)
         lo = px.polar(root, base_a - tail_spread, lt * 0.95)
         notch = px.polar(root, base_a, lt * 0.5)
-        if True:
-            cv.polygon([px.polar(root, base_a + 90, r * 0.3), up, px.polar(up, base_a - 150, lt * 0.22), notch,
-                        px.polar(lo, base_a + 150, lt * 0.22), lo, px.polar(root, base_a - 90, r * 0.3)],
-                       finmat, shade="two", name="fin")
+        cv.polygon([px.polar(root, base_a + 90, r * 0.3), up, px.polar(up, base_a - 150, lt * 0.22), notch,
+                    px.polar(lo, base_a + 150, lt * 0.22), lo, px.polar(root, base_a - 90, r * 0.3)],
+                   finmat, shade="two", name="fin")
         # dorsal fin (swept back, ragged trailing edge) and small anal fin, both behind the body
         def at(t):
             i = min(len(sp) - 2, int(t * (len(sp) - 1)))
@@ -243,7 +228,16 @@ def hollow_fish(cv, C, length, height, ang=0.0, amp=0.0, phase=0.0, tail=0.0, ja
             p = px.lerp_pt(sp[i], sp[i + 1], f)
             rr = radii[i] + (radii[i + 1] - radii[i]) * f
             return p, rr
-        if dorsal > 0:
+        def top(t, lift):
+            p_, rr = at(t)
+            return (p_[0], p_[1] - rr - lift)
+        if dorsal > 0 and tall_dorsal:  # tall shark-like sail with a torn trailing edge
+            fh = r * 1.3 * dorsal
+            pts = [top(0.64, -1.0), top(0.60, fh * 0.35), top(0.54, fh * 0.85), top(0.50, fh),
+                   top(0.47, fh * 0.62), top(0.44, fh * 0.74), top(0.41, fh * 0.42), top(0.38, fh * 0.5),
+                   top(0.34, fh * 0.22), top(0.32, -1.0)]
+            cv.polygon(pts, finmat, shade="two", name="fin")
+        elif dorsal > 0:
             (a, ra), (b, rb) = at(0.40), at(0.66)
             fh = r * 1.05 * dorsal
             apex = (a[0] - 0.5, a[1] - ra - fh)
@@ -258,34 +252,56 @@ def hollow_fish(cv, C, length, height, ang=0.0, amp=0.0, phase=0.0, tail=0.0, ja
         (a, ra), (b, rb) = at(0.18), at(0.36)
         cv.polygon([(b[0], b[1] + rb - 0.8), (a[0] - 1.2, a[1] + ra + r * 0.55), (a[0] + 0.6, a[1] + ra - 0.6)],
                    finmat, shade="two", name="fin")
-        # body: one tapered form along the spine, dark back, pale belly, gill arc
-        cv.limb(sp, radii, body, name="fishbody", sep="deep")
-        if detail:
+        # body: one tapered form along the spine.  The lower jaw is the front-lower chunk
+        # of the same form, re-rasterised rotated about the hinge when the mouth opens.
+        head = sp[-1]
+        nose = (head[0] + radii[-1], head[1] + r * 0.1)
+        hinge = (head[0] - r * hinge_back, head[1] + r * 0.2)
+        jaw_poly = [hinge, (nose[0] + 6, hinge[1] - 0.2), (nose[0] + 6, hinge[1] + 2 * r), (hinge[0], hinge[1] + 2 * r)]
+        jaw_a = -jaw_open * jaw
+        cut = cv.mask_polygon(jaw_poly) if jaw > 0.05 else None
+        lb = length * 0.74
+
+        def body_geom():
+            if form == "ellipse":  # one round main form (single highlight) + tapering tail stock
+                ex_ = sp[-1][0] + radii[-1] - 0.42 * lb
+                main = cv.geom_ellipse(ex_, (sp[-1][1] + sp[-3][1]) / 2, 0.42 * lb, r)
+                stock = cv.geom_limb(sp[:4], [r * 0.24, r * 0.42, r * 0.66, r * 0.85])
+                return cv.union(main, stock, weights=[1.0, 0.55])
+            return cv.geom_limb(sp, radii)
+        cv.draw_geom(body_geom(), body, minus=cut, name="fishbody", sep=sep)
+        if jaw > 0.05:
+            with cv.xform(px.rotate(jaw_a, hinge)):
+                g = body_geom()
+                cm = cv.mask_polygon(jaw_poly)
+                cv.draw_geom((g[0] & cm,) + g[1:], body, shade="nolight", name="fishbody")
+                lo_tip = cv.tp((nose[0] - 0.6, hinge[1]))
+        if detail and form != "ellipse":
             cv.limb([(p[0], p[1] - rr * 0.62) for p, rr in zip(sp[1:6], radii[1:6])],
                     [rr * 0.42 for rr in radii[1:6]], body.step(1), decal=True, clip="fishbody")
-        cv.limb([(p[0], p[1] + rr * 0.55) for p, rr in zip(sp[2:7], radii[2:7])],
-                [rr * 0.5 for rr in radii[2:7]], belly, shade="two", decal=True, clip="fishbody")
-        head = sp[-1]
+        if form == "ellipse":
+            cv.ellipse(sp[-1][0] - 0.36 * lb, sp[-1][1] + r * 0.72, 0.36 * lb, r * 0.5, belly, shade="two",
+                       decal=True, clip="fishbody")
+        else:
+            cv.limb([(p[0], p[1] + rr * 0.55) for p, rr in zip(sp[2:6], radii[2:6])],
+                    [rr * 0.5 for rr in radii[2:6]], belly, shade="two", decal=True, clip="fishbody")
         hx, hy = head[0] - r * 0.9, head[1]
         gx = hx - r * 0.55
         if detail:
             cv.limb([(gx + 0.3, hy - r * 0.55), (gx - 0.4, hy), (gx + 0.3, hy + r * 0.5)], 0.5, body.step(2),
                     decal=True, clip="fishbody")
-        # mouth: a wedge cut into the nose opening with ``jaw``; dark throat, optional teeth
-        nose = (head[0] + radii[-1], head[1] + r * 0.1)
-        hinge = (head[0] - r * 0.55, head[1] + r * 0.18)
-        if jaw > 0.05:
-            op = jaw * r * 1.25
-            wedge = [hinge, (nose[0] + 3, hinge[1] - op * 0.55 - 0.6), (nose[0] + 3, hinge[1] + op)]
-            cv.polygon(wedge, body, erase=True)
-            # lower jaw hangs open (keeps a chin below the cut)
-            chin_t = px.polar(hinge, -math.degrees(math.atan2(op, nose[0] + 2 - hinge[0])) - 4, r * 1.5)
-            cv.limb([hinge, chin_t], [r * 0.45, r * 0.28], body, shade="two", name="fishbody")
-            cv.polygon([hinge, (hinge[0] + r * 0.9, hinge[1] - op * 0.25), (hinge[0] + r * 0.9, hinge[1] + op * 0.45)],
-                       px.flat(MOUTH_DARK), name="mouth")
-            if teeth:
-                cv.pixels([(math.floor(nose[0]) - 1, math.floor(hinge[1] - op * 0.25)),
-                           (math.floor(chin_t[0]) - 1, math.floor(chin_t[1]) - 1)], FISH_TOOTH, name="tooth")
+        if jaw > 0.05:  # dark throat at the back of the gape (the front stays open)
+            with cv.xform(px.rotate(jaw_a, hinge)):
+                lo_mid = cv.tp(px.lerp_pt(hinge, (nose[0], hinge[1]), 0.75))
+            up_mid = cv.tp(px.lerp_pt(hinge, (nose[0], hinge[1]), 0.75))
+            ih = cv.tp(hinge)
+            with cv.xform(np.linalg.inv(cv.M)):
+                cv.polygon([(ih[0] - 0.8, ih[1]), (up_mid[0], up_mid[1] - 0.3), (lo_mid[0], lo_mid[1] + 0.3)],
+                           px.flat(MOUTH_DARK), under=True, name="mouth")
+                if teeth:
+                    cv.pixels([(math.floor(up_mid[0]) + 1, math.floor(up_mid[1]) + 1),
+                               (math.floor(lo_tip[0]) - 1, math.floor(lo_tip[1]) - 1)], FISH_TOOTH, name="tooth",
+                              under=True)
         else:
             cv.line((math.floor(hinge[0]), math.floor(hinge[1])), (math.floor(nose[0]) - 1, math.floor(hinge[1])),
                     body.step(2), decal=True, clip="fishbody")
@@ -317,3 +333,83 @@ def fish_eye(cv, ex, ey, state, size):
     if state == "angry":  # heavy brow slanting down toward the nose
         cv.pixels([(ex - 1, ey - 2), (ex, ey - 1), (ex + 1, ey - 1)] + ([(ex + 2, ey - 1)] if size >= 3 else []),
                   HOLLOW_DARK.deep, name="brow")
+
+
+# ---- curves -----------------------------------------------------------------------------
+def catmull(points, per=4):
+    """Catmull-Rom curve through ``points`` (end points duplicated), ``per`` samples per
+    span.  Returns a list of (x, y) including the last point."""
+    pts = [points[0]] + list(points) + [points[-1]]
+    out = []
+    for i in range(1, len(pts) - 2):
+        p0, p1, p2, p3 = pts[i - 1], pts[i], pts[i + 1], pts[i + 2]
+        for k in range(per):
+            t = k / per
+            t2, t3 = t * t, t * t * t
+            out.append(tuple(0.5 * ((2 * p1[j]) + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2
+                                    + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t3) for j in (0, 1)))
+    out.append(tuple(points[-1]))
+    return out
+
+
+def normal_at(pts, i):
+    """Unit normal (pointing to the left of travel, i.e. 'up' for a right-going curve)."""
+    a = pts[max(0, i - 1)]
+    b = pts[min(len(pts) - 1, i + 1)]
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    ln = math.hypot(dx, dy) or 1.0
+    return (dy / ln, -dx / ln)
+
+
+# ---- crumbling (raster chunks) ------------------------------------------------------------
+def crumble(cv, seeds, t, floor_row, seed=0, crack=True, spread=1.0, jitter=1.2):
+    """Break everything drawn on ``cv`` into chunks around ``seeds`` (canvas points) and
+    let them fall toward ``floor_row`` (the last row a chunk may fill) with progress ``t``
+    0..1.  ``crack`` carves 1 px gaps between chunks so each piece gets its own outline.
+    Chunks never pass below the floor; lower chunks land first, upper ones tumble outward."""
+    f = cv.filled.copy()
+    if not f.any():
+        return
+    h, w = f.shape
+    ys, xs = np.nonzero(f)
+    # nearest seed with a hashed wobble so the cracks are irregular
+    best = np.full(len(xs), 1e9)
+    owner = np.zeros(len(xs), int)
+    for k, (sx, sy) in enumerate(seeds):
+        wob = np.array([px.hash01(seed, k, int(x) // 2, int(y) // 2) for x, y in zip(xs, ys)]) * jitter
+        d = np.hypot(xs + 0.5 - sx, ys + 0.5 - sy) + wob
+        upd = d < best
+        best[upd] = d[upd]
+        owner[upd] = k
+    lab = np.full((h, w), -1, int)
+    lab[ys, xs] = owner
+    if crack:  # 1 px gaps where two chunks meet (only on the lower-index side, keeps pieces chunky)
+        gap = np.zeros((h, w), bool)
+        for dx, dy in ((1, 0), (0, 1)):
+            nb = px._shift(lab, -dx, -dy, -1)
+            gap |= (lab >= 0) & (nb >= 0) & (nb != lab) & (lab < nb)
+        lab[gap] = -1
+    src = (cv.rgb.copy(), cv.band.copy(), cv.mat.copy(), cv.part.copy())
+    new = [np.zeros_like(a) for a in src]
+    new[1][:] = -1
+    new[2][:] = -1
+    new[3][:] = -1
+    nf = np.zeros((h, w), bool)
+    order = sorted(range(len(seeds)), key=lambda k: -seeds[k][1])  # lowest chunks first
+    cx = sum(s[0] for s in seeds) / len(seeds)
+    for k in order:
+        m = lab == k
+        if not m.any():
+            continue
+        my, mx = np.nonzero(m)
+        low = my.max()
+        room = max(0, floor_row - low)
+        dy = int(round(min(room, room * min(1.0, t * (1.2 + 0.6 * px.hash01(seed, k, "v"))))))
+        dx = int(round((seeds[k][0] - cx) * 0.35 * spread * t + (px.hash01(seed, k, "x") - 0.5) * 2 * t))
+        ny, nx = my + dy, mx + dx
+        ok = (ny >= 0) & (ny < h) & (nx >= 0) & (nx < w)
+        for a, b in zip(new, src):
+            a[ny[ok], nx[ok]] = b[my[ok], mx[ok]]
+        nf[ny[ok], nx[ok]] = True
+    cv.rgb, cv.band, cv.mat, cv.part = new
+    cv.filled = nf

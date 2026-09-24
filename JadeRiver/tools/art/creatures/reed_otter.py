@@ -95,63 +95,97 @@ POSE = px.poses(DEFAULTS, {
 
 # ---- parts ------------------------------------------------------------------------------------
 def _leg(cv, hip, foot, far, tucked=False):
-    """Stubby otter leg with a dark webbed paw."""
-    shade = "dark" if far else "soft"
+    """Stubby otter leg with a small dark webbed paw."""
+    shade = "dark" if far else "two"
     fx, fy = foot
     if tucked:  # forepaw folded up against the chest (rearing)
-        cv.limb([hip, (fx, fy)], [1.9, 1.3], FUR, shade=shade, name="leg")
-        cv.ellipse(fx + 0.6, fy + 0.2, 1.5, 1.1, PAW, shade="dark" if far else "two", name="paw")
+        cv.limb([hip, (fx, fy)], [1.8, 1.2], FUR, shade=shade, name="leg")
+        cv.ellipse(fx + 0.5, fy + 0.3, 1.3, 1.0, PAW, shade="dark" if far else "two", name="paw")
         return
-    ankle = (fx - 0.2, fy - 1.3)
-    cv.limb([hip, ankle], [2.2, 1.4], FUR, shade=shade, name="leg")
-    cv.ellipse(fx + 0.7, fy - 0.5, 1.8, 1.0, PAW, shade="dark" if far else "two", name="paw")
+    ankle = (fx - 0.2, fy - 1.2)
+    cv.limb([hip, ankle], [2.1, 1.3], FUR, shade=shade, name="leg")
+    cv.ellipse(fx + 0.6, fy - 0.5, 1.5, 1.0, PAW, shade="dark" if far else "two", name="paw")
 
 
 def _tail(cv, root, p, ground, flat=False):
     lift, ph = p.tail
     pts = [root]
-    for k, (dx, dy) in enumerate(((-3.2, 1.9), (-6.2, 3.0), (-9.0, 2.9)), start=1):
+    for k, (dx, dy) in enumerate(((-2.8, 1.8), (-5.4, 3.0), (-7.8, 3.2)), start=1):
         wave = 0.7 * math.sin(ph * 1.3 + k * 1.1) * k / 3
         y = root[1] + dy - lift * 0.9 * k + wave
         if flat:  # propping on the ground behind a rearing otter
-            y = ground - 1.2 - (0.0 if k < 3 else 0.6)
+            y = ground - 1.3 - (0.0 if k < 3 else 0.5)
         pts.append((root[0] + dx, min(y, ground - 0.8)))
-    cv.limb(pts, [2.5, 1.9, 1.3, 0.6], FUR, name="tail")
+    cv.limb(pts, [2.4, 1.9, 1.3, 0.6], FUR, name="tail")
 
 
 def _eye(cv, x, y, state):
     if state == "squeeze":
         hc.eye_stamp(cv, ["k.", ".k", "k."], x, y - 1, {})
-    elif state in ("closed", "sleep"):
-        hc.eye_stamp(cv, ["k..k", ".kk."] if state == "sleep" else ["kkk"], x - 1, y + 1, {})
+    elif state == "sleep":
+        hc.eye_stamp(cv, ["k..k", ".kk."], x - 1, y + 1, {})
+    elif state == "closed":
+        hc.eye_stamp(cv, ["kkk"], x - 1, y + 1, {})
     else:
-        hc.eye_stamp(cv, ["gk.", "kki", ".k."], x, y - 1, {"i": SHEEN})
+        hc.eye_stamp(cv, ["gk", "ki", "kk"], x, y - 1, {"i": IRIS})
         if state == "angry":
             cv.pixels([(x - 1, y - 2), (x, y - 2), (x + 1, y - 1)], FUR.deep, name="brow")
+
+
+def _head(cv, N0, H, p, fx):
+    """Round head, blunt muzzle, cream face; returns the snout tip (canvas coords)."""
+    if p.jaw > 0.05:  # lower jaw drops open under the muzzle
+        with cv.xform(px.rotate(-28 * p.jaw, (H[0] + 1.5, H[1] + 2.4))):
+            cv.limb([(H[0] + 1.5, H[1] + 2.6), (H[0] + 5.0, H[1] + 2.8)], [1.5, 1.0], CREAM,
+                    shade="nolight", name="jaw")
+    geoms = [cv.geom_limb([N0, H], [3.6, 3.4]), cv.geom_ellipse(H[0], H[1], 4.5, 4.0),
+             cv.geom_ellipse(H[0] + 3.4, H[1] + 1.4, 2.6, 2.2)]
+    return geoms
+
+
+def _face(cv, N0, H, p, fx):
+    # cream cheeks, chin and throat
+    cv.ellipse(H[0] + 2.8, H[1] + 2.1, 3.6, 1.8, CREAM, shade="soft", decal=True, clip="body")
+    cv.limb([(H[0] + 1.6, H[1] + 2.6), (N0[0] + 1.8, N0[1] + 1.4), (N0[0] + 2.4, N0[1] + 4.2)], [1.9, 2.0, 1.4],
+            CREAM, shade="two", decal=True, clip="body")
+    # small round ear set low at the back of the skull
+    ear_c = px.rot_pt((H[0] - 2.6, H[1] - 2.9), p.ear, (H[0] - 1.5, H[1] - 1.2))
+    cv.circle(ear_c[0], ear_c[1], 1.3, FUR, shade="two", name="ear")
+    cv.pixel(round(ear_c[0] + 0.3), round(ear_c[1] + 0.3), FUR.deep, name="ear")
+    nx, ny = round(H[0] + 5.3), round(H[1] + 0.4)
+    cv.pixels([(nx - 1, ny), (nx, ny)], NOSE, name="nose")
+    if p.jaw <= 0.05:
+        cv.pixels([(nx - 2, ny + 2), (nx - 3, ny + 2)], CREAM.deep, name="mouth")
+    else:
+        cv.pixel(nx - 1, ny + 2, TOOTH, name="tooth")
+    _eye(cv, round(H[0] - 0.2), round(H[1] - 1.2), p.eye)
+    w = round(p.whisk * 0.6)
+    fx.line((nx + 1, ny + 1), (nx + 3, ny - w), WHISKER, name="whisker")
+    fx.line((nx + 1, ny + 3), (nx + 3, ny + 4 - w), WHISKER, name="whisker")
+    return cv.tp((H[0] + 6.0, H[1] + 1.5))
 
 
 def _curled(cv, p):
     """Sleeping ball: back to the viewer's left, head resting on the wrapped tail."""
     g = cv.ground
-    C = (cv.gx - 1.0, g - 5.2)
-    cv.draw_geom(cv.union(cv.geom_ellipse(C[0] - 1.0, C[1], 8.4, 5.4),
-                          cv.geom_ellipse(C[0] + 4.5, C[1] + 0.8, 5.0, 4.4)), FUR, name="body")
-    cv.ellipse(C[0] + 3.5, C[1] + 3.2, 5.5, 1.6, CREAM, shade="two", decal=True, clip="body")
-    # tail wraps round the front, under the chin
-    cv.limb([(C[0] - 8.0, C[1] + 2.6), (C[0] - 3.0, C[1] + 4.2), (C[0] + 3.0, C[1] + 4.3), (C[0] + 8.2, C[1] + 3.0),
-             (C[0] + 10.2, C[1] + 1.2)], [2.2, 2.1, 1.9, 1.4, 0.7], FUR, name="tail", sep="deep")
-    # head resting on the tail, nose tucked down to the right
-    H = (C[0] + 7.0, C[1] - 1.0)
-    head = cv.union(cv.geom_ellipse(H[0], H[1], 3.6, 3.1), cv.geom_ellipse(H[0] + 2.6, H[1] + 1.4, 2.3, 1.8))
+    cv.snap_ground = True
+    C = (cv.gx - 2.0, g - 5.4)
+    cv.ellipse(C[0] - 1.0, C[1], 8.4, 5.6, FUR, name="body")
+    # tail wraps round the front of the ball, under the chin
+    cv.limb([(C[0] - 8.4, C[1] + 1.4), (C[0] - 5.0, C[1] + 4.4), (C[0] + 1.0, C[1] + 5.0), (C[0] + 7.0, C[1] + 4.2),
+             (C[0] + 11.0, C[1] + 2.4)], [1.9, 2.1, 2.0, 1.5, 0.7], FUR, name="tail", sep="deep")
+    # head resting on the tail, nose pointing right and a little down
+    H = (C[0] + 5.6, C[1] - 3.2)
+    head = cv.union(cv.geom_ellipse(H[0], H[1], 4.2, 3.7), cv.geom_ellipse(H[0] + 3.0, H[1] + 1.6, 2.5, 2.0))
     cv.draw_geom(head, FUR, name="head", sep="deep")
-    cv.ellipse(H[0] + 2.4, H[1] + 2.2, 2.6, 1.2, CREAM, shade="two", decal=True, clip="head")
-    cv.pixel(round(H[0] + 4.2), round(H[1] + 1.2), NOSE, name="nose")
-    cv.circle(H[0] - 2.4, H[1] - 2.4, 1.2, FUR, name="ear", sep="deep")
-    _eye(cv, round(H[0]) , round(H[1]) - 1, p.eye)
+    cv.ellipse(H[0] + 2.8, H[1] + 2.2, 3.0, 1.4, CREAM, shade="soft", decal=True, clip="head")
+    cv.pixels([(round(H[0] + 5.0), round(H[1] + 0.6)), (round(H[0] + 4.0), round(H[1] + 0.6))], NOSE, name="nose")
+    cv.circle(H[0] - 2.4, H[1] - 2.6, 1.4, FUR, shade="two", name="ear")
+    cv.pixel(round(H[0] - 2.2), round(H[1] - 2.3), FUR.deep, name="ear")
+    _eye(cv, round(H[0] + 0.2), round(H[1] - 1.2), p.eye)
     if p.token:  # the spirit token glints as the otter fades back into it
         fx = cv.layer(above=True, outline=False)
-        s = 2 if p.fade > 0.5 else 3
-        px.impact(fx, C[0] + 1, C[1] - 9, size=s, color=BEAD.light, core=px.GLINT)
+        px.impact(fx, C[0] + 1, C[1] - 9, size=2 if p.fade > 0.5 else 3, color=BEAD.light, core=px.GLINT)
 
 
 def draw(cv: px.Canvas, action: str, frame: int) -> None:
@@ -161,13 +195,14 @@ def draw(cv: px.Canvas, action: str, frame: int) -> None:
         _curled(cv, p)
         return
     ground = cv.ground
-    C = (cv.gx - 2 + p.bx, ground - 8.0 + p.by)
+    sit = min(1.0, p.rear / 30.0) if p.rear > 0 else 0.0  # sits down onto the haunch to rear up
+    C = (cv.gx - 2 + p.bx, ground - 8.0 + p.by + 3.0 * sit)
     br = p.breathe
     a = p.arch
-    R = (C[0] - 5.5, C[1] + 0.2 + a * 0.6)
-    M = (C[0] - 0.5, C[1] - 0.3 - a * 2.6)
-    K = (C[0] + 5.0, C[1] + 0.4 + a * 0.4)
-    pivot = (R[0] + 1.0, ground)  # rearing pivot: the hind feet
+    R = (C[0] - 5.0 + a * 0.8, C[1] + 0.3 + a * 1.0)
+    K = (C[0] + 4.6 - a * 0.5, C[1] + 0.3 + a * 0.6)
+    pivot = (R[0] + 1.0, R[1] + 4.9)  # rearing pivot: the bottom of the haunch
+    cv.snap_ground = p.rear > 20
     body_x = [px.rotate(p.rear, pivot), px.rotate(p.pitch, C)]
 
     def B(pt):  # body-local point -> canvas (through rear + pitch)
@@ -177,70 +212,45 @@ def draw(cv: px.Canvas, action: str, frame: int) -> None:
         f = p.feet[i]
         return (hip_x + f[0], ground - f[1])
 
-    hips = {"nf": (K[0] + 0.6, K[1] + 2.4), "ff": (K[0] + 2.0, K[1] + 2.0),
-            "nh": (R[0] + 1.0, R[1] + 2.6), "fh": (R[0] + 2.4, R[1] + 2.2)}
+    hips = {"nf": (K[0] + 0.8, K[1] + 2.4), "ff": (K[0] + 2.2, K[1] + 2.0),
+            "nh": (R[0] + 1.2, R[1] + 2.6), "fh": (R[0] + 2.6, R[1] + 2.2)}
+    sitting = p.rear > 20
     # far legs (behind everything)
     fh = B(hips["fh"])
-    _leg(cv, fh, foot(hips["fh"][0] + 0.5, 3), True)
+    _leg(cv, fh, foot(fh[0] + (2.5 if sitting else 0.5), 3), True)
     if p.paws:
         with cv.xform(*body_x):
             q = hips["ff"]
-            _leg(cv, q, (q[0] + 3.4, q[1] + 0.2), True, tucked=True)
+            _leg(cv, q, (q[0] + 3.2, q[1] + 0.4), True, tucked=True)
     else:
         _leg(cv, B(hips["ff"]), foot(hips["ff"][0] + 0.4, 1), True)
     # tail: lies flat on the ground as a prop while rearing
-    if p.rear > 20:
-        _tail(cv, B((R[0] - 4.0, R[1] + 1.0)), p, ground, flat=True)
+    if sitting:
+        _tail(cv, B((R[0] - 3.6, R[1] + 2.0)), p, ground, flat=True)
     else:
         with cv.xform(*body_x):
-            _tail(cv, (R[0] - 4.0, R[1] + 0.6), p, ground)
-    _leg(cv, B(hips["nh"]), foot(hips["nh"][0], 2), False)
+            _tail(cv, (R[0] - 3.8, R[1] + 0.4), p, ground)
+    nh = B(hips["nh"])
+    _leg(cv, nh, foot(nh[0] + (2.0 if sitting else 0.0), 2), False)
     if not p.paws:
         _leg(cv, B(hips["nf"]), foot(hips["nf"][0], 0), False)
 
     fx = cv.layer(above=True, outline=False)  # whiskers
     with cv.xform(*body_x):
-        body_g = [cv.geom_ellipse(R[0], R[1], 5.4, 4.8 + br * 0.6),
-                  cv.geom_ellipse(M[0], M[1], 5.0, 4.4 + br),
-                  cv.geom_ellipse(K[0], K[1], 4.7, 4.2 + br * 0.4)]
-        N0 = (K[0] + 2.2, K[1] - 2.0)
+        M = ((R[0] + K[0]) / 2 + 0.4, (R[1] + K[1]) / 2 - 0.5 - a * 2.4)
+        body_g = [cv.geom_limb([(R[0] - 1.2, R[1] + 0.3), M, (K[0] + 0.4, K[1])], [4.9 + br * 0.5, 4.5 + br, 4.3 + br * 0.4]),
+                  cv.geom_ellipse(R[0] - 0.3, R[1] + 0.3, 5.4, 4.9 + br * 0.5)]
+        N0 = (K[0] + 2.0, K[1] - 2.0)
         with cv.xform(px.rotate(p.head, N0)):
-            H = (N0[0] + 3.2 * p.neck + 0.4, N0[1] - 5.6 * p.neck - 0.4)
-            head_g = [cv.geom_limb([(N0[0] - 1.0, N0[1] + 1.0), H], [3.4, 2.9]),
-                      cv.geom_ellipse(H[0], H[1], 3.9, 3.3),
-                      cv.geom_ellipse(H[0] + 3.4, H[1] + 1.0, 2.5, 2.0)]
-            if p.jaw > 0.05:  # lower jaw drops open under the muzzle
-                with cv.xform(px.rotate(-26 * p.jaw, (H[0] + 1.2, H[1] + 2.2))):
-                    cv.limb([(H[0] + 1.2, H[1] + 2.4), (H[0] + 4.8, H[1] + 2.6)], [1.4, 0.9], FUR,
-                            shade="nolight", name="jaw")
-                    cv.pixel(round(H[0] + 4.2), round(H[1] + 1.4), TOOTH, name="tooth")
-        cv.draw_geom(cv.union(*body_g, *head_g, weights=[1.0, 0.95, 0.9, 0.6, 0.85, 0.7]), FUR,
+            H = (N0[0] + 2.2 * p.neck + 0.4, N0[1] - 4.2 * p.neck)
+            head_g = _head(cv, N0, H, p, fx)
+        cv.draw_geom(cv.union(*body_g, *head_g, weights=[1.0, 0.8, 0.55, 0.9, 0.75]), FUR,
                      name="body", sep="deep")
-        # cream belly line and bib
-        cv.ellipse(K[0] + 1.0, K[1] + 3.6, 4.4, 1.5, CREAM, shade="two", decal=True, clip="body")
         with cv.xform(px.rotate(p.head, N0)):
-            cv.limb([(H[0] + 3.2, H[1] + 2.4), (N0[0] + 1.6, N0[1] + 1.2), (K[0] + 3.0, K[1] + 2.6)],
-                    [1.5, 1.9, 1.6], CREAM, shade="two", decal=True, clip="body")
-            cv.ellipse(H[0] + 3.0, H[1] + 1.9, 3.0, 1.3, CREAM, shade="soft", decal=True, clip="body")
-            # spirit bead on a cord at the throat (the pet's token)
-            cv.pixels([(round(N0[0]) + 1, round(N0[1]) - 1)], BEAD.base, name="bead")
-            cv.pixels([(round(N0[0]) + 2, round(N0[1]) - 1)], BEAD.light, name="bead")
-            # ear, nose, mouth, eye
-            ear_c = px.rot_pt((H[0] - 2.8, H[1] - 2.3), p.ear, (H[0] - 1.5, H[1] - 1.0))
-            cv.circle(ear_c[0], ear_c[1], 1.35, FUR, name="ear", sep="deep")
-            cv.pixel(round(ear_c[0]), round(ear_c[1]), FUR.deep, name="ear")
-            nx, ny = round(H[0] + 5.4), round(H[1] + 0.2)
-            cv.pixels([(nx - 1, ny), (nx, ny)], NOSE, name="nose")
-            if p.jaw <= 0.05:
-                cv.pixels([(nx - 2, ny + 2), (nx - 3, ny + 2)], FUR.deep, name="mouth")
-            _eye(cv, round(H[0] + 0.2), round(H[1] - 1.2), p.eye)
-            w = p.whisk * 0.6
-            fx.line((nx - 1, ny + 1), (nx + 3, ny - 0 - round(w)), WHISKER, name="whisker")
-            fx.line((nx - 1, ny + 2), (nx + 3, ny + 3 - round(w)), WHISKER, name="whisker")
-            snout = cv.tp((H[0] + 6.0, H[1] + 1.5))
+            snout = _face(cv, N0, H, p, fx)
         if p.paws:  # near forepaw tucked against the chest
             q = hips["nf"]
-            _leg(cv, (q[0] + 0.4, q[1] - 0.4), (q[0] + 3.6, q[1] + 0.8), False, tucked=True)
+            _leg(cv, (q[0] + 0.4, q[1] - 0.6), (q[0] + 3.4, q[1] + 0.6), False, tucked=True)
 
     if p.splash is not None:
         sp = cv.layer(above=True, outline=True)
