@@ -340,11 +340,11 @@ static func talk(ctx: Dictionary, npc: String) -> Dictionary:
 					p.discovered.areas[aid] = true
 			ctx.events.append(["chapter", {"id": ch.id}])
 	elif ch.id == "ch3" and q.step == 2:
-		if int(p.soul) >= 5:
+		if int(p.soul) >= int(C.SOUL_MILESTONES[0].at):
 			p.flags["soul_awakened"] = true
 			lines.append("Keeper Tao: Close your eyes… yes. Your soul already senses the veins beneath the valley. Soul Sense is awake.")
 		else:
-			lines.append("Keeper Tao: Your soul is still clouded (%d/5 soul points). Discover more resource sites across the valley." % p.soul)
+			lines.append("Keeper Tao: Your soul is still clouded (%d/10 soul points). Discover more resource sites across the valley." % p.soul)
 	elif ch.id == "ch3" and q.step == 3:
 		lines.append("Keeper Tao: River or Ember. Choose the principle that will shape your arts.")
 		menu.append("dao")
@@ -431,7 +431,7 @@ static func meditate_cycle(ctx: Dictionary, safe: bool) -> Dictionary:
 	var p: Dictionary = ctx.p
 	if not safe:
 		return fail("Unsafe — enemies are near.")
-	var clarity := 1.25 if int(p.soul) >= 20 else 1.0
+	var clarity := 1.25 if int(p.soul) >= int(C.SOUL_MILESTONES[2].at) else 1.0
 	var ins := int(round((2 + p.realm) * clarity))
 	var ess := 1 + (1 if p.research.get("still_mind", false) else 0)
 	p.insight += ins

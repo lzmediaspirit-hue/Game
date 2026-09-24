@@ -1628,19 +1628,19 @@ const SHOPS = {
 const SOUL_MILESTONES = [
 	{
 		"id": "sense",
-		"at": 5,
+		"at": 10,
 		"name": "Soul Sense",
 		"desc": "Undiscovered resource nodes appear on the minimap."
 	},
 	{
 		"id": "foresight",
-		"at": 12,
+		"at": 18,
 		"name": "Foresight",
 		"desc": "Enemy strikes telegraph earlier with a warning glyph."
 	},
 	{
 		"id": "clarity",
-		"at": 20,
+		"at": 28,
 		"name": "Clarity",
 		"desc": "Meditation yields +25% insight."
 	}
@@ -3235,7 +3235,7 @@ const CHAPTERS = [
 			{
 				"type": "flag",
 				"flag": "soul_awakened",
-				"text": "Awaken Soul Sense (5 soul points — discover resource sites), then speak with Tao",
+				"text": "Awaken Soul Sense (10 soul points — discover resource sites), then speak with Tao",
 				"short": "Awaken the soul"
 			},
 			{
