@@ -1,0 +1,81 @@
+{
+ "schema_version": 1,
+ "order": [
+  "service_disciple",
+  "outer_disciple",
+  "inner_disciple",
+  "core_disciple",
+  "personal_disciple",
+  "deacon"
+ ],
+ "ranks": [
+  {
+   "id": "service_disciple",
+   "name": "Service Disciple"
+  },
+  {
+   "id": "outer_disciple",
+   "name": "Outer Disciple",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_4"
+     }
+    ]
+   }
+  },
+  {
+   "id": "inner_disciple",
+   "name": "Inner Disciple",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "core_disciple",
+   "name": "Core Disciple",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "cloud_stride_1"
+     },
+     {
+      "kind": "flag_set",
+      "flag": "tournament_top8"
+     }
+    ]
+   }
+  },
+  {
+   "id": "personal_disciple",
+   "name": "Personal Disciple",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_5"
+     }
+    ]
+   }
+  },
+  {
+   "id": "deacon",
+   "name": "Deacon",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_1"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,44 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "granny_liu": {
+   "id": "granny_liu",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "in_room",
+        "room": "lf_village_night"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "granny_safe"
+       }
+      ]
+     },
+     "node": "night"
+    }
+   ],
+   "nodes": {
+    "night": {
+     "lines": [
+      "My old legs... help me, child."
+     ],
+     "choices": [
+      {
+       "text": "Lean on me. To Aunt Ping's hut.",
+       "effects": [
+        {
+         "kind": "set_flag",
+         "flag": "granny_safe"
+        }
+       ],
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

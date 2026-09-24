@@ -95,7 +95,7 @@ func _build_room() -> void:
 	# Interior back wall and water areas.
 	if room_def.has("wall"):
 		var w: Dictionary = room_def.wall
-		var wall := DecorView.make_area("wall", Rect2(-40, float(w.get("top", 150)), map_bounds.size.x + 80, float(w.get("bottom", 640)) - float(w.get("top", 150))), str(w.get("tile", "wall_wood")), -2100)
+		var wall = DecorView.make_area("wall", Rect2(-40, float(w.get("top", 150)), map_bounds.size.x + 80, float(w.get("bottom", 640)) - float(w.get("top", 150))), str(w.get("tile", "wall_wood")), -2100)
 		room_layer.add_child(wall)
 	for area in room_def.get("areas", []):
 		var r: Array = area.rect
@@ -127,24 +127,24 @@ func _build_room() -> void:
 		room_layer.add_child(DecorView.make_prop(d))
 	for o in room_def.get("objects", []):
 		if o.type == "npc":
-			var nv := NpcView.new()
+			var nv = NpcView.new()
 			nv.setup(o)
 			room_layer.add_child(nv)
 			npc_views[str(o.id)] = nv
 		elif o.type != "decor":
-			var ov := ObjectView.new()
+			var ov = ObjectView.new()
 			ov.setup(o)
 			room_layer.add_child(ov)
 			object_views[str(o.id)] = ov
 	for p in room_def.get("portals", []):
-		var pv := PortalView.new()
+		var pv = PortalView.new()
 		pv.setup(p)
 		room_layer.add_child(pv)
 		portal_views.append(pv)
 	for uid in rt.enemies:
 		_add_enemy_view(rt.enemies[uid])
 	for l in rt.loot:
-		var lv := LootView.new()
+		var lv = LootView.new()
 		lv.setup(l)
 		room_layer.add_child(lv)
 	update_sorting()
@@ -189,7 +189,7 @@ func _place_player() -> void:
 
 func _add_enemy_view(e: EnemyState) -> void:
 	if enemy_views.has(e.uid) and is_instance_valid(enemy_views[e.uid]): return
-	var v := EnemyView.new()
+	var v = EnemyView.new()
 	v.setup(e)
 	room_layer.add_child(v)
 	enemy_views[e.uid] = v
@@ -213,7 +213,8 @@ func _check_portals(delta: float) -> void:
 		if not near: continue
 		var type := str(p.get("type", "edge"))
 		var outward := 1.0 if pos.x > w * 0.5 else -1.0
-		var walking_out := type == "edge" and not p.get("press_up", false) and axis.x * outward > 0.5
+		var at_edge := pos.x < 100.0 or pos.x > w - 100.0
+		var walking_out = at_edge and type in ["edge", "gate", "sealed"] and not p.get("press_up", false) and axis.x * outward > 0.5
 		var pressing_up := axis.y < -0.6
 		if pressing_up: up_hold += delta
 		if walking_out or (pressing_up and up_hold > 0.18):
@@ -285,14 +286,14 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if e: _add_enemy_view(e)
 		"loot_dropped":
 			for l in p.get("items", []):
-				var lv := LootView.new()
+				var lv = LootView.new()
 				lv.setup(l)
 				room_layer.add_child(lv)
 		"hit_landed":
 			var pos := Vector2(float(p.get("x", 0)), float(p.get("y", 0)) - float(p.get("alt", 60)))
 			var kind := str(p.get("target_kind", "enemy"))
 			var amount := int(p.get("amount", 0))
-			var color := UiKit.PAPER
+			var color = UiKit.PAPER
 			if kind == "player": color = UiKit.RED
 			elif p.get("crit", false): color = UiKit.GOLD
 			elif str(p.get("type", "")) == "qi": color = UiKit.QI
@@ -317,7 +318,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id:
 				var tech := str(p.get("technique", ""))
 				if tech != "":
-					var col := SpriteCache.element_color(str(p.get("element", "none")))
+					var col = SpriteCache.element_color(str(p.get("element", "none")))
 					fx.add("slash", player.position + Vector2(float(p.facing) * 40, -50), {"color": col, "facing": int(p.facing), "radius": 46, "dur": 0.3})
 					var t := ContentDB.entry("techniques", tech)
 					if t.get("both_sides", false): fx.add("wave", player.position, {"color": col, "radius": float(t.hitbox.x[1]), "dur": 0.45})

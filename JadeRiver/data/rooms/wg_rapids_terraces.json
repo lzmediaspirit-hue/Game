@@ -1,0 +1,599 @@
+{
+ "schema_version": 1,
+ "id": "wg_rapids_terraces",
+ "zone": "jade_river_valley",
+ "region": "whitewater_gorge",
+ "name": "Rapids Terraces",
+ "type": "field",
+ "level_range": [
+  28,
+  33
+ ],
+ "recommended_cp": 524,
+ "element": "water",
+ "qi_density": 1.0,
+ "hazards": [
+  "current"
+ ],
+ "gather_tier": "",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "gorge",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    800,
+    680,
+    300,
+    50
+   ],
+   "height": 80,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    1800,
+    680,
+    300,
+    50
+   ],
+   "height": 150,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_2",
+   "rect": [
+    2800,
+    680,
+    300,
+    50
+   ],
+   "height": 80,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "wg_gorge_mouth",
+   "to_portal": "west"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "wg_echo_cliffs",
+   "to_portal": "east"
+  },
+  {
+   "id": "cave",
+   "type": "hidden",
+   "at": [
+    1900,
+    700
+   ],
+   "to": "wg_waterfall_cave",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Waterfall Cave"
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    480,
+    930
+   ],
+   "item": "mist_lotus",
+   "prop": "mist_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "adept",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "herb_2",
+   "type": "herb_patch",
+   "at": [
+    1391,
+    700
+   ],
+   "item": "mist_lotus",
+   "prop": "mist_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "adept",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "ore_3",
+   "type": "ore_vein",
+   "at": [
+    2394,
+    690
+   ],
+   "item": "jadeiron",
+   "prop": "jadeiron_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "adept",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "ore_4",
+   "type": "ore_vein",
+   "at": [
+    3392,
+    690
+   ],
+   "item": "spirit_stone_shard",
+   "prop": "spirit_shard_vein",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "adept",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    377,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 30,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_6",
+   "type": "crate",
+   "at": [
+    1007,
+    720
+   ],
+   "loot": "jar_valley_mid",
+   "level": 30,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_7",
+   "type": "jar",
+   "at": [
+    1556,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 30,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_8",
+   "type": "crate",
+   "at": [
+    2294,
+    720
+   ],
+   "loot": "jar_valley_mid",
+   "level": 30,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_9",
+   "type": "jar",
+   "at": [
+    2955,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 30,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_10",
+   "type": "crate",
+   "at": [
+    3450,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 30,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "fish_11",
+   "type": "fishing_spot",
+   "at": [
+    1720,
+    930
+   ],
+   "spot": "rapids",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "fishing"
+     }
+    ]
+   },
+   "locked_text": "You have no rod."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "rapids_lizard",
+   "surface": "ground",
+   "points": [
+    [
+     474,
+     870
+    ],
+    [
+     1134,
+     869
+    ],
+    [
+     1700,
+     853
+    ],
+    [
+     2229,
+     795
+    ],
+    [
+     2771,
+     748
+    ],
+    [
+     3362,
+     844
+    ]
+   ],
+   "max": 5,
+   "respawn_s": 12,
+   "level": [
+    28,
+    31
+   ]
+  },
+  {
+   "enemy": "gorge_bandit_adept",
+   "surface": "ground",
+   "points": [
+    [
+     763,
+     887
+    ],
+    [
+     1510,
+     734
+    ],
+    [
+     2289,
+     773
+    ],
+    [
+     3110,
+     766
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 12,
+   "level": [
+    29,
+    33
+   ]
+  },
+  {
+   "enemy": "rapids_lizard",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    31,
+    31
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "pine_tree",
+   "at": [
+    139,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    666,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1118,
+    631
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1653,
+    632
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2219,
+    630
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2637,
+    639
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    3164,
+    631
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    3689,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    122,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    335,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    645,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    964,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1192,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1605,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1837,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2207,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2537,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2927,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3234,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3509,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [
+  {
+   "kind": "shallows",
+   "rect": [
+    600,
+    880,
+    2600,
+    80
+   ],
+   "current": -60
+  }
+ ],
+ "music": "field_mountain",
+ "ambience": "waterfall_ambience"
+}

@@ -1,0 +1,1859 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "move",
+   "label": "Move",
+   "trigger": {},
+   "reveals": [
+    "hud:joystick",
+    "hud:context"
+   ],
+   "effects": [],
+   "scope": "character",
+   "prologue": true,
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "talk",
+   "label": "Talk",
+   "trigger": {},
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "prologue": true,
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "bag",
+   "label": "Bag",
+   "trigger": {},
+   "reveals": [
+    "hud:bag"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "morning_tide",
+   "prologue": true,
+   "same_stage_ok": true
+  },
+  {
+   "id": "navigation",
+   "label": "Map and Tracker",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "morning_tide"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:room_banner",
+    "hud:minimap",
+    "hud:quest_tracker"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "a_quiet_river",
+   "prologue": true,
+   "same_stage_ok": true
+  },
+  {
+   "id": "jump",
+   "label": "Jump",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_quiet_river"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:jump"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_runaway_kite",
+   "prologue": true,
+   "same_stage_ok": true
+  },
+  {
+   "id": "shop",
+   "label": "Coins and Shops",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_quiet_river"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:currency"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "mas_delivery",
+   "prologue": true,
+   "same_stage_ok": true
+  },
+  {
+   "id": "quick_use",
+   "label": "Quick-use and Health",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_quiet_river"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:quick_use",
+    "hud:hp_bar",
+    "hud:player_panel"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "grannys_remedy",
+   "prologue": true,
+   "same_stage_ok": true
+  },
+  {
+   "id": "shrines",
+   "label": "Shrines",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_quiet_river"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "grannys_remedy",
+   "prologue": true,
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "sprint",
+   "label": "Sprint",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_quiet_river"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "race_to_the_tower",
+   "prologue": true,
+   "same_stage_ok": true
+  },
+  {
+   "id": "attack",
+   "label": "Attack",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_quiet_river"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:attack",
+    "hud:damage_numbers"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "fists_first",
+   "prologue": true,
+   "same_stage_ok": true
+  },
+  {
+   "id": "loot",
+   "label": "Loot and Log",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_quiet_river_return"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:system_log",
+    "hud:enemy_hp_bars",
+    "hud:elite_marker"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "crab_trouble",
+   "prologue": true,
+   "same_stage_ok": true
+  },
+  {
+   "id": "equipment",
+   "label": "Equipment",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "crab_trouble"
+     }
+    ]
+   },
+   "reveals": [
+    "page:equipment"
+   ],
+   "effects": [],
+   "scope": "character",
+   "prologue": true,
+   "same_stage_ok": true
+  },
+  {
+   "id": "menu",
+   "label": "Menu",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "crab_trouble"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:menu"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "evening_on_the_river",
+   "prologue": true,
+   "same_stage_ok": true
+  },
+  {
+   "id": "cultivate",
+   "label": "Cultivate",
+   "trigger": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "night_survived"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:cultivate",
+    "hud:progress_bar",
+    "hud:realm_badge"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_river_token",
+   "prologue": true,
+   "same_stage_ok": true
+  },
+  {
+   "id": "cultivation",
+   "label": "Cultivation page",
+   "trigger": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "night_survived"
+     }
+    ]
+   },
+   "reveals": [
+    "page:cultivation"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_river_token",
+   "prologue": true,
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "breakthrough",
+   "label": "Breakthrough",
+   "trigger": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "night_survived"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_river_token",
+   "prologue": true,
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "codex",
+   "label": "Codex",
+   "trigger": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "night_survived"
+     }
+    ]
+   },
+   "reveals": [
+    "page:codex"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_river_token",
+   "prologue": true,
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "body_training",
+   "label": "Body training",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_willow_path"
+  },
+  {
+   "id": "kill_progress",
+   "label": "Progress from fights",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_willow_path",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "shrine_respawn",
+   "label": "Shrines remember you",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_willow_path",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "world_menu",
+   "label": "World map",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_1"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:map",
+    "page:world_map"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_willow_path",
+   "same_stage_ok": true
+  },
+  {
+   "id": "foundation",
+   "label": "Foundation",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_1"
+     }
+    ]
+   },
+   "reveals": [
+    "page:foundation"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_willow_path",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "mail",
+   "label": "Mail",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_1"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:mail"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_willow_path",
+   "same_stage_ok": true
+  },
+  {
+   "id": "sect_choice",
+   "label": "Sects",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_willow_path"
+     }
+    ]
+   },
+   "reveals": [
+    "page:training_sect"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_recruitment_fair"
+  },
+  {
+   "id": "town_hub",
+   "label": "Town services",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_willow_path"
+     }
+    ]
+   },
+   "reveals": [
+    "page:shop"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_recruitment_fair",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "notice_board",
+   "label": "Notice board",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_2"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_recruitment_fair"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "entry_trial",
+   "same_stage_ok": true
+  },
+  {
+   "id": "return_charm",
+   "label": "Return charm",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_2"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_recruitment_fair"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "entry_trial",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "character_menu",
+   "label": "Character",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_2"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_recruitment_fair"
+     }
+    ]
+   },
+   "reveals": [
+    "page:character"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "entry_trial",
+   "same_stage_ok": true
+  },
+  {
+   "id": "sect_hub",
+   "label": "Sect hub and dorm",
+   "trigger": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "a_disciples_chores",
+   "same_stage_ok": true
+  },
+  {
+   "id": "guard",
+   "label": "Guard",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_3"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:guard",
+    "page:equipment"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_weapon_hall"
+  },
+  {
+   "id": "weapons",
+   "label": "Weapons",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_3"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_weapon_hall",
+   "same_stage_ok": true
+  },
+  {
+   "id": "weapon_dao",
+   "label": "Weapon Dao",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_3"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_weapon_hall",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "herb_gathering",
+   "label": "Herb gathering",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_4"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "reveals": [
+    "page:crafts"
+   ],
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "herb_sickle",
+     "count": 1
+    }
+   ],
+   "scope": "character",
+   "quest": "eyes_for_qi"
+  },
+  {
+   "id": "ambient_qi",
+   "label": "Ambient Qi",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_4"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "eyes_for_qi",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "outer_rank",
+   "label": "Outer disciple",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_4"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "outer_trial",
+   "same_stage_ok": true
+  },
+  {
+   "id": "mining",
+   "label": "Mining",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_5"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "old_pickaxe",
+     "count": 1
+    }
+   ],
+   "scope": "character",
+   "quest": "stone_and_sweat"
+  },
+  {
+   "id": "dodge_dash",
+   "label": "Dodge dash",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_5"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "stone_and_sweat",
+   "same_stage_ok": true
+  },
+  {
+   "id": "collection_book",
+   "label": "Collection book",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_5"
+     }
+    ]
+   },
+   "reveals": [
+    "page:collection"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "stone_and_sweat",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "idle_tasks",
+   "label": "Idle tasks",
+   "trigger": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "bone_forging_5"
+     }
+    ]
+   },
+   "reveals": [
+    "page:characters"
+   ],
+   "effects": [],
+   "scope": "account",
+   "quest": "a_second_path"
+  },
+  {
+   "id": "daily_missions",
+   "label": "Sect missions",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_6"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "earning_your_keep"
+  },
+  {
+   "id": "contribution_shop",
+   "label": "Contribution shop",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_6"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "earning_your_keep",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "field_boss_timers",
+   "label": "Field-boss timers",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_6"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "earning_your_keep",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "qi_pool",
+   "label": "Qi",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_7"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:qi_bar"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_first_current"
+  },
+  {
+   "id": "seclusion",
+   "label": "Offline seclusion",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_7"
+     }
+    ]
+   },
+   "reveals": [
+    "page:seclusion"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_first_current",
+   "same_stage_ok": true
+  },
+  {
+   "id": "qi_springs",
+   "label": "Qi springs",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_7"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_first_current",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "element_affinity",
+   "label": "Element affinity",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_7"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_first_current",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "cooking",
+   "label": "Cooking",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_8"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "clay_pot",
+     "count": 1
+    },
+    {
+     "kind": "grant_item",
+     "item": "bamboo_rod",
+     "count": 1
+    }
+   ],
+   "scope": "character",
+   "quest": "aunt_pings_broth"
+  },
+  {
+   "id": "fishing",
+   "label": "Fishing",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_8"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "aunt_pings_broth",
+   "same_stage_ok": true
+  },
+  {
+   "id": "bottleneck_panel",
+   "label": "Bottlenecks",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_9"
+     }
+    ]
+   },
+   "reveals": [
+    "page:breakthrough"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_wall"
+  },
+  {
+   "id": "stored_qi",
+   "label": "Stored Qi",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_9"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_wall",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "technique_slots_2",
+   "label": "Techniques",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_1"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:skills",
+    "page:techniques"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "first_technique"
+  },
+  {
+   "id": "dao_tree",
+   "label": "Dao tree",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_1"
+     }
+    ]
+   },
+   "reveals": [
+    "page:dao"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "first_technique",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "storage",
+   "label": "Storage",
+   "trigger": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "qi_kindling_1"
+     }
+    ]
+   },
+   "reveals": [
+    "page:storage"
+   ],
+   "effects": [],
+   "scope": "account"
+  },
+  {
+   "id": "alchemy",
+   "label": "Alchemy",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_2"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "bronze_furnace",
+     "count": 1
+    }
+   ],
+   "scope": "character",
+   "quest": "mei_qings_furnace"
+  },
+  {
+   "id": "teleport_stones",
+   "label": "Teleport stones",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_3"
+     }
+    ]
+   },
+   "reveals": [
+    "page:teleport"
+   ],
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "spirit_stone_shard",
+     "count": 2
+    }
+   ],
+   "scope": "character",
+   "quest": "stones_that_move_you"
+  },
+  {
+   "id": "insight_sites",
+   "label": "Insight sites",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_4"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "listening_to_the_waterfall"
+  },
+  {
+   "id": "contemplate",
+   "label": "Contemplate",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_4"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "listening_to_the_waterfall",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "technique_slots_4",
+   "label": "More technique slots",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_5"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "two_hands_full"
+  },
+  {
+   "id": "companions",
+   "label": "Companions",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_5"
+     }
+    ]
+   },
+   "reveals": [
+    "page:companions"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "two_hands_full",
+   "same_stage_ok": true
+  },
+  {
+   "id": "appraisal",
+   "label": "Appraisal",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_6"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "appraisers_loupe",
+     "count": 1
+    }
+   ],
+   "scope": "character",
+   "quest": "is_it_real"
+  },
+  {
+   "id": "dungeon_keys",
+   "label": "Dungeons",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_7"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_caravan_road"
+  },
+  {
+   "id": "auto_refine",
+   "label": "Auto-refine",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_8"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "batch_work"
+  },
+  {
+   "id": "cleansing_prep",
+   "label": "Heaven's Cleansing",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_9"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "toward_cleansing_peak"
+  },
+  {
+   "id": "technique_page_2",
+   "label": "Ranged Qi and skill page 2",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "after_the_cleansing"
+  },
+  {
+   "id": "composure",
+   "label": "Composure",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "after_the_cleansing",
+   "same_stage_ok": true
+  },
+  {
+   "id": "retreat_room",
+   "label": "Retreat room",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "after_the_cleansing",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "your_sect",
+   "label": "Your own sect",
+   "trigger": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "qi_unfurling_1"
+     }
+    ]
+   },
+   "reveals": [
+    "page:your_sect"
+   ],
+   "effects": [],
+   "scope": "account",
+   "quest": "a_hall_of_our_own"
+  },
+  {
+   "id": "smithing",
+   "label": "Smithing",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_2"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "forge_hammer",
+     "count": 1
+    }
+   ],
+   "scope": "character",
+   "quest": "the_sect_forge"
+  },
+  {
+   "id": "inheritances",
+   "label": "Inheritances",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_3"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_shrine_surfaces"
+  },
+  {
+   "id": "herb_garden",
+   "label": "Herb garden",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_4"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "seeds_of_the_valley"
+  },
+  {
+   "id": "spirit_animals",
+   "label": "Spirit animals",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_5"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:pet",
+    "page:spirit_animals"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "a_friend_in_the_reeds"
+  },
+  {
+   "id": "technique_slots_8",
+   "label": "Eight technique slots",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_6"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "full_hands"
+  },
+  {
+   "id": "field_bosses",
+   "label": "Field bosses",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_7"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_riverbed_serpent"
+  },
+  {
+   "id": "taming",
+   "label": "Taming",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_7"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "calming_the_wild",
+   "same_stage_ok": true
+  },
+  {
+   "id": "tournament",
+   "label": "Tournament",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_8"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_valley_tournament"
+  },
+  {
+   "id": "heart_trial_prep",
+   "label": "Heart Trial preparation",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_9"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_quiet_heart"
+  },
+  {
+   "id": "formations",
+   "label": "Formations",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_1"
+     }
+    ]
+   },
+   "reveals": [
+    "page:formations"
+   ],
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "formation_kit",
+     "count": 1
+    }
+   ],
+   "scope": "character",
+   "quest": "lines_in_the_sand"
+  },
+  {
+   "id": "perfect_timing",
+   "label": "Perfect timing",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "lines_in_the_sand",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "healing",
+   "label": "Healing",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_3"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "needle_case",
+     "count": 1
+    }
+   ],
+   "scope": "character",
+   "quest": "the_infirmary"
+  },
+  {
+   "id": "array_plates",
+   "label": "Array plates",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_5"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "carry_a_wall"
+  },
+  {
+   "id": "spirit_eggs",
+   "label": "Spirit eggs",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_5"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_warm_egg",
+   "same_stage_ok": true
+  },
+  {
+   "id": "second_companion",
+   "label": "Second companion",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_6"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "brothers_in_arms"
+  },
+  {
+   "id": "guard_formation",
+   "label": "Guard formation",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_7"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "keep_watch"
+  },
+  {
+   "id": "heart_trial",
+   "label": "The Heart Trial",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_9"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_heart_trial"
+  },
+  {
+   "id": "flight",
+   "label": "Flight",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "cloud_stride_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "wings_of_cloud"
+  },
+  {
+   "id": "mounts",
+   "label": "Mounts",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "cloud_stride_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "riding_the_wind",
+   "same_stage_ok": true
+  },
+  {
+   "id": "refine_qi",
+   "label": "Refine Qi",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "cloud_stride_2"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "clearer_water"
+  },
+  {
+   "id": "sky_rooms",
+   "label": "Sky rooms",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "cloud_stride_3"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "above_the_mist"
+  },
+  {
+   "id": "library_floor_3",
+   "label": "Library floor 3",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "cloud_stride_4"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_upper_stacks"
+  },
+  {
+   "id": "puppetry",
+   "label": "Puppetry",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "cloud_stride_5"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "hands_of_wood"
+  },
+  {
+   "id": "mind_lake_pill",
+   "label": "Mind Lake Opening",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "cloud_stride_9"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "opening_the_lake"
+  },
+  {
+   "id": "spirit_sense",
+   "label": "Spirit Sense",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_1"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:soul_bar",
+    "hud:sense"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "a_lake_inside"
+  },
+  {
+   "id": "hidden_portals",
+   "label": "Hidden portals",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_2"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "what_the_eyes_miss"
+  },
+  {
+   "id": "binding",
+   "label": "Binding",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_3"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_sleeping_blade"
+  },
+  {
+   "id": "nourish_soul",
+   "label": "Nourish soul",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_4"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "quiet_waters"
+  },
+  {
+   "id": "personal_disciple",
+   "label": "Personal disciple",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_5"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_mentors_gift"
+  },
+  {
+   "id": "research",
+   "label": "Research",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_6"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "torn_pages"
+  },
+  {
+   "id": "teaching",
+   "label": "Teaching",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_7"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "passing_it_on"
+  },
+  {
+   "id": "cape_slot",
+   "label": "Cape slot",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "a_wider_sky"
+  },
+  {
+   "id": "currency_exchange",
+   "label": "Currency exchange",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_3"
+     }
+    ]
+   },
+   "reveals": [
+    "page:exchange"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "beyond_the_valley"
+  }
+ ]
+}

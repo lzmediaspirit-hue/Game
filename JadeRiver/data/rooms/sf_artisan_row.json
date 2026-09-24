@@ -1,0 +1,253 @@
+{
+ "schema_version": 1,
+ "id": "sf_artisan_row",
+ "zone": "jade_river_valley",
+ "region": "stoneford",
+ "name": "Artisan Row",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "valley_day",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  2300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "smithy",
+   "rect": [
+    230,
+    598,
+    380,
+    92
+   ],
+   "height": 158,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "village_house"
+  },
+  {
+   "id": "trade_house",
+   "rect": [
+    1000,
+    598,
+    400,
+    92
+   ],
+   "height": 168,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "village_store"
+  },
+  {
+   "id": "alchemy_stall",
+   "rect": [
+    1790,
+    578,
+    340,
+    112
+   ],
+   "height": 128,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "herb_hut"
+  }
+ ],
+ "portals": [
+  {
+   "id": "warehouse_door",
+   "type": "door",
+   "at": [
+    1240,
+    704
+   ],
+   "to": "si_gus_warehouse",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Gu's Warehouse",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "gus_warehouse"
+     }
+    ]
+   },
+   "locked_text": "Elder Gu's private warehouse. Locked tight."
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "sf_market",
+   "to_portal": "west"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "sf_fairground",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "anvil_sf",
+   "type": "forge_anvil",
+   "at": [
+    640,
+    760
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "smithing"
+     }
+    ]
+   },
+   "locked_text": "Smith Bao's anvil. Not for novices."
+  },
+  {
+   "id": "furnace_sf",
+   "type": "alchemy_furnace",
+   "at": [
+    2160,
+    760
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "alchemy"
+     }
+    ]
+   },
+   "locked_text": "Mei Qing's furnace."
+  },
+  {
+   "id": "npc_smith_bao",
+   "type": "npc",
+   "at": [
+    520,
+    760
+   ],
+   "npc": "smith_bao",
+   "facing": 1
+  },
+  {
+   "id": "npc_tinkerer_yu",
+   "type": "npc",
+   "at": [
+    860,
+    900
+   ],
+   "npc": "tinkerer_yu",
+   "facing": 1
+  },
+  {
+   "id": "npc_elder_gu",
+   "type": "npc",
+   "at": [
+    1120,
+    760
+   ],
+   "npc": "elder_gu",
+   "facing": 1,
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "gu_fled"
+     }
+    ]
+   }
+  },
+  {
+   "id": "npc_madam_hua",
+   "type": "npc",
+   "at": [
+    1120,
+    760
+   ],
+   "npc": "madam_hua",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "gu_fled"
+     }
+    ]
+   },
+   "facing": 1
+  },
+  {
+   "id": "npc_mei_qing",
+   "type": "npc",
+   "at": [
+    1960,
+    760
+   ],
+   "npc": "mei_qing",
+   "facing": -1
+  },
+  {
+   "id": "npc_apprentice_tao",
+   "type": "npc",
+   "at": [
+    1500,
+    900
+   ],
+   "npc": "apprentice_tao",
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [],
+ "areas": [],
+ "music": "village_day",
+ "ambience": "town_ambience",
+ "town": true
+}

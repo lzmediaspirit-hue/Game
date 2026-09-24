@@ -1,0 +1,728 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "old_ma",
+   "name": "Old Ma's Store",
+   "currency": "silver_tael",
+   "buys_all": true,
+   "stock": [
+    {
+     "item": "herbal_tea"
+    },
+    {
+     "item": "rice_ball"
+    },
+    {
+     "item": "rice"
+    },
+    {
+     "item": "bamboo_rod",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "bone_forging_8"
+       }
+      ]
+     }
+    },
+    {
+     "item": "bonding_offering_common",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_5"
+       }
+      ]
+     }
+    }
+   ],
+   "rotation": {
+    "count": 1,
+    "pool": [
+     {
+      "item": "willow_moss"
+     },
+     {
+      "item": "boar_hide"
+     },
+     {
+      "item": "river_mud"
+     },
+     {
+      "item": "cloth"
+     }
+    ]
+   }
+  },
+  {
+   "id": "granny_liu",
+   "name": "Granny Liu's Herb Hut",
+   "currency": "silver_tael",
+   "stock": [
+    {
+     "item": "herbal_tea"
+    },
+    {
+     "item": "willow_salve"
+    },
+    {
+     "item": "revival_talisman"
+    },
+    {
+     "item": "purging_pill",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "calm_incense",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_9"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "stoneford_general",
+   "name": "Stoneford General Store",
+   "currency": "silver_tael",
+   "buys_all": true,
+   "stock": [
+    {
+     "item": "herbal_tea"
+    },
+    {
+     "item": "lotus_root_tea"
+    },
+    {
+     "item": "rice_ball"
+    },
+    {
+     "item": "rice"
+    },
+    {
+     "item": "return_charm"
+    },
+    {
+     "item": "herb_sickle",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "bone_forging_4"
+       }
+      ]
+     }
+    },
+    {
+     "item": "iron_pickaxe",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "bone_forging_5"
+       }
+      ]
+     }
+    },
+    {
+     "item": "bamboo_gourd"
+    },
+    {
+     "item": "escape_talisman"
+    },
+    {
+     "item": "fish_bait"
+    },
+    {
+     "item": "fuel_crystal_low",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       }
+      ]
+     }
+    }
+   ],
+   "rotation": {
+    "count": 1,
+    "pool": [
+     {
+      "item": "iron_pickaxe"
+     },
+     {
+      "item": "herb_sickle"
+     },
+     {
+      "item": "bamboo_rod"
+     }
+    ]
+   }
+  },
+  {
+   "id": "stoneford_tea",
+   "name": "Stoneford Tea House",
+   "currency": "silver_tael",
+   "stock": [
+    {
+     "item": "lotus_root_tea"
+    },
+    {
+     "item": "jade_carp_congee"
+    },
+    {
+     "item": "rice_ball"
+    }
+   ],
+   "rotation": {
+    "count": 1,
+    "pool": [
+     {
+      "item": "ember_pepper_stew"
+     },
+     {
+      "item": "toad_oil_dumplings"
+     },
+     {
+      "item": "riverfish_soup"
+     }
+    ]
+   }
+  },
+  {
+   "id": "mei_qing",
+   "name": "Mei Qing's Stall",
+   "currency": "silver_tael",
+   "stock": [
+    {
+     "item": "willow_moss"
+    },
+    {
+     "item": "riverreed_ginseng_10"
+    },
+    {
+     "item": "healing_pill"
+    },
+    {
+     "item": "qi_restoration_pill"
+    },
+    {
+     "item": "qi_gathering_pill"
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "healing_pill"
+    }
+   ],
+   "rotation": {
+    "count": 1,
+    "pool": [
+     {
+      "item": "clear_mind_pill"
+     },
+     {
+      "item": "foundation_guard_pill"
+     },
+     {
+      "item": "bone_strengthening_pill"
+     }
+    ]
+   }
+  },
+  {
+   "id": "stoneford_smith",
+   "name": "Stoneford Smith",
+   "currency": "silver_tael",
+   "buys_all": true,
+   "stock": [
+    {
+     "item": "training_jian"
+    },
+    {
+     "item": "training_spear"
+    },
+    {
+     "item": "training_gauntlets"
+    },
+    {
+     "item": "training_short_blade"
+    },
+    {
+     "item": "training_staff"
+    },
+    {
+     "item": "training_bow"
+    },
+    {
+     "item": "iron_jian",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "iron_spear",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "iron_gauntlets",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "iron_short_blade",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "iron_staff",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "iron_bow",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "bamboo_hat"
+    },
+    {
+     "item": "cotton_robe"
+    },
+    {
+     "item": "cotton_trousers"
+    },
+    {
+     "item": "cloth_boots"
+    },
+    {
+     "item": "copper_ore"
+    },
+    {
+     "item": "riverstone"
+    }
+   ],
+   "rotation": {
+    "count": 1,
+    "pool": [
+     {
+      "item": "jadeiron_jian"
+     },
+     {
+      "item": "jadeiron_spear"
+     },
+     {
+      "item": "jadeiron_robe"
+     },
+     {
+      "item": "jadeiron_gourd"
+     }
+    ]
+   }
+  },
+  {
+   "id": "tinkerer",
+   "name": "Tinkerer's Workshop",
+   "currency": "silver_tael",
+   "stock": [
+    {
+     "item": "iron_pickaxe"
+    },
+    {
+     "item": "herb_sickle"
+    },
+    {
+     "item": "bamboo_rod"
+    },
+    {
+     "item": "clay_pot"
+    },
+    {
+     "item": "drying_rack",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_8"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "gu_trade_house",
+   "name": "Trade House",
+   "currency": "silver_tael",
+   "stock": [
+    {
+     "item": "appraisers_loupe",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_6"
+       }
+      ]
+     }
+    },
+    {
+     "item": "spirit_stone_shard"
+    },
+    {
+     "item": "manual_page",
+     "price": 400
+    }
+   ],
+   "rotation": {
+    "count": 1,
+    "pool": [
+     {
+      "item": "jadeiron_hat"
+     },
+     {
+      "item": "cloudsilk_robe"
+     },
+     {
+      "item": "jadeiron_gourd"
+     }
+    ]
+   }
+  },
+  {
+   "id": "jade_sect",
+   "name": "Jade Sect Mission Hall",
+   "currency": "contribution",
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "jade_sect"
+     }
+    ]
+   },
+   "stock": [
+    {
+     "item": "manual_rain_of_reeds",
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "healing_pill"
+    },
+    {
+     "item": "qi_restoration_pill"
+    },
+    {
+     "item": "cleansing_pill",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_9"
+       }
+      ]
+     }
+    },
+    {
+     "item": "foundation_guard_pill",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "clear_mind_pill"
+    },
+    {
+     "item": "revival_talisman"
+    },
+    {
+     "item": "bonding_offering_earth",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_5"
+       }
+      ]
+     }
+    },
+    {
+     "item": "fuel_crystal_low",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "jade_current_robe",
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    }
+   ],
+   "rotation": {
+    "count": 1,
+    "pool": [
+     {
+      "item": "manual_page"
+     }
+    ]
+   }
+  },
+  {
+   "id": "cloud_sect",
+   "name": "Cloud Sect Mission Hall",
+   "currency": "contribution",
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "cloud_sect"
+     }
+    ]
+   },
+   "stock": [
+    {
+     "item": "manual_ember_burst",
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "healing_pill"
+    },
+    {
+     "item": "qi_restoration_pill"
+    },
+    {
+     "item": "cleansing_pill",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_9"
+       }
+      ]
+     }
+    },
+    {
+     "item": "foundation_guard_pill",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "clear_mind_pill"
+    },
+    {
+     "item": "revival_talisman"
+    },
+    {
+     "item": "bonding_offering_earth",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_5"
+       }
+      ]
+     }
+    },
+    {
+     "item": "fuel_crystal_low",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "cloudpiercing_robe",
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    }
+   ],
+   "rotation": {
+    "count": 1,
+    "pool": [
+     {
+      "item": "manual_page"
+     }
+    ]
+   }
+  },
+  {
+   "id": "old_pan",
+   "name": "Old Pan's Wares",
+   "currency": "spirit_stone",
+   "stock": [],
+   "rotation": {
+    "count": 3,
+    "pool": [
+     {
+      "item": "riverreed_ginseng_100",
+      "price": 4
+     },
+     {
+      "item": "manual_page",
+      "price": 6
+     },
+     {
+      "item": "spirit_egg",
+      "price": 12,
+      "requires": {
+       "all": [
+        {
+         "kind": "realm_at_least",
+         "realm": "heart_tempering_5"
+        }
+       ]
+      }
+     },
+     {
+      "item": "mist_lotus",
+      "price": 3
+     },
+     {
+      "item": "clear_mind_pill",
+      "price": 3
+     },
+     {
+      "item": "spirit_jade",
+      "price": 8
+     }
+    ]
+   }
+  },
+  {
+   "id": "greyreed",
+   "name": "Greyreed Trade Post",
+   "currency": "silver_tael",
+   "buys_all": true,
+   "stock": [
+    {
+     "item": "rice"
+    },
+    {
+     "item": "rice_ball"
+    },
+    {
+     "item": "cleansing_pill"
+    },
+    {
+     "item": "purging_pill"
+    },
+    {
+     "item": "grey_hide"
+    }
+   ]
+  },
+  {
+   "id": "hermit",
+   "name": "Hermit Yao's Offerings",
+   "currency": "silver_tael",
+   "stock": [
+    {
+     "item": "bonding_offering_common"
+    },
+    {
+     "item": "roast_fish"
+    },
+    {
+     "item": "fish_bait"
+    }
+   ]
+  }
+ ]
+}

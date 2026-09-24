@@ -1,0 +1,466 @@
+{
+ "schema_version": 1,
+ "id": "sq_quarry_rim",
+ "zone": "jade_river_valley",
+ "region": "stonewall_quarry",
+ "name": "Quarry Rim",
+ "type": "field",
+ "level_range": [
+  4,
+  6
+ ],
+ "recommended_cp": 92,
+ "element": "earth",
+ "qi_density": 1.0,
+ "hazards": [
+  "falling_rocks"
+ ],
+ "gather_tier": "valley_low",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "quarry",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    700,
+    660,
+    260,
+    50
+   ],
+   "height": 90,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    1500,
+    680,
+    240,
+    50
+   ],
+   "height": 120,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "south",
+   "type": "door",
+   "at": [
+    160,
+    700
+   ],
+   "to": "sf_gate",
+   "to_portal": "quarry_road",
+   "press_up": true,
+   "label": "Stoneford Gate"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "sq_lower_pit",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "ore_1",
+   "type": "ore_vein",
+   "at": [
+    386,
+    690
+   ],
+   "item": "copper_ore",
+   "prop": "copper_vein",
+   "yield": [
+    1,
+    3
+   ],
+   "rank": "apprentice",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "ore_2",
+   "type": "ore_vein",
+   "at": [
+    1295,
+    690
+   ],
+   "item": "copper_ore",
+   "prop": "copper_vein",
+   "yield": [
+    1,
+    3
+   ],
+   "rank": "apprentice",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "ore_3",
+   "type": "ore_vein",
+   "at": [
+    2092,
+    690
+   ],
+   "item": "riverstone",
+   "prop": "riverstone_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "apprentice",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    214,
+    700
+   ],
+   "loot": "jar_valley_low",
+   "level": 5,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_5",
+   "type": "crate",
+   "at": [
+    821,
+    700
+   ],
+   "loot": "jar_valley_low",
+   "level": 5,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_6",
+   "type": "jar",
+   "at": [
+    1318,
+    930
+   ],
+   "loot": "jar_valley_low",
+   "level": 5,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_7",
+   "type": "crate",
+   "at": [
+    1775,
+    700
+   ],
+   "loot": "jar_valley_low",
+   "level": 5,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_8",
+   "type": "jar",
+   "at": [
+    2248,
+    720
+   ],
+   "loot": "jar_valley_low",
+   "level": 5,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "npc_dong_rim",
+   "type": "npc",
+   "at": [
+    400,
+    780
+   ],
+   "npc": "foreman_dong",
+   "facing": 1
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "rock_beetle",
+   "surface": "ground",
+   "points": [
+    [
+     435,
+     910
+    ],
+    [
+     789,
+     847
+    ],
+    [
+     1143,
+     904
+    ],
+    [
+     1500,
+     732
+    ],
+    [
+     1789,
+     752
+    ],
+    [
+     2118,
+     765
+    ]
+   ],
+   "max": 5,
+   "respawn_s": 12,
+   "level": [
+    4,
+    5
+   ]
+  },
+  {
+   "enemy": "pebble_imp",
+   "surface": "ground",
+   "points": [
+    [
+     583,
+     858
+    ],
+    [
+     1057,
+     745
+    ],
+    [
+     1528,
+     846
+    ],
+    [
+     2064,
+     848
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 12,
+   "level": [
+    4,
+    6
+   ]
+  },
+  {
+   "enemy": "rock_beetle",
+   "surface": "ground",
+   "points": [
+    [
+     1480,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    5,
+    5
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "rock_large",
+   "at": [
+    198,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    769,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1349,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1920,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2344,
+    629
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    123,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    437,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    632,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1029,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1306,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1602,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1864,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2199,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2527,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  }
+ ],
+ "areas": [],
+ "music": "field_earth",
+ "ambience": ""
+}

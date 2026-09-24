@@ -64,6 +64,28 @@ func handle(intent: Dictionary) -> Dictionary:
 			return ok()
 	return fail("unknown_intent")
 
+## Quest roles may name one NPC or a list (the mentor is Elder Hu or Elder Sung by sect).
+static func npc_in(value, npc: String) -> bool:
+	if value is Array: return npc in value
+	return str(value) == npc
+
+func is_giver(def: Dictionary, npc: String) -> bool:
+	return npc_in(def.get("giver_any", def.get("giver", "")), npc)
+
+func is_hand_in(def: Dictionary, npc: String) -> bool:
+	if def.has("hand_in_any"): return npc_in(def.hand_in_any, npc)
+	return str(def.get("hand_in", def.get("giver", ""))) == npc
+
+## The hand-in NPC this character should visit (sect roles resolve to the player's own sect).
+func hand_in_npc(c, def: Dictionary) -> String:
+	var list: Array = def.get("hand_in_any", [])
+	if list.is_empty(): return str(def.get("hand_in", def.get("giver", "")))
+	var my_sect := str(c.training_sect.get("id", "")) if c else ""
+	for npc in list:
+		var ns := str(ContentDB.entry("npcs", str(npc)).get("sect", ""))
+		if ns == "" or ns == my_sect: return str(npc)
+	return str(list[0])
+
 func quest_def(c, id: String) -> Dictionary:
 	var d := ContentDB.entry("quests", id)
 	if d.is_empty() and c != null and c.quests.daily.has(id): d = c.quests.daily[id]
@@ -106,16 +128,16 @@ func npc_marker(c, npc: String) -> String:
 	for q in c.quests.active:
 		var st: Dictionary = c.quests.active[q]
 		var def := quest_def(c, q)
-		if st.get("state") == "ready" and str(def.get("hand_in", def.get("giver", ""))) == npc: return "ready"
+		if st.get("state") == "ready" and is_hand_in(def, npc): return "ready"
 	for q in c.quests.active:
 		var def2 := quest_def(c, q)
 		var st2: Dictionary = c.quests.active[q]
 		for i in def2.get("objectives", []).size():
 			var o: Dictionary = def2.objectives[i]
-			if o.kind == "talk_to" and str(o.npc) == npc and int(st2.progress[i]) < int(o.get("count", 1)) and _objective_open(c, def2, st2, i): return "talk"
+			if o.kind == "talk_to" and npc_in(o.get("npc_any", o.npc), npc) and int(st2.progress[i]) < int(o.get("count", 1)) and _objective_open(c, def2, st2, i): return "talk"
 	for q in c.quests.offered:
 		var def3 := ContentDB.entry("quests", q)
-		if str(def3.get("giver", "")) == npc and can_offer(c, def3):
+		if is_giver(def3, npc) and can_offer(c, def3):
 			return "main" if def3.get("marker", "blue") == "gold" else "side"
 	return ""
 
@@ -136,11 +158,12 @@ func talk(c, npc: String) -> Dictionary:
 	var n := ContentDB.entry("npcs", npc)
 	if n.is_empty(): return fail("unknown_npc")
 	emit("npc_talked", {"actor": c.id, "npc": npc})
+	if n.has("on_talk"): game.apply_effects(c.id, n.on_talk, "talk:" + npc)
 	GameEvents.flush()
 	var convo := {"npc": npc, "speaker": str(n.get("name", npc)), "portrait": n.get("outfit", {}), "lines": [], "choices": []}
 	for q in c.quests.active:
 		var def := quest_def(c, q)
-		if c.quests.active[q].get("state") == "ready" and str(def.get("hand_in", def.get("giver", ""))) == npc:
+		if c.quests.active[q].get("state") == "ready" and is_hand_in(def, npc):
 			convo.lines = def.get("complete_text", ["Well done."]).duplicate()
 			convo.choices = [{"text": "Hand in: %s" % def.get("name", q), "hand_in": q}]
 			convo.quest = q
@@ -152,14 +175,14 @@ func talk(c, npc: String) -> Dictionary:
 			return ok({"dialogue": _tree_node(c, npc, n, tree, node_id)})
 	for q in c.quests.offered:
 		var def2 := ContentDB.entry("quests", q)
-		if str(def2.get("giver", "")) == npc and can_offer(c, def2) and not def2.get("auto_accept", false):
+		if is_giver(def2, npc) and can_offer(c, def2) and not def2.get("auto_accept", false):
 			convo.lines = def2.get("offer_text", ["I have a task for you."]).duplicate()
 			convo.choices = [{"text": "Accept: %s" % def2.get("name", q), "accept": q}, {"text": "Not now", "close": true}]
 			convo.quest = q
 			return ok({"dialogue": convo})
 	for q in c.quests.active:
 		var def3 := quest_def(c, q)
-		if str(def3.get("giver", "")) == npc and def3.has("progress_text"):
+		if is_giver(def3, npc) and def3.has("progress_text"):
 			convo.lines = def3.progress_text.duplicate()
 			break
 	if convo.lines.is_empty():
@@ -228,6 +251,7 @@ func accept(c, qid: String) -> Dictionary:
 	var progress: Array = []
 	for o in def.get("objectives", []): progress.append(0)
 	c.quests.active[qid] = {"state": "active", "progress": progress, "accepted_tick": game.tick_count}
+	if def.has("time_limit_s"): c.quests.active[qid].deadline = game.sim_time + float(def.time_limit_s)
 	if c.quests.daily.has(qid): c.quests.active[qid].def = def
 	c.quests.offered.erase(qid)
 	if c.quests.tracked.size() < 3 and def.get("kind", "") != "daily": c.quests.tracked.push_front(qid)
@@ -250,7 +274,7 @@ func _recount(c, qid: String) -> void:
 			"collect", "deliver": v = mini(c.inventory.count(str(o.item)), int(o.get("count", 1)))
 			"reach_realm": v = 1 if ProgressionRules.at_least(c.cultivator.realm_key, str(o.realm)) else 0
 			"reach_body_level": v = mini(c.cultivator.body_level, int(o.get("count", 1)))
-			"set_flag": v = 1 if c.quests.has_flag(str(o.flag)) else 0
+			"set_flag": v = 1 if c.quests.has_flag(str(o.flag)) or (o.has("alt_flag") and c.quests.has_flag(str(o.alt_flag))) else 0
 			"learn_technique": v = 1 if (str(o.get("technique", "any")) == "any" and not c.cultivator.techniques_known.is_empty()) or c.cultivator.techniques_known.has(str(o.get("technique", ""))) else v
 			"join_sect": v = 1 if str(c.training_sect.get("id", "")) != "" else 0
 			"reach_rank":
@@ -298,7 +322,9 @@ func hand_in(c, qid: String) -> Dictionary:
 	if pct > 0.0 and Unlocks.is_unlocked(c.id, "cultivation"): game.progression.apply_progress(c.id, 0.0, "quest", pct)
 	game.apply_effects(c.id, def.get("rewards", []), "quest:" + qid)
 	emit("quest_completed", {"actor": c.id, "quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side"))})
-	if c.quests.daily.has(qid): c.quests.daily.erase(qid)
+	if c.quests.daily.has(qid):
+		c.quests.daily.erase(qid)
+		emit("system_used", {"actor": c.id, "system": "daily_mission_done"})
 	var nxt := str(def.get("next", ""))
 	if nxt != "":
 		var ndef := ContentDB.entry("quests", nxt)
@@ -333,7 +359,7 @@ func _on_event(p: Dictionary, ev: String) -> void:
 
 func _match(c, o: Dictionary, p: Dictionary, ev: String) -> int:
 	match str(o.kind):
-		"talk_to": return 1 if str(p.get("npc", "")) == str(o.npc) else 0
+		"talk_to": return 1 if npc_in(o.get("npc_any", o.npc), str(p.get("npc", ""))) else 0
 		"reach_room": return 1 if str(p.get("room", "")) == str(o.room) else 0
 		"kill":
 			if o.has("room") and str(p.get("room", "")) != str(o.room): return 0
@@ -428,7 +454,7 @@ func tracker(c) -> Array:
 			lines.append({"text": str(o.get("text", o.kind)), "have": int(st.progress[i]), "need": int(o.get("count", 1)),
 				"done": int(st.progress[i]) >= int(o.get("count", 1))})
 		if st.state == "ready":
-			var npc_name := ContentDB.name_of("npcs", str(def.get("hand_in", def.get("giver", ""))))
+			var npc_name := ContentDB.name_of("npcs", hand_in_npc(c, def))
 			lines = [{"text": "Return to %s" % npc_name, "have": 0, "need": 1, "done": false}]
 		out.append({"quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side")), "ready": st.state == "ready", "lines": lines,
 			"target_room": str(def.get("target_room", ""))})
@@ -463,9 +489,25 @@ func start_spar(c, opponent: String) -> Dictionary:
 	game.enemies.start_spar(opponent, at, lvl)
 	return ok({"spar": opponent})
 
-func _on_daily_reset(_p: Dictionary) -> void:
+## Timed quests (Race to the Tower) fail back to "offered" when their time runs out.
+func tick(_delta: float) -> void:
 	var c = game.active()
-	if c == null or not Unlocks.is_unlocked(c.id, "daily_missions"): return
+	if c == null: return
+	for qid in c.quests.active.keys():
+		var st: Dictionary = c.quests.active[qid]
+		if st.has("deadline") and st.get("state") != "ready" and game.sim_time > float(st.deadline):
+			var def := quest_def(c, qid)
+			c.quests.active.erase(qid)
+			c.quests.tracked.erase(qid)
+			c.quests.offered[qid] = true
+			emit("quest_failed", {"actor": c.id, "quest": qid, "name": str(def.get("name", qid)), "text": str(def.get("fail_text", "Time's up."))})
+
+func _on_daily_reset(_p: Dictionary) -> void:
+	start_daily(false)
+
+func start_daily(force: bool) -> void:
+	var c = game.active()
+	if c == null or (not force and not Unlocks.is_unlocked(c.id, "daily_missions")): return
 	for qid in c.quests.daily.keys():
 		c.quests.active.erase(qid)
 		c.quests.tracked.erase(qid)

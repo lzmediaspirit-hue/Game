@@ -1,0 +1,61 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "recruiter_jade": {
+   "id": "recruiter_jade",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_active",
+        "quest": "the_recruitment_fair"
+       },
+       {
+        "kind": "has_training_sect",
+        "value": false
+       },
+       {
+        "kind": "flag_set",
+        "flag": "met_recruiter_jade"
+       },
+       {
+        "kind": "flag_set",
+        "flag": "met_recruiter_cloud"
+       }
+      ]
+     },
+     "node": "choose"
+    }
+   ],
+   "nodes": {
+    "choose": {
+     "lines": [
+      "Water's patience, the sword's clarity. Jade Current Scripture: steady, deep, forgiving.",
+      "Will you join the Jade Sect?"
+     ],
+     "choices": [
+      {
+       "text": "Join the Jade Sect",
+       "effects": [
+        {
+         "kind": "join_sect",
+         "sect": "jade_sect"
+        },
+        {
+         "kind": "set_flag",
+         "flag": "joined_jade_sect"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Let me think",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

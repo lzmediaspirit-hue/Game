@@ -1,0 +1,476 @@
+{
+ "schema_version": 1,
+ "id": "cr_caravan_road",
+ "zone": "jade_river_valley",
+ "region": "caravan_road",
+ "name": "Caravan Road",
+ "type": "path",
+ "level_range": [
+  14,
+  19
+ ],
+ "recommended_cp": 272,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "valley_day",
+ "ground": {
+  "material": "earth"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "sf_fairground",
+   "to_portal": "west"
+  },
+  {
+   "id": "west",
+   "type": "sealed",
+   "at": [
+    40,
+    850
+   ],
+   "to": "dw_bend_shore",
+   "to_portal": "east",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_1"
+     }
+    ]
+   },
+   "locked_text": "Deepwater Bend lies beyond. Qi Unfurling first."
+  },
+  {
+   "id": "hideout",
+   "type": "dungeon",
+   "at": [
+    3000,
+    700
+   ],
+   "to": "mh_stockade",
+   "to_portal": "west",
+   "press_up": true,
+   "label": "Mudwater Hideout",
+   "requires": {
+    "all": [
+     {
+      "kind": "item_owned",
+      "item": "mudwater_key",
+      "count": 1
+     }
+    ]
+   },
+   "locked_text": "A barred stockade gate. You need a key."
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    995,
+    930
+   ],
+   "item": "ember_pepper",
+   "prop": "ember_pepper_bush",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "apprentice",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "ore_2",
+   "type": "ore_vein",
+   "at": [
+    2840,
+    690
+   ],
+   "item": "riverstone",
+   "prop": "riverstone_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "apprentice",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    418,
+    900
+   ],
+   "loot": "jar_valley_mid",
+   "level": 16,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_4",
+   "type": "crate",
+   "at": [
+    1369,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 16,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    2396,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 16,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_6",
+   "type": "crate",
+   "at": [
+    3395,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 16,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "sign_cr",
+   "type": "signpost",
+   "at": [
+    3600,
+    860
+   ],
+   "text": "Mudwater Hideout — turn back, traveller."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "mudwater_bandit",
+   "surface": "ground",
+   "points": [
+    [
+     460,
+     761
+    ],
+    [
+     908,
+     895
+    ],
+    [
+     1482,
+     749
+    ],
+    [
+     1870,
+     715
+    ],
+    [
+     2428,
+     890
+    ],
+    [
+     2924,
+     841
+    ],
+    [
+     3400,
+     722
+    ]
+   ],
+   "max": 6,
+   "respawn_s": 12,
+   "level": [
+    14,
+    19
+   ]
+  },
+  {
+   "enemy": "mudwater_bandit",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    19,
+    19
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "pine_tree",
+   "at": [
+    138,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    655,
+    632
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1186,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1736,
+    638
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2325,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2794,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    3258,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    155,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    420,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    685,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1044,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1387,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1616,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1899,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2284,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2555,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2940,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3141,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3488,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3773,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "cart_broken",
+   "at": [
+    900,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "cart_broken",
+   "at": [
+    2400,
+    740
+   ],
+   "layer": "play",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "field",
+ "ambience": ""
+}

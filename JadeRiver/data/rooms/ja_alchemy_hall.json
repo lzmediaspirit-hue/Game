@@ -1,0 +1,140 @@
+{
+ "schema_version": 1,
+ "id": "ja_alchemy_hall",
+ "zone": "jade_river_valley",
+ "region": "jade_sect",
+ "name": "Alchemy Hall",
+ "type": "sect",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    1280,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "exit",
+   "type": "door",
+   "at": [
+    640,
+    660
+   ],
+   "to": "ja_gate_street",
+   "to_portal": "alchemy_hall",
+   "press_up": true
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_mei_qing_sect",
+   "type": "npc",
+   "at": [
+    800,
+    760
+   ],
+   "npc": "mei_qing_sect",
+   "facing": -1
+  },
+  {
+   "id": "furnace_ja",
+   "type": "alchemy_furnace",
+   "at": [
+    640,
+    800
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "alchemy"
+     }
+    ]
+   },
+   "locked_text": "Not yet."
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    360,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    920,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "herb_drawers",
+   "at": [
+    260,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "herb_drawers",
+   "at": [
+    1020,
+    660
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_plaster"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "sect": "jade_sect",
+ "music": "sect"
+}

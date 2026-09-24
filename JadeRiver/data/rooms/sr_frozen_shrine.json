@@ -1,0 +1,371 @@
+{
+ "schema_version": 1,
+ "id": "sr_frozen_shrine",
+ "zone": "jade_river_valley",
+ "region": "summit_ridge",
+ "name": "Frozen Shrine",
+ "type": "field",
+ "level_range": [
+  58,
+  63
+ ],
+ "recommended_cp": 1064,
+ "element": "wind",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "mist_peak",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "sr_windswept_ridge",
+   "to_portal": "west"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "mp_ascension_gate",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "ore_1",
+   "type": "ore_vein",
+   "at": [
+    1305,
+    690
+   ],
+   "item": "mystic_ore",
+   "prop": "mystic_vein",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "expert",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_2",
+   "type": "jar",
+   "at": [
+    286,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 60,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_3",
+   "type": "crate",
+   "at": [
+    886,
+    900
+   ],
+   "loot": "jar_valley_mid",
+   "level": 60,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    1560,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 60,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_5",
+   "type": "crate",
+   "at": [
+    2196,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 60,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "shrine_frozen",
+   "type": "shrine",
+   "at": [
+    800,
+    700
+   ]
+  },
+  {
+   "id": "exchange_summit",
+   "type": "inspect",
+   "at": [
+    1400,
+    720
+   ],
+   "prop": "altar",
+   "text": "An old moneychanger's altar.",
+   "open_page": "exchange",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "currency_exchange"
+     }
+    ]
+   },
+   "locked_text": "The altar is cold."
+  },
+  {
+   "id": "journal_frozen",
+   "type": "pickup",
+   "at": [
+    1800,
+    900
+   ],
+   "item": "lu_journal_page",
+   "count": 1,
+   "prop": "scroll_rack",
+   "set_flag": "journal_frozen",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "journal_frozen"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "cloudpeak_roc",
+   "surface": "ground",
+   "points": [
+    [
+     422,
+     918
+    ],
+    [
+     863,
+     860
+    ],
+    [
+     1321,
+     702
+    ],
+    [
+     1672,
+     830
+    ],
+    [
+     2111,
+     781
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 12,
+   "level": [
+    58,
+    63
+   ]
+  },
+  {
+   "enemy": "cloudpeak_roc",
+   "surface": "ground",
+   "points": [
+    [
+     1480,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    63,
+    63
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "pine_tree",
+   "at": [
+    212,
+    639
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    653,
+    632
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1180,
+    639
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1631,
+    633
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2156,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    158,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    377,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    799,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1101,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1410,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1726,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2154,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2454,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "summit",
+ "ambience": "wind_ambience"
+}

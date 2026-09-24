@@ -1,0 +1,35 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "mentor": {
+   "id": "mentor",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_below",
+        "realm": "bone_forging_4"
+       }
+      ]
+     },
+     "node": "young"
+    }
+   ],
+   "nodes": {
+    "young": {
+     "lines": [
+      "Come back when your body is ready. Bone Forging 4, at least.",
+      "Sweep, train, eat. In that order."
+     ],
+     "choices": [
+      {
+       "text": "Yes, Elder.",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

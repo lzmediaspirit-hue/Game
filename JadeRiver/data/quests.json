@@ -1,0 +1,4817 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "morning_tide",
+   "name": "Morning Tide",
+   "kind": "prologue",
+   "giver": "aunt_ping",
+   "hand_in": "",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Pick up Herbal Tea",
+     "count": 3,
+     "item": "herbal_tea",
+     "consume": false
+    },
+    {
+     "kind": "open_page",
+     "text": "Open your Bag",
+     "count": 1,
+     "page": "inventory"
+    },
+    {
+     "kind": "use_portal",
+     "text": "Step outside",
+     "count": 1
+    }
+   ],
+   "rewards": [],
+   "offer_text": [
+    "You're awake! Good. The river's been muttering all night.",
+    "Fetch the three teas I left about the hut, then look in your bag so you know where things are.",
+    "Then out you go. Lu wants you at the docks."
+   ],
+   "complete_text": [
+    "There. Now go on, Lu's waiting."
+   ],
+   "progress_text": [
+    "Three teas. One on the table, one on the shelf, one by the stove."
+   ],
+   "sequential": true,
+   "target_room": "lf_fishers_hut",
+   "chapter": "prologue",
+   "next": "a_quiet_river"
+  },
+  {
+   "id": "a_quiet_river",
+   "name": "A Quiet River",
+   "kind": "prologue",
+   "giver": "aunt_ping",
+   "hand_in": "lu_boatman",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Find Lu at the Ferry Docks",
+     "count": 1,
+     "npc": "lu_boatman"
+    }
+   ],
+   "rewards": [],
+   "complete_text": [
+    "You're up. The river is too quiet. Fish gone deep, birds gone high.",
+    "Help the village while I watch the water. Little Dou lost his kite, Old Ma needs a hand, Granny Liu has something for you, and Guo wants to see your fists.",
+    "Come back when you've done all four. Gold marks mean the story. Blue mean lessons."
+   ],
+   "auto_accept": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "morning_tide"
+     }
+    ]
+   },
+   "target_room": "lf_village",
+   "chapter": "prologue"
+  },
+  {
+   "id": "the_runaway_kite",
+   "name": "The Runaway Kite",
+   "kind": "prologue",
+   "giver": "little_dou",
+   "hand_in": "little_dou",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "deliver",
+     "text": "Fetch the kite from the Ferry Inn roof",
+     "count": 1,
+     "item": "kite"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "rice_ball",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "My kite! It flew onto the inn roof! The big one!",
+    "Climb the ladder on the Village Hall, then jump up. Jump twice if you have to!"
+   ],
+   "complete_text": [
+    "My kite! You're the best! Here, I saved this rice ball. It's only a bit squashed."
+   ],
+   "progress_text": [
+    "Ladder, hall roof, then jump onto the inn. You can do it!"
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_quiet_river"
+     }
+    ]
+   },
+   "target_room": "lf_village",
+   "chapter": "prologue"
+  },
+  {
+   "id": "mas_delivery",
+   "name": "Ma's Delivery",
+   "kind": "prologue",
+   "giver": "old_ma",
+   "hand_in": "old_ma",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "sell_item",
+     "text": "Sell the Old Net to Old Ma",
+     "count": 1,
+     "item": "old_net"
+    },
+    {
+     "kind": "buy_item",
+     "text": "Buy Rice Balls",
+     "count": 2,
+     "item": "rice_ball"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 30
+    }
+   ],
+   "offer_text": [
+    "Aunt Ping's old net has been in my way for a month. Sell it back to me, fair and square.",
+    "Then buy two rice balls. That's how trade works: you give, you get."
+   ],
+   "complete_text": [
+    "See? Coins go round like the river. Here's a little for your trouble."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_quiet_river"
+     }
+    ]
+   },
+   "target_room": "lf_old_ma_store",
+   "chapter": "prologue",
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "old_net",
+     "count": 1
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 10
+    }
+   ]
+  },
+  {
+   "id": "grannys_remedy",
+   "name": "Granny's Remedy",
+   "kind": "prologue",
+   "giver": "granny_liu",
+   "hand_in": "granny_liu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Put Herbal Tea in the Quick-use slot",
+     "count": 1,
+     "system": "set_quick_use"
+    },
+    {
+     "kind": "use_item",
+     "text": "Drink a Herbal Tea",
+     "count": 1,
+     "item": "herbal_tea"
+    },
+    {
+     "kind": "interact_object",
+     "text": "Pray at the village shrine",
+     "count": 1,
+     "type": "shrine"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "herbal_tea",
+     "count": 3
+    }
+   ],
+   "offer_text": [
+    "Hold still, child. Herbal Tea. Put it where your hand finds it without looking.",
+    "Drink one. Then bow at the shrine in the square. It remembers those who visit."
+   ],
+   "complete_text": [
+    "Good. The shrine will patch you up when you're hurt. Tea when you can't reach it."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_quiet_river"
+     }
+    ]
+   },
+   "target_room": "lf_village",
+   "chapter": "prologue"
+  },
+  {
+   "id": "race_to_the_tower",
+   "name": "Race to the Tower",
+   "kind": "side",
+   "giver": "shen_lian_npc",
+   "hand_in": "shen_lian_npc",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "interact_object",
+     "text": "Ring the watch-tower bell",
+     "count": 1,
+     "object": "tower_bell"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_title",
+     "title": "fleet_footed"
+    }
+   ],
+   "offer_text": [
+    "Race you to the watch tower bell. Loser guts tomorrow's fish.",
+    "Hold the joystick all the way over to sprint. Go!"
+   ],
+   "complete_text": [
+    "What?! ...Fine. Fleet-Footed. Don't let it go to your head."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_quiet_river"
+     }
+    ]
+   },
+   "target_room": "lf_village",
+   "chapter": "prologue",
+   "time_limit_s": 25,
+   "fail_text": "Too slow! Talk to Shen Lian to try again."
+  },
+  {
+   "id": "fists_first",
+   "name": "Fists First",
+   "kind": "prologue",
+   "giver": "uncle_guo",
+   "hand_in": "uncle_guo",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "hit_object",
+     "text": "Punch the training stump",
+     "count": 12,
+     "type": "training_stump"
+    },
+    {
+     "kind": "hit_object",
+     "text": "Hit the dummy after its wind-up",
+     "count": 5,
+     "type": "training_dummy"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "herbal_tea",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "Fists first! Jab, cross, jab. Hold the button and they flow.",
+    "Twelve on the stump. Then the dummy: watch it lean back before it swings. Hit it then."
+   ],
+   "complete_text": [
+    "Not bad! The East Gate's open for you. Reed Shallows. Crabs. You'll see."
+   ],
+   "progress_text": [
+    "Elbow in! Twelve on the stump, five on the dummy."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_quiet_river"
+     }
+    ]
+   },
+   "target_room": "lf_village",
+   "chapter": "prologue"
+  },
+  {
+   "id": "a_quiet_river_return",
+   "name": "A Quiet River (Return)",
+   "kind": "prologue",
+   "giver": "lu_boatman",
+   "hand_in": "lu_boatman",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Report to Lu",
+     "count": 1,
+     "npc": "lu_boatman"
+    }
+   ],
+   "rewards": [],
+   "complete_text": [
+    "Kite, net, tea and fists. The village thanks you.",
+    "Guo's fretting about the crabs in the Reed Shallows. Too many, too angry. Go and see him."
+   ],
+   "auto_accept": true,
+   "target_room": "lf_village",
+   "chapter": "prologue",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_runaway_kite"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "mas_delivery"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "grannys_remedy"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "fists_first"
+     }
+    ]
+   }
+  },
+  {
+   "id": "crab_trouble",
+   "name": "Crab Trouble",
+   "kind": "prologue",
+   "giver": "uncle_guo",
+   "hand_in": "uncle_guo",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Collect Crab Shells",
+     "count": 5,
+     "item": "crab_shell"
+    },
+    {
+     "kind": "kill",
+     "text": "Defeat Old Snapper",
+     "count": 1,
+     "enemy": "old_snapper",
+     "after": 0
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 50
+    },
+    {
+     "kind": "grant_item",
+     "item": "plain_straw_hat",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "The crabs came up the shallows in the night. Dozens. Something's pushing them out of the river.",
+    "Bring me five shells. And if the big one shows, Old Snapper, watch its claw: step up or down when it rears back."
+   ],
+   "complete_text": [
+    "Old Snapper! Ha! Here, fifty taels and my old straw hat. Wear it, it keeps the sun out of a fighter's eyes."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_quiet_river_return"
+     }
+    ]
+   },
+   "target_room": "lf_reed_shallows",
+   "chapter": "prologue"
+  },
+  {
+   "id": "evening_on_the_river",
+   "name": "Evening on the River",
+   "kind": "prologue",
+   "giver": "lu_boatman",
+   "hand_in": "",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Have dinner with Aunt Ping",
+     "count": 1,
+     "npc": "aunt_ping"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Meet Lu at the docks at sunset",
+     "count": 1,
+     "npc": "lu_boatman"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "set_flag",
+     "flag": "night_active"
+    },
+    {
+     "kind": "teleport",
+     "target": "lf_village_night",
+     "portal": ""
+    }
+   ],
+   "offer_text": [
+    "Eat with your aunt tonight. Then come to the docks at sunset. There's something I want to show you on the water."
+   ],
+   "sequential": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "crab_trouble"
+     }
+    ]
+   },
+   "target_room": "lf_village",
+   "chapter": "prologue"
+  },
+  {
+   "id": "the_hollow_night",
+   "name": "The Hollow Night",
+   "kind": "main",
+   "giver": "lu_boatman",
+   "hand_in": "",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "set_flag",
+     "text": "Get Little Dou to the hut",
+     "count": 1,
+     "flag": "dou_safe"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Get Granny Liu to the hut",
+     "count": 1,
+     "flag": "granny_safe"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Get Old Ma to the hut",
+     "count": 1,
+     "flag": "ma_safe"
+    },
+    {
+     "kind": "survive_timer",
+     "text": "Survive until Lu comes",
+     "count": 1,
+     "event": "hollow_night"
+    }
+   ],
+   "rewards": [],
+   "auto_accept": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "night_active"
+     },
+     {
+      "kind": "flag_not_set",
+      "flag": "night_survived"
+     }
+    ]
+   },
+   "target_room": "lf_village_night",
+   "chapter": "prologue"
+  },
+  {
+   "id": "the_river_token",
+   "name": "The River Token",
+   "kind": "main",
+   "giver": "lu_boatman",
+   "hand_in": "lu_boatman",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "meditate_seconds",
+     "text": "Meditate on the boat",
+     "count": 15
+    },
+    {
+     "kind": "open_page",
+     "text": "Look inward (open the Cultivation page)",
+     "count": 1,
+     "page": "cultivation"
+    },
+    {
+     "kind": "breakthrough",
+     "text": "Break through to Bone Forging 1",
+     "count": 1
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "river_token",
+     "count": 1
+    },
+    {
+     "kind": "codex",
+     "entry": "the_hollowing"
+    },
+    {
+     "kind": "codex",
+     "entry": "realms"
+    }
+   ],
+   "offer_text": [
+    "That thing in the water was a Hollowed eel. The grey is spreading.",
+    "You have a gift. I felt it last night. Sit. Breathe as I showed you."
+   ],
+   "complete_text": [
+    "Bone Forging. Your first step. The body is the cup; Qi will be the water.",
+    "Take this River Token. Go west along the Willow Path. There's a note waiting for you."
+   ],
+   "auto_accept": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "night_survived"
+     }
+    ]
+   },
+   "target_room": "lf_lu_boat",
+   "chapter": "prologue",
+   "on_accept": [
+    {
+     "kind": "learn_method",
+     "method": "riverbreath_fragment"
+    },
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.92
+    },
+    {
+     "kind": "codex",
+     "entry": "lotus_ferry"
+    }
+   ],
+   "next": "the_willow_path"
+  },
+  {
+   "id": "the_willow_path",
+   "name": "The Willow Path",
+   "kind": "guided",
+   "giver": "lu_boatman",
+   "hand_in": "",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Reach Willow Path West",
+     "count": 1,
+     "room": "wp_west"
+    },
+    {
+     "kind": "hit_object",
+     "text": "Hit a training stump",
+     "count": 30,
+     "type": "training_stump"
+    },
+    {
+     "kind": "kill",
+     "text": "Defeat Wild Boarlets",
+     "count": 5,
+     "enemy": "wild_boarlet"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "rice_ball",
+     "count": 3
+    },
+    {
+     "kind": "codex",
+     "entry": "body_training"
+    }
+   ],
+   "complete_text": [
+    "(A note in Lu's hand) Good. Now Stoneford. The sects are recruiting at the Fairground."
+   ],
+   "offered_by_unlock": true,
+   "auto_accept": true,
+   "target_room": "wp_west",
+   "chapter": "bf1"
+  },
+  {
+   "id": "the_recruitment_fair",
+   "name": "The Recruitment Fair",
+   "kind": "guided",
+   "giver": "recruiter_qing_lan",
+   "hand_in": "",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Speak to the Jade Sect recruiter",
+     "count": 1,
+     "npc": "recruiter_qing_lan"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Speak to the Cloud Sect recruiter",
+     "count": 1,
+     "npc": "recruiter_mo_yun"
+    },
+    {
+     "kind": "join_sect",
+     "text": "Choose a sect",
+     "count": 1
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "codex",
+     "entry": "sects"
+    }
+   ],
+   "offer_text": [
+    "The Recruitment Fair! Both sects take new service disciples this week.",
+    "Speak to both of us before you choose. The choice is for life."
+   ],
+   "complete_text": [
+    "Welcome, disciple. Now pass the Entry Trial."
+   ],
+   "offered_by_unlock": true,
+   "target_room": "sf_fairground",
+   "chapter": "bf2",
+   "giver_any": [
+    "recruiter_qing_lan",
+    "recruiter_mo_yun"
+   ]
+  },
+  {
+   "id": "entry_trial",
+   "name": "Entry Trial",
+   "kind": "guided",
+   "giver": "recruiter_qing_lan",
+   "hand_in": "",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "reach_realm",
+     "text": "Reach Bone Forging 2",
+     "count": 1,
+     "realm": "bone_forging_2"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Climb to the trial bell",
+     "count": 1,
+     "flag": "trial_climbed"
+    },
+    {
+     "kind": "kill",
+     "text": "Beat the Trial Puppet",
+     "count": 1,
+     "enemy": "trial_puppet"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "sect_rank",
+     "rank": "service_disciple"
+    },
+    {
+     "kind": "grant_item",
+     "item": "entry_token",
+     "count": 1
+    },
+    {
+     "kind": "codex",
+     "entry": "training_sects"
+    }
+   ],
+   "complete_text": [
+    "Service Disciple! Report to the steward at your sect's gate."
+   ],
+   "offered_by_unlock": true,
+   "auto_accept": true,
+   "target_room": "sf_fairground",
+   "chapter": "bf2"
+  },
+  {
+   "id": "a_disciples_chores",
+   "name": "A Disciple's Chores",
+   "kind": "main",
+   "giver": "jade_steward",
+   "hand_in": "jade_steward",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "set_flag",
+     "text": "Sweep the first spot",
+     "count": 1,
+     "flag": "swept_ja_0",
+     "alt_flag": "swept_cm_0"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Sweep the second spot",
+     "count": 1,
+     "flag": "swept_ja_1",
+     "alt_flag": "swept_cm_1"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Sweep the third spot",
+     "count": 1,
+     "flag": "swept_ja_2",
+     "alt_flag": "swept_cm_2"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "set_flag",
+     "flag": "dorm_bed"
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 40
+    },
+    {
+     "kind": "add_contribution",
+     "amount": 20
+    }
+   ],
+   "offer_text": [
+    "Service disciples sweep. Three spots on the street. The grey dust gets everywhere these days."
+   ],
+   "complete_text": [
+    "Clean enough. Your bunk is in the dorm: rest there any time."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "1",
+   "giver_any": [
+    "jade_steward",
+    "cloud_steward"
+   ],
+   "hand_in_any": [
+    "jade_steward",
+    "cloud_steward"
+   ],
+   "target_room": "ja_gate_street"
+  },
+  {
+   "id": "fish_gutting_fists",
+   "name": "Fish-Gutting Fists",
+   "kind": "main",
+   "giver": "shen_lian",
+   "hand_in": "shen_lian",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "win_spar",
+     "text": "Beat Shen Lian in a spar",
+     "count": 1,
+     "opponent": "shen_lian"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 40
+    },
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.15
+    }
+   ],
+   "offer_text": [
+    "Cloud Sect taught me more in a week than the river did in ten years. Spar me."
+   ],
+   "complete_text": [
+    "...Fine. You won. This time. Don't get lazy."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_disciples_chores"
+     }
+    ]
+   },
+   "chapter": "1",
+   "target_room": "sf_fairground"
+  },
+  {
+   "id": "the_weapon_hall",
+   "name": "The Weapon Hall",
+   "kind": "guided",
+   "giver": "jade_weapon_master",
+   "hand_in": "jade_weapon_master",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "equip_slot",
+     "text": "Take a training weapon from the rack",
+     "count": 1,
+     "slot": "weapon"
+    },
+    {
+     "kind": "hit_object",
+     "text": "Try it on the dummies",
+     "count": 15,
+     "type": "training_dummy"
+    },
+    {
+     "kind": "use_system",
+     "text": "Raise your guard",
+     "count": 1,
+     "system": "guard"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "codex",
+     "entry": "weapons"
+    }
+   ],
+   "offer_text": [
+    "Three training weapons: jian, spear, gauntlets. Try them on the dummies. Keep the one that feels like your own arm.",
+    "Guard is the other half of a weapon. Hold it up when they swing."
+   ],
+   "complete_text": [
+    "Good hands. The weapon Dao grows with every strike. The smiths sell better ones in Stoneford."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "1",
+   "giver_any": [
+    "jade_weapon_master",
+    "cloud_weapon_master"
+   ],
+   "hand_in_any": [
+    "jade_weapon_master",
+    "cloud_weapon_master"
+   ],
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "training_jian",
+     "count": 1
+    },
+    {
+     "kind": "grant_item",
+     "item": "training_spear",
+     "count": 1
+    },
+    {
+     "kind": "grant_item",
+     "item": "training_gauntlets",
+     "count": 1
+    }
+   ],
+   "target_room": "ja_weapon_hall"
+  },
+  {
+   "id": "eyes_for_qi",
+   "name": "Eyes for Qi",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "meditate_seconds",
+     "text": "Meditate by a Qi spring or glowing spot",
+     "count": 60
+    },
+    {
+     "kind": "gather_node",
+     "text": "Gather Willow Moss",
+     "count": 3,
+     "item": "willow_moss",
+     "craft": "herb_gathering"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "herb_sickle",
+     "count": 1
+    },
+    {
+     "kind": "grant_item",
+     "item": "qi_gathering_pill",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "You're starting to feel Qi in the air. Sit and let it show itself.",
+    "Willow Moss grows in the Reed Shallows. Pick three: Mei Qing will want them."
+   ],
+   "complete_text": [
+    "You see it now. The valley glows, faintly, everywhere."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "1",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "lf_reed_shallows"
+  },
+  {
+   "id": "outer_trial",
+   "name": "Outer Trial",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "win_spar",
+     "text": "Win spars at the practice posts",
+     "count": 3
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "sect_rank",
+     "rank": "outer_disciple"
+    },
+    {
+     "kind": "add_contribution",
+     "amount": 50
+    }
+   ],
+   "offer_text": [
+    "Outer disciples are chosen by their fists. Win three spars at the practice posts."
+   ],
+   "complete_text": [
+    "Outer Disciple. You'll get a proper robe soon."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "1",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "ja_pavilion_rooftops"
+  },
+  {
+   "id": "stone_and_sweat",
+   "name": "Stone and Sweat",
+   "kind": "guided",
+   "giver": "foreman_dong",
+   "hand_in": "foreman_dong",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "gather_node",
+     "text": "Mine Copper",
+     "count": 5,
+     "item": "copper_ore",
+     "craft": "mining"
+    },
+    {
+     "kind": "kill",
+     "text": "Defeat Rock Beetles",
+     "count": 5,
+     "enemy": "rock_beetle"
+    },
+    {
+     "kind": "dodge_attacks",
+     "text": "Dodge pebble throws",
+     "count": 3
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "iron_pickaxe",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "Take my old pickaxe. Five copper, five beetles. And dodge the imps' pebbles, they sting."
+   ],
+   "complete_text": [
+    "You'll make a miner yet. Here, an iron pick. Mind your toes."
+   ],
+   "offered_by_unlock": true,
+   "target_room": "sq_quarry_rim",
+   "chapter": "bf5"
+  },
+  {
+   "id": "a_second_path",
+   "name": "A Second Path",
+   "kind": "guided",
+   "giver": "courier_lin",
+   "hand_in": "",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Create a second character or set an idle task",
+     "count": 1,
+     "system": "second_path"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 200
+    }
+   ],
+   "offer_text": [
+    "(A letter from your mentor) One cultivator can't walk every road. Train a second disciple, or leave this one to train while you rest."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "bf5",
+   "target_room": ""
+  },
+  {
+   "id": "earning_your_keep",
+   "name": "Earning Your Keep",
+   "kind": "guided",
+   "giver": "jade_deacon",
+   "hand_in": "jade_deacon",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Finish daily missions",
+     "count": 2,
+     "system": "daily_mission_done"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_contribution",
+     "amount": 40
+    }
+   ],
+   "offer_text": [
+    "Missions. Five a day. Hunt, gather, deliver. Contribution buys what money can't."
+   ],
+   "complete_text": [
+    "The contribution shop is open to you now."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "bf6",
+   "giver_any": [
+    "jade_deacon",
+    "cloud_deacon"
+   ],
+   "hand_in_any": [
+    "jade_deacon",
+    "cloud_deacon"
+   ],
+   "on_accept": [
+    {
+     "kind": "start_daily",
+     "count": 5
+    }
+   ],
+   "target_room": "ja_gate_street"
+  },
+  {
+   "id": "the_first_current",
+   "name": "The First Current",
+   "kind": "main",
+   "giver": "lu_boatman",
+   "hand_in": "lu_boatman",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "meditate_seconds",
+     "text": "Meditate in the Lotus Ferry Qi spring",
+     "count": 30,
+     "near": "qi_spring"
+    },
+    {
+     "kind": "enter_seclusion",
+     "text": "Enter seclusion once",
+     "count": 1
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "qi_gathering_pill",
+     "count": 2
+    },
+    {
+     "kind": "codex",
+     "entry": "qi"
+    }
+   ],
+   "offer_text": [
+    "You feel it, don't you? A current inside. That's Qi. Your cup can hold water now.",
+    "The old spring by Granny Liu's hut has woken. Sit in it. Then learn to cultivate while you sleep."
+   ],
+   "complete_text": [
+    "Your first current. Don't let it flood you."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "3",
+   "target_room": "lf_village"
+  },
+  {
+   "id": "aunt_pings_broth",
+   "name": "Aunt Ping's Broth",
+   "kind": "guided",
+   "giver": "aunt_ping",
+   "hand_in": "aunt_ping",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "catch_fish",
+     "text": "Catch fish",
+     "count": 2
+    },
+    {
+     "kind": "collect",
+     "text": "Gather Tough Meat",
+     "count": 2,
+     "item": "tough_meat",
+     "consume": false
+    },
+    {
+     "kind": "craft",
+     "text": "Cook Boar Bone Broth",
+     "count": 1,
+     "recipe": "boar_bone_broth",
+     "craft": "cooking"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "riverfish_soup"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "roast_fish"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "lotus_root_tea"
+    }
+   ],
+   "offer_text": [
+    "You look thin! Here, my old pot and your uncle's rod. Two fish from the docks, two cuts of boar, and we'll make broth."
+   ],
+   "complete_text": [
+    "Now that's a broth. You'll feed yourself properly now, won't you?"
+   ],
+   "offered_by_unlock": true,
+   "chapter": "bf8",
+   "target_room": "lf_village",
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "boar_bone_broth"
+    }
+   ]
+  },
+  {
+   "id": "the_wall",
+   "name": "The Wall",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "open_page",
+     "text": "Open the Bottleneck panel",
+     "count": 1,
+     "page": "breakthrough"
+    },
+    {
+     "kind": "meditate_seconds",
+     "text": "Meditate until your Qi is full",
+     "count": 30
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "qi_gathering_pill",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "Bone Forging 9. Every realm ends in a wall. Look at it. Read what it asks."
+   ],
+   "complete_text": [
+    "Walls are only lists. Work down the list."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "bf9",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "first_technique",
+   "name": "First Technique",
+   "kind": "guided",
+   "giver": "jade_hall_master",
+   "hand_in": "jade_hall_master",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "learn_technique",
+     "text": "Learn a starter technique",
+     "count": 1
+    },
+    {
+     "kind": "use_technique",
+     "text": "Use it",
+     "count": 20
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "rice_ball",
+     "count": 5
+    }
+   ],
+   "offer_text": [
+    "Qi Kindling. Now your Qi can leave your body. Flowing Palm: push Qi through the palm. Twenty times."
+   ],
+   "complete_text": [
+    "The technique remembers you now. Train it and it grows."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk1",
+   "giver_any": [
+    "jade_hall_master",
+    "cloud_hall_master"
+   ],
+   "hand_in_any": [
+    "jade_hall_master",
+    "cloud_hall_master"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_technique",
+     "technique": "flowing_palm"
+    }
+   ],
+   "target_room": "ja_pavilion_rooftops"
+  },
+  {
+   "id": "mei_qings_furnace",
+   "name": "Mei Qing's Furnace",
+   "kind": "guided",
+   "giver": "mei_qing",
+   "hand_in": "mei_qing",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Gather Willow Moss",
+     "count": 4,
+     "item": "willow_moss",
+     "consume": false
+    },
+    {
+     "kind": "craft",
+     "text": "Refine Healing Pills",
+     "count": 3,
+     "recipe": "healing_pill",
+     "craft": "alchemy"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "qi_restoration_pill"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "purging_pill"
+    }
+   ],
+   "offer_text": [
+    "You have Qi enough to feed a furnace. Take this little bronze one. Healing Pills: willow moss and patience."
+   ],
+   "complete_text": [
+    "Three pills. None of them exploded. You're a natural."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk2",
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "healing_pill"
+    }
+   ],
+   "target_room": "sf_artisan_row"
+  },
+  {
+   "id": "stones_that_move_you",
+   "name": "Stones That Move You",
+   "kind": "guided",
+   "giver": "keeper_shi",
+   "hand_in": "keeper_shi",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "interact_object",
+     "text": "Touch teleport stones",
+     "count": 2,
+     "type": "teleport_stone"
+    },
+    {
+     "kind": "teleport",
+     "text": "Teleport once",
+     "count": 1
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "spirit_stone_shard",
+     "count": 3
+    }
+   ],
+   "offer_text": [
+    "Touch the stones and they'll remember you. A shard pays the way."
+   ],
+   "complete_text": [
+    "Travel lighter now. The valley's smaller than you thought."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk3",
+   "target_room": "sf_market"
+  },
+  {
+   "id": "listening_to_the_waterfall",
+   "name": "Listening to the Waterfall",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Reach the Falls Pool",
+     "count": 1,
+     "room": "cf_falls_pool"
+    },
+    {
+     "kind": "meditate_seconds",
+     "text": "Meditate at the insight stone",
+     "count": 90
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "clear_mind_pill",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "Some places teach. The Falls Pool teaches Water. Sit by the insight stone and listen."
+   ],
+   "complete_text": [
+    "You heard it. Insight grows the Dao; the Dao shapes the technique."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk4",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "cf_falls_pool"
+  },
+  {
+   "id": "two_hands_full",
+   "name": "Two Hands Full",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "choose_companion",
+     "text": "Choose a companion",
+     "count": 1
+    },
+    {
+     "kind": "kill",
+     "text": "Defeat the Thicket Heart elite together",
+     "count": 1,
+     "enemy": "thornback_boar"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "codex",
+     "entry": "companions"
+    }
+   ],
+   "offer_text": [
+    "Four disciples of your year are looking for a partner. Pick one. Then prove it in the Thicket Heart."
+   ],
+   "complete_text": [
+    "Two can walk where one would fall. Your technique slots have grown too."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk5",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "bg_thicket_heart"
+  },
+  {
+   "id": "is_it_real",
+   "name": "Is It Real?",
+   "kind": "guided",
+   "giver": "elder_gu",
+   "hand_in": "elder_gu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Appraise items",
+     "count": 3,
+     "system": "appraise"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "spirit_stone_shard",
+     "count": 3
+    }
+   ],
+   "offer_text": [
+    "Here's a loupe. Look at three things and tell me what they really are. Half the valley's jade is glass."
+   ],
+   "complete_text": [
+    "Good eye. Keep it. The wandering merchant Old Pan will trade with you now."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk6",
+   "target_room": "sf_artisan_row"
+  },
+  {
+   "id": "the_caravan_road",
+   "name": "The Caravan Road",
+   "kind": "guided",
+   "giver": "elder_gu",
+   "hand_in": "elder_gu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat Mudwater Bandits",
+     "count": 6,
+     "enemy": "mudwater_bandit"
+    },
+    {
+     "kind": "collect",
+     "text": "Find the Hideout key",
+     "count": 1,
+     "item": "mudwater_key",
+     "consume": false
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "codex",
+     "entry": "dungeons"
+    }
+   ],
+   "offer_text": [
+    "My carts go missing on the Caravan Road. Mudwater bandits. Thin them out and find their key."
+   ],
+   "complete_text": [
+    "The Hideout. Take the key; clear the place and my carts roll again."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk7",
+   "target_room": "cr_caravan_road"
+  },
+  {
+   "id": "batch_work",
+   "name": "Batch Work",
+   "kind": "guided",
+   "giver": "mei_qing",
+   "hand_in": "mei_qing",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Queue an auto-refine batch",
+     "count": 1,
+     "system": "auto_refine_queued"
+    },
+    {
+     "kind": "use_system",
+     "text": "Collect the batch",
+     "count": 1,
+     "system": "auto_refine_collected"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "drying_rack",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "You can't stand at the furnace all day. Queue a batch and come back."
+   ],
+   "complete_text": [
+    "Here's a drying rack for herbs. Batches go faster with dry ingredients."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk8",
+   "target_room": "sf_artisan_row"
+  },
+  {
+   "id": "toward_cleansing_peak",
+   "name": "Toward Cleansing Peak",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Climb the Pilgrim Stairs",
+     "count": 1,
+     "room": "cp_pilgrim_stairs"
+    },
+    {
+     "kind": "kill",
+     "text": "Defeat Stone Guardians",
+     "count": 3,
+     "enemy": "stone_guardian"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "cleansing_pill"
+    },
+    {
+     "kind": "codex",
+     "entry": "heavens_cleansing"
+    }
+   ],
+   "offer_text": [
+    "Qi Kindling 9. The next wall is Heaven's Cleansing: heaven washes the impurities out of you. Or tries.",
+    "Climb the Pilgrim Stairs. The guardians test who may approach the summit."
+   ],
+   "complete_text": [
+    "The summit is open to you. Prepare Cleansing Pills before the rite."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "4",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "cp_pilgrim_stairs"
+  },
+  {
+   "id": "after_the_cleansing",
+   "name": "After the Cleansing",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_technique",
+     "text": "Use a ranged technique",
+     "count": 10,
+     "ranged": true
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "sect_rank",
+     "rank": "inner_disciple"
+    },
+    {
+     "kind": "add_contribution",
+     "amount": 100
+    }
+   ],
+   "offer_text": [
+    "Qi Unfurling. Your Qi can fly now. Send it at a target ten times."
+   ],
+   "complete_text": [
+    "Inner Disciple. A retreat room is yours."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "4",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "the_sect_forge",
+   "name": "The Sect Forge",
+   "kind": "guided",
+   "giver": "jade_smith",
+   "hand_in": "jade_smith",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "craft",
+     "text": "Forge a Common weapon",
+     "count": 1,
+     "craft": "smithing"
+    },
+    {
+     "kind": "use_system",
+     "text": "Enhance it to +1",
+     "count": 1,
+     "system": "enhance"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "jadeiron_jian"
+    }
+   ],
+   "offer_text": [
+    "A disciple with Qi in their hands can work the sect forge. Take this hammer. Forge something, then make it better."
+   ],
+   "complete_text": [
+    "An Earth blueprint. Don't waste the Jadeiron."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qu2",
+   "giver_any": [
+    "jade_smith",
+    "cloud_smith"
+   ],
+   "hand_in_any": [
+    "jade_smith",
+    "cloud_smith"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "iron_jian"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "iron_spear"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "iron_gauntlets"
+    }
+   ]
+  },
+  {
+   "id": "seeds_of_the_valley",
+   "name": "Seeds of the Valley",
+   "kind": "guided",
+   "giver": "jade_gardener",
+   "hand_in": "jade_gardener",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "interact_object",
+     "text": "Tend a garden bed",
+     "count": 3,
+     "type": "garden_bed"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "willow_moss",
+     "count": 5
+    }
+   ],
+   "offer_text": [
+    "Plant, water, harvest. Three beds."
+   ],
+   "complete_text": [
+    "You've got green hands."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qu4",
+   "giver_any": [
+    "jade_gardener",
+    "cloud_gardener"
+   ],
+   "hand_in_any": [
+    "jade_gardener",
+    "cloud_gardener"
+   ]
+  },
+  {
+   "id": "a_friend_in_the_reeds",
+   "name": "A Friend in the Reeds",
+   "kind": "guided",
+   "giver": "hermit_yao",
+   "hand_in": "hermit_yao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "bond_pet",
+     "text": "Choose a starter spirit animal",
+     "count": 1
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "bonding_offering_common",
+     "count": 5
+    }
+   ],
+   "offer_text": [
+    "Three young ones came to me after the grey took their mothers. An otter, a fox and a crane chick. One will choose you."
+   ],
+   "complete_text": [
+    "Feed it, fight beside it, and it'll grow."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qu5",
+   "target_room": "rm_hermit_stilt_house"
+  },
+  {
+   "id": "full_hands",
+   "name": "Full Hands",
+   "kind": "guided",
+   "giver": "jade_hall_master",
+   "hand_in": "jade_hall_master",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "reach_mastery",
+     "text": "Raise a technique to mastery tier 4",
+     "count": 1,
+     "tier": 4
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "manual_page",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "Eight slots now. But a technique used a thousand times beats eight used once. Tier 4."
+   ],
+   "complete_text": [
+    "Here, a manual page. Pages push mastery past what practice alone can."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qu6",
+   "giver_any": [
+    "jade_hall_master",
+    "cloud_hall_master"
+   ],
+   "hand_in_any": [
+    "jade_hall_master",
+    "cloud_hall_master"
+   ]
+  },
+  {
+   "id": "the_riverbed_serpent",
+   "name": "The Riverbed Serpent",
+   "kind": "guided",
+   "giver": "jade_deacon",
+   "hand_in": "jade_deacon",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat the Riverbed Serpent",
+     "count": 1,
+     "enemy": "riverbed_serpent"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "serpent_core",
+     "count": 1
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 300
+    }
+   ],
+   "offer_text": [
+    "The notice board's been screaming about it: the Riverbed Serpent surfaces in Serpent's Shallows every 45 minutes. Stand on the high rocks."
+   ],
+   "complete_text": [
+    "The serpent's core. Alchemists will pay well; better still, keep it."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qu7",
+   "giver_any": [
+    "jade_deacon",
+    "cloud_deacon"
+   ],
+   "hand_in_any": [
+    "jade_deacon",
+    "cloud_deacon"
+   ],
+   "target_room": "dw_serpents_shallows"
+  },
+  {
+   "id": "calming_the_wild",
+   "name": "Calming the Wild",
+   "kind": "guided",
+   "giver": "hermit_yao",
+   "hand_in": "hermit_yao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "bond_pet",
+     "text": "Tame a wild spirit animal",
+     "count": 1
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "bonding_offering_earth",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "Wild ones wander the valley now: otters in the marsh, foxes in the bamboo, crane chicks at the falls. Calm one."
+   ],
+   "complete_text": [
+    "It trusts you. Don't make me regret it."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qu7",
+   "target_room": "rm_marsh_edge"
+  },
+  {
+   "id": "the_valley_tournament",
+   "name": "The Valley Tournament (Qualifier)",
+   "kind": "guided",
+   "giver": "arena_master",
+   "hand_in": "arena_master",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "win_spar",
+     "text": "Win arena matches",
+     "count": 3,
+     "opponent": "sparring_disciple"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "set_flag",
+     "flag": "tournament_entry"
+    },
+    {
+     "kind": "add_contribution",
+     "amount": 100
+    }
+   ],
+   "offer_text": [
+    "Three wins and you're in the Valley Tournament."
+   ],
+   "complete_text": [
+    "You're in. The bracket opens at Cloud Stride."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "7"
+  },
+  {
+   "id": "the_quiet_heart",
+   "name": "The Quiet Heart",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_item",
+     "text": "Burn Calm Incense",
+     "count": 1,
+     "item": "calm_incense"
+    },
+    {
+     "kind": "meditate_seconds",
+     "text": "Meditate without backlash",
+     "count": 300
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "myriad_year_calm_incense",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "The Heart Trial will show you yourself. Practise stillness first. Five minutes, no backlash."
+   ],
+   "complete_text": [
+    "Still water. Take this incense for the real trial."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qu9",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "calm_incense",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "lines_in_the_sand",
+   "name": "Lines in the Sand",
+   "kind": "guided",
+   "giver": "jade_formation_elder",
+   "hand_in": "jade_formation_elder",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Place and fuel a gathering formation",
+     "count": 1,
+     "system": "formation_placed"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "fuel_crystal_low",
+     "count": 10
+    }
+   ],
+   "offer_text": [
+    "Three nodes, one centre, fuel in each. A gathering formation thickens Qi around you."
+   ],
+   "complete_text": [
+    "Lines hold. Formations are patience made visible."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "ht1",
+   "giver_any": [
+    "jade_formation_elder",
+    "cloud_formation_elder"
+   ],
+   "hand_in_any": [
+    "jade_formation_elder",
+    "cloud_formation_elder"
+   ]
+  },
+  {
+   "id": "the_infirmary",
+   "name": "The Infirmary",
+   "kind": "guided",
+   "giver": "jade_physician",
+   "hand_in": "jade_physician",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Treat injured disciples",
+     "count": 3,
+     "system": "treat_patient"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_contribution",
+     "amount": 100
+    }
+   ],
+   "offer_text": [
+    "Needles, pills and a gentle hand. Three patients."
+   ],
+   "complete_text": [
+    "Healing is cultivation turned outward."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "ht3",
+   "giver_any": [
+    "jade_physician",
+    "cloud_physician"
+   ],
+   "hand_in_any": [
+    "jade_physician",
+    "cloud_physician"
+   ]
+  },
+  {
+   "id": "carry_a_wall",
+   "name": "Carry a Wall",
+   "kind": "guided",
+   "giver": "jade_formation_elder",
+   "hand_in": "jade_formation_elder",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "craft",
+     "text": "Craft an Array Plate",
+     "count": 1,
+     "recipe": "array_plate"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "blank_plate",
+     "count": 3
+    }
+   ],
+   "offer_text": [
+    "A formation you can carry. Etch one plate."
+   ],
+   "complete_text": [
+    "Take these blanks."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "ht5",
+   "same_stage_ok": true,
+   "giver_any": [
+    "jade_formation_elder",
+    "cloud_formation_elder"
+   ],
+   "hand_in_any": [
+    "jade_formation_elder",
+    "cloud_formation_elder"
+   ]
+  },
+  {
+   "id": "the_warm_egg",
+   "name": "The Warm Egg",
+   "kind": "guided",
+   "giver": "hermit_yao",
+   "hand_in": "hermit_yao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Incubate a spirit egg",
+     "count": 1,
+     "system": "egg_incubated"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "spirit_egg",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "An egg, warm and humming. Keep it close."
+   ],
+   "complete_text": [
+    "Another life in your care."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "ht5",
+   "same_stage_ok": true
+  },
+  {
+   "id": "brothers_in_arms",
+   "name": "Brothers in Arms",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "choose_companion",
+     "text": "Choose a second companion",
+     "count": 1
+    },
+    {
+     "kind": "reach_room",
+     "text": "Clear Echo Cliffs together",
+     "count": 1,
+     "room": "wg_echo_cliffs"
+    }
+   ],
+   "rewards": [],
+   "offer_text": [
+    "The gorge is too much for two. Take a second companion."
+   ],
+   "complete_text": [
+    "Three together. Good."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "ht6",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "keep_watch",
+   "name": "Keep Watch",
+   "kind": "guided",
+   "giver": "jade_formation_elder",
+   "hand_in": "jade_formation_elder",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "breakthrough",
+     "text": "Break through a stage inside a guard formation",
+     "count": 1
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "fuel_crystal_low",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "A guard formation around you while you break through: nothing interrupts, nothing surprises."
+   ],
+   "complete_text": [
+    "Safe and stronger."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "ht7",
+   "giver_any": [
+    "jade_formation_elder",
+    "cloud_formation_elder"
+   ],
+   "hand_in_any": [
+    "jade_formation_elder",
+    "cloud_formation_elder"
+   ]
+  },
+  {
+   "id": "the_heart_trial",
+   "name": "The Heart Trial",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "pass_event",
+     "text": "Win the Trial of Reflections",
+     "count": 1,
+     "event": "heart_trial"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "codex",
+     "entry": "heart_trial"
+    }
+   ],
+   "offer_text": [
+    "Step into the circle on my peak. What comes out of the mirror is you. Beat it."
+   ],
+   "complete_text": [
+    "You looked yourself in the eye and didn't blink. Cloud Stride awaits."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "6",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "wings_of_cloud",
+   "name": "Wings of Cloud",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Reach the Cliff Faces",
+     "count": 1,
+     "room": "cc_cliff_faces"
+    },
+    {
+     "kind": "kill",
+     "text": "Defeat Cloudwing Cranes",
+     "count": 3,
+     "enemy": "cloudwing_crane"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "codex",
+     "entry": "flight"
+    }
+   ],
+   "offer_text": [
+    "Cloud Stride. Your Qi can carry you. The cranes of the cliffs will teach you the rest."
+   ],
+   "complete_text": [
+    "The sky is a road now."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "7",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "riding_the_wind",
+   "name": "Riding the Wind",
+   "kind": "guided",
+   "giver": "hermit_yao",
+   "hand_in": "hermit_yao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "bond_pet",
+     "text": "Bond with your spirit animal again",
+     "count": 1
+    }
+   ],
+   "rewards": [],
+   "offer_text": [
+    "A big enough friend can carry you."
+   ],
+   "complete_text": [
+    "Hold on tight."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "cs1",
+   "same_stage_ok": true
+  },
+  {
+   "id": "clearer_water",
+   "name": "Clearer Water",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "enter_seclusion",
+     "text": "Seclusion with Refine Qi",
+     "count": 1,
+     "focus": "refine_qi"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_purity",
+     "amount": 1.0
+    }
+   ],
+   "offer_text": [
+    "Impure Qi clouds everything. Refine it in seclusion."
+   ],
+   "complete_text": [
+    "Clearer. Purer. Stronger."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "cs2",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "above_the_mist",
+   "name": "Above the Mist",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Reach the Sky Ledges",
+     "count": 1,
+     "room": "cc_sky_ledges"
+    },
+    {
+     "kind": "kill",
+     "text": "Defeat Stormwing Hawks",
+     "count": 5,
+     "enemy": "stormwing_hawk"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "learn_technique",
+     "technique": "cloud_descent"
+    }
+   ],
+   "offer_text": [
+    "Up. Higher. The hawks nest on the Sky Ledges."
+   ],
+   "complete_text": [
+    "Cloud Descent: fall on them like weather."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "cs3",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "the_upper_stacks",
+   "name": "The Upper Stacks",
+   "kind": "guided",
+   "giver": "jade_librarian",
+   "hand_in": "jade_librarian",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "reach_rank",
+     "text": "Reach core disciple",
+     "count": 1,
+     "rank": "core_disciple"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "manual_page",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "Floor 3 is for core disciples."
+   ],
+   "complete_text": [
+    "Mind the dust. Some manuals bite."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "cs4",
+   "giver_any": [
+    "jade_librarian",
+    "cloud_librarian"
+   ],
+   "hand_in_any": [
+    "jade_librarian",
+    "cloud_librarian"
+   ]
+  },
+  {
+   "id": "hands_of_wood",
+   "name": "Hands of Wood",
+   "kind": "guided",
+   "giver": "tinkerer_yu",
+   "hand_in": "tinkerer_yu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Build a worker puppet",
+     "count": 1,
+     "system": "puppet_built"
+    }
+   ],
+   "rewards": [],
+   "offer_text": [
+    "A puppet that gathers while you cultivate. Build one."
+   ],
+   "complete_text": [
+    "Look at it go!"
+   ],
+   "offered_by_unlock": true,
+   "chapter": "cs5"
+  },
+  {
+   "id": "opening_the_lake",
+   "name": "Opening the Lake",
+   "kind": "guided",
+   "giver": "mei_qing",
+   "hand_in": "mei_qing",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Gather Cloud Feathers",
+     "count": 3,
+     "item": "cloud_feather",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Gather Cloudtop Orchids",
+     "count": 2,
+     "item": "cloudtop_orchid",
+     "consume": false
+    },
+    {
+     "kind": "craft",
+     "text": "Refine the Mind Lake Opening Pill",
+     "count": 1,
+     "recipe": "mind_lake_opening_pill",
+     "craft": "alchemy"
+    }
+   ],
+   "rewards": [],
+   "offer_text": [
+    "Spirit Awakening needs a mind lake. This pill opens it."
+   ],
+   "complete_text": [
+    "Take it when you're ready to wake."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "cs9",
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "mind_lake_opening_pill"
+    }
+   ]
+  },
+  {
+   "id": "a_lake_inside",
+   "name": "A Lake Inside",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Pulse Spirit Sense",
+     "count": 5,
+     "system": "spirit_sense"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "cloud_talisman",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "Your soul has a lake now. Pulse it outward: Spirit Sense."
+   ],
+   "complete_text": [
+    "The world has more in it than eyes see."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "sa1",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "what_the_eyes_miss",
+   "name": "What the Eyes Miss",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "use_portal",
+     "text": "Find and use hidden portals",
+     "count": 3
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "learn_secret_art",
+     "art": "concealment"
+    }
+   ],
+   "offer_text": [
+    "Hidden doors all over the valley. Sense them. Use them."
+   ],
+   "complete_text": [
+    "Concealment: be what the eyes miss."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "8",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "the_sleeping_blade",
+   "name": "The Sleeping Blade",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Reach the Drowned Shrine vault",
+     "count": 1,
+     "room": "ds_abbots_sanctum"
+    },
+    {
+     "kind": "collect",
+     "text": "Bind the Sleeping Blade",
+     "count": 1,
+     "item": "sleeping_blade",
+     "consume": false
+    }
+   ],
+   "rewards": [],
+   "offer_text": [
+    "The Abbot's vault holds a blade that sleeps. Your soul can wake it."
+   ],
+   "complete_text": [
+    "It chose you. Treat it well."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "sa3",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "quiet_waters",
+   "name": "Quiet Waters",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "enter_seclusion",
+     "text": "Seclusion with Nourish soul",
+     "count": 1,
+     "focus": "nourish_soul"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "soul_soothing_pill"
+    }
+   ],
+   "offer_text": [
+    "Souls tire. Rest yours."
+   ],
+   "complete_text": [
+    "Soul Soothing Pills, for the worst days."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "sa4",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "the_mentors_gift",
+   "name": "The Mentor's Gift",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "win_spar",
+     "text": "Pass the personal-disciple trial",
+     "count": 1,
+     "opponent": "sparring_disciple"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "learn_secret_art",
+     "art": "lotus_heart_breathing"
+    }
+   ],
+   "offer_text": [
+    "Beat my best disciple and I'll teach you personally."
+   ],
+   "complete_text": [
+    "My personal disciple. My secret art is yours."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "sa5",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "torn_pages",
+   "name": "Torn Pages",
+   "kind": "guided",
+   "giver": "jade_librarian",
+   "hand_in": "jade_librarian",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Restore a damaged manual",
+     "count": 1,
+     "system": "restore_manual"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "restoration_ink",
+     "count": 3
+    }
+   ],
+   "offer_text": [
+    "Restore a manual. Ink, patience, insight."
+   ],
+   "complete_text": [
+    "You gave a dead technique back its voice."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "sa6",
+   "giver_any": [
+    "jade_librarian",
+    "cloud_librarian"
+   ],
+   "hand_in_any": [
+    "jade_librarian",
+    "cloud_librarian"
+   ]
+  },
+  {
+   "id": "passing_it_on",
+   "name": "Passing It On",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Teach an NPC disciple",
+     "count": 1,
+     "system": "teach"
+    }
+   ],
+   "rewards": [],
+   "offer_text": [
+    "Teach, and learn twice."
+   ],
+   "complete_text": [
+    "You'll make a fine elder."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "sa7",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "a_wider_sky",
+   "name": "A Wider Sky",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Reach the Forgotten Monastery",
+     "count": 1,
+     "room": "mp_forgotten_monastery"
+    },
+    {
+     "kind": "meditate_seconds",
+     "text": "Meditate by the heaven insight stone",
+     "count": 120
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "mistjade_cape",
+     "count": 1
+    },
+    {
+     "kind": "learn_technique",
+     "technique": "glimpse_of_heaven"
+    }
+   ],
+   "offer_text": [
+    "Heaven Glimpse. There's a stone at the Forgotten Monastery where the sky leans close."
+   ],
+   "complete_text": [
+    "You glimpsed it. Now the valley feels small."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "9",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "beyond_the_valley",
+   "name": "Beyond the Valley",
+   "kind": "main",
+   "giver": "lu_boatman",
+   "hand_in": "lu_boatman",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Visit Aunt Ping",
+     "count": 1,
+     "npc": "aunt_ping"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Visit Old Ma",
+     "count": 1,
+     "npc": "old_ma"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Visit Granny Liu",
+     "count": 1,
+     "npc": "granny_liu"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Visit Little Dou",
+     "count": 1,
+     "npc": "little_dou"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Visit Uncle Guo",
+     "count": 1,
+     "npc": "uncle_guo"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "codex",
+     "entry": "azure_expanse"
+    }
+   ],
+   "offer_text": [
+    "Heaven Glimpse 3. The valley can't hold you. Say your farewells; I'll draw you the way to the Gate."
+   ],
+   "complete_text": [
+    "Here's the map. The Ascension Gate is past the Frozen Shrine."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "10",
+   "target_room": "lf_village",
+   "next": "the_ascension_gate"
+  },
+  {
+   "id": "the_ascension_gate",
+   "name": "The Ascension Gate",
+   "kind": "main",
+   "giver": "lu_boatman",
+   "hand_in": "",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat the Gate Guardian",
+     "count": 1,
+     "enemy": "gate_guardian"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "codex",
+     "entry": "act_one_end"
+    }
+   ],
+   "auto_accept": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "beyond_the_valley"
+     }
+    ]
+   },
+   "chapter": "10",
+   "target_room": "mp_ascension_gate"
+  },
+  {
+   "id": "strange_tracks",
+   "name": "Strange Tracks",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "interact_object",
+     "text": "Investigate grey patches in the Reed Marsh",
+     "count": 3,
+     "type": "inspect",
+     "room": "rm_marsh_edge"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 60
+    }
+   ],
+   "offer_text": [
+    "Disciples report grey patches in the Reed Marsh. Colour drained from the reeds. Look, but touch nothing."
+   ],
+   "complete_text": [
+    "Hollowing. It's closer than we hoped."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_4"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "chapter": "2",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "rm_marsh_edge"
+  },
+  {
+   "id": "the_humming_token",
+   "name": "The Humming Token",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Follow the token to the Grey Pools",
+     "count": 1,
+     "room": "rm_grey_pools"
+    },
+    {
+     "kind": "kill",
+     "text": "Defeat Hollowed Boarlets",
+     "count": 5,
+     "enemy": "hollowed_boarlet"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    },
+    {
+     "kind": "codex",
+     "entry": "hollowed"
+    }
+   ],
+   "offer_text": [
+    "Your River Token hums when you face east. Follow it."
+   ],
+   "complete_text": [
+    "Lu's token. It knows the grey. Keep it close."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "strange_tracks"
+     }
+    ]
+   },
+   "chapter": "2",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "rm_grey_pools"
+  },
+  {
+   "id": "mei_qings_errand",
+   "name": "Mei Qing's Errand",
+   "kind": "main",
+   "giver": "mei_qing",
+   "hand_in": "mei_qing",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Bring Willow Moss",
+     "count": 5,
+     "item": "willow_moss"
+    },
+    {
+     "kind": "collect",
+     "text": "Bring Copper Ore",
+     "count": 3,
+     "item": "copper_ore"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "healing_pill",
+     "count": 3
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 60
+    }
+   ],
+   "offer_text": [
+    "The Hollowed wounds need a new salve. Willow moss and copper dust."
+   ],
+   "complete_text": [
+    "This will save lives. Thank you."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_humming_token"
+     }
+    ]
+   },
+   "chapter": "2",
+   "target_room": "sf_artisan_row"
+  },
+  {
+   "id": "grey_at_the_edges",
+   "name": "Grey at the Edges",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Report to your mentor",
+     "count": 1,
+     "npc": "elder_hu",
+     "npc_any": [
+      "elder_hu",
+      "elder_sung"
+     ]
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.2
+    }
+   ],
+   "offer_text": [
+    "Tell me everything you saw."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "mei_qings_errand"
+     }
+    ]
+   },
+   "chapter": "2",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "auto_accept": true
+  },
+  {
+   "id": "bandits_on_the_road",
+   "name": "Bandits on the Road",
+   "kind": "main",
+   "giver": "guard_hou",
+   "hand_in": "guard_hou",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat Mudwater Bandits",
+     "count": 10,
+     "enemy": "mudwater_bandit"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 150
+    }
+   ],
+   "offer_text": [
+    "The Caravan Road's a bandit den. Ten of them, and Stoneford breathes easier."
+   ],
+   "complete_text": [
+    "Good work. The Mudwater won't forget you."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_6"
+     }
+    ]
+   },
+   "chapter": "3",
+   "target_room": "cr_caravan_road"
+  },
+  {
+   "id": "gus_cargo",
+   "name": "Gu's Cargo",
+   "kind": "main",
+   "giver": "elder_gu",
+   "hand_in": "elder_gu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Escort the cart to Bend Shore",
+     "count": 1,
+     "room": "dw_bend_shore"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 200
+    }
+   ],
+   "offer_text": [
+    "One cart, one road, one bodyguard. You."
+   ],
+   "complete_text": [
+    "Every crate intact. You'll go far."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "bandits_on_the_road"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_7"
+     }
+    ]
+   },
+   "chapter": "3",
+   "target_room": "cr_caravan_road"
+  },
+  {
+   "id": "mudwater_hideout",
+   "name": "Mudwater Hideout",
+   "kind": "main",
+   "giver": "guard_hou",
+   "hand_in": "guard_hou",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat \"Big Toad\" Tan",
+     "count": 1,
+     "enemy": "big_toad_tan"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 300
+    },
+    {
+     "kind": "grant_item",
+     "item": "mudwater_manual",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "Tan runs the Mudwater from the hideout. End him."
+   ],
+   "complete_text": [
+    "The road's safe. Stoneford owes you."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_caravan_road"
+     }
+    ]
+   },
+   "chapter": "3",
+   "target_room": "mh_boss_den"
+  },
+  {
+   "id": "the_rite",
+   "name": "The Rite",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "pass_event",
+     "text": "Complete Heaven's Cleansing",
+     "count": 1,
+     "event": "heavens_cleansing"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "codex",
+     "entry": "yan_heng"
+    }
+   ],
+   "offer_text": [
+    "Stand in the circle at the summit. Let heaven wash you."
+   ],
+   "complete_text": [
+    "You saw someone in the light. A man with a river in his eyes. Yan Heng..."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "toward_cleansing_peak"
+     }
+    ]
+   },
+   "chapter": "4",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "cp_cleansing_summit"
+  },
+  {
+   "id": "the_shrine_surfaces",
+   "name": "The Shrine Surfaces",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Enter the Drowned Shrine",
+     "count": 1,
+     "room": "ds_flooded_gate"
+    }
+   ],
+   "rewards": [],
+   "offer_text": [
+    "The Drowned Shrine has risen at Deepwater Bend. Lu's handwriting is on the old maps."
+   ],
+   "complete_text": [
+    "Go deeper."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "5",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "lus_handwriting",
+   "name": "Lu's Handwriting",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "interact_object",
+     "text": "Find Lu's inscriptions",
+     "count": 4,
+     "type": "inspect",
+     "room": "ds_hall_of_lanterns"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "codex",
+     "entry": "lu_past"
+    }
+   ],
+   "offer_text": [
+    "Find what Lu wrote."
+   ],
+   "complete_text": [
+    "Lu was here. Long before you were born."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_shrine_surfaces"
+     }
+    ]
+   },
+   "chapter": "5",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "ds_hall_of_lanterns"
+  },
+  {
+   "id": "the_drowned_abbot",
+   "name": "The Drowned Abbot",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat the Drowned Abbot",
+     "count": 1,
+     "enemy": "drowned_abbot"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "riverbreath_scroll",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "The Abbot guards the Riverbreath inheritance. Ring his four bells to silence him."
+   ],
+   "complete_text": [
+    "The full Riverbreath. Lu's own method."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "lus_handwriting"
+     }
+    ]
+   },
+   "chapter": "5",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "ds_abbots_sanctum"
+  },
+  {
+   "id": "quiet_before_the_storm",
+   "name": "Quiet Before the Storm",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Train in Whitewater Gorge",
+     "count": 1,
+     "room": "wg_rapids_terraces"
+    },
+    {
+     "kind": "kill",
+     "text": "Defeat Rapids Lizards",
+     "count": 8,
+     "enemy": "rapids_lizard"
+    }
+   ],
+   "rewards": [],
+   "offer_text": [
+    "Heart Tempering tests Composure. Train where the water never rests."
+   ],
+   "complete_text": [
+    "Steadier. Good."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_1"
+     }
+    ]
+   },
+   "chapter": "6",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "wg_rapids_terraces"
+  },
+  {
+   "id": "shen_lians_failure",
+   "name": "Shen Lian's Failure",
+   "kind": "main",
+   "giver": "shen_lian",
+   "hand_in": "shen_lian",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "win_spar",
+     "text": "Duel Shen Lian",
+     "count": 1,
+     "opponent": "shen_lian"
+    }
+   ],
+   "rewards": [],
+   "offer_text": [
+    "I failed the Heart Trial. I saw... never mind. Fight me. I need to hit something that hits back."
+   ],
+   "complete_text": [
+    "Thanks. Don't fail yours."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_5"
+     }
+    ]
+   },
+   "chapter": "6",
+   "target_room": "sf_fairground"
+  },
+  {
+   "id": "hidden_cargo",
+   "name": "Hidden Cargo",
+   "kind": "main",
+   "giver": "madam_hua",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Use Spirit Sense in the warehouse district",
+     "count": 1,
+     "system": "spirit_sense"
+    }
+   ],
+   "rewards": [],
+   "offer_text": [
+    "(A sealed note) Gu is smuggling Hollow shards. Sense the warehouses."
+   ],
+   "complete_text": [
+    "Hollow shards. Crates of them."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "what_the_eyes_miss"
+     }
+    ]
+   },
+   "chapter": "8",
+   "giver_any": [
+    "elder_gu",
+    "madam_hua"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "gus_warehouse",
+   "name": "Gu's Warehouse",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Raid Gu's warehouse",
+     "count": 1,
+     "room": "si_gus_warehouse"
+    },
+    {
+     "kind": "collect",
+     "text": "Take the smuggler's ledger",
+     "count": 1,
+     "item": "smuggler_ledger",
+     "consume": false
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "set_flag",
+     "flag": "gu_fled"
+    }
+   ],
+   "offer_text": [
+    "Raid the warehouse. Take his ledger."
+   ],
+   "complete_text": [
+    "He fled through a Tide rift. The ledger will do."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "hidden_cargo"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_8"
+     }
+    ]
+   },
+   "chapter": "8",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "the_rift",
+   "name": "The Rift",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "madam_hua",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Report to Madam Hua",
+     "count": 1,
+     "npc": "madam_hua"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 500
+    }
+   ],
+   "offer_text": [
+    "Madam Hua takes over the trade house. Tell her what you found."
+   ],
+   "complete_text": [
+    "Thank you. The trade house will be honest now."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "gus_warehouse"
+     }
+    ]
+   },
+   "chapter": "8",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "allies_at_the_wall",
+   "name": "Allies at the Wall",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Build formations with both sects",
+     "count": 2,
+     "system": "formation_placed"
+    }
+   ],
+   "rewards": [],
+   "offer_text": [
+    "Both sects will stand together. Build the wall formations."
+   ],
+   "complete_text": [
+    "The wall holds. For now."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_2"
+     }
+    ]
+   },
+   "chapter": "9",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "the_siege",
+   "name": "The Siege",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "pass_event",
+     "text": "Survive the Siege of Two Sects",
+     "count": 1,
+     "event": "siege_of_two_sects"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "siege_medal",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "They're coming. Hollow waves, and something huge."
+   ],
+   "complete_text": [
+    "We held."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "allies_at_the_wall"
+     }
+    ]
+   },
+   "chapter": "9",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "what_remains",
+   "name": "What Remains",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Speak with your mentor",
+     "count": 1,
+     "npc": "elder_hu",
+     "npc_any": [
+      "elder_hu",
+      "elder_sung"
+     ]
+    }
+   ],
+   "rewards": [],
+   "complete_text": [
+    "I'm still here. Because you cleared every defence. Thank you."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_siege"
+     }
+    ]
+   },
+   "chapter": "9",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "auto_accept": true
+  },
+  {
+   "id": "guos_old_wound",
+   "name": "Guo's Old Wound",
+   "kind": "side",
+   "giver": "uncle_guo",
+   "hand_in": "uncle_guo",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Bring Willow Salve",
+     "count": 1,
+     "item": "willow_salve"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "My old meridian wound aches. Granny's salve helps."
+   ],
+   "complete_text": [
+    "Ahh. Better."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_3"
+     }
+    ]
+   },
+   "target_room": "lf_village"
+  },
+  {
+   "id": "the_broken_kindling",
+   "name": "The Broken Kindling",
+   "kind": "side",
+   "giver": "uncle_guo",
+   "hand_in": "uncle_guo",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Bring Qi Gathering Pills",
+     "count": 2,
+     "item": "qi_gathering_pill"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 120
+    }
+   ],
+   "offer_text": [
+    "I want to try again. Kindling. Help me?"
+   ],
+   "complete_text": [
+    "We'll see."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "guos_old_wound"
+     }
+    ]
+   }
+  },
+  {
+   "id": "a_second_try",
+   "name": "A Second Try",
+   "kind": "side",
+   "giver": "uncle_guo",
+   "hand_in": "",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Watch Uncle Guo meditate",
+     "count": 1,
+     "npc": "uncle_guo"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_title",
+     "title": "guos_student"
+    }
+   ],
+   "offer_text": [
+    "Stay with me while I try."
+   ],
+   "complete_text": [
+    "Qi Kindling 1. At my age! Ha!"
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_broken_kindling"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "dous_kite_returns",
+   "name": "Dou's Kite Returns",
+   "kind": "side",
+   "giver": "little_dou",
+   "hand_in": "little_dou",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "deliver",
+     "text": "Bring a Cloud Feather for the new kite",
+     "count": 1,
+     "item": "cloud_feather"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 50
+    }
+   ],
+   "offer_text": [
+    "I'm making a kite that flies to the clouds! I need a cloud feather."
+   ],
+   "complete_text": [
+    "It flies! Sort of!"
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_3"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_runaway_kite"
+     }
+    ]
+   }
+  },
+  {
+   "id": "dou_wants_to_train",
+   "name": "Dou Wants to Train",
+   "kind": "side",
+   "giver": "little_dou",
+   "hand_in": "little_dou",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "hit_object",
+     "text": "Show Dou how to punch the stump",
+     "count": 20,
+     "type": "training_stump"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_title",
+     "title": "big_sibling"
+    }
+   ],
+   "offer_text": [
+    "Teach me to punch! Please please please."
+   ],
+   "complete_text": [
+    "Hi-YAH! Did you see?!"
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "dous_kite_returns"
+     }
+    ]
+   }
+  },
+  {
+   "id": "grey_roofs",
+   "name": "Grey Roofs",
+   "kind": "side",
+   "giver": "hamlet_elder_gao",
+   "hand_in": "hamlet_elder_gao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Clear the Hollowed from the Grey Pools",
+     "count": 10,
+     "enemy": "hollowed_boarlet"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 120
+    }
+   ],
+   "offer_text": [
+    "Clear the pools and we can walk home."
+   ],
+   "complete_text": [
+    "The road home is open."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_1"
+     }
+    ]
+   },
+   "target_room": "rm_grey_pools"
+  },
+  {
+   "id": "cleansing_the_well",
+   "name": "Cleansing the Well",
+   "kind": "side",
+   "giver": "hamlet_elder_gao",
+   "hand_in": "hamlet_elder_gao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "set_flag",
+     "text": "Cleanse the hamlet well",
+     "count": 1,
+     "flag": "well_cleansed"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 150
+    }
+   ],
+   "offer_text": [
+    "The well. If it runs clear, we stay."
+   ],
+   "complete_text": [
+    "Clear water. Thank you."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "grey_roofs"
+     }
+    ]
+   },
+   "target_room": "gh_hamlet_square",
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "cleansing_pill",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "market_day",
+   "name": "Market Day",
+   "kind": "side",
+   "giver": "hamlet_elder_gao",
+   "hand_in": "hamlet_elder_gao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "deliver",
+     "text": "Deliver Rice",
+     "count": 10,
+     "item": "rice"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 200
+    }
+   ],
+   "offer_text": [
+    "A market needs goods. Rice to start."
+   ],
+   "complete_text": [
+    "Greyreed trades again!"
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "cleansing_the_well"
+     }
+    ]
+   }
+  },
+  {
+   "id": "old_pans_errand_1",
+   "name": "Old Pan's First Errand",
+   "kind": "side",
+   "giver": "old_pan",
+   "hand_in": "old_pan",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "deliver",
+     "text": "Bring Ember Peppers",
+     "count": 5,
+     "item": "ember_pepper"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "spirit_stone_low",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "Peppers. Five."
+   ],
+   "complete_text": [
+    "Spicy. Good."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "appraisal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "old_pans_errand_2",
+   "name": "Old Pan's Second Errand",
+   "kind": "side",
+   "giver": "old_pan",
+   "hand_in": "old_pan",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "deliver",
+     "text": "Bring a Pearl",
+     "count": 1,
+     "item": "pearl"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "spirit_stone_low",
+     "count": 4
+    }
+   ],
+   "offer_text": [
+    "A pearl. From the tide crabs."
+   ],
+   "complete_text": [
+    "Lovely."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "old_pans_errand_1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "old_pans_errand_3",
+   "name": "Old Pan's Third Errand",
+   "kind": "side",
+   "giver": "old_pan",
+   "hand_in": "old_pan",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "deliver",
+     "text": "Bring Mist Lotus",
+     "count": 2,
+     "item": "mist_lotus"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "set_flag",
+     "flag": "pan_rotation_plus"
+    }
+   ],
+   "offer_text": [
+    "Mist lotus. Two."
+   ],
+   "complete_text": [
+    "I'll keep something special for you from now on."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "old_pans_errand_2"
+     }
+    ]
+   }
+  },
+  {
+   "id": "the_herb_thief",
+   "name": "The Herb Thief",
+   "kind": "side",
+   "giver": "lan_yue",
+   "hand_in": "lan_yue",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat Bamboo Monkey",
+     "count": 8,
+     "enemy": "bamboo_monkey"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_bond",
+     "amount": 10
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "Lan Yue has a favour to ask."
+   ],
+   "complete_text": [
+    "Lan Yue smiles. \"Thank you.\""
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "companion_owned",
+      "companion": "lan_yue"
+     }
+    ]
+   },
+   "chapter": "companion"
+  },
+  {
+   "id": "a_cure_for_stoneford",
+   "name": "A Cure for Stoneford",
+   "kind": "side",
+   "giver": "lan_yue",
+   "hand_in": "lan_yue",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Gather Riverreed Ginseng 10",
+     "count": 5,
+     "item": "riverreed_ginseng_10"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_bond",
+     "amount": 10
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "Lan Yue has a favour to ask."
+   ],
+   "complete_text": [
+    "Lan Yue smiles. \"Thank you.\""
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_herb_thief"
+     }
+    ]
+   },
+   "chapter": "companion"
+  },
+  {
+   "id": "lan_yues_oath",
+   "name": "Lan Yue's Oath",
+   "kind": "side",
+   "giver": "lan_yue",
+   "hand_in": "lan_yue",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat Drowned Acolyte",
+     "count": 6,
+     "enemy": "drowned_acolyte"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_bond",
+     "amount": 10
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "Lan Yue has a favour to ask."
+   ],
+   "complete_text": [
+    "Lan Yue smiles. \"Thank you.\""
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_cure_for_stoneford"
+     }
+    ]
+   },
+   "chapter": "companion"
+  },
+  {
+   "id": "iron_oxs_debt",
+   "name": "Iron Ox's Debt",
+   "kind": "side",
+   "giver": "tie_niu",
+   "hand_in": "tie_niu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Gather Copper Ore",
+     "count": 10,
+     "item": "copper_ore"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_bond",
+     "amount": 10
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "Tie Niu has a favour to ask."
+   ],
+   "complete_text": [
+    "Tie Niu smiles. \"Thank you.\""
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "companion_owned",
+      "companion": "tie_niu"
+     }
+    ]
+   },
+   "chapter": "companion"
+  },
+  {
+   "id": "the_quarry_fight",
+   "name": "The Quarry Fight",
+   "kind": "side",
+   "giver": "tie_niu",
+   "hand_in": "tie_niu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat Stone Tortoise",
+     "count": 5,
+     "enemy": "stone_tortoise"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_bond",
+     "amount": 10
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "Tie Niu has a favour to ask."
+   ],
+   "complete_text": [
+    "Tie Niu smiles. \"Thank you.\""
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "iron_oxs_debt"
+     }
+    ]
+   },
+   "chapter": "companion"
+  },
+  {
+   "id": "stronger_than_stone",
+   "name": "Stronger Than Stone",
+   "kind": "side",
+   "giver": "tie_niu",
+   "hand_in": "tie_niu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat Boulder Serpent",
+     "count": 5,
+     "enemy": "boulder_serpent"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_bond",
+     "amount": 10
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "Tie Niu has a favour to ask."
+   ],
+   "complete_text": [
+    "Tie Niu smiles. \"Thank you.\""
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_quarry_fight"
+     }
+    ]
+   },
+   "chapter": "companion"
+  },
+  {
+   "id": "the_missing_hunter",
+   "name": "The Missing Hunter",
+   "kind": "side",
+   "giver": "qiu_feng",
+   "hand_in": "qiu_feng",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat Green Viper",
+     "count": 6,
+     "enemy": "green_viper"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_bond",
+     "amount": 10
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "Qiu Feng has a favour to ask."
+   ],
+   "complete_text": [
+    "Qiu Feng smiles. \"Thank you.\""
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "companion_owned",
+      "companion": "qiu_feng"
+     }
+    ]
+   },
+   "chapter": "companion"
+  },
+  {
+   "id": "crane_falls_at_dawn",
+   "name": "Crane Falls at Dawn",
+   "kind": "side",
+   "giver": "qiu_feng",
+   "hand_in": "qiu_feng",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Visit the Falls Pool at dawn",
+     "count": 1,
+     "room": "cf_falls_pool"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_bond",
+     "amount": 10
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "Qiu Feng has a favour to ask."
+   ],
+   "complete_text": [
+    "Qiu Feng smiles. \"Thank you.\""
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_missing_hunter"
+     }
+    ]
+   },
+   "chapter": "companion"
+  },
+  {
+   "id": "one_arrow",
+   "name": "One Arrow",
+   "kind": "side",
+   "giver": "qiu_feng",
+   "hand_in": "qiu_feng",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat Mist Vulture",
+     "count": 5,
+     "enemy": "mist_vulture"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_bond",
+     "amount": 10
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "Qiu Feng has a favour to ask."
+   ],
+   "complete_text": [
+    "Qiu Feng smiles. \"Thank you.\""
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "crane_falls_at_dawn"
+     }
+    ]
+   },
+   "chapter": "companion"
+  },
+  {
+   "id": "lines_on_the_floor",
+   "name": "Lines on the Floor",
+   "kind": "side",
+   "giver": "bai_ling",
+   "hand_in": "bai_ling",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Gather Formation Stone",
+     "count": 3,
+     "item": "formation_stone"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_bond",
+     "amount": 10
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "Bai Ling has a favour to ask."
+   ],
+   "complete_text": [
+    "Bai Ling smiles. \"Thank you.\""
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "companion_owned",
+      "companion": "bai_ling"
+     }
+    ]
+   },
+   "chapter": "companion"
+  },
+  {
+   "id": "the_broken_array",
+   "name": "The Broken Array",
+   "kind": "side",
+   "giver": "bai_ling",
+   "hand_in": "bai_ling",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat Jade Sentinel",
+     "count": 4,
+     "enemy": "jade_sentinel"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_bond",
+     "amount": 10
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "Bai Ling has a favour to ask."
+   ],
+   "complete_text": [
+    "Bai Ling smiles. \"Thank you.\""
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "lines_on_the_floor"
+     }
+    ]
+   },
+   "chapter": "companion"
+  },
+  {
+   "id": "bai_lings_formation",
+   "name": "Bai Ling's Formation",
+   "kind": "side",
+   "giver": "bai_ling",
+   "hand_in": "bai_ling",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Gather Formation Stone",
+     "count": 6,
+     "item": "formation_stone"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "add_bond",
+     "amount": 10
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "Bai Ling has a favour to ask."
+   ],
+   "complete_text": [
+    "Bai Ling smiles. \"Thank you.\""
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_broken_array"
+     }
+    ]
+   },
+   "chapter": "companion"
+  },
+  {
+   "id": "a_hall_of_our_own",
+   "name": "A Hall of Our Own",
+   "kind": "side",
+   "giver": "courier_lin",
+   "hand_in": "",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Found your sect",
+     "count": 1,
+     "system": "found_sect"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 300
+    }
+   ],
+   "offer_text": [
+    "(A letter) The Hidden Vale beyond Crane Falls could hold a sect. Yours."
+   ],
+   "offered_by_unlock": true
+  },
+  {
+   "id": "first_recruits",
+   "name": "First Recruits",
+   "kind": "side",
+   "giver": "courier_lin",
+   "hand_in": "",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Recruit NPC disciples",
+     "count": 2,
+     "system": "recruit"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 200
+    }
+   ],
+   "offer_text": [
+    "A sect needs people."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_hall_of_our_own"
+     }
+    ]
+   }
+  },
+  {
+   "id": "walls_of_the_vale",
+   "name": "Walls of the Vale",
+   "kind": "side",
+   "giver": "courier_lin",
+   "hand_in": "",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Win a defence event",
+     "count": 1,
+     "system": "defence_won"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 400
+    }
+   ],
+   "offer_text": [
+    "Defend the Vale."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "first_recruits"
+     }
+    ]
+   }
+  }
+ ]
+}

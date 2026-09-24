@@ -1,0 +1,44 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "little_dou": {
+   "id": "little_dou",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "in_room",
+        "room": "lf_village_night"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "dou_safe"
+       }
+      ]
+     },
+     "node": "night"
+    }
+   ],
+   "nodes": {
+    "night": {
+     "lines": [
+      "The water's grey! There's something in it!"
+     ],
+     "choices": [
+      {
+       "text": "Run to the hut! Now!",
+       "effects": [
+        {
+         "kind": "set_flag",
+         "flag": "dou_safe"
+        }
+       ],
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

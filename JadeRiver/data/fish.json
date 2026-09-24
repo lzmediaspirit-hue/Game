@@ -1,0 +1,68 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "river_minnow",
+   "item": "river_minnow",
+   "spots": [
+    "village_docks",
+    "reed_shallows",
+    "marsh_edge"
+   ],
+   "weight": 60
+  },
+  {
+   "id": "reed_perch",
+   "item": "reed_perch",
+   "spots": [
+    "village_docks",
+    "reed_shallows",
+    "marsh_edge"
+   ],
+   "weight": 35
+  },
+  {
+   "id": "jade_carp",
+   "item": "jade_carp_fish",
+   "spots": [
+    "bend_shore"
+   ],
+   "weight": 50
+  },
+  {
+   "id": "river_eel",
+   "item": "river_eel",
+   "spots": [
+    "bend_shore"
+   ],
+   "weight": 30
+  },
+  {
+   "id": "mist_trout",
+   "item": "mist_trout",
+   "spots": [
+    "falls_pool"
+   ],
+   "weight": 50
+  },
+  {
+   "id": "rapids_salmon",
+   "item": "rapids_salmon",
+   "spots": [
+    "rapids"
+   ],
+   "weight": 50
+  },
+  {
+   "id": "moon_carp",
+   "item": "moon_carp",
+   "spots": [
+    "any"
+   ],
+   "weight": 8,
+   "time": [
+    "night"
+   ]
+  }
+ ]
+}

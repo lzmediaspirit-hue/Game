@@ -1,0 +1,194 @@
+{
+ "schema_version": 1,
+ "id": "cm_array_court",
+ "zone": "jade_river_valley",
+ "region": "cloud_sect",
+ "name": "Array Court",
+ "type": "sect",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "sect_cloud",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  200,
+  860
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "rope_ledge",
+   "rect": [
+    1500,
+    640,
+    260,
+    50
+   ],
+   "height": 150,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "cm_sword_court",
+   "to_portal": "east"
+  },
+  {
+   "id": "peak_path",
+   "type": "door",
+   "at": [
+    2400,
+    700
+   ],
+   "to": "cm_elder_sung_peak",
+   "to_portal": "path",
+   "press_up": true,
+   "label": "Elder Sung's Peak"
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_cloud_formation_elder",
+   "type": "npc",
+   "at": [
+    900,
+    800
+   ],
+   "npc": "cloud_formation_elder",
+   "facing": -1
+  },
+  {
+   "id": "npc_cloud_physician",
+   "type": "npc",
+   "at": [
+    1400,
+    900
+   ],
+   "npc": "cloud_physician",
+   "facing": 1
+  },
+  {
+   "id": "formation_table_cm",
+   "type": "formation_table",
+   "at": [
+    1100,
+    880
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "formations"
+     }
+    ]
+   },
+   "locked_text": "Formation lines. You can't read them yet."
+  },
+  {
+   "id": "retreat_cm",
+   "type": "inspect",
+   "at": [
+    1900,
+    720
+   ],
+   "prop": "meditation_mat",
+   "text": "A quiet retreat room.",
+   "open_page": "seclusion",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "seclusion"
+     }
+    ]
+   },
+   "locked_text": "Retreat rooms open at Bone Forging 7."
+  },
+  {
+   "id": "furnace_cm",
+   "type": "alchemy_furnace",
+   "at": [
+    2200,
+    760
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "alchemy"
+     }
+    ]
+   },
+   "locked_text": "The monastery furnace."
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "formation_node",
+   "at": [
+    700,
+    760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "formation_node",
+   "at": [
+    1000,
+    760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "formation_node",
+   "at": [
+    1300,
+    760
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "sect",
+ "sect": "cloud_sect",
+ "town": true
+}

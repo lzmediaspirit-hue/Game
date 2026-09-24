@@ -1,0 +1,330 @@
+{
+ "schema_version": 1,
+ "id": "ds_flooded_gate",
+ "zone": "jade_river_valley",
+ "region": "drowned_shrine",
+ "name": "Flooded Gate",
+ "type": "secret",
+ "level_range": [
+  21,
+  27
+ ],
+ "recommended_cp": 398,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "cave",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "gate",
+   "at": [
+    40,
+    850
+   ],
+   "to": "dw_bend_shore",
+   "to_portal": "shrine"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "ds_hall_of_lanterns",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    235,
+    720
+   ],
+   "loot": "jar_valley_mid",
+   "level": 24,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_2",
+   "type": "jar",
+   "at": [
+    830,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 24,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    1280,
+    720
+   ],
+   "loot": "jar_valley_mid",
+   "level": 24,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    1785,
+    900
+   ],
+   "loot": "jar_valley_mid",
+   "level": 24,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    2224,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 24,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_6",
+   "type": "chest",
+   "at": [
+    2200,
+    700
+   ],
+   "loot": "chest_dungeon",
+   "level": 27
+  },
+  {
+   "id": "inscription_ds_flooded_gate_0",
+   "type": "inspect",
+   "at": [
+    500,
+    700
+   ],
+   "prop": "scholar_rock",
+   "text": "Lu's handwriting, faded under the silt: \"Breathe with the river, not against it.\"",
+   "set_flag": "inscription_ds_flooded_gate_0",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "lus_handwriting"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "drowned_acolyte",
+   "surface": "ground",
+   "points": [
+    [
+     468,
+     795
+    ],
+    [
+     847,
+     913
+    ],
+    [
+     1302,
+     842
+    ],
+    [
+     1691,
+     875
+    ],
+    [
+     2083,
+     892
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 12,
+   "level": [
+    21,
+    23
+   ]
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "stone_lantern",
+   "at": [
+    222,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    676,
+    636
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    1176,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    1793,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    2277,
+    632
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    137,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    497,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    787,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1150,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1464,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1868,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2233,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2482,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [
+  {
+   "kind": "shallows",
+   "rect": [
+    0,
+    900,
+    2560,
+    60
+   ]
+  }
+ ],
+ "music": "dungeon",
+ "ambience": "",
+ "dungeon_exit": "dw_bend_shore"
+}

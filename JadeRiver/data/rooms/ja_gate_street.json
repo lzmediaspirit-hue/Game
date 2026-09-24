@@ -1,0 +1,399 @@
+{
+ "schema_version": 1,
+ "id": "ja_gate_street",
+ "zone": "jade_river_valley",
+ "region": "jade_sect",
+ "name": "Gate Street",
+ "type": "sect",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2740,
+  480
+ ],
+ "backdrop": "sect_jade",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2740,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "jade_roof",
+   "rect": [
+    880,
+    560,
+    660,
+    150
+   ],
+   "height": 88,
+   "kind": "roof",
+   "stratum": "platform"
+  },
+  {
+   "id": "bridge_roof",
+   "rect": [
+    1590,
+    560,
+    440,
+    150
+   ],
+   "height": 176,
+   "kind": "roof",
+   "stratum": "platform"
+  },
+  {
+   "id": "cloud_roof",
+   "rect": [
+    2080,
+    560,
+    660,
+    150
+   ],
+   "height": 264,
+   "kind": "roof",
+   "stratum": "platform"
+  }
+ ],
+ "portals": [
+  {
+   "id": "stoneford",
+   "type": "gate",
+   "at": [
+    40,
+    850
+   ],
+   "to": "sf_fairground",
+   "to_portal": "jade_road",
+   "label": "Stoneford"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2700,
+    850
+   ],
+   "to": "ja_pavilion_rooftops",
+   "to_portal": "west"
+  },
+  {
+   "id": "weapon_hall",
+   "type": "door",
+   "at": [
+    1210,
+    704
+   ],
+   "to": "ja_weapon_hall",
+   "to_portal": "exit",
+   "press_up": true,
+   "label": "Weapon Hall and Forge",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_3"
+     }
+    ]
+   },
+   "locked_text": "The Weapon Hall admits disciples from Bone Forging 3."
+  },
+  {
+   "id": "alchemy_hall",
+   "type": "door",
+   "at": [
+    1810,
+    704
+   ],
+   "to": "ja_alchemy_hall",
+   "to_portal": "exit",
+   "press_up": true,
+   "label": "Alchemy Hall"
+  },
+  {
+   "id": "library",
+   "type": "door",
+   "at": [
+    2410,
+    704
+   ],
+   "to": "ja_library",
+   "to_portal": "exit",
+   "press_up": true,
+   "label": "Library"
+  }
+ ],
+ "objects": [
+  {
+   "id": "shrine_ja",
+   "type": "shrine",
+   "at": [
+    700,
+    700
+   ]
+  },
+  {
+   "id": "stone_ja",
+   "type": "teleport_stone",
+   "at": [
+    520,
+    880
+   ],
+   "stone": "jade_academy"
+  },
+  {
+   "id": "board_ja",
+   "type": "notice_board",
+   "at": [
+    2600,
+    700
+   ]
+  },
+  {
+   "id": "npc_jade_steward",
+   "type": "npc",
+   "at": [
+    360,
+    760
+   ],
+   "npc": "jade_steward",
+   "facing": 1
+  },
+  {
+   "id": "npc_jade_deacon",
+   "type": "npc",
+   "at": [
+    2560,
+    780
+   ],
+   "npc": "jade_deacon",
+   "facing": -1
+  },
+  {
+   "id": "npc_jade_disciple_a",
+   "type": "npc",
+   "at": [
+    1500,
+    900
+   ],
+   "npc": "jade_disciple_a",
+   "facing": 1
+  },
+  {
+   "id": "npc_jade_disciple_b",
+   "type": "npc",
+   "at": [
+    2100,
+    880
+   ],
+   "npc": "jade_disciple_b",
+   "facing": -1
+  },
+  {
+   "id": "dorm_bed_ja",
+   "type": "inspect",
+   "at": [
+    1200,
+    720
+   ],
+   "prop": "bed",
+   "text": "Your bunk in the service dorm.",
+   "rest": true,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_disciples_chores"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sweep_ja_0",
+   "type": "inspect",
+   "at": [
+    1000,
+    900
+   ],
+   "prop": "grey_patch",
+   "text": "Swept clean.",
+   "set_flag": "swept_ja_0",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "a_disciples_chores"
+     },
+     {
+      "kind": "flag_not_set",
+      "flag": "swept_ja_0"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sweep_ja_1",
+   "type": "inspect",
+   "at": [
+    1400,
+    900
+   ],
+   "prop": "grey_patch",
+   "text": "Swept clean.",
+   "set_flag": "swept_ja_1",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "a_disciples_chores"
+     },
+     {
+      "kind": "flag_not_set",
+      "flag": "swept_ja_1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sweep_ja_2",
+   "type": "inspect",
+   "at": [
+    1900,
+    900
+   ],
+   "prop": "grey_patch",
+   "text": "Swept clean.",
+   "set_flag": "swept_ja_2",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "a_disciples_chores"
+     },
+     {
+      "kind": "flag_not_set",
+      "flag": "swept_ja_2"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [],
+ "scenery": [
+  {
+   "id": "west_scholar_rock",
+   "art": "props",
+   "cell": 0,
+   "position": [
+    360,
+    735
+   ],
+   "size": [
+    115,
+    80
+   ],
+   "front_y": 735,
+   "footprint": [
+    326,
+    712,
+    68,
+    28
+   ],
+   "height": 64,
+   "occlusion": [
+    302,
+    655,
+    116,
+    80
+   ]
+  },
+  {
+   "id": "stone_lantern",
+   "art": "props",
+   "cell": 4,
+   "position": [
+    1770,
+    920
+   ],
+   "size": [
+    68,
+    78
+   ],
+   "front_y": 920,
+   "footprint": [
+    1747,
+    900,
+    46,
+    25
+   ],
+   "height": 68,
+   "occlusion": [
+    1736,
+    842,
+    68,
+    78
+   ]
+  },
+  {
+   "id": "garden_stones",
+   "art": "props",
+   "cell": 5,
+   "position": [
+    2390,
+    930
+   ],
+   "size": [
+    145,
+    54
+   ],
+   "front_y": 930,
+   "blocks": true,
+   "footprint": [
+    2340,
+    912,
+    100,
+    18
+   ],
+   "height": 38,
+   "occlusion": [
+    2317,
+    876,
+    146,
+    54
+   ]
+  }
+ ],
+ "decor": [],
+ "areas": [],
+ "music": "sect",
+ "custom_ground": true,
+ "sect": "jade_sect",
+ "town": true
+}

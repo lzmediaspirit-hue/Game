@@ -1,0 +1,462 @@
+{
+ "schema_version": 1,
+ "id": "dw_bend_shore",
+ "zone": "jade_river_valley",
+ "region": "deepwater_bend",
+ "name": "Bend Shore",
+ "type": "field",
+ "level_range": [
+  19,
+  23
+ ],
+ "recommended_cp": 362,
+ "element": "water",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "valley_mid",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "valley_day",
+ "ground": {
+  "material": "moss"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "cr_caravan_road",
+   "to_portal": "west"
+  },
+  {
+   "id": "west",
+   "type": "sealed",
+   "at": [
+    40,
+    850
+   ],
+   "to": "wg_gorge_mouth",
+   "to_portal": "east",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_1"
+     }
+    ]
+   },
+   "locked_text": "Whitewater Gorge. The rapids would break you before Heart Tempering."
+  },
+  {
+   "id": "shallows",
+   "type": "door",
+   "at": [
+    1280,
+    700
+   ],
+   "to": "dw_serpents_shallows",
+   "to_portal": "shore",
+   "press_up": true,
+   "label": "Serpent's Shallows"
+  },
+  {
+   "id": "shrine",
+   "type": "dungeon",
+   "at": [
+    2200,
+    700
+   ],
+   "to": "ds_flooded_gate",
+   "to_portal": "west",
+   "press_up": true,
+   "label": "Drowned Shrine",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_3"
+     }
+    ]
+   },
+   "locked_text": "The shrine roof lies under the water. It will surface at Qi Unfurling 3."
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    625,
+    700
+   ],
+   "item": "riverreed_ginseng_10",
+   "prop": "riverreed_ginseng_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "apprentice",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "herb_2",
+   "type": "herb_patch",
+   "at": [
+    1949,
+    700
+   ],
+   "item": "mist_lotus",
+   "prop": "mist_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "adept",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    176,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 21,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    699,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 21,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    1292,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 21,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_6",
+   "type": "jar",
+   "at": [
+    1862,
+    900
+   ],
+   "loot": "jar_valley_mid",
+   "level": 21,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_7",
+   "type": "jar",
+   "at": [
+    2384,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 21,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "fish_8",
+   "type": "fishing_spot",
+   "at": [
+    1080,
+    930
+   ],
+   "spot": "bend_shore",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "fishing"
+     }
+    ]
+   },
+   "locked_text": "You have no rod."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "jade_carp",
+   "surface": "ground",
+   "points": [
+    [
+     390,
+     782
+    ],
+    [
+     856,
+     834
+    ],
+    [
+     1228,
+     863
+    ],
+    [
+     1729,
+     772
+    ],
+    [
+     2057,
+     734
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 12,
+   "level": [
+    19,
+    22
+   ]
+  },
+  {
+   "enemy": "tide_crab",
+   "surface": "ground",
+   "points": [
+    [
+     554,
+     781
+    ],
+    [
+     912,
+     861
+    ],
+    [
+     1293,
+     860
+    ],
+    [
+     1631,
+     844
+    ],
+    [
+     2037,
+     810
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 12,
+   "level": [
+    20,
+    23
+   ]
+  },
+  {
+   "enemy": "jade_carp",
+   "surface": "ground",
+   "points": [
+    [
+     1480,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    22,
+    22
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "willow_tree",
+   "at": [
+    131,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    657,
+    640
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "willow_tree",
+   "at": [
+    1204,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1740,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "willow_tree",
+   "at": [
+    2363,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    154,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    475,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    784,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1033,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1370,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1747,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2062,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2341,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [
+  {
+   "kind": "shallows",
+   "rect": [
+    600,
+    870,
+    1400,
+    90
+   ]
+  }
+ ],
+ "music": "river",
+ "ambience": "river_ambience"
+}

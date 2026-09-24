@@ -1,0 +1,276 @@
+{
+ "schema_version": 1,
+ "id": "ja_pavilion_rooftops",
+ "zone": "jade_river_valley",
+ "region": "jade_sect",
+ "name": "Pavilion Rooftops",
+ "type": "sect",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2660,
+  480
+ ],
+ "backdrop": "sect_jade",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2660,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "rear_stairs",
+   "rect": [
+    1820,
+    580,
+    200,
+    140
+   ],
+   "height": 80,
+   "rise": -80,
+   "rise_axis": "y",
+   "kind": "stairs",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "upper_terrace",
+   "rect": [
+    1820,
+    500,
+    360,
+    80
+   ],
+   "height": 80,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "pine_branch",
+   "rect": [
+    160,
+    680,
+    300,
+    80
+   ],
+   "height": 100,
+   "kind": "branch",
+   "stratum": "platform"
+  },
+  {
+   "id": "east_entry",
+   "rect": [
+    480,
+    560,
+    250,
+    150
+   ],
+   "height": 100,
+   "kind": "roof",
+   "stratum": "platform"
+  },
+  {
+   "id": "east_step",
+   "rect": [
+    770,
+    560,
+    250,
+    150
+   ],
+   "height": 200,
+   "kind": "roof",
+   "stratum": "platform"
+  },
+  {
+   "id": "heaven_roof",
+   "rect": [
+    1060,
+    560,
+    660,
+    150
+   ],
+   "height": 300,
+   "kind": "roof",
+   "stratum": "platform"
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ja_gate_street",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2620,
+    850
+   ],
+   "to": "ja_east_terrace",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "roof_chest",
+   "type": "chest",
+   "at": [
+    1150,
+    620
+   ],
+   "alt": 300,
+   "loot": "chest_valley",
+   "level": 4
+  },
+  {
+   "id": "npc_jade_hall_master",
+   "type": "npc",
+   "at": [
+    900,
+    880
+   ],
+   "npc": "jade_hall_master",
+   "facing": 1
+  },
+  {
+   "id": "npc_jade_wm_yard",
+   "type": "npc",
+   "at": [
+    1200,
+    900
+   ],
+   "npc": "jade_weapon_master",
+   "facing": -1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_weapon_hall"
+     }
+    ]
+   }
+  },
+  {
+   "id": "dummy_jp_0",
+   "type": "training_dummy",
+   "at": [
+    500,
+    900
+   ]
+  },
+  {
+   "id": "dummy_jp_1",
+   "type": "training_dummy",
+   "at": [
+    620,
+    900
+   ]
+  },
+  {
+   "id": "spar_jp",
+   "type": "spar_post",
+   "at": [
+    1500,
+    900
+   ],
+   "opponent": "sparring_disciple"
+  }
+ ],
+ "spawns": [],
+ "scenery": [
+  {
+   "id": "courtyard_pine",
+   "art": "props",
+   "cell": 2,
+   "position": [
+    270,
+    770
+   ],
+   "size": [
+    310,
+    235
+   ],
+   "front_y": 770,
+   "footprint": [
+    234,
+    737,
+    72,
+    39
+   ],
+   "height": 260,
+   "occlusion": [
+    108,
+    535,
+    324,
+    235
+   ]
+  },
+  {
+   "id": "east_plum",
+   "art": "props",
+   "cell": 3,
+   "position": [
+    2360,
+    770
+   ],
+   "size": [
+    220,
+    210
+   ],
+   "front_y": 770,
+   "footprint": [
+    2328,
+    741,
+    64,
+    35
+   ],
+   "height": 240,
+   "occlusion": [
+    2250,
+    560,
+    220,
+    210
+   ]
+  }
+ ],
+ "decor": [],
+ "areas": [],
+ "music": "sect",
+ "custom_ground": true,
+ "sect": "jade_sect",
+ "town": true
+}

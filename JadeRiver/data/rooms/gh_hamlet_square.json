@@ -1,0 +1,163 @@
+{
+ "schema_version": 1,
+ "id": "gh_hamlet_square",
+ "zone": "jade_river_valley",
+ "region": "greyreed_hamlet",
+ "name": "Greyreed Hamlet",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "marsh",
+ "ground": {
+  "material": "earth"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "hamlet_house_a",
+   "rect": [
+    320,
+    574,
+    360,
+    116
+   ],
+   "height": 124,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "thatched_hut"
+  },
+  {
+   "id": "hamlet_house_b",
+   "rect": [
+    1210,
+    598,
+    380,
+    92
+   ],
+   "height": 158,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "village_house"
+  }
+ ],
+ "portals": [
+  {
+   "id": "marsh",
+   "type": "gate",
+   "at": [
+    40,
+    850
+   ],
+   "to": "rm_grey_pools",
+   "to_portal": "hamlet",
+   "label": "Grey Pools"
+  }
+ ],
+ "objects": [
+  {
+   "id": "well_cleanse",
+   "type": "inspect",
+   "at": [
+    900,
+    740
+   ],
+   "prop": "none",
+   "text": "The well water runs clear again.",
+   "set_flag": "well_cleansed",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "cleansing_the_well"
+     }
+    ]
+   }
+  },
+  {
+   "id": "npc_hamlet_elder_gao",
+   "type": "npc",
+   "at": [
+    1100,
+    800
+   ],
+   "npc": "hamlet_elder_gao",
+   "facing": -1
+  },
+  {
+   "id": "npc_hamlet_trader_min",
+   "type": "npc",
+   "at": [
+    2000,
+    800
+   ],
+   "npc": "hamlet_trader_min",
+   "facing": -1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "market_day"
+     }
+    ]
+   }
+  },
+  {
+   "id": "shrine_gh",
+   "type": "shrine",
+   "at": [
+    1700,
+    700
+   ]
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "well",
+   "at": [
+    900,
+    700
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "village_day",
+ "ambience": "town_ambience",
+ "town": true
+}

@@ -1,0 +1,93 @@
+{
+ "schema_version": 1,
+ "id": "si_trial_of_reflections",
+ "zone": "jade_river_valley",
+ "region": "story",
+ "name": "Trial of Reflections",
+ "type": "story",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "mist_peak",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  240,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    1280,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "exit",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "ja_elder_hu_peak",
+   "to_portal": "path",
+   "press_up": true,
+   "label": "Leave",
+   "requires": {
+    "all": [
+     {
+      "kind": "event_passed",
+      "event": "heart_trial"
+     }
+    ]
+   },
+   "locked_text": "The mirror holds you until one of you breaks."
+  }
+ ],
+ "objects": [],
+ "spawns": [],
+ "scenery": [],
+ "decor": [],
+ "areas": [],
+ "music": "boss",
+ "instanced": true,
+ "dungeon_exit": "",
+ "event": {
+  "id": "trial_of_reflections",
+  "duration": 600,
+  "fixed_spawns": [
+   {
+    "enemy": "the_reflection",
+    "at": [
+     1000,
+     840
+    ]
+   }
+  ]
+ }
+}

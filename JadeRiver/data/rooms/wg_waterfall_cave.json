@@ -1,0 +1,99 @@
+{
+ "schema_version": 1,
+ "id": "wg_waterfall_cave",
+ "zone": "jade_river_valley",
+ "region": "whitewater_gorge",
+ "name": "Waterfall Cave",
+ "type": "secret",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 2.2,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "cave",
+ "ground": {
+  "material": "slate"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    1280,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "wg_rapids_terraces",
+   "to_portal": "cave",
+   "press_up": true
+  }
+ ],
+ "objects": [
+  {
+   "id": "journal_cave",
+   "type": "pickup",
+   "at": [
+    900,
+    740
+   ],
+   "item": "lu_journal_page",
+   "count": 1,
+   "prop": "scroll_rack",
+   "set_flag": "journal_cave",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "journal_cave"
+     }
+    ]
+   }
+  },
+  {
+   "id": "chest_1",
+   "type": "chest",
+   "at": [
+    1100,
+    720
+   ],
+   "loot": "chest_dungeon",
+   "level": 33
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [],
+ "areas": [],
+ "music": "dungeon"
+}

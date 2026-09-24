@@ -1,0 +1,62 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "rest",
+   "name": "Rest",
+   "desc": "Recover and keep a little progress."
+  },
+  {
+   "id": "seclusion",
+   "name": "Seclusion",
+   "desc": "Cultivate while away.",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "seclusion"
+     }
+    ]
+   }
+  },
+  {
+   "id": "train",
+   "name": "Train",
+   "desc": "Temper the body at training stumps.",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "idle_tasks"
+     }
+    ]
+   }
+  },
+  {
+   "id": "hunt",
+   "name": "Hunt",
+   "desc": "Hunt this room's monsters at a quarter of the loot.",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "idle_tasks"
+     }
+    ]
+   }
+  },
+  {
+   "id": "gather",
+   "name": "Gather",
+   "desc": "Gather this room's nodes.",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,61 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "recruiter_cloud": {
+   "id": "recruiter_cloud",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_active",
+        "quest": "the_recruitment_fair"
+       },
+       {
+        "kind": "has_training_sect",
+        "value": false
+       },
+       {
+        "kind": "flag_set",
+        "flag": "met_recruiter_jade"
+       },
+       {
+        "kind": "flag_set",
+        "flag": "met_recruiter_cloud"
+       }
+      ]
+     },
+     "node": "choose"
+    }
+   ],
+   "nodes": {
+    "choose": {
+     "lines": [
+      "Wind and height. Cloudpiercing Canon: fast, sharp, a little wild.",
+      "Will you join the Cloud Sect?"
+     ],
+     "choices": [
+      {
+       "text": "Join the Cloud Sect",
+       "effects": [
+        {
+         "kind": "join_sect",
+         "sect": "cloud_sect"
+        },
+        {
+         "kind": "set_flag",
+         "flag": "joined_cloud_sect"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Let me think",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,166 @@
+{
+ "schema_version": 1,
+ "id": "cm_weapon_hall",
+ "zone": "jade_river_valley",
+ "region": "cloud_sect",
+ "name": "Weapon Hall and Forge",
+ "type": "sect",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    1280,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "exit",
+   "type": "door",
+   "at": [
+    640,
+    660
+   ],
+   "to": "cm_sword_court",
+   "to_portal": "weapon_hall",
+   "press_up": true
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_cloud_weapon_master",
+   "type": "npc",
+   "at": [
+    640,
+    760
+   ],
+   "npc": "cloud_weapon_master",
+   "facing": -1
+  },
+  {
+   "id": "npc_cloud_smith",
+   "type": "npc",
+   "at": [
+    1000,
+    760
+   ],
+   "npc": "cloud_smith",
+   "facing": -1
+  },
+  {
+   "id": "dummy_cwh_0",
+   "type": "training_dummy",
+   "at": [
+    280,
+    880
+   ]
+  },
+  {
+   "id": "dummy_cwh_1",
+   "type": "training_dummy",
+   "at": [
+    420,
+    880
+   ]
+  },
+  {
+   "id": "anvil_cm",
+   "type": "forge_anvil",
+   "at": [
+    1000,
+    820
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "smithing"
+     }
+    ]
+   },
+   "locked_text": "Not yet."
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    360,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    920,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "weapon_rack_full",
+   "at": [
+    300,
+    670
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "weapon_rack_full",
+   "at": [
+    460,
+    670
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_stone"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "sect": "cloud_sect",
+ "music": "sect"
+}

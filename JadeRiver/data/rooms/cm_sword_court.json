@@ -1,0 +1,172 @@
+{
+ "schema_version": 1,
+ "id": "cm_sword_court",
+ "zone": "jade_river_valley",
+ "region": "cloud_sect",
+ "name": "Sword Court",
+ "type": "sect",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "sect_cloud",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  200,
+  860
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "sword_hall",
+   "rect": [
+    960,
+    560,
+    640,
+    130
+   ],
+   "height": 110,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "hall"
+  }
+ ],
+ "portals": [
+  {
+   "id": "weapon_hall",
+   "type": "door",
+   "at": [
+    1100,
+    704
+   ],
+   "to": "cm_weapon_hall",
+   "to_portal": "exit",
+   "press_up": true,
+   "label": "Weapon Hall and Forge",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_3"
+     }
+    ]
+   },
+   "locked_text": "The Weapon Hall admits disciples from Bone Forging 3."
+  },
+  {
+   "id": "library",
+   "type": "door",
+   "at": [
+    1460,
+    704
+   ],
+   "to": "cm_cloud_library",
+   "to_portal": "exit",
+   "press_up": true,
+   "label": "Cloud Library"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "cm_cliff_stair",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "cm_array_court",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_cloud_hall_master",
+   "type": "npc",
+   "at": [
+    700,
+    820
+   ],
+   "npc": "cloud_hall_master",
+   "facing": 1
+  },
+  {
+   "id": "npc_arena_cm",
+   "type": "npc",
+   "at": [
+    1900,
+    820
+   ],
+   "npc": "arena_master",
+   "facing": -1
+  },
+  {
+   "id": "dummy_cs_0",
+   "type": "training_dummy",
+   "at": [
+    400,
+    900
+   ]
+  },
+  {
+   "id": "dummy_cs_1",
+   "type": "training_dummy",
+   "at": [
+    520,
+    900
+   ]
+  },
+  {
+   "id": "spar_cm",
+   "type": "spar_post",
+   "at": [
+    1600,
+    900
+   ],
+   "opponent": "sparring_disciple"
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [],
+ "areas": [],
+ "music": "sect",
+ "sect": "cloud_sect",
+ "town": true
+}

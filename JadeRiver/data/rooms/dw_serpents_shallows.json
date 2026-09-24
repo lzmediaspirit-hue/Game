@@ -1,0 +1,147 @@
+{
+ "schema_version": 1,
+ "id": "dw_serpents_shallows",
+ "zone": "jade_river_valley",
+ "region": "deepwater_bend",
+ "name": "Serpent's Shallows",
+ "type": "boss_arena",
+ "level_range": [
+  25,
+  25
+ ],
+ "recommended_cp": 0,
+ "element": "water",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "valley_day",
+ "ground": {
+  "material": "moss"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "high_rock_0",
+   "rect": [
+    900,
+    700,
+    180,
+    60
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "high_rock_1",
+   "rect": [
+    1700,
+    700,
+    180,
+    60
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "high_rock_2",
+   "rect": [
+    2500,
+    700,
+    180,
+    60
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "shore",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "dw_bend_shore",
+   "to_portal": "shallows",
+   "press_up": true,
+   "label": "Bend Shore"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "dw_bend_shore",
+   "to_portal": "shallows"
+  }
+ ],
+ "objects": [],
+ "spawns": [
+  {
+   "enemy": "riverbed_serpent",
+   "surface": "ground",
+   "points": [
+    [
+     1900,
+     900
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 2700,
+   "level": [
+    25,
+    25
+   ],
+   "field_boss": true,
+   "boss": true
+  }
+ ],
+ "scenery": [],
+ "decor": [],
+ "areas": [
+  {
+   "kind": "shallows",
+   "rect": [
+    400,
+    820,
+    3000,
+    140
+   ]
+  }
+ ],
+ "music": "boss"
+}

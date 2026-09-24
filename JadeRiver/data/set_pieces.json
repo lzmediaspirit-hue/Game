@@ -1,0 +1,74 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "heavens_cleansing",
+   "name": "Heaven's Cleansing",
+   "room_event": {
+    "id": "heavens_cleansing",
+    "duration": 45,
+    "wave": {
+     "enemy": "stone_guardian",
+     "every_s": 6,
+     "max": 3,
+     "points": [
+      [
+       300,
+       860
+      ],
+      [
+       1000,
+       860
+      ]
+     ]
+    },
+    "on_complete": [
+     {
+      "kind": "event_passed",
+      "event": "heavens_cleansing"
+     },
+     {
+      "kind": "set_flag",
+      "flag": "cleansing_done"
+     }
+    ]
+   },
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_9"
+     }
+    ]
+   }
+  },
+  {
+   "id": "trial_of_reflections",
+   "name": "Trial of Reflections",
+   "room": "si_trial_of_reflections",
+   "portal": "exit",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_9"
+     }
+    ]
+   }
+  },
+  {
+   "id": "siege_of_two_sects",
+   "name": "Siege of Two Sects",
+   "room": "si_siege",
+   "portal": "exit",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_2"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,207 @@
+{
+ "schema_version": 1,
+ "slots": [
+  {
+   "slot": 2,
+   "requires": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "bone_forging_5"
+     }
+    ]
+   }
+  },
+  {
+   "slot": 3,
+   "requires": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "qi_kindling_1"
+     }
+    ]
+   }
+  },
+  {
+   "slot": 4,
+   "requires": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "qi_unfurling_1"
+     }
+    ]
+   }
+  },
+  {
+   "slot": 5,
+   "requires": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "heart_tempering_1"
+     }
+    ]
+   }
+  },
+  {
+   "slot": 6,
+   "requires": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "cloud_stride_1"
+     }
+    ]
+   }
+  },
+  {
+   "slot": 7,
+   "requires": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "spirit_awakening_1"
+     }
+    ]
+   }
+  },
+  {
+   "slot": 8,
+   "requires": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "heaven_glimpse_1"
+     }
+    ]
+   }
+  },
+  {
+   "slot": 9,
+   "requires": {
+    "all": [
+     {
+      "kind": "sect_level",
+      "level": 5
+     }
+    ]
+   }
+  },
+  {
+   "slot": 10,
+   "requires": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "sage_1"
+     }
+    ]
+   }
+  },
+  {
+   "slot": 11,
+   "requires": {
+    "all": [
+     {
+      "kind": "sect_level",
+      "level": 10
+     }
+    ]
+   }
+  },
+  {
+   "slot": 12,
+   "requires": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "will_manifest_1"
+     }
+    ]
+   }
+  }
+ ],
+ "new_start": {
+  "room": "lf_fishers_hut",
+  "x": 330,
+  "y": 780
+ },
+ "skip_start": {
+  "room": "sf_fairground",
+  "x": 3500,
+  "y": 820,
+  "realm": "bone_forging_2",
+  "quests_done": [
+   "morning_tide",
+   "a_quiet_river",
+   "the_runaway_kite",
+   "mas_delivery",
+   "grannys_remedy",
+   "fists_first",
+   "a_quiet_river_return",
+   "crab_trouble",
+   "evening_on_the_river",
+   "the_hollow_night",
+   "the_river_token",
+   "the_willow_path"
+  ],
+  "flags": [
+   "night_survived",
+   "prologue_done",
+   "dou_safe",
+   "granny_safe",
+   "ma_safe"
+  ],
+  "effects": [
+   {
+    "kind": "grant_item",
+    "item": "river_token",
+    "count": 1
+   },
+   {
+    "kind": "grant_item",
+    "item": "plain_straw_hat",
+    "count": 1
+   },
+   {
+    "kind": "grant_item",
+    "item": "herbal_tea",
+    "count": 5
+   }
+  ]
+ },
+ "skip_prologue_allowed": true,
+ "name_max": 24,
+ "creator": {
+  "hair": [
+   "short_knot",
+   "topknot",
+   "ponytail",
+   "high_pony",
+   "long_tied",
+   "flowing"
+  ],
+  "hair_color": 6,
+  "robe": [
+   "disciple",
+   "vneck",
+   "cardigan",
+   "scholar",
+   "sleeveless"
+  ],
+  "trousers": [
+   "loose",
+   "straight",
+   "cuffed",
+   "scholar",
+   "martial"
+  ],
+  "shoes": [
+   "slippers",
+   "folded",
+   "boots"
+  ]
+ }
+}

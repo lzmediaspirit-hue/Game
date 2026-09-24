@@ -1,0 +1,399 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "jade_river_valley",
+   "tier": 1,
+   "name": "Jade River Valley",
+   "level_range": [
+    0,
+    63
+   ],
+   "ceiling": "heaven_glimpse_3",
+   "laws": [
+    "water",
+    "wood",
+    "earth"
+   ],
+   "currency": {
+    "everyday": "silver_tael",
+    "high": "spirit_stone"
+   },
+   "attunement": null,
+   "panorama": "valley_day",
+   "start_room": "lf_fishers_hut",
+   "qi_density": [
+    0.8,
+    1.5
+   ],
+   "rooms": [
+    "bg_thicket_heart",
+    "bg_whispering_bamboo",
+    "cc_cliff_faces",
+    "cc_sky_ledges",
+    "cf_behind_falls",
+    "cf_falls_pool",
+    "cm_array_court",
+    "cm_cliff_stair",
+    "cm_cloud_library",
+    "cm_elder_sung_peak",
+    "cm_sword_court",
+    "cm_weapon_hall",
+    "cp_cleansing_summit",
+    "cp_pilgrim_stairs",
+    "cr_caravan_road",
+    "ds_abbots_sanctum",
+    "ds_flooded_gate",
+    "ds_hall_of_lanterns",
+    "ds_scripture_well",
+    "dw_bend_shore",
+    "dw_serpents_shallows",
+    "gh_hamlet_square",
+    "hv_back_mountain",
+    "hv_sect_grounds",
+    "hv_vale_gate",
+    "ja_alchemy_hall",
+    "ja_east_terrace",
+    "ja_elder_hu_peak",
+    "ja_gate_street",
+    "ja_herb_terraces",
+    "ja_library",
+    "ja_pavilion_rooftops",
+    "ja_weapon_hall",
+    "lf_fishers_hut",
+    "lf_granny_liu_hut",
+    "lf_lu_boat",
+    "lf_old_ma_store",
+    "lf_reed_shallows",
+    "lf_village",
+    "lf_village_night",
+    "mh_boss_den",
+    "mh_loot_cave",
+    "mh_stockade",
+    "mh_tunnels",
+    "mp_ascension_gate",
+    "mp_forgotten_monastery",
+    "mp_misty_slopes",
+    "rm_grey_pools",
+    "rm_hermit_stilt_house",
+    "rm_marsh_edge",
+    "rm_sunken_causeway",
+    "sf_artisan_row",
+    "sf_fairground",
+    "sf_gate",
+    "sf_market",
+    "sf_trial_cloud",
+    "sf_trial_jade",
+    "si_gus_warehouse",
+    "si_siege",
+    "si_trial_of_reflections",
+    "sq_collapsed_tunnel",
+    "sq_lower_pit",
+    "sq_quarry_rim",
+    "sr_frozen_shrine",
+    "sr_windswept_ridge",
+    "wg_echo_cliffs",
+    "wg_gorge_mouth",
+    "wg_rapids_terraces",
+    "wg_waterfall_cave",
+    "wp_east",
+    "wp_west"
+   ],
+   "regions": [
+    {
+     "id": "lotus_ferry",
+     "name": "Lotus Ferry",
+     "levels": [
+      0,
+      3
+     ],
+     "map": [
+      0.78,
+      0.58
+     ]
+    },
+    {
+     "id": "willow_path",
+     "name": "Willow Path",
+     "levels": [
+      1,
+      3
+     ],
+     "map": [
+      0.66,
+      0.58
+     ]
+    },
+    {
+     "id": "stoneford",
+     "name": "Stoneford",
+     "levels": [
+      0,
+      0
+     ],
+     "map": [
+      0.52,
+      0.56
+     ]
+    },
+    {
+     "id": "jade_sect",
+     "name": "Jade Sect Academy",
+     "levels": [
+      0,
+      0
+     ],
+     "map": [
+      0.46,
+      0.38
+     ]
+    },
+    {
+     "id": "cloud_sect",
+     "name": "Cloud Sect Monastery",
+     "levels": [
+      0,
+      0
+     ],
+     "map": [
+      0.6,
+      0.3
+     ]
+    },
+    {
+     "id": "stonewall_quarry",
+     "name": "Stonewall Quarry",
+     "levels": [
+      4,
+      7
+     ],
+     "map": [
+      0.55,
+      0.74
+     ]
+    },
+    {
+     "id": "reed_marsh",
+     "name": "Reed Marsh",
+     "levels": [
+      4,
+      12
+     ],
+     "map": [
+      0.86,
+      0.72
+     ]
+    },
+    {
+     "id": "greyreed_hamlet",
+     "name": "Greyreed Hamlet",
+     "levels": [
+      0,
+      0
+     ],
+     "map": [
+      0.93,
+      0.8
+     ]
+    },
+    {
+     "id": "bamboo_grove",
+     "name": "Bamboo Grove",
+     "levels": [
+      10,
+      15
+     ],
+     "map": [
+      0.9,
+      0.46
+     ]
+    },
+    {
+     "id": "crane_falls",
+     "name": "Crane Falls",
+     "levels": [
+      0,
+      0
+     ],
+     "map": [
+      0.84,
+      0.3
+     ]
+    },
+    {
+     "id": "caravan_road",
+     "name": "Caravan Road",
+     "levels": [
+      14,
+      19
+     ],
+     "map": [
+      0.38,
+      0.62
+     ]
+    },
+    {
+     "id": "mudwater_hideout",
+     "name": "Mudwater Hideout",
+     "levels": [
+      14,
+      20
+     ],
+     "map": [
+      0.32,
+      0.72
+     ]
+    },
+    {
+     "id": "cleansing_peak",
+     "name": "Cleansing Peak",
+     "levels": [
+      17,
+      19
+     ],
+     "map": [
+      0.76,
+      0.16
+     ]
+    },
+    {
+     "id": "deepwater_bend",
+     "name": "Deepwater Bend",
+     "levels": [
+      19,
+      25
+     ],
+     "map": [
+      0.24,
+      0.56
+     ]
+    },
+    {
+     "id": "drowned_shrine",
+     "name": "Drowned Shrine",
+     "levels": [
+      21,
+      27
+     ],
+     "map": [
+      0.2,
+      0.68
+     ]
+    },
+    {
+     "id": "whitewater_gorge",
+     "name": "Whitewater Gorge",
+     "levels": [
+      28,
+      36
+     ],
+     "map": [
+      0.14,
+      0.42
+     ]
+    },
+    {
+     "id": "crane_cliffs",
+     "name": "Crane Cliffs",
+     "levels": [
+      37,
+      45
+     ],
+     "map": [
+      0.18,
+      0.24
+     ]
+    },
+    {
+     "id": "mist_peak",
+     "name": "Mist Peak",
+     "levels": [
+      46,
+      63
+     ],
+     "map": [
+      0.32,
+      0.12
+     ]
+    },
+    {
+     "id": "summit_ridge",
+     "name": "Summit Ridge",
+     "levels": [
+      55,
+      63
+     ],
+     "map": [
+      0.44,
+      0.06
+     ]
+    },
+    {
+     "id": "hidden_vale",
+     "name": "Hidden Vale",
+     "levels": [
+      0,
+      0
+     ],
+     "map": [
+      0.96,
+      0.22
+     ]
+    },
+    {
+     "id": "story",
+     "name": "Story",
+     "levels": [
+      0,
+      0
+     ],
+     "map": [
+      0.5,
+      0.5
+     ],
+     "hidden": true
+    }
+   ],
+   "planned": [
+    "ae_landing"
+   ]
+  },
+  {
+   "id": "azure_expanse",
+   "tier": 2,
+   "name": "Azure Expanse",
+   "level_range": [
+    55,
+    81
+   ],
+   "ceiling": "sage_sovereign_3",
+   "laws": [
+    "water",
+    "wood",
+    "earth",
+    "fire",
+    "metal",
+    "wind",
+    "thunder"
+   ],
+   "currency": {
+    "everyday": "spirit_stone",
+    "high": "sage_crystal"
+   },
+   "attunement": {
+    "stat": "storm_ward",
+    "required": [
+     10,
+     60
+    ]
+   },
+   "panorama": "valley_day",
+   "start_room": "ae_landing",
+   "rooms": [],
+   "planned": [
+    "ae_landing"
+   ],
+   "status": "planned"
+  }
+ ]
+}

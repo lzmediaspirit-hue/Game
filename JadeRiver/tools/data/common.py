@@ -26,6 +26,8 @@ def write(name, payload, folder=DATA):
 
 
 def entries(name, rows, **extra):
+    if not name.endswith(".json"):
+        name += ".json"
     ids = set()
     for r in rows:
         assert "id" in r, (name, r)

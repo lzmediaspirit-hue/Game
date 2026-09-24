@@ -1,0 +1,45 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "stoneford",
+   "name": "Stoneford Market",
+   "room": "sf_market",
+   "at": [
+    1480,
+    880
+   ],
+   "fee_shards": 1
+  },
+  {
+   "id": "jade_academy",
+   "name": "Jade Sect Academy",
+   "room": "ja_gate_street",
+   "at": [
+    520,
+    880
+   ],
+   "fee_shards": 1
+  },
+  {
+   "id": "cloud_monastery",
+   "name": "Cloud Sect Monastery",
+   "room": "cm_cliff_stair",
+   "at": [
+    460,
+    880
+   ],
+   "fee_shards": 1
+  },
+  {
+   "id": "hidden_vale",
+   "name": "Hidden Vale",
+   "room": "hv_vale_gate",
+   "at": [
+    300,
+    880
+   ],
+   "fee_shards": 1
+  }
+ ]
+}

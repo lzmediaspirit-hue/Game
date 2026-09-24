@@ -1,0 +1,307 @@
+{
+ "schema_version": 1,
+ "id": "sq_collapsed_tunnel",
+ "zone": "jade_river_valley",
+ "region": "stonewall_quarry",
+ "name": "Collapsed Tunnel",
+ "type": "secret",
+ "level_range": [
+  6,
+  7
+ ],
+ "recommended_cp": 128,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "cave",
+ "ground": {
+  "material": "slate"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    1280,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "sq_lower_pit",
+   "to_portal": "tunnel",
+   "press_up": true
+  }
+ ],
+ "objects": [
+  {
+   "id": "ore_1",
+   "type": "ore_vein",
+   "at": [
+    377,
+    690
+   ],
+   "item": "jadeiron",
+   "prop": "jadeiron_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "adept",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "ore_2",
+   "type": "ore_vein",
+   "at": [
+    938,
+    690
+   ],
+   "item": "spirit_stone_shard",
+   "prop": "spirit_shard_vein",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "adept",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    149,
+    900
+   ],
+   "loot": "jar_valley_low",
+   "level": 6,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_4",
+   "type": "crate",
+   "at": [
+    460,
+    930
+   ],
+   "loot": "jar_valley_low",
+   "level": 6,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    843,
+    720
+   ],
+   "loot": "jar_valley_low",
+   "level": 6,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_6",
+   "type": "crate",
+   "at": [
+    1074,
+    930
+   ],
+   "loot": "jar_valley_low",
+   "level": 6,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_7",
+   "type": "chest",
+   "at": [
+    920,
+    700
+   ],
+   "loot": "chest_dungeon",
+   "level": 7
+  },
+  {
+   "id": "journal_tunnel",
+   "type": "pickup",
+   "at": [
+    1100,
+    720
+   ],
+   "item": "lu_journal_page",
+   "count": 1,
+   "prop": "scroll_rack",
+   "set_flag": "journal_tunnel",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "journal_tunnel"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "ironclaw_mole",
+   "surface": "ground",
+   "points": [
+    [
+     378,
+     844
+    ],
+    [
+     582,
+     743
+    ],
+    [
+     849,
+     778
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 12,
+   "level": [
+    6,
+    7
+   ]
+  },
+  {
+   "enemy": "ironclaw_mole",
+   "surface": "ground",
+   "points": [
+    [
+     840,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    7,
+    7
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "rock_small",
+   "at": [
+    192,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    689,
+    636
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1133,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    87,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    510,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    792,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1036,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "dungeon",
+ "ambience": ""
+}

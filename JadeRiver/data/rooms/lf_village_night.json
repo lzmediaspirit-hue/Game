@@ -1,0 +1,318 @@
+{
+ "schema_version": 1,
+ "id": "lf_village_night",
+ "zone": "jade_river_valley",
+ "region": "lotus_ferry",
+ "name": "Lotus Ferry at Night",
+ "type": "story",
+ "level_range": [
+  1,
+  1
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "valley_night",
+ "ground": {
+  "material": "earth",
+  "tint": "#8fa0b8"
+ },
+ "spawn_point": [
+  1500,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    280
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "fishers_hut_n",
+   "rect": [
+    240,
+    574,
+    360,
+    116
+   ],
+   "height": 124,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "thatched_hut",
+   "tint": "#7d8ca8"
+  },
+  {
+   "id": "granny_hut_n",
+   "rect": [
+    830,
+    578,
+    340,
+    112
+   ],
+   "height": 128,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "herb_hut",
+   "tint": "#7d8ca8"
+  },
+  {
+   "id": "old_ma_store_n",
+   "rect": [
+    1520,
+    598,
+    400,
+    92
+   ],
+   "height": 168,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "village_store",
+   "tint": "#7d8ca8"
+  },
+  {
+   "id": "village_hall_n",
+   "rect": [
+    1940,
+    580,
+    420,
+    110
+   ],
+   "height": 88,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "hall",
+   "tint": "#7d8ca8"
+  }
+ ],
+ "portals": [],
+ "objects": [
+  {
+   "id": "hut_refuge",
+   "type": "inspect",
+   "at": [
+    430,
+    704
+   ],
+   "text": "Aunt Ping has the door open. Get everyone inside!",
+   "prop": "none"
+  },
+  {
+   "id": "npc_dou_night",
+   "type": "npc",
+   "at": [
+    2250,
+    820
+   ],
+   "npc": "little_dou",
+   "pose": "idle",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "dou_safe"
+     }
+    ]
+   },
+   "facing": -1
+  },
+  {
+   "id": "npc_granny_night",
+   "type": "npc",
+   "at": [
+    1000,
+    740
+   ],
+   "npc": "granny_liu",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "granny_safe"
+     }
+    ]
+   },
+   "facing": 1
+  },
+  {
+   "id": "npc_ma_night",
+   "type": "npc",
+   "at": [
+    1720,
+    760
+   ],
+   "npc": "old_ma",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "ma_safe"
+     }
+    ]
+   },
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "lantern_post",
+   "at": [
+    700,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_post",
+   "at": [
+    1330,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_post",
+   "at": [
+    2280,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "grey_patch",
+   "at": [
+    1300,
+    900
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "grey_patch",
+   "at": [
+    2100,
+    880
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "mist_bank",
+   "at": [
+    900,
+    990
+   ],
+   "layer": "front"
+  },
+  {
+   "prop": "mist_bank",
+   "at": [
+    2000,
+    990
+   ],
+   "layer": "front"
+  }
+ ],
+ "areas": [
+  {
+   "kind": "river",
+   "rect": [
+    0,
+    900,
+    2560,
+    120
+   ]
+  }
+ ],
+ "music": "night_hollow",
+ "ambience": "night_ambience",
+ "instanced": true,
+ "night": true,
+ "custom_ground": true,
+ "event": {
+  "id": "hollow_night",
+  "duration": 60,
+  "wave": {
+   "enemy": "hollow_minnow",
+   "every_s": 2.5,
+   "max": 7,
+   "points": [
+    [
+     300,
+     880
+    ],
+    [
+     900,
+     930
+    ],
+    [
+     1400,
+     900
+    ],
+    [
+     2000,
+     930
+    ],
+    [
+     2400,
+     880
+    ]
+   ]
+  },
+  "fixed_spawns": [
+   {
+    "enemy": "hollowed_eel",
+    "at": [
+     1900,
+     940
+    ],
+    "level": 10
+   }
+  ],
+  "on_complete": [
+   {
+    "kind": "set_flag",
+    "flag": "night_survived"
+   },
+   {
+    "kind": "clear_flag",
+    "flag": "night_active"
+   },
+   {
+    "kind": "teleport",
+    "room": "lf_lu_boat",
+    "portal": "deck"
+   }
+  ],
+  "requires": {
+   "all": [
+    {
+     "kind": "flag_not_set",
+     "flag": "night_survived"
+    }
+   ]
+  }
+ }
+}

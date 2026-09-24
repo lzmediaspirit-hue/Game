@@ -1,0 +1,316 @@
+{
+ "schema_version": 1,
+ "id": "cp_pilgrim_stairs",
+ "zone": "jade_river_valley",
+ "region": "cleansing_peak",
+ "name": "Pilgrim Stairs",
+ "type": "path",
+ "level_range": [
+  17,
+  19
+ ],
+ "recommended_cp": 326,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "mist_peak",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    700,
+    680,
+    300,
+    50
+   ],
+   "height": 80,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    1300,
+    660,
+    300,
+    50
+   ],
+   "height": 160,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_2",
+   "rect": [
+    1900,
+    680,
+    300,
+    50
+   ],
+   "height": 240,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "cf_falls_pool",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "cp_cleansing_summit",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    451,
+    700
+   ],
+   "loot": "jar_valley_low",
+   "level": 18,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_2",
+   "type": "crate",
+   "at": [
+    1360,
+    900
+   ],
+   "loot": "jar_valley_low",
+   "level": 18,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    2158,
+    720
+   ],
+   "loot": "jar_valley_low",
+   "level": 18,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "shrine_cp",
+   "type": "shrine",
+   "at": [
+    300,
+    700
+   ]
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "stone_guardian",
+   "surface": "ground",
+   "points": [
+    [
+     461,
+     868
+    ],
+    [
+     902,
+     882
+    ],
+    [
+     1272,
+     702
+    ],
+    [
+     1742,
+     926
+    ],
+    [
+     2101,
+     734
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 12,
+   "level": [
+    17,
+    19
+   ]
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "pine_tree",
+   "at": [
+    226,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    665,
+    640
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1252,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    1588,
+    634
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2224,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    107,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    366,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    712,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1052,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1514,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1828,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2227,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2565,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "field_mountain",
+ "ambience": ""
+}

@@ -1,0 +1,154 @@
+{
+ "schema_version": 1,
+ "id": "mh_boss_den",
+ "zone": "jade_river_valley",
+ "region": "mudwater_hideout",
+ "name": "Boss Den",
+ "type": "boss_arena",
+ "level_range": [
+  18,
+  18
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "cave",
+ "ground": {
+  "material": "earth"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "mh_loot_cave",
+   "to_portal": "east"
+  },
+  {
+   "id": "exit",
+   "type": "door",
+   "at": [
+    2460,
+    860
+   ],
+   "to": "cr_caravan_road",
+   "to_portal": "hideout",
+   "press_up": true,
+   "label": "Caravan Road"
+  }
+ ],
+ "objects": [
+  {
+   "id": "toad_wine_0",
+   "type": "wine_jar",
+   "at": [
+    1400,
+    900
+   ],
+   "loot": "jar_valley_mid",
+   "hp": 1,
+   "level": 18,
+   "respawn_s": 86400
+  },
+  {
+   "id": "toad_wine_1",
+   "type": "wine_jar",
+   "at": [
+    2000,
+    720
+   ],
+   "loot": "jar_valley_mid",
+   "hp": 1,
+   "level": 18,
+   "respawn_s": 86400
+  },
+  {
+   "id": "toad_wine_2",
+   "type": "wine_jar",
+   "at": [
+    2300,
+    900
+   ],
+   "loot": "jar_valley_mid",
+   "hp": 1,
+   "level": 18,
+   "respawn_s": 86400
+  },
+  {
+   "id": "chest_1",
+   "type": "chest",
+   "at": [
+    2400,
+    700
+   ],
+   "loot": "chest_dungeon",
+   "level": 20,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "mudwater_hideout"
+     }
+    ]
+   },
+   "locked_text": "Tan's strongbox. Defeat him first."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "big_toad_tan",
+   "surface": "ground",
+   "points": [
+    [
+     1700,
+     840
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 86400,
+   "level": [
+    18,
+    18
+   ],
+   "boss": true
+  }
+ ],
+ "scenery": [],
+ "decor": [],
+ "areas": [],
+ "music": "boss",
+ "dungeon_exit": "cr_caravan_road"
+}

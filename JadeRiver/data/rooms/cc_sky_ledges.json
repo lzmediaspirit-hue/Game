@@ -1,0 +1,458 @@
+{
+ "schema_version": 1,
+ "id": "cc_sky_ledges",
+ "zone": "jade_river_valley",
+ "region": "crane_cliffs",
+ "name": "Sky Ledges",
+ "type": "field",
+ "level_range": [
+  40,
+  45
+ ],
+ "recommended_cp": 740,
+ "element": "wind",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "mist_peak",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    500,
+    650,
+    300,
+    50
+   ],
+   "height": 260,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    1200,
+    640,
+    300,
+    50
+   ],
+   "height": 360,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_2",
+   "rect": [
+    1900,
+    650,
+    300,
+    50
+   ],
+   "height": 260,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "cc_cliff_faces",
+   "to_portal": "west"
+  },
+  {
+   "id": "west",
+   "type": "sealed",
+   "at": [
+    40,
+    850
+   ],
+   "to": "mp_misty_slopes",
+   "to_portal": "east",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_1"
+     }
+    ]
+   },
+   "locked_text": "Mist Peak is thick with soul-mist. Spirit Awakening first."
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    391,
+    930
+   ],
+   "item": "cloudtop_orchid",
+   "prop": "cloudtop_orchid_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "expert",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "herb_2",
+   "type": "herb_patch",
+   "at": [
+    1279,
+    690
+   ],
+   "item": "cloudtop_orchid",
+   "prop": "cloudtop_orchid_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "expert",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "ore_3",
+   "type": "ore_vein",
+   "at": [
+    2130,
+    690
+   ],
+   "item": "cloudsteel_ore",
+   "prop": "cloudsteel_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "expert",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    374,
+    900
+   ],
+   "loot": "jar_valley_mid",
+   "level": 42,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_5",
+   "type": "crate",
+   "at": [
+    908,
+    720
+   ],
+   "loot": "jar_valley_mid",
+   "level": 42,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_6",
+   "type": "jar",
+   "at": [
+    1655,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 42,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_7",
+   "type": "crate",
+   "at": [
+    2192,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 42,
+   "hp": 1,
+   "respawn_s": 300
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "stormwing_hawk",
+   "surface": "ground",
+   "points": [
+    [
+     546,
+     892
+    ],
+    [
+     1074,
+     876
+    ],
+    [
+     1584,
+     760
+    ],
+    [
+     2110,
+     770
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 12,
+   "level": [
+    40,
+    43
+   ]
+  },
+  {
+   "enemy": "cliff_ape",
+   "surface": "ground",
+   "points": [
+    [
+     548,
+     750
+    ],
+    [
+     836,
+     813
+    ],
+    [
+     1233,
+     897
+    ],
+    [
+     1657,
+     725
+    ],
+    [
+     2059,
+     711
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 12,
+   "level": [
+    41,
+    45
+   ]
+  },
+  {
+   "enemy": "stormwing_hawk",
+   "surface": "ground",
+   "points": [
+    [
+     1480,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    43,
+    43
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "pine_tree",
+   "at": [
+    138,
+    630
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    564,
+    639
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1086,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1573,
+    640
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2076,
+    631
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    85,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    540,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    740,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1047,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1341,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1576,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1896,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2235,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2556,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  }
+ ],
+ "areas": [],
+ "music": "field_mountain",
+ "ambience": "wind_ambience"
+}

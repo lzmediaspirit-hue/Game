@@ -1,0 +1,269 @@
+{
+ "schema_version": 1,
+ "id": "ja_herb_terraces",
+ "zone": "jade_river_valley",
+ "region": "jade_sect",
+ "name": "Herb Terraces",
+ "type": "sect",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "valley_low",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "sect_jade",
+ "ground": {
+  "material": "moss"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "terrace_1",
+   "rect": [
+    600,
+    660,
+    500,
+    90
+   ],
+   "height": 60,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "terrace_2",
+   "rect": [
+    1300,
+    640,
+    500,
+    90
+   ],
+   "height": 120,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ja_east_terrace",
+   "to_portal": "east"
+  },
+  {
+   "id": "peak_path",
+   "type": "door",
+   "at": [
+    2400,
+    700
+   ],
+   "to": "ja_elder_hu_peak",
+   "to_portal": "path",
+   "press_up": true,
+   "label": "Elder Hu's Peak"
+  }
+ ],
+ "objects": [
+  {
+   "id": "bed_0",
+   "type": "garden_bed",
+   "at": [
+    700,
+    700
+   ],
+   "alt": 60,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_garden"
+     }
+    ]
+   },
+   "locked_text": "Garden beds belong to inner disciples."
+  },
+  {
+   "id": "bed_1",
+   "type": "garden_bed",
+   "at": [
+    850,
+    700
+   ],
+   "alt": 60,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_garden"
+     }
+    ]
+   },
+   "locked_text": "Garden beds belong to inner disciples."
+  },
+  {
+   "id": "bed_2",
+   "type": "garden_bed",
+   "at": [
+    1000,
+    700
+   ],
+   "alt": 60,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_garden"
+     }
+    ]
+   },
+   "locked_text": "Garden beds belong to inner disciples."
+  },
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    400,
+    900
+   ],
+   "item": "willow_moss",
+   "prop": "willow_moss_patch",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "apprentice",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "herb_2",
+   "type": "herb_patch",
+   "at": [
+    1500,
+    700
+   ],
+   "item": "riverreed_ginseng_10",
+   "prop": "riverreed_ginseng_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "apprentice",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 120
+  },
+  {
+   "id": "npc_jade_gardener",
+   "type": "npc",
+   "at": [
+    1200,
+    860
+   ],
+   "npc": "jade_gardener",
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "bamboo_cluster",
+   "at": [
+    217,
+    639
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    681,
+    633
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "bamboo_cluster",
+   "at": [
+    1217,
+    632
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1600,
+    629
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "bamboo_cluster",
+   "at": [
+    2041,
+    638
+   ],
+   "layer": "play",
+   "flip": false
+  }
+ ],
+ "areas": [],
+ "music": "sect",
+ "sect": "jade_sect",
+ "town": true
+}

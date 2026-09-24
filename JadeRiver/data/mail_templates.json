@@ -1,0 +1,47 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "aunt_ping_realm",
+   "from": "Aunt Ping",
+   "subject": "You reached {realm}!",
+   "body": "Lu told me. I cried a little. Eat properly. I sent rice balls."
+  },
+  {
+   "id": "mentor_hint",
+   "from": "Your mentor",
+   "subject": "About that wall",
+   "body": "You've been stuck at {realm} for a while. Open the Breakthrough panel and read each requirement. Every one has a fix."
+  },
+  {
+   "id": "welcome_gift",
+   "from": "The Valley",
+   "subject": "Welcome to Jade River",
+   "body": "A small gift for the road."
+  },
+  {
+   "id": "dou_drawing",
+   "from": "Little Dou",
+   "subject": "I drew you!",
+   "body": "This is you punching a crab. The crab is losing."
+  },
+  {
+   "id": "overflow",
+   "from": "Lost and Found",
+   "subject": "Items you couldn't carry",
+   "body": "These were found where you left them."
+  },
+  {
+   "id": "idle_report",
+   "from": "Your disciple",
+   "subject": "While you were away",
+   "body": "{summary}"
+  },
+  {
+   "id": "mentor_letter",
+   "from": "Your mentor",
+   "subject": "A second path",
+   "body": "One cultivator cannot walk every road."
+  }
+ ]
+}

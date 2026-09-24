@@ -1,0 +1,192 @@
+{
+ "schema_version": 1,
+ "id": "ja_east_terrace",
+ "zone": "jade_river_valley",
+ "region": "jade_sect",
+ "name": "East Terrace",
+ "type": "sect",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "sect_jade",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "mission_hall",
+   "rect": [
+    400,
+    560,
+    600,
+    130
+   ],
+   "height": 120,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "hall"
+  },
+  {
+   "id": "retreat_rooms",
+   "rect": [
+    1760,
+    550,
+    280,
+    140
+   ],
+   "height": 200,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "tower"
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ja_pavilion_rooftops",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "ja_herb_terraces",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_jade_formation_elder",
+   "type": "npc",
+   "at": [
+    1300,
+    800
+   ],
+   "npc": "jade_formation_elder",
+   "facing": -1
+  },
+  {
+   "id": "npc_jade_physician",
+   "type": "npc",
+   "at": [
+    1600,
+    900
+   ],
+   "npc": "jade_physician",
+   "facing": 1
+  },
+  {
+   "id": "npc_arena_master",
+   "type": "npc",
+   "at": [
+    2200,
+    820
+   ],
+   "npc": "arena_master",
+   "facing": -1
+  },
+  {
+   "id": "formation_table_ja",
+   "type": "formation_table",
+   "at": [
+    1100,
+    880
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "formations"
+     }
+    ]
+   },
+   "locked_text": "Formation lines. You can't read them yet."
+  },
+  {
+   "id": "retreat_ja",
+   "type": "inspect",
+   "at": [
+    1900,
+    704
+   ],
+   "prop": "none",
+   "text": "A quiet retreat room.",
+   "open_page": "seclusion",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "seclusion"
+     }
+    ]
+   },
+   "locked_text": "Retreat rooms open at Bone Forging 7."
+  },
+  {
+   "id": "arena_ja",
+   "type": "spar_post",
+   "at": [
+    2400,
+    900
+   ],
+   "opponent": "sparring_disciple",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "tournament"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [],
+ "areas": [],
+ "music": "sect",
+ "sect": "jade_sect",
+ "town": true
+}

@@ -1,0 +1,31 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "jade_sect",
+   "name": "Jade Sect",
+   "full_name": "Jade Sect Academy",
+   "element": "water",
+   "methods": [
+    "jade_current_scripture"
+   ],
+   "token": "jade_token",
+   "color": "#2C9E8F",
+   "hub": "ja_gate_street",
+   "emblem": "jade"
+  },
+  {
+   "id": "cloud_sect",
+   "name": "Cloud Sect",
+   "full_name": "Cloud Sect Monastery",
+   "element": "wind",
+   "methods": [
+    "cloudpiercing_canon"
+   ],
+   "token": "cloud_token",
+   "color": "#AFC9D1",
+   "hub": "cm_cliff_stair",
+   "emblem": "cloud"
+  }
+ ]
+}

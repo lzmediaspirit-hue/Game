@@ -1,0 +1,130 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "fleet_footed",
+   "name": "Fleet-Footed",
+   "desc": "Win the race to the tower",
+   "event": "quest_completed",
+   "match": {
+    "quest": "race_to_the_tower"
+   },
+   "title": "fleet_footed"
+  },
+  {
+   "id": "crab_catcher",
+   "name": "Crab Catcher",
+   "desc": "Defeat 100 Mudshell Crabs",
+   "event": "actor_defeated",
+   "match": {
+    "def": "mudshell_crab"
+   },
+   "count": 100,
+   "title": "shore_warden"
+  },
+  {
+   "id": "first_current",
+   "name": "First Current",
+   "desc": "Reach Bone Forging 7",
+   "event": "realm_changed",
+   "match": {
+    "realm_at_least": "bone_forging_7"
+   },
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "qi_gathering_pill",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "iron_fist",
+   "name": "Iron Fist",
+   "desc": "Reach Qi Kindling 1 without equipping a weapon",
+   "event": "realm_changed",
+   "match": {
+    "realm_at_least": "qi_kindling_1",
+    "no_weapon": true,
+    "to": "qi_kindling_1"
+   },
+   "title": "iron_fist"
+  },
+  {
+   "id": "steady_hands",
+   "name": "Steady Hands",
+   "desc": "Refine a Perfect pill",
+   "event": "craft_completed",
+   "match": {
+    "craft": "alchemy",
+    "quality": "perfect"
+   },
+   "title": "steady_hands"
+  },
+  {
+   "id": "deep_roots",
+   "name": "Deep Roots",
+   "desc": "Reach Mining Adept",
+   "event": "profession_rank_up",
+   "match": {
+    "craft": "mining",
+    "rank": "adept"
+   },
+   "title": "stonebreaker"
+  },
+  {
+   "id": "untouched",
+   "name": "Untouched",
+   "desc": "Defeat a dungeon boss without being gravely wounded",
+   "event": "boss_defeated",
+   "match": {
+    "clean": true
+   },
+   "title": "untouched"
+  },
+  {
+   "id": "collector",
+   "name": "Collector",
+   "desc": "Fill 10 collection cards",
+   "event": "collection_card_filled",
+   "count": 10,
+   "title": "collector"
+  },
+  {
+   "id": "traveller",
+   "name": "Traveller",
+   "desc": "Visit every valley room",
+   "event": "room_entered",
+   "match": {
+    "all_valley_rooms": true
+   },
+   "title": "wanderer"
+  },
+  {
+   "id": "patient_heart",
+   "name": "Patient Heart",
+   "desc": "Pass the Heart Trial on the first try",
+   "event": "event_passed",
+   "match": {
+    "event": "heart_trial",
+    "first_try": true
+   },
+   "title": "still_water"
+  },
+  {
+   "id": "friend_of_beasts",
+   "name": "Friend of Beasts",
+   "desc": "Bond 3 spirit animals",
+   "event": "pet_bonded",
+   "count": 3,
+   "title": "beast_friend"
+  },
+  {
+   "id": "valley_champion",
+   "name": "Valley Champion",
+   "desc": "Win the Valley Tournament",
+   "event": "tournament_won",
+   "title": "valley_champion"
+  }
+ ]
+}

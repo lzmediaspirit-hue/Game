@@ -1,0 +1,35 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "aunt_ping": {
+   "id": "aunt_ping",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_active",
+        "quest": "evening_on_the_river"
+       }
+      ]
+     },
+     "node": "dinner"
+    }
+   ],
+   "nodes": {
+    "dinner": {
+     "lines": [
+      "Sit, sit. Fish congee. Your favourite.",
+      "...Lu took you out on the water tonight? Be careful. The river's been strange."
+     ],
+     "choices": [
+      {
+       "text": "I'll be careful.",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

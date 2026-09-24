@@ -1,0 +1,146 @@
+{
+ "schema_version": 1,
+ "id": "lf_old_ma_store",
+ "zone": "jade_river_valley",
+ "region": "lotus_ferry",
+ "name": "Old Ma's Store",
+ "type": "interior",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "wood"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    1280,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "exit",
+   "type": "door",
+   "at": [
+    640,
+    660
+   ],
+   "to": "lf_village",
+   "to_portal": "store_door",
+   "press_up": true
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_old_ma",
+   "type": "npc",
+   "at": [
+    640,
+    700
+   ],
+   "npc": "old_ma",
+   "facing": 1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    360,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    920,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "counter",
+   "at": [
+    640,
+    740
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "shelf",
+   "at": [
+    300,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "shelf",
+   "at": [
+    980,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "sack_pile",
+   "at": [
+    180,
+    760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    1100,
+    760
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_wood"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "music": "village_day"
+}

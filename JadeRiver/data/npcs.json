@@ -1,0 +1,1680 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "aunt_ping",
+   "name": "Aunt Ping",
+   "title": "Your aunt",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 1,
+    "shirt": "cardigan",
+    "pants": "straight",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "rose",
+    "pants_dye": "earth"
+   },
+   "lines": [
+    "Eat something before you run off.",
+    "Your mother had the same stubborn chin.",
+    "The river gives, the river takes. Mostly it gives fish."
+   ],
+   "barks": [
+    "Mind the steps!",
+    "Who left the net out again?"
+   ],
+   "services": [],
+   "tree": "aunt_ping"
+  },
+  {
+   "id": "lu_boatman",
+   "name": "Lu",
+   "title": "Ferryman",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "straw",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "grey",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "The river has been restless.",
+    "Breathe in when the water rises. Out when it falls.",
+    "Every current started as a trickle."
+   ],
+   "barks": [
+    "Hm.",
+    "Tide's turning."
+   ],
+   "services": [],
+   "tree": "lu"
+  },
+  {
+   "id": "little_dou",
+   "name": "Little Dou",
+   "title": "Neighbour's boy",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 0,
+    "shirt": "sleeveless",
+    "pants": "cuffed",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "ochre"
+   },
+   "lines": [
+    "When I grow up I'll punch a crab so hard it flies to Stoneford!",
+    "Did you see my kite? It's the best kite."
+   ],
+   "barks": [
+    "Kite! Kiiite!",
+    "Hi-yah!"
+   ],
+   "services": [],
+   "scale": 0.8,
+   "tree": "little_dou"
+  },
+  {
+   "id": "old_ma",
+   "name": "Old Ma",
+   "title": "Shopkeeper",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 5,
+    "shirt": "vneck",
+    "pants": "loose",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "earth"
+   },
+   "lines": [
+    "Silver or barter, I'm not fussy.",
+    "Rice balls! Fresh this morning. Well. This week."
+   ],
+   "barks": [
+    "Fresh rice balls!",
+    "Everything must go. Eventually."
+   ],
+   "services": [
+    "shop:old_ma"
+   ],
+   "tree": "old_ma"
+  },
+  {
+   "id": "granny_liu",
+   "name": "Granny Liu",
+   "title": "Herbalist",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 1,
+    "shirt": "cardigan",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "jade",
+    "pants_dye": "grey"
+   },
+   "lines": [
+    "Bitter tea, sweet health.",
+    "A herb picked at dawn is worth two at noon."
+   ],
+   "barks": [
+    "Where did I put my pestle?",
+    "Hmph. Young people."
+   ],
+   "services": [
+    "shop:granny_liu"
+   ],
+   "tree": "granny_liu"
+  },
+  {
+   "id": "shen_lian_npc",
+   "name": "Shen Lian",
+   "title": "Fisher's son",
+   "outfit": {
+    "body": "light",
+    "hair": "high_pony",
+    "hair_color": 0,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "indigo"
+   },
+   "lines": [
+    "Race you to the tower. Loser guts the fish.",
+    "One day I'll join a sect. A real one."
+   ],
+   "barks": [
+    "Faster!",
+    "Bet you can't catch me."
+   ],
+   "services": [],
+   "tree": "shen_lian"
+  },
+  {
+   "id": "uncle_guo",
+   "name": "Uncle Guo",
+   "title": "Retired brawler",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 5,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "crimson"
+   },
+   "lines": [
+    "Fists first. Everything else is decoration.",
+    "I kindled Qi once. For a day. Long story."
+   ],
+   "barks": [
+    "Hah! Hup!",
+    "Keep your elbow in."
+   ],
+   "services": [],
+   "tree": "uncle_guo"
+  },
+  {
+   "id": "fisher_wen",
+   "name": "Fisher Wen",
+   "title": "Fisherman",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 5,
+    "shirt": "vneck",
+    "pants": "cuffed",
+    "shoes": "folded",
+    "hat": "straw",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "indigo"
+   },
+   "lines": [
+    "The carp aren't biting. Something scared them.",
+    "Grey water near the reeds last week. Never seen that."
+   ],
+   "barks": [
+    "Nothing. Again."
+   ],
+   "services": []
+  },
+  {
+   "id": "washer_mei",
+   "name": "Washer Mei",
+   "title": "Villager",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 2,
+    "shirt": "cardigan",
+    "pants": "straight",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "white"
+   },
+   "lines": [
+    "Aunt Ping says you're finally awake before noon.",
+    "The river's cold as winter this morning."
+   ],
+   "barks": [
+    "Scrub, scrub."
+   ],
+   "services": []
+  },
+  {
+   "id": "guard_hou",
+   "name": "Captain Hou",
+   "title": "Gate guard",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "spear",
+    "shirt_dye": "earth"
+   },
+   "lines": [
+    "Stoneford gate. Keep your blades sheathed.",
+    "Recruitment Fair's on the Fairground. West, past Artisan Row."
+   ],
+   "barks": [
+    "Next!",
+    "Move along."
+   ],
+   "services": []
+  },
+  {
+   "id": "foreman_dong",
+   "name": "Foreman Dong",
+   "title": "Quarry foreman",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 5,
+    "shirt": "sleeveless",
+    "pants": "loose",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "earth"
+   },
+   "lines": [
+    "Stonewall Quarry needs strong backs.",
+    "Rock beetles again. Curl up, roll, bite. Watch the curl."
+   ],
+   "barks": [
+    "Put your back into it!"
+   ],
+   "services": []
+  },
+  {
+   "id": "adventurer_kai",
+   "name": "Kai",
+   "title": "Wandering swordsman",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 0,
+    "shirt": "vneck",
+    "pants": "straight",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "tattered",
+    "weapon": "sword",
+    "shirt_dye": "ink"
+   },
+   "lines": [
+    "The Caravan Road's gone bad. Bandits call themselves the Mudwater.",
+    "I came for the tournament. I stayed for the tea."
+   ],
+   "barks": [
+    "Anyone up for a spar?"
+   ],
+   "services": []
+  },
+  {
+   "id": "storekeeper_fang",
+   "name": "Proprietor Fang",
+   "title": "General store",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 0,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "ochre"
+   },
+   "lines": [
+    "Teas, rice, charms. If Stoneford needs it, Fang sells it.",
+    "Return charms! Never walk home again!"
+   ],
+   "barks": [
+    "Bargains!"
+   ],
+   "services": [
+    "shop:stoneford_general"
+   ]
+  },
+  {
+   "id": "auntie_rong",
+   "name": "Auntie Rong",
+   "title": "Tea house",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 3,
+    "shirt": "cardigan",
+    "pants": "straight",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "rose"
+   },
+   "lines": [
+    "Lotus root tea calms the belly and the Qi.",
+    "Sit. Everyone who sits in my tea house leaves stronger."
+   ],
+   "barks": [
+    "Tea! Hot tea!"
+   ],
+   "services": [
+    "shop:stoneford_tea"
+   ]
+  },
+  {
+   "id": "keeper_shi",
+   "name": "Keeper Shi",
+   "title": "Stone keeper",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "jade"
+   },
+   "lines": [
+    "Teleport stones remember those who touch them.",
+    "A shard of Spirit Stone pays the ferryman of the stones."
+   ],
+   "barks": [
+    "The stones hum today."
+   ],
+   "services": []
+  },
+  {
+   "id": "courier_lin",
+   "name": "Courier Lin",
+   "title": "Courier",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 0,
+    "shirt": "vneck",
+    "pants": "cuffed",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "indigo"
+   },
+   "lines": [
+    "Letters to every sect, parcels to every village.",
+    "The mail finds you. Somehow. Always."
+   ],
+   "barks": [
+    "Coming through!"
+   ],
+   "services": []
+  },
+  {
+   "id": "adventurer_su",
+   "name": "Su Qing",
+   "title": "Herb hunter",
+   "outfit": {
+    "body": "light",
+    "hair": "high_pony",
+    "hair_color": 4,
+    "shirt": "cardigan",
+    "pants": "cuffed",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "jade"
+   },
+   "lines": [
+    "The bamboo grove east of the marsh has ember peppers. And vipers.",
+    "Never eat a mushroom that smiles at you."
+   ],
+   "barks": [
+    "Hm, willow moss..."
+   ],
+   "services": []
+  },
+  {
+   "id": "old_pan",
+   "name": "Old Pan",
+   "title": "Wandering merchant",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 1,
+    "shirt": "vneck",
+    "pants": "loose",
+    "shoes": "folded",
+    "hat": "straw",
+    "cape": "tattered",
+    "weapon": "none",
+    "shirt_dye": "ochre"
+   },
+   "lines": [
+    "Rare wares for rare coin. Spirit Stones only.",
+    "I'm here today. Tomorrow? Who knows."
+   ],
+   "barks": [
+    "Rare wares!"
+   ],
+   "services": [
+    "shop:old_pan"
+   ]
+  },
+  {
+   "id": "smith_bao",
+   "name": "Smith Bao",
+   "title": "Blacksmith",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 0,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "ink"
+   },
+   "lines": [
+    "Iron remembers every hammer blow.",
+    "Bring me Jadeiron and I'll make you something that sings."
+   ],
+   "barks": [
+    "*clang*"
+   ],
+   "services": [
+    "shop:stoneford_smith"
+   ]
+  },
+  {
+   "id": "tinkerer_yu",
+   "name": "Tinkerer Yu",
+   "title": "Tinkerer",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 3,
+    "shirt": "scholar",
+    "pants": "cuffed",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "grey"
+   },
+   "lines": [
+    "Tools are just patience you can hold.",
+    "A better pickaxe means more ore and fewer blisters."
+   ],
+   "barks": [
+    "Where's my small spanner?"
+   ],
+   "services": [
+    "shop:tinkerer"
+   ]
+  },
+  {
+   "id": "elder_gu",
+   "name": "Elder Gu",
+   "title": "Trade house master",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "crimson"
+   },
+   "lines": [
+    "Everything has a price. Most things have two.",
+    "Bring me curiosities and I'll tell you what they're worth."
+   ],
+   "barks": [
+    "Hmm, interesting."
+   ],
+   "services": [
+    "shop:gu_trade_house"
+   ]
+  },
+  {
+   "id": "madam_hua",
+   "name": "Madam Hua",
+   "title": "Trade house master",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 2,
+    "shirt": "cardigan",
+    "pants": "straight",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "jade"
+   },
+   "lines": [
+    "The trade house deals fairly now. I promise you that.",
+    "Gu's ledgers made interesting reading."
+   ],
+   "barks": [
+    "Fair prices!"
+   ],
+   "services": [
+    "shop:gu_trade_house"
+   ]
+  },
+  {
+   "id": "mei_qing",
+   "name": "Mei Qing",
+   "title": "Alchemist",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 3,
+    "shirt": "cardigan",
+    "pants": "scholar",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "indigo"
+   },
+   "lines": [
+    "A pill is a promise. Keep it simple and it keeps you alive.",
+    "Willow moss, riverreed ginseng, and patience."
+   ],
+   "barks": [
+    "Too hot... too hot!"
+   ],
+   "services": [
+    "shop:mei_qing"
+   ]
+  },
+  {
+   "id": "mei_qing_sect",
+   "name": "Mei Qing",
+   "title": "Visiting alchemist",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 3,
+    "shirt": "cardigan",
+    "pants": "scholar",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "indigo"
+   },
+   "lines": [
+    "I teach at both sects. The furnace doesn't care about robes."
+   ],
+   "barks": [
+    "Mind the fumes."
+   ],
+   "services": []
+  },
+  {
+   "id": "apprentice_tao",
+   "name": "Apprentice Tao",
+   "title": "Smith's apprentice",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 0,
+    "shirt": "sleeveless",
+    "pants": "cuffed",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "earth"
+   },
+   "lines": [
+    "Master Bao says I'll hold a hammer next year.",
+    "Did you know iron can taste angry?"
+   ],
+   "barks": [
+    "Hot, hot!"
+   ],
+   "services": [],
+   "scale": 0.9
+  },
+  {
+   "id": "recruiter_qing_lan",
+   "name": "Qing Lan",
+   "title": "Jade Sect recruiter",
+   "outfit": {
+    "body": "light",
+    "hair": "high_pony",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "sword",
+    "shirt_dye": "jade",
+    "pants_dye": "jade"
+   },
+   "lines": [
+    "The Jade Sect teaches the water's patience and the sword's clarity.",
+    "Our academy sits by the river. You'll feel at home."
+   ],
+   "barks": [
+    "Join the Jade Sect!"
+   ],
+   "services": [],
+   "tree": "recruiter_jade",
+   "on_talk": [
+    {
+     "kind": "set_flag",
+     "flag": "met_recruiter_jade"
+    }
+   ]
+  },
+  {
+   "id": "recruiter_mo_yun",
+   "name": "Mo Yun",
+   "title": "Cloud Sect recruiter",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "staff",
+    "shirt_dye": "cloud",
+    "pants_dye": "cloud"
+   },
+   "lines": [
+    "The Cloud Sect climbs. Our monastery touches the clouds.",
+    "Wind cannot be held. Neither can a Cloud disciple."
+   ],
+   "barks": [
+    "The Cloud Sect awaits!"
+   ],
+   "services": [],
+   "tree": "recruiter_cloud",
+   "on_talk": [
+    {
+     "kind": "set_flag",
+     "flag": "met_recruiter_cloud"
+    }
+   ]
+  },
+  {
+   "id": "shen_lian",
+   "name": "Shen Lian",
+   "title": "Cloud Sect disciple",
+   "outfit": {
+    "body": "light",
+    "hair": "high_pony",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "cloud",
+    "pants_dye": "cloud"
+   },
+   "lines": [
+    "We picked different sects. Doesn't mean I'll go easy on you.",
+    "Spar me at the practice yard. I'm faster now."
+   ],
+   "barks": [
+    "Still slow?"
+   ],
+   "services": [
+    "spar:shen_lian"
+   ],
+   "service_labels": {
+    "spar:shen_lian": "Spar"
+   }
+  },
+  {
+   "id": "wen_zhao",
+   "name": "Wen Zhao",
+   "title": "Rival",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "solid",
+    "weapon": "sword",
+    "shirt_dye": "ink",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "The tournament finals. You and me. Don't disappoint.",
+    "Talent is a door. You still have to walk through it."
+   ],
+   "barks": [
+    "Hmph."
+   ],
+   "services": []
+  },
+  {
+   "id": "fair_vendor_he",
+   "name": "Vendor He",
+   "title": "Fair vendor",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 5,
+    "shirt": "vneck",
+    "pants": "loose",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "rose"
+   },
+   "lines": [
+    "Candied hawthorn! Sect badges! Lucky charms!",
+    "Buy a lucky charm. Can't hurt."
+   ],
+   "barks": [
+    "Hawthorn! Sweet hawthorn!"
+   ],
+   "services": []
+  },
+  {
+   "id": "adventurer_rui",
+   "name": "Rui",
+   "title": "Retired disciple",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 5,
+    "shirt": "scholar",
+    "pants": "straight",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "grey"
+   },
+   "lines": [
+    "I washed out at Heart Tempering. The Heart Trial shows you things.",
+    "Pick the sect whose method suits your breath, not your pride."
+   ],
+   "barks": [
+    "Ah, youth."
+   ],
+   "services": []
+  },
+  {
+   "id": "hamlet_elder_gao",
+   "name": "Elder Gao",
+   "title": "Greyreed Hamlet",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 1,
+    "shirt": "vneck",
+    "pants": "loose",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "grey"
+   },
+   "lines": [
+    "The grey came up from the pools. It took the colour, then the people.",
+    "If the well runs clean again, we might come home."
+   ],
+   "barks": [
+    "..."
+   ],
+   "services": []
+  },
+  {
+   "id": "hamlet_trader_min",
+   "name": "Trader Min",
+   "title": "Greyreed trade post",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 0,
+    "shirt": "vneck",
+    "pants": "cuffed",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "jade"
+   },
+   "lines": [
+    "Greyreed trades again! Thanks to you."
+   ],
+   "barks": [
+    "Market day!"
+   ],
+   "services": [
+    "shop:greyreed"
+   ]
+  },
+  {
+   "id": "hermit_yao",
+   "name": "Hermit Yao",
+   "title": "Marsh hermit",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "loose",
+    "shoes": "folded",
+    "hat": "straw",
+    "cape": "tattered",
+    "weapon": "none",
+    "shirt_dye": "earth"
+   },
+   "lines": [
+    "The otters trust me. Maybe one day they'll trust you.",
+    "Spirit beasts are not tools. They are friends who bite."
+   ],
+   "barks": [
+    "Shh. Listen to the reeds."
+   ],
+   "services": [
+    "shop:hermit"
+   ]
+  },
+  {
+   "id": "jade_steward",
+   "name": "Steward Wei",
+   "title": "Jade Sect steward",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 5,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "jade",
+    "pants_dye": "grey"
+   },
+   "lines": [
+    "Service disciples sweep, carry and learn. In that order.",
+    "Your bunk is in the dorm. Keep it tidy."
+   ],
+   "barks": [
+    "Brooms don't sweep themselves."
+   ],
+   "services": [],
+   "sect": "jade_sect"
+  },
+  {
+   "id": "jade_weapon_master",
+   "name": "Master Kong",
+   "title": "Weapon master",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 0,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "sword",
+    "shirt_dye": "jade"
+   },
+   "lines": [
+    "Try each weapon. Your hands will choose before your head does.",
+    "A weapon is only your arm, longer."
+   ],
+   "barks": [
+    "Again!"
+   ],
+   "services": [],
+   "sect": "jade_sect"
+  },
+  {
+   "id": "jade_deacon",
+   "name": "Deacon Rui",
+   "title": "Mission deacon",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "jade",
+    "pants_dye": "jade"
+   },
+   "lines": [
+    "Missions earn contribution. Contribution earns everything else.",
+    "Five missions a day. The board refreshes at dawn."
+   ],
+   "barks": [
+    "Missions posted!"
+   ],
+   "services": [
+    "missions",
+    "shop:jade_sect"
+   ],
+   "sect": "jade_sect"
+  },
+  {
+   "id": "jade_hall_master",
+   "name": "Master Lin",
+   "title": "Training hall master",
+   "outfit": {
+    "body": "light",
+    "hair": "high_pony",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "jade",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "A technique is a question your meridians learn to answer.",
+    "Practice twenty times. Then twenty more."
+   ],
+   "barks": [
+    "Form! Form!"
+   ],
+   "services": [],
+   "sect": "jade_sect"
+  },
+  {
+   "id": "jade_librarian",
+   "name": "Librarian Zhu",
+   "title": "Librarian",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "grey",
+    "pants_dye": "jade"
+   },
+   "lines": [
+    "Methods by rank. Manuals by contribution. Silence by law.",
+    "Torn pages can be restored. Torn students less so."
+   ],
+   "barks": [
+    "Shh."
+   ],
+   "services": [
+    "page:library"
+   ],
+   "service_labels": {
+    "page:library": "Browse"
+   },
+   "sect": "jade_sect"
+  },
+  {
+   "id": "jade_smith",
+   "name": "Smith Ouyang",
+   "title": "Sect smith",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 5,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "ink"
+   },
+   "lines": [
+    "The sect forge answers to disciples with Qi in their hands.",
+    "Common first. Earth when you've earned it."
+   ],
+   "barks": [
+    "*clang*"
+   ],
+   "services": [],
+   "sect": "jade_sect"
+  },
+  {
+   "id": "jade_formation_elder",
+   "name": "Elder Bian",
+   "title": "Formation elder",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "jade"
+   },
+   "lines": [
+    "Lines on the floor, fuel in the nodes, intent in the centre.",
+    "A good formation outlives its maker."
+   ],
+   "barks": [
+    "Mind the lines."
+   ],
+   "services": [],
+   "sect": "jade_sect"
+  },
+  {
+   "id": "jade_physician",
+   "name": "Physician Nan",
+   "title": "Sect physician",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 3,
+    "shirt": "cardigan",
+    "pants": "scholar",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "white"
+   },
+   "lines": [
+    "Injured disciples, bitter medicine.",
+    "A needle in the right place is worth a hundred pills."
+   ],
+   "barks": [
+    "Next patient."
+   ],
+   "services": [],
+   "sect": "jade_sect"
+  },
+  {
+   "id": "jade_gardener",
+   "name": "Gardener Ji",
+   "title": "Sect gardener",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 5,
+    "shirt": "vneck",
+    "pants": "cuffed",
+    "shoes": "slippers",
+    "hat": "straw",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "earth"
+   },
+   "lines": [
+    "Plant, water, wait. Harvest.",
+    "Willow moss likes shade and gossip."
+   ],
+   "barks": [
+    "Grow, little ones."
+   ],
+   "services": [],
+   "sect": "jade_sect"
+  },
+  {
+   "id": "jade_disciple_a",
+   "name": "Disciple Hao",
+   "title": "Outer disciple",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "jade",
+    "pants_dye": "jade"
+   },
+   "lines": [
+    "The Heart Trial? Don't talk about the Heart Trial.",
+    "I heard the elders fought a Hollow thing last winter."
+   ],
+   "barks": [
+    "Morning, junior."
+   ],
+   "services": [],
+   "sect": "jade_sect"
+  },
+  {
+   "id": "cloud_steward",
+   "name": "Steward Ruo",
+   "title": "Cloud Sect steward",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 5,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "cloud",
+    "pants_dye": "grey"
+   },
+   "lines": [
+    "Service disciples sweep, carry and learn. In that order.",
+    "Your bunk is in the dorm. Keep it tidy."
+   ],
+   "barks": [
+    "Brooms don't sweep themselves."
+   ],
+   "services": [],
+   "sect": "cloud_sect"
+  },
+  {
+   "id": "cloud_weapon_master",
+   "name": "Master Fei",
+   "title": "Weapon master",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 0,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "staff",
+    "shirt_dye": "cloud"
+   },
+   "lines": [
+    "Try each weapon. Your hands will choose before your head does.",
+    "A weapon is only your arm, longer."
+   ],
+   "barks": [
+    "Again!"
+   ],
+   "services": [],
+   "sect": "cloud_sect"
+  },
+  {
+   "id": "cloud_deacon",
+   "name": "Deacon Heng",
+   "title": "Mission deacon",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "cloud",
+    "pants_dye": "cloud"
+   },
+   "lines": [
+    "Missions earn contribution. Contribution earns everything else.",
+    "Five missions a day. The board refreshes at dawn."
+   ],
+   "barks": [
+    "Missions posted!"
+   ],
+   "services": [
+    "missions",
+    "shop:cloud_sect"
+   ],
+   "sect": "cloud_sect"
+  },
+  {
+   "id": "cloud_hall_master",
+   "name": "Master Qiao",
+   "title": "Training hall master",
+   "outfit": {
+    "body": "light",
+    "hair": "high_pony",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "cloud",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "A technique is a question your meridians learn to answer.",
+    "Practice twenty times. Then twenty more."
+   ],
+   "barks": [
+    "Form! Form!"
+   ],
+   "services": [],
+   "sect": "cloud_sect"
+  },
+  {
+   "id": "cloud_librarian",
+   "name": "Librarian Pei",
+   "title": "Librarian",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "grey",
+    "pants_dye": "cloud"
+   },
+   "lines": [
+    "Methods by rank. Manuals by contribution. Silence by law.",
+    "Torn pages can be restored. Torn students less so."
+   ],
+   "barks": [
+    "Shh."
+   ],
+   "services": [
+    "page:library"
+   ],
+   "service_labels": {
+    "page:library": "Browse"
+   },
+   "sect": "cloud_sect"
+  },
+  {
+   "id": "cloud_smith",
+   "name": "Smith Tan",
+   "title": "Sect smith",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 5,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "ink"
+   },
+   "lines": [
+    "The sect forge answers to disciples with Qi in their hands.",
+    "Common first. Earth when you've earned it."
+   ],
+   "barks": [
+    "*clang*"
+   ],
+   "services": [],
+   "sect": "cloud_sect"
+  },
+  {
+   "id": "cloud_formation_elder",
+   "name": "Elder Lou",
+   "title": "Formation elder",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "cloud"
+   },
+   "lines": [
+    "Lines on the floor, fuel in the nodes, intent in the centre.",
+    "A good formation outlives its maker."
+   ],
+   "barks": [
+    "Mind the lines."
+   ],
+   "services": [],
+   "sect": "cloud_sect"
+  },
+  {
+   "id": "cloud_physician",
+   "name": "Physician Qu",
+   "title": "Sect physician",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 3,
+    "shirt": "cardigan",
+    "pants": "scholar",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "white"
+   },
+   "lines": [
+    "Injured disciples, bitter medicine.",
+    "A needle in the right place is worth a hundred pills."
+   ],
+   "barks": [
+    "Next patient."
+   ],
+   "services": [],
+   "sect": "cloud_sect"
+  },
+  {
+   "id": "cloud_gardener",
+   "name": "Gardener Ren",
+   "title": "Sect gardener",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 5,
+    "shirt": "vneck",
+    "pants": "cuffed",
+    "shoes": "slippers",
+    "hat": "straw",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "earth"
+   },
+   "lines": [
+    "Plant, water, wait. Harvest.",
+    "Willow moss likes shade and gossip."
+   ],
+   "barks": [
+    "Grow, little ones."
+   ],
+   "services": [],
+   "sect": "cloud_sect"
+  },
+  {
+   "id": "cloud_disciple_a",
+   "name": "Disciple Ling",
+   "title": "Outer disciple",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "cloud",
+    "pants_dye": "cloud"
+   },
+   "lines": [
+    "The Heart Trial? Don't talk about the Heart Trial.",
+    "I heard the elders fought a Hollow thing last winter."
+   ],
+   "barks": [
+    "Morning, junior."
+   ],
+   "services": [],
+   "sect": "cloud_sect"
+  },
+  {
+   "id": "jade_disciple_b",
+   "name": "Disciple Yue",
+   "title": "Inner disciple",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 4,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "sword",
+    "shirt_dye": "jade",
+    "pants_dye": "jade"
+   },
+   "lines": [
+    "Inner disciples get the good retreat rooms.",
+    "Qi Unfurling feels like breathing with your whole skin."
+   ],
+   "barks": [
+    "Focus."
+   ],
+   "services": []
+  },
+  {
+   "id": "elder_hu",
+   "name": "Elder Hu",
+   "title": "Jade Sect elder",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "jade",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "The river does not hurry, yet it carves the valley.",
+    "Come to me when you hit a wall. Walls are my speciality."
+   ],
+   "barks": [
+    "Hmm."
+   ],
+   "services": [],
+   "tree": "mentor",
+   "sect": "jade_sect"
+  },
+  {
+   "id": "elder_sung",
+   "name": "Elder Sung",
+   "title": "Cloud Sect elder",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "cloud",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "The wind does not fight the mountain. It goes over.",
+    "Bring me your walls. I'll show you the sky above them."
+   ],
+   "barks": [
+    "Hm-hm."
+   ],
+   "services": [],
+   "tree": "mentor",
+   "sect": "cloud_sect"
+  },
+  {
+   "id": "arena_master",
+   "name": "Arena Master Quan",
+   "title": "Arena",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 0,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "crimson"
+   },
+   "lines": [
+    "Three wins for the qualifier. No excuses.",
+    "The Valley Tournament crowns one champion a year."
+   ],
+   "barks": [
+    "Next bout!"
+   ],
+   "services": [
+    "spar:sparring_disciple"
+   ],
+   "service_labels": {
+    "spar:sparring_disciple": "Arena match"
+   }
+  },
+  {
+   "id": "lan_yue",
+   "name": "Lan Yue",
+   "title": "Healer",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 4,
+    "shirt": "cardigan",
+    "pants": "scholar",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "staff",
+    "shirt_dye": "indigo"
+   },
+   "lines": [
+    "Stay close. I can't heal what I can't reach."
+   ],
+   "barks": [
+    "Careful!"
+   ],
+   "services": [],
+   "companion": "lan_yue"
+  },
+  {
+   "id": "tie_niu",
+   "name": "Tie Niu",
+   "title": "Brawler",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 0,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "earth"
+   },
+   "lines": [
+    "Hit me. No, harder. See? Iron Ox."
+   ],
+   "barks": [
+    "HAH!"
+   ],
+   "services": [],
+   "companion": "tie_niu"
+  },
+  {
+   "id": "qiu_feng",
+   "name": "Qiu Feng",
+   "title": "Archer",
+   "outfit": {
+    "body": "light",
+    "hair": "high_pony",
+    "hair_color": 0,
+    "shirt": "vneck",
+    "pants": "cuffed",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "bow",
+    "shirt_dye": "jade"
+   },
+   "lines": [
+    "I mark them. You hit them. Simple."
+   ],
+   "barks": [
+    "Mark!"
+   ],
+   "services": [],
+   "companion": "qiu_feng"
+  },
+  {
+   "id": "bai_ling",
+   "name": "Bai Ling",
+   "title": "Formation student",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 2,
+    "shirt": "disciple",
+    "pants": "straight",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "sword",
+    "shirt_dye": "cloud"
+   },
+   "lines": [
+    "Three nodes and a centre. Watch."
+   ],
+   "barks": [
+    "Lines drawn!"
+   ],
+   "services": [],
+   "companion": "bai_ling"
+  }
+ ]
+}

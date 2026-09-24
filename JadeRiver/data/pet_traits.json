@@ -1,0 +1,45 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "deep_diver",
+   "name": "Deep Diver",
+   "effect": "+30% fishing"
+  },
+  {
+   "id": "stormborn",
+   "name": "Stormborn",
+   "effect": "+15% thunder damage"
+  },
+  {
+   "id": "keen_nose",
+   "name": "Keen Nose",
+   "effect": "+10% herb yield"
+  },
+  {
+   "id": "iron_hide",
+   "name": "Iron Hide",
+   "effect": "+10% defence"
+  },
+  {
+   "id": "quick_paws",
+   "name": "Quick Paws",
+   "effect": "+10% attack speed"
+  },
+  {
+   "id": "lucky_find",
+   "name": "Lucky Find",
+   "effect": "+5% drop rate"
+  },
+  {
+   "id": "calm_spirit",
+   "name": "Calm Spirit",
+   "effect": "+5% Resonance"
+  },
+  {
+   "id": "loyal",
+   "name": "Loyal",
+   "effect": "+1 bond per day"
+  }
+ ]
+}

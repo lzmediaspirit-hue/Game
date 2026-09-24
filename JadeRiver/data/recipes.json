@@ -1,0 +1,1833 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "healing_pill",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "riverreed_ginseng_10",
+     "count": 1
+    },
+    {
+     "item": "willow_moss",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "healing_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 120
+  },
+  {
+   "id": "qi_restoration_pill",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "willow_moss",
+     "count": 2
+    },
+    {
+     "item": "leech_oil",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "qi_restoration_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 120
+  },
+  {
+   "id": "qi_gathering_pill",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "riverreed_ginseng_10",
+     "count": 2
+    },
+    {
+     "item": "moss",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "qi_gathering_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 180
+  },
+  {
+   "id": "bone_strengthening_pill",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "tortoise_plate",
+     "count": 1
+    },
+    {
+     "item": "boar_hide",
+     "count": 1
+    },
+    {
+     "item": "riverreed_ginseng_10",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "bone_strengthening_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 180
+  },
+  {
+   "id": "purging_pill",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "willow_moss",
+     "count": 3
+    },
+    {
+     "item": "river_mud",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "purging_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 120
+  },
+  {
+   "id": "viper_antidote",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "venom_sac",
+     "count": 1
+    },
+    {
+     "item": "willow_moss",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "viper_antidote",
+     "count": 1
+    }
+   ],
+   "time_s": 90
+  },
+  {
+   "id": "tiger_blood_pill",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "thorn_hide",
+     "count": 1
+    },
+    {
+     "item": "ember_pepper",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "tiger_blood_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 180
+  },
+  {
+   "id": "cleansing_pill",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "mist_lotus",
+     "count": 1
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    },
+    {
+     "item": "riverreed_ginseng_100",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cleansing_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 300
+  },
+  {
+   "id": "foundation_guard_pill",
+   "craft": "alchemy",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "serpent_core",
+     "count": 1
+    },
+    {
+     "item": "riverreed_ginseng_100",
+     "count": 2
+    },
+    {
+     "item": "guardian_stone",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "foundation_guard_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 600
+  },
+  {
+   "id": "clear_mind_pill",
+   "craft": "alchemy",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "mist_lotus",
+     "count": 1
+    },
+    {
+     "item": "jade_scale",
+     "count": 1
+    },
+    {
+     "item": "willow_moss",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "clear_mind_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 300
+  },
+  {
+   "id": "meridian_reversal_pill",
+   "craft": "alchemy",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "prayer_beads",
+     "count": 2
+    },
+    {
+     "item": "mist_lotus",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "meridian_reversal_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 300
+  },
+  {
+   "id": "method_conversion_pill",
+   "craft": "alchemy",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "manual_page",
+     "count": 1
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    },
+    {
+     "item": "mist_lotus",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "method_conversion_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 300
+  },
+  {
+   "id": "qi_refining_pill",
+   "craft": "alchemy",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "pearl",
+     "count": 2
+    },
+    {
+     "item": "mist_lotus",
+     "count": 2
+    },
+    {
+     "item": "serpent_core",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "qi_refining_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 600
+  },
+  {
+   "id": "soul_soothing_pill",
+   "craft": "alchemy",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "mirror_dust",
+     "count": 2
+    },
+    {
+     "item": "soul_wax",
+     "count": 1
+    },
+    {
+     "item": "mist_lotus",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "soul_soothing_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 600
+  },
+  {
+   "id": "mind_lake_opening_pill",
+   "craft": "alchemy",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloud_feather",
+     "count": 3
+    },
+    {
+     "item": "mist_lotus",
+     "count": 2
+    },
+    {
+     "item": "cloudtop_orchid",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mind_lake_opening_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 900
+  },
+  {
+   "id": "sage_condensing_pill",
+   "craft": "alchemy",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "roc_feather",
+     "count": 2
+    },
+    {
+     "item": "jade_core",
+     "count": 1
+    },
+    {
+     "item": "soulbell_flower",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sage_condensing_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 1200
+  },
+  {
+   "id": "herbal_tea",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "willow_moss",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "herbal_tea",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "pet_food": false
+  },
+  {
+   "id": "rice_ball",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "rice",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "rice_ball",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "pet_food": false
+  },
+  {
+   "id": "riverfish_soup",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "river_minnow",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "riverfish_soup",
+     "count": 1
+    }
+   ],
+   "default": false,
+   "pet_food": false
+  },
+  {
+   "id": "boar_bone_broth",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "tough_meat",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "boar_bone_broth",
+     "count": 1
+    }
+   ],
+   "default": false,
+   "pet_food": false
+  },
+  {
+   "id": "ember_pepper_stew",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "ember_pepper",
+     "count": 2
+    },
+    {
+     "item": "tough_meat",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "ember_pepper_stew",
+     "count": 1
+    }
+   ],
+   "default": false,
+   "pet_food": false
+  },
+  {
+   "id": "lotus_root_tea",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "mist_lotus",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lotus_root_tea",
+     "count": 1
+    }
+   ],
+   "default": false,
+   "pet_food": false
+  },
+  {
+   "id": "toad_oil_dumplings",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "toad_oil",
+     "count": 1
+    },
+    {
+     "item": "rice",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "toad_oil_dumplings",
+     "count": 1
+    }
+   ],
+   "default": false,
+   "pet_food": false
+  },
+  {
+   "id": "cloudtop_orchid_broth",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "cloudtop_orchid",
+     "count": 1
+    },
+    {
+     "item": "tough_meat",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudtop_orchid_broth",
+     "count": 1
+    }
+   ],
+   "default": false,
+   "pet_food": false
+  },
+  {
+   "id": "jade_carp_congee",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "jade_carp_fish",
+     "count": 1
+    },
+    {
+     "item": "rice",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jade_carp_congee",
+     "count": 1
+    }
+   ],
+   "default": false,
+   "pet_food": false
+  },
+  {
+   "id": "roast_fish",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "river_minnow",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "roast_fish",
+     "count": 1
+    }
+   ],
+   "default": false,
+   "pet_food": true
+  },
+  {
+   "id": "ember_pepper_broth",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "ember_pepper",
+     "count": 1
+    },
+    {
+     "item": "tough_meat",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "ember_pepper_broth",
+     "count": 1
+    }
+   ],
+   "default": false,
+   "pet_food": true
+  },
+  {
+   "id": "bonding_offering_common",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "tough_meat",
+     "count": 1
+    },
+    {
+     "item": "rice",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "bonding_offering_common",
+     "count": 1
+    }
+   ],
+   "default": false,
+   "pet_food": false
+  },
+  {
+   "id": "bonding_offering_earth",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "jade_carp_fish",
+     "count": 1
+    },
+    {
+     "item": "mist_lotus",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "bonding_offering_earth",
+     "count": 1
+    }
+   ],
+   "default": false,
+   "pet_food": false
+  },
+  {
+   "id": "bonding_offering_heaven",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "mist_trout",
+     "count": 2
+    },
+    {
+     "item": "cloudtop_orchid",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "bonding_offering_heaven",
+     "count": 1
+    }
+   ],
+   "default": false,
+   "pet_food": false
+  },
+  {
+   "id": "iron_gauntlets",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_gauntlets",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "iron_jian",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_jian",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "iron_spear",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_spear",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "iron_short_blade",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_short_blade",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "iron_staff",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_staff",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "iron_bow",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_bow",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "jadeiron_gauntlets",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 4
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_gauntlets",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "jadeiron_jian",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 4
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_jian",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "jadeiron_spear",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 4
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_spear",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "jadeiron_short_blade",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 4
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_short_blade",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "jadeiron_staff",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 4
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_staff",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "jadeiron_bow",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 4
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_bow",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "cloudsteel_gauntlets",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "jadeiron",
+     "count": 4
+    },
+    {
+     "item": "cloud_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_gauntlets",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "cloudsteel_jian",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "jadeiron",
+     "count": 4
+    },
+    {
+     "item": "cloud_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_jian",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "cloudsteel_spear",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "jadeiron",
+     "count": 4
+    },
+    {
+     "item": "cloud_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_spear",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "cloudsteel_short_blade",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "jadeiron",
+     "count": 4
+    },
+    {
+     "item": "cloud_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_short_blade",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "cloudsteel_staff",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "jadeiron",
+     "count": 4
+    },
+    {
+     "item": "cloud_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_staff",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "cloudsteel_bow",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "jadeiron",
+     "count": 4
+    },
+    {
+     "item": "cloud_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_bow",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "mistjade_gauntlets",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 6
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_gauntlets",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "mistjade_jian",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 6
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_jian",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "mistjade_spear",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 6
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_spear",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "mistjade_short_blade",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 6
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_short_blade",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "mistjade_staff",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 6
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_staff",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "mistjade_bow",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 6
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_bow",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_bamboo_hat",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "bamboo_hat",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_cotton_robe",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cotton_robe",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_cotton_trousers",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cotton_trousers",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_cloth_boots",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloth_boots",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_jadeiron_hat",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 3
+    },
+    {
+     "item": "jade_scale",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_hat",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_jadeiron_robe",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 3
+    },
+    {
+     "item": "jade_scale",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_robe",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_jadeiron_trousers",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 3
+    },
+    {
+     "item": "jade_scale",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_trousers",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_jadeiron_boots",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 3
+    },
+    {
+     "item": "jade_scale",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_boots",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_cloudsilk_hat",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 3
+    },
+    {
+     "item": "cloud_feather",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsilk_hat",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_cloudsilk_robe",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 3
+    },
+    {
+     "item": "cloud_feather",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsilk_robe",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_cloudsilk_trousers",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 3
+    },
+    {
+     "item": "cloud_feather",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsilk_trousers",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_cloudsilk_boots",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 3
+    },
+    {
+     "item": "cloud_feather",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsilk_boots",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_mistjade_hat",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 3
+    },
+    {
+     "item": "roc_feather",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_hat",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_mistjade_robe",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 3
+    },
+    {
+     "item": "roc_feather",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_robe",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_mistjade_trousers",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 3
+    },
+    {
+     "item": "roc_feather",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_trousers",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_mistjade_boots",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 3
+    },
+    {
+     "item": "roc_feather",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_boots",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "body_jade",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 3
+    },
+    {
+     "item": "tortoise_plate",
+     "count": 1
+    },
+    {
+     "item": "spirit_stone_shard",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "body_jade",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "swift_jade",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 3
+    },
+    {
+     "item": "frog_leg",
+     "count": 2
+    },
+    {
+     "item": "spirit_stone_shard",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "swift_jade",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "essence_jade",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 3
+    },
+    {
+     "item": "leech_oil",
+     "count": 2
+    },
+    {
+     "item": "spirit_stone_shard",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "essence_jade",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "spirit_jade",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 3
+    },
+    {
+     "item": "mirror_dust",
+     "count": 1
+    },
+    {
+     "item": "spirit_stone_shard",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "spirit_jade",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "insight_jade",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 3
+    },
+    {
+     "item": "talisman_paper",
+     "count": 2
+    },
+    {
+     "item": "spirit_stone_shard",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "insight_jade",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "fuel_crystal_low",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "spirit_stone_shard",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "fuel_crystal_low",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "fuel_crystal_mid",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "fuel_crystal_low",
+     "count": 10
+    }
+   ],
+   "outputs": [
+    {
+     "item": "fuel_crystal_mid",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "array_plate",
+   "craft": "formations",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 2
+    },
+    {
+     "item": "formation_stone",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "blank_plate",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "revival_talisman",
+   "craft": "formations",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "talisman_paper",
+     "count": 2
+    },
+    {
+     "item": "ink",
+     "count": 1
+    },
+    {
+     "item": "mist_lotus",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "revival_talisman",
+     "count": 1
+    }
+   ]
+  }
+ ]
+}

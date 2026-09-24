@@ -1,0 +1,85 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "lan_yue",
+   "name": "Lan Yue",
+   "role": "healer",
+   "weapon": "staff",
+   "element": "water",
+   "outfit_npc": "lan_yue",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 4,
+    "shirt": "cardigan",
+    "pants": "scholar",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "staff",
+    "shirt_dye": "indigo"
+   }
+  },
+  {
+   "id": "tie_niu",
+   "name": "Tie Niu",
+   "role": "brawler",
+   "weapon": "gauntlets",
+   "element": "earth",
+   "outfit_npc": "tie_niu",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 0,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "earth"
+   }
+  },
+  {
+   "id": "qiu_feng",
+   "name": "Qiu Feng",
+   "role": "archer",
+   "weapon": "bow",
+   "element": "wood",
+   "outfit_npc": "qiu_feng",
+   "outfit": {
+    "body": "light",
+    "hair": "high_pony",
+    "hair_color": 0,
+    "shirt": "vneck",
+    "pants": "cuffed",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "bow",
+    "shirt_dye": "jade"
+   }
+  },
+  {
+   "id": "bai_ling",
+   "name": "Bai Ling",
+   "role": "formation",
+   "weapon": "jian",
+   "element": "wind",
+   "outfit_npc": "bai_ling",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 2,
+    "shirt": "disciple",
+    "pants": "straight",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "sword",
+    "shirt_dye": "cloud"
+   }
+  }
+ ]
+}

@@ -1,0 +1,521 @@
+{
+ "schema_version": 1,
+ "id": "mp_forgotten_monastery",
+ "zone": "jade_river_valley",
+ "region": "mist_peak",
+ "name": "Forgotten Monastery",
+ "type": "field",
+ "level_range": [
+  50,
+  56
+ ],
+ "recommended_cp": 920,
+ "element": "soul",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "mist_peak",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "monastery_hall",
+   "rect": [
+    1550,
+    550,
+    700,
+    140
+   ],
+   "height": 120,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "hall"
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "mp_misty_slopes",
+   "to_portal": "west"
+  },
+  {
+   "id": "west",
+   "type": "sealed",
+   "at": [
+    40,
+    850
+   ],
+   "to": "sr_windswept_ridge",
+   "to_portal": "east",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_1"
+     }
+    ]
+   },
+   "locked_text": "The ridge winds would tear a soul loose. Heaven Glimpse first."
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    931,
+    700
+   ],
+   "item": "soulbell_flower",
+   "prop": "soulbell_flower_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "expert",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "ore_2",
+   "type": "ore_vein",
+   "at": [
+    2826,
+    690
+   ],
+   "item": "mystic_ore",
+   "prop": "mystic_vein",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "expert",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    313,
+    900
+   ],
+   "loot": "jar_valley_mid",
+   "level": 53,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    924,
+    900
+   ],
+   "loot": "jar_valley_mid",
+   "level": 53,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    1625,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 53,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_6",
+   "type": "jar",
+   "at": [
+    2288,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 53,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_7",
+   "type": "jar",
+   "at": [
+    2958,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 53,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_8",
+   "type": "jar",
+   "at": [
+    3498,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 53,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_9",
+   "type": "chest",
+   "at": [
+    3480,
+    700
+   ],
+   "loot": "chest_dungeon",
+   "level": 56
+  },
+  {
+   "id": "heaven_insight",
+   "type": "insight_stone",
+   "at": [
+    1200,
+    720
+   ],
+   "element": "heaven",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_1"
+     }
+    ]
+   },
+   "locked_text": "The sky above this stone looks too close."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "weeping_lantern",
+   "surface": "ground",
+   "points": [
+    [
+     590,
+     742
+    ],
+    [
+     1204,
+     780
+    ],
+    [
+     1980,
+     702
+    ],
+    [
+     2578,
+     815
+    ],
+    [
+     3246,
+     787
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 12,
+   "level": [
+    50,
+    55
+   ]
+  },
+  {
+   "enemy": "jade_sentinel",
+   "surface": "ground",
+   "points": [
+    [
+     728,
+     758
+    ],
+    [
+     1479,
+     789
+    ],
+    [
+     2352,
+     792
+    ],
+    [
+     3145,
+     910
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 12,
+   "level": [
+    52,
+    56
+   ]
+  },
+  {
+   "enemy": "weeping_lantern",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    55,
+    55
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "stone_lantern",
+   "at": [
+    160,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    743,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    1332,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1846,
+    636
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    2429,
+    638
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2950,
+    637
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    3480,
+    629
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    81,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    520,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    860,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1210,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1571,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1840,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2197,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2447,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2757,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3067,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3261,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3565,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "formation_node",
+   "at": [
+    700,
+    760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "formation_node",
+   "at": [
+    2800,
+    760
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "mist",
+ "ambience": ""
+}

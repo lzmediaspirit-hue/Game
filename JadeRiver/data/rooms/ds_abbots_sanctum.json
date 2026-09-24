@@ -1,0 +1,179 @@
+{
+ "schema_version": 1,
+ "id": "ds_abbots_sanctum",
+ "zone": "jade_river_valley",
+ "region": "drowned_shrine",
+ "name": "Abbot's Sanctum",
+ "type": "boss_arena",
+ "level_range": [
+  27,
+  27
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "cave",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ds_scripture_well",
+   "to_portal": "east"
+  },
+  {
+   "id": "exit",
+   "type": "door",
+   "at": [
+    2460,
+    860
+   ],
+   "to": "dw_bend_shore",
+   "to_portal": "shrine",
+   "press_up": true,
+   "label": "Bend Shore"
+  }
+ ],
+ "objects": [
+  {
+   "id": "small_bell_0",
+   "type": "bell",
+   "at": [
+    500,
+    700
+   ]
+  },
+  {
+   "id": "small_bell_1",
+   "type": "bell",
+   "at": [
+    1100,
+    700
+   ]
+  },
+  {
+   "id": "small_bell_2",
+   "type": "bell",
+   "at": [
+    1700,
+    700
+   ]
+  },
+  {
+   "id": "small_bell_3",
+   "type": "bell",
+   "at": [
+    2300,
+    700
+   ]
+  },
+  {
+   "id": "vault",
+   "type": "chest",
+   "at": [
+    2400,
+    700
+   ],
+   "loot": "chest_dungeon",
+   "level": 27,
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_3"
+     }
+    ]
+   },
+   "locked_text": "A sealed vault. Its seal answers only a Spirit Awakening soul.",
+   "vault": true
+  },
+  {
+   "id": "journal_vault",
+   "type": "pickup",
+   "at": [
+    2300,
+    900
+   ],
+   "item": "lu_journal_page",
+   "count": 1,
+   "prop": "scroll_rack",
+   "set_flag": "journal_vault",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_3"
+     }
+    ]
+   },
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "journal_vault"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "drowned_abbot",
+   "surface": "ground",
+   "points": [
+    [
+     1700,
+     840
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 86400,
+   "level": [
+    27,
+    27
+   ],
+   "boss": true
+  }
+ ],
+ "scenery": [],
+ "decor": [],
+ "areas": [],
+ "music": "boss",
+ "dungeon_exit": "dw_bend_shore"
+}

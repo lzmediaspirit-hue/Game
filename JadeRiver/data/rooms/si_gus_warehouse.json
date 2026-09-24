@@ -1,0 +1,150 @@
+{
+ "schema_version": 1,
+ "id": "si_gus_warehouse",
+ "zone": "jade_river_valley",
+ "region": "story",
+ "name": "Gu's Warehouse",
+ "type": "story",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "wood"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "sf_artisan_row",
+   "to_portal": "warehouse_door",
+   "press_up": true,
+   "label": "Artisan Row"
+  }
+ ],
+ "objects": [],
+ "spawns": [
+  {
+   "enemy": "mudwater_bandit",
+   "surface": "ground",
+   "points": [
+    [
+     900,
+     820
+    ],
+    [
+     1200,
+     900
+    ],
+    [
+     1500,
+     760
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 99999,
+   "level": [
+    50,
+    52
+   ]
+  },
+  {
+   "enemy": "elder_gu",
+   "surface": "ground",
+   "points": [
+    [
+     2100,
+     840
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 99999,
+   "level": [
+    53,
+    53
+   ],
+   "boss": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "sack_pile",
+   "at": [
+    500,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "sack_pile",
+   "at": [
+    800,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "sack_pile",
+   "at": [
+    1700,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    1100,
+    700
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "boss",
+ "instanced": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_wood"
+ }
+}

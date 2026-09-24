@@ -1,0 +1,171 @@
+{
+ "schema_version": 1,
+ "id": "sf_trial_cloud",
+ "zone": "jade_river_valley",
+ "region": "stoneford",
+ "name": "Entry Trial (Cloud)",
+ "type": "trial",
+ "level_range": [
+  2,
+  2
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "sect_cloud",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  160,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    1280,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "step_1",
+   "rect": [
+    360,
+    700,
+    180,
+    50
+   ],
+   "height": 60,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "step_2",
+   "rect": [
+    600,
+    660,
+    180,
+    50
+   ],
+   "height": 120,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "step_3",
+   "rect": [
+    840,
+    700,
+    180,
+    50
+   ],
+   "height": 180,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    120,
+    700
+   ],
+   "to": "sf_fairground",
+   "to_portal": "trial_cloud",
+   "press_up": true,
+   "label": "Fairground"
+  }
+ ],
+ "objects": [
+  {
+   "id": "trial_bell",
+   "type": "bell",
+   "at": [
+    930,
+    680
+   ],
+   "alt": 180,
+   "set_flag": "trial_climbed"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "trial_puppet",
+   "surface": "ground",
+   "points": [
+    [
+     1000,
+     840
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 9999,
+   "level": [
+    2,
+    2
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "trial_climbed"
+     }
+    ]
+   }
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "banner_cloud",
+   "at": [
+    200,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "banner_cloud",
+   "at": [
+    1100,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    640,
+    660
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "instanced": true,
+ "music": "trial",
+ "dungeon_exit": "sf_fairground"
+}

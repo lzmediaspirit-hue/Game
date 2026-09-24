@@ -1,0 +1,553 @@
+{
+ "schema_version": 1,
+ "id": "rm_marsh_edge",
+ "zone": "jade_river_valley",
+ "region": "reed_marsh",
+ "name": "Marsh Edge",
+ "type": "field",
+ "level_range": [
+  4,
+  6
+ ],
+ "recommended_cp": 92,
+ "element": "water",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "valley_low",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "marsh",
+ "ground": {
+  "material": "moss"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    800,
+    700,
+    180,
+    50
+   ],
+   "height": 70,
+   "kind": "branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    1500,
+    720,
+    180,
+    50
+   ],
+   "height": 90,
+   "kind": "branch",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    820
+   ],
+   "to": "lf_reed_shallows",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "rm_grey_pools",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    455,
+    700
+   ],
+   "item": "willow_moss",
+   "prop": "willow_moss_patch",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "apprentice",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "herb_2",
+   "type": "herb_patch",
+   "at": [
+    1314,
+    690
+   ],
+   "item": "willow_moss",
+   "prop": "willow_moss_patch",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "apprentice",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "herb_3",
+   "type": "herb_patch",
+   "at": [
+    2076,
+    690
+   ],
+   "item": "riverreed_ginseng_10",
+   "prop": "riverreed_ginseng_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "apprentice",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    208,
+    720
+   ],
+   "loot": "jar_valley_low",
+   "level": 5,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    833,
+    930
+   ],
+   "loot": "jar_valley_low",
+   "level": 5,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_6",
+   "type": "jar",
+   "at": [
+    1288,
+    700
+   ],
+   "loot": "jar_valley_low",
+   "level": 5,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_7",
+   "type": "jar",
+   "at": [
+    1826,
+    700
+   ],
+   "loot": "jar_valley_low",
+   "level": 5,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_8",
+   "type": "jar",
+   "at": [
+    2282,
+    700
+   ],
+   "loot": "jar_valley_low",
+   "level": 5,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "fish_9",
+   "type": "fishing_spot",
+   "at": [
+    1080,
+    930
+   ],
+   "spot": "marsh_edge",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "fishing"
+     }
+    ]
+   },
+   "locked_text": "You have no rod."
+  },
+  {
+   "id": "grey_patch_0",
+   "type": "inspect",
+   "at": [
+    700,
+    910
+   ],
+   "prop": "grey_patch",
+   "text": "The reeds here are grey and brittle, as if the colour was drunk out of them.",
+   "set_flag": "grey_patch_0",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "strange_tracks"
+     }
+    ]
+   }
+  },
+  {
+   "id": "grey_patch_1",
+   "type": "inspect",
+   "at": [
+    1300,
+    910
+   ],
+   "prop": "grey_patch",
+   "text": "The reeds here are grey and brittle, as if the colour was drunk out of them.",
+   "set_flag": "grey_patch_1",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "strange_tracks"
+     }
+    ]
+   }
+  },
+  {
+   "id": "grey_patch_2",
+   "type": "inspect",
+   "at": [
+    2000,
+    910
+   ],
+   "prop": "grey_patch",
+   "text": "The reeds here are grey and brittle, as if the colour was drunk out of them.",
+   "set_flag": "grey_patch_2",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "strange_tracks"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "reed_frog",
+   "surface": "ground",
+   "points": [
+    [
+     405,
+     823
+    ],
+    [
+     789,
+     799
+    ],
+    [
+     1146,
+     722
+    ],
+    [
+     1439,
+     713
+    ],
+    [
+     1741,
+     701
+    ],
+    [
+     2186,
+     795
+    ]
+   ],
+   "max": 5,
+   "respawn_s": 12,
+   "level": [
+    4,
+    6
+   ]
+  },
+  {
+   "enemy": "marsh_leech",
+   "surface": "ground",
+   "points": [
+    [
+     501,
+     762
+    ],
+    [
+     1003,
+     863
+    ],
+    [
+     1593,
+     796
+    ],
+    [
+     1983,
+     750
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 12,
+   "level": [
+    5,
+    6
+   ]
+  },
+  {
+   "enemy": "reed_frog",
+   "surface": "ground",
+   "points": [
+    [
+     1480,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    6,
+    6
+   ],
+   "elite": true
+  },
+  {
+   "enemy": "reed_otter",
+   "surface": "ground",
+   "points": [
+    [
+     1900,
+     900
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 600,
+   "level": [
+    19,
+    19
+   ],
+   "wild_pet": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "taming"
+     }
+    ]
+   }
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "reeds",
+   "at": [
+    165,
+    639
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    745,
+    639
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1318,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    1925,
+    636
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2460,
+    633
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    91,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    414,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    683,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1001,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1336,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1695,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1953,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2350,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [
+  {
+   "kind": "shallows",
+   "rect": [
+    400,
+    860,
+    1700,
+    100
+   ]
+  }
+ ],
+ "music": "marsh",
+ "ambience": "marsh_ambience"
+}

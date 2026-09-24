@@ -188,8 +188,11 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 			ok = c != null and str(c.training_sect.get("id", "")) == str(cond.sect)
 			text = "Member of the %s" % ContentDB.name_of("sects", str(cond.sect))
 		"has_training_sect":
-			ok = c != null and str(c.training_sect.get("id", "")) != ""
-			text = "Join a training sect"
+			ok = (c != null and str(c.training_sect.get("id", "")) != "") == bool(cond.get("value", true))
+			text = "Join a training sect" if bool(cond.get("value", true)) else "Not yet in a training sect"
+		"companion_owned":
+			ok = c != null and (c.companions.get("roster", []) as Array).has(str(cond.companion))
+			text = "%s travels with you" % ContentDB.name_of("companions", str(cond.companion))
 		"sect_rank_at_least":
 			var ranks2: Array = ContentDB.config("sect_ranks").get("order", [])
 			ok = c != null and ranks2.find(str(c.training_sect.get("rank", ""))) >= ranks2.find(str(cond.rank))

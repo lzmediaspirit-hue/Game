@@ -1,0 +1,237 @@
+{
+ "schema_version": 1,
+ "id": "sf_gate",
+ "zone": "jade_river_valley",
+ "region": "stoneford",
+ "name": "Stoneford Gate",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "valley_day",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  2300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "gatehouse",
+   "rect": [
+    1020,
+    560,
+    520,
+    120
+   ],
+   "height": 150,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "gate"
+  },
+  {
+   "id": "guard_tower",
+   "rect": [
+    330,
+    622,
+    180,
+    68
+   ],
+   "height": 312,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "watch_tower"
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "wp_west",
+   "to_portal": "west"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "sf_market",
+   "to_portal": "east"
+  },
+  {
+   "id": "quarry_road",
+   "type": "door",
+   "at": [
+    660,
+    700
+   ],
+   "to": "sq_quarry_rim",
+   "to_portal": "south",
+   "press_up": true,
+   "label": "Quarry Road",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_4"
+     }
+    ]
+   },
+   "locked_text": "Foreman Dong: \"Quarry's no place for a Bone Forging 3 kid.\""
+  }
+ ],
+ "objects": [
+  {
+   "id": "shrine_sf_gate",
+   "type": "shrine",
+   "at": [
+    1800,
+    700
+   ]
+  },
+  {
+   "id": "sign_sf_gate",
+   "type": "signpost",
+   "at": [
+    2380,
+    860
+   ],
+   "text": "East: Willow Path · West: Market Street · North: Stonewall Quarry (Lv 4-7)."
+  },
+  {
+   "id": "npc_guard_hou",
+   "type": "npc",
+   "at": [
+    1180,
+    760
+   ],
+   "npc": "guard_hou",
+   "facing": 1
+  },
+  {
+   "id": "npc_foreman_dong",
+   "type": "npc",
+   "at": [
+    660,
+    760
+   ],
+   "npc": "foreman_dong",
+   "facing": 1
+  },
+  {
+   "id": "npc_adventurer_kai",
+   "type": "npc",
+   "at": [
+    1500,
+    900
+   ],
+   "npc": "adventurer_kai",
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "flag_pole_jade",
+   "at": [
+    980,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "flag_pole_cloud",
+   "at": [
+    1580,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "cart_broken",
+   "at": [
+    2000,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    144,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "willow_tree",
+   "at": [
+    765,
+    638
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "willow_tree",
+   "at": [
+    1685,
+    636
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2176,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  }
+ ],
+ "areas": [],
+ "music": "village_day",
+ "ambience": "town_ambience",
+ "town": true
+}

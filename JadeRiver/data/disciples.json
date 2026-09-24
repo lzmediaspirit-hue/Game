@@ -1,0 +1,41 @@
+{
+ "schema_version": 1,
+ "traits": [
+  "green_thumb",
+  "strong_back",
+  "keen_eye",
+  "steady_hands",
+  "brave",
+  "night_owl",
+  "loyal",
+  "fast_learner"
+ ],
+ "trait_names": {
+  "green_thumb": "Green Thumb",
+  "strong_back": "Strong Back",
+  "keen_eye": "Keen Eye",
+  "steady_hands": "Steady Hands",
+  "brave": "Brave",
+  "night_owl": "Night Owl",
+  "loyal": "Loyal",
+  "fast_learner": "Fast Learner"
+ },
+ "names": [
+  "Wei",
+  "Lin",
+  "Hao",
+  "Ming",
+  "Jun",
+  "Rui",
+  "Xiu",
+  "Ning",
+  "Bo",
+  "An",
+  "Yun",
+  "Fei",
+  "Ping",
+  "Qiao",
+  "Lan",
+  "Tao"
+ ]
+}

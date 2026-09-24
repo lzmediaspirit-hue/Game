@@ -1,0 +1,242 @@
+{
+ "schema_version": 1,
+ "id": "lf_fishers_hut",
+ "zone": "jade_river_valley",
+ "region": "lotus_ferry",
+ "name": "Fisher's Hut",
+ "type": "interior",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "wood"
+ },
+ "spawn_point": [
+  330,
+  780
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    1280,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "exit",
+   "type": "door",
+   "at": [
+    640,
+    660
+   ],
+   "to": "lf_village",
+   "to_portal": "hut_door",
+   "press_up": true,
+   "label": "Home Lane"
+  }
+ ],
+ "objects": [
+  {
+   "id": "tea_table",
+   "type": "pickup",
+   "at": [
+    640,
+    752
+   ],
+   "item": "herbal_tea",
+   "count": 1,
+   "prop": "jar",
+   "alt": 0,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "morning_tide"
+     }
+    ]
+   },
+   "label": "Herbal Tea"
+  },
+  {
+   "id": "tea_shelf",
+   "type": "pickup",
+   "at": [
+    150,
+    700
+   ],
+   "item": "herbal_tea",
+   "count": 1,
+   "prop": "jar",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "morning_tide"
+     }
+    ]
+   },
+   "label": "Herbal Tea"
+  },
+  {
+   "id": "tea_stove",
+   "type": "pickup",
+   "at": [
+    1010,
+    720
+   ],
+   "item": "herbal_tea",
+   "count": 1,
+   "prop": "jar",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "morning_tide"
+     }
+    ]
+   },
+   "label": "Herbal Tea"
+  },
+  {
+   "id": "npc_aunt_ping",
+   "type": "npc",
+   "at": [
+    520,
+    720
+   ],
+   "npc": "aunt_ping",
+   "facing": -1,
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "night_active"
+     }
+    ]
+   }
+  },
+  {
+   "id": "net",
+   "type": "inspect",
+   "at": [
+    860,
+    700
+   ],
+   "text": "Lu's old net. Half the knots are yours, from when you were small.",
+   "prop": "none"
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    360,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    920,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "window",
+   "at": [
+    640,
+    330
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "fishing_net_rack",
+   "at": [
+    860,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "bed",
+   "at": [
+    300,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "stove",
+   "at": [
+    1060,
+    680
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "table",
+   "at": [
+    640,
+    770
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "shelf",
+   "at": [
+    140,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "rug",
+   "at": [
+    640,
+    820
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_wood"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "music": "home"
+}

@@ -1,0 +1,376 @@
+{
+ "schema_version": 1,
+ "id": "sf_fairground",
+ "zone": "jade_river_valley",
+ "region": "stoneford",
+ "name": "Fairground",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "valley_day",
+ "ground": {
+  "material": "earth"
+ },
+ "spawn_point": [
+  3500,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "trial_jade",
+   "type": "door",
+   "at": [
+    900,
+    700
+   ],
+   "to": "sf_trial_jade",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Entry Trial (Jade)",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "entry_trial"
+     },
+     {
+      "kind": "training_sect",
+      "sect": "jade_sect"
+     }
+    ]
+   },
+   "locked_text": "Choose the Jade Sect first."
+  },
+  {
+   "id": "trial_cloud",
+   "type": "door",
+   "at": [
+    1700,
+    700
+   ],
+   "to": "sf_trial_cloud",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Entry Trial (Cloud)",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "entry_trial"
+     },
+     {
+      "kind": "training_sect",
+      "sect": "cloud_sect"
+     }
+    ]
+   },
+   "locked_text": "Choose the Cloud Sect first."
+  },
+  {
+   "id": "jade_road",
+   "type": "door",
+   "at": [
+    400,
+    700
+   ],
+   "to": "ja_gate_street",
+   "to_portal": "stoneford",
+   "press_up": true,
+   "label": "Jade Sect Academy",
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "jade_sect"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "locked_text": "Only Jade Sect disciples may take this road."
+  },
+  {
+   "id": "cloud_road",
+   "type": "door",
+   "at": [
+    2300,
+    700
+   ],
+   "to": "cm_cliff_stair",
+   "to_portal": "stoneford",
+   "press_up": true,
+   "label": "Cloud Sect Monastery",
+   "requires": {
+    "all": [
+     {
+      "kind": "training_sect",
+      "sect": "cloud_sect"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "locked_text": "Only Cloud Sect disciples may climb these stairs."
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "sf_artisan_row",
+   "to_portal": "west"
+  },
+  {
+   "id": "west",
+   "type": "sealed",
+   "at": [
+    40,
+    850
+   ],
+   "to": "cr_caravan_road",
+   "to_portal": "east",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_6"
+     }
+    ]
+   },
+   "locked_text": "Caravan Road: bandits. Qi Kindling 6 at least."
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_recruiter_qing_lan",
+   "type": "npc",
+   "at": [
+    900,
+    760
+   ],
+   "npc": "recruiter_qing_lan",
+   "facing": 1
+  },
+  {
+   "id": "npc_recruiter_mo_yun",
+   "type": "npc",
+   "at": [
+    1700,
+    760
+   ],
+   "npc": "recruiter_mo_yun",
+   "facing": -1
+  },
+  {
+   "id": "npc_shen_lian",
+   "type": "npc",
+   "at": [
+    2600,
+    820
+   ],
+   "npc": "shen_lian",
+   "facing": 1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "prologue_done"
+     }
+    ]
+   }
+  },
+  {
+   "id": "npc_wen_zhao",
+   "type": "npc",
+   "at": [
+    3000,
+    780
+   ],
+   "npc": "wen_zhao",
+   "facing": -1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "npc_fair_vendor_he",
+   "type": "npc",
+   "at": [
+    2200,
+    900
+   ],
+   "npc": "fair_vendor_he",
+   "facing": 1
+  },
+  {
+   "id": "npc_adventurer_rui",
+   "type": "npc",
+   "at": [
+    3300,
+    900
+   ],
+   "npc": "adventurer_rui",
+   "facing": -1
+  },
+  {
+   "id": "spar_sf",
+   "type": "spar_post",
+   "at": [
+    2800,
+    860
+   ],
+   "opponent": "sparring_disciple",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "attack"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "recruiter_tent_jade",
+   "at": [
+    900,
+    680
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "recruiter_tent_cloud",
+   "at": [
+    1700,
+    680
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "banner_jade",
+   "at": [
+    700,
+    670
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "banner_cloud",
+   "at": [
+    1900,
+    670
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_string",
+   "at": [
+    1300,
+    560
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "weapon_rack_full",
+   "at": [
+    2700,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "plum_tree",
+   "at": [
+    236,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "plum_tree",
+   "at": [
+    2267,
+    632
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "willow_tree",
+   "at": [
+    2709,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "plum_tree",
+   "at": [
+    3130,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "willow_tree",
+   "at": [
+    3665,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "fair",
+ "ambience": "town_ambience",
+ "town": true
+}

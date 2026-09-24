@@ -12,6 +12,8 @@ Rng="*res://scripts/core/rng_service.gd"
 Unlocks="*res://scripts/core/unlock_service.gd"
 Saves="*res://scripts/core/save_service.gd"
 Game="*res://scripts/simulation/authority/game_authority.gd"
+Audio="*res://scripts/audio/audio_director.gd"
+Notifier="*res://scripts/shell/notifier.gd"
 Wardrobe="*res://scripts/wardrobe.gd"
 [display]
 window/size/viewport_width=1280

@@ -59,6 +59,17 @@ func _draw():
 	var r=surface.bounds
 	var a=pt(r.position.x,r.position.y)
 	var d=pt(r.position.x,r.end.y)
+	if surface.kind=="ladder":
+		# Bamboo ladder leaning on the facade: foot at the ramp's front edge, top at the roof line.
+		var foot_y=r.end.y
+		var top=pt(r.position.x,r.position.y).y
+		for rail in [r.position.x+6,r.end.x-10]:
+			draw_rect(Rect2(rail,top,4,foot_y-top),Color("5d4a2a"))
+			draw_rect(Rect2(rail,top,2,foot_y-top),Color("a88a4f"))
+		for y in range(int(top)+6,int(foot_y),14):
+			draw_rect(Rect2(r.position.x+8,y,r.size.x-16,4),Color("4a3a22"))
+			draw_rect(Rect2(r.position.x+8,y,r.size.x-16,2),Color("c2a364"))
+		return
 	if surface.kind=="roof" and art!="" and not ATLAS_BUILDINGS.has(art):
 		# Building props: roof art on the walkable top face, facade below it.
 		var e: Dictionary=SpriteCache.prop(art)

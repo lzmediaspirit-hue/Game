@@ -1,0 +1,147 @@
+{
+ "schema_version": 1,
+ "id": "lf_granny_liu_hut",
+ "zone": "jade_river_valley",
+ "region": "lotus_ferry",
+ "name": "Granny Liu's Herb Hut",
+ "type": "interior",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "wood"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    1280,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "exit",
+   "type": "door",
+   "at": [
+    640,
+    660
+   ],
+   "to": "lf_village",
+   "to_portal": "granny_door",
+   "press_up": true
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_granny_liu",
+   "type": "npc",
+   "at": [
+    640,
+    720
+   ],
+   "npc": "granny_liu",
+   "facing": -1
+  },
+  {
+   "id": "shrine_granny",
+   "type": "shrine",
+   "at": [
+    1080,
+    740
+   ],
+   "prop": "altar"
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    360,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    920,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "herb_drawers",
+   "at": [
+    300,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "herb_drawers",
+   "at": [
+    980,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "incense_burner",
+   "at": [
+    820,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "table",
+   "at": [
+    560,
+    760
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_wood"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "music": "village_day"
+}

@@ -1,0 +1,280 @@
+{
+ "schema_version": 1,
+ "id": "sf_market",
+ "zone": "jade_river_valley",
+ "region": "stoneford",
+ "name": "Market Street",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [
+  "gather"
+ ],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "valley_day",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  2300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "general_store",
+   "rect": [
+    320,
+    598,
+    400,
+    92
+   ],
+   "height": 168,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "village_store"
+  },
+  {
+   "id": "tea_house",
+   "rect": [
+    1090,
+    598,
+    380,
+    92
+   ],
+   "height": 158,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "village_house"
+  },
+  {
+   "id": "warehouse_sf",
+   "rect": [
+    1800,
+    598,
+    440,
+    92
+   ],
+   "height": 168,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "warehouse"
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "sf_gate",
+   "to_portal": "west"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "sf_artisan_row",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "stone_sf",
+   "type": "teleport_stone",
+   "at": [
+    1480,
+    880
+   ],
+   "stone": "stoneford"
+  },
+  {
+   "id": "board_sf",
+   "type": "notice_board",
+   "at": [
+    760,
+    700
+   ]
+  },
+  {
+   "id": "storage_sf",
+   "type": "storage_chest",
+   "at": [
+    1100,
+    710
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "storage"
+     }
+    ]
+   },
+   "locked_text": "The storehouse opens for Qi Kindling cultivators."
+  },
+  {
+   "id": "exchange_sf",
+   "type": "inspect",
+   "at": [
+    2240,
+    720
+   ],
+   "prop": "counter",
+   "text": "The exchange counter.",
+   "open_page": "exchange",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "currency_exchange"
+     }
+    ]
+   },
+   "locked_text": "Currency exchange opens at Heaven Glimpse 3."
+  },
+  {
+   "id": "npc_storekeeper_fang",
+   "type": "npc",
+   "at": [
+    520,
+    730
+   ],
+   "npc": "storekeeper_fang",
+   "facing": 1
+  },
+  {
+   "id": "npc_auntie_rong",
+   "type": "npc",
+   "at": [
+    1280,
+    730
+   ],
+   "npc": "auntie_rong",
+   "facing": 1
+  },
+  {
+   "id": "npc_keeper_shi",
+   "type": "npc",
+   "at": [
+    1560,
+    860
+   ],
+   "npc": "keeper_shi",
+   "facing": -1
+  },
+  {
+   "id": "npc_courier_lin",
+   "type": "npc",
+   "at": [
+    1900,
+    900
+   ],
+   "npc": "courier_lin",
+   "facing": 1
+  },
+  {
+   "id": "npc_adventurer_su",
+   "type": "npc",
+   "at": [
+    300,
+    900
+   ],
+   "npc": "adventurer_su",
+   "facing": 1
+  },
+  {
+   "id": "npc_old_pan",
+   "type": "npc",
+   "at": [
+    2200,
+    900
+   ],
+   "npc": "old_pan",
+   "facing": -1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "appraisal"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "market_stall",
+   "at": [
+    900,
+    780
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "market_stall",
+   "at": [
+    1660,
+    780
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "lantern_string",
+   "at": [
+    1000,
+    560
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "lantern_string",
+   "at": [
+    1800,
+    560
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "village_day",
+ "ambience": "town_ambience",
+ "town": true
+}

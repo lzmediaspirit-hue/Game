@@ -1,0 +1,155 @@
+{
+ "schema_version": 1,
+ "id": "rm_hermit_stilt_house",
+ "zone": "jade_river_valley",
+ "region": "reed_marsh",
+ "name": "Hermit's Stilt House",
+ "type": "rest",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "water",
+ "qi_density": 1.3,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "marsh",
+ "ground": {
+  "material": "wood"
+ },
+ "spawn_point": [
+  300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    1280,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "stilt_house",
+   "rect": [
+    570,
+    586,
+    380,
+    104
+   ],
+   "height": 196,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "stilt_house"
+  }
+ ],
+ "portals": [
+  {
+   "id": "stairs",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "rm_sunken_causeway",
+   "to_portal": "stilts",
+   "press_up": true,
+   "label": "Sunken Causeway"
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_hermit_yao",
+   "type": "npc",
+   "at": [
+    500,
+    800
+   ],
+   "npc": "hermit_yao",
+   "facing": 1
+  },
+  {
+   "id": "shrine_hermit",
+   "type": "shrine",
+   "at": [
+    1100,
+    720
+   ]
+  },
+  {
+   "id": "spring_hermit",
+   "type": "qi_spring",
+   "at": [
+    300,
+    900
+   ],
+   "spring": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "qi_springs"
+     }
+    ]
+   },
+   "locked_text": "Still water."
+  },
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    1000,
+    900
+   ],
+   "item": "riverreed_ginseng_10",
+   "prop": "riverreed_ginseng_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "apprentice",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "reeds",
+   "at": [
+    1200,
+    650
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "meditation",
+ "ambience": "marsh_ambience"
+}

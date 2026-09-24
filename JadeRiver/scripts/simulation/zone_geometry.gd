@@ -92,7 +92,9 @@ func occluder_at(state: ActorState) -> Dictionary:
 func walk_target(point: Vector2,height: float,previous: WalkSurface) -> WalkSurface:
 	var best: WalkSurface=previous if previous.contains(point) else null
 	for candidate in surfaces:
-		if candidate==previous or candidate.stratum!=previous.stratum or not candidate.contains(point): continue
+		if candidate==previous or not candidate.contains(point): continue
+		# Ladders are the one bridge between layers: a walker steps on or off them wherever heights meet.
+		if candidate.stratum!=previous.stratum and candidate.kind!="ladder" and previous.kind!="ladder": continue
 		if absf(candidate.height_at(point)-height)>8.0: continue
 		if best==null or (candidate.rise!=0 and previous.rise==0): best=candidate
 	return best

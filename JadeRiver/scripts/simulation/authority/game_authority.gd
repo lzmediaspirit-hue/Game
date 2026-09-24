@@ -171,6 +171,7 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"add_purity": progression.apply_purity(actor_id, float(e.amount))
 			"unlock_slot": accounts.apply_slot(int(e.get("slot", 0)))
 			"codex": quest.apply_codex(str(e.entry))
+			"start_daily": quest.start_daily(true)
 			_: push_warning("Unknown effect kind: " + str(e.get("kind", "")))
 
 # ------------------------------------------------------------------ simulation

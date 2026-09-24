@@ -1,0 +1,411 @@
+{
+ "schema_version": 1,
+ "id": "ds_hall_of_lanterns",
+ "zone": "jade_river_valley",
+ "region": "drowned_shrine",
+ "name": "Hall of Lanterns",
+ "type": "secret",
+ "level_range": [
+  21,
+  27
+ ],
+ "recommended_cp": 398,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "cave",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ds_flooded_gate",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "ds_scripture_well",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    190,
+    900
+   ],
+   "loot": "jar_valley_mid",
+   "level": 24,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_2",
+   "type": "jar",
+   "at": [
+    688,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 24,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    1268,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 24,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    1772,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 24,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    2252,
+    720
+   ],
+   "loot": "jar_valley_mid",
+   "level": 24,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_6",
+   "type": "chest",
+   "at": [
+    2200,
+    700
+   ],
+   "loot": "chest_dungeon",
+   "level": 27
+  },
+  {
+   "id": "inscription_ds_hall_of_lanterns_0",
+   "type": "inspect",
+   "at": [
+    500,
+    700
+   ],
+   "prop": "scholar_rock",
+   "text": "Lu's handwriting, faded under the silt: \"Breathe with the river, not against it.\"",
+   "set_flag": "inscription_ds_hall_of_lanterns_0",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "lus_handwriting"
+     }
+    ]
+   }
+  },
+  {
+   "id": "inscription_ds_hall_of_lanterns_1",
+   "type": "inspect",
+   "at": [
+    950,
+    700
+   ],
+   "prop": "scholar_rock",
+   "text": "Lu's handwriting, faded under the silt: \"Breathe with the river, not against it.\"",
+   "set_flag": "inscription_ds_hall_of_lanterns_1",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "lus_handwriting"
+     }
+    ]
+   }
+  },
+  {
+   "id": "inscription_ds_hall_of_lanterns_2",
+   "type": "inspect",
+   "at": [
+    1400,
+    700
+   ],
+   "prop": "scholar_rock",
+   "text": "Lu's handwriting, faded under the silt: \"Breathe with the river, not against it.\"",
+   "set_flag": "inscription_ds_hall_of_lanterns_2",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "lus_handwriting"
+     }
+    ]
+   }
+  },
+  {
+   "id": "inscription_ds_hall_of_lanterns_3",
+   "type": "inspect",
+   "at": [
+    1850,
+    700
+   ],
+   "prop": "scholar_rock",
+   "text": "Lu's handwriting, faded under the silt: \"Breathe with the river, not against it.\"",
+   "set_flag": "inscription_ds_hall_of_lanterns_3",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "lus_handwriting"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "drowned_acolyte",
+   "surface": "ground",
+   "points": [
+    [
+     454,
+     891
+    ],
+    [
+     1024,
+     700
+    ],
+    [
+     1579,
+     818
+    ],
+    [
+     2011,
+     702
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 12,
+   "level": [
+    22,
+    24
+   ]
+  },
+  {
+   "enemy": "paper_talisman_ghost",
+   "surface": "ground",
+   "points": [
+    [
+     522,
+     867
+    ],
+    [
+     1050,
+     878
+    ],
+    [
+     1578,
+     758
+    ],
+    [
+     2009,
+     881
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 12,
+   "level": [
+    22,
+    25
+   ]
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "stone_lantern",
+   "at": [
+    240,
+    631
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    623,
+    633
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    1114,
+    631
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    1550,
+    633
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    2201,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    85,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    435,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    728,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    999,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1259,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1619,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1971,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2279,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [
+  {
+   "kind": "shallows",
+   "rect": [
+    0,
+    900,
+    2560,
+    60
+   ]
+  }
+ ],
+ "music": "dungeon",
+ "ambience": "",
+ "dungeon_exit": "dw_bend_shore"
+}

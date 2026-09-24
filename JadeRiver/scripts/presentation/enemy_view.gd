@@ -96,7 +96,7 @@ func sync(e: EnemyState, delta: float) -> void:
 
 func _avatar_action(e: EnemyState, action: String) -> void:
 	var weapon := str(avatar.outfit.get("weapon", "none"))
-	var attack := {"none": "punch_2", "sword": "swing_1", "spear": "thrust_1", "dagger": "thrust_1", "staff": "thrust_3", "bow": "bow"}.get(weapon, "punch_2")
+	var attack = {"none": "punch_2", "sword": "swing_1", "spear": "thrust_1", "dagger": "thrust_1", "staff": "thrust_3", "bow": "bow"}.get(weapon, "punch_2")
 	match action:
 		"walk": avatar.play("walk")
 		"windup":

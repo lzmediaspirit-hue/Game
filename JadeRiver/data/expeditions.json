@@ -1,0 +1,161 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "willow_path",
+   "name": "Willow Path",
+   "hours": [
+    1,
+    4,
+    8
+   ],
+   "danger_level": 1,
+   "rewards": [
+    {
+     "item": "willow_moss",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 2
+    },
+    {
+     "coins": 60
+    }
+   ]
+  },
+  {
+   "id": "stonewall_quarry",
+   "name": "Stonewall Quarry",
+   "hours": [
+    1,
+    4,
+    8
+   ],
+   "danger_level": 1,
+   "rewards": [
+    {
+     "item": "copper_ore",
+     "count": 4
+    },
+    {
+     "item": "riverstone",
+     "count": 3
+    },
+    {
+     "item": "jadeiron",
+     "count": 1,
+     "min_hours": 8
+    }
+   ]
+  },
+  {
+   "id": "reed_marsh",
+   "name": "Reed Marsh",
+   "hours": [
+    4,
+    8
+   ],
+   "danger_level": 3,
+   "rewards": [
+    {
+     "item": "leech_oil",
+     "count": 3
+    },
+    {
+     "item": "hollow_shard",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bamboo_grove",
+   "name": "Bamboo Grove",
+   "hours": [
+    4,
+    8
+   ],
+   "danger_level": 3,
+   "rewards": [
+    {
+     "item": "ember_pepper",
+     "count": 3
+    },
+    {
+     "item": "bamboo_shoot",
+     "count": 3
+    },
+    {
+     "item": "manual_page",
+     "count": 1,
+     "chance": 0.2
+    }
+   ]
+  },
+  {
+   "id": "deepwater_bend",
+   "name": "Deepwater Bend",
+   "hours": [
+    4,
+    8
+   ],
+   "danger_level": 5,
+   "rewards": [
+    {
+     "item": "jade_scale",
+     "count": 2
+    },
+    {
+     "item": "pearl",
+     "count": 1
+    },
+    {
+     "item": "riverreed_ginseng_100",
+     "count": 1,
+     "chance": 0.3
+    }
+   ]
+  },
+  {
+   "id": "whitewater_gorge",
+   "name": "Whitewater Gorge",
+   "hours": [
+    8
+   ],
+   "danger_level": 5,
+   "rewards": [
+    {
+     "item": "jadeiron",
+     "count": 3
+    },
+    {
+     "item": "mist_lotus",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "id": "mist_peak",
+   "name": "Mist Peak",
+   "hours": [
+    8
+   ],
+   "danger_level": 8,
+   "rewards": [
+    {
+     "item": "soulbell_flower",
+     "count": 2
+    },
+    {
+     "item": "soul_wax",
+     "count": 1
+    },
+    {
+     "item": "spirit_egg",
+     "count": 1,
+     "chance": 0.1
+    }
+   ]
+  }
+ ]
+}

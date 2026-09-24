@@ -1,0 +1,500 @@
+{
+ "schema_version": 1,
+ "id": "mp_misty_slopes",
+ "zone": "jade_river_valley",
+ "region": "mist_peak",
+ "name": "Misty Slopes",
+ "type": "field",
+ "level_range": [
+  46,
+  51
+ ],
+ "recommended_cp": 848,
+ "element": "soul",
+ "qi_density": 1.0,
+ "hazards": [
+  "fog"
+ ],
+ "gather_tier": "",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "mist_peak",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "cc_sky_ledges",
+   "to_portal": "west"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "mp_forgotten_monastery",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    996,
+    930
+   ],
+   "item": "soulbell_flower",
+   "prop": "soulbell_flower_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "expert",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "ore_2",
+   "type": "ore_vein",
+   "at": [
+    2937,
+    690
+   ],
+   "item": "mystic_ore",
+   "prop": "mystic_vein",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "expert",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    377,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 48,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_4",
+   "type": "crate",
+   "at": [
+    1085,
+    900
+   ],
+   "loot": "jar_valley_mid",
+   "level": 48,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    1861,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 48,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_6",
+   "type": "crate",
+   "at": [
+    2741,
+    720
+   ],
+   "loot": "jar_valley_mid",
+   "level": 48,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_7",
+   "type": "jar",
+   "at": [
+    3536,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 48,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "insight_mist",
+   "type": "insight_stone",
+   "at": [
+    1900,
+    720
+   ],
+   "element": "soul",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "insight_sites"
+     }
+    ]
+   },
+   "locked_text": "A carved stone."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "mist_wolf",
+   "surface": "ground",
+   "points": [
+    [
+     494,
+     719
+    ],
+    [
+     1125,
+     721
+    ],
+    [
+     1661,
+     791
+    ],
+    [
+     2155,
+     738
+    ],
+    [
+     2719,
+     747
+    ],
+    [
+     3378,
+     846
+    ]
+   ],
+   "max": 5,
+   "respawn_s": 12,
+   "level": [
+    46,
+    50
+   ]
+  },
+  {
+   "enemy": "mirror_wisp",
+   "surface": "ground",
+   "points": [
+    [
+     672,
+     896
+    ],
+    [
+     1538,
+     856
+    ],
+    [
+     2331,
+     781
+    ],
+    [
+     3145,
+     736
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 12,
+   "level": [
+    47,
+    51
+   ]
+  },
+  {
+   "enemy": "mist_wolf",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    50,
+    50
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "pine_tree",
+   "at": [
+    158,
+    633
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    728,
+    633
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1098,
+    639
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    1598,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2125,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    2687,
+    640
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    3185,
+    639
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    3793,
+    629
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    104,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    464,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    661,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1017,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1218,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1641,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1883,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2156,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2419,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2785,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3057,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3315,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3622,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "mist_bank",
+   "at": [
+    800,
+    990
+   ],
+   "layer": "front"
+  },
+  {
+   "prop": "mist_bank",
+   "at": [
+    2200,
+    990
+   ],
+   "layer": "front"
+  }
+ ],
+ "areas": [],
+ "music": "mist",
+ "ambience": "wind_ambience"
+}

@@ -1,0 +1,36 @@
+{
+ "schema_version": 1,
+ "currencies": [
+  {
+   "id": "silver_tael",
+   "name": "Silver Taels",
+   "icon": "coin_silver",
+   "scope": "account",
+   "everyday": true
+  },
+  {
+   "id": "spirit_stone",
+   "name": "Spirit Stones",
+   "icon": "spirit_stone",
+   "scope": "account"
+  },
+  {
+   "id": "contribution",
+   "name": "Contribution",
+   "icon": "contribution",
+   "scope": "character"
+  },
+  {
+   "id": "sage_crystal",
+   "name": "Sage Crystals",
+   "icon": "spirit_stone",
+   "scope": "account",
+   "planned": true
+  }
+ ],
+ "exchange": {
+  "silver_tael>spirit_stone": 0.01,
+  "spirit_stone>silver_tael": 100
+ },
+ "spread": 0.2
+}

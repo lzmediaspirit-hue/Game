@@ -1,0 +1,462 @@
+{
+ "schema_version": 1,
+ "id": "sr_windswept_ridge",
+ "zone": "jade_river_valley",
+ "region": "summit_ridge",
+ "name": "Windswept Ridge",
+ "type": "field",
+ "level_range": [
+  55,
+  60
+ ],
+ "recommended_cp": 1010,
+ "element": "wind",
+ "qi_density": 1.0,
+ "hazards": [
+  "wind_gust"
+ ],
+ "gather_tier": "",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "mist_peak",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    900,
+    660,
+    300,
+    50
+   ],
+   "height": 160,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    2000,
+    650,
+    300,
+    50
+   ],
+   "height": 220,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "mp_forgotten_monastery",
+   "to_portal": "west"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "sr_frozen_shrine",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "ore_1",
+   "type": "ore_vein",
+   "at": [
+    924,
+    690
+   ],
+   "item": "mystic_ore",
+   "prop": "mystic_vein",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "expert",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "ore_2",
+   "type": "ore_vein",
+   "at": [
+    2906,
+    690
+   ],
+   "item": "mystic_ore",
+   "prop": "mystic_vein",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "expert",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    411,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 57,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_4",
+   "type": "crate",
+   "at": [
+    1363,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 57,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    2354,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 57,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_6",
+   "type": "crate",
+   "at": [
+    3283,
+    720
+   ],
+   "loot": "jar_valley_mid",
+   "level": 57,
+   "hp": 1,
+   "respawn_s": 300
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "hollow_stag",
+   "surface": "ground",
+   "points": [
+    [
+     487,
+     773
+    ],
+    [
+     1044,
+     915
+    ],
+    [
+     1638,
+     806
+    ],
+    [
+     2242,
+     746
+    ],
+    [
+     2784,
+     729
+    ],
+    [
+     3355,
+     730
+    ]
+   ],
+   "max": 5,
+   "respawn_s": 12,
+   "level": [
+    55,
+    59
+   ]
+  },
+  {
+   "enemy": "cloudpeak_roc",
+   "surface": "ground",
+   "points": [
+    [
+     708,
+     762
+    ],
+    [
+     1559,
+     926
+    ],
+    [
+     2344,
+     878
+    ],
+    [
+     3131,
+     854
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 12,
+   "level": [
+    58,
+    63
+   ]
+  },
+  {
+   "enemy": "hollow_stag",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    59,
+    59
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    149,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    692,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    1253,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1674,
+    636
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    2195,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2693,
+    636
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    3308,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    118,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    343,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    690,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    917,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1285,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1659,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1854,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2209,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2525,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2886,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3177,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3566,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "summit",
+ "ambience": "wind_ambience"
+}

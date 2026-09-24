@@ -1,0 +1,44 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "old_ma": {
+   "id": "old_ma",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "in_room",
+        "room": "lf_village_night"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "ma_safe"
+       }
+      ]
+     },
+     "node": "night"
+    }
+   ],
+   "nodes": {
+    "night": {
+     "lines": [
+      "My shop! My stock!"
+     ],
+     "choices": [
+      {
+       "text": "Leave it! Get to the hut!",
+       "effects": [
+        {
+         "kind": "set_flag",
+         "flag": "ma_safe"
+        }
+       ],
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

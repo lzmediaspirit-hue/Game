@@ -1,0 +1,354 @@
+{
+ "schema_version": 1,
+ "id": "mh_tunnels",
+ "zone": "jade_river_valley",
+ "region": "mudwater_hideout",
+ "name": "Tunnels",
+ "type": "dungeon",
+ "level_range": [
+  14,
+  20
+ ],
+ "recommended_cp": 272,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "cave",
+ "ground": {
+  "material": "slate"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "mh_stockade",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "mh_loot_cave",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "ore_1",
+   "type": "ore_vein",
+   "at": [
+    1297,
+    690
+   ],
+   "item": "riverstone",
+   "prop": "riverstone_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "apprentice",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_2",
+   "type": "jar",
+   "at": [
+    176,
+    900
+   ],
+   "loot": "jar_valley_mid",
+   "level": 17,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_3",
+   "type": "crate",
+   "at": [
+    815,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 17,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    1293,
+    900
+   ],
+   "loot": "jar_valley_mid",
+   "level": 17,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_5",
+   "type": "crate",
+   "at": [
+    1780,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 17,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_6",
+   "type": "jar",
+   "at": [
+    2232,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 17,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_7",
+   "type": "chest",
+   "at": [
+    2200,
+    700
+   ],
+   "loot": "chest_dungeon",
+   "level": 20
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "bandit_archer",
+   "surface": "ground",
+   "points": [
+    [
+     444,
+     779
+    ],
+    [
+     897,
+     897
+    ],
+    [
+     1322,
+     793
+    ],
+    [
+     1747,
+     801
+    ],
+    [
+     2172,
+     907
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 12,
+   "level": [
+    16,
+    19
+   ]
+  },
+  {
+   "enemy": "mud_hound",
+   "surface": "ground",
+   "points": [
+    [
+     552,
+     877
+    ],
+    [
+     1074,
+     828
+    ],
+    [
+     1590,
+     837
+    ],
+    [
+     2083,
+     797
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 12,
+   "level": [
+    16,
+    20
+   ]
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "rock_small",
+   "at": [
+    155,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    661,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1201,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1860,
+    640
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2428,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    85,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    420,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    785,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1052,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1479,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1750,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2002,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2333,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "dungeon",
+ "ambience": "",
+ "dungeon_exit": "cr_caravan_road"
+}

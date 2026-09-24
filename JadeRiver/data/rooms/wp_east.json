@@ -1,0 +1,342 @@
+{
+ "schema_version": 1,
+ "id": "wp_east",
+ "zone": "jade_river_valley",
+ "region": "willow_path",
+ "name": "Willow Path East",
+ "type": "path",
+ "level_range": [
+  1,
+  2
+ ],
+ "recommended_cp": 38,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "valley_low",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "valley_day",
+ "ground": {
+  "material": "earth"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "lf_village",
+   "to_portal": "west_gate"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "wp_west",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    1333,
+    700
+   ],
+   "item": "willow_moss",
+   "prop": "willow_moss_patch",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "apprentice",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "jar_2",
+   "type": "jar",
+   "at": [
+    471,
+    900
+   ],
+   "loot": "jar_valley_low",
+   "level": 1,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_3",
+   "type": "crate",
+   "at": [
+    1333,
+    900
+   ],
+   "loot": "jar_valley_low",
+   "level": 1,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    2068,
+    900
+   ],
+   "loot": "jar_valley_low",
+   "level": 1,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "sign_wp",
+   "type": "signpost",
+   "at": [
+    2380,
+    860
+   ],
+   "text": "Willow Path. East: Lotus Ferry · West: Stoneford Market."
+  },
+  {
+   "id": "pan_spot",
+   "type": "inspect",
+   "at": [
+    1300,
+    700
+   ],
+   "prop": "cart_broken",
+   "text": "Wheel ruts. A merchant stops here sometimes."
+  },
+  {
+   "id": "npc_old_pan_wp",
+   "type": "npc",
+   "at": [
+    1400,
+    780
+   ],
+   "npc": "old_pan",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "appraisal"
+     }
+    ]
+   },
+   "facing": -1
+  },
+  {
+   "id": "note_lu",
+   "type": "inspect",
+   "at": [
+    2300,
+    720
+   ],
+   "prop": "signpost",
+   "text": "A note in Lu's hand: \"West, to the training stumps. Punch until the wood remembers you.\"",
+   "set_flag": "read_lu_note"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "wild_boarlet",
+   "surface": "ground",
+   "points": [
+    [
+     395,
+     781
+    ],
+    [
+     827,
+     771
+    ],
+    [
+     1292,
+     772
+    ],
+    [
+     1751,
+     807
+    ],
+    [
+     2054,
+     706
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 10,
+   "level": [
+    1,
+    2
+   ]
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "willow_tree",
+   "at": [
+    165,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "plum_tree",
+   "at": [
+    722,
+    632
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "willow_tree",
+   "at": [
+    1306,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "plum_tree",
+   "at": [
+    1936,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "willow_tree",
+   "at": [
+    2410,
+    633
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    113,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    527,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    803,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1159,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1466,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1727,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1984,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2321,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "field",
+ "ambience": "birds_ambience"
+}

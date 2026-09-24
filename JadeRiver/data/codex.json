@@ -1,0 +1,106 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "lotus_ferry",
+   "title": "Lotus Ferry",
+   "body": "A fishing village at the river's bend. Aunt Ping, Lu and a few dozen others. Home."
+  },
+  {
+   "id": "the_hollowing",
+   "title": "The Hollowing",
+   "body": "A grey that drains colour, then life. Hollowed beasts have empty white eyes."
+  },
+  {
+   "id": "realms",
+   "title": "Realms",
+   "body": "Mortal, Bone Forging, Qi Kindling, Qi Unfurling, Heart Tempering, Cloud Stride, Spirit Awakening, Heaven Glimpse... and beyond the valley, more."
+  },
+  {
+   "id": "body_training",
+   "title": "Body training",
+   "body": "Stumps and stones temper the body. Body Level supports every breakthrough."
+  },
+  {
+   "id": "sects",
+   "title": "Training sects",
+   "body": "The Jade Sect Academy by the river and the Cloud Sect Monastery on the cliffs."
+  },
+  {
+   "id": "training_sects",
+   "title": "Ranks",
+   "body": "Service, outer, inner, core and personal disciples."
+  },
+  {
+   "id": "weapons",
+   "title": "Weapons",
+   "body": "Gauntlets, jian, spear, short blade, staff and bow. Each has its Dao."
+  },
+  {
+   "id": "qi",
+   "title": "Qi",
+   "body": "The river's breath, gathered inside you. Meditate to gather it; techniques spend it."
+  },
+  {
+   "id": "companions",
+   "title": "Companions",
+   "body": "Fellow disciples who fight beside you."
+  },
+  {
+   "id": "dungeons",
+   "title": "Dungeons",
+   "body": "Chains of rooms with a boss at the end and a chest for the brave."
+  },
+  {
+   "id": "heavens_cleansing",
+   "title": "Heaven's Cleansing",
+   "body": "At Qi Kindling 9, heaven washes the body of impurity."
+  },
+  {
+   "id": "hollowed",
+   "title": "Hollowed beasts",
+   "body": "Grey versions of valley animals. They spread the Hollowing with every hit."
+  },
+  {
+   "id": "yan_heng",
+   "title": "Yan Heng",
+   "body": "A figure in the light of the Cleansing. A man with a river in his eyes."
+  },
+  {
+   "id": "lu_past",
+   "title": "Lu's past",
+   "body": "Lu's handwriting on a shrine drowned a hundred years ago."
+  },
+  {
+   "id": "heart_trial",
+   "title": "The Heart Trial",
+   "body": "A mirror. What comes out is you."
+  },
+  {
+   "id": "flight",
+   "title": "Flight",
+   "body": "At Cloud Stride, Qi carries the body."
+  },
+  {
+   "id": "azure_expanse",
+   "title": "The Azure Expanse",
+   "body": "Beyond the Ascension Gate: a larger world."
+  },
+  {
+   "id": "act_one_end",
+   "title": "Beyond the Gate",
+   "body": "You passed the Gate Guardian. The river keeps flowing."
+  },
+  {
+   "id": "river_of_time",
+   "title": "River of Time and Space",
+   "body": "Locked.",
+   "locked": true
+  },
+  {
+   "id": "jade_river",
+   "title": "The Jade River",
+   "body": "It runs through every land you will ever see."
+  }
+ ]
+}

@@ -1,0 +1,174 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "reed_otter",
+   "name": "Reed Otter",
+   "art": "reed_otter",
+   "element": "water",
+   "strength_role": "gatherer",
+   "starter": true,
+   "skills": [
+    "Splash",
+    "Reed Dive",
+    "Otter Current",
+    "River Gift"
+   ],
+   "favourite_foods": [
+    "roast_fish",
+    "riverfish_soup"
+   ],
+   "branches": [
+    "River Otter Sage",
+    "Tide Otter"
+   ],
+   "inherit_owner": {
+    "hatchling": 0.2,
+    "juvenile": 0.35,
+    "adult": 0.5
+   }
+  },
+  {
+   "id": "ember_fox",
+   "name": "Ember Fox",
+   "art": "ember_fox",
+   "element": "fire",
+   "strength_role": "combat",
+   "starter": true,
+   "skills": [
+    "Ember Bite",
+    "Flare",
+    "Fox Fire",
+    "Nine Embers"
+   ],
+   "favourite_foods": [
+    "roast_fish",
+    "ember_pepper_broth"
+   ],
+   "branches": [
+    "Twin-Tail Fox",
+    "Hearth Fox"
+   ],
+   "inherit_owner": {
+    "hatchling": 0.25,
+    "juvenile": 0.4,
+    "adult": 0.55
+   }
+  },
+  {
+   "id": "jade_crane",
+   "name": "Jade Crane",
+   "art": "jade_crane_chick",
+   "element": "wind",
+   "strength_role": "mount",
+   "starter": true,
+   "skills": [
+    "Wing Buffet",
+    "Crane Call",
+    "Cloud Lift",
+    "Sky Dance"
+   ],
+   "favourite_foods": [
+    "mist_trout",
+    "lotus_root_tea"
+   ],
+   "branches": [
+    "Cloud Crane",
+    "Sage Crane"
+   ],
+   "inherit_owner": {
+    "hatchling": 0.2,
+    "juvenile": 0.35,
+    "adult": 0.5
+   }
+  },
+  {
+   "id": "mossback_toad",
+   "name": "Mossback Toad",
+   "art": "mossback_toad",
+   "element": "wood",
+   "strength_role": "gatherer",
+   "tame": true,
+   "skills": [
+    "Tongue Lash",
+    "Moss Shield",
+    "Herb Sense",
+    "Garden Back"
+   ],
+   "favourite_foods": [
+    "frog_leg",
+    "rice_ball"
+   ],
+   "branches": [
+    "Moss Sage Toad",
+    "Thorn Toad"
+   ]
+  },
+  {
+   "id": "ironclaw_mole",
+   "name": "Ironclaw Mole",
+   "art": "ironclaw_mole",
+   "element": "earth",
+   "strength_role": "gatherer",
+   "tame": true,
+   "skills": [
+    "Dig",
+    "Ore Sense",
+    "Tunnel Rush",
+    "Gem Find"
+   ],
+   "favourite_foods": [
+    "tough_meat",
+    "boar_bone_broth"
+   ],
+   "branches": [
+    "Gem Mole",
+    "Burrow Guard"
+   ]
+  },
+  {
+   "id": "bamboo_monkey",
+   "name": "Bamboo Monkey",
+   "art": "bamboo_monkey",
+   "element": "wood",
+   "strength_role": "combat",
+   "tame": true,
+   "skills": [
+    "Shoot Toss",
+    "Pickpocket",
+    "Vine Swing",
+    "Monkey Chaos"
+   ],
+   "favourite_foods": [
+    "bamboo_shoot",
+    "rice_ball"
+   ],
+   "branches": [
+    "Monkey Thief",
+    "Staff Monkey"
+   ]
+  },
+  {
+   "id": "mist_wolf",
+   "name": "Mist Wolf",
+   "art": "mist_wolf",
+   "element": "soul",
+   "strength_role": "combat",
+   "tame": true,
+   "skills": [
+    "Mist Bite",
+    "Howl",
+    "Fog Step",
+    "Moon Hunt"
+   ],
+   "favourite_foods": [
+    "tough_meat",
+    "riverfish_soup"
+   ],
+   "branches": [
+    "Fog Wolf",
+    "Moon Wolf"
+   ]
+  }
+ ]
+}

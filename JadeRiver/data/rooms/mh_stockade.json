@@ -1,0 +1,358 @@
+{
+ "schema_version": 1,
+ "id": "mh_stockade",
+ "zone": "jade_river_valley",
+ "region": "mudwater_hideout",
+ "name": "Stockade",
+ "type": "dungeon",
+ "level_range": [
+  14,
+  20
+ ],
+ "recommended_cp": 272,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "valley_dusk",
+ "ground": {
+  "material": "earth"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "gate",
+   "at": [
+    40,
+    850
+   ],
+   "to": "cr_caravan_road",
+   "to_portal": "hideout"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "mh_tunnels",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    249,
+    700
+   ],
+   "loot": "jar_valley_mid",
+   "level": 17,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_2",
+   "type": "crate",
+   "at": [
+    795,
+    720
+   ],
+   "loot": "jar_valley_mid",
+   "level": 17,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    1338,
+    900
+   ],
+   "loot": "jar_valley_mid",
+   "level": 17,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_4",
+   "type": "crate",
+   "at": [
+    1752,
+    930
+   ],
+   "loot": "jar_valley_mid",
+   "level": 17,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    2319,
+    720
+   ],
+   "loot": "jar_valley_mid",
+   "level": 17,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_6",
+   "type": "chest",
+   "at": [
+    2200,
+    700
+   ],
+   "loot": "chest_dungeon",
+   "level": 20
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "mudwater_bandit",
+   "surface": "ground",
+   "points": [
+    [
+     455,
+     910
+    ],
+    [
+     814,
+     787
+    ],
+    [
+     1091,
+     768
+    ],
+    [
+     1404,
+     925
+    ],
+    [
+     1759,
+     863
+    ],
+    [
+     2192,
+     729
+    ]
+   ],
+   "max": 5,
+   "respawn_s": 12,
+   "level": [
+    15,
+    18
+   ]
+  },
+  {
+   "enemy": "mud_hound",
+   "surface": "ground",
+   "points": [
+    [
+     598,
+     907
+    ],
+    [
+     1042,
+     791
+    ],
+    [
+     1573,
+     861
+    ],
+    [
+     1988,
+     857
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 12,
+   "level": [
+    16,
+    18
+   ]
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "rock_small",
+   "at": [
+    161,
+    631
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    658,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1207,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1678,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2221,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    158,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    419,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    660,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    985,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1314,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1521,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1850,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2119,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2401,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "stockade_wall",
+   "at": [
+    640,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "stockade_wall",
+   "at": [
+    1900,
+    660
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "dungeon",
+ "ambience": "",
+ "dungeon_exit": "cr_caravan_road"
+}

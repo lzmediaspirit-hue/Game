@@ -1,0 +1,367 @@
+{
+ "schema_version": 1,
+ "id": "rm_sunken_causeway",
+ "zone": "jade_river_valley",
+ "region": "reed_marsh",
+ "name": "Sunken Causeway",
+ "type": "path",
+ "level_range": [
+  5,
+  12
+ ],
+ "recommended_cp": 110,
+ "element": "water",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "marsh",
+ "ground": {
+  "material": "wood"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "rm_grey_pools",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "sealed",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "bg_whispering_bamboo",
+   "to_portal": "west",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_9"
+     }
+    ]
+   },
+   "locked_text": "The bamboo is thick with vipers. Bone Forging 9 first."
+  },
+  {
+   "id": "stilts",
+   "type": "door",
+   "at": [
+    1280,
+    700
+   ],
+   "to": "rm_hermit_stilt_house",
+   "to_portal": "stairs",
+   "press_up": true,
+   "label": "Hermit's Stilt House"
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    1238,
+    930
+   ],
+   "item": "riverreed_ginseng_10",
+   "prop": "riverreed_ginseng_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "apprentice",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "jar_2",
+   "type": "jar",
+   "at": [
+    454,
+    720
+   ],
+   "loot": "jar_valley_low",
+   "level": 8,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    1267,
+    930
+   ],
+   "loot": "jar_valley_low",
+   "level": 8,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    2193,
+    720
+   ],
+   "loot": "jar_valley_low",
+   "level": 8,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "sign_rm",
+   "type": "signpost",
+   "at": [
+    2380,
+    860
+   ],
+   "text": "East: Whispering Bamboo (Lv 10-15) · North: the hermit's stilt house."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "marsh_leech",
+   "surface": "ground",
+   "points": [
+    [
+     417,
+     717
+    ],
+    [
+     873,
+     726
+    ],
+    [
+     1291,
+     839
+    ],
+    [
+     1658,
+     843
+    ],
+    [
+     2076,
+     881
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 12,
+   "level": [
+    5,
+    7
+   ]
+  },
+  {
+   "enemy": "greyfin",
+   "surface": "ground",
+   "points": [
+    [
+     589,
+     776
+    ],
+    [
+     1299,
+     896
+    ],
+    [
+     1987,
+     823
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 12,
+   "level": [
+    8,
+    11
+   ]
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "reeds",
+   "at": [
+    124,
+    630
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    689,
+    640
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1199,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1615,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2074,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    135,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    475,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    751,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1050,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1441,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1692,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1945,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2279,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2489,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  }
+ ],
+ "areas": [
+  {
+   "kind": "river",
+   "rect": [
+    0,
+    900,
+    2560,
+    120
+   ]
+  }
+ ],
+ "music": "marsh",
+ "ambience": "marsh_ambience"
+}

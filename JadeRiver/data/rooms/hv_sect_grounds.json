@@ -1,0 +1,116 @@
+{
+ "schema_version": 1,
+ "id": "hv_sect_grounds",
+ "zone": "jade_river_valley",
+ "region": "hidden_vale",
+ "name": "Sect Grounds",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "sect_jade",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "hv_vale_gate",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "sealed",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "hv_back_mountain",
+   "to_portal": "west",
+   "requires": {
+    "all": [
+     {
+      "kind": "sect_level",
+      "level": 4
+     }
+    ]
+   },
+   "locked_text": "The Back Mountain opens at sect level 4."
+  }
+ ],
+ "objects": [
+  {
+   "id": "sect_hall",
+   "type": "inspect",
+   "at": [
+    1280,
+    720
+   ],
+   "prop": "altar",
+   "text": "Your sect's hall.",
+   "open_page": "your_sect"
+  },
+  {
+   "id": "storage_hv",
+   "type": "storage_chest",
+   "at": [
+    700,
+    720
+   ]
+  },
+  {
+   "id": "shrine_hv",
+   "type": "shrine",
+   "at": [
+    1900,
+    700
+   ]
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [],
+ "areas": [],
+ "music": "sect",
+ "ambience": "town_ambience",
+ "town": true
+}

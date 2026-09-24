@@ -1,0 +1,282 @@
+{
+ "schema_version": 1,
+ "id": "cm_cliff_stair",
+ "zone": "jade_river_valley",
+ "region": "cloud_sect",
+ "name": "Cliff Stair",
+ "type": "sect",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "sect_cloud",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  200,
+  860
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "stair_a",
+   "rect": [
+    700,
+    640,
+    240,
+    150
+   ],
+   "height": 0,
+   "kind": "stairs",
+   "stratum": "ground",
+   "open_edges": false,
+   "rise": -100,
+   "rise_axis": "y"
+  },
+  {
+   "id": "landing",
+   "rect": [
+    700,
+    560,
+    560,
+    80
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_hi",
+   "rect": [
+    1500,
+    640,
+    300,
+    60
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "stoneford",
+   "type": "gate",
+   "at": [
+    40,
+    850
+   ],
+   "to": "sf_fairground",
+   "to_portal": "cloud_road",
+   "label": "Stoneford"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "cm_sword_court",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "shrine_cm",
+   "type": "shrine",
+   "at": [
+    1300,
+    880
+   ]
+  },
+  {
+   "id": "stone_cm",
+   "type": "teleport_stone",
+   "at": [
+    460,
+    880
+   ],
+   "stone": "cloud_monastery"
+  },
+  {
+   "id": "board_cm",
+   "type": "notice_board",
+   "at": [
+    1800,
+    880
+   ]
+  },
+  {
+   "id": "npc_cloud_steward",
+   "type": "npc",
+   "at": [
+    360,
+    780
+   ],
+   "npc": "cloud_steward",
+   "facing": 1
+  },
+  {
+   "id": "npc_cloud_deacon",
+   "type": "npc",
+   "at": [
+    2000,
+    800
+   ],
+   "npc": "cloud_deacon",
+   "facing": -1
+  },
+  {
+   "id": "npc_cloud_disciple_a",
+   "type": "npc",
+   "at": [
+    1100,
+    900
+   ],
+   "npc": "cloud_disciple_a",
+   "facing": 1
+  },
+  {
+   "id": "dorm_bed_cm",
+   "type": "inspect",
+   "at": [
+    1600,
+    900
+   ],
+   "prop": "bed",
+   "text": "Your bunk in the service dorm.",
+   "rest": true,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_disciples_chores"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sweep_cm_0",
+   "type": "inspect",
+   "at": [
+    900,
+    920
+   ],
+   "prop": "grey_patch",
+   "text": "Swept clean.",
+   "set_flag": "swept_cm_0",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "a_disciples_chores"
+     },
+     {
+      "kind": "flag_not_set",
+      "flag": "swept_cm_0"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sweep_cm_1",
+   "type": "inspect",
+   "at": [
+    1400,
+    920
+   ],
+   "prop": "grey_patch",
+   "text": "Swept clean.",
+   "set_flag": "swept_cm_1",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "a_disciples_chores"
+     },
+     {
+      "kind": "flag_not_set",
+      "flag": "swept_cm_1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sweep_cm_2",
+   "type": "inspect",
+   "at": [
+    2100,
+    920
+   ],
+   "prop": "grey_patch",
+   "text": "Swept clean.",
+   "set_flag": "swept_cm_2",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "a_disciples_chores"
+     },
+     {
+      "kind": "flag_not_set",
+      "flag": "swept_cm_2"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "paifang_gate",
+   "at": [
+    300,
+    650
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2400,
+    640
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "sect",
+ "sect": "cloud_sect",
+ "town": true
+}

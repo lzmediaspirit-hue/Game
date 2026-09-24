@@ -1,0 +1,224 @@
+{
+ "music": {
+  "battle": {
+   "file": "res://art/audio/music/battle.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "boss": {
+   "file": "res://art/audio/music/boss.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "dungeon": {
+   "file": "res://art/audio/music/dungeon.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "field": {
+   "file": "res://art/audio/music/field.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "forest": {
+   "file": "res://art/audio/music/forest.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "meditation": {
+   "file": "res://art/audio/music/meditation.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "peak": {
+   "file": "res://art/audio/music/peak.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "river": {
+   "file": "res://art/audio/music/river.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "sect": {
+   "file": "res://art/audio/music/sect.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "title": {
+   "file": "res://art/audio/music/title.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "village_day": {
+   "file": "res://art/audio/music/village_day.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "village_night": {
+   "file": "res://art/audio/music/village_night.wav",
+   "loop": true,
+   "volume_db": -6
+  }
+ },
+ "rooms": {},
+ "schema_version": 1,
+ "sfx": {
+  "alchemy": {
+   "file": "res://art/audio/sfx/alchemy.wav",
+   "volume_db": -4
+  },
+  "backlash": {
+   "file": "res://art/audio/sfx/backlash.wav",
+   "volume_db": -4
+  },
+  "boss_roar": {
+   "file": "res://art/audio/sfx/boss_roar.wav",
+   "volume_db": -4
+  },
+  "break": {
+   "file": "res://art/audio/sfx/break.wav",
+   "volume_db": -4
+  },
+  "breakthrough": {
+   "file": "res://art/audio/sfx/breakthrough.wav",
+   "volume_db": -4
+  },
+  "coin": {
+   "file": "res://art/audio/sfx/coin.wav",
+   "volume_db": -4
+  },
+  "cook": {
+   "file": "res://art/audio/sfx/cook.wav",
+   "volume_db": -4
+  },
+  "crowd_ambience": {
+   "file": "res://art/audio/sfx/crowd_ambience.wav",
+   "volume_db": -4
+  },
+  "dodge": {
+   "file": "res://art/audio/sfx/dodge.wav",
+   "volume_db": -4
+  },
+  "enemy_die": {
+   "file": "res://art/audio/sfx/enemy_die.wav",
+   "volume_db": -4
+  },
+  "error": {
+   "file": "res://art/audio/sfx/error.wav",
+   "volume_db": -4
+  },
+  "fail": {
+   "file": "res://art/audio/sfx/fail.wav",
+   "volume_db": -4
+  },
+  "fish_bite": {
+   "file": "res://art/audio/sfx/fish_bite.wav",
+   "volume_db": -4
+  },
+  "forge": {
+   "file": "res://art/audio/sfx/forge.wav",
+   "volume_db": -4
+  },
+  "gather": {
+   "file": "res://art/audio/sfx/gather.wav",
+   "volume_db": -4
+  },
+  "hit": {
+   "file": "res://art/audio/sfx/hit.wav",
+   "volume_db": -4
+  },
+  "hit_crit": {
+   "file": "res://art/audio/sfx/hit_crit.wav",
+   "volume_db": -4
+  },
+  "hurt": {
+   "file": "res://art/audio/sfx/hurt.wav",
+   "volume_db": -4
+  },
+  "jump": {
+   "file": "res://art/audio/sfx/jump.wav",
+   "volume_db": -4
+  },
+  "land": {
+   "file": "res://art/audio/sfx/land.wav",
+   "volume_db": -4
+  },
+  "level": {
+   "file": "res://art/audio/sfx/level.wav",
+   "volume_db": -4
+  },
+  "mail": {
+   "file": "res://art/audio/sfx/mail.wav",
+   "volume_db": -4
+  },
+  "meditate": {
+   "file": "res://art/audio/sfx/meditate.wav",
+   "volume_db": -4
+  },
+  "mine": {
+   "file": "res://art/audio/sfx/mine.wav",
+   "volume_db": -4
+  },
+  "parry": {
+   "file": "res://art/audio/sfx/parry.wav",
+   "volume_db": -4
+  },
+  "pickup": {
+   "file": "res://art/audio/sfx/pickup.wav",
+   "volume_db": -4
+  },
+  "portal": {
+   "file": "res://art/audio/sfx/portal.wav",
+   "volume_db": -4
+  },
+  "quest_accept": {
+   "file": "res://art/audio/sfx/quest_accept.wav",
+   "volume_db": -4
+  },
+  "quest_complete": {
+   "file": "res://art/audio/sfx/quest_complete.wav",
+   "volume_db": -4
+  },
+  "swing": {
+   "file": "res://art/audio/sfx/swing.wav",
+   "volume_db": -4
+  },
+  "technique": {
+   "file": "res://art/audio/sfx/technique.wav",
+   "volume_db": -4
+  },
+  "tell": {
+   "file": "res://art/audio/sfx/tell.wav",
+   "volume_db": -4
+  },
+  "ui_close": {
+   "file": "res://art/audio/sfx/ui_close.wav",
+   "volume_db": -4
+  },
+  "ui_open": {
+   "file": "res://art/audio/sfx/ui_open.wav",
+   "volume_db": -4
+  },
+  "ui_tap": {
+   "file": "res://art/audio/sfx/ui_tap.wav",
+   "volume_db": -4
+  },
+  "unlock": {
+   "file": "res://art/audio/sfx/unlock.wav",
+   "volume_db": -4
+  },
+  "water_ambience": {
+   "file": "res://art/audio/sfx/water_ambience.wav",
+   "volume_db": -4
+  },
+  "water_step": {
+   "file": "res://art/audio/sfx/water_step.wav",
+   "volume_db": -4
+  },
+  "wind_ambience": {
+   "file": "res://art/audio/sfx/wind_ambience.wav",
+   "volume_db": -4
+  }
+ }
+}

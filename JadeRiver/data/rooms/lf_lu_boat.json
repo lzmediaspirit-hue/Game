@@ -1,0 +1,168 @@
+{
+ "schema_version": 1,
+ "id": "lf_lu_boat",
+ "zone": "jade_river_valley",
+ "region": "lotus_ferry",
+ "name": "Lu's Boat",
+ "type": "home",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "water",
+ "qi_density": 1.4,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "valley_dusk",
+ "ground": {
+  "material": "wood"
+ },
+ "spawn_point": [
+  520,
+  800
+ ],
+ "surfaces": [
+  {
+   "id": "deck",
+   "rect": [
+    240,
+    700,
+    800,
+    170
+   ],
+   "height": 0,
+   "kind": "deck",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "deck",
+   "type": "door",
+   "at": [
+    300,
+    780
+   ],
+   "to": "lf_village",
+   "to_portal": "boat",
+   "press_up": true,
+   "label": "Ferry Docks",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_river_token"
+     }
+    ]
+   },
+   "locked_text": "Lu: \"Sit. Breathe. The shore can wait.\""
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_lu_boat",
+   "type": "npc",
+   "at": [
+    840,
+    760
+   ],
+   "npc": "lu_boatman",
+   "facing": -1,
+   "pose": "meditate"
+  },
+  {
+   "id": "boat_spring",
+   "type": "qi_spring",
+   "at": [
+    560,
+    800
+   ],
+   "spring": false,
+   "prop": "none",
+   "text": "The river's breath is strong here."
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "lu_boat",
+   "at": [
+    640,
+    900
+   ],
+   "layer": "play",
+   "scale": 2.6
+  },
+  {
+   "prop": "meditation_mat",
+   "at": [
+    560,
+    790
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lamp_oil",
+   "at": [
+    900,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lotus_pads",
+   "at": [
+    180,
+    960
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lotus_pads",
+   "at": [
+    1120,
+    940
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [
+  {
+   "kind": "river",
+   "rect": [
+    0,
+    860,
+    1280,
+    160
+   ]
+  },
+  {
+   "kind": "river",
+   "rect": [
+    0,
+    640,
+    1280,
+    60
+   ]
+  }
+ ],
+ "music": "meditation",
+ "ambience": "river_ambience",
+ "custom_ground": true,
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ }
+}

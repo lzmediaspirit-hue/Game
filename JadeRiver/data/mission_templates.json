@@ -1,0 +1,273 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "hunt",
+   "name": "Hunt",
+   "options": [
+    {
+     "name": "Thin the boarlets",
+     "objective": {
+      "kind": "kill",
+      "enemy": "wild_boarlet",
+      "count": 8,
+      "text": "Defeat Wild Boarlets"
+     },
+     "min_level": 0,
+     "max_level": 5
+    },
+    {
+     "name": "Quarry pests",
+     "objective": {
+      "kind": "kill",
+      "enemy": "rock_beetle",
+      "count": 8,
+      "text": "Defeat Rock Beetles"
+     },
+     "min_level": 3,
+     "max_level": 9
+    },
+    {
+     "name": "Marsh leeches",
+     "objective": {
+      "kind": "kill",
+      "enemy": "marsh_leech",
+      "count": 8,
+      "text": "Defeat Marsh Leeches"
+     },
+     "min_level": 4,
+     "max_level": 11
+    },
+    {
+     "name": "Grey beasts",
+     "objective": {
+      "kind": "kill",
+      "enemy": "hollowed_boarlet",
+      "count": 8,
+      "text": "Defeat Hollowed Boarlets"
+     },
+     "min_level": 7,
+     "max_level": 14
+    },
+    {
+     "name": "Monkey business",
+     "objective": {
+      "kind": "kill",
+      "enemy": "bamboo_monkey",
+      "count": 8,
+      "text": "Defeat Bamboo Monkeys"
+     },
+     "min_level": 10,
+     "max_level": 17
+    },
+    {
+     "name": "Bandit patrol",
+     "objective": {
+      "kind": "kill",
+      "enemy": "mudwater_bandit",
+      "count": 8,
+      "text": "Defeat Mudwater Bandits"
+     },
+     "min_level": 14,
+     "max_level": 22
+    },
+    {
+     "name": "Shore crabs",
+     "objective": {
+      "kind": "kill",
+      "enemy": "tide_crab",
+      "count": 8,
+      "text": "Defeat Tide Crabs"
+     },
+     "min_level": 19,
+     "max_level": 27
+    },
+    {
+     "name": "Rapids watch",
+     "objective": {
+      "kind": "kill",
+      "enemy": "rapids_lizard",
+      "count": 8,
+      "text": "Defeat Rapids Lizards"
+     },
+     "min_level": 27,
+     "max_level": 37
+    },
+    {
+     "name": "Cliff hawks",
+     "objective": {
+      "kind": "kill",
+      "enemy": "stormwing_hawk",
+      "count": 6,
+      "text": "Defeat Stormwing Hawks"
+     },
+     "min_level": 37,
+     "max_level": 47
+    },
+    {
+     "name": "Wolves in the mist",
+     "objective": {
+      "kind": "kill",
+      "enemy": "mist_wolf",
+      "count": 6,
+      "text": "Defeat Mist Wolves"
+     },
+     "min_level": 45,
+     "max_level": 70
+    }
+   ]
+  },
+  {
+   "id": "gather",
+   "name": "Gather",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "options": [
+    {
+     "name": "Willow Moss",
+     "objective": {
+      "kind": "gather_node",
+      "item": "willow_moss",
+      "count": 5,
+      "text": "Gather Willow Moss"
+     },
+     "min_level": 0,
+     "max_level": 20
+    },
+    {
+     "name": "Ember Peppers",
+     "objective": {
+      "kind": "gather_node",
+      "item": "ember_pepper",
+      "count": 5,
+      "text": "Gather Ember Peppers"
+     },
+     "min_level": 10,
+     "max_level": 30
+    },
+    {
+     "name": "Mist Lotus",
+     "objective": {
+      "kind": "gather_node",
+      "item": "mist_lotus",
+      "count": 3,
+      "text": "Gather Mist Lotus"
+     },
+     "min_level": 19,
+     "max_level": 70
+    }
+   ]
+  },
+  {
+   "id": "mine",
+   "name": "Mine",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "options": [
+    {
+     "name": "Copper for the forge",
+     "objective": {
+      "kind": "gather_node",
+      "item": "copper_ore",
+      "count": 6,
+      "text": "Mine Copper"
+     },
+     "min_level": 0,
+     "max_level": 20
+    },
+    {
+     "name": "Jadeiron",
+     "objective": {
+      "kind": "gather_node",
+      "item": "jadeiron",
+      "count": 4,
+      "text": "Mine Jadeiron"
+     },
+     "min_level": 12,
+     "max_level": 70
+    }
+   ]
+  },
+  {
+   "id": "deliver",
+   "name": "Deliver",
+   "options": [
+    {
+     "name": "Rice for the kitchen",
+     "objective": {
+      "kind": "deliver",
+      "item": "rice_ball",
+      "count": 3,
+      "text": "Deliver Rice Balls"
+     },
+     "min_level": 0,
+     "max_level": 70
+    },
+    {
+     "name": "Teas for the infirmary",
+     "objective": {
+      "kind": "deliver",
+      "item": "herbal_tea",
+      "count": 3,
+      "text": "Deliver Herbal Teas"
+     },
+     "min_level": 0,
+     "max_level": 70
+    }
+   ]
+  },
+  {
+   "id": "craft",
+   "name": "Craft",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "cooking"
+     }
+    ]
+   },
+   "options": [
+    {
+     "name": "Kitchen duty",
+     "objective": {
+      "kind": "craft",
+      "craft": "cooking",
+      "count": 3,
+      "text": "Cook three dishes"
+     },
+     "min_level": 0,
+     "max_level": 70
+    }
+   ]
+  },
+  {
+   "id": "spar",
+   "name": "Spar",
+   "options": [
+    {
+     "name": "Sparring practice",
+     "objective": {
+      "kind": "win_spar",
+      "count": 1,
+      "text": "Win a spar"
+     },
+     "min_level": 0,
+     "max_level": 70
+    }
+   ]
+  }
+ ]
+}

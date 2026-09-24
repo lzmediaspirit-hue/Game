@@ -1,0 +1,110 @@
+{
+ "schema_version": 1,
+ "id": "hv_vale_gate",
+ "zone": "jade_river_valley",
+ "region": "hidden_vale",
+ "name": "Vale Gate",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "sect_jade",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    1280,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "path",
+   "type": "gate",
+   "at": [
+    40,
+    850
+   ],
+   "to": "cf_falls_pool",
+   "to_portal": "vale",
+   "label": "Falls Pool"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    1240,
+    850
+   ],
+   "to": "hv_sect_grounds",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "stone_hv",
+   "type": "teleport_stone",
+   "at": [
+    300,
+    880
+   ],
+   "stone": "hidden_vale"
+  },
+  {
+   "id": "defence_hv",
+   "type": "inspect",
+   "at": [
+    1000,
+    880
+   ],
+   "prop": "rite_circle",
+   "text": "The defence circle.",
+   "open_page": "your_sect"
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "paifang_gate",
+   "at": [
+    640,
+    650
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "sect",
+ "ambience": "town_ambience",
+ "town": true
+}

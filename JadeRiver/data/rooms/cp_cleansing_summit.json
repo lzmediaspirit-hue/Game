@@ -1,0 +1,115 @@
+{
+ "schema_version": 1,
+ "id": "cp_cleansing_summit",
+ "zone": "jade_river_valley",
+ "region": "cleansing_peak",
+ "name": "Cleansing Summit",
+ "type": "event",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 2.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "mist_peak",
+ "ground": {
+  "material": "stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    1280,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "cp_pilgrim_stairs",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "rite_cleansing",
+   "type": "rite_circle",
+   "at": [
+    640,
+    860
+   ],
+   "event": "heavens_cleansing",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_9"
+     },
+     {
+      "kind": "quest_active",
+      "quest": "the_rite"
+     }
+    ]
+   },
+   "locked_text": "The rite circle waits for the Cleansing."
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "pagoda",
+   "at": [
+    1100,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    400,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    880,
+    660
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "meditation"
+}

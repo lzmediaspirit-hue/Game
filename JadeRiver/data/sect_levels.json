@@ -1,0 +1,86 @@
+{
+ "schema_version": 1,
+ "prestige_building": 20,
+ "levels": [
+  {
+   "level": 1,
+   "prestige": 200
+  },
+  {
+   "level": 2,
+   "prestige": 696
+  },
+  {
+   "level": 3,
+   "prestige": 1445
+  },
+  {
+   "level": 4,
+   "prestige": 2425
+  },
+  {
+   "level": 5,
+   "prestige": 3624
+  },
+  {
+   "level": 6,
+   "prestige": 5032
+  },
+  {
+   "level": 7,
+   "prestige": 6641
+  },
+  {
+   "level": 8,
+   "prestige": 8445
+  },
+  {
+   "level": 9,
+   "prestige": 10439
+  },
+  {
+   "level": 10,
+   "prestige": 12619
+  },
+  {
+   "level": 11,
+   "prestige": 14981
+  },
+  {
+   "level": 12,
+   "prestige": 17521
+  },
+  {
+   "level": 13,
+   "prestige": 20236
+  },
+  {
+   "level": 14,
+   "prestige": 23124
+  },
+  {
+   "level": 15,
+   "prestige": 26181
+  },
+  {
+   "level": 16,
+   "prestige": 29407
+  },
+  {
+   "level": 17,
+   "prestige": 32797
+  },
+  {
+   "level": 18,
+   "prestige": 36351
+  },
+  {
+   "level": 19,
+   "prestige": 40067
+  },
+  {
+   "level": 20,
+   "prestige": 43942
+  }
+ ]
+}

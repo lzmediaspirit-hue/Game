@@ -1,0 +1,128 @@
+{
+ "schema_version": 1,
+ "id": "mp_ascension_gate",
+ "zone": "jade_river_valley",
+ "region": "mist_peak",
+ "name": "Ascension Gate",
+ "type": "boss_arena",
+ "level_range": [
+  63,
+  63
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "mist_peak",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  3600,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ascension_arch",
+   "rect": [
+    1550,
+    550,
+    700,
+    140
+   ],
+   "height": 220,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "gate"
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "sr_frozen_shrine",
+   "to_portal": "west"
+  },
+  {
+   "id": "ascend",
+   "type": "gate",
+   "at": [
+    1900,
+    710
+   ],
+   "to": "ae_landing",
+   "to_portal": "gate",
+   "press_up": true,
+   "label": "Azure Expanse",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_ascension_gate"
+     }
+    ]
+   },
+   "locked_text": "The Gate Guardian bars the way."
+  }
+ ],
+ "objects": [],
+ "spawns": [
+  {
+   "enemy": "gate_guardian",
+   "surface": "ground",
+   "points": [
+    [
+     1900,
+     840
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 86400,
+   "level": [
+    63,
+    63
+   ],
+   "boss": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_ascension_gate"
+     }
+    ]
+   }
+  }
+ ],
+ "scenery": [],
+ "decor": [],
+ "areas": [],
+ "music": "boss"
+}

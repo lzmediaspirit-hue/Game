@@ -1,0 +1,113 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "sect_hall",
+   "name": "Sect Hall",
+   "base_cost": 800,
+   "material": "riverstone",
+   "material_count": 20,
+   "sect_level": 1,
+   "max_level": 10
+  },
+  {
+   "id": "treasury",
+   "name": "Treasury",
+   "base_cost": 500,
+   "material": "copper_ore",
+   "material_count": 20,
+   "sect_level": 1,
+   "max_level": 10
+  },
+  {
+   "id": "meditation_pavilion",
+   "name": "Meditation Pavilion",
+   "base_cost": 500,
+   "material": "riverstone",
+   "material_count": 20,
+   "sect_level": 1,
+   "max_level": 10
+  },
+  {
+   "id": "guest_house",
+   "name": "Guest House",
+   "base_cost": 600,
+   "material": "boar_hide",
+   "material_count": 10,
+   "sect_level": 2,
+   "max_level": 10
+  },
+  {
+   "id": "mission_hall",
+   "name": "Mission Hall",
+   "base_cost": 600,
+   "material": "copper_ore",
+   "material_count": 15,
+   "sect_level": 2,
+   "max_level": 10
+  },
+  {
+   "id": "alchemy_hall",
+   "name": "Alchemy Hall",
+   "base_cost": 900,
+   "material": "willow_moss",
+   "material_count": 20,
+   "sect_level": 3,
+   "max_level": 10
+  },
+  {
+   "id": "forge",
+   "name": "Forge",
+   "base_cost": 900,
+   "material": "copper_ore",
+   "material_count": 30,
+   "sect_level": 3,
+   "max_level": 10
+  },
+  {
+   "id": "herb_terraces",
+   "name": "Herb Terraces",
+   "base_cost": 700,
+   "material": "willow_moss",
+   "material_count": 15,
+   "sect_level": 4,
+   "max_level": 10
+  },
+  {
+   "id": "beast_pavilion",
+   "name": "Beast Pavilion",
+   "base_cost": 700,
+   "material": "tough_meat",
+   "material_count": 15,
+   "sect_level": 4,
+   "max_level": 10
+  },
+  {
+   "id": "library",
+   "name": "Library",
+   "base_cost": 1000,
+   "material": "talisman_paper",
+   "material_count": 10,
+   "sect_level": 5,
+   "max_level": 10
+  },
+  {
+   "id": "formation_array",
+   "name": "Formation Array",
+   "base_cost": 1200,
+   "material": "formation_stone",
+   "material_count": 10,
+   "sect_level": 6,
+   "max_level": 10
+  },
+  {
+   "id": "ancestral_shrine",
+   "name": "Ancestral Shrine",
+   "base_cost": 1500,
+   "material": "jade_core",
+   "material_count": 1,
+   "sect_level": 7,
+   "max_level": 10
+  }
+ ]
+}

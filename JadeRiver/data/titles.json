@@ -1,0 +1,148 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "fleet_footed",
+   "name": "Fleet-Footed",
+   "modifiers": [
+    {
+     "stat": "move_speed",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
+   "id": "shore_warden",
+   "name": "Shore Warden",
+   "modifiers": [
+    {
+     "stat": "physical_defense",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
+   "id": "iron_fist",
+   "name": "Iron Fist",
+   "modifiers": [
+    {
+     "stat": "fist_attack",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
+   "id": "steady_hands",
+   "name": "Steady Hands",
+   "modifiers": [
+    {
+     "stat": "crafting_control",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
+   "id": "stonebreaker",
+   "name": "Stonebreaker",
+   "modifiers": [
+    {
+     "stat": "mining_power",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
+   "id": "untouched",
+   "name": "Untouched",
+   "modifiers": [
+    {
+     "stat": "evasion",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
+   "id": "collector",
+   "name": "Collector",
+   "modifiers": [
+    {
+     "stat": "drop_rate",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
+   "id": "wanderer",
+   "name": "Wanderer",
+   "modifiers": [
+    {
+     "stat": "move_speed",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
+   "id": "still_water",
+   "name": "Still Water",
+   "modifiers": [
+    {
+     "stat": "composure_regen",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
+   "id": "beast_friend",
+   "name": "Beast Friend",
+   "modifiers": [
+    {
+     "stat": "taming_chance",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
+   "id": "valley_champion",
+   "name": "Valley Champion",
+   "modifiers": [
+    {
+     "stat": "physical_attack",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
+   "id": "guos_student",
+   "name": "Guo's Student",
+   "modifiers": [
+    {
+     "stat": "fist_attack",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
+   "id": "big_sibling",
+   "name": "Big Sibling",
+   "modifiers": [
+    {
+     "stat": "max_hp",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  }
+ ]
+}

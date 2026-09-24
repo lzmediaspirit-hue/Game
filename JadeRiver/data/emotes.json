@@ -1,0 +1,30 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "bow",
+   "name": "Bow",
+   "pose": "idle"
+  },
+  {
+   "id": "wave",
+   "name": "Wave",
+   "pose": "idle"
+  },
+  {
+   "id": "meditate",
+   "name": "Sit",
+   "pose": "meditate"
+  },
+  {
+   "id": "cheer",
+   "name": "Cheer",
+   "pose": "jump"
+  },
+  {
+   "id": "salute",
+   "name": "Fist salute",
+   "pose": "punch_1"
+  }
+ ]
+}
