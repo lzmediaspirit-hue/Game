@@ -58,6 +58,11 @@ static func player_look(p: Dictionary) -> Dictionary:
 		"main": c.main, "trim": c.trim, "under": c.under, "sash": c.sash, "hat": hat, "gourd": p.equip.gourd != null, "eyes": "#8a1a24"}
 
 
+static func look_key(l: Dictionary) -> String:
+	return "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % [l.get("hair"), l.get("hairColor"), l.get("main"), l.get("trim"), l.get("under"), l.get("sash"),
+		l.get("hat"), l.get("gourd", false), l.get("mask"), l.get("scarf"), l.get("skin")]
+
+
 static func frames(pose: String) -> int:
 	return POSES.get(pose, POSES.idle).size()
 
@@ -81,7 +86,7 @@ static func hand_at(pose: String, frame: int, scale := 1.0) -> Dictionary:
 
 
 static func humanoid(look: Dictionary, pose := "idle", frame := 0, scale := 1.0) -> Dictionary:
-	var k := "%s|%s|%d|%.2f" % [str(look), pose, frame % frames(pose), scale]
+	var k := "%s|%s|%d|%.2f" % [look_key(look), pose, frame % frames(pose), scale]
 	if _cache.has(k):
 		return _cache[k]
 	var x := Painter.new(int(W * scale) + 2, int(H * scale) + 2)

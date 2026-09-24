@@ -61,6 +61,7 @@ var guard_spin := 0
 var harvest: Dictionary = {}  # active gather channel
 var med_t := 0
 var qi_acc := 0.0
+var buf := {}                  # buffered inputs: key → frames left
 var trial: Dictionary = {}
 var trial_return: Dictionary = {}
 var seal_progress := 0
@@ -80,6 +81,7 @@ func _refresh_stats() -> void:
 		return
 	st = S.stats(Game.p)
 	pl.max_hp = st.max_hp
+	_plook = {}
 
 
 # ---------------------------------------------------------------- area loading
@@ -267,6 +269,21 @@ func _update_player() -> void:
 		p.qi = mini(int(p.qi) + 1, int(st.max_qi))
 	if pl.state == "dead":
 		return
+	# buffer action presses briefly so a tap during another action is not lost
+	for k in buf.keys():
+		buf[k] -= 1
+		if buf[k] <= 0:
+			buf.erase(k)
+	for i in 3:
+		if ctl.arts[i]:
+			buf["art%d" % i] = 14
+	if ctl.dash or ctl.dash_dir != 0:
+		buf["dash"] = 10
+		if ctl.dash_dir != 0:
+			buf["dash_dir"] = 10
+			pl.extra.dash_dir = ctl.dash_dir
+	if ctl.jump:
+		buf["jump"] = 8
 	var mv := ctl.move
 	var any_input := mv.length() > 0.3 or ctl.jump or ctl.attack or ctl.dash
 	# pills
@@ -340,10 +357,12 @@ func _update_player() -> void:
 	if ctl.meditate:
 		try_meditate()
 		return
-	if ctl.dash or ctl.dash_dir != 0:
+	if buf.has("dash"):
 		if step_cd <= 0:
-			if ctl.dash_dir != 0:
-				pl.facing = ctl.dash_dir
+			buf.erase("dash")
+			if buf.has("dash_dir"):
+				pl.facing = int(pl.extra.get("dash_dir", pl.facing))
+				buf.erase("dash_dir")
 			elif absf(mv.x) > 0.2:
 				pl.facing = signi(int(signf(mv.x)))
 			step_cd = int(42 * st.step_cd)
@@ -357,7 +376,8 @@ func _update_player() -> void:
 		_start_attack()
 		return
 	for i in 3:
-		if ctl.arts[i]:
+		if buf.has("art%d" % i):
+			buf.erase("art%d" % i)
 			_leave_cultivation()
 			_use_art(i)
 			if pl.state == "cast":
@@ -371,7 +391,8 @@ func _update_player() -> void:
 	if absf(mv.x) > 0.15 and not guarding:
 		pl.facing = 1 if mv.x > 0 else -1
 	if pl.grounded:
-		if ctl.jump:
+		if buf.has("jump"):
+			buf.erase("jump")
 			var cur := _surf(pl.surf)
 			if mv.y > 0.5 and cur.get("oneWay", false):
 				pl.ignore = pl.surf
@@ -1285,9 +1306,14 @@ func sy(dd: float, h: float) -> float:
 	return BASE_Y + dd - h + cam_y
 
 
+var _plook: Dictionary = {}
+
+
 func _draw() -> void:
 	if area_id == "":
 		return
+	if frame % 30 == 0 or _plook.is_empty():
+		_plook = Sprites.player_look(Game.p)
 	var cx := floorf(cam_x + (randf() - 0.5) * shake)
 	var cyo := floorf(cam_y + (randf() - 0.5) * shake * 0.5)
 	for L in bg.layers:
@@ -1475,7 +1501,7 @@ func _draw_actor(a: Actor, cx: float, cy: float) -> void:
 	var look_scale := a.scale
 	var is_beast: bool = a.kind == "enemy" and a.def.get("quad", false)
 	if a.kind == "player":
-		spr = Sprites.humanoid(Sprites.player_look(Game.p), pose, fr)
+		spr = Sprites.humanoid(_plook, pose, fr)
 	elif is_beast:
 		var bp := "dead" if a.state == "dead" else ("attack" if a.state in ["windup", "strike"] else "run")
 		spr = Sprites.beast(a.type, int(a.anim * 1.5) if a.state in ["chase", "patrol", "strike"] else 0, bp)
@@ -1620,7 +1646,7 @@ func _draw_fx(f: Dictionary, cx: float, cy: float) -> void:
 				var ang := rng.randf() * TAU
 				draw_rect(Rect2(p + Vector2(cos(ang), sin(ang)) * (2 + k * 10), Vector2(2, 2)), Color(f.c, 1.0 - k))
 		"ghost":
-			var spr := Sprites.humanoid(Sprites.player_look(Game.p), "dash", 0)
+			var spr := Sprites.humanoid(_plook, "dash", 0)
 			draw_set_transform(p, 0, Vector2(f.f, 1))
 			draw_texture(spr.tex, Vector2(-spr.ax, -spr.ay), Color(0.5, 1, 0.9, 0.4 * (1.0 - k)))
 			draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)

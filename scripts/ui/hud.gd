@@ -217,9 +217,9 @@ func _process(_d: float) -> void:
 	var medv: Control = tray.get_node("Med")
 	medv.position = Vector2((grid.position.x + grid.size.x + 16) if left else (grid.position.x - medv.size.x - 16), H - medv.size.y - 60)
 	boss_box.position = Vector2(W * 0.5 - 230, 16)
-	toasts.position = Vector2(W * 0.5 - 220, H * 0.34)
+	toasts.position = Vector2(W * 0.5 - 220, 96 if not boss_box.visible else 150)
 	# vitals
-	var lk := str(Sprites.player_look(p))
+	var lk := Sprites.look_key(Sprites.player_look(p))
 	if lk != _last_look:
 		_last_look = lk
 		portrait.texture = _portrait_tex(p)

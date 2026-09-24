@@ -53,6 +53,7 @@ func _ready() -> void:
 	title.enter.connect(_enter)
 	hud.open_page.connect(func(pg): menus.open(pg))
 	menus.to_title.connect(_to_title)
+	menus.closed.connect(func(): world._plook = {})
 	world.toast.connect(func(t, k): hud.toast(t, k))
 	world.dialogue.connect(func(n, l, m): menus.show_dialogue(n, l, m))
 	world.station.connect(_on_station)

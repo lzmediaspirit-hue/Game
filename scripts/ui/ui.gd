@@ -103,6 +103,7 @@ static func label(text: String, size := 20, color := CREAM, align := HORIZONTAL_
 	if wrap:
 		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		l.custom_minimum_size.x = 60
+		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return l
 

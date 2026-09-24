@@ -149,8 +149,7 @@ static func enter_step(p: Dictionary, ch: Dictionary, idx: int) -> void:
 		var st: Dictionary = ch.steps[idx]
 		if st.type == "kill":
 			q.base = int(p.stats.kills.get(st.enemy, 0))
-		elif st.type == "craft":
-			q.base = int(p.stats.crafted.get(st.recipe, 0))
+		# craft steps count every craft of that recipe, so brewing ahead of time is never wasted
 
 
 # Auto-advance any satisfied non-talk steps. Returns mentor lines for newly entered steps.
