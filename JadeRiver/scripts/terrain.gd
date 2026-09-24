@@ -3,6 +3,8 @@ extends Node2D
 var surface: WalkSurface
 var ground_material="stone"
 var generated=false
+var art=""            # building prop id (data/prop_art.json) or painted atlas key
+var tint=Color.WHITE
 const PLATFORMS=preload("res://art/environment/platforms-v6.png")
 const GROUND=preload("res://art/environment/ground-v6.png")
 const STONE=preload("res://art/environment/courtyard-v3.png")
@@ -34,7 +36,9 @@ func paving(rect: Rect2,tint=Color.WHITE):
 			if col%2: dest.size.x=-dest.size.x
 			if row%2: dest.size.y=-dest.size.y
 			draw_texture_rect_region(texture,dest,src,tint)
+const ATLAS_BUILDINGS={"gate":Rect2(0,0,720,465),"hall":Rect2(739,70,797,390),"two_storey":Rect2(0,475,900,549),"tower":Rect2(1040,475,365,549)}
 func building_source() -> Rect2:
+	if ATLAS_BUILDINGS.has(art): return ATLAS_BUILDINGS[art]
 	if generated:
 		return Rect2(739,70,797,390) if surface.visual_variant%2==0 else Rect2(0,475,900,549)
 	match surface.id:
@@ -55,6 +59,30 @@ func _draw():
 	var r=surface.bounds
 	var a=pt(r.position.x,r.position.y)
 	var d=pt(r.position.x,r.end.y)
+	if surface.kind=="roof" and art!="" and not ATLAS_BUILDINGS.has(art):
+		# Building props: roof art on the walkable top face, facade below it.
+		var e: Dictionary=SpriteCache.prop(art)
+		var texture: Texture2D=SpriteCache.tex(str(e.get("file","")))
+		if texture:
+			var size=Vector2(float(e.frame[0]),float(e.frame[1]))
+			draw_texture_rect_region(texture,Rect2(Vector2(r.position.x+(r.size.x-size.x)*0.5,r.end.y-surface.base-r.size.y),size),Rect2(Vector2.ZERO,size),tint)
+			return
+	if surface.kind=="ground" and ground_material in ["wood","floor_stone","floor_earth","sand_wood"]:
+		var tile={"wood":"floor_wood","floor_stone":"floor_stone","floor_earth":"floor_earth","sand_wood":"floor_wood"}[ground_material]
+		SpriteCache.draw_tiled(self,tile,Rect2(a,r.size+Vector2(0,500 if surface.base==0 else 0)),0.0,tint)
+		if surface.base>0:
+			draw_rect(Rect2(d,Vector2(r.size.x,surface.base)),Color("3b2c22"))
+			draw_line(d,d+Vector2(r.size.x,0),Color("c9a46a"),2)
+		return
+	if surface.kind in ["dock","deck"]:
+		draw_rect(Rect2(a,r.size),Color("5a4130"))
+		for y in range(0,int(r.size.y),12):
+			draw_line(a+Vector2(0,y),a+Vector2(r.size.x,y),Color("8c6a48"),2)
+			draw_line(a+Vector2(0,y+6),a+Vector2(r.size.x,y+6),Color("6e5038"),2)
+		for x in range(0,int(r.size.x),64):
+			draw_rect(Rect2(d+Vector2(x+4,0),Vector2(8,maxf(surface.base,14))),Color("3a2a1e"))
+		draw_rect(Rect2(d,Vector2(r.size.x,6)),Color("3a2a1e"))
+		return
 	match surface.kind:
 		"cloud", "tree_branch", "rock_ledge":
 			var row_y=70 if surface.kind=="tree_branch" else (400 if surface.kind=="cloud" else 700)
@@ -82,7 +110,7 @@ func _draw():
 			elif ground_material=="moss": tint=Color("7b9b70")
 			elif ground_material=="slate": tint=Color("728090")
 			if generated: tint=Color.WHITE
-			paving(Rect2(ground_origin,extent),tint)
+			paving(Rect2(ground_origin,extent),tint*self.tint)
 			if generated and ground_material in ["moss","earth"] and surface.base==0:
 				var original=ground_material
 				ground_material="earth"

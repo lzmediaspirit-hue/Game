@@ -4,7 +4,7 @@ var parts: Dictionary={}
 var slots: Array=[null,null,null]
 var textures: Dictionary={}
 var save_path="user://disciples.json"
-const CATEGORIES=["hair","shirt","pants","shoes","weapon"]
+const CATEGORIES=["hair","shirt","pants","shoes","weapon","hat","cape"]
 func _ready():
 	parts=JSON.parse_string(FileAccess.get_file_as_string("res://data/parts.json"))
 	load_slots()

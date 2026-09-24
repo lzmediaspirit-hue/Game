@@ -1,0 +1,16 @@
+"""Importing this package registers every icon family."""
+from families import herbs  # noqa: F401
+from families import minerals  # noqa: F401
+from families import beast_parts  # noqa: F401
+from families import fish  # noqa: F401
+from families import misc  # noqa: F401
+from families import tools  # noqa: F401
+from families import food  # noqa: F401
+from families import pills  # noqa: F401
+from families import jades  # noqa: F401
+from families import weapons  # noqa: F401
+from families import armour  # noqa: F401
+from families import techniques  # noqa: F401
+from families import hud  # noqa: F401
+from families import status  # noqa: F401
+from families import markers  # noqa: F401

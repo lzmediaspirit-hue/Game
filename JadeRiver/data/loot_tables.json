@@ -1,0 +1,1742 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "mudshell_crab",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "crab_shell",
+       "chance": 0.7,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "river_mud",
+       "chance": 0.4,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "reedtail_rat",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "rat_tail",
+       "chance": 0.6,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "old_snapper",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "equipment": {
+    "chance": 0.25,
+    "min_quality": "fine"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
+   "guaranteed": [
+    {
+     "item": "snapper_claw",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "hollow_minnow",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
+   "id": "hollowed_eel",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
+   "id": "trial_puppet",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": [
+    {
+     "item": "entry_token",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "wild_boarlet",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "boar_hide",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "tough_meat",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "mossback_toad",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "toad_oil",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "moss",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "rock_beetle",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "beetle_shell",
+       "chance": 0.6,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "copper_ore",
+       "chance": 0.3,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "pebble_imp",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "riverstone",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "pebble_core",
+     "chance": 0.08,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "stone_tortoise",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "tortoise_plate",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "jadeiron",
+     "chance": 0.15,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "ironclaw_mole",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "mole_claw",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "ore_dust",
+       "chance": 0.6,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "reed_frog",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "frog_leg",
+       "chance": 0.6,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "willow_moss",
+       "chance": 0.3,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "marsh_leech",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "leech_oil",
+       "chance": 0.6,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "greyfin",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "tiny_hollow_shard",
+       "chance": 0.4,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "hollowed_boarlet",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "grey_hide",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "hollow_shard",
+     "chance": 0.12,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "bamboo_monkey",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "bamboo_shoot",
+       "chance": 0.6,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "green_viper",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "viper_fang",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "venom_sac",
+       "chance": 0.3,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "thornback_boar",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "equipment": {
+    "chance": 0.25,
+    "min_quality": "fine"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
+   "guaranteed": [
+    {
+     "item": "thorn_hide",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "ember_pepper",
+     "chance": 0.6,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "mudwater_bandit",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "cloth",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.4,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.05,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "stone_guardian",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "guardian_stone",
+       "chance": 0.25,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "bandit_archer",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "arrows",
+       "chance": 0.6,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "bow_parts",
+       "chance": 0.3,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.05,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "mud_hound",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "hound_fang",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "jade_carp",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "jade_scale",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "jade_carp_fish",
+     "chance": 0.15,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "tide_crab",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "tide_shell",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "pearl",
+     "chance": 0.15,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "drowned_acolyte",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "prayer_beads",
+       "chance": 0.4,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.04,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "paper_talisman_ghost",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "talisman_paper",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "ink",
+       "chance": 0.3,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "rapids_lizard",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "lizard_scale",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "pearl",
+     "chance": 0.1,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "gorge_bandit_adept",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "cloth",
+       "chance": 0.4,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.4,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.06,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.06,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "manual_ember_burst",
+     "chance": 0.03,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "boulder_serpent",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "serpent_scale",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "jadeiron",
+     "chance": 0.2,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "mist_vulture",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "vulture_plume",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "cloudwing_crane",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "cloud_feather",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "stormwing_hawk",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "storm_feather",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "cliff_ape",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "ape_fur",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "cloudtop_orchid",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "mist_wolf",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "mist_pelt",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "mirror_wisp",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "mirror_dust",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "weeping_lantern",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "lantern_wick",
+       "chance": 0.4,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "soul_wax",
+       "chance": 0.4,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "jade_sentinel",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "formation_stone",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "jade_core",
+     "chance": 0.08,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "hollow_stag",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "hollow_antler",
+       "chance": 0.4,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "hollow_shard",
+     "chance": 0.2,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "cloudpeak_roc",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "roc_feather",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "mystic_ore",
+     "chance": 0.1,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "big_toad_tan",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 40
+   },
+   "equipment": {
+    "chance": 1.0,
+    "min_quality": "superior"
+   },
+   "rare": [],
+   "guaranteed": [
+    {
+     "item": "mudwater_manual",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "riverbed_serpent",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 40
+   },
+   "equipment": {
+    "chance": 1.0,
+    "min_quality": "superior"
+   },
+   "rare": [],
+   "guaranteed": [
+    {
+     "item": "serpent_core",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "serpent_scale",
+     "chance": 1.0,
+     "count": [
+      2,
+      4
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "drowned_abbot",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 40
+   },
+   "equipment": {
+    "chance": 1.0,
+    "min_quality": "superior"
+   },
+   "rare": [],
+   "guaranteed": [
+    {
+     "item": "riverbreath_scroll",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "drowned_robe",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "the_reflection",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 40
+   },
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
+   "id": "elder_gu",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 40
+   },
+   "equipment": {},
+   "rare": [],
+   "guaranteed": [
+    {
+     "item": "smuggler_ledger",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "hollow_behemoth",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 40
+   },
+   "equipment": {},
+   "rare": [],
+   "guaranteed": [
+    {
+     "item": "siege_medal",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "mistjade_robe",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "gate_guardian",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 40
+   },
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
+   "id": "shen_lian",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
+   "id": "wen_zhao",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
+   "id": "sparring_disciple",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
+   "id": "reed_otter",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": []
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "ember_fox",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": []
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "jade_crane_chick",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": []
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "jar_valley_low",
+   "groups": [
+    {
+     "chance": 0.5,
+     "pick": [
+      {
+       "item": "rice",
+       "weight": 2,
+       "count": [
+        1,
+        1
+       ]
+      },
+      {
+       "item": "willow_moss",
+       "weight": 2,
+       "count": [
+        1,
+        2
+       ]
+      },
+      {
+       "item": "herbal_tea",
+       "weight": 1,
+       "count": [
+        1,
+        1
+       ]
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.5,
+    "mult": 1
+   },
+   "rare": [],
+   "equipment": {}
+  },
+  {
+   "id": "jar_valley_mid",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "rice_ball",
+       "weight": 2,
+       "count": [
+        1,
+        1
+       ]
+      },
+      {
+       "item": "spirit_stone_shard",
+       "weight": 1,
+       "count": [
+        1,
+        1
+       ]
+      },
+      {
+       "item": "healing_pill",
+       "weight": 1,
+       "count": [
+        1,
+        1
+       ]
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.6,
+    "mult": 2
+   },
+   "rare": [],
+   "equipment": {}
+  },
+  {
+   "id": "chest_valley",
+   "guaranteed": [
+    {
+     "item": "spirit_stone_shard",
+     "count": [
+      1,
+      3
+     ],
+     "chance": 1.0
+    }
+   ],
+   "groups": [
+    {
+     "chance": 1.0,
+     "pick": [
+      {
+       "item": "healing_pill",
+       "weight": 2,
+       "count": [
+        1,
+        2
+       ]
+      },
+      {
+       "item": "manual_page",
+       "weight": 1,
+       "count": [
+        1,
+        1
+       ]
+      },
+      {
+       "item": "qi_gathering_pill",
+       "weight": 1,
+       "count": [
+        1,
+        1
+       ]
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 1.0,
+    "mult": 5
+   },
+   "rare": [],
+   "equipment": {
+    "chance": 0.3,
+    "min_quality": "fine"
+   }
+  },
+  {
+   "id": "chest_dungeon",
+   "guaranteed": [
+    {
+     "item": "spirit_stone_shard",
+     "count": [
+      2,
+      4
+     ],
+     "chance": 1.0
+    }
+   ],
+   "groups": [
+    {
+     "chance": 1.0,
+     "pick": [
+      {
+       "item": "manual_page",
+       "weight": 1,
+       "count": [
+        1,
+        2
+       ]
+      },
+      {
+       "item": "foundation_guard_pill",
+       "weight": 1,
+       "count": [
+        1,
+        1
+       ]
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 1.0,
+    "mult": 10
+   },
+   "rare": [],
+   "equipment": {
+    "chance": 0.6,
+    "min_quality": "fine"
+   }
+  }
+ ]
+}

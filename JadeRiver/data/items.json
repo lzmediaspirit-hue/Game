@@ -1,0 +1,2060 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "willow_moss",
+   "name": "Willow Moss",
+   "type": "herb",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "willow_moss",
+   "desc": "Soft moss from willow roots. The base of many remedies."
+  },
+  {
+   "id": "riverreed_ginseng_10",
+   "name": "Riverreed Ginseng (10 yr)",
+   "type": "herb",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "riverreed_ginseng_10",
+   "desc": "A ten-year riverreed ginseng root."
+  },
+  {
+   "id": "riverreed_ginseng_100",
+   "name": "Riverreed Ginseng (100 yr)",
+   "type": "herb",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "riverreed_ginseng_100",
+   "desc": "A century-old root with golden hairs; strong and rare."
+  },
+  {
+   "id": "ember_pepper",
+   "name": "Ember Pepper",
+   "type": "herb",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "ember_pepper",
+   "desc": "A fiery red pepper that warms the meridians."
+  },
+  {
+   "id": "mist_lotus",
+   "name": "Mist Lotus",
+   "type": "herb",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "mist_lotus",
+   "desc": "A pale lotus that only opens in waterfall mist."
+  },
+  {
+   "id": "cloudtop_orchid",
+   "name": "Cloudtop Orchid",
+   "type": "herb",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "cloudtop_orchid",
+   "desc": "An orchid that grows on ledges only flyers can reach."
+  },
+  {
+   "id": "soulbell_flower",
+   "name": "Soulbell Flower",
+   "type": "herb",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "soulbell_flower",
+   "desc": "Its bell-shaped petals ring softly against the soul."
+  },
+  {
+   "id": "copper_ore",
+   "name": "Copper",
+   "type": "ore",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "copper_ore",
+   "desc": "Soft copper ore from the quarry rim."
+  },
+  {
+   "id": "riverstone",
+   "name": "Riverstone",
+   "type": "ore",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "riverstone",
+   "desc": "Dense river-polished stone used in forging and building."
+  },
+  {
+   "id": "jadeiron",
+   "name": "Jadeiron",
+   "type": "ore",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "jadeiron",
+   "desc": "Iron veined with jade; it holds Qi paths well."
+  },
+  {
+   "id": "spirit_stone_shard",
+   "name": "Spirit Stone Shard",
+   "type": "ore",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "spirit_stone_shard",
+   "desc": "A splinter of crystallised Qi. Fuel and small change."
+  },
+  {
+   "id": "cloudsteel_ore",
+   "name": "Cloudsteel Ore",
+   "type": "ore",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "cloudsteel_ore",
+   "desc": "Feather-light ore from the sky ledges."
+  },
+  {
+   "id": "mystic_ore",
+   "name": "Mystic Ore",
+   "type": "ore",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "mystic_ore",
+   "desc": "Ore that hums faintly in cold wind."
+  },
+  {
+   "id": "ore_dust",
+   "name": "Ore Dust",
+   "type": "beast_part",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "ore_dust",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "crab_shell",
+   "name": "Crab Shell",
+   "type": "beast_part",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "crab_shell",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "rat_tail",
+   "name": "Rat Tail",
+   "type": "beast_part",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "rat_tail",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "boar_hide",
+   "name": "Boar Hide",
+   "type": "beast_part",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "boar_hide",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "tough_meat",
+   "name": "Tough Meat",
+   "type": "beast_part",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "tough_meat",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "toad_oil",
+   "name": "Toad Oil",
+   "type": "beast_part",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "toad_oil",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "moss",
+   "name": "Moss",
+   "type": "beast_part",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "moss",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "beetle_shell",
+   "name": "Beetle Shell",
+   "type": "beast_part",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "beetle_shell",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "tortoise_plate",
+   "name": "Tortoise Plate",
+   "type": "beast_part",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "tortoise_plate",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "mole_claw",
+   "name": "Mole Claw",
+   "type": "beast_part",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "mole_claw",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "frog_leg",
+   "name": "Frog Leg",
+   "type": "beast_part",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "frog_leg",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "leech_oil",
+   "name": "Leech Oil",
+   "type": "beast_part",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "leech_oil",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "bamboo_shoot",
+   "name": "Bamboo Shoot",
+   "type": "beast_part",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "bamboo_shoot",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "viper_fang",
+   "name": "Viper Fang",
+   "type": "beast_part",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "viper_fang",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "venom_sac",
+   "name": "Venom Sac",
+   "type": "beast_part",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "venom_sac",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "thorn_hide",
+   "name": "Thorn Hide",
+   "type": "beast_part",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "thorn_hide",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "hound_fang",
+   "name": "Hound Fang",
+   "type": "beast_part",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "hound_fang",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "jade_scale",
+   "name": "Jade Scale",
+   "type": "beast_part",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "jade_scale",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "tide_shell",
+   "name": "Tide Shell",
+   "type": "beast_part",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "tide_shell",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "pearl",
+   "name": "Pearl",
+   "type": "beast_part",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "pearl",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "lizard_scale",
+   "name": "Lizard Scale",
+   "type": "beast_part",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "lizard_scale",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "serpent_scale",
+   "name": "Serpent Scale",
+   "type": "beast_part",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "serpent_scale",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "vulture_plume",
+   "name": "Vulture Plume",
+   "type": "beast_part",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "vulture_plume",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "cloud_feather",
+   "name": "Cloud Feather",
+   "type": "beast_part",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "cloud_feather",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "storm_feather",
+   "name": "Storm Feather",
+   "type": "beast_part",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "storm_feather",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "ape_fur",
+   "name": "Ape Fur",
+   "type": "beast_part",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "ape_fur",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "mist_pelt",
+   "name": "Mist Pelt",
+   "type": "beast_part",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "mist_pelt",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "mirror_dust",
+   "name": "Mirror Dust",
+   "type": "beast_part",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "mirror_dust",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "soul_wax",
+   "name": "Soul Wax",
+   "type": "beast_part",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "soul_wax",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "hollow_antler",
+   "name": "Hollow Antler",
+   "type": "beast_part",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "hollow_antler",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "roc_feather",
+   "name": "Roc Feather",
+   "type": "beast_part",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "roc_feather",
+   "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "serpent_core",
+   "name": "Serpent Core",
+   "type": "core",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "serpent_core",
+   "desc": "The core of the Riverbed Serpent; a pill ingredient.",
+   "core": {
+    "qp_pct": 0.1
+   }
+  },
+  {
+   "id": "guardian_stone",
+   "name": "Guardian Stone",
+   "type": "core",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "guardian_stone",
+   "desc": "Heart-stone of a Stone Guardian.",
+   "core": {
+    "qp_pct": 0.1
+   }
+  },
+  {
+   "id": "jade_core",
+   "name": "Jade Core",
+   "type": "core",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "jade_core",
+   "desc": "A jade core from a Forgotten Monastery sentinel.",
+   "core": {
+    "qp_pct": 0.1
+   }
+  },
+  {
+   "id": "pebble_core",
+   "name": "Pebble Core",
+   "type": "core",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "pebble_core",
+   "desc": "A tiny earth core from a Pebble Imp.",
+   "core": {
+    "qp_pct": 0.05
+   }
+  },
+  {
+   "id": "tiny_hollow_shard",
+   "name": "Tiny Hollow Shard",
+   "type": "hollow",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "tiny_hollow_shard",
+   "desc": "A grey sliver that drinks warmth. Handle with care."
+  },
+  {
+   "id": "hollow_shard",
+   "name": "Hollow Shard",
+   "type": "hollow",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "hollow_shard",
+   "desc": "A shard of the Hollow Tide. Appraise before use."
+  },
+  {
+   "id": "grey_hide",
+   "name": "Grey Hide",
+   "type": "hollow",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "grey_hide",
+   "desc": "Hide from a Hollowed beast, grey and cold."
+  },
+  {
+   "id": "river_minnow",
+   "name": "River Minnow",
+   "type": "fish",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "river_minnow",
+   "desc": "A fish from the Jade River."
+  },
+  {
+   "id": "reed_perch",
+   "name": "Reed Perch",
+   "type": "fish",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "reed_perch",
+   "desc": "A fish from the Jade River."
+  },
+  {
+   "id": "jade_carp_fish",
+   "name": "Jade Carp",
+   "type": "fish",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "jade_carp_fish",
+   "desc": "A fish from the Jade River."
+  },
+  {
+   "id": "river_eel",
+   "name": "River Eel",
+   "type": "fish",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "river_eel",
+   "desc": "A fish from the Jade River."
+  },
+  {
+   "id": "mist_trout",
+   "name": "Mist Trout",
+   "type": "fish",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "mist_trout",
+   "desc": "A fish from the Jade River."
+  },
+  {
+   "id": "rapids_salmon",
+   "name": "Rapids Salmon",
+   "type": "fish",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "rapids_salmon",
+   "desc": "A fish from the Jade River."
+  },
+  {
+   "id": "moon_carp",
+   "name": "Moon Carp",
+   "type": "fish",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "moon_carp",
+   "desc": "A fish from the Jade River."
+  },
+  {
+   "id": "manual_page",
+   "name": "Manual Page",
+   "type": "scroll",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "manual_page",
+   "desc": "A loose technique manual page. Raises mastery beyond tier 3."
+  },
+  {
+   "id": "riverbreath_scroll",
+   "name": "Riverbreath Scroll",
+   "type": "scroll",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "riverbreath_scroll",
+   "desc": "The Riverbreath inheritance scroll: the complete method."
+  },
+  {
+   "id": "lu_journal_page",
+   "name": "Lu Journal Page",
+   "type": "scroll",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "lu_journal_page",
+   "desc": "A page of Lu's journal, water-stained."
+  },
+  {
+   "id": "recipe_scroll",
+   "name": "Recipe Scroll",
+   "type": "scroll",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "recipe_scroll",
+   "desc": "A recipe written in a steady hand."
+  },
+  {
+   "id": "spirit_stone_low",
+   "name": "Spirit Stone Low",
+   "type": "currency_item",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "spirit_stone_low",
+   "desc": "Crystallised Qi used as money and fuel.",
+   "value_override": 100
+  },
+  {
+   "id": "spirit_stone_mid",
+   "name": "Spirit Stone Mid",
+   "type": "currency_item",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "spirit_stone_mid",
+   "desc": "Crystallised Qi used as money and fuel.",
+   "value_override": 1000
+  },
+  {
+   "id": "spirit_stone_high",
+   "name": "Spirit Stone High",
+   "type": "currency_item",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "spirit_stone_high",
+   "desc": "Crystallised Qi used as money and fuel.",
+   "value_override": 10000
+  },
+  {
+   "id": "river_token",
+   "name": "River Token",
+   "type": "key",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 1,
+   "icon": "river_token",
+   "desc": "Lu's River Token. It hums when the river is troubled.",
+   "sell": false,
+   "quest_item": false
+  },
+  {
+   "id": "jade_token",
+   "name": "Jade Token",
+   "type": "key",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 1,
+   "icon": "jade_token",
+   "desc": "Identity token of the Jade Sect. Returns you home.",
+   "sell": false,
+   "quest_item": false
+  },
+  {
+   "id": "cloud_token",
+   "name": "Cloud Token",
+   "type": "key",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 1,
+   "icon": "cloud_token",
+   "desc": "Identity token of the Cloud Sect. Returns you home.",
+   "sell": false,
+   "quest_item": false
+  },
+  {
+   "id": "mudwater_key",
+   "name": "Mudwater Key",
+   "type": "key",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 1,
+   "icon": "mudwater_key",
+   "desc": "Opens the Mudwater Hideout gate.",
+   "sell": false,
+   "quest_item": false
+  },
+  {
+   "id": "entry_token",
+   "name": "Entry Token",
+   "type": "key",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 1,
+   "icon": "entry_token",
+   "desc": "Proof of passing a sect entry trial.",
+   "sell": false,
+   "quest_item": false
+  },
+  {
+   "id": "siege_medal",
+   "name": "Siege Medal",
+   "type": "key",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 1,
+   "icon": "siege_medal",
+   "desc": "Awarded to defenders of the Two Sects.",
+   "sell": false,
+   "quest_item": false
+  },
+  {
+   "id": "smuggler_ledger",
+   "name": "Smuggler Ledger",
+   "type": "key",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 1,
+   "icon": "smuggler_ledger",
+   "desc": "Elder Gu's secret ledger.",
+   "sell": false,
+   "quest_item": true
+  },
+  {
+   "id": "kite",
+   "name": "Kite",
+   "type": "key",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 1,
+   "icon": "kite",
+   "desc": "Little Dou's paper kite.",
+   "sell": false,
+   "quest_item": true
+  },
+  {
+   "id": "mudwater_manual",
+   "name": "Mudwater Manual",
+   "type": "scroll",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "manual_page",
+   "desc": "A technique manual. Read it to learn Rising Tide.",
+   "use": [
+    {
+     "kind": "learn_technique",
+     "technique": "rising_tide"
+    }
+   ]
+  },
+  {
+   "id": "manual_rain_of_reeds",
+   "name": "Manual Rain of Reeds",
+   "type": "scroll",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "manual_page",
+   "desc": "A technique manual. Read it to learn Rain of Reeds.",
+   "use": [
+    {
+     "kind": "learn_technique",
+     "technique": "rain_of_reeds"
+    }
+   ]
+  },
+  {
+   "id": "manual_ember_burst",
+   "name": "Manual Ember Burst",
+   "type": "scroll",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "manual_page",
+   "desc": "A technique manual. Read it to learn Ember Burst.",
+   "use": [
+    {
+     "kind": "learn_technique",
+     "technique": "ember_burst"
+    }
+   ]
+  },
+  {
+   "id": "old_net",
+   "name": "Old Net",
+   "type": "other",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "old_net",
+   "desc": "A torn fishing net. Old Ma buys these.",
+   "value_override": 6
+  },
+  {
+   "id": "snapper_claw",
+   "name": "Snapper Claw",
+   "type": "other",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "snapper_claw",
+   "desc": "Old Snapper's claw. Worth 40 taels to a trader.",
+   "value_override": 40
+  },
+  {
+   "id": "river_mud",
+   "name": "River Mud",
+   "type": "material",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "river_mud",
+   "desc": "A common valley good."
+  },
+  {
+   "id": "cloth",
+   "name": "Cloth",
+   "type": "material",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "cloth",
+   "desc": "A common valley good."
+  },
+  {
+   "id": "arrows",
+   "name": "Arrows",
+   "type": "material",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "arrows",
+   "desc": "A common valley good."
+  },
+  {
+   "id": "bow_parts",
+   "name": "Bow Parts",
+   "type": "material",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "bow_parts",
+   "desc": "A common valley good."
+  },
+  {
+   "id": "prayer_beads",
+   "name": "Prayer Beads",
+   "type": "material",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "prayer_beads",
+   "desc": "A common valley good."
+  },
+  {
+   "id": "talisman_paper",
+   "name": "Talisman Paper",
+   "type": "material",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "talisman_paper",
+   "desc": "A common valley good."
+  },
+  {
+   "id": "ink",
+   "name": "Ink",
+   "type": "material",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "ink",
+   "desc": "A common valley good."
+  },
+  {
+   "id": "formation_stone",
+   "name": "Formation Stone",
+   "type": "material",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "formation_stone",
+   "desc": "A common valley good."
+  },
+  {
+   "id": "lantern_wick",
+   "name": "Lantern Wick",
+   "type": "material",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "lantern_wick",
+   "desc": "A common valley good."
+  },
+  {
+   "id": "rice",
+   "name": "Rice",
+   "type": "material",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "rice",
+   "desc": "A common valley good."
+  },
+  {
+   "id": "restoration_ink",
+   "name": "Restoration Ink",
+   "type": "material",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "restoration_ink",
+   "desc": "A common valley good."
+  },
+  {
+   "id": "fish_bait",
+   "name": "Fish Bait",
+   "type": "material",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "fish_bait",
+   "desc": "A common valley good."
+  },
+  {
+   "id": "calm_incense",
+   "name": "Calm Incense",
+   "type": "other",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "calm_incense",
+   "desc": "Calming incense. Burn it and meditate to steady the heart.",
+   "use": [
+    {
+     "kind": "add_composure",
+     "amount": 30
+    }
+   ]
+  },
+  {
+   "id": "myriad_year_calm_incense",
+   "name": "Myriad Year Calm Incense",
+   "type": "treasure",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "myriad_year_calm_incense",
+   "desc": "Clears Heart Demons and steadies Composure for an hour. Never sold.",
+   "sell": false,
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "will",
+     "op": "flat",
+     "value": 20,
+     "duration": 3600,
+     "source": "calm_incense"
+    }
+   ]
+  },
+  {
+   "id": "fuel_crystal_low",
+   "name": "Fuel Crystal Low",
+   "type": "material",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "fuel_crystal_low",
+   "desc": "Formation fuel pressed from Spirit Stone shards."
+  },
+  {
+   "id": "fuel_crystal_mid",
+   "name": "Fuel Crystal Mid",
+   "type": "material",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "fuel_crystal_mid",
+   "desc": "Ten low fuel crystals fused into one."
+  },
+  {
+   "id": "blank_plate",
+   "name": "Blank Plate",
+   "type": "material",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "blank_plate",
+   "desc": "A blank jade plate for portable arrays."
+  },
+  {
+   "id": "spirit_egg",
+   "name": "Spirit Egg",
+   "type": "egg",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "spirit_egg",
+   "desc": "A warm egg. Something stirs inside."
+  },
+  {
+   "id": "old_pickaxe",
+   "name": "Old Pickaxe",
+   "type": "tool",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 1,
+   "icon": "old_pickaxe",
+   "desc": "A mining tool.",
+   "tool": {
+    "craft": "mining",
+    "power": 1.0
+   }
+  },
+  {
+   "id": "iron_pickaxe",
+   "name": "Iron Pickaxe",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "iron_pickaxe",
+   "desc": "A mining tool.",
+   "tool": {
+    "craft": "mining",
+    "power": 1.3
+   }
+  },
+  {
+   "id": "herb_sickle",
+   "name": "Herb Sickle",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "herb_sickle",
+   "desc": "A gathering tool.",
+   "tool": {
+    "craft": "gathering",
+    "power": 1.3
+   }
+  },
+  {
+   "id": "bamboo_rod",
+   "name": "Bamboo Rod",
+   "type": "tool",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 1,
+   "icon": "bamboo_rod",
+   "desc": "A fishing tool.",
+   "tool": {
+    "craft": "fishing",
+    "power": 1.0
+   }
+  },
+  {
+   "id": "clay_pot",
+   "name": "Clay Pot",
+   "type": "tool",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 1,
+   "icon": "clay_pot",
+   "desc": "A cooking tool.",
+   "tool": {
+    "craft": "cooking",
+    "power": 1.0
+   }
+  },
+  {
+   "id": "bronze_furnace",
+   "name": "Bronze Furnace",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "bronze_furnace",
+   "desc": "A alchemy tool.",
+   "tool": {
+    "craft": "alchemy",
+    "power": 1.0
+   }
+  },
+  {
+   "id": "forge_hammer",
+   "name": "Forge Hammer",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "forge_hammer",
+   "desc": "A smithing tool.",
+   "tool": {
+    "craft": "smithing",
+    "power": 1.0
+   }
+  },
+  {
+   "id": "formation_kit",
+   "name": "Formation Kit",
+   "type": "tool",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "formation_kit",
+   "desc": "A formations tool.",
+   "tool": {
+    "craft": "formations",
+    "power": 1.0
+   }
+  },
+  {
+   "id": "needle_case",
+   "name": "Needle Case",
+   "type": "tool",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "needle_case",
+   "desc": "A healing tool.",
+   "tool": {
+    "craft": "healing",
+    "power": 1.0
+   }
+  },
+  {
+   "id": "appraisers_loupe",
+   "name": "Appraisers Loupe",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "appraiser_loupe",
+   "desc": "A appraisal tool.",
+   "tool": {
+    "craft": "appraisal",
+    "power": 1.0
+   }
+  },
+  {
+   "id": "drying_rack",
+   "name": "Drying Rack",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "drying_rack",
+   "desc": "A alchemy tool.",
+   "tool": {
+    "craft": "alchemy",
+    "power": 1.0
+   }
+  },
+  {
+   "id": "revival_talisman",
+   "name": "Revival Talisman",
+   "type": "talisman",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "revival_talisman",
+   "desc": "Revive where you fall: 30% HP, 5 s invulnerable. Once per 5 minutes.",
+   "value_override": 15
+  },
+  {
+   "id": "return_charm",
+   "name": "Return Charm",
+   "type": "talisman",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "return_charm",
+   "desc": "Teleports you to the last town.",
+   "use": [
+    {
+     "kind": "teleport",
+     "target": "last_town"
+    }
+   ]
+  },
+  {
+   "id": "escape_talisman",
+   "name": "Escape Talisman",
+   "type": "talisman",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "escape_talisman",
+   "desc": "Leaves a dungeon at once.",
+   "use": [
+    {
+     "kind": "teleport",
+     "target": "dungeon_exit"
+    }
+   ]
+  },
+  {
+   "id": "bonding_offering_common",
+   "name": "Bonding Offering (Common)",
+   "type": "taming",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "bonding_offering_common",
+   "desc": "An offering that calms a wounded spirit beast so it may bond with you."
+  },
+  {
+   "id": "bonding_offering_earth",
+   "name": "Bonding Offering (Earth)",
+   "type": "taming",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "bonding_offering_earth",
+   "desc": "An offering that calms a wounded spirit beast so it may bond with you."
+  },
+  {
+   "id": "bonding_offering_heaven",
+   "name": "Bonding Offering (Heaven)",
+   "type": "taming",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "bonding_offering_heaven",
+   "desc": "An offering that calms a wounded spirit beast so it may bond with you."
+  },
+  {
+   "id": "body_jade",
+   "name": "Body Jade",
+   "type": "jade",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "body_jade",
+   "desc": "A Qi jade for an inlay socket. +3/+6/+10 body at Common/Earth/Heaven.",
+   "jade": {
+    "attribute": "body",
+    "values": [
+     3,
+     6,
+     10
+    ]
+   }
+  },
+  {
+   "id": "swift_jade",
+   "name": "Swift Jade",
+   "type": "jade",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "swift_jade",
+   "desc": "A Qi jade for an inlay socket. +3/+6/+10 agility at Common/Earth/Heaven.",
+   "jade": {
+    "attribute": "agility",
+    "values": [
+     3,
+     6,
+     10
+    ]
+   }
+  },
+  {
+   "id": "essence_jade",
+   "name": "Essence Jade",
+   "type": "jade",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "essence_jade",
+   "desc": "A Qi jade for an inlay socket. +3/+6/+10 essence at Common/Earth/Heaven.",
+   "jade": {
+    "attribute": "essence",
+    "values": [
+     3,
+     6,
+     10
+    ]
+   }
+  },
+  {
+   "id": "spirit_jade",
+   "name": "Spirit Jade",
+   "type": "jade",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "spirit_jade",
+   "desc": "A Qi jade for an inlay socket. +3/+6/+10 spirit at Common/Earth/Heaven.",
+   "jade": {
+    "attribute": "spirit",
+    "values": [
+     3,
+     6,
+     10
+    ]
+   }
+  },
+  {
+   "id": "insight_jade",
+   "name": "Insight Jade",
+   "type": "jade",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "insight_jade",
+   "desc": "A Qi jade for an inlay socket. +3/+6/+10 insight at Common/Earth/Heaven.",
+   "jade": {
+    "attribute": "insight",
+    "values": [
+     3,
+     6,
+     10
+    ]
+   }
+  },
+  {
+   "id": "healing_pill",
+   "name": "Healing Pill",
+   "type": "pill",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "healing_pill",
+   "desc": "Cures a minor body injury and restores 30% HP over 5 s.",
+   "pill": {
+    "mark": "heart",
+    "toxicity": 5,
+    "cause": "structure",
+    "group": "healing"
+   },
+   "use": [
+    {
+     "kind": "cure_injury",
+     "injury": "body",
+     "max_severity": 1
+    },
+    {
+     "kind": "heal",
+     "pct": 0.3,
+     "over_s": 5
+    }
+   ]
+  },
+  {
+   "id": "qi_restoration_pill",
+   "name": "Qi Restoration Pill",
+   "type": "pill",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "qi_restoration_pill",
+   "desc": "Restores 40% QI and cures a minor meridian injury.",
+   "pill": {
+    "mark": "spiral",
+    "toxicity": 5,
+    "cause": "energy",
+    "group": "restoration"
+   },
+   "use": [
+    {
+     "kind": "restore_resource",
+     "pool": "qi",
+     "pct": 0.4
+    },
+    {
+     "kind": "cure_injury",
+     "injury": "meridian",
+     "max_severity": 1
+    }
+   ]
+  },
+  {
+   "id": "qi_gathering_pill",
+   "name": "Qi Gathering Pill",
+   "type": "pill",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "qi_gathering_pill",
+   "desc": "Adds 8% of the current stage's need.",
+   "pill": {
+    "mark": "spiral_up",
+    "toxicity": 10,
+    "cause": "energy",
+    "group": "utility"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.08
+    }
+   ]
+  },
+  {
+   "id": "bone_strengthening_pill",
+   "name": "Bone Strengthening Pill",
+   "type": "pill",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "bone_strengthening_pill",
+   "desc": "Adds 150 body XP.",
+   "pill": {
+    "mark": "bone",
+    "toxicity": 8,
+    "cause": "structure",
+    "group": "utility"
+   },
+   "use": [
+    {
+     "kind": "add_body_xp",
+     "amount": 150
+    }
+   ]
+  },
+  {
+   "id": "purging_pill",
+   "name": "Purging Pill",
+   "type": "pill",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "purging_pill",
+   "desc": "Purges 30 toxicity.",
+   "pill": {
+    "mark": "leaf",
+    "toxicity": 0,
+    "cause": null,
+    "group": "utility"
+   },
+   "use": [
+    {
+     "kind": "add_toxicity",
+     "amount": -30
+    }
+   ]
+  },
+  {
+   "id": "viper_antidote",
+   "name": "Viper Antidote",
+   "type": "pill",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "viper_antidote",
+   "desc": "Cures poison.",
+   "pill": {
+    "mark": "leaf",
+    "toxicity": 0,
+    "cause": null,
+    "group": "utility"
+   },
+   "use": [
+    {
+     "kind": "cure_status",
+     "status": "poison"
+    }
+   ]
+  },
+  {
+   "id": "tiger_blood_pill",
+   "name": "Tiger Blood Pill",
+   "type": "pill",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "tiger_blood_pill",
+   "desc": "+20% attack for 60 s, then exhaustion (-20% for 60 s).",
+   "pill": {
+    "mark": "flame",
+    "toxicity": 12,
+    "cause": null,
+    "group": "buff"
+   },
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "physical_attack",
+     "op": "pct_add",
+     "value": 0.2,
+     "duration": 60,
+     "source": "tiger_blood"
+    },
+    {
+     "kind": "apply_status",
+     "status": "exhausted",
+     "delay": 60,
+     "duration": 60
+    }
+   ]
+  },
+  {
+   "id": "cleansing_pill",
+   "name": "Cleansing Pill",
+   "type": "pill",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "cleansing_pill",
+   "desc": "Support item: lowers the risk of Heaven's Cleansing by one step.",
+   "pill": {
+    "mark": "gate",
+    "toxicity": 10,
+    "cause": "environment",
+    "group": "utility"
+   },
+   "use": [],
+   "support": {
+    "risk": -1,
+    "event": "heavens_cleansing"
+   }
+  },
+  {
+   "id": "foundation_guard_pill",
+   "name": "Foundation Guard Pill",
+   "type": "pill",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "foundation_guard_pill",
+   "desc": "Breakthrough support: lowers risk by one step.",
+   "pill": {
+    "mark": "gate",
+    "toxicity": 12,
+    "cause": "structure",
+    "group": "utility"
+   },
+   "use": [],
+   "support": {
+    "risk": -1
+   }
+  },
+  {
+   "id": "clear_mind_pill",
+   "name": "Clear Mind Pill",
+   "type": "pill",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "clear_mind_pill",
+   "desc": "+50% insight rate for 30 minutes.",
+   "pill": {
+    "mark": "lamp",
+    "toxicity": 8,
+    "cause": "understanding",
+    "group": "buff"
+   },
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "insight_rate",
+     "op": "pct_add",
+     "value": 0.5,
+     "duration": 1800,
+     "source": "clear_mind"
+    }
+   ]
+  },
+  {
+   "id": "meridian_reversal_pill",
+   "name": "Meridian Reversal Pill",
+   "type": "pill",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "meridian_reversal_pill",
+   "desc": "Resets all meridian points.",
+   "pill": {
+    "mark": "arrows_loop",
+    "toxicity": 10,
+    "cause": null,
+    "group": "utility"
+   },
+   "use": [
+    {
+     "kind": "reset_meridians"
+    }
+   ]
+  },
+  {
+   "id": "method_conversion_pill",
+   "name": "Method Conversion Pill",
+   "type": "pill",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "method_conversion_pill",
+   "desc": "Halves the cost of switching cultivation methods.",
+   "pill": {
+    "mark": "arrows",
+    "toxicity": 10,
+    "cause": null,
+    "group": "utility"
+   },
+   "use": [],
+   "method_conversion": true
+  },
+  {
+   "id": "qi_refining_pill",
+   "name": "Qi Refining Pill",
+   "type": "pill",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "qi_refining_pill",
+   "desc": "Required to break through from Heart Tempering 9 to Cloud Stride 1.",
+   "pill": {
+    "mark": "spiral",
+    "toxicity": 15,
+    "cause": "material",
+    "group": "utility"
+   },
+   "use": []
+  },
+  {
+   "id": "soul_soothing_pill",
+   "name": "Soul Soothing Pill",
+   "type": "pill",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "soul_soothing_pill",
+   "desc": "Cures a soul injury; +20% Soul for 10 minutes.",
+   "pill": {
+    "mark": "eye",
+    "toxicity": 8,
+    "cause": "soul",
+    "group": "restoration"
+   },
+   "use": [
+    {
+     "kind": "cure_injury",
+     "injury": "soul",
+     "max_severity": 3
+    },
+    {
+     "kind": "add_modifier",
+     "stat": "max_soul",
+     "op": "pct_add",
+     "value": 0.2,
+     "duration": 600,
+     "source": "soul_soothing"
+    },
+    {
+     "kind": "add_soul",
+     "amount": 50
+    }
+   ]
+  },
+  {
+   "id": "mind_lake_opening_pill",
+   "name": "Mind Lake Opening Pill",
+   "type": "pill",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "mind_lake_opening_pill",
+   "desc": "Required to break through from Cloud Stride 9 to Spirit Awakening 1.",
+   "pill": {
+    "mark": "eye_gate",
+    "toxicity": 15,
+    "cause": "material",
+    "group": "utility"
+   },
+   "use": []
+  },
+  {
+   "id": "sage_condensing_pill",
+   "name": "Sage Condensing Pill",
+   "type": "pill",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "sage_condensing_pill",
+   "desc": "Required to break through from Heaven Glimpse 3 to Sage 1.",
+   "pill": {
+    "mark": "knot",
+    "toxicity": 20,
+    "cause": "material",
+    "group": "utility"
+   },
+   "use": []
+  },
+  {
+   "id": "herbal_tea",
+   "name": "Herbal Tea",
+   "type": "food",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "herbal_tea",
+   "desc": "A calming brew of willow moss. +25% max HP over 5 s.",
+   "use": [
+    {
+     "kind": "heal",
+     "pct": 0.25,
+     "over_s": 5
+    }
+   ],
+   "food": {
+    "group": "healing",
+    "pet_food": false
+   }
+  },
+  {
+   "id": "rice_ball",
+   "name": "Rice Ball",
+   "type": "food",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "rice_ball",
+   "desc": "Plain and filling. +0.5% HP regeneration per second for 10 minutes.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "hp_regen",
+     "op": "flat",
+     "value": 0.005,
+     "duration": 600,
+     "source": "rice_ball"
+    }
+   ],
+   "food": {
+    "group": "buff",
+    "pet_food": false
+   }
+  },
+  {
+   "id": "riverfish_soup",
+   "name": "Riverfish Soup",
+   "type": "food",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "riverfish_soup",
+   "desc": "+5% max HP for 20 minutes.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "max_hp",
+     "op": "pct_add",
+     "value": 0.05,
+     "duration": 1200,
+     "source": "riverfish_soup"
+    }
+   ],
+   "food": {
+    "group": "buff",
+    "pet_food": false
+   }
+  },
+  {
+   "id": "boar_bone_broth",
+   "name": "Boar Bone Broth",
+   "type": "food",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "boar_bone_broth",
+   "desc": "+120 body XP.",
+   "use": [
+    {
+     "kind": "add_body_xp",
+     "amount": 120
+    }
+   ],
+   "food": {
+    "group": "utility",
+    "pet_food": false
+   }
+  },
+  {
+   "id": "ember_pepper_stew",
+   "name": "Ember Pepper Stew",
+   "type": "food",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "ember_pepper_stew",
+   "desc": "+10% attack and +5 Fire resistance for 20 minutes.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "physical_attack",
+     "op": "pct_add",
+     "value": 0.1,
+     "duration": 1200,
+     "source": "ember_stew"
+    }
+   ],
+   "food": {
+    "group": "buff",
+    "pet_food": false
+   }
+  },
+  {
+   "id": "lotus_root_tea",
+   "name": "Lotus Root Tea",
+   "type": "food",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "lotus_root_tea",
+   "desc": "+10% QI regeneration for 20 minutes.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "qi_regen",
+     "op": "pct_add",
+     "value": 0.1,
+     "duration": 1200,
+     "source": "lotus_tea"
+    }
+   ],
+   "food": {
+    "group": "buff",
+    "pet_food": false
+   }
+  },
+  {
+   "id": "toad_oil_dumplings",
+   "name": "Toad Oil Dumplings",
+   "type": "food",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "toad_oil_dumplings",
+   "desc": "+5% move speed for 15 minutes.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "move_speed",
+     "op": "pct_add",
+     "value": 0.05,
+     "duration": 900,
+     "source": "toad_dumplings"
+    }
+   ],
+   "food": {
+    "group": "buff",
+    "pet_food": false
+   }
+  },
+  {
+   "id": "cloudtop_orchid_broth",
+   "name": "Cloudtop Orchid Broth",
+   "type": "food",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "cloudtop_orchid_broth",
+   "desc": "+300 body XP.",
+   "use": [
+    {
+     "kind": "add_body_xp",
+     "amount": 300
+    }
+   ],
+   "food": {
+    "group": "utility",
+    "pet_food": false
+   }
+  },
+  {
+   "id": "jade_carp_congee",
+   "name": "Jade Carp Congee",
+   "type": "food",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "jade_carp_congee",
+   "desc": "+5% accumulation for 30 minutes.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "accumulation_rate",
+     "op": "pct_add",
+     "value": 0.05,
+     "duration": 1800,
+     "source": "carp_congee"
+    }
+   ],
+   "food": {
+    "group": "buff",
+    "pet_food": false
+   }
+  },
+  {
+   "id": "roast_fish",
+   "name": "Roast Fish",
+   "type": "food",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "roast_fish",
+   "desc": "A spirit animal favourite.",
+   "use": [
+    {
+     "kind": "heal",
+     "pct": 0.1,
+     "over_s": 3
+    }
+   ],
+   "food": {
+    "group": "buff",
+    "pet_food": true
+   }
+  },
+  {
+   "id": "ember_pepper_broth",
+   "name": "Ember Pepper Broth",
+   "type": "food",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "ember_pepper_broth",
+   "desc": "A spicy broth spirit animals love.",
+   "use": [
+    {
+     "kind": "heal",
+     "pct": 0.1,
+     "over_s": 3
+    }
+   ],
+   "food": {
+    "group": "buff",
+    "pet_food": true
+   }
+  },
+  {
+   "id": "willow_salve",
+   "name": "Willow Salve",
+   "type": "talisman",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "willow_salve",
+   "desc": "Cures a minor body injury.",
+   "use": [
+    {
+     "kind": "cure_injury",
+     "injury": "body",
+     "max_severity": 1
+    }
+   ],
+   "food": {
+    "group": "healing"
+   }
+  },
+  {
+   "id": "sphere_comprehension_stone",
+   "name": "Sphere Comprehension Stone",
+   "type": "treasure",
+   "grade": "will",
+   "ilv": 95,
+   "stack": 1,
+   "icon": "sphere_comprehension_stone",
+   "desc": "A stone that holds a folded world. (Later zones.)",
+   "sell": false
+  },
+  {
+   "id": "law_condensing_pill",
+   "name": "Law Condensing Pill",
+   "type": "pill",
+   "grade": "law",
+   "ilv": 105,
+   "stack": 99,
+   "icon": "law_condensing_pill",
+   "desc": "Converts Sage Qi toward Law Qi. (Later zones.)",
+   "pill": {
+    "mark": "arrows",
+    "toxicity": 20,
+    "group": "utility"
+   },
+   "use": []
+  },
+  {
+   "id": "law_touching_pill",
+   "name": "Law Touching Pill",
+   "type": "pill",
+   "grade": "law",
+   "ilv": 106,
+   "stack": 99,
+   "icon": "law_touching_pill",
+   "desc": "Supports the attempt to touch a World Law. (Later zones.)",
+   "pill": {
+    "mark": "gate",
+    "toxicity": 20,
+    "group": "utility"
+   },
+   "use": []
+  },
+  {
+   "id": "monarch_condensing_pill",
+   "name": "Monarch Condensing Pill",
+   "type": "pill",
+   "grade": "monarch",
+   "ilv": 115,
+   "stack": 99,
+   "icon": "monarch_condensing_pill",
+   "desc": "Helps the Monarch conversion. (Later zones.)",
+   "pill": {
+    "mark": "knot",
+    "toxicity": 25,
+    "group": "utility"
+   },
+   "use": []
+  },
+  {
+   "id": "sigil_anchor_pill",
+   "name": "Sigil Anchor Pill",
+   "type": "pill",
+   "grade": "monarch",
+   "ilv": 120,
+   "stack": 99,
+   "icon": "sigil_anchor_pill",
+   "desc": "Anchors the Dao Sigil. (Later zones.)",
+   "pill": {
+    "mark": "knot",
+    "toxicity": 25,
+    "group": "utility"
+   },
+   "use": []
+  }
+ ]
+}

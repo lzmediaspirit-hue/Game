@@ -1,0 +1,81 @@
+class_name ObjectView
+extends Node2D
+## A world object (Part 9.9 state sets): shrine, nodes, breakables, chests,
+## stations, boards, stones, fishing ripples, quest pickups. Reads RoomRuntime
+## object state; shows a verb prompt when it is the context target.
+
+const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "training_stump": "training_stump", "lifting_stone": "lifting_stone",
+	"training_dummy": "training_dummy", "jar": "jar", "crate": "crate", "wine_jar": "wine_jar", "chest": "chest", "storage_chest": "storage_chest",
+	"notice_board": "notice_board", "signpost": "signpost", "teleport_stone": "teleport_stone", "insight_stone": "insight_stone",
+	"cooking_pot": "cooking_pot", "alchemy_furnace": "alchemy_furnace", "forge_anvil": "forge_anvil", "fishing_spot": "fishing_ripple",
+	"rite_circle": "rite_circle", "bell": "small_bell", "spar_post": "weapon_rack", "inspect": "grey_patch", "herb_patch": "willow_moss_patch",
+	"ore_vein": "copper_vein", "formation_table": "formation_node", "garden_bed": "willow_moss_patch"}
+
+var def: Dictionary = {}
+var object_id := ""
+var t := 0.0
+var focus := false
+var hit_flash := 0.0
+var prop_id := ""
+
+func setup(o: Dictionary) -> void:
+	def = o
+	object_id = str(o.id)
+	prop_id = str(o.get("prop", DEFAULT_PROP.get(str(o.type), "")))
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var at: Array = o.get("at", [0, 0])
+	position = Vector2(float(at[0]), float(at[1]) - float(o.get("alt", 0)))
+	var decal := bool(SpriteCache.prop(prop_id).get("decal", false)) or str(o.type) in ["fishing_spot", "rite_circle", "inspect"]
+	z_index = (1500 + int(float(at[1])) - 60) if decal else (1500 + int(float(at[1])))
+	if o.get("z_back", false): z_index = -1500
+
+func state_name() -> String:
+	var rt: RoomRuntime = Game.room_rt
+	var st: Dictionary = rt.objects.get(object_id, {}) if rt else {}
+	var s := str(st.get("state", "ready"))
+	var c = Game.active()
+	match str(def.type):
+		"herb_patch": return "depleted" if s == "depleted" else "ready"
+		"ore_vein": return "depleted" if s == "depleted" else ("cracked" if int(st.get("hits", 0)) > 0 else "full")
+		"jar", "crate", "wine_jar": return "broken" if s == "broken" else "intact"
+		"chest": return "open" if s == "open" else "closed"
+		"shrine": return "active" if c and str(c.last_shrine.get("object", "")) == object_id and str(c.last_shrine.get("room", "")) == rt.room_id else "idle"
+		"qi_spring": return "active" if c and Unlocks.is_unlocked(c.id, "qi_springs") else "dormant"
+		"teleport_stone": return "active" if Game.account.teleports.has(str(def.get("stone", object_id))) else "inactive"
+		"insight_stone": return "glow" if c and c.cultivator.meditating else "idle"
+		"cooking_pot": return "steam"
+		"alchemy_furnace": return "lit"
+		"forge_anvil": return "sparks"
+		"training_stump", "training_dummy": return "hit" if hit_flash > 0.0 else "idle"
+		"bell": return "ringing" if s == "open" else "idle"
+		"rite_circle": return "active" if Game.room_rt and Game.room_rt.event.get("active", false) else "idle"
+	return "idle"
+
+func _process(delta: float) -> void:
+	t += delta
+	hit_flash = maxf(0.0, hit_flash - delta)
+	var c = Game.active()
+	visible = c == null or Game.world.object_visible(c, def)
+	if def.type == "pickup" and Game.room_rt and Game.room_rt.objects.get(object_id, {}).get("state", "") == "open": visible = false
+	queue_redraw()
+
+func _draw() -> void:
+	var st := state_name()
+	var drawn := false
+	if def.type == "pickup" and not def.has("prop"):
+		var ic := SpriteCache.icon(str(def.get("item", "")))
+		if ic:
+			var bob := sin(t * 3.0) * 3.0
+			draw_texture_rect(ic, Rect2(-16, -34 + bob, 32, 32), false)
+			drawn = true
+	elif prop_id != "":
+		drawn = SpriteCache.draw_prop(self, prop_id, st, t, Vector2.ZERO, bool(def.get("flip", false)))
+	if not drawn and def.type != "pickup":
+		draw_rect(Rect2(-12, -24, 24, 24), UiKit.BRONZE)
+	if focus:
+		var c = Game.active()
+		var avail: Dictionary = Game.world.object_available(c, def) if c else {"ok": true}
+		var label := Game.world._verb(def)
+		var h := SpriteCache.prop_size(prop_id).y if prop_id != "" else 40.0
+		UiKit.draw_outlined(self, label if avail.ok else str(avail.get("text", "")), Vector2(-120, -h - 8), 16,
+			UiKit.PALE_GOLD if avail.ok else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 240)

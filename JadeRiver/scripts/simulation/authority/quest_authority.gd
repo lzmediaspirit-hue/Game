@@ -1,0 +1,493 @@
+class_name QuestAuthority
+extends Authority
+## S19 · Quests, objective progress, story flags, dialogue state and the Codex.
+## Objectives advance ONLY from events (never from UI code). Lifecycle:
+## hidden → offered → active → ready → completed.
+
+## event name -> objective kinds it can advance
+const EVENT_KINDS := {
+	"npc_talked": ["talk_to"], "room_entered": ["reach_room"], "actor_defeated": ["kill"], "item_added": ["collect", "deliver"],
+	"item_removed": ["collect", "deliver"], "item_used": ["use_item"], "realm_changed": ["reach_realm"], "spar_ended": ["win_spar"],
+	"room_event_completed": ["survive_timer"], "flag_set": ["set_flag"], "object_interacted": ["interact_object"],
+	"object_hit": ["hit_object"], "node_gathered": ["gather_node"], "fish_caught": ["catch_fish"], "craft_completed": ["craft"],
+	"meditation_tick": ["meditate_seconds"], "technique_used": ["use_technique"], "body_level_changed": ["reach_body_level"],
+	"equipment_changed": ["equip_slot"], "hit_dodged": ["dodge_attacks"], "technique_learned": ["learn_technique"],
+	"technique_mastery_up": ["reach_mastery"], "breakthrough_succeeded": ["breakthrough"], "item_bought": ["buy_item"],
+	"item_sold": ["sell_item"], "page_opened": ["open_page"], "system_used": ["use_system"], "teleported": ["teleport"],
+	"seclusion_entered": ["enter_seclusion"], "companion_joined": ["choose_companion"], "pet_bonded": ["bond_pet"],
+	"sect_joined": ["join_sect"], "dodged": ["use_system"], "attack_started": ["use_system"], "event_passed": ["pass_event"],
+	"loot_picked": ["use_system"], "portal_used": ["use_portal"], "bottleneck_viewed": ["open_page"], "qp_milestone": ["reach_progress"],
+	"sect_rank_changed": ["reach_rank"], "mail_read": ["read_mail"], "quick_use_changed": ["use_system"], "pill_used": ["use_item"],
+}
+
+func intents() -> Array:
+	return ["talk", "choose_dialogue", "accept_quest", "hand_in_quest", "track_quest", "abandon_quest", "report_page_opened", "report_system_used"]
+
+func subscribe() -> void:
+	for ev in EVENT_KINDS:
+		GameEvents.subscribe(ev, _on_event.bind(ev), 60)
+	GameEvents.subscribe("unlock_offered", _on_unlock_offered, 60)
+	GameEvents.subscribe("daily_reset", _on_daily_reset, 60)
+	for ev in ["quest_completed", "realm_changed", "flag_set", "room_entered", "quest_accepted", "item_added", "character_created"]:
+		GameEvents.subscribe(ev, _refresh_offers, 65)
+
+func handle(intent: Dictionary) -> Dictionary:
+	var c = char_of(intent)
+	if c == null: return fail("no_character")
+	match str(intent.type):
+		"talk": return talk(c, str(intent.get("npc", "")))
+		"choose_dialogue": return choose(c, str(intent.get("npc", "")), intent.get("choice", {}))
+		"accept_quest": return accept(c, str(intent.get("quest", "")))
+		"hand_in_quest": return hand_in(c, str(intent.get("quest", "")))
+		"track_quest":
+			var q := str(intent.get("quest", ""))
+			if not c.quests.is_active(q): return fail("not_active")
+			if c.quests.tracked.has(q): c.quests.tracked.erase(q)
+			else:
+				c.quests.tracked.push_front(q)
+				while c.quests.tracked.size() > 3: c.quests.tracked.pop_back()
+			emit("tracker_changed", {"actor": c.id})
+			return ok()
+		"abandon_quest":
+			var q2 := str(intent.get("quest", ""))
+			var def := quest_def(c, q2)
+			if def.get("kind", "") in ["main", "guided", "prologue"]: return fail("cannot_abandon")
+			c.quests.active.erase(q2)
+			c.quests.tracked.erase(q2)
+			emit("quest_abandoned", {"actor": c.id, "quest": q2})
+			return ok()
+		"report_page_opened":
+			emit("page_opened", {"actor": c.id, "page": str(intent.get("page", ""))})
+			return ok()
+		"report_system_used":
+			emit("system_used", {"actor": c.id, "system": str(intent.get("system", ""))})
+			return ok()
+	return fail("unknown_intent")
+
+func quest_def(c, id: String) -> Dictionary:
+	var d := ContentDB.entry("quests", id)
+	if d.is_empty() and c != null and c.quests.daily.has(id): d = c.quests.daily[id]
+	if d.is_empty() and c != null and c.quests.active.has(id): d = c.quests.active[id].get("def", {})
+	return d
+
+# ------------------------------------------------------------------ offers and markers
+func can_offer(c, def: Dictionary) -> bool:
+	var id := str(def.id)
+	if c.quests.is_active(id) or (c.quests.is_done(id) and not def.get("repeatable", false)): return false
+	if def.get("offered_by_unlock", false) and not c.quests.offered.has(id): return false
+	if def.has("requires") and not RequirementRules.passes(def.requires, game.ctx(c)): return false
+	return true
+
+func _refresh_offers(_p := {}) -> void:
+	var c = game.active()
+	if c == null: return
+	for def in ContentDB.all("quests"):
+		var id := str(def.id)
+		if c.quests.offered.has(id) and (c.quests.is_active(id) or c.quests.is_done(id)): c.quests.offered.erase(id)
+		if def.get("auto_accept", false) and can_offer(c, def):
+			accept(c, id)
+		elif can_offer(c, def) and not c.quests.offered.has(id):
+			c.quests.offered[id] = true
+			emit("quest_offered", {"actor": c.id, "quest": id, "giver": str(def.get("giver", ""))})
+
+func _on_unlock_offered(p: Dictionary) -> void:
+	var c = game.character(str(p.actor))
+	var qid := str(p.get("quest", ""))
+	if c == null or qid == "": return
+	var def := ContentDB.entry("quests", qid)
+	if def.is_empty(): return
+	c.quests.offered[qid] = true
+	emit("quest_offered", {"actor": c.id, "quest": qid, "giver": str(def.get("giver", ""))})
+	if def.get("auto_accept", false): accept(c, qid)
+
+## "!" gold (main), "!" blue (side/guided), "?" ready, "" none.
+func npc_marker(c, npc: String) -> String:
+	if c == null: return ""
+	for q in c.quests.active:
+		var st: Dictionary = c.quests.active[q]
+		var def := quest_def(c, q)
+		if st.get("state") == "ready" and str(def.get("hand_in", def.get("giver", ""))) == npc: return "ready"
+	for q in c.quests.active:
+		var def2 := quest_def(c, q)
+		var st2: Dictionary = c.quests.active[q]
+		for i in def2.get("objectives", []).size():
+			var o: Dictionary = def2.objectives[i]
+			if o.kind == "talk_to" and str(o.npc) == npc and int(st2.progress[i]) < int(o.get("count", 1)) and _objective_open(c, def2, st2, i): return "talk"
+	for q in c.quests.offered:
+		var def3 := ContentDB.entry("quests", q)
+		if str(def3.get("giver", "")) == npc and can_offer(c, def3):
+			return "main" if def3.get("marker", "blue") == "gold" else "side"
+	return ""
+
+## Objectives with an "after" index open only once the earlier objective is done.
+func _objective_open(_c, def: Dictionary, st: Dictionary, i: int) -> bool:
+	var o: Dictionary = def.objectives[i]
+	if def.get("sequential", false):
+		for j in i:
+			if int(st.progress[j]) < int(def.objectives[j].get("count", 1)): return false
+	if o.has("after"):
+		var j2 := int(o.after)
+		if int(st.progress[j2]) < int(def.objectives[j2].get("count", 1)): return false
+	return true
+
+# ------------------------------------------------------------------ dialogue
+## Build the conversation for an NPC: hand-in first, then talk objectives, then offers, then default lines.
+func talk(c, npc: String) -> Dictionary:
+	var n := ContentDB.entry("npcs", npc)
+	if n.is_empty(): return fail("unknown_npc")
+	emit("npc_talked", {"actor": c.id, "npc": npc})
+	GameEvents.flush()
+	var convo := {"npc": npc, "speaker": str(n.get("name", npc)), "portrait": n.get("outfit", {}), "lines": [], "choices": []}
+	for q in c.quests.active:
+		var def := quest_def(c, q)
+		if c.quests.active[q].get("state") == "ready" and str(def.get("hand_in", def.get("giver", ""))) == npc:
+			convo.lines = def.get("complete_text", ["Well done."]).duplicate()
+			convo.choices = [{"text": "Hand in: %s" % def.get("name", q), "hand_in": q}]
+			convo.quest = q
+			return ok({"dialogue": convo})
+	if n.has("tree") and ContentDB.dialogue.has(str(n.tree)):
+		var tree: Dictionary = ContentDB.dialogue[str(n.tree)]
+		var node_id := _tree_entry(c, tree)
+		if node_id != "":
+			return ok({"dialogue": _tree_node(c, npc, n, tree, node_id)})
+	for q in c.quests.offered:
+		var def2 := ContentDB.entry("quests", q)
+		if str(def2.get("giver", "")) == npc and can_offer(c, def2) and not def2.get("auto_accept", false):
+			convo.lines = def2.get("offer_text", ["I have a task for you."]).duplicate()
+			convo.choices = [{"text": "Accept: %s" % def2.get("name", q), "accept": q}, {"text": "Not now", "close": true}]
+			convo.quest = q
+			return ok({"dialogue": convo})
+	for q in c.quests.active:
+		var def3 := quest_def(c, q)
+		if str(def3.get("giver", "")) == npc and def3.has("progress_text"):
+			convo.lines = def3.progress_text.duplicate()
+			break
+	if convo.lines.is_empty():
+		var lines: Array = n.get("lines", ["..."])
+		convo.lines = [lines[(c.quests.seen_dialogue.size() + game.tick_count) % lines.size()]]
+	for s in n.get("services", []):
+		var svc := str(s)
+		if svc.begins_with("shop:"):
+			var shop := ContentDB.entry("shops", svc.trim_prefix("shop:"))
+			if shop.is_empty() or (shop.has("requires") and not RequirementRules.passes(shop.requires, game.ctx(c))): continue
+			convo.choices.append({"text": "Trade", "shop": svc.trim_prefix("shop:")})
+		elif svc == "storage" and Unlocks.is_unlocked(c.id, "storage"):
+			convo.choices.append({"text": "Storage", "page": "storage"})
+		elif svc == "missions" and Unlocks.is_unlocked(c.id, "daily_missions"):
+			convo.choices.append({"text": "Missions", "page": "training_sect"})
+		elif svc.begins_with("page:"):
+			convo.choices.append({"text": str(n.get("service_labels", {}).get(svc, "Open")), "page": svc.trim_prefix("page:")})
+		elif svc.begins_with("spar:") and Unlocks.is_unlocked(c.id, "attack"):
+			convo.choices.append({"text": "Spar", "spar": svc.trim_prefix("spar:")})
+	convo.choices.append({"text": "Farewell", "close": true})
+	return ok({"dialogue": convo})
+
+func _tree_entry(c, tree: Dictionary) -> String:
+	for entry in tree.get("entries", []):
+		if RequirementRules.passes(entry.get("requires", {}), game.ctx(c)): return str(entry.node)
+	return ""
+
+func _tree_node(c, npc: String, n: Dictionary, tree: Dictionary, node_id: String) -> Dictionary:
+	var node: Dictionary = tree.nodes.get(node_id, {})
+	var choices: Array = []
+	for ch in node.get("choices", [{"text": "Continue", "close": true}]):
+		if ch.has("requires") and not RequirementRules.passes(ch.requires, game.ctx(c)): continue
+		var cc: Dictionary = ch.duplicate(true)
+		cc.tree = tree.get("id", "")
+		cc.node = node_id
+		choices.append(cc)
+	return {"npc": npc, "speaker": str(node.get("speaker_name", n.get("name", npc))), "portrait": n.get("outfit", {}),
+		"lines": node.get("lines", []).duplicate(), "choices": choices, "tree": str(n.tree)}
+
+func choose(c, npc: String, choice: Dictionary) -> Dictionary:
+	if choice.has("effects") and choice.get("tree", "") != "":
+		# Validate the choice exists in data before applying its effects.
+		var tree: Dictionary = ContentDB.dialogue.get(str(choice.tree), {})
+		var node: Dictionary = tree.get("nodes", {}).get(str(choice.get("node", "")), {})
+		var found := false
+		for ch in node.get("choices", []):
+			if str(ch.get("text", "")) == str(choice.get("text", "")):
+				found = true
+				if ch.has("requires") and not RequirementRules.passes(ch.requires, game.ctx(c)): return fail("not_allowed")
+				game.apply_effects(c.id, ch.get("effects", []), "dialogue:" + npc)
+		if not found: return fail("bad_choice")
+	if choice.has("accept"): return accept(c, str(choice.accept))
+	if choice.has("hand_in"): return hand_in(c, str(choice.hand_in))
+	if choice.has("next") and choice.get("tree", "") != "":
+		var tree2: Dictionary = ContentDB.dialogue.get(str(choice.tree), {})
+		return ok({"dialogue": _tree_node(c, npc, ContentDB.entry("npcs", npc), tree2, str(choice.next))})
+	if choice.has("spar"): return start_spar(c, str(choice.spar))
+	return ok()
+
+# ------------------------------------------------------------------ lifecycle
+func accept(c, qid: String) -> Dictionary:
+	var def := quest_def(c, qid)
+	if def.is_empty(): return fail("unknown_quest")
+	if c.quests.is_active(qid): return ok()
+	if not can_offer(c, def) and not c.quests.offered.has(qid) and not c.quests.daily.has(qid): return fail("not_offered")
+	var progress: Array = []
+	for o in def.get("objectives", []): progress.append(0)
+	c.quests.active[qid] = {"state": "active", "progress": progress, "accepted_tick": game.tick_count}
+	if c.quests.daily.has(qid): c.quests.active[qid].def = def
+	c.quests.offered.erase(qid)
+	if c.quests.tracked.size() < 3 and def.get("kind", "") != "daily": c.quests.tracked.push_front(qid)
+	while c.quests.tracked.size() > 3: c.quests.tracked.pop_back()
+	emit("quest_accepted", {"actor": c.id, "quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side"))})
+	game.apply_effects(c.id, def.get("on_accept", []), "quest:" + qid)
+	_recount(c, qid)
+	return ok({"quest": qid})
+
+## Objectives that mirror state (collect, reach_realm...) are recomputed, not incremented.
+func _recount(c, qid: String) -> void:
+	var def := quest_def(c, qid)
+	var st: Dictionary = c.quests.active.get(qid, {})
+	if st.is_empty(): return
+	var changed := false
+	for i in def.get("objectives", []).size():
+		var o: Dictionary = def.objectives[i]
+		var v := int(st.progress[i])
+		match str(o.kind):
+			"collect", "deliver": v = mini(c.inventory.count(str(o.item)), int(o.get("count", 1)))
+			"reach_realm": v = 1 if ProgressionRules.at_least(c.cultivator.realm_key, str(o.realm)) else 0
+			"reach_body_level": v = mini(c.cultivator.body_level, int(o.get("count", 1)))
+			"set_flag": v = 1 if c.quests.has_flag(str(o.flag)) else 0
+			"learn_technique": v = 1 if (str(o.get("technique", "any")) == "any" and not c.cultivator.techniques_known.is_empty()) or c.cultivator.techniques_known.has(str(o.get("technique", ""))) else v
+			"join_sect": v = 1 if str(c.training_sect.get("id", "")) != "" else 0
+			"reach_rank":
+				var ranks: Array = ContentDB.config("sect_ranks").get("order", [])
+				v = 1 if ranks.find(str(c.training_sect.get("rank", ""))) >= ranks.find(str(o.rank)) else 0
+			"pass_event": v = 1 if str(o.event) in c.cultivator.events_passed else v
+			"reach_mastery":
+				var best := 0
+				for t in c.cultivator.mastery: best = maxi(best, int(c.cultivator.mastery[t].get("tier", 0)))
+				v = 1 if best >= int(o.get("tier", 1)) else 0
+			"equip_slot": v = 1 if c.inventory.equipped.get(str(o.slot)) != null else v
+		if v != int(st.progress[i]):
+			st.progress[i] = v
+			changed = true
+	if changed: emit("objective_progressed", {"actor": c.id, "quest": qid})
+	_check_ready(c, qid)
+
+func _check_ready(c, qid: String) -> void:
+	var def := quest_def(c, qid)
+	var st: Dictionary = c.quests.active.get(qid, {})
+	if st.is_empty(): return
+	var all_done := true
+	for i in def.get("objectives", []).size():
+		if int(st.progress[i]) < int(def.objectives[i].get("count", 1)): all_done = false
+	if all_done and st.state != "ready":
+		st.state = "ready"
+		emit("quest_ready", {"actor": c.id, "quest": qid})
+		if str(def.get("hand_in", "x")) == "" or def.get("auto_complete", false): hand_in(c, qid)
+	elif not all_done and st.state == "ready":
+		st.state = "active"
+
+func hand_in(c, qid: String) -> Dictionary:
+	var def := quest_def(c, qid)
+	var st: Dictionary = c.quests.active.get(qid, {})
+	if st.is_empty() or st.get("state") != "ready": return fail("not_ready")
+	for i in def.get("objectives", []).size():
+		var o: Dictionary = def.objectives[i]
+		if o.kind in ["collect", "deliver"] and o.get("consume", o.kind == "deliver"):
+			game.inventory.apply_remove(c.id, str(o.item), int(o.get("count", 1)), "quest:" + qid)
+	c.quests.active.erase(qid)
+	c.quests.tracked.erase(qid)
+	c.quests.done[qid] = int(c.quests.done.get(qid, 0)) + 1
+	var qp_kind := str(def.get("qp", {"main": "main", "guided": "guided", "side": "side", "daily": "daily"}.get(str(def.get("kind", "side")), "")))
+	var pct := float(ContentDB.curve("quest_qp_pct.%s" % qp_kind, 0.0))
+	if pct > 0.0 and Unlocks.is_unlocked(c.id, "cultivation"): game.progression.apply_progress(c.id, 0.0, "quest", pct)
+	game.apply_effects(c.id, def.get("rewards", []), "quest:" + qid)
+	emit("quest_completed", {"actor": c.id, "quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side"))})
+	if c.quests.daily.has(qid): c.quests.daily.erase(qid)
+	var nxt := str(def.get("next", ""))
+	if nxt != "":
+		var ndef := ContentDB.entry("quests", nxt)
+		if not ndef.is_empty() and ndef.get("auto_accept", false) and can_offer(c, ndef): accept(c, nxt)
+	return ok()
+
+func _on_event(p: Dictionary, ev: String) -> void:
+	var c = game.active()
+	if c == null: return
+	var actor := str(p.get("actor", p.get("killer", c.id)))
+	if actor != c.id and not (ev == "actor_defeated" and game.companions.is_companion(actor)): return
+	for qid in c.quests.active.keys():
+		var def := quest_def(c, qid)
+		var st: Dictionary = c.quests.active[qid]
+		var changed := false
+		for i in def.get("objectives", []).size():
+			var o: Dictionary = def.objectives[i]
+			if not (str(o.kind) in EVENT_KINDS[ev]): continue
+			if not _objective_open(c, def, st, i): continue
+			var need := int(o.get("count", 1))
+			var v := int(st.progress[i])
+			if o.kind in ["collect", "deliver", "reach_realm", "reach_body_level", "set_flag", "join_sect", "reach_rank", "reach_mastery", "equip_slot"]:
+				continue
+			if v >= need: continue
+			var inc := _match(c, o, p, ev)
+			if inc > 0:
+				st.progress[i] = mini(need, v + inc)
+				changed = true
+		if changed:
+			emit("objective_progressed", {"actor": c.id, "quest": qid})
+		_recount(c, qid)
+
+func _match(c, o: Dictionary, p: Dictionary, ev: String) -> int:
+	match str(o.kind):
+		"talk_to": return 1 if str(p.get("npc", "")) == str(o.npc) else 0
+		"reach_room": return 1 if str(p.get("room", "")) == str(o.room) else 0
+		"kill":
+			if o.has("room") and str(p.get("room", "")) != str(o.room): return 0
+			return 1 if str(o.enemy) == "any" or str(p.get("def", "")) == str(o.enemy) else 0
+		"use_item": return 1 if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
+		"win_spar": return 1 if p.get("winner", "") == "player" and str(o.get("opponent", "any")) in ["any", str(p.get("opponent", ""))] else 0
+		"survive_timer": return 1 if str(p.get("event", "")) == str(o.event) else 0
+		"interact_object":
+			if o.has("object") and str(p.get("object", "")) != str(o.object): return 0
+			if o.has("type") and str(p.get("type", "")) != str(o.type): return 0
+			return 1
+		"hit_object": return 1 if str(p.get("type", "")) == str(o.get("type", "training_stump")) else 0
+		"gather_node", "mine_node": return int(p.get("count", 1)) if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] and str(o.get("craft", "")) in ["", str(p.get("craft", ""))] else 0
+		"catch_fish": return 1 if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
+		"craft": return int(p.get("count", 1)) if str(o.get("recipe", "any")) in ["any", str(p.get("recipe", ""))] and str(o.get("craft", "")) in ["", str(p.get("craft", ""))] else 0
+		"meditate_seconds":
+			if o.has("near") and not p.get("spring", false) and str(o.near) == "qi_spring": return 0
+			return 1
+		"use_technique":
+			if o.has("technique") and str(o.technique) != "any" and str(p.get("technique", "")) != str(o.technique): return 0
+			if o.get("ranged", false) and not ContentDB.entry("techniques", str(p.get("technique", ""))).has("projectile") and not (ContentDB.entry("techniques", str(p.get("technique", ""))).get("hitbox", {}).get("x", [0, 0])[1] >= 200): return 0
+			return 1
+		"dodge_attacks": return 1
+		"learn_technique": return 1 if str(o.get("technique", "any")) in ["any", str(p.get("technique", ""))] else 0
+		"breakthrough": return 1
+		"buy_item": return 1 if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
+		"sell_item": return 1 if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
+		"open_page": return 1 if str(p.get("page", "")) == str(o.page) else 0
+		"use_system":
+			if ev == "dodged": return 1 if str(o.system) == "dodge" else 0
+			if ev == "attack_started": return 1 if str(o.system) == "attack" and not p.get("enemy", false) else 0
+			if ev == "loot_picked": return 1 if str(o.system) == "pick_up" else 0
+			if ev == "quick_use_changed": return 1 if str(o.system) == "set_quick_use" else 0
+			return 1 if str(p.get("system", "")) == str(o.system) else 0
+		"teleport": return 1
+		"enter_seclusion": return 1 if str(o.get("focus", "any")) in ["any", str(p.get("focus", ""))] else 0
+		"choose_companion": return 1
+		"bond_pet": return 1
+		"pass_event": return 1 if str(p.get("event", "")) == str(o.event) else 0
+		"use_portal": return 1
+		"read_mail": return 1
+	return 0
+
+# ------------------------------------------------------------------ apply commands
+func apply_flag(actor_id: String, flag: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or c.quests.has_flag(flag): return
+	c.quests.flags[flag] = true
+	emit("flag_set", {"actor": actor_id, "flag": flag})
+
+func apply_clear_flag(actor_id: String, flag: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or not c.quests.has_flag(flag): return
+	c.quests.flags.erase(flag)
+	emit("flag_cleared", {"actor": actor_id, "flag": flag})
+
+func apply_start(actor_id: String, qid: String) -> void:
+	var c = game.character(actor_id)
+	if c == null: return
+	c.quests.offered[qid] = true
+	accept(c, qid)
+
+func apply_offer(actor_id: String, qid: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or c.quests.is_active(qid) or c.quests.is_done(qid): return
+	c.quests.offered[qid] = true
+	emit("quest_offered", {"actor": actor_id, "quest": qid, "giver": str(ContentDB.entry("quests", qid).get("giver", ""))})
+
+func apply_codex(entry: String) -> void:
+	if game.account.codex.has(entry): return
+	game.account.codex[entry] = true
+	emit("codex_entry_unlocked", {"entry": entry})
+
+func needs_item(c, item: String) -> bool:
+	for qid in c.quests.active:
+		var def := quest_def(c, qid)
+		for o in def.get("objectives", []):
+			if o.kind in ["collect", "deliver"] and str(o.item) == item and c.inventory.count(item) < int(o.get("count", 1)): return true
+	return false
+
+## Objectives for the tracker: [{quest, name, lines: [{text, have, need, done}]}].
+func tracker(c) -> Array:
+	var out: Array = []
+	for qid in c.quests.tracked:
+		var def := quest_def(c, qid)
+		var st: Dictionary = c.quests.active.get(qid, {})
+		if st.is_empty(): continue
+		var lines: Array = []
+		for i in def.get("objectives", []).size():
+			var o: Dictionary = def.objectives[i]
+			if not _objective_open(c, def, st, i) and int(st.progress[i]) == 0: continue
+			lines.append({"text": str(o.get("text", o.kind)), "have": int(st.progress[i]), "need": int(o.get("count", 1)),
+				"done": int(st.progress[i]) >= int(o.get("count", 1))})
+		if st.state == "ready":
+			var npc_name := ContentDB.name_of("npcs", str(def.get("hand_in", def.get("giver", ""))))
+			lines = [{"text": "Return to %s" % npc_name, "have": 0, "need": 1, "done": false}]
+		out.append({"quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side")), "ready": st.state == "ready", "lines": lines,
+			"target_room": str(def.get("target_room", ""))})
+	return out
+
+# ------------------------------------------------------------------ set pieces, spars, dailies
+func start_set_piece(c, event: String) -> Dictionary:
+	var sp := ContentDB.entry("set_pieces", event)
+	if sp.is_empty(): return fail("unknown_event")
+	if sp.has("requires") and not RequirementRules.passes(sp.requires, game.ctx(c)):
+		return fail("not_ready", {"text": RequirementRules.first_failure_text(sp.requires, game.ctx(c))})
+	if event in c.cultivator.events_passed: return fail("already_passed", {"text": "You have already passed this trial."})
+	emit("set_piece_started", {"actor": c.id, "event": event})
+	if sp.has("room"):
+		return game.world.load_room(c, str(sp.room), str(sp.get("portal", "")))
+	if sp.has("room_event") and game.room_rt:
+		game.world._start_event(c, game.room_rt, sp.room_event)
+	return ok()
+
+func start_spar_from_object(c, o: Dictionary) -> Dictionary:
+	return start_spar(c, str(o.get("opponent", "sparring_disciple")))
+
+func start_spar(c, opponent: String) -> Dictionary:
+	if game.room_rt == null: return fail("no_room")
+	for e in game.room_rt.living_enemies():
+		if e.def.get("spar", false): return fail("spar_running")
+	var st: ActorState = game.actor_state(c.id)
+	var at = st.plane + Vector2(160, 0) if st else Vector2(600, 800)
+	at.x = clampf(at.x, 80, game.room_rt.width() - 80)
+	var lvl := -1
+	if opponent == "sparring_disciple": lvl = maxi(1, ProgressionRules.level(c))
+	game.enemies.start_spar(opponent, at, lvl)
+	return ok({"spar": opponent})
+
+func _on_daily_reset(_p: Dictionary) -> void:
+	var c = game.active()
+	if c == null or not Unlocks.is_unlocked(c.id, "daily_missions"): return
+	for qid in c.quests.daily.keys():
+		c.quests.active.erase(qid)
+		c.quests.tracked.erase(qid)
+	c.quests.daily.clear()
+	var rng := Rng.stream(c.id, "world")
+	var templates: Array = ContentDB.all("mission_templates")
+	var lv := ProgressionRules.level(c)
+	var made := 0
+	var guard := 0
+	while made < 5 and guard < 40 and not templates.is_empty():
+		guard += 1
+		var tpl: Dictionary = templates[rng.randi_range(0, templates.size() - 1)]
+		if tpl.has("requires") and not RequirementRules.passes(tpl.requires, game.ctx(c)): continue
+		var options: Array = tpl.get("options", [])
+		var fit: Array = options.filter(func(op): return lv >= int(op.get("min_level", 0)) and lv <= int(op.get("max_level", 999)))
+		if fit.is_empty(): continue
+		var op: Dictionary = fit[rng.randi_range(0, fit.size() - 1)]
+		var id := "daily_%d_%d" % [Clock.reset_day(Clock.now_utc()), made]
+		var obj: Dictionary = op.objective.duplicate(true)
+		c.quests.daily[id] = {"id": id, "name": str(op.get("name", tpl.get("name", "Sect Mission"))), "kind": "daily", "objectives": [obj],
+			"hand_in": "", "rewards": [{"kind": "add_contribution", "amount": int(ContentDB.curve("contribution.daily", 20))},
+			{"kind": "grant_currency", "currency": "silver_tael", "amount": 10 + lv * 3}], "qp": "daily", "auto_complete": true}
+		made += 1
+	for qid in c.quests.daily: accept(c, qid)
+	emit("missions_refreshed", {"actor": c.id, "count": made})

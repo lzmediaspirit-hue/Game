@@ -1,0 +1,210 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "attack_pct",
+   "slots": [
+    "weapon"
+   ],
+   "stat": "physical_attack",
+   "op": "pct_add",
+   "range": [
+    0.03,
+    0.08
+   ]
+  },
+  {
+   "id": "crit",
+   "slots": [
+    "weapon",
+    "hat"
+   ],
+   "stat": "crit_chance",
+   "op": "flat",
+   "range": [
+    0.01,
+    0.03
+   ]
+  },
+  {
+   "id": "crit_damage",
+   "slots": [
+    "weapon"
+   ],
+   "stat": "crit_damage",
+   "op": "flat",
+   "range": [
+    0.05,
+    0.15
+   ]
+  },
+  {
+   "id": "penetration",
+   "slots": [
+    "weapon"
+   ],
+   "stat": "penetration",
+   "op": "flat",
+   "range": [
+    0.02,
+    0.05
+   ]
+  },
+  {
+   "id": "accuracy",
+   "slots": [
+    "weapon",
+    "hat"
+   ],
+   "stat": "accuracy",
+   "op": "flat",
+   "range": [
+    3,
+    10
+   ],
+   "per_level": 0.3
+  },
+  {
+   "id": "hp_pct",
+   "slots": [
+    "robe",
+    "trousers"
+   ],
+   "stat": "max_hp",
+   "op": "pct_add",
+   "range": [
+    0.03,
+    0.07
+   ]
+  },
+  {
+   "id": "body",
+   "slots": [
+    "robe",
+    "trousers"
+   ],
+   "stat": "body",
+   "op": "flat",
+   "range": [
+    1,
+    4
+   ],
+   "per_level": 0.1
+  },
+  {
+   "id": "agility",
+   "slots": [
+    "trousers",
+    "boots"
+   ],
+   "stat": "agility",
+   "op": "flat",
+   "range": [
+    1,
+    4
+   ],
+   "per_level": 0.1
+  },
+  {
+   "id": "spirit",
+   "slots": [
+    "hat"
+   ],
+   "stat": "spirit",
+   "op": "flat",
+   "range": [
+    1,
+    4
+   ],
+   "per_level": 0.1
+  },
+  {
+   "id": "insight",
+   "slots": [
+    "hat"
+   ],
+   "stat": "insight",
+   "op": "flat",
+   "range": [
+    1,
+    4
+   ],
+   "per_level": 0.1
+  },
+  {
+   "id": "tenacity",
+   "slots": [
+    "hat",
+    "trousers"
+   ],
+   "stat": "tenacity",
+   "op": "flat",
+   "range": [
+    0.02,
+    0.05
+   ]
+  },
+  {
+   "id": "move_speed",
+   "slots": [
+    "boots"
+   ],
+   "stat": "move_speed",
+   "op": "pct_add",
+   "range": [
+    0.02,
+    0.05
+   ]
+  },
+  {
+   "id": "guard",
+   "slots": [
+    "robe"
+   ],
+   "stat": "guard",
+   "op": "flat",
+   "range": [
+    0.02,
+    0.05
+   ]
+  },
+  {
+   "id": "evasion",
+   "slots": [
+    "boots",
+    "trousers"
+   ],
+   "stat": "evasion",
+   "op": "flat",
+   "range": [
+    2,
+    8
+   ],
+   "per_level": 0.3
+  },
+  {
+   "id": "toxicity_tolerance",
+   "slots": [
+    "gourd"
+   ],
+   "stat": "toxicity_tolerance",
+   "op": "flat",
+   "range": [
+    3,
+    8
+   ]
+  },
+  {
+   "id": "coin_find",
+   "slots": [
+    "gourd"
+   ],
+   "stat": "coin_find",
+   "op": "flat",
+   "range": [
+    0.03,
+    0.08
+   ]
+  }
+ ]
+}

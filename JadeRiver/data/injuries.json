@@ -1,0 +1,58 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "body",
+   "effects": [
+    {
+     "stat": "max_hp",
+     "op": "pct_add",
+     "per_severity": -0.08
+    },
+    {
+     "stat": "move_speed",
+     "op": "pct_add",
+     "per_severity": -0.05
+    }
+   ],
+   "treatments": [
+    "healing_pill",
+    "willow_salve"
+   ],
+   "icon": "injury_body"
+  },
+  {
+   "id": "meridian",
+   "effects": [
+    {
+     "stat": "qi_regen",
+     "op": "pct_add",
+     "per_severity": -0.25
+    },
+    {
+     "stat": "technique_cost",
+     "op": "flat",
+     "per_severity": -0.1
+    }
+   ],
+   "treatments": [
+    "qi_restoration_pill"
+   ],
+   "icon": "injury_meridian"
+  },
+  {
+   "id": "soul",
+   "effects": [
+    {
+     "stat": "max_soul",
+     "op": "pct_add",
+     "per_severity": -0.1
+    }
+   ],
+   "treatments": [
+    "soul_soothing_pill"
+   ],
+   "icon": "injury_soul"
+  }
+ ]
+}

@@ -5,6 +5,13 @@ run/main_scene="res://scenes/pixel_stage.tscn"
 config/icon="res://art/icon.png"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 [autoload]
+ContentDB="*res://scripts/core/content_db.gd"
+GameEvents="*res://scripts/core/game_events.gd"
+Clock="*res://scripts/core/clock_service.gd"
+Rng="*res://scripts/core/rng_service.gd"
+Unlocks="*res://scripts/core/unlock_service.gd"
+Saves="*res://scripts/core/save_service.gd"
+Game="*res://scripts/simulation/authority/game_authority.gd"
 Wardrobe="*res://scripts/wardrobe.gd"
 [display]
 window/size/viewport_width=1280

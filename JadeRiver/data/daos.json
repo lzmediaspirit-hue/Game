@@ -1,0 +1,575 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "fist",
+   "family": "weapon",
+   "valley_cap": 5,
+   "tiers": [
+    "+3% attack with the family",
+    "Linked techniques -10% QI",
+    "Linked techniques gain their tier-3 effect",
+    "+5% crit with the family; can teach it",
+    "Tier-5 forms of linked techniques"
+   ],
+   "effects": [
+    {
+     "attack_pct": 0.03
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "tier3": true
+    },
+    {
+     "crit": 0.05,
+     "teach": true
+    },
+    {
+     "tier5": true
+    }
+   ],
+   "name": "Fist Dao"
+  },
+  {
+   "id": "sword",
+   "family": "weapon",
+   "valley_cap": 5,
+   "tiers": [
+    "+3% attack with the family",
+    "Linked techniques -10% QI",
+    "Linked techniques gain their tier-3 effect",
+    "+5% crit with the family; can teach it",
+    "Tier-5 forms of linked techniques"
+   ],
+   "effects": [
+    {
+     "attack_pct": 0.03
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "tier3": true
+    },
+    {
+     "crit": 0.05,
+     "teach": true
+    },
+    {
+     "tier5": true
+    }
+   ],
+   "name": "Sword Dao"
+  },
+  {
+   "id": "spear",
+   "family": "weapon",
+   "valley_cap": 5,
+   "tiers": [
+    "+3% attack with the family",
+    "Linked techniques -10% QI",
+    "Linked techniques gain their tier-3 effect",
+    "+5% crit with the family; can teach it",
+    "Tier-5 forms of linked techniques"
+   ],
+   "effects": [
+    {
+     "attack_pct": 0.03
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "tier3": true
+    },
+    {
+     "crit": 0.05,
+     "teach": true
+    },
+    {
+     "tier5": true
+    }
+   ],
+   "name": "Spear Dao"
+  },
+  {
+   "id": "blade",
+   "family": "weapon",
+   "valley_cap": 5,
+   "tiers": [
+    "+3% attack with the family",
+    "Linked techniques -10% QI",
+    "Linked techniques gain their tier-3 effect",
+    "+5% crit with the family; can teach it",
+    "Tier-5 forms of linked techniques"
+   ],
+   "effects": [
+    {
+     "attack_pct": 0.03
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "tier3": true
+    },
+    {
+     "crit": 0.05,
+     "teach": true
+    },
+    {
+     "tier5": true
+    }
+   ],
+   "name": "Blade Dao"
+  },
+  {
+   "id": "staff",
+   "family": "weapon",
+   "valley_cap": 5,
+   "tiers": [
+    "+3% attack with the family",
+    "Linked techniques -10% QI",
+    "Linked techniques gain their tier-3 effect",
+    "+5% crit with the family; can teach it",
+    "Tier-5 forms of linked techniques"
+   ],
+   "effects": [
+    {
+     "attack_pct": 0.03
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "tier3": true
+    },
+    {
+     "crit": 0.05,
+     "teach": true
+    },
+    {
+     "tier5": true
+    }
+   ],
+   "name": "Staff Dao"
+  },
+  {
+   "id": "bow",
+   "family": "weapon",
+   "valley_cap": 5,
+   "tiers": [
+    "+3% attack with the family",
+    "Linked techniques -10% QI",
+    "Linked techniques gain their tier-3 effect",
+    "+5% crit with the family; can teach it",
+    "Tier-5 forms of linked techniques"
+   ],
+   "effects": [
+    {
+     "attack_pct": 0.03
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "tier3": true
+    },
+    {
+     "crit": 0.05,
+     "teach": true
+    },
+    {
+     "tier5": true
+    }
+   ],
+   "name": "Bow Dao"
+  },
+  {
+   "id": "water",
+   "family": "element",
+   "valley_cap": 5,
+   "tiers": [
+    "+5% elemental power",
+    "Element techniques -10% QI",
+    "+10% chance to apply the element's status",
+    "+5% resistance to the element; can teach it",
+    "Element techniques gain area or pierce"
+   ],
+   "effects": [
+    {
+     "elemental_power": 0.05
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "status_chance": 0.1
+    },
+    {
+     "resistance": 0.05,
+     "teach": true
+    },
+    {
+     "area": true
+    }
+   ],
+   "name": "Water Dao"
+  },
+  {
+   "id": "wood",
+   "family": "element",
+   "valley_cap": 5,
+   "tiers": [
+    "+5% elemental power",
+    "Element techniques -10% QI",
+    "+10% chance to apply the element's status",
+    "+5% resistance to the element; can teach it",
+    "Element techniques gain area or pierce"
+   ],
+   "effects": [
+    {
+     "elemental_power": 0.05
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "status_chance": 0.1
+    },
+    {
+     "resistance": 0.05,
+     "teach": true
+    },
+    {
+     "area": true
+    }
+   ],
+   "name": "Wood Dao"
+  },
+  {
+   "id": "earth",
+   "family": "element",
+   "valley_cap": 5,
+   "tiers": [
+    "+5% elemental power",
+    "Element techniques -10% QI",
+    "+10% chance to apply the element's status",
+    "+5% resistance to the element; can teach it",
+    "Element techniques gain area or pierce"
+   ],
+   "effects": [
+    {
+     "elemental_power": 0.05
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "status_chance": 0.1
+    },
+    {
+     "resistance": 0.05,
+     "teach": true
+    },
+    {
+     "area": true
+    }
+   ],
+   "name": "Earth Dao"
+  },
+  {
+   "id": "wind",
+   "family": "element",
+   "valley_cap": 5,
+   "tiers": [
+    "+5% elemental power",
+    "Element techniques -10% QI",
+    "+10% chance to apply the element's status",
+    "+5% resistance to the element; can teach it",
+    "Element techniques gain area or pierce"
+   ],
+   "effects": [
+    {
+     "elemental_power": 0.05
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "status_chance": 0.1
+    },
+    {
+     "resistance": 0.05,
+     "teach": true
+    },
+    {
+     "area": true
+    }
+   ],
+   "name": "Wind Dao"
+  },
+  {
+   "id": "fire",
+   "family": "element",
+   "valley_cap": 2,
+   "tiers": [
+    "+5% elemental power",
+    "Element techniques -10% QI",
+    "+10% chance to apply the element's status",
+    "+5% resistance to the element; can teach it",
+    "Element techniques gain area or pierce"
+   ],
+   "effects": [
+    {
+     "elemental_power": 0.05
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "status_chance": 0.1
+    },
+    {
+     "resistance": 0.05,
+     "teach": true
+    },
+    {
+     "area": true
+    }
+   ],
+   "name": "Fire Dao"
+  },
+  {
+   "id": "metal",
+   "family": "element",
+   "valley_cap": 2,
+   "tiers": [
+    "+5% elemental power",
+    "Element techniques -10% QI",
+    "+10% chance to apply the element's status",
+    "+5% resistance to the element; can teach it",
+    "Element techniques gain area or pierce"
+   ],
+   "effects": [
+    {
+     "elemental_power": 0.05
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "status_chance": 0.1
+    },
+    {
+     "resistance": 0.05,
+     "teach": true
+    },
+    {
+     "area": true
+    }
+   ],
+   "name": "Metal Dao"
+  },
+  {
+   "id": "thunder",
+   "family": "element",
+   "valley_cap": 2,
+   "tiers": [
+    "+5% elemental power",
+    "Element techniques -10% QI",
+    "+10% chance to apply the element's status",
+    "+5% resistance to the element; can teach it",
+    "Element techniques gain area or pierce"
+   ],
+   "effects": [
+    {
+     "elemental_power": 0.05
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "status_chance": 0.1
+    },
+    {
+     "resistance": 0.05,
+     "teach": true
+    },
+    {
+     "area": true
+    }
+   ],
+   "name": "Thunder Dao"
+  },
+  {
+   "id": "soul",
+   "family": "element",
+   "valley_cap": 3,
+   "tiers": [
+    "+5% elemental power",
+    "Element techniques -10% QI",
+    "+10% chance to apply the element's status",
+    "+5% resistance to the element; can teach it",
+    "Element techniques gain area or pierce"
+   ],
+   "effects": [
+    {
+     "elemental_power": 0.05
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "status_chance": 0.1
+    },
+    {
+     "resistance": 0.05,
+     "teach": true
+    },
+    {
+     "area": true
+    }
+   ],
+   "name": "Soul Dao"
+  },
+  {
+   "id": "alchemy",
+   "family": "craft",
+   "valley_cap": 5,
+   "tiers": [
+    "+5% quality chance",
+    "-10% ingredient loss on mistakes",
+    "Wider heat band",
+    "Can teach; +1 auto-refine queue slot",
+    "Substitute one ingredient per recipe"
+   ],
+   "effects": [
+    {
+     "quality": 0.05
+    },
+    {},
+    {
+     "band": 0.1
+    },
+    {
+     "queue": 1
+    },
+    {}
+   ],
+   "name": "Alchemy Dao"
+  },
+  {
+   "id": "formation",
+   "family": "craft",
+   "valley_cap": 5,
+   "tiers": [
+    "+10% formation duration",
+    "-10% fuel",
+    "+1 node",
+    "Can teach; faster placement",
+    "Formations take no damage for the first 10 s"
+   ],
+   "effects": [
+    {},
+    {},
+    {},
+    {},
+    {}
+   ],
+   "name": "Formation Dao"
+  },
+  {
+   "id": "refining",
+   "family": "craft",
+   "valley_cap": 2,
+   "tiers": [
+    "+5% quality or speed",
+    "-10% materials"
+   ],
+   "effects": [
+    {},
+    {}
+   ],
+   "name": "Refining Dao"
+  },
+  {
+   "id": "puppetry",
+   "family": "craft",
+   "valley_cap": 2,
+   "tiers": [
+    "+5% quality or speed",
+    "-10% materials"
+   ],
+   "effects": [
+    {},
+    {}
+   ],
+   "name": "Puppetry Dao"
+  },
+  {
+   "id": "beast_taming",
+   "family": "craft",
+   "valley_cap": 2,
+   "tiers": [
+    "+5% quality or speed",
+    "-10% materials"
+   ],
+   "effects": [
+    {},
+    {}
+   ],
+   "name": "Beast Taming Dao"
+  },
+  {
+   "id": "space",
+   "family": "rare",
+   "valley_cap": 0,
+   "tiers": [],
+   "effects": [],
+   "name": "Space Dao"
+  },
+  {
+   "id": "time",
+   "family": "rare",
+   "valley_cap": 0,
+   "tiers": [],
+   "effects": [],
+   "name": "Time Dao"
+  },
+  {
+   "id": "life_death",
+   "family": "rare",
+   "valley_cap": 0,
+   "tiers": [],
+   "effects": [],
+   "name": "Life Death Dao"
+  },
+  {
+   "id": "blood",
+   "family": "rare",
+   "valley_cap": 0,
+   "tiers": [],
+   "effects": [],
+   "name": "Blood Dao"
+  },
+  {
+   "id": "karma",
+   "family": "rare",
+   "valley_cap": 0,
+   "tiers": [],
+   "effects": [],
+   "name": "Karma Dao"
+  },
+  {
+   "id": "emotion",
+   "family": "rare",
+   "valley_cap": 0,
+   "tiers": [],
+   "effects": [],
+   "name": "Emotion Dao"
+  }
+ ]
+}

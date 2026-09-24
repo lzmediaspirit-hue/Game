@@ -1,0 +1,93 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "energy_instability",
+   "cause": "energy",
+   "loss": [
+    0.1,
+    0.3
+   ],
+   "injury": {
+    "kind": "meridian",
+    "severity": 1
+   },
+   "recovery": "Rest, restoration pill"
+  },
+  {
+   "id": "weak_foundation",
+   "cause": "structure",
+   "loss": [
+    0.2,
+    0.4
+   ],
+   "stability": "unstable",
+   "recovery": "Consolidate first"
+  },
+  {
+   "id": "insufficient_comprehension",
+   "cause": "understanding",
+   "loss": [
+    0.1,
+    0.1
+   ],
+   "cooldown_s": 300,
+   "recovery": "Dao practice, trial"
+  },
+  {
+   "id": "bodily_failure",
+   "cause": "structure_body",
+   "loss": [
+    0.0,
+    0.0
+   ],
+   "injury": {
+    "kind": "body",
+    "severity": 2
+   },
+   "recovery": "Healing pill, rest"
+  },
+  {
+   "id": "soul_injury",
+   "cause": "soul",
+   "loss": [
+    0.0,
+    0.0
+   ],
+   "injury": {
+    "kind": "soul",
+    "severity": 2
+   },
+   "recovery": "Soul nourishment",
+   "from_realm": "spirit_awakening_1"
+  },
+  {
+   "id": "resource_mismatch",
+   "cause": "material",
+   "loss": [
+    0.0,
+    0.0
+   ],
+   "injury": {
+    "kind": "meridian",
+    "severity": 1
+   },
+   "item_lost": true,
+   "recovery": "Correct material"
+  },
+  {
+   "id": "interruption",
+   "cause": "interruption",
+   "loss": [
+    0.0,
+    0.0
+   ],
+   "injury": {
+    "kind": "body",
+    "severity": 1
+   },
+   "items_lost": true,
+   "recovery": "Retreat room, guard formation"
+  }
+ ]
+}

@@ -1,0 +1,1197 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "training_gauntlets",
+   "name": "Training Gauntlets",
+   "slot": "weapon",
+   "grade": "plain",
+   "ilv": 5,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "training_gauntlets",
+   "type": "equipment",
+   "stack": 1,
+   "family": "gauntlets",
+   "requires": {
+    "all": [
+     {
+      "kind": "level_at_least",
+      "level": 3,
+      "hard": true
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_weapon_hall",
+      "hard": true
+     }
+    ]
+   },
+   "source": [
+    "weapon_hall"
+   ]
+  },
+  {
+   "id": "training_jian",
+   "name": "Training Jian",
+   "slot": "weapon",
+   "grade": "plain",
+   "ilv": 5,
+   "appearance": "sword",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "training_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian",
+   "requires": {
+    "all": [
+     {
+      "kind": "level_at_least",
+      "level": 3,
+      "hard": true
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_weapon_hall",
+      "hard": true
+     }
+    ]
+   },
+   "source": [
+    "weapon_hall"
+   ]
+  },
+  {
+   "id": "training_spear",
+   "name": "Training Spear",
+   "slot": "weapon",
+   "grade": "plain",
+   "ilv": 5,
+   "appearance": "spear",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "training_spear",
+   "type": "equipment",
+   "stack": 1,
+   "family": "spear",
+   "requires": {
+    "all": [
+     {
+      "kind": "level_at_least",
+      "level": 3,
+      "hard": true
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_weapon_hall",
+      "hard": true
+     }
+    ]
+   },
+   "source": [
+    "weapon_hall"
+   ]
+  },
+  {
+   "id": "training_short_blade",
+   "name": "Training Short Blade",
+   "slot": "weapon",
+   "grade": "plain",
+   "ilv": 5,
+   "appearance": "dagger",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "training_short_blade",
+   "type": "equipment",
+   "stack": 1,
+   "family": "short_blade",
+   "requires": {
+    "all": [
+     {
+      "kind": "level_at_least",
+      "level": 3,
+      "hard": true
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_weapon_hall",
+      "hard": true
+     }
+    ]
+   },
+   "source": [
+    "weapon_hall"
+   ]
+  },
+  {
+   "id": "training_staff",
+   "name": "Training Staff",
+   "slot": "weapon",
+   "grade": "plain",
+   "ilv": 5,
+   "appearance": "staff",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "training_staff",
+   "type": "equipment",
+   "stack": 1,
+   "family": "staff",
+   "requires": {
+    "all": [
+     {
+      "kind": "level_at_least",
+      "level": 3,
+      "hard": true
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_weapon_hall",
+      "hard": true
+     }
+    ]
+   },
+   "source": [
+    "weapon_hall"
+   ],
+   "attribute_req": {
+    "body": 8
+   }
+  },
+  {
+   "id": "training_bow",
+   "name": "Training Bow",
+   "slot": "weapon",
+   "grade": "plain",
+   "ilv": 5,
+   "appearance": "bow",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "training_bow",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bow",
+   "requires": {
+    "all": [
+     {
+      "kind": "level_at_least",
+      "level": 3,
+      "hard": true
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_weapon_hall",
+      "hard": true
+     }
+    ]
+   },
+   "source": [
+    "weapon_hall"
+   ],
+   "attribute_req": {
+    "agility": 8
+   }
+  },
+  {
+   "id": "iron_gauntlets",
+   "name": "Iron Gauntlets",
+   "slot": "weapon",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "none",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "iron_gauntlets",
+   "type": "equipment",
+   "stack": 1,
+   "family": "gauntlets"
+  },
+  {
+   "id": "iron_jian",
+   "name": "Iron Jian",
+   "slot": "weapon",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "sword",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "iron_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian"
+  },
+  {
+   "id": "iron_spear",
+   "name": "Iron Spear",
+   "slot": "weapon",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "spear",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "iron_spear",
+   "type": "equipment",
+   "stack": 1,
+   "family": "spear"
+  },
+  {
+   "id": "iron_short_blade",
+   "name": "Iron Short Blade",
+   "slot": "weapon",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "dagger",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "iron_short_blade",
+   "type": "equipment",
+   "stack": 1,
+   "family": "short_blade"
+  },
+  {
+   "id": "iron_staff",
+   "name": "Iron Staff",
+   "slot": "weapon",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "staff",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "iron_staff",
+   "type": "equipment",
+   "stack": 1,
+   "family": "staff",
+   "attribute_req": {
+    "body": 18
+   }
+  },
+  {
+   "id": "iron_bow",
+   "name": "Iron Bow",
+   "slot": "weapon",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "bow",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "iron_bow",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bow",
+   "attribute_req": {
+    "agility": 18
+   }
+  },
+  {
+   "id": "jadeiron_gauntlets",
+   "name": "Jadeiron Gauntlets",
+   "slot": "weapon",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "none",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_gauntlets",
+   "type": "equipment",
+   "stack": 1,
+   "family": "gauntlets"
+  },
+  {
+   "id": "jadeiron_jian",
+   "name": "Jadeiron Jian",
+   "slot": "weapon",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "sword",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian"
+  },
+  {
+   "id": "jadeiron_spear",
+   "name": "Jadeiron Spear",
+   "slot": "weapon",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "spear",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_spear",
+   "type": "equipment",
+   "stack": 1,
+   "family": "spear"
+  },
+  {
+   "id": "jadeiron_short_blade",
+   "name": "Jadeiron Short Blade",
+   "slot": "weapon",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "dagger",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_short_blade",
+   "type": "equipment",
+   "stack": 1,
+   "family": "short_blade"
+  },
+  {
+   "id": "jadeiron_staff",
+   "name": "Jadeiron Staff",
+   "slot": "weapon",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "staff",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_staff",
+   "type": "equipment",
+   "stack": 1,
+   "family": "staff",
+   "attribute_req": {
+    "body": 30
+   }
+  },
+  {
+   "id": "jadeiron_bow",
+   "name": "Jadeiron Bow",
+   "slot": "weapon",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "bow",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_bow",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bow",
+   "attribute_req": {
+    "agility": 30
+   }
+  },
+  {
+   "id": "cloudsteel_gauntlets",
+   "name": "Cloudsteel Gauntlets",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "none",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_gauntlets",
+   "type": "equipment",
+   "stack": 1,
+   "family": "gauntlets"
+  },
+  {
+   "id": "cloudsteel_jian",
+   "name": "Cloudsteel Jian",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "sword",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian"
+  },
+  {
+   "id": "cloudsteel_spear",
+   "name": "Cloudsteel Spear",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "spear",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_spear",
+   "type": "equipment",
+   "stack": 1,
+   "family": "spear"
+  },
+  {
+   "id": "cloudsteel_short_blade",
+   "name": "Cloudsteel Short Blade",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "dagger",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_short_blade",
+   "type": "equipment",
+   "stack": 1,
+   "family": "short_blade"
+  },
+  {
+   "id": "cloudsteel_staff",
+   "name": "Cloudsteel Staff",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "staff",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_staff",
+   "type": "equipment",
+   "stack": 1,
+   "family": "staff",
+   "attribute_req": {
+    "body": 50
+   }
+  },
+  {
+   "id": "cloudsteel_bow",
+   "name": "Cloudsteel Bow",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "bow",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_bow",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bow",
+   "attribute_req": {
+    "agility": 50
+   }
+  },
+  {
+   "id": "mistjade_gauntlets",
+   "name": "Mistjade Gauntlets",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "none",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_gauntlets",
+   "type": "equipment",
+   "stack": 1,
+   "family": "gauntlets"
+  },
+  {
+   "id": "mistjade_jian",
+   "name": "Mistjade Jian",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "sword",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian"
+  },
+  {
+   "id": "mistjade_spear",
+   "name": "Mistjade Spear",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "spear",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_spear",
+   "type": "equipment",
+   "stack": 1,
+   "family": "spear"
+  },
+  {
+   "id": "mistjade_short_blade",
+   "name": "Mistjade Short Blade",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "dagger",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_short_blade",
+   "type": "equipment",
+   "stack": 1,
+   "family": "short_blade"
+  },
+  {
+   "id": "mistjade_staff",
+   "name": "Mistjade Staff",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "staff",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_staff",
+   "type": "equipment",
+   "stack": 1,
+   "family": "staff",
+   "attribute_req": {
+    "body": 65
+   }
+  },
+  {
+   "id": "mistjade_bow",
+   "name": "Mistjade Bow",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "bow",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_bow",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bow",
+   "attribute_req": {
+    "agility": 65
+   }
+  },
+  {
+   "id": "plain_straw_hat",
+   "name": "Plain Straw Hat",
+   "slot": "hat",
+   "grade": "plain",
+   "ilv": 1,
+   "appearance": "straw",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "plain_straw_hat",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "hemp_robe",
+   "name": "Hemp Robe",
+   "slot": "robe",
+   "grade": "plain",
+   "ilv": 5,
+   "appearance": "sleeveless",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "hemp_robe",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "hemp_trousers",
+   "name": "Hemp Trousers",
+   "slot": "trousers",
+   "grade": "plain",
+   "ilv": 5,
+   "appearance": "loose",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "hemp_trousers",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "straw_sandals",
+   "name": "Straw Sandals",
+   "slot": "boots",
+   "grade": "plain",
+   "ilv": 5,
+   "appearance": "slippers",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "straw_sandals",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "bamboo_hat",
+   "name": "Bamboo Hat",
+   "slot": "hat",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "straw",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "bamboo_hat",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "cotton_robe",
+   "name": "Cotton Robe",
+   "slot": "robe",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "disciple",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "cotton_robe",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "cotton_trousers",
+   "name": "Cotton Trousers",
+   "slot": "trousers",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "straight",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "cotton_trousers",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "cloth_boots",
+   "name": "Cloth Boots",
+   "slot": "boots",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "boots",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "cloth_boots",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "jadeiron_hat",
+   "name": "Jadeiron Circlet",
+   "slot": "hat",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "headband",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_hat",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "jadeiron_robe",
+   "name": "Jadeiron-Trimmed Robe",
+   "slot": "robe",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "cardigan",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_robe",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "jadeiron_trousers",
+   "name": "Jadeiron-Trimmed Trousers",
+   "slot": "trousers",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "martial",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_trousers",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "jadeiron_boots",
+   "name": "Jadeiron Greaves",
+   "slot": "boots",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "folded",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_boots",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "cloudsilk_hat",
+   "name": "Cloudsilk Band",
+   "slot": "hat",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "tied",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsilk_hat",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "cloudsilk_robe",
+   "name": "Cloudsilk Robe",
+   "slot": "robe",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "vneck",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsilk_robe",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "cloudsilk_trousers",
+   "name": "Cloudsilk Trousers",
+   "slot": "trousers",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "cuffed",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsilk_trousers",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "cloudsilk_boots",
+   "name": "Cloudsilk Boots",
+   "slot": "boots",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "boots",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsilk_boots",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "mistjade_hat",
+   "name": "Mistjade Circlet",
+   "slot": "hat",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "headband",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_hat",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "mistjade_robe",
+   "name": "Mistjade Robe",
+   "slot": "robe",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "scholar",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_robe",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "mistjade_trousers",
+   "name": "Mistjade Trousers",
+   "slot": "trousers",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "scholar",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_trousers",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "mistjade_boots",
+   "name": "Mistjade Boots",
+   "slot": "boots",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "folded",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_boots",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "starter_gourd",
+   "name": "Starter Spirit Gourd",
+   "slot": "gourd",
+   "grade": "plain",
+   "ilv": 1,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "starter_gourd",
+   "type": "equipment",
+   "stack": 1,
+   "gourd": {
+    "bag": 25,
+    "quick": 5
+   }
+  },
+  {
+   "id": "bamboo_gourd",
+   "name": "Bamboo Gourd",
+   "slot": "gourd",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "none",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "bamboo_gourd",
+   "type": "equipment",
+   "stack": 1,
+   "gourd": {
+    "bag": 30,
+    "quick": 8
+   }
+  },
+  {
+   "id": "jadeiron_gourd",
+   "name": "Jadeiron Gourd",
+   "slot": "gourd",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "none",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_gourd",
+   "type": "equipment",
+   "stack": 1,
+   "gourd": {
+    "bag": 35,
+    "quick": 10
+   }
+  },
+  {
+   "id": "cloud_gourd",
+   "name": "Cloud Gourd",
+   "slot": "gourd",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "none",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloud_gourd",
+   "type": "equipment",
+   "stack": 1,
+   "gourd": {
+    "bag": 40,
+    "quick": 12
+   }
+  },
+  {
+   "id": "mistjade_gourd",
+   "name": "Mistjade Gourd",
+   "slot": "gourd",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "none",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_gourd",
+   "type": "equipment",
+   "stack": 1,
+   "gourd": {
+    "bag": 45,
+    "quick": 15
+   }
+  },
+  {
+   "id": "mistjade_cape",
+   "name": "Mistjade Cape",
+   "slot": "cape",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "solid",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_cape",
+   "type": "equipment",
+   "stack": 1,
+   "resist": [
+    "water",
+    "wind"
+   ]
+  },
+  {
+   "id": "cloud_talisman",
+   "name": "Cloud Talisman",
+   "slot": "talisman",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "none",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloud_talisman",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "jade_current_hat",
+   "name": "Jade Current Hat",
+   "slot": "hat",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "headband",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_hat",
+   "type": "equipment",
+   "stack": 1,
+   "set": "jade_current",
+   "source": [
+    "sect_shop"
+   ]
+  },
+  {
+   "id": "jade_current_robe",
+   "name": "Jade Current Robe",
+   "slot": "robe",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "cardigan",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_robe",
+   "type": "equipment",
+   "stack": 1,
+   "set": "jade_current",
+   "source": [
+    "sect_shop"
+   ]
+  },
+  {
+   "id": "jade_current_trousers",
+   "name": "Jade Current Trousers",
+   "slot": "trousers",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "martial",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_trousers",
+   "type": "equipment",
+   "stack": 1,
+   "set": "jade_current",
+   "source": [
+    "sect_shop"
+   ]
+  },
+  {
+   "id": "jade_current_boots",
+   "name": "Jade Current Boots",
+   "slot": "boots",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "folded",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_boots",
+   "type": "equipment",
+   "stack": 1,
+   "set": "jade_current",
+   "source": [
+    "sect_shop"
+   ]
+  },
+  {
+   "id": "cloudpiercing_hat",
+   "name": "Cloudpiercing Hat",
+   "slot": "hat",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "tied",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_hat",
+   "type": "equipment",
+   "stack": 1,
+   "set": "cloudpiercing",
+   "source": [
+    "sect_shop"
+   ]
+  },
+  {
+   "id": "cloudpiercing_robe",
+   "name": "Cloudpiercing Robe",
+   "slot": "robe",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "vneck",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_robe",
+   "type": "equipment",
+   "stack": 1,
+   "set": "cloudpiercing",
+   "source": [
+    "sect_shop"
+   ]
+  },
+  {
+   "id": "cloudpiercing_trousers",
+   "name": "Cloudpiercing Trousers",
+   "slot": "trousers",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "cuffed",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_trousers",
+   "type": "equipment",
+   "stack": 1,
+   "set": "cloudpiercing",
+   "source": [
+    "sect_shop"
+   ]
+  },
+  {
+   "id": "cloudpiercing_boots",
+   "name": "Cloudpiercing Boots",
+   "slot": "boots",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "boots",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_boots",
+   "type": "equipment",
+   "stack": 1,
+   "set": "cloudpiercing",
+   "source": [
+    "sect_shop"
+   ]
+  },
+  {
+   "id": "mudwater_cleaver",
+   "name": "Mudwater Cleaver",
+   "slot": "weapon",
+   "grade": "common",
+   "ilv": 18,
+   "appearance": "sword",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "iron_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian",
+   "set": "mudwater"
+  },
+  {
+   "id": "mudwater_robe",
+   "name": "Mudwater Robe",
+   "slot": "robe",
+   "grade": "common",
+   "ilv": 18,
+   "appearance": "sleeveless",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "cotton_robe",
+   "type": "equipment",
+   "stack": 1,
+   "set": "mudwater"
+  },
+  {
+   "id": "drowned_hat",
+   "name": "Drowned Abbot Hat",
+   "slot": "hat",
+   "grade": "earth",
+   "ilv": 30,
+   "appearance": "tied",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_hat",
+   "type": "equipment",
+   "stack": 1,
+   "set": "drowned_abbot"
+  },
+  {
+   "id": "drowned_robe",
+   "name": "Drowned Abbot Robe",
+   "slot": "robe",
+   "grade": "earth",
+   "ilv": 30,
+   "appearance": "scholar",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_robe",
+   "type": "equipment",
+   "stack": 1,
+   "set": "drowned_abbot"
+  },
+  {
+   "id": "drowned_boots",
+   "name": "Drowned Abbot Boots",
+   "slot": "boots",
+   "grade": "earth",
+   "ilv": 30,
+   "appearance": "slippers",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_boots",
+   "type": "equipment",
+   "stack": 1,
+   "set": "drowned_abbot"
+  },
+  {
+   "id": "crane_robe",
+   "name": "Crane Robe",
+   "slot": "robe",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "vneck",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsilk_robe",
+   "type": "equipment",
+   "stack": 1,
+   "set": "crane"
+  },
+  {
+   "id": "crane_trousers",
+   "name": "Crane Trousers",
+   "slot": "trousers",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "cuffed",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsilk_trousers",
+   "type": "equipment",
+   "stack": 1,
+   "set": "crane"
+  },
+  {
+   "id": "crane_boots",
+   "name": "Crane Boots",
+   "slot": "boots",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "boots",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsilk_boots",
+   "type": "equipment",
+   "stack": 1,
+   "set": "crane"
+  },
+  {
+   "id": "sleeping_blade",
+   "name": "The Sleeping Blade",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 52,
+   "appearance": "sword",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian",
+   "relic": true,
+   "unique": "Awake spirit: +10% crit damage"
+  }
+ ]
+}

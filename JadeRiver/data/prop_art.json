@@ -1,0 +1,1584 @@
+{
+  "alchemy_furnace": {
+    "anchor": [
+      32,
+      76
+    ],
+    "file": "res://art/props/alchemy_furnace.png",
+    "frame": [
+      64,
+      80
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      },
+      "lit": {
+        "col": 1,
+        "fps": 6,
+        "frames": 4
+      }
+    }
+  },
+  "banner_cloud": {
+    "anchor": [
+      24,
+      124
+    ],
+    "file": "res://art/props/banner_cloud.png",
+    "frame": [
+      48,
+      128
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "banner_jade": {
+    "anchor": [
+      24,
+      124
+    ],
+    "file": "res://art/props/banner_jade.png",
+    "frame": [
+      48,
+      128
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "beast_nest": {
+    "anchor": [
+      40,
+      36
+    ],
+    "file": "res://art/props/beast_nest.png",
+    "frame": [
+      80,
+      40
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "bed": {
+    "anchor": [
+      48,
+      44
+    ],
+    "file": "res://art/props/bed.png",
+    "frame": [
+      96,
+      48
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "chest": {
+    "anchor": [
+      26,
+      36
+    ],
+    "file": "res://art/props/chest.png",
+    "frame": [
+      52,
+      40
+    ],
+    "states": {
+      "closed": {
+        "col": 0,
+        "frames": 1
+      },
+      "open": {
+        "col": 1,
+        "frames": 1
+      }
+    }
+  },
+  "cloudsteel_vein": {
+    "anchor": [
+      36,
+      52
+    ],
+    "file": "res://art/props/cloudsteel_vein.png",
+    "frame": [
+      72,
+      56
+    ],
+    "states": {
+      "cracked": {
+        "col": 1,
+        "frames": 1
+      },
+      "depleted": {
+        "col": 2,
+        "frames": 1
+      },
+      "full": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "cloudtop_orchid_patch": {
+    "anchor": [
+      24,
+      40
+    ],
+    "file": "res://art/props/cloudtop_orchid_patch.png",
+    "frame": [
+      48,
+      44
+    ],
+    "states": {
+      "depleted": {
+        "col": 3,
+        "frames": 1
+      },
+      "ready": {
+        "col": 0,
+        "fps": 5,
+        "frames": 3
+      }
+    }
+  },
+  "cooking_pot": {
+    "anchor": [
+      28,
+      48
+    ],
+    "file": "res://art/props/cooking_pot.png",
+    "frame": [
+      56,
+      52
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      },
+      "steam": {
+        "col": 1,
+        "fps": 6,
+        "frames": 4
+      }
+    }
+  },
+  "copper_vein": {
+    "anchor": [
+      36,
+      52
+    ],
+    "file": "res://art/props/copper_vein.png",
+    "frame": [
+      72,
+      56
+    ],
+    "states": {
+      "cracked": {
+        "col": 1,
+        "frames": 1
+      },
+      "depleted": {
+        "col": 2,
+        "frames": 1
+      },
+      "full": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "counter": {
+    "anchor": [
+      64,
+      60
+    ],
+    "file": "res://art/props/counter.png",
+    "frame": [
+      128,
+      64
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "crate": {
+    "anchor": [
+      22,
+      36
+    ],
+    "file": "res://art/props/crate.png",
+    "frame": [
+      44,
+      40
+    ],
+    "states": {
+      "broken": {
+        "col": 1,
+        "frames": 1
+      },
+      "intact": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "door": {
+    "anchor": [
+      40,
+      124
+    ],
+    "file": "res://art/props/door.png",
+    "frame": [
+      80,
+      128
+    ],
+    "states": {
+      "closed": {
+        "col": 0,
+        "frames": 1
+      },
+      "open": {
+        "col": 1,
+        "frames": 1
+      }
+    }
+  },
+  "driftwood": {
+    "anchor": [
+      48,
+      24
+    ],
+    "file": "res://art/props/driftwood.png",
+    "frame": [
+      96,
+      28
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "ember_pepper_bush": {
+    "anchor": [
+      28,
+      44
+    ],
+    "file": "res://art/props/ember_pepper_bush.png",
+    "frame": [
+      56,
+      48
+    ],
+    "states": {
+      "depleted": {
+        "col": 3,
+        "frames": 1
+      },
+      "ready": {
+        "col": 0,
+        "fps": 5,
+        "frames": 3
+      }
+    }
+  },
+  "fishing_net_rack": {
+    "anchor": [
+      48,
+      76
+    ],
+    "file": "res://art/props/fishing_net_rack.png",
+    "frame": [
+      96,
+      80
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "fishing_ripple": {
+    "anchor": [
+      40,
+      20
+    ],
+    "decal": true,
+    "file": "res://art/props/fishing_ripple.png",
+    "frame": [
+      80,
+      20
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 6,
+        "frames": 4
+      }
+    }
+  },
+  "floor_earth": {
+    "anchor": [
+      0,
+      0
+    ],
+    "file": "res://art/tiles/floor_earth.png",
+    "frame": [
+      256,
+      128
+    ],
+    "repeat": "xy",
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    },
+    "tile": true
+  },
+  "floor_stone": {
+    "anchor": [
+      0,
+      0
+    ],
+    "file": "res://art/tiles/floor_stone.png",
+    "frame": [
+      256,
+      128
+    ],
+    "repeat": "xy",
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    },
+    "tile": true
+  },
+  "floor_wood": {
+    "anchor": [
+      0,
+      0
+    ],
+    "file": "res://art/tiles/floor_wood.png",
+    "frame": [
+      256,
+      128
+    ],
+    "repeat": "xy",
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    },
+    "tile": true
+  },
+  "forge_anvil": {
+    "anchor": [
+      40,
+      60
+    ],
+    "file": "res://art/props/forge_anvil.png",
+    "frame": [
+      80,
+      64
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      },
+      "sparks": {
+        "col": 1,
+        "fps": 8,
+        "frames": 4
+      }
+    }
+  },
+  "formation_node": {
+    "anchor": [
+      16,
+      44
+    ],
+    "file": "res://art/props/formation_node.png",
+    "frame": [
+      32,
+      48
+    ],
+    "states": {
+      "active": {
+        "col": 1,
+        "fps": 6,
+        "frames": 3
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "grey_patch": {
+    "anchor": [
+      40,
+      20
+    ],
+    "decal": true,
+    "file": "res://art/props/grey_patch.png",
+    "frame": [
+      80,
+      20
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "hanging_lantern": {
+    "anchor": [
+      12,
+      0
+    ],
+    "file": "res://art/tiles/hanging_lantern.png",
+    "frame": [
+      24,
+      48
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    },
+    "tile": true
+  },
+  "herb_drawers": {
+    "anchor": [
+      48,
+      92
+    ],
+    "file": "res://art/props/herb_drawers.png",
+    "frame": [
+      96,
+      96
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "herb_hut": {
+    "anchor": [
+      170,
+      236
+    ],
+    "building": true,
+    "file": "res://art/props/herb_hut.png",
+    "frame": [
+      340,
+      240
+    ],
+    "roof_split": 0.467,
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "hollow_puddle": {
+    "anchor": [
+      48,
+      22
+    ],
+    "decal": true,
+    "file": "res://art/props/hollow_puddle.png",
+    "frame": [
+      96,
+      24
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 5,
+        "frames": 3
+      }
+    }
+  },
+  "incense_burner": {
+    "anchor": [
+      20,
+      44
+    ],
+    "file": "res://art/props/incense_burner.png",
+    "frame": [
+      40,
+      48
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 4,
+        "frames": 2
+      }
+    }
+  },
+  "insight_stone": {
+    "anchor": [
+      36,
+      84
+    ],
+    "file": "res://art/props/insight_stone.png",
+    "frame": [
+      72,
+      88
+    ],
+    "states": {
+      "glow": {
+        "col": 1,
+        "fps": 6,
+        "frames": 4
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "jadeiron_vein": {
+    "anchor": [
+      36,
+      52
+    ],
+    "file": "res://art/props/jadeiron_vein.png",
+    "frame": [
+      72,
+      56
+    ],
+    "states": {
+      "cracked": {
+        "col": 1,
+        "frames": 1
+      },
+      "depleted": {
+        "col": 2,
+        "frames": 1
+      },
+      "full": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "jar": {
+    "anchor": [
+      16,
+      36
+    ],
+    "file": "res://art/props/jar.png",
+    "frame": [
+      32,
+      40
+    ],
+    "states": {
+      "broken": {
+        "col": 1,
+        "frames": 1
+      },
+      "intact": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "ladder": {
+    "anchor": [
+      24,
+      64
+    ],
+    "file": "res://art/props/ladder.png",
+    "frame": [
+      48,
+      64
+    ],
+    "repeat": "y",
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    },
+    "tile": true
+  },
+  "lantern_post": {
+    "anchor": [
+      16,
+      108
+    ],
+    "file": "res://art/props/lantern_post.png",
+    "frame": [
+      32,
+      112
+    ],
+    "states": {
+      "lit": {
+        "col": 0,
+        "fps": 4,
+        "frames": 2
+      }
+    }
+  },
+  "lifting_stone": {
+    "anchor": [
+      28,
+      36
+    ],
+    "file": "res://art/props/lifting_stone.png",
+    "frame": [
+      56,
+      40
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "lotus_pads": {
+    "anchor": [
+      48,
+      16
+    ],
+    "file": "res://art/props/lotus_pads.png",
+    "frame": [
+      96,
+      20
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "lu_boat": {
+    "anchor": [
+      160,
+      86
+    ],
+    "file": "res://art/props/lu_boat.png",
+    "frame": [
+      320,
+      96
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "market_stall": {
+    "anchor": [
+      96,
+      140
+    ],
+    "file": "res://art/props/market_stall.png",
+    "frame": [
+      192,
+      144
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "meditation_mat": {
+    "anchor": [
+      32,
+      14
+    ],
+    "file": "res://art/props/meditation_mat.png",
+    "frame": [
+      64,
+      16
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "mist_lotus_patch": {
+    "anchor": [
+      32,
+      18
+    ],
+    "file": "res://art/props/mist_lotus_patch.png",
+    "frame": [
+      64,
+      24
+    ],
+    "states": {
+      "depleted": {
+        "col": 3,
+        "frames": 1
+      },
+      "ready": {
+        "col": 0,
+        "fps": 5,
+        "frames": 3
+      }
+    }
+  },
+  "mystic_vein": {
+    "anchor": [
+      36,
+      52
+    ],
+    "file": "res://art/props/mystic_vein.png",
+    "frame": [
+      72,
+      56
+    ],
+    "states": {
+      "cracked": {
+        "col": 1,
+        "frames": 1
+      },
+      "depleted": {
+        "col": 2,
+        "frames": 1
+      },
+      "full": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "notice_board": {
+    "anchor": [
+      40,
+      84
+    ],
+    "file": "res://art/props/notice_board.png",
+    "frame": [
+      80,
+      88
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "portal_swirl": {
+    "anchor": [
+      48,
+      140
+    ],
+    "file": "res://art/props/portal_swirl.png",
+    "frame": [
+      96,
+      144
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 10,
+        "frames": 6
+      }
+    }
+  },
+  "qi_spring": {
+    "anchor": [
+      64,
+      44
+    ],
+    "file": "res://art/props/qi_spring.png",
+    "frame": [
+      128,
+      48
+    ],
+    "states": {
+      "active": {
+        "col": 1,
+        "fps": 6,
+        "frames": 4
+      },
+      "dormant": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "recruiter_tent_cloud": {
+    "anchor": [
+      96,
+      156
+    ],
+    "file": "res://art/props/recruiter_tent_cloud.png",
+    "frame": [
+      192,
+      160
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "recruiter_tent_jade": {
+    "anchor": [
+      96,
+      156
+    ],
+    "file": "res://art/props/recruiter_tent_jade.png",
+    "frame": [
+      192,
+      160
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "reeds": {
+    "anchor": [
+      32,
+      76
+    ],
+    "file": "res://art/props/reeds.png",
+    "frame": [
+      64,
+      80
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "rite_circle": {
+    "anchor": [
+      128,
+      64
+    ],
+    "decal": true,
+    "file": "res://art/props/rite_circle.png",
+    "frame": [
+      256,
+      64
+    ],
+    "states": {
+      "active": {
+        "col": 1,
+        "fps": 6,
+        "frames": 4
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "riverreed_ginseng_patch": {
+    "anchor": [
+      24,
+      36
+    ],
+    "file": "res://art/props/riverreed_ginseng_patch.png",
+    "frame": [
+      48,
+      40
+    ],
+    "states": {
+      "depleted": {
+        "col": 3,
+        "frames": 1
+      },
+      "ready": {
+        "col": 0,
+        "fps": 5,
+        "frames": 3
+      }
+    }
+  },
+  "riverstone_vein": {
+    "anchor": [
+      36,
+      52
+    ],
+    "file": "res://art/props/riverstone_vein.png",
+    "frame": [
+      72,
+      56
+    ],
+    "states": {
+      "cracked": {
+        "col": 1,
+        "frames": 1
+      },
+      "depleted": {
+        "col": 2,
+        "frames": 1
+      },
+      "full": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "rope": {
+    "anchor": [
+      8,
+      64
+    ],
+    "file": "res://art/props/rope.png",
+    "frame": [
+      16,
+      64
+    ],
+    "repeat": "y",
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    },
+    "tile": true
+  },
+  "sealed_gate": {
+    "anchor": [
+      48,
+      140
+    ],
+    "file": "res://art/props/sealed_gate.png",
+    "frame": [
+      96,
+      144
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "shallow_water": {
+    "anchor": [
+      0,
+      0
+    ],
+    "file": "res://art/tiles/shallow_water.png",
+    "frame": [
+      256,
+      128
+    ],
+    "repeat": "xy",
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 5,
+        "frames": 4
+      }
+    },
+    "tile": true
+  },
+  "shelf": {
+    "anchor": [
+      48,
+      92
+    ],
+    "file": "res://art/props/shelf.png",
+    "frame": [
+      96,
+      96
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "shrine": {
+    "anchor": [
+      40,
+      108
+    ],
+    "file": "res://art/props/shrine.png",
+    "frame": [
+      80,
+      112
+    ],
+    "states": {
+      "active": {
+        "col": 1,
+        "fps": 6,
+        "frames": 4
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "signpost": {
+    "anchor": [
+      20,
+      68
+    ],
+    "file": "res://art/props/signpost.png",
+    "frame": [
+      40,
+      72
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "small_bell": {
+    "anchor": [
+      12,
+      28
+    ],
+    "file": "res://art/props/small_bell.png",
+    "frame": [
+      24,
+      32
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      },
+      "ringing": {
+        "col": 1,
+        "fps": 8,
+        "frames": 2
+      }
+    }
+  },
+  "soulbell_flower_patch": {
+    "anchor": [
+      24,
+      40
+    ],
+    "file": "res://art/props/soulbell_flower_patch.png",
+    "frame": [
+      48,
+      44
+    ],
+    "states": {
+      "depleted": {
+        "col": 3,
+        "frames": 1
+      },
+      "ready": {
+        "col": 0,
+        "fps": 5,
+        "frames": 3
+      }
+    }
+  },
+  "spirit_shard_vein": {
+    "anchor": [
+      36,
+      52
+    ],
+    "file": "res://art/props/spirit_shard_vein.png",
+    "frame": [
+      72,
+      56
+    ],
+    "states": {
+      "cracked": {
+        "col": 1,
+        "frames": 1
+      },
+      "depleted": {
+        "col": 2,
+        "frames": 1
+      },
+      "full": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "stilt_house": {
+    "anchor": [
+      190,
+      276
+    ],
+    "building": true,
+    "file": "res://art/props/stilt_house.png",
+    "frame": [
+      380,
+      300
+    ],
+    "roof_split": 0.347,
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "stockade_wall": {
+    "anchor": [
+      160,
+      156
+    ],
+    "building": true,
+    "file": "res://art/props/stockade_wall.png",
+    "frame": [
+      320,
+      160
+    ],
+    "roof_split": 0.15,
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "storage_chest": {
+    "anchor": [
+      30,
+      40
+    ],
+    "file": "res://art/props/storage_chest.png",
+    "frame": [
+      60,
+      44
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "stove": {
+    "anchor": [
+      40,
+      76
+    ],
+    "file": "res://art/props/stove.png",
+    "frame": [
+      80,
+      80
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "stuck_kite": {
+    "anchor": [
+      24,
+      44
+    ],
+    "file": "res://art/props/stuck_kite.png",
+    "frame": [
+      48,
+      48
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "table": {
+    "anchor": [
+      40,
+      44
+    ],
+    "file": "res://art/props/table.png",
+    "frame": [
+      80,
+      48
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "teleport_stone": {
+    "anchor": [
+      24,
+      92
+    ],
+    "file": "res://art/props/teleport_stone.png",
+    "frame": [
+      48,
+      96
+    ],
+    "states": {
+      "active": {
+        "col": 1,
+        "fps": 6,
+        "frames": 4
+      },
+      "inactive": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "thatched_hut": {
+    "anchor": [
+      180,
+      236
+    ],
+    "building": true,
+    "file": "res://art/props/thatched_hut.png",
+    "frame": [
+      360,
+      240
+    ],
+    "roof_split": 0.483,
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "training_dummy": {
+    "anchor": [
+      24,
+      84
+    ],
+    "file": "res://art/props/training_dummy.png",
+    "frame": [
+      48,
+      88
+    ],
+    "states": {
+      "hit": {
+        "col": 1,
+        "frames": 1
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "training_stump": {
+    "anchor": [
+      20,
+      68
+    ],
+    "file": "res://art/props/training_stump.png",
+    "frame": [
+      40,
+      72
+    ],
+    "states": {
+      "hit": {
+        "col": 1,
+        "frames": 1
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "village_house": {
+    "anchor": [
+      190,
+      246
+    ],
+    "building": true,
+    "file": "res://art/props/village_house.png",
+    "frame": [
+      380,
+      250
+    ],
+    "roof_split": 0.368,
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "village_store": {
+    "anchor": [
+      200,
+      256
+    ],
+    "building": true,
+    "file": "res://art/props/village_store.png",
+    "frame": [
+      400,
+      260
+    ],
+    "roof_split": 0.354,
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "wall_plaster": {
+    "anchor": [
+      0,
+      0
+    ],
+    "file": "res://art/tiles/wall_plaster.png",
+    "frame": [
+      256,
+      320
+    ],
+    "repeat": "x",
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    },
+    "tile": true
+  },
+  "wall_stone": {
+    "anchor": [
+      0,
+      0
+    ],
+    "file": "res://art/tiles/wall_stone.png",
+    "frame": [
+      256,
+      320
+    ],
+    "repeat": "xy",
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    },
+    "tile": true
+  },
+  "wall_wood": {
+    "anchor": [
+      0,
+      0
+    ],
+    "file": "res://art/tiles/wall_wood.png",
+    "frame": [
+      256,
+      320
+    ],
+    "repeat": "x",
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    },
+    "tile": true
+  },
+  "warehouse": {
+    "anchor": [
+      220,
+      256
+    ],
+    "building": true,
+    "file": "res://art/props/warehouse.png",
+    "frame": [
+      440,
+      260
+    ],
+    "roof_split": 0.354,
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "watch_tower": {
+    "anchor": [
+      90,
+      376
+    ],
+    "building": true,
+    "file": "res://art/props/watch_tower.png",
+    "frame": [
+      180,
+      380
+    ],
+    "roof_split": 0.179,
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "water": {
+    "anchor": [
+      0,
+      0
+    ],
+    "file": "res://art/tiles/water.png",
+    "frame": [
+      256,
+      128
+    ],
+    "repeat": "xy",
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 5,
+        "frames": 4
+      }
+    },
+    "tile": true
+  },
+  "weapon_rack": {
+    "anchor": [
+      48,
+      92
+    ],
+    "file": "res://art/props/weapon_rack.png",
+    "frame": [
+      96,
+      96
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "well": {
+    "anchor": [
+      32,
+      76
+    ],
+    "file": "res://art/props/well.png",
+    "frame": [
+      64,
+      80
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "willow_moss_patch": {
+    "anchor": [
+      28,
+      24
+    ],
+    "file": "res://art/props/willow_moss_patch.png",
+    "frame": [
+      56,
+      28
+    ],
+    "states": {
+      "depleted": {
+        "col": 3,
+        "frames": 1
+      },
+      "ready": {
+        "col": 0,
+        "fps": 5,
+        "frames": 3
+      }
+    }
+  },
+  "window": {
+    "anchor": [
+      32,
+      64
+    ],
+    "file": "res://art/tiles/window.png",
+    "frame": [
+      64,
+      64
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    },
+    "tile": true
+  },
+  "wine_jar": {
+    "anchor": [
+      18,
+      40
+    ],
+    "file": "res://art/props/wine_jar.png",
+    "frame": [
+      36,
+      44
+    ],
+    "states": {
+      "broken": {
+        "col": 1,
+        "frames": 1
+      },
+      "intact": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  }
+}

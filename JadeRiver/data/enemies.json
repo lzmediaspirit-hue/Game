@@ -1,0 +1,3827 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "mudshell_crab",
+   "name": "Mudshell Crab",
+   "level": [
+    1,
+    1
+   ],
+   "role": "normal",
+   "element": "water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "slow_melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 55,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "pinch",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       40
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0
+    }
+   ],
+   "loot": "mudshell_crab",
+   "drops": [
+    {
+     "item": "crab_shell",
+     "chance": 0.7,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "river_mud",
+     "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "valley_shore",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "mudshell_crab"
+   },
+   "half_width": 20,
+   "height": 26
+  },
+  {
+   "id": "reedtail_rat",
+   "name": "Reedtail Rat",
+   "level": [
+    2,
+    2
+   ],
+   "role": "normal",
+   "element": "none",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "melee",
+    "aggro_range": 200,
+    "flee_below": 0.25,
+    "move_speed": 120,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "bite",
+     "windup_s": 0.35,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       36
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0
+    }
+   ],
+   "loot": "reedtail_rat",
+   "drops": [
+    {
+     "item": "rat_tail",
+     "chance": 0.6,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "valley_shore",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "reedtail_rat"
+   },
+   "half_width": 18,
+   "height": 22
+  },
+  {
+   "id": "old_snapper",
+   "name": "Old Snapper",
+   "level": [
+    3,
+    3
+   ],
+   "role": "elite",
+   "element": "water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "snapper",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 45,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "claw_slam",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       74
+      ],
+      "depth": 34,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.4,
+     "knockback": 40
+    }
+   ],
+   "loot": "old_snapper",
+   "drops": [
+    {
+     "item": "snapper_claw",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "valley_shore",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "old_snapper"
+   },
+   "half_width": 40,
+   "height": 56,
+   "phases": [
+    {
+     "below": 0.5,
+     "action": "dig_in",
+     "duration": 3.0,
+     "invulnerable": true
+    }
+   ],
+   "appears_after": {
+    "item": "crab_shell",
+    "count": 5
+   }
+  },
+  {
+   "id": "hollow_minnow",
+   "name": "Hollow Minnow",
+   "level": [
+    1,
+    1
+   ],
+   "role": "event",
+   "element": "hollow",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "flyer",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 80,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "nibble",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       30
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.8
+    }
+   ],
+   "loot": "hollow_minnow",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "creature": "hollow_minnow"
+   },
+   "half_width": 14,
+   "height": 18,
+   "hp_override": 5,
+   "flying": true,
+   "hollowing": 1
+  },
+  {
+   "id": "hollowed_eel",
+   "name": "Hollowed Eel",
+   "level": [
+    10,
+    10
+   ],
+   "role": "event",
+   "element": "hollow",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "event_eel",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "lunge",
+     "windup_s": 1.0,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       120
+      ],
+      "depth": 60,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.5,
+     "knockback": 80
+    }
+   ],
+   "loot": "hollowed_eel",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "creature": "hollowed_eel"
+   },
+   "half_width": 60,
+   "height": 120,
+   "invulnerable": true,
+   "flying": true
+  },
+  {
+   "id": "trial_puppet",
+   "name": "Trial Puppet",
+   "level": [
+    2,
+    2
+   ],
+   "role": "trial",
+   "element": "none",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "guard_counter",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 60,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "counter_palm",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       44
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0
+    }
+   ],
+   "loot": "trial_puppet",
+   "drops": [
+    {
+     "item": "entry_token",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "creature": "trial_puppet"
+   },
+   "half_width": 22,
+   "height": 60,
+   "knockback_immune": true,
+   "spar": true
+  },
+  {
+   "id": "wild_boarlet",
+   "name": "Wild Boarlet",
+   "level": [
+    1,
+    2
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "charger",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 80,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "charge",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       40
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "dash": 70
+    }
+   ],
+   "loot": "wild_boarlet",
+   "drops": [
+    {
+     "item": "boar_hide",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "tough_meat",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "willow_path",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "wild_boarlet"
+   },
+   "half_width": 22,
+   "height": 30
+  },
+  {
+   "id": "mossback_toad",
+   "name": "Mossback Toad",
+   "level": [
+    2,
+    3
+   ],
+   "role": "normal",
+   "element": "wood",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "ranged_melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 50,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "tongue_lash",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       110
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.9
+    }
+   ],
+   "loot": "mossback_toad",
+   "drops": [
+    {
+     "item": "toad_oil",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "moss",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": true,
+   "collection": {
+    "page": "willow_path",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "mossback_toad"
+   },
+   "half_width": 20,
+   "height": 26
+  },
+  {
+   "id": "rock_beetle",
+   "name": "Rock Beetle",
+   "level": [
+    4,
+    5
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "charger",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 60,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "roll",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       40
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.1,
+     "dash": 90
+    }
+   ],
+   "loot": "rock_beetle",
+   "drops": [
+    {
+     "item": "beetle_shell",
+     "chance": 0.6,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "copper_ore",
+     "chance": 0.3,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "quarry",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "rock_beetle"
+   },
+   "half_width": 20,
+   "height": 24
+  },
+  {
+   "id": "pebble_imp",
+   "name": "Pebble Imp",
+   "level": [
+    4,
+    6
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "ranged",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 70,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "pebble_throw",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       300
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.9,
+     "projectile": {
+      "speed": 380,
+      "art": "pebble"
+     }
+    }
+   ],
+   "loot": "pebble_imp",
+   "drops": [
+    {
+     "item": "riverstone",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "pebble_core",
+     "chance": 0.08,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "quarry",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "pebble_imp"
+   },
+   "half_width": 16,
+   "height": 32,
+   "keep_distance": 180
+  },
+  {
+   "id": "stone_tortoise",
+   "name": "Stone Tortoise",
+   "level": [
+    5,
+    7
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "slow_melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 35,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "slam",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       80
+      ],
+      "depth": 40,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2,
+     "both_sides": true,
+     "knockback": 60
+    }
+   ],
+   "loot": "stone_tortoise",
+   "drops": [
+    {
+     "item": "tortoise_plate",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "jadeiron",
+     "chance": 0.15,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "quarry",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "stone_tortoise"
+   },
+   "half_width": 36,
+   "height": 40,
+   "hp_mult": 1.4
+  },
+  {
+   "id": "ironclaw_mole",
+   "name": "Ironclaw Mole",
+   "level": [
+    5,
+    7
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "burrower",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 70,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "burst_claw",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       44
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2
+    }
+   ],
+   "loot": "ironclaw_mole",
+   "drops": [
+    {
+     "item": "mole_claw",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "ore_dust",
+     "chance": 0.6,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": true,
+   "collection": {
+    "page": "quarry",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "ironclaw_mole"
+   },
+   "half_width": 20,
+   "height": 26
+  },
+  {
+   "id": "reed_frog",
+   "name": "Reed Frog",
+   "level": [
+    4,
+    6
+   ],
+   "role": "normal",
+   "element": "wood",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "charger",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "jump_kick",
+     "windup_s": 0.35,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       40
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "dash": 80
+    }
+   ],
+   "loot": "reed_frog",
+   "drops": [
+    {
+     "item": "frog_leg",
+     "chance": 0.6,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "willow_moss",
+     "chance": 0.3,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "marsh",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "reed_frog"
+   },
+   "half_width": 16,
+   "height": 22
+  },
+  {
+   "id": "marsh_leech",
+   "name": "Marsh Leech",
+   "level": [
+    5,
+    7
+   ],
+   "role": "normal",
+   "element": "water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 40,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "latch",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       38
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.8,
+     "dash": 50,
+     "drain": 0.3
+    }
+   ],
+   "loot": "marsh_leech",
+   "drops": [
+    {
+     "item": "leech_oil",
+     "chance": 0.6,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "marsh",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "marsh_leech"
+   },
+   "half_width": 20,
+   "height": 16
+  },
+  {
+   "id": "greyfin",
+   "name": "Greyfin",
+   "level": [
+    7,
+    11
+   ],
+   "role": "normal",
+   "element": "hollow_water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "leaper",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 70,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "leap_bite",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       44
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "dash": 100
+    }
+   ],
+   "loot": "greyfin",
+   "drops": [
+    {
+     "item": "tiny_hollow_shard",
+     "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "marsh",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "greyfin"
+   },
+   "half_width": 18,
+   "height": 22,
+   "hollowing": 3
+  },
+  {
+   "id": "hollowed_boarlet",
+   "name": "Hollowed Boarlet",
+   "level": [
+    7,
+    12
+   ],
+   "role": "normal",
+   "element": "hollow_earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "charger",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 85,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "double_charge",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       40
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "dash": 70,
+     "repeat": 2
+    }
+   ],
+   "loot": "hollowed_boarlet",
+   "drops": [
+    {
+     "item": "hollow_shard",
+     "chance": 0.12,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "grey_hide",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "marsh",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "hollowed_boarlet"
+   },
+   "half_width": 22,
+   "height": 30,
+   "hollowing": 4
+  },
+  {
+   "id": "bamboo_monkey",
+   "name": "Bamboo Monkey",
+   "level": [
+    10,
+    12
+   ],
+   "role": "normal",
+   "element": "wood",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "ranged",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 120,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "shoot_toss",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       280
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.9,
+     "projectile": {
+      "speed": 420,
+      "art": "bamboo"
+     }
+    }
+   ],
+   "loot": "bamboo_monkey",
+   "drops": [
+    {
+     "item": "bamboo_shoot",
+     "chance": 0.6,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": true,
+   "collection": {
+    "page": "bamboo",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "bamboo_monkey"
+   },
+   "half_width": 18,
+   "height": 34,
+   "agile": true,
+   "steals_coins": true,
+   "keep_distance": 150
+  },
+  {
+   "id": "green_viper",
+   "name": "Green Viper",
+   "level": [
+    11,
+    14
+   ],
+   "role": "normal",
+   "element": "wood",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 85,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "strike",
+     "windup_s": 0.35,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       46
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "status": {
+      "id": "poison",
+      "chance": 0.35,
+      "power": 0.02,
+      "duration_s": 5
+     }
+    }
+   ],
+   "loot": "green_viper",
+   "drops": [
+    {
+     "item": "viper_fang",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "venom_sac",
+     "chance": 0.3,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "bamboo",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "green_viper"
+   },
+   "half_width": 24,
+   "height": 18
+  },
+  {
+   "id": "thornback_boar",
+   "name": "Thornback Boar",
+   "level": [
+    13,
+    15
+   ],
+   "role": "elite",
+   "element": "wood",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "charger",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 80,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "thorn_charge",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       50
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2,
+     "dash": 110,
+     "knockback": 60
+    }
+   ],
+   "loot": "thornback_boar",
+   "drops": [
+    {
+     "item": "thorn_hide",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "ember_pepper",
+     "chance": 0.6,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "bamboo",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "thornback_boar"
+   },
+   "half_width": 34,
+   "height": 44,
+   "thorns": 0.1
+  },
+  {
+   "id": "mudwater_bandit",
+   "name": "Mudwater Bandit",
+   "level": [
+    14,
+    19
+   ],
+   "role": "normal",
+   "element": "none",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 100,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "slash",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0
+    },
+    {
+     "id": "qi_strike",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.3,
+     "damage_type": "qi"
+    }
+   ],
+   "loot": "mudwater_bandit",
+   "drops": [
+    {
+     "item": "cloth",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "rat_tail",
+     "chance": 0.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "road",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "avatar": {
+     "hair": "short_knot",
+     "hair_color": 5,
+     "shirt": "sleeveless",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "dagger",
+     "hat": "tied",
+     "name": "Mudwater Bandit",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "coin_mult": 2.0,
+   "equipment_chance": 0.05
+  },
+  {
+   "id": "stone_guardian",
+   "name": "Stone Guardian",
+   "level": [
+    17,
+    19
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "slow_melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 45,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "fist_slam",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       70
+      ],
+      "depth": 36,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.3,
+     "knockback": 60
+    }
+   ],
+   "loot": "stone_guardian",
+   "drops": [
+    {
+     "item": "guardian_stone",
+     "chance": 0.25,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "road",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "stone_guardian"
+   },
+   "half_width": 28,
+   "height": 60,
+   "knockback_immune": true
+  },
+  {
+   "id": "bandit_archer",
+   "name": "Bandit Archer",
+   "level": [
+    16,
+    20
+   ],
+   "role": "normal",
+   "element": "none",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "ranged",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "arrow",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       420
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "projectile": {
+      "speed": 600,
+      "art": "arrow"
+     }
+    }
+   ],
+   "loot": "bandit_archer",
+   "drops": [
+    {
+     "item": "arrows",
+     "chance": 0.6,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "bow_parts",
+     "chance": 0.3,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "road",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "avatar": {
+     "hair": "ponytail",
+     "hair_color": 0,
+     "shirt": "sleeveless",
+     "pants": "cuffed",
+     "shoes": "boots",
+     "weapon": "bow",
+     "hat": "tied",
+     "name": "Bandit Archer",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "keep_distance": 260,
+   "equipment_chance": 0.05
+  },
+  {
+   "id": "mud_hound",
+   "name": "Mud Hound",
+   "level": [
+    16,
+    20
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 130,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "bite",
+     "windup_s": 0.35,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       44
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0
+    }
+   ],
+   "loot": "mud_hound",
+   "drops": [
+    {
+     "item": "hound_fang",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "road",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "mud_hound"
+   },
+   "half_width": 22,
+   "height": 28,
+   "pack": true
+  },
+  {
+   "id": "jade_carp",
+   "name": "Jade Carp",
+   "level": [
+    19,
+    22
+   ],
+   "role": "normal",
+   "element": "water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "leaper",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 70,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "tail_slap",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       50
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "dash": 90
+    }
+   ],
+   "loot": "jade_carp",
+   "drops": [
+    {
+     "item": "jade_scale",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "jade_carp_fish",
+     "chance": 0.15,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "bend",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "jade_carp"
+   },
+   "half_width": 22,
+   "height": 24
+  },
+  {
+   "id": "tide_crab",
+   "name": "Tide Crab",
+   "level": [
+    20,
+    23
+   ],
+   "role": "normal",
+   "element": "water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "guard_counter",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 50,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "pinch",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       46
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.1
+    }
+   ],
+   "loot": "tide_crab",
+   "drops": [
+    {
+     "item": "tide_shell",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "pearl",
+     "chance": 0.15,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "bend",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "tide_crab"
+   },
+   "half_width": 24,
+   "height": 30,
+   "front_guard": 0.6
+  },
+  {
+   "id": "drowned_acolyte",
+   "name": "Drowned Acolyte",
+   "level": [
+    21,
+    25
+   ],
+   "role": "normal",
+   "element": "water",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "caster",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "staff_strike",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       80
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0
+    },
+    {
+     "id": "bell_chant",
+     "windup_s": 0.8,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       0
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.0,
+     "buff_allies": 0.15
+    }
+   ],
+   "loot": "drowned_acolyte",
+   "drops": [
+    {
+     "item": "prayer_beads",
+     "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.04,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "shrine",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "avatar": {
+     "hair": "short_knot",
+     "hair_color": 1,
+     "shirt": "scholar",
+     "pants": "scholar",
+     "shoes": "slippers",
+     "weapon": "staff",
+     "hat": "none",
+     "tint": "#9fc6c9",
+     "name": "Drowned Acolyte",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90
+  },
+  {
+   "id": "paper_talisman_ghost",
+   "name": "Paper Talisman Ghost",
+   "level": [
+    22,
+    26
+   ],
+   "role": "normal",
+   "element": "soul",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "flyer_ranged",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 70,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "talisman_throw",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       300
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "damage_type": "soul",
+     "projectile": {
+      "speed": 400,
+      "art": "talisman"
+     }
+    }
+   ],
+   "loot": "paper_talisman_ghost",
+   "drops": [
+    {
+     "item": "talisman_paper",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "ink",
+     "chance": 0.3,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "shrine",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "paper_talisman_ghost"
+   },
+   "half_width": 20,
+   "height": 40,
+   "flying": true,
+   "weak_to": "fire",
+   "phases_walls": true
+  },
+  {
+   "id": "rapids_lizard",
+   "name": "Rapids Lizard",
+   "level": [
+    28,
+    31
+   ],
+   "role": "normal",
+   "element": "water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 130,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "tail_whip",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "both_sides": true
+    }
+   ],
+   "loot": "rapids_lizard",
+   "drops": [
+    {
+     "item": "lizard_scale",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "pearl",
+     "chance": 0.1,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "gorge",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "rapids_lizard"
+   },
+   "half_width": 26,
+   "height": 22
+  },
+  {
+   "id": "gorge_bandit_adept",
+   "name": "Gorge Bandit Adept",
+   "level": [
+    29,
+    33
+   ],
+   "role": "normal",
+   "element": "none",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "sword_arc",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       80
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.1
+    },
+    {
+     "id": "crescent",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       300
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 520,
+      "art": "qi_arc"
+     }
+    }
+   ],
+   "loot": "gorge_bandit_adept",
+   "drops": [
+    {
+     "item": "cloth",
+     "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.06,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "manual_ember_burst",
+     "chance": 0.03,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "gorge",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "avatar": {
+     "hair": "long_tied",
+     "hair_color": 2,
+     "shirt": "vneck",
+     "pants": "martial",
+     "shoes": "folded",
+     "weapon": "sword",
+     "hat": "none",
+     "name": "Gorge Bandit Adept",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "guards": true,
+   "coin_mult": 2.0,
+   "equipment_chance": 0.06
+  },
+  {
+   "id": "boulder_serpent",
+   "name": "Boulder Serpent",
+   "level": [
+    32,
+    35
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "charger",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 60,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "boulder_roll",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       50
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2,
+     "dash": 160
+    }
+   ],
+   "loot": "boulder_serpent",
+   "drops": [
+    {
+     "item": "serpent_scale",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "jadeiron",
+     "chance": 0.2,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "gorge",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "boulder_serpent"
+   },
+   "half_width": 34,
+   "height": 34
+  },
+  {
+   "id": "mist_vulture",
+   "name": "Mist Vulture",
+   "level": [
+    34,
+    36
+   ],
+   "role": "normal",
+   "element": "wind",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "flyer",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 100,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "dive",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2,
+     "dash": 120
+    }
+   ],
+   "loot": "mist_vulture",
+   "drops": [
+    {
+     "item": "vulture_plume",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "gorge",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "mist_vulture"
+   },
+   "half_width": 26,
+   "height": 40,
+   "flying": true
+  },
+  {
+   "id": "cloudwing_crane",
+   "name": "Cloudwing Crane",
+   "level": [
+    37,
+    40
+   ],
+   "role": "normal",
+   "element": "wind",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "flyer",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 110,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "swoop",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "dash": 120
+    }
+   ],
+   "loot": "cloudwing_crane",
+   "drops": [
+    {
+     "item": "cloud_feather",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "cliffs",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "cloudwing_crane"
+   },
+   "half_width": 26,
+   "height": 50,
+   "flying": true
+  },
+  {
+   "id": "stormwing_hawk",
+   "name": "Stormwing Hawk",
+   "level": [
+    38,
+    43
+   ],
+   "role": "normal",
+   "element": "thunder",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "flyer",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 140,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "lightning_dive",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2,
+     "dash": 140,
+     "status": {
+      "id": "shock",
+      "chance": 0.3,
+      "power": 0.2,
+      "duration_s": 3
+     }
+    }
+   ],
+   "loot": "stormwing_hawk",
+   "drops": [
+    {
+     "item": "storm_feather",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "cliffs",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "stormwing_hawk"
+   },
+   "half_width": 22,
+   "height": 34,
+   "flying": true
+  },
+  {
+   "id": "cliff_ape",
+   "name": "Cliff Ape",
+   "level": [
+    41,
+    45
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "smash",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2
+    },
+    {
+     "id": "boulder_throw",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       320
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.3,
+     "projectile": {
+      "speed": 360,
+      "art": "boulder"
+     }
+    }
+   ],
+   "loot": "cliff_ape",
+   "drops": [
+    {
+     "item": "ape_fur",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "cloudtop_orchid",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "cliffs",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "cliff_ape"
+   },
+   "half_width": 28,
+   "height": 56
+  },
+  {
+   "id": "mist_wolf",
+   "name": "Mist Wolf",
+   "level": [
+    46,
+    50
+   ],
+   "role": "normal",
+   "element": "water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 150,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "lunge",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       50
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "dash": 60
+    }
+   ],
+   "loot": "mist_wolf",
+   "drops": [
+    {
+     "item": "mist_pelt",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": true,
+   "collection": {
+    "page": "mist_peak",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "mist_wolf"
+   },
+   "half_width": 28,
+   "height": 34,
+   "pack": true,
+   "hidden_in_fog": true
+  },
+  {
+   "id": "mirror_wisp",
+   "name": "Mirror Wisp",
+   "level": [
+    47,
+    51
+   ],
+   "role": "normal",
+   "element": "soul",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "flyer_ranged",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 70,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "soul_flash",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       240
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.1,
+     "damage_type": "soul",
+     "projectile": {
+      "speed": 500,
+      "art": "soul_bolt"
+     }
+    }
+   ],
+   "loot": "mirror_wisp",
+   "drops": [
+    {
+     "item": "mirror_dust",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "mist_peak",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "mirror_wisp"
+   },
+   "half_width": 18,
+   "height": 30,
+   "flying": true
+  },
+  {
+   "id": "weeping_lantern",
+   "name": "Weeping Lantern",
+   "level": [
+    50,
+    55
+   ],
+   "role": "normal",
+   "element": "soul",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "flyer",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 50,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "flare",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 50,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "damage_type": "soul",
+     "both_sides": true,
+     "status": {
+      "id": "confusion",
+      "chance": 0.3,
+      "power": 1,
+      "duration_s": 2
+     }
+    }
+   ],
+   "loot": "weeping_lantern",
+   "drops": [
+    {
+     "item": "lantern_wick",
+     "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "soul_wax",
+     "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "mist_peak",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "weeping_lantern"
+   },
+   "half_width": 18,
+   "height": 44,
+   "flying": true
+  },
+  {
+   "id": "jade_sentinel",
+   "name": "Jade Sentinel",
+   "level": [
+    52,
+    56
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "slow_melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 50,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "halberd_sweep",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 36,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2
+    }
+   ],
+   "loot": "jade_sentinel",
+   "drops": [
+    {
+     "item": "jade_core",
+     "chance": 0.08,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "formation_stone",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "mist_peak",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "jade_sentinel"
+   },
+   "half_width": 26,
+   "height": 64,
+   "linked": true
+  },
+  {
+   "id": "hollow_stag",
+   "name": "Hollow Stag",
+   "level": [
+    55,
+    59
+   ],
+   "role": "normal",
+   "element": "hollow_wood",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "charger",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 120,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "antler_charge",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2,
+     "dash": 140
+    }
+   ],
+   "loot": "hollow_stag",
+   "drops": [
+    {
+     "item": "hollow_antler",
+     "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "hollow_shard",
+     "chance": 0.2,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "summit",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "hollow_stag"
+   },
+   "half_width": 30,
+   "height": 56,
+   "hollowing": 5,
+   "cleansable": true
+  },
+  {
+   "id": "cloudpeak_roc",
+   "name": "Cloudpeak Roc",
+   "level": [
+    58,
+    63
+   ],
+   "role": "normal",
+   "element": "wind",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "flyer",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 110,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "wing_gust",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       160
+      ],
+      "depth": 60,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "knockback": 120
+    }
+   ],
+   "loot": "cloudpeak_roc",
+   "drops": [
+    {
+     "item": "roc_feather",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "mystic_ore",
+     "chance": 0.1,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "summit",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "cloudpeak_roc"
+   },
+   "half_width": 40,
+   "height": 50,
+   "flying": true
+  },
+  {
+   "id": "big_toad_tan",
+   "name": "Big Toad Tan",
+   "level": [
+    18,
+    18
+   ],
+   "role": "dungeon_boss",
+   "element": "none",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "boss_tan",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "club_swing",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 34,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2,
+     "knockback": 60
+    },
+    {
+     "id": "call_bandits",
+     "windup_s": 1.0,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       0
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.0,
+     "summon": "mudwater_bandit"
+    }
+   ],
+   "loot": "big_toad_tan",
+   "drops": [
+    {
+     "item": "mudwater_manual",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "topknot",
+     "hair_color": 5,
+     "shirt": "sleeveless",
+     "pants": "loose",
+     "shoes": "boots",
+     "weapon": "staff",
+     "hat": "none",
+     "name": "Big Toad Tan",
+     "body": "light"
+    }
+   },
+   "half_width": 24,
+   "height": 96,
+   "phases": [
+    {
+     "below": 0.5,
+     "action": "drink_wine",
+     "heal": 0.1,
+     "breakable": "wine_jar"
+    }
+   ],
+   "unique_drop": "mudwater_cleaver"
+  },
+  {
+   "id": "riverbed_serpent",
+   "name": "Riverbed Serpent",
+   "level": [
+    25,
+    25
+   ],
+   "role": "field_boss",
+   "element": "water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "boss_serpent",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "bite",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       110
+      ],
+      "depth": 40,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.3
+    },
+    {
+     "id": "tail_flood",
+     "windup_s": 1.0,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       260
+      ],
+      "depth": 80,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "both_sides": true
+    }
+   ],
+   "loot": "riverbed_serpent",
+   "drops": [
+    {
+     "item": "serpent_core",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "serpent_scale",
+     "chance": 1.0,
+     "count": [
+      2,
+      4
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "bend",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "riverbed_serpent"
+   },
+   "half_width": 70,
+   "height": 150,
+   "respawn_min": 45,
+   "flying": true
+  },
+  {
+   "id": "drowned_abbot",
+   "name": "Drowned Abbot",
+   "level": [
+    27,
+    27
+   ],
+   "role": "dungeon_boss",
+   "element": "water",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "boss_abbot",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "bell_shockwave",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       180
+      ],
+      "depth": 70,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2,
+     "both_sides": true,
+     "knockback": 80
+    },
+    {
+     "id": "summon_ghosts",
+     "windup_s": 1.2,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       0
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.0,
+     "summon": "paper_talisman_ghost"
+    }
+   ],
+   "loot": "drowned_abbot",
+   "drops": [
+    {
+     "item": "riverbreath_scroll",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "drowned_robe",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "flowing",
+     "hair_color": 1,
+     "shirt": "scholar",
+     "pants": "scholar",
+     "shoes": "slippers",
+     "weapon": "staff",
+     "hat": "none",
+     "tint": "#8fb7c2",
+     "name": "Drowned Abbot",
+     "body": "light"
+    }
+   },
+   "half_width": 22,
+   "height": 96,
+   "weak_to": "fire",
+   "phases": [
+    {
+     "below": 0.66,
+     "action": "flood"
+    },
+    {
+     "below": 0.33,
+     "action": "summon"
+    }
+   ]
+  },
+  {
+   "id": "the_reflection",
+   "name": "The Reflection",
+   "level": [
+    36,
+    36
+   ],
+   "role": "story_boss",
+   "element": "none",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "reflection",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "mirror_strike",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       70
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0
+    }
+   ],
+   "loot": "the_reflection",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": "player"
+   },
+   "half_width": 18,
+   "height": 90
+  },
+  {
+   "id": "elder_gu",
+   "name": "Elder Gu",
+   "level": [
+    53,
+    53
+   ],
+   "role": "story_boss",
+   "element": "water",
+   "race": "human",
+   "energy": "true_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "tide_palm",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2,
+     "damage_type": "qi"
+    }
+   ],
+   "loot": "elder_gu",
+   "drops": [
+    {
+     "item": "smuggler_ledger",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "long_tied",
+     "hair_color": 1,
+     "shirt": "scholar",
+     "pants": "scholar",
+     "shoes": "folded",
+     "weapon": "none",
+     "hat": "none",
+     "name": "Elder Gu",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "flees_after_s": 60,
+   "invulnerable": true
+  },
+  {
+   "id": "hollow_behemoth",
+   "name": "Hollow Behemoth",
+   "level": [
+    58,
+    58
+   ],
+   "role": "story_boss",
+   "element": "hollow_earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "boss_behemoth",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "stampede",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.4,
+     "dash": 240,
+     "knockback": 120
+    },
+    {
+     "id": "drone_burst",
+     "windup_s": 1.0,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       200
+      ],
+      "depth": 70,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "both_sides": true
+    }
+   ],
+   "loot": "hollow_behemoth",
+   "drops": [
+    {
+     "item": "siege_medal",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "mistjade_robe",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "creature": "hollow_behemoth"
+   },
+   "half_width": 80,
+   "height": 140,
+   "hollowing": 8
+  },
+  {
+   "id": "gate_guardian",
+   "name": "Gate Guardian",
+   "level": [
+    63,
+    63
+   ],
+   "role": "story_boss",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "boss_guardian",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "ring_sweep",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       180
+      ],
+      "depth": 70,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.3,
+     "both_sides": true,
+     "knockback": 100
+    },
+    {
+     "id": "soul_gaze",
+     "windup_s": 0.9,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       320
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.1,
+     "damage_type": "soul",
+     "projectile": {
+      "speed": 500,
+      "art": "soul_bolt"
+     }
+    }
+   ],
+   "loot": "gate_guardian",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "creature": "gate_guardian"
+   },
+   "half_width": 60,
+   "height": 180,
+   "phases": [
+    {
+     "below": 0.66,
+     "action": "soul_phase"
+    },
+    {
+     "below": 0.33,
+     "action": "flight_phase"
+    }
+   ]
+  },
+  {
+   "id": "shen_lian",
+   "name": "Shen Lian",
+   "level": [
+    4,
+    4
+   ],
+   "role": "trial",
+   "element": "none",
+   "race": "human",
+   "energy": "none",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "fish_gutting_fist",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       46
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0
+    }
+   ],
+   "loot": "shen_lian",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "high_pony",
+     "hair_color": 2,
+     "shirt": "vneck",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "none",
+     "hat": "none",
+     "name": "Shen Lian",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "spar": true
+  },
+  {
+   "id": "wen_zhao",
+   "name": "Wen Zhao",
+   "level": [
+    44,
+    44
+   ],
+   "role": "trial",
+   "element": "wind",
+   "race": "human",
+   "energy": "none",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "cloud_cut",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       80
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.1
+    },
+    {
+     "id": "crescent",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       300
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 540,
+      "art": "qi_arc"
+     }
+    }
+   ],
+   "loot": "wen_zhao",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "flowing",
+     "hair_color": 0,
+     "shirt": "cardigan",
+     "pants": "martial",
+     "shoes": "folded",
+     "weapon": "sword",
+     "hat": "none",
+     "name": "Wen Zhao",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "spar": true
+  },
+  {
+   "id": "sparring_disciple",
+   "name": "Sparring Disciple",
+   "level": [
+    10,
+    10
+   ],
+   "role": "trial",
+   "element": "none",
+   "race": "human",
+   "energy": "none",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "palm",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       46
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0
+    }
+   ],
+   "loot": "sparring_disciple",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "topknot",
+     "hair_color": 0,
+     "shirt": "disciple",
+     "pants": "loose",
+     "shoes": "slippers",
+     "weapon": "none",
+     "hat": "none",
+     "name": "Trial Disciple",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "spar": true
+  },
+  {
+   "id": "reed_otter",
+   "name": "Reed Otter",
+   "level": [
+    19,
+    24
+   ],
+   "role": "normal",
+   "element": "water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "wild_pet",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "nip",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       36
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.8
+    }
+   ],
+   "loot": "reed_otter",
+   "drops": [],
+   "tameable": true,
+   "collection": null,
+   "art": {
+    "creature": "reed_otter"
+   },
+   "half_width": 18,
+   "height": 28,
+   "passive": true
+  },
+  {
+   "id": "ember_fox",
+   "name": "Ember Fox",
+   "level": [
+    19,
+    24
+   ],
+   "role": "normal",
+   "element": "fire",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "wild_pet",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "nip",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       36
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.8
+    }
+   ],
+   "loot": "ember_fox",
+   "drops": [],
+   "tameable": true,
+   "collection": null,
+   "art": {
+    "creature": "ember_fox"
+   },
+   "half_width": 18,
+   "height": 28,
+   "passive": true
+  },
+  {
+   "id": "jade_crane_chick",
+   "name": "Jade Crane Chick",
+   "level": [
+    19,
+    24
+   ],
+   "role": "normal",
+   "element": "wind",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "wild_pet",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "nip",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       36
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.8
+    }
+   ],
+   "loot": "jade_crane_chick",
+   "drops": [],
+   "tameable": true,
+   "collection": null,
+   "art": {
+    "creature": "jade_crane_chick"
+   },
+   "half_width": 18,
+   "height": 28,
+   "passive": true
+  }
+ ]
+}

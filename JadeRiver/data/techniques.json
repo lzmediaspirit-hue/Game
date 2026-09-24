@@ -1,0 +1,1334 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "flowing_palm",
+   "name": "Flowing Palm",
+   "family": "fists",
+   "element": "water",
+   "damage_type": "physical",
+   "mult": [
+    1.1,
+    1.3
+   ],
+   "hits": 2,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     70
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 3,
+   "qi_cost": 8,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "fist",
+   "unlock": "qi_kindling_1",
+   "source": "training_hall_jade",
+   "desc": "Two flowing palm strikes. Tier 3: slows the target by 20% for 2 s.",
+   "action": "punch_2",
+   "icon": "flowing_palm",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "tier3": {
+    "status": {
+     "id": "slow",
+     "chance": 1.0,
+     "power": 0.2,
+     "duration_s": 2
+    }
+   }
+  },
+  {
+   "id": "jade_thrust",
+   "name": "Jade Thrust",
+   "family": "spear",
+   "element": "none",
+   "damage_type": "physical",
+   "mult": [
+    1.4,
+    1.7
+   ],
+   "hits": 1,
+   "max_targets": 2,
+   "hitbox": {
+    "x": [
+     -10,
+     150
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 4,
+   "qi_cost": 10,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "spear",
+   "unlock": "qi_kindling_1",
+   "source": "training_hall_cloud",
+   "desc": "A piercing thrust that hits two foes in a line. Tier 5: becomes a Qi lance.",
+   "action": "thrust_3",
+   "icon": "jade_thrust",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "line": true
+  },
+  {
+   "id": "cloudpiercing_stroke",
+   "name": "Cloudpiercing Stroke",
+   "family": "jian",
+   "element": "wind",
+   "damage_type": "physical",
+   "mult": [
+    1.2,
+    1.5
+   ],
+   "hits": 1,
+   "max_targets": 2,
+   "hitbox": {
+    "x": [
+     -10,
+     100
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 3.5,
+   "qi_cost": 9,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "sword",
+   "unlock": "qi_kindling_1",
+   "source": "training_hall",
+   "desc": "A rising cut in a wide arc. Tier 3: +10% crit.",
+   "action": "swing_3",
+   "icon": "cloudpiercing_stroke",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "tier3": {
+    "crit": 0.1
+   }
+  },
+  {
+   "id": "reedcutter_slash",
+   "name": "Reedcutter Slash",
+   "family": "short_blade",
+   "element": "wood",
+   "damage_type": "physical",
+   "mult": [
+    1.3,
+    1.6
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     70
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 3,
+   "qi_cost": 8,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "blade",
+   "unlock": "qi_kindling_1",
+   "source": "training_hall",
+   "desc": "A quick slash with a 20% chance to bleed for 3 s.",
+   "action": "thrust_1",
+   "icon": "reedcutter_slash",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "status": {
+    "id": "bleed",
+    "chance": 0.2,
+    "power": 0.05,
+    "duration_s": 3
+   }
+  },
+  {
+   "id": "riverstone_sweep",
+   "name": "Riverstone Sweep",
+   "family": "staff",
+   "element": "earth",
+   "damage_type": "physical",
+   "mult": [
+    1.0,
+    1.3
+   ],
+   "hits": 1,
+   "max_targets": 6,
+   "hitbox": {
+    "x": [
+     -10,
+     120
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 4,
+   "qi_cost": 10,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "staff",
+   "unlock": "qi_kindling_1",
+   "source": "training_hall",
+   "desc": "A heavy sweep that strikes everything in front and knocks it back.",
+   "action": "thrust_3",
+   "icon": "riverstone_sweep",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "knockback": 80
+  },
+  {
+   "id": "twin_reed_shot",
+   "name": "Twin Reed Shot",
+   "family": "bow",
+   "element": "wood",
+   "damage_type": "physical",
+   "mult": [
+    0.7,
+    0.9
+   ],
+   "hits": 2,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     480
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 3,
+   "qi_cost": 8,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "bow",
+   "unlock": "qi_kindling_1",
+   "source": "training_hall",
+   "desc": "Two arrows at once. Tier 3: a third arrow.",
+   "action": "bow",
+   "icon": "twin_reed_shot",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "projectile": {
+    "speed": 680,
+    "range": 480,
+    "count": 2
+   }
+  },
+  {
+   "id": "tiger_rush",
+   "name": "Tiger Rush",
+   "family": "fists",
+   "element": "none",
+   "damage_type": "physical",
+   "mult": [
+    1.5,
+    1.8
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     70
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 6,
+   "qi_cost": 12,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "fist",
+   "unlock": "qi_kindling_5",
+   "source": "library_1",
+   "desc": "Dash 120 units and strike with the weight of a tiger.",
+   "action": "punch_2",
+   "icon": "tiger_rush",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "dash": 120
+  },
+  {
+   "id": "willow_leaf_parry",
+   "name": "Willow Leaf Parry",
+   "family": "jian",
+   "element": "wood",
+   "damage_type": "stance",
+   "mult": [
+    2.0,
+    2.0
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     100
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 8,
+   "qi_cost": 10,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "sword",
+   "unlock": "qi_kindling_5",
+   "source": "library_1",
+   "desc": "Enter a stance: the next parry within 2 s counters for 200%.",
+   "action": "swing_3",
+   "icon": "willow_leaf_parry",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "stance_s": 2.0
+  },
+  {
+   "id": "dragon_tail_sweep",
+   "name": "Dragon Tail Sweep",
+   "family": "spear",
+   "element": "none",
+   "damage_type": "physical",
+   "mult": [
+    1.1,
+    1.4
+   ],
+   "hits": 1,
+   "max_targets": 6,
+   "hitbox": {
+    "x": [
+     -10,
+     130
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 6,
+   "qi_cost": 12,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "spear",
+   "unlock": "qi_kindling_5",
+   "source": "library_1",
+   "desc": "A 180-degree sweep that hits all nearby foes.",
+   "action": "thrust_3",
+   "icon": "dragon_tail_sweep",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "both_sides": true
+  },
+  {
+   "id": "shadow_flick",
+   "name": "Shadow Flick",
+   "family": "short_blade",
+   "element": "none",
+   "damage_type": "physical",
+   "mult": [
+    0.9,
+    1.2
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     70
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 5,
+   "qi_cost": 10,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "blade",
+   "unlock": "qi_kindling_5",
+   "source": "library_1",
+   "desc": "Backstep, then throw a knife 300 units.",
+   "action": "thrust_1",
+   "icon": "shadow_flick",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "dash": -60,
+   "projectile": {
+    "speed": 700,
+    "range": 300,
+    "count": 1
+   }
+  },
+  {
+   "id": "bell_toll_strike",
+   "name": "Bell Toll Strike",
+   "family": "staff",
+   "element": "metal",
+   "damage_type": "physical",
+   "mult": [
+    1.3,
+    1.6
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     120
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 7,
+   "qi_cost": 14,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "staff",
+   "unlock": "qi_kindling_5",
+   "source": "library_1",
+   "desc": "A ringing blow with a 25% chance to stun for 0.6 s.",
+   "action": "thrust_3",
+   "icon": "bell_toll_strike",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "status": {
+    "id": "stun",
+    "chance": 0.25,
+    "power": 1,
+    "duration_s": 0.6
+   }
+  },
+  {
+   "id": "pinning_arrow",
+   "name": "Pinning Arrow",
+   "family": "bow",
+   "element": "none",
+   "damage_type": "physical",
+   "mult": [
+    1.2,
+    1.5
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     480
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 7,
+   "qi_cost": 12,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "bow",
+   "unlock": "qi_kindling_5",
+   "source": "library_1",
+   "desc": "An arrow that roots the target for 1.5 s.",
+   "action": "bow",
+   "icon": "pinning_arrow",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "projectile": {
+    "speed": 700,
+    "range": 480,
+    "count": 1
+   },
+   "status": {
+    "id": "root",
+    "chance": 1.0,
+    "power": 1,
+    "duration_s": 1.5
+   }
+  },
+  {
+   "id": "rising_tide",
+   "name": "Rising Tide",
+   "family": "any",
+   "element": "water",
+   "damage_type": "qi",
+   "mult": [
+    0.9,
+    1.2
+   ],
+   "hits": 1,
+   "max_targets": 8,
+   "hitbox": {
+    "x": [
+     -10,
+     200
+    ],
+    "depth": 70,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 8,
+   "qi_cost": 16,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "water",
+   "unlock": "qi_kindling_7",
+   "source": "mudwater_manual",
+   "desc": "A wave of Qi strikes all foes within 200 units and slows them 20%.",
+   "action": "meditate_burst",
+   "icon": "rising_tide",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "both_sides": true,
+   "status": {
+    "id": "slow",
+    "chance": 1.0,
+    "power": 0.2,
+    "duration_s": 2
+   }
+  },
+  {
+   "id": "palm_wave",
+   "name": "Palm Wave",
+   "family": "fists",
+   "element": "water",
+   "damage_type": "qi",
+   "mult": [
+    1.0,
+    1.3
+   ],
+   "hits": 1,
+   "max_targets": 2,
+   "hitbox": {
+    "x": [
+     -10,
+     70
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 4,
+   "qi_cost": 12,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "fist",
+   "unlock": "qi_unfurling_1",
+   "source": "after_the_cleansing",
+   "desc": "A palm of Qi that flies 360 units and pierces one foe.",
+   "action": "punch_2",
+   "icon": "palm_wave",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "projectile": {
+    "speed": 560,
+    "range": 360,
+    "count": 1,
+    "pierce": 1
+   }
+  },
+  {
+   "id": "crescent_arc",
+   "name": "Crescent Arc",
+   "family": "jian",
+   "element": "wind",
+   "damage_type": "qi",
+   "mult": [
+    0.9,
+    1.2
+   ],
+   "hits": 1,
+   "max_targets": 8,
+   "hitbox": {
+    "x": [
+     -10,
+     100
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 5,
+   "qi_cost": 14,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "sword",
+   "unlock": "qi_unfurling_1",
+   "source": "after_the_cleansing",
+   "desc": "A crescent of sword Qi that travels 360 units along the depth band.",
+   "action": "swing_3",
+   "icon": "crescent_arc",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "projectile": {
+    "speed": 620,
+    "range": 360,
+    "count": 1,
+    "pierce": 8
+   }
+  },
+  {
+   "id": "spear_lance",
+   "name": "Spear Lance",
+   "family": "spear",
+   "element": "none",
+   "damage_type": "qi",
+   "mult": [
+    1.3,
+    1.6
+   ],
+   "hits": 1,
+   "max_targets": 8,
+   "hitbox": {
+    "x": [
+     -10,
+     300
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 5,
+   "qi_cost": 14,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "spear",
+   "unlock": "qi_unfurling_1",
+   "source": "after_the_cleansing",
+   "desc": "A lance of Qi hitting everything in a 300-unit line. +10% penetration.",
+   "action": "thrust_3",
+   "icon": "spear_lance",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "line": true,
+   "penetration": 0.1
+  },
+  {
+   "id": "flying_blades",
+   "name": "Flying Blades",
+   "family": "short_blade",
+   "element": "metal",
+   "damage_type": "qi",
+   "mult": [
+    0.5,
+    0.7
+   ],
+   "hits": 3,
+   "max_targets": 3,
+   "hitbox": {
+    "x": [
+     -10,
+     70
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 5,
+   "qi_cost": 12,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "blade",
+   "unlock": "qi_unfurling_1",
+   "source": "after_the_cleansing",
+   "desc": "Three seeking blades.",
+   "action": "thrust_1",
+   "icon": "flying_blades",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "projectile": {
+    "speed": 600,
+    "range": 360,
+    "count": 3,
+    "seek": true
+   }
+  },
+  {
+   "id": "earthshaker_wave",
+   "name": "Earthshaker Wave",
+   "family": "staff",
+   "element": "earth",
+   "damage_type": "qi",
+   "mult": [
+    1.1,
+    1.4
+   ],
+   "hits": 1,
+   "max_targets": 8,
+   "hitbox": {
+    "x": [
+     -10,
+     300
+    ],
+    "depth": 60,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 6,
+   "qi_cost": 14,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "staff",
+   "unlock": "qi_unfurling_1",
+   "source": "after_the_cleansing",
+   "desc": "A ground wave that knocks back everything within 300 units ahead.",
+   "action": "thrust_3",
+   "icon": "earthshaker_wave",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "knockback": 80
+  },
+  {
+   "id": "vine_snare",
+   "name": "Vine Snare",
+   "family": "any",
+   "element": "wood",
+   "damage_type": "qi",
+   "mult": [
+    0.6,
+    0.8
+   ],
+   "hits": 1,
+   "max_targets": 3,
+   "hitbox": {
+    "x": [
+     -10,
+     220
+    ],
+    "depth": 60,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 10,
+   "qi_cost": 14,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "wood",
+   "unlock": "qi_unfurling_2",
+   "source": "library_2",
+   "desc": "Vines root up to three foes for 2 s.",
+   "action": "meditate_burst",
+   "icon": "vine_snare",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "status": {
+    "id": "root",
+    "chance": 1.0,
+    "power": 1,
+    "duration_s": 2
+   }
+  },
+  {
+   "id": "rain_of_reeds",
+   "name": "Rain of Reeds",
+   "family": "bow",
+   "element": "wood",
+   "damage_type": "physical",
+   "mult": [
+    0.45,
+    0.6
+   ],
+   "hits": 5,
+   "max_targets": 5,
+   "hitbox": {
+    "x": [
+     -10,
+     420
+    ],
+    "depth": 70,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 8,
+   "qi_cost": 18,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "bow",
+   "unlock": "qi_unfurling_3",
+   "source": "drowned_shrine_drop",
+   "desc": "Five arrows rain on an area.",
+   "action": "bow",
+   "icon": "rain_of_reeds",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   }
+  },
+  {
+   "id": "stone_skin",
+   "name": "Stone Skin",
+   "family": "any",
+   "element": "earth",
+   "damage_type": "buff",
+   "mult": [
+    0,
+    0
+   ],
+   "hits": 0,
+   "max_targets": 0,
+   "hitbox": {
+    "x": [
+     -10,
+     110
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 20,
+   "qi_cost": 18,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "earth",
+   "unlock": "qi_unfurling_4",
+   "source": "library_2",
+   "desc": "+30% Physical Defense for 8 s.",
+   "action": "meditate_burst",
+   "icon": "stone_skin",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "buff": {
+    "stat": "physical_defense",
+    "op": "pct_add",
+    "value": 0.3,
+    "duration": 8
+   }
+  },
+  {
+   "id": "gale_step",
+   "name": "Gale Step",
+   "family": "any",
+   "element": "wind",
+   "damage_type": "movement",
+   "mult": [
+    0.6,
+    0.6
+   ],
+   "hits": 1,
+   "max_targets": 8,
+   "hitbox": {
+    "x": [
+     -10,
+     110
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 6,
+   "qi_cost": 10,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "wind",
+   "unlock": "qi_unfurling_6",
+   "source": "cloud_library",
+   "desc": "Dash 200 units through enemies, striking all you pass.",
+   "action": "jump",
+   "icon": "gale_step",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "dash": 200
+  },
+  {
+   "id": "mountain_shaker",
+   "name": "Mountain Shaker",
+   "family": "staff",
+   "element": "earth",
+   "damage_type": "physical",
+   "mult": [
+    1.2,
+    1.5
+   ],
+   "hits": 1,
+   "max_targets": 8,
+   "hitbox": {
+    "x": [
+     -10,
+     140
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 10,
+   "qi_cost": 22,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "staff",
+   "unlock": "heart_tempering_1",
+   "source": "library_2",
+   "desc": "A slam with a 30% chance to stun for 0.8 s; knockback.",
+   "action": "thrust_3",
+   "icon": "mountain_shaker",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "both_sides": true,
+   "knockback": 80,
+   "status": {
+    "id": "stun",
+    "chance": 0.3,
+    "power": 1,
+    "duration_s": 0.8
+   }
+  },
+  {
+   "id": "ember_burst",
+   "name": "Ember Burst",
+   "family": "any",
+   "element": "fire",
+   "damage_type": "qi",
+   "mult": [
+    1.4,
+    1.7
+   ],
+   "hits": 1,
+   "max_targets": 8,
+   "hitbox": {
+    "x": [
+     -10,
+     150
+    ],
+    "depth": 60,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 9,
+   "qi_cost": 20,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "fire",
+   "unlock": "heart_tempering_3",
+   "source": "gorge_bandit_drop",
+   "desc": "An explosion of fire within 150 units that burns for 3 s.",
+   "action": "meditate_burst",
+   "icon": "ember_burst",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "both_sides": true,
+   "status": {
+    "id": "burn",
+    "chance": 1.0,
+    "power": 0.05,
+    "duration_s": 3
+   }
+  },
+  {
+   "id": "still_water_focus",
+   "name": "Still Water Focus",
+   "family": "any",
+   "element": "water",
+   "damage_type": "buff",
+   "mult": [
+    0,
+    0
+   ],
+   "hits": 0,
+   "max_targets": 0,
+   "hitbox": {
+    "x": [
+     -10,
+     110
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 25,
+   "qi_cost": 15,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "water",
+   "unlock": "heart_tempering_5",
+   "source": "mentor",
+   "desc": "Your next technique hits its perfect-timing bonus.",
+   "action": "meditate_burst",
+   "icon": "still_water_focus",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "buff": {
+    "stat": "perfect_timing",
+    "op": "flat",
+    "value": 1,
+    "duration": 10
+   }
+  },
+  {
+   "id": "shadowstep_cut",
+   "name": "Shadowstep Cut",
+   "family": "short_blade",
+   "element": "wind",
+   "damage_type": "physical",
+   "mult": [
+    2.0,
+    2.6
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     240
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 12,
+   "qi_cost": 20,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "blade",
+   "unlock": "cloud_stride_4",
+   "source": "library_3",
+   "desc": "Blink behind the target and cut.",
+   "action": "thrust_1",
+   "icon": "shadowstep_cut",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "blink": true
+  },
+  {
+   "id": "cloud_descent",
+   "name": "Cloud Descent",
+   "family": "any",
+   "element": "wind",
+   "damage_type": "physical",
+   "mult": [
+    1.6,
+    2.0
+   ],
+   "hits": 1,
+   "max_targets": 8,
+   "hitbox": {
+    "x": [
+     -10,
+     120
+    ],
+    "depth": 60,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 8,
+   "qi_cost": 20,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "wind",
+   "unlock": "cloud_stride_3",
+   "source": "above_the_mist",
+   "desc": "An aerial dive that strikes everything below (flying only).",
+   "action": "jump",
+   "icon": "cloud_descent",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "flying_only": true,
+   "both_sides": true
+  },
+  {
+   "id": "mirror_mind_spike",
+   "name": "Mirror Mind Spike",
+   "family": "any",
+   "element": "soul",
+   "damage_type": "soul",
+   "mult": [
+    1.5,
+    1.8
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     260
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 9,
+   "qi_cost": 10,
+   "soul_cost": 15,
+   "composure_cost": 0,
+   "dao": "soul",
+   "unlock": "spirit_awakening_1",
+   "source": "mentor",
+   "desc": "A spike of will that ignores armour; 20% confusion.",
+   "action": "meditate_burst",
+   "icon": "mirror_mind_spike",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "ignore_armor": true,
+   "status": {
+    "id": "confusion",
+    "chance": 0.2,
+    "power": 1,
+    "duration_s": 2
+   }
+  },
+  {
+   "id": "soul_lantern_ward",
+   "name": "Soul Lantern Ward",
+   "family": "any",
+   "element": "soul",
+   "damage_type": "buff",
+   "mult": [
+    0,
+    0
+   ],
+   "hits": 0,
+   "max_targets": 0,
+   "hitbox": {
+    "x": [
+     -10,
+     110
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 30,
+   "qi_cost": 0,
+   "soul_cost": 20,
+   "composure_cost": 0,
+   "dao": "soul",
+   "unlock": "spirit_awakening_5",
+   "source": "mentor_secret",
+   "desc": "A ward that absorbs damage equal to 20% max Soul for 6 s.",
+   "action": "meditate_burst",
+   "icon": "soul_lantern_ward",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "buff": {
+    "stat": "shield_soul_pct",
+    "op": "flat",
+    "value": 0.2,
+    "duration": 6
+   }
+  },
+  {
+   "id": "glimpse_of_heaven",
+   "name": "Glimpse of Heaven",
+   "family": "any",
+   "element": "none",
+   "damage_type": "qi",
+   "mult": [
+    2.5,
+    3.0
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     320
+    ],
+    "depth": 30,
+    "alt": [
+     0,
+     110
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 15,
+   "qi_cost": 35,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "none",
+   "unlock": "heaven_glimpse_1",
+   "source": "a_wider_sky",
+   "desc": "Borrow a glimpse of the heavens. Ignores 20% Qi Resistance.",
+   "action": "meditate_burst",
+   "icon": "glimpse_of_heaven",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "ignore_resistance": 0.2
+  }
+ ]
+}

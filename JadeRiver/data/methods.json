@@ -1,0 +1,87 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "riverbreath_fragment",
+   "grade": "common",
+   "ceiling": "bone_forging_9",
+   "affinity": "water",
+   "rate": 1.0,
+   "capacity": 1.0,
+   "source": "lu_boatman"
+  },
+  {
+   "id": "jade_current_scripture",
+   "grade": "common",
+   "ceiling": "heart_tempering_9",
+   "affinity": "water",
+   "rate": 1.0,
+   "capacity": 1.1,
+   "source": "jade_sect"
+  },
+  {
+   "id": "cloudpiercing_canon",
+   "grade": "common",
+   "ceiling": "heart_tempering_9",
+   "affinity": "wind",
+   "rate": 1.15,
+   "capacity": 0.95,
+   "source": "cloud_sect"
+  },
+  {
+   "id": "stonebody_canon",
+   "grade": "earth",
+   "ceiling": "spirit_awakening_9",
+   "affinity": "earth",
+   "rate": 1.05,
+   "capacity": 1.0,
+   "body_growth": 0.1,
+   "source": "library_2"
+  },
+  {
+   "id": "willow_breath_art",
+   "grade": "earth",
+   "ceiling": "spirit_awakening_9",
+   "affinity": "wood",
+   "rate": 1.1,
+   "capacity": 1.05,
+   "source": "library_2"
+  },
+  {
+   "id": "emberheart_sutra",
+   "grade": "earth",
+   "ceiling": "spirit_awakening_9",
+   "affinity": "fire",
+   "rate": 1.2,
+   "capacity": 0.95,
+   "source": "library_2"
+  },
+  {
+   "id": "tidal_sovereign_scripture",
+   "grade": "heaven",
+   "ceiling": "sage_sovereign_3",
+   "affinity": "water",
+   "rate": 1.15,
+   "capacity": 1.15,
+   "source": "library_3_jade"
+  },
+  {
+   "id": "nine_winds_canon",
+   "grade": "heaven",
+   "ceiling": "sage_sovereign_3",
+   "affinity": "wind",
+   "rate": 1.25,
+   "capacity": 1.05,
+   "source": "library_3_cloud"
+  },
+  {
+   "id": "riverbreath_complete",
+   "grade": "heaven",
+   "ceiling": "sage_sovereign_3",
+   "affinity": "water",
+   "rate": 1.2,
+   "capacity": 1.2,
+   "source": "drowned_shrine"
+  }
+ ]
+}

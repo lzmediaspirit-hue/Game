@@ -1,0 +1,35 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "fishers_child",
+   "bonus": {
+    "body": 3,
+    "essence": 2
+   },
+   "element_nudge": "water"
+  },
+  {
+   "id": "scholars_heir",
+   "bonus": {
+    "insight": 5
+   },
+   "element_nudge": ""
+  },
+  {
+   "id": "temple_foundling",
+   "bonus": {
+    "spirit": 5
+   },
+   "element_nudge": ""
+  },
+  {
+   "id": "smiths_apprentice",
+   "bonus": {
+    "body": 3,
+    "insight": 2
+   },
+   "element_nudge": "metal"
+  }
+ ]
+}

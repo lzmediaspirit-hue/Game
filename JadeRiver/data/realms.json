@@ -1,0 +1,1899 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "mortal",
+   "key": "mortal",
+   "realm": "mortal",
+   "realm_index": 0,
+   "sub": 0,
+   "name": "Mortal",
+   "level": 0,
+   "levels": 1,
+   "energy": "none",
+   "accumulate_needed": 500,
+   "consolidation_s": 0,
+   "major": false,
+   "next": "bone_forging_1",
+   "major_breakthrough": {
+    "to": "bone_forging_1",
+    "event": null,
+    "requirements": {
+     "all": [
+      {
+       "kind": "method_learned",
+       "text": "Learn a cultivation method",
+       "cause": "material",
+       "hard": true,
+       "fix": "npc:lu_boatman"
+      },
+      {
+       "kind": "body_level_at_least",
+       "value": 1,
+       "cause": "structure",
+       "hard": false,
+       "fix": "room:wp_west"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "bone_forging_1",
+   "key": "bone_forging_1",
+   "realm": "bone_forging",
+   "realm_index": 1,
+   "sub": 1,
+   "name": "Bone Forging 1",
+   "level": 1,
+   "levels": 1,
+   "energy": "none",
+   "accumulate_needed": 1200,
+   "consolidation_s": 60,
+   "major": true,
+   "order_style": false,
+   "next": "bone_forging_2"
+  },
+  {
+   "id": "bone_forging_2",
+   "key": "bone_forging_2",
+   "realm": "bone_forging",
+   "realm_index": 1,
+   "sub": 2,
+   "name": "Bone Forging 2",
+   "level": 2,
+   "levels": 1,
+   "energy": "none",
+   "accumulate_needed": 3200,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "bone_forging_3"
+  },
+  {
+   "id": "bone_forging_3",
+   "key": "bone_forging_3",
+   "realm": "bone_forging",
+   "realm_index": 1,
+   "sub": 3,
+   "name": "Bone Forging 3",
+   "level": 3,
+   "levels": 1,
+   "energy": "none",
+   "accumulate_needed": 3200,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "bone_forging_4"
+  },
+  {
+   "id": "bone_forging_4",
+   "key": "bone_forging_4",
+   "realm": "bone_forging",
+   "realm_index": 1,
+   "sub": 4,
+   "name": "Bone Forging 4",
+   "level": 4,
+   "levels": 1,
+   "energy": "none",
+   "accumulate_needed": 3200,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "bone_forging_5"
+  },
+  {
+   "id": "bone_forging_5",
+   "key": "bone_forging_5",
+   "realm": "bone_forging",
+   "realm_index": 1,
+   "sub": 5,
+   "name": "Bone Forging 5",
+   "level": 5,
+   "levels": 1,
+   "energy": "none",
+   "accumulate_needed": 3200,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "bone_forging_6"
+  },
+  {
+   "id": "bone_forging_6",
+   "key": "bone_forging_6",
+   "realm": "bone_forging",
+   "realm_index": 1,
+   "sub": 6,
+   "name": "Bone Forging 6",
+   "level": 6,
+   "levels": 1,
+   "energy": "none",
+   "accumulate_needed": 3200,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "bone_forging_7"
+  },
+  {
+   "id": "bone_forging_7",
+   "key": "bone_forging_7",
+   "realm": "bone_forging",
+   "realm_index": 1,
+   "sub": 7,
+   "name": "Bone Forging 7",
+   "level": 7,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 3200,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "bone_forging_8"
+  },
+  {
+   "id": "bone_forging_8",
+   "key": "bone_forging_8",
+   "realm": "bone_forging",
+   "realm_index": 1,
+   "sub": 8,
+   "name": "Bone Forging 8",
+   "level": 8,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 3200,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "bone_forging_9"
+  },
+  {
+   "id": "bone_forging_9",
+   "key": "bone_forging_9",
+   "realm": "bone_forging",
+   "realm_index": 1,
+   "sub": 9,
+   "name": "Bone Forging 9",
+   "level": 9,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 3200,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_kindling_1",
+   "major_breakthrough": {
+    "to": "qi_kindling_1",
+    "event": null,
+    "requirements": {
+     "all": [
+      {
+       "kind": "qi_full",
+       "cause": "energy",
+       "hard": false,
+       "fix": "action:meditate"
+      },
+      {
+       "kind": "body_level_at_least",
+       "value": 9,
+       "cause": "structure",
+       "hard": false,
+       "fix": "room:wp_west"
+      },
+      {
+       "kind": "method_supports",
+       "cause": "material",
+       "hard": true,
+       "fix": "page:cultivation.methods"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "qi_kindling_1",
+   "key": "qi_kindling_1",
+   "realm": "qi_kindling",
+   "realm_index": 2,
+   "sub": 1,
+   "name": "Qi Kindling 1",
+   "level": 10,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 5300,
+   "consolidation_s": 180,
+   "major": true,
+   "order_style": false,
+   "next": "qi_kindling_2"
+  },
+  {
+   "id": "qi_kindling_2",
+   "key": "qi_kindling_2",
+   "realm": "qi_kindling",
+   "realm_index": 2,
+   "sub": 2,
+   "name": "Qi Kindling 2",
+   "level": 11,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 5300,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_kindling_3"
+  },
+  {
+   "id": "qi_kindling_3",
+   "key": "qi_kindling_3",
+   "realm": "qi_kindling",
+   "realm_index": 2,
+   "sub": 3,
+   "name": "Qi Kindling 3",
+   "level": 12,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 5300,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_kindling_4"
+  },
+  {
+   "id": "qi_kindling_4",
+   "key": "qi_kindling_4",
+   "realm": "qi_kindling",
+   "realm_index": 2,
+   "sub": 4,
+   "name": "Qi Kindling 4",
+   "level": 13,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 5300,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_kindling_5"
+  },
+  {
+   "id": "qi_kindling_5",
+   "key": "qi_kindling_5",
+   "realm": "qi_kindling",
+   "realm_index": 2,
+   "sub": 5,
+   "name": "Qi Kindling 5",
+   "level": 14,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 5300,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_kindling_6"
+  },
+  {
+   "id": "qi_kindling_6",
+   "key": "qi_kindling_6",
+   "realm": "qi_kindling",
+   "realm_index": 2,
+   "sub": 6,
+   "name": "Qi Kindling 6",
+   "level": 15,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 5300,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_kindling_7"
+  },
+  {
+   "id": "qi_kindling_7",
+   "key": "qi_kindling_7",
+   "realm": "qi_kindling",
+   "realm_index": 2,
+   "sub": 7,
+   "name": "Qi Kindling 7",
+   "level": 16,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 5300,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_kindling_8"
+  },
+  {
+   "id": "qi_kindling_8",
+   "key": "qi_kindling_8",
+   "realm": "qi_kindling",
+   "realm_index": 2,
+   "sub": 8,
+   "name": "Qi Kindling 8",
+   "level": 17,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 5300,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_kindling_9"
+  },
+  {
+   "id": "qi_kindling_9",
+   "key": "qi_kindling_9",
+   "realm": "qi_kindling",
+   "realm_index": 2,
+   "sub": 9,
+   "name": "Qi Kindling 9",
+   "level": 18,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 5300,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_unfurling_1",
+   "major_breakthrough": {
+    "to": "qi_unfurling_1",
+    "event": "heavens_cleansing",
+    "requirements": {
+     "all": [
+      {
+       "kind": "technique_tier_at_least",
+       "technique": "any",
+       "tier": 3,
+       "cause": "understanding",
+       "hard": false,
+       "fix": "page:techniques"
+      },
+      {
+       "kind": "body_level_at_least",
+       "value": 18,
+       "cause": "structure",
+       "hard": false,
+       "fix": "room:wp_west"
+      },
+      {
+       "kind": "event_passed",
+       "event": "heavens_cleansing",
+       "cause": "environment",
+       "hard": true,
+       "fix": "room:cp_cleansing_summit"
+      },
+      {
+       "kind": "method_supports",
+       "cause": "material",
+       "hard": true,
+       "fix": "page:cultivation.methods"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "qi_unfurling_1",
+   "key": "qi_unfurling_1",
+   "realm": "qi_unfurling",
+   "realm_index": 3,
+   "sub": 1,
+   "name": "Qi Unfurling 1",
+   "level": 19,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 4700,
+   "consolidation_s": 300,
+   "major": true,
+   "order_style": false,
+   "next": "qi_unfurling_2"
+  },
+  {
+   "id": "qi_unfurling_2",
+   "key": "qi_unfurling_2",
+   "realm": "qi_unfurling",
+   "realm_index": 3,
+   "sub": 2,
+   "name": "Qi Unfurling 2",
+   "level": 20,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 4700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_unfurling_3"
+  },
+  {
+   "id": "qi_unfurling_3",
+   "key": "qi_unfurling_3",
+   "realm": "qi_unfurling",
+   "realm_index": 3,
+   "sub": 3,
+   "name": "Qi Unfurling 3",
+   "level": 21,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 4700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_unfurling_4"
+  },
+  {
+   "id": "qi_unfurling_4",
+   "key": "qi_unfurling_4",
+   "realm": "qi_unfurling",
+   "realm_index": 3,
+   "sub": 4,
+   "name": "Qi Unfurling 4",
+   "level": 22,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 4700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_unfurling_5"
+  },
+  {
+   "id": "qi_unfurling_5",
+   "key": "qi_unfurling_5",
+   "realm": "qi_unfurling",
+   "realm_index": 3,
+   "sub": 5,
+   "name": "Qi Unfurling 5",
+   "level": 23,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 4700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_unfurling_6"
+  },
+  {
+   "id": "qi_unfurling_6",
+   "key": "qi_unfurling_6",
+   "realm": "qi_unfurling",
+   "realm_index": 3,
+   "sub": 6,
+   "name": "Qi Unfurling 6",
+   "level": 24,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 4700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_unfurling_7"
+  },
+  {
+   "id": "qi_unfurling_7",
+   "key": "qi_unfurling_7",
+   "realm": "qi_unfurling",
+   "realm_index": 3,
+   "sub": 7,
+   "name": "Qi Unfurling 7",
+   "level": 25,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 4700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_unfurling_8"
+  },
+  {
+   "id": "qi_unfurling_8",
+   "key": "qi_unfurling_8",
+   "realm": "qi_unfurling",
+   "realm_index": 3,
+   "sub": 8,
+   "name": "Qi Unfurling 8",
+   "level": 26,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 4700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "qi_unfurling_9"
+  },
+  {
+   "id": "qi_unfurling_9",
+   "key": "qi_unfurling_9",
+   "realm": "qi_unfurling",
+   "realm_index": 3,
+   "sub": 9,
+   "name": "Qi Unfurling 9",
+   "level": 27,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 4700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "heart_tempering_1",
+   "major_breakthrough": {
+    "to": "heart_tempering_1",
+    "event": null,
+    "requirements": {
+     "all": [
+      {
+       "kind": "qi_full",
+       "cause": "energy",
+       "hard": false,
+       "fix": "action:meditate"
+      },
+      {
+       "kind": "body_level_at_least",
+       "value": 27,
+       "cause": "structure",
+       "hard": false,
+       "fix": "room:wg_gorge_mouth"
+      },
+      {
+       "kind": "method_supports",
+       "cause": "material",
+       "hard": true,
+       "fix": "page:cultivation.methods"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "heart_tempering_1",
+   "key": "heart_tempering_1",
+   "realm": "heart_tempering",
+   "realm_index": 4,
+   "sub": 1,
+   "name": "Heart Tempering 1",
+   "level": 28,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 6700,
+   "consolidation_s": 420,
+   "major": true,
+   "order_style": false,
+   "next": "heart_tempering_2"
+  },
+  {
+   "id": "heart_tempering_2",
+   "key": "heart_tempering_2",
+   "realm": "heart_tempering",
+   "realm_index": 4,
+   "sub": 2,
+   "name": "Heart Tempering 2",
+   "level": 29,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 6700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "heart_tempering_3"
+  },
+  {
+   "id": "heart_tempering_3",
+   "key": "heart_tempering_3",
+   "realm": "heart_tempering",
+   "realm_index": 4,
+   "sub": 3,
+   "name": "Heart Tempering 3",
+   "level": 30,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 6700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "heart_tempering_4"
+  },
+  {
+   "id": "heart_tempering_4",
+   "key": "heart_tempering_4",
+   "realm": "heart_tempering",
+   "realm_index": 4,
+   "sub": 4,
+   "name": "Heart Tempering 4",
+   "level": 31,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 6700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "heart_tempering_5"
+  },
+  {
+   "id": "heart_tempering_5",
+   "key": "heart_tempering_5",
+   "realm": "heart_tempering",
+   "realm_index": 4,
+   "sub": 5,
+   "name": "Heart Tempering 5",
+   "level": 32,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 6700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "heart_tempering_6"
+  },
+  {
+   "id": "heart_tempering_6",
+   "key": "heart_tempering_6",
+   "realm": "heart_tempering",
+   "realm_index": 4,
+   "sub": 6,
+   "name": "Heart Tempering 6",
+   "level": 33,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 6700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "heart_tempering_7"
+  },
+  {
+   "id": "heart_tempering_7",
+   "key": "heart_tempering_7",
+   "realm": "heart_tempering",
+   "realm_index": 4,
+   "sub": 7,
+   "name": "Heart Tempering 7",
+   "level": 34,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 6700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "heart_tempering_8"
+  },
+  {
+   "id": "heart_tempering_8",
+   "key": "heart_tempering_8",
+   "realm": "heart_tempering",
+   "realm_index": 4,
+   "sub": 8,
+   "name": "Heart Tempering 8",
+   "level": 35,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 6700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "heart_tempering_9"
+  },
+  {
+   "id": "heart_tempering_9",
+   "key": "heart_tempering_9",
+   "realm": "heart_tempering",
+   "realm_index": 4,
+   "sub": 9,
+   "name": "Heart Tempering 9",
+   "level": 36,
+   "levels": 1,
+   "energy": "primal_qi",
+   "accumulate_needed": 6700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "cloud_stride_1",
+   "major_breakthrough": {
+    "to": "cloud_stride_1",
+    "event": "heart_trial",
+    "requirements": {
+     "all": [
+      {
+       "kind": "event_passed",
+       "event": "heart_trial",
+       "cause": "understanding",
+       "hard": true,
+       "fix": "room:si_trial_of_reflections"
+      },
+      {
+       "kind": "item_owned",
+       "item": "qi_refining_pill",
+       "count": 1,
+       "consume": true,
+       "cause": "material",
+       "hard": true,
+       "fix": "recipe:qi_refining_pill"
+      },
+      {
+       "kind": "method_supports",
+       "cause": "material",
+       "hard": true,
+       "fix": "page:cultivation.methods"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "cloud_stride_1",
+   "key": "cloud_stride_1",
+   "realm": "cloud_stride",
+   "realm_index": 5,
+   "sub": 1,
+   "name": "Cloud Stride 1",
+   "level": 37,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8000,
+   "consolidation_s": 600,
+   "major": true,
+   "order_style": false,
+   "next": "cloud_stride_2"
+  },
+  {
+   "id": "cloud_stride_2",
+   "key": "cloud_stride_2",
+   "realm": "cloud_stride",
+   "realm_index": 5,
+   "sub": 2,
+   "name": "Cloud Stride 2",
+   "level": 38,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "cloud_stride_3"
+  },
+  {
+   "id": "cloud_stride_3",
+   "key": "cloud_stride_3",
+   "realm": "cloud_stride",
+   "realm_index": 5,
+   "sub": 3,
+   "name": "Cloud Stride 3",
+   "level": 39,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "cloud_stride_4"
+  },
+  {
+   "id": "cloud_stride_4",
+   "key": "cloud_stride_4",
+   "realm": "cloud_stride",
+   "realm_index": 5,
+   "sub": 4,
+   "name": "Cloud Stride 4",
+   "level": 40,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "cloud_stride_5"
+  },
+  {
+   "id": "cloud_stride_5",
+   "key": "cloud_stride_5",
+   "realm": "cloud_stride",
+   "realm_index": 5,
+   "sub": 5,
+   "name": "Cloud Stride 5",
+   "level": 41,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "cloud_stride_6"
+  },
+  {
+   "id": "cloud_stride_6",
+   "key": "cloud_stride_6",
+   "realm": "cloud_stride",
+   "realm_index": 5,
+   "sub": 6,
+   "name": "Cloud Stride 6",
+   "level": 42,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "cloud_stride_7"
+  },
+  {
+   "id": "cloud_stride_7",
+   "key": "cloud_stride_7",
+   "realm": "cloud_stride",
+   "realm_index": 5,
+   "sub": 7,
+   "name": "Cloud Stride 7",
+   "level": 43,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "cloud_stride_8"
+  },
+  {
+   "id": "cloud_stride_8",
+   "key": "cloud_stride_8",
+   "realm": "cloud_stride",
+   "realm_index": 5,
+   "sub": 8,
+   "name": "Cloud Stride 8",
+   "level": 44,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "cloud_stride_9"
+  },
+  {
+   "id": "cloud_stride_9",
+   "key": "cloud_stride_9",
+   "realm": "cloud_stride",
+   "realm_index": 5,
+   "sub": 9,
+   "name": "Cloud Stride 9",
+   "level": 45,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "spirit_awakening_1",
+   "major_breakthrough": {
+    "to": "spirit_awakening_1",
+    "event": null,
+    "requirements": {
+     "all": [
+      {
+       "kind": "purity_at_least",
+       "grade": 6,
+       "cause": "energy",
+       "hard": true,
+       "fix": "page:cultivation.seclusion"
+      },
+      {
+       "kind": "item_owned",
+       "item": "mind_lake_opening_pill",
+       "count": 1,
+       "consume": true,
+       "cause": "material",
+       "hard": true,
+       "fix": "recipe:mind_lake_opening_pill"
+      },
+      {
+       "kind": "method_supports",
+       "cause": "material",
+       "hard": true,
+       "fix": "page:cultivation.methods"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "spirit_awakening_1",
+   "key": "spirit_awakening_1",
+   "realm": "spirit_awakening",
+   "realm_index": 6,
+   "sub": 1,
+   "name": "Spirit Awakening 1",
+   "level": 46,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8700,
+   "consolidation_s": 900,
+   "major": true,
+   "order_style": false,
+   "next": "spirit_awakening_2"
+  },
+  {
+   "id": "spirit_awakening_2",
+   "key": "spirit_awakening_2",
+   "realm": "spirit_awakening",
+   "realm_index": 6,
+   "sub": 2,
+   "name": "Spirit Awakening 2",
+   "level": 47,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "spirit_awakening_3"
+  },
+  {
+   "id": "spirit_awakening_3",
+   "key": "spirit_awakening_3",
+   "realm": "spirit_awakening",
+   "realm_index": 6,
+   "sub": 3,
+   "name": "Spirit Awakening 3",
+   "level": 48,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "spirit_awakening_4"
+  },
+  {
+   "id": "spirit_awakening_4",
+   "key": "spirit_awakening_4",
+   "realm": "spirit_awakening",
+   "realm_index": 6,
+   "sub": 4,
+   "name": "Spirit Awakening 4",
+   "level": 49,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "spirit_awakening_5"
+  },
+  {
+   "id": "spirit_awakening_5",
+   "key": "spirit_awakening_5",
+   "realm": "spirit_awakening",
+   "realm_index": 6,
+   "sub": 5,
+   "name": "Spirit Awakening 5",
+   "level": 50,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "spirit_awakening_6"
+  },
+  {
+   "id": "spirit_awakening_6",
+   "key": "spirit_awakening_6",
+   "realm": "spirit_awakening",
+   "realm_index": 6,
+   "sub": 6,
+   "name": "Spirit Awakening 6",
+   "level": 51,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "spirit_awakening_7"
+  },
+  {
+   "id": "spirit_awakening_7",
+   "key": "spirit_awakening_7",
+   "realm": "spirit_awakening",
+   "realm_index": 6,
+   "sub": 7,
+   "name": "Spirit Awakening 7",
+   "level": 52,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "spirit_awakening_8"
+  },
+  {
+   "id": "spirit_awakening_8",
+   "key": "spirit_awakening_8",
+   "realm": "spirit_awakening",
+   "realm_index": 6,
+   "sub": 8,
+   "name": "Spirit Awakening 8",
+   "level": 53,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "spirit_awakening_9"
+  },
+  {
+   "id": "spirit_awakening_9",
+   "key": "spirit_awakening_9",
+   "realm": "spirit_awakening",
+   "realm_index": 6,
+   "sub": 9,
+   "name": "Spirit Awakening 9",
+   "level": 54,
+   "levels": 1,
+   "energy": "true_qi",
+   "accumulate_needed": 8700,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": false,
+   "next": "heaven_glimpse_1",
+   "major_breakthrough": {
+    "to": "heaven_glimpse_1",
+    "event": null,
+    "requirements": {
+     "all": [
+      {
+       "kind": "dao_tier_at_least",
+       "dao": "any",
+       "tier": 4,
+       "cause": "understanding",
+       "hard": true,
+       "fix": "page:cultivation.dao"
+      },
+      {
+       "kind": "zone_supports",
+       "realm": "heaven_glimpse_1",
+       "cause": "environment",
+       "hard": true,
+       "fix": "page:world_map"
+      },
+      {
+       "kind": "method_supports",
+       "cause": "material",
+       "hard": true,
+       "fix": "page:cultivation.methods"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "heaven_glimpse_1",
+   "key": "heaven_glimpse_1",
+   "realm": "heaven_glimpse",
+   "realm_index": 7,
+   "sub": 1,
+   "name": "Heaven Glimpse 1",
+   "level": 55,
+   "levels": 3,
+   "energy": "true_qi",
+   "accumulate_needed": 30000,
+   "consolidation_s": 1200,
+   "major": true,
+   "order_style": true,
+   "next": "heaven_glimpse_2"
+  },
+  {
+   "id": "heaven_glimpse_2",
+   "key": "heaven_glimpse_2",
+   "realm": "heaven_glimpse",
+   "realm_index": 7,
+   "sub": 2,
+   "name": "Heaven Glimpse 2",
+   "level": 58,
+   "levels": 3,
+   "energy": "true_qi",
+   "accumulate_needed": 30000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "heaven_glimpse_3"
+  },
+  {
+   "id": "heaven_glimpse_3",
+   "key": "heaven_glimpse_3",
+   "realm": "heaven_glimpse",
+   "realm_index": 7,
+   "sub": 3,
+   "name": "Heaven Glimpse 3",
+   "level": 61,
+   "levels": 3,
+   "energy": "true_qi",
+   "accumulate_needed": 30000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "sage_1",
+   "major_breakthrough": {
+    "to": "sage_1",
+    "event": null,
+    "requirements": {
+     "all": [
+      {
+       "kind": "purity_at_least",
+       "grade": 3,
+       "cause": "energy",
+       "hard": true,
+       "fix": "page:cultivation.seclusion"
+      },
+      {
+       "kind": "item_owned",
+       "item": "sage_condensing_pill",
+       "count": 1,
+       "consume": true,
+       "cause": "material",
+       "hard": true,
+       "fix": "recipe:sage_condensing_pill"
+      },
+      {
+       "kind": "zone_supports",
+       "realm": "sage_1",
+       "cause": "environment",
+       "hard": true,
+       "fix": "page:world_map"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "sage_1",
+   "key": "sage_1",
+   "realm": "sage",
+   "realm_index": 8,
+   "sub": 1,
+   "name": "Sage 1",
+   "level": 64,
+   "levels": 3,
+   "energy": "sage_qi",
+   "accumulate_needed": 80100,
+   "consolidation_s": 1800,
+   "major": true,
+   "order_style": true,
+   "next": "sage_2"
+  },
+  {
+   "id": "sage_2",
+   "key": "sage_2",
+   "realm": "sage",
+   "realm_index": 8,
+   "sub": 2,
+   "name": "Sage 2",
+   "level": 67,
+   "levels": 3,
+   "energy": "sage_qi",
+   "accumulate_needed": 80100,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "sage_3"
+  },
+  {
+   "id": "sage_3",
+   "key": "sage_3",
+   "realm": "sage",
+   "realm_index": 8,
+   "sub": 3,
+   "name": "Sage 3",
+   "level": 70,
+   "levels": 3,
+   "energy": "sage_qi",
+   "accumulate_needed": 80100,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "sage_sovereign_1",
+   "major_breakthrough": {
+    "to": "sage_sovereign_1",
+    "event": null,
+    "requirements": {
+     "all": [
+      {
+       "kind": "qi_full",
+       "cause": "energy",
+       "hard": false,
+       "fix": "action:meditate"
+      },
+      {
+       "kind": "dao_tier_at_least",
+       "dao": "any",
+       "tier": 5,
+       "cause": "understanding",
+       "hard": true,
+       "fix": "page:cultivation.dao"
+      },
+      {
+       "kind": "method_supports",
+       "cause": "material",
+       "hard": true,
+       "fix": "page:cultivation.methods"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "sage_sovereign_1",
+   "key": "sage_sovereign_1",
+   "realm": "sage_sovereign",
+   "realm_index": 9,
+   "sub": 1,
+   "name": "Sage Sovereign 1",
+   "level": 73,
+   "levels": 3,
+   "energy": "sage_qi",
+   "accumulate_needed": 60000,
+   "consolidation_s": 2400,
+   "major": true,
+   "order_style": true,
+   "next": "sage_sovereign_2"
+  },
+  {
+   "id": "sage_sovereign_2",
+   "key": "sage_sovereign_2",
+   "realm": "sage_sovereign",
+   "realm_index": 9,
+   "sub": 2,
+   "name": "Sage Sovereign 2",
+   "level": 76,
+   "levels": 3,
+   "energy": "sage_qi",
+   "accumulate_needed": 60000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "sage_sovereign_3"
+  },
+  {
+   "id": "sage_sovereign_3",
+   "key": "sage_sovereign_3",
+   "realm": "sage_sovereign",
+   "realm_index": 9,
+   "sub": 3,
+   "name": "Sage Sovereign 3",
+   "level": 79,
+   "levels": 3,
+   "energy": "sage_qi",
+   "accumulate_needed": 60000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "will_manifest_1",
+   "major_breakthrough": {
+    "to": "will_manifest_1",
+    "event": "presence_trial",
+    "requirements": {
+     "all": [
+      {
+       "kind": "soul_at_least",
+       "value": 1500,
+       "cause": "structure",
+       "hard": true,
+       "fix": "page:cultivation"
+      },
+      {
+       "kind": "event_passed",
+       "event": "presence_trial",
+       "cause": "understanding",
+       "hard": true,
+       "fix": "page:cultivation"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "will_manifest_1",
+   "key": "will_manifest_1",
+   "realm": "will_manifest",
+   "realm_index": 10,
+   "sub": 1,
+   "name": "Will Manifest 1",
+   "level": 82,
+   "levels": 3,
+   "energy": "sage_qi",
+   "accumulate_needed": 99900,
+   "consolidation_s": 3000,
+   "major": true,
+   "order_style": true,
+   "next": "will_manifest_2"
+  },
+  {
+   "id": "will_manifest_2",
+   "key": "will_manifest_2",
+   "realm": "will_manifest",
+   "realm_index": 10,
+   "sub": 2,
+   "name": "Will Manifest 2",
+   "level": 85,
+   "levels": 3,
+   "energy": "sage_qi",
+   "accumulate_needed": 99900,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "will_manifest_3"
+  },
+  {
+   "id": "will_manifest_3",
+   "key": "will_manifest_3",
+   "realm": "will_manifest",
+   "realm_index": 10,
+   "sub": 3,
+   "name": "Will Manifest 3",
+   "level": 88,
+   "levels": 3,
+   "energy": "sage_qi",
+   "accumulate_needed": 99900,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "sphere_lord_1",
+   "major_breakthrough": {
+    "to": "sphere_lord_1",
+    "event": null,
+    "requirements": {
+     "all": [
+      {
+       "kind": "presence_level_at_least",
+       "value": 5,
+       "cause": "understanding",
+       "hard": true,
+       "fix": "page:cultivation"
+      },
+      {
+       "kind": "item_owned",
+       "item": "sphere_comprehension_stone",
+       "count": 1,
+       "consume": true,
+       "cause": "material",
+       "hard": true,
+       "fix": "page:inventory"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "sphere_lord_1",
+   "key": "sphere_lord_1",
+   "realm": "sphere_lord",
+   "realm_index": 11,
+   "sub": 1,
+   "name": "Sphere Lord 1",
+   "level": 91,
+   "levels": 3,
+   "energy": "sage_qi",
+   "accumulate_needed": 99900,
+   "consolidation_s": 3600,
+   "major": true,
+   "order_style": true,
+   "next": "sphere_lord_2"
+  },
+  {
+   "id": "sphere_lord_2",
+   "key": "sphere_lord_2",
+   "realm": "sphere_lord",
+   "realm_index": 11,
+   "sub": 2,
+   "name": "Sphere Lord 2",
+   "level": 94,
+   "levels": 3,
+   "energy": "sage_qi",
+   "accumulate_needed": 99900,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "sphere_lord_3"
+  },
+  {
+   "id": "sphere_lord_3",
+   "key": "sphere_lord_3",
+   "realm": "sphere_lord",
+   "realm_index": 11,
+   "sub": 3,
+   "name": "Sphere Lord 3",
+   "level": 97,
+   "levels": 3,
+   "energy": "sage_qi",
+   "accumulate_needed": 99900,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "law_touching_1",
+   "major_breakthrough": {
+    "to": "law_touching_1",
+    "event": null,
+    "requirements": {
+     "all": [
+      {
+       "kind": "law_affinity_at_least",
+       "law": "any",
+       "value": 1,
+       "count": 1,
+       "cause": "environment",
+       "hard": true,
+       "fix": "page:world_map"
+      },
+      {
+       "kind": "item_owned",
+       "item": "law_condensing_pill",
+       "count": 1,
+       "consume": true,
+       "cause": "material",
+       "hard": true,
+       "fix": "page:inventory"
+      },
+      {
+       "kind": "item_owned",
+       "item": "law_touching_pill",
+       "count": 1,
+       "consume": true,
+       "cause": "material",
+       "hard": true,
+       "fix": "page:inventory"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "law_touching_1",
+   "key": "law_touching_1",
+   "realm": "law_touching",
+   "realm_index": 12,
+   "sub": 1,
+   "name": "Law Touching 1",
+   "level": 100,
+   "levels": 3,
+   "energy": "law_qi",
+   "accumulate_needed": 120000,
+   "consolidation_s": 5400,
+   "major": true,
+   "order_style": true,
+   "next": "law_touching_2"
+  },
+  {
+   "id": "law_touching_2",
+   "key": "law_touching_2",
+   "realm": "law_touching",
+   "realm_index": 12,
+   "sub": 2,
+   "name": "Law Touching 2",
+   "level": 103,
+   "levels": 3,
+   "energy": "law_qi",
+   "accumulate_needed": 120000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "law_touching_3"
+  },
+  {
+   "id": "law_touching_3",
+   "key": "law_touching_3",
+   "realm": "law_touching",
+   "realm_index": 12,
+   "sub": 3,
+   "name": "Law Touching 3",
+   "level": 106,
+   "levels": 3,
+   "energy": "law_qi",
+   "accumulate_needed": 120000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "monarch_1",
+   "major_breakthrough": {
+    "to": "monarch_1",
+    "event": null,
+    "requirements": {
+     "all": [
+      {
+       "kind": "law_affinity_at_least",
+       "law": "any",
+       "value": 3,
+       "count": 2,
+       "cause": "understanding",
+       "hard": true,
+       "fix": "page:world_map"
+      },
+      {
+       "kind": "zone_supports",
+       "realm": "monarch_1",
+       "cause": "environment",
+       "hard": true,
+       "fix": "page:world_map"
+      },
+      {
+       "kind": "item_owned",
+       "item": "monarch_condensing_pill",
+       "count": 1,
+       "consume": true,
+       "cause": "material",
+       "hard": false,
+       "fix": "page:inventory"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "monarch_1",
+   "key": "monarch_1",
+   "realm": "monarch",
+   "realm_index": 13,
+   "sub": 1,
+   "name": "Monarch 1",
+   "level": 109,
+   "levels": 3,
+   "energy": "monarch_qi",
+   "accumulate_needed": 120000,
+   "consolidation_s": 7200,
+   "major": true,
+   "order_style": true,
+   "next": "monarch_2"
+  },
+  {
+   "id": "monarch_2",
+   "key": "monarch_2",
+   "realm": "monarch",
+   "realm_index": 13,
+   "sub": 2,
+   "name": "Monarch 2",
+   "level": 112,
+   "levels": 3,
+   "energy": "monarch_qi",
+   "accumulate_needed": 120000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "monarch_3"
+  },
+  {
+   "id": "monarch_3",
+   "key": "monarch_3",
+   "realm": "monarch",
+   "realm_index": 13,
+   "sub": 3,
+   "name": "Monarch 3",
+   "level": 115,
+   "levels": 3,
+   "energy": "monarch_qi",
+   "accumulate_needed": 120000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "half_heaven_monarch",
+   "major_breakthrough": {
+    "to": "half_heaven_monarch",
+    "event": null,
+    "requirements": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "heavenly_dao_insight",
+       "cause": "understanding",
+       "hard": true,
+       "fix": "page:cultivation"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "half_heaven_monarch",
+   "key": "half_heaven_monarch",
+   "realm": "half_heaven_monarch",
+   "realm_index": 14,
+   "sub": 0,
+   "name": "Half-Heaven Monarch",
+   "level": 118,
+   "levels": 1,
+   "energy": "monarch_qi",
+   "accumulate_needed": 40000,
+   "consolidation_s": 7200,
+   "major": true,
+   "order_style": false,
+   "next": "dao_sigil",
+   "major_breakthrough": {
+    "to": "dao_sigil",
+    "event": null,
+    "requirements": {
+     "all": [
+      {
+       "kind": "powers_refined_at_least",
+       "value": 1,
+       "cause": "structure",
+       "hard": true,
+       "fix": "page:cultivation"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "dao_sigil",
+   "key": "dao_sigil",
+   "realm": "dao_sigil",
+   "realm_index": 15,
+   "sub": 0,
+   "name": "Dao Sigil",
+   "level": 119,
+   "levels": 1,
+   "energy": "monarch_qi",
+   "accumulate_needed": 40000,
+   "consolidation_s": 7200,
+   "major": true,
+   "order_style": false,
+   "next": "heavens_threshold",
+   "major_breakthrough": {
+    "to": "heavens_threshold",
+    "event": null,
+    "requirements": {
+     "all": [
+      {
+       "kind": "powers_refined_at_least",
+       "value": 5,
+       "cause": "structure",
+       "hard": true,
+       "fix": "page:cultivation"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "heavens_threshold",
+   "key": "heavens_threshold",
+   "realm": "heavens_threshold",
+   "realm_index": 16,
+   "sub": 0,
+   "name": "Heaven's Threshold",
+   "level": 120,
+   "levels": 1,
+   "energy": "monarch_qi",
+   "accumulate_needed": 40000,
+   "consolidation_s": 7200,
+   "major": true,
+   "order_style": false,
+   "next": "inner_heaven_1",
+   "major_breakthrough": {
+    "to": "inner_heaven_1",
+    "event": "inner_world_forming",
+    "requirements": {
+     "all": [
+      {
+       "kind": "powers_refined_at_least",
+       "value": 7,
+       "cause": "structure",
+       "hard": true,
+       "fix": "page:cultivation"
+      },
+      {
+       "kind": "qi_full",
+       "cause": "energy",
+       "hard": true,
+       "fix": "action:meditate"
+      },
+      {
+       "kind": "room_safe",
+       "cause": "environment",
+       "hard": true,
+       "fix": "page:world_map"
+      },
+      {
+       "kind": "item_owned",
+       "item": "sigil_anchor_pill",
+       "count": 1,
+       "consume": true,
+       "cause": "material",
+       "hard": false,
+       "fix": "page:inventory"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "inner_heaven_1",
+   "key": "inner_heaven_1",
+   "realm": "inner_heaven",
+   "realm_index": 17,
+   "sub": 1,
+   "name": "Inner Heaven 1",
+   "level": 121,
+   "levels": 5,
+   "energy": "heavenforce",
+   "accumulate_needed": 200000,
+   "consolidation_s": 10800,
+   "major": true,
+   "order_style": true,
+   "next": "inner_heaven_2"
+  },
+  {
+   "id": "inner_heaven_2",
+   "key": "inner_heaven_2",
+   "realm": "inner_heaven",
+   "realm_index": 17,
+   "sub": 2,
+   "name": "Inner Heaven 2",
+   "level": 126,
+   "levels": 5,
+   "energy": "heavenforce",
+   "accumulate_needed": 200000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "inner_heaven_3"
+  },
+  {
+   "id": "inner_heaven_3",
+   "key": "inner_heaven_3",
+   "realm": "inner_heaven",
+   "realm_index": 17,
+   "sub": 3,
+   "name": "Inner Heaven 3",
+   "level": 131,
+   "levels": 5,
+   "energy": "heavenforce",
+   "accumulate_needed": 200000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "inner_heaven_4"
+  },
+  {
+   "id": "inner_heaven_4",
+   "key": "inner_heaven_4",
+   "realm": "inner_heaven",
+   "realm_index": 17,
+   "sub": 4,
+   "name": "Inner Heaven 4",
+   "level": 136,
+   "levels": 5,
+   "energy": "heavenforce",
+   "accumulate_needed": 200000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "inner_heaven_5"
+  },
+  {
+   "id": "inner_heaven_5",
+   "key": "inner_heaven_5",
+   "realm": "inner_heaven",
+   "realm_index": 17,
+   "sub": 5,
+   "name": "Inner Heaven 5",
+   "level": 141,
+   "levels": 5,
+   "energy": "heavenforce",
+   "accumulate_needed": 200000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "inner_heaven_6"
+  },
+  {
+   "id": "inner_heaven_6",
+   "key": "inner_heaven_6",
+   "realm": "inner_heaven",
+   "realm_index": 17,
+   "sub": 6,
+   "name": "Inner Heaven 6",
+   "level": 146,
+   "levels": 5,
+   "energy": "heavenforce",
+   "accumulate_needed": 200000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "inner_heaven_7"
+  },
+  {
+   "id": "inner_heaven_7",
+   "key": "inner_heaven_7",
+   "realm": "inner_heaven",
+   "realm_index": 17,
+   "sub": 7,
+   "name": "Inner Heaven 7",
+   "level": 151,
+   "levels": 5,
+   "energy": "heavenforce",
+   "accumulate_needed": 200000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "inner_heaven_8"
+  },
+  {
+   "id": "inner_heaven_8",
+   "key": "inner_heaven_8",
+   "realm": "inner_heaven",
+   "realm_index": 17,
+   "sub": 8,
+   "name": "Inner Heaven 8",
+   "level": 156,
+   "levels": 5,
+   "energy": "heavenforce",
+   "accumulate_needed": 200000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "inner_heaven_9"
+  },
+  {
+   "id": "inner_heaven_9",
+   "key": "inner_heaven_9",
+   "realm": "inner_heaven",
+   "realm_index": 17,
+   "sub": 9,
+   "name": "Inner Heaven 9",
+   "level": 161,
+   "levels": 5,
+   "energy": "heavenforce",
+   "accumulate_needed": 200000,
+   "consolidation_s": 0,
+   "major": false,
+   "order_style": true,
+   "next": "world_genesis",
+   "major_breakthrough": {
+    "to": "world_genesis",
+    "event": "genesis",
+    "requirements": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "genesis_requirements_met",
+       "cause": "understanding",
+       "hard": true,
+       "fix": "page:cultivation"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "world_genesis",
+   "key": "world_genesis",
+   "realm": "world_genesis",
+   "realm_index": 18,
+   "sub": 0,
+   "name": "World Genesis",
+   "level": 166,
+   "levels": 1,
+   "energy": "heavenforce",
+   "accumulate_needed": 0,
+   "consolidation_s": 0,
+   "major": true,
+   "order_style": false,
+   "genesis": true,
+   "next": ""
+  }
+ ]
+}

@@ -1,0 +1,721 @@
+{
+ "schema_version": 1,
+ "pools": {
+  "hp": {
+   "a": 50,
+   "b": 20,
+   "c": 0.9,
+   "from_level": 0
+  },
+  "qi": {
+   "a": 20,
+   "b": 8,
+   "c": 0.5,
+   "from_realm": "bone_forging_7"
+  },
+  "soul": {
+   "a": 100,
+   "b": 10,
+   "c": 0.4,
+   "offset": 46,
+   "from_realm": "spirit_awakening_1"
+  }
+ },
+ "regen_per_s": {
+  "hp": 0.005,
+  "qi": 0.0075,
+  "soul": 0.00375,
+  "combat_delay_s": 5,
+  "meditate_mult": 8
+ },
+ "attributes": {
+  "base": 5,
+  "per_level": 1,
+  "body_per_body_level": 1,
+  "essence_per_purity_grade": 3,
+  "spirit_per_soul_points": 0.1,
+  "insight_per_dao_tier": 2,
+  "essence_per_capacity": 10
+ },
+ "attribute_effects": {
+  "body": {
+   "max_hp_pct": 0.01,
+   "physical_defense": 0.5,
+   "body_weapon_attack_pct": 0.003,
+   "toxicity_tolerance": 0.1
+  },
+  "agility": {
+   "move_speed_pct": 0.001,
+   "attack_speed": 0.002,
+   "crit_chance": 0.001,
+   "accuracy": 1.0,
+   "evasion": 0.5
+  },
+  "essence": {
+   "max_qi_pct": 0.01,
+   "qi_attack_pct": 0.005,
+   "technique_cost": 0.001,
+   "qi_resistance": 0.3,
+   "qi_regen": 0.005
+  },
+  "spirit": {
+   "max_soul_pct": 0.01,
+   "soul_defense": 0.5,
+   "soul_attack_pct": 0.005,
+   "sense_radius_pct": 0.01,
+   "will": 1.0,
+   "tenacity": 0.002
+  },
+  "insight": {
+   "insight_rate": 0.005,
+   "mastery_gain": 0.003,
+   "accuracy": 0.5,
+   "crafting_control": 0.002
+  },
+  "fortune": {
+   "drop_rate": 0.002,
+   "coin_find": 0.003,
+   "crit_chance": 0.0005
+  }
+ },
+ "meridian_points_per_level": [
+  {
+   "from_level": 1,
+   "points": 2
+  },
+  {
+   "from_level": 55,
+   "points": 3
+  },
+  {
+   "from_level": 121,
+   "points": 4
+  }
+ ],
+ "meridian_gates": {
+  "body": {
+   "25": {
+    "stat": "max_hp",
+    "op": "pct_add",
+    "value": 0.05
+   },
+   "50": {
+    "flag": "knockback_immune_attacking"
+   },
+   "100": {
+    "flag": "survive_lethal"
+   }
+  },
+  "agility": {
+   "25": {
+    "flag": "dodge_cooldown_20"
+   },
+   "50": {
+    "flag": "dodge_second_charge"
+   },
+   "100": {
+    "flag": "move_keeps_cultivate"
+   }
+  },
+  "essence": {
+   "25": {
+    "flag": "first_technique_free"
+   },
+   "50": {
+    "flag": "flight_qi_20"
+   },
+   "100": {
+    "flag": "projectile_pierce"
+   }
+  },
+  "spirit": {
+   "25": {
+    "flag": "sense_cost_25"
+   },
+   "50": {
+    "flag": "fear_immune_weaker"
+   },
+   "100": {
+    "flag": "soul_ignore_20"
+   }
+  },
+  "insight": {
+   "25": {
+    "flag": "extra_reroll"
+   },
+   "50": {
+    "flag": "insight_sites_double"
+   },
+   "100": {
+    "flag": "extra_dao_effect"
+   }
+  }
+ },
+ "move": {
+  "base": 205,
+  "sprint": 1.7,
+  "sprint_after_s": 2.0,
+  "cap_pct": 0.4,
+  "attack_factor": 0.3,
+  "guard_factor": 0.5,
+  "shallows_factor": 0.7
+ },
+ "crit": {
+  "base": 0.05,
+  "per_agility": 0.001,
+  "per_fortune": 0.0005,
+  "cap": 0.75,
+  "damage_base": 1.5,
+  "damage_cap": 3.0,
+  "tenacity_divisor": 4
+ },
+ "hit": {
+  "base": 1.1,
+  "k": 0.35,
+  "floor": 0.55,
+  "cap": 1.0
+ },
+ "defence": {
+  "k_flat": 100,
+  "k_level": 15,
+  "cap": 0.75
+ },
+ "realm_gap": {
+  "up_per_realm": 0.25,
+  "up_cap": 1.0,
+  "down_per_realm": 0.2,
+  "down_max_reduction": 0.6
+ },
+ "energy_multiplier": {
+  "none": 1.0,
+  "body": 1.0,
+  "primal_qi": 1.0,
+  "true_qi": 1.3,
+  "sage_qi": 1.7,
+  "law_qi": 2.2,
+  "monarch_qi": 2.8,
+  "heavenforce": 3.5
+ },
+ "purity_bonus_per_grade": 0.025,
+ "kill_gap_factor": [
+  {
+   "min_diff": 5,
+   "mult": 1.2
+  },
+  {
+   "min_diff": -4,
+   "mult": 1.0
+  },
+  {
+   "min_diff": -9,
+   "mult": 0.5
+  },
+  {
+   "min_diff": -999,
+   "mult": 0.1
+  }
+ ],
+ "technique_cost": {
+  "per_level": 0.04,
+  "composure_zero_factor": 1.5,
+  "mastery_cost_per_tier": -0.05,
+  "mastery_damage_per_tier": 0.08,
+  "dao_damage_per_tier": 0.05
+ },
+ "cp": {
+  "hp_div": 10,
+  "attack_weight": 0.5,
+  "defence_div": 4
+ },
+ "equipment": {
+  "weapon_attack": {
+   "a": 8,
+   "b": 3,
+   "c": 0.12
+  },
+  "armour_defence": {
+   "a": 4,
+   "b": 1.5,
+   "c": 0.05
+  },
+  "enhance_per_level": 0.05,
+  "fist_weapon_pct": 0.6,
+  "slot_share": {
+   "robe": 0.4,
+   "trousers": 0.3,
+   "boots": 0.15,
+   "hat": 0.15
+  },
+  "energy_type_penalty": 0.5
+ },
+ "mob": {
+  "hp": {
+   "a": 30,
+   "b": 15,
+   "c": 1.1
+  },
+  "attack": {
+   "a": 5,
+   "b": 2.2,
+   "c": 0.1
+  },
+  "accuracy": {
+   "a": 10,
+   "b": 3
+  },
+  "evasion_pct": 0.3,
+  "agile_evasion_pct": 0.6,
+  "roles": {
+   "normal": {
+    "hp": 1,
+    "attack": 1,
+    "defence": 0.8
+   },
+   "elite": {
+    "hp": 6,
+    "attack": 1.5,
+    "defence": 1.2
+   },
+   "field_boss": {
+    "hp": 40,
+    "attack": 2,
+    "defence": 1.5
+   },
+   "dungeon_boss": {
+    "hp": 80,
+    "attack": 2.2,
+    "defence": 1.5
+   },
+   "story_boss": {
+    "hp": 20,
+    "attack": 1.6,
+    "defence": 1.2
+   },
+   "event": {
+    "hp": 0.4,
+    "attack": 0.8,
+    "defence": 0.5
+   },
+   "trial": {
+    "hp": 3,
+    "attack": 0.7,
+    "defence": 1.0
+   }
+  },
+  "own_element_resistance": 0.3,
+  "overcome_element_resistance": 0.15
+ },
+ "combat": {
+  "hitstop": 0.05,
+  "hitstop_crit": 0.1,
+  "knockback_light": 20,
+  "knockback_heavy": 80,
+  "flinch_pct": 0.2,
+  "flinch_s": 0.4,
+  "leash": 600,
+  "threat_heal": 1.5,
+  "spawn_protection_s": 1.5,
+  "depth_band": 26,
+  "auto_turn_range": 160,
+  "backlash_stun_s": 1.0,
+  "backlash_qi_pct": 0.05,
+  "dodge_distance": 140,
+  "dodge_invuln_s": 0.25,
+  "dodge_cooldown_s": 2.5,
+  "parry_stagger_s": 0.8,
+  "parry_stagger_boss_s": 0.3,
+  "combo_window_s": 0.5,
+  "steadfast_s": 8,
+  "vulnerable": 0.2,
+  "shock": 0.2,
+  "status_duration_tenacity": 0.5
+ },
+ "death": {
+  "progress_loss": 0.1,
+  "wake_hp": 0.5,
+  "talisman_hp": 0.3,
+  "talisman_invuln_s": 5,
+  "talisman_cooldown_s": 300
+ },
+ "toxicity": {
+  "tolerance_base": 30,
+  "drain_per_min": 1,
+  "meditate_drain_mult": 2,
+  "repeat_window_s": 300,
+  "repeat_factor": 0.5
+ },
+ "hollowing": {
+  "valley_cap": 49,
+  "decay_per_min": 1,
+  "meditate_mult": 3
+ },
+ "composure": {
+  "max": 100,
+  "recover_per_s": 10,
+  "recover_delay_s": 3,
+  "meditate_full_s": 5
+ },
+ "grade_bands": [
+  [
+   "plain",
+   1,
+   9
+  ],
+  [
+   "common",
+   10,
+   18
+  ],
+  [
+   "earth",
+   19,
+   36
+  ],
+  [
+   "heaven",
+   37,
+   54
+  ],
+  [
+   "mystic",
+   55,
+   63
+  ],
+  [
+   "spirit",
+   64,
+   72
+  ],
+  [
+   "sage",
+   73,
+   81
+  ],
+  [
+   "sovereign",
+   82,
+   90
+  ],
+  [
+   "will",
+   91,
+   99
+  ],
+  [
+   "sphere",
+   100,
+   108
+  ],
+  [
+   "law",
+   109,
+   120
+  ],
+  [
+   "monarch",
+   121,
+   140
+  ],
+  [
+   "inner_heaven",
+   141,
+   165
+  ]
+ ],
+ "stats": [
+  {
+   "id": "max_hp",
+   "group": "pool",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "max_qi",
+   "group": "pool",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "max_soul",
+   "group": "pool",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "body",
+   "group": "attribute",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "agility",
+   "group": "attribute",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "essence",
+   "group": "attribute",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "spirit",
+   "group": "attribute",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "insight",
+   "group": "attribute",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "fortune",
+   "group": "attribute",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "physical_attack",
+   "group": "offense",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "qi_attack",
+   "group": "offense",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "soul_attack",
+   "group": "offense",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "accuracy",
+   "group": "offense",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "crit_chance",
+   "group": "offense",
+   "cap": 0.75,
+   "format": "percent"
+  },
+  {
+   "id": "crit_damage",
+   "group": "offense",
+   "cap": 3.0,
+   "format": "percent"
+  },
+  {
+   "id": "attack_speed",
+   "group": "offense",
+   "cap": 0.5,
+   "format": "percent"
+  },
+  {
+   "id": "penetration",
+   "group": "offense",
+   "cap": 0.4,
+   "format": "percent"
+  },
+  {
+   "id": "pressure",
+   "group": "offense",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "elemental_power",
+   "group": "offense",
+   "cap": 1.5,
+   "format": "percent"
+  },
+  {
+   "id": "physical_defense",
+   "group": "defense",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "qi_resistance",
+   "group": "defense",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "soul_defense",
+   "group": "defense",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "evasion",
+   "group": "defense",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "guard",
+   "group": "defense",
+   "cap": 0.8,
+   "format": "percent"
+  },
+  {
+   "id": "elemental_resistance",
+   "group": "defense",
+   "cap": 0.75,
+   "format": "percent"
+  },
+  {
+   "id": "tenacity",
+   "group": "defense",
+   "cap": 0.6,
+   "format": "percent"
+  },
+  {
+   "id": "will",
+   "group": "defense",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "hollow_ward",
+   "group": "defense",
+   "cap": 0.8,
+   "format": "percent"
+  },
+  {
+   "id": "move_speed",
+   "group": "movement",
+   "cap": 0.4,
+   "format": "percent"
+  },
+  {
+   "id": "climb_speed",
+   "group": "movement",
+   "cap": 0.5,
+   "format": "percent"
+  },
+  {
+   "id": "flight_speed",
+   "group": "movement",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "hp_regen",
+   "group": "recovery",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "qi_regen",
+   "group": "recovery",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "soul_regen",
+   "group": "recovery",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "accumulation_rate",
+   "group": "cultivation",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "insight_rate",
+   "group": "cultivation",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "toxicity_tolerance",
+   "group": "cultivation",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "injury_recovery",
+   "group": "cultivation",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "gathering_power",
+   "group": "world",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "mining_power",
+   "group": "world",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "crafting_control",
+   "group": "world",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "crafting_perception",
+   "group": "world",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "sense_radius",
+   "group": "world",
+   "cap": null,
+   "format": "int"
+  },
+  {
+   "id": "drop_rate",
+   "group": "world",
+   "cap": 1.0,
+   "format": "percent"
+  },
+  {
+   "id": "coin_find",
+   "group": "world",
+   "cap": 1.0,
+   "format": "percent"
+  },
+  {
+   "id": "taming_chance",
+   "group": "world",
+   "cap": 0.9,
+   "format": "percent"
+  },
+  {
+   "id": "technique_cost",
+   "group": "offense",
+   "cap": 0.3,
+   "format": "percent"
+  },
+  {
+   "id": "mastery_gain",
+   "group": "cultivation",
+   "cap": null,
+   "format": "percent"
+  },
+  {
+   "id": "fist_attack",
+   "group": "offense",
+   "cap": null,
+   "format": "percent"
+  }
+ ]
+}

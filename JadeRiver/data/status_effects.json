@@ -1,0 +1,125 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "stun",
+   "resist": "tenacity",
+   "cc": true,
+   "blocks": [
+    "move",
+    "attack"
+   ],
+   "icon": "stun"
+  },
+  {
+   "id": "slow",
+   "resist": "tenacity",
+   "cc": true,
+   "move_mult": true,
+   "icon": "slow"
+  },
+  {
+   "id": "root",
+   "resist": "tenacity",
+   "cc": true,
+   "blocks": [
+    "move"
+   ],
+   "icon": "root"
+  },
+  {
+   "id": "knockback",
+   "resist": "body",
+   "cc": true,
+   "icon": "stun"
+  },
+  {
+   "id": "burn",
+   "resist": "fire",
+   "dot": true,
+   "stops_regen": true,
+   "icon": "burn"
+  },
+  {
+   "id": "poison",
+   "resist": "poison",
+   "dot": true,
+   "toxicity": 1,
+   "icon": "poison"
+  },
+  {
+   "id": "bleed",
+   "resist": "tenacity",
+   "dot": true,
+   "while_moving": true,
+   "icon": "bleed"
+  },
+  {
+   "id": "freeze",
+   "resist": "water",
+   "cc": true,
+   "blocks": [
+    "move",
+    "attack"
+   ],
+   "breaks_on_hit": true,
+   "icon": "freeze"
+  },
+  {
+   "id": "shock",
+   "resist": "wood",
+   "next_hit_taken": 0.2,
+   "icon": "shock"
+  },
+  {
+   "id": "qi_seal",
+   "resist": "essence",
+   "blocks": [
+    "technique"
+   ],
+   "icon": "qi_seal"
+  },
+  {
+   "id": "confusion",
+   "resist": "spirit",
+   "cc": true,
+   "reverse_controls": true,
+   "icon": "confusion"
+  },
+  {
+   "id": "fear",
+   "resist": "will",
+   "cc": true,
+   "flee": true,
+   "icon": "fear"
+  },
+  {
+   "id": "vulnerable",
+   "resist": "tenacity",
+   "damage_taken": 0.2,
+   "icon": "vulnerable"
+  },
+  {
+   "id": "qi_backlash",
+   "resist": "none",
+   "cc": true,
+   "blocks": [
+    "move",
+    "attack"
+   ],
+   "icon": "stun"
+  },
+  {
+   "id": "exhausted",
+   "resist": "none",
+   "attack_mult": -0.2,
+   "icon": "exhausted"
+  },
+  {
+   "id": "spawn_protection",
+   "resist": "none",
+   "invulnerable": true,
+   "icon": "spawn_protection"
+  }
+ ]
+}

@@ -48,20 +48,20 @@
       ]
     },
     "punch_1": {
-      "fps": 14,
-      "frames": 8,
+      "fps": 14.0,
+      "frames": 8.0,
       "label": "Lead jab",
       "loop": false
     },
     "punch_2": {
-      "fps": 13,
-      "frames": 8,
+      "fps": 13.0,
+      "frames": 8.0,
       "label": "Rear cross",
       "loop": false
     },
     "punch_3": {
-      "fps": 11,
-      "frames": 8,
+      "fps": 11.0,
+      "frames": 8.0,
       "label": "Rising uppercut",
       "loop": false
     },
@@ -71,38 +71,38 @@
       "label": "SWING"
     },
     "swing_1": {
-      "fps": 14,
-      "frames": 8,
+      "fps": 14.0,
+      "frames": 8.0,
       "label": "Rising cut",
       "loop": false
     },
     "swing_2": {
-      "fps": 13,
-      "frames": 8,
+      "fps": 13.0,
+      "frames": 8.0,
       "label": "Return cut",
       "loop": false
     },
     "swing_3": {
-      "fps": 11,
-      "frames": 8,
+      "fps": 11.0,
+      "frames": 8.0,
       "label": "Heavy descending cut",
       "loop": false
     },
     "thrust_1": {
-      "fps": 14,
-      "frames": 8,
+      "fps": 14.0,
+      "frames": 8.0,
       "label": "Straight thrust",
       "loop": false
     },
     "thrust_2": {
-      "fps": 13,
-      "frames": 8,
+      "fps": 13.0,
+      "frames": 8.0,
       "label": "Low thrust",
       "loop": false
     },
     "thrust_3": {
-      "fps": 11,
-      "frames": 8,
+      "fps": 11.0,
+      "frames": 8.0,
       "label": "High lunging thrust",
       "loop": false
     },
@@ -869,6 +869,39 @@
               "source": "spritesheets/cape/solid/fg/idle.png",
               "z": 85.0
             },
+            "punch_1": {
+              "cell": 256.0,
+              "combo_rig": "punch_1",
+              "sheets": [
+                "art_v12/cape_solid_1_punch_1_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_1_punch_0.png"
+              ],
+              "z": 85.0
+            },
+            "punch_2": {
+              "cell": 256.0,
+              "combo_rig": "punch_2",
+              "sheets": [
+                "art_v12/cape_solid_1_punch_2_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_1_punch_0.png"
+              ],
+              "z": 85.0
+            },
+            "punch_3": {
+              "cell": 256.0,
+              "combo_rig": "punch_3",
+              "sheets": [
+                "art_v12/cape_solid_1_punch_3_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_1_punch_0.png"
+              ],
+              "z": 85.0
+            },
             "swing": {
               "cell": 256.0,
               "fallback": null,
@@ -876,6 +909,72 @@
                 "art_v12/cape_solid_1_swing_0.png"
               ],
               "source": "spritesheets/cape/solid/fg/slash.png",
+              "z": 85.0
+            },
+            "swing_1": {
+              "cell": 256.0,
+              "combo_rig": "swing_1",
+              "sheets": [
+                "art_v12/cape_solid_1_swing_1_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_1_swing_0.png"
+              ],
+              "z": 85.0
+            },
+            "swing_2": {
+              "cell": 256.0,
+              "combo_rig": "swing_2",
+              "sheets": [
+                "art_v12/cape_solid_1_swing_2_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_1_swing_0.png"
+              ],
+              "z": 85.0
+            },
+            "swing_3": {
+              "cell": 256.0,
+              "combo_rig": "swing_3",
+              "sheets": [
+                "art_v12/cape_solid_1_swing_3_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_1_swing_0.png"
+              ],
+              "z": 85.0
+            },
+            "thrust_1": {
+              "cell": 256.0,
+              "combo_rig": "thrust_1",
+              "sheets": [
+                "art_v12/cape_solid_1_thrust_1_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_1_attack_0.png"
+              ],
+              "z": 85.0
+            },
+            "thrust_2": {
+              "cell": 256.0,
+              "combo_rig": "thrust_2",
+              "sheets": [
+                "art_v12/cape_solid_1_thrust_2_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_1_attack_0.png"
+              ],
+              "z": 85.0
+            },
+            "thrust_3": {
+              "cell": 256.0,
+              "combo_rig": "thrust_3",
+              "sheets": [
+                "art_v12/cape_solid_1_thrust_3_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_1_attack_0.png"
+              ],
               "z": 85.0
             },
             "walk": {
@@ -947,6 +1046,39 @@
               "source": "spritesheets/cape/solid/bg/idle.png",
               "z": 5.0
             },
+            "punch_1": {
+              "cell": 256.0,
+              "combo_rig": "punch_1",
+              "sheets": [
+                "art_v12/cape_solid_2_punch_1_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_2_punch_0.png"
+              ],
+              "z": 5.0
+            },
+            "punch_2": {
+              "cell": 256.0,
+              "combo_rig": "punch_2",
+              "sheets": [
+                "art_v12/cape_solid_2_punch_2_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_2_punch_0.png"
+              ],
+              "z": 5.0
+            },
+            "punch_3": {
+              "cell": 256.0,
+              "combo_rig": "punch_3",
+              "sheets": [
+                "art_v12/cape_solid_2_punch_3_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_2_punch_0.png"
+              ],
+              "z": 5.0
+            },
             "swing": {
               "cell": 256.0,
               "fallback": null,
@@ -954,6 +1086,72 @@
                 "art_v12/cape_solid_2_swing_0.png"
               ],
               "source": "spritesheets/cape/solid/bg/slash.png",
+              "z": 5.0
+            },
+            "swing_1": {
+              "cell": 256.0,
+              "combo_rig": "swing_1",
+              "sheets": [
+                "art_v12/cape_solid_2_swing_1_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_2_swing_0.png"
+              ],
+              "z": 5.0
+            },
+            "swing_2": {
+              "cell": 256.0,
+              "combo_rig": "swing_2",
+              "sheets": [
+                "art_v12/cape_solid_2_swing_2_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_2_swing_0.png"
+              ],
+              "z": 5.0
+            },
+            "swing_3": {
+              "cell": 256.0,
+              "combo_rig": "swing_3",
+              "sheets": [
+                "art_v12/cape_solid_2_swing_3_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_2_swing_0.png"
+              ],
+              "z": 5.0
+            },
+            "thrust_1": {
+              "cell": 256.0,
+              "combo_rig": "thrust_1",
+              "sheets": [
+                "art_v12/cape_solid_2_thrust_1_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_2_attack_0.png"
+              ],
+              "z": 5.0
+            },
+            "thrust_2": {
+              "cell": 256.0,
+              "combo_rig": "thrust_2",
+              "sheets": [
+                "art_v12/cape_solid_2_thrust_2_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_2_attack_0.png"
+              ],
+              "z": 5.0
+            },
+            "thrust_3": {
+              "cell": 256.0,
+              "combo_rig": "thrust_3",
+              "sheets": [
+                "art_v12/cape_solid_2_thrust_3_0.png"
+              ],
+              "source": [
+                "art_v12/cape_solid_2_attack_0.png"
+              ],
               "z": 5.0
             },
             "walk": {
@@ -1030,6 +1228,39 @@
               "source": "spritesheets/cape/tattered/fg/idle.png",
               "z": 85.0
             },
+            "punch_1": {
+              "cell": 256.0,
+              "combo_rig": "punch_1",
+              "sheets": [
+                "art_v12/cape_tattered_1_punch_1_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_1_punch_5.png"
+              ],
+              "z": 85.0
+            },
+            "punch_2": {
+              "cell": 256.0,
+              "combo_rig": "punch_2",
+              "sheets": [
+                "art_v12/cape_tattered_1_punch_2_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_1_punch_5.png"
+              ],
+              "z": 85.0
+            },
+            "punch_3": {
+              "cell": 256.0,
+              "combo_rig": "punch_3",
+              "sheets": [
+                "art_v12/cape_tattered_1_punch_3_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_1_punch_5.png"
+              ],
+              "z": 85.0
+            },
             "swing": {
               "cell": 256.0,
               "fallback": null,
@@ -1037,6 +1268,72 @@
                 "art_v12/cape_tattered_1_swing_5.png"
               ],
               "source": "spritesheets/cape/tattered/fg/slash.png",
+              "z": 85.0
+            },
+            "swing_1": {
+              "cell": 256.0,
+              "combo_rig": "swing_1",
+              "sheets": [
+                "art_v12/cape_tattered_1_swing_1_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_1_swing_5.png"
+              ],
+              "z": 85.0
+            },
+            "swing_2": {
+              "cell": 256.0,
+              "combo_rig": "swing_2",
+              "sheets": [
+                "art_v12/cape_tattered_1_swing_2_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_1_swing_5.png"
+              ],
+              "z": 85.0
+            },
+            "swing_3": {
+              "cell": 256.0,
+              "combo_rig": "swing_3",
+              "sheets": [
+                "art_v12/cape_tattered_1_swing_3_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_1_swing_5.png"
+              ],
+              "z": 85.0
+            },
+            "thrust_1": {
+              "cell": 256.0,
+              "combo_rig": "thrust_1",
+              "sheets": [
+                "art_v12/cape_tattered_1_thrust_1_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_1_attack_5.png"
+              ],
+              "z": 85.0
+            },
+            "thrust_2": {
+              "cell": 256.0,
+              "combo_rig": "thrust_2",
+              "sheets": [
+                "art_v12/cape_tattered_1_thrust_2_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_1_attack_5.png"
+              ],
+              "z": 85.0
+            },
+            "thrust_3": {
+              "cell": 256.0,
+              "combo_rig": "thrust_3",
+              "sheets": [
+                "art_v12/cape_tattered_1_thrust_3_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_1_attack_5.png"
+              ],
               "z": 85.0
             },
             "walk": {
@@ -1108,6 +1405,39 @@
               "source": "spritesheets/cape/tattered/bg/idle.png",
               "z": 5.0
             },
+            "punch_1": {
+              "cell": 256.0,
+              "combo_rig": "punch_1",
+              "sheets": [
+                "art_v12/cape_tattered_2_punch_1_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_2_punch_5.png"
+              ],
+              "z": 5.0
+            },
+            "punch_2": {
+              "cell": 256.0,
+              "combo_rig": "punch_2",
+              "sheets": [
+                "art_v12/cape_tattered_2_punch_2_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_2_punch_5.png"
+              ],
+              "z": 5.0
+            },
+            "punch_3": {
+              "cell": 256.0,
+              "combo_rig": "punch_3",
+              "sheets": [
+                "art_v12/cape_tattered_2_punch_3_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_2_punch_5.png"
+              ],
+              "z": 5.0
+            },
             "swing": {
               "cell": 256.0,
               "fallback": null,
@@ -1115,6 +1445,72 @@
                 "art_v12/cape_tattered_2_swing_5.png"
               ],
               "source": "spritesheets/cape/tattered/bg/slash.png",
+              "z": 5.0
+            },
+            "swing_1": {
+              "cell": 256.0,
+              "combo_rig": "swing_1",
+              "sheets": [
+                "art_v12/cape_tattered_2_swing_1_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_2_swing_5.png"
+              ],
+              "z": 5.0
+            },
+            "swing_2": {
+              "cell": 256.0,
+              "combo_rig": "swing_2",
+              "sheets": [
+                "art_v12/cape_tattered_2_swing_2_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_2_swing_5.png"
+              ],
+              "z": 5.0
+            },
+            "swing_3": {
+              "cell": 256.0,
+              "combo_rig": "swing_3",
+              "sheets": [
+                "art_v12/cape_tattered_2_swing_3_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_2_swing_5.png"
+              ],
+              "z": 5.0
+            },
+            "thrust_1": {
+              "cell": 256.0,
+              "combo_rig": "thrust_1",
+              "sheets": [
+                "art_v12/cape_tattered_2_thrust_1_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_2_attack_5.png"
+              ],
+              "z": 5.0
+            },
+            "thrust_2": {
+              "cell": 256.0,
+              "combo_rig": "thrust_2",
+              "sheets": [
+                "art_v12/cape_tattered_2_thrust_2_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_2_attack_5.png"
+              ],
+              "z": 5.0
+            },
+            "thrust_3": {
+              "cell": 256.0,
+              "combo_rig": "thrust_3",
+              "sheets": [
+                "art_v12/cape_tattered_2_thrust_3_0.png"
+              ],
+              "source": [
+                "art_v12/cape_tattered_2_attack_5.png"
+              ],
               "z": 5.0
             },
             "walk": {
@@ -5523,6 +5919,39 @@
               "source": "spritesheets/hat/headband/thick/adult/idle.png",
               "z": 125.0
             },
+            "punch_1": {
+              "cell": 256.0,
+              "combo_rig": "punch_1",
+              "sheets": [
+                "art_v12/hat_headband_1_punch_1_0.png"
+              ],
+              "source": [
+                "art_v12/hat_headband_1_punch_0.png"
+              ],
+              "z": 125.0
+            },
+            "punch_2": {
+              "cell": 256.0,
+              "combo_rig": "punch_2",
+              "sheets": [
+                "art_v12/hat_headband_1_punch_2_0.png"
+              ],
+              "source": [
+                "art_v12/hat_headband_1_punch_0.png"
+              ],
+              "z": 125.0
+            },
+            "punch_3": {
+              "cell": 256.0,
+              "combo_rig": "punch_3",
+              "sheets": [
+                "art_v12/hat_headband_1_punch_3_0.png"
+              ],
+              "source": [
+                "art_v12/hat_headband_1_punch_0.png"
+              ],
+              "z": 125.0
+            },
             "swing": {
               "cell": 256.0,
               "fallback": null,
@@ -5530,6 +5959,72 @@
                 "art_v12/hat_headband_1_swing_0.png"
               ],
               "source": "spritesheets/hat/headband/thick/adult/slash.png",
+              "z": 125.0
+            },
+            "swing_1": {
+              "cell": 256.0,
+              "combo_rig": "swing_1",
+              "sheets": [
+                "art_v12/hat_headband_1_swing_1_0.png"
+              ],
+              "source": [
+                "art_v12/hat_headband_1_swing_0.png"
+              ],
+              "z": 125.0
+            },
+            "swing_2": {
+              "cell": 256.0,
+              "combo_rig": "swing_2",
+              "sheets": [
+                "art_v12/hat_headband_1_swing_2_0.png"
+              ],
+              "source": [
+                "art_v12/hat_headband_1_swing_0.png"
+              ],
+              "z": 125.0
+            },
+            "swing_3": {
+              "cell": 256.0,
+              "combo_rig": "swing_3",
+              "sheets": [
+                "art_v12/hat_headband_1_swing_3_0.png"
+              ],
+              "source": [
+                "art_v12/hat_headband_1_swing_0.png"
+              ],
+              "z": 125.0
+            },
+            "thrust_1": {
+              "cell": 256.0,
+              "combo_rig": "thrust_1",
+              "sheets": [
+                "art_v12/hat_headband_1_thrust_1_0.png"
+              ],
+              "source": [
+                "art_v12/hat_headband_1_attack_0.png"
+              ],
+              "z": 125.0
+            },
+            "thrust_2": {
+              "cell": 256.0,
+              "combo_rig": "thrust_2",
+              "sheets": [
+                "art_v12/hat_headband_1_thrust_2_0.png"
+              ],
+              "source": [
+                "art_v12/hat_headband_1_attack_0.png"
+              ],
+              "z": 125.0
+            },
+            "thrust_3": {
+              "cell": 256.0,
+              "combo_rig": "thrust_3",
+              "sheets": [
+                "art_v12/hat_headband_1_thrust_3_0.png"
+              ],
+              "source": [
+                "art_v12/hat_headband_1_attack_0.png"
+              ],
               "z": 125.0
             },
             "walk": {
@@ -5610,6 +6105,39 @@
               "source": "spritesheets/hat/headband/tied/adult/idle.png",
               "z": 125.0
             },
+            "punch_1": {
+              "cell": 256.0,
+              "combo_rig": "punch_1",
+              "sheets": [
+                "art_v12/hat_tied_1_punch_1_0.png"
+              ],
+              "source": [
+                "art_v12/hat_tied_1_punch_0.png"
+              ],
+              "z": 125.0
+            },
+            "punch_2": {
+              "cell": 256.0,
+              "combo_rig": "punch_2",
+              "sheets": [
+                "art_v12/hat_tied_1_punch_2_0.png"
+              ],
+              "source": [
+                "art_v12/hat_tied_1_punch_0.png"
+              ],
+              "z": 125.0
+            },
+            "punch_3": {
+              "cell": 256.0,
+              "combo_rig": "punch_3",
+              "sheets": [
+                "art_v12/hat_tied_1_punch_3_0.png"
+              ],
+              "source": [
+                "art_v12/hat_tied_1_punch_0.png"
+              ],
+              "z": 125.0
+            },
             "swing": {
               "cell": 256.0,
               "fallback": null,
@@ -5617,6 +6145,72 @@
                 "art_v12/hat_tied_1_swing_0.png"
               ],
               "source": "spritesheets/hat/headband/tied/adult/slash.png",
+              "z": 125.0
+            },
+            "swing_1": {
+              "cell": 256.0,
+              "combo_rig": "swing_1",
+              "sheets": [
+                "art_v12/hat_tied_1_swing_1_0.png"
+              ],
+              "source": [
+                "art_v12/hat_tied_1_swing_0.png"
+              ],
+              "z": 125.0
+            },
+            "swing_2": {
+              "cell": 256.0,
+              "combo_rig": "swing_2",
+              "sheets": [
+                "art_v12/hat_tied_1_swing_2_0.png"
+              ],
+              "source": [
+                "art_v12/hat_tied_1_swing_0.png"
+              ],
+              "z": 125.0
+            },
+            "swing_3": {
+              "cell": 256.0,
+              "combo_rig": "swing_3",
+              "sheets": [
+                "art_v12/hat_tied_1_swing_3_0.png"
+              ],
+              "source": [
+                "art_v12/hat_tied_1_swing_0.png"
+              ],
+              "z": 125.0
+            },
+            "thrust_1": {
+              "cell": 256.0,
+              "combo_rig": "thrust_1",
+              "sheets": [
+                "art_v12/hat_tied_1_thrust_1_0.png"
+              ],
+              "source": [
+                "art_v12/hat_tied_1_attack_0.png"
+              ],
+              "z": 125.0
+            },
+            "thrust_2": {
+              "cell": 256.0,
+              "combo_rig": "thrust_2",
+              "sheets": [
+                "art_v12/hat_tied_1_thrust_2_0.png"
+              ],
+              "source": [
+                "art_v12/hat_tied_1_attack_0.png"
+              ],
+              "z": 125.0
+            },
+            "thrust_3": {
+              "cell": 256.0,
+              "combo_rig": "thrust_3",
+              "sheets": [
+                "art_v12/hat_tied_1_thrust_3_0.png"
+              ],
+              "source": [
+                "art_v12/hat_tied_1_attack_0.png"
+              ],
               "z": 125.0
             },
             "walk": {
@@ -5631,6 +6225,153 @@
           },
           "section": "1",
           "z": 125.0
+        }
+      ]
+    },
+    "straw": {
+      "label": "Straw douli",
+      "layers": [
+        {
+          "section": "1",
+          "z": 125.0,
+          "animations": {
+            "attack": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_attack_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "bow": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_bow_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "idle": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_idle_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "jump": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_jump_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "meditate": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_meditate_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "punch": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_punch_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "punch_1": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_punch_1_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "punch_2": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_punch_2_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "punch_3": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_punch_3_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "swing": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_swing_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "swing_1": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_swing_1_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "swing_2": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_swing_2_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "swing_3": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_swing_3_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "thrust_1": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_thrust_1_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "thrust_2": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_thrust_2_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "thrust_3": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_thrust_3_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            },
+            "walk": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_straw_1_walk_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_straw_hat.py"
+            }
+          }
         }
       ]
     }

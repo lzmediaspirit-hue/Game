@@ -31,7 +31,7 @@ func refresh_entries():
 	var key = str(outfit) + action + only_category
 	if key != last_key:
 		entries.clear()
-		for category in ["body", "shoes", "pants", "shirt", "hair", "weapon"]:
+		for category in ["body", "cape", "shoes", "pants", "shirt", "hair", "hat", "weapon"]:
 			if only_category != "" and category != only_category: continue
 			var item = Wardrobe.parts[category].get(outfit.get(category, "none"), {})
 			for layer in item.get("layers", []):

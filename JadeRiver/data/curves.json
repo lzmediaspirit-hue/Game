@@ -1,0 +1,195 @@
+{
+ "schema_version": 1,
+ "qp_minutes": "see realms.json accumulate_needed = 100 x target minutes per Level",
+ "kill_qp": 22,
+ "kill_role_mult": {
+  "normal": 1,
+  "elite": 6,
+  "field_boss": 40,
+  "dungeon_boss": 80,
+  "story_boss": 40,
+  "event": 0.5,
+  "trial": 2
+ },
+ "meditation_qp_per_min": 60,
+ "meditation_body_stage_factor": 0.3,
+ "body_stage_until": "bone_forging_6",
+ "qi_spring_mult": 2,
+ "training_qp_per_min": 40,
+ "training_body_xp_per_min": 20,
+ "quest_qp_pct": {
+  "guided": 0.15,
+  "main": 0.25,
+  "side": 0.1,
+  "daily": 0.05,
+  "prologue": 0.0
+ },
+ "stability_factor": {
+  "unstable": 0.7,
+  "settling": 0.85,
+  "stable": 1.0,
+  "solid": 1.1
+ },
+ "stability_order": [
+  "unstable",
+  "settling",
+  "stable",
+  "solid"
+ ],
+ "stability_step_s": 120,
+ "risk_words": [
+  "low",
+  "moderate",
+  "high",
+  "severe"
+ ],
+ "risk_success": {
+  "low": 0.95,
+  "moderate": 0.75,
+  "high": 0.5,
+  "severe": 0.25
+ },
+ "stored_qi_cap_stages": 1.0,
+ "ceiling_stored_qi_mult": 0.25,
+ "body_xp_per_level": 40,
+ "kill_body_xp": 1,
+ "kill_body_xp_per_5_levels": 1,
+ "mastery_points": 100,
+ "mastery_tiers": 6,
+ "mastery_manual_from_tier": 4,
+ "dao_tiers": [
+  100,
+  300,
+  800,
+  2000,
+  5000,
+  12000
+ ],
+ "dao_tier_names": [
+  "observation",
+  "imitation",
+  "reliable_execution",
+  "explanation",
+  "adaptation",
+  "original_application"
+ ],
+ "insight_repeat_factor": 0.2,
+ "insight_repeat_window_s": 60,
+ "insight_stone_per_min": 20,
+ "contemplate_offline_per_min": 5,
+ "profession_ranks": [
+  [
+   "apprentice",
+   0
+  ],
+  [
+   "adept",
+   1000
+  ],
+  [
+   "expert",
+   5000
+  ],
+  [
+   "master",
+   20000
+  ],
+  [
+   "grandmaster",
+   60000
+  ]
+ ],
+ "profession_xp": {
+  "craft_per_grade": 10,
+  "fine_bonus": 0.5,
+  "gather": 5,
+  "mine": 5,
+  "fish": 8,
+  "cook": 6
+ },
+ "purity_points_per_grade": 100,
+ "purity_meditate_per_hour": 10,
+ "purity_offline_per_hour": 25,
+ "soul_meditate_per_hour": 10,
+ "soul_offline_per_hour": 20,
+ "offline_factor": 0.1,
+ "offline_cap_h": 12,
+ "retreat_cap_h": 16,
+ "formation_cap_h": 24,
+ "offline_temper_body_xp_per_min": 10,
+ "offline_heal_mult": 1.0,
+ "idle_material_factor": 0.25,
+ "idle_cap_h": 12,
+ "ancestral_guidance": 1.5,
+ "pet_xp": {
+  "per_level_pow": 1.5,
+  "base": 20
+ },
+ "prestige": {
+  "base": 200,
+  "pow": 1.8
+ },
+ "contribution": {
+  "daily": 20,
+  "weekly": 150
+ },
+ "resets": {
+  "daily_hour": 4
+ },
+ "time_of_day": {
+  "day_minutes": 48
+ },
+ "meditation": {
+  "settle_s": 1.0,
+  "hp_mult": 8,
+  "qi_mult": 8,
+  "soul_mult": 8,
+  "injury_heal_mult": 3,
+  "backlash_on_hit": true,
+  "hold_page_s": 0.6
+ },
+ "injuries": {
+  "natural_heal_s": {
+   "minor": 600,
+   "moderate": 1800,
+   "severe": 3600
+  },
+  "unstable_slow": 1.5
+ },
+ "bottleneck_hint_minutes": 20,
+ "method_switch": {
+  "progress_cost": 0.3,
+  "unstable_s": 600,
+  "pill_factor": 0.5
+ },
+ "failure_loss": {
+  "energy_instability": [
+   0.1,
+   0.3
+  ],
+  "weak_foundation": [
+   0.2,
+   0.4
+  ],
+  "insufficient_comprehension": [
+   0.1,
+   0.1
+  ],
+  "bodily_failure": [
+   0.0,
+   0.0
+  ],
+  "soul_injury": [
+   0.0,
+   0.0
+  ],
+  "resource_mismatch": [
+   0.0,
+   0.0
+  ],
+  "interruption": [
+   0.0,
+   0.0
+  ]
+ }
+}

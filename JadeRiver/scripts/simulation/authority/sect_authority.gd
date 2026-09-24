@@ -1,0 +1,171 @@
+class_name SectAuthority
+extends Authority
+## S25 · Your own sect (account-wide): name, emblem, level, Prestige, buildings,
+## a build queue whose timers run offline, NPC disciples and expeditions.
+
+var timer := 0.0
+
+func intents() -> Array:
+	return ["found_sect", "upgrade_building", "recruit_disciple", "send_expedition", "collect_expedition"]
+
+func handle(intent: Dictionary) -> Dictionary:
+	var c = char_of(intent)
+	match str(intent.type):
+		"found_sect": return found(c, str(intent.get("name", "")), intent.get("emblem", [0, 0]))
+		"upgrade_building": return upgrade(c, str(intent.get("building", "")))
+		"recruit_disciple": return recruit(int(intent.get("index", 0)))
+		"send_expedition": return send_expedition(str(intent.get("region", "")), int(intent.get("hours", 1)), intent.get("disciples", []))
+		"collect_expedition": return collect_expedition(c, int(intent.get("index", 0)))
+	return fail("unknown_intent")
+
+func sect() -> Dictionary:
+	return game.account.sect
+
+func founded() -> bool:
+	return not sect().is_empty()
+
+func level_building(id: String) -> int:
+	return int(sect().get("buildings", {}).get(id, 0))
+
+func idle_cap_bonus() -> float:
+	var lv := level_building("meditation_pavilion")
+	if lv >= 5: return 12.0
+	if lv >= 4: return 8.0
+	if lv >= 2: return 4.0
+	return 0.0
+
+func idle_rate_bonus(task: String) -> float:
+	return 0.1 * level_building("meditation_pavilion") if task == "seclusion" else 0.0
+
+func treasury_bonus() -> int:
+	return 20 * level_building("treasury")
+
+func found(c, name: String, emblem) -> Dictionary:
+	if c == null or not Unlocks.is_unlocked(c.id, "your_sect"): return fail("locked")
+	if founded(): return fail("already_founded")
+	name = name.strip_edges().left(24)
+	if name == "": return fail("bad_name", {"text": "Name your sect."})
+	game.account.sect = {"name": name, "emblem": emblem, "level": 1, "prestige": 0, "buildings": {"sect_hall": 1}, "queue": [],
+		"disciples": [], "candidates": [], "expeditions": [], "candidate_day": -1}
+	emit("sect_founded", {"name": name})
+	emit("sect_level_changed", {"level": 1})
+	_refresh_candidates()
+	return ok()
+
+func building_cost(id: String, next_level: int) -> Dictionary:
+	var b := ContentDB.entry("sect_buildings", id)
+	var base := float(b.get("base_cost", 500))
+	var taels := int(round(base * pow(2.2, next_level - 1)))
+	var mats: Dictionary = {}
+	if next_level <= 2: mats[str(b.get("material", "copper_ore"))] = int(b.get("material_count", 20)) * next_level
+	else: mats[{3: "riverstone", 4: "jadeiron", 5: "jadeiron"}.get(next_level, "jadeiron")] = 10 * next_level
+	var hours := minf(24.0, pow(2.0, next_level - 1))
+	return {"silver_tael": taels, "materials": mats, "seconds": hours * 3600.0}
+
+func upgrade(c, id: String) -> Dictionary:
+	if not founded(): return fail("no_sect")
+	var b := ContentDB.entry("sect_buildings", id)
+	if b.is_empty(): return fail("unknown_building")
+	if int(sect().level) < int(b.get("sect_level", 1)): return fail("sect_level", {"text": "Needs sect level %d" % int(b.get("sect_level", 1))})
+	var max_parallel := 2 if int(sect().level) >= 8 else 1
+	if sect().queue.size() >= max_parallel: return fail("queue_busy", {"text": "Builders are busy."})
+	var next := level_building(id) + 1
+	if next > int(b.get("max_level", 5)): return fail("max_level")
+	var cost := building_cost(id, next)
+	if game.economy.balance("silver_tael") < int(cost.silver_tael): return fail("insufficient_funds")
+	for m in cost.materials:
+		if c.inventory.count(m) < int(cost.materials[m]): return fail("materials", {"text": "Needs %d %s" % [int(cost.materials[m]), ContentDB.item_name(m)]})
+	game.economy.apply_currency("silver_tael", -int(cost.silver_tael), "sect_build")
+	for m2 in cost.materials: game.inventory.apply_remove(c.id, m2, int(cost.materials[m2]), "sect_build")
+	sect().queue.append({"building": id, "level": next, "done_utc": Clock.now_utc() + float(cost.seconds)})
+	emit("building_started", {"building": id, "level": next})
+	return ok()
+
+func apply_prestige(amount: int, source: String) -> void:
+	if not founded(): return
+	sect().prestige = int(sect().prestige) + amount
+	emit("prestige_gained", {"amount": amount, "source": source})
+	var lv := int(sect().level)
+	var base := float(ContentDB.curve("prestige.base", 200))
+	var power := float(ContentDB.curve("prestige.pow", 1.8))
+	while lv < 20 and float(sect().prestige) >= base * pow(lv + 1, power):
+		lv += 1
+	if lv != int(sect().level):
+		sect().level = lv
+		emit("sect_level_changed", {"level": lv})
+
+func _refresh_candidates() -> void:
+	var day := Clock.reset_day(Clock.now_utc())
+	if int(sect().get("candidate_day", -1)) == day: return
+	sect().candidate_day = day
+	var rng := Rng.stream("account", "sect")
+	var traits: Array = ContentDB.config("disciples").get("traits", ["green_thumb"])
+	var names: Array = ContentDB.config("disciples").get("names", ["Wei"])
+	var cands: Array = []
+	for i in 3:
+		cands.append({"name": names[rng.randi_range(0, names.size() - 1)], "strength": rng.randi_range(1, 5), "spirit": rng.randi_range(1, 5),
+			"craft": rng.randi_range(1, 5), "trait": traits[rng.randi_range(0, traits.size() - 1)], "level": 1})
+	sect().candidates = cands
+
+func recruit(index: int) -> Dictionary:
+	if not founded(): return fail("no_sect")
+	var cap := 2 + level_building("guest_house")
+	if sect().disciples.size() >= cap: return fail("full", {"text": "Build more Guest House rooms."})
+	var cands: Array = sect().get("candidates", [])
+	if index < 0 or index >= cands.size(): return fail("bad_index")
+	sect().disciples.append(cands[index])
+	cands.remove_at(index)
+	emit("disciple_recruited", {})
+	return ok()
+
+func send_expedition(region: String, hours: int, disciples: Array) -> Dictionary:
+	if not founded(): return fail("no_sect")
+	var ex := ContentDB.entry("expeditions", region)
+	if ex.is_empty() or not hours in ex.get("hours", [1, 4, 8]): return fail("bad_expedition")
+	if disciples.is_empty() or disciples.size() > 4: return fail("bad_party")
+	var busy := {}
+	for e in sect().expeditions:
+		for d in e.disciples: busy[int(d)] = true
+	for d in disciples:
+		if busy.has(int(d)) or int(d) >= sect().disciples.size(): return fail("busy")
+	sect().expeditions.append({"region": region, "hours": hours, "disciples": disciples.duplicate(), "done_utc": Clock.now_utc() + hours * 3600.0})
+	emit("expedition_sent", {"region": region})
+	return ok()
+
+func collect_expedition(c, index: int) -> Dictionary:
+	var list: Array = sect().get("expeditions", [])
+	if index < 0 or index >= list.size(): return fail("bad_index")
+	var e: Dictionary = list[index]
+	if Clock.now_utc() < float(e.done_utc): return fail("not_back")
+	var ex := ContentDB.entry("expeditions", str(e.region))
+	var rng := Rng.stream("account", "sect")
+	var danger := int(ex.get("danger_level", 1))
+	var best := 0
+	for d in e.disciples: best = maxi(best, int(sect().disciples[int(d)].get("level", 1)))
+	var chance := minf(0.95, 0.5 + 0.1 * (best - danger))
+	var success := rng.randf() < chance
+	var rewards: Array = []
+	if success and c != null:
+		for r in ex.get("rewards", []):
+			var n := int(r.get("per_hour", 1)) * int(e.hours)
+			game.inventory.apply_add(c.id, str(r.item), n, "expedition")
+			rewards.append({"item": r.item, "count": n})
+		game.economy.apply_currency("silver_tael", 30 * int(e.hours), "expedition")
+		apply_prestige(5 * int(e.hours), "expedition")
+	for d in e.disciples: sect().disciples[int(d)].level = mini(20, int(sect().disciples[int(d)].get("level", 1)) + 1)
+	list.remove_at(index)
+	emit("expedition_returned", {"region": e.region, "success": success, "rewards": rewards})
+	return ok({"success": success, "rewards": rewards})
+
+func tick(delta: float) -> void:
+	timer += delta
+	if timer < 2.0 or not founded(): return
+	timer = 0.0
+	_refresh_candidates()
+	var now := Clock.now_utc()
+	for q in sect().queue.duplicate():
+		if now >= float(q.done_utc):
+			sect().buildings[str(q.building)] = int(q.level)
+			sect().queue.erase(q)
+			emit("building_upgraded", {"building": q.building, "level": q.level})
+			apply_prestige(int(ContentDB.config("sect_levels").get("prestige_building", 20)), "building")

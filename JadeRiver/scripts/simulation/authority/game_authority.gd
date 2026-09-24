@@ -1,0 +1,258 @@
+extends Node
+## `Game` autoload: the GameAuthority facade (Part 2). Presentation sends intents
+## through `submit`; authorities validate them, change their own state and emit
+## events on GameEvents. `tick` advances the simulation in the fixed owner order:
+## Movement (player LocalAuthority) → Combat → Progression → Enemies → World →
+## deliver events → unlocks re-evaluate → save checkpoint → presentation draws.
+
+const SAVE_INTERVAL := 5.0
+
+var account := AccountState.new()
+var characters: Dictionary = {}       # id -> GameCharacter
+var active_id := ""
+var movement: Dictionary = {}         # actor id -> ActorState (scene-free movement state)
+var room_rt: RoomRuntime = null       # the loaded room (one room at a time)
+var sim_time := 0.0
+var tick_count := 0
+var paused := false
+var in_world := false
+var autosave_enabled := true
+var save_timer := 0.0
+var booted := false
+var last_seq: Dictionary = {}
+var handlers: Dictionary = {}
+var authorities: Array = []
+
+var combat: CombatAuthority
+var progression: ProgressionAuthority
+var enemies: EnemyAuthority
+var world: WorldAuthority
+var inventory: InventoryAuthority
+var quest: QuestAuthority
+var economy: EconomyAuthority
+var accounts: AccountAuthority
+var crafting: CraftingAuthority
+var training: TrainingSectAuthority
+var mail: MailAuthority
+var achievements: AchievementAuthority
+var pets: PetAuthority
+var companions: CompanionAuthority
+var sect: SectAuthority
+
+func _ready() -> void:
+	build_authorities()
+
+func build_authorities() -> void:
+	GameEvents.clear_subscribers()
+	handlers.clear()
+	combat = CombatAuthority.new(self)
+	progression = ProgressionAuthority.new(self)
+	enemies = EnemyAuthority.new(self)
+	world = WorldAuthority.new(self)
+	inventory = InventoryAuthority.new(self)
+	quest = QuestAuthority.new(self)
+	economy = EconomyAuthority.new(self)
+	accounts = AccountAuthority.new(self)
+	crafting = CraftingAuthority.new(self)
+	training = TrainingSectAuthority.new(self)
+	mail = MailAuthority.new(self)
+	achievements = AchievementAuthority.new(self)
+	pets = PetAuthority.new(self)
+	companions = CompanionAuthority.new(self)
+	sect = SectAuthority.new(self)
+	authorities = [combat, progression, enemies, world, inventory, quest, economy, accounts, crafting, training, mail,
+		achievements, pets, companions, sect]
+	for a in authorities:
+		for type in a.intents():
+			assert(not handlers.has(type), "Intent registered twice: " + type)
+			handlers[type] = a
+		a.subscribe()
+
+## Fresh state (tests and account reset).
+func reset_state() -> void:
+	account = AccountState.new()
+	characters.clear()
+	movement.clear()
+	active_id = ""
+	room_rt = null
+	sim_time = 0.0
+	tick_count = 0
+	paused = false
+	in_world = false
+	last_seq.clear()
+	build_authorities()
+
+# ------------------------------------------------------------------ queries
+func active():
+	return characters.get(active_id)
+
+func character(id: String):
+	return characters.get(id)
+
+func actor_state(id: String) -> ActorState:
+	return movement.get(id)
+
+func bind_movement(actor_id: String, state: ActorState) -> void:
+	movement[actor_id] = state
+
+func ctx(c = null) -> Dictionary:
+	if c == null: c = active()
+	return {"char": c, "account": account, "room": room_rt.def if room_rt else {}}
+
+func level_of(actor_id: String) -> int:
+	var c = character(actor_id)
+	return ProgressionRules.level(c) if c else 0
+
+func is_revealed(element: String) -> bool:
+	return Unlocks.is_revealed(active_id, element)
+
+# ------------------------------------------------------------------ intents
+## Presentation's only way to change the game. Returns {ok, reason?, ...}.
+func submit(intent: Dictionary) -> Dictionary:
+	var type := str(intent.get("type", ""))
+	if not handlers.has(type): return Authority.fail("unknown_intent")
+	var actor := str(intent.get("actor", active_id))
+	intent["actor"] = actor
+	if intent.has("seq"):
+		var seq := int(intent.seq)
+		if seq <= int(last_seq.get(actor, -1)): return Authority.fail("stale_sequence")
+		last_seq[actor] = seq
+	for k in intent:
+		var v = intent[k]
+		if (v is float and not is_finite(v)) or (v is Vector2 and not v.is_finite()): return Authority.fail("non_finite")
+	var result: Dictionary = handlers[type].handle(intent)
+	_after_pass()
+	return result
+
+## Effects (Part 2 · Effect): dispatched to the owning authority's apply_* command.
+func apply_effects(actor_id: String, effects: Array, source: String) -> void:
+	for e in effects:
+		if not (e is Dictionary): continue
+		match str(e.get("kind", "")):
+			"grant_item": inventory.apply_add(actor_id, str(e.item), int(e.get("count", 1)), source, e.get("instance", {}))
+			"remove_item": inventory.apply_remove(actor_id, str(e.item), int(e.get("count", 1)), source)
+			"grant_currency": economy.apply_currency(str(e.get("currency", "silver_tael")), int(e.amount), source)
+			"add_progress": progression.apply_progress(actor_id, float(e.get("amount", 0)), source, float(e.get("pct_of_need", 0)))
+			"add_body_xp": progression.apply_body_xp(actor_id, float(e.amount), source)
+			"add_soul": progression.apply_soul(actor_id, float(e.amount))
+			"add_insight": progression.apply_insight(actor_id, str(e.dao), float(e.amount), source)
+			"heal": combat.apply_heal(actor_id, float(e.get("pct", 0)), float(e.get("amount", 0)), float(e.get("over_s", 0)), source)
+			"restore_resource": combat.apply_resource_change(actor_id, str(e.pool), float(e.get("amount", 0)), source, float(e.get("pct", 0)))
+			"add_composure": combat.apply_resource_change(actor_id, "composure", float(e.amount), source)
+			"add_modifier": combat.apply_buff(actor_id, e, source)
+			"apply_status": combat.apply_status(actor_id, str(e.status), float(e.get("duration", 1)), float(e.get("power", 0)), float(e.get("delay", 0)))
+			"cure_status": combat.cure_status(actor_id, str(e.status))
+			"cure_injury": progression.apply_cure_injury(actor_id, str(e.injury), int(e.get("max_severity", 3)))
+			"add_toxicity": progression.apply_toxicity(actor_id, float(e.amount))
+			"reset_meridians": progression.apply_reset_meridians(actor_id)
+			"set_flag": quest.apply_flag(actor_id, str(e.flag))
+			"clear_flag": quest.apply_clear_flag(actor_id, str(e.flag))
+			"start_quest": quest.apply_start(actor_id, str(e.quest))
+			"offer_quest": quest.apply_offer(actor_id, str(e.quest))
+			"unlock_system": Unlocks.force_unlock(actor_id, str(e.system)) if OS.is_debug_build() else null
+			"add_contribution": training.apply_contribution(actor_id, int(e.amount), source)
+			"add_reputation": training.apply_reputation(actor_id, str(e.get("faction", "")), int(e.amount))
+			"add_prestige": sect.apply_prestige(int(e.amount), source)
+			"add_bond": pets.apply_bond(actor_id, float(e.amount))
+			"send_mail": mail.apply_send(str(e.get("to", actor_id)), str(e.template), e.get("attachments", []), e.get("args", {}))
+			"teleport": world.apply_teleport(actor_id, str(e.get("target", "")), str(e.get("portal", "")))
+			"learn_technique": progression.apply_learn_technique(actor_id, str(e.technique))
+			"learn_method": progression.apply_learn_method(actor_id, str(e.method))
+			"learn_recipe": crafting.apply_learn_recipe(actor_id, str(e.recipe))
+			"learn_secret_art": progression.apply_learn_secret_art(actor_id, str(e.art))
+			"event_passed": progression.apply_event_passed(actor_id, str(e.event))
+			"grant_title": achievements.apply_title(actor_id, str(e.title))
+			"join_sect": training.apply_join(actor_id, str(e.sect))
+			"sect_rank": training.apply_rank(actor_id, str(e.rank))
+			"grant_equipment": inventory.apply_add_equipment(actor_id, str(e.item), int(e.get("ilv", 0)), str(e.get("quality", "common")), source)
+			"add_companion": companions.apply_add(actor_id, str(e.companion))
+			"grant_pet": pets.apply_grant(actor_id, str(e.species))
+			"add_stability": progression.apply_stability(actor_id, str(e.value))
+			"add_purity": progression.apply_purity(actor_id, float(e.amount))
+			"unlock_slot": accounts.apply_slot(int(e.get("slot", 0)))
+			"codex": quest.apply_codex(str(e.entry))
+			_: push_warning("Unknown effect kind: " + str(e.get("kind", "")))
+
+# ------------------------------------------------------------------ simulation
+## One fixed simulation tick (called by the world scene every physics frame).
+func tick(delta: float) -> void:
+	if paused or not in_world or not is_finite(delta) or delta <= 0.0: return
+	delta = minf(delta, 0.25)
+	sim_time += delta
+	tick_count += 1
+	combat.tick(delta)
+	progression.tick(delta)
+	enemies.tick(delta)
+	world.tick(delta)
+	for a in [crafting, companions, pets, quest, economy, accounts, sect, training, achievements, mail, inventory]:
+		a.tick(delta)
+	_after_pass()
+	if autosave_enabled:
+		save_timer += delta
+		if save_timer >= SAVE_INTERVAL:
+			save_timer = 0.0
+			save_all()
+
+func _after_pass() -> void:
+	GameEvents.flush()
+	if GameEvents.unlock_pending:
+		GameEvents.unlock_pending = false
+		if active_id != "": Unlocks.evaluate(active_id)
+		GameEvents.flush()
+		GameEvents.unlock_pending = false
+	if GameEvents.save_pending:
+		GameEvents.save_pending = false
+		if autosave_enabled and booted: save_all()
+
+# ------------------------------------------------------------------ lifecycle
+## Boot sequence (S35): load account and characters (recover from .bak), migrate,
+## check the clock, then claim offline and idle time.
+func boot() -> Dictionary:
+	reset_state()
+	var report := {"recovered": [], "migrated_v2": false, "new_account": false}
+	var data := Saves.load_account()
+	if data.is_empty():
+		account = AccountState.new()
+		account.account_id = "local-%d" % int(Clock.now_utc())
+		account.rng_seed = int(Clock.now_utc()) & 0x7fffffff
+		var v2 := Saves.read_v2()
+		if not v2.is_empty():
+			accounts.migrate_from_v2(Saves.migrate_v2_slots(v2))
+			report.migrated_v2 = true
+		else:
+			report.new_account = true
+	else:
+		account.restore(data)
+		for slot_key in account.characters:
+			var cd := Saves.load_character(int(slot_key))
+			if cd.is_empty(): continue
+			var c := GameCharacter.new()
+			c.restore(cd)
+			c.id = "c%d" % c.slot
+			characters[c.id] = c
+			Rng.restore(c.id, c.rng_state, c.rng_seed if c.rng_seed != 0 else hash(c.id))
+			StatRules.rebuild(c)
+	Rng.restore("account", account.rng_state, account.rng_seed if account.rng_seed != 0 else 1)
+	report.recovered = Saves.recovered_files().duplicate()
+	booted = true
+	GameEvents.flush()
+	return report
+
+func save_all() -> Error:
+	if not booted: return OK
+	var err := OK
+	for id in characters:
+		var c: GameCharacter = characters[id]
+		c.rng_state = Rng.snapshot(c.id)
+		c.last_active_utc = Clock.now_utc() if id == active_id else c.last_active_utc
+		var e := Saves.save_character(c.slot, c.snapshot())
+		if e != OK: err = e
+		account.characters[str(c.slot)] = accounts.summary(c)
+	account.clock.last_active_utc = Clock.now_utc()
+	account.rng_state = Rng.snapshot("account")
+	var ea := Saves.save_account(account.snapshot())
+	if ea != OK: err = ea
+	return err
+
+func pause(value: bool) -> void:
+	paused = value

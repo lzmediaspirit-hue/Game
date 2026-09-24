@@ -1,0 +1,205 @@
+{
+  "bar_shell": {
+    "margins": [
+      10,
+      8,
+      10,
+      8
+    ],
+    "normal": "res://art/ui/bar_shell__normal.png"
+  },
+  "button_primary": {
+    "disabled": "res://art/ui/button_primary__disabled.png",
+    "margins": [
+      16,
+      14,
+      16,
+      14
+    ],
+    "normal": "res://art/ui/button_primary__normal.png",
+    "pressed": "res://art/ui/button_primary__pressed.png"
+  },
+  "button_secondary": {
+    "disabled": "res://art/ui/button_secondary__disabled.png",
+    "margins": [
+      14,
+      12,
+      14,
+      12
+    ],
+    "normal": "res://art/ui/button_secondary__normal.png",
+    "pressed": "res://art/ui/button_secondary__pressed.png"
+  },
+  "close_button": {
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal": "res://art/ui/close_button__normal.png",
+    "pressed": "res://art/ui/close_button__pressed.png"
+  },
+  "currency_pill": {
+    "margins": [
+      20,
+      10,
+      20,
+      10
+    ],
+    "normal": "res://art/ui/currency_pill__normal.png"
+  },
+  "dialogue_box": {
+    "margins": [
+      24,
+      24,
+      24,
+      24
+    ],
+    "normal": "res://art/ui/dialogue_box__normal.png"
+  },
+  "hud_circle": {
+    "active": "res://art/ui/hud_circle__active.png",
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal": "res://art/ui/hud_circle__normal.png",
+    "pressed": "res://art/ui/hud_circle__pressed.png"
+  },
+  "hud_circle_large": {
+    "active": "res://art/ui/hud_circle_large__active.png",
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal": "res://art/ui/hud_circle_large__normal.png",
+    "pressed": "res://art/ui/hud_circle_large__pressed.png"
+  },
+  "hud_circle_small": {
+    "active": "res://art/ui/hud_circle_small__active.png",
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal": "res://art/ui/hud_circle_small__normal.png",
+    "pressed": "res://art/ui/hud_circle_small__pressed.png"
+  },
+  "major_window": {
+    "margins": [
+      24,
+      24,
+      24,
+      24
+    ],
+    "normal": "res://art/ui/major_window__normal.png"
+  },
+  "minimap_frame": {
+    "margins": [
+      24,
+      24,
+      24,
+      24
+    ],
+    "normal": "res://art/ui/minimap_frame__normal.png"
+  },
+  "minor_panel": {
+    "margins": [
+      12,
+      12,
+      12,
+      12
+    ],
+    "normal": "res://art/ui/minor_panel__normal.png"
+  },
+  "portrait_frame": {
+    "margins": [
+      16,
+      16,
+      16,
+      16
+    ],
+    "normal": "res://art/ui/portrait_frame__normal.png"
+  },
+  "realm_badge": {
+    "margins": [
+      8,
+      8,
+      8,
+      8
+    ],
+    "normal": "res://art/ui/realm_badge__normal.png"
+  },
+  "selected_slot_glow": {
+    "margins": [
+      12,
+      12,
+      12,
+      12
+    ],
+    "normal": "res://art/ui/selected_slot_glow__normal.png"
+  },
+  "slot": {
+    "disabled": "res://art/ui/slot__disabled.png",
+    "margins": [
+      8,
+      8,
+      8,
+      8
+    ],
+    "normal": "res://art/ui/slot__normal.png",
+    "selected": "res://art/ui/slot__selected.png"
+  },
+  "slot_empty_motif": {
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal": "res://art/ui/slot_empty_motif__normal.png"
+  },
+  "tab": {
+    "margins": [
+      16,
+      10,
+      16,
+      10
+    ],
+    "normal": "res://art/ui/tab__normal.png",
+    "selected": "res://art/ui/tab__selected.png"
+  },
+  "title_plaque": {
+    "margins": [
+      48,
+      16,
+      48,
+      16
+    ],
+    "normal": "res://art/ui/title_plaque__normal.png"
+  },
+  "toast": {
+    "margins": [
+      20,
+      12,
+      20,
+      12
+    ],
+    "normal": "res://art/ui/toast__normal.png"
+  },
+  "tooltip": {
+    "margins": [
+      10,
+      10,
+      10,
+      10
+    ],
+    "normal": "res://art/ui/tooltip__normal.png"
+  }
+}

@@ -1,0 +1,57 @@
+{
+ "schema_version": 1,
+ "generating": [
+  "wood",
+  "fire",
+  "earth",
+  "metal",
+  "water"
+ ],
+ "overcomes": {
+  "wood": "earth",
+  "earth": "water",
+  "water": "fire",
+  "fire": "metal",
+  "metal": "wood"
+ },
+ "parent": {
+  "ice": "water",
+  "tide": "water",
+  "thunder": "wood",
+  "wind": "wood",
+  "lava": "fire",
+  "crystal": "earth",
+  "sand": "earth",
+  "star": "metal",
+  "blade": "metal",
+  "hollow_water": "water",
+  "hollow_earth": "earth",
+  "hollow_wood": "wood"
+ },
+ "neutral": [
+  "space",
+  "time",
+  "soul",
+  "life_death",
+  "hollow",
+  "none"
+ ],
+ "cycle_advantage": 1.3,
+ "cycle_disadvantage": 0.75,
+ "yin_yang": 1.3,
+ "fed_bonus": 0.1,
+ "method_affinity_bonus": 0.1,
+ "colors": {
+  "water": "#32bed1",
+  "wood": "#67d67a",
+  "fire": "#f08a3c",
+  "earth": "#c9a060",
+  "metal": "#d8dde0",
+  "wind": "#cfe8e6",
+  "thunder": "#e8d24c",
+  "soul": "#9b78d1",
+  "hollow": "#87949a",
+  "none": "#e8e1cf",
+  "ice": "#a8e0f0"
+ }
+}
