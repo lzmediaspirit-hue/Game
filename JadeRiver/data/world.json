@@ -1,0 +1,315 @@
+{
+  "revision": 5,
+  "bounds": [
+    0,
+    480,
+    5400,
+    480
+  ],
+  "spawn": [
+    620,
+    820
+  ],
+  "surfaces": [
+    {
+      "id": "river_walk",
+      "rect": [
+        0,
+        620,
+        5400,
+        340
+      ],
+      "height": 0,
+      "kind": "ground",
+      "stratum": "ground",
+      "open_edges": false
+    },
+    {
+      "id": "rear_stairs",
+      "rect": [
+        4560,
+        580,
+        200,
+        140
+      ],
+      "height": 80,
+      "rise": -80,
+      "rise_axis": "y",
+      "kind": "stairs",
+      "stratum": "ground",
+      "open_edges": false
+    },
+    {
+      "id": "upper_terrace",
+      "rect": [
+        4560,
+        500,
+        360,
+        80
+      ],
+      "height": 80,
+      "kind": "ground",
+      "stratum": "ground",
+      "open_edges": false
+    },
+    {
+      "id": "jade_roof",
+      "rect": [
+        880,
+        560,
+        660,
+        150
+      ],
+      "height": 88,
+      "kind": "roof",
+      "stratum": "platform"
+    },
+    {
+      "id": "bridge_roof",
+      "rect": [
+        1590,
+        560,
+        440,
+        150
+      ],
+      "height": 176,
+      "kind": "roof",
+      "stratum": "platform"
+    },
+    {
+      "id": "cloud_roof",
+      "rect": [
+        2080,
+        560,
+        660,
+        150
+      ],
+      "height": 264,
+      "kind": "roof",
+      "stratum": "platform"
+    },
+    {
+      "id": "pine_branch",
+      "rect": [
+        2900,
+        680,
+        300,
+        80
+      ],
+      "height": 100,
+      "kind": "branch",
+      "stratum": "platform"
+    },
+    {
+      "id": "east_entry",
+      "rect": [
+        3220,
+        560,
+        250,
+        150
+      ],
+      "height": 100,
+      "kind": "roof",
+      "stratum": "platform"
+    },
+    {
+      "id": "east_step",
+      "rect": [
+        3510,
+        560,
+        250,
+        150
+      ],
+      "height": 200,
+      "kind": "roof",
+      "stratum": "platform"
+    },
+    {
+      "id": "heaven_roof",
+      "rect": [
+        3800,
+        560,
+        660,
+        150
+      ],
+      "height": 300,
+      "kind": "roof",
+      "stratum": "platform"
+    }
+  ],
+  "objects": [
+    {
+      "id": "west_scholar_rock",
+      "art": "props",
+      "cell": 0,
+      "position": [
+        360,
+        735
+      ],
+      "size": [
+        115,
+        80
+      ],
+      "front_y": 735,
+      "footprint": [
+        326,
+        712,
+        68,
+        28
+      ],
+      "height": 64,
+      "occlusion": [
+        302,
+        655,
+        116,
+        80
+      ]
+    },
+    {
+      "id": "courtyard_pine",
+      "art": "props",
+      "cell": 2,
+      "position": [
+        3010,
+        770
+      ],
+      "size": [
+        310,
+        235
+      ],
+      "front_y": 770,
+      "footprint": [
+        2974,
+        737,
+        72,
+        39
+      ],
+      "height": 260,
+      "occlusion": [
+        2848,
+        535,
+        324,
+        235
+      ]
+    },
+    {
+      "id": "east_plum",
+      "art": "props",
+      "cell": 3,
+      "position": [
+        5100,
+        770
+      ],
+      "size": [
+        220,
+        210
+      ],
+      "front_y": 770,
+      "footprint": [
+        5068,
+        741,
+        64,
+        35
+      ],
+      "height": 240,
+      "occlusion": [
+        4990,
+        560,
+        220,
+        210
+      ]
+    },
+    {
+      "id": "stone_lantern",
+      "art": "props",
+      "cell": 4,
+      "position": [
+        1770,
+        920
+      ],
+      "size": [
+        68,
+        78
+      ],
+      "front_y": 920,
+      "footprint": [
+        1747,
+        900,
+        46,
+        25
+      ],
+      "height": 68,
+      "occlusion": [
+        1736,
+        842,
+        68,
+        78
+      ]
+    },
+    {
+      "id": "garden_stones",
+      "art": "props",
+      "cell": 5,
+      "position": [
+        2390,
+        930
+      ],
+      "size": [
+        145,
+        54
+      ],
+      "front_y": 930,
+      "blocks": true,
+      "footprint": [
+        2340,
+        912,
+        100,
+        18
+      ],
+      "height": 38,
+      "occlusion": [
+        2317,
+        876,
+        146,
+        54
+      ]
+    }
+  ],
+  "districts": [
+    {
+      "id": "arrival_garden",
+      "x": [
+        0,
+        880
+      ]
+    },
+    {
+      "id": "academy",
+      "x": [
+        880,
+        2740
+      ]
+    },
+    {
+      "id": "pine_court",
+      "x": [
+        2740,
+        3220
+      ]
+    },
+    {
+      "id": "upper_halls",
+      "x": [
+        3220,
+        4560
+      ]
+    },
+    {
+      "id": "terrace_garden",
+      "x": [
+        4560,
+        5400
+      ]
+    }
+  ]
+}

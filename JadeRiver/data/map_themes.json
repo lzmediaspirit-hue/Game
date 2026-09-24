@@ -1,0 +1,8 @@
+{
+  "village": {"ground":"earth", "background":"settlement", "ascent_kind":"tree_branch", "rock_count":0, "building_count":4, "building_width":340, "tree_count":4, "climb":true, "clouds":true},
+  "town": {"ground":"stone", "background":"settlement", "ascent_kind":"tree_branch", "rock_count":0, "building_count":7, "building_width":390, "tree_count":2, "climb":true, "clouds":true},
+  "forest": {"ground":"moss", "background":"forest", "ascent_kind":"tree_branch", "rock_count":0, "building_count":0, "building_width":0, "tree_count":9, "climb":true, "clouds":true},
+  "cave": {"ground":"slate", "background":"cave", "ascent_kind":"rock_ledge", "rock_count":7, "building_count":0, "building_width":0, "tree_count":0, "climb":true, "clouds":false},
+  "road": {"ground":"earth", "background":"forest", "ascent_kind":"tree_branch", "rock_count":0, "building_count":1, "building_width":300, "tree_count":6, "climb":true, "clouds":true},
+  "mountain": {"ground":"slate", "background":"forest", "ascent_kind":"rock_ledge", "rock_count":2, "building_count":2, "building_width":320, "tree_count":3, "climb":true, "clouds":true}
+}

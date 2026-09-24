@@ -1,0 +1,22 @@
+{
+  "character_z": 10,
+  "backdrop_z": 0,
+  "order": {"shoes_below_pants": true, "rear_equipment_above_backdrop": true},
+  "motions": {
+    "idle": {"review": "full_body"},
+    "walk": {"review": "full_body"},
+    "jump": {"review": "full_body"},
+    "attack": {"review": "full_body", "weapon_family": "thrust"},
+    "swing": {"review": "full_body", "weapon_family": "sword", "visible_weapon_every_frame": true},
+    "bow": {"review": "full_body", "weapon_family": "bow", "arrow_only_here": true},
+    "punch": {"review": "full_body", "hands": ["far_jab", "near_cross"], "weapon": "none", "static_lower_body": true},
+    "meditate": {"review": "full_body", "pose": "cross_legged", "frames": 1, "weapon": "resting_beside_character", "shared_bob": true}
+  },
+  "intentional_absence": [
+    "An unequipped slot (none) has no layer.",
+    "Bow arrow exists only during the bow shot.",
+    "Weapon-specific rear/foreground sections can be blank if the combined equipped weapon remains visible.",
+    "Custom raised fist overlays exist only for punch and meditation."
+  ],
+  "visual_review_required": true
+}

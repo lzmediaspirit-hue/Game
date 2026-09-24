@@ -1,0 +1,27 @@
+config_version=5
+[application]
+config/name="Jade River — Wuxia Engine"
+run/main_scene="res://scenes/pixel_stage.tscn"
+config/icon="res://art/icon.png"
+config/features=PackedStringArray("4.5", "GL Compatibility")
+[autoload]
+Wardrobe="*res://scripts/wardrobe.gd"
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/size/window_width_override=1280
+window/size/window_height_override=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
+window/handheld/orientation=0
+[rendering]
+textures/vram_compression/import_etc2_astc=true
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
+textures/canvas_textures/default_texture_filter=0
+[input_devices]
+pointing/emulate_touch_from_mouse=false
+
+
+

@@ -1,0 +1,101 @@
+class_name MovementSolver
+extends RefCounted
+const GRAVITY=1150.0
+const JUMP_IMPULSE=530.0
+const MAX_STEP=1.0/120.0
+static func jump(state: ActorState) -> bool:
+	if state.surface:
+		state.jumps_used=0
+		state.air_stratum=state.surface.stratum
+		state.air_base=state.altitude
+		state.air_peak=state.altitude
+	elif state.jumps_used>=2: return false
+	state.jumps_used+=1
+	state.landing_assist=""
+	state.departed_surface=""
+	state.vertical_speed=JUMP_IMPULSE
+	state.surface=null
+	return true
+static func advance(state: ActorState,zone: ZoneGeometry,delta: float,velocity: Vector2):
+	# Bounded substeps prevent missed thin surfaces, stair entrances, and long-frame tunnelling.
+	var remaining=delta
+	while remaining>0.000001:
+		var dt=minf(remaining,MAX_STEP)
+		integrate(state,zone,dt,velocity)
+		remaining-=dt
+static func land(state: ActorState,contact: Dictionary,velocity: Vector2):
+	state.surface=contact.surface
+	state.plane=contact.point
+	state.altitude=state.surface.height_at(state.plane)
+	state.vertical_speed=0
+	state.jumps_used=0
+	state.departed_surface=""
+	state.landing_assist=state.surface.id if velocity.y< -20 and state.surface.stratum=="platform" else ""
+	state.velocity=Vector2(velocity.x,0)
+static func integrate(state: ActorState,zone: ZoneGeometry,dt: float,velocity: Vector2):
+	var start=state.plane
+	var next=start+velocity*dt
+	next=next.clamp(zone.bounds.position+Vector2(12,4),zone.bounds.end-Vector2(12,12))
+	next=PlatformLanding.guide(state,zone,next,velocity,GRAVITY)
+	if state.surface:
+		next=state.surface.follow_walk(next,velocity)
+		var prospective=zone.walk_target(next,state.altitude,state.surface)
+		# Evaluate a stair step at its destination height before checking its wall.
+		if prospective and not zone.blocks_at(next,prospective.height_at(next),prospective.stratum):
+			state.altitude=prospective.height_at(next)
+		next=zone.resolve_motion(start,next,state)
+		var target=zone.walk_target(next,state.altitude,state.surface)
+		if target:
+			state.surface=target
+			state.plane=next
+			state.altitude=target.height_at(next)
+		elif state.surface.open_edges:
+			state.departed_surface=state.surface.id
+			state.air_stratum=state.surface.stratum
+			state.plane=next
+			state.air_base=state.altitude
+			state.air_peak=state.altitude
+			state.surface=null
+			state.vertical_speed=0
+			state.jumps_used=1
+		else:
+			# Resolve both axes, including x-facing walls and terrace side boundaries.
+			var best_slide=start
+			var best_target: WalkSurface
+			for slide in [Vector2(next.x,start.y),Vector2(start.x,next.y)]:
+				var slide_target=zone.walk_target(slide,state.altitude,state.surface)
+				if slide_target and not zone.blocks(slide,state) and slide.distance_squared_to(start)>best_slide.distance_squared_to(start):
+					best_slide=slide
+					best_target=slide_target
+			if best_target:
+				state.surface=best_target
+				state.plane=best_slide
+				state.altitude=best_target.height_at(best_slide)
+	else:
+		next=zone.constrain_air_motion(start,next,state.altitude)
+		var previous=state.altitude
+		state.altitude+=state.vertical_speed*dt-0.5*GRAVITY*dt*dt
+		state.air_peak=maxf(state.air_peak,maxf(previous,state.altitude))
+		state.vertical_speed-=GRAVITY*dt
+		# Resolve the top crossing before the wall test: the end-of-step foot
+		# height can be slightly below a roof despite having landed on its top.
+		if state.vertical_speed<=0:
+			var landing=zone.landing_contact(next,previous,state.altitude,state.departed_surface)
+			if landing.is_empty():
+				landing=PlatformLanding.projected_contact(state,zone,start,next,previous)
+			if not landing.is_empty():
+				# The rendered foot remains on the same pixel during depth registration.
+				# Finalize this exact candidate, rather than repeating a height test in
+				# the old depth plane and discarding a valid projected contact.
+				land(state,landing,velocity)
+				return
+		state.plane=zone.resolve_motion(start,next,state)
+		if state.vertical_speed<=0:
+			var landed=zone.landing_contact(state.plane,previous,state.altitude,state.departed_surface)
+			if not landed.is_empty():
+				land(state,landed,velocity)
+			elif zone.blocks(state.plane,state):
+				# A masked roof edge may expose the solid facade underneath.
+				# Slide outside that volume rather than trapping a falling actor in it.
+				state.plane=zone.nearest_free(state.plane,state.altitude,state.air_stratum,false)
+	state.velocity=(state.plane-start)/dt
