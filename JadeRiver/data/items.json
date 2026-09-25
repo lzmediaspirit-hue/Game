@@ -24,7 +24,11 @@
    "roles": [
     "assistant",
     "envoy"
-   ]
+   ],
+   "herb": {
+    "family": "willow_moss",
+    "age": 10
+   }
   },
   {
    "id": "riverreed_ginseng_10",
@@ -50,7 +54,11 @@
     "principal",
     "minister",
     "assistant"
-   ]
+   ],
+   "herb": {
+    "family": "riverreed_ginseng",
+    "age": 10
+   }
   },
   {
    "id": "riverreed_ginseng_100",
@@ -76,7 +84,11 @@
     "principal",
     "minister",
     "assistant"
-   ]
+   ],
+   "herb": {
+    "family": "riverreed_ginseng",
+    "age": 100
+   }
   },
   {
    "id": "ember_pepper",
@@ -105,7 +117,11 @@
     "minister",
     "assistant",
     "envoy"
-   ]
+   ],
+   "herb": {
+    "family": "ember_pepper",
+    "age": 10
+   }
   },
   {
    "id": "mist_lotus",
@@ -134,7 +150,11 @@
     "principal",
     "minister",
     "assistant"
-   ]
+   ],
+   "herb": {
+    "family": "mist_lotus",
+    "age": 10
+   }
   },
   {
    "id": "cloudtop_orchid",
@@ -159,7 +179,11 @@
    "roles": [
     "principal",
     "minister"
-   ]
+   ],
+   "herb": {
+    "family": "cloudtop_orchid",
+    "age": 10
+   }
   },
   {
    "id": "soulbell_flower",
@@ -185,7 +209,11 @@
     "principal",
     "assistant",
     "envoy"
-   ]
+   ],
+   "herb": {
+    "family": "soulbell_flower",
+    "age": 10
+   }
   },
   {
    "id": "frost_lotus",
@@ -214,7 +242,165 @@
    "roles": [
     "principal",
     "minister"
-   ]
+   ],
+   "herb": {
+    "family": "frost_lotus",
+    "age": 10
+   }
+  },
+  {
+   "id": "riverreed_ginseng_1000",
+   "name": "Riverreed Ginseng (1,000 yr)",
+   "type": "herb",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "riverreed_ginseng_1000",
+   "desc": "A thousand-year root, gold to the tip. It grows on the rock the Riverbed Serpent sleeps around. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.",
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.1
+    }
+   ],
+   "raw": {
+    "toxicity": 40
+   },
+   "family": "accumulation",
+   "nature": "hot",
+   "roles": [
+    "principal",
+    "minister"
+   ],
+   "herb": {
+    "family": "riverreed_ginseng",
+    "age": 1000
+   }
+  },
+  {
+   "id": "ember_pepper_100",
+   "name": "Ember Pepper (100 yr)",
+   "type": "herb",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "ember_pepper_100",
+   "desc": "A century-old ember pepper, dark red and hot enough to blister the hand that picks it. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "physical_attack",
+     "op": "pct_add",
+     "value": 0.1,
+     "duration": 60,
+     "source": "raw_ember_pepper_100"
+    }
+   ],
+   "raw": {
+    "toxicity": 30
+   },
+   "nature": "hot",
+   "roles": [
+    "minister",
+    "assistant",
+    "envoy"
+   ],
+   "herb": {
+    "family": "ember_pepper",
+    "age": 100
+   }
+  },
+  {
+   "id": "mist_lotus_100",
+   "name": "Mist Lotus (100 yr)",
+   "type": "herb",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "mist_lotus_100",
+   "desc": "A century-old mist lotus. Its petals never quite dry. A cold herb: it draws the Extraction band down. Can be eaten raw in need: weak, and hard on the meridians.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "insight_rate",
+     "op": "flat",
+     "value": 0.3,
+     "duration": 540,
+     "source": "raw_mist_lotus_100"
+    }
+   ],
+   "raw": {
+    "toxicity": 24
+   },
+   "nature": "cold",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ],
+   "herb": {
+    "family": "mist_lotus",
+    "age": 100
+   }
+  },
+  {
+   "id": "cloudtop_orchid_100",
+   "name": "Cloudtop Orchid (100 yr)",
+   "type": "herb",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "cloudtop_orchid_100",
+   "desc": "A century-old orchid from the highest ledge. It smells of thin air. A cold herb: it draws the Extraction band down. Can be eaten raw in need: weak, and hard on the meridians.",
+   "use": [
+    {
+     "kind": "add_body_xp",
+     "amount": 220
+    }
+   ],
+   "raw": {
+    "toxicity": 40
+   },
+   "family": "body",
+   "nature": "cold",
+   "roles": [
+    "principal",
+    "minister"
+   ],
+   "herb": {
+    "family": "cloudtop_orchid",
+    "age": 100
+   }
+  },
+  {
+   "id": "soulbell_flower_100",
+   "name": "Soulbell Flower (100 yr)",
+   "type": "herb",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "soulbell_flower_100",
+   "desc": "A century-old soulbell. Its ring carries in the soul for a whole breath. Can be eaten raw in need: weak, and hard on the meridians.",
+   "use": [
+    {
+     "kind": "add_soul",
+     "amount": 35
+    }
+   ],
+   "raw": {
+    "toxicity": 24
+   },
+   "family": "soul",
+   "nature": "neutral",
+   "roles": [
+    "principal",
+    "assistant",
+    "envoy"
+   ],
+   "herb": {
+    "family": "soulbell_flower",
+    "age": 100
+   }
   },
   {
    "id": "ember_cactus",
@@ -239,7 +425,89 @@
    "roles": [
     "principal",
     "minister"
-   ]
+   ],
+   "herb": {
+    "family": "ember_cactus",
+    "age": 10
+   }
+  },
+  {
+   "id": "willow_moss_seed",
+   "name": "Willow Moss Seed",
+   "type": "seed",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "willow_moss_seed",
+   "desc": "Dust-fine spores of willow moss, wrapped in a leaf. Granny Liu sells them. Plant it in a garden bed.",
+   "seed": {
+    "family": "willow_moss"
+   }
+  },
+  {
+   "id": "ember_pepper_seed",
+   "name": "Ember Pepper Seed",
+   "type": "seed",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "ember_pepper_seed",
+   "desc": "Flat, pale pepper seeds that are warm to hold. Granny Liu sells them. Plant it in a garden bed.",
+   "seed": {
+    "family": "ember_pepper"
+   }
+  },
+  {
+   "id": "riverreed_ginseng_seed",
+   "name": "Riverreed Ginseng Seed",
+   "type": "seed",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "riverreed_ginseng_seed",
+   "desc": "Red ginseng berries with the seed still inside. Granny Liu sells them. Plant it in a garden bed.",
+   "seed": {
+    "family": "riverreed_ginseng"
+   }
+  },
+  {
+   "id": "mist_lotus_seed",
+   "name": "Mist Lotus Seed",
+   "type": "seed",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "mist_lotus_seed",
+   "desc": "A lotus seed from a perfect harvest. No shop in the valley sells them. Plant it in a garden bed.",
+   "seed": {
+    "family": "mist_lotus"
+   }
+  },
+  {
+   "id": "cloudtop_orchid_seed",
+   "name": "Cloudtop Orchid Seed",
+   "type": "seed",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "cloudtop_orchid_seed",
+   "desc": "Orchid seed finer than flour, sealed in wax. Only old inheritances hold them. Plant it in a garden bed.",
+   "seed": {
+    "family": "cloudtop_orchid"
+   }
+  },
+  {
+   "id": "soulbell_flower_seed",
+   "name": "Soulbell Flower Seed",
+   "type": "seed",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "soulbell_flower_seed",
+   "desc": "A soulbell seed that hums when you hold it to your ear. Only old inheritances hold them. Plant it in a garden bed.",
+   "seed": {
+    "family": "soulbell_flower"
+   }
   },
   {
    "id": "copper_ore",

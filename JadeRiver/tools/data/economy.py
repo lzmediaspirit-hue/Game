@@ -44,7 +44,9 @@ def shops():
          "rotation": {"count": 1, "pool": [s("willow_moss"), s("boar_hide"), s("river_mud"), s("cloth")]}},
         {"id": "granny_liu", "name": "Granny Liu's Herb Hut", "currency": "silver_tael",
          "stock": [s("herbal_tea"), s("willow_salve"), s("revival_talisman"), s("purging_pill", requires=all_of(realm("qi_kindling_2"))),
-                   s("calm_incense", requires=all_of(realm("qi_unfurling_9")))]},
+                   s("calm_incense", requires=all_of(realm("qi_unfurling_9"))),
+                   # S45 seeds (Part 8): the common three, for the garden beds.
+                   s("willow_moss_seed", price=6), s("ember_pepper_seed", price=14), s("riverreed_ginseng_seed", price=20)]},
         {"id": "stoneford_general", "name": "Stoneford General Store", "currency": "silver_tael", "buys_all": True,
          "stock": [s("cinnabar", price=8), s("herbal_tea"), s("lotus_root_tea"), s("rice_ball"), s("rice"), s("return_charm"), s("herb_sickle", requires=all_of(realm("bone_forging_4"))),
                    s("iron_pickaxe", requires=all_of(realm("bone_forging_5"))), s("bamboo_gourd"), s("escape_talisman"), s("fish_bait"),
@@ -118,7 +120,8 @@ def shops():
          "stock": [s("dusty_curio", price=1)], "rotation": {"count": 3, "pool": [s("torn_manual", price=5, requires=all_of(realm("spirit_awakening_6"))), s("riverreed_ginseng_100", price=4), s("manual_page", price=6), s("spirit_egg", price=12,
                    requires=all_of(realm("heart_tempering_5"))), s("mist_lotus", price=3), s("clear_mind_pill", price=3), s("spirit_jade", price=8)]}},
         {"id": "greyreed", "name": "Greyreed Trade Post", "currency": "silver_tael", "buys_all": True,
-         "stock": [s("rice"), s("rice_ball"), s("cleansing_pill"), s("purging_pill"), s("grey_hide")]},
+         "stock": [s("rice"), s("rice_ball"), s("cleansing_pill"), s("purging_pill"), s("grey_hide"),
+                   s("willow_moss_seed", price=6), s("ember_pepper_seed", price=14), s("riverreed_ginseng_seed", price=20)]},
         {"id": "hermit", "name": "Hermit Yao's Beast Hall", "currency": "silver_tael",
          "stock": [s("taming_cauldron", price=200, requires=all_of(realm("heart_tempering_1"))), s("bonding_offering_common"), s("roast_fish"), s("fish_bait"), s("maple_leaf_vessel", price=600, requires=all_of(realm("cloud_stride_1")))]},
         # Act II · Cloudgate Port and the Thunderhorn Plains. Spirit Stone prices come from tael prices at the exchange rate.

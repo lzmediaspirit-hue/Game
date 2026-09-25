@@ -109,7 +109,48 @@
    "to_portal": "shallows"
   }
  ],
- "objects": [],
+ "objects": [
+  {
+   "id": "rare_ginseng_ss",
+   "type": "herb_patch",
+   "at": [
+    1790,
+    730
+   ],
+   "item": "riverreed_ginseng_1000",
+   "prop": "riverreed_ginseng_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "expert",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100,
+   "surface": "high_rock_1",
+   "age": 1000,
+   "ripen": {
+    "phase": "night",
+    "every_days": 5,
+    "minutes": 20,
+    "offset": 3
+   },
+   "rare": true,
+   "guardian": {
+    "enemy": "riverbed_serpent",
+    "boss": true
+   },
+   "season": "summer"
+  }
+ ],
  "spawns": [
   {
    "enemy": "riverbed_serpent",

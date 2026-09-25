@@ -4167,6 +4167,11 @@
     {
      "kind": "codex",
      "entry": "riverbreath_inheritance"
+    },
+    {
+     "kind": "grant_item",
+     "item": "cloudtop_orchid_seed",
+     "count": 2
     }
    ],
    "offer_text": [
@@ -4215,6 +4220,11 @@
      "kind": "grant_item",
      "item": "riverbreath_scroll",
      "count": 1
+    },
+    {
+     "kind": "grant_item",
+     "item": "soulbell_flower_seed",
+     "count": 2
     }
    ],
    "offer_text": [

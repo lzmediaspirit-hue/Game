@@ -1,0 +1,78 @@
+{
+ "schema_version": 1,
+ "families": {
+  "willow_moss": {
+   "10": "willow_moss"
+  },
+  "riverreed_ginseng": {
+   "10": "riverreed_ginseng_10",
+   "100": "riverreed_ginseng_100",
+   "1000": "riverreed_ginseng_1000"
+  },
+  "ember_pepper": {
+   "10": "ember_pepper",
+   "100": "ember_pepper_100"
+  },
+  "mist_lotus": {
+   "10": "mist_lotus",
+   "100": "mist_lotus_100"
+  },
+  "cloudtop_orchid": {
+   "10": "cloudtop_orchid",
+   "100": "cloudtop_orchid_100"
+  },
+  "soulbell_flower": {
+   "10": "soulbell_flower",
+   "100": "soulbell_flower_100"
+  },
+  "frost_lotus": {
+   "10": "frost_lotus"
+  },
+  "ember_cactus": {
+   "10": "ember_cactus"
+  }
+ },
+ "ages": [
+  10,
+  100,
+  1000
+ ],
+ "seeds": {
+  "willow_moss": "willow_moss_seed",
+  "ember_pepper": "ember_pepper_seed",
+  "riverreed_ginseng": "riverreed_ginseng_seed",
+  "mist_lotus": "mist_lotus_seed",
+  "cloudtop_orchid": "cloudtop_orchid_seed",
+  "soulbell_flower": "soulbell_flower_seed"
+ },
+ "harvest_seeds": [
+  "willow_moss",
+  "riverreed_ginseng",
+  "ember_pepper",
+  "mist_lotus"
+ ],
+ "seed_chance": 0.1,
+ "age_quality": 0.04,
+ "harvest": {
+  "ring_s": 1.0,
+  "target": 0.7,
+  "window": {
+   "apprentice": 0.12,
+   "adept": 0.16,
+   "expert": 0.2,
+   "master": 0.24,
+   "grandmaster": 0.28
+  }
+ },
+ "phases": {
+  "dawn": 0.0,
+  "day": 0.375,
+  "dusk": 0.75,
+  "night": 0.875
+ },
+ "guardian": {
+  "wake_px": 480,
+  "wake_below": 60,
+  "leash_px": 600
+ }
+}

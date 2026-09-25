@@ -176,6 +176,41 @@
     ]
    },
    "locked_text": "A pale lotus. It closes when your hand comes near."
+  },
+  {
+   "id": "rare_lotus_bf",
+   "type": "herb_patch",
+   "at": [
+    680,
+    635
+   ],
+   "item": "mist_lotus_100",
+   "prop": "mist_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "adept",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 200,
+   "surface": "falls_ledge_2",
+   "age": 100,
+   "ripen": {
+    "phase": "dusk",
+    "every_days": 3,
+    "minutes": 20,
+    "offset": 0
+   },
+   "rare": true
   }
  ],
  "spawns": [],

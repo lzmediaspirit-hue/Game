@@ -104,5 +104,10 @@ Progress is recorded in `docs/CHANGELOG.md`.
 - **V5c**: done (Inner Arts, stances, technique grades, combos).
 - **V5d**: done (vows, epiphany, Killing Intent, Blood Burning, the false realm with veiled dialogue and bandit
   ambushes, the nascent-soul escape, the Comet Captain's self-detonation). S48 is complete.
-- Next: V6 (S45 herbs), V7 (S46 beasts, with the pet pills, the Purifying Offering and Fox Spirit's Favour), V8
-  (S49 living world).
+- **V6a**: done (herb ages, rare nodes with ripening, guardians and seasons, the harvest tap, seeds, the Codex
+  calendar).
+- Next:
+  - V6b: garden beds, field grades, Spirit Soil, spring water, transplanting, the Verdant Dew Vial;
+  - V6c: racks, raids, fakes, treasure births, gathering trials;
+  - V7 (S46 beasts, with the pet pills, the Purifying Offering and Fox Spirit's Favour);
+  - V8 (S49 living world).

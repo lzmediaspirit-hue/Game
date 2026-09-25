@@ -55,6 +55,7 @@ func _main() -> void:
 	heaven_suite()
 	arts_suite()
 	vows_suite()
+	herbs_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -1249,6 +1250,120 @@ func vows_suite() -> void:
 	cu.vows.clear()
 	cu.heart_demon = 0.0
 	c.inventory.bag.fill(null)
+
+# ------------------------------------------------------------------ S45 rare herbs, the harvest tap, seeds, seasons
+func herbs_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var cu: CultivatorState = c.cultivator
+	Unlocks.force_unlock(c.id, "herb_gathering")
+	var prof_was: Dictionary = c.professions.get("herb_gathering", {"rank": "apprentice", "xp": 0.0}).duplicate()
+	c.professions["herb_gathering"] = {"rank": "adept", "xp": 1000.0}
+	var had_conceal := cu.secret_arts.has("concealment")
+	cu.secret_arts.erase("concealment")
+	# The tap window by rank: 12% Apprentice ... 28% Grandmaster, around the ring's target.
+	check(near(HerbRules.tap_window("apprentice"), 0.12) and near(HerbRules.tap_window("expert"), 0.20) and near(HerbRules.tap_window("grandmaster"), 0.28),
+		"the tap window widens with rank: 12% / 20% / 28%")
+	check(HerbRules.tap_perfect(0.759, "apprentice") and not HerbRules.tap_perfect(0.761, "apprentice") and HerbRules.tap_perfect(0.839, "grandmaster")
+		and not HerbRules.tap_perfect(-1.0, "grandmaster"), "a tap is perfect only inside its band; no tap is a miss")
+	check(Game.crafting.RANK_CAPS.herb_gathering.back()[1] == "grandmaster", "herb gathering can reach Grandmaster")
+	# Ripening: dawn, every 2nd in-game day, 20 minutes.
+	Game.world.load_room(c, "dw_bend_shore", "")
+	var o: Dictionary = Game.room_rt.object_def("rare_ginseng_bs")
+	var L := HerbRules.day_s()
+	var centre := float(40000 + int(o.ripen.offset)) * L
+	check(HerbRules.ripen_state(o, centre).ripe and HerbRules.ripen_state(o, centre + 590.0).ripe and HerbRules.ripen_state(o, centre - 590.0).ripe,
+		"a hundred-year ginseng is ripe for 20 minutes around dawn")
+	var after := HerbRules.ripen_state(o, centre + 610.0)
+	check(not after.ripe and near(float(after.seconds), 2.0 * L - 1210.0, 1.0) and not HerbRules.ripen_state(o, centre + L).ripe,
+		"then it grows for two in-game days (%.0f s to the next window)" % float(after.seconds))
+	var st: ActorState = Game.actor_state(c.id)
+	var pick := func(obj: Dictionary, timing: float) -> Dictionary:
+		Game.room_rt.objects[str(obj.id)] = {"state": "ready", "timer": 0.0, "hits": 0}
+		st.plane = Vector2(float(obj.at[0]) - 30.0, float(obj.at[1]))
+		st.altitude = float(obj.get("alt", 0))
+		var g := Game.submit({"type": "interact", "object": str(obj.id)})
+		if not g.get("ok", false): return g
+		Game.crafting.pending[c.id].started = Game.sim_time - 5.0
+		return Game.submit({"type": "complete_node", "object": str(obj.id), "timing": timing})
+	# Picked early, it is a tier younger even with a perfect tap.
+	Clock.override_utc = centre + 700.0
+	var early: Dictionary = pick.call(o, 0.7)
+	check(early.get("ok", false) and str(early.get("item", "")) == "riverreed_ginseng_10" and early.get("early", false), "picked early: a ten-year root (%s)" % str(early.get("item", early)))
+	# Ripe, the Tide Crab wakes as you reach for it, once per ripening.
+	Clock.override_utc = centre
+	var woke := [0]
+	var on_wake := func(n: String, p: Dictionary) -> void:
+		if n == "guardian_spawned": woke[0] += 1
+	GameEvents.event.connect(on_wake)
+	var guarded: Dictionary = pick.call(o, 0.7)
+	var again: Dictionary = pick.call(o, 0.7)
+	GameEvents.flush()
+	var keeper: EnemyState = Game.room_rt.enemies.get(int(Game.room_rt.guardians.get("rare_ginseng_bs", -1)))
+	check(str(guarded.get("reason", "")) == "guarded" and str(again.get("reason", "")) == "guarded" and woke[0] == 1 and keeper != null and keeper.elite
+		and keeper.def_id == "tide_crab", "the Tide Crab guards the ripe root, and wakes once a ripening (%d)" % woke[0])
+	# Lured past its leash, it no longer stops you: a perfect tap keeps the full hundred years.
+	keeper.plane = Vector2(float(o.at[0]) + 700.0, keeper.plane.y)
+	var ripe: Dictionary = pick.call(o, 0.7)
+	check(ripe.get("ok", false) and str(ripe.get("item", "")) == "riverreed_ginseng_100" and ripe.get("perfect", false), "lured away: a perfect hundred-year root")
+	# The next ripening wakes a new guardian; under Concealment an unaware one lets you pick, but a miss drops a tier.
+	Clock.override_utc = centre + 2.0 * L
+	pick.call(o, 0.7)
+	GameEvents.flush()
+	check(woke[0] == 2, "a new ripening, a new guardian (%d)" % woke[0])
+	var keeper2: EnemyState = Game.room_rt.enemies.get(int(Game.room_rt.guardians.get("rare_ginseng_bs", -1)))
+	cu.secret_arts.append("concealment")
+	keeper2.ai["state"] = "idle"
+	var unseen: Dictionary = pick.call(o, 0.0)
+	check(unseen.get("ok", false) and str(unseen.get("item", "")) == "riverreed_ginseng_10" and not unseen.get("perfect", true), "picked unseen, but a missed tap: ten years")
+	keeper2.ai["state"] = "aggro"
+	check(str(pick.call(o, 0.7).get("reason", "")) == "guarded", "a guardian that has seen you still stops you")
+	GameEvents.event.disconnect(on_wake)
+	for e in Game.room_rt.living_enemies():
+		if e.summoned: Game.enemies.release(e)
+	# Seeds: a perfect harvest finds one about one time in ten, the same under the same seed.
+	Game.world.load_room(c, "cf_falls_pool", "")
+	var lotus: Dictionary = Game.room_rt.object_def("rare_lotus_fp")
+	var lc := float(30000 * 3 + int(lotus.ripen.offset)) * L + 0.75 * L
+	Clock.override_utc = lc
+	var rng := Rng.stream(c.id, "crafting")
+	var rng_was := rng.state
+	var runs: Array = []
+	for run in 2:
+		rng.seed = 4242
+		var seeds := 0
+		for i in 80:
+			if str(pick.call(lotus, 0.7).get("seed", "")) == "mist_lotus_seed": seeds += 1
+		runs.append(seeds)
+	rng.state = rng_was
+	check(runs[0] == runs[1] and runs[0] >= 2 and runs[0] <= 18, "perfect harvests find Mist Lotus seeds at about 10%%, the same under a fixed seed (%d, %d of 80)" % [runs[0], runs[1]])
+	check(ContentDB.config("garden").seeds.get("cloudtop_orchid", "") != "" and HerbRules.harvest_seed("cloudtop_orchid_100") == "",
+		"Cloudtop Orchid seeds never come from a harvest")
+	# Seasons: the Thicket Heart's hundred-year pepper flowers only in Summer.
+	var summer := 1900000000.0
+	while HerbRules.season(summer) != "summer": summer += 604800.0
+	var pepper: Dictionary = ContentDB.room("bg_thicket_heart").objects.filter(func(x): return str(x.id) == "rare_pepper_th")[0]
+	check(HerbRules.in_season(pepper, summer) and not HerbRules.in_season(pepper, summer + 604800.0) and HerbRules.season(summer + 604800.0) == "autumn",
+		"seasons turn weekly, and the pepper flowers only in Summer")
+	Game.world.load_room(c, "bg_thicket_heart", "")
+	Clock.override_utc = summer + 604800.0
+	var dormant: Dictionary = pick.call(pepper, 0.7)
+	check(not dormant.get("ok", false) and Game.account.codex.has("seasons"), "out of season it lies dormant, and the Codex learns the seasons")
+	# An older herb stands in for a younger one when the recipe's own runs short, and refines better.
+	for id in ["riverreed_ginseng_10", "riverreed_ginseng_100", "riverreed_ginseng_1000"]:
+		Game.inventory.apply_remove(c.id, id, c.inventory.count(id), "test")
+	Game.inventory.apply_add(c.id, "riverreed_ginseng_100", 1, "test")
+	var a1: Dictionary = Game.crafting.with_aged(c, [{"item": "riverreed_ginseng_10", "count": 1}], 1)
+	Game.inventory.apply_add(c.id, "riverreed_ginseng_10", 1, "test")
+	var a2: Dictionary = Game.crafting.with_aged(c, [{"item": "riverreed_ginseng_10", "count": 1}], 1)
+	var a3: Dictionary = Game.crafting.with_aged(c, [{"item": "riverreed_ginseng_10", "count": 3}], 1)
+	check(a1.inputs == [{"item": "riverreed_ginseng_100", "count": 1}] and int(a1.tiers) == 1, "a hundred-year root stands in for a ten-year one")
+	check(a2.inputs == [{"item": "riverreed_ginseng_10", "count": 1}] and int(a2.tiers) == 0, "never while a ten-year root is to hand")
+	check(a3.inputs == [{"item": "riverreed_ginseng_10", "count": 3}], "still short: the check asks for the recipe's own herb (%s)" % str(a3.inputs))
+	Clock.override_utc = -1.0
+	c.professions["herb_gathering"] = prof_was
+	if had_conceal and not cu.secret_arts.has("concealment"): cu.secret_arts.append("concealment")
+	if not had_conceal: cu.secret_arts.erase("concealment")
 
 func tribulation_suite() -> void:
 	var c = Game.active()

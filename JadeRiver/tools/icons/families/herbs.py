@@ -298,3 +298,49 @@ register(FAM, 'ember_pepper', ember_pepper, GROUP)
 register(FAM, 'mist_lotus', mist_lotus, GROUP)
 register(FAM, 'cloudtop_orchid', cloudtop_orchid, GROUP)
 register(FAM, 'soulbell_flower', soulbell_flower, GROUP)
+
+
+# ----------------------------------------------------------------------------- S45 aged herbs and seeds
+def _aged(base, years):
+    """An aged herb: the plant it grew from, wreathed in the gold of its years (a wider halo at a thousand)."""
+    c = base()
+    if years >= 1000:
+        c.glow('#F2C85B', (150, 90, 40))
+        S.sparkle(c, 26, 4, '#FFFFFF', R['gold'][3], 2)
+        S.sparkle(c, 5, 7, '#FFFFFF', R['gold'][3], 1)
+        S.sparkle(c, 27, 25, '#FFFFFF', R['gold'][3], 1)
+    else:
+        c.glow('#E8C35A', (120, 50))
+        S.sparkle(c, 26, 5, '#FFFFFF', R['gold'][3], 1)
+    return c
+
+
+def _seed_pouch(ramp, rx=2.4, ry=3.2):
+    """A hemp seed pouch tied with straw, three seeds spilled beside it in the herb's own colour."""
+    c = Canvas(32)
+    bag = c.ellipse(13, 18.5, 8.5, 8.5) | c.poly([(8, 12), (18, 12), (16, 6), (10, 6)])
+    c.put(bag, R['hemp'], 'sphere', base=2)
+    c.put(c.rect(8, 11, 18, 12) & bag, R['straw'], 'flat', base=3)
+    c.put(c.ellipse(13, 5.5, 3.5, 1.5), R['hemp'], 'ray', base=3, sep=True)
+    # A paper tag on the pouch, stamped in the herb's colour.
+    tag = c.rect(9, 16, 16, 23)
+    c.put(tag, R['paper'], 'flat', base=3, sep=True)
+    c.put(c.circle(12.5, 19.5, 2.2), ramp, 'sphere', base=2)
+    for (x, y) in ((23, 24), (27.5, 20.5), (27, 27.5)):
+        seed = c.ellipse(x, y, rx * 1.15, ry * 1.15)
+        c.put(seed, ramp, 'sphere', base=2, sep=True)
+    c.outline()
+    return c
+
+
+register(FAM, 'riverreed_ginseng_1000', lambda: _aged(lambda: _ginseng(True), 1000), GROUP)
+register(FAM, 'ember_pepper_100', lambda: _aged(ember_pepper, 100), GROUP)
+register(FAM, 'mist_lotus_100', lambda: _aged(mist_lotus, 100), GROUP)
+register(FAM, 'cloudtop_orchid_100', lambda: _aged(cloudtop_orchid, 100), GROUP)
+register(FAM, 'soulbell_flower_100', lambda: _aged(soulbell_flower, 100), GROUP)
+register(FAM, 'willow_moss_seed', lambda: _seed_pouch(R['moss'], 1.8, 1.8), GROUP)
+register(FAM, 'ember_pepper_seed', lambda: _seed_pouch(R['yellow'], 2.2, 2.6), GROUP)
+register(FAM, 'riverreed_ginseng_seed', lambda: _seed_pouch(R['red'], 2.5, 2.5), GROUP)
+register(FAM, 'mist_lotus_seed', lambda: _seed_pouch(R['pearl'], 2.6, 3.0), GROUP)
+register(FAM, 'cloudtop_orchid_seed', lambda: _seed_pouch(R['sky'], 1.9, 2.4), GROUP)
+register(FAM, 'soulbell_flower_seed', lambda: _seed_pouch(R['violet'], 2.4, 2.8), GROUP)

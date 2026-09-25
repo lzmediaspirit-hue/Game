@@ -53,6 +53,8 @@ const CAPTIONS := {"boss_phase": "boss_roar", "field_boss_spawned": "distant_roa
 var caption := {"text": "", "t": 9.0}
 var context: Dictionary = {}
 var channel := {"object": "", "t": 0.0, "dur": 0.0, "action": ""}
+## S45 harvest tap: after the hold, a ring shrinks toward the Attack button; tap it inside the gold band.
+var tapping := {"object": "", "t": 0.0, "ring": 1.0, "target": 0.7, "window": 0.12}
 var cultivate_hold := 0.0
 var cultivate_pressed := false
 var guard_hold := 0.0
@@ -125,6 +127,7 @@ func _process(delta: float) -> void:
 		if guard_hold > 0.18 and bound() and not player.state.flying and not Game.combat.timeline(Game.active_id).guard:
 			Game.submit({"type": "guard_start"})
 	_tick_channel(delta)
+	_tick_tap(delta)
 	if bound() and world: context = world.context
 	queue_redraw()
 
@@ -141,11 +144,33 @@ func _tick_channel(delta: float) -> void:
 	if channel.t >= channel.dur:
 		var obj: String = channel.object
 		channel.object = ""
+		if channel.action == "gather" and not (channel.get("tap", {}) as Dictionary).is_empty():
+			var tp: Dictionary = channel.tap
+			tapping = {"object": obj, "t": 0.0, "ring": float(tp.get("ring_s", 1.0)), "target": float(tp.get("target", 0.7)), "window": float(tp.get("window", 0.12))}
+			return
 		player.channel_time = 0.0
 		player.channel_action = ""
 		if channel.action in ["gather", "mine"]:
 			var r := Game.submit({"type": "complete_node", "object": obj})
 			if r.ok: add_log(Tx.t("hud.obtained") % [ContentDB.item_name(str(r.item)), int(r.count)], UiKit.BRIGHT_JADE)
+
+func _tick_tap(delta: float) -> void:
+	if tapping.object == "" or not bound(): return
+	tapping.t += delta
+	if tapping.t >= float(tapping.ring): finish_tap(1.0)
+
+## The tap landed (or the ring ran out): `timing` is how far the ring had shrunk, 0..1.
+func finish_tap(timing: float) -> void:
+	var obj: String = tapping.object
+	tapping.object = ""
+	player.channel_time = 0.0
+	player.channel_action = ""
+	var r := Game.submit({"type": "complete_node", "object": obj, "timing": timing})
+	if not r.ok:
+		if r.has("text"): add_log(str(r.text), UiKit.MIST)
+		return
+	add_log(Tx.t("hud.obtained") % [ContentDB.item_name(str(r.item)), int(r.count)], UiKit.GOLD if r.get("perfect", false) else UiKit.BRIGHT_JADE)
+	pulses["tap:" + ("perfect" if r.get("perfect", false) else "miss")] = 0.6
 
 func _notification(what):
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
@@ -281,6 +306,9 @@ func primary() -> void:
 	if not bound():
 		player.attack()
 		return
+	if tapping.object != "":
+		finish_tap(float(tapping.t) / maxf(0.01, float(tapping.ring)))
+		return
 	if channel.object != "": return
 	if not context.is_empty() and not _enemy_close():
 		use_context()
@@ -327,7 +355,8 @@ func use_context() -> void:
 		fishing_requested.emit(str(context.object))
 		return
 	if float(r.get("channel", 0.0)) > 0.0:
-		channel = {"object": str(context.object), "t": 0.0, "dur": float(r.channel), "action": str(r.get("action", "gather"))}
+		channel = {"object": str(context.object), "t": 0.0, "dur": float(r.channel), "action": str(r.get("action", "gather")), "tap": r.get("tap", {})}
+		if r.get("early", false): add_log(Tx.t("hud.herb_early"), UiKit.MIST)
 		return
 	if r.has("text") and str(r.text) != "": add_log(str(r.text), UiKit.PAPER)
 
@@ -674,6 +703,14 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.teleport_stone_attuned"), "gold")
 		"hidden_portal_revealed":
 			toast(Tx.t("hud.a_hidden_path_opens"), "gold")
+		"herb_ripening":
+			add_log(Tx.t("hud.herb_ripening") % ContentDB.item_name(str(p.item)), UiKit.GOLD)
+		"herb_harvested":
+			if p.get("perfect", false): add_log(Tx.t("hud.herb_perfect") % [ContentDB.item_name(str(p.item)), int(p.age)], UiKit.GOLD)
+		"seed_found":
+			toast(Tx.t("hud.seed_found") % ContentDB.item_name(str(p.seed)), "gold")
+		"guardian_spawned":
+			toast(Tx.t("hud.guardian") % ContentDB.name_of("enemies", str(p.enemy)), "danger", Tx.t("hud.guardian_sub"))
 		"ambush_sprung":
 			toast(Tx.t("hud.ambush"), "danger", Tx.t("hud.ambush_concealed") if p.get("concealed", false) else Tx.t("hud.ambush_sub"))
 		"meridian_gate_opened":
@@ -854,6 +891,11 @@ func _draw():
 	_draw_boss()
 	_draw_event(c)
 	_draw_tribulation(c)
+	# The harvest ring (S45) sits over every other control while it runs.
+	if tapping.object != "": _draw_tap_ring()
+	for k in ["tap:perfect", "tap:miss"]:
+		if pulses.has(k): UiKit.draw_outlined(self, Tx.t("hud." + k.replace(":", "_")), attack_center + Vector2(-90, -150), 26,
+			UiKit.GOLD if k == "tap:perfect" else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 180)
 	if joystick_id != -999:
 		draw_arc(joystick_origin, 76, 0, TAU, 40, Color(1, 1, 1, 0.12), 2)
 		draw_circle(joystick_origin + (joystick_pos - joystick_origin).limit_length(76), 18, Color(1, 1, 1, 0.14))
@@ -988,6 +1030,16 @@ func _draw_minimap(c) -> void:
 			if mk != "": draw_arc(mp, 6 + sin(t * 4.0) * 1.5, 0, TAU, 12, UiKit.GOLD, 1)
 		elif o.type in ["shrine", "qi_spring", "teleport_stone"]:
 			draw_rect(Rect2(mp - Vector2(3, 3), Vector2(6, 6)), UiKit.BRIGHT_JADE)
+		elif o.type == "herb_patch" and o.has("ripen"):
+			# S45: a rare herb shows as a leaf, gold while ripe, with the time left (or until it ripens).
+			var hs: Dictionary = Game.world.herb_state(o)
+			var spent: bool = Game.room_rt.objects.get(str(o.id), {}).get("state", "ready") == "depleted"
+			var ripe: bool = hs.ripe and not hs.dormant and not spent
+			var lc := UiKit.GOLD if ripe else Color(0.55, 0.62, 0.6, 0.9)
+			draw_colored_polygon(PackedVector2Array([mp + Vector2(0, -5), mp + Vector2(3.5, 0), mp + Vector2(0, 4), mp + Vector2(-3.5, 0)]), lc)
+			if ripe: draw_arc(mp, 6.5 + sin(t * 5.0), 0, TAU, 12, UiKit.GOLD, 1)
+			if not hs.dormant and not spent:
+				UiKit.draw_text(self, UiKit.clock(float(hs.seconds)), mp + Vector2(-20, 14), 10, lc, HORIZONTAL_ALIGNMENT_CENTER, 40)
 	if Game.room_rt and Game.account.settings.get("minimap_monsters", true):
 		for e in Game.room_rt.enemies.values():
 			if not e.alive or e.hidden: continue
@@ -996,6 +1048,23 @@ func _draw_minimap(c) -> void:
 			draw_circle(ep, 2.5, col)
 	var pp: Vector2 = to_map.call(player.plane, player.altitude)
 	draw_colored_polygon(PackedVector2Array([pp + Vector2(player.facing * 5, 0), pp + Vector2(-player.facing * 3, -4), pp + Vector2(-player.facing * 3, 4)]), Color.WHITE)
+
+## The harvest ring (S45): it shrinks from wide to the button; the gold band is the perfect window for your rank.
+func _draw_tap_ring() -> void:
+	var outer := 128.0
+	var inner := 58.0
+	var f := clampf(float(tapping.t) / maxf(0.01, float(tapping.ring)), 0.0, 1.0)
+	var at_f := func(x: float) -> float: return lerpf(outer, inner, clampf(x, 0.0, 1.0))
+	var lo: float = at_f.call(float(tapping.target) + float(tapping.window) * 0.5)
+	var hi: float = at_f.call(float(tapping.target) - float(tapping.window) * 0.5)
+	draw_circle(attack_center, outer + 6.0, Color(0.02, 0.06, 0.07, 0.55))
+	draw_arc(attack_center, outer + 6.0, 0, TAU, 64, Color(UiKit.GOLD, 0.35), 1.5)
+	draw_arc(attack_center, (lo + hi) * 0.5, 0, TAU, 64, Color(UiKit.GOLD, 0.55), maxf(2.0, hi - lo))
+	draw_arc(attack_center, lo, 0, TAU, 64, UiKit.GOLD, 1.5)
+	draw_arc(attack_center, hi, 0, TAU, 64, UiKit.GOLD, 1.5)
+	var in_band := f >= float(tapping.target) - float(tapping.window) * 0.5 and f <= float(tapping.target) + float(tapping.window) * 0.5
+	draw_arc(attack_center, at_f.call(f), 0, TAU, 64, UiKit.PALE_GOLD if in_band else UiKit.BRIGHT_JADE, 4)
+	UiKit.draw_outlined(self, Tx.t("hud.tap_now"), attack_center + Vector2(-90, -outer - 18), 20, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 180)
 
 func _draw_controls(c) -> void:
 	# Attack / context button.
@@ -1013,6 +1082,7 @@ func _draw_controls(c) -> void:
 			glyph(str(StatRules.family(c).get("hud_glyph", "fist")), attack_center, 64)
 		if channel.object != "":
 			draw_arc(attack_center, 60, -PI / 2, -PI / 2 + TAU * clampf(channel.t / maxf(0.01, channel.dur), 0, 1), 40, UiKit.BRIGHT_JADE, 5)
+
 	if shown("skills"):
 		draw_skill_scroll()
 		if Unlocks.is_unlocked(c.id, "technique_page_2"):

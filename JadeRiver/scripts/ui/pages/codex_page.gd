@@ -6,13 +6,14 @@ var sel := ""
 func _init() -> void:
 	title = Tx.t("ui.codex.codex")
 	tabs = [{"id": "codex", "label": Tx.t("ui.codex.codex")}, {"id": "collection", "label": Tx.t("ui.codex.collection")}, {"id": "achievements", "label": Tx.t("ui.codex.achievements")},
-		{"id": "paths_above", "label": Tx.t("ui.codex.paths_above")}]
+		{"id": "paths_above", "label": Tx.t("ui.codex.paths_above")}, {"id": "seasons", "label": Tx.t("ui.codex.seasons")}]
 
 func setup() -> void:
 	match page_id:
 		"collection": tab = 1
 		"achievements": tab = 2
 		"paths_above": tab = 3
+		"seasons": tab = 4
 
 func draw_page() -> void:
 	var ch = c()
@@ -22,6 +23,7 @@ func draw_page() -> void:
 		"collection": _collection()
 		"achievements": _achievements(ch)
 		"paths_above": _paths_above(ch)
+		"seasons": _seasons()
 
 func _codex() -> void:
 	var entries: Array = ContentDB.all("codex")
@@ -86,6 +88,54 @@ func _collection() -> void:
 	)
 
 ## S43 "Paths Above": every optional ledge that only a later movement art reaches, and whether you have stood on it.
+## S45 season calendar: which rare herbs flower in which season, and when each ripens. A place shows once visited.
+func _seasons() -> void:
+	var now := Clock.now_utc()
+	var cur := HerbRules.season(now)
+	var rares: Array = []
+	for rid in ContentDB.rooms:
+		for o in ContentDB.room(rid).get("objects", []):
+			if o.get("type", "") == "herb_patch" and o.has("ripen"): rares.append({"room": str(rid), "o": o})
+	rares.sort_custom(func(a, b): return str(a.o.item) < str(b.o.item))
+	text(content.position + Vector2(20, 30), Tx.t("ui.codex.season_now") % [ContentDB.name_of("seasons", cur), UiKit.clock(HerbRules.season_left_s(now))], 20, UiKit.PALE_GOLD)
+	var seasons: Array = ContentDB.all("seasons")
+	var gap := 14.0
+	var cw := (content.size.x - gap * 3) / 4.0
+	var top := content.position.y + 50
+	var ch_h := 250.0
+	for i in seasons.size():
+		var sd: Dictionary = seasons[i]
+		var r := Rect2(content.position.x + i * (cw + gap), top, cw, ch_h)
+		panel(r, "minor_panel", "selected" if str(sd.id) == cur else "normal")
+		text(r.position + Vector2(16, 34), str(sd.name), 22, UiKit.GOLD if str(sd.id) == cur else UiKit.PALE_GOLD)
+		var y := r.position.y + 44 + para(Rect2(r.position + Vector2(16, 44), Vector2(cw - 32, 90)), str(sd.get("desc", "")), 15, UiKit.MIST, 4) + 8
+		for rn in rares:
+			if str(rn.o.get("season", "")) != str(sd.id): continue
+			y = _rare_line(rn, Vector2(r.position.x + 16, y), cw - 32)
+	var r2 := Rect2(content.position.x, top + ch_h + gap, content.size.x, content.end.y - top - ch_h - gap)
+	panel(r2)
+	text(r2.position + Vector2(16, 32), Tx.t("ui.codex.no_season"), 19, UiKit.PALE_GOLD)
+	var y2 := r2.position.y + 44
+	var col := 0
+	for rn in rares:
+		if str(rn.o.get("season", "")) != "": continue
+		_rare_line(rn, Vector2(r2.position.x + 16 + col * (r2.size.x / 2.0), y2), r2.size.x / 2.0 - 32)
+		col += 1
+		if col == 2:
+			col = 0
+			y2 += 48
+
+func _rare_line(rn: Dictionary, at: Vector2, w: float) -> float:
+	var o: Dictionary = rn.o
+	var ic := SpriteCache.icon(str(o.item))
+	if ic: draw_texture_rect(ic, Rect2(at.x, at.y, 28, 28), false)
+	var seen: bool = Game.account.visited_rooms.has(str(rn.room))
+	text(at + Vector2(34, 13), fit(ContentDB.item_name(str(o.item)), 15, w - 34), 15, UiKit.PAPER)
+	var rp: Dictionary = o.get("ripen", {})
+	var where := str(ContentDB.room(str(rn.room)).get("name", "")) if seen else "? ? ?"
+	text(at + Vector2(34, 31), fit(Tx.t("ui.codex.ripens") % [where, Tx.t("ui.herb.phase_" + str(rp.get("phase", "dawn"))), int(rp.get("every_days", 1))], 13, w - 34), 13, UiKit.MIST)
+	return at.y + 44
+
 func _paths_above(ch) -> void:
 	var rows: Array = ContentDB.all("paths_above")
 	var r := Rect2(content.position, content.size)

@@ -189,8 +189,8 @@
    "id": "herb_2",
    "type": "herb_patch",
    "at": [
-    1279,
-    690
+    2050,
+    665
    ],
    "item": "cloudtop_orchid",
    "prop": "cloudtop_orchid_patch",
@@ -208,7 +208,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 300
   },
   {
    "id": "ore_3",
@@ -284,6 +285,47 @@
    "level": 42,
    "hp": 1,
    "respawn_s": 300
+  },
+  {
+   "id": "rare_orchid_sl",
+   "type": "herb_patch",
+   "at": [
+    1350,
+    655
+   ],
+   "item": "cloudtop_orchid_100",
+   "prop": "cloudtop_orchid_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "expert",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 400,
+   "surface": "ledge_1",
+   "age": 100,
+   "ripen": {
+    "phase": "day",
+    "every_days": 3,
+    "minutes": 20,
+    "offset": 2
+   },
+   "rare": true,
+   "guardian": {
+    "enemy": "stormwing_hawk",
+    "level": 44,
+    "elite": true
+   },
+   "season": "spring"
   }
  ],
  "spawns": [

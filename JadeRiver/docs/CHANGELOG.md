@@ -5,6 +5,57 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V6a · Rare herbs, the harvest tap, seeds and seasons (S45)
+- **Herb ages.** Every herb has a family and an age (10, 100 or 1,000 years; `garden.json`). New aged herbs, each
+  with raw uses and a gold-haloed icon:
+  - Riverreed Ginseng (1,000 yr);
+  - Ember Pepper, Mist Lotus, Cloudtop Orchid and Soulbell Flower (100 yr).
+- **Aged herbs in recipes.** When the herb a recipe calls for runs short, an older one of its family stands in, and
+  the craft's quality score rises 0.04 per age tier. A thousand-year root is never spent while ten-year roots are
+  to hand.
+- **Rare nodes** (Part 8), on raised tiers only, placed after the verticality pass on named surfaces:
+  - hundred-year ginseng at Bend Shore and the Rapids Terraces (Tide Crab guardians; dawn, every 2nd day);
+  - the thousand-year root on the Serpent's Shallows high rock (the Riverbed Serpent; midnight, every 5th day;
+    Summer);
+  - hundred-year lotus at the Falls Pool and Behind the Falls (dusk, every 3rd day);
+  - the orchid on the Sky Ledges' top ledge (a Stormwing Hawk; midday, every 3rd day; Spring);
+  - soulbells on the Misty Slopes and at the Frozen Shrine (Mirror Wisps; midnight, every 3rd day; Autumn);
+  - the pepper in the Thicket Heart canopy (a Thornback Boar; midday, every 2nd day; Summer).
+  - The Sky Ledges' second orchid moves up to the east ledge.
+- **Ripening.** A rare node is ripe for 20 real minutes around its phase on its day (the in-game day is 48 minutes).
+  Picking early gives a herb one tier younger, and a picked node grows back with its next ripening. A ripe node
+  shimmers gold, and the room log says when one ripens.
+- **Guardians** wake once per ripening, when you climb within reach of a ripe node. To pick it:
+  - kill the guardian, lure it past its leash, or pick unseen under Concealment while it hasn't noticed you;
+  - for the thousand-year root, the Serpent must be away.
+- **The harvest tap.** The 1.5 s hold ends in a ring that shrinks toward the Attack button; tap inside the gold band.
+  - The band is 12 % of the ring at Apprentice, then 16, 20, 24 and 28 % at Grandmaster (a new rank cap, from Sage
+    Sovereign 1).
+  - A perfect tap keeps the full age, gives 1.5× gathering XP and may drop a seed (10 %). A miss drops one age tier,
+    never below ten years.
+- **Seeds.**
+  - Willow Moss, Ember Pepper and Riverreed Ginseng seeds are sold at Granny Liu's and in Greyreed Hamlet.
+  - Mist Lotus seeds come only from perfect harvests.
+  - Cloudtop Orchid and Soulbell seeds come only from Lu's inheritance (the Riverbreath Trial and the Drowned Abbot).
+- **Seasons** (`seasons.json`): Spring, Summer, Autumn and Winter, one real week each, turning with the Monday
+  reset. A seasonal node out of season lies dormant. They never gate progression.
+- **UI:**
+  - the harvest ring;
+  - a leaf marker on the minimap with the time left (or until it ripens);
+  - a Spirit Sense readout over each rare node in reach;
+  - a Seasons tab in the Codex, with the calendar and each herb's rhythm (places shown once visited);
+  - Codex entries: Rare herbs, Seasons.
+- **Events:** `herb_ripening`, `herb_harvested`, `guardian_spawned` and `seed_found`, with HUD notes. Debug flags:
+  `--herb-ripe=<object>` and `--tap-preview`.
+- **Tests:**
+  - the ripening window by time, and an early pick a tier younger;
+  - the guardian once per ripening, lured away, and unseen under Concealment;
+  - the tap window per rank, and a miss;
+  - the seed rate under a fixed seed, and seasons;
+  - aged stand-ins in recipes;
+  - data validation for families, seeds and every rare node;
+  - a guarded hundred-year harvest in the valley run.
+
 ### V5d · Vows, epiphany, Killing Intent, Blood Burning, the false realm and the soul's escape (S48)
 - **Vows** (`vows.json`, open at Heart Tempering 1): four oaths, each taken or dropped on a new Cultivation tab.
   - Mercy: no killing blow on a fleeing foe (it gets away with its life); +10 % healing received (a new stat).

@@ -231,6 +231,13 @@ static func _stat_is_percent(stat: String) -> bool:
 		if str(s.get("id", "")) == stat: return str(s.get("format", "")) == "percent"
 	return false
 
+## A countdown: "m:ss" under an hour, "h:mm:ss" past it, "Nd Nh" past a day.
+static func clock(seconds: float) -> String:
+	var s := maxi(0, int(ceil(seconds)))
+	if s >= 86400: return Tx.t("ui.clock_days") % [s / 86400, (s % 86400) / 3600]
+	if s >= 3600: return "%d:%02d:%02d" % [s / 3600, (s % 3600) / 60, s % 60]
+	return "%d:%02d" % [s / 60, s % 60]
+
 static func fmt(n: float) -> String:
 	var v := int(round(n))
 	var s := str(absi(v))

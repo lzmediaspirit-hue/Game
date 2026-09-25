@@ -10,7 +10,7 @@ var steps: Dictionary = {}     # actor -> {recipe, craft, scores}: the mini-game
 
 const NODE_CRAFT := {"herb_patch": "herb_gathering", "ore_vein": "mining", "fishing_spot": "fishing", "star_sight": "star_charting"}
 const RANK_CAPS := {
-	"herb_gathering": [["qi_kindling_1", "adept"], ["cloud_stride_1", "expert"], ["sage_1", "master"]],
+	"herb_gathering": [["qi_kindling_1", "adept"], ["cloud_stride_1", "expert"], ["sage_1", "master"], ["sage_sovereign_1", "grandmaster"]],
 	"mining": [["qi_unfurling_1", "adept"], ["spirit_awakening_1", "expert"], ["sage_sovereign_1", "master"]],
 	"cooking": [["qi_kindling_1", "adept"], ["heart_tempering_1", "expert"], ["heaven_glimpse_1", "master"]],
 	"fishing": [["qi_kindling_1", "adept"], ["cloud_stride_1", "expert"], ["sage_1", "master"]],
@@ -42,7 +42,7 @@ func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
 	if c == null: return fail("no_character")
 	match str(intent.type):
-		"complete_node": return complete_node(c, str(intent.get("object", "")))
+		"complete_node": return complete_node(c, str(intent.get("object", "")), float(intent.get("timing", -1.0)))
 		"catch_fish": return catch_fish(c, str(intent.get("object", "")), intent.get("result", {}))
 		"cook": return craft(c, str(intent.get("recipe", "")), maxi(1, int(intent.get("count", 1))), [], "cooking")
 		"craft_step": return craft_step(c, str(intent.get("recipe", "")), str(intent.get("craft", "alchemy")), float(intent.get("offset", 1.0)),
@@ -126,13 +126,23 @@ func gather(c, o: Dictionary) -> Dictionary:
 	if craft in ["mining", "fishing"] and tool_power(c, craft) <= 0.0: return fail("no_tool", {"text": Tx.t("sim.crafting.you_need_a") % {"mining": "pickaxe", "fishing": Tx.t("sim.crafting.fishing_rod")}[craft]})
 	var need_rank := str(o.get("rank", "apprentice"))
 	if rank_index(rank_of(c, craft)) < rank_index(need_rank): return fail("rank", {"text": Tx.t("sim.crafting.needs") % [craft.replace("_", " ").capitalize(), need_rank.capitalize()]})
+	# S45: a ripe rare herb may have a keeper.
+	var guard: String = game.world.herb_guard_text(c, o) if o.type == "herb_patch" else ""
+	if guard != "": return fail("guarded", {"text": guard})
 	var channel = {"herb_patch": 1.5, "ore_vein": 2.4, "fishing_spot": 0.0, "star_sight": 3.0}[str(o.type)]
 	pending[c.id] = {"object": str(o.id), "kind": str(o.type), "started": game.sim_time, "channel": channel}
 	emit("node_action_started", {"actor": c.id, "object": o.id, "kind": o.type, "channel": channel})
-	return ok({"channel": channel, "minigame": "fishing" if o.type == "fishing_spot" else "",
-		"action": {"herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish", "star_sight": "gather"}[str(o.type)]})
+	var out := {"channel": channel, "minigame": "fishing" if o.type == "fishing_spot" else "",
+		"action": {"herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish", "star_sight": "gather"}[str(o.type)]}
+	# S45 harvest tap: the hold ends in a shrinking ring; the window widens with gathering rank.
+	if o.type == "herb_patch":
+		var h: Dictionary = ContentDB.config("garden").get("harvest", {})
+		out.tap = {"ring_s": float(h.get("ring_s", 1.0)), "target": float(h.get("target", 0.7)), "window": HerbRules.tap_window(rank_of(c, craft))}
+		if o.has("ripen"): out.early = not bool(HerbRules.ripen_state(o, Clock.now_utc()).ripe)
+	return ok(out)
 
-func complete_node(c, object_id: String) -> Dictionary:
+## `timing` (S45 herbs): how far the harvest ring had shrunk when the tap landed, 0..1 (-1: no tap, a miss).
+func complete_node(c, object_id: String, timing := -1.0) -> Dictionary:
 	var p: Dictionary = pending.get(c.id, {})
 	if p.is_empty() or str(p.object) != object_id: return fail("not_started")
 	if game.sim_time - float(p.started) < float(p.channel) - 0.15: return fail("too_early")
@@ -142,6 +152,7 @@ func complete_node(c, object_id: String) -> Dictionary:
 	var st: Dictionary = rt.objects.get(object_id, {"state": "ready"})
 	if st.get("state", "ready") != "ready": return fail("depleted")
 	var craft: String = NODE_CRAFT[str(o.type)]
+	if craft == "herb_gathering": return _harvest(c, o, timing)
 	var rng := Rng.stream(c.id, "crafting")
 	var y: Array = o.get("yield", [1, 2])
 	var power := 1.0 if craft == "star_charting" else maxf(1.0, tool_power(c, "gathering" if craft == "herb_gathering" else "mining"))
@@ -156,6 +167,41 @@ func complete_node(c, object_id: String) -> Dictionary:
 	add_xp(c, craft, float(ContentDB.curve("profession_xp.%s" % {"mining": "mine", "star_charting": "observe"}.get(craft, "gather"), 5)))
 	emit("node_gathered", {"actor": c.id, "object": object_id, "item": item, "count": count, "craft": craft})
 	return ok({"item": item, "count": count})
+
+## S45 harvest: a perfect tap keeps the herb's full age and may find a seed; a miss drops one age tier, and so does
+## picking a rare herb before it ripens (never below ten years). A rare node grows back with its next ripening.
+func _harvest(c, o: Dictionary, timing: float) -> Dictionary:
+	var guard: String = game.world.herb_guard_text(c, o)
+	if guard != "": return fail("guarded", {"text": guard})
+	var rng := Rng.stream(c.id, "crafting")
+	var object_id := str(o.id)
+	var now := Clock.now_utc()
+	var early: bool = o.has("ripen") and not bool(HerbRules.ripen_state(o, now).ripe)
+	var perfect := HerbRules.tap_perfect(timing, rank_of(c, "herb_gathering"))
+	var item := HerbRules.aged_down(str(o.get("item", "")), (1 if early else 0) + (0 if perfect else 1))
+	var y: Array = o.get("yield", [1, 2])
+	var power := maxf(1.0, tool_power(c, "gathering"))
+	var count := rng.randi_range(int(y[0]), int(y[1]))
+	if rng.randf() < (power - 1.0) * 0.5: count += 1
+	if game.pets.gatherer_active(c.id) and rng.randf() < 0.25: count += 1
+	var herb_bonus: float = game.pets.trait_bonus(c, "herb_yield")
+	if herb_bonus > 0.0 and rng.randf() < herb_bonus * count: count += 1
+	game.inventory.apply_add(c.id, item, count, "herb_gathering")
+	var seed := ""
+	if perfect:
+		var seed_id := HerbRules.harvest_seed(item)
+		var chance := float(o.get("seed_chance", ContentDB.config("garden").get("seed_chance", 0.1)))
+		if seed_id != "" and Rng.stream(c.id, "crafting").randf() < chance:
+			seed = seed_id
+			game.inventory.apply_add(c.id, seed, 1, "herb_gathering")
+	var regrow := float(o.get("regrow_s", 300))
+	if o.has("ripen"): regrow = maxf(60.0, HerbRules.regrow_at(o, now) - now)
+	game.world.apply_node_depleted(c, object_id, regrow)
+	add_xp(c, "herb_gathering", float(ContentDB.curve("profession_xp.gather", 5)) * (1.5 if perfect else 1.0))
+	emit("node_gathered", {"actor": c.id, "object": object_id, "item": item, "count": count, "craft": "herb_gathering"})
+	emit("herb_harvested", {"actor": c.id, "object": object_id, "item": item, "age": HerbRules.item_age(item), "perfect": perfect, "early": early})
+	if seed != "": emit("seed_found", {"actor": c.id, "seed": seed, "object": object_id})
+	return ok({"item": item, "count": count, "perfect": perfect, "early": early, "age": HerbRules.item_age(item), "seed": seed})
 
 ## Fishing result from the mini-game (S33). The authority rolls the catch.
 func catch_fish(c, object_id: String, result: Dictionary) -> Dictionary:
@@ -225,9 +271,42 @@ func recipe_check(c, recipe_id: String, count: int, craft: String, inputs: Array
 	if str(r.get("fire", "")) != "" and not str(r.fire) in fires_available(c): return Tx.t("sim.crafting.needs_fire") % Tx.t("ui.crafts.fire_" + str(r.fire))
 	var grade := str(r.get("grade", "plain"))
 	if craft in ["alchemy", "smithing"] and StatRules.grade_index(grade) > StatRules.grade_index(grade_cap(c)): return Tx.t("sim.crafting.your_realm_cannot_refine_grade") % grade.capitalize()
-	for inp in (inputs if not inputs.is_empty() else r.get("inputs", [])):
-		if c.inventory.count(str(inp.item)) < int(inp.count) * count: return Tx.t("sim.crafting.missing") % ContentDB.item_name(str(inp.item))
+	for inp in with_aged(c, inputs if not inputs.is_empty() else r.get("inputs", []), count).inputs:
+		if c.inventory.count(str(inp.item)) < int(inp.count): return Tx.t("sim.crafting.missing") % ContentDB.item_name(str(inp.item))
 	return ""
+
+## S45: when the herb a recipe calls for runs short, an older herb of its family stands in (a thousand-year root is
+## never spent while ten-year roots are to hand). Returns {inputs: [{item, count}] as totals for the batch, tiers:
+## the age tiers the oldest stand-in adds}. A shortfall nothing covers stays on the recipe's own herb.
+func with_aged(c, inputs: Array, count: int) -> Dictionary:
+	var out: Array = []
+	var planned: Dictionary = {}
+	var tiers := 0
+	var free := func(id: String) -> int: return maxi(0, c.inventory.count(id) - int(planned.get(id, 0)))
+	for inp in inputs:
+		var id := str(inp.item)
+		var need := int(inp.count) * count
+		var rows: Array = []
+		var own: int = mini(need, free.call(id))
+		if own > 0: rows.append({"item": id, "count": own})
+		var left := need - own
+		var gap := 0
+		for older in HerbRules.older_than(id):
+			if left <= 0: break
+			var more: int = mini(left, free.call(str(older)))
+			if more <= 0: continue
+			rows.append({"item": str(older), "count": more})
+			gap = maxi(gap, HerbRules.tier_gap(id, str(older)))
+			left -= more
+		if left > 0:
+			# Short even with stand-ins: ask for the whole amount of the recipe's own herb, so the check names it.
+			out.append({"item": id, "count": need + int(planned.get(id, 0))})
+			continue
+		for row in rows:
+			out.append(row)
+			planned[row.item] = int(planned.get(row.item, 0)) + int(row.count)
+		tiers = maxi(tiers, gap)
+	return {"inputs": out, "tiers": tiers}
 
 ## One strike of the alchemy or forge mini-game: `offset` is how far from the band centre
 ## it landed (0 = dead centre). Scored here, so the craft uses only what Crafting measured.
@@ -281,15 +360,17 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, 
 	# Herbs that fight each other blow the furnace (S44): the batch is lost.
 	if craft_kind == "alchemy":
 		var clash := conflict_in(inputs)
-		if not clash.is_empty(): return blast(c, recipe_id, inputs, count, clash)
+		if not clash.is_empty(): return blast(c, recipe_id, with_aged(c, inputs, count).inputs, 1, clash)
+	var aged := with_aged(c, inputs, count)
 	var rng := Rng.stream(c.id, "crafting")
 	var quality := "common"
 	if craft_kind in ["alchemy", "smithing", "talisman"]:
 		var avg := quality_score(c, craft_kind, furnace, r, scores)
+		avg += float(ContentDB.config("garden").get("age_quality", 0.04)) * int(aged.tiers)   # older herbs refine better (S45)
 		var roll := avg + rng.randf_range(-0.08, 0.08)
 		quality = "flawed" if roll < 0.35 else ("common" if roll < 0.6 else ("fine" if roll < 0.78 else ("superior" if roll < 0.9 else "perfect")))
 		if craft_kind == "alchemy" and quality == "perfect": quality = _rare_pill_quality(c, scores, rng, rare_allowed(furnace, fire))
-	for inp in inputs: game.inventory.apply_remove(c.id, str(inp.item), int(inp.count) * count, "craft:" + recipe_id)
+	for inp in aged.inputs: game.inventory.apply_remove(c.id, str(inp.item), int(inp.count), "craft:" + recipe_id)
 	if craft_kind == "alchemy" and fire == "beast_fire": game.inventory.apply_remove(c.id, _core_to_burn(c), 1, "beast_fire")
 	# S44 pill tribulation: a Heaven-grade (or better) pill that reaches Halo or Soul at the furnace must first come
 	# through the bolts; its pills wait until it does (the page plays the screen; other callers keep the roll).

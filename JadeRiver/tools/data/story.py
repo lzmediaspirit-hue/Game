@@ -1193,14 +1193,14 @@ def main_quests():
         target_room="ds_hall_of_lanterns", offer=["Find what Lu wrote."], complete=["Lu was here. Long before you were born."])
     quest("the_riverbreath_trial", "The Riverbreath Trial", "main", "elder_hu", [
         o("pass_event", "Pass Lu's inheritance trial at the Scripture Well", event="riverbreath_trial"),
-    ], [fx("codex", entry="riverbreath_inheritance")], requires=all_of(qdone("lus_handwriting")), chapter="5", giver_any=M, hand_in_any=M,
+    ], [fx("codex", entry="riverbreath_inheritance"), item("cloudtop_orchid_seed", 2)], requires=all_of(qdone("lus_handwriting")), chapter="5", giver_any=M, hand_in_any=M,
         target_room="ds_scripture_well",
         offer=["Lu left more than words down there. An inheritance tests the one who claims it.",
                "Stand in the stone ring by the well and hold while the drowned rise. Breathe with the river."],
         complete=["The well accepted you. Now only the Abbot stands between you and Lu's method."])
     quest("the_drowned_abbot", "The Drowned Abbot", "main", "elder_hu", [
         o("kill", "Defeat the Drowned Abbot", enemy="drowned_abbot"),
-    ], [item("riverbreath_scroll", 1)], requires=all_of(qdone("the_riverbreath_trial")), chapter="5", giver_any=M, hand_in_any=M,
+    ], [item("riverbreath_scroll", 1), item("soulbell_flower_seed", 2)], requires=all_of(qdone("the_riverbreath_trial")), chapter="5", giver_any=M, hand_in_any=M,
         target_room="ds_abbots_sanctum", offer=["The Abbot guards the Riverbreath inheritance. Ring his four bells to silence him."],
         complete=["The full Riverbreath. Lu's own method."])
     quest("quiet_before_the_storm", "Quiet Before the Storm", "main", "elder_hu", [
@@ -1935,6 +1935,10 @@ def codex():
          "body": "The furnace you set in the furnace slot decides the batch, how steady the heat is, how many impurities it strains out, and sometimes one pill more. Better ones are forged at the forge, and enhancing one steadies its heat. Charcoal takes a pill as far as Perfect. Earth Fire at a vent, or a beast core of rank 2 or more burnt as Beast Fire, can reach Pill Grain. Only a Heavenly Flame, or the Nine-Dragon Cauldron, reaches Halo and Soul."},
         {"id": "alchemist_guild", "title": "The Alchemist Guild",
          "body": "Guildmaster Tang keeps the guild's hall in Stoneford's Artisan Row. Each rank is one exam against the candle: five Fine Healing Pills in three minutes for Adept, three Superior Foundation Guard Pills in five for Expert. A badge opens the guild shop and the commission board, three orders a morning, paid in taels or contribution up to a fifth of what a day's work would earn you."},
+        {"id": "rare_herbs", "title": "Rare herbs",
+         "body": "Most herbs are ten years old when you find them. A few patches, always on high ground, grow for a hundred years or a thousand. They ripen only for twenty minutes around their hour, every second, third or fifth day, and some flower in one season only. Pick one early and it is a tier younger. The hold ends in a ring: tap inside the gold band for a perfect harvest, which keeps the herb's full age and may shake a seed loose. Miss, and it drops a tier. Guardians wake when you climb toward a ripe one: kill them, draw them off past their leash, or pick the herb unseen under Concealment. A Spirit Sense pulse reads each patch's time. In a recipe an older herb can stand in for a younger one of its family, and it refines better."},
+        {"id": "seasons", "title": "Seasons",
+         "body": "The year turns every week with the Monday reset: Spring, Summer, Autumn, Winter. A rare herb tied to a season lies dormant outside it. The Codex's Seasons tab shows the calendar. No road and no realm ever waits on a season."},
         {"id": "experiments", "title": "Experiments",
          "body": "Put two to four herbs you know into the furnace together and see what they make. A few old recipes hide in the right herbs; everything else comes out a Murky Pill. Every attempt is written in the log for all your characters, so nobody wastes herbs on the same mix twice. Herbs that fight each other blow the furnace."},
         {"id": "ancient_recipes", "title": "Ancient recipes",

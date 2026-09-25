@@ -18,6 +18,7 @@ const PAGES := {
 	"world_map": "res://scripts/ui/pages/map_page.gd",
 	"codex": "res://scripts/ui/pages/codex_page.gd",
 	"collection": "res://scripts/ui/pages/codex_page.gd",
+	"seasons": "res://scripts/ui/pages/codex_page.gd",
 	"mail": "res://scripts/ui/pages/mail_page.gd",
 	"shop": "res://scripts/ui/pages/shop_page.gd",
 	"storage": "res://scripts/ui/pages/storage_page.gd",
@@ -252,6 +253,19 @@ func _handle_preview_args(user_args: Array) -> void:
 		world.player.fly_up = true
 		await get_tree().create_timer(0.9).timeout
 		world.player.fly_up = false
+	for a in user_args:
+		if str(a).begins_with("--herb-ripe=") and Game.room_rt:
+			# Debug tools (S38): move the clock to a rare herb's next ripening, in its season (S45).
+			var ho: Dictionary = Game.room_rt.object_def(str(a).trim_prefix("--herb-ripe="))
+			for i in 40:
+				if ho.is_empty(): break
+				var hs := HerbRules.ripen_state(ho, Clock.now_utc())
+				if HerbRules.in_season(ho, Clock.now_utc()) and hs.ripe: break
+				Clock.debug_offset_s += 604800.0 if not HerbRules.in_season(ho, Clock.now_utc()) else float(hs.seconds) + 120.0
+	if "--tap-preview" in user_args and is_instance_valid(hud):
+		# Debug tools (S38): hold the harvest ring part-way through its shrink (S45).
+		await get_tree().create_timer(1.0).timeout
+		hud.tapping = {"object": "preview", "t": 660.0, "ring": 1000.0, "target": 0.7, "window": 0.16}
 	if "--capture" in user_args:
 		await get_tree().create_timer(2.5).timeout
 		for a in user_args:

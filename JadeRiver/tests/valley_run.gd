@@ -1293,6 +1293,7 @@ func sec_cs5() -> void:
 	Clock.debug_offset_s += 3.0 * 3600.0
 	var cp := submit({"type": "collect_puppets"})
 	check(cp.get("ok", false), "the puppet mines while you are away %s" % str(cp))
+	rare_harvest()
 	check(reach("cloud_stride_7"), "Cloud Stride 7")
 	check(start("the_valley_finals"), "The Valley Finals accepted")
 	var arena2 := go_to_npc(["arena_master"])
@@ -1306,6 +1307,29 @@ func sec_cs5() -> void:
 	check(start("opening_the_lake"), "Opening the Lake accepted")
 	check(make_mind_lake_pill(), "refine the Mind Lake Opening Pill")
 	check(finish("opening_the_lake"), "Opening the Lake done")
+
+## S45: Bend Shore's hundred-year root at its dawn ripening. Its Tide Crab wakes as you climb to it and must fall
+## first; a perfect tap keeps the full hundred years.
+func rare_harvest() -> void:
+	Game.crafting.add_xp(c(), "herb_gathering", 5000.0)   # test shortcut: at least Adept
+	tidy_bag(6)
+	check(travel("dw_bend_shore"), "back to Bend Shore for its hundred-year root")
+	var rg: Dictionary = Game.room_rt.object_def("rare_ginseng_bs")
+	var hs := HerbRules.ripen_state(rg, Clock.now_utc())
+	if not hs.ripe: Clock.debug_offset_s += float(hs.seconds) + 60.0
+	var first := interact("rare_ginseng_bs")
+	var uid := int(Game.room_rt.guardians.get("rare_ginseng_bs", -1))
+	check(str(first.get("reason", "")) == "guarded" and uid >= 0, "a Tide Crab wakes to guard the ripe root %s" % str(first))
+	for i in 8:
+		var keeper = Game.room_rt.enemies.get(uid)
+		if keeper == null or not keeper.alive: break
+		fight("tide_crab", 1, 180.0, 0.3, true)
+		revive_if_needed()
+	var got := interact("rare_ginseng_bs")
+	step(float(got.get("channel", 1.5)) + 0.1)
+	var picked := submit({"type": "complete_node", "object": "rare_ginseng_bs", "timing": 0.7})
+	check(picked.get("ok", false) and str(picked.get("item", "")) == "riverreed_ginseng_100" and picked.get("perfect", false),
+		"with its guardian gone, a perfect hundred-year root %s" % str(picked))
 
 # ------------------------------------------------------------------ Spirit Awakening
 func sec_sa1() -> void:

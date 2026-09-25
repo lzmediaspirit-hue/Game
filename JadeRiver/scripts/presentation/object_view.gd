@@ -38,7 +38,10 @@ func state_name() -> String:
 	var s := str(st.get("state", "ready"))
 	var c = Game.active()
 	match str(def.type):
-		"herb_patch": return "depleted" if s == "depleted" else "ready"
+		"herb_patch":
+			# S45: a rare herb out of season lies bare, like a picked patch.
+			if s == "depleted" or (def.has("season") and not HerbRules.in_season(def, Clock.now_utc())): return "depleted"
+			return "ready"
 		"star_sight": return "idle" if s == "depleted" else "active"   # the engraved stars glow while a reading waits
 		"ore_vein": return "depleted" if s == "depleted" else ("cracked" if int(st.get("hits", 0)) > 0 else "full")
 		"jar", "crate", "wine_jar": return "broken" if s == "broken" else "intact"
@@ -89,7 +92,22 @@ func _draw() -> void:
 			draw_texture_rect(ic, Rect2(-16, -34 + bob, 32, 32), false)
 			drawn = true
 	elif prop_id != "":
+		var rare: bool = def.type == "herb_patch" and def.has("ripen")
+		var hs: Dictionary = Game.world.herb_state(def) if rare else {}
+		var ripe: bool = rare and hs.ripe and not hs.dormant and st == "ready"
+		if ripe:
+			# A ripe rare herb shimmers gold (S45).
+			draw_circle(Vector2(0, -14), 34.0 + 3.0 * sin(t * 3.0), Color(1.0, 0.82, 0.35, 0.14))
+			draw_circle(Vector2(0, -14), 22.0 + 2.0 * sin(t * 3.0), Color(1.0, 0.86, 0.45, 0.22))
+			for i in 6:
+				var a := t * 1.6 + i * TAU / 6.0
+				var sp := Vector2(cos(a) * 24.0, -18.0 + sin(a * 1.3) * 14.0)
+				draw_circle(sp, 2.4, Color(1.0, 0.95, 0.7, 0.95))
+				draw_line(sp - Vector2(4, 0), sp + Vector2(4, 0), Color(1.0, 0.9, 0.55, 0.7), 1.0)
+				draw_line(sp - Vector2(0, 4), sp + Vector2(0, 4), Color(1.0, 0.9, 0.55, 0.7), 1.0)
 		drawn = SpriteCache.draw_prop(self, current_prop(), st, t, Vector2.ZERO, bool(def.get("flip", false)))
+		if rare and not ripe and st == "ready": draw_circle(Vector2(0, -14), 22.0, Color(0.05, 0.1, 0.1, 0.25))   # still growing
+	if def.type == "herb_patch" and def.has("ripen"): _draw_sensed()
 	if not drawn and def.type != "pickup":
 		draw_rect(Rect2(-12, -24, 24, 24), UiKit.BRONZE)
 	if def.type == "earth_vent": _draw_earth_fire()
@@ -100,6 +118,20 @@ func _draw() -> void:
 		var h := SpriteCache.prop_size(current_prop()).y if prop_id != "" else 40.0
 		UiKit.draw_outlined(self, label if avail.ok else str(avail.get("text", "")), Vector2(-120, -h - 8), 16,
 			UiKit.PALE_GOLD if avail.ok else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 240)
+
+## A Spirit Sense pulse (S45) reads a rare herb's time for a few seconds: how long it stays ripe, when it ripens,
+## or the season it flowers in.
+func _draw_sensed() -> void:
+	var sn: Dictionary = Game.world.sensed_herbs.get(object_id, {})
+	if sn.is_empty() or Game.sim_time > float(sn.get("until", 0.0)): return
+	var left := float(sn.seconds) - (Clock.now_utc() - float(sn.get("utc", Clock.now_utc())))
+	var text := ""
+	if sn.get("dormant", false): text = Tx.t("ui.herb.sense_dormant") % ContentDB.name_of("seasons", str(sn.season))
+	elif sn.get("spent", false): text = Tx.t("ui.herb.sense_spent")
+	elif sn.get("ripe", false): text = Tx.t("ui.herb.sense_ripe") % UiKit.clock(left)
+	else: text = Tx.t("ui.herb.sense_ripens") % UiKit.clock(left)
+	var h := SpriteCache.prop_size(current_prop()).y if prop_id != "" else 40.0
+	UiKit.draw_outlined(self, text, Vector2(-120, -h - 30), 15, Color("b9a7ff"), HORIZONTAL_ALIGNMENT_CENTER, 240)
 
 ## Earth Fire (G1): tongues of flame lick up out of the vent; an alchemist can set a furnace over it.
 func _draw_earth_fire() -> void:

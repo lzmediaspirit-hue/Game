@@ -287,6 +287,47 @@
    "level": 15,
    "alt": 200,
    "surface": "ledge_mv_1"
+  },
+  {
+   "id": "rare_pepper_th",
+   "type": "herb_patch",
+   "at": [
+    2000,
+    671
+   ],
+   "item": "ember_pepper_100",
+   "prop": "ember_pepper_bush",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "adept",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 200,
+   "surface": "route_2",
+   "age": 100,
+   "ripen": {
+    "phase": "day",
+    "every_days": 2,
+    "minutes": 20,
+    "offset": 1
+   },
+   "rare": true,
+   "guardian": {
+    "enemy": "thornback_boar",
+    "level": 15,
+    "elite": true
+   },
+   "season": "summer"
   }
  ],
  "spawns": [

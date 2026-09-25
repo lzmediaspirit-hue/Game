@@ -267,6 +267,16 @@
    "body": "Guildmaster Tang keeps the guild's hall in Stoneford's Artisan Row. Each rank is one exam against the candle: five Fine Healing Pills in three minutes for Adept, three Superior Foundation Guard Pills in five for Expert. A badge opens the guild shop and the commission board, three orders a morning, paid in taels or contribution up to a fifth of what a day's work would earn you."
   },
   {
+   "id": "rare_herbs",
+   "title": "Rare herbs",
+   "body": "Most herbs are ten years old when you find them. A few patches, always on high ground, grow for a hundred years or a thousand. They ripen only for twenty minutes around their hour, every second, third or fifth day, and some flower in one season only. Pick one early and it is a tier younger. The hold ends in a ring: tap inside the gold band for a perfect harvest, which keeps the herb's full age and may shake a seed loose. Miss, and it drops a tier. Guardians wake when you climb toward a ripe one: kill them, draw them off past their leash, or pick the herb unseen under Concealment. A Spirit Sense pulse reads each patch's time. In a recipe an older herb can stand in for a younger one of its family, and it refines better."
+  },
+  {
+   "id": "seasons",
+   "title": "Seasons",
+   "body": "The year turns every week with the Monday reset: Spring, Summer, Autumn, Winter. A rare herb tied to a season lies dormant outside it. The Codex's Seasons tab shows the calendar. No road and no realm ever waits on a season."
+  },
+  {
    "id": "experiments",
    "title": "Experiments",
    "body": "Put two to four herbs you know into the furnace together and see what they make. A few old recipes hide in the right herbs; everything else comes out a Murky Pill. Every attempt is written in the log for all your characters, so nobody wastes herbs on the same mix twice. Herbs that fight each other blow the furnace."

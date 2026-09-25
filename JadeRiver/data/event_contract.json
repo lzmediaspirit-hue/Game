@@ -536,6 +536,18 @@
     "world_authority"
    ]
   },
+  "herb_ripening": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "guardian_spawned": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
   "enemy_aggro": {
    "system": "Enemies",
    "files": [
@@ -735,6 +747,20 @@
    ]
   },
   "pill_soul_flight": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "herb_harvested": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "seed_found": {
    "system": "Crafting",
    "files": [
     "crafting_authority",

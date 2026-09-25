@@ -12,6 +12,7 @@ var spawn_slots: Array = []           # [{spawn, point, enemy, elite, timer, uid
 var loot: Array = []                  # [{uid, item, count, instance, coins, x, y, ttl, age}]
 var projectiles: Array = []           # [{uid, team, owner, x, y, alt, dir, speed, range, travelled, attack, pierce, hits, art, element}]
 var objects: Dictionary = {}          # object id -> {state, timer, hits, cooldown}
+var guardians: Dictionary = {}        # S45 rare herb object id -> the uid of its guardian this ripening
 var npcs_hidden: Dictionary = {}
 var next_uid := 1
 var elapsed := 0.0

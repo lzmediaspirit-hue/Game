@@ -205,6 +205,41 @@
     1900,
     700
    ]
+  },
+  {
+   "id": "rare_lotus_fp",
+   "type": "herb_patch",
+   "at": [
+    820,
+    675
+   ],
+   "item": "mist_lotus_100",
+   "prop": "mist_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "adept",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 200,
+   "surface": "falls_ledge",
+   "age": 100,
+   "ripen": {
+    "phase": "dusk",
+    "every_days": 3,
+    "minutes": 20,
+    "offset": 0
+   },
+   "rare": true
   }
  ],
  "spawns": [

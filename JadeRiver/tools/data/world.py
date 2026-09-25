@@ -82,9 +82,15 @@ ORES = {
 HERBS["frost_lotus"] = ("frost_lotus_patch", [1, 1])
 HERBS["ember_cactus"] = ("ember_cactus_patch", [1, 1])
 ORES["sunglass_ore"] = ("sunglass_vein", [1, 2])
+# S45 aged herbs grow on the base plant's patch art; a ripe one shimmers gold in the room.
+for _aged, _base in (("riverreed_ginseng_100", "riverreed_ginseng_10"), ("riverreed_ginseng_1000", "riverreed_ginseng_10"),
+                     ("ember_pepper_100", "ember_pepper"), ("mist_lotus_100", "mist_lotus"), ("cloudtop_orchid_100", "cloudtop_orchid"),
+                     ("soulbell_flower_100", "soulbell_flower")):
+    HERBS[_aged] = (HERBS[_base][0], [1, 1])
 HERB_RANK = {"willow_moss": "apprentice", "riverreed_ginseng_10": "apprentice", "ember_pepper": "apprentice",
              "mist_lotus": "adept", "cloudtop_orchid": "expert", "soulbell_flower": "expert", "frost_lotus": "master",
-             "ember_cactus": "master"}
+             "ember_cactus": "master", "riverreed_ginseng_100": "adept", "ember_pepper_100": "adept", "mist_lotus_100": "adept",
+             "riverreed_ginseng_1000": "expert", "cloudtop_orchid_100": "expert", "soulbell_flower_100": "expert"}
 ORE_RANK = {"copper_ore": "apprentice", "riverstone": "apprentice", "jadeiron": "adept", "spirit_stone_shard": "adept",
             "cloudsteel_ore": "expert", "mystic_ore": "expert", "stormsteel_ore": "master", "sunglass_ore": "master"}
 
@@ -2371,6 +2377,61 @@ def bandit_ambushes():
         ROOMS[rid].d["ambush"] = {"enemy": enemy, "count": n, "level": lv, "requires": all_of(qdone(q))}
 
 
+def rare_herbs():
+    """S45 and Part 8 rare herb nodes. Optional herb_patch fields:
+    - age: 10 / 100 / 1,000 years (the item carries it too);
+    - guardian {enemy, level, elite | boss}: an elite that wakes when you climb toward the ripe node, or a field boss
+      that must be gone. Kill it, lure it past its leash, or pick the herb unseen under Concealment;
+    - ripen {phase, every_days, minutes, offset}: ripe for `minutes` around the phase every Nth in-game day. Picking
+      early drops one age tier;
+    - season: flowers only in that season (seasons.json); dormant otherwise;
+    - seed_chance: the seed roll on a perfect harvest (garden.json default).
+    Rare nodes sit on raised tiers (S43 rule 14)."""
+    def spot(rid, surface):
+        """A free spot on a raised surface: its middle, or the nearest place 70 px along clear of other objects."""
+        r = ROOMS[rid]
+        sd = next(x for x in r.d["surfaces"] if x["id"] == surface)
+        x0, y0, w, dep = sd["rect"]
+        h = float(sd["height"])
+        busy = [o["at"][0] for o in r.d["objects"] if abs(float(o.get("alt", 0)) - h) < 1 and x0 <= o["at"][0] <= x0 + w]
+        for dx in (0, 70, -70, 110, -110):
+            x = int(x0 + w / 2 + dx)
+            if x0 + 30 <= x <= x0 + w - 30 and all(abs(x - b) >= 60 for b in busy):
+                return [x, int(y0 + dep / 2)], int(h)
+        raise AssertionError("no room for a rare herb on %s.%s" % (rid, surface))
+
+    def rare(rid, oid, item, surface, phase, every, guardian=None, season=None, minutes=20):
+        at, alt = spot(rid, surface)
+        kw = {"alt": alt, "surface": surface, "age": int(item.rsplit("_", 1)[1]) if item.rsplit("_", 1)[1].isdigit() else 10,
+              "ripen": {"phase": phase, "every_days": every, "minutes": minutes, "offset": sum(map(ord, oid + rid)) % every},
+              "rare": True}
+        if guardian:
+            kw["guardian"] = guardian
+        if season:
+            kw["season"] = season
+        ROOMS[rid].herb(item, at, oid, **kw)
+
+    crab = lambda lv: {"enemy": "tide_crab", "level": lv, "elite": True}
+    rare("dw_bend_shore", "rare_ginseng_bs", "riverreed_ginseng_100", "ledge_mv_1", "dawn", 2, crab(23))
+    rare("wg_rapids_terraces", "rare_ginseng_rt", "riverreed_ginseng_100", "route_2", "dawn", 2, crab(32))
+    rare("dw_serpents_shallows", "rare_ginseng_ss", "riverreed_ginseng_1000", "high_rock_1", "night", 5,
+         {"enemy": "riverbed_serpent", "boss": True}, season="summer")
+    rare("cf_falls_pool", "rare_lotus_fp", "mist_lotus_100", "falls_ledge", "dusk", 3)
+    rare("cf_behind_falls", "rare_lotus_bf", "mist_lotus_100", "falls_ledge_2", "dusk", 3)
+    rare("cc_sky_ledges", "rare_orchid_sl", "cloudtop_orchid_100", "ledge_1", "day", 3,
+         {"enemy": "stormwing_hawk", "level": 44, "elite": True}, season="spring")
+    rare("mp_misty_slopes", "rare_soulbell_ms", "soulbell_flower_100", "cloud_mv", "night", 3,
+         {"enemy": "mirror_wisp", "level": 51, "elite": True}, season="autumn")
+    rare("sr_frozen_shrine", "rare_soulbell_fs", "soulbell_flower_100", "ledge_mv_1", "night", 3,
+         {"enemy": "mirror_wisp", "level": 63, "elite": True}, season="autumn")
+    rare("bg_thicket_heart", "rare_pepper_th", "ember_pepper_100", "route_2", "day", 2,
+         {"enemy": "thornback_boar", "level": 15, "elite": True}, season="summer")
+    # The Sky Ledges' second orchid moves up from the valley floor to the east ledge (S43 rule 14).
+    for o in ROOMS["cc_sky_ledges"].d["objects"]:
+        if o["id"] == "herb_2":
+            o["at"], o["alt"] = spot("cc_sky_ledges", "ledge_2")
+
+
 def movement_extras():
     """Hand-placed climbing where the automatic pass finds no clear back row."""
     def deck(rid, sid, rect, h, kind="balcony"):
@@ -2600,6 +2661,7 @@ def build():
     movement_pass()
     verticality.run(ROOMS)
     tier_natives_pass()
+    rare_herbs()   # after the tiers are final: rare nodes go on named raised surfaces
     check_links()
     reachability()
     os.makedirs(ROOMS_DIR, exist_ok=True)

@@ -20,6 +20,13 @@ HERBS = [
     ("cloudtop_orchid", "heaven", "An orchid that grows on ledges only flyers can reach."),
     ("soulbell_flower", "heaven", "Its bell-shaped petals ring softly against the soul."),
     ("frost_lotus", "spirit", "A lotus that blooms in snow on Rimefrost Heights. Cold to the touch, clear to the mind."),
+    # S45 aged herbs: rare nodes ripen them, and a garden bed can age a planted herb.
+    ("riverreed_ginseng_1000", "heaven", "A thousand-year root, gold to the tip. It grows on the rock the Riverbed Serpent sleeps around.",
+     "Riverreed Ginseng (1,000 yr)"),
+    ("ember_pepper_100", "earth", "A century-old ember pepper, dark red and hot enough to blister the hand that picks it.", "Ember Pepper (100 yr)"),
+    ("mist_lotus_100", "heaven", "A century-old mist lotus. Its petals never quite dry.", "Mist Lotus (100 yr)"),
+    ("cloudtop_orchid_100", "mystic", "A century-old orchid from the highest ledge. It smells of thin air.", "Cloudtop Orchid (100 yr)"),
+    ("soulbell_flower_100", "mystic", "A century-old soulbell. Its ring carries in the soul for a whole breath.", "Soulbell Flower (100 yr)"),
     ("ember_cactus", "sage", "A cactus flower that stores the Sunscar sun. It glows like a coal long after dusk."),
 ]
 # S44 / Part 8 herb nature: a hot herb moves the Extraction band up 8% of its range, a cold one down. Roles are the
@@ -32,7 +39,29 @@ HERB_NATURE = {"willow_moss": ("neutral", ["assistant", "envoy"]),
                "cloudtop_orchid": ("cold", ["principal", "minister"]),
                "soulbell_flower": ("neutral", ["principal", "assistant", "envoy"]),
                "frost_lotus": ("cold", ["principal", "minister"]),
+               "riverreed_ginseng_1000": ("hot", ["principal", "minister"]),
+               "ember_pepper_100": ("hot", ["minister", "assistant", "envoy"]),
+               "mist_lotus_100": ("cold", ["principal", "minister", "assistant"]),
+               "cloudtop_orchid_100": ("cold", ["principal", "minister"]),
+               "soulbell_flower_100": ("neutral", ["principal", "assistant", "envoy"]),
                "ember_cactus": ("hot", ["principal", "minister"])}
+# S45 herb ages: every herb belongs to a family and has an age (10, 100 or 1,000 years). A perfect harvest keeps the
+# age; a miss or an early pick drops one tier. An older herb stands in for a younger one of its family in a recipe.
+HERB_AGE = {"willow_moss": ("willow_moss", 10), "riverreed_ginseng_10": ("riverreed_ginseng", 10),
+            "riverreed_ginseng_100": ("riverreed_ginseng", 100), "riverreed_ginseng_1000": ("riverreed_ginseng", 1000),
+            "ember_pepper": ("ember_pepper", 10), "ember_pepper_100": ("ember_pepper", 100),
+            "mist_lotus": ("mist_lotus", 10), "mist_lotus_100": ("mist_lotus", 100),
+            "cloudtop_orchid": ("cloudtop_orchid", 10), "cloudtop_orchid_100": ("cloudtop_orchid", 100),
+            "soulbell_flower": ("soulbell_flower", 10), "soulbell_flower_100": ("soulbell_flower", 100),
+            "frost_lotus": ("frost_lotus", 10), "ember_cactus": ("ember_cactus", 10)}
+# Seeds (S45, Part 8): common ones from Granny Liu's and Greyreed Hamlet; Mist Lotus only from a perfect harvest;
+# Cloudtop Orchid and Soulbell only from inheritances (and secret realms, S49).
+SEEDS = [("willow_moss_seed", "willow_moss", "plain", "Dust-fine spores of willow moss, wrapped in a leaf. Granny Liu sells them."),
+         ("ember_pepper_seed", "ember_pepper", "common", "Flat, pale pepper seeds that are warm to hold. Granny Liu sells them."),
+         ("riverreed_ginseng_seed", "riverreed_ginseng", "common", "Red ginseng berries with the seed still inside. Granny Liu sells them."),
+         ("mist_lotus_seed", "mist_lotus", "earth", "A lotus seed from a perfect harvest. No shop in the valley sells them."),
+         ("cloudtop_orchid_seed", "cloudtop_orchid", "heaven", "Orchid seed finer than flour, sealed in wax. Only old inheritances hold them."),
+         ("soulbell_flower_seed", "soulbell_flower", "heaven", "A soulbell seed that hums when you hold it to your ear. Only old inheritances hold them.")]
 NATURE_TEXT = {"hot": " A hot herb: it drives the Extraction band up.", "cold": " A cold herb: it draws the Extraction band down.",
                "neutral": ""}
 ORES = [
@@ -307,6 +336,11 @@ RAW_HERB = {
     "cloudtop_orchid": ([effect("add_body_xp", amount=90)], 30),
     "soulbell_flower": ([effect("add_soul", amount=15)], 16),
     "frost_lotus": ([effect("cure_injury", injury="meridian", max_severity=1), effect("add_composure", amount=20)], 30),
+    "riverreed_ginseng_1000": ([effect("add_progress", pct_of_need=0.1)], 40),
+    "ember_pepper_100": ([effect("add_modifier", stat="physical_attack", op="pct_add", value=0.1, duration=60, source="raw_ember_pepper_100")], 30),
+    "mist_lotus_100": ([effect("add_modifier", stat="insight_rate", op="flat", value=0.3, duration=540, source="raw_mist_lotus_100")], 24),
+    "cloudtop_orchid_100": ([effect("add_body_xp", amount=220)], 40),
+    "soulbell_flower_100": ([effect("add_soul", amount=35)], 24),
     "ember_cactus": ([effect("heal", pct=0.1, over_s=5)], 30),
 }
 
@@ -333,8 +367,12 @@ def build_items():
         nature, roles = HERB_NATURE[h[0]]
         extra["nature"] = nature
         extra["roles"] = roles
+        fam, age = HERB_AGE[h[0]]
+        extra["herb"] = {"family": fam, "age": age}
         rows.append(item(h[0], "herb", h[1], 99, h[2] + NATURE_TEXT[nature] + (" Can be eaten raw in need: weak, and hard on the meridians." if raw else ""),
                          name=h[3] if len(h) > 3 else None, **extra))
+    for sid, fam, grade, desc in SEEDS:
+        rows.append(item(sid, "seed", grade, 99, desc + " Plant it in a garden bed.", seed={"family": fam}))
     for o in ORES:
         rows.append(item(o[0], "ore", o[1], 99, o[2], name=o[3] if len(o) > 3 else None))
     for o in REFINING + TALISMAN_MATS:

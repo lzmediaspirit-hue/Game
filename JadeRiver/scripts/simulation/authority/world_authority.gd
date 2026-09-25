@@ -82,6 +82,84 @@ func spring_ambush(c, amb: Dictionary) -> void:
 		game.enemies.spawn_at(str(amb.enemy), Vector2(x, at.y), rng.randi_range(int(lv[0]), int(lv[1])))
 	emit("ambush_sprung", {"actor": c.id, "room": rt.room_id, "enemy": str(amb.enemy), "count": n, "concealed": c.cultivator.false_realm != ""})
 
+# ------------------------------------------------------------------ rare herbs (S45)
+var herb_clock := 0.0             # the rare-herb check runs once a second
+var sensed_herbs: Dictionary = {} # object -> {until, ripe, seconds, dormant}: a Spirit Sense readout over the node
+
+## A rare node's state now: {ripe, seconds, window, dormant}.
+func herb_state(o: Dictionary) -> Dictionary:
+	var now := Clock.now_utc()
+	var st := HerbRules.ripen_state(o, now)
+	st.dormant = not HerbRules.in_season(o, now)
+	return st
+
+## Once a second: a rare node that has just ripened says so, and its guardian wakes when you climb toward it.
+func _tick_rare_herbs(c, rt: RoomRuntime, delta: float) -> void:
+	herb_clock -= delta
+	if herb_clock > 0.0: return
+	herb_clock = 1.0
+	var st: ActorState = game.actor_state(c.id)
+	for o in rt.def.get("objects", []):
+		if o.type != "herb_patch" or not o.has("ripen"): continue
+		var os: Dictionary = rt.objects.get(str(o.id), {})
+		var hs := herb_state(o)
+		var ripe: bool = hs.ripe and not hs.dormant and os.get("state", "ready") == "ready"
+		if ripe and not os.get("ripe", false):
+			emit("herb_ripening", {"actor": c.id, "room": rt.room_id, "object": str(o.id), "item": str(o.item), "seconds": float(hs.seconds)})
+			if not game.account.codex.has("rare_herbs"): game.quest.apply_codex("rare_herbs")
+		os.ripe = ripe
+		rt.objects[str(o.id)] = os
+		if ripe and st != null and _guardian_wakes(o, st): wake_guardian(c, o, int(hs.window))
+
+func _guardian_wakes(o: Dictionary, st: ActorState) -> bool:
+	var g: Dictionary = ContentDB.config("garden").get("guardian", {})
+	var at: Array = o.get("at", [0, 0])
+	return absf(st.plane.x - float(at[0])) <= float(g.get("wake_px", 480)) \
+		and st.altitude >= float(o.get("alt", 0)) - float(g.get("wake_below", 60))
+
+## The guardian rises once per ripening (S45): an elite of the room's roster, on the ground under the node.
+func wake_guardian(c, o: Dictionary, window: int) -> EnemyState:
+	var gd: Dictionary = o.get("guardian", {})
+	var rt: RoomRuntime = game.room_rt
+	if gd.is_empty() or gd.get("boss", false) or rt == null: return null
+	var mem := _room_mem(c, rt.room_id)
+	if not mem.has("guardians"): mem.guardians = {}
+	if int(mem.guardians.get(str(o.id), -999)) == window: return null
+	mem.guardians[str(o.id)] = window
+	var at: Array = o.get("at", [0, 0])
+	var e: EnemyState = game.enemies.spawn_at(str(gd.enemy), Vector2(float(at[0]), 840.0), int(gd.get("level", -1)), {"elite": gd.get("elite", true)})
+	if e == null: return null
+	rt.guardians[str(o.id)] = e.uid
+	emit("guardian_spawned", {"actor": c.id, "room": rt.room_id, "object": str(o.id), "enemy": str(gd.enemy), "uid": e.uid})
+	return e
+
+## Why a ripe node can't be picked yet ("" if it can). Kill the guardian, lure it past its leash, or pick the herb
+## unseen: with Concealment, a guardian that hasn't noticed you doesn't stop you.
+func herb_guard_text(c, o: Dictionary) -> String:
+	var gd: Dictionary = o.get("guardian", {})
+	var rt: RoomRuntime = game.room_rt
+	if gd.is_empty() or rt == null: return ""
+	var hs := herb_state(o)
+	if not hs.ripe: return ""   # an early pick finds no guardian: they rise with the ripening
+	var at: Array = o.get("at", [0, 0])
+	var node := Vector2(float(at[0]), float(at[1]))
+	var leash := float(ContentDB.config("garden").get("guardian", {}).get("leash_px", 600))
+	var unseen: bool = "concealment" in c.cultivator.secret_arts
+	var keeper: EnemyState = null
+	if gd.get("boss", false):
+		for e in rt.living_enemies():
+			if e.def_id == str(gd.enemy) and e.plane.distance_to(node) <= leash: keeper = e
+	else:
+		if int(_room_mem(c, rt.room_id).get("guardians", {}).get(str(o.id), -999)) != int(hs.window):
+			keeper = wake_guardian(c, o, int(hs.window))
+		else:
+			var uid := int(rt.guardians.get(str(o.id), -1))
+			var e2 = rt.enemies.get(uid)
+			if e2 != null and e2.alive and e2.plane.distance_to(node) <= leash: keeper = e2
+	if keeper == null: return ""
+	if unseen and not str(keeper.ai.get("state", "")) in ["aggro", "windup", "attack", "recover"]: return ""
+	return Tx.t("sim.world.herb_guarded") % ContentDB.name_of("enemies", keeper.def_id)
+
 ## Room events remember every blow the player takes: a flawless Heaven's Cleansing burns off residue (G1).
 func _on_hit_during_event(p: Dictionary) -> void:
 	var rt: RoomRuntime = game.room_rt
@@ -300,7 +378,18 @@ func sense_pulse(c) -> Dictionary:
 			if e.hidden and here.distance_to(e.plane) <= radius:
 				e.hidden = false
 				e.ai["sensed"] = 8.0
-	emit("spirit_sense_pulsed", {"actor": c.id, "x": here.x, "y": here.y, "radius": radius, "found": found})
+	# S45: rare herbs in reach show when they ripen (or how long they stay ripe, or their season).
+	var herbs := 0
+	if game.room_rt:
+		for o in game.room_rt.def.get("objects", []):
+			if o.type != "herb_patch" or not o.has("ripen"): continue
+			var at2: Array = o.get("at", [0, 0])
+			if here.distance_to(Vector2(float(at2[0]), float(at2[1]))) > radius: continue
+			var hs := herb_state(o)
+			sensed_herbs[str(o.id)] = {"until": game.sim_time + 8.0, "utc": Clock.now_utc(), "ripe": hs.ripe, "seconds": float(hs.seconds), "dormant": hs.dormant,
+				"season": str(o.get("season", "")), "spent": game.room_rt.objects.get(str(o.id), {}).get("state", "ready") == "depleted"}
+			herbs += 1
+	emit("spirit_sense_pulsed", {"actor": c.id, "x": here.x, "y": here.y, "radius": radius, "found": found, "herbs": herbs})
 	emit("system_used", {"actor": c.id, "system": "spirit_sense"})
 	return ok({"found": found})
 
@@ -341,6 +430,9 @@ func object_available(c, o: Dictionary) -> Dictionary:
 		return {"ok": false, "text": str(o.get("locked_text", RequirementRules.first_failure_text(o.requires, game.ctx(c))))}
 	var st: Dictionary = game.room_rt.objects.get(str(o.id), {})
 	if st.get("state", "ready") in ["depleted", "broken", "open"]: return {"ok": false, "text": "", "spent": true}
+	# S45: a rare herb out of its season lies dormant (seasons never gate progression).
+	if o.type == "herb_patch" and not HerbRules.in_season(o, Clock.now_utc()):
+		return {"ok": false, "text": Tx.t("sim.world.herb_dormant") % ContentDB.name_of("seasons", str(o.season)), "dormant": true}
 	return {"ok": true, "text": ""}
 
 func hittable_objects(pv: Dictionary, facing: int, hitbox: Dictionary) -> Array:
@@ -385,8 +477,10 @@ func interact(c, object_id: String) -> Dictionary:
 	if st != null and absf(st.altitude - float(o.get("alt", 0.0))) > 48.0:
 		return fail("out_of_reach", {"text": Tx.t("sim.world.out_of_reach_from_here")})
 	var avail := object_available(c, o)
+	if avail.get("dormant", false) and not game.account.codex.has("seasons"): game.quest.apply_codex("seasons")
 	if not avail.ok and o.type != "npc":
 		return fail("unavailable", {"text": avail.text})
+	if o.type == "herb_patch" and o.has("ripen") and not game.account.codex.has("rare_herbs"): game.quest.apply_codex("rare_herbs")
 	var result := ok({"type": o.type})
 	match str(o.type):
 		"npc":
@@ -628,6 +722,7 @@ func tick(delta: float) -> void:
 	if rt == null or c == null: return
 	rt.elapsed += delta
 	if float(ambush_cd.get(c.id, 0.0)) > 0.0: ambush_cd[c.id] = float(ambush_cd[c.id]) - delta
+	_tick_rare_herbs(c, rt, delta)
 	# S43: the room clock moves movers, drops crumbled floors and raises water.
 	rt.geometry.advance(delta)
 	var st: ActorState = game.actor_state(c.id)

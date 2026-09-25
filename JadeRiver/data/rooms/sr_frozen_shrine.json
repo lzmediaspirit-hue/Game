@@ -284,6 +284,47 @@
    "level": 63,
    "alt": 200,
    "surface": "ledge_mv_1"
+  },
+  {
+   "id": "rare_soulbell_fs",
+   "type": "herb_patch",
+   "at": [
+    1730,
+    655
+   ],
+   "item": "soulbell_flower_100",
+   "prop": "soulbell_flower_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "expert",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 200,
+   "surface": "ledge_mv_1",
+   "age": 100,
+   "ripen": {
+    "phase": "night",
+    "every_days": 3,
+    "minutes": 20,
+    "offset": 1
+   },
+   "rare": true,
+   "guardian": {
+    "enemy": "mirror_wisp",
+    "level": 63,
+    "elite": true
+   },
+   "season": "autumn"
   }
  ],
  "spawns": [

@@ -107,6 +107,18 @@
        }
       ]
      }
+    },
+    {
+     "item": "willow_moss_seed",
+     "price": 6
+    },
+    {
+     "item": "ember_pepper_seed",
+     "price": 14
+    },
+    {
+     "item": "riverreed_ginseng_seed",
+     "price": 20
     }
    ]
   },
@@ -1325,6 +1337,18 @@
     },
     {
      "item": "grey_hide"
+    },
+    {
+     "item": "willow_moss_seed",
+     "price": 6
+    },
+    {
+     "item": "ember_pepper_seed",
+     "price": 14
+    },
+    {
+     "item": "riverreed_ginseng_seed",
+     "price": 20
     }
    ]
   },

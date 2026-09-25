@@ -154,6 +154,29 @@ func data_suite() -> void:
 			check(str(r2.get("element", "")) != "" and (r2.get("roles", []) as Array).size() == (r2.get("inputs", []) as Array).size(), "recipe %s element and roles" % r2.id)
 	for hc in ContentDB.all("herb_conflicts"):
 		for h in hc.get("herbs", []): check(item_ok(str(h)), "herb conflict %s: %s" % [hc.id, h])
+	# S45 herbs: every herb has a family and an age the garden table maps back; seeds name a family; four seasons.
+	var garden := ContentDB.config("garden")
+	for it in ContentDB.all("items"):
+		if str(it.get("type", "")) == "herb":
+			var hb: Dictionary = it.get("herb", {})
+			check(str(garden.get("families", {}).get(str(hb.get("family", "")), {}).get(str(int(hb.get("age", 0))), "")) == str(it.id),
+				"herb %s: family and age map back to it" % it.id)
+		if str(it.get("type", "")) == "seed":
+			check(garden.get("families", {}).has(str(it.get("seed", {}).get("family", ""))), "seed %s names a herb family" % it.id)
+	for fam in garden.get("seeds", {}): check(item_ok(str(garden.seeds[fam])), "garden seed for %s" % fam)
+	check(ContentDB.all("seasons").size() == 4, "four seasons")
+	var rare_nodes := 0
+	for rid in ContentDB.rooms:
+		for o in ContentDB.room(rid).get("objects", []):
+			if str(o.get("type", "")) != "herb_patch" or not o.has("ripen"): continue
+			rare_nodes += 1
+			var rp: Dictionary = o.ripen
+			check(garden.get("phases", {}).has(str(rp.get("phase", ""))) and int(rp.get("every_days", 0)) >= 1, "rare herb %s.%s ripens at a known phase" % [rid, o.id])
+			check(float(o.get("alt", 0)) > 0.0, "rare herb %s.%s sits on a raised tier" % [rid, o.id])
+			check(HerbRules.item_age(str(o.item)) == int(o.get("age", 0)) and int(o.age) >= 100, "rare herb %s.%s is 100 years or older" % [rid, o.id])
+			if o.has("guardian"): check(ContentDB.has_entry("enemies", str(o.guardian.get("enemy", ""))), "rare herb %s.%s guardian" % [rid, o.id])
+			if o.has("season"): check(ContentDB.has_entry("seasons", str(o.season)), "rare herb %s.%s season" % [rid, o.id])
+	check(rare_nodes >= 9, "the Part 8 rare herb nodes are placed (%d)" % rare_nodes)
 	# S48 body ladder: each rung names a bath item, a Temper trial set piece with a drum, and stats that exist.
 	var stat_ids := {}
 	for sd in ContentDB.stat_const("stats", []): stat_ids[str(sd.id)] = true

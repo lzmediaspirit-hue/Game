@@ -387,6 +387,46 @@
     ]
    },
    "locked_text": "Heat rises from a crack in the stone. An alchemist could use it."
+  },
+  {
+   "id": "rare_ginseng_rt",
+   "type": "herb_patch",
+   "at": [
+    1280,
+    671
+   ],
+   "item": "riverreed_ginseng_100",
+   "prop": "riverreed_ginseng_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "adept",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 200,
+   "surface": "route_2",
+   "age": 100,
+   "ripen": {
+    "phase": "dawn",
+    "every_days": 2,
+    "minutes": 20,
+    "offset": 1
+   },
+   "rare": true,
+   "guardian": {
+    "enemy": "tide_crab",
+    "level": 32,
+    "elite": true
+   }
   }
  ],
  "spawns": [
