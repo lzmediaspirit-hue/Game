@@ -1991,6 +1991,90 @@
    "same_stage_ok": true
   },
   {
+   "id": "appraisal_eye",
+   "label": "Appraisal Eye",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_6"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "learn_secret_art",
+     "art": "appraisal_eye"
+    }
+   ],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
+   "id": "breath_control",
+   "label": "Breath Control",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_3"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "learn_secret_art",
+     "art": "breath_control"
+    }
+   ],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
+   "id": "wall_step",
+   "label": "Wall-Step",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_4"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "learn_secret_art",
+     "art": "wall_step"
+    }
+   ],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
+   "id": "wind_blink",
+   "label": "Wind Blink",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_5"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "learn_secret_art",
+     "art": "wind_blink"
+    }
+   ],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
    "id": "star_charting",
    "label": "Star charts",
    "trigger": {

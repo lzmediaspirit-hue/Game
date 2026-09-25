@@ -45,6 +45,32 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "deck_mv_0",
+   "rect": [
+    1620,
+    634,
+    220,
+    56
+   ],
+   "height": 110,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "deck_mv_1",
+   "rect": [
+    1860,
+    630,
+    220,
+    52
+   ],
+   "height": 220,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -121,6 +147,14 @@
    "at": [
     2100,
     640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "lantern_string",
+   "at": [
+    1850,
+    380
    ],
    "layer": "back"
   }

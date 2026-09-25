@@ -63,6 +63,7 @@ func _on_phase(hid: String, hs: Dictionary, was: String) -> void:
 			"sandstorm": Audio.play("gust")
 			"quicksand": Audio.play("surge")
 			"star_wind": Audio.play("gust")
+			"deep_water": Audio.play("surge")
 			"presence": Audio.play("frost")
 	if str(h.get("kind", "")) == "strike" and phase == "cooldown" and was == "active":
 		for sp in hs.spots:
@@ -316,6 +317,7 @@ func _draw_air() -> void:
 			"sandstorm": _air_sandstorm(rt, hs, view)
 			"scorching_heat": _air_heat(rt, h, hs, view)
 			"star_wind": _air_star_wind(hs, view)
+			"deep_water": _air_deep_water(rt, hs, view)
 			"presence": _air_presence(hs, view)
 			"spike_traps":
 				if hs.phase == "warn":
@@ -475,6 +477,32 @@ func _air_star_wind(hs: Dictionary, view: Rect2) -> void:
 			var q := pp + Vector2(-f * 240.0 - 10.0, sin(t * 5.0 + i) * 20.0 * f + (_h(i, 217) - 0.5) * 60.0)
 			air.draw_rect(Rect2(q.snapped(Vector2(2, 2)), Vector2(4, 4)), Color(0.55, 0.95, 0.8, 0.8 * (1.0 - f)))
 	if phase == "warn": _mark(air, _player_pos() + Vector2(36, -150), 0.7 + 0.3 * sin(t * 12.0))
+
+## Deep water (Breath Control): the whole room under a blue wash with drifting caustics; bubble
+## columns rise from the air pockets, and the breath streams from the player once it runs short.
+func _air_deep_water(rt: RoomRuntime, hs: Dictionary, view: Rect2) -> void:
+	var phase := str(hs.phase)
+	air.draw_rect(view, Color(0.2, 0.42, 0.62, 0.22))
+	for i in 14:
+		var x := view.position.x + fposmod(_h(i, 231) * view.size.x + t * 18.0 * (0.5 + _h(i, 232)), view.size.x)
+		var y := view.position.y + 60.0 + _h(i, 233) * (view.size.y - 200.0)
+		var pts := PackedVector2Array()
+		for j in 6:
+			pts.append(Vector2(x + j * 14.0, y + sin(t * 1.6 + i + j * 0.8) * 4.0).snapped(Vector2(2, 2)))
+		air.draw_polyline(pts, Color(0.75, 0.92, 1.0, 0.18), 2.0)
+	for o in rt.def.get("objects", []):
+		if str(o.get("type", "")) != "air_pocket": continue
+		var at: Array = o.get("at", [0, 0])
+		for k in 8:
+			var f := fposmod(t * 0.7 + k / 8.0, 1.0)
+			var p := Vector2(float(at[0]) + sin(t * 3.0 + k) * 8.0, float(at[1]) - 20.0 - f * 420.0)
+			air.draw_circle(p.snapped(Vector2(2, 2)), 3.0 + 3.0 * (1.0 - f), Color(0.85, 0.97, 1.0, 0.7 * (1.0 - f)))
+	if phase in ["warn", "active"]:
+		var pp := _player_pos() + Vector2(8, -86)
+		for k in 5:
+			var f2 := fposmod(t * 1.8 + k / 5.0, 1.0)
+			air.draw_circle((pp + Vector2(sin(t * 5.0 + k) * 5.0, -f2 * 90.0)).snapped(Vector2(2, 2)), 3.0, Color(0.9, 0.98, 1.0, 0.8 * (1.0 - f2)))
+		if phase == "warn": _mark(air, _player_pos() + Vector2(36, -150), 0.7 + 0.3 * sin(t * 12.0))
 
 ## The Presence of the eight seats: violet rings close in on the player, the edges of sight darken
 ## and bars of weight press down while it lands.

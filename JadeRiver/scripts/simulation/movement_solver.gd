@@ -7,6 +7,7 @@ static func jump(state: ActorState) -> bool:
 	if state.flying: return false
 	if state.surface:
 		state.jumps_used=0
+		state.wall_step_used=false
 		state.air_stratum=state.surface.stratum
 		state.air_base=state.altitude
 		state.air_peak=state.altitude
@@ -17,6 +18,24 @@ static func jump(state: ActorState) -> bool:
 	state.vertical_speed=JUMP_IMPULSE
 	state.surface=null
 	return true
+## Which side (-1 left, 1 right) has a solid wall within reach of an airborne actor, or 0.
+static func wall_side(state: ActorState,zone: ZoneGeometry) -> int:
+	for side in [-1,1]:
+		var probe=state.plane+Vector2(side*26.0,0)
+		if zone.bounds.has_point(probe) and zone.blocks_at(probe,state.altitude+24.0,state.air_stratum): return side
+	return 0
+## Wall-Step (secret art, Heart Tempering 4): in the air beside a wall, kick off it once for a fresh
+## jump. Returns the wall's side (the caller pushes the body away from it) or 0 when there is none.
+static func wall_step(state: ActorState,zone: ZoneGeometry) -> int:
+	if state.flying or state.surface or state.wall_step_used: return 0
+	var side=wall_side(state,zone)
+	if side==0: return 0
+	state.wall_step_used=true
+	state.vertical_speed=JUMP_IMPULSE*0.95
+	state.departed_surface=""
+	state.landing_assist=""
+	state.air_base=state.altitude
+	return side
 ## Take off from the ground or from the top of a jump. Speed and ceiling come from data.
 static func start_flight(state: ActorState,climb_speed: float,ceiling: float) -> bool:
 	if state.flying: return false
@@ -50,6 +69,7 @@ static func land(state: ActorState,contact: Dictionary,velocity: Vector2):
 	state.altitude=state.surface.height_at(state.plane)
 	state.vertical_speed=0
 	state.jumps_used=0
+	state.wall_step_used=false
 	state.departed_surface=""
 	state.landing_assist=state.surface.id if velocity.y< -20 and state.surface.stratum=="platform" else ""
 	state.velocity=Vector2(velocity.x,0)

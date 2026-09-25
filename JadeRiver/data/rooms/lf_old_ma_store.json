@@ -44,6 +44,19 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "loft_mv",
+   "rect": [
+    820,
+    654,
+    300,
+    46
+   ],
+   "height": 110,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -72,7 +85,26 @@
   }
  ],
  "spawns": [],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "barrel_1",
+   "prop": "barrel",
+   "position": [
+    1100,
+    760
+   ],
+   "front_y": 760,
+   "footprint": [
+    1086,
+    734,
+    28,
+    26
+   ],
+   "height": 48,
+   "standable": true,
+   "flip": false
+  }
+ ],
  "decor": [
   {
    "prop": "hanging_lantern",
@@ -118,14 +150,6 @@
    "prop": "sack_pile",
    "at": [
     180,
-    760
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "barrel",
-   "at": [
-    1100,
     760
    ],
    "layer": "play"

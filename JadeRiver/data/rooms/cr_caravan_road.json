@@ -47,6 +47,32 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    260,
+    640,
+    280,
+    50
+   ],
+   "height": 110,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    1946,
+    640,
+    280,
+    50
+   ],
+   "height": 220,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -209,6 +235,18 @@
     860
    ],
    "text": "Mudwater Hideout — turn back, traveller."
+  },
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    2086,
+    665
+   ],
+   "loot": "chest_valley",
+   "level": 19,
+   "alt": 220,
+   "surface": "ledge_mv_1"
   }
  ],
  "spawns": [
@@ -270,7 +308,44 @@
    "elite": true
   }
  ],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "cart_broken_7",
+   "prop": "cart_broken",
+   "position": [
+    900,
+    720
+   ],
+   "front_y": 720,
+   "footprint": [
+    840,
+    694,
+    120,
+    26
+   ],
+   "height": 70,
+   "standable": true,
+   "flip": false
+  },
+  {
+   "id": "cart_broken_8",
+   "prop": "cart_broken",
+   "position": [
+    2400,
+    740
+   ],
+   "front_y": 740,
+   "footprint": [
+    2340,
+    714,
+    120,
+    26
+   ],
+   "height": 70,
+   "standable": true,
+   "flip": true
+  }
+ ],
  "decor": [
   {
    "prop": "pine_tree",
@@ -451,23 +526,6 @@
    ],
    "layer": "front",
    "flip": false
-  },
-  {
-   "prop": "cart_broken",
-   "at": [
-    900,
-    720
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "cart_broken",
-   "at": [
-    2400,
-    740
-   ],
-   "layer": "play",
-   "flip": true
   }
  ],
  "areas": [],

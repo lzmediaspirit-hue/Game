@@ -49,6 +49,19 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    940,
+    640,
+    280,
+    50
+   ],
+   "height": 110,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -270,7 +283,26 @@
    "elite": true
   }
  ],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "icicle_rock_7",
+   "prop": "icicle_rock",
+   "position": [
+    676,
+    640
+   ],
+   "front_y": 640,
+   "footprint": [
+    637,
+    614,
+    78,
+    26
+   ],
+   "height": 78,
+   "standable": true,
+   "flip": true
+  }
+ ],
  "decor": [
   {
    "prop": "pine_tree",
@@ -280,15 +312,6 @@
    ],
    "layer": "play",
    "flip": false
-  },
-  {
-   "prop": "icicle_rock",
-   "at": [
-    676,
-    640
-   ],
-   "layer": "play",
-   "flip": true
   },
   {
    "prop": "pine_tree",

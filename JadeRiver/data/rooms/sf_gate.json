@@ -167,7 +167,26 @@
   }
  ],
  "spawns": [],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "cart_broken_1",
+   "prop": "cart_broken",
+   "position": [
+    2000,
+    720
+   ],
+   "front_y": 720,
+   "footprint": [
+    1940,
+    694,
+    120,
+    26
+   ],
+   "height": 70,
+   "standable": true,
+   "flip": false
+  }
+ ],
  "decor": [
   {
    "prop": "flag_pole_jade",
@@ -182,14 +201,6 @@
    "at": [
     1580,
     660
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "cart_broken",
-   "at": [
-    2000,
-    720
    ],
    "layer": "play"
   },

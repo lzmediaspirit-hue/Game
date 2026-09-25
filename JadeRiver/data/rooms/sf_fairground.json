@@ -44,6 +44,32 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "deck_fair_0",
+   "rect": [
+    3150,
+    634,
+    220,
+    56
+   ],
+   "height": 110,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "deck_fair_1",
+   "rect": [
+    3390,
+    630,
+    200,
+    52
+   ],
+   "height": 220,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [

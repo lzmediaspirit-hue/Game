@@ -171,6 +171,10 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 		"event_passed":
 			ok = c != null and str(cond.event) in c.cultivator.events_passed
 			text = Tx.t("req.pass") % ContentDB.text("event." + str(cond.event))
+		"secret_art":
+			# A secret art learned (Breath Control opens flooded ways, S09).
+			ok = c != null and str(cond.art) in c.cultivator.secret_arts
+			text = str(cond.get("text", Tx.t("req.learn_the_secret_art") % ContentDB.name_of("secret_arts", str(cond.art))))
 		"method_learned":
 			ok = c != null and c.cultivator.method_id != ""
 			text = str(cond.get("text", Tx.t("req.learn_a_cultivation_method")))

@@ -44,6 +44,19 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    600,
+    640,
+    280,
+    50
+   ],
+   "height": 110,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [

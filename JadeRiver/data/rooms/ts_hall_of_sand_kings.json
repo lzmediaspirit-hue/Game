@@ -47,6 +47,32 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    813,
+    640,
+    280,
+    50
+   ],
+   "height": 110,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    1946,
+    640,
+    280,
+    50
+   ],
+   "height": 220,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -129,6 +155,18 @@
    ],
    "loot": "chest_tomb",
    "level": 77
+  },
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    2086,
+    665
+   ],
+   "loot": "chest_expanse",
+   "level": 77,
+   "alt": 220,
+   "surface": "ledge_mv_1"
   }
  ],
  "spawns": [
@@ -169,7 +207,26 @@
    ]
   }
  ],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "sarcophagus_6",
+   "prop": "sarcophagus",
+   "position": [
+    1500,
+    700
+   ],
+   "front_y": 700,
+   "footprint": [
+    1439,
+    674,
+    122,
+    26
+   ],
+   "height": 72,
+   "standable": true,
+   "flip": false
+  }
+ ],
  "decor": [
   {
    "prop": "stone_lantern",
@@ -404,14 +461,6 @@
    ],
    "layer": "back",
    "flip": false
-  },
-  {
-   "prop": "sarcophagus",
-   "at": [
-    1500,
-    700
-   ],
-   "layer": "play"
   }
  ],
  "areas": [],

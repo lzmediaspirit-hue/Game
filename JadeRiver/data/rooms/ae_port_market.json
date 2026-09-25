@@ -254,7 +254,44 @@
   }
  ],
  "spawns": [],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "sack_pile_1",
+   "prop": "sack_pile",
+   "position": [
+    3000,
+    720
+   ],
+   "front_y": 720,
+   "footprint": [
+    2968,
+    694,
+    64,
+    26
+   ],
+   "height": 38,
+   "standable": true,
+   "flip": false
+  },
+  {
+   "id": "barrel_2",
+   "prop": "barrel",
+   "position": [
+    3080,
+    740
+   ],
+   "front_y": 740,
+   "footprint": [
+    3066,
+    714,
+    28,
+    26
+   ],
+   "height": 48,
+   "standable": true,
+   "flip": false
+  }
+ ],
  "decor": [
   {
    "prop": "market_stall",
@@ -304,22 +341,6 @@
    "at": [
     300,
     662
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "sack_pile",
-   "at": [
-    3000,
-    720
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "barrel",
-   "at": [
-    3080,
-    740
    ],
    "layer": "play"
   }

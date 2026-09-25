@@ -310,6 +310,29 @@
    "note": "The seats of the Nine lean on you: the air thickens, then their Presence lands and the arms grow heavy. Will stands under it."
   },
   {
+   "id": "deep_water",
+   "name": "Deep water",
+   "kind": "aura",
+   "answer": "body",
+   "k": 2.0,
+   "cycle": [
+    22.0,
+    6.0,
+    3.0,
+    1.0
+   ],
+   "damage_pct": 0.06,
+   "status": {
+    "id": "slow",
+    "s": 3.0,
+    "power": 0.2
+   },
+   "shelter": [
+    "air_pocket"
+   ],
+   "note": "Under the well the grotto is flooded to the roof. Breath lasts about half a minute; the air pockets give it back."
+  },
+  {
    "id": "poison_mist",
    "name": "Poison mist",
    "kind": "pool",

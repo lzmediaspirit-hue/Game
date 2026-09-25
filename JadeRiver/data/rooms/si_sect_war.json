@@ -45,6 +45,32 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "wallwalk_0",
+   "rect": [
+    900,
+    634,
+    300,
+    56
+   ],
+   "height": 110,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "wallwalk_1",
+   "rect": [
+    2000,
+    634,
+    300,
+    56
+   ],
+   "height": 110,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [

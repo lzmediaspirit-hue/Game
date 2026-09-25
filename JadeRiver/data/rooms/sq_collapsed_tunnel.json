@@ -47,6 +47,19 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "ledge_tunnel",
+   "rect": [
+    600,
+    650,
+    200,
+    46
+   ],
+   "height": 110,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [

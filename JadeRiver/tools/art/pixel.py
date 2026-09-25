@@ -1165,8 +1165,19 @@ def check_frames(spec: dict, frames: dict) -> list:
     return warns
 
 
-def manifest_entry(spec: dict) -> dict:
-    return {
+def first_frame_bounds(sheet: Image.Image, cell: int) -> dict:
+    """Drawn-pixel box of each action row's first frame, relative to its cell: ``{row: [x, y, w, h]}``.
+    Pages fit creatures by these boxes, so the game never reads the sheet back from the GPU."""
+    out = {}
+    for i in range(len(ACTIONS)):
+        box = sheet.crop((0, i * cell, cell, (i + 1) * cell)).getbbox()
+        if box:
+            out[str(i)] = [box[0], box[1], box[2] - box[0], box[3] - box[1]]
+    return out
+
+
+def manifest_entry(spec: dict, sheet: Image.Image | None = None) -> dict:
+    entry = {
         "file": f"res://art/creatures/{spec['id']}.png",
         "cell": int(spec["cell"]),
         "anchor": [int(spec["anchor"][0]), int(spec["anchor"][1])],
@@ -1175,6 +1186,9 @@ def manifest_entry(spec: dict) -> dict:
         "actions": {a: {"row": i, "frames": n, "fps": fps, "loop": loop}
                     for i, (a, n, fps, loop) in enumerate(ACTIONS)},
     }
+    if sheet is not None:
+        entry["bounds"] = first_frame_bounds(sheet, int(spec["cell"]))
+    return entry
 
 
 def update_manifest(entries: dict, path: Path = MANIFEST_PATH) -> None:
@@ -1218,7 +1232,7 @@ def build_creature(mod_or_id, write: bool = True, manifest: bool = True):
     if write:
         save_png(sheet, ART_OUT_DIR / f"{spec['id']}.png")
     if manifest:
-        update_manifest({spec["id"]: manifest_entry(spec)})
+        update_manifest({spec["id"]: manifest_entry(spec, sheet)})
     return sheet, warns, frames
 
 

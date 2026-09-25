@@ -359,6 +359,8 @@
   "backlash_stun_s": 1.0,
   "backlash_qi_pct": 0.05,
   "dodge_distance": 140,
+  "wind_blink_distance": 120,
+  "wind_blink_cooldown_s": 10,
   "dodge_invuln_s": 0.25,
   "dodge_cooldown_s": 2.5,
   "parry_stagger_s": 0.8,

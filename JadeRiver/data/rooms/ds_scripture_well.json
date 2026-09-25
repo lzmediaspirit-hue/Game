@@ -44,6 +44,19 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    600,
+    640,
+    280,
+    50
+   ],
+   "height": 110,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -66,6 +79,27 @@
    ],
    "to": "ds_abbots_sanctum",
    "to_portal": "west"
+  },
+  {
+   "id": "grotto",
+   "type": "door",
+   "at": [
+    1800,
+    700
+   ],
+   "to": "ds_drowned_grotto",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "The flooded shaft",
+   "requires": {
+    "all": [
+     {
+      "kind": "secret_art",
+      "art": "breath_control"
+     }
+    ]
+   },
+   "locked_text": "The well drops into black water. Without Breath Control you would not come back up."
   }
  ],
  "objects": [
@@ -195,7 +229,7 @@
      854
     ],
     [
-     1734,
+     2154,
      797
     ],
     [

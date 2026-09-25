@@ -283,8 +283,8 @@ func icon_at(rect: Rect2, icon_id: String) -> void:
 ## loops with the page clock. Returns false when the creature has no sheet.
 func creature_at(rect: Rect2, creature_id: String, action := "idle", modulate := Color.WHITE) -> bool:
 	var e := SpriteCache.creature(creature_id)
-	var texture: Texture2D = SpriteCache.tex(str(e.get("file", ""))) if not e.is_empty() else null
-	if texture == null: return false
+	var texture: Texture2D = SpriteCache.tex_sliced(str(e.get("file", ""))) if not e.is_empty() else null
+	if texture == null: return SpriteCache.loading(str(e.get("file", "")))   # still loading: keep the slot empty
 	var acts: Dictionary = e.get("actions", {})
 	var a: Dictionary = acts.get(action, acts.get("idle", {}))
 	var frames := maxi(1, int(a.get("frames", 1)))
@@ -292,7 +292,8 @@ func creature_at(rect: Rect2, creature_id: String, action := "idle", modulate :=
 	var cell := float(e.cell)
 	var row := int(a.get("row", 0))
 	# Fit the drawn pixels of the first frame (not the mostly empty cell), in half steps.
-	var used := _creature_bounds(creature_id, texture, Rect2i(0, row * int(cell), int(cell), int(cell)))
+	var baked: Array = e.get("bounds", {}).get(str(row), [])
+	var used := Rect2(baked[0], baked[1], baked[2], baked[3]) if baked.size() == 4 else _creature_bounds(creature_id, texture, Rect2i(0, row * int(cell), int(cell), int(cell)))
 	var s := minf(rect.size.x / maxf(1.0, used.size.x), rect.size.y / maxf(1.0, used.size.y))
 	s = floorf(s * 2.0) / 2.0 if s >= 1.0 else s
 	var origin := Vector2(rect.get_center().x - (used.position.x + used.size.x * 0.5) * s, rect.end.y - used.end.y * s)
@@ -302,6 +303,7 @@ func creature_at(rect: Rect2, creature_id: String, action := "idle", modulate :=
 
 static var _bounds: Dictionary = {}
 
+## Fallback for sheets without baked bounds (tools/art/pixel.py writes them): reads the sheet back once.
 static func _creature_bounds(key: String, texture: Texture2D, cell: Rect2i) -> Rect2:
 	var k := "%s:%d" % [key, cell.position.y]
 	if not _bounds.has(k):

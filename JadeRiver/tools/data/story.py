@@ -490,6 +490,10 @@ def unlocks():
     # Act II · Phase C (S20/S21): the auction house after the Hall of Nine, clans at Sage 2.
     u("auction_house", "Auction house", all_of(realm("sage_1"), qdone("nine_seats")), "going_once", [], same_stage_ok=True)
     u("clans", "Clans", all_of(realm("sage_2"), qdone("the_canyon_toll")), "ironroot_blood", [], same_stage_ok=True)
+    # S09 secret arts that come with a realm (the quest-taught ones come from the mentor).
+    for art, rk, label in [("appraisal_eye", "qi_kindling_6", "Appraisal Eye"), ("breath_control", "qi_unfurling_3", "Breath Control"),
+                           ("wall_step", "heart_tempering_4", "Wall-Step"), ("wind_blink", "spirit_awakening_5", "Wind Blink")]:
+        u(art, label, all_of(realm(rk)), "", [], effects=[fx("learn_secret_art", art=art)], same_stage_ok=True)
     # Act II · Phase E (Part 4): Sage 3 opens the Starsea crafts and the will to survive out there; Sage 1 paired cultivation;
     # Sage Sovereign 1 upgrades the training sect's token.
     u("star_charting", "Star charts", all_of(realm("sage_3"), qdone("ironroot_blood")), "a_chart_of_ones_own", [], same_stage_ok=True)

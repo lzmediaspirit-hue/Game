@@ -45,6 +45,32 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    600,
+    640,
+    280,
+    50
+   ],
+   "height": 110,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    1180,
+    640,
+    280,
+    50
+   ],
+   "height": 220,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -61,7 +87,20 @@
    "label": "Mirror Shallows"
   }
  ],
- "objects": [],
+ "objects": [
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    1320,
+    665
+   ],
+   "loot": "chest_expanse",
+   "level": 68,
+   "alt": 220,
+   "surface": "ledge_mv_1"
+  }
+ ],
  "spawns": [
   {
    "enemy": "thousand_eye_toad",
@@ -82,7 +121,44 @@
    "boss": true
   }
  ],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "rock_large_1",
+   "prop": "rock_large",
+   "position": [
+    300,
+    700
+   ],
+   "front_y": 700,
+   "footprint": [
+    248,
+    674,
+    105,
+    26
+   ],
+   "height": 78,
+   "standable": true,
+   "flip": false
+  },
+  {
+   "id": "rock_small_2",
+   "prop": "rock_small",
+   "position": [
+    2400,
+    900
+   ],
+   "front_y": 900,
+   "footprint": [
+    2375,
+    874,
+    51,
+    26
+   ],
+   "height": 32,
+   "standable": true,
+   "flip": false
+  }
+ ],
  "decor": [
   {
    "prop": "willow_tree",
@@ -190,22 +266,6 @@
    "at": [
     2260,
     760
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "rock_large",
-   "at": [
-    300,
-    700
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "rock_small",
-   "at": [
-    2400,
-    900
    ],
    "layer": "play"
   },

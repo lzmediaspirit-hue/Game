@@ -50,6 +50,45 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    813,
+    640,
+    280,
+    50
+   ],
+   "height": 110,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    2499,
+    640,
+    280,
+    50
+   ],
+   "height": 220,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    1280,
+    636,
+    240,
+    44
+   ],
+   "height": 320,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -157,6 +196,30 @@
    ],
    "npc": "tollkeeper_bai",
    "facing": 1
+  },
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    2639,
+    665
+   ],
+   "loot": "chest_expanse",
+   "level": 75,
+   "alt": 220,
+   "surface": "ledge_mv_1"
+  },
+  {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    1400,
+    665
+   ],
+   "loot": "chest_expanse",
+   "level": 75,
+   "alt": 320,
+   "surface": "cloud_mv"
   }
  ],
  "spawns": [
@@ -234,7 +297,26 @@
    "elite": true
   }
  ],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "rock_large_6",
+   "prop": "rock_large",
+   "position": [
+    1766,
+    640
+   ],
+   "front_y": 640,
+   "footprint": [
+    1714,
+    614,
+    105,
+    26
+   ],
+   "height": 78,
+   "standable": true,
+   "flip": true
+  }
+ ],
  "decor": [
   {
    "prop": "dead_tree_grey",
@@ -262,15 +344,6 @@
    ],
    "layer": "play",
    "flip": false
-  },
-  {
-   "prop": "rock_large",
-   "at": [
-    1766,
-    640
-   ],
-   "layer": "play",
-   "flip": true
   },
   {
    "prop": "dead_tree_grey",

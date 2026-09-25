@@ -50,6 +50,45 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    813,
+    640,
+    280,
+    50
+   ],
+   "height": 110,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    3052,
+    640,
+    280,
+    50
+   ],
+   "height": 220,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    2132,
+    636,
+    240,
+    44
+   ],
+   "height": 320,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -164,6 +203,30 @@
     860
    ],
    "text": "The Skyport Wreck. East: the Pirate Deck. Beyond it the peak, and the Starsea Launch."
+  },
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    3192,
+    665
+   ],
+   "loot": "chest_expanse",
+   "level": 78,
+   "alt": 220,
+   "surface": "ledge_mv_1"
+  },
+  {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    2252,
+    665
+   ],
+   "loot": "chest_expanse",
+   "level": 78,
+   "alt": 320,
+   "surface": "cloud_mv"
   }
  ],
  "spawns": [

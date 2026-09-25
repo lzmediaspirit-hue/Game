@@ -163,7 +163,26 @@
   }
  ],
  "spawns": [],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "sack_pile_1",
+   "prop": "sack_pile",
+   "position": [
+    1260,
+    730
+   ],
+   "front_y": 730,
+   "footprint": [
+    1228,
+    704,
+    64,
+    26
+   ],
+   "height": 38,
+   "standable": true,
+   "flip": false
+  }
+ ],
  "decor": [
   {
    "prop": "sky_ship",
@@ -219,14 +238,6 @@
    "at": [
     1180,
     720
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "sack_pile",
-   "at": [
-    1260,
-    730
    ],
    "layer": "play"
   }

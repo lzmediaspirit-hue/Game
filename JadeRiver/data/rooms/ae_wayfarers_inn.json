@@ -44,6 +44,19 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "loft_mv",
+   "rect": [
+    820,
+    654,
+    300,
+    46
+   ],
+   "height": 110,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -83,7 +96,26 @@
   }
  ],
  "spawns": [],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "table_1",
+   "prop": "table",
+   "position": [
+    700,
+    760
+   ],
+   "front_y": 760,
+   "footprint": [
+    666,
+    734,
+    68,
+    26
+   ],
+   "height": 42,
+   "standable": true,
+   "flip": false
+  }
+ ],
  "decor": [
   {
    "prop": "hanging_lantern",
@@ -114,14 +146,6 @@
    "at": [
     250,
     790
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "table",
-   "at": [
-    700,
-    760
    ],
    "layer": "play"
   },

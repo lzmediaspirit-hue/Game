@@ -47,6 +47,32 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    600,
+    640,
+    280,
+    50
+   ],
+   "height": 110,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    1180,
+    640,
+    280,
+    50
+   ],
+   "height": 220,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -159,6 +185,18 @@
     ]
    },
    "locked_text": "A lock shaped like a sun, three pieces missing, and an inscription that slides away from the eye (Insight 80)."
+  },
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    1320,
+    665
+   ],
+   "loot": "chest_expanse",
+   "level": 77,
+   "alt": 220,
+   "surface": "ledge_mv_1"
   }
  ],
  "spawns": [

@@ -77,6 +77,19 @@
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    1280,
+    636,
+    240,
+    44
+   ],
+   "height": 320,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -251,6 +264,18 @@
      }
     ]
    }
+  },
+  {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    1400,
+    665
+   ],
+   "loot": "chest_expanse",
+   "level": 81,
+   "alt": 320,
+   "surface": "cloud_mv"
   }
  ],
  "spawns": [

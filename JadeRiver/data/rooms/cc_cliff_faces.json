@@ -99,6 +99,19 @@
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    1706,
+    636,
+    240,
+    44
+   ],
+   "height": 320,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -221,6 +234,18 @@
    "level": 40,
    "hp": 1,
    "respawn_s": 300
+  },
+  {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    1826,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 43,
+   "alt": 320,
+   "surface": "cloud_mv"
   }
  ],
  "spawns": [

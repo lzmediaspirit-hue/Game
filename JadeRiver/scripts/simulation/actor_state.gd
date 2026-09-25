@@ -16,6 +16,7 @@ var landing_y=0.0
 var departed_surface=""
 var air_peak=0.0
 # Flight (S18, Cloud Stride 1): no gravity; climb is the vertical input (-1 descend .. 1 rise).
+var wall_step_used=false   # Wall-Step (secret art): one kick off a wall per time in the air
 var flying=false
 var climb=0.0
 var fly_climb_speed=220.0

@@ -17,6 +17,7 @@ func move(sequence: int,axis: Vector2,delta: float,server_speed: float) -> bool:
 	MovementSolver.advance(state,zone,delta,axis.limit_length()*server_speed)
 	return true
 func jump() -> bool: return MovementSolver.jump(state)
+func wall_step() -> int: return MovementSolver.wall_step(state,zone)
 ## Flight is granted by the Combat authority (which pays its QI); this only moves the body.
 func fly(on: bool,climb_speed:=220.0,ceiling:=340.0) -> bool:
 	if on: return MovementSolver.start_flight(state,climb_speed,ceiling)

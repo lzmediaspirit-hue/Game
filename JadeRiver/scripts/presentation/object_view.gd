@@ -11,7 +11,8 @@ const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "training_s
 	"rite_circle": "rite_circle", "bell": "small_bell", "spar_post": "weapon_rack", "inspect": "grey_patch", "herb_patch": "willow_moss_patch",
 	"ore_vein": "copper_vein", "formation_table": "formation_node", "garden_bed": "willow_moss_patch",
 	"defence_drum": "small_bell", "treasure_plot": "treasure_plot", "treasure_tree": "nine_bough_jade_tree",
-	"star_sight": "star_sight_stone", "chart_table": "star_chart_table", "shipyard_slip": "shipyard_slip", "starsea_dock": "cloud_skiff"}
+	"star_sight": "star_sight_stone", "chart_table": "star_chart_table", "shipyard_slip": "shipyard_slip", "starsea_dock": "cloud_skiff",
+	"air_pocket": "qi_spring"}
 
 var def: Dictionary = {}
 var object_id := ""
@@ -44,6 +45,7 @@ func state_name() -> String:
 		"chest": return "open" if s == "open" else "closed"
 		"shrine": return "active" if c and str(c.last_shrine.get("object", "")) == object_id and str(c.last_shrine.get("room", "")) == rt.room_id else "idle"
 		"qi_spring": return "active" if c and Unlocks.is_unlocked(c.id, "qi_springs") else "dormant"
+		"air_pocket": return "active"
 		"teleport_stone": return "active" if Game.account.teleports.has(str(def.get("stone", object_id))) else "inactive"
 		"insight_stone": return "glow" if c and c.cultivator.meditating else "idle"
 		"cooking_pot": return "steam"

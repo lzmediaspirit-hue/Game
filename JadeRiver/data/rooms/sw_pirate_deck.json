@@ -50,6 +50,32 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    1366,
+    640,
+    280,
+    50
+   ],
+   "height": 110,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    1946,
+    640,
+    280,
+    50
+   ],
+   "height": 220,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -171,6 +197,18 @@
     ]
    },
    "locked_text": "The pirates' strongbox. The lock is a formation; Gu knows its word."
+  },
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    2086,
+    665
+   ],
+   "loot": "chest_expanse",
+   "level": 81,
+   "alt": 220,
+   "surface": "ledge_mv_1"
   }
  ],
  "spawns": [
@@ -248,7 +286,26 @@
    "elite": true
   }
  ],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "crate_7",
+   "prop": "crate",
+   "position": [
+    702,
+    640
+   ],
+   "front_y": 640,
+   "footprint": [
+    685,
+    614,
+    35,
+    26
+   ],
+   "height": 36,
+   "standable": true,
+   "flip": true
+  }
+ ],
  "decor": [
   {
    "prop": "barrel",
@@ -258,15 +315,6 @@
    ],
    "layer": "play",
    "flip": false
-  },
-  {
-   "prop": "crate",
-   "at": [
-    702,
-    640
-   ],
-   "layer": "play",
-   "flip": true
   },
   {
    "prop": "sack_pile",

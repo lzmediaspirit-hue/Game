@@ -5,6 +5,27 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### World movement pass (docs/movement.md)
+- **Something to climb in every room.** An audit found 79 of 121 rooms flat. Now 7 of 122 are, all by design
+  (insight rooms, the first hut, the home boat, story trials).
+  - Fields, paths and dungeons get a one-jump ledge (110) and a double-jump ledge (220) with a chest on it.
+  - Outdoor rooms from level 37 get a cloud bank at 320 that only fliers reach.
+  - Towns get timber decks and halls get lofts.
+  - Plum-blossom poles stand in the home sect's yard, and the elders' peaks and cave abodes get rock shelves.
+- **Standable props.** Crates, barrels, tables, low walls, carts, boulders, sarcophagi and 9 more props in
+  the walk strip are now solid blocks with tops, so a jump lands on them.
+- **Secret arts that move you.** They were named in the design but never granted. Now:
+  - **Wall-Step** (Heart Tempering 4): kick off a wall once in the air.
+  - **Wind Blink** (Spirit Awakening 5): an air dodge that blinks 120 units, with a 10 s cooldown.
+  - **Breath Control** (Qi Unfurling 3): opens the flooded shaft below the Scripture Well into the new
+    **Drowned Grotto** (deep water, air pockets, drowned acolytes, a ledge chest).
+  - **Appraisal Eye** (Qi Kindling 6): appraise without the tool.
+  - **Lotus Heart Breathing** now does what it says: it heals 10% over 5 s below 30% HP, once a minute.
+- New rules tests drive the real solver: one jump lands on 110 and not on 220, a double jump reaches 220,
+  the cloud is out of double-jump reach, a crate takes a landing, and Wall-Step works once and only beside a wall.
+- The Collection page no longer stalls its first frame (160–220 ms). Creature sheets load within a 12 ms budget
+  per frame, and each sheet's drawn bounds are baked into `creature_art.json`.
+
 ### Phase E · the Starsea
 - **The Shipwrights' Yard** at the west end of the Cloudgate Skydock: Navigator Sun's chart table, Shipwright
   Lao's slipway, an armillary sphere and the first Starsea dock.

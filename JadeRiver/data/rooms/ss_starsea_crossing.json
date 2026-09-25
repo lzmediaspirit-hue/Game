@@ -47,12 +47,97 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "quarterdeck",
+   "rect": [
+    240,
+    634,
+    360,
+    56
+   ],
+   "height": 110,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [],
  "objects": [],
  "spawns": [],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "barrel_1",
+   "prop": "barrel",
+   "position": [
+    1900,
+    760
+   ],
+   "front_y": 760,
+   "footprint": [
+    1885,
+    734,
+    30,
+    26
+   ],
+   "height": 48,
+   "standable": true
+  },
+  {
+   "id": "crate_2",
+   "prop": "crate",
+   "position": [
+    600,
+    720
+   ],
+   "front_y": 720,
+   "footprint": [
+    583,
+    694,
+    35,
+    26
+   ],
+   "height": 36,
+   "standable": true,
+   "flip": false
+  },
+  {
+   "id": "crate_3",
+   "prop": "crate",
+   "position": [
+    2400,
+    720
+   ],
+   "front_y": 720,
+   "footprint": [
+    2383,
+    694,
+    35,
+    26
+   ],
+   "height": 36,
+   "standable": true,
+   "flip": false
+  },
+  {
+   "id": "barrel_4",
+   "prop": "barrel",
+   "position": [
+    2000,
+    720
+   ],
+   "front_y": 720,
+   "footprint": [
+    1986,
+    694,
+    28,
+    26
+   ],
+   "height": 48,
+   "standable": true,
+   "flip": false
+  }
+ ],
  "decor": [
   {
    "prop": "sky_ship",
@@ -72,34 +157,10 @@
    "layer": "play"
   },
   {
-   "prop": "crate",
-   "at": [
-    600,
-    720
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "crate",
-   "at": [
-    2400,
-    720
-   ],
-   "layer": "play"
-  },
-  {
    "prop": "rope",
    "at": [
     1200,
     690
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "barrel",
-   "at": [
-    2000,
-    720
    ],
    "layer": "play"
   }

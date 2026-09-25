@@ -44,6 +44,32 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "summit_rock_0",
+   "rect": [
+    240,
+    652,
+    160,
+    46
+   ],
+   "height": 110,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "summit_rock_1",
+   "rect": [
+    860,
+    652,
+    160,
+    46
+   ],
+   "height": 110,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [

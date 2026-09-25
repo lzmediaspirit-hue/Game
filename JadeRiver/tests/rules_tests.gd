@@ -35,6 +35,7 @@ func _main() -> void:
 	treasures_suite()
 	hazards_suite()
 	starsea_suite()
+	movement_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -620,6 +621,90 @@ func starsea_suite() -> void:
 		Game.apply_effects(c.id, [{"kind": "upgrade_sect_token"}], "test")
 		check(fee > 0 and Game.world.teleport_fee(stone, c) == 0, "an Elder's token calls its bearer home for free")
 		Game.inventory.apply_remove(c.id, sid.replace("_sect", "") + "_elder_token", 1, "test")
+	Game.world.apply_teleport(c.id, back)
+
+# ------------------------------------------------------------------ world movement (S17, S30)
+## Run the real solver: the body leaves the ground with `jumps` presses (the second at the top of the
+## first) while drifting toward `toward`; returns the surface it comes to rest on.
+func _jump_to(geo: ZoneGeometry, from: Vector2, toward: Vector2, jumps: int) -> ActorState:
+	var st := ActorState.new()
+	st.plane = from
+	st.surface = geo.landing_target(from, 1.0, -1.0)
+	st.altitude = 0.0
+	MovementSolver.jump(st)
+	var pressed := 1
+	for i in 240:
+		var v := (toward - st.plane).limit_length(1.0) * 205.0 if st.plane.distance_to(toward) > 4.0 else Vector2.ZERO
+		MovementSolver.advance(st, geo, 1.0 / 60.0, v)
+		if pressed < jumps and st.surface == null and st.vertical_speed <= 0.0:
+			MovementSolver.jump(st)
+			pressed += 1
+		if st.surface != null and i > 5: break
+	return st
+
+func movement_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var back := str(c.position.get("room", "lf_village"))
+	check(near(MovementSolver.JUMP_IMPULSE * MovementSolver.JUMP_IMPULSE / (2.0 * MovementSolver.GRAVITY), 122.1, 0.5),
+		"a single jump peaks at 122 units, a double jump at 244")
+	# A field made climbable: a jump onto the low ledge, a double jump onto the high one (where the chest waits).
+	Game.world.apply_teleport(c.id, "tp_thunderhorn_flats")
+	var geo: ZoneGeometry = Game.room_rt.geometry
+	var low: WalkSurface = geo.index.get("ledge_mv_0")
+	var high: WalkSurface = geo.index.get("ledge_mv_1")
+	check(low != null and high != null and geo.index.has("cloud_mv"), "the Thunderhorn Flats have ledges and a cloud ledge")
+	if low and high:
+		var under := Vector2(low.bounds.get_center().x, low.bounds.end.y + 30.0)
+		var st1 := _jump_to(geo, under, low.bounds.get_center(), 1)
+		check(st1.surface == low and near(st1.altitude, 110.0, 0.5), "one jump lands on the 110-unit ledge (%s)" % (st1.surface.id if st1.surface else "air"))
+		var st1b := _jump_to(geo, Vector2(high.bounds.get_center().x, high.bounds.end.y + 30.0), high.bounds.get_center(), 1)
+		check(st1b.surface == null or st1b.surface != high, "one jump does not reach the 220-unit ledge")
+		var st2 := _jump_to(geo, Vector2(high.bounds.get_center().x, high.bounds.end.y + 30.0), high.bounds.get_center(), 2)
+		check(st2.surface == high and near(st2.altitude, 220.0, 0.5), "a double jump reaches it (%s)" % (st2.surface.id if st2.surface else "air"))
+		var chest: Dictionary = Game.room_rt.object_def("chest_ledge_mv_1")
+		check(not chest.is_empty() and near(float(chest.get("alt", 0)), 220.0), "the chest waits on the high ledge")
+		var cloud: WalkSurface = geo.index.get("cloud_mv")
+		var st3 := _jump_to(geo, Vector2(cloud.bounds.get_center().x, cloud.bounds.end.y + 30.0), cloud.bounds.get_center(), 2)
+		check(st3.surface != cloud, "the cloud ledge is above double-jump reach: it is for fliers")
+	# A standable crate on the Skydock's yard.
+	Game.world.apply_teleport(c.id, "ae_shipyard")
+	geo = Game.room_rt.geometry
+	var crate_top: WalkSurface = null
+	for srf in geo.surfaces:
+		if srf.kind == "support" and srf.id.begins_with("crate_"): crate_top = srf
+	check(crate_top != null, "a crate in the yard has a top to stand on")
+	if crate_top:
+		var st4 := _jump_to(geo, crate_top.bounds.get_center() + Vector2(0, 40), crate_top.bounds.get_center(), 1)
+		check(st4.surface == crate_top, "a jump lands on the crate (%s)" % (st4.surface.id if st4.surface else "air"))
+	# Wall-Step: in the air beside a building's facade there is a wall to kick off, once per jump.
+	Game.world.apply_teleport(c.id, "lf_village")
+	geo = Game.room_rt.geometry
+	var roof: WalkSurface = geo.index.get("old_ma_store")
+	if roof:
+		var st5 := ActorState.new()
+		st5.plane = Vector2(roof.bounds.position.x - 16.0, roof.bounds.end.y - 20.0)
+		st5.altitude = 60.0
+		st5.air_stratum = "ground"
+		st5.jumps_used = 2
+		var side := MovementSolver.wall_step(st5, geo)
+		check(side == 1 and st5.vertical_speed > 400.0, "Wall-Step kicks off the store's facade")
+		check(MovementSolver.wall_step(st5, geo) == 0, "only once per time in the air")
+		var st6 := ActorState.new()
+		st6.plane = Vector2(roof.bounds.position.x - 200.0, roof.bounds.end.y - 20.0)
+		st6.altitude = 60.0
+		check(MovementSolver.wall_step(st6, geo) == 0, "no wall, no kick")
+	# The rooms: count how many give the jump something to do.
+	var flat: Array = []
+	for rid in ContentDB.rooms:
+		var def: Dictionary = ContentDB.room(rid)
+		var up := false
+		for srf in def.get("surfaces", []):
+			if str(srf.get("stratum", "")) == "platform" or str(srf.get("kind", "")) in ["roof", "stairs", "ladder"]: up = true
+		for sc in def.get("scenery", []):
+			if sc.get("standable", false) or float(sc.get("height", 999)) <= 80.0: up = true
+		if not up and not str(def.get("type", "")) in ["interior", "insight", "home", "story", "event", "sect"]: flat.append(rid)
+	check(flat.size() <= 3, "fields, towns and dungeons all have something to climb %s" % str(flat))
 	Game.world.apply_teleport(c.id, back)
 
 # ------------------------------------------------------------------ emotes (S34)

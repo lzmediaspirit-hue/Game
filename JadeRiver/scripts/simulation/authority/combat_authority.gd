@@ -326,6 +326,19 @@ func dodge(c, direction, facing: int) -> Dictionary:
 	dir = dir.normalized()
 	var conf: Dictionary = ContentDB.stat_const("combat", {})
 	var tl := timeline(c.id)
+	# Wind Blink (secret art, Spirit Awakening 5): a dodge in mid-air blinks 120 units along the wind
+	# and holds the body up for a breath, so a gap too wide to jump can be crossed.
+	var st: ActorState = game.actor_state(c.id)
+	if st != null and st.surface == null and not st.flying and "wind_blink" in c.cultivator.secret_arts and c.pools.cooldown("wind_blink") <= 0.0:
+		var bx := signf(dir.x) if absf(dir.x) > 0.2 else (1.0 if facing >= 0 else -1.0)
+		var blink := float(ContentDB.stat_const("combat.wind_blink_distance", 120))
+		tl.forced = Vector2(bx, 0) * blink / 0.1
+		tl.forced_t = 0.1
+		tl.dodge_t = 0.15
+		st.vertical_speed = maxf(st.vertical_speed, 140.0)
+		c.pools.cooldowns["wind_blink"] = float(ContentDB.stat_const("combat.wind_blink_cooldown_s", 10))
+		emit("dodged", {"actor": c.id, "direction": Vector2(bx, 0), "blink": true})
+		return ok({"blink": true})
 	var dist := float(conf.get("dodge_distance", 140))
 	tl.forced = dir * dist / 0.22
 	tl.forced_t = 0.22
@@ -711,6 +724,12 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 		"crit": crit, "element": str(attack.get("element", "none")), "x": st.plane.x if st else 0.0, "y": st.plane.y if st else 0.0,
 		"alt": (st.altitude if st else 0.0) + 92.0, "hp": p.hp, "max": p.max_hp, "pool": pool})
 	emit("resource_changed", {"actor": c.id, "pool": pool, "value": p.get_value(pool), "max": p.get_max(pool)})
+	# Lotus Heart Breathing (secret art, Spirit Awakening 5): below 30% HP the breath turns inward and
+	# heals 2% a second for 5 s, once a minute.
+	if pool == "hp" and p.hp > 0.0 and p.hp < p.max_hp * 0.3 and "lotus_heart_breathing" in c.cultivator.secret_arts and p.cooldown("lotus_heart") <= 0.0:
+		p.cooldowns["lotus_heart"] = 60.0
+		apply_heal(c.id, 0.10, 0.0, 5.0, "lotus_heart_breathing")
+		emit("system_used", {"actor": c.id, "system": "lotus_heart_breathing"})
 	if p.get_value(pool) <= 0.0:
 		if int(c.cultivator.meridians.get("body", 0)) >= 100 and not tl.get("survived_lethal", false):
 			tl.survived_lethal = true

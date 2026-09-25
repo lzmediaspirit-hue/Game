@@ -390,7 +390,7 @@ func query_context(c) -> Dictionary:
 	var best := {}
 	var best_score := INF
 	for o in game.room_rt.def.get("objects", []):
-		if o.type in BREAKABLES or o.type in TRAINING or o.type == "decor": continue
+		if o.type in BREAKABLES or o.type in TRAINING or o.type in ["decor", "air_pocket"]: continue
 		if not object_visible(c, o): continue
 		var at: Array = o.get("at", [0, 0])
 		var d := st.plane.distance_to(Vector2(float(at[0]), float(at[1])))

@@ -64,6 +64,8 @@ var channel_time := 0.0             # gather/mine/lift channels driven by the HU
 var channel_action := ""
 var fly_up := false                 # held Jump while flying (touch); Space on the keyboard
 var fly_down := false               # held Guard while flying (touch); K on the keyboard
+var kick_t := 0.0                   # Wall-Step: the body is pushed away from the wall for a moment
+var kick_dir := 0
 signal attack_started(family: String, plane_position: Vector2, elevation: float, direction: int)
 signal arrow_released(plane_position: Vector2, elevation: float, direction: int)
 
@@ -86,6 +88,17 @@ func jump():
 		if Game.combat.is_wounded(actor_id) or Game.character(actor_id).pools.blocked("move"): return
 		if not Unlocks.is_unlocked(actor_id, "jump"): return
 		if meditating: Game.submit({"type": "stop_meditation", "reason": "jump"})
+		# Wall-Step (secret art): in the air beside a wall, kick off it for one more jump.
+		if surface == null and not state.flying and "wall_step" in Game.character(actor_id).cultivator.secret_arts:
+			var side: int = authority.wall_step()
+			if side != 0:
+				kick_dir = -side
+				kick_t = 0.2
+				facing = kick_dir
+				avatar.play("jump")
+				avatar.elapsed = 0
+				Audio.play("jump")
+				return
 		# Cloud Stride: a third press at the top of a double jump takes to the air.
 		if surface == null and not state.flying and state.jumps_used >= 2 and Unlocks.is_unlocked(actor_id, "flight"):
 			take_off()
@@ -250,6 +263,9 @@ func step(delta: float, axis: Vector2):
 	if sprinting: factor *= float(ContentDB.stat_const("move.sprint", 1.7))
 	factor *= _area_factor()
 	var forced: Dictionary = Game.combat.forced_motion(actor_id)
+	if kick_t > 0.0:
+		kick_t -= delta
+		axis = Vector2(kick_dir, axis.y * 0.3)
 	if state.flying:
 		# Combat stops paying (no QI, wounded, a new room): the body falls. Landing ends it too.
 		if not Game.combat.is_flying(actor_id): authority.fly(false)

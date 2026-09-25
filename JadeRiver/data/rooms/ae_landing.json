@@ -45,6 +45,32 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "deck_terrace_0",
+   "rect": [
+    2140,
+    634,
+    200,
+    56
+   ],
+   "height": 110,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "deck_terrace_1",
+   "rect": [
+    1900,
+    630,
+    200,
+    52
+   ],
+   "height": 220,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [

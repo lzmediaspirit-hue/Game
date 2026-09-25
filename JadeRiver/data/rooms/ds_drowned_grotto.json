@@ -1,0 +1,204 @@
+{
+ "schema_version": 1,
+ "id": "ds_drowned_grotto",
+ "zone": "jade_river_valley",
+ "region": "drowned_shrine",
+ "name": "Drowned Grotto",
+ "type": "secret",
+ "level_range": [
+  24,
+  27
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.6,
+ "hazards": [
+  "deep_water"
+ ],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "cave",
+ "ground": {
+  "material": "floor_stone",
+  "tint": "#7fa8c0"
+ },
+ "spawn_point": [
+  260,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_grotto",
+   "rect": [
+    1240,
+    650,
+    260,
+    46
+   ],
+   "height": 110,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "ds_scripture_well",
+   "to_portal": "grotto",
+   "press_up": true,
+   "label": "Up the shaft"
+  }
+ ],
+ "objects": [
+  {
+   "id": "air_pocket_0",
+   "type": "air_pocket",
+   "at": [
+    900,
+    860
+   ]
+  },
+  {
+   "id": "air_pocket_1",
+   "type": "air_pocket",
+   "at": [
+    1700,
+    860
+   ]
+  },
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    600,
+    930
+   ],
+   "item": "mist_lotus",
+   "prop": "mist_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "adept",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "herb_2",
+   "type": "herb_patch",
+   "at": [
+    2150,
+    930
+   ],
+   "item": "mist_lotus",
+   "prop": "mist_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "adept",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "chest_grotto",
+   "type": "chest",
+   "at": [
+    1370,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 27,
+   "alt": 110,
+   "surface": "ledge_grotto"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "drowned_acolyte",
+   "surface": "ground",
+   "points": [
+    [
+     1200,
+     800
+    ],
+    [
+     2000,
+     860
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 30,
+   "level": [
+    24,
+    26
+   ]
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "stone_lantern",
+   "at": [
+    700,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "scholar_rock",
+   "at": [
+    2300,
+    700
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "dungeon",
+ "ambience": "water_ambience",
+ "underwater": true
+}

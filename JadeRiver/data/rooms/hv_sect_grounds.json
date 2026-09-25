@@ -364,7 +364,93 @@
   }
  ],
  "spawns": [],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "training_stump_1",
+   "prop": "training_stump",
+   "position": [
+    1500,
+    900
+   ],
+   "front_y": 900,
+   "footprint": [
+    1487,
+    882,
+    26,
+    18
+   ],
+   "height": 64,
+   "standable": true
+  },
+  {
+   "id": "training_stump_2",
+   "prop": "training_stump",
+   "position": [
+    1570,
+    870
+   ],
+   "front_y": 870,
+   "footprint": [
+    1557,
+    852,
+    26,
+    18
+   ],
+   "height": 64,
+   "standable": true
+  },
+  {
+   "id": "training_stump_3",
+   "prop": "training_stump",
+   "position": [
+    1640,
+    905
+   ],
+   "front_y": 905,
+   "footprint": [
+    1627,
+    887,
+    26,
+    18
+   ],
+   "height": 64,
+   "standable": true
+  },
+  {
+   "id": "training_stump_4",
+   "prop": "training_stump",
+   "position": [
+    1710,
+    875
+   ],
+   "front_y": 875,
+   "footprint": [
+    1697,
+    857,
+    26,
+    18
+   ],
+   "height": 64,
+   "standable": true
+  },
+  {
+   "id": "training_stump_5",
+   "prop": "training_stump",
+   "position": [
+    1780,
+    900
+   ],
+   "front_y": 900,
+   "footprint": [
+    1767,
+    882,
+    26,
+    18
+   ],
+   "height": 64,
+   "standable": true
+  }
+ ],
  "decor": [
   {
    "prop": "banner_jade",

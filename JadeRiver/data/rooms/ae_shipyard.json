@@ -44,6 +44,32 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "scaffold_slip",
+   "rect": [
+    860,
+    636,
+    280,
+    50
+   ],
+   "height": 120,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "deck_yard",
+   "rect": [
+    1860,
+    630,
+    200,
+    52
+   ],
+   "height": 220,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -158,7 +184,25 @@
   }
  ],
  "spawns": [],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "crate_1",
+   "prop": "crate",
+   "position": [
+    1360,
+    740
+   ],
+   "front_y": 740,
+   "footprint": [
+    1342,
+    714,
+    36,
+    26
+   ],
+   "height": 36,
+   "standable": true
+  }
+ ],
  "decor": [
   {
    "prop": "mooring_post",

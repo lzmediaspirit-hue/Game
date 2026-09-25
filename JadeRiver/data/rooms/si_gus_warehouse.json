@@ -104,41 +104,81 @@
    "boss": true
   }
  ],
- "scenery": [],
- "decor": [
+ "scenery": [
   {
+   "id": "sack_pile_1",
    "prop": "sack_pile",
-   "at": [
+   "position": [
     500,
     700
    ],
-   "layer": "play"
+   "front_y": 700,
+   "footprint": [
+    468,
+    674,
+    64,
+    26
+   ],
+   "height": 38,
+   "standable": true,
+   "flip": false
   },
   {
+   "id": "sack_pile_2",
    "prop": "sack_pile",
-   "at": [
+   "position": [
     800,
     700
    ],
-   "layer": "play"
+   "front_y": 700,
+   "footprint": [
+    768,
+    674,
+    64,
+    26
+   ],
+   "height": 38,
+   "standable": true,
+   "flip": false
   },
   {
+   "id": "sack_pile_3",
    "prop": "sack_pile",
-   "at": [
+   "position": [
     1700,
     700
    ],
-   "layer": "play"
+   "front_y": 700,
+   "footprint": [
+    1668,
+    674,
+    64,
+    26
+   ],
+   "height": 38,
+   "standable": true,
+   "flip": false
   },
   {
+   "id": "barrel_4",
    "prop": "barrel",
-   "at": [
+   "position": [
     1100,
     700
    ],
-   "layer": "play"
+   "front_y": 700,
+   "footprint": [
+    1086,
+    674,
+    28,
+    26
+   ],
+   "height": 48,
+   "standable": true,
+   "flip": false
   }
  ],
+ "decor": [],
  "areas": [],
  "music": "boss",
  "instanced": true,

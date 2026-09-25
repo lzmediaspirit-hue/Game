@@ -12,6 +12,28 @@ static func tex(path: String) -> Texture2D:
 		_textures[path] = load(path) if ResourceLoader.exists(path) else null
 	return _textures[path]
 
+static var _slice_frame := -1
+static var _slice_us := 0
+const SLICE_BUDGET_US := 12000
+
+## Pages ask for sheets this way: sheets not yet in memory load within a 12 ms budget per frame
+## and the rest wait for the next frame (returning null, with `loading(path)` true), so opening a
+## page full of creatures never stalls a frame.
+static func tex_sliced(path: String) -> Texture2D:
+	if path == "" or _textures.has(path): return tex(path)
+	var frame := Engine.get_process_frames()
+	if frame != _slice_frame:
+		_slice_frame = frame
+		_slice_us = 0
+	if _slice_us >= SLICE_BUDGET_US: return null
+	var t0 := Time.get_ticks_usec()
+	var texture := tex(path)
+	_slice_us += Time.get_ticks_usec() - t0
+	return texture
+
+static func loading(path: String) -> bool:
+	return path != "" and not _textures.has(path)
+
 static func prop(id: String) -> Dictionary:
 	return ContentDB.config("prop_art").get(id, {})
 

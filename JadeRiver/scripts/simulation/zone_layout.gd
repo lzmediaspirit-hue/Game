@@ -24,7 +24,7 @@ static func compile(authored: Dictionary) -> Dictionary:
 	# Low obstacles are solid volumes with support tops, so descending onto one
 	# lands on it instead of teleporting the actor to a nearby free tile.
 	for item in retained:
-		if item.get("height",999)>80 or item.get("art","")=="none": continue
+		if (item.get("height",999)>80 and not item.get("standable",false)) or item.get("art","")=="none": continue
 		data.surfaces.append({"id":item.id+"_top","rect":item.footprint,
 			"height":item.height,"kind":"support","stratum":"platform","open_edges":true})
 	data.objects=retained

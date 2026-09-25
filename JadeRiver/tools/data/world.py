@@ -137,6 +137,10 @@ HAZARDS = [
     {"id": "presence", "name": "Pressing Presence", "kind": "aura", "answer": "will", "k": 2.2, "cycle": [2.0, 1.5, 3.0, 4.0],
      "damage_pct": 0.06, "damage_type": "soul", "buff": {"stat": "physical_attack", "op": "pct_add", "value": -0.3},
      "note": "The seats of the Nine lean on you: the air thickens, then their Presence lands and the arms grow heavy. Will stands under it."},
+    # Breath Control's water (S09): the breath lasts the tell and the warning; then the water takes you, unless an air pocket is near.
+    {"id": "deep_water", "name": "Deep water", "kind": "aura", "answer": "body", "k": 2.0, "cycle": [22.0, 6.0, 3.0, 1.0],
+     "damage_pct": 0.06, "status": {"id": "slow", "s": 3.0, "power": 0.2}, "shelter": ["air_pocket"],
+     "note": "Under the well the grotto is flooded to the roof. Breath lasts about half a minute; the air pockets give it back."},
     {"id": "poison_mist", "name": "Poison mist", "kind": "pool", "answer": "body", "k": 1.3, "cycle": [3.0, 1.5, 4.0, 5.0],
      "areas": ["poison_mist"], "pulse": 1.0, "status": {"id": "poison", "s": 6.0, "power": 0.012},
      "note": "The bandits vent marsh gas through the tunnels: the vents hiss before they breathe. Body tolerates the poison."},
@@ -2127,6 +2131,191 @@ def set_pieces():
     entries("set_pieces", rows)
 
 
+# ---------------------------------------------------------------------------------------------
+# Movement pass (S17 room rules, S30 movement): every room gives the jump, the double jump, the
+# rooftops, Wall-Step and flight something to do. Low props become standable blocks, flat fields and
+# dungeons get ledges with a reward on the higher one, towns get raised decks, and from the Crane
+# Cliffs on a cloud ledge above double-jump height waits for fliers.
+JUMP_ONE, JUMP_TWO, FLIGHT_LEDGE = 110, 220, 320   # single jump peaks at 122, double at 244
+STANDABLE = {   # prop: (share of the art's width that is solid, height of its top)
+    "crate": (0.8, 36), "barrel": (0.7, 48), "sack_pile": (0.8, 38), "hay_bale": (0.8, 42), "rock_small": (0.8, 32),
+    "table": (0.85, 42), "stone_wall_low": (0.9, 48), "bed": (0.85, 40), "counter": (0.9, 58), "rock_large": (0.75, 78),
+    "boulder_moss": (0.7, 86), "cart_broken": (0.75, 70), "sarcophagus": (0.85, 72), "icicle_rock": (0.7, 78),
+    "storage_chest": (0.8, 38), "driftwood": (0.85, 22),
+}
+
+
+def _prop_width(prop):
+    e = PROPS.get(prop, {})
+    return float(e.get("frame", [80, 80])[0])
+
+
+def _clear(r, x, y, radius):
+    """No portal, object, spawn or arrival point within `radius` of (x, y)."""
+    pts = [p["at"] for p in r.d["portals"] if "at" in p] + [o["at"] for o in r.d["objects"]] + [r.d["spawn_point"]]
+    for sp in r.d["spawns"]:
+        pts += sp["points"]
+    return all(((x - a[0]) ** 2 + (y - a[1]) ** 2) ** 0.5 >= radius for a in pts)
+
+
+def _free_span(r, x0, x1, pad=60):
+    """True when nothing tall stands in the back row between x0 and x1 (portals, NPCs, objects, buildings, ledges)."""
+    for p in r.d["portals"]:
+        if "at" in p and x0 - pad - 120 <= p["at"][0] <= x1 + pad + 120:
+            return False
+    for o in r.d["objects"]:
+        if x0 - pad <= o["at"][0] <= x1 + pad and o["at"][1] < 800:
+            return False
+    for srf in r.d["surfaces"]:
+        if srf["stratum"] == "platform" or srf["kind"] in ("roof", "stairs", "ladder"):
+            a, b = srf["rect"][0], srf["rect"][0] + srf["rect"][2]
+            if not (x1 + pad < a or x0 - pad > b):
+                return False
+    for sc in r.d["scenery"]:
+        a = sc["footprint"][0]
+        if x0 - pad <= a <= x1 + pad and sc["footprint"][1] < 720:
+            return False
+    return True
+
+
+def _spans(r, width, count, lo=260):
+    """Up to `count` free back-row spans of `width`, spread across the room."""
+    out = []
+    w = r.w
+    step = max(200, (w - 2 * lo) // max(1, count * 3))
+    x = lo
+    while x + width < w - lo and len(out) < count:
+        if _free_span(r, x, x + width) and all(abs(x - o) > width + 200 for o in out):
+            out.append(x)
+            x += width + 300
+        else:
+            x += step
+    return out
+
+
+def _zone_chest(r):
+    return "chest_expanse" if r.d["zone"] == "azure_expanse" else ("chest_dungeon" if r.d["type"] in ("dungeon", "secret", "boss_arena") else "chest_valley")
+
+
+def _ledge_reward(r, sid, x, width, h, loot=None):
+    o = r.chest([x + width // 2, 665], loot=loot or _zone_chest(r), level=max(1, r.d["level_range"][1]), alt=h, surface=sid, oid="chest_" + sid)
+    return o
+
+
+def movement_extras():
+    """Hand-placed climbing where the automatic pass finds no clear back row."""
+    def deck(rid, sid, rect, h, kind="balcony"):
+        ROOMS[rid].surface(sid, rect, h, kind=kind)
+    deck("ae_landing", "deck_terrace_0", [2140, 634, 200, 56], JUMP_ONE)
+    deck("ae_landing", "deck_terrace_1", [1900, 630, 200, 52], JUMP_TWO)
+    deck("ae_shipyard", "scaffold_slip", [860, 636, 280, 50], 120)          # the slipway's scaffold over the new hull
+    deck("ae_shipyard", "deck_yard", [1860, 630, 200, 52], JUMP_TWO)
+    ROOMS["ae_shipyard"].block("crate", 1360, 740, 36, 26, 36, standable=True)
+    deck("sf_fairground", "deck_fair_0", [3150, 634, 220, 56], JUMP_ONE)
+    deck("sf_fairground", "deck_fair_1", [3390, 630, 200, 52], JUMP_TWO)
+    deck("sd_oasis_of_bones", "rocks_oasis_0", [700, 640, 240, 50], JUMP_ONE, "rock_ledge")
+    deck("sd_oasis_of_bones", "rocks_oasis_1", [960, 636, 220, 46], JUMP_TWO, "rock_ledge")
+    deck("cf_behind_falls", "ledge_falls", [520, 654, 220, 46], JUMP_ONE, "rock_ledge")
+    deck("sq_collapsed_tunnel", "ledge_tunnel", [600, 650, 200, 46], JUMP_ONE, "rock_ledge")
+    deck("wg_waterfall_cave", "ledge_cave", [400, 654, 240, 46], JUMP_ONE, "rock_ledge")
+    # Set pieces: the Gate's wall-walks and the siege's broken ramparts give room to dodge a boss.
+    deck("si_sect_war", "wallwalk_0", [900, 634, 300, 56], JUMP_ONE)
+    deck("si_sect_war", "wallwalk_1", [2000, 634, 300, 56], JUMP_ONE)
+    deck("si_siege", "rampart_0", [1300, 640, 300, 50], JUMP_ONE, "rock_ledge")
+    deck("si_siege", "rampart_1", [2200, 640, 300, 50], JUMP_ONE, "rock_ledge")
+    deck("cp_cleansing_summit", "summit_rock_0", [240, 652, 160, 46], JUMP_ONE, "rock_ledge")
+    deck("cp_cleansing_summit", "summit_rock_1", [860, 652, 160, 46], JUMP_ONE, "rock_ledge")
+    # The home sect's yard: plum-blossom poles, the classic footwork drill, in front of the halls.
+    for x, y in ((1500, 900), (1570, 870), (1640, 905), (1710, 875), (1780, 900)):
+        ROOMS["hv_sect_grounds"].block("training_stump", x, y, 26, 18, 64, standable=True)
+    deck("hv_vale_gate", "ledge_vale", [820, 646, 220, 46], JUMP_ONE, "rock_ledge")
+    # Elders' peaks and cave abodes: a rock shelf above the spring and a higher one beside it.
+    for rid in ("ja_elder_hu_peak", "cm_elder_sung_peak"):
+        deck(rid, "ledge_peak_0", [340, 648, 200, 46], JUMP_ONE, "rock_ledge")
+        deck(rid, "ledge_peak_1", [560, 640, 170, 46], JUMP_TWO, "rock_ledge")
+    for rid in ("ja_cave_abode", "cm_cave_abode"):
+        deck(rid, "ledge_abode", [400, 650, 170, 46], JUMP_ONE, "rock_ledge")
+    # Breath Control (secret art, Qi Unfurling 3): the Scripture Well drops into a flooded grotto.
+    w = ROOMS["ds_scripture_well"]
+    w.portal("grotto", "door", [1800, 700], "ds_drowned_grotto", "entry", press_up=True, label="The flooded shaft",
+             requires=all_of({"kind": "secret_art", "art": "breath_control"}),
+             locked_text="The well drops into black water. Without Breath Control you would not come back up.")
+    r = Room("ds_drowned_grotto", "Drowned Grotto", "secret", "drowned_shrine", 2, backdrop="cave", material="floor_stone", tint="#7fa8c0",
+             music="dungeon", ambience="water_ambience", levels=[24, 27], safe=False, spawn_point=[260, 820], hazards=["deep_water"],
+             qi=1.6, idle=[], underwater=True)
+    r.portal("entry", "door", [140, 700], "ds_scripture_well", "grotto", press_up=True, label="Up the shaft")
+    for i, x in enumerate((900, 1700)):
+        r.obj("air_pocket_%d" % i, "air_pocket", [x, 860])
+    r.spawn("drowned_acolyte", [[1200, 800], [2000, 860]], 2, respawn=30, level=[24, 26])
+    r.herb("mist_lotus", [600, 930])
+    r.herb("mist_lotus", [2150, 930])
+    r.surface("ledge_grotto", [1240, 650, 260, 46], JUMP_ONE, kind="rock_ledge")
+    r.chest([1370, 665], loot="chest_dungeon", level=27, alt=JUMP_ONE, surface="ledge_grotto", oid="chest_grotto")
+    r.decor("stone_lantern", [700, 640], layer="back")
+    r.decor("scholar_rock", [2300, 700], layer="back")
+    # The Starsea crossing: a raised stern deck (the quarterdeck) at the vessel's back.
+    deck("ss_starsea_crossing", "quarterdeck", [240, 634, 360, 56], JUMP_ONE)
+    ROOMS["ss_starsea_crossing"].block("barrel", 1900, 760, 30, 26, 48, standable=True)
+
+
+def movement_pass():
+    stats = {"blocks": 0, "ledges": 0, "cloud": 0, "decks": 0, "lofts": 0}
+    for rid, r in ROOMS.items():
+        d = r.d
+        rtype = d["type"]
+        # 1. Low props in the walk strip become standable blocks (you can hop onto crates and tables).
+        keep = []
+        for dec in d["decor"]:
+            prop, at = dec["prop"], dec["at"]
+            if dec.get("layer", "play") == "play" and prop in STANDABLE and 640 <= at[1] <= 940 and _clear(r, at[0], at[1], 120):
+                share, top = STANDABLE[prop]
+                fw = int(_prop_width(prop) * share)
+                r.block(prop, at[0], at[1], fw, 26, top, standable=True, flip=dec.get("flip", False))
+                stats["blocks"] += 1
+                continue
+            keep.append(dec)
+        d["decor"] = keep
+        if d.get("instanced") or rtype in ("story", "trial", "event", "home"):
+            continue
+        has_vertical = any(s["stratum"] == "platform" or s["kind"] in ("roof", "stairs", "ladder") for s in d["surfaces"])
+        outdoor = not d.get("custom_ground")
+        lv0 = d["level_range"][0]
+        # 2. Flat fields, paths and dungeons: a jump ledge and a double-jump ledge with a chest on it.
+        if rtype in ("field", "path", "dungeon", "secret", "boss_arena") and not has_vertical and r.w >= 2560:
+            spans = _spans(r, 280, 2)
+            for i, x in enumerate(spans):
+                h = JUMP_ONE if i == 0 else JUMP_TWO
+                sid = "ledge_mv_%d" % i
+                r.surface(sid, [x, 640, 280, 50], h, kind="rock_ledge")
+                stats["ledges"] += 1
+                if i == 1 and rtype != "boss_arena":
+                    _ledge_reward(r, sid, x, 280, h)
+        # 3. Fliers' reward: a cloud ledge above double-jump height (Cloud Stride 1, S18 flight).
+        if outdoor and rtype in ("field", "path") and lv0 >= 37 and not d.get("no_flight") and r.w >= 2560:
+            spans = _spans(r, 240, 1, lo=r.w // 3)
+            for x in spans:
+                sid = "cloud_mv"
+                r.surface(sid, [x, 636, 240, 44], FLIGHT_LEDGE, kind="cloud")
+                _ledge_reward(r, sid, x, 240, FLIGHT_LEDGE, loot="chest_expanse" if d["zone"] == "azure_expanse" else "chest_dungeon")
+                stats["cloud"] += 1
+        # 4. Towns, sect grounds and rest stops with nothing to climb: a timber deck and a higher one beside it.
+        if rtype in ("town", "sect", "rest") and outdoor and not has_vertical and r.w >= 2560:
+            spans = _spans(r, 460, 1)
+            for x in spans:
+                r.surface("deck_mv_0", [x, 634, 220, 56], JUMP_ONE, kind="balcony")
+                r.surface("deck_mv_1", [x + 240, 630, 220, 52], JUMP_TWO, kind="balcony")
+                r.decor("lantern_string", [x + 230, 380], layer="back")
+                stats["decks"] += 2
+        # 5. Interiors and halls: a loft on the back wall where the wall is clear.
+        if d.get("custom_ground") and rtype in ("interior", "insight", "sect", "rest") and r.w == 1280 and not has_vertical:
+            for x in (820, 140, 480):
+                if _free_span(r, x, x + 300, pad=20):
+                    r.surface("loft_mv", [x, 654, 300, 46], JUMP_ONE, kind="balcony")
+                    stats["lofts"] += 1
+                    break
+    print("movement pass:", stats)
+
+
 def check_links():
     """Every portal target exists (or is planned) and every edge/door has a matching return portal."""
     planned = set()
@@ -2171,6 +2360,8 @@ def build():
     nine_peaks_and_canyons()
     sunscar()
     skyport_wreck()
+    movement_extras()
+    movement_pass()
     check_links()
     reachability()
     os.makedirs(ROOMS_DIR, exist_ok=True)
