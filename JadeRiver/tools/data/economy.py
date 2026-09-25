@@ -124,7 +124,8 @@ def shops():
          "stock": [s("rice"), s("rice_ball"), s("cleansing_pill"), s("purging_pill"), s("grey_hide"),
                    s("willow_moss_seed", price=6), s("ember_pepper_seed", price=14), s("riverreed_ginseng_seed", price=20)]},
         {"id": "hermit", "name": "Hermit Yao's Beast Hall", "currency": "silver_tael",
-         "stock": [s("taming_cauldron", price=200, requires=all_of(realm("heart_tempering_1"))), s("bonding_offering_common"), s("roast_fish"), s("fish_bait"), s("maple_leaf_vessel", price=600, requires=all_of(realm("cloud_stride_1")))]},
+         "stock": [s("taming_cauldron", price=200, requires=all_of(realm("heart_tempering_1"))), s("bonding_offering_common"), s("roast_fish"), s("fish_bait"), s("maple_leaf_vessel", price=600, requires=all_of(realm("cloud_stride_1"))),
+                   s("purifying_offering", price=60, requires=all_of(realm("qi_unfurling_7"))), s("beast_revival_pill", price=45)]},
         # Act II · Cloudgate Port and the Thunderhorn Plains. Spirit Stone prices come from tael prices at the exchange rate.
         {"id": "alliance_factor", "name": "Alliance Factor's Hall", "currency": "spirit_stone", "discount": {"flag": "path_alliance", "pct": 0.1},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_short_blade"), s("stormsteel_staff"),
@@ -306,6 +307,7 @@ def recipes():
     r("ember_oil", "alchemy", [("ember_pepper", 2), ("toad_oil", 1)], [("ember_oil", 1)], "common", default=True)
     r("riverreed_draught", "alchemy", [("riverreed_ginseng_10", 1), ("river_minnow", 1)], [("riverreed_draught", 1)], "common", default=True, liquid=True)
     r("copper_body_bath", "alchemy", [("tortoise_plate", 2), ("mole_claw", 2), ("willow_moss", 4)], [("copper_body_bath", 1)], "common")
+    r("beast_revival_pill", "alchemy", [("riverreed_ginseng_10", 2), ("tough_meat", 1), ("willow_moss", 1)], [("beast_revival_pill", 1)], "common")
     r("marrow_washing_bath", "alchemy", [("riverreed_ginseng_100", 1), ("hound_fang", 3), ("ape_fur", 2), ("mist_lotus", 1)], [("marrow_washing_bath", 1)], "earth")
     # S48 body ladder: each body tier teaches the next tier's bath (Iron → Jade, Jade → Gold).
     r("jade_marrow_bath", "alchemy", [("cloudtop_orchid", 1), ("jade_scale", 3), ("guardian_stone", 2), ("mist_lotus", 2)], [("jade_marrow_bath", 1)], "heaven")
@@ -469,12 +471,25 @@ def pets():
         {"id": "mist_wolf", "name": "Mist Wolf", "art": "mist_wolf", "element": "soul", "strength_role": "combat", "tame": True,
          "skills": ["Mist Bite", "Howl", "Fog Step", "Moon Hunt"], "favourite_foods": ["tough_meat", "riverfish_soup"], "branches": ["Fog Wolf", "Moon Wolf"],
          "mount": {"art": "mist_wolf", "scale": 0.9, "lift": 0, "saddle": 50}},
+        # S46: demonic beasts, tamed with a Purifying Offering, and Hollowed ones, tamed once cleansed.
+        {"id": "green_viper", "name": "Green Viper", "art": "green_viper", "element": "wood", "strength_role": "combat", "tame": True, "nature": "demonic",
+         "skills": ["Venom Fang", "Coil", "Shed Skin", "Emerald Strike"], "favourite_foods": ["frog_leg", "tough_meat"], "branches": ["Jade Serpent", "Thorn Viper"]},
+        {"id": "mud_hound", "name": "Mud Hound", "art": "mud_hound", "element": "earth", "strength_role": "combat", "tame": True, "nature": "demonic",
+         "skills": ["Mud Bite", "Bay", "Wallow", "Pack Hunt"], "favourite_foods": ["tough_meat", "boar_bone_broth"], "branches": ["Iron Hound", "Marsh Hound"]},
+        {"id": "mist_vulture", "name": "Mist Vulture", "art": "mist_vulture", "element": "wind", "strength_role": "gatherer", "tame": True, "nature": "demonic",
+         "skills": ["Carrion Dive", "Updraft", "Keen Eye", "Wake Circle"], "favourite_foods": ["tough_meat", "roast_fish"], "branches": ["Storm Vulture", "Grey Warden"]},
+        {"id": "cleansed_boarlet", "name": "Cleansed Boarlet", "art": "wild_boarlet", "element": "earth", "strength_role": "combat", "tame": True, "nature": "hollowed",
+         "skills": ["Charge", "Root Up", "Bristle", "Second Wind"], "favourite_foods": ["rice_ball", "boar_bone_broth"], "branches": ["Iron Boar", "Thorn Boar"]},
+        {"id": "pale_stag", "name": "Pale Stag", "art": "hollow_stag", "element": "soul", "strength_role": "cultivation", "tame": True, "nature": "hollowed",
+         "skills": ["Antler Sweep", "Pale Call", "Moonstep", "Stillness"], "favourite_foods": ["lotus_root_tea", "rice_ball"], "branches": ["Moon Stag", "Ghost Stag"]},
     ]
     # Breeding pairs two Adults of one family (S22).
     family = {"reed_otter": "river", "mossback_toad": "river", "ember_fox": "hound", "mist_wolf": "hound",
-              "ironclaw_mole": "burrow", "bamboo_monkey": "burrow", "jade_crane": "wing"}
+              "ironclaw_mole": "burrow", "bamboo_monkey": "burrow", "jade_crane": "wing",
+              "green_viper": "river", "mud_hound": "hound", "mist_vulture": "wing", "cleansed_boarlet": "burrow", "pale_stag": "hound"}
     # S43 rule 12: how each animal follows along the navigation graph (ground mounts jump at 530; none climb).
-    jumps = {"reed_otter": 430, "ember_fox": 530, "jade_crane": 530, "mossback_toad": 600, "ironclaw_mole": 0, "bamboo_monkey": 600, "mist_wolf": 530}
+    jumps = {"reed_otter": 430, "ember_fox": 530, "jade_crane": 530, "mossback_toad": 600, "ironclaw_mole": 0, "bamboo_monkey": 600, "mist_wolf": 530,
+             "green_viper": 0, "mud_hound": 530, "mist_vulture": 530, "cleansed_boarlet": 430, "pale_stag": 600}
     for r in rows:
         r["family"] = family[r["id"]]
         r["movement"] = {"jump": jumps[r["id"]], "climb": r["id"] == "bamboo_monkey", "fly": False, "drop": True}
@@ -499,6 +514,21 @@ def pets():
                               "mount_unlock": "mounts", "mount_speed": 1.5, "flying_mount_realm": "cloud_stride_5",
                               "flying_mount_qi": 0.5, "dismount_hp_pct": 0.15, "dismount_s": 10,
                               "resonance_unlock": "spirit_awakening_1", "hp_share": 0.4, "retreat_s": 60,
+                              # S46 depth. Bloodline purity 0-100 is rolled by rarity; growth (0.8-1.3) and per-stat
+                              # aptitude (0.8-1.2) are hidden until Juvenile; learned-skill slots open by stage; 1% of
+                              # hatchlings wear a colour variant.
+                              "purity": {"common": [5, 15], "fine": [15, 30], "rare": [30, 45], "epic": [45, 60], "primordial": [60, 80]},
+                              "growth": [0.8, 1.3], "aptitude": {"stats": ["hp", "attack", "defence", "speed"], "range": [0.8, 1.2]},
+                              "skill_slots": {"hatchling": 0, "juvenile": 2, "adult": 3, "awakened": 4, "sovereign": 4, "primordial": 4},
+                              "colour_variant": 0.01,
+                              # Grievous Wound: three knockouts in five minutes leave the animal at 80% until it rests at
+                              # the Beast Hall or the Beast Pavilion, or takes a Beast Revival Pill.
+                              "grievous": {"knockouts": 3, "window_s": 300, "mult": 0.8},
+                              # Beast cores (rank 2+ at 2% a rank) by tier: the XP a pet of their element gains devouring
+                              # one, and what the Core Exchange pays in Spirit Stones (capped at 60 a day).
+                              "cores": {"min_rank": 2, "chance_per_rank": 0.02, "tiers": {"low": [2, 3], "mid": [4, 5], "high": [6, 7], "peak": [8, 9]},
+                                        "xp": {"low": 60, "mid": 200, "high": 600, "peak": 1500},
+                                        "price": {"low": 1, "mid": 3, "high": 8, "peak": 20}, "daily_cap": 60},
                               # S22 rarity scales the animal's strength; breeding (Heaven Glimpse 1, Beast Pavilion 4) pairs
                               # two Adults of one family for 24 h, then the egg hatches in 2-24 h. The child takes the
                               # higher rarity, may step up one, mixes its parents' traits and may carry a new one.

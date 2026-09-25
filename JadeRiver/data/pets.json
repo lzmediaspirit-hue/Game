@@ -237,6 +237,156 @@
     "fly": false,
     "drop": true
    }
+  },
+  {
+   "id": "green_viper",
+   "name": "Green Viper",
+   "art": "green_viper",
+   "element": "wood",
+   "strength_role": "combat",
+   "tame": true,
+   "nature": "demonic",
+   "skills": [
+    "Venom Fang",
+    "Coil",
+    "Shed Skin",
+    "Emerald Strike"
+   ],
+   "favourite_foods": [
+    "frog_leg",
+    "tough_meat"
+   ],
+   "branches": [
+    "Jade Serpent",
+    "Thorn Viper"
+   ],
+   "family": "river",
+   "movement": {
+    "jump": 0,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "mud_hound",
+   "name": "Mud Hound",
+   "art": "mud_hound",
+   "element": "earth",
+   "strength_role": "combat",
+   "tame": true,
+   "nature": "demonic",
+   "skills": [
+    "Mud Bite",
+    "Bay",
+    "Wallow",
+    "Pack Hunt"
+   ],
+   "favourite_foods": [
+    "tough_meat",
+    "boar_bone_broth"
+   ],
+   "branches": [
+    "Iron Hound",
+    "Marsh Hound"
+   ],
+   "family": "hound",
+   "movement": {
+    "jump": 530,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "mist_vulture",
+   "name": "Mist Vulture",
+   "art": "mist_vulture",
+   "element": "wind",
+   "strength_role": "gatherer",
+   "tame": true,
+   "nature": "demonic",
+   "skills": [
+    "Carrion Dive",
+    "Updraft",
+    "Keen Eye",
+    "Wake Circle"
+   ],
+   "favourite_foods": [
+    "tough_meat",
+    "roast_fish"
+   ],
+   "branches": [
+    "Storm Vulture",
+    "Grey Warden"
+   ],
+   "family": "wing",
+   "movement": {
+    "jump": 530,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "cleansed_boarlet",
+   "name": "Cleansed Boarlet",
+   "art": "wild_boarlet",
+   "element": "earth",
+   "strength_role": "combat",
+   "tame": true,
+   "nature": "hollowed",
+   "skills": [
+    "Charge",
+    "Root Up",
+    "Bristle",
+    "Second Wind"
+   ],
+   "favourite_foods": [
+    "rice_ball",
+    "boar_bone_broth"
+   ],
+   "branches": [
+    "Iron Boar",
+    "Thorn Boar"
+   ],
+   "family": "burrow",
+   "movement": {
+    "jump": 430,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "pale_stag",
+   "name": "Pale Stag",
+   "art": "hollow_stag",
+   "element": "soul",
+   "strength_role": "cultivation",
+   "tame": true,
+   "nature": "hollowed",
+   "skills": [
+    "Antler Sweep",
+    "Pale Call",
+    "Moonstep",
+    "Stillness"
+   ],
+   "favourite_foods": [
+    "lotus_root_tea",
+    "rice_ball"
+   ],
+   "branches": [
+    "Moon Stag",
+    "Ghost Stag"
+   ],
+   "family": "hound",
+   "movement": {
+    "jump": 600,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
   }
  ]
 }

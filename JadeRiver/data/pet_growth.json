@@ -12,6 +12,93 @@
  "resonance_unlock": "spirit_awakening_1",
  "hp_share": 0.4,
  "retreat_s": 60,
+ "purity": {
+  "common": [
+   5,
+   15
+  ],
+  "fine": [
+   15,
+   30
+  ],
+  "rare": [
+   30,
+   45
+  ],
+  "epic": [
+   45,
+   60
+  ],
+  "primordial": [
+   60,
+   80
+  ]
+ },
+ "growth": [
+  0.8,
+  1.3
+ ],
+ "aptitude": {
+  "stats": [
+   "hp",
+   "attack",
+   "defence",
+   "speed"
+  ],
+  "range": [
+   0.8,
+   1.2
+  ]
+ },
+ "skill_slots": {
+  "hatchling": 0,
+  "juvenile": 2,
+  "adult": 3,
+  "awakened": 4,
+  "sovereign": 4,
+  "primordial": 4
+ },
+ "colour_variant": 0.01,
+ "grievous": {
+  "knockouts": 3,
+  "window_s": 300,
+  "mult": 0.8
+ },
+ "cores": {
+  "min_rank": 2,
+  "chance_per_rank": 0.02,
+  "tiers": {
+   "low": [
+    2,
+    3
+   ],
+   "mid": [
+    4,
+    5
+   ],
+   "high": [
+    6,
+    7
+   ],
+   "peak": [
+    8,
+    9
+   ]
+  },
+  "xp": {
+   "low": 60,
+   "mid": 200,
+   "high": 600,
+   "peak": 1500
+  },
+  "price": {
+   "low": 1,
+   "mid": 3,
+   "high": 8,
+   "peak": 20
+  },
+  "daily_cap": 60
+ },
  "rarities": [
   {
    "id": "common",

@@ -7,7 +7,8 @@ extends Authority
 var ally_uid := 0
 
 func intents() -> Array:
-	return ["set_active_pet", "set_pet_role", "feed_pet", "pet_command", "rename_pet", "choose_starter", "attempt_tame", "incubate_egg", "hatch_egg", "evolve_pet", "breed"]
+	return ["set_active_pet", "set_pet_role", "feed_pet", "pet_command", "rename_pet", "choose_starter", "attempt_tame", "incubate_egg", "hatch_egg", "evolve_pet", "breed",
+		"lock_pet", "devour_core", "sell_cores", "rest_pets"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("room_entered", _on_room_entered, 45)
@@ -63,14 +64,69 @@ func handle(intent: Dictionary) -> Dictionary:
 		"rename_pet":
 			var p3 := _pet(c, str(intent.get("pet", c.active_pet)))
 			if p3.is_empty(): return fail("unknown_pet")
-			p3.name = str(intent.get("name", p3.name)).left(16)
+			var nm := str(intent.get("name", p3.name)).strip_edges().left(16)
+			if nm == "": return fail("empty_name")
+			p3.name = nm
+			emit("pet_changed", {"actor": c.id, "pet": p3.uid})
 			return ok()
+		"lock_pet":
+			var p4 := _pet(c, str(intent.get("pet", c.active_pet)))
+			if p4.is_empty(): return fail("unknown_pet")
+			p4.locked = bool(intent.get("locked", not p4.get("locked", false)))
+			emit("pet_changed", {"actor": c.id, "pet": p4.uid})
+			return ok({"locked": p4.locked})
+		"devour_core": return devour_core(c, str(intent.get("pet", c.active_pet)), str(intent.get("item", "")))
+		"sell_cores": return sell_cores(c, str(intent.get("item", "")), maxi(1, int(intent.get("count", 1))))
+		"rest_pets": return rest_pets(c)
 	return fail("unknown_intent")
 
 func _pet(c, uid: String) -> Dictionary:
 	for p in c.pets:
-		if str(p.uid) == uid: return p
+		if str(p.uid) == uid: return ensure_fields(p)
 	return {}
+
+## S46 depth fields, filled on animals from older saves with neutral values (a hatch or tame rolls real ones).
+func ensure_fields(p: Dictionary) -> Dictionary:
+	if p.has("purity"): return p
+	var band: Array = growth().get("purity", {}).get(str(p.get("rarity", "common")), [5, 15])
+	p.purity = int(round((float(band[0]) + float(band[1])) * 0.5))
+	p.growth = 1.0
+	var apt := {}
+	for st in growth().get("aptitude", {}).get("stats", ["hp", "attack", "defence", "speed"]): apt[str(st)] = 1.0
+	p.aptitude = apt
+	p.contract = "master"
+	p.learned_skills = []
+	p.equipment = {}
+	p.wounded = false
+	p.knockouts = []
+	p.core_grade = ""
+	p.variant = false
+	p.locked = false
+	return p
+
+## A newborn or newly tamed animal's bloodline: purity by rarity, hidden growth and aptitude, a 1% colour variant.
+func _roll_bloodline(c, p: Dictionary) -> void:
+	ensure_fields(p)
+	var rng := Rng.stream(c.id if c != null else "account", "bloodline")
+	var band: Array = growth().get("purity", {}).get(str(p.get("rarity", "common")), [5, 15])
+	p.purity = rng.randi_range(int(band[0]), int(band[1]))
+	var gr: Array = growth().get("growth", [0.8, 1.3])
+	p.growth = snappedf(rng.randf_range(float(gr[0]), float(gr[1])), 0.01)
+	var ap: Dictionary = growth().get("aptitude", {})
+	var ar: Array = ap.get("range", [0.8, 1.2])
+	for st in ap.get("stats", ["hp", "attack", "defence", "speed"]): p.aptitude[str(st)] = snappedf(rng.randf_range(float(ar[0]), float(ar[1])), 0.01)
+	p.variant = rng.randf() < float(growth().get("colour_variant", 0.01))
+
+## Growth and aptitude stay hidden until the animal is a Juvenile (S46).
+func aptitude_known(p: Dictionary) -> bool:
+	return stage_index(str(p.get("stage", "hatchling"))) >= stage_index("juvenile")
+
+## What an animal's hidden gifts and any Grievous Wound make of one of its stats.
+func stat_mult(p: Dictionary, stat: String) -> float:
+	ensure_fields(p)
+	var m := float(p.get("growth", 1.0)) * float(p.get("aptitude", {}).get(stat, 1.0))
+	if p.get("wounded", false): m *= float(growth().get("grievous", {}).get("mult", 0.8))
+	return m
 
 func active_pet(c) -> Dictionary:
 	return _pet(c, c.active_pet) if c != null else {}
@@ -88,6 +144,7 @@ func apply_grant(actor_id: String, species: String, born: Dictionary = {}) -> vo
 	var pet := {"uid": uid, "species": species, "name": str(sp.get("name", species)), "level": 1, "xp": 0.0, "bond": 1.0,
 		"role": str(sp.get("strength_role", "combat")), "stage": "hatchling", "hunger_day": Clock.reset_day(Clock.now_utc()),
 		"rarity": str(born.get("rarity", "common")), "branch": "", "traits": born.get("traits", _roll_traits(c)), "revealed": 0}
+	_roll_bloodline(c, pet)
 	c.pets.append(pet)
 	if c.active_pet == "": c.active_pet = uid
 	emit("pet_bonded", {"actor": actor_id, "pet": uid, "species": species})
@@ -228,7 +285,7 @@ func _spawn(c) -> void:
 	a.team = "ally"
 	a.pet_owner = c.id
 	a.level = int(p.level)
-	a.pools.max_hp = c.pools.max_hp * float(growth().get("hp_share", 0.4)) * rarity_power(p)
+	a.pools.max_hp = c.pools.max_hp * float(growth().get("hp_share", 0.4)) * rarity_power(p) * stat_mult(p, "hp")
 	a.pools.hp = a.pools.max_hp
 	a.plane = (st.plane if st else Vector2(c.position.x, c.position.y)) + Vector2(-50, 12)
 	AllyBrain.settle(game, a, st)
@@ -249,7 +306,7 @@ func tick(delta: float) -> void:
 	var a: EnemyState = game.room_rt.enemies.get(ally_uid)
 	if a == null: return
 	var p := active_pet(c)
-	var power: float = c.stats.value("physical_attack") * inherit_share(p) * care_mult(p) * (1.0 + trait_bonus(c, "pet_damage")) * rarity_power(p)
+	var power: float = c.stats.value("physical_attack") * inherit_share(p) * care_mult(p) * (1.0 + trait_bonus(c, "pet_damage")) * rarity_power(p) * stat_mult(p, "attack")
 	power *= 1.0 + role_match(p) if p.get("role", "combat") == "combat" else 0.6
 	var was_down: bool = a.ai.state == "downed"
 	AllyBrain.think(game, a, delta, power, 36.0)
@@ -263,17 +320,100 @@ func apply_retreat(a: EnemyState) -> void:
 	a.action_time = 0.0
 	var c = game.active()
 	emit("pet_retreated", {"actor": c.id if c else "", "uid": a.uid, "pet": c.active_pet if c else ""})
+	if c != null: _knocked_out(c, active_pet(c))
+
+## S46 Grievous Wound: three knockouts inside five minutes leave the animal at 80% until it rests or is dosed.
+func _knocked_out(c, p: Dictionary) -> void:
+	if p.is_empty(): return
+	var g: Dictionary = growth().get("grievous", {})
+	var now: float = game.sim_time
+	var kos: Array = (p.get("knockouts", []) as Array).filter(func(t): return now - float(t) <= float(g.get("window_s", 300)))
+	kos.append(now)
+	p.knockouts = kos
+	if kos.size() >= int(g.get("knockouts", 3)) and not p.get("wounded", false):
+		p.wounded = true
+		p.knockouts = []
+		emit("pet_wounded", {"actor": c.id, "pet": str(p.uid)})
+
+## A Beast Revival Pill (or a rest at the Beast Hall) mends a Grievous Wound.
+func heal_wound(actor_id: String, uid := "") -> bool:
+	var c = game.character(actor_id)
+	if c == null: return false
+	var healed := false
+	for p in c.pets:
+		if (uid == "" or str(p.uid) == uid) and ensure_fields(p).get("wounded", false):
+			p.wounded = false
+			p.knockouts = []
+			healed = true
+			emit("pet_healed", {"actor": c.id, "pet": str(p.uid)})
+	if healed: _spawn(c)
+	return healed
+
+## Rest your animals at the Beast Hall (Hermit Yao) or your sect's Beast Pavilion: every Grievous Wound mends.
+func rest_pets(c) -> Dictionary:
+	if not _at_beast_hall(c): return fail("not_here", {"text": Tx.t("sim.pet.rest_where")})
+	if not heal_wound(c.id): return fail("none_wounded", {"text": Tx.t("sim.pet.none_wounded")})
+	return ok()
+
+func _at_beast_hall(c) -> bool:
+	return game.workshop.npc_here(c, ["hermit_yao"]) or (game.room_rt != null and game.room_rt.room_id == str(ContentDB.config("defence").get("room", "")))
+
+# ------------------------------------------------------------------ beast cores (S46)
+## A core of the animal's own element feeds its growth.
+func devour_core(c, uid: String, item: String) -> Dictionary:
+	var p := _pet(c, uid)
+	if p.is_empty(): return fail("unknown_pet")
+	var core: Dictionary = ContentDB.item(item).get("core", {})
+	if not core.has("tier"): return fail("not_a_core")
+	if c.inventory.count(item) <= 0: return fail("no_core")
+	var el := str(ContentDB.entry("pets", str(p.species)).get("element", ""))
+	if str(core.element) != el: return fail("wrong_element", {"text": Tx.t("sim.pet.wrong_element") % [str(p.name), ContentDB.name_of("elements", el)]})
+	game.inventory.apply_remove(c.id, item, 1, "devour")
+	var xp := float(growth().get("cores", {}).get("xp", {}).get(str(core.tier), 60))
+	add_xp(c, p, xp)
+	emit("core_devoured", {"actor": c.id, "pet": str(p.uid), "item": item, "xp": xp})
+	return ok({"xp": xp})
+
+func add_xp(c, pet: Dictionary, amount: float) -> void:
+	pet.xp = float(pet.xp) + amount
+	for i in 20:
+		var need := float(ContentDB.curve("pet_xp.base", 20)) * pow(int(pet.level), float(ContentDB.curve("pet_xp.per_level_pow", 1.5)))
+		if float(pet.xp) < need or int(pet.level) >= 100: break
+		pet.xp = float(pet.xp) - need
+		pet.level = int(pet.level) + 1
+		emit("pet_level_up", {"actor": c.id, "pet": pet.uid, "level": pet.level})
+
+## The Core Exchange (the Beast Hall): fixed Spirit Stones a core by tier, up to 60 a day.
+func exchange_left(c) -> int:
+	var cfg: Dictionary = growth().get("cores", {})
+	var day := Clock.reset_day(Clock.now_utc())
+	var ex: Dictionary = c.crafting.get("core_exchange", {}) if c.crafting.get("core_exchange") is Dictionary else {}
+	if int(ex.get("day", -1)) != day: return int(cfg.get("daily_cap", 60))
+	return maxi(0, int(cfg.get("daily_cap", 60)) - int(ex.get("paid", 0)))
+
+func sell_cores(c, item: String, count: int) -> Dictionary:
+	if not _at_beast_hall(c): return fail("not_here", {"text": Tx.t("sim.pet.exchange_where")})
+	var core: Dictionary = ContentDB.item(item).get("core", {})
+	if not core.has("tier"): return fail("not_a_core")
+	count = mini(count, c.inventory.count(item))
+	var price := int(growth().get("cores", {}).get("price", {}).get(str(core.tier), 1))
+	count = mini(count, exchange_left(c) / maxi(1, price))
+	if count <= 0: return fail("cap", {"text": Tx.t("sim.pet.exchange_cap")})
+	game.inventory.apply_remove(c.id, item, count, "core_exchange")
+	game.economy.apply_currency("spirit_stone", price * count, "core_exchange")
+	var day := Clock.reset_day(Clock.now_utc())
+	var ex: Dictionary = c.crafting.get("core_exchange", {}) if c.crafting.get("core_exchange") is Dictionary else {}
+	if int(ex.get("day", -1)) != day: ex = {"day": day, "paid": 0}
+	ex.paid = int(ex.paid) + price * count
+	c.crafting["core_exchange"] = ex
+	emit("cores_sold", {"actor": c.id, "item": item, "count": count, "stones": price * count})
+	return ok({"count": count, "stones": price * count})
 
 func _on_actor_defeated(p: Dictionary) -> void:
 	var c = game.active()
 	var pet := active_pet(c)
 	if pet.is_empty() or p.get("victim_kind", "") != "enemy": return
-	pet.xp = float(pet.xp) + int(p.get("level", 1))
-	var need := float(ContentDB.curve("pet_xp.base", 20)) * pow(int(pet.level), float(ContentDB.curve("pet_xp.per_level_pow", 1.5)))
-	if float(pet.xp) >= need and int(pet.level) < 100:
-		pet.xp = float(pet.xp) - need
-		pet.level = int(pet.level) + 1
-		emit("pet_level_up", {"actor": c.id, "pet": pet.uid, "level": pet.level})
+	add_xp(c, pet, int(p.get("level", 1)))
 
 func _on_meditation_tick(_p: Dictionary) -> void:
 	var c = game.active()
@@ -438,6 +578,16 @@ func attempt_tame(c, offering: String, result: float) -> Dictionary:
 	if e == null: return fail("no_target", {"text": Tx.t("sim.pet.weaken_a_paw_marked_spirit")})
 	var species := tame_species(e)
 	if species == "": return fail("no_species")
+	# S46 natures: a demonic beast takes only a Purifying Offering; a Hollowed one must be cleansed by one first.
+	var purifying := str(ContentDB.config("taming").get("purifying", "purifying_offering"))
+	var nature := str(e.def.get("nature", "spirit"))
+	if nature == "demonic" and offering != purifying: return fail("demonic", {"text": Tx.t("sim.pet.needs_purifying")})
+	if nature == "hollowed" and not e.ai.get("cleansed", false):
+		if offering != purifying: return fail("hollowed", {"text": Tx.t("sim.pet.needs_cleansing")})
+		game.inventory.apply_remove(c.id, offering, 1, "taming")
+		e.ai["cleansed"] = true
+		emit("beast_cleansed", {"actor": c.id, "enemy": e.uid, "def": e.def_id})
+		return ok({"cleansed": true, "species": species})
 	game.inventory.apply_remove(c.id, offering, 1, "taming")
 	var chance := tame_chance(c, e, offering, result)
 	var success := Rng.stream(c.id, "taming").randf() < chance

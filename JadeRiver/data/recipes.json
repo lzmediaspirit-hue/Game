@@ -3182,6 +3182,37 @@
    ]
   },
   {
+   "id": "beast_revival_pill",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "riverreed_ginseng_10",
+     "count": 2
+    },
+    {
+     "item": "tough_meat",
+     "count": 1
+    },
+    {
+     "item": "willow_moss",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "beast_revival_pill",
+     "count": 1
+    }
+   ],
+   "element": "earth",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
+  },
+  {
    "id": "marrow_washing_bath",
    "craft": "alchemy",
    "grade": "earth",

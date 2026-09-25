@@ -222,6 +222,7 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 				inventory.apply_add(actor_id, token.replace("_token", "_elder_token"), 1, source)
 				training.apply_rank(actor_id, "elder")
 			"open_dao": progression.apply_open_dao(actor_id, str(e.dao))
+			"heal_pet_wound": pets.heal_wound(actor_id)
 			_: push_warning("Unknown effect kind: " + str(e.get("kind", "")))
 
 # ------------------------------------------------------------------ simulation

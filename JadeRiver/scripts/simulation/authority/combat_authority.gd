@@ -982,6 +982,17 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 		e.pools.hp = e.pools.max_hp * 0.1
 		game.enemies.end_spar(e, attacker)
 		return
+	# S46 taming fix: a tameable beast struck down while a taming offering sits on quick-use stays subdued at 1 HP for
+	# 10 s instead of dying (once), so a one-hit beast can still be tamed.
+	if e.pools.hp <= 0.0 and e.def.get("tameable", false) and not e.ai.get("subdued_once", false) and game.character(attacker) != null:
+		var qc = game.character(attacker)
+		if str(ContentDB.item(str(qc.inventory.quick_use)).get("use_action", "")) == "tame" and qc.inventory.count(str(qc.inventory.quick_use)) > 0:
+			var sub := float(ContentDB.config("taming").get("subdue_s", 10.0))
+			e.pools.hp = 1.0
+			e.ai["subdued_once"] = true
+			game.enemies.stagger(e, sub)
+			emit("beast_subdued", {"actor": qc.id, "enemy": e.uid, "def": e.def_id, "seconds": sub})
+			return
 	if e.pools.hp <= 0.0:
 		var payload: Dictionary = game.enemies.defeat(e, attacker)
 		if not payload.is_empty(): emit("actor_defeated", payload)

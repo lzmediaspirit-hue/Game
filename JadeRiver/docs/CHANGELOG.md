@@ -5,6 +5,45 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V7a · Spirit beasts: bloodline, beast ranks, cores, wounds and taming by nature (S46)
+- **Pet state depth.** Every animal now carries these fields, filled with neutral values on animals from older
+  saves: bloodline purity, growth, aptitude, contract, learned skills, gear, a wound flag, knockouts, core grade,
+  a colour variant and a lock.
+  - A hatch or tame rolls purity by rarity (Common 5–15 … Primordial 60–80), a hidden growth (0.8–1.3) and
+    aptitude per stat (0.8–1.2), on their own stream. Growth and aptitude show from Juvenile.
+  - 1 % of animals wear a rare colour.
+  - Growth × aptitude scale the animal's HP and attack.
+  - The Spirit Animals page shows all of this and gains a Lock toggle, a Guard role, a wider detail panel and
+    localized role buttons.
+- **Beast ranks and natures** (Part 8) in `enemies.json`.
+  - Rank 1–9 comes from the Level band (1–9 is rank 1 … 73+ is rank 9), for beasts only. Nameplates read
+    "Lv 22 · R3" and the Collection shows rank and nature.
+  - Ghosts (Paper Talisman Ghost, Mirror Wisp, Weeping Lantern) and constructs (sentinels, puppets, the Gate
+    Guardian) are no longer beasts.
+  - Green Viper, Mud Hound and Mist Vulture are demonic; the Hollowed Boarlet and Hollow Stag are Hollowed. All
+    five can now be tamed into new species: Green Viper, Mud Hound, Mist Vulture, Cleansed Boarlet, Pale Stag.
+- **Taming by nature.**
+  - A demonic beast takes only a Purifying Offering (Hermit Yao, from Qi Unfurling 7).
+  - A Hollowed one must first be cleansed by one; then any offering tames it.
+  - The taming fix: a tameable beast struck down while an offering sits on quick-use is subdued at 1 HP for 10 s
+    instead of dying (once).
+- **Beast cores.** Beasts of rank 2 and up drop a core at 2 % a rank, on their own stream. Cores come in 28 kinds:
+  Low, Mid, High and Peak, in seven elements.
+  - A pet devours cores of its own element for XP (60 / 200 / 600 / 1,500).
+  - The new Core Exchange at Hermit Yao's Beast Hall buys them for 1 / 3 / 8 / 20 Spirit Stones, up to 60 a day.
+  - They also burn as Beast Fire.
+- **Grievous Wound.** Three knockouts in five minutes leave an animal at 80 %. It mends by resting at the Beast
+  Hall or with a Beast Revival Pill (alchemy, or Hermit Yao). Pets still never die.
+- **Events:** `pet_wounded`, `pet_healed`, `core_devoured`, `cores_sold`, `beast_cleansed` and `beast_subdued`,
+  with HUD notes. Debug flag: `--pet=species[:stage]`.
+- **Tests:**
+  - bloodline bands, hidden aptitude, and older-save migration;
+  - ranks, natures and core odds by rank;
+  - devouring by element, and the Exchange cap;
+  - the wound window and its cure;
+  - demonic and Hollowed taming, and the subdued fix;
+  - data validation for tame species, pet art and cores.
+
 ### V6c · Processing racks, sealed herbs and garden raids (S45)
 - **Racks** on the drying rack (Batch Work's reward, its text now true): two at a time, ten herbs each, on the
   clock and offline too. A new Racks tab on the Garden page runs them.

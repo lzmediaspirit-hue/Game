@@ -1406,6 +1406,22 @@
        }
       ]
      }
+    },
+    {
+     "item": "purifying_offering",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_7"
+       }
+      ]
+     }
+    },
+    {
+     "item": "beast_revival_pill",
+     "price": 45
     }
    ]
   },

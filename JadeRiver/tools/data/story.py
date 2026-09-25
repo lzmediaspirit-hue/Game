@@ -167,7 +167,8 @@ def npcs():
     npc("hamlet_trader_min", "Trader Min", "Greyreed trade post", outfit("ponytail", 0, "vneck", "cuffed", "boots", shirt_dye="jade"),
         ["Greyreed trades again! Thanks to you."], ["Market day!"], services=["shop:greyreed"])
     npc("hermit_yao", "Hermit Yao", "Marsh hermit", outfit("flowing", 1, "scholar", "loose", "folded", hat="straw", cape="tattered", shirt_dye="earth"),
-        ["The otters trust me. Maybe one day they'll trust you.", "Spirit beasts are not tools. They are friends who bite."], ["Shh. Listen to the reeds."], services=["shop:hermit"], tree="hermit_yao")
+        ["The otters trust me. Maybe one day they'll trust you.", "Spirit beasts are not tools. They are friends who bite."], ["Shh. Listen to the reeds."], services=["shop:hermit", "page:core_exchange"], tree="hermit_yao",
+        service_labels={"page:core_exchange": "Core Exchange"}, service_unlocks={"page:core_exchange": "spirit_animals"})
 
     # Sects: mirrored roles (Jade / Cloud)
     first_sect_npc = len(N)

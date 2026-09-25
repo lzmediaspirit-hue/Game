@@ -634,6 +634,29 @@ func _verb(o: Dictionary) -> String:
 		"starsea_dock": return Tx.t("sim.world.set_sail")
 	return Tx.t("sim.world.use")
 
+# ------------------------------------------------------------------ beast ranks and cores (S46)
+## A beast's rank from its Level (1-9 is rank 1 ... 73+ is rank 9); 0 for anything that is not a beast.
+static func beast_rank(def: Dictionary, level: int) -> int:
+	if str(def.get("race", "beast")) != "beast": return 0
+	return clampi((maxi(1, level) - 1) / 9 + 1, 1, 9)
+
+## The core a beast of this Level carries (by its element and rank tier), or "" below rank 2.
+static func beast_core_for(def: Dictionary, level: int) -> String:
+	var rank := beast_rank(def, level)
+	var cfg: Dictionary = ContentDB.config("pet_growth").get("cores", {})
+	if rank < int(cfg.get("min_rank", 2)): return ""
+	var tier := ""
+	for t in cfg.get("tiers", {}):
+		var band: Array = cfg.tiers[t]
+		if rank >= int(band[0]) and rank <= int(band[1]): tier = str(t)
+	var el := str(def.get("element", "earth")).trim_prefix("hollow_")
+	if el in ["hollow", "none", ""]: el = "soul" if el == "hollow" else "earth"
+	var id := "%s_core_%s" % [el, tier]
+	return id if ContentDB.item(id).size() > 0 else ""
+
+static func core_chance(def: Dictionary, level: int) -> float:
+	return float(ContentDB.config("pet_growth").get("cores", {}).get("chance_per_rank", 0.02)) * beast_rank(def, level)
+
 # ------------------------------------------------------------------ loot (S32)
 func _on_actor_defeated(p: Dictionary) -> void:
 	if p.get("victim_kind", "") != "enemy" or game.room_rt == null: return
@@ -663,6 +686,10 @@ func _on_actor_defeated(p: Dictionary) -> void:
 		game.combat.captured.erase(str(p.victim))
 		drop = {"items": LootRules.capture_materials(str(def.get("loot", p.def))), "coins": 0, "equipment": []}
 		emit("beast_captured", {"actor": c.id, "def": str(p.def), "items": drop.items.size()})
+	# S46 beast cores: rank 2 and up, 2% a rank, by the beast's element and rank tier (their own stream).
+	var core := beast_core_for(def, int(p.level))
+	if core != "" and not bool(p.get("summoned", false)) and Rng.stream(c.id, "cores").randf() < core_chance(def, int(p.level)):
+		drop.items.append({"item": core, "count": 1})
 	# S45 Spirit Soil: 1% from a beast of rank 3 or above (Level 19+), on its own stream so the loot roll is untouched.
 	var soil: Dictionary = ContentDB.config("garden").get("spirit_soil", {})
 	if str(def.get("race", "")) == "beast" and int(p.level) >= int(soil.get("min_level", 19)) and not bool(p.get("summoned", false)) \

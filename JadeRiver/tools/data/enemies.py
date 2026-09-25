@@ -31,6 +31,31 @@ def mob(id, levels, role, element, page, drops, attacks, ai="melee", art=None, w
     return row
 
 
+# S46 / Part 8: ghosts and constructs are not beasts; demonic beasts need a Purifying Offering to tame; hollowed ones
+# must be cleansed first. Each of these tames into its own species.
+GHOSTS = {"paper_talisman_ghost", "mirror_wisp", "weeping_lantern"}
+CONSTRUCTS = {"trial_puppet", "stone_guardian", "jade_sentinel", "river_sentinel", "gate_guardian"}
+DEMONIC = {"green_viper": "green_viper", "mud_hound": "mud_hound", "mist_vulture": "mist_vulture"}
+HOLLOWED = {"hollowed_boarlet": "cleansed_boarlet", "hollow_stag": "pale_stag"}
+
+
+def beast_ranks(M):
+    """Beast rank 1-9 from the Level band (1-9 is rank 1, 10-18 rank 2 ... 73+ rank 9), for beasts only; their nature
+    (spirit, demonic, hollowed); and a core on death at 2% per rank from rank 2 (rolled in the World, S46)."""
+    for m in M:
+        if m["id"] in GHOSTS:
+            m["race"] = "ghost"
+        elif m["id"] in CONSTRUCTS:
+            m["race"] = "construct"
+        if m["race"] != "beast":
+            continue
+        m["beast_rank"] = min(9, (int(m["level"][0]) - 1) // 9 + 1)
+        m["nature"] = "demonic" if m["id"] in DEMONIC else ("hollowed" if m["id"] in HOLLOWED else "spirit")
+        if m["id"] in DEMONIC or m["id"] in HOLLOWED:
+            m["tameable"] = True
+            m["tame_species"] = DEMONIC.get(m["id"]) or HOLLOWED[m["id"]]
+
+
 # Species that jump harder or softer than their profile suggests, and those that climb (S43 rule 11).
 MOVE_JUMP = {"reed_frog": 600, "bamboo_monkey": 600, "cliff_ape": 530, "pebble_imp": 430, "mossback_toad": 430}
 CLIMBERS = {"bamboo_monkey", "cliff_ape"}
@@ -323,6 +348,7 @@ def build():
     for pid, el in [("reed_otter", "water"), ("ember_fox", "fire"), ("jade_crane_chick", "wind")]:
         M.append(mob(pid, (19, 24), "normal", el, None, [], [atk("nip", 0.4, 36, 0.8)], ai="wild_pet", tameable=True, width=18, height=28,
                      passive=True))
+    beast_ranks(M)
     entries("enemies.json", M)
 
     tables = []

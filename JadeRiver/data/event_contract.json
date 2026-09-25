@@ -456,6 +456,12 @@
     "combat_authority"
    ]
   },
+  "beast_subdued": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
   "loot_dropped": {
    "system": "World",
    "files": [
@@ -905,6 +911,36 @@
    ]
   },
   "trait_revealed": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "pet_wounded": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "pet_healed": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "core_devoured": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "cores_sold": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "beast_cleansed": {
    "system": "Pets",
    "files": [
     "pet_authority"

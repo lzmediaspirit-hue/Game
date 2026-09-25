@@ -69,7 +69,11 @@ def build():
     write("taming.json", {"schema_version": 1, "hp_below": 0.3, "base": 0.35,
                       "offering_bonus": {"bonding_offering_common": 0.0, "bonding_offering_earth": 0.2, "bonding_offering_heaven": 0.35},
                       "per_level_over": 0.03, "per_level_under": -0.08, "per_dao_tier": 0.05, "min": 0.05, "max": 0.95,
-                      "offerings": ["bonding_offering_common", "bonding_offering_earth", "bonding_offering_heaven"]})
+                      "offerings": ["bonding_offering_common", "bonding_offering_earth", "bonding_offering_heaven", "purifying_offering"],
+                      # S46: demonic beasts take only a Purifying Offering; a Hollowed one must be cleansed by one first,
+                      # then any offering tames it. A tameable beast struck down while an offering sits on quick-use is
+                      # subdued at 1 HP for 10 s instead of dying.
+                      "purifying": "purifying_offering", "subdue_s": 10.0})
     # Defence events (S25): the tutorial raid for "Walls of the Vale", then one every 2-3 days from sect level 6.
     write("defence.json", {"schema_version": 1, "room": "hv_sect_grounds", "from_level": 6, "interval_days": [2, 3],
                        "duration": 60, "waves": [{"enemy": "mudwater_bandit", "every_s": 5, "max": 4},

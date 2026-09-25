@@ -726,6 +726,18 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.herb_aged") % [ContentDB.item_name(str(p.herb)), int(p.age)], "gold")
 		"spring_bottled":
 			add_log(Tx.t("hud.spring_bottled") % int(p.left), UiKit.BRIGHT_JADE)
+		"pet_wounded":
+			toast(Tx.t("hud.pet_wounded") % _pet_name(str(p.pet)), "danger", Tx.t("hud.pet_wounded_sub"))
+		"pet_healed":
+			add_log(Tx.t("hud.pet_healed") % _pet_name(str(p.pet)), UiKit.BRIGHT_JADE)
+		"core_devoured":
+			add_log(Tx.t("hud.core_devoured") % [_pet_name(str(p.pet)), ContentDB.item_name(str(p.item)), int(float(p.xp))], UiKit.BRIGHT_JADE)
+		"cores_sold":
+			add_log(Tx.t("hud.cores_sold") % [int(p.count), ContentDB.item_name(str(p.item)), int(p.stones)], UiKit.PALE_GOLD)
+		"beast_cleansed":
+			toast(Tx.t("hud.beast_cleansed") % ContentDB.name_of("enemies", str(p.def)), "gold", Tx.t("hud.beast_cleansed_sub"))
+		"beast_subdued":
+			add_log(Tx.t("hud.beast_subdued") % [ContentDB.name_of("enemies", str(p.def)), int(float(p.seconds))], UiKit.GOLD)
 		"garden_raided":
 			toast(Tx.t("hud.raid_" + str(p.kind)) % ContentDB.item_name(str(p.herb)), "danger")
 		"rack_started":

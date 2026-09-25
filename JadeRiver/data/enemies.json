@@ -75,7 +75,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 1,
+   "nature": "spirit"
   },
   {
    "id": "reedtail_rat",
@@ -142,7 +144,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 1,
+   "nature": "spirit"
   },
   {
    "id": "old_snapper",
@@ -224,7 +228,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 1,
+   "nature": "spirit"
   },
   {
    "id": "hollow_minnow",
@@ -281,7 +287,9 @@
     "climb": false,
     "fly": true,
     "drop": false
-   }
+   },
+   "beast_rank": 1,
+   "nature": "spirit"
   },
   {
    "id": "hollowed_eel",
@@ -338,7 +346,9 @@
     "climb": false,
     "fly": true,
     "drop": false
-   }
+   },
+   "beast_rank": 2,
+   "nature": "spirit"
   },
   {
    "id": "trial_puppet",
@@ -349,7 +359,7 @@
    ],
    "role": "trial",
    "element": "none",
-   "race": "beast",
+   "race": "construct",
    "energy": "none",
    "ai": {
     "profile": "guard_counter",
@@ -481,7 +491,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 1,
+   "nature": "spirit"
   },
   {
    "id": "mossback_toad",
@@ -557,7 +569,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 1,
+   "nature": "spirit"
   },
   {
    "id": "rock_beetle",
@@ -634,7 +648,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 1,
+   "nature": "spirit"
   },
   {
    "id": "pebble_imp",
@@ -715,7 +731,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 1,
+   "nature": "spirit"
   },
   {
    "id": "stone_tortoise",
@@ -794,7 +812,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 1,
+   "nature": "spirit"
   },
   {
    "id": "ironclaw_mole",
@@ -870,7 +890,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 1,
+   "nature": "spirit"
   },
   {
    "id": "reed_frog",
@@ -947,7 +969,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 1,
+   "nature": "spirit"
   },
   {
    "id": "marsh_leech",
@@ -1016,7 +1040,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 1,
+   "nature": "spirit"
   },
   {
    "id": "greyfin",
@@ -1085,7 +1111,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 1,
+   "nature": "spirit"
   },
   {
    "id": "hollowed_boarlet",
@@ -1148,7 +1176,7 @@
      "weight": 1
     }
    ],
-   "tameable": false,
+   "tameable": true,
    "collection": {
     "page": "marsh",
     "kills_to_fill": 50
@@ -1164,7 +1192,10 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 1,
+   "nature": "hollowed",
+   "tame_species": "cleansed_boarlet"
   },
   {
    "id": "bamboo_monkey",
@@ -1238,7 +1269,9 @@
     "climb": true,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 2,
+   "nature": "spirit"
   },
   {
    "id": "green_viper",
@@ -1305,7 +1338,7 @@
      "weight": 1
     }
    ],
-   "tameable": false,
+   "tameable": true,
    "collection": {
     "page": "bamboo",
     "kills_to_fill": 50
@@ -1320,7 +1353,10 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 2,
+   "nature": "demonic",
+   "tame_species": "green_viper"
   },
   {
    "id": "thornback_boar",
@@ -1399,7 +1435,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 2,
+   "nature": "spirit"
   },
   {
    "id": "mudwater_bandit",
@@ -1517,7 +1555,7 @@
    ],
    "role": "normal",
    "element": "earth",
-   "race": "beast",
+   "race": "construct",
    "energy": "none",
    "ai": {
     "profile": "slow_melee",
@@ -1728,7 +1766,7 @@
      "weight": 1
     }
    ],
-   "tameable": false,
+   "tameable": true,
    "collection": {
     "page": "road",
     "kills_to_fill": 50
@@ -1744,7 +1782,10 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 2,
+   "nature": "demonic",
+   "tame_species": "mud_hound"
   },
   {
    "id": "jade_carp",
@@ -1821,7 +1862,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 3,
+   "nature": "spirit"
   },
   {
    "id": "tide_crab",
@@ -1898,7 +1941,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 3,
+   "nature": "spirit"
   },
   {
    "id": "drowned_acolyte",
@@ -2015,7 +2060,7 @@
    ],
    "role": "normal",
    "element": "soul",
-   "race": "beast",
+   "race": "ghost",
    "energy": "none",
    "ai": {
     "profile": "flyer_ranged",
@@ -2165,7 +2210,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 4,
+   "nature": "spirit"
   },
   {
    "id": "gorge_bandit_adept",
@@ -2577,7 +2624,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 4,
+   "nature": "spirit"
   },
   {
    "id": "mist_vulture",
@@ -2630,7 +2679,7 @@
      "weight": 1
     }
    ],
-   "tameable": false,
+   "tameable": true,
    "collection": {
     "page": "gorge",
     "kills_to_fill": 50
@@ -2646,7 +2695,10 @@
     "climb": false,
     "fly": true,
     "drop": false
-   }
+   },
+   "beast_rank": 4,
+   "nature": "demonic",
+   "tame_species": "mist_vulture"
   },
   {
    "id": "cloudwing_crane",
@@ -2715,7 +2767,9 @@
     "climb": false,
     "fly": true,
     "drop": false
-   }
+   },
+   "beast_rank": 5,
+   "nature": "spirit"
   },
   {
    "id": "stormwing_hawk",
@@ -2790,7 +2844,9 @@
     "climb": false,
     "fly": true,
     "drop": false
-   }
+   },
+   "beast_rank": 5,
+   "nature": "spirit"
   },
   {
    "id": "cliff_ape",
@@ -2888,7 +2944,9 @@
     "climb": true,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 5,
+   "nature": "spirit"
   },
   {
    "id": "mist_wolf",
@@ -2958,7 +3016,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 6,
+   "nature": "spirit"
   },
   {
    "id": "mirror_wisp",
@@ -2969,7 +3029,7 @@
    ],
    "role": "normal",
    "element": "soul",
-   "race": "beast",
+   "race": "ghost",
    "energy": "none",
    "ai": {
     "profile": "flyer_ranged",
@@ -3042,7 +3102,7 @@
    ],
    "role": "normal",
    "element": "soul",
-   "race": "beast",
+   "race": "ghost",
    "energy": "none",
    "ai": {
     "profile": "flyer",
@@ -3130,7 +3190,7 @@
    ],
    "role": "normal",
    "element": "earth",
-   "race": "beast",
+   "race": "construct",
    "energy": "none",
    "ai": {
     "profile": "slow_melee",
@@ -3258,7 +3318,7 @@
      "weight": 1
     }
    ],
-   "tameable": false,
+   "tameable": true,
    "collection": {
     "page": "summit",
     "kills_to_fill": 50
@@ -3275,7 +3335,10 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 7,
+   "nature": "hollowed",
+   "tame_species": "pale_stag"
   },
   {
    "id": "cloudpeak_roc",
@@ -3353,7 +3416,9 @@
     "climb": false,
     "fly": true,
     "drop": false
-   }
+   },
+   "beast_rank": 7,
+   "nature": "spirit"
   },
   {
    "id": "spark_weasel",
@@ -3460,7 +3525,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 8,
+   "nature": "spirit"
   },
   {
    "id": "thunderhorn_rhino",
@@ -3553,7 +3620,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 8,
+   "nature": "spirit"
   },
   {
    "id": "frost_lynx",
@@ -3646,7 +3715,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 8,
+   "nature": "spirit"
   },
   {
    "id": "snow_ape",
@@ -3760,7 +3831,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 8,
+   "nature": "spirit"
   },
   {
    "id": "azure_carp_dragonet",
@@ -3842,7 +3915,9 @@
     "climb": false,
     "fly": true,
     "drop": false
-   }
+   },
+   "beast_rank": 8,
+   "nature": "spirit"
   },
   {
    "id": "river_sentinel",
@@ -3853,7 +3928,7 @@
    ],
    "role": "normal",
    "element": "water",
-   "race": "beast",
+   "race": "construct",
    "energy": "none",
    "ai": {
     "profile": "guard_counter",
@@ -3998,7 +4073,9 @@
     "climb": false,
     "fly": true,
     "drop": false
-   }
+   },
+   "beast_rank": 9,
+   "nature": "spirit"
   },
   {
    "id": "canyon_harpy",
@@ -4107,7 +4184,9 @@
     "climb": false,
     "fly": true,
     "drop": false
-   }
+   },
+   "beast_rank": 9,
+   "nature": "spirit"
   },
   {
    "id": "sandstorm_scorpion",
@@ -4217,7 +4296,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 9,
+   "nature": "spirit"
   },
   {
    "id": "dune_worm",
@@ -4316,7 +4397,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 9,
+   "nature": "spirit"
   },
   {
    "id": "terracotta_warden",
@@ -5599,7 +5682,9 @@
     "climb": false,
     "fly": true,
     "drop": false
-   }
+   },
+   "beast_rank": 3,
+   "nature": "spirit"
   },
   {
    "id": "thousand_eye_toad",
@@ -5733,7 +5818,9 @@
     "climb": false,
     "fly": false,
     "drop": false
-   }
+   },
+   "beast_rank": 8,
+   "nature": "spirit"
   },
   {
    "id": "drowned_abbot",
@@ -6137,7 +6224,9 @@
     "climb": false,
     "fly": false,
     "drop": false
-   }
+   },
+   "beast_rank": 7,
+   "nature": "spirit"
   },
   {
    "id": "gate_guardian",
@@ -6148,7 +6237,7 @@
    ],
    "role": "story_boss",
    "element": "earth",
-   "race": "beast",
+   "race": "construct",
    "energy": "none",
    "ai": {
     "profile": "boss_guardian",
@@ -6499,7 +6588,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 3,
+   "nature": "spirit"
   },
   {
    "id": "ember_fox",
@@ -6554,7 +6645,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 3,
+   "nature": "spirit"
   },
   {
    "id": "jade_crane_chick",
@@ -6609,7 +6702,9 @@
     "climb": false,
     "fly": false,
     "drop": true
-   }
+   },
+   "beast_rank": 3,
+   "nature": "spirit"
   }
  ]
 }

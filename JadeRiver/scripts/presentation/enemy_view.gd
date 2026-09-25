@@ -60,6 +60,8 @@ func _update_badge(e: EnemyState) -> void:
 	var c = Game.active()
 	if c == null or ally: return
 	level_text = Tx.t("view.lv") % e.level
+	var rank := WorldAuthority.beast_rank(e.def, e.level)
+	if rank > 0: level_text = Tx.t("view.lv_rank") % [e.level, rank]   # S46: a beast shows its rank
 	badge = CombatRules.badge_color(ProgressionRules.realm_index(c.cultivator.realm_key), e.realm_index, ProgressionRules.level(c), e.level)
 
 func _process(delta: float) -> void:

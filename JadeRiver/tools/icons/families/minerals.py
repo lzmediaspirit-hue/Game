@@ -459,3 +459,34 @@ def comet_iron():
 
 
 register(FAM, 'comet_iron', comet_iron, GROUP)
+
+
+
+# ----------------------------------------------------------------------------- S46 beast cores
+_CORE_RAMP = {"fire": "fire", "water": "cyan", "wood": "leaf", "earth": "warmstone", "wind": "mist", "thunder": "violet", "soul": "qi"}
+_CORE_GLOW = {"fire": "#FF8A4A", "water": "#6FD6FF", "wood": "#7FE08A", "earth": "#E0B870", "wind": "#CFE8F0", "thunder": "#B98CFF", "soul": "#A8F0FF"}
+
+
+def _beast_core(el, tier):
+    """A beast core: a sphere in its element's colour with a bright heart, its glow widening with the rank tier."""
+    c = Canvas(32)
+    rad = {"low": 8.5, "mid": 9.5, "high": 10.5, "peak": 11.5}[tier]
+    ramp = R[_CORE_RAMP[el]]
+    m = core(c, 16, 17, rad, ramp)
+    heart = c.circle(16, 17, rad * 0.38)
+    c.put(heart & m, ramp, 'sphere', base=3)
+    c.put(c.ellipse(12.5, 12.5, 2.2, 1.5) & m, ramp[4], 'flat')
+    if tier in ("high", "peak"):
+        c.put(c.ring(16, 17, rad - 2.5, 1) & c.sector(16, 17, rad, 200, 330), ramp[4], 'flat', only_on=True)
+    c.outline()
+    bands = {"low": (), "mid": (70,), "high": (110, 45), "peak": (150, 90, 40)}[tier]
+    if bands:
+        c.glow(_CORE_GLOW[el], bands)
+    if tier == "peak":
+        S.sparkle(c, 26, 6, '#FFFFFF', ramp[3], 2)
+    return c
+
+
+for _el in _CORE_RAMP:
+    for _tier in ("low", "mid", "high", "peak"):
+        register(FAM, '%s_core_%s' % (_el, _tier), (lambda e, t: lambda: _beast_core(e, t))(_el, _tier), GROUP)

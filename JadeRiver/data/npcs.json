@@ -1017,9 +1017,16 @@
     "Shh. Listen to the reeds."
    ],
    "services": [
-    "shop:hermit"
+    "shop:hermit",
+    "page:core_exchange"
    ],
-   "tree": "hermit_yao"
+   "tree": "hermit_yao",
+   "service_labels": {
+    "page:core_exchange": "Core Exchange"
+   },
+   "service_unlocks": {
+    "page:core_exchange": "spirit_animals"
+   }
   },
   {
    "id": "jade_steward",

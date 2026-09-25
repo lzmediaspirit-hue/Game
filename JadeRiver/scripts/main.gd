@@ -47,6 +47,7 @@ const PAGES := {
 	"charts": "res://scripts/ui/pages/crafts_page.gd",
 	"vessels": "res://scripts/ui/pages/crafts_page.gd",
 	"garden": "res://scripts/ui/pages/garden_page.gd",
+	"core_exchange": "res://scripts/ui/pages/core_exchange_page.gd",
 	"fishing": "res://scripts/ui/pages/fishing_page.gd",
 	"seclusion": "res://scripts/ui/pages/cultivation_page.gd",
 	"heart": "res://scripts/ui/pages/cultivation_page.gd",
@@ -166,6 +167,13 @@ func _handle_preview_args(user_args: Array) -> void:
 		enter_world(1)
 	var shot := screen
 	for a in user_args:
+		if str(a).begins_with("--pet=") and Game.active() != null:
+			# Debug tools (S38): --pet=species[:stage] grants an animal and makes it active (S46 previews).
+			var pa := str(a).trim_prefix("--pet=").split(":")
+			Game.pets.apply_grant(Game.active().id, pa[0])
+			var np: Dictionary = Game.active().pets[Game.active().pets.size() - 1]
+			if pa.size() > 1: np.stage = pa[1]
+			Game.active().active_pet = str(np.uid)
 		if str(a).begins_with("--give=") and Game.active() != null:
 			# Debug tools (S38): --give=item[:count[:quality]] puts items in the bag for previews.
 			var g := str(a).trim_prefix("--give=").split(":")

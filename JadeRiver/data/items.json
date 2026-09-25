@@ -1488,6 +1488,765 @@
    "family": "accumulation"
   },
   {
+   "id": "fire_core_low",
+   "name": "Low Fire Core",
+   "type": "core",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "fire_core_low",
+   "desc": "The core of a rank 2-3 fire beast. A fire spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.1,
+    "rank": 2,
+    "element": "fire",
+    "tier": "low"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.1
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "water_core_low",
+   "name": "Low Water Core",
+   "type": "core",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "water_core_low",
+   "desc": "The core of a rank 2-3 water beast. A water spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.1,
+    "rank": 2,
+    "element": "water",
+    "tier": "low"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.1
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "wood_core_low",
+   "name": "Low Wood Core",
+   "type": "core",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "wood_core_low",
+   "desc": "The core of a rank 2-3 wood beast. A wood spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.1,
+    "rank": 2,
+    "element": "wood",
+    "tier": "low"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.1
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "earth_core_low",
+   "name": "Low Earth Core",
+   "type": "core",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "earth_core_low",
+   "desc": "The core of a rank 2-3 earth beast. A earth spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.1,
+    "rank": 2,
+    "element": "earth",
+    "tier": "low"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.1
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "wind_core_low",
+   "name": "Low Wind Core",
+   "type": "core",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "wind_core_low",
+   "desc": "The core of a rank 2-3 wind beast. A wind spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.1,
+    "rank": 2,
+    "element": "wind",
+    "tier": "low"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.1
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "thunder_core_low",
+   "name": "Low Thunder Core",
+   "type": "core",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "thunder_core_low",
+   "desc": "The core of a rank 2-3 thunder beast. A thunder spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.1,
+    "rank": 2,
+    "element": "thunder",
+    "tier": "low"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.1
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "soul_core_low",
+   "name": "Low Soul Core",
+   "type": "core",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "soul_core_low",
+   "desc": "The core of a rank 2-3 soul beast. A soul spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.1,
+    "rank": 2,
+    "element": "soul",
+    "tier": "low"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.1
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "fire_core_mid",
+   "name": "Mid Fire Core",
+   "type": "core",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "fire_core_mid",
+   "desc": "The core of a rank 4-5 fire beast. A fire spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.15,
+    "rank": 4,
+    "element": "fire",
+    "tier": "mid"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.15
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "water_core_mid",
+   "name": "Mid Water Core",
+   "type": "core",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "water_core_mid",
+   "desc": "The core of a rank 4-5 water beast. A water spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.15,
+    "rank": 4,
+    "element": "water",
+    "tier": "mid"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.15
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "wood_core_mid",
+   "name": "Mid Wood Core",
+   "type": "core",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "wood_core_mid",
+   "desc": "The core of a rank 4-5 wood beast. A wood spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.15,
+    "rank": 4,
+    "element": "wood",
+    "tier": "mid"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.15
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "earth_core_mid",
+   "name": "Mid Earth Core",
+   "type": "core",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "earth_core_mid",
+   "desc": "The core of a rank 4-5 earth beast. A earth spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.15,
+    "rank": 4,
+    "element": "earth",
+    "tier": "mid"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.15
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "wind_core_mid",
+   "name": "Mid Wind Core",
+   "type": "core",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "wind_core_mid",
+   "desc": "The core of a rank 4-5 wind beast. A wind spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.15,
+    "rank": 4,
+    "element": "wind",
+    "tier": "mid"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.15
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "thunder_core_mid",
+   "name": "Mid Thunder Core",
+   "type": "core",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "thunder_core_mid",
+   "desc": "The core of a rank 4-5 thunder beast. A thunder spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.15,
+    "rank": 4,
+    "element": "thunder",
+    "tier": "mid"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.15
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "soul_core_mid",
+   "name": "Mid Soul Core",
+   "type": "core",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "soul_core_mid",
+   "desc": "The core of a rank 4-5 soul beast. A soul spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.15,
+    "rank": 4,
+    "element": "soul",
+    "tier": "mid"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.15
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "fire_core_high",
+   "name": "High Fire Core",
+   "type": "core",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "fire_core_high",
+   "desc": "The core of a rank 6-7 fire beast. A fire spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.2,
+    "rank": 6,
+    "element": "fire",
+    "tier": "high"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.2
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "water_core_high",
+   "name": "High Water Core",
+   "type": "core",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "water_core_high",
+   "desc": "The core of a rank 6-7 water beast. A water spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.2,
+    "rank": 6,
+    "element": "water",
+    "tier": "high"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.2
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "wood_core_high",
+   "name": "High Wood Core",
+   "type": "core",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "wood_core_high",
+   "desc": "The core of a rank 6-7 wood beast. A wood spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.2,
+    "rank": 6,
+    "element": "wood",
+    "tier": "high"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.2
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "earth_core_high",
+   "name": "High Earth Core",
+   "type": "core",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "earth_core_high",
+   "desc": "The core of a rank 6-7 earth beast. A earth spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.2,
+    "rank": 6,
+    "element": "earth",
+    "tier": "high"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.2
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "wind_core_high",
+   "name": "High Wind Core",
+   "type": "core",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "wind_core_high",
+   "desc": "The core of a rank 6-7 wind beast. A wind spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.2,
+    "rank": 6,
+    "element": "wind",
+    "tier": "high"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.2
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "thunder_core_high",
+   "name": "High Thunder Core",
+   "type": "core",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "thunder_core_high",
+   "desc": "The core of a rank 6-7 thunder beast. A thunder spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.2,
+    "rank": 6,
+    "element": "thunder",
+    "tier": "high"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.2
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "soul_core_high",
+   "name": "High Soul Core",
+   "type": "core",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "soul_core_high",
+   "desc": "The core of a rank 6-7 soul beast. A soul spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.2,
+    "rank": 6,
+    "element": "soul",
+    "tier": "high"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.2
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "fire_core_peak",
+   "name": "Peak Fire Core",
+   "type": "core",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "fire_core_peak",
+   "desc": "The core of a rank 8-9 fire beast. A fire spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.25,
+    "rank": 8,
+    "element": "fire",
+    "tier": "peak"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.25
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "water_core_peak",
+   "name": "Peak Water Core",
+   "type": "core",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "water_core_peak",
+   "desc": "The core of a rank 8-9 water beast. A water spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.25,
+    "rank": 8,
+    "element": "water",
+    "tier": "peak"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.25
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "wood_core_peak",
+   "name": "Peak Wood Core",
+   "type": "core",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "wood_core_peak",
+   "desc": "The core of a rank 8-9 wood beast. A wood spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.25,
+    "rank": 8,
+    "element": "wood",
+    "tier": "peak"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.25
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "earth_core_peak",
+   "name": "Peak Earth Core",
+   "type": "core",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "earth_core_peak",
+   "desc": "The core of a rank 8-9 earth beast. A earth spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.25,
+    "rank": 8,
+    "element": "earth",
+    "tier": "peak"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.25
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "wind_core_peak",
+   "name": "Peak Wind Core",
+   "type": "core",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "wind_core_peak",
+   "desc": "The core of a rank 8-9 wind beast. A wind spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.25,
+    "rank": 8,
+    "element": "wind",
+    "tier": "peak"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.25
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "thunder_core_peak",
+   "name": "Peak Thunder Core",
+   "type": "core",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "thunder_core_peak",
+   "desc": "The core of a rank 8-9 thunder beast. A thunder spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.25,
+    "rank": 8,
+    "element": "thunder",
+    "tier": "peak"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.25
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "soul_core_peak",
+   "name": "Peak Soul Core",
+   "type": "core",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "soul_core_peak",
+   "desc": "The core of a rank 8-9 soul beast. A soul spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.25,
+    "rank": 8,
+    "element": "soul",
+    "tier": "peak"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.25
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "purifying_offering",
+   "name": "Purifying Offering",
+   "type": "taming",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 20,
+   "icon": "purifying_offering",
+   "desc": "Incense and salt bound in a lotus leaf. Offered to a weakened demonic beast, it lets the beast be tamed; offered to a Hollowed one, it cleanses the grey from it first. Use it from quick-use beside one.",
+   "use": [],
+   "use_action": "tame"
+  },
+  {
+   "id": "beast_revival_pill",
+   "name": "Beast Revival Pill",
+   "type": "pill",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 20,
+   "icon": "beast_revival_pill",
+   "desc": "A pill for a spirit animal, not for you. It mends a Grievous Wound at once.",
+   "use": [
+    {
+     "kind": "heal_pet_wound"
+    }
+   ],
+   "pill": {
+    "toxicity": 0,
+    "group": "utility"
+   }
+  },
+  {
    "id": "tiny_hollow_shard",
    "name": "Tiny Hollow Shard",
    "type": "hollow",

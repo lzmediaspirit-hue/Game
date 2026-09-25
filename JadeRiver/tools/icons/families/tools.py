@@ -435,3 +435,23 @@ for _id, _fn in (('revival_talisman', revival_talisman), ('return_charm', return
                  ('bonding_offering_earth', lambda: _offering('earth')),
                  ('bonding_offering_heaven', lambda: _offering('heaven'))):
     register(FAM, _id, _fn, 'talismans')
+
+
+def purifying_offering():
+    """S46: incense sticks and a salt cone on a lotus leaf, smoke curling up."""
+    c = Canvas(32)
+    leaf = c.ellipse(16, 24, 12, 5)
+    c.put(leaf, R['leaf'], 'ray', base=2, sep=True)
+    salt = c.poly([(12, 23), (20, 23), (16, 15)])
+    c.put(salt, R['pearl'], 'ray', base=3, sep=True)
+    for x in (9, 23):
+        c.put(c.rect(x, 12, x, 22), R['red'], 'flat', base=2)
+        c.put(c.rect(x, 11, x, 11), R['fire'], 'flat', base=4)
+    smoke = S.bez_line(c, (9, 10), (6, 6), (10, 2)) | S.bez_line(c, (23, 10), (26, 6), (22, 2))
+    c.put(smoke, R['cloud'], 'flat', base=3)
+    c.outline()
+    c.glow('#E8F4FF', (60,))
+    return c
+
+
+register(FAM, 'purifying_offering', purifying_offering, 'talismans')

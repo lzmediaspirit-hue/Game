@@ -77,8 +77,12 @@ func _collection() -> void:
 				var cid := str(art.get("creature", "")) if art is Dictionary else ""
 				if cid == "" or not creature_at(Rect2(cr.position + Vector2(8, 6), Vector2(cr.size.x - 16, 78)), cid):
 					icon_at(Rect2(cr.get_center() - Vector2(24, 50), Vector2(48, 48)), str(e.get("loot_icon", "boss_skull")))
-				text(cr.position + Vector2(0, 104), str(e.name), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
-				text(cr.position + Vector2(0, 126), Tx.t("ui.codex.defeated") % kills, 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
+				text(cr.position + Vector2(0, 100), str(e.name), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
+				# S46: a beast's rank and nature (demonic and Hollowed ones are tamed differently).
+				var sub := Tx.t("ui.codex.defeated") % kills
+				if int(e.get("beast_rank", 0)) > 0:
+					sub = Tx.t("ui.codex.rank_nature") % [int(e.beast_rank), Tx.t("ui.codex.nature_" + str(e.get("nature", "spirit")))] + "  ·  " + sub
+				text(cr.position + Vector2(0, 124), fit(sub, 13, cr.size.x - 8), 13, UiKit.GOLD if str(e.get("nature", "")) == "demonic" else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
 			else:
 				var art2 = e.get("art", {})
 				var cid2 := str(art2.get("creature", "")) if art2 is Dictionary else ""

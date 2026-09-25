@@ -9,7 +9,7 @@ func _init() -> void:
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
-	var left := Rect2(content.position.x, content.position.y, 420, content.size.y)
+	var left := Rect2(content.position.x, content.position.y, 330, content.size.y)
 	panel(left)
 	if ch.pets.is_empty():
 		para(Rect2(left.position + Vector2(20, 20), left.size - Vector2(40, 40)), Tx.t("ui.pets.no_spirit_animals_yet_hermit"), 19, UiKit.MIST)
@@ -52,18 +52,34 @@ func draw_page() -> void:
 	var shown: Array = Game.pets.revealed_traits(pet).map(func(t): return ContentDB.name_of("pet_traits", str(t)))
 	while shown.size() < int(ContentDB.config("pet_growth").get("traits_per_pet", 3)): shown.append("?")
 	text(right.position + Vector2(24, 228), fit(Tx.t("ui.pets.traits") + " · ".join(shown), 16, colw), 16, UiKit.PALE_GOLD)
-	var y := right.position.y + 248
+	# S46 bloodline: purity, and growth and aptitude once it is a Juvenile; a Grievous Wound in red.
+	Game.pets.ensure_fields(pet)
+	var blood := Tx.t("ui.pets.purity") % int(pet.get("purity", 0))
+	var apt_line := Tx.t("ui.pets.aptitude_hidden")
+	if Game.pets.aptitude_known(pet):
+		var apt: Dictionary = pet.get("aptitude", {})
+		blood += "  ·  " + Tx.t("ui.pets.growth") % float(pet.get("growth", 1.0))
+		apt_line = Tx.t("ui.pets.aptitude") % [float(apt.get("hp", 1.0)), float(apt.get("attack", 1.0)), float(apt.get("defence", 1.0)), float(apt.get("speed", 1.0))]
+	if pet.get("variant", false): blood += "  ·  " + Tx.t("ui.pets.variant")
+	text(right.position + Vector2(24, 252), fit(blood, 16, colw), 16, UiKit.BRIGHT_JADE)
+	text(right.position + Vector2(24, 274), fit(apt_line, 15, colw), 15, UiKit.MIST)
+	var y := right.position.y + 290
+	if pet.get("wounded", false):
+		text(right.position + Vector2(24, 298), fit(Tx.t("ui.pets.wounded"), 15, colw), 15, UiKit.RED)
+		y += 20
 	var roles := ["combat", "gatherer", "cultivation"]
 	if Game.pets.mountable(pet): roles.append("mount")
 	if Unlocks.is_unlocked(ch.id, "herb_garden"): roles.append("guard")   # S45: watches the garden while you are away
 	var bw := (colw - 8.0 * (roles.size() - 1)) / roles.size()
 	for role in roles:
-		btn(Rect2(px + roles.find(role) * (bw + 8), y, bw, 46), role.capitalize(), "role", role, str(pet.role) == role, true, "", 17)
+		btn(Rect2(px + roles.find(role) * (bw + 8), y, bw, 46), fit(Tx.t("ui.pets.role_" + role), 15, bw - 10), "role", role, str(pet.role) == role, true, "", 15)
 	y += 60
 	btn(Rect2(px, y, 220, 50), Tx.t("ui.pets.set_active") if ch.active_pet != sel else Tx.t("ui.pets.rest"), "active", sel, ch.active_pet != sel)
 	var res := Game.pets.resonance(ch) if ch.active_pet == sel else 0.0
 	if res > 0.0: text(Vector2(px + 236, y + 32), Tx.t("ui.pets.resonance") % int(round(res * 100.0)), 17, UiKit.BRIGHT_JADE)
-	_growth(ch, pet, Rect2(stage.position.x, stage.end.y + 14, stage.size.x, right.end.y - stage.end.y - 28))
+	btn(Rect2(stage.position.x, stage.end.y + 8, stage.size.x, 38), Tx.t("ui.pets.unlock") if pet.get("locked", false) else Tx.t("ui.pets.lock"),
+		"lock", sel, false, true, "", 16)
+	_growth(ch, pet, Rect2(stage.position.x, stage.end.y + 56, stage.size.x, right.end.y - stage.end.y - 70))
 	var foods: Array = (sp.get("favourite_foods", []) as Array).filter(func(f): return ch.inventory.count(str(f)) > 0)
 	for f in ["roast_fish", "ember_pepper_broth"]:
 		if ch.inventory.count(f) > 0 and not foods.has(f): foods.append(f)
@@ -72,7 +88,17 @@ func draw_page() -> void:
 		if x + 60 > px + colw: break
 		slot_box(Rect2(x, y + 84, 60, 60), str(f), ch.inventory.count(str(f)), "", "feed", str(f))
 		x += 68
-	if not foods.is_empty(): text(Vector2(px, y + 76), Tx.t("ui.pets.tap_food_to_feed"), 16, UiKit.MIST)
+	# S46: cores of the animal's own element, to devour for growth.
+	var cores: Array = []
+	for st in ch.inventory.bag:
+		if st == null: continue
+		var cd: Dictionary = ContentDB.item(str(st.id)).get("core", {})
+		if cd.has("tier") and str(cd.element) == str(sp.get("element", "")) and not cores.has(str(st.id)): cores.append(str(st.id))
+	for cid in cores:
+		if x + 60 > px + colw: break
+		slot_box(Rect2(x, y + 84, 60, 60), str(cid), ch.inventory.count(str(cid)), "", "devour", str(cid))
+		x += 68
+	if not foods.is_empty() or not cores.is_empty(): text(Vector2(px, y + 76), Tx.t("ui.pets.tap_food_to_feed"), 16, UiKit.MIST)
 	_breeding(ch, pet, Rect2(px, y + 156, colw, right.end.y - y - 170))
 
 ## Breeding (S22): two Adults of one family; shows the gate that is closed, or a button per partner.
@@ -134,6 +160,10 @@ func on_action(id: String, data) -> void:
 		"role": submit({"type": "set_pet_role", "pet": sel, "role": str(data)})
 		"active": submit({"type": "set_active_pet", "pet": "" if c().active_pet == sel else sel})
 		"feed": submit({"type": "feed_pet", "pet": sel, "item": str(data)})
+		"devour":
+			var dv := submit({"type": "devour_core", "pet": sel, "item": str(data)})
+			if dv.get("ok", false): flash(Tx.t("ui.pets.devoured") % int(dv.xp))
+		"lock": submit({"type": "lock_pet", "pet": str(data)})
 		"evolve": submit({"type": "evolve_pet", "pet": sel, "branch": str(data)})
 		"breed": submit({"type": "breed", "a": sel, "b": str(data)})
 		"hatch": submit({"type": "hatch_egg", "index": int(data)})

@@ -69,11 +69,13 @@ DEPTH = {
                  "guild_exam_failed", "guild_rank_changed", "commission_completed", "pill_tribulation_result", "pill_soul_flight",
                  "herb_harvested", "seed_found", "herb_planted", "bed_watered", "bed_enriched", "herb_aged", "spring_bottled", "transplant_result",
                  "rack_started", "rack_collected", "garden_raided", "herb_appraised"],
-    "Combat": ["treasure_used", "sword_released", "sword_returned", "sword_intent_changed", "artifact_detonated", "talisman_used", "combo_landed", "killing_intent_changed"],
+    "Combat": ["treasure_used", "sword_released", "sword_returned", "sword_intent_changed", "artifact_detonated", "talisman_used", "combo_landed", "killing_intent_changed",
+               "beast_subdued"],
     "Inventory": ["loadout_swapped", "natal_grew", "natal_broken", "item_blooded"],
     "Movement": ["jumped", "landed", "wall_kicked", "art_used", "climb_started", "climb_finished", "fell_out", "mover_boarded",
                  "volume_entered", "volume_left"],
     "Enemies": ["enemy_leashed"],
+    "Pets": ["pet_wounded", "pet_healed", "core_devoured", "cores_sold", "beast_cleansed"],
     "World": ["ambush_sprung", "herb_ripening", "guardian_spawned"],
 }
 for _sys, _names in DEPTH.items():

@@ -15,6 +15,9 @@
  "offerings": [
   "bonding_offering_common",
   "bonding_offering_earth",
-  "bonding_offering_heaven"
- ]
+  "bonding_offering_heaven",
+  "purifying_offering"
+ ],
+ "purifying": "purifying_offering",
+ "subdue_s": 10.0
 }

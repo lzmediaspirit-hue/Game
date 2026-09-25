@@ -47,6 +47,7 @@ HERB_NATURE = {"willow_moss": ("neutral", ["assistant", "envoy"]),
                "ember_cactus": ("hot", ["principal", "minister"])}
 # S45 herb ages: every herb belongs to a family and has an age (10, 100 or 1,000 years). A perfect harvest keeps the
 # age; a miss or an early pick drops one tier. An older herb stands in for a younger one of its family in a recipe.
+CORE_ELEMENTS = ["fire", "water", "wood", "earth", "wind", "thunder", "soul"]
 HERB_AGE = {"willow_moss": ("willow_moss", 10), "riverreed_ginseng_10": ("riverreed_ginseng", 10),
             "riverreed_ginseng_100": ("riverreed_ginseng", 100), "riverreed_ginseng_1000": ("riverreed_ginseng", 1000),
             "ember_pepper": ("ember_pepper", 10), "ember_pepper_100": ("ember_pepper", 100),
@@ -447,6 +448,20 @@ def build_items():
         use_text = " Absorb it for Qi, or burn it as Beast Fire." if rank >= 2 else " Absorb it for Qi. Too weak a core to burn as Beast Fire."
         rows.append(item(cid, "core", grade, 99, desc + use_text, core={"qp_pct": qp, "rank": rank},
                          use=[effect("add_progress", pct_of_need=qp)], raw={"toxicity": 12}, family="accumulation"))
+    # S46 beast cores: every beast of rank 2 or more drops one at 2% per rank, by its element and rank tier. A pet of
+    # the same element devours it for XP; the Core Exchange buys them; they burn as Beast Fire like any core.
+    for tier, rank, grade, qp in (("low", 2, "earth", 0.1), ("mid", 4, "heaven", 0.15), ("high", 6, "mystic", 0.2), ("peak", 8, "spirit", 0.25)):
+        for el in CORE_ELEMENTS:
+            rows.append(item("%s_core_%s" % (el, tier), "core", grade, 99,
+                             "The core of a rank %d-%d %s beast. A %s spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire."
+                             % (rank, rank + 1, el, el), name="%s %s Core" % (tier.capitalize(), el.capitalize()),
+                             core={"qp_pct": qp, "rank": rank, "element": el, "tier": tier},
+                             use=[effect("add_progress", pct_of_need=qp)], raw={"toxicity": 12}, family="accumulation"))
+    # S46 pet medicine.
+    rows.append(item("purifying_offering", "taming", "earth", 20, "Incense and salt bound in a lotus leaf. Offered to a weakened demonic beast, it lets the beast be tamed; offered to a Hollowed one, it cleanses the grey from it first. Use it from quick-use beside one.",
+                     use=[], use_action="tame"))
+    rows.append(item("beast_revival_pill", "pill", "earth", 20, "A pill for a spirit animal, not for you. It mends a Grievous Wound at once.",
+                     use=[effect("heal_pet_wound")], pill={"toxicity": 0, "group": "utility"}))
     rows.append(item("tiny_hollow_shard", "hollow", "common", 99, "A grey sliver that drinks warmth. Handle with care."))
     rows.append(item("hollow_shard", "hollow", "earth", 99, "A shard of the Hollow Tide. Appraise before use."))
     rows.append(item("grey_hide", "hollow", "common", 99, "Hide from a Hollowed beast, grey and cold."))

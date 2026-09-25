@@ -185,6 +185,16 @@ func data_suite() -> void:
 			check(str(o.get("field_grade", "")) in garden.get("field_grades", []), "garden bed %s.%s has a field grade" % [rid, o.id])
 	check(bed_count >= 10, "garden beds in both sects and the cave abodes (%d)" % bed_count)
 	for fam in garden.get("families", {}): check(garden.get("grow_hours", {}).has(fam) and garden.get("props", {}).has(fam), "garden grows %s" % fam)
+	# S46: every tameable beast tames into a species with art; every beast of rank 2+ has a core to drop.
+	var creatures := ContentDB.config("creature_art")
+	for pe in ContentDB.all("pets"): check(creatures.has(str(pe.get("art", pe.id))), "pet %s has creature art" % pe.id)
+	for en in ContentDB.all("enemies"):
+		if en.get("tameable", false):
+			var sp := str(en.get("tame_species", en.id)).trim_suffix("_chick") if not ContentDB.has_entry("pets", str(en.get("tame_species", en.id))) else str(en.get("tame_species", en.id))
+			check(ContentDB.has_entry("pets", sp), "tameable %s becomes a pet species (%s)" % [en.id, sp])
+		if int(en.get("beast_rank", 0)) >= 2:
+			check(WorldAuthority.beast_core_for(en, int(en.level[0])) != "", "beast %s (rank %d) has a core" % [en.id, int(en.beast_rank)])
+	for rar in ContentDB.config("pet_growth").get("rarities", []): check(ContentDB.config("pet_growth").get("purity", {}).has(str(rar.id)), "purity band for %s" % rar.id)
 	# S48 body ladder: each rung names a bath item, a Temper trial set piece with a drum, and stats that exist.
 	var stat_ids := {}
 	for sd in ContentDB.stat_const("stats", []): stat_ids[str(sd.id)] = true

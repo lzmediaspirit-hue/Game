@@ -146,6 +146,8 @@ PILLS = [
     ('cloudstep_pill', 'heaven', 'arrows', R['cloud'], R['navy'][2]),
     # S48 Core Forging: refined only over a Heavenly Flame.
     ('heavenly_flame_pill', 'earth', 'flame', R['gold'], R['red'][1]),
+    # S46: a pet's medicine.
+    ('beast_revival_pill', 'earth', 'heart', R['leaf'], R['earth'][1]),
 ]
 
 for _id, _grade, _mark, _ramp, _ink in PILLS:

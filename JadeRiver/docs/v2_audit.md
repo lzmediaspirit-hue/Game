@@ -112,5 +112,9 @@ Progress is recorded in `docs/CHANGELOG.md`.
   appraisal, garden raids with Guard pets and formations). Treasure births and gathering trials move to V8 with the
   S49 world calendar.
 - Next:
-  - V7 (S46 beasts, with the pet pills, the Purifying Offering and Fox Spirit's Favour);
+  - V7 (S46 beasts). V7a is done: pet state depth, beast ranks and natures, cores and the Core Exchange, Grievous
+    Wound and the Beast Revival Pill, the Purifying Offering and the taming fix. Next come V7b (bloodline awakening,
+    suppression, contracts, command capacity, incubation input, the Beast Marrow Washing Pill, Fox Spirit's
+    Favour), V7c (skill books, gear, fusion, breakthroughs), V7d (the beast bag, the mount slot, Beast Kings and
+    Tides) and V7e (the Beast Arena, the Trial Grove, the Taming Dao);
   - V8 (S49 living world, with S45's treasure births and gathering trials).

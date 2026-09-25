@@ -58,6 +58,7 @@ func _main() -> void:
 	herbs_suite()
 	garden_suite()
 	herb_prep_suite()
+	beasts_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -1554,6 +1555,97 @@ func herb_prep_suite() -> void:
 	c.crafting["formations"] = forms_was
 	c.crafting["garden"] = garden_was
 	Clock.override_utc = -1.0
+
+# ------------------------------------------------------------------ S46 beasts: bloodline, ranks, cores, wounds, taming
+func beasts_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var pets_was: Array = c.pets.duplicate(true)
+	var active_was: String = c.active_pet
+	Unlocks.force_unlock(c.id, "spirit_animals")
+	Unlocks.force_unlock(c.id, "taming")
+	# A new animal's bloodline: purity by rarity, hidden growth and aptitude.
+	Game.pets.apply_grant(c.id, "ember_fox")
+	var fox: Dictionary = c.pets[c.pets.size() - 1]
+	var g: Dictionary = ContentDB.config("pet_growth")
+	check(int(fox.purity) >= 5 and int(fox.purity) <= 15 and float(fox.growth) >= 0.8 and float(fox.growth) <= 1.3
+		and float(fox.aptitude.attack) >= 0.8 and float(fox.aptitude.attack) <= 1.2 and str(fox.contract) == "master", "a Common fox: purity 5-15, growth and aptitude rolled, a master's contract")
+	check(not Game.pets.aptitude_known(fox), "growth and aptitude stay hidden in a Hatchling")
+	fox.stage = "juvenile"
+	check(Game.pets.aptitude_known(fox), "a Juvenile shows them")
+	var legacy := {"uid": "old_1", "species": "reed_otter", "rarity": "rare"}
+	Game.pets.ensure_fields(legacy)
+	check(int(legacy.purity) == 38 and near(float(legacy.growth), 1.0) and legacy.learned_skills == [] and not legacy.locked, "an animal from an older save gets neutral fields")
+	# Beast rank and nature (Part 8): rank from the Level band, ghosts and constructs have none.
+	var crab := ContentDB.entry("enemies", "tide_crab")
+	check(int(crab.beast_rank) == 3 and str(crab.nature) == "spirit" and WorldAuthority.beast_rank(crab, 22) == 3 and WorldAuthority.beast_rank(crab, 73) == 9,
+		"a Tide Crab is a rank 3 spirit beast")
+	check(str(ContentDB.entry("enemies", "mud_hound").nature) == "demonic" and str(ContentDB.entry("enemies", "hollow_stag").nature) == "hollowed"
+		and str(ContentDB.entry("enemies", "mirror_wisp").race) == "ghost" and not ContentDB.entry("enemies", "jade_sentinel").has("beast_rank"),
+		"natures: demonic and Hollowed; ghosts and constructs are no beasts")
+	# Cores: rank 2 and up at 2% a rank, by element and tier.
+	check(WorldAuthority.beast_core_for(crab, 22) == "water_core_low" and near(WorldAuthority.core_chance(crab, 22), 0.06)
+		and WorldAuthority.beast_core_for(ContentDB.entry("enemies", "reedtail_rat"), 2) == "" and WorldAuthority.beast_core_for(ContentDB.entry("enemies", "mirror_wisp"), 49) == "",
+		"a rank 3 crab carries a Low Water Core 6% of the time; rank 1 beasts and ghosts carry none")
+	# Devouring: only its own element.
+	Game.inventory.apply_add(c.id, "fire_core_low", 2, "test")
+	Game.inventory.apply_add(c.id, "water_core_low", 1, "test")
+	var xp0 := float(fox.xp) + 20.0 * pow(int(fox.level), 1.5) * 0.0
+	var lv0 := int(fox.level)
+	check(Game.submit({"type": "devour_core", "pet": fox.uid, "item": "fire_core_low"}).get("ok", false) and (int(fox.level) > lv0 or float(fox.xp) > xp0),
+		"the fox devours a fire core and grows")
+	check(str(Game.submit({"type": "devour_core", "pet": fox.uid, "item": "water_core_low"}).get("reason", "")) == "wrong_element", "but will not touch a water core")
+	# The Core Exchange at the Beast Hall: fixed stones by tier, 60 a day.
+	check(str(Game.submit({"type": "sell_cores", "item": "fire_core_low", "count": 1}).get("reason", "")) == "not_here", "the Exchange is at the Beast Hall")
+	Game.world.load_room(c, "rm_hermit_stilt_house", "")
+	c.crafting.erase("core_exchange")
+	Game.inventory.apply_add(c.id, "earth_core_peak", 5, "test")
+	var stones0 := int(Game.account.currencies.get("spirit_stone", 0))
+	var sold := Game.submit({"type": "sell_cores", "item": "earth_core_peak", "count": 5})
+	check(sold.get("ok", false) and int(sold.count) == 3 and int(Game.account.currencies.get("spirit_stone", 0)) - stones0 == 60 and Game.pets.exchange_left(c) == 0,
+		"peak cores at 20 stones: three a day fill the cap of 60 (%s)" % str(sold))
+	# Grievous Wound: three knockouts in five minutes; the Beast Revival Pill mends it.
+	c.active_pet = str(fox.uid)
+	var hp0: float = Game.pets.stat_mult(fox, "hp")
+	for i in 3: Game.pets._knocked_out(c, fox)
+	GameEvents.flush()
+	check(fox.wounded and near(Game.pets.stat_mult(fox, "hp"), hp0 * 0.8, 0.001), "three knockouts in five minutes: a Grievous Wound, -20%")
+	Game.inventory.apply_add(c.id, "beast_revival_pill", 1, "test")
+	Game.submit({"type": "use_item", "index": _bag_index(c, "beast_revival_pill"), "confirm": true})
+	check(not fox.wounded, "a Beast Revival Pill mends it")
+	fox.knockouts = []
+	Game.pets._knocked_out(c, fox)
+	Game.pets._knocked_out(c, fox)
+	Game.sim_time += 400.0
+	Game.pets._knocked_out(c, fox)
+	check(not fox.wounded, "three knockouts spread over more than five minutes do not")
+	# Taming by nature: a demonic hound takes only a Purifying Offering; a Hollowed boarlet must be cleansed first.
+	var st: ActorState = Game.actor_state(c.id)
+	var hound: EnemyState = Game.enemies.spawn_at("mud_hound", st.plane + Vector2(60, 0), 18)
+	hound.pools.hp = hound.pools.max_hp * 0.1
+	Game.inventory.apply_add(c.id, "bonding_offering_common", 3, "test")
+	Game.inventory.apply_add(c.id, "purifying_offering", 3, "test")
+	check(str(Game.submit({"type": "attempt_tame", "offering": "bonding_offering_common"}).get("reason", "")) == "demonic", "a Bonding Offering does nothing for a demonic hound")
+	var tp := Game.submit({"type": "attempt_tame", "offering": "purifying_offering"})
+	check(tp.get("ok", false) and str(tp.get("species", "")) == "mud_hound", "a Purifying Offering can tame it")
+	var boar: EnemyState = Game.enemies.spawn_at("hollowed_boarlet", st.plane + Vector2(60, 0), 10)
+	boar.pools.hp = boar.pools.max_hp * 0.1
+	check(str(Game.submit({"type": "attempt_tame", "offering": "bonding_offering_common"}).get("reason", "")) == "hollowed", "a Hollowed boarlet cannot be tamed as it is")
+	check(Game.submit({"type": "attempt_tame", "offering": "purifying_offering"}).get("cleansed", false) and boar.ai.get("cleansed", false), "the Purifying Offering cleanses it")
+	var tb := Game.submit({"type": "attempt_tame", "offering": "bonding_offering_common"})
+	check(tb.get("ok", false) and not tb.has("cleansed") and str(tb.get("species", "")) == "cleansed_boarlet", "then any offering can tame it")
+	# The taming fix: struck down with an offering on quick-use, a tameable beast stays subdued at 1 HP.
+	var otter: EnemyState = Game.enemies.spawn_at("reed_otter", st.plane + Vector2(60, 0), 20)
+	c.inventory.quick_use = "bonding_offering_common"
+	Game.combat._damage_enemy(otter, otter.pools.max_hp * 5.0, c.id, "physical", "none", false, {})
+	check(otter.alive and near(otter.pools.hp, 1.0) and otter.ai.get("subdued_once", false), "a one-hit otter is subdued at 1 HP, not killed")
+	Game.combat._damage_enemy(otter, 10.0, c.id, "physical", "none", false, {})
+	check(not otter.alive, "only once: the next blow lands")
+	c.inventory.quick_use = ""
+	for e in Game.room_rt.living_enemies():
+		if e.summoned: Game.enemies.release(e)
+	c.pets = pets_was
+	c.active_pet = active_was
 
 func tribulation_suite() -> void:
 	var c = Game.active()
