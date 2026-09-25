@@ -293,7 +293,7 @@
    "flip": false
   },
   {
-   "prop": "tall_grass",
+   "prop": "rock_small",
    "at": [
     158,
     988
@@ -302,63 +302,45 @@
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
-    377,
+    497,
     988
    ],
    "layer": "front",
    "flip": true
   },
   {
-   "prop": "tall_grass",
+   "prop": "rock_small",
    "at": [
-    799,
+    1039,
     988
    ],
    "layer": "front",
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
-    1101,
+    1461,
     988
    ],
    "layer": "front",
    "flip": true
   },
   {
-   "prop": "tall_grass",
+   "prop": "rock_small",
    "at": [
-    1410,
+    1890,
     988
    ],
    "layer": "front",
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
-    1726,
-    988
-   ],
-   "layer": "front",
-   "flip": true
-  },
-  {
-   "prop": "tall_grass",
-   "at": [
-    2154,
-    988
-   ],
-   "layer": "front",
-   "flip": false
-  },
-  {
-   "prop": "reeds",
-   "at": [
-    2454,
+    2326,
     988
    ],
    "layer": "front",

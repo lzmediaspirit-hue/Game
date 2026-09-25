@@ -348,7 +348,7 @@
    "flip": false
   },
   {
-   "prop": "tall_grass",
+   "prop": "rock_small",
    "at": [
     118,
     988
@@ -357,103 +357,76 @@
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
-    343,
+    463,
     988
    ],
    "layer": "front",
    "flip": true
   },
   {
-   "prop": "tall_grass",
+   "prop": "rock_small",
    "at": [
-    690,
+    930,
     988
    ],
    "layer": "front",
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
-    917,
+    1277,
     988
    ],
    "layer": "front",
    "flip": true
   },
   {
-   "prop": "tall_grass",
+   "prop": "rock_small",
    "at": [
-    1285,
+    1765,
     988
    ],
    "layer": "front",
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
-    1659,
+    2259,
     988
    ],
    "layer": "front",
    "flip": true
   },
   {
-   "prop": "tall_grass",
+   "prop": "rock_small",
    "at": [
-    1854,
+    2574,
     988
    ],
    "layer": "front",
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
-    2209,
+    3049,
     988
    ],
    "layer": "front",
    "flip": true
   },
   {
-   "prop": "tall_grass",
+   "prop": "rock_small",
    "at": [
-    2525,
+    3485,
     988
    ],
    "layer": "front",
    "flip": false
-  },
-  {
-   "prop": "reeds",
-   "at": [
-    2886,
-    988
-   ],
-   "layer": "front",
-   "flip": true
-  },
-  {
-   "prop": "tall_grass",
-   "at": [
-    3177,
-    988
-   ],
-   "layer": "front",
-   "flip": false
-  },
-  {
-   "prop": "reeds",
-   "at": [
-    3566,
-    988
-   ],
-   "layer": "front",
-   "flip": true
   }
  ],
  "areas": [],

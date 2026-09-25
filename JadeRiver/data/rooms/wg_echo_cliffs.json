@@ -368,7 +368,7 @@
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
     365,
     988
@@ -386,7 +386,7 @@
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
     987,
     988
@@ -404,7 +404,7 @@
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
     1575,
     988
@@ -422,7 +422,7 @@
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
     2202,
     988

@@ -370,7 +370,7 @@
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
     464,
     988
@@ -388,7 +388,7 @@
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
     1017,
     988
@@ -406,7 +406,7 @@
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
     1641,
     988
@@ -424,7 +424,7 @@
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
     2156,
     988
@@ -442,7 +442,7 @@
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
     2785,
     988
@@ -460,7 +460,7 @@
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "rock_small",
    "at": [
     3315,
     988

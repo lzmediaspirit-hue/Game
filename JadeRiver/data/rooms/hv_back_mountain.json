@@ -146,7 +146,195 @@
  ],
  "spawns": [],
  "scenery": [],
- "decor": [],
+ "decor": [
+  {
+   "prop": "pine_tree",
+   "at": [
+    151,
+    639
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "plum_tree",
+   "at": [
+    664,
+    629
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1483,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "plum_tree",
+   "at": [
+    1902,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2293,
+    637
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pagoda",
+   "at": [
+    1900,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "waterfall",
+   "at": [
+    2400,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "shrine",
+   "at": [
+    620,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "scholar_rock",
+   "at": [
+    980,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "incense_burner",
+   "at": [
+    1320,
+    760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "meditation_mat",
+   "at": [
+    1060,
+    880
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "meditation_mat",
+   "at": [
+    1340,
+    880
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_post",
+   "at": [
+    420,
+    670
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_post",
+   "at": [
+    1500,
+    670
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_post",
+   "at": [
+    2150,
+    670
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "boulder_moss",
+   "at": [
+    300,
+    960
+   ],
+   "layer": "front"
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    123,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "flowers_wild",
+   "at": [
+    458,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    927,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "flowers_wild",
+   "at": [
+    1392,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1869,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "flowers_wild",
+   "at": [
+    2197,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
  "areas": [],
  "music": "meditation"
 }

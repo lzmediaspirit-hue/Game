@@ -512,7 +512,8 @@ def field(rid, name, region, screens, levels, backdrop, material, spawns, herbs=
     if fishing:
         r.fishing(fishing, [r.w // 2 - 200, 930])
     back_trees(r, trees)
-    front_grass(r)
+    front_grass(r, props={"snow": ("rock_small", "rock_small"), "rock": ("tall_grass", "rock_small")}.get(material, ("tall_grass", "reeds")),
+                step=420 if material == "snow" else 300)
     return r
 
 
@@ -1224,6 +1225,18 @@ def valley():
     r.herb("cloudtop_orchid", [1500, 700])
     r.ore("spirit_stone_shard", [2100, 690])
     r.obj("spring_hv", "qi_spring", [1200, 900], spring=True)
+    # A quiet retreat above the grounds: old pines, a pagoda, a waterfall and mats by the spring.
+    back_trees(r, props=("pine_tree", "plum_tree", "pine_tree"), step=460, skip=((1000, 1500),))
+    r.decor("pagoda", [1900, 640], layer="back")
+    r.decor("waterfall", [2400, 640], layer="back")
+    r.decor("shrine", [620, 660])
+    r.decor("scholar_rock", [980, 700])
+    r.decor("incense_burner", [1320, 760])
+    for x in (1060, 1340):
+        r.decor("meditation_mat", [x, 880])
+    lantern_row(r, [420, 1500, 2150], y=670)
+    r.decor("boulder_moss", [300, 960], layer="front")
+    front_grass(r, props=("tall_grass", "flowers_wild"), step=380)
     r.edge("west", "west", "hv_sect_grounds", "east", y=850)
 
 
