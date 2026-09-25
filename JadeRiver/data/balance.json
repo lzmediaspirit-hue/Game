@@ -7,6 +7,9 @@
  },
  "kills_per_min": 6,
  "dailies_per_hour": 1.0,
+ "quest_minutes": {
+  "side": 10
+ },
  "prologue_hours": 0.5,
  "stability": "stable",
  "density": {

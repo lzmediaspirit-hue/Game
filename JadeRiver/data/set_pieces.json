@@ -43,6 +43,47 @@
    }
   },
   {
+   "id": "riverbreath_trial",
+   "name": "The Riverbreath Trial",
+   "room_event": {
+    "id": "riverbreath_trial",
+    "duration": 40,
+    "wave": {
+     "enemy": "drowned_acolyte",
+     "every_s": 7,
+     "max": 3,
+     "points": [
+      [
+       900,
+       860
+      ],
+      [
+       1700,
+       860
+      ]
+     ]
+    },
+    "on_complete": [
+     {
+      "kind": "event_passed",
+      "event": "riverbreath_trial"
+     },
+     {
+      "kind": "set_flag",
+      "flag": "riverbreath_trial_done"
+     }
+    ]
+   },
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_3"
+     }
+    ]
+   }
+  },
+  {
    "id": "trial_of_reflections",
    "name": "Trial of Reflections",
    "room": "si_trial_of_reflections",

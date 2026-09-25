@@ -803,7 +803,12 @@
    "barks": [
     "Hmph."
    ],
-   "services": []
+   "services": [
+    "spar:wen_zhao"
+   ],
+   "service_labels": {
+    "spar:wen_zhao": "Spar"
+   }
   },
   {
    "id": "fair_vendor_he",

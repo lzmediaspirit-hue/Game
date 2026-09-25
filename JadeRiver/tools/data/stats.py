@@ -116,6 +116,9 @@ def build():
         "mix": {"fight": 0.35, "meditate": 0.25, "other": 0.4},
         "kills_per_min": 6,
         "dailies_per_hour": 1.0,
+        # Active minutes an optional side quest costs on top of the mixed session (guided and main quests
+        # lie on the path the session already walks).
+        "quest_minutes": {"side": 10},
         "prologue_hours": 0.5,
         "stability": "stable",
         # Where a mixed session sits to cultivate: mostly the field rooms it fights in (1.0), sometimes Lu's

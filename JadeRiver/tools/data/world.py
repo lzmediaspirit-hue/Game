@@ -1113,6 +1113,11 @@ def valley():
         r.area("shallows", [0, 900, r.w, 60])
         r.edge("west", "west", prev[0], prev[1], y=850, ptype="gate" if rid == "ds_flooded_gate" else "edge")
         r.edge("east", "east", nxt, "west", y=850)
+        if rid == "ds_scripture_well":
+            # Lu's inheritance trial (chapter 5): hold the well while the drowned rise.
+            r.obj("rite_riverbreath", "rite_circle", [1300, 880], event="riverbreath_trial",
+                  visible_if=all_of(qactive("the_riverbreath_trial")),
+                  text="A ring of worn river stones around the well. Lu's words: \"Breathe with the river.\"")
         for i in range(4 if rid == "ds_hall_of_lanterns" else 1):
             r.obj("inscription_%s_%d" % (rid, i), "inspect", [500 + i * 450, 700], prop="scholar_rock",
                   text="Lu's handwriting, faded under the silt: \"Breathe with the river, not against it.\"",
@@ -1362,6 +1367,10 @@ def set_pieces():
          "wave": {"enemy": "stone_guardian", "every_s": 6, "max": 3, "points": [[300, 860], [1000, 860]]},
          "on_complete": [{"kind": "event_passed", "event": "heavens_cleansing"}, {"kind": "set_flag", "flag": "cleansing_done"}]},
          "requires": all_of(realm("qi_kindling_9"))},
+        {"id": "riverbreath_trial", "name": "The Riverbreath Trial", "room_event": {"id": "riverbreath_trial", "duration": 40,
+         "wave": {"enemy": "drowned_acolyte", "every_s": 7, "max": 3, "points": [[900, 860], [1700, 860]]},
+         "on_complete": [{"kind": "event_passed", "event": "riverbreath_trial"}, {"kind": "set_flag", "flag": "riverbreath_trial_done"}]},
+         "requires": all_of(realm("qi_unfurling_3"))},
         {"id": "trial_of_reflections", "name": "Trial of Reflections", "room": "si_trial_of_reflections", "portal": "exit",
          "requires": all_of(realm("heart_tempering_9"))},
         {"id": "siege_of_two_sects", "name": "Siege of Two Sects", "room": "si_siege", "portal": "exit",

@@ -39,15 +39,18 @@ func _main() -> void:
 		var need := float(r.get("accumulate_needed", 100))
 		var income := _income(c, cfg, key, lv)
 		# Quests that open inside this stage pay a share of its need on hand-in.
+		# Optional side quests are detours: they also cost active time the mixed session does not cover.
 		var lump := 0.0
+		var detour := 0.0
 		for n in int(r.get("levels", 1)):
 			for kind in quest_levels.get(lv + n, {}):
 				lump += float(ContentDB.curve("quest_qp_pct.%s" % kind, 0.0)) * int(quest_levels[lv + n][kind])
+				detour += float(cfg.get("quest_minutes", {}).get(kind, 0.0)) * int(quest_levels[lv + n][kind])
 		var base_min := need / income
 		# Daily missions: a share of the need per hour of play.
 		var daily := float(ContentDB.curve("quest_qp_pct.daily", 0.05)) * float(cfg.get("dailies_per_hour", 1.0)) * base_min / 60.0
 		var minutes := base_min * maxf(0.2, 1.0 - lump - daily)
-		t += minutes
+		t += minutes + detour
 		if key == end_key: break
 		key = str(r.get("next", ""))
 	hours["act_end"] = t / 60.0

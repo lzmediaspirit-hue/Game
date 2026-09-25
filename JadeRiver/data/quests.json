@@ -3088,6 +3088,39 @@
    "marker": "gold",
    "objectives": [
     {
+     "kind": "reach_room",
+     "text": "Follow Lu's map to the Frozen Shrine on Summit Ridge",
+     "count": 1,
+     "room": "sr_frozen_shrine"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "codex",
+     "entry": "azure_expanse"
+    }
+   ],
+   "offer_text": [
+    "Heaven Glimpse 3. The valley can't hold you any more. Here: my old map.",
+    "The way out runs past the Frozen Shrine. Walk it once, then come back and tell me what you saw."
+   ],
+   "complete_text": [
+    "The Gate is past the shrine, then. Before you go, the village will want to see you."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "10",
+   "target_room": "sr_frozen_shrine",
+   "next": "farewells"
+  },
+  {
+   "id": "farewells",
+   "name": "Farewells",
+   "kind": "main",
+   "giver": "lu_boatman",
+   "hand_in": "lu_boatman",
+   "marker": "gold",
+   "objectives": [
+    {
      "kind": "talk_to",
      "text": "Visit Aunt Ping",
      "count": 1,
@@ -3118,19 +3151,21 @@
      "npc": "uncle_guo"
     }
    ],
-   "rewards": [
-    {
-     "kind": "codex",
-     "entry": "azure_expanse"
-    }
-   ],
+   "rewards": [],
    "offer_text": [
-    "Heaven Glimpse 3. The valley can't hold you. Say your farewells; I'll draw you the way to the Gate."
+    "Say your farewells. Aunt Ping first, or she'll never forgive either of us."
    ],
    "complete_text": [
-    "Here's the map. The Ascension Gate is past the Frozen Shrine."
+    "Good. Now go. The river will still be here."
    ],
-   "offered_by_unlock": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "beyond_the_valley"
+     }
+    ]
+   },
    "chapter": "10",
    "target_room": "lf_village",
    "next": "the_ascension_gate"
@@ -3161,7 +3196,7 @@
     "all": [
      {
       "kind": "quest_done",
-      "quest": "beyond_the_valley"
+      "quest": "farewells"
      }
     ]
    },
@@ -3627,6 +3662,53 @@
    "target_room": "ds_hall_of_lanterns"
   },
   {
+   "id": "the_riverbreath_trial",
+   "name": "The Riverbreath Trial",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "pass_event",
+     "text": "Pass Lu's inheritance trial at the Scripture Well",
+     "count": 1,
+     "event": "riverbreath_trial"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "codex",
+     "entry": "riverbreath_inheritance"
+    }
+   ],
+   "offer_text": [
+    "Lu left more than words down there. An inheritance tests the one who claims it.",
+    "Stand in the stone ring by the well and hold while the drowned rise. Breathe with the river."
+   ],
+   "complete_text": [
+    "The well accepted you. Now only the Abbot stands between you and Lu's method."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "lus_handwriting"
+     }
+    ]
+   },
+   "chapter": "5",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "ds_scripture_well"
+  },
+  {
    "id": "the_drowned_abbot",
    "name": "The Drowned Abbot",
    "kind": "main",
@@ -3658,7 +3740,7 @@
     "all": [
      {
       "kind": "quest_done",
-      "quest": "lus_handwriting"
+      "quest": "the_riverbreath_trial"
      }
     ]
    },
@@ -4018,6 +4100,374 @@
     "elder_sung"
    ],
    "auto_accept": true
+  },
+  {
+   "id": "nets_and_shells",
+   "name": "Nets and Shells",
+   "kind": "side",
+   "giver": "fisher_wen",
+   "hand_in": "fisher_wen",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Bring Mudshell Crab shells",
+     "count": 5,
+     "item": "crab_shell"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 40
+    },
+    {
+     "kind": "grant_item",
+     "item": "roast_fish",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "The crabs cut my nets to ribbons. Bring me their shells and I'll patch the nets with them. Fair's fair."
+   ],
+   "complete_text": [
+    "Ha! Crab-shell floats. They'll never live it down. Here, supper."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_2"
+     }
+    ]
+   },
+   "target_room": "lf_reed_shallows"
+  },
+  {
+   "id": "the_muddy_wash",
+   "name": "The Muddy Wash",
+   "kind": "side",
+   "giver": "washer_mei",
+   "hand_in": "washer_mei",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Chase the Reedtail Rats off the washing lines",
+     "count": 6,
+     "enemy": "reedtail_rat"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 40
+    }
+   ],
+   "offer_text": [
+    "Rats in the reeds again. They chew the lines and drag the washing through the mud. Six of them, at least."
+   ],
+   "complete_text": [
+    "Clean sheets for once. Bless you."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_3"
+     }
+    ]
+   },
+   "target_room": "lf_reed_shallows"
+  },
+  {
+   "id": "beetle_shell_lacquer",
+   "name": "Beetle Shell Lacquer",
+   "kind": "side",
+   "giver": "storekeeper_fang",
+   "hand_in": "storekeeper_fang",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Bring Rock Beetle shells",
+     "count": 6,
+     "item": "beetle_shell"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 90
+    }
+   ],
+   "offer_text": [
+    "Ground beetle shell makes the finest lacquer in the valley. The quarry beetles are too tough for my porters."
+   ],
+   "complete_text": [
+    "Look at that shine. The Jade Sect will pay double for boxes like these."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_5"
+     }
+    ]
+   },
+   "target_room": "sq_quarry_rim"
+  },
+  {
+   "id": "copper_for_the_bellows",
+   "name": "Copper for the Bellows",
+   "kind": "side",
+   "giver": "smith_bao",
+   "hand_in": "smith_bao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Bring Copper ore",
+     "count": 8,
+     "item": "copper_ore"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 100
+    },
+    {
+     "kind": "grant_item",
+     "item": "forge_hammer",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "My bellows need new copper fittings and the quarry price doubled. Mine me some, would you?"
+   ],
+   "complete_text": [
+    "Good ore. Take my old hammer. It still rings true."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_5"
+     }
+    ]
+   }
+  },
+  {
+   "id": "auntie_rongs_soup",
+   "name": "Auntie Rong's Soup",
+   "kind": "side",
+   "giver": "auntie_rong",
+   "hand_in": "auntie_rong",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "deliver",
+     "text": "Bring Riverfish Soup",
+     "count": 2,
+     "item": "riverfish_soup"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    },
+    {
+     "kind": "grant_item",
+     "item": "lotus_root_tea",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "My hands shake too much to gut fish these days. Two bowls of riverfish soup for my grandsons?"
+   ],
+   "complete_text": [
+    "Just like my mother made. Take some tea, dear."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_8"
+     },
+     {
+      "kind": "unlock",
+      "system": "cooking"
+     }
+    ]
+   }
+  },
+  {
+   "id": "kais_wager",
+   "name": "Kai's Wager",
+   "kind": "side",
+   "giver": "adventurer_kai",
+   "hand_in": "adventurer_kai",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat Mud Hounds at the Mudwater stockade",
+     "count": 6,
+     "enemy": "mud_hound"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 150
+    }
+   ],
+   "offer_text": [
+    "I bet Rui you could clear the stockade kennels before I could. Don't make me lose."
+   ],
+   "complete_text": [
+    "Ha! Rui owes me a month of dumplings. Here's your cut."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_7"
+     }
+    ]
+   },
+   "target_room": "mh_stockade"
+  },
+  {
+   "id": "su_qings_map",
+   "name": "Su Qing's Map",
+   "kind": "side",
+   "giver": "adventurer_su",
+   "hand_in": "adventurer_su",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Reach the Echo Cliffs",
+     "count": 1,
+     "room": "wg_echo_cliffs"
+    },
+    {
+     "kind": "kill",
+     "text": "Drive off Boulder Serpents",
+     "count": 3,
+     "enemy": "boulder_serpent"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 250
+    },
+    {
+     "kind": "grant_item",
+     "item": "spirit_stone_low",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "I'm charting the gorge for the cartographers' guild. The serpents on the Echo Cliffs keep eating my surveyors' lunch."
+   ],
+   "complete_text": [
+    "The ledge is clear. My map will have your name in the corner."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_3"
+     }
+    ]
+   },
+   "target_room": "wg_echo_cliffs"
+  },
+  {
+   "id": "mins_first_caravan",
+   "name": "Min's First Caravan",
+   "kind": "side",
+   "giver": "hamlet_trader_min",
+   "hand_in": "hamlet_trader_min",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Clear the gorge bandits from the caravan road",
+     "count": 5,
+     "enemy": "gorge_bandit_adept"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "spirit_stone_low",
+     "count": 3
+    }
+   ],
+   "offer_text": [
+    "Greyreed's first caravan leaves for Stoneford tomorrow. The gorge bandits know it too."
+   ],
+   "complete_text": [
+    "The caravan made it! Greyreed is a real trade post now."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "market_day"
+     }
+    ]
+   },
+   "target_room": "wg_gorge_mouth"
+  },
+  {
+   "id": "wen_zhaos_challenge",
+   "name": "Wen Zhao's Challenge",
+   "kind": "side",
+   "giver": "wen_zhao",
+   "hand_in": "wen_zhao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "win_spar",
+     "text": "Beat Wen Zhao in a rematch",
+     "count": 1,
+     "opponent": "wen_zhao"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_title",
+     "title": "rivals_respect"
+    }
+   ],
+   "offer_text": [
+    "The finals were luck. Face me again, here, with no crowd to cheer for you."
+   ],
+   "complete_text": [
+    "...Not luck, then. Next time I'll be ready."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_valley_finals"
+     }
+    ]
+   }
   },
   {
    "id": "guos_old_wound",

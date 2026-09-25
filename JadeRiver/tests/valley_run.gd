@@ -890,6 +890,18 @@ func sec_qu1() -> void:
 	check(travel("ds_hall_of_lanterns"), "reach the Hall of Lanterns")
 	for o in objects_of("inspect"): interact(str(o.id))
 	check(finish("lus_handwriting"), "Lu's Handwriting done")
+	check(start("the_riverbreath_trial"), "The Riverbreath Trial accepted")
+	check(travel("ds_scripture_well"), "reach the Scripture Well")
+	var well := objects_of("rite_circle", "event", "riverbreath_trial")
+	var wr := interact(str(well[0].id)) if not well.is_empty() else {}
+	check(wr.get("ok", false), "begin Lu's inheritance trial %s" % str(wr))
+	var tw: float = Game.sim_time
+	while not ("riverbreath_trial" in c().cultivator.events_passed) and Game.sim_time - tw < 120.0:
+		fight("drowned_acolyte", 1, 5.0)
+		revive_if_needed()
+		step(0.5)
+	check("riverbreath_trial" in c().cultivator.events_passed, "hold the Scripture Well: the inheritance accepts you")
+	check(finish("the_riverbreath_trial"), "The Riverbreath Trial done")
 	check(start("the_drowned_abbot"), "The Drowned Abbot accepted (fought at Qi Unfurling 9, its level)")
 	# Qi Unfurling 4: the herb garden.
 	check(reach("qi_unfurling_4"), "Qi Unfurling 4")
@@ -1366,9 +1378,12 @@ func sec_hg1() -> void:
 	check(finish("what_remains"), "What Remains done")
 	check(reach("heaven_glimpse_3"), "Heaven Glimpse 3")
 	check(start("beyond_the_valley"), "Beyond the Valley accepted")
+	check(travel("sr_frozen_shrine"), "follow Lu's map to the Frozen Shrine")
+	check(finish("beyond_the_valley"), "Beyond the Valley done")
+	check(start("farewells"), "Farewells accepted")
 	for npc in ["aunt_ping", "old_ma", "granny_liu", "little_dou", "uncle_guo"]:
 		talk(go_to_npc([npc]))
-	check(finish("beyond_the_valley"), "Beyond the Valley done")
+	check(finish("farewells"), "Farewells done")
 	check(start("the_ascension_gate"), "The Ascension Gate accepted")
 	var gate_room := _room_with_spawn("gate_guardian")
 	check(defeat("gate_guardian", gate_room, 4), "defeat the Gate Guardian (%s)" % gate_room)

@@ -48,6 +48,14 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
 - Formations: the Restraint (monsters move 30% slower) and Concealment (monsters do not notice you until
   you strike) blueprints from library floor 3, completing the five valley formations. The blueprint
   list scrolls.
+- Story: "The Riverbreath Trial" (Lu's inheritance at the Scripture Well: hold the ring while the drowned
+  rise) before the Drowned Abbot, and "Farewells" split from "Beyond the Valley" (follow Lu's map to the
+  Frozen Shrine first), matching the chapter list. Nine new side quests give the valley's quieter people
+  a thread each (Fisher Wen, Washer Mei, Proprietor Fang, Smith Bao, Auntie Rong, Kai, Su Qing, Trader
+  Min and a Wen Zhao rematch): 127 authored quests in all.
+- Balance simulator: optional side quests now cost active time (10 minutes each) as well as paying their
+  QP share, so adding side content no longer speeds the pacing. Every realm lands within 0.95-1.09 of the
+  pacing table; Act I ends at 65.7 h (target 65).
 - Companions, spirit animals (starter choice, taming with offerings, eggs), your own sect (buildings
   that appear as built, disciples, expeditions, defence raids), mail, achievements and titles.
 - 27 pages on one shared frame, a HUD that reveals itself, a minimap, dialogue with portraits, shops,

@@ -148,7 +148,8 @@ def npcs():
         ["We picked different sects. Doesn't mean I'll go easy on you.", "Spar me at the practice yard. I'm faster now."], ["Still slow?"], services=["spar:shen_lian"],
         service_labels={"spar:shen_lian": "Spar"})
     npc("wen_zhao", "Wen Zhao", "Rival", outfit("flowing", 0, "disciple", "martial", "boots", weapon="sword", cape="solid", shirt_dye="ink", pants_dye="ink"),
-        ["The tournament finals. You and me. Don't disappoint.", "Talent is a door. You still have to walk through it."], ["Hmph."])
+        ["The tournament finals. You and me. Don't disappoint.", "Talent is a door. You still have to walk through it."], ["Hmph."],
+        services=["spar:wen_zhao"], service_labels={"spar:wen_zhao": "Spar"})
     npc("fair_vendor_he", "Vendor He", "Fair vendor", outfit("short_knot", 5, "vneck", "loose", "slippers", shirt_dye="rose"),
         ["Candied hawthorn! Sect badges! Lucky charms!", "Buy a lucky charm. Can't hurt."], ["Hawthorn! Sweet hawthorn!"])
     npc("adventurer_rui", "Rui", "Retired disciple", outfit("topknot", 5, "scholar", "straight", "folded", shirt_dye="grey"),
@@ -828,18 +829,25 @@ def guided_quests():
     ], [item("mistjade_cape", 1), fx("learn_technique", technique="glimpse_of_heaven")], offered_by_unlock=True, chapter="9", giver_any=M, hand_in_any=M,
         offer=["Heaven Glimpse. There's a stone at the Forgotten Monastery where the sky leans close."], complete=["You glimpsed it. Now the valley feels small."])
     quest("beyond_the_valley", "Beyond the Valley", "main", "lu_boatman", [
+        o("reach_room", "Follow Lu's map to the Frozen Shrine on Summit Ridge", room="sr_frozen_shrine"),
+    ], [fx("codex", entry="azure_expanse")], offered_by_unlock=True, chapter="10", target_room="sr_frozen_shrine",
+        offer=["Heaven Glimpse 3. The valley can't hold you any more. Here: my old map.",
+               "The way out runs past the Frozen Shrine. Walk it once, then come back and tell me what you saw."],
+        complete=["The Gate is past the shrine, then. Before you go, the village will want to see you."],
+        next="farewells")
+    quest("farewells", "Farewells", "main", "lu_boatman", [
         o("talk_to", "Visit Aunt Ping", npc="aunt_ping"),
         o("talk_to", "Visit Old Ma", npc="old_ma"),
         o("talk_to", "Visit Granny Liu", npc="granny_liu"),
         o("talk_to", "Visit Little Dou", npc="little_dou"),
         o("talk_to", "Visit Uncle Guo", npc="uncle_guo"),
-    ], [fx("codex", entry="azure_expanse")], offered_by_unlock=True, chapter="10", target_room="lf_village",
-        offer=["Heaven Glimpse 3. The valley can't hold you. Say your farewells; I'll draw you the way to the Gate."],
-        complete=["Here's the map. The Ascension Gate is past the Frozen Shrine."],
+    ], [], requires=all_of(qdone("beyond_the_valley")), chapter="10", target_room="lf_village",
+        offer=["Say your farewells. Aunt Ping first, or she'll never forgive either of us."],
+        complete=["Good. Now go. The river will still be here."],
         next="the_ascension_gate")
     quest("the_ascension_gate", "The Ascension Gate", "main", "lu_boatman", [
         o("kill", "Defeat the Gate Guardian", enemy="gate_guardian"),
-    ], [fx("codex", entry="act_one_end")], hand_in="", auto_accept=True, requires=all_of(qdone("beyond_the_valley")), chapter="10",
+    ], [fx("codex", entry="act_one_end")], hand_in="", auto_accept=True, requires=all_of(qdone("farewells")), chapter="10",
         target_room="mp_ascension_gate")
 
 
@@ -891,9 +899,16 @@ def main_quests():
         o("interact_object", "Find Lu's inscriptions", 4, type="inspect", room="ds_hall_of_lanterns"),
     ], [fx("codex", entry="lu_past")], requires=all_of(qdone("the_shrine_surfaces")), chapter="5", giver_any=M, hand_in_any=M,
         target_room="ds_hall_of_lanterns", offer=["Find what Lu wrote."], complete=["Lu was here. Long before you were born."])
+    quest("the_riverbreath_trial", "The Riverbreath Trial", "main", "elder_hu", [
+        o("pass_event", "Pass Lu's inheritance trial at the Scripture Well", event="riverbreath_trial"),
+    ], [fx("codex", entry="riverbreath_inheritance")], requires=all_of(qdone("lus_handwriting")), chapter="5", giver_any=M, hand_in_any=M,
+        target_room="ds_scripture_well",
+        offer=["Lu left more than words down there. An inheritance tests the one who claims it.",
+               "Stand in the stone ring by the well and hold while the drowned rise. Breathe with the river."],
+        complete=["The well accepted you. Now only the Abbot stands between you and Lu's method."])
     quest("the_drowned_abbot", "The Drowned Abbot", "main", "elder_hu", [
         o("kill", "Defeat the Drowned Abbot", enemy="drowned_abbot"),
-    ], [item("riverbreath_scroll", 1)], requires=all_of(qdone("lus_handwriting")), chapter="5", giver_any=M, hand_in_any=M,
+    ], [item("riverbreath_scroll", 1)], requires=all_of(qdone("the_riverbreath_trial")), chapter="5", giver_any=M, hand_in_any=M,
         target_room="ds_abbots_sanctum", offer=["The Abbot guards the Riverbreath inheritance. Ring his four bells to silence him."],
         complete=["The full Riverbreath. Lu's own method."])
     quest("quiet_before_the_storm", "Quiet Before the Storm", "main", "elder_hu", [
@@ -934,6 +949,45 @@ def main_quests():
 
 
 def side_quests():
+    # Small valley threads for the people who had none (optional; Part 8 "about 35 side quests").
+    quest("nets_and_shells", "Nets and Shells", "side", "fisher_wen", [o("collect", "Bring Mudshell Crab shells", 5, item="crab_shell")],
+          [taels(40), item("roast_fish", 2)], requires=all_of(realm("bone_forging_2")), target_room="lf_reed_shallows",
+          offer=["The crabs cut my nets to ribbons. Bring me their shells and I'll patch the nets with them. Fair's fair."],
+          complete=["Ha! Crab-shell floats. They'll never live it down. Here, supper."])
+    quest("the_muddy_wash", "The Muddy Wash", "side", "washer_mei", [o("kill", "Chase the Reedtail Rats off the washing lines", 6, enemy="reedtail_rat")],
+          [taels(40)], requires=all_of(realm("bone_forging_3")), target_room="lf_reed_shallows",
+          offer=["Rats in the reeds again. They chew the lines and drag the washing through the mud. Six of them, at least."],
+          complete=["Clean sheets for once. Bless you."])
+    quest("beetle_shell_lacquer", "Beetle Shell Lacquer", "side", "storekeeper_fang", [o("collect", "Bring Rock Beetle shells", 6, item="beetle_shell")],
+          [taels(90)], requires=all_of(realm("bone_forging_5")), target_room="sq_quarry_rim",
+          offer=["Ground beetle shell makes the finest lacquer in the valley. The quarry beetles are too tough for my porters."],
+          complete=["Look at that shine. The Jade Sect will pay double for boxes like these."])
+    quest("copper_for_the_bellows", "Copper for the Bellows", "side", "smith_bao", [o("collect", "Bring Copper ore", 8, item="copper_ore")],
+          [taels(100), item("forge_hammer", 1)], requires=all_of(realm("bone_forging_5")),
+          offer=["My bellows need new copper fittings and the quarry price doubled. Mine me some, would you?"],
+          complete=["Good ore. Take my old hammer. It still rings true."])
+    quest("auntie_rongs_soup", "Auntie Rong's Soup", "side", "auntie_rong", [o("deliver", "Bring Riverfish Soup", 2, item="riverfish_soup")],
+          [taels(80), item("lotus_root_tea", 2)], requires=all_of(realm("bone_forging_8"), unlocked("cooking")),
+          offer=["My hands shake too much to gut fish these days. Two bowls of riverfish soup for my grandsons?"],
+          complete=["Just like my mother made. Take some tea, dear."])
+    quest("kais_wager", "Kai's Wager", "side", "adventurer_kai", [o("kill", "Defeat Mud Hounds at the Mudwater stockade", 6, enemy="mud_hound")],
+          [taels(150)], requires=all_of(realm("qi_kindling_7")), target_room="mh_stockade",
+          offer=["I bet Rui you could clear the stockade kennels before I could. Don't make me lose."],
+          complete=["Ha! Rui owes me a month of dumplings. Here's your cut."])
+    quest("su_qings_map", "Su Qing's Map", "side", "adventurer_su", [
+        o("reach_room", "Reach the Echo Cliffs", room="wg_echo_cliffs"),
+        o("kill", "Drive off Boulder Serpents", 3, enemy="boulder_serpent"),
+    ], [taels(250), item("spirit_stone_low", 2)], requires=all_of(realm("heart_tempering_3")), target_room="wg_echo_cliffs",
+          offer=["I'm charting the gorge for the cartographers' guild. The serpents on the Echo Cliffs keep eating my surveyors' lunch."],
+          complete=["The ledge is clear. My map will have your name in the corner."])
+    quest("mins_first_caravan", "Min's First Caravan", "side", "hamlet_trader_min", [o("kill", "Clear the gorge bandits from the caravan road", 5, enemy="gorge_bandit_adept")],
+          [item("spirit_stone_low", 3)], requires=all_of(qdone("market_day")), target_room="wg_gorge_mouth",
+          offer=["Greyreed's first caravan leaves for Stoneford tomorrow. The gorge bandits know it too."],
+          complete=["The caravan made it! Greyreed is a real trade post now."])
+    quest("wen_zhaos_challenge", "Wen Zhao's Challenge", "side", "wen_zhao", [o("win_spar", "Beat Wen Zhao in a rematch", opponent="wen_zhao")],
+          [fx("grant_title", title="rivals_respect")], requires=all_of(qdone("the_valley_finals")),
+          offer=["The finals were luck. Face me again, here, with no crowd to cheer for you."],
+          complete=["...Not luck, then. Next time I'll be ready."])
     quest("guos_old_wound", "Guo's Old Wound", "side", "uncle_guo", [o("collect", "Bring Willow Salve", item="willow_salve")],
           [taels(80)], requires=all_of(realm("qi_kindling_3")), target_room="lf_village",
           offer=["My old meridian wound aches. Granny's salve helps."], complete=["Ahh. Better."])
@@ -1095,6 +1149,7 @@ def codex():
         {"id": "hollowed", "title": "Hollowed beasts", "body": "Grey versions of valley animals. They spread the Hollowing with every hit."},
         {"id": "yan_heng", "title": "Yan Heng", "body": "A figure in the light of the Cleansing. A man with a river in his eyes."},
         {"id": "lu_past", "title": "Lu's past", "body": "Lu's handwriting on a shrine drowned a hundred years ago."},
+        {"id": "riverbreath_inheritance", "title": "The Riverbreath inheritance", "body": "Lu hid his method's full form at the bottom of the Scripture Well, for whoever could breathe with the river."},
         {"id": "heart_trial", "title": "The Heart Trial", "body": "A mirror. What comes out is you."},
         {"id": "flight", "title": "Flight", "body": "At Cloud Stride, Qi carries the body."},
         {"id": "azure_expanse", "title": "The Azure Expanse", "body": "Beyond the Ascension Gate: a larger world."},

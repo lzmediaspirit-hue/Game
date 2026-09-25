@@ -362,6 +362,7 @@ def achievements():
         {"id": "valley_champion", "name": "Valley Champion", "modifiers": [{"stat": "physical_attack", "op": "pct_add", "value": 0.01}]},
         {"id": "guos_student", "name": "Guo's Student", "modifiers": [{"stat": "fist_attack", "op": "pct_add", "value": 0.01}]},
         {"id": "big_sibling", "name": "Big Sibling", "modifiers": [{"stat": "max_hp", "op": "pct_add", "value": 0.01}]},
+        {"id": "rivals_respect", "name": "Rival's Respect", "modifiers": [{"stat": "crit_chance", "op": "flat", "value": 0.01}]},
     ]
     entries("titles", T)
     entries("emotes", [
@@ -454,7 +455,7 @@ def strings():
     S.update({
         "currency.silver_tael": "Silver Taels", "currency.spirit_stone": "Spirit Stones", "currency.contribution": "Contribution",
         "failure.backlash": "Qi backlash", "failure.injury": "Meridian injury", "failure.setback": "Setback",
-        "event.heavens_cleansing": "Heaven's Cleansing", "event.heart_trial": "The Heart Trial", "event.hollow_night": "The Hollow Night",
+        "event.heavens_cleansing": "Heaven's Cleansing", "event.riverbreath_trial": "The Riverbreath Trial", "event.heart_trial": "The Heart Trial", "event.hollow_night": "The Hollow Night",
         "flag.night_survived": "Survived the night",
         "ui.begin": "Begin", "ui.continue": "Continue", "ui.new_game": "New Game", "ui.settings": "Settings", "ui.back": "Back",
         "ui.unaffiliated": "Unaffiliated", "ui.locked": "Locked",

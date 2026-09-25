@@ -140,6 +140,24 @@
    "level": 27
   },
   {
+   "id": "rite_riverbreath",
+   "type": "rite_circle",
+   "at": [
+    1300,
+    880
+   ],
+   "event": "riverbreath_trial",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_riverbreath_trial"
+     }
+    ]
+   },
+   "text": "A ring of worn river stones around the well. Lu's words: \"Breathe with the river.\""
+  },
+  {
    "id": "inscription_ds_scripture_well_0",
    "type": "inspect",
    "at": [

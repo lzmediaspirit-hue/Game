@@ -143,6 +143,17 @@
      "value": 0.01
     }
    ]
+  },
+  {
+   "id": "rivals_respect",
+   "name": "Rival's Respect",
+   "modifiers": [
+    {
+     "stat": "crit_chance",
+     "op": "flat",
+     "value": 0.01
+    }
+   ]
   }
  ]
 }
