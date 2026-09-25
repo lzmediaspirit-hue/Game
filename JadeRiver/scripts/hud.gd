@@ -746,6 +746,19 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.egg_infused_" + str(p.get("kind", "blood"))), UiKit.BRIGHT_JADE)
 		"party_changed":
 			add_log(Tx.t("hud.party_changed") % int(p.get("count", 1)), UiKit.MIST)
+		"pet_skill_learned":
+			var rep := str(p.get("replaced", ""))
+			if rep != "": add_log(Tx.t("hud.pet_skill_replaced") % [_pet_name(str(p.pet)), ContentDB.name_of("pet_skill_books", str(p.skill)), ContentDB.name_of("pet_skill_books", rep)], UiKit.PALE_GOLD)
+			else: add_log(Tx.t("hud.pet_skill_learned") % [_pet_name(str(p.pet)), ContentDB.name_of("pet_skill_books", str(p.skill))], UiKit.BRIGHT_JADE)
+		"pets_fused":
+			toast(Tx.t("hud.pets_fused") % _pet_name(str(p.keep)), "gold", Tx.t("hud.pets_fused_sub") % [(p.get("traits", []) as Array).size(), (p.get("skills", []) as Array).size(), int(p.get("purity", 0))])
+		"pet_core_formed":
+			toast(Tx.t("hud.pet_core_formed") % [_pet_name(str(p.pet)), str(Game.pets.core_grade_def(str(p.get("grade", ""))).get("name", ""))], "unlock", Tx.t("hud.pet_core_formed_sub"))
+		"pet_breakthrough":
+			if p.get("success", false): add_log(Tx.t("hud.pet_breakthrough_ok") % _pet_name(str(p.pet)), UiKit.BRIGHT_JADE)
+			else: toast(Tx.t("hud.pet_breakthrough_fail") % _pet_name(str(p.pet)), "danger", Tx.t("hud.pet_breakthrough_" + ("heart" if str(p.get("lost", "")) == "heart" else "wound")))
+		"pet_gear_changed":
+			if str(p.get("item", "")) != "": add_log(Tx.t("hud.pet_gear") % [_pet_name(str(p.pet)), ContentDB.item_name(str(p.item))], UiKit.MIST)
 		"core_devoured":
 			add_log(Tx.t("hud.core_devoured") % [_pet_name(str(p.pet)), ContentDB.item_name(str(p.item)), int(float(p.xp))], UiKit.BRIGHT_JADE)
 		"cores_sold":

@@ -1434,6 +1434,30 @@
        }
       ]
      }
+    },
+    {
+     "item": "pet_book_iron_hide",
+     "price": 400,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "pet_book_deep_pockets",
+     "price": 900,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       }
+      ]
+     }
     }
    ]
   },

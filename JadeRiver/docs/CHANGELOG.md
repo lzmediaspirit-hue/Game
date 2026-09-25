@@ -5,6 +5,36 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V7c · Spirit beasts: skill books, gear, fusion and breakthroughs (S46)
+- **Skill books** (`pet_skill_books.json`). Learned slots open by stage (2 as a Juvenile, 3 as an Adult, 4 from
+  Awakened); when they are full a new book overwrites a random slot. Teach from the Growth tab, or use a book from
+  the gourd on the active animal.
+  - Iron Hide: 10 % less damage (Beast Hall shop).
+  - Frenzy: strikes 15 % faster for 6 s after a kill (Big Toad Tan, 35 %).
+  - Deep Pockets: one more gourd row while it is active (Beast Hall shop).
+  - Herb Whisper: rare herbs within 400 show their ripening time (the new chest on the Falls Pool ledge).
+  - Thunder Roar: every 15 s of a fight, foes near it are stunned for 1 s (the Stormwing Hawk elite, 25 %).
+  - Guardian Spirit: takes one blow meant for you every 30 s (its book comes with the Beast Trial Grove).
+  - Book drops roll on their own stream, so the loot roll is unchanged.
+- **Pet gear.** The Bone Collar (+10 % HP), Scale Talisman (+10 % attack, +5 % defence) and Reed Saddle (+10 %
+  mount speed) are forged at the anvil. They are enhanced like any gear (+10 % of the base a level) and worn by an
+  animal. Equipping one from the gourd puts it on the active animal. Random drops never roll pet gear.
+- **Fusion** at the Beast Hall or the Beast Pavilion. Fold one animal into another: a 30 % chance at each of its
+  traits and learned skills, and half its purity above the kept one's. It asks for confirmation, locked animals are
+  never fused, and the sacrificed animal's gear comes back to the gourd.
+- **Pet breakthroughs.** From Awakened on, a stage-up is a breakthrough: a 55 % base, +0.2 % a point of purity,
+  and up to three support items (cores of its element +5–20 %, essence blood +15 %), capped at 95 %. A failure costs
+  a heart or leaves a Grievous Wound.
+- **Pet Core Formation** (Adult to Awakened) grades the core from purity, growth, support and a roll: Cracked,
+  Common (+5 %), Fine (+10 %) or Flawless (+18 %) to every stat.
+- **Spirit Animals page:** Care and Growth tabs. Growth shows the purity bar with the 50 and 90 marks, growth and
+  aptitude, the contract and core, learned-skill chips, gear slots, books and gear to use, the breakthrough with
+  support toggles, and a Fuse picker. Icons for the six books and three pieces of gear.
+- **Events:** `pet_skill_learned`, `pets_fused`, `pet_core_formed`, `pet_breakthrough` and `pet_gear_changed`.
+- **Tests:** slots by stage, overwrite under a fixed seed, every skill's effect, gear and enhancement, the saddle
+  rule, fusion (place, lock, confirmation, purity, about 30 % odds over 180 rolls), breakthrough odds, success and
+  failure, and the core grade.
+
 ### V7b · Spirit beasts: awakenings, contracts, command capacity and incubation (S46)
 - **Bloodline awakenings.** At 50 purity an ancestral skill wakes: a heavy strike (×2.5) every 12 s of a fight,
   such as the Ember Fox's Nine-Tail Flame. At 90 the animal takes its true form (the Nine-Tail Fox): +10 % to every

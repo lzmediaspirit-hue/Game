@@ -195,7 +195,8 @@ def build():
             [atk("swoop", 0.5, 60, 1.0, dash=120)], ai="flyer", speed=110, flying=True, width=26, height=50),
         mob("stormwing_hawk", (38, 43), "normal", "thunder", "cliffs", [d("storm_feather", 0.5)],
             [atk("lightning_dive", 0.55, 60, 1.2, dash=140, status={"id": "shock", "chance": 0.3, "power": 0.2, "duration_s": 3})],
-            ai="flyer", speed=140, flying=True, width=22, height=34),
+            ai="flyer", speed=140, flying=True, width=22, height=34,
+            pet_book={"item": "pet_book_thunder_roar", "chance": 0.25, "elite_only": True}),   # S46: only the elite
         mob("cliff_ape", (41, 45), "normal", "earth", "cliffs", [d("ape_fur", 0.5), d("cloudtop_orchid", 0.05)],
             [atk("smash", 0.5, 60, 1.2), atk("boulder_throw", 0.7, 320, 1.3, projectile={"speed": 360, "art": "boulder"})],
             ai="humanoid", speed=90, width=28, height=56),
@@ -306,7 +307,7 @@ def build():
             ai="boss_tan", art=human("big_toad_tan"), race="human", energy="primal_qi", width=24, height=96,
             phases=[{"below": 0.5, "action": "drink_wine", "heal": 0.1, "breakable": "wine_jar"}], unique_drop="mudwater_cleaver",
             # The first dungeon boss teaches the pattern (dodge the club, break the wine jars) rather than walls it.
-            hp_mult=0.6, attack_mult=0.8),
+            hp_mult=0.6, attack_mult=0.8, pet_book={"item": "pet_book_frenzy", "chance": 0.35}),
         mob("riverbed_serpent", 25, "field_boss", "water", "bend", [d("serpent_core", 1.0), d("serpent_scale", 1.0, (2, 4))],
             [atk("bite", 0.6, 110, 1.3, depth=40), atk("tail_flood", 1.0, 260, 1.0, depth=80, both_sides=True)], ai="boss_serpent",
             width=70, height=150, respawn_min=45, flying=True, phases=[{"below": 0.5, "action": "flood"}]),
@@ -399,6 +400,10 @@ def build():
                                                         {"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "foundation_guard_pill", "weight": 1, "count": [1, 1]}]}],
                    "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {}})
+    # S46: the chest on the ledge beside Crane Falls keeps the Herb Whisper skill book.
+    tables.append({"id": "falls_pool_chest", "guaranteed": [{"item": "pet_book_herb_whisper", "count": [1, 1], "chance": 1.0},
+                                                             {"item": "mist_lotus", "count": [1, 2], "chance": 1.0}],
+                   "groups": [], "coins": {"chance": 1.0, "mult": 6}, "rare": [], "equipment": {}})
     tables.append({"id": "chest_dungeon", "guaranteed": [{"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "foundation_guard_pill", "weight": 1, "count": [1, 1]}]}],
                    "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {"chance": 0.6, "min_quality": "fine"}})

@@ -207,6 +207,18 @@
    ]
   },
   {
+   "id": "ledge_chest",
+   "type": "chest",
+   "at": [
+    760,
+    668
+   ],
+   "loot": "falls_pool_chest",
+   "level": 12,
+   "alt": 200,
+   "surface": "falls_ledge"
+  },
+  {
    "id": "rare_lotus_fp",
    "type": "herb_patch",
    "at": [

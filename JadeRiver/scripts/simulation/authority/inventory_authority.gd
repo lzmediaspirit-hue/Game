@@ -291,6 +291,13 @@ func apply_affixes(actor_id: String, inst: Dictionary, affixes: Array, slot: Str
 	inst.affixes = affixes
 	if slot != "": emit("equipment_changed", {"actor": actor_id, "slot": slot, "old": inst.id, "new": inst.id})
 
+## S46 Deep Pockets: the pet authority sets the gourd's extra slots; anything already in them stays until moved.
+func apply_bonus_slots(actor_id: String, n: int) -> void:
+	var c = game.character(actor_id)
+	if c == null or c.inventory.bonus_slots == n: return
+	c.inventory.bonus_slots = n
+	c.inventory.resize(c.inventory.capacity())
+
 func apply_enhance(actor_id: String, inst: Dictionary, level: int, slot: String) -> void:
 	inst.enhance = level
 	if slot != "": emit("equipment_changed", {"actor": actor_id, "slot": slot, "old": inst.id, "new": inst.id})
@@ -457,6 +464,7 @@ func equip(c, index: int) -> Dictionary:
 	var inst: Dictionary = c.inventory.bag[index]
 	var def := ContentDB.item(str(inst.id))
 	if def.get("type") != "equipment": return fail("not_equipment")
+	if def.has("pet_gear"): return game.pets.equip_pet(c, c.active_pet, index)   # S46: worn by your active animal
 	var why := wear_check(c, def)
 	if why != "": return fail("cannot_wear", {"text": why})
 	var slot := str(def.slot)

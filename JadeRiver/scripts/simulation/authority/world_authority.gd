@@ -99,10 +99,15 @@ func _tick_rare_herbs(c, rt: RoomRuntime, delta: float) -> void:
 	if herb_clock > 0.0: return
 	herb_clock = 1.0
 	var st: ActorState = game.actor_state(c.id)
+	var whisper: float = game.pets.whisper_range(c)   # S46 Herb Whisper: an animal beside you reads the herbs near you
 	for o in rt.def.get("objects", []):
 		if o.type != "herb_patch" or not o.has("ripen"): continue
 		var os: Dictionary = rt.objects.get(str(o.id), {})
 		var hs := herb_state(o)
+		var hat: Array = o.get("at", [0, 0])
+		if whisper > 0.0 and st != null and st.plane.distance_to(Vector2(float(hat[0]), float(hat[1]))) <= whisper:
+			sensed_herbs[str(o.id)] = {"until": game.sim_time + 1.5, "utc": Clock.now_utc(), "ripe": hs.ripe, "seconds": float(hs.seconds), "dormant": hs.dormant,
+				"season": str(o.get("season", "")), "spent": os.get("state", "ready") == "depleted"}
 		var ripe: bool = hs.ripe and not hs.dormant and os.get("state", "ready") == "ready"
 		if ripe and not os.get("ripe", false):
 			emit("herb_ripening", {"actor": c.id, "room": rt.room_id, "object": str(o.id), "item": str(o.item), "seconds": float(hs.seconds)})
@@ -690,6 +695,11 @@ func _on_actor_defeated(p: Dictionary) -> void:
 	var core := beast_core_for(def, int(p.level))
 	if core != "" and not bool(p.get("summoned", false)) and Rng.stream(c.id, "cores").randf() < core_chance(def, int(p.level)):
 		drop.items.append({"item": core, "count": 1})
+	# S46 pet skill books from bosses and elites, on their own stream.
+	var book: Dictionary = def.get("pet_book", {})
+	if not book.is_empty() and not bool(p.get("summoned", false)) and (bool(p.get("elite", false)) or not book.get("elite_only", false)) \
+			and Rng.stream(c.id, "books").randf() < float(book.get("chance", 0.0)):
+		drop.items.append({"item": str(book.item), "count": 1})
 	# S45 Spirit Soil: 1% from a beast of rank 3 or above (Level 19+), on its own stream so the loot roll is untouched.
 	var soil: Dictionary = ContentDB.config("garden").get("spirit_soil", {})
 	if str(def.get("race", "")) == "beast" and int(p.level) >= int(soil.get("min_level", 19)) and not bool(p.get("summoned", false)) \

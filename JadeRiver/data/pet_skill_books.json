@@ -1,0 +1,56 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "iron_hide",
+   "name": "Iron Hide",
+   "effect": "+10% defence",
+   "bonus": {
+    "pet_damage_taken": -0.1
+   },
+   "source": "Beast Hall shop"
+  },
+  {
+   "id": "frenzy",
+   "name": "Frenzy",
+   "effect": "+15% attack speed for 6 s after a kill",
+   "frenzy": {
+    "speed": 0.15,
+    "seconds": 6.0
+   },
+   "source": "Mudwater Boss Den"
+  },
+  {
+   "id": "deep_pockets",
+   "name": "Deep Pockets",
+   "effect": "+1 bag row while active",
+   "bag_slots": 6,
+   "source": "Beast Hall shop"
+  },
+  {
+   "id": "herb_whisper",
+   "name": "Herb Whisper",
+   "effect": "Shows ripening timers within 400 units",
+   "whisper": 400,
+   "source": "Falls Pool chest"
+  },
+  {
+   "id": "thunder_roar",
+   "name": "Thunder Roar",
+   "effect": "Stun ring, 1 s",
+   "roar": {
+    "radius": 130,
+    "stun_s": 1.0,
+    "every_s": 15.0
+   },
+   "source": "Stormwing Hawk elite"
+  },
+  {
+   "id": "guardian_spirit",
+   "name": "Guardian Spirit",
+   "effect": "Absorbs one hit on the owner every 30 s",
+   "guard_every_s": 30.0,
+   "source": "Beast Trial Grove"
+  }
+ ]
+}

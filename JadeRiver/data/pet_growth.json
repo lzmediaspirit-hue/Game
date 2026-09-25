@@ -118,6 +118,67 @@
   "reroll_item": "beast_essence_blood",
   "hatch_hearts": 3
  },
+ "fusion": {
+  "trait_chance": 0.3,
+  "skill_chance": 0.3,
+  "purity_share": 0.5,
+  "max_traits": 5
+ },
+ "gear": {
+  "slots": [
+   "pet_collar",
+   "pet_talisman",
+   "pet_saddle"
+  ],
+  "per_enhance": 0.1
+ },
+ "breakthrough": {
+  "from": "awakened",
+  "base": 0.55,
+  "per_purity": 0.002,
+  "cap": 0.95,
+  "max_support": 3,
+  "support": {
+   "low": 0.05,
+   "mid": 0.1,
+   "high": 0.15,
+   "peak": 0.2,
+   "beast_essence_blood": 0.15
+  },
+  "fail_heart_share": 0.5
+ },
+ "core_grades": [
+  {
+   "id": "cracked",
+   "name": "Cracked Core",
+   "min": 0,
+   "bonus": 0.0
+  },
+  {
+   "id": "common",
+   "name": "Common Core",
+   "min": 35,
+   "bonus": 0.05
+  },
+  {
+   "id": "fine",
+   "name": "Fine Core",
+   "min": 60,
+   "bonus": 0.1
+  },
+  {
+   "id": "flawless",
+   "name": "Flawless Core",
+   "min": 85,
+   "bonus": 0.18
+  }
+ ],
+ "core_points": {
+  "per_purity": 0.5,
+  "per_growth": 60,
+  "per_support": 8,
+  "roll": 20
+ },
  "cores": {
   "min_rank": 2,
   "chance_per_rank": 0.02,

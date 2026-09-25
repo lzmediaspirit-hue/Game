@@ -11,6 +11,15 @@ def item(id, type, grade="plain", stack=99, desc="", name=None, icon=None, **ext
     return row
 
 
+PET_BOOKS = [
+    ("iron_hide", "Iron Hide", "common", "An animal that learns it takes 10% less damage."),
+    ("frenzy", "Frenzy", "earth", "After a kill the animal strikes 15% faster for 6 seconds."),
+    ("deep_pockets", "Deep Pockets", "earth", "While it is your active animal, your gourd holds one more row (6 slots)."),
+    ("herb_whisper", "Herb Whisper", "earth", "While it walks beside you, herbs within 400 show how long until they ripen."),
+    ("thunder_roar", "Thunder Roar", "heaven", "Every 15 seconds of a fight it roars: foes near it are stunned for 1 second."),
+    ("guardian_spirit", "Guardian Spirit", "heaven", "Once every 30 seconds it takes a blow meant for you."),
+]
+
 HERBS = [
     ("willow_moss", "plain", "Soft moss from willow roots. The base of many remedies."),
     ("riverreed_ginseng_10", "common", "A ten-year riverreed ginseng root.", "Riverreed Ginseng (10 yr)"),
@@ -468,6 +477,10 @@ def build_items():
                      use=[effect("add_pet_purity", amount=10)], use_action="pet_item"))
     rows.append(item("beast_marrow_washing_pill", "pill", "earth", 20, "A pill for a spirit animal, not for you. It washes the marrow of your active animal's weakest gift and rolls it again. It leaves no toxicity. The animal must be a Juvenile before its gifts show.",
                      use=[effect("wash_pet_marrow")], pill={"toxicity": 0, "group": "utility"}, use_action="pet_item"))
+    # S46 pet skill books (pet_skill_books.json): taught to an animal with a free learned slot, or over a random one.
+    for bid, bname, grade, desc in PET_BOOKS:
+        rows.append(item("pet_book_" + bid, "pet_book", grade, 5, desc + " Teach it on the Spirit Animals page, or use it to teach your active animal.",
+                         name="Skill Book: " + bname, use=[effect("learn_pet_skill", skill=bid)], use_action="pet_item", pet_book=bid))
     rows.append(item("tiny_hollow_shard", "hollow", "common", 99, "A grey sliver that drinks warmth. Handle with care."))
     rows.append(item("hollow_shard", "hollow", "earth", 99, "A shard of the Hollow Tide. Appraise before use."))
     rows.append(item("grey_hide", "hollow", "common", 99, "Hide from a Hollowed beast, grey and cold."))
@@ -699,6 +712,13 @@ def build_artifacts():
         rows.append(artifact(fid, "tool_furnace", grade, name, "none", icon=icon, desc=desc, furnace=stats, sockets=0,
                              energy_type="none", ilv=(1 if grade == "plain" else None), **extra))
     rows.append(artifact("cloud_talisman", "talisman", "heaven", "Cloud Talisman", "none"))
+    # S46 pet gear: a Collar, a Talisman and (for mounts) a Saddle, forged from beast materials and enhanced at the
+    # forge (+10% of the base a level). Worn by a spirit animal, never by you.
+    for gid, gslot, grade, gname, stats, desc in [
+            ("bone_collar", "pet_collar", "common", "Bone Collar", {"hp": 0.10}, "Boar hide and mole claws. +10% HP for the animal that wears it."),
+            ("scale_talisman", "pet_talisman", "earth", "Scale Talisman", {"attack": 0.10, "defence": 0.05}, "Serpent and jade scales on a cord. +10% attack and +5% defence for the animal that wears it."),
+            ("reed_saddle", "pet_saddle", "common", "Reed Saddle", {"mount_speed": 0.10}, "Woven reed on boar hide. A mount wearing it carries you 10% faster.")]:
+        rows.append(artifact(gid, gslot, grade, gname, "none", desc=desc, pet_gear=stats, sockets=0, energy_type="none", ilv=MID_ILV[grade]))
     # Set pieces reuse appearances and grade icons.
     for sect, look in [("jade_current", ("headband", "cardigan", "martial", "folded")), ("cloudpiercing", ("tied", "vneck", "cuffed", "boots"))]:
         for slot, app in zip(["hat", "robe", "trousers", "boots"], look):

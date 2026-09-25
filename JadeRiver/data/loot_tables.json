@@ -2678,6 +2678,34 @@
    "equipment": {}
   },
   {
+   "id": "falls_pool_chest",
+   "guaranteed": [
+    {
+     "item": "pet_book_herb_whisper",
+     "count": [
+      1,
+      1
+     ],
+     "chance": 1.0
+    },
+    {
+     "item": "mist_lotus",
+     "count": [
+      1,
+      2
+     ],
+     "chance": 1.0
+    }
+   ],
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "rare": [],
+   "equipment": {}
+  },
+  {
    "id": "chest_dungeon",
    "guaranteed": [
     {

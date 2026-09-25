@@ -116,6 +116,7 @@ Progress is recorded in `docs/CHANGELOG.md`.
     Wound and the Beast Revival Pill, the Purifying Offering and the taming fix. V7b is done: bloodline awakenings
     at 50 and 90, trait strength, Beast Essence Blood, suppression, the Equal and Blood Contracts, command capacity
     with a party beside you, incubation input, 3-heart hatchlings, the Beast Marrow Washing Pill and Fox Spirit's
-    Favour. Next come V7c (skill books, gear, fusion, breakthroughs), V7d (the beast bag, the mount slot, Beast
-    Kings and Tides) and V7e (the Beast Arena, the Trial Grove, the Taming Dao);
+    Favour. V7c is done: skill books (five of six sources; Guardian Spirit's waits for the Trial Grove), pet gear,
+    fusion, pet breakthroughs with Pet Core Formation, and the Growth tab. Next come V7d (the beast bag, the mount
+    slot, Beast Kings and Tides) and V7e (the Beast Arena, the Trial Grove, the Taming Dao);
   - V8 (S49 living world, with S45's treasure births and gathering trials).

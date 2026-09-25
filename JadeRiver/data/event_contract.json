@@ -988,6 +988,36 @@
     "pet_authority"
    ]
   },
+  "pet_skill_learned": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "pets_fused": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "pet_core_formed": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "pet_breakthrough": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "pet_gear_changed": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
   "item_added": {
    "system": "Inventory",
    "files": [

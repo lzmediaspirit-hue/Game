@@ -1174,6 +1174,7 @@ def valley():
     # S43 (Leaf on the Wind, Qi Kindling 3): a vine up to a ledge beside the falls, and the spray's updraft.
     r.surface("falls_ledge", [700, 640, 240, 70], 200, kind="rock_ledge")
     r.ladder("falls_vine", 820, 710, 200, kind="vine", top="falls_ledge")
+    r.chest([760, 668], loot="falls_pool_chest", level=12, oid="ledge_chest", alt=200, surface="falls_ledge")   # S46 Herb Whisper
     r.volume("updraft", [1170, 620, 160, 200], alt=[0, 260], vid="falls_spray")
     r.spawn("jade_crane_chick", [[1700, 880]], 1, respawn=600, level=[19, 19], wild_pet=True, requires=all_of(unlock("taming")))
     r.edge("west", "west", "bg_thicket_heart", "east", y=850)

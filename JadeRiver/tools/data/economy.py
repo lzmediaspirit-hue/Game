@@ -126,7 +126,9 @@ def shops():
         {"id": "hermit", "name": "Hermit Yao's Beast Hall", "currency": "silver_tael",
          "stock": [s("taming_cauldron", price=200, requires=all_of(realm("heart_tempering_1"))), s("bonding_offering_common"), s("roast_fish"), s("fish_bait"), s("maple_leaf_vessel", price=600, requires=all_of(realm("cloud_stride_1"))),
                    s("purifying_offering", price=60, requires=all_of(realm("qi_unfurling_7"))), s("beast_revival_pill", price=45),
-                   s("beast_essence_blood", price=600, requires=all_of(realm("heart_tempering_1")))]},
+                   s("beast_essence_blood", price=600, requires=all_of(realm("heart_tempering_1"))),
+                   s("pet_book_iron_hide", price=400, requires=all_of(realm("qi_unfurling_1"))),
+                   s("pet_book_deep_pockets", price=900, requires=all_of(realm("heart_tempering_1")))]},
         # Act II · Cloudgate Port and the Thunderhorn Plains. Spirit Stone prices come from tael prices at the exchange rate.
         {"id": "alliance_factor", "name": "Alliance Factor's Hall", "currency": "spirit_stone", "discount": {"flag": "path_alliance", "pct": 0.1},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_short_blade"), s("stormsteel_staff"),
@@ -309,6 +311,10 @@ def recipes():
     r("riverreed_draught", "alchemy", [("riverreed_ginseng_10", 1), ("river_minnow", 1)], [("riverreed_draught", 1)], "common", default=True, liquid=True)
     r("copper_body_bath", "alchemy", [("tortoise_plate", 2), ("mole_claw", 2), ("willow_moss", 4)], [("copper_body_bath", 1)], "common")
     r("beast_revival_pill", "alchemy", [("riverreed_ginseng_10", 2), ("tough_meat", 1), ("willow_moss", 1)], [("beast_revival_pill", 1)], "common")
+    # S46 pet gear at the forge.
+    r("bone_collar", "smithing", [("boar_hide", 2), ("mole_claw", 2)], [("bone_collar", 1)], "common", default=True)
+    r("scale_talisman", "smithing", [("serpent_scale", 2), ("jade_scale", 2)], [("scale_talisman", 1)], "earth", default=True)
+    r("reed_saddle", "smithing", [("cloth", 3), ("boar_hide", 2)], [("reed_saddle", 1)], "common", default=True)
     r("beast_marrow_washing_pill", "alchemy", [("riverreed_ginseng_100", 1), ("tough_meat", 3), ("mist_lotus", 1)], [("beast_marrow_washing_pill", 1)], "earth")
     r("marrow_washing_bath", "alchemy", [("riverreed_ginseng_100", 1), ("hound_fang", 3), ("ape_fur", 2), ("mist_lotus", 1)], [("marrow_washing_bath", 1)], "earth")
     # S48 body ladder: each body tier teaches the next tier's bath (Iron → Jade, Jade → Gold).
@@ -516,6 +522,16 @@ def pets():
         r["family"] = family[r["id"]]
         r["movement"] = {"jump": jumps[r["id"]], "climb": r["id"] == "bamboo_monkey", "fly": False, "drop": True}
     entries("pets", rows)
+    # S46 pet skill books: what a learned skill adds (read by the pet authority, combat and the herb nodes) and where
+    # its book is found. Guardian Spirit's book waits in the Beast Trial Grove.
+    entries("pet_skill_books", [
+        {"id": "iron_hide", "name": "Iron Hide", "effect": "+10% defence", "bonus": {"pet_damage_taken": -0.10}, "source": "Beast Hall shop"},
+        {"id": "frenzy", "name": "Frenzy", "effect": "+15% attack speed for 6 s after a kill", "frenzy": {"speed": 0.15, "seconds": 6.0}, "source": "Mudwater Boss Den"},
+        {"id": "deep_pockets", "name": "Deep Pockets", "effect": "+1 bag row while active", "bag_slots": 6, "source": "Beast Hall shop"},
+        {"id": "herb_whisper", "name": "Herb Whisper", "effect": "Shows ripening timers within 400 units", "whisper": 400, "source": "Falls Pool chest"},
+        {"id": "thunder_roar", "name": "Thunder Roar", "effect": "Stun ring, 1 s", "roar": {"radius": 130, "stun_s": 1.0, "every_s": 15.0}, "source": "Stormwing Hawk elite"},
+        {"id": "guardian_spirit", "name": "Guardian Spirit", "effect": "Absorbs one hit on the owner every 30 s", "guard_every_s": 30.0, "source": "Beast Trial Grove"},
+    ])
     # Three hidden traits per animal, revealed at Juvenile, Awakened and Sovereign. `bonus` is what a revealed
     # trait of the active animal adds (read by the system that owns that number).
     entries("pet_traits", [
@@ -567,6 +583,22 @@ def pets():
                               # hidden trait. Animals you hatch yourself start at 3 hearts.
                               "incubation": {"blood": {"purity": 10, "max_hp_pct": -0.10, "hours": 24}, "reroll_item": "beast_essence_blood",
                                              "hatch_hearts": 3},
+                              # Fusion (at the Beast Hall): the kept animal gets a 30% chance at each of the other's traits
+                              # and learned skills, plus half of its purity above its own. Locked animals are never fused.
+                              "fusion": {"trait_chance": 0.3, "skill_chance": 0.3, "purity_share": 0.5, "max_traits": 5},
+                              # Pet gear: each enhancement level adds 10% of the piece's base.
+                              "gear": {"slots": ["pet_collar", "pet_talisman", "pet_saddle"], "per_enhance": 0.1},
+                              # Pet breakthroughs from Awakened on: a chance raised by purity and support items (cores of
+                              # its element, essence blood; three at most); a failure costs a heart or a Grievous Wound.
+                              # Pet Core Formation (Adult to Awakened) rolls a core grade from points; it adds to every stat.
+                              "breakthrough": {"from": "awakened", "base": 0.55, "per_purity": 0.002, "cap": 0.95, "max_support": 3,
+                                               "support": {"low": 0.05, "mid": 0.10, "high": 0.15, "peak": 0.20, "beast_essence_blood": 0.15},
+                                               "fail_heart_share": 0.5},
+                              "core_grades": [{"id": "cracked", "name": "Cracked Core", "min": 0, "bonus": 0.0},
+                                              {"id": "common", "name": "Common Core", "min": 35, "bonus": 0.05},
+                                              {"id": "fine", "name": "Fine Core", "min": 60, "bonus": 0.10},
+                                              {"id": "flawless", "name": "Flawless Core", "min": 85, "bonus": 0.18}],
+                              "core_points": {"per_purity": 0.5, "per_growth": 60, "per_support": 8, "roll": 20},
                               # Beast cores (rank 2+ at 2% a rank) by tier: the XP a pet of their element gains devouring
                               # one, and what the Core Exchange pays in Spirit Stones (capped at 60 a day).
                               "cores": {"min_rank": 2, "chance_per_rank": 0.02, "tiers": {"low": [2, 3], "mid": [4, 5], "high": [6, 7], "peak": [8, 9]},

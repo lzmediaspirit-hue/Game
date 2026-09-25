@@ -60,6 +60,7 @@ func _main() -> void:
 	herb_prep_suite()
 	beasts_suite()
 	bloodline_suite()
+	pet_growth_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -1828,6 +1829,143 @@ func bloodline_suite() -> void:
 	c.quests.flags.erase("equal_contract")
 	c.cooldowns.erase("essence_blood")
 	Game.combat.refresh_stats(c.id)
+	if room_was != "": Game.world.load_room(c, room_was, "")
+
+## S46 · skill books, pet gear, fusion, pet breakthroughs and Pet Core Formation.
+func pet_growth_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var pets_was: Array = c.pets.duplicate(true)
+	var active_was: String = c.active_pet
+	var party_was: Array = c.party_pets.duplicate()
+	var realm_was: String = c.cultivator.realm_key
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var cap0: int = c.inventory.capacity()
+	Unlocks.force_unlock(c.id, "spirit_animals")
+	c.inventory.bag.fill(null)
+	Game.world.load_room(c, "lf_reed_shallows", "")
+	c.cultivator.realm_key = "sage_1"
+	Game.pets.apply_grant(c.id, "reed_otter")
+	var otter: Dictionary = c.pets[c.pets.size() - 1]
+	c.active_pet = str(otter.uid)
+	c.party_pets = []
+	# Skill books: no slots as a Hatchling; a Juvenile has 2; when full a new book takes a random slot.
+	Game.inventory.apply_add(c.id, "pet_book_iron_hide", 1, "test")
+	check(str(Game.submit({"type": "learn_skill_book", "pet": otter.uid, "book": "pet_book_iron_hide"}).get("reason", "")) == "cannot_learn"
+		and c.inventory.count("pet_book_iron_hide") == 1, "a Hatchling cannot learn, and the book is kept")
+	otter.stage = "juvenile"
+	check(Game.pets.skill_slots(otter) == 2 and Game.submit({"type": "learn_skill_book", "pet": otter.uid, "book": "pet_book_iron_hide"}).get("ok", false)
+		and Game.pets.has_skill(otter, "iron_hide"), "a Juvenile learns Iron Hide into its first slot")
+	Game.inventory.apply_add(c.id, "pet_book_deep_pockets", 1, "test")
+	Game.submit({"type": "use_item", "index": _bag_index(c, "pet_book_deep_pockets"), "confirm": true})
+	check(Game.pets.has_skill(otter, "deep_pockets") and (otter.learned_skills as Array).size() == 2, "a book used from the gourd teaches the active animal")
+	check(c.inventory.capacity() == cap0 + 6, "Deep Pockets: one more row in the gourd while it is active (%d)" % c.inventory.capacity())
+	Game.inventory.apply_add(c.id, "pet_book_frenzy", 2, "test")
+	var rng: RandomNumberGenerator = Rng.stream(c.id, "pet")
+	var st0 := rng.state
+	var learned0: Array = (otter.learned_skills as Array).duplicate()
+	var r1 := Game.submit({"type": "learn_skill_book", "pet": otter.uid, "book": "pet_book_frenzy"})
+	var after1: Array = (otter.learned_skills as Array).duplicate()
+	check(r1.get("ok", false) and after1.size() == 2 and after1.has("frenzy") and learned0.has(str(r1.get("replaced", ""))), "slots full: Frenzy overwrites a random slot (%s)" % str(r1.get("replaced", "")))
+	otter.learned_skills = learned0.duplicate()
+	rng.state = st0
+	Game.submit({"type": "learn_skill_book", "pet": otter.uid, "book": "pet_book_frenzy"})
+	check(otter.learned_skills == after1, "under the same seed the same slot is overwritten")
+	otter.learned_skills = ["iron_hide", "deep_pockets"]
+	Game.pets._apply_pockets(c)
+	# Iron Hide in combat; Herb Whisper beside you; Thunder Roar; Guardian Spirit; Frenzy after a kill.
+	Game.pets._spawn(c)
+	var ally: EnemyState = Game.room_rt.enemies.get(Game.pets.ally_uid)
+	check(ally != null and near(Game.pets.damage_taken_mult(ally), 1.0 + Game.pets._trait_sum(otter, "pet_damage_taken") - 0.1), "Iron Hide: 10% less damage")
+	check(Game.pets.whisper_range(c) == 0.0, "no Herb Whisper yet")
+	otter.learned_skills = ["herb_whisper", "thunder_roar"]
+	Game.pets._apply_pockets(c)
+	check(c.inventory.capacity() == cap0 and near(Game.pets.whisper_range(c), 400.0), "Deep Pockets forgotten: the row goes; Herb Whisper reads herbs within 400")
+	var st: ActorState = Game.actor_state(c.id)
+	if ally != null:
+		var rat: EnemyState = Game.enemies.spawn_at("reedtail_rat", ally.plane + Vector2(40, 0), 2)
+		ally.ai.roar_cd = 0.0
+		Game.pets._roar(c, otter, ally, 0.1)
+		check(rat.pools.has_status("stun") and float(ally.ai.roar_cd) > 14.0, "Thunder Roar stuns a foe beside it, then rests 15 s")
+		Game.enemies.release(rat)
+		otter.learned_skills = ["guardian_spirit", "frenzy"]
+		Game.pets.guardian_cd.erase(c.id)
+		check(Game.pets.guardian_absorbs(c) and not Game.pets.guardian_absorbs(c), "Guardian Spirit takes one blow, then waits 30 s")
+		Game.pets._on_actor_defeated({"victim_kind": "enemy", "level": 1})
+		check(float(ally.ai.get("frenzy", 0.0)) > 5.0, "Frenzy: a kill quickens it for 6 s")
+	# Pet gear: worn through the equip intent, +10% of base a level of enhancement; a saddle only on a mount.
+	otter.learned_skills = []
+	var hp0: float = Game.pets.stat_mult(otter, "hp")
+	Game.inventory.apply_add_equipment(c.id, "bone_collar", 14, "common", "test")
+	check(Game.submit({"type": "equip", "index": _bag_index(c, "bone_collar")}).get("ok", false) and otter.equipment.has("pet_collar")
+		and near(Game.pets.stat_mult(otter, "hp"), hp0 * 1.1, 0.001), "a Bone Collar on the otter: +10% HP")
+	otter.equipment.pet_collar.enhance = 2
+	check(near(Game.pets.gear_bonus(otter, "hp"), 0.12), "enhanced +2: +12%")
+	Game.inventory.apply_add_equipment(c.id, "reed_saddle", 14, "common", "test")
+	check(str(Game.submit({"type": "equip_pet", "pet": otter.uid, "index": _bag_index(c, "reed_saddle")}).get("reason", "")) == "not_mountable", "a saddle only fits a mount")
+	check(Game.submit({"type": "unequip_pet", "pet": otter.uid, "slot": "pet_collar"}).get("ok", false) and c.inventory.count("bone_collar") == 1, "taken off, back to the gourd")
+	check(ContentDB.item("scale_talisman").has("pet_gear") and ContentDB.has_entry("recipes", "bone_collar"), "pet gear is forged")
+	# Fusion: at the Beast Hall, never a locked animal, only when confirmed; half the purity gap carries over.
+	Game.pets.apply_grant(c.id, "reed_otter")
+	var spare: Dictionary = c.pets[c.pets.size() - 1]
+	otter.purity = 20
+	spare.purity = 60
+	check(str(Game.submit({"type": "fuse_pets", "keep": otter.uid, "sacrifice": spare.uid, "confirm": true}).get("reason", "")) == "cannot_fuse", "fusion only at the Beast Hall")
+	Game.world.load_room(c, "rm_hermit_stilt_house", "")
+	spare.locked = true
+	check(str(Game.submit({"type": "fuse_pets", "keep": otter.uid, "sacrifice": spare.uid, "confirm": true}).get("reason", "")) == "cannot_fuse", "a locked animal is never fused")
+	spare.locked = false
+	check(str(Game.submit({"type": "fuse_pets", "keep": otter.uid, "sacrifice": spare.uid}).get("reason", "")) == "confirm", "fusion asks for confirmation")
+	var n0: int = c.pets.size()
+	var fz := Game.submit({"type": "fuse_pets", "keep": otter.uid, "sacrifice": spare.uid, "confirm": true})
+	check(fz.get("ok", false) and c.pets.size() == n0 - 1 and int(otter.purity) == 40, "fused: the spare is gone and half its purity above the otter's carries over (%d)" % int(otter.purity))
+	# Fusion odds: about 30% for each trait and learned skill.
+	var tries := 0
+	var hits := 0
+	for i in 60:
+		Game.pets.apply_grant(c.id, "mossback_toad")
+		var b: Dictionary = c.pets[c.pets.size() - 1]
+		b.traits = ["stormborn", "keen_nose", "lucky_find"]
+		b.learned_skills = []
+		otter.traits = ["deep_diver", "iron_hide", "loyal"]
+		otter.revealed = 0
+		var f2 := Game.submit({"type": "fuse_pets", "keep": otter.uid, "sacrifice": b.uid, "confirm": true})
+		tries += 3
+		hits += (f2.get("traits", []) as Array).size()
+	var rate := float(hits) / float(tries)
+	check(rate > 0.2 and rate < 0.4, "each trait carries over about 30%% of the time (%.2f over %d)" % [rate, tries])
+	# Breakthroughs from Awakened on: evolve refuses, the breakthrough rolls; Core Formation grades the core.
+	otter.stage = "adult"
+	otter.level = 55
+	otter.bond = 7.0
+	otter.wounded = false
+	check(str(Game.submit({"type": "evolve_pet", "pet": otter.uid}).get("reason", "")) == "breakthrough", "Adult to Awakened is a breakthrough, not a plain evolve")
+	Game.inventory.apply_add(c.id, "water_core_mid", 1, "test")
+	Game.inventory.apply_add(c.id, "beast_essence_blood", 1, "test")
+	var base := Game.pets.breakthrough_chance(c, otter, [])
+	check(near(Game.pets.breakthrough_chance(c, otter, ["water_core_mid", "beast_essence_blood"]), minf(0.95, base + 0.25)) and near(Game.pets.support_value(otter, "fire_core_mid"), 0.0),
+		"a core of its own element and essence blood raise the chance; another element's core does not")
+	var bcfg: Dictionary = ContentDB.config("pet_growth").breakthrough
+	var base_was: float = float(bcfg.base)
+	bcfg.base = 5.0
+	var ok1 := Game.submit({"type": "pet_breakthrough", "pet": otter.uid, "support": ["water_core_mid"]})
+	check(ok1.get("success", false) and str(otter.stage) == "awakened" and str(otter.get("core_grade", "")) != "" and c.inventory.count("water_core_mid") == 0,
+		"a breakthrough: Awakened, a %s, the support spent" % str(otter.get("core_grade", "")))
+	var cg: Dictionary = Game.pets.core_grade_def(str(otter.core_grade))
+	check(near(Game.pets.core_bonus(otter), float(cg.get("bonus", 0.0))), "the core grade adds to every stat")
+	bcfg.base = -5.0
+	otter.level = 75
+	otter.bond = 9.0
+	c.cultivator.realm_key = "sphere_lord_1"
+	var fb := Game.submit({"type": "pet_breakthrough", "pet": otter.uid, "support": []})
+	check(not fb.get("success", true) and str(otter.stage) == "awakened" and (float(otter.bond) < 9.0 or otter.wounded), "a failure costs a heart or leaves a wound (%s)" % str(fb.get("lost", "")))
+	bcfg.base = base_was
+	c.pets = pets_was
+	c.active_pet = active_was
+	c.party_pets = party_was
+	c.cultivator.realm_key = realm_was
+	Game.pets._apply_pockets(c)
+	c.inventory.bag.fill(null)
 	if room_was != "": Game.world.load_room(c, room_was, "")
 
 func tribulation_suite() -> void:

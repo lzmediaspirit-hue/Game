@@ -3213,6 +3213,72 @@
    ]
   },
   {
+   "id": "bone_collar",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "boar_hide",
+     "count": 2
+    },
+    {
+     "item": "mole_claw",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "bone_collar",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "scale_talisman",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "serpent_scale",
+     "count": 2
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "scale_talisman",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "reed_saddle",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "cloth",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "reed_saddle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
    "id": "beast_marrow_washing_pill",
    "craft": "alchemy",
    "grade": "earth",

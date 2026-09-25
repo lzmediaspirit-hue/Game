@@ -1364,6 +1364,58 @@
    "stack": 1
   },
   {
+   "id": "bone_collar",
+   "name": "Bone Collar",
+   "slot": "pet_collar",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "bone_collar",
+   "type": "equipment",
+   "stack": 1,
+   "desc": "Boar hide and mole claws. +10% HP for the animal that wears it.",
+   "pet_gear": {
+    "hp": 0.1
+   }
+  },
+  {
+   "id": "scale_talisman",
+   "name": "Scale Talisman",
+   "slot": "pet_talisman",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "scale_talisman",
+   "type": "equipment",
+   "stack": 1,
+   "desc": "Serpent and jade scales on a cord. +10% attack and +5% defence for the animal that wears it.",
+   "pet_gear": {
+    "attack": 0.1,
+    "defence": 0.05
+   }
+  },
+  {
+   "id": "reed_saddle",
+   "name": "Reed Saddle",
+   "slot": "pet_saddle",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "reed_saddle",
+   "type": "equipment",
+   "stack": 1,
+   "desc": "Woven reed on boar hide. A mount wearing it carries you 10% faster.",
+   "pet_gear": {
+    "mount_speed": 0.1
+   }
+  },
+  {
    "id": "jade_current_hat",
    "name": "Jade Current Hat",
    "slot": "hat",

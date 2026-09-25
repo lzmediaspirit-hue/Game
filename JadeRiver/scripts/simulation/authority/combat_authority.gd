@@ -1025,7 +1025,7 @@ func _enemy_hits_allies(e: EnemyState, attack: Dictionary, ev: Dictionary) -> vo
 		if not CombatAuthority.hit_test(ev, e.facing, hitbox, view, attack.get("both_sides", false)): continue
 		var companion: bool = game.companions.is_companion_ally(a)
 		var dmg := maxf(1.0, float(e.stats.attack) * float(attack.get("mult", 1.0)) * 0.8)
-		if not companion: dmg *= maxf(0.1, 1.0 + game.pets.trait_bonus(game.active(), "pet_damage_taken"))
+		if not companion: dmg *= game.pets.damage_taken_mult(a)
 		a.pools.hp -= dmg
 		a.flash = 0.12
 		emit("hit_landed", {"attacker": str(e.uid), "target": str(a.uid), "target_kind": "ally", "amount": int(dmg), "type": "physical",
@@ -1038,6 +1038,10 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 	var tl := timeline(c.id)
 	if c.pools.invulnerable > 0.0 or float(tl.dodge_t) > 0.0 or c.pools.has_status("spawn_protection"):
 		emit("hit_dodged", {"target": c.id, "attacker": str(e.uid)})
+		return
+	# S46 Guardian Spirit: an animal beside you takes one blow meant for you every 30 s.
+	if game.pets.guardian_absorbs(c):
+		emit("hit_dodged", {"target": c.id, "attacker": str(e.uid), "guardian": true})
 		return
 	# Parry: a guard begun within the family's parry window before the hit negates it.
 	var fam := StatRules.family(c)

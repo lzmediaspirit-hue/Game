@@ -2285,6 +2285,114 @@
    "use_action": "pet_item"
   },
   {
+   "id": "pet_book_iron_hide",
+   "name": "Skill Book: Iron Hide",
+   "type": "pet_book",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 5,
+   "icon": "pet_book_iron_hide",
+   "desc": "An animal that learns it takes 10% less damage. Teach it on the Spirit Animals page, or use it to teach your active animal.",
+   "use": [
+    {
+     "kind": "learn_pet_skill",
+     "skill": "iron_hide"
+    }
+   ],
+   "use_action": "pet_item",
+   "pet_book": "iron_hide"
+  },
+  {
+   "id": "pet_book_frenzy",
+   "name": "Skill Book: Frenzy",
+   "type": "pet_book",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 5,
+   "icon": "pet_book_frenzy",
+   "desc": "After a kill the animal strikes 15% faster for 6 seconds. Teach it on the Spirit Animals page, or use it to teach your active animal.",
+   "use": [
+    {
+     "kind": "learn_pet_skill",
+     "skill": "frenzy"
+    }
+   ],
+   "use_action": "pet_item",
+   "pet_book": "frenzy"
+  },
+  {
+   "id": "pet_book_deep_pockets",
+   "name": "Skill Book: Deep Pockets",
+   "type": "pet_book",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 5,
+   "icon": "pet_book_deep_pockets",
+   "desc": "While it is your active animal, your gourd holds one more row (6 slots). Teach it on the Spirit Animals page, or use it to teach your active animal.",
+   "use": [
+    {
+     "kind": "learn_pet_skill",
+     "skill": "deep_pockets"
+    }
+   ],
+   "use_action": "pet_item",
+   "pet_book": "deep_pockets"
+  },
+  {
+   "id": "pet_book_herb_whisper",
+   "name": "Skill Book: Herb Whisper",
+   "type": "pet_book",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 5,
+   "icon": "pet_book_herb_whisper",
+   "desc": "While it walks beside you, herbs within 400 show how long until they ripen. Teach it on the Spirit Animals page, or use it to teach your active animal.",
+   "use": [
+    {
+     "kind": "learn_pet_skill",
+     "skill": "herb_whisper"
+    }
+   ],
+   "use_action": "pet_item",
+   "pet_book": "herb_whisper"
+  },
+  {
+   "id": "pet_book_thunder_roar",
+   "name": "Skill Book: Thunder Roar",
+   "type": "pet_book",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 5,
+   "icon": "pet_book_thunder_roar",
+   "desc": "Every 15 seconds of a fight it roars: foes near it are stunned for 1 second. Teach it on the Spirit Animals page, or use it to teach your active animal.",
+   "use": [
+    {
+     "kind": "learn_pet_skill",
+     "skill": "thunder_roar"
+    }
+   ],
+   "use_action": "pet_item",
+   "pet_book": "thunder_roar"
+  },
+  {
+   "id": "pet_book_guardian_spirit",
+   "name": "Skill Book: Guardian Spirit",
+   "type": "pet_book",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 5,
+   "icon": "pet_book_guardian_spirit",
+   "desc": "Once every 30 seconds it takes a blow meant for you. Teach it on the Spirit Animals page, or use it to teach your active animal.",
+   "use": [
+    {
+     "kind": "learn_pet_skill",
+     "skill": "guardian_spirit"
+    }
+   ],
+   "use_action": "pet_item",
+   "pet_book": "guardian_spirit"
+  },
+  {
    "id": "tiny_hollow_shard",
    "name": "Tiny Hollow Shard",
    "type": "hollow",

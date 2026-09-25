@@ -7,10 +7,12 @@ extends Authority
 var ally_uid := 0              # the active animal's ally in this room (0 when none)
 var allies: Dictionary = {}    # pet uid -> ally uid in the current room (S46 command capacity)
 var essence_check := 0.0
+var guardian_cd: Dictionary = {}   # actor -> seconds before Guardian Spirit can take another blow (transient)
 
 func intents() -> Array:
 	return ["set_active_pet", "set_pet_role", "feed_pet", "pet_command", "rename_pet", "choose_starter", "attempt_tame", "incubate_egg", "hatch_egg", "evolve_pet", "breed",
-		"lock_pet", "devour_core", "sell_cores", "rest_pets", "offer_contract", "incubate_input", "set_party"]
+		"lock_pet", "devour_core", "sell_cores", "rest_pets", "offer_contract", "incubate_input", "set_party",
+		"learn_skill_book", "equip_pet", "unequip_pet", "fuse_pets", "pet_breakthrough"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("room_entered", _on_room_entered, 45)
@@ -84,6 +86,11 @@ func handle(intent: Dictionary) -> Dictionary:
 		"offer_contract": return offer_contract(c, str(intent.get("pet", c.active_pet)), str(intent.get("kind", "")))
 		"incubate_input": return incubate_input(c, int(intent.get("egg", 0)), str(intent.get("kind", "")), str(intent.get("item", "")))
 		"set_party": return set_party(c, str(intent.get("pet", "")), bool(intent.get("on", true)))
+		"learn_skill_book": return learn_skill_book(c, str(intent.get("pet", c.active_pet)), str(intent.get("book", "")))
+		"equip_pet": return equip_pet(c, str(intent.get("pet", c.active_pet)), int(intent.get("index", -1)))
+		"unequip_pet": return unequip_pet(c, str(intent.get("pet", c.active_pet)), str(intent.get("slot", "")))
+		"fuse_pets": return fuse_pets(c, str(intent.get("keep", "")), str(intent.get("sacrifice", "")), bool(intent.get("confirm", false)))
+		"pet_breakthrough": return pet_breakthrough(c, str(intent.get("pet", c.active_pet)), intent.get("support", []), str(intent.get("branch", "")))
 	return fail("unknown_intent")
 
 func _pet(c, uid: String) -> Dictionary:
@@ -134,6 +141,7 @@ func stat_mult(p: Dictionary, stat: String) -> float:
 	if p.get("wounded", false): m *= float(growth().get("grievous", {}).get("mult", 0.8))
 	if int(p.get("awakened", 0)) >= 2: m *= 1.0 + float(growth().get("awakening", {}).get("form_bonus", 0.1))
 	if str(p.get("contract", "master")) == "blood": m *= 1.0 + float(growth().get("contracts", {}).get("blood", {}).get("stats", 0.15))
+	m *= 1.0 + gear_bonus(p, stat) + core_bonus(p)
 	return m
 
 func active_pet(c) -> Dictionary:
@@ -256,7 +264,8 @@ func mount_of(c) -> Dictionary:
 	return ContentDB.entry("pets", str(p.species)).get("mount", {})
 
 func mount_speed(c) -> float:
-	return float(growth().get("mount_speed", 1.5)) if not mount_of(c).is_empty() else 1.0
+	if mount_of(c).is_empty(): return 1.0
+	return float(growth().get("mount_speed", 1.5)) * (1.0 + gear_bonus(active_pet(c), "mount_speed"))   # a Reed Saddle (S46)
 
 ## Flying mounts halve the QI of flight once the rider is strong enough to steer one (Cloud Stride 5).
 func flight_qi_mult(c) -> float:
@@ -290,6 +299,7 @@ func _spawn(c) -> void:
 		if old != null and old.team == "ally" and old.pet_owner == c.id and str(old.ai.get("pet", "")) == str(puid): game.room_rt.enemies.erase(allies[puid])
 	allies.clear()
 	ally_uid = 0
+	_apply_pockets(c)
 	if game.room_rt.def.get("type", "") == "interior": return
 	var i := 0
 	for p in party(c):
@@ -335,6 +345,7 @@ func tick(delta: float) -> void:
 	var c = game.active()
 	if c == null: return
 	_tick_essence_blood(c, delta)
+	if guardian_cd.has(c.id): guardian_cd[c.id] = maxf(0.0, float(guardian_cd[c.id]) - delta)
 	if game.room_rt == null or allies.is_empty(): return
 	for puid in allies.keys():
 		var a: EnemyState = game.room_rt.enemies.get(allies[puid])
@@ -343,7 +354,12 @@ func tick(delta: float) -> void:
 		if p.is_empty(): continue
 		var power := pet_power(c, p) * _skill_mult(c, p, a, delta)
 		var was_down: bool = a.ai.state == "downed"
+		# Frenzy (S46): after a kill its wind-ups and recoveries run 15% faster.
+		if float(a.ai.get("frenzy", 0.0)) > 0.0:
+			a.ai.frenzy = float(a.ai.frenzy) - delta
+			if str(a.ai.state) in ["windup", "recover"]: a.ai.timer = float(a.ai.timer) - delta * float(a.ai.get("frenzy_speed", 0.15))
 		AllyBrain.think(game, a, delta, power, 36.0)
+		_roar(c, p, a, delta)
 		if was_down and a.ai.state != "downed":
 			emit("pet_returned", {"actor": c.id, "uid": a.uid, "pet": str(puid)})
 		_suppress(c, p, a, delta)
@@ -461,6 +477,15 @@ func _on_actor_defeated(p: Dictionary) -> void:
 	var pet := active_pet(c)
 	if pet.is_empty() or p.get("victim_kind", "") != "enemy": return
 	add_xp(c, pet, int(p.get("level", 1)))
+	# Frenzy (S46): every animal beside you that knows it quickens after a kill.
+	if game.room_rt == null: return
+	for puid in allies:
+		var q := _pet(c, str(puid))
+		var fr: Dictionary = ContentDB.entry("pet_skill_books", "frenzy").get("frenzy", {})
+		var a: EnemyState = game.room_rt.enemies.get(allies[puid])
+		if a != null and has_skill(q, "frenzy"):
+			a.ai.frenzy = float(fr.get("seconds", 6.0))
+			a.ai.frenzy_speed = float(fr.get("speed", 0.15))
 
 func _on_meditation_tick(_p: Dictionary) -> void:
 	var c = game.active()
@@ -533,6 +558,9 @@ func evolve(c, uid: String, branch: String) -> Dictionary:
 	if nx.get("branch", false):
 		if not branch in branches: return fail("choose_branch", {"text": Tx.t("sim.pet.choose_how_it_grows"), "branches": branches})
 		p.branch = branch
+	# From Awakened on a stage-up is a breakthrough with support items (S46).
+	if stage_index(str(nx.id)) >= stage_index(str(growth().get("breakthrough", {}).get("from", "awakened"))) and not p.get("_breaking", false):
+		return fail("breakthrough", {"text": Tx.t("sim.pet.needs_breakthrough")})
 	var from := str(p.stage)
 	p.stage = str(nx.id)
 	emit("pet_evolved", {"actor": c.id, "pet": p.uid, "from": from, "stage": p.stage, "branch": str(p.get("branch", ""))})
@@ -943,6 +971,9 @@ func use_pet_item(c, index: int) -> Dictionary:
 			"wash_pet_marrow":
 				if p.is_empty(): return fail("no_pet", {"text": Tx.t("sim.pet.no_active")})
 				if not aptitude_known(p): return fail("too_young", {"text": Tx.t("sim.pet.gifts_hidden") % str(p.name)})
+			"learn_pet_skill":
+				var why := learn_blocked(p, str(e.get("skill", "")))
+				if why != "": return fail("cannot_learn", {"text": why})
 	game.inventory.apply_remove_index(c.id, index, 1, "pet_item")
 	game.apply_effects(c.id, def.get("use", []), "item:" + id)
 	return ok({"item": id})
@@ -962,3 +993,265 @@ func wash_marrow(actor_id: String) -> String:
 	log_line(c.id, Tx.t("sim.pet.marrow_washed") % [str(p.name), Tx.t("ui.pets.apt_" + worst), float(p.aptitude[worst])], "loot")
 	_spawn(c)
 	return worst
+
+# ------------------------------------------------------------------ skill books (S46)
+## Learned-skill slots open by stage: none as a Hatchling, 2 as a Juvenile, 3 as an Adult, 4 from Awakened.
+func skill_slots(p: Dictionary) -> int:
+	return int(growth().get("skill_slots", {}).get(str(p.get("stage", "hatchling")), 0))
+
+func has_skill(p: Dictionary, skill: String) -> bool:
+	return not p.is_empty() and (p.get("learned_skills", []) as Array).has(skill)
+
+## Why this animal cannot learn `skill` now ("" when it can).
+func learn_blocked(p: Dictionary, skill: String) -> String:
+	if p.is_empty(): return Tx.t("sim.pet.no_active")
+	if not ContentDB.has_entry("pet_skill_books", skill): return Tx.t("sim.pet.not_a_book")
+	if skill_slots(p) <= 0: return Tx.t("sim.pet.too_young_to_learn") % str(p.name)
+	if has_skill(p, skill): return Tx.t("sim.pet.knows_skill") % [str(p.name), ContentDB.name_of("pet_skill_books", skill)]
+	return ""
+
+## Teach a skill book: into a free slot, or over a random one when the slots are full.
+func learn_skill_book(c, uid: String, item: String) -> Dictionary:
+	var p := _pet(c, uid)
+	if p.is_empty(): return fail("unknown_pet")
+	var skill := str(ContentDB.item(item).get("pet_book", ""))
+	var why := learn_blocked(p, skill)
+	if why != "": return fail("cannot_learn", {"text": why})
+	if c.inventory.count(item) <= 0: return fail("no_book")
+	game.inventory.apply_remove(c.id, item, 1, "skill_book")
+	return ok(_learn(c, p, skill))
+
+func apply_learn(actor_id: String, skill: String) -> void:
+	var c = game.character(actor_id)
+	var p := active_pet(c)
+	if learn_blocked(p, skill) == "": _learn(c, p, skill)
+
+func _learn(c, p: Dictionary, skill: String) -> Dictionary:
+	var learned: Array = p.get("learned_skills", [])
+	var replaced := ""
+	if learned.size() < skill_slots(p): learned.append(skill)
+	else:
+		var i := Rng.stream(c.id, "pet").randi_range(0, skill_slots(p) - 1)
+		replaced = str(learned[i])
+		learned[i] = skill
+	p.learned_skills = learned
+	emit("pet_skill_learned", {"actor": c.id, "pet": str(p.uid), "skill": skill, "replaced": replaced})
+	_apply_pockets(c)
+	return {"skill": skill, "replaced": replaced}
+
+## What an animal's learned skills add to one number (pet_skill_books.json `bonus`).
+func _skill_sum(p: Dictionary, key: String) -> float:
+	var total := 0.0
+	for sk in p.get("learned_skills", []): total += float(ContentDB.entry("pet_skill_books", str(sk)).get("bonus", {}).get(key, 0.0))
+	return total
+
+## The share of a blow an animal takes: its traits (Iron Hide the trait) and learned skills (Iron Hide the book).
+func damage_taken_mult(a: EnemyState) -> float:
+	var c = game.character(a.pet_owner)
+	if c == null: return 1.0
+	var p := _pet(c, str(a.ai.get("pet", c.active_pet)))
+	return maxf(0.1, 1.0 + _trait_sum(p, "pet_damage_taken") + _skill_sum(p, "pet_damage_taken"))
+
+## Deep Pockets: the active animal carries a row of your gourd.
+func _apply_pockets(c) -> void:
+	var n := 0
+	var p := active_pet(c)
+	if has_skill(p, "deep_pockets"): n = int(ContentDB.entry("pet_skill_books", "deep_pockets").get("bag_slots", 6))
+	game.inventory.apply_bonus_slots(c.id, n)
+
+## Herb Whisper: how near a herb must be for its ripening time to show (0 when no animal beside you knows it).
+func whisper_range(c) -> float:
+	for p in party(c):
+		if has_skill(p, "herb_whisper"): return float(ContentDB.entry("pet_skill_books", "herb_whisper").get("whisper", 400))
+	return 0.0
+
+## Thunder Roar: every 15 s of a fight, foes near the animal are stunned for a second (bosses stand firm).
+func _roar(c, p: Dictionary, a: EnemyState, delta: float) -> void:
+	if not has_skill(p, "thunder_roar") or str(a.ai.get("state", "")) == "downed": return
+	var cfg: Dictionary = ContentDB.entry("pet_skill_books", "thunder_roar").get("roar", {})
+	a.ai.roar_cd = maxf(0.0, float(a.ai.get("roar_cd", 0.0)) - delta)
+	if float(a.ai.roar_cd) > 0.0: return
+	var hit := 0
+	for e in game.room_rt.living_enemies():
+		if e.team != "enemy" or e.hidden or e.plane.distance_to(a.plane) > float(cfg.get("radius", 130)): continue
+		game.combat.apply_enemy_status(e, {"id": "stun", "power": 1.0, "remaining": float(cfg.get("stun_s", 1.0)), "source": c.id})
+		hit += 1
+	if hit == 0: return
+	a.ai.roar_cd = float(cfg.get("every_s", 15.0))
+	emit("pet_skill_cast", {"actor": c.id, "pet": str(p.uid), "skill": ContentDB.name_of("pet_skill_books", "thunder_roar"), "free": false})
+
+## Guardian Spirit: true when an animal beside you takes this blow (then it rests 30 s).
+func guardian_absorbs(c) -> bool:
+	if c == null or float(guardian_cd.get(c.id, 0.0)) > 0.0: return false
+	for p in party(c):
+		if not has_skill(p, "guardian_spirit"): continue
+		var a: EnemyState = game.room_rt.enemies.get(int(allies.get(str(p.uid), 0))) if game.room_rt else null
+		if a == null or str(a.ai.get("state", "")) == "downed": continue
+		guardian_cd[c.id] = float(ContentDB.entry("pet_skill_books", "guardian_spirit").get("guard_every_s", 30.0))
+		emit("pet_skill_cast", {"actor": c.id, "pet": str(p.uid), "skill": ContentDB.name_of("pet_skill_books", "guardian_spirit"), "free": false})
+		return true
+	return false
+
+# ------------------------------------------------------------------ pet gear (S46)
+## A worn piece's share of one stat: its base, plus 10% of that a level of enhancement.
+func gear_bonus(p: Dictionary, stat: String) -> float:
+	var total := 0.0
+	var per := float(growth().get("gear", {}).get("per_enhance", 0.1))
+	for slot in p.get("equipment", {}):
+		var inst = p.equipment[slot]
+		if not (inst is Dictionary): continue
+		total += float(ContentDB.item(str(inst.id)).get("pet_gear", {}).get(stat, 0.0)) * (1.0 + per * int(inst.get("enhance", 0)))
+	return total
+
+func equip_pet(c, uid: String, index: int) -> Dictionary:
+	var p := _pet(c, uid)
+	if p.is_empty(): return fail("no_pet", {"text": Tx.t("sim.pet.no_active")})
+	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
+	var def := ContentDB.item(str(c.inventory.bag[index].id))
+	if not def.has("pet_gear"): return fail("not_pet_gear")
+	var slot := str(def.slot)
+	if slot == "pet_saddle" and not mountable(p): return fail("not_mountable", {"text": Tx.t("sim.pet.too_small_to_carry_you")})
+	var inst: Dictionary = game.inventory.apply_remove_index(c.id, index, 1, "pet_gear")
+	var old = p.equipment.get(slot)
+	p.equipment[slot] = inst
+	if old is Dictionary: game.inventory.apply_add_instance(c.id, old, "pet_gear")
+	emit("pet_gear_changed", {"actor": c.id, "pet": uid, "slot": slot, "item": str(inst.id)})
+	_spawn(c)
+	return ok({"slot": slot})
+
+func unequip_pet(c, uid: String, slot: String) -> Dictionary:
+	var p := _pet(c, uid)
+	if p.is_empty(): return fail("unknown_pet")
+	var inst = p.equipment.get(slot)
+	if not (inst is Dictionary): return fail("empty")
+	if c.inventory.free_slots() <= 0: return fail("bag_full", {"text": Tx.t("sim.pet.bag_full")})
+	p.equipment.erase(slot)
+	game.inventory.apply_add_instance(c.id, inst, "pet_gear")
+	emit("pet_gear_changed", {"actor": c.id, "pet": uid, "slot": slot, "item": ""})
+	_spawn(c)
+	return ok()
+
+# ------------------------------------------------------------------ fusion (S46)
+## Why these two cannot be fused ("" when they can): at the Beast Hall, two animals, the sacrifice unlocked.
+func fusion_blocked(c, keep: Dictionary, sacrifice: Dictionary) -> String:
+	if keep.is_empty() or sacrifice.is_empty() or str(keep.uid) == str(sacrifice.uid): return Tx.t("sim.pet.fuse_two")
+	if sacrifice.get("locked", false): return Tx.t("sim.pet.fuse_locked") % str(sacrifice.name)
+	if not _at_beast_hall(c): return Tx.t("sim.pet.fuse_where")
+	return ""
+
+## Sacrifice one animal to another: a 30% chance at each of its traits and learned skills, and half its purity above
+## the kept one's. Needs a confirmation; locked animals are never fused. Its gear comes back to your gourd.
+func fuse_pets(c, keep_uid: String, sac_uid: String, confirm: bool) -> Dictionary:
+	var a := _pet(c, keep_uid)
+	var b := _pet(c, sac_uid)
+	var why := fusion_blocked(c, a, b)
+	if why != "": return fail("cannot_fuse", {"text": why})
+	if not confirm: return fail("confirm", {"text": Tx.t("sim.pet.fuse_confirm") % [str(b.name), str(a.name)]})
+	var cfg: Dictionary = growth().get("fusion", {})
+	var rng := Rng.stream(c.id, "pet")
+	var got_traits: Array = []
+	var traits: Array = a.get("traits", [])
+	for t in b.get("traits", []):
+		if traits.has(t) or rng.randf() >= float(cfg.get("trait_chance", 0.3)): continue
+		# A new trait takes the place of one still hidden; with none hidden it joins the shown ones.
+		if int(a.get("revealed", 0)) < traits.size(): traits[traits.size() - 1] = t
+		elif traits.size() < int(cfg.get("max_traits", 5)):
+			traits.append(t)
+			a.revealed = int(a.get("revealed", 0)) + 1
+		else: continue
+		got_traits.append(t)
+	a.traits = traits
+	var got_skills: Array = []
+	for sk in b.get("learned_skills", []):
+		if has_skill(a, str(sk)) or skill_slots(a) <= 0 or rng.randf() >= float(cfg.get("skill_chance", 0.3)): continue
+		_learn(c, a, str(sk))
+		got_skills.append(sk)
+	var gain := 0
+	if int(b.get("purity", 0)) > int(a.get("purity", 0)): gain = int(floor((int(b.purity) - int(a.purity)) * float(cfg.get("purity_share", 0.5))))
+	for slot in b.get("equipment", {}):
+		if b.equipment[slot] is Dictionary: game.inventory.apply_add_instance(c.id, b.equipment[slot], "fusion")
+	c.pets.erase(b)
+	c.party_pets.erase(sac_uid)
+	if c.active_pet == sac_uid: c.active_pet = keep_uid
+	if gain > 0: add_purity(c, a, gain)
+	emit("pets_fused", {"actor": c.id, "keep": keep_uid, "sacrifice": sac_uid, "traits": got_traits, "skills": got_skills, "purity": gain})
+	_spawn(c)
+	return ok({"traits": got_traits, "skills": got_skills, "purity": gain})
+
+# ------------------------------------------------------------------ pet breakthroughs and core grade (S46)
+func core_grade_def(id: String) -> Dictionary:
+	for g in growth().get("core_grades", []):
+		if str(g.id) == id: return g
+	return {}
+
+func core_bonus(p: Dictionary) -> float:
+	return float(core_grade_def(str(p.get("core_grade", ""))).get("bonus", 0.0))
+
+## What a support item adds to a breakthrough: a core of the animal's own element by tier, or essence blood.
+func support_value(p: Dictionary, item: String) -> float:
+	var sup: Dictionary = growth().get("breakthrough", {}).get("support", {})
+	if sup.has(item): return float(sup[item])
+	var core: Dictionary = ContentDB.item(item).get("core", {})
+	if core.has("tier") and str(core.element) == str(ContentDB.entry("pets", str(p.get("species", ""))).get("element", "")): return float(sup.get(str(core.tier), 0.0))
+	return 0.0
+
+## The chance of a pet breakthrough with these support items (three at most, each one you hold).
+func breakthrough_chance(c, p: Dictionary, support: Array) -> float:
+	var cfg: Dictionary = growth().get("breakthrough", {})
+	var chance := float(cfg.get("base", 0.55)) + float(p.get("purity", 0)) * float(cfg.get("per_purity", 0.002))
+	for item in support.slice(0, int(cfg.get("max_support", 3))): chance += support_value(p, str(item))
+	return clampf(chance, 0.0, float(cfg.get("cap", 0.95)))
+
+## From Awakened on a stage-up is a breakthrough: the gates as for any stage, then a roll. A failure costs a heart
+## or leaves a Grievous Wound. Adult to Awakened is Pet Core Formation: it also rolls the core grade.
+func pet_breakthrough(c, uid: String, support: Array, branch: String) -> Dictionary:
+	var p := _pet(c, uid)
+	if p.is_empty(): return fail("unknown_pet")
+	var nx := next_stage(p)
+	if nx.is_empty(): return fail("final_stage", {"text": Tx.t("sim.pet.it_has_grown_as_far")})
+	var cfg: Dictionary = growth().get("breakthrough", {})
+	if stage_index(str(nx.id)) < stage_index(str(cfg.get("from", "awakened"))): return fail("not_a_breakthrough")
+	for g in evolve_gates(c, p):
+		if not g.ok: return fail("not_ready", {"text": Tx.t("sim.pet.needs") + str(g.text)})
+	if p.get("wounded", false): return fail("wounded", {"text": Tx.t("sim.pet.heal_first") % str(p.name)})
+	var used: Array = []
+	var need := {}
+	for item in support.slice(0, int(cfg.get("max_support", 3))):
+		if support_value(p, str(item)) <= 0.0: continue
+		need[str(item)] = int(need.get(str(item), 0)) + 1
+		if c.inventory.count(str(item)) < int(need[str(item)]): return fail("no_support", {"text": Tx.t("sim.pet.needs_item") % ContentDB.item_name(str(item))})
+		used.append(str(item))
+	var chance := breakthrough_chance(c, p, used)
+	for item in used: game.inventory.apply_remove(c.id, item, 1, "pet_breakthrough")
+	var rng := Rng.stream(c.id, "pet")
+	var success := rng.randf() < chance
+	var result := {"success": success, "chance": chance}
+	if success:
+		var forming := str(p.stage) == "adult"
+		p["_breaking"] = true
+		var ev := evolve(c, uid, branch)
+		p.erase("_breaking")
+		if not ev.get("ok", false): return ev
+		if forming: result.core_grade = _form_core(c, p, used.size(), rng)
+	elif rng.randf() < float(cfg.get("fail_heart_share", 0.5)):
+		p.bond = maxf(0.0, float(p.bond) - 1.0)
+		result.lost = "heart"
+	else:
+		p.wounded = true
+		result.lost = "wound"
+		emit("pet_wounded", {"actor": c.id, "pet": uid})
+	emit("pet_breakthrough", {"actor": c.id, "pet": uid, "success": success, "chance": chance, "lost": str(result.get("lost", ""))})
+	return ok(result)
+
+## Pet Core Formation: points from purity, growth, support and a roll set the grade and its bonus to every stat.
+func _form_core(c, p: Dictionary, supports: int, rng: RandomNumberGenerator) -> String:
+	var cp: Dictionary = growth().get("core_points", {})
+	var pts := float(p.get("purity", 0)) * float(cp.get("per_purity", 0.5)) + (float(p.get("growth", 1.0)) - 0.8) * float(cp.get("per_growth", 60)) \
+		+ supports * float(cp.get("per_support", 8)) + rng.randf() * float(cp.get("roll", 20))
+	var grade := "cracked"
+	for g in growth().get("core_grades", []):
+		if pts >= float(g.get("min", 0)): grade = str(g.id)
+	p.core_grade = grade
+	emit("pet_core_formed", {"actor": c.id, "pet": str(p.uid), "grade": grade, "points": pts})
+	_spawn(c)
+	return grade

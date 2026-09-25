@@ -273,6 +273,29 @@ def sphere_comprehension_stone():
     return c
 
 
+# ============================================================================ S46 pet skill books
+def _paw(c, cx, cy, clip, ramp):
+    """A small paw print decal: a pad and four toes."""
+    c.put(c.ellipse(cx, cy + 2, 2.8, 2.2) & clip, ramp, 'flat', base=3)
+    for dx, dy in ((-3.4, -1.4), (-1.3, -3.6), (1.3, -3.6), (3.4, -1.4)):
+        c.put(c.circle(cx + dx, cy + dy, 1.1) & clip, ramp, 'flat', base=4)
+
+
+def _pet_book(cover, paw=None):
+    def build():
+        c = Canvas(32)
+        m = bound_book(c, cover, None)
+        _paw(c, 15, 20, erode4(m) & ~c.rect(7, 4, 9, 28), paw or R['gold'])
+        c.outline()
+        return c
+    return build
+
+
+for _id, _cover in (('iron_hide', R['iron']), ('frenzy', R['red']), ('deep_pockets', R['leather']),
+                    ('herb_whisper', R['leaf']), ('thunder_roar', R['storm']), ('guardian_spirit', R['violet'])):
+    register(FAM, 'pet_book_' + _id, _pet_book(_cover), GROUP)
+
+
 for _id, _fn in (('manual_stonebody_canon', _method_manual('earth')),
                  ('manual_willow_breath_art', _method_manual('wood')),
                  ('manual_emberheart_sutra', _method_manual('fire')),

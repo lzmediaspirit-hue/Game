@@ -20,6 +20,7 @@ var loadout: Dictionary = {"spare": null, "active": "a"}   # S47 dual loadout: t
 var appearance_override: Dictionary = {}   # S47 wardrobe: slot -> look id shown instead of the item's own
 var furnace = null                  # S44 furnace slot (tool_furnace): the furnace instance you refine in, or null
 var draught = null                  # S44 Draught slot: {id, count, made_utc}; a liquid goes flat 10 minutes after it is made
+var bonus_slots := 0                # S46 Deep Pockets: extra gourd slots while that animal is active (derived, not saved)
 
 ## Furnaces before S44 were tools in the key-item pouch; their ids now name furnace equipment.
 const OLD_FURNACES := {"bronze_furnace": "bronze_furnace", "earth_vein_furnace": "jadeiron_furnace", "cloud_pattern_furnace": "cloudsteel_furnace",
@@ -31,8 +32,8 @@ func _init() -> void:
 
 func capacity() -> int:
 	var g = equipped.get("gourd")
-	if g == null: return 25
-	return int(ContentDB.item(g.id).get("gourd", {}).get("bag", 25))
+	if g == null: return 25 + bonus_slots
+	return int(ContentDB.item(g.id).get("gourd", {}).get("bag", 25)) + bonus_slots
 
 func quick_capacity() -> int:
 	var g = equipped.get("gourd")

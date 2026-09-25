@@ -2839,6 +2839,11 @@
    "half_width": 22,
    "height": 34,
    "flying": true,
+   "pet_book": {
+    "item": "pet_book_thunder_roar",
+    "chance": 0.25,
+    "elite_only": true
+   },
    "movement": {
     "jump": 0,
     "climb": false,
@@ -5574,6 +5579,10 @@
    "unique_drop": "mudwater_cleaver",
    "hp_mult": 0.6,
    "attack_mult": 0.8,
+   "pet_book": {
+    "item": "pet_book_frenzy",
+    "chance": 0.35
+   },
    "movement": {
     "jump": 0,
     "climb": false,

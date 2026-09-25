@@ -209,6 +209,27 @@ func data_suite() -> void:
 		check(str(ContentDB.item(key).get("use_action", "")) == "pet_item", "S46 item %s exists and goes to a pet" % key)
 	check(ContentDB.has_entry("recipes", "beast_marrow_washing_pill") and float(ContentDB.item("beast_marrow_washing_pill").get("pill", {}).get("toxicity", 1)) == 0.0,
 		"the Beast Marrow Washing Pill is refined, and leaves no toxicity")
+	# S46 skill books: every book has its item, and all but the Trial Grove's have a place to be found.
+	var book_sources := {}
+	for sh in ContentDB.all("shops"):
+		for st in (sh.get("stock", []) as Array) + (sh.get("rotation", {}).get("pool", []) as Array): book_sources[str(st.get("item", ""))] = true
+	for en in ContentDB.all("enemies"):
+		if en.has("pet_book"): book_sources[str(en.pet_book.item)] = true
+	for lt in ContentDB.all("loot_tables"):
+		for gi in lt.get("guaranteed", []): book_sources[str(gi.item)] = true
+	for bk in ContentDB.all("pet_skill_books"):
+		var bitem := "pet_book_" + str(bk.id)
+		check(str(ContentDB.item(bitem).get("pet_book", "")) == str(bk.id), "skill book %s has its item" % bk.id)
+		if str(bk.id) != "guardian_spirit": check(book_sources.has(bitem), "skill book %s can be found (%s)" % [bk.id, bk.get("source", "")])
+	var ledge := false
+	for o in ContentDB.room("cf_falls_pool").get("objects", []):
+		if str(o.get("loot", "")) == "falls_pool_chest": ledge = true
+	check(ledge, "the Falls Pool ledge chest keeps Herb Whisper")
+	for gid in ["bone_collar", "scale_talisman", "reed_saddle"]:
+		check(ContentDB.item(gid).has("pet_gear") and ContentDB.has_entry("recipes", gid) and str(ContentDB.item(gid).slot).begins_with("pet_"), "pet gear %s is forged and worn by an animal" % gid)
+	var cgs: Array = pg.get("core_grades", [])
+	for i in range(1, cgs.size()): check(float(cgs[i].min) > float(cgs[i - 1].min) and float(cgs[i].bonus) > float(cgs[i - 1].bonus), "core grade %s ranks above %s" % [cgs[i].id, cgs[i - 1].id])
+	check(ContentDB.entry("pets", "ember_fox").has("bloodline_skill") and pg.get("fusion", {}).has("trait_chance"), "fusion odds in data")
 	check(ContentDB.entry("fates", "fox_spirits_favour").get("available", true) and float(ContentDB.entry("fates", "fox_spirits_favour").get("next", {}).get("egg_purity", 0)) == 10.0,
 		"Fox Spirit's Favour is in the deck: the next egg +10 purity")
 	# S48 body ladder: each rung names a bath item, a Temper trial set piece with a drum, and stats that exist.

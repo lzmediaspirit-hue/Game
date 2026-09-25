@@ -885,3 +885,54 @@ def beast_essence_blood():
 
 
 register(FAM, 'beast_essence_blood', beast_essence_blood, GROUP)
+
+
+# ============================================================================ S46 pet gear
+def bone_collar():
+    """A boar-hide collar ring hung with three mole claws."""
+    c = Canvas(32)
+    band = c.ring(16, 14, 10, 3.2)
+    c.put(band, R['leather'], 'ray', base=2, sep=True)
+    for a in range(0, 360, 45):
+        x, y = 16 + 10 * math.cos(math.radians(a)), 14 + 10 * math.sin(math.radians(a))
+        c.put(c.rect(int(x), int(y), int(x), int(y)) & band, R['hemp'], 'flat', base=4)
+    for x, top in ((10, 19), (16, 22), (22, 19)):
+        claw = c.poly([(x - 2, top), (x + 2, top), (x + 0.5, top + 8)])
+        c.put(claw, R['bone'], 'ray', base=3, sep=True)
+    c.outline()
+    return c
+
+
+def scale_talisman():
+    """Serpent and jade scales overlapping on a plaque, hung from a red cord."""
+    c = Canvas(32)
+    cord = S.bez_line(c, (8, 4), (16, 12), (24, 4))
+    c.put(cord, R['red'], 'flat', base=3)
+    plaque = c.poly([(16, 9), (25, 16), (16, 30), (7, 16)])
+    c.put(plaque, R['scale_green'], 'ray', base=2, sep=True)
+    for (x, y) in ((13, 15), (19, 15), (16, 20), (12, 21), (20, 21), (16, 25)):
+        sc = c.ellipse(x, y, 2.6, 2.2) & erode4(plaque)
+        c.put(sc, R['jade'], 'sphere', base=2)
+        c.put(c.rect(x - 1, y - 2, x, y - 2) & sc, R['jade'][4], 'flat')
+    c.outline()
+    c.glow('#8FE8C0', (55,))
+    return c
+
+
+def reed_saddle():
+    """A woven reed saddle on a boar-hide pad, with a girth strap."""
+    c = Canvas(32)
+    pad = c.ellipse(16, 20, 13, 6)
+    c.put(pad, R['leather'], 'ray', base=2, sep=True)
+    seat = c.poly([(6, 17), (10, 10), (22, 10), (26, 17), (16, 21)])
+    c.put(seat, R['straw'], 'ray', base=2, sep=True)
+    for x in range(9, 25, 3):
+        c.put(c.seg(x, 11, x - 1, 19, 0.6) & erode4(seat), R['straw'][1], 'flat')
+    c.put(c.rect(15, 21, 17, 30), R['hemp'], 'flat', base=2)
+    c.put(c.rect(14, 28, 18, 30), R['bronze'], 'flat', base=3)
+    c.outline()
+    return c
+
+
+for _id, _fn in (('bone_collar', bone_collar), ('scale_talisman', scale_talisman), ('reed_saddle', reed_saddle)):
+    register('items', _id, _fn, GROUP)
