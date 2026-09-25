@@ -4514,7 +4514,7 @@
       ]
      },
      "mult": 1.1,
-     "damage_type": "soul"
+     "damage_type": "qi"
     }
    ],
    "loot": "presence_phantom",
@@ -4576,7 +4576,7 @@
       ]
      },
      "mult": 1.3,
-     "damage_type": "soul",
+     "damage_type": "qi",
      "knockback": 100
     },
     {

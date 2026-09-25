@@ -722,7 +722,9 @@ func _hazard_hit(c, rt: RoomRuntime, h: Dictionary, calm: bool) -> void:
 	var share := HazardRules.effect_scale(have, need_v)
 	var amount := 0.0
 	if float(h.get("damage_pct", 0.0)) > 0.0:
-		amount = game.combat.apply_hazard_damage(c, c.pools.max_hp * float(h.damage_pct) * HazardRules.damage_scale(have, need_v),
+		# A blow to the soul is measured against the Soul pool it lands on, not against HP.
+		var pool_max: float = c.pools.max_soul if str(h.get("damage_type", "")) == "soul" and c.pools.max_soul > 0.0 else c.pools.max_hp
+		amount = game.combat.apply_hazard_damage(c, pool_max * float(h.damage_pct) * HazardRules.damage_scale(have, need_v),
 			str(h.get("damage_type", "physical")), str(h.get("element", "none")), "hazard:" + str(h.id))
 		if amount < 0.0: return   # dodged
 	var sd: Dictionary = h.get("status", {})

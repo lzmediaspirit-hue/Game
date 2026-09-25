@@ -495,9 +495,10 @@ func start_set_piece(c, event: String) -> Dictionary:
 	if sp.is_empty(): return fail("unknown_event")
 	if sp.has("requires") and not RequirementRules.passes(sp.requires, game.ctx(c)):
 		return fail("not_ready", {"text": RequirementRules.first_failure_text(sp.requires, game.ctx(c))})
-	if event in c.cultivator.events_passed:
-		# A repeatable set piece (the sect war, S25) can be fought again once its cooldown has run.
-		if not sp.has("repeatable"): return fail("already_passed", {"text": Tx.t("sim.quest.you_have_already_passed_this")})
+	if event in c.cultivator.events_passed and not sp.has("repeatable"):
+		return fail("already_passed", {"text": Tx.t("sim.quest.you_have_already_passed_this")})
+	# A repeatable set piece (the sect war, S25) can be fought again once its cooldown has run.
+	if sp.has("repeatable"):
 		var until := float(c.cooldowns.get("set_piece:" + event, 0.0))
 		if Clock.now_utc() < until:
 			return fail("cooldown", {"text": Tx.t("sim.quest.the_next_battle_comes_in") % maxi(1, int(ceil((until - Clock.now_utc()) / 3600.0)))})

@@ -1949,6 +1949,7 @@ func sec_ae6() -> void:
 			break
 		hold_event(120.0)
 		revive_if_needed()
+		if room().begins_with("sw_"): teleport_home()   # revived at the Wreck's last shrine
 	check("presence_trial" in c().cultivator.events_passed, "the Presence Trial is passed")
 	if room() == "si_presence_trial": go("exit")
 	check(finish("the_presence_trial"), "The Presence Trial done")
