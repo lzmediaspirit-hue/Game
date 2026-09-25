@@ -35,6 +35,12 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
   toxicity), a Pill Halo (200%, grows up to +50% while you sit in seclusion somewhere the Qi is dense)
   or a Pill Soul (220%, sometimes a unique effect). Sect Alchemy Hall furnaces and the Alchemy Dao
   raise the odds; quality pills glow in the bag with a dot, ring or star mark.
+- Natural treasures (Spirit Awakening 8, "Treasures of Heaven and Earth"), one job each and never sold:
+  the Mindwell Lotus behind Crane Falls (+500 Soul, mends the soul, shields it for an hour; once per
+  great realm); the Evergreen Heart Tree, planted in rich earth on the elder's peak, a cave abode or the
+  Back Mountain, whose fruit (one per season) revives you where you fell at full health; and the
+  Nine-Bough Jade Tree at the Forgotten Monastery, which answers only an Understanding bottleneck with
+  three quarters of your strongest Dao's gap to its next tier, once per stage. New props and icons.
 - Companions, spirit animals (starter choice, taming with offerings, eggs), your own sect (buildings
   that appear as built, disciples, expeditions, defence raids), mail, achievements and titles.
 - 27 pages on one shared frame, a HUD that reveals itself, a minimap, dialogue with portraits, shops,

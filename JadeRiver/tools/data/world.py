@@ -752,6 +752,7 @@ def sects():
     r.decor("pagoda", [1150, 660])
     r.decor("pine_tree", [200, 640])
     r.portal("path", "door", [120, 700], "ja_herb_terraces", "peak_path", press_up=True, label="Herb Terraces")
+    r.obj("plot_hu", "treasure_plot", [320, 900], requires=all_of(unlock("natural_treasures")), locked_text="Rich dark earth, ringed with river stones.")
     r.portal("abode", "door", [1180, 700], "ja_cave_abode", "exit", press_up=True, label="Cave Abode",
              requires=all_of(qdone("the_mentors_gift")), locked_text="Elder Hu's cave. Only a personal disciple may enter.")
 
@@ -845,6 +846,7 @@ def sects():
           locked_text="The Heart Trial circle. Not before Heart Tempering 9.")
     r.decor("pagoda", [1150, 660])
     r.portal("path", "door", [120, 700], "cm_array_court", "peak_path", press_up=True, label="Array Court")
+    r.obj("plot_sung", "treasure_plot", [320, 900], requires=all_of(unlock("natural_treasures")), locked_text="Rich dark earth, ringed with river stones.")
     r.portal("abode", "door", [1180, 700], "cm_cave_abode", "exit", press_up=True, label="Cave Abode",
              requires=all_of(qdone("the_mentors_gift")), locked_text="Elder Sung's cave. Only a personal disciple may enter.")
 
@@ -908,6 +910,7 @@ def cave_abode(rid, sect_id, peak, element):
     r.decor("stone_lantern", [360, 700])
     r.decor("scholar_rock", [640, 690])
     r.decor("wine_jar", [1240, 760])
+    r.obj("plot_" + rid, "treasure_plot", [380, 880], requires=all_of(unlock("natural_treasures")), locked_text="Rich dark earth, ringed with river stones.")
     r.portal("exit", "door", [120, 700], peak, "abode", press_up=True, label=ROOMS[peak].d["name"])
     return r
 
@@ -1025,6 +1028,9 @@ def valley():
           hidden_if=all_of(flag("journal_falls")))
     r.chest([1100, 720], loot="chest_dungeon", level=14)
     r.obj("spring_behind", "qi_spring", [640, 900], spring=True, requires=all_of(unlock("qi_springs")), locked_text="Cold spray.")
+    r.obj("mindwell_lotus_cf", "herb_patch", [420, 900], item="mindwell_lotus", prop="mindwell_lotus_patch", **{"yield": [1, 1]},
+          rank="apprentice", regrow_s=7 * 86400, requires=all_of(unlock("natural_treasures")),
+          locked_text="A pale lotus. It closes when your hand comes near.")
     r.portal("entry", "door", [140, 700], "cf_falls_pool", "behind", press_up=True)
 
     # Caravan Road and Mudwater Hideout (QK6-QK8)
@@ -1188,6 +1194,8 @@ def valley():
         r.decor("formation_node", [x, 760])
     r.obj("heaven_insight", "insight_stone", [1200, 720], element="heaven", requires=all_of(realm("heaven_glimpse_1")),
           locked_text="The sky above this stone looks too close.")
+    r.obj("nine_bough_tree", "treasure_tree", [2580, 690], treasure="nine_bough_jade_tree", radius=150,
+          requires=all_of(unlock("natural_treasures")), locked_text="An ancient tree with jade leaves. It does not notice you yet.")
     r.edge("east", "east", "mp_misty_slopes", "west", y=850)
     r.edge("west", "west", "sr_windswept_ridge", "east", y=850, ptype="sealed", requires=all_of(realm("heaven_glimpse_1")),
            locked_text="The ridge winds would tear a soul loose. Heaven Glimpse first.")
@@ -1278,6 +1286,7 @@ def valley():
     r.herb("cloudtop_orchid", [1500, 700])
     r.ore("spirit_stone_shard", [2100, 690])
     r.obj("spring_hv", "qi_spring", [1200, 900], spring=True)
+    r.obj("plot_hv", "treasure_plot", [1750, 900], requires=all_of(unlock("natural_treasures")), locked_text="Rich dark earth, ringed with river stones.")
     # A quiet retreat above the grounds: old pines, a pagoda, a waterfall and mats by the spring.
     back_trees(r, props=("pine_tree", "plum_tree", "pine_tree"), step=460, skip=((1000, 1500),))
     r.decor("pagoda", [1900, 640], layer="back")

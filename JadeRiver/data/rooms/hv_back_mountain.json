@@ -142,6 +142,23 @@
     900
    ],
    "spring": true
+  },
+  {
+   "id": "plot_hv",
+   "type": "treasure_plot",
+   "at": [
+    1750,
+    900
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "natural_treasures"
+     }
+    ]
+   },
+   "locked_text": "Rich dark earth, ringed with river stones."
   }
  ],
  "spawns": [],

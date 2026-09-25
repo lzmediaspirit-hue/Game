@@ -348,6 +348,12 @@ func interact(c, object_id: String) -> Dictionary:
 			return game.quest.start_spar_from_object(c, o)
 		"defence_drum":
 			return game.sect.start_defence(c)
+		"treasure_plot":
+			var tp: Dictionary = game.crafting.tend_treasure_plot(c, o)
+			result.text = str(tp.get("text", ""))
+		"treasure_tree":
+			var tt: Dictionary = game.progression.consult_jade_tree(c)
+			result.text = str(tt.get("text", ""))
 		"bell":
 			var bs: Dictionary = game.room_rt.objects.get(object_id, {})
 			bs.state = "open"
@@ -411,6 +417,8 @@ func _verb(o: Dictionary) -> String:
 		"rite_circle": return Tx.t("sim.world.begin")
 		"spar_post": return Tx.t("sim.world.spar")
 		"bell": return Tx.t("sim.world.ring")
+		"treasure_plot": return Tx.t("sim.world.tend")
+		"treasure_tree": return Tx.t("sim.world.sit_beneath")
 	return Tx.t("sim.world.use")
 
 # ------------------------------------------------------------------ loot (S32)

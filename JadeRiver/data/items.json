@@ -1076,6 +1076,59 @@
    ]
   },
   {
+   "id": "mindwell_lotus",
+   "name": "Mindwell Lotus",
+   "type": "treasure",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 9,
+   "icon": "mindwell_lotus",
+   "desc": "Heals and shields the soul: +500 Soul, mends a soul injury, soul defence +30% for an hour. It answers once in each great realm. Never sold.",
+   "sell": false,
+   "use_limit": "realm",
+   "use": [
+    {
+     "kind": "add_soul",
+     "amount": 500
+    },
+    {
+     "kind": "cure_injury",
+     "injury": "soul",
+     "max_severity": 3
+    },
+    {
+     "kind": "add_modifier",
+     "stat": "soul_defense",
+     "op": "pct_add",
+     "value": 0.3,
+     "duration": 3600,
+     "source": "mindwell_lotus"
+    }
+   ]
+  },
+  {
+   "id": "evergreen_heart_seed",
+   "name": "Evergreen Heart Seed",
+   "type": "treasure",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "evergreen_heart_seed",
+   "desc": "A seed with a slow pulse. Plant it in rich earth where Qi gathers: a cave abode or your sect's Back Mountain. Never sold.",
+   "sell": false
+  },
+  {
+   "id": "evergreen_heart_fruit",
+   "name": "Evergreen Heart Fruit",
+   "type": "treasure",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 3,
+   "icon": "evergreen_heart_fruit",
+   "desc": "Eat it when gravely wounded to rise where you fell, whole. The tree bears one each season. Never sold.",
+   "sell": false
+  },
+  {
    "id": "fuel_crystal_low",
    "name": "Fuel Crystal Low",
    "type": "material",

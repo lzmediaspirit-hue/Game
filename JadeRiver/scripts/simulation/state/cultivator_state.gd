@@ -35,6 +35,7 @@ var stability_progress := 0.0        # seconds of meditation toward the next ste
 var injuries: Dictionary = {}        # kind -> {severity, time_left}
 var toxicity := 0.0
 var pill_memory: Dictionary = {}     # pill group -> last use sim time (repeat window)
+var treasure_uses: Dictionary = {}   # natural treasure -> realm (or stage) it was last used in
 var method_id := ""
 var methods_known: Array = []
 var aptitude: Dictionary = {}        # key -> {value, revealed}
@@ -76,7 +77,7 @@ func snapshot() -> Dictionary:
 		"body_level": body_level, "body_xp": body_xp, "soul_cultivation": soul_cultivation,
 		"daos": daos.duplicate(true), "attunement": attunement.duplicate(true), "inner_world": inner_world,
 		"events_passed": events_passed.duplicate(), "stability": stability, "stability_progress": stability_progress,
-		"injuries": injuries.duplicate(true), "toxicity": toxicity, "method_id": method_id,
+		"injuries": injuries.duplicate(true), "toxicity": toxicity, "treasure_uses": treasure_uses.duplicate(), "method_id": method_id,
 		"methods_known": methods_known.duplicate(), "aptitude": aptitude.duplicate(true), "origin": origin,
 		"meridians": meridians.duplicate(), "unspent_meridian_points": unspent_meridian_points,
 		"meridian_levels_granted": meridian_levels_granted,
@@ -110,6 +111,7 @@ func restore(d: Dictionary) -> void:
 	stability_progress = _num(d, "stability_progress", 0.0)
 	injuries = _dict(d, "injuries")
 	toxicity = _num(d, "toxicity", 0.0)
+	treasure_uses = _dict(d, "treasure_uses")
 	method_id = str(d.get("method_id", ""))
 	methods_known = _arr(d, "methods_known")
 	aptitude = _dict(d, "aptitude")

@@ -242,6 +242,44 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String) 
 	emit("craft_completed", {"actor": c.id, "recipe": recipe_id, "craft": craft_kind, "quality": quality, "count": produced})
 	return ok({"quality": quality, "count": produced})
 
+# ------------------------------------------------------------------ natural treasures
+## The Evergreen Heart Tree: one per character, planted in rich earth; its first fruit comes a
+## day later, then one each season. Pure query: where it grows and whether a fruit is ready.
+func evergreen_state(c) -> Dictionary:
+	var tree: Dictionary = c.crafting.get("evergreen", {})
+	if tree.is_empty(): return {"planted": false}
+	var cfg: Dictionary = ContentDB.stat_const("treasures", {})
+	var season_s := float(cfg.get("season_days", 7)) * 86400.0
+	var first_s := float(cfg.get("first_fruit_h", 24)) * 3600.0
+	var age := Clock.now_utc() - float(tree.get("planted_utc", 0.0))
+	var season := int(floor((age - first_s) / season_s)) if age >= first_s else -1
+	var harvested := int(tree.get("harvested", -1))
+	var ready := season > harvested
+	var next_utc := float(tree.get("planted_utc", 0.0)) + first_s + (0.0 if season < 0 else float(harvested + 1) * season_s)
+	return {"planted": true, "room": str(tree.get("room", "")), "object": str(tree.get("object", "")), "ready": ready,
+		"season": season, "next_utc": next_utc}
+
+## Interacting with rich earth: plant the seed, or pick the season's fruit from your tree.
+func tend_treasure_plot(c, o: Dictionary) -> Dictionary:
+	var here: String = game.room_rt.room_id if game.room_rt else ""
+	var st := evergreen_state(c)
+	if not st.planted:
+		if c.inventory.count("evergreen_heart_seed") <= 0: return ok({"text": Tx.t("sim.crafting.rich_earth_waits")})
+		game.inventory.apply_remove(c.id, "evergreen_heart_seed", 1, "plant")
+		c.crafting["evergreen"] = {"room": here, "object": str(o.id), "planted_utc": Clock.now_utc(), "harvested": -1}
+		emit("system_used", {"actor": c.id, "system": "plant_evergreen"})
+		emit("treasure_planted", {"actor": c.id, "treasure": "evergreen_heart_tree", "room": here})
+		return ok({"text": Tx.t("sim.crafting.you_plant_the_seed")})
+	if str(st.room) != here or str(st.object) != str(o.id):
+		return ok({"text": Tx.t("sim.crafting.your_tree_grows_in") % ContentDB.name_of("rooms", str(st.room))})
+	if st.ready:
+		game.inventory.apply_add(c.id, "evergreen_heart_fruit", 1, "evergreen")
+		c.crafting.evergreen.harvested = int(st.season)
+		emit("treasure_harvested", {"actor": c.id, "treasure": "evergreen_heart_tree", "item": "evergreen_heart_fruit"})
+		return ok({"text": Tx.t("sim.crafting.you_pick_the_fruit")})
+	var hours := maxf(1.0, ceilf((float(st.next_utc) - Clock.now_utc()) / 3600.0))
+	return ok({"text": Tx.t("sim.crafting.next_fruit_in") % int(hours)})
+
 ## Pill Grain, Halo and Soul (S15): a perfect run (every strike perfect, from Heart Tempering 1)
 ## plus luck; a special furnace and the Alchemy Dao improve the odds.
 func _rare_pill_quality(c, scores: Array, rng: RandomNumberGenerator) -> String:

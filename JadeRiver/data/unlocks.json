@@ -1831,6 +1831,22 @@
    "quest": "the_mentors_gift"
   },
   {
+   "id": "natural_treasures",
+   "label": "Natural treasures",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_8"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "treasures_of_heaven_and_earth"
+  },
+  {
    "id": "research",
    "label": "Research",
    "trigger": {

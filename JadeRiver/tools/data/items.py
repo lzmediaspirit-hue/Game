@@ -160,6 +160,16 @@ def build_items():
     rows.append(item("calm_incense", "other", "plain", 99, "Calming incense. Burn it and meditate to steady the heart.", use=[effect("add_composure", amount=30)]))
     rows.append(item("myriad_year_calm_incense", "treasure", "heaven", 1, "Clears Heart Demons and steadies Composure for an hour. Never sold.", sell=False,
                      use=[effect("add_modifier", stat="will", op="flat", value=20, duration=3600, source="calm_incense")]))
+    # Natural treasures (Part 5): one job each, never sold.
+    rows.append(item("mindwell_lotus", "treasure", "heaven", 9,
+                     "Heals and shields the soul: +500 Soul, mends a soul injury, soul defence +30% for an hour. It answers once in each great realm. Never sold.",
+                     sell=False, use_limit="realm",
+                     use=[effect("add_soul", amount=500), effect("cure_injury", injury="soul", max_severity=3),
+                          effect("add_modifier", stat="soul_defense", op="pct_add", value=0.3, duration=3600, source="mindwell_lotus")]))
+    rows.append(item("evergreen_heart_seed", "treasure", "heaven", 1,
+                     "A seed with a slow pulse. Plant it in rich earth where Qi gathers: a cave abode or your sect's Back Mountain. Never sold.", sell=False))
+    rows.append(item("evergreen_heart_fruit", "treasure", "heaven", 3,
+                     "Eat it when gravely wounded to rise where you fell, whole. The tree bears one each season. Never sold.", sell=False))
     rows.append(item("fuel_crystal_low", "material", "earth", 99, "Formation fuel pressed from Spirit Stone shards."))
     rows.append(item("fuel_crystal_mid", "material", "heaven", 99, "Ten low fuel crystals fused into one."))
     rows.append(item("blank_plate", "material", "earth", 99, "A blank jade plate for portable arrays."))

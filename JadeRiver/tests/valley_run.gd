@@ -360,7 +360,7 @@ func unlocked(system: String) -> bool:
 const KEEP := ["herbal_tea", "rice_ball", "rice", "willow_moss", "riverreed_ginseng_10", "tough_meat", "spirit_stone_shard",
 	"revival_talisman", "return_charm", "fuel_crystal_low", "blank_plate", "formation_stone", "restoration_ink", "torn_manual",
 	"spirit_wood", "puppet_core", "spirit_egg", "dusty_curio", "calm_incense", "cloud_feather", "cloudtop_orchid", "mudwater_key",
-	"cleansing_pill", "healing_pill", "qi_restoration_pill", "manual_page", "copper_ore", "jadeiron", "mist_lotus"]
+	"cleansing_pill", "healing_pill", "qi_restoration_pill", "manual_page", "copper_ore", "jadeiron", "mist_lotus", "evergreen_heart_seed"]
 
 ## Sell loot a player would sell: anything no active quest or upcoming lesson needs.
 func tidy_bag(min_free := 8) -> void:
@@ -376,6 +376,10 @@ func tidy_bag(min_free := 8) -> void:
 		var id := str(it.id)
 		var def2 := ContentDB.item(id)
 		if id in KEEP or wanted.has(id) or def2.get("quest_item", false) or str(def2.get("type", "")) in ["tool", "key", "scroll", "taming", "egg", "curio", "pill", "formation", "talisman"]: continue
+		# Natural treasures are never sold: a careful player puts them in storage.
+		if str(def2.get("type", "")) == "treasure":
+			submit({"type": "deposit", "index": i, "count": int(it.get("count", 1))})
+			continue
 		submit({"type": "sell", "index": i, "count": int(it.get("count", 1))})
 	# Anything that overflowed into the mail comes back now there is room.
 	submit({"type": "claim_all"})
@@ -1251,6 +1255,7 @@ func sec_sa5() -> void:
 	check(finish("passing_it_on"), "Passing It On done")
 	# Chapter 8: Gu's warehouse opens at Spirit Awakening 8.
 	check(reach("spirit_awakening_8"), "Spirit Awakening 8")
+	treasures_of_heaven_and_earth()
 	check(start("gus_warehouse"), "Gu's Warehouse accepted")
 	check(travel("sf_artisan_row") and go("warehouse_door"), "slip into Gu's warehouse")
 	var fled := {"n": 0}
@@ -1271,8 +1276,61 @@ func sec_sa5() -> void:
 	if int(c().training_sect.get("contribution", 0)) < 800: Game.training.apply_contribution(c().id, 800, "test_shortcut")
 	check(upgrade_method(core, core_m), "switch to the sect's core scripture")
 
+## Natural treasures (Spirit Awakening 8): the Mindwell Lotus behind Crane Falls, the Evergreen
+## Heart seed planted on the elder's peak and its first fruit.
+func treasures_of_heaven_and_earth() -> void:
+	check(start("treasures_of_heaven_and_earth"), "Treasures of Heaven and Earth accepted")
+	check(c().inventory.count("evergreen_heart_seed") == 1, "the elder gives an Evergreen Heart seed")
+	check(travel("cf_behind_falls"), "go behind Crane Falls")
+	check(gather("mindwell_lotus", 1) >= 1, "pick the Mindwell Lotus")
+	var peak := "ja_elder_hu_peak" if str(c().training_sect.get("id", "")) == "jade_sect" else "cm_elder_sung_peak"
+	check(travel(peak), "climb to the elder's peak")
+	var plot := objects_of("treasure_plot")
+	check(not plot.is_empty(), "rich earth on the peak")
+	if plot.is_empty(): return
+	place(Vector2(float(plot[0].at[0]) - 40, float(plot[0].at[1]) + 10))
+	interact(str(plot[0].id))
+	check(c().inventory.count("evergreen_heart_seed") == 0 and bool(Game.crafting.evergreen_state(c()).get("planted", false)), "plant the Evergreen Heart seed")
+	check(finish("treasures_of_heaven_and_earth"), "Treasures of Heaven and Earth done")
+	interact(str(plot[0].id))
+	check(c().inventory.count("evergreen_heart_fruit") == 0, "no fruit on the day it is planted")
+	c().crafting.evergreen.planted_utc = float(c().crafting.evergreen.planted_utc) - 25.0 * 3600.0   # test shortcut: a day passes
+	interact(str(plot[0].id))
+	check(c().inventory.count("evergreen_heart_fruit") == 1, "the tree bears its first fruit a day later")
+	interact(str(plot[0].id))
+	check(c().inventory.count("evergreen_heart_fruit") == 1, "one fruit per season")
+	var soul_before: float = c().cultivator.soul_cultivation
+	var li: int = c().inventory.first_index("mindwell_lotus")
+	check(submit({"type": "use_item", "index": li, "confirm": true}).get("ok", false) and c().cultivator.soul_cultivation >= soul_before + 499.0,
+		"the Mindwell Lotus feeds the soul")
+	Game.inventory.apply_add(c().id, "mindwell_lotus", 1, "test")
+	var again := submit({"type": "use_item", "index": c().inventory.first_index("mindwell_lotus"), "confirm": true})
+	check(str(again.get("reason", "")) == "once_per_realm", "a second lotus waits for the next great realm %s" % str(again))
+
 # ------------------------------------------------------------------ Heaven Glimpse and the end of Act I
 func sec_hg1() -> void:
+	# The Nine-Bough Jade Tree answers only an Understanding bottleneck.
+	check(reach("spirit_awakening_9"), "Spirit Awakening 9")
+	var fill := 0
+	while c().cultivator.state != "bottleneck" and fill < 10:
+		Game.progression.apply_progress(c().id, 0.0, "test_shortcut", 1.0)
+		step(0.2)
+		fill += 1
+	check(travel("mp_forgotten_monastery"), "reach the Nine-Bough Jade Tree")
+	var tree := objects_of("treasure_tree")
+	check(not tree.is_empty(), "the Nine-Bough Jade Tree stands at the monastery")
+	if not tree.is_empty():
+		var stuck := false
+		for r0 in Game.progression.query_requirements(c()):
+			if not r0.ok and str(r0.cause) == "understanding": stuck = true
+		var before := 0.0
+		for d in c().cultivator.daos: before += float(c().cultivator.daos[d].get("insight", 0.0))
+		place(Vector2(float(tree[0].at[0]) - 60, float(tree[0].at[1]) + 20))
+		var jt := interact(str(tree[0].id))
+		var after := 0.0
+		for d in c().cultivator.daos: after += float(c().cultivator.daos[d].get("insight", 0.0))
+		if stuck: check(after > before + 400.0, "the tree deepens the strongest Dao at an Understanding bottleneck (%s)" % str(jt))
+		else: check(is_equal_approx(after, before), "the tree stays still when understanding is not the wall")
 	check(reach("heaven_glimpse_1"), "Heaven Glimpse 1")
 	check(start("a_wider_sky"), "A Wider Sky accepted")
 	check(travel("mp_forgotten_monastery"), "reach the Forgotten Monastery")

@@ -391,6 +391,11 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 		"appraise": return game.workshop.appraise(c, index)
 		"incubate": return game.pets.incubate_egg(c, index)
 		"tame": return game.pets.attempt_tame(c, str(s.id), -1.0)
+	# Natural treasures answer once in each great realm (the Mindwell Lotus).
+	var great_realm := str(ContentDB.realm(c.cultivator.realm_key).get("realm", ""))
+	var once := str(def.get("use_limit", "")) == "realm"
+	if once and str(c.cultivator.treasure_uses.get(str(s.id), "")) == great_realm:
+		return fail("once_per_realm", {"text": Tx.t("sim.inventory.once_per_realm") % ContentDB.item_name(str(s.id))})
 	var group := str(def.get("pill", def.get("food", {})).get("group", "utility"))
 	var cd_key := "item:" + group
 	if c.pools.cooldown(cd_key) > 0.0: return fail("cooldown", {"remaining": c.pools.cooldown(cd_key)})
@@ -424,6 +429,9 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 			if ed.has(k) and factor != 1.0: ed[k] = float(ed[k]) * factor
 		effects.append(ed)
 	game.apply_effects(c.id, effects, "item:" + str(s.id))
+	if once:
+		c.cultivator.treasure_uses[str(s.id)] = great_realm
+		emit("treasure_used", {"actor": c.id, "treasure": str(s.id)})
 	# A Pill Soul may carry one unique effect of its own.
 	var soul_effect := ""
 	if quality == "pill_soul":

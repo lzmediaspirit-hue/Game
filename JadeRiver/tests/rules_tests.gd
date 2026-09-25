@@ -31,6 +31,7 @@ func _main() -> void:
 	pets_suite()
 	weekly_suite()
 	pills_suite()
+	treasures_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
@@ -287,6 +288,68 @@ func pills_suite() -> void:
 		if soul < 0: break
 		if str(_use_fresh(c, soul).get("soul_effect", "")) != "": awakened += 1
 	check(awakened > 0 and awakened < 8, "a Pill Soul sometimes adds a unique effect (%d of 8)" % awakened)
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+
+# ------------------------------------------------------------------ natural treasures (Part 5)
+func treasures_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var cu = c.cultivator
+	cu.realm_key = "spirit_awakening_8"
+	cu.state = "accumulating"
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	c.pools.cooldowns.clear()
+	# Mindwell Lotus: +500 Soul, once in each great realm.
+	Game.inventory.apply_add(c.id, "mindwell_lotus", 2, "test")
+	var soul0: float = cu.soul_cultivation
+	check(Game.inventory.use_item(c, c.inventory.first_index("mindwell_lotus"), true).get("ok", false) and near(cu.soul_cultivation, soul0 + 500.0),
+		"the Mindwell Lotus adds 500 Soul")
+	c.pools.cooldowns.clear()
+	check(str(Game.inventory.use_item(c, c.inventory.first_index("mindwell_lotus"), true).get("reason", "")) == "once_per_realm", "a second lotus in the same great realm is refused")
+	cu.realm_key = "heaven_glimpse_1"
+	c.pools.cooldowns.clear()
+	check(Game.inventory.use_item(c, c.inventory.first_index("mindwell_lotus"), true).get("ok", false), "the next great realm, the lotus answers again")
+	check(ContentDB.item("mindwell_lotus").get("sell", true) == false and ContentDB.item("evergreen_heart_fruit").get("sell", true) == false, "natural treasures are never sold")
+	cu.realm_key = "spirit_awakening_8"
+	# Evergreen Heart Tree: planted once, first fruit after a day, then one per season.
+	Clock.override_utc = 1800000000.0
+	c.crafting.erase("evergreen")
+	var plot := {"id": "plot_test", "type": "treasure_plot"}
+	check(str(Game.crafting.tend_treasure_plot(c, plot).get("text", "")) == Tx.t("sim.crafting.rich_earth_waits"), "rich earth waits for a seed")
+	Game.inventory.apply_add(c.id, "evergreen_heart_seed", 1, "test")
+	Game.crafting.tend_treasure_plot(c, plot)
+	check(bool(Game.crafting.evergreen_state(c).planted) and c.inventory.count("evergreen_heart_seed") == 0, "the seed is planted")
+	Game.crafting.tend_treasure_plot(c, plot)
+	check(c.inventory.count("evergreen_heart_fruit") == 0, "no fruit on the first day")
+	Clock.override_utc += 25.0 * 3600.0
+	Game.crafting.tend_treasure_plot(c, plot)
+	Game.crafting.tend_treasure_plot(c, plot)
+	check(c.inventory.count("evergreen_heart_fruit") == 1, "one fruit after a day, and only one")
+	Clock.override_utc += 7.0 * 86400.0
+	Game.crafting.tend_treasure_plot(c, plot)
+	check(c.inventory.count("evergreen_heart_fruit") == 2, "another fruit the next season")
+	check(str(Game.crafting.tend_treasure_plot(c, {"id": "elsewhere", "type": "treasure_plot"}).get("text", "")).contains("grows in"), "one tree per character")
+	# The fruit lifts you from a grave wound where you fell, at full health.
+	Game.combat._gravely_wound(c, "hp")
+	c.pools.hp = 0.0
+	check(Game.combat.choose_revival(c, "fruit").get("ok", false) and near(c.pools.hp, c.pools.max_hp) and c.inventory.count("evergreen_heart_fruit") == 1,
+		"an Evergreen Heart fruit revives in place at full health")
+	check(not Game.combat.is_wounded(c.id), "and the wound is gone")
+	Clock.override_utc = -1.0
+	# Nine-Bough Jade Tree: only at an Understanding bottleneck, once per realm stage.
+	cu.realm_key = "spirit_awakening_9"
+	Unlocks.force_unlock(c.id, "dao_tree")
+	cu.daos = {"sword": {"tier": 3, "insight": 900.0}}
+	cu.state = "accumulating"
+	check(str(Game.progression.consult_jade_tree(c).get("text", "")) == Tx.t("sim.progression.the_jade_leaves_are_still"), "no answer away from a bottleneck")
+	cu.state = "bottleneck"
+	var jt: Dictionary = Game.progression.consult_jade_tree(c)
+	var gained := float(cu.daos.sword.insight) - 900.0
+	check(gained >= 0.75 * 1100.0 - 1.0, "at the Dao-tier wall it gives three quarters of the gap to the next tier (%.0f, %s)" % [gained, str(jt)])
+	var ins: float = float(cu.daos.sword.insight)
+	Game.progression.consult_jade_tree(c)
+	check(near(float(cu.daos.sword.insight), ins), "the tree answers once per realm stage")
+	cu.state = "accumulating"
 	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
 
 # ------------------------------------------------------------------ saves (Part 7 · Save migration)

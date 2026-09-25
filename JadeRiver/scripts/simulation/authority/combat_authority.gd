@@ -728,11 +728,28 @@ func revive_here_allowed(c) -> Dictionary:
 	if Clock.now_utc() < until: return {"ok": false, "text": Tx.t("sim.combat.talisman_recovering_ds") % int(until - Clock.now_utc())}
 	return {"ok": true, "text": ""}
 
+## An Evergreen Heart fruit (natural treasure) lifts you where you fell, whole.
+func fruit_revival_allowed(c) -> Dictionary:
+	if c.inventory.count("evergreen_heart_fruit") <= 0: return {"ok": false, "text": ""}
+	if game.room_rt and game.room_rt.def.get("no_revive_here", false): return {"ok": false, "text": Tx.t("sim.combat.not_allowed_here")}
+	return {"ok": true, "text": ""}
+
 func choose_revival(c, where: String) -> Dictionary:
 	if not wounded.has(c.id): return fail("not_wounded")
 	var info: Dictionary = wounded[c.id]
 	var death: Dictionary = ContentDB.stat_const("death", {})
-	if where == "here":
+	if where == "fruit":
+		var fruit := fruit_revival_allowed(c)
+		if not fruit.ok: return fail("not_allowed", {"text": fruit.text})
+		game.inventory.apply_remove(c.id, "evergreen_heart_fruit", 1, "revive")
+		wounded.erase(c.id)
+		c.pools.hp = c.pools.max_hp
+		if c.pools.max_soul > 0: c.pools.soul = c.pools.max_soul
+		c.pools.statuses.clear()
+		c.pools.invulnerable = float(ContentDB.stat_const("treasures", {}).get("fruit_invuln_s", 3))
+		emit("player_revived", {"actor": c.id, "where": "fruit"})
+		emit("treasure_used", {"actor": c.id, "treasure": "evergreen_heart_fruit"})
+	elif where == "here":
 		var allowed := revive_here_allowed(c)
 		if not allowed.ok: return fail("not_allowed", {"text": allowed.text})
 		game.inventory.apply_remove(c.id, "revival_talisman", 1, "revive")

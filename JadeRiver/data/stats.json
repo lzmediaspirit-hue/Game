@@ -177,6 +177,14 @@
   "spirit_cooldown_s": 60,
   "soul_injury": 1
  },
+ "treasures": {
+  "unlock": "natural_treasures",
+  "season_days": 7,
+  "first_fruit_h": 24,
+  "fruit_invuln_s": 3,
+  "jade_tree_share": 0.75,
+  "jade_tree_min_insight": 500
+ },
  "flight": {
   "unlock": "flight",
   "qi_pct_per_s": 0.02,

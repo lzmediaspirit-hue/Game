@@ -28,6 +28,7 @@ import defs_furniture  # noqa: E402,F401
 import defs_tiles  # noqa: E402,F401
 import defs_buildings  # noqa: E402,F401
 import defs_scenery  # noqa: E402,F401
+import defs_treasures  # noqa: E402,F401
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 DEFAULT_REVIEW = "/tmp/claude-0/-home-user-Game/13461237-7857-505a-bd3b-55d18a20fe2c/scratchpad/art_review"

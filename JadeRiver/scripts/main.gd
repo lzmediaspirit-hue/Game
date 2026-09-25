@@ -138,6 +138,12 @@ func _handle_preview_args(user_args: Array) -> void:
 		if room != "":
 			var ch = Game.character("c1")
 			ch.position = {"room": room, "portal": "", "x": 0.0, "y": 0.0, "surface": "", "facing": 1}
+			for a in user_args:
+				# Debug tools (S38): --at=x,y starts the preview at a point in the room.
+				if str(a).begins_with("--at="):
+					var xy := str(a).trim_prefix("--at=").split(",")
+					ch.position.x = float(xy[0])
+					ch.position.y = float(xy[1]) if xy.size() > 1 else 840.0
 			if "--unlock-all" in user_args: Unlocks.debug_force_all = true
 			if "--debug-sect" in user_args:
 				# Debug tools (S38): a founded sect with every building at level 1, for previews.

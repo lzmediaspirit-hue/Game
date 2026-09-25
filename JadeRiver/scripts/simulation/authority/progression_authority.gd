@@ -700,6 +700,34 @@ func rank_up_technique(c, tid: String) -> Dictionary:
 	emit("technique_mastery_up", {"actor": c.id, "technique": tid, "tier": m.tier})
 	return ok()
 
+# ------------------------------------------------------------------ natural treasures
+## The Nine-Bough Jade Tree answers only a mind stuck at an Understanding bottleneck, once per
+## realm stage: a large share of the strongest Dao's gap to its next tier.
+func consult_jade_tree(c) -> Dictionary:
+	var stuck := false
+	if c.cultivator.state == "bottleneck":
+		for r in query_requirements(c):
+			if not r.ok and str(r.cause) == "understanding": stuck = true
+	if not stuck: return ok({"text": Tx.t("sim.progression.the_jade_leaves_are_still")})
+	if str(c.cultivator.treasure_uses.get("nine_bough_jade_tree", "")) == c.cultivator.realm_key:
+		return ok({"text": Tx.t("sim.progression.the_tree_has_answered")})
+	var dao := ""
+	var best := -1.0
+	for d in c.cultivator.daos:
+		if float(c.cultivator.daos[d].get("insight", 0.0)) > best:
+			best = float(c.cultivator.daos[d].get("insight", 0.0))
+			dao = str(d)
+	if dao == "": dao = "sword"
+	var tiers: Array = ContentDB.curve("dao_tiers", [100, 300, 800, 2000, 5000, 12000])
+	var tier := int(c.cultivator.daos.get(dao, {}).get("tier", 0))
+	var gap := float(tiers[mini(tier, tiers.size() - 1)]) - maxf(0.0, best)
+	var cfg: Dictionary = ContentDB.stat_const("treasures", {})
+	var amount := maxf(float(cfg.get("jade_tree_min_insight", 500)), gap * float(cfg.get("jade_tree_share", 0.75)))
+	apply_insight(c.id, dao, amount, "nine_bough_jade_tree")
+	c.cultivator.treasure_uses["nine_bough_jade_tree"] = c.cultivator.realm_key
+	emit("treasure_used", {"actor": c.id, "treasure": "nine_bough_jade_tree", "dao": dao, "amount": amount})
+	return ok({"text": Tx.t("sim.progression.the_tree_answers") % ContentDB.name_of("daos", dao), "dao": dao, "amount": amount})
+
 # ------------------------------------------------------------------ seclusion (S07)
 func enter_seclusion(c, focus: String) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "seclusion"): return fail("locked", {"text": Unlocks.locked_text("seclusion")})

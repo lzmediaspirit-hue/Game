@@ -543,6 +543,28 @@
       }
     }
   },
+  "evergreen_heart_tree": {
+    "anchor": [
+      80,
+      236
+    ],
+    "file": "res://art/props/evergreen_heart_tree.png",
+    "frame": [
+      160,
+      240
+    ],
+    "states": {
+      "fruit": {
+        "col": 1,
+        "fps": 4,
+        "frames": 4
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "fence_wood": {
     "anchor": [
       80,
@@ -1100,6 +1122,28 @@
       }
     }
   },
+  "mindwell_lotus_patch": {
+    "anchor": [
+      32,
+      26
+    ],
+    "file": "res://art/props/mindwell_lotus_patch.png",
+    "frame": [
+      64,
+      32
+    ],
+    "states": {
+      "depleted": {
+        "col": 3,
+        "frames": 1
+      },
+      "ready": {
+        "col": 0,
+        "fps": 5,
+        "frames": 3
+      }
+    }
+  },
   "mist_bank": {
     "anchor": [
       160,
@@ -1180,6 +1224,24 @@
       "full": {
         "col": 0,
         "frames": 1
+      }
+    }
+  },
+  "nine_bough_jade_tree": {
+    "anchor": [
+      120,
+      316
+    ],
+    "file": "res://art/props/nine_bough_jade_tree.png",
+    "frame": [
+      240,
+      320
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 5,
+        "frames": 4
       }
     }
   },
@@ -2000,6 +2062,23 @@
         "col": 1,
         "frames": 1
       },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "treasure_plot": {
+    "anchor": [
+      48,
+      30
+    ],
+    "file": "res://art/props/treasure_plot.png",
+    "frame": [
+      96,
+      32
+    ],
+    "states": {
       "idle": {
         "col": 0,
         "frames": 1

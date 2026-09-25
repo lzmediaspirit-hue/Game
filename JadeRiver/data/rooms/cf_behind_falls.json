@@ -107,6 +107,31 @@
     ]
    },
    "locked_text": "Cold spray."
+  },
+  {
+   "id": "mindwell_lotus_cf",
+   "type": "herb_patch",
+   "at": [
+    420,
+    900
+   ],
+   "item": "mindwell_lotus",
+   "prop": "mindwell_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "apprentice",
+   "regrow_s": 604800,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "natural_treasures"
+     }
+    ]
+   },
+   "locked_text": "A pale lotus. It closes when your hand comes near."
   }
  ],
  "spawns": [],

@@ -2899,6 +2899,55 @@
    ]
   },
   {
+   "id": "treasures_of_heaven_and_earth",
+   "name": "Treasures of Heaven and Earth",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Pick the Mindwell Lotus behind Crane Falls",
+     "count": 1,
+     "item": "mindwell_lotus",
+     "consume": false
+    },
+    {
+     "kind": "use_system",
+     "text": "Plant the Evergreen Heart seed in rich earth (the elder's peak, your cave abode or the Back Mountain)",
+     "count": 1,
+     "system": "plant_evergreen"
+    }
+   ],
+   "rewards": [],
+   "offer_text": [
+    "Heaven and earth grow a few things that are worth more than pills. Never sell them.",
+    "A lotus that shields the soul. A tree whose fruit lifts you from death's edge. Take this seed."
+   ],
+   "complete_text": [
+    "Good. One more: at the Forgotten Monastery stands the Nine-Bough Jade Tree.",
+    "When your understanding stalls at a wall, sit beneath it. Only then will it answer."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "sa8",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "evergreen_heart_seed",
+     "count": 1
+    }
+   ]
+  },
+  {
    "id": "torn_pages",
    "name": "Torn Pages",
    "kind": "guided",

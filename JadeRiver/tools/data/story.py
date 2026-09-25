@@ -353,6 +353,7 @@ def unlocks():
     u("binding", "Binding", all_of(realm("spirit_awakening_3")), "the_sleeping_blade", [])
     u("nourish_soul", "Nourish soul", all_of(realm("spirit_awakening_4")), "quiet_waters", [])
     u("personal_disciple", "Personal disciple", all_of(realm("spirit_awakening_5")), "the_mentors_gift", [])
+    u("natural_treasures", "Natural treasures", all_of(realm("spirit_awakening_8")), "treasures_of_heaven_and_earth", [])
     u("research", "Research", all_of(realm("spirit_awakening_6")), "torn_pages", [])
     u("teaching", "Teaching", all_of(realm("spirit_awakening_7")), "passing_it_on", [])
     u("cape_slot", "Cape slot", all_of(realm("heaven_glimpse_1")), "a_wider_sky", [])
@@ -801,6 +802,15 @@ def guided_quests():
         o("win_spar", "Pass the personal-disciple trial", opponent="sparring_disciple"),
     ], [fx("learn_secret_art", art="lotus_heart_breathing")], offered_by_unlock=True, chapter="sa5", giver_any=M, hand_in_any=M,
         offer=["Beat my best disciple and I'll teach you personally."], complete=["My personal disciple. My secret art is yours, and the cave behind the pagoda is your abode."])
+    quest("treasures_of_heaven_and_earth", "Treasures of Heaven and Earth", "guided", "elder_hu", [
+        o("collect", "Pick the Mindwell Lotus behind Crane Falls", item="mindwell_lotus", consume=False),
+        o("use_system", "Plant the Evergreen Heart seed in rich earth (the elder's peak, your cave abode or the Back Mountain)",
+          system="plant_evergreen"),
+    ], [], offered_by_unlock=True, chapter="sa8", giver_any=M, hand_in_any=M, on_accept=[item("evergreen_heart_seed", 1)],
+        offer=["Heaven and earth grow a few things that are worth more than pills. Never sell them.",
+               "A lotus that shields the soul. A tree whose fruit lifts you from death's edge. Take this seed."],
+        complete=["Good. One more: at the Forgotten Monastery stands the Nine-Bough Jade Tree.",
+                  "When your understanding stalls at a wall, sit beneath it. Only then will it answer."])
     quest("torn_pages", "Torn Pages", "guided", "jade_librarian", [
         o("use_system", "Restore a damaged manual", system="restore_manual"),
     ], [item("restoration_ink", 3)], offered_by_unlock=True, chapter="sa6", giver_any=LIBRARIANS, hand_in_any=LIBRARIANS,

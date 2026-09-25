@@ -422,6 +422,12 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"craft_completed":
 			add_log(Tx.t("hud.crafted") % [ContentDB.name_of("recipes", str(p.recipe)), str(p.quality).capitalize()], UiKit.quality_color(str(p.quality)))
 			if str(p.quality).begins_with("pill_"): toast(Tx.t("hud.rare_pill") % str(p.quality).capitalize(), "gold")
+		"treasure_planted":
+			toast(Tx.t("hud.treasure_planted"), "gold")
+		"treasure_harvested":
+			toast(Tx.t("hud.treasure_harvested") % ContentDB.item_name(str(p.get("item", ""))), "gold")
+		"treasure_used":
+			toast(Tx.t("hud.treasure_used." + str(p.treasure)), "gold")
 		"pill_soul_awakened":
 			toast(Tx.t("hud.pill_soul") % Tx.t("hud.pill_soul_effect." + str(p.effect)), "gold")
 		"spar_ended":

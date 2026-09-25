@@ -579,6 +579,61 @@ def drying_rack():
     return c
 
 
+# ============================================================================ natural treasures
+def mindwell_lotus():
+    """A soul-violet lotus over a jade pad, soul-light rising from its heart."""
+    c = Canvas(32)
+    pad = c.ellipse(16, 25, 13, 3.4)
+    c.put(pad, R['jade'], 'ray')
+    bx, by = 16, 23
+    petals = [(bx - 1, by, 160, 10.5, 5.4, -0.12), (bx + 1, by, 20, 10.5, 5.4, 0.12),
+              (bx - 1, by, 128, 12.5, 6.0, -0.06), (bx + 1, by, 52, 12.5, 6.0, 0.06), (bx, by + 0.5, 90, 15, 7.2, 0.0)]
+    pr = R['violet']
+    for (x, y, a, L, W, b) in petals:
+        m = S.leaf(c, x, y, a, L, W, b, tip_power=0.7)
+        c.put(m, pr, 'ray', base=3, sep=True, sep_col=pr[1])
+        dx, dy = math.cos(math.radians(a)), -math.sin(math.radians(a))
+        c.put(c.circle(x + dx * L * 0.9, y + dy * L * 0.9, L * 0.26) & m, pr, 'ray', base=4)
+    c.put(c.ellipse(16, 21, 2.6, 1.4), R['gold'], 'flat', base=4)
+    c.outline()
+    c.glow('#9B78D1', (70,))
+    S.sparkle(c, 16, 5, '#FFFFFF', R['violet'][3], 2)
+    S.sparkle(c, 25, 11, '#FFFFFF', R['violet'][3], 1)
+    return c
+
+
+def evergreen_heart_seed():
+    """A dark almond seed with a red heart-line pulse and the first green shoot."""
+    c = Canvas(32)
+    seed = c.ellipse(15, 19, 7.5, 9.5)
+    c.put(seed, R['wood'], 'sphere', base=1)
+    vein = S.bez_line(c, (15, 11), (12, 18), (15, 27), 1.2)
+    c.put(vein & seed, R['red'], 'flat', base=3)
+    c.put(c.circle(15, 19, 2.2) & seed, R['red'], 'sphere', base=3)
+    shoot = S.bez_line(c, (16, 10), (18, 6), (21, 4), 1.4)
+    c.put(shoot, R['leaf'], 'flat', base=3)
+    c.put(S.leaf(c, 20.5, 4.5, 20, 6, 3, 0.1), R['leaf'], 'ray', base=3, sep=True)
+    c.outline()
+    c.glow('#D44B4E', (55,))
+    return c
+
+
+def evergreen_heart_fruit():
+    """A heart-shaped crimson fruit on an evergreen sprig, glowing warm."""
+    c = Canvas(32)
+    heart = c.circle(11.5, 15, 6.2) | c.circle(20.5, 15, 6.2) | c.poly([(5.6, 17), (26.4, 17), (16, 28.5)])
+    c.put(heart, R['red'], 'sphere', base=2)
+    c.put(c.circle(10, 13, 1.6) & heart, R['red'], 'flat', base=4)
+    stem = c.rect(16, 5, 16, 10)
+    c.put(stem, R['wood'], 'flat', base=2)
+    for a, L in ((150, 8), (35, 8), (110, 6)):
+        c.put(S.leaf(c, 16, 7, a, L, 2.6, 0.0), R['leaf'], 'ray', base=2, sep=True)
+    c.outline()
+    c.glow('#F2B24C', (60,))
+    S.sparkle(c, 24, 9, '#FFFFFF', R['gold'][3], 2)
+    return c
+
+
 for _id, _fn in (('manual_page', manual_page), ('riverbreath_scroll', riverbreath_scroll),
                  ('lu_journal_page', lu_journal_page), ('recipe_scroll', recipe_scroll),
                  ('river_token', river_token), ('jade_token', jade_token), ('cloud_token', cloud_token),
@@ -589,5 +644,6 @@ for _id, _fn in (('manual_page', manual_page), ('riverbreath_scroll', riverbreat
                  ('kite', kite), ('calm_incense', lambda: _incense(False)),
                  ('myriad_year_calm_incense', lambda: _incense(True)), ('restoration_ink', restoration_ink),
                  ('fish_bait', fish_bait), ('blank_plate', blank_plate), ('spirit_egg', spirit_egg),
-                 ('drying_rack', drying_rack)):
+                 ('drying_rack', drying_rack), ('mindwell_lotus', mindwell_lotus),
+                 ('evergreen_heart_seed', evergreen_heart_seed), ('evergreen_heart_fruit', evergreen_heart_fruit)):
     register(FAM, _id, _fn, GROUP)

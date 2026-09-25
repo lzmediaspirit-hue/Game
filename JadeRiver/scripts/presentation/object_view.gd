@@ -10,7 +10,7 @@ const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "training_s
 	"cooking_pot": "cooking_pot", "alchemy_furnace": "alchemy_furnace", "forge_anvil": "forge_anvil", "fishing_spot": "fishing_ripple",
 	"rite_circle": "rite_circle", "bell": "small_bell", "spar_post": "weapon_rack", "inspect": "grey_patch", "herb_patch": "willow_moss_patch",
 	"ore_vein": "copper_vein", "formation_table": "formation_node", "garden_bed": "willow_moss_patch",
-	"defence_drum": "small_bell"}
+	"defence_drum": "small_bell", "treasure_plot": "treasure_plot", "treasure_tree": "nine_bough_jade_tree"}
 
 var def: Dictionary = {}
 var object_id := ""
@@ -50,7 +50,18 @@ func state_name() -> String:
 		"training_stump", "training_dummy": return "hit" if hit_flash > 0.0 else "idle"
 		"bell": return "ringing" if s == "open" else "idle"
 		"rite_circle": return "active" if Game.room_rt and Game.room_rt.event.get("active", false) else "idle"
+		"treasure_plot": return "fruit" if c and _my_tree(c) and bool(Game.crafting.evergreen_state(c).get("ready", false)) else "idle"
 	return "idle"
+
+## Rich earth shows the player's Evergreen Heart Tree once it is planted here.
+func _my_tree(c) -> bool:
+	var st: Dictionary = Game.crafting.evergreen_state(c)
+	return bool(st.get("planted", false)) and str(st.get("object", "")) == object_id and Game.room_rt != null and str(st.get("room", "")) == Game.room_rt.room_id
+
+func current_prop() -> String:
+	var c = Game.active()
+	if str(def.get("type", "")) == "treasure_plot" and c and _my_tree(c): return "evergreen_heart_tree"
+	return prop_id
 
 func _process(delta: float) -> void:
 	t += delta
@@ -70,13 +81,13 @@ func _draw() -> void:
 			draw_texture_rect(ic, Rect2(-16, -34 + bob, 32, 32), false)
 			drawn = true
 	elif prop_id != "":
-		drawn = SpriteCache.draw_prop(self, prop_id, st, t, Vector2.ZERO, bool(def.get("flip", false)))
+		drawn = SpriteCache.draw_prop(self, current_prop(), st, t, Vector2.ZERO, bool(def.get("flip", false)))
 	if not drawn and def.type != "pickup":
 		draw_rect(Rect2(-12, -24, 24, 24), UiKit.BRONZE)
 	if focus:
 		var c = Game.active()
 		var avail: Dictionary = Game.world.object_available(c, def) if c else {"ok": true}
 		var label := Game.world._verb(def)
-		var h := SpriteCache.prop_size(prop_id).y if prop_id != "" else 40.0
+		var h := SpriteCache.prop_size(current_prop()).y if prop_id != "" else 40.0
 		UiKit.draw_outlined(self, label if avail.ok else str(avail.get("text", "")), Vector2(-120, -h - 8), 16,
 			UiKit.PALE_GOLD if avail.ok else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 240)

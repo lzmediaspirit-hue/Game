@@ -58,6 +58,11 @@ def build():
         # grade, broken by a hit); its Artifact Spirit wakes through a soul contest (Spirit against strength).
         "binding": {"unlock": "binding", "seconds": {"plain": 4, "common": 6, "earth": 12, "heaven": 20, "mystic": 30},
                     "spirit_chance": [0.1, 0.9], "spirit_cooldown_s": 60, "soul_injury": 1},
+        # Natural treasures (Part 5, Spirit Awakening 8): the Evergreen Heart Tree bears its first fruit a day
+        # after planting, then one per season; the Nine-Bough Jade Tree gives a share of the strongest Dao's
+        # gap to its next tier (at least `min_insight`), once per realm stage, only at an Understanding bottleneck.
+        "treasures": {"unlock": "natural_treasures", "season_days": 7, "first_fruit_h": 24, "fruit_invuln_s": 3,
+                      "jade_tree_share": 0.75, "jade_tree_min_insight": 500},
         # S18 flight (Cloud Stride 1): QI per second is a share of the pool (with a floor); take off needs a
         # little QI in hand. Climb in px/s, ceiling in px of altitude.
         "flight": {"unlock": "flight", "qi_pct_per_s": 0.02, "qi_min_per_s": 2.0, "start_qi_pct": 0.1, "climb": 220, "ceiling": 340},

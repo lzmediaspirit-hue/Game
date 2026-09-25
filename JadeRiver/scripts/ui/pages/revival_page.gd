@@ -5,7 +5,7 @@ extends Page
 func _init() -> void:
 	title = Tx.t("ui.revival.gravely_wounded")
 	modal = true
-	frame_rect = Rect2(300, 150, 680, 420)
+	frame_rect = Rect2(300, 110, 680, 500)
 
 func draw_page() -> void:
 	var ch = c()
@@ -21,8 +21,16 @@ func draw_page() -> void:
 	var here: Dictionary = Game.combat.revive_here_allowed(ch)
 	btn(Rect2(content.position.x + 40, y + 186, content.size.x - 80, 58), str(here.get("label", Tx.t("ui.revival.revive_here"))), "choose", "here", false,
 		bool(here.get("ok", false)), str(here.get("text", "")))
+	var note_y := y + 272
 	if not bool(here.get("ok", false)) and str(here.get("text", "")) != "":
-		text(Vector2(content.position.x, y + 272), str(here.text), 18, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, content.size.x)
+		text(Vector2(content.position.x, note_y), str(here.text), 18, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, content.size.x)
+		note_y += 30
+	# A natural treasure: an Evergreen Heart fruit lifts you here, whole.
+	var fruits: int = ch.inventory.count("evergreen_heart_fruit")
+	if fruits > 0:
+		var fruit: Dictionary = Game.combat.fruit_revival_allowed(ch)
+		btn(Rect2(content.position.x + 40, note_y, content.size.x - 80, 58), Tx.t("ui.revival.eat_an_evergreen_heart_fruit") % fruits, "choose", "fruit", false,
+			bool(fruit.get("ok", false)), str(fruit.get("text", "")))
 
 func on_action(id: String, data) -> void:
 	if id == "choose":

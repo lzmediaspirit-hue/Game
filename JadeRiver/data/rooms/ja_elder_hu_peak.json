@@ -145,6 +145,23 @@
     ]
    },
    "locked_text": "The Heart Trial circle. Not before Heart Tempering 9."
+  },
+  {
+   "id": "plot_hu",
+   "type": "treasure_plot",
+   "at": [
+    320,
+    900
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "natural_treasures"
+     }
+    ]
+   },
+   "locked_text": "Rich dark earth, ringed with river stones."
   }
  ],
  "spawns": [],

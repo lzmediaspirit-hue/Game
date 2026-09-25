@@ -244,6 +244,25 @@
     ]
    },
    "locked_text": "The sky above this stone looks too close."
+  },
+  {
+   "id": "nine_bough_tree",
+   "type": "treasure_tree",
+   "at": [
+    2580,
+    690
+   ],
+   "treasure": "nine_bough_jade_tree",
+   "radius": 150,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "natural_treasures"
+     }
+    ]
+   },
+   "locked_text": "An ancient tree with jade leaves. It does not notice you yet."
   }
  ],
  "spawns": [
