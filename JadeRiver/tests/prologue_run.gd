@@ -178,6 +178,13 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, a
 			while c().pools.hp < c().pools.max_hp * 0.95 and rt < 90.0:
 				step(1.0)
 				rt += 1.0
+		# Bosses: roll through the strike late in its wind-up (dash i-frames), as a practised player does.
+		if str(target.ai.get("state", "")) == "windup" and target.role in ["dungeon_boss", "field_boss", "story_boss"] and Unlocks.is_unlocked(c().id, "dodge_dash"):
+			if float(target.ai.get("timer", 1.0)) <= 0.2:
+				submit({"type": "dodge", "direction": Vector2.ZERO, "facing": 1})
+			step(0.05)
+			t += 0.05
+			continue
 		# Read the tell: step out of the lane during a wind-up, as the Snapper lesson teaches.
 		if str(target.ai.get("state", "")) == "windup" and (target.role != "normal" or target.elite):
 			place(target.plane + Vector2(-34, 70 if target.plane.y < 860 else -70))
@@ -212,8 +219,11 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, a
 		step(0.2)
 		t += 0.2
 		if verbose and (t < 3.0 or def_id == "trial_puppet") and int(tally.killed) == 0: print("  attack ", def_id, " ", ar, " hp ", hp_before, " -> ", target.pools.hp, " me ", c().pools.hp, " at ", st.plane, " alt ", st.altitude, " surf ", st.surface.id if st.surface else "-", " vs ", target.plane, " ealt ", target.altitude, " st ", target.ai.get("state", ""))
-		if c().pools.hp < c().pools.max_hp * 0.35 and c().inventory.count("herbal_tea") > 0 and Unlocks.is_unlocked(c().id, "quick_use"):
-			submit({"type": "use_item", "index": c().inventory.first_index("herbal_tea"), "confirm": true})
+		if c().pools.hp < c().pools.max_hp * 0.4 and Unlocks.is_unlocked(c().id, "quick_use"):
+			for heal in ["healing_pill", "herbal_tea"]:
+				if c().inventory.count(heal) > 0:
+					var hr := submit({"type": "use_item", "index": c().inventory.first_index(heal), "confirm": true})
+					if hr.get("ok", false): break
 		elif retreat_below > 0.0 and c().pools.hp < c().pools.max_hp * retreat_below:
 			break
 	GameEvents.event.disconnect(heard)

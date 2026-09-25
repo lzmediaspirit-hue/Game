@@ -112,7 +112,7 @@ def build():
         "dao_tier_names": ["observation", "imitation", "reliable_execution", "explanation", "adaptation", "original_application"],
         "insight_repeat_factor": 0.2, "insight_repeat_window_s": 60, "insight_stone_per_min": 20, "contemplate_offline_per_min": 5,
         "profession_ranks": [["apprentice", 0], ["adept", 1000], ["expert", 5000], ["master", 20000], ["grandmaster", 60000]],
-        "profession_xp": {"craft_per_grade": 10, "fine_bonus": 0.5, "gather": 5, "mine": 5, "fish": 8, "cook": 6},
+        "profession_xp": {"craft_per_grade": 10, "fine_bonus": 0.5, "gather": 10, "mine": 10, "fish": 12, "cook": 8},
         "purity_points_per_grade": 100, "purity_meditate_per_hour": 10, "purity_offline_per_hour": 25,
         "soul_meditate_per_hour": 10, "soul_offline_per_hour": 20,
         "offline_factor": 0.1, "offline_cap_h": 12, "retreat_cap_h": 16, "formation_cap_h": 24,

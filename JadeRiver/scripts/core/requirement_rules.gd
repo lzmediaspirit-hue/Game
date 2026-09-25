@@ -135,8 +135,9 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 			ok = account != null and ProgressionRules.at_least(account.highest_realm, str(cond.realm))
 			text = "Any character reaches %s" % ContentDB.name_of("realms", str(cond.realm))
 		"sect_level":
-			ok = account != null and int(account.sect.get("level", 0)) >= int(cond.value)
-			text = "Your sect reaches level %d" % int(cond.value)
+			var need_lv := int(cond.get("value", cond.get("level", 1)))
+			ok = account != null and int(account.sect.get("level", 0)) >= need_lv
+			text = "Your sect reaches level %d" % need_lv
 		"sect_founded":
 			ok = account != null and not account.sect.is_empty()
 			text = "Found your sect"

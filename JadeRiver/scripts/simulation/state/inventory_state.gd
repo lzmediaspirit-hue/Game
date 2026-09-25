@@ -91,6 +91,16 @@ func restore(d: Dictionary) -> void:
 	key_items = []
 	for k in d.get("key_items", []):
 		if k is Dictionary: key_items.append(k.duplicate(true))
+	# Tools live in the key-item pouch (they never take bag space); older saves move them there.
+	for i in bag.size():
+		var s2 = bag[i]
+		if s2 != null and str(ContentDB.item(str(s2.id)).get("type", "")) == "tool":
+			var merged := false
+			for k2 in key_items:
+				if str(k2.id) == str(s2.id):
+					merged = true
+			if not merged: key_items.append({"id": str(s2.id), "count": 1})
+			bag[i] = null
 	locked.clear()
 	for uid in d.get("locked", []): locked[int(uid)] = true
 	next_uid = int(d.get("next_uid", 1))

@@ -611,7 +611,13 @@
    "ilv": 45,
    "stack": 99,
    "icon": "riverbreath_scroll",
-   "desc": "The Riverbreath inheritance scroll: the complete method."
+   "desc": "The Riverbreath inheritance scroll: the complete method.",
+   "use": [
+    {
+     "kind": "learn_method",
+     "method": "riverbreath_complete"
+    }
+   ]
   },
   {
    "id": "lu_journal_page",
@@ -632,6 +638,86 @@
    "stack": 99,
    "icon": "recipe_scroll",
    "desc": "A recipe written in a steady hand."
+  },
+  {
+   "id": "manual_stonebody_canon",
+   "name": "Stonebody Canon (manual)",
+   "type": "scroll",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "riverbreath_scroll",
+   "desc": "An earth method: slow, heavy, the body grows with it. Ceiling Spirit Awakening 9.",
+   "use": [
+    {
+     "kind": "learn_method",
+     "method": "stonebody_canon"
+    }
+   ]
+  },
+  {
+   "id": "manual_willow_breath_art",
+   "name": "Willow Breath Art (manual)",
+   "type": "scroll",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "riverbreath_scroll",
+   "desc": "A wood method that bends and returns. Ceiling Spirit Awakening 9.",
+   "use": [
+    {
+     "kind": "learn_method",
+     "method": "willow_breath_art"
+    }
+   ]
+  },
+  {
+   "id": "manual_emberheart_sutra",
+   "name": "Emberheart Sutra (manual)",
+   "type": "scroll",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "riverbreath_scroll",
+   "desc": "A fire method: fast accumulation, hot temper. Ceiling Spirit Awakening 9.",
+   "use": [
+    {
+     "kind": "learn_method",
+     "method": "emberheart_sutra"
+    }
+   ]
+  },
+  {
+   "id": "manual_tidal_sovereign_scripture",
+   "name": "Tidal Sovereign Scripture (manual)",
+   "type": "scroll",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "riverbreath_scroll",
+   "desc": "The Jade Sect's core water method. Ceiling Sage Sovereign 3.",
+   "use": [
+    {
+     "kind": "learn_method",
+     "method": "tidal_sovereign_scripture"
+    }
+   ]
+  },
+  {
+   "id": "manual_nine_winds_canon",
+   "name": "Nine Winds Canon (manual)",
+   "type": "scroll",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "riverbreath_scroll",
+   "desc": "The Cloud Sect's core wind method. Ceiling Sage Sovereign 3.",
+   "use": [
+    {
+     "kind": "learn_method",
+     "method": "nine_winds_canon"
+    }
+   ]
   },
   {
    "id": "spirit_stone_low",

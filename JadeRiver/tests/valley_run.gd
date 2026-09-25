@@ -134,6 +134,16 @@ func gear_up(shop := "stoneford_smith") -> void:
 		if buy(shop, str(s.item), 1): equip_first(str(s.item))
 	if verbose: print("  gear up at ", shop, ": attack ", snappedf(before, 0.1), " -> ", snappedf(c().stats.value("physical_attack"), 0.1), " level ", ProgressionRules.level(c()), " taels ", Game.economy.balance("silver_tael", c()))
 
+## Earth-grade gear for the Qi Unfurling bosses. Forging is tested in The Sect Forge, so the set is
+## granted here (test shortcut) instead of farming Jadeiron for every piece.
+func earth_gear() -> void:
+	for id in ["jadeiron_jian", "jadeiron_robe", "jadeiron_trousers", "jadeiron_boots", "jadeiron_hat"]:
+		if c().inventory.count_including_equipped(id) > 0: continue
+		Game.inventory.apply_add_equipment(c().id, id, int(ContentDB.item(id).get("ilv", 27)), "fine", "test_gear")
+		equip_first(id)
+	for i in 6: Game.inventory.apply_add(c().id, "healing_pill", 1, "test_supplies")
+	if verbose: print("  earth gear: attack ", snappedf(c().stats.value("physical_attack"), 0.1), " def ", snappedf(c().stats.value("physical_defense"), 0.1), " hp ", int(c().pools.max_hp))
+
 func quest_def(qid: String) -> Dictionary:
 	return ContentDB.entry("quests", qid)
 
@@ -277,6 +287,11 @@ func reach(realm: String, supports: Array = []) -> bool:
 			if not r0.ok and str(r0.get("kind", "")) == "body_level_at_least":
 				train_body(int(str(r0.get("text", "")).get_slice(" ", 2)))
 				q = Game.progression.query_breakthrough(c(), supports)
+			if not r0.ok and str(r0.get("kind", "")) == "item_owned":
+				# A failed major breakthrough consumes its materials: make another, as a player would.
+				if str(r0.get("text", "")).begins_with("Qi Refining Pill"): make_refining_pill()
+				if str(r0.get("text", "")).begins_with("Mind Lake Opening Pill"): make_mind_lake_pill()
+				q = Game.progression.query_breakthrough(c(), supports)
 			if not r0.ok and str(r0.get("kind", "")) == "technique_tier_at_least":
 				train_technique(int(str(r0.get("text", "")).get_slice("tier ", 1).get_slice(" ", 0)))
 				q = Game.progression.query_breakthrough(c(), supports)
@@ -329,6 +344,8 @@ func tidy_bag(min_free := 8) -> void:
 		var def2 := ContentDB.item(id)
 		if id in KEEP or wanted.has(id) or def2.get("quest_item", false) or str(def2.get("type", "")) in ["tool", "key", "scroll", "taming", "egg", "curio", "pill", "formation", "talisman"]: continue
 		submit({"type": "sell", "index": i, "count": int(it.get("count", 1))})
+	# Anything that overflowed into the mail comes back now there is room.
+	submit({"type": "claim_all"})
 
 ## Travel to the nearest reachable room with a station of `type`.
 func go_to_station(type: String) -> bool:
@@ -458,7 +475,7 @@ func sec_bf5() -> void:
 		meditate(32.0)
 	var sec := submit({"type": "enter_seclusion", "focus": "accumulate"})
 	if not sec.get("ok", false): print("  seclusion: ", sec)
-	submit({"type": "claim_offline"})
+	submit({"type": "claim_offline", "elapsed": 3600.0})
 	check(finish("the_first_current"), "The First Current done")
 
 ## Do one daily mission objective (kill or gather) in a room that has it.
@@ -802,7 +819,8 @@ func sec_qu1() -> void:
 		en = submit({"type": "enhance", "slot": "weapon"})
 	check(en.get("ok", false), "enhance a weapon to +1 %s" % str(en))
 	check(finish("the_sect_forge"), "The Sect Forge done")
-	# Main story, chapter 5: the Drowned Shrine.
+	# Main story, chapter 5: the Drowned Shrine surfaces at Qi Unfurling 3.
+	check(reach("qi_unfurling_3"), "Qi Unfurling 3")
 	check(start("the_shrine_surfaces"), "The Shrine Surfaces accepted")
 	check(travel("ds_flooded_gate"), "reach the Flooded Gate")
 	check(finish("the_shrine_surfaces"), "The Shrine Surfaces done")
@@ -810,10 +828,7 @@ func sec_qu1() -> void:
 	check(travel("ds_hall_of_lanterns"), "reach the Hall of Lanterns")
 	for o in objects_of("inspect"): interact(str(o.id))
 	check(finish("lus_handwriting"), "Lu's Handwriting done")
-	check(start("the_drowned_abbot"), "The Drowned Abbot accepted")
-	gear_up()
-	check(defeat("drowned_abbot", "ds_abbots_sanctum"), "defeat the Drowned Abbot")
-	check(finish("the_drowned_abbot"), "The Drowned Abbot done")
+	check(start("the_drowned_abbot"), "The Drowned Abbot accepted (fought at Qi Unfurling 9, its level)")
 	# Qi Unfurling 4: the herb garden.
 	check(reach("qi_unfurling_4"), "Qi Unfurling 4")
 	check(start("seeds_of_the_valley"), "Seeds of the Valley accepted")
@@ -862,6 +877,65 @@ func sec_qu5() -> void:
 	check(inc >= 0 and submit({"type": "use_item", "index": inc, "confirm": true}).get("ok", false), "burn Calm Incense")
 	meditate(302.0)
 	check(finish("the_quiet_heart"), "The Quiet Heart done")
+	earth_gear()
+	check(defeat("drowned_abbot", "ds_abbots_sanctum"), "defeat the Drowned Abbot")
+	check(finish("the_drowned_abbot"), "The Drowned Abbot done")
+
+func upgrade_method(manual: String, method: String) -> bool:
+	if c().cultivator.method_id == method: return true
+	var shop := "jade_sect" if str(c().training_sect.get("id", "")) == "jade_sect" else "cloud_sect"
+	go_to_npc(["jade_deacon", "cloud_deacon"])
+	var have: int = int(c().training_sect.get("contribution", 0))
+	if have < 300:
+		print("  contribution ", have, " < 300: test shortcut")
+		Game.training.apply_contribution(c().id, 300 - have, "test_shortcut")
+	if not buy(shop, manual, 1): return false
+	var r := submit({"type": "use_item", "index": c().inventory.first_index(manual)})
+	if not r.get("ok", false):
+		print("  read manual: ", r)
+		return false
+	var sw := submit({"type": "switch_method", "id": method})
+	if not sw.get("ok", false): print("  switch: ", sw)
+	return c().cultivator.method_id == method
+
+## Cloud feathers from cranes; orchids and lotus from the valley (or Mei Qing's stall).
+func make_mind_lake_pill() -> bool:
+	if c().inventory.count("mind_lake_opening_pill") > 0: return true
+	while c().inventory.count("cloud_feather") < 3:
+		travel(_room_with_spawn("cloudwing_crane"))
+		if fight("cloudwing_crane", 1, 60.0) == 0: break
+	for need in [["cloudtop_orchid", 1], ["mist_lotus", 2]]:
+		var n: int = int(need[1]) - int(c().inventory.count(str(need[0])))
+		if n > 0:
+			go_to_npc(["mei_qing"])
+			if Game.economy.balance("silver_tael", c()) < 400: Game.economy.apply_currency("silver_tael", 400, "test_shortcut")
+			buy("mei_qing", str(need[0]), n)
+	var fn: int = 3 - int(c().inventory.count("cloud_feather"))
+	if fn > 0:
+		print("  had to shortcut cloud_feather (", 3 - fn, ")")
+		Game.inventory.apply_add(c().id, "cloud_feather", fn, "test_materials")
+	go_to_station("alchemy_furnace")
+	var furn := objects_of("alchemy_furnace")
+	if not furn.is_empty(): place(Vector2(float(furn[0].at[0]) - 40, float(furn[0].at[1]) + 10))
+	var rf := submit({"type": "refine", "recipe": "mind_lake_opening_pill", "count": 1, "scores": [0.9, 0.9, 0.9]})
+	if not rf.get("ok", false): print("  refine mind lake: ", rf)
+	return c().inventory.count("mind_lake_opening_pill") > 0
+
+func make_refining_pill() -> bool:
+	if c().inventory.count("qi_refining_pill") > 0: return true
+	go_to_npc(["mei_qing"])
+	if Game.economy.balance("silver_tael", c()) < 1200: Game.economy.apply_currency("silver_tael", 1200, "test_shortcut")
+	if not c().crafting.recipes.has("qi_refining_pill") and not buy("mei_qing_recipes", "recipe_scroll", 1): return false
+	for need in [["pearl", 2], ["mist_lotus", 2]]:
+		var n: int = int(need[1]) - int(c().inventory.count(str(need[0])))
+		if n > 0: buy("mei_qing", str(need[0]), n)
+	if c().inventory.count("serpent_core") < 1: Game.inventory.apply_add(c().id, "serpent_core", 1, "test_materials")
+	go_to_station("alchemy_furnace")
+	var furn := objects_of("alchemy_furnace")
+	if not furn.is_empty(): place(Vector2(float(furn[0].at[0]) - 40, float(furn[0].at[1]) + 10))
+	var r := submit({"type": "refine", "recipe": "qi_refining_pill", "count": 1, "scores": [0.9, 0.9, 0.9]})
+	if not r.get("ok", false): print("  refine qi_refining_pill: ", r)
+	return c().inventory.count("qi_refining_pill") > 0
 
 ## Weaken a paw-marked beast below 30% and offer it a Bonding Offering.
 func tame_one() -> bool:
@@ -910,7 +984,9 @@ func sec_ht1() -> void:
 	var treated := 0
 	for i in 3:
 		c().pools.qi = c().pools.max_qi
-		if submit({"type": "treat_patient"}).get("ok", false): treated += 1
+		var tr := submit({"type": "treat_patient"})
+		if tr.get("ok", false): treated += 1
+		elif i == 0: print("  treat: ", tr)
 	check(treated == 3, "treat three patients (%d)" % treated)
 	check(finish("the_infirmary"), "The Infirmary done")
 
@@ -950,13 +1026,16 @@ func sec_ht5() -> void:
 	check(gf.get("ok", false), "place a guard formation %s" % str(gf))
 	check(reach("heart_tempering_8"), "break through inside the guard formation")
 	check(finish("keep_watch"), "Keep Watch done")
+	# Jade Current ends at Heart Tempering 9: learn a library method while progress is low.
+	check(upgrade_method("manual_willow_breath_art", "willow_breath_art"), "switch to a library method")
 	check(reach("heart_tempering_9"), "Heart Tempering 9")
+	check(make_refining_pill(), "refine the Qi Refining Pill for Cloud Stride")
 	check(start("the_heart_trial"), "The Heart Trial accepted")
 	check(travel("ja_elder_hu_peak"), "Elder Hu's peak")
 	var rite := interact("rite_reflection")
 	check(rite.get("ok", false), "step into the circle %s" % str(rite))
 	place(Vector2(float(c().position.x), float(c().position.y)))
-	check(defeat("the_reflection", "si_trial_of_reflections", 3), "defeat your Reflection")
+	check(fight("the_reflection", 1, 600.0, 0.0, true) >= 1, "defeat your Reflection")
 	check("heart_trial" in c().cultivator.events_passed, "Heart Trial passed")
 	travel("ja_elder_hu_peak")
 	check(finish("the_heart_trial"), "The Heart Trial done")
@@ -975,7 +1054,10 @@ func sec_cs1() -> void:
 	check(start("clearer_water"), "Clearer Water accepted")
 	var sec := submit({"type": "enter_seclusion", "focus": "refine_qi"})
 	check(sec.get("ok", false), "seclusion with Refine Qi %s" % str(sec))
-	submit({"type": "claim_offline"})
+	var purity_before: int = c().cultivator.purity
+	Clock.debug_offset_s += 12.0 * 3600.0   # one night away
+	submit({"type": "claim_offline", "elapsed": 12.0 * 3600.0})
+	check(c().cultivator.purity < purity_before, "a night of Refine Qi raises purity (%d -> %d)" % [purity_before, c().cultivator.purity])
 	check(finish("clearer_water"), "Clearer Water done")
 	check(reach("cloud_stride_3"), "Cloud Stride 3")
 	check(start("above_the_mist"), "Above the Mist accepted")
@@ -984,9 +1066,13 @@ func sec_cs1() -> void:
 	check(finish("above_the_mist"), "Above the Mist done")
 	check(reach("cloud_stride_4"), "Cloud Stride 4")
 	check(start("the_upper_stacks"), "The Upper Stacks accepted")
-	if str(c().training_sect.get("rank", "")) != "core_disciple":
-		var pr := submit({"type": "take_promotion_trial"})
-		if not pr.get("ok", false): print("  promotion: ", pr)
+	check(start("the_bracket"), "The Bracket accepted")
+	var arena := go_to_npc(["arena_master"])
+	var wins := 0
+	for i in 5:
+		if wins >= 2: break
+		if spar_with(func(): return _spar_service(arena)): wins += 1
+	check(finish("the_bracket"), "The Bracket done: top eight")
 	check(str(c().training_sect.get("rank", "")) == "core_disciple", "Core Disciple (%s)" % str(c().training_sect.get("rank", "")))
 	check(finish("the_upper_stacks"), "The Upper Stacks done")
 
@@ -1000,22 +1086,18 @@ func sec_cs5() -> void:
 	Clock.debug_offset_s += 3.0 * 3600.0
 	var cp := submit({"type": "collect_puppets"})
 	check(cp.get("ok", false), "the puppet mines while you are away %s" % str(cp))
+	check(reach("cloud_stride_7"), "Cloud Stride 7")
+	check(start("the_valley_finals"), "The Valley Finals accepted")
+	var arena2 := go_to_npc(["arena_master"])
+	var fw := 0
+	for i in 6:
+		if fw >= 3: break
+		if spar_with(func(): return _spar_service(arena2)): fw += 1
+	check(finish("the_valley_finals"), "The Valley Finals done")
+	check(c().cultivator.titles.has("valley_champion"), "title Valley Champion")
 	check(reach("cloud_stride_9"), "Cloud Stride 9")
 	check(start("opening_the_lake"), "Opening the Lake accepted")
-	for need in [["cloud_feather", 3], ["cloudtop_orchid", 2], ["mist_lotus", 2]]:
-		var have: int = c().inventory.count(str(need[0]))
-		if have < int(need[1]):
-			var rid := _room_with_node(str(need[0]))
-			if rid != "" and travel(rid): gather(str(need[0]), int(need[1]) - have, 30)
-		have = c().inventory.count(str(need[0]))
-		if have < int(need[1]):
-			print("  had to shortcut ", need[0], " (", have, ")")
-			Game.inventory.apply_add(c().id, str(need[0]), int(need[1]) - have, "test_materials")
-	check(go_to_station("alchemy_furnace"), "reach a furnace")
-	var furn := objects_of("alchemy_furnace")
-	if not furn.is_empty(): place(Vector2(float(furn[0].at[0]) - 40, float(furn[0].at[1]) + 10))
-	var rf := submit({"type": "refine", "recipe": "mind_lake_opening_pill", "count": 1, "scores": [0.9, 0.9, 0.9]})
-	check(rf.get("ok", false), "refine the Mind Lake Opening Pill %s" % str(rf))
+	check(make_mind_lake_pill(), "refine the Mind Lake Opening Pill")
 	check(finish("opening_the_lake"), "Opening the Lake done")
 
 # ------------------------------------------------------------------ Spirit Awakening
@@ -1074,7 +1156,7 @@ func sec_sa1() -> void:
 	check(start("quiet_waters"), "Quiet Waters accepted")
 	var ns := submit({"type": "enter_seclusion", "focus": "nourish_soul"})
 	check(ns.get("ok", false), "seclusion with Nourish Soul %s" % str(ns))
-	submit({"type": "claim_offline"})
+	submit({"type": "claim_offline", "elapsed": 8.0 * 3600.0})
 	check(finish("quiet_waters"), "Quiet Waters done")
 
 func sec_sa5() -> void:

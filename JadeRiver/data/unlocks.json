@@ -1627,6 +1627,27 @@
    "same_stage_ok": true
   },
   {
+   "id": "core_rank",
+   "label": "Core disciple",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "cloud_stride_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_valley_tournament"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_bracket",
+   "same_stage_ok": true
+  },
+  {
    "id": "refine_qi",
    "label": "Refine Qi",
    "trigger": {
@@ -1689,6 +1710,26 @@
    "effects": [],
    "scope": "character",
    "quest": "hands_of_wood"
+  },
+  {
+   "id": "tournament_finals",
+   "label": "Tournament finals",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "cloud_stride_7"
+     },
+     {
+      "kind": "flag_set",
+      "flag": "tournament_top8"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_valley_finals"
   },
   {
    "id": "mind_lake_pill",

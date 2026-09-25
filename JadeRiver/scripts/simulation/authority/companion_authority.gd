@@ -42,8 +42,10 @@ func _on_room_entered(_p: Dictionary) -> void:
 
 func _spawn_all(c) -> void:
 	if c == null or game.room_rt == null: return
+	# Uids restart in every room: only remove entries that really are our companions.
 	for id in allies:
-		game.room_rt.enemies.erase(allies[id])
+		var old: EnemyState = game.room_rt.enemies.get(allies[id])
+		if old != null and old.team == "ally" and old.def_id == str(id): game.room_rt.enemies.erase(allies[id])
 	allies.clear()
 	if game.room_rt.def.get("type", "") == "interior" or game.room_rt.def.get("solo", false): return
 	var st: ActorState = game.actor_state(c.id)

@@ -133,7 +133,7 @@ def npcs():
     npc("madam_hua", "Madam Hua", "Trade house master", outfit("flowing", 2, "cardigan", "straight", "slippers", cape="solid", shirt_dye="jade"),
         ["The trade house deals fairly now. I promise you that.", "Gu's ledgers made interesting reading."], ["Fair prices!"], services=["shop:gu_trade_house"])
     npc("mei_qing", "Mei Qing", "Alchemist", outfit("flowing", 3, "cardigan", "scholar", "slippers", shirt_dye="indigo"),
-        ["A pill is a promise. Keep it simple and it keeps you alive.", "Willow moss, riverreed ginseng, and patience."], ["Too hot... too hot!"], services=["shop:mei_qing"])
+        ["A pill is a promise. Keep it simple and it keeps you alive.", "Willow moss, riverreed ginseng, and patience."], ["Too hot... too hot!"], services=["shop:mei_qing", "shop:mei_qing_recipes"])
     npc("mei_qing_sect", "Mei Qing", "Visiting alchemist", outfit("flowing", 3, "cardigan", "scholar", "slippers", shirt_dye="indigo"),
         ["I teach at both sects. The furnace doesn't care about robes."], ["Mind the fumes."])
     npc("apprentice_tao", "Apprentice Tao", "Smith's apprentice", outfit("short_knot", 0, "sleeveless", "cuffed", "slippers", shirt_dye="earth"),
@@ -341,10 +341,12 @@ def unlocks():
     u("heart_trial", "The Heart Trial", all_of(realm("heart_tempering_9")), "the_heart_trial", [])
     u("flight", "Flight", all_of(realm("cloud_stride_1")), "wings_of_cloud", [])
     u("mounts", "Mounts", all_of(realm("cloud_stride_1")), "riding_the_wind", [], same_stage_ok=True)
+    u("core_rank", "Core disciple", all_of(realm("cloud_stride_1"), qdone("the_valley_tournament")), "the_bracket", [], same_stage_ok=True)
     u("refine_qi", "Refine Qi", all_of(realm("cloud_stride_2")), "clearer_water", [])
     u("sky_rooms", "Sky rooms", all_of(realm("cloud_stride_3")), "above_the_mist", [])
     u("library_floor_3", "Library floor 3", all_of(realm("cloud_stride_4")), "the_upper_stacks", [])
     u("puppetry", "Puppetry", all_of(realm("cloud_stride_5")), "hands_of_wood", [])
+    u("tournament_finals", "Tournament finals", all_of(realm("cloud_stride_7"), flag("tournament_top8")), "the_valley_finals", [])
     u("mind_lake_pill", "Mind Lake Opening", all_of(realm("cloud_stride_9")), "opening_the_lake", [])
     u("spirit_sense", "Spirit Sense", all_of(realm("spirit_awakening_1")), "a_lake_inside", ["hud:soul_bar", "hud:sense"])
     u("hidden_portals", "Hidden portals", all_of(realm("spirit_awakening_2")), "what_the_eyes_miss", [])
@@ -687,6 +689,18 @@ def guided_quests():
     ], [item("bonding_offering_earth", 1)], offered_by_unlock=True, chapter="qu7", target_room="rm_marsh_edge",
         offer=["Wild ones wander the valley now: otters in the marsh, foxes in the bamboo, crane chicks at the falls. Calm one."],
         complete=["It trusts you. Don't make me regret it."])
+    quest("the_bracket", "The Bracket", "guided", "arena_master", [
+        o("win_spar", "Win your bracket bouts", 2, opponent="sparring_disciple"),
+    ], [fx("set_flag", flag="tournament_top8"), fx("sect_rank", rank="core_disciple"), fx("add_contribution", amount=150)],
+        offered_by_unlock=True, chapter="cs1", same_stage_ok=True,
+        offer=["Cloud Stride, and a qualifier behind you. The bracket's open: two more wins puts you in the top eight.",
+               "Top eight means core disciple. The elders are watching."],
+        complete=["Top eight. Core disciple. The third floor of the library is yours."])
+    quest("the_valley_finals", "The Valley Finals", "guided", "arena_master", [
+        o("win_spar", "Win the finals", 3, opponent="sparring_disciple"),
+    ], [fx("grant_title", title="valley_champion"), fx("add_prestige", amount=50), taels(500)], offered_by_unlock=True, chapter="cs7",
+        offer=["Finals. Three bouts, no rest between. Win and the valley knows your name."],
+        complete=["Valley Champion. Wear it lightly."])
     quest("the_valley_tournament", "The Valley Tournament (Qualifier)", "guided", "arena_master", [
         o("win_spar", "Win arena matches", 3, opponent="sparring_disciple"),
     ], [fx("set_flag", flag="tournament_entry"), fx("add_contribution", amount=100)], offered_by_unlock=True, chapter="7",
@@ -742,7 +756,7 @@ def guided_quests():
     ], [], offered_by_unlock=True, chapter="cs1", same_stage_ok=True, offer=["A big enough friend can carry you."], complete=["Hold on tight."])
     quest("clearer_water", "Clearer Water", "guided", "elder_hu", [
         o("enter_seclusion", "Seclusion with Refine Qi", focus="refine_qi"),
-    ], [fx("add_purity", amount=1.0)], offered_by_unlock=True, chapter="cs2", giver_any=M, hand_in_any=M,
+    ], [fx("add_purity", amount=100.0)], offered_by_unlock=True, chapter="cs2", giver_any=M, hand_in_any=M,
         offer=["Impure Qi clouds everything. Refine it in seclusion."], complete=["Clearer. Purer. Stronger."])
     quest("above_the_mist", "Above the Mist", "guided", "elder_hu", [
         o("reach_room", "Reach the Sky Ledges", room="cc_sky_ledges"),

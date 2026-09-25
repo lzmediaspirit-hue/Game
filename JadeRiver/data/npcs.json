@@ -628,7 +628,8 @@
     "Too hot... too hot!"
    ],
    "services": [
-    "shop:mei_qing"
+    "shop:mei_qing",
+    "shop:mei_qing_recipes"
    ]
   },
   {

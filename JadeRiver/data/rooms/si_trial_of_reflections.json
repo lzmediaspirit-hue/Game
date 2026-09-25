@@ -88,6 +88,20 @@
      840
     ]
    }
+  ],
+  "win_on_kill": "the_reflection",
+  "on_complete": [
+   {
+    "kind": "event_passed",
+    "event": "heart_trial"
+   }
+  ],
+  "on_timeout": [
+   {
+    "kind": "teleport",
+    "target": "ja_elder_hu_peak",
+    "portal": ""
+   }
   ]
  }
 }

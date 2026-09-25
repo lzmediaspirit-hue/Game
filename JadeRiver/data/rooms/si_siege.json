@@ -131,6 +131,12 @@
      840
     ]
    }
+  ],
+  "on_complete": [
+   {
+    "kind": "event_passed",
+    "event": "siege_of_two_sects"
+   }
   ]
  }
 }

@@ -201,7 +201,8 @@ func talk(c, npc: String) -> Dictionary:
 		if svc.begins_with("shop:"):
 			var shop := ContentDB.entry("shops", svc.trim_prefix("shop:"))
 			if shop.is_empty() or (shop.has("requires") and not RequirementRules.passes(shop.requires, game.ctx(c))): continue
-			convo.choices.append({"text": "Trade", "shop": svc.trim_prefix("shop:")})
+			var shops_n := (n.get("services", []) as Array).filter(func(x): return str(x).begins_with("shop:")).size()
+			convo.choices.append({"text": "Trade" if shops_n <= 1 else str(shop.get("name", "Trade")), "shop": svc.trim_prefix("shop:")})
 		elif svc == "storage" and Unlocks.is_unlocked(c.id, "storage"):
 			convo.choices.append({"text": "Storage", "page": "storage"})
 		elif svc == "missions" and Unlocks.is_unlocked(c.id, "daily_missions"):

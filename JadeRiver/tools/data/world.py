@@ -232,16 +232,30 @@ class Room:
         return out
 
     def build(self):
-        # Shrines are revival points: keep monster spawns (and elites) well away from them.
+        # Shrines are revival points: keep monster spawns (and elites) well away from them,
+        # and never spawn inside a portal's area (Part 7 room walk).
         shrines = [o["at"][0] for o in self.d["objects"] if o["type"] == "shrine"]
+        portals = [p["at"] for p in self.d["portals"] if "at" in p]
+        w = self.d["bounds"][2] if "bounds" in self.d else 2560
+
+        def clear(pt):
+            return all(abs(pt[0] - x) >= 380 for x in shrines) and \
+                all(((pt[0] - a[0]) ** 2 + (pt[1] - a[1]) ** 2) ** 0.5 > 130 for a in portals)
+
         for sp in self.d["spawns"]:
-            if sp.get("boss") or sp.get("field_boss") or not shrines:
+            if sp.get("boss") or sp.get("field_boss"):
                 continue
-            kept = [p for p in sp["points"] if all(abs(p[0] - x) >= 380 for x in shrines)]
-            if kept:
-                sp["points"] = kept
-            else:
-                sp["points"] = [[p[0] + (420 if p[0] >= shrines[0] else -420), p[1]] for p in sp["points"]]
+            fixed = []
+            for pt in sp["points"]:
+                if clear(pt):
+                    fixed.append(pt)
+                    continue
+                for dx in (420, -420, 600, -600, 800, -800, 250, -250):
+                    cand = [pt[0] + dx, pt[1]]
+                    if 80 <= cand[0] <= w - 80 and clear(cand):
+                        fixed.append(cand)
+                        break
+            sp["points"] = fixed or sp["points"]
         return self.d
 
 
@@ -1143,7 +1157,9 @@ def valley():
     # Story instances
     r = Room("si_trial_of_reflections", "Trial of Reflections", "story", "story", 1, backdrop="mist_peak", material="floor_stone",
              music="boss", instanced=True, safe=False, spawn_point=[240, 820], dungeon_exit="",
-             event={"id": "trial_of_reflections", "duration": 600, "fixed_spawns": [{"enemy": "the_reflection", "at": [1000, 840]}]})
+             event={"id": "trial_of_reflections", "duration": 600, "fixed_spawns": [{"enemy": "the_reflection", "at": [1000, 840]}],
+                    "win_on_kill": "the_reflection", "on_complete": [{"kind": "event_passed", "event": "heart_trial"}],
+                    "on_timeout": [{"kind": "teleport", "target": "ja_elder_hu_peak", "portal": ""}]})
     r.portal("exit", "door", [140, 700], "ja_elder_hu_peak", "path", press_up=True, label="Leave",
              requires=all_of({"kind": "event_passed", "event": "heart_trial"}), locked_text="The mirror holds you until one of you breaks.")
     r = Room("si_gus_warehouse", "Gu's Warehouse", "story", "story", 2, backdrop="interior", material="wood", music="boss",
@@ -1157,7 +1173,8 @@ def valley():
     r = Room("si_siege", "Siege of Two Sects", "story", "story", 3, backdrop="valley_dusk", material="stone", music="boss",
              instanced=True, safe=False, spawn_point=[400, 820],
              event={"id": "siege_of_two_sects", "duration": 240, "wave": {"enemy": "hollowed_boarlet", "every_s": 3, "max": 8,
-                    "points": [[2600, 800], [3000, 900], [3400, 760]]}, "fixed_spawns": [{"enemy": "hollow_behemoth", "at": [3200, 840]}]})
+                    "points": [[2600, 800], [3000, 900], [3400, 760]]}, "fixed_spawns": [{"enemy": "hollow_behemoth", "at": [3200, 840]}],
+                    "on_complete": [{"kind": "event_passed", "event": "siege_of_two_sects"}]})
     r.decor("banner_jade", [300, 660])
     r.decor("banner_cloud", [600, 660])
     r.decor("stockade_wall", [900, 660])

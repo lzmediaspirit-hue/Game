@@ -95,12 +95,13 @@ func buy(c, shop_id: String, item_id: String, count: int, seen_price: int) -> Di
 	var total := int(entry.price) * count
 	if balance(str(entry.currency), c) < total: return fail("insufficient_funds", {"text": "Not enough %s" % ContentDB.text("currency." + str(entry.currency))})
 	if entry.learn != "":
-		if c.cultivator.techniques_known.has(entry.learn) or c.cultivator.methods_known.has(entry.learn): return fail("already_known")
-	elif c.inventory.room_for(item_id, count) < count and ContentDB.item(item_id).get("type") != "key": return fail("bag_full", {"text": "Your gourd is full"})
+		if c.cultivator.techniques_known.has(entry.learn) or c.cultivator.methods_known.has(entry.learn) or c.crafting.recipes.has(entry.learn): return fail("already_known")
+	elif c.inventory.room_for(item_id, count) < count and not ContentDB.item(item_id).get("type") in ["key", "tool"]: return fail("bag_full", {"text": "Your gourd is full"})
 	apply_currency(str(entry.currency), -total, "buy")
 	if entry.learn != "":
 		if ContentDB.has_entry("techniques", entry.learn): game.progression.apply_learn_technique(c.id, entry.learn)
 		elif ContentDB.has_entry("methods", entry.learn): game.progression.apply_learn_method(c.id, entry.learn)
+		elif ContentDB.has_entry("recipes", entry.learn): game.crafting.apply_learn_recipe(c.id, entry.learn)
 	else:
 		game.inventory.apply_add(c.id, item_id, count, "shop:" + shop_id)
 	emit("item_bought", {"actor": c.id, "shop": shop_id, "item": item_id, "count": count, "price": total})

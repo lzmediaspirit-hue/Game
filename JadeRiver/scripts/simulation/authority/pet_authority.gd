@@ -96,7 +96,9 @@ func _on_room_entered(_p: Dictionary) -> void:
 
 func _spawn(c) -> void:
 	if c == null or game.room_rt == null: return
-	if ally_uid != 0 and game.room_rt.enemies.has(ally_uid): game.room_rt.enemies.erase(ally_uid)
+	# Uids restart in every room: only remove the entry if it really is our pet.
+	var old: EnemyState = game.room_rt.enemies.get(ally_uid) if ally_uid != 0 else null
+	if old != null and old.team == "ally" and old.pet_owner == c.id: game.room_rt.enemies.erase(ally_uid)
 	ally_uid = 0
 	var p := active_pet(c)
 	if p.is_empty() or game.room_rt.def.get("type", "") == "interior": return

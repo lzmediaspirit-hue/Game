@@ -53,10 +53,11 @@ func apply_add(actor_id: String, item_id: String, count: int, source: String, fi
 		var per = {"spirit_stone_low": 1, "spirit_stone_mid": 10, "spirit_stone_high": 100}.get(item_id, 1)
 		game.economy.apply_currency("spirit_stone", per * count, source)
 		return count
-	if def.get("type") == "key" or def.get("quest_item", false):
+	if def.get("type") in ["key", "tool"] or def.get("quest_item", false):
 		for k in c.inventory.key_items:
 			if k.id == item_id:
-				k.count = int(k.count) + count
+				# A second copy of a tool is pointless: keep one.
+				if def.get("type") != "tool": k.count = int(k.count) + count
 				emit("item_added", {"actor": c.id, "item": item_id, "count": count, "source": source})
 				return count
 		c.inventory.key_items.append({"id": item_id, "count": count})

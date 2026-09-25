@@ -129,7 +129,16 @@ def build_items():
                                ("riverbreath_scroll", "heaven", "The Riverbreath inheritance scroll: the complete method."),
                                ("lu_journal_page", "plain", "A page of Lu's journal, water-stained."),
                                ("recipe_scroll", "common", "A recipe written in a steady hand.")]:
-        rows.append(item(sid, "scroll", grade, 99, desc))
+        extra = {"use": [effect("learn_method", method="riverbreath_complete")]} if sid == "riverbreath_scroll" else {}
+        rows.append(item(sid, "scroll", grade, 99, desc, **extra))
+    # Method manuals (S08): read one to learn the method; the libraries sell them by rank.
+    for mid, grade, name, desc in [("stonebody_canon", "earth", "Stonebody Canon", "An earth method: slow, heavy, the body grows with it. Ceiling Spirit Awakening 9."),
+                                   ("willow_breath_art", "earth", "Willow Breath Art", "A wood method that bends and returns. Ceiling Spirit Awakening 9."),
+                                   ("emberheart_sutra", "earth", "Emberheart Sutra", "A fire method: fast accumulation, hot temper. Ceiling Spirit Awakening 9."),
+                                   ("tidal_sovereign_scripture", "heaven", "Tidal Sovereign Scripture", "The Jade Sect's core water method. Ceiling Sage Sovereign 3."),
+                                   ("nine_winds_canon", "heaven", "Nine Winds Canon", "The Cloud Sect's core wind method. Ceiling Sage Sovereign 3.")]:
+        rows.append(item("manual_" + mid, "scroll", grade, 1, desc, name="%s (manual)" % name, icon="riverbreath_scroll",
+                         use=[effect("learn_method", method=mid)]))
     for (sid, grade, low) in [("spirit_stone_low", "earth", 100), ("spirit_stone_mid", "heaven", 1000), ("spirit_stone_high", "mystic", 10000)]:
         rows.append(item(sid, "currency_item", grade, 99, "Crystallised Qi used as money and fuel.", value_override=low))
     keys = [("river_token", "Lu's River Token. It hums when the river is troubled."), ("jade_token", "Identity token of the Jade Sect. Returns you home."),

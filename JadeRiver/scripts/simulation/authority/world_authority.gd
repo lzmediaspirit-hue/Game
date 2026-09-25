@@ -16,6 +16,7 @@ func intents() -> Array:
 
 func subscribe() -> void:
 	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 50)
+	GameEvents.subscribe("actor_defeated", _event_kill, 55)
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -535,8 +536,24 @@ func _tick_event(c, rt: RoomRuntime, delta: float) -> void:
 			var p: Array = pts[rng.randi_range(0, pts.size() - 1)]
 			game.enemies.spawn_at(str(ev.wave.enemy), Vector2(float(p[0]), float(p[1])))
 	if float(ev.remaining) <= 0.0:
-		ev.active = false
-		emit("room_event_completed", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", ""))})
-		game.apply_effects(c.id, ev.get("on_complete", []), "event:" + str(ev.get("id", "")))
-		for e in rt.living_enemies():
-			if e.summoned: game.enemies.defeat(e, "event")
+		# A kill-to-win event (a trial) that runs out of time is failed, not passed.
+		if ev.has("win_on_kill"):
+			_end_event(c, rt, false)
+		else:
+			_end_event(c, rt, true)
+
+func _end_event(c, rt: RoomRuntime, won: bool) -> void:
+	var ev: Dictionary = rt.event
+	ev.active = false
+	emit("room_event_completed" if won else "room_event_failed", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", ""))})
+	for e in rt.living_enemies():
+		if e.summoned: game.enemies.defeat(e, "event")
+	game.apply_effects(c.id, ev.get("on_complete" if won else "on_timeout", []), "event:" + str(ev.get("id", "")))
+
+## A kill-to-win event ends the moment its foe falls.
+func _event_kill(p: Dictionary) -> void:
+	var rt: RoomRuntime = game.room_rt
+	if rt == null or not rt.event.get("active", false): return
+	if str(rt.event.get("win_on_kill", "")) != "" and str(p.get("def", "")) == str(rt.event.win_on_kill):
+		var c = game.active()
+		if c != null: _end_event(c, rt, true)

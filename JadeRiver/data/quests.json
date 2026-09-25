@@ -1957,6 +1957,85 @@
    "target_room": "rm_marsh_edge"
   },
   {
+   "id": "the_bracket",
+   "name": "The Bracket",
+   "kind": "guided",
+   "giver": "arena_master",
+   "hand_in": "arena_master",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "win_spar",
+     "text": "Win your bracket bouts",
+     "count": 2,
+     "opponent": "sparring_disciple"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "set_flag",
+     "flag": "tournament_top8"
+    },
+    {
+     "kind": "sect_rank",
+     "rank": "core_disciple"
+    },
+    {
+     "kind": "add_contribution",
+     "amount": 150
+    }
+   ],
+   "offer_text": [
+    "Cloud Stride, and a qualifier behind you. The bracket's open: two more wins puts you in the top eight.",
+    "Top eight means core disciple. The elders are watching."
+   ],
+   "complete_text": [
+    "Top eight. Core disciple. The third floor of the library is yours."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "cs1",
+   "same_stage_ok": true
+  },
+  {
+   "id": "the_valley_finals",
+   "name": "The Valley Finals",
+   "kind": "guided",
+   "giver": "arena_master",
+   "hand_in": "arena_master",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "win_spar",
+     "text": "Win the finals",
+     "count": 3,
+     "opponent": "sparring_disciple"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_title",
+     "title": "valley_champion"
+    },
+    {
+     "kind": "add_prestige",
+     "amount": 50
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 500
+    }
+   ],
+   "offer_text": [
+    "Finals. Three bouts, no rest between. Win and the valley knows your name."
+   ],
+   "complete_text": [
+    "Valley Champion. Wear it lightly."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "cs7"
+  },
+  {
    "id": "the_valley_tournament",
    "name": "The Valley Tournament (Qualifier)",
    "kind": "guided",
@@ -2422,7 +2501,7 @@
    "rewards": [
     {
      "kind": "add_purity",
-     "amount": 1.0
+     "amount": 100.0
     }
    ],
    "offer_text": [

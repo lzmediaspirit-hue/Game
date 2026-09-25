@@ -270,6 +270,7 @@ func enhance(c, index: int, slot: String) -> Dictionary:
 		inst.enhance = lvl + 1
 		if slot != "": emit("equipment_changed", {"actor": c.id, "slot": slot, "old": inst.id, "new": inst.id})
 	emit("item_enhanced", {"actor": c.id, "item": inst.id, "level": int(inst.get("enhance", 0)), "success": success})
+	emit("system_used", {"actor": c.id, "system": "enhance"})
 	return ok({"success": success, "level": int(inst.get("enhance", 0))})
 
 func salvage(c, index: int) -> Dictionary:

@@ -166,13 +166,13 @@
     "count": 1,
     "pool": [
      {
-      "item": "iron_pickaxe"
-     },
-     {
-      "item": "herb_sickle"
-     },
-     {
       "item": "bamboo_rod"
+     },
+     {
+      "item": "lantern_wick"
+     },
+     {
+      "item": "clay_pot"
      }
     ]
    }
@@ -230,6 +230,42 @@
     {
      "item": "recipe_scroll",
      "learn": "healing_pill"
+    },
+    {
+     "item": "pearl",
+     "price": 40,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_5"
+       }
+      ]
+     }
+    },
+    {
+     "item": "mist_lotus",
+     "price": 35,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_5"
+       }
+      ]
+     }
+    },
+    {
+     "item": "cloudtop_orchid",
+     "price": 120,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "cloud_stride_5"
+       }
+      ]
+     }
     }
    ],
    "rotation": {
@@ -246,6 +282,26 @@
      }
     ]
    }
+  },
+  {
+   "id": "mei_qing_recipes",
+   "name": "Mei Qing's Recipe Box",
+   "currency": "silver_tael",
+   "stock": [
+    {
+     "item": "recipe_scroll",
+     "learn": "qi_refining_pill",
+     "price": 800,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_5"
+       }
+      ]
+     }
+    }
+   ]
   },
   {
    "id": "stoneford_smith",
@@ -581,6 +637,54 @@
        }
       ]
      }
+    },
+    {
+     "item": "manual_stonebody_canon",
+     "price": 300,
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "manual_willow_breath_art",
+     "price": 300,
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "manual_emberheart_sutra",
+     "price": 300,
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "manual_tidal_sovereign_scripture",
+     "price": 800,
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "core_disciple"
+       }
+      ]
+     }
     }
    ],
    "rotation": {
@@ -679,6 +783,54 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "manual_stonebody_canon",
+     "price": 300,
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "manual_willow_breath_art",
+     "price": 300,
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "manual_emberheart_sutra",
+     "price": 300,
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "manual_nine_winds_canon",
+     "price": 800,
+     "requires": {
+      "all": [
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "core_disciple"
        }
       ]
      }

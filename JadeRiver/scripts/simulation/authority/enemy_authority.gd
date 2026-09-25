@@ -34,7 +34,11 @@ func populate() -> void:
 	var rt: RoomRuntime = game.room_rt
 	if rt == null: return
 	rng = Rng.stream(game.active_id, "world") if game.active_id != "" else rng
-	rt.enemies.clear()
+	# Keep what the room's own event already summoned (a trial boss, a siege brute).
+	var keep := {}
+	for uid in rt.enemies:
+		if rt.enemies[uid].summoned: keep[uid] = rt.enemies[uid]
+	rt.enemies = keep
 	rt.spawn_slots.clear()
 	var index := 0
 	for spec in rt.def.get("spawns", []):
