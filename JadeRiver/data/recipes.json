@@ -21,7 +21,8 @@
      "count": 1
     }
    ],
-   "time_s": 120
+   "time_s": 120,
+   "element": "wood"
   },
   {
    "id": "qi_restoration_pill",
@@ -43,7 +44,8 @@
      "count": 1
     }
    ],
-   "time_s": 120
+   "time_s": 120,
+   "element": "water"
   },
   {
    "id": "qi_gathering_pill",
@@ -65,7 +67,8 @@
      "count": 1
     }
    ],
-   "time_s": 180
+   "time_s": 180,
+   "element": "earth"
   },
   {
    "id": "bone_strengthening_pill",
@@ -91,7 +94,8 @@
      "count": 1
     }
    ],
-   "time_s": 180
+   "time_s": 180,
+   "element": "earth"
   },
   {
    "id": "purging_pill",
@@ -113,7 +117,8 @@
      "count": 1
     }
    ],
-   "time_s": 120
+   "time_s": 120,
+   "element": "water"
   },
   {
    "id": "viper_antidote",
@@ -135,7 +140,8 @@
      "count": 1
     }
    ],
-   "time_s": 90
+   "time_s": 90,
+   "element": "wood"
   },
   {
    "id": "tiger_blood_pill",
@@ -157,7 +163,8 @@
      "count": 1
     }
    ],
-   "time_s": 180
+   "time_s": 180,
+   "element": "fire"
   },
   {
    "id": "cleansing_pill",
@@ -183,7 +190,8 @@
      "count": 1
     }
    ],
-   "time_s": 300
+   "time_s": 300,
+   "element": "water"
   },
   {
    "id": "foundation_guard_pill",
@@ -209,7 +217,8 @@
      "count": 1
     }
    ],
-   "time_s": 600
+   "time_s": 600,
+   "element": "earth"
   },
   {
    "id": "clear_mind_pill",
@@ -235,7 +244,8 @@
      "count": 1
     }
    ],
-   "time_s": 300
+   "time_s": 300,
+   "element": "water"
   },
   {
    "id": "meridian_reversal_pill",
@@ -257,7 +267,8 @@
      "count": 1
     }
    ],
-   "time_s": 300
+   "time_s": 300,
+   "element": "metal"
   },
   {
    "id": "method_conversion_pill",
@@ -283,7 +294,8 @@
      "count": 1
     }
    ],
-   "time_s": 300
+   "time_s": 300,
+   "element": "metal"
   },
   {
    "id": "qi_refining_pill",
@@ -309,7 +321,8 @@
      "count": 1
     }
    ],
-   "time_s": 600
+   "time_s": 600,
+   "element": "water"
   },
   {
    "id": "soul_soothing_pill",
@@ -335,7 +348,8 @@
      "count": 1
     }
    ],
-   "time_s": 600
+   "time_s": 600,
+   "element": "water"
   },
   {
    "id": "mind_lake_opening_pill",
@@ -361,7 +375,8 @@
      "count": 1
     }
    ],
-   "time_s": 900
+   "time_s": 900,
+   "element": "water"
   },
   {
    "id": "sage_condensing_pill",
@@ -387,7 +402,8 @@
      "count": 1
     }
    ],
-   "time_s": 1200
+   "time_s": 1200,
+   "element": "metal"
   },
   {
    "id": "storm_blood_pill",
@@ -413,7 +429,8 @@
      "count": 1
     }
    ],
-   "time_s": 900
+   "time_s": 900,
+   "element": "wood"
   },
   {
    "id": "sovereign_settling_pill",
@@ -439,7 +456,8 @@
      "count": 1
     }
    ],
-   "time_s": 1500
+   "time_s": 1500,
+   "element": "fire"
   },
   {
    "id": "herbal_tea",
@@ -2433,26 +2451,26 @@
    ]
   },
   {
-   "id": "earth_vein_furnace",
+   "id": "jadeiron_furnace",
    "craft": "smithing",
    "grade": "earth",
    "inputs": [
     {
-     "item": "bronze_furnace",
-     "count": 1
-    },
-    {
      "item": "jadeiron",
-     "count": 12
+     "count": 8
     },
     {
      "item": "riverstone",
-     "count": 8
+     "count": 6
+    },
+    {
+     "item": "crab_shell",
+     "count": 4
     }
    ],
    "outputs": [
     {
-     "item": "earth_vein_furnace",
+     "item": "jadeiron_furnace",
      "count": 1
     }
    ],
@@ -2462,26 +2480,26 @@
    }
   },
   {
-   "id": "cloud_pattern_furnace",
+   "id": "cloudsteel_furnace",
    "craft": "smithing",
    "grade": "heaven",
    "inputs": [
     {
-     "item": "earth_vein_furnace",
-     "count": 1
-    },
-    {
      "item": "cloudsteel_ore",
-     "count": 12
+     "count": 8
     },
     {
      "item": "cloud_feather",
-     "count": 6
+     "count": 4
+    },
+    {
+     "item": "serpent_scale",
+     "count": 4
     }
    ],
    "outputs": [
     {
-     "item": "cloud_pattern_furnace",
+     "item": "cloudsteel_furnace",
      "count": 1
     }
    ],
@@ -2491,26 +2509,26 @@
    }
   },
   {
-   "id": "mystic_tripod",
+   "id": "mistjade_furnace",
    "craft": "smithing",
    "grade": "mystic",
    "inputs": [
     {
-     "item": "cloud_pattern_furnace",
-     "count": 1
-    },
-    {
      "item": "mystic_ore",
-     "count": 12
+     "count": 6
     },
     {
      "item": "roc_feather",
+     "count": 4
+    },
+    {
+     "item": "vulture_plume",
      "count": 4
     }
    ],
    "outputs": [
     {
-     "item": "mystic_tripod",
+     "item": "mistjade_furnace",
      "count": 1
     }
    ],

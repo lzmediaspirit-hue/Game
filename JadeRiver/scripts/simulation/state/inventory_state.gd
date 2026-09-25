@@ -18,6 +18,11 @@ var treasures: Array = ["", ""]    # gap report G2: treasures set in the HUD's T
 var vessel := ""                   # the flight vessel ridden when flying (a key item id), "" = none
 var loadout: Dictionary = {"spare": null, "active": "a"}   # S47 dual loadout: the weapon not in hand, and which of A/B is held
 var appearance_override: Dictionary = {}   # S47 wardrobe: slot -> look id shown instead of the item's own
+var furnace = null                  # S44 furnace slot (tool_furnace): the furnace instance you refine in, or null
+
+## Furnaces before S44 were tools in the key-item pouch; their ids now name furnace equipment.
+const OLD_FURNACES := {"bronze_furnace": "bronze_furnace", "earth_vein_furnace": "jadeiron_furnace", "cloud_pattern_furnace": "cloudsteel_furnace",
+	"mystic_tripod": "mistjade_furnace", "nine_dragon_cauldron": "nine_dragon_cauldron"}
 
 func _init() -> void:
 	for s in SLOTS: equipped[s] = null
@@ -50,6 +55,7 @@ func count_including_equipped(id: String) -> int:
 	var total := count(id)
 	for slot in equipped:
 		if equipped[slot] != null and equipped[slot].id == id: total += 1
+	if furnace != null and furnace.id == id: total += 1
 	return total
 
 func free_slots() -> int:
@@ -84,7 +90,7 @@ func snapshot() -> Dictionary:
 	return {"bag": bag.duplicate(true), "equipped": eq, "quick_use": quick_use, "key_items": key_items.duplicate(true),
 		"locked": locked.keys(), "next_uid": next_uid, "treasures": treasures.duplicate(), "vessel": vessel,
 		"loadout": {"spare": loadout.spare.duplicate(true) if loadout.get("spare") != null else null, "active": str(loadout.get("active", "a"))},
-		"appearance_override": appearance_override.duplicate()}
+		"appearance_override": appearance_override.duplicate(), "furnace": furnace.duplicate(true) if furnace != null else null}
 
 func restore(d: Dictionary) -> void:
 	bag = []
@@ -124,4 +130,26 @@ func restore(d: Dictionary) -> void:
 		if s != null and s.has("uid"): next_uid = maxi(next_uid, int(s.uid) + 1)
 	for s in SLOTS:
 		if equipped[s] != null and equipped[s].has("uid"): next_uid = maxi(next_uid, int(equipped[s].uid) + 1)
+	var fu = d.get("furnace")
+	furnace = fu.duplicate(true) if fu is Dictionary and str(ContentDB.item(str(fu.get("id", ""))).get("slot", "")) == "tool_furnace" else null
+	if furnace != null: next_uid = maxi(next_uid, int(furnace.get("uid", 0)) + 1)
 	resize(capacity())
+	_migrate_furnaces()
+
+## A save from before S44 carries its furnaces as key items: each becomes a furnace instance, the best in the slot.
+func _migrate_furnaces() -> void:
+	var found: Array = []
+	for k in key_items.duplicate():
+		if OLD_FURNACES.has(str(k.id)):
+			found.append(str(OLD_FURNACES[str(k.id)]))
+			key_items.erase(k)
+	found.sort_custom(func(a, b): return int(ContentDB.item(a).get("furnace", {}).get("batch", 1)) > int(ContentDB.item(b).get("furnace", {}).get("batch", 1)))
+	for id in found:
+		var inst := LootRules.make_instance(id, int(ContentDB.item(id).get("ilv", 1)), "common", null, next_uid)
+		next_uid += 1
+		if furnace == null:
+			furnace = inst
+			continue
+		var free := bag.find(null)
+		if free >= 0: bag[free] = inst
+		else: bag.append(inst)   # a slot past the gourd's size, kept until it is emptied

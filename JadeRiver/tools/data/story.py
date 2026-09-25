@@ -1227,13 +1227,13 @@ def act2_quests():
         next="horns_for_the_furnace")
     quest("horns_for_the_furnace", "Horns for the Furnace", "main", "alchemist_fen", [
         o("collect", "Bring Thunderhorn horns from the Flats", 3, item="thunder_horn"),
-    ], [item("sage_condensing_pill", 1), fx("learn_recipe", recipe="sage_condensing_pill"), item("nine_dragon_cauldron", 1)],
+    ], [item("sage_condensing_pill", 1), fx("learn_recipe", recipe="sage_condensing_pill"), spirit_stones(40)],
         requires=all_of(qdone("storm_in_the_blood"), realm("heaven_glimpse_3")),
         chapter="11", target_room="tp_thunderhorn_flats",
         offer=["Heaven Glimpse 3, and you want to be a Sage. Everyone does.",
                "The condensing needs thunder. Three thunderhorn horns from the Flats. I'll press them into your pill."],
         complete=["There. Swallow it here, where the Qi is thick. Not in a field with a rhino watching.",
-                  "And take my old cauldron. Nine dragons, and every one of them drinks heat. My hands shake too much for it now."],
+                  "And a word from an old woman: the Drowned Abbot sealed a nine-dragon cauldron in his vault. If you never went back for it, go."],
         next="sage")
     quest("sage", "Sage", "main", "alchemist_fen", [
         o("reach_realm", "Break through to Sage 1 (third-grade purity, the pill, a land that can hold you)", realm="sage_1"),
@@ -1863,9 +1863,11 @@ def codex():
         {"id": "karma", "title": "Merit and sin",
          "body": "The world keeps a ledger. Mercy and help earn merit: a hundred of it eases one great breakthrough in each realm. Cruelty and the back-room markets earn sin, and sin feeds the heart demon. Some deeds come back as letters."},
         {"id": "furnaces_and_fire", "title": "Furnace and fire",
-         "body": "A furnace sets the batch and how steady the heat is; better ones are cast around the last at a forge. Charcoal takes a pill as far as Perfect. Earth Fire at a vent, or a beast core burnt as Beast Fire, can reach Pill Grain. Only a Heavenly Flame, or a named furnace, reaches Halo and Soul."},
+         "body": "The furnace you set in the furnace slot decides the batch, how steady the heat is, how many impurities it strains out, and sometimes one pill more. Better ones are forged at the forge, and enhancing one steadies its heat. Charcoal takes a pill as far as Perfect. Earth Fire at a vent, or a beast core of rank 2 or more burnt as Beast Fire, can reach Pill Grain. Only a Heavenly Flame, or the Nine-Dragon Cauldron, reaches Halo and Soul."},
+        {"id": "mist_lantern_flame", "title": "Heavenly Flame: Mist Lantern",
+         "body": "The valley's own Heavenly Flame. It drifted in a Weeping Lantern above the Forgotten Monastery for a hundred years. Absorbed, it widens every strike band a fifth."},
         {"id": "cold_lamp_flame", "title": "Heavenly Flame: Cold Lamp",
-         "body": "Blue and quiet, it burned under the Drowned Shrine for two hundred years. Absorbed, it widens every strike band a fifth."},
+         "body": "Blue and quiet, it burned in the belly of the Thousand-Eye Toad under Mirrorwater Lake, long after the lamp it came from was gone."},
         {"id": "sunscar_throne_ember", "title": "Heavenly Flame: Sunscar Throne Ember",
          "body": "Three thousand years of desert sun, banked under a dead king's throne."},
         {"id": "comet_tail_flame", "title": "Heavenly Flame: Comet Tail",

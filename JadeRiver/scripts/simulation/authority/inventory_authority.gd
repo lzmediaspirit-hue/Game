@@ -272,9 +272,24 @@ func apply_enhance(actor_id: String, inst: Dictionary, level: int, slot: String)
 	inst.enhance = level
 	if slot != "": emit("equipment_changed", {"actor": actor_id, "slot": slot, "old": inst.id, "new": inst.id})
 
+## A piece's durability (S44: a furnace loses 10 to a blast and is mended at the forge).
+func apply_durability(actor_id: String, inst: Dictionary, value: int, slot: String) -> void:
+	inst.durability = clampi(value, 0, 100)
+	if slot != "": emit("equipment_changed", {"actor": actor_id, "slot": slot, "old": inst.id, "new": inst.id})
+
 func apply_add_instance(actor_id: String, inst: Dictionary, source: String, overflow := true) -> int:
 	var c = game.character(actor_id)
 	if c == null: return 0
+	# The first furnace goes straight into the empty furnace slot (S44), so Mei Qing's gift works at once.
+	if c.inventory.furnace == null and str(ContentDB.item(str(inst.id)).get("slot", "")) == "tool_furnace":
+		var f := inst.duplicate(true)
+		if not f.has("uid"):
+			f.uid = c.inventory.next_uid
+			c.inventory.next_uid += 1
+		c.inventory.furnace = f
+		emit("item_added", {"actor": c.id, "item": str(inst.id), "count": 1, "source": source, "quality": str(inst.get("quality", "common"))})
+		emit("equipment_changed", {"actor": c.id, "slot": "tool_furnace", "old": "", "new": str(inst.id)})
+		return 1
 	var bag: Array = c.inventory.bag
 	for i in bag.size():
 		if bag[i] == null:
@@ -337,6 +352,8 @@ func apply_remove_index(actor_id: String, index: int, count: int, source: String
 
 # ------------------------------------------------------------------ equipment
 func wear_check(c, def: Dictionary) -> String:
+	# A furnace needs only the craft (S44): the forge and the pill grade cap do the gating.
+	if str(def.get("slot", "")) == "tool_furnace": return "" if Unlocks.is_unlocked(c.id, "alchemy") else Unlocks.locked_text("alchemy")
 	var ctx: Dictionary = game.ctx(c)
 	if def.has("requires") and not RequirementRules.passes(def.requires, ctx):
 		return RequirementRules.first_failure_text(def.requires, ctx)
@@ -358,6 +375,13 @@ func equip(c, index: int) -> Dictionary:
 	var why := wear_check(c, def)
 	if why != "": return fail("cannot_wear", {"text": why})
 	var slot := str(def.slot)
+	if slot == "tool_furnace":
+		# S44: the furnace slot sits apart from the eight worn slots; it changes no stats and no look.
+		var was = c.inventory.furnace
+		c.inventory.furnace = inst
+		c.inventory.bag[index] = was
+		emit("equipment_changed", {"actor": c.id, "slot": slot, "old": was.id if was else "", "new": inst.id})
+		return ok()
 	var old = c.inventory.equipped.get(slot)
 	c.inventory.equipped[slot] = inst
 	c.inventory.bag[index] = old
@@ -546,7 +570,7 @@ func set_spare_weapon(c, index: int) -> Dictionary:
 	return ok()
 
 func unequip(c, slot: String) -> Dictionary:
-	var inst = c.inventory.equipped.get(slot)
+	var inst = c.inventory.furnace if slot == "tool_furnace" else c.inventory.equipped.get(slot)
 	if inst == null: return fail("empty")
 	if slot == "gourd": return fail("gourd_required", {"text": Tx.t("sim.inventory.you_always_carry_a_spirit")})
 	var free := -1
@@ -556,7 +580,8 @@ func unequip(c, slot: String) -> Dictionary:
 			break
 	if free < 0: return fail("bag_full")
 	c.inventory.bag[free] = inst
-	c.inventory.equipped[slot] = null
+	if slot == "tool_furnace": c.inventory.furnace = null
+	else: c.inventory.equipped[slot] = null
 	emit("equipment_changed", {"actor": c.id, "slot": slot, "old": inst.id, "new": ""})
 	return ok()
 

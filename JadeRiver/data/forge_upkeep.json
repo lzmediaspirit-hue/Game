@@ -1,6 +1,9 @@
 {
  "schema_version": 1,
  "pity_step": 0.05,
+ "furnace_band_per_level": 0.01,
+ "furnace_affinity": 0.05,
+ "beast_fire_min_rank": 2,
  "risky_from": 5,
  "fail_step": 0.12,
  "essence_step": 0.025,

@@ -131,10 +131,15 @@ func draw_page() -> void:
 	if craft == "alchemy":
 		# The furnace you carry and the fire under it (G1).
 		var fu: Dictionary = Game.crafting.furnace_of(ch)
-		if str(fu.get("id", "")) != "":
-			text(Vector2(right.position.x + 232, right.end.y - 122), ContentDB.item_name(str(fu.id)), 17, UiKit.PALE_GOLD)
+		if fu.get("cracked", false):
+			text(Vector2(right.position.x + 232, right.end.y - 122), ContentDB.item_name(str(fu.id)), 17, UiKit.RED)
+			text(Vector2(right.position.x + 232, right.end.y - 100), Tx.t("sim.crafting.furnace_cracked") % ContentDB.item_name(str(fu.id)), 15, UiKit.RED)
+		elif str(fu.get("id", "")) != "":
+			text(Vector2(right.position.x + 232, right.end.y - 122), ContentDB.item_name(str(fu.id)) + ("" if str(fu.get("element", "")) == "" else "  ·  " + Tx.t("ui.crafts.furnace_element") % str(fu.element).capitalize()), 17, UiKit.PALE_GOLD)
 			text(Vector2(right.position.x + 232, right.end.y - 100), Tx.t("ui.crafts.furnace_stats") % [int(fu.get("batch", 1)), int(round(float(fu.get("band", 0.0)) * 100)),
-				int(round(float(fu.get("yield", 0.0)) * 100))], 15, UiKit.MIST)
+				int(round(float(fu.get("filter", 0.0)) * 100)), int(round(float(fu.get("yield", 0.0)) * 100))], 15, UiKit.MIST)
+		else:
+			text(Vector2(right.position.x + 232, right.end.y - 110), Tx.t("ui.crafts.no_furnace"), 15, UiKit.MIST)
 		if not game_on:
 			var have: Array = Game.crafting.fires_available(ch)
 			if not fire in have: fire = "charcoal"
@@ -161,6 +166,7 @@ func _gear(ch) -> Array:
 	for sl in ch.inventory.equipped:
 		var e = ch.inventory.equipped[sl]
 		if e != null and ContentDB.is_equipment(str(e.id)): out.append({"inst": e, "worn": true})
+	if ch.inventory.furnace != null: out.append({"inst": ch.inventory.furnace, "worn": true})   # the furnace slot (S44)
 	for it in ch.inventory.bag:
 		if it != null and it.has("uid") and ContentDB.is_equipment(str(it.id)): out.append({"inst": it, "worn": false})
 	return out
@@ -188,7 +194,7 @@ func _forge(ch, area: Rect2) -> void:
 		slot_box(Rect2(rr.position + Vector2(6, 4), Vector2(50, 50)), str(inst.id), 0, str(inst.get("quality", "")))
 		var grade := str(ContentDB.item(str(inst.id)).get("grade", "plain"))
 		text(rr.position + Vector2(66, 28), fit(_gear_name(inst), 17, rr.size.x - 150), 17, UiKit.grade_color(grade) if usable else UiKit.HOLLOW)
-		var sub := Tx.t("ui.forge.worn") if g.worn else ""
+		var sub := (Tx.t("ui.forge.in_furnace_slot") if ContentDB.item(str(inst.id)).has("furnace") else Tx.t("ui.forge.worn")) if g.worn else ""
 		if float(inst.get("pity", 0.0)) > 0.0: sub += ("  " if sub != "" else "") + Tx.t("ui.forge.pity") % int(round(float(inst.pity) * 100))
 		if ch.inventory.locked.has(uid): sub += ("  " if sub != "" else "") + Tx.t("ui.forge.locked_item")
 		text(rr.position + Vector2(66, 50), sub, 14, UiKit.MIST)
@@ -244,6 +250,14 @@ func _forge_enhance(ch, r: Rect2) -> void:
 		btn(Rect2(r.end.x - 84, y, 56, 44), "+", "essence", 1, false, essence < int(Game.crafting.upkeep("essence_max", 4)) and ch.inventory.count("refining_essence") > essence)
 	var why: String = Game.crafting.enhance_check(ch, inst, essence)
 	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.enhance"), "do_enhance", null, true, why == "", why)
+	# A furnace (S44): each level steadies its heat 1%; a blast costs it durability, mended here.
+	if str(ContentDB.item(str(inst.id)).get("slot", "")) == "tool_furnace":
+		var dur := int(inst.get("durability", 100))
+		text(Vector2(r.position.x + 24, r.end.y - 96), Tx.t("ui.forge.furnace_line") % [dur, int(inst.get("enhance", 0))], 16, UiKit.MIST if dur > 0 else UiKit.RED)
+		if dur < 100:
+			var mc: Dictionary = Game.crafting.mend_cost(inst)
+			var mwhy := "" if ch.inventory.count(str(mc.metal)) >= int(mc.count) else Tx.t("sim.crafting.needs_2") % [int(mc.count), ContentDB.item_name(str(mc.metal))]
+			btn(Rect2(r.end.x - 474, r.end.y - 76, 220, 58), Tx.t("ui.forge.mend") % [int(mc.count), ContentDB.item_name(str(mc.metal))], "do_mend", null, false, mwhy == "", mwhy, 18)
 
 func _forge_inherit(ch, r: Rect2) -> void:
 	var from := _find(ch, pick_uid)
@@ -554,6 +568,12 @@ func on_action(id: String, data) -> void:
 				flash(Tx.t("ui.forge.enhanced") % int(r3.level) if r3.success else Tx.t("ui.forge.failed") % int(round(float(r3.pity) * 100)))
 				essence = 0
 			elif str(r3.get("text", "")) != "": flash(str(r3.text))
+		"do_mend":
+			var rm := submit({"type": "mend_furnace", "uid": pick_uid})
+			if rm.get("ok", false):
+				Audio.play("forge", "UI")
+				flash(Tx.t("ui.forge.mended"))
+			elif str(rm.get("text", "")) != "": flash(str(rm.text))
 		"do_inherit":
 			var r4 := submit({"type": "inherit_enhancement", "from": pick_uid, "to": to_uid})
 			if r4.get("ok", false):

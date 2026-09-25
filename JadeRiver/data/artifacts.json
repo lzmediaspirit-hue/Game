@@ -1248,6 +1248,109 @@
    ]
   },
   {
+   "id": "bronze_furnace",
+   "name": "Bronze Furnace",
+   "slot": "tool_furnace",
+   "grade": "plain",
+   "ilv": 1,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "bronze_furnace",
+   "type": "equipment",
+   "stack": 1,
+   "desc": "Mei Qing's old bronze furnace. Three pills to a batch; it holds heat well enough.",
+   "furnace": {
+    "band": 0.0,
+    "batch": 3,
+    "filter": 0.0,
+    "yield": 0.0
+   }
+  },
+  {
+   "id": "jadeiron_furnace",
+   "name": "Jadeiron Furnace",
+   "slot": "tool_furnace",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "earth_vein_furnace",
+   "type": "equipment",
+   "stack": 1,
+   "desc": "Jadeiron walls a hand thick. Five pills to a batch, a steadier heat, and it strains a tenth of the impurities out.",
+   "furnace": {
+    "band": 0.05,
+    "batch": 5,
+    "filter": 0.1,
+    "yield": 0.05
+   }
+  },
+  {
+   "id": "cloudsteel_furnace",
+   "name": "Cloudsteel Furnace",
+   "slot": "tool_furnace",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "cloud_pattern_furnace",
+   "type": "equipment",
+   "stack": 1,
+   "desc": "Cloudsteel etched with drifting clouds. Eight pills to a batch; a fifth of the impurities slide off its walls.",
+   "furnace": {
+    "band": 0.08,
+    "batch": 8,
+    "filter": 0.2,
+    "yield": 0.1
+   }
+  },
+  {
+   "id": "mistjade_furnace",
+   "name": "Mistjade Furnace",
+   "slot": "tool_furnace",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "mystic_tripod",
+   "type": "equipment",
+   "stack": 1,
+   "desc": "A three-legged furnace of mistjade that hums over the fire. Ten pills to a batch, and it keeps almost a third of the impurities out.",
+   "furnace": {
+    "band": 0.1,
+    "batch": 10,
+    "filter": 0.3,
+    "yield": 0.15
+   }
+  },
+  {
+   "id": "nine_dragon_cauldron",
+   "name": "Nine-Dragon Cauldron",
+   "slot": "tool_furnace",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "none",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "nine_dragon_cauldron",
+   "type": "equipment",
+   "stack": 1,
+   "desc": "Nine bronze dragons coil round it and drink the heat. A named furnace: on any fire a perfect run can reach Grain, Halo and Soul. Eight pills to a batch; water pills come easier in it.",
+   "furnace": {
+    "band": 0.12,
+    "batch": 8,
+    "filter": 0.2,
+    "yield": 0.1,
+    "named": true,
+    "element": "water"
+   },
+   "sell": false
+  },
+  {
    "id": "cloud_talisman",
    "name": "Cloud Talisman",
    "slot": "talisman",

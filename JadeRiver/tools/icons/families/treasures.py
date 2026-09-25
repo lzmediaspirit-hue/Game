@@ -295,6 +295,7 @@ def _flame(core, mid, outer, glow):
 
 
 FLAMES = {
+    'mist_lantern_flame': _flame('#F4FFF8', ('#9ED8C0', '#C8F0E0'), ('#3E7F6A', '#5FA88E'), '#BFEFD8'),
     'cold_lamp_flame': _flame('#EAF8FF', ('#57A8E8', '#8FD0FF'), ('#1D4F8F', '#2F78C4'), '#8FC8FF'),
     'sunscar_throne_ember': _flame('#FFF4C8', ('#F09A3A', '#FFC460'), ('#8F2A12', '#C8501E'), '#FFB25A'),
     'comet_tail_flame': _flame('#FFFFFF', ('#C8D4F0', '#EEF2FF'), ('#6E7BA8', '#98A6D4'), '#DCE6FF'),

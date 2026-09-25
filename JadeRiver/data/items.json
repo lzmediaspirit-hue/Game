@@ -1043,7 +1043,8 @@
    "icon": "serpent_core",
    "desc": "The core of the Riverbed Serpent; a pill ingredient. Absorb it for Qi, or burn it as Beast Fire.",
    "core": {
-    "qp_pct": 0.1
+    "qp_pct": 0.1,
+    "rank": 2
    },
    "use": [
     {
@@ -1066,7 +1067,8 @@
    "icon": "guardian_stone",
    "desc": "Heart-stone of a Stone Guardian. Absorb it for Qi, or burn it as Beast Fire.",
    "core": {
-    "qp_pct": 0.1
+    "qp_pct": 0.1,
+    "rank": 2
    },
    "use": [
     {
@@ -1089,7 +1091,8 @@
    "icon": "jade_core",
    "desc": "A jade core from a Forgotten Monastery sentinel. Absorb it for Qi, or burn it as Beast Fire.",
    "core": {
-    "qp_pct": 0.1
+    "qp_pct": 0.1,
+    "rank": 3
    },
    "use": [
     {
@@ -1110,9 +1113,10 @@
    "ilv": 14,
    "stack": 99,
    "icon": "pebble_core",
-   "desc": "A tiny earth core from a Pebble Imp. Absorb it for Qi, or burn it as Beast Fire.",
+   "desc": "A tiny earth core from a Pebble Imp. Absorb it for Qi. Too weak a core to burn as Beast Fire.",
    "core": {
-    "qp_pct": 0.05
+    "qp_pct": 0.05,
+    "rank": 1
    },
    "use": [
     {
@@ -1889,26 +1893,6 @@
    }
   },
   {
-   "id": "bronze_furnace",
-   "name": "Bronze Furnace",
-   "type": "tool",
-   "grade": "common",
-   "ilv": 14,
-   "stack": 1,
-   "icon": "bronze_furnace",
-   "desc": "A bronze furnace. Three pills to a batch; it holds heat well enough.",
-   "tool": {
-    "craft": "alchemy",
-    "power": 1.0
-   },
-   "furnace": {
-    "band": 0.0,
-    "batch": 3,
-    "filter": 0.0,
-    "yield": 0.05
-   }
-  },
-  {
    "id": "forge_hammer",
    "name": "Forge Hammer",
    "type": "tool",
@@ -1977,91 +1961,6 @@
     "craft": "alchemy",
     "power": 1.0
    }
-  },
-  {
-   "id": "earth_vein_furnace",
-   "name": "Earth Vein Furnace",
-   "type": "tool",
-   "grade": "earth",
-   "ilv": 27,
-   "stack": 1,
-   "icon": "earth_vein_furnace",
-   "desc": "A furnace cast around a vein of jadeiron. Five pills to a batch, a steadier heat and a cleaner fire.",
-   "tool": {
-    "craft": "alchemy",
-    "power": 1.0
-   },
-   "furnace": {
-    "band": 0.05,
-    "batch": 5,
-    "filter": 0.03,
-    "yield": 0.08
-   },
-   "sell": true
-  },
-  {
-   "id": "cloud_pattern_furnace",
-   "name": "Cloud Pattern Furnace",
-   "type": "tool",
-   "grade": "heaven",
-   "ilv": 45,
-   "stack": 1,
-   "icon": "cloud_pattern_furnace",
-   "desc": "Cloudsteel walls etched with drifting clouds. Eight pills to a batch; impurities slide off its walls.",
-   "tool": {
-    "craft": "alchemy",
-    "power": 1.0
-   },
-   "furnace": {
-    "band": 0.1,
-    "batch": 8,
-    "filter": 0.06,
-    "yield": 0.12
-   },
-   "sell": true
-  },
-  {
-   "id": "mystic_tripod",
-   "name": "Mystic Tripod",
-   "type": "tool",
-   "grade": "mystic",
-   "ilv": 59,
-   "stack": 1,
-   "icon": "mystic_tripod",
-   "desc": "A three-legged tripod of mystic ore that hums over the fire. Ten pills to a batch.",
-   "tool": {
-    "craft": "alchemy",
-    "power": 1.0
-   },
-   "furnace": {
-    "band": 0.15,
-    "batch": 10,
-    "filter": 0.08,
-    "yield": 0.15
-   },
-   "sell": true
-  },
-  {
-   "id": "nine_dragon_cauldron",
-   "name": "Nine Dragon Cauldron",
-   "type": "tool",
-   "grade": "sage",
-   "ilv": 77,
-   "stack": 1,
-   "icon": "nine_dragon_cauldron",
-   "desc": "Alchemist Fen's cauldron: nine bronze dragons coil round it and drink the heat. A named furnace: on any fire a perfect run can reach Halo and Soul. Ten pills to a batch.",
-   "tool": {
-    "craft": "alchemy",
-    "power": 1.0
-   },
-   "furnace": {
-    "band": 0.2,
-    "batch": 10,
-    "filter": 0.1,
-    "yield": 0.15,
-    "named": true
-   },
-   "sell": false
   },
   {
    "id": "practice_bell",
@@ -2303,14 +2202,27 @@
    }
   },
   {
+   "id": "mist_lantern_flame",
+   "name": "Mist Lantern Flame",
+   "type": "treasure",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 1,
+   "icon": "mist_lantern_flame",
+   "desc": "A pale flame that drifted in a Weeping Lantern's paper for a hundred years, lighting nothing. Absorb it: a Heavenly Flame burns under any furnace you use, for good. Never sold.",
+   "sell": false,
+   "use": [],
+   "use_action": "absorb_flame"
+  },
+  {
    "id": "cold_lamp_flame",
    "name": "Cold Lamp Flame",
    "type": "treasure",
-   "grade": "earth",
-   "ilv": 27,
+   "grade": "spirit",
+   "ilv": 68,
    "stack": 1,
    "icon": "cold_lamp_flame",
-   "desc": "A blue flame the Drowned Abbot kept burning under the water for two hundred years. Absorb it: a Heavenly Flame burns under any furnace you use, for good. Never sold.",
+   "desc": "A cold blue flame the Thousand-Eye Toad swallowed from a sunken lamp. It kept burning in its belly under Mirrorwater Lake. Absorb it: a Heavenly Flame burns under any furnace you use, for good. Never sold.",
    "sell": false,
    "use": [],
    "use_action": "absorb_flame"

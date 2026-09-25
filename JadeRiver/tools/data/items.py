@@ -116,20 +116,32 @@ FISH = [("river_minnow", "plain"), ("reed_perch", "plain"), ("jade_carp_fish", "
         ("mist_trout", "earth"), ("rapids_salmon", "earth"), ("moon_carp", "heaven")]
 
 
-FURNACES = {
-    "bronze_furnace": ("A bronze furnace. Three pills to a batch; it holds heat well enough.",
-                       {"band": 0.0, "batch": 3, "filter": 0.0, "yield": 0.05}),
-    "earth_vein_furnace": ("A furnace cast around a vein of jadeiron. Five pills to a batch, a steadier heat and a cleaner fire.",
-                           {"band": 0.05, "batch": 5, "filter": 0.03, "yield": 0.08}),
-    "cloud_pattern_furnace": ("Cloudsteel walls etched with drifting clouds. Eight pills to a batch; impurities slide off its walls.",
-                              {"band": 0.10, "batch": 8, "filter": 0.06, "yield": 0.12}),
-    "mystic_tripod": ("A three-legged tripod of mystic ore that hums over the fire. Ten pills to a batch.",
-                      {"band": 0.15, "batch": 10, "filter": 0.08, "yield": 0.15}),
-    "nine_dragon_cauldron": ("Alchemist Fen's cauldron: nine bronze dragons coil round it and drink the heat. A named furnace: on any fire a perfect run can reach Halo and Soul. Ten pills to a batch.",
-                             {"band": 0.20, "batch": 10, "filter": 0.10, "yield": 0.15, "named": True}),
-}
+# S44 / Part 8 furnaces: equipment worn in the furnace slot (tool_furnace), enhanced at the forge (+1% heat
+# stability a level). band = heat stability (the strike band widens), batch = pills a batch, filter = the share of
+# each missed strike's impurities it takes out on its own, yield = chance of one more pill, element = +5% quality
+# for that element's recipes. Only the named Nine-Dragon Cauldron changes what a fire allows.
+FURNACES = [
+    ("bronze_furnace", "plain", "Bronze Furnace", "bronze_furnace",
+     "Mei Qing's old bronze furnace. Three pills to a batch; it holds heat well enough.",
+     {"band": 0.0, "batch": 3, "filter": 0.0, "yield": 0.0}),
+    ("jadeiron_furnace", "earth", "Jadeiron Furnace", "earth_vein_furnace",
+     "Jadeiron walls a hand thick. Five pills to a batch, a steadier heat, and it strains a tenth of the impurities out.",
+     {"band": 0.05, "batch": 5, "filter": 0.10, "yield": 0.05}),
+    ("cloudsteel_furnace", "heaven", "Cloudsteel Furnace", "cloud_pattern_furnace",
+     "Cloudsteel etched with drifting clouds. Eight pills to a batch; a fifth of the impurities slide off its walls.",
+     {"band": 0.08, "batch": 8, "filter": 0.20, "yield": 0.10}),
+    ("mistjade_furnace", "mystic", "Mistjade Furnace", "mystic_tripod",
+     "A three-legged furnace of mistjade that hums over the fire. Ten pills to a batch, and it keeps almost a third of the impurities out.",
+     {"band": 0.10, "batch": 10, "filter": 0.30, "yield": 0.15}),
+    ("nine_dragon_cauldron", "heaven", "Nine-Dragon Cauldron", "nine_dragon_cauldron",
+     "Nine bronze dragons coil round it and drink the heat. A named furnace: on any fire a perfect run can reach Grain, Halo "
+     "and Soul. Eight pills to a batch; water pills come easier in it.",
+     {"band": 0.12, "batch": 8, "filter": 0.20, "yield": 0.10, "named": True, "element": "water"}),
+]
 FLAMES = [
-    ("cold_lamp_flame", "earth", "A blue flame the Drowned Abbot kept burning under the water for two hundred years."),
+    # The valley's Heavenly Flame (Part 8): the Weeping Lantern elite of the Forgotten Monastery carries it.
+    ("mist_lantern_flame", "mystic", "A pale flame that drifted in a Weeping Lantern's paper for a hundred years, lighting nothing."),
+    ("cold_lamp_flame", "spirit", "A cold blue flame the Thousand-Eye Toad swallowed from a sunken lamp. It kept burning in its belly under Mirrorwater Lake."),
     ("sunscar_throne_ember", "sage", "An ember from under the Tomb King's throne. It remembers three thousand years of sun."),
     ("comet_tail_flame", "sage", "A white flame torn from a comet's tail, kept in Comet Captain Rao's lamp."),
 ]
@@ -347,13 +359,14 @@ def build_items():
                      name="Cloud Elder's Token", sell=False))
     rows.append(item("storm_shard", "material", "spirit", 999,
                      "A splinter of the Expanse's storms. Levels your Storm Ward jades (Character > Attunement)."))
-    for (cid, grade, desc) in [("serpent_core", "earth", "The core of the Riverbed Serpent; a pill ingredient."),
-                               ("guardian_stone", "earth", "Heart-stone of a Stone Guardian."),
-                               ("jade_core", "heaven", "A jade core from a Forgotten Monastery sentinel."),
-                               ("pebble_core", "common", "A tiny earth core from a Pebble Imp.")]:
-        # A core can be absorbed for Qi (it counts toward a hollow foundation) or burnt as Beast Fire under a furnace.
+    for (cid, grade, rank, desc) in [("serpent_core", "earth", 2, "The core of the Riverbed Serpent; a pill ingredient."),
+                                     ("guardian_stone", "earth", 2, "Heart-stone of a Stone Guardian."),
+                                     ("jade_core", "heaven", 3, "A jade core from a Forgotten Monastery sentinel."),
+                                     ("pebble_core", "common", 1, "A tiny earth core from a Pebble Imp.")]:
+        # A core can be absorbed for Qi (it counts toward a hollow foundation), or, from rank 2, burnt as Beast Fire (S44).
         qp = 0.05 if grade == "common" else 0.1
-        rows.append(item(cid, "core", grade, 99, desc + " Absorb it for Qi, or burn it as Beast Fire.", core={"qp_pct": qp},
+        use_text = " Absorb it for Qi, or burn it as Beast Fire." if rank >= 2 else " Absorb it for Qi. Too weak a core to burn as Beast Fire."
+        rows.append(item(cid, "core", grade, 99, desc + use_text, core={"qp_pct": qp, "rank": rank},
                          use=[effect("add_progress", pct_of_need=qp)], raw={"toxicity": 12}, family="accumulation"))
     rows.append(item("tiny_hollow_shard", "hollow", "common", 99, "A grey sliver that drinks warmth. Handle with care."))
     rows.append(item("hollow_shard", "hollow", "earth", 99, "A shard of the Hollow Tide. Appraise before use."))
@@ -422,20 +435,12 @@ def build_items():
     rows.append(item("blank_plate", "material", "earth", 99, "A blank jade plate for portable arrays."))
     rows.append(item("spirit_egg", "egg", "earth", 1, "A warm egg. Something stirs inside. Use it to start incubating.", use=[], use_action="incubate"))
     tools = [("old_pickaxe", "plain", "mining", 1.0), ("iron_pickaxe", "common", "mining", 1.3), ("herb_sickle", "common", "gathering", 1.3),
-             ("bamboo_rod", "plain", "fishing", 1.0), ("clay_pot", "plain", "cooking", 1.0), ("bronze_furnace", "common", "alchemy", 1.0),
+             ("bamboo_rod", "plain", "fishing", 1.0), ("clay_pot", "plain", "cooking", 1.0),
              ("forge_hammer", "common", "smithing", 1.0), ("formation_kit", "earth", "formations", 1.0), ("needle_case", "earth", "healing", 1.0),
              ("appraisers_loupe", "common", "appraisal", 1.0), ("drying_rack", "common", "alchemy", 1.0)]
     for tid, grade, craft, power in tools:
-        extra = {"furnace": FURNACES["bronze_furnace"][1]} if tid == "bronze_furnace" else {}
-        desc = FURNACES["bronze_furnace"][0] if tid == "bronze_furnace" else TOOL_DESC[tid]
-        rows.append(item(tid, "tool", grade, 1, desc, tool={"craft": craft, "power": power},
-                         icon="appraiser_loupe" if tid == "appraisers_loupe" else tid, **extra))
-    # Furnaces (gap report G1, S15 "special furnace"): the best one you carry is the one you refine in.
-    # band = strike band widened, batch = pills per batch, filter = impurities it keeps out (a better
-    # quality roll), yield = chance of one extra pill; a named furnace reaches Halo and Soul on any fire.
-    for fid, grade in [("earth_vein_furnace", "earth"), ("cloud_pattern_furnace", "heaven"), ("mystic_tripod", "mystic"), ("nine_dragon_cauldron", "sage")]:
-        rows.append(item(fid, "tool", grade, 1, FURNACES[fid][0], tool={"craft": "alchemy", "power": 1.0},
-                         furnace=FURNACES[fid][1], sell=fid != "nine_dragon_cauldron"))
+        rows.append(item(tid, "tool", grade, 1, TOOL_DESC[tid], tool={"craft": craft, "power": power},
+                         icon="appraiser_loupe" if tid == "appraisers_loupe" else tid))
     # Treasures (gap report G2): set in the HUD's Treasure buttons (one from Heart Tempering 1, a second from
     # Spirit Awakening 1). Each is one action with a cooldown and a QI cost; none is a stat stick.
     for tid, grade, desc, t in TREASURES:
@@ -567,6 +572,10 @@ def build_artifacts():
     for id, grade, name, bag, quick in gourds:
         rows.append(artifact(id, "gourd", grade, name, "none", gourd={"bag": bag, "quick": quick}, ilv=(1 if grade == "plain" else None)))
     rows.append(artifact("mistjade_cape", "cape", "mystic", "Mistjade Cape", "solid", resist=["water", "wind"]))
+    for fid, grade, name, icon, desc, stats in FURNACES:
+        extra = {"sell": False} if stats.get("named") else {}
+        rows.append(artifact(fid, "tool_furnace", grade, name, "none", icon=icon, desc=desc, furnace=stats, sockets=0,
+                             energy_type="none", ilv=(1 if grade == "plain" else None), **extra))
     rows.append(artifact("cloud_talisman", "talisman", "heaven", "Cloud Talisman", "none"))
     # Set pieces reuse appearances and grade icons.
     for sect, look in [("jade_current", ("headband", "cardigan", "martial", "folded")), ("cloudpiercing", ("tied", "vneck", "cuffed", "boots"))]:

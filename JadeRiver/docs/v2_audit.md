@@ -81,3 +81,20 @@ run and a pushed commit:
 | **V8 · Living world (S49)** | Relations and Calendar authorities. Karma deeds and debts. Affinity and gifts. Bonds. Grudges and bounties. Idle-room eligibility. Auto-path. Valley auction. World events. Fortune deck. Trial Tower. Activity chests. |
 
 Progress is recorded in `docs/CHANGELOG.md`.
+
+### Status
+
+- **V1** and **V2**: done.
+- **V3**: done (V3a–V3c), except these v1.1+ items, left for a later pass:
+  - the sword swarm;
+  - weapon awakening and legendary chains;
+  - imitation relics;
+  - Artifact Spirit depth (affinity, barks, devour);
+  - the heavy sabre, flute and fan weapon families;
+  - the rooftop thief chase (S43 rule 15).
+- **V4**: in progress, in five parts:
+  - V4a: furnaces;
+  - V4b: herb natures and conflicts;
+  - V4c: new forms;
+  - V4d: fragments, experiments and the guild;
+  - V4e: pill tribulation.

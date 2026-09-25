@@ -107,6 +107,7 @@ func _ready() -> void:
 	fade_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	fade_layer.add_child(fade_rect)
 	GameEvents.event.connect(_on_game_event)
+	_warm_pages()
 	var user_args := OS.get_cmdline_user_args()
 	preview_mode = not user_args.is_empty()
 	if "--test-saves" in user_args or preview_mode: Saves.use_folder("user://preview_saves/")
@@ -369,7 +370,7 @@ func open_page(id: String, a: Dictionary) -> void:
 		if p.page_id == id:
 			p.open(a)
 			return
-	var page: Page = load(path).new()
+	var page: Page = _page_script(path).new()
 	page.page_id = id
 	page.closed.connect(close_page)
 	page.navigate.connect(func(to: String, b: Dictionary): open_page(to, b))
@@ -379,6 +380,24 @@ func open_page(id: String, a: Dictionary) -> void:
 	if is_instance_valid(hud): hud.set_blocked(true)
 	if Game.active():
 		Game.submit({"type": "report_page_opened", "page": id})
+
+## Page scripts compile in a background thread from the title screen on, so the first time a page opens it does
+## not stall a frame compiling itself (S40 performance: a page opens within 0.15 s).
+var _page_scripts: Dictionary = {}
+
+func _warm_pages() -> void:
+	for path in PAGES.values():
+		if ResourceLoader.exists(str(path)): ResourceLoader.load_threaded_request(str(path))
+
+func _page_script(path: String) -> Script:
+	if _page_scripts.has(path): return _page_scripts[path]
+	var scr: Script = null
+	var status := ResourceLoader.load_threaded_get_status(path)
+	if status == ResourceLoader.THREAD_LOAD_LOADED or status == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		scr = ResourceLoader.load_threaded_get(path) as Script
+	if scr == null: scr = load(path) as Script
+	_page_scripts[path] = scr
+	return scr
 
 func close_page(page: Page) -> void:
 	pages.erase(page)

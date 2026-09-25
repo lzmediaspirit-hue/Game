@@ -1274,7 +1274,7 @@ def valley():
     r.spawn("drowned_abbot", [[1700, 840]], 1, respawn=86400, level=[27, 27], boss=True)
     for i, x in enumerate([500, 1100, 1700, 2300]):
         r.obj("small_bell_%d" % i, "bell", [x, 700])
-    r.obj("vault", "chest", [2400, 700], loot="chest_dungeon", level=27, requires=all_of(realm("spirit_awakening_3")),
+    r.obj("vault", "chest", [2400, 700], loot="abbots_vault", level=27, requires=all_of(realm("spirit_awakening_3")),
           locked_text="A sealed vault. Its seal answers only a Spirit Awakening soul.", vault=True)
     r.obj("journal_vault", "pickup", [2300, 900], item="lu_journal_page", count=1, prop="scroll_rack", set_flag="journal_vault",
           visible_if=all_of(realm("spirit_awakening_3")), hidden_if=all_of(flag("journal_vault")))

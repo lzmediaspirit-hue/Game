@@ -495,7 +495,10 @@ func _on_actor_defeated(p: Dictionary) -> void:
 		drop = {"items": LootRules.capture_materials(str(def.get("loot", p.def))), "coins": 0, "equipment": []}
 		emit("beast_captured", {"actor": c.id, "def": str(p.def), "items": drop.items.size()})
 	# A boss's one-time treasure (a Heavenly Flame, G1): guaranteed on its first defeat, outside the loot roll.
-	for it in def.get("first_defeat", []):
+	# An elite can carry one too (the Weeping Lantern's Mist Lantern Flame, S44): only the elite of its kind drops it.
+	var once: Array = def.get("first_defeat", []).duplicate()
+	if p.get("elite", false): once.append_array(def.get("elite_first_defeat", []))
+	for it in once:
 		var flag := "first_defeat:%s:%s" % [str(p.def), str(it)]
 		if c.quests.has_flag(flag): continue
 		game.quest.apply_flag(c.id, flag)

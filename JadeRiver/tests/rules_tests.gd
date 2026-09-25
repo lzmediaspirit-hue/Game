@@ -1215,26 +1215,77 @@ func g1_suite() -> void:
 	Game.progression.tick(0.1)
 	check(bool(cu.debts.get("test_debt", {}).get("paid", false)), "a debt that falls due is repaid by letter")
 	cu.debts.erase("test_debt")
-	# Furnace and fire: the bronze furnace holds three; charcoal stops at Perfect; a named furnace or a flame reaches Soul.
-	c.inventory.key_items = c.inventory.key_items.filter(func(k): return not ContentDB.item(str(k.id)).has("furnace"))
+	# Furnace and fire (S44): the furnace slot holds one furnace instance; the bronze one holds three; charcoal stops
+	# at Perfect; a named furnace or a flame reaches Soul.
+	Unlocks.force_unlock(c.id, "alchemy")
+	c.inventory.furnace = null
+	c.inventory.bag.fill(null)
 	Game.inventory.apply_add(c.id, "bronze_furnace", 1, "test")
 	var fu: Dictionary = Game.crafting.furnace_of(c)
-	check(str(fu.id) == "bronze_furnace" and int(fu.batch) == 3, "the bronze furnace refines three to a batch")
+	check(str(fu.id) == "bronze_furnace" and int(fu.batch) == 3 and c.inventory.furnace != null and c.inventory.furnace.has("uid"),
+		"the first furnace goes into the empty furnace slot, three to a batch")
+	check(near(float(fu.get("yield", 1.0)), 0.0) and near(float(fu.get("filter", 1.0)), 0.0), "the bronze furnace has no filter and no extra pill")
 	check(Game.crafting.rare_allowed(fu, "charcoal").is_empty() and Game.crafting.rare_allowed(fu, "earth_fire") == ["pill_grain"]
 		and "pill_soul" in Game.crafting.rare_allowed(fu, "heavenly_flame"), "charcoal stops at Perfect, Earth Fire reaches Grain, a Heavenly Flame reaches Soul")
 	check("pill_soul" in Game.crafting.rare_allowed(ContentDB.item("nine_dragon_cauldron").furnace, "charcoal"), "the Nine-Dragon Cauldron reaches Soul on any fire")
+	var nd: Dictionary = ContentDB.item("nine_dragon_cauldron").furnace
+	check(int(nd.batch) == 8 and near(float(nd.band), 0.12) and str(nd.get("element", "")) == "water", "the Nine-Dragon Cauldron: eight a batch, +12% heat, Water")
+	check(str(ContentDB.room("ds_abbots_sanctum").get("objects", []).filter(func(o): return str(o.get("id", "")) == "vault")[0].get("loot", "")) == "abbots_vault"
+		and ContentDB.entry("loot_tables", "abbots_vault").get("guaranteed", []).any(func(g): return str(g.item) == "nine_dragon_cauldron"),
+		"the Nine-Dragon Cauldron waits in the Drowned Abbot's sealed vault")
+	var batch_try := Game.crafting.craft(c, "healing_pill", 4, [], "alchemy")
+	check(str(batch_try.get("reason", "")) == "batch", "a bronze furnace refuses a batch of four")
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7
 	var any_rare := false
 	for i in 400:
 		if Game.crafting._rare_pill_quality(c, [1.0, 1.0, 1.0], rng, []) != "perfect": any_rare = true
 	check(not any_rare, "no rare quality ever comes out of charcoal")
-	Game.inventory.apply_add(c.id, "earth_vein_furnace", 1, "test")
-	check(str(Game.crafting.furnace_of(c).id) == "earth_vein_furnace" and near(Game.crafting.band_mult(c, "beast_fire"), 1.2),
-		"the best furnace carried is used; Beast Fire in it widens the band by 20%")
+	# A better furnace sits in the bag until you set it; enhancement steadies its heat 1% a level.
+	Game.inventory.apply_add(c.id, "jadeiron_furnace", 1, "test")
+	check(str(Game.crafting.furnace_of(c).id) == "bronze_furnace", "a second furnace waits in the bag")
+	var jf: int = _bag_index(c, "jadeiron_furnace")
+	check(Game.submit({"type": "equip", "index": jf}).get("ok", false) and str(Game.crafting.furnace_of(c).id) == "jadeiron_furnace"
+		and c.inventory.count("bronze_furnace") == 1, "setting a furnace swaps the old one back into the bag")
+	check(near(Game.crafting.band_mult(c, "beast_fire"), 1.2), "Beast Fire in a Jadeiron Furnace widens the band by 20%")
+	c.inventory.furnace.enhance = 3
+	check(near(float(Game.crafting.furnace_of(c).band), 0.08), "a +3 Jadeiron Furnace holds its heat 3%% steadier (%.2f)" % float(Game.crafting.furnace_of(c).band))
+	c.inventory.furnace.enhance = 0
+	# The filter takes out its share of each miss; a furnace of the pill's element adds 5%.
+	check(str(ContentDB.entry("recipes", "qi_refining_pill").get("element", "")) == "water", "Qi Refining is a Water pill")
+	var qr := ContentDB.entry("recipes", "qi_refining_pill")
+	var base_q: float = Game.crafting.quality_score(c, "alchemy", {}, qr, [0.5, 0.5, 0.5])
+	check(near(Game.crafting.quality_score(c, "alchemy", Game.crafting.furnace_of(c), qr, [0.5, 0.5, 0.5]) - base_q, 0.05),
+		"a Jadeiron Furnace strains out a tenth of each miss (+0.05 on half-missed strikes)")
+	check(near(Game.crafting.quality_score(c, "alchemy", ContentDB.item("nine_dragon_cauldron").furnace, qr, [0.5, 0.5, 0.5]) - base_q, 0.15),
+		"the Nine-Dragon Cauldron: a fifth of each miss, and +5% for a Water pill")
+	# Durability: a cracked furnace refines nothing until it is mended at a forge.
+	c.inventory.furnace.durability = 0
+	check(Game.crafting.furnace_of(c).get("cracked", false) and str(Game.crafting.craft(c, "healing_pill", 1, [], "alchemy").get("reason", "")) == "cracked",
+		"a cracked furnace refuses to refine")
+	var mend := Game.crafting.mend_cost(c.inventory.furnace)
+	check(str(mend.metal) == "jadeiron" and int(mend.count) == 20, "mending a Jadeiron Furnace from nothing takes 20 jadeiron")
+	c.inventory.furnace.durability = 100
+	# Beast Fire burns a core of rank 2 or more; a Pebble Imp's core is too weak.
+	for k in 4:
+		var old_core: int = _bag_index(c, "pebble_core")
+		if old_core < 0: break
+		c.inventory.bag[old_core] = null
 	check(not "beast_fire" in Game.crafting.fires_available(c), "no core, no Beast Fire")
 	Game.inventory.apply_add(c.id, "pebble_core", 1, "test")
-	check("beast_fire" in Game.crafting.fires_available(c), "a beast core in the bag lights Beast Fire")
+	check(not "beast_fire" in Game.crafting.fires_available(c), "a rank-1 Pebble Core is too weak for Beast Fire")
+	Game.inventory.apply_add(c.id, "serpent_core", 1, "test")
+	check("beast_fire" in Game.crafting.fires_available(c) and Game.crafting._core_to_burn(c) == "serpent_core", "a rank-2 core lights Beast Fire")
+	# Old saves: furnaces in the key-item pouch become furnace instances, the best in the slot.
+	var inv2 := InventoryState.new()
+	inv2.restore({"bag": [], "key_items": [{"id": "bronze_furnace", "count": 1}, {"id": "earth_vein_furnace", "count": 1}, {"id": "old_pickaxe", "count": 1}]})
+	check(inv2.furnace != null and str(inv2.furnace.id) == "jadeiron_furnace" and inv2.count("bronze_furnace") == 1 and inv2.count("old_pickaxe") == 1,
+		"an old save's furnaces become instances: the Jadeiron in the slot, the bronze in the bag")
+	# The valley's Heavenly Flame rides the Forgotten Monastery's elite Weeping Lantern.
+	check((ContentDB.entry("enemies", "weeping_lantern").get("elite_first_defeat", []) as Array).has("mist_lantern_flame")
+		and not (ContentDB.entry("enemies", "drowned_abbot").get("first_defeat", []) as Array).has("cold_lamp_flame"),
+		"the Mist Lantern Flame comes from the Weeping Lantern elite")
+	c.inventory.bag.fill(null)
 	Game.world.apply_teleport(c.id, "wg_rapids_terraces")
 	var vent: Dictionary = Game.room_rt.object_def("earth_vent_wg")
 	check(not vent.is_empty(), "Whitewater Gorge has an Earth Fire vent")

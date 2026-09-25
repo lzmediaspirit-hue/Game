@@ -244,12 +244,12 @@ def recipes():
     r("thunderclap_pellet", "smithing", [("ore_dust", 2), ("ember_pepper", 1), ("lantern_wick", 1)], [("thunderclap_pellet", 3)], "common", default=True)
     # The Bright Mirror: a forge blueprint learned at Heart Tempering 1 (S47, Part 8).
     r("bright_mirror", "smithing", [("jadeiron", 6), ("pearl", 2)], [("bright_mirror", 1)], "earth")
-    # Furnaces are refined at the forge like weapons (gap report G1): each is cast around the last.
-    r("earth_vein_furnace", "smithing", [("bronze_furnace", 1), ("jadeiron", 12), ("riverstone", 8)], [("earth_vein_furnace", 1)], "earth",
+    # Furnaces (S44, Part 8): forged whole at the forge, worn in the furnace slot.
+    r("jadeiron_furnace", "smithing", [("jadeiron", 8), ("riverstone", 6), ("crab_shell", 4)], [("jadeiron_furnace", 1)], "earth",
       default=True, requires_ranks={"smithing": "adept"})
-    r("cloud_pattern_furnace", "smithing", [("earth_vein_furnace", 1), ("cloudsteel_ore", 12), ("cloud_feather", 6)], [("cloud_pattern_furnace", 1)],
+    r("cloudsteel_furnace", "smithing", [("cloudsteel_ore", 8), ("cloud_feather", 4), ("serpent_scale", 4)], [("cloudsteel_furnace", 1)],
       "heaven", default=True, requires_ranks={"smithing": "expert"})
-    r("mystic_tripod", "smithing", [("cloud_pattern_furnace", 1), ("mystic_ore", 12), ("roc_feather", 4)], [("mystic_tripod", 1)], "mystic",
+    r("mistjade_furnace", "smithing", [("mystic_ore", 6), ("roc_feather", 4), ("vulture_plume", 4)], [("mistjade_furnace", 1)], "mystic",
       default=True, requires_ranks={"smithing": "master"})
     r("array_plate", "formations", [("blank_plate", 1), ("formation_stone", 1)], [("array_plate", 1)], "earth")
     # S47: the Revival Talisman moves to the talisman craft (Part 8), with the rest of Old Scribe Bai's recipes.
@@ -272,6 +272,16 @@ def recipes():
       "sage", default=True, xp=60, requires_ranks={"smithing": "adept"})
     r("storm_sloop", "shipwright", [("spirit_wood", 10), ("comet_iron", 6), ("formation_stone", 4), ("kite_silk", 4)], [("storm_sloop", 1)],
       "sage", xp=90, requires_ranks={"smithing": "adept", "formations": "adept"})
+    # S44 element affinity: a furnace of a pill's element adds 5% to its quality roll (the Nine-Dragon Cauldron is Water).
+    PILL_ELEMENT = {"healing_pill": "wood", "qi_restoration_pill": "water", "qi_gathering_pill": "earth", "bone_strengthening_pill": "earth",
+                    "purging_pill": "water", "viper_antidote": "wood", "tiger_blood_pill": "fire", "cleansing_pill": "water",
+                    "foundation_guard_pill": "earth", "clear_mind_pill": "water", "meridian_reversal_pill": "metal",
+                    "method_conversion_pill": "metal", "qi_refining_pill": "water", "soul_soothing_pill": "water",
+                    "mind_lake_opening_pill": "water", "sage_condensing_pill": "metal", "storm_blood_pill": "wood",
+                    "sovereign_settling_pill": "fire"}
+    for x in R:
+        if x["craft"] == "alchemy":
+            x["element"] = PILL_ELEMENT.get(x["id"], "earth")
     entries("recipes", R)
     return {x["id"] for x in R}
 
@@ -680,6 +690,9 @@ def forge_upkeep():
     entries("salvage", rows)
     write("forge_upkeep.json", {
         "pity_step": 0.05,              # each failed enhancement adds 5% to the next attempt on that item
+        "furnace_band_per_level": 0.01,  # S44: each enhancement level steadies a furnace's heat by 1%
+        "furnace_affinity": 0.05,       # S44: a furnace of the pill's element adds 5% to the quality roll
+        "beast_fire_min_rank": 2,       # S44: Beast Fire burns a core of rank 2 or more
         "risky_from": 5,                # attempts from +5 to +6 upward can fail
         "fail_step": 0.12,              # base chance falls 12% a level from there
         "essence_step": 0.025,          # each Refining Essence fed into an attempt adds 2.5%...

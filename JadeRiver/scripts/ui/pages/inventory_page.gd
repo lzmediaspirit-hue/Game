@@ -146,6 +146,18 @@ func _draw_detail(r: Rect2) -> void:
 			if y > r.end.y - 150: break
 			text(Vector2(r.position.x + 16, y + 20), "✦ %s" % UiKit.affix_text(a), 16, UiKit.PALE_GOLD)
 			y += 22
+		# S44 furnace: what it does for a batch, and how whole it is.
+		if def.has("furnace"):
+			var fs: Dictionary = def.furnace
+			var band := float(fs.get("band", 0.0)) + float(Game.crafting.upkeep("furnace_band_per_level", 0.01)) * int(s.get("enhance", 0))
+			for ln in [Tx.t("ui.crafts.furnace_stats") % [int(fs.get("batch", 1)), int(round(band * 100)), int(round(float(fs.get("filter", 0.0)) * 100)),
+					int(round(float(fs.get("yield", 0.0)) * 100))],
+					Tx.t("ui.inventory.furnace_durability") % int(s.get("durability", 100))]:
+				text(Vector2(r.position.x + 16, y + 20), ln, 16, UiKit.BRIGHT_JADE)
+				y += 22
+			if str(fs.get("element", "")) != "":
+				text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.crafts.furnace_element") % str(fs.element).capitalize(), 16, UiKit.PALE_GOLD)
+				y += 22
 		# S47 natal treasure: its level and growth, or that it is broken.
 		if s.get("natal", false):
 			var nl := Tx.t("ui.forge.natal_broken") if s.get("broken", false) else Tx.t("ui.inventory.natal_line") % [int(s.get("natal_level", 0)), int(s.get("ilv_eff", s.get("ilv", 1)))]
@@ -187,11 +199,12 @@ func _draw_detail(r: Rect2) -> void:
 		if def.has("restores"):
 			btn(Rect2(bx, by, r.size.x - 28, 50), Tx.t("ui.inventory.restore_relic"), "restore", null, true)
 		# S47 self-detonation: a spare artifact bursts for damage by its grade and is gone (confirmed first).
-		if (ContentDB.is_equipment(id) or def.has("treasure")) and Unlocks.is_unlocked(ch.id, "treasures"):
+		if (ContentDB.is_equipment(id) or def.has("treasure")) and not def.has("furnace") and Unlocks.is_unlocked(ch.id, "treasures"):
 			btn(Rect2(bx, by - 56, r.size.x - 28, 46), Tx.t("ui.inventory.detonate"), "detonate", null, false, not ch.inventory.locked.has(int(s.get("uid", -1))), Tx.t("ui.forge.locked_item"))
 		if def.has("slot"):
 			var ok := RequirementRules.passes(def.get("requires", {}), Game.ctx(ch))
-			btn(Rect2(bx, by, bw, 50), Tx.t("ui.inventory.equip"), "equip", null, true, ok, RequirementRules.first_failure_text(def.get("requires", {}), Game.ctx(ch)))
+			var eq_label := Tx.t("ui.inventory.set_furnace") if def.has("furnace") else Tx.t("ui.inventory.equip")
+			btn(Rect2(bx, by, bw, 50), eq_label, "equip", null, true, ok, RequirementRules.first_failure_text(def.get("requires", {}), Game.ctx(ch)))
 			# S47 dual loadout: a second weapon waits in the spare slot for the Swap button.
 			if str(def.get("slot", "")) == "weapon":
 				btn(Rect2(bx + bw + 10, by, bw, 50), Tx.t("ui.inventory.set_spare"), "spare", null, false, Unlocks.is_unlocked(ch.id, "dual_loadout"), Unlocks.locked_text("dual_loadout"))

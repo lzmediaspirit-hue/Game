@@ -688,6 +688,7 @@ func sec_qk1() -> void:
 	check(reach("qi_kindling_2"), "Qi Kindling 2")
 	check(start("mei_qings_furnace"), "Mei Qing's Furnace accepted")
 	check(unlocked("alchemy"), "alchemy unlocks with Mei Qing's Furnace")
+	check(c().inventory.furnace != null and str(c().inventory.furnace.id) == "bronze_furnace", "Mei Qing's bronze furnace sits in the furnace slot")
 	if c().inventory.count("willow_moss") < 10:
 		travel("lf_reed_shallows")
 		gather("willow_moss", 10 - c().inventory.count("willow_moss"), 60)
@@ -1312,6 +1313,13 @@ func sec_sa1() -> void:
 	check(c().inventory.count_including_equipped("sleeping_blade") >= 1, "the Sleeping Blade is in the bag")
 	bind_the_blade()
 	check(finish("the_sleeping_blade"), "The Sleeping Blade done")
+	# S44: the Abbot's sealed vault answers a Spirit Awakening 3 soul; the Nine-Dragon Cauldron is inside.
+	check(travel("ds_abbots_sanctum"), "back at the Abbot's vault")
+	check(interact("vault").get("ok", false), "open the sealed vault")
+	for l in Game.room_rt.loot.duplicate(): submit({"type": "pick_up", "uid": int(l.uid)})
+	check(c().inventory.count_including_equipped("nine_dragon_cauldron") >= 1, "the Nine-Dragon Cauldron is in the vault")
+	var ndi: int = c().inventory.first_index("nine_dragon_cauldron")
+	if ndi >= 0: check(submit({"type": "equip", "index": ndi}).get("ok", false), "set the Nine-Dragon Cauldron in the furnace slot")
 	check(reach("spirit_awakening_4"), "Spirit Awakening 4")
 	check(start("quiet_waters"), "Quiet Waters accepted")
 	var ns := submit({"type": "enter_seclusion", "focus": "nourish_soul"})

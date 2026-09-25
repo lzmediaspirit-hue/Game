@@ -181,7 +181,8 @@ def build():
             ai="flyer_ranged", speed=70, flying=True, width=18, height=30),
         mob("weeping_lantern", (50, 55), "normal", "soul", "mist_peak", [d("lantern_wick", 0.4), d("soul_wax", 0.4)],
             [atk("flare", 0.7, 90, 1.0, damage_type="soul", depth=50, both_sides=True,
-                 status={"id": "confusion", "chance": 0.3, "power": 1, "duration_s": 2})], ai="flyer", speed=50, flying=True, width=18, height=44),
+                 status={"id": "confusion", "chance": 0.3, "power": 1, "duration_s": 2})], ai="flyer", speed=50, flying=True, width=18, height=44,
+            elite_first_defeat=["mist_lantern_flame"]),   # the valley's Heavenly Flame (Part 8): the monastery's elite lantern carries it
         mob("jade_sentinel", (52, 56), "normal", "earth", "mist_peak", [d("jade_core", 0.08), d("formation_stone", 0.5)],
             [atk("halberd_sweep", 0.6, 90, 1.2, depth=36)], ai="slow_melee", speed=50, width=26, height=64, linked=True),
         mob("hollow_stag", (55, 59), "normal", "hollow_wood", "summit", [d("hollow_antler", 0.4), d("hollow_shard", 0.2)],
@@ -287,12 +288,12 @@ def build():
              atk("tongue_lash", 0.6, 240, 1.2, depth=40),
              atk("mirror_gaze", 1.2, 0, 0.0, summon="azure_carp_dragonet")],
             ai="boss_toad", width=80, height=100, respawn_min=45,
-            phases=[{"below": 0.5, "action": "summon"}]),
+            phases=[{"below": 0.5, "action": "summon"}], first_defeat=["cold_lamp_flame"]),
         mob("drowned_abbot", 27, "dungeon_boss", "water", None, [d("riverbreath_scroll", 1.0), d("drowned_robe", 1.0)],
             [atk("bell_shockwave", 0.7, 180, 1.2, depth=70, both_sides=True, knockback=80),
              atk("summon_ghosts", 1.2, 0, 0.0, summon="paper_talisman_ghost")], ai="boss_abbot", art=human("drowned_abbot"),
             race="human", energy="primal_qi", width=22, height=96, weak_to="fire",
-            phases=[{"below": 0.66, "action": "flood"}, {"below": 0.33, "action": "summon"}], first_defeat=["cold_lamp_flame", "bronze_bell", "shattered_moon_blade"]),
+            phases=[{"below": 0.66, "action": "flood"}, {"below": 0.33, "action": "summon"}], first_defeat=["bronze_bell", "shattered_moon_blade"]),
         mob("the_reflection", 36, "story_boss", "none", None, [], [atk("mirror_strike", 0.45, 70, 1.0)], ai="reflection",
             art={"avatar": "player"}, race="human", energy="primal_qi", width=18, height=90),
         # Gap report G1: every 25 on the heart-demon meter brings one of these into the Trial of Reflections.
@@ -363,6 +364,11 @@ def build():
     # Gu's Warehouse vault (S47): the Little Pagoda he hoarded, and his silver.
     tables.append({"id": "gus_vault", "guaranteed": [{"item": "little_pagoda", "count": [1, 1], "chance": 1.0}],
                    "groups": [], "coins": {"chance": 1.0, "mult": 12}, "rare": [], "equipment": {}})
+    # The Drowned Abbot's sealed vault (SA3, S44): the Nine-Dragon Cauldron he kept, and a dungeon chest's worth besides.
+    tables.append({"id": "abbots_vault", "guaranteed": [{"item": "nine_dragon_cauldron", "count": [1, 1], "chance": 1.0},
+                                                        {"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
+                   "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "foundation_guard_pill", "weight": 1, "count": [1, 1]}]}],
+                   "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {}})
     tables.append({"id": "chest_dungeon", "guaranteed": [{"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "foundation_guard_pill", "weight": 1, "count": [1, 1]}]}],
                    "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {"chance": 0.6, "min_quality": "fine"}})

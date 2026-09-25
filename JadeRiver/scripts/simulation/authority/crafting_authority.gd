@@ -31,7 +31,7 @@ const GRADE_CAP := [["qi_kindling_1", "common"], ["qi_unfurling_1", "earth"], ["
 func intents() -> Array:
 	return ["complete_node", "catch_fish", "cook", "craft_step", "refine", "queue_auto_refine", "collect_auto_refine", "forge", "enhance", "salvage_item",
 		"salvage", "inherit_enhancement", "reroll_affixes", "choose_affixes", "lock_affix", "chart_route", "build_vessel", "absorb_flame",
-		"trace_talisman", "restore_relic"]
+		"trace_talisman", "restore_relic", "mend_furnace"]
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -57,6 +57,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"lock_affix": return lock_affix(c, int(intent.get("uid", -1)), int(intent.get("affix", -1)))
 		"trace_talisman": return trace_talisman(c, str(intent.get("recipe", "")), float(intent.get("score", 0.0)), bool(intent.get("broken", false)))
 		"restore_relic": return restore_relic(c, int(intent.get("index", -1)))
+		"mend_furnace": return mend_furnace(c, int(intent.get("uid", -1)))
 		"chart_route": return craft(c, str(intent.get("recipe", "")), 1, [], "star_charting")
 		"build_vessel": return craft(c, str(intent.get("recipe", "")), 1, [], "shipwright")
 	return fail("unknown_intent")
@@ -240,6 +241,7 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, 
 	var furnace := furnace_of(c) if craft_kind == "alchemy" else {}
 	if craft_kind == "alchemy":
 		# The furnace sets the batch (G1); the fire must be one you have here.
+		if furnace.get("cracked", false): return fail("cracked", {"text": Tx.t("sim.crafting.furnace_cracked") % ContentDB.item_name(str(furnace.id))})
 		if count > int(furnace.get("batch", 1)):
 			return fail("batch", {"text": Tx.t("sim.crafting.furnace_batch") % [ContentDB.item_name(str(furnace.get("id", ""))), int(furnace.get("batch", 1))]})
 		if not fire in fires_available(c): fire = "charcoal"
@@ -249,11 +251,7 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, 
 	var rng := Rng.stream(c.id, "crafting")
 	var quality := "common"
 	if craft_kind in ["alchemy", "smithing", "talisman"]:
-		var total := 0.0
-		for s in scores: total += clampf(float(s), 0.0, 1.0)
-		var avg := total / maxf(1.0, scores.size()) if not scores.is_empty() else 0.6
-		avg += c.stats.value("crafting_control") * 0.2 + 0.05 * int(c.cultivator.daos.get("alchemy" if craft_kind == "alchemy" else "refining", {}).get("tier", 0))
-		avg += float(furnace.get("filter", 0.0))   # a cleaner furnace keeps impurities out
+		var avg := quality_score(c, craft_kind, furnace, r, scores)
 		var roll := avg + rng.randf_range(-0.08, 0.08)
 		quality = "flawed" if roll < 0.35 else ("common" if roll < 0.6 else ("fine" if roll < 0.78 else ("superior" if roll < 0.9 else "perfect")))
 		if craft_kind == "alchemy" and quality == "perfect": quality = _rare_pill_quality(c, scores, rng, rare_allowed(furnace, fire))
@@ -292,21 +290,42 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, 
 	if quality in ["pill_halo", "pill_soul"]: emit("pill_cloud", {"actor": c.id, "recipe": recipe_id, "quality": quality})
 	return ok({"quality": quality, "count": produced, "marks": marks, "fire": fire})
 
+## The quality score a craft rolls around: the strikes, the crafter, and the furnace (S44). The furnace's impurity
+## filter takes out that share of what each strike missed; a furnace of the pill's own element adds 5%.
+func quality_score(c, craft_kind: String, furnace: Dictionary, r: Dictionary, scores: Array) -> float:
+	var filt := float(furnace.get("filter", 0.0))
+	var total := 0.0
+	for s in scores:
+		var sc := clampf(float(s), 0.0, 1.0)
+		total += sc + (1.0 - sc) * filt
+	var avg := total / maxf(1.0, scores.size()) if not scores.is_empty() else 0.6 + 0.4 * filt
+	avg += c.stats.value("crafting_control") * 0.2 + 0.05 * int(c.cultivator.daos.get("alchemy" if craft_kind == "alchemy" else "refining", {}).get("tier", 0))
+	if str(furnace.get("element", "")) != "" and str(furnace.get("element", "")) == str(r.get("element", "")):
+		avg += float(upkeep("furnace_affinity", 0.05))
+	return avg
+
 # ------------------------------------------------------------------ furnaces and fire (gap report G1)
-## The best furnace carried (batch first, then band): {id, band, batch, filter, yield, named}.
+## The furnace in the furnace slot (S44): {id, uid, band, batch, filter, yield, named, element, durability}.
+## Enhancement steadies its heat, +1% band a level. A cracked furnace (durability 0) refines nothing until mended;
+## without one you refine a single pill at a time.
 func furnace_of(c) -> Dictionary:
-	var best := {"id": "", "band": 0.0, "batch": 1, "filter": 0.0, "yield": 0.0}
-	var ids: Array = []
-	for s in c.inventory.bag:
-		if s != null: ids.append(str(s.id))
-	for k in c.inventory.key_items: ids.append(str(k.id))
-	for id in ids:
-		var f: Dictionary = ContentDB.item(id).get("furnace", {})
-		if f.is_empty(): continue
-		if int(f.get("batch", 1)) > int(best.batch) or (int(f.get("batch", 1)) == int(best.batch) and float(f.get("band", 0)) > float(best.band)):
-			best = f.duplicate()
-			best.id = id
-	return best
+	var none := {"id": "", "uid": -1, "band": 0.0, "batch": 1, "filter": 0.0, "yield": 0.0, "element": "", "durability": 0}
+	var inst = c.inventory.furnace
+	if inst == null: return none
+	var f: Dictionary = ContentDB.item(str(inst.id)).get("furnace", {})
+	if f.is_empty(): return none
+	var out := f.duplicate()
+	out.id = str(inst.id)
+	out.uid = int(inst.get("uid", -1))
+	out.durability = int(inst.get("durability", 100))
+	out.band = float(f.get("band", 0.0)) + float(upkeep("furnace_band_per_level", 0.01)) * int(inst.get("enhance", 0))
+	out.element = str(f.get("element", ""))
+	if int(out.durability) <= 0:
+		none.id = str(inst.id)
+		none.uid = out.uid
+		none.cracked = true
+		return none
+	return out
 
 ## Fires this character can light here: charcoal always; Earth Fire at a vent; Beast Fire with a core to burn;
 ## a Heavenly Flame once one is absorbed.
@@ -327,10 +346,18 @@ func rare_allowed(furnace: Dictionary, fire: String) -> Array:
 	if furnace.get("named", false): return ["pill_grain", "pill_halo", "pill_soul"]
 	return ContentDB.config("grades").get("pill", {}).get("fires", {}).get(fire, {}).get("rare", [])
 
+## The weakest beast core of rank 2 or more in the bag, to burn as Beast Fire (S44); a rank-1 core is too weak.
 func _core_to_burn(c) -> String:
+	var best := ""
+	var best_rank := 99
 	for s in c.inventory.bag:
-		if s != null and ContentDB.item(str(s.id)).has("core"): return str(s.id)
-	return ""
+		if s == null: continue
+		var core: Dictionary = ContentDB.item(str(s.id)).get("core", {})
+		var rank := int(core.get("rank", 1)) if not core.is_empty() else 0
+		if rank >= int(upkeep("beast_fire_min_rank", 2)) and rank < best_rank:
+			best = str(s.id)
+			best_rank = rank
+	return best
 
 func _roll_marks(quality: String, rng: RandomNumberGenerator) -> int:
 	var r: Array = ContentDB.config("grades").get("pill", {}).get("marks", {}).get("ranges", {}).get(quality, [0, 0])
@@ -466,6 +493,7 @@ func locate(c, uid: int) -> Dictionary:
 	for sl in c.inventory.equipped:
 		var e = c.inventory.equipped[sl]
 		if e != null and int(e.get("uid", -2)) == uid: return {"inst": e, "slot": str(sl), "index": -1}
+	if c.inventory.furnace != null and int(c.inventory.furnace.get("uid", -2)) == uid: return {"inst": c.inventory.furnace, "slot": "tool_furnace", "index": -1}
 	var i: int = c.inventory.find_uid(uid)
 	if i >= 0 and c.inventory.bag[i] != null: return {"inst": c.inventory.bag[i], "slot": "", "index": i}
 	return {}
@@ -575,6 +603,7 @@ func salvage_preview(c, uids: Array) -> Dictionary:
 		if i < 0 or c.inventory.bag[i] == null: continue
 		var inst: Dictionary = c.inventory.bag[i]
 		if not ContentDB.is_equipment(str(inst.id)) or inst.get("bound", false) or c.inventory.locked.has(int(inst.get("uid", -1))): continue
+		if not ContentDB.item(str(inst.id)).get("sell", true): continue   # a named piece (the Nine-Dragon Cauldron) is never broken up
 		items.append(int(inst.uid))
 		for r in grade_row(str(inst.id)).get("returns", []):
 			returns[str(r.item)] = int(returns.get(str(r.item), 0)) + int(r.count)
@@ -694,6 +723,26 @@ func restore_relic(c, index: int) -> Dictionary:
 	emit("relic_restored", {"actor": c.id, "item": target, "from": shard})
 	emit("system_used", {"actor": c.id, "system": "restore_relic"})
 	return ok({"item": target})
+
+## Mend a furnace at the forge (S44): a blast costs it 10 durability, and at 0 it is cracked. Mending takes its grade's
+## metal, two for each 10 durability lost, and brings it back to 100.
+func mend_cost(inst: Dictionary) -> Dictionary:
+	var lost := 100 - int(inst.get("durability", 100))
+	return {"metal": str(grade_row(str(inst.id)).get("metal", "copper_ore")), "count": maxi(1, int(ceil(lost / 10.0)) * 2), "lost": lost}
+
+func mend_furnace(c, uid: int) -> Dictionary:
+	var at := locate(c, uid)
+	if at.is_empty() and c.inventory.furnace != null: at = {"inst": c.inventory.furnace, "slot": "tool_furnace", "index": -1}
+	if at.is_empty() or str(ContentDB.item(str(at.inst.id)).get("slot", "")) != "tool_furnace": return fail("not_a_furnace")
+	var cost := mend_cost(at.inst)
+	if int(cost.lost) <= 0: return fail("whole", {"text": Tx.t("sim.crafting.furnace_whole")})
+	if not station_near(c, ["forge_anvil"]): return fail("no_station", {"text": Tx.t("sim.crafting.you_need_a") % "forge"})
+	if c.inventory.count(str(cost.metal)) < int(cost.count):
+		return fail("materials", {"text": Tx.t("sim.crafting.needs_2") % [int(cost.count), ContentDB.item_name(str(cost.metal))]})
+	game.inventory.apply_remove(c.id, str(cost.metal), int(cost.count), "mend_furnace")
+	game.inventory.apply_durability(c.id, at.inst, 100, str(at.slot))
+	emit("system_used", {"actor": c.id, "system": "mend_furnace"})
+	return ok({"item": str(at.inst.id)})
 
 func tick(_delta: float) -> void:
 	pass

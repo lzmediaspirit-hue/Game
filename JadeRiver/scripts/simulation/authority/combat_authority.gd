@@ -1064,7 +1064,7 @@ func self_detonate(c, index: int, confirm: bool) -> Dictionary:
 	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
 	var inst: Dictionary = c.inventory.bag[index]
 	var def := ContentDB.item(str(inst.id))
-	if not (ContentDB.is_equipment(str(inst.id)) or def.has("treasure")): return fail("not_artifact", {"text": Tx.t("sim.combat.detonate_what")})
+	if not (ContentDB.is_equipment(str(inst.id)) or def.has("treasure")) or str(def.get("slot", "")) == "tool_furnace": return fail("not_artifact", {"text": Tx.t("sim.combat.detonate_what")})
 	if c.inventory.locked.has(int(inst.get("uid", -1))): return fail("locked_item", {"text": Tx.t("ui.forge.locked_item")})
 	var reason := can_act(c)
 	if reason != "": return fail(reason)

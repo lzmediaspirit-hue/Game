@@ -195,8 +195,15 @@ static func draw_nameplate(ci: CanvasItem, name_text: String, sub: String, y: fl
 		draw_text(ci, sub, Vector2(-w * 0.5 - 20, y + sub_size * WORD_SCALE + 2), sub_size, sub_color, HORIZONTAL_ALIGNMENT_CENTER, w + 40, true)
 	return rect
 
+static var _widths: Dictionary = {}   # measured widths, so labels drawn every frame are measured once
+
 static func text_width(text: String, size: int, display := false) -> float:
-	return font_for(text, display).get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size_for(text, size, display)).x
+	var key := "%d|%s|%s" % [size, "d" if display else "b", text]
+	if _widths.has(key): return float(_widths[key])
+	if _widths.size() > 4000: _widths.clear()
+	var w: float = font_for(text, display).get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size_for(text, size, display)).x
+	_widths[key] = w
+	return w
 
 static func quality_color(q: String) -> Color:
 	return Color(str(ContentDB.config("grades").get("quality_colors", {}).get(q, "#e8e1cf")))

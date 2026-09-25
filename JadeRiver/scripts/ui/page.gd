@@ -163,7 +163,7 @@ func btn(rect: Rect2, label: String, id: String, data = null, primary := false, 
 	if not enabled: col = UiKit.HOLLOW
 	# A long label steps its size down to sit inside the button (and clear the lock icon) rather than touch the frame.
 	var room := rect.size.x - (44.0 if not enabled and reason != "" else 20.0)
-	if label.length() * size * 0.38 > room:   # only a label that could overflow is measured
+	if label.length() * size * 0.6 > room:   # only a label that could overflow is measured
 		while size > 13 and UiKit.text_width(label, size) > room: size -= 1
 	UiKit.draw_text(self, label, rect.position + off + Vector2(0, rect.size.y * 0.5 + size * 0.35), size, col, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
 	if not enabled and reason != "": _lock_icon(rect.position + Vector2(rect.size.x - 20, 6))

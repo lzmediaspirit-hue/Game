@@ -170,7 +170,7 @@
     2400,
     700
    ],
-   "loot": "chest_dungeon",
+   "loot": "abbots_vault",
    "level": 27,
    "requires": {
     "all": [

@@ -6215,9 +6215,9 @@
      "recipe": "sage_condensing_pill"
     },
     {
-     "kind": "grant_item",
-     "item": "nine_dragon_cauldron",
-     "count": 1
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 40
     }
    ],
    "offer_text": [
@@ -6226,7 +6226,7 @@
    ],
    "complete_text": [
     "There. Swallow it here, where the Qi is thick. Not in a field with a rhino watching.",
-    "And take my old cauldron. Nine dragons, and every one of them drinks heat. My hands shake too much for it now."
+    "And a word from an old woman: the Drowned Abbot sealed a nine-dragon cauldron in his vault. If you never went back for it, go."
    ],
    "requires": {
     "all": [

@@ -5,6 +5,47 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V4a · Furnaces, Beast Fire rank and the valley's Heavenly Flame (S44, Part 8)
+- **Furnaces are equipment.** Each furnace is an item instance worn in the new furnace slot, apart from the eight
+  worn slots. The first one you get goes straight into the slot. Choose another from the bag with *Use this
+  furnace*.
+
+  | Furnace | Grade | Batch | Heat | Filter | Extra pill | Source |
+  |---|---|---|---|---|---|---|
+  | Bronze Furnace | Plain | 3 | +0 % | 0 % | 0 % | Mei Qing |
+  | Jadeiron Furnace | Earth | 5 | +5 % | 10 % | 5 % | Forge: Jadeiron ×8, Riverstone ×6, crab shell ×4 (Adept) |
+  | Cloudsteel Furnace | Heaven | 8 | +8 % | 20 % | 10 % | Forge: Cloudsteel ×8, cloud feather ×4, serpent scale ×4 (Expert) |
+  | Mistjade Furnace | Mystic | 10 | +10 % | 30 % | 15 % | Forge: Mystic ore ×6, roc feather ×4, vulture plume ×4 (Master) |
+  | Nine-Dragon Cauldron | Heaven | 8 | +12 % | 20 % | 10 % | The Drowned Abbot's sealed vault (Spirit Awakening 3) |
+
+- **What a furnace does.**
+  - Enhancing a furnace at the forge steadies its heat, +1 % a level.
+  - The impurity filter takes out its share of what each strike missed.
+  - A furnace of the pill's own element adds 5 % to the quality roll. The Nine-Dragon Cauldron is Water, and every
+    alchemy recipe now has an element.
+  - Only the Nine-Dragon Cauldron reaches Grain, Halo and Soul on any fire.
+- **Durability.**
+  - A furnace has durability. At 0 it is cracked and refines nothing.
+  - Mend it in the forge's Enhance mode, for its grade's metal: two for each 10 durability lost.
+- **Old saves.** Furnaces in the key-item pouch become furnace instances, and the best one goes into the slot.
+  The Earth-Vein Furnace, Cloud-Pattern Furnace and Mystic Tripod become the Jadeiron, Cloudsteel and Mistjade
+  Furnaces.
+- **Beast Fire** burns a beast core of rank 2 or more:
+  - rank 2: Serpent Core and Guardian Stone;
+  - rank 3: Jade Core;
+  - a Pebble Core is rank 1, too weak.
+- **Heavenly Flames.**
+  - The valley's flame is now the **Mist Lantern Flame**, carried by the elite Weeping Lantern of the Forgotten
+    Monastery and dropped the first time you defeat it.
+  - The Cold Lamp Flame moves to the Thousand-Eye Toad under Mirrorwater Lake.
+  - Alchemist Fen no longer hands over the Nine-Dragon Cauldron. She points you to the Abbot's vault instead.
+- **Pages open faster.** Page scripts load in the background from the title screen, so the first time a page opens
+  it no longer stalls (the slowest page went from about 130 ms to about 35 ms).
+- **Tests.**
+  - The furnace slot, swapping furnaces, batch refusal, enhancement heat, the filter and affinity arithmetic,
+    cracked furnaces and their mend cost, Beast Fire rank, old-save migration and the flame source.
+  - The valley run opens the vault at Spirit Awakening 3 and sets the Nine-Dragon Cauldron.
+
 ### V3c · Talisman craft and Shattered Relics (S47)
 - **Talisman craft** (Qi Kindling 6). Old Scribe Bai in Artisan Row teaches it through the guided quest
   *Ink and Paper*. He opens the Talismans page, a tab of the crafting table.

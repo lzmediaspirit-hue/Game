@@ -214,12 +214,17 @@
   {
    "id": "furnaces_and_fire",
    "title": "Furnace and fire",
-   "body": "A furnace sets the batch and how steady the heat is; better ones are cast around the last at a forge. Charcoal takes a pill as far as Perfect. Earth Fire at a vent, or a beast core burnt as Beast Fire, can reach Pill Grain. Only a Heavenly Flame, or a named furnace, reaches Halo and Soul."
+   "body": "The furnace you set in the furnace slot decides the batch, how steady the heat is, how many impurities it strains out, and sometimes one pill more. Better ones are forged at the forge, and enhancing one steadies its heat. Charcoal takes a pill as far as Perfect. Earth Fire at a vent, or a beast core of rank 2 or more burnt as Beast Fire, can reach Pill Grain. Only a Heavenly Flame, or the Nine-Dragon Cauldron, reaches Halo and Soul."
+  },
+  {
+   "id": "mist_lantern_flame",
+   "title": "Heavenly Flame: Mist Lantern",
+   "body": "The valley's own Heavenly Flame. It drifted in a Weeping Lantern above the Forgotten Monastery for a hundred years. Absorbed, it widens every strike band a fifth."
   },
   {
    "id": "cold_lamp_flame",
    "title": "Heavenly Flame: Cold Lamp",
-   "body": "Blue and quiet, it burned under the Drowned Shrine for two hundred years. Absorbed, it widens every strike band a fifth."
+   "body": "Blue and quiet, it burned in the belly of the Thousand-Eye Toad under Mirrorwater Lake, long after the lamp it came from was gone."
   },
   {
    "id": "sunscar_throne_ember",
