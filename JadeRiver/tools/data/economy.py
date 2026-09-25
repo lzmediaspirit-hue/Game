@@ -180,6 +180,11 @@ def shops():
                    s("beast_essence_blood", price=25, requires=all_of({"kind": "alignment_at_most", "value": -20}))],
          "rotation": {"count": 2, "pool": [s("sage_condensing_pill", price=80), s("mirror_eye", price=70), s("jade_core", price=18),
                                            s("sentinel_core", price=30), s("frost_lotus", price=9)]}},
+        # Part 8 (S49 karma): the Caravan Road's night peddler. +5 sin a purchase (karma.json "night_peddler").
+        {"id": "night_peddler", "name": "Peddler Shao's Mat", "currency": "silver_tael", "black_market": True,
+         "requires": {"all": [{"kind": "time_of_day", "phases": ["night"]}]},
+         "stock": [s("manual_page", price=45), s("torn_manual", price=160), s("iron_needles", price=24), s("viper_smoke_pill", price=35),
+                   s("bonding_offering_common", price=60), s("spirit_egg", price=900, requires=all_of(realm("qi_unfurling_1")))]},
         {"id": "ironroot_clan", "name": "Ironroot Clan Forge", "currency": "spirit_stone", "buys_all": True,
          "discount": {"flag": "clan_ironroot", "pct": 0.15},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_staff"), s("stormsilk_robe"),

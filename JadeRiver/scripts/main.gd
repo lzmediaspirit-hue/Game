@@ -37,6 +37,7 @@ const PAGES := {
 	"beast_arena": "res://scripts/ui/pages/beast_arena_page.gd",
 	"relations": "res://scripts/ui/pages/relations_page.gd",
 	"gift": "res://scripts/ui/pages/gift_page.gd",
+	"mercy": "res://scripts/ui/pages/mercy_page.gd",
 	"companions": "res://scripts/ui/pages/companions_page.gd",
 	"crafts": "res://scripts/ui/pages/crafts_page.gd",
 	"cooking": "res://scripts/ui/pages/crafts_page.gd",
@@ -206,6 +207,10 @@ func _handle_preview_args(user_args: Array) -> void:
 			# Debug tools (S38): --hearts=npc:n sets that person's hearts (S49 affinity previews).
 			var hp := str(a).trim_prefix("--hearts=").split(":")
 			Game.relations.apply_affinity(Game.active().id, hp[0], int(hp[1]) * 100 - Game.relations.points(Game.active(), hp[0]) if hp.size() > 1 else 100, "debug")
+		if str(a).begins_with("--grudge=") and Game.active() != null:
+			# Debug tools (S38): --grudge=faction:n sets a faction's grudge (S49 previews).
+			var gp := str(a).trim_prefix("--grudge=").split(":")
+			Game.relations.apply_grudge(Game.active().id, gp[0], int(gp[1]) - Game.relations.grudge(Game.active(), gp[0]) if gp.size() > 1 else 30, "debug")
 		if str(a) == "--challenge" and Game.active() != null:
 			# Debug tools (S38): a young master's challenge waits in this room (S49 Fame previews).
 			Game.relations.offer_challenge(Game.active(), "young_master")

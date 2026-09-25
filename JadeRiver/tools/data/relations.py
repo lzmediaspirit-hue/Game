@@ -70,6 +70,12 @@ def deeds():
         deed("young_master_humbled", "Humbled a young master", fame=15, **on("spar_ended", opponent="young_master", winner="player")),
         deed("young_master_lost", "Lost to a young master", fame=-10, **on("spar_ended", opponent="young_master", winner="opponent")),
         deed("challenge_declined", "Declined a young master's challenge", fame=-5),
+        # Part 8: mercy and its opposite, when a named foe throws down their weapon.
+        deed("spared_foe", "Spared a foe who yielded", merit=10, alignment=3),
+        deed("killed_yielded", "Killed a foe who had yielded", sin=15, alignment=-8),
+        deed("bounty_claimed", "Claimed a bounty", fame=10, alignment=1),
+        # Part 8: the night peddler on the Caravan Road (+5 sin a purchase).
+        deed("night_peddler", "Bought from the night peddler", sin=5, alignment=-1, per_count=True, **on("item_bought", shop="night_peddler")),
     ]
     return rows
 
@@ -131,8 +137,43 @@ def bonds():
     return rows
 
 
+# Grudges (S49 v1.0, Part 8): each faction keeps a grudge against you. Killing its named people raises it; past the
+# threshold its hunters come for you in the field. Blood money, a duel or a quest settles it. A town board posts
+# bounties on named targets (which are themselves named kills).
+FACTIONS = [
+    {"id": "mudwater", "name": "Mudwater Bandits", "threshold": 30, "per_named": 15, "hunter": "mudwater_cutthroat",
+     "hunt_rooms": ["cr_caravan_road", "wp_west", "wp_east", "rm_marsh_edge"],
+     "blood_money": {"currency": "silver_tael", "amount": 200}, "duel": "tan_the_younger"},
+    {"id": "gorge", "name": "Gorge Bandits", "threshold": 30, "per_named": 15, "hunter": "gorge_stalker",
+     "hunt_rooms": ["wg_gorge_mouth", "wg_echo_cliffs", "wg_rapids_terraces"],
+     "blood_money": {"currency": "silver_tael", "amount": 400}, "quest": "old_scores"},
+    # Elder Gu's ring: story-bound. The cargo you turn up raises it; breaking the warehouse ends it for good.
+    {"id": "smugglers", "name": "Stoneford Smugglers", "threshold": 50, "per_named": 15, "hunter": "gu_enforcer",
+     "hunt_rooms": ["dw_bend_shore", "cr_caravan_road", "lf_reed_shallows"],
+     "story": {"raise": {"gus_cargo": 20, "hidden_cargo": 20}, "clear": "gus_warehouse"}},
+]
+BOUNTIES = [
+    {"id": "one_eye_pang", "target": "one_eye_pang", "room": "cr_caravan_road", "faction": "mudwater",
+     "reward": {"currency": "silver_tael", "amount": 150}, "realm": "qi_kindling_7",
+     "text": "One-Eye Pang robs the carts on the Caravan Road. Stoneford pays for his head."},
+    {"id": "ferryman_lou", "target": "ferryman_lou", "room": "dw_bend_shore", "faction": "smugglers",
+     "reward": {"currency": "silver_tael", "amount": 260}, "realm": "qi_unfurling_1",
+     "text": "Ferryman Lou runs Gu's goods past the Bend at dusk. The magistrate wants him stopped."},
+    {"id": "knife_hand_sui", "target": "knife_hand_sui", "room": "wg_echo_cliffs", "faction": "gorge",
+     "reward": {"currency": "silver_tael", "amount": 420}, "realm": "qi_unfurling_6",
+     "text": "Knife-Hand Sui leads the Gorge Bandits' raids from the Echo Cliffs. Bring him down."},
+]
+# Hunters wait for you at most this often, and not every time.
+HUNT = {"chance": 0.35, "cooldown_s": 1800}
+
+
+def factions():
+    entries("factions", FACTIONS, bounties=BOUNTIES, hunt=HUNT, max_bounties=2)
+
+
 def build():
     bonds()
+    factions()
     entries("karma", deeds(),
             # 100 merit eases one major breakthrough by a risk step, once in each great realm.
             merit_step=100,
@@ -150,7 +191,12 @@ def build():
                              {"id": "righteous", "name": "Righteous", "max": 100}],
             # From Rising Fame a young master may be waiting when you walk into a town (once a day): accept and
             # spar at your level, or decline and lose a little face.
-            young_master={"fame": 150, "chance": 0.25, "enemy": "young_master", "decline_deed": "challenge_declined"})
+            young_master={"fame": 150, "chance": 0.25, "enemy": "young_master", "decline_deed": "challenge_declined"},
+            # Part 8 named debts: when each falls due and what comes of it (a letter, a flag, a hunter).
+            debts={"dou_rescue": {"due_quest": "the_heart_trial", "mail": "dou_repays", "attachments": [{"item": "cloudtop_orchid", "count": 1}]},
+                   "lieutenant_spared": {"due_quest": "hidden_cargo", "mail": "lieutenant_warning", "flag": "warned_of_ambush",
+                                         "attachments": [{"item": "thunderclap_pellet", "count": 3}]},
+                   "lieutenant_killed": {"due_h": 0.25, "mail": "kuai_threat", "hunter": {"enemy": "kuai_shan", "room": "cr_caravan_road"}}})
 
 
 if __name__ == "__main__":

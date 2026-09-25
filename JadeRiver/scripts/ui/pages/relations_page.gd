@@ -169,16 +169,34 @@ func _grudges(ch) -> void:
 	var x := box.position.x + 28
 	heading(Vector2(x, box.position.y + 40), Tx.t("ui.relations.grudges"), box.size.x - 56)
 	var rows: Array = []
-	for f in r.grudges:
-		if int(r.grudges[f]) > 0: rows.append(f)
+	for f in ContentDB.all("factions"):
+		if int(r.grudges.get(str(f.id), 0)) > 0: rows.append(f)
 	if rows.is_empty():
 		para(Rect2(x, box.position.y + 64, box.size.x - 56, 60), Tx.t("ui.relations.no_grudges"), 19, UiKit.MIST, 2)
 	else:
-		list("grudges", Rect2(x, box.position.y + 64, box.size.x - 48, box.size.y - 170), rows.size(), 56, func(i: int, rr: Rect2):
-			var f := str(rows[i])
-			panel(rr, "minor_panel")
-			text(rr.position + Vector2(16, 34), fit(ContentDB.name_of("factions", f), 19, 360), 19, UiKit.PAPER)
-			bar(Rect2(rr.position.x + 400, rr.position.y + 12, rr.size.x - 420, 28), float(r.grudges[f]) / 100.0, SIN, str(int(r.grudges[f])))
+		list("grudges", Rect2(x, box.position.y + 60, box.size.x - 48, box.size.y - 160), rows.size(), 96, func(i: int, rr: Rect2):
+			var f: Dictionary = rows[i]
+			var v := int(r.grudges.get(str(f.id), 0))
+			var th := int(f.get("threshold", 30))
+			panel(rr, "minor_panel", "selected" if v >= th else "normal")
+			text(rr.position + Vector2(16, 32), fit(str(f.name), 20, 300), 20, UiKit.PAPER)
+			text(rr.position + Vector2(16, 60), Tx.t("ui.relations.hunted") if v >= th else Tx.t("ui.relations.grudge_below") % th, 15,
+				SIN if v >= th else UiKit.MIST)
+			var bar_r := Rect2(rr.position.x + 330, rr.position.y + 16, rr.size.x - 330 - 470, 26)
+			bar(bar_r, v / 100.0, SIN, str(v))
+			var tx: float = bar_r.position.x + 6 + (bar_r.size.x - 12) * th / 100.0
+			draw_line(Vector2(tx, bar_r.position.y - 3), Vector2(tx, bar_r.end.y + 3), UiKit.PALE_GOLD, 2)
+			var bx := rr.end.x - 454
+			var bm: Dictionary = f.get("blood_money", {})
+			if not bm.is_empty():
+				btn(Rect2(bx, rr.position.y + 18, 216, 56), Tx.t("ui.relations.pay") % int(bm.amount), "pay", [str(f.id), "blood_money"], false,
+					Game.economy.balance(str(bm.currency), ch) >= int(bm.amount), Tx.t("sim.relations.cannot_pay") % int(bm.amount), 17)
+			if str(f.get("duel", "")) != "":
+				btn(Rect2(bx + 226, rr.position.y + 18, 216, 56), Tx.t("ui.relations.duel") % ContentDB.name_of("enemies", str(f.duel)), "pay", [str(f.id), "duel"], true, true, "", 16)
+			elif str(f.get("quest", "")) != "":
+				para(Rect2(bx + 230, rr.position.y + 16, 212, 64), Tx.t("ui.relations.settle_quest") % ContentDB.name_of("quests", str(f.quest)), 15, UiKit.PALE_GOLD, 3)
+			elif not f.get("story", {}).is_empty():
+				para(Rect2(bx + 230, rr.position.y + 16, 212, 64), Tx.t("ui.relations.settle_story"), 15, UiKit.MIST, 3)
 		)
 	para(Rect2(x, box.end.y - 96, box.size.x - 56, 80), Tx.t("ui.relations.grudges_note"), 16, UiKit.MIST, 3)
 
@@ -242,6 +260,11 @@ func _fame_of(deed: String) -> int:
 
 func on_action(id: String, data) -> void:
 	match id:
+		"pay":
+			var res := submit({"type": "pay_grudge", "faction": str(data[0]), "method": str(data[1])})
+			if res.get("ok", false) and str(data[1]) == "duel":
+				close()
+				return
 		"answer":
 			var res := submit({"type": "answer_challenge", "accept": bool(data)})
 			if res.get("ok", false) and bool(data):

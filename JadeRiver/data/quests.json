@@ -5002,6 +5002,45 @@
    "target_room": "wg_gorge_mouth"
   },
   {
+   "id": "old_scores",
+   "name": "Old Scores",
+   "kind": "side",
+   "giver": "hamlet_trader_min",
+   "hand_in": "hamlet_trader_min",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "win_spar",
+     "text": "Settle it hand to hand with Chief Yan Bo at the Gorge Mouth",
+     "count": 1,
+     "opponent": "gorge_chief"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 300
+    }
+   ],
+   "offer_text": [
+    "The Gorge Bandits and Greyreed have old scores. Their chief says he'll call it even if someone beats him fairly. No knives, no crowd.",
+    "He waits at the Gorge Mouth. Win, and the feud is over. For Greyreed, and for you."
+   ],
+   "complete_text": [
+    "Yan Bo sent word: the Gorge is quiet for Greyreed. And for you. I didn't think I'd live to see it."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "mins_first_caravan"
+     }
+    ]
+   },
+   "target_room": "wg_gorge_mouth"
+  },
+  {
    "id": "wen_zhaos_challenge",
    "name": "Wen Zhao's Challenge",
    "kind": "side",

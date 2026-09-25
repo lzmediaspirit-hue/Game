@@ -351,6 +351,9 @@ func use_context() -> void:
 	if context.has("portal"):
 		world.request_portal(str(context.portal))
 		return
+	if str(context.get("type", "")) == "mercy":
+		open_page.emit("mercy", {"enemy": int(context.enemy), "def": str(context.def)})
+		return
 	_after_interact(Game.submit({"type": "interact", "object": str(context.get("object", ""))}), str(context.get("object", "")))
 
 ## S45: "Pick it" at a rare herb (from the Pick / Dig it up choice) starts the ordinary hold and tap.
@@ -631,6 +634,21 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if p.get("heart_up", false): toast(Tx.t("hud.heart_up") % [ContentDB.name_of("npcs", str(p.npc)), int(p.hearts)], "gold")
 		"bond_formed":
 			toast(Tx.t("hud.bond_" + str(p.kind)) % ContentDB.name_of("npcs", str(p.npc)), "unlock")
+		"grudge_changed":
+			var fname := ContentDB.name_of("factions", str(p.faction))
+			if p.get("hunted", false) and int(p.get("delta", 0)) > 0: toast(Tx.t("hud.grudge_hunted") % fname, "danger")
+			elif int(p.get("value", 0)) == 0: add_log(Tx.t("hud.grudge_settled") % fname, UiKit.BRIGHT_JADE)
+			elif int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.grudge_rises") % fname, Color("e07a7a"))
+		"hunter_dispatched":
+			toast(Tx.t("hud.hunter_found_you") % ContentDB.name_of("enemies", str(p.enemy)), "danger")
+		"bounty_taken":
+			add_log(Tx.t("hud.bounty_taken") % [ContentDB.name_of("enemies", str(p.bounty)), ContentDB.name_of("rooms", str(p.room))], UiKit.PALE_GOLD)
+		"bounty_claimed":
+			toast(Tx.t("hud.bounty_claimed") % [ContentDB.name_of("enemies", str(p.bounty)), int(p.reward)], "gold")
+		"foe_surrendered":
+			if str(p.get("actor", "")) == Game.active_id: open_page.emit("mercy", {"enemy": int(p.enemy), "def": str(p.def)})
+		"foe_judged":
+			add_log(Tx.t("hud.foe_spared") % ContentDB.name_of("enemies", str(p.def)) if p.get("spared", false) else Tx.t("hud.foe_killed") % ContentDB.name_of("enemies", str(p.def)), UiKit.MIST)
 		"young_master_challenge":
 			if str(p.get("actor", "")) == Game.active_id:
 				toast(Tx.t("hud.young_master"), "quest")
@@ -1226,7 +1244,7 @@ func _draw_controls(c) -> void:
 	if not context.is_empty() and (not _enemy_close() or not Unlocks.is_unlocked(c.id, "attack")):
 		ctx_glyph = {"npc": "talk", "herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish", "chest": "open", "storage_chest": "open",
 			"portal": "enter", "climbable": "enter", "cooking_pot": "cook", "alchemy_furnace": "alchemy", "earth_vent": "alchemy", "forge_anvil": "forge", "star_sight": "gather",
-			"chart_table": "forge", "shipyard_slip": "forge", "starsea_dock": "enter"}.get(str(context.get("type", "")), "open")
+			"chart_table": "forge", "shipyard_slip": "forge", "starsea_dock": "enter", "mercy": "talk"}.get(str(context.get("type", "")), "open")
 	if shown("attack") or ctx_glyph != "":
 		ring(attack_center, 66, Game.combat.is_busy(c.id) or channel.object != "", 1.0, pulses.has("hud:attack"))
 		if ctx_glyph != "":

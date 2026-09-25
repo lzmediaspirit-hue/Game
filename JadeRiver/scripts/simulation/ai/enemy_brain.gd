@@ -39,6 +39,11 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 	if not e.hop.is_empty():
 		_hop(auth, e, delta)   # a jump, drop or climb finishes before anything else
 		return
+	# S49: a named foe who has yielded kneels and waits for the victor's judgement.
+	if ai.get("surrendered", false):
+		e.velocity = Vector2.ZERO
+		e.action = "idle"
+		return
 	if e.pools.blocked("move") and ai.state not in ["dead"]:
 		e.velocity = Vector2.ZERO
 		if ai.state in ["windup", "attack"]:

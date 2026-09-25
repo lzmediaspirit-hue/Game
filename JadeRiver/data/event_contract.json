@@ -1508,6 +1508,42 @@
    "files": [
     "relations_authority"
    ]
+  },
+  "grudge_changed": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
+  },
+  "hunter_dispatched": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
+  },
+  "bounty_taken": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
+  },
+  "bounty_claimed": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
+  },
+  "foe_surrendered": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
+  },
+  "foe_judged": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
   }
  }
 }

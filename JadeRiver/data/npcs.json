@@ -1202,6 +1202,34 @@
    ]
   },
   {
+   "id": "peddler_shao",
+   "name": "Peddler Shao",
+   "title": "Sells after dark",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 4,
+    "shirt": "cardigan",
+    "pants": "loose",
+    "shoes": "folded",
+    "hat": "weimao",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "ink",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "Don't ask where it came from. Ask what it costs.",
+    "The road's quiet at night. Good for business. Bad for questions."
+   ],
+   "barks": [
+    "Psst."
+   ],
+   "services": [
+    "shop:night_peddler"
+   ]
+  },
+  {
    "id": "hermit_yao",
    "name": "Hermit Yao",
    "title": "Marsh hermit",

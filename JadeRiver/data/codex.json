@@ -267,6 +267,11 @@
    "body": "People remember kindness. Each quest done for someone, and one gift a day, brings you closer: up to five hearts. What a person loves is worth a heart at once. Hearts teach recipes and give keepsakes, shopkeepers take a little off at three and five, and companions spar with you at three. At four hearts a companion can be sworn as a sibling (three at most); at five, one can become your Dao Companion, who steadies your breakthroughs, shares your insight and meditates with you. The elder who takes you as a personal disciple is your master."
   },
   {
+   "id": "grudges",
+   "title": "Grudges and bounties",
+   "body": "Kill a faction's named people and it remembers. Once the grudge passes its threshold, its hunters wait for you on the roads they know, at your own strength. Blood money settles it, or a duel with their champion, or doing right by the people they wronged. Elder Gu's smugglers are different: their grudge ends only when his ring does. The town boards post bounties on named targets, two at a time; a named foe who yields can be spared or finished, and either choice is remembered."
+  },
+  {
    "id": "fame",
    "title": "Fame",
    "body": "Your own name, apart from any sect's standing: Unknown, Noted, Rising, Renowned, Legendary. Tournaments, great foes and the Beast Tide raise it. People talk, and losing a spar where the town can see costs you. From Rising, young masters of good families come looking to test you. Accept and win, and your name grows; decline, and it shrinks a little."

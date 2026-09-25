@@ -1539,6 +1539,7 @@
    "height": 90,
    "coin_mult": 2.0,
    "equipment_chance": 0.05,
+   "faction": "mudwater",
    "movement": {
     "jump": 530,
     "climb": true,
@@ -1709,6 +1710,7 @@
    "height": 90,
    "keep_distance": 260,
    "equipment_chance": 0.05,
+   "faction": "mudwater",
    "movement": {
     "jump": 530,
     "climb": true,
@@ -2328,6 +2330,7 @@
    "guards": true,
    "coin_mult": 2.0,
    "equipment_chance": 0.06,
+   "faction": "gorge",
    "movement": {
     "jump": 530,
     "climb": true,
@@ -5583,6 +5586,8 @@
     "item": "pet_book_frenzy",
     "chance": 0.35
    },
+   "faction": "mudwater",
+   "named": true,
    "movement": {
     "jump": 0,
     "climb": false,
@@ -6627,6 +6632,985 @@
    "half_width": 18,
    "height": 90,
    "spar": true,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "mudwater_lieutenant",
+   "name": "Lieutenant Kuai",
+   "level": [
+    19,
+    19
+   ],
+   "role": "elite",
+   "element": "none",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "slash",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       64
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.15
+    },
+    {
+     "id": "mud_cut",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       100
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.3,
+     "damage_type": "qi",
+     "knockback": 60
+    }
+   ],
+   "loot": "mudwater_lieutenant",
+   "drops": [
+    {
+     "item": "cloth",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "mudwater_manual",
+     "chance": 0.3,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "short_knot",
+     "hair_color": 5,
+     "shirt": "sleeveless",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "sword",
+     "hat": "headband",
+     "shirt_dye": "earth",
+     "pants_dye": "ink",
+     "name": "Lieutenant Kuai",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "faction": "mudwater",
+   "named": true,
+   "surrenders": true,
+   "spare_debt": "lieutenant_spared",
+   "kill_debt": "lieutenant_killed",
+   "hp_mult": 1.6,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "kuai_shan",
+   "name": "Kuai Shan",
+   "level": [
+    20,
+    20
+   ],
+   "role": "elite",
+   "element": "none",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "spear_thrust",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       110
+      ],
+      "depth": 30,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.2
+    },
+    {
+     "id": "sweep",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       120
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.25,
+     "both_sides": true,
+     "knockback": 80
+    }
+   ],
+   "loot": "kuai_shan",
+   "drops": [
+    {
+     "item": "cloth",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "short_knot",
+     "hair_color": 5,
+     "shirt": "vneck",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "spear",
+     "hat": "tied",
+     "shirt_dye": "ink",
+     "name": "Kuai Shan",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "faction": "mudwater",
+   "named": true,
+   "hp_mult": 1.8,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "tan_the_younger",
+   "name": "Tan the Younger",
+   "level": [
+    20,
+    20
+   ],
+   "role": "trial",
+   "element": "none",
+   "race": "human",
+   "energy": "none",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "staff_crack",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       80
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.15,
+     "knockback": 70
+    },
+    {
+     "id": "belly_charge",
+     "windup_s": 0.75,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.2,
+     "dash": 180
+    }
+   ],
+   "loot": "tan_the_younger",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "topknot",
+     "hair_color": 0,
+     "shirt": "sleeveless",
+     "pants": "loose",
+     "shoes": "boots",
+     "weapon": "staff",
+     "hat": "none",
+     "shirt_dye": "ochre",
+     "name": "Tan the Younger",
+     "body": "light"
+    }
+   },
+   "half_width": 20,
+   "height": 92,
+   "spar": true,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "gorge_chief",
+   "name": "Chief Yan Bo",
+   "level": [
+    33,
+    33
+   ],
+   "role": "trial",
+   "element": "none",
+   "race": "human",
+   "energy": "none",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "gorge_cut",
+     "windup_s": 0.42,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       80
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.15
+    },
+    {
+     "id": "echo_crescent",
+     "windup_s": 0.65,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       300
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.2,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 540,
+      "art": "qi_arc"
+     }
+    }
+   ],
+   "loot": "gorge_chief",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "long_tied",
+     "hair_color": 1,
+     "shirt": "vneck",
+     "pants": "martial",
+     "shoes": "folded",
+     "weapon": "sword",
+     "hat": "guan",
+     "shirt_dye": "grey",
+     "name": "Chief Yan Bo",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "spar": true,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "mudwater_cutthroat",
+   "name": "Mudwater Cutthroat",
+   "level": [
+    18,
+    18
+   ],
+   "role": "elite",
+   "element": "none",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "stab",
+     "windup_s": 0.35,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       50
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.2
+    },
+    {
+     "id": "lunge",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.3,
+     "dash": 160
+    }
+   ],
+   "loot": "mudwater_cutthroat",
+   "drops": [
+    {
+     "item": "cloth",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "ponytail",
+     "hair_color": 5,
+     "shirt": "sleeveless",
+     "pants": "cuffed",
+     "shoes": "boots",
+     "weapon": "dagger",
+     "hat": "tied",
+     "shirt_dye": "ink",
+     "name": "Mudwater Cutthroat",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "faction": "mudwater",
+   "hunter": true,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "gorge_stalker",
+   "name": "Gorge Stalker",
+   "level": [
+    32,
+    32
+   ],
+   "role": "elite",
+   "element": "none",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "ranged",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "arrow",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       420
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.15,
+     "projectile": {
+      "speed": 640,
+      "art": "arrow"
+     }
+    }
+   ],
+   "loot": "gorge_stalker",
+   "drops": [
+    {
+     "item": "arrows",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "high_pony",
+     "hair_color": 0,
+     "shirt": "vneck",
+     "pants": "cuffed",
+     "shoes": "boots",
+     "weapon": "bow",
+     "hat": "headband",
+     "shirt_dye": "grey",
+     "name": "Gorge Stalker",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "keep_distance": 280,
+   "faction": "gorge",
+   "hunter": true,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "gu_enforcer",
+   "name": "Gu Family Enforcer",
+   "level": [
+    26,
+    26
+   ],
+   "role": "elite",
+   "element": "water",
+   "race": "human",
+   "energy": "true_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "ledger_staff",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       80
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.15
+    },
+    {
+     "id": "tide_palm",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       240
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.2,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 500,
+      "art": "qi_arc"
+     }
+    }
+   ],
+   "loot": "gu_enforcer",
+   "drops": [
+    {
+     "item": "cloth",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "topknot",
+     "hair_color": 0,
+     "shirt": "scholar",
+     "pants": "scholar",
+     "shoes": "folded",
+     "weapon": "staff",
+     "hat": "weimao",
+     "shirt_dye": "indigo",
+     "name": "Gu Family Enforcer",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "faction": "smugglers",
+   "hunter": true,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "one_eye_pang",
+   "name": "One-Eye Pang",
+   "level": [
+    20,
+    20
+   ],
+   "role": "elite",
+   "element": "none",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "cleave",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       70
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.25
+    },
+    {
+     "id": "dirty_trick",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.0,
+     "status": {
+      "id": "slow",
+      "chance": 0.5,
+      "power": 0.3,
+      "duration_s": 3
+     }
+    }
+   ],
+   "loot": "one_eye_pang",
+   "drops": [
+    {
+     "item": "cloth",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "spirit_jade",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "short_knot",
+     "hair_color": 4,
+     "shirt": "sleeveless",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "dagger",
+     "hat": "headband",
+     "shirt_dye": "crimson",
+     "name": "One-Eye Pang",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "faction": "mudwater",
+   "named": true,
+   "bounty": true,
+   "hp_mult": 2.0,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "ferryman_lou",
+   "name": "Ferryman Lou",
+   "level": [
+    27,
+    27
+   ],
+   "role": "elite",
+   "element": "water",
+   "race": "human",
+   "energy": "true_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "pole_sweep",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.2,
+     "both_sides": true
+    },
+    {
+     "id": "river_palm",
+     "windup_s": 0.65,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       240
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.2,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 500,
+      "art": "qi_arc"
+     }
+    }
+   ],
+   "loot": "ferryman_lou",
+   "drops": [
+    {
+     "item": "pearl",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "long_tied",
+     "hair_color": 0,
+     "shirt": "cardigan",
+     "pants": "loose",
+     "shoes": "folded",
+     "weapon": "staff",
+     "hat": "weimao",
+     "shirt_dye": "earth",
+     "name": "Ferryman Lou",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "faction": "smugglers",
+   "named": true,
+   "bounty": true,
+   "hp_mult": 2.0,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "knife_hand_sui",
+   "name": "Knife-Hand Sui",
+   "level": [
+    34,
+    34
+   ],
+   "role": "elite",
+   "element": "none",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "knife_flurry",
+     "windup_s": 0.35,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.25
+    },
+    {
+     "id": "thrown_knife",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       320
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.1,
+     "projectile": {
+      "speed": 700,
+      "art": "arrow"
+     }
+    }
+   ],
+   "loot": "knife_hand_sui",
+   "drops": [
+    {
+     "item": "manual_page",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "ponytail",
+     "hair_color": 1,
+     "shirt": "vneck",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "dagger",
+     "hat": "none",
+     "shirt_dye": "crimson",
+     "pants_dye": "ink",
+     "name": "Knife-Hand Sui",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "faction": "gorge",
+   "named": true,
+   "bounty": true,
+   "hp_mult": 2.0,
    "movement": {
     "jump": 530,
     "climb": true,

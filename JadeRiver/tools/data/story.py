@@ -166,6 +166,10 @@ def npcs():
         ["The grey came up from the pools. It took the colour, then the people.", "If the well runs clean again, we might come home."], ["..."])
     npc("hamlet_trader_min", "Trader Min", "Greyreed trade post", outfit("ponytail", 0, "vneck", "cuffed", "boots", shirt_dye="jade"),
         ["Greyreed trades again! Thanks to you."], ["Market day!"], services=["shop:greyreed"])
+    # Part 8 (S49 karma): the night peddler of the Caravan Road. Everything on his mat is a small sin.
+    npc("peddler_shao", "Peddler Shao", "Sells after dark", outfit("long_tied", 4, "cardigan", "loose", "folded", hat="weimao", shirt_dye="ink", pants_dye="ink"),
+        ["Don't ask where it came from. Ask what it costs.", "The road's quiet at night. Good for business. Bad for questions."], ["Psst."],
+        services=["shop:night_peddler"])
     npc("hermit_yao", "Hermit Yao", "Marsh hermit", outfit("flowing", 1, "scholar", "loose", "folded", hat="straw", cape="tattered", shirt_dye="earth"),
         ["The otters trust me. Maybe one day they'll trust you.", "Spirit beasts are not tools. They are friends who bite."], ["Shh. Listen to the reeds."], services=["shop:hermit", "page:core_exchange"], tree="hermit_yao",
         service_labels={"page:core_exchange": "Core Exchange"}, service_unlocks={"page:core_exchange": "spirit_animals"})
@@ -1667,6 +1671,13 @@ def side_quests():
           [item("spirit_stone_low", 3)], requires=all_of(qdone("market_day")), target_room="wg_gorge_mouth",
           offer=["Greyreed's first caravan leaves for Stoneford tomorrow. The gorge bandits know it too."],
           complete=["The caravan made it! Greyreed is a real trade post now."])
+    # S49 grudges: the Gorge Bandits' feud with Greyreed ends in a fair fight with their chief.
+    quest("old_scores", "Old Scores", "side", "hamlet_trader_min", [
+        o("win_spar", "Settle it hand to hand with Chief Yan Bo at the Gorge Mouth", opponent="gorge_chief"),
+    ], [taels(300)], requires=all_of(qdone("mins_first_caravan")), target_room="wg_gorge_mouth",
+          offer=["The Gorge Bandits and Greyreed have old scores. Their chief says he'll call it even if someone beats him fairly. No knives, no crowd.",
+                 "He waits at the Gorge Mouth. Win, and the feud is over. For Greyreed, and for you."],
+          complete=["Yan Bo sent word: the Gorge is quiet for Greyreed. And for you. I didn't think I'd live to see it."])
     quest("wen_zhaos_challenge", "Wen Zhao's Challenge", "side", "wen_zhao", [o("win_spar", "Beat Wen Zhao in a rematch", opponent="wen_zhao")],
           [fx("grant_title", title="rivals_respect")], requires=all_of(qdone("the_valley_finals")),
           offer=["The finals were luck. Face me again, here, with no crowd to cheer for you."],
@@ -1746,7 +1757,7 @@ def dialogue():
     # Night: send villagers to the hut.
     tree("little_dou", [{"requires": all_of({"kind": "in_room", "room": "lf_village_night"}, noflag("dou_safe")), "node": "night"}],
          {"night": {"lines": ["The water's grey! There's something in it!"],
-                    "choices": [{"text": "Run to the hut! Now!", "effects": [{"kind": "set_flag", "flag": "dou_safe"}, {"kind": "deed", "deed": "rescue_dou"}], "close": True}]}})
+                    "choices": [{"text": "Run to the hut! Now!", "effects": [{"kind": "set_flag", "flag": "dou_safe"}, {"kind": "deed", "deed": "rescue_dou"}, {"kind": "record_debt", "id": "dou_rescue"}], "close": True}]}})
     tree("granny_liu", [{"requires": all_of({"kind": "in_room", "room": "lf_village_night"}, noflag("granny_safe")), "node": "night"}],
          {"night": {"lines": ["My old legs... help me, child."],
                     "choices": [{"text": "Lean on me. To Aunt Ping's hut.", "effects": [{"kind": "set_flag", "flag": "granny_safe"}, {"kind": "deed", "deed": "rescue_granny"}], "close": True}]}})
@@ -1885,6 +1896,13 @@ def mail_templates():
         {"id": "auction_won", "from": "The Auction Pavilion", "subject": "Your lot: {item}", "body": "The hammer fell in your favour. Your lot is enclosed, with the Pavilion's compliments."},
         {"id": "gu_repays", "from": "Gu, a free man", "subject": "What I owe you",
          "body": "I paid the valley what I could. This is for the fisher's child who broke my chains. A man who is paid back remembers how it felt."},
+        # S49 named debts (Part 8).
+        {"id": "dou_repays", "from": "Little Dou", "subject": "I found it myself!",
+         "body": "You carried me through the Hollow Night so now I carried this up the cliff by myself. Granny Liu says it's a heaven herb. Don't eat it all at once."},
+        {"id": "lieutenant_warning", "from": "A friend from the Hideout", "subject": "About Gu's warehouse",
+         "body": "You let me walk away, so here is a warning for free. Gu has men waiting in the warehouse rafters. Look up before you go in. These might help."},
+        {"id": "kuai_threat", "from": "Kuai Shan", "subject": "My brother",
+         "body": "He threw down his sword and you cut him anyway. I will be on the Caravan Road. Come and try that with me."},
         {"id": "gu_remembers", "from": "Unsigned", "subject": "We know your name",
          "body": "You left our uncle in chains for the Alliance to weigh. The Gu family keeps ledgers too. One day it will be your page we open."},
         {"id": "garden_raid_pests", "from": "The sect gardener", "subject": "Pests in your bed at {place}",
@@ -1967,6 +1985,8 @@ def codex():
          "body": "Every choice leans you one way or the other, from demonic through shadowed, balanced and upright to righteous. The Cloud Sect's abbots keep some of their wares for the upright, and Broker Mu keeps his worst goods for the shadowed. Alignment opens and closes doors like these; it never stands between you and your next realm."},
         {"id": "affinity", "title": "Hearts and bonds",
          "body": "People remember kindness. Each quest done for someone, and one gift a day, brings you closer: up to five hearts. What a person loves is worth a heart at once. Hearts teach recipes and give keepsakes, shopkeepers take a little off at three and five, and companions spar with you at three. At four hearts a companion can be sworn as a sibling (three at most); at five, one can become your Dao Companion, who steadies your breakthroughs, shares your insight and meditates with you. The elder who takes you as a personal disciple is your master."},
+        {"id": "grudges", "title": "Grudges and bounties",
+         "body": "Kill a faction's named people and it remembers. Once the grudge passes its threshold, its hunters wait for you on the roads they know, at your own strength. Blood money settles it, or a duel with their champion, or doing right by the people they wronged. Elder Gu's smugglers are different: their grudge ends only when his ring does. The town boards post bounties on named targets, two at a time; a named foe who yields can be spared or finished, and either choice is remembered."},
         {"id": "fame", "title": "Fame",
          "body": "Your own name, apart from any sect's standing: Unknown, Noted, Rising, Renowned, Legendary. Tournaments, great foes and the Beast Tide raise it. People talk, and losing a spar where the town can see costs you. From Rising, young masters of good families come looking to test you. Accept and win, and your name grows; decline, and it shrinks a little."},
         {"id": "furnaces_and_fire", "title": "Furnace and fire",

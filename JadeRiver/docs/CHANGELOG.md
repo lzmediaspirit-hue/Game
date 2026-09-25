@@ -5,6 +5,52 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V8c · The living world: grudges, hunters, bounties, mercy and named debts (S49)
+- **Grudges** (factions.json) against three factions:
+  - the Mudwater Bandits (hunters at 30; 200 taels, or a duel with Tan the Younger);
+  - the Gorge Bandits (hunters at 30; 400 taels, or the new quest **Old Scores**: a fair fight with Chief Yan Bo
+    at the Gorge Mouth for Trader Min);
+  - Elder Gu's Stoneford Smugglers (hunters at 50). Theirs is story-bound: +20 for the cargo, +20 for the hidden
+    cargo, and gone for good when the warehouse falls.
+- **Grudge rules**:
+  - Only named kills raise a grudge (+15), such as Big Toad Tan, the lieutenant and bounty targets.
+  - Past the threshold, a hunter may be waiting in the faction's grounds (35%, at most every 30 minutes), at your
+    level: a Mudwater Cutthroat, a Gorge Stalker or a Gu Family Enforcer.
+- **Bounties** on the town board's new Bounties tab: One-Eye Pang (Caravan Road), Ferryman Lou (Bend Shore) and
+  Knife-Hand Sui (Echo Cliffs).
+  - You can hold two at a time, and take each one once a day. The target waits in its room while the bounty is
+    yours.
+  - Claiming pays taels and +10 Fame, and a bounty target is a named kill.
+- **Mercy** (Part 8): Lieutenant Kuai, who now guards the Mudwater loot cave, yields at a fifth of his health. He
+  kneels and cannot be struck. You judge him on the Mercy page, or with the Judge button when you stand near him.
+  - Spare him: +10 merit. Before Gu's warehouse his warning arrives, with three Thunderclap Pellets.
+  - Finish him: +15 sin. His brother Kuai Shan then waits for you on the Caravan Road.
+- **Named debts** (Part 8):
+  - Debts can now fall due with a quest as well as with time.
+  - A debt can send a letter, set a flag or post a hunter.
+  - Little Dou's rescue in the Hollow Night is repaid when the Heart Trial is done, with a Cloudtop Orchid.
+- **The night peddler** (Part 8): Peddler Shao sets out his mat on the Caravan Road after dark. Every purchase
+  there is +5 sin.
+- **UI**:
+  - The Relations page's Grudges tab shows each grudge against its threshold, with Pay and Duel buttons, or
+    what settles it.
+  - A Mercy page.
+  - The Bounties tab.
+  - A Codex entry, "Grudges and bounties".
+- **Events:** `grudge_changed`, `hunter_dispatched`, `bounty_taken`, `bounty_claimed`, `foe_surrendered` and
+  `foe_judged`, with HUD notes. Intents: `pay_grudge`, `take_bounty` and `judge_foe`. Combat's new
+  `apply_execute` finishes a foe who yielded.
+- **Debug flags:** `--grudge=faction:n`, `--open-page=mercy:def` and `--open-page=notice_board:bounties`.
+- **Tests:**
+  - named kills and ordinary ones;
+  - hunters: chance, level and cooldown;
+  - blood money, the duel, Old Scores and the story grudge;
+  - a bounty from start to claim, and once a day;
+  - surrender, both judgements and their debts;
+  - Kuai Shan's hunt;
+  - Dou's letter;
+  - the night peddler.
+
 ### V8b · The living world: hearts, gifts and bonds (S49)
 - **NPC affinity**: 0–5 hearts with fourteen named people and the four companions.
   - Part 8's favourite gifts: Aunt Ping's Riverfish Soup, Granny Liu's Mist Lotus, Old Ma's pearls, Mei Qing's

@@ -36,6 +36,10 @@
         {
          "kind": "deed",
          "deed": "rescue_dou"
+        },
+        {
+         "kind": "record_debt",
+         "id": "dou_rescue"
         }
        ],
        "close": true

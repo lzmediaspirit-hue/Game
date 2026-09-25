@@ -2421,6 +2421,304 @@
    "guaranteed": []
   },
   {
+   "id": "mudwater_lieutenant",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "equipment": {
+    "chance": 0.25,
+    "min_quality": "fine"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
+   "guaranteed": [
+    {
+     "item": "cloth",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "mudwater_manual",
+     "chance": 0.3,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "kuai_shan",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "equipment": {
+    "chance": 0.25,
+    "min_quality": "fine"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
+   "guaranteed": [
+    {
+     "item": "cloth",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "tan_the_younger",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
+   "id": "gorge_chief",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
+   "id": "mudwater_cutthroat",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "equipment": {
+    "chance": 0.25,
+    "min_quality": "fine"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
+   "guaranteed": [
+    {
+     "item": "cloth",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "gorge_stalker",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "equipment": {
+    "chance": 0.25,
+    "min_quality": "fine"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
+   "guaranteed": [
+    {
+     "item": "arrows",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "gu_enforcer",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "equipment": {
+    "chance": 0.25,
+    "min_quality": "fine"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
+   "guaranteed": [
+    {
+     "item": "cloth",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "one_eye_pang",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "equipment": {
+    "chance": 0.25,
+    "min_quality": "fine"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
+   "guaranteed": [
+    {
+     "item": "cloth",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "spirit_jade",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "ferryman_lou",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "equipment": {
+    "chance": 0.25,
+    "min_quality": "fine"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
+   "guaranteed": [
+    {
+     "item": "pearl",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "knife_hand_sui",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "equipment": {
+    "chance": 0.25,
+    "min_quality": "fine"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
+   "guaranteed": [
+    {
+     "item": "manual_page",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
    "id": "duel_lan_yue",
    "groups": [],
    "coins": {},

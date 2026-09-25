@@ -10,7 +10,7 @@ var debt_clock := 0.0
 var challenges: Dictionary = {}   # actor -> {enemy, level, room}: a young master waiting for an answer (not saved)
 
 func intents() -> Array:
-	return ["answer_challenge", "give_gift", "offer_bond", "companion_duel"]
+	return ["answer_challenge", "give_gift", "offer_bond", "companion_duel", "pay_grudge", "take_bounty", "judge_foe"]
 
 func subscribe() -> void:
 	# Every event a deed listens for (karma.json); the ledger answers before the default subscribers.
@@ -21,6 +21,8 @@ func subscribe() -> void:
 	GameEvents.subscribe("room_entered", _on_room_entered, 86)
 	GameEvents.subscribe("quest_completed", _on_quest_completed, 86)
 	GameEvents.subscribe("spar_ended", _on_spar_ended, 86)
+	GameEvents.subscribe("actor_defeated", _on_defeated, 86)
+	GameEvents.subscribe("quest_accepted", _on_quest_accepted, 86)
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -37,6 +39,9 @@ func handle(intent: Dictionary) -> Dictionary:
 			return sp if not sp.get("ok", false) else ok({"spar": str(ch.enemy)})
 		"give_gift": return give_gift(c, str(intent.get("npc", "")), int(intent.get("index", -1)))
 		"offer_bond": return offer_bond(c, str(intent.get("kind", "")), str(intent.get("npc", "")))
+		"pay_grudge": return pay_grudge(c, str(intent.get("faction", "")), str(intent.get("method", "")))
+		"take_bounty": return take_bounty(c, str(intent.get("id", "")))
+		"judge_foe": return judge_foe(c, int(intent.get("enemy", 0)), bool(intent.get("spare", true)))
 		"companion_duel":
 			var cid := str(intent.get("companion", ""))
 			if not (c.companions.get("roster", []) as Array).has(cid): return fail("not_companion")
@@ -62,19 +67,35 @@ func apply_karma(actor_id: String, merit: int, sin: int, reason: String) -> void
 	if merit != 0: emit("merit_changed", {"actor": c.id, "value": r.merit, "delta": merit, "reason": reason})
 	if sin != 0: emit("sin_changed", {"actor": c.id, "value": r.sin, "delta": sin, "reason": reason})
 
-## A named debt: a deed the world remembers. When it falls due its mail arrives (the saved repay you).
+## A named debt: a deed the world remembers. It falls due after some hours or when a quest is done; then its
+## letter arrives, a flag is set, or a hunter waits for you (Part 8: the saved repay you; a victim's kin hunts you).
+## A debt named in karma.json's "debts" takes its terms from there.
 func apply_karma_debt(actor_id: String, debt_id: String, due_h: float, mail: String, attachments: Array) -> void:
 	var c = game.character(actor_id)
 	if c == null or c.relations.debts.has(debt_id): return
-	c.relations.debts[debt_id] = {"due_utc": Clock.now_utc() + due_h * 3600.0, "mail": mail, "attachments": attachments.duplicate(true), "paid": false}
+	var named: Dictionary = cfg().get("debts", {}).get(debt_id, {})
+	var d := {"due_utc": Clock.now_utc() + float(named.get("due_h", due_h)) * 3600.0, "mail": str(named.get("mail", mail)),
+		"attachments": (named.get("attachments", attachments) as Array).duplicate(true), "paid": false}
+	if named.has("due_quest"):
+		d.due_quest = str(named.due_quest)
+		d.due_utc = 0.0
+	if named.has("hunter"): d.hunter = named.hunter.duplicate()
+	if named.has("flag"): d.flag = str(named.flag)
+	c.relations.debts[debt_id] = d
 	emit("debt_recorded", {"actor": c.id, "debt": debt_id})
+
+func _debt_due(c, d: Dictionary) -> bool:
+	if d.has("due_quest"): return c.quests.is_done(str(d.due_quest)) or c.quests.is_active(str(d.due_quest)) and bool(d.get("on_accept", false))
+	return Clock.now_utc() >= float(d.get("due_utc", 0.0))
 
 func settle_debts(c) -> void:
 	for id in c.relations.debts:
 		var d: Dictionary = c.relations.debts[id]
-		if d.get("paid", false) or Clock.now_utc() < float(d.get("due_utc", 0.0)): continue
+		if d.get("paid", false) or not _debt_due(c, d): continue
 		d.paid = true
 		if str(d.get("mail", "")) != "": game.mail.apply_send(c.id, str(d.mail), d.get("attachments", []), {})
+		if str(d.get("flag", "")) != "": game.quest.apply_flag(c.id, str(d.flag))
+		if d.has("hunter"): c.relations.hunters.append({"enemy": str(d.hunter.enemy), "room": str(d.hunter.room), "debt": str(id)})
 		emit("debt_called", {"actor": c.id, "debt": id})
 
 ## The breakthrough that merit eased this great realm (once per great realm).
@@ -178,6 +199,7 @@ func _on_room_entered(_p: Dictionary) -> void:
 	var c = game.active()
 	if c == null: return
 	challenges.erase(c.id)
+	_spawn_hunters(c)
 	if not _in_town(): return
 	var yc: Dictionary = cfg().get("young_master", {})
 	if c.relations.fame < int(yc.get("fame", 150)): return
@@ -287,6 +309,8 @@ func _on_quest_completed(p: Dictionary) -> void:
 	var def := ContentDB.entry("quests", str(p.get("quest", "")))
 	var giver := str(def.get("giver", ""))
 	if giver != "" and not gifts_of(giver).is_empty(): apply_affinity(c.id, giver, int(acfg().get("quest", 30)), "quest")
+	_on_faction_quest(c, str(p.get("quest", "")))
+	if not c.relations.debts.is_empty(): settle_debts(c)
 	# S49 master: passing the personal-disciple trial makes the elder your master.
 	var m := ContentDB.entry("bonds", "master")
 	if str(p.get("quest", "")) == str(m.get("formed_by", "")) and str(c.relations.bonds.get("master", "")) == "":
@@ -298,6 +322,10 @@ func _on_quest_completed(p: Dictionary) -> void:
 ## A friendly duel won against a companion (once a day counts).
 func _on_spar_ended(p: Dictionary) -> void:
 	var opp := str(p.get("opponent", ""))
+	if str(p.get("winner", "")) == "player":
+		var cc = game.character(str(p.get("actor", game.active_id)))
+		for f in ContentDB.all("factions"):
+			if cc != null and str(f.get("duel", "")) == opp: clear_grudge(cc, str(f.id), "duel")
 	if not opp.begins_with("duel_") or str(p.get("winner", "")) != "player": return
 	var c = game.character(str(p.get("actor", game.active_id)))
 	if c == null: return
@@ -363,3 +391,156 @@ func apply_master_legacy(actor_id: String) -> void:
 	var who := str(c.relations.bonds.get("master", ""))
 	var art := str(ContentDB.entry("bonds", "master").get("legacy", {}).get(who, ""))
 	if art != "": game.progression.apply_learn_inner_art(c.id, art)
+
+# ------------------------------------------------------------------ grudges, hunters and bounties (S49 v1.0)
+func fcfg() -> Dictionary:
+	return ContentDB.config("factions")
+
+func grudge(c, faction: String) -> int:
+	return int(c.relations.grudges.get(faction, 0))
+
+## A faction's grudge (0-100). Past its threshold its hunters come for you in the field.
+func apply_grudge(actor_id: String, faction: String, delta: int, reason: String) -> void:
+	var c = game.character(actor_id)
+	var f := ContentDB.entry("factions", faction)
+	if c == null or f.is_empty() or delta == 0: return
+	if c.relations.deeds.has("grudge_cleared:" + faction) and delta > 0: return   # a story grudge settled for good
+	var before := grudge(c, faction)
+	c.relations.grudges[faction] = clampi(before + delta, 0, 100)
+	if c.relations.grudges[faction] == before: return
+	if not game.account.codex.has("grudges"): game.quest.apply_codex("grudges")
+	emit("grudge_changed", {"actor": c.id, "faction": faction, "value": grudge(c, faction), "delta": grudge(c, faction) - before, "reason": reason,
+		"hunted": grudge(c, faction) >= int(f.get("threshold", 30))})
+
+func clear_grudge(c, faction: String, reason: String, forever := false) -> void:
+	if forever: c.relations.deeds["grudge_cleared:" + faction] = true
+	if grudge(c, faction) > 0: apply_grudge(c.id, faction, -grudge(c, faction), reason)
+
+## Settle a grudge: blood money now, or a duel with the faction's champion (won), or its quest (done).
+func pay_grudge(c, faction: String, method: String) -> Dictionary:
+	var f := ContentDB.entry("factions", faction)
+	if f.is_empty() or grudge(c, faction) <= 0: return fail("no_grudge", {"text": Tx.t("sim.relations.no_grudge")})
+	match method:
+		"blood_money":
+			var bm: Dictionary = f.get("blood_money", {})
+			if bm.is_empty(): return fail("no_method", {"text": Tx.t("sim.relations.no_blood_money")})
+			if game.economy.balance(str(bm.currency), c) < int(bm.amount): return fail("poor", {"text": Tx.t("sim.relations.cannot_pay") % int(bm.amount)})
+			game.economy.apply_currency(str(bm.currency), -int(bm.amount), "blood_money")
+			clear_grudge(c, faction, "blood_money")
+			return ok({"paid": int(bm.amount)})
+		"duel":
+			if str(f.get("duel", "")) == "": return fail("no_method")
+			return game.quest.start_spar(c, str(f.duel), ProgressionRules.level(c))
+	return fail("no_method")
+
+## Named kills raise their faction's grudge; a hunter or bounty target that falls is struck off.
+func _on_defeated(p: Dictionary) -> void:
+	if str(p.get("victim_kind", "")) != "enemy": return
+	var c = game.character(str(p.get("killer", "")))
+	if c == null: c = game.active()
+	if c == null: return
+	var def := ContentDB.entry("enemies", str(p.get("def", "")))
+	var faction := str(def.get("faction", ""))
+	if faction != "" and def.get("named", false):
+		apply_grudge(c.id, faction, int(ContentDB.entry("factions", faction).get("per_named", 15)), "named:" + str(p.def))
+	for h in c.relations.hunters.duplicate():
+		if str(h.enemy) == str(p.def): c.relations.hunters.erase(h)
+	for b in c.relations.bounties.duplicate():
+		var bd := _bounty(str(b.get("id", "")))
+		if str(bd.get("target", "")) != str(p.def): continue
+		c.relations.bounties.erase(b)
+		var rw: Dictionary = bd.get("reward", {})
+		if not rw.is_empty(): game.economy.apply_currency(str(rw.currency), int(rw.amount), "bounty")
+		apply_deed(c.id, "bounty_claimed")
+		emit("bounty_claimed", {"actor": c.id, "bounty": str(bd.id), "reward": int(rw.get("amount", 0)), "currency": str(rw.get("currency", ""))})
+
+## Story grudges (Elder Gu's ring) rise with the cargo you uncover and end when the warehouse falls; a faction's
+## own quest (Old Scores) settles it too.
+func _on_faction_quest(c, qid: String) -> void:
+	for f in ContentDB.all("factions"):
+		var st: Dictionary = f.get("story", {})
+		if st.get("raise", {}).has(qid): apply_grudge(c.id, str(f.id), int(st.raise[qid]), "story:" + qid)
+		if str(st.get("clear", "")) == qid: clear_grudge(c, str(f.id), "story:" + qid, true)
+		if str(f.get("quest", "")) == qid: clear_grudge(c, str(f.id), "quest:" + qid)
+
+func _on_quest_accepted(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c != null and not c.relations.debts.is_empty(): settle_debts(c)
+
+## Hunters: in a faction's hunting grounds, past its threshold, one may be waiting (at your level). Debt hunters
+## (Kuai Shan) always wait in their room. Bounty targets appear in theirs while the bounty is yours.
+func _spawn_hunters(c) -> void:
+	var rt = game.room_rt
+	if rt == null: return
+	var here: String = rt.room_id
+	var st: ActorState = game.actor_state(c.id)
+	var at: Vector2 = (st.plane if st else Vector2(c.position.x, c.position.y))
+	var spot := Vector2(clampf(at.x + 420.0, 120.0, rt.width() - 120.0), at.y)
+	for h in c.relations.hunters:
+		if str(h.room) == here and not _present(str(h.enemy)):
+			var e: EnemyState = game.enemies.spawn_at(str(h.enemy), spot, ProgressionRules.level(c), {"elite": true})
+			if e: emit("hunter_dispatched", {"actor": c.id, "faction": str(e.def.get("faction", "")), "room": here, "enemy": str(h.enemy), "debt": str(h.get("debt", ""))})
+	for b in c.relations.bounties:
+		var bd := _bounty(str(b.get("id", "")))
+		if str(bd.get("room", "")) == here and not _present(str(bd.target)):
+			game.enemies.spawn_at(str(bd.target), spot + Vector2(160, 0), int(ContentDB.entry("enemies", str(bd.target)).get("level", [20])[0]), {"elite": true})
+	var hunt: Dictionary = fcfg().get("hunt", {})
+	for f in ContentDB.all("factions"):
+		if grudge(c, str(f.id)) < int(f.get("threshold", 30)) or not (f.get("hunt_rooms", []) as Array).has(here): continue
+		if float(c.cooldowns.get("hunt_" + str(f.id), 0.0)) > Clock.now_utc(): continue
+		if Rng.stream(c.id, "relations").randf() >= float(hunt.get("chance", 0.35)): continue
+		c.cooldowns["hunt_" + str(f.id)] = Clock.now_utc() + float(hunt.get("cooldown_s", 1800))
+		var he: EnemyState = game.enemies.spawn_at(str(f.hunter), spot, ProgressionRules.level(c), {"elite": true})
+		if he: emit("hunter_dispatched", {"actor": c.id, "faction": str(f.id), "room": here, "enemy": str(f.hunter), "debt": ""})
+
+func _present(def_id: String) -> bool:
+	for e in game.room_rt.living_enemies():
+		if e.def_id == def_id: return true
+	return false
+
+func _bounty(id: String) -> Dictionary:
+	for b in fcfg().get("bounties", []):
+		if str(b.id) == id: return b
+	return {}
+
+## The town board's bounties: take up to two at a time; each once a day.
+func take_bounty(c, id: String) -> Dictionary:
+	var b := _bounty(id)
+	if b.is_empty(): return fail("unknown_bounty")
+	if not ProgressionRules.at_least(c.cultivator.realm_key, str(b.get("realm", "mortal_1"))):
+		return fail("realm", {"text": Tx.t("req.reach") % ContentDB.name_of("realms", str(b.realm))})
+	for have in c.relations.bounties:
+		if str(have.get("id", "")) == id: return fail("taken", {"text": Tx.t("sim.relations.bounty_taken")})
+	if c.relations.bounties.size() >= int(fcfg().get("max_bounties", 2)): return fail("full", {"text": Tx.t("sim.relations.bounties_full")})
+	var day := Clock.reset_day(Clock.now_utc())
+	if int(c.cooldowns.get("bounty_" + id, -1)) == day: return fail("today", {"text": Tx.t("sim.relations.bounty_today")})
+	c.cooldowns["bounty_" + id] = day
+	c.relations.bounties.append({"id": id, "taken_utc": Clock.now_utc()})
+	emit("bounty_taken", {"actor": c.id, "bounty": id, "room": str(b.room)})
+	return ok({"bounty": id})
+
+# ------------------------------------------------------------------ mercy (Part 8 spare / kill)
+## A named foe yields: they kneel, and the victor decides.
+func apply_surrender(c, e: EnemyState) -> void:
+	e.ai["surrendered"] = true
+	e.ai["judge"] = c.id
+	e.velocity = Vector2.ZERO
+	emit("foe_surrendered", {"actor": c.id, "enemy": e.uid, "def": e.def_id})
+
+## Spare them (merit; some remember it) or finish them (sin; some have kin).
+func judge_foe(c, uid: int, spare: bool) -> Dictionary:
+	if game.room_rt == null: return fail("no_room")
+	var e: EnemyState = game.room_rt.enemies.get(uid)
+	if e == null or not e.alive or not e.ai.get("surrendered", false): return fail("no_foe", {"text": Tx.t("sim.relations.no_foe")})
+	e.ai.erase("surrendered")
+	if spare:
+		apply_deed(c.id, "spared_foe")
+		if str(e.def.get("spare_debt", "")) != "": apply_karma_debt(c.id, str(e.def.spare_debt), 0.0, "", [])
+		game.enemies.release(e)
+		emit("foe_judged", {"actor": c.id, "def": e.def_id, "spared": true})
+		return ok({"spared": true})
+	apply_deed(c.id, "killed_yielded")
+	if str(e.def.get("kill_debt", "")) != "": apply_karma_debt(c.id, str(e.def.kill_debt), 0.0, "", [])
+	game.combat.apply_execute(e, c.id)
+	emit("foe_judged", {"actor": c.id, "def": e.def_id, "spared": false})
+	return ok({"spared": false})

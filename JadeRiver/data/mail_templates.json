@@ -56,6 +56,24 @@
    "body": "I paid the valley what I could. This is for the fisher's child who broke my chains. A man who is paid back remembers how it felt."
   },
   {
+   "id": "dou_repays",
+   "from": "Little Dou",
+   "subject": "I found it myself!",
+   "body": "You carried me through the Hollow Night so now I carried this up the cliff by myself. Granny Liu says it's a heaven herb. Don't eat it all at once."
+  },
+  {
+   "id": "lieutenant_warning",
+   "from": "A friend from the Hideout",
+   "subject": "About Gu's warehouse",
+   "body": "You let me walk away, so here is a warning for free. Gu has men waiting in the warehouse rafters. Look up before you go in. These might help."
+  },
+  {
+   "id": "kuai_threat",
+   "from": "Kuai Shan",
+   "subject": "My brother",
+   "body": "He threw down his sword and you cut him anyway. I will be on the Caravan Road. Come and try that with me."
+  },
+  {
    "id": "gu_remembers",
    "from": "Unsigned",
    "subject": "We know your name",

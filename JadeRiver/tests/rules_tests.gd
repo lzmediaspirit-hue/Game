@@ -65,6 +65,7 @@ func _main() -> void:
 	beast_arena_suite()
 	relations_suite()
 	bonds_suite()
+	grudges_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -2470,6 +2471,135 @@ func bonds_suite() -> void:
 	c.cultivator.active_title = title_was
 	c.inventory.bag.fill(null)
 	Game.combat.refresh_stats(c.id)
+	if room_was != "": Game.world.load_room(c, room_was, "")
+
+## S49 v1.0: grudges and hunters, settling them, bounties, a named foe's surrender and Part 8's named debts.
+func grudges_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var rel_was: Dictionary = c.relations.snapshot()
+	var cd_was: Dictionary = c.cooldowns.duplicate(true)
+	var done_was: Dictionary = c.quests.done.duplicate()
+	var flags_was: Dictionary = c.quests.flags.duplicate()
+	var taels0 := int(Game.account.currencies.get("silver_tael", 0))
+	var mail0: int = Game.account.mail.size()
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var rel: RelationsState = c.relations
+	rel.restore({})
+	# Named kills raise a faction's grudge; the rank and file do not.
+	Game.relations._on_defeated({"victim_kind": "enemy", "def": "mudwater_bandit", "killer": c.id})
+	check(Game.relations.grudge(c, "mudwater") == 0, "an ordinary bandit is no one's name")
+	Game.relations._on_defeated({"victim_kind": "enemy", "def": "big_toad_tan", "killer": c.id})
+	check(Game.relations.grudge(c, "mudwater") == 15, "killing Big Toad Tan: the Mudwater grudge +15")
+	# Past the threshold, hunters wait on the roads they know, at your level; not every time, not too often.
+	Game.relations.apply_grudge(c.id, "mudwater", 15, "test")
+	Game.world.load_room(c, "cr_caravan_road", "")
+	GameEvents.flush()
+	var found := false
+	for i in 40:
+		c.cooldowns.erase("hunt_mudwater")
+		for e in Game.room_rt.living_enemies():
+			if e.def_id == "mudwater_cutthroat": Game.enemies.release(e)
+		Game.relations._spawn_hunters(c)
+		for e in Game.room_rt.living_enemies():
+			if e.def_id == "mudwater_cutthroat" and e.level == ProgressionRules.level(c): found = true
+		if found: break
+	check(found, "at 30 the Mudwater send a cutthroat onto the Caravan Road, at your level")
+	var n0 := Game.room_rt.living_enemies().filter(func(e): return e.def_id == "mudwater_cutthroat").size()
+	for i in 20: Game.relations._spawn_hunters(c)
+	check(Game.room_rt.living_enemies().filter(func(e): return e.def_id == "mudwater_cutthroat").size() == n0, "then not again for a while")
+	for e in Game.room_rt.living_enemies():
+		if e.def_id == "mudwater_cutthroat": Game.enemies.release(e)
+	# Settling: blood money, a duel with Tan's brother, a quest, or the story.
+	Game.account.currencies["silver_tael"] = 500
+	check(Game.submit({"type": "pay_grudge", "faction": "mudwater", "method": "blood_money"}).get("ok", false)
+		and Game.relations.grudge(c, "mudwater") == 0 and int(Game.account.currencies.silver_tael) == 300, "200 taels of blood money settles the Mudwater")
+	Game.relations.apply_grudge(c.id, "mudwater", 20, "test")
+	check(Game.submit({"type": "pay_grudge", "faction": "mudwater", "method": "duel"}).get("ok", false), "or a duel with Tan the Younger")
+	var tan: EnemyState = null
+	for e in Game.room_rt.living_enemies():
+		if e.def_id == "tan_the_younger": tan = e
+	if tan != null:
+		Game.enemies.end_spar(tan, c.id)
+		GameEvents.flush()
+	check(tan != null and Game.relations.grudge(c, "mudwater") == 0, "winning it settles the grudge")
+	Game.relations.apply_grudge(c.id, "gorge", 25, "test")
+	Game.relations._on_quest_completed({"actor": c.id, "quest": "old_scores"})
+	check(Game.relations.grudge(c, "gorge") == 0, "Old Scores settles the Gorge Bandits")
+	Game.relations._on_quest_completed({"actor": c.id, "quest": "gus_cargo"})
+	Game.relations._on_quest_completed({"actor": c.id, "quest": "hidden_cargo"})
+	check(Game.relations.grudge(c, "smugglers") == 40, "Gu's ring: +20 for the cargo, +20 for the hidden cargo")
+	Game.relations._on_quest_completed({"actor": c.id, "quest": "gus_warehouse"})
+	Game.relations.apply_grudge(c.id, "smugglers", 30, "test")
+	check(Game.relations.grudge(c, "smugglers") == 0, "the warehouse ends it for good")
+	# Bounties: the board's named targets wait in their rooms while the bounty is yours.
+	c.cooldowns.erase("bounty_one_eye_pang")
+	var bt: Dictionary = Game.submit({"type": "take_bounty", "id": "one_eye_pang"})
+	check(bt.get("ok", false), "take the bounty on One-Eye Pang %s" % str(bt.get("reason", "")))
+	Game.world.load_room(c, "cr_caravan_road", "")
+	GameEvents.flush()
+	var pang: EnemyState = null
+	for e in Game.room_rt.living_enemies():
+		if e.def_id == "one_eye_pang": pang = e
+	check(pang != null and pang.elite, "One-Eye Pang is on the Caravan Road")
+	var t1 := int(Game.account.currencies.get("silver_tael", 0))
+	var f1 := rel.fame
+	Game.relations._on_defeated({"victim_kind": "enemy", "def": "one_eye_pang", "killer": c.id})
+	check(int(Game.account.currencies.silver_tael) == t1 + 150 and rel.fame == f1 + 10 and rel.bounties.is_empty(), "the bounty pays 150 taels and +10 Fame")
+	check(Game.relations.grudge(c, "mudwater") == 15, "and Pang was a name the Mudwater remember")
+	check(str(Game.submit({"type": "take_bounty", "id": "one_eye_pang"}).get("reason", "")) == "today", "each bounty once a day")
+	# A named foe yields: spare him (merit; he remembers) or finish him (sin; his brother hunts you).
+	var st: ActorState = Game.actor_state(c.id)
+	var lt: EnemyState = Game.enemies.spawn_at("mudwater_lieutenant", st.plane + Vector2(80, 0), 19)
+	Game.combat._damage_enemy(lt, lt.pools.max_hp * 5.0, c.id, "physical", "none", false, {})
+	GameEvents.flush()
+	check(lt.alive and lt.ai.get("surrendered", false), "Lieutenant Kuai yields instead of dying")
+	var hp_y := lt.pools.hp
+	Game.combat._damage_enemy(lt, 500.0, c.id, "physical", "none", false, {})
+	check(near(lt.pools.hp, hp_y), "a foe who has yielded is not struck")
+	var m0 := rel.merit
+	check(Game.submit({"type": "judge_foe", "enemy": lt.uid, "spare": true}).get("ok", false) and not lt.alive and rel.merit == m0 + 10, "sparing him: +10 merit")
+	check(rel.debts.has("lieutenant_spared"), "and he remembers")
+	c.quests.done["hidden_cargo"] = 1
+	Game.relations.settle_debts(c)
+	GameEvents.flush()
+	check(bool(rel.debts.lieutenant_spared.paid) and c.quests.has_flag("warned_of_ambush") and Game.account.mail.size() > mail0, "before Gu's warehouse, his warning arrives")
+	var lt2: EnemyState = Game.enemies.spawn_at("mudwater_lieutenant", st.plane + Vector2(80, 0), 19)
+	Game.combat._damage_enemy(lt2, lt2.pools.max_hp * 5.0, c.id, "physical", "none", false, {})
+	var s0 := rel.sin
+	check(Game.submit({"type": "judge_foe", "enemy": lt2.uid, "spare": false}).get("ok", false) and not lt2.alive and rel.sin == s0 + 15, "killing a foe who yielded: +15 sin")
+	rel.debts.lieutenant_killed.due_utc = 0.0
+	Game.relations.settle_debts(c)
+	GameEvents.flush()
+	check(rel.hunters.size() == 1 and str(rel.hunters[0].enemy) == "kuai_shan", "his brother Kuai Shan comes hunting")
+	Game.world.load_room(c, "cr_caravan_road", "")
+	GameEvents.flush()
+	var ks := false
+	for e in Game.room_rt.living_enemies():
+		if e.def_id == "kuai_shan": ks = true
+	check(ks, "Kuai Shan waits on the Caravan Road")
+	Game.relations._on_defeated({"victim_kind": "enemy", "def": "kuai_shan", "killer": c.id})
+	check(rel.hunters.is_empty(), "until he falls")
+	# Little Dou's rescue is repaid in chapter 6 with a heaven herb.
+	Game.apply_effects(c.id, [{"kind": "record_debt", "id": "dou_rescue"}], "test")
+	check(str(rel.debts.dou_rescue.get("due_quest", "")) == "the_heart_trial", "Little Dou's debt falls due with the Heart Trial")
+	c.quests.done["the_heart_trial"] = 1
+	var mails: int = Game.account.mail.size()
+	Game.relations.settle_debts(c)
+	check(Game.account.mail.size() == mails + 1 and str(Game.account.mail[0].attachments[0].item) == "cloudtop_orchid", "Dou's letter brings a Cloudtop Orchid")
+	# The night peddler: +5 sin a purchase.
+	var s1 := rel.sin
+	Game.relations._on_deed_event({"actor": c.id, "shop": "night_peddler", "item": "manual_page", "count": 2}, "item_bought")
+	check(rel.sin == s1 + 10, "two things from the night peddler: +10 sin")
+	check(not RequirementRules.passes(ContentDB.entry("shops", "night_peddler").requires, {"char": c}) or Clock.time_of_day() == "night", "his mat is out only at night")
+	for e in Game.room_rt.living_enemies():
+		if e.summoned: Game.enemies.release(e)
+	c.relations.restore(rel_was)
+	c.cooldowns = cd_was
+	c.quests.done = done_was
+	c.quests.flags = flags_was
+	Game.account.currencies["silver_tael"] = taels0
+	while Game.account.mail.size() > mail0: Game.account.mail.pop_front()
 	if room_was != "": Game.world.load_room(c, room_was, "")
 
 func _seeded(seed: int) -> RandomNumberGenerator:

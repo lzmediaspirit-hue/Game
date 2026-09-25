@@ -348,6 +348,43 @@
    "sin": 0,
    "alignment": 0,
    "fame": -5
+  },
+  {
+   "id": "spared_foe",
+   "name": "Spared a foe who yielded",
+   "merit": 10,
+   "sin": 0,
+   "alignment": 3,
+   "fame": 0
+  },
+  {
+   "id": "killed_yielded",
+   "name": "Killed a foe who had yielded",
+   "merit": 0,
+   "sin": 15,
+   "alignment": -8,
+   "fame": 0
+  },
+  {
+   "id": "bounty_claimed",
+   "name": "Claimed a bounty",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 1,
+   "fame": 10
+  },
+  {
+   "id": "night_peddler",
+   "name": "Bought from the night peddler",
+   "merit": 0,
+   "sin": 5,
+   "alignment": -1,
+   "fame": 0,
+   "per_count": true,
+   "event": "item_bought",
+   "match": {
+    "shop": "night_peddler"
+   }
   }
  ],
  "merit_step": 100,
@@ -410,5 +447,36 @@
   "chance": 0.25,
   "enemy": "young_master",
   "decline_deed": "challenge_declined"
+ },
+ "debts": {
+  "dou_rescue": {
+   "due_quest": "the_heart_trial",
+   "mail": "dou_repays",
+   "attachments": [
+    {
+     "item": "cloudtop_orchid",
+     "count": 1
+    }
+   ]
+  },
+  "lieutenant_spared": {
+   "due_quest": "hidden_cargo",
+   "mail": "lieutenant_warning",
+   "flag": "warned_of_ambush",
+   "attachments": [
+    {
+     "item": "thunderclap_pellet",
+     "count": 3
+    }
+   ]
+  },
+  "lieutenant_killed": {
+   "due_h": 0.25,
+   "mail": "kuai_threat",
+   "hunter": {
+    "enemy": "kuai_shan",
+    "room": "cr_caravan_road"
+   }
+  }
  }
 }

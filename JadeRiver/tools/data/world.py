@@ -1224,6 +1224,8 @@ def valley():
     r.decor("cart_broken", [900, 720])
     r.decor("cart_broken", [2400, 740], flip=True)
     r.obj("sign_cr", "signpost", [3600, 860], text="Mudwater Hideout — turn back, traveller.")
+    # Part 8: a peddler who sets out his mat only after dark. Everything he sells is a small sin (S49 karma).
+    r.npc("peddler_shao", [1700, 760], facing=-1, hidden_if=all_of({"kind": "time_of_day", "phases": ["morning", "day", "evening"]}))
     r.edge("east", "east", "sf_fairground", "west", y=850)
     r.edge("west", "west", "dw_bend_shore", "east", y=850, ptype="sealed", requires=all_of(realm("qi_kindling_7")),
            locked_text="Deepwater Bend lies beyond. Qi Kindling 7 first.")
@@ -1239,6 +1241,9 @@ def valley():
                   music="dungeon", trees=("rock_small",), elite=False, loot="jar_valley_mid", dungeon_exit="cr_caravan_road", idle=[])
         r.edge("west", "west", prev[0], prev[1], y=850, ptype="gate" if rid == "mh_stockade" else "edge")
         r.edge("east", "east", nxt, "west", y=850)
+        if rid == "mh_loot_cave":
+            # S49: Lieutenant Kuai guards the loot. He yields at a fifth of his health, and waits on your judgement.
+            r.spawn("mudwater_lieutenant", [[2300, 860]], 1, respawn=86400, level=[19, 19])
         if rid == "mh_stockade":
             r.decor("stockade_wall", [640, 660])
             r.decor("stockade_wall", [1900, 660])
@@ -1347,6 +1352,10 @@ def valley():
               [("gorge_bandit_adept", 4, [29, 31])], herbs=("mist_lotus",), ores=("jadeiron",), jars=3, rtype="path",
               music="field_mountain", ambience="waterfall_ambience", trees=("pine_tree", "rock_large"), elite=False, loot="jar_valley_mid")
     r.obj("shrine_wg", "shrine", [400, 700])
+    # S49 Old Scores: Chief Yan Bo waits for a fair fight at the post.
+    r.obj("spar_gorge_chief", "spar_post", [1500, 860], opponent="gorge_chief", requires=all_of(qactive("old_scores")),
+          hidden_if=all_of({"kind": "quest_done", "quest": "old_scores"}),
+          locked_text="A post driven into the rock. Chief Yan Bo fights only for an old score.")
     r.edge("east", "east", "dw_bend_shore", "west", y=850)
     r.edge("west", "west", "wg_rapids_terraces", "east", y=850)
     r = field("wg_rapids_terraces", "Rapids Terraces", "whitewater_gorge", 3, [28, 33], "gorge", "rock",

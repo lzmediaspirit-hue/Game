@@ -963,7 +963,7 @@ func _apply_status_to_enemy(e: EnemyState, s: Dictionary) -> void:
 	emit("status_applied", {"target": str(e.uid), "effect": s.id, "duration": s.remaining})
 
 func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String, element: String, crit: bool, attack: Dictionary, facing := 0) -> void:
-	if not e.alive: return
+	if not e.alive or e.ai.get("surrendered", false): return   # a foe who has yielded is judged, not struck (S49)
 	# S46 Beast Trial Grove: the keeper's own blows do no harm there; they rally the animals instead.
 	if game.room_rt != null and game.room_rt.event.get("pet_trial", false) and game.room_rt.event.get("active", false) \
 			and game.character(attacker) != null and not str(attack.get("source", "")).begins_with("ally:"):
@@ -987,6 +987,11 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 	emit("hit_landed", {"attacker": attacker, "target": str(e.uid), "target_kind": "enemy", "amount": int(amount), "type": dtype,
 		"crit": crit, "element": element, "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover + e.height() * 0.8,
 		"hp": e.pools.hp, "max": e.pools.max_hp, "source": str(attack.get("source", ""))})
+	# S49: a named foe who yields at a fifth of their health waits on the victor's judgement (spare or kill).
+	if e.def.get("surrenders", false) and e.pools.hp <= e.pools.max_hp * 0.2 and game.character(attacker) != null:
+		e.pools.hp = maxf(1.0, e.pools.max_hp * 0.2)
+		game.relations.apply_surrender(game.character(attacker), e)
+		return
 	# Spars end at 10% HP; nobody dies (S42).
 	if e.def.get("spar", false) and e.pools.hp <= e.pools.max_hp * 0.1:
 		e.pools.hp = e.pools.max_hp * 0.1
@@ -1008,6 +1013,15 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 		if not payload.is_empty(): emit("actor_defeated", payload)
 		var killer = game.character(attacker)
 		if killer != null: _gain_killing_intent(killer, e)
+
+## S49: the victor finishes a foe who yielded (Relations' judgement). The death is Combat's to announce.
+func apply_execute(e: EnemyState, attacker: String) -> void:
+	if not e.alive: return
+	e.pools.hp = 0.0
+	var payload: Dictionary = game.enemies.defeat(e, attacker)
+	if not payload.is_empty(): emit("actor_defeated", payload)
+	var killer = game.character(attacker)
+	if killer != null: _gain_killing_intent(killer, e)
 
 ## Enemy strikes (called by EnemyAuthority at the hit moment of a melee attack).
 func enemy_strike(e: EnemyState, attack: Dictionary) -> void:

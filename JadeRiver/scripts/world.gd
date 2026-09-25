@@ -317,6 +317,12 @@ func _update_context() -> void:
 	if ctx.is_empty() and player and player.surface != null and player.state.climbing.is_empty():
 		var near_c: Dictionary = geometry.climbable_near(player.plane, player.altitude, 48.0)
 		if not near_c.is_empty(): ctx = {"type": "climbable", "climbable": str(near_c.id), "label": Tx.t("hud.climb")}
+	# S49: a foe who has yielded to you waits for your judgement.
+	if ctx.is_empty() and player and Game.room_rt:
+		for e in Game.room_rt.living_enemies():
+			if e.ai.get("surrendered", false) and str(e.ai.get("judge", "")) == Game.active_id and e.plane.distance_to(player.plane) < 160.0:
+				ctx = {"type": "mercy", "enemy": e.uid, "def": e.def_id, "label": Tx.t("hud.judge")}
+				break
 	for id in object_views: object_views[id].focus = ctx.get("object", "") == id
 	for id in npc_views:
 		npc_views[id].focus = ctx.get("object", "") == id

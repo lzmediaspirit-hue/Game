@@ -128,5 +128,6 @@ Progress is recorded in `docs/CHANGELOG.md`.
     Fame with its tiers, town greetings and Young Master challenges, and the Relations page. V8b is done: NPC hearts
     with Part 8's favourite gifts, one gift a day, heart rewards and keeper discounts, companion duels, sworn
     siblings, the Dao Companion (support slot, shared insight, resonance meditation) and the master with The Elder's
-    Last Lesson. Next: V8c (grudges, factions, hunters, bounties, Part 8 debts and spare/surrender choices), V8d
-    (calendar), V8e-g (the rest).
+    Last Lesson. V8c is done: grudges against three factions with hunters, blood money, a duel, Old Scores and a
+    story-bound ring; the town bounty board; Part 8's surrender choice, named debts (Dou, the lieutenant, his brother)
+    and the night peddler. Next: V8d (calendar), V8e-g (the rest).

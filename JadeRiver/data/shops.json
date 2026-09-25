@@ -1993,6 +1993,56 @@
    }
   },
   {
+   "id": "night_peddler",
+   "name": "Peddler Shao's Mat",
+   "currency": "silver_tael",
+   "black_market": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "time_of_day",
+      "phases": [
+       "night"
+      ]
+     }
+    ]
+   },
+   "stock": [
+    {
+     "item": "manual_page",
+     "price": 45
+    },
+    {
+     "item": "torn_manual",
+     "price": 160
+    },
+    {
+     "item": "iron_needles",
+     "price": 24
+    },
+    {
+     "item": "viper_smoke_pill",
+     "price": 35
+    },
+    {
+     "item": "bonding_offering_common",
+     "price": 60
+    },
+    {
+     "item": "spirit_egg",
+     "price": 900,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
    "id": "ironroot_clan",
    "name": "Ironroot Clan Forge",
    "currency": "spirit_stone",

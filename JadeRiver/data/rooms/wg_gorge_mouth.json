@@ -219,6 +219,32 @@
     400,
     700
    ]
+  },
+  {
+   "id": "spar_gorge_chief",
+   "type": "spar_post",
+   "at": [
+    1500,
+    860
+   ],
+   "opponent": "gorge_chief",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "old_scores"
+     }
+    ]
+   },
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "old_scores"
+     }
+    ]
+   },
+   "locked_text": "A post driven into the rock. Chief Yan Bo fights only for an old score."
   }
  ],
  "spawns": [

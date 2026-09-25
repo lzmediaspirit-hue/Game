@@ -277,6 +277,28 @@
    "text": "Mudwater Hideout — turn back, traveller."
   },
   {
+   "id": "npc_peddler_shao",
+   "type": "npc",
+   "at": [
+    1700,
+    760
+   ],
+   "npc": "peddler_shao",
+   "facing": -1,
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "time_of_day",
+      "phases": [
+       "morning",
+       "day",
+       "evening"
+      ]
+     }
+    ]
+   }
+  },
+  {
    "id": "crate_7",
    "type": "crate",
    "at": [

@@ -18,6 +18,7 @@ var mortal: Dictionary = {}          # mortal missions
 var fortune: Dictionary = {}         # {meter, last_utc}
 var deeds: Dictionary = {}           # once-only deeds done: id (or id:key) -> true
 var ledger: Array = []               # the latest karma entries, newest first: {reason, merit, sin, utc}
+var hunters: Array = []              # named hunters a debt sent: [{enemy, room, debt}], until defeated
 
 ## Hearts with a person (0-5), under the id their affinity is kept by (bonds.json per_heart).
 func hearts_of(npc: String) -> int:
@@ -29,7 +30,7 @@ func snapshot() -> Dictionary:
 	return {"merit": merit, "sin": sin, "debts": debts.duplicate(true), "merit_used": merit_used.duplicate(), "alignment": alignment,
 		"fame": fame, "affinity": affinity.duplicate(true), "bonds": bonds.duplicate(true), "grudges": grudges.duplicate(),
 		"bounties": bounties.duplicate(true), "mortal": mortal.duplicate(true), "fortune": fortune.duplicate(), "deeds": deeds.duplicate(),
-		"ledger": ledger.duplicate(true)}
+		"ledger": ledger.duplicate(true), "hunters": hunters.duplicate(true)}
 
 func restore(d: Dictionary) -> void:
 	merit = maxi(0, int(d.get("merit", 0)))
@@ -47,3 +48,4 @@ func restore(d: Dictionary) -> void:
 	fortune = d.get("fortune", {}).duplicate() if d.get("fortune") is Dictionary else {}
 	deeds = d.get("deeds", {}).duplicate() if d.get("deeds") is Dictionary else {}
 	ledger = d.get("ledger", []).duplicate(true) if d.get("ledger") is Array else []
+	hunters = d.get("hunters", []).duplicate(true) if d.get("hunters") is Array else []
