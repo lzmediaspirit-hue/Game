@@ -161,6 +161,7 @@ func _draw_detail(r: Rect2) -> void:
 			text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.halo_charge") % int(round(float(s.get("halo", 0.0)) * 100.0)), 16, UiKit.PALE_GOLD)
 			y += 22
 	_relic(ch, s, def, r, y)
+	y = _treasure_lines(ch, s, def, r, y)
 	# Actions.
 	var bx := r.position.x + 14
 	var bw := (r.size.x - 38) / 2
@@ -173,13 +174,44 @@ func _draw_detail(r: Rect2) -> void:
 			var verb := Tx.t("ui.inventory.use")
 			if def.has("raw"): verb = Tx.t("ui.inventory.absorb") if def.has("core") else Tx.t("ui.inventory.eat_raw")
 			elif str(def.get("use_action", "")) == "absorb_flame": verb = Tx.t("ui.inventory.absorb")
+			elif str(def.get("use_action", "")) == "talisman_charge": verb = Tx.t("ui.inventory.strike")
 			btn(Rect2(bx, by, bw, 50), verb, "use", null, true)
 			var q_on = ch.inventory.quick_use == id
 			btn(Rect2(bx + bw + 10, by, bw, 50), Tx.t("ui.inventory.quick") if q_on else Tx.t("ui.inventory.quick_use"), "quick", null, false, Unlocks.is_unlocked(ch.id, "quick_use"), Tx.t("ui.inventory.quick_use_is_not_unlocked"))
+		elif def.has("treasure"):
+			# G2: a treasure art is set in one of the HUD's two Treasure buttons; tapping its own slot clears it.
+			for k in 2:
+				var here := str(ch.inventory.treasures[k]) == id
+				var slot_id := "treasures" if k == 0 else "treasure_slot_2"
+				btn(Rect2(bx + k * (bw + 10), by, bw, 50), Tx.t("ui.inventory.in_treasure") % (k + 1) if here else Tx.t("ui.inventory.treasure_n") % (k + 1),
+					"treasure", k, here, Unlocks.is_unlocked(ch.id, slot_id), Unlocks.locked_text(slot_id))
 		btn(Rect2(bx, by + 58, bw, 46), Tx.t("ui.inventory.unlock") if ch.inventory.locked.has(int(s.get("uid", -1))) else Tx.t("ui.inventory.lock"), "lock")
 		btn(Rect2(bx + bw + 10, by + 58, bw, 46), Tx.t("ui.inventory.discard"), "discard", null, false, def.get("type", "") != "key")
+	elif sel.has("key") and def.has("flight"):
+		var riding := str(ch.inventory.vessel) == id
+		btn(Rect2(bx, by + 30, r.size.x - 28, 54), Tx.t("ui.inventory.stop_riding") if riding else Tx.t("ui.inventory.ride_in_flight"), "vessel",
+			"" if riding else id, not riding, Unlocks.is_unlocked(ch.id, "flight"), Unlocks.locked_text("flight"))
 	elif sel.has("slot"):
 		btn(Rect2(bx, by + 30, r.size.x - 28, 54), Tx.t("ui.inventory.unequip"), "unequip", null, false, str(sel.slot) != "gourd", Tx.t("ui.inventory.the_spirit_gourd_holds_your"))
+
+## G2: what a treasure art, a flight vessel or a talisman does, in numbers.
+func _treasure_lines(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> float:
+	var x := r.position.x + 16
+	if def.has("treasure"):
+		var tr: Dictionary = def.treasure
+		text(Vector2(x, y + 20), Tx.t("ui.inventory.treasure_cost") % [int(round(float(tr.get("qi_pct", 0.0)) * 100.0)), int(tr.get("cooldown_s", 0))], 16, UiKit.BRIGHT_JADE)
+		y += 22
+	if def.has("flight"):
+		var fl: Dictionary = def.flight
+		text(Vector2(x, y + 20), Tx.t("ui.inventory.vessel_stats") % [int(round((1.0 - float(fl.get("qi_mult", 1.0))) * 100.0)), int(round((float(fl.get("speed_mult", 1.0)) - 1.0) * 100.0))], 16, UiKit.BRIGHT_JADE)
+		y += 22
+		if str(ch.inventory.vessel) == str(s.id):
+			text(Vector2(x, y + 20), Tx.t("ui.inventory.vessel_ridden"), 16, UiKit.PALE_GOLD)
+			y += 22
+	if def.has("talisman"):
+		text(Vector2(x, y + 20), Tx.t("ui.inventory.charges_left") % int(s.get("charges", int(def.talisman.get("charges", 1)))), 16, UiKit.PALE_GOLD)
+		y += 22
+	return y
 
 ## S14: a sealed relic offers Bind (a channel a hit breaks); a bound one with a dormant spirit offers the contest.
 func _relic(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> void:
@@ -232,6 +264,12 @@ func on_action(id: String, data) -> void:
 			var s = selected_item()
 			if s != null: submit({"type": "set_quick_use", "item": "" if ch.inventory.quick_use == str(s.id) else str(s.id)})
 		"lock": submit({"type": "lock_item", "index": int(sel.bag)})
+		"treasure":
+			var st = selected_item()
+			if st != null:
+				var k := int(data)
+				submit({"type": "set_treasure", "slot": k, "item": "" if str(ch.inventory.treasures[k]) == str(st.id) else str(st.id)})
+		"vessel": submit({"type": "choose_vessel", "item": str(data)})
 		"discard":
 			var s2 = selected_item()
 			if s2 != null: ask(Tx.t("ui.inventory.discard_2") % [ContentDB.item_name(str(s2.id)), int(s2.get("count", 1))], "discard_yes", int(sel.bag), true)

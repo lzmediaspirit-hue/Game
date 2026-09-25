@@ -2494,12 +2494,19 @@
      "system": "mount"
     }
    ],
-   "rewards": [],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "flying_sword_vessel",
+     "count": 1
+    }
+   ],
    "offer_text": [
     "A big enough friend can carry you."
    ],
    "complete_text": [
-    "Hold on tight."
+    "Hold on tight.",
+    "And when there is no friend, here: an old sword that remembers how to fly. Stand on the flat of it."
    ],
    "offered_by_unlock": true,
    "chapter": "cs1",
@@ -2889,13 +2896,22 @@
     {
      "kind": "learn_secret_art",
      "art": "lotus_heart_breathing"
+    },
+    {
+     "kind": "grant_item",
+     "item": "heaven_splitting_talisman",
+     "count": 1,
+     "instance": {
+      "charges": 3
+     }
     }
    ],
    "offer_text": [
     "Beat my best disciple and I'll teach you personally."
    ],
    "complete_text": [
-    "My personal disciple. My secret art is yours, and the cave behind the pagoda is your abode."
+    "My personal disciple. My secret art is yours, and the cave behind the pagoda is your abode.",
+    "And this: my last stroke, folded into paper. Three times it will cut what you cannot. Do not waste them on rats."
    ],
    "offered_by_unlock": true,
    "chapter": "sa5",

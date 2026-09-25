@@ -1481,6 +1481,31 @@
    "quest": "lines_in_the_sand"
   },
   {
+   "id": "treasures",
+   "label": "Treasures",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_1"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:treasure_1"
+   ],
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "stilling_bell",
+     "count": 1
+    }
+   ],
+   "scope": "character",
+   "quest": "lines_in_the_sand",
+   "same_stage_ok": true
+  },
+  {
    "id": "perfect_timing",
    "label": "Perfect timing",
    "trigger": {
@@ -1773,6 +1798,25 @@
    "effects": [],
    "scope": "character",
    "quest": "a_lake_inside"
+  },
+  {
+   "id": "treasure_slot_2",
+   "label": "A second treasure",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_1"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:treasure_2"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "a_lake_inside",
+   "same_stage_ok": true
   },
   {
    "id": "hidden_portals",

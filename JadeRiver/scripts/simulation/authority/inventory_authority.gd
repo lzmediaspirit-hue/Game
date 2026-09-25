@@ -4,11 +4,11 @@ extends Authority
 ## quick-use, item instances. Buying/selling (Economy) and storage (Account) call
 ## the apply_* commands here.
 
-const COOLDOWN_GROUPS := {"restoration": 15.0, "healing": 15.0, "buff": 30.0, "utility": 5.0}
+const COOLDOWN_GROUPS := {"restoration": 15.0, "healing": 15.0, "buff": 30.0, "utility": 5.0, "throw": 1.2}
 
 func intents() -> Array:
 	return ["move_item", "equip", "unequip", "use_item", "use_quick", "set_quick_use", "lock_item", "discard", "split_stack", "sort_bag",
-		"bind_item", "subdue_spirit"]
+		"bind_item", "subdue_spirit", "set_treasure", "choose_vessel"]
 
 var binding: Dictionary = {}   # actor -> {uid, left, total}: a relic being bound (S14)
 var spirit_cd: Dictionary = {} # actor -> seconds before another soul contest
@@ -108,6 +108,8 @@ func handle(intent: Dictionary) -> Dictionary:
 		"subdue_spirit": return subdue_spirit(c, str(intent.get("slot", "")), int(intent.get("index", -1)))
 		"unequip": return unequip(c, str(intent.get("slot", "")))
 		"use_item": return use_item(c, int(intent.get("index", -1)), bool(intent.get("confirm", false)))
+		"set_treasure": return set_treasure(c, str(intent.get("item", "")), int(intent.get("slot", 0)))
+		"choose_vessel": return choose_vessel(c, str(intent.get("item", "")))
 		"use_quick":
 			if c.inventory.quick_use == "": return fail("no_quick_use")
 			var idx = c.inventory.first_index(c.inventory.quick_use)
@@ -145,11 +147,11 @@ func apply_add(actor_id: String, item_id: String, count: int, source: String, fi
 		var per = {"spirit_stone_low": 1, "spirit_stone_mid": 10, "spirit_stone_high": 100}.get(item_id, 1)
 		game.economy.apply_currency("spirit_stone", per * count, source)
 		return count
-	if def.get("type") in ["key", "tool"] or def.get("quest_item", false):
+	if def.get("type") in ["key", "tool", "vessel"] or def.get("quest_item", false):
 		for k in c.inventory.key_items:
 			if k.id == item_id:
-				# A second copy of a tool is pointless: keep one.
-				if def.get("type") != "tool": k.count = int(k.count) + count
+				# A second copy of a tool or a flight vessel is pointless: keep one.
+				if not def.get("type") in ["tool", "vessel"]: k.count = int(k.count) + count
 				emit("item_added", {"actor": c.id, "item": item_id, "count": count, "source": source})
 				return count
 		c.inventory.key_items.append({"id": item_id, "count": count})
@@ -186,6 +188,10 @@ func apply_add(actor_id: String, item_id: String, count: int, source: String, fi
 	if added_n > 0:
 		c.inventory.new_items[item_id] = true
 		emit("item_added", {"actor": c.id, "item": item_id, "count": added_n, "source": source})
+		# The first treasure art carried goes straight into Treasure 1 (G2), so the button works when it appears.
+		if def.has("treasure") and str(c.inventory.treasures[0]) == "" and str(c.inventory.treasures[1]) != item_id:
+			c.inventory.treasures[0] = item_id
+			emit("treasure_set", {"actor": c.id, "slot": 0, "item": item_id})
 	if left > 0:
 		var over := {"item": item_id, "count": left}
 		for f in ["quality", "halo"]:
@@ -394,6 +400,7 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 		"incubate": return game.pets.incubate_egg(c, index)
 		"tame": return game.pets.attempt_tame(c, str(s.id), -1.0)
 		"absorb_flame": return game.crafting.absorb_flame(c, index)
+		"talisman_charge": return game.combat.talisman_strike(c, index)
 	# Natural treasures answer once in each great realm (the Mindwell Lotus).
 	var great_realm := str(ContentDB.realm(c.cultivator.realm_key).get("realm", ""))
 	var once := str(def.get("use_limit", "")) == "realm"
@@ -459,6 +466,26 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 	if def.has("pill"): emit("pill_used", {"actor": c.id, "item": s.id, "factor": factor, "quality": quality, "family": family,
 		"resistance": int(c.cultivator.pill_resistance.get(family, 0))})
 	return ok({"factor": factor, "quality": quality, "soul_effect": soul_effect, "family": family})
+
+## A treasure set in one of the HUD's Treasure buttons (G2). The treasure stays in the bag; "" clears the slot.
+func set_treasure(c, item: String, slot: int) -> Dictionary:
+	if slot < 0 or slot > 1: return fail("bad_slot")
+	if not Unlocks.is_unlocked(c.id, "treasures" if slot == 0 else "treasure_slot_2"):
+		return fail("locked", {"text": Unlocks.locked_text("treasures" if slot == 0 else "treasure_slot_2")})
+	if item != "":
+		if not ContentDB.item(item).has("treasure") or c.inventory.count(item) <= 0: return fail("not_a_treasure")
+		if c.inventory.treasures[1 - slot] == item: c.inventory.treasures[1 - slot] = ""
+	c.inventory.treasures[slot] = item
+	emit("treasure_set", {"actor": c.id, "slot": slot, "item": item})
+	return ok()
+
+## The vessel ridden in flight (G2): a flight item carried in the key pouch, or "" to fly unaided.
+func choose_vessel(c, item: String) -> Dictionary:
+	if item != "" and (not ContentDB.item(item).has("flight") or c.inventory.count(item) <= 0): return fail("not_a_vessel")
+	c.inventory.vessel = item
+	emit("vessel_changed", {"actor": c.id, "item": item})
+	emit("system_used", {"actor": c.id, "system": "flight_vessel"})
+	return ok()
 
 func move_item(c, from: int, to: int) -> Dictionary:
 	var bag: Array = c.inventory.bag

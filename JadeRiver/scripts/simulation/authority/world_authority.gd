@@ -473,6 +473,12 @@ func _on_actor_defeated(p: Dictionary) -> void:
 		c.collection_first_kills[str(p.def)] = true
 		var bonus := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), 1.0, 0.0, {"no_equipment": true})
 		drop.items.append_array(bonus.items)
+	# Taken whole by the Beast-Taking Cauldron (G2): twice the materials, and nothing it was wearing.
+	if game.combat.captured.has(str(p.get("victim", ""))):
+		game.combat.captured.erase(str(p.victim))
+		drop.equipment.clear()
+		drop.items.append_array(drop.items.duplicate(true))
+		emit("beast_captured", {"actor": c.id, "def": str(p.def), "items": drop.items.size()})
 	# A boss's one-time treasure (a Heavenly Flame, G1): guaranteed on its first defeat, outside the loot roll.
 	for it in def.get("first_defeat", []):
 		var flag := "first_defeat:%s:%s" % [str(p.def), str(it)]

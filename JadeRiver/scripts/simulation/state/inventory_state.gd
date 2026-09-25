@@ -14,6 +14,8 @@ var key_items: Array = []          # temporary quest items (not in the gourd)
 var locked: Dictionary = {}        # uid -> true
 var next_uid := 1
 var new_items: Dictionary = {}     # item id -> true (green "new" dot until viewed)
+var treasures: Array = ["", ""]    # gap report G2: treasures set in the HUD's Treasure buttons (item ids)
+var vessel := ""                   # the flight vessel ridden when flying (a key item id), "" = none
 
 func _init() -> void:
 	for s in SLOTS: equipped[s] = null
@@ -78,7 +80,7 @@ func snapshot() -> Dictionary:
 	var eq := {}
 	for s in SLOTS: eq[s] = equipped[s].duplicate(true) if equipped[s] != null else null
 	return {"bag": bag.duplicate(true), "equipped": eq, "quick_use": quick_use, "key_items": key_items.duplicate(true),
-		"locked": locked.keys(), "next_uid": next_uid}
+		"locked": locked.keys(), "next_uid": next_uid, "treasures": treasures.duplicate(), "vessel": vessel}
 
 func restore(d: Dictionary) -> void:
 	bag = []
@@ -88,6 +90,11 @@ func restore(d: Dictionary) -> void:
 		var v = d.get("equipped", {}).get(s)
 		equipped[s] = v.duplicate(true) if v is Dictionary and ContentDB.is_equipment(str(v.get("id", ""))) else null
 	quick_use = str(d.get("quick_use", ""))
+	treasures = ["", ""]
+	var ts = d.get("treasures", [])
+	if ts is Array:
+		for i in mini(2, ts.size()): treasures[i] = str(ts[i]) if ContentDB.item(str(ts[i])).has("treasure") else ""
+	vessel = str(d.get("vessel", ""))
 	key_items = []
 	for k in d.get("key_items", []):
 		if k is Dictionary: key_items.append(k.duplicate(true))

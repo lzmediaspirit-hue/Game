@@ -414,9 +414,17 @@ func _draw():
 		if tl.guard:
 			draw_arc(Vector2(facing * 18, -48), 30, -1.2 if facing > 0 else PI - 1.2 + 0.4, 1.2 if facing > 0 else PI + 1.2 - 0.4, 12, Color(UiKit.PALE_GOLD, 0.7), 3)
 
-## A small rolling cloud under the feet while Qi holds the body in the air.
+## A small rolling cloud under the feet while Qi holds the body in the air, or the ridden vessel (G2).
 func _draw_cloud() -> void:
 	var t := Time.get_ticks_msec() / 1000.0
+	var sprite := ""
+	if bound():
+		var v := str(Game.character(actor_id).inventory.vessel)
+		if v != "": sprite = str(ContentDB.item(v).get("flight", {}).get("sprite", ""))
+	match sprite:
+		"sword": _draw_sword_vessel(t); return
+		"gourd": _draw_gourd_vessel(t); return
+		"leaf": _draw_leaf_vessel(t); return
 	var puffs := [Vector2(-26, 2), Vector2(-10, 7), Vector2(9, 6), Vector2(26, 2), Vector2(0, -1)]
 	for i in puffs.size():
 		var p: Vector2 = puffs[i] + Vector2(sin(t * 2.2 + i) * 2.0, cos(t * 1.7 + i * 1.3) * 1.5)
@@ -427,3 +435,64 @@ func _draw_cloud() -> void:
 		var side := -1.0 if i == 0 else 1.0
 		draw_arc(Vector2(side * 34, 0), 6, 0.0 if side > 0 else PI, TAU * 0.75 + (0.0 if side > 0 else PI), 10, Color(UiKit.JADE, 0.8), 2.0)
 	draw_circle(Vector2(-7, -3), 5.0, Color(1, 1, 1, 0.95))
+
+## A flying sword laid flat under the feet: a long jade-steel blade with a gold guard and a streaming tassel.
+func _draw_sword_vessel(t: float) -> void:
+	var f := float(facing)
+	var bob := sin(t * 3.0) * 1.5
+	var tip := Vector2(f * 54, 3 + bob)
+	var guard := Vector2(-f * 24, 5 + bob)
+	var back := Vector2(-f * 40, 6 + bob)
+	# A soft jade aura carries the blade.
+	for k in 3:
+		draw_circle(Vector2(f * (12 - k * 14), 8 + bob), 16.0 - k * 2.0, Color(UiKit.BRIGHT_JADE, 0.10))
+	for k in 3:   # a qi trail streaming behind the hilt
+		var a := back + Vector2(-f * (6 + k * 11), sin(t * 6.0 + k) * 2.5)
+		draw_line(a, a + Vector2(-f * 10, sin(t * 6.0 + k + 1) * 2.5), Color(UiKit.BRIGHT_JADE, 0.55 - k * 0.15), 4.0 - k)
+	var n := Vector2(0, 5.0)
+	var blade := PackedVector2Array([guard - n, tip - Vector2(f * 10, 1.5), tip, tip - Vector2(f * 10, -1.5), guard + n])
+	draw_colored_polygon(blade, Color(0.8, 0.93, 0.93))
+	draw_colored_polygon(PackedVector2Array([guard - n, tip - Vector2(f * 10, 1.5), tip, guard]), Color(0.93, 0.99, 1.0))   # the bright upper edge
+	draw_line(guard, tip - Vector2(f * 6, 0), Color(0.5, 0.7, 0.72), 1.5)                                                    # the ridge
+	draw_polyline(blade + PackedVector2Array([blade[0]]), Color(0.16, 0.26, 0.28), 1.5)
+	draw_line(guard + Vector2(0, -9), guard + Vector2(0, 9), Color(0.35, 0.25, 0.1), 7.0)
+	draw_line(guard + Vector2(0, -8), guard + Vector2(0, 8), UiKit.PALE_GOLD, 4.5)                                           # the gold guard
+	draw_line(guard, back, Color(0.3, 0.14, 0.1), 6.0)                                                                       # the wrapped hilt
+	for k in 3: draw_line(guard + (back - guard) * (0.2 + k * 0.28) + Vector2(0, -3), guard + (back - guard) * (0.3 + k * 0.28) + Vector2(0, 3), Color(0.55, 0.3, 0.2), 1.5)
+	draw_circle(back, 4.0, UiKit.PALE_GOLD)
+	var sway := sin(t * 5.0) * 3.0
+	draw_polyline(PackedVector2Array([back, back + Vector2(-f * 5, 6), back + Vector2(-f * 9 + sway, 15)]), Color(0.8, 0.2, 0.18), 3.0)
+
+## A jade gourd ridden side-saddle: a round body, a waist tie and a stopper.
+func _draw_gourd_vessel(t: float) -> void:
+	var f := float(facing)
+	var bob := sin(t * 2.6) * 2.0
+	var big := Vector2(-f * 8, 8 + bob)
+	var small := Vector2(f * 16, 4 + bob)
+	draw_circle(big + Vector2(0, 2), 17.0, Color(0.1, 0.3, 0.24, 0.5))
+	draw_circle(big, 16.0, Color(0.36, 0.72, 0.56))
+	draw_circle(small, 10.0, Color(0.36, 0.72, 0.56))
+	draw_circle(big + Vector2(-5, -6), 5.0, Color(0.7, 0.93, 0.8, 0.7))   # glaze highlight
+	draw_line(small + Vector2(-f * 9, -5), small + Vector2(-f * 9, 5), Color(0.75, 0.2, 0.18), 3.0)   # the red cord at the waist
+	draw_rect(Rect2(small + Vector2(f * 8, -3) - Vector2(2 if f > 0 else 4, 0), Vector2(6, 6)), Color(0.45, 0.28, 0.14))
+	draw_arc(big, 16.0, 0, TAU, 28, Color(0.12, 0.3, 0.24), 1.0)
+	draw_arc(small, 10.0, 0, TAU, 20, Color(0.12, 0.3, 0.24), 1.0)
+
+## A great maple leaf that sails on the wind, veined and tipped in autumn red.
+func _draw_leaf_vessel(t: float) -> void:
+	var f := float(facing)
+	var tilt := sin(t * 2.0) * 0.08
+	var pts := PackedVector2Array()
+	for i in 20:
+		var a := float(i) / 20.0 * TAU
+		var lobe := 1.0 + 0.28 * absf(sin(a * 2.5))
+		var p := Vector2(cos(a) * 40.0 * lobe, sin(a) * 9.0 * lobe)
+		pts.append(p.rotated(tilt) + Vector2(0, 6))
+	draw_colored_polygon(pts, Color(0.86, 0.38, 0.16))
+	draw_polyline(pts + PackedVector2Array([pts[0]]), Color(0.45, 0.16, 0.08), 1.0)
+	var stem_end := Vector2(-f * 46, 8).rotated(tilt)
+	draw_line(Vector2(f * 36, 6).rotated(tilt), stem_end, Color(0.55, 0.22, 0.1), 1.5)
+	for k in 4:
+		var x := -30.0 + k * 18.0
+		draw_line(Vector2(x, 6).rotated(tilt), Vector2(x + f * 8, 0).rotated(tilt), Color(0.55, 0.22, 0.1, 0.8), 1.0)
+		draw_line(Vector2(x, 6).rotated(tilt), Vector2(x + f * 8, 12).rotated(tilt), Color(0.55, 0.22, 0.1, 0.8), 1.0)

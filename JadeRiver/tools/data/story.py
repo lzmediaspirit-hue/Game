@@ -459,6 +459,9 @@ def unlocks():
     # Heart Tempering to Heaven Glimpse
     u("formations", "Formations", all_of(realm("heart_tempering_1")), "lines_in_the_sand", ["page:formations"],
       effects=[{"kind": "grant_item", "item": "formation_kit", "count": 1}])
+    # Gap report G2: the Treasure button. Plates and treasures both hold Qi, so the arrays quest teaches it.
+    u("treasures", "Treasures", all_of(realm("heart_tempering_1")), "lines_in_the_sand", ["hud:treasure_1"],
+      effects=[{"kind": "grant_item", "item": "stilling_bell", "count": 1}], same_stage_ok=True)
     u("perfect_timing", "Perfect timing", all_of(realm("heart_tempering_1")), "lines_in_the_sand", [], same_stage_ok=True, toast=False)
     u("healing", "Healing", all_of(realm("heart_tempering_3")), "the_infirmary", [], effects=[{"kind": "grant_item", "item": "needle_case", "count": 1}])
     u("array_plates", "Array plates", all_of(realm("heart_tempering_5")), "carry_a_wall", [])
@@ -476,6 +479,7 @@ def unlocks():
     u("tournament_finals", "Tournament finals", all_of(realm("cloud_stride_7"), flag("tournament_top8")), "the_valley_finals", [])
     u("mind_lake_pill", "Mind Lake Opening", all_of(realm("cloud_stride_9")), "opening_the_lake", [])
     u("spirit_sense", "Spirit Sense", all_of(realm("spirit_awakening_1")), "a_lake_inside", ["hud:soul_bar", "hud:sense"])
+    u("treasure_slot_2", "A second treasure", all_of(realm("spirit_awakening_1")), "a_lake_inside", ["hud:treasure_2"], same_stage_ok=True)
     u("hidden_portals", "Hidden portals", all_of(realm("spirit_awakening_2")), "what_the_eyes_miss", [])
     u("binding", "Binding", all_of(realm("spirit_awakening_3")), "the_sleeping_blade", [])
     u("nourish_soul", "Nourish soul", all_of(realm("spirit_awakening_4")), "quiet_waters", [])
@@ -912,7 +916,8 @@ def guided_quests():
     quest("riding_the_wind", "Riding the Wind", "guided", "hermit_yao", [
         o("bond_pet", "Bond with your spirit animal again"),
         o("use_system", "Ride it: Spirit Animals, choose Mount", system="mount"),
-    ], [], offered_by_unlock=True, chapter="cs1", same_stage_ok=True, offer=["A big enough friend can carry you."], complete=["Hold on tight."])
+    ], [item("flying_sword_vessel", 1)], offered_by_unlock=True, chapter="cs1", same_stage_ok=True, offer=["A big enough friend can carry you."],
+        complete=["Hold on tight.", "And when there is no friend, here: an old sword that remembers how to fly. Stand on the flat of it."])
     quest("clearer_water", "Clearer Water", "guided", "elder_hu", [
         o("enter_seclusion", "Seclusion with Refine Qi", focus="refine_qi"),
     ], [fx("add_purity", amount=100.0)], offered_by_unlock=True, chapter="cs2", giver_any=M, hand_in_any=M,
@@ -956,8 +961,11 @@ def guided_quests():
         offer=["Souls tire. Rest yours."], complete=["Soul Soothing Pills, for the worst days."])
     quest("the_mentors_gift", "The Mentor's Gift", "guided", "elder_hu", [
         o("win_spar", "Pass the personal-disciple trial", opponent="sparring_disciple"),
-    ], [fx("learn_secret_art", art="lotus_heart_breathing")], offered_by_unlock=True, chapter="sa5", giver_any=M, hand_in_any=M,
-        offer=["Beat my best disciple and I'll teach you personally."], complete=["My personal disciple. My secret art is yours, and the cave behind the pagoda is your abode."])
+    ], [fx("learn_secret_art", art="lotus_heart_breathing"), {"kind": "grant_item", "item": "heaven_splitting_talisman", "count": 1,
+                                                                 "instance": {"charges": 3}}], offered_by_unlock=True, chapter="sa5", giver_any=M, hand_in_any=M,
+        offer=["Beat my best disciple and I'll teach you personally."],
+        complete=["My personal disciple. My secret art is yours, and the cave behind the pagoda is your abode.",
+                  "And this: my last stroke, folded into paper. Three times it will cut what you cannot. Do not waste them on rats."])
     quest("treasures_of_heaven_and_earth", "Treasures of Heaven and Earth", "guided", "elder_hu", [
         o("collect", "Pick the Mindwell Lotus behind Crane Falls", item="mindwell_lotus", consume=False),
         o("use_system", "Plant the Evergreen Heart seed in rich earth (the elder's peak, your cave abode or the Back Mountain)",

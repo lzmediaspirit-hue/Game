@@ -552,6 +552,18 @@ def s_thunder(rng):
     return add_reverb(y, rng, t60=1.2, wet=0.3, keep=n)
 
 
+@sfx("bell")
+def s_bell(rng):
+    """The Stilling Bell: one deep temple strike that hums on, with a shimmer of overtones."""
+    d = 2.4
+    n = nsamp(d)
+    y = buf(d)
+    at(y, bell(196.0, rng, dur=d, kind="temple", strike=0.35), 0, 1.0)
+    at(y, bell(392.5, rng, dur=1.6, kind="small", strike=0.1), 0.0, 0.25)
+    at(y, membrane(70, rng, t60=0.25, drop=0.3, noise_amt=0.2), 0, 0.35)
+    return add_reverb(y, rng, t60=1.8, wet=0.3, keep=n)
+
+
 @sfx("charge")
 def s_charge(rng):
     """Static gathering before a strike: a rising crackle (the lightning warning)."""

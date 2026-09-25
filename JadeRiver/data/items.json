@@ -1914,6 +1914,280 @@
    "sell": false
   },
   {
+   "id": "stilling_bell",
+   "name": "Stilling Bell",
+   "type": "treasure_art",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "stilling_bell",
+   "desc": "A bronze bell that rings once and the world holds its breath: foes around you are stunned for 1.5 s and their Qi is sealed for 4 s. Bosses only lose their Qi.",
+   "treasure": {
+    "action": "bell",
+    "cooldown_s": 20,
+    "qi_pct": 0.15,
+    "radius": 220,
+    "stun_s": 1.5,
+    "seal_s": 4
+   }
+  },
+  {
+   "id": "nine_storey_pagoda",
+   "name": "Nine Storey Pagoda",
+   "type": "treasure_art",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "nine_storey_pagoda",
+   "desc": "A jade pagoda the size of a palm. Throw it and it falls over the nearest foe as a prison: 4 s it cannot move or strike. Bosses are too great for it.",
+   "treasure": {
+    "action": "pagoda",
+    "cooldown_s": 30,
+    "qi_pct": 0.2,
+    "range": 320,
+    "imprison_s": 4
+   }
+  },
+  {
+   "id": "returning_mirror",
+   "name": "Returning Mirror",
+   "type": "treasure_art",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "returning_mirror",
+   "desc": "A bronze mirror that returns what is thrown at it: for 2 s every missile that reaches you flies back at the one who threw it.",
+   "treasure": {
+    "action": "mirror",
+    "cooldown_s": 18,
+    "qi_pct": 0.12,
+    "reflect_s": 2
+   }
+  },
+  {
+   "id": "mountain_seal",
+   "name": "Mountain Seal",
+   "type": "treasure_art",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "mountain_seal",
+   "desc": "A jade seal the weight of a hill. Brought down, it strikes everything around you for 250% attack and throws it back.",
+   "treasure": {
+    "action": "seal",
+    "cooldown_s": 16,
+    "qi_pct": 0.18,
+    "radius": 170,
+    "mult": 2.5,
+    "knockback": 120
+   }
+  },
+  {
+   "id": "beast_taking_cauldron",
+   "name": "Beast Taking Cauldron",
+   "type": "treasure_art",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "beast_taking_cauldron",
+   "desc": "An iron cauldron that drinks in a beast worn below 20% HP: it is taken whole, and you keep twice its materials. Not bosses.",
+   "treasure": {
+    "action": "cauldron",
+    "cooldown_s": 25,
+    "qi_pct": 0.1,
+    "range": 260,
+    "below": 0.2
+   }
+  },
+  {
+   "id": "wisp_banner",
+   "name": "Wisp Banner",
+   "type": "treasure_art",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 1,
+   "icon": "wisp_banner",
+   "desc": "A banner of three bound wisps. Unfurled, they circle you for 10 s and each strikes the nearest foe every second for 60% Qi attack.",
+   "treasure": {
+    "action": "banner",
+    "cooldown_s": 30,
+    "qi_pct": 0.2,
+    "wisps": 3,
+    "duration": 10,
+    "mult": 0.6,
+    "range": 280
+   }
+  },
+  {
+   "id": "sealing_gourd",
+   "name": "Sealing Gourd",
+   "type": "treasure_art",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "sealing_gourd",
+   "desc": "A violet gourd with a paper seal. Unstoppered, it drinks every missile within reach for 3 s, and each one mends 1% of your HP.",
+   "treasure": {
+    "action": "gourd",
+    "cooldown_s": 20,
+    "qi_pct": 0.1,
+    "absorb_s": 3,
+    "radius": 240
+   }
+  },
+  {
+   "id": "throwing_needles",
+   "name": "Throwing Needles",
+   "type": "throwable",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "throwing_needles",
+   "desc": "Three needles flicked at once. Light, fast, and they find the gaps in armour.",
+   "use": [
+    {
+     "kind": "throw",
+     "art": "needle",
+     "count": 3,
+     "mult": 0.45,
+     "speed": 760,
+     "range": 380,
+     "pierce": 0
+    }
+   ],
+   "food": {
+    "group": "throw"
+   }
+  },
+  {
+   "id": "flying_knives",
+   "name": "Flying Knives",
+   "type": "throwable",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "flying_knives",
+   "desc": "A balanced throwing knife. One hard hit at range.",
+   "use": [
+    {
+     "kind": "throw",
+     "art": "knife",
+     "count": 1,
+     "mult": 1.2,
+     "speed": 640,
+     "range": 420,
+     "pierce": 1
+    }
+   ],
+   "food": {
+    "group": "throw"
+   }
+  },
+  {
+   "id": "thunderclap_pellet",
+   "name": "Thunderclap Pellet",
+   "type": "throwable",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "thunderclap_pellet",
+   "desc": "A lacquered pellet packed with storm shard dust. It bursts where it lands: damage and knockback all around.",
+   "use": [
+    {
+     "kind": "throw",
+     "art": "pellet",
+     "count": 1,
+     "mult": 1.6,
+     "speed": 520,
+     "range": 360,
+     "burst": 120,
+     "knockback": 130
+    }
+   ],
+   "food": {
+    "group": "throw"
+   }
+  },
+  {
+   "id": "heaven_splitting_talisman",
+   "name": "Heaven Splitting Talisman",
+   "type": "talisman",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 1,
+   "icon": "heaven_splitting_talisman",
+   "desc": "An elder's last sword stroke folded into paper. Three times it will split the air in front of you for 12,000 damage, whatever your realm. Never sold.",
+   "sell": false,
+   "use": [],
+   "use_action": "talisman_charge",
+   "talisman": {
+    "charges": 3,
+    "power": 12000,
+    "reach": 540,
+    "depth": 70
+   }
+  },
+  {
+   "id": "flying_sword_vessel",
+   "name": "Flying Sword Vessel",
+   "type": "vessel",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "flying_sword_vessel",
+   "desc": "Ride your sword into the sky, the way the stories say. The fastest vessel, and the air costs a fifth less.",
+   "flight": {
+    "sprite": "sword",
+    "qi_mult": 0.8,
+    "speed_mult": 1.25
+   }
+  },
+  {
+   "id": "cloud_puff_vessel",
+   "name": "Cloud Puff Vessel",
+   "type": "vessel",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "cloud_puff_vessel",
+   "desc": "A small obedient cloud. Slow, soft and very cheap on Qi.",
+   "flight": {
+    "sprite": "cloud",
+    "qi_mult": 0.65,
+    "speed_mult": 0.95
+   }
+  },
+  {
+   "id": "jade_gourd_vessel",
+   "name": "Jade Gourd Vessel",
+   "type": "vessel",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "jade_gourd_vessel",
+   "desc": "A great jade gourd you sit astride. Steady, and a little faster than walking on air.",
+   "flight": {
+    "sprite": "gourd",
+    "qi_mult": 0.85,
+    "speed_mult": 1.1
+   }
+  },
+  {
+   "id": "maple_leaf_vessel",
+   "name": "Maple Leaf Vessel",
+   "type": "vessel",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "maple_leaf_vessel",
+   "desc": "A red maple leaf the size of a raft. It wanders, but it is kind to your Qi.",
+   "flight": {
+    "sprite": "leaf",
+    "qi_mult": 0.75,
+    "speed_mult": 1.0
+   }
+  },
+  {
    "id": "cold_lamp_flame",
    "name": "Cold Lamp Flame",
    "type": "treasure",

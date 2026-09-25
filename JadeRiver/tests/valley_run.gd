@@ -1818,7 +1818,7 @@ func sec_ae5() -> void:
 	check(start("keel_and_ward"), "Keel and Ward accepted")
 	if Game.crafting.rank_index(Game.crafting.rank_of(c(), "smithing")) < Game.crafting.rank_index("adept"):
 		Game.crafting.add_xp(c(), "smithing", 1000.0)
-	for i in 8:
+	for i in 16:   # plumes drop about one kill in five
 		if c().inventory.count("harpy_plume") >= 3: break
 		if travel("gc_harpy_roosts"): fight("canyon_harpy", 3, 300.0, 0.3)
 		revive_if_needed()

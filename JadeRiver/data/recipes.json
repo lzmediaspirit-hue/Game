@@ -2346,6 +2346,46 @@
    ]
   },
   {
+   "id": "throwing_needles",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "throwing_needles",
+     "count": 10
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "flying_knives",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 1
+    },
+    {
+     "item": "boar_hide",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "flying_knives",
+     "count": 6
+    }
+   ],
+   "default": true
+  },
+  {
    "id": "earth_vein_furnace",
    "craft": "smithing",
    "grade": "earth",

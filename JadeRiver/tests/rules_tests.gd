@@ -37,6 +37,7 @@ func _main() -> void:
 	starsea_suite()
 	movement_suite()
 	g1_suite()
+	g2_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -857,6 +858,204 @@ func g1_suite() -> void:
 	cu.residue = 0.0
 	cu.foundation = {}
 	cu.pill_resistance.clear()
+	Game.world.apply_teleport(c.id, back)
+
+# ------------------------------------------------------------------ treasures, throwables, talismans, vessels (gap report G2)
+func _g2_foe(def_id: String, at: Vector2, boss := false) -> EnemyState:
+	var e: EnemyState = Game.enemies.spawn_at(def_id, at, 12)
+	if e != null and boss: e.role = "field_boss"
+	return e
+
+func _g2_ready(c) -> void:
+	Game.room_rt.enemies.clear()
+	Game.room_rt.projectiles.clear()
+	Game.combat.treasure_fx.clear()
+	c.pools.cooldowns.clear()
+	c.pools.qi = c.pools.max_qi
+	c.pools.hp = c.pools.max_hp * 0.5
+
+func g2_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var back := str(c.position.get("room", "lf_village"))
+	var events: Array = []
+	var grab := func(n, p): events.append([str(n), p])
+	GameEvents.event.connect(grab)
+	Game.world.apply_teleport(c.id, "bg_whispering_bamboo")
+	for st_id in ["stun", "slow", "shock", "spawn_protection"]: Game.combat.cure_status(c.id, st_id)
+	var here: Vector2 = Game.actor_state(c.id).plane
+	Game.combat.timeline(c.id).facing = 1
+	var realm0: String = c.cultivator.realm_key
+	c.cultivator.realm_key = "heart_tempering_5"
+	Game.combat.refresh_stats(c.id)
+	c.inventory.bag.fill(null)
+	var treasures := ["stilling_bell", "nine_storey_pagoda", "returning_mirror", "mountain_seal", "beast_taking_cauldron", "wisp_banner", "sealing_gourd"]
+	for id in treasures: Game.inventory.apply_add(c.id, id, 1, "test")
+	# Two Treasure buttons: the first at Heart Tempering 1, the second at Spirit Awakening 1.
+	check(str(ContentDB.entry("unlocks", "treasures").get("reveals", [""])[0]) == "hud:treasure_1" and ContentDB.has_entry("unlocks", "treasure_slot_2"),
+		"the Treasure buttons are unlocks that reveal HUD buttons")
+	Unlocks.force_unlock(c.id, "treasures")
+	Unlocks.force_unlock(c.id, "treasure_slot_2")
+	var r := Game.submit({"type": "set_treasure", "slot": 0, "item": "stilling_bell"})
+	check(r.get("ok", false) and c.inventory.treasures[0] == "stilling_bell", "the Stilling Bell sits in Treasure 1")
+	Game.submit({"type": "set_treasure", "slot": 1, "item": "stilling_bell"})
+	check(c.inventory.treasures == ["", "stilling_bell"], "set in Treasure 2, it leaves Treasure 1")
+	check(str(Game.submit({"type": "set_treasure", "slot": 0, "item": "throwing_needles"}).get("reason", "")) == "not_a_treasure", "only a treasure art fits a Treasure button")
+	# The Stilling Bell: stun and Qi seal around you; a boss keeps its feet.
+	_g2_ready(c)
+	var a := _g2_foe("bamboo_monkey", here + Vector2(80, 0))
+	var b := _g2_foe("bamboo_monkey", here + Vector2(-120, 10))
+	var far := _g2_foe("bamboo_monkey", here + Vector2(600, 0))
+	var boss := _g2_foe("ember_fox", here + Vector2(60, -10), true)
+	var qi0: float = c.pools.qi
+	r = Game.submit({"type": "use_treasure", "slot": 1})
+	check(r.get("ok", false) and int(r.get("targets", 0)) == 3, "the bell reaches everyone within 220 (%s)" % str(r.get("targets", r.get("reason", ""))))
+	check(a.pools.has_status("stun") and b.pools.has_status("stun") and not far.pools.has_status("stun"), "foes close by are stunned; a far one is not")
+	check(not boss.pools.has_status("stun") and boss.pools.has_status("qi_seal"), "a boss is not stunned, only Qi-sealed")
+	check(near(qi0 - c.pools.qi, c.pools.max_qi * 0.15), "the bell costs 15%% of max Qi (%.1f)" % (qi0 - c.pools.qi))
+	check(str(Game.submit({"type": "use_treasure", "slot": 1}).get("reason", "")) == "cooldown", "then it rests for 20 s")
+	c.pools.cooldowns.clear()
+	c.pools.qi = c.pools.max_qi * 0.1
+	check(str(Game.submit({"type": "use_treasure", "slot": 1}).get("reason", "")) == "no_qi", "without the Qi it stays silent")
+	# The Nine-Storey Pagoda: a prison for the nearest foe, never a boss.
+	_g2_ready(c)
+	Game.submit({"type": "set_treasure", "slot": 0, "item": "nine_storey_pagoda"})
+	_g2_foe("ember_fox", here + Vector2(60, 0), true)
+	check(str(Game.submit({"type": "use_treasure", "slot": 0}).get("reason", "")) == "immune" and c.pools.cooldown("treasure:nine_storey_pagoda") == 0.0
+		and near(c.pools.qi, c.pools.max_qi), "the pagoda cannot hold a boss, and a failed throw costs nothing")
+	var small := _g2_foe("bamboo_monkey", here + Vector2(40, 0))
+	r = Game.submit({"type": "use_treasure", "slot": 0})
+	var held := false
+	for st in small.pools.statuses: if st.id == "stun" and near(float(st.remaining), 4.0): held = true
+	check(r.get("ok", false) and held, "the nearest foe is held for 4 s")
+	# The Returning Mirror sends an arrow back at the archer.
+	_g2_ready(c)
+	Game.submit({"type": "set_treasure", "slot": 0, "item": "returning_mirror"})
+	var archer := _g2_foe("bandit_archer", here + Vector2(200, 0))
+	archer.facing = -1
+	Game.submit({"type": "use_treasure", "slot": 0})
+	var hp_c: float = c.pools.hp
+	var hp_a: float = archer.pools.hp
+	Game.combat.spawn_enemy_projectile(archer, archer.def.attacks[0])
+	events.clear()
+	for i in 12: Game.combat._tick_projectiles(0.05)
+	GameEvents.flush()
+	check(events.any(func(e): return e[0] == "projectile_reflected") and near(c.pools.hp, hp_c) and archer.pools.hp < hp_a,
+		"the arrow turns back and strikes its archer (%.0f)" % (hp_a - archer.pools.hp))
+	# The Sealing Gourd drinks it instead, and each one mends 1% HP.
+	_g2_ready(c)
+	Game.submit({"type": "set_treasure", "slot": 0, "item": "sealing_gourd"})
+	archer = _g2_foe("bandit_archer", here + Vector2(200, 0))
+	archer.facing = -1
+	Game.submit({"type": "use_treasure", "slot": 0})
+	hp_c = c.pools.hp
+	Game.combat.spawn_enemy_projectile(archer, archer.def.attacks[0])
+	events.clear()
+	Game.combat._tick_projectiles(0.05)
+	GameEvents.flush()
+	check(events.any(func(e): return e[0] == "projectile_absorbed") and Game.room_rt.projectiles.is_empty() and c.pools.hp > hp_c,
+		"the gourd swallows the arrow and mends the drinker")
+	# The Mountain Seal: 250% attack to all around.
+	_g2_ready(c)
+	Game.submit({"type": "set_treasure", "slot": 0, "item": "mountain_seal"})
+	var s1 := _g2_foe("bamboo_monkey", here + Vector2(60, 0))
+	var s2 := _g2_foe("bamboo_monkey", here + Vector2(-90, 0))
+	var s_hp := s1.pools.hp
+	r = Game.submit({"type": "use_treasure", "slot": 0})
+	check(r.get("ok", false) and int(r.targets) == 2 and s1.pools.hp < s_hp and s2.pools.hp < s_hp, "the seal comes down on both foes")
+	# The Wisp Banner: three wisps strike the nearest foes each second.
+	_g2_ready(c)
+	Game.submit({"type": "set_treasure", "slot": 0, "item": "wisp_banner"})
+	var w1 := _g2_foe("bamboo_monkey", here + Vector2(100, 0))
+	var w_hp := w1.pools.hp
+	Game.submit({"type": "use_treasure", "slot": 0})
+	events.clear()
+	Game.combat._tick_treasures(c, 1.0)
+	GameEvents.flush()
+	check(events.filter(func(e): return e[0] == "wisp_struck").size() == 1 and w1.pools.hp < w_hp, "a second in, the wisps find the only foe")
+	for i in 10: Game.combat._tick_treasures(c, 1.0)
+	check(not Game.combat.treasure_fx.get(c.id, {}).has("wisps"), "after 10 s the banner furls")
+	# The Beast-Taking Cauldron: a worn-down beast is taken whole, for twice the materials.
+	_g2_ready(c)
+	Game.submit({"type": "set_treasure", "slot": 0, "item": "beast_taking_cauldron"})
+	var beast := _g2_foe("bamboo_monkey", here + Vector2(60, 0))
+	var man := _g2_foe("bandit_archer", here + Vector2(30, 0))
+	man.pools.hp = 1.0
+	check(str(Game.submit({"type": "use_treasure", "slot": 0}).get("reason", "")) == "no_target", "a healthy beast (or any person) cannot be taken")
+	beast.pools.hp = beast.pools.max_hp * 0.1
+	events.clear()
+	r = Game.submit({"type": "use_treasure", "slot": 0})
+	GameEvents.flush()
+	var taken: Array = events.filter(func(e): return e[0] == "beast_captured")
+	check(r.get("ok", false) and not beast.alive and man.alive and taken.size() == 1 and int(taken[0][1].items) % 2 == 0 and Game.combat.captured.is_empty(),
+		"the worn beast is taken whole, its materials doubled (%s)" % str(taken[0][1].items if taken.size() > 0 else "none"))
+	# Throwables: needles fly three at a time and share a 1.2 s cooldown.
+	_g2_ready(c)
+	Game.inventory.apply_add(c.id, "throwing_needles", 5, "test")
+	var t1 := _g2_foe("bamboo_monkey", here + Vector2(150, 0))
+	var t_hp := t1.pools.hp
+	r = Game.inventory.use_item(c, _bag_index(c, "throwing_needles"), true)
+	check(r.get("ok", false) and Game.room_rt.projectiles.size() == 3 and c.inventory.count("throwing_needles") == 4, "one bundle throws three needles")
+	check(str(Game.inventory.use_item(c, _bag_index(c, "throwing_needles"), true).get("reason", "")) == "cooldown" and near(c.pools.cooldown("item:throw"), 1.2),
+		"throwables share a 1.2 s cooldown")
+	for i in 10: Game.combat._tick_projectiles(0.05)
+	check(t1.pools.hp < t_hp and Game.room_rt.projectiles.is_empty(), "the needles land (%.0f)" % (t_hp - t1.pools.hp))
+	# Shots fly at chest height but still strike a creature under the line (a rat is 22 tall).
+	_g2_ready(c)
+	var rat := _g2_foe("reedtail_rat", here + Vector2(120, 0))
+	Game.combat._spawn_projectile({"team": "player", "owner": c.id, "x": here.x + 28, "y": here.y, "alt": Game.actor_state(c.id).altitude + 58.0, "dir": 1,
+		"speed": 620, "range": 480, "pierce": 0, "art": "arrow", "attack": {"damage_type": "physical", "element": "none", "mult": [1.0, 1.0], "range": [1.0, 1.0]}})
+	for i in 6: Game.combat._tick_projectiles(0.05)
+	check(rat.pools.hp < rat.pools.max_hp, "an arrow at chest height strikes a rat beneath it")
+	# A thunderclap pellet bursts: the foe behind the one it hits is caught too.
+	_g2_ready(c)
+	Game.inventory.apply_add(c.id, "thunderclap_pellet", 1, "test")
+	var p1 := _g2_foe("bamboo_monkey", here + Vector2(150, 0))
+	var p2 := _g2_foe("bamboo_monkey", here + Vector2(230, 0))
+	var p_hp := p2.pools.hp
+	events.clear()
+	Game.inventory.use_item(c, _bag_index(c, "thunderclap_pellet"), true)
+	for i in 10: Game.combat._tick_projectiles(0.05)
+	GameEvents.flush()
+	check(events.any(func(e): return e[0] == "projectile_burst") and p2.pools.hp < p_hp and p1.pools.hp < p1.pools.max_hp, "the pellet bursts and catches the foe behind")
+	# The Heaven Splitting Talisman: three charges at its own power.
+	_g2_ready(c)
+	Game.inventory.apply_add(c.id, "heaven_splitting_talisman", 1, "test")
+	var big := _g2_foe("bamboo_monkey", here + Vector2(200, 0))
+	r = Game.inventory.use_item(c, _bag_index(c, "heaven_splitting_talisman"), true)
+	var tal = c.inventory.bag[_bag_index(c, "heaven_splitting_talisman")] if _bag_index(c, "heaven_splitting_talisman") >= 0 else {}
+	check(r.get("ok", false) and not big.alive and int(r.get("charges", 0)) == 2 and int(tal.get("charges", 0)) == 2, "one charge splits the air: the monkey falls, two charges left")
+	check(str(Game.inventory.use_item(c, _bag_index(c, "heaven_splitting_talisman"), true).get("reason", "")) == "cooldown", "a talisman needs 3 s between charges")
+	for i in 2:
+		c.pools.cooldowns.clear()
+		Game.inventory.use_item(c, _bag_index(c, "heaven_splitting_talisman"), true)
+	check(c.inventory.count("heaven_splitting_talisman") == 0, "the third charge spends the paper")
+	# Flight vessels: kept once in the key pouch, chosen for flight.
+	Game.inventory.apply_add(c.id, "flying_sword_vessel", 1, "test")
+	Game.inventory.apply_add(c.id, "flying_sword_vessel", 1, "test")
+	check(c.inventory.count("flying_sword_vessel") == 1 and c.inventory.key_items.any(func(k): return k.id == "flying_sword_vessel"), "a vessel is kept once, in the key pouch")
+	check(Game.submit({"type": "choose_vessel", "item": "flying_sword_vessel"}).get("ok", false) and near(Game.combat.vessel_qi_mult(c), 0.8)
+		and near(Game.combat.vessel_speed_mult(c), 1.25), "the Flying Sword: flight costs 20% less Qi and is 25% faster")
+	check(not Game.submit({"type": "choose_vessel", "item": "stilling_bell"}).get("ok", false), "a bell is not a vessel")
+	Game.combat.flying[c.id] = true
+	check(near(Game.combat.move_factor(c.id), 1.25), "in the air the sword carries you 25%% faster (%.2f)" % Game.combat.move_factor(c.id))
+	Game.combat.flying.erase(c.id)
+	check(near(Game.combat.move_factor(c.id), 1.0), "on the ground the vessel does nothing")
+	var saved: Dictionary = c.inventory.snapshot()
+	var inv2 := InventoryState.new()
+	inv2.restore(saved)
+	check(inv2.vessel == "flying_sword_vessel" and inv2.treasures == c.inventory.treasures, "treasures and the vessel survive a save")
+	Game.submit({"type": "choose_vessel", "item": ""})
+	check(c.inventory.vessel == "" and near(Game.combat.vessel_qi_mult(c), 1.0), "dismounted, you fly on Qi alone")
+	# Tidy up.
+	GameEvents.event.disconnect(grab)
+	_g2_ready(c)
+	c.inventory.treasures = ["", ""]
+	c.inventory.bag.fill(null)
+	c.inventory.key_items = c.inventory.key_items.filter(func(k): return k.id != "flying_sword_vessel")
+	c.cultivator.realm_key = realm0
+	Game.combat.refresh_stats(c.id)
+	c.pools.hp = c.pools.max_hp
 	Game.world.apply_teleport(c.id, back)
 
 # ------------------------------------------------------------------ emotes (S34)

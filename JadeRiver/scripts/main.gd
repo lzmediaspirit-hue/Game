@@ -164,6 +164,11 @@ func _handle_preview_args(user_args: Array) -> void:
 			# Debug tools (S38): --give=item[:count[:quality]] puts items in the bag for previews.
 			var g := str(a).trim_prefix("--give=").split(":")
 			Game.inventory.apply_add(Game.active().id, g[0], int(g[1]) if g.size() > 1 else 1, "debug", {"quality": g[2]} if g.size() > 2 else {})
+		if str(a).begins_with("--vessel=") and Game.active() != null:
+			# Debug tools (S38): preview a flight vessel (G2); pair it with --fly.
+			var vid := str(a).trim_prefix("--vessel=")
+			Game.inventory.apply_add(Game.active().id, vid, 1, "debug")
+			Game.submit({"type": "choose_vessel", "item": vid})
 	for a in user_args:
 		if str(a).begins_with("--open-page="):
 			await get_tree().create_timer(0.8).timeout

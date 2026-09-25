@@ -30,6 +30,8 @@ var sense_center := Vector2(749, 640)
 var quick_center := Vector2(887, 555)
 var pet_center := Vector2(975, 555)
 var guard_center := Vector2(799, 555)
+## Gap report G2: the Treasure buttons, left of Guard (the second opens at Spirit Awakening 1).
+var treasure_centers := [Vector2(711, 555), Vector2(711, 470)]
 var minimap_rect := Rect2(1032, 16, 232, 140)
 var icon_row := [["menu", Vector2(1058, 188)], ["bag", Vector2(1116, 188)], ["map", Vector2(1174, 188)], ["mail", Vector2(1232, 188)]]
 
@@ -74,6 +76,7 @@ func _apply_hand() -> void:
 	for i in slots.size(): slots[i] = _mirror(slots[i])
 	for k in ["attack_center", "jump_center", "meditate_center", "sense_center", "quick_center", "pet_center", "guard_center"]:
 		set(k, _mirror(get(k)))
+	treasure_centers = treasure_centers.map(func(tp): return _mirror(tp))
 
 func _mirror(p: Vector2) -> Vector2:
 	return Vector2(1280.0 - p.x, p.y)
@@ -160,6 +163,8 @@ func role_at(p: Vector2) -> String:
 	if p.distance_to(quick_center) < 30 and shown("quick_use"): return "quick"
 	if p.distance_to(pet_center) < 30 and shown("pet"): return "pet"
 	if p.distance_to(guard_center) < 30 and shown("guard"): return "guard"
+	for ti in 2:
+		if p.distance_to(treasure_centers[ti]) < 30 and shown("treasure_%d" % (ti + 1)): return "treasure:%d" % ti
 	for center in slots:
 		if p.distance_to(center) < 43 and shown("skills"): return "skill"
 	if minimap_rect.has_point(p) and shown("minimap"): return "minimap"
@@ -207,6 +212,7 @@ func press(id: int, p: Vector2):
 				var sr := Game.submit({"type": "sense_pulse"})
 				if not sr.ok and sr.has("text"): add_log(str(sr.text), UiKit.MIST)
 		"pet": if bound(): open_page.emit("spirit_animals", {})
+		"treasure:0", "treasure:1": use_treasure(int(role.get_slice(":", 1)))
 		"minimap": open_page.emit("world_map", {})
 		"portrait": open_page.emit("character", {})
 		"tracker": open_page.emit("quests", {})
@@ -300,6 +306,17 @@ func use_context() -> void:
 		return
 	if r.has("text") and str(r.text) != "": add_log(str(r.text), UiKit.PAPER)
 
+func use_treasure(slot: int) -> void:
+	if not bound(): return
+	var tid := str(Game.active().inventory.treasures[slot])
+	if tid == "" or Game.active().inventory.count(tid) <= 0:
+		open_page.emit("inventory", {})   # an empty Treasure button opens the bag to choose one
+		return
+	var r := Game.submit({"type": "use_treasure", "slot": slot})
+	if not r.ok:
+		if r.get("reason", "") == "cooldown": add_log(Tx.t("hud.not_ready_yet"), UiKit.MIST)
+		elif r.has("text"): add_log(str(r.text), UiKit.MIST)
+
 func use_quick() -> void:
 	if not bound(): return
 	var r := Game.submit({"type": "use_quick"})
@@ -348,6 +365,8 @@ func _input(event):
 						guard_pressed = true
 						guard_hold = 0.0
 				KEY_Q: if shown("quick_use"): use_quick()
+				KEY_R: if shown("treasure_1"): use_treasure(0)
+				KEY_T: if shown("treasure_2"): use_treasure(1)
 				KEY_TAB: if shown("menu"): open_page.emit("menu", {})
 				KEY_I, KEY_B: if shown("bag"): open_page.emit("inventory", {})
 				KEY_M: if shown("map"): open_page.emit("world_map", {})
@@ -481,6 +500,13 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.debt_" + str(p.debt)), "quest")
 		"room_event_flawless":
 			toast(Tx.t("hud.flawless") , "gold")
+		# Gap report G2: treasures and talismans.
+		"beast_captured":
+			add_log(Tx.t("hud.beast_captured") % str(ContentDB.entry("enemies", str(p.def)).get("name", "")), UiKit.PALE_GOLD)
+		"talisman_struck":
+			add_log(Tx.t("hud.talisman_charges") % int(p.charges) if int(p.charges) > 0 else Tx.t("hud.talisman_spent"), UiKit.PALE_GOLD)
+		"treasure_set":
+			if str(p.item) != "": add_log(Tx.t("hud.treasure_set") % [ContentDB.item_name(str(p.item)), int(p.slot) + 1], UiKit.PALE_GOLD)
 		"pill_soul_awakened":
 			toast(Tx.t("hud.pill_soul") % Tx.t("hud.pill_soul_effect." + str(p.effect)), "gold")
 		"spar_ended":
@@ -833,6 +859,27 @@ func _draw_controls(c) -> void:
 	if shown("pet"):
 		ring(pet_center, 26)
 		glyph("pet", pet_center, 28)
+	for ti in 2:
+		if not shown("treasure_%d" % (ti + 1)): continue
+		var tc: Vector2 = treasure_centers[ti]
+		var tid := str(c.inventory.treasures[ti])
+		if tid != "" and c.inventory.count(tid) <= 0: tid = ""   # sold or stored: the button is empty again
+		ring(tc, 26, false, 1.0, pulses.has("hud:treasure_%d" % (ti + 1)))
+		if tid == "":
+			var motif: Texture2D = SpriteCache.tex("res://art/ui/slot_empty_motif__normal.png")
+			if motif: draw_texture_rect(motif, Rect2(tc - Vector2(16, 16), Vector2(32, 32)), false, Color(0.7, 1.0, 0.9, 0.35))
+			continue
+		var ttex = SpriteCache.icon(tid)
+		var tdef: Dictionary = ContentDB.item(tid).get("treasure", {})
+		var short: bool = c.pools.qi < c.pools.max_qi * float(tdef.get("qi_pct", 0.1))
+		if ttex: draw_texture_rect(ttex, Rect2(tc - Vector2(18, 18), Vector2(36, 36)), false, Color(1, 1, 1, 0.4 if short else 1.0))
+		var tcd: float = c.pools.cooldown("treasure:" + tid)
+		if tcd > 0.05:
+			var frac := clampf(tcd / maxf(1.0, float(tdef.get("cooldown_s", 20))), 0.0, 1.0)
+			var pts := PackedVector2Array([tc])
+			for k in 25: pts.append(tc + Vector2.from_angle(-PI / 2 + TAU * frac * (k / 24.0)) * 24.0)
+			draw_colored_polygon(pts, Color(0, 0, 0, 0.55))
+			UiKit.draw_outlined(self, str(int(ceil(tcd))), tc + Vector2(-20, 7), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 40)
 	if shown("guard"):
 		ring(guard_center, 26, Game.combat.timeline(c.id).guard)
 		glyph("dodge" if Unlocks.is_unlocked(c.id, "dodge_dash") else "guard", guard_center, 28)

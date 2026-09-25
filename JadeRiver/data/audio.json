@@ -97,6 +97,10 @@
    "file": "res://art/audio/sfx/backlash.wav",
    "volume_db": -4
   },
+  "bell": {
+   "file": "res://art/audio/sfx/bell.wav",
+   "volume_db": -4
+  },
   "boss_roar": {
    "file": "res://art/audio/sfx/boss_roar.wav",
    "volume_db": -4

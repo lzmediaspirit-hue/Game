@@ -85,6 +85,36 @@ func _draw() -> void:
 			"flash":
 				var bright := 0.5 if Game.account.settings.get("flashes", true) else 0.15
 				draw_circle(e.pos, float(e.radius) * (0.5 + k), Color(c, bright * (1.0 - k)))
+			"pagoda":
+				# A jade pagoda falls over the foe and holds it; it fades as the prison lifts.
+				var drop := minf(1.0, k * 8.0)
+				var pp: Vector2 = e.pos + Vector2(0, -150.0 * (1.0 - drop))
+				var fade2 := 0.9 if k < 0.85 else (1.0 - k) / 0.15 * 0.9
+				for i in 4:
+					var w := 44.0 - i * 8.0
+					var y := -i * 26.0
+					draw_rect(Rect2(pp + Vector2(-w * 0.5 + 4, y - 22), Vector2(w - 8, 18)), Color(0.75, 0.2, 0.2, fade2 * 0.8))
+					draw_colored_polygon(PackedVector2Array([pp + Vector2(-w * 0.5 - 6, y - 22), pp + Vector2(w * 0.5 + 6, y - 22), pp + Vector2(w * 0.5 - 4, y - 30),
+						pp + Vector2(-w * 0.5 + 4, y - 30)]), Color(c, fade2))
+				draw_rect(Rect2(pp + Vector2(-2, -128), Vector2(4, 12)), Color(UiKit.GOLD, fade2))
+			"seal_slam":
+				var land := minf(1.0, k * 4.0)
+				var sp2: Vector2 = e.pos + Vector2(0, -200.0 * (1.0 - land) - 40.0)
+				if k < 0.5:
+					draw_rect(Rect2(sp2 - Vector2(34, 24), Vector2(68, 48)), Color(c, 0.9))
+					draw_rect(Rect2(sp2 - Vector2(22, 12), Vector2(44, 24)), Color(0.8, 0.2, 0.2, 0.9))
+				if land >= 1.0:
+					var kk := (k - 0.25) / 0.75
+					draw_set_transform(e.pos, 0.0, Vector2(1, 0.35))
+					draw_arc(Vector2.ZERO, float(e.radius) * kk, 0, TAU, 48, Color(c, 0.9 * (1.0 - kk)), 10.0 * (1.0 - kk) + 2.0)
+					draw_set_transform(Vector2.ZERO)
+			"talisman_wave":
+				# The talisman's stroke: a long blade of light across the room in front of you.
+				var f2 := float(e.get("facing", 1))
+				var len2 := float(e.radius) * minf(1.0, k * 3.0)
+				var a3 := 1.0 - k
+				draw_rect(Rect2(e.pos + Vector2(0 if f2 > 0 else -len2, -10), Vector2(len2, 20)), Color(c, 0.35 * a3))
+				draw_rect(Rect2(e.pos + Vector2(0 if f2 > 0 else -len2, -4), Vector2(len2, 8)), Color(1, 1, 0.9, 0.9 * a3))
 			"pill_cloud":
 				# A Halo or Soul pill forms (G1): a coloured cloud boils up over the furnace, then thins away.
 				var fade := 1.0 if k < 0.7 else 1.0 - (k - 0.7) / 0.3
@@ -140,6 +170,21 @@ func _draw_projectile(p: Dictionary) -> void:
 		"talisman":
 			draw_rect(Rect2(pos - Vector2(6, 10), Vector2(12, 20)), Color("e8d99a"))
 			draw_rect(Rect2(pos - Vector2(3, 5), Vector2(6, 8)), UiKit.RED)
+		"needle":
+			draw_line(pos + Vector2(-dir * 12, 0), pos + Vector2(dir * 8, 0), UiKit.INK, 3)
+			draw_line(pos + Vector2(-dir * 12, 0), pos + Vector2(dir * 8, 0), Color("e8eef0"), 1)
+			draw_rect(Rect2(pos + Vector2(-dir * 14 - 1, -1), Vector2(3, 3)), UiKit.RED)
+		"knife":
+			var tip2 := pos + Vector2(dir * 12, 0)
+			draw_colored_polygon(PackedVector2Array([tip2, pos + Vector2(0, -4), pos + Vector2(-dir * 6, 0), pos + Vector2(0, 4)]), Color("c9d2d6"))
+			draw_polyline(PackedVector2Array([tip2, pos + Vector2(0, -4), pos + Vector2(-dir * 6, 0), pos + Vector2(0, 4), tip2]), UiKit.INK, 2)
+			draw_line(pos + Vector2(-dir * 6, 0), pos + Vector2(-dir * 12, 0), Color("6b4a2a"), 3)
+			draw_arc(pos + Vector2(-dir * 14, 0), 3, 0, TAU, 8, UiKit.RED, 2)
+		"pellet":
+			draw_circle(pos, 7, UiKit.INK)
+			draw_circle(pos, 5, Color("2a2a30"))
+			draw_rect(Rect2(pos + Vector2(-5, -1), Vector2(10, 2)), UiKit.RED)
+			draw_rect(Rect2(pos + Vector2(-dir * 2, -9), Vector2(3, 3)), Color("ffd76a"))
 		_:
 			var col := SpriteCache.element_color(str(p.get("element", "none")))
 			if str(p.art).begins_with("soul"): col = UiKit.SOUL

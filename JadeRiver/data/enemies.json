@@ -5484,7 +5484,10 @@
    },
    "half_width": 80,
    "height": 140,
-   "hollowing": 8
+   "hollowing": 8,
+   "first_defeat": [
+    "mountain_seal"
+   ]
   },
   {
    "id": "gate_guardian",
@@ -5567,6 +5570,9 @@
      "below": 0.33,
      "action": "flight_phase"
     }
+   ],
+   "first_defeat": [
+    "wisp_banner"
    ]
   },
   {

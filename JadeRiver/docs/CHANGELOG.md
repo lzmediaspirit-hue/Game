@@ -5,6 +5,39 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### G2a · Treasures, throwables, a talisman treasure and flight vessels (gap report priorities 4–5)
+- **Two Treasure buttons** left of Guard (R and T on a keyboard). The first opens at Heart Tempering 1
+  with the **Stilling Bell** (quest *Lines in the Sand*), the second at Spirit Awakening 1. Set a treasure
+  from the bag. Each treasure is one action with a Qi cost and a cooldown, shown as a sweep on the button:
+  - **Stilling Bell:** stuns foes within 220 for 1.5 s and seals their Qi for 4 s. Bosses only lose their Qi.
+  - **Nine-Storey Pagoda:** a 4 s prison over the nearest foe, never a boss.
+  - **Returning Mirror:** for 2 s every missile that reaches you flies back at its thrower.
+  - **Mountain Seal:** 250 % attack to everything within 170, with knockback.
+  - **Beast-Taking Cauldron:** takes a beast worn below 20 % HP whole, for twice its materials.
+  - **Wisp Banner:** three wisps strike the nearest foes each second for 10 s.
+  - **Sealing Gourd:** drinks every missile within reach for 3 s, each mending 1 % HP.
+
+  The Mission Halls, Old Pan and the port peddler sell them. The Hollow Behemoth and the Gate Guardian
+  drop the Seal and the Banner on their first defeat.
+- **Throwables.** Throwing needles (three at once), flying knives (pierce one) and thunderclap pellets (burst
+  and knockback) share a 1.2 s cooldown and can sit in quick-use. Needles and knives can be made at the forge.
+- **Talisman treasure.** Elder Hu's gift, the **Heaven Splitting Talisman**, holds three charges of a 12,000
+  damage cut, at its own power, not yours. The bag shows the charges left.
+- **Flight vessels** ride in the key pouch; choose one in the bag:
+  - **Flying Sword:** −20 % Qi, +25 % speed (the reward for *Riding the Wind*);
+  - **Cloud Puff:** −35 % Qi, −5 % speed (a Mission Hall);
+  - **Jade Gourd:** −15 % Qi, +10 % speed (the other Mission Hall);
+  - **Maple Leaf:** −25 % Qi (the hermit's).
+
+  Each is drawn under the rider in flight.
+- **Fix: shots now strike short creatures.** Arrows, ranged Qi techniques and throwables fly at chest height, and
+  their hit band stopped 36 units above the ground, so they passed over 30 of the 75 monsters (crabs, rats,
+  frogs, foxes and every creature under 38 tall). The band now reaches the ground; a shot fired from the air
+  still passes over them.
+- A new temple-bell sound effect. The first treasure carried goes straight into Treasure 1. 36 new rules checks
+  drive every treasure, throwable, the talisman and the vessels through the real authorities, plus the arrow
+  regression. `--vessel=<id>` with `--fly` previews a vessel.
+
 ### G1 · What pills cost, heart demons, karma, fire and furnace (gap report priorities 1–3)
 - **Lifetime pill resistance.** Each dose of a pill family (Qi, body, soul or insight) weakens the next:
   1 / (1 + 0.25 × doses). A major breakthrough forgets one dose. A Pill Grain slips past resistance. A support

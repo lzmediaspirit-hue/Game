@@ -66,6 +66,32 @@ FLAMES = [
 ]
 
 
+TREASURES = [
+    ("stilling_bell", "earth", "A bronze bell that rings once and the world holds its breath: foes around you are stunned for 1.5 s and their Qi is sealed for 4 s. Bosses only lose their Qi.",
+     {"action": "bell", "cooldown_s": 20, "qi_pct": 0.15, "radius": 220, "stun_s": 1.5, "seal_s": 4}),
+    ("nine_storey_pagoda", "heaven", "A jade pagoda the size of a palm. Throw it and it falls over the nearest foe as a prison: 4 s it cannot move or strike. Bosses are too great for it.",
+     {"action": "pagoda", "cooldown_s": 30, "qi_pct": 0.2, "range": 320, "imprison_s": 4}),
+    ("returning_mirror", "earth", "A bronze mirror that returns what is thrown at it: for 2 s every missile that reaches you flies back at the one who threw it.",
+     {"action": "mirror", "cooldown_s": 18, "qi_pct": 0.12, "reflect_s": 2}),
+    ("mountain_seal", "heaven", "A jade seal the weight of a hill. Brought down, it strikes everything around you for 250% attack and throws it back.",
+     {"action": "seal", "cooldown_s": 16, "qi_pct": 0.18, "radius": 170, "mult": 2.5, "knockback": 120}),
+    ("beast_taking_cauldron", "earth", "An iron cauldron that drinks in a beast worn below 20% HP: it is taken whole, and you keep twice its materials. Not bosses.",
+     {"action": "cauldron", "cooldown_s": 25, "qi_pct": 0.1, "range": 260, "below": 0.2}),
+    ("wisp_banner", "mystic", "A banner of three bound wisps. Unfurled, they circle you for 10 s and each strikes the nearest foe every second for 60% Qi attack.",
+     {"action": "banner", "cooldown_s": 30, "qi_pct": 0.2, "wisps": 3, "duration": 10, "mult": 0.6, "range": 280}),
+    ("sealing_gourd", "heaven", "A violet gourd with a paper seal. Unstoppered, it drinks every missile within reach for 3 s, and each one mends 1% of your HP.",
+     {"action": "gourd", "cooldown_s": 20, "qi_pct": 0.1, "absorb_s": 3, "radius": 240}),
+]
+VESSELS = [
+    ("flying_sword_vessel", "heaven", "Ride your sword into the sky, the way the stories say. The fastest vessel, and the air costs a fifth less.",
+     {"sprite": "sword", "qi_mult": 0.8, "speed_mult": 1.25}),
+    ("cloud_puff_vessel", "earth", "A small obedient cloud. Slow, soft and very cheap on Qi.", {"sprite": "cloud", "qi_mult": 0.65, "speed_mult": 0.95}),
+    ("jade_gourd_vessel", "earth", "A great jade gourd you sit astride. Steady, and a little faster than walking on air.",
+     {"sprite": "gourd", "qi_mult": 0.85, "speed_mult": 1.1}),
+    ("maple_leaf_vessel", "common", "A red maple leaf the size of a raft. It wanders, but it is kind to your Qi.", {"sprite": "leaf", "qi_mult": 0.75, "speed_mult": 1.0}),
+]
+
+
 def effect(kind, **f):
     d = {"kind": kind}
     d.update(f)
@@ -289,6 +315,24 @@ def build_items():
     for fid, grade in [("earth_vein_furnace", "earth"), ("cloud_pattern_furnace", "heaven"), ("mystic_tripod", "mystic"), ("nine_dragon_cauldron", "sage")]:
         rows.append(item(fid, "tool", grade, 1, FURNACES[fid][0], tool={"craft": "alchemy", "power": 1.0},
                          furnace=FURNACES[fid][1], sell=fid != "nine_dragon_cauldron"))
+    # Treasures (gap report G2): set in the HUD's Treasure buttons (one from Heart Tempering 1, a second from
+    # Spirit Awakening 1). Each is one action with a cooldown and a QI cost; none is a stat stick.
+    for tid, grade, desc, t in TREASURES:
+        rows.append(item(tid, "treasure_art", grade, 1, desc, treasure=t))
+    # Throwables (G2): quick-use items any weapon family can throw.
+    rows.append(item("throwing_needles", "throwable", "common", 99, "Three needles flicked at once. Light, fast, and they find the gaps in armour.",
+                     use=[effect("throw", art="needle", count=3, mult=0.45, speed=760, range=380, pierce=0)], food={"group": "throw"}))
+    rows.append(item("flying_knives", "throwable", "earth", 99, "A balanced throwing knife. One hard hit at range.",
+                     use=[effect("throw", art="knife", count=1, mult=1.2, speed=640, range=420, pierce=1)], food={"group": "throw"}))
+    rows.append(item("thunderclap_pellet", "throwable", "heaven", 99, "A lacquered pellet packed with storm shard dust. It bursts where it lands: damage and knockback all around.",
+                     use=[effect("throw", art="pellet", count=1, mult=1.6, speed=520, range=360, burst=120, knockback=130)], food={"group": "throw"}))
+    # A talisman treasure (G2): three charges of an art far above your realm. Its power is the talisman's, not yours.
+    rows.append(item("heaven_splitting_talisman", "talisman", "mystic", 1,
+                     "An elder's last sword stroke folded into paper. Three times it will split the air in front of you for 12,000 damage, whatever your realm. Never sold.",
+                     sell=False, use=[], use_action="talisman_charge", talisman={"charges": 3, "power": 12000, "reach": 540, "depth": 70}))
+    # Flight vessels (G2): what you ride when you fly. It sets the look of your flight and what the air costs.
+    for vid, grade, desc, fl in VESSELS:
+        rows.append(item(vid, "vessel", grade, 1, desc, flight=fl))
     # Heavenly Flames (gap report G1): one to a zone tier, taken from a boss; absorbed for good and kept in the Codex.
     for fid, grade, desc in FLAMES:
         rows.append(item(fid, "treasure", grade, 1, desc + " Absorb it: a Heavenly Flame burns under any furnace you use, for good. Never sold.",

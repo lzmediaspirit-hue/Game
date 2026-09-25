@@ -14,10 +14,12 @@ const STAT_EVENTS := ["realm_changed", "level_changed", "equipment_changed", "in
 	"legacy_recorded", "consolidation_finished", "aptitude_revealed", "collection_page_completed"]
 
 func intents() -> Array:
-	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival", "start_flight", "stop_flight"]
+	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival", "start_flight", "stop_flight", "use_treasure"]
 
 var attune: Dictionary = {}          # actor -> {dealt, taken} for the zone they stand in (S18)
 var flying: Dictionary = {}          # actor -> true while flight holds them up (S18); QI pays for it
+var treasure_fx: Dictionary = {}     # actor -> {reflect, gourd, gourd_r, wisps}: a treasure's lingering effect (G2)
+var captured: Dictionary = {}        # enemy uid -> true: taken by the Beast-Taking Cauldron (World doubles its materials)
 
 func subscribe() -> void:
 	for ev in STAT_EVENTS:
@@ -72,6 +74,7 @@ func move_factor(actor_id: String) -> float:
 	var slow = c.pools.status("slow")
 	if not slow.is_empty(): f *= 1.0 - clampf(float(slow.power), 0.0, 0.5)
 	if float(tl.flinch) > 0.0: f *= 0.2
+	if flying.has(actor_id): f *= vessel_speed_mult(c)   # the ridden vessel (G2)
 	return f
 
 func handle(intent: Dictionary) -> Dictionary:
@@ -85,6 +88,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"dodge": return dodge(c, intent.get("direction", Vector2.ZERO), int(intent.get("facing", 1)))
 		"choose_revival": return choose_revival(c, str(intent.get("where", "shrine")))
 		"start_flight": return start_flight(c)
+		"use_treasure": return use_treasure(c, int(intent.get("slot", 0)))
 		"stop_flight":
 			stop_flight(c.id, str(intent.get("reason", "landed")))
 			return ok()
@@ -116,13 +120,21 @@ func stop_flight(actor_id: String, reason: String) -> void:
 func is_flying(actor_id: String) -> bool:
 	return flying.has(actor_id)
 
+## The flight vessel ridden (G2): what the air costs and how fast it carries you.
+func vessel_qi_mult(c) -> float:
+	return float(ContentDB.item(str(c.inventory.vessel)).get("flight", {}).get("qi_mult", 1.0)) if str(c.inventory.vessel) != "" else 1.0
+
+func vessel_speed_mult(c) -> float:
+	return float(ContentDB.item(str(c.inventory.vessel)).get("flight", {}).get("speed_mult", 1.0)) if str(c.inventory.vessel) != "" else 1.0
+
 func _tick_flight(c, delta: float) -> void:
 	if not flying.has(c.id): return
 	if wounded.has(c.id):
 		stop_flight(c.id, "wounded")
 		return
 	var cfg: Dictionary = ContentDB.stat_const("flight", {})
-	var cost = maxf(float(cfg.get("qi_min_per_s", 2.0)), c.pools.max_qi * float(cfg.get("qi_pct_per_s", 0.02))) * delta * game.pets.flight_qi_mult(c)
+	var cost = maxf(float(cfg.get("qi_min_per_s", 2.0)), c.pools.max_qi * float(cfg.get("qi_pct_per_s", 0.02))) * delta * game.pets.flight_qi_mult(c) \
+		* vessel_qi_mult(c)
 	if c.pools.qi <= cost:
 		stop_flight(c.id, "no_qi")
 		return
@@ -359,6 +371,7 @@ func tick(delta: float) -> void:
 		_tick_player(c, delta)
 		_tick_pools(c, delta)
 		_tick_flight(c, delta)
+		_tick_treasures(c, delta)
 	_tick_projectiles(delta)
 	if game.room_rt:
 		for e in game.room_rt.enemies.values():
@@ -842,17 +855,38 @@ func _tick_projectiles(delta: float) -> void:
 			if p.team == "player":
 				for e in rt.living_enemies():
 					if e.team != "enemy" or e.hidden or p.hits.has(e.uid): continue
+					# Shots fly at chest height; the band reaches down to the ground so a crab or a rat
+					# under the line is struck too. Fired from the air, a shot still passes over them.
 					var pv := {"x": p.x, "y": p.y, "alt": float(p.alt) - 20.0}
-					if hit_test(pv, int(p.dir), {"x": [-12, 12], "depth": 26, "alt": [0, 40]}, enemy_view(e)):
+					if hit_test(pv, int(p.dir), {"x": [-12, 12], "depth": 26, "alt": [-56, 40]}, enemy_view(e)):
 						p.hits.append(e.uid)
 						if c != null:
 							var view := player_view(c)
 							_player_hits_enemy(c, view, e, p.attack, int(p.dir))
+							if float(p.get("burst", 0.0)) > 0.0: _burst(c, p, e)
 						if p.hits.size() > int(p.get("pierce", 0)):
 							done = true
 							break
 			elif c != null and not wounded.has(c.id):
 				var cv := player_view(c)
+				var fxs: Dictionary = treasure_fx.get(c.id, {})
+				# The Sealing Gourd drinks every missile that comes within its reach (G2).
+				if float(fxs.get("gourd", 0.0)) > 0.0 and Vector2(float(p.x), float(p.y)).distance_to(Vector2(float(cv.x), float(cv.y))) < float(fxs.get("gourd_r", 240.0)):
+					apply_heal(c.id, 0.01, 0.0, 0.0, "sealing_gourd")
+					emit("projectile_absorbed", {"actor": c.id, "x": p.x, "y": p.y, "alt": p.alt})
+					done = true
+					break
+				if hit_test({"x": p.x, "y": p.y, "alt": float(p.alt) - 20.0}, int(p.dir), {"x": [-10, 10], "depth": 24, "alt": [0, 40]}, cv) \
+						and float(fxs.get("reflect", 0.0)) > 0.0:
+					# The Returning Mirror sends it back at whoever threw it (G2).
+					p.team = "player"
+					p.dir = -int(p.dir)
+					p.owner = c.id
+					p.travelled = 0.0
+					p.hits = []
+					p.attack = {"damage_type": "qi", "element": str(p.get("element", "none")), "mult": [1.4, 1.4], "range": [1.0, 1.0], "source": "returning_mirror"}
+					emit("projectile_reflected", {"actor": c.id, "x": p.x, "y": p.y, "alt": p.alt})
+					break
 				if hit_test({"x": p.x, "y": p.y, "alt": float(p.alt) - 20.0}, int(p.dir), {"x": [-10, 10], "depth": 24, "alt": [0, 40]}, cv):
 					var e2: EnemyState = rt.enemies.get(int(str(p.owner)))
 					if e2 != null:
@@ -861,6 +895,157 @@ func _tick_projectiles(delta: float) -> void:
 		if done or float(p.travelled) >= float(p.range):
 			rt.projectiles.erase(p)
 			emit("projectile_ended", {"uid": p.uid, "x": p.x, "y": p.y, "alt": p.alt})
+
+# ------------------------------------------------------------------ treasures, throwables, talismans (gap report G2)
+func _enemies_within(at: Vector2, radius: float) -> Array:
+	var out: Array = []
+	if game.room_rt == null: return out
+	for e in game.room_rt.living_enemies():
+		if e.team == "enemy" and not e.hidden and e.plane.distance_to(at) <= radius: out.append(e)
+	return out
+
+func _treasure_attack(t: Dictionary, source: String, dtype := "physical", element := "none") -> Dictionary:
+	var m := float(t.get("mult", 1.0))
+	return {"damage_type": dtype, "element": element, "mult": [m, m], "range": [1.0, 1.0], "knockback": float(t.get("knockback", 0.0)), "source": source}
+
+## One of the HUD's Treasure buttons. Each treasure is one action with a cooldown and a QI cost.
+func use_treasure(c, slot: int) -> Dictionary:
+	if slot < 0 or slot > 1: return fail("bad_slot")
+	var id := str(c.inventory.treasures[slot])
+	if id == "": return fail("empty")
+	if not Unlocks.is_unlocked(c.id, "treasures" if slot == 0 else "treasure_slot_2"): return fail("locked")
+	if c.inventory.count(id) <= 0:
+		c.inventory.treasures[slot] = ""
+		return fail("missing")
+	var why := can_act(c)
+	if why != "": return fail(why)
+	var t: Dictionary = ContentDB.item(id).get("treasure", {})
+	var cd_key := "treasure:" + id
+	if c.pools.cooldown(cd_key) > 0.0: return fail("cooldown", {"remaining": c.pools.cooldown(cd_key)})
+	var cost: float = c.pools.max_qi * float(t.get("qi_pct", 0.1))
+	if c.pools.max_qi <= 0.0 or c.pools.qi < cost: return fail("no_qi", {"text": Tx.t("sim.combat.treasure_no_qi")})
+	var pv := player_view(c)
+	var here := Vector2(float(pv.x), float(pv.y))
+	var tl := timeline(c.id)
+	var out := {"action": str(t.action), "treasure": id, "targets": 0, "x": pv.x, "y": pv.y}
+	var fxs: Dictionary = treasure_fx.get(c.id, {})
+	match str(t.action):
+		"bell":
+			for e in _enemies_within(here, float(t.get("radius", 220))):
+				if not e.is_boss(): _apply_status_to_enemy(e, {"id": "stun", "power": 1.0, "remaining": float(t.get("stun_s", 1.5)), "source": c.id})
+				_apply_status_to_enemy(e, {"id": "qi_seal", "power": 1.0, "remaining": float(t.get("seal_s", 4.0)), "source": c.id})
+				out.targets = int(out.targets) + 1
+		"pagoda":
+			var tgt := _nearest_enemy(here, float(t.get("range", 320)))
+			if tgt == null: return fail("no_target", {"text": Tx.t("sim.combat.treasure_no_target")})
+			if tgt.is_boss(): return fail("immune", {"text": Tx.t("sim.combat.pagoda_boss")})
+			_apply_status_to_enemy(tgt, {"id": "stun", "power": 1.0, "remaining": float(t.get("imprison_s", 4.0)), "source": c.id})
+			out.targets = 1
+			out.x = tgt.plane.x
+			out.y = tgt.plane.y
+		"mirror":
+			fxs.reflect = float(t.get("reflect_s", 2.0))
+		"seal":
+			var atk := _treasure_attack(t, "treasure:" + id, "physical", "earth")
+			for e in _enemies_within(here, float(t.get("radius", 170))):
+				_player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
+				out.targets = int(out.targets) + 1
+		"cauldron":
+			var best: EnemyState = null
+			for e in _enemies_within(here, float(t.get("range", 260))):
+				if e.is_boss() or str(e.def.get("race", "beast")) != "beast": continue
+				if e.pools.hp > e.pools.max_hp * float(t.get("below", 0.2)): continue
+				if best == null or e.plane.distance_to(here) < best.plane.distance_to(here): best = e
+			if best == null: return fail("no_target", {"text": Tx.t("sim.combat.cauldron_no_target")})
+			captured[str(best.uid)] = true
+			out.x = best.plane.x
+			out.y = best.plane.y
+			_damage_enemy(best, best.pools.hp + 1.0, c.id, "physical", "none", false, {"source": "treasure:" + id})
+			out.targets = 1
+		"banner":
+			fxs.wisps = {"left": float(t.get("duration", 10)), "tick": 1.0, "n": int(t.get("wisps", 3)), "mult": float(t.get("mult", 0.6)),
+				"range": float(t.get("range", 280))}
+		"gourd":
+			fxs.gourd = float(t.get("absorb_s", 3.0))
+			fxs.gourd_r = float(t.get("radius", 240.0))
+		_:
+			return fail("unknown_treasure")
+	treasure_fx[c.id] = fxs
+	apply_resource_change(c.id, "qi", -cost, "treasure")
+	c.pools.cooldowns[cd_key] = float(t.get("cooldown_s", 20))
+	tl.flinch = 0.0
+	out.actor = c.id
+	emit("treasure_art_used", out)
+	emit("system_used", {"actor": c.id, "system": "treasure"})
+	return ok(out)
+
+func _tick_treasures(c, delta: float) -> void:
+	var fxs: Dictionary = treasure_fx.get(c.id, {})
+	if fxs.is_empty(): return
+	for k in ["reflect", "gourd"]:
+		if float(fxs.get(k, 0.0)) > 0.0: fxs[k] = maxf(0.0, float(fxs[k]) - delta)
+	var w: Dictionary = fxs.get("wisps", {})
+	if not w.is_empty():
+		w.left = float(w.left) - delta
+		w.tick = float(w.tick) - delta
+		if float(w.tick) <= 0.0 and game.room_rt:
+			w.tick = float(w.tick) + 1.0
+			var pv := player_view(c)
+			var here := Vector2(float(pv.x), float(pv.y))
+			var targets := _enemies_within(here, float(w.range))
+			targets.sort_custom(func(a, b): return a.plane.distance_to(here) < b.plane.distance_to(here))
+			var atk := {"damage_type": "qi", "element": "none", "mult": [float(w.mult), float(w.mult)], "range": [1.0, 1.0], "source": "treasure:wisp_banner"}
+			for i in mini(int(w.n), targets.size()):
+				var e: EnemyState = targets[i]
+				_player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
+				emit("wisp_struck", {"actor": c.id, "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.height() * 0.6})
+		if float(w.left) <= 0.0: fxs.erase("wisps")
+
+## A throwable from the quick-use slot (G2): needles, knives, a thunderclap pellet. Any weapon family can throw.
+func apply_throw(actor_id: String, e: Dictionary) -> void:
+	var c = game.character(actor_id)
+	if c == null: return
+	var pv := player_view(c)
+	var facing := int(timeline(c.id).facing)
+	var n := int(e.get("count", 1))
+	for i in n:
+		_spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 24, "y": float(pv.y) + (i - (n - 1) * 0.5) * 6.0,
+			"alt": float(pv.alt) + 56 + i * 3, "dir": facing, "speed": float(e.get("speed", 600)), "range": float(e.get("range", 380)),
+			"pierce": int(e.get("pierce", 0)), "art": str(e.get("art", "needle")), "delay": i * 0.05, "element": "none",
+			"attack": _treasure_attack(e, "throw:" + str(e.get("art", "needle"))), "burst": float(e.get("burst", 0.0))})
+	emit("system_used", {"actor": c.id, "system": "throw"})
+
+## A thunderclap pellet bursts where it lands: everything close by takes the blow and is thrown back.
+func _burst(c, p: Dictionary, first: EnemyState) -> void:
+	var at := Vector2(float(p.x), float(p.y))
+	var pv := player_view(c)
+	for e in _enemies_within(at, float(p.burst)):
+		if e == first: continue
+		_player_hits_enemy(c, pv, e, p.attack, 1 if e.plane.x >= at.x else -1)
+	emit("projectile_burst", {"actor": c.id, "x": p.x, "y": p.y, "alt": p.alt, "radius": p.burst})
+
+## A talisman treasure (G2): one of its charges, at the talisman's own power, not the user's.
+func talisman_strike(c, index: int) -> Dictionary:
+	var s: Dictionary = c.inventory.bag[index]
+	var tdef: Dictionary = ContentDB.item(str(s.id)).get("talisman", {})
+	if tdef.is_empty(): return fail("not_a_talisman")
+	var why := can_act(c)
+	if why != "": return fail(why)
+	if c.pools.cooldown("item:talisman") > 0.0: return fail("cooldown", {"remaining": c.pools.cooldown("item:talisman")})
+	var pv := player_view(c)
+	var facing := int(timeline(c.id).facing)
+	var hit := 0
+	for e in _enemies_in(pv, facing, {"x": [0, float(tdef.get("reach", 540))], "depth": float(tdef.get("depth", 70)), "alt": [0, 160]}, false):
+		_damage_enemy(e, float(tdef.get("power", 12000)), c.id, "qi", "metal", false, {"source": "talisman:" + str(s.id)}, facing)
+		hit += 1
+	var left := int(s.get("charges", int(tdef.get("charges", 3)))) - 1
+	if left <= 0: game.inventory.apply_remove_index(c.id, index, 1, "talisman_spent")
+	else: s.charges = left
+	c.pools.cooldowns["item:talisman"] = 3.0
+	emit("talisman_struck", {"actor": c.id, "item": str(s.id), "x": pv.x, "y": pv.y, "alt": pv.alt, "facing": facing, "reach": float(tdef.get("reach", 540)),
+		"charges": maxi(0, left), "targets": hit})
+	emit("bag_changed", {"actor": c.id})
+	return ok({"targets": hit, "charges": maxi(0, left)})
 
 func _nearest_enemy(at: Vector2, radius: float) -> EnemyState:
 	var best: EnemyState = null
