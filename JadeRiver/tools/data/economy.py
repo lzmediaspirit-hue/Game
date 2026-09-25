@@ -266,10 +266,12 @@ def pets():
          "branches": ["River Otter Sage", "Tide Otter"], "inherit_owner": {"hatchling": 0.2, "juvenile": 0.3, "adult": 0.35}},
         {"id": "ember_fox", "name": "Ember Fox", "art": "ember_fox", "element": "fire", "strength_role": "combat", "starter": True,
          "skills": ["Ember Bite", "Flare", "Fox Fire", "Nine Embers"], "favourite_foods": ["roast_fish", "ember_pepper_broth"],
-         "branches": ["Twin-Tail Fox", "Hearth Fox"], "inherit_owner": {"hatchling": 0.25, "juvenile": 0.32, "adult": 0.4}},
+         "branches": ["Twin-Tail Fox", "Hearth Fox"], "inherit_owner": {"hatchling": 0.25, "juvenile": 0.32, "adult": 0.4},
+         "mount": {"art": "ember_fox", "scale": 1.3, "lift": 0, "saddle": 40}},
         {"id": "jade_crane", "name": "Jade Crane", "art": "jade_crane_chick", "element": "wind", "strength_role": "mount", "starter": True,
          "skills": ["Wing Buffet", "Crane Call", "Cloud Lift", "Sky Dance"], "favourite_foods": ["mist_trout", "lotus_root_tea"],
-         "branches": ["Cloud Crane", "Sage Crane"], "inherit_owner": {"hatchling": 0.2, "juvenile": 0.3, "adult": 0.35}},
+         "branches": ["Cloud Crane", "Sage Crane"], "inherit_owner": {"hatchling": 0.2, "juvenile": 0.3, "adult": 0.35},
+         "mount": {"art": "cloudwing_crane", "scale": 1.0, "lift": 34, "saddle": 44, "flying": True}},
         {"id": "mossback_toad", "name": "Mossback Toad", "art": "mossback_toad", "element": "wood", "strength_role": "gatherer", "tame": True,
          "skills": ["Tongue Lash", "Moss Shield", "Herb Sense", "Garden Back"], "favourite_foods": ["frog_leg", "rice_ball"], "branches": ["Moss Sage Toad", "Thorn Toad"]},
         {"id": "ironclaw_mole", "name": "Ironclaw Mole", "art": "ironclaw_mole", "element": "earth", "strength_role": "gatherer", "tame": True,
@@ -277,7 +279,8 @@ def pets():
         {"id": "bamboo_monkey", "name": "Bamboo Monkey", "art": "bamboo_monkey", "element": "wood", "strength_role": "combat", "tame": True,
          "skills": ["Shoot Toss", "Pickpocket", "Vine Swing", "Monkey Chaos"], "favourite_foods": ["bamboo_shoot", "rice_ball"], "branches": ["Monkey Thief", "Staff Monkey"]},
         {"id": "mist_wolf", "name": "Mist Wolf", "art": "mist_wolf", "element": "soul", "strength_role": "combat", "tame": True,
-         "skills": ["Mist Bite", "Howl", "Fog Step", "Moon Hunt"], "favourite_foods": ["tough_meat", "riverfish_soup"], "branches": ["Fog Wolf", "Moon Wolf"]},
+         "skills": ["Mist Bite", "Howl", "Fog Step", "Moon Hunt"], "favourite_foods": ["tough_meat", "riverfish_soup"], "branches": ["Fog Wolf", "Moon Wolf"],
+         "mount": {"art": "mist_wolf", "scale": 0.9, "lift": 0, "saddle": 50}},
     ]
     entries("pets", rows)
     # Three hidden traits per animal, revealed at Juvenile, Awakened and Sovereign. `bonus` is what a revealed
@@ -295,6 +298,10 @@ def pets():
     # S22 stages: every gate (level, hearts, owner realm) must be met. Inherit = share of the owner's attack;
     # resonance = accumulation bonus while in the Cultivation role (from Spirit Awakening 1).
     write("pet_growth.json", {"schema_version": 1, "traits_per_pet": 3, "role_match_bonus": 0.25, "hungry_mult": 0.7,
+                              # S22 Mount role: walk x1.5 (ground mounts from Cloud Stride 1); flying mounts carry you at
+                              # half the flight QI from Cloud Stride 5; a blow of 15% HP throws you off for 10 s.
+                              "mount_unlock": "mounts", "mount_speed": 1.5, "flying_mount_realm": "cloud_stride_5",
+                              "flying_mount_qi": 0.5, "dismount_hp_pct": 0.15, "dismount_s": 10,
                               "resonance_unlock": "spirit_awakening_1", "hp_share": 0.4, "retreat_s": 60,
                               "stages": [
                                   {"id": "hatchling", "name": "Hatchling", "inherit": 0.2, "resonance": 0.0},

@@ -122,7 +122,7 @@ func _tick_flight(c, delta: float) -> void:
 		stop_flight(c.id, "wounded")
 		return
 	var cfg: Dictionary = ContentDB.stat_const("flight", {})
-	var cost := maxf(float(cfg.get("qi_min_per_s", 2.0)), c.pools.max_qi * float(cfg.get("qi_pct_per_s", 0.02))) * delta
+	var cost = maxf(float(cfg.get("qi_min_per_s", 2.0)), c.pools.max_qi * float(cfg.get("qi_pct_per_s", 0.02))) * delta * game.pets.flight_qi_mult(c)
 	if c.pools.qi <= cost:
 		stop_flight(c.id, "no_qi")
 		return

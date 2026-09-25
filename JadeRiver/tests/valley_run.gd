@@ -1107,6 +1107,7 @@ func sec_cs1() -> void:
 	check(finish("wings_of_cloud"), "Wings of Cloud done")
 	check(start("riding_the_wind"), "Riding the Wind accepted")
 	check(talk_choose(go_to_npc(["hermit_yao"]), "effects", "Hold out"), "bond with a crane that can carry you")
+	ride_the_crane()
 	check(finish("riding_the_wind"), "Riding the Wind done")
 	check(reach("cloud_stride_2"), "Cloud Stride 2")
 	check(start("clearer_water"), "Clearer Water accepted")
@@ -1387,3 +1388,19 @@ func bind_the_blade() -> void:
 			if it is Dictionary and int(it.get("uid", -2)) == old_uid:
 				submit({"type": "equip", "index": i})
 				break
+
+## S22 Mount role: the crane carries you (walk x1.5, no follower); the previous companion comes back after.
+func ride_the_crane() -> void:
+	var was_active: String = c().active_pet
+	var crane := ""
+	for p in c().pets:
+		if str(p.species) == "jade_crane": crane = str(p.uid)
+	check(crane != "", "the crane is yours")
+	if crane == "": return
+	var was_role: String = str(Game.pets._pet(c(), crane).get("role", "mount"))
+	submit({"type": "set_active_pet", "pet": crane})
+	check(submit({"type": "set_pet_role", "pet": crane, "role": "mount"}).get("ok", false), "ride the crane")
+	check(absf(Game.pets.mount_speed(c()) - 1.5) < 0.001 and Game.pets.ally_uid == 0, "a mount carries you at 1.5x and does not follow on foot")
+	check(absf(Game.pets.flight_qi_mult(c()) - 1.0) < 0.001, "a flying mount only eases flight from Cloud Stride 5")
+	submit({"type": "set_pet_role", "pet": crane, "role": was_role if was_role != "mount" else "cultivation"})
+	submit({"type": "set_active_pet", "pet": was_active})

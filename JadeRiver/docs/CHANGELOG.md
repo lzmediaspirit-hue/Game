@@ -51,6 +51,9 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
 - Flight from Cloud Stride 1: jump again at the top of a double jump to ride a cloud; hold Jump to climb and
   Guard to descend. Combat pays the QI each second, no-flight rooms and interiors refuse, landing or an
   empty pool ends it. "Wings of Cloud" now teaches it.
+- Mounts (Cloud Stride 1): the Jade Crane, Mist Wolf and Ember Fox can carry you (Mount role, walk ×1.5);
+  you stand on the crane's back as it glides; a hard blow throws you off for a while; a flying mount halves
+  flight QI from Cloud Stride 5.
 - Binding (Spirit Awakening 3): a found relic's power is sealed until bound with a channel that a blow
   breaks; its Artifact Spirit wakes through a soul contest (a failure bruises the soul). The Sleeping Blade
   goes from bare-hand power to its full edge once bound.

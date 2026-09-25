@@ -754,6 +754,7 @@ def guided_quests():
         complete=["The sky is a road now."])
     quest("riding_the_wind", "Riding the Wind", "guided", "hermit_yao", [
         o("bond_pet", "Bond with your spirit animal again"),
+        o("use_system", "Ride it: Spirit Animals, choose Mount", system="mount"),
     ], [], offered_by_unlock=True, chapter="cs1", same_stage_ok=True, offer=["A big enough friend can carry you."], complete=["Hold on tight."])
     quest("clearer_water", "Clearer Water", "guided", "elder_hu", [
         o("enter_seclusion", "Seclusion with Refine Qi", focus="refine_qi"),

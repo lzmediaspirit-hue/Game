@@ -245,7 +245,7 @@ func step(delta: float, axis: Vector2):
 	else:
 		reset_sprint()
 	speed = c.stats.value("move_speed") if c.stats.value("move_speed") > 0 else 205.0
-	var factor: float = Game.combat.move_factor(actor_id)
+	var factor: float = Game.combat.move_factor(actor_id) * Game.pets.mount_speed(c)
 	if sprinting: factor *= float(ContentDB.stat_const("move.sprint", 1.7))
 	factor *= _area_factor()
 	var forced: Dictionary = Game.combat.forced_motion(actor_id)
@@ -265,7 +265,30 @@ func step(delta: float, axis: Vector2):
 	if not state.flying and Game.combat.is_flying(actor_id): Game.submit({"type": "stop_flight", "reason": "landed"})
 	if altitude < -250: world.recover_to_safe()
 	_animate(c, tl, busy, wounded)
+	_ride(c)
 	sync_visual()
+
+## S22 Mount role: the animal is drawn under the rider, who stands on its back.
+var mount_sprite: CreatureSprite
+func _ride(c) -> void:
+	var m: Dictionary = Game.pets.mount_of(c)
+	if m.is_empty():
+		if mount_sprite:
+			mount_sprite.queue_free()
+			mount_sprite = null
+			avatar.position = Vector2.ZERO
+		return
+	if mount_sprite == null:
+		mount_sprite = CreatureSprite.new()
+		add_child(mount_sprite)
+		move_child(mount_sprite, 0)
+	mount_sprite.creature_id = str(m.get("art", ""))
+	mount_sprite.scale = Vector2.ONE * float(m.get("scale", 1.0))
+	mount_sprite.position = Vector2(0, -float(m.get("lift", 0)))
+	mount_sprite.facing = facing
+	mount_sprite.play("walk" if velocity.length() > 5 and surface != null else "idle")
+	avatar.position = Vector2(0, -float(m.get("saddle", 40)))
+	if str(avatar.action) in ["walk", "jump"]: avatar.play("idle")   # the rider stands; the animal walks
 
 func _area_factor() -> float:
 	if world == null or not world.room_mode or surface == null: return 1.0

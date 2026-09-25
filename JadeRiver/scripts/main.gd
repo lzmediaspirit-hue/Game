@@ -156,6 +156,18 @@ func _handle_preview_args(user_args: Array) -> void:
 			var r := Game.submit({"type": "talk", "npc": str(a).trim_prefix("--talk=")})
 			if r.get("ok", false) and r.has("dialogue"): open_page("dialogue", {"convo": r.dialogue})
 		if str(a).begins_with("--shot="): shot = str(a).trim_prefix("--shot=")
+	if "--ride" in user_args and is_instance_valid(world):
+		# Debug tools (S38): preview riding a mount (grants a Jade Crane when there is no mountable animal).
+		await get_tree().create_timer(0.3).timeout
+		var rc = Game.active()
+		var mount_uid := ""
+		for pt in rc.pets:
+			if Game.pets.mountable(pt): mount_uid = str(pt.uid)
+		if mount_uid == "":
+			Game.pets.apply_grant(rc.id, "jade_crane")
+			mount_uid = str(rc.pets[rc.pets.size() - 1].uid)
+		Game.submit({"type": "set_active_pet", "pet": mount_uid})
+		Game.submit({"type": "set_pet_role", "pet": mount_uid, "role": "mount"})
 	if "--fly" in user_args and is_instance_valid(world):
 		# Debug tools (S38): preview flight with a filled QI pool.
 		await get_tree().create_timer(0.5).timeout

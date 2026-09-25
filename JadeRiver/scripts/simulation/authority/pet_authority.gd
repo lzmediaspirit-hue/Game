@@ -13,6 +13,7 @@ func subscribe() -> void:
 	GameEvents.subscribe("room_entered", _on_room_entered, 45)
 	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 75)
 	GameEvents.subscribe("meditation_tick", _on_meditation_tick, 75)
+	GameEvents.subscribe("hit_landed", _on_player_hit, 75)
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -29,9 +30,14 @@ func handle(intent: Dictionary) -> Dictionary:
 			var p := _pet(c, str(intent.get("pet", c.active_pet)))
 			if p.is_empty(): return fail("unknown_pet")
 			var role := str(intent.get("role", "combat"))
-			if not role in ["combat", "gatherer", "cultivation"]: return fail("bad_role")
+			if not role in ["combat", "gatherer", "cultivation", "mount"]: return fail("bad_role")
+			if role == "mount":
+				if not mountable(p): return fail("not_mountable", {"text": Tx.t("sim.pet.too_small_to_carry_you")})
+				if not Unlocks.is_unlocked(c.id, str(growth().get("mount_unlock", "mounts"))): return fail("locked", {"text": Unlocks.locked_text("mounts")})
 			p.role = role
 			emit("pet_changed", {"actor": c.id, "pet": p.uid})
+			if role == "mount": emit("system_used", {"actor": c.id, "system": "mount"})
+			_spawn(c)   # a mount carries you instead of following
 			return ok()
 		"feed_pet":
 			var p2 := _pet(c, str(intent.get("pet", c.active_pet)))
@@ -94,6 +100,37 @@ func apply_bond(actor_id: String, amount: float, uid := "") -> void:
 	p.bond = clampf(float(p.bond) + amount, 0.0, 10.0)
 	if int(float(p.bond)) != before: emit("bond_changed", {"actor": actor_id, "pet": p.uid, "value": p.bond})
 
+# ------------------------------------------------------------------ mounts (S22)
+var dismounted: Dictionary = {}   # actor -> seconds before they can ride again
+
+func mountable(p: Dictionary) -> bool:
+	return ContentDB.entry("pets", str(p.get("species", ""))).has("mount")
+
+## The mount spec of the animal carrying this character, or {} when on foot.
+func mount_of(c) -> Dictionary:
+	if c == null or dismounted.has(c.id): return {}
+	var p := active_pet(c)
+	if p.is_empty() or str(p.get("role", "")) != "mount": return {}
+	return ContentDB.entry("pets", str(p.species)).get("mount", {})
+
+func mount_speed(c) -> float:
+	return float(growth().get("mount_speed", 1.5)) if not mount_of(c).is_empty() else 1.0
+
+## Flying mounts halve the QI of flight once the rider is strong enough to steer one (Cloud Stride 5).
+func flight_qi_mult(c) -> float:
+	var m := mount_of(c)
+	if m.get("flying", false) and ProgressionRules.at_least(c.cultivator.realm_key, str(growth().get("flying_mount_realm", "cloud_stride_5"))):
+		return float(growth().get("flying_mount_qi", 0.5))
+	return 1.0
+
+func _on_player_hit(p: Dictionary) -> void:
+	var c = game.character(str(p.get("target", "")))
+	if c == null or mount_of(c).is_empty(): return
+	if float(p.get("amount", 0)) >= c.pools.max_hp * float(growth().get("dismount_hp_pct", 0.15)):
+		dismounted[c.id] = float(growth().get("dismount_s", 10))
+		emit("dismounted", {"actor": c.id})
+		_spawn(c)   # it lands beside you and follows until you climb back on
+
 func _on_room_entered(_p: Dictionary) -> void:
 	_spawn(game.active())
 
@@ -104,7 +141,7 @@ func _spawn(c) -> void:
 	if old != null and old.team == "ally" and old.pet_owner == c.id: game.room_rt.enemies.erase(ally_uid)
 	ally_uid = 0
 	var p := active_pet(c)
-	if p.is_empty() or game.room_rt.def.get("type", "") == "interior": return
+	if p.is_empty() or game.room_rt.def.get("type", "") == "interior" or not mount_of(c).is_empty(): return
 	var sp := ContentDB.entry("pets", str(p.species))
 	var st: ActorState = game.actor_state(c.id)
 	var a := EnemyState.new()
@@ -124,6 +161,11 @@ func _spawn(c) -> void:
 	emit("ally_spawned", {"uid": a.uid, "kind": "pet"})
 
 func tick(delta: float) -> void:
+	for actor in dismounted.keys():
+		dismounted[actor] = float(dismounted[actor]) - delta
+		if float(dismounted[actor]) <= 0.0:
+			dismounted.erase(actor)
+			_spawn(game.character(actor))
 	var c = game.active()
 	if c == null or game.room_rt == null or ally_uid == 0: return
 	var a: EnemyState = game.room_rt.enemies.get(ally_uid)

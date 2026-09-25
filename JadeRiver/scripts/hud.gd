@@ -455,6 +455,8 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.expedition_to") % [ContentDB.name_of("expeditions", str(p.region)), Tx.t("hud.returned_with_spoils") if p.get("success", false) else Tx.t("hud.came_back_empty_handed")], UiKit.PALE_GOLD)
 		"reputation_changed":
 			add_log(Tx.t("hud.reputation") % [str(p.faction).replace("_", " ").capitalize(), int(p.value)], UiKit.MIST)
+		"dismounted":
+			add_log(Tx.t("hud.dismounted"), UiKit.RED)
 		"item_bound":
 			toast(Tx.t("hud.item_bound") % ContentDB.item_name(str(p.item)), "gold")
 		"binding_interrupted":

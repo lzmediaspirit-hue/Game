@@ -50,7 +50,8 @@ func draw_page() -> void:
 	text(right.position + Vector2(24, 228), fit(Tx.t("ui.pets.traits") + " · ".join(shown), 16, colw), 16, UiKit.PALE_GOLD)
 	var y := right.position.y + 248
 	var roles := ["combat", "gatherer", "cultivation"]
-	var bw := (colw - 16) / 3.0
+	if Game.pets.mountable(pet): roles.append("mount")
+	var bw := (colw - 8.0 * (roles.size() - 1)) / roles.size()
 	for role in roles:
 		btn(Rect2(px + roles.find(role) * (bw + 8), y, bw, 46), role.capitalize(), "role", role, str(pet.role) == role, true, "", 17)
 	y += 60

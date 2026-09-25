@@ -2476,6 +2476,12 @@
      "kind": "bond_pet",
      "text": "Bond with your spirit animal again",
      "count": 1
+    },
+    {
+     "kind": "use_system",
+     "text": "Ride it: Spirit Animals, choose Mount",
+     "count": 1,
+     "system": "mount"
     }
    ],
    "rewards": [],
