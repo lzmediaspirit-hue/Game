@@ -1,0 +1,244 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "thunder_tempered",
+   "name": "Thunder-Tempered Meridians",
+   "weight": 10,
+   "gift_text": "+10% Thunder power.",
+   "cost_text": "+5 heart demon.",
+   "modifiers": [
+    {
+     "stat": "elemental_power",
+     "op": "flat",
+     "value": 0.1,
+     "condition": {
+      "element": "thunder"
+     }
+    }
+   ],
+   "effects": [
+    {
+     "kind": "add_heart_demon",
+     "amount": 5
+    }
+   ]
+  },
+  {
+   "id": "hungry_dantian",
+   "name": "Hungry Dantian",
+   "weight": 10,
+   "gift_text": "+8% accumulation this realm.",
+   "cost_text": "Pill resistance +1 in every family.",
+   "realm_modifiers": [
+    {
+     "stat": "accumulation_rate",
+     "op": "flat",
+     "value": 0.08
+    }
+   ],
+   "effects": [
+    {
+     "kind": "add_pill_resistance",
+     "amount": 1
+    }
+   ]
+  },
+  {
+   "id": "quiet_heart",
+   "name": "Quiet Heart",
+   "weight": 10,
+   "gift_text": "Heart demon -15.",
+   "cost_text": "-5% insight this realm.",
+   "realm_modifiers": [
+    {
+     "stat": "insight_rate",
+     "op": "flat",
+     "value": -0.05
+    }
+   ],
+   "effects": [
+    {
+     "kind": "add_heart_demon",
+     "amount": -15
+    }
+   ]
+  },
+  {
+   "id": "bone_of_the_river",
+   "name": "Bone of the River",
+   "weight": 10,
+   "gift_text": "+3 Body.",
+   "cost_text": "-3 Agility.",
+   "modifiers": [
+    {
+     "stat": "body",
+     "op": "flat",
+     "value": 3
+    },
+    {
+     "stat": "agility",
+     "op": "flat",
+     "value": -3
+    }
+   ]
+  },
+  {
+   "id": "lucky_star",
+   "name": "Lucky Star",
+   "weight": 3,
+   "rare": true,
+   "gift_text": "+5 Fortune this realm.",
+   "cost_text": "None.",
+   "realm_modifiers": [
+    {
+     "stat": "fortune",
+     "op": "flat",
+     "value": 5
+    }
+   ]
+  },
+  {
+   "id": "debt_of_heaven",
+   "name": "Debt of Heaven",
+   "weight": 8,
+   "gift_text": "Purity one grade better.",
+   "cost_text": "The next heavenly tribulation brings 2 more bolts.",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "cloud_stride_1"
+     }
+    ]
+   },
+   "effects": [
+    {
+     "kind": "add_purity_grade",
+     "amount": 1
+    }
+   ],
+   "next": {
+    "tribulation_bolts": 2
+   }
+  },
+  {
+   "id": "wandering_eye",
+   "name": "Wandering Eye",
+   "weight": 8,
+   "gift_text": "One hidden way shows itself in each room you enter.",
+   "cost_text": "-10% Sense radius.",
+   "modifiers": [
+    {
+     "stat": "sense_radius",
+     "op": "pct_add",
+     "value": -0.1
+    }
+   ],
+   "flags": [
+    "reveal_hidden"
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "iron_will",
+   "name": "Iron Will",
+   "weight": 10,
+   "gift_text": "+10 Will.",
+   "cost_text": "-5% move speed this realm.",
+   "modifiers": [
+    {
+     "stat": "will",
+     "op": "flat",
+     "value": 10
+    }
+   ],
+   "realm_modifiers": [
+    {
+     "stat": "move_speed",
+     "op": "pct_add",
+     "value": -0.05
+    }
+   ]
+  },
+  {
+   "id": "fox_spirits_favour",
+   "name": "Fox Spirit's Favour",
+   "weight": 8,
+   "available": false,
+   "gift_text": "Your next pet egg hatches with +10 purity.",
+   "cost_text": "-5% max QI this realm.",
+   "realm_modifiers": [
+    {
+     "stat": "max_qi",
+     "op": "pct_add",
+     "value": -0.05
+    }
+   ],
+   "note": "Offered once pets have purity (S46)."
+  },
+  {
+   "id": "scar_of_failure",
+   "name": "Scar of Failure",
+   "weight": 8,
+   "gift_text": "+10% success on your next breakthrough.",
+   "cost_text": "You start this realm Unstable.",
+   "effects": [
+    {
+     "kind": "set_stability",
+     "word": "unstable"
+    }
+   ],
+   "next": {
+    "breakthrough_bonus": 0.1
+   }
+  },
+  {
+   "id": "blood_memory",
+   "name": "Blood Memory",
+   "weight": 8,
+   "gift_text": "+5% crit chance.",
+   "cost_text": "Heart demon +1 for every streak of 10 kills.",
+   "modifiers": [
+    {
+     "stat": "crit_chance",
+     "op": "flat",
+     "value": 0.05
+    }
+   ],
+   "flags": [
+    "streak_heart_demon"
+   ]
+  },
+  {
+   "id": "dao_echo",
+   "name": "Dao Echo",
+   "weight": 8,
+   "gift_text": "+20% insight in your strongest Dao.",
+   "cost_text": "-10% insight in every other Dao.",
+   "flags": [
+    "dao_echo"
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "dao_tree"
+     }
+    ]
+   }
+  }
+ ],
+ "offer": 3,
+ "streak": {
+  "kills": 10,
+  "window_s": 10.0
+ }
+}

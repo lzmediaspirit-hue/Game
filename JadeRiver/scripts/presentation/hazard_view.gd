@@ -43,11 +43,16 @@ func _process(delta: float) -> void:
 			var was := str(last_phase.get(hid, ""))
 			last_phase[hid] = str(hs.phase)
 			_on_phase(str(hid), hs, was)
+	_track_tribulation(delta)
 	for i in range(impacts.size() - 1, -1, -1):
 		impacts[i].t = float(impacts[i].t) + delta
 		if float(impacts[i].t) >= float(impacts[i].dur): impacts.remove_at(i)
-	ground.queue_redraw()
-	air.queue_redraw()
+	# A room without hazards draws only while a tribulation is under way (or its scorch marks fade).
+	var busy := not rt.hazards.is_empty() or not impacts.is_empty() or not _trib_state().is_empty()
+	if busy or drawn:
+		ground.queue_redraw()
+		air.queue_redraw()
+	drawn = busy
 
 ## Sounds and after-effects at the moment a hazard turns.
 func _on_phase(hid: String, hs: Dictionary, was: String) -> void:
@@ -79,6 +84,36 @@ func _on_phase(hid: String, hs: Dictionary, was: String) -> void:
 				impacts.append({"kind": "scorch", "pos": at, "t": 0.0, "dur": 3.0})
 				Audio.play("thunder")
 		if world and _near_player(hs.spots, 260.0): world.shake = maxf(world.shake, 0.2)
+
+# ------------------------------------------------------------------ S48 heavenly tribulation
+var trib_strike := {}     # the last bolt's flash: {x, y, t}
+var drawn := false        # something was drawn last frame (so a quiet room clears once)
+
+## A bolt's ring closes for a second, then the flash, drawn with the lightning hazard's art (Progression owns the rite).
+func _trib_state() -> Dictionary:
+	var c = Game.active()
+	if c == null: return {}
+	var tv: Dictionary = Game.progression.tribulation_view(c.id)
+	if not tv.is_empty() and not (tv.warn as Dictionary).is_empty():
+		var w: Dictionary = tv.warn
+		return {"phase": "warn", "t": float(tv.warn_s) - float(w.left), "dur": float(tv.warn_s), "spots": [[float(w.x), float(w.y), 0.0]], "radius": float(tv.radius)}
+	if not trib_strike.is_empty() and float(trib_strike.t) < 0.35:
+		return {"phase": "active", "t": float(trib_strike.t), "dur": 0.35, "spots": [[float(trib_strike.x), float(trib_strike.y), 0.0]], "radius": 80.0}
+	return {}
+
+func _track_tribulation(delta: float) -> void:
+	var c = Game.active()
+	if not trib_strike.is_empty(): trib_strike.t = float(trib_strike.t) + delta
+	if c == null: return
+	var tv: Dictionary = Game.progression.tribulation_view(c.id)
+	var warn: Dictionary = tv.get("warn", {})
+	# The ring vanished this frame: the bolt fell where it was.
+	if warn.is_empty() and last_phase.has("_trib") and not (last_phase._trib as Dictionary).is_empty():
+		var w0: Dictionary = last_phase._trib
+		trib_strike = {"x": float(w0.x), "y": float(w0.y), "t": 0.0}
+		impacts.append({"kind": "scorch", "pos": Vector2(float(w0.x), float(w0.y)), "t": 0.0, "dur": 3.0})
+		if world: world.shake = maxf(world.shake, 0.35)
+	last_phase["_trib"] = warn.duplicate()
 
 func _near_player(spots: Array, r: float) -> bool:
 	if world == null or world.player == null: return false
@@ -160,6 +195,8 @@ func _draw_ground() -> void:
 			"flow": _ground_flow(rt, h, hs)
 			"pool": _ground_pool(rt, str(hid), h, hs)
 			"aura": _ground_aura(rt, str(hid), h, hs)
+	var ts := _trib_state()
+	if not ts.is_empty(): _ground_strike("lightning", {"radius": float(ts.radius)}, ts)
 
 func _ground_strike(hid: String, h: Dictionary, hs: Dictionary) -> void:
 	var r := float(h.get("radius", 60))
@@ -305,6 +342,8 @@ func _draw_air() -> void:
 			var ang := TAU * i / 6.0 + 0.4
 			var p: Vector2 = im.pos + Vector2(cos(ang) * 50.0 * k, -absf(sin(ang)) * 24.0 * k - 6.0)
 			air.draw_circle(p.snapped(Vector2(2, 2)), 8.0 + 10.0 * k, Color(DUST, 0.7 * (1.0 - k)))
+	var tsa := _trib_state()
+	if not tsa.is_empty(): _air_lightning({}, tsa, view)
 	for hid in rt.hazards:
 		var h := ContentDB.entry("hazards", str(hid))
 		var hs: Dictionary = rt.hazards[hid]

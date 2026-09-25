@@ -9,12 +9,14 @@ const CHANNEL_S := 3.0
 var channels: Dictionary = {}       # actor -> breakthrough in progress
 var sec_accum: Dictionary = {}      # actor -> fractional second for per-second meditation ticks
 var contemplate: Dictionary = {}    # actor -> dao id
+var tribulations: Dictionary = {}   # actor -> heavenly tribulation under way (S48; not saved: leaving ends it)
+var streaks: Dictionary = {}        # actor -> {n, t}: kills in a row (Blood Memory; Killing Intent grows from it)
 var last_level: Dictionary = {}
 
 func intents() -> Array:
 	return ["start_meditation", "stop_meditation", "toggle_meditation", "start_breakthrough", "learn_method", "switch_method",
 		"open_meridian", "reset_meridians", "equip_technique", "unequip_technique", "rank_up_technique", "set_contemplate",
-		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade", "start_bath"]
+		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade", "start_bath", "choose_fate"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("loadout_swapped", _on_loadout_swapped, 30)
@@ -57,6 +59,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"claim_offline": return claim_offline(c, float(intent.get("elapsed", 0.0)))
 		"train_object": return fail("use_attack")
 		"attune_jade": return attune_jade(c, str(intent.get("zone", "")), int(intent.get("index", -1)))
+		"choose_fate": return choose_fate(c, str(intent.get("card", "")))
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ meditation (S06)
@@ -67,7 +70,7 @@ func start_meditation(c) -> Dictionary:
 	if st != null and st.surface == null: return fail("airborne")
 	if game.combat.is_busy(c.id): return fail("busy")
 	if game.combat.is_stunned(c.id): return fail("stunned")
-	if channels.has(c.id): return fail("breaking_through")
+	if channels.has(c.id) or tribulations.has(c.id): return fail("breaking_through")
 	c.cultivator.meditating = true
 	c.cultivator.meditation_settle = float(ContentDB.curve("meditation.settle_s", 1.0))
 	c.cultivator.meditation_spot = game.room_rt.room_id if game.room_rt else ""
@@ -112,6 +115,7 @@ func tick(delta: float) -> void:
 	if c == null: return
 	var cu: CultivatorState = c.cultivator
 	_tick_channel(c, delta)
+	_tick_tribulation(c, delta)
 	if cu.meditating:
 		if cu.meditation_settle > 0.0:
 			cu.meditation_settle -= delta
@@ -425,6 +429,7 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 func start_breakthrough(c, support_items: Array) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "cultivation"): return fail("locked")
 	if game.room_rt and game.room_rt.event.get("active", false): return fail("event_running")
+	if channels.has(c.id) or tribulations.has(c.id): return fail("breaking_through")
 	var q := query_breakthrough(c, support_items)
 	if not q.can: return fail("cannot", {"text": q.blocked, "query": q})
 	stop_meditation(c, "breakthrough")
@@ -448,8 +453,9 @@ func start_breakthrough(c, support_items: Array) -> Dictionary:
 	var hd: Dictionary = ContentDB.stat_const("heart_demon", {})
 	if used.size() >= int(hd.get("forced_supports", 2)): apply_heart_demon(c.id, float(hd.get("forced_breakthrough", 5)), "forced_breakthrough")
 	if int(q.get("merit", 0)) > 0: c.cultivator.merit_used[ProgressionRules.great_realm(c.cultivator.realm_key)] = true
+	var bonus := _spend_fate_next(c, "breakthrough_bonus")   # S48 Scar of Failure: the next attempt only
 	channels[c.id] = {"to": q.to, "risk": q.risk, "remaining": CHANNEL_S, "causes": unmet_causes, "used": used, "from": c.cultivator.realm_key,
-		"hollow": bool(q.get("hollow", false))}
+		"hollow": bool(q.get("hollow", false)), "bonus": bonus}
 	emit("breakthrough_started", {"actor": c.id, "from": c.cultivator.realm_key, "to": q.to, "risk": q.risk, "duration": CHANNEL_S})
 	return ok({"result": "channeling", "risk": q.risk})
 
@@ -459,11 +465,21 @@ func _tick_channel(c, delta: float) -> void:
 	ch.remaining = float(ch.remaining) - delta
 	if ch.remaining > 0.0: return
 	channels.erase(c.id)
+	# S48: from Cloud Stride on, the heavens test a major breakthrough before it is settled.
+	var from0 := str(ch.get("from", c.cultivator.realm_key))
+	if not ProgressionRules.tribulation_row(from0).is_empty():
+		_start_tribulation(c, ch)
+		return
+	_settle_breakthrough(c, ch)
+
+## The roll that decides a major breakthrough, after the channel (and any tribulation) is through.
+func _settle_breakthrough(c, ch: Dictionary) -> void:
 	var rng := Rng.stream(c.id, "breakthrough")
 	# The Prologue's first step on Lu's boat is taught, not gambled (realm flag `guaranteed`).
 	var guaranteed := bool(ProgressionRules.breakthrough_spec(str(ch.get("from", c.cultivator.realm_key))).get("guaranteed", false))
-	if guaranteed or rng.randf() < ProgressionRules.success_chance(str(ch.risk)):
+	if guaranteed or rng.randf() < ProgressionRules.success_chance(str(ch.risk)) + float(ch.get("bonus", 0.0)):
 		_advance(c, str(ch.to), true)
+		if not guaranteed: _offer_fates(c)
 	else:
 		var from := str(ch.get("from", c.cultivator.realm_key))
 		if not (ch.get("used", []) as Array).is_empty():
@@ -472,6 +488,173 @@ func _tick_channel(c, delta: float) -> void:
 		var failure := "weak_foundation" if ch.get("hollow", false) and ContentDB.has_entry("failures", "weak_foundation") \
 			else ProgressionRules.pick_failure(rng, ch.causes, c.cultivator.realm_key)
 		_fail_breakthrough(c, failure, rng)
+		_maybe_deviate(c, str(ch.risk))
+
+## S48 Qi Deviation: a failure at Severe risk, or on a Poor-compatibility method, sends the Qi astray for 10 minutes.
+func _maybe_deviate(c, risk: String) -> void:
+	if not ProgressionRules.qi_deviates(risk, ProgressionRules.method_compatibility(c, c.cultivator.method_id)): return
+	game.combat.apply_status(c.id, "qi_deviation", float(ContentDB.stat_const("qi_deviation", {}).get("duration_s", 600)), 1.0)
+	if not game.account.codex.has("qi_deviation"): game.quest.apply_codex("qi_deviation")
+	emit("qi_deviation", {"actor": c.id, "risk": risk, "duration": float(ContentDB.stat_const("qi_deviation", {}).get("duration_s", 600))})
+
+# ------------------------------------------------------------------ heavenly tribulation (S48)
+## The cloud gathers over the room: bolts in turn, each telegraphed by a ring a second before it strikes where the
+## ring was drawn. Timing comes from the breakthrough stream, the rings' places from the combat stream.
+func _start_tribulation(c, ch: Dictionary) -> void:
+	var cu: CultivatorState = c.cultivator
+	var from := str(ch.get("from", cu.realm_key))
+	var k := ContentDB.config("tribulations")
+	var extra := int(_spend_fate_next(c, "tribulation_bolts"))
+	var total := ProgressionRules.tribulation_bolts(from, cu.heart_demon, cu.sin, extra)
+	var row := ProgressionRules.tribulation_row(from)
+	var per_wave := int(row.bolts)
+	var rng := Rng.stream(c.id, "breakthrough")
+	var times: Array = []
+	var at := float(k.get("first_s", 2.0))
+	for i in total:
+		if i > 0 and i % per_wave == 0 and i < int(row.bolts) * int(row.get("waves", 1)): at += float(k.get("wave_pause_s", 3.0))
+		times.append(at)
+		var gap: Array = k.get("gap_s", [0.7, 1.4])
+		at += float(k.get("warn_s", 1.0)) + rng.randf_range(float(gap[0]), float(gap[1]))
+	tribulations[c.id] = {"ch": ch, "times": times, "total": total, "index": 0, "t": 0.0, "warn": {}, "struck": 0, "absorbed": 0,
+		"waves": int(row.get("waves", 1)), "per_wave": per_wave, "room": game.room_rt.room_id if game.room_rt else ""}
+	if not game.account.codex.has("heavenly_tribulation"): game.quest.apply_codex("heavenly_tribulation")
+	emit("tribulation_started", {"actor": c.id, "from": from, "to": str(ch.to), "bolts": total, "waves": int(row.get("waves", 1))})
+
+func _tick_tribulation(c, delta: float) -> void:
+	if not tribulations.has(c.id): return
+	var tr: Dictionary = tribulations[c.id]
+	var k := ContentDB.config("tribulations")
+	# Leaving the room breaks the rite: the Qi scatters as though interrupted.
+	if game.room_rt == null or game.room_rt.room_id != str(tr.room):
+		_end_tribulation(c, false, "interruption")
+		return
+	tr.t = float(tr.t) + delta
+	var warn_s := float(k.get("warn_s", 1.0))
+	# The ring for the next bolt: drawn a second early, where the character stands (give or take).
+	if int(tr.index) < int(tr.total) and (tr.warn as Dictionary).is_empty() and float(tr.t) >= float(tr.times[tr.index]):
+		var st: ActorState = game.actor_state(c.id)
+		var here: Vector2 = st.plane if st else Vector2(float(c.position.get("x", 600)), float(c.position.get("y", 860)))
+		var rng := Rng.stream(c.id, "combat")
+		var spread := float(k.get("spread", 60))
+		var spot := here + Vector2(rng.randf_range(-spread, spread), rng.randf_range(-spread, spread) * 0.3)
+		tr.warn = {"x": spot.x, "y": spot.y, "left": warn_s}
+		emit("tribulation_bolt", {"actor": c.id, "index": int(tr.index), "total": int(tr.total), "phase": "warn", "x": spot.x, "y": spot.y, "warn_s": warn_s})
+	if not (tr.warn as Dictionary).is_empty():
+		tr.warn.left = float(tr.warn.left) - delta
+		if float(tr.warn.left) <= 0.0:
+			var spot2 := Vector2(float(tr.warn.x), float(tr.warn.y))
+			tr.warn = {}
+			var res: Dictionary = game.combat.apply_tribulation_strike(c, spot2, float(k.get("radius", 80)), float(k.get("depth", 45)))
+			tr.index = int(tr.index) + 1
+			if res.get("hit", false): tr.struck = int(tr.struck) + 1
+			if res.get("absorbed", false): tr.absorbed = int(tr.absorbed) + 1
+			emit("tribulation_bolt", {"actor": c.id, "index": int(tr.index) - 1, "total": int(tr.total), "phase": "strike", "x": spot2.x, "y": spot2.y,
+				"hit": res.get("hit", false), "damage": float(res.get("damage", 0.0)), "absorbed": res.get("absorbed", false)})
+			# Brought to nothing under the heavens: a breakthrough failure, not a grave wound.
+			if res.get("lethal", false):
+				_end_tribulation(c, false, "bodily_failure")
+				return
+	if int(tr.index) >= int(tr.total) and (tr.warn as Dictionary).is_empty():
+		_end_tribulation(c, true, "")
+
+func _end_tribulation(c, survived: bool, failure: String) -> void:
+	var tr: Dictionary = tribulations[c.id]
+	tribulations.erase(c.id)
+	emit("tribulation_result", {"actor": c.id, "survived": survived, "struck": int(tr.struck), "absorbed": int(tr.absorbed), "bolts": int(tr.total),
+		"failure": failure})
+	var ch: Dictionary = tr.ch
+	if survived:
+		_settle_breakthrough(c, ch)
+		return
+	var rng := Rng.stream(c.id, "breakthrough")
+	var from := str(ch.get("from", c.cultivator.realm_key))
+	if not (ch.get("used", []) as Array).is_empty(): c.cultivator.support_failures[from] = int(c.cultivator.support_failures.get(from, 0)) + 1
+	_fail_breakthrough(c, failure if ContentDB.has_entry("failures", failure) else "interruption", rng)
+	_maybe_deviate(c, str(ch.risk))
+
+func is_under_tribulation(actor_id: String) -> bool:
+	return tribulations.has(actor_id)
+
+## The tribulation as the HUD and the room draw it: bolts done and total, and the ring waiting to strike.
+func tribulation_view(actor_id: String) -> Dictionary:
+	if not tribulations.has(actor_id): return {}
+	var tr: Dictionary = tribulations[actor_id]
+	return {"index": int(tr.index), "total": int(tr.total), "warn": (tr.warn as Dictionary).duplicate(), "struck": int(tr.struck),
+		"warn_s": float(ContentDB.config("tribulations").get("warn_s", 1.0)), "radius": float(ContentDB.config("tribulations").get("radius", 80))}
+
+# ------------------------------------------------------------------ breakthrough fates (S48)
+## After a major breakthrough: three distinct cards from the deck, drawn on the breakthrough stream.
+func _offer_fates(c) -> void:
+	var pool := ProgressionRules.fate_pool(game.ctx(c))
+	var cards := ProgressionRules.draw_fates(pool, int(ContentDB.config("fates").get("offer", 3)), Rng.stream(c.id, "breakthrough"))
+	if cards.size() < 2: return
+	c.cultivator.fate_offer = cards
+	if not game.account.codex.has("fates"): game.quest.apply_codex("fates")
+	emit("fate_offered", {"actor": c.id, "cards": cards})
+
+## Choose one of the cards offered: its gift and its cost both apply now; some of either last the realm.
+func choose_fate(c, card: String) -> Dictionary:
+	var cu: CultivatorState = c.cultivator
+	if cu.fate_offer.is_empty(): return fail("no_offer")
+	if not card in cu.fate_offer: return fail("not_offered")
+	var f := ContentDB.entry("fates", card)
+	var rec := {"id": card, "realm": ProgressionRules.great_realm(cu.realm_key)}
+	if f.has("next"): rec.next = (f.next as Dictionary).duplicate()
+	if "dao_echo" in f.get("flags", []): rec.dao = _strongest_dao(c)
+	cu.fates.append(rec)
+	cu.fate_offer = []
+	game.apply_effects(c.id, f.get("effects", []), "fate:" + card)
+	emit("fate_chosen", {"actor": c.id, "card": card})
+	return ok({"card": card})
+
+## The fates still waiting on a `next` (a tribulation's extra bolts, a breakthrough's bonus): spent once, then gone.
+func _spend_fate_next(c, key: String) -> float:
+	var total := 0.0
+	for rec in c.cultivator.fates:
+		var nx: Dictionary = rec.get("next", {})
+		if nx.has(key):
+			total += float(nx[key])
+			nx.erase(key)
+	return total
+
+## Hungry Dantian: every pill family's lifetime resistance rises by a count.
+func apply_pill_resistance_all(actor_id: String, amount: int) -> void:
+	var c = game.character(actor_id)
+	if c == null: return
+	var fams := {}
+	for it in ContentDB.all("items"):
+		var fam := ProgressionRules.pill_family(it)
+		if fam != "": fams[fam] = true
+	for fam in fams:
+		var pr: Dictionary = c.cultivator.pill_resistance.get(fam, {"count": 0, "doses": 0})
+		pr.count = int(pr.get("count", 0)) + amount
+		c.cultivator.pill_resistance[fam] = pr
+		emit("pill_resistance_changed", {"actor": c.id, "family": fam, "count": int(pr.count), "doses": int(pr.get("doses", 0))})
+
+## Debt of Heaven: purity one grade better (grade 1 is the purest).
+func apply_purity_grade(actor_id: String, grades: int) -> void:
+	var c = game.character(actor_id)
+	if c == null: return
+	var before: int = c.cultivator.purity
+	c.cultivator.purity = clampi(c.cultivator.purity - grades, 1, 9)
+	if c.cultivator.purity != before: emit("purity_changed", {"actor": c.id, "grade": c.cultivator.purity})
+
+## A fate flag held (reveal_hidden, streak_heart_demon, dao_echo).
+func fate_flag(c, flag: String) -> bool:
+	for rec in c.cultivator.fates:
+		if flag in ContentDB.entry("fates", str(rec.get("id", ""))).get("flags", []): return true
+	return false
+
+func _strongest_dao(c) -> String:
+	var best := ""
+	var best_v := -1.0
+	for d in c.cultivator.daos:
+		var v := float(c.cultivator.daos[d].get("tier", 0)) * 1000000.0 + float(c.cultivator.daos[d].get("insight", 0.0))
+		if v > best_v:
+			best = str(d)
+			best_v = v
+	return best
 
 func is_channeling(actor_id: String) -> bool:
 	return channels.has(actor_id)
@@ -604,6 +787,7 @@ func _on_hit_landed(p: Dictionary) -> void:
 func _on_actor_defeated(p: Dictionary) -> void:
 	var c = game.character(str(p.get("killer", "")))
 	if c == null or p.get("victim_kind", "") != "enemy": return
+	_count_streak(c)
 	var lv := int(p.get("level", 1))
 	if Unlocks.is_unlocked(c.id, "kill_progress"):
 		apply_progress(c.id, ProgressionRules.kill_qp(ProgressionRules.level(c), lv, str(p.get("role", "normal"))), "kill")
@@ -615,7 +799,10 @@ func _on_actor_defeated(p: Dictionary) -> void:
 
 func _on_gravely_wounded(p: Dictionary) -> void:
 	var c = game.character(str(p.get("actor", "")))
-	if c == null or p.get("no_penalty", false): return
+	if c == null: return
+	# Struck down by a foe while the heavens were testing you: the breakthrough fails with the body (S48).
+	if tribulations.has(c.id): _end_tribulation(c, false, "bodily_failure")
+	if p.get("no_penalty", false): return
 	var cu: CultivatorState = c.cultivator
 	var loss := float(ContentDB.stat_const("death.progress_loss", 0.1))
 	if cu.state != "bottleneck":
@@ -733,6 +920,15 @@ func _falls_pool_second(c) -> void:
 	ls["falls_pool_s"] = float(ls.falls_pool_s) + 1.0
 	if float(ls.falls_pool_s) >= 60.0: add_lifetime(c, "falls_pool_nights", 1.0)
 
+## Kills in a row, each within 10 s of the last. Blood Memory (a fate) feeds the heart demon at every 10.
+func _count_streak(c) -> void:
+	var k: Dictionary = ContentDB.config("fates").get("streak", {})
+	var sk: Dictionary = streaks.get(c.id, {"n": 0, "t": -999.0})
+	sk.n = int(sk.n) + 1 if game.sim_time - float(sk.t) <= float(k.get("window_s", 10.0)) else 1
+	sk.t = game.sim_time
+	streaks[c.id] = sk
+	if int(sk.n) % int(k.get("kills", 10)) == 0 and fate_flag(c, "streak_heart_demon"): apply_heart_demon(c.id, 1.0, "blood_memory")
+
 ## Ember Heart: every Fire pill refined counts, by the pill.
 func _on_fire_pill(p: Dictionary) -> void:
 	if str(p.get("craft", "")) != "alchemy" or str(ContentDB.entry("recipes", str(p.get("recipe", ""))).get("element", "")) != "fire": return
@@ -772,6 +968,9 @@ func apply_insight(actor_id: String, dao: String, amount: float, context: String
 	mem[key] = game.sim_time
 	if mem.size() > 64: mem.clear()
 	amount *= 1.0 + c.stats.value("insight_rate")
+	# S48 Dao Echo: the chosen Dao learns faster and every other Dao slower.
+	for rec in c.cultivator.fates:
+		if rec.has("dao") and str(rec.dao) != "": amount *= 1.2 if str(rec.dao) == dao else 0.9
 	# A rare Dao grows only after a teacher has opened it (apply_open_dao).
 	if str(ContentDB.entry("daos", dao).get("family", "")) == "rare" and not c.cultivator.daos.has(dao): return
 	var d: Dictionary = c.cultivator.daos.get(dao, {"tier": 0, "insight": 0.0})
@@ -887,10 +1086,12 @@ func apply_settle(actor_id: String) -> void:
 	if c == null or c.cultivator.consolidation_left <= 0.0: return
 	c.cultivator.consolidation_left = 0.001
 
+## Set the stability word (Scar of Failure starts a realm Unstable, S48).
 func apply_stability(actor_id: String, word: String) -> void:
 	var c = game.character(actor_id)
 	if c == null: return
 	c.cultivator.stability = word
+	c.cultivator.stability_progress = 0.0
 	emit("stability_changed", {"actor": c.id, "word": word})
 
 func apply_learn_method(actor_id: String, method_id: String) -> void:

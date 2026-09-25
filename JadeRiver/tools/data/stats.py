@@ -132,6 +132,7 @@ def build():
         # Cleansing is one more point, floor 4. The Heavenly Flame Pill counts within an hour of taking it.
         "core_forging": {"start": 9, "chance": 0.8, "floor": 5, "flawless_floor": 4, "pill": "heavenly_flame_pill", "pill_window_s": 3600,
                          "yin_times": ["evening", "night"], "yang_times": ["morning", "day"]},
+        "qi_deviation": {"duration_s": 600, "elements": ["water", "wood", "fire", "earth", "metal"]},
         # S48 body ladder: body techniques spend HP at this rate when QI is short (Copper Body), never below this share.
         "body_path": {"hp_per_qi": 1.5, "hp_floor": 0.2, "air_metre_px": 50},
         # The karma ledger: 100 merit eases one major breakthrough in each great realm by a step.
@@ -294,6 +295,9 @@ def build():
         # S44 weapon oils: while one is on the blade, each hit may carry its status to the foe.
         {"id": "viper_oil", "resist": "none", "icon": "poison", "buff": True, "oil": {"status": "poison", "chance": 0.2, "power": 0.02, "duration_s": 4}},
         {"id": "ember_oil", "resist": "none", "icon": "burn", "buff": True, "oil": {"status": "burn", "chance": 0.2, "power": 0.02, "duration_s": 4}},
+        # S48 Qi Deviation: after a failed breakthrough at Severe risk or on a Poor method, each technique strikes with a
+        # random element for 10 minutes.
+        {"id": "qi_deviation", "resist": "none", "icon": "qi_deviation", "scramble_element": True},
     ])
 
     entries("weapon_families.json", [

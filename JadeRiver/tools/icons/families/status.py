@@ -340,11 +340,38 @@ Z...yy...Z
 ..ZZZZZZ..
 """
 
+# S48 Qi Deviation: the Qi spiral turned back on itself, one arm in the wrong colour.
+S['qi_deviation'] = """
+...CCCC...
+.CC....R..
+.C..CC..R.
+C..C..C.R.
+C.C.RR.CR.
+C.C..R.C..
+C..C..C...
+.R..CC..C.
+..RR...CC.
+....RRRR..
+"""
+# S48 heart demon (25 and more): a red horned face in a dark flame.
+S['heart_demon'] = """
+.r......r.
+.rR....Rr.
+..rRrrRr..
+.rrRRRRrr.
+rrRYrrYRrr
+rRRRRRRRRr
+rRRrRRrRRr
+.rRRrrRRr.
+..rRRRRr..
+...rrrr...
+"""
+
 ORDER = ['injury_body', 'injury_meridian', 'injury_soul', 'stability_unstable', 'stability_settling',
          'stability_stable', 'stability_solid', 'toxicity', 'hollowing', 'composure', 'poison', 'burn', 'slow',
          'stun', 'root', 'bleed', 'freeze', 'shock', 'qi_seal', 'vulnerable', 'confusion', 'fear', 'buff_attack',
          'buff_defense', 'buff_speed', 'exhausted', 'meditating', 'consolidating', 'bottleneck',
-         'spawn_protection']
+         'spawn_protection', 'qi_deviation', 'heart_demon']
 
 PYRAMIDS = {
     'stability_unstable': (1, 'P', 'R', True, False),

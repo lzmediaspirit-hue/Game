@@ -5,6 +5,46 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V5b · Heavenly tribulation, breakthrough fates and Qi Deviation (S48)
+- **Heavenly tribulation.** From Cloud Stride 9 on, every great breakthrough draws a cloud over the room once the
+  channel ends. The row for each step is in `tribulations.json`.
+  - Bolts: 3 into Spirit Awakening, 6 into Heaven Glimpse and 9 into Sage. After that come waves of 9: 2 into Sage
+    Sovereign, and one more wave for each great realm after.
+  - Each 25 heart demon and each 100 sin adds a bolt. Debt of Heaven adds 2 to the next tribulation.
+  - A ring shows where each bolt will land, one second ahead. Step out of it or guard to take half. Roofs do not
+    help. A Lightning Rod Talisman in the bag takes one bolt.
+  - Damage is 20 % of max HP × (1 + sin ÷ 500) × (1 + heart demon ÷ 200).
+  - A bolt that would kill leaves the body at a tenth of its HP and fails the breakthrough as a Bodily failure.
+    Leaving the room fails it as an interruption.
+  - Weathering every bolt leads to the usual success roll. The bolt timing comes from the breakthrough stream and
+    the ring positions from the combat stream.
+  - A HUD panel counts the bolts, and the rings and strikes use the lightning hazard's art in any room.
+- **Breakthrough fates** (`fates.json`, the Part 8 deck of 12).
+  - After each great breakthrough (past the Prologue), three distinct cards are drawn by weight on the breakthrough
+    stream. A picker opens; the offer is saved and can be reopened from the Heart tab.
+  - A card can give modifiers for life, costs that last until the next great realm, one-off effects (heart demon,
+    pill resistance, stability, purity), or something the next tribulation or breakthrough spends.
+  - Wandering Eye reveals a hidden way in each room. Blood Memory adds heart demon for every streak of 10 kills.
+    Dao Echo speeds your strongest Dao and slows the rest.
+  - Fox Spirit's Favour stays out of the deck until pets have purity (S46).
+- **Qi Deviation.** A failure at Severe risk, or on a Poor-compatibility method, applies a ten-minute status. While
+  it lasts, every technique takes a random element.
+- **HUD.** A heart-demon status icon shows at 25 and more, and the Heart tab's bar turns red when it adds risk.
+  Toasts cover the tribulation, fates and Qi Deviation.
+- **Fixes.**
+  - `ContentDB.config()` now also returns an entries table's own constants. The talisman constants were never read
+    before: grade power, quality multiplier and trace tolerance.
+  - The hazard layer is in every room.
+- **Tests:**
+  - bolt counts by realm, heart demon and sin, and the damage formula;
+  - a tribulation weathered, and one dodged;
+  - a lethal bolt as a Bodily failure;
+  - three distinct fate cards, with the same draw for the same seed;
+  - each fate's gift, cost, realm expiry and spent `next`;
+  - Blood Memory's streak;
+  - Qi Deviation only under its conditions;
+  - valley checks for the core grade, fates kept and a tribulation stood through.
+
 ### V5a · The body ladder, Core Forging, named roots and physiques (S48)
 - **The body ladder.** Copper (body level 18), Iron (36), Jade (54) and Gold (72) Body, in `body_tiers.json`. Each
   rung needs three things: the body level, its Temper trial and a full soak in its bath.

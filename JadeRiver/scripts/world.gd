@@ -155,10 +155,10 @@ func _build_room() -> void:
 		pv.setup(p)
 		room_layer.add_child(pv)
 		portal_views.append(pv)
-	if not rt.hazards.is_empty():
-		var hv := HazardView.new()
-		hv.world = self
-		room_layer.add_child(hv)
+	# Hazards, and the heavenly tribulation's rings and bolts (S48), which can fall in any room.
+	var hv := HazardView.new()
+	hv.world = self
+	room_layer.add_child(hv)
 	for uid in rt.enemies:
 		_add_enemy_view(rt.enemies[uid])
 	for l in rt.loot:

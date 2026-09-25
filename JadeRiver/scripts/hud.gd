@@ -619,6 +619,22 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.physique_awakened") % ContentDB.name_of("physiques", str(p.physique)), "unlock")
 		"core_graded":
 			toast(Tx.t("hud.core_graded") % int(p.grade), "gold")
+		"tribulation_started":
+			toast(Tx.t("hud.tribulation_started") % int(p.bolts), "danger", Tx.t("hud.tribulation_hint"))
+			Audio.play("thunder")
+		"tribulation_bolt":
+			if str(p.phase) == "strike":
+				Audio.play("thunder")
+				if p.get("absorbed", false): add_log(Tx.t("hud.bolt_absorbed"), UiKit.PALE_GOLD)
+		"tribulation_result":
+			if p.get("survived", false): toast(Tx.t("hud.tribulation_survived") % [int(p.bolts) - int(p.struck), int(p.bolts)], "gold")
+			else: toast(Tx.t("hud.tribulation_failed"), "danger")
+		"fate_offered":
+			if str(p.get("actor", "")) == Game.active_id: open_page.emit("fates", {})
+		"fate_chosen":
+			toast(Tx.t("hud.fate_chosen") % ContentDB.name_of("fates", str(p.card)), "gold")
+		"qi_deviation":
+			toast(Tx.t("hud.qi_deviation"), "danger", Tx.t("hud.qi_deviation_sub"))
 		# Gap report G2: treasures and talismans.
 		"beast_captured":
 			add_log(Tx.t("hud.beast_captured") % str(ContentDB.entry("enemies", str(p.def)).get("name", "")), UiKit.PALE_GOLD)
@@ -813,6 +829,7 @@ func _draw():
 	_draw_toasts()
 	_draw_boss()
 	_draw_event(c)
+	_draw_tribulation(c)
 	if joystick_id != -999:
 		draw_arc(joystick_origin, 76, 0, TAU, 40, Color(1, 1, 1, 0.12), 2)
 		draw_circle(joystick_origin + (joystick_pos - joystick_origin).limit_length(76), 18, Color(1, 1, 1, 0.14))
@@ -850,6 +867,7 @@ func _draw_player_panel(c) -> void:
 	if c.cultivator.state == "consolidating": icons.append("consolidating")
 	if c.cultivator.toxicity > 0.5 * c.stats.value("toxicity_tolerance") and c.cultivator.toxicity > 5: icons.append("toxicity")
 	if c.pools.hollowing > 5: icons.append("hollowing")
+	if ProgressionRules.heart_demon_steps(c.cultivator) >= 1: icons.append("heart_demon")   # S48: 25 and more
 	if Unlocks.is_unlocked(c.id, "composure") and c.pools.composure < 100: icons.append("composure")
 	for s in c.pools.statuses:
 		if s.id != "spawn_protection": icons.append(str(ContentDB.entry("status_effects", str(s.id)).get("icon", s.id)))
@@ -1128,6 +1146,22 @@ func _draw_event(c) -> void:
 	draw_rect(Rect2(r.position + Vector2(12, 29), Vector2(r.size.x - 24, 3)), Color(UiKit.INK, 0.8))
 	draw_rect(Rect2(r.position + Vector2(12, 29), Vector2((r.size.x - 24) * clampf(frac, 0, 1), 3)), UiKit.BRIGHT_JADE)
 	if rule != "": UiKit.draw_text(self, rule, r.position + Vector2(14, 46), 14, UiKit.RED if danger else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
+
+## S48 heavenly tribulation: bolts struck and to come, and whether a ring is closing now.
+func _draw_tribulation(c) -> void:
+	var tv: Dictionary = Game.progression.tribulation_view(c.id)
+	if tv.is_empty(): return
+	var r := Rect2(470, 142, 340, 52)
+	draw_style_box(UiKit.style("toast"), r)
+	UiKit.draw_text(self, Tx.t("hud.tribulation_title"), r.position + Vector2(14, 23), 17, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 200)
+	UiKit.draw_text(self, Tx.t("hud.tribulation_count") % [int(tv.index), int(tv.total)], r.position + Vector2(r.size.x - 144, 23), 17, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 130)
+	var n := int(tv.total)
+	var w := (r.size.x - 28) / maxf(1.0, float(n))
+	for i in n:
+		var cell := Rect2(r.position.x + 14 + i * w, r.position.y + 32, maxf(2.0, w - 2), 6)
+		draw_rect(cell, Color("8fd6ff") if i < int(tv.index) else (UiKit.GOLD if i == int(tv.index) and not (tv.warn as Dictionary).is_empty() else Color(UiKit.INK, 0.8)))
+	if not (tv.warn as Dictionary).is_empty():
+		UiKit.draw_text(self, Tx.t("hud.tribulation_move"), r.position + Vector2(14, 50), 13, UiKit.RED, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
 
 func _draw_legacy() -> void:
 	draw_style_box(frame_style, Rect2(22, 22, 310, 82))

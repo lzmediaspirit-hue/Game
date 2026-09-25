@@ -51,6 +51,7 @@ func load_all() -> void:
 				ordered.append(entry)
 			tables[table] = by_id
 			lists[table] = ordered
+			configs[table] = data   # a table's own constants sit beside its entries (tribulations.json, fates.json)
 		else:
 			configs[table] = data
 	for file in DirAccess.get_files_at(DATA_DIR + "rooms/"):

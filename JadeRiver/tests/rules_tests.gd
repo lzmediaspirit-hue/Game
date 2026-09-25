@@ -52,6 +52,7 @@ func _main() -> void:
 	guild_suite()
 	tribulation_suite()
 	body_path_suite()
+	heaven_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -847,6 +848,161 @@ func body_path_suite() -> void:
 	cu.body_baths.clear()
 	cu.lifetime_stats.erase("fire_pills")
 	cu.events_passed.erase("iron_body_trial")
+	Game.combat.refresh_stats(c.id)
+
+# ------------------------------------------------------------------ S48 heavenly tribulation, fates, Qi Deviation
+func heaven_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var cu: CultivatorState = c.cultivator
+	var st: ActorState = Game.actor_state(c.id)
+	var realm_was := cu.realm_key
+	var hd_was := cu.heart_demon
+	var sin_was := cu.sin
+	c.inventory.bag.fill(null)
+	# Bolt counts by realm, heart demon and sin.
+	check(ProgressionRules.tribulation_bolts("heart_tempering_9", 0, 0) == 0, "no tribulation into Cloud Stride (the Heart Trial is the set piece)")
+	check(ProgressionRules.tribulation_bolts("cloud_stride_9", 0, 0) == 3 and ProgressionRules.tribulation_bolts("spirit_awakening_9", 0, 0) == 6
+		and ProgressionRules.tribulation_bolts("heaven_glimpse_3", 0, 0) == 9, "3 bolts into Spirit Awakening, 6 into Heaven Glimpse, 9 into Sage")
+	check(ProgressionRules.tribulation_bolts("sage_3", 0, 0) == 18 and ProgressionRules.tribulation_bolts("sage_sovereign_3", 0, 0) == 27,
+		"then waves of 9: 2 into Sage Sovereign, 3 into Will Manifest")
+	check(ProgressionRules.tribulation_bolts("cloud_stride_9", 24.0, 99) == 3 and ProgressionRules.tribulation_bolts("cloud_stride_9", 25.0, 100) == 5
+		and ProgressionRules.tribulation_bolts("cloud_stride_9", 50.0, 0, 2) == 7, "+1 per 25 heart demon, +1 per 100 sin, and a fate's extra bolts")
+	check(near(ProgressionRules.tribulation_damage(1000.0, 0, 0.0, false), 200.0) and near(ProgressionRules.tribulation_damage(1000.0, 500, 0.0, false), 400.0)
+		and near(ProgressionRules.tribulation_damage(1000.0, 0, 200.0, true), 200.0), "bolt damage: 20% max HP x (1 + sin/500) x (1 + heart demon/200), guard halves")
+	# A tribulation run: every bolt lands on a character who stands still; one talisman takes one bolt.
+	Game.world.apply_teleport(c.id, "cp_cleansing_summit")
+	cu.realm_key = "cloud_stride_9"
+	cu.heart_demon = 0.0
+	cu.sin = 0
+	cu.fates.clear()
+	cu.fate_offer = []
+	Game.combat.refresh_stats(c.id)
+	c.pools.hp = c.pools.max_hp
+	Game.inventory.apply_add(c.id, "lightning_rod_talisman", 1, "test")
+	var starts := []
+	var hook := func(n: String, p: Dictionary): if n == "tribulation_result": starts.append(p)
+	GameEvents.event.connect(hook)
+	Game.progression._start_tribulation(c, {"to": "spirit_awakening_1", "risk": "low", "from": "cloud_stride_9", "used": [], "causes": [], "bonus": 1.0})
+	check(Game.progression.is_under_tribulation(c.id) and int(Game.progression.tribulation_view(c.id).total) == 3, "the cloud gathers: 3 bolts")
+	var guard := 0
+	while Game.progression.is_under_tribulation(c.id) and guard < 400:
+		Game.progression._tick_tribulation(c, 0.1)
+		GameEvents.flush()
+		guard += 1
+	var res: Dictionary = starts.back() if not starts.is_empty() else {}
+	check(res.get("survived", false) and int(res.get("absorbed", 0)) == 1 and c.inventory.count("lightning_rod_talisman") == 0,
+		"three bolts weathered; the Lightning Rod took one (%s)" % str(res))
+	check(cu.realm_key == "spirit_awakening_1", "a weathered tribulation settles the breakthrough")
+	var offer: Array = cu.fate_offer.duplicate()
+	var distinct := {}
+	for f in offer: distinct[f] = true
+	check(offer.size() == 3 and distinct.size() == 3 and not offer.has("fox_spirits_favour"), "three distinct fate cards are offered (%s)" % str(offer))
+	# Stepping out of the ring: the bolt misses.
+	cu.realm_key = "cloud_stride_9"
+	c.pools.hp = c.pools.max_hp
+	Game.progression._start_tribulation(c, {"to": "spirit_awakening_1", "risk": "low", "from": "cloud_stride_9", "used": [], "causes": [], "bonus": -1.0})
+	var home: Vector2 = st.plane
+	guard = 0
+	while Game.progression.is_under_tribulation(c.id) and guard < 400:
+		var tv: Dictionary = Game.progression.tribulation_view(c.id)
+		if not (tv.get("warn", {}) as Dictionary).is_empty(): st.plane = Vector2(float(tv.warn.x) + 400.0, float(tv.warn.y))
+		Game.progression._tick_tribulation(c, 0.1)
+		GameEvents.flush()
+		guard += 1
+	st.plane = home
+	check(int(starts.back().get("struck", -1)) == 0 and bool(starts.back().get("survived", false)), "stepping out of every ring: no bolt lands (%s)" % str(starts.back()))
+	check(cu.realm_key == "cloud_stride_9", "a weathered tribulation still rolls the breakthrough (forced to fail here)")
+	# Brought to nothing under the heavens: a Bodily failure, not a grave wound.
+	c.pools.hp = c.pools.max_hp * 0.1
+	Game.progression._start_tribulation(c, {"to": "spirit_awakening_1", "risk": "low", "from": "cloud_stride_9", "used": [], "causes": [], "bonus": 1.0})
+	guard = 0
+	while Game.progression.is_under_tribulation(c.id) and guard < 400:
+		Game.progression._tick_tribulation(c, 0.1)
+		GameEvents.flush()
+		guard += 1
+	check(not starts.back().get("survived", true) and str(starts.back().get("failure", "")) == "bodily_failure" and c.pools.hp > 0.0 and cu.realm_key == "cloud_stride_9",
+		"a bolt that would kill fails the breakthrough with the body and leaves the character standing")
+	GameEvents.event.disconnect(hook)
+	c.cultivator.injuries.clear()
+	c.pools.hp = c.pools.max_hp
+	# Fates: gifts and costs, realm-long costs that lapse, and what waits for the next tribulation or breakthrough.
+	cu.realm_key = "cloud_stride_5"
+	cu.fate_offer = []
+	check(not Game.submit({"type": "choose_fate", "card": "iron_will"}).get("ok", false), "no fate can be chosen without an offer")
+	cu.fate_offer = ["iron_will", "quiet_heart", "hungry_dantian"]
+	check(not Game.submit({"type": "choose_fate", "card": "lucky_star"}).get("ok", false), "only an offered card can be chosen")
+	Game.combat.refresh_stats(c.id)
+	var will0: float = c.stats.value("will")
+	var ms0: float = c.stats.value("move_speed")
+	check(Game.submit({"type": "choose_fate", "card": "iron_will"}).get("ok", false) and cu.fate_offer.is_empty(), "choosing a card spends the offer")
+	Game.combat.refresh_stats(c.id)
+	check(c.stats.value("will") >= will0 + 9.9 and c.stats.value("move_speed") < ms0, "Iron Will: +10 Will, slower this realm")
+	cu.realm_key = "spirit_awakening_1"
+	Game.combat.refresh_stats(c.id)
+	check(c.stats.value("will") >= will0 + 9.9 and near(c.stats.value("move_speed"), ms0), "in the next great realm the Will stays and the slowness lapses")
+	cu.heart_demon = 30.0
+	cu.fate_offer = ["quiet_heart", "hungry_dantian", "debt_of_heaven"]
+	Game.submit({"type": "choose_fate", "card": "quiet_heart"})
+	check(near(cu.heart_demon, 15.0), "Quiet Heart: heart demon -15")
+	cu.pill_resistance = {}
+	cu.fate_offer = ["hungry_dantian", "debt_of_heaven", "lucky_star"]
+	Game.submit({"type": "choose_fate", "card": "hungry_dantian"})
+	check(ProgressionRules.resistance_count(cu, "body") == 1 and ProgressionRules.resistance_count(cu, "accumulation") == 1 and ProgressionRules.resistance_count(cu, "soul") == 1, "Hungry Dantian: pill resistance +1 in every family")
+	cu.pill_resistance = {}
+	cu.purity = 6
+	cu.fate_offer = ["debt_of_heaven", "lucky_star", "iron_will"]
+	Game.submit({"type": "choose_fate", "card": "debt_of_heaven"})
+	check(cu.purity == 5 and ProgressionRules.tribulation_bolts("cloud_stride_9", 0.0, 0, int(Game.progression._spend_fate_next(c, "tribulation_bolts"))) == 5
+		and Game.progression._spend_fate_next(c, "tribulation_bolts") == 0.0, "Debt of Heaven: purity a grade better; the next tribulation alone gets 2 more bolts")
+	cu.fate_offer = ["scar_of_failure", "lucky_star", "iron_will"]
+	Game.submit({"type": "choose_fate", "card": "scar_of_failure"})
+	check(cu.stability == "unstable" and near(Game.progression._spend_fate_next(c, "breakthrough_bonus"), 0.10), "Scar of Failure: unstable now, +10% on the next breakthrough")
+	cu.stability = "stable"
+	# The draw: distinct, by weight, never an unavailable card, the same for the same seed.
+	var pool := ProgressionRules.fate_pool(Game.ctx(c))
+	var draws := []
+	for run in 2:
+		Rng.restore(c.id, {}, 99)
+		draws.append(ProgressionRules.draw_fates(pool, 3, Rng.stream(c.id, "breakthrough")))
+	check(draws[0] == draws[1], "the same seed draws the same three cards")
+	var never := true
+	for i in 60:
+		for f in ProgressionRules.draw_fates(pool, 3, Rng.stream(c.id, "breakthrough")):
+			if str(f) == "fox_spirits_favour": never = false
+	check(never, "a card not yet available (Fox Spirit's Favour, S46) is never drawn")
+	# Blood Memory: a streak of 10 kills feeds the heart demon only with the fate.
+	cu.heart_demon = 0.0
+	for i in 10: Game.progression._count_streak(c)
+	check(near(cu.heart_demon, 0.0), "a streak of 10 without Blood Memory costs nothing")
+	cu.fates.append({"id": "blood_memory", "realm": ProgressionRules.great_realm(cu.realm_key)})
+	for i in 10: Game.progression._count_streak(c)
+	check(near(cu.heart_demon, 1.0), "Blood Memory: +1 heart demon at a streak of 10 (%.1f)" % cu.heart_demon)
+	# Qi Deviation: only at Severe risk or on a Poor method.
+	check(ProgressionRules.qi_deviates("severe", "good") and ProgressionRules.qi_deviates("low", "poor") and not ProgressionRules.qi_deviates("high", "excellent"),
+		"Qi Deviation only at Severe risk or with a Poor method")
+	c.pools.statuses.clear()
+	var method_was := cu.method_id
+	cu.method_id = "stonebody_canon"
+	var earth_was: Dictionary = cu.aptitude.get("element_earth", {}).duplicate()
+	cu.aptitude["element_earth"] = {"value": 0.08, "revealed": true}
+	Game.progression._maybe_deviate(c, "high")
+	check(not c.pools.has_status("qi_deviation"), "a failure at High risk on a good method does not deviate")
+	Game.progression._maybe_deviate(c, "severe")
+	var els := {}
+	for i in 30: els[Game.combat.technique_element(c, ContentDB.entry("techniques", "flowing_palm"))] = true
+	check(c.pools.has_status("qi_deviation") and els.size() >= 3, "at Severe risk the Qi deviates: techniques take random elements (%d seen)" % els.size())
+	c.pools.statuses.clear()
+	check(Game.combat.technique_element(c, ContentDB.entry("techniques", "flowing_palm")) == "water", "once it passes, techniques keep their own element")
+	cu.aptitude["element_earth"] = earth_was
+	cu.method_id = method_was
+	cu.fates.clear()
+	cu.fate_offer = []
+	cu.realm_key = realm_was
+	cu.heart_demon = hd_was
+	cu.sin = sin_was
+	cu.purity = 9
+	c.cultivator.injuries.clear()
 	Game.combat.refresh_stats(c.id)
 
 func tribulation_suite() -> void:

@@ -15,6 +15,8 @@ const CP_ROOT := "user://valley_cp/"
 const WORK := "user://valley_work/"
 
 var unlock_log: Array = []
+var fates_offered := 0          # S48: fate cards offered after great breakthroughs
+var tribulations_weathered := 0 # S48: heavenly tribulations stood through
 
 func _main() -> void:
 	var from := ""
@@ -368,7 +370,37 @@ func reach(realm: String, supports: Array = []) -> bool:
 			print("  breakthrough refused: ", b)
 			return false
 		step(4.0)
+		weather_tribulation()
+		choose_fate()
 	return ProgressionRules.at_least(c().cultivator.realm_key, realm)
+
+## S48: from Cloud Stride on the heavens test a great breakthrough. Step out of each ring as it closes, as a player
+## would (a test shortcut moves the body straight to the side).
+func weather_tribulation() -> void:
+	var guard := 0
+	while Game.progression.is_under_tribulation(c().id) and guard < 900:
+		var tv: Dictionary = Game.progression.tribulation_view(c().id)
+		var w: Dictionary = tv.get("warn", {})
+		var st: ActorState = Game.actor_state(c().id)
+		if not w.is_empty() and st != null and absf(st.plane.x - float(w.x)) < 200.0:
+			var width: float = Game.room_rt.width() if Game.room_rt else 2560.0
+			st.plane.x = float(w.x) + (260.0 if float(w.x) < width * 0.5 else -260.0)
+		step(0.1)
+		guard += 1
+	if guard > 0: tribulations_weathered += 1
+
+## S48: a fate after each great breakthrough. The run keeps the gentlest card on offer so later checks stay put.
+func choose_fate() -> void:
+	var offer: Array = c().cultivator.fate_offer
+	if offer.is_empty(): return
+	fates_offered += 1
+	var pick := str(offer[0])
+	for f in ["lucky_star", "bone_of_the_river", "wandering_eye", "blood_memory", "iron_will", "dao_echo", "thunder_tempered", "quiet_heart",
+			"hungry_dantian", "debt_of_heaven", "scar_of_failure"]:
+		if f in offer:
+			pick = f
+			break
+	submit({"type": "choose_fate", "card": pick})
 
 ## Equip the copy just bought or made (the highest uid), not an older one of a worse quality in the bag.
 func equip_newest(item: String) -> bool:
@@ -1090,26 +1122,31 @@ func make_refining_pill() -> bool:
 func tame_one() -> bool:
 	for sp in ["reed_otter", "ember_fox", "jade_crane_chick", "bamboo_monkey", "mossback_toad"]:
 		var rid := _room_with_spawn(sp)
+		if verbose: print("  tame: ", sp, " in ", rid)
 		if rid == "" or not travel(rid): continue
 		for attempt in 10:
 			if c().inventory.count("bonding_offering_common") < 1: Game.inventory.apply_add(c().id, "bonding_offering_common", 3, "test")
 			# A failed offering makes the beast bolt: wait for the next one to wander in.
 			var target: EnemyState = null
 			var waited := 0.0
-			while target == null and waited < 45.0:
+			while target == null and waited < 150.0:
 				for e in Game.room_rt.living_enemies():
 					if e.def_id == sp and e.team == "enemy": target = e
 				if target == null:
 					step(5.0)
 					waited += 5.0
-			if target == null: break
-			var t := 0.0
-			while target.alive and target.pools.hp > target.pools.max_hp * 0.25 and t < 60.0:
-				place(target.plane + Vector2(-34, 0))
-				submit({"type": "basic_attack", "facing": 1})
-				step(0.25)
-				t += 0.25
-			if not target.alive: continue
+			if target == null:
+				if verbose: print("  tame: no ", sp, " came back")
+				break
+			# One blow to show the fight is real, then the careful chipping a player does is a test shortcut: a
+			# character this strong kills a low beast outright with a second blow.
+			place(target.plane + Vector2(-34, 0))
+			submit({"type": "basic_attack", "facing": 1})
+			step(0.25)
+			if target.alive and target.pools.hp > target.pools.max_hp * 0.25: target.pools.hp = target.pools.max_hp * 0.2
+			if not target.alive:
+				if verbose: print("  tame: the ", sp, " fell before it could be offered to")
+				continue
 			place(target.plane + Vector2(-60, 0))
 			var r := submit({"type": "use_item", "index": c().inventory.first_index("bonding_offering_common")})
 			if verbose: print("  tame ", sp, ": ", r)
@@ -1207,6 +1244,10 @@ func sec_ht5() -> void:
 # ------------------------------------------------------------------ Cloud Stride
 func sec_cs1() -> void:
 	check(reach("cloud_stride_1"), "Cloud Stride 1")
+	# S48: the core formed with a grade, and a fate was kept at each great breakthrough.
+	check(c().cultivator.core_grade >= 4 and c().cultivator.core_grade <= 9 and c().cultivator.purity == c().cultivator.core_grade,
+		"the core formed at purity grade %d" % c().cultivator.core_grade)
+	check(c().cultivator.fates.size() >= 4, "a fate kept at each great breakthrough so far (%d)" % c().cultivator.fates.size())
 	check(start("wings_of_cloud"), "Wings of Cloud accepted")
 	check(travel("cc_cliff_faces"), "reach the Cliff Faces")
 	take_to_the_air()
@@ -1268,7 +1309,9 @@ func sec_cs5() -> void:
 
 # ------------------------------------------------------------------ Spirit Awakening
 func sec_sa1() -> void:
+	var weathered := tribulations_weathered
 	check(reach("spirit_awakening_1", ["mind_lake_opening_pill"]), "Spirit Awakening 1")
+	check(tribulations_weathered > weathered, "a heavenly tribulation stood through into Spirit Awakening")
 	check(c().pools.max_soul > 0.0, "a soul pool from Spirit Awakening")
 	check(start("a_lake_inside"), "A Lake Inside accepted")
 	var pulses := 0

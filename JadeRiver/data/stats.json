@@ -480,6 +480,16 @@
    "day"
   ]
  },
+ "qi_deviation": {
+  "duration_s": 600,
+  "elements": [
+   "water",
+   "wood",
+   "fire",
+   "earth",
+   "metal"
+  ]
+ },
  "body_path": {
   "hp_per_qi": 1.5,
   "hp_floor": 0.2,

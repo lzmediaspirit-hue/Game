@@ -158,7 +158,8 @@ func _heart(ch) -> void:
 	heading(Vector2(x, y), Tx.t("ui.cultivation.heart_demons"), left.size.x - 48)
 	y += 26
 	var hb := Rect2(x, y, left.size.x - 48, 30)
-	bar(hb, cu.heart_demon / 100.0, Color("b0283c"), "%d / 100" % int(cu.heart_demon))
+	# Red once it adds a risk step at great breakthroughs (25 and more, S48); a dull rose below that.
+	bar(hb, cu.heart_demon / 100.0, Color("d0283c") if ProgressionRules.heart_demon_steps(cu) > 0 else Color("7a4a56"), "%d / 100" % int(cu.heart_demon))
 	for k in [25, 50, 75]:
 		var tx: float = hb.position.x + hb.size.x * float(k) / 100.0
 		draw_line(Vector2(tx, hb.position.y - 4), Vector2(tx, hb.end.y + 4), Color(UiKit.PALE_GOLD, 0.7), 2)
@@ -182,6 +183,17 @@ func _heart(ch) -> void:
 		text(Vector2(left.end.x - 24, y), Tx.t("ui.cultivation.debt_settled") if d.get("paid", false) else Tx.t("ui.cultivation.debt_open"), 16,
 			UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, -1)
 		y += 26
+	# S48 fates: the cards chosen at major breakthroughs, and one waiting to be chosen.
+	if not cu.fates.is_empty() or not cu.fate_offer.is_empty():
+		y += 16
+		heading(Vector2(x, y + 20), Tx.t("ui.cultivation.fates"), left.size.x - 48)
+		y += 44
+		if not cu.fate_offer.is_empty():
+			btn(Rect2(x, y, left.size.x - 48, 44), Tx.t("ui.cultivation.choose_fate"), "fates", null, true, true, "", 19)
+			y += 52
+		var names: Array = []
+		for rec in cu.fates: names.append(ContentDB.name_of("fates", str(rec.get("id", ""))))
+		if not names.is_empty(): para(Rect2(x, y - 14, left.size.x - 48, maxf(24.0, left.end.y - y)), ", ".join(names), 16, UiKit.PAPER, 3)
 	# Right: foundation, residue, resistance.
 	x = right.position.x + 24
 	y = right.position.y + 44
@@ -297,6 +309,7 @@ func on_action(id: String, data) -> void:
 		"meditate":
 			if submit({"type": "toggle_meditation"}).get("ok", false): close()
 		"breakthrough": navigate.emit("breakthrough", {})
+		"fates": navigate.emit("fates", {})
 		"meridian": submit({"type": "open_meridian", "channel": str(data)})
 		"reset_meridians": ask(Tx.t("ui.cultivation.reset_all_meridian_points"), "reset_yes")
 		"reset_yes": submit({"type": "reset_meridians"})

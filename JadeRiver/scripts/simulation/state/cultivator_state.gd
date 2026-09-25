@@ -55,7 +55,8 @@ var body_tier := "mortal"            # mortal | copper | iron | jade | gold (bod
 var body_trials: Array = []          # body tiers whose Temper trial is passed
 var body_baths: Array = []           # body tiers whose bath was soaked in full
 var core_grade := 0                  # the purity grade the core formed at (Heart Tempering 9 -> Cloud Stride 1); 0 before
-var fates: Array = []                # fate cards chosen at major breakthroughs
+var fates: Array = []                # fate cards chosen at major breakthroughs: {id, realm, next?, dao?}
+var fate_offer: Array = []           # the cards drawn and waiting for a choice
 var physiques: Array = []            # physiques awakened by deeds (physiques.json)
 var vows: Array = []
 var inner_arts: Array = []
@@ -109,7 +110,7 @@ func snapshot() -> Dictionary:
 		"heart_demon": heart_demon, "merit": merit, "sin": sin, "debts": debts.duplicate(true), "merit_used": merit_used.duplicate(),
 		"support_failures": support_failures.duplicate(),
 		"body_tier": body_tier, "body_trials": body_trials.duplicate(), "body_baths": body_baths.duplicate(), "core_grade": core_grade,
-		"fates": fates.duplicate(true), "physiques": physiques.duplicate(), "vows": vows.duplicate(), "inner_arts": inner_arts.duplicate(),
+		"fates": fates.duplicate(true), "fate_offer": fate_offer.duplicate(), "physiques": physiques.duplicate(), "vows": vows.duplicate(), "inner_arts": inner_arts.duplicate(),
 		"stances": stances.duplicate(), "false_realm": false_realm, "epiphany_cooldown": epiphany_cooldown,
 		"methods_known": methods_known.duplicate(), "aptitude": aptitude.duplicate(true), "origin": origin,
 		"meridians": meridians.duplicate(), "unspent_meridian_points": unspent_meridian_points,
@@ -172,7 +173,12 @@ func restore(d: Dictionary) -> void:
 	body_trials = _arr(d, "body_trials")
 	body_baths = _arr(d, "body_baths")
 	core_grade = clampi(int(_num(d, "core_grade", 0)), 0, 9)
-	fates = _arr(d, "fates")
+	fates = []
+	for f in _arr(d, "fates"):
+		if f is Dictionary and ContentDB.has_entry("fates", str(f.get("id", ""))): fates.append(f)
+	fate_offer = []
+	for f in _arr(d, "fate_offer"):
+		if ContentDB.has_entry("fates", str(f)): fate_offer.append(str(f))
 	physiques = _arr(d, "physiques")
 	vows = _arr(d, "vows")
 	inner_arts = _arr(d, "inner_arts")

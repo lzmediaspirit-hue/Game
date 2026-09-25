@@ -149,6 +149,12 @@
     "power": 0.02,
     "duration_s": 4
    }
+  },
+  {
+   "id": "qi_deviation",
+   "resist": "none",
+   "icon": "qi_deviation",
+   "scramble_element": true
   }
  ]
 }

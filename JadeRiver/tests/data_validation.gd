@@ -172,6 +172,22 @@ func data_suite() -> void:
 		check(str(ph.get("earned", "")) != "" and str(ph.get("gift_text", "")) != "" and str(ph.get("drawback_text", "")) != "", "physique %s says how it is earned, its gift and its drawback" % ph.id)
 		for m in ph.get("modifiers", []): check(stat_ids.has(str(m.stat)), "physique %s stat %s" % [ph.id, m.stat])
 	for m2 in ContentDB.all("methods"): check(str(m2.get("yin_yang", "")) in ["yin", "yang"], "method %s leans yin or yang" % m2.id)
+	# S48 fates and tribulations.
+	var offerable := 0
+	for fc in ContentDB.all("fates"):
+		check(str(fc.get("gift_text", "")) != "" and str(fc.get("cost_text", "")) != "" and float(fc.get("weight", 0)) > 0.0, "fate %s has gift, cost and weight" % fc.id)
+		for m4 in fc.get("modifiers", []) + fc.get("realm_modifiers", []): check(stat_ids.has(str(m4.stat)), "fate %s stat %s" % [fc.id, m4.stat])
+		check_effects(fc.get("effects", []), "fate " + str(fc.id))
+		check_req(fc.get("requires", {}), "fate " + str(fc.id))
+		if fc.get("available", true): offerable += 1
+	check(offerable >= int(ContentDB.config("fates").get("offer", 3)), "enough fates to offer three distinct cards")
+	var last_bolts := 0
+	for tb in ContentDB.all("tribulations"):
+		check(ContentDB.realm_index.has(str(tb.from)) and bool(ContentDB.realm(str(ContentDB.realm(str(tb.from)).get("next", ""))).get("major", false)),
+			"tribulation %s guards a major breakthrough" % tb.id)
+		var all_bolts := int(tb.bolts) * int(tb.get("waves", 1))
+		check(all_bolts > last_bolts, "tribulation %s brings more bolts than the one before" % tb.id)
+		last_bolts = all_bolts
 	for r4 in ContentDB.all("recipes"):
 		if r4.has("fire"): check(str(r4.fire) in (ContentDB.config("grades").get("pill", {}).get("fires", {}) as Dictionary), "recipe %s fire %s" % [r4.id, r4.fire])
 	for tl in ContentDB.all("titles"):

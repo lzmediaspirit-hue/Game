@@ -137,6 +137,36 @@ func stop_flight(actor_id: String, reason: String) -> void:
 func is_flying(actor_id: String) -> bool:
 	return flying.has(actor_id)
 
+## A technique's element; under Qi Deviation (S48) the Qi goes astray and each use takes a random one (combat stream).
+func technique_element(c, t: Dictionary) -> String:
+	if c.pools.has_status("qi_deviation"):
+		var els: Array = ContentDB.stat_const("qi_deviation", {}).get("elements", ["water", "wood", "fire", "earth", "metal"])
+		return str(els[Rng.stream(c.id, "combat").randi_range(0, els.size() - 1)])
+	return str(t.get("element", "none"))
+
+## S48 heavenly tribulation: one bolt lands where its ring was drawn. Cover does not help (roofs, shelter), a step
+## out of the ring does, guarding halves it, and a Lightning Rod Talisman in the bag takes it whole and burns away.
+## A bolt that would kill leaves the body at a tenth of its HP and reports `lethal`: the breakthrough fails.
+func apply_tribulation_strike(c, at: Vector2, radius: float, depth: float) -> Dictionary:
+	var st: ActorState = game.actor_state(c.id)
+	var here: Vector2 = st.plane if st else at
+	if absf(here.x - at.x) > radius or absf(here.y - at.y) > depth: return {"hit": false}
+	if c.inventory.count("lightning_rod_talisman") > 0:
+		game.inventory.apply_remove(c.id, "lightning_rod_talisman", 1, "tribulation")
+		return {"hit": true, "absorbed": true, "damage": 0.0}
+	var tl := timeline(c.id)
+	var cu = c.cultivator
+	var dmg := ProgressionRules.tribulation_damage(c.pools.max_hp, int(cu.sin), float(cu.heart_demon), bool(tl.guard))
+	var p: ResourcePool = c.pools
+	var lethal := p.hp - dmg <= 0.0
+	p.set_value("hp", p.max_hp * float(ContentDB.config("tribulations").get("survive_hp", 0.1)) if lethal else p.hp - dmg)
+	p.since_hit = 0.0
+	tl.flinch = float(ContentDB.stat_const("combat.flinch_s", 0.4))
+	emit("hit_landed", {"attacker": "heaven", "target": c.id, "target_kind": "player", "amount": int(round(dmg)), "type": "qi", "crit": false,
+		"element": "thunder", "x": here.x, "y": here.y, "alt": (st.altitude if st else 0.0) + 92.0, "hp": p.hp, "max": p.max_hp, "pool": "hp"})
+	emit("resource_changed", {"actor": c.id, "pool": "hp", "value": p.hp, "max": p.max_hp})
+	return {"hit": true, "absorbed": false, "damage": dmg, "lethal": lethal}
+
 ## S48: the HP a body technique spends when QI is short (Copper Body and above); 0 when it spends QI or cannot.
 func body_hp_cost(c, t: Dictionary, qi_cost: float) -> float:
 	if not t.get("body", false) or qi_cost <= 0.0 or c.pools.qi >= qi_cost or not StatRules.body_flag(c, "hp_techniques"): return 0.0
@@ -692,7 +722,7 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		emit("system_used", {"actor": c.id, "system": "guard"})
 		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": 1, "targets": 0})
 		return
-	var attack := {"damage_type": "physical" if dtype == "movement" else dtype, "element": str(t.get("element", "none")),
+	var attack := {"damage_type": "physical" if dtype == "movement" else dtype, "element": technique_element(c, t),
 		"mult": t.get("mult", [1, 1]), "range": fam.get("range", [0.9, 1.1]), "dao_tier": _dao_tier(c, str(t.get("dao", ""))),
 		"mastery_tier": tier - 1, "room_element": str(game.room_rt.def.get("element", "")) if game.room_rt else "",
 		"knockback": float(t.get("knockback", 0)), "ignore_armor": t.get("ignore_armor", false),

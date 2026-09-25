@@ -22,6 +22,19 @@ func subscribe() -> void:
 	GameEvents.subscribe("actor_defeated", _event_kill, 55)
 	GameEvents.subscribe("bottleneck_reached", _on_bottleneck, 50)
 	GameEvents.subscribe("hit_landed", _on_hit_during_event, 50)
+	GameEvents.subscribe("room_entered", _on_room_entered_fates, 51)
+
+## S48 Wandering Eye (a fate): one hidden way in each room entered shows itself.
+func _on_room_entered_fates(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c == null or game.room_rt == null or not game.progression.fate_flag(c, "reveal_hidden"): return
+	for pt in game.room_rt.def.get("portals", []):
+		if str(pt.get("type", "")) != "hidden": continue
+		var f: String = "seen_" + game.room_rt.room_id + "_" + str(pt.id)
+		if c.quests.has_flag(f): continue
+		game.quest.apply_flag(c.id, f)
+		emit("hidden_portal_revealed", {"actor": c.id, "portal": str(pt.id), "room": game.room_rt.room_id, "source": "wandering_eye"})
+		return
 
 ## Room events remember every blow the player takes: a flawless Heaven's Cleansing burns off residue (G1).
 func _on_hit_during_event(p: Dictionary) -> void:

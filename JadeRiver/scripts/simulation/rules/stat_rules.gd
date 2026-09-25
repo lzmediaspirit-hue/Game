@@ -6,7 +6,7 @@ extends RefCounted
 
 const ATTRIBUTES := ["body", "agility", "essence", "spirit", "insight", "fortune"]
 const PERMANENT_PREFIXES := ["gear:", "set:", "title:", "injury:", "gate:", "legacy:", "collection:", "jade:", "pet:", "sect:", "aptitude:", "dao:",
-	"body_tier:", "physique:"]
+	"body_tier:", "physique:", "fate:"]
 
 static func poly(spec: Dictionary, x: float) -> float:
 	return float(spec.get("a", 0)) + float(spec.get("b", 0)) * x + float(spec.get("c", 0)) * x * x
@@ -172,6 +172,17 @@ static func rebuild(c) -> Array:
 			var pm: Dictionary = (pmods[i] as Dictionary).duplicate()
 			pm.source = "physique:%s:%d" % [pid, i]
 			sb.add_modifier(pm)
+	# S48 fates: a card's lasting gifts and costs, and those that hold only for the great realm it was chosen in.
+	var here := ProgressionRules.great_realm(realm_key)
+	for fi in c.cultivator.fates.size():
+		var rec: Dictionary = c.cultivator.fates[fi]
+		var fd := ContentDB.entry("fates", str(rec.get("id", "")))
+		var fmods: Array = fd.get("modifiers", []).duplicate()
+		if str(rec.get("realm", "")) == here: fmods.append_array(fd.get("realm_modifiers", []))
+		for i in fmods.size():
+			var fm: Dictionary = (fmods[i] as Dictionary).duplicate()
+			fm.source = "fate:%d:%s:%d" % [fi, rec.get("id", ""), i]
+			sb.add_modifier(fm)
 	# Rare Daos (taught in the Azure Expanse): each tier reached adds its listed modifiers.
 	for d in c.cultivator.daos:
 		var mods: Array = ContentDB.entry("daos", str(d)).get("mods", [])

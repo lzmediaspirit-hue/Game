@@ -95,6 +95,49 @@ static func body_tier_needs(cu) -> Dictionary:
 	if t.is_empty(): return {}
 	return {"tier": str(t.id), "level": int(cu.body_level) >= int(t.need), "trial": str(t.id) in cu.body_trials, "bath": str(t.id) in cu.body_baths}
 
+## S48 heavenly tribulation: the row for a major breakthrough out of `from` ({} when none; the Heart Trial stays
+## the set piece into Cloud Stride, so the first row is Cloud Stride 9).
+static func tribulation_row(from: String) -> Dictionary:
+	return ContentDB.entry("tribulations", from)
+
+## Bolts in all: the row's bolts x waves, +1 per 25 heart demon and +1 per 100 sin, plus any a fate added.
+static func tribulation_bolts(from: String, heart_demon: float, sin: int, extra := 0) -> int:
+	var row := tribulation_row(from)
+	if row.is_empty(): return 0
+	var k := ContentDB.config("tribulations")
+	return int(row.bolts) * int(row.get("waves", 1)) + int(floor(heart_demon / float(k.get("per_heart_demon", 25)))) \
+		+ int(floor(float(sin) / float(k.get("per_sin", 100)))) + extra
+
+## One bolt: 20% of max HP x (1 + sin / 500) x (1 + heart demon / 200); guarding halves it.
+static func tribulation_damage(max_hp: float, sin: int, heart_demon: float, guarding: bool) -> float:
+	var k := ContentDB.config("tribulations")
+	var dmg := max_hp * float(k.get("damage_pct", 0.2)) * (1.0 + float(sin) / float(k.get("sin_div", 500))) * (1.0 + heart_demon / float(k.get("heart_div", 200)))
+	return dmg * (float(k.get("guard", 0.5)) if guarding else 1.0)
+
+## S48 Qi Deviation: a failed breakthrough at Severe risk, or with a Poor-compatibility method, deviates the Qi.
+static func qi_deviates(risk: String, compatibility: String) -> bool:
+	return risk == "severe" or compatibility == "poor"
+
+## S48 fates: the cards this character may be offered now (available, requirements met).
+static func fate_pool(ctx: Dictionary) -> Array:
+	var out := []
+	for f in ContentDB.all("fates"):
+		if not f.get("available", true): continue
+		if f.has("requires") and not RequirementRules.passes(f.requires, ctx): continue
+		out.append(f)
+	return out
+
+## Draw `n` distinct cards by weight on the given stream.
+static func draw_fates(pool: Array, n: int, rng: RandomNumberGenerator) -> Array:
+	var left := pool.duplicate()
+	var out := []
+	while out.size() < n and not left.is_empty():
+		var pick := Rng.weighted(rng, left)
+		if pick.is_empty(): break
+		out.append(str(pick.id))
+		left.erase(pick)
+	return out
+
 ## S48 named roots: the element affinities (revealed at Bone Forging 7) read as one root name.
 ## Returns "" while they are hidden, else heavenly, true, mixed, mutated or faint.
 static func root_name(cu) -> String:

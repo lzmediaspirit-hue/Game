@@ -70,6 +70,73 @@ def physiques():
     return rows
 
 
+def fates():
+    """Breakthrough fates (S48, Part 8): after each major breakthrough three distinct cards are drawn on the
+    breakthrough stream and one is chosen. `modifiers` last for life; `realm_modifiers` until the next great realm;
+    `effects` apply once, at the choice; `next` is spent by the next tribulation or breakthrough."""
+    rows = [
+        {"id": "thunder_tempered", "name": "Thunder-Tempered Meridians", "weight": 10,
+         "gift_text": "+10% Thunder power.", "cost_text": "+5 heart demon.",
+         "modifiers": [mod("elemental_power", 0.10, "flat", element="thunder")], "effects": [{"kind": "add_heart_demon", "amount": 5}]},
+        {"id": "hungry_dantian", "name": "Hungry Dantian", "weight": 10,
+         "gift_text": "+8% accumulation this realm.", "cost_text": "Pill resistance +1 in every family.",
+         "realm_modifiers": [mod("accumulation_rate", 0.08, "flat")], "effects": [{"kind": "add_pill_resistance", "amount": 1}]},
+        {"id": "quiet_heart", "name": "Quiet Heart", "weight": 10,
+         "gift_text": "Heart demon -15.", "cost_text": "-5% insight this realm.",
+         "realm_modifiers": [mod("insight_rate", -0.05, "flat")], "effects": [{"kind": "add_heart_demon", "amount": -15}]},
+        {"id": "bone_of_the_river", "name": "Bone of the River", "weight": 10,
+         "gift_text": "+3 Body.", "cost_text": "-3 Agility.",
+         "modifiers": [mod("body", 3, "flat"), mod("agility", -3, "flat")]},
+        {"id": "lucky_star", "name": "Lucky Star", "weight": 3, "rare": True,
+         "gift_text": "+5 Fortune this realm.", "cost_text": "None.",
+         "realm_modifiers": [mod("fortune", 5, "flat")]},
+        {"id": "debt_of_heaven", "name": "Debt of Heaven", "weight": 8,
+         "gift_text": "Purity one grade better.", "cost_text": "The next heavenly tribulation brings 2 more bolts.",
+         "requires": {"all": [{"kind": "realm_at_least", "realm": "cloud_stride_1"}]},
+         "effects": [{"kind": "add_purity_grade", "amount": 1}], "next": {"tribulation_bolts": 2}},
+        {"id": "wandering_eye", "name": "Wandering Eye", "weight": 8,
+         "gift_text": "One hidden way shows itself in each room you enter.", "cost_text": "-10% Sense radius.",
+         "modifiers": [mod("sense_radius", -0.10)], "flags": ["reveal_hidden"],
+         "requires": {"all": [{"kind": "realm_at_least", "realm": "spirit_awakening_1"}]}},
+        {"id": "iron_will", "name": "Iron Will", "weight": 10,
+         "gift_text": "+10 Will.", "cost_text": "-5% move speed this realm.",
+         "modifiers": [mod("will", 10, "flat")], "realm_modifiers": [mod("move_speed", -0.05)]},
+        {"id": "fox_spirits_favour", "name": "Fox Spirit's Favour", "weight": 8, "available": False,
+         "gift_text": "Your next pet egg hatches with +10 purity.", "cost_text": "-5% max QI this realm.",
+         "realm_modifiers": [mod("max_qi", -0.05)], "note": "Offered once pets have purity (S46)."},
+        {"id": "scar_of_failure", "name": "Scar of Failure", "weight": 8,
+         "gift_text": "+10% success on your next breakthrough.", "cost_text": "You start this realm Unstable.",
+         "effects": [{"kind": "set_stability", "word": "unstable"}], "next": {"breakthrough_bonus": 0.10}},
+        {"id": "blood_memory", "name": "Blood Memory", "weight": 8,
+         "gift_text": "+5% crit chance.", "cost_text": "Heart demon +1 for every streak of 10 kills.",
+         "modifiers": [mod("crit_chance", 0.05, "flat")], "flags": ["streak_heart_demon"]},
+        {"id": "dao_echo", "name": "Dao Echo", "weight": 8,
+         "gift_text": "+20% insight in your strongest Dao.", "cost_text": "-10% insight in every other Dao.",
+         "flags": ["dao_echo"], "requires": {"all": [{"kind": "unlock", "system": "dao_tree"}]}},
+    ]
+    entries("fates", rows, offer=3, streak={"kills": 10, "window_s": 10.0})
+    return rows
+
+
+def tribulations():
+    """Heavenly tribulation (S48, Part 8): 3 bolts into Spirit Awakening, 6 into Heaven Glimpse, 9 into Sage, then
+    waves of 9 (2 into Sage Sovereign, one more for each great realm after). +1 bolt per 25 heart demon and per 100
+    sin. Damage is 20% of max HP x (1 + sin / 500) x (1 + heart demon / 200); guarding halves it; cover does not help."""
+    ladder = ["cloud_stride_9", "spirit_awakening_9", "heaven_glimpse_3", "sage_3", "sage_sovereign_3", "will_manifest_3", "sphere_lord_3",
+              "law_touching_3", "monarch_3", "half_heaven_monarch", "dao_sigil", "heavens_threshold", "inner_heaven_9"]
+    rows = []
+    for i, frm in enumerate(ladder):
+        bolts = [3, 6, 9][i] if i < 3 else 9
+        waves = 1 if i < 3 else i - 1
+        rows.append({"id": frm, "from": frm, "bolts": bolts, "waves": waves})
+    entries("tribulations", rows, per_heart_demon=25, per_sin=100, damage_pct=0.20, sin_div=500, heart_div=200, guard=0.5,
+            warn_s=1.0, radius=80, depth=45, gap_s=[0.7, 1.4], wave_pause_s=3.0, first_s=2.0, spread=60,
+            survive_hp=0.1)
+    return rows
+
+
 def build():
     body_tiers()
     physiques()
+    fates()
+    tribulations()

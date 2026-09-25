@@ -251,6 +251,42 @@
     "progression_authority"
    ]
   },
+  "fate_offered": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "fate_chosen": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "tribulation_started": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "tribulation_bolt": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "tribulation_result": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "qi_deviation": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
   "attack_started": {
    "system": "Combat",
    "files": [

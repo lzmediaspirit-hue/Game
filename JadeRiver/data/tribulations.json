@@ -1,0 +1,100 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "cloud_stride_9",
+   "from": "cloud_stride_9",
+   "bolts": 3,
+   "waves": 1
+  },
+  {
+   "id": "spirit_awakening_9",
+   "from": "spirit_awakening_9",
+   "bolts": 6,
+   "waves": 1
+  },
+  {
+   "id": "heaven_glimpse_3",
+   "from": "heaven_glimpse_3",
+   "bolts": 9,
+   "waves": 1
+  },
+  {
+   "id": "sage_3",
+   "from": "sage_3",
+   "bolts": 9,
+   "waves": 2
+  },
+  {
+   "id": "sage_sovereign_3",
+   "from": "sage_sovereign_3",
+   "bolts": 9,
+   "waves": 3
+  },
+  {
+   "id": "will_manifest_3",
+   "from": "will_manifest_3",
+   "bolts": 9,
+   "waves": 4
+  },
+  {
+   "id": "sphere_lord_3",
+   "from": "sphere_lord_3",
+   "bolts": 9,
+   "waves": 5
+  },
+  {
+   "id": "law_touching_3",
+   "from": "law_touching_3",
+   "bolts": 9,
+   "waves": 6
+  },
+  {
+   "id": "monarch_3",
+   "from": "monarch_3",
+   "bolts": 9,
+   "waves": 7
+  },
+  {
+   "id": "half_heaven_monarch",
+   "from": "half_heaven_monarch",
+   "bolts": 9,
+   "waves": 8
+  },
+  {
+   "id": "dao_sigil",
+   "from": "dao_sigil",
+   "bolts": 9,
+   "waves": 9
+  },
+  {
+   "id": "heavens_threshold",
+   "from": "heavens_threshold",
+   "bolts": 9,
+   "waves": 10
+  },
+  {
+   "id": "inner_heaven_9",
+   "from": "inner_heaven_9",
+   "bolts": 9,
+   "waves": 11
+  }
+ ],
+ "per_heart_demon": 25,
+ "per_sin": 100,
+ "damage_pct": 0.2,
+ "sin_div": 500,
+ "heart_div": 200,
+ "guard": 0.5,
+ "warn_s": 1.0,
+ "radius": 80,
+ "depth": 45,
+ "gap_s": [
+  0.7,
+  1.4
+ ],
+ "wave_pause_s": 3.0,
+ "first_s": 2.0,
+ "spread": 60,
+ "survive_hp": 0.1
+}

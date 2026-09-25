@@ -145,6 +145,10 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			# S48 body ladder and physiques.
 			"pass_body_trial": progression.pass_body_trial(actor_id, str(e.get("tier", "")))
 			"awaken_physique": progression.awaken_physique(actor_id, str(e.get("physique", "")))
+			# S48 fates' gifts and costs.
+			"add_pill_resistance": progression.apply_pill_resistance_all(actor_id, int(e.get("amount", 1)))
+			"set_stability": progression.apply_stability(actor_id, str(e.get("word", "unstable")))
+			"add_purity_grade": progression.apply_purity_grade(actor_id, int(e.get("amount", 1)))
 			"throw": combat.apply_throw(actor_id, e)
 			"add_body_xp": progression.apply_body_xp(actor_id, float(e.amount), source)
 			"add_soul": progression.apply_soul(actor_id, float(e.amount))

@@ -222,6 +222,21 @@
    "body": "At Heart Tempering 9 the Qi condenses into a core, and the core remembers how it was made. Five things help: a room of your method's element, the hour of your method's Yin or Yang, full Composure, no residue, and a Heavenly Flame Pill within the hour. Each one met has four chances in five to count. The core forms at grade 9 less what counted, never better than 5; a flawless Heaven's Cleansing adds one more, down to 4."
   },
   {
+   "id": "heavenly_tribulation",
+   "title": "Heavenly tribulation",
+   "body": "From Cloud Stride on, every great breakthrough draws a cloud over the room. Bolts fall one by one, three into Spirit Awakening, six into Heaven Glimpse, nine into Sage, then waves of nine; each 25 heart demon and each 100 sin adds one more. A ring shows where each will land a second before it does: step out of it, or guard to take half. Roofs do not help. A Lightning Rod Talisman in the bag takes one bolt. Fall under the heavens and the breakthrough fails with the body."
+  },
+  {
+   "id": "fates",
+   "title": "Breakthrough fates",
+   "body": "A great breakthrough shakes a cultivator's fate loose. Three cards are drawn and one is kept: a gift, and most often a cost. Some last for life, some only until the next great realm, and a few wait for the next tribulation or the next breakthrough."
+  },
+  {
+   "id": "qi_deviation",
+   "title": "Qi deviation",
+   "body": "A breakthrough that fails at Severe risk, or on a method your elements fight, can send the Qi astray. For ten minutes every technique strikes with an element of its own choosing."
+  },
+  {
    "id": "karma",
    "title": "Merit and sin",
    "body": "The world keeps a ledger. Mercy and help earn merit: a hundred of it eases one great breakthrough in each realm. Cruelty and the back-room markets earn sin, and sin feeds the heart demon. Some deeds come back as letters."
