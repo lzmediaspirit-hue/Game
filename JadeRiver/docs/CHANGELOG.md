@@ -45,6 +45,9 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
   health. From Heaven Glimpse 1, with a level 4 Beast Pavilion, two Adults of one family (river, hound,
   burrow, wing) make an egg over a day; the child takes the higher rarity (sometimes one more), mixes
   its parents' traits and may carry a new one. The Spirit Animals page shows eggs with a Hatch button.
+- Formations: the Restraint (monsters move 30% slower) and Concealment (monsters do not notice you until
+  you strike) blueprints from library floor 3, completing the five valley formations. The blueprint
+  list scrolls.
 - Companions, spirit animals (starter choice, taming with offerings, eggs), your own sect (buildings
   that appear as built, disciples, expeditions, defence raids), mail, achievements and titles.
 - 27 pages on one shared frame, a HUD that reveals itself, a minimap, dialogue with portraits, shops,

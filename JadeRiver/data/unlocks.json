@@ -1831,6 +1831,26 @@
    "quest": "the_mentors_gift"
   },
   {
+   "id": "advanced_formations",
+   "label": "Restraint and Concealment formations",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_1"
+     },
+     {
+      "kind": "unlock",
+      "system": "library_floor_3"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
    "id": "pet_breeding",
    "label": "Spirit animal breeding",
    "trigger": {

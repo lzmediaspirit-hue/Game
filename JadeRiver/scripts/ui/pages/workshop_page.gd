@@ -51,17 +51,18 @@ func _formations(ch) -> void:
 	panel(left)
 	heading(left.position + Vector2(20, 44), Tx.t("ui.workshop.blueprints"), 520)
 	var rows := ContentDB.all("formations")
-	var y := left.position.y + 70
-	for bp in rows:
+	# Blueprints scroll once there are more than fit (five in the valley).
+	list("blueprints", Rect2(left.position.x + 14, left.position.y + 70, left.size.x - 28, left.size.y - 100), rows.size(), 128, func(i: int, rr: Rect2):
+		var bp: Dictionary = rows[i]
 		var ok := Unlocks.is_unlocked(ch.id, str(bp.get("unlock", "formations")))
-		var r := Rect2(left.position.x + 14, y, left.size.x - 28, 118)
+		var r := Rect2(rr.position, Vector2(rr.size.x, 118))
 		panel(r, "minor_panel")
 		text(r.position + Vector2(16, 32), str(bp.name), 21, UiKit.PAPER if ok else UiKit.MIST)
 		para(Rect2(r.position + Vector2(16, 42), Vector2(330, 60)), str(bp.get("desc", "")), 16, UiKit.MIST, 2)
 		var need := int(bp.get("nodes", 3)) * int(bp.get("fuel_per_node", 1))
 		text(r.position + Vector2(16, 108), Tx.t("ui.workshop.nodes") % [int(bp.nodes), need, ContentDB.item_name(str(bp.fuel))], 15, UiKit.PALE_GOLD)
 		btn(Rect2(r.end.x - 160, r.position.y + 34, 144, 50), Tx.t("ui.workshop.place"), "place", str(bp.id), true, ok, Unlocks.locked_text(str(bp.get("unlock", "formations"))))
-		y += 128
+	)
 	_rank_line(ch, "formations", Vector2(left.position.x + 16, left.end.y - 14))
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
 	panel(right)

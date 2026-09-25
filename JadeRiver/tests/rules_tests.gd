@@ -391,6 +391,15 @@ func treasures_suite() -> void:
 	check(near(float(cu.daos.sword.insight), ins), "the tree answers once per realm stage")
 	cu.state = "accumulating"
 	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	# Library floor 3 formations (S16): Restraint slows monsters 30%, Concealment hides you.
+	var here := str(c.position.get("room", ""))
+	var saved: Array = c.crafting.get("formations", []).duplicate(true)
+	c.crafting.formations = [{"type": "restraint", "room": here, "until_utc": Clock.now_utc() + 3600.0},
+		{"type": "concealment", "room": here, "until_utc": Clock.now_utc() + 3600.0}]
+	check(near(Game.workshop.formation_effect(c, "enemy_slow"), 0.3) and Game.workshop.formation_effect(c, "conceal") > 0.0, "Restraint and Concealment take effect where they stand")
+	c.crafting.formations[0].until_utc = Clock.now_utc() - 1.0
+	check(near(Game.workshop.formation_effect(c, "enemy_slow"), 0.0), "an unfuelled formation does nothing")
+	c.crafting.formations = saved
 
 # ------------------------------------------------------------------ saves (Part 7 · Save migration)
 func save_suite() -> void:

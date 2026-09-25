@@ -46,6 +46,9 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 	var aggro_r := float(def.get("ai", {}).get("aggro_range", 200))
 	var c = auth.game.active()
 	if c != null and "concealment" in c.cultivator.secret_arts: aggro_r *= 0.5
+	# A fuelled Concealment formation hides the player until struck; Restraint slows monsters (S16).
+	var hidden: bool = c != null and e.team == "enemy" and auth.game.workshop.formation_effect(c, "conceal") > 0.0
+	if hidden: aggro_r = 0.0
 	match str(ai.state):
 		"idle", "patrol":
 			if not tgt.is_empty():
@@ -65,7 +68,7 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 			else:
 				_wander(auth, e, delta, 0.5)
 		"aggro":
-			if tgt.is_empty():
+			if tgt.is_empty() or (hidden and e.threat.is_empty()):
 				_set_state(auth, e, "return", 6.0)
 				return
 			if e.plane.distance_to(e.spawn_point) > float(ContentDB.stat_const("combat.leash", 600)) and not e.is_boss():
@@ -99,6 +102,7 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 				auth.emit("attack_started", {"actor": str(e.uid), "enemy": true, "attack": attack.id, "windup": float(attack.windup_s), "facing": e.facing})
 				return
 			var speed := float(def.get("ai", {}).get("move_speed", 90)) * (0.6 if e.pools.has_status("slow") else 1.0)
+			if c != null and e.team == "enemy": speed *= 1.0 - clampf(auth.game.workshop.formation_effect(c, "enemy_slow"), 0.0, 0.9)
 			var want: Vector2 = Vector2.ZERO
 			if keep > 0.0 and absf(d.x) < keep:
 				want.x = -signf(d.x)

@@ -51,6 +51,13 @@ def build():
         {"id": "guard", "name": "Guard Formation", "unlock": "guard_formation", "nodes": 5,
          "fuel": "fuel_crystal_low", "fuel_per_node": 1, "hours_per_crystal": 1.0, "max_hours": 6,
          "effect": {"breakthrough_risk_step": -1}, "desc": "Nothing interrupts, nothing surprises: breakthrough risk one step lower."},
+        # Library floor 3 blueprints (Spirit Awakening): Restraint slows monsters, Concealment hides you from them.
+        {"id": "restraint", "name": "Restraint Formation", "unlock": "advanced_formations", "nodes": 4,
+         "fuel": "fuel_crystal_low", "fuel_per_node": 1, "hours_per_crystal": 0.5, "max_hours": 2,
+         "effect": {"enemy_slow": 0.3}, "desc": "Binding lines: monsters in this room move 30% slower."},
+        {"id": "concealment", "name": "Concealment Formation", "unlock": "advanced_formations", "nodes": 5,
+         "fuel": "fuel_crystal_low", "fuel_per_node": 1, "hours_per_crystal": 1.0, "max_hours": 5,
+         "effect": {"conceal": 1.0}, "desc": "A veil: monsters here do not notice you unless you strike first."},
     ]
     entries("formations", formations)
 

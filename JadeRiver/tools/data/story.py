@@ -353,6 +353,8 @@ def unlocks():
     u("binding", "Binding", all_of(realm("spirit_awakening_3")), "the_sleeping_blade", [])
     u("nourish_soul", "Nourish soul", all_of(realm("spirit_awakening_4")), "quiet_waters", [])
     u("personal_disciple", "Personal disciple", all_of(realm("spirit_awakening_5")), "the_mentors_gift", [])
+    u("advanced_formations", "Restraint and Concealment formations", all_of(realm("spirit_awakening_1"), unlocked("library_floor_3")), "", [],
+      same_stage_ok=True)
     u("pet_breeding", "Spirit animal breeding", all_of(realm("heaven_glimpse_1")), "", [], same_stage_ok=True)
     u("natural_treasures", "Natural treasures", all_of(realm("spirit_awakening_8")), "treasures_of_heaven_and_earth", [])
     u("research", "Research", all_of(realm("spirit_awakening_6")), "torn_pages", [])
