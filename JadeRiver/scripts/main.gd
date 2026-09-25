@@ -103,6 +103,15 @@ func _ready() -> void:
 	var user_args := OS.get_cmdline_user_args()
 	preview_mode = not user_args.is_empty()
 	if "--test-saves" in user_args or preview_mode: Saves.use_folder("user://preview_saves/")
+	for a in user_args:
+		# Debug tools (S38): play from a copy of any save folder, e.g. a valley_run checkpoint.
+		if str(a).begins_with("--load="):
+			var src := str(a).trim_prefix("--load=")
+			if not src.ends_with("/"): src += "/"
+			DirAccess.make_dir_recursive_absolute("user://loaded_copy/")
+			for f in DirAccess.get_files_at("user://loaded_copy/"): DirAccess.remove_absolute("user://loaded_copy/" + f)
+			for f in DirAccess.get_files_at(src): DirAccess.copy_absolute(src + f, "user://loaded_copy/" + f)
+			Saves.use_folder("user://loaded_copy/")
 	if "--log-events" in user_args:
 		GameEvents.event.connect(func(n: String, p: Dictionary): if n not in ["resource_changed", "meditation_tick"]: print("[event] ", n, " ", p))
 	boot_report = Game.boot()
@@ -121,7 +130,9 @@ func _handle_preview_args(user_args: Array) -> void:
 	var room := ""
 	for a in user_args:
 		if str(a).begins_with("--room="): room = str(a).trim_prefix("--room=")
-	if "--preview-world" in user_args or room != "":
+	if "--load-slot" in user_args:
+		enter_world(1)
+	elif "--preview-world" in user_args or room != "":
 		if Game.character("c1") == null:
 			Game.submit({"type": "create_character", "slot": 1, "name": "Preview", "appearance": {"hair": "topknot", "shirt": "disciple"}})
 		if room != "":

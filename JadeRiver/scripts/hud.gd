@@ -515,7 +515,9 @@ func _draw():
 
 func _draw_player_panel(c) -> void:
 	if not shown("player_panel"): return
-	var r := Rect2(16, 16, 360, 104)
+	# The panel grows by one row once the Soul bar exists (Spirit Awakening).
+	var soul_row: bool = c.pools.max_soul > 0.0 and shown("soul_bar")
+	var r := Rect2(16, 16, 360, 120 if soul_row else 104)
 	draw_style_box(frame_style, r)
 	# Portrait: a jade roundel with the realm seal.
 	draw_circle(r.position + Vector2(46, 52), 34, UiKit.INK)
@@ -533,8 +535,8 @@ func _draw_player_panel(c) -> void:
 	if c.pools.max_qi > 0.0 and shown("qi_bar"):
 		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 10), c.pools.qi / c.pools.max_qi, UiKit.QI, "QI", "%d/%d" % [int(c.pools.qi), int(c.pools.max_qi)])
 		y += 15
-	if c.pools.max_soul > 0.0 and shown("soul_bar"):
-		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 8), c.pools.soul / c.pools.max_soul, UiKit.SOUL, "SO", "%d/%d" % [int(c.pools.soul), int(c.pools.max_soul)])
+	if soul_row:
+		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 10), c.pools.soul / c.pools.max_soul, UiKit.SOUL, "SL", "%d/%d" % [int(c.pools.soul), int(c.pools.max_soul)])
 	# Status stack (injuries, stability, toxicity, composure, buffs, statuses).
 	var icons: Array = []
 	for kind in c.cultivator.injuries: icons.append("injury_" + kind)
