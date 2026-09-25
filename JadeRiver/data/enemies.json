@@ -5035,6 +5035,13 @@
      "action": "enrage",
      "cooldown": 0.7,
      "damage": 1.25
+    },
+    {
+     "below": 0.12,
+     "action": "self_detonate",
+     "windup": 3.0,
+     "radius": 280,
+     "damage": 0.6
     }
    ],
    "first_defeat": [

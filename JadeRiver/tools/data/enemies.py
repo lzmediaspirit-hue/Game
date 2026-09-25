@@ -258,7 +258,10 @@ def build():
             [atk("comet_cleave", 0.6, 130, 1.4, depth=50, knockback=110), atk("anchor_throw", 0.9, 330, 1.25, projectile={"speed": 520, "art": "pebble"}),
              atk("boarding_call", 1.0, 0, 0.0, summon="starsea_pirate")],
             ai="duelist", art=human("pirate_captain"), race="human", energy="sage_qi", width=20, height=94, name="Comet Captain Rao",
-            hp_mult=1.5, attack_mult=0.9, phases=[{"below": 0.4, "action": "enrage", "cooldown": 0.7, "damage": 1.25}], first_defeat=["comet_tail_flame"]),
+            hp_mult=1.5, attack_mult=0.9, phases=[{"below": 0.4, "action": "enrage", "cooldown": 0.7, "damage": 1.25},
+                                                  # S48: cornered, the Captain burns his nascent soul (a telegraphed blast).
+                                                  {"below": 0.12, "action": "self_detonate", "windup": 3.0, "radius": 280, "damage": 0.6}],
+            first_defeat=["comet_tail_flame"]),
         mob("presence_phantom", 81, "normal", "none", None, [], [atk("weight_of_a_seat", 0.55, 90, 1.1, damage_type="qi")],
             ai="duelist", art=human("presence_phantom"), race="human", energy="sage_qi", width=18, height=90, name="Presence of a Seat"),
         mob("ninth_presence", 81, "normal", "none", None, [], [atk("ninth_seat_palm", 0.7, 120, 1.3, damage_type="qi", depth=50, knockback=100),

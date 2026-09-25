@@ -8090,6 +8090,10 @@
      "dao": "blood"
     },
     {
+     "kind": "learn_technique",
+     "technique": "blood_burning"
+    },
+    {
      "kind": "grant_currency",
      "currency": "spirit_stone",
      "amount": 100

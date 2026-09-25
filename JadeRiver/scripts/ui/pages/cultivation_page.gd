@@ -12,10 +12,11 @@ func setup() -> void:
 		{"id": "foundation", "label": Tx.t("ui.cultivation.foundation"), "locked": "" if Unlocks.is_unlocked(ch.id, "foundation") else Unlocks.locked_text("foundation")},
 		{"id": "body", "label": Tx.t("ui.cultivation.body_tab")},
 		{"id": "heart", "label": Tx.t("ui.cultivation.heart")},
+		{"id": "vows", "label": Tx.t("ui.cultivation.vows"), "locked": "" if Unlocks.is_unlocked(ch.id, "vows") else Unlocks.locked_text("vows")},
 		{"id": "methods", "label": Tx.t("ui.cultivation.methods")},
 		{"id": "dao", "label": Tx.t("ui.cultivation.dao"), "locked": "" if Unlocks.is_unlocked(ch.id, "dao_tree") else Unlocks.locked_text("dao_tree")},
 		{"id": "seclusion", "label": Tx.t("ui.cultivation.seclusion"), "locked": "" if Unlocks.is_unlocked(ch.id, "seclusion") else Unlocks.locked_text("seclusion")}]
-	if page_id == "seclusion" and Unlocks.is_unlocked(ch.id, "seclusion"): tab = 6
+	if page_id == "seclusion" and Unlocks.is_unlocked(ch.id, "seclusion"): tab = 7
 	if page_id == "heart": tab = 3
 	if page_id == "body": tab = 2
 
@@ -27,6 +28,7 @@ func draw_page() -> void:
 		"foundation": _foundation(ch)
 		"body": _body(ch)
 		"heart": _heart(ch)
+		"vows": _vows(ch)
 		"methods": _methods(ch)
 		"dao": _dao(ch)
 		"seclusion": _seclusion(ch)
@@ -145,6 +147,29 @@ func _body(ch) -> void:
 		cy += 6
 		cy += para(Rect2(cx, cy, cw - 32, 110), str(t.get("trial_text", "")), 15, UiKit.MIST, 5) + 8
 		para(Rect2(cx, cy, cw - 32, cr.end.y - cy - 10), str(t.get("gift_text", "")), 16, UiKit.BRIGHT_JADE if reached else UiKit.PAPER, 4)
+
+## Vows (S48): each forbids one thing while held and gives a steady gift; letting one go breaks it.
+func _vows(ch) -> void:
+	var cu: CultivatorState = ch.cultivator
+	var r := content
+	panel(r)
+	para(Rect2(r.position.x + 24, r.position.y + 14, r.size.x - 48, 50), Tx.t("ui.cultivation.vows_intro") % int(ContentDB.config("vows").get("break_heart_demon", 15)), 17, UiKit.MIST, 2)
+	var vows := ContentDB.all("vows")
+	var top := r.position.y + 74
+	var h := (r.end.y - top - 12) / float(maxi(1, vows.size()))
+	for i in vows.size():
+		var v: Dictionary = vows[i]
+		var held := str(v.id) in cu.vows
+		var vr := Rect2(r.position.x + 20, top + i * h, r.size.x - 40, h - 10)
+		panel(vr, "minor_panel", "selected" if held else "normal")
+		var mid := vr.size.y * 0.5
+		text(vr.position + Vector2(18, mid + 8), str(v.get("name", "")), 22, UiKit.PALE_GOLD if held else UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 200, true)
+		text(vr.position + Vector2(230, mid - 4), str(v.get("desc", "")), 17, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, vr.size.x - 440)
+		text(vr.position + Vector2(230, mid + 20), str(v.get("gift_text", "")), 16, UiKit.BRIGHT_JADE if held else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, vr.size.x - 440)
+		if held:
+			btn(Rect2(vr.end.x - 190, vr.position.y + (vr.size.y - 46) * 0.5, 172, 46), Tx.t("ui.cultivation.break_vow"), "vow_off", str(v.id), false, true, "", 18)
+		else:
+			btn(Rect2(vr.end.x - 190, vr.position.y + (vr.size.y - 46) * 0.5, 172, 46), Tx.t("ui.cultivation.take_vow"), "vow_on", str(v.id), true, true, "", 18)
 
 ## Heart (G1): the meter, the ledger, the foundation and what the pills have left behind.
 func _heart(ch) -> void:
@@ -310,6 +335,9 @@ func on_action(id: String, data) -> void:
 			if submit({"type": "toggle_meditation"}).get("ok", false): close()
 		"breakthrough": navigate.emit("breakthrough", {})
 		"fates": navigate.emit("fates", {})
+		"vow_on": submit({"type": "set_vow", "vow": str(data), "on": true})
+		"vow_off": ask(Tx.t("ui.cultivation.break_vow_confirm") % [ContentDB.name_of("vows", str(data)), int(ContentDB.config("vows").get("break_heart_demon", 15))], "vow_break", data, true)
+		"vow_break": submit({"type": "set_vow", "vow": str(data), "on": false})
 		"meridian": submit({"type": "open_meridian", "channel": str(data)})
 		"reset_meridians": ask(Tx.t("ui.cultivation.reset_all_meridian_points"), "reset_yes")
 		"reset_yes": submit({"type": "reset_meridians"})

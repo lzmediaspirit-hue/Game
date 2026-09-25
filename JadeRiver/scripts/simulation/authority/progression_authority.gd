@@ -16,7 +16,7 @@ var last_level: Dictionary = {}
 func intents() -> Array:
 	return ["start_meditation", "stop_meditation", "toggle_meditation", "start_breakthrough", "learn_method", "switch_method",
 		"open_meridian", "reset_meridians", "equip_technique", "unequip_technique", "rank_up_technique", "set_contemplate",
-		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade", "start_bath", "choose_fate", "equip_inner_art", "set_stance"]
+		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade", "start_bath", "choose_fate", "equip_inner_art", "set_stance", "set_vow", "set_false_realm"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("loadout_swapped", _on_loadout_swapped, 30)
@@ -62,6 +62,8 @@ func handle(intent: Dictionary) -> Dictionary:
 		"choose_fate": return choose_fate(c, str(intent.get("card", "")))
 		"equip_inner_art": return equip_inner_art(c, int(intent.get("slot", -1)), str(intent.get("art", "")))
 		"set_stance": return set_stance(c, str(intent.get("family", "")), str(intent.get("stance", "")))
+		"set_vow": return set_vow(c, str(intent.get("vow", "")), bool(intent.get("on", true)))
+		"set_false_realm": return set_false_realm(c, str(intent.get("realm", "")))
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ meditation (S06)
@@ -133,6 +135,7 @@ func tick(delta: float) -> void:
 			if cu.state == "consolidating": cu.state = "accumulating"
 			emit("consolidation_finished", {"actor": c.id})
 	if cu.breakthrough_cooldown > 0.0: cu.breakthrough_cooldown = maxf(0.0, cu.breakthrough_cooldown - delta)
+	if cu.epiphany_cooldown > 0.0: cu.epiphany_cooldown = maxf(0.0, cu.epiphany_cooldown - delta)   # two hours of play (S48)
 	if not cu.debts.is_empty(): _settle_debts(c)
 	_tick_injuries(c, delta, 3.0 if cu.meditating else 1.0)
 	if cu.toxicity > 0.0:
@@ -585,6 +588,94 @@ func tribulation_view(actor_id: String) -> Dictionary:
 	return {"index": int(tr.index), "total": int(tr.total), "warn": (tr.warn as Dictionary).duplicate(), "struck": int(tr.struck),
 		"warn_s": float(ContentDB.config("tribulations").get("warn_s", 1.0)), "radius": float(ContentDB.config("tribulations").get("radius", 80))}
 
+# ------------------------------------------------------------------ vows, the false realm, epiphany (S48)
+## Take or let go of a vow. Taking one is free; letting it go breaks it (+15 heart demon).
+func set_vow(c, vow: String, on: bool) -> Dictionary:
+	var cu: CultivatorState = c.cultivator
+	if not ContentDB.has_entry("vows", vow): return fail("unknown_vow")
+	if not Unlocks.is_unlocked(c.id, "vows"): return fail("locked", {"text": Unlocks.locked_text("vows")})
+	if on:
+		if vow in cu.vows: return ok()
+		cu.vows.append(vow)
+		emit("vow_taken", {"actor": c.id, "vow": vow})
+		return ok({"vow": vow})
+	if not vow in cu.vows: return ok()
+	cu.vows.erase(vow)
+	var cost := float(ContentDB.config("vows").get("break_heart_demon", 15))
+	apply_heart_demon(c.id, cost, "vow_broken")
+	emit("vow_broken", {"actor": c.id, "vow": vow, "heart_demon": cost})
+	return ok({"vow": vow, "broken": true})
+
+## A vow held that forbids this kind of act (fleeing_kill, burst_pill, presence, food_buff).
+func vow_forbids(c, what: String) -> String:
+	for v in c.cultivator.vows:
+		if str(ContentDB.entry("vows", str(v)).get("forbids", "")) == what: return str(v)
+	return ""
+
+## Concealment's false realm: shown up to two great realms lower ("" shows the true realm).
+func set_false_realm(c, realm: String) -> Dictionary:
+	var cu: CultivatorState = c.cultivator
+	if realm == "":
+		cu.false_realm = ""
+		emit("false_realm_changed", {"actor": c.id, "realm": ""})
+		return ok()
+	if not "concealment" in cu.secret_arts: return fail("locked", {"text": Tx.t("sim.progression.false_realm_locked")})
+	if ContentDB.realm(realm).is_empty() or not realm in false_realm_choices(c): return fail("too_far", {"text": Tx.t("sim.progression.false_realm_too_far")})
+	cu.false_realm = realm
+	emit("false_realm_changed", {"actor": c.id, "realm": realm})
+	return ok({"realm": realm})
+
+## The realms Concealment can show: the first stage of each great realm up to two below the true one.
+func false_realm_choices(c) -> Array:
+	var out := []
+	var here := ProgressionRules.realm_index(c.cultivator.realm_key)
+	var greats := []
+	for key in ContentDB.realm_order:
+		var g := ProgressionRules.great_realm(str(key))
+		if not g in greats: greats.append(g)
+	var mine := greats.find(ProgressionRules.great_realm(c.cultivator.realm_key))
+	for gi in range(maxi(0, mine - int(ContentDB.stat_const("false_realm", {}).get("max_steps", 2))), mine):
+		for key in ContentDB.realm_order:
+			if ProgressionRules.great_realm(str(key)) == greats[gi] and ProgressionRules.realm_index(str(key)) < here:
+				out.append(str(key))
+				break
+	return out
+
+## The realm others see: the false one while Concealment holds it, else the true one.
+func shown_realm(c) -> String:
+	return c.cultivator.false_realm if c.cultivator.false_realm != "" else c.cultivator.realm_key
+
+## Epiphany: a rare flash while insight comes in from Contemplate or a fight. Five times the insight for a minute,
+## sometimes a free step of mastery; then two hours of play before the next.
+func _roll_epiphany(c, context: String) -> void:
+	var cu: CultivatorState = c.cultivator
+	var k: Dictionary = ContentDB.stat_const("epiphany", {})
+	if cu.epiphany_cooldown > 0.0 or not context.get_slice(":", 0) in k.get("contexts", []): return
+	var rng := Rng.stream(c.id, "fortune")
+	var chance: float = float(k.get("chance", 0.002)) * (1.0 + float(k.get("insight_weight", 0.01)) * c.stats.value("insight"))
+	if rng.randf() >= chance: return
+	trigger_epiphany(c, rng)
+
+func trigger_epiphany(c, rng: RandomNumberGenerator) -> void:
+	var cu: CultivatorState = c.cultivator
+	var k: Dictionary = ContentDB.stat_const("epiphany", {})
+	cu.epiphany_cooldown = float(k.get("cooldown_s", 7200))
+	game.combat.apply_buff(c.id, {"stat": "insight_rate", "op": "flat", "value": float(k.get("insight_mult", 5.0)) - 1.0,
+		"duration": float(k.get("buff_s", 60)), "source": "epiphany"}, "epiphany")
+	var gift := ""
+	if rng.randf() < float(k.get("mastery_chance", 0.25)):
+		# The free "variant": the most-used technique takes a step of mastery for nothing.
+		var best := ""
+		for tid in cu.technique_use:
+			if best == "" or int(cu.technique_use[tid]) > int(cu.technique_use[best]): best = str(tid)
+		if best != "" and cu.mastery.has(best) and int(cu.mastery[best].get("tier", 1)) < 6:
+			cu.mastery[best].tier = int(cu.mastery[best].get("tier", 1)) + 1
+			cu.mastery[best].points = 0.0
+			gift = best
+			emit("technique_mastery_up", {"actor": c.id, "technique": best, "tier": int(cu.mastery[best].tier)})
+	if not game.account.codex.has("epiphany"): game.quest.apply_codex("epiphany")
+	emit("epiphany", {"actor": c.id, "technique": gift, "seconds": float(k.get("buff_s", 60))})
+
 # ------------------------------------------------------------------ Inner Arts and stances (S48)
 ## Learn an Inner Art from its manual (a Mission Hall sells them).
 func apply_learn_inner_art(actor_id: String, art: String) -> void:
@@ -844,6 +935,11 @@ func _on_gravely_wounded(p: Dictionary) -> void:
 	if p.get("no_penalty", false): return
 	var cu: CultivatorState = c.cultivator
 	var loss := float(ContentDB.stat_const("death.progress_loss", 0.1))
+	# S48 nascent-soul escape: from Sage the soul flees to the shrine and only half as much is lost.
+	var esc: Dictionary = ContentDB.stat_const("soul_escape", {})
+	if ProgressionRules.at_least(cu.realm_key, str(esc.get("from", "sage_1"))):
+		loss = float(esc.get("progress_loss", 0.05))
+		emit("soul_escaped", {"actor": c.id, "loss": loss})
 	if cu.state != "bottleneck":
 		cu.qp = maxf(0.0, cu.qp - cu.need() * loss)
 	else:
@@ -1000,16 +1096,19 @@ func apply_insight(actor_id: String, dao: String, amount: float, context: String
 	var c = game.character(actor_id)
 	if c == null or not ContentDB.has_entry("daos", dao): return
 	if not Unlocks.is_unlocked(c.id, "dao_tree") and not context.begins_with("kill") and not Unlocks.is_unlocked(c.id, "weapon_dao"): return
-	var mem: Dictionary = c.cultivator.insight_memory
-	var window := float(ContentDB.curve("insight_repeat_window_s", 60))
-	var key := context.get_slice(":", 0) + ":" + context.get_slice(":", 1) + ":" + context.get_slice(":", 2)
-	if mem.has(key) and game.sim_time - float(mem[key]) < window: amount *= float(ContentDB.curve("insight_repeat_factor", 0.2))
-	mem[key] = game.sim_time
-	if mem.size() > 64: mem.clear()
-	amount *= 1.0 + c.stats.value("insight_rate")
-	# S48 Dao Echo: the chosen Dao learns faster and every other Dao slower.
-	for rec in c.cultivator.fates:
-		if rec.has("dao") and str(rec.dao) != "": amount *= 1.2 if str(rec.dao) == dao else 0.9
+	# A teacher's lesson is measured out exactly (apply_open_dao); everything else is damped when repeated and
+	# goes through the insight rate.
+	if not context.begins_with("teacher:"):
+		var mem: Dictionary = c.cultivator.insight_memory
+		var window := float(ContentDB.curve("insight_repeat_window_s", 60))
+		var key := context.get_slice(":", 0) + ":" + context.get_slice(":", 1) + ":" + context.get_slice(":", 2)
+		if mem.has(key) and game.sim_time - float(mem[key]) < window: amount *= float(ContentDB.curve("insight_repeat_factor", 0.2))
+		mem[key] = game.sim_time
+		if mem.size() > 64: mem.clear()
+		amount *= 1.0 + c.stats.value("insight_rate")
+		# S48 Dao Echo: the chosen Dao learns faster and every other Dao slower.
+		for rec in c.cultivator.fates:
+			if rec.has("dao") and str(rec.dao) != "": amount *= 1.2 if str(rec.dao) == dao else 0.9
 	# A rare Dao grows only after a teacher has opened it (apply_open_dao).
 	if str(ContentDB.entry("daos", dao).get("family", "")) == "rare" and not c.cultivator.daos.has(dao): return
 	var d: Dictionary = c.cultivator.daos.get(dao, {"tier": 0, "insight": 0.0})
@@ -1022,6 +1121,7 @@ func apply_insight(actor_id: String, dao: String, amount: float, context: String
 	var gained := tier > int(d.tier)
 	d.tier = maxi(int(d.tier), tier)
 	c.cultivator.daos[dao] = d
+	if context != "epiphany": _roll_epiphany(c, context)
 	emit("insight_gained", {"actor": c.id, "dao": dao, "amount": amount})
 	if gained:
 		emit("dao_tier_up", {"actor": c.id, "dao": dao, "tier": d.tier})
@@ -1036,9 +1136,9 @@ func apply_open_dao(actor_id: String, dao: String) -> void:
 	if c == null or not ContentDB.has_entry("daos", dao) or c.cultivator.daos.has(dao): return
 	c.cultivator.daos[dao] = {"tier": 0, "insight": 0.0}
 	var first: Array = ContentDB.curve("dao_tiers", [100])
-	# A teacher opens the Dao at tier 1: the insight rate is divided out, with a hair's margin so the
-	# round trip through the multiplier never lands a fraction short of the threshold.
-	apply_insight(actor_id, dao, float(first[0]) / (1.0 + c.stats.value("insight_rate")) + 0.01, "teacher:" + dao)
+	# A teacher opens the Dao at tier 1: exactly the first tier's insight, untouched by the insight rate or a
+	# Dao Echo fate (S48), with a hair's margin.
+	apply_insight(actor_id, dao, float(first[0]) + 0.01, "teacher:" + dao)
 
 func _on_buff_expired(p: Dictionary) -> void:
 	var then: Array = ContentDB.item(str(p.get("source", ""))).get("then", [])

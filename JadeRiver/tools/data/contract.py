@@ -62,15 +62,17 @@ DEPTH = {
     "Progression": ["pill_resistance_changed", "foundation_changed", "heart_demon_changed", "residue_changed", "merit_changed", "sin_changed",
                     "debt_recorded", "debt_called", "body_trial_passed", "body_tier_reached", "physique_awakened", "core_graded",
                     "fate_offered", "fate_chosen", "tribulation_started", "tribulation_bolt", "tribulation_result", "qi_deviation",
-                    "inner_art_learned", "inner_art_equipped", "stance_changed"],
+                    "inner_art_learned", "inner_art_equipped", "stance_changed", "vow_taken", "vow_broken", "false_realm_changed",
+                    "epiphany", "soul_escaped"],
     "Crafting": ["flame_absorbed", "pill_cloud", "items_salvaged", "enhancement_inherited", "affixes_rerolled", "affix_locked", "talisman_crafted",
                  "relic_restored", "furnace_blast", "recipe_page_found", "recipe_deduced", "experiment_result", "guild_exam_started",
                  "guild_exam_failed", "guild_rank_changed", "commission_completed", "pill_tribulation_result", "pill_soul_flight"],
-    "Combat": ["treasure_used", "sword_released", "sword_returned", "sword_intent_changed", "artifact_detonated", "talisman_used", "combo_landed"],
+    "Combat": ["treasure_used", "sword_released", "sword_returned", "sword_intent_changed", "artifact_detonated", "talisman_used", "combo_landed", "killing_intent_changed"],
     "Inventory": ["loadout_swapped", "natal_grew", "natal_broken", "item_blooded"],
     "Movement": ["jumped", "landed", "wall_kicked", "art_used", "climb_started", "climb_finished", "fell_out", "mover_boarded",
                  "volume_entered", "volume_left"],
     "Enemies": ["enemy_leashed"],
+    "World": ["ambush_sprung"],
 }
 for _sys, _names in DEPTH.items():
     CATALOGUE[_sys] = CATALOGUE.get(_sys, []) + _names

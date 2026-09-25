@@ -1,0 +1,67 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "mercy",
+   "name": "Mercy",
+   "forbids": "fleeing_kill",
+   "desc": "No killing blow on a fleeing foe: it gets away with its life.",
+   "gift_text": "+10% healing received.",
+   "modifiers": [
+    {
+     "stat": "healing_received",
+     "op": "flat",
+     "value": 0.1
+    }
+   ]
+  },
+  {
+   "id": "plain_fare",
+   "name": "Plain Fare",
+   "forbids": "burst_pill",
+   "desc": "No burst pills (pills that lend strength for a fight).",
+   "gift_text": "+10% Physical Defense and Qi Resistance.",
+   "modifiers": [
+    {
+     "stat": "physical_defense",
+     "op": "pct_add",
+     "value": 0.1
+    },
+    {
+     "stat": "qi_resistance",
+     "op": "pct_add",
+     "value": 0.1
+    }
+   ]
+  },
+  {
+   "id": "silence",
+   "name": "Silence",
+   "forbids": "presence",
+   "desc": "No Presence: your killing intent stays in its sheath.",
+   "gift_text": "+10% Will.",
+   "modifiers": [
+    {
+     "stat": "will",
+     "op": "pct_add",
+     "value": 0.1
+    }
+   ]
+  },
+  {
+   "id": "fasting",
+   "name": "Fasting",
+   "forbids": "food_buff",
+   "desc": "No food that lends a buff.",
+   "gift_text": "+5% accumulation.",
+   "modifiers": [
+    {
+     "stat": "accumulation_rate",
+     "op": "flat",
+     "value": 0.05
+    }
+   ]
+  }
+ ],
+ "break_heart_demon": 15
+}

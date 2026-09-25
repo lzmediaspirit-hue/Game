@@ -95,6 +95,12 @@ def build():
              status={"id": "confusion", "chance": 0.2, "power": 1, "duration_s": 2}, action="meditate_burst"),
         tech("soul_lantern_ward", "spirit_awakening_5", "mentor_secret", "any", "soul", "buff", (0, 0), 0, 0, 30, 0,
              "A ward that absorbs damage equal to 20% max Soul for 6 s.", soul=20, buff={"stat": "shield_soul_pct", "op": "flat", "value": 0.2, "duration": 6}, action="meditate_burst"),
+        # S48 costly secret art: the Blood Dao's teacher shows how to burn one's own blood for a fight.
+        tech("blood_burning", "sage_sovereign_1", "blood_remembers", "any", "none", "buff", (0, 0), 0, 0, 45, 0,
+             "Burn your own blood: +50% attack for 10 s. It costs 30% of your HP and leaves a body injury.",
+             buffs=[{"stat": "physical_attack", "op": "pct_add", "value": 0.5, "duration": 10},
+                    {"stat": "qi_attack", "op": "pct_add", "value": 0.5, "duration": 10}],
+             hp_cost_pct=0.3, injury={"kind": "body", "severity": 1}, secret=True, action="meditate_burst"),
         tech("glimpse_of_heaven", "heaven_glimpse_1", "a_wider_sky", "any", "none", "qi", (2.50, 3.00), 1, 1, 15, 35,
              "Borrow a glimpse of the heavens. Ignores 20% Qi Resistance.", reach=320, ignore_resistance=0.2, action="meditate_burst"),
     ]

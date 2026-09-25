@@ -678,6 +678,14 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 		"tame": return game.pets.attempt_tame(c, str(s.id), -1.0)
 		"absorb_flame": return game.crafting.absorb_flame(c, index)
 		"bath": return game.progression.start_bath(c, str(s.id))
+	# S48 vows block what they forbid: Plain Fare the burst pills, Fasting the food that lends a buff.
+	var vow := ""
+	if def.get("burst", false): vow = game.progression.vow_forbids(c, "burst_pill")
+	var buffs := false
+	for u in def.get("use", []):
+		if str(u.get("kind", "")) == "add_modifier": buffs = true
+	if vow == "" and str(def.get("type", "")) == "food" and buffs: vow = game.progression.vow_forbids(c, "food_buff")
+	if vow != "": return fail("vow", {"text": Tx.t("sim.inventory.vow_forbids") % ContentDB.name_of("vows", vow)})
 	# Natural treasures answer once in each great realm (the Mindwell Lotus).
 	var great_realm := str(ContentDB.realm(c.cultivator.realm_key).get("realm", ""))
 	var once := str(def.get("use_limit", "")) == "realm"

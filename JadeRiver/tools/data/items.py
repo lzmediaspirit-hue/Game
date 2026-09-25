@@ -228,7 +228,7 @@ def pills():
     pill("viper_antidote", "common", "leaf", "Cures poison.", 0, [effect("cure_status", status="poison")], group="utility")
     pill("tiger_blood_pill", "common", "flame", "+20% attack for 60 s, then exhaustion (-20% for 60 s).", 12,
          [effect("add_modifier", stat="physical_attack", op="pct_add", value=0.2, duration=60, source="tiger_blood"),
-          effect("apply_status", status="exhausted", delay=60, duration=60)], group="buff")
+          effect("apply_status", status="exhausted", delay=60, duration=60)], group="buff", burst=True)
     pill("cleansing_pill", "common", "gate", "Support item: lowers the risk of Heaven's Cleansing by one step.", 10,
          [], cause="environment", group="utility", support={"risk": -1, "event": "heavens_cleansing"})
     pill("foundation_guard_pill", "earth", "gate", "Breakthrough support: lowers risk by one step.", 12, [],
@@ -258,7 +258,7 @@ def pills():
          cause="energy", group="buff", then=[effect("add_toxicity", amount=15)])
     # S44 hidden recipes, found only by experiment.
     pill("sunfire_pill", "common", "flame", "Found by experiment: ginseng and Ember Pepper. +12% attack for 10 minutes.", 8,
-         [effect("add_modifier", stat="physical_attack", op="pct_add", value=0.12, duration=600, source="sunfire_pill")], group="buff")
+         [effect("add_modifier", stat="physical_attack", op="pct_add", value=0.12, duration=600, source="sunfire_pill")], group="buff", burst=True)
     pill("stillwater_pill", "earth", "drop_leaf", "Found by experiment: Mist Lotus, Soulbell and willow moss. Composure +40, heart demon -5.", 6,
          [effect("add_composure", amount=40), effect("add_heart_demon", amount=-5)], cause="soul", group="utility")
     pill("cloudstep_pill", "heaven", "arrows", "Found by experiment: Cloudtop Orchid and willow moss. +10% move speed for 20 minutes.", 8,

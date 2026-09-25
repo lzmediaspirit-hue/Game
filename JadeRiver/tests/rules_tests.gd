@@ -54,6 +54,7 @@ func _main() -> void:
 	body_path_suite()
 	heaven_suite()
 	arts_suite()
+	vows_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -1075,6 +1076,179 @@ func arts_suite() -> void:
 	cu.stances = {}
 	cu.realm_key = realm_was
 	Game.combat.refresh_stats(c.id)
+
+# ------------------------------------------------------------------ S48 vows, Killing Intent, epiphany, Blood Burning, the false realm
+func vows_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var cu: CultivatorState = c.cultivator
+	var st: ActorState = Game.actor_state(c.id)
+	var realm_was := cu.realm_key
+	c.inventory.bag.fill(null)
+	Game.world.apply_teleport(c.id, "wp_west")
+	Unlocks.force_unlock(c.id, "vows")
+	cu.vows.clear()
+	cu.heart_demon = 0.0
+	# Vows block what they forbid; letting one go breaks it (+15 heart demon).
+	check(Game.submit({"type": "set_vow", "vow": "plain_fare", "on": true}).get("ok", false) and Game.submit({"type": "set_vow", "vow": "fasting", "on": true}).get("ok", false),
+		"vows taken: Plain Fare and Fasting")
+	Game.inventory.apply_add(c.id, "tiger_blood_pill", 1, "test")
+	Game.inventory.apply_add(c.id, "rice_ball", 1, "test")
+	Game.inventory.apply_add(c.id, "healing_pill", 1, "test")
+	c.pools.cooldowns.clear()
+	check(str(Game.inventory.use_item(c, _bag_index(c, "tiger_blood_pill"), true).get("reason", "")) == "vow", "Plain Fare refuses a burst pill")
+	check(str(Game.inventory.use_item(c, _bag_index(c, "rice_ball"), true).get("reason", "")) == "vow", "Fasting refuses food that lends a buff")
+	check(Game.inventory.use_item(c, _bag_index(c, "healing_pill"), true).get("ok", false), "a healing pill is no burst pill")
+	check(near(cu.heart_demon, 0.0), "taking a vow costs nothing")
+	Game.submit({"type": "set_vow", "vow": "plain_fare", "on": false})
+	check(near(cu.heart_demon, 15.0) and not cu.vows.has("plain_fare"), "breaking a vow: +15 heart demon (%.1f)" % cu.heart_demon)
+	Game.combat.refresh_stats(c.id)
+	check(c.stats.value("accumulation_rate") >= 0.05 - 0.0001, "Fasting's gift: +5% accumulation")
+	Game.submit({"type": "set_vow", "vow": "fasting", "on": false})
+	cu.heart_demon = 0.0
+	# Mercy: a fleeing foe survives the blow that would have killed it.
+	Game.submit({"type": "set_vow", "vow": "mercy", "on": true})
+	var e: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(40, 0), 2)
+	e.ai["fled"] = true
+	var pv: Dictionary = Game.combat.player_view(c)
+	var blow := {"damage_type": "physical", "element": "none", "mult": [8.0, 8.0], "range": [1.0, 1.0], "source": "test"}
+	for i in 6:
+		if not e.alive or e.pools.hp <= 1.01: break
+		Game.combat._player_hits_enemy(c, pv, e, blow, 1)
+	check(e.alive and e.pools.hp >= 1.0, "Mercy: the fleeing boarlet gets away with its life")
+	Game.submit({"type": "set_vow", "vow": "mercy", "on": false})
+	for i in 6:
+		if not e.alive: break
+		Game.combat._player_hits_enemy(c, pv, e, blow, 1)
+	check(not e.alive, "without the vow the blow lands")
+	GameEvents.flush()
+	cu.heart_demon = 0.0
+	# Killing Intent: kills in quick succession, +1% crit a stack, up to 10; Silence sheathes it.
+	Game.combat.killing_intent.erase(c.id)
+	var crit0 := float(Game.combat.player_view(c).crit_chance)
+	for i in 12: Game.combat._gain_killing_intent(c, e)
+	check(Game.combat.killing_intent_stacks(c.id) == 10 and near(float(Game.combat.player_view(c).crit_chance), crit0 + 0.10),
+		"Killing Intent: 10 stacks at most, +10%% crit (%d)" % Game.combat.killing_intent_stacks(c.id))
+	for i in 110: Game.combat._tick_sword(c, 0.1)
+	check(Game.combat.killing_intent_stacks(c.id) == 0, "ten seconds without a kill and it fades")
+	Game.submit({"type": "set_vow", "vow": "silence", "on": true})
+	Game.combat._gain_killing_intent(c, e)
+	check(Game.combat.killing_intent_stacks(c.id) == 0, "Silence keeps the killing intent sheathed")
+	Game.submit({"type": "set_vow", "vow": "silence", "on": false})
+	cu.heart_demon = 0.0
+	# Epiphany: five times the insight for a minute, then two hours before another.
+	cu.epiphany_cooldown = 0.0
+	Game.progression.trigger_epiphany(c, Rng.stream(c.id, "fortune"))
+	Game.combat.refresh_stats(c.id)
+	check(near(cu.epiphany_cooldown, 7200.0) and c.stats.value("insight_rate") >= 3.9, "an epiphany: insight x5 and a two-hour cooldown")
+	var seen := 0
+	for i in 2000:
+		var before := cu.epiphany_cooldown
+		Game.progression._roll_epiphany(c, "tech:flowing_palm:x")
+		if cu.epiphany_cooldown != before: seen += 1
+	check(seen == 0, "no second epiphany while the mind rests")
+	cu.epiphany_cooldown = 0.0
+	# Blood Burning: 30% of max HP and a body injury for +50% attack.
+	cu.realm_key = "sage_sovereign_1"
+	Game.combat.refresh_stats(c.id)
+	if not cu.techniques_known.has("blood_burning"): cu.techniques_known.append("blood_burning")
+	var slots_was: Array = cu.technique_slots.duplicate()
+	Unlocks.force_unlock(c.id, "technique_slots_2")
+	cu.technique_slots[0] = "blood_burning"
+	cu.injuries.clear()
+	c.pools.hp = c.pools.max_hp
+	c.pools.cooldowns.clear()
+	var atk0: float = c.stats.value("physical_attack")
+	var max0: float = c.pools.max_hp
+	var bb := Game.combat.use_technique(c, 0, 1)
+	var hp_after: float = c.pools.hp
+	for i in 10: Game.combat.tick(0.1)
+	Game.combat.refresh_stats(c.id)
+	check(bb.get("ok", false) and absf(hp_after - max0 * 0.7) <= max0 * 0.02 and cu.injuries.has("body"),
+		"Blood Burning costs 30%% of max HP and wounds the body (%.0f of %.0f)" % [hp_after, max0])
+	check(c.stats.value("physical_attack") > atk0 * 1.4, "and burns +50%% attack (%.0f -> %.0f)" % [atk0, c.stats.value("physical_attack")])
+	cu.technique_slots = slots_was
+	cu.injuries.clear()
+	# The false realm: Concealment shows up to two great realms lower.
+	cu.realm_key = "heart_tempering_5"
+	var had_conceal := cu.secret_arts.has("concealment")
+	cu.secret_arts.erase("concealment")
+	check(not Game.submit({"type": "set_false_realm", "realm": "qi_kindling_1"}).get("ok", false), "no false realm without Concealment")
+	cu.secret_arts.append("concealment")
+	var choices: Array = Game.progression.false_realm_choices(c)
+	check(choices == ["qi_kindling_1", "qi_unfurling_1"], "two great realms lower at most (%s)" % str(choices))
+	check(not Game.submit({"type": "set_false_realm", "realm": "bone_forging_1"}).get("ok", false), "three great realms lower is too far")
+	check(Game.submit({"type": "set_false_realm", "realm": "qi_unfurling_1"}).get("ok", false) and Game.progression.shown_realm(c) == "qi_unfurling_1",
+		"others now see Qi Unfurling 1")
+	# ...and they talk to the weaker cultivator you show; bandits on the road see easy prey.
+	var talk: Dictionary = Game.quest.talk(c, "alliance_guard").get("dialogue", {})
+	check(str((talk.get("lines", [""]) as Array)[0]) == str(ContentDB.entry("npcs", "alliance_guard").concealed_lines[0]), "a veiled realm changes what people say")
+	var amb: Dictionary = ContentDB.room("cr_caravan_road").get("ambush", {})
+	check(near(Game.world.ambush_chance(c, amb), 0.12), "the Mudwater stragglers jump a veiled Heart Tempering at twice the odds (%.2f)" % Game.world.ambush_chance(c, amb))
+	Game.submit({"type": "set_false_realm", "realm": ""})
+	check(near(Game.world.ambush_chance(c, amb), 0.0), "unveiled at Heart Tempering 5 you are past their reach")
+	cu.realm_key = "qi_kindling_8"
+	check(near(Game.world.ambush_chance(c, amb), 0.06), "at Qi Kindling 8 the plain odds hold")
+	Game.world.load_room(c, "cr_caravan_road", "")
+	Game.world.ambush_cd.erase(c.id)
+	var sprung := [0]
+	var on_amb := func(n: String, _p: Dictionary) -> void:
+		if n == "ambush_sprung": sprung[0] += 1
+	GameEvents.event.connect(on_amb)
+	Game.world.spring_ambush(c, amb)
+	GameEvents.flush()
+	GameEvents.event.disconnect(on_amb)
+	var gang := 0
+	for foe in Game.room_rt.living_enemies():
+		if foe.summoned and foe.def_id == "mudwater_bandit": gang += 1
+	check(gang == 2 and sprung[0] == 1 and float(Game.world.ambush_cd.get(c.id, 0.0)) > 0.0, "an ambush drops two bandits around you and rests (%d)" % gang)
+	Game.world.ambush_cd.erase(c.id)
+	cu.realm_key = "heart_tempering_5"
+	if not had_conceal: cu.secret_arts.erase("concealment")
+	# A teacher's lesson opens a rare Dao at exactly tier 1, even under a Dao Echo fate for another Dao.
+	Unlocks.force_unlock(c.id, "dao_tree")
+	var fates_was: Array = cu.fates.duplicate(true)
+	cu.fates.append({"card": "dao_echo", "dao": "sword"})
+	cu.daos.erase("blood")
+	var room_was := str(c.position.get("room", ""))
+	c.position.room = "ir_ancestor_hall"   # a rare Dao deepens only where the Expanse's Laws allow it
+	Game.progression.apply_open_dao(c.id, "blood")
+	c.position.room = room_was
+	check(int(cu.daos.get("blood", {}).get("tier", 0)) == 1, "a teacher opens the Blood Dao at tier 1 under Dao Echo")
+	cu.fates = fates_was
+	cu.daos.erase("blood")
+	# Nascent-soul escape: from Sage a grave wound costs 5% of the stage, not 10%.
+	cu.realm_key = "sage_1"
+	cu.state = "accumulating"
+	cu.qp = cu.need() * 0.5
+	Game.progression._on_gravely_wounded({"actor": c.id})
+	check(near(cu.qp, cu.need() * 0.45), "from Sage the soul flees: 5%% lost (%.3f of the need left)" % (cu.qp / cu.need()))
+	cu.realm_key = "cloud_stride_5"
+	cu.qp = cu.need() * 0.5
+	Game.progression._on_gravely_wounded({"actor": c.id})
+	check(near(cu.qp, cu.need() * 0.4), "below Sage: 10% lost")
+	cu.injuries.clear()
+	cu.heart_demon = 0.0
+	# A boss's nascent-soul self-detonation: telegraphed, then a blast that ends the fight.
+	cu.realm_key = realm_was
+	Game.combat.refresh_stats(c.id)
+	c.pools.hp = c.pools.max_hp
+	var boss: EnemyState = Game.enemies.spawn_at("pirate_captain", st.plane + Vector2(120, 0), 80)
+	boss.pools.hp = boss.pools.max_hp * 0.35
+	Game.enemies._check_phases(boss)
+	boss.pools.hp = boss.pools.max_hp * 0.1
+	Game.enemies._check_phases(boss)
+	check(str(boss.ai.get("state", "")) == "detonating" and boss.invulnerable, "cornered, the Captain burns his nascent soul (a telegraph)")
+	var hp_before: float = c.pools.hp
+	for i in 40:
+		if not boss.alive: break
+		Game.enemies.tick(0.1)
+	GameEvents.flush()
+	check(not boss.alive and c.pools.hp < hp_before - c.pools.max_hp * 0.5, "the blast lands on whoever stays in the ring, and the Captain is gone")
+	c.pools.hp = c.pools.max_hp
+	cu.vows.clear()
+	cu.heart_demon = 0.0
+	c.inventory.bag.fill(null)
 
 func tribulation_suite() -> void:
 	var c = Game.active()

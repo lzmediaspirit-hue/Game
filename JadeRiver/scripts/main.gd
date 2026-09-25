@@ -197,6 +197,10 @@ func _handle_preview_args(user_args: Array) -> void:
 			Game.combat.refresh_stats(bc.id)
 		if str(a).begins_with("--physique=") and Game.active() != null:
 			for ph in str(a).trim_prefix("--physique=").split(","): Game.progression.awaken_physique(Game.active().id, ph)
+		if str(a).begins_with("--false-realm=") and Game.active() != null:
+			# Debug tools (S38): preview Concealment's false realm (S48).
+			if not "concealment" in Game.active().cultivator.secret_arts: Game.active().cultivator.secret_arts.append("concealment")
+			Game.submit({"type": "set_false_realm", "realm": str(a).trim_prefix("--false-realm=")})
 		if str(a).begins_with("--vessel=") and Game.active() != null:
 			# Debug tools (S38): preview a flight vessel (G2); pair it with --fly.
 			var vid := str(a).trim_prefix("--vessel=")

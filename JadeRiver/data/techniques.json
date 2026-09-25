@@ -1367,6 +1367,67 @@
    "grade": "heaven"
   },
   {
+   "id": "blood_burning",
+   "name": "Blood Burning",
+   "family": "any",
+   "element": "none",
+   "damage_type": "buff",
+   "mult": [
+    0,
+    0
+   ],
+   "hits": 0,
+   "max_targets": 0,
+   "hitbox": {
+    "x": [
+     -10,
+     110
+    ],
+    "depth": 30,
+    "alt": [
+     -30,
+     60
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 45,
+   "qi_cost": 0,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "none",
+   "unlock": "sage_sovereign_1",
+   "source": "blood_remembers",
+   "desc": "Burn your own blood: +50% attack for 10 s. It costs 30% of your HP and leaves a body injury.",
+   "action": "meditate_burst",
+   "icon": "blood_burning",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "buffs": [
+    {
+     "stat": "physical_attack",
+     "op": "pct_add",
+     "value": 0.5,
+     "duration": 10
+    },
+    {
+     "stat": "qi_attack",
+     "op": "pct_add",
+     "value": 0.5,
+     "duration": 10
+    }
+   ],
+   "hp_cost_pct": 0.3,
+   "injury": {
+    "kind": "body",
+    "severity": 1
+   },
+   "secret": true,
+   "grade": "heaven"
+  },
+  {
    "id": "glimpse_of_heaven",
    "name": "Glimpse of Heaven",
    "family": "any",

@@ -197,6 +197,8 @@ func talk(c, npc: String) -> Dictionary:
 			break
 	if convo.lines.is_empty():
 		var lines: Array = n.get("lines", ["..."])
+		# A false realm (S48 Concealment) changes how people talk to you.
+		if c.cultivator.false_realm != "" and not (n.get("concealed_lines", []) as Array).is_empty(): lines = n.concealed_lines
 		convo.lines = [lines[(c.quests.seen_dialogue.size() + game.tick_count) % lines.size()]]
 	for s in n.get("services", []):
 		var svc := str(s)

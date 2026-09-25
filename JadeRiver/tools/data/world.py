@@ -2362,6 +2362,15 @@ def rogue_cultivators():
     ROOMS["mp_misty_slopes"].spawn("rogue_treasure_adept", [[2600, 840]], 1, respawn=1800, level=[48, 50], elite=True)
 
 
+def bandit_ambushes():
+    """S48: once a road's own story is done, what is left of its gang jumps travellers who look weak enough. The chance
+    is in stats consts `ambush`; a false realm (Concealment) doubles it."""
+    for rid, enemy, n, lv, q in [("cr_caravan_road", "mudwater_bandit", 2, [17, 19], "mudwater_hideout"),
+                                 ("wg_gorge_mouth", "gorge_bandit_adept", 2, [30, 33], "mins_first_caravan"),
+                                 ("gc_canyon_mouth", "canyon_brigand", 2, [74, 76], "the_canyon_toll")]:
+        ROOMS[rid].d["ambush"] = {"enemy": enemy, "count": n, "level": lv, "requires": all_of(qdone(q))}
+
+
 def movement_extras():
     """Hand-placed climbing where the automatic pass finds no clear back row."""
     def deck(rid, sid, rect, h, kind="balcony"):
@@ -2584,6 +2593,7 @@ def build():
     earth_vents()
     movement_extras()
     rogue_cultivators()
+    bandit_ambushes()
     recipe_pages()
     body_trial_grounds()
     catalogue.run(ROOMS)

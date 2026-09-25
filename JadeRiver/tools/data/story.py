@@ -354,6 +354,35 @@ def npcs():
         ["I mark them. You hit them. Simple."], ["Mark!"], companion="qiu_feng")
     npc("bai_ling", "Bai Ling", "Formation student", outfit("ponytail", 2, "disciple", "straight", "slippers", weapon="sword", shirt_dye="cloud"),
         ["Three nodes and a centre. Watch."], ["Lines drawn!"], companion="bai_ling")
+    # S48 hidden cultivation: with a false realm showing (Concealment), common folk take you for the weaker cultivator
+    # you pretend to be. The old and the strong see through it.
+    concealed = {
+        "guard_hou": ["Kindling, are you? Keep to the road. The Mudwater never went away, not really."],
+        "adventurer_kai": ["You look green. The Caravan Road eats green travellers. Go in daylight, and not alone."],
+        "storekeeper_fang": ["First time in town? The starter charms are on the low shelf. The good ones would cost you a year."],
+        "old_pan": ["Spirit Stones only, little one. Come back when your Qi is worth a second look."],
+        "smith_bao": ["Soft hands for a blade like that. I'll sharpen it anyway. Maybe it will teach you."],
+        "elder_gu": ["A small cultivator with a heavy purse. Mind who sees you open it."],
+        "innkeeper_tang": ["The cheap room's in the attic. Draughty, but honest, like the price."],
+        "warden_cao": ["A low realm on the sky roads? Pay your toll and stay out of the Alliance's way."],
+        "alliance_guard": ["Weak Qi and loud boots. Walk softly in the port, junior."],
+        "peddler_gou": ["Newcomer? Everyone below Sage buys the storm charm. Everyone. Trust me."],
+        "factor_ruan": ["Stormsteel is for Sages. Are you buying for your master?"],
+        "tollkeeper_bai": ["Ten stones. For someone at your realm the canyon costs more than stones. Think on it."],
+        "oasis_keeper_meng": ["Water is free, even for the weak. The sand is not so generous."],
+        "navigator_sun": ["The Starsea eats small realms whole. Are you sure you want a chart?"],
+        "elder_hu": ["You can hide your realm from bandits, child. Not from the one who taught you to breathe."],
+        "elder_sung": ["A cloud can look like a small thing from below. I am not below you. Put the mask away when we talk."],
+        "grey_pilgrim": ["A mask over a mask. How quaint. I see the river under both."],
+        "elder_zhong": ["Hiding your realm on the First Peak? The Alliance notices those who make themselves small."],
+        "champion_qiao": ["Hiding your weight? The Terrace will find it. Presence does not lie, even when you do."],
+        "wanderer_jiang": ["Smart. Look weak, and the Alliance ignores you. The bandits won't, mind."],
+    }
+    for n in N:
+        if n["id"] in concealed:
+            n["concealed_lines"] = concealed[n["id"]]
+    missing = set(concealed) - {n["id"] for n in N}
+    assert not missing, missing
     entries("npcs", N)
     return {n["id"] for n in N}
 
@@ -481,6 +510,8 @@ def unlocks():
     # S47 dual loadout: a spare weapon and the Swap button (R).
     # S48 stances (one per weapon family) come with Willow Leaf Parry's lessons; Inner Arts with Qi Unfurling.
     u("stances", "Stances", all_of(realm("qi_kindling_5")), "", [], same_stage_ok=True, toast=False)
+    # S48 vows (the Buddhist path): a cultivator steady enough to temper the heart can bind it with a vow.
+    u("vows", "Vows", all_of(realm("heart_tempering_1")), "", [], same_stage_ok=True, effects=[{"kind": "codex", "entry": "vows"}])
     u("dual_loadout", "Weapon swap", all_of(realm("heart_tempering_1")), "", ["hud:weapon_swap"], same_stage_ok=True)
     # S47 talisman craft (Qi Kindling 6): Old Scribe Bai on Artisan Row teaches the brush.
     u("talisman", "Talismans", all_of(realm("qi_kindling_6")), "ink_and_paper", ["page:talisman"], same_stage_ok=True)  # v2 Part 8: Talismans and "is it real" both open at QK6
@@ -1502,7 +1533,7 @@ def act2_starsea_side_quests():
     quest("blood_remembers", "Blood Remembers", "side", "matriarch_tie", [
         o("set_flag", "Kneel before the Ironroot tablets in the Ancestor Hall", flag="tablets_honoured"),
         o("reach_realm", "Become a Sage Sovereign", realm="sage_sovereign_1"),
-    ], [fx("open_dao", dao="blood"), spirit_stones(100)], requires=all_of(qdone("ironroot_blood")), target_room="ir_ancestor_hall",
+    ], [fx("open_dao", dao="blood"), fx("learn_technique", technique="blood_burning"), spirit_stones(100)], requires=all_of(qdone("ironroot_blood")), target_room="ir_ancestor_hall",
         offer=["Kin by adoption is kin. But the blood still has to learn to hear you. Kneel before the tablets.",
                "And grow. The Blood Dao listens to Sovereigns. Come back when you are one."],
         complete=["There. Feel it? Every Ironroot who ever lived, in the beat under your ribs. That is the Blood Dao. It is yours now."])
@@ -1892,6 +1923,10 @@ def codex():
          "body": "A great breakthrough shakes a cultivator's fate loose. Three cards are drawn and one is kept: a gift, and most often a cost. Some last for life, some only until the next great realm, and a few wait for the next tribulation or the next breakthrough."},
         {"id": "qi_deviation", "title": "Qi deviation",
          "body": "A breakthrough that fails at Severe risk, or on a method your elements fight, can send the Qi astray. For ten minutes every technique strikes with an element of its own choosing."},
+        {"id": "vows", "title": "Vows",
+         "body": "A vow forbids one thing for as long as it is held, and gives a steady gift for it. Mercy spares fleeing foes for better healing; Plain Fare refuses burst pills for a harder body; Silence sheathes the killing intent for Will; Fasting refuses food that lends a buff for faster accumulation. Letting a vow go breaks it, and a broken vow feeds the heart demon by 15."},
+        {"id": "epiphany", "title": "Epiphany",
+         "body": "Now and then, while insight comes in from contemplation or a hard fight, understanding arrives all at once: for a minute insight comes five times as fast, and sometimes a technique takes a step of mastery for nothing. After an epiphany the mind needs two hours before another."},
         {"id": "inner_arts", "title": "Inner Arts",
          "body": "Inner Arts are passive: a way of breathing, of standing, of carrying the Qi. The Mission Halls teach them from thin manuals. Two can be worn from Qi Unfurling 1, three from Heart Tempering 1, four from Spirit Awakening 1. A few belong to one weapon and sleep while another is in hand."},
         {"id": "karma", "title": "Merit and sin",

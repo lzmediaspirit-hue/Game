@@ -6,7 +6,7 @@ extends RefCounted
 
 const ATTRIBUTES := ["body", "agility", "essence", "spirit", "insight", "fortune"]
 const PERMANENT_PREFIXES := ["gear:", "set:", "title:", "injury:", "gate:", "legacy:", "collection:", "jade:", "pet:", "sect:", "aptitude:", "dao:",
-	"body_tier:", "physique:", "fate:", "inner_art:", "stance:"]
+	"body_tier:", "physique:", "fate:", "inner_art:", "stance:", "vow:"]
 
 static func poly(spec: Dictionary, x: float) -> float:
 	return float(spec.get("a", 0)) + float(spec.get("b", 0)) * x + float(spec.get("c", 0)) * x * x
@@ -172,6 +172,13 @@ static func rebuild(c) -> Array:
 			var pm: Dictionary = (pmods[i] as Dictionary).duplicate()
 			pm.source = "physique:%s:%d" % [pid, i]
 			sb.add_modifier(pm)
+	# S48 vows held.
+	for v in c.cultivator.vows:
+		var vmods: Array = ContentDB.entry("vows", str(v)).get("modifiers", [])
+		for i in vmods.size():
+			var vm: Dictionary = (vmods[i] as Dictionary).duplicate()
+			vm.source = "vow:%s:%d" % [v, i]
+			sb.add_modifier(vm)
 	# S48 Inner Arts worn and the stance held for the weapon in hand.
 	for art in ProgressionRules.active_inner_arts(c):
 		var amods: Array = art.get("modifiers", [])
@@ -278,6 +285,7 @@ static func rebuild(c) -> Array:
 	sb.set_base("knockback_resistance", float(fx.body.get("knockback_resistance", 0.0)) * A.body)
 	sb.set_base("flight_qi", 0.0)
 	sb.set_base("dodge_cooldown", 0.0)
+	sb.set_base("healing_received", 0.0)
 	for stat in ContentDB.stat_const("stats", []):
 		if stat.get("cap") != null and not sb.caps.has(stat.id) and stat.id != "move_speed": sb.caps[stat.id] = float(stat.cap)
 	sb.recalc()

@@ -48,7 +48,7 @@ func _process(delta: float) -> void:
 		impacts[i].t = float(impacts[i].t) + delta
 		if float(impacts[i].t) >= float(impacts[i].dur): impacts.remove_at(i)
 	# A room without hazards draws only while a tribulation is under way (or its scorch marks fade).
-	var busy := not rt.hazards.is_empty() or not impacts.is_empty() or not _trib_state().is_empty()
+	var busy := not rt.hazards.is_empty() or not impacts.is_empty() or not _trib_state().is_empty() or _detonating(rt)
 	if busy or drawn:
 		ground.queue_redraw()
 		air.queue_redraw()
@@ -114,6 +114,11 @@ func _track_tribulation(delta: float) -> void:
 		impacts.append({"kind": "scorch", "pos": Vector2(float(w0.x), float(w0.y)), "t": 0.0, "dur": 3.0})
 		if world: world.shake = maxf(world.shake, 0.35)
 	last_phase["_trib"] = warn.duplicate()
+
+func _detonating(rt: RoomRuntime) -> bool:
+	for e in rt.living_enemies():
+		if str(e.ai.get("state", "")) == "detonating": return true
+	return false
 
 func _near_player(spots: Array, r: float) -> bool:
 	if world == null or world.player == null: return false
@@ -197,6 +202,13 @@ func _draw_ground() -> void:
 			"aura": _ground_aura(rt, str(hid), h, hs)
 	var ts := _trib_state()
 	if not ts.is_empty(): _ground_strike("lightning", {"radius": float(ts.radius)}, ts)
+	# S48: a boss burning its nascent soul shows the ring of the coming blast.
+	for e in rt.living_enemies():
+		if str(e.ai.get("state", "")) != "detonating": continue
+		var rad := float(e.ai.get("detonation", {}).get("radius", 280))
+		var pulse := 0.6 + 0.4 * sin(t * 12.0)
+		_ellipse(ground, e.plane, rad, rad * 0.42, Color(0.35, 0.05, 0.1, 0.22))
+		_dashed(ground, e.plane, rad, rad * 0.42, Color(AMBER, pulse), t * 3.0, 18, 3.0, true)
 
 func _ground_strike(hid: String, h: Dictionary, hs: Dictionary) -> void:
 	var r := float(h.get("radius", 60))

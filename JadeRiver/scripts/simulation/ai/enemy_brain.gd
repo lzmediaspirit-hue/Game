@@ -203,6 +203,12 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 			if float(ai.timer) <= 0.0:
 				e.invulnerable = false
 				_set_state(auth, e, "aggro", 0.2)
+		"detonating":
+			# S48: a cornered cultivator burns his nascent soul; the blast comes when the timer runs out.
+			e.velocity = Vector2.ZERO
+			e.action = "windup"
+			e.invulnerable = true
+			if float(ai.timer) <= 0.0: auth.boss_detonate(e)
 		"guard":
 			e.velocity = Vector2.ZERO
 			e.action = "windup"

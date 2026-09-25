@@ -102,5 +102,7 @@ Progress is recorded in `docs/CHANGELOG.md`.
 - **V5b**: done (heavenly tribulation, breakthrough fates, Qi Deviation). Fox Spirit's Favour waits for pet purity
   (S46).
 - **V5c**: done (Inner Arts, stances, technique grades, combos).
-- Left for V5d: vows, epiphany, Killing Intent, Blood Burning, the false realm, the nascent-soul escape and the
-  boss self-detonation.
+- **V5d**: done (vows, epiphany, Killing Intent, Blood Burning, the false realm with veiled dialogue and bandit
+  ambushes, the nascent-soul escape, the Comet Captain's self-detonation). S48 is complete.
+- Next: V6 (S45 herbs), V7 (S46 beasts, with the pet pills, the Purifying Offering and Fox Spirit's Favour), V8
+  (S49 living world).

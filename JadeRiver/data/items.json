@@ -3021,7 +3021,8 @@
      "duration": 60
     }
    ],
-   "soul_effect": "iron_skin"
+   "soul_effect": "iron_skin",
+   "burst": true
   },
   {
    "id": "cleansing_pill",
@@ -3386,7 +3387,8 @@
      "source": "sunfire_pill"
     }
    ],
-   "soul_effect": "iron_skin"
+   "soul_effect": "iron_skin",
+   "burst": true
   },
   {
    "id": "stillwater_pill",

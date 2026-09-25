@@ -36,7 +36,10 @@ func draw_page() -> void:
 		"overview":
 			var x := r.position.x + 480
 			text(Vector2(x, r.position.y + 50), str(ch.name), 34, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-			text(Vector2(x, r.position.y + 86), ContentDB.realm_label(ch.cultivator.realm_key), 20, UiKit.GOLD)
+			var true_realm := ContentDB.realm_label(ch.cultivator.realm_key)
+			text(Vector2(x, r.position.y + 86), true_realm, 20, UiKit.GOLD)
+			if ch.cultivator.false_realm != "":
+				text(Vector2(x + UiKit.text_width(true_realm, 20) + 12, r.position.y + 86), Tx.t("ui.character.shown_as") % ContentDB.realm_label(ch.cultivator.false_realm), 15, UiKit.MIST)
 			var sect_id := str(ch.training_sect.get("id", ""))
 			text(Vector2(x, r.position.y + 116), (ContentDB.name_of("sects", sect_id) + " · " + str(ch.training_sect.get("rank", "")).replace("_", " ").capitalize()) if sect_id != "" else Tx.t("ui.character.unaffiliated"), 18, UiKit.MIST)
 			text(Vector2(x, r.position.y + 150), Tx.t("ui.character.origin") % ContentDB.name_of("origins", ch.cultivator.origin), 18, UiKit.MIST)

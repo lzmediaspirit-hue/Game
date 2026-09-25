@@ -26,6 +26,7 @@ var hots: Dictionary = {}            # actor -> [{per_s, left}]: heals over time
 var captured: Dictionary = {}        # enemy uid -> true: taken by the Beast-Taking Cauldron (World doubles its materials)
 var sword_released: Dictionary = {}  # actor -> {t, next}: the jian flies on its own (S47 Sword Release; not saved)
 var sword_intent: Dictionary = {}    # actor -> {stacks, t}: Sword Intent from consecutive jian hits (S47; not saved)
+var killing_intent: Dictionary = {}  # actor -> {stacks, t}: kills in quick succession (S48; not saved)
 
 func subscribe() -> void:
 	for ev in STAT_EVENTS:
@@ -137,6 +138,51 @@ func stop_flight(actor_id: String, reason: String) -> void:
 
 func is_flying(actor_id: String) -> bool:
 	return flying.has(actor_id)
+
+## S48 Killing Intent: a kill within 10 s of the last adds a stack (up to 10), +1% crit each. At 10, weaker foes
+## nearby hesitate for half a second. The Silence vow keeps it sheathed.
+func _gain_killing_intent(c, victim: EnemyState) -> void:
+	if game.progression.vow_forbids(c, "presence") != "": return
+	var k: Dictionary = ContentDB.stat_const("killing_intent", {})
+	var ki: Dictionary = killing_intent.get(c.id, {"stacks": 0, "t": 0.0})
+	var before := int(ki.stacks)
+	ki.stacks = mini(int(k.get("max", 10)), before + 1) if float(ki.t) > 0.0 or before == 0 else 1
+	ki.t = float(k.get("window_s", 10.0))
+	killing_intent[c.id] = ki
+	if int(ki.stacks) != before: emit("killing_intent_changed", {"actor": c.id, "stacks": int(ki.stacks)})
+	if int(ki.stacks) >= int(k.get("max", 10)) and game.room_rt:
+		var lv := ProgressionRules.level(c)
+		var st: ActorState = game.actor_state(c.id)
+		for e in game.room_rt.living_enemies():
+			if e == victim or e.team != "enemy" or e.is_boss() or e.level >= lv: continue
+			if st != null and e.plane.distance_to(st.plane) > float(k.get("radius", 520)): continue
+			game.enemies.stagger(e, float(k.get("hesitate_s", 0.5)))
+
+func killing_intent_stacks(actor_id: String) -> int:
+	return int(killing_intent.get(actor_id, {}).get("stacks", 0))
+
+## S48 boss self-detonation: the blast, then the boss is gone (the fight is won and the loot still falls).
+func resolve_boss_detonation(e: EnemyState) -> void:
+	var d: Dictionary = e.ai.get("detonation", {})
+	var c = game.active()
+	if c != null: apply_detonation_blast(c, e, float(d.get("radius", 280)), float(d.get("damage", 0.6)))
+	e.invulnerable = false
+	e.pools.hp = 0.0
+	var payload: Dictionary = game.enemies.defeat(e, c.id if c != null else "")
+	if not payload.is_empty():
+		payload.self_detonated = true
+		emit("actor_defeated", payload)
+
+## S48 boss self-detonation: the blast reaches the player inside its ring; a dodge slips it, a guard halves it.
+func apply_detonation_blast(c, e: EnemyState, radius: float, share: float) -> void:
+	var st: ActorState = game.actor_state(c.id)
+	if st == null or st.plane.distance_to(e.plane) > radius: return
+	var tl := timeline(c.id)
+	if float(tl.dodge_t) > 0.0 or c.pools.invulnerable > 0.0:
+		emit("hit_dodged", {"target": c.id, "attacker": str(e.uid)})
+		return
+	var dmg: float = c.pools.max_hp * share * (0.5 if tl.guard else 1.0)
+	_damage_player(c, dmg, str(e.uid), "qi", {"damage_type": "qi", "element": "none", "mult": [1.0, 1.0], "range": [1.0, 1.0], "knockback": 160.0}, false, e)
 
 ## A technique's element; under Qi Deviation (S48) the Qi goes astray and each use takes a random one (combat stream).
 func technique_element(c, t: Dictionary) -> String:
@@ -290,7 +336,8 @@ func player_view(c) -> Dictionary:
 	var v := {"kind": "player", "id": c.id, "level": ProgressionRules.level(c), "realm_index": ProgressionRules.realm_index(c.cultivator.realm_key),
 		"element": str(ProgressionRules.method(c.cultivator.method_id).get("affinity", "none")),
 		"physical_attack": sb.value("physical_attack"), "qi_attack": sb.value("qi_attack"), "soul_attack": sb.value("soul_attack"),
-		"accuracy": sb.value("accuracy"), "crit_chance": sb.value("crit_chance"), "crit_damage": sb.value("crit_damage"),
+		"accuracy": sb.value("accuracy"), "crit_chance": sb.value("crit_chance") + killing_intent_stacks(c.id) * float(ContentDB.stat_const("killing_intent", {}).get("crit_per_stack", 0.01)),
+		"crit_damage": sb.value("crit_damage"),
 		"penetration": sb.value("penetration") + intent_penetration(c), "elemental_power": sb.value("elemental_power"),
 		"energy_mult": ProgressionRules.energy_multiplier(c.cultivator.energy_type, c.cultivator.purity),
 		"tenacity": sb.value("tenacity"), "evasion": sb.value("evasion"), "physical_defense": sb.value("physical_defense"),
@@ -448,6 +495,12 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	if float(t.get("qi_cost", 0)) > 0 and hp_cost <= 0.0 and (c.pools.max_qi <= 0.0 or c.pools.qi < cost): return fail("no_qi")
 	if float(t.get("soul_cost", 0)) > 0 and c.pools.soul < float(t.soul_cost): return fail("no_soul")
 	if float(t.get("composure_cost", 0)) > 0 and c.pools.composure < float(t.composure_cost): return fail("no_composure")
+	# S48 costly arts (Blood Burning): a share of max HP and a body injury, paid up front.
+	if float(t.get("hp_cost_pct", 0.0)) > 0.0:
+		var blood: float = c.pools.max_hp * float(t.hp_cost_pct)
+		if c.pools.hp - blood < 1.0: return fail("no_hp", {"text": Tx.t("sim.combat.not_enough_blood")})
+		apply_resource_change(c.id, "hp", -blood, "technique")
+		if t.has("injury"): game.progression.apply_injury(c.id, str(t.injury.get("kind", "body")), int(t.injury.get("severity", 1)))
 	if hp_cost > 0.0: apply_resource_change(c.id, "hp", -hp_cost, "technique")
 	else: apply_resource_change(c.id, "qi", -cost, "technique")
 	_natal_overcharge(c)
@@ -717,6 +770,8 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		var b: Dictionary = t.get("buff", {})
 		if b.has("stat"):
 			apply_buff(c.id, {"stat": b.stat, "op": b.get("op", "pct_add"), "value": b.value, "duration": b.duration, "source": "tech:" + str(t.id)}, "technique")
+		for b2 in t.get("buffs", []):
+			apply_buff(c.id, {"stat": b2.stat, "op": b2.get("op", "pct_add"), "value": b2.value, "duration": b2.duration, "source": "tech:%s:%s" % [t.id, b2.stat]}, "technique")
 		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": 1, "targets": 0})
 		return
 	if dtype == "stance":
@@ -853,6 +908,9 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 	var amount := float(r.amount)
 	# S43 rule 11: a melee monster that has not been able to reach you for 2 s takes half damage from you.
 	if float(e.ai.get("unreach", 0.0)) >= 2.0: amount *= 0.5
+	# S48 Mercy (a vow): a foe that has turned to flee is never struck down; it gets away with its life.
+	if e.ai.get("fled", false) and amount >= e.pools.hp and game.progression.vow_forbids(c, "fleeing_kill") != "":
+		amount = maxf(0.0, e.pools.hp - 1.0)
 	_damage_enemy(e, amount, c.id, r.type, r.element, r.crit, attack, facing)
 	_feed_intent(c, e, attack)
 	if e.alive and not attack.get("status", {}).is_empty():
@@ -927,6 +985,8 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 	if e.pools.hp <= 0.0:
 		var payload: Dictionary = game.enemies.defeat(e, attacker)
 		if not payload.is_empty(): emit("actor_defeated", payload)
+		var killer = game.character(attacker)
+		if killer != null: _gain_killing_intent(killer, e)
 
 ## Enemy strikes (called by EnemyAuthority at the hit moment of a melee attack).
 func enemy_strike(e: EnemyState, attack: Dictionary) -> void:
@@ -1150,6 +1210,12 @@ func _return_sword(c, why: String) -> void:
 	emit("sword_returned", {"actor": c.id, "reason": why})
 
 func _tick_sword(c, delta: float) -> void:
+	var ki: Dictionary = killing_intent.get(c.id, {})
+	if not ki.is_empty() and float(ki.t) > 0.0:
+		ki.t = float(ki.t) - delta
+		if float(ki.t) <= 0.0:
+			killing_intent.erase(c.id)
+			emit("killing_intent_changed", {"actor": c.id, "stacks": 0})
 	var si: Dictionary = sword_intent.get(c.id, {})
 	if not si.is_empty() and int(si.stacks) > 0:
 		si.t = float(si.t) - delta
@@ -1584,7 +1650,7 @@ func apply_resource_change(actor_id: String, pool: String, amount: float, source
 func apply_heal(actor_id: String, pct: float, amount: float, over_s: float, source: String) -> void:
 	var c = game.character(actor_id)
 	if c == null: return
-	var total = amount + c.pools.max_hp * pct
+	var total = (amount + c.pools.max_hp * pct) * (1.0 + c.stats.value("healing_received"))   # S48 Mercy
 	if over_s > 0.0:
 		# A fifth at once, the rest spread over the time given; it runs in a fight too, and resting does not multiply it.
 		apply_resource_change(actor_id, "hp", total * 0.2, source)

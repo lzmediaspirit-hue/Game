@@ -237,6 +237,16 @@
    "body": "A breakthrough that fails at Severe risk, or on a method your elements fight, can send the Qi astray. For ten minutes every technique strikes with an element of its own choosing."
   },
   {
+   "id": "vows",
+   "title": "Vows",
+   "body": "A vow forbids one thing for as long as it is held, and gives a steady gift for it. Mercy spares fleeing foes for better healing; Plain Fare refuses burst pills for a harder body; Silence sheathes the killing intent for Will; Fasting refuses food that lends a buff for faster accumulation. Letting a vow go breaks it, and a broken vow feeds the heart demon by 15."
+  },
+  {
+   "id": "epiphany",
+   "title": "Epiphany",
+   "body": "Now and then, while insight comes in from contemplation or a hard fight, understanding arrives all at once: for a minute insight comes five times as fast, and sometimes a technique takes a step of mastery for nothing. After an epiphany the mind needs two hours before another."
+  },
+  {
    "id": "inner_arts",
    "title": "Inner Arts",
    "body": "Inner Arts are passive: a way of breathing, of standing, of carrying the Qi. The Mission Halls teach them from thin manuals. Two can be worn from Qi Unfurling 1, three from Heart Tempering 1, four from Spirit Awakening 1. A few belong to one weapon and sleep while another is in hand."

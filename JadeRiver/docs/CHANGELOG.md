@@ -5,6 +5,49 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V5d · Vows, epiphany, Killing Intent, Blood Burning, the false realm and the soul's escape (S48)
+- **Vows** (`vows.json`, open at Heart Tempering 1): four oaths, each taken or dropped on a new Cultivation tab.
+  - Mercy: no killing blow on a fleeing foe (it gets away with its life); +10 % healing received (a new stat).
+  - Plain Fare: no burst pills (Tiger Blood, Sunfire); +10 % Physical Defense and Qi Resistance.
+  - Silence: no Presence, so Killing Intent never builds; +10 % Will.
+  - Fasting: no food that lends a buff; +5 % accumulation.
+  - The bag refuses what a vow forbids. Dropping a vow is breaking it: +15 heart demon.
+- **Epiphany.** Contemplation, insight stones, technique use and kills each roll 0.2 % (weighted by Insight) on the
+  fortune stream. An epiphany gives 60 s of ×5 insight and a 25 % chance that the most-used technique gains a
+  mastery tier for free. Then it rests for two hours of play.
+- **Killing Intent.** A kill within 10 s of the last adds a stack (up to 10), +1 % crit each. At 10, weaker
+  foes within reach hesitate for half a second. It fades 10 s after the last kill.
+- **Blood Burning** (a secret technique taught by Blood Remembers with the Blood Dao): +50 % attack for 10 s. It
+  costs 30 % of HP and leaves a body injury.
+- **The false realm.** With Concealment, the Techniques page's Secret Arts tab picks a realm to show, up to two
+  great realms lower.
+  - The HUD badge shows it, marked "(veiled)", and the Character page adds "shown as …".
+  - Twenty townsfolk, merchants and wardens speak to the weaker cultivator you show. Elders Hu and Sung, the Grey
+    Pilgrim, Elder Zhong and Champion Qiao see through it.
+  - **Bandit ambushes.** Once a road's own story is done, its gang's stragglers jump travellers who look weak
+    enough: the Mudwater on the Caravan Road, the gorge bandits at the Gorge Mouth, the veiled brigands at the
+    Canyon Mouth.
+    - The chance is 6 % per entry (never on a first visit or during an event), with a 15-minute rest between
+      ambushes.
+    - Bandits judge the shown realm and leave alone anyone more than 8 levels past them. A false realm doubles
+      the odds.
+- **Nascent-soul escape.** From Sage, a grave wound costs 5 % of the stage instead of 10 %: the soul flees to the
+  shrine, and the revival page says so. A defeat during a tribulation fails the breakthrough as a Bodily failure.
+- **Boss self-detonation.** Comet Captain Rao, cornered below 12 % HP, burns his nascent soul. He is invulnerable
+  through a 3 s wind-up with a ring on the ground, then deals 60 % of max HP to anyone inside 280 px and is gone.
+- **Fix:** a teacher's lesson (the rare Daos of the Expanse) now opens its Dao at exactly tier 1. Before, a Dao
+  Echo fate for another Dao (×0.9) or the 60-second repeat damping could leave it just short, at tier 0.
+- **Events:** `vow_taken`, `vow_broken`, `false_realm_changed`, `epiphany`, `soul_escaped`,
+  `killing_intent_changed` and `ambush_sprung`, with HUD notes. Debug flag: `--false-realm=<realm>`.
+- **Tests:**
+  - vow gifts, refusals and the breaking cost;
+  - Mercy on a fleeing foe;
+  - Killing Intent stacks, crit, decay and Silence;
+  - the epiphany buff and cooldown, and Blood Burning's cost;
+  - false-realm limits, veiled dialogue and ambush odds, and an ambush spawn;
+  - the soul's escape, and the Captain's detonation;
+  - a teacher's lesson under Dao Echo.
+
 ### V5c · Inner Arts, stances, technique grades and combos (S48)
 - **Inner Arts** (`inner_arts.json`, the Part 8 eight) are passive arts, worn in slots: 2 at Qi Unfurling 1, 3 at
   Heart Tempering 1, 4 at Spirit Awakening 1.

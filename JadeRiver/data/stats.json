@@ -480,6 +480,41 @@
    "day"
   ]
  },
+ "epiphany": {
+  "chance": 0.002,
+  "insight_weight": 0.01,
+  "buff_s": 60,
+  "insight_mult": 5.0,
+  "mastery_chance": 0.25,
+  "cooldown_s": 7200,
+  "contexts": [
+   "contemplate",
+   "insight_stone",
+   "tech",
+   "kill"
+  ]
+ },
+ "killing_intent": {
+  "window_s": 10.0,
+  "max": 10,
+  "crit_per_stack": 0.01,
+  "hesitate_s": 0.5,
+  "radius": 520
+ },
+ "soul_escape": {
+  "from": "sage_1",
+  "progress_loss": 0.05
+ },
+ "false_realm": {
+  "max_steps": 2
+ },
+ "ambush": {
+  "chance": 0.06,
+  "concealed_mult": 2.0,
+  "reach": 8,
+  "cooldown_s": 900,
+  "offset": 360
+ },
  "technique_grades": {
   "common": 0.0,
   "earth": 0.1,
@@ -900,6 +935,12 @@
    "id": "dodge_cooldown",
    "group": "movement",
    "cap": 0.5,
+   "format": "percent"
+  },
+  {
+   "id": "healing_received",
+   "group": "recovery",
+   "cap": 1.0,
    "format": "percent"
   }
  ]

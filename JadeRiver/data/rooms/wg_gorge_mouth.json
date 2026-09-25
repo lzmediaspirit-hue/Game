@@ -387,6 +387,22 @@
  "areas": [],
  "music": "field_mountain",
  "ambience": "waterfall_ambience",
+ "ambush": {
+  "enemy": "gorge_bandit_adept",
+  "count": 2,
+  "level": [
+   30,
+   33
+  ],
+  "requires": {
+   "all": [
+    {
+     "kind": "quest_done",
+     "quest": "mins_first_caravan"
+    }
+   ]
+  }
+ },
  "climbables": [
   {
    "id": "gorge_bridge_ladder_w",

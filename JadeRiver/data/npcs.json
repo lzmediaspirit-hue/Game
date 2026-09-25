@@ -274,7 +274,10 @@
     "Next!",
     "Move along."
    ],
-   "services": []
+   "services": [],
+   "concealed_lines": [
+    "Kindling, are you? Keep to the road. The Mudwater never went away, not really."
+   ]
   },
   {
    "id": "foreman_dong",
@@ -324,7 +327,10 @@
    "barks": [
     "Anyone up for a spar?"
    ],
-   "services": []
+   "services": [],
+   "concealed_lines": [
+    "You look green. The Caravan Road eats green travellers. Go in daylight, and not alone."
+   ]
   },
   {
    "id": "storekeeper_fang",
@@ -351,6 +357,9 @@
    ],
    "services": [
     "shop:stoneford_general"
+   ],
+   "concealed_lines": [
+    "First time in town? The starter charms are on the low shelf. The good ones would cost you a year."
    ]
   },
   {
@@ -480,6 +489,9 @@
    ],
    "services": [
     "shop:old_pan"
+   ],
+   "concealed_lines": [
+    "Spirit Stones only, little one. Come back when your Qi is worth a second look."
    ]
   },
   {
@@ -507,6 +519,9 @@
    ],
    "services": [
     "shop:stoneford_smith"
+   ],
+   "concealed_lines": [
+    "Soft hands for a blade like that. I'll sharpen it anyway. Maybe it will teach you."
    ]
   },
   {
@@ -639,7 +654,10 @@
    },
    "service_unlocks": {
     "page:workshop": "appraisal"
-   }
+   },
+   "concealed_lines": [
+    "A small cultivator with a heavy purse. Mind who sees you open it."
+   ]
   },
   {
    "id": "madam_hua",
@@ -1649,7 +1667,10 @@
    ],
    "services": [],
    "tree": "mentor",
-   "sect": "jade_sect"
+   "sect": "jade_sect",
+   "concealed_lines": [
+    "You can hide your realm from bandits, child. Not from the one who taught you to breathe."
+   ]
   },
   {
    "id": "elder_sung",
@@ -1677,7 +1698,10 @@
    ],
    "services": [],
    "tree": "mentor",
-   "sect": "cloud_sect"
+   "sect": "cloud_sect",
+   "concealed_lines": [
+    "A cloud can look like a small thing from below. I am not below you. Put the mask away when we talk."
+   ]
   },
   {
    "id": "arena_master",
@@ -1735,7 +1759,10 @@
     "Next!"
    ],
    "services": [],
-   "tree": "warden_cao"
+   "tree": "warden_cao",
+   "concealed_lines": [
+    "A low realm on the sky roads? Pay your toll and stay out of the Alliance's way."
+   ]
   },
   {
    "id": "alliance_guard",
@@ -1761,7 +1788,10 @@
    "barks": [
     "Move along."
    ],
-   "services": []
+   "services": [],
+   "concealed_lines": [
+    "Weak Qi and loud boots. Walk softly in the port, junior."
+   ]
   },
   {
    "id": "wanderer_jiang",
@@ -1787,7 +1817,10 @@
    "barks": [
     "Hm. Fresh from the valley."
    ],
-   "services": []
+   "services": [],
+   "concealed_lines": [
+    "Smart. Look weak, and the Alliance ignores you. The bandits won't, mind."
+   ]
   },
   {
    "id": "factor_ruan",
@@ -1815,6 +1848,9 @@
    ],
    "services": [
     "shop:alliance_factor"
+   ],
+   "concealed_lines": [
+    "Stormsteel is for Sages. Are you buying for your master?"
    ]
   },
   {
@@ -1842,6 +1878,9 @@
    ],
    "services": [
     "shop:port_peddler"
+   ],
+   "concealed_lines": [
+    "Newcomer? Everyone below Sage buys the storm charm. Everyone. Trust me."
    ]
   },
   {
@@ -1999,6 +2038,9 @@
    ],
    "services": [
     "shop:wayfarers_inn"
+   ],
+   "concealed_lines": [
+    "The cheap room's in the attic. Draughty, but honest, like the price."
    ]
   },
   {
@@ -2165,7 +2207,10 @@
    ],
    "services": [],
    "tint": "#dfe2ea",
-   "tree": "grey_pilgrim"
+   "tree": "grey_pilgrim",
+   "concealed_lines": [
+    "A mask over a mask. How quaint. I see the river under both."
+   ]
   },
   {
    "id": "envoy_lanshi",
@@ -2219,7 +2264,10 @@
     "Hm."
    ],
    "services": [],
-   "tree": "elder_zhong"
+   "tree": "elder_zhong",
+   "concealed_lines": [
+    "Hiding your realm on the First Peak? The Alliance notices those who make themselves small."
+   ]
   },
   {
    "id": "auctioneer_tong",
@@ -2284,7 +2332,10 @@
    ],
    "service_labels": {
     "spar:alliance_champion": "Spar"
-   }
+   },
+   "concealed_lines": [
+    "Hiding your weight? The Terrace will find it. Presence does not lie, even when you do."
+   ]
   },
   {
    "id": "tollkeeper_bai",
@@ -2310,7 +2361,10 @@
    "barks": [
     "Toll!"
    ],
-   "services": []
+   "services": [],
+   "concealed_lines": [
+    "Ten stones. For someone at your realm the canyon costs more than stones. Think on it."
+   ]
   },
   {
    "id": "ironroot_warden",
@@ -2423,6 +2477,9 @@
    ],
    "services": [
     "shop:oasis_keeper"
+   ],
+   "concealed_lines": [
+    "Water is free, even for the weak. The sand is not so generous."
    ]
   },
   {
@@ -2478,6 +2535,9 @@
    ],
    "services": [
     "shop:navigator"
+   ],
+   "concealed_lines": [
+    "The Starsea eats small realms whole. Are you sure you want a chart?"
    ]
   },
   {

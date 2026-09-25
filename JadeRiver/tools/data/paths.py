@@ -199,7 +199,25 @@ def combos():
     return rows
 
 
+def vows():
+    """Vows (S48, Part 8, the Buddhist path): toggles that forbid something for a steady gift. A vow blocks what it
+    forbids; letting a vow go breaks it and adds 15 heart demon."""
+    rows = [
+        {"id": "mercy", "name": "Mercy", "forbids": "fleeing_kill", "desc": "No killing blow on a fleeing foe: it gets away with its life.",
+         "gift_text": "+10% healing received.", "modifiers": [mod("healing_received", 0.10, "flat")]},
+        {"id": "plain_fare", "name": "Plain Fare", "forbids": "burst_pill", "desc": "No burst pills (pills that lend strength for a fight).",
+         "gift_text": "+10% Physical Defense and Qi Resistance.", "modifiers": [mod("physical_defense", 0.10), mod("qi_resistance", 0.10)]},
+        {"id": "silence", "name": "Silence", "forbids": "presence", "desc": "No Presence: your killing intent stays in its sheath.",
+         "gift_text": "+10% Will.", "modifiers": [mod("will", 0.10)]},
+        {"id": "fasting", "name": "Fasting", "forbids": "food_buff", "desc": "No food that lends a buff.",
+         "gift_text": "+5% accumulation.", "modifiers": [mod("accumulation_rate", 0.05, "flat")]},
+    ]
+    entries("vows", rows, break_heart_demon=15)
+    return rows
+
+
 def build():
+    vows()
     body_tiers()
     physiques()
     fates()

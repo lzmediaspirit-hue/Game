@@ -89,6 +89,17 @@ func draw_page() -> void:
 			var d := ContentDB.entry("secret_arts", str(arts[i]))
 			text(r.position + Vector2(24, 44 + i * 64), str(d.get("name", arts[i])), 22, UiKit.PALE_GOLD)
 			text(r.position + Vector2(24, 68 + i * 64), str(d.get("desc", "")), 16, UiKit.MIST)
+			# S48: Concealment can show a false realm, up to two great realms lower.
+			if str(arts[i]) == "concealment":
+				var choices: Array = [""] + Game.progression.false_realm_choices(ch)
+				var bx := r.end.x - 24.0
+				for j in range(choices.size() - 1, -1, -1):
+					var key := str(choices[j])
+					var label := Tx.t("ui.techniques.true_realm") if key == "" else ContentDB.realm_label(key)
+					var w := maxf(120.0, UiKit.text_width(label, 16) + 28.0)
+					bx -= w
+					btn(Rect2(bx, r.position.y + 26 + i * 64, w, 40), label, "false_realm", key, cu.false_realm == key, true, "", 16)
+					bx -= 8.0
 		return
 	# Equipped slots across the top.
 	var n := ProgressionRules.technique_slot_count(ch)
@@ -141,6 +152,7 @@ func on_action(id: String, data) -> void:
 				submit({"type": "unequip_technique", "slot": int(data)})
 		"rank": submit({"type": "rank_up_technique", "id": str(data)})
 		"pick_art": picked_art = "" if picked_art == str(data) else str(data)
+		"false_realm": submit({"type": "set_false_realm", "realm": str(data)})
 		"art_slot":
 			var cu = c().cultivator
 			var cur_art := str(cu.inner_arts[int(data)]) if int(data) < cu.inner_arts.size() else ""

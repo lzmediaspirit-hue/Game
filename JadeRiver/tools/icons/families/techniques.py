@@ -488,6 +488,17 @@ def soul_lantern_ward():
     return done(c)
 
 
+def blood_burning():
+    """S48 costly art: a drop of blood burning upward, on a fire disc with the secret-art rim."""
+    c, mk, d = emblem('fire', secret=True)
+    drop = c.poly([(16, 6), (21, 15), (22, 19), (19, 24), (13, 24), (10, 19), (11, 15)]) | c.circle(16, 19.5, 5.6)
+    mark(c, drop, Ramp(['#3A0508', '#6E0C12', '#A8161E', '#D83A3A', '#FF8A7A'], '#1A0204'), base=3, mode='sphere')
+    for (x0, y0, x1, y1) in ((12, 11, 10, 5), (20, 11, 22, 5), (16, 9, 16, 3)):
+        c.put(c.seg(x0, y0, x1, y1, 1.1) & c.circle(16, 16, 12.8), mk, 'flat', base=4)
+    c.put(c.rect(14, 16, 14, 17), '#FFE0D8', 'flat')
+    return done(c, '#FF5A4A')
+
+
 def glimpse_of_heaven():
     c, mk, d = emblem('heaven')
     for k in range(8):
@@ -635,7 +646,7 @@ TECHS = [
     ('stone_skin', stone_skin), ('gale_step', gale_step), ('mountain_shaker', mountain_shaker),
     ('ember_burst', ember_burst), ('still_water_focus', still_water_focus), ('shadowstep_cut', shadowstep_cut),
     ('cloud_descent', cloud_descent), ('mirror_mind_spike', mirror_mind_spike),
-    ('soul_lantern_ward', soul_lantern_ward), ('glimpse_of_heaven', glimpse_of_heaven),
+    ('soul_lantern_ward', soul_lantern_ward), ('glimpse_of_heaven', glimpse_of_heaven), ('blood_burning', blood_burning),
     ('dodge_dash', dodge_dash), ('appraisal_eye', appraisal_eye), ('breath_control', breath_control),
     ('wall_step', wall_step), ('concealment', concealment),
     ('plunge', plunge), ('falling_leaf_glide', falling_leaf_glide), ('swallow_dart', swallow_dart),

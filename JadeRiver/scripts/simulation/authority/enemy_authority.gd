@@ -239,11 +239,24 @@ func _check_phases(e: EnemyState) -> void:
 					enemy_attack_release(e, {"summon": "mudwater_bandit"})
 				"summon":
 					enemy_attack_release(e, {"summon": _phase_summon(e, ph), "summon_level": int(ph.get("summon_level", -1))})
+				"self_detonate":
+					# S48: a telegraphed nascent-soul self-detonation. Get out of the ring before it bursts.
+					e.ai.state = "detonating"
+					e.invulnerable = true
+					e.ai.timer = float(ph.get("windup", 3.0))
+					e.ai.detonation = {"radius": float(ph.get("radius", 280)), "damage": float(ph.get("damage", 0.6))}
+					emit("attack_started", {"actor": str(e.uid), "enemy": true, "attack": "soul_detonation", "windup": float(ph.get("windup", 3.0)),
+						"facing": e.facing, "radius": float(ph.get("radius", 280))})
 				"enrage":
 					# The last stand: shorter pauses between attacks and harder blows.
 					e.ai.enraged = {"cd": float(ph.get("cooldown", 0.7)), "damage": float(ph.get("damage", 1.25))}
 					if ph.has("summon"): enemy_attack_release(e, {"summon": str(ph.summon)})
 			emit("boss_phase", {"enemy": e.uid, "phase": i + 1, "action": str(ph.get("action", ""))})
+
+## The nascent soul bursts: everyone in the ring takes a share of max HP (guarding halves it, a dodge slips it) and
+## the boss is gone; the fight is won, the loot still falls.
+func boss_detonate(e: EnemyState) -> void:
+	game.combat.resolve_boss_detonation(e)
 
 ## Who a summoning phase calls: the phase's own "summon", else the boss's summoning attack.
 func _phase_summon(e: EnemyState, ph: Dictionary) -> String:

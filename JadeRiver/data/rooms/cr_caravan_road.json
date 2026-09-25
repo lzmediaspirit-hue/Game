@@ -587,6 +587,22 @@
  "areas": [],
  "music": "field",
  "ambience": "",
+ "ambush": {
+  "enemy": "mudwater_bandit",
+  "count": 2,
+  "level": [
+   17,
+   19
+  ],
+  "requires": {
+   "all": [
+    {
+     "kind": "quest_done",
+     "quest": "mudwater_hideout"
+    }
+   ]
+  }
+ },
  "climbables": [
   {
    "id": "cliff_ledge_ladder",

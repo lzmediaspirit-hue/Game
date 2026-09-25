@@ -1590,6 +1590,27 @@
    "toast": false
   },
   {
+   "id": "vows",
+   "label": "Vows",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "codex",
+     "entry": "vows"
+    }
+   ],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
    "id": "dual_loadout",
    "label": "Weapon swap",
    "trigger": {

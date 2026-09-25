@@ -305,6 +305,36 @@
     "progression_authority"
    ]
   },
+  "vow_taken": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "vow_broken": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "false_realm_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "epiphany": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "soul_escaped": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
   "attack_started": {
    "system": "Combat",
    "files": [
@@ -420,6 +450,12 @@
     "combat_authority"
    ]
   },
+  "killing_intent_changed": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
   "loot_dropped": {
    "system": "World",
    "files": [
@@ -489,6 +525,12 @@
    ]
   },
   "hazard_struck": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "ambush_sprung": {
    "system": "World",
    "files": [
     "world_authority"

@@ -641,6 +641,20 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.art) != "": add_log(Tx.t("hud.inner_art_worn") % ContentDB.name_of("inner_arts", str(p.art)), UiKit.PALE_GOLD)
 		"stance_changed":
 			add_log(Tx.t("hud.stance_on") % ContentDB.name_of("stances", str(p.stance)) if str(p.stance) != "" else Tx.t("hud.stance_off"), UiKit.PALE_GOLD)
+		"vow_taken":
+			add_log(Tx.t("hud.vow_taken") % ContentDB.name_of("vows", str(p.vow)), UiKit.PALE_GOLD)
+		"vow_broken":
+			toast(Tx.t("hud.vow_broken") % ContentDB.name_of("vows", str(p.vow)), "danger")
+		"false_realm_changed":
+			add_log(Tx.t("hud.false_realm") % ContentDB.realm_label(str(p.realm)) if str(p.realm) != "" else Tx.t("hud.true_realm"), UiKit.MIST)
+		"epiphany":
+			toast(Tx.t("hud.epiphany"), "gold", Tx.t("hud.epiphany_mastery") % ContentDB.name_of("techniques", str(p.technique)) if str(p.get("technique", "")) != "" else Tx.t("hud.epiphany_sub"))
+		"boss_phase":
+			if str(p.get("action", "")) == "self_detonate": toast(Tx.t("hud.self_detonate"), "danger", Tx.t("hud.self_detonate_sub"))
+		"soul_escaped":
+			toast(Tx.t("hud.soul_escaped_death"), "danger")
+		"killing_intent_changed":
+			if int(p.stacks) >= int(ContentDB.stat_const("killing_intent", {}).get("max", 10)): add_log(Tx.t("hud.killing_intent_full"), Color("e07a7a"))
 		"combo_landed":
 			add_log(Tx.t("hud.combo") % [ContentDB.name_of("techniques", str(p.first)), ContentDB.name_of("techniques", str(p.second))], UiKit.GOLD)
 		# Gap report G2: treasures and talismans.
@@ -660,6 +674,8 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.teleport_stone_attuned"), "gold")
 		"hidden_portal_revealed":
 			toast(Tx.t("hud.a_hidden_path_opens"), "gold")
+		"ambush_sprung":
+			toast(Tx.t("hud.ambush"), "danger", Tx.t("hud.ambush_concealed") if p.get("concealed", false) else Tx.t("hud.ambush_sub"))
 		"meridian_gate_opened":
 			toast(Tx.t("hud.meridian_gate_opened") % str(p.get("channel", "")).replace("_", " ").capitalize(), "gold")
 		"stability_changed":
@@ -857,7 +873,11 @@ func _draw_player_panel(c) -> void:
 	UiKit.draw_text(self, c.name.substr(0, 1).to_upper(), r.position + Vector2(32, 66), 36, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true, true)
 	UiKit.draw_text(self, c.name, r.position + Vector2(90, 30), 18, UiKit.PAPER)
 	if shown("realm_badge"):
-		UiKit.draw_text(self, ContentDB.realm_label(c.cultivator.realm_key), r.position + Vector2(90, 50), 15, UiKit.PALE_GOLD)
+		# Concealment's false realm (S48) is the badge the world sees; a veil mark says it is not the true one.
+		var badge := ContentDB.realm_label(Game.progression.shown_realm(c))
+		var veiled: bool = c.cultivator.false_realm != ""
+		UiKit.draw_text(self, badge, r.position + Vector2(90, 50), 15, UiKit.MIST if veiled else UiKit.PALE_GOLD)
+		if veiled: UiKit.draw_text(self, Tx.t("hud.realm_veiled"), r.position + Vector2(96 + UiKit.text_width(badge, 15), 50), 13, UiKit.MIST)
 	var y := 60.0
 	if shown("hp_bar"):
 		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 12), c.pools.hp / maxf(1.0, c.pools.max_hp), Color("c2474f"), Tx.t("hud.hp"), "%d/%d" % [int(c.pools.hp), int(c.pools.max_hp)])
@@ -876,6 +896,7 @@ func _draw_player_panel(c) -> void:
 	if c.cultivator.toxicity > 0.5 * c.stats.value("toxicity_tolerance") and c.cultivator.toxicity > 5: icons.append("toxicity")
 	if c.pools.hollowing > 5: icons.append("hollowing")
 	if ProgressionRules.heart_demon_steps(c.cultivator) >= 1: icons.append("heart_demon")   # S48: 25 and more
+	if Game.combat.killing_intent_stacks(c.id) >= 5: icons.append("buff_attack")               # S48 Killing Intent
 	if Unlocks.is_unlocked(c.id, "composure") and c.pools.composure < 100: icons.append("composure")
 	for s in c.pools.statuses:
 		if s.id != "spawn_protection": icons.append(str(ContentDB.entry("status_effects", str(s.id)).get("icon", s.id)))

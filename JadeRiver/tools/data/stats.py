@@ -28,6 +28,8 @@ STAT_LIST = [
     ("knockback_resistance", "defense", 0.9, "percent"), ("flight_qi", "movement", 0.5, "percent"),
     # S48 Inner Arts: the dodge cooldown moves by this share (Swallow's Breath).
     ("dodge_cooldown", "movement", 0.5, "percent"),
+    # S48 vows: healing received moves by this share (Mercy).
+    ("healing_received", "recovery", 1.0, "percent"),
 ]
 
 
@@ -134,6 +136,19 @@ def build():
         # Cleansing is one more point, floor 4. The Heavenly Flame Pill counts within an hour of taking it.
         "core_forging": {"start": 9, "chance": 0.8, "floor": 5, "flawless_floor": 4, "pill": "heavenly_flame_pill", "pill_window_s": 3600,
                          "yin_times": ["evening", "night"], "yang_times": ["morning", "day"]},
+        # S48 epiphany: a rare flash while insight comes in (Contemplate or varied combat): 0.2% a tick, weighted by
+        # Insight; 60 s at five times the insight, a chance of a free mastery step, then 2 hours of play before another.
+        "epiphany": {"chance": 0.002, "insight_weight": 0.01, "buff_s": 60, "insight_mult": 5.0, "mastery_chance": 0.25, "cooldown_s": 7200,
+                     "contexts": ["contemplate", "insight_stone", "tech", "kill"]},
+        # S48 Killing Intent: +1 a kill within 10 s of the last, up to 10, +1% crit each; at 10, weaker foes nearby hesitate.
+        "killing_intent": {"window_s": 10.0, "max": 10, "crit_per_stack": 0.01, "hesitate_s": 0.5, "radius": 520},
+        # S48 nascent-soul escape: from Sage a grave wound costs 5% of the stage instead of 10%.
+        "soul_escape": {"from": "sage_1", "progress_loss": 0.05},
+        # S48 false realm: Concealment can show a realm up to two great realms lower.
+        "false_realm": {"max_steps": 2},
+        # Bandit ambushes on the roads (S48): the chance per entry, x2 while a false realm shows, never past `reach`
+        # levels above the gang, and a cooldown between them.
+        "ambush": {"chance": 0.06, "concealed_mult": 2.0, "reach": 8, "cooldown_s": 900, "offset": 360},
         # S48 technique grades: the base multiplier's bonus by grade.
         "technique_grades": {"common": 0.0, "earth": 0.10, "heaven": 0.20},
         "qi_deviation": {"duration_s": 600, "elements": ["water", "wood", "fire", "earth", "metal"]},
