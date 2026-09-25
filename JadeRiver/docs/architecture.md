@@ -10,7 +10,7 @@ learns about changes by listening to *events*. The same structure is what a futu
 |---|---|---|---|
 | Data | `data/*.json`, `data/rooms/`, `data/dialogue/`, `data/strings/` | Every number, name, room, quest, recipe, loot table | Read-only after boot; built by `tools/data/`; loaded by `ContentDB` |
 | State | `scripts/simulation/state/` | `GameCharacter`, `CultivatorState`, `InventoryState`, `QuestState`, `ResourcePool`, `StatBlock`, `AccountState`, `EnemyState`, `RoomRuntime` | Plain objects with stable IDs and primitives; no Nodes, scene paths or Callables; snapshot/restore to the v3 save |
-| Rules | `scripts/simulation/rules/`, `scripts/core/requirement_rules.gd` | `StatRules`, `CombatRules`, `ProgressionRules`, `LootRules`, `RequirementRules` | Pure functions of state and data; randomness only through an `Rng` stream passed in |
+| Rules | `scripts/simulation/rules/`, `scripts/core/requirement_rules.gd` | `StatRules`, `CombatRules`, `ProgressionRules`, `LootRules`, `HazardRules`, `RequirementRules` | Pure functions of state and data; randomness only through an `Rng` stream passed in |
 | Authorities | `scripts/simulation/authority/` | One per system (below) | The only writers of their state; validate intents; emit events |
 | Presentation | `scripts/*.gd`, `scripts/presentation/`, `scripts/ui/`, `scripts/shell/` | World scene, views, HUD, pages, shell screens, audio | Draw state and send intents; never change HP, items, progress, currencies or unlocks |
 
@@ -116,6 +116,8 @@ and every shortcut is labelled in the code.
 `LocalAuthority` owns command ordering and movement execution. It rejects duplicate/stale sequences, nonfinite vectors and durations, and invalid movement parameters. Positions and speed are not supplied in client movement intent. The local caller supplies elapsed time and server-owned speed. It supports validated trusted snapshot correction and deterministic replay on the same runtime. This is a local authority adapter, not a network-security claim or a cross-platform bit-identical physics guarantee.
 
 `player.gd` owns local input sampling, sprint/action timers, and animation. Its position properties delegate to ActorState. `world.gd` builds scenery depth, renderer-independent outline occlusion, camera, projectile effects, and save checkpoints. `wardrobe.gd` remains the local appearance/catalog/save adapter. `hud.gd` only routes controls and draws the requested interface.
+
+Room hazards (S17) are World state. `RoomRuntime.hazards` runs each hazard's cycle (tell, warning, active, cooldown) from `data/hazards.json`; the World authority lands strikes, statuses and Hollowing through Combat, and computes the push of gusts and currents as `hazard_drift`. `player.gd` adds that drift to the walking vector it hands `LocalAuthority.move`, so the push is decided by the authority, never by input. `HazardView` draws the phases from state.
 
 Static object definitions are data, not scene-node collision bodies. The same footprint contract is used by local movement and trusted snapshot validation, which is necessary before moving the solver to a server. Occlusion is presentation-only. A future remote-actor view must evaluate the same volumes per replicated actor; outline state must never affect authoritative simulation.
 

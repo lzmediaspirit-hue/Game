@@ -94,6 +94,10 @@
    "file": "res://art/audio/sfx/breakthrough.wav",
    "volume_db": -4
   },
+  "charge": {
+   "file": "res://art/audio/sfx/charge.wav",
+   "volume_db": -4
+  },
   "coin": {
    "file": "res://art/audio/sfx/coin.wav",
    "volume_db": -4
@@ -130,8 +134,20 @@
    "file": "res://art/audio/sfx/forge.wav",
    "volume_db": -4
   },
+  "frost": {
+   "file": "res://art/audio/sfx/frost.wav",
+   "volume_db": -4
+  },
   "gather": {
    "file": "res://art/audio/sfx/gather.wav",
+   "volume_db": -4
+  },
+  "gust": {
+   "file": "res://art/audio/sfx/gust.wav",
+   "volume_db": -4
+  },
+  "hiss": {
+   "file": "res://art/audio/sfx/hiss.wav",
    "volume_db": -4
   },
   "hit": {
@@ -190,6 +206,18 @@
    "file": "res://art/audio/sfx/quest_complete.wav",
    "volume_db": -4
   },
+  "rockfall": {
+   "file": "res://art/audio/sfx/rockfall.wav",
+   "volume_db": -4
+  },
+  "rumble": {
+   "file": "res://art/audio/sfx/rumble.wav",
+   "volume_db": -4
+  },
+  "surge": {
+   "file": "res://art/audio/sfx/surge.wav",
+   "volume_db": -4
+  },
   "swing": {
    "file": "res://art/audio/sfx/swing.wav",
    "volume_db": -4
@@ -200,6 +228,10 @@
   },
   "tell": {
    "file": "res://art/audio/sfx/tell.wav",
+   "volume_db": -4
+  },
+  "thunder": {
+   "file": "res://art/audio/sfx/thunder.wav",
    "volume_db": -4
   },
   "ui_close": {

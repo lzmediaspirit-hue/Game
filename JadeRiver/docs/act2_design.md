@@ -106,6 +106,6 @@ at about 63 h and Sage Sovereign 1 at about 104 h, inside ±15%).
 - **Clans (Sage 2).** Ironroot Clan Hold (Hold Gate, Clan Hearth, Ancestor Hall): an adoption quest
   ("Ironroot Blood") makes you a clan member with a clan shop and a small body-growth bonus.
 - **Gale Canyons (73–78, Storm Ward 40).** Canyon Mouth, Kite Winds, Harpy Roosts, Windbridge; Wind Kite
-  and Canyon Harpy; wind-gust hazards on the bridges.
+  and Canyon Harpy; wind gusts in every canyon room (the S17 hazard system, built after phase C).
 - **Chapter 13:** Nine Seats · Ironroot Blood · The Canyon Toll.
 

@@ -12,7 +12,9 @@
  "recommended_cp": 272,
  "element": "none",
  "qi_density": 1.0,
- "hazards": [],
+ "hazards": [
+  "poison_mist"
+ ],
  "gather_tier": "",
  "idle": [],
  "safe": false,
@@ -345,9 +347,61 @@
    ],
    "layer": "front",
    "flip": true
+  },
+  {
+   "prop": "gas_vent",
+   "at": [
+    700,
+    800
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "gas_vent",
+   "at": [
+    1350,
+    900
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "gas_vent",
+   "at": [
+    1950,
+    770
+   ],
+   "layer": "play"
   }
  ],
- "areas": [],
+ "areas": [
+  {
+   "kind": "poison_mist",
+   "rect": [
+    610,
+    760,
+    180,
+    64
+   ]
+  },
+  {
+   "kind": "poison_mist",
+   "rect": [
+    1260,
+    860,
+    180,
+    64
+   ]
+  },
+  {
+   "kind": "poison_mist",
+   "rect": [
+    1860,
+    730,
+    180,
+    64
+   ]
+  }
+ ],
  "music": "dungeon",
  "ambience": "",
  "dungeon_exit": "cr_caravan_road"

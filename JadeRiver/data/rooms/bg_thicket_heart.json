@@ -12,7 +12,9 @@
  "recommended_cp": 236,
  "element": "wood",
  "qi_density": 1.0,
- "hazards": [],
+ "hazards": [
+  "thorns"
+ ],
  "gather_tier": "valley_mid",
  "idle": [
   "hunt",
@@ -390,9 +392,78 @@
     700
    ],
    "layer": "play"
+  },
+  {
+   "prop": "thorn_thicket",
+   "at": [
+    760,
+    780
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "thorn_thicket",
+   "at": [
+    1250,
+    900
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "thorn_thicket",
+   "at": [
+    1900,
+    760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "thorn_thicket",
+   "at": [
+    2300,
+    880
+   ],
+   "layer": "play"
   }
  ],
- "areas": [],
+ "areas": [
+  {
+   "kind": "thorns",
+   "rect": [
+    698,
+    754,
+    124,
+    34
+   ]
+  },
+  {
+   "kind": "thorns",
+   "rect": [
+    1188,
+    874,
+    124,
+    34
+   ]
+  },
+  {
+   "kind": "thorns",
+   "rect": [
+    1838,
+    734,
+    124,
+    34
+   ]
+  },
+  {
+   "kind": "thorns",
+   "rect": [
+    2238,
+    854,
+    124,
+    34
+   ]
+  }
+ ],
  "music": "bamboo",
  "ambience": "bamboo_ambience"
 }

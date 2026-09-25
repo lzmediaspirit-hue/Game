@@ -310,6 +310,18 @@
     "world_authority"
    ]
   },
+  "hazard_warned": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "hazard_struck": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
   "enemy_aggro": {
    "system": "Enemies",
    "files": [

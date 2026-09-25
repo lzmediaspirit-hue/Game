@@ -613,6 +613,77 @@ def hollow_puddle(state, f):
     return cv
 
 
+THORN = ramp("#1e0e10", "#3a1a1a", "#5a2a24", "#7c3e2e", "#9e5a3e", "#c2835e")
+
+
+@prop("thorn_thicket", 64, 34, ground=2)
+def thorn_thicket(state, f):
+    """A low dome of old thorn canes (the Thicket Heart hazard): arching red-brown canes, darker ones
+    behind, set with pale hooked thorns, and dark leaves low in the tangle."""
+    W, H = 64, 34
+    cv = Canvas(W, H)
+    g = rng("thorn_thicket")
+    gy = 31
+    ground_shadow(cv, 32, gy, 30, 1.6)
+    canes = []
+    for i in range(15):
+        x0 = 6 + i * 3.7 + g.uniform(-1.5, 1.5)
+        dome = 1.0 - abs(x0 - 32) / 34.0
+        top = gy - 9 - 17 * dome - g.uniform(0, 3)
+        side = 1 if (i % 2 == 0) == (x0 < 32) else -1
+        tip = (min(W - 3, max(2, x0 + side * g.uniform(9, 15))), gy - 2 - g.uniform(0, 7))
+        mid = ((x0 + tip[0]) / 2 - side * 2, top)
+        canes.append(([(x0, gy - 1), mid, tip], i % 3 == 1))
+    for pts, back in sorted(canes, key=lambda c: not c[1]):
+        m = m_curve(W, H, pts)
+        cv.fill(m, THORN[1] if back else THORN[3])
+        if not back:
+            cv.fill(m & top_edge(m | (cv.a > 0.5)), THORN[4])
+    for (x, y, dx) in ((13, 27, -1), (21, 24, 1), (29, 27, -1), (38, 24, 1), (46, 27, 1), (53, 28, -1)):
+        leaf(cv, x, y, dx, -0.7, 4, pal=LEAF, width=1.2)
+    # thorns: one pale hook with a dark base, a few along each front cane
+    for k, (pts, back) in enumerate(canes):
+        if back:
+            continue
+        (ax, ay), (bx, by), (cx_, cy_) = pts
+        for j, t in enumerate((0.3, 0.55, 0.8)):
+            x = (1 - t) ** 2 * ax + 2 * (1 - t) * t * bx + t * t * cx_
+            y = (1 - t) ** 2 * ay + 2 * (1 - t) * t * by + t * t * cy_
+            if (j + k) % 2:
+                continue
+            side = -1 if k % 2 else 1
+            cv.put(int(round(x)) + side, int(round(y)) - 1, BONE[4])
+            cv.put(int(round(x)) + 2 * side, int(round(y)) - 2, BONE[2])
+    outline(cv)
+    return cv
+
+
+@prop("gas_vent", 40, 16, states=(("idle", 3, 4),), ground=1, decal=True)
+def gas_vent(state, f):
+    """A crack in the tunnel floor that breathes marsh gas: a ring of heaved stone, a black mouth and a
+    sickly yellow-green stain that glistens."""
+    W, H = 40, 16
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    stain = blob_mask(W, H, 20, 9, 18, 5.5, "gasv", 0.2)
+    cv.fill(stain, hexc("#6f7a2c"), 0.55)
+    cv.fill(erode(stain) & (vnoise(W, H, 3, seed_of("gasv_n"), 2) > 0.5), hexc("#9aa83e"), 0.5)
+    lip = m_ellipse(W, H, 20, 8, 9, 3.6)
+    shade(cv, lip, STONE_WARM, R=1, base=0.55, gain=1.0)
+    mouth = m_ellipse(W, H, 20, 8.5, 5.5, 1.8)
+    cv.fill(mouth, hexc("#0e1108"))
+    cv.fill(top_edge(lip), STONE_WARM[5])
+    for (x0, y0, x1, y1) in ((11, 9, 8, 10), (29, 8, 32, 7), (18, 12, 17, 13), (24, 12, 26, 13)):
+        cv.fill(m_line(W, H, [(x0, y0), (x1, y1)]) & stain & ~lip, hexc("#4a4a26"))
+    # the glisten wanders around the stain
+    for k in range(3):
+        x = 8 + ((f * 7 + k * 9) % 24)
+        cv.put(x, 10 + (k % 2), hexc("#d8e27a"), 0.8)
+    cv.put(20 + (f - 1) * 2, 8, hexc("#c7d66a"), 0.9)
+    outline(cv, t=0.55)
+    return cv
+
+
 @prop("fishing_ripple", 40, 10, states=(("idle", 4, 6),), ground=0, decal=True)
 def fishing_ripple(state, f):
     W, H = 40, 10

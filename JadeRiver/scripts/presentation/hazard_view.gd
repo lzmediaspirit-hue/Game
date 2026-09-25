@@ -1,0 +1,430 @@
+class_name HazardView
+extends Node2D
+## S17 · The room's hazards, drawn from RoomRuntime state in their Part 9 states: a quiet tell,
+## a warning (a broken amber border and a "!" mark, so it reads without colour), the active
+## blow and the cooldown. Presentation only: nothing here changes game state.
+
+const AMBER := Color("e8a33c")
+const DUST := Color("b39a78")
+const GRIT := Color("8a6f52")
+const ROCK := [Color("3a3530"), Color("6b6159"), Color("958a7c"), Color("c2b6a3")]
+const BOLT := Color("f4f7ff")
+const GLOW := Color("8fd6ff")
+const SNOW := Color("eef4fa")
+const FROST := Color("bcd8ee")
+const HOLLOW_GREY := Color("a3aab0")
+const GAS := Color("b7c95a")
+
+var world
+var ground := Node2D.new()   # on the ground, under everyone standing in it
+var air := Node2D.new()      # over the room
+var t := 0.0
+var impacts: Array = []      # {kind, pos, t, dur}: dust, rubble and scorch left behind
+var last_phase: Dictionary = {}
+
+func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	ground.z_as_relative = false
+	ground.z_index = -1850
+	air.z_as_relative = false
+	air.z_index = 3900
+	add_child(ground)
+	add_child(air)
+	ground.draw.connect(_draw_ground)
+	air.draw.connect(_draw_air)
+
+func _process(delta: float) -> void:
+	t += delta
+	var rt: RoomRuntime = Game.room_rt
+	if rt == null: return
+	for hid in rt.hazards:
+		var hs: Dictionary = rt.hazards[hid]
+		if str(last_phase.get(hid, "")) != str(hs.phase):
+			var was := str(last_phase.get(hid, ""))
+			last_phase[hid] = str(hs.phase)
+			_on_phase(str(hid), hs, was)
+	for i in range(impacts.size() - 1, -1, -1):
+		impacts[i].t = float(impacts[i].t) + delta
+		if float(impacts[i].t) >= float(impacts[i].dur): impacts.remove_at(i)
+	ground.queue_redraw()
+	air.queue_redraw()
+
+## Sounds and after-effects at the moment a hazard turns.
+func _on_phase(hid: String, hs: Dictionary, was: String) -> void:
+	var h := ContentDB.entry("hazards", hid)
+	var phase := str(hs.phase)
+	if phase == "active" and was != "active":
+		match hid:
+			"wind_gust": Audio.play("gust")
+			"current": Audio.play("surge")
+			"fog": pass
+			"cold": Audio.play("frost")
+			"poison_mist": Audio.play("hiss")
+	if str(h.get("kind", "")) == "strike" and phase == "cooldown" and was == "active":
+		for sp in hs.spots:
+			var at := Vector2(float(sp[0]), float(sp[1]) - float(sp[2]))
+			if hid == "falling_rocks":
+				impacts.append({"kind": "dust", "pos": at, "t": 0.0, "dur": 0.7})
+				impacts.append({"kind": "rubble", "pos": at, "t": 0.0, "dur": 2.6})
+				Audio.play("rockfall")
+			else:
+				impacts.append({"kind": "scorch", "pos": at, "t": 0.0, "dur": 3.0})
+				Audio.play("thunder")
+		if world and _near_player(hs.spots, 260.0): world.shake = maxf(world.shake, 0.2)
+
+func _near_player(spots: Array, r: float) -> bool:
+	if world == null or world.player == null: return false
+	for sp in spots:
+		if world.player.plane.distance_to(Vector2(float(sp[0]), float(sp[1]))) <= r: return true
+	return false
+
+# ------------------------------------------------------------------ helpers
+func _view() -> Rect2:
+	var c: Vector2 = world.camera.get_screen_center_position() if world and world.camera else Vector2(640, 600)
+	return Rect2(c - Vector2(640, 360), Vector2(1280, 720))
+
+static func _h(i: int, salt: int) -> float:
+	return fposmod(sin(float(i) * 12.9898 + float(salt) * 78.233) * 43758.5453, 1.0)
+
+static func _px(ci: CanvasItem, p: Vector2, s: float, c: Color) -> void:
+	ci.draw_rect(Rect2(p.snapped(Vector2(2, 2)), Vector2(s, s)), c)
+
+static func _ellipse(ci: CanvasItem, center: Vector2, rx: float, ry: float, c: Color) -> void:
+	ci.draw_set_transform(center, 0.0, Vector2(1.0, ry / maxf(1.0, rx)))
+	ci.draw_circle(Vector2.ZERO, rx, c)
+	ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+## A broken border: the hostile-area pattern (Part 9) that reads without colour.
+static func _dashed(ci: CanvasItem, center: Vector2, rx: float, ry: float, c: Color, spin := 0.0, dashes := 14, width := 2.0, ink := false) -> void:
+	for i in dashes:
+		var a0 := spin + TAU * i / dashes
+		var a1 := a0 + TAU / dashes * 0.55
+		var pts := PackedVector2Array()
+		for k in 5:
+			var a := lerpf(a0, a1, k / 4.0)
+			pts.append((center + Vector2(cos(a) * rx, sin(a) * ry)).snapped(Vector2(2, 2)))
+		if ink: ci.draw_polyline(pts, Color(UiKit.INK, c.a * 0.7), width + 3.0)
+		ci.draw_polyline(pts, c, width)
+
+## The warning mark: an amber diamond with "!".
+static func _mark(ci: CanvasItem, p: Vector2, a: float) -> void:
+	p = p.snapped(Vector2(2, 2))
+	var d := PackedVector2Array([p + Vector2(0, -13), p + Vector2(13, 0), p + Vector2(0, 13), p + Vector2(-13, 0)])
+	ci.draw_colored_polygon(PackedVector2Array([d[0] + Vector2(0, -2), d[1] + Vector2(2, 0), d[2] + Vector2(0, 2), d[3] + Vector2(-2, 0)]), Color(UiKit.INK, a))
+	ci.draw_colored_polygon(d, Color(AMBER, a))
+	ci.draw_rect(Rect2(p + Vector2(-2, -8), Vector2(4, 10)), Color(UiKit.INK, a))
+	ci.draw_rect(Rect2(p + Vector2(-2, 4), Vector2(4, 4)), Color(UiKit.INK, a))
+
+static func _chevrons(ci: CanvasItem, p: Vector2, dir: int, a: float) -> void:
+	for k in 3:
+		var x := p.x + dir * k * 14.0
+		var pts := PackedVector2Array([Vector2(x - dir * 6, p.y - 10), Vector2(x + dir * 4, p.y), Vector2(x - dir * 6, p.y + 10)])
+		ci.draw_polyline(pts, Color(UiKit.INK, a * 0.8), 6.0)
+		ci.draw_polyline(pts, Color(AMBER, a), 3.0)
+
+static func _phase_k(hs: Dictionary) -> float:
+	return clampf(float(hs.t) / maxf(0.001, float(hs.dur)), 0.0, 1.0)
+
+func _player_pos() -> Vector2:
+	return world.player.position if world and world.player else Vector2.ZERO
+
+# ------------------------------------------------------------------ ground layer
+func _draw_ground() -> void:
+	var rt: RoomRuntime = Game.room_rt
+	if rt == null: return
+	for im in impacts:
+		var k := float(im.t) / float(im.dur)
+		match str(im.kind):
+			"rubble":
+				for i in 7:
+					_px(ground, im.pos + Vector2((_h(i, 3) - 0.5) * 70, (_h(i, 4) - 0.5) * 22), 4 + 2 * int(_h(i, 5) * 2), Color(ROCK[1 + i % 3], 1.0 - k))
+			"scorch":
+				_ellipse(ground, im.pos, 34, 12, Color(0.08, 0.06, 0.05, 0.55 * (1.0 - k)))
+				for i in 5:
+					if _h(i + int(t * 6), 7) < 0.5: _px(ground, im.pos + Vector2((_h(i, 8) - 0.5) * 50, (_h(i, 9) - 0.5) * 14), 2, Color(AMBER, 1.0 - k))
+	for hid in rt.hazards:
+		var h := ContentDB.entry("hazards", str(hid))
+		var hs: Dictionary = rt.hazards[hid]
+		match str(h.get("kind", "")):
+			"strike": _ground_strike(str(hid), h, hs)
+			"flow": _ground_flow(rt, h, hs)
+			"pool": _ground_pool(rt, str(hid), h, hs)
+			"aura": _ground_aura(rt, str(hid), h, hs)
+
+func _ground_strike(hid: String, h: Dictionary, hs: Dictionary) -> void:
+	var r := float(h.get("radius", 60))
+	var k := _phase_k(hs)
+	for sp in hs.spots:
+		var at := Vector2(float(sp[0]), float(sp[1]) - float(sp[2]))
+		match str(hs.phase):
+			"tell":
+				if hid == "falling_rocks": _ellipse(ground, at, r * 0.5, r * 0.2, Color(0, 0, 0, 0.12 * k))
+			"warn":
+				var pulse := 0.65 + 0.35 * sin(t * 14.0)
+				_ellipse(ground, at, r * (0.45 + 0.55 * k), r * 0.42 * (0.45 + 0.55 * k), Color(0.05, 0.03, 0.02, 0.18 + 0.2 * k))
+				_dashed(ground, at, r, r * 0.42, Color(AMBER, pulse), t * (2.0 if hid == "falling_rocks" else -3.0), 14, 3.0, true)
+				if hid == "lightning":
+					for i in 6:
+						if _h(i + int(t * 20), 11) < 0.4:
+							_px(ground, at + Vector2((_h(i, 12) - 0.5) * r * 1.6, (_h(i, 13) - 0.5) * r * 0.6), 2, GLOW)
+			"active":
+				_ellipse(ground, at, r, r * 0.42, Color(0.05, 0.03, 0.02, 0.4))
+
+func _ground_flow(rt: RoomRuntime, h: Dictionary, hs: Dictionary) -> void:
+	var active: bool = hs.phase == "active"
+	var warn: bool = hs.phase == "warn"
+	var k := _phase_k(hs)
+	for a in HazardRules.areas(h, rt.def):
+		var r := HazardRules.rect(a)
+		var flow := float(a.get("current", -60)) * (float(h.get("surge", 2.0)) if active else 1.0)
+		var n := int(r.size.x / (40.0 if active else 70.0))
+		for i in n:
+			var speed := absf(flow) * (0.8 + 0.4 * _h(i, 21))
+			var x := r.position.x + fposmod(_h(i, 22) * r.size.x + signf(flow) * t * speed, r.size.x)
+			var y := r.position.y + 6 + _h(i, 23) * (r.size.y - 12)
+			var ln := (10.0 + 14.0 * _h(i, 24)) * (1.6 if active else 1.0)
+			ground.draw_rect(Rect2(Vector2(x, y).snapped(Vector2(2, 2)), Vector2(ln, 2)), Color(SNOW, 0.55 if active else 0.3))
+		if active or warn:
+			# Whitecaps along the surge.
+			for i in int(r.size.x / 120.0):
+				var cx := r.position.x + fposmod(_h(i, 25) * r.size.x + signf(flow) * t * absf(flow), r.size.x)
+				var cy := r.position.y + 10 + _h(i, 26) * (r.size.y - 20)
+				var s := 4.0 + 4.0 * (k if warn else 1.0)
+				_px(ground, Vector2(cx, cy), s, Color(SNOW, 0.8))
+				_px(ground, Vector2(cx + s, cy + 2), s * 0.5, Color(SNOW, 0.6))
+		if warn:
+			var up := r.end.x - 30 if flow < 0 else r.position.x + 30
+			_chevrons(ground, Vector2(up, r.get_center().y), int(signf(flow)), 0.6 + 0.4 * sin(t * 12.0))
+
+func _ground_pool(rt: RoomRuntime, hid: String, h: Dictionary, hs: Dictionary) -> void:
+	var phase := str(hs.phase)
+	var k := _phase_k(hs)
+	var inside_player := _player_pos()
+	for ai in HazardRules.areas(h, rt.def).size():
+		var a: Dictionary = HazardRules.areas(h, rt.def)[ai]
+		var r := HazardRules.rect(a)
+		var c := r.get_center()
+		match hid:
+			"thorns":
+				# Constant: a faint broken border marks the thicket's reach; torn cane when you push through.
+				_dashed(ground, c, r.size.x * 0.55, r.size.y * 0.6, Color(AMBER, 0.35), 0.0, 12)
+				if r.has_point(Vector2(inside_player.x, inside_player.y)):
+					for i in 4:
+						if _h(i + int(t * 10), 31) < 0.5: _px(ground, inside_player + Vector2((_h(i, 32) - 0.5) * 30, -20 - _h(i, 33) * 40), 2, Color(UiKit.RED, 0.9))
+			"hollow_puddle":
+				for i in 5:
+					if _h(i + int(t * 3), 41 + ai) < 0.5:
+						_px(ground, c + Vector2((_h(i, 42) - 0.5) * r.size.x * 0.8, (_h(i, 43) - 0.5) * r.size.y * 0.6), 2, Color(HOLLOW_GREY, 0.6))
+				if phase == "warn" or phase == "active":
+					_dashed(ground, c, r.size.x * 0.62, r.size.y * 0.75, Color(AMBER, 0.55 + 0.45 * sin(t * 12.0)), t * 1.5, 12, 3.0, true)
+				if phase == "warn":
+					for i in 6:
+						var life := fposmod(t * 1.6 + _h(i, 44), 1.0)
+						var p := c + Vector2((_h(i, 45) - 0.5) * r.size.x * 0.7, (_h(i, 46) - 0.5) * r.size.y * 0.5 - life * 10.0 * (0.5 + k))
+						ground.draw_arc(p.snapped(Vector2(2, 2)), 2.0 + 2.0 * life, 0, TAU, 8, Color(HOLLOW_GREY, 1.0 - life), 2.0)
+				elif phase == "active":
+					for i in 5:
+						var pts := PackedVector2Array()
+						var bx := c.x + (_h(i, 47) - 0.5) * r.size.x * 0.7
+						var tall := 34.0 + 26.0 * _h(i, 48)
+						for s in 8:
+							var f := s / 7.0
+							pts.append(Vector2(bx + sin(t * 5.0 + i + f * 4.0) * 6.0 * f, c.y - f * tall).snapped(Vector2(2, 2)))
+						ground.draw_polyline(pts, Color(HOLLOW_GREY, 0.75 * (1.0 - k * 0.5)), 2.0)
+						ground.draw_polyline(pts, Color(UiKit.SOUL, 0.25), 4.0)
+			"poison_mist":
+				var vent := Vector2(c.x, r.end.y - 14)
+				var puffs: int = int({"tell": 2, "warn": 5, "active": 14, "cooldown": 3}.get(phase, 2))
+				var reach: float = float({"tell": 22.0, "warn": 40.0 + 20.0 * k, "active": 90.0, "cooldown": 60.0 * (1.0 - k)}.get(phase, 20.0))
+				var alpha: float = float({"tell": 0.25, "warn": 0.4, "active": 0.35, "cooldown": 0.3 * (1.0 - k)}.get(phase, 0.2))
+				for i in int(puffs):
+					var life := fposmod(t * 0.5 + _h(i, 51), 1.0)
+					var spread := r.size.x * 0.45 if phase == "active" else 14.0
+					var p := vent + Vector2((_h(i, 52) - 0.5) * 2.0 * spread + sin(t + i) * 6.0, -life * float(reach))
+					var rad := 6.0 + 14.0 * life * (1.6 if phase == "active" else 1.0)
+					ground.draw_circle(p.snapped(Vector2(2, 2)), rad, Color(GAS, float(alpha) * (1.0 - life * 0.6)))
+				if phase == "warn" or phase == "active":
+					_dashed(ground, c, r.size.x * 0.55, r.size.y * 0.6, Color(AMBER, 0.55 + 0.45 * sin(t * 12.0)), -t * 1.5, 12, 3.0, true)
+
+func _ground_aura(rt: RoomRuntime, hid: String, h: Dictionary, hs: Dictionary) -> void:
+	# Cold: shelters show a warm ring while a blast is coming or blowing.
+	if hid != "cold" or not (hs.phase in ["warn", "active"]): return
+	var r := float(ContentDB.stat_const("hazard.shelter_radius", 220))
+	for o in rt.def.get("objects", []):
+		if str(o.get("type", "")) in h.get("shelter", []):
+			var at: Array = o.get("at", [0, 0])
+			_dashed(ground, Vector2(float(at[0]), float(at[1])), r, r * 0.4, Color(UiKit.PALE_GOLD, 0.55), t * 0.6, 20)
+
+# ------------------------------------------------------------------ air layer
+func _draw_air() -> void:
+	var rt: RoomRuntime = Game.room_rt
+	if rt == null: return
+	var view := _view()
+	for im in impacts:
+		if str(im.kind) != "dust": continue
+		var k := float(im.t) / float(im.dur)
+		for i in 6:
+			var ang := TAU * i / 6.0 + 0.4
+			var p: Vector2 = im.pos + Vector2(cos(ang) * 50.0 * k, -absf(sin(ang)) * 24.0 * k - 6.0)
+			air.draw_circle(p.snapped(Vector2(2, 2)), 8.0 + 10.0 * k, Color(DUST, 0.7 * (1.0 - k)))
+	for hid in rt.hazards:
+		var h := ContentDB.entry("hazards", str(hid))
+		var hs: Dictionary = rt.hazards[hid]
+		match str(hid):
+			"falling_rocks": _air_rocks(h, hs)
+			"lightning": _air_lightning(h, hs, view)
+			"wind_gust": _air_gust(rt, hs, view)
+			"fog": _air_fog(rt, h, hs, view)
+			"cold": _air_cold(rt, hs, view)
+		if str(h.get("kind", "")) == "pool" and hs.phase == "warn":
+			for a in HazardRules.areas(h, rt.def):
+				_mark(air, HazardRules.rect(a).get_center() + Vector2(0, -96), 0.7 + 0.3 * sin(t * 12.0))
+
+func _air_rocks(h: Dictionary, hs: Dictionary) -> void:
+	var k := _phase_k(hs)
+	for si in hs.spots.size():
+		var sp: Array = hs.spots[si]
+		var at := Vector2(float(sp[0]), float(sp[1]) - float(sp[2]))
+		match str(hs.phase):
+			"tell":
+				for i in 5:
+					var life := fposmod(t * 1.2 + _h(i, 61 + si), 1.0)
+					_px(air, at + Vector2((_h(i, 62) - 0.5) * 24, -340 + life * 300), 2, Color(GRIT, 0.8 * k))
+			"warn":
+				_rock(at + Vector2(sin(t * 40.0) * 2.0 * k, -330), 1.0)
+				_mark(air, at + Vector2(0, -128), 0.7 + 0.3 * sin(t * 12.0))
+			"active":
+				var f := minf(1.0, k / 0.8)
+				var y := lerpf(-330.0, -18.0, f * f)
+				for j in 4:
+					_px(air, at + Vector2(-10 + j * 6, y - 26 - 14 * j - 10 * _h(j, 63)), 2, Color(DUST, 0.7 - 0.15 * j))
+				_rock(at + Vector2(0, y), 1.0)
+
+## A falling boulder, 1.5 times the size of the shape below: ink rim, lit upper left.
+func _rock(p: Vector2, a: float) -> void:
+	p = p.snapped(Vector2(2, 2))
+	var sc := 1.5
+	var pts := func(arr: Array) -> PackedVector2Array:
+		var out := PackedVector2Array()
+		for q in arr: out.append((p + (q as Vector2) * sc).snapped(Vector2(2, 2)))
+		return out
+	var shape := [Vector2(-14, -4), Vector2(-8, -14), Vector2(6, -16), Vector2(15, -6), Vector2(13, 8), Vector2(2, 14), Vector2(-10, 11), Vector2(-16, 3)]
+	var rim: Array = []
+	for q in shape: rim.append((q as Vector2) * 1.16)
+	air.draw_colored_polygon(pts.call(rim), Color(UiKit.INK, a))
+	air.draw_colored_polygon(pts.call(shape), Color(ROCK[1], a))
+	air.draw_colored_polygon(pts.call([Vector2(-12, -4), Vector2(-7, -12), Vector2(4, -13), Vector2(-2, -3)]), Color(ROCK[2], a))
+	air.draw_colored_polygon(pts.call([Vector2(4, 4), Vector2(13, 6), Vector2(2, 13), Vector2(-6, 9)]), Color(ROCK[0], a))
+	air.draw_rect(Rect2(p + Vector2(-9, -15), Vector2(6, 2)), Color(ROCK[3], a))
+
+func _air_lightning(h: Dictionary, hs: Dictionary, view: Rect2) -> void:
+	var k := _phase_k(hs)
+	match str(hs.phase):
+		"tell":
+			air.draw_rect(view, Color(0.04, 0.06, 0.14, 0.16 * k))
+			if _h(int(t * 7.0), 71) < 0.12: air.draw_rect(Rect2(view.position, Vector2(view.size.x, 140)), Color(GLOW, 0.08))
+		"warn":
+			air.draw_rect(view, Color(0.04, 0.06, 0.14, 0.16))
+			for sp in hs.spots:
+				var at := Vector2(float(sp[0]), float(sp[1]) - float(sp[2]))
+				var y := view.position.y
+				while y < at.y - 20:
+					if _h(int(y) + int(t * 18.0), 72) < 0.5: _px(air, Vector2(at.x + (_h(int(y), 73) - 0.5) * 6, y), 2 + 2 * int(k > 0.5), Color(GLOW, 0.4 + 0.5 * k))
+					y += 12.0
+				_mark(air, at + Vector2(0, -128), 0.7 + 0.3 * sin(t * 14.0))
+		"active":
+			var bright := 0.3 if Game.account.settings.get("flashes", true) else 0.08
+			air.draw_rect(view, Color(1, 1, 1, bright * (1.0 - k)))
+			for sp in hs.spots:
+				var at := Vector2(float(sp[0]), float(sp[1]) - float(sp[2]))
+				var pts := PackedVector2Array()
+				var seed_i := int(at.x) + int(at.y) * 7
+				var steps := 14
+				for i in steps + 1:
+					var f := float(i) / steps
+					var jx := 0.0 if i == 0 or i == steps else (_h(seed_i + i, 74) - 0.5) * 34.0
+					pts.append(Vector2(at.x + jx, lerpf(view.position.y - 20, at.y, f)).snapped(Vector2(2, 2)))
+				air.draw_polyline(pts, Color(GLOW, 0.45), 10.0)
+				air.draw_polyline(pts, BOLT, 4.0)
+				for b in 2:
+					var from: Vector2 = pts[4 + b * 5]
+					var fork := PackedVector2Array([from, from + Vector2((24 + 10 * b) * (1 if b == 0 else -1), 30), from + Vector2((30 + 12 * b) * (1 if b == 0 else -1), 58)])
+					air.draw_polyline(fork, Color(BOLT, 0.8), 2.0)
+				air.draw_circle(at, 26.0 * (1.0 - k) + 6.0, Color(BOLT, 0.6))
+
+func _air_gust(rt: RoomRuntime, hs: Dictionary, view: Rect2) -> void:
+	var k := _phase_k(hs)
+	var dir := float(hs.dir)
+	var phase := str(hs.phase)
+	var count: int = int({"tell": 6, "warn": 16, "active": 44, "cooldown": int(24 * (1.0 - k))}.get(phase, 4))
+	var speed: float = float({"tell": 160.0, "warn": 280.0, "active": 620.0, "cooldown": 300.0}.get(phase, 120.0))
+	var material := str(rt.def.get("ground", {}).get("material", "earth"))
+	var fleck: Color = SNOW if material == "snow" else (DUST if material in ["earth", "sand", "rock"] else Color("7fae5a"))
+	for i in int(count):
+		var sp := float(speed) * (0.7 + 0.6 * _h(i, 81))
+		var x := view.position.x - 60 + fposmod(_h(i, 82) * (view.size.x + 120) + dir * t * sp, view.size.x + 120)
+		var y := view.position.y + 70 + _h(i, 83) * (view.size.y - 150) + sin(t * 3.0 + i) * 8.0
+		if i % 3 == 0:
+			# Wind lines: a pale core over a darker trail, so they read on snow and sand alike.
+			var ln := (22.0 + 40.0 * _h(i, 84)) * (1.6 if phase == "active" else 1.0)
+			var at := Vector2(x - (ln if dir > 0 else 0.0), y).snapped(Vector2(2, 2))
+			air.draw_rect(Rect2(at + Vector2(0, 2), Vector2(ln, 2)), Color(0.18, 0.24, 0.3, 0.3))
+			air.draw_rect(Rect2(at, Vector2(ln, 2)), Color(SNOW, 0.8))
+		else:
+			var sz := 2 + 2 * int(_h(i, 85) * 2)
+			_px(air, Vector2(x, y + 2), sz, Color(0.12, 0.14, 0.16, 0.45))
+			_px(air, Vector2(x, y), sz, Color(fleck, 0.95))
+	if phase == "warn":
+		var edge := view.position.x + 40 if dir > 0 else view.end.x - 40
+		_chevrons(air, Vector2(edge, view.get_center().y - 60), int(dir), 0.6 + 0.4 * sin(t * 12.0))
+
+func _air_fog(rt: RoomRuntime, h: Dictionary, hs: Dictionary, view: Rect2) -> void:
+	var k := _phase_k(hs)
+	var phase := str(hs.phase)
+	var c = Game.active()
+	var seen := HazardRules.effect_scale(c.stats.value(str(h.answer)), float(HazardRules.need(h, rt.def))) if c else 1.0
+	var weight: float = float({"tell": 0.35 * k, "warn": 0.35 + 0.65 * k, "active": 1.0, "cooldown": 1.0 - k}.get(phase, 0.0))
+	var dense := 0.35 + 0.65 * seen   # Spirit sees through: the fog stays thin for those who answer it
+	var p := _player_pos()
+	var n := 10 if phase == "tell" else 26
+	for i in n:
+		var x := view.position.x - 100 + fposmod(_h(i, 91) * (view.size.x + 200) + t * (12.0 + 10.0 * _h(i, 92)), view.size.x + 200)
+		var low: bool = phase == "tell" or i % 3 == 0
+		var y := view.end.y - 90 - _h(i, 93) * 60 if low else view.position.y + 80 + _h(i, 94) * (view.size.y - 160)
+		var at := Vector2(x, y)
+		if phase == "active" and at.distance_to(p + Vector2(0, -50)) < 150.0: continue
+		_ellipse(air, at, 120.0 + 60.0 * _h(i, 95), 44.0 + 20.0 * _h(i, 96), Color(0.9, 0.93, 0.95, 0.15 * float(weight) * dense))
+	if phase == "warn": _mark(air, p + Vector2(36, -150), 0.7 + 0.3 * sin(t * 12.0))
+
+func _air_cold(rt: RoomRuntime, hs: Dictionary, view: Rect2) -> void:
+	var k := _phase_k(hs)
+	var phase := str(hs.phase)
+	var flakes: int = int({"tell": 50, "warn": 80, "active": 130, "cooldown": 40}.get(phase, 30))
+	var slant: float = float({"warn": 60.0, "active": 260.0}.get(phase, 20.0))
+	var fall: float = float({"active": 220.0}.get(phase, 60.0))
+	for i in int(flakes):
+		var x := view.position.x + fposmod(_h(i, 101) * view.size.x + t * float(slant) * (0.7 + 0.6 * _h(i, 102)), view.size.x)
+		var y := view.position.y + fposmod(_h(i, 103) * view.size.y + t * float(fall) * (0.6 + 0.8 * _h(i, 104)), view.size.y)
+		if phase == "active" and i % 2 == 0:
+			air.draw_line(Vector2(x, y + 2), Vector2(x - 14, y - 8), Color(0.3, 0.42, 0.55, 0.35), 2.0)
+			air.draw_line(Vector2(x, y), Vector2(x - 14, y - 10), Color(SNOW, 0.85), 2.0)
+		else:
+			_px(air, Vector2(x, y + 2), 2, Color(0.3, 0.42, 0.55, 0.35))
+			_px(air, Vector2(x, y), 2, Color(SNOW, 0.9))
+	# The blast chills the whole view; frost creeps in from the edges before it and holds while it blows.
+	var chill: float = float({"warn": 0.08 * k, "active": 0.14, "cooldown": 0.14 * (1.0 - k)}.get(phase, 0.0))
+	if chill > 0.0: air.draw_rect(view, Color(0.62, 0.78, 0.95, chill))
+	var frost: float = float({"warn": 0.45 * k, "active": 0.55, "cooldown": 0.55 * (1.0 - k)}.get(phase, 0.0))
+	if float(frost) > 0.0:
+		for side in 4:
+			for i in 16:
+				var f := i / 16.0
+				var depth := 18.0 + 46.0 * _h(i + side * 17, 105) * (0.4 + frost)
+				var r: Rect2
+				match side:
+					0: r = Rect2(view.position.x + f * view.size.x, view.position.y, view.size.x / 16.0 + 2, depth)
+					1: r = Rect2(view.position.x + f * view.size.x, view.end.y - depth, view.size.x / 16.0 + 2, depth)
+					2: r = Rect2(view.position.x, view.position.y + f * view.size.y, depth, view.size.y / 16.0 + 2)
+					_: r = Rect2(view.end.x - depth, view.position.y + f * view.size.y, depth, view.size.y / 16.0 + 2)
+				air.draw_rect(r, Color(FROST, float(frost)))
+	if phase == "warn": _mark(air, _player_pos() + Vector2(36, -150), 0.7 + 0.3 * sin(t * 12.0))

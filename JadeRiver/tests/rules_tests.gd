@@ -7,6 +7,7 @@ extends Node
 ##   Pets:    stage gates need all three conditions, branches, traits, resonance, hunger.
 ##   Weekly:  Sect Service ends on either path and survives the daily reset.
 ##   Saves:   a damaged file is restored from its .bak; the migration stamps the version.
+##   Hazards: the answer a room asks, the cycle, strikes, pushes, pools and shelter (S17).
 ## Run headless:  godot --headless --path . res://tests/rules_tests.tscn
 
 var checks := 0
@@ -32,6 +33,7 @@ func _main() -> void:
 	weekly_suite()
 	pills_suite()
 	treasures_suite()
+	hazards_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -401,6 +403,134 @@ func treasures_suite() -> void:
 	c.crafting.formations[0].until_utc = Clock.now_utc() - 1.0
 	check(near(Game.workshop.formation_effect(c, "enemy_slow"), 0.0), "an unfuelled formation does nothing")
 	c.crafting.formations = saved
+
+# ------------------------------------------------------------------ hazards (S17)
+## Run a hazard to the end of its phase and one tick on.
+func _hazard_step(hs: Dictionary) -> void:
+	hs.t = float(hs.dur) + 0.01
+	Game.tick(0.05)
+
+func _hazard_room(c, room: String, at: Vector2) -> Dictionary:
+	Game.world.apply_teleport(c.id, room)
+	var st: ActorState = Game.actor_state(c.id)
+	for s in Game.room_rt.geometry.surfaces:
+		if s.stratum == "ground" and s.contains(at): st.surface = s
+	st.plane = at
+	st.altitude = 0.0
+	Game.combat.cure_status(c.id, "spawn_protection")
+	for s in ["stun", "slow", "shock", "bleed", "poison"]: Game.combat.cure_status(c.id, s)
+	c.pools.invulnerable = 0.0   # i-frames left over from the revival checks above
+	c.pools.hp = c.pools.max_hp
+	var hid: String = str(Game.room_rt.def.get("hazards", [""])[0])
+	return Game.room_rt.hazards.get(hid, {})
+
+## Pin an attribute for a check (override), or release it (value < 0).
+func _answer(c, stat: String, value: float) -> void:
+	c.stats.remove_source("test_hazard")
+	if value >= 0.0: c.stats.add_modifier({"stat": stat, "op": "override", "value": value, "duration": 600.0, "source": "test_hazard"})
+	Game.combat.refresh_stats(c.id)
+
+## Run the cycle round to the start of the next active phase.
+func _hazard_to_active(hs: Dictionary, on: Vector2 = Vector2.INF) -> void:
+	for i in 5:
+		_hazard_step(hs)
+		if hs.phase == "tell" and on.is_finite(): hs.spots = [[on.x, on.y, 0.0]] + hs.spots.slice(1)
+		if hs.phase == "active": return
+
+func hazards_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var back := str(c.position.get("room", "lf_village"))
+	var gust := ContentDB.entry("hazards", "wind_gust")
+	check(HazardRules.need(gust, ContentDB.room("gc_windbridge")) == 116, "the Windbridge's gusts ask Body 116 (1.4 x (5 + 78))")
+	check(near(HazardRules.effect_scale(0.0, 100.0), 1.0) and near(HazardRules.effect_scale(50.0, 100.0), 0.75) and HazardRules.effect_scale(100.0, 100.0) == 0.0,
+		"a hazard's push or status falls to half as the answer nears and stops once it is met")
+	check(near(HazardRules.damage_scale(120.0, 100.0), 0.35) and near(HazardRules.damage_scale(0.0, 100.0), 1.0), "an answered strike still lands, at 35%")
+	var events: Array = []
+	var grab := func(n, p): if str(n).begins_with("hazard_"): events.append([str(n), p])
+	GameEvents.event.connect(grab)
+	# Falling rocks: a quiet tell, a warning, then the strike on the marked spot.
+	var spot := Vector2(900, 820)
+	var hs := _hazard_room(c, "sq_quarry_rim", spot)
+	_answer(c, "body", 1.0)
+	check(hs.get("phase", "") == "cooldown", "hazards start in their cooldown: nothing falls on arrival")
+	_hazard_step(hs)
+	check(hs.phase == "tell" and hs.spots.size() == 2, "the quiet tell picks two spots")
+	hs.spots[0] = [spot.x, spot.y, 0.0]
+	_hazard_step(hs)
+	GameEvents.flush()
+	check(hs.phase == "warn" and events.any(func(e): return e[0] == "hazard_warned"), "a warning comes before the strike")
+	var hp0: float = c.pools.hp
+	_hazard_step(hs)
+	check(hs.phase == "active" and c.pools.hp < hp0 and c.pools.has_status("stun"), "the rock lands on the marked spot and stuns (%.0f)" % (hp0 - c.pools.hp))
+	var full_hit: float = (hp0 - c.pools.hp) / c.pools.max_hp   # as a share of max HP: Body also raises max HP
+	# Answered: Body over the need, the blow is lighter and nothing stuns.
+	_answer(c, "body", 400.0)
+	Game.combat.cure_status(c.id, "stun")
+	c.pools.hp = c.pools.max_hp
+	hp0 = c.pools.hp
+	events.clear()
+	_hazard_to_active(hs, spot)
+	GameEvents.flush()
+	var struck: Array = events.filter(func(e): return e[0] == "hazard_struck")
+	check(c.pools.hp < hp0 and (hp0 - c.pools.hp) / c.pools.max_hp < full_hit * 0.6 and not c.pools.has_status("stun"), "answered, the rock hurts less and does not stun")
+	check(not struck.is_empty() and struck[-1][1].get("answered", false), "the blow is reported as answered")
+	_answer(c, "body", 1.0)
+	# A dodge through the strike avoids it.
+	c.pools.hp = c.pools.max_hp
+	hs.phase = "warn"
+	hs.spots = [[spot.x, spot.y, 0.0]]
+	Game.combat.timeline(c.id).dodge_t = 0.3
+	_hazard_step(hs)
+	check(near(c.pools.hp, c.pools.max_hp), "a dodge through the strike avoids it")
+	Game.combat.timeline(c.id).dodge_t = 0.0
+	# Wind gusts push downwind while active, less for a stronger body, not at all once answered.
+	hs = _hazard_room(c, "gc_windbridge", Vector2(1500, 820))
+	_answer(c, "body", 58.0)
+	_hazard_to_active(hs)
+	var push := Game.world.hazard_drift(c.id)
+	check(near(absf(push.x), 230.0 * 0.75) and signf(push.x) == float(hs.dir), "a gust pushes downwind, three quarters as hard for half the Body (%.0f px/s)" % push.x)
+	_answer(c, "body", 400.0)
+	Game.tick(0.05)
+	check(Game.world.hazard_drift(c.id) == Vector2.ZERO, "an answering Body holds its footing")
+	_answer(c, "body", 1.0)
+	# The rapids pull downstream in the shallows, harder in a surge.
+	hs = _hazard_room(c, "wg_rapids_terraces", Vector2(1500, 920))
+	Game.tick(0.05)
+	var calm_pull := Game.world.hazard_drift(c.id).x
+	_hazard_to_active(hs)
+	var surge_pull := Game.world.hazard_drift(c.id).x
+	check(calm_pull < 0.0 and surge_pull < calm_pull * 2.0, "the shallows pull downstream, harder in a surge (%.0f, %.0f)" % [calm_pull, surge_pull])
+	Game.actor_state(c.id).plane = Vector2(1500, 700)
+	Game.tick(0.05)
+	check(Game.world.hazard_drift(c.id) == Vector2.ZERO, "out of the water, no pull")
+	# Hollow puddles taint and slow whoever stands in them while they rise.
+	hs = _hazard_room(c, "rm_grey_pools", Vector2(600, 900))
+	_answer(c, "spirit", 1.0)
+	var hol: float = c.pools.hollowing
+	_hazard_to_active(hs)
+	check(c.pools.hollowing > hol and c.pools.has_status("slow"), "a Hollow puddle taints and slows")
+	_answer(c, "body", 1.0)
+	# Bitter cold slows in the open; a shrine shelters.
+	hs = _hazard_room(c, "rf_rimefrost_summit", Vector2(1600, 820))
+	_hazard_to_active(hs)
+	check(c.pools.has_status("slow"), "the freezing blast stiffens the limbs in the open")
+	hs = _hazard_room(c, "rf_rimefrost_summit", Vector2(360, 760))
+	_hazard_to_active(hs)
+	check(not c.pools.has_status("slow"), "a shrine gives shelter from the cold")
+	# Safe rooms never carry hazards; the map lists what a room asks.
+	var bad: Array = []
+	for id in ContentDB.rooms:
+		var r: Dictionary = ContentDB.rooms[id]
+		if r.get("safe", false) and not r.get("hazards", []).is_empty(): bad.append(id)
+	check(bad.is_empty(), "no hazards in safe rooms %s" % str(bad))
+	var sm: Array = HazardRules.summary(c, ContentDB.room("sr_windswept_ridge"))
+	check(sm.size() == 1 and str(sm[0].stat) == "body" and int(sm[0].need) == 91, "the map shows the ridge's gusts and the Body they ask (91)")
+	GameEvents.event.disconnect(grab)
+	_answer(c, "", -1.0)
+	for s in ["stun", "slow", "shock", "bleed", "poison"]: Game.combat.cure_status(c.id, s)
+	c.pools.hollowing = 0.0
+	Game.world.apply_teleport(c.id, back)
 
 # ------------------------------------------------------------------ emotes (S34)
 func emotes_suite() -> void:

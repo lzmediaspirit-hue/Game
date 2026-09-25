@@ -673,6 +673,16 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 	if float(e.def.get("hollowing", 0)) > 0: apply_resource_change(c.id, "hollowing", float(e.def.hollowing), "hollow")
 	if float(attack.get("drain", 0)) > 0: e.pools.hp = minf(e.pools.max_hp, e.pools.hp + r.amount * float(attack.drain))
 
+## S17 · Damage from the room, not a foe. A dodge, invulnerability or arrival protection avoids it
+## (returns -1).
+func apply_hazard_damage(c, amount: float, dtype: String, element: String, source: String) -> float:
+	var tl := timeline(c.id)
+	if wounded.has(c.id) or c.pools.invulnerable > 0.0 or float(tl.dodge_t) > 0.0 or c.pools.has_status("spawn_protection"):
+		emit("hit_dodged", {"target": c.id, "attacker": source})
+		return -1.0
+	_damage_player(c, amount, source, dtype, {"element": element})
+	return amount
+
 func _damage_player(c, amount: float, attacker: String, dtype: String, attack: Dictionary, crit := false, e: EnemyState = null) -> void:
 	var p: ResourcePool = c.pools
 	if wounded.has(c.id): return

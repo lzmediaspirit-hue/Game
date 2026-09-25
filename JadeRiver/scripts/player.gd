@@ -257,9 +257,14 @@ func step(delta: float, axis: Vector2):
 		var down := fly_down or Input.is_physical_key_pressed(KEY_K)
 		authority.set_climb(float(up) - float(down))
 	command_sequence += 1
+	# Gusts and currents (S17) add their push to walking; a meditating body is anchored.
+	var drift: Vector2 = Game.world.hazard_drift(actor_id) if not meditating and not wounded else Vector2.ZERO
 	if not forced.is_empty():
 		var v: Vector2 = forced.velocity
 		authority.move(command_sequence, v.normalized(), delta, v.length())
+	elif drift != Vector2.ZERO:
+		var walk: Vector2 = axis.limit_length() * speed * factor + drift
+		authority.move(command_sequence, walk.normalized(), delta, walk.length())
 	else:
 		authority.move(command_sequence, axis if not meditating else Vector2.ZERO, delta, speed * factor)
 	if absf(velocity.x) < 5: reset_sprint()

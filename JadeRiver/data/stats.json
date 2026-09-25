@@ -388,6 +388,12 @@
   "decay_per_min": 1,
   "meditate_mult": 3
  },
+ "hazard": {
+  "partial": 0.5,
+  "answered_damage": 0.35,
+  "shelter_radius": 220,
+  "flyer_push": 1.5
+ },
  "composure": {
   "max": 100,
   "recover_per_s": 10,

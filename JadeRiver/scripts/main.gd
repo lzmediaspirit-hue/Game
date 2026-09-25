@@ -195,6 +195,12 @@ func _handle_preview_args(user_args: Array) -> void:
 		world.player.fly_up = false
 	if "--capture" in user_args:
 		await get_tree().create_timer(2.5).timeout
+		for a in user_args:
+			# Debug tools (S38): --hazard=phase[:fraction] holds the room's hazards in one state.
+			if str(a).begins_with("--hazard="):
+				var hz := str(a).trim_prefix("--hazard=").split(":")
+				Game.world.debug_hazard_phase(hz[0], float(hz[1]) if hz.size() > 1 else 0.5)
+				await get_tree().create_timer(0.1).timeout
 		await RenderingServer.frame_post_draw
 		get_tree().root.get_texture().get_image().save_png("res://../" + (shot if shot != "" else screen) + "-preview.png")
 		get_tree().quit()

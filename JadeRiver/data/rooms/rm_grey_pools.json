@@ -407,9 +407,71 @@
     900
    ],
    "layer": "play"
+  },
+  {
+   "prop": "hollow_puddle",
+   "at": [
+    900,
+    770
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "hollow_puddle",
+   "at": [
+    2150,
+    790
+   ],
+   "layer": "play"
   }
  ],
- "areas": [],
+ "areas": [
+  {
+   "kind": "hollow_puddle",
+   "rect": [
+    550,
+    882,
+    100,
+    30
+   ]
+  },
+  {
+   "kind": "hollow_puddle",
+   "rect": [
+    1150,
+    882,
+    100,
+    30
+   ]
+  },
+  {
+   "kind": "hollow_puddle",
+   "rect": [
+    1750,
+    882,
+    100,
+    30
+   ]
+  },
+  {
+   "kind": "hollow_puddle",
+   "rect": [
+    850,
+    752,
+    100,
+    30
+   ]
+  },
+  {
+   "kind": "hollow_puddle",
+   "rect": [
+    2100,
+    772,
+    100,
+    30
+   ]
+  }
+ ],
  "music": "marsh_grey",
  "ambience": "marsh_ambience"
 }

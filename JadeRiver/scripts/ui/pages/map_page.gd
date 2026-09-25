@@ -1,8 +1,8 @@
 extends Page
 ## World map (S18, Part 9.6): one painted scroll per discovered zone. The valley shows
 ## the Jade River running through it; the Azure Expanse shows islands in a sea of cloud.
-## Regions carry Level ranges, visited rooms, locks, the attunement they ask for and
-## field boss timers. Tap a region for its rooms; tabs switch between zones.
+## Regions carry Level ranges, visited rooms, locks, the attunement they ask for, room
+## hazards with the attribute that answers them, and field boss timers. Tap a region for its rooms; tabs switch between zones.
 
 var sel := ""
 var zone_id := "jade_river_valley"
@@ -111,6 +111,12 @@ func draw_page() -> void:
 		var here_room: bool = id == str(ch.position.get("room", ""))
 		text(Vector2(right.position.x + 24, y + 22), ("▶ " if here_room else ("· " if seen2 else "? ")) + (str(room.get("name", id)) if seen2 else Tx.t("ui.map.unknown")), 18,
 			UiKit.GOLD if here_room else (UiKit.PAPER if seen2 else UiKit.HOLLOW))
+		# S18 room data: its hazards and the attribute that answers them.
+		if seen2:
+			for hz in HazardRules.summary(ch, room):
+				text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.hazard") % [str(hz.name), Tx.t("ui.cultivation." + str(hz.stat)), int(hz.need)], 15,
+					UiKit.BRIGHT_JADE if hz.answered else UiKit.PALE_GOLD)
+				y += 20
 		for sp in room.get("spawns", []):
 			if sp.get("field_boss", false) and Unlocks.is_unlocked(ch.id, "field_boss_timers"):
 				var until := float(Game.account.rooms.get("field_boss_timers", {}).get(str(sp.enemy), 0.0))

@@ -84,6 +84,51 @@ ORE_RANK = {"copper_ore": "apprentice", "riverstone": "apprentice", "jadeiron": 
             "cloudsteel_ore": "expert", "mystic_ore": "expert", "stormsteel_ore": "master"}
 
 
+# S17 hazards. Each runs a cycle in seconds (quiet tell, warning, active, cooldown) and is answered by
+# one attribute (S10 world effects): the answer a room asks is k x (5 + its top Level), what that
+# attribute is at that Level before any training. Kinds: strike (marked spots), gust (a push across
+# the room), flow (a push inside the room's water areas), aura (the whole room), pool (inside areas).
+# Statuses scale their power, or their duration where "scale" says so.
+HAZARDS = [
+    {"id": "falling_rocks", "name": "Falling rocks", "kind": "strike", "answer": "body", "k": 1.6, "cycle": [2.0, 1.1, 0.4, 5.0],
+     "count": 2, "radius": 64, "aim": "near", "spread": 260, "damage_pct": 0.08,
+     "status": {"id": "stun", "s": 0.8, "power": 1.0, "scale": "duration"},
+     "note": "Dust trickles from the quarry wall, then a shadow marks where the rock will land. Body braces against the blow."},
+    {"id": "lightning", "name": "Lightning", "kind": "strike", "answer": "essence", "k": 1.2, "cycle": [2.5, 1.2, 0.3, 6.0],
+     "count": 1, "radius": 56, "aim": "player", "spread": 0, "damage_pct": 0.07, "damage_type": "qi", "element": "wood",
+     "status": {"id": "shock", "s": 4.0, "power": 0.2},
+     "note": "The storm deck darkens overhead, then a ring of light marks the strike. Essence grounds it."},
+    {"id": "wind_gust", "name": "Wind gusts", "kind": "gust", "answer": "body", "k": 1.4, "cycle": [2.5, 1.2, 1.8, 6.0], "push": 230,
+     "note": "Leaves and grit lift first, then the gust shoves everything downwind, off ledges too. Body holds its footing."},
+    {"id": "current", "name": "Rapids current", "kind": "flow", "answer": "body", "k": 1.3, "cycle": [3.0, 1.0, 2.5, 3.0], "surge": 2.4,
+     "areas": ["shallows", "current"],
+     "note": "The shallows always pull downstream, and whitecaps warn of a surge. Body wades against it."},
+    {"id": "fog", "name": "Fog", "kind": "aura", "answer": "spirit", "k": 1.2, "cycle": [4.0, 2.0, 12.0, 10.0],
+     "buff": {"stat": "accuracy", "op": "pct_add", "value": -0.3},
+     "note": "Mist pools at the ankles, then rolls over the slope. Blows go astray in it. Spirit sees through."},
+    {"id": "cold", "name": "Bitter cold", "kind": "aura", "answer": "body", "k": 1.4, "cycle": [3.0, 1.5, 3.0, 7.0],
+     "status": {"id": "slow", "s": 5.0, "power": 0.25}, "shelter": ["shrine", "campfire", "qi_spring"],
+     "note": "Snow thickens before each freezing blast, which stiffens the limbs. Body endures it; a shrine gives shelter."},
+    {"id": "hollow_puddle", "name": "Hollow puddles", "kind": "pool", "answer": "spirit", "k": 1.3, "cycle": [3.0, 1.2, 2.2, 2.5],
+     "areas": ["hollow_puddle"], "pulse": 1.0, "hollowing": 3.0, "status": {"id": "slow", "s": 1.5, "power": 0.3},
+     "note": "Grey water that drinks colour. It bubbles before grey threads rise from it. Spirit keeps the Hollow out."},
+    {"id": "thorns", "name": "Thorn thickets", "kind": "pool", "answer": "body", "k": 1.4, "cycle": [0.0, 0.0, 1.0, 0.0],
+     "areas": ["thorns"], "pulse": 1.0, "damage_pct": 0.02, "status": {"id": "bleed", "s": 3.0, "power": 0.01},
+     "note": "Old thorn canes hide in the bamboo. Walking through them tears skin. Body shrugs them off."},
+    {"id": "poison_mist", "name": "Poison mist", "kind": "pool", "answer": "body", "k": 1.3, "cycle": [3.0, 1.5, 4.0, 5.0],
+     "areas": ["poison_mist"], "pulse": 1.0, "status": {"id": "poison", "s": 6.0, "power": 0.012},
+     "note": "The bandits vent marsh gas through the tunnels: the vents hiss before they breathe. Body tolerates the poison."},
+]
+
+
+def hazards_json():
+    for h in HAZARDS:
+        assert h["kind"] in ("strike", "gust", "flow", "aura", "pool"), h["id"]
+        assert h["answer"] in ("body", "agility", "essence", "spirit", "insight", "fortune"), h["id"]
+        assert len(h["cycle"]) == 4 and h["cycle"][2] > 0, h["id"]
+    entries("hazards", HAZARDS)
+
+
 class Room:
     def __init__(self, rid, name, rtype, region, screens=1, **kw):
         self.id = rid
@@ -955,8 +1000,9 @@ def valley():
               [("greyfin", 4, [7, 11]), ("hollowed_boarlet", 4, [7, 12])], herbs=("willow_moss",), jars=5, element="hollow",
               gather_tier="valley_low", music="marsh_grey", ambience="marsh_ambience", trees=("dead_tree_grey", "reeds"), tint="#c9cfc9",
               hazards=["hollow_puddle"])
-    for x in [600, 1200, 1800]:
-        r.decor("hollow_puddle", [x, 900])
+    for x, y in [(600, 900), (1200, 900), (1800, 900), (900, 770), (2150, 790)]:
+        r.decor("hollow_puddle", [x, y])
+        r.area("hollow_puddle", [x - 50, y - 18, 100, 30])
     r.edge("west", "west", "rm_marsh_edge", "east", y=850)
     r.edge("east", "east", "rm_sunken_causeway", "west", y=850)
     r.portal("hamlet", "door", [1280, 700], "gh_hamlet_square", "marsh", press_up=True, label="Greyreed Hamlet",
@@ -1002,8 +1048,11 @@ def valley():
     r = field("bg_thicket_heart", "Thicket Heart", "bamboo_grove", 2, [12, 15], "bamboo", "moss",
               [("green_viper", 4, [12, 14]), ("thornback_boar", 1, [13, 15], 180)], herbs=("ember_pepper", "riverreed_ginseng_10"),
               jars=5, element="wood", gather_tier="valley_mid", music="bamboo", ambience="bamboo_ambience", trees=("bamboo_cluster", "boulder_moss"),
-              chest="chest_valley")
+              chest="chest_valley", hazards=["thorns"])
     r.decor("beast_nest", [1500, 700])
+    for x, y in [(760, 780), (1250, 900), (1900, 760), (2300, 880)]:
+        r.decor("thorn_thicket", [x, y])
+        r.area("thorns", [x - 62, y - 26, 124, 34])
     r.edge("west", "west", "bg_whispering_bamboo", "east", y=850)
     r.edge("east", "east", "cf_falls_pool", "west", y=850)
 
@@ -1060,6 +1109,11 @@ def valley():
         if rid == "mh_stockade":
             r.decor("stockade_wall", [640, 660])
             r.decor("stockade_wall", [1900, 660])
+        if rid == "mh_tunnels":
+            r.d["hazards"] = ["poison_mist"]
+            for x, y in [(700, 800), (1350, 900), (1950, 770)]:
+                r.decor("gas_vent", [x, y])
+                r.area("poison_mist", [x - 90, y - 40, 180, 64])
     r = Room("mh_boss_den", "Boss Den", "boss_arena", "mudwater_hideout", 2, backdrop="cave", material="earth", music="boss",
              levels=[18, 18], safe=False, spawn_point=[200, 820], dungeon_exit="cr_caravan_road")
     r.spawn("big_toad_tan", [[1700, 840]], 1, respawn=86400, level=[18, 18], boss=True)
@@ -1665,6 +1719,18 @@ def nine_peaks_and_canyons():
           text="Rows of iron-root tablets, one for every Ironroot who ever lived. The newest is blank.", set_flag="tablets_honoured")
     r.portal("entry", "door", [120, 700], "ir_clan_hearth", "hall_door", press_up=True, label="Clan Hearth")
 
+def check_hazards():
+    """Every hazard a room names exists, is never in a safe room, and has the areas its kind needs."""
+    by_id = {h["id"]: h for h in HAZARDS}
+    for rid, r in ROOMS.items():
+        for hid in r.d["hazards"]:
+            assert hid in by_id, (rid, hid)
+            assert not r.d["safe"], (rid, "hazard in a safe room")
+            kinds = by_id[hid].get("areas")
+            if kinds:
+                assert any(a["kind"] in kinds for a in r.d["areas"]), (rid, hid, "no areas")
+
+
 def zone_json():
     rooms = sorted(k for k, r in ROOMS.items() if r.d["zone"] == "jade_river_valley")
     expanse = sorted(k for k, r in ROOMS.items() if r.d["zone"] == "azure_expanse")
@@ -1807,6 +1873,8 @@ def build():
     zone_json()
     teleport_stones()
     set_pieces()
+    hazards_json()
+    check_hazards()
     print("rooms:", len(ROOMS))
 
 

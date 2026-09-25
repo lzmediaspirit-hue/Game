@@ -19,7 +19,8 @@ CATALOGUE = {
         "player_revived"],
     "World": [
         "loot_dropped", "room_left", "room_entered", "object_interacted", "node_depleted", "node_regrown",
-        "hidden_portal_revealed", "teleport_discovered", "zone_entered", "zone_ceiling_reached"],
+        "hidden_portal_revealed", "teleport_discovered", "zone_entered", "zone_ceiling_reached", "hazard_warned",
+        "hazard_struck"],
     "Enemies": [
         "enemy_aggro", "enemy_spawned", "elite_spawned", "field_boss_spawned", "field_boss_defeated"],
     "Crafting": [

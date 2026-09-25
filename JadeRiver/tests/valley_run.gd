@@ -387,6 +387,12 @@ func tidy_bag(min_free := 8) -> void:
 			submit({"type": "deposit", "index": i, "count": int(it.get("count", 1))})
 			continue
 		submit({"type": "sell", "index": i, "count": int(it.get("count", 1))})
+	# Still short: a careful player banks the manuals already learned.
+	if c().inventory.free_slots() < min_free:
+		for i in c().inventory.bag.size():
+			var it = c().inventory.bag[i]
+			if it == null or wanted.has(str(it.id)) or str(it.id) in KEEP: continue
+			if str(ContentDB.item(str(it.id)).get("type", "")) == "scroll": submit({"type": "deposit", "index": i, "count": int(it.get("count", 1))})
 	# Anything that overflowed into the mail comes back now there is room.
 	submit({"type": "claim_all"})
 

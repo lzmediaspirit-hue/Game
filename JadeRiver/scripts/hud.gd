@@ -425,6 +425,10 @@ func _on_event(name: String, p: Dictionary) -> void:
 			var zone := ContentDB.zone_of_room(str(p.room))
 			banner = {"text": str(room.get("name", "")), "sub": str(room.get("region_name", zone.get("name", ""))), "t": 0.0}
 			channel.object = ""
+			# S17: a room's hazards and the attribute that answers them, once per entry.
+			for hz in HazardRules.summary(Game.active(), room):
+				add_log(Tx.t("hud.hazard") % [hz.name, Tx.t("ui.cultivation." + str(hz.stat)), int(hz.need), int(hz.have)],
+					UiKit.BRIGHT_JADE if hz.answered else UiKit.PALE_GOLD)
 		"bottleneck_reached":
 			toast(Tx.t("hud.bottleneck_tap_cultivate_to_break") if not p.get("major", false) else Tx.t("hud.bottleneck_reached_see_the_cultivation"), "gold")
 		"breakthrough_failed":

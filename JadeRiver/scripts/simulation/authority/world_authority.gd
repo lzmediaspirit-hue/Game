@@ -96,6 +96,7 @@ func load_room(c, room_id: String, portal_id: String, point := Vector2.INF) -> D
 	var zone_new = ContentDB.room_zone.get(room_id, "")
 	if def.get("type", "") in ["town", "sect", "home"] or def.get("town", false): c.last_town = room_id
 	_restore_object_states(c, rt)
+	_init_hazards(c, rt)
 	rt.arrival_protection = float(ContentDB.stat_const("combat.spawn_protection_s", 1.5))
 	game.combat.apply_status(c.id, "spawn_protection", rt.arrival_protection, 1.0)
 	emit("room_entered", {"actor": c.id, "room": room_id, "portal": portal_id, "first_visit": first, "x": arrival.x, "y": arrival.y,
@@ -540,6 +541,7 @@ func tick(delta: float) -> void:
 			emit("loot_expired", {"uid": l.uid})
 	if rt.event.get("active", false): _tick_event(c, rt, delta)
 	_attune_shrines(c, rt, st)
+	_tick_hazards(c, rt, st, delta)
 
 ## Walking past a shrine is enough for it to remember you as a revival point
 ## (praying still heals). Nobody loses their respawn by forgetting to press Pray.
@@ -553,6 +555,176 @@ func _attune_shrines(c, rt: RoomRuntime, st: ActorState) -> void:
 			emit("shrine_attuned", {"actor": c.id, "room": rt.room_id, "object": str(o.id)})
 			GameEvents.save_pending = true
 			return
+
+# ------------------------------------------------------------------ hazards (S17)
+## Every hazard starts part-way into its cooldown, so nothing strikes on arrival.
+func _init_hazards(c, rt: RoomRuntime) -> void:
+	rt.hazards.clear()
+	rt.hazard_drift = Vector2.ZERO
+	if rt.def.get("safe", false): return
+	var rng := Rng.stream(c.id, "world")
+	for hid in rt.def.get("hazards", []):
+		var h := ContentDB.entry("hazards", str(hid))
+		if h.is_empty(): continue
+		rt.hazards[str(hid)] = {"phase": "cooldown", "t": 0.0, "dur": rng.randf_range(2.0, 2.0 + HazardRules.duration(h, "cooldown")),
+			"spots": [], "dir": 1, "pulse": 0.0, "inside": false}
+
+## The push the room puts on a character this tick (gusts, currents); the presentation adds it to walking.
+func hazard_drift(actor_id: String) -> Vector2:
+	if game.room_rt == null or actor_id != game.active_id: return Vector2.ZERO
+	return game.room_rt.hazard_drift
+
+func _tick_hazards(c, rt: RoomRuntime, st: ActorState, delta: float) -> void:
+	rt.hazard_drift = Vector2.ZERO
+	if rt.hazards.is_empty() or st == null: return
+	# The cycle keeps running; its effects wait while the character is down or just arrived.
+	var calm: bool = game.combat.is_wounded(c.id) or c.pools.has_status("spawn_protection")
+	for hid in rt.hazards:
+		var h := ContentDB.entry("hazards", str(hid))
+		var hs: Dictionary = rt.hazards[hid]
+		hs.t = float(hs.t) + delta
+		if float(hs.t) >= float(hs.dur): _hazard_advance(c, rt, st, h, hs, calm)
+		_hazard_hold(c, rt, st, h, hs, delta, calm)
+
+## Next phase, skipping phases of zero length (a thicket is always active).
+func _hazard_advance(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Dictionary, calm: bool) -> void:
+	var rng := Rng.stream(c.id, "world")
+	for i in HazardRules.PHASES.size():
+		hs.phase = HazardRules.next_phase(str(hs.phase))
+		hs.t = 0.0
+		hs.dur = HazardRules.duration(h, str(hs.phase))
+		if hs.phase == "cooldown": hs.dur = float(hs.dur) * rng.randf_range(0.8, 1.2)
+		if float(hs.dur) <= 0.0: continue
+		_hazard_enter(c, rt, st, h, hs, rng, calm)
+		return
+	# Every phase but "active" is empty: a constant hazard.
+	hs.phase = "active"
+	hs.dur = HazardRules.duration(h, "active")
+	_hazard_enter(c, rt, st, h, hs, rng, calm)
+
+func _hazard_enter(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Dictionary, rng: RandomNumberGenerator, calm: bool) -> void:
+	match str(hs.phase):
+		"tell":
+			hs.dir = int(h.get("dir", -1 if rng.randf() < 0.5 else 1))
+			hs.spots = _hazard_spots(rt, st, h, rng)
+		"warn":
+			if str(h.get("aim", "")) == "player": hs.spots = [[st.plane.x, st.plane.y, st.altitude]]
+			emit("hazard_warned", {"actor": c.id, "room": rt.room_id, "hazard": str(h.id), "spots": hs.spots, "dir": int(hs.dir)})
+		"active":
+			hs.pulse = 0.0
+			match str(h.kind):
+				"strike":
+					var r := float(h.get("radius", 60))
+					for sp in hs.spots:
+						var at := Vector2(float(sp[0]), float(sp[1]))
+						if st.plane.distance_to(at) <= r and absf(st.altitude - float(sp[2])) < 90.0:
+							_hazard_hit(c, rt, h, calm)
+							break
+				"aura":
+					if not _sheltered(rt, st, h): _hazard_hit(c, rt, h, calm)
+				"gust":
+					_hazard_hit(c, rt, h, calm)
+
+## Debug tools (S38): hold every hazard of the room part-way into a phase, for previews. Nothing strikes.
+func debug_hazard_phase(phase: String, k: float) -> void:
+	var rt: RoomRuntime = game.room_rt
+	var c = game.active()
+	if rt == null or c == null or not phase in HazardRules.PHASES: return
+	var st: ActorState = game.actor_state(c.id)
+	var rng := Rng.stream(c.id, "world")
+	for hid in rt.hazards:
+		var h := ContentDB.entry("hazards", str(hid))
+		var hs: Dictionary = rt.hazards[hid]
+		hs.phase = "tell"
+		_hazard_enter(c, rt, st, h, hs, rng, true)
+		if phase != "tell":
+			hs.phase = "warn"
+			_hazard_enter(c, rt, st, h, hs, rng, true)
+		hs.phase = phase
+		hs.dur = maxf(HazardRules.duration(h, phase), 2.0)
+		hs.t = clampf(k, 0.0, 0.95) * float(hs.dur)
+
+## Strikes land around (or on) the character; the first spot is always close.
+func _hazard_spots(rt: RoomRuntime, st: ActorState, h: Dictionary, rng: RandomNumberGenerator) -> Array:
+	if str(h.kind) != "strike": return []
+	var out: Array = []
+	var spread := float(h.get("spread", 0))
+	for i in int(h.get("count", 1)):
+		var reach := spread * (0.35 if i == 0 else 1.0)
+		var p := Vector2(clampf(st.plane.x + rng.randf_range(-reach, reach), 80.0, rt.width() - 80.0),
+			clampf(st.plane.y + rng.randf_range(-50.0, 50.0), 660.0, 940.0))
+		var s := _ground_at(rt, p)
+		out.append([p.x, p.y, s.height_at(p) if s else 0.0])
+	return out
+
+## Hazards that act for as long as they are active: gusts and currents push, pools pulse.
+func _hazard_hold(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Dictionary, delta: float, calm: bool) -> void:
+	var active: bool = hs.phase == "active"
+	match str(h.kind):
+		"gust":
+			if active and not calm:
+				var push := float(h.get("push", 200)) * _hazard_share(c, rt, h)
+				if st.flying: push *= float(ContentDB.stat_const("hazard.flyer_push", 1.5))
+				rt.hazard_drift += Vector2(float(hs.dir) * push, 0.0)
+		"flow":
+			var inside := false
+			for a in HazardRules.areas(h, rt.def):
+				if HazardRules.rect(a).has_point(st.plane) and st.altitude < 2.0:
+					inside = true
+					if not calm:
+						var flow := float(a.get("current", -60)) * (float(h.get("surge", 2.0)) if active else 1.0)
+						rt.hazard_drift += Vector2(flow * _hazard_share(c, rt, h), 0.0)
+			# A surge that catches you is reported once, when you enter it or it rises around you.
+			if active and inside and not hs.inside: _hazard_hit(c, rt, h, calm)
+			hs.inside = inside and active
+		"pool":
+			if not active: return
+			hs.pulse = float(hs.pulse) - delta
+			if float(hs.pulse) > 0.0: return
+			hs.pulse = float(h.get("pulse", 1.0))
+			for a in HazardRules.areas(h, rt.def):
+				if HazardRules.rect(a).has_point(st.plane) and st.altitude < 10.0:
+					_hazard_hit(c, rt, h, calm)
+					return
+
+## How much of a push or status gets through this character's answer.
+func _hazard_share(c, rt: RoomRuntime, h: Dictionary) -> float:
+	return HazardRules.effect_scale(c.stats.value(str(h.answer)), float(HazardRules.need(h, rt.def)))
+
+func _sheltered(rt: RoomRuntime, st: ActorState, h: Dictionary) -> bool:
+	var kinds: Array = h.get("shelter", [])
+	if kinds.is_empty(): return false
+	var r := float(ContentDB.stat_const("hazard.shelter_radius", 220))
+	for o in rt.def.get("objects", []):
+		if str(o.get("type", "")) in kinds:
+			var at: Array = o.get("at", [0, 0])
+			if st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) <= r: return true
+	return false
+
+## One blow of a hazard on the character: damage, status, buff and Hollowing, each scaled by
+## how well the answering attribute meets the room's need.
+func _hazard_hit(c, rt: RoomRuntime, h: Dictionary, calm: bool) -> void:
+	if calm: return
+	var need_v := float(HazardRules.need(h, rt.def))
+	var have: float = c.stats.value(str(h.answer))
+	var share := HazardRules.effect_scale(have, need_v)
+	var amount := 0.0
+	if float(h.get("damage_pct", 0.0)) > 0.0:
+		amount = game.combat.apply_hazard_damage(c, c.pools.max_hp * float(h.damage_pct) * HazardRules.damage_scale(have, need_v),
+			str(h.get("damage_type", "physical")), str(h.get("element", "none")), "hazard:" + str(h.id))
+		if amount < 0.0: return   # dodged
+	var sd: Dictionary = h.get("status", {})
+	if not sd.is_empty() and share > 0.0:
+		var by_time := str(sd.get("scale", "power")) == "duration"
+		game.combat.apply_status(c.id, str(sd.id), float(sd.s) * (share if by_time else 1.0), float(sd.power) * (1.0 if by_time else share))
+	var bd: Dictionary = h.get("buff", {})
+	if not bd.is_empty() and share > 0.0:
+		game.combat.apply_buff(c.id, {"stat": str(bd.stat), "op": str(bd.get("op", "pct_add")), "value": float(bd.value) * share,
+			"duration": HazardRules.duration(h, "active") + 1.0, "source": "hazard:" + str(h.id)}, "hazard")
+	if float(h.get("hollowing", 0.0)) > 0.0 and share > 0.0:
+		game.combat.apply_resource_change(c.id, "hollowing", float(h.hollowing) * share, "hazard")
+	emit("hazard_struck", {"actor": c.id, "room": rt.room_id, "hazard": str(h.id), "amount": int(round(amount)), "share": share,
+		"answered": share <= 0.0, "stat": str(h.answer), "need": int(need_v), "have": int(have)})
 
 # ------------------------------------------------------------------ room events (survival, S27 night)
 ## Start a timed event in the loaded room (set pieces, sect defence).

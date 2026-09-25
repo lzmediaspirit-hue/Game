@@ -516,6 +516,83 @@ def s_error(rng):
     return y * env_pts(n, [(0, 0), (0.008, 1), (d - 0.05, 0.9), (d, 0)])
 
 
+# ---------------------------------------------------------------- hazards (S17)
+
+@sfx("rumble")
+def s_rumble(rng):
+    """Stone shifting in a quarry wall: a low roll and a trickle of grit (the rockfall warning)."""
+    d = 0.9
+    n = nsamp(d)
+    y = norm(noise(n, rng, lowpass(150, 0.7)) * env_pts(n, [(0, 0), (0.25, 1), (0.6, 0.8), (d, 0)]))
+    return y + 0.35 * grains(rng, d, 26, (0.05, 0.8), (1800, 4500), amp=(0.2, 0.7))
+
+
+@sfx("rockfall")
+def s_rockfall(rng):
+    """A boulder landing: a heavy thud, a crack, then scattering stones."""
+    y = buf(0.8)
+    at(y, membrane(70, rng, t60=0.25, drop=0.4, noise_amt=0.6), 0, 1.0)
+    k = nsamp(0.05)
+    at(y, noise(k, rng, bandpass(900, 0.7)) * decay(k, 0.02, 0.0005), 0, 0.6)
+    at(y, grains(rng, 0.8, 30, (0.02, 0.5), (900, 4000), g_dur=(0.002, 0.008), amp=(0.2, 0.8), fall=6.0), 0, 0.7)
+    return add_reverb(y, rng, t60=0.6, wet=0.2, keep=len(y))
+
+
+@sfx("thunder")
+def s_thunder(rng):
+    """A close strike: a sharp crack, then the roll across the plain."""
+    d = 1.6
+    n = nsamp(d)
+    y = buf(d)
+    k = nsamp(0.06)
+    at(y, noise(k, rng, highpass(1200, 0.7)) * decay(k, 0.02, 0.0002), 0, 1.0)
+    roll = noise(n, rng, lowpass(220, 0.6)) * env_pts(n, [(0, 0), (0.05, 1), (0.4, 0.7), (0.9, 0.45), (d, 0)])
+    at(y, norm(roll), 0.02, 0.9)
+    at(y, grains(rng, d, 20, (0.0, 0.25), (2000, 7000), amp=(0.2, 0.6), fall=10.0), 0, 0.5)
+    return add_reverb(y, rng, t60=1.2, wet=0.3, keep=n)
+
+
+@sfx("charge")
+def s_charge(rng):
+    """Static gathering before a strike: a rising crackle (the lightning warning)."""
+    d = 0.8
+    return grains(rng, d, 70, (0.0, 0.78), (2500, 8000), amp=(0.1, 1.0), fall=-2.5) + 0.3 * whoosh(
+        rng, d, [(0, 2000), (1, 5000)], [(0, 0), (0.9, 1), (1, 0)], width=0.5, tilt_db=0.0)
+
+
+@sfx("gust")
+def s_gust(rng):
+    """A wind gust sweeping through."""
+    return whoosh(rng, 1.4, [(0, 450), (0.4, 950), (1, 380)], [(0, 0), (0.35, 1), (0.7, 0.8), (1, 0)], width=1.1, tilt_db=-2.0)
+
+
+@sfx("surge")
+def s_surge(rng):
+    """Whitewater rising: a rushing band and bubbles."""
+    d = 1.2
+    y = whoosh(rng, d, [(0, 600), (0.5, 1500), (1, 700)], [(0, 0), (0.4, 1), (1, 0)], width=1.2, tilt_db=-1.5)
+    for _ in range(14):
+        at(y, bubble(rng, rng.uniform(500, 1400), tau=0.015), rng.uniform(0.1, 1.0), 0.25)
+    return y
+
+
+@sfx("hiss")
+def s_hiss(rng):
+    """A gas vent breathing out."""
+    d = 1.0
+    n = nsamp(d)
+    y = norm(noise(n, rng, bandpass(4200, 0.8)) * env_pts(n, [(0, 0), (0.15, 1), (0.8, 0.6), (d, 0)]))
+    return y + 0.25 * grains(rng, d, 10, (0.1, 0.9), (300, 900), g_dur=(0.01, 0.03), amp=(0.3, 0.7))
+
+
+@sfx("frost")
+def s_frost(rng):
+    """A freezing blast: high wind with ice crystals ticking in it."""
+    d = 1.3
+    y = whoosh(rng, d, [(0, 1600), (0.5, 2600), (1, 1400)], [(0, 0), (0.3, 1), (0.8, 0.7), (1, 0)], width=0.8, tilt_db=0.0)
+    return y + 0.3 * grains(rng, d, 40, (0.1, 1.2), (5000, 9000), amp=(0.2, 0.8))
+
+
 # ---------------------------------------------------------------- ambience loops (6 s)
 
 AMB_T = 6.0

@@ -102,6 +102,9 @@ def build():
         "toxicity": {"tolerance_base": 30, "drain_per_min": 1, "meditate_drain_mult": 2, "repeat_window_s": 300,
                      "repeat_factor": 0.5},
         "hollowing": {"valley_cap": 49, "decay_per_min": 1, "meditate_mult": 3},
+        # S17 hazards: below the answer an effect falls off to half; answered, pushes and statuses stop
+        # and a strike still deals this share of its damage.
+        "hazard": {"partial": 0.5, "answered_damage": 0.35, "shelter_radius": 220, "flyer_push": 1.5},
         "composure": {"max": 100, "recover_per_s": 10, "recover_delay_s": 3, "meditate_full_s": 5},
         "grade_bands": [["plain", 1, 9], ["common", 10, 18], ["earth", 19, 36], ["heaven", 37, 54], ["mystic", 55, 63],
                         ["spirit", 64, 72], ["sage", 73, 81], ["sovereign", 82, 90], ["will", 91, 99], ["sphere", 100, 108],

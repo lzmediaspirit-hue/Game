@@ -811,6 +811,25 @@
       }
     }
   },
+  "gas_vent": {
+    "anchor": [
+      40,
+      30
+    ],
+    "decal": true,
+    "file": "res://art/props/gas_vent.png",
+    "frame": [
+      80,
+      32
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 4,
+        "frames": 3
+      }
+    }
+  },
   "grey_patch": {
     "anchor": [
       40,
@@ -2171,6 +2190,23 @@
       240
     ],
     "roof_split": 0.483,
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "thorn_thicket": {
+    "anchor": [
+      64,
+      64
+    ],
+    "file": "res://art/props/thorn_thicket.png",
+    "frame": [
+      128,
+      68
+    ],
     "states": {
       "idle": {
         "col": 0,

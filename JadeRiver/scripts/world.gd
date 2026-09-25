@@ -141,6 +141,10 @@ func _build_room() -> void:
 		pv.setup(p)
 		room_layer.add_child(pv)
 		portal_views.append(pv)
+	if not rt.hazards.is_empty():
+		var hv := HazardView.new()
+		hv.world = self
+		room_layer.add_child(hv)
 	for uid in rt.enemies:
 		_add_enemy_view(rt.enemies[uid])
 	for l in rt.loot:
@@ -307,6 +311,15 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if kind == "player" and amount > Game.active().pools.max_hp * 0.15: shake = 0.25
 			if p.get("crit", false): shake = maxf(shake, 0.12)
 			Audio.play("hit_crit" if p.get("crit", false) else ("hurt" if kind == "player" else "hit"))
+		"hazard_warned":
+			var sfx := {"falling_rocks": "rumble", "lightning": "charge", "poison_mist": "hiss"}
+			Audio.play(str(sfx.get(str(p.hazard), "tell")))
+		"hazard_struck":
+			if str(p.get("actor", "")) == Game.active_id:
+				var hname := ContentDB.name_of("hazards", str(p.hazard))
+				var over := player.position + Vector2(0, -130)
+				if p.get("answered", false): fx.number(over, Tx.t("world_view.hazard_answered") % hname, UiKit.BRIGHT_JADE, 17)
+				elif int(p.get("amount", 0)) == 0: fx.number(over, hname, UiKit.PALE_GOLD, 17)
 		"hit_missed":
 			fx.number(Vector2(float(p.x), float(p.y) - float(p.get("alt", 60))), Tx.t("world_view.miss"), UiKit.MIST, 18)
 		"hit_immune":

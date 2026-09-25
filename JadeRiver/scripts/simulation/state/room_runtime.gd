@@ -18,6 +18,8 @@ var elapsed := 0.0
 var event: Dictionary = {}            # survival/escort events {id, remaining, ...}
 var arrival_protection := 0.0
 var first_visit := false
+var hazards: Dictionary = {}          # hazard id -> {phase, t, dur, spots: [[x, y, alt]], dir, pulse, inside}
+var hazard_drift := Vector2.ZERO      # the push the room's hazards put on the active character this tick
 
 func uid() -> int:
 	next_uid += 1

@@ -4,6 +4,25 @@
 
 Built in phases (docs/act2_design.md). Phases A, B and C (chapters 11 to 13) are playable end to end.
 
+### Room hazards (S17)
+- The hazards rooms have always listed now act: **falling rocks** (Quarry Rim), **Hollow puddles** (Grey
+  Pools), **the rapids current** (Rapids Terraces), **fog** (Misty Slopes), **wind gusts** (Windswept Ridge and
+  the Gale Canyons), **lightning** (Thunderhorn Plains), **bitter cold** (Rimefrost Heights), and two the
+  spec lists that no room used: **thorn thickets** in the Thicket Heart and **poison mist** from gas vents in
+  the Mudwater tunnels.
+- Each runs a readable cycle: a quiet tell (dust trickling, storm clouds, bubbles, a hiss), a warning with a
+  broken amber border and a "!" mark that read without colour, the active blow, then a cooldown. A dodge
+  through a strike avoids it; a shrine shelters from the cold; hazards start mid-cooldown, so nothing
+  strikes on arrival, and safe rooms have none.
+- One attribute answers each (Body for rocks, gusts, currents, cold, thorns and gas; Spirit for fog and the
+  Hollow; Essence for lightning). A room asks k x (5 + its top Level); below that the effect falls to
+  half as the answer nears, and once it is met pushes and statuses stop (a strike still lands at 35%).
+  The room banner and the World map show each hazard with the attribute and value it asks.
+- New thorn thicket and gas vent props, and eight synthesized sounds (rumble, rockfall, charge, thunder,
+  gust, surge, hiss, frost). A `--hazard=phase[:fraction]` preview flag holds a room's hazards in one state.
+- Tests: 19 new rules checks cover the answer formula, the cycle, strikes, dodging, gusts, currents,
+  puddles and shelter.
+
 ### Phase C · Nine Peaks
 - **Nine Peaks**, seat of the Alliance (town, teleport stone), reached by a second sky-ship route from the
   Skydock once the lake's mirror has spoken: the Alliance Gate, the Hall of Nine, the Auction Pavilion and
