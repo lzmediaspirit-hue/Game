@@ -8,13 +8,21 @@ extends Authority
 var clock := 0.0
 
 func intents() -> Array:
-	return []
+	return ["challenge_rank"]
+
+func handle(intent: Dictionary) -> Dictionary:
+	var c = char_of(intent)
+	if c == null: return fail("no_character")
+	match str(intent.type):
+		"challenge_rank": return challenge_rank(c, str(intent.get("npc", "")))
+	return fail("unknown_intent")
 
 func subscribe() -> void:
 	GameEvents.subscribe("node_gathered", _on_gathered, 90)
 	GameEvents.subscribe("room_entered", _on_room_entered, 90)
 	GameEvents.subscribe("breakthrough_succeeded", _on_breakthrough, 90)
 	GameEvents.subscribe("tribulation_started", _on_tribulation, 90)
+	GameEvents.subscribe("spar_ended", _on_rank_spar, 90)
 
 func _on_room_entered(_p: Dictionary) -> void:
 	var c = game.active()
@@ -80,6 +88,12 @@ func tick(delta: float) -> void:
 			emit("world_event_scheduled", {"event": id, "k": int(up.k), "room": str(up.room), "start": float(up.start)})
 	var c = game.active()
 	if c != null: _pay_trial(c)
+	# The Heaven Ranking's seeded cultivators move on the calendar; a new order is announced.
+	var order: Array = CalendarRules.rank_table(now, cal_seed(), origin()).map(func(r): return str(r.id))
+	if cal.get("ranking", []) != order:
+		var had_order: bool = cal.has("ranking")
+		cal.ranking = order
+		if had_order: emit("ranking_changed", {"order": order})
 	var season := HerbRules.season(now)
 	if str(cal.get("season", "")) != season:
 		if cal.has("season"): emit("season_changed", {"season": season})
@@ -217,3 +231,58 @@ func _phenomenon(actor_id: String, kind: String, realm: String) -> void:
 	for o in game.room_rt.def.get("objects", []):
 		if str(o.type) == "npc" and game.world.object_visible(c, o): people += 1
 	emit("heavenly_phenomenon", {"actor": actor_id, "kind": kind, "realm": realm, "room": game.room_rt.room_id, "people": people})
+
+# ------------------------------------------------------------------ the Heaven Ranking (S49 v1.1)
+## The valley's seeded cultivators (rankings.json) climb on the account calendar. You enter at the top eight by CP,
+## or by reaching the Valley Tournament finals. Beat the one ranked directly above you in a spar and you hold their
+## place (and everyone's below it) for the rest of the week.
+func rank_week() -> int:
+	return CalendarRules.rank_week(Clock.now_utc(), origin())
+
+func rank_entered(c, table: Array = []) -> bool:
+	if c == null: return false
+	if table.is_empty(): table = CalendarRules.rank_table(Clock.now_utc(), cal_seed(), origin())
+	var cfg := ContentDB.config("rankings")
+	if c.quests.done.has(str(cfg.get("finals_quest", "the_valley_finals"))): return true
+	var top := int(cfg.get("top", 8))
+	return table.size() < top or StatRules.combat_power(c) >= int(table[mini(top - 1, table.size()) - 1].cp)
+
+## The whole table with you in it (when you have entered): [{id, name, title, level, cp, player?}], strongest first.
+func ranking(c) -> Array:
+	var table := CalendarRules.rank_table(Clock.now_utc(), cal_seed(), origin())
+	if not rank_entered(c, table): return table
+	var mine := StatRules.combat_power(c)
+	var beaten: Dictionary = c.cooldowns.get("rank_beaten", {})
+	for r in table:
+		if int(beaten.get(str(r.id), -1)) == rank_week(): mine = maxi(mine, int(r.cp) + 1)
+	table.append({"id": "_player", "name": str(c.name), "title": "", "level": ProgressionRules.level(c), "cp": mine, "player": true})
+	table.sort_custom(func(a, b): return int(a.cp) > int(b.cp) or (int(a.cp) == int(b.cp) and a.get("player", false)))
+	return table
+
+## The ranked cultivator directly above you ({} at the top, or before you have entered).
+func rank_above(c) -> Dictionary:
+	var table := ranking(c)
+	for i in table.size():
+		if table[i].get("player", false): return table[i - 1] if i > 0 else {}
+	return {}
+
+func challenge_rank(c, npc: String) -> Dictionary:
+	var above := rank_above(c)
+	if above.is_empty() or str(above.id) != npc: return fail("not_above", {"text": Tx.t("sim.calendar.rank_not_above")})
+	if game.room_rt != null and game.room_rt.event.get("active", false): return fail("busy")
+	c.cooldowns["rank_duel"] = npc
+	return game.quest.start_spar(c, str(above.enemy), int(above.level))
+
+func _on_rank_spar(p: Dictionary) -> void:
+	var c = game.active()
+	if c == null or str(c.cooldowns.get("rank_duel", "")) == "": return
+	var npc := str(c.cooldowns.rank_duel)
+	var row := ContentDB.entry("rankings", npc)
+	if str(p.get("opponent", "")) != str(row.get("enemy", "")): return
+	c.cooldowns.erase("rank_duel")
+	if str(p.get("winner", "")) != "player": return
+	var beaten: Dictionary = c.cooldowns.get("rank_beaten", {})
+	beaten[npc] = rank_week()
+	c.cooldowns["rank_beaten"] = beaten
+	game.relations.apply_deed(c.id, str(ContentDB.config("rankings").get("climb_deed", "rank_climbed")))
+	emit("ranking_changed", {"actor": c.id, "beaten": npc})

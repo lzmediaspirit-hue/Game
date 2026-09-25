@@ -69,6 +69,7 @@ func _main() -> void:
 	calendar_suite()
 	world_events_suite()
 	fortune_suite()
+	tower_activity_ranking_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -2907,6 +2908,103 @@ func fortune_suite() -> void:
 	c.cultivator.qp = qp_was
 	c.cultivator.daos = daos_was
 	if not codex_had: Game.account.codex.erase("river_dream")
+	c.inventory.bag.fill(null)
+	if room_was != "": Game.world.load_room(c, room_was, "")
+	GameEvents.flush()
+
+## S49 the Trial Tower with its sweep, daily activity chests and the Heaven Ranking.
+func tower_activity_ranking_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var tower_was: Dictionary = c.tower.duplicate(true)
+	var cd_was: Dictionary = c.cooldowns.duplicate(true)
+	var act_was: Dictionary = Game.account.activity.duplicate(true)
+	var stones0 := int(Game.account.currencies.get("spirit_stone", 0))
+	var fame_was: int = c.relations.fame
+	var created_was: float = Game.account.created_utc
+	var seed_was: int = Game.account.rng_seed
+	c.inventory.bag.fill(null)
+	# The tower: thirty floors, two Levels apart, a guardian every fifth.
+	var floors: Array = ContentDB.all("tower")
+	check(floors.size() == 30 and int(floors[0].level) == 4 and int(floors[29].level) == 62, "thirty floors, Level 4 to 62")
+	check(floors.filter(func(f): return str(f.kind) == "guardian").size() == 6 and floors.all(func(f): return str(f.kind) != "guardian" or not (f.foes as Array).has(str(f.guardian))),
+		"a guardian every fifth floor, never escorted by its own kind")
+	c.tower = {}
+	check(str(Game.world.climb_tower(c, 2).get("reason", "")) == "locked", "floor 2 waits for floor 1")
+	check(Game.world.climb_tower(c, 1).get("ok", false) and Game.room_rt.room_id == "sf_trial_tower" and Game.room_rt.event.get("active", false),
+		"climbing floor 1 starts its trial in the tower")
+	GameEvents.flush()
+	for e in Game.room_rt.living_enemies().filter(func(e2): return e2.summoned or e2.team == "enemy"):
+		Game.combat.apply_execute(e, c.id)
+		GameEvents.flush()
+	check(Game.world.tower_cleared(c) == 1 and not Game.room_rt.event.get("active", false), "every foe down: floor 1 is cleared")
+	check(int(Game.account.currencies.get("spirit_stone", 0)) == stones0 + int(floors[0].stones), "the first clear pays Spirit Stones")
+	# A survive floor passes when the time runs out.
+	c.tower["cleared"] = 1
+	Game.world.climb_tower(c, 2)
+	GameEvents.flush()
+	Game.world._end_event(c, Game.room_rt, true)
+	GameEvents.flush()
+	check(Game.world.tower_cleared(c) == 2, "floor 2 (survive): holding out clears it")
+	# The sweep: every cleared floor once a day, straight to the bag.
+	var silver0: int = Game.economy.balance("silver_tael")
+	var sw := Game.world.sweep_tower(c)
+	check(sw.get("ok", false) and int(sw.floors) == 2 and Game.economy.balance("silver_tael") > silver0, "sweeping gives both cleared floors' loot")
+	check(str(Game.world.sweep_tower(c).get("reason", "")) == "nothing", "once a day")
+	# Daily activity: sources, caps, the four chests.
+	Game.account.activity = {}
+	var a0: Dictionary = Game.accounts.activity()
+	check(int(a0.points) == 0 and (a0.claimed as Array).is_empty(), "the day starts with no activity")
+	for i in 20: Game.accounts.apply_activity("harvest")
+	check(int(Game.accounts.activity().by.harvest) == 20, "harvests are capped at 20 points a day")
+	check(str(Game.submit({"type": "claim_activity_chest", "tier": "chest_40"}).get("reason", "")) == "short", "the 40-point chest waits")
+	check(Game.submit({"type": "claim_activity_chest", "tier": "chest_20"}).get("ok", false), "the 20-point chest opens")
+	check(str(Game.submit({"type": "claim_activity_chest", "tier": "chest_20"}).get("reason", "")) == "claimed", "once a day")
+	GameEvents.emit_event("quest_completed", {"actor": c.id, "quest": "daily_x", "name": "x", "kind": "daily"})
+	GameEvents.emit_event("tower_floor_cleared", {"actor": c.id, "floor": 3, "first": false})
+	GameEvents.flush()
+	check(int(Game.accounts.activity().points) == 20 + 10 + 10, "a mission and a tower floor add 10 each (%d)" % int(Game.accounts.activity().points))
+	# The Heaven Ranking: seeded, the same on every device, climbing week by week.
+	var origin := 1_700_000_000.0
+	Game.account.created_utc = origin
+	Game.account.rng_seed = 4242
+	var t1: Array = CalendarRules.rank_table(origin + 86400.0, 4242, origin)
+	check(t1.size() == 7 and t1 == CalendarRules.rank_table(origin + 86400.0, 4242, origin), "seven seeded cultivators, the same table on every device")
+	var sl := ContentDB.entry("rankings", "shen_lian")
+	check(CalendarRules.rank_level(sl, 5) == 20 and CalendarRules.rank_level(sl, 100) == int(sl.cap), "Shen Lian climbs two Levels a week, to her ceiling")
+	var sorted_ok := true
+	for i in range(1, t1.size()): sorted_ok = sorted_ok and int(t1[i - 1].cp) >= int(t1[i].cp)
+	check(sorted_ok, "strongest first")
+	# Entering: by CP (top eight) or the tournament finals.
+	var entered := Game.calendar.rank_entered(c)
+	check(entered == (StatRules.combat_power(c) >= int(CalendarRules.rank_table(Clock.now_utc(), 4242, origin).back().cp)), "you enter at the top eight by CP")
+	c.quests.done["the_valley_finals"] = 1
+	check(Game.calendar.rank_entered(c) and Game.calendar.ranking(c).any(func(o): return o.get("player", false)), "or by reaching the tournament finals")
+	var above := Game.calendar.rank_above(c)
+	if not above.is_empty():
+		var other: Array = Game.calendar.ranking(c).filter(func(o): return not o.get("player", false) and str(o.id) != str(above.id))
+		if not other.is_empty(): check(str(Game.calendar.challenge_rank(c, str(other[0].id)).get("reason", "")) == "not_above", "only the one directly above can be challenged")
+		c.cooldowns["rank_duel"] = str(above.id)
+		var f0: int = c.relations.fame
+		Game.calendar._on_rank_spar({"opponent": str(ContentDB.entry("rankings", str(above.id)).enemy), "winner": "player"})
+		GameEvents.flush()
+		var t2: Array = Game.calendar.ranking(c)
+		var mine := -1
+		var theirs := -1
+		for i in t2.size():
+			if t2[i].get("player", false): mine = i
+			elif str(t2[i].id) == str(above.id): theirs = i
+		check(mine >= 0 and mine < theirs and c.relations.fame > f0, "beat them in a spar and you hold their place for the week (+Fame)")
+	c.quests.done.erase("the_valley_finals")
+	# Restore.
+	c.tower = tower_was
+	c.cooldowns = cd_was
+	c.relations.fame = fame_was
+	Game.account.activity = act_was
+	Game.account.currencies["spirit_stone"] = stones0
+	Game.account.created_utc = created_was
+	Game.account.rng_seed = seed_was
 	c.inventory.bag.fill(null)
 	if room_was != "": Game.world.load_room(c, room_was, "")
 	GameEvents.flush()

@@ -1,0 +1,103 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "chest_20",
+   "points": 20,
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 150
+    },
+    {
+     "kind": "grant_item",
+     "item": "healing_pill",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "id": "chest_40",
+   "points": 40,
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 300
+    },
+    {
+     "kind": "grant_item",
+     "item": "spirit_stone_shard",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "chest_60",
+   "points": 60,
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 5
+    },
+    {
+     "kind": "grant_item",
+     "item": "manual_page",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "id": "chest_100",
+   "points": 100,
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 15
+    },
+    {
+     "kind": "grant_item",
+     "item": "spirit_jade",
+     "count": 2
+    }
+   ]
+  }
+ ],
+ "sources": {
+  "mission": {
+   "points": 10,
+   "cap": 0
+  },
+  "dungeon": {
+   "points": 15,
+   "cap": 0
+  },
+  "craft": {
+   "points": 4,
+   "cap": 20
+  },
+  "harvest": {
+   "points": 2,
+   "cap": 20
+  },
+  "spar": {
+   "points": 5,
+   "cap": 15
+  },
+  "tower": {
+   "points": 10,
+   "cap": 30
+  },
+  "arena": {
+   "points": 5,
+   "cap": 15
+  },
+  "beast_trial": {
+   "points": 10,
+   "cap": 10
+  }
+ }
+}

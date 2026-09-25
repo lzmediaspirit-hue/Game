@@ -82,6 +82,8 @@ def deeds():
         # A heavenly phenomenon draws a jealous senior (the challenge works like a young master's).
         deed("jealous_humbled", "Answered a jealous senior", fame=10, **on("spar_ended", opponent="jealous_senior", winner="player")),
         deed("jealous_lost", "Lost to a jealous senior", fame=-5, **on("spar_ended", opponent="jealous_senior", winner="opponent")),
+        # The Heaven Ranking: taking a ranked cultivator's place (code, when the spar is won).
+        deed("rank_climbed", "Climbed the Heaven Ranking", fame=15),
     ]
     return rows
 

@@ -1,5 +1,6 @@
-"""S49 the living world: calendar.json (world events on the account calendar, weather tables, heavenly phenomena)
-and fortune_deck.json (rare vignettes, paced by each character's Fortune meter).
+"""S49 the living world: calendar.json (world events on the account calendar, weather tables, heavenly phenomena),
+fortune_deck.json (rare vignettes, paced by each character's Fortune meter), rankings.json (the Heaven Ranking),
+tower.json (the Trial Tower) and activity.json (daily activity chests).
 
 Every event repeats on a fixed rhythm from the account's creation day (every N days from an offset, or once a week on
 a UTC weekday) and lasts some hours. A seeded draw from the account seed picks the room and the hour, so two devices
@@ -94,7 +95,94 @@ def fortune_deck():
     ]
 
 
+def rankings():
+    """Part 8's Heaven Ranking (valley seeds, v1.1). Each seeded cultivator starts at a Level and climbs a little every
+    week of the account's calendar, up to a ceiling; a seeded wobble keeps the order moving. Their CP follows the room
+    formula (20 + 18 x Level) times their talent. You enter at the top eight by CP, or by reaching the Valley
+    Tournament finals; beat the one directly above you in a spar and you hold their place for the rest of the week."""
+    def seed(id, name, title, level, per_week, cap, talent, enemy):
+        return {"id": id, "name": name, "title": title, "level": level, "per_week": per_week, "cap": cap, "talent": talent, "enemy": enemy}
+    return [
+        seed("shen_lian", "Shen Lian", "Lotus Ferry's fisher girl, now a Cloud Sect disciple", 10, 2.0, 52, 1.15, "shen_lian"),
+        seed("wen_zhao", "Wen Zhao", "Your rival since the Fairground", 18, 2.0, 58, 1.1, "wen_zhao"),
+        seed("cloud_first", "Yun Zhiqiu", "First disciple of the Cloud Sect", 30, 1.5, 62, 1.1, "cloud_first_disciple"),
+        seed("jade_first", "Bai Yuheng", "First disciple of the Jade Sect", 31, 1.5, 63, 1.08, "jade_first_disciple"),
+        seed("iron_crane", "\"Iron Crane\" Guo Ming", "A rogue cultivator nobody has pinned down", 34, 1.0, 60, 1.05, "iron_crane_guo"),
+        seed("hua_captain", "Captain Lou Chen", "Madam Hua's guard captain", 24, 1.0, 44, 1.0, "hua_guard_captain"),
+        seed("gorge_chief", "Chief Yan Bo", "Chief of the Gorge Bandit Adepts", 33, 0.5, 40, 1.0, "gorge_chief"),
+    ]
+
+
+# The Trial Tower's foes: the valley's walkers and fliers by the Levels they are met at (fish and mounts left out).
+TOWER_POOL = [("rock_beetle", 4, 5), ("pebble_imp", 4, 6), ("reed_frog", 4, 6), ("ironclaw_mole", 5, 7), ("marsh_leech", 5, 7),
+              ("stone_tortoise", 5, 7), ("hollowed_boarlet", 7, 12), ("bamboo_monkey", 10, 12), ("green_viper", 11, 14),
+              ("thornback_boar", 13, 15), ("mudwater_bandit", 14, 19), ("bandit_archer", 16, 20), ("mud_hound", 16, 20),
+              ("ember_fox", 19, 24), ("reed_otter", 19, 24), ("paper_talisman_ghost", 22, 26), ("rogue_cultivator", 24, 26),
+              ("rapids_lizard", 28, 31), ("gorge_bandit_adept", 29, 33), ("boulder_serpent", 32, 35), ("mist_vulture", 34, 36),
+              ("cloudwing_crane", 37, 40), ("stormwing_hawk", 38, 43), ("cliff_ape", 41, 45), ("mist_wolf", 46, 50),
+              ("mirror_wisp", 47, 51), ("weeping_lantern", 50, 55), ("jade_sentinel", 52, 56), ("hollow_stag", 55, 59),
+              ("cloudpeak_roc", 58, 63)]
+
+
+def _tower_foes(level, n=2):
+    def dist(row):
+        _, lo, hi = row
+        return 0 if lo <= level <= hi else min(abs(level - lo), abs(level - hi))
+    ranked = sorted(TOWER_POOL, key=lambda r: (dist(r), r[1]))
+    return [r[0] for r in ranked[:n]]
+
+
+def tower():
+    """Part 8's Trial Tower: 30 floors at Stoneford Fairground, each one room with a clear condition, two Levels a floor.
+    Every fifth floor has a guardian. A cleared floor can be swept once a day for its loot, without the fight."""
+    kinds = {1: "clear", 2: "survive", 3: "swift", 4: "survive", 0: "guardian"}
+    rows = []
+    for f in range(1, 31):
+        lv = 4 + 2 * (f - 1)
+        kind = kinds[f % 5]
+        foes = _tower_foes(lv)
+        row = {"id": "floor_%d" % f, "floor": f, "level": lv, "kind": kind, "foes": foes,
+               "loot": "chest_valley" if f <= 12 else "chest_dungeon", "stones": 2 + f // 3}
+        if kind == "clear":
+            row.update(time_s=90, count=4)
+        elif kind == "swift":
+            row.update(time_s=45, count=3)
+        elif kind == "survive":
+            row.update(time_s=40 if f % 5 == 2 else 55)
+        else:
+            # The guardian ends the floor when it falls, so its escort is never its own kind.
+            guardian = _tower_foes(lv + 4, 1)[0]
+            row.update(time_s=120, guardian=guardian, guardian_level=lv + 4,
+                       foes=[x for x in _tower_foes(lv, 4) if x != guardian][:2])
+        rows.append(row)
+    return rows
+
+
+def activity():
+    """Daily activity (S49 mobile conventions, v1.0): points from what you do each day fill four chests, for the whole
+    account; they reset with the daily reset. Some sources are capped so one chore cannot fill the bar."""
+    def tier(points, *rewards):
+        return {"id": "chest_%d" % points, "points": points, "rewards": list(rewards)}
+    return [
+        tier(20, {"kind": "grant_currency", "currency": "silver_tael", "amount": 150}, {"kind": "grant_item", "item": "healing_pill", "count": 2}),
+        tier(40, {"kind": "grant_currency", "currency": "silver_tael", "amount": 300}, {"kind": "grant_item", "item": "spirit_stone_shard", "count": 3}),
+        tier(60, {"kind": "grant_currency", "currency": "spirit_stone", "amount": 5}, {"kind": "grant_item", "item": "manual_page", "count": 2}),
+        tier(100, {"kind": "grant_currency", "currency": "spirit_stone", "amount": 15}, {"kind": "grant_item", "item": "spirit_jade", "count": 2}),
+    ]
+
+
+def build_extra():
+    entries("rankings", rankings(), ref_cp=[20, 18], wobble=0.04, top=8, finals_quest="the_valley_finals", climb_deed="rank_climbed")
+    entries("tower", tower(), room="sf_trial_tower", sweep_silver_per_floor=15)
+    entries("activity", activity(),
+            # Points per deed and the most each source can give in a day (0: no cap).
+            sources={"mission": {"points": 10, "cap": 0}, "dungeon": {"points": 15, "cap": 0}, "craft": {"points": 4, "cap": 20},
+                     "harvest": {"points": 2, "cap": 20}, "spar": {"points": 5, "cap": 15}, "tower": {"points": 10, "cap": 30},
+                     "arena": {"points": 5, "cap": 15}, "beast_trial": {"points": 10, "cap": 10}})
+
+
 def build():
+    build_extra()
     entries("fortune_deck", fortune_deck(),
             # One encounter per three hours of play at most: the meter fills while you play and holds one.
             meter_h=3.0,

@@ -9,12 +9,21 @@ var reset_timer := 0.0
 
 func intents() -> Array:
 	return ["create_character", "switch_character", "set_idle_task", "collect_idle", "deposit", "withdraw", "delete_character",
-		"app_paused", "app_resumed", "set_setting", "enter_character"]
+		"app_paused", "app_resumed", "set_setting", "enter_character", "claim_activity_chest"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("realm_changed", _on_realm_changed, 70)
 	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 70)
 	GameEvents.subscribe("sect_level_changed", _on_sect_level, 70)
+	# S49 daily activity: what counts toward today's chests.
+	GameEvents.subscribe("quest_completed", func(p): if str(p.get("kind", "")) == "daily": apply_activity("mission"), 88)
+	GameEvents.subscribe("actor_defeated", func(p): if str(p.get("role", "")) == "dungeon_boss" and str(p.get("killer", "")).begins_with("c"): apply_activity("dungeon"), 88)
+	GameEvents.subscribe("craft_completed", func(_p): apply_activity("craft"), 88)
+	GameEvents.subscribe("node_gathered", func(_p): apply_activity("harvest"), 88)
+	GameEvents.subscribe("spar_ended", func(_p): apply_activity("spar"), 88)
+	GameEvents.subscribe("tower_floor_cleared", func(_p): apply_activity("tower"), 88)
+	GameEvents.subscribe("arena_battle", func(_p): apply_activity("arena"), 88)
+	GameEvents.subscribe("beast_trial_result", func(_p): apply_activity("beast_trial"), 88)
 
 func handle(intent: Dictionary) -> Dictionary:
 	match str(intent.type):
@@ -32,6 +41,7 @@ func handle(intent: Dictionary) -> Dictionary:
 			game.account.settings[str(intent.get("key", ""))] = intent.get("value")
 			emit("settings_changed", {"key": str(intent.get("key", "")), "value": intent.get("value")})
 			return ok()
+		"claim_activity_chest": return claim_activity_chest(game.character(str(intent.get("actor", ""))), str(intent.get("tier", "")))
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ characters
@@ -337,6 +347,41 @@ func _on_actor_defeated(p: Dictionary) -> void:
 		if full and not acc.collection_pages_done.has(page):
 			acc.collection_pages_done[page] = true
 			emit("collection_page_completed", {"page": page, "actor": str(p.killer)})
+
+# ------------------------------------------------------------------ daily activity chests (S49 v1.0)
+## Points from the day's missions, dungeon clears, crafts, harvests, spars, tower floors and beast fights fill four
+## chests for the whole account (activity.json). Some sources are capped; everything starts again at the daily reset.
+func activity() -> Dictionary:
+	var day := Clock.reset_day(Clock.now_utc())
+	if int(game.account.activity.get("day", -1)) != day:
+		game.account.activity = {"day": day, "points": 0, "by": {}, "claimed": []}
+	return game.account.activity
+
+func apply_activity(source: String, times := 1) -> void:
+	var src: Dictionary = ContentDB.config("activity").get("sources", {}).get(source, {})
+	if src.is_empty() or times <= 0: return
+	var a := activity()
+	var had := int(a.by.get(source, 0))
+	var add := int(src.get("points", 0)) * times
+	if int(src.get("cap", 0)) > 0: add = mini(add, int(src.cap) - had)
+	if add <= 0: return
+	var before := int(a.points)
+	a.by[source] = had + add
+	a.points = before + add
+	for t in ContentDB.all("activity"):
+		if before < int(t.points) and int(a.points) >= int(t.points): emit("activity_chest_ready", {"tier": str(t.id), "points": int(t.points)})
+
+func claim_activity_chest(c, tier: String) -> Dictionary:
+	if c == null: return fail("no_character")
+	var t := ContentDB.entry("activity", tier)
+	if t.is_empty(): return fail("no_tier")
+	var a := activity()
+	if (a.claimed as Array).has(tier): return fail("claimed", {"text": Tx.t("sim.account.chest_claimed")})
+	if int(a.points) < int(t.points): return fail("short", {"text": Tx.t("sim.account.chest_short") % (int(t.points) - int(a.points))})
+	a.claimed.append(tier)
+	game.apply_effects(c.id, t.get("rewards", []), "activity:" + tier)
+	emit("activity_chest_claimed", {"actor": c.id, "tier": tier, "points": int(t.points)})
+	return ok({"tier": tier})
 
 # ------------------------------------------------------------------ resets (S37) and lifecycle (S35)
 func tick(delta: float) -> void:

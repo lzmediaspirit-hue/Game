@@ -1,0 +1,224 @@
+{
+ "schema_version": 1,
+ "id": "sf_trial_tower",
+ "zone": "jade_river_valley",
+ "region": "stoneford",
+ "name": "Trial Tower",
+ "type": "trial",
+ "level_range": [
+  4,
+  62
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  240,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    2560,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "tower_step_w",
+   "rect": [
+    760,
+    676,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "tower_dais",
+   "rect": [
+    1040,
+    640,
+    480,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "tower_step_e",
+   "rect": [
+    1560,
+    676,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    120,
+    700
+   ],
+   "to": "sf_fairground",
+   "to_portal": "tower",
+   "press_up": true,
+   "label": "Fairground"
+  }
+ ],
+ "objects": [
+  {
+   "id": "tower_stele",
+   "type": "inspect",
+   "at": [
+    400,
+    790
+   ],
+   "prop": "notice_board",
+   "open_page": "tower",
+   "label": "Trial Tower",
+   "text": "The floors are listed in brush on the stele. Choose the next one and the tower answers."
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    420,
+    190
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    1280,
+    190
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    2140,
+    190
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "banner_jade",
+   "at": [
+    600,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "banner_cloud",
+   "at": [
+    1960,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "statue_guardian_lion",
+   "at": [
+    180,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "statue_guardian_lion",
+   "at": [
+    2380,
+    700
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_stone"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "instanced": true,
+ "music": "trial",
+ "dungeon_exit": "sf_fairground",
+ "climbables": [
+  {
+   "id": "tower_step_w_rope_1",
+   "kind": "rope",
+   "at": [
+    880,
+    781
+   ],
+   "top_at": [
+    880,
+    738
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "tower_step_w"
+  },
+  {
+   "id": "tower_step_e_rope_2",
+   "kind": "rope",
+   "at": [
+    1680,
+    781
+   ],
+   "top_at": [
+    1680,
+    738
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "tower_step_e"
+  }
+ ]
+}

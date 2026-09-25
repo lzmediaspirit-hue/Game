@@ -5,6 +5,40 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V8f · The living world: the Heaven Ranking, the Trial Tower and daily activity chests (S49)
+- **The Heaven Ranking** (`rankings.json`, Part 8's valley seeds). It is a tab on the World map. The seven ranked
+  cultivators are:
+  - Shen Lian and Wen Zhao;
+  - Yun Zhiqiu and Bai Yuheng, the first disciples of the Cloud and Jade Sects;
+  - "Iron Crane" Guo Ming, a rogue cultivator;
+  - Captain Lou Chen, Madam Hua's guard captain;
+  - Chief Yan Bo of the Gorge Bandit Adepts.
+- How the ranking moves:
+  - Each ranked cultivator climbs a set number of Levels every week of the account calendar, up to a ceiling. A
+    seeded wobble keeps the order moving, and the table is the same on every device.
+  - The Calendar announces a new order (`ranking_changed`), and the tab shows who rose or fell since last week.
+  - You enter at the top eight by CP, or by reaching the Valley Tournament finals.
+  - You can challenge the cultivator directly above you to a spar at their Level. Win, and you hold their place for
+    the rest of the week and gain 15 Fame. Four new duelists use existing avatar parts only.
+- **The Trial Tower** (`tower.json`, Part 8): thirty floors inside a pagoda at the Stoneford Fairground, Levels 4
+  to 62, all in one new room.
+  - Each floor is a room event with one of four rules:
+    - **Clear**: defeat four foes in 90 seconds.
+    - **Swift**: defeat three in 45 seconds.
+    - **Survive**: hold out while waves come.
+    - **Guardian**: every fifth floor, bring down its guardian and escort.
+  - Clearing a floor for the first time pays Spirit Stones and opens the next floor.
+  - The Tower page (at the pagoda's board or the stele inside) lists every floor with its rule, foes and rewards.
+  - **Sweep** gives each cleared floor's loot once a day, straight to the bag (`sweep_floor`).
+- **Daily activity chests** (`activity.json`, Account):
+  - Points come from missions, dungeon clears, crafts, harvests, spars, tower floors, arena fights and the Beast
+    Trial Grove. Some sources have daily caps.
+  - The points fill four chests at 20, 40, 60 and 100, for the whole account, and reset each day.
+  - A bar with the chests sits on the Quests page's Daily tab (`claim_activity_chest`). The HUD says when a chest
+    is ready.
+- Debug flags: `--tower=N`, `--climb=N` and `--activity=N`. New tests cover the tower, sweeps, the chests and the
+  ranking.
+
 ### V8e · The living world: fortune encounters, heavenly phenomena and lifespan (S49)
 - **Fortune encounters** (`fortune_deck.json`, Part 8's eight vignettes). A card can turn up when you enter a room,
   gather, or recover from a fall into the void. It appears as a card at the top of the screen.

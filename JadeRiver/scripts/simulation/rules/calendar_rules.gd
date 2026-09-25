@@ -94,3 +94,29 @@ static func weather(region: String, utc: float, seed: int) -> String:
 		roll -= float(table[w])
 		if roll <= 0.0: return str(w)
 	return "clear"
+
+# ------------------------------------------------------------------ the Heaven Ranking (S49 v1.1)
+## Weeks since the account's first week (0 on saves from before the calendar).
+static func rank_week(now: float, origin_utc: float) -> int:
+	return 0 if origin_utc <= 0.0 else maxi(0, Clock.reset_week(now) - Clock.reset_week(origin_utc))
+
+## A seeded cultivator's Level this week: they climb a little every week, to their ceiling.
+static func rank_level(seed_row: Dictionary, week: int) -> int:
+	return mini(int(seed_row.get("cap", 99)), int(float(seed_row.get("level", 1)) + floorf(float(seed_row.get("per_week", 1.0)) * week)))
+
+## Their CP this week: the room formula (20 + 18 x Level) times their talent, with a seeded wobble.
+static func rank_cp(seed_row: Dictionary, week: int, seed: int) -> int:
+	var cfg := ContentDB.config("rankings")
+	var ref: Array = cfg.get("ref_cp", [20, 18])
+	var wobble := float(cfg.get("wobble", 0.04)) * (2.0 * Rng.keyed(seed, "rank:%s:%d" % [str(seed_row.id), week]).randf() - 1.0)
+	return int(round((float(ref[0]) + float(ref[1]) * rank_level(seed_row, week)) * float(seed_row.get("talent", 1.0)) * (1.0 + wobble)))
+
+## The seeded cultivators this week, strongest first: [{id, name, title, level, cp, enemy}]. The same on every device.
+static func rank_table(now: float, seed: int, origin_utc: float) -> Array:
+	var week := rank_week(now, origin_utc)
+	var rows: Array = []
+	for r in ContentDB.all("rankings"):
+		rows.append({"id": str(r.id), "name": str(r.name), "title": str(r.get("title", "")), "level": rank_level(r, week),
+			"cp": rank_cp(r, week, seed), "enemy": str(r.get("enemy", ""))})
+	rows.sort_custom(func(a, b): return int(a.cp) > int(b.cp) or (int(a.cp) == int(b.cp) and str(a.id) < str(b.id)))
+	return rows

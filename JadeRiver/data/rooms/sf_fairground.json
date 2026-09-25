@@ -87,7 +87,7 @@
   {
    "id": "route_1",
    "rect": [
-    1330,
+    1810,
     636,
     220,
     70
@@ -100,7 +100,7 @@
   {
    "id": "route_2",
    "rect": [
-    1820,
+    2420,
     636,
     220,
     70
@@ -113,20 +113,7 @@
   {
    "id": "route_3",
    "rect": [
-    2430,
-    636,
-    220,
-    70
-   ],
-   "height": 88,
-   "kind": "balcony",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "route_4",
-   "rect": [
-    2740,
+    2730,
     636,
     220,
     70
@@ -139,9 +126,9 @@
   {
    "id": "bridge_0",
    "rect": [
-    2960,
+    2950,
     636,
-    190,
+    200,
     60
    ],
    "height": 88.0,
@@ -152,7 +139,7 @@
   {
    "id": "bridge_1",
    "rect": [
-    2040,
+    2030,
     636,
     390,
     70
@@ -164,6 +151,27 @@
   }
  ],
  "portals": [
+  {
+   "id": "tower",
+   "type": "door",
+   "at": [
+    1470,
+    700
+   ],
+   "to": "sf_trial_tower",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Trial Tower",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "entry_trial"
+     }
+    ]
+   },
+   "locked_text": "The Trial Tower admits sect disciples. Pass an Entry Trial first."
+  },
   {
    "id": "trial_jade",
    "type": "door",
@@ -387,6 +395,18 @@
      }
     ]
    }
+  },
+  {
+   "id": "tower_board_sf",
+   "type": "inspect",
+   "at": [
+    1580,
+    800
+   ],
+   "prop": "notice_board",
+   "open_page": "tower",
+   "label": "Trial Tower",
+   "text": "Thirty floors, one trial each. Names of those who reached the top are carved at the bottom, and there are not many."
   }
  ],
  "spawns": [],
@@ -439,6 +459,14 @@
     690
    ],
    "layer": "play"
+  },
+  {
+   "prop": "pagoda",
+   "at": [
+    1470,
+    690
+   ],
+   "layer": "back"
   },
   {
    "prop": "plum_tree",

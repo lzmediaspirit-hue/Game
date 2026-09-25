@@ -136,5 +136,7 @@ Progress is recorded in `docs/CHANGELOG.md`.
     Fruit treasure births with rivals and a guardian, the weekly Herb Terraces gathering trial with its ranking, and
     weather effects and visuals. V8e is done: the fortune deck with its meter (one encounter per three hours of
     play) and the Hidden Grotto, heavenly phenomena with NPC reactions and a jealous challenger, and lifespan as a
-    display with ageing people and longevity treasures. Next: V8f (Heaven Ranking, Trial Tower, activity chests) and
-    V8g (auto-path, auto-hunt, the mortal kingdom, leisure arts, territory).
+    display with ageing people and longevity treasures. V8f is done: the Heaven Ranking with its seeded cultivators,
+    entry by CP or the finals and rank challenges; the 30-floor Trial Tower with four floor rules and a daily sweep;
+    the four daily activity chests on the Quests page. Next: V8g (auto-path, auto-hunt and idle-room eligibility, the
+    mortal kingdom, leisure arts, territory).

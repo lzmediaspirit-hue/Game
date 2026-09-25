@@ -735,6 +735,12 @@ def stoneford():
     r.solid("fair_drum", [1215, 750, 70, 60], 40, kind="drum")
     r.volume("bounce", [1215, 750, 70, 60], alt=[30, 50], speed=700, vid="fair_drum_bounce")
     r.obj("spar_sf", "spar_post", [2800, 860], opponent="sparring_disciple", requires=all_of(unlock("attack")))
+    # S49 Trial Tower: thirty floors inside the fair's pagoda; the board beside it sweeps the floors you have cleared.
+    r.decor("pagoda", [1470, 690], layer="back")
+    r.portal("tower", "door", [1470, 700], "sf_trial_tower", "entry", press_up=True, label="Trial Tower",
+             requires=all_of(qdone("entry_trial")), locked_text="The Trial Tower admits sect disciples. Pass an Entry Trial first.")
+    r.obj("tower_board_sf", "inspect", [1580, 800], prop="notice_board", open_page="tower", label="Trial Tower",
+          text="Thirty floors, one trial each. Names of those who reached the top are carved at the bottom, and there are not many.")
     r.portal("trial_jade", "door", [900, 700], "sf_trial_jade", "entry", press_up=True, label="Entry Trial (Jade)",
              requires=all_of(qactive("entry_trial"), sect("jade_sect")), locked_text="Choose the Jade Sect first.")
     r.portal("trial_cloud", "door", [1700, 700], "sf_trial_cloud", "entry", press_up=True, label="Entry Trial (Cloud)",
@@ -760,6 +766,27 @@ def stoneford():
         r.decor("banner_" + s, [1100, 660])
         r.decor("stone_lantern", [640, 660])
         r.portal("entry", "door", [120, 700], "sf_fairground", "trial_" + s, press_up=True, label="Fairground")
+
+
+def trial_tower():
+    """S49 Trial Tower (Part 8): one room for all thirty floors. A floor is a room event (tower.json) started from the
+    Tower page: clear the floor, clear it quickly, survive it, or slay its guardian."""
+    r = Room("sf_trial_tower", "Trial Tower", "trial", "stoneford", 2, backdrop="interior", material="floor_stone", custom_ground=True,
+             wall={"top": 150, "bottom": 650, "tile": "wall_stone"}, camera={"y_min": 520, "y_max": 560}, instanced=True, safe=False,
+             music="trial", spawn_point=[240, 820], dungeon_exit="sf_fairground", levels=[4, 62])
+    r.surface("ground", [0, 650, SCREEN * 2, 310], 0, kind="ground", stratum="ground")
+    r.surface("tower_step_w", [760, 690, 240, 56], 88, kind="rock_ledge")
+    r.surface("tower_dais", [1040, 660, 480, 50], 176, kind="rock_ledge")
+    r.surface("tower_step_e", [1560, 690, 240, 56], 88, kind="rock_ledge")
+    for x in (420, 1280, 2140):
+        r.decor("hanging_lantern", [x, 190], layer="back")
+    for x, b in ((600, "banner_jade"), (1960, "banner_cloud")):
+        r.decor(b, [x, 640], layer="back")
+    r.decor("statue_guardian_lion", [180, 700])
+    r.decor("statue_guardian_lion", [2380, 700])
+    r.obj("tower_stele", "inspect", [400, 790], prop="notice_board", open_page="tower", label="Trial Tower",
+          text="The floors are listed in brush on the stele. Choose the next one and the tower answers.")
+    r.portal("entry", "door", [120, 700], "sf_fairground", "tower", press_up=True, label="Fairground")
 
 
 def beast_grove():
@@ -2763,6 +2790,7 @@ def build():
     willow_path()
     beast_grove()
     stoneford()
+    trial_tower()
     sects()
     valley()
     azure_expanse()

@@ -427,6 +427,14 @@
     "opponent": "jealous_senior",
     "winner": "opponent"
    }
+  },
+  {
+   "id": "rank_climbed",
+   "name": "Climbed the Heaven Ranking",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": 15
   }
  ],
  "merit_step": 100,

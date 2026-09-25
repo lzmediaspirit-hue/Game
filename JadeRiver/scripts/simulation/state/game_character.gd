@@ -33,6 +33,7 @@ var pet_bag: Array = []              # S46: animals carried in a Spirit Beast Ba
 var mount_pet := ""                  # S46 Mount slot: the animal that carries you (beside a combat animal)
 var riding := false                  # S46: on the mount (the Mount button)
 var beast_arena: Dictionary = {}     # S46 Beast Arena: {rank, week, day, fights, last}
+var tower: Dictionary = {}           # S49 Trial Tower (World): {cleared: highest floor, swept: {floor: day}}
 var cooldowns: Dictionary = {}       # key -> utc until
 var rooms: Dictionary = {}           # room id -> {nodes: {obj: utc}, opened: {obj: true}}
 var skill_page := 0
@@ -62,7 +63,7 @@ func snapshot() -> Dictionary:
 		"quests": quests.snapshot(), "position": position.duplicate(true), "last_shrine": last_shrine.duplicate(true),
 		"last_town": last_town, "seclusion": seclusion.duplicate(true), "idle_task": idle_task.duplicate(true),
 		"companions": companions.duplicate(true), "pets": pets.duplicate(true), "eggs": eggs.duplicate(true), "active_pet": active_pet,
-		"party_pets": party_pets.duplicate(), "pet_bag": pet_bag.duplicate(), "mount_pet": mount_pet, "riding": riding, "beast_arena": beast_arena.duplicate(true),
+		"party_pets": party_pets.duplicate(), "pet_bag": pet_bag.duplicate(), "mount_pet": mount_pet, "riding": riding, "beast_arena": beast_arena.duplicate(true), "tower": tower.duplicate(true),
 		"cooldowns": cooldowns.duplicate(true), "rooms": rooms.duplicate(true), "skill_page": skill_page,
 		"skip_prologue": skip_prologue, "created_utc": created_utc, "last_active_utc": last_active_utc,
 		"statuses": pools.statuses.duplicate(true), "loadouts": loadouts.duplicate(true),
@@ -101,6 +102,7 @@ func restore(d: Dictionary) -> void:
 	mount_pet = str(d.get("mount_pet", ""))
 	riding = bool(d.get("riding", false))
 	beast_arena = d.get("beast_arena", {}).duplicate(true) if d.get("beast_arena") is Dictionary else {}
+	tower = d.get("tower", {}).duplicate(true) if d.get("tower") is Dictionary else {}
 	cooldowns = d.get("cooldowns", {}).duplicate(true)
 	rooms = d.get("rooms", {}).duplicate(true)
 	skill_page = clampi(int(d.get("skill_page", 0)), 0, 1)

@@ -46,7 +46,7 @@ each physics frame; the tests call it directly without any scene.
 | `CombatAuthority` | Pools (HP, QI, Soul, Composure, Hollowing), hits, techniques, guard and dodge, statuses, death and revival |
 | `ProgressionAuthority` | Realm, progress, breakthroughs, methods, meridians, body level, Daos and mastery, purity, stability, injuries, seclusion |
 | `EnemyAuthority` + `EnemyBrain` | Spawning, monster AI, boss phases, fleeing story bosses |
-| `WorldAuthority` | Rooms, portals, objects, loot on the ground, room events, shrines, Spirit Sense |
+| `WorldAuthority` | Rooms, portals, objects, loot on the ground, room events, shrines, Spirit Sense, the Trial Tower (floors cleared and swept, S49) |
 | `InventoryAuthority` | Bag, key items and tools, equipment, quick-use; routes system items (appraise, incubate, tame) to their owners |
 | `QuestAuthority` | Quests, flags, dialogue trees, daily missions, set pieces, quest drops |
 | `EconomyAuthority` | Currencies, shops, buyback, exchange |
@@ -55,8 +55,8 @@ each physics frame; the tests call it directly without any scene.
 | `TrainingSectAuthority` | Training sect membership, rank, contribution |
 | `SectAuthority` | Your own sect: buildings, disciples, expeditions, defence raids |
 | `PetAuthority`, `CompanionAuthority` | Spirit animals (starter, taming, eggs, bloodline, contracts, the party up to the command capacity) and AI companions fighting beside you |
-| `AccountAuthority`, `MailAuthority`, `AchievementAuthority` | Slots and idle tasks, letters with attachments, achievements and titles |
-| `CalendarAuthority` | The world calendar (S49, account level): world events from the seeded, pure `CalendarRules` schedule, the season, the weather and its effects, the spatial rift, Spirit Fruit births, the Herb Terraces trial and heavenly phenomena |
+| `AccountAuthority`, `MailAuthority`, `AchievementAuthority` | Slots and idle tasks, daily activity points and chests (S49), letters with attachments, achievements and titles |
+| `CalendarAuthority` | The world calendar (S49, account level): world events from the seeded, pure `CalendarRules` schedule, the season, the weather and its effects, the spatial rift, Spirit Fruit births, the Herb Terraces trial, heavenly phenomena and the Heaven Ranking |
 | `RelationsAuthority` | What the world remembers of each character (S49): the karma ledger (merit, sin, named debts), the righteous-demonic alignment, personal Fame and young masters' challenges (deeds come from karma.json); NPC hearts, gifts and keeper discounts; bonds (Dao Companion, sworn siblings, master) from bonds.json; grudges, hunters, bounties and mercy from factions.json; the Fortune meter and its encounters (fortune_deck.json) |
 
 ## Unlocks and the HUD

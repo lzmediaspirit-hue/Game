@@ -6,6 +6,7 @@ extends Page
 
 var sel := ""
 var zone_id := "jade_river_valley"
+var ranking_view := false   # S49: the Heaven Ranking tab
 
 func _init() -> void:
 	title = Tx.t("ui.map.jade_river_valley")
@@ -22,9 +23,15 @@ func setup() -> void:
 	for z in ContentDB.all("zones"):
 		if str(z.id) == "jade_river_valley" or _zone_seen(str(z.id)):
 			tabs.append({"id": str(z.id), "label": str(z.get("name", z.id))})
-	if tabs.size() < 2: tabs = []
+	# S49: the Heaven Ranking has its own tab beside the zones.
+	tabs.append({"id": "ranking", "label": Tx.t("ui.map.ranking")})
 	for i in tabs.size():
 		if str(tabs[i].id) == zone_id: tab = i
+	if str(args.get("tab", "")) == "ranking":
+		tab = tabs.size() - 1
+		ranking_view = true
+		title = Tx.t("ui.map.ranking_title")
+		return
 	title = str(ContentDB.zone(zone_id).get("name", title))
 
 func _zone_seen(zid: String) -> bool:
@@ -51,6 +58,9 @@ func visited(rid: String) -> bool:
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
+	if ranking_view:
+		_draw_ranking(ch)
+		return
 	var map_r := Rect2(content.position.x, content.position.y, 780, content.size.y)
 	var sky := zone_id != "jade_river_valley"
 	draw_rect(map_r, Color("c9d6dc") if sky else Color("d9ccaa"))
@@ -183,7 +193,56 @@ func _draw_cloud_sea(map_r: Rect2, pts: Dictionary) -> void:
 
 func on_action(id: String, data) -> void:
 	if id == "sel": sel = str(data)
+	if id == "challenge":
+		if submit({"type": "challenge_rank", "npc": str(data)}).get("ok", false):
+			close()
+			return
+	if id == "_tab" and str(data) == "ranking":
+		ranking_view = true
+		title = Tx.t("ui.map.ranking_title")
+		queue_redraw()
+		return
 	if id == "_tab":
+		ranking_view = false
 		zone_id = str(data)
 		title = str(ContentDB.zone(zone_id).get("name", title))
 		sel = ""
+
+# ------------------------------------------------------------------ the Heaven Ranking (S49 v1.1)
+## The valley's seeded cultivators, strongest first, with you among them once you have entered. The one directly
+## above you can be challenged; beat them and you hold their place for the rest of the week.
+func _draw_ranking(ch) -> void:
+	var r := Rect2(content.position, content.size)
+	panel(r)
+	var x := r.position.x + 28
+	var cols := [x + 12, x + 64, r.end.x - 470, r.end.x - 340, r.end.x - 196]
+	heading(Vector2(x, r.position.y + 40), Tx.t("ui.map.ranking_week") % (Game.calendar.rank_week() + 1), cols[2] - x - 40)
+	text(Vector2(cols[2], r.position.y + 40), Tx.t("ui.map.rank_level"), 15, UiKit.MIST)
+	text(Vector2(cols[3], r.position.y + 40), Tx.t("ui.map.rank_cp"), 15, UiKit.MIST)
+	var now := Clock.now_utc()
+	var table: Array = Game.calendar.ranking(ch)
+	var prev: Array = CalendarRules.rank_table(now - 604800.0, Game.calendar.cal_seed(), Game.calendar.origin()).map(func(o): return str(o.id))
+	var above := Game.calendar.rank_above(ch)
+	var y := r.position.y + 62
+	var npc_i := 0
+	for i in table.size():
+		var o: Dictionary = table[i]
+		var me: bool = o.get("player", false)
+		var rr := Rect2(x, y, r.size.x - 56, 48)
+		panel(rr, "minor_panel", "selected" if me else "normal")
+		if me: draw_rect(rr.grow(-3), Color(UiKit.BRIGHT_JADE, 0.7), false, 2.0)
+		text(Vector2(cols[0], y + 32), "%d" % (i + 1), 22, UiKit.GOLD if i < 3 else UiKit.PAPER)
+		text(Vector2(cols[1], y + 22), fit(str(o.name), 19, cols[2] - cols[1] - 20), 19, UiKit.BRIGHT_JADE if me else UiKit.PALE_GOLD)
+		if str(o.get("title", "")) != "": text(Vector2(cols[1], y + 40), fit(str(o.title), 13, cols[2] - cols[1] - 20), 13, UiKit.MIST)
+		text(Vector2(cols[2], y + 31), "%d" % int(o.level), 18, UiKit.PAPER)
+		text(Vector2(cols[3], y + 31), UiKit.fmt(int(o.cp)), 18, UiKit.PAPER)
+		if not me:
+			var was := prev.find(str(o.id))
+			if was >= 0 and was != npc_i: text(Vector2(cols[3] + 86, y + 31), "▲" if was > npc_i else "▼", 15, UiKit.BRIGHT_JADE if was > npc_i else UiKit.RED)
+			npc_i += 1
+		if not above.is_empty() and str(above.id) == str(o.id):
+			btn(Rect2(cols[4], y + 6, rr.end.x - cols[4] - 8, 36), Tx.t("ui.map.rank_challenge"), "challenge", str(o.id), true, true, "", 18)
+		y += 52
+	if not table.any(func(o): return o.get("player", false)):
+		var low := int(table.back().cp) if not table.is_empty() else 0
+		para(Rect2(x, y + 2, r.size.x - 56, 50), Tx.t("ui.map.rank_enter") % [UiKit.fmt(low), UiKit.fmt(StatRules.combat_power(ch))], 17, UiKit.MIST, 2)

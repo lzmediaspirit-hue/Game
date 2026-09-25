@@ -39,6 +39,7 @@ const PAGES := {
 	"gift": "res://scripts/ui/pages/gift_page.gd",
 	"mercy": "res://scripts/ui/pages/mercy_page.gd",
 	"calendar": "res://scripts/ui/pages/calendar_page.gd",
+	"tower": "res://scripts/ui/pages/tower_page.gd",
 	"companions": "res://scripts/ui/pages/companions_page.gd",
 	"crafts": "res://scripts/ui/pages/crafts_page.gd",
 	"cooking": "res://scripts/ui/pages/crafts_page.gd",
@@ -226,6 +227,15 @@ func _handle_preview_args(user_args: Array) -> void:
 			# Debug tools (S38): --fortune=card turns up that fortune encounter here, meter or not (S49 previews).
 			var card := ContentDB.entry("fortune_deck", str(a).trim_prefix("--fortune="))
 			if not card.is_empty(): Game.relations.fortune_check(Game.active(), str((card.get("triggers", ["room_entered"]) as Array)[0]), str(card.id))
+		if str(a).begins_with("--tower=") and Game.active() != null:
+			# Debug tools (S38): --tower=N marks the Trial Tower cleared to floor N (S49 previews).
+			Game.active().tower["cleared"] = int(str(a).trim_prefix("--tower="))
+		if str(a).begins_with("--climb=") and Game.active() != null:
+			# Debug tools (S38): --climb=N starts Trial Tower floor N (S49 previews).
+			Game.world.climb_tower(Game.active(), int(str(a).trim_prefix("--climb=")))
+		if str(a).begins_with("--activity="):
+			# Debug tools (S38): --activity=N sets today's activity points (S49 chest previews).
+			Game.accounts.activity()["points"] = int(str(a).trim_prefix("--activity="))
 		if str(a).begins_with("--phenomenon=") and Game.active() != null:
 			# Debug tools (S38): --phenomenon=cloud|lightning shows the heavens answering a breakthrough here (S49).
 			Game.calendar._phenomenon(Game.active().id, str(a).trim_prefix("--phenomenon="), Game.active().cultivator.realm_key)

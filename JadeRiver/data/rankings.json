@@ -1,0 +1,83 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "shen_lian",
+   "name": "Shen Lian",
+   "title": "Lotus Ferry's fisher girl, now a Cloud Sect disciple",
+   "level": 10,
+   "per_week": 2.0,
+   "cap": 52,
+   "talent": 1.15,
+   "enemy": "shen_lian"
+  },
+  {
+   "id": "wen_zhao",
+   "name": "Wen Zhao",
+   "title": "Your rival since the Fairground",
+   "level": 18,
+   "per_week": 2.0,
+   "cap": 58,
+   "talent": 1.1,
+   "enemy": "wen_zhao"
+  },
+  {
+   "id": "cloud_first",
+   "name": "Yun Zhiqiu",
+   "title": "First disciple of the Cloud Sect",
+   "level": 30,
+   "per_week": 1.5,
+   "cap": 62,
+   "talent": 1.1,
+   "enemy": "cloud_first_disciple"
+  },
+  {
+   "id": "jade_first",
+   "name": "Bai Yuheng",
+   "title": "First disciple of the Jade Sect",
+   "level": 31,
+   "per_week": 1.5,
+   "cap": 63,
+   "talent": 1.08,
+   "enemy": "jade_first_disciple"
+  },
+  {
+   "id": "iron_crane",
+   "name": "\"Iron Crane\" Guo Ming",
+   "title": "A rogue cultivator nobody has pinned down",
+   "level": 34,
+   "per_week": 1.0,
+   "cap": 60,
+   "talent": 1.05,
+   "enemy": "iron_crane_guo"
+  },
+  {
+   "id": "hua_captain",
+   "name": "Captain Lou Chen",
+   "title": "Madam Hua's guard captain",
+   "level": 24,
+   "per_week": 1.0,
+   "cap": 44,
+   "talent": 1.0,
+   "enemy": "hua_guard_captain"
+  },
+  {
+   "id": "gorge_chief",
+   "name": "Chief Yan Bo",
+   "title": "Chief of the Gorge Bandit Adepts",
+   "level": 33,
+   "per_week": 0.5,
+   "cap": 40,
+   "talent": 1.0,
+   "enemy": "gorge_chief"
+  }
+ ],
+ "ref_cp": [
+  20,
+  18
+ ],
+ "wobble": 0.04,
+ "top": 8,
+ "finals_quest": "the_valley_finals",
+ "climb_deed": "rank_climbed"
+}

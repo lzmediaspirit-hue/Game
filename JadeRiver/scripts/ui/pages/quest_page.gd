@@ -59,7 +59,12 @@ func draw_page() -> void:
 	if ids.is_empty():
 		text(left.position + Vector2(0, 70), Tx.t("ui.quest.nothing_here_yet"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, left.size.x)
 		if str(tabs[tab].id) == "main": _next_chapter(ch, left)
-	list("q", left.grow(-10), ids.size(), 62, func(i: int, rr: Rect2):
+	# S49 daily activity: the day's points and the four chests sit under the day's missions.
+	var list_rect := left.grow(-10)
+	if str(tabs[tab].id) == "daily":
+		list_rect.size.y -= 176
+		_activity(ch, Rect2(left.position.x + 18, left.end.y - 172, left.size.x - 36, 160))
+	list("q", list_rect, ids.size(), 62, func(i: int, rr: Rect2):
 		var q := str(ids[i])
 		var d := Game.quest.quest_def(ch, q)
 		var active: bool = ch.quests.is_active(q)
@@ -134,8 +139,36 @@ func _reward_lines(d: Dictionary) -> Array:
 	if pct > 0.0: out.append(Tx.t("ui.quest.reward_progress") % int(round(pct * 100.0)))
 	return out
 
+## The activity bar: today's points toward four chests (20, 40, 60, 100), shared by every character.
+func _activity(ch, r: Rect2) -> void:
+	var a: Dictionary = Game.accounts.activity()
+	var pts := int(a.get("points", 0))
+	var tiers: Array = ContentDB.all("activity")
+	var top := int(tiers.back().points) if not tiers.is_empty() else 100
+	text(r.position + Vector2(0, 18), Tx.t("ui.quest.activity"), 22, UiKit.GOLD)
+	text(Vector2(r.end.x - 180, r.position.y + 18), Tx.t("ui.quest.activity_points") % [pts, top], 17, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, 180)
+	var br := Rect2(r.position.x, r.position.y + 90, r.size.x, 20)
+	bar(br, float(pts) / float(top), UiKit.GOLD)
+	for tr in tiers:
+		var cx: float = br.position.x + br.size.x * float(tr.points) / float(top)
+		var claimed: bool = (a.get("claimed", []) as Array).has(str(tr.id))
+		var ready: bool = pts >= int(tr.points) and not claimed
+		var box := Rect2(clampf(cx - 24, r.position.x, r.end.x - 48), r.position.y + 34, 48, 46)
+		if ready:
+			var glow := 0.45 + 0.35 * sin(t * 4.0)
+			draw_rect(box.grow(3), Color(UiKit.GOLD, glow), false, 3.0)
+		panel(box, "minor_panel", "selected" if ready else "normal")
+		var ico := Rect2(box.get_center() - Vector2(16, 16), Vector2(32, 32))
+		icon_at(ico, "open")
+		if not ready: draw_rect(box.grow(-2), Color(0.02, 0.05, 0.06, 0.55))
+		if claimed: text(Vector2(box.position.x, box.position.y + 32), "✓", 24, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_CENTER, box.size.x)
+		region(box, "chest", str(tr.id), ready, Tx.t("ui.quest.chest_locked") % int(tr.points) if not claimed else Tx.t("ui.quest.chest_claimed"))
+		text(Vector2(box.position.x, br.end.y + 20), str(int(tr.points)), 15, UiKit.PALE_GOLD if pts >= int(tr.points) else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, box.size.x)
+	para(Rect2(r.position.x, br.end.y + 26, r.size.x, 40), Tx.t("ui.quest.activity_note"), 14, UiKit.MIST, 2)
+
 func on_action(id: String, data) -> void:
 	match id:
+		"chest": submit({"type": "claim_activity_chest", "tier": str(data)})
 		"sel": sel = str(data)
 		"_tab": sel = ""
 		"track": submit({"type": "track_quest", "quest": str(data)})

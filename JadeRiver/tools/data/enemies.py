@@ -76,6 +76,15 @@ HUMAN = {
     "wen_zhao": {"hair": "flowing", "hair_color": 0, "shirt": "cardigan", "pants": "martial", "shoes": "folded", "weapon": "sword", "hat": "none"},
     "young_master": {"hair": "flowing", "hair_color": 0, "shirt": "cardigan", "pants": "martial", "shoes": "folded", "weapon": "sword", "hat": "guan",
                      "shirt_dye": "crimson", "pants_dye": "ink"},
+    # S49 Heaven Ranking: the valley's ranked cultivators you can challenge (existing parts and dyes only).
+    "cloud_first_disciple": {"hair": "high_pony", "hair_color": 0, "shirt": "vneck", "pants": "martial", "shoes": "boots", "weapon": "sword", "hat": "none",
+                             "shirt_dye": "cloud"},
+    "jade_first_disciple": {"hair": "topknot", "hair_color": 1, "shirt": "cardigan", "pants": "martial", "shoes": "folded", "weapon": "sword", "hat": "guan",
+                            "shirt_dye": "jade"},
+    "iron_crane_guo": {"hair": "short_knot", "hair_color": 2, "shirt": "sleeveless", "pants": "martial", "shoes": "boots", "weapon": "staff", "hat": "none",
+                       "shirt_dye": "ink"},
+    "hua_guard_captain": {"hair": "short_knot", "hair_color": 0, "shirt": "vneck", "pants": "martial", "shoes": "boots", "weapon": "sword", "hat": "tied",
+                          "shirt_dye": "crimson", "pants_dye": "ink"},
     # S49 heavenly phenomena: an older disciple who saw the clouds gather over you (existing parts and dyes only).
     "jealous_senior": {"hair": "long_tied", "hair_color": 3, "shirt": "vneck", "pants": "martial", "shoes": "boots", "weapon": "sword", "hat": "none",
                        "shirt_dye": "grey", "pants_dye": "ink"},
@@ -120,7 +129,8 @@ NAMES = {"mudwater_lieutenant": "Lieutenant Kuai", "kuai_shan": "Kuai Shan", "ta
          "mudwater_cutthroat": "Mudwater Cutthroat", "gorge_stalker": "Gorge Stalker", "gu_enforcer": "Gu Family Enforcer",
          "one_eye_pang": "One-Eye Pang", "ferryman_lou": "Ferryman Lou", "knife_hand_sui": "Knife-Hand Sui",
          "duel_lan_yue": "Lan Yue", "duel_tie_niu": "Tie Niu", "duel_qiu_feng": "Qiu Feng", "duel_bai_ling": "Bai Ling",
-         "young_master": "Young Master Luo Heng", "jealous_senior": "Senior Brother Hao Qian", "rogue_cultivator": "Rogue Cultivator", "rogue_treasure_adept": "Rogue Mirror Adept", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
+         "young_master": "Young Master Luo Heng", "jealous_senior": "Senior Brother Hao Qian", "cloud_first_disciple": "Yun Zhiqiu", "jade_first_disciple": "Bai Yuheng",
+         "iron_crane_guo": "\"Iron Crane\" Guo Ming", "hua_guard_captain": "Captain Lou Chen", "rogue_cultivator": "Rogue Cultivator", "rogue_treasure_adept": "Rogue Mirror Adept", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
          "ninth_presence": "The Ninth Presence"}
 
 
@@ -377,6 +387,16 @@ def build():
                                                             atk("golden_crescent", 0.65, 280, 1.15, damage_type="qi",
                                                                 projectile={"speed": 520, "art": "qi_arc"})],
             ai="duelist", art=human("young_master"), race="human", width=18, height=90, spar=True, name="Young Master Luo Heng"),
+        # S49 Heaven Ranking: challenge the one ranked directly above you (they spar at their own Level that week).
+        mob("cloud_first_disciple", 30, "trial", "wind", None, [], [atk("drifting_cut", 0.38, 80, 1.1), atk("cloud_crescent", 0.6, 300, 1.2, damage_type="qi",
+                                                                                                          projectile={"speed": 560, "art": "qi_arc"})],
+            ai="duelist", art=human("cloud_first_disciple"), race="human", width=18, height=90, spar=True, name="Yun Zhiqiu"),
+        mob("jade_first_disciple", 31, "trial", "wood", None, [], [atk("jade_edge", 0.4, 80, 1.12), atk("verdant_thrust", 0.55, 120, 1.25, dash=170)],
+            ai="duelist", art=human("jade_first_disciple"), race="human", width=18, height=90, spar=True, name="Bai Yuheng"),
+        mob("iron_crane_guo", 34, "trial", "metal", None, [], [atk("crane_staff", 0.5, 90, 1.2, knockback=80), atk("iron_beak", 0.7, 100, 1.35, dash=200)],
+            ai="duelist", art=human("iron_crane_guo"), race="human", width=20, height=92, spar=True, name="\"Iron Crane\" Guo Ming"),
+        mob("hua_guard_captain", 24, "trial", "none", None, [], [atk("guard_cut", 0.4, 76, 1.1), atk("shield_rush", 0.6, 90, 1.2, dash=160, knockback=90)],
+            ai="duelist", art=human("hua_guard_captain"), race="human", width=18, height=90, spar=True, name="Captain Lou Chen"),
         # S49 heavenly phenomena: a senior who cannot bear to see the heavens answer someone else. He spars at your
         # new level, right after the breakthrough.
         mob("jealous_senior", 20, "trial", "metal", None, [], [atk("envy_cut", 0.4, 72, 1.08), atk("thrust_through", 0.55, 110, 1.2, dash=160)],

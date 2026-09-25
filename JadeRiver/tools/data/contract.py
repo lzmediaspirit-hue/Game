@@ -75,7 +75,9 @@ DEPTH = {
     "Enemies": ["enemy_leashed", "beast_king_spawned", "king_nest_opened"],
     # S49: the world calendar (account level): world events, the season, the weather, the spatial rift.
     "Calendar": ["world_event_scheduled", "world_event_started", "world_event_ended", "season_changed", "weather_changed", "rift_opened",
-                 "treasure_claimed", "gathering_trial_ranked", "heavenly_phenomenon", "fortune_encounter"],
+                 "treasure_claimed", "gathering_trial_ranked", "heavenly_phenomenon", "fortune_encounter", "ranking_changed"],
+    # S49 daily activity chests (account level).
+    "Account": ["activity_chest_ready", "activity_chest_claimed"],
     # S49: the karma ledger, alignment and Fame (per character).
     "Relations": ["merit_changed", "sin_changed", "debt_recorded", "debt_called", "alignment_changed", "fame_changed",
                   "young_master_challenge", "affinity_changed", "bond_formed", "grudge_changed", "hunter_dispatched", "bounty_taken",
@@ -84,7 +86,8 @@ DEPTH = {
              "contract_formed", "contract_offered", "pet_skill_cast", "beast_suppressed", "egg_infused", "party_changed",
              "pet_skill_learned", "pets_fused", "pet_core_formed", "pet_breakthrough", "pet_gear_changed", "pet_swapped",
              "arena_battle", "arena_rewarded", "pet_fed"],
-    "World": ["ambush_sprung", "herb_ripening", "guardian_spawned", "beast_tide_started", "beast_tide_result", "beast_trial_result"],
+    "World": ["ambush_sprung", "herb_ripening", "guardian_spawned", "beast_tide_started", "beast_tide_result", "beast_trial_result",
+              "tower_floor_cleared", "tower_swept"],
 }
 for _sys, _names in DEPTH.items():
     CATALOGUE[_sys] = CATALOGUE.get(_sys, []) + _names

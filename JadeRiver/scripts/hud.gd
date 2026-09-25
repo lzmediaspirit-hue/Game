@@ -678,6 +678,20 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id:
 				toast(Tx.t("hud.jealous_senior") if str(p.get("enemy", "")) == "jealous_senior" else Tx.t("hud.young_master"), "quest")
 				open_page.emit("relations", {"tab": "fame"})
+		"tower_floor_cleared":
+			if str(p.get("actor", "")) == Game.active_id:
+				toast(Tx.t("hud.tower_cleared") % int(p.floor), "gold", Tx.t("hud.tower_first") if p.get("first", false) else "")
+		"tower_swept":
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.tower_swept") % int(p.floors), UiKit.PALE_GOLD)
+		"activity_chest_ready":
+			toast(Tx.t("hud.activity_ready") % int(p.points), "gold", Tx.t("hud.activity_ready_hint"))
+		"activity_chest_claimed":
+			add_log(Tx.t("hud.activity_claimed") % int(p.points), UiKit.PALE_GOLD)
+		"ranking_changed":
+			if str(p.get("actor", "")) == Game.active_id and str(p.get("beaten", "")) != "":
+				toast(Tx.t("hud.rank_climbed") % str(ContentDB.entry("rankings", str(p.beaten)).get("name", "")), "gold")
+			elif str(p.get("actor", "")) == "":
+				add_log(Tx.t("hud.ranking_shifts"), UiKit.MIST)
 		"fortune_encounter":
 			if str(p.get("actor", "")) == Game.active_id:
 				var card := ContentDB.entry("fortune_deck", str(p.card))
@@ -1464,14 +1478,20 @@ func _draw_event(c) -> void:
 		rule = Tx.t("hud.event_rule.hp_floor") % int(round(float(ev.hp_floor) * 100))
 		danger = c.pools.hp < c.pools.max_hp * (float(ev.hp_floor) + 0.1)
 	if not (ev.get("kill_count", {}) as Dictionary).is_empty():
-		rule = Tx.t("hud.event_rule.kills") % [str(ContentDB.entry("enemies", str(ev.kill_count.enemy)).get("name", "")), int(ev.get("kills", 0)), int(ev.kill_count.get("count", 1))]
+		var foe := Tx.t("hud.event_rule.foes") if str(ev.kill_count.enemy) == "*" else str(ContentDB.entry("enemies", str(ev.kill_count.enemy)).get("name", ""))
+		rule = Tx.t("hud.event_rule.kills") % [foe, int(ev.get("kills", 0)), int(ev.kill_count.get("count", 1))]
+	elif str(ev.get("win_on_kill", "")) != "" and ev.has("floor"):
+		rule = Tx.t("hud.event_rule.guardian") % ContentDB.name_of("enemies", str(ev.win_on_kill))
+	elif ev.has("floor"):
+		rule = Tx.t("hud.event_rule.survive")
 	if ev.has("ground_grace_s"):
 		rule = Tx.t("hud.event_rule.ground")
 		danger = float(ev.get("ground_s", 0.0)) > 0.0
 	var r := Rect2(470, 142, 340, 52 if rule != "" else 34)
 	draw_style_box(UiKit.style("toast"), r)
 	var left := maxf(0.0, float(ev.get("remaining", 0.0)))
-	UiKit.draw_text(self, ContentDB.text("event." + str(ev.get("id", ""))), r.position + Vector2(14, 23), 17, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 240)
+	var ev_name := Tx.t("hud.tower_floor") % int(ev.floor) if ev.has("floor") else ContentDB.text("event." + str(ev.get("id", "")))
+	UiKit.draw_text(self, ev_name, r.position + Vector2(14, 23), 17, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 240)
 	UiKit.draw_text(self, "%d:%02d" % [int(left) / 60, int(left) % 60], r.position + Vector2(r.size.x - 84, 23), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 70)
 	var frac := left / maxf(1.0, float(ev.get("duration", 1.0)))
 	draw_rect(Rect2(r.position + Vector2(12, 29), Vector2(r.size.x - 24, 3)), Color(UiKit.INK, 0.8))
