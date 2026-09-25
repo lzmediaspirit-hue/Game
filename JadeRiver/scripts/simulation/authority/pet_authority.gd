@@ -30,7 +30,7 @@ func handle(intent: Dictionary) -> Dictionary:
 			var p := _pet(c, str(intent.get("pet", c.active_pet)))
 			if p.is_empty(): return fail("unknown_pet")
 			var role := str(intent.get("role", "combat"))
-			if not role in ["combat", "gatherer", "cultivation", "mount"]: return fail("bad_role")
+			if not role in ["combat", "gatherer", "cultivation", "mount", "guard"]: return fail("bad_role")
 			if role == "mount":
 				if not mountable(p): return fail("not_mountable", {"text": Tx.t("sim.pet.too_small_to_carry_you")})
 				if not Unlocks.is_unlocked(c.id, str(growth().get("mount_unlock", "mounts"))): return fail("locked", {"text": Unlocks.locked_text("mounts")})
@@ -203,6 +203,12 @@ func _on_player_hit(p: Dictionary) -> void:
 func _on_room_entered(_p: Dictionary) -> void:
 	_spawn(game.active())
 
+## A pet on Guard duty (S45) keeps pests and thieves off the garden while you are away.
+func guard_pet(c) -> Dictionary:
+	for p in c.pets:
+		if str(p.get("role", "")) == "guard": return p
+	return {}
+
 func _spawn(c) -> void:
 	if c == null or game.room_rt == null: return
 	# Uids restart in every room: only remove the entry if it really is our pet.
@@ -211,6 +217,7 @@ func _spawn(c) -> void:
 	ally_uid = 0
 	var p := active_pet(c)
 	if p.is_empty() or game.room_rt.def.get("type", "") == "interior" or not mount_of(c).is_empty(): return
+	if str(p.get("role", "")) == "guard": return   # on Guard duty it stays home by the garden (S45)
 	var sp := ContentDB.entry("pets", str(p.species))
 	var st: ActorState = game.actor_state(c.id)
 	var a := EnemyState.new()

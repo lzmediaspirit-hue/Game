@@ -1766,7 +1766,8 @@
     "You can't stand at the furnace all day. Queue a batch and come back."
    ],
    "complete_text": [
-    "Here's a drying rack for herbs. Batches go faster with dry ingredients."
+    "Here's a drying rack for herbs. Steam them on it and their pills poison you less; soak them in rice wine and the pills bite harder.",
+    "Set it up by any garden bed."
    ],
    "offered_by_unlock": true,
    "chapter": "qk8",

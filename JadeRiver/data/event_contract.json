@@ -809,6 +809,34 @@
     "workshop_authority"
    ]
   },
+  "rack_started": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "rack_collected": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "garden_raided": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "herb_appraised": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
   "currency_changed": {
    "system": "Economy",
    "files": [

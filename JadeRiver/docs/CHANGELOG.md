@@ -5,6 +5,32 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V6c · Processing racks, sealed herbs and garden raids (S45)
+- **Racks** on the drying rack (Batch Work's reward, its text now true): two at a time, ten herbs each, on the
+  clock and offline too. A new Racks tab on the Garden page runs them.
+  - Steaming (1 h): pills made from the herb carry 30 % less toxicity.
+  - Wine-soaking (4 h, a jar of rice wine per five herbs; Stoneford General Store): +10 % potency.
+  - The herbs come back marked (a `prep` on the stack). A pill takes the prep of its principal herb when there
+    is enough prepared of it. Other herbs are taken plain first, so prepared ones aren't wasted.
+- **Sealed herbs.** Old Pan's "hundred-year" ginseng comes sealed, each in its own slot, and 30 % are dyed roots.
+  - Appraisal (loupe, Appraisal Eye, or Old Pan and Elder Gu in person) shows which, from the item's new Appraise
+    button.
+  - An unappraised fake in the furnace spoils the pill (Flawed) 60 % of the time. Sealed stacks are taken last.
+- **Garden raids.** Once a reset day, checked when you come back, an unguarded planted bed may be hit (8 %):
+  - pests halve its growth, or a thief takes the herb;
+  - a mail from the gardener tells you which;
+  - a pet on the new Guard duty stays home and keeps them off, as does a Protection or Concealment formation
+    burning in the bed's room that day.
+- Pill tooltips show the prep and its toxicity; sealed herbs say so.
+- **Events:** `rack_started`, `rack_collected`, `garden_raided` and `herb_appraised`, with HUD notes.
+- **Tests:**
+  - rack timing, the wine cost, and the prep carried into a pill;
+  - potency and toxicity by prep;
+  - sealed slots, appraisal needing a loupe, and fakes revealed only by appraisal;
+  - a fake taken into a craft;
+  - raids on an unguarded bed and none under a Protection formation.
+- **Moved to V8** (they run on the S49 world calendar): treasure births and gathering trials.
+
 ### V6b · The herb garden: beds, Spirit Soil, spring water, transplanting and the Verdant Dew Vial (S45)
 - **Garden beds** grow a herb from seed on the clock, offline too. A new Garden page, opened from a bed, shows each
   bed with its herb, age, growth and time left.

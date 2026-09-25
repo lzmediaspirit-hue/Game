@@ -168,7 +168,7 @@ func _draw_detail(r: Rect2) -> void:
 			text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.forge.pity_line") % int(round(float(s.pity) * 100)), 16, UiKit.GOLD)
 			y += 22
 	if def.get("pill", {}).has("toxicity"):
-		var tox_mult := float(ContentDB.config("grades").get("pill", {}).get("toxicity", {}).get(q if q != "" else "common", 1.0))
+		var tox_mult := InventoryAuthority.pill_toxicity_mult(s)
 		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.toxicity") % int(round(float(def.pill.toxicity) * tox_mult)), 16, UiKit.RED)
 		y += 22
 	if not def.get("pill", {}).is_empty() and q != "":
@@ -181,6 +181,13 @@ func _draw_detail(r: Rect2) -> void:
 		if q == "pill_halo":
 			text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.halo_charge") % int(round(float(s.get("halo", 0.0)) * 100.0)), 16, UiKit.PALE_GOLD)
 			y += 22
+	# S45: a rack's work (steamed, wine-soaked) and a merchant's sealed herb.
+	if str(s.get("prep", "")) != "":
+		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.prep_" + str(s.prep)), 16, UiKit.BRIGHT_JADE)
+		y += 22
+	if s.get("unappraised", false):
+		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.unappraised"), 16, UiKit.GOLD)
+		y += 22
 	# S44: what lifetime resistance leaves of this pill's effect.
 	var fam := ProgressionRules.pill_family(def)
 	if fam != "" and not def.get("pill", {}).is_empty():
@@ -198,6 +205,8 @@ func _draw_detail(r: Rect2) -> void:
 		# S47: a Shattered Relic is restored at a forge by an Expert smith.
 		if def.has("restores"):
 			btn(Rect2(bx, by, r.size.x - 28, 50), Tx.t("ui.inventory.restore_relic"), "restore", null, true)
+		elif s.get("unappraised", false):
+			btn(Rect2(bx, by - 56, r.size.x - 28, 46), Tx.t("ui.inventory.appraise"), "appraise", null, true)
 		# S47 self-detonation: a spare artifact bursts for damage by its grade and is gone (confirmed first).
 		if (ContentDB.is_equipment(id) or def.has("treasure")) and not def.has("furnace") and Unlocks.is_unlocked(ch.id, "treasures"):
 			btn(Rect2(bx, by - 56, r.size.x - 28, 46), Tx.t("ui.inventory.detonate"), "detonate", null, false, not ch.inventory.locked.has(int(s.get("uid", -1))), Tx.t("ui.forge.locked_item"))
@@ -304,6 +313,9 @@ func on_action(id: String, data) -> void:
 			if not r.get("ok", false) and r.get("reason", "") == "confirm":
 				ask(str(r.get("text", Tx.t("ui.inventory.use_it_anyway"))), "use_confirm", int(sel.bag))
 		"use_confirm": submit({"type": "use_item", "index": int(data), "confirm": true})
+		"appraise":
+			var ar := submit({"type": "appraise_item", "index": int(sel.bag)})
+			if ar.get("ok", false): flash(str(ar.get("text", "")))
 		"spare":
 			if submit({"type": "set_spare_weapon", "index": int(sel.bag)}).get("ok", false):
 				flash(Tx.t("ui.inventory.spare_set"))

@@ -892,7 +892,8 @@ def guided_quests():
         o("use_system", "Collect the batch", system="auto_refine_collected"),
     ], [item("drying_rack", 1)], offered_by_unlock=True, chapter="qk8", target_room="sf_artisan_row",
         offer=["You can't stand at the furnace all day. Queue a batch and come back."],
-        complete=["Here's a drying rack for herbs. Batches go faster with dry ingredients."])
+        complete=["Here's a drying rack for herbs. Steam them on it and their pills poison you less; soak them in rice wine and the pills bite harder.",
+                  "Set it up by any garden bed."])
     quest("toward_cleansing_peak", "Toward Cleansing Peak", "main", "elder_hu", [
         o("reach_room", "Climb the Pilgrim Stairs", room="cp_pilgrim_stairs"),
         o("kill", "Defeat Stone Guardians", 3, enemy="stone_guardian"),
@@ -1864,6 +1865,10 @@ def mail_templates():
          "body": "I paid the valley what I could. This is for the fisher's child who broke my chains. A man who is paid back remembers how it felt."},
         {"id": "gu_remembers", "from": "Unsigned", "subject": "We know your name",
          "body": "You left our uncle in chains for the Alliance to weigh. The Gu family keeps ledgers too. One day it will be your page we open."},
+        {"id": "garden_raid_pests", "from": "The sect gardener", "subject": "Pests in your bed at {place}",
+         "body": "Beetles got into your {herb} while you were away. It will live, but it lost half its growth. A pet on Guard duty or a Protection formation would keep them off."},
+        {"id": "garden_raid_thief", "from": "The sect gardener", "subject": "Your {herb} is gone",
+         "body": "Someone dug up your {herb} at {place} in the night. The bed is bare. Next time leave a pet on Guard duty, or burn a Protection or Concealment formation there."},
         {"id": "elder_token", "from": "Your mentor", "subject": "An Elder's token", "body": "Word reached the sect that you are a Sage Sovereign. Your token is an Elder's now: at any teleport stone it will call you home, and the sect will not ask for shards. Come home sometimes."},
     ]
     entries("mail_templates", rows)

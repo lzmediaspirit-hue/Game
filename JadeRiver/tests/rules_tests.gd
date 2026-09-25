@@ -57,6 +57,7 @@ func _main() -> void:
 	vows_suite()
 	herbs_suite()
 	garden_suite()
+	herb_prep_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -1464,6 +1465,95 @@ func garden_suite() -> void:
 	Clock.override_utc = -1.0
 	c.crafting["garden"] = garden_was
 	for id in ["spirit_spade", "verdant_dew_vial"]: Game.inventory.apply_remove(c.id, id, 1, "test")
+
+# ------------------------------------------------------------------ S45 racks, fakes and garden raids
+func herb_prep_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	Unlocks.force_unlock(c.id, "herb_garden")
+	Unlocks.force_unlock(c.id, "appraisal")
+	var now := 1960000000.0
+	Clock.override_utc = now
+	for id in ["mist_lotus", "riverreed_ginseng_10", "riverreed_ginseng_100", "willow_moss", "rice_wine", "dyed_root"]:
+		Game.inventory.apply_remove(c.id, id, c.inventory.count(id), "test")
+	Game.inventory.apply_add(c.id, "drying_rack", 1, "test")
+	c.crafting["racks"] = []
+	# Racks: steaming takes an hour; the herbs come back marked.
+	Game.inventory.apply_add(c.id, "mist_lotus", 5, "test")
+	var sr := Game.submit({"type": "start_rack", "kind": "steamed", "herb": "mist_lotus", "count": 5})
+	check(sr.get("ok", false) and c.inventory.count("mist_lotus") == 0 and Game.crafting.racks(c).size() == 1, "five lotus go on the steaming rack")
+	check(not Game.submit({"type": "collect_racks"}).get("ok", false), "nothing to take off before the hour")
+	Clock.override_utc = now + 3601.0
+	check(Game.submit({"type": "collect_racks"}).get("ok", false) and Game.inventory.count_prep(c, "mist_lotus", "steamed") == 5, "an hour later: five steamed lotus")
+	# Wine-soaking wants a jar of rice wine for every five herbs, and four hours.
+	Game.inventory.apply_add(c.id, "riverreed_ginseng_10", 3, "test")
+	check(str(Game.submit({"type": "start_rack", "kind": "wine", "herb": "riverreed_ginseng_10", "count": 3}).get("reason", "")) == "needs", "no rice wine, no soaking")
+	Game.inventory.apply_add(c.id, "rice_wine", 1, "test")
+	check(Game.submit({"type": "start_rack", "kind": "wine", "herb": "riverreed_ginseng_10", "count": 3}).get("ok", false) and c.inventory.count("rice_wine") == 0,
+		"a jar of rice wine soaks three roots")
+	Clock.override_utc = now + 3601.0 + 4.0 * 3600.0
+	Game.submit({"type": "collect_racks"})
+	check(Game.inventory.count_prep(c, "riverreed_ginseng_10", "wine") == 3, "four hours later: three wine-soaked roots")
+	# A pill takes the prep of its principal herb when all of it was prepared.
+	Game.inventory.apply_add(c.id, "willow_moss", 2, "test")
+	var used: Dictionary = Game.crafting._consume(c, "healing_pill", [{"item": "riverreed_ginseng_10", "count": 1}, {"item": "willow_moss", "count": 2}], "riverreed_ginseng_10")
+	check(str(used.prep) == "wine" and Game.inventory.count_prep(c, "riverreed_ginseng_10", "wine") == 2 and not used.fake, "a healing pill from a wine-soaked root is wine-soaked")
+	check(near(InventoryAuthority.pill_potency({"id": "healing_pill", "prep": "wine"}), 1.1) and near(InventoryAuthority.pill_toxicity_mult({"id": "healing_pill", "prep": "steamed"}), 0.7),
+		"wine-soaked: +10% potency; steamed: -30% toxicity")
+	# Sealed herbs: some are fakes, each in its own slot until appraised; a fake in a recipe risks a Flawed pill.
+	c.inventory.next_uid += 1
+	Game.inventory.apply_add(c.id, "riverreed_ginseng_100", 1, "test", {"unappraised": true, "fake": true, "seal": c.inventory.next_uid})
+	c.inventory.next_uid += 1
+	Game.inventory.apply_add(c.id, "riverreed_ginseng_100", 1, "test", {"unappraised": true, "fake": false, "seal": c.inventory.next_uid})
+	var sealed: Array = []
+	for i in c.inventory.bag.size():
+		var st = c.inventory.bag[i]
+		if st != null and str(st.id) == "riverreed_ginseng_100": sealed.append(i)
+	check(sealed.size() == 2 and Game.inventory.count_prep(c, "riverreed_ginseng_100", "") == 0, "two sealed roots, one slot each, not counted as appraised")
+	var fake_i := -1
+	for i in sealed:
+		if c.inventory.bag[i].get("fake", false): fake_i = int(i)
+	var had_loupe: bool = Game.crafting.tool_power(c, "appraisal") > 0.0
+	var had_eye: bool = c.cultivator.secret_arts.has("appraisal_eye")
+	Game.inventory.apply_remove(c.id, "appraisers_loupe", 1, "test")
+	c.cultivator.secret_arts.erase("appraisal_eye")
+	check(not Game.submit({"type": "appraise_item", "index": fake_i}).get("ok", false), "no loupe, no appraisal")
+	Game.inventory.apply_add(c.id, "appraisers_loupe", 1, "test")
+	if had_eye: c.cultivator.secret_arts.append("appraisal_eye")
+	var ap := Game.submit({"type": "appraise_item", "index": fake_i})
+	check(ap.get("ok", false) and ap.get("fake", false) and c.inventory.count("dyed_root") == 1 and c.inventory.count("riverreed_ginseng_100") == 1,
+		"appraisal shows the fake: a dyed root")
+	var used2: Dictionary = Game.crafting._consume(c, "cleansing_pill", [{"item": "riverreed_ginseng_100", "count": 1}], "mist_lotus")
+	check(not used2.fake, "the genuine sealed root is no fake")
+	if not had_loupe: Game.inventory.apply_remove(c.id, "appraisers_loupe", 1, "test")
+	c.inventory.next_uid += 1
+	Game.inventory.apply_add(c.id, "riverreed_ginseng_100", 1, "test", {"unappraised": true, "fake": true, "seal": c.inventory.next_uid})
+	check(Game.crafting._consume(c, "cleansing_pill", [{"item": "riverreed_ginseng_100", "count": 1}], "mist_lotus").fake, "an unappraised fake goes into the furnace unseen")
+	# Garden raids: an unguarded bed can be hit while you are away; a Protection formation keeps it safe.
+	var bed := "ja_herb_terraces:bed_1"
+	var garden_was: Dictionary = Game.crafting.beds(c).duplicate(true)
+	var forms_was = c.crafting.get("formations", []).duplicate(true)
+	c.crafting["formations"] = []
+	var raids: Dictionary = ContentDB.config("garden").raids
+	var chance_was := float(raids.chance)
+	raids.chance = 1.0
+	var rec: Dictionary = Game.crafting.bed_record(c, bed)
+	rec.herb = "willow_moss"
+	rec.progress = 0.5
+	rec.updated = Clock.now_utc()
+	rec.raid_day = Clock.reset_day(Clock.now_utc()) - 3
+	var mails_before: int = c.mail.size() if c.get("mail") is Array else 0
+	var hit: Array = Game.crafting.check_raids(c)
+	check(hit.size() >= 1 and (str(rec.herb) == "" or float(rec.progress) < 0.5), "an unguarded bed is raided while you are away (%s)" % str(hit))
+	rec.herb = "willow_moss"
+	rec.progress = 0.5
+	rec.raid_day = Clock.reset_day(Clock.now_utc()) - 3
+	c.crafting.formations = [{"type": "protection", "room": "ja_herb_terraces", "until_utc": Clock.now_utc() + 86400.0}]
+	check(Game.crafting.check_raids(c).is_empty() and str(rec.herb) == "willow_moss" and near(float(rec.progress), 0.5), "a Protection formation keeps the raiders off")
+	raids.chance = chance_was
+	c.crafting["formations"] = forms_was
+	c.crafting["garden"] = garden_was
+	Clock.override_utc = -1.0
 
 func tribulation_suite() -> void:
 	var c = Game.active()

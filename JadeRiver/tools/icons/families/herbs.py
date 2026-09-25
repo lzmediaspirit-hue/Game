@@ -375,3 +375,32 @@ def spirit_soil():
 
 register(FAM, 'spring_water', spring_water, GROUP)
 register(FAM, 'spirit_soil', spirit_soil, GROUP)
+
+
+def dyed_root():
+    """S45: a carrot root dyed ginseng-gold and combed into 'hairs', a smear of dye showing its orange."""
+    c = Canvas(32)
+    root = c.poly([(12, 6), (20, 6), (22, 14), (19, 27), (16, 30), (13, 27), (10, 14)])
+    c.put(root, R['fire'], 'sphere', base=2, sep=True)
+    c.put(c.poly([(12, 8), (20, 8), (21, 15), (11, 15)]) & root, R['wax'], 'ray', base=2)
+    for (x0, y0, x1, y1) in ((11, 18, 7, 22), (21, 18, 25, 22), (15, 28, 14, 31)):
+        c.put(c.bres(x0, y0, x1, y1), R['wax'], 'flat', base=1)
+    c.put(S.leaf(c, 16, 6, 100, 5, 2.4, 0.0), R['leaf'], 'ray', base=1, sep=True)
+    c.outline()
+    return c
+
+
+def rice_wine():
+    """S45: a squat clay jar of rice wine, stoppered with red cloth and tied with straw."""
+    c = Canvas(32)
+    jar = c.ellipse(16, 20, 9, 9) | c.rect(12, 9, 20, 13)
+    c.put(jar, R['clay'], 'sphere', base=2, sep=True)
+    c.put(c.ellipse(16, 8, 5, 2.4), R['red'], 'sphere', base=2, sep=True)
+    c.put(c.rect(11, 12, 21, 13) & jar, R['straw'], 'flat', base=3)
+    c.put(c.rect(12, 18, 20, 23) & jar, R['paper'], 'flat', base=3)
+    c.outline()
+    return c
+
+
+register(FAM, 'dyed_root', dyed_root, GROUP)
+register(FAM, 'rice_wine', rice_wine, GROUP)

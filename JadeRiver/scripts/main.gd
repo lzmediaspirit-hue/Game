@@ -277,6 +277,11 @@ func _handle_preview_args(user_args: Array) -> void:
 		for it in [["spring_water", 2], ["spirit_soil", 1], ["verdant_dew_vial", 1], ["willow_moss_seed", 3], ["ember_pepper_seed", 2]]:
 			Game.inventory.apply_add(gc.id, str(it[0]), int(it[1]), "debug")
 		gc.crafting["dew"] = {"count": 2, "last": Clock.now_utc() - 3600.0}
+		Game.inventory.apply_add(gc.id, "drying_rack", 1, "debug")
+		Game.inventory.apply_add(gc.id, "mist_lotus", 6, "debug")
+		Game.inventory.apply_add(gc.id, "riverreed_ginseng_10", 4, "debug")
+		Game.inventory.apply_add(gc.id, "rice_wine", 1, "debug")
+		gc.crafting["racks"] = [{"kind": "steamed", "herb": "mist_lotus", "count": 5, "done": Clock.now_utc() + 1400.0}]
 	if "--tap-preview" in user_args and is_instance_valid(hud):
 		# Debug tools (S38): hold the harvest ring part-way through its shrink (S45).
 		await get_tree().create_timer(1.0).timeout

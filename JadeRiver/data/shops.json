@@ -171,6 +171,10 @@
      }
     },
     {
+     "item": "rice_wine",
+     "price": 12
+    },
+    {
      "item": "iron_pickaxe",
      "requires": {
       "all": [
@@ -1296,7 +1300,8 @@
      },
      {
       "item": "riverreed_ginseng_100",
-      "price": 4
+      "price": 4,
+      "sealed": true
      },
      {
       "item": "manual_page",

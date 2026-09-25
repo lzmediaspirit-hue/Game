@@ -55,6 +55,7 @@ func draw_page() -> void:
 	var y := right.position.y + 248
 	var roles := ["combat", "gatherer", "cultivation"]
 	if Game.pets.mountable(pet): roles.append("mount")
+	if Unlocks.is_unlocked(ch.id, "herb_garden"): roles.append("guard")   # S45: watches the garden while you are away
 	var bw := (colw - 8.0 * (roles.size() - 1)) / roles.size()
 	for role in roles:
 		btn(Rect2(px + roles.find(role) * (bw + 8), y, bw, 46), role.capitalize(), "role", role, str(pet.role) == role, true, "", 17)

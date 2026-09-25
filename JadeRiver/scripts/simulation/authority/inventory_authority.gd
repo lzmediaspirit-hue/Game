@@ -237,6 +237,14 @@ func apply_add(actor_id: String, item_id: String, count: int, source: String, fi
 ## a Common pill is a plain {id, count} so older saves read unchanged.
 static func pill_entry(item_id: String, fields: Dictionary) -> Dictionary:
 	var e := {"id": item_id, "count": 0}
+	# S45 herbs: steamed or wine-soaked on a rack; a merchant's aged herb stays sealed until appraised (and may be fake).
+	var herb := str(ContentDB.item(item_id).get("type", "")) == "herb"
+	if str(fields.get("prep", "")) != "" and (herb or not ContentDB.item(item_id).get("pill", {}).is_empty()): e.prep = str(fields.prep)
+	if herb and fields.get("unappraised", false):
+		# Each sealed herb keeps its own slot (a seal number), so a fake never shows itself by stacking apart.
+		e.unappraised = true
+		e.seal = int(fields.get("seal", 0))
+		if fields.get("fake", false): e.fake = true
 	if ContentDB.item(item_id).get("pill", {}).is_empty(): return e
 	var q := str(fields.get("quality", "common"))
 	if q != "common": e.quality = q
@@ -246,13 +254,21 @@ static func pill_entry(item_id: String, fields: Dictionary) -> Dictionary:
 
 ## Stacks merge only with the same item, quality and Halo charge.
 static func stack_key(s: Dictionary) -> String:
-	return "%s|%s|%.3f|%d" % [str(s.get("id", "")), str(s.get("quality", "common")), float(s.get("halo", 0.0)), int(s.get("marks", 0))]
+	return "%s|%s|%.3f|%d|%s|%d" % [str(s.get("id", "")), str(s.get("quality", "common")), float(s.get("halo", 0.0)), int(s.get("marks", 0)),
+		str(s.get("prep", "")), int(s.get("seal", 0))]
 
 ## Potency of one pill from its quality (Flawed 50% to Pill Soul 220%) plus any Halo charge.
 static func pill_potency(s: Dictionary) -> float:
 	var q := str(s.get("quality", "common"))
 	var marks := float(ContentDB.config("grades").get("pill", {}).get("marks", {}).get("per_line", 0.02)) * int(s.get("marks", 0))
-	return float(ContentDB.config("grades").get("pill_qualities", {}).get(q, 1.0)) * (1.0 + float(s.get("halo", 0.0))) * (1.0 + marks)
+	var prep := float(ContentDB.config("garden").get("racks", {}).get(str(s.get("prep", "")), {}).get("potency", 1.0))   # wine-soaked: +10% (S45)
+	return float(ContentDB.config("grades").get("pill_qualities", {}).get(q, 1.0)) * (1.0 + float(s.get("halo", 0.0))) * (1.0 + marks) * prep
+
+## Toxicity a pill stack carries relative to its base: quality, and a steamed herb's -30% (S45).
+static func pill_toxicity_mult(s: Dictionary) -> float:
+	var q := str(s.get("quality", "common"))
+	return float(ContentDB.config("grades").get("pill", {}).get("toxicity", {}).get(q, 1.0)) \
+		* float(ContentDB.config("garden").get("racks", {}).get(str(s.get("prep", "")), {}).get("toxicity", 1.0))
 
 ## A Pill Halo stack in a storage chest grows 1% a day while the chest's room holds Qi density 2 or more,
 ## up to +20% (S44). The growth is worked out from the deposit time when the stack is looked at or taken out.
@@ -379,6 +395,33 @@ func apply_remove(actor_id: String, item_id: String, count: int, source: String)
 	var removed := count - left
 	if removed > 0: emit("item_removed", {"actor": c.id, "item": item_id, "count": removed, "source": source})
 	return removed
+
+## Takes `count` of an item from the bag, stack by stack in the order `rank` sorts them (lowest first), and returns
+## the markers of what was taken: [{prep, fake, unappraised, count}] (S45: which herbs went into a craft).
+func take_ranked(actor_id: String, item_id: String, count: int, source: String, rank: Callable) -> Array:
+	var c = game.character(actor_id)
+	var taken: Array = []
+	if c == null or count <= 0: return taken
+	var idx: Array = []
+	for i in c.inventory.bag.size():
+		var st = c.inventory.bag[i]
+		if st != null and str(st.id) == item_id and not st.has("uid"): idx.append(i)
+	idx.sort_custom(func(a, b): return int(rank.call(c.inventory.bag[a])) < int(rank.call(c.inventory.bag[b])))
+	var left := count
+	for i in idx:
+		if left <= 0: break
+		var got := apply_remove_index(actor_id, int(i), left, source)
+		if got.is_empty(): continue
+		taken.append({"prep": str(got.get("prep", "")), "fake": bool(got.get("fake", false)), "unappraised": bool(got.get("unappraised", false)), "count": int(got.count)})
+		left -= int(got.count)
+	return taken
+
+## How many of an item the bag holds with a given prep ("" plain), counting only appraised stacks.
+func count_prep(c, item_id: String, prep: String) -> int:
+	var n := 0
+	for st in c.inventory.bag:
+		if st != null and str(st.id) == item_id and str(st.get("prep", "")) == prep and not st.get("unappraised", false): n += int(st.get("count", 1))
+	return n
 
 func apply_remove_index(actor_id: String, index: int, count: int, source: String) -> Dictionary:
 	var c = game.character(actor_id)
@@ -711,7 +754,7 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 		game.progression.apply_pill_dose(c.id, family)
 	if not p.is_empty():
 		# Quality (S15): a Flawed pill poisons more, a Pill Grain less.
-		var tox := float(p.get("toxicity", 0)) * float(pill_cfg.get("toxicity", {}).get(quality, 1.0))
+		var tox := float(p.get("toxicity", 0)) * (pill_toxicity_mult(s) if quality == str(s.get("quality", "common")) else float(pill_cfg.get("toxicity", {}).get(quality, 1.0)))
 		factor *= pill_potency(s)
 		var last := float(c.cultivator.pill_memory.get(str(s.id), -9999.0))
 		if game.sim_time - last < float(ContentDB.stat_const("toxicity.repeat_window_s", 300)): factor *= float(ContentDB.stat_const("toxicity.repeat_factor", 0.5))

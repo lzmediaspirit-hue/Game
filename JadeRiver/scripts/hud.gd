@@ -726,6 +726,14 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.herb_aged") % [ContentDB.item_name(str(p.herb)), int(p.age)], "gold")
 		"spring_bottled":
 			add_log(Tx.t("hud.spring_bottled") % int(p.left), UiKit.BRIGHT_JADE)
+		"garden_raided":
+			toast(Tx.t("hud.raid_" + str(p.kind)) % ContentDB.item_name(str(p.herb)), "danger")
+		"rack_started":
+			add_log(Tx.t("hud.rack_started") % [int(p.count), ContentDB.item_name(str(p.herb)), UiKit.clock(float(p.seconds))], UiKit.BRIGHT_JADE)
+		"rack_collected":
+			add_log(Tx.t("hud.rack_collected") % [int(p.count), ContentDB.item_name(str(p.herb)), Tx.t("ui.garden.done_" + str(p.kind))], UiKit.BRIGHT_JADE)
+		"herb_appraised":
+			if p.get("fake", false): toast(Tx.t("hud.herb_fake") % ContentDB.item_name(str(p.item)), "danger")
 		"transplant_result":
 			if p.get("ok", false): toast(Tx.t("hud.transplanted") % ContentDB.item_name(str(p.herb)), "gold", Tx.t("hud.transplanted_sub"))
 			else: toast(Tx.t("hud.transplant_died") % ContentDB.item_name(str(p.herb)), "danger")

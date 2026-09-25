@@ -520,6 +520,26 @@
    "desc": "Qi-spring water in a stoppered gourd. Poured on a garden bed, it hurries the herb along by a quarter. A spring gives three bottles a day."
   },
   {
+   "id": "dyed_root",
+   "name": "Dyed Root",
+   "type": "material",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "dyed_root",
+   "desc": "A carrot root dyed and combed to pass for hundred-year ginseng. Worth nothing, except as a lesson."
+  },
+  {
+   "id": "rice_wine",
+   "name": "Rice Wine",
+   "type": "material",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 20,
+   "icon": "rice_wine",
+   "desc": "A clay jar of cloudy rice wine. Herbs soaked in it on a drying rack make stronger pills."
+  },
+  {
    "id": "spirit_soil",
    "name": "Spirit Soil",
    "type": "material",
@@ -2304,7 +2324,7 @@
    "ilv": 14,
    "stack": 1,
    "icon": "drying_rack",
-   "desc": "A folding bamboo rack. Dried herbs keep longer and refine cleaner.",
+   "desc": "A folding bamboo rack. Steam herbs on it (their pills carry 30% less toxicity) or soak them in rice wine (10% more potency). Set it up at any garden bed.",
    "tool": {
     "craft": "alchemy",
     "power": 1.0

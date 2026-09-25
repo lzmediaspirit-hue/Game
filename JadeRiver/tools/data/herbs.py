@@ -65,5 +65,16 @@ def build():
         "dew": {"every_s": 86400, "cap": 3, "valley_age_cap": 1000},
         # Spirit Soil: 1% from beasts of rank 3 and above (Level 19+), and one in the Drowned Abbot's vault.
         "spirit_soil": {"chance": 0.01, "min_level": 19},
+        # Processing racks (V6c), on the drying rack: steaming takes 1 h and cuts the toxicity of pills made from the
+        # herb by 30%; wine-soaking takes 4 h and a jar of rice wine for every five herbs, for +10% potency. Two
+        # racks at a time, ten herbs a rack. A pill takes the prep of its principal herb when all of it was prepared.
+        "racks": {"steamed": {"hours": 1, "toxicity": 0.7}, "wine": {"hours": 4, "potency": 1.1, "needs": "rice_wine", "per": 5},
+                  "slots": 2, "max": 10},
+        # Garden raids: once a reset day, an unguarded planted bed may be hit by pests (growth halved) or a thief
+        # (the herb gone). A Protection or Concealment formation in the bed's room, or a pet on Guard duty, stops them.
+        "raids": {"chance": 0.08, "thief_share": 0.5, "guards": ["protection", "concealment"], "max_days": 14},
+        # A wandering merchant's "hundred-year" herbs come sealed: 30% are dyed roots. Unappraised, a fake in a
+        # recipe spoils the pill (Flawed) 60% of the time.
+        "fakes": {"chance": 0.3, "flawed": 0.6},
     })
     entries("seasons", [{"id": sid, "name": name, "desc": desc} for sid, name, desc in SEASONS], week_s=604800)

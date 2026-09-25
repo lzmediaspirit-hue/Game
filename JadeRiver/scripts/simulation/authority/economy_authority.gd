@@ -93,7 +93,7 @@ func stock(c, shop_id: String) -> Array:
 		if not disc.is_empty() and c.quests.has_flag(str(disc.get("flag", ""))):
 			price = maxi(1, int(round(price * (1.0 - float(disc.get("pct", 0.0))))))
 		out.append({"item": item_id, "price": price, "currency": str(s.get("currency", currency)), "locked": locked,
-			"rotating": s.get("rotating", false), "learn": str(s.get("learn", ""))})
+			"rotating": s.get("rotating", false), "learn": str(s.get("learn", "")), "sealed": s.get("sealed", false)})
 	return out
 
 func buy(c, shop_id: String, item_id: String, count: int, seen_price: int, learn := "") -> Dictionary:
@@ -122,6 +122,13 @@ func buy(c, shop_id: String, item_id: String, count: int, seen_price: int, learn
 		elif ContentDB.has_entry("methods", entry.learn): game.progression.apply_learn_method(c.id, entry.learn)
 		elif ContentDB.has_entry("recipes", entry.learn): game.crafting.apply_learn_recipe(c.id, entry.learn)
 		elif ContentDB.has_entry("inner_arts", entry.learn): game.progression.apply_learn_inner_art(c.id, entry.learn)
+	elif entry.get("sealed", false):
+		# S45: a wandering merchant's "hundred-year" herb comes sealed; some are dyed roots until appraised.
+		var chance := float(ContentDB.config("garden").get("fakes", {}).get("chance", 0.3))
+		var rng := Rng.stream(c.id, "garden")
+		for i in count:
+			c.inventory.next_uid += 1
+			game.inventory.apply_add(c.id, item_id, 1, "shop:" + shop_id, {"unappraised": true, "fake": rng.randf() < chance, "seal": c.inventory.next_uid})
 	else:
 		game.inventory.apply_add(c.id, item_id, count, "shop:" + shop_id)
 	emit("item_bought", {"actor": c.id, "shop": shop_id, "item": item_id, "count": count, "price": total})

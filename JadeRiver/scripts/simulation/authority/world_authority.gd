@@ -255,6 +255,7 @@ func load_room(c, room_id: String, portal_id: String, point := Vector2.INF) -> D
 		"facing": facing, "surface": c.position.surface, "zone": zone_new})
 	if zone_new != zone_old: emit("zone_entered", {"actor": c.id, "zone": zone_new})
 	if def.has("event"): _start_event(c, rt, def.event)
+	game.crafting.check_raids(c)   # S45: what came for the garden while you were away
 	return ok({"room": room_id, "x": arrival.x, "y": arrival.y, "facing": facing})
 
 func _ground_at(rt: RoomRuntime, p: Vector2) -> WalkSurface:

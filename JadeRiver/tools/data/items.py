@@ -132,7 +132,7 @@ TOOL_DESC = {
     "formation_kit": "Chalk, a compass and a pouch of flags: all a formation needs to be laid out.",
     "needle_case": "A case of fine silver needles for acupuncture and stitching wounds.",
     "appraisers_loupe": "A jade loupe that shows what a curio really is, and what it is worth.",
-    "drying_rack": "A folding bamboo rack. Dried herbs keep longer and refine cleaner.",
+    "drying_rack": "A folding bamboo rack. Steam herbs on it (their pills carry 30% less toxicity) or soak them in rice wine (10% more potency). Set it up at any garden bed.",
     "spirit_spade": "A jade-edged spade that cuts earth without cutting roots. With Expert gathering, dig a rare herb up whole and move it to a garden bed.",
     "verdant_dew_vial": "A green glass vial that fills with one drop of dew a day, even while you are away (it holds three). A drop ages the herb in a bed one tier.",
 }
@@ -378,6 +378,9 @@ def build_items():
     # S45 garden materials and tools.
     rows.append(item("spring_water", "material", "common", 20, "Qi-spring water in a stoppered gourd. Poured on a garden bed, it hurries the herb along by a quarter. A spring gives three bottles a day.",
                      name="Bottled Spring Water"))
+    rows.append(item("dyed_root", "material", "plain", 99, "A carrot root dyed and combed to pass for hundred-year ginseng. Worth nothing, except as a lesson.",
+                     name="Dyed Root"))
+    rows.append(item("rice_wine", "material", "common", 20, "A clay jar of cloudy rice wine. Herbs soaked in it on a drying rack make stronger pills."))
     rows.append(item("spirit_soil", "material", "heaven", 20, "Black earth that still remembers a spirit vein. Worked into a garden bed, it raises the bed's field grade one step, for good. Strong beasts sometimes carry it in their hides."))
     for o in ORES:
         rows.append(item(o[0], "ore", o[1], 99, o[2], name=o[3] if len(o) > 3 else None))

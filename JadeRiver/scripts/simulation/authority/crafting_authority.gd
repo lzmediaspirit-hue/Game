@@ -33,7 +33,7 @@ func intents() -> Array:
 		"salvage", "inherit_enhancement", "reroll_affixes", "choose_affixes", "lock_affix", "chart_route", "build_vessel", "absorb_flame",
 		"trace_talisman", "restore_relic", "mend_furnace", "deduce_recipe", "start_experiment", "take_guild_exam", "accept_commission",
 		"deliver_commission", "tribulation_shield", "catch_pill_soul", "plant_seed", "water_bed", "harvest_bed", "apply_spirit_soil", "use_dew",
-		"transplant"]
+		"transplant", "start_rack", "collect_racks"]
 
 func subscribe() -> void:
 	# S44 guild exams count what comes out of the furnace while the candle burns.
@@ -77,6 +77,8 @@ func handle(intent: Dictionary) -> Dictionary:
 		"apply_spirit_soil": return apply_spirit_soil(c, str(intent.get("bed", "")))
 		"use_dew": return use_dew(c, str(intent.get("bed", "")))
 		"transplant": return transplant(c, str(intent.get("object", "")))
+		"start_rack": return start_rack(c, str(intent.get("kind", "")), str(intent.get("herb", "")), int(intent.get("count", 1)))
+		"collect_racks": return collect_racks(c)
 		"chart_route": return craft(c, str(intent.get("recipe", "")), 1, [], "star_charting")
 		"build_vessel": return craft(c, str(intent.get("recipe", "")), 1, [], "shipwright")
 	return fail("unknown_intent")
@@ -288,6 +290,7 @@ func plant_seed(c, key: String, seed: String) -> Dictionary:
 	rec.progress = 0.0
 	rec.grow_s = float(ContentDB.config("garden").get("grow_hours", {}).get(fam, 4)) * 3600.0
 	rec.updated = Clock.now_utc()
+	rec.raid_day = Clock.reset_day(Clock.now_utc())
 	emit("herb_planted", {"actor": c.id, "bed": key, "herb": herb})
 	emit("system_used", {"actor": c.id, "system": "plant_seed"})
 	return ok({"herb": herb})
@@ -392,6 +395,88 @@ func bottle_spring_water(c) -> Dictionary:
 	emit("spring_bottled", {"actor": c.id, "left": left})
 	return ok({"text": Tx.t("sim.crafting.spring_bottled") % left, "left": left})
 
+# ------------------------------------------------------------------ processing racks (S45)
+## Herbs on the drying rack: [{kind, herb, count, done}]. They finish on the clock, offline too.
+func racks(c) -> Array:
+	if not (c.crafting.get("racks") is Array): c.crafting["racks"] = []
+	return c.crafting.racks
+
+func start_rack(c, kind: String, herb: String, count: int) -> Dictionary:
+	var g: Dictionary = ContentDB.config("garden").get("racks", {})
+	var rk: Dictionary = g.get(kind, {}) if g.get(kind) is Dictionary else {}
+	if rk.is_empty(): return fail("unknown_rack")
+	if tool_power(c, "alchemy") <= 0.0: return fail("no_rack", {"text": Tx.t("sim.crafting.need_drying_rack")})
+	if racks(c).size() >= int(g.get("slots", 2)): return fail("racks_full", {"text": Tx.t("sim.crafting.racks_full")})
+	if str(ContentDB.item(herb).get("type", "")) != "herb": return fail("not_herb")
+	count = clampi(count, 1, int(g.get("max", 10)))
+	if game.inventory.count_prep(c, herb, "") < count: return fail("too_few", {"text": Tx.t("sim.crafting.rack_too_few") % ContentDB.item_name(herb)})
+	var jars := 0
+	if rk.has("needs"):
+		jars = int(ceil(count / float(rk.get("per", 5))))
+		if c.inventory.count(str(rk.needs)) < jars: return fail("needs", {"text": Tx.t("sim.crafting.rack_needs") % [jars, ContentDB.item_name(str(rk.needs))]})
+		game.inventory.apply_remove(c.id, str(rk.needs), jars, "rack")
+	game.inventory.take_ranked(c.id, herb, count, "rack", func(st): return (0 if str(st.get("prep", "")) == "" else 2) + (1 if st.get("unappraised", false) else 0))
+	var job := {"kind": kind, "herb": herb, "count": count, "done": Clock.now_utc() + float(rk.get("hours", 1)) * 3600.0}
+	racks(c).append(job)
+	emit("rack_started", {"actor": c.id, "kind": kind, "herb": herb, "count": count, "seconds": float(job.done) - Clock.now_utc()})
+	return ok({"done": float(job.done)})
+
+## Takes every finished rack's herbs off: they come back marked steamed or wine-soaked.
+func collect_racks(c) -> Dictionary:
+	var now := Clock.now_utc()
+	var got := 0
+	for job in racks(c).duplicate():
+		if float(job.done) > now: continue
+		game.inventory.apply_add(c.id, str(job.herb), int(job.count), "rack", {"prep": str(job.kind)})
+		racks(c).erase(job)
+		got += int(job.count)
+		emit("rack_collected", {"actor": c.id, "kind": str(job.kind), "herb": str(job.herb), "count": int(job.count)})
+	if got == 0: return fail("nothing_ready")
+	return ok({"count": got})
+
+# ------------------------------------------------------------------ garden raids (S45)
+## Once a reset day, an unguarded planted bed may be raided while you are away: pests halve its growth, a thief takes
+## the herb. Checked when you come back (enter the world, or a room). Returns the raids.
+func check_raids(c) -> Array:
+	var g: Dictionary = ContentDB.config("garden").get("raids", {})
+	var now := Clock.now_utc()
+	var today := Clock.reset_day(now)
+	var out: Array = []
+	for key in beds(c).keys():
+		var rec: Dictionary = beds(c)[key]
+		if str(rec.get("herb", "")) == "": continue
+		var last := int(rec.get("raid_day", -1))
+		rec.raid_day = today
+		if last < 0 or today <= last: continue
+		var rng := Rng.stream(c.id, "garden")
+		for d in range(last + 1, mini(today, last + int(g.get("max_days", 14))) + 1):
+			if _bed_guarded(c, str(key), d): continue
+			if rng.randf() >= float(g.get("chance", 0.08)): continue
+			settle_bed(c, str(key))
+			var thief := rng.randf() < float(g.get("thief_share", 0.5))
+			var herb := str(rec.herb)
+			if thief: rec.herb = ""
+			else: rec.progress = float(rec.progress) * 0.5
+			out.append({"bed": str(key), "kind": "thief" if thief else "pests", "herb": herb})
+			emit("garden_raided", {"actor": c.id, "bed": str(key), "kind": "thief" if thief else "pests", "herb": herb})
+			game.mail.apply_send(c.id, "garden_raid_" + ("thief" if thief else "pests"), [], {"herb": ContentDB.item_name(herb),
+				"place": str(ContentDB.room(str(key).get_slice(":", 0)).get("name", ""))})
+			if thief: break
+	return out
+
+## A pet on Guard duty, or a Protection or Concealment formation burning in the bed's room that day, keeps raiders off.
+func _bed_guarded(c, key: String, day: int) -> bool:
+	if not game.pets.guard_pet(c).is_empty(): return true
+	var guards: Array = ContentDB.config("garden").get("raids", {}).get("guards", [])
+	var day_start := day * 86400.0 - Clock.tz_offset_s() + float(ContentDB.curve("resets.daily_hour", 4)) * 3600.0
+	for f in _state_formations(c):
+		if str(f.get("type", "")) in guards and str(f.get("room", "")) == key.get_slice(":", 0) and float(f.get("until_utc", 0.0)) >= day_start: return true
+	return false
+
+func _state_formations(c) -> Array:
+	var list = c.crafting.get("formations", [])
+	return list if list is Array else []
+
 # ------------------------------------------------------------------ transplanting (S45)
 ## Can this character dig up a rare herb? A Spirit Spade and Expert gathering.
 func can_transplant(c) -> bool:
@@ -433,6 +518,7 @@ func transplant(c, object_id: String) -> Dictionary:
 		rec.progress = 1.0
 		rec.grow_s = float(ContentDB.config("garden").get("grow_hours", {}).get(HerbRules.family(herb), 4)) * 3600.0
 		rec.updated = now
+		rec.raid_day = Clock.reset_day(now)
 	emit("transplant_result", {"actor": c.id, "object": object_id, "herb": herb, "ok": not died, "bed": target})
 	return ok({"herb": herb, "survived": not died, "bed": target})
 
@@ -612,17 +698,53 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, 
 		var roll := avg + rng.randf_range(-0.08, 0.08)
 		quality = "flawed" if roll < 0.35 else ("common" if roll < 0.6 else ("fine" if roll < 0.78 else ("superior" if roll < 0.9 else "perfect")))
 		if craft_kind == "alchemy" and quality == "perfect": quality = _rare_pill_quality(c, scores, rng, rare_allowed(furnace, fire))
-	for inp in aged.inputs: game.inventory.apply_remove(c.id, str(inp.item), int(inp.count), "craft:" + recipe_id)
+	var used := _consume(c, recipe_id, aged.inputs, _principal(r, inputs))
+	# S45: an unappraised fake herb in the batch spoils the pill more often than not.
+	if craft_kind == "alchemy" and used.fake and Rng.stream(c.id, "garden").randf() < float(ContentDB.config("garden").get("fakes", {}).get("flawed", 0.6)):
+		quality = "flawed"
 	if craft_kind == "alchemy" and fire == "beast_fire": game.inventory.apply_remove(c.id, _core_to_burn(c), 1, "beast_fire")
 	# S44 pill tribulation: a Heaven-grade (or better) pill that reaches Halo or Soul at the furnace must first come
 	# through the bolts; its pills wait until it does (the page plays the screen; other callers keep the roll).
 	if craft_kind == "alchemy" and live and quality in ["pill_halo", "pill_soul"] \
 			and StatRules.grade_index(str(r.get("grade", "plain"))) >= StatRules.grade_index("heaven"):
-		return begin_tribulation(c, recipe_id, count, quality, fire, furnace)
-	return _grant(c, recipe_id, count, quality, fire, craft_kind, furnace)
+		return begin_tribulation(c, recipe_id, count, quality, fire, furnace, str(used.prep))
+	return _grant(c, recipe_id, count, quality, fire, craft_kind, furnace, str(used.prep))
+
+## The recipe's principal herb: the input its roles mark principal, else its first herb.
+func _principal(r: Dictionary, inputs: Array) -> String:
+	var roles: Array = r.get("roles", [])
+	var i := roles.find("principal")
+	if i >= 0 and i < inputs.size(): return str(inputs[i].item)
+	for inp in inputs:
+		if str(ContentDB.item(str(inp.item)).get("type", "")) == "herb": return str(inp.item)
+	return ""
+
+## Takes a craft's inputs from the bag (S45). The principal herb comes from a steamed or wine-soaked stack when there
+## is enough of one, and then the pills carry that prep; other herbs are taken plain first and sealed stacks last.
+## Returns {prep, fake}.
+func _consume(c, recipe_id: String, rows: Array, principal: String) -> Dictionary:
+	var out := {"prep": "", "fake": false}
+	for row in rows:
+		var item := str(row.item)
+		var n := int(row.count)
+		if str(ContentDB.item(item).get("type", "")) != "herb":
+			game.inventory.apply_remove(c.id, item, n, "craft:" + recipe_id)
+			continue
+		var want := ""
+		if item == principal:
+			for kind in ContentDB.config("garden").get("racks", {}).keys():
+				if ContentDB.config("garden").racks[kind] is Dictionary and game.inventory.count_prep(c, item, str(kind)) >= n:
+					want = str(kind)
+					break
+		var taken: Array = game.inventory.take_ranked(c.id, item, n, "craft:" + recipe_id,
+			func(st): return (0 if str(st.get("prep", "")) == want else 2) + (1 if st.get("unappraised", false) else 0))
+		for tk in taken:
+			if tk.fake: out.fake = true
+		if item == principal and want != "": out.prep = want
+	return out
 
 ## Hands over what a craft made: the outputs (a furnace's extra pill, a liquid to the Draught slot), XP and events.
-func _grant(c, recipe_id: String, count: int, quality: String, fire: String, craft_kind: String, furnace: Dictionary) -> Dictionary:
+func _grant(c, recipe_id: String, count: int, quality: String, fire: String, craft_kind: String, furnace: Dictionary, prep := "") -> Dictionary:
 	var r := ContentDB.entry("recipes", recipe_id)
 	var rng := Rng.stream(c.id, "crafting")
 	var produced := 0
@@ -643,7 +765,7 @@ func _grant(c, recipe_id: String, count: int, quality: String, fire: String, cra
 		elif craft_kind == "alchemy" and ContentDB.item(str(out.item)).has("draught"):
 			game.inventory.apply_draught(c.id, str(out.item), n, "craft")   # a liquid goes to the Draught slot (S44)
 		elif craft_kind == "alchemy":
-			game.inventory.apply_add(c.id, str(out.item), n, "craft", {"quality": quality, "marks": marks} if marks > 0 else {"quality": quality})
+			game.inventory.apply_add(c.id, str(out.item), n, "craft", {"quality": quality, "marks": marks, "prep": prep})
 		elif craft_kind == "talisman" and ContentDB.has_entry("talismans", str(out.item)):
 			game.inventory.apply_add(c.id, str(out.item), n, "craft", {"quality": quality})
 		else:
@@ -733,7 +855,7 @@ func blast(c, recipe_id: String, inputs: Array, count: int, clash: Dictionary) -
 var tribulations: Dictionary = {}   # actor -> the tribulation in progress {recipe, count, quality, fire, furnace, bolts[], blocked, answered, stage}
 
 ## 3 bolts, +2 for each grade above Heaven, at most 9, at times drawn from the crafting stream.
-func begin_tribulation(c, recipe_id: String, count: int, quality: String, fire: String, furnace: Dictionary) -> Dictionary:
+func begin_tribulation(c, recipe_id: String, count: int, quality: String, fire: String, furnace: Dictionary, prep := "") -> Dictionary:
 	var k: Dictionary = upkeep("tribulation", {})
 	var above := StatRules.grade_index(str(ContentDB.entry("recipes", recipe_id).get("grade", "heaven"))) - StatRules.grade_index("heaven")
 	var n := clampi(int(k.get("bolts", 3)) + int(k.get("per_grade", 2)) * above, 1, int(k.get("max", 9)))
@@ -743,7 +865,7 @@ func begin_tribulation(c, recipe_id: String, count: int, quality: String, fire: 
 	for i in n:
 		times.append(snappedf(t, 0.01))
 		t += rng.randf_range(float(k.get("gap_min_s", 0.7)), float(k.get("gap_max_s", 1.3)))
-	tribulations[c.id] = {"recipe": recipe_id, "count": count, "quality": quality, "fire": fire, "furnace": furnace.duplicate(),
+	tribulations[c.id] = {"recipe": recipe_id, "count": count, "quality": quality, "fire": fire, "furnace": furnace.duplicate(), "prep": prep,
 		"bolts": times, "blocked": 0, "answered": 0, "stage": "bolts"}
 	return ok({"pending": "tribulation", "bolts": times, "window": float(k.get("window_s", 0.22)), "quality": quality})
 
@@ -771,7 +893,7 @@ func tribulation_shield(c, bolt: int, timing: float) -> Dictionary:
 		tr.catch_at = snappedf(Rng.stream(c.id, "crafting").randf_range(float(k.get("soul_min_s", 1.0)), float(k.get("soul_max_s", 1.6))), 0.01)
 		return ok({"held": held, "left": 0, "pending": "soul", "catch_at": tr.catch_at, "window": float(k.get("soul_window_s", 0.2)), "quality": after})
 	tribulations.erase(c.id)
-	var res := _grant(c, str(tr.recipe), int(tr.count), after, str(tr.fire), "alchemy", tr.furnace)
+	var res := _grant(c, str(tr.recipe), int(tr.count), after, str(tr.fire), "alchemy", tr.furnace, str(tr.get("prep", "")))
 	res.held = held
 	res.left = 0
 	return res
@@ -784,7 +906,7 @@ func catch_pill_soul(c, timing: float) -> Dictionary:
 	var quality := "pill_soul" if caught else "pill_halo"
 	tribulations.erase(c.id)
 	emit("pill_soul_flight", {"actor": c.id, "recipe": str(tr.recipe), "caught": caught})
-	var res := _grant(c, str(tr.recipe), int(tr.count), quality, str(tr.fire), "alchemy", tr.furnace)
+	var res := _grant(c, str(tr.recipe), int(tr.count), quality, str(tr.fire), "alchemy", tr.furnace, str(tr.get("prep", "")))
 	res.caught = caught
 	return res
 

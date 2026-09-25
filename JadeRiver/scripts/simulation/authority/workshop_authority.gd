@@ -63,10 +63,13 @@ func appraise(c, index: int) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "appraisal"): return fail("locked", {"text": Unlocks.locked_text("appraisal")})
 	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
 	var id := str(c.inventory.bag[index].id)
-	if str(ContentDB.item(id).get("use_action", "")) != "appraise": return fail("not_appraisable")
+	var sealed: bool = c.inventory.bag[index].get("unappraised", false)
+	if str(ContentDB.item(id).get("use_action", "")) != "appraise" and not sealed: return fail("not_appraisable")
 	# Appraisal Eye (secret art, Qi Kindling 6) sees what a loupe would.
 	if game.crafting.tool_power(c, "appraisal") <= 0.0 and not npc_here(c, ["elder_gu", "old_pan"]) and not "appraisal_eye" in c.cultivator.secret_arts:
 		return fail("no_tool", {"text": Tx.t("sim.workshop.you_need_an_appraiser_loupe")})
+	# S45: a merchant's sealed "hundred-year" herb shows what it is: genuine, or a dyed root worth nothing.
+	if sealed: return _appraise_herb(c, index, p)
 	# A sealed pouch (S47) carries its own table; other curios use the profession's.
 	var r := _weighted(Rng.stream(c.id, "crafting"), ContentDB.item(id).get("appraise", p.get("results", [])))
 	if r.is_empty(): return fail("no_results")
@@ -77,6 +80,20 @@ func appraise(c, index: int) -> Dictionary:
 	var name := ContentDB.item_name(str(r.item))
 	log_line(c.id, Tx.t("sim.workshop.appraised") % name, "craft")
 	return ok({"item": str(r.item), "count": int(r.get("count", 1)), "text": Tx.t("sim.workshop.it_is") % name})
+
+func _appraise_herb(c, index: int, p: Dictionary) -> Dictionary:
+	var st: Dictionary = c.inventory.bag[index]
+	var id := str(st.id)
+	var n := int(st.get("count", 1))
+	var fake: bool = st.get("fake", false)
+	game.inventory.apply_remove_index(c.id, index, n, "appraise")
+	if fake: game.inventory.apply_add(c.id, "dyed_root", n, "appraise")
+	else: game.inventory.apply_add(c.id, id, n, "appraise")
+	_used(c, "appraise", "appraisal", float(p.get("xp_per_use", 0)))
+	emit("herb_appraised", {"actor": c.id, "item": id, "count": n, "fake": fake})
+	var text := Tx.t("sim.workshop.herb_fake") % ContentDB.item_name(id) if fake else Tx.t("sim.workshop.herb_genuine") % ContentDB.item_name(id)
+	log_line(c.id, text, "craft")
+	return ok({"item": "dyed_root" if fake else id, "count": n, "fake": fake, "text": text})
 
 # ------------------------------------------------------------------ formations (S16)
 func active_formations(c) -> Array:
