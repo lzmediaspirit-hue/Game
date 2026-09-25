@@ -146,6 +146,11 @@ func _draw_detail(r: Rect2) -> void:
 			if y > r.end.y - 150: break
 			text(Vector2(r.position.x + 16, y + 20), "✦ %s" % UiKit.affix_text(a), 16, UiKit.PALE_GOLD)
 			y += 22
+		# S47 natal treasure: its level and growth, or that it is broken.
+		if s.get("natal", false):
+			var nl := Tx.t("ui.forge.natal_broken") if s.get("broken", false) else Tx.t("ui.inventory.natal_line") % [int(s.get("natal_level", 0)), int(s.get("ilv_eff", s.get("ilv", 1)))]
+			text(Vector2(r.position.x + 16, y + 20), nl, 16, UiKit.RED if s.get("broken", false) else UiKit.GOLD)
+			y += 22
 		# S47: failed enhancements leave pity on the piece; the forge adds it to the next try.
 		if float(s.get("pity", 0.0)) > 0.0:
 			text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.forge.pity_line") % int(round(float(s.pity) * 100)), 16, UiKit.GOLD)

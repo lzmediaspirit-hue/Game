@@ -67,7 +67,8 @@ func appraise(c, index: int) -> Dictionary:
 	# Appraisal Eye (secret art, Qi Kindling 6) sees what a loupe would.
 	if game.crafting.tool_power(c, "appraisal") <= 0.0 and not npc_here(c, ["elder_gu", "old_pan"]) and not "appraisal_eye" in c.cultivator.secret_arts:
 		return fail("no_tool", {"text": Tx.t("sim.workshop.you_need_an_appraiser_loupe")})
-	var r := _weighted(Rng.stream(c.id, "crafting"), p.get("results", []))
+	# A sealed pouch (S47) carries its own table; other curios use the profession's.
+	var r := _weighted(Rng.stream(c.id, "crafting"), ContentDB.item(id).get("appraise", p.get("results", [])))
 	if r.is_empty(): return fail("no_results")
 	game.inventory.apply_remove_index(c.id, index, 1, "appraise")
 	game.inventory.apply_add(c.id, str(r.item), int(r.get("count", 1)), "appraise")

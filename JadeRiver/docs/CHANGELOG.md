@@ -5,6 +5,29 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V3c · Natal treasure, wardrobe, blood-drop bind and rogue cultivators (S47)
+- **Natal treasure** (Heart Tempering 1).
+  - Flag one weapon as Natal, in the forge's Natal mode.
+  - It grows from kills and technique uses with it in hand, and from ore fed at the forge (20 XP a grade step), to
+    natal level 10, +2% stats a level.
+  - Its item level follows yours up to the top of the grade band above its own.
+  - It breaks only to a boss's telegraphed shatter blow (the Tomb King's glaive sweep, the Hollow Behemoth's
+    stampede) or to overcharging, a 5% chance a technique when your Spirit is below its control demand
+    (10 + 5 a level).
+  - Broken, its stats go dark and a meridian injury follows (a soul injury from Spirit Awakening), until a
+    re-forge. A re-forge mends it, or at its cap carries it into the next band with its growth.
+  - Item details show its level and item level. Events: `natal_grew` and `natal_broken`.
+- **Wardrobe** (Heart Tempering 1): every look you wear joins the account's wardrobe. The Character page's
+  Wardrobe tab lets any of them stand in for a slot's own look; stats do not change.
+- **Blood-drop bind**: the first time a Plain to Heaven piece is worn, a drop of blood falls on it (`item_blooded`,
+  cosmetic).
+- **Rogue cultivators**: elites whose visible weapon or treasure is a guaranteed drop.
+  - A Rogue Cultivator in the Drowned Grotto carries the Serpent-Tongue Jian.
+  - A Rogue Mirror Adept on the Misty Slopes carries a Bright Mirror.
+  - Both carry a Sealed Storage Pouch, which Appraisal opens into something from its own table.
+- `natal_wardrobe_suite`: growth, the item-level cap, breaking only to shatter, re-forging, the wardrobe,
+  blood-drop, rogue drops and the pouch.
+
 ### V3b · Flying sword, Sword Intent, dual loadout and self-detonation (S47)
 - **Sword Release.** The Sword Dao's third tier teaches it; it goes on the skill arc.
   - The jian leaves your hand for 8 s, or until you use the technique again to call it back.

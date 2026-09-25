@@ -40,6 +40,9 @@ HUMAN = {
     "mudwater_bandit": {"hair": "short_knot", "hair_color": 5, "shirt": "sleeveless", "pants": "martial", "shoes": "boots", "weapon": "dagger", "hat": "tied"},
     "bandit_archer": {"hair": "ponytail", "hair_color": 0, "shirt": "sleeveless", "pants": "cuffed", "shoes": "boots", "weapon": "bow", "hat": "tied"},
     "gorge_bandit_adept": {"hair": "long_tied", "hair_color": 2, "shirt": "vneck", "pants": "martial", "shoes": "folded", "weapon": "sword", "hat": "none"},
+    # S47 rogue cultivators: what they carry in the open is what they drop.
+    "rogue_cultivator": {"hair": "flowing", "hair_color": 1, "shirt": "vneck", "pants": "martial", "shoes": "boots", "weapon": "sword", "hat": "none"},
+    "rogue_treasure_adept": {"hair": "topknot", "hair_color": 4, "shirt": "scholar", "pants": "loose", "shoes": "slippers", "weapon": "none", "hat": "guan"},
     "drowned_acolyte": {"hair": "short_knot", "hair_color": 1, "shirt": "scholar", "pants": "scholar", "shoes": "slippers", "weapon": "staff", "hat": "none", "tint": "#9fc6c9"},
     "big_toad_tan": {"hair": "topknot", "hair_color": 5, "shirt": "sleeveless", "pants": "loose", "shoes": "boots", "weapon": "staff", "hat": "none"},
     "drowned_abbot": {"hair": "flowing", "hair_color": 1, "shirt": "scholar", "pants": "scholar", "shoes": "slippers", "weapon": "staff", "hat": "none", "tint": "#8fb7c2"},
@@ -65,7 +68,7 @@ HUMAN = {
     "ninth_presence": {"hair": "flowing", "hair_color": 1, "shirt": "scholar", "pants": "scholar", "shoes": "folded", "weapon": "staff", "hat": "guan",
                        "shirt_dye": "white", "pants_dye": "white", "cape": "solid", "tint": "#d9ccff"},
 }
-NAMES = {"pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
+NAMES = {"rogue_cultivator": "Rogue Cultivator", "rogue_treasure_adept": "Rogue Mirror Adept", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
          "ninth_presence": "The Ninth Presence"}
 
 
@@ -152,6 +155,13 @@ def build():
             [atk("sword_arc", 0.45, 80, 1.1), atk("crescent", 0.6, 300, 1.2, damage_type="qi", projectile={"speed": 520, "art": "qi_arc"})],
             ai="humanoid", art=human("gorge_bandit_adept"), race="human", energy="primal_qi", width=18, height=90, guards=True,
             coin_mult=2.0, equipment_chance=0.06),
+        # S47 rogue cultivators: elites whose visible weapon or treasure is a guaranteed drop, with a sealed pouch.
+        mob("rogue_cultivator", (24, 26), "elite", "metal", None, [d("serpent_tongue_jian", 1.0), d("sealed_storage_pouch", 1.0)],
+            [atk("serpent_thrust", 0.45, 90, 1.25), atk("sword_qi", 0.7, 320, 1.15, damage_type="qi", projectile={"speed": 540, "art": "qi_arc"})],
+            ai="humanoid", art=human("rogue_cultivator"), race="human", energy="primal_qi", width=18, height=90, guards=True),
+        mob("rogue_treasure_adept", (48, 50), "elite", "water", None, [d("bright_mirror", 1.0), d("sealed_storage_pouch", 1.0, (1, 2))],
+            [atk("palm_of_tides", 0.5, 70, 1.2), atk("mirror_flash", 0.8, 300, 1.2, damage_type="qi", projectile={"speed": 520, "art": "qi_arc"})],
+            ai="humanoid", art=human("rogue_treasure_adept"), race="human", energy="true_qi", width=18, height=90, guards=True),
         mob("boulder_serpent", (32, 35), "normal", "earth", "gorge", [d("serpent_scale", 0.5), d("jadeiron", 0.2)],
             [atk("boulder_roll", 0.6, 50, 1.2, dash=160)], ai="charger", speed=60, width=34, height=34),
         mob("mist_vulture", (34, 36), "normal", "wind", "gorge", [d("vulture_plume", 0.5)],
@@ -224,7 +234,7 @@ def build():
             ai="slow_melee", speed=70, width=22, height=100, race="construct", weak_to="water"),
         mob("tomb_king", 77, "dungeon_boss", "earth", "azure", [d("sun_crown_fragment", 1.0, (2, 3)), d("storm_shard", 1.0, (12, 18)),
                                                                 d("sunglass_ore", 1.0, (3, 5))],
-            [atk("glaive_sweep", 0.75, 190, 1.35, depth=70, knockback=120, both_sides=True),
+            [atk("glaive_sweep", 0.75, 190, 1.35, depth=70, knockback=120, both_sides=True, shatter=True),   # S47: breaks a natal weapon
              atk("sand_crescent", 0.9, 380, 1.2, damage_type="qi", projectile={"speed": 460, "art": "sand_crescent"}),
              atk("sun_flare", 1.1, 260, 1.5, damage_type="qi", depth=90, status={"id": "burn", "chance": 0.5, "power": 0.01, "duration_s": 4})],
             ai="boss_king", race="undead", energy="sage_qi", width=40, height=170, weak_to="water", hp_mult=0.35, attack_mult=0.8,
@@ -292,7 +302,7 @@ def build():
         mob("elder_gu", 53, "story_boss", "water", None, [d("smuggler_ledger", 1.0)], [atk("tide_palm", 0.5, 90, 1.2, damage_type="qi")],
             ai="humanoid", art=human("elder_gu"), race="human", energy="true_qi", width=18, height=90, flees_after_s=60, invulnerable=True),
         mob("hollow_behemoth", 58, "story_boss", "hollow_earth", None, [d("siege_medal", 1.0), d("mistjade_robe", 1.0)],
-            [atk("stampede", 0.7, 90, 1.4, dash=240, knockback=120), atk("drone_burst", 1.0, 200, 1.0, both_sides=True, depth=70)],
+            [atk("stampede", 0.7, 90, 1.4, dash=240, knockback=120, shatter=True), atk("drone_burst", 1.0, 200, 1.0, both_sides=True, depth=70)],
             ai="boss_behemoth", width=80, height=140, hollowing=8),
         mob("gate_guardian", 63, "story_boss", "earth", None, [], [atk("ring_sweep", 0.7, 180, 1.3, both_sides=True, depth=70, knockback=100),
                                                                    atk("soul_gaze", 0.9, 320, 1.1, damage_type="soul", projectile={"speed": 500, "art": "soul_bolt"})],

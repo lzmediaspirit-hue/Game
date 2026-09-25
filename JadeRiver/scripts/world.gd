@@ -439,6 +439,14 @@ func _on_event(name: String, p: Dictionary) -> void:
 			fx.add("flash", player.position + Vector2(0, -50), {"color": Color("ffe0a0"), "radius": 90.0, "dur": 0.35})
 			shake = 0.35
 			Audio.play("rumble")
+		"item_blooded":
+			# S47 blood-drop bind: a bead of blood falls onto a piece worn for the first time.
+			fx.add("spark", player.position + Vector2(0, -70), {"color": Color("c0303a"), "dur": 0.5})
+			fx.add("text", player.position + Vector2(0, -120), {"text": "·", "color": Color("d23a44"), "size": 34, "dur": 0.9})
+		"natal_broken":
+			fx.add("flash", player.position + Vector2(0, -50), {"color": Color("ff6a5a"), "radius": 70.0, "dur": 0.4})
+			shake = 0.3
+			Audio.play("break")
 		"sword_released", "sword_returned":
 			fx.add("spark", player.position + Vector2(0, -100), {"color": Color("dff3ff"), "dur": 0.3})
 			Audio.play("forge")

@@ -397,6 +397,7 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	if float(t.get("soul_cost", 0)) > 0 and c.pools.soul < float(t.soul_cost): return fail("no_soul")
 	if float(t.get("composure_cost", 0)) > 0 and c.pools.composure < float(t.composure_cost): return fail("no_composure")
 	apply_resource_change(c.id, "qi", -cost, "technique")
+	_natal_overcharge(c)
 	if float(t.get("soul_cost", 0)) > 0: apply_resource_change(c.id, "soul", -float(t.soul_cost), "technique")
 	if float(t.get("composure_cost", 0)) > 0:
 		apply_resource_change(c.id, "composure", -float(t.composure_cost), "technique")
@@ -829,6 +830,8 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 		if float(tl.stance) > 0.0:
 			_player_hits_enemy(c, pv, e, {"damage_type": "physical", "element": "wood", "mult": [2.0, 2.0], "range": [1.0, 1.0], "source": "counter"}, int(tl.facing))
 		return
+	# S47: a boss's telegraphed "shatter" blow that lands breaks a natal weapon in hand (guarding does not save it).
+	if attack.get("shatter", false): game.inventory.natal_break(c, "shatter")
 	var m := float(attack.get("mult", 1.0)) * float(e.ai.get("enraged", {}).get("damage", 1.0))
 	var a := {"damage_type": str(attack.get("damage_type", "physical")), "element": e.element, "mult": [m, m],
 		"range": [0.9, 1.1], "knockback": float(attack.get("knockback", 0)), "attunement": float(attune.get(c.id, {}).get("taken", 1.0))}
@@ -959,6 +962,17 @@ func choose_revival(c, where: String) -> Dictionary:
 	return ok()
 
 # ------------------------------------------------------------------ flying sword and Sword Intent (S47)
+## S47 natal overcharge: a natal weapon asks 10 + 5 x its natal level of Spirit to command. Below that, each
+## technique drawn through it has a 5% chance to break it.
+func natal_demand(inst: Dictionary) -> float:
+	return float(ContentDB.stat_const("natal.demand_base", 10)) + float(ContentDB.stat_const("natal.demand_per_level", 5)) * int(inst.get("natal_level", 0))
+
+func _natal_overcharge(c) -> void:
+	var inst: Dictionary = game.inventory.natal_of(c)
+	if inst.is_empty() or c.inventory.equipped.get("weapon") != inst or inst.get("broken", false): return
+	if StatRules.attribute(c, "spirit") >= natal_demand(inst): return
+	if Rng.stream(c.id, "combat").randf() < float(ContentDB.stat_const("natal.overcharge_chance", 0.05)): game.inventory.natal_break(c, "overcharge")
+
 func knows_sword_release(c) -> bool:
 	return c.cultivator.techniques_known.has("sword_release")
 

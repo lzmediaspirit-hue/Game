@@ -45,6 +45,7 @@ func _main() -> void:
 	paths_above_suite()
 	forge_upkeep_suite()
 	sword_loadout_suite()
+	natal_wardrobe_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -273,6 +274,82 @@ func sword_loadout_suite() -> void:
 		var k: int = c.inventory.first_index(id)
 		if k >= 0: Game.inventory.apply_remove_index(c.id, k, 1, "test")
 	if foe != null and foe.alive: foe.alive = false
+
+# ------------------------------------------------------------------ S47 natal treasure, wardrobe, blood-drop, rogue cultivators
+func natal_wardrobe_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	Unlocks.force_unlock(c.id, "natal")
+	Unlocks.force_unlock(c.id, "wardrobe")
+	Game.inventory.apply_add_equipment(c.id, "jadeiron_jian", 27, "common", "test")
+	var ji: int = c.inventory.first_index("jadeiron_jian")
+	var held_before = c.inventory.equipped.get("weapon")
+	var jian: Dictionary = c.inventory.bag[ji]
+	c.inventory.equipped["weapon"] = jian
+	c.inventory.bag[ji] = held_before
+	# Natal: flag it, feed it ore (20 XP a grade step each): 5 Jadeiron -> 300 XP -> natal level 2, +4% stats.
+	var mult0: float = StatRules.instance_mult(jian, c.cultivator.energy_type)
+	check(Game.submit({"type": "flag_natal", "uid": int(jian.uid)}).get("ok", false) and jian.get("natal", false), "a jian becomes the Natal treasure")
+	Game.inventory.apply_add(c.id, "jadeiron", 5, "test")
+	var fd := Game.submit({"type": "feed_natal", "uid": int(jian.uid), "item": "jadeiron", "count": 5})
+	check(fd.get("ok", false) and int(jian.natal_level) == 2 and near(float(jian.natal_xp), 300.0), "five Jadeiron feed it to natal level 2 (%s)" % str(fd))
+	check(near(StatRules.instance_mult(jian, c.cultivator.energy_type), mult0 * 1.04, 0.001), "natal level 2 gives +4%")
+	var cap: int = Game.inventory.natal_cap(jian)
+	check(cap > int(jian.ilv) and int(jian.get("ilv_eff", jian.ilv)) == clampi(ProgressionRules.level(c), int(jian.ilv), cap),
+		"its item level follows yours, up to the grade band above its own (cap %d)" % cap)
+	# It breaks only to the listed causes: an ordinary blow leaves it whole, a boss's shatter breaks it.
+	var foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", Game.actor_state(c.id).plane + Vector2(40, 0), 2)
+	c.pools.invulnerable = 0.0
+	c.pools.statuses = c.pools.statuses.filter(func(x): return str(x.id) != "spawn_protection")
+	Game.combat.timeline(c.id).dodge_t = 0.0
+	Game.combat._enemy_hits_player(foe, c, Game.combat.enemy_view(foe), Game.combat.player_view(c), {"mult": 0.01})
+	check(not jian.get("broken", false), "an ordinary blow never breaks a natal weapon")
+	c.pools.invulnerable = 0.0
+	Game.combat._enemy_hits_player(foe, c, Game.combat.enemy_view(foe), Game.combat.player_view(c), {"mult": 0.01, "shatter": true})
+	GameEvents.flush()
+	check(jian.get("broken", false) and StatRules.instance_mult(jian, c.cultivator.energy_type) == 0.0 and not c.cultivator.injuries.is_empty(),
+		"a shatter blow breaks it: its stats go dark and an injury follows")
+	Game.inventory.apply_add(c.id, "jadeiron", 20, "test")
+	Game.economy.apply_currency("silver_tael", 5000, "test")
+	check(Game.submit({"type": "reforge_natal", "uid": int(jian.uid)}).get("ok", false) and not jian.get("broken", false) and int(jian.natal_level) == 2,
+		"a re-forge mends it and keeps its growth")
+	check(Game.combat.natal_demand(jian) == 20.0, "control demand is 10 + 5 a natal level")
+	# Wardrobe and blood-drop: the first wear adds the look and bleeds a Plain-to-Heaven piece once.
+	Game.inventory.apply_add_equipment(c.id, "jadeiron_robe", 27, "common", "test")
+	var robe: Dictionary = c.inventory.bag[c.inventory.first_index("jadeiron_robe")]
+	var bled := []
+	var listen := func(n: String, p: Dictionary):
+		if n == "item_blooded": bled.append(p)
+	GameEvents.event.connect(listen)
+	Game.inventory._first_wear(c, robe, "robe")
+	Game.inventory._first_wear(c, robe, "robe")
+	GameEvents.flush()
+	GameEvents.event.disconnect(listen)
+	var look := str(robe.get("appearance", ContentDB.item("jadeiron_robe").get("appearance", "")))
+	check(bled.size() == 1 and robe.get("blooded", false), "a first wear takes one drop of blood")
+	check(Game.account.wardrobe_unlocked.has("shirt:" + look), "the look joins the wardrobe (%s)" % look)
+	check(not Game.submit({"type": "set_appearance", "slot": "robe", "look": "never_worn_look"}).get("ok", true), "a look never worn cannot be chosen")
+	check(Game.submit({"type": "set_appearance", "slot": "robe", "look": look}).get("ok", false) and str(c.inventory.appearance_override.robe) == look,
+		"a worn look can stand in for the robe's own")
+	Game.submit({"type": "set_appearance", "slot": "robe", "look": ""})
+	# Rogue cultivators drop what they carry, and a sealed pouch that Appraisal opens.
+	var drop: Dictionary = LootRules.roll("rogue_cultivator", Rng.stream(c.id, "loot"), 25, 0.0, 0.0)
+	var got := (drop.get("items", []) as Array).map(func(x): return str(x.item))
+	check(got.has("serpent_tongue_jian") and got.has("sealed_storage_pouch"), "a rogue cultivator always drops its jian and a sealed pouch (%s)" % str(got))
+	Unlocks.force_unlock(c.id, "appraisal")
+	Game.progression.apply_learn_secret_art(c.id, "appraisal_eye")
+	Game.inventory.apply_add(c.id, "sealed_storage_pouch", 1, "test")
+	var ap := Game.workshop.appraise(c, c.inventory.first_index("sealed_storage_pouch"))
+	var table: Array = ContentDB.item("sealed_storage_pouch").get("appraise", [])
+	check(ap.get("ok", false) and table.any(func(x): return str(x.item) == str(ap.item)), "Appraisal opens the pouch into something from its own table (%s)" % str(ap))
+	# Put things back.
+	for k in ["natal", "natal_xp", "natal_level", "ilv_eff"]: jian.erase(k)
+	c.inventory.equipped["weapon"] = held_before
+	if foe != null: foe.alive = false
+	for id in ["jadeiron_jian", "jadeiron_robe"]:
+		var k2: int = c.inventory.first_index(id)
+		if k2 >= 0: Game.inventory.apply_remove_index(c.id, k2, 1, "test")
+	c.cultivator.injuries.clear()
 
 # ------------------------------------------------------------------ formulas
 func rules_suite() -> void:

@@ -646,6 +646,24 @@
     "inventory_authority"
    ]
   },
+  "natal_grew": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
+  "natal_broken": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
+  "item_blooded": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
   "quest_offered": {
    "system": "Quest",
    "files": [

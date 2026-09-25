@@ -46,6 +46,9 @@ static func instance_mult(instance, energy_type: String) -> float:
 	var wearer := order.find(energy_type)
 	if made >= 0 and wearer >= 0 and wearer - made >= 2: m *= float(ContentDB.stat_const("equipment.energy_type_penalty", 0.5))
 	if int(instance.get("durability", 100)) <= 0: m *= 0.5
+	# S47 natal treasure: +2% a natal level; a broken one gives nothing until it is re-forged.
+	if instance.get("broken", false): return 0.0
+	if instance.get("natal", false): m *= 1.0 + float(ContentDB.stat_const("natal.per_level", 0.02)) * int(instance.get("natal_level", 0))
 	return m
 
 ## Stat modifiers granted by one equipped instance (base stats, affixes, inlays).
@@ -56,7 +59,7 @@ static func instance_modifiers(slot: String, instance, energy_type: String) -> A
 	if str(instance.get("spirit", "")) == "awake" and def.has("spirit"):
 		var fx: Dictionary = def.spirit.get("effect", {})
 		if not fx.is_empty(): out.append({"stat": str(fx.stat), "op": str(fx.op), "value": float(fx.value), "source": "spirit:" + slot})
-	var ilv := float(instance.get("ilv", def.get("ilv", 1)))
+	var ilv := float(instance.get("ilv_eff", instance.get("ilv", def.get("ilv", 1))))   # a natal piece fights at the level it has grown to
 	var mult := instance_mult(instance, energy_type)
 	var src := "gear:" + slot
 	var share: Dictionary = ContentDB.stat_const("equipment.slot_share", {})

@@ -1518,6 +1518,21 @@
    "set": "crane"
   },
   {
+   "id": "serpent_tongue_jian",
+   "name": "Serpent-Tongue Jian",
+   "slot": "weapon",
+   "grade": "earth",
+   "ilv": 30,
+   "appearance": "sword",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian",
+   "desc": "A rogue cultivator's jian, its blade forked at the tip. Whoever it belonged to, it is yours now."
+  },
+  {
    "id": "sleeping_blade",
    "name": "The Sleeping Blade",
    "slot": "weapon",

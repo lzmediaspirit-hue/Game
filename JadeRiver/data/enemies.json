@@ -2289,6 +2289,220 @@
    }
   },
   {
+   "id": "rogue_cultivator",
+   "name": "Rogue Cultivator",
+   "level": [
+    24,
+    26
+   ],
+   "role": "elite",
+   "element": "metal",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "serpent_thrust",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.25
+    },
+    {
+     "id": "sword_qi",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       320
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.15,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 540,
+      "art": "qi_arc"
+     }
+    }
+   ],
+   "loot": "rogue_cultivator",
+   "drops": [
+    {
+     "item": "serpent_tongue_jian",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "sealed_storage_pouch",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "flowing",
+     "hair_color": 1,
+     "shirt": "vneck",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "sword",
+     "hat": "none",
+     "name": "Rogue Cultivator",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "guards": true,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "rogue_treasure_adept",
+   "name": "Rogue Treasure Adept",
+   "level": [
+    48,
+    50
+   ],
+   "role": "elite",
+   "element": "water",
+   "race": "human",
+   "energy": "true_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "palm_of_tides",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       70
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.2
+    },
+    {
+     "id": "mirror_flash",
+     "windup_s": 0.8,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       300
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.2,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 520,
+      "art": "qi_arc"
+     }
+    }
+   ],
+   "loot": "rogue_treasure_adept",
+   "drops": [
+    {
+     "item": "bright_mirror",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "sealed_storage_pouch",
+     "chance": 1.0,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "topknot",
+     "hair_color": 4,
+     "shirt": "scholar",
+     "pants": "loose",
+     "shoes": "slippers",
+     "weapon": "none",
+     "hat": "guan",
+     "name": "Rogue Mirror Adept",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "guards": true,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
    "id": "boulder_serpent",
    "name": "Boulder Serpent",
    "level": [
@@ -4216,7 +4430,8 @@
      },
      "mult": 1.35,
      "knockback": 120,
-     "both_sides": true
+     "both_sides": true,
+     "shatter": true
     },
     {
      "id": "sand_crescent",
@@ -5852,7 +6067,8 @@
      },
      "mult": 1.4,
      "dash": 240,
-     "knockback": 120
+     "knockback": 120,
+     "shatter": true
     },
     {
      "id": "drone_burst",

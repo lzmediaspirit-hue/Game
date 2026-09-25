@@ -17,7 +17,7 @@ var scores: Array = []
 var band := Vector2(0.45, 0.62)
 var fire := "charcoal"
 ## The Forge's upkeep modes (S47): forging from recipes, then Enhance, Inherit, Salvage and Reroll.
-const FORGE_MODES := ["recipes", "enhance", "inherit", "salvage", "reroll"]
+const FORGE_MODES := ["recipes", "enhance", "inherit", "salvage", "reroll", "natal"]
 var forge_mode := "recipes"
 var pick_uid := -1                 # the piece chosen in Enhance and Reroll, and Inherit's source
 var to_uid := -1                   # Inherit's target
@@ -45,7 +45,7 @@ func setup() -> void:
 	if pick in FORGE_MODES:   # --open-page=forge:enhance (a preview shows the first piece chosen)
 		forge_mode = pick
 		var gear := _gear(ch)
-		if not gear.is_empty() and pick in ["enhance", "reroll"]: pick_uid = int(gear[0].inst.get("uid", -1))
+		if not gear.is_empty() and pick in ["enhance", "reroll", "natal"]: pick_uid = int(gear[0].inst.get("uid", -1))
 	if want >= 0: tab = want
 	else:
 		for i in tabs.size():
@@ -194,6 +194,7 @@ func _forge(ch, area: Rect2) -> void:
 		"inherit": _forge_inherit(ch, right)
 		"salvage": _forge_salvage(ch, right)
 		"reroll": _forge_reroll(ch, right)
+		"natal": _forge_natal(ch, right)
 
 func _piece_header(r: Rect2, inst: Dictionary) -> float:
 	slot_box(Rect2(r.position + Vector2(24, 24), Vector2(72, 72)), str(inst.id), 0, str(inst.get("quality", "")))
@@ -309,6 +310,44 @@ func _forge_reroll(ch, r: Rect2) -> void:
 		UiKit.BRIGHT_JADE if Game.economy.balance("silver_tael") >= int(cost.taels) else UiKit.RED)
 	var why2: String = Game.crafting.reroll_check(ch, inst)
 	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.reroll"), "do_reroll", null, true, why2 == "", why2)
+
+## S47 natal treasure: flag one weapon, feed it ore, and re-forge it when it breaks or reaches its band's cap.
+func _forge_natal(ch, r: Rect2) -> void:
+	var inst := _find(ch, pick_uid)
+	if inst.is_empty() or str(ContentDB.item(str(inst.id)).get("slot", "")) != "weapon":
+		para(Rect2(r.position + Vector2(24, 30), r.size - Vector2(48, 60)), Tx.t("ui.forge.natal_help"), 19, UiKit.MIST)
+		return
+	var y := _piece_header(r, inst)
+	if not inst.get("natal", false):
+		para(Rect2(r.position.x + 24, y, r.size.x - 48, 120), Tx.t("ui.forge.natal_help"), 17, UiKit.MIST)
+		btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.make_natal"), "natal_flag", null, true, Unlocks.is_unlocked(ch.id, "natal"), Unlocks.locked_text("natal"))
+		return
+	var lv := int(inst.get("natal_level", 0))
+	var xp := float(inst.get("natal_xp", 0.0))
+	var steps: Array = ContentDB.stat_const("natal.xp_levels", [50])
+	var nxt := float(steps[mini(lv, steps.size() - 1)])
+	bar(Rect2(r.position.x + 24, y, r.size.x - 48, 24), 1.0 if lv >= 10 else xp / maxf(1.0, nxt), UiKit.GOLD,
+		Tx.t("ui.forge.natal_level") % [lv, int(xp), int(nxt)] if lv < 10 else Tx.t("ui.forge.natal_full"))
+	y += 40
+	text(Vector2(r.position.x + 24, y), Tx.t("ui.forge.natal_ilv") % [int(inst.get("ilv_eff", inst.get("ilv", 1))), Game.inventory.natal_cap(inst)], 17, UiKit.PAPER)
+	y += 26
+	var demand: float = Game.combat.natal_demand(inst)
+	var spirit: float = StatRules.attribute(ch, "spirit")
+	text(Vector2(r.position.x + 24, y), Tx.t("ui.forge.natal_demand") % [int(demand), int(spirit)], 17, UiKit.BRIGHT_JADE if spirit >= demand else UiKit.RED)
+	y += 26
+	if inst.get("broken", false):
+		text(Vector2(r.position.x + 24, y), Tx.t("ui.forge.natal_broken"), 18, UiKit.RED)
+		y += 26
+	# Feed: the best ore in the bag, one or five at a time.
+	var ore := ""
+	for it in ch.inventory.bag:
+		if it == null or str(ContentDB.item(str(it.id)).get("type", "")) != "ore" or str(it.id) == "spirit_stone_shard": continue
+		if ore == "" or StatRules.grade_index(str(ContentDB.item(str(it.id)).grade)) > StatRules.grade_index(str(ContentDB.item(ore).grade)): ore = str(it.id)
+	if ore != "":
+		slot_box(Rect2(r.position.x + 24, y + 6, 44, 44), ore, ch.inventory.count(ore))
+		btn(Rect2(r.position.x + 80, y + 6, 130, 44), Tx.t("ui.forge.feed") % 1, "natal_feed", [ore, 1], false, not inst.get("broken", false), "", 16)
+		btn(Rect2(r.position.x + 220, y + 6, 130, 44), Tx.t("ui.forge.feed") % 5, "natal_feed", [ore, 5], false, not inst.get("broken", false) and ch.inventory.count(ore) >= 5, "", 16)
+	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.reforge"), "natal_reforge", null, true)
 
 func _auto(ch, right: Rect2) -> void:
 	var q: Array = ch.crafting.get("auto_queue", [])
@@ -436,6 +475,18 @@ func on_action(id: String, data) -> void:
 			if r6.get("ok", false): Audio.play("forge", "UI")
 			elif str(r6.get("text", "")) != "": flash(str(r6.text))
 		"choose": submit({"type": "choose_affixes", "uid": pick_uid, "keep": str(data)})
+		"natal_flag":
+			var r7 := submit({"type": "flag_natal", "uid": pick_uid})
+			if not r7.get("ok", false) and str(r7.get("text", "")) != "": flash(str(r7.text))
+		"natal_feed":
+			var r8 := submit({"type": "feed_natal", "uid": pick_uid, "item": str(data[0]), "count": int(data[1])})
+			if r8.get("ok", false): Audio.play("forge", "UI")
+		"natal_reforge":
+			var r9 := submit({"type": "reforge_natal", "uid": pick_uid})
+			if r9.get("ok", false):
+				Audio.play("forge", "UI")
+				flash(Tx.t("ui.forge.reforged"))
+			elif str(r9.get("text", "")) != "": flash(str(r9.text))
 
 func _band_mult(craft: String) -> float:
 	return Game.crafting.band_mult(c(), fire) if craft == "alchemy" else 1.0

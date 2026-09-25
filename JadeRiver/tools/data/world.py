@@ -2288,6 +2288,12 @@ def earth_vents():
               locked_text="Heat rises from a crack in the stone. An alchemist could use it.")
 
 
+def rogue_cultivators():
+    """S47: rogue cultivators keep to out-of-the-way places: the Drowned Grotto and the Misty Slopes."""
+    ROOMS["ds_drowned_grotto"].spawn("rogue_cultivator", [[1650, 820]], 1, respawn=1800, level=[24, 26], elite=True)
+    ROOMS["mp_misty_slopes"].spawn("rogue_treasure_adept", [[2600, 840]], 1, respawn=1800, level=[48, 50], elite=True)
+
+
 def movement_extras():
     """Hand-placed climbing where the automatic pass finds no clear back row."""
     def deck(rid, sid, rect, h, kind="balcony"):
@@ -2509,6 +2515,7 @@ def build():
     skyport_wreck()
     earth_vents()
     movement_extras()
+    rogue_cultivators()
     catalogue.run(ROOMS)
     movement_pass()
     verticality.run(ROOMS)

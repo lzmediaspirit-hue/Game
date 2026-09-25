@@ -1541,6 +1541,39 @@
    "same_stage_ok": true
   },
   {
+   "id": "natal",
+   "label": "Natal treasure",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
+   "id": "wardrobe",
+   "label": "Wardrobe",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
    "id": "healing",
    "label": "Healing",
    "trigger": {

@@ -388,6 +388,13 @@ def build_items():
     for j, attr in [("body_jade", "body"), ("swift_jade", "agility"), ("essence_jade", "essence"), ("spirit_jade", "spirit"), ("insight_jade", "insight")]:
         rows.append(item(j, "jade", "common", 99, "A Qi jade for an inlay socket. +3/+6/+10 %s at Common/Earth/Heaven." % attr, jade={"attribute": attr, "values": [3, 6, 10]}))
     # Workshop goods (S16 appraisal, research, puppetry; formations and array plates).
+    # S47: what a rogue cultivator carried, sealed with their Qi. Appraisal opens it.
+    rows.append(item("sealed_storage_pouch", "curio", "earth", 20, "A rogue cultivator's storage pouch, sealed with Qi that is not yours. "
+                     "An appraiser can open it; there is no telling what is inside.", value_override=30, use=[], use_action="appraise",
+                     appraise=[{"item": "spirit_stone_shard", "count": 4, "weight": 4}, {"item": "jade_trinket", "count": 1, "weight": 3},
+                               {"item": "refining_essence", "count": 3, "weight": 3}, {"item": "manual_page", "count": 2, "weight": 2},
+                               {"item": "torn_manual", "count": 1, "weight": 2}, {"item": "qi_gathering_pill", "count": 2, "weight": 1},
+                               {"item": "fake_jade", "count": 2, "weight": 1}]))
     rows.append(item("dusty_curio", "curio", "common", 99, "An old trinket of uncertain worth. Appraise it to learn what it really is.", value_override=15, use=[], use_action="appraise"))
     rows.append(item("jade_trinket", "valuable", "common", 99, "A small carving of real river jade.", value_override=60))
     rows.append(item("tinkerers_gear", "valuable", "common", 99, "A brass gear from a clockwork bird, lost on the chimney top of Artisan Row. "
@@ -494,6 +501,9 @@ def build_artifacts():
     for slot, app in [("robe", "vneck"), ("trousers", "cuffed"), ("boots", "boots")]:
         rows.append(artifact("crane_%s" % slot, slot, "heaven", "Crane %s" % slot.capitalize(), app, icon="cloudsilk_%s" % slot, set="crane", ilv=45,
                              **({"dye": "white" if slot == "robe" else "cloud"} if slot in ("robe", "trousers") else {})))
+    # S47 rogue cultivators drop what they carry in the open.
+    rows.append(artifact("serpent_tongue_jian", "weapon", "earth", "Serpent-Tongue Jian", "sword", "jian", icon="jadeiron_jian", ilv=30,
+                         desc="A rogue cultivator's jian, its blade forked at the tip. Whoever it belonged to, it is yours now."))
     rows.append(artifact("sleeping_blade", "weapon", "heaven", "The Sleeping Blade", "sword", "jian", icon="cloudsteel_jian", ilv=52,
                          relic=True, unique="Awake spirit: +10% crit damage",
                          spirit={"name": "Blade Spirit", "strength": 30, "effect": {"stat": "crit_damage", "op": "flat", "value": 0.1}}))

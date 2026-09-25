@@ -376,6 +376,23 @@
     50
    ],
    "elite": true
+  },
+  {
+   "enemy": "rogue_treasure_adept",
+   "surface": "ground",
+   "points": [
+    [
+     2600,
+     840
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 1800,
+   "level": [
+    48,
+    50
+   ],
+   "elite": true
   }
  ],
  "scenery": [],

@@ -17,6 +17,7 @@ var new_items: Dictionary = {}     # item id -> true (green "new" dot until view
 var treasures: Array = ["", ""]    # gap report G2: treasures set in the HUD's Treasure buttons (item ids)
 var vessel := ""                   # the flight vessel ridden when flying (a key item id), "" = none
 var loadout: Dictionary = {"spare": null, "active": "a"}   # S47 dual loadout: the weapon not in hand, and which of A/B is held
+var appearance_override: Dictionary = {}   # S47 wardrobe: slot -> look id shown instead of the item's own
 
 func _init() -> void:
 	for s in SLOTS: equipped[s] = null
@@ -82,7 +83,8 @@ func snapshot() -> Dictionary:
 	for s in SLOTS: eq[s] = equipped[s].duplicate(true) if equipped[s] != null else null
 	return {"bag": bag.duplicate(true), "equipped": eq, "quick_use": quick_use, "key_items": key_items.duplicate(true),
 		"locked": locked.keys(), "next_uid": next_uid, "treasures": treasures.duplicate(), "vessel": vessel,
-		"loadout": {"spare": loadout.spare.duplicate(true) if loadout.get("spare") != null else null, "active": str(loadout.get("active", "a"))}}
+		"loadout": {"spare": loadout.spare.duplicate(true) if loadout.get("spare") != null else null, "active": str(loadout.get("active", "a"))},
+		"appearance_override": appearance_override.duplicate()}
 
 func restore(d: Dictionary) -> void:
 	bag = []
@@ -101,6 +103,7 @@ func restore(d: Dictionary) -> void:
 	var sp = lo.get("spare")
 	loadout = {"spare": sp.duplicate(true) if sp is Dictionary and ContentDB.is_equipment(str(sp.get("id", ""))) else null,
 		"active": "b" if str(lo.get("active", "a")) == "b" else "a"}
+	appearance_override = d.get("appearance_override", {}).duplicate() if d.get("appearance_override", {}) is Dictionary else {}
 	key_items = []
 	for k in d.get("key_items", []):
 		if k is Dictionary: key_items.append(k.duplicate(true))

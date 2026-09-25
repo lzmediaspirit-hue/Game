@@ -974,6 +974,90 @@
    ]
   },
   {
+   "id": "rogue_cultivator",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "equipment": {
+    "chance": 0.25,
+    "min_quality": "fine"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
+   "guaranteed": [
+    {
+     "item": "serpent_tongue_jian",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "sealed_storage_pouch",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "rogue_treasure_adept",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "equipment": {
+    "chance": 0.25,
+    "min_quality": "fine"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
+   "guaranteed": [
+    {
+     "item": "bright_mirror",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "sealed_storage_pouch",
+     "chance": 1.0,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
    "id": "boulder_serpent",
    "groups": [
     {

@@ -11,7 +11,8 @@ var doll: Node2D
 
 func _init() -> void:
 	title = Tx.t("ui.character.character")
-	tabs = [{"id": "overview", "label": Tx.t("ui.character.overview")}, {"id": "stats", "label": Tx.t("ui.character.stats")}, {"id": "aptitude", "label": Tx.t("ui.character.aptitude")}, {"id": "titles", "label": Tx.t("ui.character.titles")}, {"id": "attunement", "label": Tx.t("ui.character.attunement")}]
+	tabs = [{"id": "overview", "label": Tx.t("ui.character.overview")}, {"id": "stats", "label": Tx.t("ui.character.stats")}, {"id": "aptitude", "label": Tx.t("ui.character.aptitude")}, {"id": "titles", "label": Tx.t("ui.character.titles")}, {"id": "attunement", "label": Tx.t("ui.character.attunement")},
+		{"id": "wardrobe", "label": Tx.t("ui.character.wardrobe")}]
 
 func setup() -> void:
 	doll = Avatar.new()
@@ -22,7 +23,9 @@ func setup() -> void:
 
 func _process(delta: float) -> void:
 	super._process(delta)
-	if is_instance_valid(doll): doll.visible = str(tabs[tab].id) == "overview"
+	if is_instance_valid(doll):
+		doll.visible = str(tabs[tab].id) in ["overview", "wardrobe"]
+		doll.position = Vector2(300, 520) if str(tabs[tab].id) == "overview" else Vector2(200, 540)
 
 func draw_page() -> void:
 	var ch = c()
@@ -66,6 +69,35 @@ func draw_page() -> void:
 				var tr := Rect2(r.position.x + 30, r.position.y + 20 + i * 64, 600, 56)
 				btn(tr, ContentDB.name_of("titles", tid), "title", tid, ch.cultivator.active_title == tid)
 		"attunement": _attunement(ch, r)
+		"wardrobe": _wardrobe(ch, r)
+
+## S47 wardrobe: for each slot, any look you have ever worn can stand in for the piece's own.
+const WARDROBE_SLOTS := [["robe", "shirt"], ["trousers", "pants"], ["boots", "shoes"], ["hat", "hat"], ["weapon", "weapon"]]
+func _wardrobe(ch, r: Rect2) -> void:
+	if not Unlocks.is_unlocked(ch.id, "wardrobe"):
+		para(Rect2(r.position.x + 380, r.position.y + 40, r.size.x - 420, 200), Unlocks.locked_text("wardrobe"), 20, UiKit.HOLLOW)
+		return
+	var x := r.position.x + 380
+	var y := r.position.y + 34
+	text(Vector2(x, y), Tx.t("ui.character.wardrobe_help"), 17, UiKit.MIST)
+	y += 22
+	for pair in WARDROBE_SLOTS:
+		var slot: String = pair[0]
+		var cat: String = pair[1]
+		var looks: Array = []
+		for k in Game.account.wardrobe_unlocked:
+			if str(k).begins_with(cat + ":"): looks.append(str(k).get_slice(":", 1))
+		looks.sort()
+		var cur := str(ch.inventory.appearance_override.get(slot, ""))
+		text(Vector2(x, y + 34), Tx.t("ui.character.wardrobe_" + slot), 18, UiKit.PALE_GOLD)
+		var bx := x + 130.0
+		btn(Rect2(bx, y + 8, 120, 40), Tx.t("ui.character.own_look"), "look", [slot, ""], cur == "", true, "", 15)
+		bx += 128
+		for lk in looks:
+			if bx + 120 > r.end.x - 20: break
+			btn(Rect2(bx, y + 8, 120, 40), str(lk).replace("_", " ").capitalize(), "look", [slot, lk], cur == lk, true, "", 15)
+			bx += 128
+		y += 58
 
 ## S18 attunement: the four jades of the zone you stand in (or the first zone that asks for
 ## attunement), what raising each costs, and how the total compares with each region's need.
@@ -153,3 +185,6 @@ func _party(ch, r: Rect2) -> void:
 func on_action(id: String, data) -> void:
 	if id == "title": submit({"type": "set_title", "title": str(data)})
 	if id == "attune": submit({"type": "attune_jade", "zone": str(data[0]), "index": int(data[1])})
+	if id == "look":
+		submit({"type": "set_appearance", "slot": str(data[0]), "look": str(data[1])})
+		if is_instance_valid(doll): doll.outfit = InventoryAuthority.outfit_for(c())

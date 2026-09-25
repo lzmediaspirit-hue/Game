@@ -2391,6 +2391,56 @@
    }
   },
   {
+   "id": "sealed_storage_pouch",
+   "name": "Sealed Storage Pouch",
+   "type": "curio",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 20,
+   "icon": "sealed_storage_pouch",
+   "desc": "A rogue cultivator's storage pouch, sealed with Qi that is not yours. An appraiser can open it; there is no telling what is inside.",
+   "value_override": 30,
+   "use": [],
+   "use_action": "appraise",
+   "appraise": [
+    {
+     "item": "spirit_stone_shard",
+     "count": 4,
+     "weight": 4
+    },
+    {
+     "item": "jade_trinket",
+     "count": 1,
+     "weight": 3
+    },
+    {
+     "item": "refining_essence",
+     "count": 3,
+     "weight": 3
+    },
+    {
+     "item": "manual_page",
+     "count": 2,
+     "weight": 2
+    },
+    {
+     "item": "torn_manual",
+     "count": 1,
+     "weight": 2
+    },
+    {
+     "item": "qi_gathering_pill",
+     "count": 2,
+     "weight": 1
+    },
+    {
+     "item": "fake_jade",
+     "count": 2,
+     "weight": 1
+    }
+   ]
+  },
+  {
    "id": "dusty_curio",
    "name": "Dusty Curio",
    "type": "curio",

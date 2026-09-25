@@ -8,13 +8,31 @@ const COOLDOWN_GROUPS := {"restoration": 15.0, "healing": 15.0, "buff": 30.0, "u
 
 func intents() -> Array:
 	return ["move_item", "equip", "unequip", "use_item", "use_quick", "set_quick_use", "lock_item", "discard", "split_stack", "sort_bag",
-		"bind_item", "subdue_spirit", "set_treasure", "choose_vessel", "swap_loadout", "set_spare_weapon"]
+		"bind_item", "subdue_spirit", "set_treasure", "choose_vessel", "swap_loadout", "set_spare_weapon", "set_appearance", "flag_natal", "feed_natal",
+		"reforge_natal"]
 
 var binding: Dictionary = {}   # actor -> {uid, left, total}: a relic being bound (S14)
 var spirit_cd: Dictionary = {} # actor -> seconds before another soul contest
 
 func subscribe() -> void:
 	GameEvents.subscribe("hit_landed", _on_hit, 40)
+	# S47 natal growth: kills and technique uses with the natal weapon in hand; its item level follows yours.
+	GameEvents.subscribe("actor_defeated", _on_natal_kill, 40)
+	GameEvents.subscribe("technique_used", _on_natal_technique, 40)
+	GameEvents.subscribe("level_changed", _on_natal_level, 40)
+
+func _on_natal_kill(p: Dictionary) -> void:
+	var c = game.active()
+	if c != null and str(p.get("victim_kind", "")) == "enemy" and str(p.get("killer", "")) == str(c.id):
+		add_natal_xp(c, float(ContentDB.stat_const("natal.xp_per_kill_level", 1.0)) * float(p.get("level", 1)))
+
+func _on_natal_technique(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c != null: add_natal_xp(c, float(ContentDB.stat_const("natal.xp_per_technique", 2.0)))
+
+func _on_natal_level(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c != null: refresh_natal(c)
 
 ## A blow breaks the binding channel.
 func _on_hit(p: Dictionary) -> void:
@@ -112,6 +130,10 @@ func handle(intent: Dictionary) -> Dictionary:
 		"choose_vessel": return choose_vessel(c, str(intent.get("item", "")))
 		"swap_loadout": return swap_loadout(c)
 		"set_spare_weapon": return set_spare_weapon(c, int(intent.get("index", -1)))
+		"set_appearance": return set_appearance(c, str(intent.get("slot", "")), str(intent.get("look", "")))
+		"flag_natal": return flag_natal(c, int(intent.get("uid", -1)))
+		"feed_natal": return feed_natal(c, int(intent.get("uid", -1)), str(intent.get("item", "")), int(intent.get("count", 1)))
+		"reforge_natal": return reforge_natal(c, int(intent.get("uid", -1)))
 		"use_quick":
 			if c.inventory.quick_use == "": return fail("no_quick_use")
 			var idx = c.inventory.first_index(c.inventory.quick_use)
@@ -340,8 +362,146 @@ func equip(c, index: int) -> Dictionary:
 	c.inventory.equipped[slot] = inst
 	c.inventory.bag[index] = old
 	if slot == "gourd": c.inventory.resize(c.inventory.capacity())
+	_first_wear(c, inst, slot)
 	emit("equipment_changed", {"actor": c.id, "slot": slot, "old": old.id if old else "", "new": inst.id})
 	return ok()
+
+## First time a piece is worn: its look joins the account's wardrobe, and a Plain to Heaven piece takes a drop of
+## blood (S47 blood-drop bind: cosmetic, before S14 binding matters).
+func _first_wear(c, inst: Dictionary, slot: String) -> void:
+	var cat := str(WARDROBE_CATEGORY.get(slot, ""))
+	var look := str(inst.get("appearance", ContentDB.item(str(inst.id)).get("appearance", "none")))
+	if cat != "" and look != "none" and ContentDB.parts.get(cat, {}).has(look): game.account.wardrobe_unlocked["%s:%s" % [cat, look]] = true
+	if not inst.get("blooded", false):
+		inst.blooded = true
+		if StatRules.grade_index(str(ContentDB.item(str(inst.id)).get("grade", "plain"))) <= StatRules.grade_index("heaven"):
+			emit("item_blooded", {"actor": c.id, "item": str(inst.id), "slot": slot})
+
+# ------------------------------------------------------------------ wardrobe (S47 appearance override)
+const WARDROBE_CATEGORY := {"robe": "shirt", "trousers": "pants", "boots": "shoes", "weapon": "weapon", "hat": "hat", "cape": "cape"}
+
+## Show any look you have ever worn in place of a slot's own ("" shows the item's own again).
+func set_appearance(c, slot: String, look: String) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "wardrobe"): return fail("locked", {"text": Unlocks.locked_text("wardrobe")})
+	var cat := str(WARDROBE_CATEGORY.get(slot, ""))
+	if cat == "": return fail("no_slot")
+	if look == "": c.inventory.appearance_override.erase(slot)
+	else:
+		if not game.account.wardrobe_unlocked.has("%s:%s" % [cat, look]): return fail("not_owned", {"text": Tx.t("sim.inventory.look_not_owned")})
+		c.inventory.appearance_override[slot] = look
+	var inst = c.inventory.equipped.get(slot)
+	emit("equipment_changed", {"actor": c.id, "slot": slot, "old": inst.id if inst else "", "new": inst.id if inst else ""})
+	return ok()
+
+# ------------------------------------------------------------------ natal treasure (S47, Heart Tempering 1)
+## One weapon can be flagged Natal. It grows from kills, technique uses and feeding (levels 1-10, +2% stats
+## each); its item level follows yours up to one grade band above its own; it breaks only to a boss's
+## telegraphed shatter or to overcharging (drawing on it with an empty dantian), until it is re-forged.
+func natal_of(c) -> Dictionary:
+	for inst in [c.inventory.equipped.get("weapon"), c.inventory.loadout.get("spare")] + c.inventory.bag:
+		if inst is Dictionary and inst.get("natal", false): return inst
+	return {}
+
+func natal_level_for(xp: float) -> int:
+	var steps: Array = ContentDB.stat_const("natal.xp_levels", [50, 200, 450, 800, 1250, 1800, 2450, 3200, 4050, 5000])
+	var lv := 0
+	for need in steps:
+		if xp >= float(need): lv += 1
+	return mini(lv, 10)
+
+## The item level a natal weapon fights at: yours, from its own up to the top of the grade band above its own
+## (one more band for each re-forge past the cap).
+func natal_cap(inst: Dictionary) -> int:
+	var order: Array = ContentDB.config("grades").get("order", [])
+	var wear: Dictionary = ContentDB.config("grades").get("wear_level", {})
+	var gi := order.find(str(ContentDB.item(str(inst.id)).get("grade", "plain")))
+	var top := gi + 2 + int(inst.get("natal_band", 0))
+	return int(wear.get(str(order[top]), 99)) - 1 if top < order.size() and wear.has(str(order[top])) else 99
+
+func refresh_natal(c) -> void:
+	var inst := natal_of(c)
+	if inst.is_empty(): return
+	var lv := ProgressionRules.level(c)
+	inst.ilv_eff = clampi(lv, int(inst.get("ilv", 1)), natal_cap(inst))
+	if c.inventory.equipped.get("weapon") == inst: emit("equipment_changed", {"actor": c.id, "slot": "weapon", "old": inst.id, "new": inst.id})
+
+func flag_natal(c, uid: int) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "natal"): return fail("locked", {"text": Unlocks.locked_text("natal")})
+	var inst := _find_uid(c, uid)
+	if inst.is_empty() or str(ContentDB.item(str(inst.id)).get("slot", "")) != "weapon": return fail("not_weapon", {"text": Tx.t("sim.inventory.natal_weapon_only")})
+	var old := natal_of(c)
+	if not old.is_empty() and old != inst:
+		for k in ["natal", "natal_xp", "natal_level", "natal_band", "ilv_eff"]: old.erase(k)
+	inst.natal = true
+	inst.natal_xp = float(inst.get("natal_xp", 0.0))
+	inst.natal_level = natal_level_for(float(inst.natal_xp))
+	refresh_natal(c)
+	emit("natal_grew", {"actor": c.id, "item": str(inst.id), "level": int(inst.natal_level), "xp": float(inst.natal_xp)})
+	return ok()
+
+func add_natal_xp(c, amount: float) -> void:
+	var inst := natal_of(c)
+	if inst.is_empty() or inst.get("broken", false) or amount <= 0.0: return
+	if c.inventory.equipped.get("weapon") != inst and not bool(inst.get("_fed", false)): return
+	var before := int(inst.get("natal_level", 0))
+	inst.natal_xp = float(inst.get("natal_xp", 0.0)) + amount
+	inst.natal_level = natal_level_for(float(inst.natal_xp))
+	if int(inst.natal_level) > before:
+		emit("natal_grew", {"actor": c.id, "item": str(inst.id), "level": int(inst.natal_level), "xp": float(inst.natal_xp)})
+		if c.inventory.equipped.get("weapon") == inst: emit("equipment_changed", {"actor": c.id, "slot": "weapon", "old": inst.id, "new": inst.id})
+
+## Feed ore to the natal weapon at the forge: each ore gives 20 XP a grade step.
+func feed_natal(c, uid: int, item_id: String, count: int) -> Dictionary:
+	var inst := _find_uid(c, uid)
+	if inst.is_empty() or not inst.get("natal", false): return fail("not_natal")
+	var def := ContentDB.item(item_id)
+	if str(def.get("type", "")) != "ore" or item_id == "spirit_stone_shard": return fail("not_ore", {"text": Tx.t("sim.inventory.natal_eats_ore")})
+	count = clampi(count, 1, c.inventory.count(item_id))
+	if count <= 0: return fail("materials")
+	apply_remove(c.id, item_id, count, "feed_natal")
+	inst._fed = true
+	add_natal_xp(c, float(ContentDB.stat_const("natal.xp_per_ore", 20)) * (StatRules.grade_index(str(def.get("grade", "plain"))) + 1) * count)
+	inst.erase("_fed")
+	return ok({"level": int(inst.get("natal_level", 0)), "xp": float(inst.get("natal_xp", 0.0))})
+
+## The natal weapon breaks (a boss's shatter, or overcharging): its stats go dark and a meridian injury follows
+## (a soul injury from Spirit Awakening), until a master smith re-forges it.
+func natal_break(c, cause: String) -> void:
+	var inst := natal_of(c)
+	if inst.is_empty() or inst.get("broken", false) or c.inventory.equipped.get("weapon") != inst: return
+	inst.broken = true
+	game.progression.apply_injury(c.id, "soul" if ProgressionRules.at_least(c.cultivator.realm_key, "spirit_awakening_1") else "meridian", 1)
+	emit("natal_broken", {"actor": c.id, "item": str(inst.id), "cause": cause})
+	emit("equipment_changed", {"actor": c.id, "slot": "weapon", "old": inst.id, "new": inst.id})
+
+## Re-forge: mends a broken natal weapon, or (at its level cap) carries it into the next grade band with its growth.
+func reforge_natal(c, uid: int) -> Dictionary:
+	var inst := _find_uid(c, uid)
+	if inst.is_empty() or not inst.get("natal", false): return fail("not_natal")
+	var capped := int(inst.get("ilv_eff", inst.get("ilv", 1))) >= natal_cap(inst) and ProgressionRules.level(c) > natal_cap(inst)
+	if not inst.get("broken", false) and not capped: return fail("nothing_to_do", {"text": Tx.t("sim.inventory.natal_whole")})
+	var gi := StatRules.grade_index(str(ContentDB.item(str(inst.id)).get("grade", "plain")))
+	var metal := str(game.crafting.grade_row(str(inst.id)).get("metal", "copper_ore"))
+	var n := 6 + 2 * int(inst.get("natal_band", 0))
+	var taels := 400 * (gi + 1)
+	if count(c, metal) < n: return fail("materials", {"text": Tx.t("sim.crafting.needs_2") % [n, ContentDB.item_name(metal)]})
+	if game.economy.balance("silver_tael") < taels: return fail("insufficient_funds")
+	apply_remove(c.id, metal, n, "reforge_natal")
+	game.economy.apply_currency("silver_tael", -taels, "reforge_natal")
+	if inst.get("broken", false): inst.erase("broken")
+	elif capped: inst.natal_band = int(inst.get("natal_band", 0)) + 1
+	refresh_natal(c)
+	emit("natal_grew", {"actor": c.id, "item": str(inst.id), "level": int(inst.get("natal_level", 0)), "xp": float(inst.get("natal_xp", 0.0))})
+	return ok({"band": int(inst.get("natal_band", 0))})
+
+func count(c, item_id: String) -> int:
+	return c.inventory.count(item_id)
+
+func _find_uid(c, uid: int) -> Dictionary:
+	if uid < 0: return {}
+	for inst in [c.inventory.equipped.get("weapon"), c.inventory.loadout.get("spare")] + c.inventory.equipped.values() + c.inventory.bag:
+		if inst is Dictionary and int(inst.get("uid", -2)) == uid: return inst
+	return {}
 
 # ------------------------------------------------------------------ dual loadout (S47, Heart Tempering 1)
 ## A second weapon waits in the spare slot; Swap trades it with the one in hand. Each weapon keeps its own technique
@@ -411,6 +571,9 @@ static func outfit_for(c) -> Dictionary:
 		var inst = c.inventory.equipped.get(slot)
 		if inst == null: continue
 		var look := str(inst.get("appearance", ContentDB.item(inst.id).get("appearance", "none")))
+		# S47 wardrobe: a look you have worn before can stand in for the piece's own.
+		var over := str(c.inventory.appearance_override.get(slot, ""))
+		if over != "" and ContentDB.parts.get(map[slot], {}).has(over): look = over
 		if ContentDB.parts.get(map[slot], {}).has(look):
 			o[map[slot]] = look
 			var dye := str(inst.get("dye", ContentDB.item(inst.id).get("dye", "")))

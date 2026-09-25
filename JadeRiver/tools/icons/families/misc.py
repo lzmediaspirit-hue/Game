@@ -355,6 +355,22 @@ def tinkerers_gear():
     return c
 
 
+def sealed_storage_pouch():
+    """A rogue's storage pouch: a plump cloth bag, its drawstring tied, a red seal slip pasted across the knot."""
+    c = Canvas(32)
+    cloth = R['hemp']
+    bag = c.ellipse(16, 21, 10, 8.5) | c.poly([(10, 14), (22, 14), (20, 10), (12, 10)])
+    c.put(bag, cloth, 'sphere', base=2, cx=13, cy=17, rx=11, ry=10)
+    c.put(c.ellipse(16, 10, 5.5, 2.2), cloth[1], 'flat')
+    c.put(c.seg(11, 12, 21, 12, 1.4), R['wood'], 'ray', base=1)
+    c.put(c.seg(21, 12, 25, 16, 1.1), R['wood'], 'ray', base=1)
+    slip = c.rect(14, 9, 18, 21)
+    c.put(slip, R['seal'], 'flat', base=2)
+    c.put(c.rect(15, 12, 17, 13) | c.rect(15, 16, 17, 17), R['paper'][4] if 'paper' in R else '#F4E8C8', 'flat')
+    c.outline()
+    return c
+
+
 def river_mud():
     c = Canvas(32)
     ramp = R['mud']
@@ -699,7 +715,7 @@ for _id, _fn in (('manual_page', manual_page), ('riverbreath_scroll', riverbreat
                  ('alliance_token', alliance_token), ('ironroot_token', ironroot_token),
                  ('mudwater_key', mudwater_key), ('entry_token', entry_token), ('siege_medal', siege_medal),
                  ('smuggler_ledger', smuggler_ledger), ('old_net', old_net), ('river_mud', river_mud),
-                 ('aunt_pings_ladle', aunt_pings_ladle), ('tinkerers_gear', tinkerers_gear),
+                 ('aunt_pings_ladle', aunt_pings_ladle), ('tinkerers_gear', tinkerers_gear), ('sealed_storage_pouch', sealed_storage_pouch),
                  ('cloth', cloth), ('arrows', arrows), ('bow_parts', bow_parts), ('prayer_beads', prayer_beads),
                  ('talisman_paper', talisman_paper), ('ink', ink), ('lantern_wick', lantern_wick), ('rice', rice),
                  ('kite', kite), ('calm_incense', lambda: _incense(False)),

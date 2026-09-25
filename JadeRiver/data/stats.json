@@ -362,6 +362,27 @@
   "per_grade": 0.75,
   "radius": 180
  },
+ "natal": {
+  "per_level": 0.02,
+  "xp_levels": [
+   50,
+   200,
+   450,
+   800,
+   1250,
+   1800,
+   2450,
+   3200,
+   4050,
+   5000
+  ],
+  "xp_per_ore": 20,
+  "xp_per_kill_level": 1.0,
+  "xp_per_technique": 2.0,
+  "demand_base": 10,
+  "demand_per_level": 5,
+  "overcharge_chance": 0.05
+ },
  "combat": {
   "hitstop": 0.05,
   "hitstop_crit": 0.1,
