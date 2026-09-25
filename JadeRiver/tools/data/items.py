@@ -546,6 +546,17 @@ def build_items():
     rows.append(item("spirit_fruit", "treasure", "heaven", 3,
                      "A fruit that ripened on Qi alone: 8% of this realm's progress at once, and heart demons -5. Never sold.", sell=False,
                      use=[effect("add_progress", pct_of_need=0.08), effect("add_heart_demon", amount=-5)]))
+    # S49 fortune deck: the wine that makes the next batch in the furnace likelier to come out Grain.
+    rows.append(item("hundred_year_wine", "treasure", "earth", 5,
+                     "A jar dug out from under old roots. Pour it over the furnace: your next batch of pills is likelier to come out Grain or better. Never sold.",
+                     sell=False, use=[effect("grain_blessing")]))
+    # S49 lifespan (display only, never a clock): longevity treasures add years to the span your realm grants.
+    rows.append(item("longevity_peach", "treasure", "earth", 5,
+                     "A peach of long life. Eat it and ten years are added to your lifespan. Sold only at auction.", sell=False,
+                     use=[effect("add_longevity", years=10)]))
+    rows.append(item("thousand_year_lingzhi", "treasure", "heaven", 1,
+                     "A lingzhi that grew for a thousand years. Eat it and thirty years are added to your lifespan. Never sold.", sell=False,
+                     use=[effect("add_longevity", years=30)]))
     rows.append(item("evergreen_heart_seed", "treasure", "heaven", 1,
                      "A seed with a slow pulse. Plant it in rich earth where Qi gathers: a cave abode or your sect's Back Mountain. Never sold.", sell=False))
     rows.append(item("evergreen_heart_fruit", "treasure", "heaven", 3,

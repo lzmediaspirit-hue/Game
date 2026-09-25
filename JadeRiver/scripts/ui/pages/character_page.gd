@@ -43,6 +43,10 @@ func draw_page() -> void:
 			var sect_id := str(ch.training_sect.get("id", ""))
 			text(Vector2(x, r.position.y + 116), (ContentDB.name_of("sects", sect_id) + " · " + str(ch.training_sect.get("rank", "")).replace("_", " ").capitalize()) if sect_id != "" else Tx.t("ui.character.unaffiliated"), 18, UiKit.MIST)
 			text(Vector2(x, r.position.y + 150), Tx.t("ui.character.origin") % ContentDB.name_of("origins", ch.cultivator.origin), 18, UiKit.MIST)
+			# S49 lifespan as flavour: your age and the most years your realm grants (never a clock).
+			var span := ProgressionRules.lifespan_of(ch)
+			var age := ProgressionRules.age_of(ch, Clock.now_utc())
+			text(Vector2(x, r.position.y + 178), Tx.t("ui.character.age_span") % [age, UiKit.fmt(span)] if span > 0 else Tx.t("ui.character.age_endless") % age, 18, UiKit.MIST)
 			text(Vector2(x, r.position.y + 210), Tx.t("ui.character.combat_power"), 20, UiKit.MIST)
 			text(Vector2(x, r.position.y + 256), UiKit.fmt(StatRules.combat_power(ch)), 44, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 			# S49: the Relations page (karma, bonds, grudges, Fame) lives under Character.

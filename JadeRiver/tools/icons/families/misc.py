@@ -767,6 +767,53 @@ def spirit_fruit():
     return c
 
 
+def hundred_year_wine():
+    """S49 fortune deck: a jar dug out from under the roots, black with age and furred with moss, its seal still whole."""
+    c = Canvas(32)
+    jar = c.ellipse(16, 20, 9.5, 9) | c.rect(12, 9, 20, 13)
+    c.put(jar, R['mud'], 'sphere', base=2, sep=True)
+    c.put(c.ellipse(16, 8, 5, 2.4), R['darkwood'], 'sphere', base=2, sep=True)
+    c.put(c.rect(11, 12, 21, 13) & jar, R['gold'], 'flat', base=3)
+    for (x, y, r) in ((10, 22, 2.6), (21, 26, 2.2), (13, 27, 1.6)):
+        c.put(c.circle(x, y, r) & jar, R['moss'], 'flat', base=2)
+    c.put(c.rect(14, 17, 18, 22) & jar, R['seal'], 'flat', base=3)
+    c.outline()
+    c.glow('#E8C27A', (50,))
+    return c
+
+
+def longevity_peach():
+    """S49 lifespan: the peach of long life, pointed at the tip, rose-blushed, sitting on two leaves."""
+    c = Canvas(32)
+    body = c.circle(16, 19, 8.8) | c.poly([(8.5, 16), (23.5, 16), (16.5, 5.5)])
+    c.put(body, R['lotuspink'], 'sphere', base=3)
+    c.put(c.circle(19, 13, 6.5) & body, R['red'], 'sphere', base=2)
+    c.put(c.circle(12, 24, 5) & body, R['rice'], 'sphere', base=3)
+    c.put(c.bres(16, 7, 13, 26) & body, R['pink'], 'flat', base=1)
+    for a, L in ((200, 9), (340, 9)):
+        c.put(S.leaf(c, 16, 27, a, L, 3.0, 0.0), R['leaf'], 'ray', base=2, sep=True)
+    c.outline()
+    c.glow('#F7C9D0', (50,))
+    return c
+
+
+def thousand_year_lingzhi():
+    """S49 lifespan: a lingzhi of a thousand years, seen from the side: a lacquered red-brown dome ringed like an old
+    tree, a pale growing edge, and a short dark stem set off-centre in moss."""
+    c = Canvas(32)
+    stem = c.poly([(17, 16), (20, 16), (19.5, 28), (16.5, 28)])
+    c.put(stem, R['darkwood'], 'ray', base=2, sep=True)
+    cap = c.ellipse(15, 16, 13, 9) & c.rect(0, 0, 31, 17)
+    c.put(cap, R['red'], 'sphere', base=1, sep=True)
+    c.put(cap & ~c.ellipse(15, 16.5, 11.6, 7.8), R['sand'], 'flat', base=3)
+    for r in (4.0, 7.5):
+        c.put(c.ring(15, 17, r, 1.0, ry=r * 0.7) & cap & c.rect(0, 0, 31, 15), R['darkwood'], 'flat', base=3)
+    c.put(c.ellipse(18, 28.5, 7, 1.6), R['moss'], 'flat', base=2)
+    c.outline()
+    c.glow('#F2B35C', (55,))
+    S.sparkle(c, 26, 6, '#FFFFFF', R['gold'][3], 2)
+    return c
+
 for _id, _fn in (('manual_page', manual_page), ('riverbreath_scroll', riverbreath_scroll),
                  ('lu_journal_page', lu_journal_page), ('recipe_scroll', recipe_scroll),
                  ('river_token', river_token), ('jade_token', jade_token), ('cloud_token', cloud_token),
@@ -785,7 +832,8 @@ for _id, _fn in (('manual_page', manual_page), ('riverbreath_scroll', riverbreat
                  ('beast_bag_star', _beast_bag(R['violetsilk'], R['gold'], R['gold'])),
                  ('drying_rack', drying_rack), ('mindwell_lotus', mindwell_lotus),
                  ('evergreen_heart_seed', evergreen_heart_seed), ('evergreen_heart_fruit', evergreen_heart_fruit),
-                 ('spirit_fruit', spirit_fruit)):
+                 ('spirit_fruit', spirit_fruit), ('hundred_year_wine', hundred_year_wine),
+                 ('longevity_peach', longevity_peach), ('thousand_year_lingzhi', thousand_year_lingzhi)):
     register(FAM, _id, _fn, GROUP)
 
 

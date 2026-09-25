@@ -201,5 +201,16 @@
    ]
   }
  },
- "notice_h": 24
+ "notice_h": 24,
+ "start_age": 16,
+ "year_days": 28,
+ "phenomena": {
+  "cloud": {
+   "from": "breakthrough_succeeded",
+   "major": true
+  },
+  "lightning": {
+   "from": "tribulation_started"
+  }
+ }
 }

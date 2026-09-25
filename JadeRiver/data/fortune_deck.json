@@ -1,0 +1,181 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "hidden_cave",
+   "name": "A Hidden Cave",
+   "text": "You do not land where you fell. A draught of cold air, moss underfoot: a cave no map shows, and an old chest under a fall of roots.",
+   "triggers": [
+    "fell_out"
+   ],
+   "weight": 6,
+   "effects": [
+    {
+     "kind": "fortune_grotto"
+    }
+   ]
+  },
+  {
+   "id": "remnant_ring",
+   "name": "A Remnant Soul in a Ring",
+   "text": "A cracked bronze ring in the grass. A thin old voice speaks from it: \"Carry me a while.\" It recites a page of its art before it fades.",
+   "triggers": [
+    "room_entered",
+    "node_gathered"
+   ],
+   "weight": 4,
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "manual_page",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "hermit_chess",
+   "name": "The Hermit's Chess Problem",
+   "text": "An old man at a stone board does not look up. \"White lives in three.\" You stand there until you see it, and something else comes clear with it.",
+   "triggers": [
+    "room_entered"
+   ],
+   "weight": 4,
+   "effects": [
+    {
+     "kind": "insight_best",
+     "amount": 40
+    }
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "room_type",
+      "value": "field"
+     }
+    ]
+   }
+  },
+  {
+   "id": "wounded_crane",
+   "name": "A Wounded Crane",
+   "text": "A Jade Crane beats one wing in the reeds, an arrow through the other. Your own crane keeps watch while you draw the shaft and bind the wing.",
+   "triggers": [
+    "room_entered",
+    "node_gathered"
+   ],
+   "weight": 3,
+   "effects": [
+    {
+     "kind": "add_bond_species",
+     "species": "jade_crane",
+     "amount": 2
+    },
+    {
+     "kind": "deed",
+     "deed": "crane_mended"
+    }
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "pet_owned",
+      "species": "jade_crane"
+     }
+    ]
+   }
+  },
+  {
+   "id": "buried_wine",
+   "name": "A Jar of Hundred-Year Wine",
+   "text": "Your hand finds a sealed jar under the roots. The clay is black with age; the wine inside smells of a hundred autumns.",
+   "triggers": [
+    "node_gathered"
+   ],
+   "weight": 3,
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "hundred_year_wine",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "lost_child",
+   "name": "A Lost Child",
+   "text": "A child sits by the path, too frightened to cry. You walk them home, and a mother runs out to meet you.",
+   "triggers": [
+    "room_entered"
+   ],
+   "weight": 4,
+   "effects": [
+    {
+     "kind": "deed",
+     "deed": "lost_child_home"
+    }
+   ],
+   "merit_weight": 2,
+   "requires": {
+    "all": [
+     {
+      "kind": "room_type",
+      "value": "field"
+     }
+    ]
+   }
+  },
+  {
+   "id": "meteor_fragment",
+   "name": "A Meteor Fragment",
+   "text": "A streak of light, a thump in the next field. The stone is still warm: Cloudsteel, fallen from somewhere far above the ledges.",
+   "triggers": [
+    "room_entered",
+    "node_gathered"
+   ],
+   "weight": 3,
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "cloudsteel_ore",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "river_dream",
+   "name": "A Dream of the River",
+   "text": "You doze for a moment and dream of the River: every land on its banks, every one who ever drank from it. You wake knowing something you did not learn.",
+   "triggers": [
+    "room_entered"
+   ],
+   "weight": 2,
+   "effects": [
+    {
+     "kind": "codex",
+     "entry": "river_dream"
+    },
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.03
+    }
+   ],
+   "once": true
+  }
+ ],
+ "meter_h": 3.0,
+ "chance": {
+  "room_entered": 0.05,
+  "node_gathered": 0.04,
+  "fell_out": 0.35
+ },
+ "fortune_chance": 0.02,
+ "fortune_weight": 0.03,
+ "merit_per": 100,
+ "never_in": [
+  "prologue",
+  "trial",
+  "boss_arena",
+  "story"
+ ],
+ "wine_grain": 0.25
+}

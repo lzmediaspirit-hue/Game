@@ -3053,6 +3053,56 @@
    ]
   },
   {
+   "id": "hundred_year_wine",
+   "name": "Hundred Year Wine",
+   "type": "treasure",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 5,
+   "icon": "hundred_year_wine",
+   "desc": "A jar dug out from under old roots. Pour it over the furnace: your next batch of pills is likelier to come out Grain or better. Never sold.",
+   "sell": false,
+   "use": [
+    {
+     "kind": "grain_blessing"
+    }
+   ]
+  },
+  {
+   "id": "longevity_peach",
+   "name": "Longevity Peach",
+   "type": "treasure",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 5,
+   "icon": "longevity_peach",
+   "desc": "A peach of long life. Eat it and ten years are added to your lifespan. Sold only at auction.",
+   "sell": false,
+   "use": [
+    {
+     "kind": "add_longevity",
+     "years": 10
+    }
+   ]
+  },
+  {
+   "id": "thousand_year_lingzhi",
+   "name": "Thousand Year Lingzhi",
+   "type": "treasure",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "thousand_year_lingzhi",
+   "desc": "A lingzhi that grew for a thousand years. Eat it and thirty years are added to your lifespan. Never sold.",
+   "sell": false,
+   "use": [
+    {
+     "kind": "add_longevity",
+     "years": 30
+    }
+   ]
+  },
+  {
    "id": "evergreen_heart_seed",
    "name": "Evergreen Heart Seed",
    "type": "treasure",

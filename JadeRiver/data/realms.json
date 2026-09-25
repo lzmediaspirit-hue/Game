@@ -15,6 +15,7 @@
    "consolidation_s": 0,
    "major": false,
    "next": "bone_forging_1",
+   "max_years": 80,
    "major_breakthrough": {
     "to": "bone_forging_1",
     "event": null,
@@ -53,6 +54,7 @@
    "consolidation_s": 60,
    "major": true,
    "order_style": false,
+   "max_years": 100,
    "next": "bone_forging_2"
   },
   {
@@ -69,6 +71,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 100,
    "next": "bone_forging_3"
   },
   {
@@ -85,6 +88,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 100,
    "next": "bone_forging_4"
   },
   {
@@ -101,6 +105,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 100,
    "next": "bone_forging_5"
   },
   {
@@ -117,6 +122,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 100,
    "next": "bone_forging_6"
   },
   {
@@ -133,6 +139,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 100,
    "next": "bone_forging_7"
   },
   {
@@ -149,6 +156,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 100,
    "next": "bone_forging_8"
   },
   {
@@ -165,6 +173,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 100,
    "next": "bone_forging_9"
   },
   {
@@ -181,6 +190,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 100,
    "next": "qi_kindling_1",
    "major_breakthrough": {
     "to": "qi_kindling_1",
@@ -224,6 +234,7 @@
    "consolidation_s": 180,
    "major": true,
    "order_style": false,
+   "max_years": 120,
    "next": "qi_kindling_2"
   },
   {
@@ -240,6 +251,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 120,
    "next": "qi_kindling_3"
   },
   {
@@ -256,6 +268,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 120,
    "next": "qi_kindling_4"
   },
   {
@@ -272,6 +285,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 120,
    "next": "qi_kindling_5"
   },
   {
@@ -288,6 +302,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 120,
    "next": "qi_kindling_6"
   },
   {
@@ -304,6 +319,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 120,
    "next": "qi_kindling_7"
   },
   {
@@ -320,6 +336,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 120,
    "next": "qi_kindling_8"
   },
   {
@@ -336,6 +353,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 120,
    "next": "qi_kindling_9"
   },
   {
@@ -352,6 +370,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 120,
    "next": "qi_unfurling_1",
    "major_breakthrough": {
     "to": "qi_unfurling_1",
@@ -404,6 +423,7 @@
    "consolidation_s": 300,
    "major": true,
    "order_style": false,
+   "max_years": 150,
    "next": "qi_unfurling_2"
   },
   {
@@ -420,6 +440,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 150,
    "next": "qi_unfurling_3"
   },
   {
@@ -436,6 +457,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 150,
    "next": "qi_unfurling_4"
   },
   {
@@ -452,6 +474,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 150,
    "next": "qi_unfurling_5"
   },
   {
@@ -468,6 +491,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 150,
    "next": "qi_unfurling_6"
   },
   {
@@ -484,6 +508,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 150,
    "next": "qi_unfurling_7"
   },
   {
@@ -500,6 +525,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 150,
    "next": "qi_unfurling_8"
   },
   {
@@ -516,6 +542,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 150,
    "next": "qi_unfurling_9"
   },
   {
@@ -532,6 +559,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 150,
    "next": "heart_tempering_1",
    "major_breakthrough": {
     "to": "heart_tempering_1",
@@ -575,6 +603,7 @@
    "consolidation_s": 420,
    "major": true,
    "order_style": false,
+   "max_years": 200,
    "next": "heart_tempering_2"
   },
   {
@@ -591,6 +620,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 200,
    "next": "heart_tempering_3"
   },
   {
@@ -607,6 +637,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 200,
    "next": "heart_tempering_4"
   },
   {
@@ -623,6 +654,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 200,
    "next": "heart_tempering_5"
   },
   {
@@ -639,6 +671,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 200,
    "next": "heart_tempering_6"
   },
   {
@@ -655,6 +688,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 200,
    "next": "heart_tempering_7"
   },
   {
@@ -671,6 +705,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 200,
    "next": "heart_tempering_8"
   },
   {
@@ -687,6 +722,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 200,
    "next": "heart_tempering_9"
   },
   {
@@ -703,6 +739,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 200,
    "next": "cloud_stride_1",
    "major_breakthrough": {
     "to": "cloud_stride_1",
@@ -749,6 +786,7 @@
    "consolidation_s": 600,
    "major": true,
    "order_style": false,
+   "max_years": 300,
    "next": "cloud_stride_2"
   },
   {
@@ -765,6 +803,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 300,
    "next": "cloud_stride_3"
   },
   {
@@ -781,6 +820,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 300,
    "next": "cloud_stride_4"
   },
   {
@@ -797,6 +837,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 300,
    "next": "cloud_stride_5"
   },
   {
@@ -813,6 +854,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 300,
    "next": "cloud_stride_6"
   },
   {
@@ -829,6 +871,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 300,
    "next": "cloud_stride_7"
   },
   {
@@ -845,6 +888,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 300,
    "next": "cloud_stride_8"
   },
   {
@@ -861,6 +905,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 300,
    "next": "cloud_stride_9"
   },
   {
@@ -877,6 +922,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 300,
    "next": "spirit_awakening_1",
    "major_breakthrough": {
     "to": "spirit_awakening_1",
@@ -923,6 +969,7 @@
    "consolidation_s": 900,
    "major": true,
    "order_style": false,
+   "max_years": 500,
    "next": "spirit_awakening_2"
   },
   {
@@ -939,6 +986,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 500,
    "next": "spirit_awakening_3"
   },
   {
@@ -955,6 +1003,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 500,
    "next": "spirit_awakening_4"
   },
   {
@@ -971,6 +1020,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 500,
    "next": "spirit_awakening_5"
   },
   {
@@ -987,6 +1037,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 500,
    "next": "spirit_awakening_6"
   },
   {
@@ -1003,6 +1054,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 500,
    "next": "spirit_awakening_7"
   },
   {
@@ -1019,6 +1071,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 500,
    "next": "spirit_awakening_8"
   },
   {
@@ -1035,6 +1088,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 500,
    "next": "spirit_awakening_9"
   },
   {
@@ -1051,6 +1105,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": false,
+   "max_years": 500,
    "next": "heaven_glimpse_1",
    "major_breakthrough": {
     "to": "heaven_glimpse_1",
@@ -1096,6 +1151,7 @@
    "consolidation_s": 1200,
    "major": true,
    "order_style": true,
+   "max_years": 800,
    "next": "heaven_glimpse_2"
   },
   {
@@ -1112,6 +1168,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 800,
    "next": "heaven_glimpse_3"
   },
   {
@@ -1128,6 +1185,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 800,
    "next": "sage_1",
    "major_breakthrough": {
     "to": "sage_1",
@@ -1175,6 +1233,7 @@
    "consolidation_s": 1800,
    "major": true,
    "order_style": true,
+   "max_years": 1200,
    "next": "sage_2"
   },
   {
@@ -1191,6 +1250,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 1200,
    "next": "sage_3"
   },
   {
@@ -1207,6 +1267,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 1200,
    "next": "sage_sovereign_1",
    "major_breakthrough": {
     "to": "sage_sovereign_1",
@@ -1251,6 +1312,7 @@
    "consolidation_s": 2400,
    "major": true,
    "order_style": true,
+   "max_years": 2000,
    "next": "sage_sovereign_2"
   },
   {
@@ -1267,6 +1329,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 2000,
    "next": "sage_sovereign_3"
   },
   {
@@ -1283,6 +1346,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 2000,
    "next": "will_manifest_1",
    "major_breakthrough": {
     "to": "will_manifest_1",
@@ -1321,6 +1385,7 @@
    "consolidation_s": 3000,
    "major": true,
    "order_style": true,
+   "max_years": 3000,
    "next": "will_manifest_2"
   },
   {
@@ -1337,6 +1402,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 3000,
    "next": "will_manifest_3"
   },
   {
@@ -1353,6 +1419,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 3000,
    "next": "sphere_lord_1",
    "major_breakthrough": {
     "to": "sphere_lord_1",
@@ -1393,6 +1460,7 @@
    "consolidation_s": 3600,
    "major": true,
    "order_style": true,
+   "max_years": 5000,
    "next": "sphere_lord_2"
   },
   {
@@ -1409,6 +1477,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 5000,
    "next": "sphere_lord_3"
   },
   {
@@ -1425,6 +1494,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 5000,
    "next": "law_touching_1",
    "major_breakthrough": {
     "to": "law_touching_1",
@@ -1476,6 +1546,7 @@
    "consolidation_s": 5400,
    "major": true,
    "order_style": true,
+   "max_years": 8000,
    "next": "law_touching_2"
   },
   {
@@ -1492,6 +1563,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 8000,
    "next": "law_touching_3"
   },
   {
@@ -1508,6 +1580,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 8000,
    "next": "monarch_1",
    "major_breakthrough": {
     "to": "monarch_1",
@@ -1557,6 +1630,7 @@
    "consolidation_s": 7200,
    "major": true,
    "order_style": true,
+   "max_years": 12000,
    "next": "monarch_2"
   },
   {
@@ -1573,6 +1647,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 12000,
    "next": "monarch_3"
   },
   {
@@ -1589,6 +1664,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 12000,
    "next": "half_heaven_monarch",
    "major_breakthrough": {
     "to": "half_heaven_monarch",
@@ -1620,6 +1696,7 @@
    "consolidation_s": 7200,
    "major": true,
    "order_style": false,
+   "max_years": 20000,
    "next": "dao_sigil",
    "major_breakthrough": {
     "to": "dao_sigil",
@@ -1651,6 +1728,7 @@
    "consolidation_s": 7200,
    "major": true,
    "order_style": false,
+   "max_years": 30000,
    "next": "heavens_threshold",
    "major_breakthrough": {
     "to": "heavens_threshold",
@@ -1682,6 +1760,7 @@
    "consolidation_s": 7200,
    "major": true,
    "order_style": false,
+   "max_years": 50000,
    "next": "inner_heaven_1",
    "major_breakthrough": {
     "to": "inner_heaven_1",
@@ -1734,6 +1813,7 @@
    "consolidation_s": 10800,
    "major": true,
    "order_style": true,
+   "max_years": 100000,
    "next": "inner_heaven_2"
   },
   {
@@ -1750,6 +1830,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 100000,
    "next": "inner_heaven_3"
   },
   {
@@ -1766,6 +1847,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 100000,
    "next": "inner_heaven_4"
   },
   {
@@ -1782,6 +1864,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 100000,
    "next": "inner_heaven_5"
   },
   {
@@ -1798,6 +1881,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 100000,
    "next": "inner_heaven_6"
   },
   {
@@ -1814,6 +1898,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 100000,
    "next": "inner_heaven_7"
   },
   {
@@ -1830,6 +1915,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 100000,
    "next": "inner_heaven_8"
   },
   {
@@ -1846,6 +1932,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 100000,
    "next": "inner_heaven_9"
   },
   {
@@ -1862,6 +1949,7 @@
    "consolidation_s": 0,
    "major": false,
    "order_style": true,
+   "max_years": 100000,
    "next": "world_genesis",
    "major_breakthrough": {
     "to": "world_genesis",
@@ -1894,6 +1982,7 @@
    "major": true,
    "order_style": false,
    "genesis": true,
+   "max_years": 0,
    "next": ""
   }
  ]

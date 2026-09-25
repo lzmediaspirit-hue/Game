@@ -60,13 +60,21 @@ func _karma(ch) -> void:
 	text(Vector2(x, y + 14), Tx.t("ui.relations.align_demonic"), 14, UiKit.MIST)
 	_rtext(scale.end.x, y + 14, Tx.t("ui.relations.align_righteous"), 14, UiKit.MIST)
 	para(Rect2(x, y + 24, left.size.x - 48, left.end.y - y - 30), Tx.t("ui.relations.alignment_note"), 15, UiKit.MIST, 3)
-	# Right: recent deeds, then named debts.
+	# Right: the Fortune meter (S49), recent deeds, then named debts.
 	x = right.position.x + 24
 	y = right.position.y + 40
+	heading(Vector2(x, y), Tx.t("ui.relations.fortune"), right.size.x - 48)
+	var meter := Game.relations.fortune_meter(ch)
+	var met := 0
+	for k in r.fortune.get("seen", {}): met += int(r.fortune.seen[k])
+	bar(Rect2(x, y + 16, right.size.x - 48, 26), meter, UiKit.GOLD,
+		Tx.t("ui.relations.fortune_ready") if meter >= 1.0 else Tx.t("ui.relations.fortune_in") % _span(Game.relations.fortune_ready_in(ch)))
+	text(Vector2(x, y + 66), fit(Tx.t("ui.relations.fortune_note") % met, 15, right.size.x - 48), 15, UiKit.MIST)
+	y += 118
 	heading(Vector2(x, y), Tx.t("ui.relations.recent"), right.size.x - 48)
 	y += 16
 	var debts: Array = r.debts.keys()
-	var deeds_h := right.size.y - 70 - (40 + debts.size() * 30 if not debts.is_empty() else 0)
+	var deeds_h := right.size.y - 188 - (40 + debts.size() * 30 if not debts.is_empty() else 0)
 	if r.ledger.is_empty():
 		para(Rect2(x, y + 4, right.size.x - 48, 60), Tx.t("ui.relations.no_deeds"), 17, UiKit.MIST, 3)
 	else:
@@ -92,6 +100,11 @@ func _karma(ch) -> void:
 			_rtext(right.end.x - 24, y + 14, Tx.t("ui.cultivation.debt_settled") if d.get("paid", false) else Tx.t("ui.cultivation.debt_open"), 16,
 				UiKit.MIST if d.get("paid", false) else UiKit.PALE_GOLD)
 			y += 30
+
+## "2 h 10 m" or "12 m".
+func _span(sec: float) -> String:
+	var m := int(ceil(maxf(0.0, sec) / 60.0))
+	return Tx.t("ui.calendar.span_hm") % [m / 60, m % 60] if m >= 60 else Tx.t("ui.calendar.span_m") % maxi(1, m)
 
 ## Text whose right edge sits at x.
 func _rtext(x: float, y: float, s: String, size: int, col: Color) -> void:
@@ -247,9 +260,11 @@ func _fame(ch) -> void:
 	var name := ContentDB.name_of("enemies", str(chal.enemy))
 	text(Vector2(cx, card.position.y + 36), fit(name, 22, card.size.x - 36), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 	text(Vector2(cx, card.position.y + 64), Tx.t("ui.arena.lv") % int(chal.level), 16, UiKit.MIST)
-	para(Rect2(cx, card.position.y + 80, card.size.x - 36, 130), Tx.t("ui.relations.challenge_line"), 18, UiKit.PAPER, 5)
-	var win := _fame_of("young_master_humbled") + _fame_of("public_spar_won")
-	var lose := _fame_of("young_master_lost") + _fame_of("public_spar_lost")
+	# A young master (Fame), or a jealous senior drawn by a heavenly phenomenon (S49).
+	var jealous := str(chal.enemy) == "jealous_senior"
+	para(Rect2(cx, card.position.y + 80, card.size.x - 36, 130), Tx.t("ui.relations.jealous_line") if jealous else Tx.t("ui.relations.challenge_line"), 18, UiKit.PAPER, 5)
+	var win := _fame_of("jealous_humbled" if jealous else "young_master_humbled") + _fame_of("public_spar_won")
+	var lose := _fame_of("jealous_lost" if jealous else "young_master_lost") + _fame_of("public_spar_lost")
 	para(Rect2(cx, card.end.y - 150, card.size.x - 36, 60), Tx.t("ui.relations.challenge_stakes") % [win, -lose, -_fame_of("challenge_declined")], 16, UiKit.MIST, 3)
 	var bw := (card.size.x - 36 - 12) / 2.0
 	btn(Rect2(cx, card.end.y - 72, bw, 54), Tx.t("ui.relations.accept"), "answer", true, true)

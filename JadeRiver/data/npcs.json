@@ -53,7 +53,8 @@
       "recipe": "jade_carp_congee"
      }
     ]
-   }
+   },
+   "age": 46
   },
   {
    "id": "lu_boatman",
@@ -102,7 +103,8 @@
       "count": 3
      }
     ]
-   }
+   },
+   "age": 61
   },
   {
    "id": "little_dou",
@@ -150,7 +152,8 @@
       "count": 5
      }
     ]
-   }
+   },
+   "age": 9
   },
   {
    "id": "old_ma",
@@ -199,7 +202,8 @@
       "count": 3
      }
     ]
-   }
+   },
+   "age": 72
   },
   {
    "id": "granny_liu",
@@ -255,7 +259,8 @@
       "count": 2
      }
     ]
-   }
+   },
+   "age": 83
   },
   {
    "id": "shen_lian_npc",
@@ -302,7 +307,8 @@
       "count": 2
      }
     ]
-   }
+   },
+   "age": 16
   },
   {
    "id": "uncle_guo",
@@ -348,7 +354,8 @@
       "recipe": "ember_pepper_stew"
      }
     ]
-   }
+   },
+   "age": 54
   },
   {
    "id": "fisher_wen",
@@ -427,7 +434,8 @@
    "services": [],
    "concealed_lines": [
     "Kindling, are you? Keep to the road. The Mudwater never went away, not really."
-   ]
+   ],
+   "age": 38
   },
   {
    "id": "foreman_dong",
@@ -770,7 +778,8 @@
    },
    "service_unlocks": {
     "page:talisman": "talisman"
-   }
+   },
+   "age": 77
   },
   {
    "id": "elder_gu",
@@ -807,7 +816,8 @@
    },
    "concealed_lines": [
     "A small cultivator with a heavy purse. Mind who sees you open it."
-   ]
+   ],
+   "age": 96
   },
   {
    "id": "madam_hua",
@@ -834,7 +844,8 @@
    ],
    "services": [
     "shop:gu_trade_house"
-   ]
+   ],
+   "age": 41
   },
   {
    "id": "mei_qing",
@@ -881,7 +892,8 @@
       "recipe": "cloudtop_orchid_broth"
      }
     ]
-   }
+   },
+   "age": 19
   },
   {
    "id": "mei_qing_sect",
@@ -924,7 +936,8 @@
       "recipe": "cloudtop_orchid_broth"
      }
     ]
-   }
+   },
+   "age": 19
   },
   {
    "id": "apprentice_tao",
@@ -1067,7 +1080,8 @@
       "count": 2
      }
     ]
-   }
+   },
+   "age": 16
   },
   {
    "id": "wen_zhao",
@@ -1098,7 +1112,8 @@
    ],
    "service_labels": {
     "spar:wen_zhao": "Spar"
-   }
+   },
+   "age": 17
   },
   {
    "id": "fair_vendor_he",
@@ -1227,7 +1242,8 @@
    ],
    "services": [
     "shop:night_peddler"
-   ]
+   ],
+   "age": 50
   },
   {
    "id": "hermit_yao",
@@ -1262,7 +1278,8 @@
    },
    "service_unlocks": {
     "page:core_exchange": "spirit_animals"
-   }
+   },
+   "age": 340
   },
   {
    "id": "jade_steward",
@@ -1933,7 +1950,8 @@
       "count": 3
      }
     ]
-   }
+   },
+   "age": 212
   },
   {
    "id": "elder_sung",
@@ -1984,7 +2002,8 @@
       "count": 3
      }
     ]
-   }
+   },
+   "age": 187
   },
   {
    "id": "arena_master",
@@ -2972,7 +2991,8 @@
       "recipe": "lotus_root_tea"
      }
     ]
-   }
+   },
+   "age": 18
   },
   {
    "id": "tie_niu",
@@ -3016,7 +3036,8 @@
       "recipe": "boar_bone_broth"
      }
     ]
-   }
+   },
+   "age": 20
   },
   {
    "id": "qiu_feng",
@@ -3060,7 +3081,8 @@
       "recipe": "roast_fish"
      }
     ]
-   }
+   },
+   "age": 22
   },
   {
    "id": "bai_ling",
@@ -3105,7 +3127,8 @@
       "count": 2
      }
     ]
-   }
+   },
+   "age": 17
   }
  ]
 }

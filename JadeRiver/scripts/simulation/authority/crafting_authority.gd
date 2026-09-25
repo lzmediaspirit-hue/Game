@@ -698,6 +698,7 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, 
 		var roll := avg + rng.randf_range(-0.08, 0.08)
 		quality = "flawed" if roll < 0.35 else ("common" if roll < 0.6 else ("fine" if roll < 0.78 else ("superior" if roll < 0.9 else "perfect")))
 		if craft_kind == "alchemy" and quality == "perfect": quality = _rare_pill_quality(c, scores, rng, rare_allowed(furnace, fire))
+		if craft_kind == "alchemy": c.cooldowns.erase("grain_blessing")   # the Hundred-Year Wine blesses one batch (S49)
 	var used := _consume(c, recipe_id, aged.inputs, _principal(r, inputs))
 	# S45: an unappraised fake herb in the batch spoils the pill more often than not.
 	if craft_kind == "alchemy" and used.fake and Rng.stream(c.id, "garden").randf() < float(ContentDB.config("garden").get("fakes", {}).get("flawed", 0.6)):
@@ -1058,13 +1059,21 @@ func _rare_pill_quality(c, scores: Array, rng: RandomNumberGenerator, allowed: A
 		if float(sc) < float(k.get("perfect", 0.85)): return "perfect"
 	var rare: Dictionary = ContentDB.config("grades").get("pill", {}).get("rare", {})
 	var boost := 1.0 + furnace_bonus(c) + 0.1 * int(c.cultivator.daos.get("alchemy", {}).get("tier", 0))
+	var blessing := float(c.cooldowns.get("grain_blessing", 0.0))   # S49: the Hundred-Year Wine poured over the furnace
 	var roll := rng.randf()
 	var edge := 0.0
 	for q in ["pill_soul", "pill_halo", "pill_grain"]:
 		if not q in allowed: continue   # charcoal stops at Perfect (G1)
-		edge += float(rare.get(q, 0.0)) * boost
+		edge += float(rare.get(q, 0.0)) * boost + (blessing if q == "pill_grain" else 0.0)
 		if roll < edge: return q
 	return "perfect"
+
+## S49 fortune: the Hundred-Year Wine poured over the furnace. The next alchemy batch that comes out Perfect has this
+## much more chance to be Grain (the blessing goes with that batch, whatever it makes).
+func apply_grain_blessing(actor_id: String, value: float) -> void:
+	var c = game.character(actor_id)
+	if c == null: return
+	c.cooldowns["grain_blessing"] = value if value >= 0.0 else float(ContentDB.config("fortune_deck").get("wine_grain", 0.25))
 
 ## The nearest alchemy furnace's bonus to rare pill qualities (sect halls keep better furnaces).
 func furnace_bonus(c) -> float:

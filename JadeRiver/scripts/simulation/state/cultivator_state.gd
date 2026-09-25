@@ -59,6 +59,7 @@ var inner_arts: Array = []           # the Inner Art slots: art id or "" (2 at Q
 var inner_arts_known: Array = []     # Inner Arts learned from manuals
 var stances: Dictionary = {}         # weapon family -> stance id
 var false_realm := ""
+var longevity := 0                   # S49: years added to the realm's lifespan by longevity treasures (display only)
 var epiphany_cooldown := 0.0
 var method_id := ""
 var methods_known: Array = []
@@ -108,7 +109,7 @@ func snapshot() -> Dictionary:
 		"support_failures": support_failures.duplicate(),
 		"body_tier": body_tier, "body_trials": body_trials.duplicate(), "body_baths": body_baths.duplicate(), "core_grade": core_grade,
 		"fates": fates.duplicate(true), "fate_offer": fate_offer.duplicate(), "physiques": physiques.duplicate(), "vows": vows.duplicate(), "inner_arts": inner_arts.duplicate(), "inner_arts_known": inner_arts_known.duplicate(),
-		"stances": stances.duplicate(), "false_realm": false_realm, "epiphany_cooldown": epiphany_cooldown,
+		"stances": stances.duplicate(), "false_realm": false_realm, "longevity": longevity, "epiphany_cooldown": epiphany_cooldown,
 		"methods_known": methods_known.duplicate(), "aptitude": aptitude.duplicate(true), "origin": origin,
 		"meridians": meridians.duplicate(), "unspent_meridian_points": unspent_meridian_points,
 		"meridian_levels_granted": meridian_levels_granted,
@@ -181,6 +182,7 @@ func restore(d: Dictionary) -> void:
 		if ContentDB.has_entry("inner_arts", str(a)): inner_arts_known.append(str(a))
 	stances = _dict(d, "stances")
 	false_realm = str(d.get("false_realm", "")) if d.get("false_realm") != null else ""
+	longevity = int(d.get("longevity", 0))
 	epiphany_cooldown = maxf(0.0, _num(d, "epiphany_cooldown", 0.0))
 	method_id = str(d.get("method_id", ""))
 	methods_known = _arr(d, "methods_known")

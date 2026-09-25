@@ -52,6 +52,7 @@
     "dw_bend_shore",
     "dw_serpents_shallows",
     "gh_hamlet_square",
+    "hg_hidden_grotto",
     "hv_back_mountain",
     "hv_sect_grounds",
     "hv_vale_gate",
@@ -349,6 +350,19 @@
     {
      "id": "story",
      "name": "Story",
+     "levels": [
+      0,
+      0
+     ],
+     "map": [
+      0.5,
+      0.5
+     ],
+     "hidden": true
+    },
+    {
+     "id": "unmapped",
+     "name": "Somewhere Unmapped",
      "levels": [
       0,
       0

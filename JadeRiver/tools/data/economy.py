@@ -425,7 +425,7 @@ def auction():
                             dict(lot("recipe_scroll", 16, weight=0.8), learn="foundation_guard_pill"),
                             dict(lot("recipe_scroll", 12, weight=0.8), learn="cloudtop_orchid_broth"),
                             dict(lot("recipe_scroll", 20, weight=0.6), learn="clear_mind_pill"),
-                            lot("manual_page", 8, 3)]},
+                            lot("manual_page", 8, 3), lot("longevity_peach", 30, weight=0.5)]},
     })
 
 

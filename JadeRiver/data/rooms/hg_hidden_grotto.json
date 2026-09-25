@@ -1,0 +1,183 @@
+{
+ "schema_version": 1,
+ "id": "hg_hidden_grotto",
+ "zone": "jade_river_valley",
+ "region": "unmapped",
+ "name": "Hidden Grotto",
+ "type": "secret",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.8,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "cave",
+ "ground": {
+  "material": "slate"
+ },
+ "spawn_point": [
+  260,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    1280,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "grotto_ledge",
+   "rect": [
+    880,
+    694,
+    260,
+    60
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "way_up",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "cf_behind_falls",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Climb out",
+   "fortune_return": true
+  }
+ ],
+ "objects": [
+  {
+   "id": "grotto_chest",
+   "type": "chest",
+   "at": [
+    1010,
+    718
+   ],
+   "loot": "chest_dungeon",
+   "level": 0,
+   "alt": 100,
+   "surface": "grotto_ledge",
+   "reopens": "fortune"
+  },
+  {
+   "id": "grotto_bones",
+   "type": "inspect",
+   "at": [
+    620,
+    860
+   ],
+   "prop": "bleached_ribcage",
+   "text": "Someone found this place before you. A rusted sword, a gourd, a name scratched on the rock too worn to read."
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "boulder_moss",
+   "at": [
+    330,
+    700
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    520,
+    700
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    760,
+    700
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "boulder_moss",
+   "at": [
+    1200,
+    700
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "rope",
+   "at": [
+    140,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "qi_spring",
+   "at": [
+    420,
+    900
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "mindwell_lotus_patch",
+   "at": [
+    860,
+    910
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "meditation",
+ "instanced": true,
+ "climbables": [
+  {
+   "id": "grotto_ledge_rope_1",
+   "kind": "rope",
+   "at": [
+    1010,
+    789
+   ],
+   "top_at": [
+    1010,
+    746
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "grotto_ledge"
+  }
+ ]
+}

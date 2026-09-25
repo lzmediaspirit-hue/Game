@@ -1,4 +1,4 @@
-"""S03 realm ladder, S05 major-realm requirements, S29 Qi point needs."""
+"""S03 realm ladder, S05 major-realm requirements, S29 Qi point needs, S49 lifespans (display only)."""
 from common import entries, req, c
 
 # (realm id, display, sub-level count, levels per sub-level, first Level, energy, T minutes per Level,
@@ -82,6 +82,14 @@ MAJOR = {
 }
 
 
+# S49 lifespan as flavour: the most years each great realm lets a body live. Shown on the Character page with the
+# character's age; longevity treasures add to it. There is no death clock (Part 1).
+MAX_YEARS = {"mortal": 80, "bone_forging": 100, "qi_kindling": 120, "qi_unfurling": 150, "heart_tempering": 200,
+             "cloud_stride": 300, "spirit_awakening": 500, "heaven_glimpse": 800, "sage": 1200, "sage_sovereign": 2000,
+             "will_manifest": 3000, "sphere_lord": 5000, "law_touching": 8000, "monarch": 12000, "half_heaven_monarch": 20000,
+             "dao_sigil": 30000, "heavens_threshold": 50000, "inner_heaven": 100000, "world_genesis": 0}
+
+
 def need(level, t_minutes):
     return 100 * t_minutes
 
@@ -126,6 +134,8 @@ def build():
                  "realm_index": idx + 1, "sub": 0, "name": "World Genesis", "level": 166, "levels": 1,
                  "energy": "heavenforce", "accumulate_needed": 0, "consolidation_s": 0, "major": True,
                  "order_style": False, "genesis": True})
+    for row in rows:
+        row["max_years"] = MAX_YEARS[row["realm"]]   # 0: without end
     # Link each sub-level to the next and attach the major requirement to the key BEFORE it.
     for i, row in enumerate(rows):
         row["next"] = rows[i + 1]["key"] if i + 1 < len(rows) else ""

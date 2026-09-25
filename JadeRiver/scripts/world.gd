@@ -535,6 +535,21 @@ func _on_event(name: String, p: Dictionary) -> void:
 					nv.bark = Tx.t("world_view.pill_cloud_bark_%d" % (n % 3))
 					nv.bark_time = 3.5
 					n += 1
+		"heavenly_phenomenon":
+			# S49: the heavens answer a breakthrough where everyone can see; the people nearby say so.
+			if str(p.get("actor", "")) == player.actor_id:
+				var storm := str(p.get("kind", "")) == "lightning"
+				fx.add("heaven_storm" if storm else "heaven_cloud", player.position + Vector2(0, -20),
+					{"color": Color("9fc4ff") if storm else Color("f5c86a"), "dur": 6.0 if storm else 5.5})
+				Audio.play("thunder" if storm else "breakthrough")
+				if storm: shake = maxf(shake, 0.25)
+				var nb := 0
+				for id in npc_views:
+					var nv2 = npc_views[id]
+					if nv2.visible and nv2.position.distance_to(player.position) < 900.0:
+						nv2.bark = Tx.t("world_view.phenomenon_%s_%d" % ["storm" if storm else "cloud", nb % 3])
+						nv2.bark_time = 4.0
+						nb += 1
 		"breakthrough_started":
 			fx.add("ring", player.position, {"color": UiKit.QI, "radius": 90, "dur": float(p.get("duration", 3.0))})
 		"breakthrough_failed":

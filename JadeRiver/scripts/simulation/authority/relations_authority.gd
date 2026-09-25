@@ -1,7 +1,8 @@
 class_name RelationsAuthority
 extends Authority
 ## S49 · Karma, bonds and the living world, per character: the karma ledger (merit, sin, named debts), the
-## righteous-demonic alignment, personal Fame, NPC affinity and gifts, formal bonds, grudges and bounties.
+## righteous-demonic alignment, personal Fame, NPC affinity and gifts, formal bonds, grudges and bounties, and the
+## Fortune meter with its encounters (fortune_deck.json).
 ## Deeds come from karma.json: an effect, a call or a matching event gives merit, sin, alignment or Fame.
 
 const LEDGER_KEEP := 12
@@ -23,6 +24,11 @@ func subscribe() -> void:
 	GameEvents.subscribe("spar_ended", _on_spar_ended, 86)
 	GameEvents.subscribe("actor_defeated", _on_defeated, 86)
 	GameEvents.subscribe("quest_accepted", _on_quest_accepted, 86)
+	# S49 fortune encounters and heavenly phenomena (after the room, gathering and fall have settled).
+	GameEvents.subscribe("room_entered", _on_fortune_room, 95)
+	GameEvents.subscribe("node_gathered", _on_fortune_gathered, 95)
+	GameEvents.subscribe("fell_out", _on_fortune_fell, 95)
+	GameEvents.subscribe("heavenly_phenomenon", _on_phenomenon, 86)
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -106,6 +112,7 @@ func apply_merit_used(actor_id: String, great_realm: String) -> void:
 func tick(delta: float) -> void:
 	var c = game.active()
 	if c == null: return
+	_fill_fortune(c, delta)   # the Fortune meter fills only while you play
 	debt_clock -= delta
 	if debt_clock > 0.0: return
 	debt_clock = 1.0
@@ -544,3 +551,114 @@ func judge_foe(c, uid: int, spare: bool) -> Dictionary:
 	game.combat.apply_execute(e, c.id)
 	emit("foe_judged", {"actor": c.id, "def": e.def_id, "spared": false})
 	return ok({"spared": false})
+
+# ------------------------------------------------------------------ fortune encounters (S49 v1.0)
+## A deck of rare vignettes (fortune_deck.json). Entering a room, gathering or a fall recovered from may turn one up,
+## but only while the Fortune meter is full; it fills over three hours of play and holds one, so they cannot be farmed.
+## Fortune raises the chance and the weights; merit favours kind cards. The draw uses the character's fortune stream.
+func fortune_cfg() -> Dictionary:
+	return ContentDB.config("fortune_deck")
+
+func fortune_meter(c) -> float:
+	return float(c.relations.fortune.get("meter", 0.0))
+
+func _fill_fortune(c, delta: float) -> void:
+	var m := fortune_meter(c)
+	if m < 1.0: c.relations.fortune["meter"] = minf(1.0, m + delta / (float(fortune_cfg().get("meter_h", 3.0)) * 3600.0))
+
+## Seconds of play until the meter is full again.
+func fortune_ready_in(c) -> float:
+	return (1.0 - fortune_meter(c)) * float(fortune_cfg().get("meter_h", 3.0)) * 3600.0
+
+## The cards this moment could turn up, with their weights.
+func fortune_cards(c, trigger: String) -> Array:
+	var fc := fortune_cfg()
+	var fortune: float = c.stats.value("fortune")
+	var seen: Dictionary = c.relations.fortune.get("seen", {})
+	var out: Array = []
+	for card in ContentDB.all("fortune_deck"):
+		if not trigger in card.get("triggers", []): continue
+		if card.get("once", false) and seen.has(str(card.id)): continue
+		if card.has("requires") and not RequirementRules.passes(card.requires, game.ctx(c)): continue
+		var w: float = float(card.get("weight", 1)) * (1.0 + float(fc.get("fortune_weight", 0.03)) * fortune)
+		w += float(card.get("merit_weight", 0)) * floorf(float(c.relations.merit) / float(fc.get("merit_per", 100)))
+		if w > 0.0: out.append({"card": card, "w": w})
+	return out
+
+## A moment that may become a fortune encounter. `forced` names a card (debug tools and tests); it skips the meter
+## and the chance, never the rules of where a card can come.
+func fortune_check(c, trigger: String, forced := "") -> Dictionary:
+	if c == null or game.room_rt == null: return {}
+	var fc := fortune_cfg()
+	var rt = game.room_rt
+	if str(rt.def.get("type", "")) in fc.get("never_in", []) or rt.event.get("active", false): return {}
+	if forced == "" and fortune_meter(c) < 1.0: return {}
+	var rng := Rng.stream(c.id, "fortune")
+	var cards := fortune_cards(c, trigger)
+	if forced != "":
+		cards = cards.filter(func(o): return str(o.card.id) == forced)
+	elif rng.randf() >= float(fc.get("chance", {}).get(trigger, 0.0)) * (1.0 + float(fc.get("fortune_chance", 0.02)) * c.stats.value("fortune")):
+		return {}
+	if cards.is_empty(): return {}
+	var total := 0.0
+	for o in cards: total += float(o.w)
+	var roll := rng.randf() * total
+	var card: Dictionary = cards.back().card
+	for o in cards:
+		roll -= float(o.w)
+		if roll < 0.0:
+			card = o.card
+			break
+	c.relations.fortune["meter"] = maxf(0.0, fortune_meter(c) - 1.0)
+	var seen: Dictionary = c.relations.fortune.get("seen", {})
+	seen[str(card.id)] = int(seen.get(str(card.id), 0)) + 1
+	c.relations.fortune["seen"] = seen
+	emit("fortune_encounter", {"actor": c.id, "card": str(card.id), "trigger": trigger, "room": rt.room_id})
+	game.apply_effects(c.id, card.get("effects", []), "fortune:" + str(card.id))
+	return card
+
+func _on_fortune_room(_p: Dictionary) -> void:
+	fortune_check(game.active(), "room_entered")
+
+func _on_fortune_gathered(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c != null and c.id == game.active_id: fortune_check(c, "node_gathered")
+
+func _on_fortune_fell(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c == null or c.id != game.active_id: return
+	fortune_check(c, "fell_out")
+
+## The Hidden Cave card: the fall ends in a cave no map shows. The way up leaves you where you fell.
+func apply_fortune_grotto(actor_id: String) -> void:
+	var c = game.character(actor_id)
+	var st: ActorState = game.actor_state(actor_id)
+	if c == null or game.room_rt == null or st == null: return
+	c.cooldowns["grotto_return"] = {"room": game.room_rt.room_id, "x": st.plane.x, "y": st.plane.y}
+	c.relations.fortune["grotto_n"] = int(c.relations.fortune.get("grotto_n", 0)) + 1
+	game.world.load_room(c, "hg_hidden_grotto", "")
+
+## The hermit's chess problem: insight into the Dao you know best (or, before any Dao, a little realm progress).
+func apply_insight_best(actor_id: String, amount: float) -> void:
+	var c = game.character(actor_id)
+	if c == null: return
+	var best := ""
+	var top := -1.0
+	for dao in c.cultivator.daos:
+		var v := float(c.cultivator.daos[dao].get("insight", 0.0)) + 1000.0 * int(c.cultivator.daos[dao].get("tier", 0))
+		if v > top:
+			top = v
+			best = str(dao)
+	if best != "" and Unlocks.is_unlocked(c.id, "dao_tree"): game.progression.apply_insight(c.id, best, amount, "fortune:chess:" + str(Clock.reset_day(Clock.now_utc())))
+	else: game.apply_effects(c.id, [{"kind": "add_progress", "pct_of_need": 0.02}], "fortune:chess")
+
+# ------------------------------------------------------------------ heavenly phenomena (S49 v1.0)
+## The sky answered your breakthrough where people could see it: sometimes a jealous senior cannot let it pass.
+func _on_phenomenon(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c == null or c.id != game.active_id or str(p.get("kind", "")) != "cloud" or game.room_rt == null: return
+	if int(p.get("people", 0)) <= 0 or challenges.has(c.id) or game.room_rt.event.get("active", false): return
+	if str(game.room_rt.def.get("type", "")) in fortune_cfg().get("never_in", []): return
+	var jc: Dictionary = cfg().get("jealous", {})
+	if Rng.stream(c.id, "fortune").randf() >= float(jc.get("chance", 0.35)): return
+	offer_challenge(c, str(jc.get("enemy", "jealous_senior")))

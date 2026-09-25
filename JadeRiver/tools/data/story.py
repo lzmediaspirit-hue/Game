@@ -68,6 +68,12 @@ FORMATION_ELDERS = ["jade_formation_elder", "cloud_formation_elder"]
 PHYSICIANS = ["jade_physician", "cloud_physician"]
 
 
+NPC_AGES = {"aunt_ping": 46, "lu_boatman": 61, "little_dou": 9, "old_ma": 72, "granny_liu": 83, "uncle_guo": 54,
+            "shen_lian_npc": 16, "shen_lian": 16, "wen_zhao": 17, "mei_qing": 19, "mei_qing_sect": 19, "madam_hua": 41,
+            "old_scribe_bai": 77, "guard_hou": 38, "peddler_shao": 50, "elder_hu": 212, "elder_sung": 187,
+            "lan_yue": 18, "tie_niu": 20, "qiu_feng": 22, "bai_ling": 17, "hermit_yao": 340, "elder_gu": 96}
+
+
 def npcs():
     N = []
 
@@ -399,6 +405,11 @@ def npcs():
             n["heart_rewards"] = dict(a.get("rewards", {}))
     missing = (set(AFFINITY) | set(AFFINITY_ALIAS)) - {n["id"] for n in N}
     assert not missing, missing
+    # S49 lifespan as flavour: the named people's ages when your story starts. They grow older with you (a year for
+    # every four weeks you play, one season a week), shown wherever their hearts are.
+    for n in N:
+        if n["id"] in NPC_AGES:
+            n["age"] = NPC_AGES[n["id"]]
     entries("npcs", N)
     return {n["id"] for n in N}
 
@@ -1153,11 +1164,12 @@ def guided_quests():
     # on the one art never written down.
     quest("the_elders_last_lesson", "The Elder's Last Lesson", "side", "elder_hu", [
         o("meditate_seconds", "Sit with your master one last time", 60),
-    ], [fx("master_legacy")], giver_any=M, hand_in_any=M, requires=all_of(qdone("the_mentors_gift"), qdone("beyond_the_valley")),
+    ], [fx("master_legacy"), item("thousand_year_lingzhi", 1), fx("codex", entry="lifespan")], giver_any=M, hand_in_any=M, requires=all_of(qdone("the_mentors_gift"), qdone("beyond_the_valley")),
         chapter="10",
         offer=["You are leaving the valley. So am I, in my way: I am going into closed-door cultivation, and I do not know when I will come out.",
                "Sit with me once more. There is one thing I never wrote down."],
         complete=["Breathe as I breathe. There. That is all of it, and now it is yours.",
+                  "And take this. I kept it a hundred years for a longer life. Where I am going, years will not matter.",
                   "Go. If the heavens are kind, we will meet above the clouds."])
     quest("farewells", "Farewells", "main", "lu_boatman", [
         o("talk_to", "Visit Aunt Ping", npc="aunt_ping"),
@@ -2016,6 +2028,10 @@ def codex():
         {"id": "sage_qi", "title": "Sage Qi", "body": "True Qi pressed until it remembers it was light. Stronger by far, and the valley could never have held it."},
         {"id": "river_of_time", "title": "River of Time and Space", "body": "Locked.", "locked": True},
         {"id": "jade_river", "title": "The Jade River", "body": "It runs through every land you will ever see."},
+        {"id": "river_dream", "title": "A dream of the River",
+         "body": "You dreamed of the River from above: every land on its banks, the valley no bigger than a leaf, and further than the Starsea a light where it begins. Someone stood at its source, looking back down at you."},
+        {"id": "lifespan", "title": "Years",
+         "body": "A mortal body lasts eighty years or so. Every great realm pushes the end further off: a hundred years at Bone Forging, three hundred at Cloud Stride, a thousand and more once you are a Sage. The long-lived count years the way mortals count seasons. Peaches of long life and old lingzhi add a few more; nothing in the valley takes them away."},
     ]
     entries("codex", rows)
 

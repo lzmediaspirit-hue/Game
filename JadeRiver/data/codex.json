@@ -346,6 +346,16 @@
    "id": "jade_river",
    "title": "The Jade River",
    "body": "It runs through every land you will ever see."
+  },
+  {
+   "id": "river_dream",
+   "title": "A dream of the River",
+   "body": "You dreamed of the River from above: every land on its banks, the valley no bigger than a leaf, and further than the Starsea a light where it begins. Someone stood at its source, looking back down at you."
+  },
+  {
+   "id": "lifespan",
+   "title": "Years",
+   "body": "A mortal body lasts eighty years or so. Every great realm pushes the end further off: a hundred years at Bone Forging, three hundred at Cloud Stride, a thousand and more once you are a Sage. The long-lived count years the way mortals count seasons. Peaches of long life and old lingzhi add a few more; nothing in the valley takes them away."
   }
  ]
 }

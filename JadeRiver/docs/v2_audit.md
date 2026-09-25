@@ -134,5 +134,7 @@ Progress is recorded in `docs/CHANGELOG.md`.
     cave reopenings with realm caps), seasons from the account's first week, weather tables and notifications. V8d2
     is done: the Saturday auction day on Market Street (seeds, eggs, recipe scrolls that teach on the hammer), Spirit
     Fruit treasure births with rivals and a guardian, the weekly Herb Terraces gathering trial with its ranking, and
-    weather effects and visuals. Next: V8e-g (fortune deck, heavenly phenomena, rankings, Trial Tower, activity
-    chests, auto-path and auto-hunt, the mortal kingdom, leisure arts, lifespan, territory).
+    weather effects and visuals. V8e is done: the fortune deck with its meter (one encounter per three hours of
+    play) and the Hidden Grotto, heavenly phenomena with NPC reactions and a jealous challenger, and lifespan as a
+    display with ageing people and longevity treasures. Next: V8f (Heaven Ranking, Trial Tower, activity chests) and
+    V8g (auto-path, auto-hunt, the mortal kingdom, leisure arts, territory).

@@ -189,6 +189,12 @@
     "count": 3,
     "start": 8,
     "weight": 1.0
+   },
+   {
+    "item": "longevity_peach",
+    "count": 1,
+    "start": 30,
+    "weight": 0.5
    }
   ]
  }

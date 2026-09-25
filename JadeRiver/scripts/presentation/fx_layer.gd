@@ -127,9 +127,59 @@ func _draw() -> void:
 					var ph := fmod(k * 2.0 + i / 10.0, 1.0)
 					var sp: Vector2 = e.pos + Vector2(sin(i * 1.7 + ph * 5.0) * 60.0, -20.0 - ph * 90.0)
 					draw_rect(Rect2(sp.snapped(Vector2(2, 2)), Vector2(4, 4)), Color(1.0, 0.95, 0.75, 0.9 * fade * (1.0 - ph)))
+			"heaven_cloud":
+				# S49 heavenly phenomenon: auspicious clouds gather high over the room and pour light down on you.
+				var grow := minf(1.0, k * 3.0)
+				var fade2 := 1.0 if k < 0.75 else 1.0 - (k - 0.75) / 0.25
+				var top: Vector2 = e.pos + Vector2(0, -320)
+				draw_rect(Rect2(e.pos + Vector2(-34.0 * grow, -300), Vector2(68.0 * grow, 300)), Color(1.0, 0.93, 0.7, 0.12 * fade2))
+				draw_rect(Rect2(e.pos + Vector2(-12.0 * grow, -300), Vector2(24.0 * grow, 300)), Color(1.0, 0.97, 0.85, 0.2 * fade2))
+				_cloud_bank(top, 620.0 * (0.4 + 0.6 * grow), 70.0, c, Color(1.0, 0.98, 0.9), 0.9 * fade2, 3, float(e.t))
+				for i in 14:
+					var ph := fmod(float(e.t) * 0.35 + i / 14.0, 1.0)
+					var mp: Vector2 = e.pos + Vector2((_hash(i, 5) - 0.5) * 90.0, -ph * 300.0)
+					draw_rect(Rect2(mp.snapped(Vector2(2, 2)), Vector2(4, 4)), Color(1.0, 0.95, 0.75, 0.9 * fade2 * (1.0 - ph)))
+			"heaven_storm":
+				# A tribulation's sky: a dark bank low over the room, lit from inside, and bolts that fall near you.
+				var grow2 := minf(1.0, k * 4.0)
+				var fade3 := 1.0 if k < 0.8 else 1.0 - (k - 0.8) / 0.2
+				var top2: Vector2 = e.pos + Vector2(0, -300)
+				var beat := int(float(e.t) * 3.0)
+				var lit := fmod(float(e.t) * 3.0, 1.0) < 0.3
+				_cloud_bank(top2, 820.0 * (0.4 + 0.6 * grow2), 80.0, Color(0.2, 0.21, 0.29), Color(0.55, 0.62, 0.8) if lit else Color(0.34, 0.36, 0.46), fade3, 7, float(e.t))
+				if lit:
+					var bx := (_hash(beat, 11) - 0.5) * 420.0
+					var pts2 := PackedVector2Array()
+					var yy := -290.0
+					var xx := bx
+					while yy < 0.0:
+						pts2.append(e.pos + Vector2(xx, yy))
+						yy += 40.0 + _hash(beat * 7 + int(yy), 12) * 30.0
+						xx += (_hash(beat * 13 + int(yy), 13) - 0.5) * 50.0
+					pts2.append(e.pos + Vector2(xx, 0))
+					draw_polyline(pts2, Color(c, 0.35 * fade3), 7.0)
+					draw_polyline(pts2, Color(0.95, 0.97, 1.0, 0.95 * fade3), 2.0)
 			"text":
 				var a2 := 1.0 if k < 0.7 else 1.0 - (k - 0.7) / 0.3
 				UiKit.draw_outlined(self, e.text, e.pos + Vector2(-200, 0), int(e.size), Color(c, a2), HORIZONTAL_ALIGNMENT_CENTER, 400)
+
+## A soft bank of cloud: many flattened, overlapping puffs (a shadowed underside, a lit top) that drift slowly.
+func _cloud_bank(center: Vector2, width: float, height: float, base: Color, lit: Color, alpha: float, salt: int, t: float) -> void:
+	for layer in 2:
+		for i in 34:
+			var u := _hash(i, salt) - 0.5
+			var rx := 34.0 + _hash(i, salt + 1) * 46.0
+			var arch := (1.0 - absf(u) * 2.0) * height * 0.6
+			var at: Vector2 = center + Vector2(u * width + sin(t * 0.5 + i) * 6.0, (_hash(i, salt + 2) - 0.5) * height * 0.4 - arch * 0.5)
+			if layer == 1:
+				at += Vector2(0, -rx * 0.22)
+				rx *= 0.7
+			draw_set_transform(at, 0.0, Vector2(1.0, 0.46))
+			draw_circle(Vector2.ZERO, rx, Color(base if layer == 0 else lit, (0.3 if layer == 0 else 0.16) * alpha))
+	draw_set_transform(Vector2.ZERO)
+
+static func _hash(i: int, salt: int) -> float:
+	return fposmod(sin(float(i) * 12.9898 + float(salt) * 78.233) * 43758.5453, 1.0)
 
 func _draw_projectile(p: Dictionary) -> void:
 	var pos := Vector2(float(p.x), float(p.y) - float(p.alt)).snapped(Vector2(2, 2))

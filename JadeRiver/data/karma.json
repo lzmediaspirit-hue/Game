@@ -385,6 +385,48 @@
    "match": {
     "shop": "night_peddler"
    }
+  },
+  {
+   "id": "lost_child_home",
+   "name": "Walked a lost child home",
+   "merit": 10,
+   "sin": 0,
+   "alignment": 2,
+   "fame": 2
+  },
+  {
+   "id": "crane_mended",
+   "name": "Bound a wounded crane's wing",
+   "merit": 3,
+   "sin": 0,
+   "alignment": 1,
+   "fame": 0
+  },
+  {
+   "id": "jealous_humbled",
+   "name": "Answered a jealous senior",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": 10,
+   "event": "spar_ended",
+   "match": {
+    "opponent": "jealous_senior",
+    "winner": "player"
+   }
+  },
+  {
+   "id": "jealous_lost",
+   "name": "Lost to a jealous senior",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": -5,
+   "event": "spar_ended",
+   "match": {
+    "opponent": "jealous_senior",
+    "winner": "opponent"
+   }
   }
  ],
  "merit_step": 100,
@@ -446,6 +488,11 @@
   "fame": 150,
   "chance": 0.25,
   "enemy": "young_master",
+  "decline_deed": "challenge_declined"
+ },
+ "jealous": {
+  "chance": 0.35,
+  "enemy": "jealous_senior",
   "decline_deed": "challenge_declined"
  },
  "debts": {

@@ -288,6 +288,25 @@ static func resistance_factor(cu, family: String) -> float:
 	return 1.0 / (1.0 + step * float(resistance_count(cu, family)))
 
 ## The great realm a realm key belongs to (qi_kindling_3 -> qi_kindling).
+## S49 lifespan as flavour (display only, never a clock). A year passes for every four real weeks since the
+## character was made (a season a week); the realm's span plus longevity treasures is the most they could live.
+static func years_passed(created_utc: float, now: float) -> int:
+	if created_utc <= 0.0: return 0
+	return int(floor(maxf(0.0, now - created_utc) / (float(ContentDB.config("calendar").get("year_days", 28)) * 86400.0)))
+
+static func age_of(c, now: float) -> int:
+	return int(ContentDB.config("calendar").get("start_age", 16)) + years_passed(float(c.created_utc), now)
+
+## The most years this body could live; 0 means without end (World Genesis).
+static func lifespan_of(c) -> int:
+	var y := int(ContentDB.realm(c.cultivator.realm_key).get("max_years", 80))
+	return 0 if y <= 0 else y + int(c.cultivator.longevity)
+
+## A named NPC's age now: they grow older alongside you.
+static func npc_age(npc_id: String, c, now: float) -> int:
+	var base := int(ContentDB.entry("npcs", npc_id).get("age", 0))
+	return 0 if base <= 0 else base + years_passed(float(c.created_utc) if c != null else 0.0, now)
+
 static func great_realm(realm_key: String) -> String:
 	return str(ContentDB.realm(realm_key).get("realm", realm_key))
 

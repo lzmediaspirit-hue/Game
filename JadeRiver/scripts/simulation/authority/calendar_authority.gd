@@ -2,7 +2,8 @@ class_name CalendarAuthority
 extends Authority
 ## S49 · The world calendar (account level): which world events are under way, which are coming, the season and
 ## the weather. The schedule itself is pure (CalendarRules: the account seed, its creation day and the clock); this
-## authority announces the turns (started, ended, announced a day ahead, season, weather) and runs the spatial rift.
+## authority announces the turns (started, ended, announced a day ahead, season, weather), runs the spatial rift,
+## treasure births and the gathering trial, and shows the heavens' answer to a breakthrough (heavenly phenomena).
 
 var clock := 0.0
 
@@ -12,6 +13,8 @@ func intents() -> Array:
 func subscribe() -> void:
 	GameEvents.subscribe("node_gathered", _on_gathered, 90)
 	GameEvents.subscribe("room_entered", _on_room_entered, 90)
+	GameEvents.subscribe("breakthrough_succeeded", _on_breakthrough, 90)
+	GameEvents.subscribe("tribulation_started", _on_tribulation, 90)
 
 func _on_room_entered(_p: Dictionary) -> void:
 	var c = game.active()
@@ -197,3 +200,20 @@ func _pay_trial(c) -> void:
 	if str(rw.get("item", "")) != "": fx.append({"kind": "grant_item", "item": str(rw.item), "count": int(rw.get("count", 1))})
 	game.apply_effects(c.id, fx, "gathering_trial")
 	emit("gathering_trial_ranked", {"actor": c.id, "rank": rank, "points": int(gt.pts), "of": trial_rivals(int(gt.k)).size() + 1})
+
+# ------------------------------------------------------------------ heavenly phenomena (S49 v1.0)
+## A major breakthrough gathers auspicious clouds over the room; a tribulation darkens it with lightning. Everyone in
+## the room sees it: the people there congratulate you (and a jealous senior may not let it pass; Relations).
+func _on_breakthrough(p: Dictionary) -> void:
+	if p.get("major", false): _phenomenon(str(p.get("actor", "")), "cloud", str(p.get("to", "")))
+
+func _on_tribulation(p: Dictionary) -> void:
+	_phenomenon(str(p.get("actor", "")), "lightning", str(p.get("to", "")))
+
+func _phenomenon(actor_id: String, kind: String, realm: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or game.room_rt == null: return
+	var people := 0
+	for o in game.room_rt.def.get("objects", []):
+		if str(o.type) == "npc" and game.world.object_visible(c, o): people += 1
+	emit("heavenly_phenomenon", {"actor": actor_id, "kind": kind, "realm": realm, "room": game.room_rt.room_id, "people": people})

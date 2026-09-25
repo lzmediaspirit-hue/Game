@@ -1098,6 +1098,12 @@ func apply_purity(actor_id: String, points: float) -> void:
 		c.cultivator.purity -= 1
 		emit("purity_changed", {"actor": c.id, "value": c.cultivator.purity})
 
+## S49 lifespan as flavour: a longevity treasure adds years to the span the realm grants (display only).
+func apply_longevity(actor_id: String, years: int) -> void:
+	var c = game.character(actor_id)
+	if c == null or years == 0: return
+	c.cultivator.longevity += years
+
 func apply_insight(actor_id: String, dao: String, amount: float, context: String) -> void:
 	var c = game.character(actor_id)
 	if c == null or not ContentDB.has_entry("daos", dao): return

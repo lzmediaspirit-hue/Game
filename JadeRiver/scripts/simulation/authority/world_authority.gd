@@ -308,6 +308,12 @@ func use_portal(c, portal_id: String, crossing: bool) -> Dictionary:
 		emit("portal_blocked", {"actor": c.id, "portal": portal_id, "text": state.text})
 		return fail("sealed", {"text": state.text})
 	if c.cultivator.meditating: game.progression.stop_meditation(c, "portal")
+	# S49 fortune: the Hidden Grotto's way up leaves you where you fell.
+	var back: Dictionary = c.cooldowns.get("grotto_return", {}) if p.get("fortune_return", false) else {}
+	if not back.is_empty() and not ContentDB.room(str(back.room)).is_empty():
+		emit("portal_used", {"actor": c.id, "portal": portal_id, "room": game.room_rt.room_id, "to": str(back.room), "hidden": false})
+		c.cooldowns.erase("grotto_return")
+		return load_room(c, str(back.room), "", Vector2(float(back.x), float(back.y)))
 	emit("portal_used", {"actor": c.id, "portal": portal_id, "room": game.room_rt.room_id, "to": str(p.to), "hidden": str(p.get("type", "")) == "hidden"})
 	var r := load_room(c, str(p.to), str(p.get("to_portal", "")))
 	return r
@@ -434,6 +440,10 @@ func climbable_open(c, climbable: Dictionary) -> Dictionary:
 ## A chest that `reopens` with a calendar event is opened once per occurrence (S49); any other chest once.
 func open_key(o: Dictionary) -> String:
 	if str(o.get("reopens", "")) == "": return str(o.id)
+	# S49 fortune: the Hidden Grotto's chest fills again for each fall that ends there.
+	if str(o.reopens) == "fortune":
+		var fc = game.active()
+		return "%s@%d" % [str(o.id), int(fc.relations.fortune.get("grotto_n", 0)) if fc != null else 0]
 	var occ: Dictionary = game.calendar.active_of(str(o.reopens))
 	return "%s@%d" % [str(o.id), int(occ.get("k", -1))]
 
@@ -524,7 +534,9 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			var s: Dictionary = game.room_rt.objects.get(object_id, {})
 			s.state = "open"
 			_room_mem(c, game.room_rt.room_id).opened[open_key(o)] = true
-			var drop := LootRules.roll(str(o.get("loot", "chest_valley")), Rng.stream(c.id, "loot"), int(o.get("level", ProgressionRules.level(c))),
+			var chest_lv := int(o.get("level", 0))
+			if chest_lv <= 0: chest_lv = ProgressionRules.level(c)   # a chest of no fixed level fits its finder (the grotto)
+			var drop := LootRules.roll(str(o.get("loot", "chest_valley")), Rng.stream(c.id, "loot"), chest_lv,
 				c.stats.value("drop_rate"), c.stats.value("coin_find"), {"no_equipment": not Unlocks.is_unlocked(c.id, "weapons")})
 			_drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0)
 		"teleport_stone":

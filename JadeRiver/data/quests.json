@@ -3629,6 +3629,15 @@
    "rewards": [
     {
      "kind": "master_legacy"
+    },
+    {
+     "kind": "grant_item",
+     "item": "thousand_year_lingzhi",
+     "count": 1
+    },
+    {
+     "kind": "codex",
+     "entry": "lifespan"
     }
    ],
    "offer_text": [
@@ -3637,6 +3646,7 @@
    ],
    "complete_text": [
     "Breathe as I breathe. There. That is all of it, and now it is yours.",
+    "And take this. I kept it a hundred years for a longer life. Where I am going, years will not matter.",
     "Go. If the heavens are kind, we will meet above the clouds."
    ],
    "giver_any": [

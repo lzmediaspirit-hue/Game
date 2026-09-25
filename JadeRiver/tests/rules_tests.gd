@@ -68,6 +68,7 @@ func _main() -> void:
 	grudges_suite()
 	calendar_suite()
 	world_events_suite()
+	fortune_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -2417,7 +2418,7 @@ func bonds_suite() -> void:
 	var price1 := 0
 	for row in Game.economy.stock(c, "old_ma"):
 		if str(row.item) == dear: price1 = int(row.price)
-	check(Game.relations.shop_discount(c, "old_ma") == 0.05 and price1 < price0, "three hearts with Old Ma: 5% off (%d -> %d)" % [price0, price1])
+	check(Game.relations.shop_discount(c, "old_ma") == 0.05 and price1 < price0, "three hearts with Old Ma: 5%% off (%d -> %d)" % [price0, price1])
 	# Companions: a duel at three hearts, sworn at four, a Dao Companion at five.
 	c.companions = {"roster": ["lan_yue", "tie_niu"], "active": ["lan_yue", "tie_niu"], "bond": {}, "downed": {}}
 	Game.submit({"type": "set_active_companions", "ids": ["lan_yue", "tie_niu"]})
@@ -2794,6 +2795,121 @@ func world_events_suite() -> void:
 	Game.account.economy = econ_was
 	while Game.account.mail.size() > mail0: Game.account.mail.pop_front()
 	if room_was != "": Game.world.load_room(c, room_was, "")
+
+## S49 fortune encounters, heavenly phenomena and lifespan.
+func fortune_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var fortune_was: Dictionary = c.relations.fortune.duplicate(true)
+	var cd_was: Dictionary = c.cooldowns.duplicate(true)
+	var rel_was := [c.relations.merit, c.relations.alignment, c.relations.fame]
+	var qp_was: float = c.cultivator.qp
+	var daos_was: Dictionary = c.cultivator.daos.duplicate(true)
+	var codex_had: bool = Game.account.codex.has("river_dream")
+	var created_was: float = c.created_utc
+	c.inventory.bag.fill(null)
+	Game.world.load_room(c, "rm_marsh_edge", "")
+	GameEvents.flush()
+	# The meter: empty for a new hand, full after three hours of play, and it holds only one.
+	c.relations.fortune = {}
+	check(near(Game.relations.fortune_meter(c), 0.0), "a new character's Fortune meter starts empty")
+	check(Game.relations.fortune_check(c, "room_entered").is_empty(), "no encounter while it is empty")
+	Game.relations._fill_fortune(c, 3.0 * 3600.0 - 60.0)
+	check(Game.relations.fortune_meter(c) < 1.0, "a minute short of three hours of play, not yet")
+	Game.relations._fill_fortune(c, 120.0)
+	check(near(Game.relations.fortune_meter(c), 1.0), "full after three hours of play, and no fuller")
+	var fired := 0
+	for i in 500:
+		if not Game.relations.fortune_check(c, "room_entered").is_empty(): fired += 1
+	GameEvents.flush()
+	check(fired == 1, "a full meter turns up one encounter, then holds the rest back (%d in 500 rooms)" % fired)
+	# The deck: where each card can come, what it asks, and once-only cards.
+	var ids := func(trigger: String) -> Array: return Game.relations.fortune_cards(c, trigger).map(func(o): return str(o.card.id))
+	check(not (ids.call("room_entered") as Array).has("hidden_cave") and (ids.call("fell_out") as Array).has("hidden_cave"), "the Hidden Cave comes only from a fall")
+	var crane: bool = c.pets.any(func(pp): return str(pp.species) == "jade_crane")
+	check((ids.call("room_entered") as Array).has("wounded_crane") == crane, "the wounded crane comes only to someone who keeps a Jade Crane")
+	c.relations.fortune["seen"] = {"river_dream": 1}
+	check(not (ids.call("room_entered") as Array).has("river_dream"), "the River dream comes once")
+	var w0: float = Game.relations.fortune_cards(c, "room_entered").filter(func(o): return str(o.card.id) == "lost_child")[0].w
+	c.relations.merit += 200
+	var w1: float = Game.relations.fortune_cards(c, "room_entered").filter(func(o): return str(o.card.id) == "lost_child")[0].w
+	check(w1 > w0, "merit makes a kind vignette likelier")
+	c.relations.merit -= 200
+	# A lost child walked home: merit.
+	var m0: int = c.relations.merit
+	check(str(Game.relations.fortune_check(c, "room_entered", "lost_child").get("id", "")) == "lost_child" and c.relations.merit == m0 + 10, "a lost child walked home: +10 merit")
+	# The Hidden Cave: the fall ends in the grotto; its chest fills for each such fall; the way up leaves you where you fell.
+	var at: Vector2 = Game.actor_state(c.id).plane
+	Game.relations.fortune_check(c, "fell_out", "hidden_cave")
+	GameEvents.flush()
+	check(Game.room_rt.room_id == "hg_hidden_grotto", "a fall that draws the Hidden Cave ends in the Hidden Grotto")
+	var chest := {}
+	for o in Game.room_rt.def.get("objects", []):
+		if str(o.id) == "grotto_chest": chest = o
+	var k1 := Game.world.open_key(chest)
+	check(Game.world.object_available(c, chest).get("ok", false), "an old chest waits on the ledge")
+	check(Game.world.use_portal(c, "way_up", true).get("ok", false) and Game.room_rt.room_id == "rm_marsh_edge"
+		and Game.actor_state(c.id).plane.distance_to(at) < 60.0, "the way up leaves you where you fell")
+	GameEvents.flush()
+	Game.relations.fortune_check(c, "fell_out", "hidden_cave")
+	GameEvents.flush()
+	check(Game.world.open_key(chest) != k1, "the chest fills again for the next such fall")
+	Game.world.load_room(c, "rm_marsh_edge", "")
+	GameEvents.flush()
+	# The Hundred-Year Wine: the next Perfect batch is likelier to come out Grain.
+	Game.apply_effects(c.id, [{"kind": "grain_blessing"}], "test")
+	check(near(float(c.cooldowns.get("grain_blessing", 0.0)), 0.25), "the wine blesses the next batch (+25% Grain)")
+	if Unlocks.is_unlocked(c.id, "perfect_timing"):
+		Game.crafting.apply_grain_blessing(c.id, 1.0)
+		check(Game.crafting._rare_pill_quality(c, [1.0, 1.0, 1.0], _seeded(3)) in ["pill_grain", "pill_halo", "pill_soul"], "blessed, a Perfect run comes out Grain or better")
+	# Heavenly phenomena: a major breakthrough gathers clouds, a tribulation lightning; minor steps pass quietly.
+	var seen: Array = []
+	var on_ph := func(p: Dictionary): seen.append(str(p.kind))
+	GameEvents.subscribe("heavenly_phenomenon", on_ph, 200)
+	Game.calendar._on_breakthrough({"actor": c.id, "to": "qi_kindling_2", "major": false})
+	Game.calendar._on_breakthrough({"actor": c.id, "to": "qi_unfurling_1", "major": true})
+	Game.calendar._on_tribulation({"actor": c.id, "to": "cloud_stride_1"})
+	GameEvents.flush()
+	check(seen == ["cloud", "lightning"], "clouds for a major breakthrough, lightning for a tribulation, nothing for a minor step %s" % str(seen))
+	Game.world.load_room(c, "sf_market", "")
+	GameEvents.flush()
+	Game.relations.challenges.erase(c.id)
+	var offered := false
+	for i in 30:
+		Game.relations._on_phenomenon({"actor": c.id, "kind": "cloud", "people": 3})
+		if str(Game.relations.challenge_of(c).get("enemy", "")) == "jealous_senior": offered = true
+		Game.relations.challenges.erase(c.id)
+	check(offered, "where people saw it, a jealous senior may step out")
+	Game.relations._on_phenomenon({"actor": c.id, "kind": "cloud", "people": 0})
+	check(Game.relations.challenge_of(c).is_empty(), "with nobody there to see, nobody is jealous")
+	GameEvents.unsubscribe_object(self)
+	# Lifespan: display only. Each great realm's span, a year every four weeks, longevity treasures, ageing people.
+	check(int(ContentDB.realm("mortal").max_years) == 80 and int(ContentDB.realm("bone_forging_1").max_years) == 100
+		and int(ContentDB.realm("world_genesis").max_years) == 0, "a mortal lives 80 years, Bone Forging 100, World Genesis without end")
+	c.created_utc = 1_700_000_000.0
+	check(ProgressionRules.age_of(c, c.created_utc + 27.0 * 86400.0) == 16 and ProgressionRules.age_of(c, c.created_utc + 29.0 * 86400.0) == 17, "sixteen at the start, a year older every four weeks")
+	check(ProgressionRules.npc_age("granny_liu", c, c.created_utc + 57.0 * 86400.0) == 85, "Granny Liu grows older alongside you")
+	var span0 := ProgressionRules.lifespan_of(c)
+	Game.inventory.apply_add(c.id, "longevity_peach", 1, "test")
+	var pi: int = c.inventory.first_index("longevity_peach")
+	Game.submit({"type": "use_item", "index": pi, "confirm": true})
+	GameEvents.flush()
+	check(ProgressionRules.lifespan_of(c) == span0 + 10 and c.inventory.count("longevity_peach") == 0, "eating a Longevity Peach adds ten years")
+	# Restore.
+	c.created_utc = created_was
+	c.cultivator.longevity = 0
+	c.relations.fortune = fortune_was
+	c.cooldowns = cd_was
+	c.relations.merit = int(rel_was[0])
+	c.relations.alignment = int(rel_was[1])
+	c.relations.fame = int(rel_was[2])
+	c.cultivator.qp = qp_was
+	c.cultivator.daos = daos_was
+	if not codex_had: Game.account.codex.erase("river_dream")
+	c.inventory.bag.fill(null)
+	if room_was != "": Game.world.load_room(c, room_was, "")
+	GameEvents.flush()
 
 func _seeded(seed: int) -> RandomNumberGenerator:
 	var r := RandomNumberGenerator.new()

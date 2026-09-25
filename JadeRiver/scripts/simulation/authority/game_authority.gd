@@ -152,6 +152,12 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"master_legacy": relations.apply_master_legacy(actor_id)
 			"rift_reward": world.apply_rift_reward(actor_id, str(e.get("loot", "chest_dungeon")), int(e.get("level", 1)))
 			"treasure_claim": calendar.apply_treasure_claim(actor_id, int(e.get("k", -1)))
+			# S49 fortune encounters and lifespan.
+			"fortune_grotto": relations.apply_fortune_grotto(actor_id)
+			"insight_best": relations.apply_insight_best(actor_id, float(e.get("amount", 20)))
+			"grain_blessing": crafting.apply_grain_blessing(actor_id, float(e.get("value", -1.0)))
+			"add_longevity": progression.apply_longevity(actor_id, int(e.get("years", 0)))
+			"add_bond_species": pets.apply_bond_species(actor_id, str(e.get("species", "")), float(e.get("amount", 1)))
 			"learn_inner_art": progression.apply_learn_inner_art(actor_id, str(e.art))
 			"add_residue": progression.apply_residue(actor_id, float(e.get("amount", 0)))
 			"clear_residue": progression.apply_residue(actor_id, -float(e.get("amount", 1000000.0)))

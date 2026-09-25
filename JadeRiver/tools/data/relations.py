@@ -76,6 +76,12 @@ def deeds():
         deed("bounty_claimed", "Claimed a bounty", fame=10, alignment=1),
         # Part 8: the night peddler on the Caravan Road (+5 sin a purchase).
         deed("night_peddler", "Bought from the night peddler", sin=5, alignment=-1, per_count=True, **on("item_bought", shop="night_peddler")),
+        # Fortune encounters (fortune_deck.json).
+        deed("lost_child_home", "Walked a lost child home", merit=10, alignment=2, fame=2),
+        deed("crane_mended", "Bound a wounded crane's wing", merit=3, alignment=1),
+        # A heavenly phenomenon draws a jealous senior (the challenge works like a young master's).
+        deed("jealous_humbled", "Answered a jealous senior", fame=10, **on("spar_ended", opponent="jealous_senior", winner="player")),
+        deed("jealous_lost", "Lost to a jealous senior", fame=-5, **on("spar_ended", opponent="jealous_senior", winner="opponent")),
     ]
     return rows
 
@@ -192,6 +198,9 @@ def build():
             # From Rising Fame a young master may be waiting when you walk into a town (once a day): accept and
             # spar at your level, or decline and lose a little face.
             young_master={"fame": 150, "chance": 0.25, "enemy": "young_master", "decline_deed": "challenge_declined"},
+            # S49 heavenly phenomena: after a major breakthrough in a room with people in it, a jealous senior may
+            # step out to test you (at your new level), whatever your Fame.
+            jealous={"chance": 0.35, "enemy": "jealous_senior", "decline_deed": "challenge_declined"},
             # Part 8 named debts: when each falls due and what comes of it (a letter, a flag, a hunter).
             debts={"dou_rescue": {"due_quest": "the_heart_trial", "mail": "dou_repays", "attachments": [{"item": "cloudtop_orchid", "count": 1}]},
                    "lieutenant_spared": {"due_quest": "hidden_cargo", "mail": "lieutenant_warning", "flag": "warned_of_ambush",

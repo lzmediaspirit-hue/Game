@@ -28,6 +28,9 @@ func draw_page() -> void:
 	heading(Vector2(x, y), ContentDB.name_of("npcs", id), left.size.x - 44)
 	y += 34
 	UiKit.draw_hearts(self, Vector2(x, y), ch.relations.hearts_of(id), 5, 12.0)
+	# S49: named people grow older alongside you.
+	var age := ProgressionRules.npc_age(npc, ch, Clock.now_utc())
+	if age > 0: text(Vector2(left.end.x - 22 - 140, y + 6), Tx.t("ui.gift.age") % age, 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 140)
 	y += 30
 	var per := int(Game.relations.acfg().get("per_heart", 100))
 	if ch.relations.hearts_of(id) < int(Game.relations.acfg().get("max_hearts", 5)):

@@ -1502,6 +1502,21 @@
     "calendar_authority"
    ]
   },
+  "heavenly_phenomenon": {
+   "system": "Calendar",
+   "files": [
+    "calendar_authority"
+   ]
+  },
+  "fortune_encounter": {
+   "system": "Calendar",
+   "files": [
+    "calendar_authority",
+    "relations_authority"
+   ],
+   "also": "Relations",
+   "note": "Relations owns the Fortune meter (S49) and draws the card when a room, a harvest or a fall allows."
+  },
   "merit_changed": {
    "system": "Relations",
    "files": [

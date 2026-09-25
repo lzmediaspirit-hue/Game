@@ -2212,6 +2212,7 @@ def zone_json():
             {"id": "summit_ridge", "name": "Summit Ridge", "levels": [55, 63], "map": [0.44, 0.06]},
             {"id": "hidden_vale", "name": "Hidden Vale", "levels": [0, 0], "map": [0.96, 0.22]},
             {"id": "story", "name": "Story", "levels": [0, 0], "map": [0.5, 0.5], "hidden": True},
+            {"id": "unmapped", "name": "Somewhere Unmapped", "levels": [0, 0], "map": [0.5, 0.5], "hidden": True},
         ],
         "exit": {"room": "mp_ascension_gate", "to_zone": "azure_expanse"},
     }, {
@@ -2729,6 +2730,24 @@ def fruit_trees():
                   visible_if=all_of({"kind": "world_event_here", "event": "treasure_birth"}))
 
 
+def hidden_grotto():
+    """S49 fortune deck: "a void-fall recovery lands in a hidden cave with a chest". A fall that draws the Hidden Cave
+    card ends here instead of back on the path: a moss-lit cave no map shows, an old chest on a root-bound ledge that
+    fills again for each such fall, and a way up that leaves you where you fell."""
+    r = Room("hg_hidden_grotto", "Hidden Grotto", "secret", "unmapped", 1, backdrop="cave", material="slate", music="meditation",
+             qi=1.8, instanced=True, safe=True, spawn_point=[260, 820])
+    r.surface("grotto_ledge", [880, 694, 260, 60], 88, kind="rock_ledge")
+    r.chest([1010, 718], loot="chest_dungeon", level=0, oid="grotto_chest", alt=88, surface="grotto_ledge", reopens="fortune")
+    r.obj("grotto_bones", "inspect", [620, 860], prop="bleached_ribcage",
+          text="Someone found this place before you. A rusted sword, a gourd, a name scratched on the rock too worn to read.")
+    for x, prop in ((330, "boulder_moss"), (520, "rock_large"), (760, "rock_small"), (1200, "boulder_moss")):
+        r.decor(prop, [x, 700], layer="back")
+    r.decor("rope", [140, 640], layer="back")   # the way up: a root-rope into daylight
+    r.decor("qi_spring", [420, 900])
+    r.decor("mindwell_lotus_patch", [860, 910])
+    r.portal("way_up", "door", [140, 700], "cf_behind_falls", "entry", press_up=True, label="Climb out", fortune_return=True)
+
+
 def rift_tears():
     """S49 spatial rifts: every valley field room with beasts has a tear that shows only while the calendar's rift is
     open there (living_world.py lists the same rooms)."""
@@ -2757,6 +2776,7 @@ def build():
     bandit_ambushes()
     recipe_pages()
     body_trial_grounds()
+    hidden_grotto()
     weather_regions()
     catalogue.run(ROOMS)
     movement_pass()

@@ -5,6 +5,39 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V8e · The living world: fortune encounters, heavenly phenomena and lifespan (S49)
+- **Fortune encounters** (`fortune_deck.json`, Part 8's eight vignettes). A card can turn up when you enter a room,
+  gather, or recover from a fall into the void. It appears as a card at the top of the screen.
+  - **The Fortune meter** (Relations) fills over three hours of play and holds one encounter, so encounters cannot be
+    farmed. It starts empty, and the Karma tab shows how long it has left to fill.
+  - Fortune raises the chance and every card's weight. Merit makes the kind cards likelier. Draws use the
+    character's own fortune stream.
+  - The cards:
+    - A **Hidden Cave**: a fall ends in the Hidden Grotto, a new unmapped room. Its old chest fills again for each
+      such fall, and the way up leaves you where you fell.
+    - A remnant soul in a ring: three manual pages.
+    - The hermit's chess problem: insight into your deepest Dao.
+    - A wounded crane: +2 bond with your Jade Crane, and a little merit.
+    - A jar of **Hundred-Year Wine**: pour it over the furnace and your next Perfect batch has +25% chance to come
+      out Grain.
+    - A lost child walked home: +10 merit.
+    - A meteor fragment of Cloudsteel.
+    - A **Dream of the River** (a Codex entry, once).
+  - Debug flag: `--fortune=<card>`.
+- **Heavenly phenomena**. The Calendar announces each one:
+  - A major breakthrough gathers golden clouds and a pillar of light over the room.
+  - A tribulation darkens the room with a storm bank and bolts.
+  - People nearby call out, in congratulation or alarm.
+  - Where people saw the clouds, a **jealous senior** (Senior Brother Hao Qian) may challenge you to a spar at your
+    new level, for Fame.
+  - Debug flag: `--phenomenon=cloud|lightning`.
+- **Lifespan as flavour** (display only, never a clock):
+  - Each great realm grants a span, from 80 years for a mortal to 1,200 at Sage, and without end at World Genesis.
+  - Characters start at sixteen and age a year every four weeks (a season a week).
+  - The Character page shows your age and lifespan, and the gift page shows named people growing older with you.
+  - Longevity treasures add years. A **Longevity Peach** (+10) is sold at Auction Day. A **Thousand-Year Lingzhi**
+    (+30) is your master's parting gift in The Elder's Last Lesson, with a Codex entry on years.
+
 ### V8d2 · The living world: Auction Day, Spirit Fruit births, the Herb Terraces trial and weather (S49)
 - **Auction Day** (Part 8): every Saturday an auctioneer's stall stands on Market Street. It shows only while the
   calendar event runs.

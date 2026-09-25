@@ -191,6 +191,15 @@ func apply_grant(actor_id: String, species: String, born: Dictionary = {}) -> vo
 	_check_awakening(c, pet)
 	_spawn(c)
 
+## S49 fortune: bond with the first animal of a species you keep (the wounded crane's own kind).
+func apply_bond_species(actor_id: String, species: String, amount: float) -> void:
+	var c = game.character(actor_id)
+	if c == null: return
+	for p in c.pets:
+		if str(p.species) == species:
+			apply_bond(actor_id, amount, str(p.uid))
+			return
+
 func apply_bond(actor_id: String, amount: float, uid := "") -> void:
 	var c = game.character(actor_id)
 	var p := active_pet(c) if uid == "" else _pet(c, uid)

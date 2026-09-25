@@ -47,6 +47,7 @@ signal fishing_requested(object_id: String)
 var log_lines: Array = []          # [{text, t, color}]
 var toasts: Array = []             # [{text, t, kind}]
 var banner := {"text": "", "sub": "", "t": 0.0}
+var vignette := {"title": "", "text": "", "t": 99.0}   # S49: a fortune encounter's card, read at the top of the screen
 # S40 captions: sound-only cues written out when the player turns captions on.
 const CAPTIONS := {"boss_phase": "boss_roar", "field_boss_spawned": "distant_roar", "bell_rung": "bell", "mail_received": "letter",
 	"qi_backlash": "backlash", "defence_warning": "war_drums", "attack_started": "wind_up", "enemy_aggro": "noticed"}
@@ -112,6 +113,7 @@ func _process(delta: float) -> void:
 	for tt in toasts: tt.t += delta
 	toasts = toasts.filter(func(tt): return tt.t < float(tt.get("life", 3.2)))
 	banner.t += delta
+	vignette.t = float(vignette.t) + delta
 	caption.t = float(caption.t) + delta
 	for k in pulses.keys():
 		pulses[k] -= delta
@@ -674,8 +676,16 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.rift_opened") % int(p.level), "danger", Tx.t("hud.rift_hint"))
 		"young_master_challenge":
 			if str(p.get("actor", "")) == Game.active_id:
-				toast(Tx.t("hud.young_master"), "quest")
+				toast(Tx.t("hud.jealous_senior") if str(p.get("enemy", "")) == "jealous_senior" else Tx.t("hud.young_master"), "quest")
 				open_page.emit("relations", {"tab": "fame"})
+		"fortune_encounter":
+			if str(p.get("actor", "")) == Game.active_id:
+				var card := ContentDB.entry("fortune_deck", str(p.card))
+				vignette = {"title": str(card.get("name", "")), "text": str(card.get("text", "")), "t": 0.0}
+				Audio.play("bell")
+		"heavenly_phenomenon":
+			if str(p.get("actor", "")) == Game.active_id:
+				add_log(Tx.t("hud.phenomenon_" + str(p.get("kind", "cloud"))), UiKit.PALE_GOLD)
 		"draught_expired":
 			toast(Tx.t("hud.draught_expired") % ContentDB.item_name(str(p.get("item", ""))), "danger")
 		"flame_absorbed":
@@ -1043,6 +1053,7 @@ func _draw():
 	_draw_banner()
 	_draw_caption()
 	_draw_toasts()
+	_draw_vignette()
 	_draw_boss()
 	_draw_event(c)
 	_draw_tribulation(c)
@@ -1391,6 +1402,32 @@ func _draw_banner() -> void:
 	var slide := (1.0 - clampf(banner.t / 0.3, 0, 1)) * -30.0
 	UiKit.draw_text(self, str(banner.text), Vector2(340, 76 + slide), 34, Color(UiKit.PALE_GOLD, a), HORIZONTAL_ALIGNMENT_CENTER, 600, true, true)
 	if str(banner.sub) != "": UiKit.draw_text(self, str(banner.sub), Vector2(340, 100 + slide), 16, Color(UiKit.MIST, a), HORIZONTAL_ALIGNMENT_CENTER, 600)
+
+## A fortune encounter (S49): a card that fades in under the room banner, long enough to read, then fades away.
+const VIGNETTE_S := 9.0
+func _draw_vignette() -> void:
+	if str(vignette.title) == "" or float(vignette.t) > VIGNETTE_S: return
+	var t := float(vignette.t)
+	var a := clampf(t / 0.4, 0, 1) * clampf((VIGNETTE_S - t) / 0.8, 0, 1)
+	var w := 560.0
+	var lines: Array = []
+	var cur := ""
+	for word in str(vignette.text).split(" "):
+		var cand: String = word if cur == "" else cur + " " + word
+		if UiKit.text_width(cand, 17) > w - 48 and cur != "":
+			lines.append(cur)
+			cur = word
+		else: cur = cand
+	lines.append(cur)
+	var r := Rect2(640 - w / 2.0, 132, w, 86 + lines.size() * 23)
+	draw_style_box(UiKit.style("toast"), r)
+	draw_rect(Rect2(r.position + Vector2(0, 0), Vector2(r.size.x, 3)), Color(UiKit.GOLD, 0.8 * a))
+	UiKit.draw_text(self, Tx.t("hud.fortune_label"), r.position + Vector2(24, 30), 14, Color(UiKit.GOLD, a))
+	UiKit.draw_text(self, str(vignette.title), r.position + Vector2(24, 58), 22, Color(UiKit.PALE_GOLD, a), HORIZONTAL_ALIGNMENT_LEFT, w - 48, true, true)
+	var y := r.position.y + 86
+	for ln in lines:
+		UiKit.draw_text(self, str(ln), Vector2(r.position.x + 24, y), 17, Color(UiKit.PAPER, a))
+		y += 23
 
 func _draw_toasts() -> void:
 	var y := 300.0

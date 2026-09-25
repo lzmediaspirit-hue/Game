@@ -222,6 +222,13 @@ func _handle_preview_args(user_args: Array) -> void:
 		if str(a) == "--challenge" and Game.active() != null:
 			# Debug tools (S38): a young master's challenge waits in this room (S49 Fame previews).
 			Game.relations.offer_challenge(Game.active(), "young_master")
+		if str(a).begins_with("--fortune=") and Game.active() != null:
+			# Debug tools (S38): --fortune=card turns up that fortune encounter here, meter or not (S49 previews).
+			var card := ContentDB.entry("fortune_deck", str(a).trim_prefix("--fortune="))
+			if not card.is_empty(): Game.relations.fortune_check(Game.active(), str((card.get("triggers", ["room_entered"]) as Array)[0]), str(card.id))
+		if str(a).begins_with("--phenomenon=") and Game.active() != null:
+			# Debug tools (S38): --phenomenon=cloud|lightning shows the heavens answering a breakthrough here (S49).
+			Game.calendar._phenomenon(Game.active().id, str(a).trim_prefix("--phenomenon="), Game.active().cultivator.realm_key)
 		if str(a).begins_with("--egg=") and Game.active() != null:
 			# Debug tools (S38): --egg=species puts a warming egg in the nest (S46 incubation previews).
 			Game.active().eggs.append({"species": str(a).trim_prefix("--egg="), "hatch_utc": Clock.now_utc() + 7200.0})

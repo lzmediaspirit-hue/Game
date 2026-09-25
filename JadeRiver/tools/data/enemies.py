@@ -76,6 +76,9 @@ HUMAN = {
     "wen_zhao": {"hair": "flowing", "hair_color": 0, "shirt": "cardigan", "pants": "martial", "shoes": "folded", "weapon": "sword", "hat": "none"},
     "young_master": {"hair": "flowing", "hair_color": 0, "shirt": "cardigan", "pants": "martial", "shoes": "folded", "weapon": "sword", "hat": "guan",
                      "shirt_dye": "crimson", "pants_dye": "ink"},
+    # S49 heavenly phenomena: an older disciple who saw the clouds gather over you (existing parts and dyes only).
+    "jealous_senior": {"hair": "long_tied", "hair_color": 3, "shirt": "vneck", "pants": "martial", "shoes": "boots", "weapon": "sword", "hat": "none",
+                       "shirt_dye": "grey", "pants_dye": "ink"},
     # S49 friendly duels: the four companions, as they look beside you.
     "duel_lan_yue": {"hair": "flowing", "hair_color": 4, "shirt": "cardigan", "pants": "scholar", "shoes": "slippers", "weapon": "staff", "hat": "none", "shirt_dye": "indigo"},
     "duel_tie_niu": {"hair": "short_knot", "hair_color": 0, "shirt": "sleeveless", "pants": "martial", "shoes": "boots", "weapon": "none", "hat": "none", "shirt_dye": "earth"},
@@ -117,7 +120,7 @@ NAMES = {"mudwater_lieutenant": "Lieutenant Kuai", "kuai_shan": "Kuai Shan", "ta
          "mudwater_cutthroat": "Mudwater Cutthroat", "gorge_stalker": "Gorge Stalker", "gu_enforcer": "Gu Family Enforcer",
          "one_eye_pang": "One-Eye Pang", "ferryman_lou": "Ferryman Lou", "knife_hand_sui": "Knife-Hand Sui",
          "duel_lan_yue": "Lan Yue", "duel_tie_niu": "Tie Niu", "duel_qiu_feng": "Qiu Feng", "duel_bai_ling": "Bai Ling",
-         "young_master": "Young Master Luo Heng", "rogue_cultivator": "Rogue Cultivator", "rogue_treasure_adept": "Rogue Mirror Adept", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
+         "young_master": "Young Master Luo Heng", "jealous_senior": "Senior Brother Hao Qian", "rogue_cultivator": "Rogue Cultivator", "rogue_treasure_adept": "Rogue Mirror Adept", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
          "ninth_presence": "The Ninth Presence"}
 
 
@@ -374,6 +377,10 @@ def build():
                                                             atk("golden_crescent", 0.65, 280, 1.15, damage_type="qi",
                                                                 projectile={"speed": 520, "art": "qi_arc"})],
             ai="duelist", art=human("young_master"), race="human", width=18, height=90, spar=True, name="Young Master Luo Heng"),
+        # S49 heavenly phenomena: a senior who cannot bear to see the heavens answer someone else. He spars at your
+        # new level, right after the breakthrough.
+        mob("jealous_senior", 20, "trial", "metal", None, [], [atk("envy_cut", 0.4, 72, 1.08), atk("thrust_through", 0.55, 110, 1.2, dash=160)],
+            ai="duelist", art=human("jealous_senior"), race="human", width=18, height=90, spar=True, name="Senior Brother Hao Qian"),
         # S49 treasure births: the beast that wakes when a Spirit Fruit ripens (the room's level, +2).
         mob("fruit_guardian", 20, "elite", "wood", None, [d("thorn_hide", 1.0, (2, 3))],
             [atk("thorn_charge", 0.55, 60, 1.3, dash=220, knockback=110), atk("root_stamp", 0.8, 120, 1.2, both_sides=True, depth=60)],

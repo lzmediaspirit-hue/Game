@@ -75,7 +75,7 @@ DEPTH = {
     "Enemies": ["enemy_leashed", "beast_king_spawned", "king_nest_opened"],
     # S49: the world calendar (account level): world events, the season, the weather, the spatial rift.
     "Calendar": ["world_event_scheduled", "world_event_started", "world_event_ended", "season_changed", "weather_changed", "rift_opened",
-                 "treasure_claimed", "gathering_trial_ranked"],
+                 "treasure_claimed", "gathering_trial_ranked", "heavenly_phenomenon", "fortune_encounter"],
     # S49: the karma ledger, alignment and Fame (per character).
     "Relations": ["merit_changed", "sin_changed", "debt_recorded", "debt_called", "alignment_changed", "fame_changed",
                   "young_master_challenge", "affinity_changed", "bond_formed", "grudge_changed", "hunter_dispatched", "bounty_taken",
@@ -104,6 +104,8 @@ SYSTEMS = {
 # A second system that may also announce the event, and why.
 ALSO = {
     "attack_started": ("Enemies", "Enemy wind-ups are started by the Enemies system that runs the brain; Combat announces the player's."),
+    # v2 lists fortune_encounter under Calendar, and Part 4 routes the check to Relations, which owns the meter.
+    "fortune_encounter": ("Relations", "Relations owns the Fortune meter (S49) and draws the card when a room, a harvest or a fall allows."),
 }
 
 # Reactors that read state every frame instead of listening, so no subscriber is required.

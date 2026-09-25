@@ -229,6 +229,12 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 		"has_training_sect":
 			ok = (c != null and str(c.training_sect.get("id", "")) != "") == bool(cond.get("value", true))
 			text = Tx.t("req.join_a_training_sect") if bool(cond.get("value", true)) else Tx.t("req.not_yet_in_a_training")
+		"pet_owned":
+			var has_pet := false
+			if c != null:
+				for pp in c.pets: has_pet = has_pet or str(pp.species) == str(cond.species)
+			ok = has_pet
+			text = Tx.t("req.pet_owned") % ContentDB.name_of("pets", str(cond.species))
 		"companion_owned":
 			ok = c != null and (c.companions.get("roster", []) as Array).has(str(cond.companion)) == bool(cond.get("value", true))
 			text = (Tx.t("req.travels_with_you") if bool(cond.get("value", true)) else Tx.t("req.has_not_joined_you")) % ContentDB.name_of("companions", str(cond.companion))
