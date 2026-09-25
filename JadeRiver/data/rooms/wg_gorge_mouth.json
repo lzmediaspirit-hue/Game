@@ -49,12 +49,12 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "gorge_step",
    "rect": [
-    940,
+    480,
     640,
-    280,
-    50
+    200,
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -62,14 +62,40 @@
    "open_edges": true
   },
   {
-   "id": "ledge_mv_1",
+   "id": "gorge_cliff_w",
+   "rect": [
+    700,
+    610,
+    260,
+    80
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "gorge_bridge",
+   "rect": [
+    960,
+    610,
+    560,
+    60
+   ],
+   "height": 200,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "gorge_cliff_e",
    "rect": [
     1520,
-    640,
-    280,
-    50
+    610,
+    260,
+    80
    ],
-   "height": 176,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -102,8 +128,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    651,
-    700
+    650,
+    675
    ],
    "item": "mist_lotus",
    "prop": "mist_lotus_patch",
@@ -121,7 +147,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100
   },
   {
    "id": "ore_2",
@@ -152,13 +179,14 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    428,
-    720
+    510,
+    675
    ],
    "loot": "jar_valley_mid",
    "level": 29,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "crate_4",
@@ -191,18 +219,6 @@
     400,
     700
    ]
-  },
-  {
-   "id": "chest_ledge_mv_1",
-   "type": "chest",
-   "at": [
-    1660,
-    665
-   ],
-   "loot": "chest_valley",
-   "level": 31,
-   "alt": 176,
-   "surface": "ledge_mv_1"
   }
  ],
  "spawns": [
@@ -370,5 +386,71 @@
  ],
  "areas": [],
  "music": "field_mountain",
- "ambience": "waterfall_ambience"
+ "ambience": "waterfall_ambience",
+ "climbables": [
+  {
+   "id": "gorge_bridge_ladder_w",
+   "kind": "ladder",
+   "at": [
+    1000,
+    705
+   ],
+   "top_at": [
+    1000,
+    662
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "gorge_bridge"
+  },
+  {
+   "id": "gorge_bridge_ladder_e",
+   "kind": "ladder",
+   "at": [
+    1480,
+    705
+   ],
+   "top_at": [
+    1480,
+    662
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "gorge_bridge"
+  },
+  {
+   "id": "gorge_step_rope_1",
+   "kind": "rope",
+   "at": [
+    580,
+    745
+   ],
+   "top_at": [
+    580,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "gorge_step"
+  },
+  {
+   "id": "gorge_cliff_e_rope_2",
+   "kind": "rope",
+   "at": [
+    1650,
+    725
+   ],
+   "top_at": [
+    1650,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "gorge_cliff_e"
+  }
+ ]
 }

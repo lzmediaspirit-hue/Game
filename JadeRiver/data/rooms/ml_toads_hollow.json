@@ -50,9 +50,9 @@
    "id": "ledge_mv_0",
    "rect": [
     600,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -63,12 +63,25 @@
    "id": "ledge_mv_1",
    "rect": [
     1180,
-    640,
+    620,
     280,
-    50
+    70
    ],
-   "height": 176,
+   "height": 200,
    "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    240,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
    "stratum": "platform",
    "open_edges": true
   }
@@ -97,7 +110,7 @@
    ],
    "loot": "chest_expanse",
    "level": 68,
-   "alt": 176,
+   "alt": 200,
    "surface": "ledge_mv_1"
   }
  ],
@@ -136,7 +149,7 @@
     105,
     26
    ],
-   "height": 78,
+   "height": 80,
    "standable": true,
    "flip": false
   },
@@ -154,7 +167,7 @@
     51,
     26
    ],
-   "height": 32,
+   "height": 40,
    "standable": true,
    "flip": false
   }
@@ -345,5 +358,55 @@
  "areas": [],
  "music": "boss",
  "ambience": "river_ambience",
- "attunement_required": 25
+ "attunement_required": 25,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    740,
+    725
+   ],
+   "top_at": [
+    740,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    1320,
+    725
+   ],
+   "top_at": [
+    1320,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  },
+  {
+   "id": "route_0_vine_3",
+   "kind": "vine",
+   "at": [
+    360,
+    741
+   ],
+   "top_at": [
+    360,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_0"
+  }
+ ]
 }

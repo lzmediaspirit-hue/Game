@@ -55,9 +55,9 @@
    "id": "ledge_mv_0",
    "rect": [
     813,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -68,11 +68,11 @@
    "id": "ledge_mv_1",
    "rect": [
     2499,
-    640,
+    620,
     280,
-    50
+    70
    ],
-   "height": 176,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -81,12 +81,103 @@
    "id": "cloud_mv",
    "rect": [
     1280,
-    636,
+    610,
     240,
-    44
+    70
    ],
    "height": 300,
    "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    520,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1580,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    1920,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_4",
+   "rect": [
+    2860,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_5",
+   "rect": [
+    3200,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    2160,
+    636,
+    339,
+    60
+   ],
+   "height": 100.0,
+   "kind": "rope_bridge",
    "stratum": "platform",
    "open_edges": true
   }
@@ -143,25 +234,27 @@
    "id": "jar_2",
    "type": "jar",
    "at": [
-    559,
-    720
+    843,
+    655
    ],
    "loot": "jar_expanse",
    "level": 74,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "crate_3",
    "type": "crate",
    "at": [
-    1513,
-    900
+    2529,
+    655
    ],
    "loot": "jar_expanse",
    "level": 74,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "jar_4",
@@ -201,13 +294,13 @@
    "id": "chest_ledge_mv_1",
    "type": "chest",
    "at": [
-    2639,
-    665
+    1310,
+    645
    ],
    "loot": "chest_expanse",
    "level": 75,
-   "alt": 176,
-   "surface": "ledge_mv_1"
+   "alt": 300,
+   "surface": "cloud_mv"
   },
   {
    "id": "chest_cloud_mv",
@@ -312,7 +405,7 @@
     105,
     26
    ],
-   "height": 78,
+   "height": 80,
    "standable": true,
    "flip": true
   }
@@ -484,5 +577,103 @@
  "areas": [],
  "music": "field_mountain",
  "ambience": "wind_ambience",
- "attunement_required": 35
+ "attunement_required": 35,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    953,
+    725
+   ],
+   "top_at": [
+    953,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "cloud_mv_rope_2",
+   "kind": "rope",
+   "at": [
+    1400,
+    715
+   ],
+   "top_at": [
+    1400,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "cloud_mv"
+  },
+  {
+   "id": "route_0_vine_3",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_vine_4",
+   "kind": "vine",
+   "at": [
+    1700,
+    741
+   ],
+   "top_at": [
+    1700,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_2"
+  },
+  {
+   "id": "route_4_vine_5",
+   "kind": "vine",
+   "at": [
+    2980,
+    741
+   ],
+   "top_at": [
+    2980,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_4"
+  },
+  {
+   "id": "route_5_vine_6",
+   "kind": "vine",
+   "at": [
+    3320,
+    741
+   ],
+   "top_at": [
+    3320,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_5"
+  }
+ ]
 }

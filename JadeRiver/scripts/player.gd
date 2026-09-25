@@ -318,10 +318,15 @@ func step(delta: float, axis: Vector2):
 	var toward: bool = (axis.y < -0.7 and not near_climb.get("from_top", false)) or (axis.y > 0.7 and near_climb.get("from_top", false))
 	if not near_climb.is_empty() and toward and absf(axis.x) < 0.3:
 		climb_hold += delta
-		if climb_hold >= 0.3 and authority.climb(near_climb):
-			climb_hold = 0.0
-			sync_visual()
-			return
+		if climb_hold >= 0.3:
+			var open: Dictionary = Game.world.climbable_open(c, near_climb)
+			if not open.get("ok", false):
+				climb_hold = -1.0   # say it once per hold
+				world.fx.add("text", position + Vector2(0, -130), {"text": str(open.get("text", "")), "color": UiKit.MIST, "size": 18, "dur": 1.8})
+			elif authority.climb(near_climb):
+				climb_hold = 0.0
+				sync_visual()
+				return
 	else:
 		climb_hold = 0.0
 	if state.flying:

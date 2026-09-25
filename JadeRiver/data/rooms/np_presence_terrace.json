@@ -59,6 +59,32 @@
    "stratum": "platform",
    "open_edges": true,
    "art": "hall"
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    960,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1270,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -181,5 +207,55 @@
  "areas": [],
  "music": "sect",
  "ambience": "wind_ambience",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "trial_hall_ladder_1",
+   "kind": "ladder",
+   "at": [
+    600,
+    725
+   ],
+   "top_at": [
+    600,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 120,
+   "bottom": "ground",
+   "top": "trial_hall"
+  },
+  {
+   "id": "route_0_ladder_2",
+   "kind": "ladder",
+   "at": [
+    1070,
+    741
+   ],
+   "top_at": [
+    1070,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_1_ladder_3",
+   "kind": "ladder",
+   "at": [
+    1380,
+    741
+   ],
+   "top_at": [
+    1380,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "route_1"
+  }
+ ]
 }

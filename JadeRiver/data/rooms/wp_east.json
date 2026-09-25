@@ -52,9 +52,9 @@
    "id": "ledge_mv_0",
    "rect": [
     260,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -65,12 +65,51 @@
    "id": "ledge_mv_1",
    "rect": [
     840,
-    640,
+    620,
     280,
-    50
+    70
    ],
-   "height": 176,
+   "height": 200,
    "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    1380,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1720,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    1120,
+    636,
+    260,
+    60
+   ],
+   "height": 100.0,
+   "kind": "rope_bridge",
    "stratum": "platform",
    "open_edges": true
   }
@@ -127,13 +166,14 @@
    "id": "jar_2",
    "type": "jar",
    "at": [
-    471,
-    900
+    290,
+    655
    ],
    "loot": "jar_valley_low",
    "level": 1,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "crate_3",
@@ -216,7 +256,7 @@
    ],
    "loot": "chest_valley",
    "level": 2,
-   "alt": 176,
+   "alt": 200,
    "surface": "ledge_mv_1"
   }
  ],
@@ -376,5 +416,69 @@
  ],
  "areas": [],
  "music": "field",
- "ambience": "birds_ambience"
+ "ambience": "birds_ambience",
+ "blocks": [
+  {
+   "id": "merchant_cart",
+   "rect": [
+    1170,
+    760,
+    130,
+    50
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "cart"
+  }
+ ],
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    400,
+    725
+   ],
+   "top_at": [
+    400,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    980,
+    725
+   ],
+   "top_at": [
+    980,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  },
+  {
+   "id": "route_1_vine_3",
+   "kind": "vine",
+   "at": [
+    1840,
+    741
+   ],
+   "top_at": [
+    1840,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_1"
+  }
+ ]
 }

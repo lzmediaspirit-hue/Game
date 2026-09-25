@@ -49,9 +49,9 @@
    "id": "ledge_cave",
    "rect": [
     400,
-    654,
+    630,
     240,
-    46
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -97,16 +97,35 @@
    "id": "chest_1",
    "type": "chest",
    "at": [
-    1100,
-    720
+    430,
+    665
    ],
    "loot": "chest_dungeon",
-   "level": 33
+   "level": 33,
+   "alt": 100
   }
  ],
  "spawns": [],
  "scenery": [],
  "decor": [],
  "areas": [],
- "music": "dungeon"
+ "music": "dungeon",
+ "climbables": [
+  {
+   "id": "ledge_cave_rope_1",
+   "kind": "rope",
+   "at": [
+    520,
+    735
+   ],
+   "top_at": [
+    520,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_cave"
+  }
+ ]
 }

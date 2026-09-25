@@ -52,11 +52,11 @@
    "id": "quarterdeck",
    "rect": [
     240,
-    634,
+    620,
     360,
-    56
+    70
    ],
-   "height": 100,
+   "height": 88,
    "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
@@ -97,7 +97,7 @@
     35,
     26
    ],
-   "height": 36,
+   "height": 40,
    "standable": true,
    "flip": false
   },
@@ -115,7 +115,7 @@
     35,
     26
    ],
-   "height": 36,
+   "height": 40,
    "standable": true,
    "flip": false
   },
@@ -133,7 +133,7 @@
     28,
     26
    ],
-   "height": 48,
+   "height": 40,
    "standable": true,
    "flip": false
   }
@@ -214,5 +214,23 @@
     "kind": "voyage_arrive"
    }
   ]
- }
+ },
+ "climbables": [
+  {
+   "id": "quarterdeck_ladder_1",
+   "kind": "ladder",
+   "at": [
+    420,
+    725
+   ],
+   "top_at": [
+    420,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "quarterdeck"
+  }
+ ]
 }

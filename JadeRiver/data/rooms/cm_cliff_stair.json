@@ -85,6 +85,19 @@
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
+  },
+  {
+   "id": "ledge_hi_step_ledge_2",
+   "rect": [
+    1280,
+    640,
+    160,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -297,5 +310,39 @@
  "areas": [],
  "music": "sect",
  "sect": "cloud_sect",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "ledge_hi_rope_1",
+   "kind": "rope",
+   "at": [
+    1650,
+    735
+   ],
+   "top_at": [
+    1650,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_hi"
+  },
+  {
+   "id": "ledge_hi_step_ledge_2_rope_101",
+   "kind": "rope",
+   "at": [
+    1360,
+    745
+   ],
+   "top_at": [
+    1360,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_hi_step_ledge_2"
+  }
+ ]
 }

@@ -55,9 +55,9 @@
    "id": "ledge_mv_0",
    "rect": [
     813,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -68,11 +68,11 @@
    "id": "ledge_mv_1",
    "rect": [
     2499,
-    640,
+    620,
     280,
-    50
+    70
    ],
-   "height": 176,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -81,12 +81,77 @@
    "id": "cloud_mv",
    "rect": [
     2132,
-    636,
+    610,
     240,
-    44
+    70
    ],
    "height": 300,
    "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    520,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1160,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    1500,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_4",
+   "rect": [
+    1840,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
    "stratum": "platform",
    "open_edges": true
   }
@@ -143,25 +208,27 @@
    "id": "jar_2",
    "type": "jar",
    "at": [
-    417,
-    700
+    843,
+    655
    ],
    "loot": "jar_expanse",
    "level": 65,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_3",
    "type": "jar",
    "at": [
-    1415,
-    700
+    2529,
+    655
    ],
    "loot": "jar_expanse",
    "level": 65,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "jar_4",
@@ -200,13 +267,13 @@
    "id": "chest_ledge_mv_1",
    "type": "chest",
    "at": [
-    2639,
-    665
+    2162,
+    645
    ],
    "loot": "chest_expanse",
    "level": 66,
-   "alt": 176,
-   "surface": "ledge_mv_1"
+   "alt": 300,
+   "surface": "cloud_mv"
   },
   {
    "id": "chest_cloud_mv",
@@ -660,5 +727,101 @@
  "areas": [],
  "music": "storm_plains",
  "ambience": "wind_ambience",
- "attunement_required": 6
+ "attunement_required": 6,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    953,
+    725
+   ],
+   "top_at": [
+    953,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    2639,
+    725
+   ],
+   "top_at": [
+    2639,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  },
+  {
+   "id": "route_0_vine_4",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_3_vine_5",
+   "kind": "vine",
+   "at": [
+    1620,
+    741
+   ],
+   "top_at": [
+    1620,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_3"
+  },
+  {
+   "id": "route_4_vine_6",
+   "kind": "vine",
+   "at": [
+    1960,
+    741
+   ],
+   "top_at": [
+    1960,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_4"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "ledge_mv_1_step_3",
+   "rect": [
+    2509,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  }
+ ]
 }

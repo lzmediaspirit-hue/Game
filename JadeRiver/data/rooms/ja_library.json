@@ -46,17 +46,32 @@
    "open_edges": false
   },
   {
-   "id": "loft_mv",
+   "id": "library_floor_2",
    "rect": [
-    820,
-    654,
-    300,
-    46
+    120,
+    620,
+    420,
+    70
    ],
-   "height": 100,
+   "height": 88,
    "kind": "balcony",
    "stratum": "platform",
-   "open_edges": true
+   "open_edges": true,
+   "optional": true
+  },
+  {
+   "id": "library_floor_3",
+   "rect": [
+    120,
+    550,
+    420,
+    70
+   ],
+   "height": 264,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
   }
  ],
  "portals": [
@@ -82,6 +97,30 @@
    ],
    "npc": "jade_librarian",
    "facing": -1
+  },
+  {
+   "id": "floor_2_shelves",
+   "type": "inspect",
+   "at": [
+    320,
+    655
+   ],
+   "alt": 88,
+   "prop": "none",
+   "text": "Manuals of the middle grade, catalogued by element. Ask the librarian to borrow one.",
+   "open_page": "library"
+  },
+  {
+   "id": "floor_3_shelves",
+   "type": "inspect",
+   "at": [
+    320,
+    585
+   ],
+   "alt": 264,
+   "prop": "none",
+   "text": "The sect's deeper arts. Even the dust here feels expensive.",
+   "open_page": "library"
   }
  ],
  "spawns": [],
@@ -126,6 +165,42 @@
     670
    ],
    "layer": "play"
+  },
+  {
+   "prop": "scroll_rack",
+   "at": [
+    250,
+    650
+   ],
+   "layer": "play",
+   "alt": 120
+  },
+  {
+   "prop": "scroll_rack",
+   "at": [
+    400,
+    650
+   ],
+   "layer": "play",
+   "alt": 120
+  },
+  {
+   "prop": "scroll_rack",
+   "at": [
+    250,
+    580
+   ],
+   "layer": "play",
+   "alt": 240
+  },
+  {
+   "prop": "scroll_rack",
+   "at": [
+    400,
+    580
+   ],
+   "layer": "play",
+   "alt": 240
   }
  ],
  "areas": [],
@@ -140,5 +215,57 @@
   "y_max": 560
  },
  "sect": "jade_sect",
- "music": "sect"
+ "music": "sect",
+ "climbables": [
+  {
+   "id": "floor_2_ladder",
+   "kind": "ladder",
+   "at": [
+    480,
+    725
+   ],
+   "top_at": [
+    480,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 120,
+   "bottom": "ground",
+   "top": "library_floor_2",
+   "requires": {
+    "all": [
+     {
+      "kind": "sect_rank_at_least",
+      "rank": "outer_disciple"
+     }
+    ]
+   },
+   "locked_text": "The second floor is for Outer Disciples and above."
+  },
+  {
+   "id": "floor_3_ladder",
+   "kind": "ladder",
+   "at": [
+    180,
+    640
+   ],
+   "top_at": [
+    180,
+    612
+   ],
+   "bottom_alt": 120,
+   "top_alt": 240,
+   "bottom": "library_floor_2",
+   "top": "library_floor_3",
+   "requires": {
+    "all": [
+     {
+      "kind": "sect_rank_at_least",
+      "rank": "inner_disciple"
+     }
+    ]
+   },
+   "locked_text": "The third floor is for Inner Disciples and above."
+  }
+ ]
 }

@@ -49,11 +49,11 @@
    "id": "deck_fair_0",
    "rect": [
     3150,
-    634,
+    620,
     220,
-    56
+    70
    ],
-   "height": 100,
+   "height": 88,
    "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
@@ -62,12 +62,103 @@
    "id": "deck_fair_1",
    "rect": [
     3390,
-    630,
+    612,
     200,
-    52
+    70
    ],
    "height": 176,
    "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    540,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1330,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1820,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    2430,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_4",
+   "rect": [
+    2740,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    2960,
+    636,
+    190,
+    60
+   ],
+   "height": 88.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_1",
+   "rect": [
+    2040,
+    636,
+    390,
+    70
+   ],
+   "height": 88.0,
+   "kind": "rope_bridge",
    "stratum": "platform",
    "open_edges": true
   }
@@ -428,6 +519,40 @@
     50
    ],
    "speed": 700
+  }
+ ],
+ "climbables": [
+  {
+   "id": "deck_fair_1_ladder_1",
+   "kind": "ladder",
+   "at": [
+    3490,
+    717
+   ],
+   "top_at": [
+    3490,
+    674
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "deck_fair_1"
+  },
+  {
+   "id": "route_0_ladder_2",
+   "kind": "ladder",
+   "at": [
+    650,
+    741
+   ],
+   "top_at": [
+    650,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_0"
   }
  ]
 }

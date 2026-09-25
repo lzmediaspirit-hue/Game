@@ -16,6 +16,7 @@ var codex: Dictionary = {}            # entry -> true
 var collection: Dictionary = {}       # enemy -> kills
 var collection_pages_done: Dictionary = {}
 var visited_rooms: Dictionary = {}
+var paths_above: Dictionary = {}      # "room:surface" -> true (S43 "Paths Above" ledges stood on)
 var teleports: Dictionary = {}
 var recipes_seen: Dictionary = {}
 var legacy: Dictionary = {}           # major realm -> true
@@ -47,7 +48,7 @@ func snapshot() -> Dictionary:
 	return {"version": VERSION, "account_id": account_id, "slots_unlocked": slots_unlocked, "active_slot": active_slot,
 		"characters": characters.duplicate(true), "highest_realm": highest_realm, "currencies": currencies.duplicate(),
 		"storage": storage.duplicate(true), "codex": codex.keys(), "collection": collection.duplicate(),
-		"collection_pages_done": collection_pages_done.keys(), "visited_rooms": visited_rooms.keys(),
+		"collection_pages_done": collection_pages_done.keys(), "visited_rooms": visited_rooms.keys(), "paths_above": paths_above.keys(),
 		"teleports": teleports.keys(), "recipes_seen": recipes_seen.keys(), "legacy": legacy.keys(),
 		"sect": sect.duplicate(true), "mail": mail.duplicate(true), "mail_next_id": mail_next_id,
 		"settings": settings.duplicate(true), "clock": clock.duplicate(), "unlocks": unlocks.keys(),
@@ -69,6 +70,7 @@ func restore(d: Dictionary) -> void:
 	collection = d.get("collection", {}).duplicate()
 	collection_pages_done = _to_set(d.get("collection_pages_done", []))
 	visited_rooms = _to_set(d.get("visited_rooms", []))
+	paths_above = _to_set(d.get("paths_above", []))
 	teleports = _to_set(d.get("teleports", []))
 	recipes_seen = _to_set(d.get("recipes_seen", []))
 	legacy = _to_set(d.get("legacy", []))

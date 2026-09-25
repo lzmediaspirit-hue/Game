@@ -50,11 +50,11 @@
    "id": "deck_terrace_0",
    "rect": [
     2140,
-    634,
+    620,
     200,
-    56
+    70
    ],
-   "height": 100,
+   "height": 88,
    "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
@@ -63,9 +63,61 @@
    "id": "deck_terrace_1",
    "rect": [
     1900,
-    630,
+    612,
     200,
-    52
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    420,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    730,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1040,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    1350,
+    636,
+    220,
+    70
    ],
    "height": 176,
    "kind": "balcony",
@@ -237,5 +289,87 @@
  "areas": [],
  "music": "sky_port",
  "ambience": "wind_ambience",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "deck_terrace_0_ladder_1",
+   "kind": "ladder",
+   "at": [
+    2240,
+    725
+   ],
+   "top_at": [
+    2240,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "deck_terrace_0"
+  },
+  {
+   "id": "deck_terrace_1_ladder_2",
+   "kind": "ladder",
+   "at": [
+    2000,
+    717
+   ],
+   "top_at": [
+    2000,
+    674
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "deck_terrace_1"
+  },
+  {
+   "id": "route_0_ladder_3",
+   "kind": "ladder",
+   "at": [
+    530,
+    741
+   ],
+   "top_at": [
+    530,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_ladder_4",
+   "kind": "ladder",
+   "at": [
+    1150,
+    741
+   ],
+   "top_at": [
+    1150,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_2"
+  },
+  {
+   "id": "route_3_ladder_5",
+   "kind": "ladder",
+   "at": [
+    1460,
+    741
+   ],
+   "top_at": [
+    1460,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "route_3"
+  }
+ ]
 }

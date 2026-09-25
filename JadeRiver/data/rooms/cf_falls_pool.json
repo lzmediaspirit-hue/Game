@@ -57,6 +57,19 @@
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
+  },
+  {
+   "id": "falls_ledge_step_ledge_1",
+   "rect": [
+    480,
+    640,
+    160,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -261,6 +274,22 @@
    "top_alt": 200,
    "bottom": "ground",
    "top": "falls_ledge"
+  },
+  {
+   "id": "falls_ledge_step_ledge_1_rope_101",
+   "kind": "rope",
+   "at": [
+    560,
+    745
+   ],
+   "top_at": [
+    560,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "falls_ledge_step_ledge_1"
   }
  ],
  "volumes": [

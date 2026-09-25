@@ -9,6 +9,8 @@ the valley uses the same builder with region presets.
 """
 import json
 import os
+import verticality
+import catalogue
 import random
 
 from common import DATA, write, entries, req, c
@@ -206,11 +208,13 @@ class Room:
         """Painted atlas building (gate, hall, two_storey, tower) scaled to a roof height."""
         self.surface(sid, [x - width // 2, front - depth, width, depth], height, kind="roof", stratum="platform", art=art, **kw)
 
-    def ladder(self, sid, x, front, height, depth=70, kind="ladder", bottom="ground", top="", base=0):
+    def ladder(self, sid, x, front, height, depth=70, kind="ladder", bottom="ground", top="", base=0, **kw):
         """A climbable (S43 rule 5): a ladder, rope, vine or chain against a facade or cliff. Its foot stands
-        on `bottom` in front of the face; its top steps onto the surface `height` above, just behind the face."""
+        on `bottom` in front of the face; its top steps onto the surface `height` above, just behind the face.
+        `requires` seals it until a requirement is met (library floors, lofts), with `locked_text`."""
         c = {"id": sid, "kind": kind, "at": [x, front + depth // 2], "top_at": [x, front - 8], "bottom_alt": base,
              "top_alt": height, "bottom": bottom, "top": top}
+        c.update(kw)
         self.d.setdefault("climbables", []).append(c)
         return c
 
@@ -597,7 +601,7 @@ def field(rid, name, region, screens, levels, backdrop, material, spawns, herbs=
              music=music, ambience=ambience, qi=qi, hazards=list(hazards), **kw)
     lv_mid = max(1, (levels[0] + levels[1]) // 2)
     for i, (sx, sy, w, h) in enumerate(platforms):
-        r.surface("ledge_%d" % i, [sx, sy, w, 50], h, kind=ledge or ("rock_ledge" if material in ("stone", "slate", "rock", "snow") else "branch"))
+        r.surface("ledge_%d" % i, [sx, sy, w, 50], h, kind=ledge or ("rock_ledge" if material in ("stone", "slate", "rock", "snow", "earth", "sand") else "tree_branch"))
     for i, sp in enumerate(spawns):
         enemy, count, lv = sp[0], sp[1], sp[2]
         pts = r.points(count + 1, x0=240 + i * 60, x1=r.w - 240 - i * 40)
@@ -1191,7 +1195,7 @@ def valley():
                 r.decor("gas_vent", [x, y])
                 r.area("poison_mist", [x - 90, y - 40, 180, 64])
             # S43 crumble: rotten boards over the tunnel floor give way 0.8 s after a foot lands and return after 5 s.
-            r.surface("rotten_boards", [1480, 650, 200, 70], 100, kind="bridge")
+            r.surface("rotten_boards", [1480, 650, 200, 70], 100, kind="boards")
             r.volume("crumble", [1480, 650, 200, 70], surface="rotten_boards", break_s=0.8, return_s=5.0, vid="rotten_boards_crumble")
     r = Room("mh_boss_den", "Boss Den", "boss_arena", "mudwater_hideout", 2, backdrop="cave", material="earth", music="boss",
              levels=[18, 18], safe=False, spawn_point=[200, 820], dungeon_exit="cr_caravan_road")
@@ -2210,11 +2214,11 @@ def set_pieces():
 # S43 standard heights: one jump peaks at 122 (required rises stay at or below 100); Cloud Ladder Step
 # peaks at 202 (double-jump ledges at 176, two storeys); flight-only ledges sit above that.
 JUMP_ONE, JUMP_TWO, FLIGHT_LEDGE = 100, 176, 300
-STANDABLE = {   # prop: (share of the art's width that is solid, height of its top)
-    "crate": (0.8, 36), "barrel": (0.7, 48), "sack_pile": (0.8, 38), "hay_bale": (0.8, 42), "rock_small": (0.8, 32),
-    "table": (0.85, 42), "stone_wall_low": (0.9, 48), "bed": (0.85, 40), "counter": (0.9, 58), "rock_large": (0.75, 78),
-    "boulder_moss": (0.7, 86), "cart_broken": (0.75, 70), "sarcophagus": (0.85, 72), "icicle_rock": (0.7, 78),
-    "storage_chest": (0.8, 38), "driftwood": (0.85, 22),
+STANDABLE = {   # prop: (share of the art's width that is solid, height of its top: the S43 block tops 40/60/80)
+    "crate": (0.8, 40), "barrel": (0.7, 40), "sack_pile": (0.8, 40), "hay_bale": (0.8, 40), "rock_small": (0.8, 40),
+    "table": (0.85, 40), "stone_wall_low": (0.9, 40), "bed": (0.85, 40), "counter": (0.9, 60), "rock_large": (0.75, 80),
+    "boulder_moss": (0.7, 80), "cart_broken": (0.75, 60), "sarcophagus": (0.85, 80), "icicle_rock": (0.7, 80),
+    "storage_chest": (0.8, 40), "driftwood": (0.85, 40),
 }
 
 
@@ -2357,7 +2361,7 @@ def movement_pass():
                 continue
             keep.append(dec)
         d["decor"] = keep
-        if d.get("instanced") or rtype in ("story", "trial", "event", "home"):
+        if d.get("instanced") or rtype in ("story", "trial", "event", "home") or d.get("vertical") == "authored":
             continue
         has_vertical = any(s["stratum"] == "platform" or s["kind"] in ("roof", "stairs", "ladder") for s in d["surfaces"])
         outdoor = not d.get("custom_ground")
@@ -2440,7 +2444,7 @@ def tier_natives_pass():
     for rid, r in ROOMS.items():
         if r.d.get("type") not in ("field", "path", "dungeon", "secret"):
             continue
-        tiers = [sf for sf in r.d["surfaces"] if sf.get("stratum") == "platform" and sf.get("kind") in ("rock_ledge", "branch", "deck", "balcony", "cloud")
+        tiers = [sf for sf in r.d["surfaces"] if sf.get("stratum") == "platform" and sf.get("kind") in ("rock_ledge", "branch", "tree_branch", "canopy", "deck", "balcony", "cloud", "stilt", "scaffold", "causeway")
                  and 0 < float(sf.get("height", 0)) <= 200 and sf["rect"][2] >= 120 and sf["rect"][3] >= 40]
         for i, sp in enumerate(r.d["spawns"]):
             if sp["enemy"] not in TIER_NATIVES or sp.get("boss") or sp.get("elite") or sp.get("surface", "ground") != "ground":
@@ -2458,6 +2462,39 @@ def tier_natives_pass():
     print("tier natives:", moved)
 
 
+ART_NAMES = {"double_jump": "Double Jump", "wall_step": "Wall-Step", "flight": "Cloud Stride (flight)", "glide": "Falling Leaf Glide",
+             "air_dash": "Swallow Dart"}
+
+
+def paths_above_json():
+    """S43: every optional ledge that only a later movement art reaches is a row on the "Paths Above" collection page."""
+    rows = []
+    for rid, r in ROOMS.items():
+        d = r.d
+        for sf in d["surfaces"] + d.get("blocks", []):
+            art = sf.get("later")
+            if not art:
+                continue
+            x, y, w, h = sf["rect"]
+            alt = float(sf.get("height", sf.get("top", 0)))
+            up = [o for o in d["objects"] if x <= o["at"][0] <= x + w and y - 12 <= o["at"][1] <= y + h + 12 and abs(float(o.get("alt", 0)) - alt) < 1]
+            if any(o["type"] == "chest" for o in up):
+                reward = "A chest"
+            elif any(o["type"] == "pickup" for o in up):
+                reward = next(o.get("label", "Something") for o in up if o["type"] == "pickup")
+            elif any(o["type"] in ("jar", "crate", "wine_jar") for o in up):
+                reward = "Jars and crates"
+            elif sf.get("kind") == "cloud":
+                reward = "A cloud ledge"
+            else:
+                reward = "A view"
+            rows.append({"id": "%s:%s" % (rid, sf["id"]), "room": rid, "room_name": d["name"], "zone": d["zone"], "surface": sf["id"],
+                         "art": art, "art_name": ART_NAMES.get(art, art), "height": int(alt), "reward": reward,
+                         "level": int(d.get("level_range", [0, 0])[0] or 0)})
+    rows.sort(key=lambda row: (row["level"], row["room"], row["surface"]))
+    entries("paths_above", rows)
+
+
 def build():
     ROOMS.clear()
     lotus_ferry()
@@ -2472,7 +2509,9 @@ def build():
     skyport_wreck()
     earth_vents()
     movement_extras()
+    catalogue.run(ROOMS)
     movement_pass()
+    verticality.run(ROOMS)
     tier_natives_pass()
     check_links()
     reachability()
@@ -2483,6 +2522,7 @@ def build():
     for rid, r in ROOMS.items():
         write(rid + ".json", r.build(), folder=ROOMS_DIR)
     zone_json()
+    paths_above_json()
     teleport_stones()
     set_pieces()
     voyages()

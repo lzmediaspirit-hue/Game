@@ -102,7 +102,7 @@
    ],
    "offer_text": [
     "My kite! It flew onto the inn roof! The big one!",
-    "Climb the ladder on the Village Hall, then jump up. Jump twice if you have to!"
+    "Climb the ladder on the Village Hall, then jump across. Or jump from the stall awning!"
    ],
    "complete_text": [
     "My kite! You're the best! Here, I saved this rice ball. It's only a bit squashed."
@@ -120,6 +120,57 @@
    },
    "target_room": "lf_village",
    "chapter": "prologue"
+  },
+  {
+   "id": "the_lost_ladle",
+   "name": "Aunt Ping's Ladle",
+   "kind": "side",
+   "giver": "aunt_ping",
+   "hand_in": "aunt_ping",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "deliver",
+     "text": "Fetch Aunt Ping's ladle from the hut roof",
+     "count": 1,
+     "item": "aunt_pings_ladle"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "rice_ball",
+     "count": 2
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 15
+    }
+   ],
+   "offer_text": [
+    "The gulls took my ladle again. It's on the hut roof, glinting at me.",
+    "There's a ladder by the door. Mind the edge."
+   ],
+   "complete_text": [
+    "My ladle! I'd have made soup with a spoon for a week."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_runaway_kite"
+     }
+    ]
+   },
+   "target_room": "lf_village",
+   "chapter": "prologue",
+   "giver_any": [
+    "aunt_ping"
+   ],
+   "hand_in_any": [
+    "aunt_ping"
+   ]
   },
   {
    "id": "mas_delivery",
@@ -150,7 +201,7 @@
     }
    ],
    "offer_text": [
-    "Aunt Ping's old net has been in my way for a month. Sell it back to me, fair and square.",
+    "Aunt Ping's old net has been in my way for a month. It's under the shelf. Sell it back to me, fair and square.",
     "Then buy two rice balls. That's how trade works: you give, you get."
    ],
    "complete_text": [
@@ -167,11 +218,6 @@
    "target_room": "lf_old_ma_store",
    "chapter": "prologue",
    "on_accept": [
-    {
-     "kind": "grant_item",
-     "item": "old_net",
-     "count": 1
-    },
     {
      "kind": "grant_currency",
      "currency": "silver_tael",

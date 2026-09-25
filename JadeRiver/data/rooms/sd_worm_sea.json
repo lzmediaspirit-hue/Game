@@ -55,9 +55,9 @@
    "id": "ledge_mv_0",
    "rect": [
     1366,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -68,12 +68,51 @@
    "id": "ledge_mv_1",
    "rect": [
     1946,
-    640,
+    620,
     280,
-    50
+    70
    ],
-   "height": 176,
+   "height": 200,
    "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    520,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    860,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
    "stratum": "platform",
    "open_edges": true
   }
@@ -124,8 +163,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    954,
-    690
+    1616,
+    655
    ],
    "item": "ember_cactus",
    "prop": "ember_cactus_patch",
@@ -143,7 +182,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100
   },
   {
    "id": "ore_2",
@@ -174,25 +214,27 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    532,
-    720
+    1396,
+    655
    ],
    "loot": "jar_expanse",
    "level": 79,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_4",
    "type": "jar",
    "at": [
-    1467,
-    900
+    1976,
+    655
    ],
    "loot": "jar_expanse",
    "level": 79,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "jar_5",
@@ -227,7 +269,7 @@
    ],
    "loot": "chest_expanse",
    "level": 81,
-   "alt": 176,
+   "alt": 200,
    "surface": "ledge_mv_1"
   }
  ],
@@ -520,5 +562,87 @@
  ],
  "music": "desert",
  "ambience": "wind_ambience",
- "attunement_required": 50
+ "attunement_required": 50,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    1506,
+    725
+   ],
+   "top_at": [
+    1506,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    2086,
+    725
+   ],
+   "top_at": [
+    2086,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  },
+  {
+   "id": "route_0_vine_3",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_1_vine_4",
+   "kind": "vine",
+   "at": [
+    640,
+    741
+   ],
+   "top_at": [
+    640,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_1"
+  },
+  {
+   "id": "route_2_vine_5",
+   "kind": "vine",
+   "at": [
+    980,
+    741
+   ],
+   "top_at": [
+    980,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_2"
+  }
+ ]
 }

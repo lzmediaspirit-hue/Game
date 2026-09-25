@@ -86,6 +86,46 @@
    "stratum": "platform",
    "open_edges": true,
    "art": "herb_hut"
+  },
+  {
+   "id": "scaffold_low",
+   "rect": [
+    640,
+    640,
+    220,
+    70
+   ],
+   "height": 90,
+   "kind": "scaffold",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "scaffold_high",
+   "rect": [
+    660,
+    570,
+    200,
+    70
+   ],
+   "height": 180,
+   "kind": "scaffold",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "workshop_chimney",
+   "rect": [
+    880,
+    560,
+    80,
+    60
+   ],
+   "height": 330,
+   "kind": "chimney",
+   "stratum": "platform",
+   "open_edges": true,
+   "later": "double_jump"
   }
  ],
  "portals": [
@@ -241,6 +281,54 @@
    ],
    "npc": "apprentice_tao",
    "facing": -1
+  },
+  {
+   "id": "tinkerers_gear",
+   "type": "pickup",
+   "at": [
+    920,
+    590
+   ],
+   "alt": 330,
+   "item": "tinkerers_gear",
+   "count": 1,
+   "prop": "none",
+   "label": "Tinkerer's Gear",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "tinkerers_gear"
+     }
+    ]
+   },
+   "set_flag": "tinkerers_gear"
+  },
+  {
+   "id": "crate_1",
+   "type": "crate",
+   "at": [
+    700,
+    675
+   ],
+   "loot": "jar_valley_low",
+   "level": 2,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 90
+  },
+  {
+   "id": "crate_2",
+   "type": "crate",
+   "at": [
+    780,
+    605
+   ],
+   "loot": "jar_valley_low",
+   "level": 2,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 180
   }
  ],
  "spawns": [],
@@ -249,5 +337,101 @@
  "areas": [],
  "music": "village_day",
  "ambience": "town_ambience",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "scaffold_ladder",
+   "kind": "ladder",
+   "at": [
+    840,
+    745
+   ],
+   "top_at": [
+    840,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 90,
+   "bottom": "ground",
+   "top": "scaffold_low"
+  },
+  {
+   "id": "scaffold_ladder_high",
+   "kind": "ladder",
+   "at": [
+    700,
+    660
+   ],
+   "top_at": [
+    700,
+    632
+   ],
+   "bottom_alt": 90,
+   "top_alt": 180,
+   "bottom": "scaffold_low",
+   "top": "scaffold_high"
+  },
+  {
+   "id": "smithy_ladder_1",
+   "kind": "ladder",
+   "at": [
+    420,
+    725
+   ],
+   "top_at": [
+    420,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 158,
+   "bottom": "ground",
+   "top": "smithy"
+  },
+  {
+   "id": "trade_house_ladder_2",
+   "kind": "ladder",
+   "at": [
+    1200,
+    725
+   ],
+   "top_at": [
+    1200,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 168,
+   "bottom": "ground",
+   "top": "trade_house"
+  },
+  {
+   "id": "alchemy_stall_ladder_3",
+   "kind": "ladder",
+   "at": [
+    1920,
+    725
+   ],
+   "top_at": [
+    1920,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 128,
+   "bottom": "ground",
+   "top": "alchemy_stall"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "alchemy_stall_step_4",
+   "rect": [
+    2060,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
+  }
+ ]
 }

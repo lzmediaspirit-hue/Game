@@ -414,5 +414,55 @@
  "music": "sect",
  "custom_ground": true,
  "sect": "jade_sect",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "jade_roof_ladder_1",
+   "kind": "ladder",
+   "at": [
+    1250,
+    745
+   ],
+   "top_at": [
+    1250,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "jade_roof"
+  },
+  {
+   "id": "bridge_roof_ladder_2",
+   "kind": "ladder",
+   "at": [
+    1810,
+    745
+   ],
+   "top_at": [
+    1810,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "bridge_roof"
+  },
+  {
+   "id": "cloud_roof_ladder_3",
+   "kind": "ladder",
+   "at": [
+    2410,
+    745
+   ],
+   "top_at": [
+    2410,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 264,
+   "bottom": "ground",
+   "top": "cloud_roof"
+  }
+ ]
 }

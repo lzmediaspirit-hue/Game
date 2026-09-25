@@ -1,0 +1,77 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "cf_behind_falls:shaft_top",
+   "room": "cf_behind_falls",
+   "room_name": "Behind the Falls",
+   "zone": "jade_river_valley",
+   "surface": "shaft_top",
+   "art": "wall_step",
+   "art_name": "Wall-Step",
+   "height": 520,
+   "reward": "A chest",
+   "level": 0
+  },
+  {
+   "id": "sf_artisan_row:workshop_chimney",
+   "room": "sf_artisan_row",
+   "room_name": "Artisan Row",
+   "zone": "jade_river_valley",
+   "surface": "workshop_chimney",
+   "art": "double_jump",
+   "art_name": "Double Jump",
+   "height": 330,
+   "reward": "Tinkerer's Gear",
+   "level": 0
+  },
+  {
+   "id": "wp_west:pine_top",
+   "room": "wp_west",
+   "room_name": "Willow Path West",
+   "zone": "jade_river_valley",
+   "surface": "pine_top",
+   "art": "double_jump",
+   "art_name": "Double Jump",
+   "height": 240,
+   "reward": "A chest",
+   "level": 1
+  },
+  {
+   "id": "rm_sunken_causeway:broken_pillar",
+   "room": "rm_sunken_causeway",
+   "room_name": "Sunken Causeway",
+   "zone": "jade_river_valley",
+   "surface": "broken_pillar",
+   "art": "wall_step",
+   "art_name": "Wall-Step",
+   "height": 300,
+   "reward": "Jars and crates",
+   "level": 5
+  },
+  {
+   "id": "bg_whispering_bamboo:bamboo_top",
+   "room": "bg_whispering_bamboo",
+   "room_name": "Whispering Bamboo",
+   "zone": "jade_river_valley",
+   "surface": "bamboo_top",
+   "art": "double_jump",
+   "art_name": "Double Jump",
+   "height": 330,
+   "reward": "A chest",
+   "level": 10
+  },
+  {
+   "id": "ds_flooded_gate:ledge_mv_1",
+   "room": "ds_flooded_gate",
+   "room_name": "Flooded Gate",
+   "zone": "jade_river_valley",
+   "surface": "ledge_mv_1",
+   "art": "double_jump",
+   "art_name": "Double Jump",
+   "height": 200,
+   "reward": "A chest",
+   "level": 21
+  }
+ ]
+}

@@ -49,9 +49,9 @@
    "id": "summit_rock_0",
    "rect": [
     240,
-    652,
+    628,
     160,
-    46
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -62,9 +62,9 @@
    "id": "summit_rock_1",
    "rect": [
     860,
-    652,
+    628,
     160,
-    46
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -137,5 +137,39 @@
   }
  ],
  "areas": [],
- "music": "meditation"
+ "music": "meditation",
+ "climbables": [
+  {
+   "id": "summit_rock_0_rope_1",
+   "kind": "rope",
+   "at": [
+    320,
+    733
+   ],
+   "top_at": [
+    320,
+    690
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "summit_rock_0"
+  },
+  {
+   "id": "summit_rock_1_rope_2",
+   "kind": "rope",
+   "at": [
+    940,
+    733
+   ],
+   "top_at": [
+    940,
+    690
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "summit_rock_1"
+  }
+ ]
 }

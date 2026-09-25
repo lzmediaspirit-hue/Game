@@ -124,5 +124,37 @@
  "scenery": [],
  "decor": [],
  "areas": [],
- "music": "boss"
+ "music": "boss",
+ "climbables": [
+  {
+   "id": "ascension_arch_ladder_1",
+   "kind": "ladder",
+   "at": [
+    1860,
+    725
+   ],
+   "top_at": [
+    1860,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 220,
+   "bottom": "ground",
+   "top": "ascension_arch"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "ascension_arch_step_2",
+   "rect": [
+    2180,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "crate"
+  }
+ ]
 }

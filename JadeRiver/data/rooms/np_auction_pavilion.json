@@ -49,11 +49,11 @@
    "id": "loft_mv",
    "rect": [
     820,
-    654,
+    630,
     300,
-    46
+    70
    ],
-   "height": 100,
+   "height": 88,
    "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
@@ -168,5 +168,23 @@
   "y_min": 520,
   "y_max": 560
  },
- "music": "sect"
+ "music": "sect",
+ "climbables": [
+  {
+   "id": "loft_mv_ladder_1",
+   "kind": "ladder",
+   "at": [
+    970,
+    735
+   ],
+   "top_at": [
+    970,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "loft_mv"
+  }
+ ]
 }

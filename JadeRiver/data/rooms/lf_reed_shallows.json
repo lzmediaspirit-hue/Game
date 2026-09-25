@@ -52,9 +52,9 @@
    "id": "driftwood_a",
    "rect": [
     760,
-    720,
+    706,
     210,
-    46
+    60
    ],
    "height": 60,
    "kind": "branch",
@@ -66,9 +66,9 @@
    "id": "driftwood_b",
    "rect": [
     1260,
-    780,
+    766,
     230,
-    46
+    60
    ],
    "height": 90,
    "kind": "branch",
@@ -80,15 +80,54 @@
    "id": "driftwood_c",
    "rect": [
     1880,
-    700,
+    686,
     200,
-    46
+    60
    ],
    "height": 70,
    "kind": "branch",
    "stratum": "platform",
    "open_edges": true,
    "art": "driftwood"
+  },
+  {
+   "id": "stilt_deck_a",
+   "rect": [
+    1500,
+    650,
+    200,
+    64
+   ],
+   "height": 100,
+   "kind": "stilt",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "stilt_deck_b",
+   "rect": [
+    1810,
+    650,
+    180,
+    64
+   ],
+   "height": 100,
+   "kind": "stilt",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "stilt_hut",
+   "rect": [
+    2090,
+    646,
+    230,
+    70
+   ],
+   "height": 100,
+   "kind": "stilt",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -127,25 +166,27 @@
    "id": "jar_1",
    "type": "jar",
    "at": [
-    400,
-    720
+    1600,
+    680
    ],
    "loot": "jar_valley_low",
    "level": 1,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_2",
    "type": "jar",
    "at": [
-    980,
-    930
+    1900,
+    680
    ],
    "loot": "jar_valley_low",
    "level": 1,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_3",
@@ -237,8 +278,8 @@
    "id": "herb_8",
    "type": "herb_patch",
    "at": [
-    2380,
-    700
+    2260,
+    680
    ],
    "item": "willow_moss",
    "prop": "willow_moss_patch",
@@ -256,7 +297,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100
   },
   {
    "id": "fish_9",
@@ -374,7 +416,26 @@
    }
   }
  ],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "boulder_moss_10",
+   "prop": "boulder_moss",
+   "position": [
+    2480,
+    660
+   ],
+   "front_y": 660,
+   "footprint": [
+    2438,
+    634,
+    84,
+    26
+   ],
+   "height": 80,
+   "standable": true,
+   "flip": false
+  }
+ ],
  "decor": [
   {
    "prop": "reeds",
@@ -424,14 +485,6 @@
    ],
    "layer": "play",
    "flip": true
-  },
-  {
-   "prop": "boulder_moss",
-   "at": [
-    2480,
-    660
-   ],
-   "layer": "play"
   },
   {
    "prop": "reeds",
@@ -552,5 +605,119 @@
     10
    ]
   }
- ]
+ ],
+ "movers": [
+  {
+   "surface": "driftwood_a",
+   "path": [
+    [
+     140,
+     0,
+     0
+    ]
+   ],
+   "speed": 26,
+   "wait_s": 2.0,
+   "mode": "pingpong"
+  },
+  {
+   "surface": "driftwood_b",
+   "path": [
+    [
+     -120,
+     0,
+     0
+    ]
+   ],
+   "speed": 26,
+   "wait_s": 2.0,
+   "mode": "pingpong"
+  },
+  {
+   "surface": "driftwood_c",
+   "path": [
+    [
+     160,
+     0,
+     0
+    ]
+   ],
+   "speed": 26,
+   "wait_s": 2.0,
+   "mode": "pingpong"
+  }
+ ],
+ "climbables": [
+  {
+   "id": "stilt_ladder",
+   "kind": "ladder",
+   "at": [
+    2130,
+    751
+   ],
+   "top_at": [
+    2130,
+    708
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "stilt_hut"
+  },
+  {
+   "id": "stilt_deck_ladder",
+   "kind": "ladder",
+   "at": [
+    1540,
+    749
+   ],
+   "top_at": [
+    1540,
+    706
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "stilt_deck_a"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "reed_bundle_a",
+   "rect": [
+    980,
+    700,
+    60,
+    40
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "hay"
+  },
+  {
+   "id": "reed_bundle_b",
+   "rect": [
+    1620,
+    820,
+    60,
+    40
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "hay"
+  },
+  {
+   "id": "snapper_rock",
+   "rect": [
+    2060,
+    800,
+    90,
+    60
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "rock"
+  }
+ ],
+ "vertical": "authored"
 }

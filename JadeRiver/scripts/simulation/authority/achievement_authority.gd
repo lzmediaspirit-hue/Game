@@ -10,6 +10,18 @@ func subscribe() -> void:
 	var events := {}
 	for a in ContentDB.all("achievements"): events[str(a.event)] = true
 	for ev in events: GameEvents.subscribe(ev, _on_event.bind(ev), 80)
+	GameEvents.subscribe("landed", _on_landed, 80)
+
+## S43 "Paths Above": landing on an optional ledge that only a later art reaches marks it found for the account.
+func _on_landed(p: Dictionary) -> void:
+	var c = game.active()
+	if c == null or game.room_rt == null or str(p.get("actor", c.id)) != str(c.id): return
+	var key := "%s:%s" % [game.room_rt.room_id, str(p.get("surface", ""))]
+	if game.account.paths_above.has(key) or not ContentDB.has_entry("paths_above", key): return
+	game.account.paths_above[key] = true
+	var row := ContentDB.entry("paths_above", key)
+	emit("path_above_found", {"actor": c.id, "id": key, "room": str(row.get("room", "")), "art": str(row.get("art", "")),
+		"found": game.account.paths_above.size(), "total": ContentDB.all("paths_above").size()})
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)

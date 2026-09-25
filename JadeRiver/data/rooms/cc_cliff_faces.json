@@ -52,11 +52,11 @@
    "id": "ledge_0",
    "rect": [
     600,
-    660,
+    640,
     280,
-    50
+    70
    ],
-   "height": 180,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -65,9 +65,9 @@
    "id": "ledge_1",
    "rect": [
     1300,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 300,
    "kind": "rock_ledge",
@@ -78,11 +78,11 @@
    "id": "ledge_2",
    "rect": [
     2100,
-    650,
+    630,
     280,
-    50
+    70
    ],
-   "height": 240,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -91,11 +91,11 @@
    "id": "ledge_3",
    "rect": [
     2900,
-    660,
+    640,
     280,
-    50
+    70
    ],
-   "height": 160,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -104,12 +104,51 @@
    "id": "cloud_mv",
    "rect": [
     1706,
-    636,
+    610,
     240,
-    44
+    70
    ],
    "height": 300,
    "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    940,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_2_step_ledge_4",
+   "rect": [
+    2440,
+    630,
+    160,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
   }
@@ -141,8 +180,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    989,
-    690
+    850,
+    675
    ],
    "item": "cloudtop_orchid",
    "prop": "cloudtop_orchid_patch",
@@ -160,7 +199,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 200
   },
   {
    "id": "ore_2",
@@ -191,25 +231,27 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    476,
-    900
+    630,
+    675
    ],
    "loot": "jar_valley_mid",
    "level": 40,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "crate_4",
    "type": "crate",
    "at": [
-    1474,
-    930
+    1330,
+    655
    ],
    "loot": "jar_valley_mid",
    "level": 40,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 300
   },
   {
    "id": "jar_5",
@@ -540,6 +582,150 @@
     0,
     360
    ]
+  }
+ ],
+ "climbables": [
+  {
+   "id": "ledge_0_rope_1",
+   "kind": "rope",
+   "at": [
+    700,
+    745
+   ],
+   "top_at": [
+    700,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_0"
+  },
+  {
+   "id": "ledge_1_rope_2",
+   "kind": "rope",
+   "at": [
+    1440,
+    725
+   ],
+   "top_at": [
+    1440,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "ledge_1"
+  },
+  {
+   "id": "ledge_2_rope_3",
+   "kind": "rope",
+   "at": [
+    2280,
+    735
+   ],
+   "top_at": [
+    2280,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_2"
+  },
+  {
+   "id": "ledge_3_rope_5",
+   "kind": "rope",
+   "at": [
+    3040,
+    745
+   ],
+   "top_at": [
+    3040,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_3"
+  },
+  {
+   "id": "cloud_mv_rope_6",
+   "kind": "rope",
+   "at": [
+    1826,
+    715
+   ],
+   "top_at": [
+    1826,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "cloud_mv"
+  },
+  {
+   "id": "route_0_vine_7",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_1_vine_8",
+   "kind": "vine",
+   "at": [
+    1060,
+    741
+   ],
+   "top_at": [
+    1060,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_1"
+  },
+  {
+   "id": "ledge_2_step_ledge_4_rope_101",
+   "kind": "rope",
+   "at": [
+    2520,
+    735
+   ],
+   "top_at": [
+    2520,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_2_step_ledge_4"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "route_1_step_9",
+   "rect": [
+    1110,
+    718,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
   }
  ]
 }

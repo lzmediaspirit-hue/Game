@@ -49,28 +49,67 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "causeway_0",
    "rect": [
-    600,
-    640,
-    280,
-    50
+    140,
+    660,
+    300,
+    80
    ],
-   "height": 100,
-   "kind": "rock_ledge",
+   "height": 60,
+   "kind": "causeway",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "ledge_mv_1",
+   "id": "causeway_1",
    "rect": [
-    1520,
-    640,
-    280,
-    50
+    560,
+    660,
+    300,
+    80
    ],
-   "height": 176,
-   "kind": "rock_ledge",
+   "height": 60,
+   "kind": "causeway",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "causeway_2",
+   "rect": [
+    980,
+    660,
+    240,
+    80
+   ],
+   "height": 100,
+   "kind": "causeway",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "causeway_3",
+   "rect": [
+    1340,
+    660,
+    300,
+    80
+   ],
+   "height": 60,
+   "kind": "causeway",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "causeway_4",
+   "rect": [
+    1760,
+    660,
+    300,
+    80
+   ],
+   "height": 60,
+   "kind": "causeway",
    "stratum": "platform",
    "open_edges": true
   }
@@ -190,16 +229,32 @@
    "text": "East: Whispering Bamboo (Lv 10-15) · North: the hermit's stilt house."
   },
   {
-   "id": "chest_ledge_mv_1",
-   "type": "chest",
+   "id": "jar_5",
+   "type": "jar",
    "at": [
-    1660,
-    665
+    2160,
+    670
    ],
-   "loot": "chest_valley",
-   "level": 12,
-   "alt": 176,
-   "surface": "ledge_mv_1"
+   "loot": "jar_valley_low",
+   "level": 10,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 300,
+   "surface": "broken_pillar"
+  },
+  {
+   "id": "jar_6",
+   "type": "jar",
+   "at": [
+    2200,
+    670
+   ],
+   "loot": "jar_valley_low",
+   "level": 10,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 300,
+   "surface": "broken_pillar"
   }
  ],
  "spawns": [
@@ -401,5 +456,99 @@
   }
  ],
  "music": "marsh",
- "ambience": "marsh_ambience"
+ "ambience": "marsh_ambience",
+ "climbables": [
+  {
+   "id": "causeway_0_ladder_1",
+   "kind": "ladder",
+   "at": [
+    290,
+    775
+   ],
+   "top_at": [
+    290,
+    732
+   ],
+   "bottom_alt": 0,
+   "top_alt": 60,
+   "bottom": "ground",
+   "top": "causeway_0"
+  },
+  {
+   "id": "causeway_1_ladder_2",
+   "kind": "ladder",
+   "at": [
+    710,
+    775
+   ],
+   "top_at": [
+    710,
+    732
+   ],
+   "bottom_alt": 0,
+   "top_alt": 60,
+   "bottom": "ground",
+   "top": "causeway_1"
+  },
+  {
+   "id": "causeway_3_ladder_3",
+   "kind": "ladder",
+   "at": [
+    1490,
+    775
+   ],
+   "top_at": [
+    1490,
+    732
+   ],
+   "bottom_alt": 0,
+   "top_alt": 60,
+   "bottom": "ground",
+   "top": "causeway_3"
+  },
+  {
+   "id": "causeway_4_ladder_4",
+   "kind": "ladder",
+   "at": [
+    1910,
+    775
+   ],
+   "top_at": [
+    1910,
+    732
+   ],
+   "bottom_alt": 0,
+   "top_alt": 60,
+   "bottom": "ground",
+   "top": "causeway_4"
+  }
+ ],
+ "movers": [],
+ "blocks": [
+  {
+   "id": "broken_pillar",
+   "rect": [
+    2140,
+    640,
+    80,
+    60
+   ],
+   "base": 0,
+   "top": 300,
+   "kind": "stone_pillar",
+   "later": "wall_step"
+  },
+  {
+   "id": "causeway_arch",
+   "rect": [
+    2340,
+    640,
+    40,
+    60
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "stone_pillar"
+  }
+ ]
 }

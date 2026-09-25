@@ -88,6 +88,47 @@
    "stratum": "platform",
    "open_edges": true,
    "art": "warehouse"
+  },
+  {
+   "id": "awning_west",
+   "rect": [
+    790,
+    640,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "awning",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "awning_east",
+   "rect": [
+    1520,
+    640,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "awning",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bell_tower",
+   "rect": [
+    2290,
+    622,
+    180,
+    68
+   ],
+   "height": 312,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "watch_tower",
+   "optional": true
   }
  ],
  "portals": [
@@ -234,6 +275,37 @@
      }
     ]
    }
+  },
+  {
+   "id": "board_sf_tower",
+   "type": "notice_board",
+   "at": [
+    2380,
+    652
+   ],
+   "alt": 312
+  },
+  {
+   "id": "gutter_shard",
+   "type": "pickup",
+   "at": [
+    1300,
+    640
+   ],
+   "alt": 158,
+   "item": "spirit_stone_shard",
+   "count": 1,
+   "prop": "spirit_shard_vein",
+   "label": "Spirit Stone Shard",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "gutter_shard"
+     }
+    ]
+   },
+   "set_flag": "gutter_shard"
   }
  ],
  "spawns": [],
@@ -276,5 +348,103 @@
  "areas": [],
  "music": "village_day",
  "ambience": "town_ambience",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "bell_tower_ladder",
+   "kind": "ladder",
+   "at": [
+    2380,
+    725
+   ],
+   "top_at": [
+    2380,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 312,
+   "bottom": "ground",
+   "top": "bell_tower"
+  },
+  {
+   "id": "general_store_ladder_1",
+   "kind": "ladder",
+   "at": [
+    480,
+    725
+   ],
+   "top_at": [
+    480,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 168,
+   "bottom": "ground",
+   "top": "general_store"
+  },
+  {
+   "id": "tea_house_ladder_2",
+   "kind": "ladder",
+   "at": [
+    1240,
+    725
+   ],
+   "top_at": [
+    1240,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 158,
+   "bottom": "ground",
+   "top": "tea_house"
+  },
+  {
+   "id": "warehouse_sf_ladder_3",
+   "kind": "ladder",
+   "at": [
+    2020,
+    725
+   ],
+   "top_at": [
+    2020,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 168,
+   "bottom": "ground",
+   "top": "warehouse_sf"
+  },
+  {
+   "id": "awning_west_ladder_4",
+   "kind": "ladder",
+   "at": [
+    900,
+    745
+   ],
+   "top_at": [
+    900,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "awning_west"
+  },
+  {
+   "id": "awning_east_ladder_5",
+   "kind": "ladder",
+   "at": [
+    1630,
+    745
+   ],
+   "top_at": [
+    1630,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "awning_east"
+  }
+ ]
 }

@@ -49,9 +49,9 @@
    "id": "ledge_vale",
    "rect": [
     820,
-    646,
+    622,
     220,
-    46
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -119,5 +119,23 @@
  "areas": [],
  "music": "sect",
  "ambience": "town_ambience",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "ledge_vale_rope_1",
+   "kind": "rope",
+   "at": [
+    930,
+    727
+   ],
+   "top_at": [
+    930,
+    684
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_vale"
+  }
+ ]
 }

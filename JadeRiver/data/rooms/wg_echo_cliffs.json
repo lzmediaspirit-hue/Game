@@ -52,9 +52,9 @@
    "id": "ledge_0",
    "rect": [
     400,
-    680,
+    660,
     360,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -65,9 +65,9 @@
    "id": "ledge_1",
    "rect": [
     900,
-    650,
+    630,
     360,
-    50
+    70
    ],
    "height": 200,
    "kind": "rock_ledge",
@@ -78,9 +78,9 @@
    "id": "ledge_2",
    "rect": [
     1500,
-    640,
+    620,
     360,
-    50
+    70
    ],
    "height": 300,
    "kind": "rock_ledge",
@@ -91,9 +91,9 @@
    "id": "ledge_3",
    "rect": [
     2000,
-    660,
+    640,
     320,
-    50
+    70
    ],
    "height": 200,
    "kind": "rock_ledge",
@@ -137,8 +137,8 @@
    "id": "ore_1",
    "type": "ore_vein",
    "at": [
-    695,
-    690
+    730,
+    695
    ],
    "item": "jadeiron",
    "prop": "jadeiron_vein",
@@ -156,7 +156,8 @@
      }
     ]
    },
-   "locked_text": "The stone is too hard to work by hand."
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 100
   },
   {
    "id": "ore_2",
@@ -187,25 +188,27 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    302,
-    700
+    430,
+    695
    ],
    "loot": "jar_valley_mid",
    "level": 34,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "crate_4",
    "type": "crate",
    "at": [
-    946,
-    720
+    930,
+    665
    ],
    "loot": "jar_valley_mid",
    "level": 34,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "jar_5",
@@ -271,15 +274,15 @@
    "points": [
     [
      980,
-     675
+     665
     ],
     [
      1080,
-     675
+     665
     ],
     [
      1180,
-     675
+     665
     ]
    ],
    "max": 3,
@@ -463,6 +466,68 @@
    "base": 0,
    "top": 300,
    "kind": "rock"
+  },
+  {
+   "id": "ledge_3_step_4",
+   "rect": [
+    2250,
+    722,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  }
+ ],
+ "climbables": [
+  {
+   "id": "ledge_0_rope_1",
+   "kind": "rope",
+   "at": [
+    540,
+    765
+   ],
+   "top_at": [
+    540,
+    722
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_0"
+  },
+  {
+   "id": "ledge_1_rope_2",
+   "kind": "rope",
+   "at": [
+    1080,
+    735
+   ],
+   "top_at": [
+    1080,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_1"
+  },
+  {
+   "id": "ledge_3_rope_3",
+   "kind": "rope",
+   "at": [
+    2160,
+    745
+   ],
+   "top_at": [
+    2160,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_3"
   }
  ]
 }

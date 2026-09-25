@@ -46,12 +46,12 @@
    "open_edges": false
   },
   {
-   "id": "ledge_peak_0",
+   "id": "west_ledge",
    "rect": [
-    340,
-    648,
-    200,
-    46
+    240,
+    650,
+    220,
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -59,14 +59,40 @@
    "open_edges": true
   },
   {
-   "id": "ledge_peak_1",
+   "id": "west_peak",
    "rect": [
-    560,
-    640,
-    170,
-    46
+    280,
+    580,
+    220,
+    70
    ],
-   "height": 176,
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "peak_bridge",
+   "rect": [
+    500,
+    590,
+    400,
+    60
+   ],
+   "height": 200,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "far_peak",
+   "rect": [
+    900,
+    560,
+    220,
+    80
+   ],
+   "height": 300,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -112,11 +138,12 @@
    "id": "npc_elder_sung",
    "type": "npc",
    "at": [
-    760,
-    780
+    1000,
+    600
    ],
    "npc": "elder_sung",
-   "facing": -1
+   "facing": -1,
+   "alt": 300
   },
   {
    "id": "spring_sung",
@@ -205,5 +232,88 @@
  "areas": [],
  "music": "meditation",
  "sect": "cloud_sect",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "west_peak_rope",
+   "kind": "rope",
+   "at": [
+    420,
+    670
+   ],
+   "top_at": [
+    420,
+    642
+   ],
+   "bottom_alt": 100,
+   "top_alt": 200,
+   "bottom": "west_ledge",
+   "top": "west_peak"
+  },
+  {
+   "id": "peak_bridge_ladder_w",
+   "kind": "ladder",
+   "at": [
+    560,
+    685
+   ],
+   "top_at": [
+    560,
+    642
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "peak_bridge"
+  },
+  {
+   "id": "peak_bridge_ladder_e",
+   "kind": "ladder",
+   "at": [
+    840,
+    685
+   ],
+   "top_at": [
+    840,
+    642
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "peak_bridge"
+  },
+  {
+   "id": "far_peak_rope",
+   "kind": "rope",
+   "at": [
+    1060,
+    675
+   ],
+   "top_at": [
+    1060,
+    632
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "far_peak"
+  },
+  {
+   "id": "west_ledge_rope_1",
+   "kind": "rope",
+   "at": [
+    350,
+    755
+   ],
+   "top_at": [
+    350,
+    712
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "west_ledge"
+  }
+ ],
+ "movers": []
 }

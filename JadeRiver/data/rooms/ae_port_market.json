@@ -89,6 +89,84 @@
    "stratum": "platform",
    "open_edges": true,
    "art": "warehouse"
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    840,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    2050,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    2360,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    2670,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    1670,
+    636,
+    380,
+    60
+   ],
+   "height": 88.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_1",
+   "rect": [
+    1060,
+    636,
+    230,
+    60
+   ],
+   "height": 88.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -269,7 +347,7 @@
     64,
     26
    ],
-   "height": 38,
+   "height": 40,
    "standable": true,
    "flip": false
   },
@@ -287,7 +365,7 @@
     28,
     26
    ],
-   "height": 48,
+   "height": 40,
    "standable": true,
    "flip": false
   }
@@ -348,5 +426,85 @@
  "areas": [],
  "music": "sky_port",
  "ambience": "town_ambience",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "factors_hall_ladder_1",
+   "kind": "ladder",
+   "at": [
+    520,
+    725
+   ],
+   "top_at": [
+    520,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 168,
+   "bottom": "ground",
+   "top": "factors_hall"
+  },
+  {
+   "id": "wayfarers_inn_ladder_2",
+   "kind": "ladder",
+   "at": [
+    1480,
+    725
+   ],
+   "top_at": [
+    1480,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 158,
+   "bottom": "ground",
+   "top": "wayfarers_inn"
+  },
+  {
+   "id": "port_warehouse_ladder_3",
+   "kind": "ladder",
+   "at": [
+    3280,
+    725
+   ],
+   "top_at": [
+    3280,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 168,
+   "bottom": "ground",
+   "top": "port_warehouse"
+  },
+  {
+   "id": "route_3_ladder_5",
+   "kind": "ladder",
+   "at": [
+    2780,
+    741
+   ],
+   "top_at": [
+    2780,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_3"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "port_warehouse_step_4",
+   "rect": [
+    3430,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "crate"
+  }
+ ]
 }

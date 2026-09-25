@@ -49,9 +49,9 @@
    "id": "ledge_peak_0",
    "rect": [
     340,
-    648,
+    624,
     200,
-    46
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -62,11 +62,11 @@
    "id": "ledge_peak_1",
    "rect": [
     560,
-    640,
+    616,
     170,
-    46
+    70
    ],
-   "height": 176,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -213,5 +213,39 @@
  "areas": [],
  "music": "meditation",
  "sect": "jade_sect",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "ledge_peak_0_rope_1",
+   "kind": "rope",
+   "at": [
+    440,
+    729
+   ],
+   "top_at": [
+    440,
+    686
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_peak_0"
+  },
+  {
+   "id": "ledge_peak_1_rope_2",
+   "kind": "rope",
+   "at": [
+    645,
+    721
+   ],
+   "top_at": [
+    645,
+    678
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_peak_1"
+  }
+ ]
 }

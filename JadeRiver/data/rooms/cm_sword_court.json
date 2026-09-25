@@ -58,6 +58,76 @@
    "stratum": "platform",
    "open_edges": true,
    "art": "hall"
+  },
+  {
+   "id": "plum_pole_0",
+   "rect": [
+    1760,
+    770,
+    80,
+    70
+   ],
+   "height": 60,
+   "kind": "pole",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
+  },
+  {
+   "id": "plum_pole_1",
+   "rect": [
+    1830,
+    740,
+    80,
+    70
+   ],
+   "height": 80,
+   "kind": "pole",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
+  },
+  {
+   "id": "plum_pole_2",
+   "rect": [
+    1900,
+    775,
+    80,
+    70
+   ],
+   "height": 110,
+   "kind": "pole",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
+  },
+  {
+   "id": "plum_pole_3",
+   "rect": [
+    1970,
+    745,
+    80,
+    70
+   ],
+   "height": 80,
+   "kind": "pole",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
+  },
+  {
+   "id": "plum_pole_4",
+   "rect": [
+    2040,
+    770,
+    80,
+    70
+   ],
+   "height": 60,
+   "kind": "pole",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
   }
  ],
  "portals": [
@@ -168,5 +238,61 @@
  "areas": [],
  "music": "sect",
  "sect": "cloud_sect",
- "town": true
+ "town": true,
+ "blocks": [
+  {
+   "id": "sword_pillar_0",
+   "rect": [
+    2200,
+    700,
+    40,
+    40
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "pillar"
+  },
+  {
+   "id": "sword_pillar_1",
+   "rect": [
+    2360,
+    700,
+    40,
+    40
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "pillar"
+  },
+  {
+   "id": "sword_hall_step_2",
+   "rect": [
+    1530,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
+  }
+ ],
+ "climbables": [
+  {
+   "id": "sword_hall_ladder_1",
+   "kind": "ladder",
+   "at": [
+    1280,
+    725
+   ],
+   "top_at": [
+    1280,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 110,
+   "bottom": "ground",
+   "top": "sword_hall"
+  }
+ ]
 }

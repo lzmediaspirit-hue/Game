@@ -50,11 +50,11 @@
    "id": "deck_mv_0",
    "rect": [
     940,
-    634,
+    620,
     220,
-    56
+    70
    ],
-   "height": 100,
+   "height": 88,
    "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
@@ -63,11 +63,50 @@
    "id": "deck_mv_1",
    "rect": [
     1180,
-    630,
+    612,
     220,
-    52
+    70
    ],
    "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    1440,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1750,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    2060,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
    "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
@@ -226,5 +265,55 @@
  "areas": [],
  "music": "sect",
  "ambience": "wind_ambience",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "deck_mv_0_ladder_1",
+   "kind": "ladder",
+   "at": [
+    1050,
+    725
+   ],
+   "top_at": [
+    1050,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "deck_mv_0"
+  },
+  {
+   "id": "route_0_ladder_2",
+   "kind": "ladder",
+   "at": [
+    1550,
+    741
+   ],
+   "top_at": [
+    1550,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_ladder_3",
+   "kind": "ladder",
+   "at": [
+    2170,
+    741
+   ],
+   "top_at": [
+    2170,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_2"
+  }
+ ]
 }

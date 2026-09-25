@@ -42,10 +42,52 @@ func _main() -> void:
 	arts_volumes_suite()
 	arts_combat_suite()
 	nav_suite()
+	paths_above_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
+
+# ------------------------------------------------------------------ S43 Paths Above and the room catalogue
+func paths_above_suite() -> void:
+	# Every row names a real optional ledge (a surface or a block) marked for that later art.
+	for e in ContentDB.all("paths_above"):
+		var room := ContentDB.room(str(e.room))
+		var named := false
+		for s in room.get("surfaces", []) + room.get("blocks", []):
+			if str(s.id) == str(e.surface) and str(s.get("later", "")) == str(e.art): named = true
+		check(named, "Paths Above row %s names a later ledge" % e.id)
+	check(ContentDB.has_entry("paths_above", "wp_west:pine_top") and ContentDB.has_entry("paths_above", "cf_behind_falls:shaft_top"),
+		"the catalogue's later ledges (Willow Path West's pine top, the falls' Wall-Step shaft) are rows")
+	# A cracked block (the Lower Pit slab over the shard) stops walking until a Plunge breaks it.
+	var pit := ZoneGeometry.new()
+	pit.configure(WorldAuthority.compile_geometry(ContentDB.room("sq_lower_pit")))
+	var slab: WalkSurface = pit.index.get("cracked_slab")
+	check(slab != null and slab.cracked and pit.wall_face_at(Vector2(1900, 810), 10.0, "ground"), "the Lower Pit slab is a cracked block that stops you")
+	pit.break_surface("cracked_slab")
+	check(slab != null and slab.disabled and not pit.wall_face_at(Vector2(1900, 810), 10.0, "ground"), "a broken slab no longer blocks")
+	# The Jade trial's planks rise with the room clock; the libraries' upper floors are sealed by rank.
+	var trial := ZoneGeometry.new()
+	trial.configure(WorldAuthority.compile_geometry(ContentDB.room("sf_trial_jade")))
+	check(trial.movers.size() == 2 and (trial.index.plank_1 as WalkSurface).moving, "the Jade trial has two moving planks")
+	var sealed := 0
+	for cl in ContentDB.room("ja_library").get("climbables", []):
+		if cl.has("requires"): sealed += 1
+	check(sealed == 2, "both library floors are sealed by rank (%d)" % sealed)
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	Game.world.apply_teleport(c.id, "wp_west")
+	Game.account.paths_above.erase("wp_west:pine_top")
+	var heard := []
+	var listen := func(n: String, p: Dictionary):
+		if n == "path_above_found": heard.append(p)
+	GameEvents.event.connect(listen)
+	for sid in ["pine_top", "pine_top", "willow_branch_a"]:
+		GameEvents.emit_event("landed", {"actor": c.id, "surface": sid, "fall_height": 0.0, "plunge": false})
+		GameEvents.flush()
+	GameEvents.event.disconnect(listen)
+	check(Game.account.paths_above.has("wp_west:pine_top") and heard.size() == 1, "standing on a later ledge finds it, once (%d)" % heard.size())
+	check(Game.account.snapshot().paths_above.has("wp_west:pine_top"), "found ledges are saved with the account")
 
 # ------------------------------------------------------------------ formulas
 func rules_suite() -> void:
@@ -683,7 +725,7 @@ func movement_suite() -> void:
 		var st2 := _jump_to(geo, Vector2(high.bounds.get_center().x, high.bounds.end.y + 30.0), high.bounds.get_center(), 2)
 		check(st2.surface == high and near(st2.altitude, 176.0, 0.5), "a double jump reaches it (%s)" % (st2.surface.id if st2.surface else "air"))
 		var chest: Dictionary = Game.room_rt.object_def("chest_ledge_mv_1")
-		check(not chest.is_empty() and near(float(chest.get("alt", 0)), 176.0), "the chest waits on the high ledge")
+		check(not chest.is_empty() and float(chest.get("alt", 0)) >= high.base - 1.0, "the chest waits up high (on the room's highest tier, S43)")
 		var cloud: WalkSurface = geo.index.get("cloud_mv")
 		var st3 := _jump_to(geo, Vector2(cloud.bounds.get_center().x, cloud.bounds.end.y + 30.0), cloud.bounds.get_center(), 2)
 		check(st3.surface != cloud, "the cloud ledge is above double-jump reach: it is for fliers")

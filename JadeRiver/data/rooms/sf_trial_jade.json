@@ -46,41 +46,67 @@
    "open_edges": false
   },
   {
-   "id": "step_1",
+   "id": "roof_1",
    "rect": [
-    360,
-    700,
-    180,
-    50
+    280,
+    640,
+    220,
+    70
    ],
-   "height": 60,
-   "kind": "rock_ledge",
+   "height": 88,
+   "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "step_2",
+   "id": "plank_1",
    "rect": [
-    600,
+    540,
     660,
-    180,
-    50
+    120,
+    60
    ],
-   "height": 120,
-   "kind": "rock_ledge",
+   "height": 88,
+   "kind": "deck",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "step_3",
+   "id": "roof_2",
    "rect": [
-    840,
     700,
-    180,
-    50
+    630,
+    200,
+    70
    ],
-   "height": 180,
-   "kind": "rock_ledge",
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "plank_2",
+   "rect": [
+    940,
+    650,
+    110,
+    60
+   ],
+   "height": 176,
+   "kind": "deck",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "roof_3",
+   "rect": [
+    1080,
+    610,
+    170,
+    80
+   ],
+   "height": 264,
+   "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
   }
@@ -104,11 +130,12 @@
    "id": "trial_bell",
    "type": "bell",
    "at": [
-    930,
-    724
+    1160,
+    648
    ],
-   "alt": 180,
-   "set_flag": "trial_climbed"
+   "alt": 264,
+   "set_flag": "trial_climbed",
+   "surface": "roof_3"
   }
  ],
  "spawns": [
@@ -167,5 +194,84 @@
  "areas": [],
  "instanced": true,
  "music": "trial",
- "dungeon_exit": "sf_fairground"
+ "dungeon_exit": "sf_fairground",
+ "climbables": [
+  {
+   "id": "roof_1_ladder",
+   "kind": "ladder",
+   "at": [
+    320,
+    745
+   ],
+   "top_at": [
+    320,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "roof_1"
+  },
+  {
+   "id": "roof_2_ladder",
+   "kind": "ladder",
+   "at": [
+    860,
+    735
+   ],
+   "top_at": [
+    860,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "roof_2"
+  },
+  {
+   "id": "roof_3_ladder",
+   "kind": "ladder",
+   "at": [
+    1210,
+    725
+   ],
+   "top_at": [
+    1210,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 264,
+   "bottom": "ground",
+   "top": "roof_3"
+  }
+ ],
+ "movers": [
+  {
+   "surface": "plank_1",
+   "path": [
+    [
+     0,
+     0,
+     88
+    ]
+   ],
+   "speed": 40,
+   "wait_s": 1.2,
+   "mode": "pingpong"
+  },
+  {
+   "surface": "plank_2",
+   "path": [
+    [
+     0,
+     0,
+     88
+    ]
+   ],
+   "speed": 40,
+   "wait_s": 1.2,
+   "mode": "pingpong"
+  }
+ ],
+ "vertical": "authored"
 }

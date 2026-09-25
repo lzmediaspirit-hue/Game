@@ -49,12 +49,12 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "cliff_ledge",
    "rect": [
-    260,
-    640,
-    280,
-    50
+    300,
+    610,
+    400,
+    80
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -62,14 +62,53 @@
    "open_edges": true
   },
   {
-   "id": "ledge_mv_1",
+   "id": "road_ledge",
    "rect": [
-    1946,
-    640,
-    280,
-    50
+    820,
+    620,
+    260,
+    70
    ],
-   "height": 176,
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_head_w",
+   "rect": [
+    1180,
+    610,
+    220,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "caravan_bridge",
+   "rect": [
+    1400,
+    610,
+    500,
+    60
+   ],
+   "height": 200,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_head_e",
+   "rect": [
+    1900,
+    610,
+    240,
+    70
+   ],
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -133,8 +172,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    995,
-    930
+    330,
+    650
    ],
    "item": "ember_pepper",
    "prop": "ember_pepper_bush",
@@ -152,7 +191,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100
   },
   {
    "id": "ore_2",
@@ -237,16 +277,32 @@
    "text": "Mudwater Hideout — turn back, traveller."
   },
   {
-   "id": "chest_ledge_mv_1",
-   "type": "chest",
+   "id": "crate_7",
+   "type": "crate",
    "at": [
-    2086,
-    665
+    1560,
+    640
    ],
-   "loot": "chest_valley",
-   "level": 19,
-   "alt": 176,
-   "surface": "ledge_mv_1"
+   "loot": "jar_valley_mid",
+   "level": 16,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200,
+   "surface": "caravan_bridge"
+  },
+  {
+   "id": "crate_8",
+   "type": "crate",
+   "at": [
+    1720,
+    640
+   ],
+   "loot": "jar_valley_mid",
+   "level": 16,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200,
+   "surface": "caravan_bridge"
   }
  ],
  "spawns": [
@@ -310,7 +366,7 @@
  ],
  "scenery": [
   {
-   "id": "cart_broken_7",
+   "id": "cart_broken_9",
    "prop": "cart_broken",
    "position": [
     900,
@@ -323,12 +379,12 @@
     120,
     26
    ],
-   "height": 70,
+   "height": 60,
    "standable": true,
    "flip": false
   },
   {
-   "id": "cart_broken_8",
+   "id": "cart_broken_10",
    "prop": "cart_broken",
    "position": [
     2400,
@@ -341,7 +397,7 @@
     120,
     26
    ],
-   "height": 70,
+   "height": 60,
    "standable": true,
    "flip": true
   }
@@ -530,5 +586,109 @@
  ],
  "areas": [],
  "music": "field",
- "ambience": ""
+ "ambience": "",
+ "climbables": [
+  {
+   "id": "cliff_ledge_ladder",
+   "kind": "ladder",
+   "at": [
+    380,
+    725
+   ],
+   "top_at": [
+    380,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 120,
+   "bottom": "ground",
+   "top": "cliff_ledge"
+  },
+  {
+   "id": "caravan_bridge_ladder_w",
+   "kind": "ladder",
+   "at": [
+    1440,
+    705
+   ],
+   "top_at": [
+    1440,
+    662
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "caravan_bridge"
+  },
+  {
+   "id": "caravan_bridge_ladder_e",
+   "kind": "ladder",
+   "at": [
+    1860,
+    705
+   ],
+   "top_at": [
+    1860,
+    662
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "caravan_bridge"
+  },
+  {
+   "id": "bridge_head_e_rope_1",
+   "kind": "rope",
+   "at": [
+    2020,
+    715
+   ],
+   "top_at": [
+    2020,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "bridge_head_e"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "broken_cart_a",
+   "rect": [
+    560,
+    720,
+    120,
+    60
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "cart"
+  },
+  {
+   "id": "broken_cart_b",
+   "rect": [
+    1100,
+    820,
+    120,
+    60
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "cart"
+  },
+  {
+   "id": "broken_cart_c",
+   "rect": [
+    2400,
+    780,
+    130,
+    60
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "cart"
+  }
+ ]
 }

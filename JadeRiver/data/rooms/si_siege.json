@@ -49,9 +49,9 @@
    "id": "rampart_0",
    "rect": [
     1300,
-    640,
+    620,
     300,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -62,9 +62,9 @@
    "id": "rampart_1",
    "rect": [
     2200,
-    640,
+    620,
     300,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -164,5 +164,39 @@
     "event": "siege_of_two_sects"
    }
   ]
- }
+ },
+ "climbables": [
+  {
+   "id": "rampart_0_rope_1",
+   "kind": "rope",
+   "at": [
+    1450,
+    725
+   ],
+   "top_at": [
+    1450,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "rampart_0"
+  },
+  {
+   "id": "rampart_1_rope_2",
+   "kind": "rope",
+   "at": [
+    2350,
+    725
+   ],
+   "top_at": [
+    2350,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "rampart_1"
+  }
+ ]
 }

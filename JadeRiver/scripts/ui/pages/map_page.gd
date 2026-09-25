@@ -80,6 +80,7 @@ func draw_page() -> void:
 		draw_circle(p, 14, (col if rid != sel else UiKit.GOLD) if not planned else Color(0.62, 0.68, 0.72, 0.8))
 		if rid == here:
 			draw_colored_polygon(PackedVector2Array([p + Vector2(0, -34), p + Vector2(10, -20), p + Vector2(-10, -20)]), UiKit.RED)
+		if seen and _open_paths(ch, rid) > 0: _wind_glyph(p + Vector2(20, -26))
 		var name_ := str(r.name) if seen else "?"
 		UiKit.draw_outlined(self, name_, p + Vector2(-90, 36), 15, UiKit.PAPER if seen else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, 180)
 		region(Rect2(p - Vector2(30, 30), Vector2(60, 60)), "sel", rid)
@@ -111,6 +112,11 @@ func draw_page() -> void:
 		var here_room: bool = id == str(ch.position.get("room", ""))
 		text(Vector2(right.position.x + 24, y + 22), ("▶ " if here_room else ("· " if seen2 else "? ")) + (str(room.get("name", id)) if seen2 else Tx.t("ui.map.unknown")), 18,
 			UiKit.GOLD if here_room else (UiKit.PAPER if seen2 else UiKit.HOLLOW))
+		if seen2:
+			for e in ContentDB.all("paths_above"):
+				if str(e.room) == id and not Game.account.paths_above.has(str(e.id)) and _art_known(ch, str(e.art)):
+					text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.path_above") % str(e.art_name), 15, Color(0.4, 0.62, 0.66))
+					y += 20
 		# S18 room data: its hazards and the attribute that answers them.
 		if seen2:
 			for hz in HazardRules.summary(ch, room):
@@ -125,6 +131,27 @@ func draw_page() -> void:
 				y += 20
 		y += 28
 		if y > right.end.y - 40: break
+
+func _art_known(ch, art: String) -> bool:
+	return Game.combat.knows_art(ch, art) or Unlocks.is_unlocked(ch.id, art)
+
+## S43: how many optional ledges in a region your arts now open that you have not stood on yet.
+func _open_paths(ch, rid: String) -> int:
+	var rooms := region_rooms(rid)
+	var n := 0
+	for e in ContentDB.all("paths_above"):
+		if rooms.has(str(e.room)) and not Game.account.paths_above.has(str(e.id)) and _art_known(ch, str(e.art)): n += 1
+	return n
+
+## The faint wind glyph: three drifting strokes and a curl (S43, "the World map marks them").
+func _wind_glyph(p: Vector2) -> void:
+	var col := Color(0.25, 0.45, 0.5, 0.6)
+	for i in 3:
+		var pts := PackedVector2Array()
+		for k in 9:
+			pts.append(Vector2(p.x + k * 3.0 + i * 3.0, p.y - 8.0 + i * 8.0 + sin(k * 0.8 + i) * 2.0))
+		draw_polyline(pts, col, 2.0)
+	draw_arc(p + Vector2(31, -6), 4.0, PI * 0.5, PI * 2.0, 10, col, 2.0)
 
 ## The valley: ink mountains along the top and the Jade River from east to west.
 func _draw_valley(map_r: Rect2) -> void:

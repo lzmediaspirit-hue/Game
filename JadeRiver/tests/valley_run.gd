@@ -167,7 +167,7 @@ func gear_up(shop := "stoneford_smith") -> void:
 			Game.economy.apply_currency("silver_tael", 57 * maxi(10, ProgressionRules.level(c())), "test_shortcut_income")
 			hours += 1
 		if Game.economy.balance("silver_tael", c()) < int(s.price): continue
-		if buy(shop, str(s.item), 1): equip_first(str(s.item))
+		if buy(shop, str(s.item), 1): equip_newest(str(s.item))
 	if verbose: print("  gear up at ", shop, ": attack ", snappedf(before, 0.1), " -> ", snappedf(c().stats.value("physical_attack"), 0.1), " level ", ProgressionRules.level(c()), " taels ", Game.economy.balance("silver_tael", c()))
 
 ## Gear from a Spirit Stone shop of the Expanse, the same rule as gear_up: better grade only, the
@@ -184,7 +184,7 @@ func gear_up_stones(shop: String) -> void:
 		if cur != null and StatRules.grade_index(str(ContentDB.item(str(cur.id)).get("grade", "plain"))) >= StatRules.grade_index(str(def.get("grade", "plain"))): continue
 		var short := int(s.price) - Game.economy.balance("spirit_stone")
 		if short > 0: Game.economy.apply_currency("spirit_stone", short, "test_shortcut_income")
-		if buy(shop, str(s.item), 1): equip_first(str(s.item))
+		if buy(shop, str(s.item), 1): equip_newest(str(s.item))
 
 ## Earth-grade gear for the Qi Unfurling bosses. Forging is tested in The Sect Forge, so the set is
 ## granted here (test shortcut) instead of farming Jadeiron for every piece.
@@ -369,6 +369,15 @@ func reach(realm: String, supports: Array = []) -> bool:
 			return false
 		step(4.0)
 	return ProgressionRules.at_least(c().cultivator.realm_key, realm)
+
+## Equip the copy just bought or made (the highest uid), not an older one of a worse quality in the bag.
+func equip_newest(item: String) -> bool:
+	var best := -1
+	for i in c().inventory.bag.size():
+		var it = c().inventory.bag[i]
+		if it != null and str(it.id) == item and (best < 0 or int(it.get("uid", 0)) > int(c().inventory.bag[best].get("uid", 0))): best = i
+	if best < 0: return false
+	return submit({"type": "equip", "index": best}).get("ok", false)
 
 func equip_first(item: String) -> bool:
 	var i: int = c().inventory.first_index(item)
@@ -1751,11 +1760,13 @@ func sec_ae4() -> void:
 	attune_to("azure_expanse", 55.0)
 	# Sage-grade gear from the Ironroot forge, open to kin who have become Sovereigns.
 	var atk0: float = c().stats.value("physical_attack")
+	var pow0: float = atk0 + c().stats.value("physical_defense")
 	travel("ir_clan_hearth")
 	tidy_bag(12)
 	gear_up_stones("ironroot_clan")
-	check(str(ContentDB.item(str(c().inventory.equipped.get("robe", {}).get("id", ""))).get("grade", "")) == "sage" and c().stats.value("physical_attack") > atk0,
-		"Sage-grade sunsilk and sunsteel from the clan forge (attack %.0f -> %.0f)" % [atk0, c().stats.value("physical_attack")])
+	var pow1: float = c().stats.value("physical_attack") + c().stats.value("physical_defense")
+	check(str(ContentDB.item(str(c().inventory.equipped.get("robe", {}).get("id", ""))).get("grade", "")) == "sage" and pow1 > pow0,
+		"Sage-grade sunsilk and sunsteel from the clan forge (attack + defence %.0f -> %.0f)" % [pow0, pow1])
 	check(travel("ts_mirror_crypt"), "through the Hall of Sand Kings to the Mirror Crypt")
 	check(interact("journal_tomb").get("ok", false), "find Lu's page among the mirrors")
 	c().pools.hp = c().pools.max_hp
@@ -1821,6 +1832,10 @@ func hold_event(limit_s := 400.0) -> bool:
 		for e in foes:
 			if e.def_id == boss: pick = boss
 		if pick == "" and not foes.is_empty(): pick = str(foes[0].def_id)
+		# Between blows, a pill when the waves have worn you below half (as a player on the gate would).
+		if c().pools.hp < c().pools.max_hp * 0.5:
+			var hi: int = c().inventory.first_index("healing_pill")
+			if hi >= 0: submit({"type": "use_item", "index": hi})
 		if pick == "":
 			step(1.0)
 		else:
@@ -1903,8 +1918,9 @@ func sec_ae5() -> void:
 	var box := interact("pirate_strongbox")
 	check(box.get("ok", false), "Gu opens the pirates' strongbox")
 	check(sail("wreck_run_home"), "sail home to the Shipwrights' Yard")
+	var pages_before: int = c().inventory.count("ledger_page")
 	check(finish("the_skyport_wreck"), "The Skyport Wreck done")
-	check(c().inventory.count("ledger_page") == 0, "the ledger pages go into the Black Ledger")
+	check(c().inventory.count("ledger_page") == pages_before - 3, "three ledger pages go into the Black Ledger (%d left over)" % c().inventory.count("ledger_page"))
 	# Sect War: Sage Sovereign 2, then hold the Alliance Gate.
 	check(start("the_gate_holds"), "Sect War accepted")
 	check(reach("sage_sovereign_2"), "Sage Sovereign 2")

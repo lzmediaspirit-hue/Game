@@ -49,9 +49,9 @@
    "id": "ledge_abode",
    "rect": [
     400,
-    650,
+    626,
     170,
-    46
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -196,5 +196,23 @@
  "areas": [],
  "music": "meditation",
  "sect": "cloud_sect",
- "retreat": true
+ "retreat": true,
+ "climbables": [
+  {
+   "id": "ledge_abode_rope_1",
+   "kind": "rope",
+   "at": [
+    485,
+    731
+   ],
+   "top_at": [
+    485,
+    688
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_abode"
+  }
+ ]
 }

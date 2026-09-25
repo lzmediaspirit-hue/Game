@@ -49,9 +49,9 @@
    "id": "ledge_mv_0",
    "rect": [
     940,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -62,11 +62,24 @@
    "id": "ledge_mv_1",
    "rect": [
     1520,
-    640,
+    620,
     280,
-    50
+    70
    ],
-   "height": 176,
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1_step_ledge_3",
+   "rect": [
+    1300,
+    620,
+    160,
+    70
+   ],
+   "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -99,25 +112,27 @@
    "id": "jar_1",
    "type": "jar",
    "at": [
-    249,
-    700
+    970,
+    655
    ],
    "loot": "jar_valley_mid",
    "level": 17,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "crate_2",
    "type": "crate",
    "at": [
-    795,
-    720
+    1550,
+    655
    ],
    "loot": "jar_valley_mid",
    "level": 17,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "jar_3",
@@ -159,11 +174,12 @@
    "id": "chest_6",
    "type": "chest",
    "at": [
-    2200,
-    700
+    1770,
+    655
    ],
    "loot": "chest_dungeon",
-   "level": 20
+   "level": 20,
+   "alt": 200
   },
   {
    "id": "chest_ledge_mv_1",
@@ -174,7 +190,7 @@
    ],
    "loot": "chest_dungeon",
    "level": 20,
-   "alt": 176,
+   "alt": 200,
    "surface": "ledge_mv_1"
   }
  ],
@@ -392,5 +408,55 @@
  "areas": [],
  "music": "dungeon",
  "ambience": "",
- "dungeon_exit": "cr_caravan_road"
+ "dungeon_exit": "cr_caravan_road",
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    1080,
+    725
+   ],
+   "top_at": [
+    1080,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    1660,
+    725
+   ],
+   "top_at": [
+    1660,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  },
+  {
+   "id": "ledge_mv_1_step_ledge_3_rope_101",
+   "kind": "rope",
+   "at": [
+    1380,
+    725
+   ],
+   "top_at": [
+    1380,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_1_step_ledge_3"
+  }
+ ]
 }

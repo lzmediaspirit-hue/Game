@@ -67,7 +67,10 @@ func painted_building(a: Vector2,width: float):
 const BLOCK_COLORS={"crate":["8a6236","a57a45","5c3f22"],"barrel":["6b4a2c","86603a","3f2a18"],"cart":["7d5a33","9b7443","4d3620"],
 	"wall":["7c7d78","9a9b95","4f504c"],"rock":["6f7568","8d9384","474c43"],"fence":["80603a","a07c4c","52391f"],
 	"stall":["9a3b2e","b8574a","5e231b"],"pillar":["9f2f2a","c24a3f","5f1a17"],"statue":["8b8f86","a9ada2","5a5d56"],
-	"well":["71776f","8f958b","4a4f48"],"lantern":["a8342a","cf5a45","641d17"],"drum":["9c2c24","efe2c0","5a1814"]}
+	"well":["71776f","8f958b","4a4f48"],"lantern":["a8342a","cf5a45","641d17"],"drum":["9c2c24","efe2c0","5a1814"],
+	"stone_pillar":["868a84","a9ada4","55584f"],"slab":["7d776c","a49d8f","4a453d"],"rubble":["76705f","958d78","4b4637"],
+	"log":["6e5134","8e6c46","433020"],"lily":["4f7d45","79a86a","2f4f2a"],"bamboo":["6f8a3a","a9c46a","4f6a28"],
+	"stalagmite":["7a7f86","9ca2a8","4e5258"],"shelf":["6d4c2e","8c6840","43301c"]}
 ## The fair's great drum (S43 bounce): a red barrel with brass studs under a taut cream skin.
 func _draw_drum():
 	var r=surface.bounds
@@ -98,10 +101,31 @@ func _draw_drum():
 	draw_colored_polygon(skin,Color("efe2c0"))
 	draw_polyline(skin+PackedVector2Array([skin[0]]),Color("7a1f19"),2.0)
 	draw_arc(Vector2(cx,cy_top),rx*0.4,0,TAU,24,Color(0.8,0.2,0.16,0.6),2.0)
+## Block kinds drawn with their prop's painted art, standing on the block's front edge (S43 kit).
+const BLOCK_PROPS={"crate":"crate","barrel":"barrel","cart":"cart_broken","rock":"boulder_moss","boulder":"rock_large",
+	"fence":"fence_wood","bamboo":"bamboo_fence","wall":"stone_wall_low","palisade":"stockade_wall","lantern":"stone_lantern",
+	"well":"well","statue":"statue_guardian_lion","stall":"market_stall","pillar":"pressure_pillar","stump":"training_stump",
+	"sack":"sack_pile","hay":"hay_bale","table":"table","log":"driftwood","lily":"lotus_pads","rubble":"rock_small",
+	"stalagmite":"icicle_rock","shelf":"shelf","lifting":"lifting_stone"}
 func _draw_block():
 	if art=="drum":
 		_draw_drum()
 		return
+	if surface.cracked:
+		_draw_cracked()
+		return
+	var prop=str(BLOCK_PROPS.get(art,""))
+	var e: Dictionary=SpriteCache.prop(prop) if prop!="" else {}
+	if not e.is_empty() and surface.base<=120.0:
+		var tex: Texture2D=SpriteCache.tex(str(e.get("file","")))
+		if tex:
+			var rb=surface.bounds
+			var h=surface.base+rb.size.y*0.5
+			var w=rb.size.x*1.08
+			draw_texture_rect_region(tex,Rect2(rb.get_center().x-w*0.5,rb.end.y-h,w,h),Rect2(0,0,float(e.frame[0]),float(e.frame[1])),tint)
+			# The walkable top gets a flat highlight (S43 visual language).
+			draw_line(Vector2(rb.position.x+4,rb.end.y-surface.base),Vector2(rb.end.x-4,rb.end.y-surface.base),Color(1.0,0.95,0.75,0.55),2.0)
+			return
 	var r=surface.bounds
 	var top=surface.base
 	var cols: Array=BLOCK_COLORS.get(art if art!="" else "crate",BLOCK_COLORS.crate)
@@ -115,7 +139,7 @@ func _draw_block():
 	if art in ["crate","cart","fence","stall"]:
 		for x in range(int(r.position.x)+12,int(r.end.x)-4,18):
 			draw_line(Vector2(x,front.position.y+3),Vector2(x,front.end.y-3),dark,1.5)
-	elif art in ["wall","rock","well","statue"]:
+	elif art in ["wall","rock","well","statue","pillar","slab","stone_pillar","rubble","stalagmite"]:
 		for y in range(int(front.position.y)+10,int(front.end.y),14):
 			draw_line(Vector2(r.position.x+2,y),Vector2(r.end.x-2,y),dark,1.0)
 	# The walkable top: a flat highlight with a lit lip on its front edge (S43 visual language).
@@ -123,6 +147,26 @@ func _draw_block():
 	draw_rect(top_rect,lit)
 	draw_rect(Rect2(top_rect.position.x,top_rect.end.y-3,top_rect.size.x,3),Color(1.0,0.93,0.72,0.9))
 	draw_rect(Rect2(r.position.x,r.position.y-top,r.size.x,r.size.y+top),dark,false,2.0)
+## A cracked floor slab (S43): a Plunge breaks it. Grey flagstones split by dark zig-zag cracks.
+func _draw_cracked():
+	var r=surface.bounds
+	var top=surface.base
+	var face=Rect2(r.position.x,r.end.y-top,r.size.x,top)
+	draw_rect(face,Color("7d776c"))
+	var top_rect=Rect2(r.position.x,r.position.y-top,r.size.x,r.size.y)
+	draw_rect(top_rect,Color("a49d8f"))
+	for y in range(int(top_rect.position.y)+16,int(top_rect.end.y),16):
+		draw_line(Vector2(r.position.x,y),Vector2(r.end.x,y),Color("8a8376"),1)
+	var c=top_rect.get_center()
+	for k in 5:
+		var ang=k*TAU/5.0+0.3
+		var p0=c
+		for step in 4:
+			var p1=p0+Vector2(cos(ang),sin(ang)*0.55)*(10.0+step*3.0)+Vector2(((step+k)%3-1)*4.0,0)
+			draw_line(p0,p1,Color("2e2a24"),2.0 if step<2 else 1.0)
+			p0=p1
+	draw_rect(Rect2(top_rect.position.x,top_rect.end.y-3,top_rect.size.x,3),Color(1.0,0.93,0.72,0.9))
+	draw_rect(Rect2(r.position.x,r.position.y-top,r.size.x,r.size.y+top),Color("4a453d"),false,2.0)
 func _draw():
 	if surface.disabled: return   # crumbled or broken (S43); it returns when the floor does
 	if surface.kind=="block":
@@ -182,7 +226,127 @@ func _draw():
 		draw_rect(Rect2(d,Vector2(r.size.x,maxf(4.0,surface.base))),Color("4a3a1c"))
 		draw_line(d,d+Vector2(r.size.x,0),Color(1.0,0.93,0.72,0.9),2)
 		return
-	if surface.kind=="bridge":
+	if surface.kind=="pole":
+		# Bamboo (S43 kit): a single stalk under a narrow plum-blossom pole top, or a platform of lashed bamboo
+		# slats on two stalks. Stalks are green with pale node rings; slats run across, yellowing at the ends.
+		var foot=r.end.y
+		var head=d.y
+		var stalks=[r.get_center().x] if r.size.x<70 else [r.position.x+16,r.end.x-20]
+		for cx in stalks:
+			draw_rect(Rect2(cx-5,head,10,foot-head),Color("6f8a3a"))
+			draw_rect(Rect2(cx-5,head,3,foot-head),Color("a9c46a"))
+			draw_rect(Rect2(cx+3,head,2,foot-head),Color("4f6a28"))
+			for y in range(int(head)+24,int(foot),28): draw_line(Vector2(cx-6,y),Vector2(cx+6,y),Color("d8e6a4"),2)
+		var row=0
+		for y in range(0,int(r.size.y),7):
+			draw_rect(Rect2(a+Vector2(0,y),Vector2(r.size.x,6)),Color("b9a35a") if row%2==0 else Color("a48c46"))
+			draw_line(a+Vector2(0,y+6),a+Vector2(r.size.x,y+6),Color("5e4a22"),1)
+			for x in range(int(18+(row%3)*9),int(r.size.x)-6,34): draw_line(a+Vector2(x,y),a+Vector2(x,y+6),Color("7d6a33"),1)
+			row+=1
+		for cx in stalks:
+			var lx=cx-r.position.x
+			draw_line(a+Vector2(lx-7,0),a+Vector2(lx+7,r.size.y),Color("3e3018"),2)
+			draw_line(a+Vector2(lx+7,0),a+Vector2(lx-7,r.size.y),Color("3e3018"),2)
+		draw_rect(Rect2(d,Vector2(r.size.x,5)),Color("7b6a2e"))
+		draw_line(d,d+Vector2(r.size.x,0),Color(1.0,0.93,0.72,0.85),2)
+		return
+	if surface.kind in ["chimney","stone_pillar"]:
+		# A brick chimney stack or a broken stone pillar from the ground to its top; the top is a small sooty
+		# (or mossy) cap. Both are later ledges: their faces are what Wall-Step and the double jump test.
+		var brick=surface.kind=="chimney"
+		var face=Color("8a4f3a") if brick else Color("8d9290")
+		var mortar=Color("5a3326") if brick else Color("5f6563")
+		draw_rect(Rect2(d,Vector2(r.size.x,surface.base)),face)
+		var row=0
+		for y in range(0,int(surface.base),10 if brick else 22):
+			draw_line(d+Vector2(0,y),d+Vector2(r.size.x,y),mortar,1)
+			var off=(10.0 if brick else 20.0)*float(row%2)
+			for x in range(int(off),int(r.size.x),20 if brick else 40):
+				draw_line(d+Vector2(x,y),d+Vector2(x,y+(10 if brick else 22)),mortar,1)
+			row+=1
+		draw_rect(Rect2(d,Vector2(4,surface.base)),Color(1,1,1,0.12))
+		draw_rect(Rect2(a,r.size),Color("3b2a24") if brick else Color("6f7a64"))
+		draw_rect(Rect2(a,Vector2(r.size.x,4)),Color("a36a4c") if brick else Color("9fb08a"))
+		draw_line(d,d+Vector2(r.size.x,0),Color(1.0,0.93,0.72,0.8),2)
+		return
+	if surface.kind=="walltop":
+		# A town wall's walkway: dressed stone face down to the street, flagstones on top, crenels along the back.
+		draw_rect(Rect2(d,Vector2(r.size.x,surface.base)),Color("9a958a"))
+		var course=0
+		for y in range(0,int(surface.base),18):
+			draw_line(d+Vector2(0,y),d+Vector2(r.size.x,y),Color("6c675e"),1)
+			for x in range(18*(course%2),int(r.size.x),36):
+				draw_line(d+Vector2(x,y),d+Vector2(x,y+18),Color("6c675e"),1)
+			course+=1
+		draw_rect(Rect2(a,r.size),Color("b7b1a4"))
+		for y in range(0,int(r.size.y),14):
+			draw_line(a+Vector2(0,y),a+Vector2(r.size.x,y),Color("8f897c"),1)
+		for x in range(0,int(r.size.x)-10,36):
+			draw_rect(Rect2(a+Vector2(x,-22),Vector2(20,22)),Color("a39d90"))
+			draw_rect(Rect2(a+Vector2(x,-22),Vector2(20,3)),Color("cfc9bb"))
+		draw_rect(Rect2(d,Vector2(r.size.x,6)),Color("5f5a52"))
+		draw_line(d,d+Vector2(r.size.x,0),Color(1.0,0.93,0.72,0.85),2)
+		return
+	if surface.kind in ["bridge","rope_bridge"]:
+		# A rope bridge: planks on two ropes, railing ropes sagging above, posts at each end.
+		var sag=6.0
+		for x in range(0,int(r.size.x),14):
+			var k=float(x)/maxf(1.0,r.size.x)
+			var dy=sin(k*PI)*sag
+			draw_rect(Rect2(a+Vector2(x+1,dy),Vector2(11,r.size.y)),Color("7a5a36"))
+			draw_line(a+Vector2(x+1,dy+1),a+Vector2(x+12,dy+1),Color("b08a5a"),1.5)
+		for side in [0.0,r.size.y]:
+			var pts=PackedVector2Array()
+			for i in 17:
+				var k=float(i)/16.0
+				pts.append(a+Vector2(r.size.x*k,side-26+sin(k*PI)*(sag+8)))
+			draw_polyline(pts,Color("5a4630"),2.0)
+		for x in [0.0,r.size.x-6]:
+			draw_rect(Rect2(a+Vector2(x,-30),Vector2(6,r.size.y+30+surface.base)),Color("3d2c1e"))
+		draw_line(d,d+Vector2(r.size.x,0),Color(1.0,0.93,0.72,0.8),2)
+		return
+	if surface.kind in ["stilt","scaffold"]:
+		# Stilt decks and scaffolds: weathered planks laid across bamboo-lashed posts; scaffolds brace their
+		# posts with crossed timbers. A fascia board and a lit lip mark the walkable front.
+		var posts=[6.0,r.size.x*0.5-4,r.size.x-12]
+		for x in posts:
+			draw_rect(Rect2(d+Vector2(x,0),Vector2(7,surface.base)),Color("4a3526"))
+			draw_line(d+Vector2(x+1,0),d+Vector2(x+1,surface.base),Color("8c6a48"),1.5)
+			for k in range(1,int(surface.base/40.0)+1):
+				draw_line(d+Vector2(x-1,k*40-6),d+Vector2(x+8,k*40-2),Color("c2a364"),2)   # rope lashing
+		if surface.kind=="scaffold":
+			for i in 2:
+				var xa=posts[i]+3
+				var xb=posts[i+1]+3
+				draw_line(d+Vector2(xa,0),d+Vector2(xb,surface.base),Color("6e5038"),2)
+				draw_line(d+Vector2(xb,0),d+Vector2(xa,surface.base),Color("6e5038"),2)
+		# The top face: boards running across, alternating tone, dark seams between them.
+		var row=0
+		for y in range(0,int(r.size.y),9):
+			var tone=Color("8a6a44") if row%2==0 else Color("7a5c3a")
+			draw_rect(Rect2(a+Vector2(0,y),Vector2(r.size.x,8)),tone)
+			draw_line(a+Vector2(0,y+8),a+Vector2(r.size.x,y+8),Color("3e2c1c"),1)
+			var knot=float((row*37)%int(maxf(1.0,r.size.x-20)))
+			draw_line(a+Vector2(knot+6,y+3),a+Vector2(knot+14,y+3),Color("5e4428"),1)
+			row+=1
+		draw_rect(Rect2(d,Vector2(r.size.x,8)),Color("5a4130"))    # fascia board
+		draw_line(d+Vector2(0,8),d+Vector2(r.size.x,8),Color("2e2016"),1)
+		draw_line(d,d+Vector2(r.size.x,0),Color(1.0,0.93,0.72,0.85),2)
+		return
+	if surface.kind=="awning":
+		# A stall awning (S43 kit): striped cloth on two thin poles, a scalloped front edge.
+		for x in [4.0,r.size.x-8]:
+			draw_rect(Rect2(d+Vector2(x,0),Vector2(4,surface.base)),Color("5a3a22"))
+		var stripe=int(maxf(12.0,r.size.x/8.0))
+		for i in range(0,int(r.size.x),stripe):
+			var col=Color("b8473a") if (i/stripe)%2==0 else Color("efe2c0")
+			draw_rect(Rect2(a+Vector2(i,0),Vector2(minf(stripe,r.size.x-i),r.size.y)),col)
+		draw_line(a,a+Vector2(r.size.x,0),Color("7a1f19"),2)
+		for i in range(0,int(r.size.x),stripe):
+			draw_arc(d+Vector2(i+stripe*0.5,0),stripe*0.5,0.0,PI,8,Color("7a1f19"),2.0)
+		draw_line(d,d+Vector2(r.size.x,0),Color(1.0,0.93,0.72,0.8),2)
+		return
+	if surface.kind=="boards":
 		# Rotten boards on two posts: a walkable lip, gaps between the planks (S43 crumble).
 		for x in [6.0,r.size.x*0.5-3,r.size.x-12]:
 			draw_rect(Rect2(d+Vector2(x,0),Vector2(6,surface.base)),Color("3d2c1e"))
@@ -211,8 +375,8 @@ func _draw():
 		draw_rect(Rect2(d,Vector2(r.size.x,6)),Color("3a2a1e"))
 		return
 	match surface.kind:
-		"cloud", "tree_branch", "rock_ledge":
-			var row_y=70 if surface.kind=="tree_branch" else (400 if surface.kind=="cloud" else 700)
+		"cloud", "tree_branch", "rock_ledge", "canopy", "ledge", "causeway":
+			var row_y=70 if surface.kind in ["tree_branch","canopy"] else (400 if surface.kind=="cloud" else 700)
 			var source=Rect2(0,row_y,PLATFORMS.get_width(),290)
 			draw_texture_rect_region(PLATFORMS,Rect2(a,r.size),source)
 		"balcony":

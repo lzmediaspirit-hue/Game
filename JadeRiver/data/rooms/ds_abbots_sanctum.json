@@ -46,12 +46,12 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "bell_ledge_0",
    "rect": [
-    600,
-    640,
-    280,
-    50
+    420,
+    620,
+    220,
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -59,14 +59,40 @@
    "open_edges": true
   },
   {
-   "id": "ledge_mv_1",
+   "id": "bell_ledge_1",
    "rect": [
-    1180,
-    640,
-    280,
-    50
+    1000,
+    620,
+    220,
+    70
    ],
-   "height": 176,
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bell_ledge_2",
+   "rect": [
+    1580,
+    620,
+    220,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bell_ledge_3",
+   "rect": [
+    2160,
+    620,
+    220,
+    70
+   ],
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -101,33 +127,41 @@
    "id": "small_bell_0",
    "type": "bell",
    "at": [
-    500,
-    700
-   ]
+    530,
+    655
+   ],
+   "alt": 100,
+   "surface": "bell_ledge_0"
   },
   {
    "id": "small_bell_1",
    "type": "bell",
    "at": [
-    1100,
-    700
-   ]
+    1110,
+    655
+   ],
+   "alt": 200,
+   "surface": "bell_ledge_1"
   },
   {
    "id": "small_bell_2",
    "type": "bell",
    "at": [
-    1700,
-    700
-   ]
+    1690,
+    655
+   ],
+   "alt": 100,
+   "surface": "bell_ledge_2"
   },
   {
    "id": "small_bell_3",
    "type": "bell",
    "at": [
-    2300,
-    700
-   ]
+    2270,
+    655
+   ],
+   "alt": 200,
+   "surface": "bell_ledge_3"
   },
   {
    "id": "vault",
@@ -233,5 +267,97 @@
  "decor": [],
  "areas": [],
  "music": "boss",
- "dungeon_exit": "dw_bend_shore"
+ "dungeon_exit": "dw_bend_shore",
+ "climbables": [
+  {
+   "id": "bell_ledge_0_rope_1",
+   "kind": "rope",
+   "at": [
+    530,
+    725
+   ],
+   "top_at": [
+    530,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "bell_ledge_0"
+  },
+  {
+   "id": "bell_ledge_1_rope_2",
+   "kind": "rope",
+   "at": [
+    1110,
+    725
+   ],
+   "top_at": [
+    1110,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "bell_ledge_1"
+  },
+  {
+   "id": "bell_ledge_2_rope_4",
+   "kind": "rope",
+   "at": [
+    1690,
+    725
+   ],
+   "top_at": [
+    1690,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "bell_ledge_2"
+  },
+  {
+   "id": "bell_ledge_3_rope_5",
+   "kind": "rope",
+   "at": [
+    2270,
+    725
+   ],
+   "top_at": [
+    2270,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "bell_ledge_3"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "bell_ledge_1_step_3",
+   "rect": [
+    1150,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  },
+  {
+   "id": "bell_ledge_3_step_6",
+   "rect": [
+    2170,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  }
+ ]
 }

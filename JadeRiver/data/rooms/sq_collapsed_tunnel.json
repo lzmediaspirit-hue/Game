@@ -51,10 +51,10 @@
   {
    "id": "ledge_tunnel",
    "rect": [
-    600,
-    650,
-    200,
-    46
+    540,
+    626,
+    340,
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -80,8 +80,8 @@
    "id": "ore_1",
    "type": "ore_vein",
    "at": [
-    377,
-    690
+    710,
+    661
    ],
    "item": "jadeiron",
    "prop": "jadeiron_vein",
@@ -99,7 +99,8 @@
      }
     ]
    },
-   "locked_text": "The stone is too hard to work by hand."
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 100
   },
   {
    "id": "ore_2",
@@ -130,25 +131,27 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    149,
-    900
+    570,
+    661
    ],
    "loot": "jar_valley_low",
    "level": 6,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "crate_4",
    "type": "crate",
    "at": [
-    460,
-    930
+    850,
+    661
    ],
    "loot": "jar_valley_low",
    "level": 6,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_5",
@@ -178,11 +181,12 @@
    "id": "chest_7",
    "type": "chest",
    "at": [
-    920,
-    700
+    640,
+    661
    ],
    "loot": "chest_dungeon",
-   "level": 7
+   "level": 7,
+   "alt": 100
   },
   {
    "id": "journal_tunnel",
@@ -316,5 +320,31 @@
  ],
  "areas": [],
  "music": "dungeon",
- "ambience": ""
+ "ambience": "",
+ "blocks": [
+  {
+   "id": "rubble_low",
+   "rect": [
+    300,
+    770,
+    80,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rubble"
+  },
+  {
+   "id": "rubble_high",
+   "rect": [
+    390,
+    740,
+    80,
+    60
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "rubble"
+  }
+ ]
 }

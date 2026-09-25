@@ -63,9 +63,9 @@
    "id": "pond_raft",
    "rect": [
     612,
-    712,
+    682,
     90,
-    40
+    70
    ],
    "height": 14,
    "kind": "raft",
@@ -247,6 +247,40 @@
    "speed": 45,
    "wait_s": 2.5,
    "mode": "pingpong"
+  }
+ ],
+ "climbables": [
+  {
+   "id": "stilt_house_ladder_1",
+   "kind": "ladder",
+   "at": [
+    760,
+    725
+   ],
+   "top_at": [
+    760,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 196,
+   "bottom": "ground",
+   "top": "stilt_house"
+  },
+  {
+   "id": "stilt_house_ladder_102",
+   "kind": "ladder",
+   "at": [
+    680,
+    725
+   ],
+   "top_at": [
+    680,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 196,
+   "bottom": "ground",
+   "top": "stilt_house"
   }
  ]
 }

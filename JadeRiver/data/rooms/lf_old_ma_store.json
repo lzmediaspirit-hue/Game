@@ -46,14 +46,14 @@
    "open_edges": false
   },
   {
-   "id": "loft_mv",
+   "id": "storeroom_loft",
    "rect": [
-    820,
-    654,
-    300,
-    46
+    700,
+    580,
+    360,
+    70
    ],
-   "height": 100,
+   "height": 88,
    "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
@@ -82,6 +82,58 @@
    ],
    "npc": "old_ma",
    "facing": 1
+  },
+  {
+   "id": "sandals_loft",
+   "type": "pickup",
+   "at": [
+    960,
+    612
+   ],
+   "alt": 88,
+   "item": "straw_sandals",
+   "count": 1,
+   "prop": "storage_chest",
+   "label": "Straw Sandals",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "sandals_loft"
+     }
+    ]
+   },
+   "set_flag": "sandals_loft"
+  },
+  {
+   "id": "old_net_floor",
+   "type": "pickup",
+   "at": [
+    430,
+    820
+   ],
+   "item": "old_net",
+   "count": 1,
+   "prop": "none",
+   "label": "Old Net",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "mas_delivery"
+     }
+    ]
+   },
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "old_net_found"
+     }
+    ]
+   },
+   "set_flag": "old_net_found",
+   "locked_text": "A tangle of old net under the shelf."
   }
  ],
  "spawns": [],
@@ -100,7 +152,7 @@
     28,
     26
    ],
-   "height": 48,
+   "height": 40,
    "standable": true,
    "flip": false
   }
@@ -131,22 +183,6 @@
    "layer": "play"
   },
   {
-   "prop": "shelf",
-   "at": [
-    300,
-    660
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "shelf",
-   "at": [
-    980,
-    660
-   ],
-   "layer": "play"
-  },
-  {
    "prop": "sack_pile",
    "at": [
     180,
@@ -166,5 +202,59 @@
   "y_min": 520,
   "y_max": 560
  },
- "music": "village_day"
+ "music": "village_day",
+ "blocks": [
+  {
+   "id": "shelf_west",
+   "rect": [
+    250,
+    656,
+    100,
+    40
+   ],
+   "base": 0,
+   "top": 110,
+   "kind": "table"
+  },
+  {
+   "id": "shelf_east",
+   "rect": [
+    930,
+    656,
+    100,
+    40
+   ],
+   "base": 0,
+   "top": 110,
+   "kind": "table"
+  }
+ ],
+ "climbables": [
+  {
+   "id": "storeroom_ladder",
+   "kind": "ladder",
+   "at": [
+    740,
+    685
+   ],
+   "top_at": [
+    740,
+    642
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "storeroom_loft",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_runaway_kite"
+     }
+    ]
+   },
+   "locked_text": "Old Ma: \"The storeroom? Learn to jump first, then we'll talk.\""
+  }
+ ],
+ "vertical": "authored"
 }

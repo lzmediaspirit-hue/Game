@@ -72,6 +72,32 @@
    "stratum": "platform",
    "open_edges": true,
    "art": "village_house"
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    1740,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    2050,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -159,5 +185,85 @@
  "areas": [],
  "music": "village_day",
  "ambience": "town_ambience",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "hamlet_house_a_ladder_1",
+   "kind": "ladder",
+   "at": [
+    500,
+    725
+   ],
+   "top_at": [
+    500,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 124,
+   "bottom": "ground",
+   "top": "hamlet_house_a"
+  },
+  {
+   "id": "hamlet_house_b_ladder_3",
+   "kind": "ladder",
+   "at": [
+    1400,
+    725
+   ],
+   "top_at": [
+    1400,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 158,
+   "bottom": "ground",
+   "top": "hamlet_house_b"
+  },
+  {
+   "id": "route_0_ladder_4",
+   "kind": "ladder",
+   "at": [
+    1850,
+    741
+   ],
+   "top_at": [
+    1850,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_1_ladder_5",
+   "kind": "ladder",
+   "at": [
+    2160,
+    741
+   ],
+   "top_at": [
+    2160,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "route_1"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "hamlet_house_a_step_2",
+   "rect": [
+    610,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
+  }
+ ]
 }

@@ -49,11 +49,11 @@
    "id": "scaffold_slip",
    "rect": [
     860,
-    636,
+    616,
     280,
-    50
+    70
    ],
-   "height": 120,
+   "height": 88,
    "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
@@ -62,11 +62,50 @@
    "id": "deck_yard",
    "rect": [
     1860,
-    630,
+    612,
     200,
-    52
+    70
    ],
    "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    300,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1210,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1520,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
    "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
@@ -248,5 +287,71 @@
  "areas": [],
  "music": "sky_port",
  "ambience": "wind_ambience",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "scaffold_slip_ladder_1",
+   "kind": "ladder",
+   "at": [
+    960,
+    721
+   ],
+   "top_at": [
+    960,
+    678
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "scaffold_slip"
+  },
+  {
+   "id": "deck_yard_ladder_2",
+   "kind": "ladder",
+   "at": [
+    1960,
+    717
+   ],
+   "top_at": [
+    1960,
+    674
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "deck_yard"
+  },
+  {
+   "id": "route_0_ladder_3",
+   "kind": "ladder",
+   "at": [
+    410,
+    741
+   ],
+   "top_at": [
+    410,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_ladder_4",
+   "kind": "ladder",
+   "at": [
+    1630,
+    741
+   ],
+   "top_at": [
+    1630,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_2"
+  }
+ ]
 }

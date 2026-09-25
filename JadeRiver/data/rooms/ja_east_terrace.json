@@ -189,5 +189,69 @@
  "areas": [],
  "music": "sect",
  "sect": "jade_sect",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "mission_hall_ladder_1",
+   "kind": "ladder",
+   "at": [
+    700,
+    725
+   ],
+   "top_at": [
+    700,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 120,
+   "bottom": "ground",
+   "top": "mission_hall"
+  },
+  {
+   "id": "retreat_rooms_ladder_3",
+   "kind": "ladder",
+   "at": [
+    1860,
+    725
+   ],
+   "top_at": [
+    1860,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "retreat_rooms"
+  },
+  {
+   "id": "retreat_rooms_ladder_104",
+   "kind": "ladder",
+   "at": [
+    1940,
+    725
+   ],
+   "top_at": [
+    1940,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "retreat_rooms"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "mission_hall_step_2",
+   "rect": [
+    930,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
+  }
+ ]
 }

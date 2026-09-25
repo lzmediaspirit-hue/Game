@@ -314,5 +314,98 @@
     }
    ]
   }
- }
+ },
+ "climbables": [
+  {
+   "id": "hut_ladder_n",
+   "kind": "ladder",
+   "at": [
+    300,
+    725
+   ],
+   "top_at": [
+    300,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 124,
+   "bottom": "ground",
+   "top": "fishers_hut_n"
+  },
+  {
+   "id": "granny_ladder_n",
+   "kind": "ladder",
+   "at": [
+    1120,
+    725
+   ],
+   "top_at": [
+    1120,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 128,
+   "bottom": "ground",
+   "top": "granny_hut_n"
+  },
+  {
+   "id": "store_ladder_n",
+   "kind": "ladder",
+   "at": [
+    1860,
+    725
+   ],
+   "top_at": [
+    1860,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 168,
+   "bottom": "ground",
+   "top": "old_ma_store_n"
+  },
+  {
+   "id": "hall_ladder_n",
+   "kind": "ladder",
+   "at": [
+    1962,
+    725
+   ],
+   "top_at": [
+    1962,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "village_hall_n"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "night_crate_hut",
+   "rect": [
+    610,
+    704,
+    50,
+    44
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "crate"
+  },
+  {
+   "id": "night_crate_granny",
+   "rect": [
+    770,
+    704,
+    50,
+    44
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "crate"
+  }
+ ],
+ "vertical": "authored"
 }

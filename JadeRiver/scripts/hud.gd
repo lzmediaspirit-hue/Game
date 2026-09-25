@@ -297,7 +297,12 @@ func _fight_context() -> bool:
 func use_context() -> void:
 	if str(context.get("type", "")) == "climbable":
 		player.climb_hold = 0.0
-		player.authority.climb()
+		var near_c: Dictionary = player.world.geometry.climbable_near(player.plane, player.altitude, 48.0)
+		var open: Dictionary = Game.world.climbable_open(Game.active(), near_c) if not near_c.is_empty() else {"ok": true}
+		if not open.get("ok", false):
+			add_log(str(open.get("text", "")), UiKit.MIST)
+			return
+		player.authority.climb(near_c)
 		return
 	if context.has("portal"):
 		world.request_portal(str(context.portal))
@@ -473,6 +478,8 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.breakthrough_failed") + ContentDB.text("failure." + str(p.failure_id)), UiKit.RED)
 		"achievement_unlocked":
 			toast(Tx.t("hud.achievement") + str(p.get("name", "")), "gold")
+		"path_above_found":
+			toast(Tx.t("hud.path_above") % [int(p.get("found", 1)), int(p.get("total", 1))], "gold")
 		"title_changed":
 			if p.get("earned", false): toast(Tx.t("hud.title_earned") + ContentDB.name_of("titles", str(p.title)), "gold")
 		"mail_received":

@@ -63,11 +63,24 @@
    "id": "rope_ledge",
    "rect": [
     1500,
-    640,
+    620,
     260,
-    50
+    70
    ],
-   "height": 150,
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "rope_ledge_step_ledge_4",
+   "rect": [
+    1280,
+    620,
+    160,
+    70
+   ],
+   "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -206,5 +219,71 @@
  "areas": [],
  "music": "sect",
  "sect": "cloud_sect",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "retreat_rooms_cm_ladder_1",
+   "kind": "ladder",
+   "at": [
+    1860,
+    725
+   ],
+   "top_at": [
+    1860,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "retreat_rooms_cm"
+  },
+  {
+   "id": "retreat_rooms_cm_ladder_102",
+   "kind": "ladder",
+   "at": [
+    1940,
+    725
+   ],
+   "top_at": [
+    1940,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "retreat_rooms_cm"
+  },
+  {
+   "id": "rope_ledge_rope_3",
+   "kind": "rope",
+   "at": [
+    1630,
+    725
+   ],
+   "top_at": [
+    1630,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "rope_ledge"
+  },
+  {
+   "id": "rope_ledge_step_ledge_4_rope_101",
+   "kind": "rope",
+   "at": [
+    1360,
+    725
+   ],
+   "top_at": [
+    1360,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "rope_ledge_step_ledge_4"
+  }
+ ]
 }

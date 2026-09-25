@@ -52,12 +52,12 @@
    "id": "ledge_0",
    "rect": [
     800,
-    700,
+    680,
     180,
-    50
+    70
    ],
-   "height": 70,
-   "kind": "branch",
+   "height": 100,
+   "kind": "tree_branch",
    "stratum": "platform",
    "open_edges": true
   },
@@ -65,12 +65,51 @@
    "id": "ledge_1",
    "rect": [
     1500,
-    720,
+    700,
     180,
-    50
+    70
    ],
-   "height": 90,
-   "kind": "branch",
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    520,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1040,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
    "stratum": "platform",
    "open_edges": true
   }
@@ -102,8 +141,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    455,
-    700
+    950,
+    715
    ],
    "item": "willow_moss",
    "prop": "willow_moss_patch",
@@ -121,7 +160,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100
   },
   {
    "id": "herb_2",
@@ -177,25 +217,27 @@
    "id": "jar_4",
    "type": "jar",
    "at": [
-    208,
-    720
+    830,
+    715
    ],
    "loot": "jar_valley_low",
    "level": 5,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_5",
    "type": "jar",
    "at": [
-    833,
-    930
+    1530,
+    735
    ],
    "loot": "jar_valley_low",
    "level": 5,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_6",
@@ -316,15 +358,15 @@
    "points": [
     [
      850,
-     725
+     715
     ],
     [
      890,
-     725
+     715
     ],
     [
      930,
-     725
+     715
     ]
    ],
    "max": 5,
@@ -552,6 +594,72 @@
     -50,
     10
    ]
+  }
+ ],
+ "climbables": [
+  {
+   "id": "ledge_0_vine_1",
+   "kind": "vine",
+   "at": [
+    890,
+    785
+   ],
+   "top_at": [
+    890,
+    742
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_0"
+  },
+  {
+   "id": "ledge_1_vine_2",
+   "kind": "vine",
+   "at": [
+    1550,
+    805
+   ],
+   "top_at": [
+    1550,
+    762
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_1"
+  },
+  {
+   "id": "route_0_vine_3",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_vine_4",
+   "kind": "vine",
+   "at": [
+    1200,
+    741
+   ],
+   "top_at": [
+    1200,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_2"
   }
  ]
 }

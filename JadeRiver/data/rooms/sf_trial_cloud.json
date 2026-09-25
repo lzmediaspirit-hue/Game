@@ -46,40 +46,53 @@
    "open_edges": false
   },
   {
-   "id": "step_1",
+   "id": "ledge_1",
    "rect": [
-    360,
-    700,
-    180,
-    50
+    300,
+    680,
+    220,
+    70
    ],
-   "height": 60,
+   "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "step_2",
+   "id": "ledge_2",
    "rect": [
-    600,
-    660,
-    180,
-    50
+    300,
+    610,
+    220,
+    70
    ],
-   "height": 120,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "step_3",
+   "id": "crumbling_ledge",
    "rect": [
-    840,
-    700,
-    180,
-    50
+    560,
+    610,
+    160,
+    70
    ],
-   "height": 180,
+   "height": 200,
+   "kind": "boards",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_3",
+   "rect": [
+    760,
+    590,
+    240,
+    70
+   ],
+   "height": 300,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -104,11 +117,12 @@
    "id": "trial_bell",
    "type": "bell",
    "at": [
-    930,
-    724
+    880,
+    625
    ],
-   "alt": 180,
-   "set_flag": "trial_climbed"
+   "alt": 300,
+   "set_flag": "trial_climbed",
+   "surface": "ledge_3"
   }
  ],
  "spawns": [
@@ -167,5 +181,88 @@
  "areas": [],
  "instanced": true,
  "music": "trial",
- "dungeon_exit": "sf_fairground"
+ "dungeon_exit": "sf_fairground",
+ "climbables": [
+  {
+   "id": "ledge_2_rope",
+   "kind": "rope",
+   "at": [
+    460,
+    700
+   ],
+   "top_at": [
+    460,
+    672
+   ],
+   "bottom_alt": 100,
+   "top_alt": 200,
+   "bottom": "ledge_1",
+   "top": "ledge_2"
+  },
+  {
+   "id": "crumbling_ledge_rope",
+   "kind": "rope",
+   "at": [
+    640,
+    715
+   ],
+   "top_at": [
+    640,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "crumbling_ledge"
+  },
+  {
+   "id": "ledge_3_rope",
+   "kind": "rope",
+   "at": [
+    960,
+    695
+   ],
+   "top_at": [
+    960,
+    652
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "ledge_3"
+  },
+  {
+   "id": "ledge_1_rope",
+   "kind": "rope",
+   "at": [
+    480,
+    785
+   ],
+   "top_at": [
+    480,
+    742
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_1"
+  }
+ ],
+ "movers": [],
+ "volumes": [
+  {
+   "id": "trial_crumble",
+   "kind": "crumble",
+   "rect": [
+    560,
+    610,
+    160,
+    70
+   ],
+   "surface": "crumbling_ledge",
+   "break_s": 1.0,
+   "return_s": 5.0
+  }
+ ],
+ "vertical": "authored"
 }

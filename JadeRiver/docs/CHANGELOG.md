@@ -5,6 +5,52 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V2d · The room verticality catalogue, room lint and Paths Above (S43 rules 14–15)
+- **Every valley room is built to its v2 catalogue row** (tools/data/catalogue.py):
+  - **Lotus Ferry:**
+    - lofts sealed until The Runaway Kite;
+    - Aunt Ping's lost ladle (a new quest) on a roof;
+    - Home Lane's crates and well;
+    - the roof chain and the watchtower;
+    - the docks' boat deck and mast lookout;
+    - stilt decks and drifting rafts in the Reed Shallows.
+  - **Willow Path and Stoneford:**
+    - willow branches and a later pine top;
+    - Market Street's awnings and bell tower;
+    - Artisan Row's scaffolds and chimney (the Tinkerer's Gear, a new item);
+    - Stoneford Gate's walltop;
+    - the Entry Trials rebuilt: Jade climbs roofs over moving planks, Cloud climbs ropes past a crumbling ledge.
+  - **The sects:**
+    - the Sword Court's plum-blossom poles and a Wall-Step pillar pair;
+    - Elder Sung's rope bridge between peaks;
+    - library floors at 120 and 240, sealed by rank.
+  - **Fields and dungeons:**
+    - scaffolds and a crane lift at the quarry;
+    - a cracked slab in the Lower Pit that a Plunge breaks;
+    - rafts, a moored chest and a lily-pad bounce in the Grey Pools;
+    - sprint gaps and a Wall-Step pillar on the Sunken Causeway;
+    - bamboo tiers and a bent-bamboo bounce;
+    - rope bridges on Caravan Road and at the Gorge Mouth;
+    - the Boss Den's wine shelves and the Abbot's bell ledges;
+    - a Wall-Step shaft behind the falls.
+- **Verticality pass for every other room** (tools/data/verticality.py):
+  - standard heights and landings;
+  - a raised route across 40% of wide rooms, with rope bridges where roofs are too far apart;
+  - a second tier where a room has only one;
+  - later ledges for a named art;
+  - two ways up each tier;
+  - loot lifted onto tiers.
+- **Room lint and reach contract** (tools/data/room_lint.py) runs first in `tools/run_tests.sh`. All 122 rooms pass.
+- **Paths Above:**
+  - Every later ledge is a row in `paths_above.json` and in a new Codex tab.
+  - Standing on one records it (`path_above_found`, with a toast).
+  - The World map shows a faint wind glyph where your arts now open a ledge you have not stood on.
+- **New kit art:**
+  - rope bridges, a walltop, chimneys and stone pillars;
+  - bamboo slat platforms, scaffolds and stilt decks, awnings, a causeway slab and a cracked slab;
+  - log, rubble, lily-pad and bent-bamboo blocks.
+- Monsters that live on tiers now also start on branches, canopies, stilts, scaffolds and causeways.
+
 ### V2c · Camera, heights in a fight, monster navigation and allies (S43 rules 10–13)
 - **Camera.**
   - Rooms may set camera bounds and look-ahead.

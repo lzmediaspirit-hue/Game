@@ -54,12 +54,77 @@
    "id": "ledge_mv_0",
    "rect": [
     940,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    360,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1540,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    600,
+    636,
+    340,
+    60
+   ],
+   "height": 100.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_1",
+   "rect": [
+    1220,
+    636,
+    320,
+    60
+   ],
+   "height": 100.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "upper_route_1",
+   "rect": [
+    1860,
+    636,
+    200,
+    70
+   ],
+   "height": 188.0,
+   "kind": "tree_branch",
    "stratum": "platform",
    "open_edges": true
   }
@@ -93,8 +158,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    699,
-    930
+    1190,
+    655
    ],
    "item": "frost_lotus",
    "prop": "frost_lotus_patch",
@@ -112,7 +177,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100
   },
   {
    "id": "herb_2",
@@ -143,13 +209,14 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    437,
-    900
+    970,
+    655
    ],
    "loot": "jar_expanse",
    "level": 71,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_4",
@@ -179,11 +246,12 @@
    "id": "chest_6",
    "type": "chest",
    "at": [
-    2200,
-    700
+    1890,
+    671
    ],
    "loot": "chest_expanse",
-   "level": 72
+   "level": 72,
+   "alt": 188
   },
   {
    "id": "shrine_rf_summit",
@@ -298,7 +366,7 @@
     78,
     26
    ],
-   "height": 78,
+   "height": 80,
    "standable": true,
    "flip": true
   }
@@ -398,5 +466,23 @@
  "areas": [],
  "music": "summit",
  "ambience": "wind_ambience",
- "attunement_required": 22
+ "attunement_required": 22,
+ "climbables": [
+  {
+   "id": "upper_route_1_vine_1",
+   "kind": "vine",
+   "at": [
+    1960,
+    741
+   ],
+   "top_at": [
+    1960,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 188,
+   "bottom": "ground",
+   "top": "upper_route_1"
+  }
+ ]
 }

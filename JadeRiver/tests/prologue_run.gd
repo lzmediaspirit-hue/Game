@@ -314,6 +314,7 @@ func run() -> void:
 	check(go("store_door"), "enter Old Ma's store")
 	accept("old_ma", "mas_delivery")
 	check(Game.is_revealed("hud:currency"), "currency revealed")
+	check(interact("old_net_floor").get("ok", false), "find the Old Net under the storeroom shelf")
 	var net = c().inventory.first_index("old_net")
 	check(net >= 0 and submit({"type": "sell", "index": net, "count": 1}).ok, "sell the old net")
 	var buy := submit({"type": "buy", "shop": "old_ma", "item": "rice_ball", "count": 2})

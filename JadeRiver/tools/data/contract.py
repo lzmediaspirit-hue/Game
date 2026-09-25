@@ -49,7 +49,7 @@ CATALOGUE = {
     "Companion": [
         "companion_downed", "companion_revived"],
     "Achievement": [
-        "achievement_progressed", "achievement_unlocked", "title_changed"],
+        "achievement_progressed", "achievement_unlocked", "title_changed", "path_above_found"],
     "Notifier": [
         "notification_scheduled"],
     "Sect": [

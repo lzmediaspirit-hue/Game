@@ -270,6 +270,12 @@ func object_visible(c, o: Dictionary) -> bool:
 	if o.has("hidden_if") and RequirementRules.passes(o.hidden_if, game.ctx(c)): return false
 	return true
 
+## A sealed climbable (S43: library floors, lofts) opens when its requirement is met.
+func climbable_open(c, climbable: Dictionary) -> Dictionary:
+	if climbable.has("requires") and not RequirementRules.passes(climbable.requires, game.ctx(c)):
+		return {"ok": false, "text": str(climbable.get("locked_text", RequirementRules.first_failure_text(climbable.requires, game.ctx(c))))}
+	return {"ok": true}
+
 func object_available(c, o: Dictionary) -> Dictionary:
 	if not object_visible(c, o): return {"ok": false, "text": "", "hidden": true}
 	if o.has("requires") and not RequirementRules.passes(o.requires, game.ctx(c)):
@@ -361,6 +367,10 @@ func interact(c, object_id: String) -> Dictionary:
 		"inspect":
 			result.text = str(o.get("text", ""))
 			if o.has("open_page"): result.open_page = str(o.open_page)
+			# Some things teach you something the first time you look (a Codex entry): once per character.
+			if o.has("effects") and not c.quests.has_flag("inspected_" + object_id):
+				c.quests.flags["inspected_" + object_id] = true
+				game.apply_effects(c.id, o.effects, "inspect:" + object_id)
 		"rite_circle":
 			return game.quest.start_set_piece(c, str(o.get("event", "")))
 		"storage_chest":

@@ -46,28 +46,41 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "wine_shelf_0",
    "rect": [
-    260,
-    640,
-    280,
-    50
+    300,
+    620,
+    300,
+    70
    ],
-   "height": 100,
-   "kind": "rock_ledge",
+   "height": 88,
+   "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "ledge_mv_1",
+   "id": "wine_shelf_1",
    "rect": [
-    840,
-    640,
-    280,
-    50
+    1100,
+    620,
+    300,
+    70
    ],
-   "height": 176,
-   "kind": "rock_ledge",
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "wine_shelf_2",
+   "rect": [
+    1900,
+    620,
+    300,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
   }
@@ -101,37 +114,43 @@
    "id": "toad_wine_0",
    "type": "wine_jar",
    "at": [
-    1400,
-    900
+    450,
+    655
    ],
    "loot": "jar_valley_mid",
    "hp": 1,
    "level": 18,
-   "respawn_s": 86400
+   "respawn_s": 86400,
+   "alt": 88,
+   "surface": "wine_shelf_0"
   },
   {
    "id": "toad_wine_1",
    "type": "wine_jar",
    "at": [
-    2000,
-    720
+    1250,
+    655
    ],
    "loot": "jar_valley_mid",
    "hp": 1,
    "level": 18,
-   "respawn_s": 86400
+   "respawn_s": 86400,
+   "alt": 88,
+   "surface": "wine_shelf_1"
   },
   {
    "id": "toad_wine_2",
    "type": "wine_jar",
    "at": [
-    2300,
-    900
+    2050,
+    655
    ],
    "loot": "jar_valley_mid",
    "hp": 1,
    "level": 18,
-   "respawn_s": 86400
+   "respawn_s": 86400,
+   "alt": 88,
+   "surface": "wine_shelf_2"
   },
   {
    "id": "chest_1",
@@ -176,5 +195,55 @@
  "decor": [],
  "areas": [],
  "music": "boss",
- "dungeon_exit": "cr_caravan_road"
+ "dungeon_exit": "cr_caravan_road",
+ "climbables": [
+  {
+   "id": "wine_shelf_0_ladder_1",
+   "kind": "ladder",
+   "at": [
+    450,
+    725
+   ],
+   "top_at": [
+    450,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "wine_shelf_0"
+  },
+  {
+   "id": "wine_shelf_1_ladder_2",
+   "kind": "ladder",
+   "at": [
+    1250,
+    725
+   ],
+   "top_at": [
+    1250,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "wine_shelf_1"
+  },
+  {
+   "id": "wine_shelf_2_ladder_3",
+   "kind": "ladder",
+   "at": [
+    2050,
+    725
+   ],
+   "top_at": [
+    2050,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "wine_shelf_2"
+  }
+ ]
 }

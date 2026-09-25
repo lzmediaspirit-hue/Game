@@ -54,11 +54,11 @@
    "id": "ledge_0",
    "rect": [
     800,
-    680,
+    660,
     300,
-    50
+    70
    ],
-   "height": 80,
+   "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -67,11 +67,11 @@
    "id": "ledge_1",
    "rect": [
     1800,
-    680,
+    660,
     300,
-    50
+    70
    ],
-   "height": 150,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -80,12 +80,64 @@
    "id": "ledge_2",
    "rect": [
     2800,
-    680,
+    660,
     300,
-    50
+    70
    ],
-   "height": 80,
+   "height": 100,
    "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    520,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1160,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    1500,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
    "stratum": "platform",
    "open_edges": true
   }
@@ -129,8 +181,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    480,
-    930
+    1070,
+    695
    ],
    "item": "mist_lotus",
    "prop": "mist_lotus_patch",
@@ -148,14 +200,15 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100
   },
   {
    "id": "herb_2",
    "type": "herb_patch",
    "at": [
-    1391,
-    700
+    2070,
+    695
    ],
    "item": "mist_lotus",
    "prop": "mist_lotus_patch",
@@ -173,7 +226,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 200
   },
   {
    "id": "ore_3",
@@ -229,25 +283,27 @@
    "id": "jar_5",
    "type": "jar",
    "at": [
-    377,
-    700
+    830,
+    695
    ],
    "loot": "jar_valley_mid",
    "level": 30,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "crate_6",
    "type": "crate",
    "at": [
-    1007,
-    720
+    1830,
+    695
    ],
    "loot": "jar_valley_mid",
    "level": 30,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "jar_7",
@@ -627,6 +683,88 @@
     -50,
     10
    ]
+  }
+ ],
+ "climbables": [
+  {
+   "id": "ledge_0_rope_1",
+   "kind": "rope",
+   "at": [
+    950,
+    765
+   ],
+   "top_at": [
+    950,
+    722
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_0"
+  },
+  {
+   "id": "ledge_1_rope_2",
+   "kind": "rope",
+   "at": [
+    1950,
+    765
+   ],
+   "top_at": [
+    1950,
+    722
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_1"
+  },
+  {
+   "id": "ledge_2_rope_3",
+   "kind": "rope",
+   "at": [
+    2950,
+    765
+   ],
+   "top_at": [
+    2950,
+    722
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_2"
+  },
+  {
+   "id": "route_0_vine_4",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_3_vine_5",
+   "kind": "vine",
+   "at": [
+    1620,
+    741
+   ],
+   "top_at": [
+    1620,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_3"
   }
  ]
 }

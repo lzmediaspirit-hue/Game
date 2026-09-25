@@ -53,9 +53,9 @@
    "id": "ledge_mv_0",
    "rect": [
     813,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -66,12 +66,51 @@
    "id": "ledge_mv_1",
    "rect": [
     1393,
-    640,
+    620,
     280,
-    50
+    70
    ],
-   "height": 176,
+   "height": 200,
    "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    520,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1760,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
    "stratum": "platform",
    "open_edges": true
   }
@@ -103,25 +142,27 @@
    "id": "jar_1",
    "type": "jar",
    "at": [
-    515,
-    700
+    843,
+    655
    ],
    "loot": "jar_expanse",
    "level": 73,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_2",
    "type": "jar",
    "at": [
-    1413,
-    900
+    1423,
+    655
    ],
    "loot": "jar_expanse",
    "level": 73,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "jar_3",
@@ -151,11 +192,12 @@
    "id": "chest_5",
    "type": "chest",
    "at": [
-    3480,
-    700
+    1643,
+    655
    ],
    "loot": "chest_expanse",
-   "level": 75
+   "level": 75,
+   "alt": 200
   },
   {
    "id": "chest_ledge_mv_1",
@@ -166,7 +208,7 @@
    ],
    "loot": "chest_expanse",
    "level": 75,
-   "alt": 176,
+   "alt": 200,
    "surface": "ledge_mv_1"
   }
  ],
@@ -454,5 +496,55 @@
  "areas": [],
  "music": "river",
  "ambience": "river_ambience",
- "attunement_required": 28
+ "attunement_required": 28,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    953,
+    725
+   ],
+   "top_at": [
+    953,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "route_0_vine_2",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_vine_3",
+   "kind": "vine",
+   "at": [
+    1880,
+    741
+   ],
+   "top_at": [
+    1880,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_2"
+  }
+ ]
 }

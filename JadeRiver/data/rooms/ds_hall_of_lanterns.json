@@ -49,9 +49,9 @@
    "id": "ledge_mv_0",
    "rect": [
     600,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -86,25 +86,27 @@
    "id": "jar_1",
    "type": "jar",
    "at": [
-    190,
-    900
+    630,
+    655
    ],
    "loot": "jar_valley_mid",
    "level": 24,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_2",
    "type": "jar",
    "at": [
-    688,
-    930
+    850,
+    655
    ],
    "loot": "jar_valley_mid",
    "level": 24,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_3",
@@ -146,11 +148,12 @@
    "id": "chest_6",
    "type": "chest",
    "at": [
-    2200,
-    700
+    740,
+    655
    ],
    "loot": "chest_dungeon",
-   "level": 27
+   "level": 27,
+   "alt": 100
   },
   {
    "id": "inscription_ds_hall_of_lanterns_0",
@@ -435,6 +438,24 @@
     -50,
     10
    ]
+  }
+ ],
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    740,
+    725
+   ],
+   "top_at": [
+    740,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
   }
  ]
 }

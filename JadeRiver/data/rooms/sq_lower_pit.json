@@ -49,53 +49,53 @@
    "open_edges": false
   },
   {
-   "id": "ledge_0",
+   "id": "pit_rim",
    "rect": [
-    500,
-    660,
-    280,
-    50
-   ],
-   "height": 90,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "ledge_1",
-   "rect": [
-    900,
-    640,
-    260,
-    50
-   ],
-   "height": 180,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "ledge_2",
-   "rect": [
-    1400,
-    660,
+    140,
+    620,
     300,
-    50
+    70
    ],
-   "height": 264,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "ledge_3",
+   "id": "pit_shelf",
    "rect": [
-    1900,
-    680,
-    260,
-    50
+    540,
+    630,
+    300,
+    70
    ],
-   "height": 120,
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "pit_rim_east",
+   "rect": [
+    940,
+    620,
+    280,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "pit_shelf_east",
+   "rect": [
+    1320,
+    640,
+    280,
+    70
+   ],
+   "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -130,8 +130,8 @@
    "id": "ore_1",
    "type": "ore_vein",
    "at": [
-    296,
-    690
+    410,
+    655
    ],
    "item": "copper_ore",
    "prop": "copper_vein",
@@ -149,14 +149,15 @@
      }
     ]
    },
-   "locked_text": "The stone is too hard to work by hand."
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 200
   },
   {
    "id": "ore_2",
    "type": "ore_vein",
    "at": [
-    981,
-    690
+    810,
+    665
    ],
    "item": "jadeiron",
    "prop": "jadeiron_vein",
@@ -174,7 +175,8 @@
      }
     ]
    },
-   "locked_text": "The stone is too hard to work by hand."
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 100
   },
   {
    "id": "ore_3",
@@ -230,25 +232,27 @@
    "id": "jar_5",
    "type": "jar",
    "at": [
-    139,
-    700
+    170,
+    655
    ],
    "loot": "jar_valley_low",
    "level": 6,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "crate_6",
    "type": "crate",
    "at": [
-    566,
-    900
+    570,
+    665
    ],
    "loot": "jar_valley_low",
    "level": 6,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_7",
@@ -302,11 +306,33 @@
    "id": "chest_11",
    "type": "chest",
    "at": [
-    2200,
-    700
+    290,
+    655
    ],
    "loot": "chest_valley",
-   "level": 7
+   "level": 7,
+   "alt": 200
+  },
+  {
+   "id": "pit_shard",
+   "type": "pickup",
+   "at": [
+    1900,
+    810
+   ],
+   "item": "spirit_stone_shard",
+   "count": 3,
+   "prop": "spirit_shard_vein",
+   "label": "Spirit Stone Shards",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "pit_shard"
+     }
+    ]
+   },
+   "set_flag": "pit_shard"
   }
  ],
  "spawns": [
@@ -510,5 +536,71 @@
  ],
  "areas": [],
  "music": "field_earth",
- "ambience": ""
+ "ambience": "",
+ "climbables": [
+  {
+   "id": "pit_rim_rope",
+   "kind": "rope",
+   "at": [
+    260,
+    725
+   ],
+   "top_at": [
+    260,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "pit_rim"
+  },
+  {
+   "id": "pit_shelf_rope_1",
+   "kind": "rope",
+   "at": [
+    690,
+    735
+   ],
+   "top_at": [
+    690,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "pit_shelf"
+  },
+  {
+   "id": "pit_shelf_east_rope_2",
+   "kind": "rope",
+   "at": [
+    1460,
+    745
+   ],
+   "top_at": [
+    1460,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "pit_shelf_east"
+  }
+ ],
+ "movers": [],
+ "blocks": [
+  {
+   "id": "cracked_slab",
+   "rect": [
+    1800,
+    760,
+    200,
+    100
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "slab",
+   "cracked": true
+  }
+ ]
 }

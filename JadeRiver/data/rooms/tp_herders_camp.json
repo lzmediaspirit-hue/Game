@@ -52,11 +52,11 @@
    "id": "deck_mv_0",
    "rect": [
     260,
-    634,
+    620,
     220,
-    56
+    70
    ],
-   "height": 100,
+   "height": 88,
    "kind": "balcony",
    "stratum": "platform",
    "open_edges": true
@@ -65,9 +65,9 @@
    "id": "deck_mv_1",
    "rect": [
     500,
-    630,
+    612,
     220,
-    52
+    70
    ],
    "height": 176,
    "kind": "balcony",
@@ -143,7 +143,7 @@
     57,
     26
    ],
-   "height": 42,
+   "height": 40,
    "standable": true,
    "flip": false
   }
@@ -337,5 +337,39 @@
  ],
  "areas": [],
  "music": "storm_plains",
- "ambience": "wind_ambience"
+ "ambience": "wind_ambience",
+ "climbables": [
+  {
+   "id": "deck_mv_0_ladder_1",
+   "kind": "ladder",
+   "at": [
+    370,
+    725
+   ],
+   "top_at": [
+    370,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "deck_mv_0"
+  },
+  {
+   "id": "deck_mv_1_ladder_2",
+   "kind": "ladder",
+   "at": [
+    610,
+    717
+   ],
+   "top_at": [
+    610,
+    674
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "deck_mv_1"
+  }
+ ]
 }

@@ -52,12 +52,12 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "reed_bank",
    "rect": [
+    140,
+    630,
     260,
-    640,
-    280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -65,15 +65,94 @@
    "open_edges": true
   },
   {
-   "id": "ledge_mv_1",
+   "id": "grey_crag",
    "rect": [
-    1520,
-    640,
-    280,
-    50
+    500,
+    620,
+    240,
+    70
    ],
-   "height": 176,
+   "height": 200,
    "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "reed_bank_east",
+   "rect": [
+    840,
+    630,
+    260,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "hamlet_bank",
+   "rect": [
+    1400,
+    630,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "log_raft_a",
+   "rect": [
+    440,
+    790,
+    150,
+    60
+   ],
+   "height": 30,
+   "kind": "raft",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "moored_raft",
+   "rect": [
+    900,
+    850,
+    160,
+    60
+   ],
+   "height": 30,
+   "kind": "raft",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "lily_ledge",
+   "rect": [
+    1860,
+    610,
+    220,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    1100,
+    630,
+    300,
+    70
+   ],
+   "height": 100.0,
+   "kind": "rope_bridge",
    "stratum": "platform",
    "open_edges": true
   }
@@ -151,13 +230,14 @@
    "id": "jar_2",
    "type": "jar",
    "at": [
-    219,
-    900
+    170,
+    665
    ],
    "loot": "jar_valley_low",
    "level": 9,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_3",
@@ -208,16 +288,30 @@
    "respawn_s": 300
   },
   {
-   "id": "chest_ledge_mv_1",
+   "id": "chest_moored_raft",
    "type": "chest",
    "at": [
-    1660,
-    665
+    530,
+    655
    ],
    "loot": "chest_valley",
    "level": 12,
-   "alt": 176,
-   "surface": "ledge_mv_1"
+   "alt": 200,
+   "surface": "grey_crag"
+  },
+  {
+   "id": "jar_8",
+   "type": "jar",
+   "at": [
+    1960,
+    645
+   ],
+   "loot": "jar_valley_low",
+   "level": 10,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200,
+   "surface": "lily_ledge"
   }
  ],
  "spawns": [
@@ -226,11 +320,11 @@
    "surface": "ground",
    "points": [
     [
-     424,
+     1260,
      901
     ],
     [
-     881,
+     1300,
      922
     ],
     [
@@ -258,11 +352,11 @@
    "surface": "ground",
    "points": [
     [
-     549,
+     1680,
      743
     ],
     [
-     897,
+     1720,
      815
     ],
     [
@@ -508,8 +602,95 @@
     100,
     30
    ]
+  },
+  {
+   "kind": "water",
+   "rect": [
+    420,
+    760,
+    760,
+    170
+   ]
   }
  ],
  "music": "marsh_grey",
- "ambience": "marsh_ambience"
+ "ambience": "marsh_ambience",
+ "climbables": [
+  {
+   "id": "moored_raft_ladder_1",
+   "kind": "ladder",
+   "at": [
+    980,
+    945
+   ],
+   "top_at": [
+    980,
+    902
+   ],
+   "bottom_alt": 0,
+   "top_alt": 30,
+   "bottom": "ground",
+   "top": "moored_raft"
+  }
+ ],
+ "movers": [
+  {
+   "surface": "log_raft_a",
+   "path": [
+    [
+     300,
+     0,
+     0
+    ]
+   ],
+   "speed": 36,
+   "wait_s": 1.5,
+   "mode": "pingpong"
+  }
+ ],
+ "volumes": [
+  {
+   "id": "grey_pool",
+   "kind": "water_deep",
+   "rect": [
+    420,
+    760,
+    760,
+    170
+   ],
+   "alt": [
+    -100,
+    10
+   ]
+  },
+  {
+   "id": "lily_bounce",
+   "kind": "bounce",
+   "rect": [
+    1900,
+    740,
+    80,
+    50
+   ],
+   "alt": [
+    0,
+    20
+   ],
+   "speed": 700
+  }
+ ],
+ "blocks": [
+  {
+   "id": "lily_pad",
+   "rect": [
+    1900,
+    740,
+    80,
+    50
+   ],
+   "base": 0,
+   "top": 10,
+   "kind": "lily"
+  }
+ ]
 }

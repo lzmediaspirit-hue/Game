@@ -49,43 +49,135 @@
    "open_edges": false
   },
   {
-   "id": "ledge_0",
+   "id": "bamboo_0",
    "rect": [
-    600,
-    700,
     200,
-    50
+    650,
+    120,
+    60
    ],
-   "height": 110,
-   "kind": "branch",
+   "height": 90,
+   "kind": "pole",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "ledge_1",
+   "id": "bamboo_1",
    "rect": [
-    1100,
-    660,
-    200,
-    50
+    430,
+    630,
+    120,
+    60
    ],
    "height": 180,
-   "kind": "branch",
+   "kind": "pole",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "ledge_2",
+   "id": "bamboo_2",
    "rect": [
-    1700,
-    700,
-    220,
-    50
+    660,
+    650,
+    120,
+    60
    ],
-   "height": 110,
-   "kind": "branch",
+   "height": 90,
+   "kind": "pole",
    "stratum": "platform",
    "open_edges": true
+  },
+  {
+   "id": "bamboo_3",
+   "rect": [
+    890,
+    630,
+    120,
+    60
+   ],
+   "height": 180,
+   "kind": "pole",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bamboo_4",
+   "rect": [
+    1120,
+    650,
+    120,
+    60
+   ],
+   "height": 90,
+   "kind": "pole",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bamboo_5",
+   "rect": [
+    1350,
+    620,
+    120,
+    60
+   ],
+   "height": 180,
+   "kind": "pole",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bamboo_6",
+   "rect": [
+    1800,
+    650,
+    120,
+    60
+   ],
+   "height": 90,
+   "kind": "pole",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bamboo_7",
+   "rect": [
+    2030,
+    630,
+    120,
+    60
+   ],
+   "height": 180,
+   "kind": "pole",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bamboo_8",
+   "rect": [
+    2260,
+    650,
+    120,
+    60
+   ],
+   "height": 90,
+   "kind": "pole",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bamboo_top",
+   "rect": [
+    1560,
+    590,
+    100,
+    60
+   ],
+   "height": 330,
+   "kind": "pole",
+   "stratum": "platform",
+   "open_edges": true,
+   "later": "double_jump"
   }
  ],
  "portals": [
@@ -115,8 +207,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    408,
-    930
+    290,
+    680
    ],
    "item": "ember_pepper",
    "prop": "ember_pepper_bush",
@@ -134,7 +226,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 90
   },
   {
    "id": "herb_2",
@@ -190,25 +283,27 @@
    "id": "jar_4",
    "type": "jar",
    "at": [
-    217,
-    900
+    230,
+    680
    ],
    "loot": "jar_valley_low",
    "level": 12,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 90
   },
   {
    "id": "jar_5",
    "type": "jar",
    "at": [
-    706,
-    900
+    460,
+    660
    ],
    "loot": "jar_valley_low",
    "level": 12,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 180
   },
   {
    "id": "jar_6",
@@ -259,14 +354,16 @@
    "respawn_s": 300
   },
   {
-   "id": "chest_10",
+   "id": "chest_bamboo_top",
    "type": "chest",
    "at": [
-    2200,
-    700
+    1610,
+    620
    ],
    "loot": "chest_valley",
-   "level": 14
+   "level": 14,
+   "alt": 330,
+   "surface": "bamboo_top"
   }
  ],
  "spawns": [
@@ -499,5 +596,135 @@
  ],
  "areas": [],
  "music": "bamboo",
- "ambience": "bamboo_ambience"
+ "ambience": "bamboo_ambience",
+ "climbables": [
+  {
+   "id": "bamboo_0_vine_1",
+   "kind": "vine",
+   "at": [
+    260,
+    745
+   ],
+   "top_at": [
+    260,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 90,
+   "bottom": "ground",
+   "top": "bamboo_0"
+  },
+  {
+   "id": "bamboo_2_vine_2",
+   "kind": "vine",
+   "at": [
+    720,
+    745
+   ],
+   "top_at": [
+    720,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 90,
+   "bottom": "ground",
+   "top": "bamboo_2"
+  },
+  {
+   "id": "bamboo_4_vine_3",
+   "kind": "vine",
+   "at": [
+    1180,
+    745
+   ],
+   "top_at": [
+    1180,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 90,
+   "bottom": "ground",
+   "top": "bamboo_4"
+  },
+  {
+   "id": "bamboo_5_vine_4",
+   "kind": "vine",
+   "at": [
+    1410,
+    715
+   ],
+   "top_at": [
+    1410,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 180,
+   "bottom": "ground",
+   "top": "bamboo_5"
+  },
+  {
+   "id": "bamboo_6_vine_5",
+   "kind": "vine",
+   "at": [
+    1860,
+    745
+   ],
+   "top_at": [
+    1860,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 90,
+   "bottom": "ground",
+   "top": "bamboo_6"
+  },
+  {
+   "id": "bamboo_8_vine_6",
+   "kind": "vine",
+   "at": [
+    2320,
+    745
+   ],
+   "top_at": [
+    2320,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 90,
+   "bottom": "ground",
+   "top": "bamboo_8"
+  }
+ ],
+ "movers": [],
+ "blocks": [
+  {
+   "id": "bent_bamboo",
+   "rect": [
+    1480,
+    720,
+    60,
+    40
+   ],
+   "base": 0,
+   "top": 20,
+   "kind": "bamboo"
+  }
+ ],
+ "volumes": [
+  {
+   "id": "bent_bamboo_bounce",
+   "kind": "bounce",
+   "rect": [
+    1480,
+    720,
+    60,
+    40
+   ],
+   "alt": [
+    0,
+    30
+   ],
+   "speed": 700
+  }
+ ]
 }

@@ -303,9 +303,11 @@ def build_items():
     keys = [("river_token", "Lu's River Token. It hums when the river is troubled."), ("jade_token", "Identity token of the Jade Sect. Returns you home."),
             ("cloud_token", "Identity token of the Cloud Sect. Returns you home."), ("mudwater_key", "Opens the Mudwater Hideout gate."),
             ("entry_token", "Proof of passing a sect entry trial."), ("siege_medal", "Awarded to defenders of the Two Sects."),
-            ("smuggler_ledger", "Elder Gu's secret ledger."), ("kite", "Little Dou's paper kite.")]
+            ("smuggler_ledger", "Elder Gu's secret ledger."), ("kite", "Little Dou's paper kite."),
+            ("aunt_pings_ladle", "Aunt Ping's soup ladle. The gulls keep stealing it.")]
     for kid, desc in keys:
-        rows.append(item(kid, "key", "plain", 1, desc, sell=False, quest_item=kid in ("kite", "smuggler_ledger")))
+        rows.append(item(kid, "key", "plain", 1, desc, sell=False, quest_item=kid in ("kite", "smuggler_ledger", "aunt_pings_ladle"),
+                         name="Aunt Ping's Ladle" if kid == "aunt_pings_ladle" else None))
     for mid, tech, grade in [("mudwater_manual", "rising_tide", "common"), ("manual_rain_of_reeds", "rain_of_reeds", "earth"),
                              ("manual_ember_burst", "ember_burst", "earth")]:
         rows.append(item(mid, "scroll", grade, 99, "A technique manual. Read it to learn %s." % titled(tech),
@@ -384,6 +386,8 @@ def build_items():
     # Workshop goods (S16 appraisal, research, puppetry; formations and array plates).
     rows.append(item("dusty_curio", "curio", "common", 99, "An old trinket of uncertain worth. Appraise it to learn what it really is.", value_override=15, use=[], use_action="appraise"))
     rows.append(item("jade_trinket", "valuable", "common", 99, "A small carving of real river jade.", value_override=60))
+    rows.append(item("tinkerers_gear", "valuable", "common", 99, "A brass gear from a clockwork bird, lost on the chimney top of Artisan Row. "
+                     "Worth a few taels to anyone, and a great deal to the tinkerer.", value_override=40, name="Tinkerer's Gear"))
     rows.append(item("string_of_old_coins", "valuable", "plain", 99, "Coins from a dynasty nobody remembers. Still silver.", value_override=25))
     rows.append(item("fake_jade", "valuable", "plain", 99, "Green glass. Half the valley's jade is glass.", value_override=1))
     rows.append(item("torn_manual", "scroll", "earth", 99, "A water-stained manual, half its characters gone. A librarian's bench can restore it.", value_override=30))

@@ -5,12 +5,14 @@ var sel := ""
 
 func _init() -> void:
 	title = Tx.t("ui.codex.codex")
-	tabs = [{"id": "codex", "label": Tx.t("ui.codex.codex")}, {"id": "collection", "label": Tx.t("ui.codex.collection")}, {"id": "achievements", "label": Tx.t("ui.codex.achievements")}]
+	tabs = [{"id": "codex", "label": Tx.t("ui.codex.codex")}, {"id": "collection", "label": Tx.t("ui.codex.collection")}, {"id": "achievements", "label": Tx.t("ui.codex.achievements")},
+		{"id": "paths_above", "label": Tx.t("ui.codex.paths_above")}]
 
 func setup() -> void:
 	match page_id:
 		"collection": tab = 1
 		"achievements": tab = 2
+		"paths_above": tab = 3
 
 func draw_page() -> void:
 	var ch = c()
@@ -19,6 +21,7 @@ func draw_page() -> void:
 		"codex": _codex()
 		"collection": _collection()
 		"achievements": _achievements(ch)
+		"paths_above": _paths_above(ch)
 
 func _codex() -> void:
 	var entries: Array = ContentDB.all("codex")
@@ -71,6 +74,26 @@ func _collection() -> void:
 				if cid2 == "" or not creature_at(Rect2(cr.position + Vector2(8, 6), Vector2(cr.size.x - 16, 78)), cid2, "idle", Color(0, 0, 0, 0.6)):
 					text(cr.position + Vector2(0, 80), "?", 40, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
 				text(cr.position + Vector2(0, 116), "? ? ?", 16, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
+	)
+
+## S43 "Paths Above": every optional ledge that only a later movement art reaches, and whether you have stood on it.
+func _paths_above(ch) -> void:
+	var rows: Array = ContentDB.all("paths_above")
+	var r := Rect2(content.position, content.size)
+	panel(r)
+	text(r.position + Vector2(24, 36), Tx.t("ui.codex.paths_above_intro") % [Game.account.paths_above.size(), rows.size()], 18, UiKit.MIST)
+	list("paths", Rect2(r.position + Vector2(10, 52), r.size - Vector2(20, 62)), rows.size(), 72, func(i: int, rr: Rect2):
+		var e: Dictionary = rows[i]
+		var found: bool = Game.account.paths_above.has(str(e.id))
+		var known: bool = Game.combat.knows_art(ch, str(e.art)) or Unlocks.is_unlocked(ch.id, str(e.art))
+		var seen: bool = found or Game.account.visited_rooms.has(str(e.room))
+		var cell := Rect2(rr.position + Vector2(4, 4), rr.size - Vector2(8, 8))
+		panel(cell, "minor_panel", "normal" if found else "disabled")
+		text(cell.position + Vector2(18, 28), str(e.room_name) if seen else "? ? ?", 19, UiKit.PAPER if seen else UiKit.HOLLOW)
+		text(cell.position + Vector2(18, 52), Tx.t("ui.codex.paths_above_needs") % [str(e.art_name), int(e.height)], 15, UiKit.BRIGHT_JADE if known else UiKit.HOLLOW)
+		var status := Tx.t("ui.codex.paths_above_found") % str(e.reward) if found else (Tx.t("ui.codex.paths_above_open") if known else Tx.t("ui.codex.paths_above_later"))
+		text(cell.position + Vector2(cell.size.x * 0.45, 40), status, 17, UiKit.PALE_GOLD if found else (UiKit.PAPER if known else UiKit.HOLLOW),
+			HORIZONTAL_ALIGNMENT_RIGHT, cell.size.x * 0.55 - 18)
 	)
 
 func _achievements(ch) -> void:

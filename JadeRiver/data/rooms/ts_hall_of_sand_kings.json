@@ -52,9 +52,9 @@
    "id": "ledge_mv_0",
    "rect": [
     813,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -65,11 +65,11 @@
    "id": "ledge_mv_1",
    "rect": [
     1946,
-    640,
+    620,
     280,
-    50
+    70
    ],
-   "height": 176,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -102,25 +102,27 @@
    "id": "jar_1",
    "type": "jar",
    "at": [
-    421,
-    700
+    843,
+    655
    ],
    "loot": "jar_expanse",
    "level": 77,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "crate_2",
    "type": "crate",
    "at": [
-    1445,
-    900
+    1976,
+    655
    ],
    "loot": "jar_expanse",
    "level": 77,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "jar_3",
@@ -150,11 +152,12 @@
    "id": "chest_5",
    "type": "chest",
    "at": [
-    3480,
-    700
+    2196,
+    655
    ],
    "loot": "chest_tomb",
-   "level": 77
+   "level": 77,
+   "alt": 200
   },
   {
    "id": "chest_ledge_mv_1",
@@ -165,7 +168,7 @@
    ],
    "loot": "chest_expanse",
    "level": 77,
-   "alt": 176,
+   "alt": 200,
    "surface": "ledge_mv_1"
   }
  ],
@@ -222,7 +225,7 @@
     122,
     26
    ],
-   "height": 72,
+   "height": 80,
    "standable": true,
    "flip": false
   }
@@ -467,5 +470,53 @@
  "music": "tomb",
  "ambience": "",
  "dungeon_exit": "sd_worm_sea",
- "attunement_required": 55
+ "attunement_required": 55,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    953,
+    725
+   ],
+   "top_at": [
+    953,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    2086,
+    725
+   ],
+   "top_at": [
+    2086,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "ledge_mv_1_step_3",
+   "rect": [
+    2156,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  }
+ ]
 }

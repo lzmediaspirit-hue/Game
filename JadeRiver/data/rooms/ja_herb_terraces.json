@@ -53,7 +53,7 @@
     500,
     90
    ],
-   "height": 60,
+   "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -66,7 +66,7 @@
     500,
     90
    ],
-   "height": 120,
+   "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -104,7 +104,7 @@
     700,
     700
    ],
-   "alt": 60,
+   "alt": 100,
    "requires": {
     "all": [
      {
@@ -122,7 +122,7 @@
     850,
     700
    ],
-   "alt": 60,
+   "alt": 100,
    "requires": {
     "all": [
      {
@@ -140,7 +140,7 @@
     1000,
     700
    ],
-   "alt": 60,
+   "alt": 100,
    "requires": {
     "all": [
      {
@@ -200,7 +200,7 @@
     ]
    },
    "locked_text": "You don't know which leaves are worth picking yet.",
-   "alt": 120
+   "alt": 100
   },
   {
    "id": "npc_jade_gardener",
@@ -265,5 +265,39 @@
  "areas": [],
  "music": "sect",
  "sect": "jade_sect",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "terrace_1_rope_1",
+   "kind": "rope",
+   "at": [
+    850,
+    785
+   ],
+   "top_at": [
+    850,
+    742
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "terrace_1"
+  },
+  {
+   "id": "terrace_2_rope_2",
+   "kind": "rope",
+   "at": [
+    1550,
+    765
+   ],
+   "top_at": [
+    1550,
+    722
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "terrace_2"
+  }
+ ]
 }

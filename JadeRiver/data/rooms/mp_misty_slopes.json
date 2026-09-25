@@ -54,9 +54,9 @@
    "id": "ledge_mv_0",
    "rect": [
     260,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -67,11 +67,11 @@
    "id": "ledge_mv_1",
    "rect": [
     840,
-    640,
+    620,
     280,
-    50
+    70
    ],
-   "height": 176,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -80,12 +80,38 @@
    "id": "cloud_mv",
    "rect": [
     1280,
-    636,
+    610,
     240,
-    44
+    70
    ],
    "height": 300,
    "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    1560,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1960,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
    "stratum": "platform",
    "open_edges": true
   }
@@ -117,8 +143,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    996,
-    930
+    510,
+    655
    ],
    "item": "soulbell_flower",
    "prop": "soulbell_flower_patch",
@@ -136,7 +162,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100
   },
   {
    "id": "ore_2",
@@ -167,25 +194,27 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    377,
-    930
+    290,
+    655
    ],
    "loot": "jar_valley_mid",
    "level": 48,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "crate_4",
    "type": "crate",
    "at": [
-    1085,
-    900
+    870,
+    655
    ],
    "loot": "jar_valley_mid",
    "level": 48,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "jar_5",
@@ -245,13 +274,13 @@
    "id": "chest_ledge_mv_1",
    "type": "chest",
    "at": [
-    980,
-    665
+    1310,
+    645
    ],
    "loot": "chest_valley",
    "level": 51,
-   "alt": 176,
-   "surface": "ledge_mv_1"
+   "alt": 300,
+   "surface": "cloud_mv"
   },
   {
    "id": "chest_cloud_mv",
@@ -559,5 +588,71 @@
  ],
  "areas": [],
  "music": "mist",
- "ambience": "wind_ambience"
+ "ambience": "wind_ambience",
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    400,
+    725
+   ],
+   "top_at": [
+    400,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    980,
+    725
+   ],
+   "top_at": [
+    980,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  },
+  {
+   "id": "route_0_vine_3",
+   "kind": "vine",
+   "at": [
+    1680,
+    741
+   ],
+   "top_at": [
+    1680,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_1_vine_4",
+   "kind": "vine",
+   "at": [
+    2080,
+    741
+   ],
+   "top_at": [
+    2080,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_1"
+  }
+ ]
 }

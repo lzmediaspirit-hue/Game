@@ -169,7 +169,73 @@
    "kind": "roof",
    "stratum": "platform",
    "open_edges": true,
-   "art": "watch_tower"
+   "art": "watch_tower",
+   "optional": true
+  },
+  {
+   "id": "stall_awning",
+   "rect": [
+    2170,
+    700,
+    180,
+    70
+   ],
+   "height": 88,
+   "kind": "awning",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "boat_deck",
+   "rect": [
+    3350,
+    896,
+    150,
+    62
+   ],
+   "height": 60,
+   "kind": "deck",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "mast_lookout",
+   "rect": [
+    3398,
+    856,
+    80,
+    60
+   ],
+   "height": 150,
+   "kind": "stilt",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "net_deck",
+   "rect": [
+    2700,
+    650,
+    200,
+    64
+   ],
+   "height": 100,
+   "kind": "stilt",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "shed_deck",
+   "rect": [
+    3000,
+    650,
+    220,
+    64
+   ],
+   "height": 100,
+   "kind": "stilt",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -407,8 +473,8 @@
    "id": "tower_bell",
    "type": "bell",
    "at": [
-    3590,
-    710
+    3660,
+    656
    ],
    "visible_if": {
     "all": [
@@ -417,7 +483,8 @@
       "quest": "race_to_the_tower"
      }
     ]
-   }
+   },
+   "alt": 312
   },
   {
    "id": "fish_docks",
@@ -522,6 +589,49 @@
      }
     ]
    }
+  },
+  {
+   "id": "pings_ladle",
+   "type": "pickup",
+   "at": [
+    500,
+    632
+   ],
+   "alt": 124,
+   "item": "aunt_pings_ladle",
+   "count": 1,
+   "prop": "cooking_pot",
+   "label": "Aunt Ping's Ladle",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_lost_ladle"
+     }
+    ]
+   },
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_lost_ladle"
+     }
+    ]
+   },
+   "locked_text": "Something glints on the roof."
+  },
+  {
+   "id": "gull_nest",
+   "type": "jar",
+   "at": [
+    3440,
+    884
+   ],
+   "loot": "jar_valley_low",
+   "level": 1,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 150
   }
  ],
  "spawns": [],
@@ -560,22 +670,6 @@
   }
  ],
  "decor": [
-  {
-   "prop": "well",
-   "at": [
-    700,
-    700
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "fence_wood",
-   "at": [
-    140,
-    668
-   ],
-   "layer": "play"
-  },
   {
    "prop": "willow_tree",
    "at": [
@@ -621,14 +715,6 @@
    "at": [
     2280,
     700
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "market_stall",
-   "at": [
-    2240,
-    770
    ],
    "layer": "play"
   },
@@ -876,6 +962,205 @@
    "top_alt": 88,
    "bottom": "ground",
    "top": ""
+  },
+  {
+   "id": "hut_ladder",
+   "kind": "ladder",
+   "at": [
+    300,
+    725
+   ],
+   "top_at": [
+    300,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 124,
+   "bottom": "ground",
+   "top": "fishers_hut"
+  },
+  {
+   "id": "granny_ladder",
+   "kind": "ladder",
+   "at": [
+    1120,
+    725
+   ],
+   "top_at": [
+    1120,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 128,
+   "bottom": "ground",
+   "top": "granny_hut"
+  },
+  {
+   "id": "store_ladder",
+   "kind": "ladder",
+   "at": [
+    1860,
+    725
+   ],
+   "top_at": [
+    1860,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 168,
+   "bottom": "ground",
+   "top": "old_ma_store"
+  },
+  {
+   "id": "mast_ladder",
+   "kind": "ladder",
+   "at": [
+    3440,
+    936
+   ],
+   "top_at": [
+    3440,
+    908
+   ],
+   "bottom_alt": 60,
+   "top_alt": 150,
+   "bottom": "boat_deck",
+   "top": "mast_lookout"
+  },
+  {
+   "id": "net_deck_ladder",
+   "kind": "ladder",
+   "at": [
+    2720,
+    749
+   ],
+   "top_at": [
+    2720,
+    706
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "net_deck"
+  },
+  {
+   "id": "shed_deck_ladder",
+   "kind": "ladder",
+   "at": [
+    3190,
+    749
+   ],
+   "top_at": [
+    3190,
+    706
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "shed_deck"
+  },
+  {
+   "id": "tower_ladder",
+   "kind": "ladder",
+   "at": [
+    3620,
+    725
+   ],
+   "top_at": [
+    3620,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 312,
+   "bottom": "ground",
+   "top": "watch_tower"
   }
- ]
+ ],
+ "blocks": [
+  {
+   "id": "lane_crate_low",
+   "rect": [
+    600,
+    748,
+    50,
+    44
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
+  },
+  {
+   "id": "lane_crate_high",
+   "rect": [
+    604,
+    704,
+    50,
+    42
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "crate"
+  },
+  {
+   "id": "lane_well",
+   "rect": [
+    668,
+    660,
+    64,
+    40
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "well"
+  },
+  {
+   "id": "lane_fence",
+   "rect": [
+    760,
+    800,
+    150,
+    24
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "fence"
+  },
+  {
+   "id": "stall_counter",
+   "rect": [
+    2200,
+    780,
+    120,
+    40
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "stall"
+  },
+  {
+   "id": "dock_crate_low",
+   "rect": [
+    2840,
+    740,
+    50,
+    44
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
+  },
+  {
+   "id": "dock_crate_high",
+   "rect": [
+    2846,
+    698,
+    50,
+    42
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "crate"
+  }
+ ],
+ "vertical": "authored"
 }

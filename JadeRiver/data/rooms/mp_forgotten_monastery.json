@@ -61,6 +61,58 @@
    "stratum": "platform",
    "open_edges": true,
    "art": "hall"
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    520,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    860,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    1260,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -99,8 +151,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    931,
-    700
+    2220,
+    620
    ],
    "item": "soulbell_flower",
    "prop": "soulbell_flower_patch",
@@ -118,7 +170,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 120
   },
   {
    "id": "ore_2",
@@ -149,25 +202,27 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    313,
-    900
+    1580,
+    620
    ],
    "loot": "jar_valley_mid",
    "level": 53,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 120
   },
   {
    "id": "jar_4",
    "type": "jar",
    "at": [
-    924,
-    900
+    210,
+    671
    ],
    "loot": "jar_valley_mid",
    "level": 53,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_5",
@@ -221,11 +276,12 @@
    "id": "chest_9",
    "type": "chest",
    "at": [
-    3480,
-    700
+    550,
+    671
    ],
    "loot": "chest_dungeon",
-   "level": 56
+   "level": 56,
+   "alt": 200
   },
   {
    "id": "heaven_insight",
@@ -536,5 +592,71 @@
  ],
  "areas": [],
  "music": "mist",
- "ambience": ""
+ "ambience": "",
+ "climbables": [
+  {
+   "id": "monastery_hall_ladder_1",
+   "kind": "ladder",
+   "at": [
+    1900,
+    725
+   ],
+   "top_at": [
+    1900,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 120,
+   "bottom": "ground",
+   "top": "monastery_hall"
+  },
+  {
+   "id": "route_0_vine_2",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_vine_3",
+   "kind": "vine",
+   "at": [
+    980,
+    741
+   ],
+   "top_at": [
+    980,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_2"
+  },
+  {
+   "id": "route_3_vine_4",
+   "kind": "vine",
+   "at": [
+    1380,
+    741
+   ],
+   "top_at": [
+    1380,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_3"
+  }
+ ]
 }

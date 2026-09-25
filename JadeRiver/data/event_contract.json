@@ -785,6 +785,12 @@
     "achievement_authority"
    ]
   },
+  "path_above_found": {
+   "system": "Achievement",
+   "files": [
+    "achievement_authority"
+   ]
+  },
   "notification_scheduled": {
    "system": "Notifier",
    "files": [

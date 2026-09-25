@@ -58,6 +58,58 @@
    "stratum": "platform",
    "open_edges": true,
    "art": "hall"
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    850,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1160,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    1380,
+    636,
+    440,
+    60
+   ],
+   "height": 120.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -178,7 +230,7 @@
     64,
     26
    ],
-   "height": 38,
+   "height": 40,
    "standable": true,
    "flip": false
   }
@@ -245,5 +297,71 @@
  "areas": [],
  "music": "sky_port",
  "ambience": "wind_ambience",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "condensing_hall_ladder_1",
+   "kind": "ladder",
+   "at": [
+    2040,
+    725
+   ],
+   "top_at": [
+    2040,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 120,
+   "bottom": "ground",
+   "top": "condensing_hall"
+  },
+  {
+   "id": "route_0_ladder_2",
+   "kind": "ladder",
+   "at": [
+    290,
+    741
+   ],
+   "top_at": [
+    290,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_1_ladder_3",
+   "kind": "ladder",
+   "at": [
+    960,
+    741
+   ],
+   "top_at": [
+    960,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_1"
+  },
+  {
+   "id": "bridge_0_ladder_4",
+   "kind": "ladder",
+   "at": [
+    1600,
+    731
+   ],
+   "top_at": [
+    1600,
+    688
+   ],
+   "bottom_alt": 0,
+   "top_alt": 120,
+   "bottom": "ground",
+   "top": "bridge_0"
+  }
+ ]
 }

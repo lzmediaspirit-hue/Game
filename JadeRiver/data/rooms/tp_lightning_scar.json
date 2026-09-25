@@ -55,9 +55,9 @@
    "id": "ledge_mv_0",
    "rect": [
     260,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -68,11 +68,11 @@
    "id": "ledge_mv_1",
    "rect": [
     1393,
-    640,
+    620,
     280,
-    50
+    70
    ],
-   "height": 176,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -81,12 +81,90 @@
    "id": "cloud_mv",
    "rect": [
     2132,
-    636,
+    610,
     240,
-    44
+    70
    ],
    "height": 300,
    "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    600,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    940,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    2420,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    2760,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_4",
+   "rect": [
+    3100,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    1673,
+    620,
+    459,
+    60
+   ],
+   "height": 200.0,
+   "kind": "rope_bridge",
    "stratum": "platform",
    "open_edges": true
   }
@@ -127,8 +205,8 @@
    "id": "ore_1",
    "type": "ore_vein",
    "at": [
-    1004,
-    690
+    510,
+    655
    ],
    "item": "stormsteel_ore",
    "prop": "stormsteel_vein",
@@ -146,7 +224,8 @@
      }
     ]
    },
-   "locked_text": "The stone is too hard to work by hand."
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 100
   },
   {
    "id": "ore_2",
@@ -177,25 +256,27 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    410,
-    900
+    290,
+    655
    ],
    "loot": "jar_expanse",
    "level": 68,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_4",
    "type": "jar",
    "at": [
-    1166,
-    930
+    1423,
+    655
    ],
    "loot": "jar_expanse",
    "level": 68,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "jar_5",
@@ -237,11 +318,12 @@
    "id": "chest_8",
    "type": "chest",
    "at": [
-    3480,
-    700
+    2162,
+    645
    ],
    "loot": "chest_expanse",
-   "level": 69
+   "level": 69,
+   "alt": 300
   },
   {
    "id": "grey_tracks_0",
@@ -319,13 +401,13 @@
    "id": "chest_ledge_mv_1",
    "type": "chest",
    "at": [
-    1533,
-    665
+    2342,
+    645
    ],
    "loot": "chest_expanse",
    "level": 69,
-   "alt": 176,
-   "surface": "ledge_mv_1"
+   "alt": 300,
+   "surface": "cloud_mv"
   },
   {
    "id": "chest_cloud_mv",
@@ -817,5 +899,103 @@
  "areas": [],
  "music": "storm_plains",
  "ambience": "wind_ambience",
- "attunement_required": 12
+ "attunement_required": 12,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    400,
+    725
+   ],
+   "top_at": [
+    400,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "route_1_vine_2",
+   "kind": "vine",
+   "at": [
+    1060,
+    741
+   ],
+   "top_at": [
+    1060,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_1"
+  },
+  {
+   "id": "route_2_vine_3",
+   "kind": "vine",
+   "at": [
+    2500,
+    741
+   ],
+   "top_at": [
+    2500,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_2"
+  },
+  {
+   "id": "route_3_vine_4",
+   "kind": "vine",
+   "at": [
+    2880,
+    741
+   ],
+   "top_at": [
+    2880,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_3"
+  },
+  {
+   "id": "route_4_vine_5",
+   "kind": "vine",
+   "at": [
+    3220,
+    741
+   ],
+   "top_at": [
+    3220,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_4"
+  },
+  {
+   "id": "bridge_0_ladder_6",
+   "kind": "ladder",
+   "at": [
+    1822,
+    715
+   ],
+   "top_at": [
+    1822,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "bridge_0"
+  }
+ ]
 }

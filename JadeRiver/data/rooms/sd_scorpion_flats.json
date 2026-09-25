@@ -54,9 +54,9 @@
    "id": "ledge_0",
    "rect": [
     1400,
-    650,
+    630,
     280,
-    50
+    70
    ],
    "height": 200,
    "kind": "rock_ledge",
@@ -67,12 +67,103 @@
    "id": "cloud_mv",
    "rect": [
     2132,
-    636,
+    610,
     240,
-    44
+    70
    ],
    "height": 300,
    "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    520,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    860,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    2460,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_4",
+   "rect": [
+    2800,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_5",
+   "rect": [
+    3140,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    1680,
+    630,
+    452,
+    60
+   ],
+   "height": 200.0,
+   "kind": "rope_bridge",
    "stratum": "platform",
    "open_edges": true
   }
@@ -104,8 +195,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    641,
-    700
+    1650,
+    665
    ],
    "item": "ember_cactus",
    "prop": "ember_cactus_patch",
@@ -123,7 +214,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 200
   },
   {
    "id": "ore_2",
@@ -179,25 +271,27 @@
    "id": "jar_4",
    "type": "jar",
    "at": [
-    464,
-    700
+    1430,
+    665
    ],
    "loot": "jar_expanse",
    "level": 76,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "jar_5",
    "type": "jar",
    "at": [
-    1488,
-    900
+    2162,
+    645
    ],
    "loot": "jar_expanse",
    "level": 76,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 300
   },
   {
    "id": "jar_6",
@@ -227,11 +321,12 @@
    "id": "chest_8",
    "type": "chest",
    "at": [
-    3480,
-    700
+    2342,
+    645
    ],
    "loot": "chest_expanse",
-   "level": 78
+   "level": 78,
+   "alt": 300
   },
   {
    "id": "shrine_sd_flats",
@@ -507,5 +602,103 @@
  "areas": [],
  "music": "desert",
  "ambience": "wind_ambience",
- "attunement_required": 48
+ "attunement_required": 48,
+ "climbables": [
+  {
+   "id": "route_0_vine_1",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_vine_2",
+   "kind": "vine",
+   "at": [
+    940,
+    741
+   ],
+   "top_at": [
+    940,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_2"
+  },
+  {
+   "id": "route_3_vine_3",
+   "kind": "vine",
+   "at": [
+    2580,
+    741
+   ],
+   "top_at": [
+    2580,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_3"
+  },
+  {
+   "id": "route_4_vine_4",
+   "kind": "vine",
+   "at": [
+    2920,
+    741
+   ],
+   "top_at": [
+    2920,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_4"
+  },
+  {
+   "id": "route_5_vine_5",
+   "kind": "vine",
+   "at": [
+    3260,
+    741
+   ],
+   "top_at": [
+    3260,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_5"
+  },
+  {
+   "id": "bridge_0_ladder_6",
+   "kind": "ladder",
+   "at": [
+    1866,
+    725
+   ],
+   "top_at": [
+    1866,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "bridge_0"
+  }
+ ]
 }

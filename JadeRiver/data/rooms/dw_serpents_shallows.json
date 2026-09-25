@@ -190,5 +190,55 @@
     }
    ]
   }
+ ],
+ "climbables": [
+  {
+   "id": "high_rock_0_rope_1",
+   "kind": "rope",
+   "at": [
+    990,
+    795
+   ],
+   "top_at": [
+    990,
+    752
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "high_rock_0"
+  },
+  {
+   "id": "high_rock_1_rope_2",
+   "kind": "rope",
+   "at": [
+    1790,
+    795
+   ],
+   "top_at": [
+    1790,
+    752
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "high_rock_1"
+  },
+  {
+   "id": "high_rock_2_rope_3",
+   "kind": "rope",
+   "at": [
+    2590,
+    795
+   ],
+   "top_at": [
+    2590,
+    752
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "high_rock_2"
+  }
  ]
 }

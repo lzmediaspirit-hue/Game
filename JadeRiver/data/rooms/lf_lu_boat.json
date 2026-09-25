@@ -44,6 +44,19 @@
    "kind": "deck",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "cabin_roof",
+   "rect": [
+    700,
+    626,
+    240,
+    70
+   ],
+   "height": 88,
+   "kind": "deck",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -91,6 +104,17 @@
    "spring": false,
    "prop": "none",
    "text": "The river's breath is strong here."
+  },
+  {
+   "id": "star_mat",
+   "type": "inspect",
+   "at": [
+    860,
+    660
+   ],
+   "alt": 88,
+   "prop": "meditation_mat",
+   "text": "Up here the river is all stars. Sit, and let the Qi come to you."
   }
  ],
  "spawns": [],
@@ -164,5 +188,24 @@
  "camera": {
   "y_min": 520,
   "y_max": 560
- }
+ },
+ "climbables": [
+  {
+   "id": "cabin_ladder",
+   "kind": "ladder",
+   "at": [
+    720,
+    716
+   ],
+   "top_at": [
+    720,
+    688
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "deck",
+   "top": "cabin_roof"
+  }
+ ],
+ "vertical": "authored"
 }

@@ -73,6 +73,45 @@
    "stratum": "platform",
    "open_edges": true,
    "art": "village_store"
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    490,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    710,
+    636,
+    220,
+    60
+   ],
+   "height": 130.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -188,5 +227,85 @@
  "areas": [],
  "music": "sect",
  "ambience": "wind_ambience",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "hall_of_nine_ladder_1",
+   "kind": "ladder",
+   "at": [
+    1280,
+    725
+   ],
+   "top_at": [
+    1280,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 130,
+   "bottom": "ground",
+   "top": "hall_of_nine"
+  },
+  {
+   "id": "auction_house_ladder_2",
+   "kind": "ladder",
+   "at": [
+    2100,
+    725
+   ],
+   "top_at": [
+    2100,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 168,
+   "bottom": "ground",
+   "top": "auction_house"
+  },
+  {
+   "id": "route_0_ladder_4",
+   "kind": "ladder",
+   "at": [
+    290,
+    741
+   ],
+   "top_at": [
+    290,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "bridge_0_ladder_5",
+   "kind": "ladder",
+   "at": [
+    820,
+    731
+   ],
+   "top_at": [
+    820,
+    688
+   ],
+   "bottom_alt": 0,
+   "top_alt": 130,
+   "bottom": "ground",
+   "top": "bridge_0"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "auction_house_step_3",
+   "rect": [
+    2230,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "crate"
+  }
+ ]
 }

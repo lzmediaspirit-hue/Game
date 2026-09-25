@@ -51,28 +51,80 @@
    "open_edges": false
   },
   {
-   "id": "ledge_0",
+   "id": "scaffold_a",
    "rect": [
-    700,
-    660,
-    260,
-    50
+    300,
+    640,
+    220,
+    70
    ],
    "height": 90,
-   "kind": "rock_ledge",
+   "kind": "scaffold",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "ledge_1",
+   "id": "scaffold_b",
    "rect": [
-    1500,
-    680,
-    240,
-    50
+    520,
+    620,
+    220,
+    70
    ],
-   "height": 120,
-   "kind": "rock_ledge",
+   "height": 180,
+   "kind": "scaffold",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "scaffold_c",
+   "rect": [
+    860,
+    620,
+    220,
+    70
+   ],
+   "height": 180,
+   "kind": "scaffold",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "scaffold_d",
+   "rect": [
+    1220,
+    640,
+    220,
+    70
+   ],
+   "height": 90,
+   "kind": "scaffold",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "scaffold_e",
+   "rect": [
+    1560,
+    620,
+    220,
+    70
+   ],
+   "height": 180,
+   "kind": "scaffold",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "crane_lift",
+   "rect": [
+    760,
+    700,
+    90,
+    60
+   ],
+   "height": 88,
+   "kind": "deck",
    "stratum": "platform",
    "open_edges": true
   }
@@ -106,8 +158,8 @@
    "id": "ore_1",
    "type": "ore_vein",
    "at": [
-    386,
-    690
+    400,
+    675
    ],
    "item": "copper_ore",
    "prop": "copper_vein",
@@ -125,14 +177,16 @@
      }
     ]
    },
-   "locked_text": "The stone is too hard to work by hand."
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 90,
+   "surface": "scaffold_a"
   },
   {
    "id": "ore_2",
    "type": "ore_vein",
    "at": [
-    1295,
-    690
+    1660,
+    655
    ],
    "item": "copper_ore",
    "prop": "copper_vein",
@@ -150,7 +204,9 @@
      }
     ]
    },
-   "locked_text": "The stone is too hard to work by hand."
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 180,
+   "surface": "scaffold_e"
   },
   {
    "id": "ore_3",
@@ -181,25 +237,27 @@
    "id": "jar_4",
    "type": "jar",
    "at": [
-    214,
-    700
+    490,
+    675
    ],
    "loot": "jar_valley_low",
    "level": 5,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 90
   },
   {
    "id": "crate_5",
    "type": "crate",
    "at": [
-    821,
-    700
+    550,
+    655
    ],
    "loot": "jar_valley_low",
    "level": 5,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 180
   },
   {
    "id": "jar_6",
@@ -287,19 +345,19 @@
   },
   {
    "enemy": "pebble_imp",
-   "surface": "ledge_0",
+   "surface": "scaffold_d",
    "points": [
     [
-     763,
-     685
+     1276,
+     675
     ],
     [
-     830,
-     685
+     1330,
+     675
     ],
     [
-     896,
-     685
+     1383,
+     675
     ]
    ],
    "max": 3,
@@ -458,5 +516,96 @@
  ],
  "areas": [],
  "music": "field_earth",
- "ambience": ""
+ "ambience": "",
+ "climbables": [
+  {
+   "id": "scaffold_a_ladder",
+   "kind": "ladder",
+   "at": [
+    360,
+    745
+   ],
+   "top_at": [
+    360,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 90,
+   "bottom": "ground",
+   "top": "scaffold_a"
+  },
+  {
+   "id": "scaffold_b_ladder",
+   "kind": "ladder",
+   "at": [
+    660,
+    725
+   ],
+   "top_at": [
+    660,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 180,
+   "bottom": "ground",
+   "top": "scaffold_b"
+  },
+  {
+   "id": "scaffold_e_ladder_1",
+   "kind": "ladder",
+   "at": [
+    1670,
+    725
+   ],
+   "top_at": [
+    1670,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 180,
+   "bottom": "ground",
+   "top": "scaffold_e"
+  }
+ ],
+ "movers": [
+  {
+   "surface": "crane_lift",
+   "path": [
+    [
+     0,
+     0,
+     176
+    ]
+   ],
+   "speed": 60,
+   "wait_s": 2.0,
+   "mode": "trigger"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "ore_cart_a",
+   "rect": [
+    1060,
+    800,
+    120,
+    60
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "cart"
+  },
+  {
+   "id": "ore_cart_b",
+   "rect": [
+    2000,
+    780,
+    120,
+    60
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "cart"
+  }
+ ]
 }

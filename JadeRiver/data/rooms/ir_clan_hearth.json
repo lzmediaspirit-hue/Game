@@ -73,6 +73,45 @@
    "stratum": "platform",
    "open_edges": true,
    "art": "village_house"
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    970,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1280,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -188,5 +227,87 @@
  "areas": [],
  "music": "field_earth",
  "ambience": "wind_ambience",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "longhouse_ladder_1",
+   "kind": "ladder",
+   "at": [
+    700,
+    725
+   ],
+   "top_at": [
+    700,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 168,
+   "bottom": "ground",
+   "top": "longhouse"
+  },
+  {
+   "id": "clan_forge_ladder_2",
+   "kind": "ladder",
+   "at": [
+    1760,
+    725
+   ],
+   "top_at": [
+    1760,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 158,
+   "bottom": "ground",
+   "top": "clan_forge"
+  },
+  {
+   "id": "route_0_ladder_3",
+   "kind": "ladder",
+   "at": [
+    290,
+    741
+   ],
+   "top_at": [
+    290,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_1_ladder_4",
+   "kind": "ladder",
+   "at": [
+    1080,
+    741
+   ],
+   "top_at": [
+    1080,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_1"
+  },
+  {
+   "id": "route_2_ladder_5",
+   "kind": "ladder",
+   "at": [
+    1390,
+    741
+   ],
+   "top_at": [
+    1390,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_2"
+  }
+ ]
 }

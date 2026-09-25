@@ -54,11 +54,11 @@
    "id": "ledge_0",
    "rect": [
     700,
-    660,
+    640,
     300,
-    50
+    70
    ],
-   "height": 160,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -67,11 +67,11 @@
    "id": "ledge_1",
    "rect": [
     1700,
-    650,
+    630,
     300,
-    50
+    70
    ],
-   "height": 240,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -80,12 +80,51 @@
    "id": "cloud_mv",
    "rect": [
     2132,
-    636,
+    610,
     240,
-    44
+    70
    ],
    "height": 300,
    "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1060,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1400,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
    "stratum": "platform",
    "open_edges": true
   }
@@ -117,8 +156,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    953,
-    700
+    970,
+    675
    ],
    "item": "frost_lotus",
    "prop": "frost_lotus_patch",
@@ -136,7 +175,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 200
   },
   {
    "id": "ore_2",
@@ -167,25 +207,27 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    450,
-    720
+    730,
+    675
    ],
    "loot": "jar_expanse",
    "level": 68,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "jar_4",
    "type": "jar",
    "at": [
-    1487,
-    720
+    1730,
+    665
    ],
    "loot": "jar_expanse",
    "level": 68,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 200
   },
   {
    "id": "jar_5",
@@ -456,5 +498,87 @@
  "areas": [],
  "music": "summit",
  "ambience": "wind_ambience",
- "attunement_required": 16
+ "attunement_required": 16,
+ "climbables": [
+  {
+   "id": "ledge_1_rope_1",
+   "kind": "rope",
+   "at": [
+    1850,
+    735
+   ],
+   "top_at": [
+    1850,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_1"
+  },
+  {
+   "id": "cloud_mv_rope_2",
+   "kind": "rope",
+   "at": [
+    2252,
+    715
+   ],
+   "top_at": [
+    2252,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "cloud_mv"
+  },
+  {
+   "id": "route_0_vine_3",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_1_vine_4",
+   "kind": "vine",
+   "at": [
+    1180,
+    741
+   ],
+   "top_at": [
+    1180,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_1"
+  },
+  {
+   "id": "route_2_vine_5",
+   "kind": "vine",
+   "at": [
+    1560,
+    741
+   ],
+   "top_at": [
+    1560,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_2"
+  }
+ ]
 }

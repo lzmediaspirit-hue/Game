@@ -56,7 +56,7 @@
     70
    ],
    "height": 100,
-   "kind": "bridge",
+   "kind": "boards",
    "stratum": "platform",
    "open_edges": true
   }
@@ -113,25 +113,27 @@
    "id": "jar_2",
    "type": "jar",
    "at": [
-    176,
-    900
+    1510,
+    685
    ],
    "loot": "jar_valley_mid",
    "level": 17,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "crate_3",
    "type": "crate",
    "at": [
-    815,
-    930
+    1650,
+    685
    ],
    "loot": "jar_valley_mid",
    "level": 17,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "jar_4",
@@ -173,11 +175,12 @@
    "id": "chest_7",
    "type": "chest",
    "at": [
-    2200,
-    700
+    1580,
+    685
    ],
    "loot": "chest_dungeon",
-   "level": 20
+   "level": 20,
+   "alt": 100
   }
  ],
  "spawns": [
@@ -257,7 +260,7 @@
     51,
     26
    ],
-   "height": 32,
+   "height": 40,
    "standable": true,
    "flip": false
   }
@@ -441,6 +444,24 @@
    "surface": "rotten_boards",
    "break_s": 0.8,
    "return_s": 5.0
+  }
+ ],
+ "climbables": [
+  {
+   "id": "rotten_boards_ladder_1",
+   "kind": "ladder",
+   "at": [
+    1580,
+    755
+   ],
+   "top_at": [
+    1580,
+    712
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "rotten_boards"
   }
  ]
 }

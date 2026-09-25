@@ -50,9 +50,9 @@
    "id": "ledge_mv_0",
    "rect": [
     600,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -63,11 +63,11 @@
    "id": "ledge_mv_1",
    "rect": [
     1180,
-    640,
+    620,
     280,
-    50
+    70
    ],
-   "height": 176,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -100,13 +100,14 @@
    "id": "jar_1",
    "type": "jar",
    "at": [
-    486,
-    720
+    630,
+    655
    ],
    "loot": "jar_expanse",
    "level": 77,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "crate_2",
@@ -161,7 +162,7 @@
    ],
    "loot": "chest_expanse",
    "level": 77,
-   "alt": 176,
+   "alt": 200,
    "surface": "ledge_mv_1"
   }
  ],
@@ -359,5 +360,39 @@
  "music": "tomb",
  "ambience": "",
  "dungeon_exit": "sd_worm_sea",
- "attunement_required": 55
+ "attunement_required": 55,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    740,
+    725
+   ],
+   "top_at": [
+    740,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    1360,
+    725
+   ],
+   "top_at": [
+    1360,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  }
+ ]
 }

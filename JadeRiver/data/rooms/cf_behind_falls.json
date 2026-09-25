@@ -46,17 +46,44 @@
    "open_edges": false
   },
   {
-   "id": "ledge_falls",
+   "id": "falls_ledge_1",
    "rect": [
-    520,
-    654,
-    220,
-    46
+    300,
+    640,
+    240,
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
+  },
+  {
+   "id": "falls_ledge_2",
+   "rect": [
+    580,
+    600,
+    200,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "shaft_top",
+   "rect": [
+    820,
+    560,
+    200,
+    60
+   ],
+   "height": 520,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true,
+   "later": "wall_step"
   }
  ],
  "portals": [
@@ -77,8 +104,8 @@
    "id": "journal_falls",
    "type": "pickup",
    "at": [
-    900,
-    740
+    420,
+    675
    ],
    "item": "lu_journal_page",
    "count": 1,
@@ -91,17 +118,21 @@
       "flag": "journal_falls"
      }
     ]
-   }
+   },
+   "alt": 100,
+   "surface": "falls_ledge_1"
   },
   {
    "id": "chest_1",
    "type": "chest",
    "at": [
-    1100,
-    720
+    920,
+    590
    ],
    "loot": "chest_dungeon",
-   "level": 14
+   "level": 14,
+   "alt": 520,
+   "surface": "shaft_top"
   },
   {
    "id": "spring_behind",
@@ -151,5 +182,66 @@
  "scenery": [],
  "decor": [],
  "areas": [],
- "music": "dungeon"
+ "music": "dungeon",
+ "climbables": [
+  {
+   "id": "falls_ledge_2_rope",
+   "kind": "rope",
+   "at": [
+    700,
+    705
+   ],
+   "top_at": [
+    700,
+    662
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "falls_ledge_2"
+  },
+  {
+   "id": "falls_ledge_1_rope_1",
+   "kind": "rope",
+   "at": [
+    420,
+    745
+   ],
+   "top_at": [
+    420,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "falls_ledge_1"
+  }
+ ],
+ "movers": [],
+ "blocks": [
+  {
+   "id": "shaft_wall_0",
+   "rect": [
+    820,
+    560,
+    40,
+    110
+   ],
+   "base": 0,
+   "top": 520,
+   "kind": "stone_pillar"
+  },
+  {
+   "id": "shaft_wall_1",
+   "rect": [
+    980,
+    560,
+    40,
+    110
+   ],
+   "base": 0,
+   "top": 520,
+   "kind": "stone_pillar"
+  }
+ ]
 }

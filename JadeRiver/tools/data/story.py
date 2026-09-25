@@ -590,15 +590,21 @@ def prologue_quests():
     quest("the_runaway_kite", "The Runaway Kite", "prologue", "little_dou", [
         o("deliver", "Fetch the kite from the Ferry Inn roof", item="kite"),
     ], [item("rice_ball", 1)], requires=after_lu, target_room="lf_village", chapter="prologue", marker="blue",
-        offer=["My kite! It flew onto the inn roof! The big one!", "Climb the ladder on the Village Hall, then jump up. Jump twice if you have to!"],
+        offer=["My kite! It flew onto the inn roof! The big one!", "Climb the ladder on the Village Hall, then jump across. Or jump from the stall awning!"],
         progress=["Ladder, hall roof, then jump onto the inn. You can do it!"],
         complete=["My kite! You're the best! Here, I saved this rice ball. It's only a bit squashed."])
+    quest("the_lost_ladle", "Aunt Ping's Ladle", "side", "aunt_ping", [
+        o("deliver", "Fetch Aunt Ping's ladle from the hut roof", item="aunt_pings_ladle"),
+    ], [item("rice_ball", 2), taels(15)], requires=all_of(qdone("the_runaway_kite")), target_room="lf_village", chapter="prologue",
+        giver_any=["aunt_ping"], hand_in_any=["aunt_ping"],
+        offer=["The gulls took my ladle again. It's on the hut roof, glinting at me.", "There's a ladder by the door. Mind the edge."],
+        complete=["My ladle! I'd have made soup with a spoon for a week."])
     quest("mas_delivery", "Ma's Delivery", "prologue", "old_ma", [
         o("sell_item", "Sell the Old Net to Old Ma", item="old_net"),
         o("buy_item", "Buy Rice Balls", 2, item="rice_ball"),
     ], [taels(30)], requires=after_lu, target_room="lf_old_ma_store", chapter="prologue", marker="blue",
-        on_accept=[item("old_net", 1), taels(10)],
-        offer=["Aunt Ping's old net has been in my way for a month. Sell it back to me, fair and square.",
+        on_accept=[taels(10)],
+        offer=["Aunt Ping's old net has been in my way for a month. It's under the shelf. Sell it back to me, fair and square.",
                "Then buy two rice balls. That's how trade works: you give, you get."],
         complete=["See? Coins go round like the river. Here's a little for your trouble."])
     quest("grannys_remedy", "Granny's Remedy", "prologue", "granny_liu", [
@@ -1791,6 +1797,7 @@ def mail_templates():
 def codex():
     rows = [
         {"id": "lotus_ferry", "title": "Lotus Ferry", "body": "A fishing village at the river's bend. Aunt Ping, Lu and a few dozen others. Home."},
+        {"id": "lu_float", "title": "Lu's float", "body": "A red-and-white cork float in the hut loft, older than you. Lu never fishes with it. He never throws it away either."},
         {"id": "the_hollowing", "title": "The Hollowing", "body": "A grey that drains colour, then life. Hollowed beasts have empty white eyes."},
         {"id": "realms", "title": "Realms", "body": "Mortal, Bone Forging, Qi Kindling, Qi Unfurling, Heart Tempering, Cloud Stride, Spirit Awakening, Heaven Glimpse... and beyond the valley, more."},
         {"id": "body_training", "title": "Body training", "body": "Stumps and stones temper the body. Body Level supports every breakthrough."},

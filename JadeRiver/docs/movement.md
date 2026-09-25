@@ -142,10 +142,118 @@ body within 48 units of the object's altitude. Chests on ledges and air pockets 
 | Constant | Height | Meaning |
 |---|---|---|
 | `JUMP_ONE` | 100 | One jump lands on it (peak 122); the highest required rise before the double jump (S43) |
-| `JUMP_TWO` | 176 | Out of reach of one jump; Cloud Ladder Step lands on it (peak 202) |
+| `JUMP_TWO` | 176 | Out of reach of one jump; Cloud Ladder Step lands on it (peak 202). The verticality pass snaps natural ledges to 200 |
 | `FLIGHT_LEDGE` | 300 | Out of reach of the double jump; only fliers land on it (ceiling 340) |
 
-## The room audit
+The v2 grid (Part 8) is built tiers at 88, 176 and 264, natural ledges at 100, 200 and 300, and blocks at 40, 60,
+80 and 110. Surfaces reached by ladder, rope, stairs or mover may use other heights.
+
+## The room verticality catalogue (v2, S43 rule 14)
+
+Build Prompt v2 gives every valley room a row in its Part 8 room verticality catalogue: the tiers, the named
+pieces and what is up there. Three steps build it, in this order, after the rooms are authored:
+
+1. **`tools/data/catalogue.py`** shapes rooms to their rows by hand:
+   - **Lotus Ferry and the Prologue:**
+     - the lofts at 88, with ladders sealed until The Runaway Kite;
+     - Home Lane's crates, well and fence, and Aunt Ping's ladle on a roof;
+     - the roof chain and the watchtower;
+     - the docks' boat deck and mast lookout;
+     - Old Ma's shelves and storeroom;
+     - the stilt decks and drifting rafts of the Reed Shallows.
+   - **Willow Path, Stoneford and the sects:**
+     - willow branches at 100, a fallen log, and a pine top at 240 (a chest, later: double jump);
+     - the merchant's cart;
+     - Market Street's awnings and bell tower, and a shard in the gutter;
+     - Artisan Row's scaffolds at 90 and 180 with a ladder between them, and a chimney top at 330 (the tinkerer's gear, later: double jump);
+     - Stoneford Gate's walltop at 160, reached by stone steps;
+     - the Entry Trials: Jade's roof climb over two moving planks, and Cloud's ropes and crumbling ledge;
+     - the Sword Court's plum-blossom poles and Wall-Step pillar pair;
+     - Elder Sung's peaks and rope bridge;
+     - both libraries' floors at 120 and 240, their ladders sealed by rank.
+   - **Fields, dungeons and secret places:**
+     - Quarry Rim's scaffolds and crane lift;
+     - Lower Pit's rim and a cracked slab that a Plunge breaks to reach the shard beneath;
+     - the Grey Pools' rafts over deep water, a moored raft with a chest, and a lily pad that bounces to an optional ledge;
+     - the Sunken Causeway's 120 gaps and a broken pillar at 300 (jars, later: Wall-Step);
+     - Whispering Bamboo's bamboo at 90 and 180, a bent bamboo that throws you to 233, and a chest at 330 (later: double jump);
+     - Caravan Road's cliff ledge and rope bridge;
+     - Gorge Mouth's bridge;
+     - the Boss Den's wine shelves;
+     - the Abbot's four bell ledges;
+     - Behind the Falls' Wall-Step shaft (walls 120 apart) up to a chest at 520.
+   A room shaped completely is marked `vertical: "authored"`, and the passes below leave it alone.
+2. **`movement_pass()`** (described below) gives the rooms that still have nothing vertical their generated ledges and decks.
+3. **`tools/data/verticality.py`** brings every other room to the rules:
+   - heights snap to the standard grid (natural 100s, built 88s);
+   - landings grow to at least 80 × 60;
+   - wide fields, paths and towns get a raised route of chained tiers across 40% of the width. Where
+     roofs or ledges are too far apart to jump, it hangs a **rope bridge** between them;
+   - a room whose raised tiers are all one height gets a higher ledge beside one of them;
+   - reward ledges out of the band's reach become **later** ledges for a named art;
+   - every required tier gets a second way up (a ladder, rope or vine, a step block, or a step ledge);
+   - 30% of breakables and a third of gathering nodes move onto tiers, and chests go to the highest tier.
+
+The Sect Grounds are marked `vertical: "grows"`. Their roofs come with the sect's buildings, so the route rule does not apply to them.
+
+### Room lint and reach contract
+
+`tools/data/room_lint.py` checks every built room. It runs first in `tools/run_tests.sh` and fails the run
+if any room fails. It checks:
+
+- **tiers:** two tiers above the ground, and a raised route across 40% of the room;
+- **raised:** at least 30% of breakables and a third of gathering nodes sit on tiers;
+- **chests:** every chest is on the highest tier or an optional ledge;
+- **ways:** every required tier has two ways up (jumps, climbables, stairs, movers, a bridge walked onto
+  from the tier it joins, a moving plank stepped onto from a tier at its height);
+- **landings:** at least 80 wide and 60 deep;
+- **heights:**
+  - built tiers use 88s and natural ones 100s;
+  - blocks are 40, 60, 80 or 110 high, unless they are bounce pads;
+  - blocks over 110 are walls.
+- **reach:** everything required is reachable with the arts of the room's lowest realm.
+- **later ledges:** each one is more than 122 above everything reachable (more than 202 once the band has
+  the double jump), and still within its own art's reach.
+
+Today all 122 rooms pass.
+
+### Paths Above
+
+Every later ledge (a surface or block with `later`) is a row in `data/paths_above.json`. The row gives the room,
+the art it needs, its height and what is up there.
+
+- **Finding a ledge.** Landing on one records it in the account (`paths_above`), emits
+  `path_above_found` and shows a toast.
+- **Codex tab.** The Paths Above tab lists every row as one of:
+  - found, with its reward;
+  - "your arts reach it now";
+  - "out of reach for now".
+- **World map.** A faint wind glyph beside a region, and a line under the room's name, mark a ledge whose
+  art you have learned but whose top you have not stood on yet.
+
+### New kit pieces
+
+- **Rope bridge:** sways, and is walked onto from either end.
+- **Walltop:** crenellated stone.
+- **Chimney and stone pillar:** a brick or stone column with a small top; its faces are walls for Wall-Step.
+- **Scaffold and stilt deck:** planks lashed to posts.
+- **Awning:** striped cloth.
+- **Bamboo:** slats lashed on two stalks, or a single pole.
+- **Causeway:** a stone slab.
+- **Cracked slab:** a block that a Plunge breaks.
+- **Blocks:** logs, rubble, lily pads and bent bamboo.
+
+World totals after v2:
+
+- 142 rock ledges, 116 tree branches, 78 balconies, 43 roofs, 21 rope bridges, 15 bamboo pieces, 12 cloud banks,
+  7 scaffolds, 6 stilt decks, 5 causeway sections, 5 decks, 4 branches, 3 awnings, 3 rafts, 2 board floors,
+  1 chimney and 1 walltop;
+- 58 blocks;
+- 352 climbables: 137 ladders, 117 ropes and 98 vines;
+- 8 movers and 20 volumes;
+- 6 Paths Above ledges.
+
+## The room audit (v1.1)
 
 ### Before
 
@@ -228,6 +336,9 @@ The test asserts that no more than 3 fields, towns or dungeons are left flat.
   a double jump does, and the chest waits there;
 - the cloud bank is beyond a double jump;
 - a crate in the Skydock shipyard has a top a jump lands on;
+- `paths_above_suite`: every Paths Above row names a real later ledge; the Lower Pit slab is a cracked block
+  that blocks until a Plunge breaks it; the Jade trial's two planks move; both library floors are sealed by
+  rank; landing on a later ledge finds it once and saves it with the account;
 - Wall-Step kicks off the Old Ma store's facade in Lotus Ferry, only once per time in the air, and
   not where there is no wall;
 - every field, town and dungeon has something to climb.

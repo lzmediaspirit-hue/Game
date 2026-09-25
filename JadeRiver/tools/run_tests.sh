@@ -7,6 +7,9 @@ GODOT="${GODOT:-godot}"
 suites=(engine_tests data_validation rules_tests contract_tests balance_sim perf_tests prologue_run valley_run)
 
 failed=()
+# S43 room lint and reach contract over the built rooms (Part 7).
+echo "== room_lint"
+if ! python3 tools/data/room_lint.py; then failed+=("room_lint"); fi
 for s in "${suites[@]}"; do
   echo "== $s"
   out="$("$GODOT" --headless --path . "res://tests/$s.tscn" 2>&1)"

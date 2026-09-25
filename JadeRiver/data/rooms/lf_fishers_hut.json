@@ -44,6 +44,19 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "loft",
+   "rect": [
+    860,
+    580,
+    300,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -149,6 +162,45 @@
    ],
    "text": "Lu's old net. Half the knots are yours, from when you were small.",
    "prop": "none"
+  },
+  {
+   "id": "lu_float",
+   "type": "inspect",
+   "at": [
+    1040,
+    612
+   ],
+   "alt": 88,
+   "prop": "driftwood",
+   "text": "Lu's old cork float, painted red and white a long time ago. Someone kept it very carefully.",
+   "effects": [
+    {
+     "kind": "codex",
+     "entry": "lu_float"
+    }
+   ]
+  },
+  {
+   "id": "tea_loft",
+   "type": "pickup",
+   "at": [
+    1120,
+    612
+   ],
+   "alt": 88,
+   "item": "herbal_tea",
+   "count": 1,
+   "prop": "jar",
+   "label": "Herbal Tea",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "tea_loft"
+     }
+    ]
+   },
+   "set_flag": "tea_loft"
   }
  ],
  "spawns": [],
@@ -238,5 +290,33 @@
   "y_min": 520,
   "y_max": 560
  },
- "music": "home"
+ "music": "home",
+ "climbables": [
+  {
+   "id": "loft_ladder",
+   "kind": "ladder",
+   "at": [
+    900,
+    685
+   ],
+   "top_at": [
+    900,
+    642
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "loft",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_runaway_kite"
+     }
+    ]
+   },
+   "locked_text": "The loft ladder wobbles. Aunt Ping says: after you've learned to land on your feet."
+  }
+ ],
+ "vertical": "authored"
 }

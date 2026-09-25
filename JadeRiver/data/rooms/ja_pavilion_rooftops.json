@@ -272,5 +272,71 @@
  "music": "sect",
  "custom_ground": true,
  "sect": "jade_sect",
- "town": true
+ "town": true,
+ "climbables": [
+  {
+   "id": "pine_branch_vine_1",
+   "kind": "vine",
+   "at": [
+    310,
+    795
+   ],
+   "top_at": [
+    310,
+    752
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "pine_branch"
+  },
+  {
+   "id": "east_entry_ladder_2",
+   "kind": "ladder",
+   "at": [
+    605,
+    745
+   ],
+   "top_at": [
+    605,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "east_entry"
+  },
+  {
+   "id": "east_step_ladder_3",
+   "kind": "ladder",
+   "at": [
+    895,
+    745
+   ],
+   "top_at": [
+    895,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "east_step"
+  },
+  {
+   "id": "heaven_roof_ladder_4",
+   "kind": "ladder",
+   "at": [
+    1390,
+    745
+   ],
+   "top_at": [
+    1390,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "heaven_roof"
+  }
+ ]
 }

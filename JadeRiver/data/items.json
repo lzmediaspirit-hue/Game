@@ -1351,6 +1351,18 @@
    "quest_item": true
   },
   {
+   "id": "aunt_pings_ladle",
+   "name": "Aunt Ping's Ladle",
+   "type": "key",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 1,
+   "icon": "aunt_pings_ladle",
+   "desc": "Aunt Ping's soup ladle. The gulls keep stealing it.",
+   "sell": false,
+   "quest_item": true
+  },
+  {
    "id": "mudwater_manual",
    "name": "Mudwater Manual",
    "type": "scroll",
@@ -2391,6 +2403,17 @@
    "icon": "jade_trinket",
    "desc": "A small carving of real river jade.",
    "value_override": 60
+  },
+  {
+   "id": "tinkerers_gear",
+   "name": "Tinkerer's Gear",
+   "type": "valuable",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "tinkerers_gear",
+   "desc": "A brass gear from a clockwork bird, lost on the chimney top of Artisan Row. Worth a few taels to anyone, and a great deal to the tinkerer.",
+   "value_override": 40
   },
   {
    "id": "string_of_old_coins",

@@ -50,9 +50,9 @@
    "id": "ledge_mv_0",
    "rect": [
     940,
-    640,
+    620,
     280,
-    50
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -63,11 +63,11 @@
    "id": "ledge_mv_1",
    "rect": [
     1520,
-    640,
+    620,
     280,
-    50
+    70
    ],
-   "height": 176,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -169,5 +169,39 @@
  "areas": [],
  "music": "boss",
  "dungeon_exit": "sd_worm_sea",
- "attunement_required": 55
+ "attunement_required": 55,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    1080,
+    725
+   ],
+   "top_at": [
+    1080,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    1660,
+    725
+   ],
+   "top_at": [
+    1660,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  }
+ ]
 }

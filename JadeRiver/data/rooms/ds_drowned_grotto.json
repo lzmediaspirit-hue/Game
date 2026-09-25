@@ -52,9 +52,9 @@
    "id": "ledge_grotto",
    "rect": [
     1240,
-    650,
+    626,
     260,
-    46
+    70
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -97,8 +97,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    600,
-    930
+    1270,
+    661
    ],
    "item": "mist_lotus",
    "prop": "mist_lotus_patch",
@@ -116,7 +116,8 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100
   },
   {
    "id": "herb_2",
@@ -200,5 +201,23 @@
  "areas": [],
  "music": "dungeon",
  "ambience": "water_ambience",
- "underwater": true
+ "underwater": true,
+ "climbables": [
+  {
+   "id": "ledge_grotto_rope_1",
+   "kind": "rope",
+   "at": [
+    1370,
+    731
+   ],
+   "top_at": [
+    1370,
+    688
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_grotto"
+  }
+ ]
 }

@@ -320,6 +320,41 @@ def old_net():
     return c
 
 
+def aunt_pings_ladle():
+    """A wooden soup ladle: a deep round bowl and a long handle with a hanging loop."""
+    c = Canvas(32)
+    wood = R['wood']
+    handle = c.seg(8, 6, 19, 20, 2.6)
+    c.put(handle, wood, 'ray', base=2)
+    c.put(c.ring(7.5, 5.5, 2.4, 1.2), wood, 'flat', base=1)
+    bowl = c.ellipse(21, 23, 7.5, 5.5)
+    c.put(bowl, wood, 'sphere', base=2, cx=19, cy=21, rx=8, ry=6)
+    c.put(c.ellipse(21, 21.5, 5.4, 2.6), wood[0], 'flat')
+    c.put(c.ellipse(19.5, 21, 2.2, 0.9), R['mist'][2] if 'mist' in R else '#DDE8EE', 'flat')
+    c.outline()
+    return c
+
+
+def tinkerers_gear():
+    """A small brass gear: a toothed ring round a hub, with a bent pin through it."""
+    import math
+    c = Canvas(32)
+    brass = R['bronze']
+    body = c.ellipse(16, 16, 9.5, 9.5)
+    for k in range(10):
+        a = k * math.pi / 5
+        body = body | c.ellipse(16 + 11 * math.cos(a), 16 + 11 * math.sin(a), 2.2, 2.2)
+    hole = c.ellipse(16, 16, 3.2, 3.2)
+    c.put(body & ~hole, brass, 'sphere', base=2, cx=13, cy=12, rx=12, ry=12)
+    c.put(c.ring(16, 16, 5.6, 1.0), brass[1], 'flat')
+    for k in range(4):
+        a = k * math.pi / 2 + 0.4
+        c.put(c.ellipse(16 + 7.6 * math.cos(a), 16 + 7.6 * math.sin(a), 1.3, 1.3), brass[0], 'flat')
+    c.put(c.seg(10, 25, 22, 7, 1.4), R['iron'], 'ray', base=1)
+    c.outline()
+    return c
+
+
 def river_mud():
     c = Canvas(32)
     ramp = R['mud']
@@ -664,6 +699,7 @@ for _id, _fn in (('manual_page', manual_page), ('riverbreath_scroll', riverbreat
                  ('alliance_token', alliance_token), ('ironroot_token', ironroot_token),
                  ('mudwater_key', mudwater_key), ('entry_token', entry_token), ('siege_medal', siege_medal),
                  ('smuggler_ledger', smuggler_ledger), ('old_net', old_net), ('river_mud', river_mud),
+                 ('aunt_pings_ladle', aunt_pings_ladle), ('tinkerers_gear', tinkerers_gear),
                  ('cloth', cloth), ('arrows', arrows), ('bow_parts', bow_parts), ('prayer_beads', prayer_beads),
                  ('talisman_paper', talisman_paper), ('ink', ink), ('lantern_wick', lantern_wick), ('rice', rice),
                  ('kite', kite), ('calm_incense', lambda: _incense(False)),

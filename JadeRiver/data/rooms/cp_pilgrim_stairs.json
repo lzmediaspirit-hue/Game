@@ -52,11 +52,11 @@
    "id": "ledge_0",
    "rect": [
     700,
-    680,
+    660,
     300,
-    50
+    70
    ],
-   "height": 80,
+   "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -65,11 +65,11 @@
    "id": "ledge_1",
    "rect": [
     1300,
-    660,
+    640,
     300,
-    50
+    70
    ],
-   "height": 160,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -78,11 +78,50 @@
    "id": "ledge_2",
    "rect": [
     1900,
-    680,
+    660,
     300,
-    50
+    70
    ],
-   "height": 240,
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    360,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    1000,
+    660,
+    300,
+    60
+   ],
+   "height": 100.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_2_step_ledge_3",
+   "rect": [
+    1680,
+    660,
+    160,
+    70
+   ],
+   "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -115,13 +154,14 @@
    "id": "jar_1",
    "type": "jar",
    "at": [
-    451,
-    700
+    730,
+    695
    ],
    "loot": "jar_valley_low",
    "level": 18,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100
   },
   {
    "id": "crate_2",
@@ -312,5 +352,71 @@
  ],
  "areas": [],
  "music": "field_mountain",
- "ambience": ""
+ "ambience": "",
+ "climbables": [
+  {
+   "id": "ledge_1_rope_1",
+   "kind": "rope",
+   "at": [
+    1450,
+    745
+   ],
+   "top_at": [
+    1450,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_1"
+  },
+  {
+   "id": "ledge_2_rope_2",
+   "kind": "rope",
+   "at": [
+    2050,
+    765
+   ],
+   "top_at": [
+    2050,
+    722
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_2"
+  },
+  {
+   "id": "route_0_vine_4",
+   "kind": "vine",
+   "at": [
+    480,
+    741
+   ],
+   "top_at": [
+    480,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "ledge_2_step_ledge_3_rope_101",
+   "kind": "rope",
+   "at": [
+    1760,
+    765
+   ],
+   "top_at": [
+    1760,
+    722
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_2_step_ledge_3"
+  }
+ ]
 }

@@ -35,7 +35,7 @@ func configure(data: Dictionary):
 	for b in data.get("blocks",[]):
 		var r2: Array=b.rect
 		var top=float(b.top)
-		var surface_spec={"id":str(b.id),"rect":r2,"height":top,"kind":"block","stratum":"platform","block_kind":str(b.get("kind","crate"))}
+		var surface_spec={"id":str(b.id),"rect":r2,"height":top,"kind":"block","stratum":"platform","block_kind":str(b.get("kind","crate")),"cracked":bool(b.get("cracked",false))}
 		var top_surface=WalkSurface.new(surface_spec)
 		assert(not index.has(top_surface.id),"Duplicate surface ID")
 		surfaces.append(top_surface)

@@ -71,7 +71,47 @@
    "kind": "roof",
    "stratum": "platform",
    "open_edges": true,
-   "art": "watch_tower"
+   "art": "watch_tower",
+   "optional": true
+  },
+  {
+   "id": "walltop",
+   "rect": [
+    530,
+    610,
+    480,
+    70
+   ],
+   "height": 160,
+   "kind": "walltop",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    1860,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    1540,
+    636,
+    320,
+    60
+   ],
+   "height": 88.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -182,7 +222,7 @@
     120,
     26
    ],
-   "height": 70,
+   "height": 60,
    "standable": true,
    "flip": false
   }
@@ -244,5 +284,61 @@
  "areas": [],
  "music": "village_day",
  "ambience": "town_ambience",
- "town": true
+ "town": true,
+ "blocks": [
+  {
+   "id": "gate_step_0",
+   "rect": [
+    820,
+    690,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "wall"
+  },
+  {
+   "id": "gate_step_1",
+   "rect": [
+    880,
+    690,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "wall"
+  },
+  {
+   "id": "gate_step_2",
+   "rect": [
+    940,
+    690,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 110,
+   "kind": "wall"
+  }
+ ],
+ "climbables": [
+  {
+   "id": "gatehouse_ladder_1",
+   "kind": "ladder",
+   "at": [
+    1280,
+    715
+   ],
+   "top_at": [
+    1280,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 150,
+   "bottom": "ground",
+   "top": "gatehouse"
+  }
+ ]
 }
