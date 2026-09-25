@@ -5,6 +5,31 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V3b · Flying sword, Sword Intent, dual loadout and self-detonation (S47)
+- **Sword Release.** The Sword Dao's third tier teaches it; it goes on the skill arc.
+  - The jian leaves your hand for 8 s, or until you use the technique again to call it back.
+  - It homes on the nearest foe within 420, 1.5 strikes a second at 60% of the jian's attack. Each strike is a
+    flying-sword projectile that stops at walls.
+  - Meanwhile your hands fight with Qi palms: the fist combo at ×0.8.
+  - While it is out, the sword hangs point-up over your shoulder between strikes.
+  - It returns when the time runs out, when you are wounded, or when you lose the jian.
+  - Events: `sword_released` and `sword_returned`.
+- **Sword Intent.**
+  - Consecutive jian hits (combo, techniques and the flying sword) stack up to 10, each +1% penetration.
+  - At 10, a weaker foe may falter (a 10% Fear chance).
+  - It fades 3 s after the last jian hit, and ten pips along the player panel's foot show it.
+  - Event: `sword_intent_changed`.
+- **Dual loadout** (Heart Tempering 1).
+  - A second weapon waits in the spare slot: "Set as spare" in the bag.
+  - The Swap button (R) trades it for the weapon in hand.
+  - Each weapon keeps its own technique bar, and a swap never touches a Dao tier.
+  - Event: `loadout_swapped`.
+- **Self-detonation.** A spare artifact (an unworn piece of equipment, or a treasure) bursts around you for
+  1.5 + 0.75 × grade × Qi attack within 180. It is destroyed, which is the one thing the game ever destroys, and
+  only after you confirm. Event: `artifact_detonated`.
+- `sword_loadout_suite`: the Dao teaches the art; the sword strikes, the palms stay active and the sword returns;
+  Intent stacks and fades; the swap keeps each bar; detonation asks first.
+
 ### V3a · Gear upkeep at the forge (S47)
 - **Enhancement pity.**
   - An enhancement from +5 upward can fail, and it never breaks the piece or takes a level.

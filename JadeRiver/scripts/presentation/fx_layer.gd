@@ -170,6 +170,15 @@ func _draw_projectile(p: Dictionary) -> void:
 		"talisman":
 			draw_rect(Rect2(pos - Vector2(6, 10), Vector2(12, 20)), Color("e8d99a"))
 			draw_rect(Rect2(pos - Vector2(3, 5), Vector2(6, 8)), UiKit.RED)
+		"flying_sword":
+			# S47: the released jian, point first, with a pale streak behind it.
+			for k in 4:
+				draw_line(pos + Vector2(-dir * (20 + k * 10), 0), pos + Vector2(-dir * (28 + k * 10), 0), Color(0.8, 0.95, 1.0, 0.5 - k * 0.12), 3)
+			draw_line(pos + Vector2(-dir * 16, 0), pos + Vector2(dir * 14, 0), Color("2b2f33"), 5)
+			draw_line(pos + Vector2(-dir * 14, 0), pos + Vector2(dir * 14, 0), Color("dfe8ee"), 3)
+			draw_colored_polygon(PackedVector2Array([pos + Vector2(dir * 14, -2), pos + Vector2(dir * 14, 2), pos + Vector2(dir * 20, 0)]), Color("f4fbff"))
+			draw_line(pos + Vector2(-dir * 16, -6), pos + Vector2(-dir * 16, 6), Color("b5892f"), 3)
+			draw_line(pos + Vector2(-dir * 17, 0), pos + Vector2(-dir * 24, 0), Color("5a3a22"), 3)
 		"needle":
 			draw_line(pos + Vector2(-dir * 12, 0), pos + Vector2(dir * 8, 0), UiKit.INK, 3)
 			draw_line(pos + Vector2(-dir * 12, 0), pos + Vector2(dir * 8, 0), Color("e8eef0"), 1)

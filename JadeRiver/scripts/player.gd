@@ -490,9 +490,23 @@ func _draw():
 	if state.gliding: _draw_glide()
 	if state.sink_depth > 0.0 or state.water.get("skimming", false): _draw_water_ring()
 	if bound():
+		if Game.combat.sword_released.has(actor_id): _draw_hover_sword()
 		var tl: Dictionary = Game.combat.timeline(actor_id)
 		if tl.guard:
 			draw_arc(Vector2(facing * 18, -48), 30, -1.2 if facing > 0 else PI - 1.2 + 0.4, 1.2 if facing > 0 else PI + 1.2 - 0.4, 12, Color(UiKit.PALE_GOLD, 0.7), 3)
+
+## S47 Sword Release: the jian hangs point-up above the shoulder between strikes, bobbing in a pale sheen of Qi.
+func _draw_hover_sword() -> void:
+	var t := Time.get_ticks_msec() / 1000.0
+	var base := Vector2(-facing * 26, -104 + sin(t * 3.0) * 4.0)
+	draw_circle(base + Vector2(0, -14), 16, Color(0.75, 0.95, 1.0, 0.18))
+	draw_line(base + Vector2(0, 12), base + Vector2(0, -30), Color("2b2f33"), 5)
+	draw_line(base + Vector2(0, 10), base + Vector2(0, -30), Color("dfe8ee"), 3)
+	draw_line(base + Vector2(-1, 8), base + Vector2(-1, -26), Color(1, 1, 1, 0.8), 1)
+	draw_colored_polygon(PackedVector2Array([base + Vector2(-2, -30), base + Vector2(2, -30), base + Vector2(0, -36)]), Color("f4fbff"))
+	draw_line(base + Vector2(-7, 12), base + Vector2(7, 12), Color("b5892f"), 3)   # guard
+	draw_line(base + Vector2(0, 13), base + Vector2(0, 22), Color("5a3a22"), 3)    # grip
+	draw_circle(base + Vector2(0, 24), 2.5, Color("d9b25a"))
 
 ## Falling Leaf Glide: two pale leaves of Qi either side of the body and a faint trail.
 func _draw_glide() -> void:

@@ -348,6 +348,20 @@
   "own_element_resistance": 0.3,
   "overcome_element_resistance": 0.15
  },
+ "sword_release": {
+  "palm_mult": 0.8
+ },
+ "sword_intent": {
+  "max": 10,
+  "fade_s": 3.0,
+  "pen_per_stack": 0.01,
+  "fear_chance": 0.1
+ },
+ "detonation": {
+  "base": 1.5,
+  "per_grade": 0.75,
+  "radius": 180
+ },
  "combat": {
   "hitstop": 0.05,
   "hitstop_crit": 0.1,

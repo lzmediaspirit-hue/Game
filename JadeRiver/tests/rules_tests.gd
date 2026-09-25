@@ -44,6 +44,7 @@ func _main() -> void:
 	nav_suite()
 	paths_above_suite()
 	forge_upkeep_suite()
+	sword_loadout_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -170,6 +171,108 @@ func forge_upkeep_suite() -> void:
 	for it in [jian, old_jian, new_jian, robe, b, fine]:
 		var i: int = c.inventory.find_uid(int(it.uid))
 		if i >= 0: Game.inventory.apply_remove_index(c.id, i, 1, "test")
+
+# ------------------------------------------------------------------ S47 flying sword, Sword Intent, loadouts, self-detonation
+func sword_loadout_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var st: ActorState = Game.actor_state(c.id)
+	Game.world.apply_teleport(c.id, "wp_west")
+	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal"]: Game.combat.cure_status(c.id, sid)
+	Unlocks.force_unlock(c.id, "dao_tree")
+	# The Sword Dao's third tier teaches Sword Release.
+	c.cultivator.techniques_known.erase("sword_release")
+	c.cultivator.daos["sword"] = {"tier": 2, "insight": 0.0}
+	var need := 0.0
+	for t in 60:
+		if ProgressionRules.dao_tier_for(need) >= 3: break
+		need += 50.0
+	Game.progression.apply_insight(c.id, "sword", need + 1.0, "test:sword:%d" % randi())
+	check(int(c.cultivator.daos.sword.tier) >= 3 and c.cultivator.techniques_known.has("sword_release"), "Sword Dao tier 3 teaches Sword Release")
+	# Sword Release needs a jian in hand; it flies for 8 s, strikes the nearest foe, and the hands fight with palms.
+	Game.inventory.apply_add_equipment(c.id, "jadeiron_jian", 27, "common", "test")
+	var ji: int = c.inventory.first_index("jadeiron_jian")
+	var held_before = c.inventory.equipped.get("weapon")
+	# The test character's realm may be below the jian's; it is put in hand directly (wearing rules are tested elsewhere).
+	c.inventory.equipped["weapon"] = c.inventory.bag[ji]
+	c.inventory.bag[ji] = held_before
+	Unlocks.force_unlock(c.id, "attack")
+	c.pools.qi = c.pools.max_qi
+	c.pools.cooldowns.erase("tech:sword_release")
+	var heard := {}
+	var listen := func(n: String, p: Dictionary):
+		if n in ["sword_released", "sword_returned", "sword_intent_changed", "loadout_swapped", "artifact_detonated", "projectile_spawned"]:
+			heard[n] = int(heard.get(n, 0)) + 1
+			if n == "projectile_spawned" and str(p.get("art", "")) == "flying_sword": heard["sword_strike"] = int(heard.get("sword_strike", 0)) + 1
+	GameEvents.event.connect(listen)
+	var rel := Game.submit({"type": "toggle_sword_release"})
+	check(rel.get("ok", false) and Game.combat.sword_released.has(c.id), "the jian is released (%s)" % str(rel))
+	var foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(200, 0), 2)
+	for i in 30:
+		Game.tick(0.05)
+		GameEvents.flush()
+	check(int(heard.get("sword_strike", 0)) >= 1, "the flying sword strikes the nearest foe (%d)" % int(heard.get("sword_strike", 0)))
+	Game.combat.basic_attack(c, 1)
+	var tl: Dictionary = Game.combat.timeline(c.id)
+	check(str(tl.family) == "fists" and near(float((tl.get("step", {}) as Dictionary).get("mult", 1.0)), float(ContentDB.entry("weapon_families", "fists").combo[0].get("mult", 1.0)) * 0.8, 0.01),
+		"while it flies, the hands fight with Qi palms at x0.8")
+	for i in 200:
+		Game.tick(0.05)
+		GameEvents.flush()
+		if not Game.combat.sword_released.has(c.id): break
+	check(not Game.combat.sword_released.has(c.id) and int(heard.get("sword_returned", 0)) >= 1, "the sword returns after 8 s")
+	# Sword Intent: consecutive jian hits stack to 10 (+1% penetration each) and fade 3 s after the last.
+	if foe == null or not foe.alive: foe = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(40, 0), 2)
+	for i in 12: Game.combat._feed_intent(c, foe, {"source": "basic"})
+	check(int(Game.combat.sword_intent[c.id].stacks) == 10 and near(Game.combat.intent_penetration(c), 0.10, 0.001), "ten jian hits give ten stacks of Intent (+10% penetration)")
+	for i in 70:
+		Game.tick(0.05)
+	GameEvents.flush()
+	check(int(Game.combat.sword_intent[c.id].stacks) == 0, "Intent fades 3 s after the last jian hit")
+	# Dual loadout: a spare weapon, a swap, and each weapon keeps its own technique bar.
+	Unlocks.force_unlock(c.id, "dual_loadout")
+	var spear_id := "iron_spear"
+	Game.inventory.apply_add_equipment(c.id, spear_id, 10, "common", "test")
+	var si: int = c.inventory.first_index(spear_id)
+	var ss := Game.submit({"type": "set_spare_weapon", "index": si})
+	check(ss.get("ok", false) or str(ss.get("reason", "")) == "cannot_wear", "a spare weapon follows the wearing rules (%s)" % str(ss))
+	if not ss.get("ok", false):   # the test character has not passed the Entry Trial: the spear is placed directly
+		c.inventory.loadout["spare"] = c.inventory.bag[si]
+		c.inventory.bag[si] = null
+	var bar_a: Array = c.cultivator.technique_slots.duplicate()
+	var sw := Game.submit({"type": "swap_loadout"})
+	GameEvents.flush()
+	check(sw.get("ok", false) and str(c.inventory.equipped.weapon.id) == spear_id and str(c.inventory.loadout.spare.id) == "jadeiron_jian", "Swap puts the spear in hand and the jian in the spare slot")
+	c.cultivator.technique_slots[0] = null
+	var bar_b: Array = c.cultivator.technique_slots.duplicate()
+	Game.submit({"type": "swap_loadout"})
+	GameEvents.flush()
+	check(str(c.cultivator.technique_slots) == str(bar_a), "swapping back brings the jian's own bar")
+	Game.submit({"type": "swap_loadout"})
+	GameEvents.flush()
+	check(str(c.cultivator.technique_slots) == str(bar_b) and int(c.cultivator.daos.sword.tier) >= 3, "the spear's bar is kept too, and no Dao tier is touched")
+	Game.submit({"type": "swap_loadout"})
+	GameEvents.flush()
+	# Self-detonation needs a confirmation, then the spare artifact is gone.
+	Game.inventory.apply_add_equipment(c.id, "jadeiron_robe", 27, "common", "test")
+	var ri: int = c.inventory.first_index("jadeiron_robe")
+	var d1 := Game.submit({"type": "self_detonate", "index": ri})
+	check(str(d1.get("reason", "")) == "confirm" and c.inventory.first_index("jadeiron_robe") == ri, "self-detonation asks first and destroys nothing")
+	var d2 := Game.submit({"type": "self_detonate", "index": ri, "confirm": true})
+	GameEvents.flush()
+	check(d2.get("ok", false) and c.inventory.bag[ri] == null and int(heard.get("artifact_detonated", 0)) == 1, "confirmed, the spare artifact bursts and is gone")
+	GameEvents.event.disconnect(listen)
+	# Put things back.
+	Game.submit({"type": "set_spare_weapon", "index": -1})
+	var worn = c.inventory.equipped.get("weapon")
+	c.inventory.equipped["weapon"] = held_before
+	if held_before != null:
+		var hb: int = c.inventory.find_uid(int(held_before.get("uid", -1)))
+		if hb >= 0: c.inventory.bag[hb] = worn
+	for id in ["jadeiron_jian", spear_id]:
+		var k: int = c.inventory.first_index(id)
+		if k >= 0: Game.inventory.apply_remove_index(c.id, k, 1, "test")
+	if foe != null and foe.alive: foe.alive = false
 
 # ------------------------------------------------------------------ formulas
 func rules_suite() -> void:

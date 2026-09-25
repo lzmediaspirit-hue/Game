@@ -15,13 +15,15 @@ const STAT_EVENTS := ["realm_changed", "level_changed", "equipment_changed", "in
 
 func intents() -> Array:
 	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival", "start_flight", "stop_flight", "use_treasure",
-		"plunge", "glide"]
+		"plunge", "glide", "toggle_sword_release", "self_detonate"]
 
 var attune: Dictionary = {}          # actor -> {dealt, taken} for the zone they stand in (S18)
 var flying: Dictionary = {}          # actor -> true while flight holds them up (S18); QI pays for it
 var gliding: Dictionary = {}         # actor -> true while Falling Leaf Glide holds them (S43); 2 QI a second
 var treasure_fx: Dictionary = {}     # actor -> {reflect, gourd, gourd_r, wisps}: a treasure's lingering effect (G2)
 var captured: Dictionary = {}        # enemy uid -> true: taken by the Beast-Taking Cauldron (World doubles its materials)
+var sword_released: Dictionary = {}  # actor -> {t, next}: the jian flies on its own (S47 Sword Release; not saved)
+var sword_intent: Dictionary = {}    # actor -> {stacks, t}: Sword Intent from consecutive jian hits (S47; not saved)
 
 func subscribe() -> void:
 	for ev in STAT_EVENTS:
@@ -91,6 +93,8 @@ func handle(intent: Dictionary) -> Dictionary:
 		"choose_revival": return choose_revival(c, str(intent.get("where", "shrine")))
 		"start_flight": return start_flight(c)
 		"use_treasure": return use_treasure(c, int(intent.get("slot", 0)))
+		"toggle_sword_release": return toggle_sword_release(c)
+		"self_detonate": return self_detonate(c, int(intent.get("index", -1)), bool(intent.get("confirm", false)))
 		"plunge": return plunge(c)
 		"glide": return glide(c, bool(intent.get("on", true)))
 		"stop_flight":
@@ -237,7 +241,7 @@ func player_view(c) -> Dictionary:
 		"element": str(ProgressionRules.method(c.cultivator.method_id).get("affinity", "none")),
 		"physical_attack": sb.value("physical_attack"), "qi_attack": sb.value("qi_attack"), "soul_attack": sb.value("soul_attack"),
 		"accuracy": sb.value("accuracy"), "crit_chance": sb.value("crit_chance"), "crit_damage": sb.value("crit_damage"),
-		"penetration": sb.value("penetration"), "elemental_power": sb.value("elemental_power"),
+		"penetration": sb.value("penetration") + intent_penetration(c), "elemental_power": sb.value("elemental_power"),
 		"energy_mult": ProgressionRules.energy_multiplier(c.cultivator.energy_type, c.cultivator.purity),
 		"tenacity": sb.value("tenacity"), "evasion": sb.value("evasion"), "physical_defense": sb.value("physical_defense"),
 		"qi_resistance": sb.value("qi_resistance"), "soul_defense": sb.value("soul_defense"),
@@ -326,6 +330,9 @@ func basic_attack(c, facing: int) -> Dictionary:
 	var tl := timeline(c.id)
 	facing = 1 if facing >= 0 else -1
 	var fam := StatRules.family(c)
+	# S47: while the jian flies on its own, the hands fight with Qi palms (the fist family, at x0.8).
+	var palms := sword_released.has(c.id)
+	if palms: fam = ContentDB.entry("weapon_families", "fists")
 	var combo: Array = fam.get("combo", [])
 	if combo.is_empty(): return fail("no_combo")
 	var in_air := airborne(c.id)
@@ -336,6 +343,9 @@ func basic_attack(c, facing: int) -> Dictionary:
 	var index := 0 if in_air else (int(tl.combo) + 1 if float(tl.window) > 0.0 and int(tl.combo) < combo.size() - 1 else 0)
 	var aim := target_for(c, float(fam.get("reach", 46)), float(fam.get("depth", 30)), facing)
 	_start_step(c, fam, index, int(aim.facing))
+	if palms:
+		tl.step = (tl.step as Dictionary).duplicate()
+		tl.step.mult = float(tl.step.get("mult", 1.0)) * float(ContentDB.stat_const("sword_release.palm_mult", 0.8))
 	if in_air:
 		tl.step = (tl.step as Dictionary).duplicate()
 		tl.step.mult = float(tl.step.get("mult", 1.0)) * float(ContentDB.stat_const("move.air_attack_mult", 1.1))
@@ -370,6 +380,7 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	var tid = c.cultivator.technique_slots[slot]
 	if tid == null or str(tid) == "": return fail("empty_slot")
 	var t := ContentDB.entry("techniques", str(tid))
+	if str(t.get("damage_type", "")) == "sword_release": return toggle_sword_release(c)
 	var tl := timeline(c.id)
 	if is_busy(c.id): return fail("busy")
 	if climbing(c.id) and not t.get("on_climb", false): return fail("climbing")
@@ -499,6 +510,7 @@ func tick(delta: float) -> void:
 		_tick_flight(c, delta)
 		_tick_glide(c, delta)
 		_tick_treasures(c, delta)
+		_tick_sword(c, delta)
 		var body: ActorState = game.actor_state(c.id)
 		if body != null and not body.plunge_impact.is_empty(): _resolve_plunge(c, body)
 	_tick_projectiles(delta)
@@ -725,6 +737,7 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 	# S43 rule 11: a melee monster that has not been able to reach you for 2 s takes half damage from you.
 	if float(e.ai.get("unreach", 0.0)) >= 2.0: amount *= 0.5
 	_damage_enemy(e, amount, c.id, r.type, r.element, r.crit, attack, facing)
+	_feed_intent(c, e, attack)
 	if e.alive and not attack.get("status", {}).is_empty():
 		var s: Dictionary = attack.status
 		if not e.pools.steadfast.has(str(s.id)):
@@ -944,6 +957,115 @@ func choose_revival(c, where: String) -> Dictionary:
 	for pool in ["hp", "soul"]:
 		emit("resource_changed", {"actor": c.id, "pool": pool, "value": c.pools.get_value(pool), "max": c.pools.get_max(pool)})
 	return ok()
+
+# ------------------------------------------------------------------ flying sword and Sword Intent (S47)
+func knows_sword_release(c) -> bool:
+	return c.cultivator.techniques_known.has("sword_release")
+
+## Sword Release: the jian leaves the hand and strikes on its own, homing on the nearest foe (60% of the jian's
+## attack, 1.5 strikes a second) for up to 8 s or until recalled; meanwhile the hands fight with Qi palms.
+func toggle_sword_release(c) -> Dictionary:
+	if sword_released.has(c.id):
+		_return_sword(c, "recalled")
+		return ok({"released": false})
+	if not knows_sword_release(c): return fail("locked", {"text": Tx.t("sim.combat.sword_release_locked")})
+	if str(StatRules.family(c).get("id", "")) != "jian": return fail("wrong_weapon", {"text": Tx.t("sim.combat.needs_a") % "jian"})
+	var reason := can_act(c)
+	if reason != "": return fail(reason)
+	if c.pools.cooldown("tech:sword_release") > 0.0: return fail("cooldown")
+	var t := ContentDB.entry("techniques", "sword_release")
+	var cost := technique_cost(c, t)
+	if c.pools.max_qi <= 0.0 or c.pools.qi < cost: return fail("no_qi")
+	apply_resource_change(c.id, "qi", -cost, "technique")
+	c.pools.cooldowns["tech:sword_release"] = float(t.get("cooldown_s", 12))
+	sword_released[c.id] = {"t": float(t.get("release_s", 8.0)), "next": 0.15}
+	emit("sword_released", {"actor": c.id, "weapon": str(c.inventory.equipped.weapon.id)})
+	emit("technique_used", {"actor": c.id, "technique": "sword_release", "hits": 0, "targets": 0})
+	return ok({"released": true})
+
+func _return_sword(c, why: String) -> void:
+	if not sword_released.has(c.id): return
+	sword_released.erase(c.id)
+	emit("sword_returned", {"actor": c.id, "reason": why})
+
+func _tick_sword(c, delta: float) -> void:
+	var si: Dictionary = sword_intent.get(c.id, {})
+	if not si.is_empty() and int(si.stacks) > 0:
+		si.t = float(si.t) - delta
+		if float(si.t) <= 0.0:
+			si.stacks = 0
+			emit("sword_intent_changed", {"actor": c.id, "stacks": 0})
+	if not sword_released.has(c.id): return
+	if wounded.has(c.id) or str(StatRules.family(c).get("id", "")) != "jian":
+		_return_sword(c, "lost")
+		return
+	var s: Dictionary = sword_released[c.id]
+	s.t = float(s.t) - delta
+	if float(s.t) <= 0.0:
+		_return_sword(c, "time")
+		return
+	s.next = float(s.next) - delta
+	if float(s.next) > 0.0 or game.room_rt == null: return
+	var t := ContentDB.entry("techniques", "sword_release")
+	s.next = 1.0 / float(t.get("strikes_per_s", 1.5))
+	var pv := player_view(c)
+	var foe := _nearest_enemy(Vector2(float(pv.x), float(pv.y)), float(t.get("seek_radius", 420)))
+	if foe == null: return
+	var from := Vector2(float(pv.x) - int(pv.facing) * 20.0, float(pv.y))
+	var dir := 1 if foe.plane.x >= from.x else -1
+	var m: Array = t.get("mult", [0.6, 0.6])
+	_spawn_projectile({"team": "player", "owner": c.id, "x": from.x, "y": from.y, "alt": float(pv.alt) + 70.0, "dir": dir, "speed": 900.0,
+		"range": absf(foe.plane.x - from.x) + 90.0, "pierce": 0, "seek": true, "art": "flying_sword",
+		"attack": {"damage_type": "physical", "element": "metal", "mult": m, "range": [0.95, 1.05], "source": "flying_sword",
+			"dao_tier": _dao_tier(c, "sword")}})
+
+## Sword Intent: consecutive jian hits stack (max 10, +1% penetration each); at 10 a weaker foe may fear (10%).
+## It fades 3 s after the last jian hit.
+func _feed_intent(c, e: EnemyState, attack: Dictionary) -> void:
+	var src := str(attack.get("source", ""))
+	if not (src == "basic" or src == "flying_sword" or src.begins_with("tech:")): return
+	if sword_released.has(c.id) and src == "basic": return   # palms are not the sword
+	if str(StatRules.family(c).get("id", "")) != "jian": return
+	var si: Dictionary = sword_intent.get(c.id, {"stacks": 0, "t": 0.0})
+	var before := int(si.stacks)
+	si.stacks = mini(int(ContentDB.stat_const("sword_intent.max", 10)), before + 1)
+	si.t = float(ContentDB.stat_const("sword_intent.fade_s", 3.0))
+	sword_intent[c.id] = si
+	if int(si.stacks) != before: emit("sword_intent_changed", {"actor": c.id, "stacks": int(si.stacks)})
+	if int(si.stacks) >= 10 and e.alive and e.level < ProgressionRules.level(c) and not e.pools.steadfast.has("fear"):
+		if Rng.stream(c.id, "combat").randf() < float(ContentDB.stat_const("sword_intent.fear_chance", 0.1)):
+			_apply_status_to_enemy(e, {"id": "fear", "power": 1.0, "remaining": 2.0, "source": c.id})
+
+func intent_penetration(c) -> float:
+	if str(StatRules.family(c).get("id", "")) != "jian": return 0.0
+	return 0.01 * int(sword_intent.get(c.id, {}).get("stacks", 0))
+
+## Self-detonation (S47): a spare artifact (an unworn piece of equipment, or a treasure) bursts around you for
+## damage by its grade, and is destroyed. The one thing the game ever destroys, and only after you confirm.
+func self_detonate(c, index: int, confirm: bool) -> Dictionary:
+	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
+	var inst: Dictionary = c.inventory.bag[index]
+	var def := ContentDB.item(str(inst.id))
+	if not (ContentDB.is_equipment(str(inst.id)) or def.has("treasure")): return fail("not_artifact", {"text": Tx.t("sim.combat.detonate_what")})
+	if c.inventory.locked.has(int(inst.get("uid", -1))): return fail("locked_item", {"text": Tx.t("ui.forge.locked_item")})
+	var reason := can_act(c)
+	if reason != "": return fail(reason)
+	if not confirm: return fail("confirm", {"text": Tx.t("sim.combat.detonate_confirm") % ContentDB.item_name(str(inst.id))})
+	var gi := StatRules.grade_index(str(def.get("grade", "plain")))
+	var power := float(ContentDB.stat_const("detonation.base", 1.5)) + float(ContentDB.stat_const("detonation.per_grade", 0.75)) * gi
+	var pv := player_view(c)
+	var n := 0
+	if game.room_rt:
+		for e in game.room_rt.living_enemies():
+			if e.team != "enemy" or e.hidden: continue
+			if e.plane.distance_to(Vector2(float(pv.x), float(pv.y))) > float(ContentDB.stat_const("detonation.radius", 180)): continue
+			_player_hits_enemy(c, pv, e, {"damage_type": "qi", "element": "none", "mult": [power, power], "range": [1.0, 1.0], "source": "detonation",
+				"knockback": 140.0}, 1 if e.plane.x >= float(pv.x) else -1)
+			n += 1
+	game.inventory.apply_remove_index(c.id, index, 1, "self_detonate")
+	emit("artifact_detonated", {"actor": c.id, "item": str(inst.id), "grade": str(def.get("grade", "plain")), "targets": n,
+		"x": pv.x, "y": pv.y, "alt": pv.alt})
+	return ok({"targets": n, "power": power})
 
 # ------------------------------------------------------------------ projectiles
 func _spawn_projectile(p: Dictionary) -> void:

@@ -178,9 +178,15 @@ func _draw_detail(r: Rect2) -> void:
 	var bw := (r.size.x - 38) / 2
 	var by := r.end.y - 118
 	if sel.has("bag"):
+		# S47 self-detonation: a spare artifact bursts for damage by its grade and is gone (confirmed first).
+		if (ContentDB.is_equipment(id) or def.has("treasure")) and Unlocks.is_unlocked(ch.id, "treasures"):
+			btn(Rect2(bx, by - 56, r.size.x - 28, 46), Tx.t("ui.inventory.detonate"), "detonate", null, false, not ch.inventory.locked.has(int(s.get("uid", -1))), Tx.t("ui.forge.locked_item"))
 		if def.has("slot"):
 			var ok := RequirementRules.passes(def.get("requires", {}), Game.ctx(ch))
 			btn(Rect2(bx, by, bw, 50), Tx.t("ui.inventory.equip"), "equip", null, true, ok, RequirementRules.first_failure_text(def.get("requires", {}), Game.ctx(ch)))
+			# S47 dual loadout: a second weapon waits in the spare slot for the Swap button.
+			if str(def.get("slot", "")) == "weapon":
+				btn(Rect2(bx + bw + 10, by, bw, 50), Tx.t("ui.inventory.set_spare"), "spare", null, false, Unlocks.is_unlocked(ch.id, "dual_loadout"), Unlocks.locked_text("dual_loadout"))
 		elif def.has("use"):
 			var verb := Tx.t("ui.inventory.use")
 			if def.has("raw"): verb = Tx.t("ui.inventory.absorb") if def.has("core") else Tx.t("ui.inventory.eat_raw")
@@ -203,6 +209,11 @@ func _draw_detail(r: Rect2) -> void:
 			"" if riding else id, not riding, Unlocks.is_unlocked(ch.id, "flight"), Unlocks.locked_text("flight"))
 	elif sel.has("slot"):
 		btn(Rect2(bx, by + 30, r.size.x - 28, 54), Tx.t("ui.inventory.unequip"), "unequip", null, false, str(sel.slot) != "gourd", Tx.t("ui.inventory.the_spirit_gourd_holds_your"))
+		var spare = ch.inventory.loadout.get("spare")
+		if str(sel.slot) == "weapon" and spare != null:
+			text(Vector2(bx, by - 8), Tx.t("ui.inventory.spare_weapon") % ContentDB.item_name(str(spare.id)), 17, UiKit.PALE_GOLD)
+			btn(Rect2(bx, by - 62 - 8, bw, 46), Tx.t("ui.inventory.swap_now"), "swap", null, true)
+			btn(Rect2(bx + bw + 10, by - 62 - 8, bw, 46), Tx.t("ui.inventory.spare_out"), "spare_out")
 
 ## G2: what a treasure art, a flight vessel or a talisman does, in numbers.
 func _treasure_lines(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> float:
@@ -271,6 +282,18 @@ func on_action(id: String, data) -> void:
 			if not r.get("ok", false) and r.get("reason", "") == "confirm":
 				ask(str(r.get("text", Tx.t("ui.inventory.use_it_anyway"))), "use_confirm", int(sel.bag))
 		"use_confirm": submit({"type": "use_item", "index": int(data), "confirm": true})
+		"spare":
+			if submit({"type": "set_spare_weapon", "index": int(sel.bag)}).get("ok", false):
+				flash(Tx.t("ui.inventory.spare_set"))
+				sel = {}
+		"spare_out": submit({"type": "set_spare_weapon", "index": -1})
+		"swap": submit({"type": "swap_loadout"})
+		"detonate":
+			var dr := submit({"type": "self_detonate", "index": int(sel.bag)})
+			if not dr.get("ok", false) and dr.get("reason", "") == "confirm": ask(str(dr.get("text", "")), "detonate_yes", int(sel.bag), true)
+			elif not dr.get("ok", false) and str(dr.get("text", "")) != "": flash(str(dr.text))
+		"detonate_yes":
+			if submit({"type": "self_detonate", "index": int(data), "confirm": true}).get("ok", false): sel = {}
 		"quick":
 			var s = selected_item()
 			if s != null: submit({"type": "set_quick_use", "item": "" if ch.inventory.quick_use == str(s.id) else str(s.id)})

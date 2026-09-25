@@ -8,7 +8,7 @@ const COOLDOWN_GROUPS := {"restoration": 15.0, "healing": 15.0, "buff": 30.0, "u
 
 func intents() -> Array:
 	return ["move_item", "equip", "unequip", "use_item", "use_quick", "set_quick_use", "lock_item", "discard", "split_stack", "sort_bag",
-		"bind_item", "subdue_spirit", "set_treasure", "choose_vessel"]
+		"bind_item", "subdue_spirit", "set_treasure", "choose_vessel", "swap_loadout", "set_spare_weapon"]
 
 var binding: Dictionary = {}   # actor -> {uid, left, total}: a relic being bound (S14)
 var spirit_cd: Dictionary = {} # actor -> seconds before another soul contest
@@ -110,6 +110,8 @@ func handle(intent: Dictionary) -> Dictionary:
 		"use_item": return use_item(c, int(intent.get("index", -1)), bool(intent.get("confirm", false)))
 		"set_treasure": return set_treasure(c, str(intent.get("item", "")), int(intent.get("slot", 0)))
 		"choose_vessel": return choose_vessel(c, str(intent.get("item", "")))
+		"swap_loadout": return swap_loadout(c)
+		"set_spare_weapon": return set_spare_weapon(c, int(intent.get("index", -1)))
 		"use_quick":
 			if c.inventory.quick_use == "": return fail("no_quick_use")
 			var idx = c.inventory.first_index(c.inventory.quick_use)
@@ -339,6 +341,48 @@ func equip(c, index: int) -> Dictionary:
 	c.inventory.bag[index] = old
 	if slot == "gourd": c.inventory.resize(c.inventory.capacity())
 	emit("equipment_changed", {"actor": c.id, "slot": slot, "old": old.id if old else "", "new": inst.id})
+	return ok()
+
+# ------------------------------------------------------------------ dual loadout (S47, Heart Tempering 1)
+## A second weapon waits in the spare slot; Swap trades it with the one in hand. Each weapon keeps its own technique
+## bar (Progression swaps the bars on loadout_swapped).
+func swap_loadout(c) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "dual_loadout"): return fail("locked", {"text": Unlocks.locked_text("dual_loadout")})
+	var spare = c.inventory.loadout.get("spare")
+	if spare == null: return fail("no_spare", {"text": Tx.t("sim.inventory.no_spare_weapon")})
+	if game.combat.is_busy(c.id): return fail("busy")
+	var held = c.inventory.equipped.get("weapon")
+	c.inventory.equipped["weapon"] = spare
+	c.inventory.loadout["spare"] = held
+	var active := "b" if str(c.inventory.loadout.get("active", "a")) == "a" else "a"
+	c.inventory.loadout["active"] = active
+	emit("equipment_changed", {"actor": c.id, "slot": "weapon", "old": held.id if held else "", "new": spare.id})
+	emit("loadout_swapped", {"actor": c.id, "active": active, "item": str(spare.id), "weapon": str(spare.id)})
+	return ok({"active": active, "weapon": str(spare.id)})
+
+## Put a bag weapon in the spare slot (the one there goes back to the bag); index -1 takes the spare out.
+func set_spare_weapon(c, index: int) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "dual_loadout"): return fail("locked", {"text": Unlocks.locked_text("dual_loadout")})
+	var old = c.inventory.loadout.get("spare")
+	if index < 0:
+		if old == null: return fail("empty")
+		var free := -1
+		for i in c.inventory.bag.size():
+			if c.inventory.bag[i] == null:
+				free = i
+				break
+		if free < 0: return fail("bag_full")
+		c.inventory.bag[free] = old
+		c.inventory.loadout["spare"] = null
+		return ok()
+	if index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
+	var inst: Dictionary = c.inventory.bag[index]
+	var def := ContentDB.item(str(inst.id))
+	if def.get("type") != "equipment" or str(def.get("slot", "")) != "weapon": return fail("not_weapon", {"text": Tx.t("sim.inventory.spare_is_a_weapon")})
+	var why := wear_check(c, def)
+	if why != "": return fail("cannot_wear", {"text": why})
+	c.inventory.loadout["spare"] = inst
+	c.inventory.bag[index] = old
 	return ok()
 
 func unequip(c, slot: String) -> Dictionary:

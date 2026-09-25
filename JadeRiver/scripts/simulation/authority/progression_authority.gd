@@ -17,6 +17,7 @@ func intents() -> Array:
 		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade"]
 
 func subscribe() -> void:
+	GameEvents.subscribe("loadout_swapped", _on_loadout_swapped, 30)
 	GameEvents.subscribe("hit_landed", _on_hit_landed, 30)
 	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 30)
 	GameEvents.subscribe("player_gravely_wounded", _on_gravely_wounded, 30)
@@ -684,7 +685,12 @@ func apply_insight(actor_id: String, dao: String, amount: float, context: String
 	d.tier = maxi(int(d.tier), tier)
 	c.cultivator.daos[dao] = d
 	emit("insight_gained", {"actor": c.id, "dao": dao, "amount": amount})
-	if gained: emit("dao_tier_up", {"actor": c.id, "dao": dao, "tier": d.tier})
+	if gained:
+		emit("dao_tier_up", {"actor": c.id, "dao": dao, "tier": d.tier})
+		# A tier can teach a technique (S47: Sword Dao tier 3 teaches Sword Release).
+		var effects: Array = ddef.get("effects", [])
+		for ti in mini(int(d.tier), effects.size()):
+			if effects[ti] is Dictionary and effects[ti].has("learn_technique"): apply_learn_technique(c.id, str(effects[ti].learn_technique))
 
 ## A teacher of the Expanse opens a rare Dao: the first tier's insight comes with the lesson.
 func apply_open_dao(actor_id: String, dao: String) -> void:
@@ -794,6 +800,20 @@ func apply_learn_method(actor_id: String, method_id: String) -> void:
 		emit("method_changed", {"actor": c.id, "method": method_id, "cost": 0.0})
 		if upgrade: log_line(c.id, Tx.t("sim.progression.replaces") % [str(fresh.get("name", ContentDB.name_of("methods", method_id))), ContentDB.name_of("methods", str(current.id))], "progress")
 	emit("method_learned", {"actor": c.id, "method": method_id})
+
+## S47 dual loadout: each weapon keeps its own technique bar. The bar in use is put away with the weapon, and the
+## other weapon's bar comes out (the first swap starts it as a copy). No Dao tier is touched by a swap.
+func _on_loadout_swapped(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c == null: return
+	var now := str(p.get("active", "a"))
+	var was := "a" if now == "b" else "b"
+	c.cultivator.technique_bars[was] = c.cultivator.technique_slots.duplicate()
+	if c.cultivator.technique_bars.has(now):
+		var bar: Array = c.cultivator.technique_bars[now]
+		for i in mini(bar.size(), c.cultivator.technique_slots.size()):
+			var tid = bar[i]
+			c.cultivator.technique_slots[i] = tid if tid != null and c.cultivator.techniques_known.has(str(tid)) else null
 
 func apply_learn_technique(actor_id: String, tid: String) -> void:
 	var c = game.character(actor_id)

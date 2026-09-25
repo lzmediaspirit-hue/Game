@@ -306,6 +306,30 @@
     "combat_authority"
    ]
   },
+  "sword_released": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "sword_returned": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "sword_intent_changed": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "artifact_detonated": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
   "loot_dropped": {
    "system": "World",
    "files": [
@@ -611,6 +635,12 @@
    ]
   },
   "pill_used": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
+  "loadout_swapped": {
    "system": "Inventory",
    "files": [
     "inventory_authority"

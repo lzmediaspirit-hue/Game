@@ -464,6 +464,8 @@ def unlocks():
     u("treasures", "Treasures", all_of(realm("heart_tempering_1")), "a_treasure_in_hand", ["hud:treasure_1"],
       effects=[{"kind": "learn_recipe", "recipe": "bright_mirror"}], same_stage_ok=True)
     u("perfect_timing", "Perfect timing", all_of(realm("heart_tempering_1")), "lines_in_the_sand", [], same_stage_ok=True, toast=False)
+    # S47 dual loadout: a spare weapon and the Swap button (R).
+    u("dual_loadout", "Weapon swap", all_of(realm("heart_tempering_1")), "", ["hud:weapon_swap"], same_stage_ok=True)
     u("healing", "Healing", all_of(realm("heart_tempering_3")), "the_infirmary", [], effects=[{"kind": "grant_item", "item": "needle_case", "count": 1}])
     u("array_plates", "Array plates", all_of(realm("heart_tempering_5")), "carry_a_wall", [])
     u("spirit_eggs", "Spirit eggs", all_of(realm("heart_tempering_5")), "the_warm_egg", [], same_stage_ok=True)

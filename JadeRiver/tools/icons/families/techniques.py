@@ -330,6 +330,17 @@ def flying_blades():
     return done(c)
 
 
+def sword_release():
+    """One jian flying free, point up, with a wide arc of its path around it."""
+    c, mk, d = emblem('metal')
+    b = blade(c, 11, 25, 22, 7, 3.0, guard=True)
+    mark(c, b, mk)
+    inner = c.circle(16, 16, 12.8)
+    arc = c.arc(16, 17, 10.5, 1.4, 200, 330) & inner
+    c.put(arc, mk, 'flat', base=2)
+    return done(c)
+
+
 def earthshaker_wave():
     c, mk, d = emblem('earth')
     inner = c.circle(16, 16, 12.8)
@@ -619,7 +630,7 @@ TECHS = [
     ('twin_reed_shot', twin_reed_shot), ('tiger_rush', tiger_rush), ('willow_leaf_parry', willow_leaf_parry),
     ('dragon_tail_sweep', dragon_tail_sweep), ('shadow_flick', shadow_flick), ('bell_toll_strike', bell_toll_strike),
     ('pinning_arrow', pinning_arrow), ('rising_tide', rising_tide), ('palm_wave', palm_wave),
-    ('crescent_arc', crescent_arc), ('spear_lance', spear_lance), ('flying_blades', flying_blades),
+    ('crescent_arc', crescent_arc), ('spear_lance', spear_lance), ('flying_blades', flying_blades), ('sword_release', sword_release),
     ('earthshaker_wave', earthshaker_wave), ('vine_snare', vine_snare), ('rain_of_reeds', rain_of_reeds),
     ('stone_skin', stone_skin), ('gale_step', gale_step), ('mountain_shaker', mountain_shaker),
     ('ember_burst', ember_burst), ('still_water_focus', still_water_focus), ('shadowstep_cut', shadowstep_cut),

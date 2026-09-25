@@ -94,6 +94,10 @@ def build():
                           "story_boss": {"hp": 20, "attack": 1.6, "defence": 1.2}, "event": {"hp": 0.4, "attack": 0.8, "defence": 0.5},
                           "trial": {"hp": 3, "attack": 0.7, "defence": 1.0}},
                 "own_element_resistance": 0.3, "overcome_element_resistance": 0.15},
+        # S47: the flying sword's palms, Sword Intent and self-detonation.
+        "sword_release": {"palm_mult": 0.8},
+        "sword_intent": {"max": 10, "fade_s": 3.0, "pen_per_stack": 0.01, "fear_chance": 0.1},
+        "detonation": {"base": 1.5, "per_grade": 0.75, "radius": 180},
         "combat": {"hitstop": 0.05, "hitstop_crit": 0.1, "knockback_light": 20, "knockback_heavy": 80, "flinch_pct": 0.2,
                    "flinch_s": 0.4, "leash": 600, "shrine_sanctuary": 240, "threat_heal": 1.5, "spawn_protection_s": 1.5, "depth_band": 26,
                    "auto_turn_range": 160, "backlash_stun_s": 1.0, "backlash_qi_pct": 0.05, "dodge_distance": 140, "wind_blink_distance": 120, "wind_blink_cooldown_s": 10,

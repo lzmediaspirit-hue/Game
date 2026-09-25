@@ -60,6 +60,10 @@ def build():
              "A crescent of sword Qi that travels 360 units along the depth band.", projectile={"speed": 620, "range": 360, "count": 1, "pierce": 8}),
         tech("spear_lance", "qi_unfurling_1", "after_the_cleansing", "spear", "none", "qi", (1.30, 1.60), 1, 8, 5, 14,
              "A lance of Qi hitting everything in a 300-unit line. +10% penetration.", reach=300, line=True, penetration=0.1),
+        # S47 Sword Release, learned when the Sword Dao reaches tier 3: the jian flies on its own for 8 s.
+        tech("sword_release", "heart_tempering_1", "sword_dao_3", "jian", "metal", "sword_release", (0.60, 0.60), 1, 1, 12, 20,
+             "The jian leaves your hand and strikes on its own for 8 s (60% a strike, 1.5 a second); your hands fight with Qi palms. Use again to call it back.",
+             release_s=8.0, strikes_per_s=1.5, seek_radius=420),
         tech("flying_blades", "qi_unfurling_1", "after_the_cleansing", "short_blade", "metal", "qi", (0.50, 0.70), 3, 3, 5, 12,
              "Three seeking blades.", projectile={"speed": 600, "range": 360, "count": 3, "seek": True}),
         tech("earthshaker_wave", "qi_unfurling_1", "after_the_cleansing", "staff", "earth", "qi", (1.10, 1.40), 1, 8, 6, 14,
@@ -102,7 +106,13 @@ def build():
                    "effects": [{"elemental_power": 0.05}, {"cost_pct": -0.1}, {"status_chance": 0.1}, {"resistance": 0.05, "teach": True}, {"area": True}]}
     daos = []
     for d in ["fist", "sword", "spear", "blade", "staff", "bow"]:
-        daos.append(dict({"id": d, "family": "weapon", "valley_cap": 5}, **weapon_dao))
+        row = dict({"id": d, "family": "weapon", "valley_cap": 5}, **weapon_dao)
+        if d == "sword":   # S47: tier 3 also teaches Sword Release
+            row["tiers"] = list(row["tiers"])
+            row["tiers"][2] = "Linked techniques gain their tier-3 effect; learn Sword Release"
+            row["effects"] = [dict(e) for e in row["effects"]]
+            row["effects"][2]["learn_technique"] = "sword_release"
+        daos.append(row)
     for d in ["water", "wood", "earth", "wind", "fire", "metal", "thunder"]:
         daos.append(dict({"id": d, "family": "element", "valley_cap": 5 if d in ("water", "wood", "earth", "wind") else 2}, **element_dao))
     daos.append({"id": "soul", "family": "element", "valley_cap": 3, "tiers": element_dao["tiers"], "effects": element_dao["effects"]})

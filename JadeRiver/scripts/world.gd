@@ -433,7 +433,15 @@ func _on_event(name: String, p: Dictionary) -> void:
 			fx.add("text", player.position + Vector2(0, -150), {"text": ContentDB.realm_label(str(p.to)), "color": UiKit.PALE_GOLD, "size": 28, "dur": 2.5})
 			shake = 0.2
 			Audio.play("breakthrough")
-		# S47: treasures, throwables and the talisman treasure.
+		# S47: a spare artifact detonated, and the flying sword leaving and returning.
+		"artifact_detonated":
+			fx.add("wave", player.position, {"color": Color("ff9a5a"), "radius": float(ContentDB.stat_const("detonation.radius", 180)), "dur": 0.5})
+			fx.add("flash", player.position + Vector2(0, -50), {"color": Color("ffe0a0"), "radius": 90.0, "dur": 0.35})
+			shake = 0.35
+			Audio.play("rumble")
+		"sword_released", "sword_returned":
+			fx.add("spark", player.position + Vector2(0, -100), {"color": Color("dff3ff"), "dur": 0.3})
+			Audio.play("forge")
 		"treasure_used":
 			var at := Vector2(float(p.x), float(p.y))
 			var tr_radius := float(CombatAuthority.treasure_of(str(p.treasure)).get("radius", 150))

@@ -713,6 +713,49 @@
    "penetration": 0.1
   },
   {
+   "id": "sword_release",
+   "name": "Sword Release",
+   "family": "jian",
+   "element": "metal",
+   "damage_type": "sword_release",
+   "mult": [
+    0.6,
+    0.6
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     100
+    ],
+    "depth": 30,
+    "alt": [
+     -30,
+     60
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 12,
+   "qi_cost": 20,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "sword",
+   "unlock": "heart_tempering_1",
+   "source": "sword_dao_3",
+   "desc": "The jian leaves your hand and strikes on its own for 8 s (60% a strike, 1.5 a second); your hands fight with Qi palms. Use again to call it back.",
+   "action": "swing_3",
+   "icon": "sword_release",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "release_s": 8.0,
+   "strikes_per_s": 1.5,
+   "seek_radius": 420
+  },
+  {
    "id": "flying_blades",
    "name": "Flying Blades",
    "family": "short_blade",

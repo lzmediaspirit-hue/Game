@@ -919,8 +919,8 @@ func sec_qu1() -> void:
 	# Qi Unfurling 2: the sect forge.
 	check(reach("qi_unfurling_2"), "Qi Unfurling 2")
 	check(start("the_sect_forge"), "The Sect Forge accepted")
-	# The Iron Jian takes 6 copper and its first enhancement 2 more.
-	for need in [["copper_ore", 8], ["riverstone", 3], ["boar_hide", 2]]:
+	# The Iron Jian takes 6 copper; as Common gear its first enhancement takes 2 Riverstone (S47 salvage.json metals).
+	for need in [["copper_ore", 8], ["riverstone", 5], ["boar_hide", 2]]:
 		var have: int = c().inventory.count(str(need[0]))
 		if have < int(need[1]): Game.inventory.apply_add(c().id, str(need[0]), int(need[1]) - have, "test_materials")
 	check(go_to_station("forge_anvil"), "reach a forge")

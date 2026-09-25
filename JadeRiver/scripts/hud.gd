@@ -33,6 +33,7 @@ var guard_center := Vector2(799, 555)
 var context_center := Vector2(1165, 500)   # S24/S43: Climb or Enter while an enemy is aggroed
 ## S24/S47: the Treasure buttons above Quick-use and Guard (the second opens at Spirit Awakening 1).
 var treasure_centers := [Vector2(887, 470), Vector2(799, 470)]
+var swap_center := Vector2(1240, 515)   # S24/S47: weapon swap (dual loadout), from Heart Tempering 1
 var minimap_rect := Rect2(1032, 16, 232, 140)
 var icon_row := [["menu", Vector2(1058, 188)], ["bag", Vector2(1116, 188)], ["map", Vector2(1174, 188)], ["mail", Vector2(1232, 188)]]
 
@@ -75,7 +76,7 @@ func _exit_tree() -> void:
 func _apply_hand() -> void:
 	if not left_handed: return
 	for i in slots.size(): slots[i] = _mirror(slots[i])
-	for k in ["attack_center", "jump_center", "meditate_center", "sense_center", "quick_center", "pet_center", "guard_center", "context_center"]:
+	for k in ["attack_center", "jump_center", "meditate_center", "sense_center", "quick_center", "pet_center", "guard_center", "context_center", "swap_center"]:
 		set(k, _mirror(get(k)))
 	treasure_centers = treasure_centers.map(func(tp): return _mirror(tp))
 
@@ -167,6 +168,7 @@ func role_at(p: Vector2) -> String:
 	if p.distance_to(context_center) < 30 and _fight_context(): return "context"
 	for ti in 2:
 		if p.distance_to(treasure_centers[ti]) < 30 and shown("treasure_%d" % (ti + 1)): return "treasure:%d" % ti
+	if p.distance_to(swap_center) < 30 and shown("weapon_swap"): return "swap"
 	for center in slots:
 		if p.distance_to(center) < 43 and shown("skills"): return "skill"
 	if minimap_rect.has_point(p) and shown("minimap"): return "minimap"
@@ -215,6 +217,7 @@ func press(id: int, p: Vector2):
 		"pet": if bound(): open_page.emit("spirit_animals", {})
 		"context": use_context()
 		"treasure:0", "treasure:1": use_treasure(int(role.get_slice(":", 1)))
+		"swap": swap_weapon()
 		"minimap": open_page.emit("world_map", {})
 		"portrait": open_page.emit("character", {})
 		"tracker": open_page.emit("quests", {})
@@ -325,6 +328,14 @@ func use_context() -> void:
 		return
 	if r.has("text") and str(r.text) != "": add_log(str(r.text), UiKit.PAPER)
 
+## S47 dual loadout: trade the weapon in hand for the spare; with no spare, the bag opens to choose one.
+func swap_weapon() -> void:
+	if not bound(): return
+	var r := Game.submit({"type": "swap_loadout"})
+	if not r.ok:
+		if r.get("reason", "") == "no_spare": open_page.emit("inventory", {})
+		elif r.has("text"): add_log(str(r.text), UiKit.MIST)
+
 func use_treasure(slot: int) -> void:
 	if not bound(): return
 	var tid := str(Game.active().inventory.treasures[slot])
@@ -384,6 +395,7 @@ func _input(event):
 						guard_pressed = true
 						guard_hold = 0.0
 				KEY_Q: if shown("quick_use"): use_quick()
+				KEY_R: if shown("weapon_swap"): swap_weapon()
 				KEY_Z: if shown("treasure_1"): use_treasure(0)
 				KEY_X: if shown("treasure_2"): use_treasure(1)
 				KEY_TAB: if shown("menu"): open_page.emit("menu", {})
@@ -478,6 +490,16 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.breakthrough_failed") + ContentDB.text("failure." + str(p.failure_id)), UiKit.RED)
 		"achievement_unlocked":
 			toast(Tx.t("hud.achievement") + str(p.get("name", "")), "gold")
+		"loadout_swapped":
+			add_log(Tx.t("hud.loadout_swapped") % ContentDB.item_name(str(p.get("weapon", ""))), UiKit.PALE_GOLD)
+		"sword_released":
+			add_log(Tx.t("hud.sword_released"), UiKit.PALE_GOLD)
+		"sword_returned":
+			if str(p.get("reason", "")) != "recalled": add_log(Tx.t("hud.sword_returned"), UiKit.MIST)
+		"sword_intent_changed":
+			if int(p.get("stacks", 0)) >= 10: add_log(Tx.t("hud.sword_intent_full"), UiKit.GOLD)
+		"artifact_detonated":
+			add_log(Tx.t("hud.detonated") % [ContentDB.item_name(str(p.get("item", ""))), int(p.get("targets", 0))], UiKit.RED)
 		"items_salvaged":
 			add_log(Tx.t("hud.salvaged") % (p.get("items", []) as Array).size(), UiKit.PALE_GOLD)
 		"enhancement_inherited":
@@ -774,6 +796,14 @@ func _draw_player_panel(c) -> void:
 	for ic in icons.slice(0, 12):
 		glyph(ic, Vector2(x + 12, r.end.y + 14), 24)
 		x += 26
+	# S47 Sword Intent: ten pips along the panel's foot while a jian is in hand and Intent is building.
+	var stacks := int(Game.combat.sword_intent.get(c.id, {}).get("stacks", 0))
+	if stacks > 0 and str(StatRules.family(c).get("id", "")) == "jian":
+		for i in 10:
+			var pc := Vector2(r.position.x + 130 + i * 21, r.end.y - 7)
+			var dia := PackedVector2Array([pc + Vector2(0, -5), pc + Vector2(5, 0), pc + Vector2(0, 5), pc + Vector2(-5, 0)])
+			if i < stacks: draw_colored_polygon(dia, UiKit.GOLD if stacks >= 10 else Color("cfe6f0"))
+			draw_polyline(dia + PackedVector2Array([dia[0]]), UiKit.INK, 1.5)
 
 func _draw_tracker(c) -> void:
 	var entries: Array = Game.quest.tracker(c)
@@ -929,6 +959,16 @@ func _draw_controls(c) -> void:
 			var ti_bag: int = c.inventory.first_index(tid)
 			var left_n := int(c.inventory.bag[ti_bag].get("charges", int(tdef.charges))) if ti_bag >= 0 else 0
 			UiKit.draw_outlined(self, "×%d" % left_n, tc + Vector2(-4, 26), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 30)
+	if shown("weapon_swap"):
+		# S47: the spare weapon's icon under two turning arrows; dim when there is no spare.
+		var spare = c.inventory.loadout.get("spare")
+		ring(swap_center, 26, false, 1.0, pulses.has("hud:weapon_swap"))
+		if spare != null:
+			var stex = SpriteCache.icon(str(spare.id))
+			if stex: draw_texture_rect(stex, Rect2(swap_center - Vector2(16, 16), Vector2(32, 32)), false, Color(1, 1, 1, 0.9))
+		for side in [-1.0, 1.0]:
+			draw_arc(swap_center, 21, PI * (0.15 if side > 0 else 1.15), PI * (0.75 if side > 0 else 1.75), 10, Color(UiKit.PALE_GOLD, 0.9 if spare != null else 0.35), 2.0)
+		UiKit.draw_outlined(self, str(c.inventory.loadout.get("active", "a")).to_upper(), swap_center + Vector2(10, 26), 13, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 20)
 	if _fight_context():
 		ring(context_center, 26, false, 1.0, true)
 		glyph("enter", context_center, 28)

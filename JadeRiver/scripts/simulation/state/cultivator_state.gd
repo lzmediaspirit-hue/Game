@@ -63,6 +63,7 @@ var revealed: Dictionary = {}
 # Techniques (Progression owns knowledge; Combat owns use)
 var techniques_known: Array = []
 var technique_slots: Array = [null, null, null, null, null, null, null, null]
+var technique_bars: Dictionary = {}   # S47 dual loadout: "a"/"b" -> the bar kept for the weapon not in hand
 var mastery: Dictionary = {}         # technique -> {tier, points}
 var technique_use: Dictionary = {}   # technique -> uses (Heart Trial reflection)
 var secret_arts: Array = []
@@ -99,7 +100,7 @@ func snapshot() -> Dictionary:
 		"meridian_levels_granted": meridian_levels_granted,
 		"unlocked": unlocked.keys(), "offered": offered.duplicate(), "revealed": revealed.keys(),
 		"techniques": {"known": techniques_known.duplicate(), "slots": technique_slots.duplicate(),
-			"mastery": mastery.duplicate(true), "use": technique_use.duplicate()},
+			"mastery": mastery.duplicate(true), "use": technique_use.duplicate(), "bars": technique_bars.duplicate(true)},
 		"secret_arts": secret_arts.duplicate(), "titles": titles.duplicate(), "active_title": active_title,
 		"lifetime_stats": lifetime_stats.duplicate(), "bottleneck_seconds": bottleneck_seconds,
 		"consolidation_penalty": consolidation_penalty}
@@ -170,6 +171,11 @@ func restore(d: Dictionary) -> void:
 	for i in mini(8, slots.size()): technique_slots[i] = slots[i]
 	mastery = t.get("mastery", {}).duplicate(true)
 	technique_use = t.get("use", {}).duplicate()
+	technique_bars = {}
+	var bars = t.get("bars", {})
+	if bars is Dictionary:
+		for k in ["a", "b"]:
+			if bars.get(k) is Array: technique_bars[k] = (bars[k] as Array).duplicate()
 	secret_arts = _arr(d, "secret_arts")
 	titles = _arr(d, "titles")
 	active_title = str(d.get("active_title", ""))
