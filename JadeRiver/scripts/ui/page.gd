@@ -201,7 +201,6 @@ func heading(pos: Vector2, s: String, width := 400.0) -> void:
 
 ## Word-wrapped paragraph. Returns the height used.
 func para(rect: Rect2, s: String, size := 19, col := UiKit.PAPER, max_lines := -1) -> float:
-	var f := UiKit.body_font()
 	var lines := _wrap(s, size, rect.size.x)
 	var lh := size * 1.3
 	var y := rect.position.y + size
@@ -209,8 +208,7 @@ func para(rect: Rect2, s: String, size := 19, col := UiKit.PAPER, max_lines := -
 	for ln in lines:
 		if max_lines > 0 and n >= max_lines: break
 		if y > rect.end.y + 2: break
-		draw_string(f, Vector2(rect.position.x, y + 2), ln, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0, 0, 0, 0.8))
-		draw_string(f, Vector2(rect.position.x, y), ln, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
+		UiKit.draw_text(self, ln, Vector2(rect.position.x, y), size, col)
 		y += lh
 		n += 1
 	return n * lh

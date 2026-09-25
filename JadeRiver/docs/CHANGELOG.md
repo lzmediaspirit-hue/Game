@@ -5,6 +5,32 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### Text and button quality pass
+- **Type.** Words and page figures are now set in Cormorant Garamond, as the style guide asks: semi-bold for
+  text, bold for headers, with lining figures so "Lv 0" no longer reads as "Lv o". Previously every label was
+  in the pixel face, drawn aliased at the phone's non-integer scale, which made glyph pixels uneven. Numbers
+  over the world (damage, bar values) keep Pixelify Sans, now anti-aliased.
+  - `JadeRiverSymbols.ttf` supplies ✓ ↻ ✦ ★, which both faces lack. It is a renamed DejaVu Sans subset,
+    licence included.
+  - World nameplates sit on a soft ink plate instead of a heavy outline.
+- **HD UI kit** (`tools/ui/build_ui_hd.py`). Every frame, button, tab, slot, plaque, pill, toast, tooltip, bar
+  and the dialogue paper is rendered as anti-aliased vector art at 3 texels per screen pixel:
+  - gradient jade enamel and bevelled gold trim;
+  - filigree corners with jade gems;
+  - a paper dialogue box with lacquer seals.
+  It is drawn through `HdStyleBox`, a nine-slice scaled by ⅓ with mipmapped linear filtering, so it is crisp
+  from 1280×720 to 4K. The build checks that no ornament leaves its corner, since a leaking ornament would
+  smear when stretched.
+- **HUD buttons** are anti-aliased enamel discs with a gold bezel, a gloss arc and a soft gold halo when active.
+  Empty technique slots show a faint cloud seal.
+- The minimap title fits its header. The dialogue plaque leaves room for the speaker's name. The creator's
+  arrows are proper ◀ ▶ buttons.
+
+### Gap report audit (docs/gap_audit.md)
+- Every proposal in the Xianxia Systems Gap Report is checked against the build: 2 present, 38 partial,
+  71 missing. The game breaks none of the report's "stay out" rules.
+- The missing systems are planned in seven phases (G1–G7) that follow the report's priority table.
+
 ### World movement pass (docs/movement.md)
 - **Something to climb in every room.** An audit found 79 of 121 rooms flat. Now 7 of 122 are, all by design
   (insight rooms, the first hut, the home boat, story trials).

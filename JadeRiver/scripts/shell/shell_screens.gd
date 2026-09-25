@@ -103,8 +103,8 @@ class SelectionScreen extends Page:
 				text(r.position + Vector2(0, 220), Tx.t("shell.slot") % slot, 22, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 				para(Rect2(r.position + Vector2(24, 236), Vector2(r.size.x - 48, 80)), why, 17, UiKit.HOLLOW)
 		var pages := int(ceil(float(AccountState.MAX_SLOTS) / PER_PAGE))
-		if page > 0: btn(Rect2(24, 330, 56, 72), "‹", "page", -1)
-		if page < pages - 1: btn(Rect2(1200, 330, 56, 72), "›", "page", 1)
+		if page > 0: btn(Rect2(24, 330, 56, 72), "◀", "page", -1, false, true, "", 20)
+		if page < pages - 1: btn(Rect2(1200, 330, 56, 72), "▶", "page", 1, false, true, "", 20)
 		for p in pages:
 			draw_circle(Vector2(620 + p * 20, 596), 5, UiKit.GOLD if p == page else UiKit.HOLLOW)
 		if Game.character("c%d" % chosen) != null:
@@ -166,7 +166,7 @@ class CreatorScreen extends Page:
 		name_field.placeholder_text = Tx.t("shell.your_name")
 		name_field.position = Vector2(820, 128)
 		name_field.size = Vector2(360, 46)
-		name_field.add_theme_font_override("font", UiKit.body_font())
+		name_field.add_theme_font_override("font", UiKit.text_font())
 		name_field.add_theme_font_size_override("font_size", 24)
 		name_field.add_theme_color_override("font_color", UiKit.PAPER)
 		name_field.add_theme_stylebox_override("normal", UiKit.style("slot"))
@@ -227,9 +227,9 @@ class CreatorScreen extends Page:
 		var y := 190.0
 		for row in ROWS:
 			text(Vector2(640, y + 34), LABELS[row], 22, UiKit.GOLD)
-			btn(Rect2(800, y + 4, 52, 46), "‹", "prev", row)
+			btn(Rect2(800, y + 4, 52, 46), "◀", "prev", row, false, true, "", 16)
 			text(Vector2(860, y + 36), label_of(row, value(row)), 21, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 270)
-			btn(Rect2(1136, y + 4, 52, 46), "›", "next", row)
+			btn(Rect2(1136, y + 4, 52, 46), "▶", "next", row, false, true, "", 16)
 			y += 58
 		text(Vector2(640, y + 32), Tx.t("shell.hair_dye"), 22, UiKit.GOLD)
 		for i in 6:

@@ -1,0 +1,164 @@
+{
+  "bar_shell": {
+    "margins": [
+      10,
+      8,
+      10,
+      8
+    ],
+    "normal": "res://art/ui/hd/bar_shell__normal.png"
+  },
+  "button_primary": {
+    "disabled": "res://art/ui/hd/button_primary__disabled.png",
+    "margins": [
+      16,
+      14,
+      16,
+      14
+    ],
+    "normal": "res://art/ui/hd/button_primary__normal.png",
+    "pressed": "res://art/ui/hd/button_primary__pressed.png"
+  },
+  "button_secondary": {
+    "disabled": "res://art/ui/hd/button_secondary__disabled.png",
+    "margins": [
+      14,
+      12,
+      14,
+      12
+    ],
+    "normal": "res://art/ui/hd/button_secondary__normal.png",
+    "pressed": "res://art/ui/hd/button_secondary__pressed.png"
+  },
+  "close_button": {
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "normal": "res://art/ui/hd/close_button__normal.png",
+    "pressed": "res://art/ui/hd/close_button__pressed.png"
+  },
+  "currency_pill": {
+    "margins": [
+      20,
+      10,
+      20,
+      10
+    ],
+    "normal": "res://art/ui/hd/currency_pill__normal.png"
+  },
+  "dialogue_box": {
+    "margins": [
+      24,
+      24,
+      24,
+      24
+    ],
+    "normal": "res://art/ui/hd/dialogue_box__normal.png"
+  },
+  "major_window": {
+    "margins": [
+      32,
+      32,
+      32,
+      32
+    ],
+    "normal": "res://art/ui/hd/major_window__normal.png"
+  },
+  "minimap_frame": {
+    "margins": [
+      24,
+      24,
+      24,
+      24
+    ],
+    "normal": "res://art/ui/hd/minimap_frame__normal.png"
+  },
+  "minor_panel": {
+    "margins": [
+      12,
+      12,
+      12,
+      12
+    ],
+    "normal": "res://art/ui/hd/minor_panel__normal.png"
+  },
+  "portrait_frame": {
+    "margins": [
+      16,
+      16,
+      16,
+      16
+    ],
+    "normal": "res://art/ui/hd/portrait_frame__normal.png"
+  },
+  "realm_badge": {
+    "margins": [
+      8,
+      8,
+      8,
+      8
+    ],
+    "normal": "res://art/ui/hd/realm_badge__normal.png"
+  },
+  "scale": 3,
+  "selected_slot_glow": {
+    "margins": [
+      12,
+      12,
+      12,
+      12
+    ],
+    "normal": "res://art/ui/hd/selected_slot_glow__normal.png"
+  },
+  "slot": {
+    "disabled": "res://art/ui/hd/slot__disabled.png",
+    "margins": [
+      8,
+      8,
+      8,
+      8
+    ],
+    "normal": "res://art/ui/hd/slot__normal.png",
+    "selected": "res://art/ui/hd/slot__selected.png"
+  },
+  "tab": {
+    "margins": [
+      16,
+      10,
+      16,
+      10
+    ],
+    "normal": "res://art/ui/hd/tab__normal.png",
+    "selected": "res://art/ui/hd/tab__selected.png"
+  },
+  "title_plaque": {
+    "margins": [
+      48,
+      26,
+      48,
+      26
+    ],
+    "normal": "res://art/ui/hd/title_plaque__normal.png"
+  },
+  "toast": {
+    "margins": [
+      20,
+      12,
+      20,
+      12
+    ],
+    "normal": "res://art/ui/hd/toast__normal.png"
+  },
+  "tooltip": {
+    "margins": [
+      10,
+      10,
+      10,
+      10
+    ],
+    "normal": "res://art/ui/hd/tooltip__normal.png"
+  }
+}

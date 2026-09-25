@@ -15,7 +15,7 @@ func setup() -> void:
 		name_field.placeholder_text = Tx.t("ui.your_sect.sect_name")
 		name_field.position = Vector2(440, 300)
 		name_field.size = Vector2(400, 50)
-		name_field.add_theme_font_override("font", UiKit.body_font())
+		name_field.add_theme_font_override("font", UiKit.text_font())
 		name_field.add_theme_font_size_override("font_size", 24)
 		name_field.add_theme_stylebox_override("normal", UiKit.style("slot"))
 		add_child(name_field)

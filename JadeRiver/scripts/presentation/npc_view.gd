@@ -66,9 +66,7 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, 16, Color(0.01, 0.035, 0.04, 0.35))
 	draw_set_transform(Vector2.ZERO)
 	var col := UiKit.PALE_GOLD if focus else UiKit.PAPER
-	UiKit.draw_outlined(self, display_name, Vector2(-100, 22), 16, col, HORIZONTAL_ALIGNMENT_CENTER, 200)
-	if title != "":
-		UiKit.draw_outlined(self, title, Vector2(-100, 38), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 200)
+	UiKit.draw_nameplate(self, display_name, title, 24, col, UiKit.MIST, 15)
 	var top := -112.0 + sin(t * 3.0) * 3.0
 	match marker:
 		"main":

@@ -60,7 +60,8 @@ func draw_page() -> void:
 	draw_style_box(UiKit.style("dialogue_box"), box)
 	var pf := Rect2(56, 470, 176, 220)
 	draw_style_box(UiKit.style("portrait_frame"), pf)
-	var plaque := Rect2(250, 470, maxf(220, UiKit.text_width(str(convo.get("speaker", "")), 26, true) + 60), 48)
+	# The plaque's ribbon ends take ~44 px a side: leave the name room inside the enamel.
+	var plaque := Rect2(250, 470, maxf(240, UiKit.text_width(str(convo.get("speaker", "")), 26, true) + 130), 48)
 	draw_style_box(UiKit.style("title_plaque"), plaque)
 	text(plaque.position + Vector2(0, 34), str(convo.get("speaker", "")), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, plaque.size.x, true)
 	var s := current()
@@ -87,11 +88,10 @@ func draw_page() -> void:
 
 ## Dialogue lines are ink on the paper box: dark, no drop shadow.
 func _ink_para(rect: Rect2, s: String, size: int) -> void:
-	var f := UiKit.body_font()
 	var y := rect.position.y + size
 	for ln in _wrap(s, size, rect.size.x):
 		if y > rect.end.y + 2: break
-		draw_string(f, Vector2(rect.position.x, y), ln, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color("2b2118"))
+		UiKit.draw_text(self, ln, Vector2(rect.position.x, y), size, Color("2b2118"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, false)
 		y += size * 1.35
 
 func on_action(id: String, data) -> void:

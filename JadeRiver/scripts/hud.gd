@@ -537,13 +537,31 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.auction_won") % ContentDB.item_name(str(p.get("item", ""))), "gold")
 
 # ------------------------------------------------------------------ drawing
+## A HUD button: jade-enamel face with a vertical sheen, a thin gold bezel, a gloss arc
+## and, when active, a soft gold halo. Everything is anti-aliased so it stays round at any scale.
 func ring(center: Vector2, radius: float, active := false, opacity := 1.0, gold := false) -> void:
 	var tint := Color(1, 1, 1, opacity)
-	draw_circle(center + Vector2(0, 3), radius + 4, Color(0, 0.025, 0.04, 0.7) * tint)
-	draw_circle(center, radius, Color(0.035, 0.10, 0.13, 0.88) * tint)
-	var edge = UiKit.GOLD if (active or gold) else Color("84958c")
-	draw_arc(center, radius, 0, TAU, 40, edge * tint, 3 if gold else 2, false)
-	draw_arc(center, radius - 5, 0, TAU, 40, Color("344d52") * tint, 2, false)
+	var lit := active or gold
+	draw_circle(center + Vector2(0, 4), radius + 4, Color(0, 0.02, 0.03, 0.42) * tint, true, -1.0, true)
+	if lit:
+		for i in 3:
+			draw_arc(center, radius + 5 + i * 3, 0, TAU, 72, Color(UiKit.GOLD, (0.30 - i * 0.09) * opacity), 3.0, true)
+	_disc(center, radius + 2.5, Color("f0d08a") if lit else Color("c6a262"), Color("7a5426") if lit else Color("5c4424"), tint)
+	_disc(center, radius, Color("1d5157"), Color("061519"), tint)
+	draw_arc(center, radius - 3.5, 0, TAU, 72, Color(0.40, 0.84, 0.74, 0.30 if lit else 0.2) * tint, 1.5, true)
+	draw_arc(center, radius - 2.0, PI * 1.15, PI * 1.85, 36, Color(1, 1, 1, 0.12) * tint, maxf(2.0, radius * 0.07), true)
+
+## Filled circle shaded from `top` to `bottom`.
+func _disc(center: Vector2, radius: float, top: Color, bottom: Color, tint := Color.WHITE) -> void:
+	var pts := PackedVector2Array()
+	var cols := PackedColorArray()
+	for i in 64:
+		var a := TAU * i / 64.0
+		var p := center + Vector2(cos(a), sin(a)) * radius
+		pts.append(p)
+		cols.append(top.lerp(bottom, (sin(a) + 1.0) * 0.5) * tint)
+	draw_polygon(pts, cols)
+	draw_arc(center, radius, 0, TAU, 64, bottom.lerp(top, 0.3) * tint, 1.0, true)
 
 func glyph(id: String, center: Vector2, size := 32.0, color := Color.WHITE) -> void:
 	var tex = SpriteCache.icon(id)
@@ -563,7 +581,11 @@ func draw_skill_slot(center: Vector2, slot: int, opacity: float) -> void:
 		glyph("lock", center, 24, Color(1, 1, 1, 0.35 * opacity))
 		return
 	var tid = c.cultivator.technique_slots[slot]
-	if tid == null or str(tid) == "": return
+	if tid == null or str(tid) == "":
+		# An open slot: a faint cloud seal, so it reads as "waiting for a technique", not as broken.
+		var motif: Texture2D = SpriteCache.tex("res://art/ui/slot_empty_motif__normal.png")
+		if motif: draw_texture_rect(motif, Rect2(center - Vector2(22, 22), Vector2(44, 44)), false, Color(0.7, 1.0, 0.9, 0.35 * opacity))
+		return
 	var tex = SpriteCache.icon(str(tid))
 	var tdef := ContentDB.entry("techniques", str(tid))
 	var fam := str(StatRules.family(c).get("id", "fists"))
@@ -704,7 +726,7 @@ func _draw_minimap(c) -> void:
 	var r := minimap_rect
 	draw_style_box(UiKit.style("minimap_frame"), r)
 	var room := Game.room_rt.def if Game.room_rt else {}
-	UiKit.draw_text(self, str(room.get("name", "")), r.position + Vector2(10, 17), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 20)
+	UiKit.draw_text(self, str(room.get("name", "")), r.position + Vector2(12, 18), 12, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 24, true, true)
 	var inner := Rect2(r.position + Vector2(8, 26), r.size - Vector2(16, 34))
 	var b: Array = room.get("bounds", [0, 480, 1280, 480])
 	var bw := float(b[2])
