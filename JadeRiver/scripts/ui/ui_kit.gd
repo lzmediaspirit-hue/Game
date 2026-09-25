@@ -248,5 +248,37 @@ static func fmt(n: float) -> String:
 	return ("-" if v < 0 else "") + s + out
 
 ## Pale-gold key-pattern corner jewels used on HUD panels drawn procedurally.
+## One frame of a creature sheet fitted into `rect` (feet on its bottom edge), animated by `t`. False while loading.
+static func draw_creature(ci: CanvasItem, rect: Rect2, creature_id: String, action := "idle", t := 0.0, modulate := Color.WHITE) -> bool:
+	var e := SpriteCache.creature(creature_id)
+	var texture: Texture2D = SpriteCache.tex_sliced(str(e.get("file", ""))) if not e.is_empty() else null
+	if texture == null: return SpriteCache.loading(str(e.get("file", "")))   # still loading: keep the slot empty
+	var acts: Dictionary = e.get("actions", {})
+	var a: Dictionary = acts.get(action, acts.get("idle", {}))
+	var frames := maxi(1, int(a.get("frames", 1)))
+	var idx := int(t * float(a.get("fps", 6))) % frames
+	var cell := float(e.cell)
+	var row := int(a.get("row", 0))
+	# Fit the drawn pixels of the first frame (not the mostly empty cell), in half steps.
+	var baked: Array = e.get("bounds", {}).get(str(row), [])
+	var used := Rect2(baked[0], baked[1], baked[2], baked[3]) if baked.size() == 4 else _creature_bounds(creature_id, texture, Rect2i(0, row * int(cell), int(cell), int(cell)))
+	var s := minf(rect.size.x / maxf(1.0, used.size.x), rect.size.y / maxf(1.0, used.size.y))
+	s = floorf(s * 2.0) / 2.0 if s >= 1.0 else s
+	var origin := Vector2(rect.get_center().x - (used.position.x + used.size.x * 0.5) * s, rect.end.y - used.end.y * s)
+	var src := Rect2(idx * cell, row * cell, cell, cell)
+	ci.draw_texture_rect_region(texture, Rect2(origin, Vector2(cell, cell) * s), src, modulate)
+	return true
+
+static var _bounds: Dictionary = {}
+
+## Fallback for sheets without baked bounds (tools/art/pixel.py writes them): reads the sheet back once.
+static func _creature_bounds(key: String, texture: Texture2D, cell: Rect2i) -> Rect2:
+	var k := "%s:%d" % [key, cell.position.y]
+	if not _bounds.has(k):
+		var img := texture.get_image()
+		var r := img.get_region(cell).get_used_rect() if img else Rect2i()
+		_bounds[k] = Rect2(r) if r.size.x > 0 else Rect2(Vector2.ZERO, Vector2(cell.size))
+	return _bounds[k]
+
 static func draw_frame(ci: CanvasItem, rect: Rect2, asset := "minor_panel", state := "normal") -> void:
 	ci.draw_style_box(style(asset, state), rect)

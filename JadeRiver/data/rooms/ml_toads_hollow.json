@@ -102,6 +102,15 @@
  ],
  "objects": [
   {
+   "id": "toad_nest",
+   "type": "egg_nest",
+   "at": [
+    2300,
+    860
+   ],
+   "king": "thousand_eye_toad"
+  },
+  {
    "id": "chest_ledge_mv_1",
    "type": "chest",
    "at": [
@@ -150,24 +159,6 @@
     26
    ],
    "height": 80,
-   "standable": true,
-   "flip": false
-  },
-  {
-   "id": "rock_small_2",
-   "prop": "rock_small",
-   "position": [
-    2400,
-    900
-   ],
-   "front_y": 900,
-   "footprint": [
-    2375,
-    874,
-    51,
-    26
-   ],
-   "height": 40,
    "standable": true,
    "flip": false
   }
@@ -279,6 +270,14 @@
    "at": [
     2260,
     760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2400,
+    900
    ],
    "layer": "play"
   },

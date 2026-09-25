@@ -12,7 +12,8 @@ var guardian_cd: Dictionary = {}   # actor -> seconds before Guardian Spirit can
 func intents() -> Array:
 	return ["set_active_pet", "set_pet_role", "feed_pet", "pet_command", "rename_pet", "choose_starter", "attempt_tame", "incubate_egg", "hatch_egg", "evolve_pet", "breed",
 		"lock_pet", "devour_core", "sell_cores", "rest_pets", "offer_contract", "incubate_input", "set_party",
-		"learn_skill_book", "equip_pet", "unequip_pet", "fuse_pets", "pet_breakthrough"]
+		"learn_skill_book", "equip_pet", "unequip_pet", "fuse_pets", "pet_breakthrough",
+		"set_pet_bag", "swap_pet_from_bag", "set_mount"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("room_entered", _on_room_entered, 45)
@@ -27,20 +28,37 @@ func handle(intent: Dictionary) -> Dictionary:
 		"set_active_pet":
 			var uid := str(intent.get("pet", ""))
 			if uid != "" and _pet(c, uid).is_empty(): return fail("unknown_pet")
+			var why := call_blocked(c, uid)
+			if why != "": return fail("cannot_call", {"text": why})
 			c.active_pet = uid
 			c.party_pets.erase(uid)
+			if uid == c.mount_pet: _clear_mount(c)
 			_spawn(c)
 			emit("pet_changed", {"actor": c.id, "pet": uid})
 			return ok()
+		"set_pet_bag": return set_pet_bag(c, str(intent.get("pet", "")), bool(intent.get("on", true)))
+		"swap_pet_from_bag": return swap_from_bag(c, str(intent.get("pet", "")))
+		"set_mount": return set_mount(c, str(intent.get("pet", "")), intent.get("on", null))
 		"set_pet_role":
 			var p := _pet(c, str(intent.get("pet", c.active_pet)))
 			if p.is_empty(): return fail("unknown_pet")
 			var role := str(intent.get("role", "combat"))
 			if not role in ["combat", "gatherer", "cultivation", "mount", "guard"]: return fail("bad_role")
+			if mount_only(p) and role != "mount": return fail("mount_only", {"text": Tx.t("sim.pet.mount_only") % str(p.name)})
 			if role == "mount":
 				if not mountable(p): return fail("not_mountable", {"text": Tx.t("sim.pet.too_small_to_carry_you")})
 				if not Unlocks.is_unlocked(c.id, str(growth().get("mount_unlock", "mounts"))): return fail("locked", {"text": Unlocks.locked_text("mounts")})
 			p.role = role
+			# S46 Mount slot: the mount carries you in its own slot, so a combat animal can walk beside you.
+			if role == "mount":
+				if c.mount_pet != "" and c.mount_pet != str(p.uid):
+					var old := _pet(c, c.mount_pet)
+					if not old.is_empty() and not mount_only(old): old.role = "combat"
+				c.mount_pet = str(p.uid)
+				c.riding = true
+				if c.active_pet == str(p.uid): c.active_pet = ""
+				c.party_pets.erase(str(p.uid))
+			elif c.mount_pet == str(p.uid): _clear_mount(c)
 			emit("pet_changed", {"actor": c.id, "pet": p.uid})
 			if role == "mount": emit("system_used", {"actor": c.id, "system": "mount"})
 			_spawn(c)   # a mount carries you instead of following
@@ -256,16 +274,52 @@ var dismounted: Dictionary = {}   # actor -> seconds before they can ride again
 func mountable(p: Dictionary) -> bool:
 	return ContentDB.entry("pets", str(p.get("species", ""))).has("mount")
 
-## The mount spec of the animal carrying this character, or {} when on foot.
+## The mount spec of the animal carrying this character, or {} when on foot (S46: the Mount slot, while riding).
 func mount_of(c) -> Dictionary:
 	if c == null or dismounted.has(c.id): return {}
-	var p := active_pet(c)
-	if p.is_empty() or str(p.get("role", "")) != "mount": return {}
+	_migrate_mount(c)
+	if not c.riding or c.mount_pet == "": return {}
+	var p := _pet(c, c.mount_pet)
+	if p.is_empty(): return {}
 	return ContentDB.entry("pets", str(p.species)).get("mount", {})
+
+## Saves from before the Mount slot rode the active animal in the Mount role.
+func _migrate_mount(c) -> void:
+	if c.mount_pet != "": return
+	var p := active_pet(c)
+	if p.is_empty() or str(p.get("role", "")) != "mount": return
+	c.mount_pet = str(p.uid)
+	c.riding = true
+	c.active_pet = ""
+
+func mount_pet_of(c) -> Dictionary:
+	return _pet(c, c.mount_pet) if c != null and c.mount_pet != "" else {}
+
+func mount_only(p: Dictionary) -> bool:
+	return ContentDB.entry("pets", str(p.get("species", ""))).get("mount_only", false)
+
+func _clear_mount(c) -> void:
+	c.mount_pet = ""
+	c.riding = false
+
+## The Mount button: climb on or off; with a pet, put that animal in the Mount slot first.
+func set_mount(c, uid: String, on) -> Dictionary:
+	if uid != "":
+		var p := _pet(c, uid)
+		if p.is_empty(): return fail("unknown_pet")
+		return handle({"type": "set_pet_role", "actor": c.id, "pet": uid, "role": "mount"})
+	if c.mount_pet == "" or _pet(c, c.mount_pet).is_empty(): return fail("no_mount", {"text": Tx.t("sim.pet.no_mount")})
+	var want: bool = (not c.riding) if on == null else bool(on)
+	if want and dismounted.has(c.id): return fail("thrown", {"text": Tx.t("sim.pet.thrown")})
+	c.riding = want
+	emit("pet_changed", {"actor": c.id, "pet": c.mount_pet})
+	_spawn(c)
+	return ok({"riding": c.riding})
 
 func mount_speed(c) -> float:
 	if mount_of(c).is_empty(): return 1.0
-	return float(growth().get("mount_speed", 1.5)) * (1.0 + gear_bonus(active_pet(c), "mount_speed"))   # a Reed Saddle (S46)
+	var m := mount_of(c)
+	return float(m.get("speed", growth().get("mount_speed", 1.5))) * (1.0 + gear_bonus(mount_pet_of(c), "mount_speed"))   # a Reed Saddle (S46)
 
 ## Flying mounts halve the QI of flight once the rider is strong enough to steer one (Cloud Stride 5).
 func flight_qi_mult(c) -> float:
@@ -302,8 +356,10 @@ func _spawn(c) -> void:
 	_apply_pockets(c)
 	if game.room_rt.def.get("type", "") == "interior": return
 	var i := 0
-	for p in party(c):
-		if str(p.uid) == c.active_pet and not mount_of(c).is_empty(): continue   # it carries you instead of following
+	var walking: Array = party(c)
+	# Thrown from the saddle (S22), the mount lands beside you and follows until you climb back on.
+	if dismounted.has(c.id) and not mount_pet_of(c).is_empty(): walking.append(mount_pet_of(c))
+	for p in walking:
 		var a := _make_ally(c, p, i)
 		allies[str(p.uid)] = a.uid
 		if str(p.uid) == c.active_pet: ally_uid = a.uid
@@ -679,7 +735,7 @@ func attempt_tame(c, offering: String, result: float) -> Dictionary:
 	game.enemies.release(e)
 	emit("tame_attempted", {"actor": c.id, "species": species, "success": success, "chance": chance})
 	if success:
-		apply_grant(c.id, species)
+		apply_grant(c.id, species, {"rarity": roll_rarity(c, "tame_elite" if e.elite else "tame")})
 		game.progression.apply_insight(c.id, "beast_taming", 5.0, "taming")
 		log_line(c.id, Tx.t("sim.pet.the_calms_and_bonds_with") % ContentDB.name_of("pets", species), "loot")
 	else:
@@ -692,6 +748,7 @@ func incubate_egg(c, index: int) -> Dictionary:
 	if str(ContentDB.item(str(c.inventory.bag[index].id)).get("use_action", "")) != "incubate": return fail("not_an_egg")
 	var cfg := ContentDB.config("eggs")
 	if c.eggs.size() >= int(cfg.get("max_incubating", 1)): return fail("busy", {"text": Tx.t("sim.pet.one_egg_at_a_time")})
+	var egg_def := ContentDB.item(str(c.inventory.bag[index].id))
 	var rng := Rng.stream(c.id, "taming")
 	var total := 0.0
 	for r in cfg.get("species", []): total += float(r.get("weight", 1))
@@ -704,8 +761,11 @@ func incubate_egg(c, index: int) -> Dictionary:
 			break
 	var hours: Array = cfg.get("hatch_hours", [2, 24])
 	var h := rng.randf_range(float(hours[0]), float(hours[1]))
+	# S46: a special egg names its species (the Cloud Stag) or its rarity (a Beast King's nest); a plain one rolls both.
+	if egg_def.has("egg_species"): species = str(egg_def.egg_species)
+	var rarity := roll_rarity(c, str(egg_def.get("egg_rarity", "egg")))
 	game.inventory.apply_remove_index(c.id, index, 1, "incubate")
-	c.eggs.append({"species": species, "hatch_utc": Clock.now_utc() + h * 3600.0})
+	c.eggs.append({"species": species, "hatch_utc": Clock.now_utc() + h * 3600.0, "rarity": rarity})
 	emit("egg_incubated", {"actor": c.id, "hours": h})
 	emit("system_used", {"actor": c.id, "system": "egg_incubated"})
 	return ok({"hours": h})
@@ -873,12 +933,13 @@ func command_capacity(c) -> int:
 func party(c) -> Array:
 	var out: Array = []
 	if c == null: return out
+	_migrate_mount(c)
 	var act := active_pet(c)
-	if not act.is_empty() and str(act.get("role", "")) != "guard": out.append(act)   # on Guard duty it stays home (S45)
+	if not act.is_empty() and not str(act.get("role", "")) in ["guard", "mount"] and not mount_only(act): out.append(act)   # on Guard duty it stays home (S45)
 	for uid in c.party_pets:
 		if out.size() >= command_capacity(c): break
 		var p := _pet(c, str(uid))
-		if p.is_empty() or str(p.uid) == c.active_pet or str(p.get("role", "")) in ["guard", "mount"]: continue
+		if p.is_empty() or str(p.uid) == c.active_pet or str(p.get("role", "")) in ["guard", "mount"] or mount_only(p): continue
 		out.append(p)
 	return out
 
@@ -888,7 +949,9 @@ func set_party(c, uid: String, on: bool) -> Dictionary:
 	if uid == c.active_pet: return fail("already_active")
 	c.party_pets = c.party_pets.filter(func(u): return str(u) != uid and not _pet(c, str(u)).is_empty())
 	if on:
-		if str(p.get("role", "")) in ["guard", "mount"]: return fail("busy", {"text": Tx.t("sim.pet.party_busy") % str(p.name)})
+		if str(p.get("role", "")) in ["guard", "mount"] or mount_only(p): return fail("busy", {"text": Tx.t("sim.pet.party_busy") % str(p.name)})
+		var why := call_blocked(c, uid)
+		if why != "": return fail("cannot_call", {"text": why})
 		var cap := command_capacity(c)
 		if c.party_pets.size() + 1 >= cap: return fail("capacity", {"text": Tx.t("sim.pet.capacity") % cap})
 		c.party_pets.append(uid)
@@ -1255,3 +1318,79 @@ func _form_core(c, p: Dictionary, supports: int, rng: RandomNumberGenerator) -> 
 	emit("pet_core_formed", {"actor": c.id, "pet": str(p.uid), "grade": grade, "points": pts})
 	_spawn(c)
 	return grade
+
+# ------------------------------------------------------------------ rarity rolls (S46)
+## A tamed beast or a plain egg rolls its rarity (bred eggs keep their parents'); table: tame, tame_elite, egg, rare.
+func roll_rarity(c, table: String) -> String:
+	var weights: Dictionary = growth().get("rarity_roll", {}).get(table, {})
+	if weights.is_empty(): return "common"
+	var rng := Rng.stream(c.id if c != null else "account", "bloodline")
+	var total := 0.0
+	for k in weights: total += float(weights[k])
+	var roll := rng.randf() * total
+	for k in weights:
+		roll -= float(weights[k])
+		if roll <= 0.0: return str(k)
+	return str(weights.keys()[0])
+
+# ------------------------------------------------------------------ Spirit Beast Bag and field swaps (S46)
+## Carried-pet slots: the best Spirit Beast Bag you own (0 without one).
+func bag_capacity(c) -> int:
+	var best := 0
+	for st in (c.inventory.key_items as Array) + (c.inventory.bag as Array):
+		if st == null: continue
+		best = maxi(best, int(ContentDB.item(str(st.id)).get("beast_bag", {}).get("slots", 0)))
+	return best
+
+## A town, a sect, a rest stop or home: animals can be called from anywhere.
+func safe_room() -> bool:
+	return game.room_rt == null or str(game.room_rt.def.get("type", "")) in growth().get("safe_rooms", ["town", "sect", "rest", "home", "interior"])
+
+## A foe near you is fighting (not idle, wandering or passive).
+func in_combat(c) -> bool:
+	if game.room_rt == null: return false
+	var st: ActorState = game.actor_state(c.id)
+	if st == null: return false
+	for e in game.room_rt.living_enemies():
+		if e.team != "enemy" or e.hidden or e.def.get("passive", false): continue
+		if not str(e.ai.get("state", "idle")) in ["aggro", "attack", "windup", "recover", "stagger", "detonating"]: continue
+		if e.plane.distance_to(st.plane) <= float(growth().get("combat_reach", 600)): return true
+	return false
+
+## Why this animal cannot be called to your side here ("" when it can): never in a fight; in the field only from the bag.
+func call_blocked(c, uid: String) -> String:
+	if uid == "": return ""
+	if in_combat(c): return Tx.t("sim.pet.not_in_combat")
+	var p := _pet(c, uid)
+	if mount_only(p): return Tx.t("sim.pet.mount_only") % str(p.name)
+	if safe_room() or c.pet_bag.has(uid) or uid == c.active_pet or c.party_pets.has(uid): return ""
+	return Tx.t("sim.pet.not_carried") % str(p.get("name", ""))
+
+## Put an animal in the Spirit Beast Bag (or take it out), up to the bag's slots. Packing happens somewhere safe.
+func set_pet_bag(c, uid: String, on: bool) -> Dictionary:
+	var p := _pet(c, uid)
+	if p.is_empty(): return fail("unknown_pet")
+	c.pet_bag = c.pet_bag.filter(func(u): return str(u) != uid and not _pet(c, str(u)).is_empty())
+	if on:
+		var cap := bag_capacity(c)
+		if cap <= 0: return fail("no_bag", {"text": Tx.t("sim.pet.no_bag")})
+		if not safe_room(): return fail("not_safe", {"text": Tx.t("sim.pet.pack_safe")})
+		if c.pet_bag.size() >= cap: return fail("bag_full", {"text": Tx.t("sim.pet.bag_slots") % cap})
+		c.pet_bag.append(uid)
+	emit("pet_changed", {"actor": c.id, "pet": uid})
+	return ok({"bag": c.pet_bag.duplicate()})
+
+## The field swap: a carried animal takes the active place; the one it replaces goes into its slot in the bag.
+func swap_from_bag(c, uid: String) -> Dictionary:
+	if not c.pet_bag.has(uid) or _pet(c, uid).is_empty(): return fail("not_carried", {"text": Tx.t("sim.pet.not_carried") % str(_pet(c, uid).get("name", ""))})
+	if in_combat(c): return fail("in_combat", {"text": Tx.t("sim.pet.not_in_combat")})
+	var old: String = c.active_pet
+	var i: int = c.pet_bag.find(uid)
+	if old != "" and not _pet(c, old).is_empty(): c.pet_bag[i] = old
+	else: c.pet_bag.remove_at(i)
+	c.active_pet = uid
+	c.party_pets.erase(uid)
+	_spawn(c)
+	emit("pet_swapped", {"actor": c.id, "pet": uid, "from": old})
+	emit("pet_changed", {"actor": c.id, "pet": uid})
+	return ok({"from": old})

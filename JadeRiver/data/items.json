@@ -3096,6 +3096,97 @@
    "use_action": "incubate"
   },
   {
+   "id": "rare_spirit_egg",
+   "name": "Rare Spirit Egg",
+   "type": "egg",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "rare_spirit_egg",
+   "desc": "An egg from a Beast King's nest, warm as a hearth. What hatches is Rare or finer.",
+   "use": [],
+   "use_action": "incubate",
+   "egg_rarity": "rare"
+  },
+  {
+   "id": "cloud_stag_egg",
+   "name": "Cloud Stag Egg",
+   "type": "egg",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "cloud_stag_egg",
+   "desc": "A pale egg that weighs almost nothing, left by the Beast Tide. A Cloud Stag, a mount that leaps like wind, hatches from it.",
+   "use": [],
+   "use_action": "incubate",
+   "egg_species": "cloud_stag"
+  },
+  {
+   "id": "beast_bag_reed",
+   "name": "Reed Beast Bag",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "beast_bag_reed",
+   "desc": "A Spirit Beast Bag with 2 quiet rooms inside. Carry that many spirit animals and swap them in the field, though never in a fight.",
+   "beast_bag": {
+    "slots": 2
+   }
+  },
+  {
+   "id": "beast_bag_hide",
+   "name": "Hide Beast Bag",
+   "type": "tool",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "beast_bag_hide",
+   "desc": "A Spirit Beast Bag with 3 quiet rooms inside. Carry that many spirit animals and swap them in the field, though never in a fight.",
+   "beast_bag": {
+    "slots": 3
+   }
+  },
+  {
+   "id": "beast_bag_cloud",
+   "name": "Cloud Beast Bag",
+   "type": "tool",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "beast_bag_cloud",
+   "desc": "A Spirit Beast Bag with 4 quiet rooms inside. Carry that many spirit animals and swap them in the field, though never in a fight.",
+   "beast_bag": {
+    "slots": 4
+   }
+  },
+  {
+   "id": "beast_bag_mist",
+   "name": "Mistjade Beast Bag",
+   "type": "tool",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 1,
+   "icon": "beast_bag_mist",
+   "desc": "A Spirit Beast Bag with 5 quiet rooms inside. Carry that many spirit animals and swap them in the field, though never in a fight.",
+   "beast_bag": {
+    "slots": 5
+   }
+  },
+  {
+   "id": "beast_bag_star",
+   "name": "Starweave Beast Bag",
+   "type": "tool",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 1,
+   "icon": "beast_bag_star",
+   "desc": "A Spirit Beast Bag with 6 quiet rooms inside. Carry that many spirit animals and swap them in the field, though never in a fight.",
+   "beast_bag": {
+    "slots": 6
+   }
+  },
+  {
    "id": "old_pickaxe",
    "name": "Old Pickaxe",
    "type": "tool",

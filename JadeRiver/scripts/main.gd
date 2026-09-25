@@ -176,6 +176,20 @@ func _handle_preview_args(user_args: Array) -> void:
 			if pa.size() > 2: Game.pets.add_purity(Game.active(), np, int(pa[2]) - int(np.purity))
 			if pa.size() > 3: np.bond = float(pa[3])
 			Game.active().active_pet = str(np.uid)
+		if str(a).begins_with("--mount=") and Game.active() != null:
+			# Debug tools (S38): --mount=species grants an animal and puts it in the Mount slot, riding (S46 previews).
+			Game.pets.apply_grant(Game.active().id, str(a).trim_prefix("--mount="))
+			var mp: Dictionary = Game.active().pets[Game.active().pets.size() - 1]
+			Unlocks.force_unlock(Game.active().id, "mounts")
+			Game.pets.set_mount(Game.active(), str(mp.uid), null)
+		if str(a).begins_with("--bag=") and Game.active() != null:
+			# Debug tools (S38): --bag=species[,species] grants animals and carries them in the Spirit Beast Bag.
+			Game.inventory.apply_add(Game.active().id, "beast_bag_star", 1, "debug")
+			var keep: String = Game.active().active_pet
+			for sp in str(a).trim_prefix("--bag=").split(","):
+				Game.pets.apply_grant(Game.active().id, sp)
+				Game.active().pet_bag.append(str(Game.active().pets[Game.active().pets.size() - 1].uid))
+			Game.active().active_pet = keep
 		if str(a).begins_with("--egg=") and Game.active() != null:
 			# Debug tools (S38): --egg=species puts a warming egg in the nest (S46 incubation previews).
 			Game.active().eggs.append({"species": str(a).trim_prefix("--egg="), "hatch_utc": Clock.now_utc() + 7200.0})

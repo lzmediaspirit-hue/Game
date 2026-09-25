@@ -117,6 +117,8 @@ Progress is recorded in `docs/CHANGELOG.md`.
     at 50 and 90, trait strength, Beast Essence Blood, suppression, the Equal and Blood Contracts, command capacity
     with a party beside you, incubation input, 3-heart hatchlings, the Beast Marrow Washing Pill and Fox Spirit's
     Favour. V7c is done: skill books (five of six sources; Guardian Spirit's waits for the Trial Grove), pet gear,
-    fusion, pet breakthroughs with Pet Core Formation, and the Growth tab. Next come V7d (the beast bag, the mount
-    slot, Beast Kings and Tides) and V7e (the Beast Arena, the Trial Grove, the Taming Dao);
+    fusion, pet breakthroughs with Pet Core Formation, and the Growth tab. V7d is done: Spirit Beast Bags and field
+    swaps, the Mount slot and the HUD pet strip, the Riverstone Ox and Cloud Stag, rarity rolls for tames and eggs,
+    Beast Kings with their zone buff and nests, and the weekly Beast Tide. Next comes V7e (the Beast Arena, the Trial
+    Grove, the Taming Dao);
   - V8 (S49 living world, with S45's treasure births and gathering trials).

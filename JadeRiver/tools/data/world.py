@@ -653,6 +653,9 @@ def stoneford():
     r.npc("guard_hou", [1180, 760], facing=1)
     r.npc("foreman_dong", [660, 760], facing=1)
     r.npc("adventurer_kai", [1500, 900], facing=-1)
+    # S46 Beast Tide: the gate's gong calls the weekly stand against three waves of beasts.
+    r.obj("tide_gong", "beast_tide_drum", [860, 720], requires=all_of(realm("qi_unfurling_1")),
+          locked_text="Guard Hou: \"The Beast Tide is no work for anyone below Qi Unfurling.\"")
     r.edge("east", "east", "wp_west", "west", y=850)
     r.edge("west", "west", "sf_market", "east", y=850)
     r.portal("quarry_road", "door", [660, 700], "sq_quarry_rim", "south", press_up=True, label="Quarry Road",
@@ -1066,6 +1069,9 @@ def valley():
               element="earth", gather_tier="valley_low", music="field_earth", trees=("rock_large", "pine_tree"),
               platforms=[(700, 660, 260, 90), (1500, 680, 240, 120)], hazards=["falling_rocks"])
     r.npc("foreman_dong", [400, 780], oid="npc_dong_rim", facing=1)
+    # S46: a Riverstone Ox grazes the rim from Cloud Stride 1 (paw-marked, mount-only once tamed).
+    r.spawn("riverstone_ox", [[1900, 860]], 1, respawn=900, level=[37, 38], wild_pet=True,
+            requires=all_of(realm("cloud_stride_1"), unlock("taming")))
     r.portal("south", "door", [160, 700], "sf_gate", "quarry_road", press_up=True, label="Stoneford Gate")
     r.edge("east", "east", "sq_lower_pit", "west", y=850)
     r = field("sq_lower_pit", "Lower Pit", "stonewall_quarry", 2, [5, 7], "quarry", "rock",
@@ -1258,6 +1264,11 @@ def valley():
               [("jade_carp", 4, [19, 22]), ("tide_crab", 4, [20, 23])], herbs=("riverreed_ginseng_10", "mist_lotus"), jars=5,
               element="water", gather_tier="valley_mid", music="river", ambience="river_ambience", fishing="bend_shore", loot="jar_valley_mid")
     r.area("shallows", [600, 870, 1400, 90])
+    # S46: while the Beast King lives, paw-marked beasts gather on the shore.
+    r.spawn("reed_otter", [[900, 880], [1700, 880]], 1, respawn=600, level=[22, 24], wild_pet=True, king_alive="riverbed_serpent",
+            requires=all_of(unlock("taming")))
+    r.spawn("ember_fox", [[2000, 860]], 1, respawn=600, level=[22, 24], wild_pet=True, king_alive="riverbed_serpent",
+            requires=all_of(unlock("taming")))
     r.edge("east", "east", "cr_caravan_road", "west", y=850)
     r.edge("west", "west", "wg_gorge_mouth", "east", y=850, ptype="sealed", requires=all_of(realm("heart_tempering_1")),
            locked_text="Whitewater Gorge. The rapids would break you before Heart Tempering.")
@@ -1270,6 +1281,7 @@ def valley():
     for i, x in enumerate([900, 1700, 2500]):
         r.surface("high_rock_%d" % i, [x, 700, 180, 60], 100, kind="rock_ledge")
     r.spawn("riverbed_serpent", [[1900, 900]], 1, respawn=2700, level=[25, 25], field_boss=True, boss=True)
+    r.obj("serpent_nest", "egg_nest", [2590, 725], king="riverbed_serpent", alt=100, surface="high_rock_2")   # S46: opens when the King falls
     # S43 rising water: at half health the serpent floods the shallows to 30 for 14 s; the rocks stay dry.
     r.volume("rising_water", [400, 820, 3000, 140], alt=[-100, -20], vid="serpent_flood",
              rise=[{"event": "boss_phase", "match": {"action": "flood"}, "to": 30, "over_s": 4.0, "hold_s": 14.0, "back_to": -20},
@@ -1736,6 +1748,7 @@ def rimefrost_and_mirrorwater():
              music="boss", ambience="river_ambience", element="water", levels=[68, 68], safe=False, spawn_point=[260, 820],
              attunement_required=25, tint="#d0d4e6", **AE)
     r.spawn("thousand_eye_toad", [[1600, 860]], 1, respawn=2700, level=[68, 68], field_boss=True, boss=True)
+    r.obj("toad_nest", "egg_nest", [2300, 860], king="thousand_eye_toad")   # S46: opens when the King falls
     back_trees(r, ("willow_tree", "reeds", "willow_tree"), step=460)
     for x in (700, 1100, 2100):
         r.decor("lotus_lantern", [x, 700], layer="back")

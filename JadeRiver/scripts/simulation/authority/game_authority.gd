@@ -226,6 +226,7 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"add_pet_purity": pets.apply_purity(actor_id, float(e.get("amount", 10)), source)
 			"wash_pet_marrow": pets.wash_marrow(actor_id)
 			"learn_pet_skill": pets.apply_learn(actor_id, str(e.get("skill", "")))
+			"beast_tide_result": world.apply_tide_result(actor_id, bool(e.get("won", true)))
 			_: push_warning("Unknown effect kind: " + str(e.get("kind", "")))
 
 # ------------------------------------------------------------------ simulation

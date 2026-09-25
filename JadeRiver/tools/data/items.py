@@ -549,6 +549,17 @@ def build_items():
     rows.append(item("fuel_crystal_mid", "material", "heaven", 99, "Ten low fuel crystals fused into one."))
     rows.append(item("blank_plate", "material", "earth", 99, "A blank jade plate for portable arrays."))
     rows.append(item("spirit_egg", "egg", "earth", 1, "A warm egg. Something stirs inside. Use it to start incubating.", use=[], use_action="incubate"))
+    # S46: the Beast King's nest egg is Rare or better; the Beast Tide's Cloud Stag egg always hatches a Cloud Stag.
+    rows.append(item("rare_spirit_egg", "egg", "heaven", 1, "An egg from a Beast King's nest, warm as a hearth. What hatches is Rare or finer.",
+                     use=[], use_action="incubate", egg_rarity="rare"))
+    rows.append(item("cloud_stag_egg", "egg", "heaven", 1, "A pale egg that weighs almost nothing, left by the Beast Tide. A Cloud Stag, a mount that leaps like wind, hatches from it.",
+                     use=[], use_action="incubate", egg_species="cloud_stag"))
+    # S46 Spirit Beast Bags: key items that carry 2 to 6 spirit animals, so they can be swapped in the field (never in a fight).
+    for bid, grade, slots, bname in (("beast_bag_reed", "common", 2, "Reed Beast Bag"), ("beast_bag_hide", "earth", 3, "Hide Beast Bag"),
+                                     ("beast_bag_cloud", "heaven", 4, "Cloud Beast Bag"), ("beast_bag_mist", "mystic", 5, "Mistjade Beast Bag"),
+                                     ("beast_bag_star", "spirit", 6, "Starweave Beast Bag")):
+        rows.append(item(bid, "tool", grade, 1, "A Spirit Beast Bag with %d quiet rooms inside. Carry that many spirit animals and swap them in the field, though never in a fight." % slots,
+                         name=bname, beast_bag={"slots": slots}))
     tools = [("old_pickaxe", "plain", "mining", 1.0), ("iron_pickaxe", "common", "mining", 1.3), ("herb_sickle", "common", "gathering", 1.3),
              ("bamboo_rod", "plain", "fishing", 1.0), ("clay_pot", "plain", "cooking", 1.0),
              ("forge_hammer", "common", "smithing", 1.0), ("formation_kit", "earth", "formations", 1.0), ("needle_case", "earth", "healing", 1.0),

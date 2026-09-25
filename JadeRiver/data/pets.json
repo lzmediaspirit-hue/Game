@@ -495,6 +495,97 @@
     "fly": false,
     "drop": true
    }
+  },
+  {
+   "id": "riverstone_ox",
+   "name": "Riverstone Ox",
+   "art": "riverstone_ox",
+   "element": "earth",
+   "strength_role": "mount",
+   "tame": true,
+   "mount_only": true,
+   "skills": [
+    "Steady Hoof",
+    "Ford the River",
+    "Stone Back",
+    "Long Road"
+   ],
+   "favourite_foods": [
+    "rice_ball",
+    "bamboo_shoot"
+   ],
+   "branches": [
+    "Mountain Ox",
+    "River Ox"
+   ],
+   "mount": {
+    "art": "riverstone_ox",
+    "scale": 1.35,
+    "lift": 0,
+    "saddle": 50,
+    "speed": 1.5
+   },
+   "bloodline_skill": {
+    "name": "Riverbed Stampede",
+    "mult": 2.5
+   },
+   "form_change": {
+    "name": "Mountain-Bearing Ox",
+    "scale": 1.15,
+    "tint": "#e0d8c0"
+   },
+   "family": "hoof",
+   "movement": {
+    "jump": 530,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "cloud_stag",
+   "name": "Cloud Stag",
+   "art": "cloud_stag",
+   "element": "wind",
+   "strength_role": "mount",
+   "mount_only": true,
+   "skills": [
+    "Cloud Step",
+    "Wind Leap",
+    "Sky Call",
+    "Heaven's Stride"
+   ],
+   "favourite_foods": [
+    "lotus_root_tea",
+    "mist_trout"
+   ],
+   "branches": [
+    "Sky Stag",
+    "Mist Stag"
+   ],
+   "mount": {
+    "art": "cloud_stag",
+    "scale": 1.1,
+    "lift": 0,
+    "saddle": 60,
+    "speed": 1.6
+   },
+   "bloodline_skill": {
+    "name": "Sky-Treading Leap",
+    "mult": 2.5
+   },
+   "form_change": {
+    "name": "Heavenly Cloud Stag",
+    "scale": 1.15,
+    "tint": "#e8f4ff"
+   },
+   "family": "hoof",
+   "movement": {
+    "jump": 600,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
   }
  ]
 }

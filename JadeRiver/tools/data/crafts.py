@@ -74,6 +74,14 @@ def build():
                       # then any offering tames it. A tameable beast struck down while an offering sits on quick-use is
                       # subdued at 1 HP for 10 s instead of dying.
                       "purifying": "purifying_offering", "subdue_s": 10.0})
+    # S46 Beast Kings: each zone's field boss. While it lives its zone's beasts are 10% stronger (and Deepwater Bend
+    # draws extra paw-marked beasts); its death opens a rare egg nest in its lair for 30 minutes.
+    entries("beast_kings", [
+        {"id": "riverbed_serpent", "zone": "jade_river_valley", "room": "dw_serpents_shallows", "buff": 0.10,
+         "nest": {"object": "serpent_nest", "minutes": 30, "item": "rare_spirit_egg"}},
+        {"id": "thousand_eye_toad", "zone": "azure_expanse", "room": "ml_toads_hollow", "buff": 0.10,
+         "nest": {"object": "toad_nest", "minutes": 30, "item": "rare_spirit_egg"}},
+    ])
     # Defence events (S25): the tutorial raid for "Walls of the Vale", then one every 2-3 days from sect level 6.
     write("defence.json", {"schema_version": 1, "room": "hv_sect_grounds", "from_level": 6, "interval_days": [2, 3],
                        "duration": 60, "waves": [{"enemy": "mudwater_bandit", "every_s": 5, "max": 4},

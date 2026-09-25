@@ -422,6 +422,7 @@ func _restore_object_states(c, rt: RoomRuntime) -> void:
 func object_visible(c, o: Dictionary) -> bool:
 	if o.has("visible_if") and not RequirementRules.passes(o.visible_if, game.ctx(c)): return false
 	if o.has("hidden_if") and RequirementRules.passes(o.hidden_if, game.ctx(c)): return false
+	if str(o.get("type", "")) == "egg_nest" and nest_closes(str(o.get("king", ""))) <= Clock.now_utc(): return false   # S46: only while open
 	return true
 
 ## A sealed climbable (S43: library floors, lofts) opens when its requirement is met.
@@ -439,6 +440,9 @@ func object_available(c, o: Dictionary) -> Dictionary:
 	# S45: a rare herb out of its season lies dormant (seasons never gate progression).
 	if o.type == "herb_patch" and not HerbRules.in_season(o, Clock.now_utc()):
 		return {"ok": false, "text": Tx.t("sim.world.herb_dormant") % ContentDB.name_of("seasons", str(o.season)), "dormant": true}
+	if o.type == "egg_nest" and c.quests.has_flag(_nest_flag(str(o.get("king", "")))): return {"ok": false, "text": Tx.t("sim.world.nest_taken")}
+	if o.type == "beast_tide_drum" and not tide_due(c):
+		return {"ok": false, "text": Tx.t("sim.world.tide_not_due") % maxi(1, tide_days_left(c))}
 	return {"ok": true, "text": ""}
 
 func hittable_objects(pv: Dictionary, facing: int, hitbox: Dictionary) -> Array:
@@ -561,6 +565,14 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			return game.quest.start_spar_from_object(c, o)
 		"defence_drum":
 			return game.sect.start_defence(c)
+		"egg_nest":
+			# S46: the fallen King's nest gives each character one Rare egg per opening.
+			var king := ContentDB.entry("beast_kings", str(o.get("king", "")))
+			game.quest.apply_flag(c.id, _nest_flag(str(o.get("king", ""))))
+			game.inventory.apply_add(c.id, str(king.get("nest", {}).get("item", "rare_spirit_egg")), 1, "king_nest")
+			result.text = Tx.t("sim.world.nest_egg")
+		"beast_tide_drum":
+			return start_beast_tide(c)
 		"treasure_plot":
 			var tp: Dictionary = game.crafting.tend_treasure_plot(c, o)
 			result.text = str(tp.get("text", ""))
@@ -630,7 +642,8 @@ func _verb(o: Dictionary) -> String:
 		"notice_board", "signpost", "inspect": return Tx.t("sim.world.read")
 		"rite_circle": return Tx.t("sim.world.begin")
 		"spar_post": return Tx.t("sim.world.spar")
-		"bell": return Tx.t("sim.world.ring")
+		"bell", "beast_tide_drum": return Tx.t("sim.world.ring")
+		"egg_nest": return Tx.t("sim.world.take")
 		"treasure_plot", "garden_bed": return Tx.t("sim.world.tend")
 		"treasure_tree": return Tx.t("sim.world.sit_beneath")
 		"star_sight": return Tx.t("sim.world.observe")
@@ -1105,6 +1118,7 @@ func _tick_event(c, rt: RoomRuntime, delta: float) -> void:
 		var w: Dictionary = ev.waves[i]
 		ev.wave_timers[i] = float(ev.wave_timers[i]) - delta
 		if float(ev.wave_timers[i]) > 0.0: continue
+		if w.has("until_s") and float(ev.duration) - float(ev.remaining) > float(w.until_s): continue   # its part of the event is over
 		ev.wave_timers[i] = float(w.get("every_s", 4.0))
 		var alive := 0
 		for e in rt.living_enemies():
@@ -1141,8 +1155,69 @@ func _tick_event(c, rt: RoomRuntime, delta: float) -> void:
 
 ## The level a wave's foes come at: a number, or "player" for the character's own Level (the Temper trials).
 func event_level(c, w: Dictionary) -> int:
-	if str(w.get("level", "")) == "player": return maxi(1, ProgressionRules.level(c))
+	if str(w.get("level", "")) == "player":
+		return clampi(ProgressionRules.level(c) + int(w.get("level_offset", 0)), int(w.get("level_min", 1)), int(w.get("level_max", 999)))
 	return int(w.get("level", -1))
+
+# ------------------------------------------------------------------ Beast Kings' nests and the Beast Tide (S46)
+## When a fallen King's nest closes again (0 when it is closed).
+func nest_closes(king: String) -> float:
+	return float(game.account.rooms.get("king_nests", {}).get(king, 0.0))
+
+func _nest_flag(king: String) -> String:
+	return "king_nest:%s:%d" % [king, int(nest_closes(king))]
+
+func tide_cfg() -> Dictionary:
+	return ContentDB.config("expeditions").get("beast_tide", {})
+
+## The Beast Tide comes once a real week: due when this character has not stood against this week's tide.
+func tide_due(c) -> bool:
+	return int(c.cooldowns.get("beast_tide_week", -1)) != Clock.reset_week(Clock.now_utc())
+
+func tide_days_left(c) -> int:
+	var now := Clock.now_utc()
+	var d := 0
+	while d < 8 and Clock.reset_week(now + d * 86400.0) == Clock.reset_week(now): d += 1
+	return d
+
+## Ring the gate's gong: three waves of beasts, their Level following yours (S25 room-event waves).
+func start_beast_tide(c) -> Dictionary:
+	var cfg := tide_cfg()
+	if game.room_rt == null or game.room_rt.room_id != str(cfg.get("room", "sf_gate")): return fail("not_here")
+	if not tide_due(c): return fail("not_due", {"text": Tx.t("sim.world.tide_not_due") % maxi(1, tide_days_left(c))})
+	if game.room_rt.event.get("active", false): return fail("busy")
+	var ev := {"id": "beast_tide", "duration": float(cfg.get("duration", 90)), "waves": cfg.get("waves", []),
+		"on_complete": [{"kind": "beast_tide_result", "won": true}]}
+	_start_event(c, game.room_rt, ev)
+	emit("beast_tide_started", {"actor": c.id, "room": game.room_rt.room_id, "week": Clock.reset_week(Clock.now_utc()),
+		"duration": float(cfg.get("duration", 90))})
+	return ok({"event": "beast_tide"})
+
+## Held the gate: this week's tide is spent; cores of your rank, an egg (the Cloud Stag's once, from Cloud Stride 1)
+## and Spirit Soil.
+func apply_tide_result(actor_id: String, won: bool) -> void:
+	var c = game.character(actor_id)
+	if c == null: return
+	c.cooldowns["beast_tide_week"] = Clock.reset_week(Clock.now_utc())
+	var rw: Dictionary = tide_cfg().get("rewards", {})
+	var got: Array = []
+	if won:
+		var rng := Rng.stream(c.id, "world")
+		var els: Array = ["fire", "water", "wood", "earth", "wind", "thunder"]
+		var tier := "low" if ProgressionRules.level(c) < 28 else ("mid" if ProgressionRules.level(c) < 46 else "high")
+		for i in int(rw.get("cores", 3)):
+			var core := "%s_core_%s" % [els[rng.randi_range(0, els.size() - 1)], tier]
+			game.inventory.apply_add(c.id, core, 1, "beast_tide")
+			got.append(core)
+		var egg := str(rw.get("egg", "spirit_egg"))
+		if ProgressionRules.at_least(c.cultivator.realm_key, str(rw.get("stag_realm", "cloud_stride_1"))) and not c.quests.has_flag("tide_stag_egg"):
+			egg = str(rw.get("stag_egg", "cloud_stag_egg"))
+			game.quest.apply_flag(c.id, "tide_stag_egg")
+		game.inventory.apply_add(c.id, egg, 1, "beast_tide")
+		got.append(egg)
+		game.inventory.apply_add(c.id, "spirit_soil", int(rw.get("soil", 1)), "beast_tide")
+		got.append("spirit_soil")
+	emit("beast_tide_result", {"actor": c.id, "won": won, "items": got})
 
 func _end_event(c, rt: RoomRuntime, won: bool, reason := "") -> void:
 	var ev: Dictionary = rt.event

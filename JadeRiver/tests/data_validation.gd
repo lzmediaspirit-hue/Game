@@ -230,6 +230,35 @@ func data_suite() -> void:
 	var cgs: Array = pg.get("core_grades", [])
 	for i in range(1, cgs.size()): check(float(cgs[i].min) > float(cgs[i - 1].min) and float(cgs[i].bonus) > float(cgs[i - 1].bonus), "core grade %s ranks above %s" % [cgs[i].id, cgs[i - 1].id])
 	check(ContentDB.entry("pets", "ember_fox").has("bloodline_skill") and pg.get("fusion", {}).has("trait_chance"), "fusion odds in data")
+	# S46 Beast Kings, nests, the Beast Tide, bags and mount-only species.
+	for kg in ContentDB.all("beast_kings"):
+		var ke := ContentDB.entry("enemies", str(kg.id))
+		check(str(ke.get("role", "")) == "field_boss" and int(ke.get("beast_rank", 0)) > 0, "Beast King %s is a field-boss beast" % kg.id)
+		var has_nest := false
+		for o in ContentDB.room(str(kg.room)).get("objects", []):
+			if str(o.get("type", "")) == "egg_nest" and str(o.get("king", "")) == str(kg.id): has_nest = true
+		check(has_nest and ContentDB.item(str(kg.nest.item)).get("use_action", "") == "incubate", "Beast King %s has a nest in %s" % [kg.id, kg.room])
+	var tide: Dictionary = ContentDB.config("expeditions").get("beast_tide", {})
+	check((tide.get("waves", []) as Array).size() == 3 and not ContentDB.room(str(tide.get("room", ""))).is_empty(), "the Beast Tide: three waves at a real room")
+	for w in tide.get("waves", []): check(int(ContentDB.entry("enemies", str(w.enemy)).get("beast_rank", 0)) > 0 and int(w.level_min) >= 10 and int(w.level_max) <= 45, "tide wave %s: rank 2-5 beasts" % w.enemy)
+	var gong := false
+	for o in ContentDB.room(str(tide.get("room", ""))).get("objects", []):
+		if str(o.get("type", "")) == "beast_tide_drum": gong = true
+	check(gong and ContentDB.has_entry("items", str(tide.rewards.stag_egg)), "the tide's gong and its Cloud Stag egg")
+	var slots_seen: Array = []
+	for it in ContentDB.all("items"):
+		if it.has("beast_bag"): slots_seen.append(int(it.beast_bag.slots))
+		if it.has("egg_species"): check(ContentDB.has_entry("pets", str(it.egg_species)), "egg %s hatches a real species" % it.id)
+	slots_seen.sort()
+	check(slots_seen == [2, 3, 4, 5, 6], "Spirit Beast Bags carry 2 to 6 (%s)" % str(slots_seen))
+	for pe in ContentDB.all("pets"):
+		if pe.get("mount_only", false): check(pe.has("mount") and float(pe.mount.get("speed", 0)) >= 1.5, "mount-only %s carries you" % pe.id)
+	check(float(ContentDB.entry("pets", "cloud_stag").mount.speed) == 1.6 and int(ContentDB.entry("pets", "cloud_stag").movement.jump) == 600
+		and int(ContentDB.entry("pets", "riverstone_ox").movement.jump) == 530 and not ContentDB.entry("pets", "riverstone_ox").movement.climb, "the ox and the stag move as Part 8 says")
+	var ox_spawn := false
+	for sp in ContentDB.room("sq_quarry_rim").get("spawns", []):
+		if str(sp.enemy) == "riverstone_ox": ox_spawn = true
+	check(ox_spawn and ContentDB.entry("enemies", "riverstone_ox").get("tameable", false), "the Riverstone Ox grazes Quarry Rim, paw-marked")
 	check(ContentDB.entry("fates", "fox_spirits_favour").get("available", true) and float(ContentDB.entry("fates", "fox_spirits_favour").get("next", {}).get("egg_purity", 0)) == 10.0,
 		"Fox Spirit's Favour is in the deck: the next egg +10 purity")
 	# S48 body ladder: each rung names a bath item, a Temper trial set piece with a drum, and stats that exist.

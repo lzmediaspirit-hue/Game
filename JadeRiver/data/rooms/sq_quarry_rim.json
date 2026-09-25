@@ -383,6 +383,35 @@
     5
    ],
    "elite": true
+  },
+  {
+   "enemy": "riverstone_ox",
+   "surface": "ground",
+   "points": [
+    [
+     1900,
+     860
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 900,
+   "level": [
+    37,
+    38
+   ],
+   "wild_pet": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "cloud_stride_1"
+     },
+     {
+      "kind": "unlock",
+      "system": "taming"
+     }
+    ]
+   }
   }
  ],
  "scenery": [],

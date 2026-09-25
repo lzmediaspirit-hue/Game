@@ -429,6 +429,92 @@
     "flying": false,
     "hit_frame": 1
   },
+  "cloud_stag": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      96,
+      168
+    ],
+    "bounds": {
+      "0": [
+        40,
+        44,
+        108,
+        124
+      ],
+      "1": [
+        40,
+        44,
+        108,
+        124
+      ],
+      "2": [
+        36,
+        48,
+        112,
+        120
+      ],
+      "3": [
+        40,
+        62,
+        128,
+        106
+      ],
+      "4": [
+        26,
+        44,
+        106,
+        124
+      ],
+      "5": [
+        26,
+        44,
+        106,
+        124
+      ]
+    },
+    "cell": 192,
+    "file": "res://art/creatures/cloud_stag.png",
+    "flying": false,
+    "hit_frame": 2
+  },
   "cloudpeak_roc": {
     "actions": {
       "attack": {
@@ -3266,6 +3352,92 @@
     "file": "res://art/creatures/riverbed_serpent.png",
     "flying": true,
     "hit_frame": 1
+  },
+  "riverstone_ox": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      96,
+      168
+    ],
+    "bounds": {
+      "0": [
+        36,
+        102,
+        118,
+        66
+      ],
+      "1": [
+        36,
+        102,
+        118,
+        66
+      ],
+      "2": [
+        34,
+        104,
+        118,
+        64
+      ],
+      "3": [
+        40,
+        100,
+        118,
+        68
+      ],
+      "4": [
+        30,
+        98,
+        120,
+        70
+      ],
+      "5": [
+        30,
+        98,
+        120,
+        70
+      ]
+    },
+    "cell": 192,
+    "file": "res://art/creatures/riverstone_ox.png",
+    "flying": false,
+    "hit_frame": 2
   },
   "rock_beetle": {
     "actions": {

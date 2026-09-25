@@ -1,0 +1,27 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "riverbed_serpent",
+   "zone": "jade_river_valley",
+   "room": "dw_serpents_shallows",
+   "buff": 0.1,
+   "nest": {
+    "object": "serpent_nest",
+    "minutes": 30,
+    "item": "rare_spirit_egg"
+   }
+  },
+  {
+   "id": "thousand_eye_toad",
+   "zone": "azure_expanse",
+   "room": "ml_toads_hollow",
+   "buff": 0.1,
+   "nest": {
+    "object": "toad_nest",
+    "minutes": 30,
+    "item": "rare_spirit_egg"
+   }
+  }
+ ]
+}

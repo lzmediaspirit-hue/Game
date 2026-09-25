@@ -554,6 +554,18 @@
     "world_authority"
    ]
   },
+  "beast_tide_started": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "beast_tide_result": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
   "enemy_aggro": {
    "system": "Enemies",
    "files": [
@@ -596,6 +608,20 @@
     "enemy_brain"
    ],
    "polled": "Enemy views read the return state; the out-of-reach rule is the brain's own business."
+  },
+  "beast_king_spawned": {
+   "system": "Enemies",
+   "files": [
+    "enemy_authority",
+    "enemy_brain"
+   ]
+  },
+  "king_nest_opened": {
+   "system": "Enemies",
+   "files": [
+    "enemy_authority",
+    "enemy_brain"
+   ]
   },
   "craft_step_result": {
    "system": "Crafting",
@@ -1013,6 +1039,12 @@
    ]
   },
   "pet_gear_changed": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "pet_swapped": {
    "system": "Pets",
    "files": [
     "pet_authority"

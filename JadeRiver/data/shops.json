@@ -1458,6 +1458,42 @@
        }
       ]
      }
+    },
+    {
+     "item": "beast_bag_reed",
+     "price": 150,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_7"
+       }
+      ]
+     }
+    },
+    {
+     "item": "beast_bag_hide",
+     "price": 900,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "beast_bag_cloud",
+     "price": 2400,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "cloud_stride_1"
+       }
+      ]
+     }
     }
    ]
   },

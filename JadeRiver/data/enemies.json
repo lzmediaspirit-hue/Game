@@ -6714,6 +6714,63 @@
    },
    "beast_rank": 3,
    "nature": "spirit"
+  },
+  {
+   "id": "riverstone_ox",
+   "name": "Riverstone Ox",
+   "level": [
+    37,
+    38
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "wild_pet",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "horn_toss",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       50
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 0.9
+    }
+   ],
+   "loot": "riverstone_ox",
+   "drops": [],
+   "tameable": true,
+   "collection": null,
+   "art": {
+    "creature": "riverstone_ox"
+   },
+   "half_width": 30,
+   "height": 46,
+   "passive": true,
+   "movement": {
+    "jump": 0,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   },
+   "beast_rank": 5,
+   "nature": "spirit"
   }
  ]
 }

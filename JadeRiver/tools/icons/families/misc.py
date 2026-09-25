@@ -633,6 +633,47 @@ def spirit_egg():
     return c
 
 
+def _egg(shell, spots, glow, crack=True, wisps=False):
+    """A spirit egg on straw, in its own colours (S46: the Beast King's nest egg, the Cloud Stag's egg)."""
+    def build():
+        c = Canvas(32)
+        egg = c.ellipse(16, 17.5, 9.5, 12)
+        c.put(egg, shell, 'sphere', base=2, cx=16, cy=17, rx=10, ry=12.5)
+        for (x, y, r) in ((12, 11, 1.8), (20, 15, 2.2), (13, 21, 2.4), (20, 24, 1.6), (17, 8, 1.2)):
+            c.put(c.circle(x, y, r) & erode4(egg), spots, 'flat', base=2)
+        if crack:
+            path = c.bres_path([(9, 18), (12, 16), (14, 19), (17, 16), (20, 19), (23, 17)])
+            c.put(path & erode4(egg), spots, 'flat', base=4)
+        if wisps:
+            for (x0, y0, x1, y1) in ((5, 12, 9, 10), (23, 8, 27, 6), (24, 20, 28, 19)):
+                c.put(c.seg(x0, y0, x1, y1, 0.8), R['cloud'], 'flat', base=4)
+        nest = c.ellipse(16, 28, 11, 3) & ~egg
+        c.put(nest, R['straw'], 'ray', base=2)
+        c.outline()
+        c.glow(glow, (80,))
+        return c
+    return build
+
+
+def _beast_bag(cloth, trim, mark):
+    """A Spirit Beast Bag: a plump drawstring pouch with a paw sewn on it; the cloth tells its grade (S46)."""
+    def build():
+        c = Canvas(32)
+        bag = c.ellipse(16, 20, 10.5, 9) | c.poly([(9, 13), (23, 13), (21, 9), (11, 9)])
+        c.put(bag, cloth, 'sphere', base=2, cx=13, cy=16, rx=12, ry=11)
+        c.put(c.ellipse(16, 9, 5.5, 2.2), cloth[1], 'flat')
+        c.put(c.seg(10, 11, 22, 11, 1.4), trim, 'ray', base=2)
+        c.put(c.seg(22, 11, 26, 15, 1.0), trim, 'ray', base=2)
+        c.put(c.circle(26, 16, 1.2), trim, 'flat', base=3)
+        inner = erode4(bag)
+        c.put(c.poly([(12.5, 25), (19.5, 25), (18, 21), (14, 21)]) & inner, mark, 'flat', base=3)   # the paw's pad
+        for dx, dy in ((-4.6, 19.6), (-1.7, 17.4), (1.7, 17.4), (4.6, 19.6)):
+            c.put(c.ellipse(16 + dx, dy, 1.3, 1.6) & inner, mark, 'flat', base=3)
+        c.outline()
+        return c
+    return build
+
+
 def drying_rack():
     c = Canvas(32)
     posts = c.rect(4, 5, 5, 29) | c.rect(26, 5, 27, 29)
@@ -721,6 +762,10 @@ for _id, _fn in (('manual_page', manual_page), ('riverbreath_scroll', riverbreat
                  ('kite', kite), ('calm_incense', lambda: _incense(False)),
                  ('myriad_year_calm_incense', lambda: _incense(True)), ('restoration_ink', restoration_ink),
                  ('fish_bait', fish_bait), ('blank_plate', blank_plate), ('spirit_egg', spirit_egg),
+                 ('rare_spirit_egg', _egg(R['gold'], R['red'], '#FFD27A')), ('cloud_stag_egg', _egg(R['cloud'], R['sky'], '#DDF0FF', crack=False, wisps=True)),
+                 ('beast_bag_reed', _beast_bag(R['straw'], R['bamboo'], R['darkwood'])), ('beast_bag_hide', _beast_bag(R['leather'], R['hemp'], R['bone'])),
+                 ('beast_bag_cloud', _beast_bag(R['cloud'], R['sky'], R['jade'])), ('beast_bag_mist', _beast_bag(R['deepjade'], R['jade'], R['pearl'])),
+                 ('beast_bag_star', _beast_bag(R['violetsilk'], R['gold'], R['gold'])),
                  ('drying_rack', drying_rack), ('mindwell_lotus', mindwell_lotus),
                  ('evergreen_heart_seed', evergreen_heart_seed), ('evergreen_heart_fruit', evergreen_heart_fruit)):
     register(FAM, _id, _fn, GROUP)

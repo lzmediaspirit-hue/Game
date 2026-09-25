@@ -12,7 +12,7 @@ const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "bath_stati
 	"ore_vein": "copper_vein", "formation_table": "formation_node", "garden_bed": "treasure_plot",
 	"defence_drum": "small_bell", "treasure_plot": "treasure_plot", "treasure_tree": "nine_bough_jade_tree",
 	"star_sight": "star_sight_stone", "chart_table": "star_chart_table", "shipyard_slip": "shipyard_slip", "starsea_dock": "cloud_skiff",
-	"air_pocket": "qi_spring", "earth_vent": "gas_vent"}
+	"air_pocket": "qi_spring", "earth_vent": "gas_vent", "egg_nest": "beast_nest", "beast_tide_drum": "small_bell"}
 
 var def: Dictionary = {}
 var object_id := ""

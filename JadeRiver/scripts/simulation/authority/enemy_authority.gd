@@ -15,6 +15,45 @@ func subscribe() -> void:
 
 func _on_defeated(p: Dictionary) -> void:
 	if str(p.get("role", "")) == "field_boss": emit("field_boss_defeated", {"room": str(p.get("room", "")), "enemy": str(p.get("def", ""))})
+	# S46: a Beast King falls. Its zone's beasts lose the +10% at once, and its lair's egg nest opens for 30 minutes.
+	var king := ContentDB.entry("beast_kings", str(p.get("def", "")))
+	if king.is_empty(): return
+	if game.room_rt != null:
+		for e in game.room_rt.living_enemies():
+			if e.ai.get("king_buff", false): _set_king_buff(e, false)
+	var nests: Dictionary = game.account.rooms.get("king_nests", {})
+	nests[str(king.id)] = Clock.now_utc() + float(king.get("nest", {}).get("minutes", 30)) * 60.0
+	game.account.rooms["king_nests"] = nests
+	emit("king_nest_opened", {"king": str(king.id), "room": str(king.get("room", "")), "minutes": float(king.get("nest", {}).get("minutes", 30))})
+
+## S46 Beast Kings: alive unless its field-boss respawn timer is running (account-wide, like every field boss).
+func king_alive(king_id: String) -> bool:
+	return Clock.now_utc() >= float(game.account.rooms.get("field_boss_timers", {}).get(king_id, 0.0))
+
+## The King whose zone this room is in and who lives now ({} when none).
+func living_king(room_id: String) -> Dictionary:
+	var zone := str(ContentDB.room(room_id).get("zone", ""))
+	for k in ContentDB.all("beast_kings"):
+		if str(k.get("zone", "")) == zone and king_alive(str(k.id)): return k
+	return {}
+
+## While its King lives, a beast of its zone is 10% stronger (HP and attack); the King itself is not.
+func _apply_king_buff(e: EnemyState) -> void:
+	if game.room_rt == null or WorldAuthority.beast_rank(e.def, e.level) <= 0 or e.team != "enemy": return
+	var k := living_king(game.room_rt.room_id)
+	if k.is_empty() or str(k.id) == e.def_id: return
+	e.ai["king_mult"] = 1.0 + float(k.get("buff", 0.1))
+	_set_king_buff(e, true)
+
+func _set_king_buff(e: EnemyState, on: bool) -> void:
+	var m := float(e.ai.get("king_mult", 1.1))
+	var f := m if on else 1.0 / m
+	e.stats.attack = float(e.stats.get("attack", 0.0)) * f
+	e.stats.max_hp = float(e.stats.get("max_hp", 0.0)) * f
+	var frac := e.pools.hp / maxf(1.0, e.pools.max_hp)
+	e.pools.max_hp = float(e.stats.max_hp)
+	e.pools.hp = e.pools.max_hp * frac
+	e.ai["king_buff"] = on
 
 func _on_room_entered(_p: Dictionary) -> void:
 	populate()
@@ -32,6 +71,8 @@ func _spawn_allowed(spec: Dictionary) -> bool:
 		var until := float(game.account.rooms.get("field_boss_timers", {}).get(str(spec.enemy), 0.0))
 		if Clock.now_utc() < until: return false
 		if not Unlocks.is_unlocked(game.active_id, "field_bosses"): return false
+	# S46: the paw-marked beasts that gather while a Beast King lives.
+	if spec.has("king_alive") and not king_alive(str(spec.king_alive)): return false
 	return true
 
 func populate() -> void:
@@ -150,8 +191,11 @@ func _spawn(slot: Dictionary) -> EnemyState:
 	e.hidden = bool(def.get("hidden_in_fog", false)) and not Unlocks.is_unlocked(game.active_id, "spirit_sense")
 	slot.uid = e.uid
 	rt.enemies[e.uid] = e
+	_apply_king_buff(e)
 	var event_name := "elite_spawned" if e.elite else ("field_boss_spawned" if e.role == "field_boss" else "enemy_spawned")
 	emit(event_name, {"room": rt.room_id, "enemy": e.uid, "def": e.def_id, "level": e.level})
+	var kd := ContentDB.entry("beast_kings", e.def_id)
+	if not kd.is_empty(): emit("beast_king_spawned", {"king": e.def_id, "zone": str(kd.get("zone", "")), "room": rt.room_id, "buff": float(kd.get("buff", 0.1))})
 	if event_name != "enemy_spawned": emit("enemy_spawned", {"room": rt.room_id, "enemy": e.uid, "def": e.def_id, "level": e.level})
 	return e
 

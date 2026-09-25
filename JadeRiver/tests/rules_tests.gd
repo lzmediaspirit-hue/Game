@@ -61,6 +61,7 @@ func _main() -> void:
 	beasts_suite()
 	bloodline_suite()
 	pet_growth_suite()
+	beast_world_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -1757,7 +1758,8 @@ func bloodline_suite() -> void:
 	var om := Game.pets.stat_mult(otter, "hp")
 	check(Game.submit({"type": "offer_contract", "pet": otter.uid, "kind": "blood"}).get("ok", false) and near(Game.pets.stat_mult(otter, "hp"), om * 1.15, 0.001)
 		and c.inventory.count("beast_essence_blood") == 2, "a Blood Contract: +15% stats for a drop of essence blood")
-	# Command capacity by realm, and the party beside you.
+	# Command capacity by realm, and the party beside you (called somewhere safe: the field needs the Beast Bag).
+	Game.world.load_room(c, "rm_hermit_stilt_house", "")
 	c.cultivator.realm_key = "heart_tempering_9"
 	check(Game.pets.command_capacity(c) == 1, "one animal at a time before Spirit Awakening")
 	check(str(Game.submit({"type": "set_party", "pet": otter.uid, "on": true}).get("reason", "")) == "capacity", "a second must wait")
@@ -1965,6 +1967,165 @@ func pet_growth_suite() -> void:
 	c.party_pets = party_was
 	c.cultivator.realm_key = realm_was
 	Game.pets._apply_pockets(c)
+	c.inventory.bag.fill(null)
+	if room_was != "": Game.world.load_room(c, room_was, "")
+
+## S46 · the Spirit Beast Bag and field swaps, the Mount slot and mount-only species, rarity rolls, Beast Kings and
+## their nests, the Beast Tide, and pets that never die.
+func beast_world_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var pets_was: Array = c.pets.duplicate(true)
+	var active_was: String = c.active_pet
+	var bag_was: Array = c.pet_bag.duplicate()
+	var realm_was: String = c.cultivator.realm_key
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var timers_was: Dictionary = Game.account.rooms.get("field_boss_timers", {}).duplicate()
+	var keys_was: Array = c.inventory.key_items.duplicate(true)
+	Unlocks.force_unlock(c.id, "spirit_animals")
+	Unlocks.force_unlock(c.id, "mounts")
+	c.inventory.bag.fill(null)
+	c.cultivator.realm_key = "cloud_stride_1"
+	c.pets = []
+	c.active_pet = ""
+	c.pet_bag = []
+	c.mount_pet = ""
+	c.riding = false
+	# Rarity rolls: a wild tame is mostly Common, an elite never is, a King's egg is Rare or finer.
+	var counts := {}
+	for i in 300:
+		var r: String = Game.pets.roll_rarity(c, "tame")
+		counts[r] = int(counts.get(r, 0)) + 1
+	check(int(counts.get("common", 0)) > 150 and int(counts.get("common", 0)) < 270, "a wild tame is Common about 70%% of the time (%s)" % str(counts))
+	var ok_elite := true
+	var ok_rare := true
+	for i in 60:
+		if Game.pets.roll_rarity(c, "tame_elite") == "common": ok_elite = false
+		if not Game.pets.roll_rarity(c, "rare") in ["rare", "epic", "primordial"]: ok_rare = false
+	check(ok_elite and ok_rare, "an elite is never Common; a nest egg is Rare or better")
+	Unlocks.force_unlock(c.id, "spirit_eggs")
+	Game.inventory.apply_add(c.id, "cloud_stag_egg", 1, "test")
+	Game.submit({"type": "use_item", "index": _bag_index(c, "cloud_stag_egg"), "confirm": true})
+	check(not c.eggs.is_empty() and str(c.eggs.back().species) == "cloud_stag" and c.eggs.back().has("rarity"), "the Beast Tide's egg holds a Cloud Stag")
+	c.eggs = []
+	# The Spirit Beast Bag: carried animals, swapped in the field but never in a fight.
+	Game.world.load_room(c, "rm_hermit_stilt_house", "")
+	Game.pets.apply_grant(c.id, "ember_fox")
+	var fox: Dictionary = c.pets.back()
+	Game.pets.apply_grant(c.id, "reed_otter")
+	var otter: Dictionary = c.pets.back()
+	Game.pets.apply_grant(c.id, "mossback_toad")
+	var toad: Dictionary = c.pets.back()
+	c.active_pet = str(fox.uid)
+	check(str(Game.submit({"type": "set_pet_bag", "pet": otter.uid, "on": true}).get("reason", "")) == "no_bag", "carrying needs a Spirit Beast Bag")
+	Game.inventory.apply_add(c.id, "beast_bag_reed", 1, "test")
+	Game.inventory.apply_add(c.id, "beast_bag_hide", 1, "test")
+	check(Game.pets.bag_capacity(c) == 3, "the best bag counts: a Hide Beast Bag carries 3")
+	check(Game.submit({"type": "set_pet_bag", "pet": otter.uid, "on": true}).get("ok", false) and c.pet_bag.has(str(otter.uid)), "pack the otter at the Beast Hall")
+	Game.world.load_room(c, "lf_reed_shallows", "")
+	check(str(Game.submit({"type": "set_active_pet", "pet": toad.uid}).get("reason", "")) == "cannot_call", "in the field an animal left at home cannot be called")
+	check(str(Game.submit({"type": "set_pet_bag", "pet": toad.uid, "on": true}).get("reason", "")) == "not_safe", "nor packed")
+	var sw := Game.submit({"type": "swap_pet_from_bag", "pet": otter.uid})
+	check(sw.get("ok", false) and c.active_pet == str(otter.uid) and c.pet_bag.has(str(fox.uid)) and not c.pet_bag.has(str(otter.uid)),
+		"swap from the bag: the otter comes out, the fox goes in")
+	var st: ActorState = Game.actor_state(c.id)
+	var rat: EnemyState = Game.enemies.spawn_at("reedtail_rat", st.plane + Vector2(120, 0), 2)
+	rat.ai.state = "aggro"
+	check(str(Game.submit({"type": "swap_pet_from_bag", "pet": fox.uid}).get("reason", "")) == "in_combat", "never in a fight")
+	Game.enemies.release(rat)
+	# The Mount slot: a combat animal and a mount together; mount-only species; the Mount button.
+	Game.world.load_room(c, "rm_hermit_stilt_house", "")
+	Game.pets.apply_grant(c.id, "riverstone_ox")
+	var ox: Dictionary = c.pets.back()
+	check(str(Game.submit({"type": "set_active_pet", "pet": ox.uid}).get("reason", "")) == "cannot_call"
+		and str(Game.submit({"type": "set_pet_role", "pet": ox.uid, "role": "combat"}).get("reason", "")) == "mount_only", "a Riverstone Ox only carries you")
+	check(Game.submit({"type": "set_mount", "pet": ox.uid}).get("ok", false) and c.mount_pet == str(ox.uid) and c.riding and c.active_pet == str(otter.uid),
+		"the ox takes the Mount slot; the otter stays active")
+	Game.world.load_room(c, "lf_reed_shallows", "")
+	check(near(Game.pets.mount_speed(c), 1.5) and Game.pets.ally_uid != 0, "riding the ox at x1.5 while the otter walks beside you")
+	Game.submit({"type": "set_mount", "on": false})
+	check(not c.riding and near(Game.pets.mount_speed(c), 1.0), "the Mount button: off and walking")
+	Game.pets.apply_grant(c.id, "cloud_stag")
+	var stag: Dictionary = c.pets.back()
+	Game.submit({"type": "set_mount", "pet": stag.uid})
+	check(near(Game.pets.mount_speed(c), 1.6) and int(ContentDB.entry("pets", "cloud_stag").movement.jump) == 600 and str(ox.role) == "mount", "the Cloud Stag: x1.6, jump 600")
+	# An older save rode the active animal in the Mount role: it moves to the Mount slot.
+	c.mount_pet = ""
+	c.riding = false
+	var crane_like := stag
+	c.active_pet = str(crane_like.uid)
+	check(not Game.pets.mount_of(c).is_empty() and c.mount_pet == str(crane_like.uid) and c.active_pet == "", "an old mount moves into the Mount slot")
+	c.active_pet = str(otter.uid)
+	# Beast Kings: +10% to their zone's beasts while they live; lifted at once when they fall; the nest opens.
+	var timers: Dictionary = Game.account.rooms.get("field_boss_timers", {})
+	timers["riverbed_serpent"] = Clock.now_utc() + 3600.0
+	Game.account.rooms["field_boss_timers"] = timers
+	var plain: EnemyState = Game.enemies.spawn_at("tide_crab", st.plane + Vector2(300, 0), 22)
+	var base_hp: float = plain.pools.max_hp
+	var base_atk: float = float(plain.stats.attack)
+	Game.enemies.release(plain)
+	timers["riverbed_serpent"] = 0.0
+	var buffed: EnemyState = Game.enemies.spawn_at("tide_crab", st.plane + Vector2(300, 0), 22)
+	check(near(buffed.pools.max_hp, base_hp * 1.1, 0.5) and near(float(buffed.stats.attack), base_atk * 1.1, 0.05), "while the Riverbed Serpent lives, a valley crab is 10% stronger")
+	GameEvents.emit_event("actor_defeated", {"victim_kind": "enemy", "def": "riverbed_serpent", "role": "field_boss", "room": "dw_serpents_shallows",
+		"level": 25, "x": 0.0, "y": 0.0})
+	GameEvents.flush()
+	check(near(buffed.pools.max_hp, base_hp, 0.5) and not buffed.ai.get("king_buff", true), "the King falls: the buff lifts at once")
+	Game.enemies.release(buffed)
+	check(Game.world.nest_closes("riverbed_serpent") > Clock.now_utc() + 1700.0, "its nest opens for 30 minutes")
+	var shore := {"enemy": "reed_otter", "king_alive": "riverbed_serpent"}
+	timers["riverbed_serpent"] = Clock.now_utc() + 3600.0
+	check(not Game.enemies._spawn_allowed(shore), "with the King dead, no extra paw-marked beasts")
+	timers["riverbed_serpent"] = 0.0
+	check(Game.enemies._spawn_allowed(shore), "while it lives they gather")
+	Game.world.load_room(c, "dw_serpents_shallows", "")
+	var nest: Dictionary = Game.room_rt.object_def("serpent_nest")
+	check(Game.world.object_visible(c, nest), "the nest shows while it is open")
+	Game.actor_state(c.id).plane = Vector2(float(nest.at[0]), float(nest.at[1]))
+	Game.actor_state(c.id).altitude = float(nest.get("alt", 0))   # up on the high rock beside it
+	var n0: int = c.inventory.count("rare_spirit_egg")
+	var ni := Game.world.interact(c, "serpent_nest")
+	check(c.inventory.count("rare_spirit_egg") == n0 + 1 and not Game.world.object_available(c, nest).ok, "one Rare Spirit Egg per opening %s" % str(ni.get("reason", "")))
+	# The Beast Tide: once a week at Stoneford Gate; three waves whose Level follows yours; cores, an egg, Spirit Soil.
+	Game.world.load_room(c, "sf_gate", "")
+	c.cooldowns.erase("beast_tide_week")
+	check(Game.world.tide_due(c), "the Beast Tide is due this week")
+	var tw := Game.world.start_beast_tide(c)
+	check(tw.get("ok", false) and Game.room_rt.event.get("active", false) and (Game.room_rt.event.waves as Array).size() == 3, "ring the gong: three waves")
+	var w0: Dictionary = Game.room_rt.event.waves[0]
+	check(Game.world.event_level(c, w0) == clampi(ProgressionRules.level(c) - 4, 10, 45), "the waves' Level follows yours, between 10 and 45")
+	Game.room_rt.event.remaining = float(Game.room_rt.event.duration) - 40.0
+	Game.room_rt.event.wave_timers[0] = 0.0
+	var crabs := Game.room_rt.living_enemies().filter(func(e): return e.def_id == "tide_crab").size()
+	Game.world._tick_event(c, Game.room_rt, 0.01)
+	check(Game.room_rt.living_enemies().filter(func(e): return e.def_id == "tide_crab").size() == crabs, "the first wave stops after its 30 seconds")
+	var stag_eggs: int = c.inventory.count("cloud_stag_egg")
+	c.quests.flags.erase("tide_stag_egg")
+	Game.world._end_event(c, Game.room_rt, true)
+	GameEvents.flush()
+	check(not Game.world.tide_due(c) and c.inventory.count("cloud_stag_egg") == stag_eggs + 1 and c.inventory.count("spirit_soil") >= 1,
+		"held: the week's tide is spent; a Cloud Stag egg (Cloud Stride 1) and Spirit Soil")
+	# Pets never die: at 0 HP an animal retreats into its token and comes back.
+	Game.world.load_room(c, "lf_reed_shallows", "")
+	Game.pets._spawn(c)
+	var a: EnemyState = Game.room_rt.enemies.get(Game.pets.ally_uid)
+	check(a != null, "the otter is out")
+	if a != null:
+		a.pools.hp = 0.0
+		Game.pets.apply_retreat(a)
+		check(str(a.ai.state) == "downed" and a.alive and c.pets.has(otter), "at 0 HP it retreats into its token, alive")
+		c.cultivator.meditating = true
+		AllyBrain.think(Game, a, 0.1, 1.0, 36.0)
+		c.cultivator.meditating = false
+		check(str(a.ai.state) == "follow" and near(a.pools.hp, a.pools.max_hp), "meditation calls it back whole")
+	Game.account.rooms["field_boss_timers"] = timers_was
+	c.pets = pets_was
+	c.active_pet = active_was
+	c.pet_bag = bag_was
+	c.mount_pet = ""
+	c.riding = false
+	c.inventory.key_items = keys_was
+	c.cultivator.realm_key = realm_was
 	c.inventory.bag.fill(null)
 	if room_was != "": Game.world.load_room(c, room_was, "")
 

@@ -111,6 +111,17 @@
  ],
  "objects": [
   {
+   "id": "serpent_nest",
+   "type": "egg_nest",
+   "at": [
+    2590,
+    725
+   ],
+   "king": "riverbed_serpent",
+   "alt": 100,
+   "surface": "high_rock_2"
+  },
+  {
    "id": "rare_ginseng_ss",
    "type": "herb_patch",
    "at": [

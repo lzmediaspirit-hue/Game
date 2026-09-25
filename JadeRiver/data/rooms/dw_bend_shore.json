@@ -444,6 +444,62 @@
     22
    ],
    "elite": true
+  },
+  {
+   "enemy": "reed_otter",
+   "surface": "ground",
+   "points": [
+    [
+     900,
+     880
+    ],
+    [
+     1700,
+     880
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 600,
+   "level": [
+    22,
+    24
+   ],
+   "wild_pet": true,
+   "king_alive": "riverbed_serpent",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "taming"
+     }
+    ]
+   }
+  },
+  {
+   "enemy": "ember_fox",
+   "surface": "ground",
+   "points": [
+    [
+     2000,
+     860
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 600,
+   "level": [
+    22,
+    24
+   ],
+   "wild_pet": true,
+   "king_alive": "riverbed_serpent",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "taming"
+     }
+    ]
+   }
   }
  ],
  "scenery": [],

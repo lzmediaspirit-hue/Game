@@ -349,6 +349,9 @@ def build():
     for pid, el in [("reed_otter", "water"), ("ember_fox", "fire"), ("jade_crane_chick", "wind")]:
         M.append(mob(pid, (19, 24), "normal", el, None, [], [atk("nip", 0.4, 36, 0.8)], ai="wild_pet", tameable=True, width=18, height=28,
                      passive=True))
+    # S46: the Riverstone Ox grazes Quarry Rim from Cloud Stride 1; a mount-only spirit beast, tamed like the others.
+    M.append(mob("riverstone_ox", (37, 38), "normal", "earth", None, [], [atk("horn_toss", 0.5, 50, 0.9)], ai="wild_pet", tameable=True,
+                 width=30, height=46, passive=True))
     beast_ranks(M)
     entries("enemies.json", M)
 

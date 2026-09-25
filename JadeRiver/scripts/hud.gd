@@ -201,6 +201,8 @@ func role_at(p: Vector2) -> String:
 	if minimap_rect.has_point(p) and shown("minimap"): return "minimap"
 	for ic in icon_row:
 		if p.distance_to(ic[1]) < 27 and shown(ic[0]): return "icon:" + str(ic[0])
+	for pc in _pet_strip(Game.active()):
+		if p.distance_to(pc.center) < float(pc.r) + 4: return "pets:" + str(pc.kind) + ":" + str(pc.uid)
 	if Rect2(16, 16, 360, 104).has_point(p) and shown("player_panel"): return "portrait"
 	if Rect2(16, 128, 300, 150).has_point(p) and shown("quest_tracker"): return "tracker"
 	if Rect2(0, 704, 1280, 16).has_point(p) and shown("progress_bar"): return "progress"
@@ -251,6 +253,14 @@ func press(id: int, p: Vector2):
 		"tracker": open_page.emit("quests", {})
 		"progress": open_page.emit("cultivation", {})
 		_:
+			if role.begins_with("pets:") and bound():
+				var parts := role.split(":")
+				var res := {}
+				match parts[1]:
+					"active": open_page.emit("spirit_animals", {})
+					"bag": res = Game.submit({"type": "swap_pet_from_bag", "pet": parts[2]})
+					"mount": res = Game.submit({"type": "set_mount"})
+				if not res.is_empty() and not res.get("ok", false) and res.has("text"): add_log(str(res.text), UiKit.MIST)
 			if role.begins_with("icon:"):
 				var which := role.trim_prefix("icon:")
 				open_page.emit({"menu": "menu", "bag": "inventory", "map": "world_map", "mail": "mail"}[which], {})
@@ -757,6 +767,16 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"pet_breakthrough":
 			if p.get("success", false): add_log(Tx.t("hud.pet_breakthrough_ok") % _pet_name(str(p.pet)), UiKit.BRIGHT_JADE)
 			else: toast(Tx.t("hud.pet_breakthrough_fail") % _pet_name(str(p.pet)), "danger", Tx.t("hud.pet_breakthrough_" + ("heart" if str(p.get("lost", "")) == "heart" else "wound")))
+		"pet_swapped":
+			add_log(Tx.t("hud.pet_swapped") % _pet_name(str(p.pet)), UiKit.BRIGHT_JADE)
+		"beast_king_spawned":
+			toast(Tx.t("hud.beast_king_spawned") % ContentDB.name_of("enemies", str(p.get("king", ""))), "danger", Tx.t("hud.beast_king_spawned_sub"))
+		"king_nest_opened":
+			toast(Tx.t("hud.king_nest_opened"), "gold", Tx.t("hud.king_nest_opened_sub") % int(float(p.get("minutes", 30))))
+		"beast_tide_started":
+			toast(Tx.t("hud.beast_tide_started"), "danger", Tx.t("hud.beast_tide_started_sub") % int(float(p.get("duration", 90))))
+		"beast_tide_result":
+			if p.get("won", false): toast(Tx.t("hud.beast_tide_won"), "gold", Tx.t("hud.beast_tide_won_sub"))
 		"pet_gear_changed":
 			if str(p.get("item", "")) != "": add_log(Tx.t("hud.pet_gear") % [_pet_name(str(p.pet)), ContentDB.item_name(str(p.item))], UiKit.MIST)
 		"core_devoured":
@@ -971,8 +991,48 @@ func _draw():
 	if not Game.is_revealed("hud:joystick_hint_done") and Game.active().quests.has_flag("prologue_active") and t < 12.0:
 		UiKit.draw_outlined(self, Tx.t("hud.drag_on_the_left_half"), Vector2(40, 470), 20, Color(UiKit.PAPER, 0.6 + 0.4 * sin(t * 3.0)), HORIZONTAL_ALIGNMENT_CENTER, 560)
 
+## S46 Pet strip beside the portrait: the active animal (tap for the Spirit Animals page), the animals in the Spirit
+## Beast Bag (tap to swap one in, never in a fight) and the Mount slot (tap to ride or walk).
+func _pet_strip(c) -> Array:
+	var out: Array = []
+	if c == null or not shown("pet") or not shown("player_panel"): return out
+	var x := 404.0
+	var act: Dictionary = Game.pets.active_pet(c)
+	if not act.is_empty():
+		out.append({"kind": "active", "uid": str(act.uid), "center": Vector2(x, 48), "r": 24})
+		x += 50.0
+	for uid in c.pet_bag:
+		if Game.pets._pet(c, str(uid)).is_empty() or str(uid) == c.active_pet: continue
+		out.append({"kind": "bag", "uid": str(uid), "center": Vector2(x, 48), "r": 18})
+		x += 42.0
+	if not Game.pets.mount_pet_of(c).is_empty():
+		out.append({"kind": "mount", "uid": c.mount_pet, "center": Vector2(x + 6, 48), "r": 20})
+	return out
+
+func _draw_pet_strip(c) -> void:
+	for pc in _pet_strip(c):
+		var p: Dictionary = Game.pets._pet(c, str(pc.uid))
+		var cen: Vector2 = pc.center
+		var r := float(pc.r)
+		draw_circle(cen, r + 2, UiKit.INK)
+		draw_circle(cen, r, UiKit.DEEP_TEAL)
+		var art := str(ContentDB.entry("pets", str(p.get("species", ""))).get("art", p.get("species", "")))
+		UiKit.draw_creature(self, Rect2(cen - Vector2(r - 3, r - 3), Vector2(r - 3, r - 3) * 2.0), art, "idle", t)
+		var ring_col := UiKit.JADE
+		if pc.kind == "active":
+			# The animal's health, from its ally in the room (full when it is not out).
+			var a = Game.room_rt.enemies.get(Game.pets.ally_uid) if Game.room_rt and Game.pets.ally_uid != 0 else null
+			var frac: float = a.pools.hp / maxf(1.0, a.pools.max_hp) if a != null else 1.0
+			draw_arc(cen, r + 1, -PI / 2, -PI / 2 + TAU * frac, 32, UiKit.BRIGHT_JADE if frac > 0.3 else UiKit.RED, 3)
+			if p.get("wounded", false): ring_col = UiKit.RED
+		elif pc.kind == "mount":
+			ring_col = UiKit.GOLD if c.riding else UiKit.MIST
+			UiKit.draw_outlined(self, Tx.t("hud.walk") if c.riding else Tx.t("hud.ride"), cen + Vector2(-30, r + 16), 13, ring_col, HORIZONTAL_ALIGNMENT_CENTER, 60)
+		if pc.kind != "active": draw_arc(cen, r + 1, 0, TAU, 32, ring_col, 2)
+
 func _draw_player_panel(c) -> void:
 	if not shown("player_panel"): return
+	_draw_pet_strip(c)
 	# The panel grows by one row once the Soul bar exists (Spirit Awakening).
 	var soul_row: bool = c.pools.max_soul > 0.0 and shown("soul_bar")
 	var r := Rect2(16, 16, 360, 120 if soul_row else 104)

@@ -204,6 +204,23 @@
    ],
    "npc": "adventurer_kai",
    "facing": -1
+  },
+  {
+   "id": "tide_gong",
+   "type": "beast_tide_drum",
+   "at": [
+    860,
+    720
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_1"
+     }
+    ]
+   },
+   "locked_text": "Guard Hou: \"The Beast Tide is no work for anyone below Qi Unfurling.\""
   }
  ],
  "spawns": [],

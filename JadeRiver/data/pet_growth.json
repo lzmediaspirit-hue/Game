@@ -109,6 +109,38 @@
    "count": 3
   }
  ],
+ "rarity_roll": {
+  "tame": {
+   "common": 70,
+   "fine": 22,
+   "rare": 7,
+   "epic": 1
+  },
+  "tame_elite": {
+   "fine": 55,
+   "rare": 35,
+   "epic": 10
+  },
+  "egg": {
+   "common": 65,
+   "fine": 25,
+   "rare": 8,
+   "epic": 2
+  },
+  "rare": {
+   "rare": 75,
+   "epic": 22,
+   "primordial": 3
+  }
+ },
+ "safe_rooms": [
+  "town",
+  "sect",
+  "rest",
+  "home",
+  "interior"
+ ],
+ "combat_reach": 600,
  "incubation": {
   "blood": {
    "purity": 10,

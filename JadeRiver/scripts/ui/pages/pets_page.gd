@@ -25,7 +25,9 @@ func draw_page() -> void:
 		panel(rr, "minor_panel", "selected" if sel == str(p.uid) else "normal")
 		creature_at(Rect2(rr.position + Vector2(6, 4), Vector2(62, 60)), _art(p))
 		text(rr.position + Vector2(76, 30), str(p.name) + ("  ◆" if ch.active_pet == str(p.uid) else ("  ◇" if ch.party_pets.has(str(p.uid)) else "")), 20)
-		text(rr.position + Vector2(76, 54), Tx.t("ui.pets.lv") % [ContentDB.name_of("pets", str(p.species)), int(p.level), str(p.role).capitalize()], 15, UiKit.MIST)
+		var sub := Tx.t("ui.pets.lv") % [ContentDB.name_of("pets", str(p.species)), int(p.level), Tx.t("ui.pets.role_" + str(p.get("role", "combat")))]
+		if ch.pet_bag.has(str(p.uid)): sub += " · " + Tx.t("ui.pets.in_bag")
+		text(rr.position + Vector2(76, 54), fit(sub, 15, rr.size.x - 84), 15, UiKit.MIST)
 		region(rr, "sel", str(p.uid))
 	)
 	if eggs_h > 0.0: _eggs(ch, Rect2(left.position.x + 10, left.end.y - eggs_h, left.size.x - 20, eggs_h - 10))
@@ -76,13 +78,22 @@ func _care_tab(ch, pet: Dictionary, sp: Dictionary, r: Rect2) -> void:
 	var roles := ["combat", "gatherer", "cultivation"]
 	if Game.pets.mountable(pet): roles.append("mount")
 	if Unlocks.is_unlocked(ch.id, "herb_garden"): roles.append("guard")   # S45: watches the garden while you are away
+	if Game.pets.mount_only(pet): roles = ["mount"]   # S46: a mount-only animal only carries you
 	var bw := (colw - 8.0 * (roles.size() - 1)) / roles.size()
 	for role in roles:
 		btn(Rect2(px + roles.find(role) * (bw + 8), y, bw, 46), fit(Tx.t("ui.pets.role_" + role), 15, bw - 10), "role", role, str(pet.role) == role, true, "", 15)
 	y += 58
-	# Set active, and Beside You once the Soul commands more than one (S46).
-	var aw := (colw - 8.0) / 2.0
-	btn(Rect2(px, y, aw, 50), fit(Tx.t("ui.pets.set_active") if ch.active_pet != sel else Tx.t("ui.pets.rest"), 17, aw - 12), "active", sel, ch.active_pet != sel, true, "", 17)
+	# Set active; Beside You once the Soul commands more than one; Carry in the Spirit Beast Bag (S46).
+	var aw := (colw - 16.0) / 3.0
+	var only_mount: bool = Game.pets.mount_only(pet)
+	if not only_mount:
+		btn(Rect2(px, y, aw, 50), fit(Tx.t("ui.pets.set_active") if ch.active_pet != sel else Tx.t("ui.pets.rest"), 17, aw - 12), "active", sel, ch.active_pet != sel, true, "", 17)
+	var bag_cap: int = Game.pets.bag_capacity(ch)
+	if ch.active_pet != sel and not only_mount and ch.mount_pet != sel:
+		var carried: bool = ch.pet_bag.has(sel)
+		btn(Rect2(px + 2.0 * (aw + 8), y, aw, 50), fit((Tx.t("ui.pets.unpack") if carried else Tx.t("ui.pets.carry")) + " %d/%d" % [ch.pet_bag.size(), bag_cap], 16, aw - 10),
+			"carry", not carried, carried, carried or (bag_cap > 0 and ch.pet_bag.size() < bag_cap),
+			Tx.t("ui.pets.no_bag") if bag_cap <= 0 else Tx.t("ui.pets.bag_full") % bag_cap, 16)
 	var cap: int = Game.pets.command_capacity(ch)
 	if cap > 1 and ch.active_pet != sel:
 		var beside: bool = ch.party_pets.has(sel)
@@ -343,6 +354,7 @@ func on_action(id: String, data) -> void:
 		"breed": submit({"type": "breed", "a": sel, "b": str(data)})
 		"hatch": submit({"type": "hatch_egg", "index": int(data)})
 		"party": submit({"type": "set_party", "pet": sel, "on": bool(data)})
+		"carry": submit({"type": "set_pet_bag", "pet": sel, "on": bool(data)})
 		"contract": submit({"type": "offer_contract", "pet": sel, "kind": str(data)})
 		"infuse": submit({"type": "incubate_input", "egg": int(data[0]), "kind": str(data[1]), "item": str(data[2])})
 		"teach": submit({"type": "learn_skill_book", "pet": sel, "book": str(data)})

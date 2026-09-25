@@ -128,7 +128,9 @@ def shops():
                    s("purifying_offering", price=60, requires=all_of(realm("qi_unfurling_7"))), s("beast_revival_pill", price=45),
                    s("beast_essence_blood", price=600, requires=all_of(realm("heart_tempering_1"))),
                    s("pet_book_iron_hide", price=400, requires=all_of(realm("qi_unfurling_1"))),
-                   s("pet_book_deep_pockets", price=900, requires=all_of(realm("heart_tempering_1")))]},
+                   s("pet_book_deep_pockets", price=900, requires=all_of(realm("heart_tempering_1"))),
+                   s("beast_bag_reed", price=150, requires=all_of(realm("qi_unfurling_7"))), s("beast_bag_hide", price=900, requires=all_of(realm("heart_tempering_1"))),
+                   s("beast_bag_cloud", price=2400, requires=all_of(realm("cloud_stride_1")))]},
         # Act II · Cloudgate Port and the Thunderhorn Plains. Spirit Stone prices come from tael prices at the exchange rate.
         {"id": "alliance_factor", "name": "Alliance Factor's Hall", "currency": "spirit_stone", "discount": {"flag": "path_alliance", "pct": 0.1},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_short_blade"), s("stormsteel_staff"),
@@ -457,6 +459,19 @@ def companions():
     entries("companions", rows)
 
 
+# S46 Beast Tide: once a real week at Stoneford Gate, three waves of rank 2-5 beasts (their Level follows yours,
+# between 10 and 45). Hold for 90 seconds: cores, an egg (a Cloud Stag egg from Cloud Stride 1, once) and Spirit Soil.
+BEAST_TIDE = {
+    "room": "sf_gate", "realm": "qi_unfurling_1", "every_days": 7, "duration": 90,
+    "waves": [{"enemy": "tide_crab", "first_s": 2, "every_s": 5, "max": 3, "until_s": 30, "level": "player", "level_offset": -4, "level_min": 10, "level_max": 45,
+               "points": [[300, 860], [2200, 860]]},
+              {"enemy": "wild_boarlet", "first_s": 30, "every_s": 6, "max": 3, "until_s": 60, "level": "player", "level_offset": -2, "level_min": 10, "level_max": 45,
+               "points": [[300, 860], [2200, 860]]},
+              {"enemy": "mud_hound", "first_s": 60, "every_s": 5, "max": 4, "level": "player", "level_offset": 0, "level_min": 10, "level_max": 45,
+               "points": [[300, 860], [2200, 860]]}],
+    "rewards": {"cores": 3, "egg": "spirit_egg", "stag_egg": "cloud_stag_egg", "stag_realm": "cloud_stride_1", "soil": 1}}
+
+
 def pets():
     rows = [
         {"id": "reed_otter", "name": "Reed Otter", "art": "reed_otter", "element": "water", "strength_role": "gatherer", "starter": True,
@@ -490,14 +505,24 @@ def pets():
          "skills": ["Charge", "Root Up", "Bristle", "Second Wind"], "favourite_foods": ["rice_ball", "boar_bone_broth"], "branches": ["Iron Boar", "Thorn Boar"]},
         {"id": "pale_stag", "name": "Pale Stag", "art": "hollow_stag", "element": "soul", "strength_role": "cultivation", "tame": True, "nature": "hollowed",
          "skills": ["Antler Sweep", "Pale Call", "Moonstep", "Stillness"], "favourite_foods": ["lotus_root_tea", "rice_ball"], "branches": ["Moon Stag", "Ghost Stag"]},
+        # S46 mount-only species: they carry you and never fight. The ox walks x1.5 (jump 530, no climbing); the stag
+        # walks x1.6 and jumps 600 (an apex of about 157).
+        {"id": "riverstone_ox", "name": "Riverstone Ox", "art": "riverstone_ox", "element": "earth", "strength_role": "mount", "tame": True, "mount_only": True,
+         "skills": ["Steady Hoof", "Ford the River", "Stone Back", "Long Road"], "favourite_foods": ["rice_ball", "bamboo_shoot"], "branches": ["Mountain Ox", "River Ox"],
+         "mount": {"art": "riverstone_ox", "scale": 1.35, "lift": 0, "saddle": 50, "speed": 1.5}},
+        {"id": "cloud_stag", "name": "Cloud Stag", "art": "cloud_stag", "element": "wind", "strength_role": "mount", "mount_only": True,
+         "skills": ["Cloud Step", "Wind Leap", "Sky Call", "Heaven's Stride"], "favourite_foods": ["lotus_root_tea", "mist_trout"], "branches": ["Sky Stag", "Mist Stag"],
+         "mount": {"art": "cloud_stag", "scale": 1.1, "lift": 0, "saddle": 60, "speed": 1.6}},
     ]
     # Breeding pairs two Adults of one family (S22).
     family = {"reed_otter": "river", "mossback_toad": "river", "ember_fox": "hound", "mist_wolf": "hound",
               "ironclaw_mole": "burrow", "bamboo_monkey": "burrow", "jade_crane": "wing",
-              "green_viper": "river", "mud_hound": "hound", "mist_vulture": "wing", "cleansed_boarlet": "burrow", "pale_stag": "hound"}
+              "green_viper": "river", "mud_hound": "hound", "mist_vulture": "wing", "cleansed_boarlet": "burrow", "pale_stag": "hound",
+              "riverstone_ox": "hoof", "cloud_stag": "hoof"}
     # S43 rule 12: how each animal follows along the navigation graph (ground mounts jump at 530; none climb).
     jumps = {"reed_otter": 430, "ember_fox": 530, "jade_crane": 530, "mossback_toad": 600, "ironclaw_mole": 0, "bamboo_monkey": 600, "mist_wolf": 530,
-             "green_viper": 0, "mud_hound": 530, "mist_vulture": 530, "cleansed_boarlet": 430, "pale_stag": 600}
+             "green_viper": 0, "mud_hound": 530, "mist_vulture": 530, "cleansed_boarlet": 430, "pale_stag": 600,
+             "riverstone_ox": 530, "cloud_stag": 600}
     # S46 bloodline: at 50 purity an ancestral skill awakens (a heavy strike every 12 s in a fight; the free cast
     # of an Equal Contract); at 90 the animal changes form (+10% to every stat, a larger, tinted body).
     ancestry = {
@@ -513,6 +538,8 @@ def pets():
         "mist_vulture": ("Storm-Cleaving Dive", "Thunder Roc", "#c0d8ff"),
         "cleansed_boarlet": ("Mountain Charge", "Ancient Iron Boar", "#d0c0b0"),
         "pale_stag": ("White Moon Antler", "Moon-Crowned Stag", "#f0f0ff"),
+        "riverstone_ox": ("Riverbed Stampede", "Mountain-Bearing Ox", "#e0d8c0"),
+        "cloud_stag": ("Sky-Treading Leap", "Heavenly Cloud Stag", "#e8f4ff"),
     }
     for r in rows:
         sk, form, tint = ancestry[r["id"]]
@@ -581,6 +608,15 @@ def pets():
                               # Incubation input, once of each kind per egg: drip your own essence blood (-10% max HP for
                               # 24 h, +10 purity), a beast core to steer its element, or Beast Essence Blood to reroll one
                               # hidden trait. Animals you hatch yourself start at 3 hearts.
+                              # S46 rarity at tame and hatch (bred eggs keep their own): a wild beast is mostly Common, an elite
+                              # finer; a plain egg now and then Rare; a Beast King's nest egg is Rare or better.
+                              "rarity_roll": {"tame": {"common": 70, "fine": 22, "rare": 7, "epic": 1},
+                                              "tame_elite": {"fine": 55, "rare": 35, "epic": 10},
+                                              "egg": {"common": 65, "fine": 25, "rare": 8, "epic": 2},
+                                              "rare": {"rare": 75, "epic": 22, "primordial": 3}},
+                              # Swapping animals: anywhere you are safe (a town, a sect, a rest stop, home), and in the field
+                              # only from your Spirit Beast Bag, never in a fight.
+                              "safe_rooms": ["town", "sect", "rest", "home", "interior"], "combat_reach": 600,
                               "incubation": {"blood": {"purity": 10, "max_hp_pct": -0.10, "hours": 24}, "reroll_item": "beast_essence_blood",
                                              "hatch_hearts": 3},
                               # Fusion (at the Beast Hall): the kept animal gets a 30% chance at each of the other's traits
@@ -761,7 +797,7 @@ def sect_tables():
                                     **({"output": OUTPUT[b]} if b in OUTPUT else {}))
                                for b, n, c, m, k, lv in B])
     write("sect_levels.json", {"prestige_building": 20, "levels": [{"level": n, "prestige": int(round(200 * n ** 1.8))} for n in range(1, 21)]})
-    entries("expeditions", [
+    entries("expeditions", beast_tide=BEAST_TIDE, rows=[
         {"id": "willow_path", "name": "Willow Path", "hours": [1, 4, 8], "danger_level": 1,
          "rewards": [{"item": "willow_moss", "count": 3}, {"item": "boar_hide", "count": 2}, {"coins": 60}]},
         {"id": "stonewall_quarry", "name": "Stonewall Quarry", "hours": [1, 4, 8], "danger_level": 1,

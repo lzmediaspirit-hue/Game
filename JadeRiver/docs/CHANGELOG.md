@@ -5,6 +5,43 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V7d · Spirit beasts: the Beast Bag, the Mount slot, Beast Kings and the Beast Tide (S46)
+- **Spirit Beast Bags** (key items): Reed 2, Hide 3 and Cloud 4 (Hermit Yao), Mistjade 5 and Starweave 6. Pack animals
+  somewhere safe (a town, a sect, a rest stop or home).
+  - In the field only carried animals can be called, and never in a fight.
+  - A swap puts the old active animal in the new one's bag slot.
+- **HUD pet strip** beside the portrait:
+  - the active animal with its health arc (tap for the Spirit Animals page);
+  - the bag's animals (tap to swap one in);
+  - the Mount slot with a Ride / Walk toggle.
+- **The Mount slot.** Setting an animal to Mount puts it in its own slot, so a combat animal walks beside you while
+  you ride. The `set_mount` intent rides or walks. Thrown off by a heavy blow, the mount follows until you climb
+  back on. Saves that rode the active animal move it into the slot.
+- **Mount-only species**, with new creature art:
+  - The **Riverstone Ox** (walk ×1.5, jump 530, no climbing) grazes Quarry Rim from Cloud Stride 1, paw-marked.
+  - The **Cloud Stag** (walk ×1.6, jump 600) hatches from the Cloud Stag egg the Beast Tide gives once from Cloud
+    Stride 1.
+  - Mount-only animals only take the Mount role.
+- **Rarity rolls.** A tamed beast is mostly Common, an elite never is, a plain egg is sometimes Rare, and a Beast
+  King's nest egg is Rare or better (on the bloodline stream). Bred eggs keep their parents' rarity.
+- **Beast Kings** (`beast_kings.json`): the Riverbed Serpent (valley) and the Thousand-Eye Toad (Azure Expanse).
+  - While a King lives, its zone's beasts are 10 % stronger, and paw-marked otters and foxes gather on Bend Shore.
+  - When it falls, the buff lifts at once, and its lair's nest holds one Rare Spirit Egg per character for 30
+    minutes.
+- **The Beast Tide.** Once a real week, ring the gong at Stoneford Gate (from Qi Unfurling 1). Three 30-second waves
+  of crabs, boarlets and hounds, their Level following yours between 10 and 45 (the S25 room-event waves, now with
+  `until_s` and level offsets). Holding the gate gives three cores of your rank, an egg and Spirit Soil.
+- **Events:** `pet_swapped`, `beast_king_spawned`, `king_nest_opened`, `beast_tide_started` and `beast_tide_result`,
+  with HUD toasts. Debug flags: `--mount=species` and `--bag=species,species`.
+- **Tests:**
+  - rarity odds;
+  - the egg's species;
+  - bag capacity, packing, field calls, swaps and the in-combat block;
+  - the Mount slot with a combat animal, mount-only rules, speeds and old-save migration;
+  - the King's buff, spawns and nest;
+  - the tide's due week, wave levels, wave end and rewards;
+  - pets never dying.
+
 ### V7c · Spirit beasts: skill books, gear, fusion and breakthroughs (S46)
 - **Skill books** (`pet_skill_books.json`). Learned slots open by stage (2 as a Juvenile, 3 as an Adult, 4 from
   Awakened); when they are full a new book overwrites a random slot. Teach from the Growth tab, or use a book from

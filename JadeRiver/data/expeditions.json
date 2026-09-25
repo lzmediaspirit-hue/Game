@@ -226,5 +226,82 @@
     }
    ]
   }
- ]
+ ],
+ "beast_tide": {
+  "room": "sf_gate",
+  "realm": "qi_unfurling_1",
+  "every_days": 7,
+  "duration": 90,
+  "waves": [
+   {
+    "enemy": "tide_crab",
+    "first_s": 2,
+    "every_s": 5,
+    "max": 3,
+    "until_s": 30,
+    "level": "player",
+    "level_offset": -4,
+    "level_min": 10,
+    "level_max": 45,
+    "points": [
+     [
+      300,
+      860
+     ],
+     [
+      2200,
+      860
+     ]
+    ]
+   },
+   {
+    "enemy": "wild_boarlet",
+    "first_s": 30,
+    "every_s": 6,
+    "max": 3,
+    "until_s": 60,
+    "level": "player",
+    "level_offset": -2,
+    "level_min": 10,
+    "level_max": 45,
+    "points": [
+     [
+      300,
+      860
+     ],
+     [
+      2200,
+      860
+     ]
+    ]
+   },
+   {
+    "enemy": "mud_hound",
+    "first_s": 60,
+    "every_s": 5,
+    "max": 4,
+    "level": "player",
+    "level_offset": 0,
+    "level_min": 10,
+    "level_max": 45,
+    "points": [
+     [
+      300,
+      860
+     ],
+     [
+      2200,
+      860
+     ]
+    ]
+   }
+  ],
+  "rewards": {
+   "cores": 3,
+   "egg": "spirit_egg",
+   "stag_egg": "cloud_stag_egg",
+   "stag_realm": "cloud_stride_1",
+   "soil": 1
+  }
+ }
 }
