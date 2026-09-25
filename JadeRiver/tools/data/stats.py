@@ -96,6 +96,30 @@ def build():
         "stats": [{"id": s, "group": g, "cap": cap, "format": f} for (s, g, cap, f) in STAT_LIST],
     })
 
+    # S38 balance simulator: how an active hour is spent, and the Part 4 pacing table it must meet (±15%).
+    write("balance.json", {
+        "schema_version": 1,
+        # A normal mixed session (S29 "about 100 QP per active minute" with quests): the rest is travel,
+        # dialogue, crafting, shops and the sect, which earn no realm progress themselves.
+        "mix": {"fight": 0.35, "meditate": 0.25, "other": 0.4},
+        "kills_per_min": 6,
+        "dailies_per_hour": 1.0,
+        "prologue_hours": 0.5,
+        "stability": "stable",
+        # Where a mixed session sits to cultivate: mostly the field rooms it fights in (1.0), sometimes Lu's
+        # boat (1.4), the mentor's peak (1.6) or, later, a hidden spring (2.2).
+        "density": {"bone_forging": 1.2, "qi_kindling": 1.25, "qi_unfurling": 1.3, "heart_tempering": 1.4, "cloud_stride": 1.4,
+                    "spirit_awakening": 1.45, "heaven_glimpse": 1.5},
+        "method": {"bone_forging": "riverbreath_fragment", "qi_kindling": "jade_current_scripture", "qi_unfurling": "jade_current_scripture",
+                   "heart_tempering": "cloudpiercing_canon", "cloud_stride": "willow_breath_art", "spirit_awakening": "willow_breath_art",
+                   "heaven_glimpse": "tidal_sovereign_scripture"},
+        "tolerance": 0.15,
+        # S39 checks: [Level, the next upgrade, the spec's taels per hour there]; affordable within 1-2 h (±25%).
+        "upgrades": [[15, "iron_jian", 850], [25, "jadeiron_robe", 1700]], "afford_hours": [0.75, 2.5],
+        "act_end": "heaven_glimpse_3", "act_end_hours": 65,
+        "pacing": [["bone_forging_1", 0.5], ["qi_kindling_1", 5], ["qi_unfurling_1", 13], ["heart_tempering_1", 20],
+                   ["cloud_stride_1", 30], ["spirit_awakening_1", 42], ["heaven_glimpse_1", 55]],
+    })
     write("curves.json", {
         "qp_minutes": "see realms.json accumulate_needed = 100 x target minutes per Level",
         "kill_qp": 22, "kill_role_mult": {"normal": 1, "elite": 6, "field_boss": 40, "dungeon_boss": 80, "story_boss": 40, "event": 0.5, "trial": 2},

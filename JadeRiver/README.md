@@ -71,6 +71,7 @@ tools/run_tests.sh                 # Linux/macOS (GODOT=/path/to/godot)
 | `engine_tests` | Movement, avatar, surfaces, saves (3,660 checks) |
 | `data_validation` | Every ID resolves, known effect and requirement kinds, appearances, dyes and icons exist, every room reachable, portals link both ways, spawns on surfaces and clear of portals |
 | `rules_tests` | Formulas at the spec's sample values (damage, attunement, mastery, risk), same-seed replay, offline caps, no offline breakthroughs, spirit animal stage gates |
+| `balance_sim` | A rate-based bot plays the data to Heaven Glimpse 3 with the real rules and meets the pacing table (±15%); the next gear upgrade is affordable after 1–2 hours at Levels 15 and 25 (`data/balance.json`) |
 | `contract_tests` | Every event in the Part 4 catalogue is emitted only by its own system and has a reactor (`data/event_contract.json`, built by `tools/data/contract.py`) |
 | `prologue_run` | A scripted Prologue to Bone Forging 2 with the HUD reveal order |
 | `valley_run` | The whole of Act I from a new character to the Ascension Gate, through intents only (about a minute) |

@@ -53,6 +53,12 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
 - Every event in the catalogue is emitted by the system that owns it. Enemies notice you with a "!", and the
   HUD reports raids, hatched eggs, revealed paths, codex entries, quests ready to hand in and more.
 
+### Balance
+- A balance simulator (S38) plays the data with the real rules: every realm of Act I lands within 11% of the
+  pacing table (Qi Kindling at 4.7 h, Heaven Glimpse at 52 h, the end of the Act at 61 h), and the next gear
+  upgrade costs 0.8 h of play at Level 15 and 1.4 h at Level 25.
+- Monster kills before the Weapon Hall can no longer drop equipment.
+
 ### Found and fixed by the scripted Act I run
 - Event spawns were wiped on room entry; stale companion uids could delete monsters; daily missions
   dropped four of five; the Hideout key, the library methods, the Sleeping Blade and the Siege had no
