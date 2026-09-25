@@ -964,6 +964,11 @@ func _apply_status_to_enemy(e: EnemyState, s: Dictionary) -> void:
 
 func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String, element: String, crit: bool, attack: Dictionary, facing := 0) -> void:
 	if not e.alive: return
+	# S46 Beast Trial Grove: the keeper's own blows do no harm there; they rally the animals instead.
+	if game.room_rt != null and game.room_rt.event.get("pet_trial", false) and game.room_rt.event.get("active", false) \
+			and game.character(attacker) != null and not str(attack.get("source", "")).begins_with("ally:"):
+		game.pets.rally(game.character(attacker))
+		return
 	if e.pools.has_status("freeze"):
 		for s in e.pools.statuses.duplicate():
 			if s.id == "freeze": e.pools.statuses.erase(s)

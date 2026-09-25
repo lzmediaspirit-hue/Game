@@ -135,8 +135,15 @@ def build():
                  "Can teach; +1 auto-refine queue slot", "Substitute one ingredient per recipe"], "effects": [{"quality": 0.05}, {}, {"band": 0.1}, {"queue": 1}, {}]})
     daos.append({"id": "formation", "family": "craft", "valley_cap": 5, "tiers": ["+10% formation duration", "-10% fuel", "+1 node", "Can teach; faster placement",
                  "Formations take no damage for the first 10 s"], "effects": [{}, {}, {}, {}, {}]})
-    for d in ["refining", "puppetry", "beast_taming"]:
+    for d in ["refining", "puppetry"]:
         daos.append({"id": d, "family": "craft", "valley_cap": 2, "tiers": ["+5% quality or speed", "-10% materials"], "effects": [{}, {}]})
+    # S46 Beast Taming Dao: two tiers in the valley, 3-4 in the Azure Expanse (tame elites; teach it), 5-6 later
+    # (tame a Beast King after its trial; write your own contract). Each tier adds 5% to the taming chance.
+    daos.append({"id": "beast_taming", "family": "craft", "valley_cap": 2, "zone_caps": {"azure_expanse": 4}, "teach_tier": 4,
+                 "tiers": ["+5% taming chance", "+5% taming chance; eggs hatch 10% sooner", "Tame elite beasts",
+                           "Can teach Beast Taming to your disciples", "Tame a Beast King after its trial (a later age)",
+                           "Write a contract of your own (a later age)"],
+                 "effects": [{}, {"hatch": -0.1}, {"tame_elites": True}, {}, {}, {}]})
     # The Azure Expanse's own Laws (five elements, Wind, Thunder) deepen past the valley's caps there (S18 World Laws).
     for d in daos:
         if d["family"] == "element":

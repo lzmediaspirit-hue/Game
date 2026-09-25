@@ -141,6 +141,10 @@
   "interior"
  ],
  "combat_reach": 600,
+ "trough": {
+  "pavilion": "beast_pavilion",
+  "level": 1
+ },
  "incubation": {
   "blood": {
    "purity": 10,

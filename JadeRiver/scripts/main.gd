@@ -34,6 +34,7 @@ const PAGES := {
 	"training_sect": "res://scripts/ui/pages/training_sect_page.gd",
 	"your_sect": "res://scripts/ui/pages/your_sect_page.gd",
 	"spirit_animals": "res://scripts/ui/pages/pets_page.gd",
+	"beast_arena": "res://scripts/ui/pages/beast_arena_page.gd",
 	"companions": "res://scripts/ui/pages/companions_page.gd",
 	"crafts": "res://scripts/ui/pages/crafts_page.gd",
 	"cooking": "res://scripts/ui/pages/crafts_page.gd",
@@ -190,6 +191,9 @@ func _handle_preview_args(user_args: Array) -> void:
 				Game.pets.apply_grant(Game.active().id, sp)
 				Game.active().pet_bag.append(str(Game.active().pets[Game.active().pets.size() - 1].uid))
 			Game.active().active_pet = keep
+		if str(a).begins_with("--arena=") and Game.active() != null:
+			# Debug tools (S38): --arena=solo|trio fights one Beast Arena challenge (S46 previews).
+			Game.pets.arena_challenge(Game.active(), str(a).trim_prefix("--arena="))
 		if str(a).begins_with("--egg=") and Game.active() != null:
 			# Debug tools (S38): --egg=species puts a warming egg in the nest (S46 incubation previews).
 			Game.active().eggs.append({"species": str(a).trim_prefix("--egg="), "hatch_utc": Clock.now_utc() + 7200.0})

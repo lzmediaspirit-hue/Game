@@ -247,6 +247,23 @@ func deposit(c, index: int, count: int) -> Dictionary:
 	emit("storage_changed", {})
 	return ok()
 
+## Another authority takes items out of storage (S46 Feeding Trough). Returns how many were taken.
+func apply_take_storage(item_id: String, count: int, source: String) -> int:
+	var items: Array = game.account.storage.get("items", [])
+	var taken := 0
+	for i in range(items.size() - 1, -1, -1):
+		if taken >= count: break
+		var s: Dictionary = items[i]
+		if str(s.get("id", "")) != item_id: continue
+		var n := mini(count - taken, int(s.get("count", 1)))
+		s.count = int(s.get("count", 1)) - n
+		taken += n
+		if int(s.count) <= 0: items.remove_at(i)
+	if taken > 0:
+		game.account.storage.items = items
+		emit("storage_changed", {"source": source})
+	return taken
+
 func withdraw(c, index: int) -> Dictionary:
 	var items: Array = game.account.storage.get("items", [])
 	if c == null or index < 0 or index >= items.size(): return fail("bad_index")

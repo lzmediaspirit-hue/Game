@@ -8,12 +8,14 @@ var ally_uid := 0              # the active animal's ally in this room (0 when n
 var allies: Dictionary = {}    # pet uid -> ally uid in the current room (S46 command capacity)
 var essence_check := 0.0
 var guardian_cd: Dictionary = {}   # actor -> seconds before Guardian Spirit can take another blow (transient)
+var rally_until: Dictionary = {}   # actor -> sim time the keeper's rally lasts until (Beast Trial Grove, transient)
+var rally_ready: Dictionary = {}   # actor -> sim time the keeper can rally again
 
 func intents() -> Array:
 	return ["set_active_pet", "set_pet_role", "feed_pet", "pet_command", "rename_pet", "choose_starter", "attempt_tame", "incubate_egg", "hatch_egg", "evolve_pet", "breed",
 		"lock_pet", "devour_core", "sell_cores", "rest_pets", "offer_contract", "incubate_input", "set_party",
 		"learn_skill_book", "equip_pet", "unequip_pet", "fuse_pets", "pet_breakthrough",
-		"set_pet_bag", "swap_pet_from_bag", "set_mount"]
+		"set_pet_bag", "swap_pet_from_bag", "set_mount", "arena_challenge"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("room_entered", _on_room_entered, 45)
@@ -39,6 +41,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"set_pet_bag": return set_pet_bag(c, str(intent.get("pet", "")), bool(intent.get("on", true)))
 		"swap_pet_from_bag": return swap_from_bag(c, str(intent.get("pet", "")))
 		"set_mount": return set_mount(c, str(intent.get("pet", "")), intent.get("on", null))
+		"arena_challenge": return arena_challenge(c, str(intent.get("mode", "solo")))
 		"set_pet_role":
 			var p := _pet(c, str(intent.get("pet", c.active_pet)))
 			if p.is_empty(): return fail("unknown_pet")
@@ -338,6 +341,7 @@ func _on_player_hit(p: Dictionary) -> void:
 
 func _on_room_entered(_p: Dictionary) -> void:
 	_spawn(game.active())
+	_trough(game.active())
 
 ## A pet on Guard duty (S45) keeps pests and thieves off the garden while you are away.
 func guard_pet(c) -> Dictionary:
@@ -424,6 +428,7 @@ func tick(delta: float) -> void:
 func pet_power(c, p: Dictionary) -> float:
 	var power: float = c.stats.value("physical_attack") * inherit_share(p) * care_mult(p) * (1.0 + _trait_sum(p, "pet_damage")) * rarity_power(p) * stat_mult(p, "attack")
 	power *= 1.0 + role_match(p) if p.get("role", "combat") == "combat" else 0.6
+	if game.sim_time < float(rally_until.get(c.id, -1.0)): power *= float(arena_cfg().get("grove", {}).get("rally", {}).get("mult", 1.25))   # the keeper's rally
 	return power
 
 ## Combat brought the animal to 0 HP: it retreats into its token (S22), never dies.
@@ -719,6 +724,8 @@ func attempt_tame(c, offering: String, result: float) -> Dictionary:
 	if e == null: return fail("no_target", {"text": Tx.t("sim.pet.weaken_a_paw_marked_spirit")})
 	var species := tame_species(e)
 	if species == "": return fail("no_species")
+	# S46 Beast Taming Dao tier 3: only then can an elite be tamed.
+	if e.elite and taming_tier(c) < 3: return fail("elite_tier", {"text": Tx.t("sim.pet.elite_tier")})
 	# S46 natures: a demonic beast takes only a Purifying Offering; a Hollowed one must be cleansed by one first.
 	var purifying := str(ContentDB.config("taming").get("purifying", "purifying_offering"))
 	var nature := str(e.def.get("nature", "spirit"))
@@ -761,6 +768,7 @@ func incubate_egg(c, index: int) -> Dictionary:
 			break
 	var hours: Array = cfg.get("hatch_hours", [2, 24])
 	var h := rng.randf_range(float(hours[0]), float(hours[1]))
+	if taming_tier(c) >= 2: h *= 0.9   # Beast Taming Dao tier 2: eggs hatch 10% sooner
 	# S46: a special egg names its species (the Cloud Stag) or its rarity (a Beast King's nest); a plain one rolls both.
 	if egg_def.has("egg_species"): species = str(egg_def.egg_species)
 	var rarity := roll_rarity(c, str(egg_def.get("egg_rarity", "egg")))
@@ -1394,3 +1402,115 @@ func swap_from_bag(c, uid: String) -> Dictionary:
 	emit("pet_swapped", {"actor": c.id, "pet": uid, "from": old})
 	emit("pet_changed", {"actor": c.id, "pet": uid})
 	return ok({"from": old})
+
+# ------------------------------------------------------------------ Beast Taming Dao (S46)
+func taming_tier(c) -> int:
+	return int(c.cultivator.daos.get("beast_taming", {}).get("tier", 0)) if c != null else 0
+
+# ------------------------------------------------------------------ Pavilion Feeding Trough (S46)
+## Once a day, with a Beast Pavilion, hungry animals are fed from your storage (their favourite first, else any pet food).
+func _trough(c) -> void:
+	if c == null or c.pets.is_empty(): return
+	var cfg: Dictionary = growth().get("trough", {})
+	var today := Clock.reset_day(Clock.now_utc())
+	if int(c.cooldowns.get("trough_day", -1)) == today: return
+	if not game.sect.founded() or game.sect.level_building(str(cfg.get("pavilion", "beast_pavilion"))) < int(cfg.get("level", 1)): return
+	c.cooldowns["trough_day"] = today
+	for p in c.pets:
+		if today - int(p.get("hunger_day", 0)) < 1: continue
+		var foods: Array = ContentDB.entry("pets", str(p.species)).get("favourite_foods", []).duplicate()
+		for st in game.account.storage.get("items", []):
+			var fid := str(st.get("id", ""))
+			if ContentDB.item(fid).get("food", {}).get("pet_food", false) and not foods.has(fid): foods.append(fid)
+		for fid in foods:
+			if game.accounts.apply_take_storage(str(fid), 1, "trough") > 0:
+				p.hunger_day = today
+				emit("pet_fed", {"actor": c.id, "pet": str(p.uid), "trough": true})
+				break
+
+# ------------------------------------------------------------------ Beast Arena (S46)
+func arena_cfg() -> Dictionary:
+	return ContentDB.config("beast_arena")
+
+## The arena record, rolled over to this week: the rank held when the week turned pays its reward, then the ladder
+## starts again from the bottom.
+func arena_state(c) -> Dictionary:
+	var cfg := arena_cfg()
+	var a: Dictionary = c.beast_arena
+	var week := Clock.reset_week(Clock.now_utc())
+	if not a.has("rank"):
+		a.rank = int(cfg.get("unranked", 11))
+		a.week = week
+	if int(a.get("week", week)) != week:
+		var rank := int(a.rank)
+		for rw in cfg.get("rewards", []):
+			if rank >= int(rw.ranks[0]) and rank <= int(rw.ranks[1]):
+				game.economy.apply_currency("spirit_stone", int(rw.get("spirit_stone", 0)), "beast_arena")
+				if rw.has("item"): game.inventory.apply_add(c.id, str(rw.item), 1, "beast_arena")
+				emit("arena_rewarded", {"actor": c.id, "rank": rank, "spirit_stone": int(rw.get("spirit_stone", 0)), "item": str(rw.get("item", ""))})
+		a.rank = int(cfg.get("unranked", 11))
+		a.week = week
+	var day := Clock.reset_day(Clock.now_utc())
+	if int(a.get("day", -1)) != day:
+		a.day = day
+		a.fights = 0
+	c.beast_arena = a
+	return a
+
+## The tamer one rank above you ({} at the top).
+func arena_opponent(c) -> Dictionary:
+	var rank := int(arena_state(c).rank)
+	for t in arena_cfg().get("tamers", []):
+		if int(t.rank) == rank - 1: return t
+	return {}
+
+## Your side: the active animal (solo), or it and two more beside you or in the bag (trio). Mount-only animals stay out.
+func arena_team(c, mode: String) -> Array:
+	var pool: Array = []
+	var act := active_pet(c)
+	if not act.is_empty() and not mount_only(act): pool.append(act)
+	for uid in (c.party_pets as Array) + (c.pet_bag as Array):
+		var p := _pet(c, str(uid))
+		if not p.is_empty() and not mount_only(p) and not pool.has(p): pool.append(p)
+	return pool.slice(0, 1 if mode == "solo" else 3)
+
+func _arena_fighter(c, p: Dictionary) -> Dictionary:
+	var sk := bloodline_skill(p)
+	var rec := {"name": str(p.name), "species": str(p.species), "level": int(p.level), "rarity": str(p.get("rarity", "common")),
+		"stage": str(p.get("stage", "hatchling")), "skill_mult": float(sk.get("mult", 1.0)) if not sk.is_empty() else 1.0,
+		"free_cast": str(p.get("contract", "")) == "equal"}
+	var taken := 1.0 + _trait_sum(p, "pet_damage_taken") + _skill_sum(p, "pet_damage_taken")
+	return PetRules.combatant(rec, arena_cfg().get("battle", {}), {"hp": stat_mult(p, "hp"), "attack": stat_mult(p, "attack") * (1.0 + _trait_sum(p, "pet_damage")),
+		"defence": stat_mult(p, "defence") / maxf(0.1, taken), "speed": stat_mult(p, "speed")})
+
+## Challenge the tamer above you: solo (1v1) or trio (3v3), five fights a day. A win takes their rank.
+func arena_challenge(c, mode: String) -> Dictionary:
+	if not mode in ["solo", "trio"]: return fail("bad_mode")
+	var a := arena_state(c)
+	if int(a.fights) >= int(arena_cfg().get("fights_per_day", 5)): return fail("no_fights", {"text": Tx.t("sim.pet.arena_tired")})
+	var opp := arena_opponent(c)
+	if opp.is_empty(): return fail("top", {"text": Tx.t("sim.pet.arena_top")})
+	var team := arena_team(c, mode)
+	if team.size() < (1 if mode == "solo" else 3): return fail("team", {"text": Tx.t("sim.pet.arena_team_" + mode)})
+	var bcfg: Dictionary = arena_cfg().get("battle", {})
+	var mine: Array = team.map(func(p): return _arena_fighter(c, p))
+	var theirs: Array = (opp.get(mode, []) as Array).map(func(t): return PetRules.combatant(t, bcfg))
+	var res := PetRules.battle(mine, theirs, bcfg, Rng.stream(c.id, "arena"))
+	var won: bool = str(res.winner) == "a"
+	a.fights = int(a.fights) + 1
+	if won: a.rank = int(opp.rank)
+	a.last = {"mode": mode, "opponent": str(opp.id), "won": won, "t": float(res.t), "log": (res.log as Array).slice(0, 160),
+		"a": mine.map(func(m): return {"name": m.name, "species": m.species, "max_hp": m.max_hp}),
+		"b": theirs.map(func(m): return {"name": m.name, "species": m.species, "max_hp": m.max_hp})}
+	c.beast_arena = a
+	emit("arena_battle", {"actor": c.id, "mode": mode, "opponent": str(opp.id), "won": won, "rank": int(a.rank)})
+	return ok({"won": won, "rank": int(a.rank)})
+
+# ------------------------------------------------------------------ Beast Trial Grove rally (S46)
+## In the Grove the keeper's blows do no harm: they rally the animals (+25% for 5 s, again after 8 s).
+func rally(c) -> void:
+	if c == null or game.sim_time < float(rally_ready.get(c.id, -1.0)): return
+	var r: Dictionary = arena_cfg().get("grove", {}).get("rally", {})
+	rally_until[c.id] = game.sim_time + float(r.get("seconds", 5.0))
+	rally_ready[c.id] = game.sim_time + float(r.get("cd", 8.0))
+	emit("pet_skill_cast", {"actor": c.id, "pet": c.active_pet, "skill": Tx.t("sim.pet.rally"), "free": false})

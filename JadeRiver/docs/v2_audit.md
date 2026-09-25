@@ -119,6 +119,7 @@ Progress is recorded in `docs/CHANGELOG.md`.
     Favour. V7c is done: skill books (five of six sources; Guardian Spirit's waits for the Trial Grove), pet gear,
     fusion, pet breakthroughs with Pet Core Formation, and the Growth tab. V7d is done: Spirit Beast Bags and field
     swaps, the Mount slot and the HUD pet strip, the Riverstone Ox and Cloud Stag, rarity rolls for tames and eggs,
-    Beast Kings with their zone buff and nests, and the weekly Beast Tide. Next comes V7e (the Beast Arena, the Trial
-    Grove, the Taming Dao);
+    Beast Kings with their zone buff and nests, and the weekly Beast Tide. V7e is done: the Beast Arena ladder with
+    pet auto-battles, the daily Beast Trial Grove, Beast Taming Dao tiers 3-6, the Pavilion Feeding Trough and
+    renaming. S46 is complete except the Insect Swarm (v1.2) and Dao tiers 5-6 (hooks, later ages);
   - V8 (S49 living world, with S45's treasure births and gathering trials).

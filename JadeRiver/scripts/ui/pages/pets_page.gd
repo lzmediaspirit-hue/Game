@@ -4,6 +4,7 @@ extends Page
 var sel := ""
 var support: Array = []   # breakthrough support items picked (S46)
 var fusing := false       # the Growth tab shows the fusion picker (S46)
+var name_edit: LineEdit   # renaming the selected animal
 
 func _init() -> void:
 	title = Tx.t("ui.pets.spirit_animals")
@@ -55,8 +56,15 @@ func draw_page() -> void:
 	var need := float(ContentDB.curve("pet_xp.base", 20)) * pow(int(pet.level), float(ContentDB.curve("pet_xp.per_level_pow", 1.5)))
 	bar(Rect2(px, right.position.y + 130, colw, 24), float(pet.get("xp", 0.0)) / need, UiKit.GOLD, Tx.t("ui.pets.level") % [int(pet.level), int(pet.get("xp", 0.0)), int(need)])
 	Game.pets.ensure_fields(pet)
-	btn(Rect2(stage.position.x, stage.end.y + 8, stage.size.x, 38), Tx.t("ui.pets.unlock") if pet.get("locked", false) else Tx.t("ui.pets.lock"),
+	var hw := (stage.size.x - 8) / 2.0
+	btn(Rect2(stage.position.x, stage.end.y + 8, hw, 38), Tx.t("ui.pets.unlock") if pet.get("locked", false) else Tx.t("ui.pets.lock"),
 		"lock", sel, false, true, "", 16)
+	if name_edit != null and name_edit.visible:
+		name_edit.position = stage.position + Vector2(0, stage.size.y - 46)
+		name_edit.size = Vector2(stage.size.x, 42)
+		btn(Rect2(stage.position.x + hw + 8, stage.end.y + 8, hw, 38), Tx.t("ui.pets.save_name"), "rename_ok", null, true, true, "", 16)
+	else:
+		btn(Rect2(stage.position.x + hw + 8, stage.end.y + 8, hw, 38), Tx.t("ui.pets.rename"), "rename", null, false, true, "", 16)
 	_growth(ch, pet, Rect2(stage.position.x, stage.end.y + 56, stage.size.x, right.end.y - stage.end.y - 70))
 	var body := Rect2(px, right.position.y + 164, colw, right.end.y - right.position.y - 176)
 	if str(tabs[tab].id) == "growth": _growth_tab(ch, pet, sp, body)
@@ -337,6 +345,7 @@ func on_action(id: String, data) -> void:
 	match id:
 		"sel":
 			sel = str(data)
+			if name_edit != null: name_edit.visible = false
 			fusing = false
 			support = []
 		"fusing": fusing = bool(data)
@@ -355,6 +364,21 @@ func on_action(id: String, data) -> void:
 		"hatch": submit({"type": "hatch_egg", "index": int(data)})
 		"party": submit({"type": "set_party", "pet": sel, "on": bool(data)})
 		"carry": submit({"type": "set_pet_bag", "pet": sel, "on": bool(data)})
+		"rename":
+			if name_edit == null:
+				name_edit = LineEdit.new()
+				name_edit.max_length = 16
+				name_edit.add_theme_font_override("font", UiKit.text_font())
+				name_edit.add_theme_font_size_override("font_size", 20)
+				name_edit.add_theme_stylebox_override("normal", UiKit.style("slot"))
+				add_child(name_edit)
+			name_edit.text = _sel_name()
+			name_edit.visible = true
+			name_edit.grab_focus()
+		"rename_ok":
+			if name_edit != null:
+				submit({"type": "rename_pet", "pet": sel, "name": name_edit.text})
+				name_edit.visible = false
 		"contract": submit({"type": "offer_contract", "pet": sel, "kind": str(data)})
 		"infuse": submit({"type": "incubate_input", "egg": int(data[0]), "kind": str(data[1]), "item": str(data[2])})
 		"teach": submit({"type": "learn_skill_book", "pet": sel, "book": str(data)})

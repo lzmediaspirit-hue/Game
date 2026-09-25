@@ -472,6 +472,52 @@ BEAST_TIDE = {
     "rewards": {"cores": 3, "egg": "spirit_egg", "stag_egg": "cloud_stag_egg", "stag_realm": "cloud_stride_1", "soil": 1}}
 
 
+# S46 Beast Arena (Stoneford Market Street): a ladder of ten NPC tamers. Challenge the rank above you, five fights a
+# day, in 1v1 (your active animal) or 3v3 (it and two more beside you or in the bag). Rewards by rank each week.
+def _t(species, level, rarity="common", stage="juvenile"):
+    return {"species": species, "level": level, "rarity": rarity, "stage": stage}
+
+
+BEAST_ARENA = {
+    "schema_version": 1, "fights_per_day": 5, "unranked": 11,
+    "tamers": [
+        {"id": "farmhand_qiao", "name": "Farmhand Qiao", "rank": 10, "solo": [_t("reed_otter", 18)], "trio": [_t("reed_otter", 16), _t("mossback_toad", 16), _t("reed_otter", 15)]},
+        {"id": "herb_girl_yan", "name": "Herb-girl Yan", "rank": 9, "solo": [_t("mossback_toad", 22)], "trio": [_t("mossback_toad", 20), _t("reed_otter", 20), _t("ember_fox", 19)]},
+        {"id": "ferry_boy_pu", "name": "Ferry-boy Pu", "rank": 8, "solo": [_t("reed_otter", 26, "fine")], "trio": [_t("reed_otter", 24, "fine"), _t("jade_crane", 23), _t("mossback_toad", 23)]},
+        {"id": "hunter_dai", "name": "Hunter Dai", "rank": 7, "solo": [_t("mud_hound", 30, "fine")], "trio": [_t("mud_hound", 28, "fine"), _t("mist_wolf", 27), _t("ember_fox", 27)]},
+        {"id": "bamboo_sister_wen", "name": "Bamboo Sister Wen", "rank": 6, "solo": [_t("bamboo_monkey", 34, "fine", "adult")],
+         "trio": [_t("bamboo_monkey", 32, "fine", "adult"), _t("green_viper", 31, "fine"), _t("mossback_toad", 31, "fine")]},
+        {"id": "caravan_guard_ruo", "name": "Caravan Guard Ruo", "rank": 5, "solo": [_t("ironclaw_mole", 38, "rare", "adult")],
+         "trio": [_t("ironclaw_mole", 36, "rare", "adult"), _t("mud_hound", 35, "fine", "adult"), _t("cleansed_boarlet", 35, "fine", "adult")]},
+        {"id": "old_tamer_kuai", "name": "Old Tamer Kuai", "rank": 4, "solo": [_t("mist_wolf", 42, "rare", "adult")],
+         "trio": [_t("mist_wolf", 40, "rare", "adult"), _t("mist_vulture", 39, "rare", "adult"), _t("ember_fox", 39, "fine", "adult")]},
+        {"id": "lady_feng_qiu", "name": "Lady Feng Qiu", "rank": 3, "solo": [_t("ember_fox", 46, "rare", "adult")],
+         "trio": [_t("ember_fox", 44, "rare", "adult"), _t("jade_crane", 43, "rare", "adult"), _t("green_viper", 43, "rare", "adult")]},
+        {"id": "beastmaster_tian", "name": "Beastmaster Tian", "rank": 2, "solo": [_t("jade_crane", 50, "epic", "adult")],
+         "trio": [_t("jade_crane", 48, "epic", "adult"), _t("mist_wolf", 47, "rare", "adult"), _t("pale_stag", 47, "rare", "adult")]},
+        {"id": "jing_mo", "name": "Jing Mo, the Hermit's Rival", "rank": 1, "solo": [_t("mist_wolf", 55, "epic", "awakened")],
+         "trio": [_t("mist_wolf", 53, "epic", "awakened"), _t("ember_fox", 52, "epic", "adult"), _t("mud_hound", 52, "rare", "adult")]},
+    ],
+    # Weekly rewards by the rank held when the week turns (Spirit Stones plus an item for the top three).
+    "rewards": [{"ranks": [1, 1], "spirit_stone": 30, "item": "beast_essence_blood"}, {"ranks": [2, 3], "spirit_stone": 15, "item": "beast_marrow_washing_pill"},
+                {"ranks": [4, 6], "spirit_stone": 8}, {"ranks": [7, 10], "spirit_stone": 3}],
+    # The auto-battle (PetRules.battle): stats from Level, rarity, growth and aptitude; one strike every 1.6 s (faster
+    # with speed); an awakened skill every 12 s; at most 60 s, then the side with more health left wins.
+    "battle": {"hp_base": 60, "hp_per_level": 12, "atk_base": 8, "atk_per_level": 2.2, "interval": 1.6, "max_s": 60.0, "step_s": 0.2,
+               "variance": 0.1, "skill_every": 12.0, "stage_bonus": {"hatchling": 0.9, "juvenile": 1.0, "adult": 1.1, "awakened": 1.2, "sovereign": 1.3}},
+    # S46 Beast Trial Grove: once a day the animals fight ten beasts while their keeper rallies them (the keeper's own
+    # blows do no harm there). The first clear gives the Guardian Spirit skill book.
+    "grove": {"room": "sf_beast_grove", "duration": 150, "count": 10, "level_offset": -2, "level_min": 10, "level_max": 60,
+              "waves": [{"enemy": "wild_boarlet", "first_s": 2, "every_s": 5, "max": 2, "points": [[1300, 860], [1800, 860]]},
+                        {"enemy": "mud_hound", "first_s": 20, "every_s": 7, "max": 2, "points": [[1300, 860], [1800, 860]]},
+                        {"enemy": "tide_crab", "first_s": 40, "every_s": 8, "max": 1, "points": [[1300, 860], [1800, 860]]}],
+              "rally": {"mult": 1.25, "seconds": 5.0, "cd": 8.0},
+              "first": "pet_book_guardian_spirit",
+              "pool": [{"item": "beast_essence_blood", "weight": 3}, {"item": "beast_marrow_washing_pill", "weight": 3},
+                       {"item": "pet_book_iron_hide", "weight": 2}, {"item": "pet_book_frenzy", "weight": 1}, {"item": "pet_book_thunder_roar", "weight": 1}]},
+}
+
+
 def pets():
     rows = [
         {"id": "reed_otter", "name": "Reed Otter", "art": "reed_otter", "element": "water", "strength_role": "gatherer", "starter": True,
@@ -549,6 +595,7 @@ def pets():
         r["family"] = family[r["id"]]
         r["movement"] = {"jump": jumps[r["id"]], "climb": r["id"] == "bamboo_monkey", "fly": False, "drop": True}
     entries("pets", rows)
+    write("beast_arena.json", BEAST_ARENA)
     # S46 pet skill books: what a learned skill adds (read by the pet authority, combat and the herb nodes) and where
     # its book is found. Guardian Spirit's book waits in the Beast Trial Grove.
     entries("pet_skill_books", [
@@ -617,6 +664,8 @@ def pets():
                               # Swapping animals: anywhere you are safe (a town, a sect, a rest stop, home), and in the field
                               # only from your Spirit Beast Bag, never in a fight.
                               "safe_rooms": ["town", "sect", "rest", "home", "interior"], "combat_reach": 600,
+                              # The Pavilion Feeding Trough (Beast Pavilion 1+): each day it feeds hungry animals from storage.
+                              "trough": {"pavilion": "beast_pavilion", "level": 1},
                               "incubation": {"blood": {"purity": 10, "max_hp_pct": -0.10, "hours": 24}, "reroll_item": "beast_essence_blood",
                                              "hatch_hearts": 3},
                               # Fusion (at the Beast Hall): the kept animal gets a 30% chance at each of the other's traits

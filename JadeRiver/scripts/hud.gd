@@ -767,6 +767,16 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"pet_breakthrough":
 			if p.get("success", false): add_log(Tx.t("hud.pet_breakthrough_ok") % _pet_name(str(p.pet)), UiKit.BRIGHT_JADE)
 			else: toast(Tx.t("hud.pet_breakthrough_fail") % _pet_name(str(p.pet)), "danger", Tx.t("hud.pet_breakthrough_" + ("heart" if str(p.get("lost", "")) == "heart" else "wound")))
+		"pet_fed":
+			if p.get("trough", false): add_log(Tx.t("hud.trough_fed") % _pet_name(str(p.pet)), UiKit.MIST)
+		"arena_battle":
+			if p.get("won", false): toast(Tx.t("hud.arena_won") % int(p.get("rank", 11)), "gold", "")
+			else: add_log(Tx.t("hud.arena_lost"), UiKit.MIST)
+		"arena_rewarded":
+			toast(Tx.t("hud.arena_rewarded") % [int(p.get("rank", 11)), int(p.get("spirit_stone", 0))], "gold", "")
+		"beast_trial_result":
+			if p.get("won", false): toast(Tx.t("hud.trial_won"), "gold", ContentDB.item_name(str(p.get("item", ""))))
+			else: toast(Tx.t("hud.trial_lost"), "danger", "")
 		"pet_swapped":
 			add_log(Tx.t("hud.pet_swapped") % _pet_name(str(p.pet)), UiKit.BRIGHT_JADE)
 		"beast_king_spawned":

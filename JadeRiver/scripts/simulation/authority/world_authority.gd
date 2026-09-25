@@ -441,6 +441,8 @@ func object_available(c, o: Dictionary) -> Dictionary:
 	if o.type == "herb_patch" and not HerbRules.in_season(o, Clock.now_utc()):
 		return {"ok": false, "text": Tx.t("sim.world.herb_dormant") % ContentDB.name_of("seasons", str(o.season)), "dormant": true}
 	if o.type == "egg_nest" and c.quests.has_flag(_nest_flag(str(o.get("king", "")))): return {"ok": false, "text": Tx.t("sim.world.nest_taken")}
+	if o.type == "beast_trial_stone" and int(c.cooldowns.get("grove_day", -1)) == Clock.reset_day(Clock.now_utc()):
+		return {"ok": false, "text": Tx.t("sim.world.grove_done")}
 	if o.type == "beast_tide_drum" and not tide_due(c):
 		return {"ok": false, "text": Tx.t("sim.world.tide_not_due") % maxi(1, tide_days_left(c))}
 	return {"ok": true, "text": ""}
@@ -573,6 +575,8 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			result.text = Tx.t("sim.world.nest_egg")
 		"beast_tide_drum":
 			return start_beast_tide(c)
+		"beast_trial_stone":
+			return start_beast_trial(c)
 		"treasure_plot":
 			var tp: Dictionary = game.crafting.tend_treasure_plot(c, o)
 			result.text = str(tp.get("text", ""))
@@ -643,6 +647,7 @@ func _verb(o: Dictionary) -> String:
 		"rite_circle": return Tx.t("sim.world.begin")
 		"spar_post": return Tx.t("sim.world.spar")
 		"bell", "beast_tide_drum": return Tx.t("sim.world.ring")
+		"beast_trial_stone": return Tx.t("sim.world.begin")
 		"egg_nest": return Tx.t("sim.world.take")
 		"treasure_plot", "garden_bed": return Tx.t("sim.world.tend")
 		"treasure_tree": return Tx.t("sim.world.sit_beneath")
@@ -1193,6 +1198,46 @@ func start_beast_tide(c) -> Dictionary:
 		"duration": float(cfg.get("duration", 90))})
 	return ok({"event": "beast_tide"})
 
+## S46 Beast Trial Grove: once a day the animals fight ten beasts (their Level following yours) while you rally them.
+func start_beast_trial(c) -> Dictionary:
+	var cfg: Dictionary = ContentDB.config("beast_arena").get("grove", {})
+	if game.room_rt == null or game.room_rt.room_id != str(cfg.get("room", "sf_beast_grove")): return fail("not_here")
+	var today := Clock.reset_day(Clock.now_utc())
+	if int(c.cooldowns.get("grove_day", -1)) == today: return fail("done", {"text": Tx.t("sim.world.grove_done")})
+	if game.pets.party(c).is_empty(): return fail("no_pet", {"text": Tx.t("sim.pet.no_active")})
+	if game.room_rt.event.get("active", false): return fail("busy")
+	c.cooldowns["grove_day"] = today
+	var waves: Array = []
+	for w in cfg.get("waves", []):
+		var w2: Dictionary = (w as Dictionary).duplicate()
+		w2.level = "player"
+		w2.level_offset = int(cfg.get("level_offset", -2))
+		w2.level_min = int(cfg.get("level_min", 10))
+		w2.level_max = int(cfg.get("level_max", 60))
+		waves.append(w2)
+	var ev := {"id": "beast_trial", "pet_trial": true, "duration": float(cfg.get("duration", 150)), "waves": waves,
+		"kill_count": {"enemy": "*", "count": int(cfg.get("count", 10))},
+		"on_complete": [{"kind": "beast_trial_result", "won": true}], "on_timeout": [{"kind": "beast_trial_result", "won": false}]}
+	_start_event(c, game.room_rt, ev)
+	return ok({"event": "beast_trial"})
+
+## The Grove's reward: the Guardian Spirit book the first time, then one draw from the pool.
+func apply_trial_result(actor_id: String, won: bool) -> void:
+	var c = game.character(actor_id)
+	if c == null: return
+	var cfg: Dictionary = ContentDB.config("beast_arena").get("grove", {})
+	var item := ""
+	if won:
+		if not c.quests.has_flag("grove_first_clear"):
+			game.quest.apply_flag(c.id, "grove_first_clear")
+			item = str(cfg.get("first", ""))
+		else:
+			var pool: Array = cfg.get("pool", [])
+			var pick := LootRules.RngService_weighted(Rng.stream(c.id, "world"), pool)
+			item = str(pick.get("item", ""))
+		if item != "": game.inventory.apply_add(c.id, item, 1, "beast_trial")
+	emit("beast_trial_result", {"actor": c.id, "won": won, "item": item})
+
 ## Held the gate: this week's tide is spent; cores of your rank, an egg (the Cloud Stag's once, from Cloud Stride 1)
 ## and Spirit Soil.
 func apply_tide_result(actor_id: String, won: bool) -> void:
@@ -1240,7 +1285,7 @@ func _event_kill(p: Dictionary) -> void:
 		return
 	# S48 Iron Body trial: so many of one foe in a single run.
 	var kc: Dictionary = rt.event.get("kill_count", {})
-	if not kc.is_empty() and str(p.get("def", "")) == str(kc.get("enemy", "")) and str(p.get("victim_kind", "enemy")) == "enemy":
+	if not kc.is_empty() and (str(kc.get("enemy", "")) == "*" or str(p.get("def", "")) == str(kc.get("enemy", ""))) and str(p.get("victim_kind", "enemy")) == "enemy":
 		rt.event.kills = int(rt.event.get("kills", 0)) + 1
 		var c2 = game.active()
 		if c2 != null: emit("room_event_wave", {"actor": c2.id, "room": rt.room_id, "event": str(rt.event.get("id", "")), "enemy": str(kc.enemy),

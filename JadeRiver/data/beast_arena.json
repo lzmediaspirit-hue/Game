@@ -1,0 +1,473 @@
+{
+ "schema_version": 1,
+ "fights_per_day": 5,
+ "unranked": 11,
+ "tamers": [
+  {
+   "id": "farmhand_qiao",
+   "name": "Farmhand Qiao",
+   "rank": 10,
+   "solo": [
+    {
+     "species": "reed_otter",
+     "level": 18,
+     "rarity": "common",
+     "stage": "juvenile"
+    }
+   ],
+   "trio": [
+    {
+     "species": "reed_otter",
+     "level": 16,
+     "rarity": "common",
+     "stage": "juvenile"
+    },
+    {
+     "species": "mossback_toad",
+     "level": 16,
+     "rarity": "common",
+     "stage": "juvenile"
+    },
+    {
+     "species": "reed_otter",
+     "level": 15,
+     "rarity": "common",
+     "stage": "juvenile"
+    }
+   ]
+  },
+  {
+   "id": "herb_girl_yan",
+   "name": "Herb-girl Yan",
+   "rank": 9,
+   "solo": [
+    {
+     "species": "mossback_toad",
+     "level": 22,
+     "rarity": "common",
+     "stage": "juvenile"
+    }
+   ],
+   "trio": [
+    {
+     "species": "mossback_toad",
+     "level": 20,
+     "rarity": "common",
+     "stage": "juvenile"
+    },
+    {
+     "species": "reed_otter",
+     "level": 20,
+     "rarity": "common",
+     "stage": "juvenile"
+    },
+    {
+     "species": "ember_fox",
+     "level": 19,
+     "rarity": "common",
+     "stage": "juvenile"
+    }
+   ]
+  },
+  {
+   "id": "ferry_boy_pu",
+   "name": "Ferry-boy Pu",
+   "rank": 8,
+   "solo": [
+    {
+     "species": "reed_otter",
+     "level": 26,
+     "rarity": "fine",
+     "stage": "juvenile"
+    }
+   ],
+   "trio": [
+    {
+     "species": "reed_otter",
+     "level": 24,
+     "rarity": "fine",
+     "stage": "juvenile"
+    },
+    {
+     "species": "jade_crane",
+     "level": 23,
+     "rarity": "common",
+     "stage": "juvenile"
+    },
+    {
+     "species": "mossback_toad",
+     "level": 23,
+     "rarity": "common",
+     "stage": "juvenile"
+    }
+   ]
+  },
+  {
+   "id": "hunter_dai",
+   "name": "Hunter Dai",
+   "rank": 7,
+   "solo": [
+    {
+     "species": "mud_hound",
+     "level": 30,
+     "rarity": "fine",
+     "stage": "juvenile"
+    }
+   ],
+   "trio": [
+    {
+     "species": "mud_hound",
+     "level": 28,
+     "rarity": "fine",
+     "stage": "juvenile"
+    },
+    {
+     "species": "mist_wolf",
+     "level": 27,
+     "rarity": "common",
+     "stage": "juvenile"
+    },
+    {
+     "species": "ember_fox",
+     "level": 27,
+     "rarity": "common",
+     "stage": "juvenile"
+    }
+   ]
+  },
+  {
+   "id": "bamboo_sister_wen",
+   "name": "Bamboo Sister Wen",
+   "rank": 6,
+   "solo": [
+    {
+     "species": "bamboo_monkey",
+     "level": 34,
+     "rarity": "fine",
+     "stage": "adult"
+    }
+   ],
+   "trio": [
+    {
+     "species": "bamboo_monkey",
+     "level": 32,
+     "rarity": "fine",
+     "stage": "adult"
+    },
+    {
+     "species": "green_viper",
+     "level": 31,
+     "rarity": "fine",
+     "stage": "juvenile"
+    },
+    {
+     "species": "mossback_toad",
+     "level": 31,
+     "rarity": "fine",
+     "stage": "juvenile"
+    }
+   ]
+  },
+  {
+   "id": "caravan_guard_ruo",
+   "name": "Caravan Guard Ruo",
+   "rank": 5,
+   "solo": [
+    {
+     "species": "ironclaw_mole",
+     "level": 38,
+     "rarity": "rare",
+     "stage": "adult"
+    }
+   ],
+   "trio": [
+    {
+     "species": "ironclaw_mole",
+     "level": 36,
+     "rarity": "rare",
+     "stage": "adult"
+    },
+    {
+     "species": "mud_hound",
+     "level": 35,
+     "rarity": "fine",
+     "stage": "adult"
+    },
+    {
+     "species": "cleansed_boarlet",
+     "level": 35,
+     "rarity": "fine",
+     "stage": "adult"
+    }
+   ]
+  },
+  {
+   "id": "old_tamer_kuai",
+   "name": "Old Tamer Kuai",
+   "rank": 4,
+   "solo": [
+    {
+     "species": "mist_wolf",
+     "level": 42,
+     "rarity": "rare",
+     "stage": "adult"
+    }
+   ],
+   "trio": [
+    {
+     "species": "mist_wolf",
+     "level": 40,
+     "rarity": "rare",
+     "stage": "adult"
+    },
+    {
+     "species": "mist_vulture",
+     "level": 39,
+     "rarity": "rare",
+     "stage": "adult"
+    },
+    {
+     "species": "ember_fox",
+     "level": 39,
+     "rarity": "fine",
+     "stage": "adult"
+    }
+   ]
+  },
+  {
+   "id": "lady_feng_qiu",
+   "name": "Lady Feng Qiu",
+   "rank": 3,
+   "solo": [
+    {
+     "species": "ember_fox",
+     "level": 46,
+     "rarity": "rare",
+     "stage": "adult"
+    }
+   ],
+   "trio": [
+    {
+     "species": "ember_fox",
+     "level": 44,
+     "rarity": "rare",
+     "stage": "adult"
+    },
+    {
+     "species": "jade_crane",
+     "level": 43,
+     "rarity": "rare",
+     "stage": "adult"
+    },
+    {
+     "species": "green_viper",
+     "level": 43,
+     "rarity": "rare",
+     "stage": "adult"
+    }
+   ]
+  },
+  {
+   "id": "beastmaster_tian",
+   "name": "Beastmaster Tian",
+   "rank": 2,
+   "solo": [
+    {
+     "species": "jade_crane",
+     "level": 50,
+     "rarity": "epic",
+     "stage": "adult"
+    }
+   ],
+   "trio": [
+    {
+     "species": "jade_crane",
+     "level": 48,
+     "rarity": "epic",
+     "stage": "adult"
+    },
+    {
+     "species": "mist_wolf",
+     "level": 47,
+     "rarity": "rare",
+     "stage": "adult"
+    },
+    {
+     "species": "pale_stag",
+     "level": 47,
+     "rarity": "rare",
+     "stage": "adult"
+    }
+   ]
+  },
+  {
+   "id": "jing_mo",
+   "name": "Jing Mo, the Hermit's Rival",
+   "rank": 1,
+   "solo": [
+    {
+     "species": "mist_wolf",
+     "level": 55,
+     "rarity": "epic",
+     "stage": "awakened"
+    }
+   ],
+   "trio": [
+    {
+     "species": "mist_wolf",
+     "level": 53,
+     "rarity": "epic",
+     "stage": "awakened"
+    },
+    {
+     "species": "ember_fox",
+     "level": 52,
+     "rarity": "epic",
+     "stage": "adult"
+    },
+    {
+     "species": "mud_hound",
+     "level": 52,
+     "rarity": "rare",
+     "stage": "adult"
+    }
+   ]
+  }
+ ],
+ "rewards": [
+  {
+   "ranks": [
+    1,
+    1
+   ],
+   "spirit_stone": 30,
+   "item": "beast_essence_blood"
+  },
+  {
+   "ranks": [
+    2,
+    3
+   ],
+   "spirit_stone": 15,
+   "item": "beast_marrow_washing_pill"
+  },
+  {
+   "ranks": [
+    4,
+    6
+   ],
+   "spirit_stone": 8
+  },
+  {
+   "ranks": [
+    7,
+    10
+   ],
+   "spirit_stone": 3
+  }
+ ],
+ "battle": {
+  "hp_base": 60,
+  "hp_per_level": 12,
+  "atk_base": 8,
+  "atk_per_level": 2.2,
+  "interval": 1.6,
+  "max_s": 60.0,
+  "step_s": 0.2,
+  "variance": 0.1,
+  "skill_every": 12.0,
+  "stage_bonus": {
+   "hatchling": 0.9,
+   "juvenile": 1.0,
+   "adult": 1.1,
+   "awakened": 1.2,
+   "sovereign": 1.3
+  }
+ },
+ "grove": {
+  "room": "sf_beast_grove",
+  "duration": 150,
+  "count": 10,
+  "level_offset": -2,
+  "level_min": 10,
+  "level_max": 60,
+  "waves": [
+   {
+    "enemy": "wild_boarlet",
+    "first_s": 2,
+    "every_s": 5,
+    "max": 2,
+    "points": [
+     [
+      1300,
+      860
+     ],
+     [
+      1800,
+      860
+     ]
+    ]
+   },
+   {
+    "enemy": "mud_hound",
+    "first_s": 20,
+    "every_s": 7,
+    "max": 2,
+    "points": [
+     [
+      1300,
+      860
+     ],
+     [
+      1800,
+      860
+     ]
+    ]
+   },
+   {
+    "enemy": "tide_crab",
+    "first_s": 40,
+    "every_s": 8,
+    "max": 1,
+    "points": [
+     [
+      1300,
+      860
+     ],
+     [
+      1800,
+      860
+     ]
+    ]
+   }
+  ],
+  "rally": {
+   "mult": 1.25,
+   "seconds": 5.0,
+   "cd": 8.0
+  },
+  "first": "pet_book_guardian_spirit",
+  "pool": [
+   {
+    "item": "beast_essence_blood",
+    "weight": 3
+   },
+   {
+    "item": "beast_marrow_washing_pill",
+    "weight": 3
+   },
+   {
+    "item": "pet_book_iron_hide",
+    "weight": 2
+   },
+   {
+    "item": "pet_book_frenzy",
+    "weight": 1
+   },
+   {
+    "item": "pet_book_thunder_roar",
+    "weight": 1
+   }
+  ]
+ }
+}

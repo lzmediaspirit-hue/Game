@@ -77,8 +77,9 @@ DEPTH = {
     "Enemies": ["enemy_leashed", "beast_king_spawned", "king_nest_opened"],
     "Pets": ["pet_wounded", "pet_healed", "core_devoured", "cores_sold", "beast_cleansed", "bloodline_awakened",
              "contract_formed", "contract_offered", "pet_skill_cast", "beast_suppressed", "egg_infused", "party_changed",
-             "pet_skill_learned", "pets_fused", "pet_core_formed", "pet_breakthrough", "pet_gear_changed", "pet_swapped"],
-    "World": ["ambush_sprung", "herb_ripening", "guardian_spawned", "beast_tide_started", "beast_tide_result"],
+             "pet_skill_learned", "pets_fused", "pet_core_formed", "pet_breakthrough", "pet_gear_changed", "pet_swapped",
+             "arena_battle", "arena_rewarded", "pet_fed"],
+    "World": ["ambush_sprung", "herb_ripening", "guardian_spawned", "beast_tide_started", "beast_tide_result", "beast_trial_result"],
 }
 for _sys, _names in DEPTH.items():
     CATALOGUE[_sys] = CATALOGUE.get(_sys, []) + _names

@@ -566,6 +566,12 @@
     "world_authority"
    ]
   },
+  "beast_trial_result": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
   "enemy_aggro": {
    "system": "Enemies",
    "files": [
@@ -1045,6 +1051,24 @@
    ]
   },
   "pet_swapped": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "arena_battle": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "arena_rewarded": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "pet_fed": {
    "system": "Pets",
    "files": [
     "pet_authority"

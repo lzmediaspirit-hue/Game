@@ -62,6 +62,7 @@ func _main() -> void:
 	bloodline_suite()
 	pet_growth_suite()
 	beast_world_suite()
+	beast_arena_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -2128,6 +2129,120 @@ func beast_world_suite() -> void:
 	c.cultivator.realm_key = realm_was
 	c.inventory.bag.fill(null)
 	if room_was != "": Game.world.load_room(c, room_was, "")
+
+## S46 · the Beast Arena's auto-battle and ladder, the Beast Trial Grove, Beast Taming Dao tiers, the Feeding Trough.
+func beast_arena_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var pets_was: Array = c.pets.duplicate(true)
+	var active_was: String = c.active_pet
+	var arena_was: Dictionary = c.beast_arena.duplicate(true)
+	var daos_was: Dictionary = c.cultivator.daos.duplicate(true)
+	var sect_was: Dictionary = Game.account.sect.duplicate(true)
+	var storage_was: Array = (Game.account.storage.get("items", []) as Array).duplicate(true)
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var stones0 := int(Game.account.currencies.get("spirit_stone", 0))
+	Unlocks.force_unlock(c.id, "spirit_animals")
+	c.inventory.bag.fill(null)
+	c.pets = []
+	c.party_pets = []
+	c.pet_bag = []
+	c.mount_pet = ""
+	var bcfg: Dictionary = Game.pets.arena_cfg().battle
+	# The auto-battle: pure and deterministic; the stronger side wins.
+	var strong := PetRules.combatant({"species": "mist_wolf", "level": 40, "rarity": "rare", "stage": "adult"}, bcfg)
+	var weak := PetRules.combatant({"species": "reed_otter", "level": 12, "rarity": "common", "stage": "hatchling"}, bcfg)
+	var r1 := PetRules.battle([strong], [weak], bcfg, _seeded(7))
+	var r2 := PetRules.battle([strong], [weak], bcfg, _seeded(7))
+	check(str(r1.winner) == "a" and r1.log == r2.log, "the same seed fights the same fight, and the stronger animal wins")
+	var sk := PetRules.combatant({"species": "ember_fox", "level": 20, "skill_mult": 2.5, "free_cast": true}, bcfg)
+	var r3 := PetRules.battle([sk], [PetRules.combatant({"species": "ember_fox", "level": 20}, bcfg)], bcfg, _seeded(3))
+	check(not (r3.log as Array).is_empty() and bool(r3.log[0].skill) and str(r3.log[0].side) == "a", "an Equal Contract's free cast opens the fight")
+	# The ladder: challenge the tamer above you; a win takes their rank; five fights a day; 3v3 needs three.
+	Game.pets.apply_grant(c.id, "mist_wolf")
+	var wolf: Dictionary = c.pets.back()
+	wolf.level = 60
+	wolf.rarity = "epic"
+	wolf.stage = "awakened"
+	c.active_pet = str(wolf.uid)
+	c.beast_arena = {}
+	var st0: Dictionary = Game.pets.arena_state(c)
+	check(int(st0.rank) == 11 and str(Game.pets.arena_opponent(c).id) == "farmhand_qiao", "unranked, the first opponent is Farmhand Qiao (rank 10)")
+	check(str(Game.submit({"type": "arena_challenge", "mode": "trio"}).get("reason", "")) == "team", "a 3v3 needs three animals")
+	var f1 := Game.submit({"type": "arena_challenge", "mode": "solo"})
+	check(f1.get("won", false) and int(c.beast_arena.rank) == 10 and not (c.beast_arena.last.log as Array).is_empty(), "a Level 60 wolf beats him and takes rank 10")
+	for i in 4: Game.submit({"type": "arena_challenge", "mode": "solo"})
+	check(str(Game.submit({"type": "arena_challenge", "mode": "solo"}).get("reason", "")) == "no_fights", "five fights a day")
+	# The week turns: rank 3 pays 15 Spirit Stones and a Beast Marrow Washing Pill; the ladder starts again.
+	c.beast_arena.rank = 3
+	c.beast_arena.week = Clock.reset_week(Clock.now_utc()) - 1
+	var pills0: int = c.inventory.count("beast_marrow_washing_pill")
+	Game.pets.arena_state(c)
+	check(int(Game.account.currencies.get("spirit_stone", 0)) == stones0 + 15 and c.inventory.count("beast_marrow_washing_pill") == pills0 + 1
+		and int(c.beast_arena.rank) == 11, "the week turns: rank 3 pays out, the ladder starts again")
+	# The Trial Grove: once a day; the keeper's blows rally instead of striking; ten kills; the Guardian Spirit first.
+	Game.world.load_room(c, "sf_beast_grove", "")
+	Game.pets._spawn(c)
+	c.cooldowns.erase("grove_day")
+	check(Game.world.start_beast_trial(c).get("ok", false) and Game.room_rt.event.get("pet_trial", false), "the Grove's trial begins")
+	check(str(Game.world.start_beast_trial(c).get("reason", "")) == "done", "once a day")
+	var st: ActorState = Game.actor_state(c.id)
+	var boar: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(60, 0), 20)
+	var hp0: float = boar.pools.hp
+	Game.pets.rally_ready.erase(c.id)
+	Game.combat._damage_enemy(boar, 50.0, c.id, "physical", "none", false, {})
+	check(near(boar.pools.hp, hp0) and float(Game.pets.rally_until.get(c.id, 0.0)) > Game.sim_time, "your blow rallies the animals instead of striking")
+	var pw := Game.pets.pet_power(c, wolf)
+	Game.pets.rally_until.erase(c.id)
+	check(near(pw, Game.pets.pet_power(c, wolf) * 1.25, 0.01), "rallied: +25%")
+	Game.combat._damage_enemy(boar, 1e9, c.id, "physical", "none", false, {"source": "ally:1"})
+	GameEvents.flush()
+	check(int(Game.room_rt.event.get("kills", 0)) == 1, "the animals' kills count toward the ten")
+	c.quests.flags.erase("grove_first_clear")
+	var books0: int = c.inventory.count("pet_book_guardian_spirit")
+	Game.world._end_event(c, Game.room_rt, true)
+	GameEvents.flush()
+	check(c.inventory.count("pet_book_guardian_spirit") == books0 + 1, "the first clear gives the Guardian Spirit book")
+	# Beast Taming Dao: elites from tier 3; eggs 10% sooner from tier 2; teachable from tier 4.
+	Unlocks.force_unlock(c.id, "taming")
+	Game.world.load_room(c, "lf_reed_shallows", "")
+	st = Game.actor_state(c.id)
+	var eo: EnemyState = Game.enemies.spawn_at("reed_otter", st.plane + Vector2(60, 0), 20, {"elite": true})
+	eo.pools.hp = eo.pools.max_hp * 0.1
+	Game.inventory.apply_add(c.id, "bonding_offering_common", 2, "test")
+	c.cultivator.daos["beast_taming"] = {"tier": 2, "insight": 0.0}
+	check(str(Game.submit({"type": "attempt_tame", "offering": "bonding_offering_common"}).get("reason", "")) == "elite_tier", "an elite needs the Dao at tier 3")
+	c.cultivator.daos["beast_taming"] = {"tier": 3, "insight": 0.0}
+	check(Game.submit({"type": "attempt_tame", "offering": "bonding_offering_common"}).get("ok", false), "at tier 3 the elite can be tried")
+	check(not Game.workshop.teachable_daos(c).has("beast_taming"), "not yet teachable at tier 3")
+	c.cultivator.daos["beast_taming"] = {"tier": 4, "insight": 0.0}
+	check(Game.workshop.teachable_daos(c).has("beast_taming"), "teachable at tier 4")
+	for e in Game.room_rt.living_enemies():
+		if e.summoned: Game.enemies.release(e)
+	# The Feeding Trough: with a Beast Pavilion, hungry animals eat from storage once a day.
+	Game.account.sect = {"name": "Test", "level": 1, "buildings": {"beast_pavilion": 1}}
+	Game.account.storage["items"] = [{"id": "roast_fish", "count": 2}]
+	wolf.hunger_day = Clock.reset_day(Clock.now_utc()) - 2
+	c.cooldowns.erase("trough_day")
+	Game.pets._trough(c)
+	check(int(wolf.hunger_day) == Clock.reset_day(Clock.now_utc()) and int(Game.account.storage.items[0].count) == 1, "the trough feeds the hungry wolf from storage")
+	wolf.hunger_day = 0
+	Game.pets._trough(c)
+	check(int(wolf.hunger_day) == 0, "once a day")
+	Game.account.sect = sect_was
+	Game.account.storage["items"] = storage_was
+	Game.account.currencies["spirit_stone"] = stones0
+	c.cultivator.daos = daos_was
+	c.beast_arena = arena_was
+	c.pets = pets_was
+	c.active_pet = active_was
+	c.inventory.bag.fill(null)
+	if room_was != "": Game.world.load_room(c, room_was, "")
+
+func _seeded(seed: int) -> RandomNumberGenerator:
+	var r := RandomNumberGenerator.new()
+	r.seed = seed
+	return r
 
 func tribulation_suite() -> void:
 	var c = Game.active()

@@ -672,6 +672,11 @@ def stoneford():
     r.decor("lantern_string", [1800, 560], layer="back")
     r.obj("stone_sf", "teleport_stone", [1480, 880], stone="stoneford")
     r.obj("board_sf", "notice_board", [760, 700])
+    # S46 Beast Arena: the ladder of NPC tamers, 1v1 and 3v3 pet auto-battles; and the Beast Trial Grove's gate.
+    r.obj("arena_sf", "inspect", [1850, 720], prop="notice_board", text="The Beast Arena ladder.", open_page="beast_arena",
+          requires=all_of(unlock("spirit_animals")), locked_text="Tamers only: bond with a spirit animal first.")
+    r.portal("grove", "door", [2440, 700], "sf_beast_grove", "entry", press_up=True, label="Beast Trial Grove",
+             requires=all_of(unlock("spirit_animals")), locked_text="The Trial Grove is for spirit animals and their keepers.")
     r.obj("storage_sf", "storage_chest", [1100, 710], requires=all_of(unlock("storage")), locked_text="The storehouse opens for Qi Kindling cultivators.")
     r.obj("exchange_sf", "inspect", [2240, 720], prop="counter", text="The exchange counter.", open_page="exchange",
           requires=all_of(unlock("currency_exchange")), locked_text="Currency exchange opens at Heaven Glimpse 3.")
@@ -751,6 +756,18 @@ def stoneford():
         r.decor("banner_" + s, [1100, 660])
         r.decor("stone_lantern", [640, 660])
         r.portal("entry", "door", [120, 700], "sf_fairground", "trial_" + s, press_up=True, label="Fairground")
+
+
+def beast_grove():
+    """S46 Beast Trial Grove: a daily trial where the animals fight and their keeper supports."""
+    r = Room("sf_beast_grove", "Beast Trial Grove", "trial", "stoneford", 1, backdrop="bamboo", material="moss", instanced=True,
+             music="trial", levels=[10, 60], safe=False, spawn_point=[200, 820], dungeon_exit="sf_market")
+    r.surface("grove_rock", [900, 690, 220, 60], 90, kind="rock_ledge")
+    r.obj("grove_stone", "beast_trial_stone", [600, 720])
+    r.decor("bamboo_cluster", [300, 660], layer="back")
+    r.decor("bamboo_cluster", [1500, 660], layer="back")
+    r.decor("stone_lantern", [1200, 700])
+    r.portal("entry", "door", [120, 700], "sf_market", "grove", press_up=True, label="Market Street")
 
 
 def willow_path():
@@ -2667,6 +2684,7 @@ def build():
     ROOMS.clear()
     lotus_ferry()
     willow_path()
+    beast_grove()
     stoneford()
     sects()
     valley()

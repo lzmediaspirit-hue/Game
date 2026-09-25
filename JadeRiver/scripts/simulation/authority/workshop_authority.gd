@@ -248,7 +248,8 @@ func teachable_daos(c) -> Array:
 	var min_tier := int(prof("teaching").get("min_dao_tier", 2))
 	var out: Array = []
 	for d in c.cultivator.daos:
-		if int(c.cultivator.daos[d].get("tier", 0)) >= min_tier: out.append(str(d))
+		# A Dao may ask for more before it can be taught (the Beast Taming Dao at tier 4, S46).
+		if int(c.cultivator.daos[d].get("tier", 0)) >= int(ContentDB.entry("daos", str(d)).get("teach_tier", min_tier)): out.append(str(d))
 	return out
 
 func teach(c, index: int, dao: String) -> Dictionary:

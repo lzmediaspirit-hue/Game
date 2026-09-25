@@ -538,11 +538,27 @@
    "id": "beast_taming",
    "family": "craft",
    "valley_cap": 2,
+   "zone_caps": {
+    "azure_expanse": 4
+   },
+   "teach_tier": 4,
    "tiers": [
-    "+5% quality or speed",
-    "-10% materials"
+    "+5% taming chance",
+    "+5% taming chance; eggs hatch 10% sooner",
+    "Tame elite beasts",
+    "Can teach Beast Taming to your disciples",
+    "Tame a Beast King after its trial (a later age)",
+    "Write a contract of your own (a later age)"
    ],
    "effects": [
+    {},
+    {
+     "hatch": -0.1
+    },
+    {
+     "tame_elites": true
+    },
+    {},
     {},
     {}
    ],

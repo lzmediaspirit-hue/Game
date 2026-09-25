@@ -5,6 +5,38 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V7e · Spirit beasts: the Beast Arena, the Trial Grove and the Taming Dao (S46)
+- **Beast Arena** (the ladder board on Market Street, and a new page). Ten NPC tamers, from Farmhand Qiao at rank 10
+  to Jing Mo at rank 1.
+  - Challenge the one above you in 1v1 (your active animal) or 3v3 (three beside you or in the bag), five times a
+    day. A win takes their rank.
+  - The rank held when the week turns pays out: 30 Spirit Stones and Beast Essence Blood at rank 1, down to 3 Spirit
+    Stones at rank 10. Then the ladder starts again.
+  - The fights are pet-only auto-battles in the new pure `PetRules.battle`, seeded on their own stream. Level,
+    rarity, stage, growth, aptitude, gear, core, wounds, traits, skills and awakened skills all count, and an Equal
+    Contract opens with its free cast.
+  - The page replays the last fight as draining health bars.
+- **Beast Trial Grove** (a door off Market Street). Once a day the animals fight ten beasts (their Level following
+  yours). Your own blows do no harm there: they rally the animals (+25 % for 5 s, every 8 s). The first clear gives
+  the Guardian Spirit skill book; later clears draw essence blood, marrow pills or skill books.
+- **Beast Taming Dao**: six tiers, two in the valley and four in the Azure Expanse.
+  - Every tier adds 5 % to taming.
+  - Tier 2: eggs hatch 10 % sooner.
+  - Tier 3: elites can be tamed (not before).
+  - Tier 4: you can teach it to your disciples.
+  - Tiers 5–6 (Beast King taming, custom contracts) are named hooks for later ages.
+- **Pavilion Feeding Trough**: with a Beast Pavilion, hungry animals are fed once a day from storage, their favourite
+  food first.
+- **Rename** on the Spirit Animals page.
+- **Events:** `arena_battle`, `arena_rewarded`, `beast_trial_result` and `pet_fed` (from the trough), with HUD notes.
+  Debug flag: `--arena=solo|trio`.
+- **Tests:**
+  - battle determinism and the free cast;
+  - the ladder, the daily limit and the weekly payout;
+  - the Grove's once-a-day limit, rally, kill count and first-clear book;
+  - the Dao gates for elites and teaching;
+  - the trough's once-a-day feeding.
+
 ### V7d · Spirit beasts: the Beast Bag, the Mount slot, Beast Kings and the Beast Tide (S46)
 - **Spirit Beast Bags** (key items): Reed 2, Hide 3 and Cloud 4 (Hermit Yao), Mistjade 5 and Starweave 6. Pack animals
   somewhere safe (a town, a sect, a rest stop or home).

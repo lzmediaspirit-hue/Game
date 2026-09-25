@@ -1,0 +1,136 @@
+{
+ "schema_version": 1,
+ "id": "sf_beast_grove",
+ "zone": "jade_river_valley",
+ "region": "stoneford",
+ "name": "Beast Trial Grove",
+ "type": "trial",
+ "level_range": [
+  10,
+  60
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "bamboo",
+ "ground": {
+  "material": "moss"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    1280,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "grove_rock",
+   "rect": [
+    900,
+    690,
+    220,
+    60
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    120,
+    700
+   ],
+   "to": "sf_market",
+   "to_portal": "grove",
+   "press_up": true,
+   "label": "Market Street"
+  }
+ ],
+ "objects": [
+  {
+   "id": "grove_stone",
+   "type": "beast_trial_stone",
+   "at": [
+    600,
+    720
+   ]
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "bamboo_cluster",
+   "at": [
+    300,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "bamboo_cluster",
+   "at": [
+    1500,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    1200,
+    700
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "instanced": true,
+ "music": "trial",
+ "dungeon_exit": "sf_market",
+ "climbables": [
+  {
+   "id": "grove_rock_rope_1",
+   "kind": "rope",
+   "at": [
+    1010,
+    785
+   ],
+   "top_at": [
+    1010,
+    742
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "grove_rock"
+  }
+ ]
+}

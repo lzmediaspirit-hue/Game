@@ -133,6 +133,27 @@
  ],
  "portals": [
   {
+   "id": "grove",
+   "type": "door",
+   "at": [
+    2440,
+    700
+   ],
+   "to": "sf_beast_grove",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Beast Trial Grove",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "spirit_animals"
+     }
+    ]
+   },
+   "locked_text": "The Trial Grove is for spirit animals and their keepers."
+  },
+  {
    "id": "east",
    "type": "edge",
    "at": [
@@ -170,6 +191,26 @@
     760,
     700
    ]
+  },
+  {
+   "id": "arena_sf",
+   "type": "inspect",
+   "at": [
+    1850,
+    720
+   ],
+   "prop": "notice_board",
+   "text": "The Beast Arena ladder.",
+   "open_page": "beast_arena",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "spirit_animals"
+     }
+    ]
+   },
+   "locked_text": "Tamers only: bond with a spirit animal first."
   },
   {
    "id": "storage_sf",
