@@ -6,6 +6,7 @@ extends Node
 ##   Offline: caps, a backward clock, bottlenecks hold, no breakthrough while away.
 ##   Pets:    stage gates need all three conditions, branches, traits, resonance, hunger.
 ##   Weekly:  Sect Service ends on either path and survives the daily reset.
+##   Saves:   a damaged file is restored from its .bak; the migration stamps the version.
 ## Run headless:  godot --headless --path . res://tests/rules_tests.tscn
 
 var checks := 0
@@ -29,6 +30,7 @@ func _main() -> void:
 	offline_suite()
 	pets_suite()
 	weekly_suite()
+	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -207,3 +209,19 @@ func weekly_suite() -> void:
 	check(c.quests.done.has(id) and not c.quests.is_active(id), "a field boss completes Sect Service")
 	Game.quest.start_weekly(true)
 	check(not c.quests.is_active(id), "Sect Service is offered once a week")
+
+# ------------------------------------------------------------------ saves (Part 7 · Save migration)
+func save_suite() -> void:
+	var folder := "user://save_suite/"
+	DirAccess.make_dir_recursive_absolute(folder)
+	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
+	var repo := RepositoryLocal.new(folder)
+	check(repo.save_character(1, {"version": 3, "name": "First"}) == OK, "a character saves")
+	check(repo.save_character(1, {"version": 3, "name": "Second"}) == OK, "saving again keeps the previous file as .bak")
+	var f := FileAccess.open(repo.character_path(1), FileAccess.WRITE)
+	f.store_string("{ this is not json")
+	f.close()
+	var back: Dictionary = repo.load_character(1)
+	check(str(back.get("name", "")) == "First" and repo.last_recovered.has("char_1.json"), "a damaged save is restored from its .bak")
+	var old: Dictionary = Saves.migrate_character({"name": "Old", "version": 2})
+	check(int(old.get("version", 0)) == Saves.VERSION, "an older character file is brought to the current version")
