@@ -577,7 +577,8 @@
    "sockets": 0,
    "icon": "hemp_robe",
    "type": "equipment",
-   "stack": 1
+   "stack": 1,
+   "dye": "earth"
   },
   {
    "id": "hemp_trousers",
@@ -590,7 +591,8 @@
    "sockets": 0,
    "icon": "hemp_trousers",
    "type": "equipment",
-   "stack": 1
+   "stack": 1,
+   "dye": "earth"
   },
   {
    "id": "straw_sandals",
@@ -629,7 +631,8 @@
    "sockets": 0,
    "icon": "cotton_robe",
    "type": "equipment",
-   "stack": 1
+   "stack": 1,
+   "dye": "grey"
   },
   {
    "id": "cotton_trousers",
@@ -642,7 +645,8 @@
    "sockets": 0,
    "icon": "cotton_trousers",
    "type": "equipment",
-   "stack": 1
+   "stack": 1,
+   "dye": "ink"
   },
   {
    "id": "cloth_boots",
@@ -681,7 +685,8 @@
    "sockets": 1,
    "icon": "jadeiron_robe",
    "type": "equipment",
-   "stack": 1
+   "stack": 1,
+   "dye": "indigo"
   },
   {
    "id": "jadeiron_trousers",
@@ -694,7 +699,8 @@
    "sockets": 1,
    "icon": "jadeiron_trousers",
    "type": "equipment",
-   "stack": 1
+   "stack": 1,
+   "dye": "ink"
   },
   {
    "id": "jadeiron_boots",
@@ -733,7 +739,8 @@
    "sockets": 1,
    "icon": "cloudsilk_robe",
    "type": "equipment",
-   "stack": 1
+   "stack": 1,
+   "dye": "cloud"
   },
   {
    "id": "cloudsilk_trousers",
@@ -746,7 +753,8 @@
    "sockets": 1,
    "icon": "cloudsilk_trousers",
    "type": "equipment",
-   "stack": 1
+   "stack": 1,
+   "dye": "grey"
   },
   {
    "id": "cloudsilk_boots",
@@ -785,7 +793,8 @@
    "sockets": 2,
    "icon": "mistjade_robe",
    "type": "equipment",
-   "stack": 1
+   "stack": 1,
+   "dye": "white"
   },
   {
    "id": "mistjade_trousers",
@@ -798,7 +807,8 @@
    "sockets": 2,
    "icon": "mistjade_trousers",
    "type": "equipment",
-   "stack": 1
+   "stack": 1,
+   "dye": "jade"
   },
   {
    "id": "mistjade_boots",
@@ -960,7 +970,8 @@
    "set": "jade_current",
    "source": [
     "sect_shop"
-   ]
+   ],
+   "dye": "jade"
   },
   {
    "id": "jade_current_trousers",
@@ -977,7 +988,8 @@
    "set": "jade_current",
    "source": [
     "sect_shop"
-   ]
+   ],
+   "dye": "ink"
   },
   {
    "id": "jade_current_boots",
@@ -1028,7 +1040,8 @@
    "set": "cloudpiercing",
    "source": [
     "sect_shop"
-   ]
+   ],
+   "dye": "cloud"
   },
   {
    "id": "cloudpiercing_trousers",
@@ -1045,7 +1058,8 @@
    "set": "cloudpiercing",
    "source": [
     "sect_shop"
-   ]
+   ],
+   "dye": "indigo"
   },
   {
    "id": "cloudpiercing_boots",
@@ -1091,7 +1105,8 @@
    "icon": "cotton_robe",
    "type": "equipment",
    "stack": 1,
-   "set": "mudwater"
+   "set": "mudwater",
+   "dye": "earth"
   },
   {
    "id": "drowned_hat",
@@ -1119,7 +1134,8 @@
    "icon": "jadeiron_robe",
    "type": "equipment",
    "stack": 1,
-   "set": "drowned_abbot"
+   "set": "drowned_abbot",
+   "dye": "ink"
   },
   {
    "id": "drowned_boots",
@@ -1147,7 +1163,8 @@
    "icon": "cloudsilk_robe",
    "type": "equipment",
    "stack": 1,
-   "set": "crane"
+   "set": "crane",
+   "dye": "white"
   },
   {
    "id": "crane_trousers",
@@ -1161,7 +1178,8 @@
    "icon": "cloudsilk_trousers",
    "type": "equipment",
    "stack": 1,
-   "set": "crane"
+   "set": "crane",
+   "dye": "cloud"
   },
   {
    "id": "crane_boots",

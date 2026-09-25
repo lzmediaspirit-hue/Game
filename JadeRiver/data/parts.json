@@ -6386,7 +6386,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_cuffed_1_attack_0.png"
+                "art_v12/pants_cuffed_1_attack_0.png",
+                "res://art/dye/pants_cuffed_1_attack_0__jade.png",
+                "res://art/dye/pants_cuffed_1_attack_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_attack_0__earth.png",
+                "res://art/dye/pants_cuffed_1_attack_0__ink.png",
+                "res://art/dye/pants_cuffed_1_attack_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_attack_0__grey.png",
+                "res://art/dye/pants_cuffed_1_attack_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_attack_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_attack_0__rose.png",
+                "res://art/dye/pants_cuffed_1_attack_0__white.png"
               ],
               "source": "spritesheets/legs/cuffed/male/thrust.png",
               "z": 30.0
@@ -6395,7 +6405,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_cuffed_1_bow_0.png"
+                "art_v12/pants_cuffed_1_bow_0.png",
+                "res://art/dye/pants_cuffed_1_bow_0__jade.png",
+                "res://art/dye/pants_cuffed_1_bow_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_bow_0__earth.png",
+                "res://art/dye/pants_cuffed_1_bow_0__ink.png",
+                "res://art/dye/pants_cuffed_1_bow_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_bow_0__grey.png",
+                "res://art/dye/pants_cuffed_1_bow_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_bow_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_bow_0__rose.png",
+                "res://art/dye/pants_cuffed_1_bow_0__white.png"
               ],
               "source": "spritesheets/legs/cuffed/male/shoot.png",
               "z": 30.0
@@ -6404,7 +6424,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_cuffed_1_idle_0.png"
+                "art_v12/pants_cuffed_1_idle_0.png",
+                "res://art/dye/pants_cuffed_1_idle_0__jade.png",
+                "res://art/dye/pants_cuffed_1_idle_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_idle_0__earth.png",
+                "res://art/dye/pants_cuffed_1_idle_0__ink.png",
+                "res://art/dye/pants_cuffed_1_idle_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_idle_0__grey.png",
+                "res://art/dye/pants_cuffed_1_idle_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_idle_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_idle_0__rose.png",
+                "res://art/dye/pants_cuffed_1_idle_0__white.png"
               ],
               "source": "spritesheets/legs/cuffed/male/idle.png",
               "z": 30.0
@@ -6413,7 +6443,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_cuffed_1_jump_0.png"
+                "art_v12/pants_cuffed_1_jump_0.png",
+                "res://art/dye/pants_cuffed_1_jump_0__jade.png",
+                "res://art/dye/pants_cuffed_1_jump_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_jump_0__earth.png",
+                "res://art/dye/pants_cuffed_1_jump_0__ink.png",
+                "res://art/dye/pants_cuffed_1_jump_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_jump_0__grey.png",
+                "res://art/dye/pants_cuffed_1_jump_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_jump_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_jump_0__rose.png",
+                "res://art/dye/pants_cuffed_1_jump_0__white.png"
               ],
               "source": "spritesheets/legs/cuffed/male/jump.png",
               "z": 30.0
@@ -6422,7 +6462,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/pants_cuffed_1_meditate_0.png"
+                "art_v12/pants_cuffed_1_meditate_0.png",
+                "res://art/dye/pants_cuffed_1_meditate_0__jade.png",
+                "res://art/dye/pants_cuffed_1_meditate_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_meditate_0__earth.png",
+                "res://art/dye/pants_cuffed_1_meditate_0__ink.png",
+                "res://art/dye/pants_cuffed_1_meditate_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_meditate_0__grey.png",
+                "res://art/dye/pants_cuffed_1_meditate_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_meditate_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_meditate_0__rose.png",
+                "res://art/dye/pants_cuffed_1_meditate_0__white.png"
               ],
               "source": "spritesheets/legs/cuffed/male/idle.png",
               "z": 30.0
@@ -6431,7 +6481,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/pants_cuffed_1_punch_0.png"
+                "art_v12/pants_cuffed_1_punch_0.png",
+                "res://art/dye/pants_cuffed_1_punch_0__jade.png",
+                "res://art/dye/pants_cuffed_1_punch_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_punch_0__earth.png",
+                "res://art/dye/pants_cuffed_1_punch_0__ink.png",
+                "res://art/dye/pants_cuffed_1_punch_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_punch_0__grey.png",
+                "res://art/dye/pants_cuffed_1_punch_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_punch_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_punch_0__rose.png",
+                "res://art/dye/pants_cuffed_1_punch_0__white.png"
               ],
               "source": "spritesheets/legs/cuffed/male/idle.png",
               "z": 30.0
@@ -6440,7 +6500,17 @@
               "cell": 256.0,
               "combo_rig": "punch_1",
               "sheets": [
-                "art_v12/pants_cuffed_1_punch_1_0.png"
+                "art_v12/pants_cuffed_1_punch_1_0.png",
+                "res://art/dye/pants_cuffed_1_punch_1_0__jade.png",
+                "res://art/dye/pants_cuffed_1_punch_1_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_punch_1_0__earth.png",
+                "res://art/dye/pants_cuffed_1_punch_1_0__ink.png",
+                "res://art/dye/pants_cuffed_1_punch_1_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_punch_1_0__grey.png",
+                "res://art/dye/pants_cuffed_1_punch_1_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_punch_1_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_punch_1_0__rose.png",
+                "res://art/dye/pants_cuffed_1_punch_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_cuffed_1_punch_0.png"
@@ -6451,7 +6521,17 @@
               "cell": 256.0,
               "combo_rig": "punch_2",
               "sheets": [
-                "art_v12/pants_cuffed_1_punch_2_0.png"
+                "art_v12/pants_cuffed_1_punch_2_0.png",
+                "res://art/dye/pants_cuffed_1_punch_2_0__jade.png",
+                "res://art/dye/pants_cuffed_1_punch_2_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_punch_2_0__earth.png",
+                "res://art/dye/pants_cuffed_1_punch_2_0__ink.png",
+                "res://art/dye/pants_cuffed_1_punch_2_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_punch_2_0__grey.png",
+                "res://art/dye/pants_cuffed_1_punch_2_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_punch_2_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_punch_2_0__rose.png",
+                "res://art/dye/pants_cuffed_1_punch_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_cuffed_1_punch_0.png"
@@ -6462,7 +6542,17 @@
               "cell": 256.0,
               "combo_rig": "punch_3",
               "sheets": [
-                "art_v12/pants_cuffed_1_punch_3_0.png"
+                "art_v12/pants_cuffed_1_punch_3_0.png",
+                "res://art/dye/pants_cuffed_1_punch_3_0__jade.png",
+                "res://art/dye/pants_cuffed_1_punch_3_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_punch_3_0__earth.png",
+                "res://art/dye/pants_cuffed_1_punch_3_0__ink.png",
+                "res://art/dye/pants_cuffed_1_punch_3_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_punch_3_0__grey.png",
+                "res://art/dye/pants_cuffed_1_punch_3_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_punch_3_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_punch_3_0__rose.png",
+                "res://art/dye/pants_cuffed_1_punch_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_cuffed_1_punch_0.png"
@@ -6473,7 +6563,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_cuffed_1_swing_0.png"
+                "art_v12/pants_cuffed_1_swing_0.png",
+                "res://art/dye/pants_cuffed_1_swing_0__jade.png",
+                "res://art/dye/pants_cuffed_1_swing_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_swing_0__earth.png",
+                "res://art/dye/pants_cuffed_1_swing_0__ink.png",
+                "res://art/dye/pants_cuffed_1_swing_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_swing_0__grey.png",
+                "res://art/dye/pants_cuffed_1_swing_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_swing_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_swing_0__rose.png",
+                "res://art/dye/pants_cuffed_1_swing_0__white.png"
               ],
               "source": "spritesheets/legs/cuffed/male/slash.png",
               "z": 30.0
@@ -6482,7 +6582,17 @@
               "cell": 256.0,
               "combo_rig": "swing_1",
               "sheets": [
-                "art_v12/pants_cuffed_1_swing_1_0.png"
+                "art_v12/pants_cuffed_1_swing_1_0.png",
+                "res://art/dye/pants_cuffed_1_swing_1_0__jade.png",
+                "res://art/dye/pants_cuffed_1_swing_1_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_swing_1_0__earth.png",
+                "res://art/dye/pants_cuffed_1_swing_1_0__ink.png",
+                "res://art/dye/pants_cuffed_1_swing_1_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_swing_1_0__grey.png",
+                "res://art/dye/pants_cuffed_1_swing_1_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_swing_1_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_swing_1_0__rose.png",
+                "res://art/dye/pants_cuffed_1_swing_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_cuffed_1_swing_0.png"
@@ -6493,7 +6603,17 @@
               "cell": 256.0,
               "combo_rig": "swing_2",
               "sheets": [
-                "art_v12/pants_cuffed_1_swing_2_0.png"
+                "art_v12/pants_cuffed_1_swing_2_0.png",
+                "res://art/dye/pants_cuffed_1_swing_2_0__jade.png",
+                "res://art/dye/pants_cuffed_1_swing_2_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_swing_2_0__earth.png",
+                "res://art/dye/pants_cuffed_1_swing_2_0__ink.png",
+                "res://art/dye/pants_cuffed_1_swing_2_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_swing_2_0__grey.png",
+                "res://art/dye/pants_cuffed_1_swing_2_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_swing_2_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_swing_2_0__rose.png",
+                "res://art/dye/pants_cuffed_1_swing_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_cuffed_1_swing_0.png"
@@ -6504,7 +6624,17 @@
               "cell": 256.0,
               "combo_rig": "swing_3",
               "sheets": [
-                "art_v12/pants_cuffed_1_swing_3_0.png"
+                "art_v12/pants_cuffed_1_swing_3_0.png",
+                "res://art/dye/pants_cuffed_1_swing_3_0__jade.png",
+                "res://art/dye/pants_cuffed_1_swing_3_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_swing_3_0__earth.png",
+                "res://art/dye/pants_cuffed_1_swing_3_0__ink.png",
+                "res://art/dye/pants_cuffed_1_swing_3_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_swing_3_0__grey.png",
+                "res://art/dye/pants_cuffed_1_swing_3_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_swing_3_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_swing_3_0__rose.png",
+                "res://art/dye/pants_cuffed_1_swing_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_cuffed_1_swing_0.png"
@@ -6515,7 +6645,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_1",
               "sheets": [
-                "art_v12/pants_cuffed_1_thrust_1_0.png"
+                "art_v12/pants_cuffed_1_thrust_1_0.png",
+                "res://art/dye/pants_cuffed_1_thrust_1_0__jade.png",
+                "res://art/dye/pants_cuffed_1_thrust_1_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_thrust_1_0__earth.png",
+                "res://art/dye/pants_cuffed_1_thrust_1_0__ink.png",
+                "res://art/dye/pants_cuffed_1_thrust_1_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_thrust_1_0__grey.png",
+                "res://art/dye/pants_cuffed_1_thrust_1_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_thrust_1_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_thrust_1_0__rose.png",
+                "res://art/dye/pants_cuffed_1_thrust_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_cuffed_1_attack_0.png"
@@ -6526,7 +6666,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_2",
               "sheets": [
-                "art_v12/pants_cuffed_1_thrust_2_0.png"
+                "art_v12/pants_cuffed_1_thrust_2_0.png",
+                "res://art/dye/pants_cuffed_1_thrust_2_0__jade.png",
+                "res://art/dye/pants_cuffed_1_thrust_2_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_thrust_2_0__earth.png",
+                "res://art/dye/pants_cuffed_1_thrust_2_0__ink.png",
+                "res://art/dye/pants_cuffed_1_thrust_2_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_thrust_2_0__grey.png",
+                "res://art/dye/pants_cuffed_1_thrust_2_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_thrust_2_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_thrust_2_0__rose.png",
+                "res://art/dye/pants_cuffed_1_thrust_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_cuffed_1_attack_0.png"
@@ -6537,7 +6687,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_3",
               "sheets": [
-                "art_v12/pants_cuffed_1_thrust_3_0.png"
+                "art_v12/pants_cuffed_1_thrust_3_0.png",
+                "res://art/dye/pants_cuffed_1_thrust_3_0__jade.png",
+                "res://art/dye/pants_cuffed_1_thrust_3_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_thrust_3_0__earth.png",
+                "res://art/dye/pants_cuffed_1_thrust_3_0__ink.png",
+                "res://art/dye/pants_cuffed_1_thrust_3_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_thrust_3_0__grey.png",
+                "res://art/dye/pants_cuffed_1_thrust_3_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_thrust_3_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_thrust_3_0__rose.png",
+                "res://art/dye/pants_cuffed_1_thrust_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_cuffed_1_attack_0.png"
@@ -6548,7 +6708,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_cuffed_1_walk_0.png"
+                "art_v12/pants_cuffed_1_walk_0.png",
+                "res://art/dye/pants_cuffed_1_walk_0__jade.png",
+                "res://art/dye/pants_cuffed_1_walk_0__cloud.png",
+                "res://art/dye/pants_cuffed_1_walk_0__earth.png",
+                "res://art/dye/pants_cuffed_1_walk_0__ink.png",
+                "res://art/dye/pants_cuffed_1_walk_0__crimson.png",
+                "res://art/dye/pants_cuffed_1_walk_0__grey.png",
+                "res://art/dye/pants_cuffed_1_walk_0__indigo.png",
+                "res://art/dye/pants_cuffed_1_walk_0__ochre.png",
+                "res://art/dye/pants_cuffed_1_walk_0__rose.png",
+                "res://art/dye/pants_cuffed_1_walk_0__white.png"
               ],
               "source": "spritesheets/legs/cuffed/male/walk.png",
               "z": 30.0
@@ -6568,7 +6738,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_loose_1_attack_0.png"
+                "art_v12/pants_loose_1_attack_0.png",
+                "res://art/dye/pants_loose_1_attack_0__jade.png",
+                "res://art/dye/pants_loose_1_attack_0__cloud.png",
+                "res://art/dye/pants_loose_1_attack_0__earth.png",
+                "res://art/dye/pants_loose_1_attack_0__ink.png",
+                "res://art/dye/pants_loose_1_attack_0__crimson.png",
+                "res://art/dye/pants_loose_1_attack_0__grey.png",
+                "res://art/dye/pants_loose_1_attack_0__indigo.png",
+                "res://art/dye/pants_loose_1_attack_0__ochre.png",
+                "res://art/dye/pants_loose_1_attack_0__rose.png",
+                "res://art/dye/pants_loose_1_attack_0__white.png"
               ],
               "source": "spritesheets/legs/pantaloons/male/thrust.png",
               "z": 30.0
@@ -6577,7 +6757,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_loose_1_bow_0.png"
+                "art_v12/pants_loose_1_bow_0.png",
+                "res://art/dye/pants_loose_1_bow_0__jade.png",
+                "res://art/dye/pants_loose_1_bow_0__cloud.png",
+                "res://art/dye/pants_loose_1_bow_0__earth.png",
+                "res://art/dye/pants_loose_1_bow_0__ink.png",
+                "res://art/dye/pants_loose_1_bow_0__crimson.png",
+                "res://art/dye/pants_loose_1_bow_0__grey.png",
+                "res://art/dye/pants_loose_1_bow_0__indigo.png",
+                "res://art/dye/pants_loose_1_bow_0__ochre.png",
+                "res://art/dye/pants_loose_1_bow_0__rose.png",
+                "res://art/dye/pants_loose_1_bow_0__white.png"
               ],
               "source": "spritesheets/legs/pantaloons/male/shoot.png",
               "z": 30.0
@@ -6586,7 +6776,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_loose_1_idle_0.png"
+                "art_v12/pants_loose_1_idle_0.png",
+                "res://art/dye/pants_loose_1_idle_0__jade.png",
+                "res://art/dye/pants_loose_1_idle_0__cloud.png",
+                "res://art/dye/pants_loose_1_idle_0__earth.png",
+                "res://art/dye/pants_loose_1_idle_0__ink.png",
+                "res://art/dye/pants_loose_1_idle_0__crimson.png",
+                "res://art/dye/pants_loose_1_idle_0__grey.png",
+                "res://art/dye/pants_loose_1_idle_0__indigo.png",
+                "res://art/dye/pants_loose_1_idle_0__ochre.png",
+                "res://art/dye/pants_loose_1_idle_0__rose.png",
+                "res://art/dye/pants_loose_1_idle_0__white.png"
               ],
               "source": "spritesheets/legs/pantaloons/male/idle.png",
               "z": 30.0
@@ -6595,7 +6795,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_loose_1_jump_0.png"
+                "art_v12/pants_loose_1_jump_0.png",
+                "res://art/dye/pants_loose_1_jump_0__jade.png",
+                "res://art/dye/pants_loose_1_jump_0__cloud.png",
+                "res://art/dye/pants_loose_1_jump_0__earth.png",
+                "res://art/dye/pants_loose_1_jump_0__ink.png",
+                "res://art/dye/pants_loose_1_jump_0__crimson.png",
+                "res://art/dye/pants_loose_1_jump_0__grey.png",
+                "res://art/dye/pants_loose_1_jump_0__indigo.png",
+                "res://art/dye/pants_loose_1_jump_0__ochre.png",
+                "res://art/dye/pants_loose_1_jump_0__rose.png",
+                "res://art/dye/pants_loose_1_jump_0__white.png"
               ],
               "source": "spritesheets/legs/pantaloons/male/jump.png",
               "z": 30.0
@@ -6604,7 +6814,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/pants_loose_1_meditate_0.png"
+                "art_v12/pants_loose_1_meditate_0.png",
+                "res://art/dye/pants_loose_1_meditate_0__jade.png",
+                "res://art/dye/pants_loose_1_meditate_0__cloud.png",
+                "res://art/dye/pants_loose_1_meditate_0__earth.png",
+                "res://art/dye/pants_loose_1_meditate_0__ink.png",
+                "res://art/dye/pants_loose_1_meditate_0__crimson.png",
+                "res://art/dye/pants_loose_1_meditate_0__grey.png",
+                "res://art/dye/pants_loose_1_meditate_0__indigo.png",
+                "res://art/dye/pants_loose_1_meditate_0__ochre.png",
+                "res://art/dye/pants_loose_1_meditate_0__rose.png",
+                "res://art/dye/pants_loose_1_meditate_0__white.png"
               ],
               "source": "spritesheets/legs/pantaloons/male/idle.png",
               "z": 30.0
@@ -6613,7 +6833,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/pants_loose_1_punch_0.png"
+                "art_v12/pants_loose_1_punch_0.png",
+                "res://art/dye/pants_loose_1_punch_0__jade.png",
+                "res://art/dye/pants_loose_1_punch_0__cloud.png",
+                "res://art/dye/pants_loose_1_punch_0__earth.png",
+                "res://art/dye/pants_loose_1_punch_0__ink.png",
+                "res://art/dye/pants_loose_1_punch_0__crimson.png",
+                "res://art/dye/pants_loose_1_punch_0__grey.png",
+                "res://art/dye/pants_loose_1_punch_0__indigo.png",
+                "res://art/dye/pants_loose_1_punch_0__ochre.png",
+                "res://art/dye/pants_loose_1_punch_0__rose.png",
+                "res://art/dye/pants_loose_1_punch_0__white.png"
               ],
               "source": "spritesheets/legs/pantaloons/male/idle.png",
               "z": 30.0
@@ -6622,7 +6852,17 @@
               "cell": 256.0,
               "combo_rig": "punch_1",
               "sheets": [
-                "art_v12/pants_loose_1_punch_1_0.png"
+                "art_v12/pants_loose_1_punch_1_0.png",
+                "res://art/dye/pants_loose_1_punch_1_0__jade.png",
+                "res://art/dye/pants_loose_1_punch_1_0__cloud.png",
+                "res://art/dye/pants_loose_1_punch_1_0__earth.png",
+                "res://art/dye/pants_loose_1_punch_1_0__ink.png",
+                "res://art/dye/pants_loose_1_punch_1_0__crimson.png",
+                "res://art/dye/pants_loose_1_punch_1_0__grey.png",
+                "res://art/dye/pants_loose_1_punch_1_0__indigo.png",
+                "res://art/dye/pants_loose_1_punch_1_0__ochre.png",
+                "res://art/dye/pants_loose_1_punch_1_0__rose.png",
+                "res://art/dye/pants_loose_1_punch_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_loose_1_punch_0.png"
@@ -6633,7 +6873,17 @@
               "cell": 256.0,
               "combo_rig": "punch_2",
               "sheets": [
-                "art_v12/pants_loose_1_punch_2_0.png"
+                "art_v12/pants_loose_1_punch_2_0.png",
+                "res://art/dye/pants_loose_1_punch_2_0__jade.png",
+                "res://art/dye/pants_loose_1_punch_2_0__cloud.png",
+                "res://art/dye/pants_loose_1_punch_2_0__earth.png",
+                "res://art/dye/pants_loose_1_punch_2_0__ink.png",
+                "res://art/dye/pants_loose_1_punch_2_0__crimson.png",
+                "res://art/dye/pants_loose_1_punch_2_0__grey.png",
+                "res://art/dye/pants_loose_1_punch_2_0__indigo.png",
+                "res://art/dye/pants_loose_1_punch_2_0__ochre.png",
+                "res://art/dye/pants_loose_1_punch_2_0__rose.png",
+                "res://art/dye/pants_loose_1_punch_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_loose_1_punch_0.png"
@@ -6644,7 +6894,17 @@
               "cell": 256.0,
               "combo_rig": "punch_3",
               "sheets": [
-                "art_v12/pants_loose_1_punch_3_0.png"
+                "art_v12/pants_loose_1_punch_3_0.png",
+                "res://art/dye/pants_loose_1_punch_3_0__jade.png",
+                "res://art/dye/pants_loose_1_punch_3_0__cloud.png",
+                "res://art/dye/pants_loose_1_punch_3_0__earth.png",
+                "res://art/dye/pants_loose_1_punch_3_0__ink.png",
+                "res://art/dye/pants_loose_1_punch_3_0__crimson.png",
+                "res://art/dye/pants_loose_1_punch_3_0__grey.png",
+                "res://art/dye/pants_loose_1_punch_3_0__indigo.png",
+                "res://art/dye/pants_loose_1_punch_3_0__ochre.png",
+                "res://art/dye/pants_loose_1_punch_3_0__rose.png",
+                "res://art/dye/pants_loose_1_punch_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_loose_1_punch_0.png"
@@ -6655,7 +6915,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_loose_1_swing_0.png"
+                "art_v12/pants_loose_1_swing_0.png",
+                "res://art/dye/pants_loose_1_swing_0__jade.png",
+                "res://art/dye/pants_loose_1_swing_0__cloud.png",
+                "res://art/dye/pants_loose_1_swing_0__earth.png",
+                "res://art/dye/pants_loose_1_swing_0__ink.png",
+                "res://art/dye/pants_loose_1_swing_0__crimson.png",
+                "res://art/dye/pants_loose_1_swing_0__grey.png",
+                "res://art/dye/pants_loose_1_swing_0__indigo.png",
+                "res://art/dye/pants_loose_1_swing_0__ochre.png",
+                "res://art/dye/pants_loose_1_swing_0__rose.png",
+                "res://art/dye/pants_loose_1_swing_0__white.png"
               ],
               "source": "spritesheets/legs/pantaloons/male/slash.png",
               "z": 30.0
@@ -6664,7 +6934,17 @@
               "cell": 256.0,
               "combo_rig": "swing_1",
               "sheets": [
-                "art_v12/pants_loose_1_swing_1_0.png"
+                "art_v12/pants_loose_1_swing_1_0.png",
+                "res://art/dye/pants_loose_1_swing_1_0__jade.png",
+                "res://art/dye/pants_loose_1_swing_1_0__cloud.png",
+                "res://art/dye/pants_loose_1_swing_1_0__earth.png",
+                "res://art/dye/pants_loose_1_swing_1_0__ink.png",
+                "res://art/dye/pants_loose_1_swing_1_0__crimson.png",
+                "res://art/dye/pants_loose_1_swing_1_0__grey.png",
+                "res://art/dye/pants_loose_1_swing_1_0__indigo.png",
+                "res://art/dye/pants_loose_1_swing_1_0__ochre.png",
+                "res://art/dye/pants_loose_1_swing_1_0__rose.png",
+                "res://art/dye/pants_loose_1_swing_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_loose_1_swing_0.png"
@@ -6675,7 +6955,17 @@
               "cell": 256.0,
               "combo_rig": "swing_2",
               "sheets": [
-                "art_v12/pants_loose_1_swing_2_0.png"
+                "art_v12/pants_loose_1_swing_2_0.png",
+                "res://art/dye/pants_loose_1_swing_2_0__jade.png",
+                "res://art/dye/pants_loose_1_swing_2_0__cloud.png",
+                "res://art/dye/pants_loose_1_swing_2_0__earth.png",
+                "res://art/dye/pants_loose_1_swing_2_0__ink.png",
+                "res://art/dye/pants_loose_1_swing_2_0__crimson.png",
+                "res://art/dye/pants_loose_1_swing_2_0__grey.png",
+                "res://art/dye/pants_loose_1_swing_2_0__indigo.png",
+                "res://art/dye/pants_loose_1_swing_2_0__ochre.png",
+                "res://art/dye/pants_loose_1_swing_2_0__rose.png",
+                "res://art/dye/pants_loose_1_swing_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_loose_1_swing_0.png"
@@ -6686,7 +6976,17 @@
               "cell": 256.0,
               "combo_rig": "swing_3",
               "sheets": [
-                "art_v12/pants_loose_1_swing_3_0.png"
+                "art_v12/pants_loose_1_swing_3_0.png",
+                "res://art/dye/pants_loose_1_swing_3_0__jade.png",
+                "res://art/dye/pants_loose_1_swing_3_0__cloud.png",
+                "res://art/dye/pants_loose_1_swing_3_0__earth.png",
+                "res://art/dye/pants_loose_1_swing_3_0__ink.png",
+                "res://art/dye/pants_loose_1_swing_3_0__crimson.png",
+                "res://art/dye/pants_loose_1_swing_3_0__grey.png",
+                "res://art/dye/pants_loose_1_swing_3_0__indigo.png",
+                "res://art/dye/pants_loose_1_swing_3_0__ochre.png",
+                "res://art/dye/pants_loose_1_swing_3_0__rose.png",
+                "res://art/dye/pants_loose_1_swing_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_loose_1_swing_0.png"
@@ -6697,7 +6997,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_1",
               "sheets": [
-                "art_v12/pants_loose_1_thrust_1_0.png"
+                "art_v12/pants_loose_1_thrust_1_0.png",
+                "res://art/dye/pants_loose_1_thrust_1_0__jade.png",
+                "res://art/dye/pants_loose_1_thrust_1_0__cloud.png",
+                "res://art/dye/pants_loose_1_thrust_1_0__earth.png",
+                "res://art/dye/pants_loose_1_thrust_1_0__ink.png",
+                "res://art/dye/pants_loose_1_thrust_1_0__crimson.png",
+                "res://art/dye/pants_loose_1_thrust_1_0__grey.png",
+                "res://art/dye/pants_loose_1_thrust_1_0__indigo.png",
+                "res://art/dye/pants_loose_1_thrust_1_0__ochre.png",
+                "res://art/dye/pants_loose_1_thrust_1_0__rose.png",
+                "res://art/dye/pants_loose_1_thrust_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_loose_1_attack_0.png"
@@ -6708,7 +7018,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_2",
               "sheets": [
-                "art_v12/pants_loose_1_thrust_2_0.png"
+                "art_v12/pants_loose_1_thrust_2_0.png",
+                "res://art/dye/pants_loose_1_thrust_2_0__jade.png",
+                "res://art/dye/pants_loose_1_thrust_2_0__cloud.png",
+                "res://art/dye/pants_loose_1_thrust_2_0__earth.png",
+                "res://art/dye/pants_loose_1_thrust_2_0__ink.png",
+                "res://art/dye/pants_loose_1_thrust_2_0__crimson.png",
+                "res://art/dye/pants_loose_1_thrust_2_0__grey.png",
+                "res://art/dye/pants_loose_1_thrust_2_0__indigo.png",
+                "res://art/dye/pants_loose_1_thrust_2_0__ochre.png",
+                "res://art/dye/pants_loose_1_thrust_2_0__rose.png",
+                "res://art/dye/pants_loose_1_thrust_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_loose_1_attack_0.png"
@@ -6719,7 +7039,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_3",
               "sheets": [
-                "art_v12/pants_loose_1_thrust_3_0.png"
+                "art_v12/pants_loose_1_thrust_3_0.png",
+                "res://art/dye/pants_loose_1_thrust_3_0__jade.png",
+                "res://art/dye/pants_loose_1_thrust_3_0__cloud.png",
+                "res://art/dye/pants_loose_1_thrust_3_0__earth.png",
+                "res://art/dye/pants_loose_1_thrust_3_0__ink.png",
+                "res://art/dye/pants_loose_1_thrust_3_0__crimson.png",
+                "res://art/dye/pants_loose_1_thrust_3_0__grey.png",
+                "res://art/dye/pants_loose_1_thrust_3_0__indigo.png",
+                "res://art/dye/pants_loose_1_thrust_3_0__ochre.png",
+                "res://art/dye/pants_loose_1_thrust_3_0__rose.png",
+                "res://art/dye/pants_loose_1_thrust_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_loose_1_attack_0.png"
@@ -6730,7 +7060,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_loose_1_walk_0.png"
+                "art_v12/pants_loose_1_walk_0.png",
+                "res://art/dye/pants_loose_1_walk_0__jade.png",
+                "res://art/dye/pants_loose_1_walk_0__cloud.png",
+                "res://art/dye/pants_loose_1_walk_0__earth.png",
+                "res://art/dye/pants_loose_1_walk_0__ink.png",
+                "res://art/dye/pants_loose_1_walk_0__crimson.png",
+                "res://art/dye/pants_loose_1_walk_0__grey.png",
+                "res://art/dye/pants_loose_1_walk_0__indigo.png",
+                "res://art/dye/pants_loose_1_walk_0__ochre.png",
+                "res://art/dye/pants_loose_1_walk_0__rose.png",
+                "res://art/dye/pants_loose_1_walk_0__white.png"
               ],
               "source": "spritesheets/legs/pantaloons/male/walk.png",
               "z": 30.0
@@ -6750,7 +7090,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_martial_1_attack_4.png"
+                "art_v12/pants_martial_1_attack_4.png",
+                "res://art/dye/pants_martial_1_attack_4__jade.png",
+                "res://art/dye/pants_martial_1_attack_4__cloud.png",
+                "res://art/dye/pants_martial_1_attack_4__earth.png",
+                "res://art/dye/pants_martial_1_attack_4__ink.png",
+                "res://art/dye/pants_martial_1_attack_4__crimson.png",
+                "res://art/dye/pants_martial_1_attack_4__grey.png",
+                "res://art/dye/pants_martial_1_attack_4__indigo.png",
+                "res://art/dye/pants_martial_1_attack_4__ochre.png",
+                "res://art/dye/pants_martial_1_attack_4__rose.png",
+                "res://art/dye/pants_martial_1_attack_4__white.png"
               ],
               "source": "spritesheets/legs/pants2/male/thrust.png",
               "z": 30.0
@@ -6759,7 +7109,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_martial_1_bow_4.png"
+                "art_v12/pants_martial_1_bow_4.png",
+                "res://art/dye/pants_martial_1_bow_4__jade.png",
+                "res://art/dye/pants_martial_1_bow_4__cloud.png",
+                "res://art/dye/pants_martial_1_bow_4__earth.png",
+                "res://art/dye/pants_martial_1_bow_4__ink.png",
+                "res://art/dye/pants_martial_1_bow_4__crimson.png",
+                "res://art/dye/pants_martial_1_bow_4__grey.png",
+                "res://art/dye/pants_martial_1_bow_4__indigo.png",
+                "res://art/dye/pants_martial_1_bow_4__ochre.png",
+                "res://art/dye/pants_martial_1_bow_4__rose.png",
+                "res://art/dye/pants_martial_1_bow_4__white.png"
               ],
               "source": "spritesheets/legs/pants2/male/shoot.png",
               "z": 30.0
@@ -6768,7 +7128,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_martial_1_idle_4.png"
+                "art_v12/pants_martial_1_idle_4.png",
+                "res://art/dye/pants_martial_1_idle_4__jade.png",
+                "res://art/dye/pants_martial_1_idle_4__cloud.png",
+                "res://art/dye/pants_martial_1_idle_4__earth.png",
+                "res://art/dye/pants_martial_1_idle_4__ink.png",
+                "res://art/dye/pants_martial_1_idle_4__crimson.png",
+                "res://art/dye/pants_martial_1_idle_4__grey.png",
+                "res://art/dye/pants_martial_1_idle_4__indigo.png",
+                "res://art/dye/pants_martial_1_idle_4__ochre.png",
+                "res://art/dye/pants_martial_1_idle_4__rose.png",
+                "res://art/dye/pants_martial_1_idle_4__white.png"
               ],
               "source": "spritesheets/legs/pants2/male/idle.png",
               "z": 30.0
@@ -6777,7 +7147,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_martial_1_jump_4.png"
+                "art_v12/pants_martial_1_jump_4.png",
+                "res://art/dye/pants_martial_1_jump_4__jade.png",
+                "res://art/dye/pants_martial_1_jump_4__cloud.png",
+                "res://art/dye/pants_martial_1_jump_4__earth.png",
+                "res://art/dye/pants_martial_1_jump_4__ink.png",
+                "res://art/dye/pants_martial_1_jump_4__crimson.png",
+                "res://art/dye/pants_martial_1_jump_4__grey.png",
+                "res://art/dye/pants_martial_1_jump_4__indigo.png",
+                "res://art/dye/pants_martial_1_jump_4__ochre.png",
+                "res://art/dye/pants_martial_1_jump_4__rose.png",
+                "res://art/dye/pants_martial_1_jump_4__white.png"
               ],
               "source": "spritesheets/legs/pants2/male/jump.png",
               "z": 30.0
@@ -6786,7 +7166,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/pants_martial_1_meditate_4.png"
+                "art_v12/pants_martial_1_meditate_4.png",
+                "res://art/dye/pants_martial_1_meditate_4__jade.png",
+                "res://art/dye/pants_martial_1_meditate_4__cloud.png",
+                "res://art/dye/pants_martial_1_meditate_4__earth.png",
+                "res://art/dye/pants_martial_1_meditate_4__ink.png",
+                "res://art/dye/pants_martial_1_meditate_4__crimson.png",
+                "res://art/dye/pants_martial_1_meditate_4__grey.png",
+                "res://art/dye/pants_martial_1_meditate_4__indigo.png",
+                "res://art/dye/pants_martial_1_meditate_4__ochre.png",
+                "res://art/dye/pants_martial_1_meditate_4__rose.png",
+                "res://art/dye/pants_martial_1_meditate_4__white.png"
               ],
               "source": "spritesheets/legs/pants2/male/idle.png",
               "z": 30.0
@@ -6795,7 +7185,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/pants_martial_1_punch_4.png"
+                "art_v12/pants_martial_1_punch_4.png",
+                "res://art/dye/pants_martial_1_punch_4__jade.png",
+                "res://art/dye/pants_martial_1_punch_4__cloud.png",
+                "res://art/dye/pants_martial_1_punch_4__earth.png",
+                "res://art/dye/pants_martial_1_punch_4__ink.png",
+                "res://art/dye/pants_martial_1_punch_4__crimson.png",
+                "res://art/dye/pants_martial_1_punch_4__grey.png",
+                "res://art/dye/pants_martial_1_punch_4__indigo.png",
+                "res://art/dye/pants_martial_1_punch_4__ochre.png",
+                "res://art/dye/pants_martial_1_punch_4__rose.png",
+                "res://art/dye/pants_martial_1_punch_4__white.png"
               ],
               "source": "spritesheets/legs/pants2/male/idle.png",
               "z": 30.0
@@ -6804,7 +7204,17 @@
               "cell": 256.0,
               "combo_rig": "punch_1",
               "sheets": [
-                "art_v12/pants_martial_1_punch_1_0.png"
+                "art_v12/pants_martial_1_punch_1_0.png",
+                "res://art/dye/pants_martial_1_punch_1_0__jade.png",
+                "res://art/dye/pants_martial_1_punch_1_0__cloud.png",
+                "res://art/dye/pants_martial_1_punch_1_0__earth.png",
+                "res://art/dye/pants_martial_1_punch_1_0__ink.png",
+                "res://art/dye/pants_martial_1_punch_1_0__crimson.png",
+                "res://art/dye/pants_martial_1_punch_1_0__grey.png",
+                "res://art/dye/pants_martial_1_punch_1_0__indigo.png",
+                "res://art/dye/pants_martial_1_punch_1_0__ochre.png",
+                "res://art/dye/pants_martial_1_punch_1_0__rose.png",
+                "res://art/dye/pants_martial_1_punch_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_martial_1_punch_4.png"
@@ -6815,7 +7225,17 @@
               "cell": 256.0,
               "combo_rig": "punch_2",
               "sheets": [
-                "art_v12/pants_martial_1_punch_2_0.png"
+                "art_v12/pants_martial_1_punch_2_0.png",
+                "res://art/dye/pants_martial_1_punch_2_0__jade.png",
+                "res://art/dye/pants_martial_1_punch_2_0__cloud.png",
+                "res://art/dye/pants_martial_1_punch_2_0__earth.png",
+                "res://art/dye/pants_martial_1_punch_2_0__ink.png",
+                "res://art/dye/pants_martial_1_punch_2_0__crimson.png",
+                "res://art/dye/pants_martial_1_punch_2_0__grey.png",
+                "res://art/dye/pants_martial_1_punch_2_0__indigo.png",
+                "res://art/dye/pants_martial_1_punch_2_0__ochre.png",
+                "res://art/dye/pants_martial_1_punch_2_0__rose.png",
+                "res://art/dye/pants_martial_1_punch_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_martial_1_punch_4.png"
@@ -6826,7 +7246,17 @@
               "cell": 256.0,
               "combo_rig": "punch_3",
               "sheets": [
-                "art_v12/pants_martial_1_punch_3_0.png"
+                "art_v12/pants_martial_1_punch_3_0.png",
+                "res://art/dye/pants_martial_1_punch_3_0__jade.png",
+                "res://art/dye/pants_martial_1_punch_3_0__cloud.png",
+                "res://art/dye/pants_martial_1_punch_3_0__earth.png",
+                "res://art/dye/pants_martial_1_punch_3_0__ink.png",
+                "res://art/dye/pants_martial_1_punch_3_0__crimson.png",
+                "res://art/dye/pants_martial_1_punch_3_0__grey.png",
+                "res://art/dye/pants_martial_1_punch_3_0__indigo.png",
+                "res://art/dye/pants_martial_1_punch_3_0__ochre.png",
+                "res://art/dye/pants_martial_1_punch_3_0__rose.png",
+                "res://art/dye/pants_martial_1_punch_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_martial_1_punch_4.png"
@@ -6837,7 +7267,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_martial_1_swing_4.png"
+                "art_v12/pants_martial_1_swing_4.png",
+                "res://art/dye/pants_martial_1_swing_4__jade.png",
+                "res://art/dye/pants_martial_1_swing_4__cloud.png",
+                "res://art/dye/pants_martial_1_swing_4__earth.png",
+                "res://art/dye/pants_martial_1_swing_4__ink.png",
+                "res://art/dye/pants_martial_1_swing_4__crimson.png",
+                "res://art/dye/pants_martial_1_swing_4__grey.png",
+                "res://art/dye/pants_martial_1_swing_4__indigo.png",
+                "res://art/dye/pants_martial_1_swing_4__ochre.png",
+                "res://art/dye/pants_martial_1_swing_4__rose.png",
+                "res://art/dye/pants_martial_1_swing_4__white.png"
               ],
               "source": "spritesheets/legs/pants2/male/slash.png",
               "z": 30.0
@@ -6846,7 +7286,17 @@
               "cell": 256.0,
               "combo_rig": "swing_1",
               "sheets": [
-                "art_v12/pants_martial_1_swing_1_0.png"
+                "art_v12/pants_martial_1_swing_1_0.png",
+                "res://art/dye/pants_martial_1_swing_1_0__jade.png",
+                "res://art/dye/pants_martial_1_swing_1_0__cloud.png",
+                "res://art/dye/pants_martial_1_swing_1_0__earth.png",
+                "res://art/dye/pants_martial_1_swing_1_0__ink.png",
+                "res://art/dye/pants_martial_1_swing_1_0__crimson.png",
+                "res://art/dye/pants_martial_1_swing_1_0__grey.png",
+                "res://art/dye/pants_martial_1_swing_1_0__indigo.png",
+                "res://art/dye/pants_martial_1_swing_1_0__ochre.png",
+                "res://art/dye/pants_martial_1_swing_1_0__rose.png",
+                "res://art/dye/pants_martial_1_swing_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_martial_1_swing_4.png"
@@ -6857,7 +7307,17 @@
               "cell": 256.0,
               "combo_rig": "swing_2",
               "sheets": [
-                "art_v12/pants_martial_1_swing_2_0.png"
+                "art_v12/pants_martial_1_swing_2_0.png",
+                "res://art/dye/pants_martial_1_swing_2_0__jade.png",
+                "res://art/dye/pants_martial_1_swing_2_0__cloud.png",
+                "res://art/dye/pants_martial_1_swing_2_0__earth.png",
+                "res://art/dye/pants_martial_1_swing_2_0__ink.png",
+                "res://art/dye/pants_martial_1_swing_2_0__crimson.png",
+                "res://art/dye/pants_martial_1_swing_2_0__grey.png",
+                "res://art/dye/pants_martial_1_swing_2_0__indigo.png",
+                "res://art/dye/pants_martial_1_swing_2_0__ochre.png",
+                "res://art/dye/pants_martial_1_swing_2_0__rose.png",
+                "res://art/dye/pants_martial_1_swing_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_martial_1_swing_4.png"
@@ -6868,7 +7328,17 @@
               "cell": 256.0,
               "combo_rig": "swing_3",
               "sheets": [
-                "art_v12/pants_martial_1_swing_3_0.png"
+                "art_v12/pants_martial_1_swing_3_0.png",
+                "res://art/dye/pants_martial_1_swing_3_0__jade.png",
+                "res://art/dye/pants_martial_1_swing_3_0__cloud.png",
+                "res://art/dye/pants_martial_1_swing_3_0__earth.png",
+                "res://art/dye/pants_martial_1_swing_3_0__ink.png",
+                "res://art/dye/pants_martial_1_swing_3_0__crimson.png",
+                "res://art/dye/pants_martial_1_swing_3_0__grey.png",
+                "res://art/dye/pants_martial_1_swing_3_0__indigo.png",
+                "res://art/dye/pants_martial_1_swing_3_0__ochre.png",
+                "res://art/dye/pants_martial_1_swing_3_0__rose.png",
+                "res://art/dye/pants_martial_1_swing_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_martial_1_swing_4.png"
@@ -6879,7 +7349,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_1",
               "sheets": [
-                "art_v12/pants_martial_1_thrust_1_0.png"
+                "art_v12/pants_martial_1_thrust_1_0.png",
+                "res://art/dye/pants_martial_1_thrust_1_0__jade.png",
+                "res://art/dye/pants_martial_1_thrust_1_0__cloud.png",
+                "res://art/dye/pants_martial_1_thrust_1_0__earth.png",
+                "res://art/dye/pants_martial_1_thrust_1_0__ink.png",
+                "res://art/dye/pants_martial_1_thrust_1_0__crimson.png",
+                "res://art/dye/pants_martial_1_thrust_1_0__grey.png",
+                "res://art/dye/pants_martial_1_thrust_1_0__indigo.png",
+                "res://art/dye/pants_martial_1_thrust_1_0__ochre.png",
+                "res://art/dye/pants_martial_1_thrust_1_0__rose.png",
+                "res://art/dye/pants_martial_1_thrust_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_martial_1_attack_4.png"
@@ -6890,7 +7370,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_2",
               "sheets": [
-                "art_v12/pants_martial_1_thrust_2_0.png"
+                "art_v12/pants_martial_1_thrust_2_0.png",
+                "res://art/dye/pants_martial_1_thrust_2_0__jade.png",
+                "res://art/dye/pants_martial_1_thrust_2_0__cloud.png",
+                "res://art/dye/pants_martial_1_thrust_2_0__earth.png",
+                "res://art/dye/pants_martial_1_thrust_2_0__ink.png",
+                "res://art/dye/pants_martial_1_thrust_2_0__crimson.png",
+                "res://art/dye/pants_martial_1_thrust_2_0__grey.png",
+                "res://art/dye/pants_martial_1_thrust_2_0__indigo.png",
+                "res://art/dye/pants_martial_1_thrust_2_0__ochre.png",
+                "res://art/dye/pants_martial_1_thrust_2_0__rose.png",
+                "res://art/dye/pants_martial_1_thrust_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_martial_1_attack_4.png"
@@ -6901,7 +7391,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_3",
               "sheets": [
-                "art_v12/pants_martial_1_thrust_3_0.png"
+                "art_v12/pants_martial_1_thrust_3_0.png",
+                "res://art/dye/pants_martial_1_thrust_3_0__jade.png",
+                "res://art/dye/pants_martial_1_thrust_3_0__cloud.png",
+                "res://art/dye/pants_martial_1_thrust_3_0__earth.png",
+                "res://art/dye/pants_martial_1_thrust_3_0__ink.png",
+                "res://art/dye/pants_martial_1_thrust_3_0__crimson.png",
+                "res://art/dye/pants_martial_1_thrust_3_0__grey.png",
+                "res://art/dye/pants_martial_1_thrust_3_0__indigo.png",
+                "res://art/dye/pants_martial_1_thrust_3_0__ochre.png",
+                "res://art/dye/pants_martial_1_thrust_3_0__rose.png",
+                "res://art/dye/pants_martial_1_thrust_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_martial_1_attack_4.png"
@@ -6912,7 +7412,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_martial_1_walk_4.png"
+                "art_v12/pants_martial_1_walk_4.png",
+                "res://art/dye/pants_martial_1_walk_4__jade.png",
+                "res://art/dye/pants_martial_1_walk_4__cloud.png",
+                "res://art/dye/pants_martial_1_walk_4__earth.png",
+                "res://art/dye/pants_martial_1_walk_4__ink.png",
+                "res://art/dye/pants_martial_1_walk_4__crimson.png",
+                "res://art/dye/pants_martial_1_walk_4__grey.png",
+                "res://art/dye/pants_martial_1_walk_4__indigo.png",
+                "res://art/dye/pants_martial_1_walk_4__ochre.png",
+                "res://art/dye/pants_martial_1_walk_4__rose.png",
+                "res://art/dye/pants_martial_1_walk_4__white.png"
               ],
               "source": "spritesheets/legs/pants2/male/walk.png",
               "z": 30.0
@@ -6932,7 +7442,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_scholar_1_attack_1.png"
+                "art_v12/pants_scholar_1_attack_1.png",
+                "res://art/dye/pants_scholar_1_attack_1__jade.png",
+                "res://art/dye/pants_scholar_1_attack_1__cloud.png",
+                "res://art/dye/pants_scholar_1_attack_1__earth.png",
+                "res://art/dye/pants_scholar_1_attack_1__ink.png",
+                "res://art/dye/pants_scholar_1_attack_1__crimson.png",
+                "res://art/dye/pants_scholar_1_attack_1__grey.png",
+                "res://art/dye/pants_scholar_1_attack_1__indigo.png",
+                "res://art/dye/pants_scholar_1_attack_1__ochre.png",
+                "res://art/dye/pants_scholar_1_attack_1__rose.png",
+                "res://art/dye/pants_scholar_1_attack_1__white.png"
               ],
               "source": "spritesheets/legs/formal/male/thrust.png",
               "z": 30.0
@@ -6941,7 +7461,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_scholar_1_bow_1.png"
+                "art_v12/pants_scholar_1_bow_1.png",
+                "res://art/dye/pants_scholar_1_bow_1__jade.png",
+                "res://art/dye/pants_scholar_1_bow_1__cloud.png",
+                "res://art/dye/pants_scholar_1_bow_1__earth.png",
+                "res://art/dye/pants_scholar_1_bow_1__ink.png",
+                "res://art/dye/pants_scholar_1_bow_1__crimson.png",
+                "res://art/dye/pants_scholar_1_bow_1__grey.png",
+                "res://art/dye/pants_scholar_1_bow_1__indigo.png",
+                "res://art/dye/pants_scholar_1_bow_1__ochre.png",
+                "res://art/dye/pants_scholar_1_bow_1__rose.png",
+                "res://art/dye/pants_scholar_1_bow_1__white.png"
               ],
               "source": "spritesheets/legs/formal/male/shoot.png",
               "z": 30.0
@@ -6950,7 +7480,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_scholar_1_idle_1.png"
+                "art_v12/pants_scholar_1_idle_1.png",
+                "res://art/dye/pants_scholar_1_idle_1__jade.png",
+                "res://art/dye/pants_scholar_1_idle_1__cloud.png",
+                "res://art/dye/pants_scholar_1_idle_1__earth.png",
+                "res://art/dye/pants_scholar_1_idle_1__ink.png",
+                "res://art/dye/pants_scholar_1_idle_1__crimson.png",
+                "res://art/dye/pants_scholar_1_idle_1__grey.png",
+                "res://art/dye/pants_scholar_1_idle_1__indigo.png",
+                "res://art/dye/pants_scholar_1_idle_1__ochre.png",
+                "res://art/dye/pants_scholar_1_idle_1__rose.png",
+                "res://art/dye/pants_scholar_1_idle_1__white.png"
               ],
               "source": "spritesheets/legs/formal/male/idle.png",
               "z": 30.0
@@ -6959,7 +7499,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_scholar_1_jump_1.png"
+                "art_v12/pants_scholar_1_jump_1.png",
+                "res://art/dye/pants_scholar_1_jump_1__jade.png",
+                "res://art/dye/pants_scholar_1_jump_1__cloud.png",
+                "res://art/dye/pants_scholar_1_jump_1__earth.png",
+                "res://art/dye/pants_scholar_1_jump_1__ink.png",
+                "res://art/dye/pants_scholar_1_jump_1__crimson.png",
+                "res://art/dye/pants_scholar_1_jump_1__grey.png",
+                "res://art/dye/pants_scholar_1_jump_1__indigo.png",
+                "res://art/dye/pants_scholar_1_jump_1__ochre.png",
+                "res://art/dye/pants_scholar_1_jump_1__rose.png",
+                "res://art/dye/pants_scholar_1_jump_1__white.png"
               ],
               "source": "spritesheets/legs/formal/male/jump.png",
               "z": 30.0
@@ -6968,7 +7518,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/pants_scholar_1_meditate_1.png"
+                "art_v12/pants_scholar_1_meditate_1.png",
+                "res://art/dye/pants_scholar_1_meditate_1__jade.png",
+                "res://art/dye/pants_scholar_1_meditate_1__cloud.png",
+                "res://art/dye/pants_scholar_1_meditate_1__earth.png",
+                "res://art/dye/pants_scholar_1_meditate_1__ink.png",
+                "res://art/dye/pants_scholar_1_meditate_1__crimson.png",
+                "res://art/dye/pants_scholar_1_meditate_1__grey.png",
+                "res://art/dye/pants_scholar_1_meditate_1__indigo.png",
+                "res://art/dye/pants_scholar_1_meditate_1__ochre.png",
+                "res://art/dye/pants_scholar_1_meditate_1__rose.png",
+                "res://art/dye/pants_scholar_1_meditate_1__white.png"
               ],
               "source": "spritesheets/legs/formal/male/idle.png",
               "z": 30.0
@@ -6977,7 +7537,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/pants_scholar_1_punch_1.png"
+                "art_v12/pants_scholar_1_punch_1.png",
+                "res://art/dye/pants_scholar_1_punch_1__jade.png",
+                "res://art/dye/pants_scholar_1_punch_1__cloud.png",
+                "res://art/dye/pants_scholar_1_punch_1__earth.png",
+                "res://art/dye/pants_scholar_1_punch_1__ink.png",
+                "res://art/dye/pants_scholar_1_punch_1__crimson.png",
+                "res://art/dye/pants_scholar_1_punch_1__grey.png",
+                "res://art/dye/pants_scholar_1_punch_1__indigo.png",
+                "res://art/dye/pants_scholar_1_punch_1__ochre.png",
+                "res://art/dye/pants_scholar_1_punch_1__rose.png",
+                "res://art/dye/pants_scholar_1_punch_1__white.png"
               ],
               "source": "spritesheets/legs/formal/male/idle.png",
               "z": 30.0
@@ -6986,7 +7556,17 @@
               "cell": 256.0,
               "combo_rig": "punch_1",
               "sheets": [
-                "art_v12/pants_scholar_1_punch_1_0.png"
+                "art_v12/pants_scholar_1_punch_1_0.png",
+                "res://art/dye/pants_scholar_1_punch_1_0__jade.png",
+                "res://art/dye/pants_scholar_1_punch_1_0__cloud.png",
+                "res://art/dye/pants_scholar_1_punch_1_0__earth.png",
+                "res://art/dye/pants_scholar_1_punch_1_0__ink.png",
+                "res://art/dye/pants_scholar_1_punch_1_0__crimson.png",
+                "res://art/dye/pants_scholar_1_punch_1_0__grey.png",
+                "res://art/dye/pants_scholar_1_punch_1_0__indigo.png",
+                "res://art/dye/pants_scholar_1_punch_1_0__ochre.png",
+                "res://art/dye/pants_scholar_1_punch_1_0__rose.png",
+                "res://art/dye/pants_scholar_1_punch_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_scholar_1_punch_1.png"
@@ -6997,7 +7577,17 @@
               "cell": 256.0,
               "combo_rig": "punch_2",
               "sheets": [
-                "art_v12/pants_scholar_1_punch_2_0.png"
+                "art_v12/pants_scholar_1_punch_2_0.png",
+                "res://art/dye/pants_scholar_1_punch_2_0__jade.png",
+                "res://art/dye/pants_scholar_1_punch_2_0__cloud.png",
+                "res://art/dye/pants_scholar_1_punch_2_0__earth.png",
+                "res://art/dye/pants_scholar_1_punch_2_0__ink.png",
+                "res://art/dye/pants_scholar_1_punch_2_0__crimson.png",
+                "res://art/dye/pants_scholar_1_punch_2_0__grey.png",
+                "res://art/dye/pants_scholar_1_punch_2_0__indigo.png",
+                "res://art/dye/pants_scholar_1_punch_2_0__ochre.png",
+                "res://art/dye/pants_scholar_1_punch_2_0__rose.png",
+                "res://art/dye/pants_scholar_1_punch_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_scholar_1_punch_1.png"
@@ -7008,7 +7598,17 @@
               "cell": 256.0,
               "combo_rig": "punch_3",
               "sheets": [
-                "art_v12/pants_scholar_1_punch_3_0.png"
+                "art_v12/pants_scholar_1_punch_3_0.png",
+                "res://art/dye/pants_scholar_1_punch_3_0__jade.png",
+                "res://art/dye/pants_scholar_1_punch_3_0__cloud.png",
+                "res://art/dye/pants_scholar_1_punch_3_0__earth.png",
+                "res://art/dye/pants_scholar_1_punch_3_0__ink.png",
+                "res://art/dye/pants_scholar_1_punch_3_0__crimson.png",
+                "res://art/dye/pants_scholar_1_punch_3_0__grey.png",
+                "res://art/dye/pants_scholar_1_punch_3_0__indigo.png",
+                "res://art/dye/pants_scholar_1_punch_3_0__ochre.png",
+                "res://art/dye/pants_scholar_1_punch_3_0__rose.png",
+                "res://art/dye/pants_scholar_1_punch_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_scholar_1_punch_1.png"
@@ -7019,7 +7619,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_scholar_1_swing_1.png"
+                "art_v12/pants_scholar_1_swing_1.png",
+                "res://art/dye/pants_scholar_1_swing_1__jade.png",
+                "res://art/dye/pants_scholar_1_swing_1__cloud.png",
+                "res://art/dye/pants_scholar_1_swing_1__earth.png",
+                "res://art/dye/pants_scholar_1_swing_1__ink.png",
+                "res://art/dye/pants_scholar_1_swing_1__crimson.png",
+                "res://art/dye/pants_scholar_1_swing_1__grey.png",
+                "res://art/dye/pants_scholar_1_swing_1__indigo.png",
+                "res://art/dye/pants_scholar_1_swing_1__ochre.png",
+                "res://art/dye/pants_scholar_1_swing_1__rose.png",
+                "res://art/dye/pants_scholar_1_swing_1__white.png"
               ],
               "source": "spritesheets/legs/formal/male/slash.png",
               "z": 30.0
@@ -7028,7 +7638,17 @@
               "cell": 256.0,
               "combo_rig": "swing_1",
               "sheets": [
-                "art_v12/pants_scholar_1_swing_1_0.png"
+                "art_v12/pants_scholar_1_swing_1_0.png",
+                "res://art/dye/pants_scholar_1_swing_1_0__jade.png",
+                "res://art/dye/pants_scholar_1_swing_1_0__cloud.png",
+                "res://art/dye/pants_scholar_1_swing_1_0__earth.png",
+                "res://art/dye/pants_scholar_1_swing_1_0__ink.png",
+                "res://art/dye/pants_scholar_1_swing_1_0__crimson.png",
+                "res://art/dye/pants_scholar_1_swing_1_0__grey.png",
+                "res://art/dye/pants_scholar_1_swing_1_0__indigo.png",
+                "res://art/dye/pants_scholar_1_swing_1_0__ochre.png",
+                "res://art/dye/pants_scholar_1_swing_1_0__rose.png",
+                "res://art/dye/pants_scholar_1_swing_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_scholar_1_swing_1.png"
@@ -7039,7 +7659,17 @@
               "cell": 256.0,
               "combo_rig": "swing_2",
               "sheets": [
-                "art_v12/pants_scholar_1_swing_2_0.png"
+                "art_v12/pants_scholar_1_swing_2_0.png",
+                "res://art/dye/pants_scholar_1_swing_2_0__jade.png",
+                "res://art/dye/pants_scholar_1_swing_2_0__cloud.png",
+                "res://art/dye/pants_scholar_1_swing_2_0__earth.png",
+                "res://art/dye/pants_scholar_1_swing_2_0__ink.png",
+                "res://art/dye/pants_scholar_1_swing_2_0__crimson.png",
+                "res://art/dye/pants_scholar_1_swing_2_0__grey.png",
+                "res://art/dye/pants_scholar_1_swing_2_0__indigo.png",
+                "res://art/dye/pants_scholar_1_swing_2_0__ochre.png",
+                "res://art/dye/pants_scholar_1_swing_2_0__rose.png",
+                "res://art/dye/pants_scholar_1_swing_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_scholar_1_swing_1.png"
@@ -7050,7 +7680,17 @@
               "cell": 256.0,
               "combo_rig": "swing_3",
               "sheets": [
-                "art_v12/pants_scholar_1_swing_3_0.png"
+                "art_v12/pants_scholar_1_swing_3_0.png",
+                "res://art/dye/pants_scholar_1_swing_3_0__jade.png",
+                "res://art/dye/pants_scholar_1_swing_3_0__cloud.png",
+                "res://art/dye/pants_scholar_1_swing_3_0__earth.png",
+                "res://art/dye/pants_scholar_1_swing_3_0__ink.png",
+                "res://art/dye/pants_scholar_1_swing_3_0__crimson.png",
+                "res://art/dye/pants_scholar_1_swing_3_0__grey.png",
+                "res://art/dye/pants_scholar_1_swing_3_0__indigo.png",
+                "res://art/dye/pants_scholar_1_swing_3_0__ochre.png",
+                "res://art/dye/pants_scholar_1_swing_3_0__rose.png",
+                "res://art/dye/pants_scholar_1_swing_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_scholar_1_swing_1.png"
@@ -7061,7 +7701,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_1",
               "sheets": [
-                "art_v12/pants_scholar_1_thrust_1_0.png"
+                "art_v12/pants_scholar_1_thrust_1_0.png",
+                "res://art/dye/pants_scholar_1_thrust_1_0__jade.png",
+                "res://art/dye/pants_scholar_1_thrust_1_0__cloud.png",
+                "res://art/dye/pants_scholar_1_thrust_1_0__earth.png",
+                "res://art/dye/pants_scholar_1_thrust_1_0__ink.png",
+                "res://art/dye/pants_scholar_1_thrust_1_0__crimson.png",
+                "res://art/dye/pants_scholar_1_thrust_1_0__grey.png",
+                "res://art/dye/pants_scholar_1_thrust_1_0__indigo.png",
+                "res://art/dye/pants_scholar_1_thrust_1_0__ochre.png",
+                "res://art/dye/pants_scholar_1_thrust_1_0__rose.png",
+                "res://art/dye/pants_scholar_1_thrust_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_scholar_1_attack_1.png"
@@ -7072,7 +7722,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_2",
               "sheets": [
-                "art_v12/pants_scholar_1_thrust_2_0.png"
+                "art_v12/pants_scholar_1_thrust_2_0.png",
+                "res://art/dye/pants_scholar_1_thrust_2_0__jade.png",
+                "res://art/dye/pants_scholar_1_thrust_2_0__cloud.png",
+                "res://art/dye/pants_scholar_1_thrust_2_0__earth.png",
+                "res://art/dye/pants_scholar_1_thrust_2_0__ink.png",
+                "res://art/dye/pants_scholar_1_thrust_2_0__crimson.png",
+                "res://art/dye/pants_scholar_1_thrust_2_0__grey.png",
+                "res://art/dye/pants_scholar_1_thrust_2_0__indigo.png",
+                "res://art/dye/pants_scholar_1_thrust_2_0__ochre.png",
+                "res://art/dye/pants_scholar_1_thrust_2_0__rose.png",
+                "res://art/dye/pants_scholar_1_thrust_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_scholar_1_attack_1.png"
@@ -7083,7 +7743,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_3",
               "sheets": [
-                "art_v12/pants_scholar_1_thrust_3_0.png"
+                "art_v12/pants_scholar_1_thrust_3_0.png",
+                "res://art/dye/pants_scholar_1_thrust_3_0__jade.png",
+                "res://art/dye/pants_scholar_1_thrust_3_0__cloud.png",
+                "res://art/dye/pants_scholar_1_thrust_3_0__earth.png",
+                "res://art/dye/pants_scholar_1_thrust_3_0__ink.png",
+                "res://art/dye/pants_scholar_1_thrust_3_0__crimson.png",
+                "res://art/dye/pants_scholar_1_thrust_3_0__grey.png",
+                "res://art/dye/pants_scholar_1_thrust_3_0__indigo.png",
+                "res://art/dye/pants_scholar_1_thrust_3_0__ochre.png",
+                "res://art/dye/pants_scholar_1_thrust_3_0__rose.png",
+                "res://art/dye/pants_scholar_1_thrust_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_scholar_1_attack_1.png"
@@ -7094,7 +7764,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_scholar_1_walk_1.png"
+                "art_v12/pants_scholar_1_walk_1.png",
+                "res://art/dye/pants_scholar_1_walk_1__jade.png",
+                "res://art/dye/pants_scholar_1_walk_1__cloud.png",
+                "res://art/dye/pants_scholar_1_walk_1__earth.png",
+                "res://art/dye/pants_scholar_1_walk_1__ink.png",
+                "res://art/dye/pants_scholar_1_walk_1__crimson.png",
+                "res://art/dye/pants_scholar_1_walk_1__grey.png",
+                "res://art/dye/pants_scholar_1_walk_1__indigo.png",
+                "res://art/dye/pants_scholar_1_walk_1__ochre.png",
+                "res://art/dye/pants_scholar_1_walk_1__rose.png",
+                "res://art/dye/pants_scholar_1_walk_1__white.png"
               ],
               "source": "spritesheets/legs/formal/male/walk.png",
               "z": 30.0
@@ -7114,7 +7794,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_straight_1_attack_0.png"
+                "art_v12/pants_straight_1_attack_0.png",
+                "res://art/dye/pants_straight_1_attack_0__jade.png",
+                "res://art/dye/pants_straight_1_attack_0__cloud.png",
+                "res://art/dye/pants_straight_1_attack_0__earth.png",
+                "res://art/dye/pants_straight_1_attack_0__ink.png",
+                "res://art/dye/pants_straight_1_attack_0__crimson.png",
+                "res://art/dye/pants_straight_1_attack_0__grey.png",
+                "res://art/dye/pants_straight_1_attack_0__indigo.png",
+                "res://art/dye/pants_straight_1_attack_0__ochre.png",
+                "res://art/dye/pants_straight_1_attack_0__rose.png",
+                "res://art/dye/pants_straight_1_attack_0__white.png"
               ],
               "source": "spritesheets/legs/pants/male/thrust.png",
               "z": 30.0
@@ -7123,7 +7813,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_straight_1_bow_0.png"
+                "art_v12/pants_straight_1_bow_0.png",
+                "res://art/dye/pants_straight_1_bow_0__jade.png",
+                "res://art/dye/pants_straight_1_bow_0__cloud.png",
+                "res://art/dye/pants_straight_1_bow_0__earth.png",
+                "res://art/dye/pants_straight_1_bow_0__ink.png",
+                "res://art/dye/pants_straight_1_bow_0__crimson.png",
+                "res://art/dye/pants_straight_1_bow_0__grey.png",
+                "res://art/dye/pants_straight_1_bow_0__indigo.png",
+                "res://art/dye/pants_straight_1_bow_0__ochre.png",
+                "res://art/dye/pants_straight_1_bow_0__rose.png",
+                "res://art/dye/pants_straight_1_bow_0__white.png"
               ],
               "source": "spritesheets/legs/pants/male/shoot.png",
               "z": 30.0
@@ -7132,7 +7832,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_straight_1_idle_0.png"
+                "art_v12/pants_straight_1_idle_0.png",
+                "res://art/dye/pants_straight_1_idle_0__jade.png",
+                "res://art/dye/pants_straight_1_idle_0__cloud.png",
+                "res://art/dye/pants_straight_1_idle_0__earth.png",
+                "res://art/dye/pants_straight_1_idle_0__ink.png",
+                "res://art/dye/pants_straight_1_idle_0__crimson.png",
+                "res://art/dye/pants_straight_1_idle_0__grey.png",
+                "res://art/dye/pants_straight_1_idle_0__indigo.png",
+                "res://art/dye/pants_straight_1_idle_0__ochre.png",
+                "res://art/dye/pants_straight_1_idle_0__rose.png",
+                "res://art/dye/pants_straight_1_idle_0__white.png"
               ],
               "source": "spritesheets/legs/pants/male/idle.png",
               "z": 30.0
@@ -7141,7 +7851,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_straight_1_jump_0.png"
+                "art_v12/pants_straight_1_jump_0.png",
+                "res://art/dye/pants_straight_1_jump_0__jade.png",
+                "res://art/dye/pants_straight_1_jump_0__cloud.png",
+                "res://art/dye/pants_straight_1_jump_0__earth.png",
+                "res://art/dye/pants_straight_1_jump_0__ink.png",
+                "res://art/dye/pants_straight_1_jump_0__crimson.png",
+                "res://art/dye/pants_straight_1_jump_0__grey.png",
+                "res://art/dye/pants_straight_1_jump_0__indigo.png",
+                "res://art/dye/pants_straight_1_jump_0__ochre.png",
+                "res://art/dye/pants_straight_1_jump_0__rose.png",
+                "res://art/dye/pants_straight_1_jump_0__white.png"
               ],
               "source": "spritesheets/legs/pants/male/jump.png",
               "z": 30.0
@@ -7150,7 +7870,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/pants_straight_1_meditate_0.png"
+                "art_v12/pants_straight_1_meditate_0.png",
+                "res://art/dye/pants_straight_1_meditate_0__jade.png",
+                "res://art/dye/pants_straight_1_meditate_0__cloud.png",
+                "res://art/dye/pants_straight_1_meditate_0__earth.png",
+                "res://art/dye/pants_straight_1_meditate_0__ink.png",
+                "res://art/dye/pants_straight_1_meditate_0__crimson.png",
+                "res://art/dye/pants_straight_1_meditate_0__grey.png",
+                "res://art/dye/pants_straight_1_meditate_0__indigo.png",
+                "res://art/dye/pants_straight_1_meditate_0__ochre.png",
+                "res://art/dye/pants_straight_1_meditate_0__rose.png",
+                "res://art/dye/pants_straight_1_meditate_0__white.png"
               ],
               "source": "spritesheets/legs/pants/male/idle.png",
               "z": 30.0
@@ -7159,7 +7889,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/pants_straight_1_punch_0.png"
+                "art_v12/pants_straight_1_punch_0.png",
+                "res://art/dye/pants_straight_1_punch_0__jade.png",
+                "res://art/dye/pants_straight_1_punch_0__cloud.png",
+                "res://art/dye/pants_straight_1_punch_0__earth.png",
+                "res://art/dye/pants_straight_1_punch_0__ink.png",
+                "res://art/dye/pants_straight_1_punch_0__crimson.png",
+                "res://art/dye/pants_straight_1_punch_0__grey.png",
+                "res://art/dye/pants_straight_1_punch_0__indigo.png",
+                "res://art/dye/pants_straight_1_punch_0__ochre.png",
+                "res://art/dye/pants_straight_1_punch_0__rose.png",
+                "res://art/dye/pants_straight_1_punch_0__white.png"
               ],
               "source": "spritesheets/legs/pants/male/idle.png",
               "z": 30.0
@@ -7168,7 +7908,17 @@
               "cell": 256.0,
               "combo_rig": "punch_1",
               "sheets": [
-                "art_v12/pants_straight_1_punch_1_0.png"
+                "art_v12/pants_straight_1_punch_1_0.png",
+                "res://art/dye/pants_straight_1_punch_1_0__jade.png",
+                "res://art/dye/pants_straight_1_punch_1_0__cloud.png",
+                "res://art/dye/pants_straight_1_punch_1_0__earth.png",
+                "res://art/dye/pants_straight_1_punch_1_0__ink.png",
+                "res://art/dye/pants_straight_1_punch_1_0__crimson.png",
+                "res://art/dye/pants_straight_1_punch_1_0__grey.png",
+                "res://art/dye/pants_straight_1_punch_1_0__indigo.png",
+                "res://art/dye/pants_straight_1_punch_1_0__ochre.png",
+                "res://art/dye/pants_straight_1_punch_1_0__rose.png",
+                "res://art/dye/pants_straight_1_punch_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_straight_1_punch_0.png"
@@ -7179,7 +7929,17 @@
               "cell": 256.0,
               "combo_rig": "punch_2",
               "sheets": [
-                "art_v12/pants_straight_1_punch_2_0.png"
+                "art_v12/pants_straight_1_punch_2_0.png",
+                "res://art/dye/pants_straight_1_punch_2_0__jade.png",
+                "res://art/dye/pants_straight_1_punch_2_0__cloud.png",
+                "res://art/dye/pants_straight_1_punch_2_0__earth.png",
+                "res://art/dye/pants_straight_1_punch_2_0__ink.png",
+                "res://art/dye/pants_straight_1_punch_2_0__crimson.png",
+                "res://art/dye/pants_straight_1_punch_2_0__grey.png",
+                "res://art/dye/pants_straight_1_punch_2_0__indigo.png",
+                "res://art/dye/pants_straight_1_punch_2_0__ochre.png",
+                "res://art/dye/pants_straight_1_punch_2_0__rose.png",
+                "res://art/dye/pants_straight_1_punch_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_straight_1_punch_0.png"
@@ -7190,7 +7950,17 @@
               "cell": 256.0,
               "combo_rig": "punch_3",
               "sheets": [
-                "art_v12/pants_straight_1_punch_3_0.png"
+                "art_v12/pants_straight_1_punch_3_0.png",
+                "res://art/dye/pants_straight_1_punch_3_0__jade.png",
+                "res://art/dye/pants_straight_1_punch_3_0__cloud.png",
+                "res://art/dye/pants_straight_1_punch_3_0__earth.png",
+                "res://art/dye/pants_straight_1_punch_3_0__ink.png",
+                "res://art/dye/pants_straight_1_punch_3_0__crimson.png",
+                "res://art/dye/pants_straight_1_punch_3_0__grey.png",
+                "res://art/dye/pants_straight_1_punch_3_0__indigo.png",
+                "res://art/dye/pants_straight_1_punch_3_0__ochre.png",
+                "res://art/dye/pants_straight_1_punch_3_0__rose.png",
+                "res://art/dye/pants_straight_1_punch_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_straight_1_punch_0.png"
@@ -7201,7 +7971,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_straight_1_swing_0.png"
+                "art_v12/pants_straight_1_swing_0.png",
+                "res://art/dye/pants_straight_1_swing_0__jade.png",
+                "res://art/dye/pants_straight_1_swing_0__cloud.png",
+                "res://art/dye/pants_straight_1_swing_0__earth.png",
+                "res://art/dye/pants_straight_1_swing_0__ink.png",
+                "res://art/dye/pants_straight_1_swing_0__crimson.png",
+                "res://art/dye/pants_straight_1_swing_0__grey.png",
+                "res://art/dye/pants_straight_1_swing_0__indigo.png",
+                "res://art/dye/pants_straight_1_swing_0__ochre.png",
+                "res://art/dye/pants_straight_1_swing_0__rose.png",
+                "res://art/dye/pants_straight_1_swing_0__white.png"
               ],
               "source": "spritesheets/legs/pants/male/slash.png",
               "z": 30.0
@@ -7210,7 +7990,17 @@
               "cell": 256.0,
               "combo_rig": "swing_1",
               "sheets": [
-                "art_v12/pants_straight_1_swing_1_0.png"
+                "art_v12/pants_straight_1_swing_1_0.png",
+                "res://art/dye/pants_straight_1_swing_1_0__jade.png",
+                "res://art/dye/pants_straight_1_swing_1_0__cloud.png",
+                "res://art/dye/pants_straight_1_swing_1_0__earth.png",
+                "res://art/dye/pants_straight_1_swing_1_0__ink.png",
+                "res://art/dye/pants_straight_1_swing_1_0__crimson.png",
+                "res://art/dye/pants_straight_1_swing_1_0__grey.png",
+                "res://art/dye/pants_straight_1_swing_1_0__indigo.png",
+                "res://art/dye/pants_straight_1_swing_1_0__ochre.png",
+                "res://art/dye/pants_straight_1_swing_1_0__rose.png",
+                "res://art/dye/pants_straight_1_swing_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_straight_1_swing_0.png"
@@ -7221,7 +8011,17 @@
               "cell": 256.0,
               "combo_rig": "swing_2",
               "sheets": [
-                "art_v12/pants_straight_1_swing_2_0.png"
+                "art_v12/pants_straight_1_swing_2_0.png",
+                "res://art/dye/pants_straight_1_swing_2_0__jade.png",
+                "res://art/dye/pants_straight_1_swing_2_0__cloud.png",
+                "res://art/dye/pants_straight_1_swing_2_0__earth.png",
+                "res://art/dye/pants_straight_1_swing_2_0__ink.png",
+                "res://art/dye/pants_straight_1_swing_2_0__crimson.png",
+                "res://art/dye/pants_straight_1_swing_2_0__grey.png",
+                "res://art/dye/pants_straight_1_swing_2_0__indigo.png",
+                "res://art/dye/pants_straight_1_swing_2_0__ochre.png",
+                "res://art/dye/pants_straight_1_swing_2_0__rose.png",
+                "res://art/dye/pants_straight_1_swing_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_straight_1_swing_0.png"
@@ -7232,7 +8032,17 @@
               "cell": 256.0,
               "combo_rig": "swing_3",
               "sheets": [
-                "art_v12/pants_straight_1_swing_3_0.png"
+                "art_v12/pants_straight_1_swing_3_0.png",
+                "res://art/dye/pants_straight_1_swing_3_0__jade.png",
+                "res://art/dye/pants_straight_1_swing_3_0__cloud.png",
+                "res://art/dye/pants_straight_1_swing_3_0__earth.png",
+                "res://art/dye/pants_straight_1_swing_3_0__ink.png",
+                "res://art/dye/pants_straight_1_swing_3_0__crimson.png",
+                "res://art/dye/pants_straight_1_swing_3_0__grey.png",
+                "res://art/dye/pants_straight_1_swing_3_0__indigo.png",
+                "res://art/dye/pants_straight_1_swing_3_0__ochre.png",
+                "res://art/dye/pants_straight_1_swing_3_0__rose.png",
+                "res://art/dye/pants_straight_1_swing_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_straight_1_swing_0.png"
@@ -7243,7 +8053,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_1",
               "sheets": [
-                "art_v12/pants_straight_1_thrust_1_0.png"
+                "art_v12/pants_straight_1_thrust_1_0.png",
+                "res://art/dye/pants_straight_1_thrust_1_0__jade.png",
+                "res://art/dye/pants_straight_1_thrust_1_0__cloud.png",
+                "res://art/dye/pants_straight_1_thrust_1_0__earth.png",
+                "res://art/dye/pants_straight_1_thrust_1_0__ink.png",
+                "res://art/dye/pants_straight_1_thrust_1_0__crimson.png",
+                "res://art/dye/pants_straight_1_thrust_1_0__grey.png",
+                "res://art/dye/pants_straight_1_thrust_1_0__indigo.png",
+                "res://art/dye/pants_straight_1_thrust_1_0__ochre.png",
+                "res://art/dye/pants_straight_1_thrust_1_0__rose.png",
+                "res://art/dye/pants_straight_1_thrust_1_0__white.png"
               ],
               "source": [
                 "art_v12/pants_straight_1_attack_0.png"
@@ -7254,7 +8074,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_2",
               "sheets": [
-                "art_v12/pants_straight_1_thrust_2_0.png"
+                "art_v12/pants_straight_1_thrust_2_0.png",
+                "res://art/dye/pants_straight_1_thrust_2_0__jade.png",
+                "res://art/dye/pants_straight_1_thrust_2_0__cloud.png",
+                "res://art/dye/pants_straight_1_thrust_2_0__earth.png",
+                "res://art/dye/pants_straight_1_thrust_2_0__ink.png",
+                "res://art/dye/pants_straight_1_thrust_2_0__crimson.png",
+                "res://art/dye/pants_straight_1_thrust_2_0__grey.png",
+                "res://art/dye/pants_straight_1_thrust_2_0__indigo.png",
+                "res://art/dye/pants_straight_1_thrust_2_0__ochre.png",
+                "res://art/dye/pants_straight_1_thrust_2_0__rose.png",
+                "res://art/dye/pants_straight_1_thrust_2_0__white.png"
               ],
               "source": [
                 "art_v12/pants_straight_1_attack_0.png"
@@ -7265,7 +8095,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_3",
               "sheets": [
-                "art_v12/pants_straight_1_thrust_3_0.png"
+                "art_v12/pants_straight_1_thrust_3_0.png",
+                "res://art/dye/pants_straight_1_thrust_3_0__jade.png",
+                "res://art/dye/pants_straight_1_thrust_3_0__cloud.png",
+                "res://art/dye/pants_straight_1_thrust_3_0__earth.png",
+                "res://art/dye/pants_straight_1_thrust_3_0__ink.png",
+                "res://art/dye/pants_straight_1_thrust_3_0__crimson.png",
+                "res://art/dye/pants_straight_1_thrust_3_0__grey.png",
+                "res://art/dye/pants_straight_1_thrust_3_0__indigo.png",
+                "res://art/dye/pants_straight_1_thrust_3_0__ochre.png",
+                "res://art/dye/pants_straight_1_thrust_3_0__rose.png",
+                "res://art/dye/pants_straight_1_thrust_3_0__white.png"
               ],
               "source": [
                 "art_v12/pants_straight_1_attack_0.png"
@@ -7276,7 +8116,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/pants_straight_1_walk_0.png"
+                "art_v12/pants_straight_1_walk_0.png",
+                "res://art/dye/pants_straight_1_walk_0__jade.png",
+                "res://art/dye/pants_straight_1_walk_0__cloud.png",
+                "res://art/dye/pants_straight_1_walk_0__earth.png",
+                "res://art/dye/pants_straight_1_walk_0__ink.png",
+                "res://art/dye/pants_straight_1_walk_0__crimson.png",
+                "res://art/dye/pants_straight_1_walk_0__grey.png",
+                "res://art/dye/pants_straight_1_walk_0__indigo.png",
+                "res://art/dye/pants_straight_1_walk_0__ochre.png",
+                "res://art/dye/pants_straight_1_walk_0__rose.png",
+                "res://art/dye/pants_straight_1_walk_0__white.png"
               ],
               "source": "spritesheets/legs/pants/male/walk.png",
               "z": 30.0
@@ -7298,7 +8148,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_cardigan_1_attack_0.png"
+                "art_v12/shirt_cardigan_1_attack_0.png",
+                "res://art/dye/shirt_cardigan_1_attack_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_attack_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_attack_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_attack_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_attack_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_attack_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_attack_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_attack_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_attack_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_attack_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_cardigan/male/thrust.png",
               "z": 35.0
@@ -7307,7 +8167,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_cardigan_1_bow_0.png"
+                "art_v12/shirt_cardigan_1_bow_0.png",
+                "res://art/dye/shirt_cardigan_1_bow_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_bow_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_bow_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_bow_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_bow_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_bow_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_bow_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_bow_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_bow_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_bow_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_cardigan/male/shoot.png",
               "z": 35.0
@@ -7316,7 +8186,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_cardigan_1_idle_0.png"
+                "art_v12/shirt_cardigan_1_idle_0.png",
+                "res://art/dye/shirt_cardigan_1_idle_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_idle_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_idle_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_idle_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_idle_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_idle_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_idle_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_idle_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_idle_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_idle_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_cardigan/male/idle.png",
               "z": 35.0
@@ -7325,7 +8205,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_cardigan_1_jump_0.png"
+                "art_v12/shirt_cardigan_1_jump_0.png",
+                "res://art/dye/shirt_cardigan_1_jump_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_jump_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_jump_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_jump_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_jump_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_jump_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_jump_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_jump_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_jump_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_jump_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_cardigan/male/jump.png",
               "z": 35.0
@@ -7334,7 +8224,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/shirt_cardigan_1_meditate_0.png"
+                "art_v12/shirt_cardigan_1_meditate_0.png",
+                "res://art/dye/shirt_cardigan_1_meditate_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_meditate_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_meditate_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_meditate_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_meditate_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_meditate_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_meditate_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_meditate_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_meditate_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_meditate_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_cardigan/male/idle.png",
               "z": 35.0
@@ -7343,7 +8243,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/shirt_cardigan_1_punch_0.png"
+                "art_v12/shirt_cardigan_1_punch_0.png",
+                "res://art/dye/shirt_cardigan_1_punch_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_punch_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_punch_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_punch_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_punch_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_punch_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_punch_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_punch_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_punch_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_punch_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_cardigan/male/idle.png",
               "z": 35.0
@@ -7352,7 +8262,17 @@
               "cell": 256.0,
               "combo_rig": "punch_1",
               "sheets": [
-                "art_v12/shirt_cardigan_1_punch_1_0.png"
+                "art_v12/shirt_cardigan_1_punch_1_0.png",
+                "res://art/dye/shirt_cardigan_1_punch_1_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_punch_1_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_punch_1_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_punch_1_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_punch_1_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_punch_1_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_punch_1_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_punch_1_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_punch_1_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_punch_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_cardigan_1_punch_0.png"
@@ -7363,7 +8283,17 @@
               "cell": 256.0,
               "combo_rig": "punch_2",
               "sheets": [
-                "art_v12/shirt_cardigan_1_punch_2_0.png"
+                "art_v12/shirt_cardigan_1_punch_2_0.png",
+                "res://art/dye/shirt_cardigan_1_punch_2_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_punch_2_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_punch_2_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_punch_2_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_punch_2_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_punch_2_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_punch_2_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_punch_2_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_punch_2_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_punch_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_cardigan_1_punch_0.png"
@@ -7374,7 +8304,17 @@
               "cell": 256.0,
               "combo_rig": "punch_3",
               "sheets": [
-                "art_v12/shirt_cardigan_1_punch_3_0.png"
+                "art_v12/shirt_cardigan_1_punch_3_0.png",
+                "res://art/dye/shirt_cardigan_1_punch_3_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_punch_3_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_punch_3_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_punch_3_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_punch_3_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_punch_3_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_punch_3_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_punch_3_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_punch_3_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_punch_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_cardigan_1_punch_0.png"
@@ -7385,7 +8325,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_cardigan_1_swing_0.png"
+                "art_v12/shirt_cardigan_1_swing_0.png",
+                "res://art/dye/shirt_cardigan_1_swing_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_swing_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_swing_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_swing_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_swing_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_swing_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_swing_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_swing_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_swing_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_swing_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_cardigan/male/slash.png",
               "z": 35.0
@@ -7394,7 +8344,17 @@
               "cell": 256.0,
               "combo_rig": "swing_1",
               "sheets": [
-                "art_v12/shirt_cardigan_1_swing_1_0.png"
+                "art_v12/shirt_cardigan_1_swing_1_0.png",
+                "res://art/dye/shirt_cardigan_1_swing_1_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_swing_1_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_swing_1_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_swing_1_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_swing_1_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_swing_1_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_swing_1_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_swing_1_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_swing_1_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_swing_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_cardigan_1_swing_0.png"
@@ -7405,7 +8365,17 @@
               "cell": 256.0,
               "combo_rig": "swing_2",
               "sheets": [
-                "art_v12/shirt_cardigan_1_swing_2_0.png"
+                "art_v12/shirt_cardigan_1_swing_2_0.png",
+                "res://art/dye/shirt_cardigan_1_swing_2_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_swing_2_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_swing_2_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_swing_2_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_swing_2_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_swing_2_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_swing_2_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_swing_2_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_swing_2_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_swing_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_cardigan_1_swing_0.png"
@@ -7416,7 +8386,17 @@
               "cell": 256.0,
               "combo_rig": "swing_3",
               "sheets": [
-                "art_v12/shirt_cardigan_1_swing_3_0.png"
+                "art_v12/shirt_cardigan_1_swing_3_0.png",
+                "res://art/dye/shirt_cardigan_1_swing_3_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_swing_3_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_swing_3_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_swing_3_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_swing_3_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_swing_3_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_swing_3_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_swing_3_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_swing_3_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_swing_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_cardigan_1_swing_0.png"
@@ -7427,7 +8407,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_1",
               "sheets": [
-                "art_v12/shirt_cardigan_1_thrust_1_0.png"
+                "art_v12/shirt_cardigan_1_thrust_1_0.png",
+                "res://art/dye/shirt_cardigan_1_thrust_1_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_thrust_1_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_thrust_1_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_thrust_1_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_thrust_1_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_thrust_1_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_thrust_1_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_thrust_1_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_thrust_1_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_thrust_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_cardigan_1_attack_0.png"
@@ -7438,7 +8428,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_2",
               "sheets": [
-                "art_v12/shirt_cardigan_1_thrust_2_0.png"
+                "art_v12/shirt_cardigan_1_thrust_2_0.png",
+                "res://art/dye/shirt_cardigan_1_thrust_2_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_thrust_2_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_thrust_2_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_thrust_2_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_thrust_2_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_thrust_2_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_thrust_2_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_thrust_2_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_thrust_2_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_thrust_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_cardigan_1_attack_0.png"
@@ -7449,7 +8449,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_3",
               "sheets": [
-                "art_v12/shirt_cardigan_1_thrust_3_0.png"
+                "art_v12/shirt_cardigan_1_thrust_3_0.png",
+                "res://art/dye/shirt_cardigan_1_thrust_3_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_thrust_3_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_thrust_3_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_thrust_3_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_thrust_3_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_thrust_3_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_thrust_3_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_thrust_3_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_thrust_3_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_thrust_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_cardigan_1_attack_0.png"
@@ -7460,7 +8470,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_cardigan_1_walk_0.png"
+                "art_v12/shirt_cardigan_1_walk_0.png",
+                "res://art/dye/shirt_cardigan_1_walk_0__jade.png",
+                "res://art/dye/shirt_cardigan_1_walk_0__cloud.png",
+                "res://art/dye/shirt_cardigan_1_walk_0__earth.png",
+                "res://art/dye/shirt_cardigan_1_walk_0__ink.png",
+                "res://art/dye/shirt_cardigan_1_walk_0__crimson.png",
+                "res://art/dye/shirt_cardigan_1_walk_0__grey.png",
+                "res://art/dye/shirt_cardigan_1_walk_0__indigo.png",
+                "res://art/dye/shirt_cardigan_1_walk_0__ochre.png",
+                "res://art/dye/shirt_cardigan_1_walk_0__rose.png",
+                "res://art/dye/shirt_cardigan_1_walk_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_cardigan/male/walk.png",
               "z": 35.0
@@ -7480,7 +8500,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_disciple_1_attack_4.png"
+                "art_v12/shirt_disciple_1_attack_4.png",
+                "res://art/dye/shirt_disciple_1_attack_4__jade.png",
+                "res://art/dye/shirt_disciple_1_attack_4__cloud.png",
+                "res://art/dye/shirt_disciple_1_attack_4__earth.png",
+                "res://art/dye/shirt_disciple_1_attack_4__ink.png",
+                "res://art/dye/shirt_disciple_1_attack_4__crimson.png",
+                "res://art/dye/shirt_disciple_1_attack_4__grey.png",
+                "res://art/dye/shirt_disciple_1_attack_4__indigo.png",
+                "res://art/dye/shirt_disciple_1_attack_4__ochre.png",
+                "res://art/dye/shirt_disciple_1_attack_4__rose.png",
+                "res://art/dye/shirt_disciple_1_attack_4__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_scoop/male/thrust.png",
               "z": 35.0
@@ -7489,7 +8519,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_disciple_1_bow_4.png"
+                "art_v12/shirt_disciple_1_bow_4.png",
+                "res://art/dye/shirt_disciple_1_bow_4__jade.png",
+                "res://art/dye/shirt_disciple_1_bow_4__cloud.png",
+                "res://art/dye/shirt_disciple_1_bow_4__earth.png",
+                "res://art/dye/shirt_disciple_1_bow_4__ink.png",
+                "res://art/dye/shirt_disciple_1_bow_4__crimson.png",
+                "res://art/dye/shirt_disciple_1_bow_4__grey.png",
+                "res://art/dye/shirt_disciple_1_bow_4__indigo.png",
+                "res://art/dye/shirt_disciple_1_bow_4__ochre.png",
+                "res://art/dye/shirt_disciple_1_bow_4__rose.png",
+                "res://art/dye/shirt_disciple_1_bow_4__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_scoop/male/shoot.png",
               "z": 35.0
@@ -7498,7 +8538,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_disciple_1_idle_4.png"
+                "art_v12/shirt_disciple_1_idle_4.png",
+                "res://art/dye/shirt_disciple_1_idle_4__jade.png",
+                "res://art/dye/shirt_disciple_1_idle_4__cloud.png",
+                "res://art/dye/shirt_disciple_1_idle_4__earth.png",
+                "res://art/dye/shirt_disciple_1_idle_4__ink.png",
+                "res://art/dye/shirt_disciple_1_idle_4__crimson.png",
+                "res://art/dye/shirt_disciple_1_idle_4__grey.png",
+                "res://art/dye/shirt_disciple_1_idle_4__indigo.png",
+                "res://art/dye/shirt_disciple_1_idle_4__ochre.png",
+                "res://art/dye/shirt_disciple_1_idle_4__rose.png",
+                "res://art/dye/shirt_disciple_1_idle_4__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_scoop/male/idle.png",
               "z": 35.0
@@ -7507,7 +8557,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_disciple_1_jump_4.png"
+                "art_v12/shirt_disciple_1_jump_4.png",
+                "res://art/dye/shirt_disciple_1_jump_4__jade.png",
+                "res://art/dye/shirt_disciple_1_jump_4__cloud.png",
+                "res://art/dye/shirt_disciple_1_jump_4__earth.png",
+                "res://art/dye/shirt_disciple_1_jump_4__ink.png",
+                "res://art/dye/shirt_disciple_1_jump_4__crimson.png",
+                "res://art/dye/shirt_disciple_1_jump_4__grey.png",
+                "res://art/dye/shirt_disciple_1_jump_4__indigo.png",
+                "res://art/dye/shirt_disciple_1_jump_4__ochre.png",
+                "res://art/dye/shirt_disciple_1_jump_4__rose.png",
+                "res://art/dye/shirt_disciple_1_jump_4__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_scoop/male/jump.png",
               "z": 35.0
@@ -7516,7 +8576,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/shirt_disciple_1_meditate_4.png"
+                "art_v12/shirt_disciple_1_meditate_4.png",
+                "res://art/dye/shirt_disciple_1_meditate_4__jade.png",
+                "res://art/dye/shirt_disciple_1_meditate_4__cloud.png",
+                "res://art/dye/shirt_disciple_1_meditate_4__earth.png",
+                "res://art/dye/shirt_disciple_1_meditate_4__ink.png",
+                "res://art/dye/shirt_disciple_1_meditate_4__crimson.png",
+                "res://art/dye/shirt_disciple_1_meditate_4__grey.png",
+                "res://art/dye/shirt_disciple_1_meditate_4__indigo.png",
+                "res://art/dye/shirt_disciple_1_meditate_4__ochre.png",
+                "res://art/dye/shirt_disciple_1_meditate_4__rose.png",
+                "res://art/dye/shirt_disciple_1_meditate_4__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_scoop/male/idle.png",
               "z": 35.0
@@ -7525,7 +8595,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/shirt_disciple_1_punch_4.png"
+                "art_v12/shirt_disciple_1_punch_4.png",
+                "res://art/dye/shirt_disciple_1_punch_4__jade.png",
+                "res://art/dye/shirt_disciple_1_punch_4__cloud.png",
+                "res://art/dye/shirt_disciple_1_punch_4__earth.png",
+                "res://art/dye/shirt_disciple_1_punch_4__ink.png",
+                "res://art/dye/shirt_disciple_1_punch_4__crimson.png",
+                "res://art/dye/shirt_disciple_1_punch_4__grey.png",
+                "res://art/dye/shirt_disciple_1_punch_4__indigo.png",
+                "res://art/dye/shirt_disciple_1_punch_4__ochre.png",
+                "res://art/dye/shirt_disciple_1_punch_4__rose.png",
+                "res://art/dye/shirt_disciple_1_punch_4__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_scoop/male/idle.png",
               "z": 35.0
@@ -7534,7 +8614,17 @@
               "cell": 256.0,
               "combo_rig": "punch_1",
               "sheets": [
-                "art_v12/shirt_disciple_1_punch_1_0.png"
+                "art_v12/shirt_disciple_1_punch_1_0.png",
+                "res://art/dye/shirt_disciple_1_punch_1_0__jade.png",
+                "res://art/dye/shirt_disciple_1_punch_1_0__cloud.png",
+                "res://art/dye/shirt_disciple_1_punch_1_0__earth.png",
+                "res://art/dye/shirt_disciple_1_punch_1_0__ink.png",
+                "res://art/dye/shirt_disciple_1_punch_1_0__crimson.png",
+                "res://art/dye/shirt_disciple_1_punch_1_0__grey.png",
+                "res://art/dye/shirt_disciple_1_punch_1_0__indigo.png",
+                "res://art/dye/shirt_disciple_1_punch_1_0__ochre.png",
+                "res://art/dye/shirt_disciple_1_punch_1_0__rose.png",
+                "res://art/dye/shirt_disciple_1_punch_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_disciple_1_punch_4.png"
@@ -7545,7 +8635,17 @@
               "cell": 256.0,
               "combo_rig": "punch_2",
               "sheets": [
-                "art_v12/shirt_disciple_1_punch_2_0.png"
+                "art_v12/shirt_disciple_1_punch_2_0.png",
+                "res://art/dye/shirt_disciple_1_punch_2_0__jade.png",
+                "res://art/dye/shirt_disciple_1_punch_2_0__cloud.png",
+                "res://art/dye/shirt_disciple_1_punch_2_0__earth.png",
+                "res://art/dye/shirt_disciple_1_punch_2_0__ink.png",
+                "res://art/dye/shirt_disciple_1_punch_2_0__crimson.png",
+                "res://art/dye/shirt_disciple_1_punch_2_0__grey.png",
+                "res://art/dye/shirt_disciple_1_punch_2_0__indigo.png",
+                "res://art/dye/shirt_disciple_1_punch_2_0__ochre.png",
+                "res://art/dye/shirt_disciple_1_punch_2_0__rose.png",
+                "res://art/dye/shirt_disciple_1_punch_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_disciple_1_punch_4.png"
@@ -7556,7 +8656,17 @@
               "cell": 256.0,
               "combo_rig": "punch_3",
               "sheets": [
-                "art_v12/shirt_disciple_1_punch_3_0.png"
+                "art_v12/shirt_disciple_1_punch_3_0.png",
+                "res://art/dye/shirt_disciple_1_punch_3_0__jade.png",
+                "res://art/dye/shirt_disciple_1_punch_3_0__cloud.png",
+                "res://art/dye/shirt_disciple_1_punch_3_0__earth.png",
+                "res://art/dye/shirt_disciple_1_punch_3_0__ink.png",
+                "res://art/dye/shirt_disciple_1_punch_3_0__crimson.png",
+                "res://art/dye/shirt_disciple_1_punch_3_0__grey.png",
+                "res://art/dye/shirt_disciple_1_punch_3_0__indigo.png",
+                "res://art/dye/shirt_disciple_1_punch_3_0__ochre.png",
+                "res://art/dye/shirt_disciple_1_punch_3_0__rose.png",
+                "res://art/dye/shirt_disciple_1_punch_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_disciple_1_punch_4.png"
@@ -7567,7 +8677,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_disciple_1_swing_4.png"
+                "art_v12/shirt_disciple_1_swing_4.png",
+                "res://art/dye/shirt_disciple_1_swing_4__jade.png",
+                "res://art/dye/shirt_disciple_1_swing_4__cloud.png",
+                "res://art/dye/shirt_disciple_1_swing_4__earth.png",
+                "res://art/dye/shirt_disciple_1_swing_4__ink.png",
+                "res://art/dye/shirt_disciple_1_swing_4__crimson.png",
+                "res://art/dye/shirt_disciple_1_swing_4__grey.png",
+                "res://art/dye/shirt_disciple_1_swing_4__indigo.png",
+                "res://art/dye/shirt_disciple_1_swing_4__ochre.png",
+                "res://art/dye/shirt_disciple_1_swing_4__rose.png",
+                "res://art/dye/shirt_disciple_1_swing_4__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_scoop/male/slash.png",
               "z": 35.0
@@ -7576,7 +8696,17 @@
               "cell": 256.0,
               "combo_rig": "swing_1",
               "sheets": [
-                "art_v12/shirt_disciple_1_swing_1_0.png"
+                "art_v12/shirt_disciple_1_swing_1_0.png",
+                "res://art/dye/shirt_disciple_1_swing_1_0__jade.png",
+                "res://art/dye/shirt_disciple_1_swing_1_0__cloud.png",
+                "res://art/dye/shirt_disciple_1_swing_1_0__earth.png",
+                "res://art/dye/shirt_disciple_1_swing_1_0__ink.png",
+                "res://art/dye/shirt_disciple_1_swing_1_0__crimson.png",
+                "res://art/dye/shirt_disciple_1_swing_1_0__grey.png",
+                "res://art/dye/shirt_disciple_1_swing_1_0__indigo.png",
+                "res://art/dye/shirt_disciple_1_swing_1_0__ochre.png",
+                "res://art/dye/shirt_disciple_1_swing_1_0__rose.png",
+                "res://art/dye/shirt_disciple_1_swing_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_disciple_1_swing_4.png"
@@ -7587,7 +8717,17 @@
               "cell": 256.0,
               "combo_rig": "swing_2",
               "sheets": [
-                "art_v12/shirt_disciple_1_swing_2_0.png"
+                "art_v12/shirt_disciple_1_swing_2_0.png",
+                "res://art/dye/shirt_disciple_1_swing_2_0__jade.png",
+                "res://art/dye/shirt_disciple_1_swing_2_0__cloud.png",
+                "res://art/dye/shirt_disciple_1_swing_2_0__earth.png",
+                "res://art/dye/shirt_disciple_1_swing_2_0__ink.png",
+                "res://art/dye/shirt_disciple_1_swing_2_0__crimson.png",
+                "res://art/dye/shirt_disciple_1_swing_2_0__grey.png",
+                "res://art/dye/shirt_disciple_1_swing_2_0__indigo.png",
+                "res://art/dye/shirt_disciple_1_swing_2_0__ochre.png",
+                "res://art/dye/shirt_disciple_1_swing_2_0__rose.png",
+                "res://art/dye/shirt_disciple_1_swing_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_disciple_1_swing_4.png"
@@ -7598,7 +8738,17 @@
               "cell": 256.0,
               "combo_rig": "swing_3",
               "sheets": [
-                "art_v12/shirt_disciple_1_swing_3_0.png"
+                "art_v12/shirt_disciple_1_swing_3_0.png",
+                "res://art/dye/shirt_disciple_1_swing_3_0__jade.png",
+                "res://art/dye/shirt_disciple_1_swing_3_0__cloud.png",
+                "res://art/dye/shirt_disciple_1_swing_3_0__earth.png",
+                "res://art/dye/shirt_disciple_1_swing_3_0__ink.png",
+                "res://art/dye/shirt_disciple_1_swing_3_0__crimson.png",
+                "res://art/dye/shirt_disciple_1_swing_3_0__grey.png",
+                "res://art/dye/shirt_disciple_1_swing_3_0__indigo.png",
+                "res://art/dye/shirt_disciple_1_swing_3_0__ochre.png",
+                "res://art/dye/shirt_disciple_1_swing_3_0__rose.png",
+                "res://art/dye/shirt_disciple_1_swing_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_disciple_1_swing_4.png"
@@ -7609,7 +8759,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_1",
               "sheets": [
-                "art_v12/shirt_disciple_1_thrust_1_0.png"
+                "art_v12/shirt_disciple_1_thrust_1_0.png",
+                "res://art/dye/shirt_disciple_1_thrust_1_0__jade.png",
+                "res://art/dye/shirt_disciple_1_thrust_1_0__cloud.png",
+                "res://art/dye/shirt_disciple_1_thrust_1_0__earth.png",
+                "res://art/dye/shirt_disciple_1_thrust_1_0__ink.png",
+                "res://art/dye/shirt_disciple_1_thrust_1_0__crimson.png",
+                "res://art/dye/shirt_disciple_1_thrust_1_0__grey.png",
+                "res://art/dye/shirt_disciple_1_thrust_1_0__indigo.png",
+                "res://art/dye/shirt_disciple_1_thrust_1_0__ochre.png",
+                "res://art/dye/shirt_disciple_1_thrust_1_0__rose.png",
+                "res://art/dye/shirt_disciple_1_thrust_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_disciple_1_attack_4.png"
@@ -7620,7 +8780,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_2",
               "sheets": [
-                "art_v12/shirt_disciple_1_thrust_2_0.png"
+                "art_v12/shirt_disciple_1_thrust_2_0.png",
+                "res://art/dye/shirt_disciple_1_thrust_2_0__jade.png",
+                "res://art/dye/shirt_disciple_1_thrust_2_0__cloud.png",
+                "res://art/dye/shirt_disciple_1_thrust_2_0__earth.png",
+                "res://art/dye/shirt_disciple_1_thrust_2_0__ink.png",
+                "res://art/dye/shirt_disciple_1_thrust_2_0__crimson.png",
+                "res://art/dye/shirt_disciple_1_thrust_2_0__grey.png",
+                "res://art/dye/shirt_disciple_1_thrust_2_0__indigo.png",
+                "res://art/dye/shirt_disciple_1_thrust_2_0__ochre.png",
+                "res://art/dye/shirt_disciple_1_thrust_2_0__rose.png",
+                "res://art/dye/shirt_disciple_1_thrust_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_disciple_1_attack_4.png"
@@ -7631,7 +8801,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_3",
               "sheets": [
-                "art_v12/shirt_disciple_1_thrust_3_0.png"
+                "art_v12/shirt_disciple_1_thrust_3_0.png",
+                "res://art/dye/shirt_disciple_1_thrust_3_0__jade.png",
+                "res://art/dye/shirt_disciple_1_thrust_3_0__cloud.png",
+                "res://art/dye/shirt_disciple_1_thrust_3_0__earth.png",
+                "res://art/dye/shirt_disciple_1_thrust_3_0__ink.png",
+                "res://art/dye/shirt_disciple_1_thrust_3_0__crimson.png",
+                "res://art/dye/shirt_disciple_1_thrust_3_0__grey.png",
+                "res://art/dye/shirt_disciple_1_thrust_3_0__indigo.png",
+                "res://art/dye/shirt_disciple_1_thrust_3_0__ochre.png",
+                "res://art/dye/shirt_disciple_1_thrust_3_0__rose.png",
+                "res://art/dye/shirt_disciple_1_thrust_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_disciple_1_attack_4.png"
@@ -7642,7 +8822,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_disciple_1_walk_4.png"
+                "art_v12/shirt_disciple_1_walk_4.png",
+                "res://art/dye/shirt_disciple_1_walk_4__jade.png",
+                "res://art/dye/shirt_disciple_1_walk_4__cloud.png",
+                "res://art/dye/shirt_disciple_1_walk_4__earth.png",
+                "res://art/dye/shirt_disciple_1_walk_4__ink.png",
+                "res://art/dye/shirt_disciple_1_walk_4__crimson.png",
+                "res://art/dye/shirt_disciple_1_walk_4__grey.png",
+                "res://art/dye/shirt_disciple_1_walk_4__indigo.png",
+                "res://art/dye/shirt_disciple_1_walk_4__ochre.png",
+                "res://art/dye/shirt_disciple_1_walk_4__rose.png",
+                "res://art/dye/shirt_disciple_1_walk_4__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_scoop/male/walk.png",
               "z": 35.0
@@ -7662,7 +8852,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_scholar_1_attack_1.png"
+                "art_v12/shirt_scholar_1_attack_1.png",
+                "res://art/dye/shirt_scholar_1_attack_1__jade.png",
+                "res://art/dye/shirt_scholar_1_attack_1__cloud.png",
+                "res://art/dye/shirt_scholar_1_attack_1__earth.png",
+                "res://art/dye/shirt_scholar_1_attack_1__ink.png",
+                "res://art/dye/shirt_scholar_1_attack_1__crimson.png",
+                "res://art/dye/shirt_scholar_1_attack_1__grey.png",
+                "res://art/dye/shirt_scholar_1_attack_1__indigo.png",
+                "res://art/dye/shirt_scholar_1_attack_1__ochre.png",
+                "res://art/dye/shirt_scholar_1_attack_1__rose.png",
+                "res://art/dye/shirt_scholar_1_attack_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_buttoned/male/thrust.png",
               "z": 35.0
@@ -7671,7 +8871,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_scholar_1_bow_1.png"
+                "art_v12/shirt_scholar_1_bow_1.png",
+                "res://art/dye/shirt_scholar_1_bow_1__jade.png",
+                "res://art/dye/shirt_scholar_1_bow_1__cloud.png",
+                "res://art/dye/shirt_scholar_1_bow_1__earth.png",
+                "res://art/dye/shirt_scholar_1_bow_1__ink.png",
+                "res://art/dye/shirt_scholar_1_bow_1__crimson.png",
+                "res://art/dye/shirt_scholar_1_bow_1__grey.png",
+                "res://art/dye/shirt_scholar_1_bow_1__indigo.png",
+                "res://art/dye/shirt_scholar_1_bow_1__ochre.png",
+                "res://art/dye/shirt_scholar_1_bow_1__rose.png",
+                "res://art/dye/shirt_scholar_1_bow_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_buttoned/male/shoot.png",
               "z": 35.0
@@ -7680,7 +8890,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_scholar_1_idle_1.png"
+                "art_v12/shirt_scholar_1_idle_1.png",
+                "res://art/dye/shirt_scholar_1_idle_1__jade.png",
+                "res://art/dye/shirt_scholar_1_idle_1__cloud.png",
+                "res://art/dye/shirt_scholar_1_idle_1__earth.png",
+                "res://art/dye/shirt_scholar_1_idle_1__ink.png",
+                "res://art/dye/shirt_scholar_1_idle_1__crimson.png",
+                "res://art/dye/shirt_scholar_1_idle_1__grey.png",
+                "res://art/dye/shirt_scholar_1_idle_1__indigo.png",
+                "res://art/dye/shirt_scholar_1_idle_1__ochre.png",
+                "res://art/dye/shirt_scholar_1_idle_1__rose.png",
+                "res://art/dye/shirt_scholar_1_idle_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_buttoned/male/idle.png",
               "z": 35.0
@@ -7689,7 +8909,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_scholar_1_jump_1.png"
+                "art_v12/shirt_scholar_1_jump_1.png",
+                "res://art/dye/shirt_scholar_1_jump_1__jade.png",
+                "res://art/dye/shirt_scholar_1_jump_1__cloud.png",
+                "res://art/dye/shirt_scholar_1_jump_1__earth.png",
+                "res://art/dye/shirt_scholar_1_jump_1__ink.png",
+                "res://art/dye/shirt_scholar_1_jump_1__crimson.png",
+                "res://art/dye/shirt_scholar_1_jump_1__grey.png",
+                "res://art/dye/shirt_scholar_1_jump_1__indigo.png",
+                "res://art/dye/shirt_scholar_1_jump_1__ochre.png",
+                "res://art/dye/shirt_scholar_1_jump_1__rose.png",
+                "res://art/dye/shirt_scholar_1_jump_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_buttoned/male/jump.png",
               "z": 35.0
@@ -7698,7 +8928,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/shirt_scholar_1_meditate_1.png"
+                "art_v12/shirt_scholar_1_meditate_1.png",
+                "res://art/dye/shirt_scholar_1_meditate_1__jade.png",
+                "res://art/dye/shirt_scholar_1_meditate_1__cloud.png",
+                "res://art/dye/shirt_scholar_1_meditate_1__earth.png",
+                "res://art/dye/shirt_scholar_1_meditate_1__ink.png",
+                "res://art/dye/shirt_scholar_1_meditate_1__crimson.png",
+                "res://art/dye/shirt_scholar_1_meditate_1__grey.png",
+                "res://art/dye/shirt_scholar_1_meditate_1__indigo.png",
+                "res://art/dye/shirt_scholar_1_meditate_1__ochre.png",
+                "res://art/dye/shirt_scholar_1_meditate_1__rose.png",
+                "res://art/dye/shirt_scholar_1_meditate_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_buttoned/male/idle.png",
               "z": 35.0
@@ -7707,7 +8947,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/shirt_scholar_1_punch_1.png"
+                "art_v12/shirt_scholar_1_punch_1.png",
+                "res://art/dye/shirt_scholar_1_punch_1__jade.png",
+                "res://art/dye/shirt_scholar_1_punch_1__cloud.png",
+                "res://art/dye/shirt_scholar_1_punch_1__earth.png",
+                "res://art/dye/shirt_scholar_1_punch_1__ink.png",
+                "res://art/dye/shirt_scholar_1_punch_1__crimson.png",
+                "res://art/dye/shirt_scholar_1_punch_1__grey.png",
+                "res://art/dye/shirt_scholar_1_punch_1__indigo.png",
+                "res://art/dye/shirt_scholar_1_punch_1__ochre.png",
+                "res://art/dye/shirt_scholar_1_punch_1__rose.png",
+                "res://art/dye/shirt_scholar_1_punch_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_buttoned/male/idle.png",
               "z": 35.0
@@ -7716,7 +8966,17 @@
               "cell": 256.0,
               "combo_rig": "punch_1",
               "sheets": [
-                "art_v12/shirt_scholar_1_punch_1_0.png"
+                "art_v12/shirt_scholar_1_punch_1_0.png",
+                "res://art/dye/shirt_scholar_1_punch_1_0__jade.png",
+                "res://art/dye/shirt_scholar_1_punch_1_0__cloud.png",
+                "res://art/dye/shirt_scholar_1_punch_1_0__earth.png",
+                "res://art/dye/shirt_scholar_1_punch_1_0__ink.png",
+                "res://art/dye/shirt_scholar_1_punch_1_0__crimson.png",
+                "res://art/dye/shirt_scholar_1_punch_1_0__grey.png",
+                "res://art/dye/shirt_scholar_1_punch_1_0__indigo.png",
+                "res://art/dye/shirt_scholar_1_punch_1_0__ochre.png",
+                "res://art/dye/shirt_scholar_1_punch_1_0__rose.png",
+                "res://art/dye/shirt_scholar_1_punch_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_scholar_1_punch_1.png"
@@ -7727,7 +8987,17 @@
               "cell": 256.0,
               "combo_rig": "punch_2",
               "sheets": [
-                "art_v12/shirt_scholar_1_punch_2_0.png"
+                "art_v12/shirt_scholar_1_punch_2_0.png",
+                "res://art/dye/shirt_scholar_1_punch_2_0__jade.png",
+                "res://art/dye/shirt_scholar_1_punch_2_0__cloud.png",
+                "res://art/dye/shirt_scholar_1_punch_2_0__earth.png",
+                "res://art/dye/shirt_scholar_1_punch_2_0__ink.png",
+                "res://art/dye/shirt_scholar_1_punch_2_0__crimson.png",
+                "res://art/dye/shirt_scholar_1_punch_2_0__grey.png",
+                "res://art/dye/shirt_scholar_1_punch_2_0__indigo.png",
+                "res://art/dye/shirt_scholar_1_punch_2_0__ochre.png",
+                "res://art/dye/shirt_scholar_1_punch_2_0__rose.png",
+                "res://art/dye/shirt_scholar_1_punch_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_scholar_1_punch_1.png"
@@ -7738,7 +9008,17 @@
               "cell": 256.0,
               "combo_rig": "punch_3",
               "sheets": [
-                "art_v12/shirt_scholar_1_punch_3_0.png"
+                "art_v12/shirt_scholar_1_punch_3_0.png",
+                "res://art/dye/shirt_scholar_1_punch_3_0__jade.png",
+                "res://art/dye/shirt_scholar_1_punch_3_0__cloud.png",
+                "res://art/dye/shirt_scholar_1_punch_3_0__earth.png",
+                "res://art/dye/shirt_scholar_1_punch_3_0__ink.png",
+                "res://art/dye/shirt_scholar_1_punch_3_0__crimson.png",
+                "res://art/dye/shirt_scholar_1_punch_3_0__grey.png",
+                "res://art/dye/shirt_scholar_1_punch_3_0__indigo.png",
+                "res://art/dye/shirt_scholar_1_punch_3_0__ochre.png",
+                "res://art/dye/shirt_scholar_1_punch_3_0__rose.png",
+                "res://art/dye/shirt_scholar_1_punch_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_scholar_1_punch_1.png"
@@ -7749,7 +9029,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_scholar_1_swing_1.png"
+                "art_v12/shirt_scholar_1_swing_1.png",
+                "res://art/dye/shirt_scholar_1_swing_1__jade.png",
+                "res://art/dye/shirt_scholar_1_swing_1__cloud.png",
+                "res://art/dye/shirt_scholar_1_swing_1__earth.png",
+                "res://art/dye/shirt_scholar_1_swing_1__ink.png",
+                "res://art/dye/shirt_scholar_1_swing_1__crimson.png",
+                "res://art/dye/shirt_scholar_1_swing_1__grey.png",
+                "res://art/dye/shirt_scholar_1_swing_1__indigo.png",
+                "res://art/dye/shirt_scholar_1_swing_1__ochre.png",
+                "res://art/dye/shirt_scholar_1_swing_1__rose.png",
+                "res://art/dye/shirt_scholar_1_swing_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_buttoned/male/slash.png",
               "z": 35.0
@@ -7758,7 +9048,17 @@
               "cell": 256.0,
               "combo_rig": "swing_1",
               "sheets": [
-                "art_v12/shirt_scholar_1_swing_1_0.png"
+                "art_v12/shirt_scholar_1_swing_1_0.png",
+                "res://art/dye/shirt_scholar_1_swing_1_0__jade.png",
+                "res://art/dye/shirt_scholar_1_swing_1_0__cloud.png",
+                "res://art/dye/shirt_scholar_1_swing_1_0__earth.png",
+                "res://art/dye/shirt_scholar_1_swing_1_0__ink.png",
+                "res://art/dye/shirt_scholar_1_swing_1_0__crimson.png",
+                "res://art/dye/shirt_scholar_1_swing_1_0__grey.png",
+                "res://art/dye/shirt_scholar_1_swing_1_0__indigo.png",
+                "res://art/dye/shirt_scholar_1_swing_1_0__ochre.png",
+                "res://art/dye/shirt_scholar_1_swing_1_0__rose.png",
+                "res://art/dye/shirt_scholar_1_swing_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_scholar_1_swing_1.png"
@@ -7769,7 +9069,17 @@
               "cell": 256.0,
               "combo_rig": "swing_2",
               "sheets": [
-                "art_v12/shirt_scholar_1_swing_2_0.png"
+                "art_v12/shirt_scholar_1_swing_2_0.png",
+                "res://art/dye/shirt_scholar_1_swing_2_0__jade.png",
+                "res://art/dye/shirt_scholar_1_swing_2_0__cloud.png",
+                "res://art/dye/shirt_scholar_1_swing_2_0__earth.png",
+                "res://art/dye/shirt_scholar_1_swing_2_0__ink.png",
+                "res://art/dye/shirt_scholar_1_swing_2_0__crimson.png",
+                "res://art/dye/shirt_scholar_1_swing_2_0__grey.png",
+                "res://art/dye/shirt_scholar_1_swing_2_0__indigo.png",
+                "res://art/dye/shirt_scholar_1_swing_2_0__ochre.png",
+                "res://art/dye/shirt_scholar_1_swing_2_0__rose.png",
+                "res://art/dye/shirt_scholar_1_swing_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_scholar_1_swing_1.png"
@@ -7780,7 +9090,17 @@
               "cell": 256.0,
               "combo_rig": "swing_3",
               "sheets": [
-                "art_v12/shirt_scholar_1_swing_3_0.png"
+                "art_v12/shirt_scholar_1_swing_3_0.png",
+                "res://art/dye/shirt_scholar_1_swing_3_0__jade.png",
+                "res://art/dye/shirt_scholar_1_swing_3_0__cloud.png",
+                "res://art/dye/shirt_scholar_1_swing_3_0__earth.png",
+                "res://art/dye/shirt_scholar_1_swing_3_0__ink.png",
+                "res://art/dye/shirt_scholar_1_swing_3_0__crimson.png",
+                "res://art/dye/shirt_scholar_1_swing_3_0__grey.png",
+                "res://art/dye/shirt_scholar_1_swing_3_0__indigo.png",
+                "res://art/dye/shirt_scholar_1_swing_3_0__ochre.png",
+                "res://art/dye/shirt_scholar_1_swing_3_0__rose.png",
+                "res://art/dye/shirt_scholar_1_swing_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_scholar_1_swing_1.png"
@@ -7791,7 +9111,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_1",
               "sheets": [
-                "art_v12/shirt_scholar_1_thrust_1_0.png"
+                "art_v12/shirt_scholar_1_thrust_1_0.png",
+                "res://art/dye/shirt_scholar_1_thrust_1_0__jade.png",
+                "res://art/dye/shirt_scholar_1_thrust_1_0__cloud.png",
+                "res://art/dye/shirt_scholar_1_thrust_1_0__earth.png",
+                "res://art/dye/shirt_scholar_1_thrust_1_0__ink.png",
+                "res://art/dye/shirt_scholar_1_thrust_1_0__crimson.png",
+                "res://art/dye/shirt_scholar_1_thrust_1_0__grey.png",
+                "res://art/dye/shirt_scholar_1_thrust_1_0__indigo.png",
+                "res://art/dye/shirt_scholar_1_thrust_1_0__ochre.png",
+                "res://art/dye/shirt_scholar_1_thrust_1_0__rose.png",
+                "res://art/dye/shirt_scholar_1_thrust_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_scholar_1_attack_1.png"
@@ -7802,7 +9132,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_2",
               "sheets": [
-                "art_v12/shirt_scholar_1_thrust_2_0.png"
+                "art_v12/shirt_scholar_1_thrust_2_0.png",
+                "res://art/dye/shirt_scholar_1_thrust_2_0__jade.png",
+                "res://art/dye/shirt_scholar_1_thrust_2_0__cloud.png",
+                "res://art/dye/shirt_scholar_1_thrust_2_0__earth.png",
+                "res://art/dye/shirt_scholar_1_thrust_2_0__ink.png",
+                "res://art/dye/shirt_scholar_1_thrust_2_0__crimson.png",
+                "res://art/dye/shirt_scholar_1_thrust_2_0__grey.png",
+                "res://art/dye/shirt_scholar_1_thrust_2_0__indigo.png",
+                "res://art/dye/shirt_scholar_1_thrust_2_0__ochre.png",
+                "res://art/dye/shirt_scholar_1_thrust_2_0__rose.png",
+                "res://art/dye/shirt_scholar_1_thrust_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_scholar_1_attack_1.png"
@@ -7813,7 +9153,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_3",
               "sheets": [
-                "art_v12/shirt_scholar_1_thrust_3_0.png"
+                "art_v12/shirt_scholar_1_thrust_3_0.png",
+                "res://art/dye/shirt_scholar_1_thrust_3_0__jade.png",
+                "res://art/dye/shirt_scholar_1_thrust_3_0__cloud.png",
+                "res://art/dye/shirt_scholar_1_thrust_3_0__earth.png",
+                "res://art/dye/shirt_scholar_1_thrust_3_0__ink.png",
+                "res://art/dye/shirt_scholar_1_thrust_3_0__crimson.png",
+                "res://art/dye/shirt_scholar_1_thrust_3_0__grey.png",
+                "res://art/dye/shirt_scholar_1_thrust_3_0__indigo.png",
+                "res://art/dye/shirt_scholar_1_thrust_3_0__ochre.png",
+                "res://art/dye/shirt_scholar_1_thrust_3_0__rose.png",
+                "res://art/dye/shirt_scholar_1_thrust_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_scholar_1_attack_1.png"
@@ -7824,7 +9174,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_scholar_1_walk_1.png"
+                "art_v12/shirt_scholar_1_walk_1.png",
+                "res://art/dye/shirt_scholar_1_walk_1__jade.png",
+                "res://art/dye/shirt_scholar_1_walk_1__cloud.png",
+                "res://art/dye/shirt_scholar_1_walk_1__earth.png",
+                "res://art/dye/shirt_scholar_1_walk_1__ink.png",
+                "res://art/dye/shirt_scholar_1_walk_1__crimson.png",
+                "res://art/dye/shirt_scholar_1_walk_1__grey.png",
+                "res://art/dye/shirt_scholar_1_walk_1__indigo.png",
+                "res://art/dye/shirt_scholar_1_walk_1__ochre.png",
+                "res://art/dye/shirt_scholar_1_walk_1__rose.png",
+                "res://art/dye/shirt_scholar_1_walk_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_buttoned/male/walk.png",
               "z": 35.0
@@ -7844,7 +9204,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_sleeveless_1_attack_0.png"
+                "art_v12/shirt_sleeveless_1_attack_0.png",
+                "res://art/dye/shirt_sleeveless_1_attack_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_attack_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_attack_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_attack_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_attack_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_attack_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_attack_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_attack_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_attack_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_attack_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/sleeveless/sleeveless2_vneck/male/thrust.png",
               "z": 35.0
@@ -7853,7 +9223,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_sleeveless_1_bow_0.png"
+                "art_v12/shirt_sleeveless_1_bow_0.png",
+                "res://art/dye/shirt_sleeveless_1_bow_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_bow_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_bow_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_bow_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_bow_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_bow_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_bow_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_bow_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_bow_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_bow_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/sleeveless/sleeveless2_vneck/male/shoot.png",
               "z": 35.0
@@ -7862,7 +9242,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_sleeveless_1_idle_0.png"
+                "art_v12/shirt_sleeveless_1_idle_0.png",
+                "res://art/dye/shirt_sleeveless_1_idle_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_idle_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_idle_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_idle_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_idle_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_idle_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_idle_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_idle_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_idle_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_idle_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/sleeveless/sleeveless2_vneck/male/idle.png",
               "z": 35.0
@@ -7871,7 +9261,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_sleeveless_1_jump_0.png"
+                "art_v12/shirt_sleeveless_1_jump_0.png",
+                "res://art/dye/shirt_sleeveless_1_jump_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_jump_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_jump_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_jump_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_jump_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_jump_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_jump_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_jump_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_jump_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_jump_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/sleeveless/sleeveless2_vneck/male/jump.png",
               "z": 35.0
@@ -7880,7 +9280,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/shirt_sleeveless_1_meditate_0.png"
+                "art_v12/shirt_sleeveless_1_meditate_0.png",
+                "res://art/dye/shirt_sleeveless_1_meditate_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_meditate_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_meditate_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_meditate_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_meditate_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_meditate_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_meditate_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_meditate_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_meditate_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_meditate_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/sleeveless/sleeveless2_vneck/male/idle.png",
               "z": 35.0
@@ -7889,7 +9299,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/shirt_sleeveless_1_punch_0.png"
+                "art_v12/shirt_sleeveless_1_punch_0.png",
+                "res://art/dye/shirt_sleeveless_1_punch_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_punch_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_punch_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_punch_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_punch_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_punch_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_punch_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_punch_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_punch_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_punch_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/sleeveless/sleeveless2_vneck/male/idle.png",
               "z": 35.0
@@ -7898,7 +9318,17 @@
               "cell": 256.0,
               "combo_rig": "punch_1",
               "sheets": [
-                "art_v12/shirt_sleeveless_1_punch_1_0.png"
+                "art_v12/shirt_sleeveless_1_punch_1_0.png",
+                "res://art/dye/shirt_sleeveless_1_punch_1_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_punch_1_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_punch_1_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_punch_1_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_punch_1_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_punch_1_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_punch_1_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_punch_1_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_punch_1_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_punch_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_sleeveless_1_punch_0.png"
@@ -7909,7 +9339,17 @@
               "cell": 256.0,
               "combo_rig": "punch_2",
               "sheets": [
-                "art_v12/shirt_sleeveless_1_punch_2_0.png"
+                "art_v12/shirt_sleeveless_1_punch_2_0.png",
+                "res://art/dye/shirt_sleeveless_1_punch_2_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_punch_2_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_punch_2_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_punch_2_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_punch_2_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_punch_2_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_punch_2_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_punch_2_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_punch_2_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_punch_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_sleeveless_1_punch_0.png"
@@ -7920,7 +9360,17 @@
               "cell": 256.0,
               "combo_rig": "punch_3",
               "sheets": [
-                "art_v12/shirt_sleeveless_1_punch_3_0.png"
+                "art_v12/shirt_sleeveless_1_punch_3_0.png",
+                "res://art/dye/shirt_sleeveless_1_punch_3_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_punch_3_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_punch_3_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_punch_3_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_punch_3_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_punch_3_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_punch_3_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_punch_3_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_punch_3_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_punch_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_sleeveless_1_punch_0.png"
@@ -7931,7 +9381,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_sleeveless_1_swing_0.png"
+                "art_v12/shirt_sleeveless_1_swing_0.png",
+                "res://art/dye/shirt_sleeveless_1_swing_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_swing_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_swing_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_swing_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_swing_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_swing_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_swing_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_swing_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_swing_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_swing_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/sleeveless/sleeveless2_vneck/male/slash.png",
               "z": 35.0
@@ -7940,7 +9400,17 @@
               "cell": 256.0,
               "combo_rig": "swing_1",
               "sheets": [
-                "art_v12/shirt_sleeveless_1_swing_1_0.png"
+                "art_v12/shirt_sleeveless_1_swing_1_0.png",
+                "res://art/dye/shirt_sleeveless_1_swing_1_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_swing_1_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_swing_1_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_swing_1_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_swing_1_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_swing_1_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_swing_1_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_swing_1_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_swing_1_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_swing_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_sleeveless_1_swing_0.png"
@@ -7951,7 +9421,17 @@
               "cell": 256.0,
               "combo_rig": "swing_2",
               "sheets": [
-                "art_v12/shirt_sleeveless_1_swing_2_0.png"
+                "art_v12/shirt_sleeveless_1_swing_2_0.png",
+                "res://art/dye/shirt_sleeveless_1_swing_2_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_swing_2_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_swing_2_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_swing_2_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_swing_2_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_swing_2_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_swing_2_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_swing_2_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_swing_2_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_swing_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_sleeveless_1_swing_0.png"
@@ -7962,7 +9442,17 @@
               "cell": 256.0,
               "combo_rig": "swing_3",
               "sheets": [
-                "art_v12/shirt_sleeveless_1_swing_3_0.png"
+                "art_v12/shirt_sleeveless_1_swing_3_0.png",
+                "res://art/dye/shirt_sleeveless_1_swing_3_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_swing_3_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_swing_3_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_swing_3_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_swing_3_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_swing_3_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_swing_3_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_swing_3_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_swing_3_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_swing_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_sleeveless_1_swing_0.png"
@@ -7973,7 +9463,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_1",
               "sheets": [
-                "art_v12/shirt_sleeveless_1_thrust_1_0.png"
+                "art_v12/shirt_sleeveless_1_thrust_1_0.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_1_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_1_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_1_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_1_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_1_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_1_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_1_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_1_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_1_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_sleeveless_1_attack_0.png"
@@ -7984,7 +9484,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_2",
               "sheets": [
-                "art_v12/shirt_sleeveless_1_thrust_2_0.png"
+                "art_v12/shirt_sleeveless_1_thrust_2_0.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_2_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_2_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_2_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_2_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_2_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_2_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_2_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_2_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_2_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_sleeveless_1_attack_0.png"
@@ -7995,7 +9505,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_3",
               "sheets": [
-                "art_v12/shirt_sleeveless_1_thrust_3_0.png"
+                "art_v12/shirt_sleeveless_1_thrust_3_0.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_3_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_3_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_3_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_3_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_3_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_3_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_3_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_3_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_3_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_thrust_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_sleeveless_1_attack_0.png"
@@ -8006,7 +9526,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_sleeveless_1_walk_0.png"
+                "art_v12/shirt_sleeveless_1_walk_0.png",
+                "res://art/dye/shirt_sleeveless_1_walk_0__jade.png",
+                "res://art/dye/shirt_sleeveless_1_walk_0__cloud.png",
+                "res://art/dye/shirt_sleeveless_1_walk_0__earth.png",
+                "res://art/dye/shirt_sleeveless_1_walk_0__ink.png",
+                "res://art/dye/shirt_sleeveless_1_walk_0__crimson.png",
+                "res://art/dye/shirt_sleeveless_1_walk_0__grey.png",
+                "res://art/dye/shirt_sleeveless_1_walk_0__indigo.png",
+                "res://art/dye/shirt_sleeveless_1_walk_0__ochre.png",
+                "res://art/dye/shirt_sleeveless_1_walk_0__rose.png",
+                "res://art/dye/shirt_sleeveless_1_walk_0__white.png"
               ],
               "source": "spritesheets/torso/clothes/sleeveless/sleeveless2_vneck/male/walk.png",
               "z": 35.0
@@ -8026,7 +9556,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_vneck_1_attack_1.png"
+                "art_v12/shirt_vneck_1_attack_1.png",
+                "res://art/dye/shirt_vneck_1_attack_1__jade.png",
+                "res://art/dye/shirt_vneck_1_attack_1__cloud.png",
+                "res://art/dye/shirt_vneck_1_attack_1__earth.png",
+                "res://art/dye/shirt_vneck_1_attack_1__ink.png",
+                "res://art/dye/shirt_vneck_1_attack_1__crimson.png",
+                "res://art/dye/shirt_vneck_1_attack_1__grey.png",
+                "res://art/dye/shirt_vneck_1_attack_1__indigo.png",
+                "res://art/dye/shirt_vneck_1_attack_1__ochre.png",
+                "res://art/dye/shirt_vneck_1_attack_1__rose.png",
+                "res://art/dye/shirt_vneck_1_attack_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_vneck/male/thrust.png",
               "z": 35.0
@@ -8035,7 +9575,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_vneck_1_bow_1.png"
+                "art_v12/shirt_vneck_1_bow_1.png",
+                "res://art/dye/shirt_vneck_1_bow_1__jade.png",
+                "res://art/dye/shirt_vneck_1_bow_1__cloud.png",
+                "res://art/dye/shirt_vneck_1_bow_1__earth.png",
+                "res://art/dye/shirt_vneck_1_bow_1__ink.png",
+                "res://art/dye/shirt_vneck_1_bow_1__crimson.png",
+                "res://art/dye/shirt_vneck_1_bow_1__grey.png",
+                "res://art/dye/shirt_vneck_1_bow_1__indigo.png",
+                "res://art/dye/shirt_vneck_1_bow_1__ochre.png",
+                "res://art/dye/shirt_vneck_1_bow_1__rose.png",
+                "res://art/dye/shirt_vneck_1_bow_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_vneck/male/shoot.png",
               "z": 35.0
@@ -8044,7 +9594,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_vneck_1_idle_1.png"
+                "art_v12/shirt_vneck_1_idle_1.png",
+                "res://art/dye/shirt_vneck_1_idle_1__jade.png",
+                "res://art/dye/shirt_vneck_1_idle_1__cloud.png",
+                "res://art/dye/shirt_vneck_1_idle_1__earth.png",
+                "res://art/dye/shirt_vneck_1_idle_1__ink.png",
+                "res://art/dye/shirt_vneck_1_idle_1__crimson.png",
+                "res://art/dye/shirt_vneck_1_idle_1__grey.png",
+                "res://art/dye/shirt_vneck_1_idle_1__indigo.png",
+                "res://art/dye/shirt_vneck_1_idle_1__ochre.png",
+                "res://art/dye/shirt_vneck_1_idle_1__rose.png",
+                "res://art/dye/shirt_vneck_1_idle_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_vneck/male/idle.png",
               "z": 35.0
@@ -8053,7 +9613,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_vneck_1_jump_1.png"
+                "art_v12/shirt_vneck_1_jump_1.png",
+                "res://art/dye/shirt_vneck_1_jump_1__jade.png",
+                "res://art/dye/shirt_vneck_1_jump_1__cloud.png",
+                "res://art/dye/shirt_vneck_1_jump_1__earth.png",
+                "res://art/dye/shirt_vneck_1_jump_1__ink.png",
+                "res://art/dye/shirt_vneck_1_jump_1__crimson.png",
+                "res://art/dye/shirt_vneck_1_jump_1__grey.png",
+                "res://art/dye/shirt_vneck_1_jump_1__indigo.png",
+                "res://art/dye/shirt_vneck_1_jump_1__ochre.png",
+                "res://art/dye/shirt_vneck_1_jump_1__rose.png",
+                "res://art/dye/shirt_vneck_1_jump_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_vneck/male/jump.png",
               "z": 35.0
@@ -8062,7 +9632,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/shirt_vneck_1_meditate_1.png"
+                "art_v12/shirt_vneck_1_meditate_1.png",
+                "res://art/dye/shirt_vneck_1_meditate_1__jade.png",
+                "res://art/dye/shirt_vneck_1_meditate_1__cloud.png",
+                "res://art/dye/shirt_vneck_1_meditate_1__earth.png",
+                "res://art/dye/shirt_vneck_1_meditate_1__ink.png",
+                "res://art/dye/shirt_vneck_1_meditate_1__crimson.png",
+                "res://art/dye/shirt_vneck_1_meditate_1__grey.png",
+                "res://art/dye/shirt_vneck_1_meditate_1__indigo.png",
+                "res://art/dye/shirt_vneck_1_meditate_1__ochre.png",
+                "res://art/dye/shirt_vneck_1_meditate_1__rose.png",
+                "res://art/dye/shirt_vneck_1_meditate_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_vneck/male/idle.png",
               "z": 35.0
@@ -8071,7 +9651,17 @@
               "cell": 256.0,
               "fallback": "registered_pose",
               "sheets": [
-                "art_v12/shirt_vneck_1_punch_1.png"
+                "art_v12/shirt_vneck_1_punch_1.png",
+                "res://art/dye/shirt_vneck_1_punch_1__jade.png",
+                "res://art/dye/shirt_vneck_1_punch_1__cloud.png",
+                "res://art/dye/shirt_vneck_1_punch_1__earth.png",
+                "res://art/dye/shirt_vneck_1_punch_1__ink.png",
+                "res://art/dye/shirt_vneck_1_punch_1__crimson.png",
+                "res://art/dye/shirt_vneck_1_punch_1__grey.png",
+                "res://art/dye/shirt_vneck_1_punch_1__indigo.png",
+                "res://art/dye/shirt_vneck_1_punch_1__ochre.png",
+                "res://art/dye/shirt_vneck_1_punch_1__rose.png",
+                "res://art/dye/shirt_vneck_1_punch_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_vneck/male/idle.png",
               "z": 35.0
@@ -8080,7 +9670,17 @@
               "cell": 256.0,
               "combo_rig": "punch_1",
               "sheets": [
-                "art_v12/shirt_vneck_1_punch_1_0.png"
+                "art_v12/shirt_vneck_1_punch_1_0.png",
+                "res://art/dye/shirt_vneck_1_punch_1_0__jade.png",
+                "res://art/dye/shirt_vneck_1_punch_1_0__cloud.png",
+                "res://art/dye/shirt_vneck_1_punch_1_0__earth.png",
+                "res://art/dye/shirt_vneck_1_punch_1_0__ink.png",
+                "res://art/dye/shirt_vneck_1_punch_1_0__crimson.png",
+                "res://art/dye/shirt_vneck_1_punch_1_0__grey.png",
+                "res://art/dye/shirt_vneck_1_punch_1_0__indigo.png",
+                "res://art/dye/shirt_vneck_1_punch_1_0__ochre.png",
+                "res://art/dye/shirt_vneck_1_punch_1_0__rose.png",
+                "res://art/dye/shirt_vneck_1_punch_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_vneck_1_punch_1.png"
@@ -8091,7 +9691,17 @@
               "cell": 256.0,
               "combo_rig": "punch_2",
               "sheets": [
-                "art_v12/shirt_vneck_1_punch_2_0.png"
+                "art_v12/shirt_vneck_1_punch_2_0.png",
+                "res://art/dye/shirt_vneck_1_punch_2_0__jade.png",
+                "res://art/dye/shirt_vneck_1_punch_2_0__cloud.png",
+                "res://art/dye/shirt_vneck_1_punch_2_0__earth.png",
+                "res://art/dye/shirt_vneck_1_punch_2_0__ink.png",
+                "res://art/dye/shirt_vneck_1_punch_2_0__crimson.png",
+                "res://art/dye/shirt_vneck_1_punch_2_0__grey.png",
+                "res://art/dye/shirt_vneck_1_punch_2_0__indigo.png",
+                "res://art/dye/shirt_vneck_1_punch_2_0__ochre.png",
+                "res://art/dye/shirt_vneck_1_punch_2_0__rose.png",
+                "res://art/dye/shirt_vneck_1_punch_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_vneck_1_punch_1.png"
@@ -8102,7 +9712,17 @@
               "cell": 256.0,
               "combo_rig": "punch_3",
               "sheets": [
-                "art_v12/shirt_vneck_1_punch_3_0.png"
+                "art_v12/shirt_vneck_1_punch_3_0.png",
+                "res://art/dye/shirt_vneck_1_punch_3_0__jade.png",
+                "res://art/dye/shirt_vneck_1_punch_3_0__cloud.png",
+                "res://art/dye/shirt_vneck_1_punch_3_0__earth.png",
+                "res://art/dye/shirt_vneck_1_punch_3_0__ink.png",
+                "res://art/dye/shirt_vneck_1_punch_3_0__crimson.png",
+                "res://art/dye/shirt_vneck_1_punch_3_0__grey.png",
+                "res://art/dye/shirt_vneck_1_punch_3_0__indigo.png",
+                "res://art/dye/shirt_vneck_1_punch_3_0__ochre.png",
+                "res://art/dye/shirt_vneck_1_punch_3_0__rose.png",
+                "res://art/dye/shirt_vneck_1_punch_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_vneck_1_punch_1.png"
@@ -8113,7 +9733,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_vneck_1_swing_1.png"
+                "art_v12/shirt_vneck_1_swing_1.png",
+                "res://art/dye/shirt_vneck_1_swing_1__jade.png",
+                "res://art/dye/shirt_vneck_1_swing_1__cloud.png",
+                "res://art/dye/shirt_vneck_1_swing_1__earth.png",
+                "res://art/dye/shirt_vneck_1_swing_1__ink.png",
+                "res://art/dye/shirt_vneck_1_swing_1__crimson.png",
+                "res://art/dye/shirt_vneck_1_swing_1__grey.png",
+                "res://art/dye/shirt_vneck_1_swing_1__indigo.png",
+                "res://art/dye/shirt_vneck_1_swing_1__ochre.png",
+                "res://art/dye/shirt_vneck_1_swing_1__rose.png",
+                "res://art/dye/shirt_vneck_1_swing_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_vneck/male/slash.png",
               "z": 35.0
@@ -8122,7 +9752,17 @@
               "cell": 256.0,
               "combo_rig": "swing_1",
               "sheets": [
-                "art_v12/shirt_vneck_1_swing_1_0.png"
+                "art_v12/shirt_vneck_1_swing_1_0.png",
+                "res://art/dye/shirt_vneck_1_swing_1_0__jade.png",
+                "res://art/dye/shirt_vneck_1_swing_1_0__cloud.png",
+                "res://art/dye/shirt_vneck_1_swing_1_0__earth.png",
+                "res://art/dye/shirt_vneck_1_swing_1_0__ink.png",
+                "res://art/dye/shirt_vneck_1_swing_1_0__crimson.png",
+                "res://art/dye/shirt_vneck_1_swing_1_0__grey.png",
+                "res://art/dye/shirt_vneck_1_swing_1_0__indigo.png",
+                "res://art/dye/shirt_vneck_1_swing_1_0__ochre.png",
+                "res://art/dye/shirt_vneck_1_swing_1_0__rose.png",
+                "res://art/dye/shirt_vneck_1_swing_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_vneck_1_swing_1.png"
@@ -8133,7 +9773,17 @@
               "cell": 256.0,
               "combo_rig": "swing_2",
               "sheets": [
-                "art_v12/shirt_vneck_1_swing_2_0.png"
+                "art_v12/shirt_vneck_1_swing_2_0.png",
+                "res://art/dye/shirt_vneck_1_swing_2_0__jade.png",
+                "res://art/dye/shirt_vneck_1_swing_2_0__cloud.png",
+                "res://art/dye/shirt_vneck_1_swing_2_0__earth.png",
+                "res://art/dye/shirt_vneck_1_swing_2_0__ink.png",
+                "res://art/dye/shirt_vneck_1_swing_2_0__crimson.png",
+                "res://art/dye/shirt_vneck_1_swing_2_0__grey.png",
+                "res://art/dye/shirt_vneck_1_swing_2_0__indigo.png",
+                "res://art/dye/shirt_vneck_1_swing_2_0__ochre.png",
+                "res://art/dye/shirt_vneck_1_swing_2_0__rose.png",
+                "res://art/dye/shirt_vneck_1_swing_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_vneck_1_swing_1.png"
@@ -8144,7 +9794,17 @@
               "cell": 256.0,
               "combo_rig": "swing_3",
               "sheets": [
-                "art_v12/shirt_vneck_1_swing_3_0.png"
+                "art_v12/shirt_vneck_1_swing_3_0.png",
+                "res://art/dye/shirt_vneck_1_swing_3_0__jade.png",
+                "res://art/dye/shirt_vneck_1_swing_3_0__cloud.png",
+                "res://art/dye/shirt_vneck_1_swing_3_0__earth.png",
+                "res://art/dye/shirt_vneck_1_swing_3_0__ink.png",
+                "res://art/dye/shirt_vneck_1_swing_3_0__crimson.png",
+                "res://art/dye/shirt_vneck_1_swing_3_0__grey.png",
+                "res://art/dye/shirt_vneck_1_swing_3_0__indigo.png",
+                "res://art/dye/shirt_vneck_1_swing_3_0__ochre.png",
+                "res://art/dye/shirt_vneck_1_swing_3_0__rose.png",
+                "res://art/dye/shirt_vneck_1_swing_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_vneck_1_swing_1.png"
@@ -8155,7 +9815,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_1",
               "sheets": [
-                "art_v12/shirt_vneck_1_thrust_1_0.png"
+                "art_v12/shirt_vneck_1_thrust_1_0.png",
+                "res://art/dye/shirt_vneck_1_thrust_1_0__jade.png",
+                "res://art/dye/shirt_vneck_1_thrust_1_0__cloud.png",
+                "res://art/dye/shirt_vneck_1_thrust_1_0__earth.png",
+                "res://art/dye/shirt_vneck_1_thrust_1_0__ink.png",
+                "res://art/dye/shirt_vneck_1_thrust_1_0__crimson.png",
+                "res://art/dye/shirt_vneck_1_thrust_1_0__grey.png",
+                "res://art/dye/shirt_vneck_1_thrust_1_0__indigo.png",
+                "res://art/dye/shirt_vneck_1_thrust_1_0__ochre.png",
+                "res://art/dye/shirt_vneck_1_thrust_1_0__rose.png",
+                "res://art/dye/shirt_vneck_1_thrust_1_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_vneck_1_attack_1.png"
@@ -8166,7 +9836,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_2",
               "sheets": [
-                "art_v12/shirt_vneck_1_thrust_2_0.png"
+                "art_v12/shirt_vneck_1_thrust_2_0.png",
+                "res://art/dye/shirt_vneck_1_thrust_2_0__jade.png",
+                "res://art/dye/shirt_vneck_1_thrust_2_0__cloud.png",
+                "res://art/dye/shirt_vneck_1_thrust_2_0__earth.png",
+                "res://art/dye/shirt_vneck_1_thrust_2_0__ink.png",
+                "res://art/dye/shirt_vneck_1_thrust_2_0__crimson.png",
+                "res://art/dye/shirt_vneck_1_thrust_2_0__grey.png",
+                "res://art/dye/shirt_vneck_1_thrust_2_0__indigo.png",
+                "res://art/dye/shirt_vneck_1_thrust_2_0__ochre.png",
+                "res://art/dye/shirt_vneck_1_thrust_2_0__rose.png",
+                "res://art/dye/shirt_vneck_1_thrust_2_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_vneck_1_attack_1.png"
@@ -8177,7 +9857,17 @@
               "cell": 256.0,
               "combo_rig": "thrust_3",
               "sheets": [
-                "art_v12/shirt_vneck_1_thrust_3_0.png"
+                "art_v12/shirt_vneck_1_thrust_3_0.png",
+                "res://art/dye/shirt_vneck_1_thrust_3_0__jade.png",
+                "res://art/dye/shirt_vneck_1_thrust_3_0__cloud.png",
+                "res://art/dye/shirt_vneck_1_thrust_3_0__earth.png",
+                "res://art/dye/shirt_vneck_1_thrust_3_0__ink.png",
+                "res://art/dye/shirt_vneck_1_thrust_3_0__crimson.png",
+                "res://art/dye/shirt_vneck_1_thrust_3_0__grey.png",
+                "res://art/dye/shirt_vneck_1_thrust_3_0__indigo.png",
+                "res://art/dye/shirt_vneck_1_thrust_3_0__ochre.png",
+                "res://art/dye/shirt_vneck_1_thrust_3_0__rose.png",
+                "res://art/dye/shirt_vneck_1_thrust_3_0__white.png"
               ],
               "source": [
                 "art_v12/shirt_vneck_1_attack_1.png"
@@ -8188,7 +9878,17 @@
               "cell": 256.0,
               "fallback": null,
               "sheets": [
-                "art_v12/shirt_vneck_1_walk_1.png"
+                "art_v12/shirt_vneck_1_walk_1.png",
+                "res://art/dye/shirt_vneck_1_walk_1__jade.png",
+                "res://art/dye/shirt_vneck_1_walk_1__cloud.png",
+                "res://art/dye/shirt_vneck_1_walk_1__earth.png",
+                "res://art/dye/shirt_vneck_1_walk_1__ink.png",
+                "res://art/dye/shirt_vneck_1_walk_1__crimson.png",
+                "res://art/dye/shirt_vneck_1_walk_1__grey.png",
+                "res://art/dye/shirt_vneck_1_walk_1__indigo.png",
+                "res://art/dye/shirt_vneck_1_walk_1__ochre.png",
+                "res://art/dye/shirt_vneck_1_walk_1__rose.png",
+                "res://art/dye/shirt_vneck_1_walk_1__white.png"
               ],
               "source": "spritesheets/torso/clothes/longsleeve/longsleeve2_vneck/male/walk.png",
               "z": 35.0
@@ -11096,5 +12796,36 @@
         }
       ]
     }
+  },
+  "_dyes": {
+    "order": [
+      "none",
+      "jade",
+      "cloud",
+      "earth",
+      "ink",
+      "crimson",
+      "grey",
+      "indigo",
+      "ochre",
+      "rose",
+      "white"
+    ],
+    "swatch": {
+      "jade": "#2c9e8f",
+      "cloud": "#c3d3dd",
+      "earth": "#8c6a44",
+      "ink": "#353d4a",
+      "crimson": "#9c2a36",
+      "grey": "#7d858a",
+      "indigo": "#3f55a8",
+      "ochre": "#b0812a",
+      "rose": "#b25a78",
+      "white": "#dcddd6"
+    },
+    "categories": [
+      "shirt",
+      "pants"
+    ]
   }
 }

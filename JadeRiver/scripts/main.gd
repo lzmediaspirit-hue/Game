@@ -127,10 +127,20 @@ func _handle_preview_args(user_args: Array) -> void:
 			ch.position = {"room": room, "portal": "", "x": 0.0, "y": 0.0, "surface": "", "facing": 1}
 			if "--unlock-all" in user_args: Unlocks.debug_force_all = true
 		enter_world(1)
+	var shot := screen
+	for a in user_args:
+		if str(a).begins_with("--open-page="):
+			await get_tree().create_timer(0.8).timeout
+			open_page(str(a).trim_prefix("--open-page="), {})
+		if str(a).begins_with("--talk="):
+			await get_tree().create_timer(0.8).timeout
+			var r := Game.submit({"type": "talk", "npc": str(a).trim_prefix("--talk=")})
+			if r.get("ok", false) and r.has("dialogue"): open_page("dialogue", {"convo": r.dialogue})
+		if str(a).begins_with("--shot="): shot = str(a).trim_prefix("--shot=")
 	if "--capture" in user_args:
 		await get_tree().create_timer(2.5).timeout
 		await RenderingServer.frame_post_draw
-		get_tree().root.get_texture().get_image().save_png("res://../" + screen + "-preview.png")
+		get_tree().root.get_texture().get_image().save_png("res://../" + (shot if shot != "" else screen) + "-preview.png")
 		get_tree().quit()
 
 # ------------------------------------------------------------------ shell screens

@@ -581,9 +581,15 @@ func _draw_minimap(c) -> void:
 	var b: Array = room.get("bounds", [0, 480, 1280, 480])
 	var bw := float(b[2])
 	var sx := inner.size.x / bw
-	# Screen-space projection: x along the room, y = plane y - altitude.
-	var top := 480.0 - 320.0
-	var sy := inner.size.y / 480.0
+	# Screen-space projection: x along the room, y = plane y - altitude, fitted to the
+	# room's real extent (highest roof line down to the front of the ground strip).
+	var top := 600.0
+	var bottom := 700.0
+	if Game.room_rt:
+		for s0 in Game.room_rt.geometry.surfaces:
+			top = minf(top, s0.bounds.position.y - s0.base - 20.0)
+			bottom = maxf(bottom, s0.bounds.end.y)
+	var sy := inner.size.y / maxf(1.0, bottom - top)
 	var to_map := func(pos: Vector2, alt: float) -> Vector2:
 		return inner.position + Vector2(pos.x * sx, (pos.y - alt - top) * sy)
 	for s in Game.room_rt.geometry.surfaces if Game.room_rt else []:

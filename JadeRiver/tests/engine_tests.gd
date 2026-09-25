@@ -257,63 +257,40 @@ func run():
 	check(second_authority.restore_authoritative_snapshot(trusted) and second.plane.x==trusted.x,"Trusted authoritative correction updates simulation independently of rendering")
 	trusted.zone_id="other_zone"
 	check(not second_authority.restore_authoritative_snapshot(trusted),"Snapshot for another zone is rejected")
-	# Save tests use their own path and preserve all real player data.
-	var old_slots=Wardrobe.slots.duplicate(true)
-	var old_path=Wardrobe.save_path
-	Wardrobe.save_path="user://engine-v2-test.json"
-	Wardrobe.slots=[null,null,null]
-	var appearance=Wardrobe.defaults()
-	appearance.hair_color=4
-	appearance.name="Azure Disciple"
-	check(Wardrobe.save_slot(1,appearance)==OK,"Character creation save succeeds")
-	world.save_slot_index=1
-	p.avatar.outfit=appearance.duplicate(true)
-	place(p,world,"jade_roof",Vector2(1290,650))
-	p.hp=78
-	p.qi=42
-	p.facing=-1
-	world.skill_page=1
-	check(world.save_game()==OK,"World progress saves")
-	p.qi=39
-	world._process(5.1)
-	check(Wardrobe.slots[1].progress.qi==39 and world.save_timer==0,"Timed autosave writes changed progress")
-	p.qi=42
-	world.save_game()
-	Wardrobe.slots=[null,null,null]
-	Wardrobe.load_slots()
-	var saved=Wardrobe.slots[1]
-	check(saved.hair_color==4 and saved.progress.surface=="jade_roof" and saved.progress.hp==78,"Dye, equipment and progress persist")
-	check(Wardrobe.slots[0]==null and Wardrobe.slots[2]==null,"Other slots remain independent")
-	place(p,world,"river_walk",Vector2(400,800))
-	world.restore_progress(saved.progress)
-	check(p.plane==Vector2(1290,650) and p.altitude==88 and p.qi==42 and p.facing==-1 and world.skill_page==1,"World state restores on exact elevation")
-	world.record_safe_position()
-	p.jump()
-	p.step(0.1,Vector2.RIGHT)
-	world.save_game()
-	check(Wardrobe.slots[1].progress.x==1290,"Midair save uses last safe surface position")
-	var f=FileAccess.open(Wardrobe.save_path,FileAccess.WRITE)
+	# Saves (Part 5 · format v3) use their own folder and never touch real player data.
+	var old_repo=Saves.repo
+	Saves.use_folder("user://engine-test-saves/")
+	Saves.repo.wipe()
+	var hero=GameCharacter.new()
+	hero.slot=2
+	hero.id="c2"
+	hero.name="Azure Disciple"
+	hero.appearance={"body":"light","hair":"topknot","hair_color":4,"shirt":"cardigan","pants":"loose","shoes":"boots"}
+	hero.position={"room":"lf_village","portal":"","x":1290.0,"y":650.0,"surface":"ground","facing":-1}
+	hero.pools.hp=78
+	check(Saves.save_character(2,hero.snapshot())==OK,"Character save succeeds")
+	var loaded=Saves.load_character(2)
+	var again=GameCharacter.new()
+	again.restore(loaded)
+	check(again.name=="Azure Disciple" and int(again.appearance.hair_color)==4 and again.position.room=="lf_village" and is_equal_approx(float(again.position.x),1290.0),"Appearance, dye and position round-trip")
+	Saves.save_character(2,again.snapshot())
+	check(JSON.stringify(Saves.load_character(2))==JSON.stringify(loaded),"Save, load, save again is lossless")
+	hero.name="Second Save"
+	Saves.save_character(2,hero.snapshot())
+	var f=FileAccess.open(Saves.repo.character_path(2),FileAccess.WRITE)
 	f.store_string("not a save")
 	f.close()
-	Wardrobe.load_slots()
-	check(Wardrobe.slots[1].hair_color==4,"Damaged primary save recovers from backup")
-	f=FileAccess.open(Wardrobe.save_path,FileAccess.WRITE)
+	check(Saves.load_character(2).get("name","")=="Azure Disciple" and Saves.recovered_files().has("char_2.json"),"Damaged save recovers from its backup")
+	check(Saves.load_character(1).is_empty() and Saves.load_character(3).is_empty(),"Other slots remain independent")
 	var legacy=Wardrobe.defaults()
-	legacy.erase("hair_color")
-	f.store_string(JSON.stringify({"version":1,"slots":[legacy,null,null]}))
-	f.close()
-	Wardrobe.load_slots()
-	check(Wardrobe.slots[0].hair_color==0 and not Wardrobe.slots[0].has("progress"),"Version 1 appearance saves migrate safely")
-	check(Wardrobe.save_slot(8,appearance)==ERR_INVALID_PARAMETER,"Invalid slot rejected")
-	var test_path=Wardrobe.save_path
-	Wardrobe.save_path=test_path+"/not_a_directory.json"
-	var before_failed_save=Wardrobe.slots.duplicate(true)
-	check(Wardrobe.save_slot(1,appearance)!=OK and Wardrobe.slots==before_failed_save,"Failed write cannot replace in-memory character data")
-	Wardrobe.save_path=test_path
-	for suffix in ["",".bak",".tmp"]: DirAccess.remove_absolute(Wardrobe.save_path+suffix)
-	Wardrobe.save_path=old_path
-	Wardrobe.slots=old_slots
-	world.save_slot_index=-1
+	legacy.hair_color=3
+	legacy.erase("sect")
+	var migrated=Saves.migrate_v2_slots([legacy,null,{"hair":"invalid","name":"Old Friend"}])
+	check(migrated.size()==2 and int(migrated[0].appearance.hair_color)==3 and migrated[0].migrated_v2,"Version 2 appearance slots migrate to v3 characters")
+	check(migrated[1].appearance.hair=="topknot" and migrated[1].name=="Old Friend","Invalid v2 appearance recovers to defaults")
+	check(RepositoryLocal.new(Saves.repo.character_path(2)+"/").save_character(1,{"version":3})!=OK,"Failed write reports an error")
+	Saves.repo.wipe()
+	Saves.repo=old_repo
 	var main=load("res://scenes/main.tscn").instantiate()
 	add_child(main)
 	main.preview_mode=true
@@ -325,8 +302,10 @@ func run():
 	var before=main.draft.hair
 	main.cycle("hair",1)
 	check(main.draft.hair!=before and main.draft.hair_color==2,"Hair style changes preserve dye")
-	main.cycle("sect",1)
-	check(main.draft.sect=="Cloud","Sect choice works")
+	var creator=main.creator
+	var first_origin=creator.origin
+	main.cycle("origin",1)
+	check(creator.origin!=first_origin,"Origin choice works")
 	main.show_selection()
 	check(main.screen=="selection","Cancel returns safely")
 	print("ENGINE_TESTS: ",count-failures.size(),"/",count," passed")

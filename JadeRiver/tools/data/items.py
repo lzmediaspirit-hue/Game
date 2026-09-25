@@ -182,6 +182,10 @@ def build_items():
 
 
 FAMILY_APPEARANCE = {"gauntlets": "none", "jian": "sword", "spear": "spear", "short_blade": "dagger", "staff": "staff", "bow": "bow"}
+# Garment dyes (data/parts.json "_dyes"): plain hemp is undyed brown, better cloth takes richer colour.
+GRADE_DYE = {"plain": {"robe": "earth", "trousers": "earth"}, "common": {"robe": "grey", "trousers": "ink"},
+             "earth": {"robe": "indigo", "trousers": "ink"}, "heaven": {"robe": "cloud", "trousers": "grey"},
+             "mystic": {"robe": "white", "trousers": "jade"}}
 GRADE_WORD = {"plain": "training", "common": "iron", "earth": "jadeiron", "heaven": "cloudsteel", "mystic": "mistjade"}
 ARMOUR = {
     "plain": {"hat": ("plain_straw_hat", "Plain Straw Hat", "straw"), "robe": ("hemp_robe", "Hemp Robe", "sleeveless"),
@@ -226,7 +230,8 @@ def build_artifacts():
             rows.append(artifact(id, "weapon", grade, name, look, fam, **extra))
     for grade, slots in ARMOUR.items():
         for slot, (id, name, look) in slots.items():
-            rows.append(artifact(id, slot, grade, name, look, ilv=(1 if id == "plain_straw_hat" else None)))
+            extra = {"dye": GRADE_DYE[grade][slot]} if slot in ("robe", "trousers") else {}
+            rows.append(artifact(id, slot, grade, name, look, ilv=(1 if id == "plain_straw_hat" else None), **extra))
     gourds = [("starter_gourd", "plain", "Starter Spirit Gourd", 25, 5), ("bamboo_gourd", "common", "Bamboo Gourd", 30, 8),
               ("jadeiron_gourd", "earth", "Jadeiron Gourd", 35, 10), ("cloud_gourd", "heaven", "Cloud Gourd", 40, 12),
               ("mistjade_gourd", "mystic", "Mistjade Gourd", 45, 15)]
@@ -237,14 +242,18 @@ def build_artifacts():
     # Set pieces reuse appearances and grade icons.
     for sect, look in [("jade_current", ("headband", "cardigan", "martial", "folded")), ("cloudpiercing", ("tied", "vneck", "cuffed", "boots"))]:
         for slot, app in zip(["hat", "robe", "trousers", "boots"], look):
+            dye = {"jade_current": ("jade", "ink"), "cloudpiercing": ("cloud", "indigo")}[sect]
+            extra = {"dye": dye[0] if slot == "robe" else dye[1]} if slot in ("robe", "trousers") else {}
             rows.append(artifact("%s_%s" % (sect, slot), slot, "earth", "%s %s" % (titled(sect), slot.capitalize()), app,
-                                 icon="jadeiron_%s" % slot, set=sect, source=["sect_shop"]))
+                                 icon="jadeiron_%s" % slot, set=sect, source=["sect_shop"], **extra))
     rows.append(artifact("mudwater_cleaver", "weapon", "common", "Mudwater Cleaver", "sword", "jian", icon="iron_jian", set="mudwater", ilv=18))
-    rows.append(artifact("mudwater_robe", "robe", "common", "Mudwater Robe", "sleeveless", icon="cotton_robe", set="mudwater", ilv=18))
+    rows.append(artifact("mudwater_robe", "robe", "common", "Mudwater Robe", "sleeveless", icon="cotton_robe", set="mudwater", ilv=18, dye="earth"))
     for slot, app in [("hat", "tied"), ("robe", "scholar"), ("boots", "slippers")]:
-        rows.append(artifact("drowned_%s" % slot, slot, "earth", "Drowned Abbot %s" % slot.capitalize(), app, icon="jadeiron_%s" % slot, set="drowned_abbot", ilv=30))
+        rows.append(artifact("drowned_%s" % slot, slot, "earth", "Drowned Abbot %s" % slot.capitalize(), app, icon="jadeiron_%s" % slot, set="drowned_abbot", ilv=30,
+                             **({"dye": "ink"} if slot == "robe" else {})))
     for slot, app in [("robe", "vneck"), ("trousers", "cuffed"), ("boots", "boots")]:
-        rows.append(artifact("crane_%s" % slot, slot, "heaven", "Crane %s" % slot.capitalize(), app, icon="cloudsilk_%s" % slot, set="crane", ilv=45))
+        rows.append(artifact("crane_%s" % slot, slot, "heaven", "Crane %s" % slot.capitalize(), app, icon="cloudsilk_%s" % slot, set="crane", ilv=45,
+                             **({"dye": "white" if slot == "robe" else "cloud"} if slot in ("robe", "trousers") else {})))
     rows.append(artifact("sleeping_blade", "weapon", "heaven", "The Sleeping Blade", "sword", "jian", icon="cloudsteel_jian", ilv=52,
                          relic=True, unique="Awake spirit: +10% crit damage"))
     entries("artifacts.json", rows)

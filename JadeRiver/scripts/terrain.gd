@@ -70,6 +70,21 @@ func _draw():
 			draw_rect(Rect2(r.position.x+8,y,r.size.x-16,4),Color("4a3a22"))
 			draw_rect(Rect2(r.position.x+8,y,r.size.x-16,2),Color("c2a364"))
 		return
+	if surface.kind in ["branch","rock_ledge"] and art!="" and not SpriteCache.prop(art).is_empty():
+		# Prop-art platforms (driftwood, ledges): posts down to the ground, then the prop
+		# stretched across the walkable top face.
+		var e2: Dictionary=SpriteCache.prop(art)
+		var tex2: Texture2D=SpriteCache.tex(str(e2.get("file","")))
+		if tex2:
+			var top_left=pt(r.position.x,r.position.y)
+			var ground_y=r.end.y
+			for px in [r.position.x+14,r.end.x-22]:
+				draw_rect(Rect2(px,top_left.y+r.size.y-6,8,ground_y-(top_left.y+r.size.y-6)),Color("3d2c1e"))
+				draw_rect(Rect2(px,top_left.y+r.size.y-6,3,ground_y-(top_left.y+r.size.y-6)),Color("6b5034"))
+			var fw2=float(e2.frame[0])
+			var fh2=float(e2.frame[1])
+			draw_texture_rect_region(tex2,Rect2(top_left-Vector2(0,fh2*0.35),Vector2(r.size.x,r.size.y+fh2*0.35)),Rect2(0,0,fw2,fh2),tint)
+			return
 	if surface.kind=="roof" and art!="" and not ATLAS_BUILDINGS.has(art):
 		# Building props: roof art on the walkable top face, facade below it.
 		var e: Dictionary=SpriteCache.prop(art)

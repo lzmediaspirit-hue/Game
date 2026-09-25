@@ -38,7 +38,7 @@ func refresh_entries():
 				assert(layer.animations.has(action),"Missing equipment pose: "+category+" / "+action)
 				var anim = layer.animations.get(action,{})
 				if anim.is_empty() or anim.get("hidden",false): continue
-				entries.append({"texture": Wardrobe.texture(anim.sheets[mini(int(outfit.get("hair_color",0)),anim.sheets.size()-1)] if category=="hair" else anim.sheets[0]), "cell":int(anim.get("cell",256)), "z":int(anim.get("z",layer.z)), "held_arrow":category=="weapon" and str(anim.get("source","")).contains("/arrow/")})
+				entries.append({"texture": Wardrobe.texture(anim.sheets[sheet_index(category,anim.sheets.size())]), "cell":int(anim.get("cell",256)), "z":int(anim.get("z",layer.z)), "held_arrow":category=="weapon" and str(anim.get("source","")).contains("/arrow/")})
 		entries.sort_custom(func(a,b): return a.z < b.z)
 		last_key = key
 		if thumbnail_size != Vector2.ZERO:
@@ -50,6 +50,16 @@ func refresh_entries():
 				var offset=(cell-256)*0.5
 				var occupied=Rect2(Vector2(region.position)+Vector2(-128-offset,-190-offset),Vector2(region.size))
 				thumbnail_bounds=occupied if thumbnail_bounds.size==Vector2.ZERO else thumbnail_bounds.merge(occupied)
+## Hair picks its baked colour; shirt and trousers pick a baked dye (parts._dyes.order,
+## index 0 = the undyed original). Unknown dyes wear the original garment.
+func sheet_index(category: String, count: int) -> int:
+	var index := 0
+	if category == "hair":
+		index = int(outfit.get("hair_color", 0))
+	elif category in ["shirt", "pants"]:
+		var order: Array = Wardrobe.parts.get("_dyes", {}).get("order", [])
+		index = maxi(0, order.find(str(outfit.get(category + "_dye", "none"))))
+	return clampi(index, 0, count - 1)
 func pose_frame() -> int:
 	var spec = Wardrobe.parts._actions.get(action, Wardrobe.parts._actions.idle)
 	var index=int(elapsed*spec.fps)

@@ -215,7 +215,10 @@ static func outfit_for(c) -> Dictionary:
 		var inst = c.inventory.equipped.get(slot)
 		if inst == null: continue
 		var look := str(inst.get("appearance", ContentDB.item(inst.id).get("appearance", "none")))
-		if ContentDB.parts.get(map[slot], {}).has(look): o[map[slot]] = look
+		if ContentDB.parts.get(map[slot], {}).has(look):
+			o[map[slot]] = look
+			var dye := str(inst.get("dye", ContentDB.item(inst.id).get("dye", "")))
+			if dye != "" and map[slot] in ["shirt", "pants"]: o[map[slot] + "_dye"] = dye
 	return o
 
 # ------------------------------------------------------------------ use (S15 limits)

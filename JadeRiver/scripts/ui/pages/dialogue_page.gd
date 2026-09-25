@@ -67,7 +67,7 @@ func draw_page() -> void:
 	var visible := s.left(int(shown_chars))
 	var choices: Array = convo.get("choices", [])
 	var text_w := 560.0 if at_end() and not choices.is_empty() else 900.0
-	para(Rect2(262, 532, text_w, 150), visible, 22, UiKit.PAPER)
+	_ink_para(Rect2(262, 532, text_w, 150), visible, 22)
 	region(Rect2(40, 470, 1200, 234), "advance")
 	if at_end() and shown_chars >= s.length():
 		if choices.is_empty():
@@ -84,6 +84,15 @@ func draw_page() -> void:
 		pass
 	else:
 		text(Vector2(1160, 690 + sin(t * 5.0) * 3), "▼", 18, UiKit.GOLD)
+
+## Dialogue lines are ink on the paper box: dark, no drop shadow.
+func _ink_para(rect: Rect2, s: String, size: int) -> void:
+	var f := UiKit.body_font()
+	var y := rect.position.y + size
+	for ln in _wrap(s, size, rect.size.x):
+		if y > rect.end.y + 2: break
+		draw_string(f, Vector2(rect.position.x, y), ln, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color("2b2118"))
+		y += size * 1.35
 
 func on_action(id: String, data) -> void:
 	match id:
