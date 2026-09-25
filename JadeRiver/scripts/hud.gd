@@ -478,6 +478,10 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.breakthrough_failed") + ContentDB.text("failure." + str(p.failure_id)), UiKit.RED)
 		"achievement_unlocked":
 			toast(Tx.t("hud.achievement") + str(p.get("name", "")), "gold")
+		"items_salvaged":
+			add_log(Tx.t("hud.salvaged") % (p.get("items", []) as Array).size(), UiKit.PALE_GOLD)
+		"enhancement_inherited":
+			add_log(Tx.t("hud.inherited") % [ContentDB.item_name(str(p.get("item", ""))), int(p.get("levels", 0))], UiKit.PALE_GOLD)
 		"path_above_found":
 			toast(Tx.t("hud.path_above") % [int(p.get("found", 1)), int(p.get("total", 1))], "gold")
 		"title_changed":

@@ -116,6 +116,17 @@ static func make_instance(item_id: String, ilv: int, quality: String, rng: Rando
 		inst.affixes.append({"id": a.id, "stat": a.stat, "op": a.op, "value": snappedf(v, 0.001)})
 	return inst
 
+## One affix for an item from its slot's pool, avoiding ids already on it (S47 reroll).
+static func roll_affix(item_id: String, ilv: int, rng: RandomNumberGenerator, exclude: Array) -> Dictionary:
+	var def := ContentDB.item(item_id)
+	var pool: Array = []
+	for a in ContentDB.all("affixes"):
+		if def.get("slot", "") in a.get("slots", []) and not str(a.id) in exclude: pool.append(a)
+	if pool.is_empty() or rng == null: return {}
+	var a: Dictionary = pool[rng.randi_range(0, pool.size() - 1)]
+	var v := rng.randf_range(float(a.range[0]), float(a.range[1])) + float(a.get("per_level", 0.0)) * ilv
+	return {"id": a.id, "stat": a.stat, "op": a.op, "value": snappedf(v, 0.001)}
+
 # ------------------------------------------------------------------ prices (S39)
 const TYPE_MULT := {"material": 0.25, "herb": 0.25, "ore": 0.25, "beast_part": 0.25, "core": 0.5, "hollow": 0.25, "fish": 0.4,
 	"food": 1.0, "pill": 2.0, "talisman": 2.0, "tool": 3.0, "taming": 1.0, "jade": 2.0, "scroll": 1.5, "other": 0.5, "egg": 3.0}

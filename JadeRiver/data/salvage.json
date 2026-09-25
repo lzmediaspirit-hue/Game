@@ -1,0 +1,99 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "plain",
+   "metal": "copper_ore",
+   "returns": [
+    {
+     "item": "copper_ore",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "common",
+   "metal": "riverstone",
+   "returns": [
+    {
+     "item": "riverstone",
+     "count": 2
+    },
+    {
+     "item": "refining_essence",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "earth",
+   "metal": "jadeiron",
+   "returns": [
+    {
+     "item": "jadeiron",
+     "count": 2
+    },
+    {
+     "item": "refining_essence",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "heaven",
+   "metal": "cloudsteel_ore",
+   "returns": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 2
+    },
+    {
+     "item": "refining_essence",
+     "count": 6
+    }
+   ]
+  },
+  {
+   "id": "mystic",
+   "metal": "mystic_ore",
+   "returns": [
+    {
+     "item": "mystic_ore",
+     "count": 1
+    },
+    {
+     "item": "refining_essence",
+     "count": 10
+    }
+   ]
+  },
+  {
+   "id": "spirit",
+   "metal": "stormsteel_ore",
+   "returns": [
+    {
+     "item": "stormsteel_ore",
+     "count": 2
+    },
+    {
+     "item": "refining_essence",
+     "count": 12
+    }
+   ]
+  },
+  {
+   "id": "sage",
+   "metal": "sunglass_ore",
+   "returns": [
+    {
+     "item": "sunglass_ore",
+     "count": 2
+    },
+    {
+     "item": "refining_essence",
+     "count": 16
+    }
+   ]
+  }
+ ]
+}

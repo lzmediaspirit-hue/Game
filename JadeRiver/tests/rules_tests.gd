@@ -43,6 +43,7 @@ func _main() -> void:
 	arts_combat_suite()
 	nav_suite()
 	paths_above_suite()
+	forge_upkeep_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -88,6 +89,87 @@ func paths_above_suite() -> void:
 	GameEvents.event.disconnect(listen)
 	check(Game.account.paths_above.has("wp_west:pine_top") and heard.size() == 1, "standing on a later ledge finds it, once (%d)" % heard.size())
 	check(Game.account.snapshot().paths_above.has("wp_west:pine_top"), "found ledges are saved with the account")
+
+# ------------------------------------------------------------------ S47 gear upkeep
+func forge_upkeep_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	Unlocks.force_unlock(c.id, "smithing")
+	var add := func(id: String, quality := "common") -> Dictionary:
+		Game.inventory.apply_add_equipment(c.id, id, int(ContentDB.item(id).get("ilv", 10)), quality, "test")
+		var best: Dictionary = {}
+		for it in c.inventory.bag:
+			if it != null and str(it.id) == id and (best.is_empty() or int(it.uid) > int(best.uid)): best = it
+		return best
+	# Pity: from +5 a try can fail; each failure adds 5% to the next try on that piece, a success clears it.
+	var jian: Dictionary = add.call("jadeiron_jian")
+	jian.enhance = 5
+	var row: Dictionary = Game.crafting.grade_row("jadeiron_jian")
+	check(str(row.metal) == "jadeiron", "an Earth piece is enhanced with Jadeiron (salvage.json)")
+	check(near(Game.crafting.enhance_chance(jian), 0.88), "the try from +5 is 88%% (%.2f)" % Game.crafting.enhance_chance(jian))
+	Game.inventory.apply_add(c.id, "jadeiron", 200, "test")
+	Game.inventory.apply_add(c.id, "spirit_stone_shard", 60, "test")
+	Game.economy.apply_currency("silver_tael", 50000, "test")
+	var fails := 0
+	var saw_reset := false
+	for i in 40:
+		var before := float(jian.get("pity", 0.0))
+		var r := Game.submit({"type": "enhance", "uid": int(jian.uid)})
+		if not r.get("ok", false): break
+		if r.success:
+			saw_reset = saw_reset or before > 0.0
+			check(near(float(jian.get("pity", 0.0)), 0.0, 0.0) or float(jian.get("pity", 0.0)) == 0.0, "a success clears the pity")
+			if int(jian.enhance) >= 9: break
+		else:
+			fails += 1
+			check(near(float(jian.pity), before + 0.05, 0.001), "a failure adds 5%% pity (%.2f -> %.2f)" % [before, float(jian.pity)])
+		if int(jian.enhance) >= 9: break
+	check(fails > 0 and saw_reset, "pity builds on failures and resets on a success (%d failures)" % fails)
+	check(near(Game.crafting.enhance_chance({"id": "jadeiron_jian", "enhance": 7, "pity": 0.1}, 2), 1.0 - 0.36 + 0.1 + 0.05, 0.001),
+		"pity and two Refining Essence add to the chance")
+	# Inherit moves N - 2 for 2 Spirit Stones a level; the old piece goes back to +0.
+	var old_jian: Dictionary = add.call("jadeiron_jian")
+	old_jian.enhance = 7
+	var new_jian: Dictionary = add.call("cloudsteel_jian") if ContentDB.has_entry("items", "cloudsteel_jian") else add.call("jadeiron_jian")
+	Game.economy.apply_currency("spirit_stone", 50, "test")
+	var stones0: int = Game.economy.balance("spirit_stone")
+	var ih := Game.submit({"type": "inherit_enhancement", "from": int(old_jian.uid), "to": int(new_jian.uid)})
+	check(ih.get("ok", false) and int(new_jian.enhance) == 5 and int(old_jian.enhance) == 0 and stones0 - Game.economy.balance("spirit_stone") == 10,
+		"Inherit moves +7 as +5 for 10 Spirit Stones (%s)" % str(ih))
+	var robe: Dictionary = add.call("jadeiron_robe")
+	check(not Game.submit({"type": "inherit_enhancement", "from": int(new_jian.uid), "to": int(robe.uid)}).get("ok", true), "Inherit keeps to one slot")
+	# Salvage: metal and essence by grade; locked pieces are never touched.
+	var a: Dictionary = add.call("jadeiron_robe")
+	var b: Dictionary = add.call("jadeiron_robe")
+	c.inventory.locked[int(b.uid)] = true
+	var ess0: int = c.inventory.count("refining_essence")
+	var sv := Game.submit({"type": "salvage", "items": [int(a.uid), int(b.uid)]})
+	check(sv.get("ok", false) and (sv.items as Array).size() == 1 and c.inventory.find_uid(int(b.uid)) >= 0 and c.inventory.find_uid(int(a.uid)) < 0,
+		"Salvage takes the free piece and never the locked one")
+	check(c.inventory.count("refining_essence") - ess0 == 3, "an Earth piece gives 2 Jadeiron and 3 Refining Essence")
+	c.inventory.locked.erase(int(b.uid))
+	# Reroll: the locked affix stays, the reroll costs double, and the old roll can be kept.
+	var fine: Dictionary = add.call("jadeiron_robe", "superior")
+	check((fine.affixes as Array).size() >= 2, "a Superior piece has affixes to reroll")
+	Game.inventory.apply_add(c.id, "refining_essence", 40, "test")
+	var plain_cost: Dictionary = Game.crafting.reroll_cost(fine)
+	check(Game.submit({"type": "lock_affix", "uid": int(fine.uid), "affix": 0}).get("ok", false), "lock the first affix")
+	var locked_cost: Dictionary = Game.crafting.reroll_cost(fine)
+	check(int(locked_cost.essence) == 2 * int(plain_cost.essence) and int(locked_cost.taels) == 2 * int(plain_cost.taels), "a locked affix doubles the reroll")
+	var kept: Dictionary = (fine.affixes[0] as Dictionary).duplicate()
+	var old_affixes: Array = (fine.affixes as Array).duplicate(true)
+	var rr := Game.submit({"type": "reroll_affixes", "uid": int(fine.uid)})
+	check(rr.get("ok", false) and str(rr.new[0].id) == str(kept.id) and near(float(rr.new[0].value), float(kept.value)), "the locked affix survives the reroll")
+	check(Game.submit({"type": "choose_affixes", "uid": int(fine.uid), "keep": "old"}).get("ok", false) and str(fine.affixes) == str(old_affixes) and not fine.has("pending_affixes"),
+		"keeping the old roll leaves the piece as it was")
+	Game.submit({"type": "reroll_affixes", "uid": int(fine.uid)})
+	var fresh: Array = (fine.pending_affixes as Array).duplicate(true)
+	Game.submit({"type": "choose_affixes", "uid": int(fine.uid), "keep": "new"})
+	check(str(fine.affixes) == str(fresh), "taking the new roll keeps it")
+	# Tidy up the test pieces.
+	for it in [jian, old_jian, new_jian, robe, b, fine]:
+		var i: int = c.inventory.find_uid(int(it.uid))
+		if i >= 0: Game.inventory.apply_remove_index(c.id, i, 1, "test")
 
 # ------------------------------------------------------------------ formulas
 func rules_suite() -> void:

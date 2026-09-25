@@ -28,7 +28,7 @@ const GRADE_CAP := [["qi_kindling_1", "common"], ["qi_unfurling_1", "earth"], ["
 
 func intents() -> Array:
 	return ["complete_node", "catch_fish", "cook", "craft_step", "refine", "queue_auto_refine", "collect_auto_refine", "forge", "enhance", "salvage_item",
-		"chart_route", "build_vessel", "absorb_flame"]
+		"salvage", "inherit_enhancement", "reroll_affixes", "choose_affixes", "lock_affix", "chart_route", "build_vessel", "absorb_flame"]
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -45,8 +45,13 @@ func handle(intent: Dictionary) -> Dictionary:
 		"queue_auto_refine": return queue_auto(c, str(intent.get("recipe", "")), clampi(int(intent.get("count", 1)), 1, 10))
 		"absorb_flame": return absorb_flame(c, int(intent.get("index", -1)))
 		"collect_auto_refine": return collect_auto(c)
-		"enhance": return enhance(c, int(intent.get("index", -1)), str(intent.get("slot", "")))
-		"salvage_item": return salvage(c, int(intent.get("index", -1)))
+		"enhance": return enhance(c, intent)
+		"salvage_item": return salvage(c, [_uid_at(c, int(intent.get("index", -1)))])
+		"salvage": return salvage(c, intent.get("items", []))
+		"inherit_enhancement": return inherit(c, int(intent.get("from", -1)), int(intent.get("to", -1)))
+		"reroll_affixes": return reroll(c, int(intent.get("uid", -1)))
+		"choose_affixes": return choose_affixes(c, int(intent.get("uid", -1)), str(intent.get("keep", "new")) == "new")
+		"lock_affix": return lock_affix(c, int(intent.get("uid", -1)), int(intent.get("affix", -1)))
 		"chart_route": return craft(c, str(intent.get("recipe", "")), 1, [], "star_charting")
 		"build_vessel": return craft(c, str(intent.get("recipe", "")), 1, [], "shipwright")
 	return fail("unknown_intent")
@@ -436,42 +441,208 @@ func collect_auto(c) -> Dictionary:
 	emit("system_used", {"actor": c.id, "system": "auto_refine_collected"})
 	return ok({"batches": got})
 
-func enhance(c, index: int, slot: String) -> Dictionary:
+# ------------------------------------------------------------------ gear upkeep (S14, S47)
+func upkeep(key: String, fallback):
+	return ContentDB.config("forge_upkeep").get(key, fallback)
+
+## The salvage.json row for an item's grade: the metal it is forged and enhanced with, and what Salvage returns.
+## Grades past the table use its last row.
+func grade_row(item_id: String) -> Dictionary:
+	var g := str(ContentDB.item(item_id).get("grade", "plain"))
+	if ContentDB.has_entry("salvage", g): return ContentDB.entry("salvage", g)
+	var rows: Array = ContentDB.all("salvage")
+	return rows[-1] if not rows.is_empty() else {"metal": "copper_ore", "returns": []}
+
+## An equipment instance by uid, whether worn or in the bag: {inst, slot, index}; {} when it is not there.
+func locate(c, uid: int) -> Dictionary:
+	if uid < 0: return {}
+	for sl in c.inventory.equipped:
+		var e = c.inventory.equipped[sl]
+		if e != null and int(e.get("uid", -2)) == uid: return {"inst": e, "slot": str(sl), "index": -1}
+	var i: int = c.inventory.find_uid(uid)
+	if i >= 0 and c.inventory.bag[i] != null: return {"inst": c.inventory.bag[i], "slot": "", "index": i}
+	return {}
+
+func _uid_at(c, index: int) -> int:
+	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return -1
+	return int(c.inventory.bag[index].get("uid", -1))
+
+## The chance an enhancement from the item's current level succeeds: sure up to +5, then 12% less a level,
+## plus the item's pity (+5% for each failure since its last success) and any essence fed in.
+func enhance_chance(inst: Dictionary, essence := 0) -> float:
+	var lvl := int(inst.get("enhance", 0))
+	if lvl < int(upkeep("risky_from", 5)): return 1.0
+	var base := 1.0 - float(upkeep("fail_step", 0.12)) * (lvl - int(upkeep("risky_from", 5)) + 1)
+	return clampf(base + float(inst.get("pity", 0.0)) + float(upkeep("essence_step", 0.025)) * essence, 0.0, 1.0)
+
+## What an enhancement costs: {metal, count, taels, shards}.
+func enhance_cost(inst: Dictionary) -> Dictionary:
+	var lvl := int(inst.get("enhance", 0))
+	var gi := StatRules.grade_index(str(ContentDB.item(str(inst.id)).get("grade", "plain")))
+	return {"metal": str(grade_row(str(inst.id)).get("metal", "copper_ore")), "count": 2 * (lvl + 1), "taels": 20 * (lvl + 1) * (gi + 1),
+		"shards": maxi(0, lvl - 4)}
+
+## Why an enhancement cannot be paid for now ("" when it can): the metal, taels, shards and essence it needs.
+func enhance_check(c, inst: Dictionary, essence := 0) -> String:
+	if int(inst.get("enhance", 0)) >= 10: return Tx.t("ui.forge.max")
+	var cost := enhance_cost(inst)
+	if c.inventory.count(str(cost.metal)) < int(cost.count): return Tx.t("sim.crafting.needs_2") % [int(cost.count), ContentDB.item_name(str(cost.metal))]
+	if game.economy.balance("silver_tael") < int(cost.taels): return Tx.t("ui.forge.taels") % int(cost.taels)
+	if int(cost.shards) > 0 and c.inventory.count("spirit_stone_shard") < int(cost.shards): return Tx.t("sim.crafting.needs_spirit_stone_shards")
+	if c.inventory.count("refining_essence") < essence: return Tx.t("sim.crafting.needs_2") % [essence, ContentDB.item_name("refining_essence")]
+	return ""
+
+## Why a reroll cannot be paid for now ("" when it can).
+func reroll_check(c, inst: Dictionary) -> String:
+	if (inst.get("affixes", []) as Array).is_empty(): return Tx.t("sim.crafting.no_affixes")
+	var cost := reroll_cost(inst)
+	if c.inventory.count("refining_essence") < int(cost.essence): return Tx.t("sim.crafting.needs_2") % [int(cost.essence), ContentDB.item_name("refining_essence")]
+	if game.economy.balance("silver_tael") < int(cost.taels): return Tx.t("ui.forge.taels") % int(cost.taels)
+	return ""
+
+## Enhance (S14, S47): never destroys an item or takes a level. A failure spends the materials and adds 5% pity to
+## the item, shown on it; a success clears the pity. Refining Essence (from Salvage) steadies an attempt, 2.5% each.
+## The roll is on the affix stream, so it is deterministic per character.
+func enhance(c, intent: Dictionary) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "smithing"): return fail("locked")
-	var inst = c.inventory.equipped.get(slot) if slot != "" else (c.inventory.bag[index] if index >= 0 and index < c.inventory.bag.size() else null)
-	if inst == null or not ContentDB.is_equipment(str(inst.id)): return fail("not_equipment")
+	var at := locate(c, int(intent.get("uid", -1)))
+	if at.is_empty():
+		var slot := str(intent.get("slot", ""))
+		var index := int(intent.get("index", -1))
+		if slot != "" and c.inventory.equipped.get(slot) != null: at = {"inst": c.inventory.equipped[slot], "slot": slot, "index": -1}
+		elif index >= 0 and index < c.inventory.bag.size() and c.inventory.bag[index] != null: at = {"inst": c.inventory.bag[index], "slot": "", "index": index}
+	if at.is_empty() or not ContentDB.is_equipment(str(at.inst.id)): return fail("not_equipment")
+	var inst: Dictionary = at.inst
 	var lvl := int(inst.get("enhance", 0))
 	if lvl >= 10: return fail("max")
-	var def := ContentDB.item(str(inst.id))
-	var metal = {"plain": "copper_ore", "common": "copper_ore", "earth": "jadeiron", "heaven": "cloudsteel_ore", "mystic": "mystic_ore"}.get(str(def.get("grade", "plain")), "copper_ore")
-	var need := 2 * (lvl + 1)
-	if c.inventory.count(metal) < need: return fail("materials", {"text": Tx.t("sim.crafting.needs_2") % [need, ContentDB.item_name(metal)]})
-	var taels := 20 * (lvl + 1) * (StatRules.grade_index(str(def.get("grade", "plain"))) + 1)
-	if game.economy.balance("silver_tael") < taels: return fail("insufficient_funds")
-	if lvl >= 5 and c.inventory.count("spirit_stone_shard") < lvl - 4: return fail("materials", {"text": Tx.t("sim.crafting.needs_spirit_stone_shards")})
-	game.inventory.apply_remove(c.id, metal, need, "enhance")
-	game.economy.apply_currency("silver_tael", -taels, "enhance")
-	var success := true
-	if lvl >= 5:
-		game.inventory.apply_remove(c.id, "spirit_stone_shard", lvl - 4, "enhance")
-		success = Rng.stream(c.id, "crafting").randf() < 1.0 - 0.12 * (lvl - 4)
-	if success: game.inventory.apply_enhance(c.id, inst, lvl + 1, slot)
-	emit("item_enhanced", {"actor": c.id, "item": inst.id, "level": int(inst.get("enhance", 0)), "success": success})
+	var cost := enhance_cost(inst)
+	if c.inventory.count(str(cost.metal)) < int(cost.count): return fail("materials", {"text": Tx.t("sim.crafting.needs_2") % [int(cost.count), ContentDB.item_name(str(cost.metal))]})
+	if game.economy.balance("silver_tael") < int(cost.taels): return fail("insufficient_funds")
+	if int(cost.shards) > 0 and c.inventory.count("spirit_stone_shard") < int(cost.shards): return fail("materials", {"text": Tx.t("sim.crafting.needs_spirit_stone_shards")})
+	var essence := clampi(int(intent.get("essence", 0)), 0, int(upkeep("essence_max", 4))) if lvl >= int(upkeep("risky_from", 5)) else 0
+	if c.inventory.count("refining_essence") < essence: return fail("materials", {"text": Tx.t("sim.crafting.needs_2") % [essence, ContentDB.item_name("refining_essence")]})
+	var chance := enhance_chance(inst, essence)
+	game.inventory.apply_remove(c.id, str(cost.metal), int(cost.count), "enhance")
+	game.economy.apply_currency("silver_tael", -int(cost.taels), "enhance")
+	if int(cost.shards) > 0: game.inventory.apply_remove(c.id, "spirit_stone_shard", int(cost.shards), "enhance")
+	if essence > 0: game.inventory.apply_remove(c.id, "refining_essence", essence, "enhance")
+	var success := chance >= 1.0 or Rng.stream(c.id, "affix").randf() < chance
+	if success:
+		inst.pity = 0.0
+		game.inventory.apply_enhance(c.id, inst, lvl + 1, str(at.slot))
+	else:
+		inst.pity = snappedf(float(inst.get("pity", 0.0)) + float(upkeep("pity_step", 0.05)), 0.001)
+	emit("item_enhanced", {"actor": c.id, "item": inst.id, "level": int(inst.get("enhance", 0)), "success": success, "pity": float(inst.get("pity", 0.0))})
 	emit("system_used", {"actor": c.id, "system": "enhance"})
-	return ok({"success": success, "level": int(inst.get("enhance", 0))})
+	return ok({"success": success, "level": int(inst.get("enhance", 0)), "pity": float(inst.get("pity", 0.0)), "chance": chance})
 
-func salvage(c, index: int) -> Dictionary:
+## Inherit (S47): move an item's enhancement, less two levels, onto another piece for the same slot, for 2 Spirit
+## Stones a level moved. The old piece goes back to +0; the new one keeps its own level if that is higher.
+func inherit(c, from_uid: int, to_uid: int) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "smithing"): return fail("locked")
-	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
-	var inst: Dictionary = c.inventory.bag[index]
-	if not ContentDB.is_equipment(str(inst.id)) or inst.get("bound", false) or c.inventory.locked.has(int(inst.get("uid", -1))): return fail("cannot_salvage")
-	var def := ContentDB.item(str(inst.id))
-	var metal = {"plain": "copper_ore", "common": "copper_ore", "earth": "jadeiron", "heaven": "cloudsteel_ore", "mystic": "mystic_ore"}.get(str(def.get("grade", "plain")), "copper_ore")
-	game.inventory.apply_remove_index(c.id, index, 1, "salvage")
-	var n := maxi(1, int(round(6 * Rng.stream(c.id, "crafting").randf_range(0.2, 0.35))))
-	game.inventory.apply_add(c.id, metal, n, "salvage")
-	emit("item_salvaged", {"actor": c.id, "item": inst.id, "returned": n})
-	return ok({"returned": n})
+	var a := locate(c, from_uid)
+	var b := locate(c, to_uid)
+	if a.is_empty() or b.is_empty() or from_uid == to_uid: return fail("not_equipment")
+	var da := ContentDB.item(str(a.inst.id))
+	var db := ContentDB.item(str(b.inst.id))
+	if not ContentDB.is_equipment(str(a.inst.id)) or not ContentDB.is_equipment(str(b.inst.id)) or str(da.get("slot", "")) != str(db.get("slot", "")):
+		return fail("wrong_slot", {"text": Tx.t("sim.crafting.inherit_same_slot")})
+	var moved := int(a.inst.get("enhance", 0)) - int(upkeep("inherit_loss", 2))
+	if moved <= int(b.inst.get("enhance", 0)): return fail("nothing_to_move", {"text": Tx.t("sim.crafting.inherit_nothing")})
+	var stones := moved * int(upkeep("inherit_stones_per_level", 2))
+	if game.economy.balance("spirit_stone") < stones: return fail("insufficient_funds", {"text": Tx.t("sim.crafting.inherit_stones") % stones})
+	game.economy.apply_currency("spirit_stone", -stones, "inherit")
+	game.inventory.apply_enhance(c.id, b.inst, moved, str(b.slot))
+	game.inventory.apply_enhance(c.id, a.inst, 0, str(a.slot))
+	a.inst.pity = 0.0
+	emit("enhancement_inherited", {"actor": c.id, "item": b.inst.id, "from": a.inst.id, "levels": moved, "stones": stones})
+	emit("system_used", {"actor": c.id, "system": "inherit"})
+	return ok({"levels": moved, "stones": stones})
+
+## What salvaging a set of bag items would return (locked, bound and worn pieces are never salvaged).
+func salvage_preview(c, uids: Array) -> Dictionary:
+	var returns := {}
+	var items: Array = []
+	for u in uids:
+		var i: int = c.inventory.find_uid(int(u))
+		if i < 0 or c.inventory.bag[i] == null: continue
+		var inst: Dictionary = c.inventory.bag[i]
+		if not ContentDB.is_equipment(str(inst.id)) or inst.get("bound", false) or c.inventory.locked.has(int(inst.get("uid", -1))): continue
+		items.append(int(inst.uid))
+		for r in grade_row(str(inst.id)).get("returns", []):
+			returns[str(r.item)] = int(returns.get(str(r.item), 0)) + int(r.count)
+	return {"items": items, "returns": returns}
+
+## Salvage (S47): dismantle gear into its grade's metal and Refining Essence. Locked items are never touched.
+func salvage(c, uids: Array) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "smithing"): return fail("locked")
+	var pv := salvage_preview(c, uids)
+	if pv.items.is_empty(): return fail("cannot_salvage")
+	var ids: Array = []
+	for u in pv.items:
+		var i: int = c.inventory.find_uid(int(u))
+		ids.append(str(c.inventory.bag[i].id))
+		game.inventory.apply_remove_index(c.id, i, 1, "salvage")
+	for item_id in pv.returns: game.inventory.apply_add(c.id, str(item_id), int(pv.returns[item_id]), "salvage")
+	emit("items_salvaged", {"actor": c.id, "items": ids, "returned": pv.returns})
+	emit("system_used", {"actor": c.id, "system": "salvage"})
+	return ok({"items": ids, "returned": pv.returns})
+
+## What rerolling an item's affixes costs: {essence, taels}; a locked affix doubles it.
+func reroll_cost(inst: Dictionary) -> Dictionary:
+	var gi := StatRules.grade_index(str(ContentDB.item(str(inst.id)).get("grade", "plain")))
+	var ess: Array = upkeep("reroll_essence", [1])
+	var mult := int(upkeep("lock_mult", 2)) if int(inst.get("locked_affix", -1)) >= 0 else 1
+	return {"essence": int(ess[mini(gi, ess.size() - 1)]) * mult, "taels": int(upkeep("reroll_taels", 60)) * (gi + 1) * mult}
+
+## Reroll (S47 affix lock): every affix but the locked one is rolled again on the affix stream. The new roll waits
+## beside the old one until you choose which to keep.
+func reroll(c, uid: int) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "smithing"): return fail("locked")
+	var at := locate(c, uid)
+	if at.is_empty() or not ContentDB.is_equipment(str(at.inst.id)): return fail("not_equipment")
+	var inst: Dictionary = at.inst
+	if (inst.get("affixes", []) as Array).is_empty(): return fail("no_affixes", {"text": Tx.t("sim.crafting.no_affixes")})
+	var cost := reroll_cost(inst)
+	if c.inventory.count("refining_essence") < int(cost.essence): return fail("materials", {"text": Tx.t("sim.crafting.needs_2") % [int(cost.essence), ContentDB.item_name("refining_essence")]})
+	if game.economy.balance("silver_tael") < int(cost.taels): return fail("insufficient_funds")
+	game.inventory.apply_remove(c.id, "refining_essence", int(cost.essence), "reroll")
+	game.economy.apply_currency("silver_tael", -int(cost.taels), "reroll")
+	var lock := int(inst.get("locked_affix", -1))
+	var old: Array = inst.affixes
+	var fresh: Array = []
+	var taken: Array = []
+	if lock >= 0 and lock < old.size(): taken.append(str(old[lock].id))
+	var rng := Rng.stream(c.id, "affix")
+	for i in old.size():
+		if i == lock:
+			fresh.append(old[i].duplicate())
+			continue
+		var a := LootRules.roll_affix(str(inst.id), int(inst.get("ilv", 1)), rng, taken)
+		if a.is_empty(): a = old[i].duplicate()
+		taken.append(str(a.id))
+		fresh.append(a)
+	inst.pending_affixes = fresh
+	emit("affixes_rerolled", {"actor": c.id, "item": inst.id, "uid": uid, "old": old, "new": fresh})
+	return ok({"old": old, "new": fresh, "cost": cost})
+
+## Keep the new roll or the old one; either way the pending roll is gone.
+func choose_affixes(c, uid: int, keep_new: bool) -> Dictionary:
+	var at := locate(c, uid)
+	if at.is_empty() or not at.inst.has("pending_affixes"): return fail("nothing_pending")
+	if keep_new: game.inventory.apply_affixes(c.id, at.inst, at.inst.pending_affixes, str(at.slot))
+	at.inst.erase("pending_affixes")
+	return ok({"kept": "new" if keep_new else "old"})
+
+## Lock one affix against the next rerolls (-1 unlocks).
+func lock_affix(c, uid: int, affix: int) -> Dictionary:
+	var at := locate(c, uid)
+	if at.is_empty() or not ContentDB.is_equipment(str(at.inst.id)): return fail("not_equipment")
+	if affix >= (at.inst.get("affixes", []) as Array).size(): return fail("no_affix")
+	if affix < 0: at.inst.erase("locked_affix")
+	else: at.inst.locked_affix = affix
+	emit("affix_locked", {"actor": c.id, "item": at.inst.id, "affix": affix})
+	return ok({"locked": affix})
 
 func tick(_delta: float) -> void:
 	pass

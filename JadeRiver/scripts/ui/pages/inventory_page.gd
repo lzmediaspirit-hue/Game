@@ -144,7 +144,11 @@ func _draw_detail(r: Rect2) -> void:
 			y += 22
 		for a in s.get("affixes", []):
 			if y > r.end.y - 150: break
-			text(Vector2(r.position.x + 16, y + 20), "✦ %s" % str(a.get("stat", "")).replace("_", " "), 16, UiKit.PALE_GOLD)
+			text(Vector2(r.position.x + 16, y + 20), "✦ %s" % UiKit.affix_text(a), 16, UiKit.PALE_GOLD)
+			y += 22
+		# S47: failed enhancements leave pity on the piece; the forge adds it to the next try.
+		if float(s.get("pity", 0.0)) > 0.0:
+			text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.forge.pity_line") % int(round(float(s.pity) * 100)), 16, UiKit.GOLD)
 			y += 22
 	if def.get("pill", {}).has("toxicity"):
 		var tox_mult := float(ContentDB.config("grades").get("pill", {}).get("toxicity", {}).get(q if q != "" else "common", 1.0))

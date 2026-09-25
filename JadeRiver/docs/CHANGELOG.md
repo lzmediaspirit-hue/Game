@@ -5,6 +5,29 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V3a · Gear upkeep at the forge (S47)
+- **Enhancement pity.**
+  - An enhancement from +5 upward can fail, and it never breaks the piece or takes a level.
+  - Each failure adds 5% to the next try on that piece. The piece keeps its pity and shows it in its details;
+    a success clears it.
+  - The roll uses the affix stream.
+- **Refining Essence** (a new material, from Salvage) steadies a try: +2.5% each, up to four.
+- **Salvage** breaks any number of pieces into their grade's metal and Refining Essence (`salvage.json`:
+  Plain copper; Common Riverstone and 1 essence; Earth Jadeiron and 3; Heaven Cloudsteel and 6; Mystic ore and 10;
+  Spirit and Sage in their zone metals). Worn, bound and locked pieces are never salvaged. The intent is
+  `salvage {items[]}`, and it emits `items_salvaged`.
+- **Inherit** moves a piece's enhancement, less two levels, onto another piece for the same slot, for 2 Spirit
+  Stones a level moved (`enhancement_inherited`).
+- **Reroll and affix lock.**
+  - A reroll rolls a piece's affixes again, and you choose to keep the old roll or take the new one.
+  - Locking one affix keeps it through the reroll, and the reroll then costs double.
+- **Forge modes** on the Crafts page: Recipes, Enhance, Inherit, Salvage and Reroll. Each shows the chance, pity,
+  costs and returns before you commit.
+- Enhancement uses each grade's own metal from `salvage.json`, so Spirit and Sage gear now eat Stormsteel and
+  Sunglass instead of copper.
+- `forge_upkeep_suite`: pity builds and resets, Inherit moves N − 2 in one slot, Salvage skips locked pieces, and
+  a locked affix survives a reroll that costs double.
+
 ### V2d · The room verticality catalogue, room lint and Paths Above (S43 rules 14–15)
 - **Every valley room is built to its v2 catalogue row** (tools/data/catalogue.py):
   - **Lotus Ferry:**

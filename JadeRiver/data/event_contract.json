@@ -473,6 +473,34 @@
     "workshop_authority"
    ]
   },
+  "items_salvaged": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "enhancement_inherited": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "affixes_rerolled": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "affix_locked": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
   "currency_changed": {
    "system": "Economy",
    "files": [

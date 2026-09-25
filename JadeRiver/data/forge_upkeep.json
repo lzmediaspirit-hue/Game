@@ -1,0 +1,27 @@
+{
+ "schema_version": 1,
+ "pity_step": 0.05,
+ "risky_from": 5,
+ "fail_step": 0.12,
+ "essence_step": 0.025,
+ "essence_max": 4,
+ "inherit_loss": 2,
+ "inherit_stones_per_level": 2,
+ "reroll_essence": [
+  1,
+  2,
+  3,
+  5,
+  8,
+  10,
+  12,
+  14,
+  16,
+  18,
+  20,
+  22,
+  24
+ ],
+ "reroll_taels": 60,
+ "lock_mult": 2
+}

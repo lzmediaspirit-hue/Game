@@ -61,7 +61,7 @@ CATALOGUE = {
 DEPTH = {
     "Progression": ["pill_resistance_changed", "foundation_changed", "heart_demon_changed", "residue_changed", "merit_changed", "sin_changed",
                     "debt_recorded", "debt_called"],
-    "Crafting": ["flame_absorbed", "pill_cloud"],
+    "Crafting": ["flame_absorbed", "pill_cloud", "items_salvaged", "enhancement_inherited", "affixes_rerolled", "affix_locked"],
     "Combat": ["treasure_used"],
     "Movement": ["jumped", "landed", "wall_kicked", "art_used", "climb_started", "climb_finished", "fell_out", "mover_boarded",
                  "volume_entered", "volume_left"],

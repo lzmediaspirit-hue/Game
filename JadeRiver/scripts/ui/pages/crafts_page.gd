@@ -16,6 +16,13 @@ var needle_dir := 1.0
 var scores: Array = []
 var band := Vector2(0.45, 0.62)
 var fire := "charcoal"
+## The Forge's upkeep modes (S47): forging from recipes, then Enhance, Inherit, Salvage and Reroll.
+const FORGE_MODES := ["recipes", "enhance", "inherit", "salvage", "reroll"]
+var forge_mode := "recipes"
+var pick_uid := -1                 # the piece chosen in Enhance and Reroll, and Inherit's source
+var to_uid := -1                   # Inherit's target
+var picked: Dictionary = {}        # Salvage: uid -> true
+var essence := 0
 ## The fires under a furnace (gap report G1), in the order the selector shows them.
 const FIRES := ["charcoal", "earth_fire", "beast_fire", "heavenly_flame"]
 
@@ -35,6 +42,10 @@ func setup() -> void:
 	# A page opened for one recipe (a quest link, or a preview: --open-page=alchemy:healing_pill).
 	var pick := str(args.get("tab", ""))
 	if ContentDB.has_entry("recipes", pick): sel = pick
+	if pick in FORGE_MODES:   # --open-page=forge:enhance (a preview shows the first piece chosen)
+		forge_mode = pick
+		var gear := _gear(ch)
+		if not gear.is_empty() and pick in ["enhance", "reroll"]: pick_uid = int(gear[0].inst.get("uid", -1))
 	if want >= 0: tab = want
 	else:
 		for i in tabs.size():
@@ -66,7 +77,16 @@ func draw_page() -> void:
 	if str(tabs[tab].get("locked", "")) != "":
 		para(Rect2(content.position + Vector2(30, 30), content.size - Vector2(60, 60)), str(tabs[tab].locked), 21, UiKit.MIST)
 		return
-	var list_r := Rect2(content.position.x, content.position.y, 420, content.size.y)
+	if craft == "smithing":
+		var mw := (content.size.x) / FORGE_MODES.size()
+		for i in FORGE_MODES.size():
+			var m: String = FORGE_MODES[i]
+			btn(Rect2(content.position.x + i * mw + 2, content.position.y, mw - 4, 46), Tx.t("ui.forge." + m), "forge_mode", m, forge_mode == m, true, "", 18)
+		if forge_mode != "recipes":
+			_forge(ch, Rect2(content.position.x, content.position.y + 56, content.size.x, content.size.y - 56))
+			return
+	var top := 56.0 if craft == "smithing" else 0.0
+	var list_r := Rect2(content.position.x, content.position.y + top, 420, content.size.y - top)
 	panel(list_r)
 	var recipes := recipes_for(ch, craft)
 	var prof: Dictionary = ch.professions.get(craft, {"rank": "apprentice", "xp": 0})
@@ -80,7 +100,7 @@ func draw_page() -> void:
 		text(rr.position + Vector2(66, 36), ContentDB.item_name(out), 18, UiKit.PAPER if why == "" else UiKit.MIST)
 		region(rr, "sel", str(r.id))
 	)
-	var right := Rect2(list_r.end.x + 20, content.position.y, content.end.x - list_r.end.x - 20, content.size.y)
+	var right := Rect2(list_r.end.x + 20, list_r.position.y, content.end.x - list_r.end.x - 20, list_r.size.y)
 	panel(right)
 	if sel == "" or ContentDB.entry("recipes", sel).is_empty() or str(ContentDB.entry("recipes", sel).craft) != craft:
 		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), (Tx.t("ui.crafts.choose_a_recipe_stand_near") % {"cooking": Tx.t("ui.crafts.cooking_pot"), "alchemy": "furnace", "smithing": "forge",
@@ -126,6 +146,170 @@ func draw_page() -> void:
 	if craft == "alchemy" and Unlocks.is_unlocked(ch.id, "auto_refine") and not game_on:
 		btn(Rect2(right.end.x - 474, right.end.y - 76, 220, 58), Tx.t("ui.crafts.queue_batch"), "queue", null, false, why2 == "", why2)
 
+# ------------------------------------------------------------------ the Forge's upkeep (S47)
+## Every piece of equipment you have: worn first, then the bag.
+func _gear(ch) -> Array:
+	var out: Array = []
+	for sl in ch.inventory.equipped:
+		var e = ch.inventory.equipped[sl]
+		if e != null and ContentDB.is_equipment(str(e.id)): out.append({"inst": e, "worn": true})
+	for it in ch.inventory.bag:
+		if it != null and it.has("uid") and ContentDB.is_equipment(str(it.id)): out.append({"inst": it, "worn": false})
+	return out
+
+func _find(ch, uid: int) -> Dictionary:
+	for g in _gear(ch):
+		if int(g.inst.get("uid", -2)) == uid: return g.inst
+	return {}
+
+func _gear_name(inst: Dictionary) -> String:
+	var lv := int(inst.get("enhance", 0))
+	return ContentDB.item_name(str(inst.id)) + (" +%d" % lv if lv > 0 else "")
+
+func _forge(ch, area: Rect2) -> void:
+	var gear := _gear(ch)
+	var list_r := Rect2(area.position.x, area.position.y, 420, area.size.y)
+	panel(list_r)
+	list("gear", list_r.grow(-8), gear.size(), 62, func(i: int, rr: Rect2):
+		var g: Dictionary = gear[i]
+		var inst: Dictionary = g.inst
+		var uid := int(inst.get("uid", -1))
+		var chosen: bool = uid == pick_uid or uid == to_uid or picked.has(uid)
+		var usable: bool = not (forge_mode == "salvage" and (g.worn or inst.get("bound", false) or ch.inventory.locked.has(uid)))
+		panel(rr, "minor_panel", "selected" if chosen else ("normal" if usable else "disabled"))
+		slot_box(Rect2(rr.position + Vector2(6, 4), Vector2(50, 50)), str(inst.id), 0, str(inst.get("quality", "")))
+		var grade := str(ContentDB.item(str(inst.id)).get("grade", "plain"))
+		text(rr.position + Vector2(66, 28), fit(_gear_name(inst), 17, rr.size.x - 150), 17, UiKit.grade_color(grade) if usable else UiKit.HOLLOW)
+		var sub := Tx.t("ui.forge.worn") if g.worn else ""
+		if float(inst.get("pity", 0.0)) > 0.0: sub += ("  " if sub != "" else "") + Tx.t("ui.forge.pity") % int(round(float(inst.pity) * 100))
+		if ch.inventory.locked.has(uid): sub += ("  " if sub != "" else "") + Tx.t("ui.forge.locked_item")
+		text(rr.position + Vector2(66, 50), sub, 14, UiKit.MIST)
+		if forge_mode == "salvage" and picked.has(uid): text(rr.position + Vector2(rr.size.x - 34, 38), "✓", 24, UiKit.BRIGHT_JADE)
+		region(rr, "gear", uid, usable, Tx.t("ui.forge.cannot_salvage"))
+	)
+	var right := Rect2(list_r.end.x + 20, area.position.y, area.end.x - list_r.end.x - 20, area.size.y)
+	panel(right)
+	match forge_mode:
+		"enhance": _forge_enhance(ch, right)
+		"inherit": _forge_inherit(ch, right)
+		"salvage": _forge_salvage(ch, right)
+		"reroll": _forge_reroll(ch, right)
+
+func _piece_header(r: Rect2, inst: Dictionary) -> float:
+	slot_box(Rect2(r.position + Vector2(24, 24), Vector2(72, 72)), str(inst.id), 0, str(inst.get("quality", "")))
+	text(r.position + Vector2(110, 56), _gear_name(inst), 24, UiKit.grade_color(str(ContentDB.item(str(inst.id)).get("grade", "plain"))))
+	text(r.position + Vector2(110, 84), str(inst.get("quality", "common")).capitalize(), 16, UiKit.MIST)
+	return r.position.y + 120
+
+func _cost_line(r: Rect2, y: float, item_id: String, need: int) -> float:
+	var have: int = c().inventory.count(item_id)
+	slot_box(Rect2(r.position.x + 24, y, 44, 44), item_id)
+	text(Vector2(r.position.x + 80, y + 30), "%s  %d / %d" % [ContentDB.item_name(item_id), have, need], 17, UiKit.BRIGHT_JADE if have >= need else UiKit.RED)
+	return y + 50
+
+func _forge_enhance(ch, r: Rect2) -> void:
+	var inst := _find(ch, pick_uid)
+	if inst.is_empty():
+		para(Rect2(r.position + Vector2(24, 30), r.size - Vector2(48, 60)), Tx.t("ui.forge.enhance_help"), 19, UiKit.MIST)
+		return
+	var y := _piece_header(r, inst)
+	if int(inst.get("enhance", 0)) >= 10:
+		text(Vector2(r.position.x + 24, y + 20), Tx.t("ui.forge.max"), 19, UiKit.GOLD)
+		return
+	var risky := int(inst.get("enhance", 0)) >= int(Game.crafting.upkeep("risky_from", 5))
+	if not risky: essence = 0
+	var chance: float = Game.crafting.enhance_chance(inst, essence)
+	text(Vector2(r.position.x + 24, y + 22), Tx.t("ui.forge.chance") % [int(inst.get("enhance", 0)) + 1, int(round(chance * 100))], 20, UiKit.PAPER)
+	y += 30
+	if float(inst.get("pity", 0.0)) > 0.0:
+		text(Vector2(r.position.x + 24, y + 20), Tx.t("ui.forge.pity_line") % int(round(float(inst.pity) * 100)), 16, UiKit.PALE_GOLD)
+		y += 26
+	var cost: Dictionary = Game.crafting.enhance_cost(inst)
+	y = _cost_line(r, y + 8, str(cost.metal), int(cost.count))
+	if int(cost.shards) > 0: y = _cost_line(r, y, "spirit_stone_shard", int(cost.shards))
+	text(Vector2(r.position.x + 24, y + 24), Tx.t("ui.forge.taels") % int(cost.taels), 17, UiKit.BRIGHT_JADE if Game.economy.balance("silver_tael") >= int(cost.taels) else UiKit.RED)
+	y += 36
+	if risky:
+		text(Vector2(r.position.x + 24, y + 24), Tx.t("ui.forge.essence") % [essence, int(round(essence * float(Game.crafting.upkeep("essence_step", 0.025)) * 100))], 17, UiKit.PAPER)
+		btn(Rect2(r.end.x - 164, y, 56, 44), "−", "essence", -1)
+		btn(Rect2(r.end.x - 84, y, 56, 44), "+", "essence", 1, false, essence < int(Game.crafting.upkeep("essence_max", 4)) and ch.inventory.count("refining_essence") > essence)
+	var why: String = Game.crafting.enhance_check(ch, inst, essence)
+	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.enhance"), "do_enhance", null, true, why == "", why)
+
+func _forge_inherit(ch, r: Rect2) -> void:
+	var from := _find(ch, pick_uid)
+	var to := _find(ch, to_uid)
+	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 60)), Tx.t("ui.forge.inherit_help"), 17, UiKit.MIST)
+	var y := r.position.y + 90
+	for pair in [[Tx.t("ui.forge.from"), from], [Tx.t("ui.forge.to"), to]]:
+		text(Vector2(r.position.x + 24, y + 30), str(pair[0]), 18, UiKit.MIST)
+		var inst: Dictionary = pair[1]
+		if inst.is_empty(): text(Vector2(r.position.x + 120, y + 30), Tx.t("ui.forge.choose_left"), 17, UiKit.HOLLOW)
+		else:
+			slot_box(Rect2(r.position.x + 110, y, 50, 50), str(inst.id), 0, str(inst.get("quality", "")))
+			text(Vector2(r.position.x + 172, y + 32), _gear_name(inst), 18, UiKit.PAPER)
+		y += 64
+	var why := ""
+	var moved := 0
+	if from.is_empty() or to.is_empty(): why = Tx.t("ui.forge.choose_both")
+	else:
+		moved = int(from.get("enhance", 0)) - int(Game.crafting.upkeep("inherit_loss", 2))
+		if str(ContentDB.item(str(from.id)).get("slot", "")) != str(ContentDB.item(str(to.id)).get("slot", "")): why = Tx.t("sim.crafting.inherit_same_slot")
+		elif moved <= int(to.get("enhance", 0)): why = Tx.t("sim.crafting.inherit_nothing")
+	if why == "":
+		var stones := moved * int(Game.crafting.upkeep("inherit_stones_per_level", 2))
+		text(Vector2(r.position.x + 24, y + 26), Tx.t("ui.forge.inherit_preview") % [moved, stones], 19, UiKit.PAPER)
+	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.inherit"), "do_inherit", null, true, why == "", why)
+	btn(Rect2(r.position.x + 24, r.end.y - 76, 160, 58), Tx.t("ui.forge.clear"), "clear_pick")
+
+func _forge_salvage(ch, r: Rect2) -> void:
+	var pv: Dictionary = Game.crafting.salvage_preview(ch, picked.keys())
+	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 60)), Tx.t("ui.forge.salvage_help"), 17, UiKit.MIST)
+	var y := r.position.y + 96
+	text(Vector2(r.position.x + 24, y), Tx.t("ui.forge.salvage_count") % pv.items.size(), 19, UiKit.PAPER)
+	y += 16
+	for item_id in pv.returns:
+		slot_box(Rect2(r.position.x + 24, y, 44, 44), str(item_id), int(pv.returns[item_id]))
+		text(Vector2(r.position.x + 80, y + 30), "%s ×%d" % [ContentDB.item_name(str(item_id)), int(pv.returns[item_id])], 17, UiKit.BRIGHT_JADE)
+		y += 50
+	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.salvage"), "do_salvage", null, true, not pv.items.is_empty(), Tx.t("ui.forge.choose_pieces"))
+
+func _forge_reroll(ch, r: Rect2) -> void:
+	var inst := _find(ch, pick_uid)
+	if inst.is_empty():
+		para(Rect2(r.position + Vector2(24, 30), r.size - Vector2(48, 60)), Tx.t("ui.forge.reroll_help"), 19, UiKit.MIST)
+		return
+	var y := _piece_header(r, inst)
+	var affs: Array = inst.get("affixes", [])
+	if affs.is_empty():
+		text(Vector2(r.position.x + 24, y + 20), Tx.t("sim.crafting.no_affixes"), 18, UiKit.MIST)
+		return
+	var lock := int(inst.get("locked_affix", -1))
+	var pending: Array = inst.get("pending_affixes", [])
+	var colw := (r.size.x - 48) / (2.0 if not pending.is_empty() else 1.0)
+	if not pending.is_empty():
+		text(Vector2(r.position.x + 24, y + 8), Tx.t("ui.forge.old_roll"), 16, UiKit.MIST)
+		text(Vector2(r.position.x + 24 + colw, y + 8), Tx.t("ui.forge.new_roll"), 16, UiKit.MIST)
+		y += 14
+	for i in affs.size():
+		var locked := i == lock
+		text(Vector2(r.position.x + 24, y + 30), ("🔒 " if locked else "✦ ") + UiKit.affix_text(affs[i]), 18, UiKit.GOLD if locked else UiKit.PALE_GOLD)
+		if pending.is_empty():
+			btn(Rect2(r.end.x - 164, y + 2, 140, 42), Tx.t("ui.forge.unlock") if locked else Tx.t("ui.forge.lock"), "lock_affix", -1 if locked else i, locked, true, "", 16)
+		elif i < pending.size():
+			text(Vector2(r.position.x + 24 + colw, y + 30), "✦ " + UiKit.affix_text(pending[i]), 18, UiKit.BRIGHT_JADE)
+		y += 48
+	if not pending.is_empty():
+		btn(Rect2(r.position.x + 24, r.end.y - 76, 200, 58), Tx.t("ui.forge.keep_old"), "choose", "old")
+		btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.take_new"), "choose", "new", true)
+		return
+	var cost: Dictionary = Game.crafting.reroll_cost(inst)
+	y = _cost_line(r, y + 10, "refining_essence", int(cost.essence))
+	text(Vector2(r.position.x + 24, y + 24), Tx.t("ui.forge.taels") % int(cost.taels) + (("  " + Tx.t("ui.forge.lock_doubles")) if lock >= 0 else ""), 17,
+		UiKit.BRIGHT_JADE if Game.economy.balance("silver_tael") >= int(cost.taels) else UiKit.RED)
+	var why2: String = Game.crafting.reroll_check(ch, inst)
+	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.reroll"), "do_reroll", null, true, why2 == "", why2)
+
 func _auto(ch, right: Rect2) -> void:
 	var q: Array = ch.crafting.get("auto_queue", [])
 	if q.is_empty(): return
@@ -146,6 +330,8 @@ func _draw_minigame(r: Rect2) -> void:
 		draw_circle(Vector2(r.position.x + 12 + i * 22, r.end.y + 16), 7, UiKit.JADE if float(scores[i]) > 0.6 else UiKit.RED)
 
 func on_event(name: String, p: Dictionary) -> void:
+	# A reroll or a lock changes the piece in front of you: its affix lines are drawn again.
+	if name in ["affixes_rerolled", "affix_locked"]: queue_redraw()
 	if name == "craft_step_result":
 		flash({"perfect": Tx.t("ui.crafts.perfect"), "good": Tx.t("ui.crafts.good"), "miss": Tx.t("ui.crafts.miss")}.get(str(p.get("grade", "miss")), ""))
 	queue_redraw()
@@ -201,6 +387,55 @@ func on_action(id: String, data) -> void:
 		"_tab":
 			sel = ""
 			game_on = false
+		"forge_mode":
+			forge_mode = str(data)
+			pick_uid = -1
+			to_uid = -1
+			picked = {}
+			essence = 0
+		"gear":
+			var uid := int(data)
+			match forge_mode:
+				"salvage":
+					if picked.has(uid): picked.erase(uid)
+					else: picked[uid] = true
+				"inherit":
+					if pick_uid < 0 or pick_uid == uid: pick_uid = uid if pick_uid != uid else -1
+					else: to_uid = uid if to_uid != uid else -1
+				_:
+					pick_uid = uid
+					essence = 0
+		"clear_pick":
+			pick_uid = -1
+			to_uid = -1
+		"essence": essence = clampi(essence + int(data), 0, int(Game.crafting.upkeep("essence_max", 4)))
+		"do_enhance":
+			var r3 := submit({"type": "enhance", "uid": pick_uid, "essence": essence})
+			if r3.get("ok", false):
+				Audio.play("forge", "UI")
+				flash(Tx.t("ui.forge.enhanced") % int(r3.level) if r3.success else Tx.t("ui.forge.failed") % int(round(float(r3.pity) * 100)))
+				essence = 0
+			elif str(r3.get("text", "")) != "": flash(str(r3.text))
+		"do_inherit":
+			var r4 := submit({"type": "inherit_enhancement", "from": pick_uid, "to": to_uid})
+			if r4.get("ok", false):
+				Audio.play("forge", "UI")
+				flash(Tx.t("ui.forge.inherited") % int(r4.levels))
+				pick_uid = -1
+				to_uid = -1
+			elif str(r4.get("text", "")) != "": flash(str(r4.text))
+		"do_salvage":
+			var r5 := submit({"type": "salvage", "items": picked.keys()})
+			if r5.get("ok", false):
+				Audio.play("forge", "UI")
+				flash(Tx.t("ui.forge.salvaged") % (r5.items as Array).size())
+				picked = {}
+		"lock_affix": submit({"type": "lock_affix", "uid": pick_uid, "affix": int(data)})
+		"do_reroll":
+			var r6 := submit({"type": "reroll_affixes", "uid": pick_uid})
+			if r6.get("ok", false): Audio.play("forge", "UI")
+			elif str(r6.get("text", "")) != "": flash(str(r6.text))
+		"choose": submit({"type": "choose_affixes", "uid": pick_uid, "keep": str(data)})
 
 func _band_mult(craft: String) -> float:
 	return Game.crafting.band_mult(c(), fire) if craft == "alchemy" else 1.0

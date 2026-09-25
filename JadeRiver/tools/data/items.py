@@ -32,6 +32,8 @@ ORES = [
     ("stormsteel_ore", "spirit", "Blue-black ore from where lightning strikes the same ground twice."),
     ("sunglass_ore", "sage", "Desert glass the Sunscar sun fused out of the dunes. It holds heat and light like a lamp.", "Sunglass"),
 ]
+# S47 gear upkeep: what Salvage gives back, and what steadies an enhancement.
+REFINING = [("refining_essence", "common", "The refined Qi of a salvaged piece. The forge feeds it into an enhancement to steady it.", "Refining Essence")]
 BEAST = ["ore_dust", "crab_shell", "rat_tail", "boar_hide", "tough_meat", "toad_oil", "moss", "beetle_shell", "tortoise_plate",
          "mole_claw", "frog_leg", "leech_oil", "bamboo_shoot", "viper_fang", "venom_sac", "thorn_hide", "hound_fang", "jade_scale",
          "tide_shell", "pearl", "lizard_scale", "serpent_scale", "vulture_plume", "cloud_feather", "storm_feather", "ape_fur",
@@ -224,6 +226,8 @@ def build_items():
                          name=h[3] if len(h) > 3 else None, **extra))
     for o in ORES:
         rows.append(item(o[0], "ore", o[1], 99, o[2], name=o[3] if len(o) > 3 else None))
+    for o in REFINING:
+        rows.append(item(o[0], "material", o[1], 99, o[2], name=o[3]))
     for b in BEAST:
         rows.append(item(b, "beast_part", BEAST_GRADE[b], 99, "A material taken from a valley beast."))
     # Azure Expanse beasts (Act II)

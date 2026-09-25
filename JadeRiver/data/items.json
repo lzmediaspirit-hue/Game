@@ -272,6 +272,16 @@
    "desc": "Desert glass the Sunscar sun fused out of the dunes. It holds heat and light like a lamp."
   },
   {
+   "id": "refining_essence",
+   "name": "Refining Essence",
+   "type": "material",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "refining_essence",
+   "desc": "The refined Qi of a salvaged piece. The forge feeds it into an enhancement to steady it."
+  },
+  {
    "id": "ore_dust",
    "name": "Ore Dust",
    "type": "beast_part",

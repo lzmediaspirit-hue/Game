@@ -148,6 +148,18 @@ def spirit_stone_shard():
     return c
 
 
+def refining_essence():
+    """Salvaged Qi of a broken piece: a glowing amber drop with a spark above it."""
+    c = Canvas(32)
+    ramp = R['fire']
+    drop = c.ellipse(16, 20, 8, 8) | c.poly([(9, 17), (16, 3), (23, 17)])
+    c.put(drop, ramp, 'sphere', base=2, cx=13, cy=15, rx=10, ry=12)
+    c.put(c.ellipse(13, 18, 2.2, 3.4), ramp[4], 'flat')
+    S.sparkle(c, 25, 8, ramp[4], ramp[3], 2)
+    c.outline()
+    return c
+
+
 def cloudsteel_ore():
     c = Canvas(32)
     rk = R['porcelain']
@@ -308,6 +320,7 @@ register(FAM, 'copper_ore', copper_ore, GROUP)
 register(FAM, 'riverstone', riverstone, GROUP)
 register(FAM, 'jadeiron', jadeiron, GROUP)
 register(FAM, 'spirit_stone_shard', spirit_stone_shard, GROUP)
+register(FAM, 'refining_essence', refining_essence, GROUP)
 register(FAM, 'cloudsteel_ore', cloudsteel_ore, GROUP)
 register(FAM, 'mystic_ore', mystic_ore, GROUP)
 register(FAM, 'stormsteel_ore', stormsteel_ore, GROUP)

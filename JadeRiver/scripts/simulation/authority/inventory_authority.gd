@@ -239,6 +239,11 @@ func apply_overflow(actor_id: String, items: Array) -> void:
 	emit("overflow_mailed", {"actor": actor_id, "items": items})
 
 ## Forge enhancement: Crafting pays and rolls; Inventory owns the instance and says so.
+## A piece takes a new set of affixes (S47 reroll); worn, it changes the wearer's stats.
+func apply_affixes(actor_id: String, inst: Dictionary, affixes: Array, slot: String) -> void:
+	inst.affixes = affixes
+	if slot != "": emit("equipment_changed", {"actor": actor_id, "slot": slot, "old": inst.id, "new": inst.id})
+
 func apply_enhance(actor_id: String, inst: Dictionary, level: int, slot: String) -> void:
 	inst.enhance = level
 	if slot != "": emit("equipment_changed", {"actor": actor_id, "slot": slot, "old": inst.id, "new": inst.id})

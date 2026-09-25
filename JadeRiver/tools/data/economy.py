@@ -627,8 +627,36 @@ def strings():
     write("en.json", {"strings": S}, folder=os.path.join(DATA, "strings"))
 
 
+def forge_upkeep():
+    """S47 gear upkeep. Salvage returns by grade (Part 8, extended past Mystic with the zone metals); the same
+    metal is what an enhancement of that grade eats. Pity, essence, Inherit and reroll costs."""
+    rows = [
+        {"id": "plain", "metal": "copper_ore", "returns": [{"item": "copper_ore", "count": 1}]},
+        {"id": "common", "metal": "riverstone", "returns": [{"item": "riverstone", "count": 2}, {"item": "refining_essence", "count": 1}]},
+        {"id": "earth", "metal": "jadeiron", "returns": [{"item": "jadeiron", "count": 2}, {"item": "refining_essence", "count": 3}]},
+        {"id": "heaven", "metal": "cloudsteel_ore", "returns": [{"item": "cloudsteel_ore", "count": 2}, {"item": "refining_essence", "count": 6}]},
+        {"id": "mystic", "metal": "mystic_ore", "returns": [{"item": "mystic_ore", "count": 1}, {"item": "refining_essence", "count": 10}]},
+        {"id": "spirit", "metal": "stormsteel_ore", "returns": [{"item": "stormsteel_ore", "count": 2}, {"item": "refining_essence", "count": 12}]},
+        {"id": "sage", "metal": "sunglass_ore", "returns": [{"item": "sunglass_ore", "count": 2}, {"item": "refining_essence", "count": 16}]},
+    ]
+    entries("salvage", rows)
+    write("forge_upkeep.json", {
+        "pity_step": 0.05,              # each failed enhancement adds 5% to the next attempt on that item
+        "risky_from": 5,                # attempts from +5 to +6 upward can fail
+        "fail_step": 0.12,              # base chance falls 12% a level from there
+        "essence_step": 0.025,          # each Refining Essence fed into an attempt adds 2.5%...
+        "essence_max": 4,               # ...up to four per attempt
+        "inherit_loss": 2,              # Inherit moves N - 2 levels
+        "inherit_stones_per_level": 2,  # 2 Spirit Stones (Low) a level moved
+        "reroll_essence": [1, 2, 3, 5, 8, 10, 12, 14, 16, 18, 20, 22, 24],   # by grade index
+        "reroll_taels": 60,             # x (grade index + 1)
+        "lock_mult": 2,                 # a locked affix doubles the reroll cost
+    })
+
+
 def build():
     shops()
+    forge_upkeep()
     auction()
     currencies()
     rec = recipes()

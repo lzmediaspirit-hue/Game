@@ -207,6 +207,12 @@ static func grade_color(g: String) -> Color:
 static func badge_color(kind: String) -> Color:
 	return {"grey": Color("8c969a"), "green": Color("67d67a"), "white": PAPER, "orange": Color("f0a040"), "red": RED}.get(kind, PAPER)
 
+## An equipment affix as a line: "+24 accuracy", "+3% physical attack".
+static func affix_text(a: Dictionary) -> String:
+	var v := float(a.get("value", 0.0))
+	var shown := ("+%d%%" % int(round(v * 100))) if str(a.get("op", "flat")) != "flat" else ("+%s" % fmt(v))
+	return "%s %s" % [shown, str(a.get("stat", "")).replace("_", " ")]
+
 static func fmt(n: float) -> String:
 	var v := int(round(n))
 	var s := str(absi(v))
