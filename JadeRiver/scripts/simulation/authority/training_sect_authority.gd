@@ -11,7 +11,7 @@ func handle(intent: Dictionary) -> Dictionary:
 	if c == null: return fail("no_character")
 	match str(intent.type):
 		"take_promotion_trial": return promote(c)
-		"leave_sect": return fail("not_in_valley", {"text": "Leaving your sect is not possible in Act I."})
+		"leave_sect": return fail("not_in_valley", {"text": Tx.t("sim.training_sect.leaving_your_sect_is_not")})
 	return fail("unknown_intent")
 
 func apply_join(actor_id: String, sect_id: String) -> void:

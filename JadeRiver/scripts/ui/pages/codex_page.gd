@@ -4,8 +4,8 @@ extends Page
 var sel := ""
 
 func _init() -> void:
-	title = "Codex"
-	tabs = [{"id": "codex", "label": "Codex"}, {"id": "collection", "label": "Collection"}, {"id": "achievements", "label": "Achievements"}]
+	title = Tx.t("ui.codex.codex")
+	tabs = [{"id": "codex", "label": Tx.t("ui.codex.codex")}, {"id": "collection", "label": Tx.t("ui.codex.collection")}, {"id": "achievements", "label": Tx.t("ui.codex.achievements")}]
 
 func setup() -> void:
 	match page_id:
@@ -33,7 +33,7 @@ func _codex() -> void:
 		var e: Dictionary = entries[i]
 		var known: bool = Game.account.codex.has(str(e.id))
 		text(rr.position + Vector2(14, 30), str(e.title) if known else "? ? ?", 19, (UiKit.PALE_GOLD if sel == str(e.id) else UiKit.PAPER) if known else UiKit.HOLLOW)
-		region(rr, "sel", str(e.id), known, "Not yet discovered")
+		region(rr, "sel", str(e.id), known, Tx.t("ui.codex.not_yet_discovered"))
 	)
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
 	panel(right)
@@ -42,7 +42,7 @@ func _codex() -> void:
 		heading(right.position + Vector2(24, 46), str(e2.get("title", "")), right.size.x - 48)
 		para(Rect2(right.position + Vector2(24, 70), right.size - Vector2(48, 90)), str(e2.get("body", "")), 20)
 	else:
-		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), "%d of %d entries discovered." % [Game.account.codex.size(), entries.size()], 20, UiKit.MIST)
+		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), Tx.t("ui.codex.of_entries_discovered") % [Game.account.codex.size(), entries.size()], 20, UiKit.MIST)
 
 func _collection() -> void:
 	var foes: Array = ContentDB.all("enemies").filter(func(e): return str(e.get("role", "")) in ["normal", "elite", "field_boss", "dungeon_boss"])
@@ -64,7 +64,7 @@ func _collection() -> void:
 				if cid == "" or not creature_at(Rect2(cr.position + Vector2(8, 6), Vector2(cr.size.x - 16, 78)), cid):
 					icon_at(Rect2(cr.get_center() - Vector2(24, 50), Vector2(48, 48)), str(e.get("loot_icon", "boss_skull")))
 				text(cr.position + Vector2(0, 104), str(e.name), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
-				text(cr.position + Vector2(0, 126), "Defeated %d" % kills, 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
+				text(cr.position + Vector2(0, 126), Tx.t("ui.codex.defeated") % kills, 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
 			else:
 				var art2 = e.get("art", {})
 				var cid2 := str(art2.get("creature", "")) if art2 is Dictionary else ""
@@ -84,9 +84,9 @@ func _achievements(ch) -> void:
 		panel(rr, "minor_panel", "selected" if done else "normal")
 		text(rr.position + Vector2(20, 30), str(a.name), 21, UiKit.PALE_GOLD if done else UiKit.PAPER)
 		text(rr.position + Vector2(20, 56), str(a.get("desc", "")), 16, UiKit.MIST)
-		if a.has("title"): text(rr.position + Vector2(0, 30), "Title: %s" % ContentDB.name_of("titles", str(a.title)), 16, UiKit.GOLD, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 20)
+		if a.has("title"): text(rr.position + Vector2(0, 30), Tx.t("ui.codex.title") % ContentDB.name_of("titles", str(a.title)), 16, UiKit.GOLD, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 20)
 		if int(a.get("count", 1)) > 1 and not done: text(rr.position + Vector2(0, 56), "%d / %d" % [n, int(a.count)], 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 20)
-		elif done: text(rr.position + Vector2(0, 56), "Complete", 16, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 20)
+		elif done: text(rr.position + Vector2(0, 56), Tx.t("ui.codex.complete"), 16, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 20)
 	)
 
 func on_action(id: String, data) -> void:

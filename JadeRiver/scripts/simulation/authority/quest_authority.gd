@@ -162,8 +162,8 @@ func talk(c, npc: String) -> Dictionary:
 	for q in c.quests.active:
 		var def := quest_def(c, q)
 		if c.quests.active[q].get("state") == "ready" and is_hand_in(def, npc):
-			convo.lines = def.get("complete_text", ["Well done."]).duplicate()
-			convo.choices = [{"text": "Hand in: %s" % def.get("name", q), "hand_in": q}]
+			convo.lines = def.get("complete_text", [Tx.t("sim.quest.well_done")]).duplicate()
+			convo.choices = [{"text": Tx.t("sim.quest.hand_in") % def.get("name", q), "hand_in": q}]
 			convo.quest = q
 			return ok({"dialogue": convo})
 	if n.has("tree") and ContentDB.dialogue.has(str(n.tree)):
@@ -180,10 +180,10 @@ func talk(c, npc: String) -> Dictionary:
 		var rank := {"prologue": 0, "main": 1, "guided": 2, "side": 3}
 		offers.sort_custom(func(a, b): return int(rank.get(str(ContentDB.entry("quests", a).get("kind", "side")), 4)) < int(rank.get(str(ContentDB.entry("quests", b).get("kind", "side")), 4)))
 		var first := ContentDB.entry("quests", offers[0])
-		convo.lines = first.get("offer_text", ["I have a task for you."]).duplicate()
+		convo.lines = first.get("offer_text", [Tx.t("sim.quest.i_have_a_task_for")]).duplicate()
 		for q2 in offers.slice(0, 3):
-			convo.choices.append({"text": "Accept: %s" % ContentDB.entry("quests", q2).get("name", q2), "accept": q2})
-		convo.choices.append({"text": "Not now", "close": true})
+			convo.choices.append({"text": Tx.t("sim.quest.accept") % ContentDB.entry("quests", q2).get("name", q2), "accept": q2})
+		convo.choices.append({"text": Tx.t("sim.quest.not_now"), "close": true})
 		convo.quest = offers[0]
 		return ok({"dialogue": convo})
 	for q in c.quests.active:
@@ -200,18 +200,18 @@ func talk(c, npc: String) -> Dictionary:
 			var shop := ContentDB.entry("shops", svc.trim_prefix("shop:"))
 			if shop.is_empty() or (shop.has("requires") and not RequirementRules.passes(shop.requires, game.ctx(c))): continue
 			var shops_n := (n.get("services", []) as Array).filter(func(x): return str(x).begins_with("shop:")).size()
-			convo.choices.append({"text": "Trade" if shops_n <= 1 else str(shop.get("name", "Trade")), "shop": svc.trim_prefix("shop:")})
+			convo.choices.append({"text": Tx.t("sim.quest.trade") if shops_n <= 1 else str(shop.get("name", Tx.t("sim.quest.trade"))), "shop": svc.trim_prefix("shop:")})
 		elif svc == "storage" and Unlocks.is_unlocked(c.id, "storage"):
-			convo.choices.append({"text": "Storage", "page": "storage"})
+			convo.choices.append({"text": Tx.t("sim.quest.storage"), "page": "storage"})
 		elif svc == "missions" and Unlocks.is_unlocked(c.id, "daily_missions"):
-			convo.choices.append({"text": "Missions", "page": "training_sect"})
+			convo.choices.append({"text": Tx.t("sim.quest.missions"), "page": "training_sect"})
 		elif svc.begins_with("page:"):
 			var gate := str(n.get("service_unlocks", {}).get(svc, ""))
 			if gate != "" and not Unlocks.is_unlocked(c.id, gate): continue
-			convo.choices.append({"text": str(n.get("service_labels", {}).get(svc, "Open")), "page": svc.trim_prefix("page:")})
+			convo.choices.append({"text": str(n.get("service_labels", {}).get(svc, Tx.t("sim.quest.open"))), "page": svc.trim_prefix("page:")})
 		elif svc.begins_with("spar:") and Unlocks.is_unlocked(c.id, "attack"):
-			convo.choices.append({"text": "Spar", "spar": svc.trim_prefix("spar:")})
-	convo.choices.append({"text": "Farewell", "close": true})
+			convo.choices.append({"text": Tx.t("sim.quest.spar"), "spar": svc.trim_prefix("spar:")})
+	convo.choices.append({"text": Tx.t("sim.quest.farewell"), "close": true})
 	return ok({"dialogue": convo})
 
 func _tree_entry(c, tree: Dictionary) -> String:
@@ -222,7 +222,7 @@ func _tree_entry(c, tree: Dictionary) -> String:
 func _tree_node(c, npc: String, n: Dictionary, tree: Dictionary, node_id: String) -> Dictionary:
 	var node: Dictionary = tree.nodes.get(node_id, {})
 	var choices: Array = []
-	for ch in node.get("choices", [{"text": "Continue", "close": true}]):
+	for ch in node.get("choices", [{"text": Tx.t("sim.quest.continue"), "close": true}]):
 		if ch.has("requires") and not RequirementRules.passes(ch.requires, game.ctx(c)): continue
 		var cc: Dictionary = ch.duplicate(true)
 		cc.tree = tree.get("id", "")
@@ -480,7 +480,7 @@ func tracker(c) -> Array:
 				"done": int(st.progress[i]) >= int(o.get("count", 1))})
 		if st.state == "ready":
 			var npc_name := ContentDB.name_of("npcs", hand_in_npc(c, def))
-			lines = [{"text": "Return to %s" % npc_name, "have": 0, "need": 1, "done": false}]
+			lines = [{"text": Tx.t("sim.quest.return_to") % npc_name, "have": 0, "need": 1, "done": false}]
 		out.append({"quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side")), "ready": st.state == "ready", "lines": lines,
 			"target_room": str(def.get("target_room", ""))})
 	return out
@@ -491,7 +491,7 @@ func start_set_piece(c, event: String) -> Dictionary:
 	if sp.is_empty(): return fail("unknown_event")
 	if sp.has("requires") and not RequirementRules.passes(sp.requires, game.ctx(c)):
 		return fail("not_ready", {"text": RequirementRules.first_failure_text(sp.requires, game.ctx(c))})
-	if event in c.cultivator.events_passed: return fail("already_passed", {"text": "You have already passed this trial."})
+	if event in c.cultivator.events_passed: return fail("already_passed", {"text": Tx.t("sim.quest.you_have_already_passed_this")})
 	emit("set_piece_started", {"actor": c.id, "event": event})
 	if sp.has("room"):
 		return game.world.load_room(c, str(sp.room), str(sp.get("portal", "")))
@@ -525,7 +525,7 @@ func tick(_delta: float) -> void:
 			c.quests.active.erase(qid)
 			c.quests.tracked.erase(qid)
 			c.quests.offered[qid] = true
-			emit("quest_failed", {"actor": c.id, "quest": qid, "name": str(def.get("name", qid)), "text": str(def.get("fail_text", "Time's up."))})
+			emit("quest_failed", {"actor": c.id, "quest": qid, "name": str(def.get("name", qid)), "text": str(def.get("fail_text", Tx.t("sim.quest.time_up")))})
 
 func _on_daily_reset(_p: Dictionary) -> void:
 	start_daily(false)
@@ -543,9 +543,9 @@ func start_weekly(force: bool) -> void:
 	if c.quests.daily.has(id) or c.quests.done.has(id): return
 	var cfg := ContentDB.config("weekly_mission")
 	var lv := ProgressionRules.level(c)
-	c.quests.daily[id] = {"id": id, "name": str(cfg.get("name", "Sect Service")), "kind": "daily", "complete_on": "any", "hand_in": "", "auto_complete": true,
-		"objectives": [{"kind": "use_system", "system": "daily_mission_done", "count": int(cfg.get("dailies", 20)), "text": "Finish daily missions"},
-			{"kind": "kill", "enemy": "any", "role": str(cfg.get("role", "field_boss")), "count": 1, "text": "Or defeat a field boss"}],
+	c.quests.daily[id] = {"id": id, "name": str(cfg.get("name", Tx.t("sim.quest.sect_service"))), "kind": "daily", "complete_on": "any", "hand_in": "", "auto_complete": true,
+		"objectives": [{"kind": "use_system", "system": "daily_mission_done", "count": int(cfg.get("dailies", 20)), "text": Tx.t("sim.quest.finish_daily_missions")},
+			{"kind": "kill", "enemy": "any", "role": str(cfg.get("role", "field_boss")), "count": 1, "text": Tx.t("sim.quest.or_defeat_a_field_boss")}],
 		"rewards": [{"kind": "add_contribution", "amount": int(cfg.get("contribution", 150))},
 			{"kind": "grant_currency", "currency": "silver_tael", "amount": int(cfg.get("taels_base", 100)) + lv * int(cfg.get("taels_per_level", 10))}],
 		"qp": "weekly"}
@@ -573,7 +573,7 @@ func start_daily(force: bool) -> void:
 		var fit: Array = options.filter(func(op): return lv >= int(op.get("min_level", 0)) and lv <= int(op.get("max_level", 999)))
 		if fit.is_empty(): continue
 		var op: Dictionary = fit[rng.randi_range(0, fit.size() - 1)]
-		var mname := str(op.get("name", tpl.get("name", "Sect Mission")))
+		var mname := str(op.get("name", tpl.get("name", Tx.t("sim.quest.sect_mission"))))
 		if picked.has(mname): continue
 		picked[mname] = true
 		var id := "daily_%d_%d" % [Clock.reset_day(Clock.now_utc()), made]

@@ -131,7 +131,7 @@ func portal_near(c, portal: Dictionary) -> bool:
 func portal_state(c, portal: Dictionary) -> Dictionary:
 	var target := str(portal.get("to", ""))
 	if ContentDB.room(target).is_empty():
-		return {"open": false, "text": "Coming soon"}
+		return {"open": false, "text": Tx.t("sim.world.coming_soon")}
 	if portal.has("requires") and not RequirementRules.passes(portal.requires, game.ctx(c)):
 		return {"open": false, "text": str(portal.get("locked_text", RequirementRules.first_failure_text(portal.requires, game.ctx(c))))}
 	if portal.get("type", "") == "hidden" and not c.quests.has_flag("seen_" + game.room_rt.room_id + "_" + str(portal.id)):
@@ -182,7 +182,7 @@ func teleport(c, stone_id: String) -> Dictionary:
 	var stone := ContentDB.entry("teleport_stones", stone_id)
 	if stone.is_empty(): return fail("unknown_stone")
 	var fee := int(stone.get("fee_shards", 1))
-	if c.inventory.count("spirit_stone_shard") < fee: return fail("no_fee", {"text": "Needs %d Spirit Stone shard" % fee})
+	if c.inventory.count("spirit_stone_shard") < fee: return fail("no_fee", {"text": Tx.t("sim.world.needs_spirit_stone_shard") % fee})
 	game.inventory.apply_remove(c.id, "spirit_stone_shard", fee, "teleport")
 	emit("teleported", {"actor": c.id, "stone": stone_id})
 	return load_room(c, str(stone.room), "", Vector2(float(stone.at[0]) + 60, float(stone.at[1]) + 10))
@@ -193,7 +193,7 @@ func sense_pulse(c) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "spirit_sense"): return fail("locked", {"text": Unlocks.locked_text("spirit_sense")})
 	if c.pools.cooldown("sense") > 0.0: return fail("cooldown")
 	var cost := 10.0
-	if c.pools.get_value("soul") < cost: return fail("no_soul", {"text": "Not enough Soul"})
+	if c.pools.get_value("soul") < cost: return fail("no_soul", {"text": Tx.t("sim.world.not_enough_soul")})
 	c.pools.set_value("soul", c.pools.get_value("soul") - cost)
 	c.pools.cooldowns["sense"] = 6.0
 	var st: ActorState = game.actor_state(c.id)
@@ -290,7 +290,7 @@ func interact(c, object_id: String) -> Dictionary:
 	if st != null and st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) > float(o.get("radius", 110)) + 20.0:
 		return fail("too_far")
 	if st != null and absf(st.altitude - float(o.get("alt", 0.0))) > 48.0:
-		return fail("out_of_reach", {"text": "Out of reach from here."})
+		return fail("out_of_reach", {"text": Tx.t("sim.world.out_of_reach_from_here")})
 	var avail := object_available(c, o)
 	if not avail.ok and o.type != "npc":
 		return fail("unavailable", {"text": avail.text})
@@ -303,7 +303,7 @@ func interact(c, object_id: String) -> Dictionary:
 			game.combat.apply_resource_change(c.id, "hp", c.pools.max_hp, "shrine")
 			if c.pools.max_qi > 0: game.combat.apply_resource_change(c.id, "qi", c.pools.max_qi, "shrine")
 			GameEvents.save_pending = true
-			result.text = "The shrine remembers you. Wounds close."
+			result.text = Tx.t("sim.world.the_shrine_remembers_you_wounds")
 		"herb_patch", "ore_vein", "fishing_spot":
 			return game.crafting.gather(c, o)
 		"chest":
@@ -343,7 +343,7 @@ func interact(c, object_id: String) -> Dictionary:
 		"signpost":
 			result.text = str(o.get("text", ""))
 		"insight_stone", "qi_spring":
-			result.text = str(o.get("text", "Meditate here."))
+			result.text = str(o.get("text", Tx.t("sim.world.meditate_here")))
 		"spar_post":
 			return game.quest.start_spar_from_object(c, o)
 		"defence_drum":
@@ -389,29 +389,29 @@ func query_context(c) -> Dictionary:
 			if portal_near(c, p):
 				var ps := portal_state(c, p)
 				if ps.get("hidden", false): continue
-				best = {"portal": str(p.id), "type": "portal", "label": "Enter", "ok": ps.open, "text": ps.text, "target": str(p.get("to", ""))}
+				best = {"portal": str(p.id), "type": "portal", "label": Tx.t("sim.world.enter"), "ok": ps.open, "text": ps.text, "target": str(p.get("to", ""))}
 				break
 	return best
 
 func _verb(o: Dictionary) -> String:
 	match str(o.type):
-		"npc": return "Talk"
-		"herb_patch": return "Gather"
-		"ore_vein": return "Mine"
-		"fishing_spot": return "Fish"
-		"chest", "storage_chest": return "Open"
-		"shrine": return "Pray"
-		"pickup": return "Take"
-		"lifting_stone": return "Lift"
-		"cooking_pot": return "Cook"
-		"alchemy_furnace": return "Refine"
-		"forge_anvil": return "Forge"
-		"teleport_stone": return "Travel"
-		"notice_board", "signpost", "inspect": return "Read"
-		"rite_circle": return "Begin"
-		"spar_post": return "Spar"
-		"bell": return "Ring"
-	return "Use"
+		"npc": return Tx.t("sim.world.talk")
+		"herb_patch": return Tx.t("sim.world.gather")
+		"ore_vein": return Tx.t("sim.world.mine")
+		"fishing_spot": return Tx.t("sim.world.fish")
+		"chest", "storage_chest": return Tx.t("sim.world.open")
+		"shrine": return Tx.t("sim.world.pray")
+		"pickup": return Tx.t("sim.world.take")
+		"lifting_stone": return Tx.t("sim.world.lift")
+		"cooking_pot": return Tx.t("sim.world.cook")
+		"alchemy_furnace": return Tx.t("sim.world.refine")
+		"forge_anvil": return Tx.t("sim.world.forge")
+		"teleport_stone": return Tx.t("sim.world.travel")
+		"notice_board", "signpost", "inspect": return Tx.t("sim.world.read")
+		"rite_circle": return Tx.t("sim.world.begin")
+		"spar_post": return Tx.t("sim.world.spar")
+		"bell": return Tx.t("sim.world.ring")
+	return Tx.t("sim.world.use")
 
 # ------------------------------------------------------------------ loot (S32)
 func _on_actor_defeated(p: Dictionary) -> void:

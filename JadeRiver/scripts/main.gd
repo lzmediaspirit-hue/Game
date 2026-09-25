@@ -118,7 +118,7 @@ func _ready() -> void:
 	Audio.music("title")
 	show_title()
 	if not boot_report.get("recovered", []).is_empty():
-		shell.flash("A damaged save was restored from its backup.")
+		shell.flash(Tx.t("main.a_damaged_save_was_restored"))
 	_handle_preview_args(user_args)
 
 func _exit_tree() -> void:
@@ -134,7 +134,7 @@ func _handle_preview_args(user_args: Array) -> void:
 		enter_world(1)
 	elif "--preview-world" in user_args or room != "":
 		if Game.character("c1") == null:
-			Game.submit({"type": "create_character", "slot": 1, "name": "Preview", "appearance": {"hair": "topknot", "shirt": "disciple"}})
+			Game.submit({"type": "create_character", "slot": 1, "name": Tx.t("main.preview"), "appearance": {"hair": "topknot", "shirt": "disciple"}})
 		if room != "":
 			var ch = Game.character("c1")
 			ch.position = {"room": room, "portal": "", "x": 0.0, "y": 0.0, "surface": "", "facing": 1}
@@ -143,7 +143,7 @@ func _handle_preview_args(user_args: Array) -> void:
 				# Debug tools (S38): a founded sect with every building at level 1, for previews.
 				var b := {}
 				for row in ContentDB.all("sect_buildings"): b[str(row.id)] = 1
-				Game.account.sect = {"name": "Preview Sect", "emblem": [0, 0], "level": 6, "prestige": 0, "buildings": b, "queue": [],
+				Game.account.sect = {"name": Tx.t("main.preview_sect"), "emblem": [0, 0], "level": 6, "prestige": 0, "buildings": b, "queue": [],
 					"disciples": [], "candidates": [], "expeditions": [], "candidate_day": -1}
 		enter_world(1)
 	var shot := screen
@@ -220,11 +220,11 @@ func cycle(category: String, direction: int) -> void:
 func enter_world(slot: int) -> void:
 	var r := Game.submit({"type": "enter_character", "slot": slot})
 	if not r.get("ok", false):
-		if shell: shell.flash("Could not enter: %s" % str(r.get("reason", "")))
+		if shell: shell.flash(Tx.t("main.could_not_enter") % str(r.get("reason", "")))
 		return
 	var r2 := Game.submit({"type": "enter_world"})
 	if not r2.get("ok", false):
-		if shell: shell.flash("The world could not load: %s" % str(r2.get("reason", "")))
+		if shell: shell.flash(Tx.t("main.the_world_could_not_load") % str(r2.get("reason", "")))
 		return
 	_set_shell(null)
 	creator = null
@@ -284,7 +284,7 @@ func open_page(id: String, a: Dictionary) -> void:
 	if id == "_switch":
 		var r := Game.submit({"type": "switch_character", "slot": int(a.get("slot", 1))})
 		if not r.get("ok", false):
-			if top_page(): top_page().flash(str(r.get("text", "Cannot switch here.")))
+			if top_page(): top_page().flash(str(r.get("text", Tx.t("main.cannot_switch_here"))))
 			return
 		Game.submit({"type": "enter_world"})
 		_mount_world()
@@ -293,7 +293,7 @@ func open_page(id: String, a: Dictionary) -> void:
 		return
 	var path := str(PAGES.get(id, ""))
 	if path == "" or not ResourceLoader.exists(path):
-		if is_instance_valid(hud): hud.add_log("Coming in a later update", UiKit.MIST)
+		if is_instance_valid(hud): hud.add_log(Tx.t("main.coming_in_a_later_update"), UiKit.MIST)
 		return
 	# Opening the same page again just brings it to the front with new args.
 	for p in pages:

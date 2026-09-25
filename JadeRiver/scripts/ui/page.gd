@@ -332,8 +332,8 @@ func _draw_confirm() -> void:
 	var r := Rect2(390, 250, 500, 220)
 	draw_style_box(UiKit.style("major_window"), r)
 	para(Rect2(r.position + Vector2(34, 30), Vector2(432, 110)), str(confirm.text), 21)
-	btn(Rect2(r.position.x + 40, r.end.y - 76, 190, 54), "Cancel", "_confirm_no")
-	btn(Rect2(r.end.x - 230, r.end.y - 76, 190, 54), "Confirm", "_confirm_yes", null, true)
+	btn(Rect2(r.position.x + 40, r.end.y - 76, 190, 54), Tx.t("ui.page.cancel"), "_confirm_no")
+	btn(Rect2(r.end.x - 230, r.end.y - 76, 190, 54), Tx.t("ui.page.confirm"), "_confirm_yes", null, true)
 
 # ------------------------------------------------------------------ input
 func _hit(p: Vector2) -> int:

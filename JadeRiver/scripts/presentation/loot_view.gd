@@ -55,5 +55,5 @@ func _draw() -> void:
 	var c = Game.active()
 	var st: ActorState = Game.actor_state(c.id) if c else null
 	if st and (fine or st.plane.distance_to(Vector2(position.x, position.y)) < 160.0):
-		var text := ("%d taels" % coins) if coins > 0 else ContentDB.item_name(item) + (" ×%d" % count if count > 1 else "")
+		var text := (Tx.t("view.taels") % coins) if coins > 0 else ContentDB.item_name(item) + (" ×%d" % count if count > 1 else "")
 		UiKit.draw_outlined(self, text, Vector2(-100, -40 + y), 14, col, HORIZONTAL_ALIGNMENT_CENTER, 200)

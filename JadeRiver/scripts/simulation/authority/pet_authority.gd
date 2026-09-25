@@ -201,11 +201,11 @@ func evolve_gates(c, p: Dictionary) -> Array:
 	var nx := next_stage(p)
 	if nx.is_empty(): return []
 	var out: Array = []
-	out.append({"ok": int(p.get("level", 1)) >= int(nx.get("level", 0)), "text": "Level %d" % int(nx.get("level", 0))})
-	out.append({"ok": float(p.get("bond", 0.0)) >= float(nx.get("bond", 0)), "text": "%d hearts" % int(nx.get("bond", 0))})
+	out.append({"ok": int(p.get("level", 1)) >= int(nx.get("level", 0)), "text": Tx.t("sim.pet.level") % int(nx.get("level", 0))})
+	out.append({"ok": float(p.get("bond", 0.0)) >= float(nx.get("bond", 0)), "text": Tx.t("sim.pet.hearts") % int(nx.get("bond", 0))})
 	var realm := str(nx.get("realm", ""))
 	var realm_ok := realm == "" or ProgressionRules.at_least(c.cultivator.realm_key, realm)
-	out.append({"ok": realm_ok, "text": "You at %s" % ContentDB.name_of("realms", realm)})
+	out.append({"ok": realm_ok, "text": Tx.t("sim.pet.you_at") % ContentDB.name_of("realms", realm)})
 	return out
 
 func can_evolve(c, p: Dictionary) -> bool:
@@ -216,12 +216,12 @@ func evolve(c, uid: String, branch: String) -> Dictionary:
 	var p := _pet(c, uid)
 	if p.is_empty(): return fail("unknown_pet")
 	var nx := next_stage(p)
-	if nx.is_empty(): return fail("final_stage", {"text": "It has grown as far as this land allows."})
+	if nx.is_empty(): return fail("final_stage", {"text": Tx.t("sim.pet.it_has_grown_as_far")})
 	for g in evolve_gates(c, p):
-		if not g.ok: return fail("not_ready", {"text": "Needs " + str(g.text)})
+		if not g.ok: return fail("not_ready", {"text": Tx.t("sim.pet.needs") + str(g.text)})
 	var branches: Array = ContentDB.entry("pets", str(p.species)).get("branches", [])
 	if nx.get("branch", false):
-		if not branch in branches: return fail("choose_branch", {"text": "Choose how it grows.", "branches": branches})
+		if not branch in branches: return fail("choose_branch", {"text": Tx.t("sim.pet.choose_how_it_grows"), "branches": branches})
 		p.branch = branch
 	var from := str(p.stage)
 	p.stage = str(nx.id)
@@ -272,7 +272,7 @@ func resonance(c) -> float:
 func choose_starter(c, species: String) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "spirit_animals"): return fail("locked", {"text": Unlocks.locked_text("spirit_animals")})
 	if not ContentDB.entry("pets", species).get("starter", false): return fail("not_starter")
-	if c.quests.has_flag("starter_chosen"): return fail("already_chosen", {"text": "Your first companion has already chosen you."})
+	if c.quests.has_flag("starter_chosen"): return fail("already_chosen", {"text": Tx.t("sim.pet.your_first_companion_has_already")})
 	game.quest.apply_flag(c.id, "starter_chosen")
 	apply_grant(c.id, species)
 	return ok({"species": species})
@@ -315,7 +315,7 @@ func attempt_tame(c, offering: String, result: float) -> Dictionary:
 	if offering == "" or not offering in ContentDB.config("taming").get("offerings", []): return fail("bad_offering")
 	if c.inventory.count(offering) <= 0: return fail("no_offering")
 	var e := tame_target(c)
-	if e == null: return fail("no_target", {"text": "Weaken a paw-marked spirit beast below 30% first."})
+	if e == null: return fail("no_target", {"text": Tx.t("sim.pet.weaken_a_paw_marked_spirit")})
 	var species := tame_species(e)
 	if species == "": return fail("no_species")
 	game.inventory.apply_remove(c.id, offering, 1, "taming")
@@ -326,9 +326,9 @@ func attempt_tame(c, offering: String, result: float) -> Dictionary:
 	if success:
 		apply_grant(c.id, species)
 		game.progression.apply_insight(c.id, "beast_taming", 5.0, "taming")
-		log_line(c.id, "The %s calms and bonds with you." % ContentDB.name_of("pets", species), "loot")
+		log_line(c.id, Tx.t("sim.pet.the_calms_and_bonds_with") % ContentDB.name_of("pets", species), "loot")
 	else:
-		log_line(c.id, "The %s bolts into the reeds." % ContentDB.name_of("pets", species), "warn")
+		log_line(c.id, Tx.t("sim.pet.the_bolts_into_the_reeds") % ContentDB.name_of("pets", species), "warn")
 	return ok({"success": success, "species": species, "chance": chance})
 
 func incubate_egg(c, index: int) -> Dictionary:
@@ -336,7 +336,7 @@ func incubate_egg(c, index: int) -> Dictionary:
 	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
 	if str(ContentDB.item(str(c.inventory.bag[index].id)).get("use_action", "")) != "incubate": return fail("not_an_egg")
 	var cfg := ContentDB.config("eggs")
-	if c.eggs.size() >= int(cfg.get("max_incubating", 1)): return fail("busy", {"text": "One egg at a time needs your warmth."})
+	if c.eggs.size() >= int(cfg.get("max_incubating", 1)): return fail("busy", {"text": Tx.t("sim.pet.one_egg_at_a_time")})
 	var rng := Rng.stream(c.id, "taming")
 	var total := 0.0
 	for r in cfg.get("species", []): total += float(r.get("weight", 1))
@@ -358,7 +358,7 @@ func incubate_egg(c, index: int) -> Dictionary:
 func hatch_egg(c, index: int) -> Dictionary:
 	if index < 0 or index >= c.eggs.size(): return fail("bad_index")
 	var egg: Dictionary = c.eggs[index]
-	if Clock.now_utc() < float(egg.hatch_utc): return fail("not_ready", {"text": "It is still warm and quiet."})
+	if Clock.now_utc() < float(egg.hatch_utc): return fail("not_ready", {"text": Tx.t("sim.pet.it_is_still_warm_and")})
 	c.eggs.remove_at(index)
 	apply_grant(c.id, str(egg.species))
 	emit("egg_hatched", {"actor": c.id, "species": egg.species})

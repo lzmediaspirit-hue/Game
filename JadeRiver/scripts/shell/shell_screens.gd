@@ -16,17 +16,17 @@ class TitleScreen extends Page:
 	func draw_page() -> void:
 		var pulse := 0.5 + 0.5 * sin(t * 2.2)
 		draw_rect(Rect2(0, 0, 1280, 720), Color(0.01, 0.04, 0.05, 0.25))
-		UiKit.draw_text(self, "JADE RIVER", Vector2(0, 250), 104, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 1280, true, true)
-		UiKit.draw_text(self, "a cultivator's journey down the valley", Vector2(0, 302), 28, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 1280, true, true)
+		UiKit.draw_text(self, Tx.t("shell.jade_river"), Vector2(0, 250), 104, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 1280, true, true)
+		UiKit.draw_text(self, Tx.t("shell.a_cultivator_journey_down_the"), Vector2(0, 302), 28, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 1280, true, true)
 		draw_line(Vector2(440, 326), Vector2(840, 326), UiKit.BRONZE, 2)
 		for i in 3:
 			draw_rect(Rect2(626 + i * 12, 320, 6, 6), UiKit.GOLD)
 		var has_chars := not Game.characters.is_empty()
-		btn(Rect2(490, 420, 300, 64), "Continue" if has_chars else "Begin", "start", null, true, true, "", 26)
-		btn(Rect2(490, 500, 300, 56), "Settings", "settings")
+		btn(Rect2(490, 420, 300, 64), Tx.t("shell.continue") if has_chars else Tx.t("shell.begin"), "start", null, true, true, "", 26)
+		btn(Rect2(490, 500, 300, 56), Tx.t("shell.settings"), "settings")
 		if OS.get_name() not in ["Android", "iOS", "Web"]:
-			btn(Rect2(490, 570, 300, 56), "Quit", "quit")
-		text(Vector2(0, 700), "v1.0 · Jade River Valley", 16, Color(UiKit.MIST, 0.6 + 0.2 * pulse), HORIZONTAL_ALIGNMENT_CENTER, 1280)
+			btn(Rect2(490, 570, 300, 56), Tx.t("shell.quit"), "quit")
+		text(Vector2(0, 700), Tx.t("shell.v1_0_jade_river_valley"), 16, Color(UiKit.MIST, 0.6 + 0.2 * pulse), HORIZONTAL_ALIGNMENT_CENTER, 1280)
 
 	func on_action(id: String, _data) -> void:
 		chosen.emit(id)
@@ -69,8 +69,8 @@ class SelectionScreen extends Page:
 		return Rect2(96 + i * 276, 150, 256, 420)
 
 	func draw_page() -> void:
-		UiKit.draw_text(self, "JADE RIVER", Vector2(0, 70), 54, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 1280, true, true)
-		text(Vector2(0, 116), "Choose your disciple", 24, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 1280, true)
+		UiKit.draw_text(self, Tx.t("shell.jade_river"), Vector2(0, 70), 54, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 1280, true, true)
+		text(Vector2(0, 116), Tx.t("shell.choose_your_disciple"), 24, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 1280, true)
 		var rules: Array = ContentDB.config("account_rules").get("slots", [])
 		for i in PER_PAGE:
 			var slot := page * PER_PAGE + i + 1
@@ -84,22 +84,22 @@ class SelectionScreen extends Page:
 				var sect_name := ContentDB.name_of("sects", str(ch.training_sect.get("id", ""))) if str(ch.training_sect.get("id", "")) != "" else ContentDB.text("ui.unaffiliated")
 				text(r.position + Vector2(0, 368), sect_name, 17, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 				var status := ""
-				if ch.cultivator.state == "bottleneck": status = "At a bottleneck"
-				elif not ch.cultivator.injuries.is_empty(): status = "Injured"
-				elif not ch.idle_task.is_empty(): status = "Idle: %s" % str(ch.idle_task.get("task", "")).capitalize()
+				if ch.cultivator.state == "bottleneck": status = Tx.t("shell.at_a_bottleneck")
+				elif not ch.cultivator.injuries.is_empty(): status = Tx.t("shell.injured")
+				elif not ch.idle_task.is_empty(): status = Tx.t("shell.idle") % str(ch.idle_task.get("task", "")).capitalize()
 				if status != "": text(r.position + Vector2(0, 396), status, 16, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 				region(r, "select", slot)
 			elif unlocked:
 				text(r.position + Vector2(0, 190), "+", 86, UiKit.GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, true)
-				text(r.position + Vector2(0, 260), "Create Disciple", 24, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+				text(r.position + Vector2(0, 260), Tx.t("shell.create_disciple"), 24, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 				region(r, "create", slot)
 			else:
 				_lock_icon(r.get_center() - Vector2(6, 60))
-				var why := "Locked"
+				var why := Tx.t("shell.locked")
 				for rule in rules:
 					if int(rule.slot) == slot:
 						why = RequirementRules.first_failure_text(rule.get("requires", {}), {"char": null, "account": Game.account, "room": {}})
-				text(r.position + Vector2(0, 220), "Slot %d" % slot, 22, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+				text(r.position + Vector2(0, 220), Tx.t("shell.slot") % slot, 22, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 				para(Rect2(r.position + Vector2(24, 236), Vector2(r.size.x - 48, 80)), why, 17, UiKit.HOLLOW)
 		var pages := int(ceil(float(AccountState.MAX_SLOTS) / PER_PAGE))
 		if page > 0: btn(Rect2(24, 330, 56, 72), "‹", "page", -1)
@@ -107,9 +107,9 @@ class SelectionScreen extends Page:
 		for p in pages:
 			draw_circle(Vector2(620 + p * 20, 596), 5, UiKit.GOLD if p == page else UiKit.HOLLOW)
 		if Game.character("c%d" % chosen) != null:
-			btn(Rect2(465, 620, 350, 64), "Enter World", "enter", chosen, true, true, "", 26)
-			btn(Rect2(1010, 632, 170, 48), "Delete", "delete", chosen)
-		btn(Rect2(96, 632, 150, 48), "‹ Title", "back")
+			btn(Rect2(465, 620, 350, 64), Tx.t("shell.enter_world"), "enter", chosen, true, true, "", 26)
+			btn(Rect2(1010, 632, 170, 48), Tx.t("shell.delete"), "delete", chosen)
+		btn(Rect2(96, 632, 150, 48), Tx.t("shell.title"), "back")
 
 	func on_action(id: String, data) -> void:
 		match id:
@@ -123,7 +123,7 @@ class SelectionScreen extends Page:
 				_rebuild_avatars()
 			"delete":
 				var ch = Game.character("c%d" % int(data))
-				ask("Delete %s? This cannot be undone." % (ch.name if ch else "this disciple"), "delete_yes", data, true)
+				ask(Tx.t("shell.delete_this_cannot_be_undone") % (ch.name if ch else Tx.t("shell.this_disciple")), "delete_yes", data, true)
 			"delete_yes":
 				submit({"type": "delete_character", "slot": int(data)})
 				_rebuild_avatars()
@@ -135,7 +135,7 @@ class CreatorScreen extends Page:
 	signal cancelled
 
 	const ROWS := ["hair", "shirt", "pants", "shoes", "origin"]
-	const LABELS := {"hair": "Hair", "shirt": "Robe", "pants": "Trousers", "shoes": "Shoes", "origin": "Origin"}
+	var LABELS := {"hair": Tx.t("shell.hair"), "shirt": Tx.t("shell.robe"), "pants": Tx.t("shell.trousers"), "shoes": Tx.t("shell.shoes"), "origin": Tx.t("shell.origin")}
 	var slot := 1
 	var draft: Dictionary = {}
 	var origin := "fishers_child"
@@ -162,7 +162,7 @@ class CreatorScreen extends Page:
 		preview.play("idle")
 		name_field = LineEdit.new()
 		name_field.max_length = int(ContentDB.config("account_rules").get("name_max", 24))
-		name_field.placeholder_text = "Your name"
+		name_field.placeholder_text = Tx.t("shell.your_name")
 		name_field.position = Vector2(820, 128)
 		name_field.size = Vector2(360, 46)
 		name_field.add_theme_font_override("font", UiKit.body_font())
@@ -217,12 +217,12 @@ class CreatorScreen extends Page:
 		preview.last_key = ""
 
 	func draw_page() -> void:
-		UiKit.draw_text(self, "CREATE DISCIPLE", Vector2(0, 74), 48, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 1280, true, true)
+		UiKit.draw_text(self, Tx.t("shell.create_disciple_2"), Vector2(0, 74), 48, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 1280, true, true)
 		draw_style_box(UiKit.style("major_window"), Rect2(120, 110, 420, 520))
 		draw_ellipse_shadow(Vector2(330, 500))
 		var panel_r := Rect2(600, 104, 610, 530)
 		draw_style_box(UiKit.style("major_window"), panel_r)
-		text(Vector2(640, 160), "Name", 24, UiKit.GOLD)
+		text(Vector2(640, 160), Tx.t("shell.name"), 24, UiKit.GOLD)
 		var y := 190.0
 		for row in ROWS:
 			text(Vector2(640, y + 34), LABELS[row], 22, UiKit.GOLD)
@@ -230,7 +230,7 @@ class CreatorScreen extends Page:
 			text(Vector2(860, y + 36), label_of(row, value(row)), 21, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 270)
 			btn(Rect2(1136, y + 4, 52, 46), "›", "next", row)
 			y += 58
-		text(Vector2(640, y + 32), "Hair dye", 22, UiKit.GOLD)
+		text(Vector2(640, y + 32), Tx.t("shell.hair_dye"), 22, UiKit.GOLD)
 		for i in 6:
 			var col := Color(str(Wardrobe.parts._colors.hair[i].hex))
 			var r := Rect2(800 + i * 64, y + 6, 50, 42)
@@ -244,11 +244,11 @@ class CreatorScreen extends Page:
 			var box := Rect2(640, 578, 30, 30)
 			draw_style_box(UiKit.style("slot"), box)
 			if skip_prologue: draw_rect(box.grow(-8), UiKit.JADE)
-			text(Vector2(680, 600), "Skip the Prologue (start at Bone Forging 2)", 17, UiKit.PAPER)
+			text(Vector2(680, 600), Tx.t("shell.skip_the_prologue_start_at"), 17, UiKit.PAPER)
 			region(Rect2(636, 574, 420, 38), "skip")
-		btn(Rect2(160, 646, 150, 54), "‹ Back", "back")
-		btn(Rect2(330, 646, 170, 54), "Randomize", "random")
-		btn(Rect2(880, 646, 300, 60), "Begin", "begin", null, true, true, "", 26)
+		btn(Rect2(160, 646, 150, 54), Tx.t("shell.back"), "back")
+		btn(Rect2(330, 646, 170, 54), Tx.t("shell.randomize"), "random")
+		btn(Rect2(880, 646, 300, 60), Tx.t("shell.begin"), "begin", null, true, true, "", 26)
 
 	func draw_ellipse_shadow(p: Vector2) -> void:
 		draw_set_transform(p, 0, Vector2(1, 0.25))
@@ -266,7 +266,7 @@ class CreatorScreen extends Page:
 			"begin":
 				var nm := name_field.text.strip_edges()
 				if nm == "":
-					flash("Please enter a name.")
+					flash(Tx.t("shell.please_enter_a_name"))
 					name_field.grab_focus()
 					return
 				var r := submit({"type": "create_character", "slot": slot, "name": nm, "origin": origin, "skip_prologue": skip_prologue,

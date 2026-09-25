@@ -100,10 +100,10 @@ func buy(c, shop_id: String, item_id: String, count: int, seen_price: int) -> Di
 	# A confirmation snapshots the price; a changed price is rejected, never charged (10.7).
 	if seen_price >= 0 and seen_price != int(entry.price): return fail("stale_price", {"price": entry.price})
 	var total := int(entry.price) * count
-	if balance(str(entry.currency), c) < total: return fail("insufficient_funds", {"text": "Not enough %s" % ContentDB.text("currency." + str(entry.currency))})
+	if balance(str(entry.currency), c) < total: return fail("insufficient_funds", {"text": Tx.t("sim.economy.not_enough") % ContentDB.text("currency." + str(entry.currency))})
 	if entry.learn != "":
 		if c.cultivator.techniques_known.has(entry.learn) or c.cultivator.methods_known.has(entry.learn) or c.crafting.recipes.has(entry.learn): return fail("already_known")
-	elif c.inventory.room_for(item_id, count) < count and not ContentDB.item(item_id).get("type") in ["key", "tool"]: return fail("bag_full", {"text": "Your gourd is full"})
+	elif c.inventory.room_for(item_id, count) < count and not ContentDB.item(item_id).get("type") in ["key", "tool"]: return fail("bag_full", {"text": Tx.t("sim.economy.your_gourd_is_full")})
 	apply_currency(str(entry.currency), -total, "buy")
 	if entry.learn != "":
 		if ContentDB.has_entry("techniques", entry.learn): game.progression.apply_learn_technique(c.id, entry.learn)
@@ -118,10 +118,10 @@ func sell(c, index: int, count: int) -> Dictionary:
 	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
 	var s: Dictionary = c.inventory.bag[index]
 	var def := ContentDB.item(str(s.id))
-	if c.inventory.locked.has(int(s.get("uid", -1))): return fail("locked", {"text": "Unlock the item first"})
-	if s.get("bound", false): return fail("bound", {"text": "Bound items cannot be sold"})
+	if c.inventory.locked.has(int(s.get("uid", -1))): return fail("locked", {"text": Tx.t("sim.economy.unlock_the_item_first")})
+	if s.get("bound", false): return fail("bound", {"text": Tx.t("sim.economy.bound_items_cannot_be_sold")})
 	var price := LootRules.sell_price(str(s.id), s if ContentDB.is_equipment(str(s.id)) else null)
-	if price <= 0: return fail("cannot_sell", {"text": "This cannot be sold"})
+	if price <= 0: return fail("cannot_sell", {"text": Tx.t("sim.economy.this_cannot_be_sold")})
 	count = mini(count, int(s.get("count", 1)))
 	var removed = game.inventory.apply_remove_index(c.id, index, count, "sell")
 	apply_currency("silver_tael", price * count, "sell")

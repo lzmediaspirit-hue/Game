@@ -436,6 +436,11 @@ def strings():
     })
     for u in json.load(open(os.path.join(DATA, "unlocks.json")))["entries"]:
         S["unlock." + u["id"]] = u.get("label", u["id"])
+    # Interface text (pages, HUD, shell, messages from the authorities), read through Tx.t(key).
+    ui = json.load(open(os.path.join(os.path.dirname(__file__), "ui_strings.json")))
+    for k in ui:
+        assert k not in S, "ui string key clashes with a generated key: " + k
+    S.update(ui)
     write("en.json", {"strings": S}, folder=os.path.join(DATA, "strings"))
 
 

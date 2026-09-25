@@ -35,7 +35,7 @@ func setup(e: EnemyState) -> void:
 		var outfit = art.avatar
 		if outfit is String and outfit == "player":
 			outfit = InventoryAuthority.outfit_for(Game.active()) if Game.active() else Wardrobe.defaults()
-			name_text = "Reflection"
+			name_text = Tx.t("view.reflection")
 		var o: Dictionary = (outfit as Dictionary).duplicate()
 		for k in ["hat", "cape", "weapon"]:
 			if not o.has(k): o[k] = "none"
@@ -56,7 +56,7 @@ func setup(e: EnemyState) -> void:
 func _update_badge(e: EnemyState) -> void:
 	var c = Game.active()
 	if c == null or ally: return
-	level_text = "Lv %d" % e.level
+	level_text = Tx.t("view.lv") % e.level
 	badge = CombatRules.badge_color(ProgressionRules.realm_index(c.cultivator.realm_key), e.realm_index, ProgressionRules.level(c), e.level)
 
 func _process(delta: float) -> void:

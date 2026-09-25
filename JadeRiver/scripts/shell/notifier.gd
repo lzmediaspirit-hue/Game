@@ -21,4 +21,4 @@ func schedule(type: String, title: String, body: String, at_utc: float) -> bool:
 	return true
 
 func _deliver(title: String, _body: String, _at: float) -> void:
-	print_verbose("NOTIFY: ", title)
+	print_verbose(Tx.t("shell.notify"), title)

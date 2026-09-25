@@ -2,7 +2,7 @@ extends Page
 ## Shared storage (S23): account-wide chest, 40 slots plus the Treasury bonus.
 
 func _init() -> void:
-	title = "Storage"
+	title = Tx.t("ui.storage.storage")
 
 func draw_page() -> void:
 	var ch = c()
@@ -13,8 +13,8 @@ func draw_page() -> void:
 	var right := Rect2(left.end.x + 20, content.position.y, left.size.x, content.size.y)
 	panel(left)
 	panel(right)
-	text(left.position + Vector2(20, 34), "Your gourd · tap to store", 20, UiKit.GOLD)
-	text(right.position + Vector2(20, 34), "Shared storage %d / %d · tap to take" % [items.size(), Game.accounts.storage_size()], 20, UiKit.GOLD)
+	text(left.position + Vector2(20, 34), Tx.t("ui.storage.your_gourd_tap_to_store"), 20, UiKit.GOLD)
+	text(right.position + Vector2(20, 34), Tx.t("ui.storage.shared_storage_tap_to_take") % [items.size(), Game.accounts.storage_size()], 20, UiKit.GOLD)
 	_grid(Rect2(left.position + Vector2(10, 50), left.size - Vector2(20, 60)), "bag", bag.size(), func(i): return bag[i], "deposit")
 	_grid(Rect2(right.position + Vector2(10, 50), right.size - Vector2(20, 60)), "store", items.size(), func(i): return items[i], "withdraw")
 

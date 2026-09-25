@@ -77,9 +77,25 @@ equipment bands, rooms). `python3 tools/data/build_data.py [module...]` writes `
 builder lays out rooms from helpers (surfaces, painted buildings, ladders, portals, spawns, objects)
 and keeps spawns clear of shrines and portals; `story.py` validates quests, NPCs and unlocks.
 
+## Player-facing text
+
+No script writes text the player reads. Pages, the HUD, the shell and the authorities' messages call
+`Tx.t("key")`, which reads `data/strings/en.json`. Interface lines are authored in
+`tools/data/ui_strings.json` and merged by the economy builder with the generated keys (realms,
+currencies, unlock labels). Formats stay in the string (`"Level %d"`), so a translation only swaps the
+file. `tools/dev/extract_strings.py` moves new literals out of the code, and `contract_tests` fails if one
+is left behind.
+
+## Event contract
+
+`data/event_contract.json` (from `tools/data/contract.py`) lists every event in the Part 4 catalogue with
+the system that emits it. `contract_tests` checks that only that system's scripts emit it and that
+something reacts; reactors that read state every frame are marked `polled`.
+
 ## Testing
 
-`tests/` holds the suites listed in the README. They drive the real autoloads headlessly: a test binds an
+`tests/` holds the suites listed in the README (engine, data validation, rules, contract and strings,
+balance simulator, performance, Prologue and Act I runs). They drive the real autoloads headlessly: a test binds an
 `ActorState` for the player, submits intents and calls `Game.tick`. `valley_run` extends `prologue_run`
 and plays Act I with section checkpoints; grinding is shortened with `apply_progress(..., "test_shortcut")`
 and every shortcut is labelled in the code.

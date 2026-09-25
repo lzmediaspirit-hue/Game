@@ -308,14 +308,14 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if p.get("crit", false): shake = maxf(shake, 0.12)
 			Audio.play("hit_crit" if p.get("crit", false) else ("hurt" if kind == "player" else "hit"))
 		"hit_missed":
-			fx.number(Vector2(float(p.x), float(p.y) - float(p.get("alt", 60))), "Miss", UiKit.MIST, 18)
+			fx.number(Vector2(float(p.x), float(p.y) - float(p.get("alt", 60))), Tx.t("world_view.miss"), UiKit.MIST, 18)
 		"hit_immune":
-			fx.number(Vector2(float(p.x), float(p.y) - float(p.get("alt", 60)) - 40), "Immune", UiKit.MIST, 18)
+			fx.number(Vector2(float(p.x), float(p.y) - float(p.get("alt", 60)) - 40), Tx.t("world_view.immune"), UiKit.MIST, 18)
 		"hit_dodged":
-			fx.number(player.position + Vector2(0, -100), "Evade", UiKit.BRIGHT_JADE, 18)
+			fx.number(player.position + Vector2(0, -100), Tx.t("world_view.evade"), UiKit.BRIGHT_JADE, 18)
 		"parried":
 			fx.add("flash", player.position + Vector2(player.facing * 20, -50), {"color": UiKit.PALE_GOLD, "radius": 30, "dur": 0.25})
-			fx.number(player.position + Vector2(0, -110), "Parry!", UiKit.GOLD, 22)
+			fx.number(player.position + Vector2(0, -110), Tx.t("world_view.parry"), UiKit.GOLD, 22)
 			Audio.play("parry")
 		"attack_started":
 			if str(p.get("actor", "")) == Game.active_id:
@@ -348,7 +348,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"breakthrough_started":
 			fx.add("ring", player.position, {"color": UiKit.QI, "radius": 90, "dur": float(p.get("duration", 3.0))})
 		"breakthrough_failed":
-			fx.add("text", player.position + Vector2(0, -150), {"text": "Breakthrough failed", "color": UiKit.RED, "size": 24, "dur": 2.5})
+			fx.add("text", player.position + Vector2(0, -150), {"text": Tx.t("world_view.breakthrough_failed"), "color": UiKit.RED, "size": 24, "dur": 2.5})
 			Audio.play("fail")
 		"meditation_tick":
 			if Game.active() and Game.active().pools.max_qi > 0:
@@ -356,9 +356,9 @@ func _on_event(name: String, p: Dictionary) -> void:
 			elif Game.active():
 				fx.add("motes", player.position + Vector2(0, -10), {"color": Color("f4ecd5"), "dur": 1.0})
 		"body_level_changed":
-			fx.add("text", player.position + Vector2(0, -140), {"text": "Body Level %d" % int(p.value), "color": Color("f0a060"), "size": 20, "dur": 2.0})
+			fx.add("text", player.position + Vector2(0, -140), {"text": Tx.t("world_view.body_level") % int(p.value), "color": Color("f0a060"), "size": 20, "dur": 2.0})
 		"level_changed":
-			fx.add("text", player.position + Vector2(0, -160), {"text": "Level %d" % int(p.level), "color": UiKit.PALE_GOLD, "size": 22, "dur": 2.0})
+			fx.add("text", player.position + Vector2(0, -160), {"text": Tx.t("world_view.level") % int(p.level), "color": UiKit.PALE_GOLD, "size": 22, "dur": 2.0})
 		"player_revived":
 			fx.add("flash", player.position + Vector2(0, -40), {"color": UiKit.BRIGHT_JADE, "radius": 60, "dur": 0.6})
 		"projectile_ended":

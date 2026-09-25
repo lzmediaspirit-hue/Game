@@ -29,7 +29,7 @@ func locked_text(system: String) -> String:
 	var entry := ContentDB.entry("unlocks", system)
 	if entry.has("locked_text"): return str(entry.locked_text)
 	var r := RequirementRules.first_failure_text(entry.get("trigger", {}), {"char": Game.active(), "account": Game.account})
-	return r if r != "" else "Not yet available"
+	return r if r != "" else Tx.t("unlock_text.not_yet_available")
 
 ## Re-evaluate every entry for one character (called once at the end of an event pass).
 func evaluate(actor_id: String) -> void:

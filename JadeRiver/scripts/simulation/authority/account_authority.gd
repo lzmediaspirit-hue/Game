@@ -47,8 +47,8 @@ func create_character(intent: Dictionary) -> Dictionary:
 	var slot := int(intent.get("slot", 1))
 	if slot < 1 or slot > game.account.slots_unlocked: return fail("slot_locked")
 	if game.characters.has("c%d" % slot): return fail("slot_taken")
-	var name := str(intent.get("name", "Disciple")).strip_edges().left(24)
-	if name == "": return fail("bad_name", {"text": "Please enter a name."})
+	var name := str(intent.get("name", Tx.t("sim.account.disciple"))).strip_edges().left(24)
+	if name == "": return fail("bad_name", {"text": Tx.t("sim.account.please_enter_a_name")})
 	var a: Dictionary = intent.get("appearance", {})
 	var appearance := {"body": "light", "hair": "topknot", "hair_color": 0, "shirt": "cardigan", "pants": "loose", "shoes": "boots"}
 	for k in ["hair", "shirt", "pants", "shoes"]:
@@ -136,7 +136,7 @@ func switch_character(slot: int) -> Dictionary:
 	if current != null and game.room_rt != null:
 		var t := str(game.room_rt.def.get("type", ""))
 		if not (t in ["town", "sect", "home", "interior"] or game.room_rt.def.get("safe", false)):
-			return fail("not_here", {"text": "Switch characters at a shrine, a town or your sect."})
+			return fail("not_here", {"text": Tx.t("sim.account.switch_characters_at_a_shrine")})
 		if current.idle_task.is_empty() and Unlocks.is_unlocked(current.id, "idle_tasks"):
 			current.idle_task = {"task": "seclusion" if Unlocks.is_unlocked(current.id, "seclusion") else "rest", "room": game.room_rt.room_id,
 				"started_utc": Clock.now_utc(), "focus": "accumulate"}

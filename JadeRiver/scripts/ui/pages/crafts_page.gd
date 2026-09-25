@@ -3,7 +3,7 @@ extends Page
 ## Alchemy and forging play a short timing mini-game (three strikes into the
 ## glowing band); its scores go to the authority, which rolls the quality.
 
-const CRAFTS := [["cooking", "Cooking"], ["alchemy", "Alchemy"], ["smithing", "Forge"], ["formations", "Arrays"]]
+var CRAFTS := [["cooking", Tx.t("ui.crafts.cooking")], ["alchemy", Tx.t("ui.crafts.alchemy")], ["smithing", Tx.t("ui.crafts.forge")], ["formations", Tx.t("ui.crafts.arrays")]]
 
 var sel := ""
 var count := 1
@@ -14,7 +14,7 @@ var scores: Array = []
 var band := Vector2(0.45, 0.62)
 
 func _init() -> void:
-	title = "Crafts"
+	title = Tx.t("ui.crafts.crafts")
 
 func setup() -> void:
 	var ch = c()
@@ -70,7 +70,7 @@ func draw_page() -> void:
 	var right := Rect2(list_r.end.x + 20, content.position.y, content.end.x - list_r.end.x - 20, content.size.y)
 	panel(right)
 	if sel == "" or ContentDB.entry("recipes", sel).is_empty() or str(ContentDB.entry("recipes", sel).craft) != craft:
-		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), ("Choose a recipe. Stand near a %s to craft." % {"cooking": "cooking pot", "alchemy": "furnace", "smithing": "forge"}[craft]) if craft != "formations" else "Choose a plate to etch. Array plates are one-use formations you carry.", 19, UiKit.MIST)
+		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), (Tx.t("ui.crafts.choose_a_recipe_stand_near") % {"cooking": Tx.t("ui.crafts.cooking_pot"), "alchemy": "furnace", "smithing": "forge"}[craft]) if craft != "formations" else Tx.t("ui.crafts.choose_a_plate_to_etch"), 19, UiKit.MIST)
 		if craft == "alchemy": _auto(ch, right)
 		return
 	var rec := ContentDB.entry("recipes", sel)
@@ -91,21 +91,21 @@ func draw_page() -> void:
 		btn(Rect2(right.position.x + 158, right.end.y - 140, 56, 50), "+", "count", 1)
 	var why2 := Game.crafting.recipe_check(ch, sel, count, craft)
 	if game_on: _draw_minigame(Rect2(right.position.x + 24, right.end.y - 210, right.size.x - 48, 60))
-	var label = {"cooking": "Cook", "alchemy": "Refine", "smithing": "Forge", "formations": "Etch"}[craft]
-	btn(Rect2(right.end.x - 244, right.end.y - 76, 220, 58), "Strike!" if game_on else label, "strike" if game_on else "craft", null, true, why2 == "" or game_on, why2)
+	var label = {"cooking": Tx.t("ui.crafts.cook"), "alchemy": Tx.t("ui.crafts.refine"), "smithing": Tx.t("ui.crafts.forge"), "formations": Tx.t("ui.crafts.etch")}[craft]
+	btn(Rect2(right.end.x - 244, right.end.y - 76, 220, 58), Tx.t("ui.crafts.strike") if game_on else label, "strike" if game_on else "craft", null, true, why2 == "" or game_on, why2)
 	if craft == "alchemy" and Unlocks.is_unlocked(ch.id, "auto_refine") and not game_on:
-		btn(Rect2(right.end.x - 474, right.end.y - 76, 220, 58), "Queue batch", "queue", null, false, why2 == "", why2)
+		btn(Rect2(right.end.x - 474, right.end.y - 76, 220, 58), Tx.t("ui.crafts.queue_batch"), "queue", null, false, why2 == "", why2)
 
 func _auto(ch, right: Rect2) -> void:
 	var q: Array = ch.crafting.get("auto_queue", [])
 	if q.is_empty(): return
 	var y := right.position.y + 120
-	text(Vector2(right.position.x + 24, y), "Auto-refine batches", 19, UiKit.GOLD)
+	text(Vector2(right.position.x + 24, y), Tx.t("ui.crafts.auto_refine_batches"), 19, UiKit.GOLD)
 	for b in q:
 		y += 30
 		var left := int(float(b.done_utc) - Clock.now_utc())
 		text(Vector2(right.position.x + 24, y), "%s ×%d · %s" % [ContentDB.item_name(str(ContentDB.entry("recipes", str(b.recipe)).outputs[0].item)), int(b.count), "ready" if left <= 0 else "%dm" % (left / 60 + 1)], 17)
-	btn(Rect2(right.position.x + 24, y + 20, 200, 50), "Collect", "collect", null, true)
+	btn(Rect2(right.position.x + 24, y + 20, 200, 50), Tx.t("ui.crafts.collect"), "collect", null, true)
 
 func _draw_minigame(r: Rect2) -> void:
 	draw_rect(r, Color(0.05, 0.08, 0.09))
@@ -117,7 +117,7 @@ func _draw_minigame(r: Rect2) -> void:
 
 func on_event(name: String, p: Dictionary) -> void:
 	if name == "craft_step_result":
-		flash({"perfect": "Perfect!", "good": "Good", "miss": "Miss"}.get(str(p.get("grade", "miss")), ""))
+		flash({"perfect": Tx.t("ui.crafts.perfect"), "good": Tx.t("ui.crafts.good"), "miss": Tx.t("ui.crafts.miss")}.get(str(p.get("grade", "miss")), ""))
 	queue_redraw()
 
 func on_action(id: String, data) -> void:
@@ -134,7 +134,7 @@ func on_action(id: String, data) -> void:
 				var r := submit({"type": "cook" if craft == "cooking" else "inscribe", "recipe": sel, "count": count})
 				if r.get("ok", false):
 					Audio.play("cook" if craft == "cooking" else "forge", "UI")
-					flash(("Cooked %d" if craft == "cooking" else "Etched %d") % int(r.count))
+					flash((Tx.t("ui.crafts.cooked") if craft == "cooking" else Tx.t("ui.crafts.etched")) % int(r.count))
 			else:
 				game_on = true
 				scores = []
@@ -151,13 +151,13 @@ func on_action(id: String, data) -> void:
 			if scores.size() >= int(ContentDB.curve("craft_step.steps", 3)):
 				game_on = false
 				var r2 := submit({"type": "refine" if craft == "alchemy" else "forge", "recipe": sel, "count": count})
-				if r2.get("ok", false): flash("%s quality · %d made" % [str(r2.quality).capitalize(), int(r2.count)])
+				if r2.get("ok", false): flash(Tx.t("ui.crafts.quality_made") % [str(r2.quality).capitalize(), int(r2.count)])
 			else:
 				band.x = 0.25 + Rng.stream(c().id, "minigame").randf() * 0.5
 				band.y = band.x + 0.14
 		"queue":
 			if submit({"type": "queue_auto_refine", "recipe": sel, "count": count}).get("ok", false):
-				flash("Batch queued.")
+				flash(Tx.t("ui.crafts.batch_queued"))
 		"collect":
 			submit({"type": "collect_auto_refine"})
 		"_tab":

@@ -88,9 +88,9 @@ func gather(c, o: Dictionary) -> Dictionary:
 	var craft: String = NODE_CRAFT.get(str(o.type), "")
 	if not Unlocks.is_unlocked(c.id, craft): return fail("locked", {"text": Unlocks.locked_text(craft)})
 	var tool_craft = {"herb_gathering": "gathering", "mining": "mining", "fishing": "fishing"}[craft]
-	if craft != "herb_gathering" and tool_power(c, tool_craft) <= 0.0: return fail("no_tool", {"text": "You need a %s" % {"mining": "pickaxe", "fishing": "fishing rod"}[craft]})
+	if craft != "herb_gathering" and tool_power(c, tool_craft) <= 0.0: return fail("no_tool", {"text": Tx.t("sim.crafting.you_need_a") % {"mining": "pickaxe", "fishing": Tx.t("sim.crafting.fishing_rod")}[craft]})
 	var need_rank := str(o.get("rank", "apprentice"))
-	if rank_index(rank_of(c, craft)) < rank_index(need_rank): return fail("rank", {"text": "Needs %s %s" % [craft.replace("_", " ").capitalize(), need_rank.capitalize()]})
+	if rank_index(rank_of(c, craft)) < rank_index(need_rank): return fail("rank", {"text": Tx.t("sim.crafting.needs") % [craft.replace("_", " ").capitalize(), need_rank.capitalize()]})
 	var channel = {"herb_patch": 1.5, "ore_vein": 2.4, "fishing_spot": 0.0}[str(o.type)]
 	pending[c.id] = {"object": str(o.id), "kind": str(o.type), "started": game.sim_time, "channel": channel}
 	emit("node_action_started", {"actor": c.id, "object": o.id, "kind": o.type, "channel": channel})
@@ -172,15 +172,15 @@ func station_near(c, types: Array) -> bool:
 
 func recipe_check(c, recipe_id: String, count: int, craft: String) -> String:
 	var r := ContentDB.entry("recipes", recipe_id)
-	if r.is_empty() or str(r.craft) != craft: return "Unknown recipe"
+	if r.is_empty() or str(r.craft) != craft: return Tx.t("sim.crafting.unknown_recipe")
 	if not Unlocks.is_unlocked(c.id, craft): return Unlocks.locked_text(craft)
-	if not knows(c, recipe_id): return "You have not learned this recipe"
+	if not knows(c, recipe_id): return Tx.t("sim.crafting.you_have_not_learned_this")
 	var station = {"cooking": ["cooking_pot"], "alchemy": ["alchemy_furnace"], "smithing": ["forge_anvil"]}.get(craft, [])
-	if not station.is_empty() and not station_near(c, station): return "You need a %s" % ["cooking pot", "furnace", "forge"][["cooking", "alchemy", "smithing"].find(craft)]
+	if not station.is_empty() and not station_near(c, station): return Tx.t("sim.crafting.you_need_a") % [Tx.t("sim.crafting.cooking_pot"), "furnace", "forge"][["cooking", "alchemy", "smithing"].find(craft)]
 	var grade := str(r.get("grade", "plain"))
-	if craft in ["alchemy", "smithing"] and StatRules.grade_index(grade) > StatRules.grade_index(grade_cap(c)): return "Your realm cannot refine %s grade yet" % grade.capitalize()
+	if craft in ["alchemy", "smithing"] and StatRules.grade_index(grade) > StatRules.grade_index(grade_cap(c)): return Tx.t("sim.crafting.your_realm_cannot_refine_grade") % grade.capitalize()
 	for inp in r.get("inputs", []):
-		if c.inventory.count(str(inp.item)) < int(inp.count) * count: return "Missing %s" % ContentDB.item_name(str(inp.item))
+		if c.inventory.count(str(inp.item)) < int(inp.count) * count: return Tx.t("sim.crafting.missing") % ContentDB.item_name(str(inp.item))
 	return ""
 
 ## One strike of the alchemy or forge mini-game: `offset` is how far from the band centre
@@ -262,7 +262,7 @@ func collect_auto(c) -> Dictionary:
 			c.crafting.auto_queue.erase(q)
 			got += 1
 			emit("craft_completed", {"actor": c.id, "recipe": q.recipe, "craft": "alchemy", "quality": "common", "count": q.count, "auto": true})
-	if got == 0: return fail("not_ready", {"text": "No batch is finished yet."})
+	if got == 0: return fail("not_ready", {"text": Tx.t("sim.crafting.no_batch_is_finished_yet")})
 	emit("system_used", {"actor": c.id, "system": "auto_refine_collected"})
 	return ok({"batches": got})
 
@@ -275,10 +275,10 @@ func enhance(c, index: int, slot: String) -> Dictionary:
 	var def := ContentDB.item(str(inst.id))
 	var metal = {"plain": "copper_ore", "common": "copper_ore", "earth": "jadeiron", "heaven": "cloudsteel_ore", "mystic": "mystic_ore"}.get(str(def.get("grade", "plain")), "copper_ore")
 	var need := 2 * (lvl + 1)
-	if c.inventory.count(metal) < need: return fail("materials", {"text": "Needs %d %s" % [need, ContentDB.item_name(metal)]})
+	if c.inventory.count(metal) < need: return fail("materials", {"text": Tx.t("sim.crafting.needs_2") % [need, ContentDB.item_name(metal)]})
 	var taels := 20 * (lvl + 1) * (StatRules.grade_index(str(def.get("grade", "plain"))) + 1)
 	if game.economy.balance("silver_tael") < taels: return fail("insufficient_funds")
-	if lvl >= 5 and c.inventory.count("spirit_stone_shard") < lvl - 4: return fail("materials", {"text": "Needs Spirit Stone shards"})
+	if lvl >= 5 and c.inventory.count("spirit_stone_shard") < lvl - 4: return fail("materials", {"text": Tx.t("sim.crafting.needs_spirit_stone_shards")})
 	game.inventory.apply_remove(c.id, metal, need, "enhance")
 	game.economy.apply_currency("silver_tael", -taels, "enhance")
 	var success := true

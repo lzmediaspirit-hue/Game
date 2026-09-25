@@ -2,16 +2,16 @@ extends Page
 ## Character (S10, S11, S34): overview, stats with Combat Power, aptitude and titles.
 
 const Avatar = preload("res://scripts/avatar.gd")
-const STATS := [["max_hp", "Max HP"], ["max_qi", "Max QI"], ["max_soul", "Max Soul"], ["physical_attack", "Physical attack"],
-	["qi_attack", "Qi attack"], ["physical_defense", "Physical defence"], ["qi_resistance", "Qi resistance"], ["accuracy", "Accuracy"],
-	["evasion", "Evasion"], ["crit_chance", "Critical chance"], ["crit_damage", "Critical damage"], ["attack_speed", "Attack speed"],
-	["move_speed", "Move speed"], ["hp_regen", "HP regen"], ["qi_regen", "QI regen"], ["drop_rate", "Drop rate"]]
+var STATS := [["max_hp", Tx.t("ui.character.max_hp")], ["max_qi", Tx.t("ui.character.max_qi")], ["max_soul", Tx.t("ui.character.max_soul")], ["physical_attack", Tx.t("ui.character.physical_attack")],
+	["qi_attack", Tx.t("ui.character.qi_attack")], ["physical_defense", Tx.t("ui.character.physical_defence")], ["qi_resistance", Tx.t("ui.character.qi_resistance")], ["accuracy", Tx.t("ui.character.accuracy")],
+	["evasion", Tx.t("ui.character.evasion")], ["crit_chance", Tx.t("ui.character.critical_chance")], ["crit_damage", Tx.t("ui.character.critical_damage")], ["attack_speed", Tx.t("ui.character.attack_speed")],
+	["move_speed", Tx.t("ui.character.move_speed")], ["hp_regen", Tx.t("ui.character.hp_regen")], ["qi_regen", Tx.t("ui.character.qi_regen")], ["drop_rate", Tx.t("ui.character.drop_rate")]]
 
 var doll: Node2D
 
 func _init() -> void:
-	title = "Character"
-	tabs = [{"id": "overview", "label": "Overview"}, {"id": "stats", "label": "Stats"}, {"id": "aptitude", "label": "Aptitude"}, {"id": "titles", "label": "Titles"}]
+	title = Tx.t("ui.character.character")
+	tabs = [{"id": "overview", "label": Tx.t("ui.character.overview")}, {"id": "stats", "label": Tx.t("ui.character.stats")}, {"id": "aptitude", "label": Tx.t("ui.character.aptitude")}, {"id": "titles", "label": Tx.t("ui.character.titles")}]
 
 func setup() -> void:
 	doll = Avatar.new()
@@ -35,11 +35,11 @@ func draw_page() -> void:
 			text(Vector2(x, r.position.y + 50), str(ch.name), 34, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 			text(Vector2(x, r.position.y + 86), ContentDB.realm_label(ch.cultivator.realm_key), 20, UiKit.GOLD)
 			var sect_id := str(ch.training_sect.get("id", ""))
-			text(Vector2(x, r.position.y + 116), (ContentDB.name_of("sects", sect_id) + " · " + str(ch.training_sect.get("rank", "")).replace("_", " ").capitalize()) if sect_id != "" else "Unaffiliated", 18, UiKit.MIST)
-			text(Vector2(x, r.position.y + 150), "Origin: %s" % ContentDB.name_of("origins", ch.cultivator.origin), 18, UiKit.MIST)
-			text(Vector2(x, r.position.y + 210), "Combat Power", 20, UiKit.MIST)
+			text(Vector2(x, r.position.y + 116), (ContentDB.name_of("sects", sect_id) + " · " + str(ch.training_sect.get("rank", "")).replace("_", " ").capitalize()) if sect_id != "" else Tx.t("ui.character.unaffiliated"), 18, UiKit.MIST)
+			text(Vector2(x, r.position.y + 150), Tx.t("ui.character.origin") % ContentDB.name_of("origins", ch.cultivator.origin), 18, UiKit.MIST)
+			text(Vector2(x, r.position.y + 210), Tx.t("ui.character.combat_power"), 20, UiKit.MIST)
 			text(Vector2(x, r.position.y + 256), UiKit.fmt(StatRules.combat_power(ch)), 44, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-			if ch.cultivator.active_title != "": text(Vector2(x, r.position.y + 300), "Title: %s" % ContentDB.name_of("titles", ch.cultivator.active_title), 19, UiKit.BRIGHT_JADE)
+			if ch.cultivator.active_title != "": text(Vector2(x, r.position.y + 300), Tx.t("ui.character.title") % ContentDB.name_of("titles", ch.cultivator.active_title), 19, UiKit.BRIGHT_JADE)
 		"stats":
 			for i in STATS.size():
 				var s: Array = STATS[i]
@@ -54,11 +54,11 @@ func draw_page() -> void:
 			for k in ch.cultivator.aptitude:
 				var a: Dictionary = ch.cultivator.aptitude[k]
 				text(Vector2(r.position.x + 40, y), str(k).replace("_", " ").capitalize(), 21)
-				text(Vector2(r.position.x + 400, y), str(a.get("value", "")).capitalize() if a.get("revealed", false) else "Unknown (revealed as you grow)", 20, UiKit.PALE_GOLD if a.get("revealed", false) else UiKit.HOLLOW)
+				text(Vector2(r.position.x + 400, y), str(a.get("value", "")).capitalize() if a.get("revealed", false) else Tx.t("ui.character.unknown_revealed_as_you_grow"), 20, UiKit.PALE_GOLD if a.get("revealed", false) else UiKit.HOLLOW)
 				y += 44
 		"titles":
 			var titles: Array = ch.cultivator.titles
-			if titles.is_empty(): text(r.position + Vector2(0, 80), "Earn titles from achievements and quests.", 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+			if titles.is_empty(): text(r.position + Vector2(0, 80), Tx.t("ui.character.earn_titles_from_achievements_and"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 			for i in titles.size():
 				var tid := str(titles[i])
 				var tr := Rect2(r.position.x + 30, r.position.y + 20 + i * 64, 600, 56)

@@ -57,7 +57,7 @@ func found(c, name: String, emblem) -> Dictionary:
 	if c == null or not Unlocks.is_unlocked(c.id, "your_sect"): return fail("locked")
 	if founded(): return fail("already_founded")
 	name = name.strip_edges().left(24)
-	if name == "": return fail("bad_name", {"text": "Name your sect."})
+	if name == "": return fail("bad_name", {"text": Tx.t("sim.sect.name_your_sect")})
 	game.account.sect = {"name": name, "emblem": emblem, "level": 1, "prestige": 0, "buildings": {"sect_hall": 1}, "queue": [],
 		"disciples": [], "candidates": [], "expeditions": [], "candidate_day": -1}
 	emit("sect_founded", {"name": name})
@@ -80,15 +80,15 @@ func upgrade(c, id: String) -> Dictionary:
 	if not founded(): return fail("no_sect")
 	var b := ContentDB.entry("sect_buildings", id)
 	if b.is_empty(): return fail("unknown_building")
-	if int(sect().level) < int(b.get("sect_level", 1)): return fail("sect_level", {"text": "Needs sect level %d" % int(b.get("sect_level", 1))})
+	if int(sect().level) < int(b.get("sect_level", 1)): return fail("sect_level", {"text": Tx.t("sim.sect.needs_sect_level") % int(b.get("sect_level", 1))})
 	var max_parallel := 2 if int(sect().level) >= 8 else 1
-	if sect().queue.size() >= max_parallel: return fail("queue_busy", {"text": "Builders are busy."})
+	if sect().queue.size() >= max_parallel: return fail("queue_busy", {"text": Tx.t("sim.sect.builders_are_busy")})
 	var next := level_building(id) + 1
 	if next > int(b.get("max_level", 5)): return fail("max_level")
 	var cost := building_cost(id, next)
 	if game.economy.balance("silver_tael") < int(cost.silver_tael): return fail("insufficient_funds")
 	for m in cost.materials:
-		if c.inventory.count(m) < int(cost.materials[m]): return fail("materials", {"text": "Needs %d %s" % [int(cost.materials[m]), ContentDB.item_name(m)]})
+		if c.inventory.count(m) < int(cost.materials[m]): return fail("materials", {"text": Tx.t("sim.sect.needs") % [int(cost.materials[m]), ContentDB.item_name(m)]})
 	game.economy.apply_currency("silver_tael", -int(cost.silver_tael), "sect_build")
 	for m2 in cost.materials: game.inventory.apply_remove(c.id, m2, int(cost.materials[m2]), "sect_build")
 	sect().queue.append({"building": id, "level": next, "done_utc": Clock.now_utc() + float(cost.seconds)})
@@ -114,7 +114,7 @@ func _refresh_candidates() -> void:
 	sect().candidate_day = day
 	var rng := Rng.stream("account", "sect")
 	var traits: Array = ContentDB.config("disciples").get("traits", ["green_thumb"])
-	var names: Array = ContentDB.config("disciples").get("names", ["Wei"])
+	var names: Array = ContentDB.config("disciples").get("names", [Tx.t("sim.sect.wei")])
 	var cands: Array = []
 	for i in 3:
 		cands.append({"name": names[rng.randi_range(0, names.size() - 1)], "strength": rng.randi_range(1, 5), "spirit": rng.randi_range(1, 5),
@@ -123,7 +123,7 @@ func _refresh_candidates() -> void:
 
 func recruit(index: int) -> Dictionary:
 	if not founded(): return fail("no_sect")
-	if sect().disciples.size() >= disciple_cap(): return fail("full", {"text": "Build more Guest House rooms."})
+	if sect().disciples.size() >= disciple_cap(): return fail("full", {"text": Tx.t("sim.sect.build_more_guest_house_rooms")})
 	var cands: Array = sect().get("candidates", [])
 	if index < 0 or index >= cands.size(): return fail("bad_index")
 	sect().disciples.append(cands[index])
@@ -195,10 +195,10 @@ func defence_due(c) -> bool:
 
 func start_defence(c) -> Dictionary:
 	if c == null or not founded(): return fail("no_sect")
-	if not defence_due(c): return fail("not_due", {"text": "No raid is coming yet."})
+	if not defence_due(c): return fail("not_due", {"text": Tx.t("sim.sect.no_raid_is_coming_yet")})
 	var cfg := ContentDB.config("defence")
 	if game.room_rt == null or game.room_rt.room_id != str(cfg.get("room", "hv_sect_grounds")):
-		return fail("wrong_room", {"text": "Meet the raiders in the Sect Grounds."})
+		return fail("wrong_room", {"text": Tx.t("sim.sect.meet_the_raiders_in_the")})
 	if game.room_rt.event.get("active", false): return fail("event_running")
 	var waves: Array = cfg.get("waves", [])
 	var tier := clampi(int(sect().get("defences_won", 0)) / 2, 0, waves.size() - 1)

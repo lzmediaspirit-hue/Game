@@ -6,7 +6,7 @@ extends Page
 var sel := ""
 
 func _init() -> void:
-	title = "Jade River Valley"
+	title = Tx.t("ui.map.jade_river_valley")
 
 func setup() -> void:
 	var ch = c()
@@ -79,21 +79,21 @@ func draw_page() -> void:
 	for r in regions():
 		if str(r.id) == sel: reg = r
 	if reg.is_empty(): return
-	heading(right.position + Vector2(20, 40), str(reg.name) if visited(sel) else "Unexplored", right.size.x - 40)
+	heading(right.position + Vector2(20, 40), str(reg.name) if visited(sel) else Tx.t("ui.map.unexplored"), right.size.x - 40)
 	var lv: Array = reg.get("levels", [0, 0])
-	text(right.position + Vector2(20, 72), "Safe" if int(lv[1]) == 0 else "Monster Level %d–%d" % [int(lv[0]), int(lv[1])], 18, UiKit.MIST)
+	text(right.position + Vector2(20, 72), Tx.t("ui.map.safe") if int(lv[1]) == 0 else Tx.t("ui.map.monster_level") % [int(lv[0]), int(lv[1])], 18, UiKit.MIST)
 	var y := right.position.y + 90
 	for id in region_rooms(sel):
 		var seen2: bool = Game.account.visited_rooms.has(id)
 		var room := ContentDB.room(id)
 		var here_room: bool = id == str(ch.position.get("room", ""))
-		text(Vector2(right.position.x + 24, y + 22), ("▶ " if here_room else ("· " if seen2 else "? ")) + (str(room.get("name", id)) if seen2 else "Unknown"), 18,
+		text(Vector2(right.position.x + 24, y + 22), ("▶ " if here_room else ("· " if seen2 else "? ")) + (str(room.get("name", id)) if seen2 else Tx.t("ui.map.unknown")), 18,
 			UiKit.GOLD if here_room else (UiKit.PAPER if seen2 else UiKit.HOLLOW))
 		for sp in room.get("spawns", []):
 			if sp.get("field_boss", false) and Unlocks.is_unlocked(ch.id, "field_boss_timers"):
 				var until := float(Game.account.rooms.get("field_boss_timers", {}).get(str(sp.enemy), 0.0))
 				var left_s := int(until - Clock.now_utc())
-				text(Vector2(right.position.x + 44, y + 44), "Boss: %s" % ("ready" if left_s <= 0 else "%dm" % (left_s / 60 + 1)), 15, UiKit.RED)
+				text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.boss") % ("ready" if left_s <= 0 else "%dm" % (left_s / 60 + 1)), 15, UiKit.RED)
 				y += 20
 		y += 28
 		if y > right.end.y - 40: break

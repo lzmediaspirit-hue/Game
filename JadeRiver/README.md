@@ -56,6 +56,9 @@ python3 tools/data/build_data.py            # everything
 python3 tools/data/build_data.py world story # just some modules
 ```
 
+Player-facing text lives in `tools/data/ui_strings.json` (merged into `data/strings/en.json`) and is read
+with `Tx.t("key")`; `python3 tools/dev/extract_strings.py` moves any new literal out of the scripts.
+
 Modules: realms, stats, items, techniques, enemies, world, story, economy, crafts, contract. Each validates its
 own references; `tests/data_validation` checks the whole set again inside Godot.
 
@@ -73,7 +76,7 @@ tools/run_tests.sh                 # Linux/macOS (GODOT=/path/to/godot)
 | `rules_tests` | Formulas at the spec's sample values (damage, attunement, mastery, risk), same-seed replay, offline caps, no offline breakthroughs, spirit animal stage gates, the weekly mission, save recovery from `.bak` |
 | `balance_sim` | A rate-based bot plays the data to Heaven Glimpse 3 with the real rules and meets the pacing table (±15%); the next gear upgrade is affordable after 1–2 hours at Levels 15 and 25 (`data/balance.json`) |
 | `perf_tests` | Every room loads in under 0.3 s, every page opens in under 0.15 s, a frame with fifteen monsters fits 60 fps (CPU, headless) |
-| `contract_tests` | Every event in the Part 4 catalogue is emitted only by its own system and has a reactor (`data/event_contract.json`, built by `tools/data/contract.py`) |
+| `contract_tests` | Every event in the Part 4 catalogue is emitted only by its own system and has a reactor (`data/event_contract.json`); no player-facing text is written in the scripts |
 | `prologue_run` | A scripted Prologue to Bone Forging 2 with the HUD reveal order |
 | `valley_run` | The whole of Act I from a new character to the Ascension Gate, through intents only (about a minute) |
 

@@ -8,13 +8,13 @@ var sel_sell := -1
 var qty := 1
 
 func _init() -> void:
-	title = "Shop"
-	tabs = [{"id": "buy", "label": "Buy"}, {"id": "sell", "label": "Sell"}, {"id": "buyback", "label": "Buy back"}]
+	title = Tx.t("ui.shop.shop")
+	tabs = [{"id": "buy", "label": Tx.t("ui.shop.buy")}, {"id": "sell", "label": Tx.t("ui.shop.sell")}, {"id": "buyback", "label": Tx.t("ui.shop.buy_back")}]
 
 func setup() -> void:
 	shop_id = str(args.get("shop", "old_ma"))
 	if page_id == "library": shop_id = "jade_sect" if str(c().training_sect.get("id", "")) == "jade_sect" else "cloud_sect"
-	title = str(ContentDB.entry("shops", shop_id).get("name", "Shop"))
+	title = str(ContentDB.entry("shops", shop_id).get("name", Tx.t("ui.shop.shop")))
 
 func draw_page() -> void:
 	var ch = c()
@@ -47,7 +47,7 @@ func _buy(ch) -> void:
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
 	panel(right)
 	if sel_buy < 0 or sel_buy >= stock.size():
-		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), "Tap an item to buy. Shops refresh one rotating item each dawn.", 19, UiKit.MIST)
+		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), Tx.t("ui.shop.tap_an_item_to_buy"), 19, UiKit.MIST)
 		return
 	var it: Dictionary = stock[sel_buy]
 	var def := ContentDB.item(str(it.item))
@@ -61,9 +61,9 @@ func _buy(ch) -> void:
 		btn(Rect2(right.position.x + 176, right.end.y - 150, 60, 52), "+", "qty", 1)
 		btn(Rect2(right.position.x + 244, right.end.y - 150, 80, 52), "×10", "qty", 10)
 	var total := int(it.price) * (qty if stackable else 1)
-	text(Vector2(right.position.x + 24, right.end.y - 82), "Total: %s" % UiKit.fmt(total), 20, UiKit.PALE_GOLD)
+	text(Vector2(right.position.x + 24, right.end.y - 82), Tx.t("ui.shop.total") % UiKit.fmt(total), 20, UiKit.PALE_GOLD)
 	var afford := Game.economy.balance(str(it.currency), ch) >= total
-	btn(Rect2(right.end.x - 224, right.end.y - 72, 200, 56), "Buy", "buy", null, true, afford, "Not enough %s" % ContentDB.text("currency." + str(it.currency)))
+	btn(Rect2(right.end.x - 224, right.end.y - 72, 200, 56), Tx.t("ui.shop.buy"), "buy", null, true, afford, Tx.t("ui.shop.not_enough") % ContentDB.text("currency." + str(it.currency)))
 
 func _sell(ch) -> void:
 	var bag: Array = ch.inventory.bag
@@ -79,32 +79,32 @@ func _sell(ch) -> void:
 		panel(rr, "minor_panel", "selected" if sel_sell == i else ("disabled" if price <= 0 else "normal"))
 		slot_box(Rect2(rr.position + Vector2(8, 3), Vector2(60, 60)), str(s.id), int(s.get("count", 1)), str(s.get("quality", "")))
 		text(rr.position + Vector2(84, 40), ContentDB.item_name(str(s.id)), 19, UiKit.PAPER if price > 0 else UiKit.HOLLOW)
-		text(rr.position + Vector2(0, 40), ("%s each" % UiKit.fmt(price)) if price > 0 else "Cannot sell", 17, UiKit.PALE_GOLD if price > 0 else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 16)
-		region(rr, "pick_sell", i, price > 0, "This cannot be sold")
+		text(rr.position + Vector2(0, 40), (Tx.t("ui.shop.each") % UiKit.fmt(price)) if price > 0 else Tx.t("ui.shop.cannot_sell"), 17, UiKit.PALE_GOLD if price > 0 else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 16)
+		region(rr, "pick_sell", i, price > 0, Tx.t("ui.shop.this_cannot_be_sold"))
 	)
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
 	panel(right)
 	if sel_sell < 0 or sel_sell >= bag.size() or bag[sel_sell] == null:
-		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), "Sell for a quarter of an item's value. Anything sold can be bought back today.", 19, UiKit.MIST)
+		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), Tx.t("ui.shop.sell_for_a_quarter_of"), 19, UiKit.MIST)
 		return
 	var s2: Dictionary = bag[sel_sell]
 	slot_box(Rect2(right.position + Vector2(24, 24), Vector2(72, 72)), str(s2.id), int(s2.get("count", 1)))
 	text(right.position + Vector2(110, 60), ContentDB.item_name(str(s2.id)), 21)
-	btn(Rect2(right.position.x + 24, right.end.y - 140, right.size.x - 48, 54), "Sell one", "sell", 1)
-	if int(s2.get("count", 1)) > 1: btn(Rect2(right.position.x + 24, right.end.y - 76, right.size.x - 48, 54), "Sell all (%d)" % int(s2.count), "sell", int(s2.count), true)
+	btn(Rect2(right.position.x + 24, right.end.y - 140, right.size.x - 48, 54), Tx.t("ui.shop.sell_one"), "sell", 1)
+	if int(s2.get("count", 1)) > 1: btn(Rect2(right.position.x + 24, right.end.y - 76, right.size.x - 48, 54), Tx.t("ui.shop.sell_all") % int(s2.count), "sell", int(s2.count), true)
 
 func _buyback(ch) -> void:
 	var bb: Array = Game.account.economy.get("buyback", [])
 	var r := Rect2(content.position, content.size)
 	panel(r)
-	if bb.is_empty(): text(r.position + Vector2(0, 80), "Nothing sold today.", 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+	if bb.is_empty(): text(r.position + Vector2(0, 80), Tx.t("ui.shop.nothing_sold_today"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 	list("bb", r.grow(-10), bb.size(), 70, func(i: int, rr: Rect2):
 		var e: Dictionary = bb[i]
 		var ent: Dictionary = e.get("entry", {})
 		panel(rr)
 		slot_box(Rect2(rr.position + Vector2(8, 3), Vector2(60, 60)), str(ent.get("id", "")), int(ent.get("count", 1)))
 		text(rr.position + Vector2(84, 40), ContentDB.item_name(str(ent.get("id", ""))), 19)
-		btn(Rect2(rr.end.x - 230, rr.position.y + 8, 210, 48), "Buy back · %s" % UiKit.fmt(int(e.price)), "buyback", i)
+		btn(Rect2(rr.end.x - 230, rr.position.y + 8, 210, 48), Tx.t("ui.shop.buy_back_2") % UiKit.fmt(int(e.price)), "buyback", i)
 	)
 
 func on_action(id: String, data) -> void:
@@ -122,7 +122,7 @@ func on_action(id: String, data) -> void:
 			var r := submit({"type": "buy", "shop": shop_id, "item": str(it.item), "count": n, "price": int(it.price)})
 			if r.get("ok", false):
 				Audio.play("coin", "UI")
-				flash("Bought %s ×%d" % [ContentDB.item_name(str(it.item)), n])
+				flash(Tx.t("ui.shop.bought") % [ContentDB.item_name(str(it.item)), n])
 		"sell":
 			if submit({"type": "sell", "index": sel_sell, "count": int(data)}).get("ok", false):
 				Audio.play("coin", "UI")

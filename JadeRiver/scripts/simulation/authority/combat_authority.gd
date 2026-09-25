@@ -211,7 +211,7 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	if is_busy(c.id): return fail("busy")
 	var fam := StatRules.family(c)
 	var tfam := str(t.get("family", "any"))
-	if tfam != "any" and not (tfam == str(fam.id) or (tfam == "fists" and fam.id in ["fists", "gauntlets"])): return fail("wrong_weapon", {"text": "Needs a %s" % tfam.replace("_", " ")})
+	if tfam != "any" and not (tfam == str(fam.id) or (tfam == "fists" and fam.id in ["fists", "gauntlets"])): return fail("wrong_weapon", {"text": Tx.t("sim.combat.needs_a") % tfam.replace("_", " ")})
 	if c.pools.cooldown("tech:" + str(tid)) > 0.0: return fail("cooldown")
 	if c.pools.has_status("qi_seal"): return fail("sealed")
 	if t.get("flying_only", false):
@@ -677,10 +677,10 @@ func _gravely_wound(c, cause: String) -> void:
 		"talisman": c.inventory.count("revival_talisman"), "can_revive_here": revive_here_allowed(c)})
 
 func revive_here_allowed(c) -> Dictionary:
-	if c.inventory.count("revival_talisman") <= 0: return {"ok": false, "text": "No Revival Talisman"}
-	if game.room_rt and game.room_rt.def.get("no_revive_here", false): return {"ok": false, "text": "Not allowed here"}
+	if c.inventory.count("revival_talisman") <= 0: return {"ok": false, "text": Tx.t("sim.combat.no_revival_talisman")}
+	if game.room_rt and game.room_rt.def.get("no_revive_here", false): return {"ok": false, "text": Tx.t("sim.combat.not_allowed_here")}
 	var until := float(c.cooldowns.get("revival_talisman_utc", 0.0))
-	if Clock.now_utc() < until: return {"ok": false, "text": "Talisman recovering (%ds)" % int(until - Clock.now_utc())}
+	if Clock.now_utc() < until: return {"ok": false, "text": Tx.t("sim.combat.talisman_recovering_ds") % int(until - Clock.now_utc())}
 	return {"ok": true, "text": ""}
 
 func choose_revival(c, where: String) -> Dictionary:

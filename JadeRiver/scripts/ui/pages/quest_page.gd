@@ -4,8 +4,8 @@ extends Page
 var sel := ""
 
 func _init() -> void:
-	title = "Quests"
-	tabs = [{"id": "main", "label": "Main"}, {"id": "side", "label": "Side"}, {"id": "daily", "label": "Daily"}, {"id": "done", "label": "Done"}]
+	title = Tx.t("ui.quest.quests")
+	tabs = [{"id": "main", "label": Tx.t("ui.quest.main")}, {"id": "side", "label": Tx.t("ui.quest.side")}, {"id": "daily", "label": Tx.t("ui.quest.daily")}, {"id": "done", "label": Tx.t("ui.quest.done")}]
 
 func ids_for(ch, which: String) -> Array:
 	var out: Array = []
@@ -44,9 +44,9 @@ func _next_chapter(ch, left: Rect2) -> void:
 			if str(r.get("kind", "")) == "quest_done" and not ch.quests.done.has(str(r.get("quest", ""))): waits = false
 		if not waits: continue
 		var why := RequirementRules.first_failure_text(d.get("requires", {}), Game.ctx(ch))
-		var body := "Next in the story: %s" % str(d.get("name", q))
+		var body := Tx.t("ui.quest.next_in_the_story") % str(d.get("name", q))
 		if why != "": body += "\n" + why
-		else: body += "\nThe river will call when it is time."
+		else: body += Tx.t("ui.quest.the_river_will_call_when")
 		para(Rect2(left.position + Vector2(24, 100), Vector2(left.size.x - 48, 120)), body, 18, UiKit.MIST)
 		return
 
@@ -57,7 +57,7 @@ func draw_page() -> void:
 	var left := Rect2(content.position.x, content.position.y, 440, content.size.y)
 	panel(left)
 	if ids.is_empty():
-		text(left.position + Vector2(0, 70), "Nothing here yet.", 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, left.size.x)
+		text(left.position + Vector2(0, 70), Tx.t("ui.quest.nothing_here_yet"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, left.size.x)
 		if str(tabs[tab].id) == "main": _next_chapter(ch, left)
 	list("q", left.grow(-10), ids.size(), 62, func(i: int, rr: Rect2):
 		var q := str(ids[i])
@@ -79,7 +79,7 @@ func draw_page() -> void:
 	heading(right.position + Vector2(24, 44), str(d2.get("name", sel)), right.size.x - 48)
 	var y := right.position.y + 70
 	var giver := Game.quest.hand_in_npc(ch, d2) if d2.has("hand_in_any") else str(d2.get("giver", ""))
-	if giver != "": text(Vector2(right.position.x + 24, y + 18), "From %s" % ContentDB.name_of("npcs", giver), 17, UiKit.MIST)
+	if giver != "": text(Vector2(right.position.x + 24, y + 18), Tx.t("ui.quest.from") % ContentDB.name_of("npcs", giver), 17, UiKit.MIST)
 	y += 30
 	var offer: Array = d2.get("offer_text", [])
 	if not offer.is_empty(): y += para(Rect2(right.position.x + 24, y, right.size.x - 48, 110), str(offer[0]), 18, UiKit.PAPER, 4) + 10
@@ -94,7 +94,7 @@ func draw_page() -> void:
 	y += 12
 	var rewards: Array = d2.get("rewards", [])
 	if not rewards.is_empty():
-		text(Vector2(right.position.x + 24, y + 20), "Rewards", 19, UiKit.GOLD)
+		text(Vector2(right.position.x + 24, y + 20), Tx.t("ui.quest.rewards"), 19, UiKit.GOLD)
 		var x := right.position.x + 24
 		for r in rewards:
 			if r.get("kind", "") == "grant_item":
@@ -103,14 +103,14 @@ func draw_page() -> void:
 			elif r.get("kind", "") == "grant_currency":
 				x += currency_pill(Vector2(x, y + 40), str(r.currency), int(r.amount)) + 8
 	if ch.quests.is_active(sel):
-		btn(Rect2(right.position.x + 24, right.end.y - 70, 200, 52), "Untrack" if ch.quests.tracked.has(sel) else "Track", "track", sel)
+		btn(Rect2(right.position.x + 24, right.end.y - 70, 200, 52), Tx.t("ui.quest.untrack") if ch.quests.tracked.has(sel) else Tx.t("ui.quest.track"), "track", sel)
 		if str(d2.get("kind", "")) in ["side", "daily"]:
-			btn(Rect2(right.end.x - 224, right.end.y - 70, 200, 52), "Abandon", "abandon", sel)
+			btn(Rect2(right.end.x - 224, right.end.y - 70, 200, 52), Tx.t("ui.quest.abandon"), "abandon", sel)
 
 func on_action(id: String, data) -> void:
 	match id:
 		"sel": sel = str(data)
 		"_tab": sel = ""
 		"track": submit({"type": "track_quest", "quest": str(data)})
-		"abandon": ask("Abandon this quest? You can take it again later.", "abandon_yes", data, true)
+		"abandon": ask(Tx.t("ui.quest.abandon_this_quest_you_can"), "abandon_yes", data, true)
 		"abandon_yes": submit({"type": "abandon_quest", "quest": str(data)})

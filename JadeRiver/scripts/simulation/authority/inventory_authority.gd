@@ -177,9 +177,9 @@ func wear_check(c, def: Dictionary) -> String:
 		return RequirementRules.first_failure_text(def.requires, ctx)
 	var grade := str(def.get("grade", "plain"))
 	var need := int(ContentDB.config("grades").get("wear_level", {}).get(grade, 0))
-	if ProgressionRules.level(c) < need: return "Requires Level %d" % need
+	if ProgressionRules.level(c) < need: return Tx.t("sim.inventory.requires_level") % need
 	for attr in def.get("attribute_req", {}):
-		if c.stats.value(attr) < float(def.attribute_req[attr]): return "Requires %s %d" % [attr.capitalize(), int(def.attribute_req[attr])]
+		if c.stats.value(attr) < float(def.attribute_req[attr]): return Tx.t("sim.inventory.requires") % [attr.capitalize(), int(def.attribute_req[attr])]
 	var slot := str(def.get("slot", ""))
 	var slot_unlock := {"weapon": "weapons", "cape": "cape_slot", "talisman": "spirit_sense"}
 	if slot_unlock.has(slot) and not Unlocks.is_unlocked(c.id, slot_unlock[slot]): return Unlocks.locked_text(slot_unlock[slot])
@@ -203,7 +203,7 @@ func equip(c, index: int) -> Dictionary:
 func unequip(c, slot: String) -> Dictionary:
 	var inst = c.inventory.equipped.get(slot)
 	if inst == null: return fail("empty")
-	if slot == "gourd": return fail("gourd_required", {"text": "You always carry a Spirit Gourd."})
+	if slot == "gourd": return fail("gourd_required", {"text": Tx.t("sim.inventory.you_always_carry_a_spirit")})
 	var free := -1
 	for i in c.inventory.bag.size():
 		if c.inventory.bag[i] == null:
@@ -242,10 +242,10 @@ func use_warning(c, def: Dictionary) -> String:
 		for r in game.progression.query_requirements(c):
 			if not r.ok: needed[str(r.cause)] = true
 		if not needed.is_empty() and not needed.has(cause) and "add_progress" in str(def.use):
-			return "This pill will not help your current bottleneck (%s)" % ", ".join(needed.keys()).capitalize()
+			return Tx.t("sim.inventory.this_pill_will_not_help") % ", ".join(needed.keys()).capitalize()
 	var grade_gap := StatRules.grade_index(str(def.get("grade", "plain"))) - StatRules.grade_index(LootRules.grade_for_ilv(maxi(1, ProgressionRules.level(c))))
-	if grade_gap >= 2: return "This pill is two grades above your realm: it will injure you"
-	if c.cultivator.toxicity + float(p.get("toxicity", 0)) > c.stats.value("toxicity_tolerance"): return "Toxicity above tolerance: the pill will lose effect and hurt your meridians"
+	if grade_gap >= 2: return Tx.t("sim.inventory.this_pill_is_two_grades")
+	if c.cultivator.toxicity + float(p.get("toxicity", 0)) > c.stats.value("toxicity_tolerance"): return Tx.t("sim.inventory.toxicity_above_tolerance_the_pill")
 	return ""
 
 func use_item(c, index: int, confirm: bool) -> Dictionary:

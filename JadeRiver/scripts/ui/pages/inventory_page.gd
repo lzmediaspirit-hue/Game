@@ -5,16 +5,16 @@ extends Page
 const Avatar = preload("res://scripts/avatar.gd")
 const SLOT_POS := {"hat": Vector2(0, 0), "robe": Vector2(0, 1), "trousers": Vector2(0, 2), "boots": Vector2(0, 3),
 	"weapon": Vector2(1, 0), "gourd": Vector2(1, 1), "cape": Vector2(1, 2), "talisman": Vector2(1, 3)}
-const SLOT_LABEL := {"weapon": "Weapon", "hat": "Hat", "robe": "Robe", "trousers": "Trousers", "boots": "Boots", "gourd": "Gourd",
-	"cape": "Cape", "talisman": "Talisman"}
+var SLOT_LABEL := {"weapon": Tx.t("ui.inventory.weapon"), "hat": Tx.t("ui.inventory.hat"), "robe": Tx.t("ui.inventory.robe"), "trousers": Tx.t("ui.inventory.trousers"), "boots": Tx.t("ui.inventory.boots"), "gourd": Tx.t("ui.inventory.gourd"),
+	"cape": Tx.t("ui.inventory.cape"), "talisman": Tx.t("ui.inventory.talisman")}
 
 var sel := {}          # {"bag": index} | {"slot": name} | {"key": index}
 var doll: Node2D
 var sort_by := "type"
 
 func _init() -> void:
-	title = "Bag"
-	tabs = [{"id": "bag", "label": "Spirit Gourd"}, {"id": "key", "label": "Key Items"}]
+	title = Tx.t("ui.inventory.bag")
+	tabs = [{"id": "bag", "label": Tx.t("ui.inventory.spirit_gourd")}, {"id": "key", "label": Tx.t("ui.inventory.key_items")}]
 
 func setup() -> void:
 	if is_instance_valid(doll): doll.queue_free()
@@ -37,9 +37,9 @@ func on_event(name: String, _p: Dictionary) -> void:
 func slot_locked(slot: String) -> String:
 	var ch = c()
 	match slot:
-		"weapon": return "" if Unlocks.is_unlocked(ch.id, "weapons") else "Fists only until the Weapon Hall (Bone Forging 3)"
-		"cape": return "" if Unlocks.is_unlocked(ch.id, "cape_slot") else "Cape slot opens at Heaven Glimpse 1"
-		"talisman": return "" if Unlocks.is_unlocked(ch.id, "spirit_sense") else "Soul Talisman slot opens at Spirit Awakening 1"
+		"weapon": return "" if Unlocks.is_unlocked(ch.id, "weapons") else Tx.t("ui.inventory.fists_only_until_the_weapon")
+		"cape": return "" if Unlocks.is_unlocked(ch.id, "cape_slot") else Tx.t("ui.inventory.cape_slot_opens_at_heaven")
+		"talisman": return "" if Unlocks.is_unlocked(ch.id, "spirit_sense") else Tx.t("ui.inventory.soul_talisman_slot_opens_at")
 	return ""
 
 func draw_page() -> void:
@@ -83,7 +83,7 @@ func draw_page() -> void:
 					if inv.new_items.has(str(s.id)): draw_circle(r2.position + Vector2(cell - 8, 8), 5, UiKit.BRIGHT_JADE)
 		)
 		text(Vector2(grid.position.x, grid.end.y + 36), "%d / %d" % [inv.bag.size() - inv.free_slots(), inv.capacity()], 18, UiKit.MIST)
-		btn(Rect2(grid.end.x - 140, grid.end.y + 10, 140, 44), "Sort", "sort")
+		btn(Rect2(grid.end.x - 140, grid.end.y + 10, 140, 44), Tx.t("ui.inventory.sort"), "sort")
 	else:
 		var r := Rect2(content.position.x, content.position.y, 800, content.size.y)
 		panel(r)
@@ -94,7 +94,7 @@ func draw_page() -> void:
 			text(rr.position + Vector2(80, 54), fit(str(ContentDB.item(str(k.id)).get("desc", "")), 16, rr.size.x - 96), 16, UiKit.MIST)
 			region(rr, "key", i)
 		)
-		if inv.key_items.is_empty(): text(r.position + Vector2(0, 80), "No key items.", 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+		if inv.key_items.is_empty(): text(r.position + Vector2(0, 80), Tx.t("ui.inventory.no_key_items"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 	_draw_detail(Rect2(content.end.x - 290, content.position.y, 290, content.size.y))
 
 func selected_item():
@@ -112,7 +112,7 @@ func _draw_detail(r: Rect2) -> void:
 	panel(r)
 	var s = selected_item()
 	if s == null:
-		para(Rect2(r.position + Vector2(18, 20), r.size - Vector2(36, 40)), "Tap an item to see what it does.", 18, UiKit.MIST)
+		para(Rect2(r.position + Vector2(18, 20), r.size - Vector2(36, 40)), Tx.t("ui.inventory.tap_an_item_to_see"), 18, UiKit.MIST)
 		return
 	var ch = c()
 	var id := str(s.id)
@@ -140,7 +140,7 @@ func _draw_detail(r: Rect2) -> void:
 			text(Vector2(r.position.x + 16, y + 20), "✦ %s" % str(a.get("stat", "")).replace("_", " "), 16, UiKit.PALE_GOLD)
 			y += 22
 	if def.get("pill", {}).has("toxicity"):
-		text(Vector2(r.position.x + 16, y + 20), "Toxicity %d" % int(def.pill.toxicity), 16, UiKit.RED)
+		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.toxicity") % int(def.pill.toxicity), 16, UiKit.RED)
 	# Actions.
 	var bx := r.position.x + 14
 	var bw := (r.size.x - 38) / 2
@@ -148,15 +148,15 @@ func _draw_detail(r: Rect2) -> void:
 	if sel.has("bag"):
 		if def.has("slot"):
 			var ok := RequirementRules.passes(def.get("requires", {}), Game.ctx(ch))
-			btn(Rect2(bx, by, bw, 50), "Equip", "equip", null, true, ok, RequirementRules.first_failure_text(def.get("requires", {}), Game.ctx(ch)))
+			btn(Rect2(bx, by, bw, 50), Tx.t("ui.inventory.equip"), "equip", null, true, ok, RequirementRules.first_failure_text(def.get("requires", {}), Game.ctx(ch)))
 		elif def.has("use"):
-			btn(Rect2(bx, by, bw, 50), "Use", "use", null, true)
+			btn(Rect2(bx, by, bw, 50), Tx.t("ui.inventory.use"), "use", null, true)
 			var q_on = ch.inventory.quick_use == id
-			btn(Rect2(bx + bw + 10, by, bw, 50), "Quick ✓" if q_on else "Quick-use", "quick", null, false, Unlocks.is_unlocked(ch.id, "quick_use"), "Quick-use is not unlocked yet")
-		btn(Rect2(bx, by + 58, bw, 46), "Unlock" if ch.inventory.locked.has(int(s.get("uid", -1))) else "Lock", "lock")
-		btn(Rect2(bx + bw + 10, by + 58, bw, 46), "Discard", "discard", null, false, def.get("type", "") != "key")
+			btn(Rect2(bx + bw + 10, by, bw, 50), Tx.t("ui.inventory.quick") if q_on else Tx.t("ui.inventory.quick_use"), "quick", null, false, Unlocks.is_unlocked(ch.id, "quick_use"), Tx.t("ui.inventory.quick_use_is_not_unlocked"))
+		btn(Rect2(bx, by + 58, bw, 46), Tx.t("ui.inventory.unlock") if ch.inventory.locked.has(int(s.get("uid", -1))) else Tx.t("ui.inventory.lock"), "lock")
+		btn(Rect2(bx + bw + 10, by + 58, bw, 46), Tx.t("ui.inventory.discard"), "discard", null, false, def.get("type", "") != "key")
 	elif sel.has("slot"):
-		btn(Rect2(bx, by + 30, r.size.x - 28, 54), "Unequip", "unequip", null, false, str(sel.slot) != "gourd", "The Spirit Gourd holds your bag")
+		btn(Rect2(bx, by + 30, r.size.x - 28, 54), Tx.t("ui.inventory.unequip"), "unequip", null, false, str(sel.slot) != "gourd", Tx.t("ui.inventory.the_spirit_gourd_holds_your"))
 
 func on_action(id: String, data) -> void:
 	var ch = c()
@@ -175,7 +175,7 @@ func on_action(id: String, data) -> void:
 		"use":
 			var r := submit({"type": "use_item", "index": int(sel.bag)})
 			if not r.get("ok", false) and r.get("reason", "") == "confirm":
-				ask(str(r.get("text", "Use it anyway?")), "use_confirm", int(sel.bag))
+				ask(str(r.get("text", Tx.t("ui.inventory.use_it_anyway"))), "use_confirm", int(sel.bag))
 		"use_confirm": submit({"type": "use_item", "index": int(data), "confirm": true})
 		"quick":
 			var s = selected_item()
@@ -183,7 +183,7 @@ func on_action(id: String, data) -> void:
 		"lock": submit({"type": "lock_item", "index": int(sel.bag)})
 		"discard":
 			var s2 = selected_item()
-			if s2 != null: ask("Discard %s ×%d?" % [ContentDB.item_name(str(s2.id)), int(s2.get("count", 1))], "discard_yes", int(sel.bag), true)
+			if s2 != null: ask(Tx.t("ui.inventory.discard_2") % [ContentDB.item_name(str(s2.id)), int(s2.get("count", 1))], "discard_yes", int(sel.bag), true)
 		"discard_yes":
 			var s3 = ch.inventory.bag[int(data)]
 			if s3 != null and submit({"type": "discard", "index": int(data), "count": int(s3.get("count", 1))}).get("ok", false): sel = {}

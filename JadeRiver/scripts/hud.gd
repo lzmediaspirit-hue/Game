@@ -134,7 +134,7 @@ func _tick_channel(delta: float) -> void:
 		player.channel_action = ""
 		if channel.action in ["gather", "mine"]:
 			var r := Game.submit({"type": "complete_node", "object": obj})
-			if r.ok: add_log("Obtained %s ×%d" % [ContentDB.item_name(str(r.item)), int(r.count)], UiKit.BRIGHT_JADE)
+			if r.ok: add_log(Tx.t("hud.obtained") % [ContentDB.item_name(str(r.item)), int(r.count)], UiKit.BRIGHT_JADE)
 
 func _notification(what):
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
@@ -235,7 +235,7 @@ func release(id: int):
 	if info.get("role", "") == "skill" and not info.get("swiped", false) and info.has("slot") and bound():
 		var r: Dictionary = player.use_technique(int(info.slot))
 		if not r.ok and r.get("reason", "") in ["no_qi", "cooldown", "wrong_weapon", "sealed", "needs_flight"]:
-			add_log({"no_qi": "Not enough QI", "cooldown": "Not ready", "wrong_weapon": str(r.get("text", "Wrong weapon")), "sealed": "Your Qi is sealed", "needs_flight": "Only in flight"}[r.reason], UiKit.MIST)
+			add_log({"no_qi": Tx.t("hud.not_enough_qi"), "cooldown": Tx.t("hud.not_ready"), "wrong_weapon": str(r.get("text", Tx.t("hud.wrong_weapon"))), "sealed": Tx.t("hud.your_qi_is_sealed"), "needs_flight": Tx.t("hud.only_in_flight")}[r.reason], UiKit.MIST)
 	if info.get("role", "") == "guard" and bound():
 		guard_pressed = false
 		if guard_hold <= 0.18:
@@ -292,8 +292,8 @@ func use_quick() -> void:
 	if not bound(): return
 	var r := Game.submit({"type": "use_quick"})
 	if not r.ok:
-		if r.get("reason", "") == "none_left": add_log("No %s left" % ContentDB.item_name(str(r.item)), UiKit.MIST)
-		elif r.get("reason", "") == "cooldown": add_log("Not ready yet", UiKit.MIST)
+		if r.get("reason", "") == "none_left": add_log(Tx.t("hud.no_left") % ContentDB.item_name(str(r.item)), UiKit.MIST)
+		elif r.get("reason", "") == "cooldown": add_log(Tx.t("hud.not_ready_yet"), UiKit.MIST)
 		elif r.has("text"): add_log(str(r.text), UiKit.MIST)
 
 ## Pages and dialogue block world input; held controls are released at once.
@@ -359,7 +359,7 @@ func _pet_name(uid: String) -> String:
 	var c = Game.active()
 	for pt in (c.pets if c else []):
 		if str(pt.uid) == uid: return str(pt.name)
-	return "Your spirit animal"
+	return Tx.t("hud.your_spirit_animal")
 
 func toast(text: String, kind := "unlock") -> void:
 	toasts.append({"text": text, "t": 0.0, "kind": kind})
@@ -370,18 +370,18 @@ func _on_event(name: String, p: Dictionary) -> void:
 	match name:
 		"item_added":
 			if str(p.get("actor", "")) == Game.active_id and shown("system_log"):
-				add_log("Obtained %s ×%d" % [ContentDB.item_name(str(p.item)), int(p.count)], UiKit.quality_color(str(p.get("quality", "common"))))
+				add_log(Tx.t("hud.obtained") % [ContentDB.item_name(str(p.item)), int(p.count)], UiKit.quality_color(str(p.get("quality", "common"))))
 		"currency_changed":
 			if int(p.get("delta", 0)) > 0 and shown("system_log") and str(p.get("source", "")) != "sell":
 				add_log("+%d %s" % [int(p.delta), ContentDB.text("currency." + str(p.currency))], UiKit.PALE_GOLD)
 		"system_unlocked":
-			if p.get("toast", true) and str(p.get("label", "")) != "": toast("New: " + str(p.label))
+			if p.get("toast", true) and str(p.get("label", "")) != "": toast(Tx.t("hud.new") + str(p.label))
 		"hud_element_revealed":
 			pulses[str(p.element)] = 1.2
 		"quest_accepted":
-			toast("Quest: " + str(p.get("name", "")), "quest")
+			toast(Tx.t("hud.quest") + str(p.get("name", "")), "quest")
 		"quest_completed":
-			toast("Completed: " + str(p.get("name", "")), "quest")
+			toast(Tx.t("hud.completed") + str(p.get("name", "")), "quest")
 		"objective_progressed":
 			pass
 		"room_entered":
@@ -390,82 +390,82 @@ func _on_event(name: String, p: Dictionary) -> void:
 			banner = {"text": str(room.get("name", "")), "sub": str(room.get("region_name", zone.get("name", ""))), "t": 0.0}
 			channel.object = ""
 		"bottleneck_reached":
-			toast("Bottleneck: tap Cultivate to break through" if not p.get("major", false) else "Bottleneck reached · see the Cultivation page", "gold")
+			toast(Tx.t("hud.bottleneck_tap_cultivate_to_break") if not p.get("major", false) else Tx.t("hud.bottleneck_reached_see_the_cultivation"), "gold")
 		"breakthrough_failed":
-			add_log("Breakthrough failed: " + ContentDB.text("failure." + str(p.failure_id)), UiKit.RED)
+			add_log(Tx.t("hud.breakthrough_failed") + ContentDB.text("failure." + str(p.failure_id)), UiKit.RED)
 		"achievement_unlocked":
-			toast("Achievement: " + str(p.get("name", "")), "gold")
+			toast(Tx.t("hud.achievement") + str(p.get("name", "")), "gold")
 		"title_changed":
-			if p.get("earned", false): toast("Title earned: " + ContentDB.name_of("titles", str(p.title)), "gold")
+			if p.get("earned", false): toast(Tx.t("hud.title_earned") + ContentDB.name_of("titles", str(p.title)), "gold")
 		"mail_received":
-			if Unlocks.is_unlocked(Game.active_id, "mail"): add_log("A letter arrived", UiKit.PALE_GOLD)
+			if Unlocks.is_unlocked(Game.active_id, "mail"): add_log(Tx.t("hud.a_letter_arrived"), UiKit.PALE_GOLD)
 		"bag_full":
-			add_log("Your gourd is full", UiKit.RED)
+			add_log(Tx.t("hud.your_gourd_is_full"), UiKit.RED)
 		"system_log":
 			add_log(str(p.text), UiKit.PAPER)
 		"portal_blocked":
 			add_log(str(p.get("text", "")), UiKit.MIST)
 		"field_boss_spawned", "elite_spawned":
 			var def := ContentDB.entry("enemies", str(p.def))
-			toast("%s appears!" % str(def.get("name", "")), "danger")
+			toast(Tx.t("hud.appears") % str(def.get("name", "")), "danger")
 		"injury_added":
-			add_log("Injury: %s (severity %d)" % [str(p.kind).capitalize(), int(p.severity)], UiKit.RED)
+			add_log(Tx.t("hud.injury_severity") % [str(p.kind).capitalize(), int(p.severity)], UiKit.RED)
 		"aptitude_revealed":
-			toast("Aptitude revealed: %s" % str(p.aptitude).replace("_", " ").capitalize(), "gold")
+			toast(Tx.t("hud.aptitude_revealed") % str(p.aptitude).replace("_", " ").capitalize(), "gold")
 		"craft_completed":
-			add_log("Crafted %s (%s)" % [ContentDB.name_of("recipes", str(p.recipe)), str(p.quality).capitalize()], UiKit.quality_color(str(p.quality)))
+			add_log(Tx.t("hud.crafted") % [ContentDB.name_of("recipes", str(p.recipe)), str(p.quality).capitalize()], UiKit.quality_color(str(p.quality)))
 		"spar_ended":
-			toast("Spar won!" if p.get("winner", "") == "player" else "Spar lost — try again", "quest")
+			toast(Tx.t("hud.spar_won") if p.get("winner", "") == "player" else Tx.t("hud.spar_lost_try_again"), "quest")
 		"quest_ready":
-			toast("Ready to hand in: " + str(Game.quest.quest_def(Game.active(), str(p.quest)).get("name", "")), "quest")
+			toast(Tx.t("hud.ready_to_hand_in") + str(Game.quest.quest_def(Game.active(), str(p.quest)).get("name", "")), "quest")
 		"codex_entry_unlocked":
-			add_log("Codex: " + str(ContentDB.entry("codex", str(p.entry)).get("title", "")), UiKit.PALE_GOLD)
+			add_log(Tx.t("hud.codex") + str(ContentDB.entry("codex", str(p.entry)).get("title", "")), UiKit.PALE_GOLD)
 		"teleport_discovered":
-			toast("Teleport stone attuned", "gold")
+			toast(Tx.t("hud.teleport_stone_attuned"), "gold")
 		"hidden_portal_revealed":
-			toast("A hidden path opens", "gold")
+			toast(Tx.t("hud.a_hidden_path_opens"), "gold")
 		"meridian_gate_opened":
-			toast("Meridian gate opened: %s" % str(p.get("channel", "")).replace("_", " ").capitalize(), "gold")
+			toast(Tx.t("hud.meridian_gate_opened") % str(p.get("channel", "")).replace("_", " ").capitalize(), "gold")
 		"stability_changed":
-			add_log("Your foundation is %s" % str(p.get("word", "")).to_lower(), UiKit.MIST)
+			add_log(Tx.t("hud.your_foundation_is") % str(p.get("word", "")).to_lower(), UiKit.MIST)
 		"overflow_mailed":
-			add_log("No room in your gourd · sent to your mail", UiKit.PALE_GOLD)
+			add_log(Tx.t("hud.no_room_in_your_gourd"), UiKit.PALE_GOLD)
 		"egg_hatched":
-			toast("The egg hatched: a %s!" % ContentDB.name_of("pets", str(p.species)), "gold")
+			toast(Tx.t("hud.the_egg_hatched_a") % ContentDB.name_of("pets", str(p.species)), "gold")
 		"bond_changed":
-			add_log("%s: %d hearts" % [_pet_name(str(p.pet)), int(float(p.value))], UiKit.RED)
+			add_log(Tx.t("hud.hearts") % [_pet_name(str(p.pet)), int(float(p.value))], UiKit.RED)
 		"field_boss_defeated":
-			toast("%s is defeated!" % ContentDB.name_of("enemies", str(p.enemy)), "gold")
+			toast(Tx.t("hud.is_defeated") % ContentDB.name_of("enemies", str(p.enemy)), "gold")
 		"defence_warning":
-			toast("Raiders at the gates! Hold the sect grounds", "danger")
+			toast(Tx.t("hud.raiders_at_the_gates_hold"), "danger")
 		"defence_result":
-			toast("The raid is beaten back" if p.get("won", false) else "The raiders broke through", "gold" if p.get("won", false) else "danger")
+			toast(Tx.t("hud.the_raid_is_beaten_back") if p.get("won", false) else Tx.t("hud.the_raiders_broke_through"), "gold" if p.get("won", false) else "danger")
 		"building_upgraded":
-			add_log("%s reached level %d" % [ContentDB.name_of("sect_buildings", str(p.building)), int(p.level)], UiKit.PALE_GOLD)
+			add_log(Tx.t("hud.reached_level") % [ContentDB.name_of("sect_buildings", str(p.building)), int(p.level)], UiKit.PALE_GOLD)
 		"prestige_gained":
-			if Game.sect.founded(): add_log("+%d Prestige" % int(p.amount), UiKit.PALE_GOLD)
+			if Game.sect.founded(): add_log(Tx.t("hud.prestige") % int(p.amount), UiKit.PALE_GOLD)
 		"expedition_returned":
-			add_log("Expedition to %s %s" % [ContentDB.name_of("expeditions", str(p.region)), "returned with spoils" if p.get("success", false) else "came back empty-handed"], UiKit.PALE_GOLD)
+			add_log(Tx.t("hud.expedition_to") % [ContentDB.name_of("expeditions", str(p.region)), Tx.t("hud.returned_with_spoils") if p.get("success", false) else Tx.t("hud.came_back_empty_handed")], UiKit.PALE_GOLD)
 		"reputation_changed":
-			add_log("Reputation · %s %d" % [str(p.faction).replace("_", " ").capitalize(), int(p.value)], UiKit.MIST)
+			add_log(Tx.t("hud.reputation") % [str(p.faction).replace("_", " ").capitalize(), int(p.value)], UiKit.MIST)
 		"pet_evolved":
-			toast("%s grows into a %s!" % [_pet_name(str(p.pet)), str(p.get("branch", "")) if str(p.get("branch", "")) != "" else str(Game.pets.stage_def(str(p.stage)).get("name", ""))], "gold")
+			toast(Tx.t("hud.grows_into_a") % [_pet_name(str(p.pet)), str(p.get("branch", "")) if str(p.get("branch", "")) != "" else str(Game.pets.stage_def(str(p.stage)).get("name", ""))], "gold")
 		"trait_revealed":
-			toast("%s shows a trait: %s" % [_pet_name(str(p.pet)), ContentDB.name_of("pet_traits", str(p.trait))], "gold")
+			toast(Tx.t("hud.shows_a_trait") % [_pet_name(str(p.pet)), ContentDB.name_of("pet_traits", str(p.trait))], "gold")
 		"pet_level_up":
-			add_log("%s reached level %d" % [_pet_name(str(p.pet)), int(p.level)], UiKit.PALE_GOLD)
+			add_log(Tx.t("hud.reached_level") % [_pet_name(str(p.pet)), int(p.level)], UiKit.PALE_GOLD)
 		"pet_retreated":
-			add_log("Your spirit animal retreats into its token", UiKit.MIST)
+			add_log(Tx.t("hud.your_spirit_animal_retreats_into"), UiKit.MIST)
 		"pet_returned":
-			add_log("Your spirit animal is back", UiKit.MIST)
+			add_log(Tx.t("hud.your_spirit_animal_is_back"), UiKit.MIST)
 		"companion_downed":
-			add_log("%s is down" % ContentDB.name_of("companions", str(p.get("companion", ""))), UiKit.RED)
+			add_log(Tx.t("hud.is_down") % ContentDB.name_of("companions", str(p.get("companion", ""))), UiKit.RED)
 		"companion_revived":
-			add_log("%s is back on their feet" % ContentDB.name_of("companions", str(p.get("companion", ""))), UiKit.MIST)
+			add_log(Tx.t("hud.is_back_on_their_feet") % ContentDB.name_of("companions", str(p.get("companion", ""))), UiKit.MIST)
 		"building_damaged":
-			toast("Raiders damaged your %s · repair it at Your Sect" % ContentDB.name_of("sect_buildings", str(p.building)), "danger")
+			toast(Tx.t("hud.raiders_damaged_your_repair_it") % ContentDB.name_of("sect_buildings", str(p.building)), "danger")
 		"zone_ceiling_reached":
-			toast("This land can take you no higher", "gold")
+			toast(Tx.t("hud.this_land_can_take_you"), "gold")
 
 # ------------------------------------------------------------------ drawing
 func ring(center: Vector2, radius: float, active := false, opacity := 1.0, gold := false) -> void:
@@ -567,7 +567,7 @@ func _draw():
 		draw_arc(joystick_origin, 76, 0, TAU, 40, Color(1, 1, 1, 0.12), 2)
 		draw_circle(joystick_origin + (joystick_pos - joystick_origin).limit_length(76), 18, Color(1, 1, 1, 0.14))
 	if not Game.is_revealed("hud:joystick_hint_done") and Game.active().quests.has_flag("prologue_active") and t < 12.0:
-		UiKit.draw_outlined(self, "Drag on the left half of the screen to move", Vector2(40, 470), 20, Color(UiKit.PAPER, 0.6 + 0.4 * sin(t * 3.0)), HORIZONTAL_ALIGNMENT_CENTER, 560)
+		UiKit.draw_outlined(self, Tx.t("hud.drag_on_the_left_half"), Vector2(40, 470), 20, Color(UiKit.PAPER, 0.6 + 0.4 * sin(t * 3.0)), HORIZONTAL_ALIGNMENT_CENTER, 560)
 
 func _draw_player_panel(c) -> void:
 	if not shown("player_panel"): return
@@ -585,14 +585,14 @@ func _draw_player_panel(c) -> void:
 		UiKit.draw_text(self, ContentDB.realm_label(c.cultivator.realm_key), r.position + Vector2(90, 50), 15, UiKit.PALE_GOLD)
 	var y := 60.0
 	if shown("hp_bar"):
-		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 12), c.pools.hp / maxf(1.0, c.pools.max_hp), Color("c2474f"), "HP", "%d/%d" % [int(c.pools.hp), int(c.pools.max_hp)])
+		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 12), c.pools.hp / maxf(1.0, c.pools.max_hp), Color("c2474f"), Tx.t("hud.hp"), "%d/%d" % [int(c.pools.hp), int(c.pools.max_hp)])
 		y += 17
 	# No cultivation, no Qi: the QI bar appears only once a QI pool exists.
 	if c.pools.max_qi > 0.0 and shown("qi_bar"):
-		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 10), c.pools.qi / c.pools.max_qi, UiKit.QI, "QI", "%d/%d" % [int(c.pools.qi), int(c.pools.max_qi)])
+		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 10), c.pools.qi / c.pools.max_qi, UiKit.QI, Tx.t("hud.qi"), "%d/%d" % [int(c.pools.qi), int(c.pools.max_qi)])
 		y += 15
 	if soul_row:
-		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 10), c.pools.soul / c.pools.max_soul, UiKit.SOUL, "SL", "%d/%d" % [int(c.pools.soul), int(c.pools.max_soul)])
+		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 10), c.pools.soul / c.pools.max_soul, UiKit.SOUL, Tx.t("hud.sl"), "%d/%d" % [int(c.pools.soul), int(c.pools.max_soul)])
 	# Status stack (injuries, stability, toxicity, composure, buffs, statuses).
 	var icons: Array = []
 	for kind in c.cultivator.injuries: icons.append("injury_" + kind)
@@ -779,14 +779,14 @@ func _draw_boss() -> void:
 	draw_rect(r.grow(3), UiKit.INK)
 	draw_rect(r, Color("3a1418"))
 	draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(boss.pools.hp / boss.pools.max_hp, 0, 1), r.size.y)), UiKit.RED)
-	UiKit.draw_outlined(self, "%s  ·  Lv %d" % [boss.display_name(), boss.level], Vector2(340, 112), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 600)
+	UiKit.draw_outlined(self, Tx.t("hud.lv") % [boss.display_name(), boss.level], Vector2(340, 112), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 600)
 
 func _draw_legacy() -> void:
 	draw_style_box(frame_style, Rect2(22, 22, 310, 82))
 	for row in 2:
 		var y = 40 + row * 32
 		var amount = player.hp if row == 0 else player.qi
-		draw_string(font, Vector2(38, y + 13), "HP" if row == 0 else "QI", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, GOLD)
+		draw_string(font, Vector2(38, y + 13), Tx.t("hud.hp") if row == 0 else Tx.t("hud.qi"), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, GOLD)
 		draw_rect(Rect2(75, y, 237, 16), Color("17242c"))
 		draw_rect(Rect2(77, y + 2, 233 * amount / 100, 12), Color("ae5360") if row == 0 else Color("4bafaa"))
 	draw_skill_scroll()

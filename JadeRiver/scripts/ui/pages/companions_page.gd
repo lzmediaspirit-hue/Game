@@ -6,7 +6,7 @@ const Avatar = preload("res://scripts/avatar.gd")
 var avatars: Dictionary = {}   # companion id -> Avatar portrait
 
 func _init() -> void:
-	title = "Companions"
+	title = Tx.t("ui.companions.companions")
 
 func _portrait(cid: String, def: Dictionary) -> Node2D:
 	if avatars.has(cid) and is_instance_valid(avatars[cid]): return avatars[cid]
@@ -31,7 +31,7 @@ func draw_page() -> void:
 	var r := Rect2(content.position, content.size)
 	panel(r)
 	if roster.is_empty():
-		para(Rect2(r.position + Vector2(30, 30), r.size - Vector2(60, 60)), "Fellow disciples join you from Qi Kindling 5. Your mentor will introduce them.", 21, UiKit.MIST)
+		para(Rect2(r.position + Vector2(30, 30), r.size - Vector2(60, 60)), Tx.t("ui.companions.fellow_disciples_join_you_from"), 21, UiKit.MIST)
 		return
 	for i in roster.size():
 		var cid := str(roster[i])
@@ -42,8 +42,8 @@ func draw_page() -> void:
 		text(cr.position + Vector2(0, 250), str(d.get("name", cid)), 24, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
 		text(cr.position + Vector2(0, 278), "%s · %s" % [str(d.get("role", "")).capitalize(), str(d.get("element", "")).capitalize()], 17, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
 		var bond := float(ch.companions.get("bond", {}).get(cid, 0.0))
-		text(cr.position + Vector2(0, 300), "Bond %d · %s" % [int(bond), "Downed" if ch.companions.get("downed", {}).has(cid) else "Ready"], 15, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
-		btn(Rect2(cr.position.x + 30, cr.end.y - 64, 190, 50), "Active ✓" if active.has(cid) else "Bring along", "toggle", cid, active.has(cid))
+		text(cr.position + Vector2(0, 300), Tx.t("ui.companions.bond") % [int(bond), Tx.t("ui.companions.downed") if ch.companions.get("downed", {}).has(cid) else Tx.t("ui.companions.ready")], 15, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x)
+		btn(Rect2(cr.position.x + 30, cr.end.y - 64, 190, 50), Tx.t("ui.companions.active") if active.has(cid) else Tx.t("ui.companions.bring_along"), "toggle", cid, active.has(cid))
 
 func on_action(id: String, data) -> void:
 	if id != "toggle": return

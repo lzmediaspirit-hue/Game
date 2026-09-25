@@ -270,7 +270,7 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 		var zone := ContentDB.zone_of_room(c.position.get("room", ""))
 		if not zone.is_empty() and ContentDB.realm_position(str(zone.get("ceiling", "world_genesis"))) < ContentDB.realm_position(to):
 			zone_ok = false
-			results.append({"ok": false, "hard": true, "cause": "environment", "text": "This land cannot support %s" % ContentDB.name_of("realms", to), "fix": "page:world_map", "kind": "zone_supports"})
+			results.append({"ok": false, "hard": true, "cause": "environment", "text": Tx.t("sim.progression.this_land_cannot_support") % ContentDB.name_of("realms", to), "fix": "page:world_map", "kind": "zone_supports"})
 			hard_ok = false
 	var supports := 0
 	var reasons: Array = []
@@ -280,22 +280,22 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 		if sup.is_empty() or c.inventory.count(str(item_id)) <= 0: continue
 		if sup.has("event") and str(sup.event) != str(spec.get("event", "")): continue
 		supports += 1
-		reasons.append("%s lowers risk" % ContentDB.item_name(str(item_id)))
+		reasons.append(Tx.t("sim.progression.lowers_risk") % ContentDB.item_name(str(item_id)))
 	var soft := RequirementRules.soft_unmet(results)
-	if soft > 0: reasons.append("%d unmet soft requirement(s)" % soft)
+	if soft > 0: reasons.append(Tx.t("sim.progression.unmet_soft_requirement") % soft)
 	var unstable := cu.stability == "unstable"
-	if unstable: reasons.append("Your foundation is Unstable")
-	if not cu.injuries.is_empty(): reasons.append("%d untreated injury" % cu.injuries.size())
+	if unstable: reasons.append(Tx.t("sim.progression.your_foundation_is_unstable"))
+	if not cu.injuries.is_empty(): reasons.append(Tx.t("sim.progression.untreated_injury") % cu.injuries.size())
 	var retreat := bool(game.room_rt.def.get("retreat", false)) if game.room_rt else false
-	if retreat: reasons.append("Retreat room")
+	if retreat: reasons.append(Tx.t("sim.progression.retreat_room"))
 	var guarded = game.workshop.formation_effect(c, "breakthrough_risk_step") < 0.0
-	if guarded: reasons.append("Guard formation")
+	if guarded: reasons.append(Tx.t("sim.progression.guard_formation"))
 	var word := ProgressionRules.risk_word(ProgressionRules.risk_index(soft, unstable, cu.injuries.size(), mini(supports, 3) + (1 if guarded else 0), retreat)) if major else "none"
 	var can := cu.state == "bottleneck" and hard_ok and cu.breakthrough_cooldown <= 0.0 and not channels.has(c.id)
 	var blocked := ""
-	if cu.state != "bottleneck": blocked = "Keep accumulating: %d%%" % int(cu.progress_fraction() * 100)
-	elif cu.breakthrough_cooldown > 0.0: blocked = "Your mind needs rest (%ds)" % int(cu.breakthrough_cooldown)
-	elif not hard_ok: blocked = "A hard requirement is unmet"
+	if cu.state != "bottleneck": blocked = Tx.t("sim.progression.keep_accumulating") % int(cu.progress_fraction() * 100)
+	elif cu.breakthrough_cooldown > 0.0: blocked = Tx.t("sim.progression.your_mind_needs_rest_ds") % int(cu.breakthrough_cooldown)
+	elif not hard_ok: blocked = Tx.t("sim.progression.a_hard_requirement_is_unmet")
 	return {"from": cu.realm_key, "to": to, "major": major, "results": results, "risk": word, "reasons": reasons,
 		"success": ProgressionRules.success_chance(word) if major else 1.0, "can": can, "blocked": blocked,
 		"event": str(spec.get("event", "")) if major else "", "zone_ok": zone_ok}
@@ -592,7 +592,7 @@ func apply_learn_method(actor_id: String, method_id: String) -> void:
 	if c.cultivator.method_id == "" or upgrade:
 		c.cultivator.method_id = method_id
 		emit("method_changed", {"actor": c.id, "method": method_id, "cost": 0.0})
-		if upgrade: log_line(c.id, "%s replaces %s." % [str(fresh.get("name", ContentDB.name_of("methods", method_id))), ContentDB.name_of("methods", str(current.id))], "progress")
+		if upgrade: log_line(c.id, Tx.t("sim.progression.replaces") % [str(fresh.get("name", ContentDB.name_of("methods", method_id))), ContentDB.name_of("methods", str(current.id))], "progress")
 	emit("method_learned", {"actor": c.id, "method": method_id})
 
 func apply_learn_technique(actor_id: String, tid: String) -> void:
@@ -671,7 +671,7 @@ func reset_meridians(c) -> Dictionary:
 	if not ProgressionRules.at_least(c.cultivator.realm_key, "qi_unfurling_1"):
 		apply_reset_meridians(c.id)
 		return ok({"free": true})
-	if c.inventory.count("meridian_reversal_pill") <= 0: return fail("needs_pill", {"text": "Needs a Meridian Reversal Pill"})
+	if c.inventory.count("meridian_reversal_pill") <= 0: return fail("needs_pill", {"text": Tx.t("sim.progression.needs_a_meridian_reversal_pill")})
 	game.inventory.apply_remove(c.id, "meridian_reversal_pill", 1, "meridian_reset")
 	apply_reset_meridians(c.id)
 	return ok()
@@ -691,9 +691,9 @@ func rank_up_technique(c, tid: String) -> Dictionary:
 	var m: Dictionary = c.cultivator.mastery.get(tid, {})
 	if m.is_empty(): return fail("unknown_technique")
 	if int(m.tier) < 3 or int(m.tier) >= 6: return fail("not_by_manual")
-	if not Unlocks.is_unlocked(c.id, "technique_slots_8"): return fail("locked", {"text": "Mastery beyond tier 3 opens at Qi Unfurling 6"})
-	if float(m.points) < ProgressionRules.mastery_needed(int(m.tier)): return fail("need_practice", {"text": "Practise more"})
-	if c.inventory.count("manual_page") <= 0: return fail("need_manual", {"text": "Needs a manual page"})
+	if not Unlocks.is_unlocked(c.id, "technique_slots_8"): return fail("locked", {"text": Tx.t("sim.progression.mastery_beyond_tier_3_opens")})
+	if float(m.points) < ProgressionRules.mastery_needed(int(m.tier)): return fail("need_practice", {"text": Tx.t("sim.progression.practise_more")})
+	if c.inventory.count("manual_page") <= 0: return fail("need_manual", {"text": Tx.t("sim.progression.needs_a_manual_page")})
 	game.inventory.apply_remove(c.id, "manual_page", 1, "rank_up")
 	m.tier = int(m.tier) + 1
 	m.points = 0.0

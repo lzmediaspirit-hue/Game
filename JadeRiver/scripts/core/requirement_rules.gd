@@ -65,51 +65,51 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 	match kind:
 		"realm_at_least":
 			ok = c != null and ProgressionRules.at_least(c.cultivator.realm_key, str(cond.realm))
-			text = "Reach %s" % ContentDB.name_of("realms", str(cond.realm))
+			text = Tx.t("req.reach") % ContentDB.name_of("realms", str(cond.realm))
 		"realm_below":
 			ok = c != null and not ProgressionRules.at_least(c.cultivator.realm_key, str(cond.realm))
-			text = "Below %s" % ContentDB.name_of("realms", str(cond.realm))
+			text = Tx.t("req.below") % ContentDB.name_of("realms", str(cond.realm))
 		"level_at_least":
 			ok = c != null and ProgressionRules.level(c) >= int(cond.level)
-			text = "Level %d" % int(cond.level)
+			text = Tx.t("req.level") % int(cond.level)
 		"attribute_at_least":
 			ok = c != null and c.stats.value(str(cond.attribute)) >= float(cond.value)
 			text = "%s %d" % [str(cond.attribute).capitalize(), int(cond.value)]
 		"body_level_at_least":
 			ok = c != null and c.cultivator.body_level >= int(cond.value)
-			text = "Body level %d (now %d)" % [int(cond.value), c.cultivator.body_level if c else 0]
+			text = Tx.t("req.body_level_now") % [int(cond.value), c.cultivator.body_level if c else 0]
 		"soul_at_least":
 			ok = c != null and c.pools.max_soul >= float(cond.value)
-			text = "Soul pool %d" % int(cond.value)
+			text = Tx.t("req.soul_pool") % int(cond.value)
 		"dao_tier_at_least":
 			var best := 0
 			if c != null:
 				for d in c.cultivator.daos:
 					if str(cond.dao) == "any" or d == str(cond.dao): best = maxi(best, int(c.cultivator.daos[d].get("tier", 0)))
 			ok = best >= int(cond.tier)
-			text = "%s Dao at tier %d" % ["Any" if str(cond.dao) == "any" else str(cond.dao).capitalize(), int(cond.tier)]
+			text = Tx.t("req.dao_at_tier") % [Tx.t("req.any") if str(cond.dao) == "any" else str(cond.dao).capitalize(), int(cond.tier)]
 		"purity_at_least":
 			ok = c != null and c.cultivator.energy_type in ["true_qi", "sage_qi", "law_qi", "monarch_qi", "heavenforce"] and c.cultivator.purity <= int(cond.grade)
-			text = "True Qi purity grade %d or better" % int(cond.grade)
+			text = Tx.t("req.true_qi_purity_grade_or") % int(cond.grade)
 		"qi_full":
 			ok = c != null and c.pools.max_qi > 0 and c.pools.qi >= c.pools.max_qi - 0.5
-			text = "QI reserve full"
+			text = Tx.t("req.qi_reserve_full")
 		"item_owned":
 			var n = c.inventory.count_including_equipped(str(cond.item)) if c else 0
 			ok = n >= int(cond.get("count", 1))
-			text = "%s ×%d (have %d)" % [ContentDB.item_name(str(cond.item)), int(cond.get("count", 1)), n]
+			text = Tx.t("req.have") % [ContentDB.item_name(str(cond.item)), int(cond.get("count", 1)), n]
 		"quest_done":
 			ok = c != null and c.quests.is_done(str(cond.quest))
-			text = "Complete \"%s\"" % ContentDB.name_of("quests", str(cond.quest))
+			text = Tx.t("req.complete") % ContentDB.name_of("quests", str(cond.quest))
 		"quest_active":
 			ok = c != null and c.quests.is_active(str(cond.quest))
-			text = "On \"%s\"" % ContentDB.name_of("quests", str(cond.quest))
+			text = Tx.t("req.on") % ContentDB.name_of("quests", str(cond.quest))
 		"quest_accepted":
 			ok = c != null and (c.quests.is_active(str(cond.quest)) or c.quests.is_done(str(cond.quest)))
-			text = "Accept \"%s\"" % ContentDB.name_of("quests", str(cond.quest))
+			text = Tx.t("req.accept") % ContentDB.name_of("quests", str(cond.quest))
 		"quest_not_done":
 			ok = c != null and not c.quests.is_done(str(cond.quest))
-			text = "Before \"%s\"" % ContentDB.name_of("quests", str(cond.quest))
+			text = Tx.t("req.before") % ContentDB.name_of("quests", str(cond.quest))
 		"flag_set":
 			ok = c != null and c.quests.has_flag(str(cond.flag))
 			text = str(cond.get("text", ContentDB.text("flag." + str(cond.flag))))
@@ -120,31 +120,31 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 			var zone := ContentDB.zone_of_room(str(room.get("id", c.position.room if c else "")))
 			var ceiling := str(zone.get("ceiling", "world_genesis"))
 			ok = ContentDB.realm_position(ceiling) >= ContentDB.realm_position(str(cond.realm))
-			text = "This land cannot support %s" % ContentDB.name_of("realms", str(cond.realm)) if not ok else "The land supports %s" % ContentDB.name_of("realms", str(cond.realm))
+			text = Tx.t("req.this_land_cannot_support") % ContentDB.name_of("realms", str(cond.realm)) if not ok else Tx.t("req.the_land_supports") % ContentDB.name_of("realms", str(cond.realm))
 		"no_untreated_injury":
 			ok = c != null and c.cultivator.injuries.is_empty()
-			text = "No untreated injury"
+			text = Tx.t("req.no_untreated_injury")
 		"stability_at_least":
 			var order: Array = ContentDB.curve("stability_order", ["unstable", "settling", "stable", "solid"])
 			ok = c != null and order.find(c.cultivator.stability) >= order.find(str(cond.value))
-			text = "Stability %s" % str(cond.value).capitalize()
+			text = Tx.t("req.stability") % str(cond.value).capitalize()
 		"unlock":
 			ok = c != null and Unlocks.is_unlocked(c.id, str(cond.system))
-			text = str(cond.get("text", "Requires %s" % str(cond.system).replace("_", " ")))
+			text = str(cond.get("text", Tx.t("req.requires") % str(cond.system).replace("_", " ")))
 		"account_realm":
 			ok = account != null and ProgressionRules.at_least(account.highest_realm, str(cond.realm))
-			text = "Any character reaches %s" % ContentDB.name_of("realms", str(cond.realm))
+			text = Tx.t("req.any_character_reaches") % ContentDB.name_of("realms", str(cond.realm))
 		"sect_level":
 			var need_lv := int(cond.get("value", cond.get("level", 1)))
 			ok = account != null and int(account.sect.get("level", 0)) >= need_lv
-			text = "Your sect reaches level %d" % need_lv
+			text = Tx.t("req.your_sect_reaches_level") % need_lv
 		"sect_building_at_least":
 			var bl := int(account.sect.get("buildings", {}).get(str(cond.building), 0)) if account != null else 0
 			ok = bl >= int(cond.get("value", 1))
-			text = "%s level %d" % [ContentDB.name_of("sect_buildings", str(cond.building)), int(cond.get("value", 1))]
+			text = Tx.t("req.level_2") % [ContentDB.name_of("sect_buildings", str(cond.building)), int(cond.get("value", 1))]
 		"sect_founded":
 			ok = account != null and not account.sect.is_empty()
-			text = "Found your sect"
+			text = Tx.t("req.found_your_sect")
 		"profession_rank":
 			var ranks: Array = ContentDB.curve("profession_ranks", [])
 			var have := str(c.professions.get(str(cond.craft), {}).get("rank", "")) if c else ""
@@ -157,66 +157,66 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 			text = "%s %s" % [str(cond.craft).capitalize(), str(cond.rank).capitalize()]
 		"attunement_at_least":
 			ok = c != null and float(c.cultivator.attunement.get(str(cond.zone), 0)) >= float(cond.value)
-			text = "Attunement %d" % int(cond.value)
+			text = Tx.t("req.attunement") % int(cond.value)
 		"technique_tier_at_least":
 			var best_t := 0
 			if c != null:
 				for t in c.cultivator.mastery:
 					if str(cond.technique) == "any" or t == str(cond.technique): best_t = maxi(best_t, int(c.cultivator.mastery[t].get("tier", 0)))
 			ok = best_t >= int(cond.tier)
-			text = "A technique at mastery tier %d (best %d)" % [int(cond.tier), best_t]
+			text = Tx.t("req.a_technique_at_mastery_tier") % [int(cond.tier), best_t]
 		"presence_level_at_least", "law_affinity_at_least", "powers_refined_at_least":
 			ok = false
-			text = "Beyond the valley (%s)" % kind.replace("_", " ")
+			text = Tx.t("req.beyond_the_valley") % kind.replace("_", " ")
 		"event_passed":
 			ok = c != null and str(cond.event) in c.cultivator.events_passed
-			text = "Pass %s" % ContentDB.text("event." + str(cond.event))
+			text = Tx.t("req.pass") % ContentDB.text("event." + str(cond.event))
 		"method_learned":
 			ok = c != null and c.cultivator.method_id != ""
-			text = str(cond.get("text", "Learn a cultivation method"))
+			text = str(cond.get("text", Tx.t("req.learn_a_cultivation_method")))
 		"method_supports":
 			ok = c != null and method_supports_next(c)
-			text = "Your method cannot carry you further" if not ok else "Method supports the next realm"
+			text = Tx.t("req.your_method_cannot_carry_you") if not ok else Tx.t("req.method_supports_the_next_realm")
 		"room_safe":
 			ok = bool(room.get("safe", false))
-			text = "A safe location"
+			text = Tx.t("req.a_safe_location")
 		"room_type":
 			ok = str(room.get("type", "")) == str(cond.value)
-			text = "In a %s" % str(cond.value)
+			text = Tx.t("req.in_a") % str(cond.value)
 		"in_room":
 			ok = str(room.get("id", "")) == str(cond.room)
-			text = "At %s" % ContentDB.name_of("rooms", str(cond.room))
+			text = Tx.t("req.at") % ContentDB.name_of("rooms", str(cond.room))
 		"currency_at_least":
 			ok = account != null and int(account.currencies.get(str(cond.currency), 0)) >= int(cond.amount)
 			text = "%d %s" % [int(cond.amount), ContentDB.text("currency." + str(cond.currency))]
 		"training_sect":
 			ok = c != null and str(c.training_sect.get("id", "")) == str(cond.sect)
-			text = "Member of the %s" % ContentDB.name_of("sects", str(cond.sect))
+			text = Tx.t("req.member_of_the") % ContentDB.name_of("sects", str(cond.sect))
 		"has_training_sect":
 			ok = (c != null and str(c.training_sect.get("id", "")) != "") == bool(cond.get("value", true))
-			text = "Join a training sect" if bool(cond.get("value", true)) else "Not yet in a training sect"
+			text = Tx.t("req.join_a_training_sect") if bool(cond.get("value", true)) else Tx.t("req.not_yet_in_a_training")
 		"companion_owned":
 			ok = c != null and (c.companions.get("roster", []) as Array).has(str(cond.companion)) == bool(cond.get("value", true))
-			text = ("%s travels with you" if bool(cond.get("value", true)) else "%s has not joined you") % ContentDB.name_of("companions", str(cond.companion))
+			text = (Tx.t("req.travels_with_you") if bool(cond.get("value", true)) else Tx.t("req.has_not_joined_you")) % ContentDB.name_of("companions", str(cond.companion))
 		"sect_rank_at_least":
 			var ranks2: Array = ContentDB.config("sect_ranks").get("order", [])
 			ok = c != null and ranks2.find(str(c.training_sect.get("rank", ""))) >= ranks2.find(str(cond.rank))
-			text = "Sect rank %s" % str(cond.rank).replace("_", " ").capitalize()
+			text = Tx.t("req.sect_rank") % str(cond.rank).replace("_", " ").capitalize()
 		"time_of_day":
 			ok = Clock.time_of_day() in cond.get("phases", [])
-			text = "Only at %s" % ", ".join(cond.get("phases", []))
+			text = Tx.t("req.only_at") % ", ".join(cond.get("phases", []))
 		"slots_unlocked_at_least":
 			ok = account != null and account.slots_unlocked >= int(cond.value)
-			text = "%d character slots" % int(cond.value)
+			text = Tx.t("req.character_slots") % int(cond.value)
 		"skip_prologue":
 			ok = c != null and c.skip_prologue
-			text = "Skipped the Prologue"
+			text = Tx.t("req.skipped_the_prologue")
 		"never":
 			ok = false
-			text = str(cond.get("text", "Coming soon"))
+			text = str(cond.get("text", Tx.t("req.coming_soon")))
 		_:
 			ok = false
-			text = "Unknown requirement: " + kind
+			text = Tx.t("req.unknown_requirement") + kind
 	if cond.has("text") and kind not in ["flag_set", "flag_not_set", "unlock", "never", "method_learned"]: text = str(cond.text)
 	return {"ok": ok, "cause": str(cond.get("cause", "")), "hard": bool(cond.get("hard", true)), "text": text, "fix": str(cond.get("fix", "")), "kind": kind}
 

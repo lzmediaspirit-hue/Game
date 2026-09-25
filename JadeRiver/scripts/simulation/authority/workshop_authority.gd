@@ -65,7 +65,7 @@ func appraise(c, index: int) -> Dictionary:
 	var id := str(c.inventory.bag[index].id)
 	if str(ContentDB.item(id).get("use_action", "")) != "appraise": return fail("not_appraisable")
 	if game.crafting.tool_power(c, "appraisal") <= 0.0 and not npc_here(c, ["elder_gu", "old_pan"]):
-		return fail("no_tool", {"text": "You need an Appraiser's Loupe, or ask Elder Gu."})
+		return fail("no_tool", {"text": Tx.t("sim.workshop.you_need_an_appraiser_loupe")})
 	var r := _weighted(Rng.stream(c.id, "crafting"), p.get("results", []))
 	if r.is_empty(): return fail("no_results")
 	game.inventory.apply_remove_index(c.id, index, 1, "appraise")
@@ -73,8 +73,8 @@ func appraise(c, index: int) -> Dictionary:
 	game.progression.apply_insight(c.id, "soul", float(p.get("insight_per_use", 0)), "appraise")
 	_used(c, "appraise", "appraisal", float(p.get("xp_per_use", 0)))
 	var name := ContentDB.item_name(str(r.item))
-	log_line(c.id, "Appraised: %s." % name, "craft")
-	return ok({"item": str(r.item), "count": int(r.get("count", 1)), "text": "It is %s." % name})
+	log_line(c.id, Tx.t("sim.workshop.appraised") % name, "craft")
+	return ok({"item": str(r.item), "count": int(r.get("count", 1)), "text": Tx.t("sim.workshop.it_is") % name})
 
 # ------------------------------------------------------------------ formations (S16)
 func active_formations(c) -> Array:
@@ -97,16 +97,16 @@ func place_formation(c, type: String) -> Dictionary:
 	if bp.is_empty(): return fail("unknown_formation")
 	var unlock := str(bp.get("unlock", "formations"))
 	if not Unlocks.is_unlocked(c.id, unlock): return fail("locked", {"text": Unlocks.locked_text(unlock)})
-	if game.crafting.tool_power(c, "formations") <= 0.0: return fail("no_tool", {"text": "You need a Formation Kit."})
-	if game.room_rt == null or game.room_rt.def.get("type", "") == "interior": return fail("bad_room", {"text": "Formations need open ground."})
+	if game.crafting.tool_power(c, "formations") <= 0.0: return fail("no_tool", {"text": Tx.t("sim.workshop.you_need_a_formation_kit")})
+	if game.room_rt == null or game.room_rt.def.get("type", "") == "interior": return fail("bad_room", {"text": Tx.t("sim.workshop.formations_need_open_ground")})
 	var fuel := str(bp.get("fuel", "fuel_crystal_low"))
 	var need := int(bp.get("nodes", 3)) * int(bp.get("fuel_per_node", 1))
-	if c.inventory.count(fuel) < need: return fail("no_fuel", {"text": "Needs %d %s" % [need, ContentDB.item_name(fuel)]})
+	if c.inventory.count(fuel) < need: return fail("no_fuel", {"text": Tx.t("sim.workshop.needs") % [need, ContentDB.item_name(fuel)]})
 	var room := str(c.position.get("room", ""))
 	var live := active_formations(c)
 	for f in live:
-		if str(f.type) == type and str(f.room) == room: return fail("already_placed", {"text": "That formation already stands here."})
-	if live.size() >= int(prof("formations").get("max_active", 2)): return fail("too_many", {"text": "You can keep %d formations at once." % int(prof("formations").get("max_active", 2))})
+		if str(f.type) == type and str(f.room) == room: return fail("already_placed", {"text": Tx.t("sim.workshop.that_formation_already_stands_here")})
+	if live.size() >= int(prof("formations").get("max_active", 2)): return fail("too_many", {"text": Tx.t("sim.workshop.you_can_keep_formations_at") % int(prof("formations").get("max_active", 2))})
 	game.inventory.apply_remove(c.id, fuel, need, "formation")
 	var hours := minf(float(bp.get("max_hours", 24)), float(need) * float(bp.get("hours_per_crystal", 1.0)))
 	live.append({"type": type, "room": room, "until_utc": Clock.now_utc() + hours * 3600.0})
@@ -114,7 +114,7 @@ func place_formation(c, type: String) -> Dictionary:
 	_apply_room_buffs(c)
 	emit("formation_placed", {"actor": c.id, "formation": type, "room": room, "hours": hours})
 	_used(c, "formation_placed", "formations", float(prof("formations").get("xp_per_use", 0)))
-	log_line(c.id, "%s placed: %d h of fuel." % [str(bp.get("name", type)), int(hours)], "craft")
+	log_line(c.id, Tx.t("sim.workshop.placed_h_of_fuel") % [str(bp.get("name", type)), int(hours)], "craft")
 	return ok({"hours": hours})
 
 func remove_formation(c, index: int) -> Dictionary:
@@ -142,25 +142,25 @@ func _apply_room_buffs(c) -> void:
 func treat_patient(c) -> Dictionary:
 	var p := prof("healing")
 	if not Unlocks.is_unlocked(c.id, "healing"): return fail("locked", {"text": Unlocks.locked_text("healing")})
-	if not npc_here(c, p.get("npcs", [])): return fail("not_here", {"text": "Patients wait in the sect infirmary."})
-	if game.crafting.tool_power(c, "healing") <= 0.0: return fail("no_tool", {"text": "You need a Needle Case."})
+	if not npc_here(c, p.get("npcs", [])): return fail("not_here", {"text": Tx.t("sim.workshop.patients_wait_in_the_sect")})
+	if game.crafting.tool_power(c, "healing") <= 0.0: return fail("no_tool", {"text": Tx.t("sim.workshop.you_need_a_needle_case")})
 	var day := Clock.reset_day(Clock.now_utc())
 	var h: Dictionary = _state(c, "healing", {"day": day, "treated": 0})
 	if int(h.get("day", -1)) != day:
 		h.day = day
 		h.treated = 0
-	if int(h.treated) >= int(p.get("patients_per_day", 5)): return fail("no_patients", {"text": "No more patients today."})
+	if int(h.treated) >= int(p.get("patients_per_day", 5)): return fail("no_patients", {"text": Tx.t("sim.workshop.no_more_patients_today")})
 	var cost = c.pools.max_qi * float(p.get("qi_cost_pct", 0.15))
-	if c.pools.qi < cost: return fail("no_qi", {"text": "Not enough Qi to guide the needles."})
+	if c.pools.qi < cost: return fail("no_qi", {"text": Tx.t("sim.workshop.not_enough_qi_to_guide")})
 	game.combat.apply_resource_change(c.id, "qi", -cost, "healing")
 	h.treated = int(h.treated) + 1
-	var ailments: Array = p.get("ailments", ["an injury"])
+	var ailments: Array = p.get("ailments", [Tx.t("sim.workshop.an_injury")])
 	var what := str(ailments[Rng.stream(c.id, "crafting").randi_range(0, ailments.size() - 1)])
 	game.training.apply_contribution(c.id, int(p.get("contribution", 20)), "healing")
 	game.progression.apply_insight(c.id, "life_death", 2.0, "healing")
 	_used(c, "treat_patient", "healing", float(p.get("xp_per_use", 0)))
-	log_line(c.id, "You treated %s." % what, "craft")
-	return ok({"text": "You treated %s." % what, "left": int(p.get("patients_per_day", 5)) - int(h.treated)})
+	log_line(c.id, Tx.t("sim.workshop.you_treated") % what, "craft")
+	return ok({"text": Tx.t("sim.workshop.you_treated") % what, "left": int(p.get("patients_per_day", 5)) - int(h.treated)})
 
 # ------------------------------------------------------------------ puppetry
 func blueprint(id: String) -> Dictionary:
@@ -171,18 +171,18 @@ func blueprint(id: String) -> Dictionary:
 func build_puppet(c, id: String) -> Dictionary:
 	var p := prof("puppetry")
 	if not Unlocks.is_unlocked(c.id, "puppetry"): return fail("locked", {"text": Unlocks.locked_text("puppetry")})
-	if not npc_here(c, p.get("npcs", [])): return fail("not_here", {"text": "Build puppets at the tinkerer's bench in Stoneford."})
+	if not npc_here(c, p.get("npcs", [])): return fail("not_here", {"text": Tx.t("sim.workshop.build_puppets_at_the_tinkerer")})
 	var b := blueprint(id)
 	if b.is_empty(): return fail("unknown_blueprint")
 	var puppets: Array = _state(c, "puppets", [])
-	if puppets.size() >= int(p.get("max_puppets", 2)): return fail("too_many", {"text": "You can run %d puppets." % int(p.get("max_puppets", 2))})
+	if puppets.size() >= int(p.get("max_puppets", 2)): return fail("too_many", {"text": Tx.t("sim.workshop.you_can_run_puppets") % int(p.get("max_puppets", 2))})
 	for inp in b.get("inputs", []):
-		if c.inventory.count(str(inp.item)) < int(inp.count): return fail("materials", {"text": "Needs %d %s" % [int(inp.count), ContentDB.item_name(str(inp.item))]})
+		if c.inventory.count(str(inp.item)) < int(inp.count): return fail("materials", {"text": Tx.t("sim.workshop.needs") % [int(inp.count), ContentDB.item_name(str(inp.item))]})
 	for inp in b.get("inputs", []): game.inventory.apply_remove(c.id, str(inp.item), int(inp.count), "puppet")
 	puppets.append({"blueprint": id, "collected_utc": Clock.now_utc()})
 	game.progression.apply_insight(c.id, "puppetry", 5.0, "puppet")
 	_used(c, "puppet_built", "puppetry", float(p.get("xp_per_use", 0)))
-	log_line(c.id, "%s built. It sets to work." % str(b.get("name", id)), "craft")
+	log_line(c.id, Tx.t("sim.workshop.built_it_sets_to_work") % str(b.get("name", id)), "craft")
 	return ok()
 
 ## What the puppets have gathered since the last visit (capped per blueprint).
@@ -201,7 +201,7 @@ func puppet_yield(c) -> Array:
 
 func collect_puppets(c) -> Dictionary:
 	var rows := puppet_yield(c)
-	if rows.is_empty(): return fail("nothing", {"text": "The puppets have nothing for you yet."})
+	if rows.is_empty(): return fail("nothing", {"text": Tx.t("sim.workshop.the_puppets_have_nothing_for")})
 	for r in rows: game.inventory.apply_add(c.id, str(r.item), int(r.count), "puppet")
 	for pu in _state(c, "puppets", []): pu.collected_utc = Clock.now_utc()
 	emit("puppets_collected", {"actor": c.id, "items": rows})
@@ -211,17 +211,17 @@ func collect_puppets(c) -> Dictionary:
 func restore_manual(c) -> Dictionary:
 	var p := prof("research")
 	if not Unlocks.is_unlocked(c.id, "research"): return fail("locked", {"text": Unlocks.locked_text("research")})
-	if not npc_here(c, p.get("npcs", [])): return fail("not_here", {"text": "Restoration needs the library's bench."})
+	if not npc_here(c, p.get("npcs", [])): return fail("not_here", {"text": Tx.t("sim.workshop.restoration_needs_the_library_bench")})
 	for inp in p.get("inputs", []):
-		if c.inventory.count(str(inp.item)) < int(inp.count): return fail("materials", {"text": "Needs %d %s" % [int(inp.count), ContentDB.item_name(str(inp.item))]})
+		if c.inventory.count(str(inp.item)) < int(inp.count): return fail("materials", {"text": Tx.t("sim.workshop.needs") % [int(inp.count), ContentDB.item_name(str(inp.item))]})
 	for inp in p.get("inputs", []): game.inventory.apply_remove(c.id, str(inp.item), int(inp.count), "research")
 	var r := _weighted(Rng.stream(c.id, "crafting"), p.get("results", []))
 	game.inventory.apply_add(c.id, str(r.item), int(r.get("count", 1)), "research")
 	game.progression.apply_insight(c.id, str(p.get("insight_dao", "soul")), float(p.get("insight_per_use", 0)), "research")
 	_used(c, "restore_manual", "research", float(p.get("xp_per_use", 0)))
 	var name := ContentDB.item_name(str(r.item))
-	log_line(c.id, "Restored: %s." % name, "craft")
-	return ok({"item": str(r.item), "text": "The pages give up %s." % name})
+	log_line(c.id, Tx.t("sim.workshop.restored") % name, "craft")
+	return ok({"item": str(r.item), "text": Tx.t("sim.workshop.the_pages_give_up") % name})
 
 # ------------------------------------------------------------------ teaching
 ## Daos the character can teach (tier at or above `min_dao_tier`, Explanation).
@@ -235,14 +235,14 @@ func teachable_daos(c) -> Array:
 func teach(c, index: int, dao: String) -> Dictionary:
 	var p := prof("teaching")
 	if not Unlocks.is_unlocked(c.id, "teaching"): return fail("locked", {"text": Unlocks.locked_text("teaching")})
-	if not game.sect.founded(): return fail("no_sect", {"text": "Found your own sect first; its disciples are yours to teach."})
+	if not game.sect.founded(): return fail("no_sect", {"text": Tx.t("sim.workshop.found_your_own_sect_first")})
 	var ds: Array = game.account.sect.get("disciples", [])
 	if index < 0 or index >= ds.size(): return fail("bad_index")
 	var daos := teachable_daos(c)
-	if daos.is_empty(): return fail("no_dao", {"text": "Reach Explanation in a Dao before teaching it."})
+	if daos.is_empty(): return fail("no_dao", {"text": Tx.t("sim.workshop.reach_explanation_in_a_dao")})
 	if dao == "" or not dao in daos: dao = daos[0]
 	var t: Dictionary = _state(c, "teaching", {"until_utc": 0.0})
-	if Clock.now_utc() < float(t.get("until_utc", 0.0)): return fail("cooldown", {"text": "Let the lesson settle first."})
+	if Clock.now_utc() < float(t.get("until_utc", 0.0)): return fail("cooldown", {"text": Tx.t("sim.workshop.let_the_lesson_settle_first")})
 	t.until_utc = Clock.now_utc() + float(p.get("cooldown_hours", 20)) * 3600.0
 	var d: Dictionary = ds[index]
 	d.level = mini(20, int(d.get("level", 1)) + int(p.get("disciple_levels", 2)))
@@ -252,5 +252,5 @@ func teach(c, index: int, dao: String) -> Dictionary:
 	game.progression.apply_insight(c.id, dao, float(p.get("insight_per_use", 0)), "teaching")
 	game.sect.apply_prestige(int(p.get("prestige", 10)), "teaching")
 	_used(c, "teach", "teaching", float(p.get("xp_per_use", 0)))
-	log_line(c.id, "%s studies the %s Dao with you." % [str(d.get("name", "Your disciple")), ContentDB.name_of("daos", dao)], "craft")
+	log_line(c.id, Tx.t("sim.workshop.studies_the_dao_with_you") % [str(d.get("name", Tx.t("sim.workshop.your_disciple"))), ContentDB.name_of("daos", dao)], "craft")
 	return ok({"dao": dao, "level": d.level})

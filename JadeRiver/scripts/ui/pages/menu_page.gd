@@ -2,28 +2,28 @@ extends Page
 ## Main hub (Part 9.6 · Core hub/menu pages). Locked entries stay visible, dimmed,
 ## and explain their unlock on tap.
 
-const ENTRIES := [
-	["character", "Character", "character", "character_menu"],
-	["cultivation", "Cultivation", "cultivation", "cultivation"],
-	["techniques", "Techniques", "techniques", "technique_slots_2"],
-	["inventory", "Bag", "bag", "bag"],
-	["quests", "Quests", "quest", "navigation"],
-	["world_map", "Map", "world_map", "world_menu"],
-	["training_sect", "Sect", "sect", "sect_choice"],
-	["your_sect", "Your Sect", "account", "your_sect"],
-	["spirit_animals", "Spirit Animals", "spirit_animals", "spirit_animals"],
-	["companions", "Companions", "characters", "companions"],
-	["crafts", "Crafts", "crafts", "herb_gathering"],
-	["workshop", "Workshop", "formation", "appraisal"],
-	["characters", "Characters", "characters", "idle_tasks"],
-	["codex", "Codex", "codex", "codex"],   # Collection and Achievements are Codex tabs
-	["mail", "Mail", "mail", "mail"],
-	["settings", "Settings", "settings", ""],
-	["exit", "Save & Exit", "back", ""],
+var ENTRIES := [
+	["character", Tx.t("ui.menu.character"), "character", "character_menu"],
+	["cultivation", Tx.t("ui.menu.cultivation"), "cultivation", "cultivation"],
+	["techniques", Tx.t("ui.menu.techniques"), "techniques", "technique_slots_2"],
+	["inventory", Tx.t("ui.menu.bag"), "bag", "bag"],
+	["quests", Tx.t("ui.menu.quests"), "quest", "navigation"],
+	["world_map", Tx.t("ui.menu.map"), "world_map", "world_menu"],
+	["training_sect", Tx.t("ui.menu.sect"), "sect", "sect_choice"],
+	["your_sect", Tx.t("ui.menu.your_sect"), "account", "your_sect"],
+	["spirit_animals", Tx.t("ui.menu.spirit_animals"), "spirit_animals", "spirit_animals"],
+	["companions", Tx.t("ui.menu.companions"), "characters", "companions"],
+	["crafts", Tx.t("ui.menu.crafts"), "crafts", "herb_gathering"],
+	["workshop", Tx.t("ui.menu.workshop"), "formation", "appraisal"],
+	["characters", Tx.t("ui.menu.characters"), "characters", "idle_tasks"],
+	["codex", Tx.t("ui.menu.codex"), "codex", "codex"],   # Collection and Achievements are Codex tabs
+	["mail", Tx.t("ui.menu.mail"), "mail", "mail"],
+	["settings", Tx.t("ui.menu.settings"), "settings", ""],
+	["exit", Tx.t("ui.menu.save_exit"), "back", ""],
 ]
 
 func _init() -> void:
-	title = "Menu"
+	title = Tx.t("ui.menu.menu")
 
 func draw_page() -> void:
 	var ch = c()
@@ -62,7 +62,7 @@ func on_action(id: String, data) -> void:
 		return
 	if id != "open": return
 	if data == "exit":
-		ask("Save and return to character selection?", "exit_yes")
+		ask(Tx.t("ui.menu.save_and_return_to_character"), "exit_yes")
 		return
 	navigate.emit(str(data), {})
 

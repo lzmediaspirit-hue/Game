@@ -56,11 +56,11 @@ func apply_send(to: String, template: String, attachments: Array, args: Dictiona
 	for k in args:
 		subject = subject.replace("{" + k + "}", str(args[k]))
 		body = body.replace("{" + k + "}", str(args[k]))
-	_add({"to": to, "from": str(tpl.get("from", "The Valley")), "subject": subject, "body": body, "attachments": attachments.duplicate(true),
+	_add({"to": to, "from": str(tpl.get("from", Tx.t("sim.mail.the_valley"))), "subject": subject, "body": body, "attachments": attachments.duplicate(true),
 		"expires_utc": 0.0})
 
 func apply_overflow(actor_id: String, items: Array) -> void:
-	_add({"to": actor_id, "from": "Spirit Gourd", "subject": "Overflow", "body": "Your gourd was full. These items waited for you.",
+	_add({"to": actor_id, "from": Tx.t("sim.mail.spirit_gourd"), "subject": Tx.t("sim.mail.overflow"), "body": Tx.t("sim.mail.your_gourd_was_full_these"),
 		"attachments": items.duplicate(true), "expires_utc": Clock.now_utc() + 3 * 86400.0, "overflow": true})
 
 func _add(letter: Dictionary) -> void:
