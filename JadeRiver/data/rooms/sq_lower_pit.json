@@ -28,7 +28,7 @@
  ],
  "backdrop": "quarry",
  "ground": {
-  "material": "stone"
+  "material": "rock"
  },
  "spawn_point": [
   200,

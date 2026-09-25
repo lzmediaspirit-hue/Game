@@ -7,6 +7,7 @@ var art=""            # building prop id (data/prop_art.json) or painted atlas k
 var tint=Color.WHITE
 const PLATFORMS=preload("res://art/environment/platforms-v6.png")
 const GROUND=preload("res://art/environment/ground-v6.png")
+const GROUND_EXTRA=preload("res://art/environment/ground-extra.png")   # rock and snow (tools/art/bake_ground.py)
 const STONE=preload("res://art/environment/courtyard-v3.png")
 const BUILDING=preload("res://art/environment/pavilion-v3.png")
 const BUILDINGS=preload("res://art/environment/wuxia-buildings-v4.png")
@@ -20,7 +21,11 @@ func paving(rect: Rect2,tint=Color.WHITE):
 	var tile=Vector2(256,128)
 	var texture: Texture2D=STONE
 	var texture_region=Rect2(Vector2.ZERO,STONE.get_size())
-	if generated:
+	if generated and ground_material in ["rock","snow"]:
+		texture=GROUND_EXTRA
+		var cell_x=Vector2(GROUND_EXTRA.get_size().y,GROUND_EXTRA.get_size().y)
+		texture_region=Rect2(Vector2(cell_x.x if ground_material=="snow" else 0.0,0),cell_x)
+	elif generated:
 		texture=GROUND
 		var quadrants={"earth":Vector2(0,0),"moss":Vector2(1,0),"slate":Vector2(0,1),"stone":Vector2(1,1)}
 		var cell=GROUND.get_size()/2
@@ -30,11 +35,13 @@ func paving(rect: Rect2,tint=Color.WHITE):
 			var p=rect.position+Vector2(col,row)*tile
 			var size=(rect.end-p).min(tile)
 			var src=Rect2(texture_region.position,texture_region.size*size/tile)
-			if col%2: src.position.x=texture_region.end.x-src.size.x
-			if row%2: src.position.y=texture_region.end.y-src.size.y
+			# Painted cells mirror at their seams; the baked rock and snow cells tile directly.
+			var mirror=not (generated and ground_material in ["rock","snow"])
+			if mirror and col%2: src.position.x=texture_region.end.x-src.size.x
+			if mirror and row%2: src.position.y=texture_region.end.y-src.size.y
 			var dest=Rect2(p,size)
-			if col%2: dest.size.x=-dest.size.x
-			if row%2: dest.size.y=-dest.size.y
+			if mirror and col%2: dest.size.x=-dest.size.x
+			if mirror and row%2: dest.size.y=-dest.size.y
 			draw_texture_rect_region(texture,dest,src,tint)
 const ATLAS_BUILDINGS={"gate":Rect2(0,0,720,465),"hall":Rect2(739,70,797,390),"two_storey":Rect2(0,475,900,549),"tower":Rect2(1040,475,365,549)}
 func building_source() -> Rect2:

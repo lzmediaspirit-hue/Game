@@ -28,7 +28,7 @@
  ],
  "backdrop": "mist_peak",
  "ground": {
-  "material": "stone"
+  "material": "rock"
  },
  "spawn_point": [
   200,

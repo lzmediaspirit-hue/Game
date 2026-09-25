@@ -32,6 +32,8 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
   storage, map and teleports, codex, settings.
 
 ### Art and sound
+- Mountain, gorge, quarry and cliff rooms walk on painted rocky ground, and the Summit Ridge on snow
+  (`tools/art/bake_ground.py`, seamlessly tiling), instead of courtyard paving.
 - 42 creature sheets, 45 backdrop layers, 114 scenery props, 12 music tracks and 39 sound effects.
 - Human enemies and all NPCs use the layered avatar engine; shirts and trousers now come in ten baked dyes
   (every action and facing), so villagers, elders and sect robes look distinct. Equipment carries its dye.

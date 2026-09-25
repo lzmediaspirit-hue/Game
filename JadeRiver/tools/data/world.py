@@ -490,7 +490,7 @@ def field(rid, name, region, screens, levels, backdrop, material, spawns, herbs=
              music=music, ambience=ambience, qi=qi, hazards=list(hazards), **kw)
     lv_mid = max(1, (levels[0] + levels[1]) // 2)
     for i, (sx, sy, w, h) in enumerate(platforms):
-        r.surface("ledge_%d" % i, [sx, sy, w, 50], h, kind=("rock_ledge" if material in ("stone", "slate") else "branch"))
+        r.surface("ledge_%d" % i, [sx, sy, w, 50], h, kind=("rock_ledge" if material in ("stone", "slate", "rock", "snow") else "branch"))
     for i, sp in enumerate(spawns):
         enemy, count, lv = sp[0], sp[1], sp[2]
         pts = r.points(count + 1, x0=240 + i * 60, x1=r.w - 240 - i * 40)
@@ -506,7 +506,7 @@ def field(rid, name, region, screens, levels, backdrop, material, spawns, herbs=
     for i in range(jars):
         x = int(r.w * (i + 0.5) / jars) + r.rng.randint(-80, 80)
         r.breakable([x, r.rng.choice([700, 720, 900, 930])], loot=loot, level=lv_mid,
-                    kind="crate" if material in ("stone", "slate", "earth") and i % 2 else "jar")
+                    kind="crate" if material in ("stone", "slate", "earth", "rock") and i % 2 else "jar")
     if chest:
         r.chest([r.w - 360, 700], loot=chest, level=levels[1])
     if fishing:
@@ -860,14 +860,14 @@ def sects():
 
 def valley():
     # Stonewall Quarry (BF4-7)
-    r = field("sq_quarry_rim", "Quarry Rim", "stonewall_quarry", 2, [4, 6], "quarry", "stone",
+    r = field("sq_quarry_rim", "Quarry Rim", "stonewall_quarry", 2, [4, 6], "quarry", "rock",
               [("rock_beetle", 5, [4, 5]), ("pebble_imp", 3, [4, 6])], ores=("copper_ore", "copper_ore", "riverstone"), jars=5,
               element="earth", gather_tier="valley_low", music="field_earth", trees=("rock_large", "pine_tree"),
               platforms=[(700, 660, 260, 90), (1500, 680, 240, 120)], hazards=["falling_rocks"])
     r.npc("foreman_dong", [400, 780], oid="npc_dong_rim", facing=1)
     r.portal("south", "door", [160, 700], "sf_gate", "quarry_road", press_up=True, label="Stoneford Gate")
     r.edge("east", "east", "sq_lower_pit", "west", y=850)
-    r = field("sq_lower_pit", "Lower Pit", "stonewall_quarry", 2, [5, 7], "quarry", "stone",
+    r = field("sq_lower_pit", "Lower Pit", "stonewall_quarry", 2, [5, 7], "quarry", "rock",
               [("stone_tortoise", 3, [5, 7]), ("ironclaw_mole", 4, [5, 7])], ores=("copper_ore", "jadeiron", "riverstone", "spirit_stone_shard"),
               jars=6, element="earth", gather_tier="valley_low", chest="chest_valley", music="field_earth", trees=("rock_large", "boulder_moss"),
               platforms=[(500, 660, 280, 90), (900, 640, 260, 180), (1400, 660, 300, 264), (1900, 680, 260, 120)])
@@ -949,7 +949,7 @@ def valley():
     r.edge("east", "east", "cf_falls_pool", "west", y=850)
 
     # Crane Falls (insight site, secret, path to the Hidden Vale)
-    r = Room("cf_falls_pool", "Falls Pool", "insight", "crane_falls", 2, backdrop="gorge", material="stone", music="meditation",
+    r = Room("cf_falls_pool", "Falls Pool", "insight", "crane_falls", 2, backdrop="gorge", material="rock", music="meditation",
              ambience="waterfall_ambience", qi=1.8, element="water", spawn_point=[200, 820], gather_tier="valley_mid")
     r.area("water", [900, 860, 700, 100])
     r.decor("waterfall", [1250, 700], layer="back")
@@ -1073,13 +1073,13 @@ def valley():
     r.portal("exit", "door", [2460, 860], "dw_bend_shore", "shrine", press_up=True, label="Bend Shore")
 
     # Whitewater Gorge (HT1-HT9)
-    r = field("wg_gorge_mouth", "Gorge Mouth", "whitewater_gorge", 2, [28, 31], "gorge", "stone",
+    r = field("wg_gorge_mouth", "Gorge Mouth", "whitewater_gorge", 2, [28, 31], "gorge", "rock",
               [("gorge_bandit_adept", 4, [29, 31])], herbs=("mist_lotus",), ores=("jadeiron",), jars=3, rtype="path",
               music="field_mountain", ambience="waterfall_ambience", trees=("pine_tree", "rock_large"), elite=False, loot="jar_valley_mid")
     r.obj("shrine_wg", "shrine", [400, 700])
     r.edge("east", "east", "dw_bend_shore", "west", y=850)
     r.edge("west", "west", "wg_rapids_terraces", "east", y=850)
-    r = field("wg_rapids_terraces", "Rapids Terraces", "whitewater_gorge", 3, [28, 33], "gorge", "stone",
+    r = field("wg_rapids_terraces", "Rapids Terraces", "whitewater_gorge", 3, [28, 33], "gorge", "rock",
               [("rapids_lizard", 5, [28, 31]), ("gorge_bandit_adept", 3, [29, 33])], herbs=("mist_lotus", "mist_lotus"),
               ores=("jadeiron", "spirit_stone_shard"), jars=6, element="water", music="field_mountain", ambience="waterfall_ambience",
               trees=("pine_tree",), fishing="rapids", platforms=[(800, 680, 300, 80), (1800, 680, 300, 150), (2800, 680, 300, 80)],
@@ -1088,7 +1088,7 @@ def valley():
     r.edge("east", "east", "wg_gorge_mouth", "west", y=850)
     r.edge("west", "west", "wg_echo_cliffs", "east", y=850)
     r.portal("cave", "hidden", [1900, 700], "wg_waterfall_cave", "entry", press_up=True, label="Waterfall Cave")
-    r = field("wg_echo_cliffs", "Echo Cliffs", "whitewater_gorge", 2, [32, 36], "gorge", "stone",
+    r = field("wg_echo_cliffs", "Echo Cliffs", "whitewater_gorge", 2, [32, 36], "gorge", "rock",
               [("boulder_serpent", 4, [32, 35]), ("mist_vulture", 3, [34, 36])], ores=("jadeiron", "jadeiron"), jars=4,
               music="field_mountain", trees=("pine_tree", "cliff_face"),
               platforms=[(400, 680, 360, 100), (900, 650, 360, 200), (1500, 640, 360, 300), (2000, 660, 320, 200)], loot="jar_valley_mid")
@@ -1103,13 +1103,13 @@ def valley():
     r.portal("entry", "door", [140, 700], "wg_rapids_terraces", "cave", press_up=True)
 
     # Crane Cliffs (CS1-CS9)
-    r = field("cc_cliff_faces", "Cliff Faces", "crane_cliffs", 3, [37, 43], "mist_peak", "stone",
+    r = field("cc_cliff_faces", "Cliff Faces", "crane_cliffs", 3, [37, 43], "mist_peak", "rock",
               [("cloudwing_crane", 5, [37, 40]), ("stormwing_hawk", 3, [38, 43])], herbs=("cloudtop_orchid",), ores=("cloudsteel_ore",),
               jars=4, element="wind", music="field_mountain", ambience="wind_ambience", trees=("pine_tree", "cliff_face"),
               platforms=[(600, 660, 280, 180), (1300, 640, 280, 300), (2100, 650, 280, 240), (2900, 660, 280, 160)], loot="jar_valley_mid")
     r.edge("east", "east", "wg_echo_cliffs", "west", y=850)
     r.edge("west", "west", "cc_sky_ledges", "east", y=850)
-    r = field("cc_sky_ledges", "Sky Ledges", "crane_cliffs", 2, [40, 45], "mist_peak", "stone",
+    r = field("cc_sky_ledges", "Sky Ledges", "crane_cliffs", 2, [40, 45], "mist_peak", "rock",
               [("stormwing_hawk", 3, [40, 43]), ("cliff_ape", 4, [41, 45])], herbs=("cloudtop_orchid", "cloudtop_orchid"), ores=("cloudsteel_ore",),
               jars=4, element="wind", music="field_mountain", ambience="wind_ambience", trees=("pine_tree",),
               platforms=[(500, 650, 300, 260), (1200, 640, 300, 360), (1900, 650, 300, 260)], loot="jar_valley_mid")
@@ -1118,7 +1118,7 @@ def valley():
            locked_text="Mist Peak is thick with soul-mist. Spirit Awakening first.")
 
     # Mist Peak and Summit Ridge (SA1-HG3)
-    r = field("mp_misty_slopes", "Misty Slopes", "mist_peak", 3, [46, 51], "mist_peak", "stone",
+    r = field("mp_misty_slopes", "Misty Slopes", "mist_peak", 3, [46, 51], "mist_peak", "rock",
               [("mist_wolf", 5, [46, 50]), ("mirror_wisp", 3, [47, 51])], herbs=("soulbell_flower",), ores=("mystic_ore",), jars=5,
               element="soul", music="mist", ambience="wind_ambience", trees=("pine_tree", "dead_tree_grey"), hazards=["fog"], loot="jar_valley_mid")
     r.decor("mist_bank", [800, 990], layer="front")
@@ -1137,13 +1137,13 @@ def valley():
     r.edge("east", "east", "mp_misty_slopes", "west", y=850)
     r.edge("west", "west", "sr_windswept_ridge", "east", y=850, ptype="sealed", requires=all_of(realm("heaven_glimpse_1")),
            locked_text="The ridge winds would tear a soul loose. Heaven Glimpse first.")
-    r = field("sr_windswept_ridge", "Windswept Ridge", "summit_ridge", 3, [55, 60], "mist_peak", "stone",
+    r = field("sr_windswept_ridge", "Windswept Ridge", "summit_ridge", 3, [55, 60], "mist_peak", "snow",
               [("hollow_stag", 5, [55, 59]), ("cloudpeak_roc", 3, [58, 63])], ores=("mystic_ore", "mystic_ore"), jars=4,
               element="wind", music="summit", ambience="wind_ambience", trees=("dead_tree_grey", "rock_large"), hazards=["wind_gust"],
               platforms=[(900, 660, 300, 160), (2000, 650, 300, 220)], loot="jar_valley_mid")
     r.edge("east", "east", "mp_forgotten_monastery", "west", y=850)
     r.edge("west", "west", "sr_frozen_shrine", "east", y=850)
-    r = field("sr_frozen_shrine", "Frozen Shrine", "summit_ridge", 2, [58, 63], "mist_peak", "stone",
+    r = field("sr_frozen_shrine", "Frozen Shrine", "summit_ridge", 2, [58, 63], "mist_peak", "snow",
               [("cloudpeak_roc", 4, [58, 63])], ores=("mystic_ore",), jars=4, element="wind", music="summit", ambience="wind_ambience",
               trees=("pine_tree",), loot="jar_valley_mid")
     r.obj("shrine_frozen", "shrine", [2300, 700])

@@ -28,7 +28,7 @@
  ],
  "backdrop": "mist_peak",
  "ground": {
-  "material": "stone"
+  "material": "snow"
  },
  "spawn_point": [
   200,
@@ -110,8 +110,8 @@
    "respawn_s": 300
   },
   {
-   "id": "crate_3",
-   "type": "crate",
+   "id": "jar_3",
+   "type": "jar",
    "at": [
     886,
     900
@@ -134,8 +134,8 @@
    "respawn_s": 300
   },
   {
-   "id": "crate_5",
-   "type": "crate",
+   "id": "jar_5",
+   "type": "jar",
    "at": [
     2196,
     700

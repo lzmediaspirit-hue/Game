@@ -25,7 +25,7 @@
  ],
  "backdrop": "gorge",
  "ground": {
-  "material": "stone"
+  "material": "rock"
  },
  "spawn_point": [
   200,
