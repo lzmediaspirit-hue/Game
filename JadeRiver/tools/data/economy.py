@@ -365,10 +365,17 @@ def achievements():
         {"id": "rivals_respect", "name": "Rival's Respect", "modifiers": [{"stat": "crit_chance", "op": "flat", "value": 0.01}]},
     ]
     entries("titles", T)
+    # S34: six emotes from the start and more from achievements, played from the Menu wheel. `pose` is an
+    # avatar action, `tilt` leans the body (radians), `bob` bounces it, `text` is the speech bubble.
     entries("emotes", [
-        {"id": "bow", "name": "Bow", "pose": "idle"}, {"id": "wave", "name": "Wave", "pose": "idle"},
-        {"id": "meditate", "name": "Sit", "pose": "meditate"}, {"id": "cheer", "name": "Cheer", "pose": "jump"},
-        {"id": "salute", "name": "Fist salute", "pose": "punch_1"},
+        {"id": "bow", "name": "Bow", "pose": "idle", "tilt": 0.32, "text": "(bows)", "seconds": 1.6},
+        {"id": "wave", "name": "Wave", "pose": "idle", "bob": True, "text": "Hey there!", "seconds": 1.6},
+        {"id": "cheer", "name": "Cheer", "pose": "jump", "text": "Hooray!", "seconds": 1.4},
+        {"id": "salute", "name": "Fist salute", "pose": "punch_1", "text": "(fist-and-palm salute)", "seconds": 1.6},
+        {"id": "laugh", "name": "Laugh", "pose": "idle", "bob": True, "text": "Ha ha ha!", "seconds": 1.8},
+        {"id": "meditate", "name": "Sit", "pose": "meditate", "text": "...", "seconds": 3.0},
+        {"id": "champion", "name": "Champion", "pose": "punch_2", "text": "Undefeated!", "seconds": 1.8, "achievement": "valley_champion"},
+        {"id": "beast_call", "name": "Beast Call", "pose": "idle", "bob": True, "text": "Awoooo!", "seconds": 1.8, "achievement": "friend_of_beasts"},
     ])
 
 

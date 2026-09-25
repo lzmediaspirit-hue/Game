@@ -377,7 +377,9 @@ func _on_event(name: String, p: Dictionary) -> void:
 				player.avatar.outfit = InventoryAuthority.outfit_for(Game.active())
 				player.avatar.last_key = ""
 		"emote_played":
-			fx.add("text", player.position + Vector2(0, -130), {"text": ContentDB.entry("emotes", str(p.emote)).get("text", "..."), "color": UiKit.PAPER, "size": 20, "dur": 1.8})
+			var em: Dictionary = ContentDB.entry("emotes", str(p.emote))
+			player.play_emote(em)
+			fx.add("text", player.position + Vector2(0, -150), {"text": str(em.get("text", "...")), "color": UiKit.PAPER, "size": 20, "dur": float(em.get("seconds", 1.8))})
 		"room_event_started":
 			fx.add("text", Vector2(camera.position.x, camera.position.y - 180), {"text": ContentDB.text("event." + str(p.event)), "color": UiKit.RED, "size": 30, "dur": 3.0})
 		"boss_phase":

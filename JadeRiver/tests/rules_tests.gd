@@ -32,6 +32,7 @@ func _main() -> void:
 	weekly_suite()
 	pills_suite()
 	treasures_suite()
+	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
@@ -400,6 +401,19 @@ func treasures_suite() -> void:
 	c.crafting.formations[0].until_utc = Clock.now_utc() - 1.0
 	check(near(Game.workshop.formation_effect(c, "enemy_slow"), 0.0), "an unfuelled formation does nothing")
 	c.crafting.formations = saved
+
+# ------------------------------------------------------------------ emotes (S34)
+func emotes_suite() -> void:
+	var starting := ContentDB.all("emotes").filter(func(e): return str(e.get("achievement", "")) == "")
+	check(starting.size() >= 6, "six emotes from the start (%d)" % starting.size())
+	check(Game.submit({"type": "emote", "emote": "bow"}).get("ok", false), "a starting emote plays")
+	var done: Dictionary = Game.account.achievements.done
+	var had := done.has("valley_champion")
+	done.erase("valley_champion")
+	check(str(Game.submit({"type": "emote", "emote": "champion"}).get("reason", "")) == "locked", "an achievement emote waits for its achievement")
+	done["valley_champion"] = true
+	check(Game.submit({"type": "emote", "emote": "champion"}).get("ok", false), "and plays once it is earned")
+	if not had: done.erase("valley_champion")
 
 # ------------------------------------------------------------------ saves (Part 7 · Save migration)
 func save_suite() -> void:

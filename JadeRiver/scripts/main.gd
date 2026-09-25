@@ -27,6 +27,7 @@ const PAGES := {
 	"welcome": "res://scripts/ui/pages/welcome_page.gd",
 	"revival": "res://scripts/ui/pages/revival_page.gd",
 	"teleport": "res://scripts/ui/pages/teleport_page.gd",
+	"emotes": "res://scripts/ui/pages/emotes_page.gd",
 	"notice_board": "res://scripts/ui/pages/notice_page.gd",
 	"training_sect": "res://scripts/ui/pages/training_sect_page.gd",
 	"your_sect": "res://scripts/ui/pages/your_sect_page.gd",

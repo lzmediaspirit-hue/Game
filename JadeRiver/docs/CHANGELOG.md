@@ -56,6 +56,9 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
 - Balance simulator: optional side quests now cost active time (10 minutes each) as well as paying their
   QP share, so adding side content no longer speeds the pacing. Every realm lands within 0.95-1.09 of the
   pacing table; Act I ends at 65.7 h (target 65).
+- Emotes: a wheel in the Menu with the six starting emotes (bow, wave, cheer, fist salute, laugh, sit) and
+  two earned from achievements (Champion, Beast Call). The avatar holds a pose, leans or bounces, with a
+  speech bubble, until you move or act.
 - Companions, spirit animals (starter choice, taming with offerings, eggs), your own sect (buildings
   that appear as built, disciples, expeditions, defence raids), mail, achievements and titles.
 - 27 pages on one shared frame, a HUD that reveals itself, a minimap, dialogue with portraits, shops,

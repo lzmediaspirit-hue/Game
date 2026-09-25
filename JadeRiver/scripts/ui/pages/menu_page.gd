@@ -18,6 +18,7 @@ var ENTRIES := [
 	["characters", Tx.t("ui.menu.characters"), "characters", "idle_tasks"],
 	["codex", Tx.t("ui.menu.codex"), "codex", "codex"],   # Collection and Achievements are Codex tabs
 	["mail", Tx.t("ui.menu.mail"), "mail", "mail"],
+	["emotes", Tx.t("ui.menu.emotes"), "talk", ""],
 	["settings", Tx.t("ui.menu.settings"), "settings", ""],
 	["exit", Tx.t("ui.menu.save_exit"), "back", ""],
 ]

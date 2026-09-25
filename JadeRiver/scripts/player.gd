@@ -219,6 +219,7 @@ func physics_step(delta: float) -> void:
 
 func step(delta: float, axis: Vector2):
 	if not is_finite(delta) or delta <= 0 or delta > 3.0 or not axis.is_finite(): return
+	if emote_time > 0.0: emote_time -= delta
 	axis = axis.limit_length()
 	last_axis = axis
 	if not bound():
@@ -299,6 +300,30 @@ func _area_factor() -> float:
 			return float(area.get("speed", ContentDB.stat_const("move.shallows_factor", 0.7)))
 	return 1.0
 
+var emote: Dictionary = {}   # the emote being played (S34) and its time left
+var emote_time := 0.0
+
+func play_emote(em: Dictionary) -> void:
+	emote = em
+	emote_time = float(em.get("seconds", 1.6))
+
+## An emote holds its pose until it ends or the player moves, acts or rides.
+func _emote_pose(c, busy: bool) -> bool:
+	if emote_time > 0.0 and (busy or velocity.length() > 5.0 or meditating or not Game.pets.mount_of(c).is_empty()): emote_time = 0.0
+	if emote_time <= 0.0:
+		if not emote.is_empty():
+			emote = {}
+			avatar.rotation = 0.0
+			avatar.position.y = 0.0
+		return false
+	var pose := str(emote.get("pose", "idle"))
+	if not Wardrobe.parts._actions.has(pose): pose = "idle"
+	avatar.play(pose)
+	var t := float(emote.get("seconds", 1.6)) - emote_time
+	avatar.rotation = float(emote.get("tilt", 0.0)) * facing * sin(clampf(t / 0.5, 0.0, 1.0) * PI * 0.5)
+	if emote.get("bob", false): avatar.position.y = -absf(sin(t * 9.0)) * 5.0
+	return true
+
 func _animate(c, tl: Dictionary, busy: bool, wounded: bool) -> void:
 	avatar.facing = facing
 	avatar.playback_speed = 1.7 if sprinting and surface != null else 1.0
@@ -324,6 +349,7 @@ func _animate(c, tl: Dictionary, busy: bool, wounded: bool) -> void:
 	if state.flying:
 		avatar.play("idle")
 		return
+	if _emote_pose(c, busy): return
 	avatar.play("meditate" if meditating else ("jump" if surface == null else ("walk" if velocity.length() > 5 else "idle")))
 
 func _legacy_step(delta: float, axis: Vector2) -> void:

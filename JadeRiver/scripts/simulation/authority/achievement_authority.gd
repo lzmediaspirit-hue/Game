@@ -24,9 +24,15 @@ func handle(intent: Dictionary) -> Dictionary:
 		"emote":
 			var e := str(intent.get("emote", ""))
 			if not ContentDB.has_entry("emotes", e): return fail("unknown")
+			if not emote_known(e): return fail("locked")
 			emit("emote_played", {"actor": c.id, "emote": e})
 			return ok()
 	return fail("unknown_intent")
+
+## Starting emotes are always known; the rest come from their achievement.
+func emote_known(id: String) -> bool:
+	var a := str(ContentDB.entry("emotes", id).get("achievement", ""))
+	return a == "" or game.account.achievements.done.has(a)
 
 func _on_event(p: Dictionary, ev: String) -> void:
 	var c = game.active()
