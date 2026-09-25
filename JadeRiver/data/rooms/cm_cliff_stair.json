@@ -137,6 +137,25 @@
    ]
   },
   {
+   "id": "siege_gong_cm",
+   "type": "rite_circle",
+   "at": [
+    2200,
+    900
+   ],
+   "event": "siege_of_two_sects",
+   "prop": "small_bell",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_siege"
+     }
+    ]
+   },
+   "text": "The war gong. Strike it and the sects march together."
+  },
+  {
    "id": "npc_cloud_steward",
    "type": "npc",
    "at": [

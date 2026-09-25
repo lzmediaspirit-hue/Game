@@ -2984,7 +2984,9 @@
      "breakable": "wine_jar"
     }
    ],
-   "unique_drop": "mudwater_cleaver"
+   "unique_drop": "mudwater_cleaver",
+   "hp_mult": 0.6,
+   "attack_mult": 0.8
   },
   {
    "id": "riverbed_serpent",

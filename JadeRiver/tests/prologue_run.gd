@@ -155,7 +155,9 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, a
 		# Keep one target until it falls; prefer anything already attacking us.
 		# Whatever keeps hitting us (a ranged thrower, say) comes first.
 		var hitter: EnemyState = Game.room_rt.enemies.get(int(tally.attacker)) if int(tally.attacker) != 0 else null
-		if hitter != null and hitter.alive and hitter.team != "ally" and hitter != target:
+		# ...except during a boss fight: focus the boss and let companions handle its summons.
+		var on_boss: bool = target != null and target.alive and target.def_id == def_id and target.role in ["dungeon_boss", "field_boss", "story_boss", "elite"]
+		if hitter != null and hitter.alive and hitter.team != "ally" and hitter != target and not on_boss:
 			target = hitter
 			tally.attacker = 0
 		if target == null or not target.alive or not Game.room_rt.enemies.has(target.uid):
@@ -203,6 +205,10 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, a
 		var hp_before := target.pools.hp
 		if Game.combat.is_wounded(c().id):
 			var here := room()
+			# A Revival Talisman brings you back on the spot, so a boss keeps its wounds.
+			if c().inventory.count("revival_talisman") > 0 and submit({"type": "choose_revival", "where": "here"}).get("ok", false):
+				target = null
+				continue
 			submit({"type": "choose_revival", "where": "shrine"})
 			place(Vector2(float(c().position.x), float(c().position.y)))
 			step(1.0)
@@ -215,7 +221,13 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, a
 			travel(here)
 			target = null
 			continue
+		# Techniques on cooldown first (a player spends Qi), then the basic combo.
+		for slot_i in ProgressionRules.technique_slot_count(c()):
+			if c().cultivator.technique_slots[slot_i] != null and str(c().cultivator.technique_slots[slot_i]) != "":
+				if submit({"type": "use_technique", "slot": slot_i, "facing": 1 if target.plane.x >= st.plane.x else -1}).get("ok", false): break
 		var ar := submit({"type": "basic_attack", "facing": 1 if target.plane.x >= st.plane.x else -1})
+		if verbose and allow_elite and OS.get_cmdline_user_args().has("--trace") and int(t * 10) % 300 == 0:
+			print("    [%ds] %s hp %d  me %d/%d  atk %.0f  injuries %s  statuses %s  target %s" % [int(t), def_id, int(target.pools.hp), int(c().pools.hp), int(c().pools.max_hp), c().stats.value("physical_attack"), str(c().cultivator.injuries.keys()), str(c().pools.statuses.map(func(x): return x.id)), target.def_id])
 		step(0.2)
 		t += 0.2
 		if verbose and (t < 3.0 or def_id == "trial_puppet") and int(tally.killed) == 0: print("  attack ", def_id, " ", ar, " hp ", hp_before, " -> ", target.pools.hp, " me ", c().pools.hp, " at ", st.plane, " alt ", st.altitude, " surf ", st.surface.id if st.surface else "-", " vs ", target.plane, " ealt ", target.altitude, " st ", target.ai.get("state", ""))
@@ -239,6 +251,9 @@ func run() -> void:
 	Saves.use_folder(folder)
 	Game.boot()
 	Game.autosave_enabled = false
+	# A fixed seed: every run of the suite plays the same dice (character streams derive from it).
+	Game.account.rng_seed = 20260925
+	Rng.restore("account", {}, 20260925)
 	GameEvents.event.connect(func(n, p):
 		if n == "hud_element_revealed": reveal_log.append(str(p.element))
 		if n in ["quest_accepted", "quest_completed", "system_unlocked", "realm_changed", "room_entered", "quest_failed"]: events.append([n, p]))

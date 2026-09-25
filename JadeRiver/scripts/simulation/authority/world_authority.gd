@@ -505,6 +505,20 @@ func tick(delta: float) -> void:
 				game.mail.apply_overflow(c.id, [{"item": l.item, "count": l.count, "instance": l.instance}])
 			emit("loot_expired", {"uid": l.uid})
 	if rt.event.get("active", false): _tick_event(c, rt, delta)
+	_attune_shrines(c, rt, st)
+
+## Walking past a shrine is enough for it to remember you as a revival point
+## (praying still heals). Nobody loses their respawn by forgetting to press Pray.
+func _attune_shrines(c, rt: RoomRuntime, st: ActorState) -> void:
+	if st == null or c.last_shrine.get("room", "") == rt.room_id: return
+	for o in rt.def.get("objects", []):
+		if str(o.get("type", "")) != "shrine": continue
+		var at: Array = o.get("at", [0, 0])
+		if st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) <= 160.0:
+			c.last_shrine = {"room": rt.room_id, "x": float(at[0]), "y": float(at[1]), "object": str(o.id)}
+			emit("shrine_attuned", {"actor": c.id, "room": rt.room_id, "object": str(o.id)})
+			GameEvents.save_pending = true
+			return
 
 # ------------------------------------------------------------------ room events (survival, S27 night)
 ## Start a timed event in the loaded room (set pieces, sect defence).

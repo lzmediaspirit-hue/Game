@@ -85,6 +85,13 @@ func tick(delta: float) -> void:
 			continue
 		e.ai.summon_cd = maxf(0.0, float(e.ai.get("summon_cd", 0.0)) - delta)
 		e.ai.stun_guard = maxf(0.0, float(e.ai.get("stun_guard", 0.0)) - delta)
+		if e.def.has("flees_after_s") and not str(e.ai.state) in ["idle", "patrol"]:
+			# Story bosses that cannot be beaten yet (Elder Gu) hold for a while, then escape,
+			# dropping what they carried.
+			e.ai.engaged_t = float(e.ai.get("engaged_t", 0.0)) + delta
+			if float(e.ai.engaged_t) >= float(e.def.flees_after_s):
+				_flee(e)
+				continue
 		EnemyBrain.think(self, e, delta)
 		if e.def.get("ai", {}).get("profile", "") == "burrower":
 			e.hidden = e.ai.state in ["aggro", "patrol"] and e.velocity.length() > 5.0
@@ -276,6 +283,14 @@ func defeat(e: EnemyState, killer: String) -> void:
 		"summoned": e.summoned}
 	emit("actor_defeated", payload)
 	if e.role == "field_boss": emit("field_boss_defeated", {"room": rt.room_id, "enemy": e.def_id})
+
+func _flee(e: EnemyState) -> void:
+	var c = game.active()
+	if c != null:
+		var drop := LootRules.roll(str(e.def.get("loot", e.def_id)), Rng.stream(c.id, "loot"), e.level, 0.0, 0.0, {"no_equipment": true})
+		game.world._drop_loot(c, drop, e.plane, e.altitude)
+	emit("boss_fled", {"enemy": e.uid, "def": e.def_id, "room": game.room_rt.room_id})
+	release(e)
 
 ## Remove a monster without a defeat (tamed or fled): no loot, no kill credit; its spawn slot refills.
 func release(e: EnemyState) -> void:

@@ -16,10 +16,8 @@ const ENTRIES := [
 	["crafts", "Crafts", "crafts", "herb_gathering"],
 	["workshop", "Workshop", "formation", "appraisal"],
 	["characters", "Characters", "characters", "idle_tasks"],
-	["codex", "Codex", "codex", "codex"],
-	["collection", "Collection", "collection", "collection_book"],
+	["codex", "Codex", "codex", "codex"],   # Collection and Achievements are Codex tabs
 	["mail", "Mail", "mail", "mail"],
-	["achievements", "Achievements", "achievements", ""],
 	["settings", "Settings", "settings", ""],
 	["exit", "Save & Exit", "back", ""],
 ]

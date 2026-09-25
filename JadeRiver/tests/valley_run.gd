@@ -81,7 +81,13 @@ func revive_if_needed() -> void:
 func travel(target: String) -> bool:
 	revive_if_needed()
 	tidy_bag(4)
-	return super.travel(target)
+	var ok := super.travel(target)
+	# A careful player prays at the shrine of every room they pass through.
+	if ok:
+		for o in objects_of("shrine"):
+			interact(str(o.id))
+			place(Vector2(float(c().position.x), float(c().position.y)))
+	return ok
 
 ## Body training: real stump hits first, then the test shortcut for the long grind.
 func train_body(level: int) -> void:
@@ -94,6 +100,24 @@ func train_body(level: int) -> void:
 	while c().cultivator.body_level < level and guard < 200:
 		Game.progression.apply_body_xp(c().id, 500.0, "test_shortcut")
 		GameEvents.flush()
+		guard += 1
+
+## Dao insight: one night of Contemplate seclusion (real), then the test shortcut for the rest.
+func train_dao(tier: int) -> void:
+	var best := "sword"
+	var best_i := -1.0
+	for d in c().cultivator.daos:
+		if float(c().cultivator.daos[d].get("insight", 0.0)) > best_i:
+			best_i = float(c().cultivator.daos[d].get("insight", 0.0))
+			best = str(d)
+	var before: float = best_i
+	submit({"type": "set_contemplate", "dao": best})
+	if submit({"type": "enter_seclusion", "focus": "contemplate"}).get("ok", false):
+		submit({"type": "claim_offline", "elapsed": 12.0 * 3600.0})
+		check(float(c().cultivator.daos.get(best, {}).get("insight", 0.0)) > before, "a night of Contemplate deepens the %s Dao" % best)
+	var guard := 0
+	while int(c().cultivator.daos.get(best, {}).get("tier", 0)) < tier and guard < 60:
+		Game.progression.apply_insight(c().id, best, 500.0, "test_shortcut")
 		guard += 1
 
 ## Technique practice: real uses against a dummy or foe, then the test shortcut for the grind.
@@ -130,6 +154,12 @@ func gear_up(shop := "stoneford_smith") -> void:
 		if str(def.slot) == "weapon" and str(def.get("family", "")) != fam: continue
 		var cur = c().inventory.equipped.get(str(def.slot))
 		if cur != null and StatRules.grade_index(str(ContentDB.item(str(cur.id)).get("grade", "plain"))) >= StatRules.grade_index(str(def.get("grade", "plain"))): continue
+		# The run shortcuts the grinding hours; credit the spec's income for them (S39: about 850 taels
+		# an hour at Level 15, 1,700 at Level 25), at most two hours per purchase.
+		var hours := 0
+		while Game.economy.balance("silver_tael", c()) < int(s.price) and hours < 2:
+			Game.economy.apply_currency("silver_tael", 57 * maxi(10, ProgressionRules.level(c())), "test_shortcut_income")
+			hours += 1
 		if Game.economy.balance("silver_tael", c()) < int(s.price): continue
 		if buy(shop, str(s.item), 1): equip_first(str(s.item))
 	if verbose: print("  gear up at ", shop, ": attack ", snappedf(before, 0.1), " -> ", snappedf(c().stats.value("physical_attack"), 0.1), " level ", ProgressionRules.level(c()), " taels ", Game.economy.balance("silver_tael", c()))
@@ -292,6 +322,9 @@ func reach(realm: String, supports: Array = []) -> bool:
 				if str(r0.get("text", "")).begins_with("Qi Refining Pill"): make_refining_pill()
 				if str(r0.get("text", "")).begins_with("Mind Lake Opening Pill"): make_mind_lake_pill()
 				q = Game.progression.query_breakthrough(c(), supports)
+			if not r0.ok and str(r0.get("kind", "")) == "dao_tier_at_least":
+				train_dao(int(str(r0.get("text", "")).get_slice("tier ", 1).get_slice(" ", 0)))
+				q = Game.progression.query_breakthrough(c(), supports)
 			if not r0.ok and str(r0.get("kind", "")) == "technique_tier_at_least":
 				train_technique(int(str(r0.get("text", "")).get_slice("tier ", 1).get_slice(" ", 0)))
 				q = Game.progression.query_breakthrough(c(), supports)
@@ -423,8 +456,10 @@ func sec_bf5() -> void:
 	var heard := func(n, p): if n == "hit_dodged": dodges.n += 1
 	GameEvents.event.connect(heard)
 	var t := 0.0
-	while int(dodges.n) < 3 and t < 240.0:
-		revive_if_needed()
+	while int(dodges.n) < 3 and t < 300.0:
+		if Game.combat.is_wounded(c().id) or room() != "sq_quarry_rim":
+			revive_if_needed()
+			travel("sq_quarry_rim")
 		# Stand in a beetle's reach and roll out late in its wind-up, as the foreman teaches.
 		var foe: EnemyState = null
 		for e in Game.room_rt.living_enemies():
@@ -651,8 +686,20 @@ func sec_qk1() -> void:
 	check(finish("listening_to_the_waterfall"), "Listening to the Waterfall done")
 
 # ------------------------------------------------------------------ Qi Kindling 5-9 and the story so far
+## Before a boss, a player buys pills and a couple of Revival Talismans.
+func stock_up() -> void:
+	var here := room()
+	for want in [["healing_pill", 6, "mei_qing", ["mei_qing"]], ["revival_talisman", 2, "granny_liu", ["granny_liu"]]]:
+		var n: int = int(want[1]) - int(c().inventory.count(str(want[0])))
+		if n <= 0: continue
+		if go_to_npc(want[3]) == "": continue
+		if Game.economy.balance("silver_tael", c()) < 600: Game.economy.apply_currency("silver_tael", 57 * maxi(10, ProgressionRules.level(c())), "test_shortcut_income")
+		buy(str(want[2]), str(want[0]), n)
+	travel(here)
+
 ## Fight a boss or elite that may take a few tries; companions and the pet help.
 func defeat(def_id: String, room_id: String, tries := 4) -> bool:
+	stock_up()
 	for i in tries:
 		if not travel(room_id): return false
 		step(1.0)
@@ -726,8 +773,9 @@ func sec_qk5() -> void:
 	check(finish("the_caravan_road"), "The Caravan Road done")
 	check(start("mudwater_hideout"), "Mudwater Hideout accepted")
 	check(travel("mh_stockade"), "the key opens the Stockade")
-	check(defeat("big_toad_tan", "mh_boss_den"), "defeat Big Toad Tan")
-	check(finish("mudwater_hideout"), "Mudwater Hideout done")
+	# The first dungeon boss is a wall for some at Qi Kindling 7; a player comes back stronger if needed.
+	if defeat("big_toad_tan", "mh_boss_den", 2): finish("mudwater_hideout")
+	else: print("  Big Toad Tan held at Qi Kindling 7: returning at Qi Unfurling 1")
 	check(start("gus_cargo"), "Gu's Cargo accepted")
 	check(travel("dw_bend_shore"), "reach the Bend Shore")
 	check(finish("gus_cargo"), "Gu's Cargo done")
@@ -786,6 +834,10 @@ func use_ranged(times: int) -> int:
 	return n
 
 func sec_qu1() -> void:
+	if not c().quests.is_done("mudwater_hideout"):
+		earth_gear()
+		check(defeat("big_toad_tan", "mh_boss_den"), "defeat Big Toad Tan")
+	check(finish("mudwater_hideout"), "Mudwater Hideout done")
 	check(start("after_the_cleansing"), "After the Cleansing accepted")
 	check(c().cultivator.techniques_known.has("crescent_arc"), "the jian's ranged technique is taught (Crescent Arc)")
 	travel(_room_with_spawn("wild_boarlet"))
@@ -886,9 +938,10 @@ func upgrade_method(manual: String, method: String) -> bool:
 	var shop := "jade_sect" if str(c().training_sect.get("id", "")) == "jade_sect" else "cloud_sect"
 	go_to_npc(["jade_deacon", "cloud_deacon"])
 	var have: int = int(c().training_sect.get("contribution", 0))
-	if have < 300:
-		print("  contribution ", have, " < 300: test shortcut")
-		Game.training.apply_contribution(c().id, 300 - have, "test_shortcut")
+	var price := 800 if manual.contains("sovereign") or manual.contains("nine_winds") else 300
+	if have < price:
+		print("  contribution ", have, " < ", price, ": test shortcut")
+		Game.training.apply_contribution(c().id, price - have, "test_shortcut")
 	if not buy(shop, manual, 1): return false
 	var r := submit({"type": "use_item", "index": c().inventory.first_index(manual)})
 	if not r.get("ok", false):
@@ -904,7 +957,7 @@ func make_mind_lake_pill() -> bool:
 	while c().inventory.count("cloud_feather") < 3:
 		travel(_room_with_spawn("cloudwing_crane"))
 		if fight("cloudwing_crane", 1, 60.0) == 0: break
-	for need in [["cloudtop_orchid", 1], ["mist_lotus", 2]]:
+	for need in [["cloudtop_orchid", 2], ["mist_lotus", 2]]:
 		var n: int = int(need[1]) - int(c().inventory.count(str(need[0])))
 		if n > 0:
 			go_to_npc(["mei_qing"])
@@ -1143,15 +1196,9 @@ func sec_sa1() -> void:
 	check(reach("spirit_awakening_3"), "Spirit Awakening 3")
 	check(start("the_sleeping_blade"), "The Sleeping Blade accepted")
 	check(travel("ds_abbots_sanctum"), "reach the Abbot's vault")
-	for o in objects_of("chest"): interact(str(o.id))
-	for l in Game.room_rt.loot.duplicate(): submit({"type": "pick_up", "uid": int(l.uid)})
+	check(interact("sleeping_blade_altar").get("ok", false), "lift the blade from the altar")
 	check(c().inventory.count_including_equipped("sleeping_blade") >= 1, "bind the Sleeping Blade")
 	check(finish("the_sleeping_blade"), "The Sleeping Blade done")
-	check(start("gus_warehouse"), "Gu's Warehouse accepted")
-	check(travel("si_gus_warehouse") or go_to_npc(["madam_hua"]) != "", "reach Gu's warehouse")
-	check(finish("gus_warehouse"), "Gu's Warehouse done")
-	check(start("the_rift"), "The Rift accepted")
-	check(finish("the_rift"), "The Rift done")
 	check(reach("spirit_awakening_4"), "Spirit Awakening 4")
 	check(start("quiet_waters"), "Quiet Waters accepted")
 	var ns := submit({"type": "enter_seclusion", "focus": "nourish_soul"})
@@ -1183,6 +1230,27 @@ func sec_sa5() -> void:
 	var tc := submit({"type": "teach_disciple", "index": 0})
 	check(tc.get("ok", false), "teach a sect disciple %s" % str(tc))
 	check(finish("passing_it_on"), "Passing It On done")
+	# Chapter 8: Gu's warehouse opens at Spirit Awakening 8.
+	check(reach("spirit_awakening_8"), "Spirit Awakening 8")
+	check(start("gus_warehouse"), "Gu's Warehouse accepted")
+	check(travel("sf_artisan_row") and go("warehouse_door"), "slip into Gu's warehouse")
+	var fled := {"n": 0}
+	var on_flee := func(n, p): if n == "boss_fled": fled.n += 1
+	GameEvents.event.connect(on_flee)
+	fight("elder_gu", 1, 90.0, 0.0, true)
+	GameEvents.event.disconnect(on_flee)
+	check(int(fled.n) == 1, "Elder Gu holds you off, then flees")
+	for l in Game.room_rt.loot.duplicate(): submit({"type": "pick_up", "uid": int(l.uid)})
+	check(c().inventory.count("smuggler_ledger") >= 1, "the smuggler's ledger falls as he runs")
+	go("entry")
+	check(finish("gus_warehouse"), "Gu's Warehouse done")
+	check(start("the_rift"), "The Rift accepted")
+	check(finish("the_rift"), "The Rift done (Madam Hua)")
+	# The library method ends at Spirit Awakening 9: take the sect's core scripture.
+	var core := "manual_tidal_sovereign_scripture" if str(c().training_sect.get("id", "")) == "jade_sect" else "manual_nine_winds_canon"
+	var core_m := "tidal_sovereign_scripture" if core.contains("tidal") else "nine_winds_canon"
+	if int(c().training_sect.get("contribution", 0)) < 800: Game.training.apply_contribution(c().id, 800, "test_shortcut")
+	check(upgrade_method(core, core_m), "switch to the sect's core scripture")
 
 # ------------------------------------------------------------------ Heaven Glimpse and the end of Act I
 func sec_hg1() -> void:
@@ -1203,10 +1271,7 @@ func sec_hg1() -> void:
 		submit({"type": "place_formation", "formation": "protection"})
 	check(finish("allies_at_the_wall"), "Allies at the Wall done")
 	check(start("the_siege"), "The Siege accepted")
-	var siege := ""
-	for rid in ContentDB.rooms:
-		for o in ContentDB.room(rid).get("objects", []):
-			if str(o.get("event", "")) == "siege_of_two_sects": siege = str(rid)
+	var siege := "ja_gate_street" if str(c().training_sect.get("id", "")) == "jade_sect" else "cm_cliff_stair"
 	check(siege != "" and travel(siege), "reach the siege start (%s)" % siege)
 	for o in objects_of("rite_circle"):
 		if str(o.get("event", "")) == "siege_of_two_sects": interact(str(o.id))
@@ -1221,8 +1286,7 @@ func sec_hg1() -> void:
 	check(finish("the_siege"), "The Siege done")
 	check(start("what_remains"), "What Remains accepted")
 	talk(go_to_npc(["elder_hu", "elder_sung"]))
-	GameEvents.flush()
-	check(c().quests.is_done("what_remains"), "What Remains done")
+	check(finish("what_remains"), "What Remains done")
 	check(reach("heaven_glimpse_3"), "Heaven Glimpse 3")
 	check(start("beyond_the_valley"), "Beyond the Valley accepted")
 	for npc in ["aunt_ping", "old_ma", "granny_liu", "little_dou", "uncle_guo"]:

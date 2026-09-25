@@ -150,6 +150,38 @@
      }
     ]
    }
+  },
+  {
+   "id": "sleeping_blade_altar",
+   "type": "pickup",
+   "at": [
+    1900,
+    720
+   ],
+   "item": "sleeping_blade",
+   "count": 1,
+   "prop": "altar",
+   "set_flag": "blade_bound",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "binding"
+     },
+     {
+      "kind": "quest_active",
+      "quest": "the_sleeping_blade"
+     }
+    ]
+   },
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "blade_bound"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

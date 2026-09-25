@@ -150,7 +150,9 @@ def build():
         mob("big_toad_tan", 18, "dungeon_boss", "none", None, [d("mudwater_manual", 1.0)],
             [atk("club_swing", 0.55, 90, 1.2, depth=34, knockback=60), atk("call_bandits", 1.0, 0, 0.0, summon="mudwater_bandit")],
             ai="boss_tan", art=human("big_toad_tan"), race="human", energy="primal_qi", width=24, height=96,
-            phases=[{"below": 0.5, "action": "drink_wine", "heal": 0.1, "breakable": "wine_jar"}], unique_drop="mudwater_cleaver"),
+            phases=[{"below": 0.5, "action": "drink_wine", "heal": 0.1, "breakable": "wine_jar"}], unique_drop="mudwater_cleaver",
+            # The first dungeon boss teaches the pattern (dodge the club, break the wine jars) rather than walls it.
+            hp_mult=0.6, attack_mult=0.8),
         mob("riverbed_serpent", 25, "field_boss", "water", "bend", [d("serpent_core", 1.0), d("serpent_scale", 1.0, (2, 4))],
             [atk("bite", 0.6, 110, 1.3, depth=40), atk("tail_flood", 1.0, 260, 1.0, depth=80, both_sides=True)], ai="boss_serpent",
             width=70, height=150, respawn_min=45, flying=True),

@@ -666,6 +666,8 @@ def sects():
     r.obj("shrine_ja", "shrine", [700, 700])
     r.obj("stone_ja", "teleport_stone", [520, 880], stone="jade_academy")
     r.obj("board_ja", "notice_board", [2600, 700])
+    r.obj("siege_gong_ja", "rite_circle", [2500, 900], event="siege_of_two_sects", prop="small_bell",
+          visible_if=all_of(qactive("the_siege")), text="The war gong. Strike it and the sects march together.")
     r.npc("jade_steward", [360, 760], facing=1)
     r.npc("jade_deacon", [2560, 780], facing=-1)
     r.npc("jade_disciple_a", [1500, 900], facing=1)
@@ -785,6 +787,8 @@ def sects():
     r.obj("shrine_cm", "shrine", [1300, 880])
     r.obj("stone_cm", "teleport_stone", [460, 880], stone="cloud_monastery")
     r.obj("board_cm", "notice_board", [1800, 880])
+    r.obj("siege_gong_cm", "rite_circle", [2200, 900], event="siege_of_two_sects", prop="small_bell",
+          visible_if=all_of(qactive("the_siege")), text="The war gong. Strike it and the sects march together.")
     r.npc("cloud_steward", [360, 780], facing=1)
     r.npc("cloud_deacon", [2000, 800], facing=-1)
     r.npc("cloud_disciple_a", [1100, 900], facing=1)
@@ -1062,6 +1066,9 @@ def valley():
           locked_text="A sealed vault. Its seal answers only a Spirit Awakening soul.", vault=True)
     r.obj("journal_vault", "pickup", [2300, 900], item="lu_journal_page", count=1, prop="scroll_rack", set_flag="journal_vault",
           visible_if=all_of(realm("spirit_awakening_3")), hidden_if=all_of(flag("journal_vault")))
+    # The Sleeping Blade rests on the Abbot's altar until a soul strong enough to bind it arrives (SA3).
+    r.obj("sleeping_blade_altar", "pickup", [1900, 720], item="sleeping_blade", count=1, prop="altar", set_flag="blade_bound",
+          visible_if=all_of({"kind": "unlock", "system": "binding"}, qactive("the_sleeping_blade")), hidden_if=all_of(flag("blade_bound")))
     r.edge("west", "west", "ds_scripture_well", "east", y=850)
     r.portal("exit", "door", [2460, 860], "dw_bend_shore", "shrine", press_up=True, label="Bend Shore")
 
