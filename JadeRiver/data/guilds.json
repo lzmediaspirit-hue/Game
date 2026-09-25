@@ -1,0 +1,53 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "alchemist",
+   "craft": "alchemy",
+   "name": "Alchemist Guild",
+   "hall": "sf_artisan_row",
+   "master": "guildmaster_tang",
+   "shop": "alchemist_guild",
+   "ranks": [
+    {
+     "id": "adept",
+     "recipe": "healing_pill",
+     "count": 5,
+     "quality": "fine",
+     "time_s": 180,
+     "title": "guild_adept",
+     "flag": "guild_alchemy_adept",
+     "rewards": [],
+     "pay_mult": 1.2
+    },
+    {
+     "id": "expert",
+     "recipe": "foundation_guard_pill",
+     "count": 3,
+     "quality": "superior",
+     "time_s": 300,
+     "title": "guild_expert",
+     "flag": "guild_alchemy_expert",
+     "rewards": [
+      {
+       "kind": "learn_recipe",
+       "recipe": "qi_flow_pill"
+      }
+     ],
+     "pay_mult": 1.5
+    }
+   ],
+   "commissions": {
+    "per_day": 3,
+    "count": [
+     1,
+     3
+    ],
+    "contribution_per_tael": 0.1,
+    "income_per_level_hour": 60,
+    "play_hours": 3,
+    "cap_share": 0.2
+   }
+  }
+ ]
+}

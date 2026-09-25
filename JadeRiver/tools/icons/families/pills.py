@@ -141,6 +141,9 @@ PILLS = [
     ('qi_flow_pill', 'earth', 'spiral_up', R['jade'], R['qi'][1]),
     ('murky_pill', 'common', 'drop_leaf', R['mud'], R['earth'][1]),
     ('viper_smoke_pill', 'common', 'leaf', R['venom'], R['navy'][2]),
+    ('sunfire_pill', 'common', 'flame', R['fire'], R['red'][1]),
+    ('stillwater_pill', 'earth', 'drop_leaf', R['sky'], R['navy'][2]),
+    ('cloudstep_pill', 'heaven', 'arrows', R['cloud'], R['navy'][2]),
 ]
 
 for _id, _grade, _mark, _ramp, _ink in PILLS:

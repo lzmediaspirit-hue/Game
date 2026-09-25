@@ -306,6 +306,58 @@
    "stock": [
     {
      "item": "recipe_scroll",
+     "learn": "qi_gathering_pill",
+     "price": 120,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_3"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "bone_strengthening_pill",
+     "price": 120,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_3"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "viper_antidote",
+     "price": 80,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_3"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "tiger_blood_pill",
+     "price": 150,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
      "learn": "qi_refining_pill",
      "price": 800,
      "requires": {
@@ -313,6 +365,106 @@
        {
         "kind": "realm_at_least",
         "realm": "heart_tempering_5"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "alchemist_guild",
+   "name": "Alchemist Guild",
+   "currency": "silver_tael",
+   "stock": [
+    {
+     "item": "recipe_scroll",
+     "learn": "foundation_guard_pill",
+     "price": 600,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_alchemy_adept"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "clear_mind_pill",
+     "price": 500,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_alchemy_adept"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "meridian_reversal_pill",
+     "price": 700,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_alchemy_adept"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "jadeiron_furnace",
+     "price": 900,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_alchemy_adept"
+       }
+      ]
+     }
+    },
+    {
+     "item": "mist_lotus",
+     "price": 35,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_alchemy_adept"
+       }
+      ]
+     }
+    },
+    {
+     "item": "jade_scale",
+     "price": 30,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_alchemy_adept"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "storm_blood_pill",
+     "price": 2400,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_alchemy_expert"
+       },
+       {
+        "kind": "realm_at_least",
+        "realm": "heaven_glimpse_1"
        }
       ]
      }

@@ -3291,6 +3291,87 @@
    "family": "accumulation"
   },
   {
+   "id": "sunfire_pill",
+   "name": "Sunfire Pill",
+   "type": "pill",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "sunfire_pill",
+   "desc": "Found by experiment: ginseng and Ember Pepper. +12% attack for 10 minutes.",
+   "pill": {
+    "mark": "flame",
+    "toxicity": 8,
+    "cause": null,
+    "group": "buff"
+   },
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "physical_attack",
+     "op": "pct_add",
+     "value": 0.12,
+     "duration": 600,
+     "source": "sunfire_pill"
+    }
+   ],
+   "soul_effect": "iron_skin"
+  },
+  {
+   "id": "stillwater_pill",
+   "name": "Stillwater Pill",
+   "type": "pill",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "stillwater_pill",
+   "desc": "Found by experiment: Mist Lotus, Soulbell and willow moss. Composure +40, heart demon -5.",
+   "pill": {
+    "mark": "drop_leaf",
+    "toxicity": 6,
+    "cause": "soul",
+    "group": "utility"
+   },
+   "use": [
+    {
+     "kind": "add_composure",
+     "amount": 40
+    },
+    {
+     "kind": "add_heart_demon",
+     "amount": -5
+    }
+   ],
+   "soul_effect": "steady_heart"
+  },
+  {
+   "id": "cloudstep_pill",
+   "name": "Cloudstep Pill",
+   "type": "pill",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "cloudstep_pill",
+   "desc": "Found by experiment: Cloudtop Orchid and willow moss. +10% move speed for 20 minutes.",
+   "pill": {
+    "mark": "arrows",
+    "toxicity": 8,
+    "cause": null,
+    "group": "buff"
+   },
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "move_speed",
+     "op": "pct_add",
+     "value": 0.1,
+     "duration": 1200,
+     "source": "cloudstep_pill"
+    }
+   ],
+   "soul_effect": "iron_skin"
+  },
+  {
    "id": "murky_pill",
    "name": "Murky Pill",
    "type": "pill",

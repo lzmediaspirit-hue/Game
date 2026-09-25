@@ -1218,6 +1218,56 @@
    "quest": "batch_work"
   },
   {
+   "id": "alchemist_guild",
+   "label": "Alchemist Guild",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_8"
+     }
+    ]
+   },
+   "reveals": [
+    "page:guild"
+   ],
+   "effects": [
+    {
+     "kind": "codex",
+     "entry": "alchemist_guild"
+    }
+   ],
+   "scope": "character",
+   "quest": "batch_work",
+   "same_stage_ok": true
+  },
+  {
+   "id": "experiments",
+   "label": "Experiments",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_1"
+     },
+     {
+      "kind": "unlock",
+      "system": "alchemy"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "codex",
+     "entry": "experiments"
+    }
+   ],
+   "scope": "character",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
    "id": "cleansing_prep",
    "label": "Heaven's Cleansing",
    "trigger": {

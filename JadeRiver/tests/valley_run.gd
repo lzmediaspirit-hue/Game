@@ -384,8 +384,8 @@ func equip_first(item: String) -> bool:
 	if i < 0: return false
 	return submit({"type": "equip", "index": i}).get("ok", false)
 
-func buy(shop: String, item: String, count := 1) -> bool:
-	var r := submit({"type": "buy", "shop": shop, "item": item, "count": count})
+func buy(shop: String, item: String, count := 1, learn := "") -> bool:
+	var r := submit({"type": "buy", "shop": shop, "item": item, "count": count, "learn": learn})
 	if not r.get("ok", false): print("  buy ", item, " at ", shop, ": ", r)
 	return r.get("ok", false)
 
@@ -1074,7 +1074,7 @@ func make_refining_pill() -> bool:
 	if c().inventory.count("qi_refining_pill") > 0: return true
 	go_to_npc(["mei_qing"])
 	if Game.economy.balance("silver_tael", c()) < 1200: Game.economy.apply_currency("silver_tael", 1200, "test_shortcut")
-	if not c().crafting.recipes.has("qi_refining_pill") and not buy("mei_qing_recipes", "recipe_scroll", 1): return false
+	if not c().crafting.recipes.has("qi_refining_pill") and not buy("mei_qing_recipes", "recipe_scroll", 1, "qi_refining_pill"): return false
 	for need in [["pearl", 2], ["mist_lotus", 2]]:
 		var n: int = int(need[1]) - int(c().inventory.count(str(need[0])))
 		if n > 0: buy("mei_qing", str(need[0]), n)

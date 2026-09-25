@@ -293,6 +293,45 @@
    "facing": -1
   },
   {
+   "id": "npc_guildmaster_tang",
+   "type": "npc",
+   "at": [
+    2440,
+    800
+   ],
+   "npc": "guildmaster_tang",
+   "facing": -1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_8"
+     }
+    ]
+   }
+  },
+  {
+   "id": "guild_board",
+   "type": "inspect",
+   "at": [
+    2520,
+    760
+   ],
+   "prop": "notice_board",
+   "text": "The Alchemist Guild's board: exams, commissions, and a list of badges.",
+   "open_page": "guild",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "alchemist_guild"
+     }
+    ]
+   },
+   "locked_text": "The Alchemist Guild's board. Its exams open at Qi Kindling 8.",
+   "label": "Guild Board"
+  },
+  {
    "id": "tinkerers_gear",
    "type": "pickup",
    "at": [
@@ -343,7 +382,24 @@
  ],
  "spawns": [],
  "scenery": [],
- "decor": [],
+ "decor": [
+  {
+   "prop": "market_stall",
+   "at": [
+    2440,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    2330,
+    600
+   ],
+   "layer": "back"
+  }
+ ],
  "areas": [],
  "music": "village_day",
  "ambience": "town_ambience",

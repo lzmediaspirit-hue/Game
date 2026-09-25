@@ -31,7 +31,12 @@ const GRADE_CAP := [["qi_kindling_1", "common"], ["qi_unfurling_1", "earth"], ["
 func intents() -> Array:
 	return ["complete_node", "catch_fish", "cook", "craft_step", "refine", "queue_auto_refine", "collect_auto_refine", "forge", "enhance", "salvage_item",
 		"salvage", "inherit_enhancement", "reroll_affixes", "choose_affixes", "lock_affix", "chart_route", "build_vessel", "absorb_flame",
-		"trace_talisman", "restore_relic", "mend_furnace"]
+		"trace_talisman", "restore_relic", "mend_furnace", "deduce_recipe", "start_experiment", "take_guild_exam", "accept_commission",
+		"deliver_commission"]
+
+func subscribe() -> void:
+	# S44 guild exams count what comes out of the furnace while the candle burns.
+	GameEvents.subscribe("craft_completed", _on_craft_completed, 40)
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -58,6 +63,11 @@ func handle(intent: Dictionary) -> Dictionary:
 		"trace_talisman": return trace_talisman(c, str(intent.get("recipe", "")), float(intent.get("score", 0.0)), bool(intent.get("broken", false)))
 		"restore_relic": return restore_relic(c, int(intent.get("index", -1)))
 		"mend_furnace": return mend_furnace(c, int(intent.get("uid", -1)))
+		"deduce_recipe": return deduce(c, str(intent.get("recipe", "")))
+		"start_experiment": return experiment(c, intent.get("herbs", []) if intent.get("herbs", []) is Array else [])
+		"take_guild_exam": return take_exam(c, str(intent.get("craft", "alchemy")), str(intent.get("rank", "")))
+		"accept_commission": return accept_commission(c, str(intent.get("id", "")))
+		"deliver_commission": return deliver_commission(c, str(intent.get("id", "")), str(intent.get("pay", "taels")))
 		"chart_route": return craft(c, str(intent.get("recipe", "")), 1, [], "star_charting")
 		"build_vessel": return craft(c, str(intent.get("recipe", "")), 1, [], "shipwright")
 	return fail("unknown_intent")
@@ -830,5 +840,270 @@ func mend_furnace(c, uid: int) -> Dictionary:
 	emit("system_used", {"actor": c.id, "system": "mend_furnace"})
 	return ok({"item": str(at.inst.id)})
 
+# ------------------------------------------------------------------ S44 ancient recipes: pages and Deduce
+## A page found (the effect `recipe_page`): kept in recipe_fragments; the last page of a set teaches the recipe.
+func apply_recipe_page(actor_id: String, recipe: String, page: int) -> void:
+	var c = game.character(actor_id)
+	var r := ContentDB.entry("recipes", recipe)
+	if c == null or r.is_empty(): return
+	var frags: Dictionary = c.crafting.get("recipe_fragments", {})
+	var held: Array = frags.get(recipe, [])
+	if not held.has(page): held.append(page)
+	frags[recipe] = held
+	c.crafting["recipe_fragments"] = frags
+	emit("recipe_page_found", {"actor": c.id, "recipe": recipe, "page": page, "held": held.size(), "total": int(r.get("fragments", 1))})
+	if held.size() >= int(r.get("fragments", 1)) and not knows(c, recipe):
+		apply_learn_recipe(c.id, recipe)
+		emit("recipe_deduced", {"actor": c.id, "recipe": recipe, "success": true, "whole": true})
+
+func pages_held(c, recipe: String) -> int:
+	return (c.crafting.get("recipe_fragments", {}).get(recipe, []) as Array).size()
+
+## Deduce with pages missing (S44): 20% a page held + 10% a tier of the Alchemy Dao above the third, never above 95%.
+func deduce_chance(c, recipe: String) -> float:
+	var r := ContentDB.entry("recipes", recipe)
+	var held := pages_held(c, recipe)
+	if held >= int(r.get("fragments", 1)): return 1.0
+	var tier := int(c.cultivator.daos.get("alchemy", {}).get("tier", 0))
+	return minf(float(upkeep("deduce_cap", 0.95)), float(upkeep("deduce_per_page", 0.2)) * held + float(upkeep("deduce_per_tier", 0.1)) * maxi(0, tier - 3))
+
+## Recipes with pages held and not yet known: the ancient ones the page offers to Deduce.
+func ancient_in_progress(c) -> Array:
+	var out: Array = []
+	for rid in c.crafting.get("recipe_fragments", {}):
+		if not knows(c, str(rid)) and ContentDB.has_entry("recipes", str(rid)): out.append(str(rid))
+	return out
+
+func deduce(c, recipe: String) -> Dictionary:
+	var r := ContentDB.entry("recipes", recipe)
+	if r.is_empty() or not r.has("fragments"): return fail("not_ancient")
+	if knows(c, recipe): return fail("known")
+	var held := pages_held(c, recipe)
+	if held <= 0: return fail("no_pages", {"text": Tx.t("sim.crafting.no_pages")})
+	if held < int(r.fragments):
+		# Pages missing: the attempt costs one set of the recipe's ingredients, at a furnace.
+		if not station_near(c, STATIONS.get(str(r.craft), [])): return fail("no_station", {"text": Tx.t("sim.crafting.you_need_a") % "furnace"})
+		for inp in r.get("inputs", []):
+			if c.inventory.count(str(inp.item)) < int(inp.count): return fail("materials", {"text": Tx.t("sim.crafting.missing") % ContentDB.item_name(str(inp.item))})
+		for inp in r.get("inputs", []): game.inventory.apply_remove(c.id, str(inp.item), int(inp.count), "deduce:" + recipe)
+	var chance := deduce_chance(c, recipe)
+	var success := chance >= 1.0 or Rng.stream(c.id, "crafting").randf() < chance
+	if success: apply_learn_recipe(c.id, recipe)
+	emit("recipe_deduced", {"actor": c.id, "recipe": recipe, "success": success, "chance": chance})
+	return ok({"success": success, "chance": chance})
+
+# ------------------------------------------------------------------ S44 experimentation
+static func experiment_key(herbs: Array) -> String:
+	var h: Array = herbs.duplicate()
+	h.sort()
+	return "+".join(h)
+
+func experiment_logged(key: String) -> Dictionary:
+	for e in game.account.experiments:
+		if str(e.get("key", "")) == key: return e
+	return {}
+
+## Put 2-4 herbs in (one of each): a hidden recipe of exactly those herbs is learned; anything else is a Murky Pill.
+## Every mix is logged for the whole account, so nobody tries the same one twice. Herbs that fight blow the furnace.
+func experiment(c, herbs: Array) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "experiments"): return fail("locked", {"text": Unlocks.locked_text("experiments")})
+	var picked: Array = []
+	for h in herbs:
+		if not picked.has(str(h)): picked.append(str(h))
+	if picked.size() < 2 or picked.size() > 4: return fail("herbs", {"text": Tx.t("sim.crafting.experiment_count")})
+	for h in picked:
+		if str(ContentDB.item(h).get("type", "")) != "herb": return fail("herbs", {"text": Tx.t("sim.crafting.experiment_herbs_only")})
+		if c.inventory.count(h) < 1: return fail("materials", {"text": Tx.t("sim.crafting.missing") % ContentDB.item_name(h)})
+	if not station_near(c, STATIONS.alchemy): return fail("no_station", {"text": Tx.t("sim.crafting.you_need_a") % "furnace"})
+	var key := experiment_key(picked)
+	var seen := experiment_logged(key)
+	if not seen.is_empty(): return fail("tried", {"text": Tx.t("sim.crafting.experiment_tried") % experiment_result_text(seen)})
+	var inputs: Array = []
+	for h in picked: inputs.append({"item": h, "count": 1})
+	var clash := conflict_in(inputs)
+	var entry := {"key": key, "herbs": picked, "by": c.id, "result": "murky"}
+	if not clash.is_empty():
+		entry.result = "blast"
+		game.account.experiments.append(entry)
+		emit("experiment_result", {"actor": c.id, "herbs": picked, "result": "blast"})
+		return blast(c, "experiment", inputs, 1, clash)
+	for h in picked: game.inventory.apply_remove(c.id, h, 1, "experiment")
+	var found := ""
+	for r in ContentDB.all("recipes"):
+		if not r.get("hidden", false): continue
+		var need: Array = []
+		for inp in r.get("inputs", []): need.append(str(inp.item))
+		if experiment_key(need) == key:
+			found = str(r.id)
+			break
+	if found != "":
+		entry.result = "learned:" + found
+		apply_learn_recipe(c.id, found)
+	else:
+		game.inventory.apply_add(c.id, "murky_pill", 1, "experiment")
+	game.account.experiments.append(entry)
+	add_xp(c, "alchemy", float(ContentDB.curve("profession_xp.craft_per_grade", 10)))
+	emit("experiment_result", {"actor": c.id, "herbs": picked, "result": entry.result, "recipe": found})
+	return ok({"result": entry.result, "recipe": found})
+
+func experiment_result_text(e: Dictionary) -> String:
+	var res := str(e.get("result", ""))
+	if res.begins_with("learned:"): return ContentDB.name_of("recipes", res.trim_prefix("learned:"))
+	return Tx.t("sim.crafting.experiment_" + res)
+
+# ------------------------------------------------------------------ S44 the Alchemist Guild
+func guild_def(craft: String) -> Dictionary:
+	for g in ContentDB.all("guilds"):
+		if str(g.get("craft", "")) == craft: return g
+	return {}
+
+## Your rank in a craft's guild: "" (none), then the ranks in order.
+func guild_rank(c, craft: String) -> String:
+	return str(c.crafting.get("guild", {}).get(craft, ""))
+
+func guild_rank_def(craft: String, rank: String) -> Dictionary:
+	for rk in guild_def(craft).get("ranks", []):
+		if str(rk.id) == rank: return rk
+	return {}
+
+## The next rank to sit for, or {} when there is none left.
+func next_guild_rank(c, craft: String) -> Dictionary:
+	var ranks: Array = guild_def(craft).get("ranks", [])
+	var have := guild_rank(c, craft)
+	for i in ranks.size():
+		if have == "" and i == 0: return ranks[0]
+		if str(ranks[i].id) == have and i + 1 < ranks.size(): return ranks[i + 1]
+	return {}
+
+static func quality_rank(q: String) -> int:
+	var order := ["flawed", "common", "fine", "superior", "perfect", "pill_grain", "pill_halo", "pill_soul"]
+	return order.find(q)
+
+func take_exam(c, craft: String, rank: String) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "alchemist_guild"): return fail("locked", {"text": Unlocks.locked_text("alchemist_guild")})
+	var nxt := next_guild_rank(c, craft)
+	if nxt.is_empty() or (rank != "" and str(nxt.id) != rank): return fail("rank", {"text": Tx.t("sim.crafting.exam_not_yours")})
+	if not c.crafting.get("guild_exam", {}).is_empty(): return fail("busy", {"text": Tx.t("sim.crafting.exam_running")})
+	c.crafting["guild_exam"] = {"craft": craft, "rank": str(nxt.id), "started": game.sim_time, "made": 0}
+	emit("guild_exam_started", {"actor": c.id, "craft": craft, "rank": str(nxt.id), "time_s": float(nxt.time_s)})
+	return ok({"rank": str(nxt.id), "time_s": float(nxt.time_s)})
+
+## Seconds left on the exam's candle (0 when none is burning).
+func exam_left(c) -> float:
+	var ex: Dictionary = c.crafting.get("guild_exam", {})
+	if ex.is_empty(): return 0.0
+	var rk := guild_rank_def(str(ex.craft), str(ex.rank))
+	return maxf(0.0, float(rk.get("time_s", 0)) - (game.sim_time - float(ex.started)))
+
+func _on_craft_completed(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c == null: return
+	var ex: Dictionary = c.crafting.get("guild_exam", {})
+	if ex.is_empty() or str(p.get("craft", "")) != str(ex.craft): return
+	var rk := guild_rank_def(str(ex.craft), str(ex.rank))
+	if str(p.get("recipe", "")) != str(rk.get("recipe", "")) or exam_left(c) <= 0.0: return
+	if quality_rank(str(p.get("quality", ""))) < quality_rank(str(rk.get("quality", "common"))): return
+	ex.made = int(ex.made) + int(p.get("count", 1))
+	if int(ex.made) >= int(rk.get("count", 1)): _pass_exam(c, str(ex.craft), rk)
+
+func _pass_exam(c, craft: String, rk: Dictionary) -> void:
+	var guild: Dictionary = c.crafting.get("guild", {})
+	guild[craft] = str(rk.id)
+	c.crafting["guild"] = guild
+	c.crafting["guild_exam"] = {}
+	game.quest.apply_flag(c.id, str(rk.get("flag", "")))
+	var fx: Array = [{"kind": "grant_title", "title": str(rk.get("title", ""))}]
+	fx.append_array(rk.get("rewards", []))
+	game.apply_effects(c.id, fx, "guild:" + craft)
+	emit("guild_rank_changed", {"actor": c.id, "craft": craft, "rank": str(rk.id), "title": str(rk.get("title", ""))})
+
+# ------------------------------------------------------------------ S44 commissions
+## The day's number (commissions refresh each morning).
+static func commission_day() -> int:
+	return int(floor(Clock.now_utc() / 86400.0))
+
+## A fifth of the zone's daily income target: Level x 60 taels an hour for three hours of play (S39).
+func commission_cap(c) -> int:
+	var k: Dictionary = guild_def("alchemy").get("commissions", {})
+	return int(float(k.get("cap_share", 0.2)) * float(k.get("income_per_level_hour", 60)) * float(k.get("play_hours", 3)) * ProgressionRules.level(c))
+
+func commission_paid_today(c) -> int:
+	var cm: Dictionary = c.crafting.get("commission_state", {})
+	return int(cm.get("paid", 0)) if int(cm.get("day", -1)) == commission_day() else 0
+
+## Today's three orders, drawn from the pills this character knows how to refine (the guild's board).
+func commissions(c) -> Array:
+	var rank := guild_rank(c, "alchemy")
+	if rank == "": return []
+	var day := commission_day()
+	var cm: Dictionary = c.crafting.get("commission_state", {})
+	if int(cm.get("day", -1)) == day: return cm.get("orders", [])
+	var k: Dictionary = guild_def("alchemy").get("commissions", {})
+	var known: Array = []
+	for r in ContentDB.all("recipes"):
+		if str(r.craft) == "alchemy" and knows(c, str(r.id)) and ContentDB.item(str(r.outputs[0].item)).has("pill"): known.append(str(r.id))
+	known.sort()
+	var rng := Rng.stream(c.id, "commission")   # drawn once each morning; the orders are kept for the day
+	var orders: Array = []
+	var mult := float(guild_rank_def("alchemy", rank).get("pay_mult", 1.2))
+	for i in int(k.get("per_day", 3)):
+		if known.is_empty(): break
+		var rid: String = known[rng.randi_range(0, known.size() - 1)]
+		var item := str(ContentDB.entry("recipes", rid).outputs[0].item)
+		var cnt: Array = k.get("count", [1, 3])
+		var n := rng.randi_range(int(cnt[0]), int(cnt[1]))
+		orders.append({"id": "c%d_%d" % [day, i], "item": item, "count": n, "quality": "common",
+			"pay": int(round(LootRules.buy_price(item) * mult * n)), "accepted": false, "done": false})
+	c.crafting["commission_state"] = {"day": day, "orders": orders, "paid": 0}
+	return orders
+
+func _order(c, id: String) -> Dictionary:
+	for o in commissions(c):
+		if str(o.id) == id: return o
+	return {}
+
+func accept_commission(c, id: String) -> Dictionary:
+	var o := _order(c, id)
+	if o.is_empty() or o.get("done", false): return fail("no_order")
+	o.accepted = true
+	return ok()
+
+func deliver_commission(c, id: String, pay: String) -> Dictionary:
+	var o := _order(c, id)
+	if o.is_empty() or o.get("done", false): return fail("no_order")
+	if not o.get("accepted", false): return fail("not_accepted", {"text": Tx.t("sim.crafting.commission_accept_first")})
+	# Pills of the order's quality or better, from any stacks.
+	var have := 0
+	for s in c.inventory.bag:
+		if s != null and str(s.id) == str(o.item) and quality_rank(str(s.get("quality", "common"))) >= quality_rank(str(o.quality)): have += int(s.count)
+	if have < int(o.count): return fail("materials", {"text": Tx.t("sim.crafting.missing") % ContentDB.item_name(str(o.item))})
+	var left := int(o.count)
+	for i in c.inventory.bag.size():
+		if left <= 0: break
+		var s = c.inventory.bag[i]
+		if s == null or str(s.id) != str(o.item) or quality_rank(str(s.get("quality", "common"))) < quality_rank(str(o.quality)): continue
+		var take := mini(left, int(s.count))
+		game.inventory.apply_remove_index(c.id, i, take, "commission")
+		left -= take
+	o.done = true
+	var room := maxi(0, commission_cap(c) - commission_paid_today(c))
+	var paid := mini(int(o.pay), room)
+	var cm: Dictionary = c.crafting.get("commission_state", {})
+	cm.paid = commission_paid_today(c) + paid
+	var k: Dictionary = guild_def("alchemy").get("commissions", {})
+	if pay == "contribution":
+		var contrib := int(round(paid * float(k.get("contribution_per_tael", 0.1))))
+		if contrib > 0: game.apply_effects(c.id, [{"kind": "add_contribution", "amount": contrib}], "commission")
+	elif paid > 0:
+		game.economy.apply_currency("silver_tael", paid, "commission")
+	emit("commission_completed", {"actor": c.id, "id": id, "item": str(o.item), "count": int(o.count), "paid": paid, "pay": pay, "capped": paid < int(o.pay)})
+	return ok({"paid": paid, "capped": paid < int(o.pay)})
+
 func tick(_delta: float) -> void:
+	# S44: a guild exam whose candle burns out fails.
+	var ac = game.active()
+	if ac != null and not ac.crafting.get("guild_exam", {}).is_empty() and exam_left(ac) <= 0.0:
+		var ex: Dictionary = ac.crafting.guild_exam
+		ac.crafting["guild_exam"] = {}
+		emit("guild_exam_failed", {"actor": ac.id, "craft": str(ex.craft), "rank": str(ex.rank), "made": int(ex.made)})
 	pass

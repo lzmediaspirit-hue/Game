@@ -119,7 +119,7 @@ func on_action(id: String, data) -> void:
 			var stock: Array = Game.economy.stock(ch, shop_id)
 			var it: Dictionary = stock[sel_buy]
 			var n := qty if int(ContentDB.item(str(it.item)).get("stack", 1)) > 1 else 1
-			var r := submit({"type": "buy", "shop": shop_id, "item": str(it.item), "count": n, "price": int(it.price)})
+			var r := submit({"type": "buy", "shop": shop_id, "item": str(it.item), "count": n, "price": int(it.price), "learn": str(it.get("learn", ""))})
 			if r.get("ok", false):
 				Audio.play("coin", "UI")
 				flash(Tx.t("ui.shop.bought") % [ContentDB.item_name(str(it.item)), n])

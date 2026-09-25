@@ -175,6 +175,7 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 				progression.apply_learn_technique(actor_id, str(opts.get(fam, opts.get("none", ""))))
 			"learn_method": progression.apply_learn_method(actor_id, str(e.method))
 			"learn_recipe": crafting.apply_learn_recipe(actor_id, str(e.recipe))
+			"recipe_page": crafting.apply_recipe_page(actor_id, str(e.recipe), int(e.get("page", 1)))
 			"learn_secret_art": progression.apply_learn_secret_art(actor_id, str(e.art))
 			"event_passed": progression.apply_event_passed(actor_id, str(e.event))
 			"grant_title": achievements.apply_title(actor_id, str(e.title))

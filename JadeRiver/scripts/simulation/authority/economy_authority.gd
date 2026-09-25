@@ -18,7 +18,8 @@ func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
 	if c == null: return fail("no_character")
 	match str(intent.type):
-		"buy": return buy(c, str(intent.get("shop", "")), str(intent.get("item", "")), maxi(1, int(intent.get("count", 1))), int(intent.get("price", -1)))
+		"buy": return buy(c, str(intent.get("shop", "")), str(intent.get("item", "")), maxi(1, int(intent.get("count", 1))), int(intent.get("price", -1)),
+			str(intent.get("learn", "")))
 		"sell": return sell(c, int(intent.get("index", -1)), maxi(1, int(intent.get("count", 1))))
 		"exchange_currency": return exchange(str(intent.get("from", "")), str(intent.get("to", "")), int(intent.get("amount", 0)))
 		"buyback": return buyback(c, int(intent.get("index", -1)))
@@ -95,13 +96,14 @@ func stock(c, shop_id: String) -> Array:
 			"rotating": s.get("rotating", false), "learn": str(s.get("learn", ""))})
 	return out
 
-func buy(c, shop_id: String, item_id: String, count: int, seen_price: int) -> Dictionary:
+func buy(c, shop_id: String, item_id: String, count: int, seen_price: int, learn := "") -> Dictionary:
 	var shop := ContentDB.entry("shops", shop_id)
 	if shop.is_empty(): return fail("unknown_shop")
 	if not Unlocks.is_unlocked(c.id, "shop"): return fail("locked")
 	var entry := {}
+	# A shop can sell several recipe scrolls: `learn` names which one (the same item id teaches different things).
 	for s in stock(c, shop_id):
-		if s.item == item_id:
+		if s.item == item_id and (learn == "" or str(s.get("learn", "")) == learn):
 			entry = s
 			break
 	if entry.is_empty(): return fail("not_sold")

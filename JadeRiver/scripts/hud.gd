@@ -578,6 +578,23 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.draught_expired") % ContentDB.item_name(str(p.get("item", ""))), "danger")
 		"flame_absorbed":
 			toast(Tx.t("hud.flame_absorbed") % ContentDB.item_name(str(p.flame)), "gold")
+		"recipe_page_found":
+			toast(Tx.t("hud.recipe_page") % [ContentDB.name_of("recipes", str(p.recipe)), int(p.held), int(p.total)], "gold")
+		"recipe_deduced":
+			if p.get("success", false): toast(Tx.t("hud.recipe_deduced") % ContentDB.name_of("recipes", str(p.recipe)), "unlock")
+			else: toast(Tx.t("hud.recipe_not_deduced") % ContentDB.name_of("recipes", str(p.recipe)), "danger")
+		"experiment_result":
+			var res := str(p.get("result", ""))
+			if res.begins_with("learned:"): toast(Tx.t("hud.experiment_found") % ContentDB.name_of("recipes", res.trim_prefix("learned:")), "unlock")
+			elif res == "murky": add_log(Tx.t("hud.experiment_murky"), UiKit.MIST)
+		"guild_exam_started":
+			toast(Tx.t("hud.exam_started") % int(float(p.get("time_s", 0)) / 60.0), "gold")
+		"guild_exam_failed":
+			toast(Tx.t("hud.exam_failed"), "danger")
+		"guild_rank_changed":
+			toast(Tx.t("hud.guild_rank") % Tx.t("ui.guild.rank_" + str(p.rank)), "unlock")
+		"commission_completed":
+			add_log(Tx.t("hud.commission_paid") % int(p.get("paid", 0)) + (" " + Tx.t("hud.commission_capped") if p.get("capped", false) else ""), UiKit.PALE_GOLD)
 		"furnace_blast":
 			toast(Tx.t("hud.furnace_blast") % int(p.get("durability", 0)), "danger")
 		"debt_called":

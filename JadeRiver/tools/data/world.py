@@ -690,6 +690,13 @@ def stoneford():
     r.npc("madam_hua", [1120, 760], oid="npc_madam_hua", visible_if=all_of(flag("gu_fled")), facing=1)
     r.npc("mei_qing", [1960, 760], facing=-1)
     r.npc("apprentice_tao", [1500, 900], facing=-1)
+    # S44: the Alchemist Guild's corner of the Row: Guildmaster Tang, his stall and the commission board.
+    r.decor("market_stall", [2440, 700])
+    r.decor("hanging_lantern", [2330, 600], layer="back")
+    r.npc("guildmaster_tang", [2440, 800], facing=-1, visible_if=all_of(realm("qi_kindling_8")))
+    r.obj("guild_board", "inspect", [2520, 760], prop="notice_board", text="The Alchemist Guild's board: exams, commissions, and a list of badges.",
+          open_page="guild", requires=all_of(unlock("alchemist_guild")), locked_text="The Alchemist Guild's board. Its exams open at Qi Kindling 8.",
+          label="Guild Board")
     r.edge("east", "east", "sf_market", "west", y=850)
     r.edge("west", "west", "sf_fairground", "east", y=850)
 
@@ -2294,6 +2301,21 @@ def earth_vents():
               locked_text="Heat rises from a crack in the stone. An alchemist could use it.")
 
 
+def recipe_pages():
+    """S44 ancient recipes: torn pages across dungeons and secret realms. Reading one records the page (once per
+    character) and the shelf empties; a full set teaches the recipe, fewer can be Deduced."""
+    pages = [("method_conversion_pill", "Method Conversion Pill", [("mh_loot_cave", 1200), ("ds_scripture_well", 1500), ("mp_forgotten_monastery", 3300)]),
+             ("sovereign_settling_pill", "Sovereign Settling Pill", [("ts_mirror_crypt", 600), ("ts_hall_of_sand_kings", 3000), ("sw_pirate_deck", 1400),
+                                                                     ("sd_oasis_of_bones", 1800)])]
+    for recipe, name, spots in pages:
+        for i, (rid, x) in enumerate(spots):
+            oid = "page_%s_%d" % (recipe, i + 1)
+            ROOMS[rid].obj(oid, "inspect", [x, 880], prop="scroll_rack", label="Torn Page",
+                           text="A torn page from an old pill manual: %s, page %d of %d." % (name, i + 1, len(spots)),
+                           effects=[{"kind": "recipe_page", "recipe": recipe, "page": i + 1}],
+                           hidden_if=all_of(flag("inspected_" + oid)))
+
+
 def rogue_cultivators():
     """S47: rogue cultivators keep to out-of-the-way places: the Drowned Grotto and the Misty Slopes."""
     ROOMS["ds_drowned_grotto"].spawn("rogue_cultivator", [[1650, 820]], 1, respawn=1800, level=[24, 26], elite=True)
@@ -2522,6 +2544,7 @@ def build():
     earth_vents()
     movement_extras()
     rogue_cultivators()
+    recipe_pages()
     catalogue.run(ROOMS)
     movement_pass()
     verticality.run(ROOMS)

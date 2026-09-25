@@ -308,6 +308,28 @@
      "value": 0.01
     }
    ]
+  },
+  {
+   "id": "guild_adept",
+   "name": "Guild Adept",
+   "modifiers": [
+    {
+     "stat": "crafting_control",
+     "op": "flat",
+     "value": 0.02
+    }
+   ]
+  },
+  {
+   "id": "guild_expert",
+   "name": "Guild Expert",
+   "modifiers": [
+    {
+     "stat": "crafting_control",
+     "op": "flat",
+     "value": 0.04
+    }
+   ]
   }
  ]
 }

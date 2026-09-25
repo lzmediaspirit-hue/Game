@@ -127,6 +127,11 @@ def npcs():
     npc("tinkerer_yu", "Tinkerer Yu", "Tinkerer", outfit("ponytail", 3, "scholar", "cuffed", "folded", shirt_dye="grey"),
         ["Tools are just patience you can hold.", "A better pickaxe means more ore and fewer blisters."], ["Where's my small spanner?"], services=["shop:tinkerer", "page:workshop"],
         service_labels={"page:workshop": "Puppet bench"}, service_unlocks={"page:workshop": "puppetry"})
+    npc("guildmaster_tang", "Guildmaster Tang", "Alchemist Guild", outfit("topknot", 4, "scholar", "scholar", "slippers", hat="guan", shirt_dye="jade", pants_dye="ink"),
+        ["The guild does not care who taught you. It cares what comes out of your furnace.",
+         "An exam is a batch of pills against a candle. Nothing more mysterious than that.",
+         "Commissions come in every morning. Pay is fair; the guild takes nothing but your good name."],
+        ["Mind the candle.", "Another order for Healing Pills. Always Healing Pills."], services=["page:guild", "shop:alchemist_guild"])
     npc("old_scribe_bai", "Old Scribe Bai", "Talisman master", outfit("topknot", 5, "scholar", "scholar", "slippers", hat="guan", shirt_dye="ink"),
         ["A talisman is a sentence the world has to finish.", "Steady wrist, one breath, no lifting the brush."], ["Mind the ink."],
         services=["page:talisman"], service_labels={"page:talisman": "Write talismans"}, service_unlocks={"page:talisman": "talisman"})
@@ -442,6 +447,12 @@ def unlocks():
     u("appraisal", "Appraisal", all_of(realm("qi_kindling_6")), "is_it_real", [], effects=[{"kind": "grant_item", "item": "appraisers_loupe", "count": 1}])
     u("dungeon_keys", "Dungeons", all_of(realm("qi_kindling_7")), "the_caravan_road", [])
     u("auto_refine", "Auto-refine", all_of(realm("qi_kindling_8")), "batch_work", [])
+    # S44 / Part 7: the Alchemist Guild's Adept exam and commission board open with Batch Work (Qi Kindling 8).
+    u("alchemist_guild", "Alchemist Guild", all_of(realm("qi_kindling_8")), "batch_work", ["page:guild"], same_stage_ok=True,
+      effects=[{"kind": "codex", "entry": "alchemist_guild"}])
+    # S44: ancient recipes come in pages; a page is enough to begin deducing, a full set teaches it outright.
+    u("experiments", "Experiments", all_of(realm("qi_unfurling_1"), unlocked("alchemy")), "", [], same_stage_ok=True, toast=False,
+      effects=[{"kind": "codex", "entry": "experiments"}])
     u("cleansing_prep", "Heaven's Cleansing", all_of(realm("qi_kindling_9")), "toward_cleansing_peak", [])
 
     # Qi Unfurling
@@ -1867,6 +1878,12 @@ def codex():
          "body": "The world keeps a ledger. Mercy and help earn merit: a hundred of it eases one great breakthrough in each realm. Cruelty and the back-room markets earn sin, and sin feeds the heart demon. Some deeds come back as letters."},
         {"id": "furnaces_and_fire", "title": "Furnace and fire",
          "body": "The furnace you set in the furnace slot decides the batch, how steady the heat is, how many impurities it strains out, and sometimes one pill more. Better ones are forged at the forge, and enhancing one steadies its heat. Charcoal takes a pill as far as Perfect. Earth Fire at a vent, or a beast core of rank 2 or more burnt as Beast Fire, can reach Pill Grain. Only a Heavenly Flame, or the Nine-Dragon Cauldron, reaches Halo and Soul."},
+        {"id": "alchemist_guild", "title": "The Alchemist Guild",
+         "body": "Guildmaster Tang keeps the guild's hall in Stoneford's Artisan Row. Each rank is one exam against the candle: five Fine Healing Pills in three minutes for Adept, three Superior Foundation Guard Pills in five for Expert. A badge opens the guild shop and the commission board, three orders a morning, paid in taels or contribution up to a fifth of what a day's work would earn you."},
+        {"id": "experiments", "title": "Experiments",
+         "body": "Put two to four herbs you know into the furnace together and see what they make. A few old recipes hide in the right herbs; everything else comes out a Murky Pill. Every attempt is written in the log for all your characters, so nobody wastes herbs on the same mix twice. Herbs that fight each other blow the furnace."},
+        {"id": "ancient_recipes", "title": "Ancient recipes",
+         "body": "Some recipes survive only as torn pages scattered through dungeons and secret realms. A full set teaches the recipe. With pages missing you can still Deduce it, at the cost of one set of ingredients: each page gives a fifth of a chance, each Alchemy Dao tier above the third a tenth more, never above 95%."},
         {"id": "mist_lantern_flame", "title": "Heavenly Flame: Mist Lantern",
          "body": "The valley's own Heavenly Flame. It drifted in a Weeping Lantern above the Forgotten Monastery for a hundred years. Absorbed, it widens every strike band a fifth."},
         {"id": "cold_lamp_flame", "title": "Heavenly Flame: Cold Lamp",

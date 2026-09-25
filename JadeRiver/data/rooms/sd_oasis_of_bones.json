@@ -152,6 +152,32 @@
    ],
    "npc": "bone_reader_xiu",
    "facing": -1
+  },
+  {
+   "id": "page_sovereign_settling_pill_4",
+   "type": "inspect",
+   "at": [
+    1800,
+    880
+   ],
+   "prop": "scroll_rack",
+   "label": "Torn Page",
+   "text": "A torn page from an old pill manual: Sovereign Settling Pill, page 4 of 4.",
+   "effects": [
+    {
+     "kind": "recipe_page",
+     "recipe": "sovereign_settling_pill",
+     "page": 4
+    }
+   ],
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "inspected_page_sovereign_settling_pill_4"
+     }
+    ]
+   }
   }
  ],
  "spawns": [],

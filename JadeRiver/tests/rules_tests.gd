@@ -49,6 +49,7 @@ func _main() -> void:
 	talisman_suite()
 	herb_nature_suite()
 	new_forms_suite()
+	guild_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -589,6 +590,96 @@ func new_forms_suite() -> void:
 	check(LootRules.sell_price("murky_pill", null) <= 1, "a Murky Pill sells for a tael")
 	c.inventory.bag.fill(null)
 	cu.toxicity = 0.0
+
+# ------------------------------------------------------------------ S44 ancient recipes, experiments, the Alchemist Guild
+func guild_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	c.inventory.bag.fill(null)
+	Unlocks.force_unlock(c.id, "alchemy")
+	Game.world.apply_teleport(c.id, "sf_artisan_row")
+	var st: ActorState = Game.actor_state(c.id)
+	var fo: Dictionary = Game.room_rt.object_def("furnace_sf")
+	st.plane = Vector2(float(fo.at[0]) - 40.0, float(fo.at[1]))
+	# Deduce: 20% a page + 10% a Dao tier above the third, capped at 95%; a full set teaches it outright.
+	var daos: Dictionary = c.cultivator.daos
+	var had: Dictionary = daos.get("alchemy", {}).duplicate()
+	daos["alchemy"] = {"tier": 3, "insight": 0.0}
+	c.crafting["recipe_fragments"] = {}
+	c.crafting.recipes.erase("method_conversion_pill")
+	Game.apply_effects(c.id, [{"kind": "recipe_page", "recipe": "method_conversion_pill", "page": 1}], "test")
+	check(near(Game.crafting.deduce_chance(c, "method_conversion_pill"), 0.2), "one page of three: a 20% chance")
+	Game.apply_effects(c.id, [{"kind": "recipe_page", "recipe": "method_conversion_pill", "page": 2}], "test")
+	daos["alchemy"] = {"tier": 5, "insight": 0.0}
+	check(near(Game.crafting.deduce_chance(c, "method_conversion_pill"), 0.6), "two pages and Dao tier 5: 60%")
+	c.crafting["recipe_fragments"] = {"sovereign_settling_pill": [1, 2, 3]}
+	daos["alchemy"] = {"tier": 9, "insight": 0.0}
+	check(near(Game.crafting.deduce_chance(c, "sovereign_settling_pill"), 0.95), "the chance never passes 95%")
+	for inp in ContentDB.entry("recipes", "method_conversion_pill").inputs: Game.inventory.apply_add(c.id, str(inp.item), int(inp.count), "test")
+	c.crafting["recipe_fragments"] = {"method_conversion_pill": [1, 2]}
+	var dd := Game.submit({"type": "deduce_recipe", "recipe": "method_conversion_pill"})
+	check(dd.get("ok", false) and c.inventory.count("manual_page") == 0, "a Deduce attempt spends one set of ingredients")
+	c.crafting.recipes.erase("method_conversion_pill")
+	c.crafting["recipe_fragments"] = {"method_conversion_pill": [1, 2]}
+	Game.apply_effects(c.id, [{"kind": "recipe_page", "recipe": "method_conversion_pill", "page": 3}], "test")
+	check(Game.crafting.knows(c, "method_conversion_pill"), "the last page of a set teaches the recipe")
+	if had.is_empty(): daos.erase("alchemy")
+	else: daos["alchemy"] = had
+	check(ContentDB.room("mh_loot_cave").get("objects", []).any(func(o): return str(o.id) == "page_method_conversion_pill_1"), "the first page lies in the Mudwater Hideout")
+	# Experiments: hidden recipes by their herbs; anything else a Murky Pill; the account log refuses a repeat.
+	Unlocks.force_unlock(c.id, "experiments")
+	c.inventory.furnace = null
+	Game.inventory.apply_add(c.id, "bronze_furnace", 1, "test")
+	Game.account.experiments.clear()
+	c.crafting.recipes.erase("sunfire_pill")
+	for h in ["riverreed_ginseng_10", "ember_pepper", "willow_moss"]: Game.inventory.apply_add(c.id, h, 3, "test")
+	var ex1 := Game.submit({"type": "start_experiment", "herbs": ["ember_pepper", "riverreed_ginseng_10"]})
+	check(ex1.get("ok", false) and str(ex1.get("recipe", "")) == "sunfire_pill" and Game.crafting.knows(c, "sunfire_pill"), "ginseng and Ember Pepper reveal the Sunfire Pill")
+	var ex2 := Game.submit({"type": "start_experiment", "herbs": ["willow_moss", "ember_pepper"]})
+	check(ex2.get("ok", false) and str(ex2.get("result", "")) == "murky" and c.inventory.count("murky_pill") == 1, "an idle mix makes a Murky Pill")
+	var ex3 := Game.submit({"type": "start_experiment", "herbs": ["ember_pepper", "willow_moss"]})
+	check(str(ex3.get("reason", "")) == "tried" and c.inventory.count("murky_pill") == 1, "the log refuses a mix already tried, in any order")
+	check(Game.account.experiments.size() == 2, "the log is the account's")
+	# The Alchemist Guild: the Adept exam counts Fine Healing Pills while the candle burns.
+	Unlocks.force_unlock(c.id, "alchemist_guild")
+	c.crafting["guild"] = {}
+	c.crafting["guild_exam"] = {}
+	var te := Game.submit({"type": "take_guild_exam", "craft": "alchemy", "rank": "expert"})
+	check(not te.get("ok", false), "the Expert exam waits for the Adept badge")
+	te = Game.submit({"type": "take_guild_exam", "craft": "alchemy", "rank": "adept"})
+	check(te.get("ok", false) and near(float(te.time_s), 180.0), "the Adept exam: three minutes")
+	GameEvents.emit_event("craft_completed", {"actor": c.id, "recipe": "healing_pill", "craft": "alchemy", "quality": "common", "count": 3})
+	GameEvents.emit_event("craft_completed", {"actor": c.id, "recipe": "healing_pill", "craft": "alchemy", "quality": "fine", "count": 3})
+	GameEvents.flush()
+	check(int(c.crafting.guild_exam.get("made", 0)) == 3 and Game.crafting.guild_rank(c, "alchemy") == "", "Common pills do not count; three Fine ones do")
+	GameEvents.emit_event("craft_completed", {"actor": c.id, "recipe": "healing_pill", "craft": "alchemy", "quality": "superior", "count": 2})
+	GameEvents.flush()
+	check(Game.crafting.guild_rank(c, "alchemy") == "adept" and c.quests.has_flag("guild_alchemy_adept"), "five Fine Healing Pills in time: Guild Adept")
+	# Commissions: three a day, capped at a fifth of the day's income target.
+	var orders: Array = Game.crafting.commissions(c)
+	check(orders.size() == 3 and Game.crafting.commissions(c) == orders, "three orders a day, the same all day")
+	var o: Dictionary = orders[0]
+	Game.inventory.apply_add(c.id, str(o.item), int(o.count), "test", {"quality": "fine"})
+	check(not Game.submit({"type": "deliver_commission", "id": str(o.id)}).get("ok", false), "an order is taken before it is delivered")
+	Game.submit({"type": "accept_commission", "id": str(o.id)})
+	var t0: int = Game.economy.balance("silver_tael")
+	var dl := Game.submit({"type": "deliver_commission", "id": str(o.id), "pay": "taels"})
+	var cap: int = Game.crafting.commission_cap(c)
+	check(dl.get("ok", false) and Game.economy.balance("silver_tael") - t0 == mini(int(o.pay), cap) and Game.economy.balance("silver_tael") - t0 <= cap,
+		"a delivered order pays 1.2x the pill's price, within the daily cap (%d of %d)" % [Game.economy.balance("silver_tael") - t0, cap])
+	# The Expert exam teaches the Qi Flow Pill.
+	c.crafting["guild_exam"] = {}
+	Game.submit({"type": "take_guild_exam", "craft": "alchemy", "rank": "expert"})
+	c.crafting.guild_exam.started = Game.sim_time - 400.0
+	Game.crafting.tick(0.1)
+	GameEvents.flush()
+	check(c.crafting.get("guild_exam", {}).is_empty() and Game.crafting.guild_rank(c, "alchemy") == "adept", "a burnt-out candle fails the exam")
+	Game.submit({"type": "take_guild_exam", "craft": "alchemy", "rank": "expert"})
+	GameEvents.emit_event("craft_completed", {"actor": c.id, "recipe": "foundation_guard_pill", "craft": "alchemy", "quality": "superior", "count": 3})
+	GameEvents.flush()
+	check(Game.crafting.guild_rank(c, "alchemy") == "expert" and Game.crafting.knows(c, "qi_flow_pill"), "Guild Expert, and the Qi Flow Pill recipe")
+	c.crafting["guild"] = {}
+	c.inventory.bag.fill(null)
 
 # ------------------------------------------------------------------ formulas
 func rules_suite() -> void:

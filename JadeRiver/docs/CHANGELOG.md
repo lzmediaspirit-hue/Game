@@ -5,6 +5,51 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V4d · The Alchemist Guild, ancient recipes and experiments (S44, Part 8)
+- **The Alchemist Guild** (Qi Kindling 8, alongside *Batch Work*). Guildmaster Tang keeps its corner of Stoneford's
+  Artisan Row: a stall, the Guild Board, and a new **Guild** tab in Crafts.
+- **Exams.** An exam starts with *Light the candle*. It counts pills of the right recipe and quality made before the
+  time runs out; a burnt-out candle fails it.
+
+  | Rank | Exam | Rewards |
+  |---|---|---|
+  | Adept | 5 Healing Pills at Fine or better in 3 minutes | Badge title, the guild shop, the commission board |
+  | Expert | 3 Foundation Guard Pills at Superior or better in 5 minutes | Badge title, the Qi Flow Pill recipe, better-paid commissions |
+
+- **The guild shop** sells:
+  - the Foundation Guard, Clear Mind and Meridian Reversal recipes;
+  - the Jadeiron Furnace blueprint, which is no longer known by default;
+  - Mist Lotus and jade scales;
+  - for an Expert, the Storm Blood Pill.
+- **Mei Qing's Recipe Box** now teaches the Qi Gathering, Bone Strengthening, Viper Antidote and Tiger Blood recipes.
+  These recipes, and the guild's, could not be learned anywhere before.
+- **Commissions.**
+  - Three orders each morning, drawn from the pills you can refine: take the order, deliver it, and choose taels or
+    contribution.
+  - An order pays 1.2 × the pills' shop price, 1.5 × for an Expert.
+  - Daily pay is capped at a fifth of the zone's daily income target: Level × 60 taels an hour for three hours of
+    play, from S39's worked example.
+- **Ancient recipes** come in torn pages on dungeon shelves:
+  - the Method Conversion Pill: 3 pages, in the Mudwater Hideout, the Drowned Shrine and the Forgotten Monastery;
+  - the Sovereign Settling Pill: 4 pages, in the Tomb of Sunscar, the Oasis of Bones and the Skyport Wreck.
+
+  A full set teaches the recipe. With pages missing, **Deduce** spends one set of ingredients at 20 % a page, plus
+  10 % for each Alchemy Dao tier above the third, never above 95 %.
+- **Experiments** (Qi Unfurling 1).
+  - At the alchemy furnace, choose 2–4 herbs. A hidden recipe of exactly those herbs is learned:
+    - the Sunfire Pill, from ginseng and Ember Pepper;
+    - the Stillwater Pill, from Mist Lotus, Soulbell and willow moss;
+    - the Cloudstep Pill, from Cloudtop Orchid and willow moss.
+  - Anything else makes a Murky Pill, and conflicting herbs blow the furnace.
+  - Every mix is logged for the whole account. A mix already tried, in any order, is refused. The log is shown on
+    the Codex's Experiments page.
+- **Fix:** a shop that sells several recipe scrolls now sells the one you chose. It used to sell the first on the
+  shelf; the buy intent now names the recipe (`learn`).
+- **Events:** `recipe_page_found`, `recipe_deduced`, `experiment_result`, `guild_exam_started`, `guild_exam_failed`,
+  `guild_rank_changed` and `commission_completed`, each with a HUD toast.
+- **Tests:** Deduce odds and the 95 % cap, a full set teaching the recipe, the hidden recipe, the Murky Pill and the
+  log's refusal, both exams (quality counting, the time limit, rewards), and commission pay and cap.
+
 ### V4c · New forms: poison pill, oils, a draught, baths, Qi Flow and incense (S44, Part 8)
 - **Qi Flow Pill** (Earth): +20 % accumulation for an hour. When it wears off, the 15 toxicity it held back comes
   due. The recipe is the Alchemist Guild's Expert reward (V4d).

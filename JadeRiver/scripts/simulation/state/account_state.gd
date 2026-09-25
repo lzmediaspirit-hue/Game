@@ -20,6 +20,7 @@ var paths_above: Dictionary = {}      # "room:surface" -> true (S43 "Paths Above
 var wardrobe_unlocked: Dictionary = {} # "category:look" -> true: every look ever worn (S47 appearance override)
 var teleports: Dictionary = {}
 var recipes_seen: Dictionary = {}
+var experiments: Array = []        # S44: every herb mix any character has tried, {key, herbs, result, by}, so none is repeated
 var legacy: Dictionary = {}           # major realm -> true
 var sect: Dictionary = {}             # your own sect (S25)
 var mail: Array = []
@@ -50,7 +51,7 @@ func snapshot() -> Dictionary:
 		"characters": characters.duplicate(true), "highest_realm": highest_realm, "currencies": currencies.duplicate(),
 		"storage": storage.duplicate(true), "codex": codex.keys(), "collection": collection.duplicate(),
 		"collection_pages_done": collection_pages_done.keys(), "visited_rooms": visited_rooms.keys(), "paths_above": paths_above.keys(), "wardrobe_unlocked": wardrobe_unlocked.keys(),
-		"teleports": teleports.keys(), "recipes_seen": recipes_seen.keys(), "legacy": legacy.keys(),
+		"teleports": teleports.keys(), "recipes_seen": recipes_seen.keys(), "experiments": experiments.duplicate(true), "legacy": legacy.keys(),
 		"sect": sect.duplicate(true), "mail": mail.duplicate(true), "mail_next_id": mail_next_id,
 		"settings": settings.duplicate(true), "clock": clock.duplicate(), "unlocks": unlocks.keys(),
 		"achievements": achievements.duplicate(true), "economy": economy.duplicate(true), "resets": resets.duplicate(),
@@ -75,6 +76,7 @@ func restore(d: Dictionary) -> void:
 	wardrobe_unlocked = _to_set(d.get("wardrobe_unlocked", []))
 	teleports = _to_set(d.get("teleports", []))
 	recipes_seen = _to_set(d.get("recipes_seen", []))
+	experiments = d.get("experiments", []).duplicate(true) if d.get("experiments", []) is Array else []
 	legacy = _to_set(d.get("legacy", []))
 	sect = d.get("sect", {}).duplicate(true)
 	mail = d.get("mail", []).duplicate(true)

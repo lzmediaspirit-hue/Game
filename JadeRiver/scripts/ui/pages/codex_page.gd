@@ -43,7 +43,16 @@ func _codex() -> void:
 	if sel != "":
 		var e2 := ContentDB.entry("codex", sel)
 		heading(right.position + Vector2(24, 46), str(e2.get("title", "")), right.size.x - 48)
-		para(Rect2(right.position + Vector2(24, 70), right.size - Vector2(48, 90)), str(e2.get("body", "")), 20)
+		var used := para(Rect2(right.position + Vector2(24, 70), right.size - Vector2(48, 90)), str(e2.get("body", "")), 20)
+		# S44: the experiment log, shared by every character on the account.
+		if sel == "experiments":
+			var y := right.position.y + 90 + used
+			for ex in Game.account.experiments.slice(maxi(0, Game.account.experiments.size() - 10)):
+				var names: Array = []
+				for h in ex.get("herbs", []): names.append(ContentDB.item_name(str(h)))
+				text(Vector2(right.position.x + 24, y), fit(" + ".join(names) + "  →  " + Game.crafting.experiment_result_text(ex), 16, right.size.x - 48), 16,
+					UiKit.GOLD if str(ex.get("result", "")).begins_with("learned:") else UiKit.MIST)
+				y += 24
 	else:
 		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), Tx.t("ui.codex.of_entries_discovered") % [Game.account.codex.size(), entries.size()], 20, UiKit.MIST)
 

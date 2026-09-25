@@ -154,6 +154,32 @@
    }
   },
   {
+   "id": "page_sovereign_settling_pill_1",
+   "type": "inspect",
+   "at": [
+    600,
+    880
+   ],
+   "prop": "scroll_rack",
+   "label": "Torn Page",
+   "text": "A torn page from an old pill manual: Sovereign Settling Pill, page 1 of 4.",
+   "effects": [
+    {
+     "kind": "recipe_page",
+     "recipe": "sovereign_settling_pill",
+     "page": 1
+    }
+   ],
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "inspected_page_sovereign_settling_pill_1"
+     }
+    ]
+   }
+  },
+  {
    "id": "chest_ledge_mv_1",
    "type": "chest",
    "at": [

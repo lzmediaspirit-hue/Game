@@ -544,6 +544,37 @@
    }
   },
   {
+   "id": "guildmaster_tang",
+   "name": "Guildmaster Tang",
+   "title": "Alchemist Guild",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 4,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "slippers",
+    "hat": "guan",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "jade",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "The guild does not care who taught you. It cares what comes out of your furnace.",
+    "An exam is a batch of pills against a candle. Nothing more mysterious than that.",
+    "Commissions come in every morning. Pay is fair; the guild takes nothing but your good name."
+   ],
+   "barks": [
+    "Mind the candle.",
+    "Another order for Healing Pills. Always Healing Pills."
+   ],
+   "services": [
+    "page:guild",
+    "shop:alchemist_guild"
+   ]
+  },
+  {
    "id": "old_scribe_bai",
    "name": "Old Scribe Bai",
    "title": "Talisman master",

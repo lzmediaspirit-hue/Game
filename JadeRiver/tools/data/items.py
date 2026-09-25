@@ -253,6 +253,13 @@ def pills():
     pill("qi_flow_pill", "earth", "spiral_up", "+20% accumulation for 60 minutes. When it wears off, the toxicity it held back comes due: +15.", 5,
          [effect("add_modifier", stat="accumulation_rate", op="flat", value=0.2, duration=3600, source="qi_flow_pill")],
          cause="energy", group="buff", then=[effect("add_toxicity", amount=15)])
+    # S44 hidden recipes, found only by experiment.
+    pill("sunfire_pill", "common", "flame", "Found by experiment: ginseng and Ember Pepper. +12% attack for 10 minutes.", 8,
+         [effect("add_modifier", stat="physical_attack", op="pct_add", value=0.12, duration=600, source="sunfire_pill")], group="buff")
+    pill("stillwater_pill", "earth", "drop_leaf", "Found by experiment: Mist Lotus, Soulbell and willow moss. Composure +40, heart demon -5.", 6,
+         [effect("add_composure", amount=40), effect("add_heart_demon", amount=-5)], cause="soul", group="utility")
+    pill("cloudstep_pill", "heaven", "arrows", "Found by experiment: Cloudtop Orchid and willow moss. +10% move speed for 20 minutes.", 8,
+         [effect("add_modifier", stat="move_speed", op="pct_add", value=0.10, duration=1200, source="cloudstep_pill")], group="buff")
     pill("murky_pill", "plain", "drop_leaf", "What a failed experiment leaves: grey, gritty, and good for nothing but a stomach ache. A trader gives a tael for it.", 8,
          [], group="utility", value_override=1)
     return P

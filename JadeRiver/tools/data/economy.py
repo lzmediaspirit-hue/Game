@@ -18,6 +18,10 @@ def unlocked(s):
     return {"kind": "unlock", "system": s}
 
 
+def flag(f):
+    return {"kind": "flag_set", "flag": f}
+
+
 def all_of(*c):
     return {"all": list(c)}
 
@@ -51,7 +55,20 @@ def shops():
                    s("cloudtop_orchid", price=120, requires=all_of(realm("cloud_stride_5")))],
          "rotation": {"count": 1, "pool": [s("clear_mind_pill"), s("foundation_guard_pill"), s("bone_strengthening_pill")]}},
         {"id": "mei_qing_recipes", "name": "Mei Qing's Recipe Box", "currency": "silver_tael",
-         "stock": [s("recipe_scroll", learn="qi_refining_pill", price=800, requires=all_of(realm("heart_tempering_5")))]},
+         "stock": [s("recipe_scroll", learn="qi_gathering_pill", price=120, requires=all_of(realm("qi_kindling_3"))),
+                   s("recipe_scroll", learn="bone_strengthening_pill", price=120, requires=all_of(realm("qi_kindling_3"))),
+                   s("recipe_scroll", learn="viper_antidote", price=80, requires=all_of(realm("qi_kindling_3"))),
+                   s("recipe_scroll", learn="tiger_blood_pill", price=150, requires=all_of(realm("qi_kindling_5"))),
+                   s("recipe_scroll", learn="qi_refining_pill", price=800, requires=all_of(realm("heart_tempering_5")))]},
+        # S44 / Part 8: the Alchemist Guild's shop opens to a Guild Adept: Earth recipes and the Jadeiron Furnace blueprint.
+        {"id": "alchemist_guild", "name": "Alchemist Guild", "currency": "silver_tael",
+         "stock": [s("recipe_scroll", learn="foundation_guard_pill", price=600, requires=all_of(flag("guild_alchemy_adept"))),
+                   s("recipe_scroll", learn="clear_mind_pill", price=500, requires=all_of(flag("guild_alchemy_adept"))),
+                   s("recipe_scroll", learn="meridian_reversal_pill", price=700, requires=all_of(flag("guild_alchemy_adept"))),
+                   s("recipe_scroll", learn="jadeiron_furnace", price=900, requires=all_of(flag("guild_alchemy_adept"))),
+                   s("mist_lotus", price=35, requires=all_of(flag("guild_alchemy_adept"))),
+                   s("jade_scale", price=30, requires=all_of(flag("guild_alchemy_adept"))),
+                   s("recipe_scroll", learn="storm_blood_pill", price=2400, requires=all_of(flag("guild_alchemy_expert"), realm("heaven_glimpse_1")))]},
         {"id": "stoneford_smith", "name": "Stoneford Smith", "currency": "silver_tael", "buys_all": True,
          "stock": [s("training_jian"), s("training_spear"), s("training_gauntlets"), s("training_short_blade"), s("training_staff"), s("training_bow"),
                    s("iron_jian", requires=all_of(realm("qi_kindling_1"))), s("iron_spear", requires=all_of(realm("qi_kindling_1"))),
@@ -246,7 +263,7 @@ def recipes():
     r("bright_mirror", "smithing", [("jadeiron", 6), ("pearl", 2)], [("bright_mirror", 1)], "earth")
     # Furnaces (S44, Part 8): forged whole at the forge, worn in the furnace slot.
     r("jadeiron_furnace", "smithing", [("jadeiron", 8), ("riverstone", 6), ("crab_shell", 4)], [("jadeiron_furnace", 1)], "earth",
-      default=True, requires_ranks={"smithing": "adept"})
+      requires_ranks={"smithing": "adept"})   # the blueprint is sold by the Alchemist Guild (Part 8)
     r("cloudsteel_furnace", "smithing", [("cloudsteel_ore", 8), ("cloud_feather", 4), ("serpent_scale", 4)], [("cloudsteel_furnace", 1)],
       "heaven", default=True, requires_ranks={"smithing": "expert"})
     r("mistjade_furnace", "smithing", [("mystic_ore", 6), ("roc_feather", 4), ("vulture_plume", 4)], [("mistjade_furnace", 1)], "mystic",
@@ -282,6 +299,10 @@ def recipes():
     r("copper_body_bath", "alchemy", [("tortoise_plate", 2), ("mole_claw", 2), ("willow_moss", 4)], [("copper_body_bath", 1)], "common")
     r("marrow_washing_bath", "alchemy", [("riverreed_ginseng_100", 1), ("hound_fang", 3), ("ape_fur", 2), ("mist_lotus", 1)], [("marrow_washing_bath", 1)], "earth")
     r("calm_heart_incense", "alchemy", [("prayer_beads", 1), ("lantern_wick", 2), ("mist_lotus", 1)], [("calm_heart_incense", 1)], "earth", default=True)
+    # S44 experimentation: hidden recipes of herbs alone, found by putting the right herbs in together.
+    r("sunfire_pill", "alchemy", [("riverreed_ginseng_10", 1), ("ember_pepper", 1)], [("sunfire_pill", 1)], "common", hidden=True)
+    r("stillwater_pill", "alchemy", [("mist_lotus", 1), ("soulbell_flower", 1), ("willow_moss", 1)], [("stillwater_pill", 1)], "earth", hidden=True)
+    r("cloudstep_pill", "alchemy", [("cloudtop_orchid", 1), ("willow_moss", 2)], [("cloudstep_pill", 1)], "heaven", hidden=True)
     # S44 element affinity: a furnace of a pill's element adds 5% to its quality roll (the Nine-Dragon Cauldron is Water).
     PILL_ELEMENT = {"healing_pill": "wood", "qi_restoration_pill": "water", "qi_gathering_pill": "earth", "bone_strengthening_pill": "earth",
                     "purging_pill": "water", "viper_antidote": "wood", "tiger_blood_pill": "fire", "cleansing_pill": "water",
@@ -290,15 +311,20 @@ def recipes():
                     "mind_lake_opening_pill": "water", "sage_condensing_pill": "metal", "storm_blood_pill": "wood",
                     "sovereign_settling_pill": "fire", "qi_flow_pill": "earth", "viper_smoke_pill": "wood", "viper_oil": "wood",
                     "ember_oil": "fire", "riverreed_draught": "water", "copper_body_bath": "earth", "marrow_washing_bath": "water",
-                    "calm_heart_incense": "wood"}
+                    "calm_heart_incense": "wood", "sunfire_pill": "fire", "stillwater_pill": "water", "cloudstep_pill": "wood"}
+    # S44 ancient recipes: split into pages across dungeons and secret realms (the pages are placed in world.py).
+    ANCIENT = {"method_conversion_pill": 3, "sovereign_settling_pill": 4}
     ROLES = ["principal", "minister", "assistant", "envoy"]
     for x in R:
         if x["craft"] == "alchemy":
             x["element"] = PILL_ELEMENT.get(x["id"], "earth")
             # S44 recipe roles follow the recipe's order: Principal, Minister, Assistant, Envoy.
             x["roles"] = ROLES[:len(x["inputs"])]
+            if x["id"] in ANCIENT:
+                x["fragments"] = ANCIENT[x["id"]]
     entries("recipes", R)
     herb_conflicts()
+    guilds()
     return {x["id"] for x in R}
 
 
@@ -541,6 +567,9 @@ def achievements():
         {"id": "guos_student", "name": "Guo's Student", "modifiers": [{"stat": "fist_attack", "op": "pct_add", "value": 0.01}]},
         {"id": "big_sibling", "name": "Big Sibling", "modifiers": [{"stat": "max_hp", "op": "pct_add", "value": 0.01}]},
         {"id": "rivals_respect", "name": "Rival's Respect", "modifiers": [{"stat": "crit_chance", "op": "flat", "value": 0.01}]},
+        # S44 Alchemist Guild badges.
+        {"id": "guild_adept", "name": "Guild Adept", "modifiers": [{"stat": "crafting_control", "op": "flat", "value": 0.02}]},
+        {"id": "guild_expert", "name": "Guild Expert", "modifiers": [{"stat": "crafting_control", "op": "flat", "value": 0.04}]},
     ]
     entries("titles", T)
     # S34: six emotes from the start and more from achievements, played from the Menu wheel. `pose` is an
@@ -664,6 +693,22 @@ def strings():
         assert k not in S, "ui string key clashes with a generated key: " + k
     S.update(ui)
     write("en.json", {"strings": S}, folder=os.path.join(DATA, "strings"))
+
+
+def guilds():
+    """S44 guilds.json: the Alchemist Guild's rank exams, commissions and shop (the Formation and Artifact guilds follow
+    in S49). A zone's daily income target is Level x 60 taels an hour for three hours of play (S39's worked example:
+    about 850 an hour at Level 15, 1,700 at Level 25); commissions pay at most a fifth of it a day."""
+    rows = [{"id": "alchemist", "craft": "alchemy", "name": "Alchemist Guild", "hall": "sf_artisan_row", "master": "guildmaster_tang",
+             "shop": "alchemist_guild",
+             "ranks": [{"id": "adept", "recipe": "healing_pill", "count": 5, "quality": "fine", "time_s": 180, "title": "guild_adept",
+                        "flag": "guild_alchemy_adept", "rewards": [], "pay_mult": 1.2},
+                       {"id": "expert", "recipe": "foundation_guard_pill", "count": 3, "quality": "superior", "time_s": 300,
+                        "title": "guild_expert", "flag": "guild_alchemy_expert", "rewards": [{"kind": "learn_recipe", "recipe": "qi_flow_pill"}],
+                        "pay_mult": 1.5}],
+             "commissions": {"per_day": 3, "count": [1, 3], "contribution_per_tael": 0.1, "income_per_level_hour": 60, "play_hours": 3,
+                             "cap_share": 0.2}}]
+    entries("guilds", rows)
 
 
 def herb_conflicts():

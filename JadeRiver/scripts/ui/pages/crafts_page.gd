@@ -4,7 +4,15 @@ extends Page
 ## glowing band); its scores go to the authority, which rolls the quality.
 
 var CRAFTS := [["cooking", Tx.t("ui.crafts.cooking")], ["alchemy", Tx.t("ui.crafts.alchemy")], ["smithing", Tx.t("ui.crafts.forge")], ["formations", Tx.t("ui.crafts.arrays")],
-	["talisman", Tx.t("ui.crafts.talismans")], ["star_charting", Tx.t("ui.crafts.charts")], ["shipwright", Tx.t("ui.crafts.vessels")]]
+	["talisman", Tx.t("ui.crafts.talismans")], ["guild", Tx.t("ui.crafts.guild")], ["star_charting", Tx.t("ui.crafts.charts")], ["shipwright", Tx.t("ui.crafts.vessels")]]
+## The unlock behind a tab when it is not the craft's own id (S44: the Alchemist Guild).
+const TAB_UNLOCK := {"guild": "alchemist_guild"}
+## Page ids that open the Crafts page on one tab.
+const PAGE_TAB := {"cooking": "cooking", "alchemy": "alchemy", "forge": "smithing", "arrays": "formations", "talisman": "talisman", "guild": "guild",
+	"charts": "star_charting", "vessels": "shipwright"}
+## S44: the alchemy list's own rows ahead of the recipes.
+const EXPERIMENT := "__experiment"
+var exp_herbs: Array = []          # the herbs chosen for an experiment
 ## The Starsea crafts (S16) take no mini-game: the chart or the hull is made in one go.
 const DIRECT := {"cooking": "cook", "formations": "inscribe", "star_charting": "chart_route", "shipwright": "build_vessel"}
 
@@ -39,15 +47,16 @@ func setup() -> void:
 	var ch = c()
 	tabs = []
 	for cr in CRAFTS:
-		tabs.append({"id": cr[0], "label": cr[1], "locked": "" if Unlocks.is_unlocked(ch.id, cr[0]) else Unlocks.locked_text(cr[0])})
-	var want = {"cooking": 0, "alchemy": 1, "forge": 2, "arrays": 3, "talisman": 4, "charts": 5, "vessels": 6}.get(page_id, -1)
-	# The Starsea tabs stay hidden until Sage 3 opens them, so the valley page is unchanged.
-	if not Unlocks.is_unlocked(ch.id, "star_charting"):
-		tabs = tabs.slice(0, 5)
-		if want >= 5: want = -1
+		# The Starsea tabs stay hidden until Sage 3 opens them, so the valley page is unchanged.
+		if cr[0] in ["star_charting", "shipwright"] and not Unlocks.is_unlocked(ch.id, "star_charting"): continue
+		var key := str(TAB_UNLOCK.get(cr[0], cr[0]))
+		tabs.append({"id": cr[0], "label": cr[1], "locked": "" if Unlocks.is_unlocked(ch.id, key) else Unlocks.locked_text(key)})
+	var want := -1
+	for i in tabs.size():
+		if str(tabs[i].id) == str(PAGE_TAB.get(page_id, "")): want = i
 	# A page opened for one recipe (a quest link, or a preview: --open-page=alchemy:healing_pill).
 	var pick := str(args.get("tab", ""))
-	if ContentDB.has_entry("recipes", pick): sel = pick
+	if ContentDB.has_entry("recipes", pick) or pick == EXPERIMENT: sel = pick
 	if pick in FORGE_MODES:   # --open-page=forge:enhance (a preview shows the first piece chosen)
 		forge_mode = pick
 		var gear := _gear(ch)
@@ -91,14 +100,35 @@ func draw_page() -> void:
 		if forge_mode != "recipes":
 			_forge(ch, Rect2(content.position.x, content.position.y + 56, content.size.x, content.size.y - 56))
 			return
+	if craft == "guild":
+		_guild(ch, content)
+		return
 	var top := 56.0 if craft == "smithing" else 0.0
 	var list_r := Rect2(content.position.x, content.position.y + top, 420, content.size.y - top)
 	panel(list_r)
 	var recipes := recipes_for(ch, craft)
+	# S44: the alchemy list also holds the experiment bench and the ancient recipes you have pages of.
+	var extra: Array = []
+	if craft == "alchemy":
+		if Unlocks.is_unlocked(ch.id, "experiments"): extra.append(EXPERIMENT)
+		extra.append_array(Game.crafting.ancient_in_progress(ch))
 	var prof: Dictionary = ch.professions.get(craft, {"rank": "apprentice", "xp": 0})
 	text(Vector2(list_r.position.x + 16, list_r.end.y - 14), "%s · %s" % [str(prof.rank).capitalize(), UiKit.fmt(float(prof.xp))], 16, UiKit.MIST)
-	list("rec", Rect2(list_r.position + Vector2(8, 8), list_r.size - Vector2(16, 40)), recipes.size(), 62, func(i: int, rr: Rect2):
-		var r: Dictionary = recipes[i]
+	list("rec", Rect2(list_r.position + Vector2(8, 8), list_r.size - Vector2(16, 40)), extra.size() + recipes.size(), 62, func(i: int, rr: Rect2):
+		if i < extra.size():
+			var xid: String = extra[i]
+			panel(rr, "minor_panel", "selected" if sel == xid else "normal")
+			if xid == EXPERIMENT:
+				slot_box(Rect2(rr.position + Vector2(6, 4), Vector2(50, 50)), "murky_pill")
+				text(rr.position + Vector2(66, 36), Tx.t("ui.crafts.experiment"), 18, UiKit.PALE_GOLD)
+			else:
+				var xr := ContentDB.entry("recipes", xid)
+				slot_box(Rect2(rr.position + Vector2(6, 4), Vector2(50, 50)), "manual_page")
+				text(rr.position + Vector2(66, 28), ContentDB.item_name(str(xr.outputs[0].item)), 18, UiKit.GOLD)
+				text(rr.position + Vector2(66, 50), Tx.t("ui.crafts.pages_held") % [Game.crafting.pages_held(ch, xid), int(xr.get("fragments", 1))], 14, UiKit.MIST)
+			region(rr, "sel", xid)
+			return
+		var r: Dictionary = recipes[i - extra.size()]
 		var out := str(r.outputs[0].item)
 		var why := Game.crafting.recipe_check(ch, str(r.id), 1, craft)
 		panel(rr, "minor_panel", "selected" if sel == str(r.id) else "normal")
@@ -108,6 +138,12 @@ func draw_page() -> void:
 	)
 	var right := Rect2(list_r.end.x + 20, list_r.position.y, content.end.x - list_r.end.x - 20, list_r.size.y)
 	panel(right)
+	if craft == "alchemy" and sel == EXPERIMENT:
+		_experiment(ch, right)
+		return
+	if craft == "alchemy" and extra.has(sel):
+		_deduce(ch, right)
+		return
 	if sel == "" or ContentDB.entry("recipes", sel).is_empty() or str(ContentDB.entry("recipes", sel).craft) != craft:
 		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), (Tx.t("ui.crafts.choose_a_recipe_stand_near") % {"cooking": Tx.t("ui.crafts.cooking_pot"), "alchemy": "furnace", "smithing": "forge",
 			"star_charting": Tx.t("ui.crafts.chart_table"), "shipwright": Tx.t("ui.crafts.slipway")}[craft]) if not craft in ["formations", "talisman"] else Tx.t("ui.crafts.choose_a_plate_to_etch") if craft == "formations" else Tx.t("ui.crafts.choose_a_talisman"), 19, UiKit.MIST)
@@ -483,6 +519,112 @@ func _auto(ch, right: Rect2) -> void:
 		text(Vector2(right.position.x + 24, y), "%s ×%d · %s" % [ContentDB.item_name(str(ContentDB.entry("recipes", str(b.recipe)).outputs[0].item)), int(b.count), "ready" if left <= 0 else "%dm" % (left / 60 + 1)], 17)
 	btn(Rect2(right.position.x + 24, y + 20, 200, 50), Tx.t("ui.crafts.collect"), "collect", null, true)
 
+# ------------------------------------------------------------------ S44 experiments, Deduce and the guild
+func _experiment(ch, r: Rect2) -> void:
+	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 70)), Tx.t("ui.crafts.experiment_help"), 17, UiKit.MIST)
+	var herbs: Array = []
+	for it in ContentDB.all("items"):
+		if str(it.get("type", "")) == "herb" and ch.inventory.count(str(it.id)) > 0: herbs.append(str(it.id))
+	var cols := 5
+	for i in herbs.size():
+		var h: String = herbs[i]
+		var hr := Rect2(r.position.x + 24 + (i % cols) * 108, r.position.y + 96 + (i / cols) * 96, 96, 86)
+		panel(hr, "minor_panel", "selected" if exp_herbs.has(h) else "normal")
+		slot_box(Rect2(hr.position + Vector2(23, 6), Vector2(50, 50)), h, ch.inventory.count(h))
+		text(hr.position + Vector2(0, 76), fit(ContentDB.item_name(h), 13, 94), 13, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 96)
+		region(hr, "exp_herb", h)
+	var y := r.position.y + 96 + ceili(herbs.size() / float(cols)) * 96 + 10
+	if herbs.is_empty(): para(Rect2(r.position.x + 24, r.position.y + 100, r.size.x - 48, 60), Tx.t("ui.crafts.experiment_no_herbs"), 17, UiKit.HOLLOW)
+	var why := ""
+	if exp_herbs.size() < 2: why = Tx.t("sim.crafting.experiment_count")
+	else:
+		var seen: Dictionary = Game.crafting.experiment_logged(CraftingAuthority.experiment_key(exp_herbs))
+		if not seen.is_empty(): why = Tx.t("sim.crafting.experiment_tried") % Game.crafting.experiment_result_text(seen)
+	if why != "" and exp_herbs.size() >= 2: text(Vector2(r.position.x + 24, y + 20), why, 16, UiKit.GOLD)
+	text(Vector2(r.position.x + 24, r.end.y - 96), Tx.t("ui.crafts.experiment_log") % Game.account.experiments.size(), 15, UiKit.MIST)
+	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.crafts.experiment_go"), "experiment", null, true, why == "", why)
+
+func _deduce(ch, r: Rect2) -> void:
+	var rec := ContentDB.entry("recipes", sel)
+	var out := str(rec.outputs[0].item)
+	slot_box(Rect2(r.position + Vector2(24, 24), Vector2(72, 72)), out)
+	text(r.position + Vector2(110, 56), ContentDB.item_name(out), 24, UiKit.grade_color(str(rec.get("grade", "plain"))))
+	var held: int = Game.crafting.pages_held(ch, sel)
+	text(r.position + Vector2(110, 84), Tx.t("ui.crafts.pages_held") % [held, int(rec.get("fragments", 1))], 16, UiKit.MIST)
+	para(Rect2(r.position + Vector2(24, 116), Vector2(r.size.x - 48, 90)), Tx.t("ui.crafts.deduce_help"), 17, UiKit.MIST)
+	var y := r.position.y + 210
+	for inp in rec.inputs:
+		y = _cost_line(r, y, str(inp.item), int(inp.count))
+	var chance: float = Game.crafting.deduce_chance(ch, sel)
+	text(Vector2(r.position.x + 24, y + 26), Tx.t("ui.crafts.deduce_chance") % int(round(chance * 100)), 19, UiKit.PAPER)
+	var why := ""
+	for inp in rec.inputs:
+		if ch.inventory.count(str(inp.item)) < int(inp.count): why = Tx.t("sim.crafting.missing") % ContentDB.item_name(str(inp.item))
+	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.crafts.deduce"), "deduce", null, true, why == "", why)
+
+func _guild(ch, content_r: Rect2) -> void:
+	var left := Rect2(content_r.position.x, content_r.position.y, 520, content_r.size.y)
+	var right := Rect2(left.end.x + 20, left.position.y, content_r.end.x - left.end.x - 20, left.size.y)
+	panel(left)
+	panel(right)
+	var rank: String = Game.crafting.guild_rank(ch, "alchemy")
+	text(left.position + Vector2(24, 44), Tx.t("ui.guild.title"), 24, UiKit.PAPER)
+	text(left.position + Vector2(24, 72), Tx.t("ui.guild.rank_" + rank) if rank != "" else Tx.t("ui.guild.no_rank"), 17, UiKit.GOLD if rank != "" else UiKit.MIST)
+	var y := left.position.y + 96
+	for rk in Game.crafting.guild_def("alchemy").get("ranks", []):
+		var card := Rect2(left.position.x + 16, y, left.size.x - 32, 156)
+		var passed: bool = _rank_at_least(rank, str(rk.id))
+		panel(card, "minor_panel", "selected" if passed else "normal")
+		text(card.position + Vector2(16, 30), Tx.t("ui.guild.rank_" + str(rk.id)), 20, UiKit.PALE_GOLD if passed else UiKit.PAPER)
+		para(Rect2(card.position.x + 16, card.position.y + 40, card.size.x - 32, 40), Tx.t("ui.guild.exam_task") % [ContentDB.item_name(str(ContentDB.entry("recipes", str(rk.recipe)).outputs[0].item)),
+			int(rk.count), str(rk.quality).capitalize(), int(float(rk.time_s) / 60.0)], 15, UiKit.MIST, 2)
+		var rew := Tx.t("ui.guild.reward_title") % Tx.t("ui.guild.rank_" + str(rk.id))
+		for e in rk.get("rewards", []):
+			if str(e.get("kind", "")) == "learn_recipe": rew += " · " + ContentDB.name_of("recipes", str(e.recipe))
+		text(card.position + Vector2(16, 104), fit(rew, 15, card.size.x - 32), 15, UiKit.PALE_GOLD)
+		var nxt: Dictionary = Game.crafting.next_guild_rank(ch, "alchemy")
+		var ex: Dictionary = ch.crafting.get("guild_exam", {})
+		if passed:
+			text(card.position + Vector2(16, 138), Tx.t("ui.guild.passed"), 16, UiKit.BRIGHT_JADE)
+		elif not ex.is_empty() and str(ex.rank) == str(rk.id):
+			var left_s: float = Game.crafting.exam_left(ch)
+			text(card.position + Vector2(16, 138), Tx.t("ui.guild.exam_running") % [int(ex.made), int(rk.count), int(left_s / 60.0), int(left_s) % 60], 16, UiKit.GOLD)
+		elif str(nxt.get("id", "")) == str(rk.id):
+			btn(Rect2(card.end.x - 186, card.end.y - 54, 170, 44), Tx.t("ui.guild.start_exam"), "exam", str(rk.id), true, ex.is_empty(), Tx.t("sim.crafting.exam_running"), 17)
+		y += 166
+	# The commission board.
+	text(right.position + Vector2(24, 44), Tx.t("ui.guild.commissions"), 22, UiKit.PAPER)
+	if rank == "":
+		para(Rect2(right.position + Vector2(24, 64), Vector2(right.size.x - 48, 80)), Tx.t("ui.guild.commissions_locked"), 17, UiKit.MIST)
+		return
+	var paid: int = Game.crafting.commission_paid_today(ch)
+	var cap: int = Game.crafting.commission_cap(ch)
+	text(right.position + Vector2(24, 72), Tx.t("ui.guild.cap_line") % [paid, cap], 15, UiKit.MIST)
+	var oy := right.position.y + 90
+	for o in Game.crafting.commissions(ch):
+		var card2 := Rect2(right.position.x + 16, oy, right.size.x - 32, 110)
+		panel(card2, "minor_panel", "disabled" if o.get("done", false) else ("selected" if o.get("accepted", false) else "normal"))
+		slot_box(Rect2(card2.position + Vector2(10, 10), Vector2(50, 50)), str(o.item))
+		text(card2.position + Vector2(72, 30), "%s ×%d" % [ContentDB.item_name(str(o.item)), int(o.count)], 18, UiKit.PAPER)
+		text(card2.position + Vector2(72, 54), Tx.t("ui.guild.pay") % int(o.pay), 15, UiKit.GOLD)
+		if o.get("done", false):
+			text(card2.position + Vector2(72, 92), Tx.t("ui.guild.delivered"), 15, UiKit.BRIGHT_JADE)
+		elif not o.get("accepted", false):
+			btn(Rect2(card2.end.x - 150, card2.end.y - 50, 138, 42), Tx.t("ui.guild.accept"), "c_accept", str(o.id), false, true, "", 16)
+		else:
+			var have := 0
+			for s2 in ch.inventory.bag:
+				if s2 != null and str(s2.id) == str(o.item): have += int(s2.count)
+			var ok2 := have >= int(o.count)
+			btn(Rect2(card2.end.x - 300, card2.end.y - 50, 138, 42), Tx.t("ui.guild.deliver_taels"), "c_taels", str(o.id), true, ok2, Tx.t("sim.crafting.missing") % ContentDB.item_name(str(o.item)), 15)
+			btn(Rect2(card2.end.x - 150, card2.end.y - 50, 138, 42), Tx.t("ui.guild.deliver_contribution"), "c_contrib", str(o.id), false, ok2, Tx.t("sim.crafting.missing") % ContentDB.item_name(str(o.item)), 15)
+		oy += 120
+
+func _rank_at_least(have: String, want: String) -> bool:
+	var ids: Array = []
+	for rk in Game.crafting.guild_def("alchemy").get("ranks", []): ids.append(str(rk.id))
+	return have != "" and ids.find(have) >= ids.find(want)
+
 func _draw_minigame(r: Rect2) -> void:
 	# The alchemy strikes are the furnace's stages (S15): Extraction, Fusion, Condensation.
 	if str(tabs[tab].id) == "alchemy":
@@ -514,6 +656,27 @@ func on_action(id: String, data) -> void:
 			count = 1
 			game_on = false
 			subst = {}
+		"exp_herb":
+			var h := str(data)
+			if exp_herbs.has(h): exp_herbs.erase(h)
+			elif exp_herbs.size() < 4: exp_herbs.append(h)
+		"experiment":
+			var rx := submit({"type": "start_experiment", "herbs": exp_herbs})
+			if rx.get("ok", false):
+				Audio.play("alchemy", "UI")
+				exp_herbs = []
+			elif str(rx.get("text", "")) != "": flash(str(rx.text))
+		"deduce":
+			var rd := submit({"type": "deduce_recipe", "recipe": sel})
+			if rd.get("ok", false) and rd.get("success", false): sel = ""
+			elif str(rd.get("text", "")) != "": flash(str(rd.text))
+		"exam":
+			var re := submit({"type": "take_guild_exam", "craft": "alchemy", "rank": str(data)})
+			if not re.get("ok", false) and str(re.get("text", "")) != "": flash(str(re.text))
+		"c_accept": submit({"type": "accept_commission", "id": str(data)})
+		"c_taels", "c_contrib":
+			var rc := submit({"type": "deliver_commission", "id": str(data), "pay": "taels" if id == "c_taels" else "contribution"})
+			if not rc.get("ok", false) and str(rc.get("text", "")) != "": flash(str(rc.text))
 		"swap":
 			# Cycle through the herbs that could stand in for this one, then back to the recipe's own.
 			var options: Array = Game.crafting.substitutes_for(ch, sel, str(data))

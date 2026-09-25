@@ -348,7 +348,8 @@
     "principal",
     "minister",
     "assistant"
-   ]
+   ],
+   "fragments": 3
   },
   {
    "id": "qi_refining_pill",
@@ -540,7 +541,8 @@
     "principal",
     "minister",
     "assistant"
-   ]
+   ],
+   "fragments": 4
   },
   {
    "id": "herbal_tea",
@@ -2557,7 +2559,6 @@
      "count": 1
     }
    ],
-   "default": true,
    "requires_ranks": {
     "smithing": "adept"
    }
@@ -3246,6 +3247,92 @@
     "principal",
     "minister",
     "assistant"
+   ]
+  },
+  {
+   "id": "sunfire_pill",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "riverreed_ginseng_10",
+     "count": 1
+    },
+    {
+     "item": "ember_pepper",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunfire_pill",
+     "count": 1
+    }
+   ],
+   "hidden": true,
+   "element": "fire",
+   "roles": [
+    "principal",
+    "minister"
+   ]
+  },
+  {
+   "id": "stillwater_pill",
+   "craft": "alchemy",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "mist_lotus",
+     "count": 1
+    },
+    {
+     "item": "soulbell_flower",
+     "count": 1
+    },
+    {
+     "item": "willow_moss",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stillwater_pill",
+     "count": 1
+    }
+   ],
+   "hidden": true,
+   "element": "water",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
+  },
+  {
+   "id": "cloudstep_pill",
+   "craft": "alchemy",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudtop_orchid",
+     "count": 1
+    },
+    {
+     "item": "willow_moss",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudstep_pill",
+     "count": 1
+    }
+   ],
+   "hidden": true,
+   "element": "wood",
+   "roles": [
+    "principal",
+    "minister"
    ]
   }
  ]

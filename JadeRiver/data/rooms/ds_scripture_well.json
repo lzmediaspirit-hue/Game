@@ -212,6 +212,32 @@
      }
     ]
    }
+  },
+  {
+   "id": "page_method_conversion_pill_2",
+   "type": "inspect",
+   "at": [
+    1500,
+    880
+   ],
+   "prop": "scroll_rack",
+   "label": "Torn Page",
+   "text": "A torn page from an old pill manual: Method Conversion Pill, page 2 of 3.",
+   "effects": [
+    {
+     "kind": "recipe_page",
+     "recipe": "method_conversion_pill",
+     "page": 2
+    }
+   ],
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "inspected_page_method_conversion_pill_2"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

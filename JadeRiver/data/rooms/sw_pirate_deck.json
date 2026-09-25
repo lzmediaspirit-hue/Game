@@ -240,6 +240,32 @@
    "locked_text": "The pirates' strongbox. The lock is a formation; Gu knows its word."
   },
   {
+   "id": "page_sovereign_settling_pill_3",
+   "type": "inspect",
+   "at": [
+    1400,
+    880
+   ],
+   "prop": "scroll_rack",
+   "label": "Torn Page",
+   "text": "A torn page from an old pill manual: Sovereign Settling Pill, page 3 of 4.",
+   "effects": [
+    {
+     "kind": "recipe_page",
+     "recipe": "sovereign_settling_pill",
+     "page": 3
+    }
+   ],
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "inspected_page_sovereign_settling_pill_3"
+     }
+    ]
+   }
+  },
+  {
    "id": "chest_ledge_mv_1",
    "type": "chest",
    "at": [
