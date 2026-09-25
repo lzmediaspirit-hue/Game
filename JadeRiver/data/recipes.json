@@ -22,7 +22,11 @@
     }
    ],
    "time_s": 120,
-   "element": "wood"
+   "element": "wood",
+   "roles": [
+    "principal",
+    "minister"
+   ]
   },
   {
    "id": "qi_restoration_pill",
@@ -45,7 +49,11 @@
     }
    ],
    "time_s": 120,
-   "element": "water"
+   "element": "water",
+   "roles": [
+    "principal",
+    "minister"
+   ]
   },
   {
    "id": "qi_gathering_pill",
@@ -68,7 +76,11 @@
     }
    ],
    "time_s": 180,
-   "element": "earth"
+   "element": "earth",
+   "roles": [
+    "principal",
+    "minister"
+   ]
   },
   {
    "id": "bone_strengthening_pill",
@@ -95,7 +107,12 @@
     }
    ],
    "time_s": 180,
-   "element": "earth"
+   "element": "earth",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   },
   {
    "id": "purging_pill",
@@ -118,7 +135,11 @@
     }
    ],
    "time_s": 120,
-   "element": "water"
+   "element": "water",
+   "roles": [
+    "principal",
+    "minister"
+   ]
   },
   {
    "id": "viper_antidote",
@@ -141,7 +162,11 @@
     }
    ],
    "time_s": 90,
-   "element": "wood"
+   "element": "wood",
+   "roles": [
+    "principal",
+    "minister"
+   ]
   },
   {
    "id": "tiger_blood_pill",
@@ -164,7 +189,11 @@
     }
    ],
    "time_s": 180,
-   "element": "fire"
+   "element": "fire",
+   "roles": [
+    "principal",
+    "minister"
+   ]
   },
   {
    "id": "cleansing_pill",
@@ -191,7 +220,12 @@
     }
    ],
    "time_s": 300,
-   "element": "water"
+   "element": "water",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   },
   {
    "id": "foundation_guard_pill",
@@ -218,7 +252,12 @@
     }
    ],
    "time_s": 600,
-   "element": "earth"
+   "element": "earth",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   },
   {
    "id": "clear_mind_pill",
@@ -245,7 +284,12 @@
     }
    ],
    "time_s": 300,
-   "element": "water"
+   "element": "water",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   },
   {
    "id": "meridian_reversal_pill",
@@ -268,7 +312,11 @@
     }
    ],
    "time_s": 300,
-   "element": "metal"
+   "element": "metal",
+   "roles": [
+    "principal",
+    "minister"
+   ]
   },
   {
    "id": "method_conversion_pill",
@@ -295,7 +343,12 @@
     }
    ],
    "time_s": 300,
-   "element": "metal"
+   "element": "metal",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   },
   {
    "id": "qi_refining_pill",
@@ -322,7 +375,12 @@
     }
    ],
    "time_s": 600,
-   "element": "water"
+   "element": "water",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   },
   {
    "id": "soul_soothing_pill",
@@ -349,7 +407,12 @@
     }
    ],
    "time_s": 600,
-   "element": "water"
+   "element": "water",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   },
   {
    "id": "mind_lake_opening_pill",
@@ -376,7 +439,12 @@
     }
    ],
    "time_s": 900,
-   "element": "water"
+   "element": "water",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   },
   {
    "id": "sage_condensing_pill",
@@ -403,7 +471,12 @@
     }
    ],
    "time_s": 1200,
-   "element": "metal"
+   "element": "metal",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   },
   {
    "id": "storm_blood_pill",
@@ -430,7 +503,12 @@
     }
    ],
    "time_s": 900,
-   "element": "wood"
+   "element": "wood",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   },
   {
    "id": "sovereign_settling_pill",
@@ -457,7 +535,12 @@
     }
    ],
    "time_s": 1500,
-   "element": "fire"
+   "element": "fire",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   },
   {
    "id": "herbal_tea",

@@ -563,6 +563,8 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.sin_gained") % int(p.delta), Color("e07a7a"))
 		"flame_absorbed":
 			toast(Tx.t("hud.flame_absorbed") % ContentDB.item_name(str(p.flame)), "gold")
+		"furnace_blast":
+			toast(Tx.t("hud.furnace_blast") % int(p.get("durability", 0)), "danger")
 		"debt_called":
 			toast(Tx.t("hud.debt_" + str(p.debt)), "quest")
 		"room_event_flawless":

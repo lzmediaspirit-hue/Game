@@ -16,6 +16,7 @@ var needle_dir := 1.0
 var scores: Array = []
 var band := Vector2(0.45, 0.62)
 var fire := "charcoal"
+var subst: Dictionary = {}         # S44 Alchemy Dao tier 5: {from, to}, one herb standing in for another
 ## The Forge's upkeep modes (S47): forging from recipes, then Enhance, Inherit, Salvage and Reroll.
 const FORGE_MODES := ["recipes", "enhance", "inherit", "salvage", "reroll", "natal"]
 var forge_mode := "recipes"
@@ -117,13 +118,35 @@ func draw_page() -> void:
 	slot_box(Rect2(right.position + Vector2(24, 24), Vector2(72, 72)), out2, int(rec.outputs[0].count))
 	text(right.position + Vector2(110, 56), ContentDB.item_name(out2), 24, UiKit.grade_color(str(rec.get("grade", "plain"))))
 	para(Rect2(right.position + Vector2(110, 68), Vector2(right.size.x - 130, 44)), str(ContentDB.item(out2).get("desc", "")), 16, UiKit.MIST, 2)
-	var y := right.position.y + 124
-	for inp in rec.inputs:
+	var alch := craft == "alchemy"
+	var y := right.position.y + (118 if alch else 124)
+	var inputs: Array = Game.crafting.inputs_with(sel, subst) if alch else rec.inputs
+	var roles: Array = rec.get("roles", [])
+	var can_swap: bool = alch and int(ch.cultivator.daos.get("alchemy", {}).get("tier", 0)) >= int(Game.crafting.upkeep("substitute_tier", 5))
+	for i in inputs.size():
+		var inp: Dictionary = inputs[i]
 		var have = ch.inventory.count(str(inp.item))
 		var need := int(inp.count) * count
-		slot_box(Rect2(right.position.x + 24, y, 52, 52), str(inp.item))
-		text(Vector2(right.position.x + 90, y + 34), "%s  %d / %d" % [ContentDB.item_name(str(inp.item)), have, need], 18, UiKit.BRIGHT_JADE if have >= need else UiKit.RED)
-		y += 60
+		slot_box(Rect2(right.position.x + 24, y, 48 if alch else 52, 48 if alch else 52), str(inp.item))
+		var name_y := y + 22 if alch else y + 34
+		text(Vector2(right.position.x + 90, name_y), "%s  %d / %d" % [ContentDB.item_name(str(inp.item)), have, need], 18, UiKit.BRIGHT_JADE if have >= need else UiKit.RED)
+		if alch:
+			# S44: each slot's role, the herb's nature, and what stands in for what.
+			var bits: Array = []
+			if i < roles.size(): bits.append(Tx.t("ui.crafts.role_" + str(roles[i])))
+			var nat := str(ContentDB.item(str(inp.item)).get("nature", ""))
+			if nat in ["hot", "cold"]: bits.append(Tx.t("ui.crafts.nature_" + nat))
+			var orig := str(rec.inputs[i].item)
+			if orig != str(inp.item): bits.append(Tx.t("ui.crafts.stands_in") % ContentDB.item_name(orig))
+			text(Vector2(right.position.x + 90, y + 42), "  ·  ".join(bits), 14, UiKit.PALE_GOLD if orig != str(inp.item) else UiKit.MIST)
+			if can_swap and str(ContentDB.item(orig).get("type", "")) == "herb" and not Game.crafting.substitutes_for(ch, sel, orig).is_empty() \
+					and (subst.is_empty() or str(subst.get("from", "")) == orig):
+				btn(Rect2(right.end.x - 118, y + 4, 94, 40), Tx.t("ui.crafts.swap"), "swap", orig, false, true, "", 16)
+		y += 54 if alch else 60
+	if alch:
+		var clash: Dictionary = Game.crafting.conflict_in(inputs)
+		if not clash.is_empty() and (ch.crafting.get("known_conflicts", []) as Array).has(str(clash.id)):
+			text(Vector2(right.end.x - 24 - UiKit.text_width(Tx.t("ui.crafts.conflict_warning"), 15), right.position.y + 118 - 6), Tx.t("ui.crafts.conflict_warning"), 15, UiKit.RED)
 	if craft in ["cooking", "alchemy", "formations"]:
 		btn(Rect2(right.position.x + 24, right.end.y - 140, 56, 50), "−", "count", -1)
 		text(Vector2(right.position.x + 84, right.end.y - 104), "×%d" % count, 22, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 70)
@@ -461,6 +484,13 @@ func _auto(ch, right: Rect2) -> void:
 	btn(Rect2(right.position.x + 24, y + 20, 200, 50), Tx.t("ui.crafts.collect"), "collect", null, true)
 
 func _draw_minigame(r: Rect2) -> void:
+	# The alchemy strikes are the furnace's stages (S15): Extraction, Fusion, Condensation.
+	if str(tabs[tab].id) == "alchemy":
+		var stage := mini(scores.size() + 1, 3)
+		var label := Tx.t("ui.crafts.stage_%d" % stage)
+		var shift: float = Game.crafting.nature_shift(sel, subst)
+		if stage == 1 and absf(shift) > 0.001: label += "  ·  " + Tx.t("ui.crafts.band_high" if shift > 0.0 else "ui.crafts.band_low")
+		text(Vector2(r.position.x, r.position.y - 12), label, 16, UiKit.PALE_GOLD)
 	draw_rect(r, Color(0.05, 0.08, 0.09))
 	draw_rect(Rect2(r.position.x + r.size.x * band.x, r.position.y, r.size.x * (band.y - band.x), r.size.y), Color(UiKit.GOLD, 0.55))
 	var nx := r.position.x + r.size.x * needle
@@ -483,6 +513,12 @@ func on_action(id: String, data) -> void:
 			sel = str(data)
 			count = 1
 			game_on = false
+			subst = {}
+		"swap":
+			# Cycle through the herbs that could stand in for this one, then back to the recipe's own.
+			var options: Array = Game.crafting.substitutes_for(ch, sel, str(data))
+			var at := options.find(str(subst.get("to", ""))) if str(subst.get("from", "")) == str(data) else -1
+			subst = {} if at + 1 >= options.size() else {"from": str(data), "to": str(options[at + 1])}
 		"count": count = clampi(count + int(data), 1, int(Game.crafting.furnace_of(ch).get("batch", 10)) if craft == "alchemy" else 10)
 		"fire": fire = str(data)
 		"trace_cancel":
@@ -510,7 +546,10 @@ func on_action(id: String, data) -> void:
 				needle = 0.0
 				needle_dir = 1.0
 				band = Vector2(0.4 + Rng.stream(c().id, "minigame").randf() * 0.2, 0.0)
-				band.y = band.x + 0.16 * _band_mult(craft)
+				var width := 0.16 * _band_mult(craft)
+				# S44: hot herbs drive the Extraction band up the bar, cold herbs draw it down.
+				if craft == "alchemy": band.x = clampf(band.x + Game.crafting.nature_shift(sel, subst), 0.04, 0.96 - width)
+				band.y = band.x + width
 		"strike":
 			# Crafting scores the strike (craft_step_result); the page only reports where it landed.
 			var mid := (band.x + band.y) * 0.5
@@ -521,7 +560,7 @@ func on_action(id: String, data) -> void:
 			Audio.play("forge" if craft == "smithing" else "alchemy", "UI")
 			if scores.size() >= int(ContentDB.curve("craft_step.steps", 3)):
 				game_on = false
-				var r2 := submit({"type": "refine" if craft == "alchemy" else "forge", "recipe": sel, "count": count, "fire": fire})
+				var r2 := submit({"type": "refine" if craft == "alchemy" else "forge", "recipe": sel, "count": count, "fire": fire, "substitute": subst})
 				if r2.get("ok", false):
 					var made := Tx.t("ui.crafts.quality_made") % [str(r2.quality).replace("_", " ").capitalize(), int(r2.count)]
 					if int(r2.get("marks", 0)) > 0: made += " · " + Tx.t("ui.crafts.marks") % int(r2.marks)

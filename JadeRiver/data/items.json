@@ -19,7 +19,12 @@
    ],
    "raw": {
     "toxicity": 10
-   }
+   },
+   "nature": "neutral",
+   "roles": [
+    "assistant",
+    "envoy"
+   ]
   },
   {
    "id": "riverreed_ginseng_10",
@@ -29,7 +34,7 @@
    "ilv": 14,
    "stack": 99,
    "icon": "riverreed_ginseng_10",
-   "desc": "A ten-year riverreed ginseng root. Can be eaten raw in need: weak, and hard on the meridians.",
+   "desc": "A ten-year riverreed ginseng root. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.",
    "use": [
     {
      "kind": "add_progress",
@@ -39,7 +44,13 @@
    "raw": {
     "toxicity": 20
    },
-   "family": "accumulation"
+   "family": "accumulation",
+   "nature": "hot",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   },
   {
    "id": "riverreed_ginseng_100",
@@ -49,7 +60,7 @@
    "ilv": 27,
    "stack": 99,
    "icon": "riverreed_ginseng_100",
-   "desc": "A century-old root with golden hairs; strong and rare. Can be eaten raw in need: weak, and hard on the meridians.",
+   "desc": "A century-old root with golden hairs; strong and rare. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.",
    "use": [
     {
      "kind": "add_progress",
@@ -59,7 +70,13 @@
    "raw": {
     "toxicity": 30
    },
-   "family": "accumulation"
+   "family": "accumulation",
+   "nature": "hot",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   },
   {
    "id": "ember_pepper",
@@ -69,7 +86,7 @@
    "ilv": 14,
    "stack": 99,
    "icon": "ember_pepper",
-   "desc": "A fiery red pepper that warms the meridians. Can be eaten raw in need: weak, and hard on the meridians.",
+   "desc": "A fiery red pepper that warms the meridians. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.",
    "use": [
     {
      "kind": "add_modifier",
@@ -82,7 +99,13 @@
    ],
    "raw": {
     "toxicity": 24
-   }
+   },
+   "nature": "hot",
+   "roles": [
+    "minister",
+    "assistant",
+    "envoy"
+   ]
   },
   {
    "id": "mist_lotus",
@@ -92,7 +115,7 @@
    "ilv": 27,
    "stack": 99,
    "icon": "mist_lotus",
-   "desc": "A pale lotus that only opens in waterfall mist. Can be eaten raw in need: weak, and hard on the meridians.",
+   "desc": "A pale lotus that only opens in waterfall mist. A cold herb: it draws the Extraction band down. Can be eaten raw in need: weak, and hard on the meridians.",
    "use": [
     {
      "kind": "add_modifier",
@@ -105,7 +128,13 @@
    ],
    "raw": {
     "toxicity": 16
-   }
+   },
+   "nature": "cold",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   },
   {
    "id": "cloudtop_orchid",
@@ -115,7 +144,7 @@
    "ilv": 45,
    "stack": 99,
    "icon": "cloudtop_orchid",
-   "desc": "An orchid that grows on ledges only flyers can reach. Can be eaten raw in need: weak, and hard on the meridians.",
+   "desc": "An orchid that grows on ledges only flyers can reach. A cold herb: it draws the Extraction band down. Can be eaten raw in need: weak, and hard on the meridians.",
    "use": [
     {
      "kind": "add_body_xp",
@@ -125,7 +154,12 @@
    "raw": {
     "toxicity": 30
    },
-   "family": "body"
+   "family": "body",
+   "nature": "cold",
+   "roles": [
+    "principal",
+    "minister"
+   ]
   },
   {
    "id": "soulbell_flower",
@@ -145,7 +179,13 @@
    "raw": {
     "toxicity": 16
    },
-   "family": "soul"
+   "family": "soul",
+   "nature": "neutral",
+   "roles": [
+    "principal",
+    "assistant",
+    "envoy"
+   ]
   },
   {
    "id": "frost_lotus",
@@ -155,7 +195,7 @@
    "ilv": 68,
    "stack": 99,
    "icon": "frost_lotus",
-   "desc": "A lotus that blooms in snow on Rimefrost Heights. Cold to the touch, clear to the mind. Can be eaten raw in need: weak, and hard on the meridians.",
+   "desc": "A lotus that blooms in snow on Rimefrost Heights. Cold to the touch, clear to the mind. A cold herb: it draws the Extraction band down. Can be eaten raw in need: weak, and hard on the meridians.",
    "use": [
     {
      "kind": "cure_injury",
@@ -169,7 +209,12 @@
    ],
    "raw": {
     "toxicity": 30
-   }
+   },
+   "nature": "cold",
+   "roles": [
+    "principal",
+    "minister"
+   ]
   },
   {
    "id": "ember_cactus",
@@ -179,7 +224,7 @@
    "ilv": 77,
    "stack": 99,
    "icon": "ember_cactus",
-   "desc": "A cactus flower that stores the Sunscar sun. It glows like a coal long after dusk. Can be eaten raw in need: weak, and hard on the meridians.",
+   "desc": "A cactus flower that stores the Sunscar sun. It glows like a coal long after dusk. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.",
    "use": [
     {
      "kind": "heal",
@@ -189,7 +234,12 @@
    ],
    "raw": {
     "toxicity": 30
-   }
+   },
+   "nature": "hot",
+   "roles": [
+    "principal",
+    "minister"
+   ]
   },
   {
    "id": "copper_ore",

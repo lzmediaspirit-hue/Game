@@ -5,6 +5,31 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V4b · Herb natures, recipe roles and furnace blasts (S44, Part 8)
+- **Herb natures.** Every herb is hot, cold or neutral:
+  - hot: Riverreed Ginseng, Ember Pepper, Ember Cactus;
+  - cold: Mist Lotus, Cloudtop Orchid, Frost Lotus;
+  - neutral: Willow Moss, Soulbell Flower.
+
+  Each hot herb in a recipe drives the Extraction band 8 % up the bar, and each cold herb draws it 8 % down. The
+  item text says which.
+- **The furnace's stages.** The three alchemy strikes are labelled Extraction, Fusion and Condensation. The
+  Extraction label says which way the herbs push the band.
+- **Recipe roles.** Recipe order gives each slot its role: Principal, Minister, Assistant, Envoy. The recipe card
+  shows each slot's role and each herb's nature.
+- **Substitutes** (Alchemy Dao tier 5):
+  - *Swap* lets one herb stand in for another of the same nature, in a role it can fill;
+  - the card marks what stands in for what;
+  - the refine intent carries `substitute {from, to}`.
+- **Herb conflicts** (`herb_conflicts.json`):
+  - the pairs: Ember Pepper with Mist Lotus, Ember Pepper with Cloudtop Orchid, and venom sac with Soulbell Flower;
+  - when a pair meets in one batch, the furnace blows: the batch is lost, the furnace loses 10 durability, and a
+    minor body injury follows (`furnace_blast`, with a HUD warning);
+  - the pair is remembered, and the recipe card warns before it happens again;
+  - no authored recipe contains a conflicting pair, and data validation checks that.
+- **Tests:** natures, the band shift, roles, substitute rules, a blast from each listed conflict, and the blast's
+  cost.
+
 ### V4a · Furnaces, Beast Fire rank and the valley's Heavenly Flame (S44, Part 8)
 - **Furnaces are equipment.** Each furnace is an item instance worn in the new furnace slot, apart from the eight
   worn slots. The first one you get goes straight into the slot. Choose another from the bag with *Use this

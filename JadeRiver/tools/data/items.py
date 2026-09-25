@@ -22,6 +22,19 @@ HERBS = [
     ("frost_lotus", "spirit", "A lotus that blooms in snow on Rimefrost Heights. Cold to the touch, clear to the mind."),
     ("ember_cactus", "sage", "A cactus flower that stores the Sunscar sun. It glows like a coal long after dusk."),
 ]
+# S44 / Part 8 herb nature: a hot herb moves the Extraction band up 8% of its range, a cold one down. Roles are the
+# recipe slots a herb can fill (Principal, Minister, Assistant, Envoy); an Alchemy Dao tier-5 substitute must match both.
+HERB_NATURE = {"willow_moss": ("neutral", ["assistant", "envoy"]),
+               "riverreed_ginseng_10": ("hot", ["principal", "minister", "assistant"]),
+               "riverreed_ginseng_100": ("hot", ["principal", "minister", "assistant"]),
+               "ember_pepper": ("hot", ["minister", "assistant", "envoy"]),
+               "mist_lotus": ("cold", ["principal", "minister", "assistant"]),
+               "cloudtop_orchid": ("cold", ["principal", "minister"]),
+               "soulbell_flower": ("neutral", ["principal", "assistant", "envoy"]),
+               "frost_lotus": ("cold", ["principal", "minister"]),
+               "ember_cactus": ("hot", ["principal", "minister"])}
+NATURE_TEXT = {"hot": " A hot herb: it drives the Extraction band up.", "cold": " A cold herb: it draws the Extraction band down.",
+               "neutral": ""}
 ORES = [
     ("copper_ore", "plain", "Soft copper ore from the quarry rim.", "Copper"),
     ("riverstone", "common", "Dense river-polished stone used in forging and building."),
@@ -301,7 +314,10 @@ def build_items():
             fam = raw_family(raw[0])
             if fam:
                 extra["family"] = fam
-        rows.append(item(h[0], "herb", h[1], 99, h[2] + (" Can be eaten raw in need: weak, and hard on the meridians." if raw else ""),
+        nature, roles = HERB_NATURE[h[0]]
+        extra["nature"] = nature
+        extra["roles"] = roles
+        rows.append(item(h[0], "herb", h[1], 99, h[2] + NATURE_TEXT[nature] + (" Can be eaten raw in need: weak, and hard on the meridians." if raw else ""),
                          name=h[3] if len(h) > 3 else None, **extra))
     for o in ORES:
         rows.append(item(o[0], "ore", o[1], 99, o[2], name=o[3] if len(o) > 3 else None))

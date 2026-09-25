@@ -279,10 +279,14 @@ def recipes():
                     "method_conversion_pill": "metal", "qi_refining_pill": "water", "soul_soothing_pill": "water",
                     "mind_lake_opening_pill": "water", "sage_condensing_pill": "metal", "storm_blood_pill": "wood",
                     "sovereign_settling_pill": "fire"}
+    ROLES = ["principal", "minister", "assistant", "envoy"]
     for x in R:
         if x["craft"] == "alchemy":
             x["element"] = PILL_ELEMENT.get(x["id"], "earth")
+            # S44 recipe roles follow the recipe's order: Principal, Minister, Assistant, Envoy.
+            x["roles"] = ROLES[:len(x["inputs"])]
     entries("recipes", R)
+    herb_conflicts()
     return {x["id"] for x in R}
 
 
@@ -650,6 +654,18 @@ def strings():
     write("en.json", {"strings": S}, folder=os.path.join(DATA, "strings"))
 
 
+def herb_conflicts():
+    """S44 herb_conflicts.json: pairs that blow the furnace when they meet in one batch (a substitute or an
+    experiment): a minor body injury, 10 furnace durability, and the batch is lost."""
+    rows = [{"id": "ember_pepper+mist_lotus", "herbs": ["ember_pepper", "mist_lotus"],
+             "text": "Ember Pepper's heat and Mist Lotus's cold fight inside the furnace."},
+            {"id": "ember_pepper+cloudtop_orchid", "herbs": ["ember_pepper", "cloudtop_orchid"],
+             "text": "Ember Pepper scorches Cloudtop Orchid until the furnace cracks."},
+            {"id": "soulbell_flower+venom_sac", "herbs": ["venom_sac", "soulbell_flower"],
+             "text": "Venom sours Soulbell Flower's clear tone into a shriek the furnace cannot hold."}]
+    entries("herb_conflicts", rows)
+
+
 def talismans():
     """S47 talismans.json: what each talisman does (at its own grade, not the user's stats) and the stroke path that
     is traced to write it (points in a unit square; smoothness and pace along it set the quality)."""
@@ -693,6 +709,9 @@ def forge_upkeep():
         "furnace_band_per_level": 0.01,  # S44: each enhancement level steadies a furnace's heat by 1%
         "furnace_affinity": 0.05,       # S44: a furnace of the pill's element adds 5% to the quality roll
         "beast_fire_min_rank": 2,       # S44: Beast Fire burns a core of rank 2 or more
+        "nature_shift": 0.08,           # S44: each hot herb moves the Extraction band up 8% of the bar; each cold one down
+        "substitute_tier": 5,           # S44: the Alchemy Dao tier that lets one herb stand in for another
+        "blast_durability": 10,         # S44: a furnace blast costs the furnace 10 durability
         "risky_from": 5,                # attempts from +5 to +6 upward can fail
         "fail_step": 0.12,              # base chance falls 12% a level from there
         "essence_step": 0.025,          # each Refining Essence fed into an attempt adds 2.5%...

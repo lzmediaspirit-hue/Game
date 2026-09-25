@@ -43,7 +43,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"craft_step": return craft_step(c, str(intent.get("recipe", "")), str(intent.get("craft", "alchemy")), float(intent.get("offset", 1.0)),
 			str(intent.get("fire", "charcoal")))
 		"refine": return craft(c, str(intent.get("recipe", "")), clampi(int(intent.get("count", 1)), 1, 10), _take_steps(c, str(intent.get("recipe", ""))), "alchemy",
-			str(intent.get("fire", "charcoal")))
+			str(intent.get("fire", "charcoal")), intent.get("substitute", {}) if intent.get("substitute", {}) is Dictionary else {})
 		"forge": return craft(c, str(intent.get("recipe", "")), 1, _take_steps(c, str(intent.get("recipe", ""))), "smithing")
 		"queue_auto_refine": return queue_auto(c, str(intent.get("recipe", "")), clampi(int(intent.get("count", 1)), 1, 10))
 		"absorb_flame": return absorb_flame(c, int(intent.get("index", -1)))
@@ -194,7 +194,7 @@ func station_near(c, types: Array) -> bool:
 			if st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) < 180.0: return true
 	return false
 
-func recipe_check(c, recipe_id: String, count: int, craft: String) -> String:
+func recipe_check(c, recipe_id: String, count: int, craft: String, inputs: Array = []) -> String:
 	var r := ContentDB.entry("recipes", recipe_id)
 	if r.is_empty() or str(r.craft) != craft: return Tx.t("sim.crafting.unknown_recipe")
 	if not Unlocks.is_unlocked(c.id, craft): return Unlocks.locked_text(craft)
@@ -212,7 +212,7 @@ func recipe_check(c, recipe_id: String, count: int, craft: String) -> String:
 		return Tx.t("sim.crafting.needs") % [craft.replace("_", " ").capitalize(), str(r.rank).capitalize()]
 	var grade := str(r.get("grade", "plain"))
 	if craft in ["alchemy", "smithing"] and StatRules.grade_index(grade) > StatRules.grade_index(grade_cap(c)): return Tx.t("sim.crafting.your_realm_cannot_refine_grade") % grade.capitalize()
-	for inp in r.get("inputs", []):
+	for inp in (inputs if not inputs.is_empty() else r.get("inputs", [])):
 		if c.inventory.count(str(inp.item)) < int(inp.count) * count: return Tx.t("sim.crafting.missing") % ContentDB.item_name(str(inp.item))
 	return ""
 
@@ -237,17 +237,27 @@ func _take_steps(c, recipe_id: String) -> Array:
 	steps.erase(c.id)
 	return session.get("scores", []) if str(session.get("recipe", "")) == recipe_id else []
 
-func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, fire := "charcoal") -> Dictionary:
+func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, fire := "charcoal", substitute: Dictionary = {}) -> Dictionary:
 	var furnace := furnace_of(c) if craft_kind == "alchemy" else {}
+	# S44: an Alchemy Dao tier-5 substitute swaps one herb for another of the same nature and role.
+	var inputs: Array = ContentDB.entry("recipes", recipe_id).get("inputs", [])
+	if craft_kind == "alchemy" and not substitute.is_empty():
+		var sw := substitute_check(c, recipe_id, str(substitute.get("from", "")), str(substitute.get("to", "")))
+		if sw != "": return fail("substitute", {"text": sw})
+		inputs = inputs_with(recipe_id, substitute)
 	if craft_kind == "alchemy":
 		# The furnace sets the batch (G1); the fire must be one you have here.
 		if furnace.get("cracked", false): return fail("cracked", {"text": Tx.t("sim.crafting.furnace_cracked") % ContentDB.item_name(str(furnace.id))})
 		if count > int(furnace.get("batch", 1)):
 			return fail("batch", {"text": Tx.t("sim.crafting.furnace_batch") % [ContentDB.item_name(str(furnace.get("id", ""))), int(furnace.get("batch", 1))]})
 		if not fire in fires_available(c): fire = "charcoal"
-	var why := recipe_check(c, recipe_id, count, craft_kind)
+	var why := recipe_check(c, recipe_id, count, craft_kind, inputs)
 	if why != "": return fail("cannot_craft", {"text": why})
 	var r := ContentDB.entry("recipes", recipe_id)
+	# Herbs that fight each other blow the furnace (S44): the batch is lost.
+	if craft_kind == "alchemy":
+		var clash := conflict_in(inputs)
+		if not clash.is_empty(): return blast(c, recipe_id, inputs, count, clash)
 	var rng := Rng.stream(c.id, "crafting")
 	var quality := "common"
 	if craft_kind in ["alchemy", "smithing", "talisman"]:
@@ -255,7 +265,7 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, 
 		var roll := avg + rng.randf_range(-0.08, 0.08)
 		quality = "flawed" if roll < 0.35 else ("common" if roll < 0.6 else ("fine" if roll < 0.78 else ("superior" if roll < 0.9 else "perfect")))
 		if craft_kind == "alchemy" and quality == "perfect": quality = _rare_pill_quality(c, scores, rng, rare_allowed(furnace, fire))
-	for inp in r.get("inputs", []): game.inventory.apply_remove(c.id, str(inp.item), int(inp.count) * count, "craft:" + recipe_id)
+	for inp in inputs: game.inventory.apply_remove(c.id, str(inp.item), int(inp.count) * count, "craft:" + recipe_id)
 	if craft_kind == "alchemy" and fire == "beast_fire": game.inventory.apply_remove(c.id, _core_to_burn(c), 1, "beast_fire")
 	var produced := 0
 	# Marks and a furnace's extra pill roll on their own stream, so the crafting stream's sequence
@@ -289,6 +299,75 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, 
 	emit("craft_completed", {"actor": c.id, "recipe": recipe_id, "craft": craft_kind, "quality": quality, "count": produced, "marks": marks, "fire": fire})
 	if quality in ["pill_halo", "pill_soul"]: emit("pill_cloud", {"actor": c.id, "recipe": recipe_id, "quality": quality})
 	return ok({"quality": quality, "count": produced, "marks": marks, "fire": fire})
+
+# ------------------------------------------------------------------ herb nature, roles and conflicts (S44)
+## How far a recipe's herbs move the Extraction band, in parts of the bar: +8% for each hot herb, -8% for each cold.
+func nature_shift(recipe_id: String, substitute: Dictionary = {}) -> float:
+	var step := float(upkeep("nature_shift", 0.08))
+	var shift := 0.0
+	for inp in inputs_with(recipe_id, substitute):
+		match str(ContentDB.item(str(inp.item)).get("nature", "")):
+			"hot": shift += step
+			"cold": shift -= step
+	return shift
+
+## A recipe's inputs with one herb swapped (the substitute takes the same count and slot).
+func inputs_with(recipe_id: String, substitute: Dictionary) -> Array:
+	var out: Array = []
+	for inp in ContentDB.entry("recipes", recipe_id).get("inputs", []):
+		var e: Dictionary = inp.duplicate()
+		if not substitute.is_empty() and str(inp.item) == str(substitute.get("from", "")): e.item = str(substitute.get("to", ""))
+		out.append(e)
+	return out
+
+## The role of an input slot: recipe order gives Principal, Minister, Assistant, Envoy.
+func role_of(recipe_id: String, item_id: String) -> String:
+	var r := ContentDB.entry("recipes", recipe_id)
+	var roles: Array = r.get("roles", [])
+	var inputs: Array = r.get("inputs", [])
+	for i in inputs.size():
+		if str(inputs[i].item) == item_id and i < roles.size(): return str(roles[i])
+	return ""
+
+## Why this herb cannot stand in for that one ("" when it can): Alchemy Dao tier 5, same nature, a role it can fill.
+func substitute_check(c, recipe_id: String, from: String, to: String) -> String:
+	if int(c.cultivator.daos.get("alchemy", {}).get("tier", 0)) < int(upkeep("substitute_tier", 5)): return Tx.t("sim.crafting.substitute_tier")
+	var role := role_of(recipe_id, from)
+	var a := ContentDB.item(from)
+	var b := ContentDB.item(to)
+	if role == "" or str(b.get("type", "")) != "herb" or from == to: return Tx.t("sim.crafting.substitute_herb")
+	if str(a.get("nature", "")) != str(b.get("nature", "")): return Tx.t("sim.crafting.substitute_nature") % str(a.get("nature", "")).capitalize()
+	if not role in b.get("roles", []): return Tx.t("sim.crafting.substitute_role") % [ContentDB.item_name(to), Tx.t("ui.crafts.role_" + role)]
+	return ""
+
+## The herbs that could stand in for one input here (same nature and a role they can fill).
+func substitutes_for(c, recipe_id: String, from: String) -> Array:
+	var out: Array = []
+	for it in ContentDB.all("items"):
+		if str(it.get("type", "")) == "herb" and substitute_check(c, recipe_id, from, str(it.id)) == "": out.append(str(it.id))
+	return out
+
+## The first listed conflict among these inputs, or {}.
+func conflict_in(inputs: Array) -> Dictionary:
+	var have := {}
+	for inp in inputs: have[str(inp.item)] = true
+	for row in ContentDB.all("herb_conflicts"):
+		var pair: Array = row.get("herbs", [])
+		if pair.size() == 2 and have.has(str(pair[0])) and have.has(str(pair[1])): return row
+	return {}
+
+## A furnace blast (S44): the batch is lost, the furnace loses 10 durability, and the blast leaves a minor body
+## injury (Progression reacts to furnace_blast). The pair is remembered, so the page can warn next time.
+func blast(c, recipe_id: String, inputs: Array, count: int, clash: Dictionary) -> Dictionary:
+	for inp in inputs: game.inventory.apply_remove(c.id, str(inp.item), int(inp.count) * count, "furnace_blast")
+	var inst = c.inventory.furnace
+	if inst != null: game.inventory.apply_durability(c.id, inst, int(inst.get("durability", 100)) - int(upkeep("blast_durability", 10)), "tool_furnace")
+	var known: Array = c.crafting.get("known_conflicts", [])
+	if not known.has(str(clash.id)): known.append(str(clash.id))
+	c.crafting["known_conflicts"] = known
+	emit("furnace_blast", {"actor": c.id, "recipe": recipe_id, "conflict": str(clash.id), "herbs": clash.get("herbs", []),
+		"durability": int(inst.get("durability", 0)) if inst != null else 0})
+	return fail("blast", {"text": Tx.t("sim.crafting.furnace_blast") % str(clash.get("text", ""))})
 
 ## The quality score a craft rolls around: the strikes, the crafter, and the furnace (S44). The furnace's impurity
 ## filter takes out that share of what each strike missed; a furnace of the pill's own element adds 5%.

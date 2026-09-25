@@ -147,9 +147,18 @@ func data_suite() -> void:
 			if learn != "": check(ContentDB.has_entry("techniques", learn) or ContentDB.has_entry("methods", learn) or ContentDB.has_entry("recipes", learn), "shop %s teaches %s" % [sh.id, learn])
 	for r2 in ContentDB.all("recipes"):
 		for io in r2.get("inputs", []) + r2.get("outputs", []): check(item_ok(str(io.item)), "recipe %s: %s" % [r2.id, io.item])
+		# S44: no authored recipe blows the furnace; an alchemy recipe has an element and one role per slot.
+		if str(r2.get("craft", "")) == "alchemy":
+			check(Game.crafting.conflict_in(r2.get("inputs", [])).is_empty(), "recipe %s has no conflicting herbs" % r2.id)
+			check(str(r2.get("element", "")) != "" and (r2.get("roles", []) as Array).size() == (r2.get("inputs", []) as Array).size(), "recipe %s element and roles" % r2.id)
+	for hc in ContentDB.all("herb_conflicts"):
+		for h in hc.get("herbs", []): check(item_ok(str(h)), "herb conflict %s: %s" % [hc.id, h])
 	# Items that start systems name a known action; manuals teach something real.
 	for it in ContentDB.all("items"):
 		check_effects(it.get("use", []), "item " + str(it.id))
+		# S44: every herb has a nature and the roles it can fill.
+		if str(it.get("type", "")) == "herb":
+			check(str(it.get("nature", "")) in ["hot", "cold", "neutral"] and not (it.get("roles", []) as Array).is_empty(), "herb %s nature and roles" % it.id)
 		if it.has("use_action"): check(str(it.use_action) in ["appraise", "incubate", "tame", "absorb_flame", "talisman"], "item %s use_action" % it.id)
 		# S47: a treasure item points at its entry in treasures.json, with a cooldown or charges and a QI cost.
 		if it.has("treasure"):

@@ -18,6 +18,8 @@ func intents() -> Array:
 
 func subscribe() -> void:
 	GameEvents.subscribe("loadout_swapped", _on_loadout_swapped, 30)
+	# S44: a furnace blast leaves a minor body injury.
+	GameEvents.subscribe("furnace_blast", func(p): apply_injury(str(p.get("actor", "")), "body", 1), 30)
 	GameEvents.subscribe("hit_landed", _on_hit_landed, 30)
 	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 30)
 	GameEvents.subscribe("player_gravely_wounded", _on_gravely_wounded, 30)

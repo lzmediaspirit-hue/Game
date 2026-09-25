@@ -47,6 +47,7 @@ func _main() -> void:
 	sword_loadout_suite()
 	natal_wardrobe_suite()
 	talisman_suite()
+	herb_nature_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -430,6 +431,54 @@ func talisman_suite() -> void:
 			var at: int = c.inventory.first_index(id)
 			if at < 0: break
 			Game.inventory.apply_remove_index(c.id, at, int(c.inventory.bag[at].get("count", 1)), "test")
+
+# ------------------------------------------------------------------ S44 herb natures, roles, conflicts and the furnace blast
+func herb_nature_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	check(str(ContentDB.item("riverreed_ginseng_10").get("nature", "")) == "hot" and str(ContentDB.item("mist_lotus").get("nature", "")) == "cold"
+		and str(ContentDB.item("willow_moss").get("nature", "")) == "neutral" and str(ContentDB.item("cloudtop_orchid").get("nature", "")) == "cold",
+		"herbs carry Part 8's natures")
+	check(near(Game.crafting.nature_shift("healing_pill"), 0.08) and near(Game.crafting.nature_shift("clear_mind_pill"), -0.08),
+		"a hot Principal moves the Extraction band up 8%%; a cold one down")
+	check(Game.crafting.role_of("healing_pill", "riverreed_ginseng_10") == "principal" and Game.crafting.role_of("healing_pill", "willow_moss") == "minister",
+		"recipe order gives the roles: Principal, then Minister")
+	# The substitute: Alchemy Dao tier 5, the same nature, and a role the herb can fill.
+	var daos: Dictionary = c.cultivator.daos
+	var had: Dictionary = daos.get("alchemy", {}).duplicate()
+	daos["alchemy"] = {"tier": 4, "insight": 0.0}
+	check(Game.crafting.substitute_check(c, "cleansing_pill", "riverreed_ginseng_100", "ember_pepper") != "", "below tier 5 no herb stands in for another")
+	daos["alchemy"] = {"tier": 5, "insight": 0.0}
+	check(Game.crafting.substitute_check(c, "cleansing_pill", "riverreed_ginseng_100", "ember_pepper") == "", "tier 5: hot Ember Pepper may stand in for hot ginseng as Assistant")
+	check(Game.crafting.substitute_check(c, "cleansing_pill", "mist_lotus", "ember_pepper") != "", "a hot herb never stands in for a cold one")
+	check(Game.crafting.substitute_check(c, "healing_pill", "riverreed_ginseng_10", "ember_pepper") != "", "Ember Pepper cannot be a Principal")
+	# Every listed conflict blows the furnace: minor body injury, -10 durability, and the batch is lost.
+	Unlocks.force_unlock(c.id, "alchemy")
+	Game.world.apply_teleport(c.id, "sf_artisan_row")
+	var fo: Dictionary = Game.room_rt.object_def("furnace_sf")
+	Game.actor_state(c.id).plane = Vector2(float(fo.at[0]) - 40.0, float(fo.at[1]))
+	c.inventory.bag.fill(null)
+	c.inventory.furnace = null
+	Game.inventory.apply_add(c.id, "jadeiron_furnace", 1, "test")
+	c.cultivator.injuries.clear()
+	Game.apply_effects(c.id, [{"kind": "learn_recipe", "recipe": "cleansing_pill"}], "test")
+	for inp in ContentDB.entry("recipes", "cleansing_pill").inputs: Game.inventory.apply_add(c.id, str(inp.item), int(inp.count), "test")
+	Game.inventory.apply_add(c.id, "ember_pepper", 1, "test")
+	var bl := Game.crafting.craft(c, "cleansing_pill", 1, [1.0, 1.0, 1.0], "alchemy", "charcoal", {"from": "riverreed_ginseng_100", "to": "ember_pepper"})
+	GameEvents.flush()
+	check(str(bl.get("reason", "")) == "blast" and int(c.inventory.furnace.durability) == 90 and c.inventory.count("cleansing_pill") == 0
+		and c.inventory.count("mist_lotus") == 0 and c.inventory.count("ember_pepper") == 0,
+		"Ember Pepper meets Mist Lotus: the furnace blows, loses 10 durability, and the batch is gone")
+	check(int(c.cultivator.injuries.get("body", {}).get("severity", 0)) >= 1, "the blast leaves a minor body injury")
+	check((c.crafting.get("known_conflicts", []) as Array).has("ember_pepper+mist_lotus"), "the pair is remembered, so the page can warn next time")
+	for row in ContentDB.all("herb_conflicts"):
+		var pair: Array = row.herbs
+		check(not Game.crafting.conflict_in([{"item": pair[0]}, {"item": pair[1]}]).is_empty(), "conflict %s blows the furnace" % row.id)
+	# Tidy up.
+	c.cultivator.injuries.clear()
+	if had.is_empty(): daos.erase("alchemy")
+	else: daos["alchemy"] = had
+	c.inventory.bag.fill(null)
 
 # ------------------------------------------------------------------ formulas
 func rules_suite() -> void:

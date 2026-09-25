@@ -1,0 +1,29 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "ember_pepper+mist_lotus",
+   "herbs": [
+    "ember_pepper",
+    "mist_lotus"
+   ],
+   "text": "Ember Pepper's heat and Mist Lotus's cold fight inside the furnace."
+  },
+  {
+   "id": "ember_pepper+cloudtop_orchid",
+   "herbs": [
+    "ember_pepper",
+    "cloudtop_orchid"
+   ],
+   "text": "Ember Pepper scorches Cloudtop Orchid until the furnace cracks."
+  },
+  {
+   "id": "soulbell_flower+venom_sac",
+   "herbs": [
+    "venom_sac",
+    "soulbell_flower"
+   ],
+   "text": "Venom sours Soulbell Flower's clear tone into a shriek the furnace cannot hold."
+  }
+ ]
+}
