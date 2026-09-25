@@ -1,0 +1,216 @@
+{
+ "schema_version": 1,
+ "id": "sd_oasis_of_bones",
+ "zone": "azure_expanse",
+ "region": "sunscar_desert",
+ "name": "Oasis of Bones",
+ "type": "rest",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "water",
+ "qi_density": 1.8,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [
+  "gather"
+ ],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "sunscar",
+ "ground": {
+  "material": "sand",
+  "tint": "#f4e6c8"
+ },
+ "spawn_point": [
+  400,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "sd_scorpion_flats",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "sd_worm_sea",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "stone_sunscar",
+   "type": "teleport_stone",
+   "at": [
+    2150,
+    880
+   ],
+   "stone": "sunscar"
+  },
+  {
+   "id": "shrine_oasis",
+   "type": "shrine",
+   "at": [
+    1300,
+    700
+   ]
+  },
+  {
+   "id": "spring_oasis",
+   "type": "qi_spring",
+   "at": [
+    1280,
+    900
+   ],
+   "spring": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "qi_springs"
+     }
+    ]
+   },
+   "locked_text": "Cool water under the palms."
+  },
+  {
+   "id": "npc_oasis_keeper_meng",
+   "type": "npc",
+   "at": [
+    480,
+    780
+   ],
+   "npc": "oasis_keeper_meng",
+   "facing": 1
+  },
+  {
+   "id": "npc_bone_reader_xiu",
+   "type": "npc",
+   "at": [
+    2000,
+    780
+   ],
+   "npc": "bone_reader_xiu",
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "bleached_ribcage",
+   "at": [
+    700,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "bleached_ribcage",
+   "at": [
+    1900,
+    660
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "palm_tree",
+   "at": [
+    820,
+    700
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "palm_tree",
+   "at": [
+    1160,
+    700
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "palm_tree",
+   "at": [
+    1740,
+    700
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "palm_tree",
+   "at": [
+    2240,
+    960
+   ],
+   "layer": "front"
+  },
+  {
+   "prop": "yurt",
+   "at": [
+    300,
+    690
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "cooking_pot",
+   "at": [
+    560,
+    800
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [
+  {
+   "kind": "water",
+   "rect": [
+    900,
+    860,
+    760,
+    100
+   ]
+  }
+ ],
+ "music": "desert",
+ "ambience": "water_ambience"
+}

@@ -10,6 +10,11 @@
    "loop": true,
    "volume_db": -6
   },
+  "desert": {
+   "file": "res://art/audio/music/desert.wav",
+   "loop": true,
+   "volume_db": -6
+  },
   "dungeon": {
    "file": "res://art/audio/music/dungeon.wav",
    "loop": true,
@@ -57,6 +62,11 @@
   },
   "title": {
    "file": "res://art/audio/music/title.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "tomb": {
+   "file": "res://art/audio/music/tomb.wav",
    "loop": true,
    "volume_db": -6
   },

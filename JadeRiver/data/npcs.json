@@ -2100,7 +2100,8 @@
     "..."
    ],
    "services": [],
-   "tint": "#dfe2ea"
+   "tint": "#dfe2ea",
+   "tree": "grey_pilgrim"
   },
   {
    "id": "envoy_lanshi",
@@ -2330,6 +2331,61 @@
    "services": [
     "shop:ironroot_clan"
    ]
+  },
+  {
+   "id": "oasis_keeper_meng",
+   "name": "Keeper Meng",
+   "title": "Oasis of Bones",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 3,
+    "shirt": "vneck",
+    "pants": "loose",
+    "shoes": "boots",
+    "hat": "weimao",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "ochre",
+    "pants_dye": "earth"
+   },
+   "lines": [
+    "Water is free. Shade is free. Everything else costs stones, because the caravans stopped coming.",
+    "Drink before the heat asks you to. By then it's late."
+   ],
+   "barks": [
+    "Water here."
+   ],
+   "services": [
+    "shop:oasis_keeper"
+   ]
+  },
+  {
+   "id": "bone_reader_xiu",
+   "name": "Bone-Reader Xiu",
+   "title": "Diviner of the oasis",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 5,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "ink",
+    "pants_dye": "ochre"
+   },
+   "lines": [
+    "The bones remember the sand kings. I only read them aloud.",
+    "Every crack in a shoulder blade is a road. Most end in the tomb."
+   ],
+   "barks": [
+    "The bones are warm today."
+   ],
+   "services": [],
+   "tree": "bone_reader_xiu"
   },
   {
    "id": "lan_yue",

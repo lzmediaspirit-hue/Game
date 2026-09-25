@@ -178,6 +178,97 @@
    "note": "Old thorn canes hide in the bamboo. Walking through them tears skin. Body shrugs them off."
   },
   {
+   "id": "scorching_heat",
+   "name": "Scorching heat",
+   "kind": "aura",
+   "answer": "essence",
+   "k": 1.3,
+   "cycle": [
+    3.0,
+    2.0,
+    4.0,
+    9.0
+   ],
+   "status": {
+    "id": "exhausted",
+    "s": 8.0,
+    "power": 1.0,
+    "scale": "duration"
+   },
+   "shelter": [
+    "shrine",
+    "qi_spring"
+   ],
+   "note": "The air shimmers, then the full weight of the sun lands and blows go soft. Essence keeps the body cool; shrines give shade."
+  },
+  {
+   "id": "sandstorm",
+   "name": "Sandstorm",
+   "kind": "gust",
+   "answer": "body",
+   "k": 1.3,
+   "cycle": [
+    3.0,
+    1.5,
+    3.0,
+    8.0
+   ],
+   "push": 150,
+   "buff": {
+    "stat": "accuracy",
+    "op": "pct_add",
+    "value": -0.25
+   },
+   "note": "A brown wall rises on the horizon, then it shoves and blinds. Body stands in it."
+  },
+  {
+   "id": "quicksand",
+   "name": "Quicksand",
+   "kind": "pool",
+   "answer": "agility",
+   "k": 1.3,
+   "cycle": [
+    2.0,
+    1.0,
+    3.0,
+    2.0
+   ],
+   "areas": [
+    "quicksand"
+   ],
+   "pulse": 0.8,
+   "status": {
+    "id": "slow",
+    "s": 1.2,
+    "power": 0.5
+   },
+   "note": "The sand swirls before it swallows. Agility keeps the feet moving."
+  },
+  {
+   "id": "spike_traps",
+   "name": "Spike traps",
+   "kind": "strike",
+   "answer": "agility",
+   "k": 1.3,
+   "cycle": [
+    1.5,
+    1.0,
+    0.35,
+    5.0
+   ],
+   "count": 2,
+   "radius": 52,
+   "aim": "near",
+   "spread": 220,
+   "damage_pct": 0.07,
+   "status": {
+    "id": "bleed",
+    "s": 3.0,
+    "power": 0.01
+   },
+   "note": "Grit shivers over a pressure plate before bronze spikes spring from the floor. Agility gets the feet clear."
+  },
+  {
    "id": "poison_mist",
    "name": "Poison mist",
    "kind": "pool",

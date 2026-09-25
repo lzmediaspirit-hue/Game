@@ -1655,6 +1655,191 @@
    "rare": []
   },
   {
+   "id": "sandstorm_scorpion",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "scorpion_stinger",
+       "chance": 0.45,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "chance": 0.5,
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "sunglass_ore",
+     "chance": 0.08,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "dune_worm",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "worm_glass_tooth",
+       "chance": 0.45,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "chance": 0.6,
+       "count": [
+        1,
+        3
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [],
+   "quest_drops": [
+    {
+     "item": "sun_seal_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "the_sealed_gate"
+    }
+   ]
+  },
+  {
+   "id": "terracotta_warden",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "terracotta_shard",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "chance": 0.5,
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "tomb_king",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 40
+   },
+   "equipment": {
+    "chance": 1.0,
+    "min_quality": "superior"
+   },
+   "rare": [],
+   "guaranteed": [
+    {
+     "item": "sun_crown_fragment",
+     "chance": 1.0,
+     "count": [
+      2,
+      3
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 1.0,
+     "count": [
+      12,
+      18
+     ],
+     "weight": 1
+    },
+    {
+     "item": "sunglass_ore",
+     "chance": 1.0,
+     "count": [
+      3,
+      5
+     ],
+     "weight": 1
+    }
+   ],
+   "quest_drops": [
+    {
+     "item": "sunscar_seal",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "the_tomb_king"
+    }
+   ]
+  },
+  {
    "id": "canyon_brigand",
    "groups": [
     {
@@ -2258,6 +2443,67 @@
    "rare": [],
    "equipment": {
     "chance": 0.6,
+    "min_quality": "fine"
+   }
+  },
+  {
+   "id": "chest_tomb",
+   "guaranteed": [
+    {
+     "item": "storm_shard",
+     "count": [
+      6,
+      10
+     ],
+     "chance": 1.0
+    },
+    {
+     "item": "sunglass_ore",
+     "count": [
+      2,
+      3
+     ],
+     "chance": 1.0
+    }
+   ],
+   "groups": [
+    {
+     "chance": 1.0,
+     "pick": [
+      {
+       "item": "manual_page",
+       "weight": 1,
+       "count": [
+        2,
+        3
+       ]
+      },
+      {
+       "item": "sovereign_settling_pill",
+       "weight": 1,
+       "count": [
+        1,
+        1
+       ]
+      },
+      {
+       "item": "ember_cactus",
+       "weight": 1,
+       "count": [
+        1,
+        2
+       ]
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 1.0,
+    "mult": 16
+   },
+   "rare": [],
+   "equipment": {
+    "chance": 0.8,
     "min_quality": "fine"
    }
   }

@@ -60,6 +60,8 @@ func _on_phase(hid: String, hs: Dictionary, was: String) -> void:
 			"fog": pass
 			"cold": Audio.play("frost")
 			"poison_mist": Audio.play("hiss")
+			"sandstorm": Audio.play("gust")
+			"quicksand": Audio.play("surge")
 	if str(h.get("kind", "")) == "strike" and phase == "cooldown" and was == "active":
 		for sp in hs.spots:
 			var at := Vector2(float(sp[0]), float(sp[1]) - float(sp[2]))
@@ -67,6 +69,9 @@ func _on_phase(hid: String, hs: Dictionary, was: String) -> void:
 				impacts.append({"kind": "dust", "pos": at, "t": 0.0, "dur": 0.7})
 				impacts.append({"kind": "rubble", "pos": at, "t": 0.0, "dur": 2.6})
 				Audio.play("rockfall")
+			elif hid == "spike_traps":
+				impacts.append({"kind": "spikes", "pos": at, "t": 0.0, "dur": 0.9})
+				Audio.play("break")
 			else:
 				impacts.append({"kind": "scorch", "pos": at, "t": 0.0, "dur": 3.0})
 				Audio.play("thunder")
@@ -138,6 +143,8 @@ func _draw_ground() -> void:
 			"rubble":
 				for i in 7:
 					_px(ground, im.pos + Vector2((_h(i, 3) - 0.5) * 70, (_h(i, 4) - 0.5) * 22), 4 + 2 * int(_h(i, 5) * 2), Color(ROCK[1 + i % 3], 1.0 - k))
+			"spikes":
+				_spikes(ground, im.pos, 52.0, 1.0 - k)
 			"scorch":
 				_ellipse(ground, im.pos, 34, 12, Color(0.08, 0.06, 0.05, 0.55 * (1.0 - k)))
 				for i in 5:
@@ -159,6 +166,11 @@ func _ground_strike(hid: String, h: Dictionary, hs: Dictionary) -> void:
 		match str(hs.phase):
 			"tell":
 				if hid == "falling_rocks": _ellipse(ground, at, r * 0.5, r * 0.2, Color(0, 0, 0, 0.12 * k))
+				if hid == "spike_traps":
+					# Grit shivers over the pressure plate.
+					for i in 8:
+						var j := Vector2((_h(i, 121) - 0.5) * r * 1.4, (_h(i, 122) - 0.5) * r * 0.5)
+						_px(ground, at + j + Vector2(0, -2.0 * float(int(t * 18.0 + i) % 2)), 2, Color(GRIT, 0.8 * k))
 			"warn":
 				var pulse := 0.65 + 0.35 * sin(t * 14.0)
 				_ellipse(ground, at, r * (0.45 + 0.55 * k), r * 0.42 * (0.45 + 0.55 * k), Color(0.05, 0.03, 0.02, 0.18 + 0.2 * k))
@@ -169,6 +181,18 @@ func _ground_strike(hid: String, h: Dictionary, hs: Dictionary) -> void:
 							_px(ground, at + Vector2((_h(i, 12) - 0.5) * r * 1.6, (_h(i, 13) - 0.5) * r * 0.6), 2, GLOW)
 			"active":
 				_ellipse(ground, at, r, r * 0.42, Color(0.05, 0.03, 0.02, 0.4))
+				if hid == "spike_traps": _spikes(ground, at, r, minf(1.0, k * 3.0))
+
+## Bronze spikes springing from the floor, `rise` 0..1 of their height.
+func _spikes(ci: CanvasItem, at: Vector2, r: float, rise: float) -> void:
+	if rise <= 0.0: return
+	for i in 9:
+		var p := at + Vector2((float(i % 3) - 1.0) * r * 0.55 + (_h(i, 131) - 0.5) * 8.0, (float(i / 3) - 1.0) * r * 0.22)
+		var ht := (22.0 + 10.0 * _h(i, 132)) * rise
+		var base := p.snapped(Vector2(2, 2))
+		ci.draw_colored_polygon(PackedVector2Array([base + Vector2(-5, 0), base + Vector2(0, -ht - 2), base + Vector2(5, 0)]), UiKit.INK)
+		ci.draw_colored_polygon(PackedVector2Array([base + Vector2(-3, 0), base + Vector2(0, -ht), base + Vector2(3, 0)]), Color("b8873e"))
+		ci.draw_line(base + Vector2(-1, -2), base + Vector2(0, -ht + 2), Color("ecc27a"), 1.0)
 
 func _ground_flow(rt: RoomRuntime, h: Dictionary, hs: Dictionary) -> void:
 	var active: bool = hs.phase == "active"
@@ -232,6 +256,17 @@ func _ground_pool(rt: RoomRuntime, hid: String, h: Dictionary, hs: Dictionary) -
 							pts.append(Vector2(bx + sin(t * 5.0 + i + f * 4.0) * 6.0 * f, c.y - f * tall).snapped(Vector2(2, 2)))
 						ground.draw_polyline(pts, Color(HOLLOW_GREY, 0.75 * (1.0 - k * 0.5)), 2.0)
 						ground.draw_polyline(pts, Color(UiKit.SOUL, 0.25), 4.0)
+			"quicksand":
+				# A slow swirl of sand grains; the warning speeds it up, the active phase drags it inward.
+				var spin: float = float({"tell": 0.6, "warn": 1.4, "active": 2.6, "cooldown": 0.8}.get(phase, 0.6))
+				_ellipse(ground, c, r.size.x * 0.5, r.size.y * 0.5, Color(0.42, 0.3, 0.18, 0.18 + (0.18 if phase == "active" else 0.0)))
+				for i in 22:
+					var ang := t * spin + TAU * _h(i, 141)
+					var rad := fposmod(_h(i, 142) - t * spin * 0.08, 1.0)
+					var p := c + Vector2(cos(ang) * r.size.x * 0.48 * rad, sin(ang) * r.size.y * 0.48 * rad)
+					_px(ground, p, 2, Color("8a6440", 0.85) if i % 3 else Color("e8c890", 0.9))
+				if phase == "warn" or phase == "active":
+					_dashed(ground, c, r.size.x * 0.56, r.size.y * 0.62, Color(AMBER, 0.55 + 0.45 * sin(t * 12.0)), t * 1.2, 12, 3.0, true)
 			"poison_mist":
 				var vent := Vector2(c.x, r.end.y - 14)
 				var puffs: int = int({"tell": 2, "warn": 5, "active": 14, "cooldown": 3}.get(phase, 2))
@@ -276,6 +311,11 @@ func _draw_air() -> void:
 			"wind_gust": _air_gust(rt, hs, view)
 			"fog": _air_fog(rt, h, hs, view)
 			"cold": _air_cold(rt, hs, view)
+			"sandstorm": _air_sandstorm(rt, hs, view)
+			"scorching_heat": _air_heat(rt, h, hs, view)
+			"spike_traps":
+				if hs.phase == "warn":
+					for sp in hs.spots: _mark(air, Vector2(float(sp[0]), float(sp[1]) - float(sp[2])) + Vector2(0, -128), 0.7 + 0.3 * sin(t * 12.0))
 		if str(h.get("kind", "")) == "pool" and hs.phase == "warn":
 			for a in HazardRules.areas(h, rt.def):
 				_mark(air, HazardRules.rect(a).get_center() + Vector2(0, -96), 0.7 + 0.3 * sin(t * 12.0))
@@ -377,6 +417,36 @@ func _air_gust(rt: RoomRuntime, hs: Dictionary, view: Rect2) -> void:
 	if phase == "warn":
 		var edge := view.position.x + 40 if dir > 0 else view.end.x - 40
 		_chevrons(air, Vector2(edge, view.get_center().y - 60), int(dir), 0.6 + 0.4 * sin(t * 12.0))
+
+## The sandstorm: the gust's lines and grit, inside a brown haze that thickens to a wall.
+func _air_sandstorm(rt: RoomRuntime, hs: Dictionary, view: Rect2) -> void:
+	var k := _phase_k(hs)
+	var haze: float = float({"tell": 0.06 * k, "warn": 0.06 + 0.14 * k, "active": 0.28, "cooldown": 0.28 * (1.0 - k)}.get(str(hs.phase), 0.0))
+	if haze > 0.0:
+		air.draw_rect(view, Color(0.62, 0.46, 0.28, haze))
+		# A darker wall of sand rolling in from upwind during the warning.
+		if hs.phase == "warn":
+			var dir := float(hs.dir)
+			var w := view.size.x * 0.35 * k
+			var x0 := view.position.x if dir > 0 else view.end.x - w
+			air.draw_rect(Rect2(x0, view.position.y, w, view.size.y), Color(0.5, 0.36, 0.2, 0.25))
+	_air_gust(rt, hs, view)
+
+## Scorching heat: shimmer lines rising off the sand, then the full glare of the sun.
+func _air_heat(rt: RoomRuntime, h: Dictionary, hs: Dictionary, view: Rect2) -> void:
+	var k := _phase_k(hs)
+	var phase := str(hs.phase)
+	var glare: float = float({"tell": 0.05 * k, "warn": 0.05 + 0.1 * k, "active": 0.18, "cooldown": 0.18 * (1.0 - k)}.get(phase, 0.0))
+	if glare > 0.0: air.draw_rect(view, Color(1.0, 0.86, 0.55, glare))
+	var lines: int = int({"tell": 6, "warn": 12, "active": 20, "cooldown": 8}.get(phase, 4))
+	for i in lines:
+		var x := view.position.x + _h(i, 151) * view.size.x
+		var y := view.end.y - 60 - fposmod(_h(i, 152) * 300.0 + t * 40.0, 320.0)
+		var pts := PackedVector2Array()
+		for j in 7:
+			pts.append(Vector2(x + j * 10.0, y + sin(t * 6.0 + i + j * 0.9) * 3.0).snapped(Vector2(2, 2)))
+		air.draw_polyline(pts, Color(1.0, 0.95, 0.8, 0.28), 2.0)
+	if phase == "warn": _mark(air, _player_pos() + Vector2(36, -150), 0.7 + 0.3 * sin(t * 12.0))
 
 func _air_fog(rt: RoomRuntime, h: Dictionary, hs: Dictionary, view: Rect2) -> void:
 	var k := _phase_k(hs)

@@ -1,4 +1,4 @@
-# Jade River — the Complete Valley (Act I) and the Azure Expanse (Act II, in progress)
+# Jade River — the Complete Valley (Act I) and the Azure Expanse (Act II, chapters 11–14)
 
 A 2.5D side-scrolling wuxia/xianxia cultivation RPG built in Godot 4.5.1 (GL Compatibility,
 1280×720, touch-first with full keyboard support). You begin as a fisher's child in Lotus Ferry
@@ -6,7 +6,9 @@ with bare fists and no Qi. The Prologue teaches one thing at a time: talking, ca
 money, healing, fighting. After a night the village will not forget, you step onto the cultivation
 ladder. Act I climbs from Bone Forging through Qi Kindling, Qi Unfurling, Heart Tempering, Cloud
 Stride and Spirit Awakening to Heaven Glimpse and the Ascension Gate. Beyond the gate, Act II opens
-the Azure Expanse: a sky harbour, storm plains and the first Sage breakthrough (chapter 11).
+the Azure Expanse: a sky harbour, storm plains, frozen heights, a mirror lake, the Nine Peaks
+Alliance, a clan hold, wind canyons and a desert over a sleeping king's tomb (chapters 11–14,
+Sage 1 to Sage Sovereign 2).
 
 Open `project.godot` in Godot 4.5.1 and press F5. The first import rebuilds the generated caches.
 
@@ -22,15 +24,16 @@ Open `project.godot` in Godot 4.5.1 and press F5. The first import rebuilds the 
 | Crafts | Herb gathering, mining, fishing, cooking, alchemy, the forge, formations and array plates, appraisal, healing, puppetry, research, teaching |
 | Your sect | Found it at four character slots: buildings that appear as they are built, NPC disciples, expeditions, raids to defend |
 
-## Beyond the gate (v1.1, Phase A)
+## Beyond the gate (v1.1, Act II phases A–D)
 
 | | |
 |---|---|
-| Rooms | 9 rooms in the Azure Expanse: Cloudgate Port (Arrival Terrace, Port Market, Skydock, Wayfarers' Inn, Condensing Hall) and the Thunderhorn Plains (Stormgrass Verge, Herders' Camp, Thunderhorn Flats, Lightning Scar) |
-| Story | Chapter 11, "Beyond the Gate": five main quests from the toll warden's terrace to Sage 1 |
-| People | 15 new NPCs of the port and plains, two new hats (the Alliance's jade guan, a veiled weimao) |
-| Combat | Spark Weasel and Thunderhorn Rhino; Storm Ward attunement with four jades on the Character page |
-| Economy | Spirit Stones as everyday money, Spirit-grade stormsteel and stormsilk gear, five port shops |
+| Rooms | 37 rooms in 9 regions: Cloudgate Port, the Thunderhorn Plains, Rimefrost Heights, Mirrorwater Lake, the Nine Peaks, the Ironroot Clan Hold, the Gale Canyons, the Sunscar Desert and the Tomb of Sunscar |
+| Story | 24 quests: 16 main quests in chapters 11–14 (from "Through the Gate" to Sage, the frozen shrine and the mirror, the Nine Seats and the auction, Ironroot blood, then "Glass and Bone", the Sealed Gate and the Tomb King) and 8 side quests |
+| People | 27 new NPCs of the port, plains, lake, Alliance, clans and oasis, two new hats (the Alliance's jade guan, a veiled weimao) |
+| Combat | 16 new monsters, among them the Thousand-Eye Toad, the burrowing Dune Worm and the Tomb King (who wakes his terracotta wardens at 60% and rages at 30%); Storm Ward attunement with four jades |
+| Room hazards | Falling rocks, lightning, wind gusts, river currents, fog, cold, hollow puddles, thorns, poison mist, scorching heat, sandstorms, quicksand and spike traps. Each one warns first, then strikes, then rests; the matching attribute softens it (Body against rocks and gusts, Agility against quicksand and spikes, Essence against lightning and heat, Spirit against fog) |
+| Economy | Spirit Stones as everyday money, the Nine Peaks auction, clan standing, Spirit-grade stormsteel and stormsilk, Sage-grade sunsteel and sunsilk gear with three sockets |
 
 No cultivation, no Qi: the QI bar appears only when the pool exists (Bone Forging 7). Weapons appear only
 at the Weapon Hall (Bone Forging 3). Every HUD button is revealed by the system that introduces it.
@@ -90,7 +93,7 @@ tools/run_tests.sh                 # Linux/macOS (GODOT=/path/to/godot)
 | `perf_tests` | Every room loads in under 0.3 s, every page opens in under 0.15 s, a frame with fifteen monsters fits 60 fps (CPU, headless) |
 | `contract_tests` | Every event in the Part 4 catalogue is emitted only by its own system and has a reactor (`data/event_contract.json`); no player-facing text is written in the scripts |
 | `prologue_run` | A scripted Prologue to Bone Forging 2 with the HUD reveal order |
-| `valley_run` | The whole of Act I from a new character to the Ascension Gate, through intents only (about a minute) |
+| `valley_run` | The whole of Act I and Act II so far, from a new character through the Ascension Gate to the Tomb King, through intents only |
 
 `valley_run` saves a checkpoint at the start of each section, so one part can be replayed:
 `godot --headless --path . res://tests/valley_run.tscn -- --from=ht5 --only --verbose`.
@@ -106,7 +109,7 @@ godot --path . -- --preview-world --room=lf_village --talk=washer_mei --shot=nam
 
 `--preview-world` enters with a preview character, `--room=` starts in a room, `--unlock-all` opens
 every system, `--debug-sect` gives a founded sect with all buildings, `--fly` takes off, `--ride` mounts a crane, `--give=item[:count[:quality]]` fills the bag, `--at=x,y` starts at a point in the room, `--open-page=<id>[:tab]` and
-`--talk=<npc>` open UI, `--log-events` prints the event stream, `--capture` saves `../<shot>-preview.png`.
+`--talk=<npc>` open UI, `--hazard=<phase>:<k>` forces the room's hazards into a phase at answer ratio k, `--log-events` prints the event stream, `--capture` saves `../<shot>-preview.png`.
 
 ## Art and credits
 

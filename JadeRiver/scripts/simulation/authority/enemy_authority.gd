@@ -197,7 +197,7 @@ func enemy_attack_release(e: EnemyState, attack: Dictionary) -> void:
 		e.ai.summon_cd = 12.0
 		for i in 2:
 			var off := Vector2((i * 2 - 1) * 120, rng.randf_range(-30, 30))
-			spawn_at(str(attack.summon), (e.plane + off).clamp(Vector2(60, 640), Vector2(game.room_rt.width() - 60, 940)))
+			spawn_at(str(attack.summon), (e.plane + off).clamp(Vector2(60, 640), Vector2(game.room_rt.width() - 60, 940)), int(attack.get("summon_level", -1)))
 		emit("enemy_summoned", {"enemy": e.uid})
 		return
 	if attack.has("buff_allies"):
@@ -234,8 +234,19 @@ func _check_phases(e: EnemyState) -> void:
 					e.pools.hp = minf(e.pools.max_hp, e.pools.hp + e.pools.max_hp * float(ph.get("heal", 0.1)))
 					enemy_attack_release(e, {"summon": "mudwater_bandit"})
 				"summon":
-					enemy_attack_release(e, {"summon": "paper_talisman_ghost"})
+					enemy_attack_release(e, {"summon": _phase_summon(e, ph), "summon_level": int(ph.get("summon_level", -1))})
+				"enrage":
+					# The last stand: shorter pauses between attacks and harder blows.
+					e.ai.enraged = {"cd": float(ph.get("cooldown", 0.7)), "damage": float(ph.get("damage", 1.25))}
+					if ph.has("summon"): enemy_attack_release(e, {"summon": str(ph.summon)})
 			emit("boss_phase", {"enemy": e.uid, "phase": i + 1, "action": str(ph.get("action", ""))})
+
+## Who a summoning phase calls: the phase's own "summon", else the boss's summoning attack.
+func _phase_summon(e: EnemyState, ph: Dictionary) -> String:
+	if ph.has("summon"): return str(ph.summon)
+	for a in e.def.get("attacks", []):
+		if a.has("summon"): return str(a.summon)
+	return "paper_talisman_ghost"
 
 func _eel(e: EnemyState, delta: float) -> void:
 	# The Hollowed Eel cannot be hurt; it surfaces from the river and lunges.

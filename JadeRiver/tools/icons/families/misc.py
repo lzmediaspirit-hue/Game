@@ -672,3 +672,117 @@ for _id, _fn in (('manual_page', manual_page), ('riverbreath_scroll', riverbreat
                  ('drying_rack', drying_rack), ('mindwell_lotus', mindwell_lotus),
                  ('evergreen_heart_seed', evergreen_heart_seed), ('evergreen_heart_fruit', evergreen_heart_fruit)):
     register(FAM, _id, _fn, GROUP)
+
+
+# ============================================================================ Act II · Sunscar Desert
+SUN_GLOW = '#FFC870'
+
+
+def sun_crown_fragment():
+    """One gold ray broken from the Tomb King's sun crown, a jade bead set at its root."""
+    c = Canvas(32)
+    a = math.radians(60)
+    dx, dy = math.cos(a), -math.sin(a)
+    px, py = -dy, dx  # across the ray, towards the shaded side
+    bx, by = 11.0, 21.5
+
+    def P(across, along):
+        return (bx + px * across + dx * along, by + py * across + dy * along)
+
+    # jagged stump where the ray snapped off the crown band
+    stump = c.poly([P(-5, -0.5), P(5, -0.5), P(4.6, -5.5), P(2.0, -3.8), P(-0.2, -6.5), P(-2.6, -4.2), P(-4.8, -5.2)])
+    c.put(stump, R['gold'], 'ray', base=2)
+    c.put(stump & ~move(stump, 0, -2) & ~move(stump, 1, -1), R['gold'][1], 'flat', out=R['gold'].out)
+    # the ray: a slender spike with a lit and a shaded face and a bright ridge
+    tip = P(0, 22.5)
+    bl, br, ml, mr = P(-3.6, 0), P(3.6, 0), P(-2.4, 8), P(2.4, 8)
+    ray = c.poly([bl, ml, tip, mr, br])
+    c.put(ray, R['gold'], 'flat', base=2, sep=True)
+    c.put(c.poly([bl, ml, tip, (bx, by)]) & ray, R['gold'], 'flat', base=3)
+    c.put(c.poly([(bx, by), tip, mr, br]) & ray, R['gold'], 'flat', base=1)
+    r0, r1 = P(0, 5), P(0, 19.5)
+    c.put(c.bres(int(r0[0]), int(r0[1]), int(r1[0]), int(r1[1])) & erode4(ray), R['gold'], 'flat', base=4)
+    # jade bead in a round gold bezel at the root
+    bez = c.circle(bx, by, 3.4)
+    c.put(bez, R['gold'], 'sphere', base=2, sep=True)
+    bead = c.circle(bx, by, 2.2)
+    c.put(bead, R['jade'], 'sphere', base=2)
+    c.put(c.rect(int(bx) - 1, int(by) - 1, int(bx) - 1, int(by) - 1), R['jade'][4], 'flat')
+    c.outline()
+    c.glow(SUN_GLOW, (90, 40))
+    S.sparkle(c, int(tip[0]) + 3, int(tip[1]) + 3, '#FFFFFF', R['gold'][3], 1)
+    return c
+
+
+def _sun_seal(c, cx, cy, rd, rc, clip=None, rays=12, glyph=True):
+    """The Sunscar sun seal: gold rays, gold disc, jade inlay ring, engraved field, jade centre with a sun glyph."""
+    gold, jade = R['gold'], R['jade']
+    sph = dict(cx=cx - 1, cy=cy - 1, rx=rd + 2, ry=rd + 2)
+    rm = c.empty()
+    for k in range(rays):
+        a = math.radians(k * 360.0 / rays + 90)
+        L = rd + (rd * 0.45 if k % 2 == 0 else rd * 0.25)
+        da = math.pi / rays * 0.8
+        rm |= c.poly([(cx + math.cos(a - da) * (rd - 0.5), cy - math.sin(a - da) * (rd - 0.5)),
+                      (cx + math.cos(a) * L, cy - math.sin(a) * L),
+                      (cx + math.cos(a + da) * (rd - 0.5), cy - math.sin(a + da) * (rd - 0.5))])
+    c.put(rm, gold, 'ray', base=3, clip=clip)
+    disc = c.circle(cx, cy, rd)
+    c.put(disc, gold, 'sphere', base=2, sep=True, clip=clip, **sph)
+    ro = rd - 1.1
+    w = max(1.3, rd * 0.13)
+    inlay = c.ring(cx, cy, ro, w)
+    c.put(inlay, jade, 'flat', base=2, clip=clip)
+    c.put(inlay & c.sector(cx, cy, rd, 95, 200), jade, 'flat', base=3, clip=clip)
+    c.put(inlay & c.sector(cx, cy, rd, 280, 350), jade, 'flat', base=1, clip=clip)
+    for k in range(rays):
+        a = math.radians(k * 360.0 / rays + 90)
+        r0, r1 = rc + 1.0, ro - w - 0.6
+        ln = c.bres(int(cx + math.cos(a) * r0), int(cy - math.sin(a) * r0),
+                    int(cx + math.cos(a) * r1), int(cy - math.sin(a) * r1))
+        c.put(ln & disc & ~inlay, gold[0], 'flat', out=gold.out, clip=clip)
+    centre = c.circle(cx, cy, rc)
+    c.put(centre, jade, 'sphere', base=2, sep=True, clip=clip, cx=cx - 0.5, cy=cy - 0.5, rx=rc + 1, ry=rc + 1)
+    if glyph:
+        sun = c.ring(cx, cy, rc * 0.62, 1.0) | c.circle(cx, cy, 0.8)
+        c.put(sun & centre, gold, 'flat', base=3, clip=clip)
+    return disc | rm
+
+
+def sun_seal_shard():
+    """A wedge snapped from the sun seal: about a third of the disc, from the jade heart to the rayed rim."""
+    c = Canvas(32)
+    cx, cy, rd = 8.5, 22.5, 13.0
+    pts = [(cx - 0.6, cy + 0.8)]
+    for k, rr in enumerate((3.5, 6.5, 9.5, 12.5, 15.5, 19.5)):
+        a = math.radians(-14 + (2.4 if k % 2 else -2.4) * (1 if k < 4 else 0))
+        pts.append((cx + math.cos(a) * rr, cy - math.sin(a) * rr))
+    for t in range(-14, 106, 6):
+        a = math.radians(t)
+        pts.append((cx + math.cos(a) * 20, cy - math.sin(a) * 20))
+    for k, rr in enumerate((19.5, 15.5, 12.5, 9.5, 6.5, 3.5)):
+        a = math.radians(104 + (2.4 if k % 2 else -2.4) * (1 if k > 1 else 0))
+        pts.append((cx + math.cos(a) * rr, cy - math.sin(a) * rr))
+    clip = c.poly(pts)
+    side = (move(clip, 1, 2) | move(clip, 0, 1)) & ~clip & dilate4(c.circle(cx, cy, rd))
+    c.put(side, R['gold'], 'flat', base=1)
+    _sun_seal(c, cx, cy, rd, 4.6, clip=clip, glyph=False)
+    c.outline()
+    c.glow(SUN_GLOW, (50,))
+    return c
+
+
+def sunscar_seal():
+    """The Tomb King's sun seal, whole: a rayed gold disc with a jade heart."""
+    c = Canvas(32)
+    _sun_seal(c, 16, 16, 9.5, 4.4)
+    c.put(c.ellipse(11.5, 11.5, 1.8, 1.0), R['gold'][4], 'flat', only_on=True)
+    c.outline()
+    c.glow(SUN_GLOW, (110, 45))
+    S.sparkle(c, 26, 5, '#FFFFFF', R['gold'][3], 2)
+    return c
+
+
+for _id, _fn in (('sun_crown_fragment', sun_crown_fragment), ('sun_seal_shard', sun_seal_shard),
+                 ('sunscar_seal', sunscar_seal)):
+    register(FAM, _id, _fn, GROUP)

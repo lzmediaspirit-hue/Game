@@ -250,10 +250,52 @@ def willow_salve():
     return c
 
 
+# ============================================================================ Act II · Sunscar Desert
+CACTUS_WATER = Ramp(['#3A6A50', '#62987A', '#9ED0A8', '#CDEFCF', '#F2FFF2'], '#13261C')
+
+
+def cactus_water():
+    """A clay gourd of pale green cactus water, stopper pulled, an ember-cactus flower tied at its waist."""
+    c = Canvas(32)
+    clay = R['clay']
+    low = c.circle(14.5, 22.5, 7.3)
+    up = c.circle(14.5, 13.2, 4.2)
+    waist = c.rect(12, 15, 17, 17)
+    c.put(low, clay, 'sphere', base=2)
+    c.put(up | waist, clay, 'sphere', base=2, cx=14, cy=12.5, rx=5, ry=5)
+    neck = c.rect(12, 7, 16, 10)
+    c.put(neck, clay, 'ray', base=2, sep=True)
+    lip = c.ellipse(14, 6.5, 3.8, 1.9)
+    c.put(lip, clay, 'ray', base=3, sep=True)
+    mouth = c.ellipse(14, 6.4, 2.6, 1.2)
+    c.put(mouth, CACTUS_WATER, 'flat', base=2)
+    c.put(mouth & (c.X < 14) & (c.Y < 7), CACTUS_WATER, 'flat', base=4)
+    # incised band on the lower bulb and glaze glints
+    c.put(c.arc(14.5, 18, 7.3, 1.0, 200, 340) & erode4(low), clay[1], 'flat', out=clay.out)
+    c.put(c.ellipse(11, 19.5, 1.8, 1.2) & low, clay[4], 'flat')
+    c.put(c.ellipse(12.5, 11.5, 1.0, 0.8) & up, clay[4], 'flat')
+    # the stopper, pulled out and leaning on the lip
+    plug = c.seg(19, 6.5, 21.4, 3.6, 3.0)
+    c.put(plug, R['wood'], 'ray', base=3, sep=True)
+    # cord at the waist, its end hanging, and the flower tied into the knot
+    cord = c.rect(10, 16, 18, 17) & dilate4(up | low | waist)
+    c.put(cord, R['straw'], 'ray', base=2, sep=True)
+    tail = S.bez_line(c, (19, 17), (22, 20), (21, 25))
+    c.put(tail, R['straw'], 'flat', base=3, sep=True)
+    fl = c.empty()
+    for a in (20, 92, 164, 236, 308):
+        fl |= S.leaf(c, 21, 15.5, a, 3.6, 2.6, 0.0, tip_power=0.8)
+    c.put(fl, R['fire'], 'ray', base=3, sep=True, sep_col=R['fire'][1])
+    c.put(c.rect(21, 15, 21, 15), R['yellow'][4], 'flat')
+    c.outline()
+    return c
+
+
 for _id, _fn in (('herbal_tea', herbal_tea), ('rice_ball', rice_ball), ('riverfish_soup', riverfish_soup),
                  ('boar_bone_broth', boar_bone_broth), ('ember_pepper_stew', ember_pepper_stew),
                  ('lotus_root_tea', lotus_root_tea), ('toad_oil_dumplings', toad_oil_dumplings),
                  ('cloudtop_orchid_broth', cloudtop_orchid_broth), ('jade_carp_congee', jade_carp_congee),
                  ('roast_fish', roast_fish), ('ember_pepper_broth', ember_pepper_broth),
-                 ('willow_salve', willow_salve), ('thunderhorn_stew', thunderhorn_stew)):
+                 ('willow_salve', willow_salve), ('thunderhorn_stew', thunderhorn_stew),
+                 ('cactus_water', cactus_water)):
     register(FAM, _id, _fn, GROUP)

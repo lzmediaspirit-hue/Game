@@ -1,7 +1,7 @@
 """Herbs: shared leaf / stem / root builders with species variants."""
 import math
 
-from pix import Canvas, dilate4, erode4, move
+from pix import Canvas, Ramp, dilate4, erode4, move
 from palette import R
 from registry import register
 import shapes as S
@@ -250,7 +250,47 @@ def soulbell_flower():
     return c
 
 
+# ----------------------------------------------------------------------------- ember cactus (Act II · Sunscar)
+CACTUS = Ramp(['#173A2C', '#27603F', '#428A55', '#78B46A', '#BEDF9C'], '#081A12')
+
+
+def ember_cactus():
+    """A round desert cactus with pale spines, crowned by a flower that glows like a coal."""
+    from families.beast_parts import halo
+    c = Canvas(32)
+    pup = c.ellipse(24.5, 23.5, 3.4, 3.2)
+    c.put(pup, CACTUS, 'sphere', base=2)
+    body = c.ellipse(15, 19, 8.5, 8.0)
+    c.put(body, CACTUS, 'sphere', base=2, sep=True)
+    for rx in (3.0, 6.2):
+        rib = S.outline_only(c.ellipse(15, 19, rx, 8.0)) & erode4(body) & (abs(c.Y - 19) < 7.2)
+        c.put(rib, CACTUS[1], 'flat', out=CACTUS.out)
+    c.put(c.rect(15, 12, 15, 26) & erode4(body), CACTUS[1], 'flat', out=CACTUS.out)
+    c.put(c.rect(24, 21, 24, 25) & erode4(pup), CACTUS[1], 'flat', out=CACTUS.out)
+    for (x, y) in ((13, 15), (13, 20), (10, 17), (10, 22), (17, 17), (17, 22), (20, 15), (20, 20), (8, 20),
+                   (22, 20), (23, 23), (13, 25)):
+        c.px(x, y, R['bone'][4], CACTUS.out)
+    mound = c.ellipse(15.5, 28.5, 10, 3.0) & (c.Y < 30)
+    c.put(mound, R['sand'], 'sphere', base=3, sep=True, cx=13, cy=27, rx=11, ry=4)
+    c.pxs([(10, 28), (19, 29), (14, 29), (22, 28)], R['sand'][1])
+    c.pxs([(12, 27), (18, 27)], R['sand'][4])
+    body_all = c.a.copy()
+    flower = c.empty()
+    for (a, L) in ((22, 5.4), (158, 5.4), (60, 6.2), (120, 6.2), (90, 6.8)):
+        p = S.leaf(c, 15, 11.5, a, L, 3.8, 0.0, tip_power=0.8)
+        c.put(p, R['fire'], 'ray', base=3, sep=True, sep_col=R['fire'][1])
+        flower |= p
+    c.put(c.ellipse(15, 10.8, 2.2, 1.5), R['yellow'], 'flat', base=3)
+    c.put(c.rect(14, 10, 15, 10), R['yellow'][4], 'flat')
+    c.outline()
+    for (x0, y0, x1, y1) in ((7, 14, 5, 13), (23, 14, 25, 13), (6, 22, 4, 23), (27, 20, 29, 19), (9, 11, 8, 9)):
+        c.put(c.bres(x0, y0, x1, y1) & ~body_all & ~flower, R['bone'], 'flat', base=4)
+    halo(c, flower, '#FFB45A', (90, 40))
+    return c
+
+
 register(FAM, 'willow_moss', willow_moss, GROUP)
+register(FAM, 'ember_cactus', ember_cactus, GROUP)
 register(FAM, 'frost_lotus', frost_lotus, GROUP)
 register(FAM, 'riverreed_ginseng_10', lambda: _ginseng(False), GROUP)
 register(FAM, 'riverreed_ginseng_100', lambda: _ginseng(True), GROUP)

@@ -2,7 +2,7 @@
 vials, pouches and shards, each with species parameters."""
 import math
 
-from pix import Canvas, Ramp, dilate4, erode4, move
+from pix import Canvas, Ramp, dilate4, dilate8, erode4, move, rgb
 from palette import R
 from registry import register
 import shapes as S
@@ -746,4 +746,91 @@ def kite_silk():
 
 register(FAM, 'harpy_plume', harpy_plume, GROUP)
 register(FAM, 'kite_silk', kite_silk, GROUP)
+
+
+# ----------------------------------------------------------------------------- Act II · Sunscar Desert
+SANDGOLD = Ramp(['#4A3216', '#84602A', '#C39A4E', '#E6C77E', '#FFF1C2'], '#1F1407')
+VENOM_AMBER = Ramp(['#6A300A', '#B25E12', '#EE9A26', '#FFC957', '#FFF3B0'], '#2A1204')
+DESERT_GLASS = Ramp(['#35606E', '#5E98A8', '#9ED4DC', '#D8F4F2', '#FFFFFF'], '#10262E')
+
+
+def halo(c, mask, col, alphas=(110, 50)):
+    """Stepped glow bands around one part only (call after c.outline())."""
+    cur = dilate4(mask) & (c.alpha > 0)
+    for al in alphas:
+        ring = dilate8(cur) & ~cur
+        free = ring & (c.alpha == 0)
+        c.rgb[free] = rgb(col)
+        c.alpha[free] = al
+        cur |= ring
+
+
+def _barrel(c, pts, w_joint, w_max):
+    """Articulated segment along a point run: narrow at both joints, bulging in the middle."""
+    left, right = [], []
+    n = len(pts)
+    for i, (x, y) in enumerate(pts):
+        a, b = pts[max(0, i - 1)], pts[min(n - 1, i + 1)]
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        L = math.hypot(dx, dy) or 1.0
+        px, py = -dy / L, dx / L
+        hw = (w_joint + (w_max - w_joint) * math.sin(math.pi * i / (n - 1.0)) ** 0.6) / 2.0
+        left.append((x + px * hw, y + py * hw))
+        right.append((x - px * hw, y - py * hw))
+    return c.poly(left + right[::-1])
+
+
+def scorpion_stinger():
+    """The last tail segments of a Sandstorm Scorpion: sand-gold plates, a bulb and an amber-venom barb."""
+    c = Canvas(32)
+    pts = S.curve_pts((6.5, 27.5), (4.5, 12), (14, 9), 30)
+    for (i0, i1, wm) in ((0, 11, 7.6), (10, 20, 7.4), (19, 29, 7.0)):
+        seg = _barrel(c, pts[i0:i1 + 1], 4.4, wm)
+        c.put(seg, SANDGOLD, 'ray', base=2, sep=True)
+        mid = pts[(i0 + i1) // 2]
+        nxt = pts[(i0 + i1) // 2 + 1]
+        dx, dy = nxt[0] - mid[0], nxt[1] - mid[1]
+        L = math.hypot(dx, dy) or 1.0
+        for off, col in ((1.7, SANDGOLD[4]), (-1.3, SANDGOLD[1])):
+            kx, ky = mid[0] + dy / L * off, mid[1] - dx / L * off
+            c.put(c.seg(kx - dx / L * 1.8, ky - dy / L * 1.8, kx + dx / L * 1.8, ky + dy / L * 1.8, 1.0) & erode4(seg),
+                  col, 'flat', out=SANDGOLD.out)
+    # telson: a pear-shaped bulb that tapers into one hooked thorn
+    bulb = c.ellipse(17.5, 9.5, 5.0, 4.6)
+    thorn = S.taper_curve(c, (18, 9.5), (29.5, 8), (24.5, 22.5), 9.0, 0.8, 24)
+    c.put(bulb | thorn, SANDGOLD, 'sphere', base=2, sep=True, cx=19, cy=9, rx=9, ry=8)
+    tip = thorn & (c.Y > 12.5) & (c.X > 21)
+    c.put(tip, Ramp(['#3E200C', '#703E16', '#A8662A', '#D4954A', '#F4C77E'], '#1A0C04'), 'ray', base=2)
+    c.put(c.ellipse(16.5, 7.5, 2.2, 1.0) & bulb, SANDGOLD[4], 'flat')
+    c.put(S.bez_line(c, (21, 7), (25, 6.5), (26, 10)) & erode4(thorn), SANDGOLD[3], 'flat', out=SANDGOLD.out)
+    bead = S.drop(c, 24.3, 26.0, 1.9, 4.0)
+    c.put(bead, VENOM_AMBER, 'ray', base=3, sep=True)
+    c.put(c.rect(23, 25, 23, 25), VENOM_AMBER[4], 'flat')
+    c.outline()
+    halo(c, bead, '#FFB844', (110, 45))
+    return c
+
+
+def worm_glass_tooth():
+    """A Dune Worm's tooth of clear desert glass, an amber thread at its core and sand at the root."""
+    c = Canvas(32)
+    m = fang(c, (22, 26), (25, 9), (7, 5), 8.5, DESERT_GLASS, root_col=None)
+    # refraction line on the shadow side and a faint amber thread at the core
+    c.put(S.bez_line(c, (23, 23), (24.5, 12), (15, 7.5)) & erode4(m) & ~erode4(erode4(m)) & (c.X > 17),
+          DESERT_GLASS[1], 'flat', out=DESERT_GLASS.out)
+    core = S.taper_curve(c, (21.5, 24), (22.5, 11), (11, 7), 1.8, 0.8) & erode4(erode4(m))
+    c.put(core, VENOM_AMBER, 'flat', base=3)
+    crust = c.ellipse(22, 26.8, 4.2, 2.3) | c.ellipse(18, 28.2, 2.8, 1.3) | c.ellipse(25.5, 28.3, 2.6, 1.3)
+    c.put(crust, R['sand'], 'ray', base=3, sep=True)
+    c.pxs([(20, 26), (23, 27), (17, 28), (25, 28)], R['sand'][1])
+    c.pxs([(21, 25), (16, 27)], R['sand'][4])
+    c.put(c.rect(18, 12, 18, 16) | c.rect(17, 10, 17, 10), '#FFFFFF', 'flat')
+    c.outline()
+    c.glow('#BFF2F0', (50,))
+    S.sparkle(c, 24, 4, '#FFFFFF', DESERT_GLASS[3], 1)
+    return c
+
+
+register(FAM, 'scorpion_stinger', scorpion_stinger, GROUP)
+register(FAM, 'worm_glass_tooth', worm_glass_tooth, GROUP)
 

@@ -632,6 +632,12 @@ func apply_toxicity(actor_id: String, amount: float) -> void:
 	if amount > 0 and c.cultivator.toxicity > c.stats.value("toxicity_tolerance"):
 		apply_injury(c.id, "meridian", 1)
 
+## The Sovereign Settling Pill: what is left of this stage's consolidation ends on the next tick.
+func apply_settle(actor_id: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or c.cultivator.consolidation_left <= 0.0: return
+	c.cultivator.consolidation_left = 0.001
+
 func apply_stability(actor_id: String, word: String) -> void:
 	var c = game.character(actor_id)
 	if c == null: return

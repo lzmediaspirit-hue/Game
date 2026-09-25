@@ -1,0 +1,469 @@
+{
+ "schema_version": 1,
+ "id": "sd_scorpion_flats",
+ "zone": "azure_expanse",
+ "region": "sunscar_desert",
+ "name": "Scorpion Flats",
+ "type": "field",
+ "level_range": [
+  75,
+  78
+ ],
+ "recommended_cp": 1370,
+ "element": "earth",
+ "qi_density": 1.8,
+ "hazards": [
+  "sandstorm"
+ ],
+ "gather_tier": "expanse_high",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "sunscar",
+ "ground": {
+  "material": "sand"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    1400,
+    650,
+    280,
+    50
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "sd_glass_dunes",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "sd_oasis_of_bones",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    641,
+    700
+   ],
+   "item": "ember_cactus",
+   "prop": "ember_cactus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "master",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "ore_2",
+   "type": "ore_vein",
+   "at": [
+    1918,
+    690
+   ],
+   "item": "sunglass_ore",
+   "prop": "sunglass_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "master",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "ore_3",
+   "type": "ore_vein",
+   "at": [
+    3216,
+    690
+   ],
+   "item": "sunglass_ore",
+   "prop": "sunglass_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "master",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    464,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 76,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    1488,
+    900
+   ],
+   "loot": "jar_expanse",
+   "level": 76,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_6",
+   "type": "jar",
+   "at": [
+    2445,
+    720
+   ],
+   "loot": "jar_expanse",
+   "level": 76,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_7",
+   "type": "jar",
+   "at": [
+    3283,
+    900
+   ],
+   "loot": "jar_expanse",
+   "level": 76,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_8",
+   "type": "chest",
+   "at": [
+    3480,
+    700
+   ],
+   "loot": "chest_expanse",
+   "level": 78
+  },
+  {
+   "id": "shrine_sd_flats",
+   "type": "shrine",
+   "at": [
+    2000,
+    700
+   ]
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "sandstorm_scorpion",
+   "surface": "ground",
+   "points": [
+    [
+     470,
+     868
+    ],
+    [
+     984,
+     720
+    ],
+    [
+     1398,
+     798
+    ],
+    [
+     1477,
+     874
+    ],
+    [
+     2440,
+     869
+    ],
+    [
+     2844,
+     767
+    ],
+    [
+     3365,
+     716
+    ]
+   ],
+   "max": 6,
+   "respawn_s": 14,
+   "level": [
+    75,
+    78
+   ]
+  },
+  {
+   "enemy": "sandstorm_scorpion",
+   "surface": "ground",
+   "points": [
+    [
+     2540,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    78,
+    78
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "dune_cactus",
+   "at": [
+    190,
+    630
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    645,
+    629
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dune_cactus",
+   "at": [
+    1159,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1766,
+    632
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dune_cactus",
+   "at": [
+    2315,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2799,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dune_cactus",
+   "at": [
+    3278,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    3723,
+    636
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    160,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    448,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    850,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1144,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1499,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1888,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2207,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2433,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2838,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3204,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3499,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  }
+ ],
+ "areas": [],
+ "music": "desert",
+ "ambience": "wind_ambience",
+ "attunement_required": 48
+}

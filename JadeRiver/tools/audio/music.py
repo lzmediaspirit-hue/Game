@@ -965,3 +965,91 @@ def m_storm_plains():
         fl += to_flute(tr, simplify(notes, 1.5), sc, tr.tb(8 + 2 * p), rm, octave=0, grace_p=0.3)
     tr.flute("flute", fl, tr.r("flute_sig"), kind="xiao", vib_depth=18, vib_rate=5.0)
     return tr.mix(t60=1.8, wet=0.3)
+
+
+@music("desert")
+def m_desert():
+    """The Sunscar Desert: heat that makes time slow down. A low drone in the yu mode, a frame drum
+    and a sand shaker in a lazy 4/4, caravan bells far off, and a xiao that bends its long notes
+    like air over hot sand."""
+    tr = Track("desert", 72, 4, 12)                    # 40.0 s
+    sc = Scale(57, 4)                                  # A gong, F# yu, tonic F#4
+    tr.bus("drone", -18, 0.3, (lowpass(1200, 0.7),))
+    tr.bus("wind", -36, 0.2)
+    tr.bus("drum", 2, 0.18)
+    tr.bus("shaker", -12, 0.12, (highpass(2500),))
+    tr.bus("bell", -8, 0.5)
+    tr.bus("bass", -10, 0.12, ZHENG_BODY)
+    tr.bus("flute", -5, 0.42)
+    tr.add("drone", drone(tr.L, tr.T, tr.r("drone"), [(mtof(42), 1.0), (mtof(49), 0.45), (mtof(54), 0.2)],
+                          harm=SOFT, swell=(3, 0.55), detune=4.0), 0)
+    tr.add("wind", wind(tr.L, tr.T, tr.r("wind"), base=700, spread=1600, width=1.1, cycles=(1, 2, 3), floor=0.3,
+                        tilt_db=-0.5, whistle=0.05), 0)
+    rd = tr.r("drums")
+    frame = [membrane(96 * rd.uniform(0.98, 1.02), rd, t60=0.35, drop=0.25, noise_amt=0.4, noise_fc=1400) for _ in range(3)]
+    tik = [woodblock(1400 * rd.uniform(0.97, 1.03), rd, t60=0.05, click_amt=0.4) for _ in range(3)]
+    for bar in range(12):
+        lane(tr, "drum", bar, "X...x.x." if bar % 4 != 3 else "X...x.xx", frame, rd, vel=0.8)
+        lane(tr, "drum", bar, "..o...o.", tik, rd, vel=0.35)
+    rs = tr.r("shaker")
+    for k in range(12 * 8):
+        n = nsamp(0.09)
+        g = pnoise(n, rs, highpass(4000)) * np.exp(-np.arange(n) / (n / 3.0))
+        tr.add("shaker", g, k * tr.spb / 2, 0.55 if k % 2 == 0 else 0.3)
+    rb = tr.r("bell")
+    for bar, f0 in ((1, 1480.0), (5, 1318.5), (9, 1480.0)):
+        for j in range(3):
+            tr.add("bell", bell(f0 * (1.0 + 0.004 * j), rb, dur=1.6, kind="small", strike=0.2), tr.tb(bar, 1.0 + j * 0.5), 0.35 - j * 0.08)
+    prog = [0, 0, -2, -2, 0, 0, 1, -1, 0, -2, 1, 0]
+    rbass = tr.r("bass")
+    for bar, root in enumerate(prog):
+        tr.zheng("bass", tr.tb(bar, 0), sc(root) - 24, 0.7, rbass, ring=1.4, jitter=0.003)
+        tr.zheng("bass", tr.tb(bar, 2.5), sc(root + 3) - 24, 0.45, rbass, ring=0.9, jitter=0.003)
+    rm = tr.r("melody")
+    p1 = period(rm, R_SLOW, lo=-2, hi=6, first=0)
+    fl = []
+    for p, notes in enumerate(p1):
+        fl += to_flute(tr, simplify(notes, 1.0), sc, tr.tb(2 * p), rm, octave=0, grace_p=0.45)
+    p2 = [vary(rm, p1[0], 1, -2, 6, 0.5), p1[3]]
+    for p, notes in enumerate(p2):
+        fl += to_flute(tr, simplify(notes, 1.0), sc, tr.tb(8 + 2 * p), rm, octave=0, grace_p=0.45)
+    tr.flute("flute", fl, tr.r("flute_sig"), kind="xiao", vib_depth=22, vib_rate=4.5)
+    return tr.mix(t60=2.4, wet=0.36)
+
+
+@music("tomb")
+def m_tomb():
+    """The Tomb of Sunscar: a buried palace that is still awake. A deep bowed drone, singing
+    bowls, sand trickling, low pipa notes that sink, and a great bronze gong that answers the
+    listener's footsteps from very far away."""
+    tr = Track("tomb", 56, 4, 10)                      # 42.9 s
+    sc = Scale(50, 4)                                  # D gong, B yu, tonic B3
+    tr.bus("drone", -15, 0.3, (lowpass(700, 0.7), lowshelf(110, -3.0)))
+    tr.bus("bowl", -12, 0.6)
+    tr.bus("sand", -32, 0.5, (highpass(3000),))
+    tr.bus("pluck", -2, 0.5, PIPA_BODY)
+    tr.bus("gong", 2, 0.65)
+    rd = tr.r("drone")
+    tr.add("drone", drone(tr.L, tr.T, rd, [(mtof(35), 1.0), (mtof(42), 0.35), (mtof(47), 0.25), (mtof(41), 0.12)],
+                          harm=(1.0, 0.55, 0.4, 0.25, 0.15, 0.08), swell=(2, 0.65), detune=5.0), 0)
+    rb = tr.r("bowl")
+    for bar, f0 in ((0, 246.9), (3, 220.0), (6, 293.7), (8, 246.9)):
+        tr.add("bowl", bowl(f0, rb, dur=6.0), tr.tb(bar, 1.0), 0.6)
+    rs = tr.r("sand")
+    t = tvec(tr.L)
+    trickle = pnoise(tr.L, rs, highpass(5000)) * (0.3 + 0.7 * np.clip(np.sin(TAU * 2 * t / tr.T + 0.7), 0, 1) ** 2)
+    tr.add("sand", trickle, 0, 0.6)
+    rp = tr.r("pluck")
+    tp = 0.8
+    while tp < tr.T - 1.0:
+        i = int(rp.integers(-3, 4))
+        if rp.random() < 0.45:
+            tr.pipa("pluck", tp, sc(i) - 12, 0.6, rp, ring=3.0, bend=sink_bend(-70.0, 0.4, 1.6))
+        else:
+            tr.pipa("pluck", tp, sc(i) - 12, 0.5, rp, ring=2.4)
+        tp += float(rp.choice([2.0, 2.5, 3.0, 4.0])) * tr.spb
+    rg = tr.r("gong")
+    g = gong(62.0, rg, dur=8.0, pitch=(0, -25), bloom=1.4, bright=0.7, thump=0.1)
+    tr.add("gong", g, tr.tb(2), 0.75)
+    tr.add("gong", gong(92.0, rg, dur=6.0, pitch=(0, -20), bloom=1.0, bright=0.6, thump=0.0), tr.tb(7, 2.0), 0.45)
+    return tr.mix(t60=4.8, wet=0.58, predelay=0.06, hf=0.3)

@@ -1,0 +1,486 @@
+{
+ "schema_version": 1,
+ "id": "sd_worm_sea",
+ "zone": "azure_expanse",
+ "region": "sunscar_desert",
+ "name": "Worm Sea",
+ "type": "field",
+ "level_range": [
+  77,
+  81
+ ],
+ "recommended_cp": 1406,
+ "element": "earth",
+ "qi_density": 1.8,
+ "hazards": [
+  "quicksand",
+  "scorching_heat"
+ ],
+ "gather_tier": "expanse_high",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "sunscar",
+ "ground": {
+  "material": "sand"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "tomb",
+   "type": "dungeon",
+   "at": [
+    3500,
+    700
+   ],
+   "to": "ts_sealed_gate",
+   "to_portal": "west",
+   "press_up": true,
+   "label": "Tomb of Sunscar",
+   "requires": {
+    "all": [
+     {
+      "any": [
+       {
+        "kind": "quest_active",
+        "quest": "the_sealed_gate"
+       },
+       {
+        "kind": "quest_done",
+        "quest": "the_sealed_gate"
+       }
+      ]
+     }
+    ]
+   },
+   "locked_text": "A stepped portal half-drowned in sand. The bone-reader will know what it is."
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "sd_oasis_of_bones",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    954,
+    690
+   ],
+   "item": "ember_cactus",
+   "prop": "ember_cactus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "master",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "ore_2",
+   "type": "ore_vein",
+   "at": [
+    2879,
+    690
+   ],
+   "item": "sunglass_ore",
+   "prop": "sunglass_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "master",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    532,
+    720
+   ],
+   "loot": "jar_expanse",
+   "level": 79,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    1467,
+    900
+   ],
+   "loot": "jar_expanse",
+   "level": 79,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    2445,
+    720
+   ],
+   "loot": "jar_expanse",
+   "level": 79,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_6",
+   "type": "jar",
+   "at": [
+    3337,
+    930
+   ],
+   "loot": "jar_expanse",
+   "level": 79,
+   "hp": 1,
+   "respawn_s": 300
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "dune_worm",
+   "surface": "ground",
+   "points": [
+    [
+     544,
+     767
+    ],
+    [
+     1253,
+     734
+    ],
+    [
+     1867,
+     838
+    ],
+    [
+     2626,
+     755
+    ],
+    [
+     3297,
+     824
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 16,
+   "level": [
+    77,
+    81
+   ]
+  },
+  {
+   "enemy": "sandstorm_scorpion",
+   "surface": "ground",
+   "points": [
+    [
+     830,
+     899
+    ],
+    [
+     1910,
+     899
+    ],
+    [
+     3025,
+     916
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 12,
+   "level": [
+    77,
+    78
+   ]
+  },
+  {
+   "enemy": "dune_worm",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    81,
+    81
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "dune_cactus",
+   "at": [
+    124,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    698,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dune_cactus",
+   "at": [
+    1184,
+    633
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1695,
+    632
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dune_cactus",
+   "at": [
+    2329,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2761,
+    633
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dune_cactus",
+   "at": [
+    3283,
+    639
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    133,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    476,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    835,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1100,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1332,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1640,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1998,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2263,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2594,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2935,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3307,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3579,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "bleached_ribcage",
+   "at": [
+    2200,
+    650
+   ],
+   "layer": "back",
+   "flip": true
+  }
+ ],
+ "areas": [
+  {
+   "kind": "quicksand",
+   "rect": [
+    810,
+    774,
+    180,
+    52
+   ]
+  },
+  {
+   "kind": "quicksand",
+   "rect": [
+    1610,
+    874,
+    180,
+    52
+   ]
+  },
+  {
+   "kind": "quicksand",
+   "rect": [
+    2510,
+    754,
+    180,
+    52
+   ]
+  }
+ ],
+ "music": "desert",
+ "ambience": "wind_ambience",
+ "attunement_required": 50
+}

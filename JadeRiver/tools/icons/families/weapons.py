@@ -20,7 +20,7 @@ import shapes as S
 FAM, GROUP = 'equipment', 'weapons'
 
 GRADE_WORDS = [('training', 'plain'), ('iron', 'common'), ('jadeiron', 'earth'),
-               ('cloudsteel', 'heaven'), ('mistjade', 'mystic'), ('stormsteel', 'spirit')]
+               ('cloudsteel', 'heaven'), ('mistjade', 'mystic'), ('stormsteel', 'spirit'), ('sunsteel', 'sage')]
 
 LV_BLADE = ((0.34, 3), (0.5, 4), (0.75, 2), (9, 1))   # lit edge, ridge, shade
 LV_ROUND = ((0.3, 3), (0.66, 2), (9, 1))
@@ -110,6 +110,11 @@ def decorate_blade(c, grade, g, u0, u1, vc=31):
         zig = lambda uu: (vc(uu) if callable(vc) else float(vc)) + np.where((uu // 3) % 2 == 0, -0.5, 0.5)
         bolt = band(c, u0, u1, zig, 0) & c.a
         c.put(bolt, R['cyan'][4], 'flat', only_on=True)
+    elif grade == 'sage':
+        # desert glass set along the fuller, every few pixels a sun-bright bead
+        inlay = band(c, u0, u1, vc, 0) & c.a
+        c.put(inlay, R['ember'][3], 'flat', only_on=True)
+        c.put(inlay & ((u // 4) % 3 == 0), R['ember'][4], 'flat', only_on=True)
     elif grade == 'plain':
         grain = band(c, u0, u1, vc + 1, 0) & ((u // 3) % 2 == 0) & c.a
         c.put(grain, R['wood'][1], 'flat', only_on=True)
@@ -121,6 +126,8 @@ def finish(c, grade):
         c.glow('#B18DE2', (95, 40))
     if grade == 'spirit':
         c.glow('#7FD4FF', (95, 40))
+    if grade == 'sage':
+        c.glow('#FFC870', (95, 40))
     return c
 
 
@@ -148,7 +155,7 @@ def spear(grade):
     g = G(grade)
     c = Canvas(32)
     shaft = {'plain': R['wood'], 'common': R['wood'], 'earth': R['darkwood'], 'heaven': R['silk_navy'],
-             'mystic': R['plum'], 'spirit': R['navy']}[grade]
+             'mystic': R['plum'], 'spirit': R['navy'], 'sage': R['clay']}[grade]
     part(c, -27, 9, 31.5, 1.5, shaft, LV_ROUND)
     wraps(c, band(c, -15, -5, 31.5, 1.5), R['hemp'] if grade == 'plain' else g['wrap'], 2 if grade == 'plain' else 3)
     part(c, -28, -24, 31.5, 2, g['guard'], LV_ROUND)
@@ -189,7 +196,7 @@ def staff(grade):
     g = G(grade)
     c = Canvas(32)
     pole = {'plain': R['wood'], 'common': R['darkwood'], 'earth': R['darkwood'], 'heaven': R['silk_navy'],
-            'mystic': R['plum'], 'spirit': R['navy']}[grade]
+            'mystic': R['plum'], 'spirit': R['navy'], 'sage': R['clay']}[grade]
     part(c, -27, 27, 31.5, 1.5, pole, LV_ROUND)
     cap = g['guard'] if grade != 'plain' else R['darkwood']
     for (u0, u1) in ((-28, -21), (21, 28)):
@@ -258,7 +265,7 @@ def bow(grade):
     g = G(grade)
     c = Canvas(32)
     limb = {'plain': R['wood'], 'common': R['darkwood'], 'earth': R['jadeiron'], 'heaven': R['cloudsteel'],
-            'mystic': R['mistjade_m'], 'spirit': R['storm']}[grade]
+            'mystic': R['mistjade_m'], 'spirit': R['storm'], 'sage': R['gold']}[grade]
     depth = 12.0
     vc = lambda u: 31 - depth * (1 - (u / 25.0) ** 2) + np.where(np.abs(u) > 21, (np.abs(u) - 21) * 1.2, 0)
     hw = lambda u: np.where(np.abs(u) < 5, 2.0, np.maximum(1.0, 1.7 - (np.abs(u) - 5) * 0.03))

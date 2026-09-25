@@ -110,6 +110,18 @@ func _draw_projectile(p: Dictionary) -> void:
 			draw_line(pos + Vector2(-dir * 4, -1), tip, Color("e8f7ff"), 2)
 			for i in 3:
 				draw_rect(Rect2((pos + Vector2(-dir * (14 + i * 6), (i - 1) * 3)).snapped(Vector2(2, 2)), Vector2(2, 2)), Color("dff3ff"))
+		"sand_crescent":
+			# The Tomb King's thrown crescent of sand: a curved blade of gold grit with a dusty trail.
+			var arc := PackedVector2Array()
+			for i in 9:
+				var a := lerpf(-1.2, 1.2, i / 8.0)
+				arc.append((pos + Vector2(dir * cos(a) * 16.0, sin(a) * 22.0)).snapped(Vector2(2, 2)))
+			draw_polyline(arc, UiKit.INK, 8.0)
+			draw_polyline(arc, Color("d9a54a"), 5.0)
+			draw_polyline(arc, Color("ffe6a1"), 2.0)
+			for i in 5:
+				draw_rect(Rect2((pos + Vector2(-dir * (12 + i * 8), sin(float(p.travelled) * 0.08 + i * 1.7) * 10.0)).snapped(Vector2(2, 2)), Vector2(4, 4)),
+					Color("c9a06a", 0.7 - i * 0.12))
 		"bamboo":
 			draw_line(pos + Vector2(-10, -4), pos + Vector2(10, 4), UiKit.INK, 6)
 			draw_line(pos + Vector2(-10, -4), pos + Vector2(10, 4), Color("8cc05a"), 4)

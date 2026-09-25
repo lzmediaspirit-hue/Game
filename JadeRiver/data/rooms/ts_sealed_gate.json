@@ -1,0 +1,343 @@
+{
+ "schema_version": 1,
+ "id": "ts_sealed_gate",
+ "zone": "azure_expanse",
+ "region": "tomb_of_sunscar",
+ "name": "Sealed Gate",
+ "type": "dungeon",
+ "level_range": [
+  77,
+  77
+ ],
+ "recommended_cp": 1406,
+ "element": "earth",
+ "qi_density": 2.0,
+ "hazards": [
+  "spike_traps"
+ ],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "sunscar_tomb",
+ "ground": {
+  "material": "stone",
+  "tint": "#e8cc98"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "gate",
+   "at": [
+    40,
+    850
+   ],
+   "to": "sd_worm_sea",
+   "to_portal": "tomb"
+  },
+  {
+   "id": "east",
+   "type": "sealed",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "ts_hall_of_sand_kings",
+   "to_portal": "west",
+   "requires": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "tomb_gate_opened"
+     }
+    ]
+   },
+   "locked_text": "The bronze doors do not move."
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    252,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 77,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_2",
+   "type": "crate",
+   "at": [
+    881,
+    930
+   ],
+   "loot": "jar_expanse",
+   "level": 77,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    1543,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 77,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_4",
+   "type": "crate",
+   "at": [
+    2180,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 77,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "tomb_gate",
+   "type": "inspect",
+   "at": [
+    2300,
+    700
+   ],
+   "prop": "tomb_gate",
+   "state_flag": {
+    "flag": "tomb_gate_opened",
+    "on": "open",
+    "off": "sealed"
+   },
+   "text": "The pieces fit. The inscription is a scholar's riddle in an old script; you read it through twice, and the seal turns.",
+   "set_flag": "tomb_gate_opened",
+   "requires": {
+    "all": [
+     {
+      "kind": "item_owned",
+      "item": "sun_seal_shard",
+      "count": 3
+     },
+     {
+      "kind": "attribute_at_least",
+      "attribute": "insight",
+      "value": 80
+     }
+    ]
+   },
+   "locked_text": "A lock shaped like a sun, three pieces missing, and an inscription that slides away from the eye (Insight 80)."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "terracotta_warden",
+   "surface": "ground",
+   "points": [
+    [
+     482,
+     710
+    ],
+    [
+     1057,
+     815
+    ],
+    [
+     1579,
+     913
+    ],
+    [
+     2068,
+     811
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 12,
+   "level": [
+    77,
+    77
+   ]
+  },
+  {
+   "enemy": "sandstorm_scorpion",
+   "surface": "ground",
+   "points": [
+    [
+     600,
+     846
+    ],
+    [
+     1341,
+     884
+    ],
+    [
+     1990,
+     923
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 12,
+   "level": [
+    77,
+    77
+   ]
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "stone_lantern",
+   "at": [
+    232,
+    633
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    699,
+    637
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    1253,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    1831,
+    634
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    2345,
+    632
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    105,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    528,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    854,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1100,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1400,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1659,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1986,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2261,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "tomb",
+ "ambience": "",
+ "dungeon_exit": "sd_worm_sea",
+ "attunement_required": 55
+}

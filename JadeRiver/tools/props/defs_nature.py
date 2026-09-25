@@ -278,6 +278,8 @@ ORES = {
     "cloudsteel_vein": dict(stone=STONE, ore=CLOUDSTEEL, accent=PAPER, kind="metal"),
     "mystic_vein": dict(stone=STONE_DARK, ore=MYSTIC, accent=SOUL_VIOLET, kind="crystal"),
     "stormsteel_vein": dict(stone=STONE_DARK, ore=STORMSTEEL, accent=QI_CYAN, kind="metal"),
+    "sunglass_vein": dict(stone=STONE_WARM, ore=ramp("#5a2c10", "#94501c", "#d08a2e", "#f0bc52", "#ffe29a", "#fff8dc"), accent=GOLD[6],
+                          kind="crystal"),
 }
 
 

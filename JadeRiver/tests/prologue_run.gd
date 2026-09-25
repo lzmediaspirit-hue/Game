@@ -157,7 +157,9 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, a
 		var hitter: EnemyState = Game.room_rt.enemies.get(int(tally.attacker)) if int(tally.attacker) != 0 else null
 		# ...except during a boss fight: focus the boss and let companions handle its summons.
 		var on_boss: bool = target != null and target.alive and target.def_id == def_id and target.role in ["dungeon_boss", "field_boss", "story_boss", "elite"]
-		if hitter != null and hitter.alive and hitter.team != "ally" and hitter != target and not on_boss:
+		# ...unless a summoned add is wearing us down: a careful player clears it first.
+		var add_first: bool = hitter != null and hitter.summoned and c().pools.hp < c().pools.max_hp * 0.6
+		if hitter != null and hitter.alive and hitter.team != "ally" and hitter != target and (not on_boss or add_first):
 			target = hitter
 			tally.attacker = 0
 		if target == null or not target.alive or not Game.room_rt.enemies.has(target.uid):

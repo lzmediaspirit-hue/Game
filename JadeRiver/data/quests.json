@@ -6198,6 +6198,276 @@
    "qp": "act2_main"
   },
   {
+   "id": "glass_and_bone",
+   "name": "Glass and Bone",
+   "kind": "main",
+   "giver": "matriarch_tie",
+   "hand_in": "bone_reader_xiu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Follow the desert road past the Clan Hearth to the Oasis of Bones",
+     "count": 1,
+     "room": "sd_oasis_of_bones"
+    },
+    {
+     "kind": "kill",
+     "text": "Clear the Sandstorm Scorpions from the caravan road",
+     "count": 6,
+     "enemy": "sandstorm_scorpion"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Ask the bone-reader about the Pilgrim's caravan",
+     "count": 1,
+     "npc": "bone_reader_xiu"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 180
+    },
+    {
+     "kind": "grant_item",
+     "item": "storm_shard",
+     "count": 20
+    },
+    {
+     "kind": "codex",
+     "entry": "sunscar_desert"
+    }
+   ],
+   "offer_text": [
+    "Our scouts saw the Grey Pilgrim's caravan turn south into the Sunscar. Nobody goes there for trade anymore.",
+    "Take the desert road past the Hearth. Find the Oasis of Bones. Its diviner sees what the sand hides."
+   ],
+   "complete_text": [
+    "A grey man with no shadow, buying water and asking about the tomb? The bones spoke of him before you did.",
+    "He wants the sun seal. The Tomb King took it into the dark with him, three thousand years ago."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "ironroot_blood"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_3"
+     }
+    ]
+   },
+   "chapter": "14",
+   "target_room": "sd_glass_dunes",
+   "next": "the_sealed_gate",
+   "qp": "act2_main"
+  },
+  {
+   "id": "the_sealed_gate",
+   "name": "The Sealed Gate",
+   "kind": "main",
+   "giver": "bone_reader_xiu",
+   "hand_in": "bone_reader_xiu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Cut the pieces of the sun seal's key out of the Dune Worms of the Worm Sea",
+     "count": 3,
+     "item": "sun_seal_shard",
+     "consume": true
+    },
+    {
+     "kind": "reach_room",
+     "text": "Find the Sealed Gate beyond the Worm Sea",
+     "count": 1,
+     "room": "ts_sealed_gate"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Fit the pieces to the gate and read its inscription",
+     "count": 1,
+     "flag": "tomb_gate_opened"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 200
+    },
+    {
+     "kind": "grant_item",
+     "item": "storm_shard",
+     "count": 20
+    },
+    {
+     "kind": "grant_item",
+     "item": "sovereign_settling_pill",
+     "count": 1
+    },
+    {
+     "kind": "codex",
+     "entry": "tomb_of_sunscar"
+    }
+   ],
+   "offer_text": [
+    "The gate answers a key of gold and jade, and the worms swallowed that key in pieces when the tomb was sealed.",
+    "Three pieces. Then read the inscription on the gate, if your eyes can hold it. It is written for scholars, not thieves."
+   ],
+   "complete_text": [
+    "The doors are open? Then do not go in. Not yet. He was a Sage Sovereign, and a Sage who walks into his hall joins his guard.",
+    "Take this pill for after. First, become what he was."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "glass_and_bone"
+     }
+    ]
+   },
+   "chapter": "14",
+   "target_room": "sd_worm_sea",
+   "next": "sovereign",
+   "qp": "act2_main"
+  },
+  {
+   "id": "the_tomb_king",
+   "name": "The Tomb King",
+   "kind": "main",
+   "giver": "bone_reader_xiu",
+   "hand_in": "bone_reader_xiu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Pass the Hall of Sand Kings into the Mirror Crypt",
+     "count": 1,
+     "room": "ts_mirror_crypt"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Find what Lu left in the crypt",
+     "count": 1,
+     "flag": "journal_tomb"
+    },
+    {
+     "kind": "kill",
+     "text": "Face the Tomb King of Sunscar on his throne",
+     "count": 1,
+     "enemy": "tomb_king"
+    },
+    {
+     "kind": "collect",
+     "text": "Take up the sun seal",
+     "count": 1,
+     "item": "sunscar_seal",
+     "consume": false
+    },
+    {
+     "kind": "set_flag",
+     "text": "Keep the seal from the Grey Pilgrim",
+     "count": 1,
+     "flag": "seal_kept",
+     "alt_flag": "tomb_resealed"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 300
+    },
+    {
+     "kind": "grant_item",
+     "item": "sovereign_settling_pill",
+     "count": 2
+    },
+    {
+     "kind": "codex",
+     "entry": "tomb_king"
+    }
+   ],
+   "offer_text": [
+    "Now you can go in. The King sealed himself in with the seal. Whoever holds it can open what the Hollow keeps shut.",
+    "The grey man will be waiting on the stairs. He always is."
+   ],
+   "complete_text": [
+    "You came back, and the Pilgrim did not come back with you. The bones say that is enough for today.",
+    "Lu's page... he stood where you stood, and he walked away without the seal. You chose your own way. Good."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "sovereign"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_1"
+     }
+    ]
+   },
+   "chapter": "14",
+   "target_room": "ts_sealed_gate",
+   "qp": "act2_main"
+  },
+  {
+   "id": "sovereign",
+   "name": "Sovereign",
+   "kind": "main",
+   "giver": "bone_reader_xiu",
+   "hand_in": "bone_reader_xiu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_realm",
+     "text": "Break through to Sage Sovereign 1 (a full Sage Qi reserve and one Dao at Adaptation)",
+     "count": 1,
+     "realm": "sage_sovereign_1"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 250
+    },
+    {
+     "kind": "codex",
+     "entry": "sage_sovereign"
+    }
+   ],
+   "offer_text": [
+    "The Tomb King was a Sage Sovereign. His land still holds the Qi for it. Fill your reserve and let one Dao adapt to you.",
+    "Then sit by the water and break through. The Settling Pill will hold the new stage steady."
+   ],
+   "complete_text": [
+    "Sage Sovereign. The sand bends a little when you breathe now. Did you notice?",
+    "The Pilgrim noticed too. Whatever he serves has been waiting for someone like you to come this far."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_sealed_gate"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_3"
+     }
+    ]
+   },
+   "chapter": "14",
+   "target_room": "sd_oasis_of_bones",
+   "next": "the_tomb_king",
+   "qp": "act2_main"
+  },
+  {
    "id": "snow_for_the_cabinet",
    "name": "Snow for the Cabinet",
    "kind": "side",
@@ -6209,7 +6479,8 @@
      "kind": "collect",
      "text": "Pick Frost Lotus on Rimefrost Heights",
      "count": 3,
-     "item": "frost_lotus"
+     "item": "frost_lotus",
+     "consume": true
     }
    ],
    "rewards": [
@@ -6313,7 +6584,8 @@
      "kind": "collect",
      "text": "Bring Spark Pelts for new saddle blankets",
      "count": 4,
-     "item": "spark_pelt"
+     "item": "spark_pelt",
+     "consume": true
     }
    ],
    "rewards": [
@@ -6362,7 +6634,8 @@
      "kind": "collect",
      "text": "Cut Kite Silk from the Wind Kites of the canyons",
      "count": 5,
-     "item": "kite_silk"
+     "item": "kite_silk",
+     "consume": true
     }
    ],
    "rewards": [
@@ -6411,7 +6684,8 @@
      "kind": "collect",
      "text": "Bring Harpy Plumes from the Harpy Roosts",
      "count": 4,
-     "item": "harpy_plume"
+     "item": "harpy_plume",
+     "consume": true
     }
    ],
    "rewards": [
@@ -6442,6 +6716,148 @@
     ]
    },
    "target_room": "gc_harpy_roosts",
+   "qp": "act2_side"
+  },
+  {
+   "id": "cactus_water",
+   "name": "Cactus Water",
+   "kind": "side",
+   "giver": "oasis_keeper_meng",
+   "hand_in": "oasis_keeper_meng",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Pick Ember Cactus flowers on the Glass Dunes",
+     "count": 4,
+     "item": "ember_cactus",
+     "consume": true
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 90
+    },
+    {
+     "kind": "grant_item",
+     "item": "cactus_water",
+     "count": 4
+    }
+   ],
+   "offer_text": [
+    "The flowers store the sun. Steep them right and the water keeps the heat out of you instead.",
+    "Four flowers. Pick them at dusk if you can. At noon they bite."
+   ],
+   "complete_text": [
+    "Cactus water. Drink it before the heat and your Essence runs cool. Here, the first jars are yours."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "glass_and_bone"
+     }
+    ]
+   },
+   "target_room": "sd_glass_dunes",
+   "qp": "act2_side"
+  },
+  {
+   "id": "glass_teeth",
+   "name": "Glass Teeth",
+   "kind": "side",
+   "giver": "bone_reader_xiu",
+   "hand_in": "bone_reader_xiu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Bring Dune Worm glass teeth",
+     "count": 3,
+     "item": "worm_glass_tooth",
+     "consume": true
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 110
+    },
+    {
+     "kind": "grant_item",
+     "item": "clear_mind_pill",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "Bones for the past, glass for the future. A worm's tooth shows what is coming, if you hold it to the sun.",
+    "Three teeth. The worms will not give them politely."
+   ],
+   "complete_text": [
+    "Clear as water. I see... a ship with no sea. Hm. That one is yours to find, not mine."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "glass_and_bone"
+     }
+    ]
+   },
+   "target_room": "sd_worm_sea",
+   "qp": "act2_side"
+  },
+  {
+   "id": "stingers_for_the_hold",
+   "name": "Stingers for the Hold",
+   "kind": "side",
+   "giver": "clan_smith_gang",
+   "hand_in": "clan_smith_gang",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Bring Sandstorm Scorpion stingers",
+     "count": 5,
+     "item": "scorpion_stinger",
+     "consume": true
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 120
+    },
+    {
+     "kind": "grant_item",
+     "item": "stormsteel_ore",
+     "count": 4
+    }
+   ],
+   "offer_text": [
+    "Scorpion venom on a quenched edge. Old Ironroot trick for the desert raiders. Bring me stingers.",
+    "Five. Mind the tails."
+   ],
+   "complete_text": [
+    "Good. The raiders will think twice. Here, more ore. Kin price."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "glass_and_bone"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "plumes_for_the_bellows"
+     }
+    ]
+   },
+   "target_room": "sd_scorpion_flats",
    "qp": "act2_side"
   }
  ]

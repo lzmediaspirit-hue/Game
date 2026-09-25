@@ -23,6 +23,7 @@ CLOTH = {
     'mystic': dict(cloth=R['mistjade'], trim=R['gold'], sash=R['plum'], plate=None, gem=R['violet'],
                    glow='#B18DE2'),
     'spirit': dict(cloth=R['storm'], trim=R['silver'], sash=R['navy'], plate=None, gem=R['cyan'], glow='#7FD4FF'),
+    'sage': dict(cloth=R['sand'], trim=R['gold'], sash=R['red'], plate=None, gem=R['ember'], glow='#FFC870'),
 }
 
 
@@ -134,7 +135,7 @@ def boots(grade):
     c = Canvas(32)
     cl, tr = P['cloth'], P['trim']
     sole = R['paper'] if grade in ('common', 'heaven') else R['leather'] if grade == 'earth' else R['gold'] \
-        if grade == 'mystic' else R['silver'] if grade == 'spirit' else R['hemp']
+        if grade == 'mystic' else R['silver'] if grade == 'spirit' else R['clay'] if grade == 'sage' else R['hemp']
     _boot(c, -4, -2, cl, sole, tr, base=1)
     m = _boot(c, 1, 3, cl, sole, tr, base=2)
     if P['plate'] is not None:
@@ -260,6 +261,24 @@ def stormsilk_hat():
     return c
 
 
+def sunsilk_hat():
+    """Sage grade: a black lacquered hat with a gold band and a sheer sunsilk veil to the shoulders."""
+    c = Canvas(32)
+    veil = c.poly([(4, 15), (28, 15), (27, 29), (5, 29)])
+    c.put(veil, R['sand'], 'vgrad', base=3)
+    for x in (8, 13, 19, 24):
+        c.put(c.rect(x, 17, x, 28) & veil, R['sand'][2], 'flat', only_on=True)
+    crown = c.ellipse(16, 11, 6.5, 5) & (c.Y < 14)
+    c.put(crown, R['ink'], 'ray', base=2, sep=True)
+    brim = c.ellipse(16, 14, 13, 2.4)
+    c.put(brim, R['ink'], 'hgrad', base=2, sep=True)
+    c.put(c.rect(10, 11, 22, 12) & crown, R['gold'], 'flat', base=3)
+    c.put(S.diamond(c, 16, 9, 1.6, 2), R['ember'], 'ray', base=4, sep=True)
+    c.outline()
+    c.glow('#FFC870', (80, 30))
+    return c
+
+
 def mistjade_hat():
     c = Canvas(32)
     bun = c.ellipse(16, 20, 8, 6)
@@ -327,11 +346,11 @@ def cloud_talisman():
 def gourd(kind):
     c = Canvas(32)
     body = {'starter': R['straw'], 'bamboo': R['bamboo'], 'jadeiron': R['jadeiron'], 'cloud': R['porcelain'],
-            'mistjade': R['mistjade'], 'stormsteel': R['storm']}[kind]
+            'mistjade': R['mistjade'], 'stormsteel': R['storm'], 'sunsteel': R['gold']}[kind]
     band_r = {'starter': R['hemp'], 'bamboo': R['bamboo'], 'jadeiron': R['iron'], 'cloud': R['sky'],
-              'mistjade': R['gold'], 'stormsteel': R['silver']}[kind]
+              'mistjade': R['gold'], 'stormsteel': R['silver'], 'sunsteel': R['red']}[kind]
     stop = {'starter': R['wood'], 'bamboo': R['wood'], 'jadeiron': R['jade'], 'cloud': R['silver'],
-            'mistjade': R['gold'], 'stormsteel': R['cyan']}[kind]
+            'mistjade': R['gold'], 'stormsteel': R['cyan'], 'sunsteel': R['jade']}[kind]
     low = c.circle(16, 21.5, 8.5)
     up = c.circle(16, 10.5, 5.5)
     waist = c.rect(13, 13, 18, 16)
@@ -373,16 +392,22 @@ def gourd(kind):
         for y in (18, 25):
             c.put(c.rect(7, y, 25, y) & low, R['silver'], 'flat', base=3)
         c.put(c.circle(16, 21.5, 1.8), R['cyan'], 'flat', base=4)
+    elif kind == 'sunsteel':
+        for y in (18, 25):
+            c.put(c.rect(7, y, 25, y) & low, R['red'], 'flat', base=3)
+        c.put(c.circle(16, 21.5, 1.8), R['ember'], 'flat', base=4)
     c.outline()
     if kind == 'mistjade':
         c.glow('#B18DE2', (95, 40))
     if kind == 'stormsteel':
         c.glow('#7FD4FF', (95, 40))
+    if kind == 'sunsteel':
+        c.glow('#FFC870', (95, 40))
     return c
 
 
 for _g, _w in (('plain', 'hemp'), ('common', 'cotton'), ('earth', 'jadeiron'), ('heaven', 'cloudsilk'),
-               ('mystic', 'mistjade'), ('spirit', 'stormsilk')):
+               ('mystic', 'mistjade'), ('spirit', 'stormsilk'), ('sage', 'sunsilk')):
     register(FAM, '%s_robe' % _w, (lambda gr=_g: robe(gr)), 'armour')
     register(FAM, '%s_trousers' % _w, (lambda gr=_g: trousers(gr)), 'armour')
     if _g not in ('plain', 'common'):
@@ -395,7 +420,8 @@ register(FAM, 'jadeiron_hat', jadeiron_hat, 'armour')
 register(FAM, 'cloudsilk_hat', cloudsilk_hat, 'armour')
 register(FAM, 'mistjade_hat', mistjade_hat, 'armour')
 register(FAM, 'stormsilk_hat', stormsilk_hat, 'armour')
+register(FAM, 'sunsilk_hat', sunsilk_hat, 'armour')
 register(FAM, 'mistjade_cape', mistjade_cape, 'armour')
 register(FAM, 'cloud_talisman', cloud_talisman, 'armour')
-for _k in ('starter', 'bamboo', 'jadeiron', 'cloud', 'mistjade', 'stormsteel'):
+for _k in ('starter', 'bamboo', 'jadeiron', 'cloud', 'mistjade', 'stormsteel', 'sunsteel'):
     register(FAM, '%s_gourd' % _k, (lambda k=_k: gourd(k)), 'gourds')

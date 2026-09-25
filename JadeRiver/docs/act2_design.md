@@ -55,7 +55,7 @@ Three threads carry the act:
 | 11 Beyond the Gate (HG3–Sage 1) | Through the Gate (arrive at Cloudgate Port) · A Sky Full of Toll Roads (meet the Alliance factor and the free broker) · Storm in the Blood (Storm Ward jades on the plains) · Horns for the Furnace (thunderhorn horns for the Sage pill) · Sage (break through at the port's condensing hall) |
 | 12 The Grey Pilgrim (Sage 1–2) | Shards for Sale (follow the buyer across the plains) · Frost and Silence (the hermit on Rimefrost) · The Mirror Remembers (Lake Shrine vision; Thousand-Eye Toad) |
 | 13 The Nine Peaks (Sage 2–3) | Nine Seats (choose the Alliance or stay independent) · Ironroot Blood (clan adoption) · The Canyon Toll (Gale Canyons) |
-| 14 Sunscar (Sage 3–SS1) | Glass and Bone (cross the desert) · The Sealed Gate · The Tomb King (seal taken — or kept from the Pilgrim) |
+| 14 Sunscar (Sage 3–SS1) | Glass and Bone (cross the desert) · The Sealed Gate · Sovereign (Sage Sovereign 1) · The Tomb King (the seal kept, or returned to the King; either way kept from the Pilgrim) |
 | 15 Pirates of the Starsea (SS1–2) | Gu's Ledger · The Skyport Wreck · Sect War (defence of the Alliance Gate) |
 | 16 The Presence Trial (SS3) | Lu's Last Page · The Presence Trial · Stars Beyond (the Starsea launch, Act III hook) |
 
@@ -67,7 +67,7 @@ Three threads carry the act:
   chapter 12.
 - **C · Nine Peaks (done).** Alliance or independence, auction house, clans (Ironroot), Gale Canyons;
   chapter 13. The Trial Hall moves to phase E with the Presence Trial.
-- **D · Sunscar.** Desert, the Tomb of Sunscar and its King; chapter 14.
+- **D · Sunscar (done).** Desert, the Tomb of Sunscar and its King; chapter 14; Sage-grade equipment.
 - **E · Starsea.** Skyport Wreck, pirates, star charts and vessels, sect war; chapters 15–16 and the
   Presence Trial.
 

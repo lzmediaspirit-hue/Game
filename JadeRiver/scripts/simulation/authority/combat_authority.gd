@@ -658,7 +658,8 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 		if float(tl.stance) > 0.0:
 			_player_hits_enemy(c, pv, e, {"damage_type": "physical", "element": "wood", "mult": [2.0, 2.0], "range": [1.0, 1.0], "source": "counter"}, int(tl.facing))
 		return
-	var a := {"damage_type": str(attack.get("damage_type", "physical")), "element": e.element, "mult": [float(attack.get("mult", 1.0)), float(attack.get("mult", 1.0))],
+	var m := float(attack.get("mult", 1.0)) * float(e.ai.get("enraged", {}).get("damage", 1.0))
+	var a := {"damage_type": str(attack.get("damage_type", "physical")), "element": e.element, "mult": [m, m],
 		"range": [0.9, 1.1], "knockback": float(attack.get("knockback", 0)), "attunement": float(attune.get(c.id, {}).get("taken", 1.0))}
 	var guard_pv := pv.duplicate()
 	if not (tl.guard and frontal): guard_pv.guarding = 0.0

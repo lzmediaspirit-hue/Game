@@ -1,0 +1,451 @@
+{
+ "schema_version": 1,
+ "id": "sd_glass_dunes",
+ "zone": "azure_expanse",
+ "region": "sunscar_desert",
+ "name": "Glass Dunes",
+ "type": "field",
+ "level_range": [
+  73,
+  76
+ ],
+ "recommended_cp": 1334,
+ "element": "earth",
+ "qi_density": 1.8,
+ "hazards": [
+  "scorching_heat"
+ ],
+ "gather_tier": "expanse_high",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "sunscar",
+ "ground": {
+  "material": "sand"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ir_clan_hearth",
+   "to_portal": "desert_road"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "sd_scorpion_flats",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    602,
+    700
+   ],
+   "item": "ember_cactus",
+   "prop": "ember_cactus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "master",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "herb_2",
+   "type": "herb_patch",
+   "at": [
+    1888,
+    930
+   ],
+   "item": "ember_cactus",
+   "prop": "ember_cactus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "master",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "ore_3",
+   "type": "ore_vein",
+   "at": [
+    3237,
+    690
+   ],
+   "item": "sunglass_ore",
+   "prop": "sunglass_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "master",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    558,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 74,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    1455,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 74,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_6",
+   "type": "jar",
+   "at": [
+    2451,
+    900
+   ],
+   "loot": "jar_expanse",
+   "level": 74,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_7",
+   "type": "jar",
+   "at": [
+    3437,
+    720
+   ],
+   "loot": "jar_expanse",
+   "level": 74,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "sign_sd",
+   "type": "signpost",
+   "at": [
+    300,
+    860
+   ],
+   "text": "The Sunscar road. South: the Oasis of Bones. Carry water. Carry more water."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "sandstorm_scorpion",
+   "surface": "ground",
+   "points": [
+    [
+     521,
+     779
+    ],
+    [
+     1085,
+     860
+    ],
+    [
+     1691,
+     826
+    ],
+    [
+     2173,
+     802
+    ],
+    [
+     2764,
+     749
+    ],
+    [
+     3319,
+     824
+    ]
+   ],
+   "max": 5,
+   "respawn_s": 12,
+   "level": [
+    73,
+    75
+   ]
+  },
+  {
+   "enemy": "sandstorm_scorpion",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    75,
+    75
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "dune_cactus",
+   "at": [
+    229,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    625,
+    632
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dune_cactus",
+   "at": [
+    1172,
+    632
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1818,
+    638
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dune_cactus",
+   "at": [
+    2326,
+    633
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2890,
+    633
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dune_cactus",
+   "at": [
+    3336,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    83,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    456,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    742,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1089,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1416,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1703,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2076,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2443,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2841,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3113,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3494,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3782,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "bleached_ribcage",
+   "at": [
+    1500,
+    650
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "desert",
+ "ambience": "wind_ambience",
+ "attunement_required": 45
+}

@@ -335,6 +335,54 @@
     "flying": true,
     "hit_frame": 1
   },
+  "dune_worm": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      128,
+      224
+    ],
+    "cell": 256,
+    "file": "res://art/creatures/dune_worm.png",
+    "flying": false,
+    "hit_frame": 1
+  },
   "ember_fox": {
     "actions": {
       "attack": {
@@ -1823,6 +1871,54 @@
     "flying": false,
     "hit_frame": 2
   },
+  "sandstorm_scorpion": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      96,
+      168
+    ],
+    "cell": 192,
+    "file": "res://art/creatures/sandstorm_scorpion.png",
+    "flying": false,
+    "hit_frame": 1
+  },
   "snow_ape": {
     "actions": {
       "attack": {
@@ -2063,6 +2159,54 @@
     "flying": true,
     "hit_frame": 2
   },
+  "terracotta_warden": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      96,
+      168
+    ],
+    "cell": 192,
+    "file": "res://art/creatures/terracotta_warden.png",
+    "flying": false,
+    "hit_frame": 1
+  },
   "thornback_boar": {
     "actions": {
       "attack": {
@@ -2252,6 +2396,54 @@
     ],
     "cell": 128,
     "file": "res://art/creatures/tide_crab.png",
+    "flying": false,
+    "hit_frame": 1
+  },
+  "tomb_king": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      128,
+      244
+    ],
+    "cell": 256,
+    "file": "res://art/creatures/tomb_king.png",
     "flying": false,
     "hit_frame": 1
   },

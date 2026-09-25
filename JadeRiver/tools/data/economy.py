@@ -121,7 +121,11 @@ def shops():
         {"id": "wayfarers_inn", "name": "Wayfarers' Inn Kitchen", "currency": "spirit_stone",
          "stock": [s("rice_ball"), s("herbal_tea"), s("jade_carp_congee"), s("cloudtop_orchid_broth"), s("thunderhorn_stew")]},
         {"id": "condensing_hall", "name": "Condensing Hall Stores", "currency": "spirit_stone",
-         "stock": [s("clear_mind_pill"), s("soul_soothing_pill"), s("calm_incense"), s("sage_condensing_pill", price=90, requires=all_of(realm("heaven_glimpse_3")))]},
+         "stock": [s("clear_mind_pill"), s("soul_soothing_pill"), s("calm_incense"), s("sage_condensing_pill", price=90, requires=all_of(realm("heaven_glimpse_3"))),
+                   s("sovereign_settling_pill", price=120, requires=all_of(realm("sage_sovereign_1")))]},
+        {"id": "oasis_keeper", "name": "Oasis of Bones Stores", "currency": "spirit_stone", "buys_all": True,
+         "stock": [s("herbal_tea"), s("rice_ball"), s("viper_antidote"), s("qi_restoration_pill"), s("storm_blood_pill"), s("cactus_water", price=12),
+                   s("tough_meat")]},
         {"id": "free_market", "name": "Broker Mu's Back Room", "currency": "spirit_stone",
          "requires": {"all": [{"kind": "flag_set", "flag": "path_independent"}]},
          "stock": [s("manual_page", price=5), s("torn_manual", price=24), s("storm_blood_pill"), s("spirit_egg", price=36)],
@@ -131,7 +135,14 @@ def shops():
          "discount": {"flag": "clan_ironroot", "pct": 0.15},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_staff"), s("stormsilk_robe"),
                    s("stormsilk_boots"), s("stormsteel_ore"), s("bone_strengthening_pill"),
-                   s("thunderhorn_stew", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}))]},
+                   s("thunderhorn_stew", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"})),
+                   # Sage grade for kin who have become Sovereigns: sunsteel and sunsilk, worked with Sunscar glass.
+                   s("sunsteel_jian", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
+                   s("sunsteel_spear", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
+                   s("sunsteel_gauntlets", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
+                   s("sunsteel_staff", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
+                   s("sunsilk_robe", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
+                   s("sunsilk_boots", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1")))]},
         {"id": "herders_camp", "name": "Herders' Camp", "currency": "spirit_stone", "buys_all": True,
          "stock": [s("tough_meat"), s("thunderhorn_stew"), s("bonding_offering_heaven"), s("storm_blood_pill")]},
     ]
@@ -176,7 +187,8 @@ def recipes():
          ("soul_soothing_pill", "heaven", [("mirror_dust", 2), ("soul_wax", 1), ("mist_lotus", 1)], 600),
          ("mind_lake_opening_pill", "heaven", [("cloud_feather", 3), ("mist_lotus", 2), ("cloudtop_orchid", 1)], 900),
          ("sage_condensing_pill", "mystic", [("roc_feather", 2), ("jade_core", 1), ("soulbell_flower", 2)], 1200),
-         ("storm_blood_pill", "mystic", [("spark_pelt", 1), ("storm_shard", 2), ("soulbell_flower", 1)], 900)]
+         ("storm_blood_pill", "mystic", [("spark_pelt", 1), ("storm_shard", 2), ("soulbell_flower", 1)], 900),
+         ("sovereign_settling_pill", "sage", [("ember_cactus", 2), ("worm_glass_tooth", 1), ("frost_lotus", 1)], 1500)]
     for pid, grade, inputs, t in A:
         r(pid, "alchemy", inputs, [(pid, 1)], grade, time_s=t)
     # Cooking (Part 8) incl. pet foods and bonding offerings
@@ -187,18 +199,20 @@ def recipes():
          ("roast_fish", [("river_minnow", 2)], False), ("ember_pepper_broth", [("ember_pepper", 1), ("tough_meat", 1)], False),
          ("bonding_offering_common", [("tough_meat", 1), ("rice", 1)], False), ("bonding_offering_earth", [("jade_carp_fish", 1), ("mist_lotus", 1)], False),
          ("bonding_offering_heaven", [("mist_trout", 2), ("cloudtop_orchid", 1)], False),
-         ("thunderhorn_stew", [("tough_meat", 2), ("thunder_horn", 1)], False)]
+         ("thunderhorn_stew", [("tough_meat", 2), ("thunder_horn", 1)], False),
+         ("cactus_water", [("ember_cactus", 1)], False)]
     for cid, inputs, default in C:
         r(cid, "cooking", inputs, [(cid, 1)], "plain", default=default, pet_food=cid in ("roast_fish", "ember_pepper_broth"))
     # Forge blueprints (weapons per family and armour per slot, per grade)
     bands = {"common": ("iron", "copper_ore", "riverstone", "boar_hide"), "earth": ("jadeiron", "jadeiron", "riverstone", "jade_scale"),
              "heaven": ("cloudsteel", "cloudsteel_ore", "jadeiron", "cloud_feather"), "mystic": ("mistjade", "mystic_ore", "cloudsteel_ore", "roc_feather"),
-             "spirit": ("stormsteel", "stormsteel_ore", "mystic_ore", "spark_pelt")}
+             "spirit": ("stormsteel", "stormsteel_ore", "mystic_ore", "spark_pelt"),
+             "sage": ("sunsteel", "sunglass_ore", "stormsteel_ore", "scorpion_stinger")}
     for grade, (prefix, metal, second, binder) in bands.items():
         for fam in ["gauntlets", "jian", "spear", "short_blade", "staff", "bow"]:
             r("%s_%s" % (prefix, fam), "smithing", [(metal, 6), (second, 3 if grade == "common" else 4), (binder, 2)], [("%s_%s" % (prefix, fam), 1)], grade)
     armour = {"common": ("cotton", "cloth_boots"), "earth": ("jadeiron", None), "heaven": ("cloudsilk", None), "mystic": ("mistjade", None),
-              "spirit": ("stormsilk", None)}
+              "spirit": ("stormsilk", None), "sage": ("sunsilk", None)}
     for grade, (prefix, boots) in armour.items():
         metal = bands[grade][1]
         binder = bands[grade][3]
@@ -415,6 +429,8 @@ def achievements():
          "match": {"def": "spark_weasel"}, "count": 100, "title": "storm_herder"},
         {"id": "thousand_eyes_closed", "name": "Thousand Eyes Closed", "desc": "Silence the Thousand-Eye Toad", "event": "actor_defeated",
          "match": {"def": "thousand_eye_toad"}, "rewards": [{"kind": "grant_item", "item": "spirit_stone_mid", "count": 5}]},
+        {"id": "the_king_sleeps", "name": "The King Sleeps", "desc": "Defeat the Tomb King of Sunscar", "event": "actor_defeated",
+         "match": {"def": "tomb_king"}, "title": "sunscar_victor"},
     ]
     entries("achievements", A)
     T = [
@@ -424,6 +440,9 @@ def achievements():
         {"id": "alliance_envoy", "name": "Alliance Envoy", "modifiers": [{"stat": "attunement_bonus", "op": "flat", "value": 2}]},
         {"id": "free_cultivator", "name": "Free Cultivator", "modifiers": [{"stat": "drop_rate", "op": "pct_add", "value": 0.03}]},
         {"id": "ironroot_kin", "name": "Ironroot Kin", "modifiers": [{"stat": "max_hp", "op": "pct_add", "value": 0.04}]},
+        {"id": "seal_keeper", "name": "Keeper of the Sun Seal", "modifiers": [{"stat": "qi_attack", "op": "pct_add", "value": 0.03}]},
+        {"id": "sunscar_sealer", "name": "Sealer of Sunscar", "modifiers": [{"stat": "max_soul", "op": "pct_add", "value": 0.05}]},
+        {"id": "sunscar_victor", "name": "Kingsbane of Sunscar", "modifiers": [{"stat": "essence", "op": "flat", "value": 3}]},
         {"id": "shore_warden", "name": "Shore Warden", "modifiers": [{"stat": "physical_defense", "op": "pct_add", "value": 0.01}]},
         {"id": "iron_fist", "name": "Iron Fist", "modifiers": [{"stat": "fist_attack", "op": "pct_add", "value": 0.01}]},
         {"id": "steady_hands", "name": "Steady Hands", "modifiers": [{"stat": "crafting_control", "op": "pct_add", "value": 0.01}]},

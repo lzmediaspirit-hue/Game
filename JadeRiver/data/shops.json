@@ -1257,6 +1257,48 @@
        }
       ]
      }
+    },
+    {
+     "item": "sovereign_settling_pill",
+     "price": 120,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_sovereign_1"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "oasis_keeper",
+   "name": "Oasis of Bones Stores",
+   "currency": "spirit_stone",
+   "buys_all": true,
+   "stock": [
+    {
+     "item": "herbal_tea"
+    },
+    {
+     "item": "rice_ball"
+    },
+    {
+     "item": "viper_antidote"
+    },
+    {
+     "item": "qi_restoration_pill"
+    },
+    {
+     "item": "storm_blood_pill"
+    },
+    {
+     "item": "cactus_water",
+     "price": 12
+    },
+    {
+     "item": "tough_meat"
     }
    ]
   },
@@ -1356,6 +1398,96 @@
        {
         "kind": "flag_set",
         "flag": "clan_ironroot"
+       }
+      ]
+     }
+    },
+    {
+     "item": "sunsteel_jian",
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "clan_ironroot"
+       },
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_sovereign_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "sunsteel_spear",
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "clan_ironroot"
+       },
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_sovereign_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "sunsteel_gauntlets",
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "clan_ironroot"
+       },
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_sovereign_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "sunsteel_staff",
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "clan_ironroot"
+       },
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_sovereign_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "sunsilk_robe",
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "clan_ironroot"
+       },
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_sovereign_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "sunsilk_boots",
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "clan_ironroot"
+       },
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_sovereign_1"
        }
       ]
      }

@@ -187,6 +187,7 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"grant_pet": pets.apply_grant(actor_id, str(e.species))
 			"choose_starter": pets.choose_starter(character(actor_id), str(e.species))
 			"add_stability": progression.apply_stability(actor_id, str(e.value))
+			"settle_consolidation": progression.apply_settle(actor_id)
 			"add_purity": progression.apply_purity(actor_id, float(e.amount))
 			"unlock_slot": accounts.apply_slot(int(e.get("slot", 0)))
 			"codex": quest.apply_codex(str(e.entry))

@@ -148,6 +148,7 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 			if float(ai.timer) <= 0.0:
 				# Pause between attacks so every monster's rhythm stays readable (S13).
 				var cd := float(def.get("ai", {}).get("attack_cd", ATTACK_CD.get(str(def.get("ai", {}).get("profile", "melee")), 1.0)))
+				if ai.has("enraged"): cd *= float(ai.enraged.cd)
 				_set_state(auth, e, "aggro", cd * auth.rng.randf_range(0.8, 1.2))
 		"flee":
 			if tgt.is_empty() or float(ai.timer) <= 0.0:

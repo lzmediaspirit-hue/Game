@@ -1,10 +1,11 @@
-"""Bake art/environment/ground-extra.png: two painted ground cells to sit beside ground-v6.png.
+"""Bake art/environment/ground-extra.png: three painted ground cells to sit beside ground-v6.png.
 
     python3 tools/art/bake_ground.py [--preview out.png]
 
   rock  natural mountain ground: weathered slabs with cracks, grit, pebbles and grass tufts
         (cliffs, gorges, the quarry, the misty slopes)
   snow  packed snow over rock, soft drifts and a few exposed stones (the Summit Ridge)
+  sand  wind-rippled dune sand with scoured patches, pebbles and glints of desert glass (Sunscar)
 
 Same cell size (627 px) and painterly treatment as the main atlas: light from the upper
 left, soft value noise, no hard pixel noise. Deterministic: a rebuild is byte-identical.
@@ -227,10 +228,39 @@ def snow():
     return np.clip(img, 0, 255)
 
 
+def sand():
+    shape = (CELL, CELL)
+    rng = np.random.default_rng(37)
+    yy, xx = np.mgrid[0:CELL, 0:CELL].astype(np.float32)
+    # Wind ripples: whole numbers of waves per cell so the texture tiles, bent by slow noise.
+    bend = fbm(shape, 140, 3, 51)
+    ripple = np.sin(2 * np.pi * (18.0 * yy / CELL + 2.0 * xx / CELL + 1.6 * bend))
+    dunes = fbm(shape, 180, 3, 52)
+    light = shade(dunes * 40.0 + ripple * 0.9)
+    base = np.array([218, 186, 132], np.float32)
+    shade_col = np.array([170, 128, 96], np.float32)
+    bright = np.array([240, 214, 162], np.float32)
+    img = mix(np.broadcast_to(base, shape + (3,)).copy(), shade_col, np.clip(0.16 - light * 0.5, 0, 1))
+    img = mix(img, bright, np.clip(light * 0.7 - 0.12, 0, 1))
+    img *= (0.96 + 0.08 * fbm(shape, 12, 2, 53))[..., None]
+    # Wind-scoured patches where coarser, darker grit shows.
+    scour = np.clip((fbm(shape, 90, 3, 54) - 0.66) * 5.0, 0, 1)
+    img = mix(img, np.array([176, 140, 104], np.float32), scour * 0.55)
+    blobs(img, rng, 90, 1.2, 2.6, [[150, 118, 90], [128, 100, 80], [176, 146, 112]], shadow=0.2)
+    for _ in range(5):
+        wrapped(boulder, img, int(rng.integers(1 << 30)), rng.random() * CELL, rng.random() * CELL, 8 + rng.random() * 12, [170, 136, 104])
+    tufts(img, rng, 7, [[150, 140, 90], [124, 116, 76], [170, 150, 100]])
+    # Glints of desert glass.
+    glint = rng.random(shape) > 0.9993
+    img[glint] = [236, 250, 255]
+    return np.clip(img, 0, 255)
+
+
 def main():
-    atlas = np.zeros((CELL, CELL * 2, 3), np.float32)
+    atlas = np.zeros((CELL, CELL * 3, 3), np.float32)
     atlas[:, :CELL] = rock()
-    atlas[:, CELL:] = snow()
+    atlas[:, CELL:CELL * 2] = snow()
+    atlas[:, CELL * 2:] = sand()
     Image.fromarray(atlas.astype(np.uint8), "RGB").save(OUT, optimize=False)
     print("wrote", os.path.relpath(OUT, ROOT))
     if "--preview" in sys.argv:

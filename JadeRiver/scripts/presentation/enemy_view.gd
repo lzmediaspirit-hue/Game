@@ -20,6 +20,8 @@ var ally := false
 var flying := false
 var death_fade := 1.0
 var tell := 0.0
+var burrowed := false   # a burrower travelling under the ground: only its mound shows
+var t := 0.0
 
 func setup(e: EnemyState) -> void:
 	uid = e.uid
@@ -72,6 +74,12 @@ func sync(e: EnemyState, delta: float) -> void:
 	z_index = 1500 + int(e.plane.y) + (40 if flying else 0)
 	visible = not (e.hidden and not ally) or e.ai.state == "windup"
 	if e.hidden and ally: visible = false
+	# A burrower under the ground shows a travelling mound instead of vanishing (fog still hides the rest).
+	burrowed = e.hidden and not ally and e.ai.state != "windup" and str(e.def.get("ai", {}).get("profile", "")) == "burrower" and e.alive
+	if burrowed: visible = true
+	if sprite: sprite.visible = not burrowed
+	if avatar: avatar.visible = not burrowed
+	t += delta
 	var action := e.action
 	if e.ai.state == "stagger": action = "hurt"
 	if e.flash > 0.0 and action in ["idle", "walk"]: action = "hurt"
@@ -114,12 +122,42 @@ func _avatar_action(e: EnemyState, action: String) -> void:
 			avatar.externally_timed = false
 			avatar.play("idle")
 
+## The hump of earth a burrower pushes up as it travels, with grains thrown back behind it.
+func _draw_mound(ground: Vector2, w: float) -> void:
+	var mat := str(Game.room_rt.def.get("ground", {}).get("material", "earth")) if Game.room_rt else "earth"
+	var lit: Color = Color("e2c48e") if mat == "sand" else Color("8a6a48")
+	var dark: Color = Color("a8804e") if mat == "sand" else Color("5a4230")
+	var r := maxf(18.0, w * 0.9)
+	var bob := sin(t * 10.0) * 1.5
+	var hump := PackedVector2Array()
+	for i in 13:
+		var a := PI * i / 12.0
+		hump.append((ground + Vector2(-cos(a) * r, -sin(a) * (10.0 + bob))).snapped(Vector2(2, 2)))
+	draw_colored_polygon(hump, dark)
+	var top := PackedVector2Array()
+	for i in 9:
+		var a := PI * (0.15 + 0.7 * i / 8.0)
+		top.append((ground + Vector2(-cos(a) * r * 0.7, -sin(a) * (8.0 + bob) - 1.0)).snapped(Vector2(2, 2)))
+	draw_polyline(top, lit, 2.0)
+	var back := -float(sign(e_facing())) if e_facing() != 0 else -1.0
+	for i in 5:
+		var life := fposmod(t * 2.2 + i * 0.21, 1.0)
+		var p := ground + Vector2(back * (r * 0.6 + life * 26.0), -6.0 - sin(life * PI) * 14.0)
+		draw_rect(Rect2(p.snapped(Vector2(2, 2)), Vector2(2, 2)), Color(lit, 1.0 - life))
+
+func e_facing() -> int:
+	var e: EnemyState = Game.room_rt.enemies.get(uid) if Game.room_rt else null
+	return e.facing if e else 1
+
 func _draw() -> void:
 	var rt: RoomRuntime = Game.room_rt
 	var e: EnemyState = rt.enemies.get(uid) if rt else null
 	if e == null: return
 	var ground := Vector2(0, e.altitude + e.hover)
 	var w := e.half_width()
+	if burrowed:
+		_draw_mound(ground, w)
+		return
 	draw_set_transform(ground, 0.0, Vector2(1, 0.28))
 	draw_circle(Vector2.ZERO, w * 1.1, Color(0.01, 0.035, 0.04, 0.35 * (death_fade if not e.alive else 1.0)))
 	draw_set_transform(Vector2.ZERO)

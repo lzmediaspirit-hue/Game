@@ -17,7 +17,8 @@ const RANK_CAPS := {
 	"alchemy": [["qi_unfurling_1", "adept"], ["cloud_stride_1", "expert"], ["heaven_glimpse_1", "master"]],
 	"smithing": [["qi_unfurling_1", "adept"], ["cloud_stride_1", "expert"], ["heaven_glimpse_1", "master"]],
 }
-const GRADE_CAP := [["qi_kindling_1", "common"], ["qi_unfurling_1", "earth"], ["cloud_stride_1", "heaven"], ["heaven_glimpse_1", "mystic"], ["sage_1", "spirit"]]
+const GRADE_CAP := [["qi_kindling_1", "common"], ["qi_unfurling_1", "earth"], ["cloud_stride_1", "heaven"], ["heaven_glimpse_1", "mystic"], ["sage_1", "spirit"],
+	["sage_sovereign_1", "sage"]]
 
 func intents() -> Array:
 	return ["complete_node", "catch_fish", "cook", "craft_step", "refine", "queue_auto_refine", "collect_auto_refine", "forge", "enhance", "salvage_item"]

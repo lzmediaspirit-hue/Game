@@ -180,9 +180,30 @@ def build():
             [atk("gust_dive", 0.55, 120, 1.25, dash=140, knockback=90)],
             ai="flyer", speed=140, flying=True, width=34, height=34, tameable=False),
         mob("canyon_harpy", (74, 78), "normal", "wind", "azure", [d("harpy_plume", 0.45), d("storm_shard", 0.55, (1, 2))],
-            [atk("talon_rake", 0.5, 80, 1.3, dash=90, status={"id": "bleed", "chance": 0.25, "power": 0.2, "duration_s": 4}),
+            [atk("talon_rake", 0.5, 80, 1.3, dash=90, status={"id": "bleed", "chance": 0.25, "power": 0.015, "duration_s": 4}),
              atk("screech", 0.8, 220, 0.9, damage_type="soul", depth=80, status={"id": "slow", "chance": 0.4, "power": 0.3, "duration_s": 3})],
             ai="flyer", speed=120, flying=True, width=34, height=44, tameable=False),
+        # Act II · Phase D: the Sunscar Desert and the Tomb of Sunscar.
+        mob("sandstorm_scorpion", (73, 78), "normal", "earth", "azure", [d("scorpion_stinger", 0.45), d("storm_shard", 0.5, (1, 2)),
+                                                                         d("sunglass_ore", 0.08)],
+            [atk("tail_sting", 0.55, 76, 1.25, status={"id": "poison", "chance": 0.4, "power": 0.012, "duration_s": 5}),
+             atk("pincer_snap", 0.4, 46, 1.0)],
+            ai="melee", speed=115, pack=True, width=34, height=30),
+        mob("dune_worm", (77, 81), "normal", "earth", "azure", [d("worm_glass_tooth", 0.45), d("storm_shard", 0.6, (1, 3))],
+            [atk("sand_burst", 0.7, 130, 1.5, depth=50, knockback=110),
+             atk("glass_spit", 0.8, 300, 1.1, projectile={"speed": 460, "art": "pebble"})],
+            ai="burrower", speed=100, width=44, height=80),
+        mob("terracotta_warden", 77, "normal", "earth", "azure", [d("terracotta_shard", 0.5), d("storm_shard", 0.5, (1, 2))],
+            [atk("ge_chop", 0.8, 96, 1.3, depth=36, knockback=90)],
+            ai="slow_melee", speed=70, width=22, height=100, race="construct", weak_to="water"),
+        mob("tomb_king", 77, "dungeon_boss", "earth", "azure", [d("sun_crown_fragment", 1.0, (2, 3)), d("storm_shard", 1.0, (12, 18)),
+                                                                d("sunglass_ore", 1.0, (3, 5))],
+            [atk("glaive_sweep", 0.75, 190, 1.35, depth=70, knockback=120, both_sides=True),
+             atk("sand_crescent", 0.9, 380, 1.2, damage_type="qi", projectile={"speed": 460, "art": "sand_crescent"}),
+             atk("sun_flare", 1.1, 260, 1.5, damage_type="qi", depth=90, status={"id": "burn", "chance": 0.5, "power": 0.01, "duration_s": 4})],
+            ai="boss_king", race="undead", energy="sage_qi", width=40, height=170, weak_to="water", hp_mult=0.35, attack_mult=0.8,
+            phases=[{"below": 0.6, "action": "summon", "summon": "terracotta_warden", "summon_level": 74},
+                    {"below": 0.3, "action": "enrage", "cooldown": 0.65, "damage": 1.3}]),
         mob("canyon_brigand", (73, 76), "normal", "wind", None, [d("storm_shard", 0.5), d("spirit_stone_shard", 0.4, (1, 2))],
             [atk("dagger_flurry", 0.35, 50, 1.1), atk("throwing_knife", 0.5, 240, 1.0, projectile={"speed": 600, "art": "arrow"})],
             ai="duelist", art=human("canyon_brigand"), race="human", energy="sage_qi", width=18, height=90),
@@ -240,7 +261,9 @@ def build():
 
     tables = []
     # Key items drop only while a quest still needs them (S32 quest drops).
-    QUEST_DROPS = {"mudwater_bandit": [{"item": "mudwater_key", "chance": 0.3, "count": [1, 1], "quest": "the_caravan_road"}]}
+    QUEST_DROPS = {"mudwater_bandit": [{"item": "mudwater_key", "chance": 0.3, "count": [1, 1], "quest": "the_caravan_road"}],
+                   "dune_worm": [{"item": "sun_seal_shard", "chance": 0.5, "count": [1, 1], "quest": "the_sealed_gate"}],
+                   "tomb_king": [{"item": "sunscar_seal", "chance": 1.0, "count": [1, 1], "quest": "the_tomb_king"}]}
     for m in M:
         role = m["role"]
         drops = m.get("drops", [])
@@ -285,6 +308,12 @@ def build():
                                                          {"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "stormsteel_ore", "weight": 2, "count": [1, 2]}]}],
                    "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {"chance": 0.6, "min_quality": "fine"}})
+    tables.append({"id": "chest_tomb", "guaranteed": [{"item": "storm_shard", "count": [6, 10], "chance": 1.0},
+                                                      {"item": "sunglass_ore", "count": [2, 3], "chance": 1.0}],
+                   "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [2, 3]},
+                                                       {"item": "sovereign_settling_pill", "weight": 1, "count": [1, 1]},
+                                                       {"item": "ember_cactus", "weight": 1, "count": [1, 2]}]}],
+                   "coins": {"chance": 1.0, "mult": 16}, "rare": [], "equipment": {"chance": 0.8, "min_quality": "fine"}})
     entries("loot_tables.json", tables)
     return M
 

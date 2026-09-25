@@ -62,6 +62,17 @@
    ],
    "fee_shards": 1,
    "zone": "azure_expanse"
+  },
+  {
+   "id": "sunscar",
+   "name": "Oasis of Bones",
+   "room": "sd_oasis_of_bones",
+   "at": [
+    2150,
+    880
+   ],
+   "fee_shards": 1,
+   "zone": "azure_expanse"
   }
  ]
 }

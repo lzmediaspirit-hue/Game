@@ -267,7 +267,7 @@ def npcs():
     npc("grey_pilgrim", "The Grey Pilgrim", "A stranger", outfit("long_tied", 5, "scholar", "scholar", "folded", hat="weimao", cape="solid",
         shirt_dye="grey", pants_dye="grey"),
         ["You carry the valley's river on you. How quaint.", "Every shard finds its way home in the end. I only help them along."],
-        ["..."], tint="#dfe2ea")
+        ["..."], tint="#dfe2ea", tree="grey_pilgrim")
 
     # Act II · Nine Peaks, the Gale Canyons and Ironroot Hold (Phase C)
     npc("envoy_lanshi", "Envoy Lanshi", "Alliance envoy", outfit("long_tied", 0, "scholar", "scholar", "folded", hat="guan", cape="solid",
@@ -302,6 +302,15 @@ def npcs():
     npc("clan_smith_gang", "Smith Gang", "Ironroot forge", outfit("short_knot", 0, "sleeveless", "martial", "boots", shirt_dye="earth"),
         ["Iron from the roots, fire from the canyon wind. Best forge in the Expanse.", "Kin get the good steel. Guests get the rest."],
         ["*CLANG*"], services=["shop:ironroot_clan"])
+    # Act II · Phase D: the Oasis of Bones.
+    npc("oasis_keeper_meng", "Keeper Meng", "Oasis of Bones", outfit("long_tied", 3, "vneck", "loose", "boots", hat="weimao",
+        shirt_dye="ochre", pants_dye="earth"),
+        ["Water is free. Shade is free. Everything else costs stones, because the caravans stopped coming.",
+         "Drink before the heat asks you to. By then it's late."], ["Water here."], services=["shop:oasis_keeper"])
+    npc("bone_reader_xiu", "Bone-Reader Xiu", "Diviner of the oasis", outfit("flowing", 5, "scholar", "scholar", "folded", cape="solid",
+        shirt_dye="ink", pants_dye="ochre"),
+        ["The bones remember the sand kings. I only read them aloud.", "Every crack in a shoulder blade is a road. Most end in the tomb."],
+        ["The bones are warm today."], tree="bone_reader_xiu")
 
     # Companions (S26)
     npc("lan_yue", "Lan Yue", "Healer", outfit("flowing", 4, "cardigan", "scholar", "slippers", weapon="staff", shirt_dye="indigo"),
@@ -1174,10 +1183,57 @@ def act2_chapter13():
                   "You are Ironroot now, in the Hold and on the roads. Our forge is yours. So are our quarrels."])
 
 
+def act2_chapter14():
+    """Act II · chapter 14, Sunscar (Sage 3 - Sage Sovereign 1): across the desert, into the tomb, and the seal."""
+    quest("glass_and_bone", "Glass and Bone", "main", "matriarch_tie", [
+        o("reach_room", "Follow the desert road past the Clan Hearth to the Oasis of Bones", room="sd_oasis_of_bones"),
+        o("kill", "Clear the Sandstorm Scorpions from the caravan road", 6, enemy="sandstorm_scorpion"),
+        o("talk_to", "Ask the bone-reader about the Pilgrim's caravan", npc="bone_reader_xiu"),
+    ], [spirit_stones(180), item("storm_shard", 20), fx("codex", entry="sunscar_desert")],
+        requires=all_of(qdone("ironroot_blood"), realm("sage_3")), hand_in="bone_reader_xiu", chapter="14", target_room="sd_glass_dunes",
+        offer=["Our scouts saw the Grey Pilgrim's caravan turn south into the Sunscar. Nobody goes there for trade anymore.",
+               "Take the desert road past the Hearth. Find the Oasis of Bones. Its diviner sees what the sand hides."],
+        complete=["A grey man with no shadow, buying water and asking about the tomb? The bones spoke of him before you did.",
+                  "He wants the sun seal. The Tomb King took it into the dark with him, three thousand years ago."],
+        next="the_sealed_gate")
+    quest("the_sealed_gate", "The Sealed Gate", "main", "bone_reader_xiu", [
+        o("collect", "Cut the pieces of the sun seal's key out of the Dune Worms of the Worm Sea", 3, item="sun_seal_shard", consume=True),
+        o("reach_room", "Find the Sealed Gate beyond the Worm Sea", room="ts_sealed_gate"),
+        o("set_flag", "Fit the pieces to the gate and read its inscription", flag="tomb_gate_opened"),
+    ], [spirit_stones(200), item("storm_shard", 20), item("sovereign_settling_pill", 1), fx("codex", entry="tomb_of_sunscar")],
+        requires=all_of(qdone("glass_and_bone")), hand_in="bone_reader_xiu", chapter="14", target_room="sd_worm_sea",
+        offer=["The gate answers a key of gold and jade, and the worms swallowed that key in pieces when the tomb was sealed.",
+               "Three pieces. Then read the inscription on the gate, if your eyes can hold it. It is written for scholars, not thieves."],
+        complete=["The doors are open? Then do not go in. Not yet. He was a Sage Sovereign, and a Sage who walks into his hall joins his guard.",
+                  "Take this pill for after. First, become what he was."],
+        next="sovereign")
+    quest("the_tomb_king", "The Tomb King", "main", "bone_reader_xiu", [
+        o("reach_room", "Pass the Hall of Sand Kings into the Mirror Crypt", room="ts_mirror_crypt"),
+        o("set_flag", "Find what Lu left in the crypt", flag="journal_tomb"),
+        o("kill", "Face the Tomb King of Sunscar on his throne", 1, enemy="tomb_king"),
+        o("collect", "Take up the sun seal", item="sunscar_seal", consume=False),
+        o("set_flag", "Keep the seal from the Grey Pilgrim", flag="seal_kept", alt_flag="tomb_resealed"),
+    ], [spirit_stones(300), item("sovereign_settling_pill", 2), fx("codex", entry="tomb_king")],
+        requires=all_of(qdone("sovereign"), realm("sage_sovereign_1")), hand_in="bone_reader_xiu", chapter="14", target_room="ts_sealed_gate",
+        offer=["Now you can go in. The King sealed himself in with the seal. Whoever holds it can open what the Hollow keeps shut.",
+               "The grey man will be waiting on the stairs. He always is."],
+        complete=["You came back, and the Pilgrim did not come back with you. The bones say that is enough for today.",
+                  "Lu's page... he stood where you stood, and he walked away without the seal. You chose your own way. Good."])
+    quest("sovereign", "Sovereign", "main", "bone_reader_xiu", [
+        o("reach_realm", "Break through to Sage Sovereign 1 (a full Sage Qi reserve and one Dao at Adaptation)", realm="sage_sovereign_1"),
+    ], [spirit_stones(250), fx("codex", entry="sage_sovereign")],
+        requires=all_of(qdone("the_sealed_gate"), realm("sage_3")), chapter="14", target_room="sd_oasis_of_bones",
+        offer=["The Tomb King was a Sage Sovereign. His land still holds the Qi for it. Fill your reserve and let one Dao adapt to you.",
+               "Then sit by the water and break through. The Settling Pill will hold the new stage steady."],
+        complete=["Sage Sovereign. The sand bends a little when you breathe now. Did you notice?",
+                  "The Pilgrim noticed too. Whatever he serves has been waiting for someone like you to come this far."],
+        next="the_tomb_king")
+
+
 def act2_side_quests():
     """Act II side stories of the port, the plains, the heights, the lake, the canyons and the Hold."""
     quest("snow_for_the_cabinet", "Snow for the Cabinet", "side", "apothecary_wu", [
-        o("collect", "Pick Frost Lotus on Rimefrost Heights", 3, item="frost_lotus"),
+        o("collect", "Pick Frost Lotus on Rimefrost Heights", 3, item="frost_lotus", consume=True),
     ], [item("storm_blood_pill", 3), spirit_stones(40)], requires=all_of(qdone("frost_and_silence"), realm("sage_1")), target_room="rf_frostpine_climb",
         offer=["Frost Lotus. Three. It only blooms where the snow never melts.", "It steadies a Sage's Qi. And my prices."],
         complete=["Perfect petals. Here, Storm Blood Pills, fresh from the cabinet."])
@@ -1188,22 +1244,41 @@ def act2_side_quests():
         complete=["The ferry thanks you. So does my budget."])
     quest("a_lans_herd", "A-Lan's Herd", "side", "herder_a_lan", [
         o("kill", "Drive the Spark Weasels away from the herd", 10, enemy="spark_weasel"),
-        o("collect", "Bring Spark Pelts for new saddle blankets", 4, item="spark_pelt"),
+        o("collect", "Bring Spark Pelts for new saddle blankets", 4, item="spark_pelt", consume=True),
     ], [spirit_stones(50), item("thunderhorn_stew", 3)], requires=all_of(qdone("storm_in_the_blood"), realm("heaven_glimpse_3")), target_room="tp_stormgrass_verge",
         offer=["The weasels keep stealing lightning out of the grass, and then the rhinos stampede!", "Chase them off? Please?"],
         complete=["Grandpa says you'd make a good herder. That's the best thing he says about anyone."])
     quest("silk_on_the_wind", "Silk on the Wind", "side", "tollkeeper_bai", [
-        o("collect", "Cut Kite Silk from the Wind Kites of the canyons", 5, item="kite_silk"),
+        o("collect", "Cut Kite Silk from the Wind Kites of the canyons", 5, item="kite_silk", consume=True),
     ], [spirit_stones(80), item("storm_shard", 10)], requires=all_of(qdone("nine_seats"), realm("sage_2")), target_room="gc_kite_winds",
         offer=["The canyon wind shreds my toll flags in a week. The kites up there are made of something it can't tear.",
                "Five lengths of their silk. The Alliance can keep its banners."],
         complete=["Look at that. Not a fray. The next brigand who says he couldn't see the flag can argue with it."])
     quest("plumes_for_the_bellows", "Plumes for the Bellows", "side", "clan_smith_gang", [
-        o("collect", "Bring Harpy Plumes from the Harpy Roosts", 4, item="harpy_plume"),
+        o("collect", "Bring Harpy Plumes from the Harpy Roosts", 4, item="harpy_plume", consume=True),
     ], [spirit_stones(90), item("stormsteel_ore", 4)], requires=all_of(qdone("ironroot_blood")), target_room="gc_harpy_roosts",
         offer=["Harpy plumes hold a wind of their own. Line the bellows with them and the forge breathes like a storm.",
                "Four will do. Kin price, of course. Meaning you fetch them."],
         complete=["Hear that? The fire's roaring on its own. Take some stormsteel. It'll take a better edge now."])
+    quest("cactus_water", "Cactus Water", "side", "oasis_keeper_meng", [
+        o("collect", "Pick Ember Cactus flowers on the Glass Dunes", 4, item="ember_cactus", consume=True),
+    ], [spirit_stones(90), item("cactus_water", 4)], requires=all_of(qdone("glass_and_bone")), target_room="sd_glass_dunes",
+        offer=["The flowers store the sun. Steep them right and the water keeps the heat out of you instead.",
+               "Four flowers. Pick them at dusk if you can. At noon they bite."],
+        complete=["Cactus water. Drink it before the heat and your Essence runs cool. Here, the first jars are yours."])
+    quest("glass_teeth", "Glass Teeth", "side", "bone_reader_xiu", [
+        o("collect", "Bring Dune Worm glass teeth", 3, item="worm_glass_tooth", consume=True),
+    ], [spirit_stones(110), item("clear_mind_pill", 2)], requires=all_of(qdone("glass_and_bone")), target_room="sd_worm_sea",
+        offer=["Bones for the past, glass for the future. A worm's tooth shows what is coming, if you hold it to the sun.",
+               "Three teeth. The worms will not give them politely."],
+        complete=["Clear as water. I see... a ship with no sea. Hm. That one is yours to find, not mine."])
+    quest("stingers_for_the_hold", "Stingers for the Hold", "side", "clan_smith_gang", [
+        o("collect", "Bring Sandstorm Scorpion stingers", 5, item="scorpion_stinger", consume=True),
+    ], [spirit_stones(120), item("stormsteel_ore", 4)], requires=all_of(qdone("glass_and_bone"), qdone("plumes_for_the_bellows")),
+        target_room="sd_scorpion_flats",
+        offer=["Scorpion venom on a quenched edge. Old Ironroot trick for the desert raiders. Bring me stingers.",
+               "Five. Mind the tails."],
+        complete=["Good. The raiders will think twice. Here, more ore. Kin price."])
 
 
 def side_quests():
@@ -1359,6 +1434,20 @@ def dialogue():
                                               {"kind": "set_flag", "flag": "path_changed"}], "close": True},
                                  {"text": "No. I'll keep to it.", "close": True}]}})
     tree("matriarch_tie", [], {})
+    # Chapter 14: after the Tomb King falls, the Pilgrim asks for the seal. Either answer keeps it from him.
+    tree("grey_pilgrim", [{"requires": all_of(qactive("the_tomb_king"), {"kind": "item_owned", "item": "sunscar_seal", "count": 1},
+                                              noflag("seal_kept"), noflag("tomb_resealed")), "node": "seal"},
+                          {"requires": all_of(qactive("the_tomb_king")), "node": "waiting"}],
+         {"seal": {"lines": ["You did well. He was old when my master was young.",
+                             "Now give me the seal. It is only a key, and you have no door for it."],
+                   "choices": [{"text": "No. I keep the seal.", "effects": [{"kind": "set_flag", "flag": "seal_kept"},
+                                {"kind": "grant_title", "title": "seal_keeper"}], "close": True},
+                               {"text": "No. It goes back into the King's hand, and the tomb stays shut.",
+                                "effects": [{"kind": "set_flag", "flag": "tomb_resealed"}, {"kind": "remove_item", "item": "sunscar_seal", "count": 1},
+                                            {"kind": "grant_title", "title": "sunscar_sealer"}], "close": True}]},
+          "waiting": {"lines": ["Go on. He is waiting on his throne, as he has for three thousand years.", "I will wait too. I am good at it."],
+                      "choices": [{"text": "(Leave him.)", "close": True}]}})
+    tree("bone_reader_xiu", [], {})
     tree("broker_mu", [{"requires": all_of(qdone("the_mirror_remembers"), noflag("heard_nine_seats")), "node": "rumours"}],
          {"rumours": {"lines": ["You look like someone who has seen a ghost in a lake. It happens.",
                                 "Word from Nine Peaks: the Alliance is counting heads. Everyone who crossed the gate this year gets asked to pick a side."],
@@ -1446,6 +1535,10 @@ def codex():
         {"id": "nine_seats", "title": "The Nine Seats", "body": "Nine sects, nine seats in the Hall of Nine. Every cultivator who crosses the gate is asked to take the Alliance's token or keep the free road."},
         {"id": "gale_canyons", "title": "The Gale Canyons", "body": "Wind-carved sandstone east of Nine Peaks. Kites that are not kites, harpies in the roosts, and a toll paid in Hollow shards."},
         {"id": "ironroot_clan", "title": "The Ironroot clan", "body": "A clan of the canyon's far side whose ancestors' tablets are carved from iron-hard roots. Kin by choice, not only by blood."},
+        {"id": "sunscar_desert", "title": "The Sunscar Desert", "body": "Dunes of fused glass south of Ironroot Hold. The sun here is heavier than elsewhere, and the sand remembers the sand kings who ruled it."},
+        {"id": "tomb_of_sunscar", "title": "The Tomb of Sunscar", "body": "A burial palace sealed from within. Clay soldiers guard its halls, and a gate of bronze answers only a key of gold and jade."},
+        {"id": "tomb_king", "title": "The Tomb King", "body": "A sage-king who carried the sun seal into his tomb rather than let the Hollow have it. Sand kept him; duty kept him awake."},
+        {"id": "sage_sovereign", "title": "Sage Sovereign", "body": "The Sage whose Qi governs the land around it. A Sovereign's breakthrough needs a full reserve and one Dao that has learned to adapt."},
         {"id": "sage_qi", "title": "Sage Qi", "body": "True Qi pressed until it remembers it was light. Stronger by far, and the valley could never have held it."},
         {"id": "river_of_time", "title": "River of Time and Space", "body": "Locked.", "locked": True},
         {"id": "jade_river", "title": "The Jade River", "body": "It runs through every land you will ever see."},
@@ -1519,6 +1612,7 @@ def build():
     act2_quests()
     act2_chapter12()
     act2_chapter13()
+    act2_chapter14()
     for q in Q[n0:]:
         q.setdefault("qp", "act2_main")
     n1 = len(Q)

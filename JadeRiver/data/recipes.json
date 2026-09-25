@@ -416,6 +416,32 @@
    "time_s": 900
   },
   {
+   "id": "sovereign_settling_pill",
+   "craft": "alchemy",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "ember_cactus",
+     "count": 2
+    },
+    {
+     "item": "worm_glass_tooth",
+     "count": 1
+    },
+    {
+     "item": "frost_lotus",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sovereign_settling_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 1500
+  },
+  {
    "id": "herbal_tea",
    "craft": "cooking",
    "grade": "plain",
@@ -730,6 +756,25 @@
    "outputs": [
     {
      "item": "thunderhorn_stew",
+     "count": 1
+    }
+   ],
+   "default": false,
+   "pet_food": false
+  },
+  {
+   "id": "cactus_water",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "ember_cactus",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cactus_water",
      "count": 1
     }
    ],
@@ -1487,6 +1532,156 @@
    ]
   },
   {
+   "id": "sunsteel_gauntlets",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 6
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_gauntlets",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "sunsteel_jian",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 6
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_jian",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "sunsteel_spear",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 6
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_spear",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "sunsteel_short_blade",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 6
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_short_blade",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "sunsteel_staff",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 6
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_staff",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "sunsteel_bow",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 6
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_bow",
+     "count": 1
+    }
+   ]
+  },
+  {
    "id": "bp_bamboo_hat",
    "craft": "smithing",
    "grade": "common",
@@ -1902,6 +2097,90 @@
    "outputs": [
     {
      "item": "stormsilk_boots",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_sunsilk_hat",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 3
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsilk_hat",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_sunsilk_robe",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 3
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsilk_robe",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_sunsilk_trousers",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 3
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsilk_trousers",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_sunsilk_boots",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 3
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsilk_boots",
      "count": 1
     }
    ]

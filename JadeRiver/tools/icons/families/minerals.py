@@ -5,6 +5,8 @@ sphere core.
 """
 import math
 
+import numpy as np
+
 from pix import Canvas, Ramp, dilate4, erode4, move
 from palette import R
 from registry import register
@@ -335,4 +337,83 @@ def sentinel_core():
 
 
 register(FAM, 'sentinel_core', sentinel_core, GROUP)
+
+
+# ----------------------------------------------------------------------------- Act II · Sunscar Desert
+TERRACOTTA = Ramp(['#4A200F', '#833B1D', '#B96531', '#DC9152', '#F4C088'], '#1F0C05')
+FADED_VERMILION = Ramp(['#5A1A14', '#8E2E24', '#BE4A38', '#D9705A', '#EE9C84'], '#240806')
+SUNGLASS = Ramp(['#5C2E0A', '#9C5A16', '#D8952E', '#F6CB64', '#FFF3C0'], '#261204')
+
+
+def terracotta_shard():
+    """A broken piece of a Terracotta Warden's lamellar armour, a trace of vermilion paint left on it."""
+    c = Canvas(32)
+    m = c.poly([(4, 9), (10, 8), (16, 7.5), (22, 7.5), (27.5, 8), (26.5, 12), (23.5, 13.5), (25, 17.5), (21, 19.5),
+                (19.5, 24.5), (15.5, 23), (12.5, 28), (9.5, 24.5), (6, 25.5), (5, 20), (3.5, 16), (5.5, 13)])
+    paint = (c.ellipse(9.5, 14, 4.5, 2.6) | c.ellipse(14, 18.5, 2.6, 1.6)) & erode4(m)
+    side = (move(m, 1, 2) | move(m, 0, 2)) & ~m  # thickness of the broken clay
+    c.put(side, TERRACOTTA, 'flat', base=1)
+    c.put(m, TERRACOTTA, 'ray', base=2, sep=True, sep_col=TERRACOTTA[0])
+    # narrow lamellae laced in rows that curve gently around the body
+    cx, cy = 16.0, -24.0
+    u = np.arctan2(c.X - cx, c.Y - cy)
+    v = np.hypot(c.X - cx, c.Y - cy)
+    v0, pitch = 34.0, 6.0
+    for r in range(3):
+        band = m & (v >= v0 + r * pitch) & (v < v0 + (r + 1) * pitch)
+        du = 4.4 / (v0 + (r + 0.5) * pitch)
+        for k in range(-8, 9):
+            cell = band & (u >= (k - 0.5) * du) & (u < (k + 0.5) * du)
+            if cell.sum() < 4:
+                continue
+            ys, xs = np.nonzero(cell)
+            lit = (xs.mean() + ys.mean()) < 28
+            c.put(cell, TERRACOTTA, 'ray', base=3 if lit else 2, sep=True, sep_col=TERRACOTTA[1])
+            c.put(cell & paint, FADED_VERMILION, 'ray', base=2)
+            y = ys.min() + 1
+            row = xs[ys == y]
+            if len(row) >= 3 and (ys.max() - ys.min()) >= 4:
+                c.put(c.rect(row.min() + 1, y, row.min() + 1, y) & erode4(m), TERRACOTTA[4], 'flat', out=TERRACOTTA.out)
+    rows = m & (v >= v0)
+    c.put(rows & (np.floor((v - v0) / pitch) != np.floor((move(v, 0, 1) - v0) / pitch)) & erode4(m), TERRACOTTA[0],
+          'flat', out=TERRACOTTA.out)
+    hem = m & (v < v0)
+    c.put(hem, TERRACOTTA, 'ray', base=3, sep=True)
+    band = hem & erode4(m) & (v >= v0 - 2.2) & (v < v0 - 0.8) & (np.floor(u / 0.09) % 3 != 2) & (c.X < 20)
+    c.put(band, FADED_VERMILION, 'flat', base=3)
+    crack = c.bres_path([(25, 14), (21, 16), (19, 19), (20, 22)])
+    c.put(crack & m, TERRACOTTA[0], 'flat', out=TERRACOTTA.out)
+    c.outline()
+    return c
+
+
+def sunglass_ore():
+    """Amber desert glass the sun fused out of the dunes, a crust of sand still on one side."""
+    c = Canvas(32)
+    m = c.poly([(5, 20), (6.5, 13), (11, 8), (17, 5), (23, 6), (27.5, 11), (28, 18), (25.5, 24), (19, 27), (12, 28),
+                (6.5, 26)])
+    # through-lit glass: dark on the near side, light pooling on the far side
+    c.put(m, SUNGLASS, 'sphere', base=2, light=(0.6, 0.55, 0.6))
+    top = c.poly([(6.5, 13), (11, 8), (17, 5), (23, 6), (27.5, 11), (21, 12.5), (13, 14.5)]) & m
+    c.put(top, SUNGLASS, 'flat', base=3)
+    c.put(S.outline_only(top) & ~S.outline_only(m) & (c.Y > 10), SUNGLASS[1], 'flat', out=SUNGLASS.out)
+    c.put(c.poly([(17, 5), (23, 6), (20, 9)]) & top, SUNGLASS, 'flat', base=4)
+    c.put(c.ellipse(21, 20, 3.0, 2.2) & m, SUNGLASS, 'flat', base=4)
+    c.put(c.bres_path([(14, 17), (16, 20), (15, 23)]) & erode4(m), SUNGLASS[1], 'flat', out=SUNGLASS.out)
+    crust = m & c.poly([(3, 18), (6, 21), (8, 19), (10, 22), (13, 21), (15, 24), (18, 23), (20, 27), (22, 31), (3, 31)])
+    crust |= (c.circle(5, 24, 1.8) | c.circle(8, 27.5, 1.6) | c.circle(13, 28.5, 1.4))
+    c.put(crust, R['sand'], 'ray', base=2, sep=True)
+    c.pxs([(7, 23), (11, 25), (15, 26), (6, 26)], R['sand'][0])
+    c.pxs([(9, 23), (13, 24), (5, 22)], R['sand'][4])
+    c.put(c.bres(9, 12, 12, 9) | c.rect(14, 7, 15, 7), '#FFFFFF', 'flat')
+    c.pxs([(17, 16), (24, 15), (19, 23)], SUNGLASS[4])
+    c.outline()
+    c.glow('#FFC870', (80, 35))
+    S.sparkle(c, 21, 20, '#FFFFFF', SUNGLASS[4], 1)
+    S.sparkle(c, 26, 4, '#FFFFFF', SUNGLASS[3], 2)
+    return c
+
+
+register(FAM, 'terracotta_shard', terracotta_shard, GROUP)
+register(FAM, 'sunglass_ore', sunglass_ore, GROUP)
 

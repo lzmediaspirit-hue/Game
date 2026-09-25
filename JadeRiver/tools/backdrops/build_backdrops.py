@@ -2859,6 +2859,579 @@ def nine_peaks():
     layers.append((near, 0.32, 720))
     return dict(sky="#2f5c94", horizon="#f4d7a8", layers=layers)
 
+
+# =============================================================== Sunscar Desert (Act II)
+def dune(cv, cx, top, base, wl, wr, ramp, seed, shade=2, lean=None, fb=None, ripples=0.0, rim=True, edge=True):
+    """One transverse dune, wind from the left: a long S-curved windward face and a straight, steep slip face
+    on the right. The brink curves from the crest down and back toward the viewer; everything right of it is
+    slip face in hue-shifted shadow, darkest along the brink and warmed by reflected light toward the foot.
+
+    ramp dark->light: the first `shade` tones are shadow, the rest sunlit sand. Returns (mask, lit)."""
+    h = cv.h
+    yy, xx, B = grids(h)
+    g = rng("dune", seed)
+    n = len(ramp)
+    dx = wdx(np.arange(W), cx)
+    hgt = max(1.0, base - top)
+    tl = np.clip(-dx / wl, 0, 1)
+    tr = np.clip(dx / wr, 0, 1)
+    prof = np.where(dx < 0, base - hgt * (0.5 + 0.5 * np.cos(np.pi * tl)), base - hgt * (1 - tr) ** 1.25)
+    inside = (dx > -wl) & (dx < wr)
+    prof = np.where(inside, np.round(prof), np.inf)
+    m = (yy >= prof[None, :]) & (yy <= base)
+    if not m.any():
+        return m, np.zeros_like(m)
+    lean = g.uniform(0.1, 0.28) if lean is None else lean
+    fb = g.uniform(0.3, 0.9) if fb is None else fb
+    rel = np.clip((yy - top) / hgt, 0, 1)
+    d2 = wdx(xx, cx)
+    brink = -wl * lean * rel ** 0.8 + (wl * lean + wr * fb) * rel ** 3
+    shadow = m & (d2 > brink)
+    lit = m & ~shadow
+    v_top, v_foot = n - 1 - 0.2, shade + 1.0
+    v = v_top - rel ** 0.8 * (v_top - v_foot)
+    v = v + (lit & sh(shadow, -3, 0) & (rel < 0.85)) * 0.8          # the brink catches the most light
+    if ripples:
+        pf = np.where(inside, prof, base)[None, :]
+        ph = yy - 0.55 * pf + (pn2(h, ("drp", seed), 12, 3, 1) - 0.5) * 3.0
+        rip = lit & (np.floor(ph) % 4 == 0) & (yy - pf >= 2) & (rel > 0.12) & ~sh(shadow, -3, 0)
+        rip &= pn2(h, ("drg", seed), 16, 2, 1) > 1.0 - ripples
+        v = v - rip * 0.9
+    vs = 0.2 + np.clip((d2 - brink) / (0.3 * wr + 3), 0, 1) * 0.75 + rel * 0.35
+    paint(cv, m, ramp, np.where(shadow, np.minimum(vs, shade - 0.01), v), sharp=4)
+    if rim:
+        flat(cv, top_rim(m) & lit, ramp[-1])
+        flat(cv, lit & sh(shadow, -1, 0) & (rel < 0.9), ramp[-1])
+    if edge:
+        flat(cv, shadow & sh(lit, 1, 0) & (rel < 0.6), ramp[0])
+    return m, lit
+
+
+def dune_row(cv, base_y, seed, ramp, n, top_lo, top_hi, w_lo, w_hi, shade=2, ripples=0.0, amp=1.5, edge=True,
+             lean=None):
+    """A rank of dunes standing on a gently rolling sand flat at base_y, filled down to the canvas foot.
+    Returns (ground profile, sunlit mask, crests [(x, y)])."""
+    h = cv.h
+    yy, _, _ = grids(h)
+    g = rng("drow", seed)
+    ground = hill_profile(base_y, amp, ("drg", seed), cell=120, octaves=2)
+    gm = yy >= ground[None, :]
+    flat(cv, gm, ramp[shade + 1])
+    flat(cv, top_rim(gm), ramp[min(len(ramp) - 1, shade + 2)])
+    lit = np.zeros((h, W), bool)
+    crests = []
+    for i, (cx, top, hw) in enumerate(gen_peaks(("drow", seed), n, top_lo, top_hi, w_lo, w_hi)):
+        m, l = dune(cv, cx, top, base_y + 2, hw * g.uniform(1.1, 1.6), hw * g.uniform(0.4, 0.6), ramp, (seed, i),
+                    shade=shade, ripples=ripples, edge=edge, lean=lean)
+        lit |= l
+        col = m[:, int(round(cx)) % W]
+        crests.append((cx, int(np.argmax(col)) if col.any() else top))
+    return ground, lit, crests
+
+
+def heat_shimmer(cv, y, rows, seed, col, alphas=(0.32, 0.18), cell=28, density=0.55):
+    """Mirage shimmer: a stack of broken 1px haze lines whose dashes waver from row to row (densest in the core)."""
+    h = cv.h
+    base = pn1(("hsh", seed), cell, 2)
+    fine = pn1(("hsf", seed), 5, 1)
+    ph = rng("hsp", seed).uniform(0, 6.28)
+    for r in range(rows):
+        yr = y + r
+        if not 0 <= yr < h:
+            continue
+        k = abs(r - (rows - 1) / 2.0) / max(1.0, rows / 2.0)
+        s = np.roll(base, int(round(math.sin(r * 1.7 + ph) * 5))) * 0.7 + np.roll(fine, r * 3) * 0.3
+        m = np.zeros((h, W), bool)
+        m[yr] = s > (1.0 - density) + k * 0.22
+        flat(cv, m, col, alphas[r % len(alphas)])
+
+
+def spindrift(cv, x, y, length, col, seed, rise=0.06, alphas=(0.7, 0.45, 0.22)):
+    """Sand smoking off a dune crest: a thin wisp trailing downwind (right), fraying and fading."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    t = wdx(xx, x) / float(length)
+    ph = rng("spd", seed).uniform(0, 6.28)
+    cy = y - t * length * rise + np.sin(t * 6 + ph) * 0.8 + t ** 2 * 3
+    thick = 2.4 * (1 - t) + 0.6
+    m = (t >= 0) & (t <= 1) & (np.abs(yy - cy) <= thick / 2 + 0.01)
+    m &= pn2(h, ("spb", seed), 6, 1.5, 1) > 0.25 + t * 0.4
+    L = len(alphas)
+    for k, a in enumerate(alphas):
+        flat(cv, m & (t >= k / L) & (t < (k + 1) / L), col, a)
+
+
+def glass_glints(cv, region, count, seed, core, arm, big_every=3):
+    """Sun-glints of desert glass spread over `region`: one bright pixel each, every few with a tiny cross."""
+    g = rng("glint", seed)
+    ys, xs = np.nonzero(region)
+    for i in range(count):
+        sel = (xs >= i * W / count + 4) & (xs < (i + 1) * W / count - 4)
+        if not sel.any():
+            continue
+        j = int(g.choice(np.nonzero(sel)[0]))
+        x, y = int(xs[j]), int(ys[j])
+        if i % big_every == 0:
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                put(cv, x + dx, y + dy, arm)
+        put(cv, x, y, core)
+
+
+def mesa(cv, cx, top, base, hw, ramp, seed, cap_h=5, cliff=0.5, flare=1.9, grooves=3, waist=0.0, tafoni=3):
+    """Wind-carved sandstone mesa: an overhanging caprock over a sheer cliff band of uneven strata, scored by
+    wind grooves and pocked with tafoni hollows, then a gullied talus apron flaring to the foot. waist > 0
+    pinches the cliff band into a pedestal-rock stem. Lit from the left. ramp dark->light (>= 6)."""
+    h = cv.h
+    yy, xx, B = grids(h)
+    g = rng("mesa", seed)
+    n = len(ramp)
+    hgt = max(1.0, base - top)
+    ry = yy - top
+    rel = np.clip(ry / hgt, 0, 1)
+    tal = np.clip((rel - cliff) / max(0.05, 1 - cliff), 0, 1)
+    half = hw * (1 + (flare - 1) * tal ** 1.5)
+    if waist:
+        half = half * (1 - waist * np.exp(-((rel - cliff * 0.75) / (cliff * 0.4)) ** 2))
+    groove = np.zeros((h, W))
+    for gy in g.uniform(0.25, 0.9, grooves):
+        groove += 1.6 * np.exp(-((ry - gy * cliff * hgt) / 1.3) ** 2)
+    capm = ry < cap_h
+    under = (ry >= cap_h) & (ry < cap_h + 2)
+    half = half - groove - under * 1.3 + capm * 1.2
+    d = wdx(xx, cx)
+    amp = 1.2 + tal * 2.5
+    jl = (pn2(h, ("mjl", seed), 3, 5, 2) - 0.5) * 2 * amp
+    jr = (pn2(h, ("mjr", seed), 3, 5, 2) - 0.5) * 2 * amp
+    dcol = np.abs(wdx(np.arange(W), cx))
+    crest = top + np.round((pn1(("mtop", seed), 10, 2) - 0.5) * 1.6) + np.clip(dcol - (hw + 1.2 - 2.5), 0, 3) ** 1.3
+    m = (d >= -half + jl) & (d <= half + jr) & (yy >= crest[None, :]) & (yy <= base)
+    m = despeck(m)
+    u = row_u_local(m)
+    # uneven strata: bands 2-6 px thick, each with its own tone offset
+    bounds = np.cumsum(g.integers(2, 7, 40))
+    offs = g.choice([0.55, -0.25, 0.3, -0.55, 0.1, 0.45, -0.1], 41)
+    wob = np.round((pn1(("mst", seed), 60, 2) - 0.5) * 3)[None, :]
+    strata = offs[np.searchsorted(bounds, np.clip(ry + wob, 0, None))]
+    gully = (pn2(h, ("mgl", seed), 2, 9, 1) - 0.5) * 2
+    v = (n - 1) * 0.5 + (0.5 - u) * 2.4
+    flute = (pn1(("mfl", seed), 7, 2) - 0.5)[None, :] * 1.0
+    v = v + np.where(tal > 0, 0.45 + gully * 0.9 - (0.5 - u) * 0.8, strata + flute)
+    v = v - under * 1.6 - groove * 0.6 + capm * 0.7
+    paint(cv, m, ramp, v, sharp=3.5)
+    flat(cv, top_rim(m) & (u < 0.85), ramp[-1])
+    flat(cv, left_rim(m) & ~top_rim(m) & ~under & (tal < 0.6), ramp[-2])
+    flat(cv, right_rim(m) & ~top_rim(m), ramp[0])
+    for k in range(tafoni):                                         # wind-scooped hollows in the cliff band
+        ty = top + cap_h + 3 + g.uniform(0, max(1.0, cliff * hgt - cap_h - 5))
+        tx = cx + g.uniform(-0.6, 0.5) * hw
+        rx, ryy = g.uniform(1.6, 3.4), g.uniform(1.2, 2.4)
+        hol = wellipse(h, tx, ty, rx, ryy) & m & ~sh(~m, 1, 0) & ~sh(~m, -1, 0)
+        flat(cv, hol, ramp[1])
+        flat(cv, hol & ~sh(hol, 0, 1) | hol & ~sh(hol, 1, 0), ramp[0])
+        flat(cv, sh(bot_rim(hol), 0, 1) & m & ~hol, ramp[-2])
+    return m
+
+
+def tomb_gate(cv, cx, by, w, ht, pal, door, tiers=3):
+    """Squat stepped portal: a battered gate block under a corbelled, stepped crown, a stepped doorway and a
+    sun boss above it. by = its buried foot. pal dark->light (>= 4)."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    d = wdx(xx, cx) + 0.5
+    ad = np.abs(d)
+    body_h = int(ht * 0.6)
+    yb = by - body_h
+    rel = np.clip((yy - yb) / max(1, body_h), 0, 1)
+    body = (ad <= w / 2.0 - 2.0 * (1 - rel)) & (yy >= yb) & (yy <= by)
+    th = max(2, int((ht - body_h) / tiers))
+    crown = np.zeros((h, W), bool)
+    rims = np.zeros((h, W), bool)
+    for k in range(tiers):
+        y1 = yb - 1 - k * th
+        tk = (ad <= w / 2.0 - 3 - k * w * 0.12) & (yy <= y1) & (yy > y1 - th)
+        crown |= tk
+        rims |= top_rim(tk)
+    notch = (np.abs(d - w * 0.16) < 2.5) & (yy <= yb - th * (tiers - 1))   # a fallen block in the top tier
+    crown &= ~notch
+    rims &= crown
+    m = body | crown
+    flat(cv, m, pal[2])
+    flat(cv, m & (d < -w * 0.34), pal[3])                          # sunlit return of the left pylon
+    flat(cv, rims | top_rim(body), pal[3])
+    flat(cv, (bot_rim(crown) & ~body) | (sh(top_rim(body), 0, 1) & body), pal[1])
+    flat(cv, right_rim(m), pal[0])
+    for sx in (-1, 1):                                             # pilasters flanking the door
+        flat(cv, body & (np.abs(d - sx * w * 0.25) < 1.0) & (yy > yb + 2), pal[1])
+    dw = w * 0.17
+    yd = yb + 6
+    dm = ((ad <= dw) & (yy >= yd)) | ((ad <= dw - 2) & (yy >= yd - 2)) | ((ad <= dw - 4) & (yy >= yd - 4))
+    dm &= yy <= by
+    flat(cv, dm, door)
+    flat(cv, dm & sh(~dm, -1, 0) & (d > 0), pal[1])                # the right jamb catches a little light
+    boss = wellipse(h, cx, yb - 1 - th * (tiers - 0.5), 1.6, 1.3) & crown
+    flat(cv, boss, pal[3])
+    return m
+
+
+def sunscar():
+    """Sunscar Desert: dune seas under a merciless white sun, a wind-carved mesa and a sand-buried tomb gate."""
+    layers = []
+    haze = "#f2dcc4"
+    sky = sky_layer([(0.0, "#a9bccb"), (0.16, "#c2cfd6"), (0.3, "#dde1da"), (0.38, "#eee8d6"), (0.44, "#f8ebca"),
+                     (0.52, "#f6dfb6"), (0.7, "#f1d4a6"), (1.0, "#ecc998")])
+    yy, xx, _ = grids(SKY_H)
+    sx, sy, sr = 190, 64, 25
+    for s_, a in ((6.2, 0.04), (4.8, 0.05), (3.6, 0.07), (2.6, 0.1), (1.85, 0.15), (1.35, 0.24)):
+        flat(sky, wellipse(SKY_H, sx, sy, sr * s_, sr * s_), "#fff8e4", a)
+    sm = wellipse(SKY_H, sx, sy, sr, sr)
+    flat(sky, sm, "#fffbee")
+    ring = sm & ~(sh(sm, 1, 0) & sh(sm, -1, 0) & sh(sm, 0, 1) & sh(sm, 0, -1))
+    dd = wdx(xx, sx) + (yy - sy)
+    flat(sky, sm & ~wellipse(SKY_H, sx - 1, sy - 1, sr - 1, sr - 1) & (dd > 4), "#fff0c4")
+    flat(sky, ring & (dd > -12), "#ffe29a")
+    flat(sky, ring & (dd < -20), "#ffffff")
+    for i, (cx, y, ln) in enumerate(((420, 40, 170), (40, 96, 150), (330, 120, 230), (560, 132, 190), (130, 140, 160))):
+        streak(sky, cx, y, ln, R("#e2cdb6", "#eee0cc", "#fbf3e4") if i < 2 else R("#e8cdb0", "#f1dcc2", "#f9ead6"),
+               ("sss", i), rows=2)
+    layers.append((sky, 0.0, 720))
+
+    # ---------------- far: ranks of long dune ridges receding from warm ochre into dusty violet
+    fh = 200
+    far = Canvas(W, fh)
+    yy, _, _ = grids(fh)
+    ranks = [
+        (70, R("#b39fb4", "#bea9b8", "#ccb8bd", "#d7c4c2", "#e2d1c8"), 7, 50, 62, 34, 58),
+        (82, R("#ad8fa2", "#b99aa7", "#ccaca9", "#d9bcae", "#e5cab4"), 6, 62, 72, 36, 60),
+        (95, R("#a8808b", "#b88e92", "#cfa496", "#dcb59c", "#e8c5a5", "#f0d3b1"), 6, 72, 84, 38, 64),
+    ]
+    for k, (by, ramp, n, tlo, thi, wlo, whi) in enumerate(ranks):
+        dune_row(far, by, ("sfr", k), ramp, n, tlo, thi, wlo, whi, shade=2, amp=1.2, edge=False)
+        base_fade(far, by - 7, by + 5, haze, steps=3)
+        heat_shimmer(far, by - 3, 5, ("sfh", k), "#efe8dc" if k == 0 else haze, alphas=(0.4, 0.22))
+    base_fade(far, 100, 130, haze, steps=3)
+    layers.append((far, 0.08, 560))
+
+    # ---------------- mid: a hazed sand plain with the buried tomb gate, the mesa and a pedestal rock, dunes
+    mh = 200
+    mid = Canvas(W, mh)
+    yy, _, _ = grids(mh)
+    plain = R("#b8989f", "#c6a6a6", "#d6b8a8", "#e2c6ad", "#ebd2b6")
+    dune_row(mid, 72, "smp", plain, 5, 64, 70, 30, 50, shade=2, amp=1.0, edge=False)
+    base_fade(mid, 64, 88, haze, steps=3)
+    gate_x = 520
+    tomb_gate(mid, gate_x, 80, 46, 34, R("#8f7385", "#a08292", "#b4959e", "#c8aaa8"), "#6e5669")
+    drift = R("#bf9ea2", "#cbaba8", "#dbbfab", "#e5cbb0", "#edd5b8")
+    dune(mid, gate_x - 8, 70, 82, 44, 30, drift, "sgd0", shade=2, lean=0.08, fb=0.6, edge=False)
+    dune(mid, gate_x + 32, 73, 82, 20, 12, drift, "sgd1", shade=2, edge=False)
+    base_fade(mid, 74, 90, haze, steps=3, m=(mid.a > 0) & (yy >= 74))
+    heat_shimmer(mid, 75, 6, "smh0", haze, alphas=(0.36, 0.2))
+    dune_row(mid, 90, "smp2", hazed(plain, haze, 0.45), 4, 83, 87, 60, 90, shade=2, amp=1.0, edge=False)
+    base_fade(mid, 86, 100, haze, steps=3, m=(mid.a > 0) & (yy >= 84))
+    rock = hazed(R("#6c4150", "#814b55", "#9a5a5a", "#b36c5f", "#c98466", "#da9e74", "#e8b889"), haze, 0.15)
+    bench = mesa(mid, 150, 52, 114, 24, hazed(rock, haze, 0.15), "sbench", cap_h=4, cliff=0.35, flare=1.8, grooves=1,
+                 tafoni=0)
+    mm = mesa(mid, 100, 30, 114, 42, rock, "smesa", cap_h=6, cliff=0.42, flare=1.6, grooves=3, tafoni=0)
+    pm = mesa(mid, 268, 62, 114, 8, rock, "sped", cap_h=5, cliff=0.62, flare=2.3, grooves=1, waist=0.42, tafoni=0)
+    haze_fade(mid, mm | pm | bench, haze, np.clip((yy - 66) / 44.0, 0, 1) * 0.5, steps=4, sharp=5)
+    heat_shimmer(mid, 98, 5, "smh1", haze, alphas=(0.3, 0.16))
+    mdr = R("#b98b8e", "#c79a93", "#dbab8e", "#e5ba93", "#eec99c", "#f6d9ab")
+    ground, lit, crests = dune_row(mid, 118, "smd", mdr, 5, 94, 106, 40, 70, shade=2, ripples=0.35)
+    for i, (x, y) in enumerate(sorted(crests, key=lambda c: c[1])[:2]):
+        spindrift(mid, x + 1, y - 1, 64, "#fff4e0", ("smsp", i))
+    glass_glints(mid, lit & (yy < 114) & (yy > 104), 3, "smgl", "#ffffff", "#c4eedd")
+    mist_band(mid, 110, 4, "smds", "#f8e6c6", alphas=(0.18, 0.3), amp=2, cell=120, gaps=0.35)
+    layers.append((mid, 0.18, 620))
+
+    # ---------------- near: big calm dunes, faded to low contrast where the room's sand meets them
+    near = Canvas(W, 200)
+    yy, _, _ = grids(200)
+    ndr = R("#cfa08f", "#d8ab95", "#e3b893", "#ebc499", "#f2d0a3", "#f8ddb3")
+    ground, lit, crests = dune_row(near, 120, "snd", ndr, 3, 70, 90, 90, 130, shade=2, ripples=0.5)
+    glass_glints(near, lit & (yy < 100), 4, "sngl", "#ffffff", "#c4eedd", big_every=2)
+    for i, (x, y) in enumerate(crests[:2]):
+        spindrift(near, x + 1, y - 1, 96, "#fff6e4", ("snsp", i))
+    base_fade(near, 96, 130, "#e7c498", steps=3)
+    layers.append((near, 0.32, 720))
+    return dict(sky="#a9bccb", horizon="#f8ebca", layers=layers)
+
+
+# =============================================================== Tomb of Sunscar (Act II interior)
+_FIGS = {
+    "walk": ["..rr..", "..rrr.", ".rrr..", ".rrrr.", ".rr..r", ".rrr..", ".r.r..", "r...r."],
+    "staff": ["..rr.g", "..rrrg", ".rrr.g", ".rrrrg", ".rr..g", ".rrr.g", ".r.r.g", "r...rg"],
+    "disc": [".ggg..", "ggggg.", ".ggg..", "..r...", "..rr..", "..rrr.", ".rrr..", ".rrrr.", ".rr..r", ".rrr..",
+             ".r.r..", "r...r."],
+    "jar": ["..gg..", ".gggg.", "..rr..", "..rrr.", ".rrr..", ".rrrr.", ".rr..r", ".rrr..", ".r.r..", "r...r."],
+}
+
+
+def ashlar(cv, m, pal, seed, course=8, joint=20):
+    """Dressed sandstone blocks in flat tones: staggered courses, each block its own shade, dark mortar and a
+    lit top arris. pal dark->light (>= 5); W must be a multiple of `joint` so the courses tile."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    g = rng("ashlar", seed)
+    n = len(pal)
+    row = yy // course
+    off = (row * (joint // 2 + 3)) % joint
+    ncols = W // joint
+    tone = g.choice([1, 2, 2, 2, 3, 3, 3, 4], size=(h // course + 2, ncols))
+    bx = (xx + off) % W
+    idx = tone[row, bx // joint]
+    idx = np.where(yy % course == 1, np.minimum(idx + 1, n - 1), idx)
+    idx = np.where((yy % course == 0) | (bx % joint == 0), 0, idx)
+    chip = (pn2(h, ("ashc", seed), 2, 2, 1) > 0.8) & (idx > 0)
+    idx = np.where(chip, np.maximum(idx - 1, 1), idx)
+    cv.fill_idx(m, idx, pal)
+    return m
+
+
+def relief_frieze(cv, y0, y1, band, red, gold, seed, group=80, clip=None, fade=0.78):
+    """Carved relief band y0..y1: processions of small figures walking toward sun discs, in faded vermilion and
+    gold, chipped by age. band = (dark, mid, light). Pattern repeats every `group` px (640 / group integral)."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    m = (yy >= y0) & (yy <= y1)
+    if clip is not None:
+        m &= clip
+    flat(cv, m, band[1])
+    flat(cv, top_rim(m), band[2])
+    flat(cv, m & ((yy == y0 + 1) | (yy == y1 - 1)), band[0])
+    flat(cv, bot_rim(m), band[0])
+    chip = pn2(h, ("frc", seed), 3, 2, 1) > 0.7
+    art = np.zeros((h, W), bool)
+    gart = np.zeros((h, W), bool)
+    foot = y1 - 2
+    kinds = ("staff", "walk", "disc", "walk", "jar")
+    for gx in range(0, W, group):
+        for k, kind in enumerate(kinds):
+            spr = _FIGS[kind]
+            fx = gx + 4 + k * 11
+            for r, row in enumerate(spr):
+                for c, ch in enumerate(row):
+                    y = foot - len(spr) + 1 + r
+                    if ch != "." and y0 + 2 <= y <= y1 - 2:
+                        (gart if ch == "g" else art)[y, (fx + c) % W] = True
+        sx, sy = gx + group - 14, (y0 + y1) / 2.0
+        gart |= wellipse(h, sx, sy, 2.6, 2.6)
+        for a in range(8):
+            ang = a * math.pi / 4
+            gart[int(round(sy + math.sin(ang) * 4.6)), int(round(sx + math.cos(ang) * 4.6)) % W] = True
+    flat(cv, art & m & ~chip, red, fade)
+    flat(cv, gart & m & ~chip, gold, fade)
+    flat(cv, m & chip & (pn2(h, ("frc2", seed), 1.5, 1.5, 1) > 0.8), band[0])
+    return m
+
+
+def tomb_pillar(cv, cx, top, by, hw, ramp, seed, courses=14, band=None):
+    """Massive square sandstone pillar: stepped capital and plinth, sunlit left return, block courses, chipped
+    arrises, optional painted band = (y0, y1, red, gold). ramp dark->light."""
+    h = cv.h
+    yy, xx, B = grids(h)
+    n = len(ramp)
+    d = wdx(xx, cx) + 0.5
+    ad = np.abs(d)
+    chip = pn2(h, ("tpc", seed), 2, 3, 1) > 0.8
+    shaft = (ad <= hw - chip) & (yy >= top) & (yy <= by)
+    cap = ((ad <= hw + 4) & (yy >= top) & (yy < top + 3)) | ((ad <= hw + 2) & (yy >= top + 3) & (yy < top + 6))
+    plinth = ((ad <= hw + 4) & (yy > by - 4) & (yy <= by)) | ((ad <= hw + 2) & (yy > by - 7) & (yy <= by - 4))
+    m = shaft | cap | plinth
+    rel = np.clip((d + hw + 4) / (2 * hw + 8), 0, 1)
+    v = (n - 1) * 0.5 - (rel - 0.5) * 1.6 + (d < -hw * 0.5) * 1.0
+    joints = shaft & ((yy - top) % courses == 0) & (yy > top + 6) & (yy < by - 7)
+    v = v - joints * 1.3 + (sh(joints, 0, 1) & shaft) * 0.6
+    paint(cv, m, ramp, v, sharp=6)
+    for part in (cap, plinth):
+        flat(cv, top_rim(part) & (d < hw * 0.6), ramp[-1])
+        flat(cv, bot_rim(part), ramp[0])
+    flat(cv, right_rim(m), ramp[0])
+    flat(cv, left_rim(shaft) & ~cap & ~plinth, ramp[-2])
+    if band is not None:
+        y0, y1, red, gold = band
+        bm = shaft & (yy >= y0) & (yy <= y1)
+        flat(cv, bm, red, 0.8)
+        flat(cv, bm & ((yy == y0) | (yy == y1)), gold, 0.8)
+        boss = wellipse(h, cx + hw * 0.15, (y0 + y1) / 2.0, 2.2, 2.2)
+        flat(cv, boss & bm & ~chip, gold, 0.85)
+        flat(cv, bm & (d < -hw * 0.5), ramp[-2], 0.35)
+    return m
+
+
+def brazier(cv, x, by, pal, flame, glow):
+    """Bronze fire bowl on a tripod with a small flame and a stepped warm glow. pal (dark, mid, light),
+    flame (deep, mid, core); by = foot row."""
+    h = cv.h
+    for (rx, ry, a) in ((15, 11, 0.06), (10, 7.5, 0.1), (6, 4.5, 0.16)):
+        flat(cv, wellipse(h, x, by - 11, rx, ry), glow, a)
+    legs = wline(h, [(x - 3, by), (x - 1, by - 6)]) | wline(h, [(x + 3, by), (x + 1, by - 6)])
+    legs |= wrect(h, x, by - 6, x, by - 3)
+    flat(cv, legs, pal[0])
+    bowl = wrect(h, x - 3, by - 8, x + 3, by - 7) | wrect(h, x - 4, by - 9, x + 4, by - 9)
+    flat(cv, bowl, pal[1])
+    flat(cv, wrect(h, x - 4, by - 9, x + 1, by - 9), pal[2])
+    for (fx, fy, c) in ((-2, 10, 0), (-1, 10, 1), (0, 10, 2), (1, 10, 1), (2, 10, 0), (-1, 11, 1), (0, 11, 2),
+                        (1, 11, 0), (0, 12, 1), (-1, 13, 0), (0, 14, 0)):
+        put(cv, x + fx, by - fy, flame[c])
+
+
+def sand_fall(cv, x, y0, pal, seed, width=1, below=150):
+    """Thin stream of sand pouring from a ceiling crack: a broken dotted thread that frays near the floor,
+    with a small cone of sand where it lands on whatever is already painted below row `below`.
+    pal (dark, mid, light)."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    colm = cv.a[below:, int(x) % W] > 0
+    y1 = below + int(np.argmax(colm)) - 1 if colm.any() else h - 4
+    d = wdx(xx, x)
+    t = (yy - y0) / max(1.0, y1 - y0)
+    m = (d >= -(width // 2)) & (d <= (width - 1) // 2 + (t > 0.75)) & (yy >= y0) & (yy <= y1)
+    m &= pn2(h, ("sfl", seed), 1, 4, 1) > 0.22 + np.clip(t - 0.6, 0, 1) * 0.6
+    flat(cv, m, pal[1])
+    flat(cv, m & ((yy + x) % 5 < 2), pal[2])
+    g = rng("sfsp", seed)
+    for k in range(10):
+        put(cv, x + g.integers(-3, 4), y1 - g.integers(0, 6), pal[1], 0.7)
+    cone = wpoly(h, [(x - 7, y1 + 3), (x - 1, y1), (x + 1, y1), (x + 7, y1 + 3)])
+    flat(cv, cone, pal[1])
+    flat(cv, cone & (d < 0), pal[2])
+    flat(cv, top_rim(cone) & (d <= 1), pal[2])
+
+
+def light_field(h, pools=(), beams=(), ambient=None):
+    """Light strength per pixel: elliptical pools [(x, y, rx, ry, s)], slanted beams
+    [(cx, slope, half_width, s, y0, y1)] that lean right going down like light_shafts, and an optional
+    horizontal ambient band (y0, y1, s) with soft 12px edges."""
+    yy, xx, _ = grids(h)
+    lit = np.zeros((h, W))
+    if ambient is not None:
+        a0, a1, s_ = ambient
+        lit = s_ * np.clip((yy - a0) / 12.0, 0, 1) * np.clip((a1 - yy) / 12.0, 0, 1)
+    for (lx, ly, rx, ry, s_) in pools:
+        dd = np.sqrt((wdx(xx, lx) / rx) ** 2 + ((yy - ly) / ry) ** 2)
+        lit = np.maximum(lit, s_ * np.clip(1 - dd, 0, 1))
+    for (cx, slope, r, s_, y0, y1) in beams:
+        dd = np.abs(wdx(xx - yy * slope, cx)) / r
+        ends = np.clip((yy - y0) / 12.0, 0, 1) * np.clip((y1 - yy) / 40.0, 0, 1)
+        lit = np.maximum(lit, s_ * np.clip(1 - dd, 0, 1) ** 0.7 * ends)
+    return lit
+
+
+def dim(cv, lit, dark, base=0.6, top=90, top_t=0.95, floor=None, steps=4):
+    """Sink the painted layer toward `dark` by (base - lit): darkness gathering over the top `top` rows and,
+    optionally, toward the floor (y0, y1, t). Flat dithered steps."""
+    yy, xx, _ = grids(cv.h)
+    t = np.clip(base - lit, 0, 1)
+    t = np.maximum(t, np.clip(1 - yy / float(top), 0, 1) * top_t)
+    if floor is not None:
+        f0, f1, ft = floor
+        t = np.maximum(t, np.clip((yy - f0) / max(1.0, f1 - f0), 0, 1) * ft)
+    haze_fade(cv, cv.a > 0, dark, t, steps=steps, sharp=6.0)
+
+
+def sunscar_tomb():
+    """Tomb of Sunscar: a dim sandstone burial palace, painted friezes, braziers, a shaft of dusty sun, sand falls."""
+    layers = []
+    dark = "#0b0706"
+    sky = sky_layer([(0.0, "#0a0605"), (0.3, "#150d09"), (0.5, "#20140d"), (0.66, "#1a100b"), (1.0, "#0c0807")],
+                    bands=14, sharp=2.0)
+    layers.append((sky, 0.0, 720))
+
+    H = 360
+    shaft_x, crack_y, slope = 330, 22, 0.32
+    red, gold = "#a8402c", "#d0a650"
+    fire = (R("#3a2414", "#6a4222", "#a06a34"), R("#e05a20", "#ffa640", "#fff0b8"), "#ff9a40")
+    # ---------------- far: the back wall of the hall, friezes, stepped niches, braziers and a far colonnade
+    far = Canvas(W, H)
+    yy, xx, _ = grids(H)
+    wallr = R("#3a2519", "#4a301f", "#5a3b25", "#6b472c", "#7d5534", "#90643d")
+    floor_y = 232
+    ashlar(far, yy <= floor_y, wallr, "stw", course=8, joint=20)
+    corn = R("#3a2519", "#5a3b25", "#7d5534", "#9a6c42")
+    for k in range(3):
+        band_k = (yy >= 38 + k * 3) & (yy < 41 + k * 3)
+        flat(far, band_k, corn[1 + (k == 1)])
+        flat(far, top_rim(band_k), corn[3 - (k > 0)])
+        flat(far, bot_rim(band_k), corn[0])
+    fr_band = R("#5e3c22", "#7e5634", "#9a6e44")
+    relief_frieze(far, 50, 66, fr_band, red, gold, "stf0", group=80, fade=0.85)
+    relief_frieze(far, 158, 166, fr_band, red, gold, "stf1", group=40, fade=0.7)
+    niches = [53.33 + i * 213.33 for i in range(3)]
+    for i, nx in enumerate(niches):
+        dn = np.abs(wdx(xx, nx) + 0.5)
+        niche = ((dn <= 13) & (yy >= 104)) | ((dn <= 9) & (yy >= 99)) | ((dn <= 5) & (yy >= 94))
+        niche &= yy <= 150
+        flat(far, niche, "#1a100b")
+        flat(far, niche & (wdx(xx, nx) < -6), "#120b08")
+        flat(far, left_rim(niche), "#0c0806")
+        flat(far, right_rim(niche) | top_rim(niche) & (wdx(xx, nx) > 0), wallr[3])
+        sill = (dn <= 16) & (yy >= 151) & (yy <= 153)
+        flat(far, sill, wallr[4])
+        flat(far, top_rim(sill), wallr[5])
+        flat(far, bot_rim(sill), wallr[0])
+        relief_frieze(far, 100, 118, fr_band, red, gold, ("stp", i), group=80, fade=0.85,
+                      clip=np.abs(wdx(xx, nx + 106.67)) <= 30)
+    flat(far, yy > floor_y, "#1c120c")
+    flat(far, yy == floor_y + 1, "#3a2618")
+    colr = R("#24170f", "#2e1d13", "#3a2518", "#4a301e", "#5c3c25", "#70492c")
+    for i in range(6):
+        tomb_pillar(far, i * 106.67, 38, floor_y + 4, 7, colr, ("stfp", i), courses=12)
+    lit = light_field(H, pools=[(nx, 134, 72, 60, 0.75) for nx in niches], ambient=(44, 200, 0.25))
+    dim(far, lit, dark, base=0.75, top=120, top_t=1.0, floor=(190, 232, 0.75))
+    for nx in niches:
+        brazier(far, int(round(nx)), 150, *fire)
+    layers.append((far, 0.06, 720))
+
+    # ---------------- mid: great pillars, the cracked lintel, the sun shaft and sand pouring through
+    mid = Canvas(W, H)
+    pilr = R("#1c120c", "#2a1b12", "#3a2618", "#4c321f", "#5f3f27", "#744f30", "#8c6139")
+    beam = yy <= 24 + np.round((pn1("stbm", 30, 2) - 0.5) * 2)[None, :]
+    ashlar(mid, beam, R("#1a110b", "#24170f", "#301f14", "#3e291a", "#4a321f"), "stbm", course=6, joint=40)
+    flat(mid, bot_rim(beam), "#5a3a22")
+    for i, px in enumerate((150, 520)):
+        tomb_pillar(mid, px, 24, 262, 17, pilr, ("stmp", i), courses=16, band=(112, 124, "#7a3024", "#a8823a"))
+    sandr = R("#3a2618", "#48321d", "#5e4226", "#7a5832")
+    dune_row(mid, 262, "stsd", sandr, 4, 238, 248, 30, 60, shade=1, amp=1.0, edge=False, lean=0.0)
+    lit_sand = R("#7a5430", "#a87840", "#d4a45a")
+    sand_fall(mid, shaft_x + 2, crack_y + 4, lit_sand, "stsf0")
+    for i, fx in enumerate((236, 604)):
+        sand_fall(mid, fx, 25, R("#3c2716", "#5a3c22", "#7a5634"), ("stsf", i))
+    beam_c = shaft_x - crack_y * slope + 2
+    pool_x = beam_c + 246 * slope
+    lit = light_field(H, pools=[(pool_x, 246, 46, 18, 0.65)], beams=[(beam_c, slope, 30, 0.5, crack_y, 250)])
+    dim(mid, lit, dark, base=0.5, top=80, top_t=1.0, floor=(236, 262, 0.75))
+    shaft = Canvas(W, H)
+    light_shafts(shaft, [(beam_c, 18)], "#ffdc98", slope=slope, fade_y=240, alphas=(0.07, 0.12))
+    light_shafts(shaft, [(beam_c, 7)], "#fff0c8", slope=slope, fade_y=210, alphas=(0.08,))
+    fan = (np.abs(wdx(xx - yy * slope, beam_c)) <= 2.5 + (yy - crack_y) * 0.09) & (yy >= crack_y)
+    shaft.a[~fan] = 0.0                                              # the shaft fans out from the crack
+    mid.paste(shaft)
+    flat(mid, wellipse(H, pool_x, 247, 26, 4) & (mid.a > 0), "#ffd890", 0.14)
+    crack = wline(H, [(shaft_x + 3, 0), (shaft_x - 1, 8), (shaft_x + 4, 15), (shaft_x + 1, crack_y + 3)], 2)
+    crack &= yy <= crack_y + 2
+    flat(mid, (sh(crack, 1, 0) | sh(crack, -1, 0)) & ~crack & beam, "#b07a3c")
+    flat(mid, crack, "#fff3cf")
+    flat(mid, crack & (yy < 8), "#ffffff")
+    g = rng("stmote")
+    for k in range(46):
+        y = int(g.uniform(crack_y + 6, 226))
+        x = int(beam_c + y * slope + g.uniform(-8, 8)) % W
+        if fan[y, x]:
+            put(mid, x, y, "#fff4d2", 0.6 if k % 3 else 1.0)
+    layers.append((mid, 0.16, 720))
+
+    # ---------------- near: a dark framing pillar, the heavy lintel and a calm drift of sand on the floor
+    near = Canvas(W, H)
+    nr = R("#070504", "#0c0806", "#120c08", "#19110b", "#22170f")
+    nb = yy <= 12 + np.round((pn1("stnb", 40, 2) - 0.5) * 2)[None, :]
+    flat(near, nb, nr[1])
+    flat(near, bot_rim(nb), nr[3])
+    tomb_pillar(near, 40, 12, 330, 22, nr, "stnp", courses=20)
+    dune_row(near, 312, "stnd", R("#120c08", "#150e09", "#1d140c", "#261a10"), 3, 290, 300, 60, 100, shade=1, amp=1.0,
+             edge=False, lean=0.0)
+    layers.append((near, 0.3, 720))
+    return dict(sky="#0a0605", horizon="#20140d", layers=layers)
+
+
 def interior():
     sky = sky_layer([(0.0, "#120c09"), (0.25, "#1d140e"), (0.5, "#2c1e14"), (0.62, "#35241a"), (0.8, "#261a12"),
                      (1.0, "#150e0a")], bands=14, sharp=2.0)
@@ -2885,9 +3458,12 @@ SCENES = {
     "mirror_lake": mirror_lake,
     "gale_canyon": gale_canyon,
     "nine_peaks": nine_peaks,
+    "sunscar": sunscar,
+    "sunscar_tomb": sunscar_tomb,
 }
 ORDER = ["valley_day", "valley_dusk", "valley_night", "marsh", "bamboo", "quarry", "mist_peak", "gorge", "cave",
-         "sect_jade", "sect_cloud", "interior", "storm_plains", "sky_port", "rimefrost", "mirror_lake", "gale_canyon", "nine_peaks"]
+         "sect_jade", "sect_cloud", "interior", "storm_plains", "sky_port", "rimefrost", "mirror_lake", "gale_canyon", "nine_peaks",
+         "sunscar", "sunscar_tomb"]
 
 
 def hexs(c):

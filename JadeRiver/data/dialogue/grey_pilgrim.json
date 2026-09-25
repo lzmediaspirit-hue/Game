@@ -1,0 +1,100 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "grey_pilgrim": {
+   "id": "grey_pilgrim",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_active",
+        "quest": "the_tomb_king"
+       },
+       {
+        "kind": "item_owned",
+        "item": "sunscar_seal",
+        "count": 1
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "seal_kept"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "tomb_resealed"
+       }
+      ]
+     },
+     "node": "seal"
+    },
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_active",
+        "quest": "the_tomb_king"
+       }
+      ]
+     },
+     "node": "waiting"
+    }
+   ],
+   "nodes": {
+    "seal": {
+     "lines": [
+      "You did well. He was old when my master was young.",
+      "Now give me the seal. It is only a key, and you have no door for it."
+     ],
+     "choices": [
+      {
+       "text": "No. I keep the seal.",
+       "effects": [
+        {
+         "kind": "set_flag",
+         "flag": "seal_kept"
+        },
+        {
+         "kind": "grant_title",
+         "title": "seal_keeper"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "No. It goes back into the King's hand, and the tomb stays shut.",
+       "effects": [
+        {
+         "kind": "set_flag",
+         "flag": "tomb_resealed"
+        },
+        {
+         "kind": "remove_item",
+         "item": "sunscar_seal",
+         "count": 1
+        },
+        {
+         "kind": "grant_title",
+         "title": "sunscar_sealer"
+        }
+       ],
+       "close": true
+      }
+     ]
+    },
+    "waiting": {
+     "lines": [
+      "Go on. He is waiting on his throne, as he has for three thousand years.",
+      "I will wait too. I am good at it."
+     ],
+     "choices": [
+      {
+       "text": "(Leave him.)",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

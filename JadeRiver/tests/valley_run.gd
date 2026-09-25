@@ -9,7 +9,7 @@ extends "res://tests/prologue_run.gd"
 ## can be re-run alone:
 ##   godot --headless --path . res://tests/valley_run.tscn -- [--from=<section>] [--verbose]
 
-const SECTIONS := ["bf2", "bf5", "bf8", "qk1", "qk5", "qu1", "qu5", "ht1", "ht5", "cs1", "cs5", "sa1", "sa5", "hg1", "ae1", "ae2", "ae3"]
+const SECTIONS := ["bf2", "bf5", "bf8", "qk1", "qk5", "qu1", "qu5", "ht1", "ht5", "cs1", "cs5", "sa1", "sa5", "hg1", "ae1", "ae2", "ae3", "ae4"]
 const CP_ROOT := "user://valley_cp/"
 const WORK := "user://valley_work/"
 
@@ -168,6 +168,22 @@ func gear_up(shop := "stoneford_smith") -> void:
 		if Game.economy.balance("silver_tael", c()) < int(s.price): continue
 		if buy(shop, str(s.item), 1): equip_first(str(s.item))
 	if verbose: print("  gear up at ", shop, ": attack ", snappedf(before, 0.1), " -> ", snappedf(c().stats.value("physical_attack"), 0.1), " level ", ProgressionRules.level(c()), " taels ", Game.economy.balance("silver_tael", c()))
+
+## Gear from a Spirit Stone shop of the Expanse, the same rule as gear_up: better grade only, the
+## weapon family kept; the stones stand in for the hours of Expanse income the run skips.
+func gear_up_stones(shop: String) -> void:
+	var w = c().inventory.equipped.get("weapon")
+	var fam := str(ContentDB.item(str(w.id)).get("family", "jian")) if w != null else "jian"
+	for s in Game.economy.stock(c(), shop):
+		if str(s.get("locked", "")) != "": continue
+		var def := ContentDB.item(str(s.item))
+		if not ContentDB.is_equipment(str(s.item)): continue
+		if str(def.slot) == "weapon" and str(def.get("family", "")) != fam: continue
+		var cur = c().inventory.equipped.get(str(def.slot))
+		if cur != null and StatRules.grade_index(str(ContentDB.item(str(cur.id)).get("grade", "plain"))) >= StatRules.grade_index(str(def.get("grade", "plain"))): continue
+		var short := int(s.price) - Game.economy.balance("spirit_stone")
+		if short > 0: Game.economy.apply_currency("spirit_stone", short, "test_shortcut_income")
+		if buy(shop, str(s.item), 1): equip_first(str(s.item))
 
 ## Earth-grade gear for the Qi Unfurling bosses. Forging is tested in The Sect Forge, so the set is
 ## granted here (test shortcut) instead of farming Jadeiron for every piece.
@@ -362,7 +378,7 @@ func buy(shop: String, item: String, count := 1) -> bool:
 func unlocked(system: String) -> bool:
 	return Unlocks.is_unlocked(c().id, system)
 
-const KEEP := ["herbal_tea", "rice_ball", "rice", "willow_moss", "riverreed_ginseng_10", "tough_meat", "spirit_stone_shard",
+const KEEP := ["herbal_tea", "rice_ball", "rice", "willow_moss", "riverreed_ginseng_10", "tough_meat", "spirit_stone_shard", "sunscar_seal",
 	"revival_talisman", "return_charm", "fuel_crystal_low", "blank_plate", "formation_stone", "restoration_ink", "torn_manual",
 	"spirit_wood", "puppet_core", "spirit_egg", "dusty_curio", "calm_incense", "cloud_feather", "cloudtop_orchid", "mudwater_key",
 	"cleansing_pill", "healing_pill", "qi_restoration_pill", "manual_page", "copper_ore", "jadeiron", "mist_lotus", "evergreen_heart_seed",
@@ -1643,6 +1659,88 @@ func sec_ae3() -> void:
 	check(c().quests.has_flag("path_independent") and not c().quests.has_flag("path_alliance") and c().inventory.count("alliance_token") == 0,
 		"the free road now, token returned")
 	travel("ae_port_market")
+
+## Act II · chapter 14 (v1.1 Phase D): across the Sunscar to the Oasis of Bones, the Dune Worms'
+## key, the Sealed Gate's inscription (Insight 80), the Tomb King and the seal, then Sage Sovereign.
+func _objective(qid: String, i: int) -> int:
+	return int(c().quests.active.get(qid, {}).get("progress", [0, 0, 0, 0, 0])[i])
+
+func sec_ae4() -> void:
+	check(reach("sage_3"), "Sage 3")
+	check(start("glass_and_bone"), "Glass and Bone accepted")
+	attune_to("azure_expanse", 50.0)
+	# A player bound for the desert wears the port's Spirit-grade stormsteel and stormsilk.
+	tidy_bag(12)
+	gear_up_stones("alliance_factor")
+	check(travel("sd_oasis_of_bones"), "take the desert road across the Glass Dunes and the Scorpion Flats to the Oasis of Bones")
+	for rid in ["sd_scorpion_flats", "sd_glass_dunes", "sd_scorpion_flats", "sd_glass_dunes"]:
+		if _objective("glass_and_bone", 1) >= 6: break
+		if travel(rid): fight("sandstorm_scorpion", 3, 300.0, 0.3)
+		revive_if_needed()
+	check(_objective("glass_and_bone", 1) >= 6, "clear the Sandstorm Scorpions from the caravan road")
+	check(finish("glass_and_bone"), "Glass and Bone done")
+	# The Sealed Gate: the key's pieces are in the Dune Worms; the inscription asks a scholar's eye.
+	check(start("the_sealed_gate"), "The Sealed Gate accepted")
+	for i in 10:
+		if c().inventory.count("sun_seal_shard") >= 3: break
+		if travel("sd_worm_sea"): fight("dune_worm", 2, 300.0, 0.3)
+		revive_if_needed()
+	check(c().inventory.count("sun_seal_shard") >= 3, "cut the three pieces of the key from the Dune Worms")
+	check(travel("ts_sealed_gate"), "find the Sealed Gate beyond the Worm Sea")
+	if c().stats.value("insight") < 80.0: train_dao(5)
+	check(interact("tomb_gate").get("ok", false) and c().quests.has_flag("tomb_gate_opened"), "read the inscription: the bronze doors open")
+	check(finish("the_sealed_gate"), "The Sealed Gate done")
+	check(c().inventory.count("sun_seal_shard") == 0, "the key's pieces stay with the bone-reader")
+	# Sovereign: a full Sage Qi reserve and one Dao at Adaptation; the Settling Pill ends the consolidation.
+	check(start("sovereign"), "Sovereign accepted")
+	c().pools.qi = c().pools.max_qi
+	check(reach("sage_sovereign_1"), "Sage Sovereign 1")
+	if c().cultivator.state == "consolidating" or c().cultivator.consolidation_left > 0.0:
+		var pi: int = c().inventory.first_index("sovereign_settling_pill")
+		check(pi >= 0 and submit({"type": "use_item", "index": pi, "confirm": true}).get("ok", false), "take a Sovereign Settling Pill")
+		step(0.5)
+		check(c().cultivator.consolidation_left <= 0.0, "the new stage settles at once")
+	check(finish("sovereign"), "Sovereign done")
+	# Now the tomb.
+	check(start("the_tomb_king"), "The Tomb King accepted")
+	attune_to("azure_expanse", 55.0)
+	# Sage-grade gear from the Ironroot forge, open to kin who have become Sovereigns.
+	var atk0: float = c().stats.value("physical_attack")
+	travel("ir_clan_hearth")
+	tidy_bag(12)
+	gear_up_stones("ironroot_clan")
+	check(str(ContentDB.item(str(c().inventory.equipped.get("robe", {}).get("id", ""))).get("grade", "")) == "sage" and c().stats.value("physical_attack") > atk0,
+		"Sage-grade sunsilk and sunsteel from the clan forge (attack %.0f -> %.0f)" % [atk0, c().stats.value("physical_attack")])
+	check(travel("ts_mirror_crypt"), "through the Hall of Sand Kings to the Mirror Crypt")
+	check(interact("journal_tomb").get("ok", false), "find Lu's page among the mirrors")
+	c().pools.hp = c().pools.max_hp
+	check(defeat("tomb_king", "ts_throne"), "the Tomb King of Sunscar falls")
+	check(c().inventory.count("sunscar_seal") == 1, "the sun seal is yours to take")
+	check(talk_choose(go_to_npc(["grey_pilgrim"]), "effects", "keep the seal"), "refuse the Grey Pilgrim: keep the seal")
+	check(c().quests.has_flag("seal_kept") and "seal_keeper" in c().cultivator.titles, "Keeper of the Sun Seal")
+	check(finish("the_tomb_king"), "The Tomb King done: chapter 14 complete")
+	check(c().inventory.count("sunscar_seal") == 1, "the seal stays with you")
+	# Side stories of the oasis and the Hold. Gathering Master is a long road (S15): test shortcut.
+	Game.crafting.add_xp(c(), "herb_gathering", 20000.0)
+	tidy_bag(12)
+	check(start("cactus_water") and start("glass_teeth") and start("stingers_for_the_hold"), "the Sunscar side stories accepted")
+	for rid in ["sd_glass_dunes", "sd_scorpion_flats", "sd_worm_sea", "sd_glass_dunes"]:
+		if c().inventory.count("ember_cactus") >= 4: break
+		if travel(rid): gather("ember_cactus", 4 - c().inventory.count("ember_cactus"), 3)
+	check(c().inventory.count("ember_cactus") >= 4, "pick Ember Cactus flowers across the dunes (%d)" % c().inventory.count("ember_cactus"))
+	for i in 10:
+		if c().inventory.count("worm_glass_tooth") >= 3: break
+		if travel("sd_worm_sea"): fight("dune_worm", 2, 300.0, 0.3)
+		revive_if_needed()
+	for i in 10:
+		if c().inventory.count("scorpion_stinger") >= 5: break
+		if travel("sd_scorpion_flats"): fight("sandstorm_scorpion", 3, 300.0, 0.3)
+		revive_if_needed()
+	check(finish("cactus_water"), "Cactus Water done")
+	check(finish("glass_teeth"), "Glass Teeth done")
+	check(finish("stingers_for_the_hold"), "Stingers for the Hold done")
+	check(c().inventory.count("cactus_water") >= 1, "cactus water in the gourd")
+	travel("sd_oasis_of_bones")
 	checkpoint("ae_end")
 
 ## The mini-game through intents: each strike's distance from the band centre, then the craft.

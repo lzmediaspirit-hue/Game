@@ -452,5 +452,57 @@
         "bottom": 720
       }
     ]
+  },
+  "sunscar": {
+    "sky": "#A9BCCB",
+    "horizon": "#F8EBCA",
+    "layers": [
+      {
+        "file": "res://art/backdrops/sunscar_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/sunscar_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/sunscar_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/sunscar_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "sunscar_tomb": {
+    "sky": "#0A0605",
+    "horizon": "#20140D",
+    "layers": [
+      {
+        "file": "res://art/backdrops/sunscar_tomb_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/sunscar_tomb_1.png",
+        "parallax": 0.06,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/sunscar_tomb_2.png",
+        "parallax": 0.16,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/sunscar_tomb_3.png",
+        "parallax": 0.3,
+        "bottom": 720
+      }
+    ]
   }
 }

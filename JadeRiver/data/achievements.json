@@ -196,6 +196,16 @@
      "count": 5
     }
    ]
+  },
+  {
+   "id": "the_king_sleeps",
+   "name": "The King Sleeps",
+   "desc": "Defeat the Tomb King of Sunscar",
+   "event": "actor_defeated",
+   "match": {
+    "def": "tomb_king"
+   },
+   "title": "sunscar_victor"
   }
  ]
 }

@@ -51,6 +51,10 @@ func state_name() -> String:
 		"bell": return "ringing" if s == "open" else "idle"
 		"rite_circle": return "active" if Game.room_rt and Game.room_rt.event.get("active", false) else "idle"
 		"treasure_plot": return "fruit" if c and _my_tree(c) and bool(Game.crafting.evergreen_state(c).get("ready", false)) else "idle"
+		"inspect":
+			# A door or gate drawn from a flag (the Tomb of Sunscar's gate: sealed, then open).
+			var sf: Dictionary = def.get("state_flag", {})
+			if not sf.is_empty(): return str(sf.on) if c and c.quests.has_flag(str(sf.flag)) else str(sf.off)
 	return "idle"
 
 ## Rich earth shows the player's Evergreen Heart Tree once it is planted here.

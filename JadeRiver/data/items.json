@@ -82,6 +82,16 @@
    "desc": "A lotus that blooms in snow on Rimefrost Heights. Cold to the touch, clear to the mind."
   },
   {
+   "id": "ember_cactus",
+   "name": "Ember Cactus",
+   "type": "herb",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 99,
+   "icon": "ember_cactus",
+   "desc": "A cactus flower that stores the Sunscar sun. It glows like a coal long after dusk."
+  },
+  {
    "id": "copper_ore",
    "name": "Copper",
    "type": "ore",
@@ -150,6 +160,16 @@
    "stack": 99,
    "icon": "stormsteel_ore",
    "desc": "Blue-black ore from where lightning strikes the same ground twice."
+  },
+  {
+   "id": "sunglass_ore",
+   "name": "Sunglass",
+   "type": "ore",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 99,
+   "icon": "sunglass_ore",
+   "desc": "Desert glass the Sunscar sun fused out of the dunes. It holds heat and light like a lamp."
   },
   {
    "id": "ore_dust",
@@ -550,6 +570,70 @@
    "stack": 99,
    "icon": "harpy_plume",
    "desc": "A russet plume from a Canyon Harpy's crest, barred like a hawk's."
+  },
+  {
+   "id": "scorpion_stinger",
+   "name": "Scorpion Stinger",
+   "type": "beast_part",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "scorpion_stinger",
+   "desc": "A Sandstorm Scorpion's stinger, a bead of amber venom still inside."
+  },
+  {
+   "id": "worm_glass_tooth",
+   "name": "Worm Glass Tooth",
+   "type": "beast_part",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 99,
+   "icon": "worm_glass_tooth",
+   "desc": "A tooth of clear desert glass from a Dune Worm's ringed maw."
+  },
+  {
+   "id": "terracotta_shard",
+   "name": "Terracotta Shard",
+   "type": "material",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "terracotta_shard",
+   "desc": "A shard of a Terracotta Warden. The clay is warm, as if fired yesterday."
+  },
+  {
+   "id": "sun_crown_fragment",
+   "name": "Sun Crown Fragment",
+   "type": "material",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 99,
+   "icon": "sun_crown_fragment",
+   "desc": "A gold ray broken from the Tomb King's sun crown. It never cools."
+  },
+  {
+   "id": "sun_seal_shard",
+   "name": "Sun Seal Shard",
+   "type": "material",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 9,
+   "icon": "sun_seal_shard",
+   "desc": "A curved piece of a gold and jade disc, swallowed long ago by a Dune Worm.",
+   "sell": false,
+   "quest_item": true
+  },
+  {
+   "id": "sunscar_seal",
+   "name": "Sunscar Seal",
+   "type": "key",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 1,
+   "icon": "sunscar_seal",
+   "desc": "The Tomb King's sun seal: a disc of gold and jade, warm as a living hand.",
+   "sell": false,
+   "quest_item": true
   },
   {
    "id": "alliance_token",
@@ -2099,6 +2183,27 @@
    "use": []
   },
   {
+   "id": "sovereign_settling_pill",
+   "name": "Sovereign Settling Pill",
+   "type": "pill",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 99,
+   "icon": "sovereign_settling_pill",
+   "desc": "Settles a new Sage Sovereign stage at once: its consolidation ends.",
+   "pill": {
+    "mark": "knot",
+    "toxicity": 15,
+    "cause": "structure",
+    "group": "utility"
+   },
+   "use": [
+    {
+     "kind": "settle_consolidation"
+    }
+   ]
+  },
+  {
    "id": "storm_blood_pill",
    "name": "Storm Blood Pill",
    "type": "pill",
@@ -2354,6 +2459,30 @@
      "value": 0.05,
      "duration": 1800,
      "source": "thunderhorn_stew"
+    }
+   ],
+   "food": {
+    "group": "buff",
+    "pet_food": false
+   }
+  },
+  {
+   "id": "cactus_water",
+   "name": "Cactus Water",
+   "type": "food",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 99,
+   "icon": "cactus_water",
+   "desc": "+20 Essence for 20 minutes: the Sunscar heat slides off.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "essence",
+     "op": "flat",
+     "value": 20,
+     "duration": 1200,
+     "source": "cactus_water"
     }
    ],
    "food": {

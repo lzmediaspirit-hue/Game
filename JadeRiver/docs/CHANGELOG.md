@@ -2,7 +2,35 @@
 
 ## 1.1 (in progress) — The Azure Expanse (Act II)
 
-Built in phases (docs/act2_design.md). Phases A, B and C (chapters 11 to 13) are playable end to end.
+Built in phases (docs/act2_design.md). Phases A to D (chapters 11 to 14) are playable end to end.
+
+### Phase D · Sunscar
+- **The Sunscar Desert** (Lv 73–81, Storm Ward 45–50), south of Ironroot Hold down the desert road from the
+  Clan Hearth: the Glass Dunes, the Scorpion Flats and the Worm Sea, a sand ground of wind ripples and desert
+  glass, a new desert backdrop and a synthesized desert theme. The **Oasis of Bones** (rest, teleport stone)
+  lies among the ribs of a giant beast, with Keeper Meng's stores and Bone-Reader Xiu.
+- **The Tomb of Sunscar** (Lv 77, Storm Ward 55): the Sealed Gate, the Hall of Sand Kings, the Mirror Crypt and
+  the **Throne of the Tomb King**, a dungeon boss who summons clay guards at 60% and enrages at 30%. Dungeon
+  theme, tomb backdrop, statues, mirrors, sarcophagi and the King's throne.
+- Four new monsters: the **Sandstorm Scorpion**, the burrowing **Dune Worm**, the **Terracotta Warden** and the
+  **Tomb King of Sunscar**.
+- Four new hazards: scorching heat (Essence; shrines give shade), sandstorms (Body; they push and blind),
+  quicksand (Agility) and spike traps in the tomb (Agility).
+- **Chapter 14, Sunscar**: Glass and Bone (follow the Pilgrim's caravan to the oasis), The Sealed Gate (cut the
+  key's pieces out of the Dune Worms and read the gate's inscription, Insight 80), Sovereign (break through to
+  Sage Sovereign 1) and The Tomb King (Lu's page in the Mirror Crypt, the King, and the sun seal: keep it, or put
+  it back in his hand; either way the Grey Pilgrim leaves without it). Side stories: Cactus Water, Glass Teeth and
+  Stingers for the Hold.
+- **Sage-grade equipment**: sunsteel weapons and sunsilk armour (with the veiled weimao hat), forged from
+  Sunglass and scorpion stingers from Sage Sovereign 1, and sold to Ironroot kin. Sunglass ore, Ember Cactus,
+  the **Sovereign Settling Pill** (ends a new stage's consolidation), cactus water (+Essence against the heat),
+  three titles and the King Sleeps achievement.
+- Fixes: a boss's summoning phase now calls its own minions (the Thousand-Eye Toad summoned paper ghosts),
+  phases can set the level of what they summon, and a new enrage phase shortens pauses and hardens blows.
+  The Canyon Harpy's bleed was twenty times too strong. Act II delivery quests now take the goods they ask for.
+  A burrower travelling underground now shows as a moving mound of sand or earth instead of vanishing.
+- Tests: a new ae4 section plays chapter 14 end to end, buying Sage-grade gear before the tomb; the fight
+  helper clears a boss's adds when they wear the player down.
 
 ### Room hazards (S17)
 - The hazards rooms have always listed now act: **falling rocks** (Quarry Rim), **Hollow puddles** (Grey

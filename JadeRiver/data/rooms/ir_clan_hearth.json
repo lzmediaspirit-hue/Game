@@ -97,6 +97,33 @@
    ],
    "to": "ir_hold_gate",
    "to_portal": "east"
+  },
+  {
+   "id": "desert_road",
+   "type": "sealed",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "sd_glass_dunes",
+   "to_portal": "west",
+   "requires": {
+    "all": [
+     {
+      "any": [
+       {
+        "kind": "quest_active",
+        "quest": "glass_and_bone"
+       },
+       {
+        "kind": "quest_done",
+        "quest": "glass_and_bone"
+       }
+      ]
+     }
+    ]
+   },
+   "locked_text": "The desert road south. The Matriarch's scouts turn back everyone who has no reason to cross the Sunscar."
   }
  ],
  "objects": [

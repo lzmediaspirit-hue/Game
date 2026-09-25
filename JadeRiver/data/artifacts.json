@@ -644,6 +644,96 @@
    }
   },
   {
+   "id": "sunsteel_gauntlets",
+   "name": "Sunsteel Gauntlets",
+   "slot": "weapon",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "none",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsteel_gauntlets",
+   "type": "equipment",
+   "stack": 1,
+   "family": "gauntlets"
+  },
+  {
+   "id": "sunsteel_jian",
+   "name": "Sunsteel Jian",
+   "slot": "weapon",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "sword",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsteel_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian"
+  },
+  {
+   "id": "sunsteel_spear",
+   "name": "Sunsteel Spear",
+   "slot": "weapon",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "spear",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsteel_spear",
+   "type": "equipment",
+   "stack": 1,
+   "family": "spear"
+  },
+  {
+   "id": "sunsteel_short_blade",
+   "name": "Sunsteel Short Blade",
+   "slot": "weapon",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "dagger",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsteel_short_blade",
+   "type": "equipment",
+   "stack": 1,
+   "family": "short_blade"
+  },
+  {
+   "id": "sunsteel_staff",
+   "name": "Sunsteel Staff",
+   "slot": "weapon",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "staff",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsteel_staff",
+   "type": "equipment",
+   "stack": 1,
+   "family": "staff",
+   "attribute_req": {
+    "body": 92
+   }
+  },
+  {
+   "id": "sunsteel_bow",
+   "name": "Sunsteel Bow",
+   "slot": "weapon",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "bow",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsteel_bow",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bow",
+   "attribute_req": {
+    "agility": 92
+   }
+  },
+  {
    "id": "plain_straw_hat",
    "name": "Plain Straw Hat",
    "slot": "hat",
@@ -968,6 +1058,60 @@
    "stack": 1
   },
   {
+   "id": "sunsilk_hat",
+   "name": "Sunsilk Veil",
+   "slot": "hat",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "weimao",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsilk_hat",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
+   "id": "sunsilk_robe",
+   "name": "Sunsilk Robe",
+   "slot": "robe",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "scholar",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsilk_robe",
+   "type": "equipment",
+   "stack": 1,
+   "dye": "ochre"
+  },
+  {
+   "id": "sunsilk_trousers",
+   "name": "Sunsilk Trousers",
+   "slot": "trousers",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "cuffed",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsilk_trousers",
+   "type": "equipment",
+   "stack": 1,
+   "dye": "crimson"
+  },
+  {
+   "id": "sunsilk_boots",
+   "name": "Sunsilk Boots",
+   "slot": "boots",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "folded",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsilk_boots",
+   "type": "equipment",
+   "stack": 1
+  },
+  {
    "id": "starter_gourd",
    "name": "Starter Spirit Gourd",
    "slot": "gourd",
@@ -1067,6 +1211,23 @@
    "gourd": {
     "bag": 50,
     "quick": 16
+   }
+  },
+  {
+   "id": "sunsteel_gourd",
+   "name": "Sunsteel Gourd",
+   "slot": "gourd",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "none",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsteel_gourd",
+   "type": "equipment",
+   "stack": 1,
+   "gourd": {
+    "bag": 55,
+    "quick": 18
    }
   },
   {

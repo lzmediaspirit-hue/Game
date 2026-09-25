@@ -78,10 +78,13 @@ ORES = {
     "stormsteel_ore": ("stormsteel_vein", [1, 2]),
 }
 HERBS["frost_lotus"] = ("frost_lotus_patch", [1, 1])
+HERBS["ember_cactus"] = ("ember_cactus_patch", [1, 1])
+ORES["sunglass_ore"] = ("sunglass_vein", [1, 2])
 HERB_RANK = {"willow_moss": "apprentice", "riverreed_ginseng_10": "apprentice", "ember_pepper": "apprentice",
-             "mist_lotus": "adept", "cloudtop_orchid": "expert", "soulbell_flower": "expert", "frost_lotus": "master"}
+             "mist_lotus": "adept", "cloudtop_orchid": "expert", "soulbell_flower": "expert", "frost_lotus": "master",
+             "ember_cactus": "master"}
 ORE_RANK = {"copper_ore": "apprentice", "riverstone": "apprentice", "jadeiron": "adept", "spirit_stone_shard": "adept",
-            "cloudsteel_ore": "expert", "mystic_ore": "expert", "stormsteel_ore": "master"}
+            "cloudsteel_ore": "expert", "mystic_ore": "expert", "stormsteel_ore": "master", "sunglass_ore": "master"}
 
 
 # S17 hazards. Each runs a cycle in seconds (quiet tell, warning, active, cooldown) and is answered by
@@ -115,6 +118,18 @@ HAZARDS = [
     {"id": "thorns", "name": "Thorn thickets", "kind": "pool", "answer": "body", "k": 1.4, "cycle": [0.0, 0.0, 1.0, 0.0],
      "areas": ["thorns"], "pulse": 1.0, "damage_pct": 0.02, "status": {"id": "bleed", "s": 3.0, "power": 0.01},
      "note": "Old thorn canes hide in the bamboo. Walking through them tears skin. Body shrugs them off."},
+    {"id": "scorching_heat", "name": "Scorching heat", "kind": "aura", "answer": "essence", "k": 1.3, "cycle": [3.0, 2.0, 4.0, 9.0],
+     "status": {"id": "exhausted", "s": 8.0, "power": 1.0, "scale": "duration"}, "shelter": ["shrine", "qi_spring"],
+     "note": "The air shimmers, then the full weight of the sun lands and blows go soft. Essence keeps the body cool; shrines give shade."},
+    {"id": "sandstorm", "name": "Sandstorm", "kind": "gust", "answer": "body", "k": 1.3, "cycle": [3.0, 1.5, 3.0, 8.0], "push": 150,
+     "buff": {"stat": "accuracy", "op": "pct_add", "value": -0.25},
+     "note": "A brown wall rises on the horizon, then it shoves and blinds. Body stands in it."},
+    {"id": "quicksand", "name": "Quicksand", "kind": "pool", "answer": "agility", "k": 1.3, "cycle": [2.0, 1.0, 3.0, 2.0],
+     "areas": ["quicksand"], "pulse": 0.8, "status": {"id": "slow", "s": 1.2, "power": 0.5},
+     "note": "The sand swirls before it swallows. Agility keeps the feet moving."},
+    {"id": "spike_traps", "name": "Spike traps", "kind": "strike", "answer": "agility", "k": 1.3, "cycle": [1.5, 1.0, 0.35, 5.0],
+     "count": 2, "radius": 52, "aim": "near", "spread": 220, "damage_pct": 0.07, "status": {"id": "bleed", "s": 3.0, "power": 0.01},
+     "note": "Grit shivers over a pressure plate before bronze spikes spring from the floor. Agility gets the feet clear."},
     {"id": "poison_mist", "name": "Poison mist", "kind": "pool", "answer": "body", "k": 1.3, "cycle": [3.0, 1.5, 4.0, 5.0],
      "areas": ["poison_mist"], "pulse": 1.0, "status": {"id": "poison", "s": 6.0, "power": 0.012},
      "note": "The bandits vent marsh gas through the tunnels: the vents hiss before they breathe. Body tolerates the poison."},
@@ -531,7 +546,7 @@ def lotus_ferry():
 # ---------------------------------------------------------------------------------------------
 def field(rid, name, region, screens, levels, backdrop, material, spawns, herbs=(), ores=(), jars=5, chest=None,
           element="none", gather_tier="", qi=1.0, music="field", ambience="", rtype="field", trees=("willow_tree", "pine_tree"),
-          platforms=(), fishing=None, loot="jar_valley_low", elite=True, hazards=(), ledge=None, **kw):
+          platforms=(), fishing=None, loot="jar_valley_low", elite=True, hazards=(), ledge=None, front=None, **kw):
     r = Room(rid, name, rtype, region, screens, levels=levels, cp=int(20 + levels[0] * 18), element=element,
              gather_tier=gather_tier, idle=kw.pop("idle", ["hunt", "gather"]), backdrop=backdrop, material=material,
              music=music, ambience=ambience, qi=qi, hazards=list(hazards), **kw)
@@ -559,7 +574,8 @@ def field(rid, name, region, screens, levels, backdrop, material, spawns, herbs=
     if fishing:
         r.fishing(fishing, [r.w // 2 - 200, 930])
     back_trees(r, trees)
-    front_grass(r, props={"snow": ("rock_small", "rock_small"), "rock": ("tall_grass", "rock_small")}.get(material, ("tall_grass", "reeds")),
+    front_grass(r, props=front or {"snow": ("rock_small", "rock_small"), "rock": ("tall_grass", "rock_small"),
+                                   "sand": ("rock_small", "rock_small")}.get(material, ("tall_grass", "reeds")),
                 step=420 if material == "snow" else 300)
     return r
 
@@ -1711,6 +1727,9 @@ def nine_peaks_and_canyons():
     r.npc("matriarch_tie", [1000, 760], facing=1)
     r.npc("clan_smith_gang", [1300, 820], facing=-1)
     r.edge("west", "west", "ir_hold_gate", "east", y=850)
+    r.edge("desert_road", "east", "sd_glass_dunes", "west", y=850, ptype="sealed",
+           requires=all_of(any_of(qactive("glass_and_bone"), qdone("glass_and_bone"))),
+           locked_text="The desert road south. The Matriarch's scouts turn back everyone who has no reason to cross the Sunscar.")
     r = interior("ir_ancestor_hall", "Ancestor Hall", "ironroot_hold", wall="wall_wood", music="meditation", qi=2.0, rtype="insight", **AE)
     r.decor("altar", [640, 690])
     for x in (360, 920):
@@ -1718,6 +1737,94 @@ def nine_peaks_and_canyons():
     r.obj("ancestral_tablets", "inspect", [640, 720], prop="altar",
           text="Rows of iron-root tablets, one for every Ironroot who ever lived. The newest is blank.", set_flag="tablets_honoured")
     r.portal("entry", "door", [120, 700], "ir_clan_hearth", "hall_door", press_up=True, label="Clan Hearth")
+
+def sunscar():
+    """Phase D: the Sunscar Desert (Storm Ward 45-50) beyond Ironroot Hold, the Oasis of Bones and the Tomb of
+    Sunscar (Storm Ward 55); chapter 14."""
+    desert = dict(backdrop="sunscar", material="sand", music="desert", ambience="wind_ambience", element="earth",
+                  gather_tier="expanse_high", qi=1.8, loot="jar_expanse", trees=("dune_cactus", "rock_large"), ledge="rock_ledge", **AE)
+    r = field("sd_glass_dunes", "Glass Dunes", "sunscar_desert", 3, [73, 76],
+              spawns=[("sandstorm_scorpion", 5, [73, 75])], herbs=("ember_cactus", "ember_cactus"), ores=("sunglass_ore",), jars=4,
+              attunement_required=45, hazards=["scorching_heat"], **desert)
+    r.decor("bleached_ribcage", [1500, 650], layer="back")
+    r.obj("sign_sd", "signpost", [300, 860], text="The Sunscar road. South: the Oasis of Bones. Carry water. Carry more water.")
+    r.edge("west", "west", "ir_clan_hearth", "desert_road", y=850)
+    r.edge("east", "east", "sd_scorpion_flats", "west", y=850)
+    r = field("sd_scorpion_flats", "Scorpion Flats", "sunscar_desert", 3, [75, 78],
+              spawns=[("sandstorm_scorpion", 6, [75, 78], 14)], herbs=("ember_cactus",), ores=("sunglass_ore", "sunglass_ore"), jars=4,
+              chest="chest_expanse", attunement_required=48, hazards=["sandstorm"], platforms=[(1400, 650, 280, 200)], **desert)
+    r.obj("shrine_sd_flats", "shrine", [2000, 700])
+    r.edge("west", "west", "sd_glass_dunes", "east", y=850)
+    r.edge("east", "east", "sd_oasis_of_bones", "west", y=850)
+
+    r = Room("sd_oasis_of_bones", "Oasis of Bones", "rest", "sunscar_desert", 2, backdrop="sunscar", material="sand", tint="#f4e6c8",
+             music="desert", ambience="water_ambience", element="water", qi=1.8, spawn_point=[400, 820], idle=["gather"], **AE)
+    r.area("water", [900, 860, 760, 100])
+    r.decor("bleached_ribcage", [700, 660], layer="back")
+    r.decor("bleached_ribcage", [1900, 660], layer="back", flip=True)
+    for x, flip in ((820, False), (1160, True), (1740, False)):
+        r.decor("palm_tree", [x, 700], flip=flip)
+    r.decor("palm_tree", [2240, 960], layer="front")
+    r.decor("yurt", [300, 690], layer="back")
+    r.decor("cooking_pot", [560, 800])
+    r.obj("stone_sunscar", "teleport_stone", [2150, 880], stone="sunscar")
+    r.obj("shrine_oasis", "shrine", [1300, 700])
+    r.obj("spring_oasis", "qi_spring", [1280, 900], spring=True, requires=all_of(unlock("qi_springs")), locked_text="Cool water under the palms.")
+    r.npc("oasis_keeper_meng", [480, 780], facing=1)
+    r.npc("bone_reader_xiu", [2000, 780], facing=-1)
+    r.edge("west", "west", "sd_scorpion_flats", "east", y=850)
+    r.edge("east", "east", "sd_worm_sea", "west", y=850)
+
+    r = field("sd_worm_sea", "Worm Sea", "sunscar_desert", 3, [77, 81],
+              spawns=[("dune_worm", 4, [77, 81], 16), ("sandstorm_scorpion", 2, [77, 78])], herbs=("ember_cactus",), ores=("sunglass_ore",),
+              jars=4, attunement_required=50, hazards=["quicksand", "scorching_heat"], **desert)
+    for x, y in [(900, 800), (1700, 900), (2600, 780)]:
+        r.area("quicksand", [x - 90, y - 26, 180, 52])
+    r.decor("bleached_ribcage", [2200, 650], layer="back", flip=True)
+    r.portal("tomb", "dungeon", [3500, 700], "ts_sealed_gate", "west", press_up=True, label="Tomb of Sunscar",
+             requires=all_of(any_of(qactive("the_sealed_gate"), qdone("the_sealed_gate"))),
+             locked_text="A stepped portal half-drowned in sand. The bone-reader will know what it is.")
+    r.edge("west", "west", "sd_oasis_of_bones", "east", y=850)
+
+    tomb = dict(backdrop="sunscar_tomb", material="stone", tint="#e8cc98", music="tomb", element="earth", qi=2.0, loot="jar_expanse",
+                trees=("stone_lantern",), rtype="dungeon", elite=False, idle=[], dungeon_exit="sd_worm_sea", attunement_required=55,
+                front=("rock_small",), **AE)
+    r = field("ts_sealed_gate", "Sealed Gate", "tomb_of_sunscar", 2, [77, 77],
+              spawns=[("terracotta_warden", 3, [77, 77]), ("sandstorm_scorpion", 2, [77, 77])], jars=4, hazards=["spike_traps"], **tomb)
+    r.obj("tomb_gate", "inspect", [2300, 700], prop="tomb_gate", state_flag={"flag": "tomb_gate_opened", "on": "open", "off": "sealed"},
+          text="The pieces fit. The inscription is a scholar's riddle in an old script; you read it through twice, and the seal turns.",
+          set_flag="tomb_gate_opened",
+          requires=all_of({"kind": "item_owned", "item": "sun_seal_shard", "count": 3}, {"kind": "attribute_at_least", "attribute": "insight", "value": 80}),
+          locked_text="A lock shaped like a sun, three pieces missing, and an inscription that slides away from the eye (Insight 80).")
+    r.edge("west", "west", "sd_worm_sea", "tomb", y=850, ptype="gate")
+    r.edge("east", "east", "ts_hall_of_sand_kings", "west", y=850, ptype="sealed", requires=all_of(flag("tomb_gate_opened")),
+           locked_text="The bronze doors do not move.")
+    r = field("ts_hall_of_sand_kings", "Hall of Sand Kings", "tomb_of_sunscar", 3, [77, 77],
+              spawns=[("terracotta_warden", 5, [77, 77])], jars=4, chest="chest_tomb", hazards=["spike_traps"], **tomb)
+    for i, x in enumerate((500, 1100, 1900, 2500, 3100)):
+        r.decor("sand_king_statue", [x, 660], layer="back", flip=i % 2 == 1)
+    r.decor("sarcophagus", [1500, 700])
+    r.edge("west", "west", "ts_sealed_gate", "east", y=850)
+    r.edge("east", "east", "ts_mirror_crypt", "west", y=850)
+    r = field("ts_mirror_crypt", "Mirror Crypt", "tomb_of_sunscar", 2, [77, 77],
+              spawns=[("terracotta_warden", 2, [77, 77])], jars=3, **tomb)
+    for i, x in enumerate((500, 900, 1660, 2060)):
+        r.decor("bronze_mirror", [x, 680], flip=i >= 2)
+    r.decor("sarcophagus", [1280, 720])
+    r.obj("journal_tomb", "pickup", [1280, 900], item="lu_journal_page", count=1, prop="scroll_rack", set_flag="journal_tomb",
+          hidden_if=all_of(flag("journal_tomb")))
+    r.edge("west", "west", "ts_hall_of_sand_kings", "east", y=850)
+    r.edge("east", "east", "ts_throne", "west", y=850)
+    r = Room("ts_throne", "Throne of the Tomb King", "boss_arena", "tomb_of_sunscar", 2, backdrop="sunscar_tomb", material="stone",
+             tint="#e8cc98", music="boss", levels=[77, 77], safe=False, spawn_point=[200, 820], dungeon_exit="sd_worm_sea",
+             attunement_required=55, **AE)
+    r.decor("sun_throne", [1900, 690], layer="back")
+    r.spawn("tomb_king", [[1700, 840]], 1, respawn=86400, level=[77, 77], boss=True)
+    r.npc("grey_pilgrim", [600, 780], oid="npc_grey_pilgrim_tomb", facing=1, visible_if=all_of(qactive("the_tomb_king")))
+    r.chest([2300, 900], loot="chest_tomb", level=77, requires=all_of(qdone("the_tomb_king")), locked_text="The King's grave goods. Not while he stands.")
+    r.edge("west", "west", "ts_mirror_crypt", "east", y=850)
+    r.portal("exit", "door", [2460, 860], "sd_worm_sea", "tomb", press_up=True, label="Worm Sea")
+
 
 def check_hazards():
     """Every hazard a room names exists, is never in a safe room, and has the areas its kind needs."""
@@ -1780,8 +1887,8 @@ def zone_json():
             {"id": "nine_peaks", "name": "Nine Peaks", "levels": [0, 0], "map": [0.40, 0.46]},
             {"id": "gale_canyons", "name": "Gale Canyons", "levels": [73, 78], "attunement": 40, "map": [0.26, 0.30]},
             {"id": "ironroot_hold", "name": "Ironroot Clan Hold", "levels": [0, 0], "map": [0.30, 0.60]},
-            {"id": "sunscar_desert", "name": "Sunscar Desert", "levels": [73, 81], "attunement": 50, "map": [0.16, 0.74], "planned": True},
-            {"id": "tomb_of_sunscar", "name": "Tomb of Sunscar", "levels": [77, 77], "attunement": 55, "map": [0.08, 0.84], "planned": True},
+            {"id": "sunscar_desert", "name": "Sunscar Desert", "levels": [73, 81], "attunement": 50, "map": [0.16, 0.74]},
+            {"id": "tomb_of_sunscar", "name": "Tomb of Sunscar", "levels": [77, 77], "attunement": 55, "map": [0.08, 0.84]},
             {"id": "skyport_wreck", "name": "Skyport Wreck", "levels": [76, 81], "attunement": 60, "map": [0.10, 0.18], "planned": True},
         ],
         "exit": {"room": "ae_landing", "to_zone": "jade_river_valley"},
@@ -1797,6 +1904,7 @@ def teleport_stones():
         {"id": "hidden_vale", "name": "Hidden Vale", "room": "hv_vale_gate", "at": [300, 880], "fee_shards": 1},
         {"id": "cloudgate", "name": "Cloudgate Port", "room": "ae_port_market", "at": [1900, 880], "fee_shards": 1, "zone": "azure_expanse"},
         {"id": "nine_peaks", "name": "Nine Peaks", "room": "np_alliance_gate", "at": [2100, 880], "fee_shards": 1, "zone": "azure_expanse"},
+        {"id": "sunscar", "name": "Oasis of Bones", "room": "sd_oasis_of_bones", "at": [2150, 880], "fee_shards": 1, "zone": "azure_expanse"},
     ]
     entries("teleport_stones", rows)
     # Every teleport stone object must name one of these.
@@ -1862,6 +1970,7 @@ def build():
     azure_expanse()
     rimefrost_and_mirrorwater()
     nine_peaks_and_canyons()
+    sunscar()
     check_links()
     reachability()
     os.makedirs(ROOMS_DIR, exist_ok=True)

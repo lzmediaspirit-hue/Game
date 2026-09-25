@@ -452,10 +452,18 @@
     "rf_hermits_ice_cave",
     "rf_rimefrost_summit",
     "rf_snow_ape_ledges",
+    "sd_glass_dunes",
+    "sd_oasis_of_bones",
+    "sd_scorpion_flats",
+    "sd_worm_sea",
     "tp_herders_camp",
     "tp_lightning_scar",
     "tp_stormgrass_verge",
-    "tp_thunderhorn_flats"
+    "tp_thunderhorn_flats",
+    "ts_hall_of_sand_kings",
+    "ts_mirror_crypt",
+    "ts_sealed_gate",
+    "ts_throne"
    ],
    "regions": [
     {
@@ -557,8 +565,7 @@
      "map": [
       0.16,
       0.74
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "tomb_of_sunscar",
@@ -571,8 +578,7 @@
      "map": [
       0.08,
       0.84
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "skyport_wreck",

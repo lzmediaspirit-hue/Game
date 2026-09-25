@@ -3532,7 +3532,7 @@
      "status": {
       "id": "bleed",
       "chance": 0.25,
-      "power": 0.2,
+      "power": 0.015,
       "duration_s": 4
      }
     },
@@ -3594,6 +3594,421 @@
    "half_width": 34,
    "height": 44,
    "flying": true
+  },
+  {
+   "id": "sandstorm_scorpion",
+   "name": "Sandstorm Scorpion",
+   "level": [
+    73,
+    78
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 115,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "tail_sting",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       76
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.25,
+     "status": {
+      "id": "poison",
+      "chance": 0.4,
+      "power": 0.012,
+      "duration_s": 5
+     }
+    },
+    {
+     "id": "pincer_snap",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       46
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0
+    }
+   ],
+   "loot": "sandstorm_scorpion",
+   "drops": [
+    {
+     "item": "scorpion_stinger",
+     "chance": 0.45,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    },
+    {
+     "item": "sunglass_ore",
+     "chance": 0.08,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "sandstorm_scorpion"
+   },
+   "half_width": 34,
+   "height": 30,
+   "pack": true
+  },
+  {
+   "id": "dune_worm",
+   "name": "Dune Worm",
+   "level": [
+    77,
+    81
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "burrower",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 100,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "sand_burst",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       130
+      ],
+      "depth": 50,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.5,
+     "knockback": 110
+    },
+    {
+     "id": "glass_spit",
+     "windup_s": 0.8,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       300
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.1,
+     "projectile": {
+      "speed": 460,
+      "art": "pebble"
+     }
+    }
+   ],
+   "loot": "dune_worm",
+   "drops": [
+    {
+     "item": "worm_glass_tooth",
+     "chance": 0.45,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.6,
+     "count": [
+      1,
+      3
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "dune_worm"
+   },
+   "half_width": 44,
+   "height": 80
+  },
+  {
+   "id": "terracotta_warden",
+   "name": "Terracotta Warden",
+   "level": [
+    77,
+    77
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "construct",
+   "energy": "none",
+   "ai": {
+    "profile": "slow_melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 70,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "ge_chop",
+     "windup_s": 0.8,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       96
+      ],
+      "depth": 36,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.3,
+     "knockback": 90
+    }
+   ],
+   "loot": "terracotta_warden",
+   "drops": [
+    {
+     "item": "terracotta_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "terracotta_warden"
+   },
+   "half_width": 22,
+   "height": 100,
+   "weak_to": "water"
+  },
+  {
+   "id": "tomb_king",
+   "name": "Tomb King",
+   "level": [
+    77,
+    77
+   ],
+   "role": "dungeon_boss",
+   "element": "earth",
+   "race": "undead",
+   "energy": "sage_qi",
+   "ai": {
+    "profile": "boss_king",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "glaive_sweep",
+     "windup_s": 0.75,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       190
+      ],
+      "depth": 70,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.35,
+     "knockback": 120,
+     "both_sides": true
+    },
+    {
+     "id": "sand_crescent",
+     "windup_s": 0.9,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       380
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 460,
+      "art": "sand_crescent"
+     }
+    },
+    {
+     "id": "sun_flare",
+     "windup_s": 1.1,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       260
+      ],
+      "depth": 90,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.5,
+     "damage_type": "qi",
+     "status": {
+      "id": "burn",
+      "chance": 0.5,
+      "power": 0.01,
+      "duration_s": 4
+     }
+    }
+   ],
+   "loot": "tomb_king",
+   "drops": [
+    {
+     "item": "sun_crown_fragment",
+     "chance": 1.0,
+     "count": [
+      2,
+      3
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 1.0,
+     "count": [
+      12,
+      18
+     ],
+     "weight": 1
+    },
+    {
+     "item": "sunglass_ore",
+     "chance": 1.0,
+     "count": [
+      3,
+      5
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "tomb_king"
+   },
+   "half_width": 40,
+   "height": 170,
+   "weak_to": "water",
+   "hp_mult": 0.35,
+   "attack_mult": 0.8,
+   "phases": [
+    {
+     "below": 0.6,
+     "action": "summon",
+     "summon": "terracotta_warden",
+     "summon_level": 74
+    },
+    {
+     "below": 0.3,
+     "action": "enrage",
+     "cooldown": 0.65,
+     "damage": 1.3
+    }
+   ]
   },
   {
    "id": "canyon_brigand",

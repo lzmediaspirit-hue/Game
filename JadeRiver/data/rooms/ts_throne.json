@@ -1,0 +1,147 @@
+{
+ "schema_version": 1,
+ "id": "ts_throne",
+ "zone": "azure_expanse",
+ "region": "tomb_of_sunscar",
+ "name": "Throne of the Tomb King",
+ "type": "boss_arena",
+ "level_range": [
+  77,
+  77
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "sunscar_tomb",
+ "ground": {
+  "material": "stone",
+  "tint": "#e8cc98"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ts_mirror_crypt",
+   "to_portal": "east"
+  },
+  {
+   "id": "exit",
+   "type": "door",
+   "at": [
+    2460,
+    860
+   ],
+   "to": "sd_worm_sea",
+   "to_portal": "tomb",
+   "press_up": true,
+   "label": "Worm Sea"
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_grey_pilgrim_tomb",
+   "type": "npc",
+   "at": [
+    600,
+    780
+   ],
+   "npc": "grey_pilgrim",
+   "facing": 1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_tomb_king"
+     }
+    ]
+   }
+  },
+  {
+   "id": "chest_1",
+   "type": "chest",
+   "at": [
+    2300,
+    900
+   ],
+   "loot": "chest_tomb",
+   "level": 77,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_tomb_king"
+     }
+    ]
+   },
+   "locked_text": "The King's grave goods. Not while he stands."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "tomb_king",
+   "surface": "ground",
+   "points": [
+    [
+     1700,
+     840
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 86400,
+   "level": [
+    77,
+    77
+   ],
+   "boss": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "sun_throne",
+   "at": [
+    1900,
+    690
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "boss",
+ "dungeon_exit": "sd_worm_sea",
+ "attunement_required": 55
+}

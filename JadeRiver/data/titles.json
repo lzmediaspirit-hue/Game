@@ -68,6 +68,39 @@
    ]
   },
   {
+   "id": "seal_keeper",
+   "name": "Keeper of the Sun Seal",
+   "modifiers": [
+    {
+     "stat": "qi_attack",
+     "op": "pct_add",
+     "value": 0.03
+    }
+   ]
+  },
+  {
+   "id": "sunscar_sealer",
+   "name": "Sealer of Sunscar",
+   "modifiers": [
+    {
+     "stat": "max_soul",
+     "op": "pct_add",
+     "value": 0.05
+    }
+   ]
+  },
+  {
+   "id": "sunscar_victor",
+   "name": "Kingsbane of Sunscar",
+   "modifiers": [
+    {
+     "stat": "essence",
+     "op": "flat",
+     "value": 3
+    }
+   ]
+  },
+  {
    "id": "shore_warden",
    "name": "Shore Warden",
    "modifiers": [

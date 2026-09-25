@@ -175,6 +175,23 @@
       }
     }
   },
+  "bleached_ribcage": {
+    "anchor": [
+      112,
+      122
+    ],
+    "file": "res://art/props/bleached_ribcage.png",
+    "frame": [
+      224,
+      128
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "bookcase": {
     "anchor": [
       55,
@@ -206,6 +223,24 @@
       "idle": {
         "col": 0,
         "frames": 1
+      }
+    }
+  },
+  "bronze_mirror": {
+    "anchor": [
+      44,
+      122
+    ],
+    "file": "res://art/props/bronze_mirror.png",
+    "frame": [
+      88,
+      128
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 4,
+        "frames": 4
       }
     }
   },
@@ -535,6 +570,45 @@
       "idle": {
         "col": 0,
         "frames": 1
+      }
+    }
+  },
+  "dune_cactus": {
+    "anchor": [
+      36,
+      92
+    ],
+    "file": "res://art/props/dune_cactus.png",
+    "frame": [
+      72,
+      96
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "ember_cactus_patch": {
+    "anchor": [
+      28,
+      44
+    ],
+    "file": "res://art/props/ember_cactus_patch.png",
+    "frame": [
+      56,
+      48
+    ],
+    "states": {
+      "depleted": {
+        "col": 3,
+        "frames": 1
+      },
+      "ready": {
+        "col": 0,
+        "fps": 5,
+        "frames": 3
       }
     }
   },
@@ -1406,6 +1480,24 @@
       }
     }
   },
+  "palm_tree": {
+    "anchor": [
+      64,
+      186
+    ],
+    "file": "res://art/props/palm_tree.png",
+    "frame": [
+      128,
+      192
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 4,
+        "frames": 3
+      }
+    }
+  },
   "pine_tree": {
     "anchor": [
       100,
@@ -1681,6 +1773,40 @@
     "frame": [
       80,
       44
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "sand_king_statue": {
+    "anchor": [
+      48,
+      170
+    ],
+    "file": "res://art/props/sand_king_statue.png",
+    "frame": [
+      96,
+      176
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "sarcophagus": {
+    "anchor": [
+      72,
+      76
+    ],
+    "file": "res://art/props/sarcophagus.png",
+    "frame": [
+      144,
+      80
     ],
     "states": {
       "idle": {
@@ -2121,6 +2247,48 @@
       }
     }
   },
+  "sun_throne": {
+    "anchor": [
+      96,
+      170
+    ],
+    "file": "res://art/props/sun_throne.png",
+    "frame": [
+      192,
+      176
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "sunglass_vein": {
+    "anchor": [
+      36,
+      52
+    ],
+    "file": "res://art/props/sunglass_vein.png",
+    "frame": [
+      72,
+      56
+    ],
+    "states": {
+      "cracked": {
+        "col": 1,
+        "frames": 1
+      },
+      "depleted": {
+        "col": 2,
+        "frames": 1
+      },
+      "full": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "table": {
     "anchor": [
       40,
@@ -2211,6 +2379,28 @@
       "idle": {
         "col": 0,
         "frames": 1
+      }
+    }
+  },
+  "tomb_gate": {
+    "anchor": [
+      120,
+      216
+    ],
+    "file": "res://art/props/tomb_gate.png",
+    "frame": [
+      240,
+      224
+    ],
+    "states": {
+      "open": {
+        "col": 3,
+        "frames": 1
+      },
+      "sealed": {
+        "col": 0,
+        "fps": 3,
+        "frames": 3
       }
     }
   },
