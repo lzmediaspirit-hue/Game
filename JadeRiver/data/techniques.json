@@ -47,7 +47,8 @@
      "power": 0.2,
      "duration_s": 2
     }
-   }
+   },
+   "grade": "common"
   },
   {
    "id": "jade_thrust",
@@ -88,7 +89,8 @@
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "line": true
+   "line": true,
+   "grade": "common"
   },
   {
    "id": "cloudpiercing_stroke",
@@ -131,7 +133,8 @@
    },
    "tier3": {
     "crit": 0.1
-   }
+   },
+   "grade": "common"
   },
   {
    "id": "reedcutter_slash",
@@ -177,7 +180,8 @@
     "chance": 0.2,
     "power": 0.05,
     "duration_s": 3
-   }
+   },
+   "grade": "common"
   },
   {
    "id": "riverstone_sweep",
@@ -218,7 +222,8 @@
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "knockback": 80
+   "knockback": 80,
+   "grade": "common"
   },
   {
    "id": "twin_reed_shot",
@@ -263,7 +268,8 @@
     "speed": 680,
     "range": 480,
     "count": 2
-   }
+   },
+   "grade": "common"
   },
   {
    "id": "tiger_rush",
@@ -305,7 +311,8 @@
     "cost_per_tier": -0.05
    },
    "dash": 120,
-   "body": true
+   "body": true,
+   "grade": "common"
   },
   {
    "id": "willow_leaf_parry",
@@ -346,7 +353,9 @@
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "stance_s": 2.0
+   "stance_s": 2.0,
+   "grade": "common",
+   "stance": "jian"
   },
   {
    "id": "dragon_tail_sweep",
@@ -387,7 +396,8 @@
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "both_sides": true
+   "both_sides": true,
+   "grade": "common"
   },
   {
    "id": "shadow_flick",
@@ -433,7 +443,8 @@
     "speed": 700,
     "range": 300,
     "count": 1
-   }
+   },
+   "grade": "common"
   },
   {
    "id": "bell_toll_strike",
@@ -479,7 +490,8 @@
     "chance": 0.25,
     "power": 1,
     "duration_s": 0.6
-   }
+   },
+   "grade": "common"
   },
   {
    "id": "pinning_arrow",
@@ -530,7 +542,8 @@
     "chance": 1.0,
     "power": 1,
     "duration_s": 1.5
-   }
+   },
+   "grade": "common"
   },
   {
    "id": "rising_tide",
@@ -577,7 +590,8 @@
     "chance": 1.0,
     "power": 0.2,
     "duration_s": 2
-   }
+   },
+   "grade": "common"
   },
   {
    "id": "palm_wave",
@@ -623,7 +637,8 @@
     "range": 360,
     "count": 1,
     "pierce": 1
-   }
+   },
+   "grade": "earth"
   },
   {
    "id": "crescent_arc",
@@ -669,7 +684,8 @@
     "range": 360,
     "count": 1,
     "pierce": 8
-   }
+   },
+   "grade": "earth"
   },
   {
    "id": "spear_lance",
@@ -711,7 +727,8 @@
     "cost_per_tier": -0.05
    },
    "line": true,
-   "penetration": 0.1
+   "penetration": 0.1,
+   "grade": "earth"
   },
   {
    "id": "sword_release",
@@ -754,7 +771,8 @@
    },
    "release_s": 8.0,
    "strikes_per_s": 1.5,
-   "seek_radius": 420
+   "seek_radius": 420,
+   "grade": "earth"
   },
   {
    "id": "flying_blades",
@@ -800,7 +818,8 @@
     "range": 360,
     "count": 3,
     "seek": true
-   }
+   },
+   "grade": "earth"
   },
   {
    "id": "earthshaker_wave",
@@ -841,7 +860,8 @@
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "knockback": 80
+   "knockback": 80,
+   "grade": "earth"
   },
   {
    "id": "vine_snare",
@@ -887,7 +907,8 @@
     "chance": 1.0,
     "power": 1,
     "duration_s": 2
-   }
+   },
+   "grade": "earth"
   },
   {
    "id": "rain_of_reeds",
@@ -927,7 +948,8 @@
    "mastery": {
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
-   }
+   },
+   "grade": "earth"
   },
   {
    "id": "stone_skin",
@@ -974,7 +996,8 @@
     "value": 0.3,
     "duration": 8
    },
-   "body": true
+   "body": true,
+   "grade": "earth"
   },
   {
    "id": "gale_step",
@@ -1015,7 +1038,8 @@
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "dash": 200
+   "dash": 200,
+   "grade": "earth"
   },
   {
    "id": "mountain_shaker",
@@ -1064,7 +1088,8 @@
     "chance": 0.3,
     "power": 1,
     "duration_s": 0.8
-   }
+   },
+   "grade": "earth"
   },
   {
    "id": "ember_burst",
@@ -1111,7 +1136,8 @@
     "chance": 1.0,
     "power": 0.05,
     "duration_s": 3
-   }
+   },
+   "grade": "earth"
   },
   {
    "id": "still_water_focus",
@@ -1157,7 +1183,8 @@
     "op": "flat",
     "value": 1,
     "duration": 10
-   }
+   },
+   "grade": "earth"
   },
   {
    "id": "shadowstep_cut",
@@ -1198,7 +1225,8 @@
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "blink": true
+   "blink": true,
+   "grade": "heaven"
   },
   {
    "id": "cloud_descent",
@@ -1240,7 +1268,8 @@
     "cost_per_tier": -0.05
    },
    "flying_only": true,
-   "both_sides": true
+   "both_sides": true,
+   "grade": "heaven"
   },
   {
    "id": "mirror_mind_spike",
@@ -1287,7 +1316,8 @@
     "chance": 0.2,
     "power": 1,
     "duration_s": 2
-   }
+   },
+   "grade": "heaven"
   },
   {
    "id": "soul_lantern_ward",
@@ -1333,7 +1363,8 @@
     "op": "flat",
     "value": 0.2,
     "duration": 6
-   }
+   },
+   "grade": "heaven"
   },
   {
    "id": "glimpse_of_heaven",
@@ -1374,7 +1405,8 @@
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "ignore_resistance": 0.2
+   "ignore_resistance": 0.2,
+   "grade": "heaven"
   }
  ]
 }

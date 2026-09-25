@@ -278,6 +278,7 @@ for _id, _fn in (('manual_stonebody_canon', _method_manual('earth')),
                  ('manual_emberheart_sutra', _method_manual('fire')),
                  ('manual_tidal_sovereign_scripture', _method_manual('water')),
                  ('manual_nine_winds_canon', _method_manual('wind')),
+                 ('inner_art_manual', _technique_manual('water', tie=R['violet'])),   # S48 Inner Arts
                  ('torn_manual', torn_manual),
                  ('mudwater_manual', _technique_manual('water', paper=Ramp(['#4E4636', '#7A6E56', '#A89A7C', '#C8BC9C', '#E6DCC0'], '#221E16'), tie=R['hemp'], stained=True)),
                  ('manual_rain_of_reeds', _technique_manual('reed', tie=R['jade'])),

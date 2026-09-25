@@ -135,8 +135,75 @@ def tribulations():
     return rows
 
 
+def inner_arts(write=True):
+    """Inner Arts (S48, Part 8): passive arts learned from manuals, worn in slots (2 at Qi Unfurling 1, 3 at Heart
+    Tempering 1, 4 at Spirit Awakening 1). A weapon-linked art (`family`) works only with that weapon in hand."""
+    rows = [
+        {"id": "riverflow_circulation", "name": "Riverflow Circulation", "desc": "+10% QI regeneration.",
+         "modifiers": [mod("qi_regen", 0.10)], "price": 150, "realm": "qi_unfurling_1"},
+        {"id": "iron_shirt", "name": "Iron Shirt", "desc": "+8% Physical Defense.",
+         "modifiers": [mod("physical_defense", 0.08)], "price": 150, "realm": "qi_unfurling_1"},
+        {"id": "swallows_breath", "name": "Swallow's Breath", "desc": "Dodge cooldown 15% shorter.",
+         "modifiers": [mod("dodge_cooldown", -0.15, "flat")], "price": 200, "realm": "qi_unfurling_1"},
+        {"id": "sword_heart", "name": "Sword Heart", "desc": "Jian only: Sword Intent builds to 12 instead of 10.",
+         "family": "jian", "flags": {"sword_intent_max": 12}, "price": 400, "realm": "heart_tempering_1"},
+        {"id": "stone_root", "name": "Stone Root", "desc": "Guard blocks 10% more.",
+         "modifiers": [mod("guard", 0.10)], "price": 200, "realm": "qi_unfurling_1"},
+        {"id": "clear_lake", "name": "Clear Lake", "desc": "+10% insight.",
+         "modifiers": [mod("insight_rate", 0.10, "flat")], "price": 300, "realm": "heart_tempering_1"},
+        {"id": "hunters_patience", "name": "Hunter's Patience", "desc": "Bow only: the draw is 10% quicker.",
+         "family": "bow", "modifiers": [mod("attack_speed", 0.10, "flat")], "price": 200, "realm": "qi_unfurling_1"},
+        {"id": "ember_channel", "name": "Ember Channel", "desc": "Fire techniques cost 10% less QI.",
+         "modifiers": [mod("technique_cost", 0.10, "flat", element="fire")], "price": 300, "realm": "heart_tempering_1"},
+    ]
+    if write:
+        entries("inner_arts", rows, slots=[["qi_unfurling_1", 2], ["heart_tempering_1", 3], ["spirit_awakening_1", 4]])
+    return rows
+
+
+def stances():
+    """Stances (S48, Part 8): one toggle per weapon family, set on the Techniques page; it holds only with that
+    weapon in hand. Willow Leaf Parry, the jian's, keeps its technique as well."""
+    rows = [
+        {"id": "willow_leaf_parry", "family": "jian", "name": "Willow Leaf Parry", "desc": "A parry counters for 200%. Attacks 10% slower.",
+         "modifiers": [mod("attack_speed", -0.10, "flat")], "flags": {"parry_counter": 2.0}},
+        {"id": "iron_horse", "family": "gauntlets", "name": "Iron Horse", "desc": "Nothing knocks you back; 20% slower on foot.",
+         "modifiers": [mod("move_speed", -0.20)], "flags": {"knockback_immune": True}},
+        {"id": "coiled_dragon", "family": "spear", "name": "Coiled Dragon", "desc": "+15% reach.", "flags": {"reach_mult": 1.15}},
+        {"id": "low_shadow", "family": "short_blade", "name": "Low Shadow", "desc": "+10% crit chance on a foe's back.",
+         "flags": {"backstab_crit": 0.10}},
+        {"id": "mountain_root", "family": "staff", "name": "Mountain Root", "desc": "Guard blocks 10% more.", "modifiers": [mod("guard", 0.10)]},
+        {"id": "still_draw", "family": "bow", "name": "Still Draw", "desc": "+15% damage while you stand still.", "flags": {"still_damage": 0.15}},
+    ]
+    entries("stances", rows)
+    return rows
+
+
+def combos():
+    """Combo pairs (S48, Part 8): technique A, then B within a second, and B carries a follow-up."""
+    rows = [
+        {"id": "palm_into_rush", "first": "flowing_palm", "second": "tiger_rush", "effect": {"kind": "shockwave", "mult": 0.6, "radius": 120},
+         "desc": "Flowing Palm, then Tiger Rush: a shockwave follows the rush."},
+        {"id": "stroke_into_arc", "first": "cloudpiercing_stroke", "second": "crescent_arc", "effect": {"kind": "extra_target", "value": 1, "range": 1.15},
+         "desc": "Cloudpiercing Stroke, then Crescent Arc: the arc reaches one foe more and 15% further."},
+        {"id": "thrust_into_sweep", "first": "jade_thrust", "second": "dragon_tail_sweep", "effect": {"kind": "pull", "value": 90},
+         "desc": "Jade Thrust, then Dragon Tail Sweep: the sweep pulls its targets in."},
+        {"id": "slash_into_flick", "first": "reedcutter_slash", "second": "shadow_flick", "effect": {"kind": "bleed", "power": 0.02, "duration_s": 4},
+         "desc": "Reedcutter Slash, then Shadow Flick: the bleed is laid fresh."},
+        {"id": "sweep_into_toll", "first": "riverstone_sweep", "second": "bell_toll_strike", "effect": {"kind": "stun", "bonus_s": 0.3},
+         "desc": "Riverstone Sweep, then Bell Toll Strike: the toll stuns for certain, 0.3 s longer."},
+        {"id": "shot_into_pin", "first": "twin_reed_shot", "second": "pinning_arrow", "effect": {"kind": "root", "bonus_s": 0.5},
+         "desc": "Twin Reed Shot, then Pinning Arrow: the root holds 0.5 s longer."},
+    ]
+    entries("combos", rows, window_s=1.0)
+    return rows
+
+
 def build():
     body_tiers()
     physiques()
     fates()
     tribulations()
+    inner_arts()
+    stances()
+    combos()

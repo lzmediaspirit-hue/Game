@@ -287,6 +287,24 @@
     "progression_authority"
    ]
   },
+  "inner_art_learned": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "inner_art_equipped": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "stance_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
   "attack_started": {
    "system": "Combat",
    "files": [
@@ -391,6 +409,12 @@
    ]
   },
   "talisman_used": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "combo_landed": {
    "system": "Combat",
    "files": [
     "combat_authority"

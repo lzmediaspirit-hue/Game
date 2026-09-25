@@ -865,6 +865,110 @@
        }
       ]
      }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "riverflow_circulation",
+     "price": 150,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "iron_shirt",
+     "price": 150,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "swallows_breath",
+     "price": 200,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "sword_heart",
+     "price": 400,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "stone_root",
+     "price": 200,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "clear_lake",
+     "price": 300,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "hunters_patience",
+     "price": 200,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "ember_channel",
+     "price": 300,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       }
+      ]
+     }
     }
    ],
    "rotation": {
@@ -1023,6 +1127,110 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "core_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "riverflow_circulation",
+     "price": 150,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "iron_shirt",
+     "price": 150,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "swallows_breath",
+     "price": 200,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "sword_heart",
+     "price": 400,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "stone_root",
+     "price": 200,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "clear_lake",
+     "price": 300,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "hunters_patience",
+     "price": 200,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "inner_art_manual",
+     "learn": "ember_channel",
+     "price": 300,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
        }
       ]
      }

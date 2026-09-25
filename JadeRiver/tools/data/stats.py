@@ -26,6 +26,8 @@ STAT_LIST = [
     ("attunement_bonus", "world", None, "int"),
     # S48 body ladder and physiques: knockback taken is cut by this share; flight QI cost moves by this share.
     ("knockback_resistance", "defense", 0.9, "percent"), ("flight_qi", "movement", 0.5, "percent"),
+    # S48 Inner Arts: the dodge cooldown moves by this share (Swallow's Breath).
+    ("dodge_cooldown", "movement", 0.5, "percent"),
 ]
 
 
@@ -132,6 +134,8 @@ def build():
         # Cleansing is one more point, floor 4. The Heavenly Flame Pill counts within an hour of taking it.
         "core_forging": {"start": 9, "chance": 0.8, "floor": 5, "flawless_floor": 4, "pill": "heavenly_flame_pill", "pill_window_s": 3600,
                          "yin_times": ["evening", "night"], "yang_times": ["morning", "day"]},
+        # S48 technique grades: the base multiplier's bonus by grade.
+        "technique_grades": {"common": 0.0, "earth": 0.10, "heaven": 0.20},
         "qi_deviation": {"duration_s": 600, "elements": ["water", "wood", "fire", "earth", "metal"]},
         # S48 body ladder: body techniques spend HP at this rate when QI is short (Copper Body), never below this share.
         "body_path": {"hp_per_qi": 1.5, "hp_floor": 0.2, "air_metre_px": 50},

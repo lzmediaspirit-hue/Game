@@ -1573,6 +1573,23 @@
    "toast": false
   },
   {
+   "id": "stances",
+   "label": "Stances",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_5"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
    "id": "dual_loadout",
    "label": "Weapon swap",
    "trigger": {

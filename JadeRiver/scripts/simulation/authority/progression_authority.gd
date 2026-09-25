@@ -16,7 +16,7 @@ var last_level: Dictionary = {}
 func intents() -> Array:
 	return ["start_meditation", "stop_meditation", "toggle_meditation", "start_breakthrough", "learn_method", "switch_method",
 		"open_meridian", "reset_meridians", "equip_technique", "unequip_technique", "rank_up_technique", "set_contemplate",
-		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade", "start_bath", "choose_fate"]
+		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade", "start_bath", "choose_fate", "equip_inner_art", "set_stance"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("loadout_swapped", _on_loadout_swapped, 30)
@@ -60,6 +60,8 @@ func handle(intent: Dictionary) -> Dictionary:
 		"train_object": return fail("use_attack")
 		"attune_jade": return attune_jade(c, str(intent.get("zone", "")), int(intent.get("index", -1)))
 		"choose_fate": return choose_fate(c, str(intent.get("card", "")))
+		"equip_inner_art": return equip_inner_art(c, int(intent.get("slot", -1)), str(intent.get("art", "")))
+		"set_stance": return set_stance(c, str(intent.get("family", "")), str(intent.get("stance", "")))
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ meditation (S06)
@@ -582,6 +584,43 @@ func tribulation_view(actor_id: String) -> Dictionary:
 	var tr: Dictionary = tribulations[actor_id]
 	return {"index": int(tr.index), "total": int(tr.total), "warn": (tr.warn as Dictionary).duplicate(), "struck": int(tr.struck),
 		"warn_s": float(ContentDB.config("tribulations").get("warn_s", 1.0)), "radius": float(ContentDB.config("tribulations").get("radius", 80))}
+
+# ------------------------------------------------------------------ Inner Arts and stances (S48)
+## Learn an Inner Art from its manual (a Mission Hall sells them).
+func apply_learn_inner_art(actor_id: String, art: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or not ContentDB.has_entry("inner_arts", art) or art in c.cultivator.inner_arts_known: return
+	c.cultivator.inner_arts_known.append(art)
+	if not game.account.codex.has("inner_arts"): game.quest.apply_codex("inner_arts")
+	emit("inner_art_learned", {"actor": c.id, "art": art})
+
+## Wear a known Inner Art in a slot ("" empties it). An art sits in one slot at a time.
+func equip_inner_art(c, slot: int, art: String) -> Dictionary:
+	var cu: CultivatorState = c.cultivator
+	var n := ProgressionRules.inner_art_slot_count(cu.realm_key)
+	if n <= 0: return fail("locked", {"text": Tx.t("sim.progression.inner_arts_locked")})
+	if slot < 0 or slot >= n: return fail("slot_locked")
+	if art != "" and not art in cu.inner_arts_known: return fail("unknown_art")
+	while cu.inner_arts.size() < n: cu.inner_arts.append("")
+	if art != "":
+		for i in cu.inner_arts.size():
+			if str(cu.inner_arts[i]) == art: cu.inner_arts[i] = ""
+	cu.inner_arts[slot] = art
+	emit("inner_art_equipped", {"actor": c.id, "slot": slot, "art": art})
+	return ok({"slot": slot, "art": art})
+
+## Hold a stance for a weapon family ("" lets it go). It works only with that weapon in hand.
+func set_stance(c, family: String, stance: String) -> Dictionary:
+	if not ContentDB.has_entry("weapon_families", family): return fail("unknown_family")
+	if stance != "":
+		var st := ContentDB.entry("stances", stance)
+		if st.is_empty() or str(st.family) != family: return fail("wrong_stance")
+		if not Unlocks.is_unlocked(c.id, "stances"): return fail("locked", {"text": Unlocks.locked_text("stances")})
+		c.cultivator.stances[family] = stance
+	else:
+		c.cultivator.stances.erase(family)
+	emit("stance_changed", {"actor": c.id, "family": family, "stance": stance})
+	return ok({"family": family, "stance": stance})
 
 # ------------------------------------------------------------------ breakthrough fates (S48)
 ## After a major breakthrough: three distinct cards from the deck, drawn on the breakthrough stream.

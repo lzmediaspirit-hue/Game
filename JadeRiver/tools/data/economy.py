@@ -31,6 +31,11 @@ def shops():
         d = {"item": i}
         d.update(kw)
         return d
+
+    def inner_art_stock():
+        # S48 Inner Arts: every Mission Hall teaches all eight, each from its realm, for contribution.
+        from paths import inner_arts
+        return [s("inner_art_manual", learn=a["id"], price=a["price"], requires=all_of(realm(a["realm"]))) for a in inner_arts(write=False)]
     rows = [
         {"id": "old_ma", "name": "Old Ma's Store", "currency": "silver_tael", "buys_all": True,
          "stock": [s("herbal_tea", price=6), s("rice_ball", price=4), s("rice", price=2), s("bamboo_rod", requires=all_of(realm("bone_forging_8"))),
@@ -94,7 +99,7 @@ def shops():
                    s("manual_stonebody_canon", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_willow_breath_art", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_emberheart_sutra", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
-                   s("manual_tidal_sovereign_scripture", price=800, requires=all_of({"kind": "sect_rank_at_least", "rank": "core_disciple"}))],
+                   s("manual_tidal_sovereign_scripture", price=800, requires=all_of({"kind": "sect_rank_at_least", "rank": "core_disciple"}))] + inner_art_stock(),
          "rotation": {"count": 1, "pool": [s("manual_page")]}},
         {"id": "cloud_sect", "name": "Cloud Sect Mission Hall", "currency": "contribution",
          "requires": {"all": [{"kind": "training_sect", "sect": "cloud_sect"}]},
@@ -107,7 +112,7 @@ def shops():
                    s("manual_stonebody_canon", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_willow_breath_art", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_emberheart_sutra", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
-                   s("manual_nine_winds_canon", price=800, requires=all_of({"kind": "sect_rank_at_least", "rank": "core_disciple"}))],
+                   s("manual_nine_winds_canon", price=800, requires=all_of({"kind": "sect_rank_at_least", "rank": "core_disciple"}))] + inner_art_stock(),
          "rotation": {"count": 1, "pool": [s("manual_page")]}},
         {"id": "old_pan", "name": "Old Pan's Wares", "currency": "spirit_stone",
          "stock": [s("dusty_curio", price=1)], "rotation": {"count": 3, "pool": [s("torn_manual", price=5, requires=all_of(realm("spirit_awakening_6"))), s("riverreed_ginseng_100", price=4), s("manual_page", price=6), s("spirit_egg", price=12,

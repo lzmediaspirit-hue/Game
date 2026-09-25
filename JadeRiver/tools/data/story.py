@@ -479,6 +479,8 @@ def unlocks():
       effects=[{"kind": "learn_recipe", "recipe": "bright_mirror"}], same_stage_ok=True)
     u("perfect_timing", "Perfect timing", all_of(realm("heart_tempering_1")), "lines_in_the_sand", [], same_stage_ok=True, toast=False)
     # S47 dual loadout: a spare weapon and the Swap button (R).
+    # S48 stances (one per weapon family) come with Willow Leaf Parry's lessons; Inner Arts with Qi Unfurling.
+    u("stances", "Stances", all_of(realm("qi_kindling_5")), "", [], same_stage_ok=True, toast=False)
     u("dual_loadout", "Weapon swap", all_of(realm("heart_tempering_1")), "", ["hud:weapon_swap"], same_stage_ok=True)
     # S47 talisman craft (Qi Kindling 6): Old Scribe Bai on Artisan Row teaches the brush.
     u("talisman", "Talismans", all_of(realm("qi_kindling_6")), "ink_and_paper", ["page:talisman"], same_stage_ok=True)  # v2 Part 8: Talismans and "is it real" both open at QK6
@@ -1890,6 +1892,8 @@ def codex():
          "body": "A great breakthrough shakes a cultivator's fate loose. Three cards are drawn and one is kept: a gift, and most often a cost. Some last for life, some only until the next great realm, and a few wait for the next tribulation or the next breakthrough."},
         {"id": "qi_deviation", "title": "Qi deviation",
          "body": "A breakthrough that fails at Severe risk, or on a method your elements fight, can send the Qi astray. For ten minutes every technique strikes with an element of its own choosing."},
+        {"id": "inner_arts", "title": "Inner Arts",
+         "body": "Inner Arts are passive: a way of breathing, of standing, of carrying the Qi. The Mission Halls teach them from thin manuals. Two can be worn from Qi Unfurling 1, three from Heart Tempering 1, four from Spirit Awakening 1. A few belong to one weapon and sleep while another is in hand."},
         {"id": "karma", "title": "Merit and sin",
          "body": "The world keeps a ledger. Mercy and help earn merit: a hundred of it eases one great breakthrough in each realm. Cruelty and the back-room markets earn sin, and sin feeds the heart demon. Some deeds come back as letters."},
         {"id": "furnaces_and_fire", "title": "Furnace and fire",

@@ -11,7 +11,8 @@ var hitstop := 0.0
 
 const STAT_EVENTS := ["realm_changed", "level_changed", "equipment_changed", "injury_added", "injury_healed", "title_changed",
 	"attributes_changed", "method_changed", "dao_tier_up", "body_level_changed", "purity_changed", "soul_changed",
-	"legacy_recorded", "consolidation_finished", "aptitude_revealed", "collection_page_completed", "body_tier_reached", "physique_awakened"]
+	"legacy_recorded", "consolidation_finished", "aptitude_revealed", "collection_page_completed", "body_tier_reached", "physique_awakened",
+	"inner_art_equipped", "stance_changed", "loadout_swapped", "fate_chosen"]
 
 func intents() -> Array:
 	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival", "start_flight", "stop_flight", "use_treasure",
@@ -487,7 +488,9 @@ func technique_cost(c, t: Dictionary) -> float:
 	var dao_tier := int(c.cultivator.daos.get(str(t.get("dao", "")), {}).get("tier", 0))
 	var dao_red := -0.1 if dao_tier >= 2 else 0.0
 	var comp := float(st.get("composure_zero_factor", 1.5)) if Unlocks.is_unlocked(c.id, "composure") and c.pools.composure <= 0.0 else 1.0
-	return maxf(0.0, base * (1.0 + float(st.get("per_level", 0.04)) * lv) * (1.0 - c.stats.value("technique_cost")) * (1.0 + mastery_red + dao_red) * comp)
+	# S48 Ember Channel: some cost cuts hold only for one element's techniques.
+	var cut: float = c.stats.value("technique_cost") + c.stats.conditional("technique_cost", "element", str(t.get("element", "none")))
+	return maxf(0.0, base * (1.0 + float(st.get("per_level", 0.04)) * lv) * (1.0 - minf(0.3, cut)) * (1.0 + mastery_red + dao_red) * comp)
 
 func guard(c, on: bool) -> Dictionary:
 	if on and not Unlocks.is_unlocked(c.id, "guard"): return fail("locked")
@@ -530,7 +533,7 @@ func dodge(c, direction, facing: int) -> Dictionary:
 			var dash_s := float(ContentDB.movement("air_dash.hold_s", 0.25))
 			tl.forced = Vector2(ax, 0) * float(ContentDB.movement("air_dash.distance", 140.0)) / dash_s
 			tl.forced_t = dash_s
-			var dcd := float(conf.get("dodge_cooldown_s", 2.5))
+			var dcd: float = float(conf.get("dodge_cooldown_s", 2.5)) * (1.0 + c.stats.value("dodge_cooldown"))
 			if int(c.cultivator.meridians.get("agility", 0)) >= 25: dcd *= 0.8
 			c.pools.cooldowns["dodge"] = dcd
 			LocalAuthority.announce(st, c.id)
@@ -549,7 +552,7 @@ func dodge(c, direction, facing: int) -> Dictionary:
 	tl.forced = dir * dist / 0.22
 	tl.forced_t = 0.22
 	tl.dodge_t = float(conf.get("dodge_invuln_s", 0.25))
-	var cd := float(conf.get("dodge_cooldown_s", 2.5))
+	var cd: float = float(conf.get("dodge_cooldown_s", 2.5)) * (1.0 + c.stats.value("dodge_cooldown"))   # S48 Swallow's Breath
 	if int(c.cultivator.meridians.get("agility", 0)) >= 25: cd *= 0.8
 	c.pools.cooldowns["dodge"] = cd
 	if c.cultivator.meditating: game.progression.stop_meditation(c, "dodge")
@@ -677,7 +680,8 @@ func _resolve_basic(c) -> void:
 			"art": "arrow", "attack": {"damage_type": "physical", "element": "none", "mult": [float(step.get("mult", 1.0)), float(step.get("mult", 1.0))],
 			"range": fam.range, "source": "basic"}})
 		return
-	var hitbox := {"x": [-8, float(fam.get("reach", 46))], "depth": float(fam.get("depth", 30)), "alt": fam.get("altitude", [-30, 60])}
+	var reach_m := float(ProgressionRules.path_flag(c, "reach_mult", 1.0))   # S48 Coiled Dragon
+	var hitbox := {"x": [-8, float(fam.get("reach", 46)) * reach_m], "depth": float(fam.get("depth", 30)), "alt": fam.get("altitude", [-30, 60])}
 	var mult := float(step.get("mult", 1.0))
 	var max_targets := int(fam.get("line_targets", 1))
 	var hit_any := false
@@ -732,6 +736,28 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		var t3: Dictionary = t.tier3
 		if t3.has("status"): attack.status = t3.status
 		if t3.has("crit"): attack.crit_bonus = float(t3.crit)
+	# S48: the technique's grade (+0 / 10 / 20%).
+	var gm := 1.0 + ProgressionRules.technique_grade_bonus(t)
+	attack.mult = [float(attack.mult[0]) * gm, float(attack.mult[1]) * gm]
+	# S48 combos: this technique within a second of its partner carries a follow-up.
+	var combo := ProgressionRules.combo_for(str(tl.get("last_tech", "")), str(t.id), game.sim_time - float(tl.get("last_tech_t", -99.0)))
+	tl.last_tech = str(t.id)
+	tl.last_tech_t = game.sim_time
+	var cfx: Dictionary = combo.get("effect", {})
+	var extra_targets := 0
+	var reach_mult := float(ProgressionRules.path_flag(c, "reach_mult", 1.0))
+	match str(cfx.get("kind", "")):
+		"extra_target":
+			extra_targets = int(cfx.get("value", 1))
+			reach_mult *= float(cfx.get("range", 1.0))
+		"stun", "root":
+			var base_s: Dictionary = (attack.status as Dictionary).duplicate() if not (attack.status as Dictionary).is_empty() else {"id": str(cfx.kind), "power": 1}
+			base_s.id = str(cfx.kind)
+			base_s.chance = 1.0
+			base_s.duration_s = float(base_s.get("duration_s", 0.6)) + float(cfx.get("bonus_s", 0.3))
+			attack.status = base_s
+	if not combo.is_empty():
+		emit("combo_landed", {"actor": c.id, "combo": str(combo.id), "first": str(combo.first), "second": str(combo.second)})
 	if t.has("projectile"):
 		var pr: Dictionary = t.projectile
 		var count := int(pr.get("count", 1)) + (1 if tier >= 3 and str(t.id) == "twin_reed_shot" else 0)
@@ -742,12 +768,14 @@ func _resolve_technique(c, t: Dictionary) -> void:
 				"attack": attack, "delay": i * 0.08, "seek": pr.get("seek", false), "technique": str(t.id), "element": str(t.get("element", "none"))})
 		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": count, "targets": count})
 		return
-	var hitbox: Dictionary = t.get("hitbox", {"x": [0, 80], "depth": 30, "alt": [-10, 80]})
+	var hitbox: Dictionary = (t.get("hitbox", {"x": [0, 80], "depth": 30, "alt": [-10, 80]}) as Dictionary).duplicate(true)
+	if reach_mult != 1.0: hitbox.x = [float(hitbox.x[0]), float(hitbox.x[1]) * reach_mult]
 	var targets := _enemies_in(pv, facing, hitbox, t.get("both_sides", false))
 	targets.sort_custom(func(a, b): return absf(a.plane.x - float(pv.x)) < absf(b.plane.x - float(pv.x)))
-	var max_targets := int(t.get("max_targets", 1))
+	var max_targets := int(t.get("max_targets", 1)) + extra_targets
 	var n := 0
 	var target_def := ""
+	var struck: Array = []
 	for e in targets:
 		if n >= max_targets: break
 		for h in maxi(1, int(t.get("hits", 1))):
@@ -755,8 +783,28 @@ func _resolve_technique(c, t: Dictionary) -> void:
 			_player_hits_enemy(c, pv, e, attack, facing)
 			hits_total += 1
 		target_def = e.def_id
+		struck.append(e)
 		n += 1
+	_combo_after(c, pv, facing, cfx, struck, attack, hitbox)
 	emit("technique_used", {"actor": c.id, "technique": t.id, "hits": maxi(hits_total, 1), "targets": n, "target_def": target_def})
+
+## S48 combo follow-ups that come after the blow: a shockwave, a pull, a fresh bleed.
+func _combo_after(c, pv: Dictionary, facing: int, cfx: Dictionary, struck: Array, attack: Dictionary, hitbox: Dictionary) -> void:
+	match str(cfx.get("kind", "")):
+		"shockwave":
+			var at := Vector2(float(pv.x) + facing * float(hitbox.x[1]), float(pv.y))
+			var wave := attack.duplicate()
+			var wm := float(cfx.get("mult", 0.6))
+			wave.mult = [float(attack.mult[0]) * wm, float(attack.mult[1]) * wm]
+			wave.source = "combo"
+			for e in _enemies_within(at, float(cfx.get("radius", 120))):
+				_player_hits_enemy(c, pv, e, wave, 1 if e.plane.x >= at.x else -1)
+		"pull":
+			for e in struck:
+				if e.alive and not e.def.get("knockback_immune", false) and not e.is_boss(): e.knockback = -float(cfx.get("value", 90)) * facing
+		"bleed":
+			for e in struck:
+				if e.alive: _apply_status_to_enemy(e, {"id": "bleed", "power": float(cfx.get("power", 0.02)), "remaining": float(cfx.get("duration_s", 4)), "source": c.id})
 
 func _dao_tier(c, dao: String) -> int:
 	return int(c.cultivator.daos.get(dao, {}).get("tier", 0))
@@ -782,6 +830,17 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 	var rng := Rng.stream(c.id, "combat")
 	var ev := enemy_view(e)
 	if attack.has("crit_bonus"): pv = pv.duplicate(); pv.crit_bonus = attack.crit_bonus
+	# S48 stances: Low Shadow finds the back, Still Draw rewards standing still.
+	var back = ProgressionRules.path_flag(c, "backstab_crit", null)
+	if back != null and e.facing == facing:
+		pv = pv.duplicate()
+		pv.crit_bonus = float(pv.get("crit_bonus", 0.0)) + float(back)
+	var still = ProgressionRules.path_flag(c, "still_damage", null)
+	var body: ActorState = game.actor_state(c.id)
+	if still != null and body != null and body.velocity.length() < 5.0:
+		attack = attack.duplicate()
+		var sm := 1.0 + float(still)
+		attack.mult = [float(attack.mult[0]) * sm, float(attack.mult[1]) * sm]
 	var dealt := float(attune.get(c.id, {}).get("dealt", 1.0))
 	if dealt != 1.0:
 		attack = attack.duplicate()
@@ -911,8 +970,11 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 		var stagger := float(ContentDB.stat_const("combat.parry_stagger_boss_s" if e.is_boss() else "combat.parry_stagger_s", 0.8))
 		game.enemies.stagger(e, stagger)
 		emit("parried", {"actor": c.id, "attacker": str(e.uid), "x": pv.x, "y": pv.y})
-		if float(tl.stance) > 0.0:
-			_player_hits_enemy(c, pv, e, {"damage_type": "physical", "element": "wood", "mult": [2.0, 2.0], "range": [1.0, 1.0], "source": "counter"}, int(tl.facing))
+		# Willow Leaf Parry: the technique's 2 s window, or the jian's stance held (S48), turns a parry into a counter.
+		var counter = ProgressionRules.path_flag(c, "parry_counter", null)
+		if float(tl.stance) > 0.0 or counter != null:
+			var cm: float = float(counter) if counter != null else 2.0
+			_player_hits_enemy(c, pv, e, {"damage_type": "physical", "element": "wood", "mult": [cm, cm], "range": [1.0, 1.0], "source": "counter"}, int(tl.facing))
 		return
 	# S47: a boss's telegraphed "shatter" blow that lands breaks a natal weapon in hand (guarding does not save it).
 	if attack.get("shatter", false): game.inventory.natal_break(c, "shatter")
@@ -955,6 +1017,7 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 	p.since_hit = 0.0
 	var tl := timeline(c.id)
 	var kb := float(attack.get("knockback", 0)) * (1.0 - clampf(c.stats.value("knockback_resistance"), 0.0, 0.9))   # S48 Iron Body, Body
+	if ProgressionRules.path_flag(c, "knockback_immune", false): kb = 0.0   # Iron Horse
 	if amount >= p.max_hp * float(ContentDB.stat_const("combat.flinch_pct", 0.2)) or kb >= 60:
 		tl.flinch = float(ContentDB.stat_const("combat.flinch_s", 0.4))
 		if kb > 0 and e != null and not (int(c.cultivator.meridians.get("body", 0)) >= 50 and is_busy(c.id)):
@@ -1126,7 +1189,7 @@ func _feed_intent(c, e: EnemyState, attack: Dictionary) -> void:
 	if str(StatRules.family(c).get("id", "")) != "jian": return
 	var si: Dictionary = sword_intent.get(c.id, {"stacks": 0, "t": 0.0})
 	var before := int(si.stacks)
-	si.stacks = mini(int(ContentDB.stat_const("sword_intent.max", 10)), before + 1)
+	si.stacks = mini(int(ProgressionRules.path_flag(c, "sword_intent_max", ContentDB.stat_const("sword_intent.max", 10))), before + 1)   # Sword Heart: 12
 	si.t = float(ContentDB.stat_const("sword_intent.fade_s", 3.0))
 	sword_intent[c.id] = si
 	if int(si.stacks) != before: emit("sword_intent_changed", {"actor": c.id, "stacks": int(si.stacks)})

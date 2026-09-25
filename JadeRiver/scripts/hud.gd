@@ -635,6 +635,14 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.fate_chosen") % ContentDB.name_of("fates", str(p.card)), "gold")
 		"qi_deviation":
 			toast(Tx.t("hud.qi_deviation"), "danger", Tx.t("hud.qi_deviation_sub"))
+		"inner_art_learned":
+			toast(Tx.t("hud.inner_art_learned") % ContentDB.name_of("inner_arts", str(p.art)), "unlock")
+		"inner_art_equipped":
+			if str(p.art) != "": add_log(Tx.t("hud.inner_art_worn") % ContentDB.name_of("inner_arts", str(p.art)), UiKit.PALE_GOLD)
+		"stance_changed":
+			add_log(Tx.t("hud.stance_on") % ContentDB.name_of("stances", str(p.stance)) if str(p.stance) != "" else Tx.t("hud.stance_off"), UiKit.PALE_GOLD)
+		"combo_landed":
+			add_log(Tx.t("hud.combo") % [ContentDB.name_of("techniques", str(p.first)), ContentDB.name_of("techniques", str(p.second))], UiKit.GOLD)
 		# Gap report G2: treasures and talismans.
 		"beast_captured":
 			add_log(Tx.t("hud.beast_captured") % str(ContentDB.entry("enemies", str(p.def)).get("name", "")), UiKit.PALE_GOLD)

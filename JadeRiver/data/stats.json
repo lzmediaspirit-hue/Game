@@ -480,6 +480,11 @@
    "day"
   ]
  },
+ "technique_grades": {
+  "common": 0.0,
+  "earth": 0.1,
+  "heaven": 0.2
+ },
  "qi_deviation": {
   "duration_s": 600,
   "elements": [
@@ -887,6 +892,12 @@
   },
   {
    "id": "flight_qi",
+   "group": "movement",
+   "cap": 0.5,
+   "format": "percent"
+  },
+  {
+   "id": "dodge_cooldown",
    "group": "movement",
    "cap": 0.5,
    "format": "percent"

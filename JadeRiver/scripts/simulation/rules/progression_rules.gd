@@ -95,6 +95,51 @@ static func body_tier_needs(cu) -> Dictionary:
 	if t.is_empty(): return {}
 	return {"tier": str(t.id), "level": int(cu.body_level) >= int(t.need), "trial": str(t.id) in cu.body_trials, "bath": str(t.id) in cu.body_baths}
 
+## S48 Inner Arts: slots open with the realm (2 at Qi Unfurling 1, 3 at Heart Tempering 1, 4 at Spirit Awakening 1).
+static func inner_art_slot_count(realm_key: String) -> int:
+	var n := 0
+	for row in ContentDB.config("inner_arts").get("slots", []):
+		if at_least(realm_key, str(row[0])): n = int(row[1])
+	return n
+
+## S48: the stance held for the weapon in hand, or {} (a stance works only with its own family).
+static func active_stance(c) -> Dictionary:
+	var fam := str(StatRules.family(c).get("id", "fists"))
+	var sid := str(c.cultivator.stances.get(fam, ""))
+	var st := ContentDB.entry("stances", sid)
+	return st if not st.is_empty() and str(st.get("family", "")) == fam else {}
+
+## S48: the Inner Arts worn and working now (a weapon-linked art needs its weapon in hand).
+static func active_inner_arts(c) -> Array:
+	var out := []
+	var fam := str(StatRules.family(c).get("id", "fists"))
+	var n := inner_art_slot_count(c.cultivator.realm_key)
+	for i in mini(n, c.cultivator.inner_arts.size()):
+		var art := ContentDB.entry("inner_arts", str(c.cultivator.inner_arts[i]))
+		if art.is_empty(): continue
+		if str(art.get("family", "")) != "" and str(art.family) != fam: continue
+		out.append(art)
+	return out
+
+## A number an active Inner Art or stance sets (sword_intent_max, reach_mult, backstab_crit, still_damage, parry_counter).
+static func path_flag(c, key: String, fallback = null):
+	for art in active_inner_arts(c):
+		if (art.get("flags", {}) as Dictionary).has(key): return art.flags[key]
+	var st := active_stance(c)
+	if (st.get("flags", {}) as Dictionary).has(key): return st.flags[key]
+	return fallback
+
+## S48 technique grades: Common +0, Earth +10%, Heaven +20% to the base multiplier.
+static func technique_grade_bonus(t: Dictionary) -> float:
+	return float(ContentDB.stat_const("technique_grades", {}).get(str(t.get("grade", "common")), 0.0))
+
+## S48 combos: the pair that `second` completes when `first` came within the window, or {}.
+static func combo_for(first: String, second: String, since_s: float) -> Dictionary:
+	if first == "" or since_s > float(ContentDB.config("combos").get("window_s", 1.0)): return {}
+	for cb in ContentDB.all("combos"):
+		if str(cb.first) == first and str(cb.second) == second: return cb
+	return {}
+
 ## S48 heavenly tribulation: the row for a major breakthrough out of `from` ({} when none; the Heart Trial stays
 ## the set piece into Cloud Stride, so the first row is Cloud Stride 9).
 static func tribulation_row(from: String) -> Dictionary:

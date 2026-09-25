@@ -144,7 +144,8 @@ func data_suite() -> void:
 			seen[key5] = true
 			check_req(st.get("requires", {}), "shop %s:%s" % [sh.id, st.item])
 			var learn := str(st.get("learn", ""))
-			if learn != "": check(ContentDB.has_entry("techniques", learn) or ContentDB.has_entry("methods", learn) or ContentDB.has_entry("recipes", learn), "shop %s teaches %s" % [sh.id, learn])
+			if learn != "": check(ContentDB.has_entry("techniques", learn) or ContentDB.has_entry("methods", learn) or ContentDB.has_entry("recipes", learn)
+				or ContentDB.has_entry("inner_arts", learn), "shop %s teaches %s" % [sh.id, learn])
 	for r2 in ContentDB.all("recipes"):
 		for io in r2.get("inputs", []) + r2.get("outputs", []): check(item_ok(str(io.item)), "recipe %s: %s" % [r2.id, io.item])
 		# S44: no authored recipe blows the furnace; an alchemy recipe has an element and one role per slot.
@@ -181,6 +182,23 @@ func data_suite() -> void:
 		check_req(fc.get("requires", {}), "fate " + str(fc.id))
 		if fc.get("available", true): offerable += 1
 	check(offerable >= int(ContentDB.config("fates").get("offer", 3)), "enough fates to offer three distinct cards")
+	# S48 Inner Arts, stances and combos.
+	var shop_learns := {}
+	for sh2 in ContentDB.all("shops"):
+		for st2 in sh2.get("stock", []): shop_learns[str(st2.get("learn", ""))] = true
+	for ia in ContentDB.all("inner_arts"):
+		for m5 in ia.get("modifiers", []): check(stat_ids.has(str(m5.stat)), "inner art %s stat %s" % [ia.id, m5.stat])
+		if ia.has("family"): check(ContentDB.has_entry("weapon_families", str(ia.family)), "inner art %s family %s" % [ia.id, ia.family])
+		check(shop_learns.has(str(ia.id)), "inner art %s is taught in a shop" % ia.id)
+	var stance_fams := {}
+	for sn in ContentDB.all("stances"):
+		check(ContentDB.has_entry("weapon_families", str(sn.family)) and not stance_fams.has(str(sn.family)), "stance %s: one for family %s" % [sn.id, sn.family])
+		stance_fams[str(sn.family)] = true
+		for m6 in sn.get("modifiers", []): check(stat_ids.has(str(m6.stat)), "stance %s stat %s" % [sn.id, m6.stat])
+	for cb in ContentDB.all("combos"):
+		check(ContentDB.has_entry("techniques", str(cb.first)) and ContentDB.has_entry("techniques", str(cb.second)), "combo %s techniques" % cb.id)
+		check(str(cb.get("effect", {}).get("kind", "")) in ["shockwave", "extra_target", "pull", "bleed", "stun", "root"], "combo %s effect" % cb.id)
+	for tq in ContentDB.all("techniques"): check(str(tq.get("grade", "")) in ["common", "earth", "heaven"], "technique %s grade" % tq.id)
 	var last_bolts := 0
 	for tb in ContentDB.all("tribulations"):
 		check(ContentDB.realm_index.has(str(tb.from)) and bool(ContentDB.realm(str(ContentDB.realm(str(tb.from)).get("next", ""))).get("major", false)),

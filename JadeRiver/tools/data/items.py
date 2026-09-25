@@ -408,7 +408,9 @@ def build_items():
     for (sid, grade, desc) in [("manual_page", "common", "A loose technique manual page. Raises mastery beyond tier 3."),
                                ("riverbreath_scroll", "heaven", "The Riverbreath inheritance scroll: the complete method."),
                                ("lu_journal_page", "plain", "A page of Lu's journal, water-stained."),
-                               ("recipe_scroll", "common", "A recipe written in a steady hand.")]:
+                               ("recipe_scroll", "common", "A recipe written in a steady hand."),
+                               # S48 Inner Arts: the Mission Halls teach them from these (the shop entry names the art).
+                               ("inner_art_manual", "earth", "A thin book of breathing and bearing: one Inner Art, learned once.")]:
         extra = {"use": [effect("learn_method", method="riverbreath_complete")]} if sid == "riverbreath_scroll" else {}
         rows.append(item(sid, "scroll", grade, 99, desc, **extra))
     # Method manuals (S08): read one to learn the method; the libraries sell them by rank.

@@ -53,6 +53,7 @@ func _main() -> void:
 	tribulation_suite()
 	body_path_suite()
 	heaven_suite()
+	arts_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -1003,6 +1004,76 @@ func heaven_suite() -> void:
 	cu.sin = sin_was
 	cu.purity = 9
 	c.cultivator.injuries.clear()
+	Game.combat.refresh_stats(c.id)
+
+# ------------------------------------------------------------------ S48 Inner Arts, stances, technique grades, combos
+func arts_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var cu: CultivatorState = c.cultivator
+	var realm_was := cu.realm_key
+	var weapon_was = c.inventory.equipped.get("weapon")
+	check(ProgressionRules.inner_art_slot_count("bone_forging_9") == 0 and ProgressionRules.inner_art_slot_count("qi_unfurling_1") == 2
+		and ProgressionRules.inner_art_slot_count("heart_tempering_1") == 3 and ProgressionRules.inner_art_slot_count("spirit_awakening_1") == 4,
+		"Inner Art slots: 2 at Qi Unfurling 1, 3 at Heart Tempering 1, 4 at Spirit Awakening 1")
+	cu.realm_key = "qi_unfurling_5"
+	cu.inner_arts = []
+	cu.inner_arts_known = []
+	check(not Game.submit({"type": "equip_inner_art", "slot": 0, "art": "iron_shirt"}).get("ok", false), "an Inner Art not yet learned cannot be worn")
+	Game.progression.apply_learn_inner_art(c.id, "iron_shirt")
+	Game.progression.apply_learn_inner_art(c.id, "ember_channel")
+	Game.progression.apply_learn_inner_art(c.id, "sword_heart")
+	Game.progression.apply_learn_inner_art(c.id, "swallows_breath")
+	Game.combat.refresh_stats(c.id)
+	var pd0: float = c.stats.value("physical_defense")
+	check(Game.submit({"type": "equip_inner_art", "slot": 0, "art": "iron_shirt"}).get("ok", false), "Iron Shirt worn in the first slot")
+	check(c.stats.value("physical_defense") > pd0 * 1.07, "Iron Shirt: +8%% Physical Defense (%.1f -> %.1f)" % [pd0, c.stats.value("physical_defense")])
+	check(not Game.submit({"type": "equip_inner_art", "slot": 2, "art": "ember_channel"}).get("ok", false), "the third slot is closed at Qi Unfurling")
+	Game.submit({"type": "equip_inner_art", "slot": 1, "art": "iron_shirt"})
+	check(str(cu.inner_arts[0]) == "" and str(cu.inner_arts[1]) == "iron_shirt", "an art moves to the slot it is put in")
+	var fire_t := ContentDB.entry("techniques", "ember_burst")
+	var cost0 := Game.combat.technique_cost(c, fire_t)
+	var water_cost0 := Game.combat.technique_cost(c, ContentDB.entry("techniques", "rising_tide"))
+	Game.submit({"type": "equip_inner_art", "slot": 0, "art": "ember_channel"})
+	check(Game.combat.technique_cost(c, fire_t) < cost0 * 0.95 and near(Game.combat.technique_cost(c, ContentDB.entry("techniques", "rising_tide")), water_cost0),
+		"Ember Channel: Fire techniques cost less, others do not")
+	Game.submit({"type": "equip_inner_art", "slot": 0, "art": "swallows_breath"})
+	check(near(c.stats.value("dodge_cooldown"), -0.15), "Swallow's Breath: the dodge cooldown 15%% shorter (%.2f)" % c.stats.value("dodge_cooldown"))
+	# Weapon-linked: Sword Heart sleeps without a jian.
+	cu.realm_key = "heart_tempering_1"
+	Game.submit({"type": "equip_inner_art", "slot": 2, "art": "sword_heart"})
+	c.inventory.equipped["weapon"] = null
+	Game.combat.refresh_stats(c.id)
+	check(int(ProgressionRules.path_flag(c, "sword_intent_max", 10)) == 10, "Sword Heart sleeps with bare hands")
+	c.inventory.equipped["weapon"] = {"id": "iron_jian", "uid": 900001, "quality": "common"}
+	Game.combat.refresh_stats(c.id)
+	check(int(ProgressionRules.path_flag(c, "sword_intent_max", 10)) == 12, "with a jian in hand Sword Intent builds to 12")
+	# Stances: one per family, and only with that weapon in hand.
+	check(not Game.submit({"type": "set_stance", "family": "jian", "stance": "iron_horse"}).get("ok", false), "a stance belongs to its own family")
+	var as0: float = c.stats.value("attack_speed")
+	check(Game.submit({"type": "set_stance", "family": "jian", "stance": "willow_leaf_parry"}).get("ok", false), "the jian takes Willow Leaf Parry")
+	check(float(ProgressionRules.path_flag(c, "parry_counter", 0.0)) == 2.0 and c.stats.value("attack_speed") < as0, "held: a parry counters for 200%, attacks a little slower")
+	Game.submit({"type": "set_stance", "family": "gauntlets", "stance": "iron_horse"})
+	check(not ProgressionRules.path_flag(c, "knockback_immune", false), "Iron Horse sleeps while a jian is in hand")
+	c.inventory.equipped["weapon"] = {"id": "iron_gauntlets", "uid": 900002, "quality": "common"}
+	Game.combat.refresh_stats(c.id)
+	check(ProgressionRules.path_flag(c, "knockback_immune", false) and ProgressionRules.path_flag(c, "parry_counter", null) == null,
+		"with gauntlets, Iron Horse holds and the jian's stance does not")
+	Game.submit({"type": "set_stance", "family": "gauntlets", "stance": ""})
+	Game.submit({"type": "set_stance", "family": "jian", "stance": ""})
+	check(cu.stances.is_empty(), "letting a stance go clears it")
+	# Grades and combos.
+	check(near(ProgressionRules.technique_grade_bonus(ContentDB.entry("techniques", "flowing_palm")), 0.0)
+		and near(ProgressionRules.technique_grade_bonus(ContentDB.entry("techniques", "crescent_arc")), 0.10)
+		and near(ProgressionRules.technique_grade_bonus(ContentDB.entry("techniques", "glimpse_of_heaven")), 0.20), "technique grades: Common +0, Earth +10%, Heaven +20%")
+	check(str(ProgressionRules.combo_for("flowing_palm", "tiger_rush", 0.8).get("id", "")) == "palm_into_rush", "Flowing Palm then Tiger Rush within a second: a combo")
+	check(ProgressionRules.combo_for("flowing_palm", "tiger_rush", 1.2).is_empty() and ProgressionRules.combo_for("tiger_rush", "flowing_palm", 0.2).is_empty(),
+		"too slow, or the wrong order: no combo")
+	c.inventory.equipped["weapon"] = weapon_was
+	cu.inner_arts = []
+	cu.inner_arts_known = []
+	cu.stances = {}
+	cu.realm_key = realm_was
 	Game.combat.refresh_stats(c.id)
 
 func tribulation_suite() -> void:

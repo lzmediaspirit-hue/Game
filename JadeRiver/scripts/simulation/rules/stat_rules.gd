@@ -6,7 +6,7 @@ extends RefCounted
 
 const ATTRIBUTES := ["body", "agility", "essence", "spirit", "insight", "fortune"]
 const PERMANENT_PREFIXES := ["gear:", "set:", "title:", "injury:", "gate:", "legacy:", "collection:", "jade:", "pet:", "sect:", "aptitude:", "dao:",
-	"body_tier:", "physique:", "fate:"]
+	"body_tier:", "physique:", "fate:", "inner_art:", "stance:"]
 
 static func poly(spec: Dictionary, x: float) -> float:
 	return float(spec.get("a", 0)) + float(spec.get("b", 0)) * x + float(spec.get("c", 0)) * x * x
@@ -172,6 +172,19 @@ static func rebuild(c) -> Array:
 			var pm: Dictionary = (pmods[i] as Dictionary).duplicate()
 			pm.source = "physique:%s:%d" % [pid, i]
 			sb.add_modifier(pm)
+	# S48 Inner Arts worn and the stance held for the weapon in hand.
+	for art in ProgressionRules.active_inner_arts(c):
+		var amods: Array = art.get("modifiers", [])
+		for i in amods.size():
+			var am: Dictionary = (amods[i] as Dictionary).duplicate()
+			am.source = "inner_art:%s:%d" % [art.id, i]
+			sb.add_modifier(am)
+	var stance := ProgressionRules.active_stance(c)
+	var smods: Array = stance.get("modifiers", [])
+	for i in smods.size():
+		var sm: Dictionary = (smods[i] as Dictionary).duplicate()
+		sm.source = "stance:%s:%d" % [stance.id, i]
+		sb.add_modifier(sm)
 	# S48 fates: a card's lasting gifts and costs, and those that hold only for the great realm it was chosen in.
 	var here := ProgressionRules.great_realm(realm_key)
 	for fi in c.cultivator.fates.size():
@@ -264,6 +277,7 @@ static func rebuild(c) -> Array:
 	sb.set_base("pressure", 0.0)
 	sb.set_base("knockback_resistance", float(fx.body.get("knockback_resistance", 0.0)) * A.body)
 	sb.set_base("flight_qi", 0.0)
+	sb.set_base("dodge_cooldown", 0.0)
 	for stat in ContentDB.stat_const("stats", []):
 		if stat.get("cap") != null and not sb.caps.has(stat.id) and stat.id != "move_speed": sb.caps[stat.id] = float(stat.cap)
 	sb.recalc()

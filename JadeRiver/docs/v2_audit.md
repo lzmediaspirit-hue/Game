@@ -101,5 +101,6 @@ Progress is recorded in `docs/CHANGELOG.md`.
   trigger until Hollowing can pass the valley cap (v1.2).
 - **V5b**: done (heavenly tribulation, breakthrough fates, Qi Deviation). Fox Spirit's Favour waits for pet purity
   (S46).
-- Left for V5c: Inner Arts, technique grades, stances, combos, vows, epiphany, Killing Intent, Blood Burning, the
-  false realm and the nascent-soul escape.
+- **V5c**: done (Inner Arts, stances, technique grades, combos).
+- Left for V5d: vows, epiphany, Killing Intent, Blood Burning, the false realm, the nascent-soul escape and the
+  boss self-detonation.

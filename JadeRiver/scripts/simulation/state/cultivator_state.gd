@@ -59,7 +59,8 @@ var fates: Array = []                # fate cards chosen at major breakthroughs:
 var fate_offer: Array = []           # the cards drawn and waiting for a choice
 var physiques: Array = []            # physiques awakened by deeds (physiques.json)
 var vows: Array = []
-var inner_arts: Array = []
+var inner_arts: Array = []           # the Inner Art slots: art id or "" (2 at QU1, 3 at HT1, 4 at SA1)
+var inner_arts_known: Array = []     # Inner Arts learned from manuals
 var stances: Dictionary = {}         # weapon family -> stance id
 var false_realm := ""
 var epiphany_cooldown := 0.0
@@ -110,7 +111,7 @@ func snapshot() -> Dictionary:
 		"heart_demon": heart_demon, "merit": merit, "sin": sin, "debts": debts.duplicate(true), "merit_used": merit_used.duplicate(),
 		"support_failures": support_failures.duplicate(),
 		"body_tier": body_tier, "body_trials": body_trials.duplicate(), "body_baths": body_baths.duplicate(), "core_grade": core_grade,
-		"fates": fates.duplicate(true), "fate_offer": fate_offer.duplicate(), "physiques": physiques.duplicate(), "vows": vows.duplicate(), "inner_arts": inner_arts.duplicate(),
+		"fates": fates.duplicate(true), "fate_offer": fate_offer.duplicate(), "physiques": physiques.duplicate(), "vows": vows.duplicate(), "inner_arts": inner_arts.duplicate(), "inner_arts_known": inner_arts_known.duplicate(),
 		"stances": stances.duplicate(), "false_realm": false_realm, "epiphany_cooldown": epiphany_cooldown,
 		"methods_known": methods_known.duplicate(), "aptitude": aptitude.duplicate(true), "origin": origin,
 		"meridians": meridians.duplicate(), "unspent_meridian_points": unspent_meridian_points,
@@ -181,7 +182,11 @@ func restore(d: Dictionary) -> void:
 		if ContentDB.has_entry("fates", str(f)): fate_offer.append(str(f))
 	physiques = _arr(d, "physiques")
 	vows = _arr(d, "vows")
-	inner_arts = _arr(d, "inner_arts")
+	inner_arts = []
+	for a in _arr(d, "inner_arts"): inner_arts.append(str(a) if ContentDB.has_entry("inner_arts", str(a)) else "")
+	inner_arts_known = []
+	for a in _arr(d, "inner_arts_known"):
+		if ContentDB.has_entry("inner_arts", str(a)): inner_arts_known.append(str(a))
 	stances = _dict(d, "stances")
 	false_realm = str(d.get("false_realm", "")) if d.get("false_realm") != null else ""
 	epiphany_cooldown = maxf(0.0, _num(d, "epiphany_cooldown", 0.0))

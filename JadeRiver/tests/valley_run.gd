@@ -1846,10 +1846,14 @@ func sec_ae4() -> void:
 		if c().inventory.count("worm_glass_tooth") >= 3: break
 		if travel("sd_worm_sea"): fight("dune_worm", 2, 300.0, 0.3)
 		revive_if_needed()
-	for i in 10:
+	# The worm hunt fills the bag with glass and shards: make room so every stinger can be picked up.
+	tidy_bag(10)
+	for i in 16:
 		if c().inventory.count("scorpion_stinger") >= 5: break
+		if c().inventory.free_slots() < 3: tidy_bag(10)
 		if travel("sd_scorpion_flats"): fight("sandstorm_scorpion", 3, 300.0, 0.3)
 		revive_if_needed()
+	if verbose: print("  stingers: ", c().inventory.count("scorpion_stinger"))
 	check(finish("cactus_water"), "Cactus Water done")
 	check(finish("glass_teeth"), "Glass Teeth done")
 	check(finish("stingers_for_the_hold"), "Stingers for the Hold done")

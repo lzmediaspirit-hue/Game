@@ -237,6 +237,11 @@
    "body": "A breakthrough that fails at Severe risk, or on a method your elements fight, can send the Qi astray. For ten minutes every technique strikes with an element of its own choosing."
   },
   {
+   "id": "inner_arts",
+   "title": "Inner Arts",
+   "body": "Inner Arts are passive: a way of breathing, of standing, of carrying the Qi. The Mission Halls teach them from thin manuals. Two can be worn from Qi Unfurling 1, three from Heart Tempering 1, four from Spirit Awakening 1. A few belong to one weapon and sleep while another is in hand."
+  },
+  {
    "id": "karma",
    "title": "Merit and sin",
    "body": "The world keeps a ledger. Mercy and help earn merit: a hundred of it eases one great breakthrough in each realm. Cruelty and the back-room markets earn sin, and sin feeds the heart demon. Some deeds come back as letters."

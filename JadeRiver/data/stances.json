@@ -1,0 +1,77 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "willow_leaf_parry",
+   "family": "jian",
+   "name": "Willow Leaf Parry",
+   "desc": "A parry counters for 200%. Attacks 10% slower.",
+   "modifiers": [
+    {
+     "stat": "attack_speed",
+     "op": "flat",
+     "value": -0.1
+    }
+   ],
+   "flags": {
+    "parry_counter": 2.0
+   }
+  },
+  {
+   "id": "iron_horse",
+   "family": "gauntlets",
+   "name": "Iron Horse",
+   "desc": "Nothing knocks you back; 20% slower on foot.",
+   "modifiers": [
+    {
+     "stat": "move_speed",
+     "op": "pct_add",
+     "value": -0.2
+    }
+   ],
+   "flags": {
+    "knockback_immune": true
+   }
+  },
+  {
+   "id": "coiled_dragon",
+   "family": "spear",
+   "name": "Coiled Dragon",
+   "desc": "+15% reach.",
+   "flags": {
+    "reach_mult": 1.15
+   }
+  },
+  {
+   "id": "low_shadow",
+   "family": "short_blade",
+   "name": "Low Shadow",
+   "desc": "+10% crit chance on a foe's back.",
+   "flags": {
+    "backstab_crit": 0.1
+   }
+  },
+  {
+   "id": "mountain_root",
+   "family": "staff",
+   "name": "Mountain Root",
+   "desc": "Guard blocks 10% more.",
+   "modifiers": [
+    {
+     "stat": "guard",
+     "op": "pct_add",
+     "value": 0.1
+    }
+   ]
+  },
+  {
+   "id": "still_draw",
+   "family": "bow",
+   "name": "Still Draw",
+   "desc": "+15% damage while you stand still.",
+   "flags": {
+    "still_damage": 0.15
+   }
+  }
+ ]
+}

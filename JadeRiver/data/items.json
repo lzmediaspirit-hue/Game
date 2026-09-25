@@ -1326,6 +1326,16 @@
    "desc": "A recipe written in a steady hand."
   },
   {
+   "id": "inner_art_manual",
+   "name": "Inner Art Manual",
+   "type": "scroll",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "inner_art_manual",
+   "desc": "A thin book of breathing and bearing: one Inner Art, learned once."
+  },
+  {
    "id": "manual_stonebody_canon",
    "name": "Stonebody Canon (manual)",
    "type": "scroll",

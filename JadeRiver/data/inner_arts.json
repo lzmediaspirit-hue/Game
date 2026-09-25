@@ -1,0 +1,132 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "riverflow_circulation",
+   "name": "Riverflow Circulation",
+   "desc": "+10% QI regeneration.",
+   "modifiers": [
+    {
+     "stat": "qi_regen",
+     "op": "pct_add",
+     "value": 0.1
+    }
+   ],
+   "price": 150,
+   "realm": "qi_unfurling_1"
+  },
+  {
+   "id": "iron_shirt",
+   "name": "Iron Shirt",
+   "desc": "+8% Physical Defense.",
+   "modifiers": [
+    {
+     "stat": "physical_defense",
+     "op": "pct_add",
+     "value": 0.08
+    }
+   ],
+   "price": 150,
+   "realm": "qi_unfurling_1"
+  },
+  {
+   "id": "swallows_breath",
+   "name": "Swallow's Breath",
+   "desc": "Dodge cooldown 15% shorter.",
+   "modifiers": [
+    {
+     "stat": "dodge_cooldown",
+     "op": "flat",
+     "value": -0.15
+    }
+   ],
+   "price": 200,
+   "realm": "qi_unfurling_1"
+  },
+  {
+   "id": "sword_heart",
+   "name": "Sword Heart",
+   "desc": "Jian only: Sword Intent builds to 12 instead of 10.",
+   "family": "jian",
+   "flags": {
+    "sword_intent_max": 12
+   },
+   "price": 400,
+   "realm": "heart_tempering_1"
+  },
+  {
+   "id": "stone_root",
+   "name": "Stone Root",
+   "desc": "Guard blocks 10% more.",
+   "modifiers": [
+    {
+     "stat": "guard",
+     "op": "pct_add",
+     "value": 0.1
+    }
+   ],
+   "price": 200,
+   "realm": "qi_unfurling_1"
+  },
+  {
+   "id": "clear_lake",
+   "name": "Clear Lake",
+   "desc": "+10% insight.",
+   "modifiers": [
+    {
+     "stat": "insight_rate",
+     "op": "flat",
+     "value": 0.1
+    }
+   ],
+   "price": 300,
+   "realm": "heart_tempering_1"
+  },
+  {
+   "id": "hunters_patience",
+   "name": "Hunter's Patience",
+   "desc": "Bow only: the draw is 10% quicker.",
+   "family": "bow",
+   "modifiers": [
+    {
+     "stat": "attack_speed",
+     "op": "flat",
+     "value": 0.1
+    }
+   ],
+   "price": 200,
+   "realm": "qi_unfurling_1"
+  },
+  {
+   "id": "ember_channel",
+   "name": "Ember Channel",
+   "desc": "Fire techniques cost 10% less QI.",
+   "modifiers": [
+    {
+     "stat": "technique_cost",
+     "op": "flat",
+     "value": 0.1,
+     "condition": {
+      "element": "fire"
+     }
+    }
+   ],
+   "price": 300,
+   "realm": "heart_tempering_1"
+  }
+ ],
+ "slots": [
+  [
+   "qi_unfurling_1",
+   2
+  ],
+  [
+   "heart_tempering_1",
+   3
+  ],
+  [
+   "spirit_awakening_1",
+   4
+  ]
+ ]
+}

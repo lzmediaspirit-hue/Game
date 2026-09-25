@@ -98,6 +98,13 @@ def build():
         tech("glimpse_of_heaven", "heaven_glimpse_1", "a_wider_sky", "any", "none", "qi", (2.50, 3.00), 1, 1, 15, 35,
              "Borrow a glimpse of the heavens. Ignores 20% Qi Resistance.", reach=320, ignore_resistance=0.2, action="meditate_burst"),
     ]
+    # S48 technique grades: Common, Earth and Heaven (+0 / 10 / 20% to the base multiplier), by the realm that teaches
+    # them. Willow Leaf Parry is also the jian's stance (stances.json).
+    for t in T:
+        realm_of = t["unlock"].rsplit("_", 1)[0]
+        t["grade"] = "common" if realm_of in ("qi_kindling", "bone_forging") else ("earth" if realm_of in ("qi_unfurling", "heart_tempering") else "heaven")
+        if t["id"] == "willow_leaf_parry":
+            t["stance"] = "jian"
     entries("techniques.json", T)
 
     weapon_dao = {"tiers": ["+3% attack with the family", "Linked techniques -10% QI", "Linked techniques gain their tier-3 effect",

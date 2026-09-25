@@ -5,6 +5,38 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V5c · Inner Arts, stances, technique grades and combos (S48)
+- **Inner Arts** (`inner_arts.json`, the Part 8 eight) are passive arts, worn in slots: 2 at Qi Unfurling 1, 3 at
+  Heart Tempering 1, 4 at Spirit Awakening 1.
+  - Riverflow Circulation, Iron Shirt, Swallow's Breath (a new `dodge_cooldown` stat), Stone Root and Clear Lake
+    work with any weapon. Sword Heart (Sword Intent to 12) needs a jian and Hunter's Patience needs a bow. Ember
+    Channel cuts Fire techniques' cost.
+  - Both sect Mission Halls sell a manual for each art, for contribution, from its realm.
+  - They have a new Techniques tab, and an art tied to another weapon shows as asleep.
+- **Stances** (`stances.json`): one toggle per weapon family, held only with that weapon in hand.
+  - Willow Leaf Parry (jian): a parry counters for 200 %, and attacks are 10 % slower.
+  - Iron Horse (gauntlets): no knockback, 20 % slower on foot.
+  - Coiled Dragon (spear): +15 % reach.
+  - Low Shadow (short blade): +10 % crit on a foe's back.
+  - Mountain Root (staff): guard +10 %.
+  - Still Draw (bow): +15 % damage while standing still.
+  - Stances open at Qi Kindling 5.
+- **Technique grades.** Every technique is Common, Earth or Heaven (+0 / 10 / 20 % to its base), set by the realm
+  that teaches it. The Techniques list shows the grade.
+- **Combos** (`combos.json`, Part 8): technique A then B within 1 s.
+  - Flowing Palm → Tiger Rush: a shockwave.
+  - Cloudpiercing Stroke → Crescent Arc: one more target, 15 % further.
+  - Jade Thrust → Dragon Tail Sweep: a pull.
+  - Reedcutter Slash → Shadow Flick: a fresh bleed.
+  - Riverstone Sweep → Bell Toll Strike: a certain stun, 0.3 s longer.
+  - Twin Reed Shot → Pinning Arrow: the root holds 0.5 s longer.
+- **Events:** `inner_art_learned`, `inner_art_equipped`, `stance_changed` and `combo_landed`, with HUD notes.
+- **Tests:**
+  - slot counts, learning and wearing, stat gifts, per-element cost;
+  - a weapon-linked art asleep and awake;
+  - stance ownership, the gauntlet and jian swap, grades and the combo window;
+  - data validation for the new tables.
+
 ### V5b · Heavenly tribulation, breakthrough fates and Qi Deviation (S48)
 - **Heavenly tribulation.** From Cloud Stride 9 on, every great breakthrough draws a cloud over the room once the
   channel ends. The row for each step is in `tribulations.json`.
