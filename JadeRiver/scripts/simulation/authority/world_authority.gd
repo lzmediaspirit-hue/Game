@@ -17,6 +17,24 @@ func intents() -> Array:
 func subscribe() -> void:
 	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 50)
 	GameEvents.subscribe("actor_defeated", _event_kill, 55)
+	GameEvents.subscribe("bottleneck_reached", _on_bottleneck, 50)
+
+## S18: at the zone's ceiling the land itself is the limit.
+func _on_bottleneck(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c == null or not game.progression.at_zone_ceiling(c): return
+	var zone := ContentDB.zone_of_room(str(c.position.get("room", "")))
+	emit("zone_ceiling_reached", {"actor": c.id, "zone": str(zone.get("id", "")), "ceiling": str(p.get("realm_key", ""))})
+
+## Crafting gathered a node: World owns room objects, their regrowth and the character's memory of them.
+func apply_node_depleted(c, object_id: String, regrow_s: float) -> void:
+	var rt: RoomRuntime = game.room_rt
+	var st: Dictionary = rt.objects.get(object_id, {"state": "ready"})
+	st.state = "depleted"
+	st.timer = regrow_s
+	rt.objects[object_id] = st
+	_room_mem(c, rt.room_id).nodes[object_id] = Clock.now_utc() + regrow_s
+	emit("node_depleted", {"room": rt.room_id, "object": object_id})
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -502,7 +520,7 @@ func tick(delta: float) -> void:
 		if float(l.age) >= float(l.ttl):
 			rt.loot.erase(l)
 			if int(l.coins) == 0 and (ContentDB.item(str(l.item)).get("quest_item", false) or l.get("quality", "common") in ["fine", "superior", "perfect", "relic"]):
-				game.mail.apply_overflow(c.id, [{"item": l.item, "count": l.count, "instance": l.instance}])
+				game.inventory.apply_overflow(c.id, [{"item": l.item, "count": l.count, "instance": l.instance}])
 			emit("loot_expired", {"uid": l.uid})
 	if rt.event.get("active", false): _tick_event(c, rt, delta)
 	_attune_shrines(c, rt, st)
@@ -561,7 +579,7 @@ func _end_event(c, rt: RoomRuntime, won: bool) -> void:
 	ev.active = false
 	emit("room_event_completed" if won else "room_event_failed", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", ""))})
 	for e in rt.living_enemies():
-		if e.summoned: game.enemies.defeat(e, "event")
+		if e.summoned: game.enemies.release(e)   # the rest scatter: no loot, no kill credit
 	game.apply_effects(c.id, ev.get("on_complete" if won else "on_timeout", []), "event:" + str(ev.get("id", "")))
 
 ## A kill-to-win event ends the moment its foe falls.

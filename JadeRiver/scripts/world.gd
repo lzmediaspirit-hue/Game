@@ -280,6 +280,9 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id:
 				_build_room()
 				_place_player()
+		"enemy_aggro":
+			var foe: EnemyState = Game.room_rt.enemies.get(int(p.get("enemy", 0))) if Game.room_rt else null
+			if foe and not foe.hidden: fx.number(Vector2(foe.plane.x, foe.plane.y - foe.altitude - foe.height() - 24), "!", UiKit.GOLD, 26)
 		"enemy_spawned", "ally_spawned":
 			var uid := int(p.get("enemy", p.get("uid", 0)))
 			var e: EnemyState = Game.room_rt.enemies.get(uid)

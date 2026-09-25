@@ -1,0 +1,734 @@
+{
+ "schema_version": 1,
+ "events": {
+  "progress_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "polled": "HUD bars read the cultivator each frame."
+  },
+  "bottleneck_reached": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "breakthrough_started": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "breakthrough_succeeded": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "breakthrough_failed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "realm_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "consolidation_finished": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "stability_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "injury_added": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "injury_healed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "meditation_started": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "meditation_stopped": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "polled": "Allies and the lotus ring read the meditating flag."
+  },
+  "meditation_tick": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "qi_backlash": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "offline_claimed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "polled": "The shell opens the welcome page from the enter result."
+  },
+  "insight_gained": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "polled": "The Dao page reads insight; one per technique use is too frequent for a notice."
+  },
+  "dao_tier_up": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "method_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "technique_equipped": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "polled": "The HUD skill arc reads the technique slots each frame."
+  },
+  "technique_mastery_up": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "attributes_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "meridian_gate_opened": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "toxicity_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "polled": "The HUD icon and Cultivation page read toxicity."
+  },
+  "aptitude_revealed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "body_level_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "purity_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "soul_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "attunement_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "attack_started": {
+   "system": "Combat",
+   "files": [
+    "combat_authority",
+    "enemy_authority",
+    "enemy_brain"
+   ],
+   "also": "Enemies",
+   "note": "Enemy wind-ups are started by the Enemies system that runs the brain; Combat announces the player's."
+  },
+  "hit_landed": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "status_applied": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ],
+   "polled": "HUD status icons read active statuses each frame."
+  },
+  "status_expired": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ],
+   "polled": "HUD status icons read active statuses each frame."
+  },
+  "actor_defeated": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "player_gravely_wounded": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "hit_missed": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "technique_used": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "resource_changed": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "stats_changed": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ],
+   "polled": "HUD and pages read the StatBlock each frame."
+  },
+  "player_revived": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "loot_dropped": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "room_left": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "room_entered": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "object_interacted": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "node_depleted": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ],
+   "polled": "Room objects are drawn from their state."
+  },
+  "node_regrown": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ],
+   "polled": "Room objects are drawn from their state."
+  },
+  "hidden_portal_revealed": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "teleport_discovered": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "zone_entered": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "zone_ceiling_reached": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "enemy_aggro": {
+   "system": "Enemies",
+   "files": [
+    "enemy_authority",
+    "enemy_brain"
+   ]
+  },
+  "enemy_spawned": {
+   "system": "Enemies",
+   "files": [
+    "enemy_authority",
+    "enemy_brain"
+   ]
+  },
+  "elite_spawned": {
+   "system": "Enemies",
+   "files": [
+    "enemy_authority",
+    "enemy_brain"
+   ]
+  },
+  "field_boss_spawned": {
+   "system": "Enemies",
+   "files": [
+    "enemy_authority",
+    "enemy_brain"
+   ]
+  },
+  "field_boss_defeated": {
+   "system": "Enemies",
+   "files": [
+    "enemy_authority",
+    "enemy_brain"
+   ]
+  },
+  "craft_step_result": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "craft_started": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ],
+   "polled": "The crafts page drives its own mini-game."
+  },
+  "craft_completed": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "profession_rank_up": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "fish_caught": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "currency_changed": {
+   "system": "Economy",
+   "files": [
+    "economy_authority"
+   ]
+  },
+  "shop_restocked": {
+   "system": "Economy",
+   "files": [
+    "economy_authority"
+   ],
+   "polled": "Open pages redraw on every event."
+  },
+  "egg_hatched": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "pet_retreated": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "pet_bonded": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "pet_level_up": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "bond_changed": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "pet_evolved": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "trait_revealed": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "item_added": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
+  "item_removed": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
+  "bag_full": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
+  "overflow_mailed": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
+  "equipment_changed": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
+  "item_used": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
+  "pill_used": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
+  "quest_offered": {
+   "system": "Quest",
+   "files": [
+    "quest_authority"
+   ],
+   "polled": "NPC markers read the offer list."
+  },
+  "quest_accepted": {
+   "system": "Quest",
+   "files": [
+    "quest_authority"
+   ]
+  },
+  "objective_progressed": {
+   "system": "Quest",
+   "files": [
+    "quest_authority"
+   ]
+  },
+  "quest_ready": {
+   "system": "Quest",
+   "files": [
+    "quest_authority"
+   ]
+  },
+  "quest_completed": {
+   "system": "Quest",
+   "files": [
+    "quest_authority"
+   ]
+  },
+  "flag_set": {
+   "system": "Quest",
+   "files": [
+    "quest_authority"
+   ]
+  },
+  "codex_entry_unlocked": {
+   "system": "Quest",
+   "files": [
+    "quest_authority"
+   ]
+  },
+  "unlock_offered": {
+   "system": "Unlocks",
+   "files": [
+    "unlock_service"
+   ]
+  },
+  "system_unlocked": {
+   "system": "Unlocks",
+   "files": [
+    "unlock_service"
+   ]
+  },
+  "hud_element_revealed": {
+   "system": "Unlocks",
+   "files": [
+    "unlock_service"
+   ]
+  },
+  "collection_page_completed": {
+   "system": "Account",
+   "files": [
+    "account_authority"
+   ]
+  },
+  "daily_reset": {
+   "system": "Account",
+   "files": [
+    "account_authority"
+   ]
+  },
+  "weekly_reset": {
+   "system": "Account",
+   "files": [
+    "account_authority"
+   ],
+   "polled": "No weekly content in Act I."
+  },
+  "app_paused": {
+   "system": "Account",
+   "files": [
+    "account_authority"
+   ]
+  },
+  "app_resumed": {
+   "system": "Account",
+   "files": [
+    "account_authority"
+   ]
+  },
+  "account_highest_realm_changed": {
+   "system": "Account",
+   "files": [
+    "account_authority"
+   ]
+  },
+  "slot_unlocked": {
+   "system": "Account",
+   "files": [
+    "account_authority"
+   ]
+  },
+  "character_switched": {
+   "system": "Account",
+   "files": [
+    "account_authority"
+   ]
+  },
+  "idle_collected": {
+   "system": "Account",
+   "files": [
+    "account_authority"
+   ],
+   "polled": "The shell opens the welcome page from the collect result."
+  },
+  "legacy_recorded": {
+   "system": "Account",
+   "files": [
+    "account_authority"
+   ]
+  },
+  "character_created": {
+   "system": "Account",
+   "files": [
+    "account_authority"
+   ]
+  },
+  "mail_received": {
+   "system": "Mail",
+   "files": [
+    "mail_authority"
+   ]
+  },
+  "mail_claimed": {
+   "system": "Mail",
+   "files": [
+    "mail_authority"
+   ],
+   "polled": "Open pages redraw on every event."
+  },
+  "sect_joined": {
+   "system": "TrainingSect",
+   "files": [
+    "training_sect_authority"
+   ]
+  },
+  "sect_rank_changed": {
+   "system": "TrainingSect",
+   "files": [
+    "training_sect_authority"
+   ]
+  },
+  "contribution_changed": {
+   "system": "TrainingSect",
+   "files": [
+    "training_sect_authority"
+   ]
+  },
+  "reputation_changed": {
+   "system": "TrainingSect",
+   "files": [
+    "training_sect_authority"
+   ]
+  },
+  "companion_downed": {
+   "system": "Companion",
+   "files": [
+    "companion_authority"
+   ]
+  },
+  "companion_revived": {
+   "system": "Companion",
+   "files": [
+    "companion_authority"
+   ]
+  },
+  "achievement_progressed": {
+   "system": "Achievement",
+   "files": [
+    "achievement_authority"
+   ],
+   "polled": "The Achievements page reads the counters."
+  },
+  "achievement_unlocked": {
+   "system": "Achievement",
+   "files": [
+    "achievement_authority"
+   ]
+  },
+  "title_changed": {
+   "system": "Achievement",
+   "files": [
+    "achievement_authority"
+   ]
+  },
+  "notification_scheduled": {
+   "system": "Notifier",
+   "files": [
+    "notifier"
+   ],
+   "polled": "Handed to the platform notifier on phones; nothing to show on desktop."
+  },
+  "sect_founded": {
+   "system": "Sect",
+   "files": [
+    "sect_authority"
+   ]
+  },
+  "prestige_gained": {
+   "system": "Sect",
+   "files": [
+    "sect_authority"
+   ]
+  },
+  "sect_level_changed": {
+   "system": "Sect",
+   "files": [
+    "sect_authority"
+   ]
+  },
+  "building_upgraded": {
+   "system": "Sect",
+   "files": [
+    "sect_authority"
+   ]
+  },
+  "expedition_returned": {
+   "system": "Sect",
+   "files": [
+    "sect_authority"
+   ]
+  },
+  "defence_warning": {
+   "system": "Sect",
+   "files": [
+    "sect_authority"
+   ]
+  },
+  "defence_result": {
+   "system": "Sect",
+   "files": [
+    "sect_authority"
+   ]
+  },
+  "building_damaged": {
+   "system": "Sect",
+   "files": [
+    "sect_authority"
+   ]
+  }
+ }
+}

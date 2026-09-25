@@ -62,7 +62,6 @@ func apply_send(to: String, template: String, attachments: Array, args: Dictiona
 func apply_overflow(actor_id: String, items: Array) -> void:
 	_add({"to": actor_id, "from": "Spirit Gourd", "subject": "Overflow", "body": "Your gourd was full. These items waited for you.",
 		"attachments": items.duplicate(true), "expires_utc": Clock.now_utc() + 3 * 86400.0, "overflow": true})
-	emit("overflow_mailed", {"actor": actor_id, "items": items})
 
 func _add(letter: Dictionary) -> void:
 	var acc: AccountState = game.account

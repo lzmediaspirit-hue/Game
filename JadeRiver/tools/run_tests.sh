@@ -4,7 +4,7 @@
 set -u
 cd "$(dirname "$0")/.."
 GODOT="${GODOT:-godot}"
-suites=(engine_tests data_validation rules_tests prologue_run valley_run)
+suites=(engine_tests data_validation rules_tests contract_tests prologue_run valley_run)
 
 failed=()
 for s in "${suites[@]}"; do

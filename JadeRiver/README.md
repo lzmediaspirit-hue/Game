@@ -56,7 +56,7 @@ python3 tools/data/build_data.py            # everything
 python3 tools/data/build_data.py world story # just some modules
 ```
 
-Modules: realms, stats, items, techniques, enemies, world, story, economy, crafts. Each validates its
+Modules: realms, stats, items, techniques, enemies, world, story, economy, crafts, contract. Each validates its
 own references; `tests/data_validation` checks the whole set again inside Godot.
 
 ## Testing
@@ -70,7 +70,8 @@ tools/run_tests.sh                 # Linux/macOS (GODOT=/path/to/godot)
 |---|---|
 | `engine_tests` | Movement, avatar, surfaces, saves (3,660 checks) |
 | `data_validation` | Every ID resolves, known effect and requirement kinds, appearances, dyes and icons exist, every room reachable, portals link both ways, spawns on surfaces and clear of portals |
-| `rules_tests` | Formulas at the spec's sample values, same-seed replay, offline caps, no offline breakthroughs |
+| `rules_tests` | Formulas at the spec's sample values (damage, attunement, mastery, risk), same-seed replay, offline caps, no offline breakthroughs, spirit animal stage gates |
+| `contract_tests` | Every event in the Part 4 catalogue is emitted only by its own system and has a reactor (`data/event_contract.json`, built by `tools/data/contract.py`) |
 | `prologue_run` | A scripted Prologue to Bone Forging 2 with the HUD reveal order |
 | `valley_run` | The whole of Act I from a new character to the Ascension Gate, through intents only (about a minute) |
 

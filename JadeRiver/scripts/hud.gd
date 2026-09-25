@@ -416,6 +416,38 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log("Crafted %s (%s)" % [ContentDB.name_of("recipes", str(p.recipe)), str(p.quality).capitalize()], UiKit.quality_color(str(p.quality)))
 		"spar_ended":
 			toast("Spar won!" if p.get("winner", "") == "player" else "Spar lost — try again", "quest")
+		"quest_ready":
+			toast("Ready to hand in: " + str(Game.quest.quest_def(Game.active(), str(p.quest)).get("name", "")), "quest")
+		"codex_entry_unlocked":
+			add_log("Codex: " + str(ContentDB.entry("codex", str(p.entry)).get("title", "")), UiKit.PALE_GOLD)
+		"teleport_discovered":
+			toast("Teleport stone attuned", "gold")
+		"hidden_portal_revealed":
+			toast("A hidden path opens", "gold")
+		"meridian_gate_opened":
+			toast("Meridian gate opened: %s" % str(p.get("channel", "")).replace("_", " ").capitalize(), "gold")
+		"stability_changed":
+			add_log("Your foundation is %s" % str(p.get("word", "")).to_lower(), UiKit.MIST)
+		"overflow_mailed":
+			add_log("No room in your gourd · sent to your mail", UiKit.PALE_GOLD)
+		"egg_hatched":
+			toast("The egg hatched: a %s!" % ContentDB.name_of("pets", str(p.species)), "gold")
+		"bond_changed":
+			add_log("%s: %d hearts" % [_pet_name(str(p.pet)), int(float(p.value))], UiKit.RED)
+		"field_boss_defeated":
+			toast("%s is defeated!" % ContentDB.name_of("enemies", str(p.enemy)), "gold")
+		"defence_warning":
+			toast("Raiders at the gates! Hold the sect grounds", "danger")
+		"defence_result":
+			toast("The raid is beaten back" if p.get("won", false) else "The raiders broke through", "gold" if p.get("won", false) else "danger")
+		"building_upgraded":
+			add_log("%s reached level %d" % [ContentDB.name_of("sect_buildings", str(p.building)), int(p.level)], UiKit.PALE_GOLD)
+		"prestige_gained":
+			if Game.sect.founded(): add_log("+%d Prestige" % int(p.amount), UiKit.PALE_GOLD)
+		"expedition_returned":
+			add_log("Expedition to %s %s" % [ContentDB.name_of("expeditions", str(p.region)), "returned with spoils" if p.get("success", false) else "came back empty-handed"], UiKit.PALE_GOLD)
+		"reputation_changed":
+			add_log("Reputation · %s %d" % [str(p.faction).replace("_", " ").capitalize(), int(p.value)], UiKit.MIST)
 		"pet_evolved":
 			toast("%s grows into a %s!" % [_pet_name(str(p.pet)), str(p.get("branch", "")) if str(p.get("branch", "")) != "" else str(Game.pets.stage_def(str(p.stage)).get("name", ""))], "gold")
 		"trait_revealed":

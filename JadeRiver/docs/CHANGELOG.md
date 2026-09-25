@@ -45,6 +45,14 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
 - Your Sect shows real build costs; long descriptions are trimmed to fit; bar labels are outlined; the Main
   quest tab says which chapter comes next and what it waits for; the board never lists the same mission twice.
 
+### Systems finished against the spec
+- Spirit animals grow: Hatchling, Juvenile and Adult (a branch choice) need level, hearts and your realm
+  together; three hidden traits reveal as they grow and change real numbers; Resonance adds to accumulation.
+- Zone ceilings and attunement (S18) are announced and applied; alchemy and forge strikes are scored by
+  Crafting; lost raids damage a building until you repair it.
+- Every event in the catalogue is emitted by the system that owns it. Enemies notice you with a "!", and the
+  HUD reports raids, hatched eggs, revealed paths, codex entries, quests ready to hand in and more.
+
 ### Found and fixed by the scripted Act I run
 - Event spawns were wiped on room entry; stale companion uids could delete monsters; daily missions
   dropped four of five; the Hideout key, the library methods, the Sleeping Blade and the Siege had no

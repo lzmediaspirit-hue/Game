@@ -210,12 +210,9 @@ func _on_zone_entered(p: Dictionary) -> void:
 	emit("attunement_changed", {"actor": c.id, "zone": str(p.get("zone", "")), "value": float(c.cultivator.attunement.get(str(p.get("zone", "")), 0.0)),
 		"required": attunement_required(room_id), "dealt": f.dealt, "taken": f.taken})
 
-## The bar is full. At the zone's ceiling the land itself is the limit (S18).
+## The bar is full (World adds zone_ceiling_reached when the land is the limit, S18).
 func _bottleneck(c, realm: String) -> void:
 	emit("bottleneck_reached", {"actor": c.id, "realm_key": realm, "major": ProgressionRules.is_major(realm), "requirements": query_requirements(c)})
-	if at_zone_ceiling(c):
-		var zone := ContentDB.zone_of_room(str(c.position.get("room", "")))
-		emit("zone_ceiling_reached", {"actor": c.id, "zone": str(zone.get("id", "")), "ceiling": realm})
 
 func at_zone_ceiling(c) -> bool:
 	var zone := ContentDB.zone_of_room(c.position.get("room", ""))

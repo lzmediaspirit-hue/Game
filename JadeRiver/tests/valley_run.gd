@@ -995,14 +995,18 @@ func tame_one() -> bool:
 	for sp in ["reed_otter", "ember_fox", "jade_crane_chick", "bamboo_monkey", "mossback_toad"]:
 		var rid := _room_with_spawn(sp)
 		if rid == "" or not travel(rid): continue
-		for attempt in 6:
+		for attempt in 10:
 			if c().inventory.count("bonding_offering_common") < 1: Game.inventory.apply_add(c().id, "bonding_offering_common", 3, "test")
+			# A failed offering makes the beast bolt: wait for the next one to wander in.
 			var target: EnemyState = null
-			for e in Game.room_rt.living_enemies():
-				if e.def_id == sp and e.team == "enemy": target = e
-			if target == null:
-				step(10.0)
-				continue
+			var waited := 0.0
+			while target == null and waited < 45.0:
+				for e in Game.room_rt.living_enemies():
+					if e.def_id == sp and e.team == "enemy": target = e
+				if target == null:
+					step(5.0)
+					waited += 5.0
+			if target == null: break
 			var t := 0.0
 			while target.alive and target.pools.hp > target.pools.max_hp * 0.25 and t < 60.0:
 				place(target.plane + Vector2(-34, 0))

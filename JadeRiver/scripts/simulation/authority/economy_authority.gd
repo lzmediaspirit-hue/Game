@@ -4,6 +4,13 @@ extends Authority
 ## buying, selling, buyback and the currency exchange. Shops never offer a weapon
 ## before the character has finished "The Weapon Hall".
 
+## Contribution lives with the training sect; Economy announces it like every other currency.
+func subscribe() -> void:
+	GameEvents.subscribe("contribution_changed", _on_contribution, 20)
+
+func _on_contribution(p: Dictionary) -> void:
+	emit("currency_changed", {"currency": "contribution", "value": int(p.get("value", 0)), "delta": int(p.get("delta", 0)), "source": str(p.get("source", ""))})
+
 func intents() -> Array:
 	return ["buy", "sell", "exchange_currency", "buyback"]
 

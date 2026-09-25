@@ -116,15 +116,9 @@ func complete_node(c, object_id: String) -> Dictionary:
 	if herb_bonus > 0.0 and rng.randf() < herb_bonus * count: count += 1
 	var item := str(o.get("item", ""))
 	game.inventory.apply_add(c.id, item, count, craft)
-	st.state = "depleted"
-	st.timer = float(o.get("regrow_s", 300))
-	rt.objects[object_id] = st
-	var mem: Dictionary = c.rooms.get(rt.room_id, {"nodes": {}, "opened": {}, "broken": {}})
-	mem.nodes[object_id] = Clock.now_utc() + float(st.timer)
-	c.rooms[rt.room_id] = mem
+	game.world.apply_node_depleted(c, object_id, float(o.get("regrow_s", 300)))
 	add_xp(c, craft, float(ContentDB.curve("profession_xp.%s" % ("mine" if craft == "mining" else "gather"), 5)))
 	emit("node_gathered", {"actor": c.id, "object": object_id, "item": item, "count": count, "craft": craft})
-	emit("node_depleted", {"room": rt.room_id, "object": object_id})
 	return ok({"item": item, "count": count})
 
 ## Fishing result from the mini-game (S33). The authority rolls the catch.
@@ -291,9 +285,7 @@ func enhance(c, index: int, slot: String) -> Dictionary:
 	if lvl >= 5:
 		game.inventory.apply_remove(c.id, "spirit_stone_shard", lvl - 4, "enhance")
 		success = Rng.stream(c.id, "crafting").randf() < 1.0 - 0.12 * (lvl - 4)
-	if success:
-		inst.enhance = lvl + 1
-		if slot != "": emit("equipment_changed", {"actor": c.id, "slot": slot, "old": inst.id, "new": inst.id})
+	if success: game.inventory.apply_enhance(c.id, inst, lvl + 1, slot)
 	emit("item_enhanced", {"actor": c.id, "item": inst.id, "level": int(inst.get("enhance", 0)), "success": success})
 	emit("system_used", {"actor": c.id, "system": "enhance"})
 	return ok({"success": success, "level": int(inst.get("enhance", 0))})

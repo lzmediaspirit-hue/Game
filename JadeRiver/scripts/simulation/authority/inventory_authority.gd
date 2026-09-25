@@ -93,9 +93,19 @@ func apply_add(actor_id: String, item_id: String, count: int, source: String, fi
 	if left > 0:
 		emit("bag_full", {"actor": c.id, "items": [{"item": item_id, "count": left}]})
 		if overflow:
-			game.mail.apply_overflow(c.id, [{"item": item_id, "count": left}])
+			apply_overflow(c.id, [{"item": item_id, "count": left}])
 			return count
 	return added_n
+
+## What does not fit waits in the mail for three days.
+func apply_overflow(actor_id: String, items: Array) -> void:
+	game.mail.apply_overflow(actor_id, items)
+	emit("overflow_mailed", {"actor": actor_id, "items": items})
+
+## Forge enhancement: Crafting pays and rolls; Inventory owns the instance and says so.
+func apply_enhance(actor_id: String, inst: Dictionary, level: int, slot: String) -> void:
+	inst.enhance = level
+	if slot != "": emit("equipment_changed", {"actor": actor_id, "slot": slot, "old": inst.id, "new": inst.id})
 
 func apply_add_instance(actor_id: String, inst: Dictionary, source: String, overflow := true) -> int:
 	var c = game.character(actor_id)

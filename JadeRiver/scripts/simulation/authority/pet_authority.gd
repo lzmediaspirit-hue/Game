@@ -136,6 +136,14 @@ func tick(delta: float) -> void:
 	if was_down and a.ai.state != "downed":
 		emit("pet_returned", {"actor": c.id, "uid": a.uid, "pet": str(p.get("uid", ""))})
 
+## Combat brought the animal to 0 HP: it retreats into its token (S22), never dies.
+func apply_retreat(a: EnemyState) -> void:
+	a.ai.state = "downed"
+	a.ai.timer = float(growth().get("retreat_s", 60))
+	a.action_time = 0.0
+	var c = game.active()
+	emit("pet_retreated", {"actor": c.id if c else "", "uid": a.uid, "pet": c.active_pet if c else ""})
+
 func _on_actor_defeated(p: Dictionary) -> void:
 	var c = game.active()
 	var pet := active_pet(c)

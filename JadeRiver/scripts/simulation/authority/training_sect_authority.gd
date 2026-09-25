@@ -37,7 +37,6 @@ func apply_contribution(actor_id: String, amount: int, source: String) -> void:
 	if c == null or c.training_sect.is_empty(): return
 	c.training_sect.contribution = maxi(0, int(c.training_sect.get("contribution", 0)) + amount)
 	emit("contribution_changed", {"actor": actor_id, "value": c.training_sect.contribution, "delta": amount, "source": source})
-	emit("currency_changed", {"currency": "contribution", "value": c.training_sect.contribution, "delta": amount, "source": source})
 
 func apply_reputation(actor_id: String, faction: String, amount: int) -> void:
 	var c = game.character(actor_id)

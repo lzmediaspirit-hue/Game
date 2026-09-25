@@ -11,6 +11,10 @@ func subscribe() -> void:
 	GameEvents.subscribe("objective_progressed", _on_state_change, 40)
 	GameEvents.subscribe("item_added", _on_state_change, 40)
 	GameEvents.subscribe("flag_set", _on_state_change, 40)
+	GameEvents.subscribe("actor_defeated", _on_defeated, 45)
+
+func _on_defeated(p: Dictionary) -> void:
+	if str(p.get("role", "")) == "field_boss": emit("field_boss_defeated", {"room": str(p.get("room", "")), "enemy": str(p.get("def", ""))})
 
 func _on_room_entered(_p: Dictionary) -> void:
 	populate()
@@ -260,9 +264,10 @@ func _eel(e: EnemyState, delta: float) -> void:
 				e.ai.state = "idle"
 				e.ai.timer = rng.randf_range(3.0, 5.0)
 
-## Defeat (Combat calls this when HP reaches 0). World rolls loot on actor_defeated.
-func defeat(e: EnemyState, killer: String) -> void:
-	if not e.alive: return
+## Defeat (Combat calls this when HP reaches 0 and announces actor_defeated with the
+## payload returned here). World rolls loot on actor_defeated; Enemies then marks field bosses.
+func defeat(e: EnemyState, killer: String) -> Dictionary:
+	if not e.alive: return {}
 	e.alive = false
 	e.action = "death"
 	e.action_time = 0.0
@@ -281,8 +286,7 @@ func defeat(e: EnemyState, killer: String) -> void:
 	var payload := {"victim": str(e.uid), "victim_kind": "enemy", "def": e.def_id, "level": e.level, "role": e.role, "elite": e.elite,
 		"killer": killer, "room": rt.room_id, "x": e.plane.x, "y": e.plane.y, "alt": e.altitude, "first_hit_by_player": e.first_hit_by_player,
 		"summoned": e.summoned}
-	emit("actor_defeated", payload)
-	if e.role == "field_boss": emit("field_boss_defeated", {"room": rt.room_id, "enemy": e.def_id})
+	return payload
 
 func _flee(e: EnemyState) -> void:
 	var c = game.active()
