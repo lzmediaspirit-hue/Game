@@ -1,6 +1,6 @@
 config_version=5
 [application]
-config/name="Jade River"
+config/name="Jade River — Wuxia Engine"
 run/main_scene="res://scenes/pixel_stage.tscn"
 config/icon="res://art/icon.png"
 config/features=PackedStringArray("4.5", "GL Compatibility")
