@@ -834,3 +834,39 @@ def worm_glass_tooth():
 register(FAM, 'scorpion_stinger', scorpion_stinger, GROUP)
 register(FAM, 'worm_glass_tooth', worm_glass_tooth, GROUP)
 
+
+
+# ----------------------------------------------------------------------------- Act II · Starsea
+def alliance_badge():
+    """A Nine Peaks disciple's navy-jade badge, its gold peaks gouged out by a deserter's knife."""
+    c = Canvas(32)
+    navy = R['navy']
+    body = c.poly([(10.5, 7), (21.5, 7), (26, 11.5), (26, 23.5), (21.5, 28), (10.5, 28), (6, 23.5), (6, 11.5)])
+    c.put(body, navy, 'ray', base=2)
+    inner = erode4(erode4(body))
+    c.put(S.outline_only(inner), navy[1], 'flat', out=navy.out)
+    c.put(c.ring(16, 17.5, 7.6, 1.0), R['gold'], 'flat', base=2, only_on=True)
+    peaks = c.poly([(9.5, 21.8), (12.4, 15.7), (14.2, 18.7), (16, 11.5), (17.8, 18.7), (19.6, 15.7), (22.5, 21.8)])
+    c.put(peaks & inner, R['gold'], 'flat', base=4)
+    c.put(peaks & inner & (c.Y > 20), R['gold'], 'flat', base=3)
+    # two rough knife gouges struck across the peaks: a dark groove with a pale scored lip
+    for path in ([(22, 10), (19, 14), (16, 17), (10, 24)], [(9, 11), (13, 15), (16, 17), (22, 24)]):
+        g = c.bres_path(path) & inner
+        c.put(move(g, 1, 0) & inner & ~g, '#C8D6EA', 'flat', out=navy.out)
+        c.put(g, navy[0], 'flat', out=navy.out)
+    # stray nicks where the knife slipped, and a chip knocked out of the rim
+    for (x0, y0, x1, y1) in ((8, 16, 10, 14), (19, 26, 21, 24), (22, 18, 24, 16)):
+        c.put(c.bres(x0, y0, x1, y1) & inner, navy[0], 'flat', out=navy.out)
+    c.erase(c.poly([(23, 24.5), (27, 21.5), (27, 26.5)]))
+    hole = c.circle(16, 9.6, 1.2)
+    c.put(dilate4(hole) & ~hole & body, navy[0], 'flat', out=navy.out)
+    c.erase(hole)
+    # the snapped cord: a short stub through the hole, frayed at the cut
+    cord = S.bez_line(c, (15, 8), (13, 3.5), (9.5, 3.5), 1.4)
+    c.put(cord & ~body, R['gold'], 'flat', base=2)
+    c.put(c.pts([(8, 2), (8, 4)]), R['gold'], 'flat', base=3)
+    c.outline()
+    return c
+
+
+register(FAM, 'alliance_badge', alliance_badge, GROUP)

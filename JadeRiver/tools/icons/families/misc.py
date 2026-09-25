@@ -5,7 +5,7 @@ disc with cord + tassel), sack, small jar.
 """
 import math
 
-from pix import Canvas, Ramp, dilate4, erode4, move
+from pix import Canvas, Ramp, dilate4, erode4, move, rgb
 from palette import R
 from registry import register
 import shapes as S
@@ -785,4 +785,373 @@ def sunscar_seal():
 
 for _id, _fn in (('sun_crown_fragment', sun_crown_fragment), ('sun_seal_shard', sun_seal_shard),
                  ('sunscar_seal', sunscar_seal)):
+    register(FAM, _id, _fn, GROUP)
+
+
+# ============================================================================ Act II · Starsea
+STARPAPER = Ramp(['#4A5664', '#8793A3', '#C6CFDA', '#E6EBF0', '#FFFDF4'], '#19202A')
+SKY_INK = Ramp(['#0C0E26', '#191D46', '#2A3070', '#4652A0', '#8290D4'], '#050616')
+QI_MIST = Ramp(['#1B5A6E', '#2F86A0', '#58B6CC', '#94DBE6', '#D6F6FA'], '#0B2530')
+LACQUER = Ramp(['#07080B', '#121419', '#22262F', '#3C4250', '#7D879C'], '#020203')
+STAR_GLOW = '#BFD8FF'
+WARD_GLOW = '#8AEBEE'
+
+
+def _faint(c, mask, col, al):
+    """Semi-transparent pixels on empty canvas only (a ward ring behind the object)."""
+    free = mask & (c.alpha == 0)
+    c.rgb[free] = rgb(col)
+    c.alpha[free] = al
+
+
+def _star(c, x, y, core='#FFFDF4', arm=None):
+    """A small star: bright core pixel with four dimmer arms."""
+    arm = arm or SKY_INK[4]
+    c.put(S.star4(c, x, y, 1) & ~c.rect(x, y, x, y), arm, 'flat', out=SKY_INK.out, only_on=True)
+    c.put(c.rect(x, y, x, y), core, 'flat', out=SKY_INK.out, only_on=True)
+
+
+# ---------------------------------------------------------------------------- star reading
+def star_reading():
+    """A slip of pale star-paper: a constellation in sky ink, one star caught in a sighting ring."""
+    c = Canvas(32)
+    cx, cy, a, k = 16.5, 16.5, math.radians(22), 0.009  # k: how much both ends lift
+    dx, dy = math.cos(a), -math.sin(a)
+    px, py = -dy, dx
+    u = (c.X - cx) * dx + (c.Y - cy) * dy
+    v = (c.X - cx) * px + (c.Y - cy) * py
+    bow = -k * u * u
+
+    def P(uu, vv):
+        vv -= k * uu * uu
+        return (int(round(cx + uu * dx + vv * px - 0.5)), int(round(cy + uu * dy + vv * py - 0.5)))
+
+    strip = (u >= -12.5) & (u <= 12.5) & (abs(v - bow) <= 4.8)
+    c.put(strip, STARPAPER, 'bevel', base=3)
+    # the far end rolls over into a small curl
+    roll = strip & (u > 9.0)
+    c.put(roll, STARPAPER, 'flat', base=2, sep=True, sep_col=STARPAPER[1])
+    c.put(roll & (u <= 10.2), STARPAPER, 'flat', base=4)
+    c.put(roll & (u > 11.6), STARPAPER, 'flat', base=1)
+    # the near corner curls up too, showing the back of the slip
+    ear = strip & c.poly([P(-12.6, 4.9), P(-9.4, 4.9), P(-12.6, 1.8)])
+    c.put(ear, STARPAPER, 'flat', base=2, sep=True, sep_col=STARPAPER[1])
+    # constellation joined by fine lines, stars in sky ink
+    stars = [P(-8.8, 1.6), P(-4.4, -2.2), P(0.4, 1.6), P(5.2, -1.8)]
+    body = strip & ~roll & ~ear
+    c.put(c.bres_path(stars) & body, SKY_INK[4], 'flat', out=STARPAPER.out)
+    for (x, y) in stars:
+        _star(c, x, y, core=SKY_INK[0], arm=SKY_INK[2])
+    # sighting ring around the third star
+    sx, sy = stars[2]
+    c.put(c.ring(sx + 0.5, sy + 0.5, 3.5, 1.0) & body, R['seal'], 'flat', base=2)
+    c.outline()
+    c.glow(STAR_GLOW, (45,))
+    return c
+
+
+# ---------------------------------------------------------------------------- sky ink
+def sky_ink():
+    """A squat glass pot of sky ink: deep indigo flecked with star-dust, corked under a silver cap."""
+    c = Canvas(32)
+    glass = R['mist']
+    body = S.rounded_rect(c, 4, 17, 27, 28, 4) | c.ellipse(15.5, 17.5, 9.5, 3.4)
+    neck = c.rect(11, 12, 20, 16)
+    c.put(body | neck, glass, 'ray', base=2)
+    ink = erode4(body) & (c.Y > 16)
+    c.put(ink, SKY_INK, 'sphere', base=2, cx=13, cy=20, rx=13, ry=9)
+    c.put(ink & ~move(ink, 0, 1), SKY_INK, 'flat', base=4)
+    c.pxs([(9, 21), (19, 20), (12, 25), (22, 25), (17, 26), (24, 21)], '#FFFDF4')
+    c.pxs([(11, 22), (21, 23), (7, 24)], R['gold'][3])
+    S.sparkle(c, 16, 22, '#FFFFFF', SKY_INK[4], 1)
+    c.put(c.rect(5, 20, 5, 24) | c.rect(6, 18, 6, 18), '#F4FBFB', 'flat')
+    lip = c.rect(10, 11, 21, 12)
+    c.put(lip, glass, 'vgrad', base=3, sep=True)
+    cork = c.rect(12, 8, 19, 10)
+    c.put(cork, R['wood'], 'ray', base=3, sep=True)
+    cap = c.rect(11, 6, 20, 8) | c.rect(13, 5, 18, 5)
+    c.put(cap, R['silver'], 'ray', base=2, sep=True)
+    c.put(c.rect(15, 4, 16, 4), R['cyan'], 'flat', base=3)
+    # an ink run down the shoulder
+    drip = c.rect(20, 13, 21, 14) | c.rect(21, 15, 22, 17) | c.rect(22, 18, 22, 19)
+    c.put(drip, SKY_INK, 'flat', base=1)
+    c.put(c.rect(21, 15, 21, 16), SKY_INK, 'flat', base=3)
+    c.outline()
+    c.glow('#9FB4FF', (55,))
+    return c
+
+
+# ---------------------------------------------------------------------------- ledger
+def ledger_page():
+    """One page torn from the Black Ledger: columns of entries, stitch holes, a dark-red seal smudge."""
+    c = Canvas(32)
+    paper = R['paper']
+    torn = [(10, 29), (8.5, 26.5), (10, 24), (8, 21.5), (9.5, 18.5), (7.5, 16), (9, 13), (7, 10.5), (8.5, 8),
+            (7, 5.5)]
+    m = c.poly([(24, 3), (27.5, 26)] + torn)
+    c.put(m, paper, 'bevel', base=3)
+    edge = S.outline_only(m) & (c.X < 12)
+    c.put(edge, paper[4], 'flat', out=paper.out)
+    for (x, y) in ((11, 8), (11, 14), (12, 20), (13, 26)):
+        c.put(c.rect(x, y, x, y) & m, paper[0], 'flat', out=paper.out)
+    # vertical columns of entries, leaning with the page
+    for k, x0 in enumerate((22, 19, 16, 13)):
+        y_top = 6 + (3 if k % 2 else 1)
+        y_bot = 25 - (k * 3) % 5
+        for y in range(y_top, y_bot):
+            if (y + k) % 4 == 3:
+                continue
+            x = int(round(x0 + (y - 4) * 0.14))
+            c.put(c.rect(x, y, x, y) & erode4(m), '#2B2A30', 'flat')
+    c.put(c.bres(12, 6, 23, 5) & erode4(m), R['seal'][1], 'flat', out=paper.out)
+    # a smudged square seal: the stamp, and the smear dragged out of it
+    seal = c.poly([(19, 19), (24.5, 18.5), (25, 24), (19.5, 24.5)])
+    smear = c.poly([(19.3, 21), (19.6, 24.4), (17, 25.6), (16.6, 24.2)])
+    c.put(smear & erode4(m), R['seal'], 'flat', base=1)
+    c.put(seal & erode4(m), R['seal'], 'flat', base=1)
+    c.put(S.outline_only(erode4(seal)) & erode4(m), R['seal'], 'flat', base=2)
+    c.put(c.rect(21, 21, 22, 21) | c.rect(22, 22, 22, 22), R['seal'], 'flat', base=0)
+    c.outline()
+    return c
+
+
+def black_ledger():
+    """Elder Gu's Black Ledger, stitched back together: black lacquer, a thick page block, a red cord."""
+    c = Canvas(32)
+    back = c.rect(7, 7, 27, 28)
+    c.put(back, LACQUER, 'flat', base=1)
+    pages = c.rect(6, 6, 26, 27)
+    c.put(pages, R['paper'], 'flat', base=2, sep=True, sep_col=R['paper'][0])
+    for y in range(8, 27, 2):
+        c.put(c.rect(24, y, 26, y) & pages, R['paper'][1], 'flat', only_on=True)
+    for x in range(8, 26, 2):
+        c.put(c.rect(x, 25, x, 27) & pages, R['paper'][1], 'flat', only_on=True)
+    # loose pages working out of the block
+    loose = (c.poly([(23, 9), (29.5, 10.5), (29, 13), (23, 12)]) | c.poly([(23, 20), (29, 22.5), (28, 24.5), (23, 22)])
+             | c.poly([(10, 26), (17, 26.5), (16.5, 29.5), (9.5, 29)]))
+    c.put(loose & ~c.a, R['paper'], 'flat', base=3, sep=True, sep_col=R['paper'][0])
+    cover = c.rect(4, 4, 23, 24)
+    c.put(cover, LACQUER, 'bevel', base=2, sep=True)
+    c.put(c.rect(4, 4, 6, 24), LACQUER, 'flat', base=1)
+    for y in (6, 10, 14, 18, 22):
+        c.put(c.rect(4, y, 6, y), R['bone'], 'flat', base=2)
+    # lacquer gloss
+    c.put(c.bres(9, 21, 12, 18) | c.bres(20, 9, 21, 8), LACQUER, 'flat', base=3)
+    # the split across the cover, sewn shut with cross stitches
+    crack = c.bres_path([(17, 4), (15, 7), (18, 10), (15, 13)])
+    c.put(move(crack, -1, 0) & ~crack & c.rect(7, 4, 23, 24), LACQUER, 'flat', base=3)
+    c.put(crack, LACQUER, 'flat', base=0)
+    for (x, y) in ((16, 6), (16, 11)):
+        st = c.pts([(x - 1, y - 1), (x + 1, y + 1), (x + 1, y - 1), (x - 1, y + 1), (x, y)])
+        c.put(st, R['hemp'], 'flat', base=3)
+    # gold corner caps on the open side
+    for pts in ([(20, 4), (23.9, 4), (23.9, 8)], [(23.9, 20.5), (23.9, 24.9), (20, 24.9)]):
+        c.put(c.poly(pts), R['gold'], 'flat', base=3, sep=True)
+    # red cord round the book, knotted, the ends hanging free
+    cord = c.rect(4, 16, 26, 17)
+    c.put(cord, R['red'], 'flat', base=2)
+    c.put(c.rect(4, 16, 26, 16), R['red'], 'flat', base=3)
+    ends = S.bez_line(c, (18, 18), (20, 23), (24, 27)) | S.bez_line(c, (17, 18), (15, 24), (17, 29))
+    c.put(ends, R['red'], 'flat', base=2)
+    knot = c.circle(17.5, 16.5, 2.0)
+    c.put(knot, R['red'], 'sphere', sep=True)
+    c.put(c.rect(4, 4, 5, 4) | c.rect(4, 5, 4, 5), LACQUER[4], 'flat')
+    c.outline()
+    return c
+
+
+# ---------------------------------------------------------------------------- star charts
+def _star_chart(end, cord):
+    """Half-open star chart: an indigo sky with a dotted route between stars, rolled up on the right."""
+    c = Canvas(32)
+    sheet = c.rect(4, 7, 22, 25)
+    c.put(sheet, STARPAPER, 'bevel', base=3)
+    field = c.rect(5, 9, 21, 23)
+    c.put(field, SKY_INK, 'vgrad', base=2, bands=((0.3, 0), (0.7, -1), (9, -1)))
+    # free edge curling up on the left
+    c.put(c.rect(3, 6, 4, 26), STARPAPER, 'hgrad', base=3, sep=True, sep_col=STARPAPER[1])
+    # the rolled part
+    roll = c.rect(21, 4, 27, 28)
+    c.put(roll, STARPAPER, 'hgrad', base=2, sep=True, sep_col=STARPAPER[0],
+          bands=((0.25, 0), (0.5, 1), (0.8, 0), (9, -1)))
+    cap = c.ellipse(24.5, 4.5, 3.4, 1.8)
+    c.put(cap, STARPAPER, 'flat', base=3, sep=True, sep_col=STARPAPER[1])
+    c.put(c.ellipse(24.5, 4.5, 1.6, 0.8), STARPAPER, 'flat', base=1)
+    if end == 'wreck':
+        route = [(7, 21), (11, 18), (15, 20), (18, 16)]
+        ex, ey, into = 13, 12, (15, 14)
+    else:
+        route = [(7, 21), (10, 17), (14, 19), (13, 14)]
+        ex, ey, into = 17, 12, (16, 13)
+    pts = route + [into]
+    dots = c.empty()
+    for a, b in zip(pts, pts[1:]):
+        dots |= c.bres(a[0], a[1], b[0], b[1])
+    c.put(dots & ((c.xi + c.yi) % 2 == 0) & field, R['gold'], 'flat', base=3)
+    for (x, y) in route:
+        _star(c, x, y)
+    if end == 'wreck':
+        # a broken ship: hull snapped in a V, the mast knocked askew
+        ship = ['.....#..',
+                '......#.',
+                '....#...',
+                '#...#..#',
+                '####.###',
+                '.###.##.']
+        m = c.from_rows(ship, ex - 4, ey - 3)
+        c.put(m, R['bone'], 'flat', base=3)
+        c.put(m & (c.yi >= ey + 1), R['bone'], 'flat', base=2)
+    else:
+        # a cluster of warm lanterns hanging in the dark
+        for (x, y) in ((ex - 3, ey), (ex, ey - 2), (ex + 2, ey + 1), (ex - 1, ey + 3)):
+            c.put(c.rect(x, y - 1, x, y - 1), SKY_INK[3], 'flat')
+            c.put(c.rect(x - 1, y, x, y + 1), R['fire'], 'flat', base=2)
+            c.put(c.rect(x - 1, y, x - 1, y), R['fire'], 'flat', base=4)
+    # cord tied round the roll, one end hanging with a bead
+    band = c.rect(21, 15, 27, 16)
+    c.put(band, cord, 'flat', base=2)
+    c.put(c.rect(21, 15, 27, 15), cord, 'flat', base=3)
+    tail = S.bez_line(c, (27, 16), (29.5, 20), (28.5, 25))
+    c.put(tail & ~roll, cord, 'flat', base=2)
+    c.put(c.circle(28.5, 26.5, 1.4), cord, 'sphere', base=2, sep=True)
+    c.outline()
+    return c
+
+
+# ---------------------------------------------------------------------------- vessels
+def _batten_sail(c, pts, cloth, batten, n):
+    """Junk sail: n battens split it into panels; each panel bellies (light at the top, shaded below)."""
+    sail = c.poly(pts)
+    c.put(sail, cloth, 'flat', base=2, sep=True)
+    ys = c.yi[sail]
+    y0, y1 = ys.min(), ys.max()
+    rows = [int(round(y0 + (y1 - y0) * k / (n + 1.0))) for k in range(1, n + 1)]
+    edges = [y0 - 1] + rows + [y1 + 1]
+    for a, b in zip(edges, edges[1:]):
+        panel = sail & (c.yi > a) & (c.yi < b)
+        c.put(panel, cloth, 'vgrad', base=3, bands=((0.4, 1), (0.75, 0), (9, -1)))
+    for y in rows:
+        c.put(sail & (c.yi == y), batten, 'flat', base=1)
+    return sail
+
+
+def cloud_skiff():
+    """The player's cloud skiff: a low jade-banded hull with a painted eye, a mat canopy, one batten sail,
+    a jade ward-lantern hung from a crook at the bow, and a cushion of Qi mist under the keel."""
+    from families.beast_parts import halo
+    c = Canvas(32)
+    mist = c.ellipse(9.5, 26.5, 4.2, 2.2) | c.ellipse(15.5, 27.2, 5, 2.3) | c.ellipse(21.5, 26.5, 4.2, 2.2)
+    c.put(mist, QI_MIST, 'ray', base=3)
+    mast = c.rect(14, 2, 14, 19)
+    c.put(mast, R['wood'], 'flat', base=3)
+    _batten_sail(c, [(8.5, 5), (17, 3.5), (20.5, 8.5), (21.8, 18), (9.5, 18)], R['hemp'], R['darkwood'], 4)
+    c.put(c.poly([(14.5, 2), (18.5, 2.8), (14.5, 4)]) & ~c.a, R['jade'], 'flat', base=3)
+    # woven-mat canopy over the stern
+    can = c.ellipse(7.5, 18.5, 3.6, 3.2) & (c.Y < 18.5)
+    c.put(can, R['straw'], 'ray', base=2, sep=True)
+    c.put(can & (c.xi % 2 == 0) & erode4(can), R['straw'][1], 'flat', out=R['straw'].out)
+    hull = c.poly([(3.5, 16.5), (8, 19), (23, 19), (27, 16), (25.5, 21.5), (21, 25), (9, 25), (6, 22)])
+    c.put(hull, R['wood'], 'ray', base=2, sep=True)
+    c.put(c.rect(4, 19, 26, 19) & hull, R['wood'], 'flat', base=4)
+    band = c.rect(5, 20, 26, 20) & hull
+    c.put(band, R['jade'], 'flat', base=1)
+    c.put(band & (c.xi % 4 == 1), R['gold'], 'flat', base=3)
+    # the painted eye on the bow
+    c.put(c.rect(21, 22, 23, 23) | c.rect(20, 23, 20, 23), R['paper'], 'flat', base=4)
+    c.put(c.rect(22, 22, 22, 23), R['ink'], 'flat', base=0)
+    # the ward-lantern on its crook
+    crook = c.bres_path([(25, 16), (25, 11), (26, 9), (28, 9)])
+    c.put(crook, R['wood'], 'flat', base=3)
+    lan = c.rect(27, 11, 28, 13)
+    c.put(lan, R['jade'], 'flat', base=4, sep=True)
+    c.put(c.rect(27, 10, 28, 10) | c.rect(27, 14, 28, 14), R['bronze'], 'flat', base=3)
+    c.outline()
+    halo(c, lan, '#67D6BD', (110,))
+    return c
+
+
+def storm_sloop():
+    """A two-sail storm sloop: long dark hull on a comet-iron keel, two batten sails, a formation-ward ring."""
+    c = Canvas(32)
+    mast1, mast2 = c.bres(11, 19, 9, 5), c.bres(20, 19, 17, 4)
+    c.put(mast1 | mast2, R['darkwood'], 'flat', base=3)
+    _batten_sail(c, [(4.5, 7.5), (10, 5.5), (12.5, 11), (13.5, 18), (5.5, 18)], R['sky'], R['storm'], 3)
+    _batten_sail(c, [(13, 5.5), (18, 3.5), (23.5, 8.5), (26.5, 18), (14.5, 18)], R['sky'], R['storm'], 4)
+    pen = c.poly([(17, 3), (22, 3.6), (17, 5)])
+    c.put(pen & ~c.a, R['cyan'], 'flat', base=3)
+    hull = c.poly([(3, 17), (6, 19), (26, 19), (29.5, 16.5), (26.5, 22), (7.5, 22), (4.5, 20)])
+    c.put(hull, R['navy'], 'ray', base=2, sep=True)
+    c.put(c.rect(3, 19, 29, 19) & hull, R['gold'], 'flat', base=3)
+    keel = c.poly([(6, 22), (27.5, 22), (25, 24), (9, 24)])
+    c.put(keel, R['cometiron'], 'ray', base=3, sep=True)
+    c.outline()
+    ring = c.ring(16, 20.5, 13.9, 1.0, 5.2)
+    _faint(c, ring, WARD_GLOW, 140)
+    nodes = c.pts([(2, 20), (29, 20), (8, 25), (23, 25)])
+    _faint(c, dilate4(nodes) & ring | nodes, R['cyan'][4], 230)
+    c.glow(WARD_GLOW, (45,))
+    return c
+
+
+# ---------------------------------------------------------------------------- elder tokens
+def _elder_token(body, cord, face):
+    """An Elder's token: the sect disc with a gold rim, a gold crest mark and an elder's knot tassel."""
+    c = Canvas(32)
+    cx, cy, r = 16, 15.0, 9.0
+    loop = c.ring(cx, 3.8, 2.3, 1.1) & (c.Y < 6)
+    c.put(loop, cord, 'flat', base=2)
+    disc = c.circle(cx, cy, r)
+    # elder's knot and tassel below the disc
+    knot = S.diamond(c, cx, 25.4, 2.9, 2.7) | c.circle(cx - 3, 25.4, 1.3) | c.circle(cx + 3, 25.4, 1.3)
+    c.put(knot, cord, 'ray', base=2)
+    c.put(knot & ((c.xi + c.yi) % 2 == 0) & erode4(knot), cord, 'flat', base=1)
+    tas = c.poly([(cx - 1.5, 28), (cx + 1.5, 28), (cx + 3, 31), (cx - 3, 31)])
+    c.put(tas, cord, 'ray', base=2, sep=True)
+    c.put(c.rect(cx - 2, 27, cx + 1, 28), R['gold'], 'flat', base=3, sep=True)
+    c.put(disc, body, 'ray', base=2, sep=True)
+    rim = c.ring(cx, cy, r, 1.5)
+    c.put(rim, R['gold'], 'ray', base=2)
+    inner = erode4(erode4(disc))
+    face(c, cx, cy, inner)
+    # the elder's mark: a small gold crown crest where the cord meets the disc
+    crest = c.from_rows(['#.##.#', '######', '.####.'], cx - 3, 5)
+    c.put(crest, R['gold'], 'vgrad', base=3, sep=True)
+    bead = c.circle(cx, 1.8, 1.2)
+    c.put(bead, R['gold'], 'sphere', sep=True)
+    c.outline()
+    c.glow('#E5B84C', (45,))
+    return c
+
+
+def _jade_face(c, cx, cy, inner):
+    hole = c.circle(cx, cy, 2.2)
+    c.put(c.ring(cx, cy, 5.8, 1.2), R['jade'][4], 'flat', only_on=True, clip=inner)
+    c.put(dilate4(hole) & ~hole, R['jade'][1], 'flat', only_on=True)
+    c.erase(hole)
+    for k in range(4):
+        a = math.pi / 4 + k * math.pi / 2
+        c.put(c.circle(cx + math.cos(a) * 4.0, cy + math.sin(a) * 4.0, 0.9), R['gold'], 'flat', base=3, only_on=True)
+
+
+def _cloud_face(c, cx, cy, inner):
+    oy = cy - 16.5
+    cl = (c.ellipse(12.5, 18 + oy, 3.2, 2.6) | c.ellipse(17, 15.5 + oy, 4, 3.6) | c.ellipse(20.5, 18.5 + oy, 3, 2.4)
+          | c.rect(11, int(18 + oy), 22, int(20 + oy)))
+    c.put(cl & inner, R['sky'], 'ray', base=2)
+    c.put(c.arc(17, 15.5 + oy, 2.2, 1, 90, 300) & inner, R['sky'][4], 'flat', out=R['sky'].out)
+
+
+def jade_elder_token():
+    return _elder_token(R['jade'], R['red'], _jade_face)
+
+
+def cloud_elder_token():
+    return _elder_token(R['porcelain'], R['sky'], _cloud_face)
+
+
+for _id, _fn in (('star_reading', star_reading), ('sky_ink', sky_ink), ('ledger_page', ledger_page),
+                 ('black_ledger', black_ledger), ('star_chart_wreck', lambda: _star_chart('wreck', R['jade'])),
+                 ('star_chart_lantern', lambda: _star_chart('lantern', R['gold'])),
+                 ('cloud_skiff', cloud_skiff), ('storm_sloop', storm_sloop),
+                 ('jade_elder_token', jade_elder_token), ('cloud_elder_token', cloud_elder_token)):
     register(FAM, _id, _fn, GROUP)

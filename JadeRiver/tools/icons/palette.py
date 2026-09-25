@@ -93,6 +93,8 @@ _r('earth',     ['#36220F', '#5C3A18', '#8C5E2A', '#BC8A48', '#E2BB78'], '#170E0
 _r('mud',       ['#2A2016', '#46362A', '#665240', '#8C765E', '#B39E84'], '#110C08')
 _r('wax',       ['#5C5140', '#9A8A66', '#D8C79A', '#F0E4BE', '#FFFBEA'], '#262116')
 _r('cyan',      ['#0B3B52', '#166E8C', '#32BED1', '#8AEBEE', '#E2FFFB'], '#05202D')
+# Act II · Starsea: comet iron, a pale blue-grey metal (ingot and the storm sloop's keel)
+_r('cometiron', ['#2C3A4E', '#52667E', '#8FA3BA', '#CAD8E6', '#F4FAFF'], '#111A26')
 
 # Weapon / armour grade material sets --------------------------------------------
 _r('jadeiron',  ['#132B26', '#21483E', '#377061', '#5FA38A', '#A8DCC0'], '#08140F')

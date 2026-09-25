@@ -417,3 +417,32 @@ def sunglass_ore():
 register(FAM, 'terracotta_shard', terracotta_shard, GROUP)
 register(FAM, 'sunglass_ore', sunglass_ore, GROUP)
 
+
+
+# ----------------------------------------------------------------------------- Act II · Starsea
+COMET_GLOW = '#BFE6FF'
+
+
+def comet_iron():
+    """A bar of comet iron: pale blue-grey metal with a bright comet streak along it; it rings."""
+    c = Canvas(32)
+    ramp = R['cometiron']
+    end = c.poly([(23, 12.5), (26, 7), (28, 18.5), (25, 24.5)])
+    c.put(end, ramp, 'flat', base=1)
+    front = c.poly([(6, 12.5), (23, 12.5), (25, 24.5), (4, 24.5)])
+    c.put(front, ramp, 'ray', base=2, sep=True, sep_col=ramp[0])
+    top = c.poly([(9, 7), (26, 7), (23, 12.5), (6, 12.5)])
+    c.put(top, ramp, 'bevel', base=3, sep=True, sep_col=ramp[1])
+    c.put(c.rect(7, 12, 22, 12), ramp[4], 'flat', out=ramp.out)
+    # the comet: a white head near the right end, its tail streaming back along the bar
+    tail = S.taper_curve(c, (5, 22.5), (12, 20.5), (21, 17), 0.9, 3.2)
+    c.put(tail & erode4(front), '#7FC4EA', 'flat', out=ramp.out)
+    c.put(S.taper_curve(c, (9, 21.5), (14, 19.6), (21, 17), 0.7, 2.1) & erode4(front), '#BFE9FF', 'flat', out=ramp.out)
+    c.put(c.rect(19, 16, 22, 17) & front, '#FFFFFF', 'flat', out=ramp.out)
+    c.outline()
+    c.glow(COMET_GLOW, (70, 30))
+    S.sparkle(c, 22, 16, '#FFFFFF', '#BFE9FF', 1)
+    return c
+
+
+register(FAM, 'comet_iron', comet_iron, GROUP)

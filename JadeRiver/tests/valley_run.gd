@@ -1915,7 +1915,7 @@ func sec_ae6() -> void:
 	check(c().stats.value("max_hp") >= hp0, "Blood Dao tiers add their modifiers")
 	# What the Bones Say: shards of the Terracotta Wardens.
 	check(start("what_the_bones_say"), "What the Bones Say accepted")
-	for i in 8:
+	for i in 20:   # about one kill in three leaves a shard: keep at it, as a player would
 		if c().inventory.count("terracotta_shard") >= 3: break
 		if travel("ts_hall_of_sand_kings"): fight("terracotta_warden", 2, 300.0, 0.3)
 		revive_if_needed()
