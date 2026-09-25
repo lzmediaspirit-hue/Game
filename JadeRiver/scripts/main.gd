@@ -162,7 +162,8 @@ func _handle_preview_args(user_args: Array) -> void:
 	for a in user_args:
 		if str(a).begins_with("--open-page="):
 			await get_tree().create_timer(0.8).timeout
-			open_page(str(a).trim_prefix("--open-page="), {})
+			var spec := str(a).trim_prefix("--open-page=").split(":")
+			open_page(spec[0], {"tab": spec[1]} if spec.size() > 1 else {})
 		if str(a).begins_with("--talk="):
 			await get_tree().create_timer(0.8).timeout
 			var r := Game.submit({"type": "talk", "npc": str(a).trim_prefix("--talk=")})

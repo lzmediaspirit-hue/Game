@@ -97,7 +97,7 @@ func _foundation(ch) -> void:
 		btn(Rect2(r.position.x + 850, y + 2, 120, 44), "+1", "meridian", k, true, cu.unspent_meridian_points > 0, Tx.t("ui.cultivation.no_points_to_spend"))
 		y += 64
 	var free := not ProgressionRules.at_least(cu.realm_key, "qi_unfurling_1")
-	btn(Rect2(r.position.x + 24, r.end.y - 70, 300, 52), Tx.t("ui.cultivation.reset_free") if free else Tx.t("ui.cultivation.reset_meridian_reversal_pill"), "reset_meridians")
+	btn(Rect2(r.position.x + 24, r.end.y - 70, 420, 52), Tx.t("ui.cultivation.reset_free") if free else Tx.t("ui.cultivation.reset_meridian_reversal_pill"), "reset_meridians")
 
 func _methods(ch) -> void:
 	var cu: CultivatorState = ch.cultivator

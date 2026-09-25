@@ -88,6 +88,9 @@ func quest_def(c, id: String) -> Dictionary:
 	var d := ContentDB.entry("quests", id)
 	if d.is_empty() and c != null and c.quests.daily.has(id): d = c.quests.daily[id]
 	if d.is_empty() and c != null and c.quests.active.has(id): d = c.quests.active[id].get("def", {})
+	# Finished generated missions keep no definition: name them by their kind.
+	if d.is_empty() and id.begins_with("weekly_"): d = {"id": id, "kind": "weekly", "name": str(ContentDB.config("weekly_mission").get("name", id))}
+	if d.is_empty() and id.begins_with("daily_"): d = {"id": id, "kind": "daily", "name": Tx.t("sim.quest.daily_sect_mission")}
 	return d
 
 # ------------------------------------------------------------------ offers and markers

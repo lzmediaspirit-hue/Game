@@ -42,6 +42,11 @@ func slot_locked(slot: String) -> String:
 		"talisman": return "" if Unlocks.is_unlocked(ch.id, "spirit_sense") else Tx.t("ui.inventory.soul_talisman_slot_opens_at")
 	return ""
 
+func _process(delta: float) -> void:
+	super._process(delta)
+	# The paper doll belongs to the Spirit Gourd tab only.
+	if is_instance_valid(doll): doll.visible = str(tabs[tab].id) == "bag"
+
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return

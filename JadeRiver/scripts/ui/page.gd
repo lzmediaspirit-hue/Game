@@ -47,10 +47,11 @@ func _exit_tree() -> void:
 
 func open(a: Dictionary) -> void:
 	args = a
+	setup()
+	# After setup: some pages build their tabs there (crafts, workshop).
 	if a.has("tab"):
 		for i in tabs.size():
 			if str(tabs[i].id) == str(a.tab): tab = i
-	setup()
 	queue_redraw()
 
 ## Virtual hooks.

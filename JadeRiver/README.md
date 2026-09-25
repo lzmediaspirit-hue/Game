@@ -94,7 +94,7 @@ godot --path . -- --preview-world --room=lf_village --talk=washer_mei --shot=nam
 ```
 
 `--preview-world` enters with a preview character, `--room=` starts in a room, `--unlock-all` opens
-every system, `--debug-sect` gives a founded sect with all buildings, `--fly` takes off, `--ride` mounts a crane, `--give=item[:count[:quality]]` fills the bag, `--at=x,y` starts at a point in the room, `--open-page=<id>` and
+every system, `--debug-sect` gives a founded sect with all buildings, `--fly` takes off, `--ride` mounts a crane, `--give=item[:count[:quality]]` fills the bag, `--at=x,y` starts at a point in the room, `--open-page=<id>[:tab]` and
 `--talk=<npc>` open UI, `--log-events` prints the event stream, `--capture` saves `../<shot>-preview.png`.
 
 ## Art and credits

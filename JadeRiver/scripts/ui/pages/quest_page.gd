@@ -93,7 +93,9 @@ func draw_page() -> void:
 		y += 28
 	y += 12
 	var rewards: Array = d2.get("rewards", [])
-	if not rewards.is_empty():
+	var lines := _reward_lines(d2)
+	var has_row := rewards.any(func(r): return str(r.get("kind", "")) in ["grant_item", "grant_currency"])
+	if has_row or not lines.is_empty():
 		text(Vector2(right.position.x + 24, y + 20), Tx.t("ui.quest.rewards"), 19, UiKit.GOLD)
 		var x := right.position.x + 24
 		for r in rewards:
@@ -102,10 +104,31 @@ func draw_page() -> void:
 				x += 58
 			elif r.get("kind", "") == "grant_currency":
 				x += currency_pill(Vector2(x, y + 40), str(r.currency), int(r.amount)) + 8
+		var ly := y + (92 if has_row else 30)
+		for line in lines:
+			if ly > right.end.y - 90: break
+			text(Vector2(right.position.x + 24, ly + 18), fit("· " + str(line), 17, right.size.x - 48), 17, UiKit.PALE_GOLD)
+			ly += 24
 	if ch.quests.is_active(sel):
 		btn(Rect2(right.position.x + 24, right.end.y - 70, 200, 52), Tx.t("ui.quest.untrack") if ch.quests.tracked.has(sel) else Tx.t("ui.quest.track"), "track", sel)
 		if str(d2.get("kind", "")) in ["side", "daily"]:
 			btn(Rect2(right.end.x - 224, right.end.y - 70, 200, 52), Tx.t("ui.quest.abandon"), "abandon", sel)
+
+## Rewards that are not items: what is learned or earned, and the realm-progress share (S29).
+func _reward_lines(d: Dictionary) -> Array:
+	var out: Array = []
+	for r in d.get("rewards", []):
+		match str(r.get("kind", "")):
+			"learn_technique": out.append(Tx.t("ui.quest.reward_technique") % ContentDB.name_of("techniques", str(r.technique)))
+			"learn_recipe": out.append(Tx.t("ui.quest.reward_recipe") % ContentDB.name_of("recipes", str(r.recipe)))
+			"learn_method": out.append(Tx.t("ui.quest.reward_method") % ContentDB.name_of("methods", str(r.method)))
+			"learn_secret_art": out.append(Tx.t("ui.quest.reward_secret_art") % ContentDB.name_of("secret_arts", str(r.art)))
+			"grant_title": out.append(Tx.t("ui.quest.reward_title") % ContentDB.name_of("titles", str(r.title)))
+			"sect_rank": out.append(Tx.t("ui.quest.reward_rank") % str(r.rank).replace("_", " ").capitalize())
+			"add_contribution": out.append(Tx.t("ui.quest.reward_contribution") % int(r.amount))
+	var pct := float(ContentDB.curve("quest_qp_pct.%s" % str(d.get("kind", "side")), 0.0))
+	if pct > 0.0: out.append(Tx.t("ui.quest.reward_progress") % int(round(pct * 100.0)))
+	return out
 
 func on_action(id: String, data) -> void:
 	match id:
