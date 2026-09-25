@@ -7,12 +7,15 @@ var sel := -1
 func _init() -> void:
 	title = "Mail"
 
+## Open on the newest letter, so the page never starts with an empty reading pane.
+func setup() -> void:
+	var mails: Array = Game.mail.visible(c())
+	if not mails.is_empty(): on_action("sel", int(mails[0].id))
+
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
-	var mails: Array = Game.mail.visible(ch)
-	mails = mails.duplicate()
-	mails.reverse()
+	var mails: Array = Game.mail.visible(ch)   # newest first
 	var left := Rect2(content.position.x, content.position.y, 440, content.size.y - 70)
 	panel(left)
 	if mails.is_empty(): text(left.position + Vector2(0, 70), "No letters.", 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, left.size.x)

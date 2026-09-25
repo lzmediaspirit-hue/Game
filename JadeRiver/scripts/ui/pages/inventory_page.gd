@@ -5,8 +5,8 @@ extends Page
 const Avatar = preload("res://scripts/avatar.gd")
 const SLOT_POS := {"hat": Vector2(0, 0), "robe": Vector2(0, 1), "trousers": Vector2(0, 2), "boots": Vector2(0, 3),
 	"weapon": Vector2(1, 0), "gourd": Vector2(1, 1), "cape": Vector2(1, 2), "talisman": Vector2(1, 3)}
-const SLOT_LABEL := {"weapon": "Weapon", "hat": "Hat", "robe": "Robe", "trousers": "Trousers", "boots": "Boots", "gourd": "Spirit Gourd",
-	"cape": "Cape", "talisman": "Soul Talisman"}
+const SLOT_LABEL := {"weapon": "Weapon", "hat": "Hat", "robe": "Robe", "trousers": "Trousers", "boots": "Boots", "gourd": "Gourd",
+	"cape": "Cape", "talisman": "Talisman"}
 
 var sel := {}          # {"bag": index} | {"slot": name} | {"key": index}
 var doll: Node2D
@@ -91,7 +91,7 @@ func draw_page() -> void:
 			var k: Dictionary = inv.key_items[i]
 			slot_box(Rect2(rr.position, Vector2(64, 64)), str(k.id), int(k.get("count", 1)), "", "key", i, int(sel.get("key", -1)) == i)
 			text(rr.position + Vector2(80, 28), ContentDB.item_name(str(k.id)), 21, UiKit.PAPER)
-			text(rr.position + Vector2(80, 54), str(ContentDB.item(str(k.id)).get("desc", "")).left(70), 16, UiKit.MIST)
+			text(rr.position + Vector2(80, 54), fit(str(ContentDB.item(str(k.id)).get("desc", "")), 16, rr.size.x - 96), 16, UiKit.MIST)
 			region(rr, "key", i)
 		)
 		if inv.key_items.is_empty(): text(r.position + Vector2(0, 80), "No key items.", 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)

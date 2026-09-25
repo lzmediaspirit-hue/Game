@@ -69,7 +69,7 @@ tools/run_tests.sh                 # Linux/macOS (GODOT=/path/to/godot)
 | Suite | What it proves |
 |---|---|
 | `engine_tests` | Movement, avatar, surfaces, saves (3,660 checks) |
-| `data_validation` | Every ID resolves, known effect and requirement kinds, appearances and dyes exist, every room reachable, portals link both ways, spawns on surfaces and clear of portals |
+| `data_validation` | Every ID resolves, known effect and requirement kinds, appearances, dyes and icons exist, every room reachable, portals link both ways, spawns on surfaces and clear of portals |
 | `rules_tests` | Formulas at the spec's sample values, same-seed replay, offline caps, no offline breakthroughs |
 | `prologue_run` | A scripted Prologue to Bone Forging 2 with the HUD reveal order |
 | `valley_run` | The whole of Act I from a new character to the Ascension Gate, through intents only (about a minute) |

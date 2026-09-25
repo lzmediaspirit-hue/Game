@@ -41,7 +41,7 @@ func draw_page() -> void:
 				text(rr.position + Vector2(20, 30), str(b.name), 20)
 				text(rr.position + Vector2(20, 54), "Level %d · needs sect level %d" % [lv, int(b.get("sect_level", 1))], 15, UiKit.MIST)
 				var cost: Dictionary = Game.sect.building_cost(str(b.id), lv + 1)
-				if not cost.is_empty(): text(rr.position + Vector2(360, 42), "%s taels" % UiKit.fmt(int(cost.get("taels", 0))), 16, UiKit.PALE_GOLD)
+				if not cost.is_empty(): text(rr.position + Vector2(360, 42), "%s taels%s" % [UiKit.fmt(int(cost.get("silver_tael", 0))), "".join((cost.get("materials", {}) as Dictionary).keys().map(func(m): return " · %d %s" % [int(cost.materials[m]), ContentDB.item_name(str(m))]))], 16, UiKit.PALE_GOLD)
 				btn(Rect2(rr.end.x - 170, rr.position.y + 8, 150, 48), "Build" if lv == 0 else "Upgrade", "upgrade", str(b.id))
 			)
 		"disciples":

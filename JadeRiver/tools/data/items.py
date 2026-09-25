@@ -137,7 +137,7 @@ def build_items():
                                    ("emberheart_sutra", "earth", "Emberheart Sutra", "A fire method: fast accumulation, hot temper. Ceiling Spirit Awakening 9."),
                                    ("tidal_sovereign_scripture", "heaven", "Tidal Sovereign Scripture", "The Jade Sect's core water method. Ceiling Sage Sovereign 3."),
                                    ("nine_winds_canon", "heaven", "Nine Winds Canon", "The Cloud Sect's core wind method. Ceiling Sage Sovereign 3.")]:
-        rows.append(item("manual_" + mid, "scroll", grade, 1, desc, name="%s (manual)" % name, icon="riverbreath_scroll",
+        rows.append(item("manual_" + mid, "scroll", grade, 1, desc, name="%s (manual)" % name,
                          use=[effect("learn_method", method=mid)]))
     for (sid, grade, low) in [("spirit_stone_low", "earth", 100), ("spirit_stone_mid", "heaven", 1000), ("spirit_stone_high", "mystic", 10000)]:
         rows.append(item(sid, "currency_item", grade, 99, "Crystallised Qi used as money and fuel.", value_override=low))
@@ -149,7 +149,7 @@ def build_items():
         rows.append(item(kid, "key", "plain", 1, desc, sell=False, quest_item=kid in ("kite", "smuggler_ledger")))
     for mid, tech, grade in [("mudwater_manual", "rising_tide", "common"), ("manual_rain_of_reeds", "rain_of_reeds", "earth"),
                              ("manual_ember_burst", "ember_burst", "earth")]:
-        rows.append(item(mid, "scroll", grade, 99, "A technique manual. Read it to learn %s." % titled(tech), icon="manual_page",
+        rows.append(item(mid, "scroll", grade, 99, "A technique manual. Read it to learn %s." % titled(tech),
                          use=[effect("learn_technique", technique=tech)]))
     rows.append(item("old_net", "other", "plain", 99, "A torn fishing net. Old Ma buys these.", value_override=40))
     rows.append(item("snapper_claw", "other", "common", 99, "Old Snapper's claw. Worth 40 taels to a trader.", value_override=40))
@@ -181,14 +181,14 @@ def build_items():
     for j, attr in [("body_jade", "body"), ("swift_jade", "agility"), ("essence_jade", "essence"), ("spirit_jade", "spirit"), ("insight_jade", "insight")]:
         rows.append(item(j, "jade", "common", 99, "A Qi jade for an inlay socket. +3/+6/+10 %s at Common/Earth/Heaven." % attr, jade={"attribute": attr, "values": [3, 6, 10]}))
     # Workshop goods (S16 appraisal, research, puppetry; formations and array plates).
-    rows.append(item("dusty_curio", "curio", "common", 99, "An old trinket of uncertain worth. Appraise it to learn what it really is.", icon="prayer_beads", value_override=15, use=[], use_action="appraise"))
-    rows.append(item("jade_trinket", "valuable", "common", 99, "A small carving of real river jade.", icon="jade_token", value_override=60))
-    rows.append(item("string_of_old_coins", "valuable", "plain", 99, "Coins from a dynasty nobody remembers. Still silver.", icon="coin", value_override=25))
-    rows.append(item("fake_jade", "valuable", "plain", 99, "Green glass. Half the valley's jade is glass.", icon="pebble_core", value_override=1))
-    rows.append(item("torn_manual", "scroll", "earth", 99, "A water-stained manual, half its characters gone. A librarian's bench can restore it.", icon="lu_journal_page", value_override=30))
-    rows.append(item("spirit_wood", "material", "common", 99, "Pale wood that holds a trace of Qi. Puppet frames are cut from it.", icon="bamboo_shoot"))
-    rows.append(item("puppet_core", "material", "earth", 99, "A carved jade heart that lets a puppet follow simple orders.", icon="jade_core"))
-    rows.append(item("array_plate", "formation", "earth", 20, "A portable one-use protection formation: +15% defence for two minutes.", icon="blank_plate",
+    rows.append(item("dusty_curio", "curio", "common", 99, "An old trinket of uncertain worth. Appraise it to learn what it really is.", value_override=15, use=[], use_action="appraise"))
+    rows.append(item("jade_trinket", "valuable", "common", 99, "A small carving of real river jade.", value_override=60))
+    rows.append(item("string_of_old_coins", "valuable", "plain", 99, "Coins from a dynasty nobody remembers. Still silver.", value_override=25))
+    rows.append(item("fake_jade", "valuable", "plain", 99, "Green glass. Half the valley's jade is glass.", value_override=1))
+    rows.append(item("torn_manual", "scroll", "earth", 99, "A water-stained manual, half its characters gone. A librarian's bench can restore it.", value_override=30))
+    rows.append(item("spirit_wood", "material", "common", 99, "Pale wood that holds a trace of Qi. Puppet frames are cut from it."))
+    rows.append(item("puppet_core", "material", "earth", 99, "A carved jade heart that lets a puppet follow simple orders."))
+    rows.append(item("array_plate", "formation", "earth", 20, "A portable one-use protection formation: +15% defence for two minutes.",
                      use=[{"kind": "add_modifier", "stat": "physical_defense", "op": "pct_add", "value": 0.15, "duration": 120, "source": "array_plate"}]))
     rows.extend(pills())
     rows.extend(foods())

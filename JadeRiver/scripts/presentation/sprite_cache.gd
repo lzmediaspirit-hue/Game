@@ -18,8 +18,11 @@ static func prop(id: String) -> Dictionary:
 static func creature(id: String) -> Dictionary:
 	return ContentDB.config("creature_art").get(id, {})
 
+## An item without its own drawing borrows the one named by its `icon` field.
 static func icon_path(id: String) -> String:
-	return str(ContentDB.config("icon_manifest").get(id, ""))
+	var manifest: Dictionary = ContentDB.config("icon_manifest")
+	if manifest.has(id): return str(manifest[id])
+	return str(manifest.get(str(ContentDB.item(id).get("icon", "")), ""))
 
 static func icon(id: String) -> Texture2D:
 	return tex(icon_path(id))

@@ -8,6 +8,7 @@ from families import tools  # noqa: F401
 from families import food  # noqa: F401
 from families import pills  # noqa: F401
 from families import jades  # noqa: F401
+from families import workshop  # noqa: F401
 from families import weapons  # noqa: F401
 from families import armour  # noqa: F401
 from families import techniques  # noqa: F401

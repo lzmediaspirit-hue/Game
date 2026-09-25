@@ -179,6 +179,14 @@ func data_suite() -> void:
 		for r3 in pr.get("results", []): check(item_ok(str(r3.item)), "profession %s result %s" % [pr.id, r3.item])
 		for b in pr.get("blueprints", []):
 			for inp in b.get("inputs", []) + b.get("yield", []): check(item_ok(str(inp.item)), "puppet %s: %s" % [b.id, inp.item])
+	# Every item and piece of equipment has a drawing (its own or the one its `icon` names).
+	for table in ["items", "artifacts"]:
+		for it in ContentDB.all(table):
+			var path := SpriteCache.icon_path(str(it.id))
+			check(path != "" and ResourceLoader.exists(path), "%s %s has an icon" % [table, it.id])
+	for tech in ContentDB.all("techniques"):
+		var tpath := SpriteCache.icon_path(str(tech.get("icon", tech.id)))
+		check(tpath != "" and ResourceLoader.exists(tpath), "technique %s has an icon" % tech.id)
 	# Dialogue trees
 	for tid in ContentDB.dialogue:
 		var tree: Dictionary = ContentDB.dialogue[tid]

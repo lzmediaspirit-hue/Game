@@ -646,7 +646,7 @@
    "grade": "earth",
    "ilv": 27,
    "stack": 1,
-   "icon": "riverbreath_scroll",
+   "icon": "manual_stonebody_canon",
    "desc": "An earth method: slow, heavy, the body grows with it. Ceiling Spirit Awakening 9.",
    "use": [
     {
@@ -662,7 +662,7 @@
    "grade": "earth",
    "ilv": 27,
    "stack": 1,
-   "icon": "riverbreath_scroll",
+   "icon": "manual_willow_breath_art",
    "desc": "A wood method that bends and returns. Ceiling Spirit Awakening 9.",
    "use": [
     {
@@ -678,7 +678,7 @@
    "grade": "earth",
    "ilv": 27,
    "stack": 1,
-   "icon": "riverbreath_scroll",
+   "icon": "manual_emberheart_sutra",
    "desc": "A fire method: fast accumulation, hot temper. Ceiling Spirit Awakening 9.",
    "use": [
     {
@@ -694,7 +694,7 @@
    "grade": "heaven",
    "ilv": 45,
    "stack": 1,
-   "icon": "riverbreath_scroll",
+   "icon": "manual_tidal_sovereign_scripture",
    "desc": "The Jade Sect's core water method. Ceiling Sage Sovereign 3.",
    "use": [
     {
@@ -710,7 +710,7 @@
    "grade": "heaven",
    "ilv": 45,
    "stack": 1,
-   "icon": "riverbreath_scroll",
+   "icon": "manual_nine_winds_canon",
    "desc": "The Cloud Sect's core wind method. Ceiling Sage Sovereign 3.",
    "use": [
     {
@@ -855,7 +855,7 @@
    "grade": "common",
    "ilv": 14,
    "stack": 99,
-   "icon": "manual_page",
+   "icon": "mudwater_manual",
    "desc": "A technique manual. Read it to learn Rising Tide.",
    "use": [
     {
@@ -871,7 +871,7 @@
    "grade": "earth",
    "ilv": 27,
    "stack": 99,
-   "icon": "manual_page",
+   "icon": "manual_rain_of_reeds",
    "desc": "A technique manual. Read it to learn Rain of Reeds.",
    "use": [
     {
@@ -887,7 +887,7 @@
    "grade": "earth",
    "ilv": 27,
    "stack": 99,
-   "icon": "manual_page",
+   "icon": "manual_ember_burst",
    "desc": "A technique manual. Read it to learn Ember Burst.",
    "use": [
     {
@@ -1447,7 +1447,7 @@
    "grade": "common",
    "ilv": 14,
    "stack": 99,
-   "icon": "prayer_beads",
+   "icon": "dusty_curio",
    "desc": "An old trinket of uncertain worth. Appraise it to learn what it really is.",
    "value_override": 15,
    "use": [],
@@ -1460,7 +1460,7 @@
    "grade": "common",
    "ilv": 14,
    "stack": 99,
-   "icon": "jade_token",
+   "icon": "jade_trinket",
    "desc": "A small carving of real river jade.",
    "value_override": 60
   },
@@ -1471,7 +1471,7 @@
    "grade": "plain",
    "ilv": 5,
    "stack": 99,
-   "icon": "coin",
+   "icon": "string_of_old_coins",
    "desc": "Coins from a dynasty nobody remembers. Still silver.",
    "value_override": 25
   },
@@ -1482,7 +1482,7 @@
    "grade": "plain",
    "ilv": 5,
    "stack": 99,
-   "icon": "pebble_core",
+   "icon": "fake_jade",
    "desc": "Green glass. Half the valley's jade is glass.",
    "value_override": 1
   },
@@ -1493,7 +1493,7 @@
    "grade": "earth",
    "ilv": 27,
    "stack": 99,
-   "icon": "lu_journal_page",
+   "icon": "torn_manual",
    "desc": "A water-stained manual, half its characters gone. A librarian's bench can restore it.",
    "value_override": 30
   },
@@ -1504,7 +1504,7 @@
    "grade": "common",
    "ilv": 14,
    "stack": 99,
-   "icon": "bamboo_shoot",
+   "icon": "spirit_wood",
    "desc": "Pale wood that holds a trace of Qi. Puppet frames are cut from it."
   },
   {
@@ -1514,7 +1514,7 @@
    "grade": "earth",
    "ilv": 27,
    "stack": 99,
-   "icon": "jade_core",
+   "icon": "puppet_core",
    "desc": "A carved jade heart that lets a puppet follow simple orders."
   },
   {
@@ -1524,7 +1524,7 @@
    "grade": "earth",
    "ilv": 27,
    "stack": 20,
-   "icon": "blank_plate",
+   "icon": "array_plate",
    "desc": "A portable one-use protection formation: +15% defence for two minutes.",
    "use": [
     {

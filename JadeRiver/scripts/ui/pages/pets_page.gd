@@ -13,11 +13,15 @@ func draw_page() -> void:
 	panel(left)
 	if ch.pets.is_empty():
 		para(Rect2(left.position + Vector2(20, 20), left.size - Vector2(40, 40)), "No spirit animals yet. Hermit Yao in the Reed Marsh looks after orphaned young ones.", 19, UiKit.MIST)
+	# Open on the active animal (or the first one) instead of an empty panel.
+	if not ch.pets.is_empty() and not ch.pets.any(func(p): return str(p.uid) == sel):
+		sel = ch.active_pet if ch.active_pet != "" else str(ch.pets[0].uid)
 	list("pets", left.grow(-10), ch.pets.size(), 70, func(i: int, rr: Rect2):
 		var p: Dictionary = ch.pets[i]
 		panel(rr, "minor_panel", "selected" if sel == str(p.uid) else "normal")
-		text(rr.position + Vector2(18, 30), str(p.name) + ("  ◆" if ch.active_pet == str(p.uid) else ""), 20)
-		text(rr.position + Vector2(18, 54), "%s · Lv %d · %s" % [ContentDB.name_of("pets", str(p.species)), int(p.level), str(p.role).capitalize()], 15, UiKit.MIST)
+		creature_at(Rect2(rr.position + Vector2(6, 4), Vector2(62, 60)), _art(p))
+		text(rr.position + Vector2(76, 30), str(p.name) + ("  ◆" if ch.active_pet == str(p.uid) else ""), 20)
+		text(rr.position + Vector2(76, 54), "%s · Lv %d · %s" % [ContentDB.name_of("pets", str(p.species)), int(p.level), str(p.role).capitalize()], 15, UiKit.MIST)
 		region(rr, "sel", str(p.uid))
 	)
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
@@ -27,7 +31,10 @@ func draw_page() -> void:
 		if str(p.uid) == sel: pet = p
 	if pet.is_empty(): return
 	var sp := ContentDB.entry("pets", str(pet.species))
-	heading(right.position + Vector2(24, 44), str(pet.name), right.size.x - 48)
+	var stage := Rect2(right.end.x - 230, right.position.y + 18, 206, 148)
+	draw_style_box(UiKit.style("slot"), stage)
+	creature_at(stage.grow_individual(-8, -8, -8, -14), _art(pet), "walk" if ch.active_pet == sel else "idle")
+	heading(right.position + Vector2(24, 44), str(pet.name), right.size.x - 290)
 	text(right.position + Vector2(24, 80), "%s · %s · %s" % [str(sp.get("name", "")), str(sp.get("element", "")).capitalize(), str(pet.get("stage", "hatchling")).capitalize()], 18, UiKit.MIST)
 	bar(Rect2(right.position.x + 24, right.position.y + 100, 400, 30), float(pet.get("bond", 0.0)) / 10.0, UiKit.RED, "Bond %.1f / 10" % float(pet.get("bond", 0.0)))
 	text(right.position + Vector2(24, 170), "Skills: " + ", ".join(sp.get("skills", [])), 16)
@@ -45,6 +52,9 @@ func draw_page() -> void:
 		slot_box(Rect2(x, y + 80, 60, 60), str(f), ch.inventory.count(str(f)), "", "feed", str(f))
 		x += 68
 	if not foods.is_empty(): text(Vector2(right.position.x + 24, y + 74), "Tap food to feed", 16, UiKit.MIST)
+
+func _art(p: Dictionary) -> String:
+	return str(ContentDB.entry("pets", str(p.species)).get("art", p.species))
 
 func on_action(id: String, data) -> void:
 	match id:

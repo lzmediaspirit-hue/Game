@@ -51,7 +51,7 @@ func draw_page() -> void:
 		icon_at(Rect2(rr.position + Vector2(12, 12), Vector2(64, 64)), tid)
 		text(rr.position + Vector2(92, 32), str(d.get("name", tid)), 22, UiKit.PAPER)
 		text(rr.position + Vector2(92, 56), "%s · %s · QI %d · %ds" % [str(d.get("family", "")).capitalize(), str(d.get("element", "none")).capitalize(), int(d.get("qi_cost", 0)), int(d.get("cooldown_s", 0))], 15, UiKit.MIST)
-		text(rr.position + Vector2(92, 80), str(d.get("desc", "")).left(90), 15, UiKit.PAPER)
+		text(rr.position + Vector2(92, 80), fit(str(d.get("desc", "")), 15, rr.size.x - 110), 15, UiKit.PAPER)
 		var tier := int(m.get("tier", 1))
 		bar(Rect2(rr.end.x - 330, rr.position.y + 14, 200, 26), float(m.get("points", 0.0)) / ProgressionRules.mastery_needed(tier), UiKit.GOLD, "Tier %d" % tier)
 		if tier >= 3 and tier < 6: btn(Rect2(rr.end.x - 120, rr.position.y + 10, 104, 40), "Rank up", "rank", tid)

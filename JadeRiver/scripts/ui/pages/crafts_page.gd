@@ -77,7 +77,7 @@ func draw_page() -> void:
 	var out2 := str(rec.outputs[0].item)
 	slot_box(Rect2(right.position + Vector2(24, 24), Vector2(72, 72)), out2, int(rec.outputs[0].count))
 	text(right.position + Vector2(110, 56), ContentDB.item_name(out2), 24, UiKit.grade_color(str(rec.get("grade", "plain"))))
-	text(right.position + Vector2(110, 84), str(ContentDB.item(out2).get("desc", "")).left(60), 16, UiKit.MIST)
+	text(right.position + Vector2(110, 84), fit(str(ContentDB.item(out2).get("desc", "")), 16, right.size.x - 130), 16, UiKit.MIST)
 	var y := right.position.y + 120
 	for inp in rec.inputs:
 		var have = ch.inventory.count(str(inp.item))

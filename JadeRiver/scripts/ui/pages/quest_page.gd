@@ -25,13 +25,31 @@ func ids_for(ch, which: String) -> Array:
 			if g2 == which and not ch.quests.is_active(q) and Game.quest.can_offer(ch, d): out.append(q)
 	return out
 
+## Between chapters the Main tab says what the story is waiting for.
+func _next_chapter(ch, left: Rect2) -> void:
+	for d in ContentDB.all("quests"):
+		var q := str(d.id)
+		if str(d.get("kind", "")) != "main" or ch.quests.done.has(q) or ch.quests.is_active(q): continue
+		var waits := true
+		for r in d.get("requires", {}).get("all", []):
+			if str(r.get("kind", "")) == "quest_done" and not ch.quests.done.has(str(r.get("quest", ""))): waits = false
+		if not waits: continue
+		var why := RequirementRules.first_failure_text(d.get("requires", {}), Game.ctx(ch))
+		var body := "Next chapter: %s" % str(d.get("name", q))
+		if why != "": body += "\n" + why
+		else: body += "\nThe river will call when it is time."
+		para(Rect2(left.position + Vector2(24, 100), Vector2(left.size.x - 48, 120)), body, 18, UiKit.MIST)
+		return
+
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
 	var ids := ids_for(ch, str(tabs[tab].id))
 	var left := Rect2(content.position.x, content.position.y, 440, content.size.y)
 	panel(left)
-	if ids.is_empty(): text(left.position + Vector2(0, 70), "Nothing here yet.", 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, left.size.x)
+	if ids.is_empty():
+		text(left.position + Vector2(0, 70), "Nothing here yet.", 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, left.size.x)
+		if str(tabs[tab].id) == "main": _next_chapter(ch, left)
 	list("q", left.grow(-10), ids.size(), 62, func(i: int, rr: Rect2):
 		var q := str(ids[i])
 		var d := Game.quest.quest_def(ch, q)

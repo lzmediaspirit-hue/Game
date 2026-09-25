@@ -540,6 +540,7 @@ func start_daily(force: bool) -> void:
 	var lv := ProgressionRules.level(c)
 	var made := 0
 	var guard := 0
+	var picked := {}   # mission name -> true: the board never lists the same job twice
 	while made < 5 and guard < 40 and not templates.is_empty():
 		guard += 1
 		var tpl: Dictionary = templates[rng.randi_range(0, templates.size() - 1)]
@@ -548,9 +549,12 @@ func start_daily(force: bool) -> void:
 		var fit: Array = options.filter(func(op): return lv >= int(op.get("min_level", 0)) and lv <= int(op.get("max_level", 999)))
 		if fit.is_empty(): continue
 		var op: Dictionary = fit[rng.randi_range(0, fit.size() - 1)]
+		var mname := str(op.get("name", tpl.get("name", "Sect Mission")))
+		if picked.has(mname): continue
+		picked[mname] = true
 		var id := "daily_%d_%d" % [Clock.reset_day(Clock.now_utc()), made]
 		var obj: Dictionary = op.objective.duplicate(true)
-		c.quests.daily[id] = {"id": id, "name": str(op.get("name", tpl.get("name", "Sect Mission"))), "kind": "daily", "objectives": [obj],
+		c.quests.daily[id] = {"id": id, "name": mname, "kind": "daily", "objectives": [obj],
 			"hand_in": "", "rewards": [{"kind": "add_contribution", "amount": int(ContentDB.curve("contribution.daily", 20))},
 			{"kind": "grant_currency", "currency": "silver_tael", "amount": 10 + lv * 3}], "qp": "daily", "auto_complete": true}
 		made += 1

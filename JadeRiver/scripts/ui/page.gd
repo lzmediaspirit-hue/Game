@@ -187,6 +187,13 @@ var _prev_regions: Array = []
 func text(pos: Vector2, s: String, size := 20, col := UiKit.PAPER, align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0, display := false) -> void:
 	UiKit.draw_text(self, s, pos, size, col, align, width, true, display)
 
+## `s` shortened with an ellipsis so it fits `width` at `size`.
+func fit(s: String, size: int, width: float) -> String:
+	if UiKit.text_width(s, size) <= width: return s
+	var n := s.length()
+	while n > 1 and UiKit.text_width(s.left(n) + "…", size) > width: n -= 1
+	return s.left(n).strip_edges() + "…"
+
 func heading(pos: Vector2, s: String, width := 400.0) -> void:
 	UiKit.draw_text(self, s, pos, 26, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, width, true, true)
 	draw_line(pos + Vector2(0, 8), pos + Vector2(minf(width, UiKit.text_width(s, 26, true) + 30), 8), UiKit.BRONZE, 2)
@@ -227,7 +234,7 @@ func bar(rect: Rect2, frac: float, col: Color, label := "") -> void:
 	draw_rect(inner, Color(0.02, 0.05, 0.06))
 	draw_rect(Rect2(inner.position, Vector2(inner.size.x * clampf(frac, 0.0, 1.0), inner.size.y)), col)
 	draw_rect(Rect2(inner.position, Vector2(inner.size.x * clampf(frac, 0.0, 1.0), 2)), col.lightened(0.35))
-	if label != "": text(rect.position + Vector2(0, rect.size.y * 0.5 + 7), label, 17, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+	if label != "": UiKit.draw_outlined(self, label, rect.position + Vector2(0, rect.size.y * 0.5 + 7), 17, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
 
 func panel(rect: Rect2, asset := "minor_panel", state := "normal") -> void:
 	draw_style_box(UiKit.style(asset, state), rect)
@@ -253,6 +260,37 @@ func slot_box(rect: Rect2, item_id: String, count := 0, quality := "", id := "",
 func icon_at(rect: Rect2, icon_id: String) -> void:
 	var tex := SpriteCache.icon(icon_id)
 	if tex: draw_texture_rect(tex, rect, false)
+
+## One creature-sheet frame fitted into `rect`, feet on its bottom edge. `action`
+## loops with the page clock. Returns false when the creature has no sheet.
+func creature_at(rect: Rect2, creature_id: String, action := "idle", modulate := Color.WHITE) -> bool:
+	var e := SpriteCache.creature(creature_id)
+	var texture: Texture2D = SpriteCache.tex(str(e.get("file", ""))) if not e.is_empty() else null
+	if texture == null: return false
+	var acts: Dictionary = e.get("actions", {})
+	var a: Dictionary = acts.get(action, acts.get("idle", {}))
+	var frames := maxi(1, int(a.get("frames", 1)))
+	var idx := int(t * float(a.get("fps", 6))) % frames
+	var cell := float(e.cell)
+	var row := int(a.get("row", 0))
+	# Fit the drawn pixels of the first frame (not the mostly empty cell), in half steps.
+	var used := _creature_bounds(creature_id, texture, Rect2i(0, row * int(cell), int(cell), int(cell)))
+	var s := minf(rect.size.x / maxf(1.0, used.size.x), rect.size.y / maxf(1.0, used.size.y))
+	s = floorf(s * 2.0) / 2.0 if s >= 1.0 else s
+	var origin := Vector2(rect.get_center().x - (used.position.x + used.size.x * 0.5) * s, rect.end.y - used.end.y * s)
+	var src := Rect2(idx * cell, row * cell, cell, cell)
+	draw_texture_rect_region(texture, Rect2(origin, Vector2(cell, cell) * s), src, modulate)
+	return true
+
+static var _bounds: Dictionary = {}
+
+static func _creature_bounds(key: String, texture: Texture2D, cell: Rect2i) -> Rect2:
+	var k := "%s:%d" % [key, cell.position.y]
+	if not _bounds.has(k):
+		var img := texture.get_image()
+		var r := img.get_region(cell).get_used_rect() if img else Rect2i()
+		_bounds[k] = Rect2(r) if r.size.x > 0 else Rect2(Vector2.ZERO, Vector2(cell.size))
+	return _bounds[k]
 
 func currency_pill(pos: Vector2, currency: String, amount: int) -> float:
 	var s := UiKit.fmt(amount)

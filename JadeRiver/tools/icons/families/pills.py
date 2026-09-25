@@ -130,6 +130,10 @@ PILLS = [
     ('soul_soothing_pill', 'heaven', 'eye', R['violet'], None),
     ('mind_lake_opening_pill', 'heaven', 'eye_gate', R['storm'], R['navy'][2]),
     ('sage_condensing_pill', 'mystic', 'knot', R['gold'], R['plum'][2]),
+    ('law_condensing_pill', 'mystic', 'law', R['storm'], R['plum'][2]),
+    ('law_touching_pill', 'mystic', 'eye_gate', R['silver'], R['plum'][2]),
+    ('monarch_condensing_pill', 'mystic', 'crown', R['gold'], R['red'][1]),
+    ('sigil_anchor_pill', 'mystic', 'anchor', R['red'], R['plum'][2]),
 ]
 
 for _id, _grade, _mark, _ramp, _ink in PILLS:

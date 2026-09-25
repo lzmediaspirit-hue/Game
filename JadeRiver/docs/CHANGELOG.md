@@ -36,6 +36,15 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
 - Human enemies and all NPCs use the layered avatar engine; shirts and trousers now come in ten baked dyes
   (every action and facing), so villagers, elders and sect robes look distinct. Equipment carries its dye.
 
+### Interface pass (from screenshots of a mid-game save)
+- Every item has its own icon: new thread-bound method manuals (cover and emblem by element), tied technique
+  scrolls, curios (the fake jade reads as glass), spirit wood, puppet core, array plate and the late-realm
+  pills. `data_validation` now checks that every item, piece of equipment and technique has an icon.
+- Spirit Animals, Codex and Mail open on an entry instead of an empty pane; pets and the bestiary draw the
+  creatures themselves (undiscovered ones as silhouettes); companions are drawn with the avatar engine.
+- Your Sect shows real build costs; long descriptions are trimmed to fit; bar labels are outlined; the Main
+  quest tab says which chapter comes next and what it waits for; the board never lists the same mission twice.
+
 ### Found and fixed by the scripted Act I run
 - Event spawns were wiped on room entry; stale companion uids could delete monsters; daily missions
   dropped four of five; the Hideout key, the library methods, the Sleeping Blade and the Siege had no

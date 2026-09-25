@@ -39,8 +39,9 @@ func _overview(ch) -> void:
 	var col := UiKit.GOLD if cu.state == "bottleneck" else UiKit.JADE
 	bar(Rect2(x, y, 470, 36), frac, col, "%s / %s QP" % [UiKit.fmt(cu.qp), UiKit.fmt(cu.need())])
 	y += 50
-	if cu.stored_qi > 0.0: text(Vector2(x, y + 20), "Stored Qi: %s / %s" % [UiKit.fmt(cu.stored_qi), UiKit.fmt(ProgressionRules.stored_qi_cap(ch))], 18, UiKit.QI)
-	y += 30
+	if cu.stored_qi > 0.0:
+		text(Vector2(x, y + 20), "Stored Qi: %s / %s" % [UiKit.fmt(cu.stored_qi), UiKit.fmt(ProgressionRules.stored_qi_cap(ch))], 18, UiKit.QI)
+		y += 30
 	var method := ProgressionRules.method(cu.method_id)
 	var rows := [["Method", ContentDB.name_of("methods", cu.method_id) if cu.method_id != "" else "None"],
 		["Energy", str(cu.energy_type).replace("_", " ").capitalize() if cu.energy_type != "none" else "Body only"],
@@ -50,10 +51,13 @@ func _overview(ch) -> void:
 		["Injuries", "None" if cu.injuries.is_empty() else ", ".join(cu.injuries.keys()).capitalize()]]
 	if cu.energy_type == "true_qi": rows.append(["Purity", "Grade %d" % cu.purity])
 	if method.is_empty() and cu.realm_key == "mortal": rows[0][1] = "Not yet learned"
+	# Rows share the space above the buttons (Purity joins them at Cloud Stride).
+	var step := minf(32.0, (left.end.y - 92.0 - y) / float(rows.size()))
+	var fs := 19 if step >= 28.0 else 17
 	for r in rows:
-		text(Vector2(x, y + 22), str(r[0]), 19, UiKit.MIST)
-		text(Vector2(x + 180, y + 22), str(r[1]), 19, UiKit.PAPER)
-		y += 32
+		text(Vector2(x, y + step * 0.7), str(r[0]), fs, UiKit.MIST)
+		text(Vector2(x + 180, y + step * 0.7), str(r[1]), fs, UiKit.PAPER)
+		y += step
 	var medit: bool = cu.meditating
 	btn(Rect2(x, left.end.y - 78, 220, 58), "Stop" if medit else "Meditate", "meditate", null, not medit, Unlocks.is_unlocked(ch.id, "cultivate"),
 		Unlocks.locked_text("cultivate"))
@@ -142,7 +146,7 @@ func _seclusion(ch) -> void:
 	panel(r)
 	var room: Dictionary = Game.room_rt.def if Game.room_rt else {}
 	var cap := Game.progression.seclusion_cap(room)
-	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 90)), "Choose what to cultivate while you are away. Gains accrue at 10% of active play for up to %d hours here (retreat rooms 16 h, gathering formations 24 h). Seclusion never breaks through for you." % int(cap), 19, UiKit.PAPER)
+	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 90)), "Choose what to cultivate while you are away. Gains accrue at 10%% of active play for up to %d hours here (retreat rooms 16 h, gathering formations 24 h). Seclusion never breaks through for you." % int(cap), 19, UiKit.PAPER)
 	var foci := [["accumulate", "Accumulate", "Realm progress", "seclusion"], ["temper_body", "Temper body", "Body training", "seclusion"],
 		["heal", "Heal", "Treat injuries", "seclusion"], ["contemplate", "Contemplate", "Dao insight", "insight_sites"],
 		["refine_qi", "Refine Qi", "Purity", "refine_qi"], ["nourish_soul", "Nourish soul", "Soul", "nourish_soul"]]
