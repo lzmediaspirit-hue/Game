@@ -348,5 +348,109 @@
         "bottom": 720
       }
     ]
+  },
+  "rimefrost": {
+    "sky": "#8AA2BD",
+    "horizon": "#E9EFF4",
+    "layers": [
+      {
+        "file": "res://art/backdrops/rimefrost_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/rimefrost_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/rimefrost_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/rimefrost_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "mirror_lake": {
+    "sky": "#5D6FA8",
+    "horizon": "#F6ECE2",
+    "layers": [
+      {
+        "file": "res://art/backdrops/mirror_lake_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/mirror_lake_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/mirror_lake_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/mirror_lake_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "gale_canyon": {
+    "sky": "#3F78B0",
+    "horizon": "#EFD9B6",
+    "layers": [
+      {
+        "file": "res://art/backdrops/gale_canyon_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/gale_canyon_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/gale_canyon_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/gale_canyon_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "nine_peaks": {
+    "sky": "#2F5C94",
+    "horizon": "#F4D7A8",
+    "layers": [
+      {
+        "file": "res://art/backdrops/nine_peaks_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/nine_peaks_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/nine_peaks_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/nine_peaks_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
   }
 }

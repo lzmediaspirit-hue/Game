@@ -1961,7 +1961,9 @@
    "barks": [
     "Information, fairly priced."
    ],
-   "services": [],
+   "services": [
+    "shop:free_market"
+   ],
    "tree": "broker_mu"
   },
   {
@@ -2044,6 +2046,290 @@
    ],
    "services": [],
    "scale": 0.9
+  },
+  {
+   "id": "hermit_shuang",
+   "name": "Hermit Shuang",
+   "title": "Rimefrost hermit",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 5,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "tattered",
+    "weapon": "none",
+    "shirt_dye": "white",
+    "pants_dye": "grey"
+   },
+   "lines": [
+    "...",
+    "Snow keeps every footprint until the wind decides otherwise.",
+    "Silence is not empty. Listen."
+   ],
+   "barks": [
+    "...",
+    "Hm."
+   ],
+   "services": []
+  },
+  {
+   "id": "grey_pilgrim",
+   "name": "The Grey Pilgrim",
+   "title": "A stranger",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 5,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "weimao",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "grey",
+    "pants_dye": "grey"
+   },
+   "lines": [
+    "You carry the valley's river on you. How quaint.",
+    "Every shard finds its way home in the end. I only help them along."
+   ],
+   "barks": [
+    "..."
+   ],
+   "services": [],
+   "tint": "#dfe2ea"
+  },
+  {
+   "id": "envoy_lanshi",
+   "name": "Envoy Lanshi",
+   "title": "Alliance envoy",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 0,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "guan",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "indigo",
+    "pants_dye": "indigo"
+   },
+   "lines": [
+    "Nine peaks, nine seats, one voice. Mine, today.",
+    "The Alliance keeps the sky roads open. Someone has to."
+   ],
+   "barks": [
+    "The Hall is in session."
+   ],
+   "services": [],
+   "tree": "envoy_lanshi"
+  },
+  {
+   "id": "elder_zhong",
+   "name": "Elder Zhong",
+   "title": "First Peak elder",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 5,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "guan",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "white",
+    "pants_dye": "grey"
+   },
+   "lines": [
+    "The First Peak remembers when there was no Alliance. There were more graves then.",
+    "A Hollow shard in the wrong hands is a war waiting for a reason."
+   ],
+   "barks": [
+    "Hm."
+   ],
+   "services": []
+  },
+  {
+   "id": "auctioneer_tong",
+   "name": "Auctioneer Tong",
+   "title": "Auction Pavilion",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "guan",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "crimson",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "Lots at dawn, hammers at dusk. Bid with your head, pay with your stones.",
+    "The limit is in the other bidder's heart. Find it."
+   ],
+   "barks": [
+    "Going once!"
+   ],
+   "services": [
+    "page:auction"
+   ],
+   "service_labels": {
+    "page:auction": "Today's lots"
+   },
+   "service_unlocks": {
+    "page:auction": "auction_house"
+   }
+  },
+  {
+   "id": "champion_qiao",
+   "name": "Champion Qiao",
+   "title": "Presence Terrace",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "guan",
+    "cape": "none",
+    "weapon": "spear",
+    "shirt_dye": "indigo",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "Presence is the weight a cultivator puts on the air. Show me yours.",
+    "Nine peaks, nine styles. I've learned eight."
+   ],
+   "barks": [
+    "Again."
+   ],
+   "services": [
+    "spar:alliance_champion"
+   ],
+   "service_labels": {
+    "spar:alliance_champion": "Spar"
+   }
+  },
+  {
+   "id": "tollkeeper_bai",
+   "name": "Tollkeeper Bai",
+   "title": "Canyon Mouth toll",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 5,
+    "shirt": "vneck",
+    "pants": "loose",
+    "shoes": "boots",
+    "hat": "straw",
+    "cape": "none",
+    "weapon": "spear",
+    "shirt_dye": "indigo",
+    "pants_dye": "earth"
+   },
+   "lines": [
+    "Ten stones a crossing. Alliance tokens pass free.",
+    "Brigands in the canyon wear veils. Honest folk don't."
+   ],
+   "barks": [
+    "Toll!"
+   ],
+   "services": []
+  },
+  {
+   "id": "ironroot_warden",
+   "name": "Warden Tie Shan",
+   "title": "Ironroot gatekeeper",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 4,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "headband",
+    "cape": "none",
+    "weapon": "staff",
+    "shirt_dye": "earth",
+    "pants_dye": "earth"
+   },
+   "lines": [
+    "The Ironroot don't bend. We grow around things.",
+    "Outsiders come to the Hold for iron. Few come for kin."
+   ],
+   "barks": [
+    "Halt."
+   ],
+   "services": [
+    "spar:ironroot_warden"
+   ],
+   "service_labels": {
+    "spar:ironroot_warden": "Test your root"
+   }
+  },
+  {
+   "id": "matriarch_tie",
+   "name": "Matriarch Tie Yun",
+   "title": "Ironroot matriarch",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 5,
+    "shirt": "cardigan",
+    "pants": "straight",
+    "shoes": "boots",
+    "hat": "headband",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "earth",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "Blood is who you were born to. Roots are who you choose to hold.",
+    "Our ancestors sit in the Hall. They're picky about company."
+   ],
+   "barks": [
+    "The Hold is well."
+   ],
+   "services": [],
+   "tree": "matriarch_tie"
+  },
+  {
+   "id": "clan_smith_gang",
+   "name": "Smith Gang",
+   "title": "Ironroot forge",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 0,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "earth"
+   },
+   "lines": [
+    "Iron from the roots, fire from the canyon wind. Best forge in the Expanse.",
+    "Kin get the good steel. Guests get the rest."
+   ],
+   "barks": [
+    "*CLANG*"
+   ],
+   "services": [
+    "shop:ironroot_clan"
+   ]
   },
   {
    "id": "lan_yue",

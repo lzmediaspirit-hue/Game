@@ -42,6 +42,12 @@
    "from": "Your mentor",
    "subject": "A second path",
    "body": "One cultivator cannot walk every road."
+  },
+  {
+   "id": "auction_won",
+   "from": "The Auction Pavilion",
+   "subject": "Your lot: {item}",
+   "body": "The hammer fell in your favour. Your lot is enclosed, with the Pavilion's compliments."
   }
  ]
 }

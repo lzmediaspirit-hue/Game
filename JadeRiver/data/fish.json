@@ -25,7 +25,8 @@
    "id": "jade_carp",
    "item": "jade_carp_fish",
    "spots": [
-    "bend_shore"
+    "bend_shore",
+    "mirror_lake"
    ],
    "weight": 50
   },
@@ -41,7 +42,8 @@
    "id": "mist_trout",
    "item": "mist_trout",
    "spots": [
-    "falls_pool"
+    "falls_pool",
+    "mirror_lake"
    ],
    "weight": 50
   },

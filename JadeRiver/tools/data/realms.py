@@ -11,7 +11,7 @@ REALMS = [
     ("cloud_stride", "Cloud Stride", 9, 1, 37, "true_qi", 80, 600),
     ("spirit_awakening", "Spirit Awakening", 9, 1, 46, "true_qi", 87, 900),
     ("heaven_glimpse", "Heaven Glimpse", 3, 3, 55, "true_qi", 100, 1200),
-    ("sage", "Sage", 3, 3, 64, "sage_qi", 267, 1800),
+    ("sage", "Sage", 3, 3, 64, "sage_qi", 1050, 1800),
     ("sage_sovereign", "Sage Sovereign", 3, 3, 73, "sage_qi", 200, 2400),
     ("will_manifest", "Will Manifest", 3, 3, 82, "sage_qi", 333, 3000),
     ("sphere_lord", "Sphere Lord", 3, 3, 91, "sage_qi", 333, 3600),

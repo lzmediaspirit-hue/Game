@@ -112,6 +112,36 @@
    "body": "The Expanse's storms draw Qi out of anyone not attuned to them. Four jades, fed with Storm Shards, ward the blood. Each region asks for more."
   },
   {
+   "id": "grey_pilgrim",
+   "title": "The Grey Pilgrim",
+   "body": "A robed stranger buying Hollow shards across the Expanse. He casts no shadow, and he knew your name."
+  },
+  {
+   "id": "rimefrost_hermit",
+   "title": "The Hermit of Rimefrost",
+   "body": "Hermit Shuang has sat above the snow line so long the ice grows around him. He speaks when silence has earned it."
+  },
+  {
+   "id": "lu_crossing",
+   "title": "Lu's crossing",
+   "body": "The lake's mirror showed a young Lu at Mirrorwater, long ago, a river token at his belt. He came through the Expanse once, too."
+  },
+  {
+   "id": "nine_seats",
+   "title": "The Nine Seats",
+   "body": "Nine sects, nine seats in the Hall of Nine. Every cultivator who crosses the gate is asked to take the Alliance's token or keep the free road."
+  },
+  {
+   "id": "gale_canyons",
+   "title": "The Gale Canyons",
+   "body": "Wind-carved sandstone east of Nine Peaks. Kites that are not kites, harpies in the roosts, and a toll paid in Hollow shards."
+  },
+  {
+   "id": "ironroot_clan",
+   "title": "The Ironroot clan",
+   "body": "A clan of the canyon's far side whose ancestors' tablets are carved from iron-hard roots. Kin by choice, not only by blood."
+  },
+  {
    "id": "sage_qi",
    "title": "Sage Qi",
    "body": "True Qi pressed until it remembers it was light. Stronger by far, and the valley could never have held it."

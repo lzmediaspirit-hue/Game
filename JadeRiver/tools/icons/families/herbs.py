@@ -168,6 +168,26 @@ def mist_lotus():
     return c
 
 
+def frost_lotus():
+    """A lotus that blooms in snow: ice-blue petals on a drift, rime glittering at the tips."""
+    c = Canvas(32)
+    drift = c.ellipse(16, 25, 13, 3.8)
+    c.put(drift, R['mist'], 'ray', base=3)
+    bx, by = 16, 22.5
+    petals = [(bx - 1, by, 158, 11, 5.6, -0.12), (bx + 1, by, 22, 11, 5.6, 0.12),
+              (bx - 1, by, 128, 12.5, 6.2, -0.06), (bx + 1, by, 52, 12.5, 6.2, 0.06), (bx, by + 0.5, 90, 15, 7.4, 0.0)]
+    pr = R['sky']
+    for (x, y, a, L, W, b) in petals:
+        m = S.leaf(c, x, y, a, L, W, b, tip_power=0.7)
+        c.put(m, pr, 'ray', base=3, sep=True, sep_col=pr[1])
+    c.put(c.ellipse(16, 20.5, 2.6, 1.4), R['gold'], 'flat', base=4)
+    for (x, y) in ((7, 12), (25, 12), (16, 6)):
+        c.pxs([(x, y)], '#FFFFFF')
+    c.outline()
+    c.glow('#BFE2FF', (60,))
+    return c
+
+
 # ----------------------------------------------------------------------------- cloudtop orchid
 def _orchid(c, cx, cy, s):
     pet = R['cloud']
@@ -231,6 +251,7 @@ def soulbell_flower():
 
 
 register(FAM, 'willow_moss', willow_moss, GROUP)
+register(FAM, 'frost_lotus', frost_lotus, GROUP)
 register(FAM, 'riverreed_ginseng_10', lambda: _ginseng(False), GROUP)
 register(FAM, 'riverreed_ginseng_100', lambda: _ginseng(True), GROUP)
 register(FAM, 'ember_pepper', ember_pepper, GROUP)

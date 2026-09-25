@@ -1,0 +1,452 @@
+{
+ "schema_version": 1,
+ "id": "rf_snow_ape_ledges",
+ "zone": "azure_expanse",
+ "region": "rimefrost_heights",
+ "name": "Snow Ape Ledges",
+ "type": "field",
+ "level_range": [
+  68,
+  72
+ ],
+ "recommended_cp": 1244,
+ "element": "water",
+ "qi_density": 1.6,
+ "hazards": [
+  "cold"
+ ],
+ "gather_tier": "expanse_mid",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "rimefrost",
+ "ground": {
+  "material": "snow"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    900,
+    650,
+    300,
+    50
+   ],
+   "height": 220,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    2100,
+    660,
+    300,
+    50
+   ],
+   "height": 180,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "rf_frostpine_climb",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "rf_rimefrost_summit",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    983,
+    930
+   ],
+   "item": "frost_lotus",
+   "prop": "frost_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "master",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "ore_2",
+   "type": "ore_vein",
+   "at": [
+    2852,
+    690
+   ],
+   "item": "stormsteel_ore",
+   "prop": "stormsteel_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "master",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    494,
+    720
+   ],
+   "loot": "jar_expanse",
+   "level": 70,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    1517,
+    900
+   ],
+   "loot": "jar_expanse",
+   "level": 70,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    2375,
+    900
+   ],
+   "loot": "jar_expanse",
+   "level": 70,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_6",
+   "type": "jar",
+   "at": [
+    3392,
+    720
+   ],
+   "loot": "jar_expanse",
+   "level": 70,
+   "hp": 1,
+   "respawn_s": 300
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "snow_ape",
+   "surface": "ground",
+   "points": [
+    [
+     542,
+     840
+    ],
+    [
+     1273,
+     861
+    ],
+    [
+     1910,
+     733
+    ],
+    [
+     2568,
+     925
+    ],
+    [
+     3250,
+     730
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 16,
+   "level": [
+    68,
+    72
+   ]
+  },
+  {
+   "enemy": "frost_lynx",
+   "surface": "ground",
+   "points": [
+    [
+     790,
+     711
+    ],
+    [
+     1938,
+     723
+    ],
+    [
+     3055,
+     710
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 12,
+   "level": [
+    68,
+    70
+   ]
+  },
+  {
+   "enemy": "snow_ape",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    72,
+    72
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "pine_tree",
+   "at": [
+    136,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "icicle_rock",
+   "at": [
+    591,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1167,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "icicle_rock",
+   "at": [
+    1741,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2342,
+    638
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "icicle_rock",
+   "at": [
+    2845,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    3274,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    121,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    563,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1003,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1377,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1853,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2356,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2707,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3099,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3555,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "icicle_rock",
+   "at": [
+    600,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "icicle_rock",
+   "at": [
+    1500,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "icicle_rock",
+   "at": [
+    3000,
+    660
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "summit",
+ "ambience": "wind_ambience",
+ "attunement_required": 20
+}

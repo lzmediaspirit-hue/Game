@@ -202,6 +202,30 @@ def jade_token():
     return c
 
 
+def alliance_token():
+    """The Nine Peaks Alliance token: a navy-jade disc with three gold summits."""
+    c = Canvas(32)
+    m, inner = token(c, R['navy'], 'disc', cord=R['gold'], top=7, bottom=26)
+    peaks = c.poly([(10, 21), (13, 15), (15, 18), (16, 12), (18, 18), (19, 15), (22, 21)])
+    c.put(peaks & inner, R['gold'], 'flat', base=4)
+    c.put(c.ring(16, 16.5, 7.2, 0.9) & inner, R['gold'], 'flat', base=2, only_on=True)
+    c.outline()
+    c.glow('#E5B84C', (40,))
+    return c
+
+
+def ironroot_token():
+    """An iron-hard sliver of root carved with the clan's mark."""
+    c = Canvas(32)
+    root = S.taper_curve(c, (8, 27), (14, 16), (24, 5), 6.0, 2.4)
+    c.put(root, R['iron'], 'ray', base=2, sep=True)
+    for (x, y) in ((12, 20), (16, 14), (20, 10)):
+        c.put(c.rect(x, y, x + 1, y), R['gold'], 'flat', base=4)
+    c.put(S.taper_curve(c, (12, 21), (9, 17), (6, 16), 2.0, 0.8), R['iron'], 'ray', base=1)
+    c.outline()
+    return c
+
+
 def cloud_token():
     c = Canvas(32)
     m, inner = token(c, R['porcelain'], 'disc', cord=R['sky'], tassel=R['sky'], top=7, bottom=26)
@@ -637,6 +661,7 @@ def evergreen_heart_fruit():
 for _id, _fn in (('manual_page', manual_page), ('riverbreath_scroll', riverbreath_scroll),
                  ('lu_journal_page', lu_journal_page), ('recipe_scroll', recipe_scroll),
                  ('river_token', river_token), ('jade_token', jade_token), ('cloud_token', cloud_token),
+                 ('alliance_token', alliance_token), ('ironroot_token', ironroot_token),
                  ('mudwater_key', mudwater_key), ('entry_token', entry_token), ('siege_medal', siege_medal),
                  ('smuggler_ledger', smuggler_ledger), ('old_net', old_net), ('river_mud', river_mud),
                  ('cloth', cloth), ('arrows', arrows), ('bow_parts', bow_parts), ('prayer_beads', prayer_beads),

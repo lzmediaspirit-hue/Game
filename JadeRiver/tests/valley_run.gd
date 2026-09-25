@@ -9,7 +9,7 @@ extends "res://tests/prologue_run.gd"
 ## can be re-run alone:
 ##   godot --headless --path . res://tests/valley_run.tscn -- [--from=<section>] [--verbose]
 
-const SECTIONS := ["bf2", "bf5", "bf8", "qk1", "qk5", "qu1", "qu5", "ht1", "ht5", "cs1", "cs5", "sa1", "sa5", "hg1", "ae1"]
+const SECTIONS := ["bf2", "bf5", "bf8", "qk1", "qk5", "qu1", "qu5", "ht1", "ht5", "cs1", "cs5", "sa1", "sa5", "hg1", "ae1", "ae2", "ae3"]
 const CP_ROOT := "user://valley_cp/"
 const WORK := "user://valley_work/"
 
@@ -54,10 +54,15 @@ func _copy_dir(from: String, to: String) -> void:
 func checkpoint(name: String) -> void:
 	Game.save_all()
 	_copy_dir(Saves.repo.root, CP_ROOT + name + "/")
+	# The run's clock skips go with the saves, so timed state (auction lots, cooldowns) resumes in step.
+	var f := FileAccess.open(CP_ROOT + name + ".clock", FileAccess.WRITE)
+	if f != null: f.store_string(str(Clock.debug_offset_s))
 
 func resume(name: String) -> bool:
 	if not DirAccess.dir_exists_absolute(CP_ROOT + name + "/"): return false
 	_copy_dir(CP_ROOT + name + "/", WORK)
+	if FileAccess.file_exists(CP_ROOT + name + ".clock"):
+		Clock.debug_offset_s = float(FileAccess.get_file_as_string(CP_ROOT + name + ".clock"))
 	Saves.use_folder(WORK)
 	Game.boot()
 	Game.autosave_enabled = false
@@ -1486,6 +1491,152 @@ func sec_ae1() -> void:
 	Game.account.teleports["cloudgate"] = true
 	check(Game.world.teleport_fee("stoneford") == 5 * int(ContentDB.entry("teleport_stones", "stoneford").get("fee_shards", 1)), "teleporting back to the valley costs five times the fee")
 	travel("tp_herders_camp")
+
+## Feed the zone's jades (lowest first) until the attunement reaches `need`; shards from the
+## test shortcut stand in for the hunting a player does between story beats.
+func attune_to(zone: String, need: float) -> void:
+	var guard := 0
+	while float(c().cultivator.attunement.get(zone, 0.0)) < need and guard < 80:
+		var lv: Array = Game.progression.jade_levels(c(), zone)
+		var lowest := lv.find(lv.min())
+		var cost: int = Game.progression.jade_cost(zone, int(lv[lowest]))
+		if c().inventory.count("storm_shard") < cost:
+			Game.inventory.apply_add(c().id, "storm_shard", cost, "test_shortcut")
+		if not submit({"type": "attune_jade", "zone": zone, "index": lowest}).get("ok", false): break
+		guard += 1
+
+## Act II · chapter 12 (v1.1 Phase B): the Grey Pilgrim's trail across the plains, the hermit's
+## cave on Rimefrost Summit, the Lake Shrine's mirror and the Thousand-Eye Toad.
+func sec_ae2() -> void:
+	check(start("shards_for_sale"), "Shards for Sale accepted")
+	talk(go_to_npc(["herder_suo"]))
+	check(travel("tp_lightning_scar"), "reach the Lightning Scar")
+	var tracks := 0
+	for o in objects_of("inspect"):
+		if str(o.id).begins_with("grey_tracks") and interact(str(o.id)).get("ok", false): tracks += 1
+	check(tracks == 3, "follow the grey buyer's tracks (%d)" % tracks)
+	attune_to("azure_expanse", 16.0)
+	talk(go_to_npc(["grey_pilgrim"]))
+	check(room() == "rf_frostpine_climb", "the stranger waits on Frostpine Climb")
+	check(finish("shards_for_sale"), "Shards for Sale done")
+	check(start("frost_and_silence"), "Frost and Silence accepted")
+	attune_to("azure_expanse", 22.0)
+	check(travel("rf_rimefrost_summit"), "climb to Rimefrost Summit")
+	var cave := {}
+	for p in Game.room_rt.def.get("portals", []):
+		if str(p.id) == "ice_cave": cave = p
+	check(not cave.is_empty() and str(cave.type) == "hidden", "the hermit's cave is hidden")
+	place(Vector2(float(cave.at[0]), float(cave.at[1]) + 10))
+	c().pools.soul = c().pools.max_soul
+	c().pools.cooldowns.erase("sense")
+	submit({"type": "sense_pulse"})
+	check(go("ice_cave") and room() == "rf_hermits_ice_cave", "Spirit Sense finds the Hermit's Ice Cave")
+	talk(go_to_npc(["hermit_shuang"]))
+	meditate(92.0)
+	check(finish("frost_and_silence"), "Frost and Silence done")
+	check(reach("sage_2"), "Sage 2")
+	check(start("the_mirror_remembers"), "The Mirror Remembers accepted")
+	attune_to("azure_expanse", 28.0)
+	check(travel("ml_reedless_shore"), "sail the sky-ship to Mirrorwater Lake")
+	check(travel("ml_lake_shrine"), "cross the Sentinel Causeway to the Lake Shrine")
+	check(interact("mirror_altar").get("ok", false), "look into the bronze mirror")
+	var journal := interact("journal_lake")
+	check(c().quests.has_flag("journal_lake"), "pick up Lu's journal page at the shrine %s" % str(journal.get("reason", "")))
+	c().pools.hp = c().pools.max_hp
+	check(defeat("thousand_eye_toad", "ml_toads_hollow", 6), "silence the Thousand-Eye Toad")
+	GameEvents.flush()
+	check(c().quests.is_done("the_mirror_remembers"), "The Mirror Remembers done: chapter 12 complete")
+	travel("ae_port_market")
+
+## Act II · chapter 13 (v1.1 Phase C): a seat at the Hall of Nine, the auction house, the canyon
+## toll and adoption into the Ironroot clan; the path can be changed once, for a price.
+func sec_ae3() -> void:
+	check(start("nine_seats"), "Nine Seats accepted")
+	check(travel("np_hall_of_nine"), "sail to Nine Peaks and enter the Hall of Nine")
+	check(talk_choose(go_to_npc(["envoy_lanshi"]), "effects", "Alliance"), "take the Alliance seat")
+	check(c().quests.has_flag("path_alliance") and c().inventory.count("alliance_token") == 1, "the Alliance token is yours")
+	check(finish("nine_seats"), "Nine Seats done")
+	# The Alliance Factor gives its members a better price.
+	var plain := int(ContentDB.entry("items", "stormsteel_jian").get("price", LootRules.buy_price("stormsteel_jian")))
+	var listed := 0
+	for row in Game.economy.stock(c(), "alliance_factor"):
+		if str(row.item) == "stormsteel_jian": listed = int(row.price)
+	check(listed > 0 and listed < int(round(plain * 0.01)) + 1, "the Factor discounts Alliance members (%d stones)" % listed)
+	# The auction house: a bid is answered at once inside the bidder's limit; above it, you hold the lot.
+	check(start("going_once"), "Going Once accepted")
+	check(travel("np_auction_pavilion"), "reach the Auction Pavilion")
+	Game.economy.auction_roll()
+	var lots: Array = Game.economy.auction_lots().filter(func(l): return not l.get("closed", false))
+	check(lots.size() >= 4, "the Pavilion shows today's lots (%d)" % lots.size())
+	if not lots.is_empty():
+		var lot: Dictionary = lots[0]
+		Game.economy.apply_currency("spirit_stone", 2000, "test_shortcut")
+		var low := submit({"type": "auction_bid", "lot": str(lot.id), "amount": Game.economy.auction_min_bid(lot)})
+		check(low.get("ok", false), "place a bid %s" % str(low.get("reason", "")))
+		var before: int = Game.economy.balance("spirit_stone")
+		var high_amount := int(lot.cap) + 5
+		var high := submit({"type": "auction_bid", "lot": str(lot.id), "amount": maxi(high_amount, Game.economy.auction_min_bid(lot))})
+		check(high.get("top", false) and Game.economy.balance("spirit_stone") < before, "a bid past the limit holds the lot and its stones")
+		Clock.debug_offset_s += 12.0 * 3600.0
+		step(2.5)
+		submit({"type": "claim_all"})
+		var fresh: Array = Game.economy.auction_lots().filter(func(x): return not x.get("closed", false))
+		check(fresh.size() >= 4, "new lots open as old ones close (%d)" % fresh.size())
+		check(lot.get("closed", false) and str(lot.bidder) == c().id, "the hammer falls: the lot is yours (%s)" % str(lot.item))
+		var mailed := false
+		for m in Game.account.mail:
+			for a in m.get("attachments", []):
+				if str(a.get("item", "")) == str(lot.item): mailed = true
+		check(mailed or c().inventory.count_including_equipped(str(lot.item)) >= int(lot.count) or ContentDB.item(str(lot.item)).get("type", "") == "currency_item",
+			"the won lot arrives by mail")
+	check(finish("going_once"), "Going Once done")
+	check(start("the_canyon_toll"), "The Canyon Toll accepted")
+	attune_to("azure_expanse", 42.0)
+	talk(go_to_npc(["tollkeeper_bai"]))
+	var brigands := 0
+	for rid in ["gc_canyon_mouth", "gc_windbridge", "gc_canyon_mouth", "gc_windbridge"]:
+		if c().quests.is_done("the_canyon_toll") or int(c().quests.active.get("the_canyon_toll", {}).get("progress", [0, 0, 0])[1]) >= 6: break
+		if travel(rid): brigands += fight("canyon_brigand", 3, 300.0, 0.3)
+		revive_if_needed()
+	check(int(c().quests.active.get("the_canyon_toll", {}).get("progress", [0, 0, 0])[1]) >= 6, "break the veiled brigands (%d)" % brigands)
+	check(travel("ir_hold_gate"), "cross the Windbridge to Ironroot Hold")
+	check(finish("the_canyon_toll"), "The Canyon Toll done")
+	check(unlocked("clans") or c().quests.is_active("ironroot_blood") or c().cultivator.offered.has("clans"), "clans open at Sage 2")
+	check(start("ironroot_blood"), "Ironroot Blood accepted")
+	c().pools.hp = c().pools.max_hp
+	var won := false
+	for i in 3:
+		if won: break
+		won = spar_with(func(): return _spar_service(go_to_npc(["ironroot_warden"])))
+		c().pools.hp = c().pools.max_hp
+	check(won, "pass the warden's test of root")
+	talk(go_to_npc(["matriarch_tie"]))
+	check(travel("ir_ancestor_hall"), "enter the Ancestor Hall")
+	check(interact("ancestral_tablets").get("ok", false), "honour the ancestral tablets")
+	check(finish("ironroot_blood"), "Ironroot Blood done: chapter 13 complete")
+	check(c().quests.has_flag("clan_ironroot") and "ironroot_kin" in c().cultivator.titles, "adopted into the Ironroot clan")
+	# Canyon side stories: silk from the kites for the toll flags, plumes from the roosts for the clan forge.
+	check(start("silk_on_the_wind") and start("plumes_for_the_bellows"), "the canyon side stories accepted")
+	for i in 12:
+		if c().inventory.count("kite_silk") >= 5: break
+		if travel("gc_kite_winds"): fight("wind_kite", 2, 240.0, 0.3)
+		revive_if_needed()
+	for i in 12:
+		if c().inventory.count("harpy_plume") >= 4: break
+		if travel("gc_harpy_roosts"): fight("canyon_harpy", 2, 240.0, 0.3)
+		revive_if_needed()
+	check(c().inventory.count("kite_silk") >= 5 and c().inventory.count("harpy_plume") >= 4,
+		"silk and plumes from the canyons (%d, %d)" % [c().inventory.count("kite_silk"), c().inventory.count("harpy_plume")])
+	check(finish("silk_on_the_wind"), "Silk on the Wind done")
+	check(finish("plumes_for_the_bellows"), "Plumes for the Bellows done")
+	# One change of path, for a price.
+	travel("np_hall_of_nine")
+	var stones: int = Game.economy.balance("spirit_stone")
+	if stones < 300: Game.economy.apply_currency("spirit_stone", 300 - stones, "test_shortcut")
+	check(talk_choose(go_to_npc(["envoy_lanshi"]), "effects", "Change"), "ask the envoy to change paths")
+	check(c().quests.has_flag("path_independent") and not c().quests.has_flag("path_alliance") and c().inventory.count("alliance_token") == 0,
+		"the free road now, token returned")
+	travel("ae_port_market")
 	checkpoint("ae_end")
 
 ## The mini-game through intents: each strike's distance from the band centre, then the craft.

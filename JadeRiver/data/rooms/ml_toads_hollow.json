@@ -1,0 +1,289 @@
+{
+ "schema_version": 1,
+ "id": "ml_toads_hollow",
+ "zone": "azure_expanse",
+ "region": "mirrorwater_lake",
+ "name": "Toad's Hollow",
+ "type": "field",
+ "level_range": [
+  68,
+  68
+ ],
+ "recommended_cp": 0,
+ "element": "water",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "mirror_lake",
+ "ground": {
+  "material": "moss",
+  "tint": "#d0d4e6"
+ },
+ "spawn_point": [
+  260,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "ml_mirror_shallows",
+   "to_portal": "hollow",
+   "press_up": true,
+   "label": "Mirror Shallows"
+  }
+ ],
+ "objects": [],
+ "spawns": [
+  {
+   "enemy": "thousand_eye_toad",
+   "surface": "ground",
+   "points": [
+    [
+     1600,
+     860
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 2700,
+   "level": [
+    68,
+    68
+   ],
+   "field_boss": true,
+   "boss": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "willow_tree",
+   "at": [
+    228,
+    633
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    631,
+    639
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "willow_tree",
+   "at": [
+    1062,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "willow_tree",
+   "at": [
+    1591,
+    640
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2204,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "lotus_lantern",
+   "at": [
+    700,
+    700
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "lotus_lantern",
+   "at": [
+    1100,
+    700
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "lotus_lantern",
+   "at": [
+    2100,
+    700
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "lotus_pads",
+   "at": [
+    520,
+    760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lotus_pads",
+   "at": [
+    980,
+    900
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lotus_pads",
+   "at": [
+    1420,
+    760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lotus_pads",
+   "at": [
+    1880,
+    900
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lotus_pads",
+   "at": [
+    2260,
+    760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    300,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2400,
+    900
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    85,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    426,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    766,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1089,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1459,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1807,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2092,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2304,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "boss",
+ "ambience": "river_ambience",
+ "attunement_required": 25
+}

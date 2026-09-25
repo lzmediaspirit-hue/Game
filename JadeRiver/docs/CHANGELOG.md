@@ -2,7 +2,48 @@
 
 ## 1.1 (in progress) — The Azure Expanse (Act II)
 
-Built in phases (docs/act2_design.md). Phase A, "Beyond the Gate", is playable end to end.
+Built in phases (docs/act2_design.md). Phases A, B and C (chapters 11 to 13) are playable end to end.
+
+### Phase C · Nine Peaks
+- **Nine Peaks**, seat of the Alliance (town, teleport stone), reached by a second sky-ship route from the
+  Skydock once the lake's mirror has spoken: the Alliance Gate, the Hall of Nine, the Auction Pavilion and
+  the Presence Terrace, where the Alliance champion takes sparring challenges.
+- **Alliance or the free road (S20).** "Nine Seats" ends in a choice kept on the character. The Alliance
+  gives its token, the Factor's 10% discount and a smaller auction premium; the free road opens Broker
+  Mu's back room (black-market lots) and the smallest premium. Envoy Lanshi changes your path once, for
+  300 Spirit Stones. Titles for each: Alliance Envoy (+2 Storm Ward) and Free Cultivator (+3% drops).
+- **NPC auction house (S21, Sage 1).** Four lots are open at all times, drawn from a pool of thirteen
+  rare goods with staggered closing times. Five NPC bidders answer at once up to a limit they keep to
+  themselves. A bid above it holds the lot; outbid stones return at once; a won lot arrives by mail.
+  The house premium is 10%, 8% for the Alliance and 4% for the free road. A backward clock never closes
+  a lot early.
+- **Gale Canyons** (Lv 73–78, Storm Ward 35–42): the Canyon Mouth toll, the Kite Winds, the Harpy Roosts
+  and the Windbridge (no flight), with the **Wind Kite** (a living swallow kite that throws wind
+  blades), the **Canyon Harpy** and the veiled canyon brigands, under new canyon and Nine Peaks backdrops.
+- **Ironroot Clan Hold (clans, Sage 2):** Hold Gate, Clan Hearth and Ancestor Hall. "Ironroot Blood"
+  is the adoption: the warden's test of root, the Matriarch, and the ancestral tablets. Kin get the clan
+  forge at 15% off and the Ironroot Kin title (+4% max HP).
+- **Chapter 13, The Nine Peaks**: Nine Seats, The Canyon Toll (who pays the canyon toll in Hollow
+  shards?) and Ironroot Blood, plus the guided Going Once at the auction block. Side stories: Silk on
+  the Wind and Plumes for the Bellows.
+- New materials (kite silk, harpy plume) and the Alliance and Ironroot tokens, with icons.
+- Tests: a new ae3 section plays chapter 13 (path choice, factor discount, auction bids through the
+  close and mail, the canyon, the clan and the path change); valley checkpoints now keep the run's clock.
+
+### Phase B · Heights and lake
+- **Rimefrost Heights** (Lv 67–72, Storm Ward 16–22): Frostpine Climb, the Snow Ape Ledges, Rimefrost
+  Summit and the **Hermit's Ice Cave**, a hidden cave only Spirit Sense finds. Frost Lynx and Snow Ape,
+  Frost Lotus herb patches, icicle-hung boulders and a snowbound parallax backdrop.
+- **Mirrorwater Lake** (Lv 68–75, Storm Ward 22–28), reached by sky-ship from the Skydock: the Reedless
+  Shore, the Mirror Shallows with their lotus lanterns, the Sentinel Causeway, the Lake Shrine and
+  **Toad's Hollow**, home of the **Thousand-Eye Toad** (field boss, Lv 68). Azure Carp Dragonet and River
+  Sentinel; a backdrop where the lake mirrors the floating peaks.
+- **Chapter 12, The Grey Pilgrim**: Shards for Sale (a shadowless stranger buying Hollow shards),
+  Frost and Silence (Hermit Shuang, a meditation in the ice cave) and The Mirror Remembers (the Lake
+  Shrine's mirror shows the stranger and a young Lu; Lu's second journal page). Three side quests:
+  Snow for the Cabinet, Clear Skies and A-Lan's Herd.
+- New materials (rime fang, snow ape hide, dragonet scale, sentinel core, mirror eye, frost lotus) with
+  icons, an ice-shard projectile, and the lake as a fishing spot.
 
 ### Phase A · Foundation
 - The crossing: after the Gate Guardian falls, the Ascension Gate opens onto **Cloudgate Port**, a sky

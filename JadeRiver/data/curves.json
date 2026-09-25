@@ -22,7 +22,9 @@
   "main": 0.25,
   "side": 0.1,
   "daily": 0.05,
-  "prologue": 0.0
+  "prologue": 0.0,
+  "act2_main": 0.08,
+  "act2_side": 0.04
  },
  "stability_factor": {
   "unstable": 0.7,

@@ -5532,12 +5532,17 @@
      {
       "kind": "quest_done",
       "quest": "the_ascension_gate"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_3"
      }
     ]
    },
    "chapter": "11",
    "target_room": "ae_landing",
-   "next": "a_sky_full_of_toll_roads"
+   "next": "a_sky_full_of_toll_roads",
+   "qp": "act2_main"
   },
   {
    "id": "a_sky_full_of_toll_roads",
@@ -5584,12 +5589,17 @@
      {
       "kind": "quest_done",
       "quest": "through_the_gate"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_3"
      }
     ]
    },
    "chapter": "11",
    "target_room": "ae_port_market",
-   "next": "storm_in_the_blood"
+   "next": "storm_in_the_blood",
+   "qp": "act2_main"
   },
   {
    "id": "storm_in_the_blood",
@@ -5653,7 +5663,8 @@
      "count": 12
     }
    ],
-   "next": "horns_for_the_furnace"
+   "next": "horns_for_the_furnace",
+   "qp": "act2_main"
   },
   {
    "id": "horns_for_the_furnace",
@@ -5693,12 +5704,17 @@
      {
       "kind": "quest_done",
       "quest": "storm_in_the_blood"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_3"
      }
     ]
    },
    "chapter": "11",
    "target_room": "tp_thunderhorn_flats",
-   "next": "sage"
+   "next": "sage",
+   "qp": "act2_main"
   },
   {
    "id": "sage",
@@ -5739,11 +5755,694 @@
      {
       "kind": "quest_done",
       "quest": "horns_for_the_furnace"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_3"
      }
     ]
    },
    "chapter": "11",
-   "target_room": "ae_condensing_hall"
+   "target_room": "ae_condensing_hall",
+   "qp": "act2_main"
+  },
+  {
+   "id": "shards_for_sale",
+   "name": "Shards for Sale",
+   "kind": "main",
+   "giver": "broker_mu",
+   "hand_in": "broker_mu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Ask Old Suo about the grey buyer",
+     "count": 1,
+     "npc": "herder_suo"
+    },
+    {
+     "kind": "interact_object",
+     "text": "Follow the buyer's tracks across the Lightning Scar",
+     "count": 3,
+     "type": "inspect",
+     "room": "tp_lightning_scar"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Catch up with the stranger on Frostpine Climb",
+     "count": 1,
+     "npc": "grey_pilgrim"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 60
+    },
+    {
+     "kind": "grant_item",
+     "item": "storm_shard",
+     "count": 15
+    },
+    {
+     "kind": "codex",
+     "entry": "grey_pilgrim"
+    }
+   ],
+   "offer_text": [
+    "Someone is buying Hollow shards across the Expanse. Grey robes, no shadow at noon.",
+    "The herders have seen him on the plains. Old Suo misses nothing. Start there."
+   ],
+   "complete_text": [
+    "He let you catch him. That's worse than if he'd run.",
+    "If he went up into the snow, only one person up there would have seen him: the hermit of Rimefrost."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "sage"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_1"
+     }
+    ]
+   },
+   "chapter": "12",
+   "target_room": "tp_herders_camp",
+   "next": "frost_and_silence",
+   "qp": "act2_main"
+  },
+  {
+   "id": "frost_and_silence",
+   "name": "Frost and Silence",
+   "kind": "main",
+   "giver": "broker_mu",
+   "hand_in": "hermit_shuang",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Find the hermit's cave on Rimefrost Summit (Spirit Sense shows hidden ways)",
+     "count": 1,
+     "room": "rf_hermits_ice_cave"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Speak with Hermit Shuang",
+     "count": 1,
+     "npc": "hermit_shuang"
+    },
+    {
+     "kind": "meditate_seconds",
+     "text": "Sit in silence in the Ice Cave",
+     "count": 90
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 80
+    },
+    {
+     "kind": "grant_item",
+     "item": "frost_lotus",
+     "count": 2
+    },
+    {
+     "kind": "codex",
+     "entry": "rimefrost_hermit"
+    }
+   ],
+   "offer_text": [
+    "The hermit lives somewhere on Rimefrost Summit. People who look for him don't find him.",
+    "People who stop looking sometimes do."
+   ],
+   "complete_text": [
+    "...You can sit still. Good. Most who climb up here only want to talk.",
+    "The grey one passed a month ago. He stopped at the lake. The lake remembers everything. Ask it."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "shards_for_sale"
+     }
+    ]
+   },
+   "chapter": "12",
+   "target_room": "rf_rimefrost_summit",
+   "next": "the_mirror_remembers",
+   "qp": "act2_main"
+  },
+  {
+   "id": "the_mirror_remembers",
+   "name": "The Mirror Remembers",
+   "kind": "main",
+   "giver": "hermit_shuang",
+   "hand_in": "",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Take the sky-ship to Mirrorwater Lake and reach the Lake Shrine",
+     "count": 1,
+     "room": "ml_lake_shrine"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Look into the shrine's bronze mirror",
+     "count": 1,
+     "flag": "mirror_vision_seen"
+    },
+    {
+     "kind": "kill",
+     "text": "Silence the Thousand-Eye Toad in Toad's Hollow",
+     "count": 1,
+     "enemy": "thousand_eye_toad"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 120
+    },
+    {
+     "kind": "grant_item",
+     "item": "storm_shard",
+     "count": 25
+    },
+    {
+     "kind": "codex",
+     "entry": "lu_crossing"
+    },
+    {
+     "kind": "set_flag",
+     "flag": "chapter_12_done"
+    }
+   ],
+   "offer_text": [
+    "The mirror at the Lake Shrine shows what the lake has seen. The toad in the hollow drinks the reflections.",
+    "Look into the mirror. Then quiet the toad, or the lake will forget everything it knows."
+   ],
+   "complete_text": [
+    "In the mirror: the grey one kneeling at the shore, feeding Hollow shards to the water. And behind him, older,",
+    "a young ferryman with a river-green token at his belt. Lu. The lake remembered him too."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "frost_and_silence"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_2"
+     }
+    ]
+   },
+   "chapter": "12",
+   "target_room": "ml_lake_shrine",
+   "qp": "act2_main"
+  },
+  {
+   "id": "nine_seats",
+   "name": "Nine Seats",
+   "kind": "main",
+   "giver": "dockmaster_fu",
+   "hand_in": "elder_zhong",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Take the sky-ship to Nine Peaks and enter the Hall of Nine",
+     "count": 1,
+     "room": "np_hall_of_nine"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Hear the Alliance envoy",
+     "count": 1,
+     "npc": "envoy_lanshi"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Take an Alliance seat, or keep the free road",
+     "count": 1,
+     "flag": "path_alliance",
+     "alt_flag": "path_independent"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 100
+    },
+    {
+     "kind": "codex",
+     "entry": "nine_seats"
+    }
+   ],
+   "offer_text": [
+    "An invitation came with the morning ship. Nine Peaks wants to see you. They see everyone who crosses, sooner or later.",
+    "The Alliance will offer you a seat. The broker will tell you why you shouldn't take it. Both are right."
+   ],
+   "complete_text": [
+    "Whichever you chose, choose it every day. The Hollow shards are coming from somewhere inside the Expanse.",
+    "The canyons east of here are where they pass. Go and see who is paying the tolls."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_mirror_remembers"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_2"
+     }
+    ]
+   },
+   "chapter": "13",
+   "target_room": "np_hall_of_nine",
+   "next": "the_canyon_toll",
+   "qp": "act2_main"
+  },
+  {
+   "id": "going_once",
+   "name": "Going Once",
+   "kind": "guided",
+   "giver": "auctioneer_tong",
+   "hand_in": "auctioneer_tong",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Place a bid at the Auction Pavilion",
+     "count": 1,
+     "system": "auction_bid"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 20
+    }
+   ],
+   "offer_text": [
+    "First time at the block? Pick a lot, name a price. The other bidders will tell you if you're wrong."
+   ],
+   "complete_text": [
+    "There. Win or lose, you're a bidder now. The Pavilion opens new lots every dawn."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "13",
+   "target_room": "np_auction_pavilion",
+   "qp": "act2_main"
+  },
+  {
+   "id": "the_canyon_toll",
+   "name": "The Canyon Toll",
+   "kind": "main",
+   "giver": "elder_zhong",
+   "hand_in": "ironroot_warden",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Ask the tollkeeper at the Canyon Mouth who pays in shards",
+     "count": 1,
+     "npc": "tollkeeper_bai"
+    },
+    {
+     "kind": "kill",
+     "text": "Break the veiled brigands' hold on the canyon",
+     "count": 6,
+     "enemy": "canyon_brigand"
+    },
+    {
+     "kind": "reach_room",
+     "text": "Cross the Windbridge to Ironroot Hold",
+     "count": 1,
+     "room": "ir_hold_gate"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 140
+    },
+    {
+     "kind": "grant_item",
+     "item": "storm_shard",
+     "count": 30
+    },
+    {
+     "kind": "codex",
+     "entry": "gale_canyons"
+    }
+   ],
+   "offer_text": [
+    "Someone pays the canyon toll in Hollow shards. The tollkeeper takes them because they spend like stones.",
+    "Follow the shards east. The veiled brigands carry them for someone."
+   ],
+   "complete_text": [
+    "You crossed the Windbridge with brigand blood on your boots. The Hold has been watching them too.",
+    "The Matriarch will want to meet you. She doesn't want to meet many."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "nine_seats"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_2"
+     }
+    ]
+   },
+   "chapter": "13",
+   "target_room": "gc_canyon_mouth",
+   "next": "ironroot_blood",
+   "qp": "act2_main"
+  },
+  {
+   "id": "ironroot_blood",
+   "name": "Ironroot Blood",
+   "kind": "main",
+   "giver": "ironroot_warden",
+   "hand_in": "matriarch_tie",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "win_spar",
+     "text": "Pass the warden's test of root",
+     "count": 1,
+     "opponent": "ironroot_warden"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Stand before the Matriarch",
+     "count": 1,
+     "npc": "matriarch_tie"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Honour the ancestral tablets in the Ancestor Hall",
+     "count": 1,
+     "flag": "tablets_honoured"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 160
+    },
+    {
+     "kind": "grant_item",
+     "item": "ironroot_token",
+     "count": 1
+    },
+    {
+     "kind": "set_flag",
+     "flag": "clan_ironroot"
+    },
+    {
+     "kind": "grant_title",
+     "title": "ironroot_kin"
+    },
+    {
+     "kind": "codex",
+     "entry": "ironroot_clan"
+    }
+   ],
+   "offer_text": [
+    "Kin is not given at the gate. Show me your root holds, then the Matriarch decides."
+   ],
+   "complete_text": [
+    "The ancestors did not object. That is as close to a welcome as they give.",
+    "You are Ironroot now, in the Hold and on the roads. Our forge is yours. So are our quarrels."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "13",
+   "target_room": "ir_hold_gate",
+   "qp": "act2_main"
+  },
+  {
+   "id": "snow_for_the_cabinet",
+   "name": "Snow for the Cabinet",
+   "kind": "side",
+   "giver": "apothecary_wu",
+   "hand_in": "apothecary_wu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Pick Frost Lotus on Rimefrost Heights",
+     "count": 3,
+     "item": "frost_lotus"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "storm_blood_pill",
+     "count": 3
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 40
+    }
+   ],
+   "offer_text": [
+    "Frost Lotus. Three. It only blooms where the snow never melts.",
+    "It steadies a Sage's Qi. And my prices."
+   ],
+   "complete_text": [
+    "Perfect petals. Here, Storm Blood Pills, fresh from the cabinet."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "frost_and_silence"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_1"
+     }
+    ]
+   },
+   "target_room": "rf_frostpine_climb",
+   "qp": "act2_side"
+  },
+  {
+   "id": "clear_skies",
+   "name": "Clear Skies",
+   "kind": "side",
+   "giver": "dockmaster_fu",
+   "hand_in": "dockmaster_fu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Drive off the Azure Carp Dragonets over the Reedless Shore",
+     "count": 8,
+     "enemy": "azure_carp_dragonet"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 70
+    },
+    {
+     "kind": "grant_item",
+     "item": "dragonet_scale",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "Dragonets keep spitting at my lake ferry. The sails can't take much more.",
+    "Eight of them. The rest will learn."
+   ],
+   "complete_text": [
+    "The ferry thanks you. So does my budget."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_mirror_remembers"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_2"
+     }
+    ]
+   },
+   "target_room": "ml_reedless_shore",
+   "qp": "act2_side"
+  },
+  {
+   "id": "a_lans_herd",
+   "name": "A-Lan's Herd",
+   "kind": "side",
+   "giver": "herder_a_lan",
+   "hand_in": "herder_a_lan",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Drive the Spark Weasels away from the herd",
+     "count": 10,
+     "enemy": "spark_weasel"
+    },
+    {
+     "kind": "collect",
+     "text": "Bring Spark Pelts for new saddle blankets",
+     "count": 4,
+     "item": "spark_pelt"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 50
+    },
+    {
+     "kind": "grant_item",
+     "item": "thunderhorn_stew",
+     "count": 3
+    }
+   ],
+   "offer_text": [
+    "The weasels keep stealing lightning out of the grass, and then the rhinos stampede!",
+    "Chase them off? Please?"
+   ],
+   "complete_text": [
+    "Grandpa says you'd make a good herder. That's the best thing he says about anyone."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "storm_in_the_blood"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_3"
+     }
+    ]
+   },
+   "target_room": "tp_stormgrass_verge",
+   "qp": "act2_side"
+  },
+  {
+   "id": "silk_on_the_wind",
+   "name": "Silk on the Wind",
+   "kind": "side",
+   "giver": "tollkeeper_bai",
+   "hand_in": "tollkeeper_bai",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Cut Kite Silk from the Wind Kites of the canyons",
+     "count": 5,
+     "item": "kite_silk"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 80
+    },
+    {
+     "kind": "grant_item",
+     "item": "storm_shard",
+     "count": 10
+    }
+   ],
+   "offer_text": [
+    "The canyon wind shreds my toll flags in a week. The kites up there are made of something it can't tear.",
+    "Five lengths of their silk. The Alliance can keep its banners."
+   ],
+   "complete_text": [
+    "Look at that. Not a fray. The next brigand who says he couldn't see the flag can argue with it."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "nine_seats"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_2"
+     }
+    ]
+   },
+   "target_room": "gc_kite_winds",
+   "qp": "act2_side"
+  },
+  {
+   "id": "plumes_for_the_bellows",
+   "name": "Plumes for the Bellows",
+   "kind": "side",
+   "giver": "clan_smith_gang",
+   "hand_in": "clan_smith_gang",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Bring Harpy Plumes from the Harpy Roosts",
+     "count": 4,
+     "item": "harpy_plume"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 90
+    },
+    {
+     "kind": "grant_item",
+     "item": "stormsteel_ore",
+     "count": 4
+    }
+   ],
+   "offer_text": [
+    "Harpy plumes hold a wind of their own. Line the bellows with them and the forge breathes like a storm.",
+    "Four will do. Kin price, of course. Meaning you fetch them."
+   ],
+   "complete_text": [
+    "Hear that? The fire's roaring on its own. Take some stormsteel. It'll take a better edge now."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "ironroot_blood"
+     }
+    ]
+   },
+   "target_room": "gc_harpy_roosts",
+   "qp": "act2_side"
   }
  ]
 }

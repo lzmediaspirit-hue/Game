@@ -125,23 +125,25 @@ def build():
         # Where a mixed session sits to cultivate: mostly the field rooms it fights in (1.0), sometimes Lu's
         # boat (1.4), the mentor's peak (1.6) or, later, a hidden spring (2.2).
         "density": {"bone_forging": 1.2, "qi_kindling": 1.25, "qi_unfurling": 1.3, "heart_tempering": 1.4, "cloud_stride": 1.4,
-                    "spirit_awakening": 1.45, "heaven_glimpse": 1.5},
+                    "spirit_awakening": 1.45, "heaven_glimpse": 1.5, "sage": 1.6},
         "method": {"bone_forging": "riverbreath_fragment", "qi_kindling": "jade_current_scripture", "qi_unfurling": "jade_current_scripture",
                    "heart_tempering": "cloudpiercing_canon", "cloud_stride": "willow_breath_art", "spirit_awakening": "willow_breath_art",
-                   "heaven_glimpse": "tidal_sovereign_scripture"},
+                   "heaven_glimpse": "tidal_sovereign_scripture", "sage": "tidal_sovereign_scripture"},
         "tolerance": 0.15,
         # S39 checks: [Level, the next upgrade, the spec's taels per hour there]; affordable within 1-2 h (±25%).
         "upgrades": [[15, "iron_jian", 850], [25, "jadeiron_robe", 1700]], "afford_hours": [0.75, 2.5],
         "act_end": "heaven_glimpse_3", "act_end_hours": 65,
+        # Act II so far (v1.1 phases A-B reach Sage 3): the sim plays on to this stage.
+        "sim_end": "sage_sovereign_1",
         "pacing": [["bone_forging_1", 0.5], ["qi_kindling_1", 5], ["qi_unfurling_1", 13], ["heart_tempering_1", 20],
-                   ["cloud_stride_1", 30], ["spirit_awakening_1", 42], ["heaven_glimpse_1", 55]],
+                   ["cloud_stride_1", 30], ["spirit_awakening_1", 42], ["heaven_glimpse_1", 55], ["sage_1", 70], ["sage_sovereign_1", 110]],
     })
     write("curves.json", {
         "qp_minutes": "see realms.json accumulate_needed = 100 x target minutes per Level",
         "kill_qp": 22, "kill_role_mult": {"normal": 1, "elite": 6, "field_boss": 40, "dungeon_boss": 80, "story_boss": 40, "event": 0.5, "trial": 2},
         "meditation_qp_per_min": 60, "meditation_body_stage_factor": 0.3, "body_stage_until": "bone_forging_6",
         "qi_spring_mult": 2, "training_qp_per_min": 40, "training_body_xp_per_min": 20,
-        "quest_qp_pct": {"guided": 0.15, "main": 0.25, "side": 0.10, "daily": 0.05, "prologue": 0.0},
+        "quest_qp_pct": {"guided": 0.15, "main": 0.25, "side": 0.10, "daily": 0.05, "prologue": 0.0, "act2_main": 0.08, "act2_side": 0.04},
         "stability_factor": {"unstable": 0.7, "settling": 0.85, "stable": 1.0, "solid": 1.1},
         "stability_order": ["unstable", "settling", "stable", "solid"],
         "stability_step_s": 120,

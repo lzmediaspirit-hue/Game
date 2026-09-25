@@ -789,6 +789,28 @@
       }
     }
   },
+  "frost_lotus_patch": {
+    "anchor": [
+      28,
+      40
+    ],
+    "file": "res://art/props/frost_lotus_patch.png",
+    "frame": [
+      56,
+      44
+    ],
+    "states": {
+      "depleted": {
+        "col": 3,
+        "frames": 1
+      },
+      "ready": {
+        "col": 0,
+        "fps": 5,
+        "frames": 3
+      }
+    }
+  },
   "grey_patch": {
     "anchor": [
       40,
@@ -911,6 +933,23 @@
         "col": 0,
         "fps": 5,
         "frames": 3
+      }
+    }
+  },
+  "icicle_rock": {
+    "anchor": [
+      56,
+      84
+    ],
+    "file": "res://art/props/icicle_rock.png",
+    "frame": [
+      112,
+      88
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
       }
     }
   },
@@ -1085,6 +1124,24 @@
       "idle": {
         "col": 0,
         "frames": 1
+      }
+    }
+  },
+  "lotus_lantern": {
+    "anchor": [
+      20,
+      26
+    ],
+    "file": "res://art/props/lotus_lantern.png",
+    "frame": [
+      40,
+      32
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 4,
+        "frames": 4
       }
     }
   },

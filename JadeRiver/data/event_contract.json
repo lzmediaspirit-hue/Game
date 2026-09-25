@@ -394,6 +394,24 @@
    ],
    "polled": "Open pages redraw on every event."
   },
+  "auction_bid_placed": {
+   "system": "Economy",
+   "files": [
+    "economy_authority"
+   ]
+  },
+  "auction_outbid": {
+   "system": "Economy",
+   "files": [
+    "economy_authority"
+   ]
+  },
+  "auction_won": {
+   "system": "Economy",
+   "files": [
+    "economy_authority"
+   ]
+  },
   "egg_hatched": {
    "system": "Pets",
    "files": [

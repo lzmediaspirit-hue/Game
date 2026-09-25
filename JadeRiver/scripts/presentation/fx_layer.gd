@@ -103,6 +103,13 @@ func _draw_projectile(p: Dictionary) -> void:
 			draw_circle(pos, r + 2, UiKit.INK)
 			draw_circle(pos, r, Color("9a8c78"))
 			draw_rect(Rect2(pos + Vector2(-r * 0.4, -r * 0.5), Vector2(4, 4)), Color("c8bca6"))
+		"ice_shard":
+			var tip := pos + Vector2(dir * 12, 0)
+			draw_colored_polygon(PackedVector2Array([tip, pos + Vector2(0, -5), pos + Vector2(-dir * 10, 0), pos + Vector2(0, 5)]), Color("9fd8ff"))
+			draw_polyline(PackedVector2Array([tip, pos + Vector2(0, -5), pos + Vector2(-dir * 10, 0), pos + Vector2(0, 5), tip]), UiKit.INK, 2)
+			draw_line(pos + Vector2(-dir * 4, -1), tip, Color("e8f7ff"), 2)
+			for i in 3:
+				draw_rect(Rect2((pos + Vector2(-dir * (14 + i * 6), (i - 1) * 3)).snapped(Vector2(2, 2)), Vector2(2, 2)), Color("dff3ff"))
 		"bamboo":
 			draw_line(pos + Vector2(-10, -4), pos + Vector2(10, 4), UiKit.INK, 6)
 			draw_line(pos + Vector2(-10, -4), pos + Vector2(10, 4), Color("8cc05a"), 4)

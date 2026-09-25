@@ -662,3 +662,88 @@ register(FAM, 'snapper_claw', snapper_claw, GROUP)
 register(FAM, 'tiny_hollow_shard', lambda: _hollow_shard(False), GROUP)
 register(FAM, 'hollow_shard', lambda: _hollow_shard(True), GROUP)
 register(FAM, 'grey_hide', lambda: _hide('grey'), GROUP)
+
+
+# ----------------------------------------------------------------------------- Act II · Rimefrost and Mirrorwater
+ICE_RAMP = Ramp(['#2C4C6E', '#4A78A2', '#7FB0D6', '#B8DCF2', '#E8F7FF'], '#10202E')
+SNOWFUR = Ramp(['#6E7F96', '#9AAABE', '#C6D2DE', '#E6EDF3', '#FFFFFF'], '#222C38')
+AZURE = Ramp(['#123A5E', '#1E6190', '#3A93C4', '#7CC8E8', '#D2F2FF'], '#061828')
+
+
+def rime_fang():
+    c = Canvas(32)
+    fang(c, (8, 27), (14, 12), (24, 4), 8.0, ICE_RAMP, root_col=R['bone'])
+    for (x, y) in ((20, 10), (16, 16), (12, 22)):
+        c.put(c.rect(x, y, x, y), '#FFFFFF', 'flat')
+    c.outline()
+    c.glow('#9FD8FF', (60,))
+    return c
+
+
+def snow_ape_hide():
+    c = Canvas(32)
+    hide(c, SNOWFUR, bristle=R['mist'], pale_marks=((12, 15, 2.5), (20, 19, 2.2)))
+    for (x, y) in ((10, 11), (22, 13), (15, 22)):
+        c.put(c.rect(x, y, x + 1, y), ICE_RAMP[3], 'flat', only_on=True)
+    c.outline()
+    return c
+
+
+def dragonet_scale():
+    c = Canvas(32)
+    scale_shape(c, 10, 11, 14, 16, AZURE, ridges=1)
+    scale_shape(c, 22, 11, 14, 16, AZURE, ridges=1)
+    scale_shape(c, 16, 19, 18, 20, AZURE, ridges=2)
+    c.put(c.rect(15, 14, 17, 14), R['gold'][4], 'flat')
+    c.outline()
+    c.glow('#7CC8E8', (50,))
+    return c
+
+
+def mirror_eye():
+    c = Canvas(32)
+    ball = c.ellipse(16, 16, 11, 11)
+    c.put(ball, Ramp(['#6C6A8E', '#A5A6C4', '#D6D8EA', '#F1F2FA', '#FFFFFF'], '#1E1C30'), 'sphere', base=2, cx=12, cy=12, rx=14, ry=14)
+    iris = c.ellipse(17, 16, 5.5, 5.5)
+    c.put(iris, Ramp(['#2B1B52', '#46307E', '#7556AB', '#A687E0', '#D6C4FF'], '#10081E'), 'ray', base=2)
+    c.put(c.ellipse(17, 16, 2.2, 3.4), '#07060E', 'flat')
+    c.put(c.ellipse(12, 11, 2.4, 1.6), '#FFFFFF', 'flat')
+    c.outline()
+    c.glow('#B18DE2', (110, 45))
+    return c
+
+
+register(FAM, 'rime_fang', rime_fang, GROUP)
+register(FAM, 'snow_ape_hide', snow_ape_hide, GROUP)
+register(FAM, 'dragonet_scale', dragonet_scale, GROUP)
+register(FAM, 'mirror_eye', mirror_eye, GROUP)
+
+
+def harpy_plume():
+    c = Canvas(32)
+    feather(c, R['broth'], shaft='#F4E4C8', tip=R['darkwood'], tip_frac=0.2, width=11,
+            notches=((0.6, 1), (0.42, -1), (0.28, 1)), p0=(5, 28), p1=(12, 12), p2=(28, 3))
+    for k in range(4):
+        t = 0.35 + k * 0.14
+        x, y = 5 + (28 - 5) * t, 28 + (3 - 28) * t
+        c.put(c.seg(x - 3, y + 2, x + 3, y - 2, 1.0) & c.a, R['darkwood'][1], 'flat', only_on=True)
+    c.outline()
+    return c
+
+
+def kite_silk():
+    c = Canvas(32)
+    silk = c.poly([(6, 8), (26, 5), (24, 22), (8, 26)])
+    c.put(silk, R['red'], 'ray', base=2, sep=True)
+    for (x0, y0, x1, y1) in ((6, 8, 24, 22), (26, 5, 8, 26)):
+        c.put(c.seg(x0, y0, x1, y1, 1.0) & silk, R['bamboo'][3], 'flat')
+    cl = c.ellipse(13, 15, 3, 2) | c.ellipse(17, 13, 3.5, 2.6) | c.ellipse(20, 15.5, 2.5, 1.8)
+    c.put(cl & silk, R['ink'], 'flat', base=1)
+    c.put(c.bres_path([(8, 26), (5, 29), (9, 30)]), R['gold'][4], 'flat')
+    c.outline()
+    return c
+
+
+register(FAM, 'harpy_plume', harpy_plume, GROUP)
+register(FAM, 'kite_silk', kite_silk, GROUP)
+

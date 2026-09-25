@@ -234,3 +234,91 @@ def banner_alliance(state, f):
         cv.put(tx, 12, GOLD[4])
     outline(cv)
     return cv
+
+
+# ------------------------------------------------------------------ Phase B: Rimefrost and Mirrorwater
+from defs_nature import HERB_STATES, cut_stems  # noqa: E402
+
+FROST_PETAL = ramp("#5b6f9a", "#8fa6cf", "#bfd2ef", "#e4eefb", "#ffffff")
+ICE = ramp("#2c4c6e", "#4a78a2", "#7fb0d6", "#b8dcf2", "#e8f7ff")
+
+
+@prop("frost_lotus_patch", 28, 22, states=HERB_STATES)
+def frost_lotus_patch(state, f):
+    """A lotus that blooms in snow: a cup of ice-blue petals over frosted leaves on a snow mound."""
+    W, H = 28, 22
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    ground_shadow(cv, 14, 20, 12, 1.4)
+    for (cx, cy, rx) in ((7, 17, 6), (21, 17, 6), (14, 18, 7)):
+        leaf = m_ellipse(W, H, cx, cy, rx, 2.2)
+        shade(cv, leaf, LEAF_BLUE, contour=True, R=1, base=0.5, gain=1.0)
+        cv.fill(top_edge(leaf) & ((xx % 3) != 0), hexc("#e8f2f6"))
+    mound = m_ellipse(W, H, 14, 20, 11, 2.0) & (yy >= 19)
+    shade(cv, mound, ramp("#9fb3c8", "#c6d4e2", "#e3ebf2", "#f7fafc"), R=1, base=0.6, gain=0.6)
+    if state == "ready":
+        # outer petals first, then the inner cup; each petal is a pointed oval
+        for k, (x0, x1, tip, ty) in enumerate(((5, 12, 6, 9), (16, 23, 22, 9), (8, 14, 10, 6), (14, 20, 18, 6),
+                                               (11, 17, 14, 4))):
+            pm = m_poly(W, H, [(x0, 16), ((x0 + tip) / 2 - 1, (16 + ty) / 2), (tip, ty), ((x1 + tip) / 2 + 1, (16 + ty) / 2), (x1, 16)])
+            cv.fill(pm, FROST_PETAL[2 + (k % 2)] if k < 4 else FROST_PETAL[4])
+            cv.fill(left_edge(pm), FROST_PETAL[4])
+            cv.fill(right_edge(pm) & ~left_edge(pm), FROST_PETAL[1])
+        cv.fill(m_rect(W, H, 13, 13, 15, 15), GOLD[5])
+    else:
+        cut_stems(cv, [(14, 16)], pal=LEAF_BLUE, h=2)
+    outline(cv)
+    if state == "ready":
+        sparkle(cv, [8, 20, 14][f % 3], [8, 8, 3][f % 3], 1, hexc("#ffffff"), FROST_PETAL[3], 0.9)
+        glow(cv, 14, 11, 9, 6, hexc("#bfe2ff"), steps=((1.0, 0.08),))
+    return cv
+
+
+@prop("icicle_rock", 56, 44)
+def icicle_rock(state, f):
+    """A boulder under a thick snow cap, hung with icicles along the cap's lip."""
+    W, H = 56, 44
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    gy = 41
+    ground_shadow(cv, 28, gy, 26, 1.8)
+    m = rock(cv, 28, gy, 24, 16, "icicle_rock", pal=STONE, R=3, base=0.5, facets=3)
+    cols = np.where(m.any(axis=0))[0]
+    lip = {}
+    for x in cols:
+        ys = np.where(m[:, x])[0]
+        d = 5 + (1 if (x * 7) % 5 < 2 else 0)
+        lip[int(x)] = int(ys[0]) + d
+        cap = m & (xx == x) & (yy < ys[0] + d)
+        cv.fill(cap, hexc("#e4edf4") if x > 28 else hexc("#f4f8fb"))
+        cv.fill(cap & (yy == ys[0] + d - 1), hexc("#b9c9d8"))
+    cv.fill(top_edge(m), hexc("#ffffff"))
+    for k, x in enumerate(range(int(cols.min()) + 4, int(cols.max()) - 3, 4)):
+        y0 = lip.get(x, 20)
+        ln = 3 + (k * 5) % 5
+        ic = m_poly(W, H, [(x - 1, y0), (x + 1, y0), (x, y0 + ln)])
+        cv.fill(ic, ICE[3])
+        cv.put(x - 1, y0, ICE[4])
+    outline(cv)
+    return cv
+
+
+@prop("lotus_lantern", 20, 16, states=(("idle", 4, 4),), ground=3)
+def lotus_lantern(state, f):
+    """A paper lotus lantern floating on the lake, its candle breathing light onto the water."""
+    W, H = 20, 16
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    ring = m_ellipse(W, H, 10, 13.5, 9, 1.8)
+    cv.fill(ring, WATER[4], 0.5)
+    base = m_ellipse(W, H, 10, 12, 7, 2)
+    shade(cv, base, LEAF_BLUE, R=1, base=0.5, gain=0.8)
+    for k, (x0, x1, tip) in enumerate(((4, 9, 6), (11, 16, 14), (7, 13, 10))):
+        pm = m_poly(W, H, [(x0, 12), (tip, 4 + (k == 2) * -1), (x1, 12)])
+        cv.fill(pm, hexc("#f4c7d6") if k != 2 else hexc("#fbe3ea"))
+        cv.fill(left_edge(pm), hexc("#fff3f7"))
+    outline(cv, skip=ring & ~cv.solid)
+    flick = (0.16, 0.22, 0.18, 0.24)[f % 4]
+    glow(cv, 10, 9, 7, 6, hexc("#ffd28a"), steps=((1.0, flick),))
+    cv.fill(m_rect(W, H, 9 + (f % 2), 14, 11, 14) & ~cv.solid, hexc("#ffe6a8"), 0.5)
+    return cv

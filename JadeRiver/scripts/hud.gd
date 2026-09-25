@@ -525,6 +525,12 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.raiders_damaged_your_repair_it") % ContentDB.name_of("sect_buildings", str(p.building)), "danger")
 		"zone_ceiling_reached":
 			toast(Tx.t("hud.this_land_can_take_you"), "gold")
+		"auction_bid_placed":
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.auction_bid_placed") % [ContentDB.item_name(str(p.get("item", ""))), int(p.get("bid", 0))], UiKit.PALE_GOLD)
+		"auction_outbid":
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.auction_outbid") % ContentDB.item_name(str(p.get("item", ""))), UiKit.MIST)
+		"auction_won":
+			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.auction_won") % ContentDB.item_name(str(p.get("item", ""))), "gold")
 
 # ------------------------------------------------------------------ drawing
 func ring(center: Vector2, radius: float, active := false, opacity := 1.0, gold := false) -> void:

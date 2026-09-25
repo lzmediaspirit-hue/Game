@@ -1949,6 +1949,48 @@
    "quest": "beyond_the_valley"
   },
   {
+   "id": "auction_house",
+   "label": "Auction house",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "nine_seats"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "going_once",
+   "same_stage_ok": true
+  },
+  {
+   "id": "clans",
+   "label": "Clans",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_2"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_canyon_toll"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "ironroot_blood",
+   "same_stage_ok": true
+  },
+  {
    "id": "storm_ward",
    "label": "Storm Ward attunement",
    "trigger": {

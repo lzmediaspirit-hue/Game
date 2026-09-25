@@ -170,6 +170,16 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"learn_secret_art": progression.apply_learn_secret_art(actor_id, str(e.art))
 			"event_passed": progression.apply_event_passed(actor_id, str(e.event))
 			"grant_title": achievements.apply_title(actor_id, str(e.title))
+			"swap_path":
+				# S20: the Hall allows one change of path. Each side has its flag, token and title.
+				var pc = character(actor_id)
+				if pc == null: continue
+				var to_free: bool = pc.quests.has_flag("path_alliance")
+				quest.apply_clear_flag(actor_id, "path_alliance" if to_free else "path_independent")
+				quest.apply_flag(actor_id, "path_independent" if to_free else "path_alliance")
+				if to_free: inventory.apply_remove(actor_id, "alliance_token", 1, source)
+				else: inventory.apply_add(actor_id, "alliance_token", 1, source)
+				achievements.apply_title(actor_id, "free_cultivator" if to_free else "alliance_envoy")
 			"join_sect": training.apply_join(actor_id, str(e.sect))
 			"sect_rank": training.apply_rank(actor_id, str(e.rank))
 			"grant_equipment": inventory.apply_add_equipment(actor_id, str(e.item), int(e.get("ilv", 0)), str(e.get("quality", "common")), source)

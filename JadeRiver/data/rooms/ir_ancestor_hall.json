@@ -1,0 +1,132 @@
+{
+ "schema_version": 1,
+ "id": "ir_ancestor_hall",
+ "zone": "azure_expanse",
+ "region": "ironroot_hold",
+ "name": "Ancestor Hall",
+ "type": "insight",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 2.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "wood"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    1280,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    120,
+    700
+   ],
+   "to": "ir_clan_hearth",
+   "to_portal": "hall_door",
+   "press_up": true,
+   "label": "Clan Hearth"
+  }
+ ],
+ "objects": [
+  {
+   "id": "ancestral_tablets",
+   "type": "inspect",
+   "at": [
+    640,
+    720
+   ],
+   "prop": "altar",
+   "text": "Rows of iron-root tablets, one for every Ironroot who ever lived. The newest is blank.",
+   "set_flag": "tablets_honoured"
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    360,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    920,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "altar",
+   "at": [
+    640,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "incense_burner",
+   "at": [
+    360,
+    760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "incense_burner",
+   "at": [
+    920,
+    760
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_wood"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "music": "meditation"
+}

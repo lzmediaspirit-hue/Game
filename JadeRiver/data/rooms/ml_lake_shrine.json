@@ -1,0 +1,168 @@
+{
+ "schema_version": 1,
+ "id": "ml_lake_shrine",
+ "zone": "azure_expanse",
+ "region": "mirrorwater_lake",
+ "name": "Lake Shrine",
+ "type": "insight",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "soul",
+ "qi_density": 2.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "mirror_lake",
+ "ground": {
+  "material": "stone",
+  "tint": "#e4e2f0"
+ },
+ "spawn_point": [
+  300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ml_sentinel_causeway",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "shrine_ml",
+   "type": "shrine",
+   "at": [
+    400,
+    700
+   ]
+  },
+  {
+   "id": "mirror_altar",
+   "type": "inspect",
+   "at": [
+    1280,
+    720
+   ],
+   "prop": "altar",
+   "text": "A bronze mirror, green with age. The water in its basin does not ripple.",
+   "set_flag": "mirror_vision_seen"
+  },
+  {
+   "id": "insight_mirror",
+   "type": "insight_stone",
+   "at": [
+    2000,
+    720
+   ],
+   "element": "soul",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "insight_sites"
+     }
+    ]
+   },
+   "locked_text": "Your reflection in the stone blinks after you do."
+  },
+  {
+   "id": "journal_lake",
+   "type": "pickup",
+   "at": [
+    1500,
+    900
+   ],
+   "item": "lu_journal_page",
+   "count": 1,
+   "prop": "scroll_rack",
+   "set_flag": "journal_lake",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "journal_lake"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "paifang_gate",
+   "at": [
+    640,
+    650
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "pagoda",
+   "at": [
+    1800,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "lotus_lantern",
+   "at": [
+    900,
+    700
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "lotus_lantern",
+   "at": [
+    1500,
+    700
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "lotus_lantern",
+   "at": [
+    2200,
+    700
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "meditation",
+ "ambience": "river_ambience"
+}

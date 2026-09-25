@@ -1,0 +1,169 @@
+{
+ "schema_version": 1,
+ "id": "np_alliance_gate",
+ "zone": "azure_expanse",
+ "region": "nine_peaks",
+ "name": "Alliance Gate",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.6,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "nine_peaks",
+ "ground": {
+  "material": "stone",
+  "tint": "#e8e2d6"
+ },
+ "spawn_point": [
+  420,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "ferry",
+   "type": "door",
+   "at": [
+    420,
+    704
+   ],
+   "to": "ae_skydock",
+   "to_portal": "peaks_ferry",
+   "press_up": true,
+   "label": "Sky-ship to Cloudgate Port"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "np_hall_of_nine",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "stone_nine_peaks",
+   "type": "teleport_stone",
+   "at": [
+    2100,
+    880
+   ],
+   "stone": "nine_peaks"
+  },
+  {
+   "id": "shrine_np_gate",
+   "type": "shrine",
+   "at": [
+    700,
+    700
+   ]
+  },
+  {
+   "id": "npc_alliance_guard_np",
+   "type": "npc",
+   "at": [
+    1400,
+    900
+   ],
+   "npc": "alliance_guard",
+   "facing": -1
+  },
+  {
+   "id": "sign_np",
+   "type": "signpost",
+   "at": [
+    2380,
+    860
+   ],
+   "text": "Nine Peaks, seat of the Alliance. East: the Hall of Nine."
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "sky_ship",
+   "at": [
+    420,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "paifang_gate",
+   "at": [
+    1400,
+    650
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "banner_alliance",
+   "at": [
+    900,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "banner_alliance",
+   "at": [
+    1900,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "statue_guardian_lion",
+   "at": [
+    1150,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "statue_guardian_lion",
+   "at": [
+    1650,
+    690
+   ],
+   "layer": "play",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "sect",
+ "ambience": "wind_ambience",
+ "town": true
+}

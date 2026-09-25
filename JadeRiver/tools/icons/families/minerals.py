@@ -319,3 +319,20 @@ register(FAM, 'guardian_stone', guardian_stone, GROUP)
 register(FAM, 'jade_core', lambda: _core('jade'), GROUP)
 register(FAM, 'pebble_core', lambda: _core('pebble'), GROUP)
 register(FAM, 'serpent_core', lambda: _core('serpent'), GROUP)
+
+
+def sentinel_core():
+    """The heart of a River Sentinel: a river pebble polished to aquamarine, water swirling inside."""
+    c = Canvas(32)
+    ramp = Ramp(['#0F3A44', '#1B6070', '#2E97A4', '#74D2D0', '#D4FAF2'], '#051A20')
+    m = core(c, 16, 16, 11, ramp)
+    sw = c.arc(16, 16, 6, 1.4, 20, 240) | c.arc(17, 18, 3, 1.2, 190, 50)
+    c.put(sw & m, ramp, 'flat', base=4)
+    c.put(c.ellipse(11.5, 10.5, 2.4, 1.6), ramp[4], 'flat')
+    c.outline()
+    c.glow('#74D2D0', (110, 45))
+    return c
+
+
+register(FAM, 'sentinel_core', sentinel_core, GROUP)
+

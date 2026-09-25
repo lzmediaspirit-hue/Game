@@ -19,6 +19,7 @@ HERBS = [
     ("mist_lotus", "earth", "A pale lotus that only opens in waterfall mist."),
     ("cloudtop_orchid", "heaven", "An orchid that grows on ledges only flyers can reach."),
     ("soulbell_flower", "heaven", "Its bell-shaped petals ring softly against the soul."),
+    ("frost_lotus", "spirit", "A lotus that blooms in snow on Rimefrost Heights. Cold to the touch, clear to the mind."),
 ]
 ORES = [
     ("copper_ore", "plain", "Soft copper ore from the quarry rim.", "Copper"),
@@ -124,6 +125,15 @@ def build_items():
     # Azure Expanse beasts (Act II)
     rows.append(item("spark_pelt", "beast_part", "spirit", 99, "A golden pelt that snaps with static. Taken from Spark Weasels."))
     rows.append(item("thunder_horn", "beast_part", "spirit", 99, "A thunderhorn's horn. It still holds a charge."))
+    rows.append(item("rime_fang", "beast_part", "spirit", 99, "A frost lynx's fang, rimed with ice that never melts."))
+    rows.append(item("snow_ape_hide", "beast_part", "spirit", 99, "A thick white hide from a Snow Ape. Warm even in a blizzard."))
+    rows.append(item("dragonet_scale", "beast_part", "spirit", 99, "An azure scale from a carp halfway to becoming a dragon."))
+    rows.append(item("sentinel_core", "material", "spirit", 99, "The polished heart-stone of a River Sentinel. Water turns slowly inside it."))
+    rows.append(item("mirror_eye", "material", "spirit", 99, "One of the Thousand-Eye Toad's mirror eyes. It still shows what it last saw."))
+    rows.append(item("kite_silk", "beast_part", "spirit", 99, "Painted silk from a Wind Kite. It still pulls toward the wind."))
+    rows.append(item("harpy_plume", "beast_part", "spirit", 99, "A russet plume from a Canyon Harpy's crest, barred like a hawk's."))
+    rows.append(item("alliance_token", "key", "spirit", 1, "A jade token of the Nine Peaks Alliance. Sky roads open for its bearer."))
+    rows.append(item("ironroot_token", "key", "spirit", 1, "An iron-hard sliver of root, carved with the Ironroot clan's mark."))
     rows.append(item("storm_shard", "material", "spirit", 999,
                      "A splinter of the Expanse's storms. Levels your Storm Ward jades (Character > Attunement)."))
     for (cid, grade, desc) in [("serpent_core", "earth", "The core of the Riverbed Serpent; a pill ingredient."),

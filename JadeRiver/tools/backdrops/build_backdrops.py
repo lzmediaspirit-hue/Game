@@ -2626,6 +2626,239 @@ def sky_port():
     return dict(sky="#2b5e8e", horizon="#fdf6e6", layers=layers)
 
 
+def rimefrost():
+    """Rimefrost Heights: snow spires under a pale winter sky, frozen pines and deep drifts."""
+    layers = []
+    sky = sky_layer([(0.0, "#8aa2bd"), (0.3, "#a9bdd2"), (0.55, "#c9d7e4"), (0.75, "#e2eaf1"), (0.9, "#f1f5f8"),
+                     (1.0, "#e9eff4")])
+    overcast(sky, 36, "rfo", R("#7d92ad", "#91a6be", "#a9bbcf"), lobe=22, depth=12, top_dark=30)
+    for i, (cx, y, ln) in enumerate(((140, 90, 160), (430, 70, 190), (560, 120, 120))):
+        streak(sky, cx, y, ln, R("#b4c5d6", "#d4dfe9", "#f4f8fb"), ("rfs", i), rows=2)
+    layers.append((sky, 0.0, 720))
+
+    fh = 220
+    far = Canvas(W, fh)
+    back = R("#8ea3bb", "#9db1c6", "#afc0d2", "#c3d1de", "#d9e3ec", "#eef3f8")
+    for i, (cx, top, hw) in enumerate(gen_peaks("rfb", 7, 30, 80, 26, 40)):
+        karst_peak(far, cx, top, hw, back, ("rfb", i), p=rng("rfbp", i).uniform(1.4, 2.0), rough=2.2, gain=1.2,
+                   crevice=1.0, shoulder=0.8)
+    base_fade(far, 100, 170, "#eef3f7", steps=3)
+    front = R("#4e6680", "#5d7690", "#7189a1", "#8aa0b5", "#a9bccd", "#d2dde8")
+    snow = R("#dbe6ef", "#f7fbfd")
+    for i, (cx, top, hw) in enumerate(gen_peaks("rff", 5, 10, 60, 26, 38)):
+        spire(far, cx, top, hw, front, ("rff", i), snow=snow)
+    base_fade(far, 130, 190, "#f1f5f8", steps=4)
+    cloud_bank(far, 180, "rfcb0", R("#b3c3d3", "#c7d4e0", "#d9e3ec", "#e9f0f5", "#f7fafc", "#ffffff"), r_lo=5, r_hi=12,
+               rows=2, row_gap=10, amp=5, fill_below=True)
+    layers.append((far, 0.08, 560))
+
+    mh = 180
+    mid = Canvas(W, mh)
+    snow_r = R("#9fb2c6", "#b6c6d6", "#cad7e3", "#dde6ee", "#edf2f7", "#fbfdfe")
+    prof = hill_profile(92, 14, "rfm", cell=150, octaves=3)
+    hill_row(mid, prof, snow_r, "rfm", gain=0.45, fall=1.6, sharp=2.0)
+    frost_pine = R("#2a4546", "#355451", "#46655f", "#5f7d77", "#c9d8e0", "#f2f7fa")   # dark needles, snow on the pads
+    trunk = R("#2c2622", "#3f362e", "#56493c", "#6e5e4c")
+    g = rng("rfm_trees")
+    for k in range(10):
+        x = int(g.uniform(0, W))
+        pine(mid, x, int(prof[x % W]) + 2, int(g.uniform(18, 30)), frost_pine, trunk, ("rfp", k),
+             lean=g.uniform(-0.4, 0.4), pads=4, pad_w=7)
+    mist_band(mid, 120, 8, "rfmm", "#eef3f7", alphas=(0.2, 0.34), amp=3, gaps=0.25)
+    layers.append((mid, 0.18, 620))
+
+    near = Canvas(W, 200)
+    prof2 = hill_profile(146, 8, "rfn", cell=110, octaves=2)
+    hill_row(near, prof2, R("#8ea3b8", "#a6b8ca", "#bccbd9", "#d2dde7", "#e6edf3", "#f8fbfd"), "rfn", gain=0.5, sharp=2.0)
+    for k, x in enumerate((90, 330, 560)):
+        pine(near, x, int(prof2[x % W]) + 3, 40 - k * 6, frost_pine, trunk, ("rfnp", k), lean=0.4 if k % 2 else -0.3,
+             pads=5, pad_w=11)
+    layers.append((near, 0.32, 720))
+    return dict(sky="#8aa2bd", horizon="#e9eff4", layers=layers)
+
+
+def mirror_lake():
+    """Mirrorwater Lake: a lake so still it doubles the floating peaks, lotus in the shallows."""
+    layers = []
+    sky = sky_layer([(0.0, "#5d6fa8"), (0.28, "#8a92c2"), (0.5, "#b8b6d6"), (0.68, "#dcd2e2"), (0.84, "#f1e6e4"),
+                     (1.0, "#f6ece2")])
+    for i, (cx, y, ln) in enumerate(((110, 70, 180), (380, 50, 150), (560, 100, 170))):
+        streak(sky, cx, y, ln, R("#a7a7cf", "#d2cde3", "#faf4f0"), ("mls", i), rows=2)
+    disc(sky, 470, 90, 10, R("#e6c9c9", "#f6e4dc", "#fff7ef"), halo="#f6e2dc")
+    layers.append((sky, 0.0, 720))
+
+    fh = 220
+    far = Canvas(W, fh)
+    water_y = 142
+    peaks = R("#5c6690", "#6c769e", "#8088ae", "#989fbf", "#b4b8d0", "#d4d4e2")
+    for i, (cx, top, hw) in enumerate(gen_peaks("mlp", 5, 30, 80, 22, 34)):
+        spire(far, cx, top, hw, peaks, ("mlp", i), base=water_y, snow=R("#dcdbe8", "#f4f2f8"))
+    for i, (cx, top, hw, dp) in enumerate(((90, 26, 22, 30), (330, 16, 30, 40), (540, 34, 18, 26))):
+        floating_island(far, cx, top, hw, dp, R("#5c7c78", "#6e8e86", "#87a698", "#a8c2b0"),
+                        R("#4b557c", "#5b6690", "#707ba4", "#8c95b8", "#aab1cc"), ("mli", i))
+    base_fade(far, 110, water_y, "#e9dfe6", steps=3)
+    # the mirror: everything above the waterline, flipped into the lake, cooler and a touch darker
+    yy, xx, _ = grids(fh)
+    lake = yy >= water_y
+    src = np.clip(2 * water_y - 1 - yy, 0, fh - 1)
+    ref_rgb = far.rgb[src, xx]
+    ref_a = far.a[src, xx]
+    tint = np.array(C("#7f8fb4"), float)
+    base_c = np.array(C("#c9cbe0"), float)
+    col = ref_rgb * ref_a[..., None] + base_c * (1 - ref_a[..., None])
+    col = col * 0.72 + tint * 0.28
+    rip = pn2(fh, "mlrip", 30, 1.2, 2)
+    col = col * (1.0 - (rip > 0.72)[..., None] * 0.08) + (rip < 0.18)[..., None] * 18.0
+    far.rgb[lake] = np.clip(col[lake], 0, 255)
+    far.a[lake] = 1.0
+    flat(far, lake & (yy == water_y), "#f3eef4")
+    gl = lake & (pn2(fh, "mlgl", 44, 5, 1) > 0.78) & (yy > water_y + 3)
+    flat(far, gl, "#fbf7f8", 0.8)
+    layers.append((far, 0.08, 560))
+
+    mh = 180
+    mid = Canvas(W, mh)
+    yy, _, _ = grids(mh)
+    # a stone causeway across the shallows with its lanterns, and lotus beds
+    shore = np.round(118 + (pn1("mls", 90, 2) - 0.5) * 4)
+    water = river(mid, shore, np.full(W, mh - 1.0), R("#56638f", "#6a78a0", "#8290b4", "#9eaac6", "#bcc4d8", "#dde1ec"),
+                  "mlw", bank="#e7e6f0", glint="#fbf8fb", reflect="#7a86ad", reflect_rows=2, ripples=0.2)
+    cw = wrect(mh, 0, 110, W - 1, 116)
+    paint(mid, cw, R("#4c5270", "#62698a", "#8189a6", "#a4abc2"), np.full((mh, W), 2.2), sharp=2)
+    flat(mid, top_rim(cw), "#c8cbd9")
+    for x in range(20, W, 64):
+        post_m = wrect(mh, x, 100, x + 2, 110)
+        flat(mid, post_m, "#3e4462")
+        flat(mid, wrect(mh, x - 1, 97, x + 3, 100), "#e8b86a")
+        flat(mid, wrect(mh, x, 98, x + 2, 99), "#fff0c0")
+    for i, (px, py, rx) in enumerate(((70, 140, 40), (300, 152, 54), (520, 136, 36))):
+        pool(mid, px, py, rx, 3, R("#2f5a4c", "#3f7460", "#5d9477"), ("mlpad", i))
+        g = rng("mllotus", i)
+        for k in range(4):
+            lx, ly = int(px + g.uniform(-rx * 0.8, rx * 0.8)), int(py + g.uniform(-2, 1))
+            flat(mid, wellipse(mh, lx, ly - 2, 2, 1.5), "#e89ab4")
+            put(mid, lx, ly - 3, "#fbd6e2")
+    layers.append((mid, 0.18, 620))
+
+    near = Canvas(W, 200)
+    for i, (x0, x1) in enumerate(((0, 60), (140, 230), (400, 470), (560, 640))):
+        reeds(near, x0, x1, 170, ("mlr", i), R("#233a3c", "#2e4a48", "#3b5b55", "#4c6d62", "#628270"),
+              heads=R("#4a3a2c", "#6b5640"), hmin=14, hmax=48)
+    layers.append((near, 0.32, 720))
+    return dict(sky="#5d6fa8", horizon="#f6ece2", layers=layers)
+
+def gale_canyon():
+    """Gale Canyons: wind-carved sandstone walls and arches under a racing sky, a rope bridge, kites."""
+    layers = []
+    sky = sky_layer([(0.0, "#3f78b0"), (0.3, "#6c9ccb"), (0.55, "#a9c7e0"), (0.75, "#e0e6e0"), (0.9, "#f3e6cf"),
+                     (1.0, "#efd9b6")])
+    for i, (cx, y, ln) in enumerate(((60, 40, 220), (300, 66, 200), (520, 30, 240), (200, 100, 180), (450, 120, 160))):
+        streak(sky, cx, y, ln, R("#9ebcd8", "#d6e4ef", "#ffffff"), ("gks", i), rows=2)
+    layers.append((sky, 0.0, 720))
+
+    fh = 240
+    far = Canvas(W, fh)
+    yy, _, _ = grids(fh)
+    back = R("#c49a78", "#cda585", "#d6b193", "#dfbea3", "#e8ccb5")
+    back_wall = yy >= hill_profile(70, 14, "gkb", cell=90, octaves=3)[None, :]
+    cliff_face(far, back_wall, back, "gkb", flute=7, ledges=0.2, gain=0.8)
+    base_fade(far, 90, 200, "#f1dcc0", steps=4)
+    wall = R("#8a4f34", "#a2603e", "#b87449", "#cc8c5a", "#dca574", "#ecc596")
+    for i, (x0, x1, top) in enumerate(((-30, 120, 30), (210, 330, 46), (420, 560, 22))):
+        wm = wall_mass(fh, x0 % W, x1 % W, top, ("gkw", i), jag=3, round_r=12, crest_amp=4)
+        cliff_face(far, wm, wall, ("gkwf", i), flute=5, ledges=0.5, strata="#7d4630")
+    # a natural arch between the first two walls
+    arch = wellipse(fh, 170, 104, 64, 36) & ~wellipse(fh, 170, 112, 46, 30) & (yy < 112)
+    cliff_face(far, arch, wall, "gkarch", flute=4, ledges=0.0, strata="#7d4630")
+    base_fade(far, 160, 236, "#efd6b6", steps=4)
+    layers.append((far, 0.08, 560))
+
+    mh = 220
+    mid = Canvas(W, mh)
+    yy, _, _ = grids(mh)
+    wall2 = R("#4a2418", "#5e2f1f", "#743b27", "#8c4c31", "#a8623f", "#c47e55", "#dca173")
+    for i, (x0, x1, top) in enumerate(((-120, 140, 10), (390, 560, 24))):
+        wm = wall_mass(mh, x0 % W, x1 % W, top, ("gkm", i), jag=5, round_r=16, crest_amp=6)
+        cliff_face(mid, wm, wall2, ("gkmf", i), flute=6, ledges=0.7, strata="#4a2418", gain=1.3)
+    # the rope bridge slung between the two walls, planks and hand-ropes sagging in the middle
+    x0, x1, yb = 140, 390, 70
+    pts = [(x0 + (x1 - x0) * t / 40.0, yb + 26 * math.sin(math.pi * t / 40.0)) for t in range(41)]
+    deck = wline(mh, pts, 2)
+    flat(mid, deck, "#6e4a2c")
+    for k in range(0, 41, 2):
+        px, py = pts[k]
+        flat(mid, wrect(mh, int(px), int(py), int(px), int(py) + 2), "#9a7048")
+    rope = wline(mh, [(x, y - 8) for x, y in pts], 1)
+    flat(mid, rope, "#c9a877")
+    for k in range(0, 41, 5):
+        px, py = pts[k]
+        flat(mid, wline(mh, [(px, py - 8), (px, py)], 1), "#b8956a")
+    # kites riding the wind above the canyon
+    for i, (kx, ky) in enumerate(((250, 20), (470, 8), (60, 34))):
+        kite = wpoly(mh, [(kx, ky - 6), (kx + 5, ky), (kx, ky + 7), (kx - 5, ky)])
+        flat(mid, kite, "#c6313a" if i % 2 == 0 else "#e0b440")
+        flat(mid, left_rim(kite), "#f4d88a")
+        flat(mid, wline(mh, [(kx, ky + 7), (kx - 6, ky + 14), (kx - 2, ky + 20), (kx - 9, ky + 28)], 1), "#f4e6c8")
+    mist_band(mid, 150, 10, "gkmm", "#f3dcc0", alphas=(0.18, 0.3), amp=3, gaps=0.25)
+    layers.append((mid, 0.18, 620))
+
+    near = Canvas(W, 200)
+    dark = R("#2e150e", "#3d1d13", "#4f2819", "#633421", "#7a432c", "#945939")
+    for i, (bx, rx, ry) in enumerate(((60, 44, 40), (330, 26, 16), (560, 40, 44))):
+        rock_blob(near, bx, 196, rx, ry, dark, ("gkn", i), facets=4)
+    layers.append((near, 0.32, 720))
+    return dict(sky="#3f78b0", horizon="#efd9b6", layers=layers)
+
+
+def nine_peaks():
+    """Nine Peaks: the Alliance seat, nine spires crowned with halls and bridges in a gold afternoon."""
+    layers = []
+    sky = sky_layer([(0.0, "#2f5c94"), (0.3, "#5f89ba"), (0.55, "#a8c0d8"), (0.75, "#eadbc6"), (0.9, "#f7e2bd"),
+                     (1.0, "#f4d7a8")])
+    for i, (cx, y, ln) in enumerate(((100, 60, 170), (360, 38, 160), (560, 84, 200))):
+        streak(sky, cx, y, ln, R("#b7c8dc", "#f0e4d4", "#fffaf0"), ("nps", i), rows=2)
+    disc(sky, 120, 100, 12, R("#f0c880", "#fbe2a8", "#fff6d8"), halo="#f8e0b0")
+    layers.append((sky, 0.0, 720))
+
+    fh = 230
+    far = Canvas(W, fh)
+    back = R("#7d8fb0", "#8b9cbb", "#9dacc6", "#b2bfd3", "#cbd4e1", "#e3e8ef")
+    for i, (cx, top, hw) in enumerate(gen_peaks("npb", 6, 40, 90, 22, 34)):
+        karst_peak(far, cx, top, hw, back, ("npb", i), p=rng("npbp", i).uniform(1.6, 2.4), rough=1.6, gain=1.1)
+    base_fade(far, 110, 180, "#f2e4cc", steps=3)
+    spire_r = R("#39465f", "#465573", "#58688a", "#6f80a0", "#8c9cb8", "#b4c0d2")
+    roof = R("#1d2c3a", "#2a3e50", "#43607a", "#6a8aa4")
+    wallc = R("#8c8a82", "#d8d4c8", "#f0ece2")
+    peaks = [(40, 30, 16), (110, 12, 18), (185, 40, 15), (250, 6, 20), (320, 34, 16), (390, 18, 18), (455, 44, 14),
+             (520, 10, 19), (590, 36, 16)]
+    tops = []
+    for i, (cx, top, hw) in enumerate(peaks):
+        m, prof = spire(far, cx, top, hw, spire_r, ("npf", i), trees=R("#223a3a", "#2c4a46", "#385a52", "#476b5d"))
+        ty = int(prof[cx % W])
+        tops.append((cx, ty))
+        if i % 2 == 0:
+            pagoda(far, cx, ty + 1, 3, 10, roof, windows="#ffd98a")
+        else:
+            hall(far, cx - 10, ty + 2, 20, 5, 5, roof, wallc, post_col="#7a2e28", tiers=1, lit="#ffd98a", seed=i)
+    for (ax, ay), (bx, by) in zip(tops[:-1], tops[1:]):
+        if abs(bx - ax) < 90:
+            mid_y = max(ay, by) + 12
+            flat(far, wline(fh, [(ax + 4, ay + 6), ((ax + bx) / 2, mid_y), (bx - 4, by + 6)], 1), "#6a5a44")
+    cloud_bank(far, 186, "npcb0", R("#b9c4d2", "#cdd5df", "#e0e5ec", "#efe9e2", "#f9f3ea", "#ffffff"), r_lo=5, r_hi=12,
+               rows=2, row_gap=10, amp=5, fill_below=True)
+    layers.append((far, 0.08, 560))
+
+    mh = 180
+    mid = Canvas(W, mh)
+    cloud_bank(mid, 130, "npcb1", R("#aab6c6", "#c3ccd9", "#d9dfe7", "#ece9e4", "#f8f3ec", "#ffffff"), r_lo=8, r_hi=18,
+               rows=2, row_gap=16, amp=6, fill_below=True)
+    layers.append((mid, 0.18, 620))
+    near = Canvas(W, 200)
+    cloud_bank(near, 150, "npcb2", R("#b6c1cf", "#cbd3de", "#dee4eb", "#eeebe6", "#f9f5ef", "#ffffff"), r_lo=10, r_hi=22,
+               rows=2, row_gap=20, amp=8, fill_below=True)
+    layers.append((near, 0.32, 720))
+    return dict(sky="#2f5c94", horizon="#f4d7a8", layers=layers)
+
 def interior():
     sky = sky_layer([(0.0, "#120c09"), (0.25, "#1d140e"), (0.5, "#2c1e14"), (0.62, "#35241a"), (0.8, "#261a12"),
                      (1.0, "#150e0a")], bands=14, sharp=2.0)
@@ -2648,9 +2881,13 @@ SCENES = {
     "interior": interior,
     "storm_plains": storm_plains,
     "sky_port": sky_port,
+    "rimefrost": rimefrost,
+    "mirror_lake": mirror_lake,
+    "gale_canyon": gale_canyon,
+    "nine_peaks": nine_peaks,
 }
 ORDER = ["valley_day", "valley_dusk", "valley_night", "marsh", "bamboo", "quarry", "mist_peak", "gorge", "cave",
-         "sect_jade", "sect_cloud", "interior", "storm_plains", "sky_port"]
+         "sect_jade", "sect_cloud", "interior", "storm_plains", "sky_port", "rimefrost", "mirror_lake", "gale_canyon", "nine_peaks"]
 
 
 def hexs(c):

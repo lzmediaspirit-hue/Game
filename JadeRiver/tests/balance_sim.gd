@@ -31,6 +31,7 @@ func _main() -> void:
 	var hours := {}              # realm key -> hours when it is reached
 	var t := float(cfg.get("prologue_hours", 0.5)) * 60.0   # active minutes
 	var end_key := str(cfg.get("act_end", "heaven_glimpse_3"))
+	var sim_end := str(cfg.get("sim_end", end_key))
 	var key := "bone_forging_1"
 	while key != "":
 		hours[key] = t / 60.0
@@ -51,9 +52,9 @@ func _main() -> void:
 		var daily := float(ContentDB.curve("quest_qp_pct.daily", 0.05)) * float(cfg.get("dailies_per_hour", 1.0)) * base_min / 60.0
 		var minutes := base_min * maxf(0.2, 1.0 - lump - daily)
 		t += minutes + detour
-		if key == end_key: break
+		if key == end_key: hours["act_end"] = t / 60.0
+		if key == sim_end: break
 		key = str(r.get("next", ""))
-	hours["act_end"] = t / 60.0
 	var tol := float(cfg.get("tolerance", 0.15))
 	print("realm                  sim h   target h   ratio")
 	var targets: Array = cfg.get("pacing", []).duplicate()

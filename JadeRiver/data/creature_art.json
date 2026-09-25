@@ -1,4 +1,52 @@
 {
+  "azure_carp_dragonet": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      96,
+      96
+    ],
+    "cell": 192,
+    "file": "res://art/creatures/azure_carp_dragonet.png",
+    "flying": true,
+    "hit_frame": 1
+  },
   "bamboo_monkey": {
     "actions": {
       "attack": {
@@ -93,6 +141,54 @@
     "cell": 192,
     "file": "res://art/creatures/boulder_serpent.png",
     "flying": false,
+    "hit_frame": 1
+  },
+  "canyon_harpy": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      96,
+      96
+    ],
+    "cell": 192,
+    "file": "res://art/creatures/canyon_harpy.png",
+    "flying": true,
     "hit_frame": 1
   },
   "cliff_ape": {
@@ -284,6 +380,54 @@
     ],
     "cell": 128,
     "file": "res://art/creatures/ember_fox.png",
+    "flying": false,
+    "hit_frame": 1
+  },
+  "frost_lynx": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      96,
+      168
+    ],
+    "cell": 192,
+    "file": "res://art/creatures/frost_lynx.png",
     "flying": false,
     "hit_frame": 1
   },
@@ -1535,6 +1679,54 @@
     "flying": false,
     "hit_frame": 1
   },
+  "river_sentinel": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      96,
+      168
+    ],
+    "cell": 192,
+    "file": "res://art/creatures/river_sentinel.png",
+    "flying": false,
+    "hit_frame": 1
+  },
   "riverbed_serpent": {
     "actions": {
       "attack": {
@@ -1630,6 +1822,54 @@
     "file": "res://art/creatures/rock_beetle.png",
     "flying": false,
     "hit_frame": 2
+  },
+  "snow_ape": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      96,
+      168
+    ],
+    "cell": 192,
+    "file": "res://art/creatures/snow_ape.png",
+    "flying": false,
+    "hit_frame": 1
   },
   "spark_weasel": {
     "actions": {
@@ -1871,6 +2111,54 @@
     "flying": false,
     "hit_frame": 2
   },
+  "thousand_eye_toad": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      128,
+      224
+    ],
+    "cell": 256,
+    "file": "res://art/creatures/thousand_eye_toad.png",
+    "flying": false,
+    "hit_frame": 1
+  },
   "thunderhorn_rhino": {
     "actions": {
       "attack": {
@@ -2110,5 +2398,53 @@
     "file": "res://art/creatures/wild_boarlet.png",
     "flying": false,
     "hit_frame": 2
+  },
+  "wind_kite": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      96,
+      96
+    ],
+    "cell": 192,
+    "file": "res://art/creatures/wind_kite.png",
+    "flying": true,
+    "hit_frame": 1
   }
 }

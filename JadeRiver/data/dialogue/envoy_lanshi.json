@@ -1,0 +1,137 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "envoy_lanshi": {
+   "id": "envoy_lanshi",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_active",
+        "quest": "nine_seats"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "path_alliance"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "path_independent"
+       }
+      ]
+     },
+     "node": "offer"
+    },
+    {
+     "requires": {
+      "all": [
+       {
+        "any": [
+         {
+          "kind": "flag_set",
+          "flag": "path_alliance"
+         },
+         {
+          "kind": "flag_set",
+          "flag": "path_independent"
+         }
+        ]
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "path_changed"
+       }
+      ]
+     },
+     "node": "change"
+    }
+   ],
+   "nodes": {
+    "offer": {
+     "lines": [
+      "The Alliance offers you a seat: a token that opens every sky road, the Factor's better prices, and the Hall's ear.",
+      "Or walk the free road, like the broker. No token, no tolls paid in obedience. Lower fees at the Pavilion. Fewer friends."
+     ],
+     "choices": [
+      {
+       "text": "Take the Alliance seat.",
+       "effects": [
+        {
+         "kind": "set_flag",
+         "flag": "path_alliance"
+        },
+        {
+         "kind": "grant_item",
+         "item": "alliance_token",
+         "count": 1
+        },
+        {
+         "kind": "grant_title",
+         "title": "alliance_envoy"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Keep the free road.",
+       "effects": [
+        {
+         "kind": "set_flag",
+         "flag": "path_independent"
+        },
+        {
+         "kind": "grant_title",
+         "title": "free_cultivator"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Let me think.",
+       "close": true
+      }
+     ]
+    },
+    "change": {
+     "lines": [
+      "Changed your mind? The Hall allows it once. It costs 300 Spirit Stones in paperwork, and it costs more in trust."
+     ],
+     "choices": [
+      {
+       "text": "Change my path (300 stones).",
+       "requires": {
+        "all": [
+         {
+          "kind": "currency_at_least",
+          "currency": "spirit_stone",
+          "amount": 300
+         }
+        ]
+       },
+       "effects": [
+        {
+         "kind": "grant_currency",
+         "currency": "spirit_stone",
+         "amount": -300
+        },
+        {
+         "kind": "swap_path"
+        },
+        {
+         "kind": "set_flag",
+         "flag": "path_changed"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "No. I'll keep to it.",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

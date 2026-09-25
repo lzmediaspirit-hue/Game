@@ -1,0 +1,135 @@
+{
+ "schema_version": 1,
+ "id": "np_presence_terrace",
+ "zone": "azure_expanse",
+ "region": "nine_peaks",
+ "name": "Presence Terrace",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.6,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "nine_peaks",
+ "ground": {
+  "material": "stone",
+  "tint": "#e8e2d6"
+ },
+ "spawn_point": [
+  300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "np_hall_of_nine",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "sealed",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "gc_canyon_mouth",
+   "to_portal": "west",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "nine_seats"
+     }
+    ]
+   },
+   "locked_text": "Champion Qiao: \"The canyons are the Alliance's business. Take a seat in the Hall first.\""
+  }
+ ],
+ "objects": [
+  {
+   "id": "spar_np",
+   "type": "spar_post",
+   "at": [
+    1500,
+    860
+   ],
+   "opponent": "alliance_champion",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "attack"
+     }
+    ]
+   }
+  },
+  {
+   "id": "npc_champion_qiao",
+   "type": "npc",
+   "at": [
+    1700,
+    780
+   ],
+   "npc": "champion_qiao",
+   "facing": -1
+  },
+  {
+   "id": "sign_np_terrace",
+   "type": "signpost",
+   "at": [
+    2380,
+    860
+   ],
+   "text": "East: the Gale Canyons (Lv 73-78, Storm Ward 35-42). Tolls collected at the Canyon Mouth."
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "rite_circle",
+   "at": [
+    1280,
+    880
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "sect",
+ "ambience": "wind_ambience",
+ "town": true
+}

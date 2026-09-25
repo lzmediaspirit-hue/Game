@@ -432,6 +432,26 @@
     "ae_port_market",
     "ae_skydock",
     "ae_wayfarers_inn",
+    "gc_canyon_mouth",
+    "gc_harpy_roosts",
+    "gc_kite_winds",
+    "gc_windbridge",
+    "ir_ancestor_hall",
+    "ir_clan_hearth",
+    "ir_hold_gate",
+    "ml_lake_shrine",
+    "ml_mirror_shallows",
+    "ml_reedless_shore",
+    "ml_sentinel_causeway",
+    "ml_toads_hollow",
+    "np_alliance_gate",
+    "np_auction_pavilion",
+    "np_hall_of_nine",
+    "np_presence_terrace",
+    "rf_frostpine_climb",
+    "rf_hermits_ice_cave",
+    "rf_rimefrost_summit",
+    "rf_snow_ape_ledges",
     "tp_herders_camp",
     "tp_lightning_scar",
     "tp_stormgrass_verge",
@@ -474,8 +494,7 @@
      "map": [
       0.5,
       0.22
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "mirrorwater_lake",
@@ -488,8 +507,7 @@
      "map": [
       0.7,
       0.42
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "nine_peaks",
@@ -501,8 +519,7 @@
      "map": [
       0.4,
       0.46
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "gale_canyons",
@@ -515,8 +532,7 @@
      "map": [
       0.26,
       0.3
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "ironroot_hold",
@@ -528,8 +544,7 @@
      "map": [
       0.3,
       0.6
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "sunscar_desert",

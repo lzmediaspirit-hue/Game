@@ -62,6 +62,25 @@
    ],
    "to": "tp_thunderhorn_flats",
    "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "sealed",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "rf_frostpine_climb",
+   "to_portal": "west",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_1"
+     }
+    ]
+   },
+   "locked_text": "Rimefrost's cold stops any heart that has not reached Sage."
   }
  ],
  "objects": [
@@ -184,6 +203,60 @@
    ],
    "loot": "chest_expanse",
    "level": 69
+  },
+  {
+   "id": "grey_tracks_0",
+   "type": "inspect",
+   "at": [
+    700,
+    880
+   ],
+   "prop": "grey_patch",
+   "text": "Footprints in the scorched grass. Where each one falls, the colour has drained away.",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "shards_for_sale"
+     }
+    ]
+   }
+  },
+  {
+   "id": "grey_tracks_1",
+   "type": "inspect",
+   "at": [
+    1500,
+    880
+   ],
+   "prop": "grey_patch",
+   "text": "Footprints in the scorched grass. Where each one falls, the colour has drained away.",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "shards_for_sale"
+     }
+    ]
+   }
+  },
+  {
+   "id": "grey_tracks_2",
+   "type": "inspect",
+   "at": [
+    2600,
+    880
+   ],
+   "prop": "grey_patch",
+   "text": "Footprints in the scorched grass. Where each one falls, the colour has drained away.",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "shards_for_sale"
+     }
+    ]
+   }
   },
   {
    "id": "insight_thunder",

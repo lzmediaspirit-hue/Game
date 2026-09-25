@@ -9,11 +9,11 @@
       "all": [
        {
         "kind": "quest_done",
-        "quest": "storm_in_the_blood"
+        "quest": "the_mirror_remembers"
        },
        {
         "kind": "flag_not_set",
-        "flag": "heard_grey_pilgrim"
+        "flag": "heard_nine_seats"
        }
       ]
      },
@@ -23,16 +23,16 @@
    "nodes": {
     "rumours": {
      "lines": [
-      "A tip, free, because you pay your bills: someone is buying Hollow shards across the Expanse.",
-      "Grey robes. No shadow, even at noon. The herders on the plains saw him too."
+      "You look like someone who has seen a ghost in a lake. It happens.",
+      "Word from Nine Peaks: the Alliance is counting heads. Everyone who crossed the gate this year gets asked to pick a side."
      ],
      "choices": [
       {
-       "text": "I'll keep my eyes open.",
+       "text": "Then I'll decide when they ask.",
        "effects": [
         {
          "kind": "set_flag",
-         "flag": "heard_grey_pilgrim"
+         "flag": "heard_nine_seats"
         }
        ],
        "close": true

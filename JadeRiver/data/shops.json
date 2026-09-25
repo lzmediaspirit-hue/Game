@@ -948,6 +948,10 @@
    "id": "alliance_factor",
    "name": "Alliance Factor's Hall",
    "currency": "spirit_stone",
+   "discount": {
+    "flag": "path_alliance",
+    "pct": 0.1
+   },
    "stock": [
     {
      "item": "stormsteel_jian"
@@ -1250,6 +1254,108 @@
        {
         "kind": "realm_at_least",
         "realm": "heaven_glimpse_3"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "free_market",
+   "name": "Broker Mu's Back Room",
+   "currency": "spirit_stone",
+   "requires": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "path_independent"
+     }
+    ]
+   },
+   "stock": [
+    {
+     "item": "manual_page",
+     "price": 5
+    },
+    {
+     "item": "torn_manual",
+     "price": 24
+    },
+    {
+     "item": "storm_blood_pill"
+    },
+    {
+     "item": "spirit_egg",
+     "price": 36
+    }
+   ],
+   "rotation": {
+    "count": 2,
+    "pool": [
+     {
+      "item": "sage_condensing_pill",
+      "price": 80
+     },
+     {
+      "item": "mirror_eye",
+      "price": 70
+     },
+     {
+      "item": "jade_core",
+      "price": 18
+     },
+     {
+      "item": "sentinel_core",
+      "price": 30
+     },
+     {
+      "item": "frost_lotus",
+      "price": 9
+     }
+    ]
+   }
+  },
+  {
+   "id": "ironroot_clan",
+   "name": "Ironroot Clan Forge",
+   "currency": "spirit_stone",
+   "buys_all": true,
+   "discount": {
+    "flag": "clan_ironroot",
+    "pct": 0.15
+   },
+   "stock": [
+    {
+     "item": "stormsteel_jian"
+    },
+    {
+     "item": "stormsteel_spear"
+    },
+    {
+     "item": "stormsteel_gauntlets"
+    },
+    {
+     "item": "stormsteel_staff"
+    },
+    {
+     "item": "stormsilk_robe"
+    },
+    {
+     "item": "stormsilk_boots"
+    },
+    {
+     "item": "stormsteel_ore"
+    },
+    {
+     "item": "bone_strengthening_pill"
+    },
+    {
+     "item": "thunderhorn_stew",
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "clan_ironroot"
        }
       ]
      }

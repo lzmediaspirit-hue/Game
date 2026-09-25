@@ -72,6 +72,16 @@
    "desc": "Its bell-shaped petals ring softly against the soul."
   },
   {
+   "id": "frost_lotus",
+   "name": "Frost Lotus",
+   "type": "herb",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "frost_lotus",
+   "desc": "A lotus that blooms in snow on Rimefrost Heights. Cold to the touch, clear to the mind."
+  },
+  {
    "id": "copper_ore",
    "name": "Copper",
    "type": "ore",
@@ -470,6 +480,96 @@
    "stack": 99,
    "icon": "thunder_horn",
    "desc": "A thunderhorn's horn. It still holds a charge."
+  },
+  {
+   "id": "rime_fang",
+   "name": "Rime Fang",
+   "type": "beast_part",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "rime_fang",
+   "desc": "A frost lynx's fang, rimed with ice that never melts."
+  },
+  {
+   "id": "snow_ape_hide",
+   "name": "Snow Ape Hide",
+   "type": "beast_part",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "snow_ape_hide",
+   "desc": "A thick white hide from a Snow Ape. Warm even in a blizzard."
+  },
+  {
+   "id": "dragonet_scale",
+   "name": "Dragonet Scale",
+   "type": "beast_part",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "dragonet_scale",
+   "desc": "An azure scale from a carp halfway to becoming a dragon."
+  },
+  {
+   "id": "sentinel_core",
+   "name": "Sentinel Core",
+   "type": "material",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "sentinel_core",
+   "desc": "The polished heart-stone of a River Sentinel. Water turns slowly inside it."
+  },
+  {
+   "id": "mirror_eye",
+   "name": "Mirror Eye",
+   "type": "material",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "mirror_eye",
+   "desc": "One of the Thousand-Eye Toad's mirror eyes. It still shows what it last saw."
+  },
+  {
+   "id": "kite_silk",
+   "name": "Kite Silk",
+   "type": "beast_part",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "kite_silk",
+   "desc": "Painted silk from a Wind Kite. It still pulls toward the wind."
+  },
+  {
+   "id": "harpy_plume",
+   "name": "Harpy Plume",
+   "type": "beast_part",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "harpy_plume",
+   "desc": "A russet plume from a Canyon Harpy's crest, barred like a hawk's."
+  },
+  {
+   "id": "alliance_token",
+   "name": "Alliance Token",
+   "type": "key",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 1,
+   "icon": "alliance_token",
+   "desc": "A jade token of the Nine Peaks Alliance. Sky roads open for its bearer."
+  },
+  {
+   "id": "ironroot_token",
+   "name": "Ironroot Token",
+   "type": "key",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 1,
+   "icon": "ironroot_token",
+   "desc": "An iron-hard sliver of root, carved with the Ironroot clan's mark."
   },
   {
    "id": "storm_shard",

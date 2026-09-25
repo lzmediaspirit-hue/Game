@@ -63,10 +63,10 @@ Three threads carry the act:
 
 - **A · Foundation (done).** Zone-aware map; the crossing from the Ascension Gate; Cloudgate Port and the
   Thunderhorn Plains; Spark Weasel and Thunderhorn Rhino; Storm Ward jades and shards; chapter 11.
-- **B · Heights and lake.** Rimefrost Heights, Mirrorwater Lake, four monsters, the Thousand-Eye Toad;
+- **B · Heights and lake (done).** Rimefrost Heights, Mirrorwater Lake, four monsters, the Thousand-Eye Toad;
   chapter 12.
-- **C · Nine Peaks.** Alliance or independence, auction house, clans (Ironroot), Gale Canyons;
-  chapter 13.
+- **C · Nine Peaks (done).** Alliance or independence, auction house, clans (Ironroot), Gale Canyons;
+  chapter 13. The Trial Hall moves to phase E with the Presence Trial.
 - **D · Sunscar.** Desert, the Tomb of Sunscar and its King; chapter 14.
 - **E · Starsea.** Skyport Wreck, pirates, star charts and vessels, sect war; chapters 15–16 and the
   Presence Trial.
@@ -78,4 +78,34 @@ one jade costs 120 shards and a full set 480 (Storm Ward 60, the Skyport Wreck's
 their region's value unless they set their own (the Stormgrass Verge asks 6, the Lightning Scar 12);
 safe rooms ask nothing. Spark Weasels drop a shard about one kill in three, Thunderhorn Rhinos one or two
 in half their kills, and jars and chests of the Expanse carry them too.
+
+
+## Pacing
+
+The Part 4 table puts Sage at 70 h and Sage Sovereign at 110 h. Sage-level income is far above the
+100 QP a minute the realm table's minutes assume (Sage Qi, denser Qi, better methods), so the Sage
+stages need 1,050 target minutes per Level. Act II main quests pay 8% of the stage's need and side
+quests 4% (the `act2_main` and `act2_side` buckets), because its stages are long and hold more
+story. The balance simulator plays on to Sage Sovereign 1 and checks both targets (it lands Sage 1
+at about 63 h and Sage Sovereign 1 at about 104 h, inside ±15%).
+
+## Phase C · Nine Peaks, Ironroot and the Gale Canyons (built)
+
+- **Travel.** A second sky-ship route from the Skydock to the Alliance Gate (chapter 13 onward), and a
+  teleport stone at the Alliance Gate.
+- **Nine Peaks (town).** Alliance Gate, Hall of Nine (the council and the path choice), Presence
+  Terrace (Alliance sparring ladder), Auction Pavilion (the NPC auction house), Trial Hall (weekly
+  trials later).
+- **Alliance or independent (S20).** "Nine Seats" ends in a choice kept on the character: the Alliance
+  (an envoy rank, Alliance missions, the Factor's discount, safe passage on every sky road) or the free
+  path (Broker Mu's network, black-market lots, a lower auction fee, no toll). Either can be changed once
+  at a price.
+- **NPC auction house (S21, Sage 1, account slot 10).** Rotating lots of rare goods; each lot runs on the
+  clock and NPC bidders raise against you by their own budgets (named Rng stream). Winning pays Spirit
+  Stones; outbid stones return by mail.
+- **Clans (Sage 2).** Ironroot Clan Hold (Hold Gate, Clan Hearth, Ancestor Hall): an adoption quest
+  ("Ironroot Blood") makes you a clan member with a clan shop and a small body-growth bonus.
+- **Gale Canyons (73–78, Storm Ward 40).** Canyon Mouth, Kite Winds, Harpy Roosts, Windbridge; Wind Kite
+  and Canyon Harpy; wind-gust hazards on the bridges.
+- **Chapter 13:** Nine Seats · Ironroot Blood · The Canyon Toll.
 

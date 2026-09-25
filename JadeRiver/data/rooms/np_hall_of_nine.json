@@ -1,0 +1,192 @@
+{
+ "schema_version": 1,
+ "id": "np_hall_of_nine",
+ "zone": "azure_expanse",
+ "region": "nine_peaks",
+ "name": "Hall of Nine",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.6,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "nine_peaks",
+ "ground": {
+  "material": "stone",
+  "tint": "#e8e2d6"
+ },
+ "spawn_point": [
+  300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "hall_of_nine",
+   "rect": [
+    930,
+    550,
+    700,
+    140
+   ],
+   "height": 130,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "hall"
+  },
+  {
+   "id": "auction_house",
+   "rect": [
+    1900,
+    598,
+    400,
+    92
+   ],
+   "height": 168,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "village_store"
+  }
+ ],
+ "portals": [
+  {
+   "id": "pavilion_door",
+   "type": "door",
+   "at": [
+    2140,
+    704
+   ],
+   "to": "np_auction_pavilion",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Auction Pavilion"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "np_alliance_gate",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "np_presence_terrace",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_envoy_lanshi",
+   "type": "npc",
+   "at": [
+    1080,
+    780
+   ],
+   "npc": "envoy_lanshi",
+   "facing": 1
+  },
+  {
+   "id": "npc_elder_zhong",
+   "type": "npc",
+   "at": [
+    1480,
+    760
+   ],
+   "npc": "elder_zhong",
+   "facing": -1
+  },
+  {
+   "id": "npc_broker_mu_np",
+   "type": "npc",
+   "at": [
+    300,
+    900
+   ],
+   "npc": "broker_mu",
+   "facing": 1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "nine_seats"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "banner_alliance",
+   "at": [
+    400,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "banner_alliance",
+   "at": [
+    2160,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_post",
+   "at": [
+    800,
+    670
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_post",
+   "at": [
+    1760,
+    670
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "sect",
+ "ambience": "wind_ambience",
+ "town": true
+}

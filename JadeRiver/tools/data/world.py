@@ -77,8 +77,9 @@ ORES = {
     "mystic_ore": ("mystic_vein", [1, 1]),
     "stormsteel_ore": ("stormsteel_vein", [1, 2]),
 }
+HERBS["frost_lotus"] = ("frost_lotus_patch", [1, 1])
 HERB_RANK = {"willow_moss": "apprentice", "riverreed_ginseng_10": "apprentice", "ember_pepper": "apprentice",
-             "mist_lotus": "adept", "cloudtop_orchid": "expert", "soulbell_flower": "expert"}
+             "mist_lotus": "adept", "cloudtop_orchid": "expert", "soulbell_flower": "expert", "frost_lotus": "master"}
 ORE_RANK = {"copper_ore": "apprentice", "riverstone": "apprentice", "jadeiron": "adept", "spirit_stone_shard": "adept",
             "cloudsteel_ore": "expert", "mystic_ore": "expert", "stormsteel_ore": "master"}
 
@@ -485,13 +486,13 @@ def lotus_ferry():
 # ---------------------------------------------------------------------------------------------
 def field(rid, name, region, screens, levels, backdrop, material, spawns, herbs=(), ores=(), jars=5, chest=None,
           element="none", gather_tier="", qi=1.0, music="field", ambience="", rtype="field", trees=("willow_tree", "pine_tree"),
-          platforms=(), fishing=None, loot="jar_valley_low", elite=True, hazards=(), **kw):
+          platforms=(), fishing=None, loot="jar_valley_low", elite=True, hazards=(), ledge=None, **kw):
     r = Room(rid, name, rtype, region, screens, levels=levels, cp=int(20 + levels[0] * 18), element=element,
              gather_tier=gather_tier, idle=kw.pop("idle", ["hunt", "gather"]), backdrop=backdrop, material=material,
              music=music, ambience=ambience, qi=qi, hazards=list(hazards), **kw)
     lv_mid = max(1, (levels[0] + levels[1]) // 2)
     for i, (sx, sy, w, h) in enumerate(platforms):
-        r.surface("ledge_%d" % i, [sx, sy, w, 50], h, kind=("rock_ledge" if material in ("stone", "slate", "rock", "snow") else "branch"))
+        r.surface("ledge_%d" % i, [sx, sy, w, 50], h, kind=ledge or ("rock_ledge" if material in ("stone", "slate", "rock", "snow") else "branch"))
     for i, sp in enumerate(spawns):
         enemy, count, lv = sp[0], sp[1], sp[2]
         pts = r.points(count + 1, x0=240 + i * 60, x1=r.w - 240 - i * 40)
@@ -1398,6 +1399,12 @@ def azure_expanse():
     r.decor("sack_pile", [1260, 730])
     r.painted("condensing_hall", "hall", 2080, 520, 120, 120, front=690)
     r.portal("hall_door", "door", [2080, 704], "ae_condensing_hall", "entry", press_up=True, label="Condensing Hall")
+    r.portal("lake_ferry", "door", [700, 704], "ml_reedless_shore", "ferry", press_up=True, label="Sky-ship to Mirrorwater Lake",
+             requires=any_of(qactive("the_mirror_remembers"), qdone("the_mirror_remembers")),
+             locked_text="Dockmaster Fu: \"The lake ferry sails for those with business there. Alliance rules.\"")
+    r.portal("peaks_ferry", "door", [1700, 704], "np_alliance_gate", "ferry", press_up=True, label="Sky-ship to Nine Peaks",
+             requires=all_of(qdone("the_mirror_remembers")),
+             locked_text="Dockmaster Fu: \"Nine Peaks ships carry Alliance guests only. You'll be invited soon enough.\"")
     r.npc("dockmaster_fu", [1100, 780], facing=1)
     r.npc("sky_sailor_ning", [600, 900], facing=1)
     r.edge("east", "east", "ae_landing", "west", y=850)
@@ -1449,9 +1456,214 @@ def azure_expanse():
               spawns=[("thunderhorn_rhino", 4, [67, 69], 16), ("spark_weasel", 2, [66, 67])], ores=("stormsteel_ore", "stormsteel_ore"),
               jars=5, chest="chest_expanse", attunement_required=12, hazards=["lightning"], **plains)
     plains_scenery(r, stones=5)
+    for i, x in enumerate((700, 1500, 2600)):
+        r.obj("grey_tracks_%d" % i, "inspect", [x, 880], prop="grey_patch", text="Footprints in the scorched grass. Where each one falls, the colour has drained away.",
+              visible_if=all_of(qactive("shards_for_sale")))
     r.obj("insight_thunder", "insight_stone", [1900, 720], element="thunder", requires=all_of(unlock("insight_sites")),
           locked_text="A glassy stone, fused by lightning.")
     r.edge("west", "west", "tp_thunderhorn_flats", "east", y=850)
+    r.edge("east", "east", "rf_frostpine_climb", "west", y=850, ptype="sealed", requires=all_of(realm("sage_1")),
+           locked_text="Rimefrost's cold stops any heart that has not reached Sage.")
+
+
+def rimefrost_and_mirrorwater():
+    """Phase B: Rimefrost Heights (Storm Ward 20) and Mirrorwater Lake (25), chapter 12."""
+    heights = dict(backdrop="rimefrost", material="snow", music="summit", ambience="wind_ambience", element="water",
+                   gather_tier="expanse_mid", qi=1.6, loot="jar_expanse", trees=("pine_tree", "icicle_rock"), hazards=["cold"], **AE)
+    r = field("rf_frostpine_climb", "Frostpine Climb", "rimefrost_heights", 3, [67, 70],
+              spawns=[("frost_lynx", 5, [67, 70])], herbs=("frost_lotus",), ores=("stormsteel_ore",), jars=4, attunement_required=16,
+              platforms=[(700, 660, 300, 160), (1700, 650, 300, 240)], **heights)
+    r.obj("sign_rf", "signpost", [200, 860], text="Rimefrost Heights. West: the Lightning Scar · East: the Snow Ape Ledges.")
+    r.npc("grey_pilgrim", [2600, 760], facing=-1, visible_if=all_of(qactive("shards_for_sale")))
+    r.edge("west", "west", "tp_lightning_scar", "east", y=850)
+    r.edge("east", "east", "rf_snow_ape_ledges", "west", y=850)
+
+    r = field("rf_snow_ape_ledges", "Snow Ape Ledges", "rimefrost_heights", 3, [68, 72],
+              spawns=[("snow_ape", 4, [68, 72], 16), ("frost_lynx", 2, [68, 70])], herbs=("frost_lotus",), ores=("stormsteel_ore",),
+              jars=4, attunement_required=20, platforms=[(900, 650, 300, 220), (2100, 660, 300, 180)], **heights)
+    for x in (600, 1500, 3000):
+        r.decor("icicle_rock", [x, 660], layer="back")
+    r.edge("west", "west", "rf_frostpine_climb", "east", y=850)
+    r.edge("east", "east", "rf_rimefrost_summit", "west", y=850)
+
+    r = field("rf_rimefrost_summit", "Rimefrost Summit", "rimefrost_heights", 2, [70, 72],
+              spawns=[("snow_ape", 3, [70, 72], 18)], herbs=("frost_lotus", "frost_lotus"), jars=3, chest="chest_expanse",
+              attunement_required=22, elite=True, **heights)
+    r.obj("shrine_rf_summit", "shrine", [300, 700])
+    r.obj("insight_frost", "insight_stone", [1500, 720], element="water", requires=all_of(unlock("insight_sites")),
+          locked_text="A stone glazed with clear ice.")
+    r.portal("ice_cave", "hidden", [2200, 700], "rf_hermits_ice_cave", "entry", press_up=True, label="Hermit's Ice Cave")
+    r.edge("west", "west", "rf_snow_ape_ledges", "east", y=850)
+
+    r = interior("rf_hermits_ice_cave", "Hermit's Ice Cave", "rimefrost_heights", wall="wall_stone", floor="floor_stone",
+                 music="meditation", qi=2.2, rtype="insight", tint="#dbe8f4", **AE)
+    r.decor("icicle_rock", [220, 680], layer="back")
+    r.decor("icicle_rock", [1080, 680], layer="back", flip=True)
+    r.decor("meditation_mat", [640, 860])
+    r.decor("incense_burner", [760, 760])
+    r.obj("spring_ice", "qi_spring", [420, 900], spring=True)
+    r.npc("hermit_shuang", [640, 780], facing=-1)
+    r.portal("entry", "door", [120, 700], "rf_rimefrost_summit", "ice_cave", press_up=True, label="Rimefrost Summit")
+
+    lake = dict(backdrop="mirror_lake", material="moss", music="river", ambience="river_ambience", element="water",
+                gather_tier="expanse_mid", qi=1.7, loot="jar_expanse", trees=("willow_tree", "reeds"), tint="#b9c6d8", **AE)
+    r = field("ml_reedless_shore", "Reedless Shore", "mirrorwater_lake", 3, [68, 70],
+              spawns=[("azure_carp_dragonet", 4, [68, 70])], jars=4, attunement_required=22, fishing="mirror_lake", **lake)
+    r.decor("sky_ship", [420, 660], layer="back")
+    r.portal("ferry", "door", [420, 704], "ae_skydock", "lake_ferry", press_up=True, label="Sky-ship to Cloudgate Port")
+    r.obj("sign_ml", "signpost", [700, 860], text="Mirrorwater Lake. East: the Mirror Shallows. The sky-ship returns to Cloudgate Port.")
+    r.edge("east", "east", "ml_mirror_shallows", "west", y=850)
+
+    r = field("ml_mirror_shallows", "Mirror Shallows", "mirrorwater_lake", 3, [69, 73],
+              spawns=[("azure_carp_dragonet", 5, [69, 73])], jars=4, attunement_required=25, **lake)
+    for x in (500, 1100, 1900, 2600, 3300):
+        r.decor("lotus_lantern", [x, 700], layer="back")
+    for i, x in enumerate((760, 1500, 2300, 3000)):
+        r.decor("lotus_pads", [x, 770 + (i % 2) * 130])
+    r.portal("hollow", "door", [1900, 700], "ml_toads_hollow", "entry", press_up=True, label="Toad's Hollow")
+    r.edge("west", "west", "ml_reedless_shore", "east", y=850)
+    r.edge("east", "east", "ml_sentinel_causeway", "west", y=850)
+
+    r = field("ml_sentinel_causeway", "Sentinel Causeway", "mirrorwater_lake", 3, [72, 75],
+              spawns=[("river_sentinel", 4, [72, 75], 20), ("azure_carp_dragonet", 2, [71, 73])], jars=4, chest="chest_expanse",
+              attunement_required=28, **lake)
+    for x in (400, 1300, 2200, 3100):
+        r.decor("stone_lantern", [x, 690])
+    r.edge("west", "west", "ml_mirror_shallows", "east", y=850)
+    r.edge("east", "east", "ml_lake_shrine", "west", y=850)
+
+    r = Room("ml_lake_shrine", "Lake Shrine", "insight", "mirrorwater_lake", 2, backdrop="mirror_lake", material="stone",
+             music="meditation", ambience="river_ambience", element="soul", qi=2.0, spawn_point=[300, 820], tint="#e4e2f0", **AE)
+    r.decor("paifang_gate", [640, 650])
+    r.decor("pagoda", [1800, 640], layer="back")
+    for x in (900, 1500, 2200):
+        r.decor("lotus_lantern", [x, 700], layer="back")
+    r.obj("shrine_ml", "shrine", [400, 700])
+    r.obj("mirror_altar", "inspect", [1280, 720], prop="altar", text="A bronze mirror, green with age. The water in its basin does not ripple.",
+          set_flag="mirror_vision_seen")
+    r.obj("insight_mirror", "insight_stone", [2000, 720], element="soul", requires=all_of(unlock("insight_sites")),
+          locked_text="Your reflection in the stone blinks after you do.")
+    r.obj("journal_lake", "pickup", [1500, 900], item="lu_journal_page", count=1, prop="scroll_rack", set_flag="journal_lake",
+          hidden_if=all_of(flag("journal_lake")))
+    r.edge("west", "west", "ml_sentinel_causeway", "east", y=850)
+
+    r = Room("ml_toads_hollow", "Toad's Hollow", "field", "mirrorwater_lake", 2, backdrop="mirror_lake", material="moss",
+             music="boss", ambience="river_ambience", element="water", levels=[68, 68], safe=False, spawn_point=[260, 820],
+             attunement_required=25, tint="#d0d4e6", **AE)
+    r.spawn("thousand_eye_toad", [[1600, 860]], 1, respawn=2700, level=[68, 68], field_boss=True, boss=True)
+    back_trees(r, ("willow_tree", "reeds", "willow_tree"), step=460)
+    for x in (700, 1100, 2100):
+        r.decor("lotus_lantern", [x, 700], layer="back")
+    for i, x in enumerate((520, 980, 1420, 1880, 2260)):
+        r.decor("lotus_pads", [x, 760 + (i % 2) * 140])
+    r.decor("rock_large", [300, 700])
+    r.decor("rock_small", [2400, 900])
+    front_grass(r, props=("reeds", "tall_grass"), step=320)
+    r.portal("entry", "door", [140, 700], "ml_mirror_shallows", "hollow", press_up=True, label="Mirror Shallows")
+
+
+def nine_peaks_and_canyons():
+    """Phase C: the Alliance seat at Nine Peaks, the Gale Canyons (Storm Ward 35-42) and Ironroot Hold; chapter 13."""
+    peaks = dict(backdrop="nine_peaks", material="stone", music="sect", ambience="wind_ambience", qi=1.6, tint="#e8e2d6", **AE)
+    r = town("np_alliance_gate", "Alliance Gate", "nine_peaks", 2, spawn_point=[420, 820], **peaks)
+    r.decor("sky_ship", [420, 660], layer="back")
+    r.portal("ferry", "door", [420, 704], "ae_skydock", "peaks_ferry", press_up=True, label="Sky-ship to Cloudgate Port")
+    r.decor("paifang_gate", [1400, 650])
+    for x in (900, 1900):
+        r.decor("banner_alliance", [x, 662])
+    r.decor("statue_guardian_lion", [1150, 690])
+    r.decor("statue_guardian_lion", [1650, 690], flip=True)
+    r.obj("stone_nine_peaks", "teleport_stone", [2100, 880], stone="nine_peaks")
+    r.obj("shrine_np_gate", "shrine", [700, 700])
+    r.npc("alliance_guard", [1400, 900], oid="npc_alliance_guard_np", facing=-1)
+    r.obj("sign_np", "signpost", [2380, 860], text="Nine Peaks, seat of the Alliance. East: the Hall of Nine.")
+    r.edge("east", "east", "np_hall_of_nine", "west", y=850)
+
+    r = town("np_hall_of_nine", "Hall of Nine", "nine_peaks", 2, spawn_point=[300, 820], **peaks)
+    r.painted("hall_of_nine", "hall", 1280, 700, 140, 130, front=690)
+    for x in (400, 2160):
+        r.decor("banner_alliance", [x, 662])
+    lantern_row(r, [800, 1760], y=670)
+    r.building("auction_house", "village_store", 2100, front=690, door_dx=40,
+               door=("np_auction_pavilion", "entry", "pavilion_door", {"label": "Auction Pavilion"}))
+    r.npc("envoy_lanshi", [1080, 780], facing=1)
+    r.npc("elder_zhong", [1480, 760], facing=-1)
+    r.npc("broker_mu", [300, 900], oid="npc_broker_mu_np", facing=1, visible_if=all_of(qactive("nine_seats")))
+    r.edge("west", "west", "np_alliance_gate", "east", y=850)
+    r.edge("east", "east", "np_presence_terrace", "west", y=850)
+
+    r = interior("np_auction_pavilion", "Auction Pavilion", "nine_peaks", wall="wall_wood", music="sect", qi=1.6, **AE)
+    r.decor("screen_folding", [300, 690])
+    r.decor("scroll_rack", [1000, 690])
+    for x in (500, 800):
+        r.decor("cushion", [x, 820])
+    r.obj("auction_block", "inspect", [640, 720], prop="counter", text="The auction block. Today's lots are chalked on the board behind it.",
+          open_page="auction", requires=all_of(unlock("auction_house")), locked_text="Auctioneer Tong: \"Bidders only, friend. Alliance rules.\"")
+    r.npc("auctioneer_tong", [760, 740], facing=-1)
+    r.portal("entry", "door", [120, 700], "np_hall_of_nine", "pavilion_door", press_up=True, label="Hall of Nine")
+
+    r = town("np_presence_terrace", "Presence Terrace", "nine_peaks", 2, spawn_point=[300, 820], **peaks)
+    r.decor("rite_circle", [1280, 880])
+    r.obj("spar_np", "spar_post", [1500, 860], opponent="alliance_champion", requires=all_of(unlock("attack")))
+    r.npc("champion_qiao", [1700, 780], facing=-1)
+    r.obj("sign_np_terrace", "signpost", [2380, 860], text="East: the Gale Canyons (Lv 73-78, Storm Ward 35-42). Tolls collected at the Canyon Mouth.")
+    r.edge("west", "west", "np_hall_of_nine", "east", y=850)
+    r.edge("east", "east", "gc_canyon_mouth", "west", y=850, ptype="sealed", requires=all_of(qdone("nine_seats")),
+           locked_text="Champion Qiao: \"The canyons are the Alliance's business. Take a seat in the Hall first.\"")
+
+    canyon = dict(backdrop="gale_canyon", material="earth", music="field_mountain", ambience="wind_ambience", element="wind",
+                  gather_tier="expanse_high", qi=1.7, loot="jar_expanse", trees=("dead_tree_grey", "rock_large"), hazards=["wind_gust"],
+                  tint="#ecd0ac", ledge="rock_ledge", **AE)
+    r = field("gc_canyon_mouth", "Canyon Mouth", "gale_canyons", 3, [73, 75],
+              spawns=[("wind_kite", 4, [73, 75]), ("canyon_brigand", 2, [73, 75])], ores=("stormsteel_ore",), jars=4, attunement_required=35,
+              **canyon)
+    r.npc("tollkeeper_bai", [500, 780], facing=1)
+    r.edge("west", "west", "np_presence_terrace", "east", y=850)
+    r.edge("east", "east", "gc_kite_winds", "west", y=850)
+    r = field("gc_kite_winds", "Kite Winds", "gale_canyons", 3, [74, 76],
+              spawns=[("wind_kite", 5, [74, 76]), ("canyon_harpy", 1, [74, 76])], jars=4, attunement_required=38,
+              platforms=[(800, 650, 300, 220), (1900, 640, 300, 300)], **canyon)
+    r.edge("west", "west", "gc_canyon_mouth", "east", y=850)
+    r.edge("east", "east", "gc_harpy_roosts", "west", y=850)
+    r = field("gc_harpy_roosts", "Harpy Roosts", "gale_canyons", 3, [75, 78],
+              spawns=[("canyon_harpy", 4, [75, 78], 16)], ores=("stormsteel_ore",), jars=4, chest="chest_expanse", attunement_required=40,
+              platforms=[(700, 640, 280, 320), (1600, 650, 280, 260), (2500, 640, 280, 340)], **canyon)
+    r.obj("shrine_gc", "shrine", [300, 700])
+    r.edge("west", "west", "gc_kite_winds", "east", y=850)
+    r.edge("east", "east", "gc_windbridge", "west", y=850)
+    r = field("gc_windbridge", "Windbridge", "gale_canyons", 3, [76, 78],
+              spawns=[("canyon_harpy", 2, [76, 78]), ("wind_kite", 2, [76, 78]), ("canyon_brigand", 2, [76, 78])], jars=3,
+              attunement_required=42, no_flight=True, **canyon)
+    r.edge("west", "west", "gc_harpy_roosts", "east", y=850)
+    r.edge("east", "east", "ir_hold_gate", "west", y=850)
+
+    hold = dict(backdrop="quarry", material="earth", music="field_earth", ambience="wind_ambience", qi=1.6, tint="#d8ccb8", **AE)
+    r = town("ir_hold_gate", "Hold Gate", "ironroot_hold", 2, spawn_point=[300, 820], **hold)
+    r.decor("stockade_wall", [900, 660])
+    r.decor("paifang_gate", [1280, 650])
+    r.decor("stockade_wall", [1660, 660])
+    r.decor("watch_tower", [2100, 640], layer="back")
+    r.obj("shrine_ir", "shrine", [600, 700])
+    r.npc("ironroot_warden", [1400, 780], oid="npc_ironroot_warden", facing=-1)
+    r.edge("west", "west", "gc_windbridge", "east", y=850)
+    r.edge("east", "east", "ir_clan_hearth", "west", y=850)
+    r = town("ir_clan_hearth", "Clan Hearth", "ironroot_hold", 2, spawn_point=[300, 820], **hold)
+    r.building("longhouse", "warehouse", 700, front=690)
+    r.building("clan_forge", "village_house", 1800, front=690, door_dx=0,
+               door=("ir_ancestor_hall", "entry", "hall_door", {"label": "Ancestor Hall"}))
+    r.decor("cooking_pot", [1200, 800])
+    r.decor("weapon_rack_full", [1450, 690])
+    r.obj("anvil_ir", "forge_anvil", [1300, 760], requires=all_of(unlock("smithing")), locked_text="The clan's anvil.")
+    r.npc("matriarch_tie", [1000, 760], facing=1)
+    r.npc("clan_smith_gang", [1300, 820], facing=-1)
+    r.edge("west", "west", "ir_hold_gate", "east", y=850)
+    r = interior("ir_ancestor_hall", "Ancestor Hall", "ironroot_hold", wall="wall_wood", music="meditation", qi=2.0, rtype="insight", **AE)
+    r.decor("altar", [640, 690])
+    for x in (360, 920):
+        r.decor("incense_burner", [x, 760])
+    r.obj("ancestral_tablets", "inspect", [640, 720], prop="altar",
+          text="Rows of iron-root tablets, one for every Ironroot who ever lived. The newest is blank.", set_flag="tablets_honoured")
+    r.portal("entry", "door", [120, 700], "ir_clan_hearth", "hall_door", press_up=True, label="Clan Hearth")
 
 def zone_json():
     rooms = sorted(k for k, r in ROOMS.items() if r.d["zone"] == "jade_river_valley")
@@ -1497,11 +1709,11 @@ def zone_json():
         "regions": [
             {"id": "cloudgate_port", "name": "Cloudgate Port", "levels": [0, 0], "map": [0.82, 0.62]},
             {"id": "thunderhorn_plains", "name": "Thunderhorn Plains", "levels": [64, 69], "attunement": 10, "map": [0.62, 0.70]},
-            {"id": "rimefrost_heights", "name": "Rimefrost Heights", "levels": [67, 72], "attunement": 20, "map": [0.50, 0.22], "planned": True},
-            {"id": "mirrorwater_lake", "name": "Mirrorwater Lake", "levels": [68, 75], "attunement": 25, "map": [0.70, 0.42], "planned": True},
-            {"id": "nine_peaks", "name": "Nine Peaks", "levels": [0, 0], "map": [0.40, 0.46], "planned": True},
-            {"id": "gale_canyons", "name": "Gale Canyons", "levels": [73, 78], "attunement": 40, "map": [0.26, 0.30], "planned": True},
-            {"id": "ironroot_hold", "name": "Ironroot Clan Hold", "levels": [0, 0], "map": [0.30, 0.60], "planned": True},
+            {"id": "rimefrost_heights", "name": "Rimefrost Heights", "levels": [67, 72], "attunement": 20, "map": [0.50, 0.22]},
+            {"id": "mirrorwater_lake", "name": "Mirrorwater Lake", "levels": [68, 75], "attunement": 25, "map": [0.70, 0.42]},
+            {"id": "nine_peaks", "name": "Nine Peaks", "levels": [0, 0], "map": [0.40, 0.46]},
+            {"id": "gale_canyons", "name": "Gale Canyons", "levels": [73, 78], "attunement": 40, "map": [0.26, 0.30]},
+            {"id": "ironroot_hold", "name": "Ironroot Clan Hold", "levels": [0, 0], "map": [0.30, 0.60]},
             {"id": "sunscar_desert", "name": "Sunscar Desert", "levels": [73, 81], "attunement": 50, "map": [0.16, 0.74], "planned": True},
             {"id": "tomb_of_sunscar", "name": "Tomb of Sunscar", "levels": [77, 77], "attunement": 55, "map": [0.08, 0.84], "planned": True},
             {"id": "skyport_wreck", "name": "Skyport Wreck", "levels": [76, 81], "attunement": 60, "map": [0.10, 0.18], "planned": True},
@@ -1518,6 +1730,7 @@ def teleport_stones():
         {"id": "cloud_monastery", "name": "Cloud Sect Monastery", "room": "cm_cliff_stair", "at": [460, 880], "fee_shards": 1},
         {"id": "hidden_vale", "name": "Hidden Vale", "room": "hv_vale_gate", "at": [300, 880], "fee_shards": 1},
         {"id": "cloudgate", "name": "Cloudgate Port", "room": "ae_port_market", "at": [1900, 880], "fee_shards": 1, "zone": "azure_expanse"},
+        {"id": "nine_peaks", "name": "Nine Peaks", "room": "np_alliance_gate", "at": [2100, 880], "fee_shards": 1, "zone": "azure_expanse"},
     ]
     entries("teleport_stones", rows)
     # Every teleport stone object must name one of these.
@@ -1581,6 +1794,8 @@ def build():
     sects()
     valley()
     azure_expanse()
+    rimefrost_and_mirrorwater()
+    nine_peaks_and_canyons()
     check_links()
     reachability()
     os.makedirs(ROOMS_DIR, exist_ok=True)

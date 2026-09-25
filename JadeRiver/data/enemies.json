@@ -3078,6 +3078,786 @@
    "height": 50
   },
   {
+   "id": "frost_lynx",
+   "name": "Frost Lynx",
+   "level": [
+    67,
+    70
+   ],
+   "role": "normal",
+   "element": "water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "leaper",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 160,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "rime_pounce",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       70
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.15,
+     "dash": 120,
+     "status": {
+      "id": "slow",
+      "chance": 0.35,
+      "power": 0.3,
+      "duration_s": 3
+     }
+    }
+   ],
+   "loot": "frost_lynx",
+   "drops": [
+    {
+     "item": "rime_fang",
+     "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.45,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "frost_lotus",
+     "chance": 0.08,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "frost_lynx"
+   },
+   "half_width": 30,
+   "height": 34,
+   "pack": true
+  },
+  {
+   "id": "snow_ape",
+   "name": "Snow Ape",
+   "level": [
+    68,
+    72
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "slow_melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 80,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "ice_slam",
+     "windup_s": 0.8,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 40,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.45,
+     "knockback": 100,
+     "status": {
+      "id": "freeze",
+      "chance": 0.15,
+      "power": 1.0,
+      "duration_s": 1.5
+     }
+    },
+    {
+     "id": "ice_throw",
+     "windup_s": 0.9,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       280
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.1,
+     "projectile": {
+      "speed": 420,
+      "art": "ice_shard"
+     }
+    }
+   ],
+   "loot": "snow_ape",
+   "drops": [
+    {
+     "item": "snow_ape_hide",
+     "chance": 0.45,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    },
+    {
+     "item": "tough_meat",
+     "chance": 0.3,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "snow_ape"
+   },
+   "half_width": 36,
+   "height": 60
+  },
+  {
+   "id": "azure_carp_dragonet",
+   "name": "Azure Carp Dragonet",
+   "level": [
+    68,
+    72
+   ],
+   "role": "normal",
+   "element": "water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "flyer_ranged",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "water_orb",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       300
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.15,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 380,
+      "art": "water_orb"
+     }
+    }
+   ],
+   "loot": "azure_carp_dragonet",
+   "drops": [
+    {
+     "item": "dragonet_scale",
+     "chance": 0.45,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "azure_carp_dragonet"
+   },
+   "half_width": 30,
+   "height": 30,
+   "flying": true
+  },
+  {
+   "id": "river_sentinel",
+   "name": "River Sentinel",
+   "level": [
+    70,
+    75
+   ],
+   "role": "normal",
+   "element": "water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "guard_counter",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 55,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "trident_sweep",
+     "windup_s": 0.85,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       110
+      ],
+      "depth": 40,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.5,
+     "knockback": 90
+    }
+   ],
+   "loot": "river_sentinel",
+   "drops": [
+    {
+     "item": "sentinel_core",
+     "chance": 0.3,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.6,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "river_sentinel"
+   },
+   "half_width": 30,
+   "height": 70
+  },
+  {
+   "id": "wind_kite",
+   "name": "Wind Kite",
+   "level": [
+    73,
+    76
+   ],
+   "role": "normal",
+   "element": "wind",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "flyer",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 140,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "gust_dive",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       120
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.25,
+     "dash": 140,
+     "knockback": 90
+    }
+   ],
+   "loot": "wind_kite",
+   "drops": [
+    {
+     "item": "kite_silk",
+     "chance": 0.45,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "wind_kite"
+   },
+   "half_width": 34,
+   "height": 34,
+   "flying": true
+  },
+  {
+   "id": "canyon_harpy",
+   "name": "Canyon Harpy",
+   "level": [
+    74,
+    78
+   ],
+   "role": "normal",
+   "element": "wind",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "flyer",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 120,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "talon_rake",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       80
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.3,
+     "dash": 90,
+     "status": {
+      "id": "bleed",
+      "chance": 0.25,
+      "power": 0.2,
+      "duration_s": 4
+     }
+    },
+    {
+     "id": "screech",
+     "windup_s": 0.8,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       220
+      ],
+      "depth": 80,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.9,
+     "damage_type": "soul",
+     "status": {
+      "id": "slow",
+      "chance": 0.4,
+      "power": 0.3,
+      "duration_s": 3
+     }
+    }
+   ],
+   "loot": "canyon_harpy",
+   "drops": [
+    {
+     "item": "harpy_plume",
+     "chance": 0.45,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.55,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "canyon_harpy"
+   },
+   "half_width": 34,
+   "height": 44,
+   "flying": true
+  },
+  {
+   "id": "canyon_brigand",
+   "name": "Canyon Brigand",
+   "level": [
+    73,
+    76
+   ],
+   "role": "normal",
+   "element": "wind",
+   "race": "human",
+   "energy": "sage_qi",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "dagger_flurry",
+     "windup_s": 0.35,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       50
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.1
+    },
+    {
+     "id": "throwing_knife",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       240
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "projectile": {
+      "speed": 600,
+      "art": "arrow"
+     }
+    }
+   ],
+   "loot": "canyon_brigand",
+   "drops": [
+    {
+     "item": "storm_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "spirit_stone_shard",
+     "chance": 0.4,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "ponytail",
+     "hair_color": 3,
+     "shirt": "vneck",
+     "pants": "cuffed",
+     "shoes": "boots",
+     "weapon": "dagger",
+     "hat": "weimao",
+     "shirt_dye": "ochre",
+     "pants_dye": "earth",
+     "name": "Canyon Brigand",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90
+  },
+  {
+   "id": "alliance_champion",
+   "name": "Alliance Champion",
+   "level": [
+    72,
+    72
+   ],
+   "role": "trial",
+   "element": "metal",
+   "race": "human",
+   "energy": "none",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "peak_thrust",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       110
+      ],
+      "depth": 30,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2
+    },
+    {
+     "id": "nine_step_sweep",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       150
+      ],
+      "depth": 50,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.3,
+     "knockback": 90
+    }
+   ],
+   "loot": "alliance_champion",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "topknot",
+     "hair_color": 0,
+     "shirt": "disciple",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "spear",
+     "hat": "guan",
+     "shirt_dye": "indigo",
+     "pants_dye": "ink",
+     "name": "Alliance Champion",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "spar": true
+  },
+  {
+   "id": "ironroot_warden",
+   "name": "Ironroot Warden",
+   "level": [
+    70,
+    70
+   ],
+   "role": "trial",
+   "element": "earth",
+   "race": "human",
+   "energy": "none",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "root_staff",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 36,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2,
+     "knockback": 80
+    },
+    {
+     "id": "iron_root_stomp",
+     "windup_s": 0.9,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       160
+      ],
+      "depth": 70,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.3,
+     "both_sides": true
+    }
+   ],
+   "loot": "ironroot_warden",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "short_knot",
+     "hair_color": 4,
+     "shirt": "sleeveless",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "staff",
+     "hat": "headband",
+     "shirt_dye": "earth",
+     "pants_dye": "earth",
+     "name": "Ironroot Warden",
+     "body": "light"
+    }
+   },
+   "half_width": 20,
+   "height": 92,
+   "spar": true
+  },
+  {
    "id": "big_toad_tan",
    "name": "Big Toad Tan",
    "level": [
@@ -3266,6 +4046,131 @@
    "height": 150,
    "respawn_min": 45,
    "flying": true
+  },
+  {
+   "id": "thousand_eye_toad",
+   "name": "Thousand Eye Toad",
+   "level": [
+    68,
+    68
+   ],
+   "role": "field_boss",
+   "element": "water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "boss_toad",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "belly_slam",
+     "windup_s": 0.8,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       140
+      ],
+      "depth": 60,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.4,
+     "knockback": 140,
+     "both_sides": true
+    },
+    {
+     "id": "tongue_lash",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       240
+      ],
+      "depth": 40,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2
+    },
+    {
+     "id": "mirror_gaze",
+     "windup_s": 1.2,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       0
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.0,
+     "summon": "azure_carp_dragonet"
+    }
+   ],
+   "loot": "thousand_eye_toad",
+   "drops": [
+    {
+     "item": "mirror_eye",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 1.0,
+     "count": [
+      6,
+      10
+     ],
+     "weight": 1
+    },
+    {
+     "item": "dragonet_scale",
+     "chance": 1.0,
+     "count": [
+      2,
+      3
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "thousand_eye_toad"
+   },
+   "half_width": 80,
+   "height": 100,
+   "respawn_min": 45,
+   "phases": [
+    {
+     "below": 0.5,
+     "action": "summon"
+    }
+   ]
   },
   {
    "id": "drowned_abbot",

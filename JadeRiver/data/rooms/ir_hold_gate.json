@@ -1,0 +1,132 @@
+{
+ "schema_version": 1,
+ "id": "ir_hold_gate",
+ "zone": "azure_expanse",
+ "region": "ironroot_hold",
+ "name": "Hold Gate",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.6,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "quarry",
+ "ground": {
+  "material": "earth",
+  "tint": "#d8ccb8"
+ },
+ "spawn_point": [
+  300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "gc_windbridge",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "ir_clan_hearth",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "shrine_ir",
+   "type": "shrine",
+   "at": [
+    600,
+    700
+   ]
+  },
+  {
+   "id": "npc_ironroot_warden",
+   "type": "npc",
+   "at": [
+    1400,
+    780
+   ],
+   "npc": "ironroot_warden",
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "stockade_wall",
+   "at": [
+    900,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "paifang_gate",
+   "at": [
+    1280,
+    650
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "stockade_wall",
+   "at": [
+    1660,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "watch_tower",
+   "at": [
+    2100,
+    640
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "field_earth",
+ "ambience": "wind_ambience",
+ "town": true
+}

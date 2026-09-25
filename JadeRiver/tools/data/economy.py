@@ -96,7 +96,7 @@ def shops():
         {"id": "hermit", "name": "Hermit Yao's Offerings", "currency": "silver_tael",
          "stock": [s("bonding_offering_common"), s("roast_fish"), s("fish_bait")]},
         # Act II · Cloudgate Port and the Thunderhorn Plains. Spirit Stone prices come from tael prices at the exchange rate.
-        {"id": "alliance_factor", "name": "Alliance Factor's Hall", "currency": "spirit_stone",
+        {"id": "alliance_factor", "name": "Alliance Factor's Hall", "currency": "spirit_stone", "discount": {"flag": "path_alliance", "pct": 0.1},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_short_blade"), s("stormsteel_staff"),
                    s("stormsteel_bow"), s("stormsilk_hat"), s("stormsilk_robe"), s("stormsilk_trousers"), s("stormsilk_boots"),
                    s("stormsteel_gourd", requires=all_of(realm("sage_1")))],
@@ -122,6 +122,16 @@ def shops():
          "stock": [s("rice_ball"), s("herbal_tea"), s("jade_carp_congee"), s("cloudtop_orchid_broth"), s("thunderhorn_stew")]},
         {"id": "condensing_hall", "name": "Condensing Hall Stores", "currency": "spirit_stone",
          "stock": [s("clear_mind_pill"), s("soul_soothing_pill"), s("calm_incense"), s("sage_condensing_pill", price=90, requires=all_of(realm("heaven_glimpse_3")))]},
+        {"id": "free_market", "name": "Broker Mu's Back Room", "currency": "spirit_stone",
+         "requires": {"all": [{"kind": "flag_set", "flag": "path_independent"}]},
+         "stock": [s("manual_page", price=5), s("torn_manual", price=24), s("storm_blood_pill"), s("spirit_egg", price=36)],
+         "rotation": {"count": 2, "pool": [s("sage_condensing_pill", price=80), s("mirror_eye", price=70), s("jade_core", price=18),
+                                           s("sentinel_core", price=30), s("frost_lotus", price=9)]}},
+        {"id": "ironroot_clan", "name": "Ironroot Clan Forge", "currency": "spirit_stone", "buys_all": True,
+         "discount": {"flag": "clan_ironroot", "pct": 0.15},
+         "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_staff"), s("stormsilk_robe"),
+                   s("stormsilk_boots"), s("stormsteel_ore"), s("bone_strengthening_pill"),
+                   s("thunderhorn_stew", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}))]},
         {"id": "herders_camp", "name": "Herders' Camp", "currency": "spirit_stone", "buys_all": True,
          "stock": [s("tough_meat"), s("thunderhorn_stew"), s("bonding_offering_heaven"), s("storm_blood_pill")]},
     ]
@@ -213,9 +223,9 @@ def fish():
     rows = [
         {"id": "river_minnow", "item": "river_minnow", "spots": ["village_docks", "reed_shallows", "marsh_edge"], "weight": 60},
         {"id": "reed_perch", "item": "reed_perch", "spots": ["village_docks", "reed_shallows", "marsh_edge"], "weight": 35},
-        {"id": "jade_carp", "item": "jade_carp_fish", "spots": ["bend_shore"], "weight": 50},
+        {"id": "jade_carp", "item": "jade_carp_fish", "spots": ["bend_shore", "mirror_lake"], "weight": 50},
         {"id": "river_eel", "item": "river_eel", "spots": ["bend_shore"], "weight": 30},
-        {"id": "mist_trout", "item": "mist_trout", "spots": ["falls_pool"], "weight": 50},
+        {"id": "mist_trout", "item": "mist_trout", "spots": ["falls_pool", "mirror_lake"], "weight": 50},
         {"id": "rapids_salmon", "item": "rapids_salmon", "spots": ["rapids"], "weight": 50},
         {"id": "moon_carp", "item": "moon_carp", "spots": ["any"], "weight": 8, "time": ["night"]},
     ]
@@ -238,6 +248,25 @@ def sects():
         {"id": "deacon", "name": "Deacon", "requires": all_of(realm("heaven_glimpse_1"))},
     ]
     write("sect_ranks.json", {"order": [x["id"] for x in ranks], "ranks": ranks})
+
+
+def auction():
+    """S21 · the NPC auction house at the Auction Pavilion (Nine Peaks, Sage 1): rare lots, NPC bidders."""
+    def lot(item, start, count=1, weight=1.0):
+        return {"item": item, "count": count, "start": start, "weight": weight}
+    write("auction.json", {
+        "schema_version": 1,
+        "lots_open": 4, "duration_h": [2, 6], "min_increment": 0.1,
+        # An NPC's hidden limit is the opening price times this range; its bid drifts up to this share of the limit.
+        "npc_limit": [1.4, 2.6], "npc_drift": 0.6,
+        # The house premium on top of a winning bid, by the path the character chose at the Hall of Nine.
+        "premium": {"none": 0.10, "alliance": 0.08, "independent": 0.04},
+        "bidders": ["Madam Qiu of the Fifth Peak", "the Ironroot Steward", "a veiled buyer", "Merchant Fan", "an Alliance quartermaster"],
+        "pool": [lot("sage_condensing_pill", 70, weight=0.6), lot("spirit_egg", 40), lot("torn_manual", 30), lot("jade_core", 24, 2),
+                 lot("mirror_eye", 80, weight=0.5), lot("frost_lotus", 30, 3), lot("stormsteel_ore", 35, 10), lot("clear_mind_pill", 20, 3),
+                 lot("fuel_crystal_mid", 30, 5), lot("spirit_stone_mid", 60, 5, weight=0.7), lot("storm_blood_pill", 25, 3),
+                 lot("sentinel_core", 40, 2, weight=0.7), lot("manual_page", 18, 5)],
+    })
 
 
 def account_rules():
@@ -379,10 +408,22 @@ def achievements():
         {"id": "patient_heart", "name": "Patient Heart", "desc": "Pass the Heart Trial on the first try", "event": "event_passed", "match": {"event": "heart_trial", "first_try": True}, "title": "still_water"},
         {"id": "friend_of_beasts", "name": "Friend of Beasts", "desc": "Bond 3 spirit animals", "event": "pet_bonded", "count": 3, "title": "beast_friend"},
         {"id": "valley_champion", "name": "Valley Champion", "desc": "Win the Valley Tournament", "event": "tournament_won", "title": "valley_champion"},
+        # Act II · the Azure Expanse
+        {"id": "beyond_the_gate", "name": "Beyond the Gate", "desc": "Reach Sage 1 in the Azure Expanse", "event": "realm_changed",
+         "match": {"realm_at_least": "sage_1"}, "title": "sage_born"},
+        {"id": "weasel_wrangler", "name": "Weasel Wrangler", "desc": "Defeat 100 Spark Weasels", "event": "actor_defeated",
+         "match": {"def": "spark_weasel"}, "count": 100, "title": "storm_herder"},
+        {"id": "thousand_eyes_closed", "name": "Thousand Eyes Closed", "desc": "Silence the Thousand-Eye Toad", "event": "actor_defeated",
+         "match": {"def": "thousand_eye_toad"}, "rewards": [{"kind": "grant_item", "item": "spirit_stone_mid", "count": 5}]},
     ]
     entries("achievements", A)
     T = [
         {"id": "fleet_footed", "name": "Fleet-Footed", "modifiers": [{"stat": "move_speed", "op": "pct_add", "value": 0.01}]},
+        {"id": "sage_born", "name": "Sage-Born", "modifiers": [{"stat": "accumulation_rate", "op": "pct_add", "value": 0.01}]},
+        {"id": "storm_herder", "name": "Storm Herder", "modifiers": [{"stat": "attunement_bonus", "op": "flat", "value": 1}]},
+        {"id": "alliance_envoy", "name": "Alliance Envoy", "modifiers": [{"stat": "attunement_bonus", "op": "flat", "value": 2}]},
+        {"id": "free_cultivator", "name": "Free Cultivator", "modifiers": [{"stat": "drop_rate", "op": "pct_add", "value": 0.03}]},
+        {"id": "ironroot_kin", "name": "Ironroot Kin", "modifiers": [{"stat": "max_hp", "op": "pct_add", "value": 0.04}]},
         {"id": "shore_warden", "name": "Shore Warden", "modifiers": [{"stat": "physical_defense", "op": "pct_add", "value": 0.01}]},
         {"id": "iron_fist", "name": "Iron Fist", "modifiers": [{"stat": "fist_attack", "op": "pct_add", "value": 0.01}]},
         {"id": "steady_hands", "name": "Steady Hands", "modifiers": [{"stat": "crafting_control", "op": "pct_add", "value": 0.01}]},
@@ -512,6 +553,7 @@ def strings():
 
 def build():
     shops()
+    auction()
     currencies()
     rec = recipes()
     fish()
@@ -536,6 +578,9 @@ def build():
         for x in r["inputs"] + r["outputs"]:
             if x["item"] not in items:
                 errs.append("recipe %s %s" % (r["id"], x["item"]))
+    for x in json.load(open(os.path.join(DATA, "auction.json")))["pool"]:
+        if x["item"] not in items:
+            errs.append("auction %s" % x["item"])
     for f in json.load(open(os.path.join(DATA, "fish.json")))["entries"]:
         if f["item"] not in items:
             errs.append("fish %s" % f["item"])

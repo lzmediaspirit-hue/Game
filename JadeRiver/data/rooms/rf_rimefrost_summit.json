@@ -1,0 +1,355 @@
+{
+ "schema_version": 1,
+ "id": "rf_rimefrost_summit",
+ "zone": "azure_expanse",
+ "region": "rimefrost_heights",
+ "name": "Rimefrost Summit",
+ "type": "field",
+ "level_range": [
+  70,
+  72
+ ],
+ "recommended_cp": 1280,
+ "element": "water",
+ "qi_density": 1.6,
+ "hazards": [
+  "cold"
+ ],
+ "gather_tier": "expanse_mid",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "rimefrost",
+ "ground": {
+  "material": "snow"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "ice_cave",
+   "type": "hidden",
+   "at": [
+    2200,
+    700
+   ],
+   "to": "rf_hermits_ice_cave",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Hermit's Ice Cave"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "rf_snow_ape_ledges",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    699,
+    930
+   ],
+   "item": "frost_lotus",
+   "prop": "frost_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "master",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "herb_2",
+   "type": "herb_patch",
+   "at": [
+    1863,
+    690
+   ],
+   "item": "frost_lotus",
+   "prop": "frost_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "master",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    437,
+    900
+   ],
+   "loot": "jar_expanse",
+   "level": 71,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    1285,
+    720
+   ],
+   "loot": "jar_expanse",
+   "level": 71,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    2188,
+    720
+   ],
+   "loot": "jar_expanse",
+   "level": 71,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_6",
+   "type": "chest",
+   "at": [
+    2200,
+    700
+   ],
+   "loot": "chest_expanse",
+   "level": 72
+  },
+  {
+   "id": "shrine_rf_summit",
+   "type": "shrine",
+   "at": [
+    300,
+    700
+   ]
+  },
+  {
+   "id": "insight_frost",
+   "type": "insight_stone",
+   "at": [
+    1500,
+    720
+   ],
+   "element": "water",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "insight_sites"
+     }
+    ]
+   },
+   "locked_text": "A stone glazed with clear ice."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "snow_ape",
+   "surface": "ground",
+   "points": [
+    [
+     925,
+     880
+    ],
+    [
+     993,
+     798
+    ],
+    [
+     1563,
+     813
+    ],
+    [
+     2019,
+     788
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 18,
+   "level": [
+    70,
+    72
+   ]
+  },
+  {
+   "enemy": "snow_ape",
+   "surface": "ground",
+   "points": [
+    [
+     1480,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    72,
+    72
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "pine_tree",
+   "at": [
+    152,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "icicle_rock",
+   "at": [
+    676,
+    640
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1105,
+    630
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "icicle_rock",
+   "at": [
+    1662,
+    630
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2016,
+    638
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    136,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    556,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1031,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1381,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1839,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2265,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "summit",
+ "ambience": "wind_ambience",
+ "attunement_required": 22
+}

@@ -46,6 +46,7 @@ const PAGES := {
 	"seclusion": "res://scripts/ui/pages/cultivation_page.gd",
 	"library": "res://scripts/ui/pages/shop_page.gd",
 	"exchange": "res://scripts/ui/pages/exchange_page.gd",
+	"auction": "res://scripts/ui/pages/auction_page.gd",
 	"achievements": "res://scripts/ui/pages/codex_page.gd",
 }
 

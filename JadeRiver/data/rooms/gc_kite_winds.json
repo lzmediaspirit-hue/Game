@@ -1,0 +1,415 @@
+{
+ "schema_version": 1,
+ "id": "gc_kite_winds",
+ "zone": "azure_expanse",
+ "region": "gale_canyons",
+ "name": "Kite Winds",
+ "type": "field",
+ "level_range": [
+  74,
+  76
+ ],
+ "recommended_cp": 1352,
+ "element": "wind",
+ "qi_density": 1.7,
+ "hazards": [
+  "wind_gust"
+ ],
+ "gather_tier": "expanse_high",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "gale_canyon",
+ "ground": {
+  "material": "earth",
+  "tint": "#ecd0ac"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    800,
+    650,
+    300,
+    50
+   ],
+   "height": 220,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    1900,
+    640,
+    300,
+    50
+   ],
+   "height": 300,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "gc_canyon_mouth",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "gc_harpy_roosts",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    517,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 75,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_2",
+   "type": "crate",
+   "at": [
+    1462,
+    720
+   ],
+   "loot": "jar_expanse",
+   "level": 75,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    2326,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 75,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_4",
+   "type": "crate",
+   "at": [
+    3418,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 75,
+   "hp": 1,
+   "respawn_s": 300
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "wind_kite",
+   "surface": "ground",
+   "points": [
+    [
+     483,
+     732
+    ],
+    [
+     1133,
+     866
+    ],
+    [
+     1581,
+     855
+    ],
+    [
+     2207,
+     832
+    ],
+    [
+     2798,
+     791
+    ],
+    [
+     3368,
+     912
+    ]
+   ],
+   "max": 5,
+   "respawn_s": 12,
+   "level": [
+    74,
+    76
+   ]
+  },
+  {
+   "enemy": "canyon_harpy",
+   "surface": "ground",
+   "points": [
+    [
+     1116,
+     848
+    ],
+    [
+     2745,
+     824
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 12,
+   "level": [
+    74,
+    76
+   ]
+  },
+  {
+   "enemy": "wind_kite",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    76,
+    76
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    231,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    745,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    1252,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1789,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    2284,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2793,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    3365,
+    638
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    83,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    377,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    651,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    924,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1289,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1579,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1888,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2161,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2416,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2762,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3135,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3382,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3731,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  }
+ ],
+ "areas": [],
+ "music": "field_mountain",
+ "ambience": "wind_ambience",
+ "attunement_required": 38
+}

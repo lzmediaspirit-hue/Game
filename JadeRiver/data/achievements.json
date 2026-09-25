@@ -159,6 +159,43 @@
    "desc": "Win the Valley Tournament",
    "event": "tournament_won",
    "title": "valley_champion"
+  },
+  {
+   "id": "beyond_the_gate",
+   "name": "Beyond the Gate",
+   "desc": "Reach Sage 1 in the Azure Expanse",
+   "event": "realm_changed",
+   "match": {
+    "realm_at_least": "sage_1"
+   },
+   "title": "sage_born"
+  },
+  {
+   "id": "weasel_wrangler",
+   "name": "Weasel Wrangler",
+   "desc": "Defeat 100 Spark Weasels",
+   "event": "actor_defeated",
+   "match": {
+    "def": "spark_weasel"
+   },
+   "count": 100,
+   "title": "storm_herder"
+  },
+  {
+   "id": "thousand_eyes_closed",
+   "name": "Thousand Eyes Closed",
+   "desc": "Silence the Thousand-Eye Toad",
+   "event": "actor_defeated",
+   "match": {
+    "def": "thousand_eye_toad"
+   },
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "spirit_stone_mid",
+     "count": 5
+    }
+   ]
   }
  ]
 }

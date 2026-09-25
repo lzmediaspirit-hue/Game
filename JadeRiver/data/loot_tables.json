@@ -1414,6 +1414,300 @@
    "rare": []
   },
   {
+   "id": "frost_lynx",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "rime_fang",
+       "chance": 0.4,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "chance": 0.45,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "frost_lotus",
+     "chance": 0.08,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "snow_ape",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "snow_ape_hide",
+       "chance": 0.45,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "chance": 0.5,
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      },
+      {
+       "item": "tough_meat",
+       "chance": 0.3,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "azure_carp_dragonet",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "dragonet_scale",
+       "chance": 0.45,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "chance": 0.4,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "river_sentinel",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "sentinel_core",
+       "chance": 0.3,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "chance": 0.6,
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "wind_kite",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "kite_silk",
+       "chance": 0.45,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "chance": 0.5,
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "canyon_harpy",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "harpy_plume",
+       "chance": 0.45,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "chance": 0.55,
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "canyon_brigand",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "storm_shard",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "spirit_stone_shard",
+       "chance": 0.4,
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "alliance_champion",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
+   "id": "ironroot_warden",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
    "id": "big_toad_tan",
    "groups": [],
    "coins": {
@@ -1465,6 +1759,48 @@
      "count": [
       2,
       4
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "thousand_eye_toad",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 40
+   },
+   "equipment": {
+    "chance": 1.0,
+    "min_quality": "superior"
+   },
+   "rare": [],
+   "guaranteed": [
+    {
+     "item": "mirror_eye",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 1.0,
+     "count": [
+      6,
+      10
+     ],
+     "weight": 1
+    },
+    {
+     "item": "dragonet_scale",
+     "chance": 1.0,
+     "count": [
+      2,
+      3
      ],
      "weight": 1
     }

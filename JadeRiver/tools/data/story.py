@@ -249,7 +249,7 @@ def npcs():
         ["Soup's on!"], services=["shop:wayfarers_inn"])
     npc("broker_mu", "Broker Mu", "Free broker", outfit("flowing", 1, "cardigan", "straight", "boots", hat="weimao", cape="solid", shirt_dye="ink", pants_dye="ink"),
         ["I sell what the Alliance doesn't want sold. Mostly, the truth.", "Your blood is still valley-soft. The storms here will drink it."],
-        ["Information, fairly priced."], tree="broker_mu")
+        ["Information, fairly priced."], tree="broker_mu", services=["shop:free_market"])
     npc("alchemist_fen", "Alchemist Fen", "Condensing Hall", outfit("long_tied", 1, "scholar", "scholar", "folded", hat="guan", shirt_dye="white", pants_dye="grey"),
         ["Sage Qi is True Qi pressed until it remembers it was once light.", "Bring me thunder and I'll condense it into something you can swallow."],
         ["Don't touch the furnace."], services=["shop:condensing_hall"])
@@ -259,6 +259,49 @@ def npcs():
     npc("herder_a_lan", "A-Lan", "Herder's daughter", outfit("ponytail", 0, "cardigan", "cuffed", "boots", shirt_dye="crimson"),
         ["Spark weasels steal the lightning out of the grass. Then they spit it at you!", "Grandpa Suo says the storms remember everyone who crosses."],
         ["Hup! Hup!"], scale=0.9)
+
+    npc("hermit_shuang", "Hermit Shuang", "Rimefrost hermit", outfit("flowing", 5, "scholar", "scholar", "folded", cape="tattered",
+        shirt_dye="white", pants_dye="grey"),
+        ["...", "Snow keeps every footprint until the wind decides otherwise.", "Silence is not empty. Listen."],
+        ["...", "Hm."])
+    npc("grey_pilgrim", "The Grey Pilgrim", "A stranger", outfit("long_tied", 5, "scholar", "scholar", "folded", hat="weimao", cape="solid",
+        shirt_dye="grey", pants_dye="grey"),
+        ["You carry the valley's river on you. How quaint.", "Every shard finds its way home in the end. I only help them along."],
+        ["..."], tint="#dfe2ea")
+
+    # Act II · Nine Peaks, the Gale Canyons and Ironroot Hold (Phase C)
+    npc("envoy_lanshi", "Envoy Lanshi", "Alliance envoy", outfit("long_tied", 0, "scholar", "scholar", "folded", hat="guan", cape="solid",
+        shirt_dye="indigo", pants_dye="indigo"),
+        ["Nine peaks, nine seats, one voice. Mine, today.", "The Alliance keeps the sky roads open. Someone has to."],
+        ["The Hall is in session."], tree="envoy_lanshi")
+    npc("elder_zhong", "Elder Zhong", "First Peak elder", outfit("flowing", 5, "scholar", "scholar", "folded", hat="guan", cape="solid",
+        shirt_dye="white", pants_dye="grey"),
+        ["The First Peak remembers when there was no Alliance. There were more graves then.",
+         "A Hollow shard in the wrong hands is a war waiting for a reason."], ["Hm."])
+    npc("auctioneer_tong", "Auctioneer Tong", "Auction Pavilion", outfit("topknot", 1, "scholar", "scholar", "folded", hat="guan",
+        shirt_dye="crimson", pants_dye="ink"),
+        ["Lots at dawn, hammers at dusk. Bid with your head, pay with your stones.",
+         "The limit is in the other bidder's heart. Find it."], ["Going once!"], services=["page:auction"],
+        service_labels={"page:auction": "Today's lots"}, service_unlocks={"page:auction": "auction_house"})
+    npc("champion_qiao", "Champion Qiao", "Presence Terrace", outfit("topknot", 0, "disciple", "martial", "boots", hat="guan", weapon="spear",
+        shirt_dye="indigo", pants_dye="ink"),
+        ["Presence is the weight a cultivator puts on the air. Show me yours.", "Nine peaks, nine styles. I've learned eight."],
+        ["Again."], services=["spar:alliance_champion"], service_labels={"spar:alliance_champion": "Spar"})
+    npc("tollkeeper_bai", "Tollkeeper Bai", "Canyon Mouth toll", outfit("short_knot", 5, "vneck", "loose", "boots", hat="straw", weapon="spear",
+        shirt_dye="indigo", pants_dye="earth"),
+        ["Ten stones a crossing. Alliance tokens pass free.", "Brigands in the canyon wear veils. Honest folk don't."],
+        ["Toll!"])
+    npc("ironroot_warden", "Warden Tie Shan", "Ironroot gatekeeper", outfit("short_knot", 4, "sleeveless", "martial", "boots", hat="headband",
+        weapon="staff", shirt_dye="earth", pants_dye="earth"),
+        ["The Ironroot don't bend. We grow around things.", "Outsiders come to the Hold for iron. Few come for kin."],
+        ["Halt."], services=["spar:ironroot_warden"], service_labels={"spar:ironroot_warden": "Test your root"})
+    npc("matriarch_tie", "Matriarch Tie Yun", "Ironroot matriarch", outfit("long_tied", 5, "cardigan", "straight", "boots", hat="headband",
+        cape="solid", shirt_dye="earth", pants_dye="ink"),
+        ["Blood is who you were born to. Roots are who you choose to hold.", "Our ancestors sit in the Hall. They're picky about company."],
+        ["The Hold is well."], tree="matriarch_tie")
+    npc("clan_smith_gang", "Smith Gang", "Ironroot forge", outfit("short_knot", 0, "sleeveless", "martial", "boots", shirt_dye="earth"),
+        ["Iron from the roots, fire from the canyon wind. Best forge in the Expanse.", "Kin get the good steel. Guests get the rest."],
+        ["*CLANG*"], services=["shop:ironroot_clan"])
 
     # Companions (S26)
     npc("lan_yue", "Lan Yue", "Healer", outfit("flowing", 4, "cardigan", "scholar", "slippers", weapon="staff", shirt_dye="indigo"),
@@ -410,6 +453,9 @@ def unlocks():
     u("teaching", "Teaching", all_of(realm("spirit_awakening_7")), "passing_it_on", [])
     u("cape_slot", "Cape slot", all_of(realm("heaven_glimpse_1")), "a_wider_sky", [])
     u("currency_exchange", "Currency exchange", all_of(realm("heaven_glimpse_3")), "beyond_the_valley", ["page:exchange"])
+    # Act II · Phase C (S20/S21): the auction house after the Hall of Nine, clans at Sage 2.
+    u("auction_house", "Auction house", all_of(realm("sage_1"), qdone("nine_seats")), "going_once", [], same_stage_ok=True)
+    u("clans", "Clans", all_of(realm("sage_2"), qdone("the_canyon_toll")), "ironroot_blood", [], same_stage_ok=True)
     # Act II (S18): the zone's attunement jades open once the broker has explained the storms.
     u("storm_ward", "Storm Ward attunement", all_of(realm("heaven_glimpse_3"), qdone("a_sky_full_of_toll_roads")), "storm_in_the_blood", [],
       same_stage_ok=True)
@@ -1008,7 +1054,7 @@ def act2_quests():
     quest("through_the_gate", "Through the Gate", "main", "warden_cao", [
         o("reach_room", "Step through the Ascension Gate", room="ae_landing"),
         o("talk_to", "Speak with the toll warden on the Arrival Terrace", npc="warden_cao"),
-    ], [spirit_stones(20), fx("codex", entry="cloudgate_port")], hand_in="", auto_accept=True, requires=all_of(qdone("the_ascension_gate")),
+    ], [spirit_stones(20), fx("codex", entry="cloudgate_port")], hand_in="", auto_accept=True, requires=all_of(qdone("the_ascension_gate"), realm("heaven_glimpse_3")),
         chapter="11", target_room="ae_landing",
         complete=["Valley-born, by the mud on your boots. No toll for your first step. There will be for every other.",
                   "Welcome to Cloudgate Port, gateway of the Nine Peaks Alliance."],
@@ -1016,7 +1062,7 @@ def act2_quests():
     quest("a_sky_full_of_toll_roads", "A Sky Full of Toll Roads", "main", "warden_cao", [
         o("talk_to", "Meet the Alliance factor in the Port Market", npc="factor_ruan"),
         o("talk_to", "Find the free broker at the Wayfarers' Inn", npc="broker_mu"),
-    ], [spirit_stones(30), fx("codex", entry="nine_peaks_alliance")], hand_in="broker_mu", requires=all_of(qdone("through_the_gate")), chapter="11",
+    ], [spirit_stones(30), fx("codex", entry="nine_peaks_alliance")], hand_in="broker_mu", requires=all_of(qdone("through_the_gate"), realm("heaven_glimpse_3")), chapter="11",
         target_room="ae_port_market",
         offer=["No papers, no road. The Factor sells Alliance goods in the market. The broker at the inn sells... other things.",
                "Talk to both. Then decide what kind of cultivator you mean to be up here."],
@@ -1036,7 +1082,7 @@ def act2_quests():
         next="horns_for_the_furnace")
     quest("horns_for_the_furnace", "Horns for the Furnace", "main", "alchemist_fen", [
         o("collect", "Bring Thunderhorn horns from the Flats", 3, item="thunder_horn"),
-    ], [item("sage_condensing_pill", 1), fx("learn_recipe", recipe="sage_condensing_pill")], requires=all_of(qdone("storm_in_the_blood")),
+    ], [item("sage_condensing_pill", 1), fx("learn_recipe", recipe="sage_condensing_pill")], requires=all_of(qdone("storm_in_the_blood"), realm("heaven_glimpse_3")),
         chapter="11", target_room="tp_thunderhorn_flats",
         offer=["Heaven Glimpse 3, and you want to be a Sage. Everyone does.",
                "The condensing needs thunder. Three thunderhorn horns from the Flats. I'll press them into your pill."],
@@ -1044,12 +1090,120 @@ def act2_quests():
         next="sage")
     quest("sage", "Sage", "main", "alchemist_fen", [
         o("reach_realm", "Break through to Sage 1 (third-grade purity, the pill, a land that can hold you)", realm="sage_1"),
-    ], [spirit_stones(60), fx("codex", entry="sage_qi")], requires=all_of(qdone("horns_for_the_furnace")), chapter="11",
+    ], [spirit_stones(60), fx("codex", entry="sage_qi")], requires=all_of(qdone("horns_for_the_furnace"), realm("heaven_glimpse_3")), chapter="11",
         target_room="ae_condensing_hall",
         offer=["Purity of the third grade, the pill, and a land that can hold you. The Expanse can.",
                "Sit on the mat. Breathe until the True Qi turns to light."],
         complete=["Sage Qi. Feel how it moves? Like thunder that learned its manners.",
                   "The Nine Peaks will want your name now. So will people who are worse than the Alliance."])
+
+
+def act2_chapter12():
+    """Act II · chapter 12, The Grey Pilgrim (Sage 1-2)."""
+    quest("shards_for_sale", "Shards for Sale", "main", "broker_mu", [
+        o("talk_to", "Ask Old Suo about the grey buyer", npc="herder_suo"),
+        o("interact_object", "Follow the buyer's tracks across the Lightning Scar", 3, type="inspect", room="tp_lightning_scar"),
+        o("talk_to", "Catch up with the stranger on Frostpine Climb", npc="grey_pilgrim"),
+    ], [spirit_stones(60), item("storm_shard", 15), fx("codex", entry="grey_pilgrim")], requires=all_of(qdone("sage"), realm("sage_1")),
+        chapter="12", target_room="tp_herders_camp",
+        offer=["Someone is buying Hollow shards across the Expanse. Grey robes, no shadow at noon.",
+               "The herders have seen him on the plains. Old Suo misses nothing. Start there."],
+        complete=["He let you catch him. That's worse than if he'd run.",
+                  "If he went up into the snow, only one person up there would have seen him: the hermit of Rimefrost."],
+        next="frost_and_silence")
+    quest("frost_and_silence", "Frost and Silence", "main", "broker_mu", [
+        o("reach_room", "Find the hermit's cave on Rimefrost Summit (Spirit Sense shows hidden ways)", room="rf_hermits_ice_cave"),
+        o("talk_to", "Speak with Hermit Shuang", npc="hermit_shuang"),
+        o("meditate_seconds", "Sit in silence in the Ice Cave", 90),
+    ], [spirit_stones(80), item("frost_lotus", 2), fx("codex", entry="rimefrost_hermit")], requires=all_of(qdone("shards_for_sale")),
+        hand_in="hermit_shuang", chapter="12", target_room="rf_rimefrost_summit",
+        offer=["The hermit lives somewhere on Rimefrost Summit. People who look for him don't find him.",
+               "People who stop looking sometimes do."],
+        complete=["...You can sit still. Good. Most who climb up here only want to talk.",
+                  "The grey one passed a month ago. He stopped at the lake. The lake remembers everything. Ask it."],
+        next="the_mirror_remembers")
+    quest("the_mirror_remembers", "The Mirror Remembers", "main", "hermit_shuang", [
+        o("reach_room", "Take the sky-ship to Mirrorwater Lake and reach the Lake Shrine", room="ml_lake_shrine"),
+        o("set_flag", "Look into the shrine's bronze mirror", flag="mirror_vision_seen"),
+        o("kill", "Silence the Thousand-Eye Toad in Toad's Hollow", enemy="thousand_eye_toad"),
+    ], [spirit_stones(120), item("storm_shard", 25), fx("codex", entry="lu_crossing"), fx("set_flag", flag="chapter_12_done")],
+        requires=all_of(qdone("frost_and_silence"), realm("sage_2")), hand_in="", chapter="12", target_room="ml_lake_shrine",
+        offer=["The mirror at the Lake Shrine shows what the lake has seen. The toad in the hollow drinks the reflections.",
+               "Look into the mirror. Then quiet the toad, or the lake will forget everything it knows."],
+        complete=["In the mirror: the grey one kneeling at the shore, feeding Hollow shards to the water. And behind him, older,",
+                  "a young ferryman with a river-green token at his belt. Lu. The lake remembered him too."])
+
+
+def act2_chapter13():
+    """Act II · chapter 13, The Nine Peaks (Sage 2-3): a seat or the free road, the canyons, the Ironroot."""
+    quest("nine_seats", "Nine Seats", "main", "dockmaster_fu", [
+        o("reach_room", "Take the sky-ship to Nine Peaks and enter the Hall of Nine", room="np_hall_of_nine"),
+        o("talk_to", "Hear the Alliance envoy", npc="envoy_lanshi"),
+        o("set_flag", "Take an Alliance seat, or keep the free road", flag="path_alliance", alt_flag="path_independent"),
+    ], [spirit_stones(100), fx("codex", entry="nine_seats")], requires=all_of(qdone("the_mirror_remembers"), realm("sage_2")),
+        hand_in="elder_zhong", chapter="13", target_room="np_hall_of_nine",
+        offer=["An invitation came with the morning ship. Nine Peaks wants to see you. They see everyone who crosses, sooner or later.",
+               "The Alliance will offer you a seat. The broker will tell you why you shouldn't take it. Both are right."],
+        complete=["Whichever you chose, choose it every day. The Hollow shards are coming from somewhere inside the Expanse.",
+                  "The canyons east of here are where they pass. Go and see who is paying the tolls."],
+        next="the_canyon_toll")
+    quest("going_once", "Going Once", "guided", "auctioneer_tong", [
+        o("use_system", "Place a bid at the Auction Pavilion", system="auction_bid"),
+    ], [spirit_stones(20)], offered_by_unlock=True, chapter="13", target_room="np_auction_pavilion",
+        offer=["First time at the block? Pick a lot, name a price. The other bidders will tell you if you're wrong."],
+        complete=["There. Win or lose, you're a bidder now. The Pavilion opens new lots every dawn."])
+    quest("the_canyon_toll", "The Canyon Toll", "main", "elder_zhong", [
+        o("talk_to", "Ask the tollkeeper at the Canyon Mouth who pays in shards", npc="tollkeeper_bai"),
+        o("kill", "Break the veiled brigands' hold on the canyon", 6, enemy="canyon_brigand"),
+        o("reach_room", "Cross the Windbridge to Ironroot Hold", room="ir_hold_gate"),
+    ], [spirit_stones(140), item("storm_shard", 30), fx("codex", entry="gale_canyons")], requires=all_of(qdone("nine_seats"), realm("sage_2")),
+        hand_in="ironroot_warden", chapter="13", target_room="gc_canyon_mouth",
+        offer=["Someone pays the canyon toll in Hollow shards. The tollkeeper takes them because they spend like stones.",
+               "Follow the shards east. The veiled brigands carry them for someone."],
+        complete=["You crossed the Windbridge with brigand blood on your boots. The Hold has been watching them too.",
+                  "The Matriarch will want to meet you. She doesn't want to meet many."],
+        next="ironroot_blood")
+    quest("ironroot_blood", "Ironroot Blood", "main", "ironroot_warden", [
+        o("win_spar", "Pass the warden's test of root", opponent="ironroot_warden"),
+        o("talk_to", "Stand before the Matriarch", npc="matriarch_tie"),
+        o("set_flag", "Honour the ancestral tablets in the Ancestor Hall", flag="tablets_honoured"),
+    ], [spirit_stones(160), item("ironroot_token", 1), fx("set_flag", flag="clan_ironroot"), fx("grant_title", title="ironroot_kin"),
+        fx("codex", entry="ironroot_clan")], offered_by_unlock=True, hand_in="matriarch_tie", chapter="13", target_room="ir_hold_gate",
+        offer=["Kin is not given at the gate. Show me your root holds, then the Matriarch decides."],
+        complete=["The ancestors did not object. That is as close to a welcome as they give.",
+                  "You are Ironroot now, in the Hold and on the roads. Our forge is yours. So are our quarrels."])
+
+
+def act2_side_quests():
+    """Act II side stories of the port, the plains, the heights, the lake, the canyons and the Hold."""
+    quest("snow_for_the_cabinet", "Snow for the Cabinet", "side", "apothecary_wu", [
+        o("collect", "Pick Frost Lotus on Rimefrost Heights", 3, item="frost_lotus"),
+    ], [item("storm_blood_pill", 3), spirit_stones(40)], requires=all_of(qdone("frost_and_silence"), realm("sage_1")), target_room="rf_frostpine_climb",
+        offer=["Frost Lotus. Three. It only blooms where the snow never melts.", "It steadies a Sage's Qi. And my prices."],
+        complete=["Perfect petals. Here, Storm Blood Pills, fresh from the cabinet."])
+    quest("clear_skies", "Clear Skies", "side", "dockmaster_fu", [
+        o("kill", "Drive off the Azure Carp Dragonets over the Reedless Shore", 8, enemy="azure_carp_dragonet"),
+    ], [spirit_stones(70), item("dragonet_scale", 2)], requires=all_of(qactive("the_mirror_remembers"), realm("sage_2")), target_room="ml_reedless_shore",
+        offer=["Dragonets keep spitting at my lake ferry. The sails can't take much more.", "Eight of them. The rest will learn."],
+        complete=["The ferry thanks you. So does my budget."])
+    quest("a_lans_herd", "A-Lan's Herd", "side", "herder_a_lan", [
+        o("kill", "Drive the Spark Weasels away from the herd", 10, enemy="spark_weasel"),
+        o("collect", "Bring Spark Pelts for new saddle blankets", 4, item="spark_pelt"),
+    ], [spirit_stones(50), item("thunderhorn_stew", 3)], requires=all_of(qdone("storm_in_the_blood"), realm("heaven_glimpse_3")), target_room="tp_stormgrass_verge",
+        offer=["The weasels keep stealing lightning out of the grass, and then the rhinos stampede!", "Chase them off? Please?"],
+        complete=["Grandpa says you'd make a good herder. That's the best thing he says about anyone."])
+    quest("silk_on_the_wind", "Silk on the Wind", "side", "tollkeeper_bai", [
+        o("collect", "Cut Kite Silk from the Wind Kites of the canyons", 5, item="kite_silk"),
+    ], [spirit_stones(80), item("storm_shard", 10)], requires=all_of(qdone("nine_seats"), realm("sage_2")), target_room="gc_kite_winds",
+        offer=["The canyon wind shreds my toll flags in a week. The kites up there are made of something it can't tear.",
+               "Five lengths of their silk. The Alliance can keep its banners."],
+        complete=["Look at that. Not a fray. The next brigand who says he couldn't see the flag can argue with it."])
+    quest("plumes_for_the_bellows", "Plumes for the Bellows", "side", "clan_smith_gang", [
+        o("collect", "Bring Harpy Plumes from the Harpy Roosts", 4, item="harpy_plume"),
+    ], [spirit_stones(90), item("stormsteel_ore", 4)], requires=all_of(qdone("ironroot_blood")), target_room="gc_harpy_roosts",
+        offer=["Harpy plumes hold a wind of their own. Line the bellows with them and the forge breathes like a storm.",
+               "Four will do. Kin price, of course. Meaning you fetch them."],
+        complete=["Hear that? The fire's roaring on its own. Take some stormsteel. It'll take a better edge now."])
 
 
 def side_quests():
@@ -1190,10 +1344,25 @@ def dialogue():
          {"toll": {"lines": ["The Alliance keeps the roads safe. Mostly from people who don't pay.",
                              "Your valley token means nothing here. Earn an Alliance name, or a reputation."],
                    "choices": [{"text": "Understood.", "close": True}]}})
-    tree("broker_mu", [{"requires": all_of(qdone("storm_in_the_blood"), noflag("heard_grey_pilgrim")), "node": "rumours"}],
-         {"rumours": {"lines": ["A tip, free, because you pay your bills: someone is buying Hollow shards across the Expanse.",
-                                "Grey robes. No shadow, even at noon. The herders on the plains saw him too."],
-                      "choices": [{"text": "I'll keep my eyes open.", "effects": [{"kind": "set_flag", "flag": "heard_grey_pilgrim"}], "close": True}]}})
+    tree("envoy_lanshi", [{"requires": all_of(qactive("nine_seats"), noflag("path_alliance"), noflag("path_independent")), "node": "offer"},
+                          {"requires": all_of(any_of(flag("path_alliance"), flag("path_independent")), noflag("path_changed")), "node": "change"}],
+         {"offer": {"lines": ["The Alliance offers you a seat: a token that opens every sky road, the Factor's better prices, and the Hall's ear.",
+                              "Or walk the free road, like the broker. No token, no tolls paid in obedience. Lower fees at the Pavilion. Fewer friends."],
+                    "choices": [{"text": "Take the Alliance seat.", "effects": [{"kind": "set_flag", "flag": "path_alliance"},
+                                 {"kind": "grant_item", "item": "alliance_token", "count": 1}, {"kind": "grant_title", "title": "alliance_envoy"}], "close": True},
+                                {"text": "Keep the free road.", "effects": [{"kind": "set_flag", "flag": "path_independent"},
+                                 {"kind": "grant_title", "title": "free_cultivator"}], "close": True},
+                                {"text": "Let me think.", "close": True}]},
+          "change": {"lines": ["Changed your mind? The Hall allows it once. It costs 300 Spirit Stones in paperwork, and it costs more in trust."],
+                     "choices": [{"text": "Change my path (300 stones).", "requires": all_of({"kind": "currency_at_least", "currency": "spirit_stone", "amount": 300}),
+                                  "effects": [{"kind": "grant_currency", "currency": "spirit_stone", "amount": -300}, {"kind": "swap_path"},
+                                              {"kind": "set_flag", "flag": "path_changed"}], "close": True},
+                                 {"text": "No. I'll keep to it.", "close": True}]}})
+    tree("matriarch_tie", [], {})
+    tree("broker_mu", [{"requires": all_of(qdone("the_mirror_remembers"), noflag("heard_nine_seats")), "node": "rumours"}],
+         {"rumours": {"lines": ["You look like someone who has seen a ghost in a lake. It happens.",
+                                "Word from Nine Peaks: the Alliance is counting heads. Everyone who crossed the gate this year gets asked to pick a side."],
+                      "choices": [{"text": "Then I'll decide when they ask.", "effects": [{"kind": "set_flag", "flag": "heard_nine_seats"}], "close": True}]}})
     tree("shen_lian", [], {})
     tree("uncle_guo", [], {})
     comps = [("lan_yue", "Lan Yue, the healer", "Lan Yue mends what others break. Quiet, stubborn, never leaves a wounded friend."),
@@ -1242,6 +1411,7 @@ def mail_templates():
         {"id": "overflow", "from": "Lost and Found", "subject": "Items you couldn't carry", "body": "These were found where you left them."},
         {"id": "idle_report", "from": "Your disciple", "subject": "While you were away", "body": "{summary}"},
         {"id": "mentor_letter", "from": "Your mentor", "subject": "A second path", "body": "One cultivator cannot walk every road."},
+        {"id": "auction_won", "from": "The Auction Pavilion", "subject": "Your lot: {item}", "body": "The hammer fell in your favour. Your lot is enclosed, with the Pavilion's compliments."},
     ]
     entries("mail_templates", rows)
 
@@ -1270,6 +1440,12 @@ def codex():
         {"id": "cloudgate_port", "title": "Cloudgate Port", "body": "A harbour on a floating island where the Ascension Gate opens onto the Azure Expanse. Sky-ships, toll wardens and every kind of traveller."},
         {"id": "nine_peaks_alliance", "title": "The Nine Peaks Alliance", "body": "Nine sects on nine peaks, one law between them. They keep the sky roads safe and tax every step taken on them."},
         {"id": "storm_ward", "title": "Storm Ward", "body": "The Expanse's storms draw Qi out of anyone not attuned to them. Four jades, fed with Storm Shards, ward the blood. Each region asks for more."},
+        {"id": "grey_pilgrim", "title": "The Grey Pilgrim", "body": "A robed stranger buying Hollow shards across the Expanse. He casts no shadow, and he knew your name."},
+        {"id": "rimefrost_hermit", "title": "The Hermit of Rimefrost", "body": "Hermit Shuang has sat above the snow line so long the ice grows around him. He speaks when silence has earned it."},
+        {"id": "lu_crossing", "title": "Lu's crossing", "body": "The lake's mirror showed a young Lu at Mirrorwater, long ago, a river token at his belt. He came through the Expanse once, too."},
+        {"id": "nine_seats", "title": "The Nine Seats", "body": "Nine sects, nine seats in the Hall of Nine. Every cultivator who crosses the gate is asked to take the Alliance's token or keep the free road."},
+        {"id": "gale_canyons", "title": "The Gale Canyons", "body": "Wind-carved sandstone east of Nine Peaks. Kites that are not kites, harpies in the roosts, and a toll paid in Hollow shards."},
+        {"id": "ironroot_clan", "title": "The Ironroot clan", "body": "A clan of the canyon's far side whose ancestors' tablets are carved from iron-hard roots. Kin by choice, not only by blood."},
         {"id": "sage_qi", "title": "Sage Qi", "body": "True Qi pressed until it remembers it was light. Stronger by far, and the valley could never have held it."},
         {"id": "river_of_time", "title": "River of Time and Space", "body": "Locked.", "locked": True},
         {"id": "jade_river", "title": "The Jade River", "body": "It runs through every land you will ever see."},
@@ -1338,7 +1514,17 @@ def build():
     guided_quests()
     main_quests()
     side_quests()
+    # Act II quests pay a smaller share of a stage's need: its stages are longer and hold more story (Part 4 pacing).
+    n0 = len(Q)
     act2_quests()
+    act2_chapter12()
+    act2_chapter13()
+    for q in Q[n0:]:
+        q.setdefault("qp", "act2_main")
+    n1 = len(Q)
+    act2_side_quests()
+    for q in Q[n1:]:
+        q.setdefault("qp", "act2_side")
     entries("quests", Q)
     d = os.path.join(DATA, "dialogue")
     os.makedirs(d, exist_ok=True)

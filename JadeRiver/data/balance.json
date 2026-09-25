@@ -19,7 +19,8 @@
   "heart_tempering": 1.4,
   "cloud_stride": 1.4,
   "spirit_awakening": 1.45,
-  "heaven_glimpse": 1.5
+  "heaven_glimpse": 1.5,
+  "sage": 1.6
  },
  "method": {
   "bone_forging": "riverbreath_fragment",
@@ -28,7 +29,8 @@
   "heart_tempering": "cloudpiercing_canon",
   "cloud_stride": "willow_breath_art",
   "spirit_awakening": "willow_breath_art",
-  "heaven_glimpse": "tidal_sovereign_scripture"
+  "heaven_glimpse": "tidal_sovereign_scripture",
+  "sage": "tidal_sovereign_scripture"
  },
  "tolerance": 0.15,
  "upgrades": [
@@ -49,6 +51,7 @@
  ],
  "act_end": "heaven_glimpse_3",
  "act_end_hours": 65,
+ "sim_end": "sage_sovereign_1",
  "pacing": [
   [
    "bone_forging_1",
@@ -77,6 +80,14 @@
   [
    "heaven_glimpse_1",
    55
+  ],
+  [
+   "sage_1",
+   70
+  ],
+  [
+   "sage_sovereign_1",
+   110
   ]
  ]
 }

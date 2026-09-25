@@ -1,0 +1,150 @@
+{
+ "schema_version": 1,
+ "id": "rf_hermits_ice_cave",
+ "zone": "azure_expanse",
+ "region": "rimefrost_heights",
+ "name": "Hermit's Ice Cave",
+ "type": "insight",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 2.2,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "floor_stone",
+  "tint": "#dbe8f4"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    1280,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    120,
+    700
+   ],
+   "to": "rf_rimefrost_summit",
+   "to_portal": "ice_cave",
+   "press_up": true,
+   "label": "Rimefrost Summit"
+  }
+ ],
+ "objects": [
+  {
+   "id": "spring_ice",
+   "type": "qi_spring",
+   "at": [
+    420,
+    900
+   ],
+   "spring": true
+  },
+  {
+   "id": "npc_hermit_shuang",
+   "type": "npc",
+   "at": [
+    640,
+    780
+   ],
+   "npc": "hermit_shuang",
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    360,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    920,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "icicle_rock",
+   "at": [
+    220,
+    680
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "icicle_rock",
+   "at": [
+    1080,
+    680
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "meditation_mat",
+   "at": [
+    640,
+    860
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "incense_burner",
+   "at": [
+    760,
+    760
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_stone"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "music": "meditation"
+}

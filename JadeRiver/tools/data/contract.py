@@ -25,7 +25,7 @@ CATALOGUE = {
     "Crafting": [
         "craft_step_result", "craft_started", "craft_completed", "profession_rank_up", "fish_caught"],
     "Economy": [
-        "currency_changed", "shop_restocked"],
+        "currency_changed", "shop_restocked", "auction_bid_placed", "auction_outbid", "auction_won"],
     "Pets": [
         "egg_hatched", "pet_retreated", "pet_bonded", "pet_level_up", "bond_changed", "pet_evolved",
         "trait_revealed"],

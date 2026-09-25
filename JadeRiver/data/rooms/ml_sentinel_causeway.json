@@ -1,0 +1,420 @@
+{
+ "schema_version": 1,
+ "id": "ml_sentinel_causeway",
+ "zone": "azure_expanse",
+ "region": "mirrorwater_lake",
+ "name": "Sentinel Causeway",
+ "type": "field",
+ "level_range": [
+  72,
+  75
+ ],
+ "recommended_cp": 1316,
+ "element": "water",
+ "qi_density": 1.7,
+ "hazards": [],
+ "gather_tier": "expanse_mid",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "mirror_lake",
+ "ground": {
+  "material": "moss",
+  "tint": "#b9c6d8"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ml_mirror_shallows",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "ml_lake_shrine",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    515,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 73,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_2",
+   "type": "jar",
+   "at": [
+    1413,
+    900
+   ],
+   "loot": "jar_expanse",
+   "level": 73,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    2385,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 73,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    3430,
+    720
+   ],
+   "loot": "jar_expanse",
+   "level": 73,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_5",
+   "type": "chest",
+   "at": [
+    3480,
+    700
+   ],
+   "loot": "chest_expanse",
+   "level": 75
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "river_sentinel",
+   "surface": "ground",
+   "points": [
+    [
+     598,
+     920
+    ],
+    [
+     1214,
+     837
+    ],
+    [
+     1937,
+     808
+    ],
+    [
+     2535,
+     730
+    ],
+    [
+     3313,
+     892
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 20,
+   "level": [
+    72,
+    75
+   ]
+  },
+  {
+   "enemy": "azure_carp_dragonet",
+   "surface": "ground",
+   "points": [
+    [
+     829,
+     886
+    ],
+    [
+     1986,
+     746
+    ],
+    [
+     2973,
+     917
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 12,
+   "level": [
+    71,
+    73
+   ]
+  },
+  {
+   "enemy": "river_sentinel",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    75,
+    75
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "willow_tree",
+   "at": [
+    197,
+    632
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    646,
+    638
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "willow_tree",
+   "at": [
+    1216,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1775,
+    633
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "willow_tree",
+   "at": [
+    2278,
+    631
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2740,
+    638
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "willow_tree",
+   "at": [
+    3369,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    131,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    521,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    783,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1086,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1315,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1735,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2060,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2440,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2796,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3116,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3351,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3620,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    400,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    1300,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    2200,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    3100,
+    690
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "river",
+ "ambience": "river_ambience",
+ "attunement_required": 28
+}

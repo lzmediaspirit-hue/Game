@@ -51,6 +51,17 @@
    ],
    "fee_shards": 1,
    "zone": "azure_expanse"
+  },
+  {
+   "id": "nine_peaks",
+   "name": "Nine Peaks",
+   "room": "np_alliance_gate",
+   "at": [
+    2100,
+    880
+   ],
+   "fee_shards": 1,
+   "zone": "azure_expanse"
   }
  ]
 }

@@ -13,6 +13,61 @@
    ]
   },
   {
+   "id": "sage_born",
+   "name": "Sage-Born",
+   "modifiers": [
+    {
+     "stat": "accumulation_rate",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
+   "id": "storm_herder",
+   "name": "Storm Herder",
+   "modifiers": [
+    {
+     "stat": "attunement_bonus",
+     "op": "flat",
+     "value": 1
+    }
+   ]
+  },
+  {
+   "id": "alliance_envoy",
+   "name": "Alliance Envoy",
+   "modifiers": [
+    {
+     "stat": "attunement_bonus",
+     "op": "flat",
+     "value": 2
+    }
+   ]
+  },
+  {
+   "id": "free_cultivator",
+   "name": "Free Cultivator",
+   "modifiers": [
+    {
+     "stat": "drop_rate",
+     "op": "pct_add",
+     "value": 0.03
+    }
+   ]
+  },
+  {
+   "id": "ironroot_kin",
+   "name": "Ironroot Kin",
+   "modifiers": [
+    {
+     "stat": "max_hp",
+     "op": "pct_add",
+     "value": 0.04
+    }
+   ]
+  },
+  {
    "id": "shore_warden",
    "name": "Shore Warden",
    "modifiers": [
