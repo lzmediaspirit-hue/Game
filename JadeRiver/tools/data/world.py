@@ -1898,7 +1898,8 @@ def skyport_wreck():
 
     r = field("sw_pirate_deck", "Pirate Deck", "skyport_wreck", 3, [78, 81],
               spawns=[("starsea_pirate", 5, [79, 81], 14), ("nine_peaks_disciple", 1, [78, 78])], jars=5, chest=None,
-              attunement_required=58, hazards=["wind_gust"], **dict(wreck, material="wood", tint="#b8a58a"))
+              attunement_required=58, hazards=["wind_gust"],
+              **dict(wreck, material="wood", tint="#b8a58a", trees=("barrel", "crate", "sack_pile"), front=("barrel",)))
     for x in (700, 2500):
         r.decor("star_ballista", [x, 700])
     for x in (400, 1500, 3400):

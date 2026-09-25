@@ -501,7 +501,7 @@ func _air_presence(hs: Dictionary, view: Rect2) -> void:
 	if phase == "active":
 		for i in 6:
 			var x := pp.x - 90.0 + i * 36.0
-			var y0 := pp.y - 170.0 - 20.0 * _h(i, 221)
+			var y0 := pp.y - 120.0 - 20.0 * _h(i, 221)
 			var y1 := y0 + 40.0 + 30.0 * fposmod(t * 2.0 + _h(i, 222), 1.0)
 			air.draw_line(Vector2(x, y0).snapped(Vector2(2, 2)), Vector2(x, y1).snapped(Vector2(2, 2)), Color(UiKit.INK, 0.5), 7.0)
 			air.draw_line(Vector2(x, y0).snapped(Vector2(2, 2)), Vector2(x, y1).snapped(Vector2(2, 2)), Color(violet, 0.8), 3.0)

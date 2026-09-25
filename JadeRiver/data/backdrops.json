@@ -504,5 +504,57 @@
         "bottom": 720
       }
     ]
+  },
+  "skyport_wreck": {
+    "sky": "#0F0E29",
+    "horizon": "#FFD293",
+    "layers": [
+      {
+        "file": "res://art/backdrops/skyport_wreck_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/skyport_wreck_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/skyport_wreck_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/skyport_wreck_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "starsea": {
+    "sky": "#07061A",
+    "horizon": "#5E6A96",
+    "layers": [
+      {
+        "file": "res://art/backdrops/starsea_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/starsea_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/starsea_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/starsea_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
   }
 }

@@ -3432,6 +3432,1024 @@ def sunscar_tomb():
     return dict(sky="#0a0605", horizon="#20140d", layers=layers)
 
 
+# =============================================================== Skyport Wreck and the open Starsea (Act II)
+def sky_band(seed, y0, amp, width, k=(1, 2), cell=90.0):
+    """Centre row and half-width per column of a band winding across the sky (periodic over W)."""
+    cols = np.arange(W)
+    ph = rng("skb", seed).uniform(0, 2 * math.pi, 2)
+    cy = y0 + amp * (0.62 * np.sin(cols / W * 2 * math.pi * k[0] + ph[0])
+                     + 0.38 * np.sin(cols / W * 2 * math.pi * k[1] + ph[1]))
+    hw = width * (0.6 + 0.8 * pn1(("skw", seed), cell, 2))
+    return cy, hw
+
+
+def star_river(cv, seed, y0, amp, width, glow, pal, alphas=(0.05, 0.08, 0.12), density=0.7, k=(1, 2), twinkles=7):
+    """The Jade River across the night: a milky way winding over the sky. Stepped translucent glow, fullest in
+    clumped star clouds and split by a dark rift, crowded with small stars toward its core.
+    pal = star colours dim->bright (the last one is the twinkle core)."""
+    h = cv.h
+    yy = grids(h)[0]
+    cy, hw = sky_band(("sr", seed), y0, amp, width, k)
+    d = (yy - cy[None, :]) / hw[None, :]
+    ad = np.abs(d)
+    clump = pn2(h, ("src", seed), 40, 12, 2)
+    fib = pn2(h, ("srf", seed), 80, 3, 2)
+    level = np.zeros((h, W), int)
+    for i in range(len(alphas)):
+        reach = (1.0 - i * 0.3) * (0.62 + 0.7 * clump) + (fib - 0.5) * 0.3
+        level[despeck(ad < reach)] = i + 1
+    rc = 0.22 * np.sin(np.arange(W) / W * 6 * math.pi + 1.3)
+    rift = (np.abs(d - rc[None, :]) < 0.12 + (fib - 0.5) * 0.25) & (pn2(h, ("srr", seed), 60, 8, 1) > 0.4)
+    rift = despeck(rift & (level > 1))
+    level = np.where(rift, level - 1, level)
+    for i, a in enumerate(alphas):
+        flat(cv, level == i + 1, glow, a)
+    g = rng("srs", seed)
+    n = len(pal) - 1
+    for i in range(int(W * 1.3 * density)):
+        x = int(g.integers(0, W))
+        o = g.normal(0, 0.42)
+        y = int(round(cy[x] + o * hw[x]))
+        if abs(o) > 1.0 or not 0 <= y < h or rift[y, x]:
+            continue
+        b = (1.0 - abs(o)) * (0.4 + 0.9 * clump[y, x]) * (n - 1) + g.uniform(-1.4, 0.2)
+        put(cv, x, y, pal[int(np.clip(round(b), 0, n - 1))])
+    for i in range(twinkles):
+        x = int((i + g.uniform(0.2, 0.8)) * W / twinkles)
+        y = int(round(cy[x] + g.normal(0, 0.3) * hw[x]))
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            put(cv, x + dx, y + dy, pal[n - 2])
+        put(cv, x, y, pal[-1])
+    return cy, hw
+
+
+def nebula(cv, seed, y0, amp, width, col, alphas=(0.05, 0.08, 0.12), k=(1, 3), cell=70.0, gaps=0.25):
+    """A drifting nebula: a broad band of flat translucent steps frayed into long wisps along its flow and
+    thinning to nothing along part of its length."""
+    h = cv.h
+    yy = grids(h)[0]
+    cy, hw = sky_band(("nb", seed), y0, amp, width, k, cell=cell * 2)
+    d = np.abs(yy - cy[None, :]) / hw[None, :]
+    ends = np.clip((pn1(("nbe", seed), 200, 2) - gaps) / 0.3, 0, 1)
+    wisp = pn2(h, ("nbw", seed), cell, 3, 2)
+    blob = pn2(h, ("nbb", seed), 36, 14, 2)
+    m_all = np.zeros((h, W), bool)
+    for i, a in enumerate(alphas):
+        reach = ends[None, :] * ((1.0 - i * 0.3) * (0.55 + 0.7 * blob) + (wisp - 0.5) * 0.8)
+        m = despeck(d < reach)
+        flat(cv, m, col, a)
+        m_all |= m
+    return m_all
+
+
+def shard_isle(cv, cx, top, hw, depth, ramp, seed, tilt=0.0, spurs=2, rim=None, cap=None):
+    """A shattered isle of the old sky-port adrift: a tilted top slab with a fracture step over an angular
+    underside broken into facets and a spur or two. Lit from the upper left: sunlit facets on the left, shade
+    on the right. ramp dark->light (>= 6); rim = warm edge light; cap = (dark, light) old paving on top.
+    Returns (mask, top row per column)."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    g = rng("shard", seed)
+    cols = np.arange(W)
+    d = wdx(cols, cx)
+    inside = np.abs(d) <= hw
+    tp = top + tilt * d
+    sx = g.uniform(-0.5, 0.5) * hw
+    tp = tp + np.where(d > sx, 1, 0) * g.choice([-2, 2])
+    tp = tp + np.clip(np.abs(d) - (hw - 4), 0, None) * g.uniform(0.5, 1.2)
+    tp = np.round(tp + (pn1(("sht", seed), 4, 1) > 0.72) * 1.0)
+    # angular underside: a polyline through random vertices down to an off-centre point
+    nv = int(g.integers(4, 7))
+    tipx = g.uniform(-0.3, 0.3) * hw
+    vx = np.sort(np.concatenate([[-hw, hw, tipx], g.uniform(-hw * 0.9, hw * 0.9, nv)]))
+    vy = []
+    for x_ in vx:
+        t = 1 - abs(x_ - tipx) / (hw + abs(tipx))
+        vy.append(3 + depth * (t ** 1.2) * (1.0 if x_ == tipx else g.uniform(0.55, 0.95)))
+    vy[0] = vy[-1] = 2.0
+    ub = top + tilt * d + np.interp(d, vx, vy)
+    for _ in range(spurs):
+        px_ = g.uniform(-0.5, 0.5) * hw
+        ub = ub + g.uniform(0.2, 0.45) * depth * np.clip(1 - np.abs(d - px_) / g.uniform(1.5, 3.0), 0, 1)
+    ub = np.round(ub + (pn1(("shj", seed), 3, 1) - 0.5) * 2.0)
+    m = inside[None, :] & (yy >= tp[None, :]) & (yy <= ub[None, :])
+    m = despeck(m)
+    if not m.any():
+        return m, tp
+    n = len(ramp)
+    # facets: the slope of the underside segment under each column decides light (left-facing) or shade
+    slope = np.gradient(np.interp(d, vx, vy))
+    face = np.clip(-slope * 1.2, -1, 1)
+    dep = yy - tp[None, :]
+    rel = np.clip(dep / max(1.0, depth), 0, 1)
+    u = row_u_local(m)
+    st = pn2(h, ("shc", seed), 2.5, 8, 2)
+    v = (n - 1) * 0.58 + (0.5 - u) * 1.8 - face[None, :] * 1.3 * (rel > 0.15) - rel * 1.8
+    v = v - ((st > 0.7) & (rel > 0.15)) * 1.0 + (dep < 3) * 0.9
+    paint(cv, m, ramp, v, sharp=4)
+    # fracture lines running down across the facets, lit along their upper-left lip
+    inner = m & sh(m, 1, 0) & sh(m, -1, 0) & (dep > 3)
+    for _ in range(max(1, int(hw // 14))):
+        fx = cx + g.uniform(-0.6, 0.4) * hw
+        fy = top + g.uniform(3, 6)
+        fl = wline(h, [(fx, fy), (fx + g.uniform(2, 6), fy + depth * 0.35), (fx + g.uniform(-2, 8), fy + depth * 0.7)])
+        flat(cv, fl & inner, ramp[1])
+        flat(cv, sh(fl, -1, 0) & inner & ~fl, ramp[-3])
+    flat(cv, right_rim(m) | bot_rim(m), ramp[0])
+    flat(cv, left_rim(m) & (dep > 1) & (rel < 0.7), ramp[-2])
+    flat(cv, top_rim(m) & (u < 0.85), ramp[-1] if rim is None else rim)
+    if cap is not None:
+        pave = sh(top_rim(m), 0, 1) & m
+        flat(cv, pave, cap[1])
+        flat(cv, pave & (((xx + int(cx)) % 5) == 0), cap[0])
+    return m, tp
+
+
+def snapped_beam(cv, x0, y0, x1, y1, pal, width=2):
+    """A timber beam from (x0, y0) snapped off at (x1, y1): lit top edge, dark underside, splintered end."""
+    h = cv.h
+    m = wline(h, [(x0, y0), (x1, y1)], width)
+    flat(cv, m, pal[1])
+    flat(cv, bot_rim(m), pal[0])
+    flat(cv, top_rim(m), pal[2])
+    sx = 1 if x1 >= x0 else -1
+    put(cv, x1 + sx, y1 - 1, pal[2])
+    put(cv, x1 + 2 * sx, y1 - 1, pal[1])
+    put(cv, x1 + sx, y1 + width - 1, pal[0])
+    return m
+
+
+def sag_pts(x0, y0, x1, y1, sag, n=None):
+    """Points along a rope or chain slung from (x0, y0) to (x1, y1), sagging `sag` px at its middle."""
+    n = n or max(3, int(abs(x1 - x0) / 3) + 2)
+    return [(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t + sag * 4 * t * (1 - t)) for t in np.linspace(0, 1, n)]
+
+
+def dangle_pts(x0, y0, ln, sway=2.0, n=None):
+    """Points along a broken chain hanging `ln` px from (x0, y0), its free end swaying sideways."""
+    n = n or max(3, int(ln / 2))
+    return [(x0 + sway * math.sin(t * 2.2) * t, y0 + ln * t) for t in np.linspace(0, 1, n)]
+
+
+def chain(cv, pts, pal, heavy=False):
+    """Iron chain along a polyline. Light: 1 px, links alternating lit and dark. Heavy: open 3 px rings (lit
+    side, dark side, hole showing through) joined by dark edge-on links. pal = (dark, mid, light)."""
+    P = []
+    for (xa, ya), (xb, yb) in zip(pts, pts[1:]):
+        n = max(1, int(math.ceil(max(abs(xb - xa), abs(yb - ya)))))
+        for i in range(n):
+            p = (int(round(xa + (xb - xa) * i / n)), int(round(ya + (yb - ya) * i / n)))
+            if not P or P[-1] != p:
+                P.append(p)
+    for i, (x, y) in enumerate(P):
+        if not heavy:
+            put(cv, x, y, pal[2] if (i // 2) % 2 == 0 else pal[0])
+            continue
+        j0, j1 = max(0, i - 2), min(len(P) - 1, i + 2)
+        ox, oy = (1, 0) if abs(P[j1][1] - P[j0][1]) >= abs(P[j1][0] - P[j0][0]) else (0, 1)
+        k = i % 6
+        if k < 4:
+            put(cv, x - ox, y - oy, pal[2])
+            put(cv, x + ox, y + oy, pal[0])
+            if k in (0, 3):
+                put(cv, x, y, pal[1])
+        else:
+            put(cv, x, y, pal[0])
+    return P
+
+
+def lantern(cv, x, y, pal, glow=None, cord=None):
+    """Hanging paper lantern with its top at (x, y): a 2x3 warm body lit on the left, dark caps and a stepped
+    glow. pal = (cap, body, lit)."""
+    h = cv.h
+    if glow is not None:
+        for r, a in ((6.0, 0.06), (4.0, 0.12)):
+            flat(cv, wellipse(h, x + 0.5, y + 2.5, r, r * 0.85), glow, a)
+    if cord is not None:
+        put(cv, x, y - 1, cord)
+    flat(cv, wrect(h, x, y + 1, x + 1, y + 3), pal[1])
+    flat(cv, wrect(h, x, y + 1, x, y + 2), pal[2])
+    flat(cv, wrect(h, x, y, x + 1, y), pal[0])
+    put(cv, x, y + 4, pal[0])
+
+
+def rope_line(cv, pts, col, pennants=None, every=7, seed=0):
+    """A sagging rope along pts, optionally strung with little triangular pennants."""
+    h = cv.h
+    m = wline(h, [(round(x), round(y)) for x, y in pts], 1)
+    flat(cv, m, col)
+    if pennants is not None:
+        g = rng("pen", seed)
+        ys, xs = np.nonzero(m)
+        if not len(xs):
+            return m
+        order = np.argsort(wdx(xs, pts[0][0]))
+        for j, k in enumerate(order[::every][1:-1]):
+            x, y = int(xs[k]), int(ys[k])
+            c = pennants[(j + int(g.integers(0, 2))) % len(pennants)]
+            flat(cv, wrect(h, x, y + 1, x + 2, y + 1), c)
+            flat(cv, wrect(h, x, y + 2, x + 1, y + 2), c)
+            put(cv, x, y + 3, c)
+    return m
+
+
+EYE = [".XXX.", "XX.XX", ".XXX."]   # the Starsea pirates' watching eye
+
+
+def war_banner(cv, x, by, ht, pole, cloth, emblem, seed, bl=30, bw=10, wave=1.4, trim=None):
+    """A tall pole with a spear finial and a long tattered banner streaming right: waving, swallow-tailed, torn,
+    a pale trim along its top edge and the watching-eye emblem near the hoist. pole = (dark, mid, light);
+    cloth dark->light (4)."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    g = rng("banner", seed)
+    pm = wrect(h, x, by - ht, x + 1, by)
+    flat(cv, pm, pole[1])
+    flat(cv, wrect(h, x, by - ht, x, by), pole[2])
+    flat(cv, wrect(h, x - 1, by - ht - 1, x + 2, by - ht - 1), pole[0])
+    flat(cv, wrect(h, x, by - ht - 4, x + 1, by - ht - 2), pole[2])
+    put(cv, x, by - ht - 5, pole[2])
+    put(cv, x + 1, by - ht - 3, pole[1])
+    top = by - ht + 1
+    ph = g.uniform(0, 6.28)
+    u = wdx(xx, x + 2)
+    tt = np.clip(u / bl, 0, 1)
+    off = wave * np.sin(u * 0.3 + ph) * tt + tt * 4.0
+    hh = bw * (1 - 0.35 * tt)
+    rag = (pn1(("bnr", seed), 2, 1) > 0.6)[None, :] * (1.0 + (pn1(("bnr2", seed), 2, 1) > 0.8)[None, :])
+    m = (u >= 0) & (u <= bl) & (yy >= top + off) & (yy <= top + off + hh - rag * (tt > 0.25))
+    tail = u > bl - 7
+    m &= ~(tail & (np.abs(yy - (top + off + hh / 2)) < (u - (bl - 7)) * 0.6))
+    hx = x + 2 + bl * g.uniform(0.5, 0.7)
+    m &= ~wellipse(h, hx, top + 4 + wave * 0.5 + 2.0, 1.5, 1.2)
+    m = despeck(m)
+    light = np.cos(u * 0.3 + ph)
+    idx = np.where(light > 0.4, 2, np.where(light < -0.5, 0, 1))
+    cv.fill_idx(m, idx, cloth)
+    flat(cv, top_rim(m) & (light > -0.3), cloth[3])
+    flat(cv, bot_rim(m), cloth[0])
+    if trim is not None:
+        flat(cv, top_rim(m) & (tt < 0.8) & (((xx + int(x)) % 6) != 3), trim)
+    flat(cv, m & (u < 1), cloth[0])
+    sy = int(round(top + 1 + (bw - 3) / 2.0))
+    for r_, row in enumerate(EYE):
+        for c_, ch in enumerate(row):
+            px_, py_ = x + 4 + c_, sy + r_
+            if ch == "X" and m[py_ % h, px_ % W]:
+                put(cv, px_, py_, emblem)
+    return m
+
+
+def broken_pier(cv, x0, x1, top, by, pal, seed, course=9, joint=32, brk=(8, 8), slope=(1.4, 1.4), notches=2,
+                rim=None, dark=None):
+    """A broken pier of the old port: dressed stone courses under a paved top, both ends torn away in jagged
+    diagonal breaks with a block or two knocked out, lit left faces, shaded right return. pal dark->light
+    (>= 6). Returns (mask, crest row per column)."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    g = rng("pier", seed)
+    cw = (x1 - x0) % W
+    cx = x0 + cw / 2.0
+    d = wdx(xx, cx)
+    dc = wdx(np.arange(W), cx)
+    crest = np.full(W, float(top))
+    crest = crest + np.clip(-dc - (cw / 2 - brk[0]), 0, None) * slope[0]
+    crest = crest + np.clip(dc - (cw / 2 - brk[1]), 0, None) * slope[1]
+    for _ in range(notches):
+        nx = g.uniform(-0.4, 0.4) * cw
+        nw = g.uniform(3, 7)
+        crest = crest + np.where(np.abs(dc - nx) < nw, g.choice([course // 2, course]), 0)
+    crest = np.round(crest + (pn1(("prc", seed), 3, 1) - 0.5) * 1.2 * (1 + (np.abs(dc) > cw / 2 - max(brk)) * 2))
+    jl = (pn2(h, ("prl", seed), 3, 8, 2) - 0.5) * 4
+    jr = (pn2(h, ("prr", seed), 3, 8, 2) - 0.5) * 4
+    m = (d >= -cw / 2 + jl) & (d <= cw / 2 + jr) & (yy >= crest[None, :]) & (yy <= by)
+    m = despeck(m)
+    ashlar(cv, m, pal[:5], ("pas", seed), course=course, joint=joint)
+    u = row_u_local(m)
+    dep = depth_in(m)
+    if dark is not None:
+        haze_fade(cv, m & (u > 0.5), dark, np.clip((u - 0.5) * 2.0, 0, 0.6), steps=3, sharp=4)
+    deck = m & (yy <= top + 2) & (dep < 3)
+    flat(cv, deck, pal[4])
+    flat(cv, deck & (dep < 1), pal[5])
+    flat(cv, deck & ((xx % 7) == 0) & (dep >= 1), pal[2])
+    flat(cv, left_rim(m) & ~deck, pal[4])
+    flat(cv, right_rim(m) & ~deck, pal[0])
+    flat(cv, top_rim(m) & (u < 0.9), pal[-1] if rim is None else rim)
+    return m, crest
+
+
+def cloud_floor(cv, y0, y1, seed, pal, rows=8, r0=3.0, r1=14.0, stretch=2.4, persp=1.6, bottom=None):
+    """A floor of cloud receding to the horizon: rows of long low swells that grow and spread apart toward the
+    viewer. Each row fills down to `bottom`, so nearer rows ride over the bodies of farther ones: bright crest,
+    banded body sinking into the trough under the next row. pal dark->light (>= 5). Returns mask."""
+    h = cv.h
+    yy = grids(h)[0]
+    g = rng("cfloor", seed)
+    n = len(pal)
+    bottom = h if bottom is None else bottom
+    cols = np.arange(W)
+    total = np.zeros((h, W), bool)
+    for k in range(rows):
+        t = (k / max(1, rows - 1)) ** persp
+        base = y0 + (y1 - y0) * t
+        r = r0 + (r1 - r0) * t
+        env = np.full(W, np.inf)
+        uu = np.zeros(W)
+        x = g.uniform(0, r * stretch)
+        while x < W + r * stretch * 0.5:
+            rr = r * g.uniform(0.7, 1.3)
+            rx, ry = rr * stretch, rr * 0.6
+            cy = base + g.uniform(-0.35, 0.35) * r
+            dd = wdx(cols, x)
+            q = np.clip(1 - (dd / rx) ** 2, 0, 1)
+            tp = np.where(np.abs(dd) < rx, cy - ry * np.sqrt(q), np.inf)
+            better = tp < env
+            env = np.where(better, tp, env)
+            uu = np.where(better, (dd / rx + 1) / 2, uu)
+            x += rx * g.uniform(1.0, 1.5)
+        env = np.round(np.minimum(env, bottom))
+        m = (yy >= env[None, :]) & (yy <= bottom)
+        dep = (yy - env[None, :]) / max(1.0, r * 0.45)
+        u = uu[None, :]
+        v = (n - 1) - (dep >= 0.6) * 1.0 - (dep >= 1.5) * 1.0 - (dep >= 2.6) * 0.9 - (dep >= 4.0) * 0.9 \
+            + ((u < 0.35) & (dep < 1.6)) * 0.6 - ((u > 0.7) & (dep < 2.2)) * 0.7
+        paint(cv, m, pal, v, sharp=4)
+        flat(cv, top_rim(m) & (u < 0.62), pal[-1])
+        total |= m
+    return total
+
+
+def luminous_sea(cv, y, seed, pal, ranks, fill=True):
+    """Nearer reaches of the Starsea: ranks of cumulus rows that grow toward the viewer, the last one filled to
+    the canvas foot. ranks = [(r_lo, r_hi, gap, amp), ...] far to near."""
+    for i, (rl, rh, gap, amp) in enumerate(ranks):
+        cloud_bank(cv, y, (seed, i), pal, r_lo=rl, r_hi=rh, rows=1, row_gap=gap, amp=amp,
+                   fill_below=fill and i == len(ranks) - 1)
+        y += gap
+
+
+def sea_ribbon(cv, y, seed, col, core=None, thick=3.0, amp=2.0, alphas=(0.16, 0.26), cell=160.0, gaps=0.3,
+               clip=None):
+    """A slow nebula current lying on the Starsea: a long wavy translucent band that thins to nothing at its
+    ends, with a brighter thread along its core."""
+    h = cv.h
+    yy = grids(h)[0]
+    cols = np.arange(W)
+    ph = rng("srb", seed).uniform(0, 6.283)
+    yc = y + (pn1(("srb", seed), cell, 2) - 0.5) * 2 * amp + np.sin(cols / W * 4 * math.pi + ph) * amp * 0.6
+    ends = np.clip((pn1(("sre", seed), cell * 1.5, 1) - gaps) / 0.25, 0, 1)
+    clip = np.ones((h, W), bool) if clip is None else clip
+    for i, a in enumerate(alphas):
+        hw = thick * (1 - i * 0.45) * ends
+        m = (np.abs(yy - yc[None, :]) <= hw[None, :]) & (hw[None, :] >= 0.5) & clip
+        flat(cv, m, col, a)
+    if core is not None:
+        m = (np.round(yc)[None, :] == yy) & (ends[None, :] > 0.55) & clip & (pn2(h, ("srt", seed), 14, 4, 1) > 0.4)
+        flat(cv, m, core, 0.35)
+
+
+def sea_glints(cv, region, seed, count, pal, big_every=4, specks=0, speck_c=None):
+    """Stars caught in the cloud-sea: glints over `region`, every few with a small cross, plus dim specks.
+    pal = (arm, core)."""
+    g = rng("sglint", seed)
+    ys, xs = np.nonzero(region)
+    if not len(xs):
+        return
+    for i in range(specks):
+        j = int(g.integers(0, len(xs)))
+        put(cv, int(xs[j]), int(ys[j]), speck_c, 0.7)
+    for i in range(count):
+        j = int(g.integers(0, len(xs)))
+        x, y = int(xs[j]), int(ys[j])
+        if i % big_every == 0:
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                put(cv, x + dx, y + dy, pal[0])
+        put(cv, x, y, pal[1])
+
+
+def tilted_dock(cv, cx, by, ang, tiers, w0, pal, deck, window=None, span=(12, 14), shrink=0.74, body_h=4):
+    """A pagoda on its pier platform, tipped by ang radians (clockwise) about the deck top at (cx, by). Built from
+    rotated polygons so the edges stay crisp. pal = pagoda (dark, mid, light); deck = (dark, mid, light).
+    Returns the local->canvas mapping."""
+    h = cv.h
+    c, s_ = math.cos(ang), math.sin(ang)
+
+    def G(u, v):
+        return cx + c * u - s_ * v, by + s_ * u + c * v
+
+    def poly(pts):
+        return wpoly(h, [G(u, v) for u, v in pts])
+
+    for pu in range(-span[0] + 2, span[1] - 1, 6):
+        flat(cv, wline(h, [G(pu, 2), G(pu, 6)], 1), deck[0])
+    flat(cv, wline(h, [G(-span[0] + 3, 2), G(-3, 9)], 1), deck[0])
+    flat(cv, wline(h, [G(span[1] - 3, 2), G(3, 9)], 1), deck[0])
+    dm = poly([(-span[0], -0.5), (span[1], -0.5), (span[1], 1.5), (-span[0], 1.5)])
+    flat(cv, dm, deck[1])
+    flat(cv, top_rim(dm), deck[2])
+    flat(cv, bot_rim(dm), deck[0])
+    for pu in range(-span[0], span[1] + 1, 4):
+        put(cv, *G(pu, -1.5), deck[1])
+    flat(cv, wline(h, [G(-span[0], -2.5), G(-span[0] + 8, -2.5)], 1), deck[1])
+    flat(cv, wline(h, [G(span[1] - 6, -2.5), G(span[1], -2.5)], 1), deck[1])
+    y = -1.0
+    bw = float(w0)
+    for _ in range(tiers):
+        hw_ = bw / 2.0
+        body = poly([(-hw_, y - body_h + 0.5), (hw_, y - body_h + 0.5), (hw_, y + 0.5), (-hw_, y + 0.5)])
+        flat(cv, body, pal[1])
+        flat(cv, left_rim(body), pal[2])
+        roof = poly([(-hw_ - 3.5, y - body_h + 1), (hw_ + 3.5, y - body_h + 1), (hw_ + 1.5, y - body_h - 1.5),
+                     (-hw_ - 1.5, y - body_h - 1.5)])
+        flat(cv, roof, pal[0])
+        flat(cv, top_rim(roof) & ~right_rim(roof), pal[2])
+        for sx in (-1, 1):
+            put(cv, *G(sx * (hw_ + 4), y - body_h), pal[0])
+        if window is not None:
+            put(cv, *G(0, y - 1), window)
+            put(cv, *G(0, y - 2), window)
+        y -= body_h + 2
+        bw = max(2.0, bw * shrink + 0.5)
+    flat(cv, wline(h, [G(0, y + 1), G(0, y - 3)], 1), pal[0])
+    return G
+
+
+def sky_junk(cv, px, py):
+    """The colossal wreck of a sky junk: a broken-backed hull (bow half nose-down, stern half reared up) split
+    open over exposed ribs, a snapped main mast with a torn batten sail, a stern castle, mooring chains and
+    pirate lanterns. Drawn in ship-local coordinates (u along the keel, v down) placed per half around the
+    keel point of the break at (px, py)."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    hull_r = R("#191224", "#22192e", "#2d2138", "#3a2b43", "#4b374e", "#5f4558", "#7c5662")
+    wale = R("#130d1c", "#352640", "#6e4a5a")
+    lit_rim = "#c47a7a"
+    hold = R("#0c0913", "#140f1d")
+    rib = R("#1c1428", "#3c2c40", "#744e5a")
+    sail = R("#2a1422", "#43182a", "#5e2232", "#7c2e38", "#9a4240")
+    sail_rim = "#e08a6a"
+    lan = R("#2a1a1a", "#ff8a3a", "#ffd07a")
+    glow = "#ff9a4a"
+    chn = R("#140e1e", "#34283e", "#6a5670")
+
+    def sheer(u):
+        u = np.asarray(u, float)
+        return np.where(u < 0, -14 * (np.clip(-u, 0, 170) / 170.0) ** 1.8,
+                        np.where(u < 96, -24 * (np.clip(u, 0, 96) / 96.0) ** 1.6, -24 - (u - 96) * 0.16))
+
+    def keel(u):
+        u = np.asarray(u, float)
+        return 40 - 22 * (np.clip(-u, 0, 170) / 170.0) ** 2.2 - 26 * (np.clip(u, 0, 170) / 170.0) ** 2.4
+
+    halves = {-1: (-0.07, (-20.0, 40.0)), 1: (-0.13, (20.0, 40.0))}
+
+    def frame(side):
+        ang, pl = halves[side]
+        c, s = math.cos(ang), math.sin(ang)
+        dx = wdx(xx, px)
+        dy = yy - py
+        return pl[0] + c * dx + s * dy, pl[1] - s * dx + c * dy
+
+    def G(side, u, v):
+        ang, pl = halves[side]
+        c, s = math.cos(ang), math.sin(ang)
+        du, dv = u - pl[0], v - pl[1]
+        return px + c * du - s * dv, py + s * du + c * dv
+
+    def poly(side, pts):
+        return wpoly(h, [G(side, u, v) for u, v in pts])
+
+    hull_all = np.zeros((h, W), bool)
+    for side in (-1, 1):
+        u, v = frame(side)
+        jag = (pn2(h, ("sjb", side), 3, 4, 2) - 0.5) * 9
+        bow_end = -172 + np.clip(v + 14, 0, None) * 0.35
+        stern_end = 170 - np.clip(v + 44, 0, None) * 0.3
+        body = (v >= sheer(u)) & (v <= keel(u)) & (u >= bow_end) & (u <= stern_end)
+        body &= (u <= -22 + jag) if side < 0 else (u >= 18 + jag)
+        body = despeck(body)
+        rel = v - sheer(u)
+        n = len(hull_r)
+        plank = pn2(h, ("sjp", side), 26, 5, 1)
+        vv = (n - 1) * 0.66 - np.clip(rel / 36.0, 0, 1) * 3.0 + (plank - 0.5) * 0.8
+        paint(cv, body, hull_r, vv, sharp=5)
+        seam = body & (np.floor(rel) % 5 == 4) & (rel > 11) & ~((rel >= 20) & (rel < 24))
+        flat(cv, seam, hull_r[1])
+        butt = body & (np.floor(u + np.floor(rel / 5) * 11) % 26 == 0) & (rel > 11)
+        flat(cv, butt, hull_r[1])
+        wl = body & (rel >= 6) & (rel < 10)
+        flat(cv, wl, wale[1])
+        flat(cv, wl & (rel < 7), wale[2])
+        flat(cv, wl & (rel >= 9), wale[0])
+        wl2 = body & (rel >= 20) & (rel < 23)
+        flat(cv, wl2, wale[1])
+        flat(cv, wl2 & (rel < 21), wale[2])
+        flat(cv, wl2 & (rel >= 22), wale[0])
+        flat(cv, body & (rel >= 1) & (rel < 3), hull_r[4])
+        flat(cv, top_rim(body), lit_rim)
+        # gun / oar ports along the wale, a few with lamplight inside
+        g = rng("sjport", side)
+        for k, pu in enumerate(np.arange(-150 if side < 0 else 34, -34 if side < 0 else 150, 13)):
+            x, y = G(side, pu, sheer(pu) + 13)
+            pm = wrect(h, int(round(x)), int(round(y)), int(round(x)) + 1, int(round(y)) + 1) & body
+            lit = g.random() < 0.3
+            flat(cv, pm, "#ff9a4a" if lit else hold[0])
+            if lit:
+                put(cv, int(round(x)), int(round(y)), "#ffd07a")
+        # torn planking near the break shows the dark hold and its ribs
+        tear_c = -34 if side < 0 else 32
+        torn = body & (np.abs(u - tear_c) < 12 + (pn2(h, ("sjt", side), 4, 6, 2) - 0.5) * 14) & (rel > 3)
+        torn = despeck(torn)
+        flat(cv, torn, hold[1])
+        rb = torn & ((np.floor(u) % 7) < 2)
+        flat(cv, rb, rib[1])
+        flat(cv, rb & ((np.floor(u) % 7) < 1), rib[2])
+        flat(cv, top_rim(torn), hold[0])
+        flat(cv, sh(top_rim(torn), 0, -1) & body & ~torn, rib[2])
+        hull_all |= body
+    # the stern castle on the poop deck: dark walls, lit stern-gallery windows, an upswept pavilion roof
+    s = 1
+    wall = poly(s, [(106, sheer(106) + 1), (106, -46), (158, -46), (158, sheer(158) + 1)])
+    flat(cv, wall, hull_r[2])
+    flat(cv, left_rim(wall), hull_r[4])
+    for k in range(6):
+        wu = 110 + k * 8
+        wm = poly(s, [(wu, -42), (wu + 4, -42), (wu + 4, -38), (wu, -38)])
+        flat(cv, wm, "#ff9a4a")
+        flat(cv, wm & ~sh(wm, 0, 1), "#ffd07a")
+        flat(cv, poly(s, [(wu + 6, -45), (wu + 7, -45), (wu + 7, sheer(wu + 6) + 1), (wu + 6, sheer(wu + 6) + 1)]),
+             hull_r[1])
+    roof = poly(s, [(93, -53), (97, -50), (104, -48), (160, -48), (167, -50), (171, -53), (165, -53), (154, -58),
+                    (110, -58), (99, -53)])
+    su2 = frame(1)[0]
+    flat(cv, roof, "#2a1e38")
+    flat(cv, roof & (np.floor(su2) % 3 == 0) & ~top_rim(roof), "#1c1428")
+    flat(cv, top_rim(roof), "#7a5468")
+    flat(cv, bot_rim(roof), "#110c1a")
+    ridge = poly(s, [(108, -58.5), (156, -58.5), (157, -61), (154, -60), (110, -60), (107, -61)])
+    flat(cv, ridge, "#160f20")
+    hull_all |= wall | roof
+    # rudder: its stock drops through the overhanging stern to a holed blade under the counter
+    rud = poly(s, [(128, keel(134) - 6), (146, keel(146) - 6), (150, keel(146) + 14), (130, keel(134) + 10)])
+    flat(cv, rud, hull_r[2])
+    flat(cv, left_rim(rud), hull_r[4])
+    flat(cv, right_rim(rud) | bot_rim(rud), hull_r[0])
+    for hu, hv in ((134, 3), (141, 3), (134, 9), (141, 9)):
+        x, y = G(s, hu, keel(138) + hv)
+        flat(cv, wrect(h, int(round(x)), int(round(y)), int(round(x)) + 1, int(round(y))) & rud, hull_r[0])
+    # ribs across the open break, from the keel toward the missing deck, snapped at uneven heights
+    g = rng("sjribs")
+    for k, u0 in enumerate(range(-24, 22, 6)):
+        f = (u0 + 24) / 46.0
+        side = -1 if f < 0.5 else 1
+        top_v = sheer(u0) + g.uniform(-6, 14)
+        x0, y0 = G(side, u0, keel(u0) + 2)
+        x1, y1 = G(side, u0 + g.uniform(-2, 2), top_v)
+        rm = wline(h, [(x0, y0), (x1, y1)], 2)
+        flat(cv, rm, rib[1])
+        flat(cv, left_rim(rm), rib[2])
+        flat(cv, right_rim(rm), rib[0])
+        put(cv, x1, y1 - 1, rib[2])
+    for (ua, va, ub, vb) in ((-26, 20, 6, 21), (-26, 8, -8, 9)):
+        xa, ya = G(-1, ua, va)
+        xb, yb = G(1, ub, vb)
+        sm = wline(h, [(xa, ya), (xb, yb)], 1)
+        flat(cv, sm, rib[1])
+        flat(cv, top_rim(sm), rib[2])
+    # masts: the main mast snapped high, a foremast stump, a mizzen stump on the stern castle
+    masts = {}
+    for name, side, u0, base_v, top_v, w_ in (("main", 1, 44, None, -168, 3), ("fore", -1, -112, None, -86, 2),
+                                             ("mizzen", 1, 140, -57, -92, 2)):
+        bv = sheer(u0) + 2 if base_v is None else base_v
+        xb_, yb_ = G(side, u0, bv)
+        xt, yt = G(side, u0 - 2, top_v)
+        mm = wline(h, [(xb_, yb_), (xt, yt)], w_)
+        flat(cv, mm, hull_r[2])
+        flat(cv, left_rim(mm), hull_r[5])
+        flat(cv, right_rim(mm), hull_r[0])
+        put(cv, xt, yt - 1, hull_r[5])                     # the snapped top: a jagged splinter
+        put(cv, xt + 1, yt - 2, hull_r[4])
+        put(cv, xt - 1, yt, hull_r[3])
+        masts[name] = (xt, yt)
+    # the torn batten sail on the main mast: yard raked up toward the bow, battens fanning down to a level foot
+    # and poking past the luff; the fore corner torn away, one panel ripped open and hanging in strips
+    su, sv = frame(1)
+    mast_u, foot_v, nb = 43.0, -76.0, 5
+    yard = -142.0 - (mast_u - su) * 0.36
+    t = np.clip((sv - yard) / np.maximum(1.0, foot_v - yard), 0, 1)
+    luff = -20.0 - 8.0 * t - 5.0 * np.sin(t * math.pi)
+    outline = (sv >= yard) & (sv <= foot_v) & (su <= mast_u) & (su >= luff)
+    pan = t * nb
+    k_pan = np.floor(pan)
+    fpan = pan - k_pan
+    rag = (pn2(h, ("sjsr", 0), 1.5, 4, 1) - 0.5) * 6
+    tear = (su < luff + 36 * (t - 0.58) / 0.42 + rag) & (t > 0.58)
+    edge = luff + (mast_u - luff) * 0.52 + rag * 1.5
+    tear |= (k_pan == 2) & (su < edge)
+    tear |= (pn2(h, ("sjsh", 0), 6, 5, 2) > 0.78) & (k_pan == 1) & (su > luff + 4)
+    strip_len = pn1(("sjsl", 0), 3, 1)
+    strips = (k_pan == 2) & (su < edge) & (su > luff + 2) & ((np.floor(su) % 4) < 2) & \
+             (fpan < 0.15 + strip_len[None, :] * 0.6)
+    cloth = despeck(outline & (~tear | strips))
+    vs = 3.5 - fpan * 2.2 + np.clip((10 - su) / 40.0, -1, 1) * 0.5 - t * 0.5
+    paint(cv, cloth, sail, vs, sharp=5)
+    flat(cv, left_rim(cloth) & ~strips, sail_rim)
+    flat(cv, top_rim(cloth) & (fpan > 0.1), sail[3])
+    flat(cv, bot_rim(cloth) & strips, sail[0])
+    for k in range(nb + 1):
+        fr = k / float(nb)
+        lu = -20.0 - 8.0 * fr - 5.0 * math.sin(fr * math.pi)
+        v_m = -142.0 + (foot_v + 142.0) * fr
+        v_l = (-142.0 - (mast_u - lu) * 0.36) * (1 - fr) + foot_v * fr
+        end_u = lu - 3
+        if k == 3:                     # a batten snapped at the rip, its fore end drooping
+            xa, ya = G(1, mast_u, v_m)
+            xb, yb = G(1, lu + 18, v_m + (v_l - v_m) * (mast_u - lu - 18) / (mast_u - lu))
+            flat(cv, wline(h, [(xa, ya), (xb, yb)], 1), "#1e1220")
+            flat(cv, wline(h, [(xb, yb), (xb - 5, yb + 8)], 1), "#1e1220")
+            continue
+        xa, ya = G(1, mast_u, v_m)
+        xb, yb = G(1, end_u, v_l + (v_l - v_m) * 3 / (mast_u - lu))
+        bm = wline(h, [(xa, ya), (xb, yb)], 2 if k == 0 else 1)
+        flat(cv, bm, "#1e1220")
+        put(cv, xb, yb, "#8a5250")
+    # rigging, a string of lanterns from the foremast stump to the main mast
+    fx, fy = masts["fore"]
+    mx, my = masts["main"]
+    zx, zy = masts["mizzen"]
+    pts = sag_pts(fx + 1, fy + 4, mx + 1, my + 44, 22)
+    rope_line(cv, pts, "#3a2838")
+    rope_line(cv, sag_pts(mx + 2, my + 3, zx + 1, zy + 1, 14), "#3a2838")
+    rope_line(cv, sag_pts(mx + 2, my + 3, mx + 60, my + 110, 6), "#2e2030")
+    for j in (3, 7, 11, 15):
+        if j < len(pts) - 1:
+            lantern(cv, int(round(pts[j][0])), int(round(pts[j][1])) + 1, lan, glow=glow)
+    # a ragged pirate pennant on the mizzen stump
+    war_banner(cv, int(round(zx)) - 1, int(round(zy)) + 20, 18, R("#140e18", "#2a1e26", "#5a4038"),
+               R("#141232", "#1e1c46", "#2a285c", "#3e3c7c"), "#e0d4b8", "sjflag", bl=18, bw=7, wave=1.0,
+               trim="#b8a888")
+    # lanterns hung from the stern-castle eaves, at the bow and at the break
+    for uu in (98, 166):
+        x, y = G(1, uu, -48)
+        lantern(cv, int(round(x)), int(round(y)) + 1, lan, glow=glow, cord=hull_r[1])
+    xb_, yb_ = G(-1, -154, sheer(-154) + 1)
+    x, y = G(-1, -156, -30)
+    flat(cv, wline(h, [(xb_, yb_), (x, y)], 1), hull_r[3])
+    flat(cv, wline(h, [(x, y), (x + 4, y)], 1), hull_r[3])
+    lantern(cv, int(round(x)) + 4, int(round(y)) + 1, lan, glow=glow, cord=hull_r[3])
+    # the bow eye
+    x, y = G(-1, -150, -3)
+    flat(cv, wellipse(h, x, y, 3.2, 2.2), "#6a2830")
+    flat(cv, wellipse(h, x, y, 2.2, 1.3), "#d8c8b0")
+    flat(cv, wellipse(h, x + 0.5, y, 0.9, 1.2), "#140e18")
+    # mooring chains: taut to the sea from the bow and the stern, broken ones dangling from the hull
+    xa, ya = G(-1, -162, 8)
+    chain(cv, sag_pts(xa, ya, xa - 56, ya + 70, 5), chn, heavy=True)
+    xa, ya = G(-1, -96, 30)
+    chain(cv, dangle_pts(xa, ya, 30, sway=-3), chn, heavy=True)
+    xa, ya = G(1, 152, 8)
+    chain(cv, sag_pts(xa, ya, xa + 64, ya + 84, 8), chn, heavy=True)
+    xa, ya = G(1, 96, 18)
+    chain(cv, dangle_pts(xa, ya, 34, sway=3), chn, heavy=True)
+    return hull_all
+
+
+def skyport_wreck():
+    """Skyport Wreck: the broken sky-port on the Starsea shore at dusk. Shattered isles trailing chains and snapped
+    piers, a colossal wrecked junk lit by pirate lanterns, banners on the torn port rim, and the Jade River
+    running overhead as a river of stars."""
+    layers = []
+    stops = [(0.0, "#0f0e29"), (0.12, "#181840"), (0.24, "#24214f"), (0.34, "#362a5e"), (0.42, "#4f3368"),
+             (0.48, "#6c3b6e"), (0.53, "#8e4772"), (0.57, "#b25a74"), (0.6, "#d27476"), (0.62, "#ea9479"),
+             (0.635, "#f8b580"), (0.65, "#ffd293"), (0.7, "#ffe0ad"), (1.0, "#f6c9a0")]
+    sky = sky_layer(stops, bands=28, sharp=2.4)
+    stars(sky, "swst", 360, 0, 170, R("#34346c", "#5e5e9a", "#a4a6d4", "#ffffff"), twinkle=9)
+    star_river(sky, "swjr", 64, 24, 14, "#62dc92", R("#2e5c5a", "#3c806c", "#5aac84", "#96dcaa", "#dcf8e2",
+                                                     "#ffffff"), density=0.6)
+    for i, (cx, y, ln) in enumerate(((120, 178, 150), (400, 192, 210), (590, 204, 120), (260, 210, 150),
+                                     (470, 162, 90))):
+        streak(sky, cx, y, ln, R("#f4a47e", "#8a4670", "#c06478"), ("sws", i), rows=2)
+    layers.append((sky, 0.0, 720))
+
+    # ---------------- far: shattered isles of the old port adrift above the horizon, chains and snapped piers
+    fh = 220
+    far = Canvas(W, fh)
+    yy = grids(fh)[0]
+    rock = R("#1e1838", "#281f46", "#322752", "#3e2f5e", "#4b386a", "#5c4476", "#725283")
+    rim_c = "#e0968e"
+    wood = R("#241a32", "#3e2e46", "#6a4c5a")
+    chn = R("#221a36", "#3a2e4e", "#6a5878")
+    dock_pal = R("#18122a", "#2a2040", "#5a4668")
+    dock_deck = R("#18122a", "#342840", "#8a6068")
+    horizon_haze = "#e8a08c"
+    isles = [(70, 40, 34, 44, -0.06, 2), (205, 104, 15, 20, 0.1, 1), (334, 20, 28, 38, 0.05, 2),
+             (520, 62, 40, 50, -0.08, 2), (408, 128, 12, 14, 0.14, 1), (152, 62, 5, 8, 0.2, 0),
+             (262, 30, 5, 7, 0.1, 0), (612, 110, 7, 10, -0.15, 0)]
+    for i, (cx, top, hw, dp, tilt, sp) in enumerate(isles):
+        hz = np.clip((top - 20) / 130.0, 0, 1)
+        behind = lerp_stops(stops, (top + 60 + dp * 0.5) / (SKY_H - 1.0))    # the sky at the isle's height
+        ramp = hazed(rock, behind, 0.22 + hz * 0.18)
+        m, tp = shard_isle(far, cx, top, hw, dp, ramp, ("swi", i), tilt=tilt, spurs=sp,
+                           rim=mixc(rim_c, behind, 0.15 + hz * 0.3),
+                           cap=hazed(R("#2a2040", "#8a6480"), behind, 0.2 + hz * 0.3) if hw > 10 else None)
+        if hw > 10:
+            g = rng("swchain", i)
+            for _ in range(2):
+                ax = cx + g.uniform(-0.55, 0.55) * hw
+                col = m[:, int(ax) % W]
+                ay = int(np.nonzero(col)[0].max()) if col.any() else top + dp // 2
+                chain(far, dangle_pts(ax, ay, g.uniform(10, 26), sway=g.uniform(-3, 3)), hazed(chn, behind, 0.25))
+    # snapped pier beams jutting off the big isles, a chain hanging from one or two
+    for j, (x0, y0, x1, y1) in enumerate(((40, 42, 24, 45), (304, 22, 284, 27), (362, 24, 384, 19), (360, 30, 374, 34),
+                                          (556, 60, 578, 55), (190, 104, 180, 107))):
+        snapped_beam(far, x0, y0, x1, y1, wood, width=2)
+        if j in (0, 2, 4):
+            chain(far, dangle_pts(x1, y1 + 2, 9 + j, sway=1.5), chn)
+    # two pagoda docks hanging half off their rocks
+    for j, (px, py, ang, tiers, flip) in enumerate(((104, 36, 0.26, 3, 1), (484, 60, -0.3, 3, -1))):
+        G = tilted_dock(far, px, py, ang, tiers, 11, dock_pal, dock_deck, window="#ffcf7a",
+                        span=(6, 16) if flip > 0 else (16, 6))
+        ex, ey = G(15 * flip, 2)
+        chain(far, dangle_pts(ex, ey, 14 + j * 4, sway=flip * 1.0), chn)
+        lx, ly = G(10 * flip, 1)
+        lantern(far, int(round(lx)), int(round(ly)) + 1, R("#2a1a1a", "#ff8a3a", "#ffd07a"), glow="#ff9a4a")
+    base_fade(far, 124, 172, horizon_haze, steps=4)
+    sea = R("#9c6690", "#b87896", "#d48e98", "#eaa898", "#f8c29e", "#ffdcb4")
+    cloud_floor(far, 170, 212, "swsea", sea, rows=9, r0=1.6, r1=5.5, stretch=2.8)
+    base_fade(far, 166, 180, "#ffd6a4", steps=3, m=(far.a > 0) & (yy >= 166))
+    sea_m = (far.a > 0) & (yy > 176)
+    sea_ribbon(far, 180, "swr1", "#a070e0", core="#e0c8ff", thick=1.4, amp=1.5, clip=sea_m, alphas=(0.2, 0.3))
+    sea_ribbon(far, 188, "swr2", "#40c8c0", core="#c8fff0", thick=1.8, amp=2, clip=sea_m, gaps=0.35,
+               alphas=(0.2, 0.3))
+    sea_glints(far, sea_m, "swfg", 26, R("#fff0d8", "#ffffff"), specks=60, speck_c="#fff4e4")
+    layers.append((far, 0.08, 560))
+
+    # ---------------- mid: the colossal wreck of a sky junk, broken-backed, lanterns lit by the pirates in it
+    mh = 260
+    mid = Canvas(W, mh)
+    yy, _, _ = grids(mh)
+    sky_junk(mid, 330, 200)
+    sea_mid = R("#34286a", "#40307a", "#503a88", "#644694", "#80549c", "#b06ca2", "#f8b8ac")
+    sea_cv = Canvas(W, mh)
+    luminous_sea(sea_cv, 206, "swsea_m", sea_mid, [(6, 12, 12, 4), (8, 16, 14, 5), (10, 20, 16, 6)])
+    haze_fade(sea_cv, sea_cv.a > 0, "#e89aa4", np.clip((222 - yy) / 26.0, 0, 1) * 0.55, steps=3, sharp=5)
+    mid.paste(sea_cv)
+    sm = (mid.a > 0) & (yy > 206)
+    sea_ribbon(mid, 214, "swrm1", "#9a66e8", core="#e8d4ff", thick=4.0, amp=4, clip=sm, alphas=(0.12, 0.2, 0.28))
+    sea_ribbon(mid, 234, "swrm2", "#3cc4c0", core="#d0fff4", thick=5.0, amp=4, clip=sm, gaps=0.4,
+               alphas=(0.12, 0.2, 0.28))
+    sea_glints(mid, sm, "swmg", 26, R("#ffe8d0", "#ffffff"), specks=90, speck_c="#fff0e8")
+    layers.append((mid, 0.18, 620))
+
+    # ---------------- near: the rim of the broken port, jagged piers, banners and rope lines over the sea
+    nh = 200
+    near = Canvas(W, nh)
+    yy, _, _ = grids(nh)
+    stone = R("#130f22", "#1b152c", "#231b36", "#2c2240", "#3a2d4e", "#54405e")
+    nd = "#0c0918"
+    rim_n = "#a86a7a"
+    p1, c1 = broken_pier(near, 560, 150, 104, nh + 2, stone, "swp1", brk=(10, 16), slope=(1.2, 2.2), rim=rim_n, dark=nd)
+    p2, _ = broken_pier(near, 262, 300, 80, nh + 2, stone, "swp2", brk=(8, 10), slope=(2.6, 2.0), notches=1,
+                         rim=rim_n, dark=nd)
+    arch = (wellipse(nh, 322, 108, 30, 26) & ~wellipse(nh, 322, 114, 22, 22) & (yy < 108)
+            & (xx_all(nh) >= 296) & (xx_all(nh) < 330 + (pn1("swarch", 3, 1) * 4).astype(int)[None, :]))
+    arch = despeck(arch & ~p2)
+    ashlar(near, arch, stone[:5], "swarch", course=9, joint=32)
+    flat(near, top_rim(arch), rim_n)
+    flat(near, bot_rim(arch) | right_rim(arch), stone[0])
+    p3, _ = broken_pier(near, 438, 522, 116, nh + 2, stone, "swp3", brk=(14, 8), slope=(1.6, 1.4), rim=rim_n, dark=nd)
+    p2 |= arch
+    # stone bollards on the quay, a snapped mooring rope, a chain hanging off the broken end
+    for bx in (70, 88, 470):
+        col = near.a[:, bx % W] > 0
+        by = int(np.argmax(col)) if col.any() else 150
+        bm = wrect(nh, bx - 1, by - 4, bx + 2, by - 1) | wrect(nh, bx - 2, by - 5, bx + 3, by - 5)
+        flat(near, bm, stone[3])
+        flat(near, left_rim(bm), stone[5])
+        flat(near, right_rim(bm), stone[0])
+        flat(near, top_rim(bm), rim_n)
+    rope_line(near, [(71, c1[71] - 3), (60, c1[60] + 2), (52, c1[52] + 12), (48, c1[48] + 24)], "#4a3440")
+    chain(near, dangle_pts(150, int(c1[146]) + 6, 30, sway=-2), R("#0e0a18", "#2a2036", "#5a4a64"), heavy=True)
+    pole = R("#140e18", "#2a1e26", "#5a4038")
+    cloth = R("#161436", "#221f4c", "#302d66", "#46448a")
+    bans = []
+    for i, (bx, ht) in enumerate(((36, 70), (112, 56), (282, 74), (484, 54))):
+        col = near.a[:, bx % W] > 0
+        by = int(np.argmax(col)) if col.any() else 150
+        war_banner(near, bx, by + 1, ht, pole, cloth, "#ece2c8", ("swb", i), bl=30 if i % 2 == 0 else 24,
+                   bw=10 if i % 2 == 0 else 8, trim="#c8b894")
+        bans.append((bx, by - ht + 10))
+    rope = "#4a3440"
+    pen = R("#86283a", "#e8d6bc", "#2e2c66")
+    rope_line(near, sag_pts(bans[0][0] + 1, bans[0][1], bans[1][0], bans[1][1] + 6, 10), rope, pennants=pen, seed=1)
+    rp = sag_pts(bans[1][0] + 1, bans[1][1] + 6, bans[2][0], bans[2][1], 26)
+    rope_line(near, rp, rope)
+    lantern(near, int(rp[len(rp) // 2][0]), int(rp[len(rp) // 2][1]) + 1, R("#2a1a1a", "#ff8a3a", "#ffd07a"),
+            glow="#ff9a4a")
+    rp = sag_pts(bans[2][0] + 1, bans[2][1] + 4, bans[3][0], bans[3][1] + 8, 20)
+    rope_line(near, rp, rope, pennants=pen, seed=3)
+    sea_near = R("#221a50", "#2c2060", "#382870", "#46307e", "#583a88", "#7a4c94", "#e098a8")
+    luminous_sea(near, 148, "swsea_n", sea_near, [(10, 20, 16, 6), (12, 24, 18, 7), (14, 26, 18, 7)])
+    sn = (near.a > 0) & (yy > 160) & ~p1 & ~p2 & ~p3
+    sea_glints(near, sn, "swng", 10, R("#ffe8d0", "#ffffff"), specks=24, speck_c="#fff0e8")
+    layers.append((near, 0.32, 720))
+    return dict(sky="#0f0e29", horizon="#ffd293", layers=layers)
+
+
+def ringed_body(cv, cx, cy, r, pal, bands, ring, tilt=-0.22, rx=2.1, ry=0.34, halo=None, seed=0):
+    """A great ringed star-body: a pale banded disc lit from the upper left with a crescent of shade on the lower
+    right, and a thin tilted ring (with a dark division) whose far arc passes behind the disc and near arc in
+    front, casting a thin shadow across it. pal = (shade, body, light); bands = (dark, light);
+    ring = (dark, mid, light)."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    dx = wdx(xx, cx)
+    dy = yy - cy
+    c, s_ = math.cos(tilt), math.sin(tilt)
+    ru = c * dx + s_ * dy
+    rv = -s_ * dx + c * dy
+    e = np.sqrt((ru / (r * rx)) ** 2 + (rv / (r * ry)) ** 2)
+    ring_m = (e <= 1.0) & (e >= 0.74)
+    div = (e >= 0.86) & (e < 0.9)
+    disc_m = dx ** 2 + dy ** 2 <= r * r
+    if halo is not None:
+        for sc, a in ((1.9, 0.04), (1.45, 0.07), (1.18, 0.1)):
+            flat(cv, (dx ** 2 + dy ** 2 <= (r * sc) ** 2), halo, a)
+
+    def draw_ring(m):
+        flat(cv, m, ring[1])
+        flat(cv, m & (ru < -r * 0.9), ring[2])
+        flat(cv, m & (ru > r * 1.3), ring[0])
+        flat(cv, m & div, ring[0])
+
+    draw_ring(ring_m & (rv < 0) & ~disc_m)
+    # the disc: latitude bands parallel to the ring, lit upper left, shade crescent lower right
+    wob = (pn2(h, ("rbw", seed), 10, 3, 1) - 0.5) * 0.12
+    lat = rv / r + wob
+    bidx = np.floor(lat * 5.5)
+    v = np.full((h, W), 1.0)
+    v = v + np.where(bidx % 3 == 0, -0.55, np.where(bidx % 3 == 1, 0.35, 0.0))
+    lit = (dx + dy * 1.1) / r
+    v = v - np.clip(lit, 0, None) * 0.9 + np.clip(-lit - 0.35, 0, None) * 1.2
+    ramp = [C(pal[0]), C(bands[0]), C(pal[1]), C(bands[1]), C(pal[2])]
+    paint(cv, disc_m, ramp, v + 1.0, sharp=9)
+    cres = disc_m & ~((wdx(xx, cx - r * 0.3) ** 2 + (yy - cy + r * 0.28) ** 2) <= (r * 1.02) ** 2)
+    flat(cv, cres, pal[0])
+    flat(cv, cres & ~sh(cres, 1, 1) & ~sh(cres, -1, -1), mixc(pal[0], "#000000", 0.25))
+    # the ring's shadow on the disc, just below its near arc
+    shadow = disc_m & (np.abs(rv - r * ry * 0.95) < 1.2) & (np.abs(ru) < r) & ~cres
+    flat(cv, shadow, bands[0], 0.8)
+    draw_ring(ring_m & (rv >= 0))
+    return disc_m | ring_m
+
+
+def lantern_field(cv, cx, cy, w, ht, seed, pal, glow, count=26):
+    """A far-off shoal of lantern-lights low on the horizon: warm specks scattered in a flat drift, a few brighter
+    with tiny crosses, over a faint stepped glow. pal = (dim, mid, bright)."""
+    h = cv.h
+    g = rng("lfield", seed)
+    for (sc, a) in ((1.0, 0.05), (0.66, 0.07), (0.38, 0.09)):
+        flat(cv, wellipse(h, cx, cy, w * sc, ht * sc * 1.4), glow, a)
+    for i in range(count):
+        x = cx + g.normal(0, w * 0.38)
+        y = cy + g.normal(0, ht * 0.35) - abs(x - cx) / max(1.0, w) * ht * 0.2
+        k = int(g.integers(0, 3)) if i % 7 else 2
+        put(cv, x, y, pal[k])
+        if i % 7 == 0:
+            for dx, dy in ((1, 0), (-1, 0), (0, -1)):
+                put(cv, x + dx, y + dy, pal[0])
+
+
+def islet_shrine(cv, cx, top, hw, base, ramp, seed, shrine, window, lan=None, glow=None, tiers=2, w0=9,
+                 pine_pal=None, trunk=None):
+    """A lonely rock islet standing out of the Starsea: a craggy stack with a shoulder, a small pagoda shrine with
+    a lit window on its crown, a lantern on a pole beside it and perhaps a wind-bent pine. shrine = pagoda
+    (dark, mid, light). Returns (mask, profile)."""
+    m, prof = karst_peak(cv, cx, top, hw, ramp, ("isl", seed), base=base, p=1.9, skirt=1.6, skirt_h=0.3,
+                         rough=1.8, gain=1.3, crevice=1.2, shoulder=1.0, ledges=0.4, asym=0.2)
+    sx = int(cx - hw * 0.12)
+    ty = int(prof[sx % W])
+    pagoda(cv, sx, ty + 1, tiers, w0, shrine, windows=window)
+    if pine_pal is not None:
+        px_ = int(cx + hw * 0.32)
+        pine(cv, px_, int(prof[px_ % W]) + 2, int(hw * 0.9), pine_pal, trunk, ("islp", seed), lean=0.6, pads=3,
+             pad_w=hw * 0.35)
+    if lan is not None:
+        lx = sx - int(w0 / 2) - 4
+        ly = int(prof[lx % W])
+        flat(cv, wrect(cv.h, lx, ly - 9, lx, ly), shrine[0])
+        flat(cv, wrect(cv.h, lx, ly - 9, lx + 2, ly - 9), shrine[0])
+        lantern(cv, lx + 2, ly - 8, lan, glow=glow)
+    return m, prof
+
+
+def starsea():
+    """The open Starsea on a voyage: an indigo void full of stars and nebulae, a veiled ringed star-body, the Jade
+    River as a band of stars, luminous cloud reefs drifting at every depth, lonely shrine islets, and far on the
+    horizon the warm glimmer of the Lantern Star Field."""
+    layers = []
+    stops = [(0.0, "#07061a"), (0.15, "#0c0a26"), (0.3, "#130f33"), (0.42, "#1b1542"), (0.52, "#241c50"),
+             (0.58, "#2e245e"), (0.62, "#3a326c"), (0.645, "#4a4a80"), (0.66, "#5e6a96"), (0.7, "#7488a8"),
+             (1.0, "#56689a")]
+    sky = sky_layer(stops, bands=26, sharp=2.4)
+    stars(sky, "ssst", 700, 0, 226, R("#2c2c60", "#56589a", "#9a9ed0", "#d8dcf4", "#ffffff"), twinkle=8)
+    nv = nebula(sky, "ssn_v", 110, 30, 28, "#a060f0", alphas=(0.06, 0.09, 0.13), k=(1, 2), cell=80, gaps=0.2)
+    nt = nebula(sky, "ssn_t", 170, 18, 20, "#30d0c8", alphas=(0.06, 0.09, 0.12), k=(1, 3), cell=90, gaps=0.25)
+    nr = nebula(sky, "ssn_r", 204, 8, 11, "#f06a9a", alphas=(0.06, 0.09, 0.12), k=(2, 3), cell=70, gaps=0.35)
+    g = rng("ssnst")
+    for m_, cols_ in ((nv, R("#8a6ad0", "#c8b0f4")), (nt, R("#4ab8b4", "#b8f4ec")), (nr, R("#c06a94", "#f8c0d4"))):
+        ys, xs = np.nonzero(m_)
+        for i in range(min(len(xs), 160)):
+            j = int(g.integers(0, len(xs)))
+            put(sky, xs[j], ys[j], cols_[0] if i % 4 else cols_[1])
+    star_river(sky, "ssjr", 70, 30, 15, "#62dc92", R("#2a5250", "#387462", "#56a07c", "#92d8a6", "#daf8e0",
+                                                     "#ffffff"), alphas=(0.06, 0.1, 0.15), density=0.75)
+    ringed_body(sky, 468, 92, 30, R("#6a6698", "#c4c0de", "#f2f0fa"), R("#9c96c2", "#dcd8ee"),
+                R("#7a70a8", "#b8b0d8", "#ece8f8"), tilt=-0.24, halo="#8a84c8", seed="ssrb")
+    # veiled: a drift of nebula dust and thin cloud streaks across the body's lower half
+    veil = nebula(Canvas(W, SKY_H), "ssveil", 104, 5, 8, "#000000", alphas=(1.0,), k=(1, 2), cell=50, gaps=0.0)
+    vx = np.abs(wdx(xx_all(SKY_H), 470))
+    flat(sky, veil & (vx < 80), "#221a4c", 0.5)
+    flat(sky, veil & (vx < 60) & (pn2(SKY_H, "ssveil2", 30, 3, 1) > 0.5), "#221a4c", 0.35)
+    for i, (cx, y, ln) in enumerate(((452, 108, 96), (494, 118, 72), (300, 196, 150))):
+        streak(sky, cx, y, ln, R("#221a4c", "#40387a", "#8a86c0"), ("sss", i), rows=2)
+    lantern_field(sky, 196, 224, 40, 5, "sslf", R("#a0582c", "#ffa84a", "#ffe6a0"), "#ff9a4a", count=34)
+    layers.append((sky, 0.0, 720))
+
+    # ---------------- far: the Starsea's horizon, lonely islets with lamp-lit shrines, glints on the cloud floor
+    fh = 220
+    far = Canvas(W, fh)
+    yy = grids(fh)[0]
+    isl = R("#1c1a3c", "#242248", "#2e2c56", "#3a3a64", "#4a4c74", "#606a8a")
+    roof = R("#141230", "#221f44", "#3c3a62", "#5a5a82")
+    lan = R("#2a1a1a", "#ff8a3a", "#ffd07a")
+    haze = "#5e6a96"
+    for i, (cx, top, hw) in enumerate(((290, 140, 9), (520, 150, 7), (590, 162, 5))):
+        ramp = hazed(isl, haze, 0.25 + i * 0.12)
+        if i < 2:
+            islet_shrine(far, cx, top, hw, 184, ramp, ("ssfi", i), hazed(roof[:3], haze, 0.25), "#ffc070",
+                         lan=lan if i == 0 else None, glow="#ff9a4a", tiers=2 if i == 0 else 1, w0=6 if i == 0 else 5)
+        else:
+            karst_peak(far, cx, top, hw, ramp, ("ssfr", i), base=184, p=2.0, rough=1.0, shoulder=0.0)
+    base_fade(far, 150, 182, "#6a7aa4", steps=3)
+    sea_f = R("#2a2a64", "#343a78", "#40508a", "#56689e", "#7e9cb8", "#c0e4e0")
+    cloud_floor(far, 174, 214, "sssea", sea_f, rows=9, r0=1.6, r1=5.5, stretch=2.8)
+    base_fade(far, 170, 180, "#7890b4", steps=3, m=(far.a > 0) & (yy >= 170))
+    fm = (far.a > 0) & (yy > 178)
+    sea_ribbon(far, 186, "ssr1", "#a070f0", thick=1.6, amp=2.5, clip=fm, alphas=(0.16, 0.24))
+    sea_ribbon(far, 198, "ssr2", "#3ed8cc", thick=2.2, amp=3, clip=fm, gaps=0.35, alphas=(0.16, 0.24))
+    sea_glints(far, fm, "ssfg", 30, R("#cfe8ff", "#ffffff"), specks=80, speck_c="#e8f4ff")
+    layers.append((far, 0.08, 560))
+
+    # ---------------- mid: cloud reefs drifting on the sea, a lonely shrine islet with its lanterns
+    mh = 220
+    mid = Canvas(W, mh)
+    yy, _, _ = grids(mh)
+    isl_m = R("#141230", "#1c1a3e", "#26244c", "#32325c", "#42446c", "#5a6284", "#7a86a0")
+    night_pine = R("#0a1220", "#0e1828", "#132032", "#1a2a3c", "#223646", "#2e4652")
+    islet_shrine(mid, 120, 118, 24, 200, isl_m, "ssmi", R("#100e26", "#1e1c3c", "#4a4a72"), "#ffc070", lan=lan,
+                 glow="#ff9a4a", tiers=3, w0=10, pine_pal=night_pine,
+                 trunk=R("#141220", "#1e1a2a", "#2c2636", "#3c3444"))
+    reef = R("#1c1848", "#24225c", "#2c3070", "#36407e", "#42568e", "#5476a4", "#b4e6dc")
+    deep = R("#140f3c", "#181546", "#1c1b50", "#21215a", "#272964", "#2f346e", "#46588a")
+    luminous_sea(mid, 176, "sssea_m", deep, [(5, 10, 10, 3), (6, 12, 12, 4), (8, 14, 14, 4), (9, 16, 16, 4)])
+    for i, (cx, w, b, rows, r0, r1) in enumerate(((330, 64, 176, 3, 6, 11), (548, 40, 180, 2, 5, 9),
+                                                  (36, 34, 184, 2, 5, 8), (214, 30, 196, 2, 7, 11),
+                                                  (440, 52, 206, 2, 8, 13))):
+        cloud_bank(mid, b - rows * 9, ("ssreef", i), reef, r_lo=r0, r_hi=r1, rows=rows, row_gap=9, amp=3,
+                   skip=lambda x, k, cx=cx, w=w, rows=rows: abs(wdx(x, cx)) > w * (0.45 + 0.55 * (k + 1) / rows))
+    for i, (cx, y, ln) in enumerate(((420, 170, 110), (600, 178, 80), (180, 186, 90))):
+        streak(mid, cx, y, ln, R("#2c3470", "#5a7aa8", "#b0dcdc"), ("ssms", i), rows=2)
+    sm = (mid.a > 0) & (yy > 150)
+    sea_ribbon(mid, 190, "ssrm1", "#a070f0", core="#e8d4ff", thick=3.0, amp=4, clip=sm, alphas=(0.14, 0.22, 0.3))
+    sea_ribbon(mid, 208, "ssrm2", "#3ed8cc", core="#d0fff4", thick=4.0, amp=5, clip=sm, gaps=0.4,
+               alphas=(0.14, 0.22, 0.3))
+    sea_glints(mid, sm, "ssmg", 30, R("#cfe8ff", "#ffffff"), specks=110, speck_c="#e8f4ff")
+    layers.append((mid, 0.18, 620))
+
+    # ---------------- near: a heavy swell of cloud reef for the deck to ride, spray streaming off its crests
+    nh = 200
+    near = Canvas(W, nh)
+    yy, _, _ = grids(nh)
+    reef_n = R("#140f3a", "#1a164c", "#211f5e", "#292c70", "#343e82", "#465a96", "#a8e4dc")
+    deep_n = R("#0f0b30", "#130f3a", "#171444", "#1c1a4e", "#222258", "#2a2c64", "#48608e")
+    luminous_sea(near, 148, "sssea_n", deep_n, [(12, 22, 12, 5), (14, 24, 14, 6), (16, 28, 16, 6)])
+    for i, (cx, w, b) in enumerate(((120, 84, 164), (452, 64, 170))):
+        cloud_bank(near, b - 30, ("ssnreef", i), reef_n, r_lo=10, r_hi=18, rows=2, row_gap=14, amp=4,
+                   skip=lambda x, k, cx=cx, w=w: abs(wdx(x, cx)) > w * (0.6 + 0.4 * k))
+    # spray streaming off the reef summits and low streamers: the wind of the voyage
+    wisp = R("#3c4c86", "#7ea6c4", "#d0f2ec")
+    for i, (cx, ln) in enumerate(((104, 120), (452, 96), (300, 70))):
+        col = near.a[:, cx % W] > 0
+        y0 = int(np.argmax(col)) if col.any() else 150
+        streak(near, cx + ln * 0.5 - 4, y0 + 1, ln, wisp, ("ssw", i), rows=2)
+    sn = (near.a > 0) & (yy > 130)
+    sea_glints(near, sn, "ssng", 16, R("#cfe8ff", "#ffffff"), specks=60, speck_c="#e8f4ff")
+    layers.append((near, 0.32, 720))
+    return dict(sky="#07061a", horizon="#5e6a96", layers=layers)
+
+
 def interior():
     sky = sky_layer([(0.0, "#120c09"), (0.25, "#1d140e"), (0.5, "#2c1e14"), (0.62, "#35241a"), (0.8, "#261a12"),
                      (1.0, "#150e0a")], bands=14, sharp=2.0)
@@ -3460,10 +4478,12 @@ SCENES = {
     "nine_peaks": nine_peaks,
     "sunscar": sunscar,
     "sunscar_tomb": sunscar_tomb,
+    "skyport_wreck": skyport_wreck,
+    "starsea": starsea,
 }
 ORDER = ["valley_day", "valley_dusk", "valley_night", "marsh", "bamboo", "quarry", "mist_peak", "gorge", "cave",
          "sect_jade", "sect_cloud", "interior", "storm_plains", "sky_port", "rimefrost", "mirror_lake", "gale_canyon", "nine_peaks",
-         "sunscar", "sunscar_tomb"]
+         "sunscar", "sunscar_tomb", "skyport_wreck", "starsea"]
 
 
 def hexs(c):

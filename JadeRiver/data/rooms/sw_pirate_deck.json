@@ -251,7 +251,7 @@
  "scenery": [],
  "decor": [
   {
-   "prop": "dead_tree_grey",
+   "prop": "barrel",
    "at": [
     158,
     628
@@ -260,7 +260,7 @@
    "flip": false
   },
   {
-   "prop": "rock_large",
+   "prop": "crate",
    "at": [
     702,
     640
@@ -269,7 +269,7 @@
    "flip": true
   },
   {
-   "prop": "dead_tree_grey",
+   "prop": "sack_pile",
    "at": [
     1269,
     631
@@ -278,7 +278,7 @@
    "flip": false
   },
   {
-   "prop": "rock_large",
+   "prop": "barrel",
    "at": [
     1878,
     632
@@ -287,7 +287,7 @@
    "flip": true
   },
   {
-   "prop": "dead_tree_grey",
+   "prop": "crate",
    "at": [
     2446,
     638
@@ -296,7 +296,7 @@
    "flip": false
   },
   {
-   "prop": "rock_large",
+   "prop": "sack_pile",
    "at": [
     2941,
     632
@@ -305,7 +305,7 @@
    "flip": true
   },
   {
-   "prop": "dead_tree_grey",
+   "prop": "barrel",
    "at": [
     3501,
     630
@@ -314,7 +314,7 @@
    "flip": false
   },
   {
-   "prop": "rock_small",
+   "prop": "barrel",
    "at": [
     103,
     988
@@ -323,7 +323,7 @@
    "flip": false
   },
   {
-   "prop": "rock_small",
+   "prop": "barrel",
    "at": [
     360,
     988
@@ -332,7 +332,7 @@
    "flip": true
   },
   {
-   "prop": "rock_small",
+   "prop": "barrel",
    "at": [
     766,
     988
@@ -341,7 +341,7 @@
    "flip": false
   },
   {
-   "prop": "rock_small",
+   "prop": "barrel",
    "at": [
     980,
     988
@@ -350,7 +350,7 @@
    "flip": true
   },
   {
-   "prop": "rock_small",
+   "prop": "barrel",
    "at": [
     1370,
     988
@@ -359,7 +359,7 @@
    "flip": false
   },
   {
-   "prop": "rock_small",
+   "prop": "barrel",
    "at": [
     1750,
     988
@@ -368,7 +368,7 @@
    "flip": true
   },
   {
-   "prop": "rock_small",
+   "prop": "barrel",
    "at": [
     1934,
     988
@@ -377,7 +377,7 @@
    "flip": false
   },
   {
-   "prop": "rock_small",
+   "prop": "barrel",
    "at": [
     2312,
     988
@@ -386,7 +386,7 @@
    "flip": true
   },
   {
-   "prop": "rock_small",
+   "prop": "barrel",
    "at": [
     2602,
     988
@@ -395,7 +395,7 @@
    "flip": false
   },
   {
-   "prop": "rock_small",
+   "prop": "barrel",
    "at": [
     2926,
     988
@@ -404,7 +404,7 @@
    "flip": true
   },
   {
-   "prop": "rock_small",
+   "prop": "barrel",
    "at": [
     3166,
     988
@@ -413,7 +413,7 @@
    "flip": false
   },
   {
-   "prop": "rock_small",
+   "prop": "barrel",
    "at": [
     3441,
     988
@@ -422,7 +422,7 @@
    "flip": true
   },
   {
-   "prop": "rock_small",
+   "prop": "barrel",
    "at": [
     3829,
     988
