@@ -165,7 +165,7 @@ func _meditation_second(c) -> void:
 	if mc.stone != "":
 		apply_insight(c.id, mc.stone, float(ContentDB.curve("insight_stone_per_min", 20)) / 60.0 * mult, "insight_stone")
 	if cu.heart_demon > 0.0:
-		apply_heart_demon(c.id, -float(ContentDB.stat_const("heart_demon", {}).get("meditate_drain_per_min", 0.25)) / 60.0 * mult, "meditation")
+		apply_heart_demon(c.id, -float(ContentDB.stat_const("heart_demon", {}).get("meditate_drain_per_min", 0.2)) / 60.0, "meditation")   # -1 per 5 min (S48)
 	emit("meditation_tick", {"actor": c.id, "gains": gains, "spring": mc.spring, "paired": game.companions.paired_bonus(c) > 0.0})
 
 func _step_stability(c, direction: int) -> void:
@@ -345,6 +345,7 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 			results.append({"ok": false, "hard": true, "cause": "environment", "text": Tx.t("sim.progression.this_land_cannot_support") % ContentDB.name_of("realms", to), "fix": "page:world_map", "kind": "zone_supports"})
 			hard_ok = false
 	var supports := 0
+	var supports_used: Array = []   # only these are consumed and counted at the attempt
 	var reasons: Array = []
 	var fails: Dictionary = cu.support_fails.get(cu.realm_key, {})
 	var fail_limit := int(ContentDB.stat_const("pill_life", {}).get("support_fail_limit", 2))
@@ -357,6 +358,7 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 			reasons.append(Tx.t("sim.progression.support_spent") % ContentDB.item_name(str(item_id)))
 			continue
 		supports += 1
+		supports_used.append(str(item_id))
 		reasons.append(Tx.t("sim.progression.lowers_risk") % ContentDB.item_name(str(item_id)))
 	# What the character's past adds (G1): a hollow foundation is an unmet soft requirement,
 	# each 25 heart demon a step, and merit eases one breakthrough per great realm.
@@ -386,7 +388,7 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 	elif not hard_ok: blocked = Tx.t("sim.progression.a_hard_requirement_is_unmet")
 	return {"from": cu.realm_key, "to": to, "major": major, "results": results, "risk": word, "reasons": reasons,
 		"success": ProgressionRules.success_chance(word) if major else 1.0, "can": can, "blocked": blocked,
-		"event": str(spec.get("event", "")) if major else "", "zone_ok": zone_ok, "hollow": hollow, "heart_demon_steps": demon_steps, "merit": merit}
+		"event": str(spec.get("event", "")) if major else "", "zone_ok": zone_ok, "hollow": hollow, "heart_demon_steps": demon_steps, "merit": merit, "supports_used": supports_used}
 
 func start_breakthrough(c, support_items: Array) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "cultivation"): return fail("locked")
@@ -403,9 +405,9 @@ func start_breakthrough(c, support_items: Array) -> Dictionary:
 		if cond.get("kind") == "item_owned" and cond.get("consume", false) and c.inventory.count(str(cond.item)) >= int(cond.get("count", 1)):
 			game.inventory.apply_remove(c.id, str(cond.item), int(cond.get("count", 1)), "breakthrough")
 	var used: Array = []
-	for item_id in support_items:
+	for item_id in q.get("supports_used", []):
 		if used.size() >= 3: break
-		if ContentDB.item(str(item_id)).has("support") and c.inventory.count(str(item_id)) > 0:
+		if c.inventory.count(str(item_id)) > 0:
 			game.inventory.apply_remove(c.id, str(item_id), 1, "breakthrough_support")
 			used.append(item_id)
 	var unmet_causes: Array = []
@@ -720,7 +722,7 @@ func apply_karma(actor_id: String, merit: int, sin: int, reason: String) -> void
 	c.cultivator.merit = maxi(0, c.cultivator.merit + merit)
 	c.cultivator.sin = maxi(0, c.cultivator.sin + sin)
 	if not game.account.codex.has("karma"): game.quest.apply_codex("karma")
-	if sin > 0: apply_heart_demon(c.id, sin * float(ContentDB.stat_const("heart_demon", {}).get("per_sin", 0.2)), "sin")
+	if sin > 0: apply_heart_demon(c.id, sin * float(ContentDB.stat_const("heart_demon", {}).get("per_sin", 0.1)), "sin")
 	emit("karma_changed", {"actor": c.id, "merit": c.cultivator.merit, "sin": c.cultivator.sin, "delta_merit": merit, "delta_sin": sin, "reason": reason})
 
 ## A named debt (G1): a deed the world remembers. When it falls due its mail arrives (the saved repay you).

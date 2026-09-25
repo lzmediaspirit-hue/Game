@@ -109,10 +109,10 @@ def build():
         "pill_life": {"resistance_step": 0.25, "support_fail_limit": 2, "hollow_share": 0.30, "residue_share": 0.05,
                       "residue_step": 10, "residue_step_pct": 0.01, "residue_cap_pct": 0.10,
                       "settle_share_per_h": 0.06, "settle_residue_per_h": 3},
-        # The heart-demon meter: 25 points are one risk step at a major breakthrough and one more Heart Demon at
-        # the Reflection. Sin feeds it; meditation and Calm Incense drain it.
+        # The heart-demon meter (S48): 25 points are one risk step at a major breakthrough and one more Heart Demon
+        # at the Reflection. +1 per 10 sin; meditation drains 1 per 5 minutes; passing the Heart Trial clears 30.
         "heart_demon": {"step": 25, "method_switch": 10, "forced_breakthrough": 5, "forced_supports": 2, "death": 3,
-                        "per_sin": 0.2, "meditate_drain_per_min": 0.25},
+                        "per_sin": 0.1, "meditate_drain_per_min": 0.2, "heart_trial": -30},
         # The karma ledger: 100 merit eases one major breakthrough in each great realm by a step.
         "karma": {"merit_step": 100, "black_market_sin": 2},
         # S17 hazards: below the answer an effect falls off to half; answered, pushes and statuses stop

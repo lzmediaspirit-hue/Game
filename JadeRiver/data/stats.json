@@ -407,8 +407,9 @@
   "forced_breakthrough": 5,
   "forced_supports": 2,
   "death": 3,
-  "per_sin": 0.2,
-  "meditate_drain_per_min": 0.25
+  "per_sin": 0.1,
+  "meditate_drain_per_min": 0.2,
+  "heart_trial": -30
  },
  "karma": {
   "merit_step": 100,

@@ -1556,12 +1556,12 @@
    "ilv": 45,
    "stack": 1,
    "icon": "myriad_year_calm_incense",
-   "desc": "Clears Heart Demons (-40) and steadies Composure for an hour. Never sold.",
+   "desc": "Clears Heart Demons (-20) and steadies Composure for an hour. Never sold.",
    "sell": false,
    "use": [
     {
      "kind": "add_heart_demon",
-     "amount": -40
+     "amount": -20
     },
     {
      "kind": "add_modifier",

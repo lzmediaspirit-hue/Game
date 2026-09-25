@@ -284,8 +284,8 @@ def build_items():
                        ("restoration_ink", "heaven"), ("fish_bait", "plain")]:
         rows.append(item(oid, "material", grade, 99, "A common valley good."))
     rows.append(item("calm_incense", "other", "plain", 99, "Calming incense. Burn it and meditate to steady the heart.", use=[effect("add_composure", amount=30)]))
-    rows.append(item("myriad_year_calm_incense", "treasure", "heaven", 1, "Clears Heart Demons (-40) and steadies Composure for an hour. Never sold.", sell=False,
-                     use=[effect("add_heart_demon", amount=-40), effect("add_modifier", stat="will", op="flat", value=20, duration=3600, source="calm_incense")]))
+    rows.append(item("myriad_year_calm_incense", "treasure", "heaven", 1, "Clears Heart Demons (-20) and steadies Composure for an hour. Never sold.", sell=False,
+                     use=[effect("add_heart_demon", amount=-20), effect("add_modifier", stat="will", op="flat", value=20, duration=3600, source="calm_incense")]))
     # Natural treasures (Part 5): one job each, never sold.
     rows.append(item("mindwell_lotus", "treasure", "heaven", 9,
                      "Heals and shields the soul: +500 Soul, mends a soul injury, soul defence +30% for an hour. It answers once in each great realm. Never sold.",

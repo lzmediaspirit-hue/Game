@@ -95,6 +95,10 @@
    {
     "kind": "event_passed",
     "event": "heart_trial"
+   },
+   {
+    "kind": "add_heart_demon",
+    "amount": -30
    }
   ],
   "on_timeout": [

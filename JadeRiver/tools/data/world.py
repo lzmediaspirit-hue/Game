@@ -1316,7 +1316,7 @@ def valley():
              music="boss", instanced=True, safe=False, spawn_point=[240, 820], dungeon_exit="",
              event={"id": "trial_of_reflections", "duration": 600, "fixed_spawns": [{"enemy": "the_reflection", "at": [1000, 840]}],
                     "heart_demons": "heart_demon",
-                    "win_on_kill": "the_reflection", "on_complete": [{"kind": "event_passed", "event": "heart_trial"}],
+                    "win_on_kill": "the_reflection", "on_complete": [{"kind": "event_passed", "event": "heart_trial"}, {"kind": "add_heart_demon", "amount": -30}],
                     "on_timeout": [{"kind": "teleport", "target": "ja_elder_hu_peak", "portal": ""}]})
     r.portal("exit", "door", [140, 700], "ja_elder_hu_peak", "path", press_up=True, label="Leave",
              requires=all_of({"kind": "event_passed", "event": "heart_trial"}), locked_text="The mirror holds you until one of you breaks.")

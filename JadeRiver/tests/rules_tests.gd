@@ -785,7 +785,7 @@ func g1_suite() -> void:
 	check(ProgressionRules.risk_index(0, false, 0, 0, false, 2) == 2 and ProgressionRules.risk_index(0, false, 0, 0, false, -1) == 0, "risk steps add and merit subtracts, within Low..Severe")
 	Game.inventory.apply_add(c.id, "myriad_year_calm_incense", 1, "test")
 	_use_fresh(c, _bag_index(c, "myriad_year_calm_incense"))
-	check(near(cu.heart_demon, 15.0), "Myriad-Year Calm Incense clears 40")
+	check(near(cu.heart_demon, 35.0), "Myriad-Year Calm Incense clears 20")
 	# Karma: merit eases one breakthrough per great realm; sin feeds the demon; the back room is a sin.
 	cu.merit = 0
 	cu.merit_used.clear()
@@ -794,8 +794,8 @@ func g1_suite() -> void:
 	cu.merit_used[ProgressionRules.great_realm(cu.realm_key)] = true
 	check(ProgressionRules.merit_step(cu) == 0, "once in each great realm")
 	var hd0 := cu.heart_demon
-	Game.apply_effects(c.id, [{"kind": "karma", "sin": 25, "reason": "test"}], "test")
-	check(cu.sin >= 25 and near(cu.heart_demon, hd0 + 5.0), "sin feeds the heart demon (25 sin: +5)")
+	Game.apply_effects(c.id, [{"kind": "karma", "sin": 30, "reason": "test"}], "test")
+	check(cu.sin >= 30 and near(cu.heart_demon, hd0 + 3.0), "sin feeds the heart demon (+1 per 10 sin)")
 	Game.quest.apply_flag(c.id, "path_independent")
 	Unlocks.force_unlock(c.id, "shop")
 	Game.economy.apply_currency("spirit_stone", 100, "test")
@@ -855,6 +855,8 @@ func g1_suite() -> void:
 	# The Reflection brings a heart demon for every 25.
 	var ev: Dictionary = ContentDB.room("si_trial_of_reflections").get("event", {})
 	check(str(ev.get("heart_demons", "")) == "heart_demon" and ContentDB.has_entry("enemies", "heart_demon"), "the Trial of Reflections summons heart demons")
+	check((ev.get("on_complete", []) as Array).any(func(e): return str(e.get("kind", "")) == "add_heart_demon" and int(e.get("amount", 0)) == -30),
+		"passing the Heart Trial clears 30 heart demon")
 	var cleansing := ContentDB.entry("set_pieces", "heavens_cleansing")
 	check(str(cleansing.get("room_event", {}).get("on_flawless", [{}])[0].get("kind", "")) == "clear_residue", "a flawless Heaven's Cleansing clears residue")
 	c.inventory.bag.fill(null)
