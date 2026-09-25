@@ -7,7 +7,7 @@ extends Authority
 var ally_uid := 0
 
 func intents() -> Array:
-	return ["set_active_pet", "set_pet_role", "feed_pet", "pet_command", "rename_pet", "choose_starter", "attempt_tame", "incubate_egg", "hatch_egg", "evolve_pet"]
+	return ["set_active_pet", "set_pet_role", "feed_pet", "pet_command", "rename_pet", "choose_starter", "attempt_tame", "incubate_egg", "hatch_egg", "evolve_pet", "breed"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("room_entered", _on_room_entered, 45)
@@ -59,6 +59,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"incubate_egg": return incubate_egg(c, int(intent.get("index", -1)))
 		"hatch_egg": return hatch_egg(c, int(intent.get("index", 0)))
 		"evolve_pet": return evolve(c, str(intent.get("pet", c.active_pet)), str(intent.get("branch", "")))
+		"breed": return breed(c, str(intent.get("a", "")), str(intent.get("b", "")))
 		"rename_pet":
 			var p3 := _pet(c, str(intent.get("pet", c.active_pet)))
 			if p3.is_empty(): return fail("unknown_pet")
@@ -78,14 +79,15 @@ func gatherer_active(actor_id: String) -> bool:
 	var c = game.character(actor_id)
 	return c != null and active_pet(c).get("role", "") == "gatherer"
 
-func apply_grant(actor_id: String, species: String) -> void:
+func apply_grant(actor_id: String, species: String, born: Dictionary = {}) -> void:
 	var c = game.character(actor_id)
 	var sp := ContentDB.entry("pets", species)
 	if c == null or sp.is_empty(): return
 	var uid := "%s_%d" % [species, c.pets.size() + 1]
+	while not _pet(c, uid).is_empty(): uid += "b"
 	var pet := {"uid": uid, "species": species, "name": str(sp.get("name", species)), "level": 1, "xp": 0.0, "bond": 1.0,
-		"role": str(sp.get("strength_role", "combat")), "stage": "hatchling", "hunger_day": Clock.reset_day(Clock.now_utc()), "rarity": "common",
-		"branch": "", "traits": _roll_traits(c), "revealed": 0}
+		"role": str(sp.get("strength_role", "combat")), "stage": "hatchling", "hunger_day": Clock.reset_day(Clock.now_utc()),
+		"rarity": str(born.get("rarity", "common")), "branch": "", "traits": born.get("traits", _roll_traits(c)), "revealed": 0}
 	c.pets.append(pet)
 	if c.active_pet == "": c.active_pet = uid
 	emit("pet_bonded", {"actor": actor_id, "pet": uid, "species": species})
@@ -99,6 +101,73 @@ func apply_bond(actor_id: String, amount: float, uid := "") -> void:
 	var before := int(float(p.bond))
 	p.bond = clampf(float(p.bond) + amount, 0.0, 10.0)
 	if int(float(p.bond)) != before: emit("bond_changed", {"actor": actor_id, "pet": p.uid, "value": p.bond})
+
+# ------------------------------------------------------------------ rarity and breeding (S22)
+func rarity_def(id: String) -> Dictionary:
+	var all: Array = growth().get("rarities", [])
+	for r in all:
+		if str(r.id) == id: return r
+	return all[0] if not all.is_empty() else {"id": "common", "power": 1.0}
+
+func rarity_power(p: Dictionary) -> float:
+	return float(rarity_def(str(p.get("rarity", "common"))).get("power", 1.0))
+
+func family_of(p: Dictionary) -> String:
+	return str(ContentDB.entry("pets", str(p.get("species", ""))).get("family", str(p.get("species", ""))))
+
+## Why this character cannot breed right now ("" when the gates are open).
+func breeding_blocked(c) -> String:
+	var cfg: Dictionary = growth().get("breeding", {})
+	if not Unlocks.is_unlocked(c.id, str(cfg.get("unlock", "pet_breeding"))): return Unlocks.locked_text(str(cfg.get("unlock", "pet_breeding")))
+	var need := int(cfg.get("pavilion_level", 4))
+	if game.sect.level_building(str(cfg.get("pavilion", "beast_pavilion"))) < need: return Tx.t("sim.pet.breeding_needs_the_pavilion") % need
+	for e in c.eggs:
+		if e.get("bred", false): return Tx.t("sim.pet.one_pair_at_a_time")
+	if c.eggs.size() >= int(ContentDB.config("eggs").get("max_incubating", 1)): return Tx.t("sim.pet.one_egg_at_a_time")
+	return ""
+
+## Adults of the same family as `p` (never itself).
+func breed_partners(c, p: Dictionary) -> Array:
+	var stage := str(growth().get("breeding", {}).get("stage", "adult"))
+	if stage_index(str(p.get("stage", ""))) < stage_index(stage): return []
+	return c.pets.filter(func(o): return str(o.uid) != str(p.uid) and family_of(o) == family_of(p) and stage_index(str(o.get("stage", ""))) >= stage_index(stage))
+
+## Two Adults of one family make an egg (24 h, then it hatches in 2-24 h): the higher rarity,
+## sometimes one step more; traits drawn from both parents, sometimes a new one.
+func breed(c, a_uid: String, b_uid: String) -> Dictionary:
+	var why := breeding_blocked(c)
+	if why != "": return fail("locked", {"text": why})
+	var a := _pet(c, a_uid)
+	var b := _pet(c, b_uid)
+	if a.is_empty() or b.is_empty() or a_uid == b_uid: return fail("unknown_pet")
+	if not breed_partners(c, a).has(b): return fail("not_a_pair", {"text": Tx.t("sim.pet.two_adults_of_one_family")})
+	var cfg: Dictionary = growth().get("breeding", {})
+	var rng := Rng.stream(c.id, "pet")
+	var order: Array = growth().get("rarities", []).map(func(r): return str(r.id))
+	var ri := maxi(order.find(str(a.get("rarity", "common"))), order.find(str(b.get("rarity", "common"))))
+	if rng.randf() < float(cfg.get("rarity_step", 0.2)): ri += 1
+	ri = clampi(ri, 0, maxi(0, order.find(str(cfg.get("bred_rarity_cap", "epic")))))
+	var pool: Array = []
+	for t in (a.get("traits", []) as Array) + (b.get("traits", []) as Array):
+		if not pool.has(t): pool.append(t)
+	var n := int(growth().get("traits_per_pet", 3))
+	var traits: Array = []
+	while traits.size() < n and not pool.is_empty():
+		traits.append(pool.pop_at(rng.randi_range(0, pool.size() - 1)))
+	if rng.randf() < float(cfg.get("mutation", 0.2)) or traits.size() < n:
+		var fresh: Array = ContentDB.all("pet_traits").map(func(t): return str(t.id)).filter(func(t): return not traits.has(t))
+		if not fresh.is_empty():
+			var t_new: String = fresh[rng.randi_range(0, fresh.size() - 1)]
+			if traits.size() >= n: traits[rng.randi_range(0, traits.size() - 1)] = t_new
+			else: traits.append(t_new)
+	var species := str(a.species) if rng.randf() < 0.5 else str(b.species)
+	var hatch: Array = cfg.get("hatch_hours", [2, 24])
+	var hours := float(cfg.get("hours", 24)) + rng.randf_range(float(hatch[0]), float(hatch[1]))
+	c.eggs.append({"species": species, "hatch_utc": Clock.now_utc() + hours * 3600.0, "bred": true, "rarity": order[ri] if ri < order.size() else "common",
+		"traits": traits, "parents": [str(a.name), str(b.name)]})
+	emit("pets_bred", {"actor": c.id, "a": a_uid, "b": b_uid, "species": species, "rarity": order[ri] if ri < order.size() else "common", "hours": hours})
+	emit("system_used", {"actor": c.id, "system": "breed"})
+	return ok({"species": species, "hours": hours, "rarity": order[ri] if ri < order.size() else "common"})
 
 # ------------------------------------------------------------------ mounts (S22)
 var dismounted: Dictionary = {}   # actor -> seconds before they can ride again
@@ -151,7 +220,7 @@ func _spawn(c) -> void:
 	a.team = "ally"
 	a.pet_owner = c.id
 	a.level = int(p.level)
-	a.pools.max_hp = c.pools.max_hp * float(growth().get("hp_share", 0.4))
+	a.pools.max_hp = c.pools.max_hp * float(growth().get("hp_share", 0.4)) * rarity_power(p)
 	a.pools.hp = a.pools.max_hp
 	a.plane = (st.plane if st else Vector2(c.position.x, c.position.y)) + Vector2(-50, 12)
 	a.ai = {"state": "follow", "timer": 0.0, "offset": 56, "depth_offset": 14, "speed": 200}
@@ -171,7 +240,7 @@ func tick(delta: float) -> void:
 	var a: EnemyState = game.room_rt.enemies.get(ally_uid)
 	if a == null: return
 	var p := active_pet(c)
-	var power: float = c.stats.value("physical_attack") * inherit_share(p) * care_mult(p) * (1.0 + trait_bonus(c, "pet_damage"))
+	var power: float = c.stats.value("physical_attack") * inherit_share(p) * care_mult(p) * (1.0 + trait_bonus(c, "pet_damage")) * rarity_power(p)
 	power *= 1.0 + role_match(p) if p.get("role", "combat") == "combat" else 0.6
 	var was_down: bool = a.ai.state == "downed"
 	AllyBrain.think(game, a, delta, power, 36.0)
@@ -402,6 +471,6 @@ func hatch_egg(c, index: int) -> Dictionary:
 	var egg: Dictionary = c.eggs[index]
 	if Clock.now_utc() < float(egg.hatch_utc): return fail("not_ready", {"text": Tx.t("sim.pet.it_is_still_warm_and")})
 	c.eggs.remove_at(index)
-	apply_grant(c.id, str(egg.species))
+	apply_grant(c.id, str(egg.species), egg)
 	emit("egg_hatched", {"actor": c.id, "species": egg.species})
 	return ok({"species": egg.species})

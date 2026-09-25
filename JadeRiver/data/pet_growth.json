@@ -12,6 +12,47 @@
  "resonance_unlock": "spirit_awakening_1",
  "hp_share": 0.4,
  "retreat_s": 60,
+ "rarities": [
+  {
+   "id": "common",
+   "name": "Common",
+   "power": 1.0
+  },
+  {
+   "id": "fine",
+   "name": "Fine",
+   "power": 1.1
+  },
+  {
+   "id": "rare",
+   "name": "Rare",
+   "power": 1.25
+  },
+  {
+   "id": "epic",
+   "name": "Epic",
+   "power": 1.45
+  },
+  {
+   "id": "primordial",
+   "name": "Primordial",
+   "power": 1.7
+  }
+ ],
+ "breeding": {
+  "unlock": "pet_breeding",
+  "pavilion": "beast_pavilion",
+  "pavilion_level": 4,
+  "stage": "adult",
+  "hours": 24,
+  "hatch_hours": [
+   2,
+   24
+  ],
+  "rarity_step": 0.2,
+  "mutation": 0.2,
+  "bred_rarity_cap": "epic"
+ },
  "stages": [
   {
    "id": "hatchling",

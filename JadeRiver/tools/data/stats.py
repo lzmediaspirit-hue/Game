@@ -253,7 +253,8 @@ def build():
                       "superior": {"mult": 1.2, "affixes": 2}, "perfect": {"mult": 1.3, "affixes": 3}, "relic": {"mult": 1.35, "affixes": 3}},
         "quality_order": ["flawed", "common", "fine", "superior", "perfect", "relic"],
         "quality_colors": {"flawed": "#9aa3a3", "common": "#e8e1cf", "fine": "#67d67a", "superior": "#5aa7e8", "perfect": "#b07ce8",
-                           "relic": "#e5b84c", "pill_grain": "#e5b84c", "pill_halo": "#e8764c", "pill_soul": "#f2e6ff"},
+                           "relic": "#e5b84c", "pill_grain": "#e5b84c", "pill_halo": "#e8764c", "pill_soul": "#f2e6ff",
+                           "rare": "#5aa7e8", "epic": "#b07ce8", "primordial": "#e5b84c"},
         "grade_colors": {"plain": "#b9b2a0", "common": "#e8e1cf", "earth": "#67d67a", "heaven": "#6fb8f0", "mystic": "#b07ce8"},
         "pill_qualities": {"flawed": 0.5, "common": 1.0, "fine": 1.2, "superior": 1.4, "perfect": 1.6, "pill_grain": 1.8, "pill_halo": 2.0, "pill_soul": 2.2},
         # S15 pill qualities: toxicity multipliers, the odds of a rare quality on a perfect run

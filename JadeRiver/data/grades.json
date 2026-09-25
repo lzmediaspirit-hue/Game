@@ -58,7 +58,10 @@
   "relic": "#e5b84c",
   "pill_grain": "#e5b84c",
   "pill_halo": "#e8764c",
-  "pill_soul": "#f2e6ff"
+  "pill_soul": "#f2e6ff",
+  "rare": "#5aa7e8",
+  "epic": "#b07ce8",
+  "primordial": "#e5b84c"
  },
  "grade_colors": {
   "plain": "#b9b2a0",

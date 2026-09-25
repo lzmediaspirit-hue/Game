@@ -194,6 +194,46 @@ func pets_suite() -> void:
 	check(Game.progression.accumulation_bonus(c) >= Game.pets.resonance(c) - 0.0001, "resonance feeds accumulation")
 	p.role = "combat"
 	check(near(Game.pets.resonance(c), 0.0), "no resonance outside the Cultivation role")
+	# Rarity scales strength; breeding pairs two Adults of one family (Heaven Glimpse 1, Beast Pavilion 4).
+	p.rarity = "rare"
+	check(near(Game.pets.rarity_power(p), 1.25), "a Rare animal is 25% stronger")
+	p.rarity = "common"
+	Game.pets.apply_grant(c.id, "mossback_toad")
+	var toad: Dictionary = c.pets[c.pets.size() - 1]
+	Game.pets.apply_grant(c.id, "ember_fox")
+	var fox: Dictionary = c.pets[c.pets.size() - 1]
+	toad.stage = "adult"
+	fox.stage = "adult"
+	toad.rarity = "fine"
+	c.eggs.clear()
+	var sect_before: Dictionary = Game.account.sect.duplicate(true)
+	check(str(Game.pets.breed(c, str(p.uid), str(toad.uid)).get("reason", "")) == "locked", "breeding waits for its unlock")
+	Unlocks.force_unlock(c.id, "pet_breeding")
+	Game.account.sect = {"name": "Test", "level": 4, "buildings": {"beast_pavilion": 3}}
+	check(str(Game.pets.breed(c, str(p.uid), str(toad.uid)).get("text", "")).contains("Beast Pavilion"), "breeding needs Beast Pavilion 4")
+	Game.account.sect.buildings.beast_pavilion = 4
+	check(str(Game.pets.breed(c, str(p.uid), str(fox.uid)).get("reason", "")) == "not_a_pair", "an otter and a fox are not one family")
+	check(Game.pets.breed_partners(c, p).has(toad) and not Game.pets.breed_partners(c, p).has(fox), "otter and toad are both river animals")
+	Clock.override_utc = 1900000000.0
+	var br: Dictionary = Game.pets.breed(c, str(p.uid), str(toad.uid))
+	check(br.get("ok", false) and c.eggs.size() == 1 and c.eggs[0].get("bred", false), "two river Adults make an egg %s" % str(br))
+	var egg: Dictionary = c.eggs[0] if not c.eggs.is_empty() else {}
+	var order := ["common", "fine", "rare", "epic", "primordial"]
+	check(order.find(str(egg.get("rarity", ""))) >= 1, "the child takes at least the higher parent rarity (%s)" % str(egg.get("rarity", "")))
+	var parent_traits: Array = (p.traits as Array) + (toad.traits as Array)
+	var inherited: int = (egg.get("traits", []) as Array).filter(func(t): return parent_traits.has(t)).size()
+	check((egg.get("traits", []) as Array).size() == 3 and inherited >= 2, "its traits come from the parents, at most one new")
+	check(float(egg.get("hatch_utc", 0.0)) - Clock.now_utc() >= 26.0 * 3600.0 - 1.0, "breeding takes a day before the egg can hatch")
+	check(str(Game.pets.breed(c, str(p.uid), str(toad.uid)).get("reason", "")) == "locked", "one pair at a time")
+	check(not Game.pets.hatch_egg(c, 0).get("ok", false), "the egg is not ready yet")
+	Clock.override_utc += 49.0 * 3600.0
+	var n_before: int = c.pets.size()
+	check(Game.pets.hatch_egg(c, 0).get("ok", false) and c.pets.size() == n_before + 1, "the bred egg hatches")
+	var child: Dictionary = c.pets[c.pets.size() - 1]
+	check(str(child.rarity) == str(egg.get("rarity", "")) and child.traits == egg.get("traits", []), "the hatchling keeps the egg's rarity and traits")
+	check(str(child.species) in ["reed_otter", "mossback_toad"], "and one parent's species")
+	Clock.override_utc = -1.0
+	Game.account.sect = sect_before
 
 # ------------------------------------------------------------------ weekly mission (S20)
 func weekly_suite() -> void:

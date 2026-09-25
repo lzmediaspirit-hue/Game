@@ -16,7 +16,8 @@ func draw_page() -> void:
 	# Open on the active animal (or the first one) instead of an empty panel.
 	if not ch.pets.is_empty() and not ch.pets.any(func(p): return str(p.uid) == sel):
 		sel = ch.active_pet if ch.active_pet != "" else str(ch.pets[0].uid)
-	list("pets", left.grow(-10), ch.pets.size(), 70, func(i: int, rr: Rect2):
+	var eggs_h := 96.0 if not ch.eggs.is_empty() else 0.0
+	list("pets", Rect2(left.position, left.size - Vector2(0, eggs_h)).grow(-10), ch.pets.size(), 70, func(i: int, rr: Rect2):
 		var p: Dictionary = ch.pets[i]
 		panel(rr, "minor_panel", "selected" if sel == str(p.uid) else "normal")
 		creature_at(Rect2(rr.position + Vector2(6, 4), Vector2(62, 60)), _art(p))
@@ -24,6 +25,7 @@ func draw_page() -> void:
 		text(rr.position + Vector2(76, 54), Tx.t("ui.pets.lv") % [ContentDB.name_of("pets", str(p.species)), int(p.level), str(p.role).capitalize()], 15, UiKit.MIST)
 		region(rr, "sel", str(p.uid))
 	)
+	if eggs_h > 0.0: _eggs(ch, Rect2(left.position.x + 10, left.end.y - eggs_h, left.size.x - 20, eggs_h - 10))
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
 	panel(right)
 	var pet := {}
@@ -39,7 +41,9 @@ func draw_page() -> void:
 	heading(right.position + Vector2(24, 44), str(pet.name), colw)
 	var stage_name := str(Game.pets.stage_def(str(pet.get("stage", "hatchling"))).get("name", Tx.t("ui.pets.hatchling")))
 	var branch := str(pet.get("branch", ""))
-	text(right.position + Vector2(24, 80), fit("%s · %s · %s" % [str(sp.get("name", "")), str(sp.get("element", "")).capitalize(), branch if branch != "" else stage_name], 18, colw), 18, UiKit.MIST)
+	var rarity: Dictionary = Game.pets.rarity_def(str(pet.get("rarity", "common")))
+	text(right.position + Vector2(24, 80), fit("%s · %s · %s · %s" % [str(sp.get("name", "")), str(sp.get("element", "")).capitalize(), branch if branch != "" else stage_name,
+		str(rarity.get("name", ""))], 18, colw), 18, UiKit.MIST)
 	bar(Rect2(px, right.position.y + 96, colw, 28), float(pet.get("bond", 0.0)) / 10.0, UiKit.RED, Tx.t("ui.pets.bond_1f_10") % float(pet.get("bond", 0.0)))
 	var need := float(ContentDB.curve("pet_xp.base", 20)) * pow(int(pet.level), float(ContentDB.curve("pet_xp.per_level_pow", 1.5)))
 	bar(Rect2(px, right.position.y + 130, colw, 24), float(pet.get("xp", 0.0)) / need, UiKit.GOLD, Tx.t("ui.pets.level") % [int(pet.level), int(pet.get("xp", 0.0)), int(need)])
@@ -68,6 +72,37 @@ func draw_page() -> void:
 		slot_box(Rect2(x, y + 84, 60, 60), str(f), ch.inventory.count(str(f)), "", "feed", str(f))
 		x += 68
 	if not foods.is_empty(): text(Vector2(px, y + 76), Tx.t("ui.pets.tap_food_to_feed"), 16, UiKit.MIST)
+	_breeding(ch, pet, Rect2(px, y + 156, colw, right.end.y - y - 170))
+
+## Breeding (S22): two Adults of one family; shows the gate that is closed, or a button per partner.
+func _breeding(ch, pet: Dictionary, r: Rect2) -> void:
+	var partners: Array = Game.pets.breed_partners(ch, pet)
+	if partners.is_empty() or r.size.y < 40: return
+	text(r.position + Vector2(0, 18), Tx.t("ui.pets.breed_with"), 17, UiKit.GOLD)
+	var why: String = Game.pets.breeding_blocked(ch)
+	if why != "":
+		para(Rect2(r.position + Vector2(0, 26), Vector2(r.size.x, 48)), why, 16, UiKit.MIST, 2)
+		return
+	var x := r.position.x
+	for o in partners.slice(0, 2):
+		var bw := (r.size.x - 10) / 2.0
+		btn(Rect2(x, r.position.y + 28, bw, 44), fit(str(o.name), 17, bw - 16), "breed", str(o.uid), false, true, "", 17)
+		x += bw + 10
+
+## Incubating eggs with the time left, or a Hatch button when one is ready.
+func _eggs(ch, r: Rect2) -> void:
+	panel(r, "minor_panel")
+	text(r.position + Vector2(12, 24), Tx.t("ui.pets.eggs"), 17, UiKit.GOLD)
+	var x := r.position.x + 12
+	for i in ch.eggs.size():
+		var egg: Dictionary = ch.eggs[i]
+		slot_box(Rect2(x, r.position.y + 30, 50, 50), "spirit_egg", 0, str(egg.get("rarity", "")) if egg.get("bred", false) else "")
+		var left_s := float(egg.hatch_utc) - Clock.now_utc()
+		if left_s <= 0.0:
+			btn(Rect2(x + 58, r.position.y + 32, 120, 46), Tx.t("ui.pets.hatch"), "hatch", i, true)
+		else:
+			text(Vector2(x + 58, r.position.y + 62), Tx.t("ui.pets.hatches_in") % ceili(left_s / 3600.0), 16, UiKit.MIST)
+		x += 200
 
 ## Next stage: each gate ticked or not, then Evolve (or the two branches at Adult).
 func _growth(ch, pet: Dictionary, r: Rect2) -> void:
@@ -99,3 +134,5 @@ func on_action(id: String, data) -> void:
 		"active": submit({"type": "set_active_pet", "pet": "" if c().active_pet == sel else sel})
 		"feed": submit({"type": "feed_pet", "pet": sel, "item": str(data)})
 		"evolve": submit({"type": "evolve_pet", "pet": sel, "branch": str(data)})
+		"breed": submit({"type": "breed", "a": sel, "b": str(data)})
+		"hatch": submit({"type": "hatch_egg", "index": int(data)})

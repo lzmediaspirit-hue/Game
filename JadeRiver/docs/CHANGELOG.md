@@ -41,6 +41,10 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
   Back Mountain, whose fruit (one per season) revives you where you fell at full health; and the
   Nine-Bough Jade Tree at the Forgotten Monastery, which answers only an Understanding bottleneck with
   three quarters of your strongest Dao's gap to its next tier, once per stage. New props and icons.
+- Spirit animal rarity and breeding: rarity (Common to Primordial) now scales an animal's strength and
+  health. From Heaven Glimpse 1, with a level 4 Beast Pavilion, two Adults of one family (river, hound,
+  burrow, wing) make an egg over a day; the child takes the higher rarity (sometimes one more), mixes
+  its parents' traits and may carry a new one. The Spirit Animals page shows eggs with a Hatch button.
 - Companions, spirit animals (starter choice, taming with offerings, eggs), your own sect (buildings
   that appear as built, disciples, expeditions, defence raids), mail, achievements and titles.
 - 27 pages on one shared frame, a HUD that reveals itself, a minimap, dialogue with portraits, shops,

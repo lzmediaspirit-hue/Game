@@ -282,6 +282,11 @@ def pets():
          "skills": ["Mist Bite", "Howl", "Fog Step", "Moon Hunt"], "favourite_foods": ["tough_meat", "riverfish_soup"], "branches": ["Fog Wolf", "Moon Wolf"],
          "mount": {"art": "mist_wolf", "scale": 0.9, "lift": 0, "saddle": 50}},
     ]
+    # Breeding pairs two Adults of one family (S22).
+    family = {"reed_otter": "river", "mossback_toad": "river", "ember_fox": "hound", "mist_wolf": "hound",
+              "ironclaw_mole": "burrow", "bamboo_monkey": "burrow", "jade_crane": "wing"}
+    for r in rows:
+        r["family"] = family[r["id"]]
     entries("pets", rows)
     # Three hidden traits per animal, revealed at Juvenile, Awakened and Sovereign. `bonus` is what a revealed
     # trait of the active animal adds (read by the system that owns that number).
@@ -303,6 +308,15 @@ def pets():
                               "mount_unlock": "mounts", "mount_speed": 1.5, "flying_mount_realm": "cloud_stride_5",
                               "flying_mount_qi": 0.5, "dismount_hp_pct": 0.15, "dismount_s": 10,
                               "resonance_unlock": "spirit_awakening_1", "hp_share": 0.4, "retreat_s": 60,
+                              # S22 rarity scales the animal's strength; breeding (Heaven Glimpse 1, Beast Pavilion 4) pairs
+                              # two Adults of one family for 24 h, then the egg hatches in 2-24 h. The child takes the
+                              # higher rarity, may step up one, mixes its parents' traits and may carry a new one.
+                              "rarities": [{"id": "common", "name": "Common", "power": 1.0}, {"id": "fine", "name": "Fine", "power": 1.1},
+                                           {"id": "rare", "name": "Rare", "power": 1.25}, {"id": "epic", "name": "Epic", "power": 1.45},
+                                           {"id": "primordial", "name": "Primordial", "power": 1.7}],
+                              "breeding": {"unlock": "pet_breeding", "pavilion": "beast_pavilion", "pavilion_level": 4, "stage": "adult",
+                                           "hours": 24, "hatch_hours": [2, 24], "rarity_step": 0.2, "mutation": 0.2,
+                                           "bred_rarity_cap": "epic"},
                               "stages": [
                                   {"id": "hatchling", "name": "Hatchling", "inherit": 0.2, "resonance": 0.0},
                                   {"id": "juvenile", "name": "Juvenile", "level": 15, "bond": 3, "realm": "heart_tempering_1", "reveal_trait": True, "inherit": 0.3, "resonance": 0.05},

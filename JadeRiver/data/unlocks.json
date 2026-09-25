@@ -1831,6 +1831,22 @@
    "quest": "the_mentors_gift"
   },
   {
+   "id": "pet_breeding",
+   "label": "Spirit animal breeding",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
    "id": "natural_treasures",
    "label": "Natural treasures",
    "trigger": {
