@@ -58,6 +58,27 @@
    "to_portal": "peak_path",
    "press_up": true,
    "label": "Herb Terraces"
+  },
+  {
+   "id": "abode",
+   "type": "door",
+   "at": [
+    1180,
+    700
+   ],
+   "to": "ja_cave_abode",
+   "to_portal": "exit",
+   "press_up": true,
+   "label": "Cave Abode",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_mentors_gift"
+     }
+    ]
+   },
+   "locked_text": "Elder Hu's cave. Only a personal disciple may enter."
   }
  ],
  "objects": [

@@ -1,0 +1,170 @@
+{
+ "schema_version": 1,
+ "id": "cm_cave_abode",
+ "zone": "jade_river_valley",
+ "region": "cloud_sect",
+ "name": "Cave Abode",
+ "type": "sect",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "wind",
+ "qi_density": 2.2,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "cave",
+ "ground": {
+  "material": "slate"
+ },
+ "spawn_point": [
+  220,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    1280,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "exit",
+   "type": "door",
+   "at": [
+    120,
+    700
+   ],
+   "to": "cm_elder_sung_peak",
+   "to_portal": "abode",
+   "press_up": true,
+   "label": "Elder Sung's Peak"
+  }
+ ],
+ "objects": [
+  {
+   "id": "spring_cm_cave_abode",
+   "type": "qi_spring",
+   "at": [
+    520,
+    900
+   ],
+   "spring": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "qi_springs"
+     }
+    ]
+   },
+   "locked_text": "Still water."
+  },
+  {
+   "id": "mat_cm_cave_abode",
+   "type": "inspect",
+   "at": [
+    860,
+    780
+   ],
+   "prop": "meditation_mat",
+   "text": "Your mat. The rock hums with Qi.",
+   "open_page": "seclusion",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "seclusion"
+     }
+    ]
+   },
+   "label": "Seclusion"
+  },
+  {
+   "id": "bed_cm_cave_abode",
+   "type": "inspect",
+   "at": [
+    1000,
+    700
+   ],
+   "prop": "bed",
+   "text": "A stone bed under a thin quilt.",
+   "rest": true
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "rug",
+   "at": [
+    860,
+    800
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "incense_burner",
+   "at": [
+    760,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "scroll_rack",
+   "at": [
+    1180,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    360,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "scholar_rock",
+   "at": [
+    640,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "wine_jar",
+   "at": [
+    1240,
+    760
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "meditation",
+ "sect": "cloud_sect",
+ "retreat": true
+}

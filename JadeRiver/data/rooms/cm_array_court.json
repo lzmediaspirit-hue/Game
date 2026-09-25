@@ -46,6 +46,20 @@
    "open_edges": false
   },
   {
+   "id": "retreat_rooms_cm",
+   "rect": [
+    1760,
+    550,
+    280,
+    140
+   ],
+   "height": 200,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "tower"
+  },
+  {
    "id": "rope_ledge",
    "rect": [
     1500,
@@ -60,6 +74,27 @@
   }
  ],
  "portals": [
+  {
+   "id": "retreat",
+   "type": "door",
+   "at": [
+    1900,
+    704
+   ],
+   "to": "cm_retreat",
+   "to_portal": "exit",
+   "press_up": true,
+   "label": "Retreat Rooms",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "retreat_room"
+     }
+    ]
+   },
+   "locked_text": "The retreat rooms are kept for inner disciples."
+  },
   {
    "id": "west",
    "type": "edge",
@@ -120,26 +155,6 @@
     ]
    },
    "locked_text": "Formation lines. You can't read them yet."
-  },
-  {
-   "id": "retreat_cm",
-   "type": "inspect",
-   "at": [
-    1900,
-    720
-   ],
-   "prop": "meditation_mat",
-   "text": "A quiet retreat room.",
-   "open_page": "seclusion",
-   "requires": {
-    "all": [
-     {
-      "kind": "unlock",
-      "system": "seclusion"
-     }
-    ]
-   },
-   "locked_text": "Retreat rooms open at Bone Forging 7."
   },
   {
    "id": "furnace_cm",

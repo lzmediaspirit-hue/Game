@@ -723,8 +723,8 @@ def sects():
     r.npc("jade_physician", [1600, 900], facing=1)
     r.npc("arena_master", [2200, 820], facing=-1)
     r.obj("formation_table_ja", "formation_table", [1100, 880], requires=all_of(unlock("formations")), locked_text="Formation lines. You can't read them yet.")
-    r.obj("retreat_ja", "inspect", [1900, 704], prop="none", text="A quiet retreat room.", open_page="seclusion",
-          requires=all_of(unlock("seclusion")), locked_text="Retreat rooms open at Bone Forging 7.")
+    r.portal("retreat", "door", [1900, 704], "ja_retreat", "exit", press_up=True, label="Retreat Rooms",
+             requires=all_of(unlock("retreat_room")), locked_text="The retreat rooms are kept for inner disciples.")
     r.obj("arena_ja", "spar_post", [2400, 900], opponent="sparring_disciple", requires=all_of(unlock("tournament")))
     r.edge("west", "west", "ja_pavilion_rooftops", "east", y=850)
     r.edge("east", "east", "ja_herb_terraces", "west", y=850)
@@ -752,6 +752,8 @@ def sects():
     r.decor("pagoda", [1150, 660])
     r.decor("pine_tree", [200, 640])
     r.portal("path", "door", [120, 700], "ja_herb_terraces", "peak_path", press_up=True, label="Herb Terraces")
+    r.portal("abode", "door", [1180, 700], "ja_cave_abode", "exit", press_up=True, label="Cave Abode",
+             requires=all_of(qdone("the_mentors_gift")), locked_text="Elder Hu's cave. Only a personal disciple may enter.")
 
     for rid, name, tile, npcs, objs in [
         ("ja_weapon_hall", "Weapon Hall and Forge", "wall_stone", [("jade_weapon_master", 640), ("jade_smith", 1000)],
@@ -824,8 +826,9 @@ def sects():
     for i, x in enumerate([700, 1000, 1300]):
         r.decor("formation_node", [x, 760])
     r.obj("formation_table_cm", "formation_table", [1100, 880], requires=all_of(unlock("formations")), locked_text="Formation lines. You can't read them yet.")
-    r.obj("retreat_cm", "inspect", [1900, 720], prop="meditation_mat", text="A quiet retreat room.", open_page="seclusion",
-          requires=all_of(unlock("seclusion")), locked_text="Retreat rooms open at Bone Forging 7.")
+    r.painted("retreat_rooms_cm", "tower", 1900, 280, 140, 200, front=690)
+    r.portal("retreat", "door", [1900, 704], "cm_retreat", "exit", press_up=True, label="Retreat Rooms",
+             requires=all_of(unlock("retreat_room")), locked_text="The retreat rooms are kept for inner disciples.")
     r.obj("furnace_cm", "alchemy_furnace", [2200, 760], requires=all_of(unlock("alchemy")), locked_text="The monastery furnace.")
     r.surface("rope_ledge", [1500, 640, 260, 50], 150, kind="rock_ledge")
     r.edge("west", "west", "cm_sword_court", "east", y=850)
@@ -840,6 +843,8 @@ def sects():
           locked_text="The Heart Trial circle. Not before Heart Tempering 9.")
     r.decor("pagoda", [1150, 660])
     r.portal("path", "door", [120, 700], "cm_array_court", "peak_path", press_up=True, label="Array Court")
+    r.portal("abode", "door", [1180, 700], "cm_cave_abode", "exit", press_up=True, label="Cave Abode",
+             requires=all_of(qdone("the_mentors_gift")), locked_text="Elder Sung's cave. Only a personal disciple may enter.")
 
     for rid, name, tile, npcs, back in [
         ("cm_weapon_hall", "Weapon Hall and Forge", "wall_stone", [("cloud_weapon_master", 640), ("cloud_smith", 1000)], "weapon_hall"),
@@ -857,6 +862,52 @@ def sects():
             r.decor("bookcase", [220, 660])
             r.decor("bookcase", [1060, 660])
         r.portal("exit", "door", [640, 660], "cm_sword_court", back, press_up=True)
+
+    retreat_rooms("ja_retreat", "jade_sect", "ja_east_terrace")
+    retreat_rooms("cm_retreat", "cloud_sect", "cm_array_court")
+    cave_abode("ja_cave_abode", "jade_sect", "ja_elder_hu_peak", "wood")
+    cave_abode("cm_cave_abode", "cloud_sect", "cm_elder_sung_peak", "wind")
+
+
+def retreat_rooms(rid, sect_id, back):
+    """A sect retreat room (S07): a quiet hall of screened cells. Seclusion here runs to the
+    16 h cap and a breakthrough attempt is one risk step safer."""
+    r = interior(rid, "Retreat Rooms", sect_id, wall="wall_plaster", floor="floor_stone", rtype="sect", sect=sect_id,
+                 music="meditation", retreat=True, qi=1.3, spawn_point=[640, 820])
+    banner = "banner_jade" if sect_id == "jade_sect" else "banner_cloud"
+    r.decor("window", [640, 330], layer="back")
+    for x in (200, 1100):
+        r.decor(banner, [x, 640], layer="back")
+    for x in (330, 950):
+        r.decor("screen_folding", [x, 680])
+    for x in (200, 470, 810, 1080):
+        r.decor("meditation_mat", [x, 740])
+    r.decor("altar", [640, 670])
+    r.decor("incense_burner", [640, 700])
+    r.decor("rug", [640, 800])
+    r.obj("mat_" + rid, "inspect", [640, 780], prop="meditation_mat", text="A bare cell, a mat, the smell of cold incense.",
+          open_page="seclusion", requires=all_of(unlock("seclusion")), locked_text="Seclusion comes at Bone Forging 7.", label="Retreat")
+    r.portal("exit", "door", [120, 660], back, "retreat", press_up=True, label=ROOMS[back].d["name"])
+    return r
+
+
+def cave_abode(rid, sect_id, peak, element):
+    """A personal disciple's cave abode (SA5): dense Qi, a private spring and a mat for long
+    seclusion. It counts as a retreat room."""
+    r = Room(rid, "Cave Abode", "sect", sect_id, 1, backdrop="cave", material="slate", music="meditation", sect=sect_id,
+             qi=2.2, retreat=True, element=element, spawn_point=[220, 820])
+    r.obj("spring_" + rid, "qi_spring", [520, 900], spring=True, requires=all_of(unlock("qi_springs")), locked_text="Still water.")
+    r.obj("mat_" + rid, "inspect", [860, 780], prop="meditation_mat", text="Your mat. The rock hums with Qi.", open_page="seclusion",
+          requires=all_of(unlock("seclusion")), label="Seclusion")
+    r.obj("bed_" + rid, "inspect", [1000, 700], prop="bed", text="A stone bed under a thin quilt.", rest=True)
+    r.decor("rug", [860, 800])
+    r.decor("incense_burner", [760, 720])
+    r.decor("scroll_rack", [1180, 690])
+    r.decor("stone_lantern", [360, 700])
+    r.decor("scholar_rock", [640, 690])
+    r.decor("wine_jar", [1240, 760])
+    r.portal("exit", "door", [120, 700], peak, "abode", press_up=True, label=ROOMS[peak].d["name"])
+    return r
 
 
 def valley():

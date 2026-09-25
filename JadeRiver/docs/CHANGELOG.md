@@ -8,7 +8,7 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
 - Five-layer architecture: data, state, rules, authorities, presentation. Sixteen authorities own every
   system; presentation only sends intents. Named random streams, a single clock, event queue, unlock
   service and v3 saves with migration from the v0.13 slots.
-- The Jade River Valley: 71 rooms across 20 regions, built from data with painted buildings, ladders,
+- The Jade River Valley: 75 rooms across 20 regions, built from data with painted buildings, ladders,
   depth stairs, driftwood platforms, hidden portals, teleport stones and layered parallax backdrops.
 - The Prologue in Lotus Ferry: ten short quests, one lesson each, the HUD filling in one element at a
   time, the Hollow Night, and the first breakthrough on Lu's boat. No weapon and no Qi until earned.
@@ -21,6 +21,10 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
   gives way to a sect scripture at no cost), meridians, body training, purity, stability, injuries,
   Daos and technique mastery, offline seclusion (accumulate, temper body, heal, contemplate, refine Qi,
   nourish soul) with caps and no offline breakthroughs.
+- Retreat rooms and cave abodes: inner disciples get a door off the East Terrace or Array Court into
+  the sect retreat rooms (seclusion up to 16 h, one breakthrough risk step safer); passing the
+  mentor's trial opens a personal cave abode behind the elder's pagoda, with dense Qi, a spring,
+  a mat and a bed.
 - Combat: weapon-family combos, techniques, guard and dodge dash, elements, statuses, readable wind-ups,
   hit-stun, elites, field bosses, dungeon bosses with phases and weaknesses, story bosses (the
   Reflection, Elder Gu who flees with his ledger, the Gate Guardian), revival at shrines or on the spot.

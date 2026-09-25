@@ -844,6 +844,12 @@ func sec_qu1() -> void:
 	check(use_ranged(10) >= 10, "use a ranged technique ten times")
 	check(finish("after_the_cleansing"), "After the Cleansing done")
 	check(str(c().training_sect.get("rank", "")) == "inner_disciple", "Inner Disciple")
+	# The rank opens the sect retreat rooms (S07): seclusion there runs to a 16 h cap.
+	var own_retreat := ("ja_" if str(c().training_sect.get("id", "")) == "jade_sect" else "cm_") + "retreat"
+	check(travel(own_retreat), "walk into the sect retreat rooms")
+	check(submit({"type": "enter_seclusion", "focus": "heal"}).get("ok", false), "enter seclusion in a retreat room")
+	var away := submit({"type": "claim_offline", "elapsed": 20.0 * 3600.0})
+	check(away.get("capped", false) and is_equal_approx(float(away.get("hours", 0.0)), 16.0), "a retreat room holds seclusion for 16 h %s" % str(away))
 	# Your own sect (account slot 4 at Qi Unfurling 1).
 	check(start("a_hall_of_our_own"), "A Hall of Our Own offered")
 	var f := submit({"type": "found_sect", "name": "Reed Lantern Sect", "emblem": [3, 1]})
@@ -1224,6 +1230,12 @@ func sec_sa5() -> void:
 		if won: break
 	check(won, "pass the personal-disciple trial")
 	check(finish("the_mentors_gift"), "The Mentor's Gift done")
+	# A personal disciple's cave abode: dense Qi, and it counts as a retreat room.
+	var abode := ("ja_" if str(c().training_sect.get("id", "")) == "jade_sect" else "cm_") + "cave_abode"
+	check(travel(abode), "the mentor's cave abode opens to a personal disciple")
+	check(float(Game.room_rt.def.get("qi_density", 1.0)) >= 2.0, "the cave abode's Qi is dense")
+	var bq: Dictionary = Game.progression.query_breakthrough(c(), [])
+	check(bq.get("reasons", []).has(Tx.t("sim.progression.retreat_room")), "a breakthrough in the cave abode counts the retreat")
 	check(reach("spirit_awakening_6"), "Spirit Awakening 6")
 	check(start("torn_pages"), "Torn Pages accepted")
 	go_to_npc(["jade_librarian"])

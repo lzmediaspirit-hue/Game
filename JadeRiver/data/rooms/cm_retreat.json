@@ -1,0 +1,216 @@
+{
+ "schema_version": 1,
+ "id": "cm_retreat",
+ "zone": "jade_river_valley",
+ "region": "cloud_sect",
+ "name": "Retreat Rooms",
+ "type": "sect",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.3,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  640,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    1280,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "exit",
+   "type": "door",
+   "at": [
+    120,
+    660
+   ],
+   "to": "cm_array_court",
+   "to_portal": "retreat",
+   "press_up": true,
+   "label": "Array Court"
+  }
+ ],
+ "objects": [
+  {
+   "id": "mat_cm_retreat",
+   "type": "inspect",
+   "at": [
+    640,
+    780
+   ],
+   "prop": "meditation_mat",
+   "text": "A bare cell, a mat, the smell of cold incense.",
+   "open_page": "seclusion",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "seclusion"
+     }
+    ]
+   },
+   "locked_text": "Seclusion comes at Bone Forging 7.",
+   "label": "Retreat"
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    360,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    920,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "window",
+   "at": [
+    640,
+    330
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "banner_cloud",
+   "at": [
+    200,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "banner_cloud",
+   "at": [
+    1100,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "screen_folding",
+   "at": [
+    330,
+    680
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "screen_folding",
+   "at": [
+    950,
+    680
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "meditation_mat",
+   "at": [
+    200,
+    740
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "meditation_mat",
+   "at": [
+    470,
+    740
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "meditation_mat",
+   "at": [
+    810,
+    740
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "meditation_mat",
+   "at": [
+    1080,
+    740
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "altar",
+   "at": [
+    640,
+    670
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "incense_burner",
+   "at": [
+    640,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "rug",
+   "at": [
+    640,
+    800
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_plaster"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "sect": "cloud_sect",
+ "music": "meditation",
+ "retreat": true
+}

@@ -656,7 +656,7 @@ def guided_quests():
                                                              "spear": "spear_lance", "short_blade": "flying_blades", "staff": "earthshaker_wave",
                                                              "bow": "pinning_arrow"})],
         offer=["Qi Unfurling. Your Qi can fly now. Send it at a target ten times."],
-        complete=["Inner Disciple. A retreat room is yours."])
+        complete=["Inner Disciple. A retreat room is yours; the door is past the mission hall."])
     quest("the_sect_forge", "The Sect Forge", "guided", "jade_smith", [
         o("craft", "Forge a Common weapon", craft="smithing"),
         o("use_system", "Enhance it to +1", system="enhance"),
@@ -800,7 +800,7 @@ def guided_quests():
     quest("the_mentors_gift", "The Mentor's Gift", "guided", "elder_hu", [
         o("win_spar", "Pass the personal-disciple trial", opponent="sparring_disciple"),
     ], [fx("learn_secret_art", art="lotus_heart_breathing")], offered_by_unlock=True, chapter="sa5", giver_any=M, hand_in_any=M,
-        offer=["Beat my best disciple and I'll teach you personally."], complete=["My personal disciple. My secret art is yours."])
+        offer=["Beat my best disciple and I'll teach you personally."], complete=["My personal disciple. My secret art is yours, and the cave behind the pagoda is your abode."])
     quest("torn_pages", "Torn Pages", "guided", "jade_librarian", [
         o("use_system", "Restore a damaged manual", system="restore_manual"),
     ], [item("restoration_ink", 3)], offered_by_unlock=True, chapter="sa6", giver_any=LIBRARIANS, hand_in_any=LIBRARIANS,
