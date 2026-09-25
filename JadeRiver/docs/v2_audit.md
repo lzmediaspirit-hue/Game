@@ -97,3 +97,7 @@ Progress is recorded in `docs/CHANGELOG.md`.
   - the Beast Marrow Washing Pill, the Beast Revival Pill and the Purifying Offering (with S46, V7);
   - the Guild's Master rank (Azure Expanse, not defined by the spec);
   - the full five-screen furnace mini-game (the three strikes are labelled Extraction, Fusion and Condensation).
+- **V5a**: done (body ladder, Core Forging grade, named roots, physiques). Left for V5b/V5c: fates, the heavenly
+  tribulation, Qi Deviation, Inner Arts, technique grades, stances, combos, vows, epiphany, Killing Intent, Blood
+  Burning, the false realm and the nascent-soul escape. Hollow-Touched is in the data but cannot trigger until
+  Hollowing can pass the valley cap (v1.2).

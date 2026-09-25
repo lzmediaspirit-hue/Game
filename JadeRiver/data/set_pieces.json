@@ -39,6 +39,10 @@
      {
       "kind": "set_flag",
       "flag": "cleansing_flawless"
+     },
+     {
+      "kind": "awaken_physique",
+      "physique": "jade_bone"
      }
     ]
    },
@@ -88,6 +92,232 @@
      {
       "kind": "realm_at_least",
       "realm": "qi_unfurling_3"
+     }
+    ]
+   }
+  },
+  {
+   "id": "copper_body_trial",
+   "name": "Copper Body Trial",
+   "room_event": {
+    "id": "copper_body_trial",
+    "clear_room": true,
+    "duration": 180,
+    "hp_floor": 0.5,
+    "waves": [
+     {
+      "enemy": "wild_boarlet",
+      "every_s": 5,
+      "max": 4,
+      "level": "player",
+      "points": [
+       [
+        600,
+        860
+       ],
+       [
+        1500,
+        860
+       ],
+       [
+        1800,
+        760
+       ]
+      ]
+     },
+     {
+      "enemy": "mossback_toad",
+      "every_s": 9,
+      "max": 2,
+      "level": "player",
+      "points": [
+       [
+        400,
+        900
+       ],
+       [
+        1700,
+        900
+       ]
+      ]
+     }
+    ],
+    "on_complete": [
+     {
+      "kind": "event_passed",
+      "event": "copper_body_trial"
+     },
+     {
+      "kind": "pass_body_trial",
+      "tier": "copper"
+     }
+    ]
+   },
+   "requires": {
+    "all": [
+     {
+      "kind": "body_level_at_least",
+      "value": 18
+     }
+    ]
+   }
+  },
+  {
+   "id": "iron_body_trial",
+   "name": "Iron Body Trial",
+   "room_event": {
+    "id": "iron_body_trial",
+    "clear_room": true,
+    "duration": 240,
+    "kill_count": {
+     "enemy": "stone_guardian",
+     "count": 5
+    },
+    "wave": {
+     "enemy": "stone_guardian",
+     "every_s": 6,
+     "max": 3,
+     "level": "player",
+     "points": [
+      [
+       600,
+       860
+      ],
+      [
+       1600,
+       860
+      ],
+      [
+       2200,
+       860
+      ]
+     ]
+    },
+    "on_complete": [
+     {
+      "kind": "event_passed",
+      "event": "iron_body_trial"
+     },
+     {
+      "kind": "pass_body_trial",
+      "tier": "iron"
+     }
+    ]
+   },
+   "requires": {
+    "all": [
+     {
+      "kind": "body_level_at_least",
+      "value": 36
+     },
+     {
+      "kind": "body_tier_at_least",
+      "tier": "copper"
+     }
+    ]
+   }
+  },
+  {
+   "id": "jade_body_trial",
+   "name": "Jade Body Trial",
+   "room_event": {
+    "id": "jade_body_trial",
+    "clear_room": true,
+    "duration": 90,
+    "ground_grace_s": 2.0,
+    "ground_free_s": 6.0,
+    "wave": {
+     "enemy": "mist_vulture",
+     "every_s": 7,
+     "max": 2,
+     "level": "player",
+     "points": [
+      [
+       1200,
+       760
+      ],
+      [
+       2300,
+       760
+      ],
+      [
+       700,
+       760
+      ]
+     ]
+    },
+    "on_complete": [
+     {
+      "kind": "event_passed",
+      "event": "jade_body_trial"
+     },
+     {
+      "kind": "pass_body_trial",
+      "tier": "jade"
+     }
+    ]
+   },
+   "requires": {
+    "all": [
+     {
+      "kind": "body_level_at_least",
+      "value": 54
+     },
+     {
+      "kind": "body_tier_at_least",
+      "tier": "iron"
+     }
+    ]
+   }
+  },
+  {
+   "id": "gold_body_trial",
+   "name": "Gold Body Trial",
+   "room_event": {
+    "id": "gold_body_trial",
+    "clear_room": true,
+    "duration": 180,
+    "hp_floor": 0.5,
+    "wave": {
+     "enemy": "thunderhorn_rhino",
+     "every_s": 8,
+     "max": 3,
+     "level": "player",
+     "points": [
+      [
+       700,
+       860
+      ],
+      [
+       2000,
+       860
+      ],
+      [
+       3000,
+       860
+      ]
+     ]
+    },
+    "on_complete": [
+     {
+      "kind": "event_passed",
+      "event": "gold_body_trial"
+     },
+     {
+      "kind": "pass_body_trial",
+      "tier": "gold"
+     }
+    ]
+   },
+   "requires": {
+    "all": [
+     {
+      "kind": "body_level_at_least",
+      "value": 72
+     },
+     {
+      "kind": "body_tier_at_least",
+      "tier": "jade"
      }
     ]
    }

@@ -5,6 +5,57 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V5a · The body ladder, Core Forging, named roots and physiques (S48)
+- **The body ladder.** Copper (body level 18), Iron (36), Jade (54) and Gold (72) Body, in `body_tiers.json`. Each
+  rung needs three things: the body level, its Temper trial and a full soak in its bath.
+  - Temper trials start at a Temper drum. Copper is on Willow Path West: three minutes above half HP. Iron is on the
+    Pilgrim Stairs: five Stone Guardians in one run. Jade is on the plum-blossom poles in the Sword Court or East
+    Terrace: ninety seconds, never two seconds on the ground. Gold is in the Lightning Scar: three minutes above
+    half HP.
+  - A trial clears the room's own foes and sends foes at the character's own level.
+  - Gifts: Copper gives +5 % Physical Defense, and body techniques (Tiger Rush, Stone Skin, Mountain Shaker) spend
+    HP when QI runs short. Iron gives +10 % knockback resistance, Jade heals injuries 1.5 times as fast, and Gold
+    is immune to Qi Seal.
+  - Iron teaches the Jade Marrow Bath and Jade teaches the Golden Body Bath (both new). A bath beyond the rung you
+    have reached still injures the body. That check now reads the rung reached, not the body level.
+- **Core Forging.** At Heart Tempering 9 → Cloud Stride 1 the core forms at a purity grade instead of always 9.
+  - Five preparation points: a room of the method's element, the method's Yin or Yang hour, full Composure, no
+    residue, and a Heavenly Flame Pill within the hour (new; it is refined only over a Heavenly Flame).
+  - Each point met counts on an 80 % roll. The grade is 9 minus the points counted, never better than 5. A
+    flawless Heaven's Cleansing is one more point, down to 4.
+  - The Breakthrough dialog shows the checklist, and methods now lean Yin or Yang.
+- **Named roots.** The Aptitude tab names the root once the elements show: Heavenly, True, Mixed, Mutated or Faint.
+  It also lists every aptitude as a signed percentage and says when hidden ones appear.
+- **Physiques** (`physiques.json`), earned by deeds, each with a drawback:
+  - Jade Bone: a flawless Cleansing.
+  - Yin Vessel: ten nights of meditation at the Falls Pool.
+  - Ember Heart: fifty Fire pills.
+  - Stone Marrow: Copper Body before Qi Unfurling 3.
+  - Cloud Lung: ten kilometres gliding or flying.
+  - Hollow-Touched: its hook is ready for v1.2.
+  - The Aptitude tab shows progress toward the ones not yet earned.
+- **A Body tab** on the Cultivation page shows the four rungs, what each still needs, and its trial and gift.
+- **HUD.** A panel shows any running room event (rites, trials, sieges) with its name, time left and rule. Toasts
+  now cover passed and failed trials, rungs, physiques and the core grade.
+- **Fixes.**
+  - Worn titles now apply their bonuses (none ever did), and the Titles tab shows each bonus.
+  - The Still Water title pointed at a stat that does not exist.
+  - Modifier text now shows signs, percent stats and elements.
+  - Room events that had no display name now have one.
+  - The quest tracker no longer touches the taller player panel.
+- **State.** CultivatorState version 6 adds `body_tier`, `body_trials`, `body_baths`, `core_grade`, `fates`,
+  `physiques`, `vows`, `inner_arts`, `stances`, `false_realm` and `epiphany_cooldown`. Older saves load with
+  neutral values.
+- **Tests:**
+  - a rung needs both the trial and the bath;
+  - the HP floor and kill-count trial rules;
+  - Gold Body's seal immunity and the HP cost of body techniques;
+  - physique gifts, counters and the heart-demon multiplier;
+  - root names at the affinity edges;
+  - core grade from points, and with a fixed seed;
+  - title modifiers;
+  - data validation for the new files.
+
 ### V4e · Pill tribulation and the Pill Soul's flight (S44)
 - **Pill tribulation.** When a Heaven-grade (or better) pill reaches Halo or Soul at the furnace, the heavens test
   it before the pills are yours.

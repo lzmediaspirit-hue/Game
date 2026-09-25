@@ -194,6 +194,30 @@
     300,
     700
    ]
+  },
+  {
+   "id": "temper_iron_cp_pilgrim_stairs",
+   "type": "rite_circle",
+   "at": [
+    1000,
+    900
+   ],
+   "event": "iron_body_trial",
+   "prop": "temper_drum",
+   "label": "Temper Drum",
+   "requires": {
+    "all": [
+     {
+      "kind": "body_level_at_least",
+      "value": 36
+     },
+     {
+      "kind": "body_tier_at_least",
+      "tier": "copper"
+     }
+    ]
+   },
+   "locked_text": "The Temper drum for the Iron Body trial. Body level 36 and Copper Body before you strike it."
   }
  ],
  "spawns": [

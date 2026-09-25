@@ -54,13 +54,7 @@ func draw_page() -> void:
 				var shown := UiKit.fmt(v) if absf(v) >= 10.0 or s[0] in ["max_hp", "max_qi", "max_soul"] else ("%.1f%%" % (v * 100.0) if s[0] in ["crit_chance", "crit_damage", "drop_rate"] else "%.2f" % v)
 				text(Vector2(r.position.x + 40 + col * 520, r.position.y + 50 + row * 48), s[1], 20, UiKit.MIST)
 				text(Vector2(r.position.x + 40 + col * 520, r.position.y + 50 + row * 48), shown, 20, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 440)
-		"aptitude":
-			var y := r.position.y + 40
-			for k in ch.cultivator.aptitude:
-				var a: Dictionary = ch.cultivator.aptitude[k]
-				text(Vector2(r.position.x + 40, y), str(k).replace("_", " ").capitalize(), 21)
-				text(Vector2(r.position.x + 400, y), str(a.get("value", "")).capitalize() if a.get("revealed", false) else Tx.t("ui.character.unknown_revealed_as_you_grow"), 20, UiKit.PALE_GOLD if a.get("revealed", false) else UiKit.HOLLOW)
-				y += 44
+		"aptitude": _aptitude(ch, r)
 		"titles":
 			var titles: Array = ch.cultivator.titles
 			if titles.is_empty(): text(r.position + Vector2(0, 80), Tx.t("ui.character.earn_titles_from_achievements_and"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
@@ -68,6 +62,9 @@ func draw_page() -> void:
 				var tid := str(titles[i])
 				var tr := Rect2(r.position.x + 30, r.position.y + 20 + i * 64, 600, 56)
 				btn(tr, ContentDB.name_of("titles", tid), "title", tid, ch.cultivator.active_title == tid)
+				var bonus: Array = []
+				for m in ContentDB.entry("titles", tid).get("modifiers", []): bonus.append(UiKit.affix_text(m))
+				text(Vector2(tr.end.x + 24, tr.position.y + 36), ", ".join(bonus), 18, UiKit.BRIGHT_JADE if ch.cultivator.active_title == tid else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.end.x - tr.end.x - 48)
 		"attunement": _attunement(ch, r)
 		"wardrobe": _wardrobe(ch, r)
 
@@ -188,3 +185,61 @@ func on_action(id: String, data) -> void:
 	if id == "look":
 		submit({"type": "set_appearance", "slot": str(data[0]), "look": str(data[1])})
 		if is_instance_valid(doll): doll.outfit = InventoryAuthority.outfit_for(c())
+
+## Aptitude (S08, S48): the hidden rolls as they are revealed, the root they name, and the physiques earned.
+func _aptitude(ch, r: Rect2) -> void:
+	var cu: CultivatorState = ch.cultivator
+	var left := Rect2(r.position.x, r.position.y, 560, r.size.y)
+	var right := Rect2(left.end.x + 20, r.position.y, r.end.x - left.end.x - 20, r.size.y)
+	panel(left)
+	panel(right)
+	var x := left.position.x + 24
+	var y := left.position.y + 20
+	var root := ProgressionRules.root_name(cu)
+	if root != "":
+		text(Vector2(x, y + 30), Tx.t("ui.character.root." + root), 28, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, left.size.x - 48, true)
+		y += 40
+		y += para(Rect2(x, y, left.size.x - 48, 60), Tx.t("ui.character.root_desc." + root), 16, UiKit.MIST, 2) + 10
+	else:
+		text(Vector2(x, y + 30), Tx.t("ui.character.root_hidden"), 20, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, left.size.x - 48)
+		y += 52
+	var reveal := {"physique": "bone_forging_4", "spirit_aptitude": "spirit_awakening_1", "comprehension": ""}
+	var order: Array = []
+	for k in ["physique", "spirit_aptitude", "comprehension"]:
+		if cu.aptitude.has(k): order.append(k)
+	var elements: Array = []
+	for k in cu.aptitude:
+		if str(k).begins_with("element_"): elements.append(str(k))
+	elements.sort()
+	order.append_array(elements)
+	for k in order:
+		var a: Dictionary = cu.aptitude[k]
+		var key := str(k)
+		var label := Tx.t("ui.character.apt." + key) if not key.begins_with("element_") else Tx.t("ui.character.apt_element") % key.trim_prefix("element_").capitalize()
+		text(Vector2(x, y + 24), label, 19, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 260)
+		if a.get("revealed", false):
+			var v := float(a.get("value", 0.0))
+			text(Vector2(x + 280, y + 24), "%s%d%%" % ["+" if v >= 0.0 else "-", int(round(absf(v) * 100))], 19, UiKit.BRIGHT_JADE if v > 0.0 else (UiKit.RED if v < 0.0 else UiKit.PAPER))
+		else:
+			var at := str(reveal.get(key, "bone_forging_7"))
+			text(Vector2(x + 280, y + 24), Tx.t("ui.character.apt_hidden_at") % ContentDB.name_of("realms", at) if at != "" else Tx.t("ui.character.unknown_revealed_as_you_grow"), 16, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_LEFT, left.size.x - 330)
+		y += 34
+	# Physiques: earned by deeds; the ones not yet earned say how.
+	var rx := right.position.x + 24
+	var ry := right.position.y + 44
+	heading(Vector2(rx, ry), Tx.t("ui.character.physiques"), right.size.x - 48)
+	ry += 16
+	for ph in ContentDB.all("physiques"):
+		if str(ph.get("milestone", "")) != "" and not str(ph.id) in cu.physiques: continue
+		var have := str(ph.id) in cu.physiques
+		text(Vector2(rx, ry + 26), str(ph.get("name", "")), 20, UiKit.PALE_GOLD if have else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, right.size.x - 48)
+		if have:
+			var gift := str(ph.get("gift_text", ""))
+			text(Vector2(rx, ry + 48), gift, 15, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT, right.size.x - 48)
+			var gw := UiKit.text_width(gift + "  ", 15)
+			text(Vector2(rx + gw, ry + 48), str(ph.get("drawback_text", "")), 15, Color("e07a7a"), HORIZONTAL_ALIGNMENT_LEFT, maxf(40.0, right.size.x - 48 - gw))
+		else:
+			var prog := ""
+			if ph.has("count"): prog = "  (%s / %s)" % [UiKit.fmt(float(cu.lifetime_stats.get(str(ph.earned), 0.0))), UiKit.fmt(float(ph.count))]
+			text(Vector2(rx, ry + 48), str(ph.get("earned_text", "")) + prog, 15, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_LEFT, right.size.x - 48)
+		ry += 62

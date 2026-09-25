@@ -78,6 +78,14 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 		"body_level_at_least":
 			ok = c != null and c.cultivator.body_level >= int(cond.value)
 			text = Tx.t("req.body_level_now") % [int(cond.value), c.cultivator.body_level if c else 0]
+		"body_tier_at_least":
+			# S48 body ladder: Copper, Iron, Jade, Gold Body.
+			var need_i := 1
+			var tiers := ContentDB.all("body_tiers")
+			for i in tiers.size():
+				if str(tiers[i].id) == str(cond.tier): need_i = i + 1
+			ok = c != null and ProgressionRules.body_tier_index(c.cultivator) >= need_i
+			text = Tx.t("req.body_tier") % ContentDB.name_of("body_tiers", str(cond.tier))
 		"soul_at_least":
 			ok = c != null and c.pools.max_soul >= float(cond.value)
 			text = Tx.t("req.soul_pool") % int(cond.value)

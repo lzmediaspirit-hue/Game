@@ -227,6 +227,30 @@
     "progression_authority"
    ]
   },
+  "body_trial_passed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "body_tier_reached": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "physique_awakened": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "core_graded": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
   "attack_started": {
    "system": "Combat",
    "files": [

@@ -181,10 +181,137 @@
      }
     ]
    }
+  },
+  {
+   "id": "temper_jade_ja_east_terrace",
+   "type": "rite_circle",
+   "at": [
+    860,
+    900
+   ],
+   "event": "jade_body_trial",
+   "prop": "temper_drum",
+   "label": "Temper Drum",
+   "requires": {
+    "all": [
+     {
+      "kind": "body_level_at_least",
+      "value": 54
+     },
+     {
+      "kind": "body_tier_at_least",
+      "tier": "iron"
+     }
+    ]
+   },
+   "locked_text": "The Temper drum for the Jade Body trial. Body level 54 and Iron Body before you strike it."
   }
  ],
  "spawns": [],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "training_stump_1",
+   "prop": "training_stump",
+   "position": [
+    360,
+    900
+   ],
+   "front_y": 900,
+   "footprint": [
+    347,
+    882,
+    26,
+    18
+   ],
+   "height": 64,
+   "standable": true
+  },
+  {
+   "id": "training_stump_2",
+   "prop": "training_stump",
+   "position": [
+    430,
+    870
+   ],
+   "front_y": 870,
+   "footprint": [
+    417,
+    852,
+    26,
+    18
+   ],
+   "height": 64,
+   "standable": true
+  },
+  {
+   "id": "training_stump_3",
+   "prop": "training_stump",
+   "position": [
+    500,
+    905
+   ],
+   "front_y": 905,
+   "footprint": [
+    487,
+    887,
+    26,
+    18
+   ],
+   "height": 64,
+   "standable": true
+  },
+  {
+   "id": "training_stump_4",
+   "prop": "training_stump",
+   "position": [
+    570,
+    875
+   ],
+   "front_y": 875,
+   "footprint": [
+    557,
+    857,
+    26,
+    18
+   ],
+   "height": 64,
+   "standable": true
+  },
+  {
+   "id": "training_stump_5",
+   "prop": "training_stump",
+   "position": [
+    640,
+    900
+   ],
+   "front_y": 900,
+   "footprint": [
+    627,
+    882,
+    26,
+    18
+   ],
+   "height": 64,
+   "standable": true
+  },
+  {
+   "id": "training_stump_6",
+   "prop": "training_stump",
+   "position": [
+    710,
+    870
+   ],
+   "front_y": 870,
+   "footprint": [
+    697,
+    852,
+    26,
+    18
+   ],
+   "height": 64,
+   "standable": true
+  }
+ ],
  "decor": [],
  "areas": [],
  "music": "sect",

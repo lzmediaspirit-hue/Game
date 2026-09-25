@@ -3218,6 +3218,110 @@
    ]
   },
   {
+   "id": "jade_marrow_bath",
+   "craft": "alchemy",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudtop_orchid",
+     "count": 1
+    },
+    {
+     "item": "jade_scale",
+     "count": 3
+    },
+    {
+     "item": "guardian_stone",
+     "count": 2
+    },
+    {
+     "item": "mist_lotus",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jade_marrow_bath",
+     "count": 1
+    }
+   ],
+   "element": "water",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant",
+    "envoy"
+   ]
+  },
+  {
+   "id": "golden_body_bath",
+   "craft": "alchemy",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "frost_lotus",
+     "count": 1
+    },
+    {
+     "item": "thunder_horn",
+     "count": 2
+    },
+    {
+     "item": "snow_ape_hide",
+     "count": 2
+    },
+    {
+     "item": "cloudtop_orchid",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "golden_body_bath",
+     "count": 1
+    }
+   ],
+   "element": "metal",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant",
+    "envoy"
+   ]
+  },
+  {
+   "id": "heavenly_flame_pill",
+   "craft": "alchemy",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "ember_pepper",
+     "count": 3
+    },
+    {
+     "item": "riverreed_ginseng_100",
+     "count": 1
+    },
+    {
+     "item": "serpent_core",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "heavenly_flame_pill",
+     "count": 1
+    }
+   ],
+   "fire": "heavenly_flame",
+   "element": "fire",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
+  },
+  {
    "id": "calm_heart_incense",
    "craft": "alchemy",
    "grade": "earth",

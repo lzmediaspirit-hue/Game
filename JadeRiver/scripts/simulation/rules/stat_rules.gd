@@ -5,7 +5,8 @@ extends RefCounted
 ## touches the character's StatBlock and pool maxima.
 
 const ATTRIBUTES := ["body", "agility", "essence", "spirit", "insight", "fortune"]
-const PERMANENT_PREFIXES := ["gear:", "set:", "title:", "injury:", "gate:", "legacy:", "collection:", "jade:", "pet:", "sect:", "aptitude:", "dao:"]
+const PERMANENT_PREFIXES := ["gear:", "set:", "title:", "injury:", "gate:", "legacy:", "collection:", "jade:", "pet:", "sect:", "aptitude:", "dao:",
+	"body_tier:", "physique:"]
 
 static func poly(spec: Dictionary, x: float) -> float:
 	return float(spec.get("a", 0)) + float(spec.get("b", 0)) * x + float(spec.get("c", 0)) * x * x
@@ -153,10 +154,24 @@ static func rebuild(c) -> Array:
 		var sev := int(c.cultivator.injuries[kind].get("severity", 1))
 		for e in ContentDB.entry("injuries", kind).get("effects", []):
 			sb.add_modifier({"stat": e.stat, "op": e.op, "value": float(e.per_severity) * sev, "source": "injury:" + kind + ":" + str(e.stat)})
-	# Title bonus (+1% to one stat, S34).
+	# Title bonus (S34): the worn title's listed modifiers.
 	var title := ContentDB.entry("titles", c.cultivator.active_title)
 	if not title.is_empty() and title.has("stat"):
 		sb.add_modifier({"stat": title.stat, "op": str(title.get("op", "pct_add")), "value": float(title.get("value", 0.01)), "source": "title:" + title.id})
+	for m in title.get("modifiers", []):
+		sb.add_modifier({"stat": str(m.stat), "op": str(m.get("op", "pct_add")), "value": float(m.value), "source": "title:%s:%s" % [title.id, m.stat]})
+	# S48 body ladder: every tier reached keeps its gift; physiques add their gift and their drawback.
+	for tid in body_tiers_reached(c):
+		for m in ContentDB.entry("body_tiers", tid).get("modifiers", []):
+			var bm: Dictionary = (m as Dictionary).duplicate()
+			bm.source = "body_tier:%s:%s" % [tid, m.stat]
+			sb.add_modifier(bm)
+	for pid in c.cultivator.physiques:
+		var pmods: Array = ContentDB.entry("physiques", str(pid)).get("modifiers", [])
+		for i in pmods.size():
+			var pm: Dictionary = (pmods[i] as Dictionary).duplicate()
+			pm.source = "physique:%s:%d" % [pid, i]
+			sb.add_modifier(pm)
 	# Rare Daos (taught in the Azure Expanse): each tier reached adds its listed modifiers.
 	for d in c.cultivator.daos:
 		var mods: Array = ContentDB.entry("daos", str(d)).get("mods", [])
@@ -236,6 +251,8 @@ static func rebuild(c) -> Array:
 	sb.set_base("sense_radius", 300.0 * (1.0 + float(fx.spirit.sense_radius_pct) * A.spirit) if soul_base > 0 else 0.0)
 	sb.set_base("hollow_ward", 0.0)
 	sb.set_base("pressure", 0.0)
+	sb.set_base("knockback_resistance", float(fx.body.get("knockback_resistance", 0.0)) * A.body)
+	sb.set_base("flight_qi", 0.0)
 	for stat in ContentDB.stat_const("stats", []):
 		if stat.get("cap") != null and not sb.caps.has(stat.id) and stat.id != "move_speed": sb.caps[stat.id] = float(stat.cap)
 	sb.recalc()
@@ -249,6 +266,22 @@ static func rebuild(c) -> Array:
 	for k in sb.finals:
 		if not before.has(k) or absf(float(before[k]) - float(sb.finals[k])) > 0.0001: changed.append(k)
 	return changed
+
+## S48: the body tiers reached, in ladder order ("mortal" reaches none).
+static func body_tiers_reached(c) -> Array:
+	var out := []
+	var tier := str(c.cultivator.body_tier)
+	if tier == "mortal": return out
+	for t in ContentDB.all("body_tiers"):
+		out.append(str(t.id))
+		if str(t.id) == tier: break
+	return out
+
+## S48: a body-tier flag (hp_techniques, qi_seal_immune) held by any tier reached.
+static func body_flag(c, flag: String) -> bool:
+	for tid in body_tiers_reached(c):
+		if flag in ContentDB.entry("body_tiers", tid).get("flags", []): return true
+	return false
 
 static func attribute(c, attr: String) -> float:
 	return c.stats.value(attr)

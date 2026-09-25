@@ -2573,6 +2573,28 @@
       }
     }
   },
+  "temper_drum": {
+    "anchor": [
+      40,
+      80
+    ],
+    "file": "res://art/props/temper_drum.png",
+    "frame": [
+      80,
+      84
+    ],
+    "states": {
+      "active": {
+        "col": 1,
+        "fps": 8,
+        "frames": 4
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "thatched_hut": {
     "anchor": [
       180,

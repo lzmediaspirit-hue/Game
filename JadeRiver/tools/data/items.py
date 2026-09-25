@@ -238,6 +238,9 @@ def pills():
     pill("meridian_reversal_pill", "earth", "arrows_loop", "Resets all meridian points.", 10, [effect("reset_meridians")], group="utility")
     pill("method_conversion_pill", "earth", "arrows", "Halves the cost of switching cultivation methods.", 10, [], group="utility", method_conversion=True)
     pill("qi_refining_pill", "earth", "spiral", "Required to break through from Heart Tempering 9 to Cloud Stride 1.", 15, [], cause="material", group="utility")
+    # S48 Core Forging: refined only over a Heavenly Flame; taken within the hour before the core forms, it is one preparation point.
+    pill("heavenly_flame_pill", "earth", "flame", "Refined over a Heavenly Flame. Taken within the hour before Heart Tempering 9 → Cloud Stride 1, "
+         "it is one Core Forging preparation point. Composure +20.", 6, [effect("add_composure", amount=20)], cause="energy", group="utility")
     pill("soul_soothing_pill", "heaven", "eye", "Cures a soul injury; +20% Soul for 10 minutes.", 8,
          [effect("cure_injury", injury="soul", max_severity=3), effect("add_modifier", stat="max_soul", op="pct_add", value=0.2, duration=600, source="soul_soothing"),
           effect("add_soul", amount=50)], cause="soul")
@@ -496,7 +499,10 @@ def build_items():
     rows.append(item("riverreed_draught", "draught", "common", 9, "A liquid medicine: +30% HP and a minor body injury mended. It goes to the Draught slot and goes flat 10 minutes after it is made.",
                      use=[effect("heal", pct=0.3, over_s=3), effect("cure_injury", injury="body", max_severity=1)], draught={"toxicity": 2, "expires_s": 600}))
     for bid, grade, xp, res, tox, desc in [("copper_body_bath", "common", 600, 10, 5, "A body-trial bath of tortoise plate, mole claw and willow moss."),
-                                           ("marrow_washing_bath", "earth", 1500, 20, 8, "A bath that scours the marrow: ginseng, hound fang, ape fur and Mist Lotus.")]:
+                                           ("marrow_washing_bath", "earth", 1500, 20, 8, "A bath that scours the marrow: ginseng, hound fang, ape fur and Mist Lotus."),
+                                           # S48 body ladder: the Jade and Gold Body baths, taught by the tier before them.
+                                           ("jade_marrow_bath", "heaven", 4000, 30, 10, "A green bath of cloudtop orchid and jade scale that sets the bones like jade."),
+                                           ("golden_body_bath", "mystic", 9000, 40, 12, "A bath of frost lotus and thunder horn, hot and cold at once, that gilds the body.")]:
         rows.append(item(bid, "bath", grade, 9, desc + " Soak in it at a Bath station (seclusion): +%d body XP, %d residue cleared, the pill share of your foundation 10 points lower. Too strong a bath for your body injures it." % (xp, res),
                          use=[], use_action="bath", bath={"body_xp": xp, "residue": res, "share": 0.10, "toxicity": tox, "hours": 1.0}))
     rows.append(item("calm_heart_incense", "other", "earth", 99, "Incense of prayer beads and Mist Lotus. Burn it and sit: heart demon -10.",

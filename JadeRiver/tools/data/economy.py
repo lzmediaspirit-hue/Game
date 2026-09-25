@@ -298,6 +298,12 @@ def recipes():
     r("riverreed_draught", "alchemy", [("riverreed_ginseng_10", 1), ("river_minnow", 1)], [("riverreed_draught", 1)], "common", default=True, liquid=True)
     r("copper_body_bath", "alchemy", [("tortoise_plate", 2), ("mole_claw", 2), ("willow_moss", 4)], [("copper_body_bath", 1)], "common")
     r("marrow_washing_bath", "alchemy", [("riverreed_ginseng_100", 1), ("hound_fang", 3), ("ape_fur", 2), ("mist_lotus", 1)], [("marrow_washing_bath", 1)], "earth")
+    # S48 body ladder: each body tier teaches the next tier's bath (Iron → Jade, Jade → Gold).
+    r("jade_marrow_bath", "alchemy", [("cloudtop_orchid", 1), ("jade_scale", 3), ("guardian_stone", 2), ("mist_lotus", 2)], [("jade_marrow_bath", 1)], "heaven")
+    r("golden_body_bath", "alchemy", [("frost_lotus", 1), ("thunder_horn", 2), ("snow_ape_hide", 2), ("cloudtop_orchid", 2)], [("golden_body_bath", 1)], "mystic")
+    # S48 Core Forging: this pill needs a Heavenly Flame under the furnace; Elder Hu and Elder Sung teach it at Heart Tempering 9.
+    r("heavenly_flame_pill", "alchemy", [("ember_pepper", 3), ("riverreed_ginseng_100", 1), ("serpent_core", 1)], [("heavenly_flame_pill", 1)], "earth",
+      fire="heavenly_flame")
     r("calm_heart_incense", "alchemy", [("prayer_beads", 1), ("lantern_wick", 2), ("mist_lotus", 1)], [("calm_heart_incense", 1)], "earth", default=True)
     # S44 experimentation: hidden recipes of herbs alone, found by putting the right herbs in together.
     r("sunfire_pill", "alchemy", [("riverreed_ginseng_10", 1), ("ember_pepper", 1)], [("sunfire_pill", 1)], "common", hidden=True)
@@ -311,7 +317,7 @@ def recipes():
                     "mind_lake_opening_pill": "water", "sage_condensing_pill": "metal", "storm_blood_pill": "wood",
                     "sovereign_settling_pill": "fire", "qi_flow_pill": "earth", "viper_smoke_pill": "wood", "viper_oil": "wood",
                     "ember_oil": "fire", "riverreed_draught": "water", "copper_body_bath": "earth", "marrow_washing_bath": "water",
-                    "calm_heart_incense": "wood", "sunfire_pill": "fire", "stillwater_pill": "water", "cloudstep_pill": "wood"}
+                    "calm_heart_incense": "wood", "jade_marrow_bath": "water", "golden_body_bath": "metal", "heavenly_flame_pill": "fire", "sunfire_pill": "fire", "stillwater_pill": "water", "cloudstep_pill": "wood"}
     # S44 ancient recipes: split into pages across dungeons and secret realms (the pages are placed in world.py).
     ANCIENT = {"method_conversion_pill": 3, "sovereign_settling_pill": 4}
     ROLES = ["principal", "minister", "assistant", "envoy"]
@@ -561,7 +567,7 @@ def achievements():
         {"id": "untouched", "name": "Untouched", "modifiers": [{"stat": "evasion", "op": "pct_add", "value": 0.01}]},
         {"id": "collector", "name": "Collector", "modifiers": [{"stat": "drop_rate", "op": "pct_add", "value": 0.01}]},
         {"id": "wanderer", "name": "Wanderer", "modifiers": [{"stat": "move_speed", "op": "pct_add", "value": 0.01}]},
-        {"id": "still_water", "name": "Still Water", "modifiers": [{"stat": "composure_regen", "op": "pct_add", "value": 0.01}]},
+        {"id": "still_water", "name": "Still Water", "modifiers": [{"stat": "will", "op": "pct_add", "value": 0.02}]},
         {"id": "beast_friend", "name": "Beast Friend", "modifiers": [{"stat": "taming_chance", "op": "pct_add", "value": 0.01}]},
         {"id": "valley_champion", "name": "Valley Champion", "modifiers": [{"stat": "physical_attack", "op": "pct_add", "value": 0.01}]},
         {"id": "guos_student", "name": "Guo's Student", "modifiers": [{"stat": "fist_attack", "op": "pct_add", "value": 0.01}]},
@@ -681,6 +687,10 @@ def strings():
         "currency.silver_tael": "Silver Taels", "currency.spirit_stone": "Spirit Stones", "currency.contribution": "Contribution",
         "failure.backlash": "Qi backlash", "failure.injury": "Meridian injury", "failure.setback": "Setback",
         "event.heavens_cleansing": "Heaven's Cleansing", "event.riverbreath_trial": "The Riverbreath Trial", "event.heart_trial": "The Heart Trial", "event.hollow_night": "The Hollow Night",
+        "event.copper_body_trial": "Copper Body Trial", "event.iron_body_trial": "Iron Body Trial", "event.jade_body_trial": "Jade Body Trial",
+        "event.gold_body_trial": "Gold Body Trial", "event.trial_of_reflections": "The Trial of Reflections",
+        "event.siege_of_two_sects": "Siege of Two Sects", "event.sect_war": "Sect War: the Alliance Gate", "event.presence_trial": "The Presence Trial",
+        "event.starsea_crossing": "The Starsea Crossing",
         "flag.night_survived": "Survived the night",
         "ui.begin": "Begin", "ui.continue": "Continue", "ui.new_game": "New Game", "ui.settings": "Settings", "ui.back": "Back",
         "ui.unaffiliated": "Unaffiliated", "ui.locked": "Locked",

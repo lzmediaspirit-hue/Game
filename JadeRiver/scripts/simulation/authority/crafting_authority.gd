@@ -222,6 +222,7 @@ func recipe_check(c, recipe_id: String, count: int, craft: String, inputs: Array
 			return Tx.t("sim.crafting.needs") % [str(rc).replace("_", " ").capitalize(), str(ranks[rc]).capitalize()]
 	if r.has("rank") and rank_index(rank_of(c, craft)) < rank_index(str(r.rank)):
 		return Tx.t("sim.crafting.needs") % [craft.replace("_", " ").capitalize(), str(r.rank).capitalize()]
+	if str(r.get("fire", "")) != "" and not str(r.fire) in fires_available(c): return Tx.t("sim.crafting.needs_fire") % Tx.t("ui.crafts.fire_" + str(r.fire))
 	var grade := str(r.get("grade", "plain"))
 	if craft in ["alchemy", "smithing"] and StatRules.grade_index(grade) > StatRules.grade_index(grade_cap(c)): return Tx.t("sim.crafting.your_realm_cannot_refine_grade") % grade.capitalize()
 	for inp in (inputs if not inputs.is_empty() else r.get("inputs", [])):
@@ -270,6 +271,10 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, 
 		if count > int(furnace.get("batch", 1)):
 			return fail("batch", {"text": Tx.t("sim.crafting.furnace_batch") % [ContentDB.item_name(str(furnace.get("id", ""))), int(furnace.get("batch", 1))]})
 		if not fire in fires_available(c): fire = "charcoal"
+		# Some pills take only one fire (S48: the Heavenly Flame Pill).
+		var need_fire := str(ContentDB.entry("recipes", recipe_id).get("fire", ""))
+		if need_fire != "" and fire != need_fire:
+			return fail("needs_fire", {"text": Tx.t("sim.crafting.needs_fire") % Tx.t("ui.crafts.fire_" + need_fire)})
 	var why := recipe_check(c, recipe_id, count, craft_kind, inputs)
 	if why != "": return fail("cannot_craft", {"text": why})
 	var r := ContentDB.entry("recipes", recipe_id)

@@ -11,7 +11,7 @@ var hitstop := 0.0
 
 const STAT_EVENTS := ["realm_changed", "level_changed", "equipment_changed", "injury_added", "injury_healed", "title_changed",
 	"attributes_changed", "method_changed", "dao_tier_up", "body_level_changed", "purity_changed", "soul_changed",
-	"legacy_recorded", "consolidation_finished", "aptitude_revealed", "collection_page_completed"]
+	"legacy_recorded", "consolidation_finished", "aptitude_revealed", "collection_page_completed", "body_tier_reached", "physique_awakened"]
 
 func intents() -> Array:
 	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival", "start_flight", "stop_flight", "use_treasure",
@@ -137,6 +137,13 @@ func stop_flight(actor_id: String, reason: String) -> void:
 func is_flying(actor_id: String) -> bool:
 	return flying.has(actor_id)
 
+## S48: the HP a body technique spends when QI is short (Copper Body and above); 0 when it spends QI or cannot.
+func body_hp_cost(c, t: Dictionary, qi_cost: float) -> float:
+	if not t.get("body", false) or qi_cost <= 0.0 or c.pools.qi >= qi_cost or not StatRules.body_flag(c, "hp_techniques"): return 0.0
+	var k: Dictionary = ContentDB.stat_const("body_path", {})
+	var hp := qi_cost * float(k.get("hp_per_qi", 1.5))
+	return hp if c.pools.hp - hp >= c.pools.max_hp * float(k.get("hp_floor", 0.2)) else 0.0
+
 ## The flight vessel ridden (S47): what the air costs.
 func vessel_qi_mult(c) -> float:
 	return float(ContentDB.item(str(c.inventory.vessel)).get("flight", {}).get("qi_mult", 1.0)) if str(c.inventory.vessel) != "" else 1.0
@@ -151,11 +158,21 @@ func _tick_flight(c, delta: float) -> void:
 		return
 	var cfg: Dictionary = ContentDB.stat_const("flight", {})
 	var cost = maxf(float(cfg.get("qi_min_per_s", 2.0)), c.pools.max_qi * float(cfg.get("qi_pct_per_s", 0.02))) * delta * game.pets.flight_qi_mult(c) \
-		* vessel_qi_mult(c)
+		* vessel_qi_mult(c) * air_qi_mult(c)
 	if c.pools.qi <= cost:
 		stop_flight(c.id, "no_qi")
 		return
 	apply_resource_change(c.id, "qi", -cost, "flight", 0.0, true)
+	_air_distance(c, delta)
+
+## S48 Cloud Lung and the flight_qi stat: what the air costs this body.
+func air_qi_mult(c) -> float:
+	return maxf(0.5, 1.0 + c.stats.value("flight_qi"))
+
+## The ground covered in the air counts toward Cloud Lung (S48).
+func _air_distance(c, delta: float) -> void:
+	var st: ActorState = game.actor_state(c.id)
+	if st != null: game.progression.add_air_distance(c.id, absf(st.velocity.x) * delta)
 
 # ------------------------------------------------------------------ movement arts (S43)
 ## The movement art a secret art grants (secret_arts.json `movement_art`), known to this character.
@@ -226,12 +243,13 @@ func _tick_glide(c, delta: float) -> void:
 	if st == null or not st.gliding:
 		gliding.erase(c.id)
 		return
-	var cost := float(ContentDB.movement("glide.qi_per_s", 2.0)) * delta
+	var cost := float(ContentDB.movement("glide.qi_per_s", 2.0)) * delta * air_qi_mult(c)
 	if c.pools.qi <= cost:
 		gliding.erase(c.id)
 		MovementSolver.glide(st, false)
 		return
 	apply_resource_change(c.id, "qi", -cost, "glide", 0.0, true)
+	_air_distance(c, delta)
 
 # ------------------------------------------------------------------ views
 func player_view(c) -> Dictionary:
@@ -249,7 +267,7 @@ func player_view(c) -> Dictionary:
 		"vulnerable": c.pools.has_status("vulnerable"), "shocked": c.pools.has_status("shock"),
 		"guarding": sb.value("guard") if tl.guard else 0.0, "facing": int(tl.facing),
 		"x": st.plane.x if st else 0.0, "y": st.plane.y if st else 0.0, "alt": st.altitude if st else 0.0, "half_width": 14.0, "height": 88.0}
-	for el in ["water", "wood", "fire", "earth", "metal"]:
+	for el in ["water", "wood", "fire", "earth", "metal", "yin", "yang"]:
 		v["resist_" + el] = sb.conditional("elemental_resistance", "element", el)
 		v["element_power_" + el] = sb.conditional("elemental_power", "element", el)
 	return v
@@ -389,15 +407,18 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	var tfam := str(t.get("family", "any"))
 	if tfam != "any" and not (tfam == str(fam.id) or (tfam == "fists" and fam.id in ["fists", "gauntlets"])): return fail("wrong_weapon", {"text": Tx.t("sim.combat.needs_a") % tfam.replace("_", " ")})
 	if c.pools.cooldown("tech:" + str(tid)) > 0.0: return fail("cooldown")
-	if c.pools.has_status("qi_seal"): return fail("sealed")
+	if c.pools.has_status("qi_seal") and not StatRules.body_flag(c, "qi_seal_immune"): return fail("sealed")
 	if t.get("flying_only", false):
 		var st: ActorState = game.actor_state(c.id)
 		if st == null or st.surface != null: return fail("needs_flight")
 	var cost := technique_cost(c, t)
-	if float(t.get("qi_cost", 0)) > 0 and (c.pools.max_qi <= 0.0 or c.pools.qi < cost): return fail("no_qi")
+	# S48 Copper Body: a body technique the QI cannot pay for spends HP instead, never below a fifth of it.
+	var hp_cost := body_hp_cost(c, t, cost)
+	if float(t.get("qi_cost", 0)) > 0 and hp_cost <= 0.0 and (c.pools.max_qi <= 0.0 or c.pools.qi < cost): return fail("no_qi")
 	if float(t.get("soul_cost", 0)) > 0 and c.pools.soul < float(t.soul_cost): return fail("no_soul")
 	if float(t.get("composure_cost", 0)) > 0 and c.pools.composure < float(t.composure_cost): return fail("no_composure")
-	apply_resource_change(c.id, "qi", -cost, "technique")
+	if hp_cost > 0.0: apply_resource_change(c.id, "hp", -hp_cost, "technique")
+	else: apply_resource_change(c.id, "qi", -cost, "technique")
 	_natal_overcharge(c)
 	if float(t.get("soul_cost", 0)) > 0: apply_resource_change(c.id, "soul", -float(t.soul_cost), "technique")
 	if float(t.get("composure_cost", 0)) > 0:
@@ -903,7 +924,7 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 	p.set_value(pool, before - amount)
 	p.since_hit = 0.0
 	var tl := timeline(c.id)
-	var kb := float(attack.get("knockback", 0))
+	var kb := float(attack.get("knockback", 0)) * (1.0 - clampf(c.stats.value("knockback_resistance"), 0.0, 0.9))   # S48 Iron Body, Body
 	if amount >= p.max_hp * float(ContentDB.stat_const("combat.flinch_pct", 0.2)) or kb >= 60:
 		tl.flinch = float(ContentDB.stat_const("combat.flinch_s", 0.4))
 		if kb > 0 and e != null and not (int(c.cultivator.meridians.get("body", 0)) >= 50 and is_busy(c.id)):
@@ -1461,6 +1482,8 @@ func apply_resource_change(actor_id: String, pool: String, amount: float, source
 		amount *= 1.0 - clampf(c.stats.value("hollow_ward"), 0.0, 0.8)
 		var cap := float(ContentDB.stat_const("hollowing.valley_cap", 49))
 		p.set_value(pool, minf(cap, p.get_value(pool) + amount))
+		# S48 Hollow-Touched (v1.2): wholly Hollowed and still standing.
+		if p.hollowing >= 100.0 and p.hp > 0.0: game.progression.awaken_physique(c.id, "hollow_touched")
 	else:
 		p.set_value(pool, p.get_value(pool) + amount)
 	if not quiet: emit("resource_changed", {"actor": c.id, "pool": pool, "value": p.get_value(pool), "max": p.get_max(pool), "source": source})
@@ -1489,6 +1512,7 @@ func apply_buff(actor_id: String, e: Dictionary, source: String) -> void:
 func apply_status(actor_id: String, status_id: String, duration: float, power: float, delay := 0.0) -> void:
 	var c = game.character(actor_id)
 	if c == null or not ContentDB.has_entry("status_effects", status_id): return
+	if status_id == "qi_seal" and StatRules.body_flag(c, "qi_seal_immune"): return   # S48 Gold Body
 	for s in c.pools.statuses:
 		if s.id == status_id:
 			if power >= float(s.get("power", 0)):

@@ -214,11 +214,22 @@ static func grade_color(g: String) -> Color:
 static func badge_color(kind: String) -> Color:
 	return {"grey": Color("8c969a"), "green": Color("67d67a"), "white": PAPER, "orange": Color("f0a040"), "red": RED}.get(kind, PAPER)
 
-## An equipment affix as a line: "+24 accuracy", "+3% physical attack".
+## A stat modifier (an affix, a title, a physique) as a line: "+24 accuracy", "+3% physical attack", "-10% fire power".
 static func affix_text(a: Dictionary) -> String:
 	var v := float(a.get("value", 0.0))
-	var shown := ("+%d%%" % int(round(v * 100))) if str(a.get("op", "flat")) != "flat" else ("+%s" % fmt(v))
-	return "%s %s" % [shown, str(a.get("stat", "")).replace("_", " ")]
+	var stat := str(a.get("stat", ""))
+	var pct := str(a.get("op", "flat")) != "flat" or _stat_is_percent(stat)
+	var mag := ("%d%%" % int(round(absf(v) * 100))) if pct else fmt(absf(v))
+	var label := stat.replace("_", " ")
+	var el := str((a.get("condition", {}) as Dictionary).get("element", "")) if a.get("condition") is Dictionary else ""
+	if el != "" and stat == "elemental_power": label = el + " power"
+	elif el != "": label = el + " " + label
+	return "%s%s %s" % ["-" if v < 0.0 else "+", mag, label]
+
+static func _stat_is_percent(stat: String) -> bool:
+	for s in ContentDB.stat_const("stats", []):
+		if str(s.get("id", "")) == stat: return str(s.get("format", "")) == "percent"
+	return false
 
 static func fmt(n: float) -> String:
 	var v := int(round(n))

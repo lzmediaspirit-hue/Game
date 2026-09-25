@@ -153,6 +153,29 @@ func data_suite() -> void:
 			check(str(r2.get("element", "")) != "" and (r2.get("roles", []) as Array).size() == (r2.get("inputs", []) as Array).size(), "recipe %s element and roles" % r2.id)
 	for hc in ContentDB.all("herb_conflicts"):
 		for h in hc.get("herbs", []): check(item_ok(str(h)), "herb conflict %s: %s" % [hc.id, h])
+	# S48 body ladder: each rung names a bath item, a Temper trial set piece with a drum, and stats that exist.
+	var stat_ids := {}
+	for sd in ContentDB.stat_const("stats", []): stat_ids[str(sd.id)] = true
+	var drums := {}
+	for rid in ContentDB.rooms:
+		for o in ContentDB.room(rid).get("objects", []):
+			if str(o.get("type", "")) == "rite_circle": drums[str(o.get("event", ""))] = true
+	var last_need := 0
+	for bt in ContentDB.all("body_tiers"):
+		check(str(ContentDB.item(str(bt.bath)).get("use_action", "")) == "bath", "body tier %s bath %s is a bath" % [bt.id, bt.bath])
+		check(ContentDB.has_entry("set_pieces", str(bt.trial)) and drums.has(str(bt.trial)), "body tier %s trial %s has a set piece and a drum" % [bt.id, bt.trial])
+		check(int(bt.need) > last_need, "body tier %s needs more body than the rung below" % bt.id)
+		last_need = int(bt.need)
+		for m in bt.get("modifiers", []): check(stat_ids.has(str(m.stat)), "body tier %s stat %s" % [bt.id, m.stat])
+		for rid2 in bt.get("teaches", []): check(ContentDB.has_entry("recipes", str(rid2)), "body tier %s teaches %s" % [bt.id, rid2])
+	for ph in ContentDB.all("physiques"):
+		check(str(ph.get("earned", "")) != "" and str(ph.get("gift_text", "")) != "" and str(ph.get("drawback_text", "")) != "", "physique %s says how it is earned, its gift and its drawback" % ph.id)
+		for m in ph.get("modifiers", []): check(stat_ids.has(str(m.stat)), "physique %s stat %s" % [ph.id, m.stat])
+	for m2 in ContentDB.all("methods"): check(str(m2.get("yin_yang", "")) in ["yin", "yang"], "method %s leans yin or yang" % m2.id)
+	for r4 in ContentDB.all("recipes"):
+		if r4.has("fire"): check(str(r4.fire) in (ContentDB.config("grades").get("pill", {}).get("fires", {}) as Dictionary), "recipe %s fire %s" % [r4.id, r4.fire])
+	for tl in ContentDB.all("titles"):
+		for m3 in tl.get("modifiers", []): check(stat_ids.has(str(m3.stat)), "title %s stat %s" % [tl.id, m3.stat])
 	# Items that start systems name a known action; manuals teach something real.
 	for it in ContentDB.all("items"):
 		check_effects(it.get("use", []), "item " + str(it.id))

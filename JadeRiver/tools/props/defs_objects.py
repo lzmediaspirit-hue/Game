@@ -487,6 +487,55 @@ def lifting_stone(state, f):
     return cv
 
 
+@prop("temper_drum", 40, 42, states=(("idle", 1, 0), ("active", 4, 8)))
+def temper_drum(state, f):
+    """S48 Temper trial drum: a lacquered war drum on a wooden stand. Struck, it shakes and rings out."""
+    import math as _m
+    W, H = 40, 42
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    beat = state == "active"
+    jolt = (0, -1, 0, 1)[f % 4] if beat else 0
+    ground_shadow(cv, 20, 40, 17, 1.6)
+    # stand: two splayed legs, a cross bar and a cradle under the barrel
+    for (a, b) in (((6, 40), (12, 25)), ((34, 40), (28, 25))):
+        cv.fill(m_line(W, H, [a, b]) | m_line(W, H, [(a[0] + 1, a[1]), (b[0] + 1, b[1])]), WOOD[3])
+        cv.fill(m_line(W, H, [(a[0] + 2, a[1]), (b[0] + 2, b[1])]), WOOD[2])
+    cv.fill(m_rect(W, H, 8, 34, 32, 35), WOOD[2])
+    cv.fill(m_rect(W, H, 8, 34, 32, 34), WOOD[5])
+    cv.fill(m_rect(W, H, 9, 27, 31, 28), WOOD[3])
+    # barrel body, lying on its side, facing the viewer
+    cy = 18 + jolt
+    body = m_ellipse(W, H, 20, cy, 14, 12.5)
+    shade(cv, body, LACQUER, contour=True, mode="cyl", base=0.55, gain=1.25)
+    # hide head: a pale disc with a darker rim and a sheen
+    head = m_ellipse(W, H, 20, cy, 10.5, 9.2)
+    cv.fill(head, PAPER_R[3])
+    cv.fill(head & ~m_ellipse(W, H, 20, cy, 9.2, 7.9), PAPER_R[1])
+    cv.fill(m_ellipse(W, H, 17, cy - 3, 4.5, 2.6) & head, PAPER_R[4])
+    # brass studs round the rim
+    for i in range(12):
+        a = i / 12.0 * 2 * _m.pi
+        cv.put(int(round(20 + _m.cos(a) * 12.2)), int(round(cy + _m.sin(a) * 10.8)), BRONZE[6])
+    # a painted red cloud swirl on the hide
+    swirl = m_ellipse(W, H, 20, cy + 1, 3.2, 2.4) & ~m_ellipse(W, H, 20.8, cy + 0.4, 1.8, 1.2)
+    cv.fill(swirl, LACQUER[4])
+    cv.fill(m_rect(W, H, 16, cy + 1, 17, cy + 1), LACQUER[4])
+    # iron hanging rings on the shoulders
+    for rx in (7, 33):
+        cv.put(rx, cy - 1, BRONZE[3])
+        cv.put(rx, cy, BRONZE[5])
+    outline(cv)
+    if beat:
+        # rings of sound on the beat frames
+        r = 15 + 2 * (f % 2)
+        ring = m_ellipse(W, H, 20, cy, r, r * 0.8) & ~m_ellipse(W, H, 20, cy, r - 1, r * 0.8 - 1)
+        cv.fill(ring & (cv.a < 0.5) & (yy < 36), PALE_GOLD, 0.6 if f % 2 == 0 else 0.35)
+        if f in (0, 2):
+            cv.fill(m_ellipse(W, H, 20, cy, 3.5, 2.8), WHITE_HOT, 0.55)
+    return cv
+
+
 @prop("training_dummy", 24, 44, states=(("idle", 1, 0), ("hit", 1, 0)))
 def training_dummy(state, f):
     W, H = 24, 44

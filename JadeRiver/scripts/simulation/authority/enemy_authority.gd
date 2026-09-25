@@ -58,8 +58,10 @@ func populate() -> void:
 func tick(delta: float) -> void:
 	var rt: RoomRuntime = game.room_rt
 	if rt == null: return
+	# A trial that clears the ground (S48 Temper trials) holds the room's own foes back until it ends.
+	var held: bool = rt.event.get("active", false) and rt.event.get("clear_room", false)
 	for slot in rt.spawn_slots:
-		if int(slot.uid) != 0: continue
+		if int(slot.uid) != 0 or held: continue
 		slot.timer = float(slot.timer) - delta
 		if float(slot.timer) <= 0.0:
 			if _spawn_allowed(slot.spec): _spawn(slot)

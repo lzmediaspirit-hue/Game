@@ -51,6 +51,7 @@ func _main() -> void:
 	new_forms_suite()
 	guild_suite()
 	tribulation_suite()
+	body_path_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -580,7 +581,8 @@ func new_forms_suite() -> void:
 		check(cl2.get("gains", {}).get("injured", false) and int(c.cultivator.injuries.get("body", {}).get("severity", 0)) >= 1,
 			"a Marrow-Washing Bath before Copper Body injures the body")
 		c.cultivator.injuries.clear()
-		check(ProgressionRules.body_tier(17) == 0 and ProgressionRules.body_tier(18) == 1 and ProgressionRules.body_tier(40) == 2, "body tiers: Copper at 18, Iron at 36")
+		check(ProgressionRules.body_tier_index(cu) == 0 and cu.body_baths.has("copper") and not cu.body_baths.has("iron"),
+			"a full Copper Body soak is recorded; a bath that injures is not")
 	# Calm Heart Incense: heart demon -10. The Murky Pill sells for a tael.
 	cu.heart_demon = 30.0
 	Game.inventory.apply_add(c.id, "calm_heart_incense", 1, "test")
@@ -683,6 +685,170 @@ func guild_suite() -> void:
 	c.inventory.bag.fill(null)
 
 # ------------------------------------------------------------------ S44 pill tribulation and the Pill Soul's flight
+# ------------------------------------------------------------------ S48 the body ladder, physiques, roots, Core Forging
+func body_path_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var cu: CultivatorState = c.cultivator
+	var realm_was := cu.realm_key
+	var body_was := cu.body_level
+	c.inventory.bag.fill(null)
+	# Titles: the worn title's modifiers reach the stats (they were never applied before V5a).
+	var had_titles: Array = cu.titles.duplicate()
+	var title_was := cu.active_title
+	cu.titles.append("fleet_footed")
+	cu.active_title = ""
+	Game.combat.refresh_stats(c.id)
+	var ms0: float = c.stats.value("move_speed")
+	cu.active_title = "fleet_footed"
+	Game.combat.refresh_stats(c.id)
+	check(c.stats.value("move_speed") > ms0 + 0.5, "a worn title's modifier applies (Fleet-Footed: %.1f -> %.1f move speed)" % [ms0, c.stats.value("move_speed")])
+	cu.titles = had_titles
+	cu.active_title = title_was
+	# Body tier needs level, trial and bath, one rung at a time.
+	cu.body_tier = "mortal"
+	cu.body_trials.clear()
+	cu.body_baths.clear()
+	cu.body_level = 20
+	cu.physiques.clear()
+	cu.realm_key = "qi_unfurling_5"
+	Game.progression.pass_body_trial(c.id, "copper")
+	check(cu.body_tier == "mortal", "the Copper trial alone does not open Copper Body")
+	cu.body_trials.clear()
+	cu.body_baths.append("copper")
+	Game.progression._check_body_tier(c)
+	check(cu.body_tier == "mortal", "the Copper bath alone does not open it either")
+	Game.progression.pass_body_trial(c.id, "copper")
+	check(cu.body_tier == "copper" and ProgressionRules.body_tier_index(cu) == 1, "trial and bath together: Copper Body")
+	check(not cu.physiques.has("stone_marrow"), "Copper Body after Qi Unfurling 3 does not awaken Stone Marrow")
+	Game.combat.refresh_stats(c.id)
+	var mods := 0
+	for m in c.stats.modifiers:
+		if str(m.get("source", "")).begins_with("body_tier:copper"): mods += 1
+	check(mods == 1, "Copper Body's gift is one Physical Defense modifier (%d)" % mods)
+	Game.progression.pass_body_trial(c.id, "iron")
+	cu.body_baths.append("iron")
+	Game.progression._check_body_tier(c)
+	check(cu.body_tier == "copper", "Iron Body waits for body level 36")
+	cu.body_level = 35
+	Game.progression.apply_body_xp(c.id, ProgressionRules.body_xp_needed(35) + 1.0, "test")
+	check(cu.body_level == 36 and cu.body_tier == "iron" and c.crafting.recipes.has("jade_marrow_bath"),
+		"reaching body level 36 with the trial and bath done opens Iron Body, which teaches the Jade Marrow Bath")
+	Game.combat.refresh_stats(c.id)
+	check(c.stats.value("knockback_resistance") >= 0.10, "Iron Body: +10%% knockback resistance (%.2f)" % c.stats.value("knockback_resistance"))
+	# The trials themselves are room events: the HP floor fails one, a kill count wins another.
+	Game.world.apply_teleport(c.id, "wp_west")
+	var sp := ContentDB.entry("set_pieces", "copper_body_trial")
+	Game.world._start_event(c, Game.room_rt, sp.room_event)
+	c.pools.hp = c.pools.max_hp * 0.4
+	Game.world._tick_event(c, Game.room_rt, 0.1)
+	check(not Game.room_rt.event.get("active", true), "falling below half HP ends the Copper trial")
+	c.pools.hp = c.pools.max_hp
+	Game.world.apply_teleport(c.id, "cp_pilgrim_stairs")
+	var iron := ContentDB.entry("set_pieces", "iron_body_trial")
+	Game.world._start_event(c, Game.room_rt, iron.room_event)
+	for i in 5: Game.world._event_kill({"def": "stone_guardian", "victim_kind": "enemy"})
+	check(not Game.room_rt.event.get("active", true), "five Stone Guardians in one run pass the Iron trial")
+	# Gold Body is immune to Qi Seal; the flag lives on the tier.
+	cu.body_tier = "gold"
+	Game.combat.apply_status(c.id, "qi_seal", 5.0, 1.0)
+	check(not c.pools.has_status("qi_seal"), "Gold Body shrugs off Qi Seal")
+	cu.body_tier = "copper"
+	# Copper Body: a body technique spends HP when QI runs short, never below a fifth.
+	var tiger := ContentDB.entry("techniques", "tiger_rush")
+	c.pools.qi = 0.0
+	c.pools.hp = c.pools.max_hp
+	check(Game.combat.body_hp_cost(c, tiger, 12.0) > 0.0, "Tiger Rush with no QI spends HP at Copper Body")
+	c.pools.hp = c.pools.max_hp * 0.2 + 1.0
+	check(Game.combat.body_hp_cost(c, tiger, 12.0) == 0.0, "never below a fifth of HP")
+	check(Game.combat.body_hp_cost(c, ContentDB.entry("techniques", "flowing_palm"), 8.0) == 0.0, "a technique that is not a body technique never spends HP")
+	c.pools.hp = c.pools.max_hp
+	# Physiques: gift and drawback, counters, the heart-demon multiplier.
+	Game.combat.refresh_stats(c.id)
+	var hp0: float = c.stats.value("max_hp")
+	var qr0: float = c.stats.value("qi_resistance")
+	Game.progression.awaken_physique(c.id, "jade_bone")
+	Game.combat.refresh_stats(c.id)
+	check(cu.physiques.has("jade_bone") and c.stats.value("max_hp") > hp0 and c.stats.value("qi_resistance") <= qr0,
+		"Jade Bone: more HP, a little less Qi Resistance")
+	cu.lifetime_stats["fire_pills"] = 49.0
+	Game.progression._on_fire_pill({"actor": c.id, "craft": "alchemy", "recipe": "tiger_blood_pill", "count": 1})
+	check(cu.physiques.has("ember_heart"), "the fiftieth Fire pill awakens Ember Heart")
+	Game.progression._on_fire_pill({"actor": c.id, "craft": "alchemy", "recipe": "healing_pill", "count": 5})
+	check(float(cu.lifetime_stats.get("fire_pills", 0)) == 50.0, "pills of other elements do not count")
+	cu.heart_demon = 0.0
+	cu.physiques.append("hollow_touched")
+	Game.progression.apply_heart_demon(c.id, 10.0, "test")
+	check(near(cu.heart_demon, 15.0), "Hollow-Touched: heart-demon gains x1.5 (%.1f)" % cu.heart_demon)
+	Game.progression.apply_heart_demon(c.id, -10.0, "test")
+	check(near(cu.heart_demon, 5.0), "drains are not multiplied")
+	cu.heart_demon = 0.0
+	cu.physiques.clear()
+	cu.body_tier = "mortal"
+	cu.realm_key = "bone_forging_9"
+	cu.body_trials.clear()
+	cu.body_baths.clear()
+	cu.body_level = 17
+	Game.progression.pass_body_trial(c.id, "copper")
+	cu.body_baths.append("copper")
+	cu.body_level = 18
+	Game.progression._check_body_tier(c)
+	check(cu.physiques.has("stone_marrow"), "Copper Body before Qi Unfurling 3 awakens Stone Marrow")
+	cu.physiques.clear()
+	# Named roots at the edges: +5% counts, above +10% is Heavenly, the strongest wind is Mutated.
+	var apt_was: Dictionary = cu.aptitude.duplicate(true)
+	var set_roots := func(vals: Dictionary) -> void:
+		for el in ["water", "wood", "fire", "earth", "metal", "wind"]:
+			cu.aptitude["element_" + el] = {"value": float(vals.get(el, 0.0)), "revealed": true}
+	set_roots.call({"water": 0.11})
+	check(ProgressionRules.root_name(cu) == "heavenly", "one element above +10%: Heavenly")
+	set_roots.call({"water": 0.10})
+	check(ProgressionRules.root_name(cu) == "faint", "exactly +10% is not Heavenly; one element counting alone is Faint")
+	set_roots.call({"water": 0.05, "fire": 0.05})
+	check(ProgressionRules.root_name(cu) == "true", "two elements at +5%: True")
+	set_roots.call({"water": 0.05, "fire": 0.049})
+	check(ProgressionRules.root_name(cu) == "faint", "+4.9% does not count")
+	set_roots.call({"water": 0.06, "fire": 0.06, "earth": 0.06, "metal": 0.06})
+	check(ProgressionRules.root_name(cu) == "mixed", "four elements at +5% or more: Mixed")
+	set_roots.call({"wind": 0.07, "water": 0.06})
+	check(ProgressionRules.root_name(cu) == "mutated", "wind the strongest: Mutated")
+	cu.aptitude["element_fire"].revealed = false
+	check(ProgressionRules.root_name(cu) == "", "no root name while the elements are hidden")
+	cu.aptitude = apt_was
+	# Core Forging: 9 minus the points that count (80% each), floor 5; a flawless Cleansing one more, floor 4.
+	check(ProgressionRules.core_grade(0, false) == 9 and ProgressionRules.core_grade(0, true) == 8 and ProgressionRules.core_grade(5, false) == 5
+		and ProgressionRules.core_grade(5, true) == 4 and ProgressionRules.core_grade(2, false) == 7, "core grade from points: 9, flawless 8, floor 5, flawless floor 4")
+	cu.method_id = "jade_current_scripture"
+	cu.residue = 0.0
+	c.pools.composure = 100.0
+	Game.world.apply_teleport(c.id, "cf_falls_pool")
+	c.cultivator.pill_memory["heavenly_flame_pill"] = Game.sim_time - 60.0
+	var pts: Array = Game.progression.core_forging_points(c)
+	var met := 0
+	for pt in pts:
+		if pt.met: met += 1
+	check(pts.size() == 5 and pts[0].met and pts[2].met and pts[3].met and pts[4].met, "a water method at the Falls Pool, Composure full, no residue, the pill an hour since: four points (%d)" % met)
+	var grades := []
+	for run in 2:
+		Rng.restore(c.id, {}, 4242)
+		cu.realm_key = "heart_tempering_9"
+		cu.purity = 9
+		Game.progression._forge_core(c)
+		grades.append(cu.core_grade)
+	check(grades[0] == grades[1] and cu.purity == cu.core_grade and cu.core_grade >= 5 and cu.core_grade <= 9 - 0,
+		"the same seed forms the same core (%s)" % str(grades))
+	c.cultivator.pill_memory.erase("heavenly_flame_pill")
+	cu.core_grade = 0
+	cu.purity = 9
+	cu.realm_key = realm_was
+	cu.body_level = body_was
+	cu.body_tier = "mortal"
+	cu.body_trials.clear()
+	cu.body_baths.clear()
+	cu.lifetime_stats.erase("fire_pills")
+	cu.events_passed.erase("iron_body_trial")
+	Game.combat.refresh_stats(c.id)
+
 func tribulation_suite() -> void:
 	var c = Game.active()
 	if c == null or Game.actor_state(c.id) == null: return

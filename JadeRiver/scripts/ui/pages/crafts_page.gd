@@ -220,6 +220,8 @@ func draw_page() -> void:
 		if not game_on:
 			var have: Array = Game.crafting.fires_available(ch)
 			if not fire in have: fire = "charcoal"
+			var need_fire := str(ContentDB.entry("recipes", sel).get("fire", ""))
+			if need_fire != "" and need_fire in have: fire = need_fire   # a pill that takes only one fire (S48)
 			var fw := (right.size.x - 48 - 24) / 4.0
 			for i in FIRES.size():
 				var f: String = FIRES[i]

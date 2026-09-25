@@ -791,6 +791,7 @@ def calm_heart_incense():
 
 for _id, _fn in (('viper_oil', _oil(R['venom'])), ('ember_oil', _oil(R['ember'])), ('riverreed_draught', riverreed_draught),
                  ('copper_body_bath', _bath(R['copper'], R['moss'])), ('marrow_washing_bath', _bath(R['bone'], R['lotuspink'])),
+                 ('jade_marrow_bath', _bath(R['jade'], R['mist'])), ('golden_body_bath', _bath(R['gold'], R['fire'])),
                  ('calm_heart_incense', calm_heart_incense)):
     register(FAM, _id, _fn, GROUP)
 

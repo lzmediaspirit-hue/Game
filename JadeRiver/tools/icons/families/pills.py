@@ -144,6 +144,8 @@ PILLS = [
     ('sunfire_pill', 'common', 'flame', R['fire'], R['red'][1]),
     ('stillwater_pill', 'earth', 'drop_leaf', R['sky'], R['navy'][2]),
     ('cloudstep_pill', 'heaven', 'arrows', R['cloud'], R['navy'][2]),
+    # S48 Core Forging: refined only over a Heavenly Flame.
+    ('heavenly_flame_pill', 'earth', 'flame', R['gold'], R['red'][1]),
 ]
 
 for _id, _grade, _mark, _ramp, _ink in PILLS:

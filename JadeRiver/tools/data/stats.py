@@ -24,6 +24,8 @@ STAT_LIST = [
     ("taming_chance", "world", 0.9, "percent"), ("technique_cost", "offense", 0.3, "percent"),
     ("mastery_gain", "cultivation", None, "percent"), ("fist_attack", "offense", None, "percent"),
     ("attunement_bonus", "world", None, "int"),
+    # S48 body ladder and physiques: knockback taken is cut by this share; flight QI cost moves by this share.
+    ("knockback_resistance", "defense", 0.9, "percent"), ("flight_qi", "movement", 0.5, "percent"),
 ]
 
 
@@ -38,7 +40,7 @@ def build():
         "attributes": {"base": 5, "per_level": 1, "body_per_body_level": 1, "essence_per_purity_grade": 3,
                        "spirit_per_soul_points": 0.1, "insight_per_dao_tier": 2, "essence_per_capacity": 10},
         "attribute_effects": {
-            "body": {"max_hp_pct": 0.01, "physical_defense": 0.5, "body_weapon_attack_pct": 0.003, "toxicity_tolerance": 0.1},
+            "body": {"max_hp_pct": 0.01, "physical_defense": 0.5, "body_weapon_attack_pct": 0.003, "toxicity_tolerance": 0.1, "knockback_resistance": 0.002},
             "agility": {"move_speed_pct": 0.001, "attack_speed": 0.002, "crit_chance": 0.001, "accuracy": 1.0, "evasion": 0.5},
             "essence": {"max_qi_pct": 0.01, "qi_attack_pct": 0.005, "technique_cost": 0.001, "qi_resistance": 0.3, "qi_regen": 0.005},
             "spirit": {"max_soul_pct": 0.01, "soul_defense": 0.5, "soul_attack_pct": 0.005, "sense_radius_pct": 0.01, "will": 1.0, "tenacity": 0.002},
@@ -121,6 +123,17 @@ def build():
         # at the Reflection. +1 per 10 sin; meditation drains 1 per 5 minutes; passing the Heart Trial clears 30.
         "heart_demon": {"step": 25, "method_switch": 10, "forced_breakthrough": 5, "forced_supports": 2, "death": 3,
                         "per_sin": 0.1, "meditate_drain_per_min": 0.2, "heart_trial": -30},
+        # S48 named roots (shown on the Aptitude tab once elements are revealed, Bone Forging 7): an element counts at
+        # +5% or more. Mutated when the strongest counting element is Thunder, Ice or Wind; Heavenly when exactly one
+        # element is above +10%; Mixed with 4 or more counting; True with 2-3; Faint otherwise.
+        "roots": {"counts_at": 0.05, "heavenly_above": 0.10, "mutated": ["thunder", "ice", "wind"], "mixed_from": 4, "true_from": 2},
+        # S48 Core Forging (Heart Tempering 9 -> Cloud Stride 1): each preparation point met counts at 80% on the
+        # breakthrough stream; the starting purity grade is 9 minus the points counted, floor 5; a flawless Heaven's
+        # Cleansing is one more point, floor 4. The Heavenly Flame Pill counts within an hour of taking it.
+        "core_forging": {"start": 9, "chance": 0.8, "floor": 5, "flawless_floor": 4, "pill": "heavenly_flame_pill", "pill_window_s": 3600,
+                         "yin_times": ["evening", "night"], "yang_times": ["morning", "day"]},
+        # S48 body ladder: body techniques spend HP at this rate when QI is short (Copper Body), never below this share.
+        "body_path": {"hp_per_qi": 1.5, "hp_floor": 0.2, "air_metre_px": 50},
         # The karma ledger: 100 merit eases one major breakthrough in each great realm by a step.
         "karma": {"merit_step": 100, "black_market_sin": 2},
         # S17 hazards: below the answer an effect falls off to half; answered, pushes and statuses stop
@@ -230,7 +243,6 @@ def build():
         "purity_points_per_grade": 100, "purity_meditate_per_hour": 10, "purity_offline_per_hour": 25,
         "soul_meditate_per_hour": 10, "soul_offline_per_hour": 20,
         "offline_factor": 0.1, "offline_cap_h": 12, "retreat_cap_h": 16, "formation_cap_h": 24,
-        "body_tiers": [18, 36, 54, 72],   # Part 8: Copper, Iron, Jade and Gold Body by body level (the S48 trials come later)
         "offline_temper_body_xp_per_min": 10, "offline_heal_mult": 1.0,
         "idle_material_factor": 0.25, "idle_cap_h": 12, "ancestral_guidance": 1.5,
         "pet_xp": {"per_level_pow": 1.5, "base": 20},
@@ -424,7 +436,7 @@ def build():
         {"id": "smiths_apprentice", "bonus": {"body": 3, "insight": 2}, "element_nudge": "metal"},
     ])
 
-    entries("methods.json", [
+    methods = [
         {"id": "riverbreath_fragment", "grade": "common", "ceiling": "bone_forging_9", "affinity": "water", "rate": 1.0, "capacity": 1.0, "source": "lu_boatman",
          "fragment": True, "desc": "Lu's half-remembered method. A full scripture replaces it without cost."},
         {"id": "jade_current_scripture", "grade": "common", "ceiling": "heart_tempering_9", "affinity": "water", "rate": 1.0, "capacity": 1.1, "source": "jade_sect"},
@@ -435,7 +447,11 @@ def build():
         {"id": "tidal_sovereign_scripture", "grade": "heaven", "ceiling": "sage_sovereign_3", "affinity": "water", "rate": 1.15, "capacity": 1.15, "source": "library_3_jade"},
         {"id": "nine_winds_canon", "grade": "heaven", "ceiling": "sage_sovereign_3", "affinity": "wind", "rate": 1.25, "capacity": 1.05, "source": "library_3_cloud"},
         {"id": "riverbreath_complete", "grade": "heaven", "ceiling": "sage_sovereign_3", "affinity": "water", "rate": 1.2, "capacity": 1.2, "source": "drowned_shrine"},
-    ])
+    ]
+    # S48: each method leans Yin or Yang (Core Forging reads it against the hour): water and earth are Yin; wind, wood and fire Yang.
+    for m in methods:
+        m["yin_yang"] = {"water": "yin", "earth": "yin", "metal": "yin"}.get(m["affinity"], "yang")
+    entries("methods.json", methods)
 
 
 if __name__ == "__main__":

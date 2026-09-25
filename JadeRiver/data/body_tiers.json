@@ -1,0 +1,79 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "copper",
+   "name": "Copper Body",
+   "need": 18,
+   "trial": "copper_body_trial",
+   "bath": "copper_body_bath",
+   "trial_text": "Stumps and stones on Willow Path West: three minutes of charging beasts without falling below half your HP.",
+   "gift_text": "+5% Physical Defense. Body techniques may spend HP when your QI runs short.",
+   "modifiers": [
+    {
+     "stat": "physical_defense",
+     "op": "pct_add",
+     "value": 0.05
+    }
+   ],
+   "flags": [
+    "hp_techniques"
+   ],
+   "teaches": []
+  },
+  {
+   "id": "iron",
+   "name": "Iron Body",
+   "need": 36,
+   "trial": "iron_body_trial",
+   "bath": "marrow_washing_bath",
+   "trial_text": "Pilgrim Stairs: break five Stone Guardians in a single run before the incense burns down.",
+   "gift_text": "+10% knockback resistance.",
+   "modifiers": [
+    {
+     "stat": "knockback_resistance",
+     "op": "flat",
+     "value": 0.1
+    }
+   ],
+   "flags": [],
+   "teaches": [
+    "jade_marrow_bath"
+   ]
+  },
+  {
+   "id": "jade",
+   "name": "Jade Body",
+   "need": 54,
+   "trial": "jade_body_trial",
+   "bath": "jade_marrow_bath",
+   "trial_text": "The pole trial (Sword Court or East Terrace): ninety seconds on the plum-blossom poles. Touch the ground for more than two seconds and it is over.",
+   "gift_text": "Injuries heal 1.5 times as fast.",
+   "modifiers": [
+    {
+     "stat": "injury_recovery",
+     "op": "flat",
+     "value": 0.5
+    }
+   ],
+   "flags": [],
+   "teaches": [
+    "golden_body_bath"
+   ]
+  },
+  {
+   "id": "gold",
+   "name": "Gold Body",
+   "need": 72,
+   "trial": "gold_body_trial",
+   "bath": "golden_body_bath",
+   "trial_text": "The Lightning Scar in the Azure Expanse: three minutes under the storm among the thunderhorns, never below half your HP.",
+   "gift_text": "Immune to Qi Seal.",
+   "modifiers": [],
+   "flags": [
+    "qi_seal_immune"
+   ],
+   "teaches": []
+  }
+ ]
+}

@@ -398,6 +398,30 @@
    "locked_text": "A glassy stone, fused by lightning."
   },
   {
+   "id": "temper_gold_tp_lightning_scar",
+   "type": "rite_circle",
+   "at": [
+    1150,
+    880
+   ],
+   "event": "gold_body_trial",
+   "prop": "temper_drum",
+   "label": "Temper Drum",
+   "requires": {
+    "all": [
+     {
+      "kind": "body_level_at_least",
+      "value": 72
+     },
+     {
+      "kind": "body_tier_at_least",
+      "tier": "jade"
+     }
+    ]
+   },
+   "locked_text": "The Temper drum for the Gold Body trial. Body level 72 and Jade Body before you strike it."
+  },
+  {
    "id": "chest_ledge_mv_1",
    "type": "chest",
    "at": [

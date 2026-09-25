@@ -75,13 +75,81 @@ static func gap_factor(diff: int) -> float:
 		if diff >= int(row.min_diff): return float(row.mult)
 	return 0.1
 
-## Body tier (Part 8): Copper Body from body level 18, Iron 36, Jade 54, Gold 72. Until the S48 tier trials land,
-## the level alone decides it.
-static func body_tier(body_level: int) -> int:
-	var tier := 0
-	for need in ContentDB.curve("body_tiers", [18, 36, 54, 72]):
-		if body_level >= int(need): tier += 1
-	return tier
+## S48 body ladder (body_tiers.json): 0 for a mortal body, then 1 Copper, 2 Iron, 3 Jade, 4 Gold.
+static func body_tier_index(cu) -> int:
+	if str(cu.body_tier) == "mortal": return 0
+	var list := ContentDB.all("body_tiers")
+	for i in list.size():
+		if str(list[i].id) == str(cu.body_tier): return i + 1
+	return 0
+
+## The next rung of the body ladder, or {} at the top.
+static func next_body_tier(cu) -> Dictionary:
+	var list := ContentDB.all("body_tiers")
+	var i := body_tier_index(cu)
+	return list[i] if i < list.size() else {}
+
+## What the next rung still needs: {level, trial, bath} each true when done. A tier is reached with all three.
+static func body_tier_needs(cu) -> Dictionary:
+	var t := next_body_tier(cu)
+	if t.is_empty(): return {}
+	return {"tier": str(t.id), "level": int(cu.body_level) >= int(t.need), "trial": str(t.id) in cu.body_trials, "bath": str(t.id) in cu.body_baths}
+
+## S48 named roots: the element affinities (revealed at Bone Forging 7) read as one root name.
+## Returns "" while they are hidden, else heavenly, true, mixed, mutated or faint.
+static func root_name(cu) -> String:
+	var k: Dictionary = ContentDB.stat_const("roots", {})
+	var counts_at := float(k.get("counts_at", 0.05))
+	var values := {}
+	for key in cu.aptitude:
+		if not str(key).begins_with("element_"): continue
+		var ap: Dictionary = cu.aptitude[key]
+		if not ap.get("revealed", false): return ""
+		values[str(key).trim_prefix("element_")] = float(ap.get("value", 0.0))
+	if values.is_empty(): return ""
+	var counting := 0
+	var above := 0
+	var best := ""
+	for el in values:
+		var v: float = values[el]
+		if v >= counts_at - 0.0001: counting += 1
+		if v > float(k.get("heavenly_above", 0.10)) + 0.0001: above += 1
+		if best == "" or v > float(values[best]): best = el
+	if best in k.get("mutated", ["thunder", "ice", "wind"]) and float(values[best]) >= counts_at - 0.0001: return "mutated"
+	if above == 1: return "heavenly"
+	if counting >= int(k.get("mixed_from", 4)): return "mixed"
+	if counting >= int(k.get("true_from", 2)): return "true"
+	return "faint"
+
+## S48 Core Forging (Heart Tempering 9 -> Cloud Stride 1): the five preparation points and whether each is met.
+## `room` is the room the breakthrough is taken in, `time_of_day` the clock's word, `pill_age_s` the seconds since
+## the Heavenly Flame Pill (negative when never taken).
+static func core_forging_points(c, room: Dictionary, time_of_day: String, pill_age_s: float) -> Array:
+	var k: Dictionary = ContentDB.stat_const("core_forging", {})
+	var cu = c.cultivator
+	var m := method(cu.method_id)
+	var aff := str(m.get("affinity", ""))
+	var room_el := str(room.get("element", "none"))
+	var vent := false
+	for o in room.get("objects", []):
+		if str(o.get("type", "")) == "earth_vent": vent = true
+	var yy := str(m.get("yin_yang", ""))
+	var hours: Array = k.get("yin_times" if yy == "yin" else "yang_times", [])
+	return [
+		{"id": "room_element", "met": aff != "" and (room_el == aff or (aff == "fire" and vent))},
+		{"id": "hour", "met": yy != "" and time_of_day in hours},
+		{"id": "composure", "met": c.pools.composure >= c.pools.get_max("composure") - 0.01},
+		{"id": "residue", "met": cu.residue < 0.5},
+		{"id": "flame_pill", "met": pill_age_s >= 0.0 and pill_age_s <= float(k.get("pill_window_s", 3600))},
+	]
+
+## The grade the core forms at: 9 minus the points that count (each met point counts on a roll under 80%),
+## floor 5; a flawless Heaven's Cleansing is one more point, floor 4.
+static func core_grade(points_counted: int, flawless: bool) -> int:
+	var k: Dictionary = ContentDB.stat_const("core_forging", {})
+	var grade := maxi(int(k.get("floor", 5)), int(k.get("start", 9)) - points_counted)
+	if flawless: grade = maxi(int(k.get("flawless_floor", 4)), grade - 1)
+	return grade
 
 static func body_xp_needed(body_level: int) -> float:
 	return float(ContentDB.curve("body_xp_per_level", 40)) * body_level

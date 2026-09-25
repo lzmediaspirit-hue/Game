@@ -1771,6 +1771,31 @@
    "quest": "the_heart_trial"
   },
   {
+   "id": "core_forging",
+   "label": "Core Forging",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_9"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "heavenly_flame_pill"
+    },
+    {
+     "kind": "codex",
+     "entry": "core_forging"
+    }
+   ],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
    "id": "flight",
    "label": "Flight",
    "trigger": {

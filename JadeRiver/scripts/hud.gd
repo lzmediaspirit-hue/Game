@@ -606,6 +606,19 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.debt_" + str(p.debt)), "quest")
 		"room_event_flawless":
 			toast(Tx.t("hud.flawless") , "gold")
+		"room_event_wave":
+			if str(p.get("text", "")) != "": add_log(str(p.text), UiKit.PALE_GOLD)
+		"room_event_failed":
+			if str(p.get("reason", "")) != "": toast(Tx.t("hud.event_failed." + str(p.reason)), "danger")
+		# S48: the body ladder, physiques and the core.
+		"body_trial_passed":
+			toast(Tx.t("hud.body_trial_passed") % [ContentDB.name_of("body_tiers", str(p.tier)), ContentDB.item_name(str(p.get("bath", "")))], "gold")
+		"body_tier_reached":
+			toast(Tx.t("hud.body_tier_reached") % ContentDB.name_of("body_tiers", str(p.tier)), "unlock")
+		"physique_awakened":
+			toast(Tx.t("hud.physique_awakened") % ContentDB.name_of("physiques", str(p.physique)), "unlock")
+		"core_graded":
+			toast(Tx.t("hud.core_graded") % int(p.grade), "gold")
 		# Gap report G2: treasures and talismans.
 		"beast_captured":
 			add_log(Tx.t("hud.beast_captured") % str(ContentDB.entry("enemies", str(p.def)).get("name", "")), UiKit.PALE_GOLD)
@@ -799,6 +812,7 @@ func _draw():
 	_draw_caption()
 	_draw_toasts()
 	_draw_boss()
+	_draw_event(c)
 	if joystick_id != -999:
 		draw_arc(joystick_origin, 76, 0, TAU, 40, Color(1, 1, 1, 0.12), 2)
 		draw_circle(joystick_origin + (joystick_pos - joystick_origin).limit_length(76), 18, Color(1, 1, 1, 0.14))
@@ -860,7 +874,8 @@ func _draw_tracker(c) -> void:
 	var entries: Array = Game.quest.tracker(c)
 	if entries.is_empty(): return
 	if Game.room_rt and Game.room_rt.def.get("type", "") == "boss_arena": return
-	var y := 146.0
+	# Below the player panel, which grows a row once the Soul bar shows.
+	var y := 162.0 if c.pools.max_soul > 0.0 and shown("soul_bar") else 146.0
 	for q in entries:
 		var col = UiKit.GOLD if q.kind in ["main", "prologue"] else Color("8fc8ff")
 		if q.kind == "guided": col = Color("8fc8ff")
@@ -1089,6 +1104,30 @@ func _draw_boss() -> void:
 	draw_rect(r, Color("3a1418"))
 	draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(boss.pools.hp / boss.pools.max_hp, 0, 1), r.size.y)), UiKit.RED)
 	UiKit.draw_outlined(self, Tx.t("hud.lv") % [boss.display_name(), boss.level], Vector2(340, 112), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 600)
+
+## A room event under way (a survival rite, a Temper trial, a siege): its name, the time left and its rule.
+func _draw_event(c) -> void:
+	if Game.room_rt == null or not Game.room_rt.event.get("active", false): return
+	var ev: Dictionary = Game.room_rt.event
+	var rule := ""
+	var danger := false
+	if float(ev.get("hp_floor", 0.0)) > 0.0:
+		rule = Tx.t("hud.event_rule.hp_floor") % int(round(float(ev.hp_floor) * 100))
+		danger = c.pools.hp < c.pools.max_hp * (float(ev.hp_floor) + 0.1)
+	if not (ev.get("kill_count", {}) as Dictionary).is_empty():
+		rule = Tx.t("hud.event_rule.kills") % [str(ContentDB.entry("enemies", str(ev.kill_count.enemy)).get("name", "")), int(ev.get("kills", 0)), int(ev.kill_count.get("count", 1))]
+	if ev.has("ground_grace_s"):
+		rule = Tx.t("hud.event_rule.ground")
+		danger = float(ev.get("ground_s", 0.0)) > 0.0
+	var r := Rect2(470, 142, 340, 52 if rule != "" else 34)
+	draw_style_box(UiKit.style("toast"), r)
+	var left := maxf(0.0, float(ev.get("remaining", 0.0)))
+	UiKit.draw_text(self, ContentDB.text("event." + str(ev.get("id", ""))), r.position + Vector2(14, 23), 17, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 240)
+	UiKit.draw_text(self, "%d:%02d" % [int(left) / 60, int(left) % 60], r.position + Vector2(r.size.x - 84, 23), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 70)
+	var frac := left / maxf(1.0, float(ev.get("duration", 1.0)))
+	draw_rect(Rect2(r.position + Vector2(12, 29), Vector2(r.size.x - 24, 3)), Color(UiKit.INK, 0.8))
+	draw_rect(Rect2(r.position + Vector2(12, 29), Vector2((r.size.x - 24) * clampf(frac, 0, 1), 3)), UiKit.BRIGHT_JADE)
+	if rule != "": UiKit.draw_text(self, rule, r.position + Vector2(14, 46), 14, UiKit.RED if danger else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
 
 func _draw_legacy() -> void:
 	draw_style_box(frame_style, Rect2(22, 22, 310, 82))

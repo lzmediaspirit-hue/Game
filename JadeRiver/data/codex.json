@@ -207,6 +207,21 @@
    "body": "Doubt, a forced breakthrough, a broken path, a death, a cruelty: each feeds the heart demon. Every 25 makes a major breakthrough one step riskier and brings one more demon into the Trial of Reflections. Meditation wears it down; Calm Incense clears it."
   },
   {
+   "id": "body_ladder",
+   "title": "The body ladder",
+   "body": "A body is forged in four rungs: Copper at body level 18, then Iron, Jade and Gold. Each rung asks three things: the body level, its Temper trial (strike the Temper drum at a training ground) and a full soak in its medicinal bath. Copper lets body techniques spend HP when QI runs out; Iron shrugs off knockback; Jade heals half again as fast; Gold cannot be Qi-sealed. A bath beyond your rung injures the body."
+  },
+  {
+   "id": "physiques",
+   "title": "Physiques",
+   "body": "A physique is earned, never bought: a flawless Heaven's Cleansing, ten nights of meditation at the Falls Pool, fifty Fire pills, Copper Body before Qi Unfurling 3, ten kilometres in the air. Each gives a gift and takes something back, for life."
+  },
+  {
+   "id": "core_forging",
+   "title": "Core Forging",
+   "body": "At Heart Tempering 9 the Qi condenses into a core, and the core remembers how it was made. Five things help: a room of your method's element, the hour of your method's Yin or Yang, full Composure, no residue, and a Heavenly Flame Pill within the hour. Each one met has four chances in five to count. The core forms at grade 9 less what counted, never better than 5; a flawless Heaven's Cleansing adds one more, down to 4."
+  },
+  {
    "id": "karma",
    "title": "Merit and sin",
    "body": "The world keeps a ledger. Mercy and help earn merit: a hundred of it eases one great breakthrough in each realm. Cruelty and the back-room markets earn sin, and sin feeds the heart demon. Some deeds come back as letters."

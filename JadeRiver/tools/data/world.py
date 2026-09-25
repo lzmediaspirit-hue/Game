@@ -2200,12 +2200,31 @@ def set_pieces():
          "wave": {"enemy": "stone_guardian", "every_s": 6, "max": 3, "points": [[300, 860], [1000, 860]]},
          "on_complete": [{"kind": "event_passed", "event": "heavens_cleansing"}, {"kind": "set_flag", "flag": "cleansing_done"}],
          # Untouched by the heavens' judgment, the body is washed clean of every residue (gap report G1).
-         "on_flawless": [{"kind": "clear_residue"}, {"kind": "set_flag", "flag": "cleansing_flawless"}]},
+         "on_flawless": [{"kind": "clear_residue"}, {"kind": "set_flag", "flag": "cleansing_flawless"}, {"kind": "awaken_physique", "physique": "jade_bone"}]},
          "requires": all_of(realm("qi_kindling_9"))},
         {"id": "riverbreath_trial", "name": "The Riverbreath Trial", "room_event": {"id": "riverbreath_trial", "duration": 40,
          "wave": {"enemy": "drowned_acolyte", "every_s": 7, "max": 3, "points": [[900, 860], [1700, 860]]},
          "on_complete": [{"kind": "event_passed", "event": "riverbreath_trial"}, {"kind": "set_flag", "flag": "riverbreath_trial_done"}]},
          "requires": all_of(realm("qi_unfurling_3"))},
+        # S48 Temper trials (body_tiers.json): passed once each; a failed trial can be taken again at once.
+        {"id": "copper_body_trial", "name": "Copper Body Trial", "room_event": {"id": "copper_body_trial", "clear_room": True, "duration": 180, "hp_floor": 0.5,
+         "waves": [{"enemy": "wild_boarlet", "every_s": 5, "max": 4, "level": "player", "points": [[600, 860], [1500, 860], [1800, 760]]},
+                   {"enemy": "mossback_toad", "every_s": 9, "max": 2, "level": "player", "points": [[400, 900], [1700, 900]]}],
+         "on_complete": [{"kind": "event_passed", "event": "copper_body_trial"}, {"kind": "pass_body_trial", "tier": "copper"}]},
+         "requires": all_of({"kind": "body_level_at_least", "value": 18})},
+        {"id": "iron_body_trial", "name": "Iron Body Trial", "room_event": {"id": "iron_body_trial", "clear_room": True, "duration": 240,
+         "kill_count": {"enemy": "stone_guardian", "count": 5},
+         "wave": {"enemy": "stone_guardian", "every_s": 6, "max": 3, "level": "player", "points": [[600, 860], [1600, 860], [2200, 860]]},
+         "on_complete": [{"kind": "event_passed", "event": "iron_body_trial"}, {"kind": "pass_body_trial", "tier": "iron"}]},
+         "requires": all_of({"kind": "body_level_at_least", "value": 36}, {"kind": "body_tier_at_least", "tier": "copper"})},
+        {"id": "jade_body_trial", "name": "Jade Body Trial", "room_event": {"id": "jade_body_trial", "clear_room": True, "duration": 90, "ground_grace_s": 2.0,
+         "ground_free_s": 6.0, "wave": {"enemy": "mist_vulture", "every_s": 7, "max": 2, "level": "player", "points": [[1200, 760], [2300, 760], [700, 760]]},
+         "on_complete": [{"kind": "event_passed", "event": "jade_body_trial"}, {"kind": "pass_body_trial", "tier": "jade"}]},
+         "requires": all_of({"kind": "body_level_at_least", "value": 54}, {"kind": "body_tier_at_least", "tier": "iron"})},
+        {"id": "gold_body_trial", "name": "Gold Body Trial", "room_event": {"id": "gold_body_trial", "clear_room": True, "duration": 180, "hp_floor": 0.5,
+         "wave": {"enemy": "thunderhorn_rhino", "every_s": 8, "max": 3, "level": "player", "points": [[700, 860], [2000, 860], [3000, 860]]},
+         "on_complete": [{"kind": "event_passed", "event": "gold_body_trial"}, {"kind": "pass_body_trial", "tier": "gold"}]},
+         "requires": all_of({"kind": "body_level_at_least", "value": 72}, {"kind": "body_tier_at_least", "tier": "jade"})},
         {"id": "trial_of_reflections", "name": "Trial of Reflections", "room": "si_trial_of_reflections", "portal": "exit",
          "requires": all_of(realm("heart_tempering_9"))},
         {"id": "siege_of_two_sects", "name": "Siege of Two Sects", "room": "si_siege", "portal": "exit",
@@ -2299,6 +2318,27 @@ def earth_vents():
         x = next(x for x in range(600, r.w - 400, 80) if _clear(r, x, y, 180))
         r.obj(oid, "earth_vent", [x, y], requires=all_of(unlock("alchemy")),
               locked_text="Heat rises from a crack in the stone. An alchemist could use it.")
+
+
+def body_trial_grounds():
+    """S48 Temper trials: a drum at each training ground starts the body tier's trial (set_pieces.json). The pole
+    trial needs plum-blossom poles, so the Sword Court (Cloud) and the East Terrace (Jade) each get a row of them."""
+    spots = [("wp_west", "copper", 1560, 880), ("cp_pilgrim_stairs", "iron", 1000, 900), ("cm_sword_court", "jade", 1780, 900),
+             ("ja_east_terrace", "jade", 860, 900), ("tp_lightning_scar", "gold", 1150, 880)]
+    need = {"copper": 18, "iron": 36, "jade": 54, "gold": 72}
+    before = {"iron": "copper", "jade": "iron", "gold": "jade"}
+    for rid, tier, x, y in spots:
+        conds = [{"kind": "body_level_at_least", "value": need[tier]}]
+        if tier in before:
+            conds.append({"kind": "body_tier_at_least", "tier": before[tier]})
+        ROOMS[rid].obj("temper_" + tier + "_" + rid, "rite_circle", [x, y], event=tier + "_body_trial", prop="temper_drum",
+                       label="Temper Drum", requires=all_of(*conds),
+                       locked_text="The Temper drum for the %s Body trial. Body level %d%s before you strike it." % (
+                           tier.capitalize(), need[tier], (" and %s Body" % before[tier].capitalize()) if tier in before else ""))
+    # The poles: standable stumps at two heights, the classic footwork drill (as in the home sect's yard).
+    for rid, x0 in (("cm_sword_court", 1980), ("ja_east_terrace", 360)):
+        for i, (dx, y) in enumerate(((0, 900), (70, 870), (140, 905), (210, 875), (280, 900), (350, 870))):
+            ROOMS[rid].block("training_stump", x0 + dx, y, 26, 18, 64, standable=True)
 
 
 def recipe_pages():
@@ -2545,6 +2585,7 @@ def build():
     movement_extras()
     rogue_cultivators()
     recipe_pages()
+    body_trial_grounds()
     catalogue.run(ROOMS)
     movement_pass()
     verticality.run(ROOMS)

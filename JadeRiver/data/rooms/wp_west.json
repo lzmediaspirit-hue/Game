@@ -335,6 +335,26 @@
    "text": "West: Stoneford Gate · East: Willow Path East."
   },
   {
+   "id": "temper_copper_wp_west",
+   "type": "rite_circle",
+   "at": [
+    1560,
+    880
+   ],
+   "event": "copper_body_trial",
+   "prop": "temper_drum",
+   "label": "Temper Drum",
+   "requires": {
+    "all": [
+     {
+      "kind": "body_level_at_least",
+      "value": 18
+     }
+    ]
+   },
+   "locked_text": "The Temper drum for the Copper Body trial. Body level 18 before you strike it."
+  },
+  {
    "id": "chest_pine_top",
    "type": "chest",
    "at": [

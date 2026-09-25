@@ -10,12 +10,14 @@ func setup() -> void:
 	var ch = c()
 	tabs = [{"id": "overview", "label": Tx.t("ui.cultivation.overview")},
 		{"id": "foundation", "label": Tx.t("ui.cultivation.foundation"), "locked": "" if Unlocks.is_unlocked(ch.id, "foundation") else Unlocks.locked_text("foundation")},
+		{"id": "body", "label": Tx.t("ui.cultivation.body_tab")},
 		{"id": "heart", "label": Tx.t("ui.cultivation.heart")},
 		{"id": "methods", "label": Tx.t("ui.cultivation.methods")},
 		{"id": "dao", "label": Tx.t("ui.cultivation.dao"), "locked": "" if Unlocks.is_unlocked(ch.id, "dao_tree") else Unlocks.locked_text("dao_tree")},
 		{"id": "seclusion", "label": Tx.t("ui.cultivation.seclusion"), "locked": "" if Unlocks.is_unlocked(ch.id, "seclusion") else Unlocks.locked_text("seclusion")}]
-	if page_id == "seclusion" and Unlocks.is_unlocked(ch.id, "seclusion"): tab = 5
-	if page_id == "heart": tab = 2
+	if page_id == "seclusion" and Unlocks.is_unlocked(ch.id, "seclusion"): tab = 6
+	if page_id == "heart": tab = 3
+	if page_id == "body": tab = 2
 
 func draw_page() -> void:
 	var ch = c()
@@ -23,6 +25,7 @@ func draw_page() -> void:
 	match str(tabs[tab].id):
 		"overview": _overview(ch)
 		"foundation": _foundation(ch)
+		"body": _body(ch)
 		"heart": _heart(ch)
 		"methods": _methods(ch)
 		"dao": _dao(ch)
@@ -102,6 +105,46 @@ func _foundation(ch) -> void:
 		y += 64
 	var free := not ProgressionRules.at_least(cu.realm_key, "qi_unfurling_1")
 	btn(Rect2(r.position.x + 24, r.end.y - 70, 420, 52), Tx.t("ui.cultivation.reset_free") if free else Tx.t("ui.cultivation.reset_meridian_reversal_pill"), "reset_meridians")
+
+## Body (S48): the body level and the four rungs of the ladder, each with its level, Temper trial and bath.
+func _body(ch) -> void:
+	var cu: CultivatorState = ch.cultivator
+	var r := content
+	panel(r)
+	var x := r.position.x + 24
+	var y := r.position.y + 20
+	var here := ProgressionRules.body_tier_index(cu)
+	text(Vector2(x, y + 30), Tx.t("ui.cultivation.mortal_body") if here == 0 else ContentDB.name_of("body_tiers", cu.body_tier), 28, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 300, true)
+	var need := ProgressionRules.body_xp_needed(cu.body_level)
+	bar(Rect2(x + 320, y + 8, 440, 32), cu.body_xp / maxf(1.0, need), UiKit.JADE, Tx.t("ui.cultivation.body_level_bar") % [cu.body_level, int(100.0 * cu.body_xp / maxf(1.0, need))])
+	text(Vector2(x, y + 64), Tx.t("ui.cultivation.body_hint"), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 48)
+	y += 84
+	var tiers := ContentDB.all("body_tiers")
+	var gap := 14.0
+	var cw := (r.size.x - 48 - gap * (tiers.size() - 1)) / float(tiers.size())
+	for i in tiers.size():
+		var t: Dictionary = tiers[i]
+		var cr := Rect2(x + i * (cw + gap), y, cw, r.end.y - y - 20)
+		var reached := i < here
+		panel(cr, "minor_panel", "selected" if i == here else ("normal" if reached else "disabled"))
+		if i == here: draw_rect(cr.grow(-3), Color(UiKit.GOLD, 0.8), false, 2.0)   # the next rung
+		var cx := cr.position.x + 16
+		var cy := cr.position.y + 36
+		text(Vector2(cx, cy), str(t.get("name", "")), 22, UiKit.PALE_GOLD if reached or i == here else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, cw - 110, true)
+		if reached: text(Vector2(cr.end.x - 106, cy - 2), Tx.t("ui.cultivation.reached"), 15, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_RIGHT, 90)
+		elif i == here: text(Vector2(cr.end.x - 106, cy - 2), Tx.t("ui.cultivation.next_rung"), 15, UiKit.GOLD, HORIZONTAL_ALIGNMENT_RIGHT, 90)
+		cy += 22
+		var checks := [[Tx.t("ui.cultivation.body_need_level") % int(t.need), cu.body_level >= int(t.need)],
+			[Tx.t("ui.cultivation.body_need_trial"), str(t.id) in cu.body_trials],
+			[ContentDB.item_name(str(t.bath)), str(t.id) in cu.body_baths]]
+		for chk in checks:
+			var done: bool = reached or chk[1]
+			draw_circle(Vector2(cx + 7, cy + 12), 7, UiKit.JADE if done else Color(UiKit.MIST, 0.35))
+			text(Vector2(cx + 22, cy + 18), str(chk[0]), 16, UiKit.PAPER if done else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, cw - 46)
+			cy += 26
+		cy += 6
+		cy += para(Rect2(cx, cy, cw - 32, 110), str(t.get("trial_text", "")), 15, UiKit.MIST, 5) + 8
+		para(Rect2(cx, cy, cw - 32, cr.end.y - cy - 10), str(t.get("gift_text", "")), 16, UiKit.BRIGHT_JADE if reached else UiKit.PAPER, 4)
 
 ## Heart (G1): the meter, the ledger, the foundation and what the pills have left behind.
 func _heart(ch) -> void:

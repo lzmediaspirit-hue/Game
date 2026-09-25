@@ -142,6 +142,9 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"record_debt": progression.apply_karma_debt(actor_id, str(e.id), float(e.get("due_h", 24)), str(e.get("mail", "")), e.get("attachments", []))
 			"add_residue": progression.apply_residue(actor_id, float(e.get("amount", 0)))
 			"clear_residue": progression.apply_residue(actor_id, -float(e.get("amount", 1000000.0)))
+			# S48 body ladder and physiques.
+			"pass_body_trial": progression.pass_body_trial(actor_id, str(e.get("tier", "")))
+			"awaken_physique": progression.awaken_physique(actor_id, str(e.get("physique", "")))
 			"throw": combat.apply_throw(actor_id, e)
 			"add_body_xp": progression.apply_body_xp(actor_id, float(e.amount), source)
 			"add_soul": progression.apply_soul(actor_id, float(e.amount))

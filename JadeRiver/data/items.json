@@ -2327,6 +2327,44 @@
    }
   },
   {
+   "id": "jade_marrow_bath",
+   "name": "Jade Marrow Bath",
+   "type": "bath",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 9,
+   "icon": "jade_marrow_bath",
+   "desc": "A green bath of cloudtop orchid and jade scale that sets the bones like jade. Soak in it at a Bath station (seclusion): +4000 body XP, 30 residue cleared, the pill share of your foundation 10 points lower. Too strong a bath for your body injures it.",
+   "use": [],
+   "use_action": "bath",
+   "bath": {
+    "body_xp": 4000,
+    "residue": 30,
+    "share": 0.1,
+    "toxicity": 10,
+    "hours": 1.0
+   }
+  },
+  {
+   "id": "golden_body_bath",
+   "name": "Golden Body Bath",
+   "type": "bath",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 9,
+   "icon": "golden_body_bath",
+   "desc": "A bath of frost lotus and thunder horn, hot and cold at once, that gilds the body. Soak in it at a Bath station (seclusion): +9000 body XP, 40 residue cleared, the pill share of your foundation 10 points lower. Too strong a bath for your body injures it.",
+   "use": [],
+   "use_action": "bath",
+   "bath": {
+    "body_xp": 9000,
+    "residue": 40,
+    "share": 0.1,
+    "toxicity": 12,
+    "hours": 1.0
+   }
+  },
+  {
    "id": "calm_heart_incense",
    "name": "Calm Heart Incense",
    "type": "other",
@@ -3105,6 +3143,29 @@
     "group": "utility"
    },
    "use": [],
+   "soul_effect": "steady_heart"
+  },
+  {
+   "id": "heavenly_flame_pill",
+   "name": "Heavenly Flame Pill",
+   "type": "pill",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "heavenly_flame_pill",
+   "desc": "Refined over a Heavenly Flame. Taken within the hour before Heart Tempering 9 → Cloud Stride 1, it is one Core Forging preparation point. Composure +20.",
+   "pill": {
+    "mark": "flame",
+    "toxicity": 6,
+    "cause": "energy",
+    "group": "utility"
+   },
+   "use": [
+    {
+     "kind": "add_composure",
+     "amount": 20
+    }
+   ],
    "soul_effect": "steady_heart"
   },
   {

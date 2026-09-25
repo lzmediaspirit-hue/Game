@@ -49,6 +49,7 @@ const PAGES := {
 	"fishing": "res://scripts/ui/pages/fishing_page.gd",
 	"seclusion": "res://scripts/ui/pages/cultivation_page.gd",
 	"heart": "res://scripts/ui/pages/cultivation_page.gd",
+	"body": "res://scripts/ui/pages/cultivation_page.gd",
 	"library": "res://scripts/ui/pages/shop_page.gd",
 	"exchange": "res://scripts/ui/pages/exchange_page.gd",
 	"auction": "res://scripts/ui/pages/auction_page.gd",
@@ -174,6 +175,23 @@ func _handle_preview_args(user_args: Array) -> void:
 			for r in ContentDB.all("recipes"):
 				if str(r.get("craft", "")) == str(a).trim_prefix("--learn="): learn.append({"kind": "learn_recipe", "recipe": str(r.id)})
 			Game.apply_effects(Game.active().id, learn, "debug")
+		if str(a).begins_with("--realm=") and Game.active() != null:
+			# Debug tools (S38): preview at a realm; every aptitude shows.
+			var rc0 = Game.active()
+			rc0.cultivator.realm_key = str(a).trim_prefix("--realm=")
+			for k in rc0.cultivator.aptitude: rc0.cultivator.aptitude[k].revealed = true
+			Game.combat.refresh_stats(rc0.id)
+		if str(a).begins_with("--body=") and Game.active() != null:
+			# Debug tools (S38): --body=level[:tier[:trials]] sets the body ladder for previews (S48).
+			var bd := str(a).trim_prefix("--body=").split(":")
+			var bc = Game.active()
+			bc.cultivator.body_level = int(bd[0])
+			if bd.size() > 1: bc.cultivator.body_tier = bd[1]
+			if bd.size() > 2:
+				for tr in bd[2].split(","): bc.cultivator.body_trials.append(tr)
+			Game.combat.refresh_stats(bc.id)
+		if str(a).begins_with("--physique=") and Game.active() != null:
+			for ph in str(a).trim_prefix("--physique=").split(","): Game.progression.awaken_physique(Game.active().id, ph)
 		if str(a).begins_with("--vessel=") and Game.active() != null:
 			# Debug tools (S38): preview a flight vessel (G2); pair it with --fly.
 			var vid := str(a).trim_prefix("--vessel=")
@@ -189,6 +207,12 @@ func _handle_preview_args(user_args: Array) -> void:
 			var r := Game.submit({"type": "talk", "npc": str(a).trim_prefix("--talk=")})
 			if r.get("ok", false) and r.has("dialogue"): open_page("dialogue", {"convo": r.dialogue})
 		if str(a).begins_with("--shot="): shot = str(a).trim_prefix("--shot=")
+		if str(a).begins_with("--set-piece="):
+			# Debug tools (S38): start a set piece's room event in the preview room (the S48 Temper trials).
+			await get_tree().create_timer(0.8).timeout
+			var sp := ContentDB.entry("set_pieces", str(a).trim_prefix("--set-piece="))
+			if sp.has("room_event") and Game.room_rt: Game.world.start_room_event(Game.active(), sp.room_event)
+			await get_tree().create_timer(2.5).timeout
 	if "--ride" in user_args and is_instance_valid(world):
 		# Debug tools (S38): preview riding a mount (grants a Jade Crane when there is no mountable animal).
 		await get_tree().create_timer(0.3).timeout

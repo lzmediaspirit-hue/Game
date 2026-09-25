@@ -297,14 +297,15 @@
    "dao": "fist",
    "unlock": "qi_kindling_5",
    "source": "library_1",
-   "desc": "Dash 120 units and strike with the weight of a tiger.",
+   "desc": "Dash 120 units and strike with the weight of a tiger. A body technique: from Copper Body it can spend HP when QI runs short.",
    "action": "punch_2",
    "icon": "tiger_rush",
    "mastery": {
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "dash": 120
+   "dash": 120,
+   "body": true
   },
   {
    "id": "willow_leaf_parry",
@@ -960,7 +961,7 @@
    "dao": "earth",
    "unlock": "qi_unfurling_4",
    "source": "library_2",
-   "desc": "+30% Physical Defense for 8 s.",
+   "desc": "+30% Physical Defense for 8 s. A body technique: from Copper Body it can spend HP when QI runs short.",
    "action": "meditate_burst",
    "icon": "stone_skin",
    "mastery": {
@@ -972,7 +973,8 @@
     "op": "pct_add",
     "value": 0.3,
     "duration": 8
-   }
+   },
+   "body": true
   },
   {
    "id": "gale_step",
@@ -1047,7 +1049,7 @@
    "dao": "staff",
    "unlock": "heart_tempering_1",
    "source": "library_2",
-   "desc": "A slam with a 30% chance to stun for 0.8 s; knockback.",
+   "desc": "A slam with a 30% chance to stun for 0.8 s; knockback. A body technique: from Copper Body it can spend HP when QI runs short.",
    "action": "thrust_3",
    "icon": "mountain_shaker",
    "mastery": {
@@ -1056,6 +1058,7 @@
    },
    "both_sides": true,
    "knockback": 80,
+   "body": true,
    "status": {
     "id": "stun",
     "chance": 0.3,

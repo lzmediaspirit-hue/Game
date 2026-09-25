@@ -494,6 +494,9 @@ def unlocks():
     u("second_companion", "Second companion", all_of(realm("heart_tempering_6")), "brothers_in_arms", [])
     u("guard_formation", "Guard formation", all_of(realm("heart_tempering_7")), "keep_watch", [])
     u("heart_trial", "The Heart Trial", all_of(realm("heart_tempering_9")), "the_heart_trial", [])
+    # S48 Core Forging: at Heart Tempering 9 the elders teach how a core is forged, and the pill for it.
+    u("core_forging", "Core Forging", all_of(realm("heart_tempering_9")), "", [], same_stage_ok=True,
+      effects=[{"kind": "learn_recipe", "recipe": "heavenly_flame_pill"}, {"kind": "codex", "entry": "core_forging"}])
     u("flight", "Flight", all_of(realm("cloud_stride_1")), "wings_of_cloud", [])
     u("mounts", "Mounts", all_of(realm("cloud_stride_1")), "riding_the_wind", [], same_stage_ok=True)
     u("core_rank", "Core disciple", all_of(realm("cloud_stride_1"), qdone("the_valley_tournament")), "the_bracket", [], same_stage_ok=True)
@@ -1874,6 +1877,13 @@ def codex():
          "body": "Pills never spoil, but the body remembers them. Each dose of one kind works less than the last, until a great breakthrough lets it forget one. Qi that came mostly from pills makes a hollow foundation, and 5% of every pill's poison stays behind as residue. Settle foundation in seclusion, or pass through Heaven's Cleansing untouched, to make it your own again."},
         {"id": "heart_demons", "title": "Heart demons",
          "body": "Doubt, a forced breakthrough, a broken path, a death, a cruelty: each feeds the heart demon. Every 25 makes a major breakthrough one step riskier and brings one more demon into the Trial of Reflections. Meditation wears it down; Calm Incense clears it."},
+        # S48: the body ladder, physiques, roots and the core.
+        {"id": "body_ladder", "title": "The body ladder",
+         "body": "A body is forged in four rungs: Copper at body level 18, then Iron, Jade and Gold. Each rung asks three things: the body level, its Temper trial (strike the Temper drum at a training ground) and a full soak in its medicinal bath. Copper lets body techniques spend HP when QI runs out; Iron shrugs off knockback; Jade heals half again as fast; Gold cannot be Qi-sealed. A bath beyond your rung injures the body."},
+        {"id": "physiques", "title": "Physiques",
+         "body": "A physique is earned, never bought: a flawless Heaven's Cleansing, ten nights of meditation at the Falls Pool, fifty Fire pills, Copper Body before Qi Unfurling 3, ten kilometres in the air. Each gives a gift and takes something back, for life."},
+        {"id": "core_forging", "title": "Core Forging",
+         "body": "At Heart Tempering 9 the Qi condenses into a core, and the core remembers how it was made. Five things help: a room of your method's element, the hour of your method's Yin or Yang, full Composure, no residue, and a Heavenly Flame Pill within the hour. Each one met has four chances in five to count. The core forms at grade 9 less what counted, never better than 5; a flawless Heaven's Cleansing adds one more, down to 4."},
         {"id": "karma", "title": "Merit and sin",
          "body": "The world keeps a ledger. Mercy and help earn merit: a hundred of it eases one great breakthrough in each realm. Cruelty and the back-room markets earn sin, and sin feeds the heart demon. Some deeds come back as letters."},
         {"id": "furnaces_and_fire", "title": "Furnace and fire",

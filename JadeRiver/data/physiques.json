@@ -1,0 +1,156 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "jade_bone",
+   "name": "Jade Bone Physique",
+   "earned": "flawless_cleansing",
+   "earned_text": "Pass Heaven's Cleansing without being struck once.",
+   "gift_text": "+10% max HP, +10% toxicity tolerance.",
+   "drawback_text": "−5% Qi Resistance.",
+   "modifiers": [
+    {
+     "stat": "max_hp",
+     "op": "pct_add",
+     "value": 0.1
+    },
+    {
+     "stat": "toxicity_tolerance",
+     "op": "pct_add",
+     "value": 0.1
+    },
+    {
+     "stat": "qi_resistance",
+     "op": "pct_add",
+     "value": -0.05
+    }
+   ]
+  },
+  {
+   "id": "yin_vessel",
+   "name": "Yin Vessel",
+   "earned": "falls_pool_nights",
+   "count": 10,
+   "earned_text": "Meditate at the Falls Pool through ten nights.",
+   "gift_text": "+15% Yin power, +10% Water power.",
+   "drawback_text": "−10% Fire power.",
+   "modifiers": [
+    {
+     "stat": "elemental_power",
+     "op": "flat",
+     "value": 0.15,
+     "condition": {
+      "element": "yin"
+     }
+    },
+    {
+     "stat": "elemental_power",
+     "op": "flat",
+     "value": 0.1,
+     "condition": {
+      "element": "water"
+     }
+    },
+    {
+     "stat": "elemental_power",
+     "op": "flat",
+     "value": -0.1,
+     "condition": {
+      "element": "fire"
+     }
+    }
+   ]
+  },
+  {
+   "id": "ember_heart",
+   "name": "Ember Heart",
+   "earned": "fire_pills",
+   "count": 50,
+   "earned_text": "Refine fifty Fire pills.",
+   "gift_text": "+15% Fire power.",
+   "drawback_text": "−10% Water power.",
+   "modifiers": [
+    {
+     "stat": "elemental_power",
+     "op": "flat",
+     "value": 0.15,
+     "condition": {
+      "element": "fire"
+     }
+    },
+    {
+     "stat": "elemental_power",
+     "op": "flat",
+     "value": -0.1,
+     "condition": {
+      "element": "water"
+     }
+    }
+   ]
+  },
+  {
+   "id": "stone_marrow",
+   "name": "Stone Marrow",
+   "earned": "early_copper",
+   "before": "qi_unfurling_3",
+   "earned_text": "Reach Copper Body before Qi Unfurling 3.",
+   "gift_text": "+15% Physical Defense.",
+   "drawback_text": "−5% move speed.",
+   "modifiers": [
+    {
+     "stat": "physical_defense",
+     "op": "pct_add",
+     "value": 0.15
+    },
+    {
+     "stat": "move_speed",
+     "op": "pct_add",
+     "value": -0.05
+    }
+   ]
+  },
+  {
+   "id": "cloud_lung",
+   "name": "Cloud Lung",
+   "earned": "air_metres",
+   "count": 10000,
+   "earned_text": "Glide or fly ten kilometres in all.",
+   "gift_text": "+10% flight speed, flight costs 10% less QI.",
+   "drawback_text": "−5% max HP.",
+   "modifiers": [
+    {
+     "stat": "flight_speed",
+     "op": "pct_add",
+     "value": 0.1
+    },
+    {
+     "stat": "flight_qi",
+     "op": "flat",
+     "value": -0.1
+    },
+    {
+     "stat": "max_hp",
+     "op": "pct_add",
+     "value": -0.05
+    }
+   ]
+  },
+  {
+   "id": "hollow_touched",
+   "name": "Hollow-Touched",
+   "earned": "hollowing_full",
+   "milestone": "v1.2",
+   "earned_text": "Survive being wholly Hollowed.",
+   "gift_text": "+20% Hollow Ward.",
+   "drawback_text": "Heart-demon gains are 1.5 times as large.",
+   "modifiers": [
+    {
+     "stat": "hollow_ward",
+     "op": "flat",
+     "value": 0.2
+    }
+   ],
+   "heart_demon_mult": 1.5
+  }
+ ]
+}

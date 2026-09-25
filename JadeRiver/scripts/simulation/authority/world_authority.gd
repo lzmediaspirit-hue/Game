@@ -872,7 +872,13 @@ func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 	for w in waves: rt.event.wave_timers.append(float(w.get("first_s", 2.0)))
 	rt.event.timed_done = []
 	rt.event.hits_taken = 0
+	rt.event.kills = 0         # kill_count events (S48 Iron Body trial)
+	rt.event.ground_s = 0.0    # the pole trial: seconds on the ground in a row
 	emit("room_event_started", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "duration": rt.event.remaining})
+	# A Temper trial clears the ground: the room's own foes withdraw and wait for it to end (S48).
+	if ev.get("clear_room", false):
+		for e in rt.living_enemies():
+			if not e.summoned and e.team == "enemy": game.enemies.release(e)
 	for sp in ev.get("fixed_spawns", []):
 		game.enemies.spawn_at(str(sp.enemy), Vector2(float(sp.at[0]), float(sp.at[1])), int(sp.get("level", -1)))
 	# The Reflection brings your heart demons with it: one for every 25 on the meter (G1).
@@ -893,11 +899,11 @@ func _tick_event(c, rt: RoomRuntime, delta: float) -> void:
 		ev.wave_timers[i] = float(w.get("every_s", 4.0))
 		var alive := 0
 		for e in rt.living_enemies():
-			if e.def_id == str(w.enemy): alive += 1
+			if e.def_id == str(w.enemy) and (e.summoned or not ev.get("clear_room", false)): alive += 1
 		if alive < int(w.get("max", 6)):
 			var pts: Array = w.get("points", [[400, 800]])
 			var p: Array = pts[rng.randi_range(0, pts.size() - 1)]
-			game.enemies.spawn_at(str(w.enemy), Vector2(float(p[0]), float(p[1])), int(w.get("level", -1)))
+			game.enemies.spawn_at(str(w.enemy), Vector2(float(p[0]), float(p[1])), event_level(c, w))
 	var elapsed := float(ev.duration) - float(ev.remaining)
 	var timed: Array = ev.get("timed_spawns", [])
 	for i in timed.size():
@@ -906,17 +912,33 @@ func _tick_event(c, rt: RoomRuntime, delta: float) -> void:
 		game.enemies.spawn_at(str(timed[i].enemy), Vector2(float(timed[i].at[0]), float(timed[i].at[1])), int(timed[i].get("level", -1)))
 		emit("room_event_wave", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "enemy": str(timed[i].enemy),
 			"text": str(timed[i].get("text", ""))})
+	# S48 Temper trials: fall below the HP floor, or stand on the ground too long in the pole trial, and it is over.
+	if float(ev.get("hp_floor", 0.0)) > 0.0 and c.pools.hp < c.pools.max_hp * float(ev.hp_floor):
+		_end_event(c, rt, false, "hp_floor")
+		return
+	if ev.has("ground_grace_s"):
+		var st: ActorState = game.actor_state(c.id)
+		var grounded := st != null and st.mode() == "ground" and st.surface != null and not st.surface.is_block and st.surface.stratum == "ground"
+		ev.ground_s = float(ev.ground_s) + delta if grounded and elapsed > float(ev.get("ground_free_s", 5.0)) else 0.0
+		if float(ev.ground_s) > float(ev.ground_grace_s):
+			_end_event(c, rt, false, "ground")
+			return
 	if float(ev.remaining) <= 0.0:
 		# A kill-to-win event (a trial) that runs out of time is failed, not passed.
-		if ev.has("win_on_kill"):
-			_end_event(c, rt, false)
+		if ev.has("win_on_kill") or ev.has("kill_count"):
+			_end_event(c, rt, false, "time")
 		else:
 			_end_event(c, rt, true)
 
-func _end_event(c, rt: RoomRuntime, won: bool) -> void:
+## The level a wave's foes come at: a number, or "player" for the character's own Level (the Temper trials).
+func event_level(c, w: Dictionary) -> int:
+	if str(w.get("level", "")) == "player": return maxi(1, ProgressionRules.level(c))
+	return int(w.get("level", -1))
+
+func _end_event(c, rt: RoomRuntime, won: bool, reason := "") -> void:
 	var ev: Dictionary = rt.event
 	ev.active = false
-	emit("room_event_completed" if won else "room_event_failed", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", ""))})
+	emit("room_event_completed" if won else "room_event_failed", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "reason": reason})
 	for e in rt.living_enemies():
 		if e.summoned: game.enemies.release(e)   # the rest scatter: no loot, no kill credit
 	game.apply_effects(c.id, ev.get("on_complete" if won else "on_timeout", []), "event:" + str(ev.get("id", "")))
@@ -931,3 +953,12 @@ func _event_kill(p: Dictionary) -> void:
 	if str(rt.event.get("win_on_kill", "")) != "" and str(p.get("def", "")) == str(rt.event.win_on_kill):
 		var c = game.active()
 		if c != null: _end_event(c, rt, true)
+		return
+	# S48 Iron Body trial: so many of one foe in a single run.
+	var kc: Dictionary = rt.event.get("kill_count", {})
+	if not kc.is_empty() and str(p.get("def", "")) == str(kc.get("enemy", "")) and str(p.get("victim_kind", "enemy")) == "enemy":
+		rt.event.kills = int(rt.event.get("kills", 0)) + 1
+		var c2 = game.active()
+		if c2 != null: emit("room_event_wave", {"actor": c2.id, "room": rt.room_id, "event": str(rt.event.get("id", "")), "enemy": str(kc.enemy),
+			"text": Tx.t("sim.world.trial_kills") % [int(rt.event.kills), int(kc.get("count", 1))]})
+		if c2 != null and int(rt.event.kills) >= int(kc.get("count", 1)): _end_event(c2, rt, true)

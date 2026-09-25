@@ -34,6 +34,8 @@ func draw_page() -> void:
 		var fix := str(r.get("fix", ""))
 		if not ok and fix.begins_with("page:"): btn(Rect2(left.end.x - 130, y + 4, 110, 40), Tx.t("ui.breakthrough.go"), "fix", fix.trim_prefix("page:"))
 		y += 58
+	# S48 Core Forging: into Cloud Stride the core forms, and how it was prepared sets its purity grade.
+	if str(q.from) == "heart_tempering_9": _core_checklist(ch, Rect2(left.position.x + 24, y + 6, left.size.x - 48, left.end.y - y - 16))
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
 	panel(right)
 	heading(right.position + Vector2(24, 40), Tx.t("ui.breakthrough.support"), right.size.x - 48)
@@ -50,6 +52,23 @@ func draw_page() -> void:
 	text(Vector2(right.position.x + 24, right.end.y - 96), Tx.t("ui.breakthrough.risk") % str(q.risk).capitalize(), 24, risk_col, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 	text(Vector2(right.position.x + 24, right.end.y - 70), Tx.t("ui.breakthrough.success") % int(float(q.success) * 100), 19, UiKit.PAPER)
 	btn(Rect2(right.end.x - 250, right.end.y - 76, 226, 58), Tx.t("ui.breakthrough.break_through"), "go", null, true, bool(q.can), str(q.blocked))
+
+func _core_checklist(ch, r: Rect2) -> void:
+	var pts: Array = Game.progression.core_forging_points(ch)
+	var met := 0
+	for pt in pts:
+		if pt.met: met += 1
+	var flawless: bool = ch.quests.has_flag("cleansing_flawless")
+	var best := ProgressionRules.core_grade(met, flawless)
+	text(r.position + Vector2(0, 20), Tx.t("ui.breakthrough.core_forging") % best, 19, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, r.size.x)
+	var y := r.position.y + 30
+	var step := minf(24.0, (r.end.y - y) / float(pts.size() + (1 if flawless else 0)))
+	for pt in pts:
+		var ok: bool = pt.met
+		draw_circle(Vector2(r.position.x + 8, y + step * 0.5), 6, UiKit.JADE if ok else Color(UiKit.MIST, 0.35))
+		text(Vector2(r.position.x + 22, y + step * 0.5 + 6), Tx.t("ui.breakthrough.core." + str(pt.id)), 16, UiKit.PAPER if ok else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 24)
+		y += step
+	if flawless: text(Vector2(r.position.x + 22, y + step * 0.5 + 6), Tx.t("ui.breakthrough.core.flawless"), 16, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 24)
 
 func on_action(id: String, data) -> void:
 	match id:

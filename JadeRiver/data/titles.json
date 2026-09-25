@@ -248,9 +248,9 @@
    "name": "Still Water",
    "modifiers": [
     {
-     "stat": "composure_regen",
+     "stat": "will",
      "op": "pct_add",
-     "value": 0.01
+     "value": 0.02
     }
    ]
   },

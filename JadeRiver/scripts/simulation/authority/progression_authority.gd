@@ -23,6 +23,8 @@ func subscribe() -> void:
 	# S44: a furnace blast leaves a minor body injury.
 	GameEvents.subscribe("furnace_blast", func(p): apply_injury(str(p.get("actor", "")), "body", 1), 30)
 	GameEvents.subscribe("hit_landed", _on_hit_landed, 30)
+	# S48 Ember Heart: every Fire pill refined counts.
+	GameEvents.subscribe("craft_completed", _on_fire_pill, 30)
 	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 30)
 	GameEvents.subscribe("player_gravely_wounded", _on_gravely_wounded, 30)
 	GameEvents.subscribe("technique_used", _on_technique_used, 30)
@@ -172,6 +174,7 @@ func _meditation_second(c) -> void:
 		apply_insight(c.id, mc.stone, float(ContentDB.curve("insight_stone_per_min", 20)) / 60.0 * mult, "insight_stone")
 	if cu.heart_demon > 0.0:
 		apply_heart_demon(c.id, -float(ContentDB.stat_const("heart_demon", {}).get("meditate_drain_per_min", 0.2)) / 60.0, "meditation")   # -1 per 5 min (S48)
+	if str(c.position.get("room", "")) == "cf_falls_pool" and Clock.time_of_day() == "night": _falls_pool_second(c)
 	emit("meditation_tick", {"actor": c.id, "gains": gains, "spring": mc.spring, "paired": game.companions.paired_bonus(c) > 0.0})
 
 func _step_stability(c, direction: int) -> void:
@@ -495,7 +498,7 @@ func _advance(c, to: String, major: bool) -> void:
 		cu.stability = "settling"
 		cu.stability_progress = 0.0
 		emit("stability_changed", {"actor": c.id, "word": cu.stability})
-	if major and energy == "true_qi" and ContentDB.realm(from).get("energy") != "true_qi": cu.purity = mini(cu.purity, 9)
+	if major and energy == "true_qi" and ContentDB.realm(from).get("energy") != "true_qi": _forge_core(c)
 	if major:
 		# Each major breakthrough: every resistance count drops by 1, then halves (S44).
 		for fam in cu.pill_resistance.keys():
@@ -518,6 +521,33 @@ func _advance(c, to: String, major: bool) -> void:
 		cu.state = "bottleneck"
 		_bottleneck(c, to)
 	emit("progress_changed", {"actor": c.id, "progress": cu.progress_fraction(), "stored": cu.stored_qi, "source": "breakthrough", "amount": 0})
+
+## S48 Core Forging: the Heart Tempering 9 -> Cloud Stride 1 step sets the purity grade the core forms at. Each
+## preparation point met counts on a roll under 80% (breakthrough stream); a flawless Cleansing is one more.
+func _forge_core(c) -> void:
+	var cu: CultivatorState = c.cultivator
+	var k: Dictionary = ContentDB.stat_const("core_forging", {})
+	var rng := Rng.stream(c.id, "breakthrough")
+	var counted := 0
+	var met := 0
+	for pt in core_forging_points(c):
+		if not pt.met: continue
+		met += 1
+		if rng.randf() < float(k.get("chance", 0.8)): counted += 1
+	var flawless: bool = c.quests.has_flag("cleansing_flawless")
+	var grade := ProgressionRules.core_grade(counted, flawless)
+	cu.core_grade = grade
+	cu.purity = grade
+	cu.purity_points = 0.0
+	if not game.account.codex.has("core_forging"): game.quest.apply_codex("core_forging")
+	emit("core_graded", {"actor": c.id, "grade": grade, "met": met, "counted": counted, "flawless": flawless})
+
+## The five Core Forging points as they stand now, in this room at this hour.
+func core_forging_points(c) -> Array:
+	var room: Dictionary = game.room_rt.def if game.room_rt else {}
+	var pill := str(ContentDB.stat_const("core_forging", {}).get("pill", "heavenly_flame_pill"))
+	var age: float = game.sim_time - float(c.cultivator.pill_memory[pill]) if c.cultivator.pill_memory.has(pill) else -1.0
+	return ProgressionRules.core_forging_points(c, room, Clock.time_of_day(), age)
 
 func _fail_breakthrough(c, failure_id: String, rng: RandomNumberGenerator) -> void:
 	var cu: CultivatorState = c.cultivator
@@ -647,7 +677,72 @@ func apply_body_xp(actor_id: String, xp: float, _source: String) -> void:
 		c.cultivator.body_xp -= ProgressionRules.body_xp_needed(c.cultivator.body_level)
 		c.cultivator.body_level += 1
 		leveled = true
-	if leveled: emit("body_level_changed", {"actor": c.id, "value": c.cultivator.body_level})
+	if leveled:
+		emit("body_level_changed", {"actor": c.id, "value": c.cultivator.body_level})
+		_check_body_tier(c)
+
+# ------------------------------------------------------------------ the body ladder and physiques (S48)
+## A Temper trial passed (the trial event's on_complete). The tier opens once its bath is taken too.
+func pass_body_trial(actor_id: String, tier: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or not ContentDB.has_entry("body_tiers", tier): return
+	if not tier in c.cultivator.body_trials: c.cultivator.body_trials.append(tier)
+	emit("body_trial_passed", {"actor": c.id, "tier": tier, "bath": str(ContentDB.entry("body_tiers", tier).get("bath", ""))})
+	_check_body_tier(c)
+
+## The next rung opens when the body level, the trial and the bath are all there; one rung at a time.
+func _check_body_tier(c) -> void:
+	var cu: CultivatorState = c.cultivator
+	for _i in 4:
+		var need := ProgressionRules.body_tier_needs(cu)
+		if need.is_empty() or not (need.level and need.trial and need.bath): return
+		var t := ContentDB.entry("body_tiers", str(need.tier))
+		cu.body_tier = str(t.id)
+		for rid in t.get("teaches", []): game.apply_effects(c.id, [{"kind": "learn_recipe", "recipe": str(rid)}], "body_tier")
+		if not game.account.codex.has("body_ladder"): game.quest.apply_codex("body_ladder")
+		emit("body_tier_reached", {"actor": c.id, "tier": cu.body_tier, "name": str(t.get("name", ""))})
+		# Stone Marrow: Copper Body before Qi Unfurling 3.
+		var early := ContentDB.entry("physiques", "stone_marrow")
+		if cu.body_tier == "copper" and not early.is_empty() and not ProgressionRules.at_least(cu.realm_key, str(early.get("before", "qi_unfurling_3"))):
+			awaken_physique(c.id, "stone_marrow")
+
+## A physique, earned by a deed: it stays for life, gift and drawback both.
+func awaken_physique(actor_id: String, physique: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or not ContentDB.has_entry("physiques", physique) or physique in c.cultivator.physiques: return
+	c.cultivator.physiques.append(physique)
+	if not game.account.codex.has("physiques"): game.quest.apply_codex("physiques")
+	emit("physique_awakened", {"actor": c.id, "physique": physique, "name": ContentDB.name_of("physiques", physique)})
+
+## Lifetime counters (S48 physiques read them): add, then awaken any physique whose count is reached.
+func add_lifetime(c, key: String, amount: float) -> void:
+	if c == null or amount <= 0.0: return
+	var v := float(c.cultivator.lifetime_stats.get(key, 0.0)) + amount
+	c.cultivator.lifetime_stats[key] = v
+	for ph in ContentDB.all("physiques"):
+		if str(ph.get("earned", "")) == key and ph.has("count") and v >= float(ph.count): awaken_physique(c.id, str(ph.id))
+
+## Yin Vessel: a night counts once the character has sat through a minute of it at the Falls Pool.
+func _falls_pool_second(c) -> void:
+	var ls: Dictionary = c.cultivator.lifetime_stats
+	var night := int(Clock.now_utc() / (float(ContentDB.curve("time_of_day.day_minutes", 48)) * 60.0))
+	if int(ls.get("falls_pool_night", -1)) != night:
+		ls["falls_pool_night"] = night
+		ls["falls_pool_s"] = 0.0
+	if float(ls.falls_pool_s) >= 60.0: return
+	ls["falls_pool_s"] = float(ls.falls_pool_s) + 1.0
+	if float(ls.falls_pool_s) >= 60.0: add_lifetime(c, "falls_pool_nights", 1.0)
+
+## Ember Heart: every Fire pill refined counts, by the pill.
+func _on_fire_pill(p: Dictionary) -> void:
+	if str(p.get("craft", "")) != "alchemy" or str(ContentDB.entry("recipes", str(p.get("recipe", ""))).get("element", "")) != "fire": return
+	add_lifetime(game.character(str(p.get("actor", ""))), "fire_pills", float(p.get("count", 0)))
+
+## Cloud Lung: the ground covered gliding or flying, in metres.
+func add_air_distance(actor_id: String, px: float) -> void:
+	var c = game.character(actor_id)
+	if c == null or px <= 0.0: return
+	add_lifetime(c, "air_metres", px / float(ContentDB.stat_const("body_path", {}).get("air_metre_px", 50)))
 
 func apply_soul(actor_id: String, amount: float) -> void:
 	var c = game.character(actor_id)
@@ -751,6 +846,9 @@ func apply_residue(actor_id: String, amount: float) -> void:
 func apply_heart_demon(actor_id: String, amount: float, source: String) -> void:
 	var c = game.character(actor_id)
 	if c == null or amount == 0.0: return
+	# S48: some physiques (Hollow-Touched) make every gain larger.
+	if amount > 0.0:
+		for pid in c.cultivator.physiques: amount *= float(ContentDB.entry("physiques", str(pid)).get("heart_demon_mult", 1.0))
 	var before := int(ProgressionRules.heart_demon_steps(c.cultivator))
 	c.cultivator.heart_demon = clampf(c.cultivator.heart_demon + amount, 0.0, 100.0)
 	if amount > 0.0 and not game.account.codex.has("heart_demons"): game.quest.apply_codex("heart_demons")
@@ -1008,8 +1106,15 @@ func _bath_gains(c, item_id: String, minutes: float) -> Dictionary:
 		emit("foundation_changed", {"actor": c.id, "share": ProgressionRules.foundation_share(cu)})
 	apply_toxicity(c.id, float(b.get("toxicity", 0)) * f)
 	# The injury itself is dealt after the seclusion's natural healing, so an hour away does not mend it at once.
-	if StatRules.grade_index(str(ContentDB.item(item_id).get("grade", "plain"))) - 1 > ProgressionRules.body_tier(cu.body_level):
+	if StatRules.grade_index(str(ContentDB.item(item_id).get("grade", "plain"))) - 1 > ProgressionRules.body_tier_index(cu):
 		gains.injured = true
+	# S48: a full soak the body could hold counts toward the body tier the bath belongs to.
+	elif f >= 0.999:
+		for t in ContentDB.all("body_tiers"):
+			if str(t.get("bath", "")) == item_id and not str(t.id) in cu.body_baths:
+				cu.body_baths.append(str(t.id))
+				gains.body_bath = str(t.id)
+		if gains.has("body_bath"): _check_body_tier(c)
 	return gains
 
 func seclusion_cap(room: Dictionary) -> float:
