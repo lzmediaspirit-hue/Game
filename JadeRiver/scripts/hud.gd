@@ -28,10 +28,10 @@ var jump_center := Vector2(933, 640)
 var meditate_center := Vector2(841, 640)
 var sense_center := Vector2(749, 640)
 var quick_center := Vector2(887, 555)
-var pet_center := Vector2(975, 555)
+var pet_center := Vector2(965, 560)   # moved from (975, 555) so it clears skill slot 2 (v2 S24)
 var guard_center := Vector2(799, 555)
-## Gap report G2: the Treasure buttons, left of Guard (the second opens at Spirit Awakening 1).
-var treasure_centers := [Vector2(711, 555), Vector2(711, 470)]
+## S24/S47: the Treasure buttons above Quick-use and Guard (the second opens at Spirit Awakening 1).
+var treasure_centers := [Vector2(887, 470), Vector2(799, 470)]
 var minimap_rect := Rect2(1032, 16, 232, 140)
 var icon_row := [["menu", Vector2(1058, 188)], ["bag", Vector2(1116, 188)], ["map", Vector2(1174, 188)], ["mail", Vector2(1232, 188)]]
 
@@ -365,8 +365,8 @@ func _input(event):
 						guard_pressed = true
 						guard_hold = 0.0
 				KEY_Q: if shown("quick_use"): use_quick()
-				KEY_R: if shown("treasure_1"): use_treasure(0)
-				KEY_T: if shown("treasure_2"): use_treasure(1)
+				KEY_Z: if shown("treasure_1"): use_treasure(0)
+				KEY_X: if shown("treasure_2"): use_treasure(1)
 				KEY_TAB: if shown("menu"): open_page.emit("menu", {})
 				KEY_I, KEY_B: if shown("bag"): open_page.emit("inventory", {})
 				KEY_M: if shown("map"): open_page.emit("world_map", {})
@@ -484,27 +484,28 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.treasure_planted"), "gold")
 		"treasure_harvested":
 			toast(Tx.t("hud.treasure_harvested") % ContentDB.item_name(str(p.get("item", ""))), "gold")
-		"treasure_used":
+		"natural_treasure_used":
 			toast(Tx.t("hud.treasure_used." + str(p.treasure)), "gold")
+		"treasure_used":
+			if p.has("charges"): add_log(Tx.t("hud.talisman_charges") % int(p.charges) if int(p.charges) > 0 else Tx.t("hud.talisman_spent"), UiKit.PALE_GOLD)
 		# Gap report G1: the heart, the ledger, the flames and debts that come due.
 		"heart_demon_changed":
 			if p.get("step_crossed", false):
 				if float(p.get("delta", 0)) > 0: toast(Tx.t("hud.heart_demons_stir") % int(p.value), "danger")
 				else: add_log(Tx.t("hud.heart_demons_calm"), UiKit.BRIGHT_JADE)
-		"karma_changed":
-			if int(p.get("delta_merit", 0)) > 0: add_log(Tx.t("hud.merit_gained") % int(p.delta_merit), UiKit.PALE_GOLD)
-			if int(p.get("delta_sin", 0)) > 0: add_log(Tx.t("hud.sin_gained") % int(p.delta_sin), Color("e07a7a"))
+		"merit_changed":
+			if int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.merit_gained") % int(p.delta), UiKit.PALE_GOLD)
+		"sin_changed":
+			if int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.sin_gained") % int(p.delta), Color("e07a7a"))
 		"flame_absorbed":
 			toast(Tx.t("hud.flame_absorbed") % ContentDB.item_name(str(p.flame)), "gold")
-		"karma_debt_repaid":
+		"debt_called":
 			toast(Tx.t("hud.debt_" + str(p.debt)), "quest")
 		"room_event_flawless":
 			toast(Tx.t("hud.flawless") , "gold")
 		# Gap report G2: treasures and talismans.
 		"beast_captured":
 			add_log(Tx.t("hud.beast_captured") % str(ContentDB.entry("enemies", str(p.def)).get("name", "")), UiKit.PALE_GOLD)
-		"talisman_struck":
-			add_log(Tx.t("hud.talisman_charges") % int(p.charges) if int(p.charges) > 0 else Tx.t("hud.talisman_spent"), UiKit.PALE_GOLD)
 		"treasure_set":
 			if str(p.item) != "": add_log(Tx.t("hud.treasure_set") % [ContentDB.item_name(str(p.item)), int(p.slot) + 1], UiKit.PALE_GOLD)
 		"pill_soul_awakened":
@@ -870,8 +871,8 @@ func _draw_controls(c) -> void:
 			if motif: draw_texture_rect(motif, Rect2(tc - Vector2(16, 16), Vector2(32, 32)), false, Color(0.7, 1.0, 0.9, 0.35))
 			continue
 		var ttex = SpriteCache.icon(tid)
-		var tdef: Dictionary = ContentDB.item(tid).get("treasure", {})
-		var short: bool = c.pools.qi < c.pools.max_qi * float(tdef.get("qi_pct", 0.1))
+		var tdef: Dictionary = CombatAuthority.treasure_of(tid)
+		var short: bool = c.pools.qi < float(tdef.get("qi", 0)) or c.pools.soul < CombatAuthority.treasure_soul_cost(c, tdef)
 		if ttex: draw_texture_rect(ttex, Rect2(tc - Vector2(18, 18), Vector2(36, 36)), false, Color(1, 1, 1, 0.4 if short else 1.0))
 		var tcd: float = c.pools.cooldown("treasure:" + tid)
 		if tcd > 0.05:
@@ -880,6 +881,11 @@ func _draw_controls(c) -> void:
 			for k in 25: pts.append(tc + Vector2.from_angle(-PI / 2 + TAU * frac * (k / 24.0)) * 24.0)
 			draw_colored_polygon(pts, Color(0, 0, 0, 0.55))
 			UiKit.draw_outlined(self, str(int(ceil(tcd))), tc + Vector2(-20, 7), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 40)
+		if tdef.has("charges"):
+			# A talisman treasure shows the charges it has left.
+			var ti_bag: int = c.inventory.first_index(tid)
+			var left_n := int(c.inventory.bag[ti_bag].get("charges", int(tdef.charges))) if ti_bag >= 0 else 0
+			UiKit.draw_outlined(self, "×%d" % left_n, tc + Vector2(-4, 26), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 30)
 	if shown("guard"):
 		ring(guard_center, 26, Game.combat.timeline(c.id).guard)
 		glyph("dodge" if Unlocks.is_unlocked(c.id, "dodge_dash") else "guard", guard_center, 28)

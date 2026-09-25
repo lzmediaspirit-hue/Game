@@ -116,7 +116,7 @@ def build():
         mob("mudwater_bandit", (14, 19), "normal", "none", "road", [d("cloth", 0.5), d("rat_tail", 0.0)],
             [atk("slash", 0.4, 60, 1.0), atk("qi_strike", 0.55, 90, 1.3, damage_type="qi")], ai="humanoid", art=human("mudwater_bandit"),
             race="human", energy="primal_qi", speed=100, width=18, height=90, coin_mult=2.0, equipment_chance=0.05),
-        mob("stone_guardian", (17, 19), "normal", "earth", "road", [d("guardian_stone", 0.25)],
+        mob("stone_guardian", (17, 19), "normal", "earth", "road", [d("guardian_stone", 0.25), d("mountain_seal", 0.02)],
             [atk("fist_slam", 0.6, 70, 1.3, depth=36, knockback=60)], ai="slow_melee", speed=45, width=28, height=60, knockback_immune=True),
         mob("bandit_archer", (16, 20), "normal", "none", "road", [d("arrows", 0.6), d("bow_parts", 0.3)],
             [atk("arrow", 0.6, 420, 1.0, projectile={"speed": 600, "art": "arrow"})], ai="ranged", art=human("bandit_archer"),
@@ -269,7 +269,7 @@ def build():
             [atk("bell_shockwave", 0.7, 180, 1.2, depth=70, both_sides=True, knockback=80),
              atk("summon_ghosts", 1.2, 0, 0.0, summon="paper_talisman_ghost")], ai="boss_abbot", art=human("drowned_abbot"),
             race="human", energy="primal_qi", width=22, height=96, weak_to="fire",
-            phases=[{"below": 0.66, "action": "flood"}, {"below": 0.33, "action": "summon"}], first_defeat=["cold_lamp_flame"]),
+            phases=[{"below": 0.66, "action": "flood"}, {"below": 0.33, "action": "summon"}], first_defeat=["cold_lamp_flame", "bronze_bell"]),
         mob("the_reflection", 36, "story_boss", "none", None, [], [atk("mirror_strike", 0.45, 70, 1.0)], ai="reflection",
             art={"avatar": "player"}, race="human", energy="primal_qi", width=18, height=90),
         # Gap report G1: every 25 on the heart-demon meter brings one of these into the Trial of Reflections.
@@ -280,10 +280,10 @@ def build():
             ai="humanoid", art=human("elder_gu"), race="human", energy="true_qi", width=18, height=90, flees_after_s=60, invulnerable=True),
         mob("hollow_behemoth", 58, "story_boss", "hollow_earth", None, [d("siege_medal", 1.0), d("mistjade_robe", 1.0)],
             [atk("stampede", 0.7, 90, 1.4, dash=240, knockback=120), atk("drone_burst", 1.0, 200, 1.0, both_sides=True, depth=70)],
-            ai="boss_behemoth", width=80, height=140, hollowing=8, first_defeat=["mountain_seal"]),
+            ai="boss_behemoth", width=80, height=140, hollowing=8),
         mob("gate_guardian", 63, "story_boss", "earth", None, [], [atk("ring_sweep", 0.7, 180, 1.3, both_sides=True, depth=70, knockback=100),
                                                                    atk("soul_gaze", 0.9, 320, 1.1, damage_type="soul", projectile={"speed": 500, "art": "soul_bolt"})],
-            ai="boss_guardian", width=60, height=180, phases=[{"below": 0.66, "action": "soul_phase"}, {"below": 0.33, "action": "flight_phase"}], first_defeat=["wisp_banner"]),
+            ai="boss_guardian", width=60, height=180, phases=[{"below": 0.66, "action": "soul_phase"}, {"below": 0.33, "action": "flight_phase"}]),
         mob("shen_lian", 4, "trial", "none", None, [], [atk("fish_gutting_fist", 0.4, 46, 1.0)], ai="duelist", art=human("shen_lian"),
             race="human", width=18, height=90, spar=True),
         mob("wen_zhao", 44, "trial", "wind", None, [], [atk("cloud_cut", 0.4, 80, 1.1), atk("crescent", 0.6, 300, 1.2, damage_type="qi",
@@ -337,6 +337,9 @@ def build():
                    "groups": [{"chance": 1.0, "pick": [{"item": "healing_pill", "weight": 2, "count": [1, 2]}, {"item": "manual_page", "weight": 1, "count": [1, 1]},
                                                          {"item": "qi_gathering_pill", "weight": 1, "count": [1, 1]}]}],
                    "coins": {"chance": 1.0, "mult": 5}, "rare": [], "equipment": {"chance": 0.3, "min_quality": "fine"}})
+    # Gu's Warehouse vault (S47): the Little Pagoda he hoarded, and his silver.
+    tables.append({"id": "gus_vault", "guaranteed": [{"item": "little_pagoda", "count": [1, 1], "chance": 1.0}],
+                   "groups": [], "coins": {"chance": 1.0, "mult": 12}, "rare": [], "equipment": {}})
     tables.append({"id": "chest_dungeon", "guaranteed": [{"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "foundation_guard_pill", "weight": 1, "count": [1, 1]}]}],
                    "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {"chance": 0.6, "min_quality": "fine"}})

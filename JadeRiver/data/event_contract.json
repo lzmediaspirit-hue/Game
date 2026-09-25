@@ -175,6 +175,44 @@
     "progression_authority"
    ]
   },
+  "heart_demon_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "residue_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "polled": "The Cultivation page's Heart tab reads residue."
+  },
+  "merit_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "sin_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "debt_recorded": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "polled": "The Cultivation page's Heart tab lists debts; the callback is debt_called."
+  },
+  "debt_called": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
   "attack_started": {
    "system": "Combat",
    "files": [
@@ -243,6 +281,12 @@
    "polled": "HUD and pages read the StatBlock each frame."
   },
   "player_revived": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "treasure_used": {
    "system": "Combat",
    "files": [
     "combat_authority"
@@ -387,6 +431,20 @@
    ]
   },
   "fish_caught": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "flame_absorbed": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "pill_cloud": {
    "system": "Crafting",
    "files": [
     "crafting_authority",

@@ -1,4 +1,4 @@
-"""Gap report G1/G2: deployable treasures (bell, pagoda, mirror, seal, cauldron, banner,
+"""Build Prompt v2 S44/S47: deployable treasures (bells, pagoda, mirror, seal, cauldron, banner,
 sealing gourd), throwables, a talisman treasure, flight vessels, Heavenly Flames and the
 furnace ladder. Same drawing model as the other families: one bold object, upper-left
 light, automatic outline; glow only for qi-charged objects."""
@@ -13,7 +13,22 @@ FAM = 'items'
 
 
 # ============================================================================ deployable treasures
-def stilling_bell():
+def practice_bell():
+    # A plain sect training bell: small iron body, red cord, no inlay.
+    c = Canvas(32)
+    ramp = R['iron']
+    cord = c.poly([(14, 3), (18, 3), (18, 9), (14, 9)])
+    c.put(cord, R['red'], 'flat', base=2)
+    body = c.poly([(11, 9), (21, 9), (24, 23), (8, 23)]) | c.ellipse(16, 10, 5, 2.5)
+    c.put(body, ramp, 'ray', base=2, sep=True)
+    c.put(c.rect(7, 22, 25, 24), ramp, 'vgrad', base=3, sep=True)
+    c.put(c.rect(10, 15, 22, 15) & body, ramp[4], 'flat', only_on=True)
+    c.put(c.circle(16, 26, 1.6), ramp, 'sphere', sep=True)
+    c.outline()
+    return c
+
+
+def bronze_bell():
     c = Canvas(32)
     ramp = R['bronze']
     loop = c.ring(16, 5.5, 3.0, 1.4)
@@ -31,7 +46,7 @@ def stilling_bell():
     return c
 
 
-def nine_storey_pagoda():
+def little_pagoda():
     c = Canvas(32)
     for i, (w, y) in enumerate(((11, 25), (9, 19), (7, 13), (5, 8))):
         roof = c.poly([(16 - w - 2, y), (16 + w + 2, y), (16 + w - 1, y - 2), (16 - w + 1, y - 2)])
@@ -47,7 +62,7 @@ def nine_storey_pagoda():
     return c
 
 
-def returning_mirror():
+def bright_mirror():
     c = Canvas(32)
     rim = c.circle(15.5, 14.5, 11.5)
     c.put(rim, R['bronze'], 'sphere', base=2)
@@ -83,7 +98,7 @@ def mountain_seal():
     return c
 
 
-def beast_taking_cauldron():
+def taming_cauldron():
     c = Canvas(32)
     ramp = R['iron']
     for x in (8, 23):
@@ -139,7 +154,7 @@ def sealing_gourd():
 
 
 # ============================================================================ throwables
-def throwing_needles():
+def iron_needles():
     c = Canvas(32)
     for i, (x0, y0) in enumerate(((5, 26), (8, 27), (11, 28))):
         n = c.seg(x0, y0, x0 + 18, y0 - 18, 1.2)
@@ -179,17 +194,32 @@ def thunderclap_pellet():
 
 
 # ============================================================================ talisman treasure
-def heaven_splitting_talisman():
+def elder_hus_talisman():
+    # Elder Hu's Heaven-Splitting Palm folded into paper: a red palm print on gold, glowing.
     c = Canvas(32)
     paper = c.poly([(9, 2), (23, 2), (23, 29), (9, 29)])
     c.put(paper, R['gold'], 'vgrad', base=3)
     c.put(c.rect(9, 2, 23, 4) | c.rect(9, 27, 23, 29), R['red'], 'flat', base=2, sep=True)
-    sword = c.poly([(16, 6), (17.5, 9), (17, 22), (15, 22), (14.5, 9)])
-    c.put(sword, R['silver'], 'ray', base=3, sep=True)
-    c.put(c.rect(13, 22, 19, 23), R['red'], 'flat', base=2)
-    c.put(c.rect(15, 24, 17, 25), R['darkwood'], 'flat', base=2)
+    palm = c.ellipse(16, 18, 4.2, 4.6)
+    for fx, top in ((13, 8), (15, 7), (17, 7), (19, 8)):
+        palm = palm | c.rect(fx - 0.6, top, fx + 0.6, 16)
+    palm = palm | c.poly([(11.5, 15), (12.5, 14), (14, 18), (13, 19)])
+    c.put(palm, R['red'], 'ray', base=3, sep=True)
     c.outline()
     c.glow('#FFE38A', (120, 50))
+    return c
+
+
+def lightning_rod_talisman():
+    # A tribulation talisman: violet spirit paper, a copper rod, a bolt glyph.
+    c = Canvas(32)
+    paper = c.poly([(9, 3), (23, 3), (23, 29), (9, 29)])
+    c.put(paper, R['sky'], 'vgrad', base=3)
+    c.put(c.rect(9, 3, 23, 5) | c.rect(9, 27, 23, 29), R['bronze'], 'flat', base=2, sep=True)
+    bolt = c.poly([(18, 7), (13, 16), (16.5, 16), (13, 25), (20, 13), (16.5, 13), (19.5, 7)])
+    c.put(bolt, R['gold'], 'ray', base=4, sep=True)
+    c.outline()
+    c.glow('#BFE8FF', (110, 40))
     return c
 
 
@@ -306,13 +336,14 @@ FURNACES = {
     'nine_dragon_cauldron': _furnace(R['bronze'], R['gold'], R['red'], legs=3, dragons=True),
 }
 
-for _id, _fn in (('stilling_bell', stilling_bell), ('nine_storey_pagoda', nine_storey_pagoda), ('returning_mirror', returning_mirror),
-                 ('mountain_seal', mountain_seal), ('beast_taking_cauldron', beast_taking_cauldron), ('wisp_banner', wisp_banner),
+for _id, _fn in (('practice_bell', practice_bell), ('bronze_bell', bronze_bell), ('little_pagoda', little_pagoda), ('bright_mirror', bright_mirror),
+                 ('mountain_seal', mountain_seal), ('taming_cauldron', taming_cauldron), ('wisp_banner', wisp_banner),
                  ('sealing_gourd', sealing_gourd)):
     register(FAM, _id, _fn, 'treasures')
-for _id, _fn in (('throwing_needles', throwing_needles), ('flying_knives', flying_knives), ('thunderclap_pellet', thunderclap_pellet)):
+for _id, _fn in (('iron_needles', iron_needles), ('flying_knives', flying_knives), ('thunderclap_pellet', thunderclap_pellet)):
     register(FAM, _id, _fn, 'throwables')
-register(FAM, 'heaven_splitting_talisman', heaven_splitting_talisman, 'talismans')
+register(FAM, 'elder_hus_talisman', elder_hus_talisman, 'talismans')
+register(FAM, 'lightning_rod_talisman', lightning_rod_talisman, 'talismans')
 for _id, _fn in (('flying_sword_vessel', flying_sword_vessel), ('cloud_puff_vessel', cloud_puff_vessel),
                  ('jade_gourd_vessel', jade_gourd_vessel), ('maple_leaf_vessel', maple_leaf_vessel)):
     register(FAM, _id, _fn, 'vessels')

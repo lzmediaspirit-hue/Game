@@ -74,8 +74,8 @@
          "count": 1
         },
         {
-         "kind": "karma",
-         "merit": 20,
+         "kind": "add_merit",
+         "amount": 20,
          "reason": "tomb_resealed"
         },
         {

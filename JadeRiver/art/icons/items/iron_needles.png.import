@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cauufm4433v8"
-path="res://.godot/imported/heaven_splitting_talisman.png-88b6c01363a7cbc7ae8a9689080589f8.ctex"
+uid="uid://brsfj7flrjrq1"
+path="res://.godot/imported/iron_needles.png-fe75c904dc1ca99ef536bac96ec2ddc9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/icons/items/heaven_splitting_talisman.png"
-dest_files=["res://.godot/imported/heaven_splitting_talisman.png-88b6c01363a7cbc7ae8a9689080589f8.ctex"]
+source_file="res://art/icons/items/iron_needles.png"
+dest_files=["res://.godot/imported/iron_needles.png-fe75c904dc1ca99ef536bac96ec2ddc9.ctex"]
 
 [params]
 

@@ -45,6 +45,21 @@ static func roll(table_id: String, rng: RandomNumberGenerator, level: int, drop_
 		out.equipment.append({"level": level, "min_quality": str(eq.get("min_quality", "flawed"))})
 	return out
 
+## A beast taken whole by the Taming Cauldron (S47): its materials, each at full count, with no roll.
+static func capture_materials(table_id: String) -> Array:
+	var table := ContentDB.entry("loot_tables", table_id)
+	var sources: Array = table.get("guaranteed", []).duplicate()
+	for group in table.get("groups", []): sources.append_array(group.get("pick", []))
+	var out: Array = []
+	var seen := {}
+	for g in sources:
+		var id := str(g.get("item", ""))
+		var def := ContentDB.item(id)
+		if id == "" or seen.has(id) or def.get("quest_item", false) or str(def.get("type", "")) in ["egg", "scroll", "manual"]: continue
+		seen[id] = true
+		out.append({"item": id, "count": int(g.get("count", [1, 1])[1])})
+	return out
+
 static func RngService_weighted(rng: RandomNumberGenerator, entries: Array) -> Dictionary:
 	var total := 0.0
 	for e in entries: total += float(e.get("weight", 1))

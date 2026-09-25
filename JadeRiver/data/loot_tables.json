@@ -660,7 +660,17 @@
     "chance": 0.03,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [
+    {
+     "item": "mountain_seal",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
   },
   {
    "id": "bandit_archer",
@@ -2504,6 +2514,26 @@
     "chance": 0.3,
     "min_quality": "fine"
    }
+  },
+  {
+   "id": "gus_vault",
+   "guaranteed": [
+    {
+     "item": "little_pagoda",
+     "count": [
+      1,
+      1
+     ],
+     "chance": 1.0
+    }
+   ],
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 12
+   },
+   "rare": [],
+   "equipment": {}
   },
   {
    "id": "chest_dungeon",

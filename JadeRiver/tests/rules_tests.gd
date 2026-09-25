@@ -789,12 +789,12 @@ func g1_suite() -> void:
 	# Karma: merit eases one breakthrough per great realm; sin feeds the demon; the back room is a sin.
 	cu.merit = 0
 	cu.merit_used.clear()
-	Game.apply_effects(c.id, [{"kind": "karma", "merit": 100, "reason": "test"}], "test")
+	Game.apply_effects(c.id, [{"kind": "add_merit", "amount": 100, "reason": "test"}], "test")
 	check(ProgressionRules.merit_step(cu) == 1 and int(Game.progression.query_breakthrough(c).get("merit", 0)) == 1, "100 merit eases a great breakthrough")
 	cu.merit_used[ProgressionRules.great_realm(cu.realm_key)] = true
 	check(ProgressionRules.merit_step(cu) == 0, "once in each great realm")
 	var hd0 := cu.heart_demon
-	Game.apply_effects(c.id, [{"kind": "karma", "sin": 30, "reason": "test"}], "test")
+	Game.apply_effects(c.id, [{"kind": "add_sin", "amount": 30, "reason": "test"}], "test")
 	check(cu.sin >= 30 and near(cu.heart_demon, hd0 + 3.0), "sin feeds the heart demon (+1 per 10 sin)")
 	Game.quest.apply_flag(c.id, "path_independent")
 	Unlocks.force_unlock(c.id, "shop")
@@ -804,7 +804,7 @@ func g1_suite() -> void:
 	check(bought.get("ok", false) and cu.sin == sin0 + 2, "Broker Mu's back room stains the ledger (+2 sin) %s" % str(bought.get("reason", "")))
 	# A named debt comes due as a letter.
 	var mails0: int = Game.account.mail.size() if Game.account.get("mail") is Array else 0
-	Game.apply_effects(c.id, [{"kind": "karma_debt", "id": "test_debt", "due_h": 0.0, "mail": "gu_repays", "attachments": [{"currency": "spirit_stone", "amount": 1}]}], "test")
+	Game.apply_effects(c.id, [{"kind": "record_debt", "id": "test_debt", "due_h": 0.0, "mail": "gu_repays", "attachments": [{"currency": "spirit_stone", "amount": 1}]}], "test")
 	Game.progression.tick(0.1)
 	check(bool(cu.debts.get("test_debt", {}).get("paid", false)), "a debt that falls due is repaid by letter")
 	cu.debts.erase("test_debt")
@@ -895,19 +895,23 @@ func g2_suite() -> void:
 	c.cultivator.realm_key = "heart_tempering_5"
 	Game.combat.refresh_stats(c.id)
 	c.inventory.bag.fill(null)
-	var treasures := ["stilling_bell", "nine_storey_pagoda", "returning_mirror", "mountain_seal", "beast_taking_cauldron", "wisp_banner", "sealing_gourd"]
+	var treasures := ["bronze_bell", "little_pagoda", "bright_mirror", "mountain_seal", "taming_cauldron", "wisp_banner", "sealing_gourd"]
 	for id in treasures: Game.inventory.apply_add(c.id, id, 1, "test")
-	# Two Treasure buttons: the first at Heart Tempering 1, the second at Spirit Awakening 1.
-	check(str(ContentDB.entry("unlocks", "treasures").get("reveals", [""])[0]) == "hud:treasure_1" and ContentDB.has_entry("unlocks", "treasure_slot_2"),
-		"the Treasure buttons are unlocks that reveal HUD buttons")
+	# Two Treasure buttons: the first at Heart Tempering 1 with "A Treasure in Hand", the second at Spirit Awakening 1.
+	var tu := ContentDB.entry("unlocks", "treasures")
+	check(str(tu.get("reveals", [""])[0]) == "hud:treasure_1" and str(tu.get("quest", "")) == "a_treasure_in_hand" and ContentDB.has_entry("unlocks", "treasure_slot_2"),
+		"the Treasure buttons are unlocks that reveal HUD buttons; the first comes with A Treasure in Hand")
+	var tq: Dictionary = ContentDB.entry("quests", "a_treasure_in_hand")
+	check(str(tq.get("on_accept", [{}])[0].get("item", "")) == "practice_bell" and near(float(CombatAuthority.treasure_of("practice_bell").get("stun_s", 0)), 0.5)
+		and int(CombatAuthority.treasure_of("practice_bell").get("qi", 0)) == 15, "the Practice Bell: stun 0.5 s for 15 QI, given on acceptance")
 	Unlocks.force_unlock(c.id, "treasures")
 	Unlocks.force_unlock(c.id, "treasure_slot_2")
-	var r := Game.submit({"type": "set_treasure", "slot": 0, "item": "stilling_bell"})
-	check(r.get("ok", false) and c.inventory.treasures[0] == "stilling_bell", "the Stilling Bell sits in Treasure 1")
-	Game.submit({"type": "set_treasure", "slot": 1, "item": "stilling_bell"})
-	check(c.inventory.treasures == ["", "stilling_bell"], "set in Treasure 2, it leaves Treasure 1")
-	check(str(Game.submit({"type": "set_treasure", "slot": 0, "item": "throwing_needles"}).get("reason", "")) == "not_a_treasure", "only a treasure art fits a Treasure button")
-	# The Stilling Bell: stun and Qi seal around you; a boss keeps its feet.
+	var r := Game.submit({"type": "set_treasure", "slot": 0, "item": "bronze_bell"})
+	check(r.get("ok", false) and c.inventory.treasures[0] == "bronze_bell", "the Bronze Bell sits in Treasure 1")
+	Game.submit({"type": "set_treasure", "slot": 1, "item": "bronze_bell"})
+	check(c.inventory.treasures == ["", "bronze_bell"], "set in Treasure 2, it leaves Treasure 1")
+	check(str(Game.submit({"type": "set_treasure", "slot": 0, "item": "iron_needles"}).get("reason", "")) == "not_a_treasure", "only a treasure art fits a Treasure button")
+	# The Bronze Bell: stun 1 s and Qi Seal 3 s within 150; a boss keeps its feet.
 	_g2_ready(c)
 	var a := _g2_foe("bamboo_monkey", here + Vector2(80, 0))
 	var b := _g2_foe("bamboo_monkey", here + Vector2(-120, 10))
@@ -915,28 +919,39 @@ func g2_suite() -> void:
 	var boss := _g2_foe("ember_fox", here + Vector2(60, -10), true)
 	var qi0: float = c.pools.qi
 	r = Game.submit({"type": "use_treasure", "slot": 1})
-	check(r.get("ok", false) and int(r.get("targets", 0)) == 3, "the bell reaches everyone within 220 (%s)" % str(r.get("targets", r.get("reason", ""))))
+	check(r.get("ok", false) and int(r.get("targets", 0)) == 3, "the bell reaches everyone within 150 (%s)" % str(r.get("targets", r.get("reason", ""))))
 	check(a.pools.has_status("stun") and b.pools.has_status("stun") and not far.pools.has_status("stun"), "foes close by are stunned; a far one is not")
 	check(not boss.pools.has_status("stun") and boss.pools.has_status("qi_seal"), "a boss is not stunned, only Qi-sealed")
-	check(near(qi0 - c.pools.qi, c.pools.max_qi * 0.15), "the bell costs 15%% of max Qi (%.1f)" % (qi0 - c.pools.qi))
+	check(near(qi0 - c.pools.qi, 30.0), "the bell costs 30 QI (%.1f)" % (qi0 - c.pools.qi))
 	check(str(Game.submit({"type": "use_treasure", "slot": 1}).get("reason", "")) == "cooldown", "then it rests for 20 s")
 	c.pools.cooldowns.clear()
-	c.pools.qi = c.pools.max_qi * 0.1
+	c.pools.qi = 20.0
 	check(str(Game.submit({"type": "use_treasure", "slot": 1}).get("reason", "")) == "no_qi", "without the Qi it stays silent")
-	# The Nine-Storey Pagoda: a prison for the nearest foe, never a boss.
+	# From Spirit Awakening 1 a treasure also draws on the Soul: a third of its QI cost.
+	c.cultivator.realm_key = "spirit_awakening_1"
+	Game.combat.refresh_stats(c.id)
 	_g2_ready(c)
-	Game.submit({"type": "set_treasure", "slot": 0, "item": "nine_storey_pagoda"})
+	if c.pools.max_soul <= 0.0: c.pools.set_max("soul", 300.0)   # the Soul pool opens with the SA1 unlock
+	c.pools.soul = c.pools.max_soul
+	var soul0: float = c.pools.soul
+	Game.submit({"type": "use_treasure", "slot": 1})
+	check(c.pools.max_soul > 0.0 and near(soul0 - c.pools.soul, 10.0), "at Spirit Awakening the bell also costs 10 Soul (%.1f)" % (soul0 - c.pools.soul))
+	c.cultivator.realm_key = "heart_tempering_5"
+	Game.combat.refresh_stats(c.id)
+	# The Little Pagoda: a prison for one foe (an elite first), never a boss.
+	_g2_ready(c)
+	Game.submit({"type": "set_treasure", "slot": 0, "item": "little_pagoda"})
 	_g2_foe("ember_fox", here + Vector2(60, 0), true)
-	check(str(Game.submit({"type": "use_treasure", "slot": 0}).get("reason", "")) == "immune" and c.pools.cooldown("treasure:nine_storey_pagoda") == 0.0
+	check(str(Game.submit({"type": "use_treasure", "slot": 0}).get("reason", "")) == "immune" and c.pools.cooldown("treasure:little_pagoda") == 0.0
 		and near(c.pools.qi, c.pools.max_qi), "the pagoda cannot hold a boss, and a failed throw costs nothing")
 	var small := _g2_foe("bamboo_monkey", here + Vector2(40, 0))
 	r = Game.submit({"type": "use_treasure", "slot": 0})
 	var held := false
 	for st in small.pools.statuses: if st.id == "stun" and near(float(st.remaining), 4.0): held = true
 	check(r.get("ok", false) and held, "the nearest foe is held for 4 s")
-	# The Returning Mirror sends an arrow back at the archer.
+	# The Bright Mirror sends an arrow back at the archer.
 	_g2_ready(c)
-	Game.submit({"type": "set_treasure", "slot": 0, "item": "returning_mirror"})
+	Game.submit({"type": "set_treasure", "slot": 0, "item": "bright_mirror"})
 	var archer := _g2_foe("bandit_archer", here + Vector2(200, 0))
 	archer.facing = -1
 	Game.submit({"type": "use_treasure", "slot": 0})
@@ -948,7 +963,7 @@ func g2_suite() -> void:
 	GameEvents.flush()
 	check(events.any(func(e): return e[0] == "projectile_reflected") and near(c.pools.hp, hp_c) and archer.pools.hp < hp_a,
 		"the arrow turns back and strikes its archer (%.0f)" % (hp_a - archer.pools.hp))
-	# The Sealing Gourd drinks it instead, and each one mends 1% HP.
+	# The Sealing Gourd drinks it instead.
 	_g2_ready(c)
 	Game.submit({"type": "set_treasure", "slot": 0, "item": "sealing_gourd"})
 	archer = _g2_foe("bandit_archer", here + Vector2(200, 0))
@@ -959,9 +974,9 @@ func g2_suite() -> void:
 	events.clear()
 	Game.combat._tick_projectiles(0.05)
 	GameEvents.flush()
-	check(events.any(func(e): return e[0] == "projectile_absorbed") and Game.room_rt.projectiles.is_empty() and c.pools.hp > hp_c,
-		"the gourd swallows the arrow and mends the drinker")
-	# The Mountain Seal: 250% attack to all around.
+	check(events.any(func(e): return e[0] == "projectile_absorbed") and Game.room_rt.projectiles.is_empty() and near(c.pools.hp, hp_c),
+		"the gourd swallows the arrow before it lands")
+	# The Mountain Seal: 250% Qi Attack to all within 120.
 	_g2_ready(c)
 	Game.submit({"type": "set_treasure", "slot": 0, "item": "mountain_seal"})
 	var s1 := _g2_foe("bamboo_monkey", here + Vector2(60, 0))
@@ -981,9 +996,9 @@ func g2_suite() -> void:
 	check(events.filter(func(e): return e[0] == "wisp_struck").size() == 1 and w1.pools.hp < w_hp, "a second in, the wisps find the only foe")
 	for i in 10: Game.combat._tick_treasures(c, 1.0)
 	check(not Game.combat.treasure_fx.get(c.id, {}).has("wisps"), "after 10 s the banner furls")
-	# The Beast-Taking Cauldron: a worn-down beast is taken whole, for twice the materials.
+	# The Taming Cauldron: a worn-down beast is taken whole, as materials, with no loot roll.
 	_g2_ready(c)
-	Game.submit({"type": "set_treasure", "slot": 0, "item": "beast_taking_cauldron"})
+	Game.submit({"type": "set_treasure", "slot": 0, "item": "taming_cauldron"})
 	var beast := _g2_foe("bamboo_monkey", here + Vector2(60, 0))
 	var man := _g2_foe("bandit_archer", here + Vector2(30, 0))
 	man.pools.hp = 1.0
@@ -993,16 +1008,17 @@ func g2_suite() -> void:
 	r = Game.submit({"type": "use_treasure", "slot": 0})
 	GameEvents.flush()
 	var taken: Array = events.filter(func(e): return e[0] == "beast_captured")
-	check(r.get("ok", false) and not beast.alive and man.alive and taken.size() == 1 and int(taken[0][1].items) % 2 == 0 and Game.combat.captured.is_empty(),
-		"the worn beast is taken whole, its materials doubled (%s)" % str(taken[0][1].items if taken.size() > 0 else "none"))
+	var mats := LootRules.capture_materials("bamboo_monkey")
+	check(r.get("ok", false) and not beast.alive and man.alive and taken.size() == 1 and mats.size() > 0 and int(taken[0][1].items) == mats.size()
+		and Game.combat.captured.is_empty(), "the worn beast is taken whole, as its fixed materials (%s)" % str(mats))
 	# Throwables: needles fly three at a time and share a 1.2 s cooldown.
 	_g2_ready(c)
-	Game.inventory.apply_add(c.id, "throwing_needles", 5, "test")
+	Game.inventory.apply_add(c.id, "iron_needles", 5, "test")
 	var t1 := _g2_foe("bamboo_monkey", here + Vector2(150, 0))
 	var t_hp := t1.pools.hp
-	r = Game.inventory.use_item(c, _bag_index(c, "throwing_needles"), true)
-	check(r.get("ok", false) and Game.room_rt.projectiles.size() == 3 and c.inventory.count("throwing_needles") == 4, "one bundle throws three needles")
-	check(str(Game.inventory.use_item(c, _bag_index(c, "throwing_needles"), true).get("reason", "")) == "cooldown" and near(c.pools.cooldown("item:throw"), 1.2),
+	r = Game.inventory.use_item(c, _bag_index(c, "iron_needles"), true)
+	check(r.get("ok", false) and Game.room_rt.projectiles.size() == 3 and c.inventory.count("iron_needles") == 4, "one bundle throws three needles")
+	check(str(Game.inventory.use_item(c, _bag_index(c, "iron_needles"), true).get("reason", "")) == "cooldown" and near(c.pools.cooldown("item:throw"), 1.2),
 		"throwables share a 1.2 s cooldown")
 	for i in 10: Game.combat._tick_projectiles(0.05)
 	check(t1.pools.hp < t_hp and Game.room_rt.projectiles.is_empty(), "the needles land (%.0f)" % (t_hp - t1.pools.hp))
@@ -1024,29 +1040,25 @@ func g2_suite() -> void:
 	for i in 10: Game.combat._tick_projectiles(0.05)
 	GameEvents.flush()
 	check(events.any(func(e): return e[0] == "projectile_burst") and p2.pools.hp < p_hp and p1.pools.hp < p1.pools.max_hp, "the pellet bursts and catches the foe behind")
-	# The Heaven Splitting Talisman: three charges at its own power.
+	# Elder Hu's Talisman: three charges of 600% Qi Attack from a Treasure button, charges only.
 	_g2_ready(c)
-	Game.inventory.apply_add(c.id, "heaven_splitting_talisman", 1, "test")
+	Game.inventory.apply_add(c.id, "elder_hus_talisman", 1, "test")
+	Game.submit({"type": "set_treasure", "slot": 0, "item": "elder_hus_talisman"})
 	var big := _g2_foe("bamboo_monkey", here + Vector2(200, 0))
-	r = Game.inventory.use_item(c, _bag_index(c, "heaven_splitting_talisman"), true)
-	var tal = c.inventory.bag[_bag_index(c, "heaven_splitting_talisman")] if _bag_index(c, "heaven_splitting_talisman") >= 0 else {}
-	check(r.get("ok", false) and not big.alive and int(r.get("charges", 0)) == 2 and int(tal.get("charges", 0)) == 2, "one charge splits the air: the monkey falls, two charges left")
-	check(str(Game.inventory.use_item(c, _bag_index(c, "heaven_splitting_talisman"), true).get("reason", "")) == "cooldown", "a talisman needs 3 s between charges")
-	for i in 2:
-		c.pools.cooldowns.clear()
-		Game.inventory.use_item(c, _bag_index(c, "heaven_splitting_talisman"), true)
-	check(c.inventory.count("heaven_splitting_talisman") == 0, "the third charge spends the paper")
+	var big_hp := big.pools.hp
+	r = Game.submit({"type": "use_treasure", "slot": 0})
+	check(r.get("ok", false) and big.pools.hp < big_hp and int(r.get("charges", 0)) == 2 and near(c.pools.qi, c.pools.max_qi),
+		"one charge of the palm strikes the monkey; two charges left, no Qi spent")
+	check(Game.submit({"type": "use_treasure", "slot": 0}).get("ok", false), "charges only: no cooldown between them")
+	Game.submit({"type": "use_treasure", "slot": 0})
+	check(c.inventory.count("elder_hus_talisman") == 0 and c.inventory.treasures[0] == "", "the third charge spends the paper and empties the button")
 	# Flight vessels: kept once in the key pouch, chosen for flight.
 	Game.inventory.apply_add(c.id, "flying_sword_vessel", 1, "test")
 	Game.inventory.apply_add(c.id, "flying_sword_vessel", 1, "test")
 	check(c.inventory.count("flying_sword_vessel") == 1 and c.inventory.key_items.any(func(k): return k.id == "flying_sword_vessel"), "a vessel is kept once, in the key pouch")
-	check(Game.submit({"type": "choose_vessel", "item": "flying_sword_vessel"}).get("ok", false) and near(Game.combat.vessel_qi_mult(c), 0.8)
-		and near(Game.combat.vessel_speed_mult(c), 1.25), "the Flying Sword: flight costs 20% less Qi and is 25% faster")
-	check(not Game.submit({"type": "choose_vessel", "item": "stilling_bell"}).get("ok", false), "a bell is not a vessel")
-	Game.combat.flying[c.id] = true
-	check(near(Game.combat.move_factor(c.id), 1.25), "in the air the sword carries you 25%% faster (%.2f)" % Game.combat.move_factor(c.id))
-	Game.combat.flying.erase(c.id)
-	check(near(Game.combat.move_factor(c.id), 1.0), "on the ground the vessel does nothing")
+	check(Game.submit({"type": "choose_vessel", "item": "flying_sword_vessel"}).get("ok", false) and near(Game.combat.vessel_qi_mult(c), 0.8),
+		"the Flying Sword: flight costs 20% less Qi")
+	check(not Game.submit({"type": "choose_vessel", "item": "bronze_bell"}).get("ok", false), "a bell is not a vessel")
 	var saved: Dictionary = c.inventory.snapshot()
 	var inv2 := InventoryState.new()
 	inv2.restore(saved)

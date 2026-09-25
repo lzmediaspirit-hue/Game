@@ -45,12 +45,12 @@
          "count": 1
         },
         {
-         "kind": "karma",
-         "merit": 15,
+         "kind": "add_merit",
+         "amount": 15,
          "reason": "gu_freed"
         },
         {
-         "kind": "karma_debt",
+         "kind": "record_debt",
          "id": "gu_repays",
          "due_h": 48,
          "mail": "gu_repays",
@@ -81,12 +81,12 @@
          "count": 1
         },
         {
-         "kind": "karma",
-         "sin": 10,
+         "kind": "add_sin",
+         "amount": 10,
          "reason": "gu_left"
         },
         {
-         "kind": "karma_debt",
+         "kind": "record_debt",
          "id": "gu_remembers",
          "due_h": 72,
          "mail": "gu_remembers",

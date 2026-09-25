@@ -213,8 +213,8 @@
      "count": 3
     },
     {
-     "kind": "karma",
-     "merit": 5,
+     "kind": "add_merit",
+     "amount": 5,
      "reason": "grannys_remedy"
     }
    ],
@@ -2172,6 +2172,54 @@
    ]
   },
   {
+   "id": "a_treasure_in_hand",
+   "name": "A Treasure in Hand",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Ring the Practice Bell in a fight",
+     "count": 3,
+     "system": "treasure"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 60
+    }
+   ],
+   "offer_text": [
+    "A cultivator carries more than a blade. Take this Practice Bell; it sits in your Treasure button.",
+    "Ring it three times when foes press close. Feel what a treasure costs you."
+   ],
+   "complete_text": [
+    "Keep the bell. Better treasures wait in the valley: drowned bells, jade pagodas, mirrors that throw back arrows."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "ht1",
+   "same_stage_ok": true,
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "practice_bell",
+     "count": 1
+    }
+   ]
+  },
+  {
    "id": "the_infirmary",
    "name": "The Infirmary",
    "kind": "guided",
@@ -2192,8 +2240,8 @@
      "amount": 100
     },
     {
-     "kind": "karma",
-     "merit": 10,
+     "kind": "add_merit",
+     "amount": 10,
      "reason": "the_infirmary"
     }
    ],
@@ -2408,7 +2456,8 @@
     }
    ],
    "offer_text": [
-    "Step into the circle on my peak. What comes out of the mirror is you. Beat it."
+    "Step into the circle on my peak. What comes out of the mirror is you. Beat it.",
+    "Take this: Elder Hu's Heaven-Splitting Palm, folded into paper. Three charges. Set it in a Treasure button and keep it for the worst moment."
    ],
    "complete_text": [
     "You looked yourself in the eye and didn't blink. Cloud Stride awaits."
@@ -2422,6 +2471,13 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
+   ],
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "elder_hus_talisman",
+     "count": 1
+    }
    ]
   },
   {
@@ -2896,22 +2952,13 @@
     {
      "kind": "learn_secret_art",
      "art": "lotus_heart_breathing"
-    },
-    {
-     "kind": "grant_item",
-     "item": "heaven_splitting_talisman",
-     "count": 1,
-     "instance": {
-      "charges": 3
-     }
     }
    ],
    "offer_text": [
     "Beat my best disciple and I'll teach you personally."
    ],
    "complete_text": [
-    "My personal disciple. My secret art is yours, and the cave behind the pagoda is your abode.",
-    "And this: my last stroke, folded into paper. Three times it will cut what you cannot. Do not waste them on rats."
+    "My personal disciple. My secret art is yours, and the cave behind the pagoda is your abode."
    ],
    "offered_by_unlock": true,
    "chapter": "sa5",
@@ -3041,8 +3088,8 @@
    ],
    "rewards": [
     {
-     "kind": "karma",
-     "merit": 10,
+     "kind": "add_merit",
+     "amount": 10,
      "reason": "passing_it_on"
     }
    ],
@@ -3588,8 +3635,8 @@
      "entry": "yan_heng"
     },
     {
-     "kind": "karma",
-     "merit": 10,
+     "kind": "add_merit",
+     "amount": 10,
      "reason": "the_rite"
     }
    ],
@@ -4117,8 +4164,8 @@
    ],
    "rewards": [
     {
-     "kind": "karma",
-     "merit": 10,
+     "kind": "add_merit",
+     "amount": 10,
      "reason": "what_remains"
     }
    ],
@@ -4534,8 +4581,8 @@
      "amount": 80
     },
     {
-     "kind": "karma",
-     "merit": 10,
+     "kind": "add_merit",
+     "amount": 10,
      "reason": "guos_old_wound"
     }
    ],
@@ -4613,8 +4660,8 @@
      "title": "guos_student"
     },
     {
-     "kind": "karma",
-     "merit": 5,
+     "kind": "add_merit",
+     "amount": 5,
      "reason": "a_second_try"
     }
    ],
@@ -4659,8 +4706,8 @@
      "amount": 50
     },
     {
-     "kind": "karma",
-     "merit": 5,
+     "kind": "add_merit",
+     "amount": 5,
      "reason": "dous_kite_returns"
     }
    ],
@@ -4741,8 +4788,8 @@
      "amount": 120
     },
     {
-     "kind": "karma",
-     "merit": 10,
+     "kind": "add_merit",
+     "amount": 10,
      "reason": "grey_roofs"
     }
    ],
@@ -4784,8 +4831,8 @@
      "amount": 150
     },
     {
-     "kind": "karma",
-     "merit": 15,
+     "kind": "add_merit",
+     "amount": 15,
      "reason": "cleansing_the_well"
     }
    ],
@@ -5445,6 +5492,11 @@
      "kind": "grant_currency",
      "currency": "silver_tael",
      "amount": 80
+    },
+    {
+     "kind": "grant_item",
+     "item": "wisp_banner",
+     "count": 1
     }
    ],
    "offer_text": [

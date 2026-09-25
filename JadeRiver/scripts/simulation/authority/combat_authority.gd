@@ -74,7 +74,6 @@ func move_factor(actor_id: String) -> float:
 	var slow = c.pools.status("slow")
 	if not slow.is_empty(): f *= 1.0 - clampf(float(slow.power), 0.0, 0.5)
 	if float(tl.flinch) > 0.0: f *= 0.2
-	if flying.has(actor_id): f *= vessel_speed_mult(c)   # the ridden vessel (G2)
 	return f
 
 func handle(intent: Dictionary) -> Dictionary:
@@ -120,12 +119,9 @@ func stop_flight(actor_id: String, reason: String) -> void:
 func is_flying(actor_id: String) -> bool:
 	return flying.has(actor_id)
 
-## The flight vessel ridden (G2): what the air costs and how fast it carries you.
+## The flight vessel ridden (S47): what the air costs.
 func vessel_qi_mult(c) -> float:
 	return float(ContentDB.item(str(c.inventory.vessel)).get("flight", {}).get("qi_mult", 1.0)) if str(c.inventory.vessel) != "" else 1.0
-
-func vessel_speed_mult(c) -> float:
-	return float(ContentDB.item(str(c.inventory.vessel)).get("flight", {}).get("speed_mult", 1.0)) if str(c.inventory.vessel) != "" else 1.0
 
 func _tick_flight(c, delta: float) -> void:
 	if not flying.has(c.id): return
@@ -791,7 +787,7 @@ func choose_revival(c, where: String) -> Dictionary:
 		c.pools.statuses.clear()
 		c.pools.invulnerable = float(ContentDB.stat_const("treasures", {}).get("fruit_invuln_s", 3))
 		emit("player_revived", {"actor": c.id, "where": "fruit"})
-		emit("treasure_used", {"actor": c.id, "treasure": "evergreen_heart_fruit"})
+		emit("natural_treasure_used", {"actor": c.id, "treasure": "evergreen_heart_fruit"})
 	elif where == "here":
 		var allowed := revive_here_allowed(c)
 		if not allowed.ok: return fail("not_allowed", {"text": allowed.text})
@@ -870,21 +866,20 @@ func _tick_projectiles(delta: float) -> void:
 			elif c != null and not wounded.has(c.id):
 				var cv := player_view(c)
 				var fxs: Dictionary = treasure_fx.get(c.id, {})
-				# The Sealing Gourd drinks every missile that comes within its reach (G2).
+				# The Sealing Gourd drinks every missile that comes within its reach (S47).
 				if float(fxs.get("gourd", 0.0)) > 0.0 and Vector2(float(p.x), float(p.y)).distance_to(Vector2(float(cv.x), float(cv.y))) < float(fxs.get("gourd_r", 240.0)):
-					apply_heal(c.id, 0.01, 0.0, 0.0, "sealing_gourd")
 					emit("projectile_absorbed", {"actor": c.id, "x": p.x, "y": p.y, "alt": p.alt})
 					done = true
 					break
 				if hit_test({"x": p.x, "y": p.y, "alt": float(p.alt) - 20.0}, int(p.dir), {"x": [-10, 10], "depth": 24, "alt": [0, 40]}, cv) \
 						and float(fxs.get("reflect", 0.0)) > 0.0:
-					# The Returning Mirror sends it back at whoever threw it (G2).
+					# The Bright Mirror sends it back at whoever threw it (S47).
 					p.team = "player"
 					p.dir = -int(p.dir)
 					p.owner = c.id
 					p.travelled = 0.0
 					p.hits = []
-					p.attack = {"damage_type": "qi", "element": str(p.get("element", "none")), "mult": [1.4, 1.4], "range": [1.0, 1.0], "source": "returning_mirror"}
+					p.attack = {"damage_type": "qi", "element": str(p.get("element", "none")), "mult": [1.4, 1.4], "range": [1.0, 1.0], "source": "bright_mirror"}
 					emit("projectile_reflected", {"actor": c.id, "x": p.x, "y": p.y, "alt": p.alt})
 					break
 				if hit_test({"x": p.x, "y": p.y, "alt": float(p.alt) - 20.0}, int(p.dir), {"x": [-10, 10], "depth": 24, "alt": [0, 40]}, cv):
@@ -908,7 +903,18 @@ func _treasure_attack(t: Dictionary, source: String, dtype := "physical", elemen
 	var m := float(t.get("mult", 1.0))
 	return {"damage_type": dtype, "element": element, "mult": [m, m], "range": [1.0, 1.0], "knockback": float(t.get("knockback", 0.0)), "source": source}
 
-## One of the HUD's Treasure buttons. Each treasure is one action with a cooldown and a QI cost.
+## What a treasure does (treasures.json, S47), from its bag item id; {} if the item is not a treasure.
+static func treasure_of(item_id: String) -> Dictionary:
+	var tid := str(ContentDB.item(item_id).get("treasure", ""))
+	return ContentDB.entry("treasures", tid) if tid != "" else {}
+
+## Its Soul cost: a treasure also draws on the Soul from Spirit Awakening 1 (S47).
+static func treasure_soul_cost(c, t: Dictionary) -> float:
+	if c.pools.max_soul <= 0.0 or not ProgressionRules.at_least(c.cultivator.realm_key, "spirit_awakening_1"): return 0.0
+	return float(t.get("soul", 0))
+
+## One of the HUD's Treasure buttons. Each treasure is one action with a cooldown and a flat QI cost (S47);
+## a talisman treasure spends one of its charges instead.
 func use_treasure(c, slot: int) -> Dictionary:
 	if slot < 0 or slot > 1: return fail("bad_slot")
 	var id := str(c.inventory.treasures[slot])
@@ -919,11 +925,14 @@ func use_treasure(c, slot: int) -> Dictionary:
 		return fail("missing")
 	var why := can_act(c)
 	if why != "": return fail(why)
-	var t: Dictionary = ContentDB.item(id).get("treasure", {})
+	var t := treasure_of(id)
+	if t.is_empty(): return fail("unknown_treasure")
 	var cd_key := "treasure:" + id
 	if c.pools.cooldown(cd_key) > 0.0: return fail("cooldown", {"remaining": c.pools.cooldown(cd_key)})
-	var cost: float = c.pools.max_qi * float(t.get("qi_pct", 0.1))
-	if c.pools.max_qi <= 0.0 or c.pools.qi < cost: return fail("no_qi", {"text": Tx.t("sim.combat.treasure_no_qi")})
+	var cost := float(t.get("qi", 0))
+	if cost > 0.0 and (c.pools.max_qi <= 0.0 or c.pools.qi < cost): return fail("no_qi", {"text": Tx.t("sim.combat.treasure_no_qi")})
+	var soul := treasure_soul_cost(c, t)
+	if soul > 0.0 and c.pools.soul < soul: return fail("no_soul", {"text": Tx.t("sim.combat.treasure_no_soul")})
 	var pv := player_view(c)
 	var here := Vector2(float(pv.x), float(pv.y))
 	var tl := timeline(c.id)
@@ -931,14 +940,21 @@ func use_treasure(c, slot: int) -> Dictionary:
 	var fxs: Dictionary = treasure_fx.get(c.id, {})
 	match str(t.action):
 		"bell":
-			for e in _enemies_within(here, float(t.get("radius", 220))):
-				if not e.is_boss(): _apply_status_to_enemy(e, {"id": "stun", "power": 1.0, "remaining": float(t.get("stun_s", 1.5)), "source": c.id})
-				_apply_status_to_enemy(e, {"id": "qi_seal", "power": 1.0, "remaining": float(t.get("seal_s", 4.0)), "source": c.id})
+			for e in _enemies_within(here, float(t.get("radius", 150))):
+				if not e.is_boss(): _apply_status_to_enemy(e, {"id": "stun", "power": 1.0, "remaining": float(t.get("stun_s", 1.0)), "source": c.id})
+				if float(t.get("seal_s", 0)) > 0.0:
+					_apply_status_to_enemy(e, {"id": "qi_seal", "power": 1.0, "remaining": float(t.seal_s), "source": c.id})
 				out.targets = int(out.targets) + 1
 		"pagoda":
-			var tgt := _nearest_enemy(here, float(t.get("range", 320)))
-			if tgt == null: return fail("no_target", {"text": Tx.t("sim.combat.treasure_no_target")})
-			if tgt.is_boss(): return fail("immune", {"text": Tx.t("sim.combat.pagoda_boss")})
+			# One foe, an elite first if one is in reach; bosses are too great for it.
+			var tgt: EnemyState = null
+			for e in _enemies_within(here, float(t.get("range", 320))):
+				if e.is_boss(): continue
+				if tgt == null or (e.elite and not tgt.elite) or (e.elite == tgt.elite and e.plane.distance_to(here) < tgt.plane.distance_to(here)): tgt = e
+			if tgt == null:
+				var near_boss := _nearest_enemy(here, float(t.get("range", 320)))
+				if near_boss != null and near_boss.is_boss(): return fail("immune", {"text": Tx.t("sim.combat.pagoda_boss")})
+				return fail("no_target", {"text": Tx.t("sim.combat.treasure_no_target")})
 			_apply_status_to_enemy(tgt, {"id": "stun", "power": 1.0, "remaining": float(t.get("imprison_s", 4.0)), "source": c.id})
 			out.targets = 1
 			out.x = tgt.plane.x
@@ -946,8 +962,8 @@ func use_treasure(c, slot: int) -> Dictionary:
 		"mirror":
 			fxs.reflect = float(t.get("reflect_s", 2.0))
 		"seal":
-			var atk := _treasure_attack(t, "treasure:" + id, "physical", "earth")
-			for e in _enemies_within(here, float(t.get("radius", 170))):
+			var atk := _treasure_attack(t, "treasure:" + id, str(t.get("damage_type", "qi")), "earth")
+			for e in _enemies_within(here, float(t.get("radius", 120))):
 				_player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
 				out.targets = int(out.targets) + 1
 		"cauldron":
@@ -968,14 +984,37 @@ func use_treasure(c, slot: int) -> Dictionary:
 		"gourd":
 			fxs.gourd = float(t.get("absorb_s", 3.0))
 			fxs.gourd_r = float(t.get("radius", 240.0))
+		"palm":
+			# Elder Hu's Heaven-Splitting Palm: 600% Qi Attack along a line before you, one charge a use.
+			var facing := int(tl.facing)
+			var atk := {"damage_type": "qi", "element": "metal", "mult": [float(t.get("mult", 6.0)), float(t.get("mult", 6.0))], "range": [1.0, 1.0],
+				"knockback": 160.0, "source": "treasure:" + id}
+			for e in _enemies_in(pv, facing, {"x": [0, float(t.get("reach", 540))], "depth": float(t.get("depth", 70)), "alt": [-40, 160]}, false):
+				_player_hits_enemy(c, pv, e, atk, facing)
+				out.targets = int(out.targets) + 1
+			out.facing = facing
+			out.reach = float(t.get("reach", 540))
 		_:
 			return fail("unknown_treasure")
 	treasure_fx[c.id] = fxs
-	apply_resource_change(c.id, "qi", -cost, "treasure")
-	c.pools.cooldowns[cd_key] = float(t.get("cooldown_s", 20))
+	if cost > 0.0: apply_resource_change(c.id, "qi", -cost, "treasure")
+	if soul > 0.0: apply_resource_change(c.id, "soul", -soul, "treasure")
+	if float(t.get("cooldown_s", 0)) > 0.0: c.pools.cooldowns[cd_key] = float(t.cooldown_s)
+	if t.has("charges"):
+		var idx: int = c.inventory.first_index(id)
+		if idx >= 0:
+			var stack: Dictionary = c.inventory.bag[idx]
+			var left := int(stack.get("charges", int(t.charges))) - 1
+			out.charges = maxi(0, left)
+			if left <= 0:
+				game.inventory.apply_remove_index(c.id, idx, 1, "charges_spent")
+				c.inventory.treasures[slot] = ""
+			else:
+				stack.charges = left
+			emit("bag_changed", {"actor": c.id})
 	tl.flinch = 0.0
 	out.actor = c.id
-	emit("treasure_art_used", out)
+	emit("treasure_used", out)
 	emit("system_used", {"actor": c.id, "system": "treasure"})
 	return ok(out)
 
@@ -1023,29 +1062,6 @@ func _burst(c, p: Dictionary, first: EnemyState) -> void:
 		if e == first: continue
 		_player_hits_enemy(c, pv, e, p.attack, 1 if e.plane.x >= at.x else -1)
 	emit("projectile_burst", {"actor": c.id, "x": p.x, "y": p.y, "alt": p.alt, "radius": p.burst})
-
-## A talisman treasure (G2): one of its charges, at the talisman's own power, not the user's.
-func talisman_strike(c, index: int) -> Dictionary:
-	var s: Dictionary = c.inventory.bag[index]
-	var tdef: Dictionary = ContentDB.item(str(s.id)).get("talisman", {})
-	if tdef.is_empty(): return fail("not_a_talisman")
-	var why := can_act(c)
-	if why != "": return fail(why)
-	if c.pools.cooldown("item:talisman") > 0.0: return fail("cooldown", {"remaining": c.pools.cooldown("item:talisman")})
-	var pv := player_view(c)
-	var facing := int(timeline(c.id).facing)
-	var hit := 0
-	for e in _enemies_in(pv, facing, {"x": [0, float(tdef.get("reach", 540))], "depth": float(tdef.get("depth", 70)), "alt": [0, 160]}, false):
-		_damage_enemy(e, float(tdef.get("power", 12000)), c.id, "qi", "metal", false, {"source": "talisman:" + str(s.id)}, facing)
-		hit += 1
-	var left := int(s.get("charges", int(tdef.get("charges", 3)))) - 1
-	if left <= 0: game.inventory.apply_remove_index(c.id, index, 1, "talisman_spent")
-	else: s.charges = left
-	c.pools.cooldowns["item:talisman"] = 3.0
-	emit("talisman_struck", {"actor": c.id, "item": str(s.id), "x": pv.x, "y": pv.y, "alt": pv.alt, "facing": facing, "reach": float(tdef.get("reach", 540)),
-		"charges": maxi(0, left), "targets": hit})
-	emit("bag_changed", {"actor": c.id})
-	return ok({"targets": hit, "charges": maxi(0, left)})
 
 func _nearest_enemy(at: Vector2, radius: float) -> EnemyState:
 	var best: EnemyState = null

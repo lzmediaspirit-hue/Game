@@ -174,7 +174,6 @@ func _draw_detail(r: Rect2) -> void:
 			var verb := Tx.t("ui.inventory.use")
 			if def.has("raw"): verb = Tx.t("ui.inventory.absorb") if def.has("core") else Tx.t("ui.inventory.eat_raw")
 			elif str(def.get("use_action", "")) == "absorb_flame": verb = Tx.t("ui.inventory.absorb")
-			elif str(def.get("use_action", "")) == "talisman_charge": verb = Tx.t("ui.inventory.strike")
 			btn(Rect2(bx, by, bw, 50), verb, "use", null, true)
 			var q_on = ch.inventory.quick_use == id
 			btn(Rect2(bx + bw + 10, by, bw, 50), Tx.t("ui.inventory.quick") if q_on else Tx.t("ui.inventory.quick_use"), "quick", null, false, Unlocks.is_unlocked(ch.id, "quick_use"), Tx.t("ui.inventory.quick_use_is_not_unlocked"))
@@ -197,20 +196,21 @@ func _draw_detail(r: Rect2) -> void:
 ## G2: what a treasure art, a flight vessel or a talisman does, in numbers.
 func _treasure_lines(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> float:
 	var x := r.position.x + 16
-	if def.has("treasure"):
-		var tr: Dictionary = def.treasure
-		text(Vector2(x, y + 20), Tx.t("ui.inventory.treasure_cost") % [int(round(float(tr.get("qi_pct", 0.0)) * 100.0)), int(tr.get("cooldown_s", 0))], 16, UiKit.BRIGHT_JADE)
+	var tr := CombatAuthority.treasure_of(str(s.id))
+	if not tr.is_empty():
+		var soul := int(CombatAuthority.treasure_soul_cost(ch, tr))
+		var line := Tx.t("ui.inventory.treasure_charges") % int(s.get("charges", int(tr.charges))) if tr.has("charges") \
+			else (Tx.t("ui.inventory.treasure_cost_soul") % [int(tr.get("qi", 0)), soul, int(tr.get("cooldown_s", 0))] if soul > 0
+			else Tx.t("ui.inventory.treasure_cost") % [int(tr.get("qi", 0)), int(tr.get("cooldown_s", 0))])
+		text(Vector2(x, y + 20), line, 16, UiKit.BRIGHT_JADE if not tr.has("charges") else UiKit.PALE_GOLD)
 		y += 22
 	if def.has("flight"):
 		var fl: Dictionary = def.flight
-		text(Vector2(x, y + 20), Tx.t("ui.inventory.vessel_stats") % [int(round((1.0 - float(fl.get("qi_mult", 1.0))) * 100.0)), int(round((float(fl.get("speed_mult", 1.0)) - 1.0) * 100.0))], 16, UiKit.BRIGHT_JADE)
+		text(Vector2(x, y + 20), Tx.t("ui.inventory.vessel_stats") % int(round((1.0 - float(fl.get("qi_mult", 1.0))) * 100.0)), 16, UiKit.BRIGHT_JADE)
 		y += 22
 		if str(ch.inventory.vessel) == str(s.id):
 			text(Vector2(x, y + 20), Tx.t("ui.inventory.vessel_ridden"), 16, UiKit.PALE_GOLD)
 			y += 22
-	if def.has("talisman"):
-		text(Vector2(x, y + 20), Tx.t("ui.inventory.charges_left") % int(s.get("charges", int(def.talisman.get("charges", 1)))), 16, UiKit.PALE_GOLD)
-		y += 22
 	return y
 
 ## S14: a sealed relic offers Bind (a channel a hit breaks); a bound one with a dormant spirit offers the contest.

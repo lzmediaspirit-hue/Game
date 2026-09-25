@@ -66,29 +66,36 @@ FLAMES = [
 ]
 
 
+# Treasures (Build Prompt v2 S47, Part 8): each is one action set in a HUD Treasure button, with a cooldown and a flat
+# QI cost (and a Soul cost of a third of it from Spirit Awakening 1). The mechanics are also written to treasures.json.
 TREASURES = [
-    ("stilling_bell", "earth", "A bronze bell that rings once and the world holds its breath: foes around you are stunned for 1.5 s and their Qi is sealed for 4 s. Bosses only lose their Qi.",
-     {"action": "bell", "cooldown_s": 20, "qi_pct": 0.15, "radius": 220, "stun_s": 1.5, "seal_s": 4}),
-    ("nine_storey_pagoda", "heaven", "A jade pagoda the size of a palm. Throw it and it falls over the nearest foe as a prison: 4 s it cannot move or strike. Bosses are too great for it.",
-     {"action": "pagoda", "cooldown_s": 30, "qi_pct": 0.2, "range": 320, "imprison_s": 4}),
-    ("returning_mirror", "earth", "A bronze mirror that returns what is thrown at it: for 2 s every missile that reaches you flies back at the one who threw it.",
-     {"action": "mirror", "cooldown_s": 18, "qi_pct": 0.12, "reflect_s": 2}),
-    ("mountain_seal", "heaven", "A jade seal the weight of a hill. Brought down, it strikes everything around you for 250% attack and throws it back.",
-     {"action": "seal", "cooldown_s": 16, "qi_pct": 0.18, "radius": 170, "mult": 2.5, "knockback": 120}),
-    ("beast_taking_cauldron", "earth", "An iron cauldron that drinks in a beast worn below 20% HP: it is taken whole, and you keep twice its materials. Not bosses.",
-     {"action": "cauldron", "cooldown_s": 25, "qi_pct": 0.1, "range": 260, "below": 0.2}),
-    ("wisp_banner", "mystic", "A banner of three bound wisps. Unfurled, they circle you for 10 s and each strikes the nearest foe every second for 60% Qi attack.",
-     {"action": "banner", "cooldown_s": 30, "qi_pct": 0.2, "wisps": 3, "duration": 10, "mult": 0.6, "range": 280}),
-    ("sealing_gourd", "heaven", "A violet gourd with a paper seal. Unstoppered, it drinks every missile within reach for 3 s, and each one mends 1% of your HP.",
-     {"action": "gourd", "cooldown_s": 20, "qi_pct": 0.1, "absorb_s": 3, "radius": 240}),
+    ("practice_bell", "plain", "A sect training bell. Rung, it stuns foes close by for half a second.",
+     {"action": "bell", "cooldown_s": 25, "qi": 15, "radius": 100, "stun_s": 0.5, "seal_s": 0, "source": "A Treasure in Hand (Heart Tempering 1)"}),
+    ("bronze_bell", "earth", "A drowned temple bell. Rung, it stuns foes around you for 1 s and seals their Qi for 3 s. Bosses only lose their Qi.",
+     {"action": "bell", "cooldown_s": 20, "qi": 30, "radius": 150, "stun_s": 1, "seal_s": 3, "source": "Drowned Abbot (first clear)"}),
+    ("little_pagoda", "heaven", "A jade pagoda the size of a palm. Thrown, it falls over one foe as a prison for 4 s. Bosses are too great for it.",
+     {"action": "pagoda", "cooldown_s": 30, "qi": 40, "range": 320, "imprison_s": 4, "source": "Gu's Warehouse vault"}),
+    ("bright_mirror", "earth", "A polished bronze mirror. For 2 s every missile that reaches you flies back at the one who threw it.",
+     {"action": "mirror", "cooldown_s": 18, "qi": 25, "reflect_s": 2, "source": "Forge (Heart Tempering blueprint)"}),
+    ("mountain_seal", "heaven", "A jade seal the weight of a hill. Brought down, it strikes everything within reach for 250% Qi Attack.",
+     {"action": "seal", "cooldown_s": 25, "qi": 45, "radius": 120, "mult": 2.5, "knockback": 120, "damage_type": "qi", "source": "Stone Guardian (rare)"}),
+    ("taming_cauldron", "earth", "An iron cauldron that takes in a beast worn below 20% HP whole, as materials. Not bosses.",
+     {"action": "cauldron", "cooldown_s": 40, "qi": 30, "range": 260, "below": 0.2, "source": "Beast Hall shop"}),
+    ("wisp_banner", "mystic", "A formation banner that calls three wisps of light. For 10 s they fight beside you, striking the nearest foes.",
+     {"action": "banner", "cooldown_s": 45, "qi": 50, "wisps": 3, "duration": 10, "mult": 0.6, "range": 280, "source": "Bai Ling's quest line"}),
+    ("sealing_gourd", "heaven", "A violet gourd with a paper seal. Unstoppered, it drinks every missile that comes near for 3 s.",
+     {"action": "gourd", "cooldown_s": 20, "qi": 30, "absorb_s": 3, "radius": 240, "source": "Old Ma (after Spirit Awakening 1)"}),
+    # A talisman treasure: three charges of an art far above the realm, spent from a Treasure button (no cooldown).
+    ("elder_hus_talisman", "mystic", "Elder Hu's Heaven-Splitting Palm folded into paper: three charges of 600% Qi Attack in a line before you. Never sold.",
+     {"action": "palm", "cooldown_s": 0, "qi": 0, "charges": 3, "mult": 6.0, "reach": 540, "depth": 70, "source": "Elder Hu, before the Heart Trial"}),
 ]
+TREASURE_DEFS = []
+# Flight vessels (S47): a flight item sets the flight sprite and what the air costs.
 VESSELS = [
-    ("flying_sword_vessel", "heaven", "Ride your sword into the sky, the way the stories say. The fastest vessel, and the air costs a fifth less.",
-     {"sprite": "sword", "qi_mult": 0.8, "speed_mult": 1.25}),
-    ("cloud_puff_vessel", "earth", "A small obedient cloud. Slow, soft and very cheap on Qi.", {"sprite": "cloud", "qi_mult": 0.65, "speed_mult": 0.95}),
-    ("jade_gourd_vessel", "earth", "A great jade gourd you sit astride. Steady, and a little faster than walking on air.",
-     {"sprite": "gourd", "qi_mult": 0.85, "speed_mult": 1.1}),
-    ("maple_leaf_vessel", "common", "A red maple leaf the size of a raft. It wanders, but it is kind to your Qi.", {"sprite": "leaf", "qi_mult": 0.75, "speed_mult": 1.0}),
+    ("flying_sword_vessel", "heaven", "Ride your sword into the sky, the way the stories say. The air costs a fifth less.", {"sprite": "sword", "qi_mult": 0.8}),
+    ("cloud_puff_vessel", "earth", "A small obedient cloud, soft and very cheap on Qi.", {"sprite": "cloud", "qi_mult": 0.65}),
+    ("jade_gourd_vessel", "earth", "A great jade gourd you sit astride. Steady on the wind.", {"sprite": "gourd", "qi_mult": 0.85}),
+    ("maple_leaf_vessel", "common", "A red maple leaf the size of a raft. It wanders, but it is kind to your Qi.", {"sprite": "leaf", "qi_mult": 0.75}),
 ]
 
 
@@ -184,6 +191,7 @@ RAW_HERB = {
 
 def build_items():
     rows = []
+    TREASURE_DEFS.clear()
     for h in HERBS:
         raw = RAW_HERB.get(h[0])
         extra = {"use": raw[0], "raw": {"toxicity": raw[1]}} if raw else {}
@@ -318,19 +326,21 @@ def build_items():
     # Treasures (gap report G2): set in the HUD's Treasure buttons (one from Heart Tempering 1, a second from
     # Spirit Awakening 1). Each is one action with a cooldown and a QI cost; none is a stat stick.
     for tid, grade, desc, t in TREASURES:
-        rows.append(item(tid, "treasure_art", grade, 1, desc, treasure=t))
-    # Throwables (G2): quick-use items any weapon family can throw.
-    rows.append(item("throwing_needles", "throwable", "common", 99, "Three needles flicked at once. Light, fast, and they find the gaps in armour.",
+        # Soul from Spirit Awakening 1: a third of the QI cost (a starting value, S47).
+        t = dict(t, soul=t["qi"] // 3)
+        extra = {"sell": False} if tid == "elder_hus_talisman" else {}
+        rows.append(item(tid, "treasure_art", grade, 1, desc, treasure=tid, **extra))
+        TREASURE_DEFS.append(dict(t, id=tid))
+    # Throwables (S47, Part 8): forged, quick-use, and any weapon family can throw them.
+    rows.append(item("iron_needles", "throwable", "common", 99, "Three needles flicked at once. Light, fast, and they find the gaps in armour.",
                      use=[effect("throw", art="needle", count=3, mult=0.45, speed=760, range=380, pierce=0)], food={"group": "throw"}))
-    rows.append(item("flying_knives", "throwable", "earth", 99, "A balanced throwing knife. One hard hit at range.",
+    rows.append(item("flying_knives", "throwable", "earth", 99, "A balanced throwing knife. One hard hit at range that passes through a foe.",
                      use=[effect("throw", art="knife", count=1, mult=1.2, speed=640, range=420, pierce=1)], food={"group": "throw"}))
-    rows.append(item("thunderclap_pellet", "throwable", "heaven", 99, "A lacquered pellet packed with storm shard dust. It bursts where it lands: damage and knockback all around.",
+    rows.append(item("thunderclap_pellet", "throwable", "common", 99, "A lacquered pellet packed with ore dust and pepper. It bursts where it lands: damage and knockback all around.",
                      use=[effect("throw", art="pellet", count=1, mult=1.6, speed=520, range=360, burst=120, knockback=130)], food={"group": "throw"}))
-    # A talisman treasure (G2): three charges of an art far above your realm. Its power is the talisman's, not yours.
-    rows.append(item("heaven_splitting_talisman", "talisman", "mystic", 1,
-                     "An elder's last sword stroke folded into paper. Three times it will split the air in front of you for 12,000 damage, whatever your realm. Never sold.",
-                     sell=False, use=[], use_action="talisman_charge", talisman={"charges": 3, "power": 12000, "reach": 540, "depth": 70}))
-    # Flight vessels (G2): what you ride when you fly. It sets the look of your flight and what the air costs.
+    # The tribulation treasure (S48): held, it takes one heavenly-tribulation bolt and burns away.
+    rows.append(item("lightning_rod_talisman", "talisman", "heaven", 9, "Carried through a heavenly tribulation, it draws one bolt into itself and burns away."))
+    # Flight vessels (S47): what you ride when you fly. It sets the look of your flight and what the air costs.
     for vid, grade, desc, fl in VESSELS:
         rows.append(item(vid, "vessel", grade, 1, desc, flight=fl))
     # Heavenly Flames (gap report G1): one to a zone tier, taken from a boss; absorbed for good and kept in the Codex.
@@ -364,6 +374,7 @@ def build_items():
     rows.append(item("monarch_condensing_pill", "pill", "monarch", 99, "Helps the Monarch conversion. (Later zones.)", ilv=115, pill={"mark": "knot", "toxicity": 25, "group": "utility"}, use=[]))
     rows.append(item("sigil_anchor_pill", "pill", "monarch", 99, "Anchors the Dao Sigil. (Later zones.)", ilv=120, pill={"mark": "knot", "toxicity": 25, "group": "utility"}, use=[]))
     entries("items.json", rows)
+    entries("treasures.json", TREASURE_DEFS)   # S47: what each treasure does, keyed by its item id
     return rows
 
 

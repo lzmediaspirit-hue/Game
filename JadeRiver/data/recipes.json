@@ -2346,19 +2346,23 @@
    ]
   },
   {
-   "id": "throwing_needles",
+   "id": "iron_needles",
    "craft": "smithing",
    "grade": "common",
    "inputs": [
     {
-     "item": "copper_ore",
+     "item": "riverstone",
+     "count": 1
+    },
+    {
+     "item": "beetle_shell",
      "count": 1
     }
    ],
    "outputs": [
     {
-     "item": "throwing_needles",
-     "count": 10
+     "item": "iron_needles",
+     "count": 20
     }
    ],
    "default": true
@@ -2371,19 +2375,62 @@
     {
      "item": "jadeiron",
      "count": 1
-    },
-    {
-     "item": "boar_hide",
-     "count": 1
     }
    ],
    "outputs": [
     {
      "item": "flying_knives",
-     "count": 6
+     "count": 10
     }
    ],
    "default": true
+  },
+  {
+   "id": "thunderclap_pellet",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "ore_dust",
+     "count": 2
+    },
+    {
+     "item": "ember_pepper",
+     "count": 1
+    },
+    {
+     "item": "lantern_wick",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "thunderclap_pellet",
+     "count": 3
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "bright_mirror",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 6
+    },
+    {
+     "item": "pearl",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "bright_mirror",
+     "count": 1
+    }
+   ]
   },
   {
    "id": "earth_vein_furnace",

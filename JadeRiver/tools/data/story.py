@@ -460,8 +460,9 @@ def unlocks():
     u("formations", "Formations", all_of(realm("heart_tempering_1")), "lines_in_the_sand", ["page:formations"],
       effects=[{"kind": "grant_item", "item": "formation_kit", "count": 1}])
     # Gap report G2: the Treasure button. Plates and treasures both hold Qi, so the arrays quest teaches it.
-    u("treasures", "Treasures", all_of(realm("heart_tempering_1")), "lines_in_the_sand", ["hud:treasure_1"],
-      effects=[{"kind": "grant_item", "item": "stilling_bell", "count": 1}], same_stage_ok=True)
+    # S47: the first Treasure button comes with "A Treasure in Hand"; the Bright Mirror blueprint with it.
+    u("treasures", "Treasures", all_of(realm("heart_tempering_1")), "a_treasure_in_hand", ["hud:treasure_1"],
+      effects=[{"kind": "learn_recipe", "recipe": "bright_mirror"}], same_stage_ok=True)
     u("perfect_timing", "Perfect timing", all_of(realm("heart_tempering_1")), "lines_in_the_sand", [], same_stage_ok=True, toast=False)
     u("healing", "Healing", all_of(realm("heart_tempering_3")), "the_infirmary", [], effects=[{"kind": "grant_item", "item": "needle_case", "count": 1}])
     u("array_plates", "Array plates", all_of(realm("heart_tempering_5")), "carry_a_wall", [])
@@ -533,7 +534,7 @@ KARMA_QUESTS = {"grannys_remedy": 5, "the_rite": 10, "the_infirmary": 10, "what_
 def quest(qid, name, kind, giver, objectives, rewards=(), hand_in=None, offer=(), complete=(), progress=(), **kw):
     rewards = list(rewards)
     if qid in KARMA_QUESTS:
-        rewards.append({"kind": "karma", "merit": KARMA_QUESTS[qid], "reason": qid})
+        rewards.append({"kind": "add_merit", "amount": KARMA_QUESTS[qid], "reason": qid})
     d = {"id": qid, "name": name, "kind": kind, "giver": giver, "hand_in": giver if hand_in is None else hand_in,
          "marker": kw.pop("marker", "gold" if kind in ("main", "prologue") else "blue"),
          "objectives": list(objectives), "rewards": rewards}
@@ -879,6 +880,13 @@ def guided_quests():
         on_accept=[item("fuel_crystal_low", 3)],
         offer=["Three nodes, one centre, fuel in each. A gathering formation thickens Qi around you."],
         complete=["Lines hold. Formations are patience made visible."])
+    quest("a_treasure_in_hand", "A Treasure in Hand", "guided", "elder_hu", [
+        o("use_system", "Ring the Practice Bell in a fight", 3, system="treasure"),
+    ], [taels(60)], offered_by_unlock=True, chapter="ht1", same_stage_ok=True, giver_any=M, hand_in_any=M,
+        on_accept=[item("practice_bell", 1)],
+        offer=["A cultivator carries more than a blade. Take this Practice Bell; it sits in your Treasure button.",
+               "Ring it three times when foes press close. Feel what a treasure costs you."],
+        complete=["Keep the bell. Better treasures wait in the valley: drowned bells, jade pagodas, mirrors that throw back arrows."])
     quest("the_infirmary", "The Infirmary", "guided", "jade_physician", [
         o("use_system", "Treat injured disciples", 3, system="treat_patient"),
     ], [fx("add_contribution", amount=100)], offered_by_unlock=True, chapter="ht3", giver_any=PHYSICIANS, hand_in_any=PHYSICIANS,
@@ -904,7 +912,9 @@ def guided_quests():
     quest("the_heart_trial", "The Heart Trial", "main", "elder_hu", [
         o("pass_event", "Win the Trial of Reflections", event="heart_trial"),
     ], [fx("codex", entry="heart_trial")], offered_by_unlock=True, chapter="6", giver_any=M, hand_in_any=M,
-        offer=["Step into the circle on my peak. What comes out of the mirror is you. Beat it."],
+        on_accept=[item("elder_hus_talisman", 1)],
+        offer=["Step into the circle on my peak. What comes out of the mirror is you. Beat it.",
+               "Take this: Elder Hu's Heaven-Splitting Palm, folded into paper. Three charges. Set it in a Treasure button and keep it for the worst moment."],
         complete=["You looked yourself in the eye and didn't blink. Cloud Stride awaits."])
     quest("wings_of_cloud", "Wings of Cloud", "main", "elder_hu", [
         o("use_system", "Take to the air: jump again at the top of a double jump", system="flight"),
@@ -961,11 +971,9 @@ def guided_quests():
         offer=["Souls tire. Rest yours."], complete=["Soul Soothing Pills, for the worst days."])
     quest("the_mentors_gift", "The Mentor's Gift", "guided", "elder_hu", [
         o("win_spar", "Pass the personal-disciple trial", opponent="sparring_disciple"),
-    ], [fx("learn_secret_art", art="lotus_heart_breathing"), {"kind": "grant_item", "item": "heaven_splitting_talisman", "count": 1,
-                                                                 "instance": {"charges": 3}}], offered_by_unlock=True, chapter="sa5", giver_any=M, hand_in_any=M,
+    ], [fx("learn_secret_art", art="lotus_heart_breathing")], offered_by_unlock=True, chapter="sa5", giver_any=M, hand_in_any=M,
         offer=["Beat my best disciple and I'll teach you personally."],
-        complete=["My personal disciple. My secret art is yours, and the cave behind the pagoda is your abode.",
-                  "And this: my last stroke, folded into paper. Three times it will cut what you cannot. Do not waste them on rats."])
+        complete=["My personal disciple. My secret art is yours, and the cave behind the pagoda is your abode."])
     quest("treasures_of_heaven_and_earth", "Treasures of Heaven and Earth", "guided", "elder_hu", [
         o("collect", "Pick the Mindwell Lotus behind Crane Falls", item="mindwell_lotus", consume=False),
         o("use_system", "Plant the Evergreen Heart seed in rich earth (the elder's peak, your cave abode or the Back Mountain)",
@@ -1560,7 +1568,8 @@ def side_quests():
             else:
                 ob = o("reach_room", "Visit the Falls Pool at dawn", room=target)
             rq = all_of({"kind": "companion_owned", "companion": cid}) if prev is None else all_of(qdone(prev))
-            quest(qid, qname, "side", cid, [ob], [fx("add_bond", amount=10), taels(80)], requires=rq, chapter="companion",
+            rw = [fx("add_bond", amount=10), taels(80)] + ([item("wisp_banner", 1)] if qid == "bai_lings_formation" else [])
+            quest(qid, qname, "side", cid, [ob], rw, requires=rq, chapter="companion",
                   offer=["%s has a favour to ask." % name], complete=["%s smiles. \"Thank you.\"" % name])
             prev = qid
     quest("a_hall_of_our_own", "A Hall of Our Own", "side", "courier_lin", [o("use_system", "Found your sect", system="found_sect")],
@@ -1585,13 +1594,13 @@ def dialogue():
     # Night: send villagers to the hut.
     tree("little_dou", [{"requires": all_of({"kind": "in_room", "room": "lf_village_night"}, noflag("dou_safe")), "node": "night"}],
          {"night": {"lines": ["The water's grey! There's something in it!"],
-                    "choices": [{"text": "Run to the hut! Now!", "effects": [{"kind": "set_flag", "flag": "dou_safe"}, {"kind": "karma", "merit": 10, "reason": "the_hollow_night"}], "close": True}]}})
+                    "choices": [{"text": "Run to the hut! Now!", "effects": [{"kind": "set_flag", "flag": "dou_safe"}, {"kind": "add_merit", "amount": 10, "reason": "the_hollow_night"}], "close": True}]}})
     tree("granny_liu", [{"requires": all_of({"kind": "in_room", "room": "lf_village_night"}, noflag("granny_safe")), "node": "night"}],
          {"night": {"lines": ["My old legs... help me, child."],
-                    "choices": [{"text": "Lean on me. To Aunt Ping's hut.", "effects": [{"kind": "set_flag", "flag": "granny_safe"}, {"kind": "karma", "merit": 10, "reason": "the_hollow_night"}], "close": True}]}})
+                    "choices": [{"text": "Lean on me. To Aunt Ping's hut.", "effects": [{"kind": "set_flag", "flag": "granny_safe"}, {"kind": "add_merit", "amount": 10, "reason": "the_hollow_night"}], "close": True}]}})
     tree("old_ma", [{"requires": all_of({"kind": "in_room", "room": "lf_village_night"}, noflag("ma_safe")), "node": "night"}],
          {"night": {"lines": ["My shop! My stock!"],
-                    "choices": [{"text": "Leave it! Get to the hut!", "effects": [{"kind": "set_flag", "flag": "ma_safe"}, {"kind": "karma", "merit": 10, "reason": "the_hollow_night"}], "close": True}]}})
+                    "choices": [{"text": "Leave it! Get to the hut!", "effects": [{"kind": "set_flag", "flag": "ma_safe"}, {"kind": "add_merit", "amount": 10, "reason": "the_hollow_night"}], "close": True}]}})
     # Sect choice at the Recruitment Fair.
     for rid, s, sname, pitch in [("recruiter_jade", "jade_sect", "Jade Sect", "Water's patience, the sword's clarity. Jade Current Scripture: steady, deep, forgiving."),
                                  ("recruiter_cloud", "cloud_sect", "Cloud Sect", "Wind and height. Cloudpiercing Canon: fast, sharp, a little wild.")]:
@@ -1634,7 +1643,7 @@ def dialogue():
                                 {"kind": "grant_title", "title": "seal_keeper"}], "close": True},
                                {"text": "No. It goes back into the King's hand, and the tomb stays shut.",
                                 "effects": [{"kind": "set_flag", "flag": "tomb_resealed"}, {"kind": "remove_item", "item": "sunscar_seal", "count": 1},
-                                            {"kind": "karma", "merit": 20, "reason": "tomb_resealed"},
+                                            {"kind": "add_merit", "amount": 20, "reason": "tomb_resealed"},
                                             {"kind": "grant_title", "title": "sunscar_sealer"}], "close": True}]},
           "waiting": {"lines": ["Go on. He is waiting on his throne, as he has for three thousand years.", "I will wait too. I am good at it."],
                       "choices": [{"text": "(Leave him.)", "close": True}]}})
@@ -1646,14 +1655,14 @@ def dialogue():
                                "Three disciples of the Nine Peaks sold them the Gate's watch. It is all in the ledger. Free me and it is yours."],
                      "choices": [{"text": "(Break his chains.) Go home, Gu. Pay your debts there.",
                                   "effects": [{"kind": "set_flag", "flag": "gu_freed"}, {"kind": "grant_item", "item": "black_ledger", "count": 1},
-                                              {"kind": "karma", "merit": 15, "reason": "gu_freed"},
-                                              {"kind": "karma_debt", "id": "gu_repays", "due_h": 48, "mail": "gu_repays",
+                                              {"kind": "add_merit", "amount": 15, "reason": "gu_freed"},
+                                              {"kind": "record_debt", "id": "gu_repays", "due_h": 48, "mail": "gu_repays",
                                                "attachments": [{"currency": "spirit_stone", "amount": 60}, {"item": "sentinel_core", "count": 1}]}],
                                   "close": True},
                                  {"text": "(Take the ledger from his belt.) The Alliance can decide about you.",
                                   "effects": [{"kind": "set_flag", "flag": "gu_left"}, {"kind": "grant_item", "item": "black_ledger", "count": 1},
-                                              {"kind": "karma", "sin": 10, "reason": "gu_left"},
-                                              {"kind": "karma_debt", "id": "gu_remembers", "due_h": 72, "mail": "gu_remembers", "attachments": []}],
+                                              {"kind": "add_sin", "amount": 10, "reason": "gu_left"},
+                                              {"kind": "record_debt", "id": "gu_remembers", "due_h": 72, "mail": "gu_remembers", "attachments": []}],
                                   "close": True}]}})
     # Chapter 15: after the Gate holds, the Black Ledger's fate.
     tree("elder_zhong", [{"requires": all_of(qactive("the_gate_holds"), {"kind": "event_passed", "event": "sect_war"},
@@ -1663,11 +1672,11 @@ def dialogue():
                                "Burn it and nobody pays again. Or send each page home, and let every family decide what their secret is worth."],
                      "choices": [{"text": "Burn it. The debts end here.",
                                   "effects": [{"kind": "set_flag", "flag": "ledger_burned"}, {"kind": "remove_item", "item": "black_ledger", "count": 1},
-                                              {"kind": "karma", "merit": 20, "reason": "ledger_burned"},
+                                              {"kind": "add_merit", "amount": 20, "reason": "ledger_burned"},
                                               {"kind": "grant_title", "title": "ledger_burner"}], "close": True},
                                  {"text": "Send each page home to its family.",
                                   "effects": [{"kind": "set_flag", "flag": "ledger_returned"}, {"kind": "remove_item", "item": "black_ledger", "count": 1},
-                                              {"kind": "karma", "sin": 10, "reason": "ledger_returned"},
+                                              {"kind": "add_sin", "amount": 10, "reason": "ledger_returned"},
                                               {"kind": "grant_title", "title": "ledger_returner"}], "close": True}]}})
     tree("broker_mu", [{"requires": all_of(qdone("the_mirror_remembers"), noflag("heard_nine_seats")), "node": "rumours"}],
          {"rumours": {"lines": ["You look like someone who has seen a ghost in a lake. It happens.",

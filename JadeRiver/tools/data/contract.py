@@ -56,6 +56,15 @@ CATALOGUE = {
         "sect_founded", "prestige_gained", "sect_level_changed", "building_upgraded", "expedition_returned",
         "defence_warning", "defence_result", "building_damaged"],
 }
+# Build Prompt v2 · Traversal, depth and living-world events (S43-S49), as far as those systems are built.
+# The karma rows move to Relations when that authority exists (S49); until then Progression keeps the ledger.
+DEPTH = {
+    "Progression": ["heart_demon_changed", "residue_changed", "merit_changed", "sin_changed", "debt_recorded", "debt_called"],
+    "Crafting": ["flame_absorbed", "pill_cloud"],
+    "Combat": ["treasure_used"],
+}
+for _sys, _names in DEPTH.items():
+    CATALOGUE[_sys] = CATALOGUE[_sys] + _names
 
 # The scripts that make up each system (an authority plus its rule and brain helpers).
 SYSTEMS = {
@@ -93,6 +102,8 @@ POLLED = {
     "craft_started": "The crafts page drives its own mini-game.",
     "notification_scheduled": "Handed to the platform notifier on phones; nothing to show on desktop.",
     "weekly_reset": "No weekly content in Act I.",
+    "residue_changed": "The Cultivation page's Heart tab reads residue.",
+    "debt_recorded": "The Cultivation page's Heart tab lists debts; the callback is debt_called.",
 }
 
 

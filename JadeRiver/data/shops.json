@@ -40,6 +40,18 @@
        }
       ]
      }
+    },
+    {
+     "item": "sealing_gourd",
+     "price": 900,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "spirit_awakening_1"
+       }
+      ]
+     }
     }
    ],
    "rotation": {
@@ -104,10 +116,6 @@
    "currency": "silver_tael",
    "buys_all": true,
    "stock": [
-    {
-     "item": "throwing_needles",
-     "price": 4
-    },
     {
      "item": "herbal_tea"
     },
@@ -313,18 +321,6 @@
    "currency": "silver_tael",
    "buys_all": true,
    "stock": [
-    {
-     "item": "flying_knives",
-     "price": 12,
-     "requires": {
-      "all": [
-       {
-        "kind": "realm_at_least",
-        "realm": "qi_unfurling_1"
-       }
-      ]
-     }
-    },
     {
      "item": "training_jian"
     },
@@ -644,30 +640,6 @@
      }
     },
     {
-     "item": "returning_mirror",
-     "price": 240,
-     "requires": {
-      "all": [
-       {
-        "kind": "realm_at_least",
-        "realm": "heart_tempering_1"
-       }
-      ]
-     }
-    },
-    {
-     "item": "beast_taking_cauldron",
-     "price": 200,
-     "requires": {
-      "all": [
-       {
-        "kind": "realm_at_least",
-        "realm": "heart_tempering_1"
-       }
-      ]
-     }
-    },
-    {
      "item": "jade_gourd_vessel",
      "price": 180,
      "requires": {
@@ -829,30 +801,6 @@
      }
     },
     {
-     "item": "returning_mirror",
-     "price": 240,
-     "requires": {
-      "all": [
-       {
-        "kind": "realm_at_least",
-        "realm": "heart_tempering_1"
-       }
-      ]
-     }
-    },
-    {
-     "item": "beast_taking_cauldron",
-     "price": 200,
-     "requires": {
-      "all": [
-       {
-        "kind": "realm_at_least",
-        "realm": "heart_tempering_1"
-       }
-      ]
-     }
-    },
-    {
      "item": "cloud_puff_vessel",
      "price": 180,
      "requires": {
@@ -941,18 +889,6 @@
     {
      "item": "dusty_curio",
      "price": 1
-    },
-    {
-     "item": "nine_storey_pagoda",
-     "price": 90,
-     "requires": {
-      "all": [
-       {
-        "kind": "realm_at_least",
-        "realm": "heart_tempering_5"
-       }
-      ]
-     }
     }
    ],
    "rotation": {
@@ -1030,9 +966,21 @@
   },
   {
    "id": "hermit",
-   "name": "Hermit Yao's Offerings",
+   "name": "Hermit Yao's Beast Hall",
    "currency": "silver_tael",
    "stock": [
+    {
+     "item": "taming_cauldron",
+     "price": 200,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       }
+      ]
+     }
+    },
     {
      "item": "bonding_offering_common"
     },
@@ -1155,14 +1103,6 @@
        }
       ]
      }
-    },
-    {
-     "item": "sealing_gourd",
-     "price": 60
-    },
-    {
-     "item": "thunderclap_pellet",
-     "price": 2
     }
    ],
    "rotation": {

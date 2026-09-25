@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dou2pgqf6d8rx"
-path="res://.godot/imported/stilling_bell.png-5a1f7c3186ace6d21d3f45c8f16b9c77.ctex"
+uid="uid://b55njvqq3sb66"
+path="res://.godot/imported/bright_mirror.png-a9ad70b3f88fde77ff72eb991fd06eae.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/icons/items/stilling_bell.png"
-dest_files=["res://.godot/imported/stilling_bell.png-5a1f7c3186ace6d21d3f45c8f16b9c77.ctex"]
+source_file="res://art/icons/items/bright_mirror.png"
+dest_files=["res://.godot/imported/bright_mirror.png-a9ad70b3f88fde77ff72eb991fd06eae.ctex"]
 
 [params]
 

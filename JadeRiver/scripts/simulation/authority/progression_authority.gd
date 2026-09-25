@@ -723,14 +723,15 @@ func apply_karma(actor_id: String, merit: int, sin: int, reason: String) -> void
 	c.cultivator.sin = maxi(0, c.cultivator.sin + sin)
 	if not game.account.codex.has("karma"): game.quest.apply_codex("karma")
 	if sin > 0: apply_heart_demon(c.id, sin * float(ContentDB.stat_const("heart_demon", {}).get("per_sin", 0.1)), "sin")
-	emit("karma_changed", {"actor": c.id, "merit": c.cultivator.merit, "sin": c.cultivator.sin, "delta_merit": merit, "delta_sin": sin, "reason": reason})
+	if merit != 0: emit("merit_changed", {"actor": c.id, "value": c.cultivator.merit, "delta": merit, "reason": reason})
+	if sin != 0: emit("sin_changed", {"actor": c.id, "value": c.cultivator.sin, "delta": sin, "reason": reason})
 
 ## A named debt (G1): a deed the world remembers. When it falls due its mail arrives (the saved repay you).
 func apply_karma_debt(actor_id: String, debt_id: String, due_h: float, mail: String, attachments: Array) -> void:
 	var c = game.character(actor_id)
 	if c == null or c.cultivator.debts.has(debt_id): return
 	c.cultivator.debts[debt_id] = {"due_utc": Clock.now_utc() + due_h * 3600.0, "mail": mail, "attachments": attachments.duplicate(true), "paid": false}
-	emit("karma_debt_recorded", {"actor": c.id, "debt": debt_id})
+	emit("debt_recorded", {"actor": c.id, "debt": debt_id})
 
 func _settle_debts(c) -> void:
 	for id in c.cultivator.debts:
@@ -738,7 +739,7 @@ func _settle_debts(c) -> void:
 		if d.get("paid", false) or Clock.now_utc() < float(d.get("due_utc", 0.0)): continue
 		d.paid = true
 		if str(d.get("mail", "")) != "": game.mail.apply_send(c.id, str(d.mail), d.get("attachments", []), {})
-		emit("karma_debt_repaid", {"actor": c.id, "debt": id})
+		emit("debt_called", {"actor": c.id, "debt": id})
 
 ## The Sovereign Settling Pill: what is left of this stage's consolidation ends on the next tick.
 func apply_settle(actor_id: String) -> void:
@@ -898,7 +899,7 @@ func consult_jade_tree(c) -> Dictionary:
 	var amount := maxf(float(cfg.get("jade_tree_min_insight", 500)), gap * float(cfg.get("jade_tree_share", 0.75)))
 	apply_insight(c.id, dao, amount, "nine_bough_jade_tree")
 	c.cultivator.treasure_uses["nine_bough_jade_tree"] = c.cultivator.realm_key
-	emit("treasure_used", {"actor": c.id, "treasure": "nine_bough_jade_tree", "dao": dao, "amount": amount})
+	emit("natural_treasure_used", {"actor": c.id, "treasure": "nine_bough_jade_tree", "dao": dao, "amount": amount})
 	return ok({"text": Tx.t("sim.progression.the_tree_answers") % ContentDB.name_of("daos", dao), "dao": dao, "amount": amount})
 
 # ------------------------------------------------------------------ seclusion (S07)

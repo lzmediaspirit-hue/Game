@@ -1437,6 +1437,15 @@
       1
      ],
      "weight": 1
+    },
+    {
+     "item": "mountain_seal",
+     "chance": 0.02,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
     }
    ],
    "tameable": false,
@@ -5224,7 +5233,8 @@
     }
    ],
    "first_defeat": [
-    "cold_lamp_flame"
+    "cold_lamp_flame",
+    "bronze_bell"
    ]
   },
   {
@@ -5484,10 +5494,7 @@
    },
    "half_width": 80,
    "height": 140,
-   "hollowing": 8,
-   "first_defeat": [
-    "mountain_seal"
-   ]
+   "hollowing": 8
   },
   {
    "id": "gate_guardian",
@@ -5570,9 +5577,6 @@
      "below": 0.33,
      "action": "flight_phase"
     }
-   ],
-   "first_defeat": [
-    "wisp_banner"
    ]
   },
   {

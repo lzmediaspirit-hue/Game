@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bahmwui61mr04"
-path="res://.godot/imported/throwing_needles.png-c19723c47381a6d8e78f8dac6589bc4a.ctex"
+uid="uid://dma1jlfcgnwk1"
+path="res://.godot/imported/lightning_rod_talisman.png-bf158ad595480b5101d726fae8210e92.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/icons/items/throwing_needles.png"
-dest_files=["res://.godot/imported/throwing_needles.png-c19723c47381a6d8e78f8dac6589bc4a.ctex"]
+source_file="res://art/icons/items/lightning_rod_talisman.png"
+dest_files=["res://.godot/imported/lightning_rod_talisman.png-bf158ad595480b5101d726fae8210e92.ctex"]
 
 [params]
 

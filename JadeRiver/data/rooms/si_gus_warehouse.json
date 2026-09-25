@@ -60,7 +60,18 @@
    "label": "Artisan Row"
   }
  ],
- "objects": [],
+ "objects": [
+  {
+   "id": "gus_vault",
+   "type": "chest",
+   "at": [
+    2300,
+    820
+   ],
+   "loot": "gus_vault",
+   "level": 52
+  }
+ ],
  "spawns": [
   {
    "enemy": "mudwater_bandit",
@@ -106,7 +117,7 @@
  ],
  "scenery": [
   {
-   "id": "sack_pile_1",
+   "id": "sack_pile_2",
    "prop": "sack_pile",
    "position": [
     500,
@@ -124,7 +135,7 @@
    "flip": false
   },
   {
-   "id": "sack_pile_2",
+   "id": "sack_pile_3",
    "prop": "sack_pile",
    "position": [
     800,
@@ -142,7 +153,7 @@
    "flip": false
   },
   {
-   "id": "sack_pile_3",
+   "id": "sack_pile_4",
    "prop": "sack_pile",
    "position": [
     1700,
@@ -160,7 +171,7 @@
    "flip": false
   },
   {
-   "id": "barrel_4",
+   "id": "barrel_5",
    "prop": "barrel",
    "position": [
     1100,

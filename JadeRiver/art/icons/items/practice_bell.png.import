@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://citjohclwrovh"
-path="res://.godot/imported/nine_storey_pagoda.png-9ed885d8683f7c4eca0d4dd759809bc0.ctex"
+uid="uid://eab2cspu8fk8"
+path="res://.godot/imported/practice_bell.png-ea12becac05f9e523a980c799189324e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/icons/items/nine_storey_pagoda.png"
-dest_files=["res://.godot/imported/nine_storey_pagoda.png-9ed885d8683f7c4eca0d4dd759809bc0.ctex"]
+source_file="res://art/icons/items/practice_bell.png"
+dest_files=["res://.godot/imported/practice_bell.png-ea12becac05f9e523a980c799189324e.ctex"]
 
 [params]
 

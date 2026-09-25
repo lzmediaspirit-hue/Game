@@ -34,8 +34,8 @@
          "flag": "ma_safe"
         },
         {
-         "kind": "karma",
-         "merit": 10,
+         "kind": "add_merit",
+         "amount": 10,
          "reason": "the_hollow_night"
         }
        ],

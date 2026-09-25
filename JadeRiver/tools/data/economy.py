@@ -29,13 +29,14 @@ def shops():
     rows = [
         {"id": "old_ma", "name": "Old Ma's Store", "currency": "silver_tael", "buys_all": True,
          "stock": [s("herbal_tea", price=6), s("rice_ball", price=4), s("rice", price=2), s("bamboo_rod", requires=all_of(realm("bone_forging_8"))),
-                   s("bonding_offering_common", requires=all_of(realm("qi_unfurling_5")))],
+                   s("bonding_offering_common", requires=all_of(realm("qi_unfurling_5"))),
+                   s("sealing_gourd", price=900, requires=all_of(realm("spirit_awakening_1")))],
          "rotation": {"count": 1, "pool": [s("willow_moss"), s("boar_hide"), s("river_mud"), s("cloth")]}},
         {"id": "granny_liu", "name": "Granny Liu's Herb Hut", "currency": "silver_tael",
          "stock": [s("herbal_tea"), s("willow_salve"), s("revival_talisman"), s("purging_pill", requires=all_of(realm("qi_kindling_2"))),
                    s("calm_incense", requires=all_of(realm("qi_unfurling_9")))]},
         {"id": "stoneford_general", "name": "Stoneford General Store", "currency": "silver_tael", "buys_all": True,
-         "stock": [s("throwing_needles", price=4), s("herbal_tea"), s("lotus_root_tea"), s("rice_ball"), s("rice"), s("return_charm"), s("herb_sickle", requires=all_of(realm("bone_forging_4"))),
+         "stock": [s("herbal_tea"), s("lotus_root_tea"), s("rice_ball"), s("rice"), s("return_charm"), s("herb_sickle", requires=all_of(realm("bone_forging_4"))),
                    s("iron_pickaxe", requires=all_of(realm("bone_forging_5"))), s("bamboo_gourd"), s("escape_talisman"), s("fish_bait"),
                    s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1")))],
          "rotation": {"count": 1, "pool": [s("bamboo_rod"), s("lantern_wick"), s("clay_pot")]}},
@@ -51,7 +52,7 @@ def shops():
         {"id": "mei_qing_recipes", "name": "Mei Qing's Recipe Box", "currency": "silver_tael",
          "stock": [s("recipe_scroll", learn="qi_refining_pill", price=800, requires=all_of(realm("heart_tempering_5")))]},
         {"id": "stoneford_smith", "name": "Stoneford Smith", "currency": "silver_tael", "buys_all": True,
-         "stock": [s("flying_knives", price=12, requires=all_of(realm("qi_unfurling_1"))), s("training_jian"), s("training_spear"), s("training_gauntlets"), s("training_short_blade"), s("training_staff"), s("training_bow"),
+         "stock": [s("training_jian"), s("training_spear"), s("training_gauntlets"), s("training_short_blade"), s("training_staff"), s("training_bow"),
                    s("iron_jian", requires=all_of(realm("qi_kindling_1"))), s("iron_spear", requires=all_of(realm("qi_kindling_1"))),
                    s("iron_gauntlets", requires=all_of(realm("qi_kindling_1"))), s("iron_short_blade", requires=all_of(realm("qi_kindling_1"))),
                    s("iron_staff", requires=all_of(realm("qi_kindling_1"))), s("iron_bow", requires=all_of(realm("qi_kindling_1"))),
@@ -70,8 +71,7 @@ def shops():
                    s("healing_pill"), s("qi_restoration_pill"), s("cleansing_pill", requires=all_of(realm("qi_kindling_9"))),
                    s("foundation_guard_pill", requires=all_of(realm("qi_unfurling_1"))), s("clear_mind_pill"), s("revival_talisman"),
                    s("bonding_offering_earth", requires=all_of(realm("qi_unfurling_5"))), s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1"))),
-                   s("returning_mirror", price=240, requires=all_of(realm("heart_tempering_1"))), s("beast_taking_cauldron", price=200, requires=all_of(realm("heart_tempering_1"))),
-                   s("jade_gourd_vessel", price=180, requires=all_of(realm("cloud_stride_1"))),
+                                      s("jade_gourd_vessel", price=180, requires=all_of(realm("cloud_stride_1"))),
                    s("jade_current_robe", requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_stonebody_canon", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_willow_breath_art", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
@@ -84,8 +84,7 @@ def shops():
                    s("healing_pill"), s("qi_restoration_pill"), s("cleansing_pill", requires=all_of(realm("qi_kindling_9"))),
                    s("foundation_guard_pill", requires=all_of(realm("qi_unfurling_1"))), s("clear_mind_pill"), s("revival_talisman"),
                    s("bonding_offering_earth", requires=all_of(realm("qi_unfurling_5"))), s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1"))),
-                   s("returning_mirror", price=240, requires=all_of(realm("heart_tempering_1"))), s("beast_taking_cauldron", price=200, requires=all_of(realm("heart_tempering_1"))),
-                   s("cloud_puff_vessel", price=180, requires=all_of(realm("cloud_stride_1"))),
+                                      s("cloud_puff_vessel", price=180, requires=all_of(realm("cloud_stride_1"))),
                    s("cloudpiercing_robe", requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_stonebody_canon", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_willow_breath_art", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
@@ -93,12 +92,12 @@ def shops():
                    s("manual_nine_winds_canon", price=800, requires=all_of({"kind": "sect_rank_at_least", "rank": "core_disciple"}))],
          "rotation": {"count": 1, "pool": [s("manual_page")]}},
         {"id": "old_pan", "name": "Old Pan's Wares", "currency": "spirit_stone",
-         "stock": [s("dusty_curio", price=1), s("nine_storey_pagoda", price=90, requires=all_of(realm("heart_tempering_5")))], "rotation": {"count": 3, "pool": [s("torn_manual", price=5, requires=all_of(realm("spirit_awakening_6"))), s("riverreed_ginseng_100", price=4), s("manual_page", price=6), s("spirit_egg", price=12,
+         "stock": [s("dusty_curio", price=1)], "rotation": {"count": 3, "pool": [s("torn_manual", price=5, requires=all_of(realm("spirit_awakening_6"))), s("riverreed_ginseng_100", price=4), s("manual_page", price=6), s("spirit_egg", price=12,
                    requires=all_of(realm("heart_tempering_5"))), s("mist_lotus", price=3), s("clear_mind_pill", price=3), s("spirit_jade", price=8)]}},
         {"id": "greyreed", "name": "Greyreed Trade Post", "currency": "silver_tael", "buys_all": True,
          "stock": [s("rice"), s("rice_ball"), s("cleansing_pill"), s("purging_pill"), s("grey_hide")]},
-        {"id": "hermit", "name": "Hermit Yao's Offerings", "currency": "silver_tael",
-         "stock": [s("bonding_offering_common"), s("roast_fish"), s("fish_bait"), s("maple_leaf_vessel", price=600, requires=all_of(realm("cloud_stride_1")))]},
+        {"id": "hermit", "name": "Hermit Yao's Beast Hall", "currency": "silver_tael",
+         "stock": [s("taming_cauldron", price=200, requires=all_of(realm("heart_tempering_1"))), s("bonding_offering_common"), s("roast_fish"), s("fish_bait"), s("maple_leaf_vessel", price=600, requires=all_of(realm("cloud_stride_1")))]},
         # Act II · Cloudgate Port and the Thunderhorn Plains. Spirit Stone prices come from tael prices at the exchange rate.
         {"id": "alliance_factor", "name": "Alliance Factor's Hall", "currency": "spirit_stone", "discount": {"flag": "path_alliance", "pct": 0.1},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_short_blade"), s("stormsteel_staff"),
@@ -107,7 +106,7 @@ def shops():
          "rotation": {"count": 1, "pool": [s("storm_shard", price=4), s("spirit_stone_mid", price=12)]}},
         {"id": "port_peddler", "name": "Peddler Gou's Packs", "currency": "spirit_stone", "buys_all": True,
          "stock": [s("healing_pill"), s("qi_restoration_pill"), s("return_charm"), s("escape_talisman"), s("rice_ball"), s("revival_talisman"),
-                   s("fuel_crystal_mid", requires=all_of(realm("sage_1"))), s("sealing_gourd", price=60), s("thunderclap_pellet", price=2)],
+                   s("fuel_crystal_mid", requires=all_of(realm("sage_1")))],
          "rotation": {"count": 2, "pool": [s("clear_mind_pill"), s("soul_soothing_pill"), s("manual_page", price=6), s("spirit_egg", price=14)]}},
         {"id": "stormsteel_smith", "name": "Hong's Stormsteel Forge", "currency": "spirit_stone", "buys_all": True,
          "stock": [s("stormsteel_ore"), s("mystic_ore"),
@@ -238,9 +237,12 @@ def recipes():
         r(jade, "smithing", [("jadeiron", 3), extra, ("spirit_stone_shard", 1)], [(jade, 1)], "earth")
     r("fuel_crystal_low", "smithing", [("spirit_stone_shard", 2)], [("fuel_crystal_low", 1)], "common", default=True)
     r("fuel_crystal_mid", "smithing", [("fuel_crystal_low", 10)], [("fuel_crystal_mid", 1)], "earth")
-    # Throwables (gap report G2): a handful from a little metal.
-    r("throwing_needles", "smithing", [("copper_ore", 1)], [("throwing_needles", 10)], "common", default=True)
-    r("flying_knives", "smithing", [("jadeiron", 1), ("boar_hide", 1)], [("flying_knives", 6)], "earth", default=True)
+    # Throwables (S47, Part 8): forged by the handful.
+    r("iron_needles", "smithing", [("riverstone", 1), ("beetle_shell", 1)], [("iron_needles", 20)], "common", default=True)
+    r("flying_knives", "smithing", [("jadeiron", 1)], [("flying_knives", 10)], "earth", default=True)
+    r("thunderclap_pellet", "smithing", [("ore_dust", 2), ("ember_pepper", 1), ("lantern_wick", 1)], [("thunderclap_pellet", 3)], "common", default=True)
+    # The Bright Mirror: a forge blueprint learned at Heart Tempering 1 (S47, Part 8).
+    r("bright_mirror", "smithing", [("jadeiron", 6), ("pearl", 2)], [("bright_mirror", 1)], "earth")
     # Furnaces are refined at the forge like weapons (gap report G1): each is cast around the last.
     r("earth_vein_furnace", "smithing", [("bronze_furnace", 1), ("jadeiron", 12), ("riverstone", 8)], [("earth_vein_furnace", 1)], "earth",
       default=True, requires_ranks={"smithing": "adept"})

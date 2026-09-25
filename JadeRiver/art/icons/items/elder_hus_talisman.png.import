@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://k26t2f8dkere"
-path="res://.godot/imported/returning_mirror.png-fefd1ff775dde8ea1fb3f089cfbab19e.ctex"
+uid="uid://dm18qk4dcme51"
+path="res://.godot/imported/elder_hus_talisman.png-b7836fb75c0345943134f1016bb59d35.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/icons/items/returning_mirror.png"
-dest_files=["res://.godot/imported/returning_mirror.png-fefd1ff775dde8ea1fb3f089cfbab19e.ctex"]
+source_file="res://art/icons/items/elder_hus_talisman.png"
+dest_files=["res://.godot/imported/elder_hus_talisman.png-b7836fb75c0345943134f1016bb59d35.ctex"]
 
 [params]
 

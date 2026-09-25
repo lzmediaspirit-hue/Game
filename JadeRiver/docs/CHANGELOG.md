@@ -5,6 +5,43 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V1a · Treasures, talismans and throwables follow Build Prompt v2 (S47, Part 8)
+Build Prompt v2 folds the gap report into the build prompt and wins where they disagree (docs/v2_audit.md).
+G2a's treasures now match its Part 8.
+- **Treasures and sources.** Each treasure has a flat QI cost and, from Spirit Awakening 1, a Soul cost of a
+  third of that. Their definitions are in `treasures.json`.
+
+  | Treasure | Effect | Cost | Source |
+  |---|---|---|---|
+  | Practice Bell | stun 0.5 s, radius 100 | 25 s · 15 QI | *A Treasure in Hand*, the new Heart Tempering 1 guided quest from Elder Hu or Elder Sung; it opens Treasure slot 1 |
+  | Bronze Bell | stun 1 s + Qi Seal 3 s, radius 150 | 20 s · 30 QI | Drowned Abbot, first clear |
+  | Little Pagoda | holds one foe 4 s, an elite first; bosses immune | 30 s · 40 QI | Gu's Warehouse vault |
+  | Bright Mirror | returns projectiles 2 s | 18 s · 25 QI | forged from Jadeiron ×6 and pearls ×2 (blueprint at Heart Tempering 1) |
+  | Mountain Seal | 250 % Qi Attack, radius 120 | 25 s · 45 QI | Stone Guardian, rare drop |
+  | Taming Cauldron | takes a beast below 20 % HP as its fixed materials, no loot roll | 40 s · 30 QI | Hermit Yao's Beast Hall |
+  | Wisp Banner | three wisps fight for 10 s | 45 s · 50 QI | Bai Ling's quest line |
+  | Sealing Gourd | drinks projectiles for 3 s | 20 s · 30 QI | Old Ma, after Spirit Awakening 1 |
+
+- **Elder Hu's Talisman** (was the Heaven Splitting Talisman). It sits in a Treasure button and holds three
+  charges of the Heaven-Splitting Palm (600 % Qi Attack), with no cooldown. Elder Hu gives it when you accept
+  the Heart Trial. The button shows the charges left.
+- **Throwables are forged:**
+  - Iron Needles ×20 from Riverstone and a beetle shell;
+  - Flying Knives ×10 from Jadeiron;
+  - Thunderclap Pellets ×3 from ore dust, Ember Pepper and a lantern wick.
+
+  The Lightning-Rod Talisman item exists, ready for tribulation.
+- **Vessels** set the flight sprite and QI cost only. The speed changes and the Sealing Gourd's heal were
+  inventions, and are gone.
+- **HUD.** Treasure 1 is at (887, 470) and Treasure 2 at (799, 470), with the Z and X keys. The Pet button moved
+  to (965, 560), clear of skill slot 2.
+- **Events** use v2's names:
+  - `treasure_used` for deployed treasures; the natural-treasure event is now `natural_treasure_used`;
+  - `merit_changed`, `sin_changed`, `debt_recorded` and `debt_called`.
+  - Effects `add_merit`, `add_sin`, `record_debt` and `add_residue`.
+  - The event contract now lists every S43–S49 event the build emits.
+- The Wisp Banner is described as formation light, not bound wisps, to stay clear of soul banners.
+
 ### G2a · Treasures, throwables, a talisman treasure and flight vessels (gap report priorities 4–5)
 - **Two Treasure buttons** left of Guard (R and T on a keyboard). The first opens at Heart Tempering 1
   with the **Stilling Bell** (quest *Lines in the Sand*), the second at Spirit Awakening 1. Set a treasure

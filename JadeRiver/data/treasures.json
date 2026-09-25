@@ -1,0 +1,102 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "action": "bell",
+   "cooldown_s": 25,
+   "qi": 15,
+   "radius": 100,
+   "stun_s": 0.5,
+   "seal_s": 0,
+   "source": "A Treasure in Hand (Heart Tempering 1)",
+   "soul": 5,
+   "id": "practice_bell"
+  },
+  {
+   "action": "bell",
+   "cooldown_s": 20,
+   "qi": 30,
+   "radius": 150,
+   "stun_s": 1,
+   "seal_s": 3,
+   "source": "Drowned Abbot (first clear)",
+   "soul": 10,
+   "id": "bronze_bell"
+  },
+  {
+   "action": "pagoda",
+   "cooldown_s": 30,
+   "qi": 40,
+   "range": 320,
+   "imprison_s": 4,
+   "source": "Gu's Warehouse vault",
+   "soul": 13,
+   "id": "little_pagoda"
+  },
+  {
+   "action": "mirror",
+   "cooldown_s": 18,
+   "qi": 25,
+   "reflect_s": 2,
+   "source": "Forge (Heart Tempering blueprint)",
+   "soul": 8,
+   "id": "bright_mirror"
+  },
+  {
+   "action": "seal",
+   "cooldown_s": 25,
+   "qi": 45,
+   "radius": 120,
+   "mult": 2.5,
+   "knockback": 120,
+   "damage_type": "qi",
+   "source": "Stone Guardian (rare)",
+   "soul": 15,
+   "id": "mountain_seal"
+  },
+  {
+   "action": "cauldron",
+   "cooldown_s": 40,
+   "qi": 30,
+   "range": 260,
+   "below": 0.2,
+   "source": "Beast Hall shop",
+   "soul": 10,
+   "id": "taming_cauldron"
+  },
+  {
+   "action": "banner",
+   "cooldown_s": 45,
+   "qi": 50,
+   "wisps": 3,
+   "duration": 10,
+   "mult": 0.6,
+   "range": 280,
+   "source": "Bai Ling's quest line",
+   "soul": 16,
+   "id": "wisp_banner"
+  },
+  {
+   "action": "gourd",
+   "cooldown_s": 20,
+   "qi": 30,
+   "absorb_s": 3,
+   "radius": 240,
+   "source": "Old Ma (after Spirit Awakening 1)",
+   "soul": 10,
+   "id": "sealing_gourd"
+  },
+  {
+   "action": "palm",
+   "cooldown_s": 0,
+   "qi": 0,
+   "charges": 3,
+   "mult": 6.0,
+   "reach": 540,
+   "depth": 70,
+   "source": "Elder Hu, before the Heart Trial",
+   "soul": 0,
+   "id": "elder_hus_talisman"
+  }
+ ]
+}

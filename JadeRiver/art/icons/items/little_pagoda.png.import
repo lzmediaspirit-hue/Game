@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bkm1jmfjff05d"
-path="res://.godot/imported/beast_taking_cauldron.png-7b2954b14bc02cc0abb858b99c3527ec.ctex"
+uid="uid://b6i86pemnchut"
+path="res://.godot/imported/little_pagoda.png-ee6e3e58abfcc25d5bd1967a47bc5880.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/icons/items/beast_taking_cauldron.png"
-dest_files=["res://.godot/imported/beast_taking_cauldron.png-7b2954b14bc02cc0abb858b99c3527ec.ctex"]
+source_file="res://art/icons/items/little_pagoda.png"
+dest_files=["res://.godot/imported/little_pagoda.png-ee6e3e58abfcc25d5bd1967a47bc5880.ctex"]
 
 [params]
 

@@ -137,8 +137,10 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"add_progress": progression.apply_progress(actor_id, float(e.get("amount", 0)), source, float(e.get("pct_of_need", 0)))
 			# Gap report G1: the heart-demon meter, the karma ledger and its named debts, residue.
 			"add_heart_demon": progression.apply_heart_demon(actor_id, float(e.get("amount", 0)), source)
-			"karma": progression.apply_karma(actor_id, int(e.get("merit", 0)), int(e.get("sin", 0)), str(e.get("reason", source)))
-			"karma_debt": progression.apply_karma_debt(actor_id, str(e.id), float(e.get("due_h", 24)), str(e.get("mail", "")), e.get("attachments", []))
+			"add_merit": progression.apply_karma(actor_id, int(e.get("amount", 0)), 0, str(e.get("reason", source)))
+			"add_sin": progression.apply_karma(actor_id, 0, int(e.get("amount", 0)), str(e.get("reason", source)))
+			"record_debt": progression.apply_karma_debt(actor_id, str(e.id), float(e.get("due_h", 24)), str(e.get("mail", "")), e.get("attachments", []))
+			"add_residue": progression.apply_residue(actor_id, float(e.get("amount", 0)))
 			"clear_residue": progression.apply_residue(actor_id, -float(e.get("amount", 1000000.0)))
 			"throw": combat.apply_throw(actor_id, e)
 			"add_body_xp": progression.apply_body_xp(actor_id, float(e.amount), source)

@@ -1327,6 +1327,7 @@ def valley():
     for x in [500, 800, 1700]:
         r.decor("sack_pile", [x, 700])
     r.decor("barrel", [1100, 700])
+    r.chest([2300, 820], loot="gus_vault", level=52, oid="gus_vault")   # Gu's vault: the Little Pagoda (S47)
     r.portal("entry", "door", [140, 700], "sf_artisan_row", "warehouse_door", press_up=True, label="Artisan Row")
     r = Room("si_siege", "Siege of Two Sects", "story", "story", 3, backdrop="valley_dusk", material="stone", music="boss",
              instanced=True, safe=False, spawn_point=[400, 820],

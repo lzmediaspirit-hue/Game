@@ -1496,13 +1496,12 @@
    ],
    "effects": [
     {
-     "kind": "grant_item",
-     "item": "stilling_bell",
-     "count": 1
+     "kind": "learn_recipe",
+     "recipe": "bright_mirror"
     }
    ],
    "scope": "character",
-   "quest": "lines_in_the_sand",
+   "quest": "a_treasure_in_hand",
    "same_stage_ok": true
   },
   {

@@ -358,13 +358,14 @@ func _on_event(name: String, p: Dictionary) -> void:
 			fx.add("text", player.position + Vector2(0, -150), {"text": ContentDB.realm_label(str(p.to)), "color": UiKit.PALE_GOLD, "size": 28, "dur": 2.5})
 			shake = 0.2
 			Audio.play("breakthrough")
-		# Gap report G2: treasures, throwables and talismans.
-		"treasure_art_used":
+		# S47: treasures, throwables and the talisman treasure.
+		"treasure_used":
 			var at := Vector2(float(p.x), float(p.y))
+			var tr_radius := float(CombatAuthority.treasure_of(str(p.treasure)).get("radius", 150))
 			match str(p.action):
 				"bell":
-					fx.add("wave", player.position, {"color": UiKit.PALE_GOLD, "radius": 220.0, "dur": 0.6})
-					fx.add("wave", player.position, {"color": UiKit.GOLD, "radius": 160.0, "dur": 0.45})
+					fx.add("wave", player.position, {"color": UiKit.PALE_GOLD, "radius": tr_radius, "dur": 0.6})
+					fx.add("wave", player.position, {"color": UiKit.GOLD, "radius": tr_radius * 0.7, "dur": 0.45})
 					Audio.play("bell")
 				"pagoda":
 					fx.add("pagoda", at, {"color": UiKit.BRIGHT_JADE, "dur": 4.0})
@@ -372,7 +373,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 				"mirror":
 					fx.add("flash", player.position + Vector2(0, -50), {"color": Color("bfe8ff"), "radius": 60.0, "dur": 0.4})
 				"seal":
-					fx.add("seal_slam", player.position, {"color": UiKit.BRIGHT_JADE, "radius": 170.0, "dur": 0.7})
+					fx.add("seal_slam", player.position, {"color": UiKit.BRIGHT_JADE, "radius": tr_radius, "dur": 0.7})
 					shake = 0.25
 					Audio.play("break")
 				"cauldron":
@@ -381,6 +382,10 @@ func _on_event(name: String, p: Dictionary) -> void:
 				"banner", "gourd":
 					fx.add("ring", player.position, {"color": UiKit.QI if str(p.action) == "banner" else UiKit.SOUL, "radius": 110.0, "dur": 0.8})
 					Audio.play("technique")
+				"palm":
+					fx.add("talisman_wave", player.position + Vector2(0, -50), {"color": UiKit.PALE_GOLD, "radius": float(p.get("reach", 540)), "facing": int(p.get("facing", 1)), "dur": 0.6})
+					shake = 0.3
+					Audio.play("breakthrough")
 		"wisp_struck":
 			fx.add("spark", Vector2(float(p.x), float(p.y) - float(p.alt)), {"color": UiKit.QI, "dur": 0.25})
 		"projectile_reflected", "projectile_absorbed":
@@ -390,10 +395,6 @@ func _on_event(name: String, p: Dictionary) -> void:
 			fx.add("flash", Vector2(float(p.x), float(p.y) - 30.0), {"color": Color("fff0b0"), "radius": 50.0, "dur": 0.25})
 			shake = 0.15
 			Audio.play("break")
-		"talisman_struck":
-			fx.add("talisman_wave", player.position + Vector2(0, -50), {"color": UiKit.PALE_GOLD, "radius": float(p.reach), "facing": int(p.facing), "dur": 0.6})
-			shake = 0.3
-			Audio.play("breakthrough")
 		"pill_cloud":
 			# The whole room sees a Halo or Soul pill form, and says so (G1).
 			var gold := Color("ffd76a") if str(p.get("quality", "")) == "pill_halo" else Color("ff9a6a")
