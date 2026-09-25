@@ -234,7 +234,7 @@ def pills():
     pill("foundation_guard_pill", "earth", "gate", "Breakthrough support: lowers risk by one step.", 12, [],
          cause="structure", group="utility", support={"risk": -1})
     pill("clear_mind_pill", "earth", "lamp", "+50% insight rate for 30 minutes.", 8,
-         [effect("add_modifier", stat="insight_rate", op="pct_add", value=0.5, duration=1800, source="clear_mind")], cause="understanding", group="buff")
+         [effect("add_modifier", stat="insight_rate", op="flat", value=0.5, duration=1800, source="clear_mind")], cause="understanding", group="buff")
     pill("meridian_reversal_pill", "earth", "arrows_loop", "Resets all meridian points.", 10, [effect("reset_meridians")], group="utility")
     pill("method_conversion_pill", "earth", "arrows", "Halves the cost of switching cultivation methods.", 10, [], group="utility", method_conversion=True)
     pill("qi_refining_pill", "earth", "spiral", "Required to break through from Heart Tempering 9 to Cloud Stride 1.", 15, [], cause="material", group="utility")
@@ -249,6 +249,12 @@ def pills():
          [effect("add_modifier", stat="will", op="flat", value=40, duration=1800, source="will_tempering")], cause="soul", group="buff")
     pill("storm_blood_pill", "mystic", "bolt", "+4 attunement in the zone you stand in for 30 minutes.", 10,
          [effect("add_modifier", stat="attunement_bonus", op="flat", value=4, duration=1800, source="storm_blood")], group="buff")
+    # S44 / Part 8 new forms. The Qi Flow Pill's debt comes due when its hour is up (`then`, applied on buff_expired).
+    pill("qi_flow_pill", "earth", "spiral_up", "+20% accumulation for 60 minutes. When it wears off, the toxicity it held back comes due: +15.", 5,
+         [effect("add_modifier", stat="accumulation_rate", op="flat", value=0.2, duration=3600, source="qi_flow_pill")],
+         cause="energy", group="buff", then=[effect("add_toxicity", amount=15)])
+    pill("murky_pill", "plain", "drop_leaf", "What a failed experiment leaves: grey, gritty, and good for nothing but a stomach ache. A trader gives a tael for it.", 8,
+         [], group="utility", value_override=1)
     return P
 
 
@@ -267,7 +273,7 @@ def foods():
     food("lotus_root_tea", "+10% QI regeneration for 20 minutes.", [effect("add_modifier", stat="qi_regen", op="pct_add", value=0.1, duration=1200, source="lotus_tea")], grade="earth")
     food("toad_oil_dumplings", "+5% move speed for 15 minutes.", [effect("add_modifier", stat="move_speed", op="pct_add", value=0.05, duration=900, source="toad_dumplings")])
     food("cloudtop_orchid_broth", "+300 body XP.", [effect("add_body_xp", amount=300)], grade="heaven", group="utility")
-    food("jade_carp_congee", "+5% accumulation for 30 minutes.", [effect("add_modifier", stat="accumulation_rate", op="pct_add", value=0.05, duration=1800, source="carp_congee")], grade="earth")
+    food("jade_carp_congee", "+5% accumulation for 30 minutes.", [effect("add_modifier", stat="accumulation_rate", op="flat", value=0.05, duration=1800, source="carp_congee")], grade="earth")
     food("thunderhorn_stew", "+8% max HP and +5% physical defence for 30 minutes.",
          [effect("add_modifier", stat="max_hp", op="pct_add", value=0.08, duration=1800, source="thunderhorn_stew"),
           effect("add_modifier", stat="physical_defense", op="pct_add", value=0.05, duration=1800, source="thunderhorn_stew")], grade="spirit")
@@ -287,7 +293,7 @@ RAW_HERB = {
     "riverreed_ginseng_10": ([effect("add_progress", pct_of_need=0.024)], 20),
     "riverreed_ginseng_100": ([effect("add_progress", pct_of_need=0.05)], 30),
     "ember_pepper": ([effect("add_modifier", stat="physical_attack", op="pct_add", value=0.06, duration=60, source="raw_ember_pepper")], 24),
-    "mist_lotus": ([effect("add_modifier", stat="insight_rate", op="pct_add", value=0.15, duration=540, source="raw_mist_lotus")], 16),
+    "mist_lotus": ([effect("add_modifier", stat="insight_rate", op="flat", value=0.15, duration=540, source="raw_mist_lotus")], 16),
     "cloudtop_orchid": ([effect("add_body_xp", amount=90)], 30),
     "soulbell_flower": ([effect("add_soul", amount=15)], 16),
     "frost_lotus": ([effect("cure_injury", injury="meridian", max_severity=1), effect("add_composure", amount=20)], 30),
@@ -472,6 +478,22 @@ def build_items():
                      use=[effect("throw", art="knife", count=1, mult=1.2, speed=640, range=420, pierce=1)], food={"group": "throw"}))
     rows.append(item("thunderclap_pellet", "throwable", "common", 99, "A lacquered pellet packed with ore dust and pepper. It bursts where it lands: damage and knockback all around.",
                      use=[effect("throw", art="pellet", count=1, mult=1.6, speed=520, range=360, burst=120, knockback=130)], food={"group": "throw"}))
+    # S44 / Part 8 new forms: a poison pill thrown from quick-use, weapon oils, a liquid for the Draught slot, baths.
+    rows.append(item("viper_smoke_pill", "throwable", "common", 99, "A poison pill. Thrown, it bursts into a green cloud: 4% of max HP a second for 5 s to everything within 90.",
+                     use=[effect("throw", art="smoke", count=1, mult=0.2, speed=520, range=340, burst=90,
+                                 cloud={"status": "poison", "power": 0.04, "duration_s": 5})], food={"group": "throw"}))
+    for oid, status, word in [("viper_oil", "poison", "Poison"), ("ember_oil", "burn", "Burn")]:
+        other = "ember_oil" if oid == "viper_oil" else "viper_oil"
+        rows.append(item(oid, "oil", "common", 99, "Rubbed on the blade: for 5 minutes each hit has a 20%% chance to %s. One oil at a time." % ("poison" if status == "poison" else "set the foe burning"),
+                         use=[effect("cure_status", status=other), effect("apply_status", status=oid, duration=300)], food={"group": "utility"}))
+    rows.append(item("riverreed_draught", "draught", "common", 9, "A liquid medicine: +30% HP and a minor body injury mended. It goes to the Draught slot and goes flat 10 minutes after it is made.",
+                     use=[effect("heal", pct=0.3, over_s=3), effect("cure_injury", injury="body", max_severity=1)], draught={"toxicity": 2, "expires_s": 600}))
+    for bid, grade, xp, res, tox, desc in [("copper_body_bath", "common", 600, 10, 5, "A body-trial bath of tortoise plate, mole claw and willow moss."),
+                                           ("marrow_washing_bath", "earth", 1500, 20, 8, "A bath that scours the marrow: ginseng, hound fang, ape fur and Mist Lotus.")]:
+        rows.append(item(bid, "bath", grade, 9, desc + " Soak in it at a Bath station (seclusion): +%d body XP, %d residue cleared, the pill share of your foundation 10 points lower. Too strong a bath for your body injures it." % (xp, res),
+                         use=[], use_action="bath", bath={"body_xp": xp, "residue": res, "share": 0.10, "toxicity": tox, "hours": 1.0}))
+    rows.append(item("calm_heart_incense", "other", "earth", 99, "Incense of prayer beads and Mist Lotus. Burn it and sit: heart demon -10.",
+                     use=[effect("add_heart_demon", amount=-10)], food={"group": "utility"}))
     # The tribulation treasure (S48): held, it takes one heavenly-tribulation bolt and burns away.
     rows.append(item("lightning_rod_talisman", "talisman", "heaven", 9, "Carried through a heavenly tribulation, it draws one bolt into itself and burns away."))
     # Flight vessels (S47): what you ride when you fly. It sets the look of your flight and what the air costs.

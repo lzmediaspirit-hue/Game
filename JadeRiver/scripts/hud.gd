@@ -34,6 +34,7 @@ var context_center := Vector2(1165, 500)   # S24/S43: Climb or Enter while an en
 ## S24/S47: the Treasure buttons above Quick-use and Guard (the second opens at Spirit Awakening 1).
 var treasure_centers := [Vector2(887, 470), Vector2(799, 470)]
 var swap_center := Vector2(1240, 515)   # S24/S47: weapon swap (dual loadout), from Heart Tempering 1
+var draught_center := Vector2(843, 512)  # S44: the Draught slot, shown while a liquid medicine is fresh (key V)
 var minimap_rect := Rect2(1032, 16, 232, 140)
 var icon_row := [["menu", Vector2(1058, 188)], ["bag", Vector2(1116, 188)], ["map", Vector2(1174, 188)], ["mail", Vector2(1232, 188)]]
 
@@ -163,6 +164,7 @@ func role_at(p: Vector2) -> String:
 	if p.distance_to(meditate_center) < 36 and shown("cultivate"): return "meditate"
 	if p.distance_to(sense_center) < 36 and shown("sense"): return "sense"
 	if p.distance_to(quick_center) < 30 and shown("quick_use"): return "quick"
+	if p.distance_to(draught_center) < 22 and _has_draught(): return "draught"
 	if p.distance_to(pet_center) < 30 and shown("pet"): return "pet"
 	if p.distance_to(guard_center) < 30 and shown("guard"): return "guard"
 	if p.distance_to(context_center) < 30 and _fight_context(): return "context"
@@ -210,6 +212,7 @@ func press(id: int, p: Vector2):
 			guard_pressed = true
 			guard_hold = 0.0
 		"quick": use_quick()
+		"draught": drink_draught()
 		"sense":
 			if bound():
 				var sr := Game.submit({"type": "sense_pulse"})
@@ -347,6 +350,15 @@ func use_treasure(slot: int) -> void:
 		if r.get("reason", "") == "cooldown": add_log(Tx.t("hud.not_ready_yet"), UiKit.MIST)
 		elif r.has("text"): add_log(str(r.text), UiKit.MIST)
 
+func _has_draught() -> bool:
+	var c = Game.active()
+	return c != null and c.inventory.draught != null
+
+func drink_draught() -> void:
+	if not bound(): return
+	var r := Game.submit({"type": "drink_draught"})
+	if not r.get("ok", false) and str(r.get("text", "")) != "": add_log(str(r.text), UiKit.MIST)
+
 func use_quick() -> void:
 	if not bound(): return
 	var r := Game.submit({"type": "use_quick"})
@@ -395,6 +407,7 @@ func _input(event):
 						guard_pressed = true
 						guard_hold = 0.0
 				KEY_Q: if shown("quick_use"): use_quick()
+				KEY_V: if _has_draught(): drink_draught()
 				KEY_R: if shown("weapon_swap"): swap_weapon()
 				KEY_Z: if shown("treasure_1"): use_treasure(0)
 				KEY_X: if shown("treasure_2"): use_treasure(1)
@@ -561,6 +574,8 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.merit_gained") % int(p.delta), UiKit.PALE_GOLD)
 		"sin_changed":
 			if int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.sin_gained") % int(p.delta), Color("e07a7a"))
+		"draught_expired":
+			toast(Tx.t("hud.draught_expired") % ContentDB.item_name(str(p.get("item", ""))), "danger")
 		"flame_absorbed":
 			toast(Tx.t("hud.flame_absorbed") % ContentDB.item_name(str(p.flame)), "gold")
 		"furnace_blast":
@@ -944,6 +959,15 @@ func _draw_controls(c) -> void:
 			if cd > 0: draw_circle(quick_center, 24, Color(0, 0, 0, 0.5))
 		else:
 			glyph("quick_use", quick_center, 28)
+	# S44: the Draught slot, with the minutes left before the liquid goes flat.
+	if _has_draught():
+		var dr: Dictionary = c.inventory.draught
+		ring(draught_center, 20)
+		var dtex = SpriteCache.icon(str(dr.id))
+		if dtex: draw_texture_rect(dtex, Rect2(draught_center - Vector2(14, 14), Vector2(28, 28)), false)
+		var left: float = Game.inventory.draught_left(c)
+		draw_arc(draught_center, 22, -PI / 2, -PI / 2 + TAU * left / float(ContentDB.item(str(dr.id)).get("draught", {}).get("expires_s", 600)), 32, UiKit.BRIGHT_JADE, 2)
+		UiKit.draw_outlined(self, str(int(dr.count)), draught_center + Vector2(4, 18), 13, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 30)
 	if shown("pet"):
 		ring(pet_center, 26)
 		glyph("pet", pet_center, 28)

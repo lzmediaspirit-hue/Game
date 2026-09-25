@@ -1007,6 +1007,9 @@ def retreat_rooms(rid, sect_id, back):
     r.decor("rug", [640, 800])
     r.obj("mat_" + rid, "inspect", [640, 780], prop="meditation_mat", text="A bare cell, a mat, the smell of cold incense.",
           open_page="seclusion", requires=all_of(unlock("seclusion")), locked_text="Seclusion comes at Bone Forging 7.", label="Retreat")
+    # S44 Bath station: a medicinal bath takes the seclusion slot.
+    r.obj("bath_" + rid, "bath_station", [300, 830], requires=all_of(unlock("medicinal_bath")),
+          locked_text="A cedar tub, dry. Medicinal baths come at Qi Unfurling 1.", label="Bath")
     r.portal("exit", "door", [120, 660], back, "retreat", press_up=True, label=ROOMS[back].d["name"])
     return r
 
@@ -1020,6 +1023,8 @@ def cave_abode(rid, sect_id, peak, element):
     r.obj("mat_" + rid, "inspect", [860, 780], prop="meditation_mat", text="Your mat. The rock hums with Qi.", open_page="seclusion",
           requires=all_of(unlock("seclusion")), label="Seclusion")
     r.obj("bed_" + rid, "inspect", [1000, 700], prop="bed", text="A stone bed under a thin quilt.", rest=True)
+    r.obj("bath_" + rid, "bath_station", [700, 880], requires=all_of(unlock("medicinal_bath")),
+          locked_text="A cedar tub by the spring, dry for now.", label="Bath")
     r.decor("rug", [860, 800])
     r.decor("incense_burner", [760, 720])
     r.decor("scroll_rack", [1180, 690])

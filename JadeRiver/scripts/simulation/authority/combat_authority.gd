@@ -21,6 +21,7 @@ var attune: Dictionary = {}          # actor -> {dealt, taken} for the zone they
 var flying: Dictionary = {}          # actor -> true while flight holds them up (S18); QI pays for it
 var gliding: Dictionary = {}         # actor -> true while Falling Leaf Glide holds them (S43); 2 QI a second
 var treasure_fx: Dictionary = {}     # actor -> {reflect, gourd, gourd_r, wisps}: a treasure's lingering effect (G2)
+var hots: Dictionary = {}            # actor -> [{per_s, left}]: heals over time, in a fight or out of one (S15)
 var captured: Dictionary = {}        # enemy uid -> true: taken by the Beast-Taking Cauldron (World doubles its materials)
 var sword_released: Dictionary = {}  # actor -> {t, next}: the jian flies on its own (S47 Sword Release; not saved)
 var sword_intent: Dictionary = {}    # actor -> {stacks, t}: Sword Intent from consecutive jian hits (S47; not saved)
@@ -516,6 +517,7 @@ func tick(delta: float) -> void:
 		_tick_glide(c, delta)
 		_tick_treasures(c, delta)
 		_tick_sword(c, delta)
+		_tick_hots(c, delta)
 		var body: ActorState = game.actor_state(c.id)
 		if body != null and not body.plunge_impact.is_empty(): _resolve_plunge(c, body)
 	_tick_projectiles(delta)
@@ -750,7 +752,34 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 			if not applied.is_empty():
 				applied.source = c.id
 				_apply_status_to_enemy(e, applied)
+	if e.alive: _oil_strike(c, e, ev)
 	hitstop = float(ContentDB.stat_const("combat.hitstop_crit" if r.crit else "combat.hitstop", 0.05))
+
+func _tick_hots(c, delta: float) -> void:
+	var list: Array = hots.get(c.id, [])
+	if list.is_empty(): return
+	if wounded.has(c.id):
+		hots.erase(c.id)
+		return
+	var gain := 0.0
+	for h in list:
+		var step := minf(delta, float(h.left))
+		gain += float(h.per_s) * step
+		h.left = float(h.left) - step
+	hots[c.id] = list.filter(func(h): return float(h.left) > 0.0)
+	if gain > 0.0 and c.pools.hp < c.pools.max_hp: apply_resource_change(c.id, "hp", gain, "heal", 0.0, true)
+
+## A weapon oil on the blade (S44): each hit may carry its status to the foe. Rolled on its own stream, so a
+## fight without oil keeps the combat stream's sequence.
+func _oil_strike(c, e: EnemyState, ev: Dictionary) -> void:
+	for st in c.pools.statuses:
+		var oil: Dictionary = ContentDB.entry("status_effects", str(st.id)).get("oil", {})
+		if oil.is_empty() or e.pools.steadfast.has(str(oil.status)): continue
+		var applied := CombatRules.status_roll({"id": str(oil.status), "chance": float(oil.get("chance", 0.2)), "power": float(oil.get("power", 0.02)),
+			"duration_s": float(oil.get("duration_s", 4.0))}, ev, Rng.stream(c.id, "oil"))
+		if not applied.is_empty():
+			applied.source = c.id
+			_apply_status_to_enemy(e, applied)
 
 func _apply_status_to_enemy(e: EnemyState, s: Dictionary) -> void:
 	for existing in e.pools.statuses:
@@ -1216,6 +1245,9 @@ func _tick_projectiles(delta: float) -> void:
 						_enemy_hits_player(e2, c, enemy_view(e2), cv, p.enemy_attack)
 					done = true
 		if done or float(p.travelled) >= float(p.range):
+			# A poison pill that meets no one still breaks where it lands.
+			if c != null and p.team == "player" and (p.hits as Array).is_empty() and not (p.get("cloud", {}) as Dictionary).is_empty():
+				_burst(c, p, null)
 			rt.projectiles.erase(p)
 			emit("projectile_ended", {"uid": p.uid, "x": p.x, "y": p.y, "alt": p.alt})
 
@@ -1388,7 +1420,8 @@ func apply_throw(actor_id: String, e: Dictionary) -> void:
 		_spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 24, "y": float(pv.y) + (i - (n - 1) * 0.5) * 6.0,
 			"alt": float(pv.alt) + 56 + i * 3, "dir": facing, "speed": float(e.get("speed", 600)), "range": float(e.get("range", 380)),
 			"pierce": int(e.get("pierce", 0)), "art": str(e.get("art", "needle")), "delay": i * 0.05, "element": "none",
-			"attack": _treasure_attack(e, "throw:" + str(e.get("art", "needle"))), "burst": float(e.get("burst", 0.0))})
+			"attack": _treasure_attack(e, "throw:" + str(e.get("art", "needle"))), "burst": float(e.get("burst", 0.0)),
+			"cloud": e.get("cloud", {})})
 	emit("system_used", {"actor": c.id, "system": "throw"})
 
 ## A thunderclap pellet bursts where it lands: everything close by takes the blow and is thrown back.
@@ -1398,7 +1431,13 @@ func _burst(c, p: Dictionary, first: EnemyState) -> void:
 	for e in _enemies_within(at, float(p.burst)):
 		if e == first: continue
 		_player_hits_enemy(c, pv, e, p.attack, 1 if e.plane.x >= at.x else -1)
-	emit("projectile_burst", {"actor": c.id, "x": p.x, "y": p.y, "alt": p.alt, "radius": p.burst})
+	# A poison pill leaves a cloud (S44): its status on everything inside, the first foe too.
+	var cloud: Dictionary = p.get("cloud", {})
+	if not cloud.is_empty():
+		for e in _enemies_within(at, float(p.burst)):
+			if e.alive and not e.pools.steadfast.has(str(cloud.status)):
+				_apply_status_to_enemy(e, {"id": str(cloud.status), "power": float(cloud.get("power", 0.02)), "remaining": float(cloud.get("duration_s", 5.0)), "source": c.id})
+	emit("projectile_burst", {"actor": c.id, "x": p.x, "y": p.y, "alt": p.alt, "radius": p.burst, "cloud": str(cloud.get("status", ""))})
 
 func _nearest_enemy(at: Vector2, radius: float) -> EnemyState:
 	var best: EnemyState = null
@@ -1431,8 +1470,11 @@ func apply_heal(actor_id: String, pct: float, amount: float, over_s: float, sour
 	if c == null: return
 	var total = amount + c.pools.max_hp * pct
 	if over_s > 0.0:
-		apply_buff(actor_id, {"stat": "hp_regen", "op": "flat", "value": total / c.pools.max_hp / over_s, "duration": over_s, "source": "heal:" + source}, source)
+		# A fifth at once, the rest spread over the time given; it runs in a fight too, and resting does not multiply it.
 		apply_resource_change(actor_id, "hp", total * 0.2, source)
+		var list: Array = hots.get(actor_id, [])
+		list.append({"per_s": total * 0.8 / over_s, "left": over_s})
+		hots[actor_id] = list
 	else:
 		apply_resource_change(actor_id, "hp", total, source)
 

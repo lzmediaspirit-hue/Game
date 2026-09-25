@@ -667,6 +667,12 @@
     "inventory_authority"
    ]
   },
+  "draught_expired": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
   "loadout_swapped": {
    "system": "Inventory",
    "files": [

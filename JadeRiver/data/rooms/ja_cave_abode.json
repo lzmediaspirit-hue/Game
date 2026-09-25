@@ -124,6 +124,24 @@
    "rest": true
   },
   {
+   "id": "bath_ja_cave_abode",
+   "type": "bath_station",
+   "at": [
+    700,
+    880
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "medicinal_bath"
+     }
+    ]
+   },
+   "locked_text": "A cedar tub by the spring, dry for now.",
+   "label": "Bath"
+  },
+  {
    "id": "plot_ja_cave_abode",
    "type": "treasure_plot",
    "at": [

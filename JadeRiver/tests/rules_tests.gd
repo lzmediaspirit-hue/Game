@@ -48,6 +48,7 @@ func _main() -> void:
 	natal_wardrobe_suite()
 	talisman_suite()
 	herb_nature_suite()
+	new_forms_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -479,6 +480,115 @@ func herb_nature_suite() -> void:
 	if had.is_empty(): daos.erase("alchemy")
 	else: daos["alchemy"] = had
 	c.inventory.bag.fill(null)
+
+# ------------------------------------------------------------------ S44 new forms: Qi Flow, oils, the poison pill, the draught, baths
+func new_forms_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var cu: CultivatorState = c.cultivator
+	c.inventory.bag.fill(null)
+	# The Qi Flow Pill: +20% accumulation for an hour; the toxicity comes due when it wears off.
+	Game.inventory.apply_add(c.id, "qi_flow_pill", 1, "test")
+	for k in ["item:buff", "item:utility", "item:healing"]: c.pools.cooldowns.erase(k)
+	var acc0: float = c.stats.value("accumulation_rate")
+	Game.apply_effects(c.id, ContentDB.item("qi_flow_pill").use, "item:qi_flow_pill")   # the effect itself (the test body is too young for an Earth pill)
+	GameEvents.flush()
+	check(c.stats.value("accumulation_rate") > acc0 + 0.15, "the Qi Flow Pill lifts accumulation (%.2f -> %.2f)" % [acc0, c.stats.value("accumulation_rate")])
+	var tox0: float = cu.toxicity
+	for m in c.stats.modifiers:
+		if str(m.get("source", "")) == "qi_flow_pill": m.remaining = 0.01
+	Game.combat.tick(0.05)
+	GameEvents.flush()
+	check(cu.toxicity >= tox0 + 14.0, "when the hour is up, +15 toxicity comes due (%.1f -> %.1f)" % [tox0, cu.toxicity])
+	# Weapon oils: one at a time; each hit may carry the oil's status.
+	Game.world.apply_teleport(c.id, "sf_artisan_row")
+	var st: ActorState = Game.actor_state(c.id)
+	var foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(60, 0), 2)
+	foe.pools.max_hp = 99999.0
+	foe.pools.hp = 99999.0
+	Game.inventory.apply_add(c.id, "viper_oil", 1, "test")
+	Game.inventory.apply_add(c.id, "ember_oil", 1, "test")
+	c.pools.cooldowns.erase("item:utility")
+	Game.inventory.use_item(c, _bag_index(c, "viper_oil"), true)
+	check(c.pools.has_status("viper_oil"), "Viper Oil is on the blade")
+	var poisoned := 0
+	for i in 60:
+		foe.pools.statuses.clear()
+		Game.combat._oil_strike(c, foe, Game.combat.enemy_view(foe))
+		if foe.pools.has_status("poison"): poisoned += 1
+	check(poisoned > 3 and poisoned < 25, "Viper Oil poisons about one hit in five (%d of 60)" % poisoned)
+	c.pools.cooldowns.erase("item:utility")
+	Game.inventory.use_item(c, _bag_index(c, "ember_oil"), true)
+	check(c.pools.has_status("ember_oil") and not c.pools.has_status("viper_oil"), "a second oil wipes off the first")
+	Game.combat.cure_status(c.id, "ember_oil")
+	# The Viper Smoke Pill leaves a poison cloud: 4% of max HP a second for 5 s.
+	foe.pools.statuses.clear()
+	Game.combat._burst(c, {"x": foe.plane.x, "y": foe.plane.y, "alt": 0.0, "burst": 90.0, "attack": {"damage_type": "physical", "mult": [0.2, 0.2], "range": [1.0, 1.0]},
+		"cloud": ContentDB.item("viper_smoke_pill").use[0].cloud}, null)
+	var cloud_ok := false
+	for s2 in foe.pools.statuses:
+		if str(s2.id) == "poison" and near(float(s2.power), 0.04) and near(float(s2.remaining), 5.0): cloud_ok = true
+	check(cloud_ok, "the smoke cloud poisons for 4%% of max HP a second, 5 s")
+	foe.alive = false
+	# The Riverreed Draught: two strikes, straight to the Draught slot, flat after ten minutes.
+	check(Game.crafting.steps_for("riverreed_draught") == 2 and Game.crafting.steps_for("healing_pill") == 3, "a liquid takes two strikes (no Condensation)")
+	Unlocks.force_unlock(c.id, "alchemy")
+	var fo: Dictionary = Game.room_rt.object_def("furnace_sf")
+	st.plane = Vector2(float(fo.at[0]) - 40.0, float(fo.at[1]))
+	c.inventory.furnace = null
+	Game.inventory.apply_add(c.id, "bronze_furnace", 1, "test")
+	Game.inventory.apply_add(c.id, "riverreed_ginseng_10", 2, "test")
+	Game.inventory.apply_add(c.id, "river_minnow", 2, "test")
+	c.inventory.draught = null
+	var dr := Game.crafting.craft(c, "riverreed_draught", 1, [1.0, 1.0], "alchemy")
+	check(dr.get("ok", false) and c.inventory.draught != null and int(c.inventory.draught.count) >= 1 and c.inventory.count("riverreed_draught") == 0,
+		"the draught goes to the Draught slot, not the bag")
+	c.pools.hp = c.pools.max_hp * 0.4
+	c.pools.cooldowns.erase("item:healing")
+	var dk := Game.submit({"type": "drink_draught"})
+	for k in 40: Game.tick(0.1)
+	check(dk.get("ok", false) and c.pools.hp > c.pools.max_hp * 0.6, "drinking it restores 30% HP")
+	Game.inventory.apply_draught(c.id, "riverreed_draught", 1, "test")
+	c.inventory.draught.made_utc = Clock.now_utc() - 601.0
+	Game.inventory.tick(0.1)
+	check(c.inventory.draught == null, "ten minutes after it is made, the draught goes flat")
+	# Baths: the seclusion slot at a Bath station; a bath beyond the body injures it.
+	Unlocks.force_unlock(c.id, "medicinal_bath")
+	Unlocks.force_unlock(c.id, "seclusion")
+	Game.world.apply_teleport(c.id, "ja_retreat")
+	var bo: Dictionary = Game.room_rt.object_def("bath_ja_retreat")
+	check(not bo.is_empty(), "the retreat rooms have a Bath station")
+	if not bo.is_empty():
+		st.plane = Vector2(float(bo.at[0]) - 40.0, float(bo.at[1]))
+		c.cultivator.injuries.clear()
+		cu.body_level = 5
+		Game.inventory.apply_add(c.id, "copper_body_bath", 1, "test")
+		cu.residue = 30.0
+		var xp0: float = cu.body_xp
+		var lv0: int = cu.body_level
+		var sb := Game.submit({"type": "start_bath", "item": "copper_body_bath"})
+		check(sb.get("ok", false) and str(c.seclusion.get("focus", "")) == "bath" and c.inventory.count("copper_body_bath") == 0, "the Copper Body Bath takes the seclusion slot")
+		var cl := Game.progression.claim_offline(c, 3600.0)
+		var g: Dictionary = cl.get("gains", {})
+		check(near(float(g.get("body_xp", 0.0)), 600.0) and near(float(g.get("residue", 0.0)), 10.0) and not g.get("injured", false),
+			"an hour in it: +600 body XP and 10 residue cleared, no harm at any body")
+		Game.inventory.apply_add(c.id, "marrow_washing_bath", 1, "test")
+		Game.submit({"type": "start_bath", "item": "marrow_washing_bath"})
+		var cl2 := Game.progression.claim_offline(c, 3600.0)
+		check(cl2.get("gains", {}).get("injured", false) and int(c.cultivator.injuries.get("body", {}).get("severity", 0)) >= 1,
+			"a Marrow-Washing Bath before Copper Body injures the body")
+		c.cultivator.injuries.clear()
+		check(ProgressionRules.body_tier(17) == 0 and ProgressionRules.body_tier(18) == 1 and ProgressionRules.body_tier(40) == 2, "body tiers: Copper at 18, Iron at 36")
+	# Calm Heart Incense: heart demon -10. The Murky Pill sells for a tael.
+	cu.heart_demon = 30.0
+	Game.inventory.apply_add(c.id, "calm_heart_incense", 1, "test")
+	c.pools.cooldowns.erase("item:utility")
+	Game.inventory.use_item(c, _bag_index(c, "calm_heart_incense"), true)
+	check(near(cu.heart_demon, 20.0), "Calm Heart Incense clears 10 heart demon (%.1f)" % cu.heart_demon)
+	cu.heart_demon = 0.0
+	check(LootRules.sell_price("murky_pill", null) <= 1, "a Murky Pill sells for a tael")
+	c.inventory.bag.fill(null)
+	cu.toxicity = 0.0
 
 # ------------------------------------------------------------------ formulas
 func rules_suite() -> void:

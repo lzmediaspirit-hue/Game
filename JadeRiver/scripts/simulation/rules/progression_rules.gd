@@ -75,6 +75,14 @@ static func gap_factor(diff: int) -> float:
 		if diff >= int(row.min_diff): return float(row.mult)
 	return 0.1
 
+## Body tier (Part 8): Copper Body from body level 18, Iron 36, Jade 54, Gold 72. Until the S48 tier trials land,
+## the level alone decides it.
+static func body_tier(body_level: int) -> int:
+	var tier := 0
+	for need in ContentDB.curve("body_tiers", [18, 36, 54, 72]):
+		if body_level >= int(need): tier += 1
+	return tier
+
 static func body_xp_needed(body_level: int) -> float:
 	return float(ContentDB.curve("body_xp_per_level", 40)) * body_level
 

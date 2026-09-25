@@ -230,6 +230,7 @@ def build():
         "purity_points_per_grade": 100, "purity_meditate_per_hour": 10, "purity_offline_per_hour": 25,
         "soul_meditate_per_hour": 10, "soul_offline_per_hour": 20,
         "offline_factor": 0.1, "offline_cap_h": 12, "retreat_cap_h": 16, "formation_cap_h": 24,
+        "body_tiers": [18, 36, 54, 72],   # Part 8: Copper, Iron, Jade and Gold Body by body level (the S48 trials come later)
         "offline_temper_body_xp_per_min": 10, "offline_heal_mult": 1.0,
         "idle_material_factor": 0.25, "idle_cap_h": 12, "ancestral_guidance": 1.5,
         "pet_xp": {"per_level_pow": 1.5, "base": 20},
@@ -278,6 +279,9 @@ def build():
         {"id": "spawn_protection", "resist": "none", "invulnerable": True, "icon": "spawn_protection"},
         # S47 Veil Talisman: monsters that have not found you pass you by.
         {"id": "veiled", "resist": "none", "icon": "confusion"},
+        # S44 weapon oils: while one is on the blade, each hit may carry its status to the foe.
+        {"id": "viper_oil", "resist": "none", "icon": "poison", "buff": True, "oil": {"status": "poison", "chance": 0.2, "power": 0.02, "duration_s": 4}},
+        {"id": "ember_oil", "resist": "none", "icon": "burn", "buff": True, "oil": {"status": "burn", "chance": 0.2, "power": 0.02, "duration_s": 4}},
     ])
 
     entries("weapon_families.json", [

@@ -32,7 +32,7 @@ CATALOGUE = {
         "trait_revealed"],
     "Inventory": [
         "item_added", "item_removed", "bag_full", "overflow_mailed", "equipment_changed", "item_used",
-        "pill_used"],
+        "pill_used", "draught_expired"],
     "Quest": [
         "quest_offered", "quest_accepted", "objective_progressed", "quest_ready", "quest_completed",
         "flag_set", "codex_entry_unlocked"],

@@ -159,6 +159,28 @@
       }
     }
   },
+  "bath_tub": {
+    "anchor": [
+      40,
+      48
+    ],
+    "file": "res://art/props/bath_tub.png",
+    "frame": [
+      80,
+      52
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      },
+      "steam": {
+        "col": 1,
+        "fps": 5,
+        "frames": 4
+      }
+    }
+  },
   "beast_nest": {
     "anchor": [
       40,

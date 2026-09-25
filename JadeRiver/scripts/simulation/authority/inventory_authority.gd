@@ -7,7 +7,7 @@ extends Authority
 const COOLDOWN_GROUPS := {"restoration": 15.0, "healing": 15.0, "buff": 30.0, "utility": 5.0, "throw": 1.2}
 
 func intents() -> Array:
-	return ["move_item", "equip", "unequip", "use_item", "use_quick", "set_quick_use", "lock_item", "discard", "split_stack", "sort_bag",
+	return ["move_item", "equip", "unequip", "use_item", "use_quick", "set_quick_use", "lock_item", "discard", "split_stack", "sort_bag", "drink_draught",
 		"bind_item", "subdue_spirit", "set_treasure", "choose_vessel", "swap_loadout", "set_spare_weapon", "set_appearance", "flag_natal", "feed_natal",
 		"reforge_natal"]
 
@@ -42,6 +42,12 @@ func _on_hit(p: Dictionary) -> void:
 		emit("binding_interrupted", {"actor": who})
 
 func tick(delta: float) -> void:
+	# S44: a liquid in the Draught slot goes flat ten minutes after it was made.
+	var ac = game.active()
+	if ac != null and ac.inventory.draught != null and draught_left(ac) <= 0.0:
+		var gone := str(ac.inventory.draught.id)
+		ac.inventory.draught = null
+		emit("draught_expired", {"actor": ac.id, "item": gone})
 	for actor in spirit_cd.keys():
 		spirit_cd[actor] = float(spirit_cd[actor]) - delta
 		if float(spirit_cd[actor]) <= 0.0: spirit_cd.erase(actor)
@@ -125,6 +131,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"bind_item": return bind_item(c, str(intent.get("slot", "")), int(intent.get("index", -1)))
 		"subdue_spirit": return subdue_spirit(c, str(intent.get("slot", "")), int(intent.get("index", -1)))
 		"unequip": return unequip(c, str(intent.get("slot", "")))
+		"drink_draught": return drink_draught(c)
 		"use_item": return use_item(c, int(intent.get("index", -1)), bool(intent.get("confirm", false)))
 		"set_treasure": return set_treasure(c, str(intent.get("item", "")), int(intent.get("slot", 0)))
 		"choose_vessel": return choose_vessel(c, str(intent.get("item", "")))
@@ -271,6 +278,41 @@ func apply_affixes(actor_id: String, inst: Dictionary, affixes: Array, slot: Str
 func apply_enhance(actor_id: String, inst: Dictionary, level: int, slot: String) -> void:
 	inst.enhance = level
 	if slot != "": emit("equipment_changed", {"actor": actor_id, "slot": slot, "old": inst.id, "new": inst.id})
+
+# ------------------------------------------------------------------ the Draught slot (S44 liquid medicines)
+## A liquid goes straight to the Draught slot. A different liquid pours the old one out; the same one adds to it
+## and the ten minutes start again.
+func apply_draught(actor_id: String, item_id: String, count: int, source: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or count <= 0: return
+	var d = c.inventory.draught
+	if d != null and str(d.id) == item_id: d.count = int(d.count) + count
+	else: d = {"id": item_id, "count": count}
+	d.made_utc = Clock.now_utc()
+	c.inventory.draught = d
+	emit("item_added", {"actor": c.id, "item": item_id, "count": count, "source": source})
+
+## Seconds before the draught goes flat (0 when there is none).
+func draught_left(c) -> float:
+	var d = c.inventory.draught
+	if d == null: return 0.0
+	var life := float(ContentDB.item(str(d.id)).get("draught", {}).get("expires_s", 600))
+	return maxf(0.0, life - float(Clock.now_utc() - float(d.get("made_utc", 0))))
+
+func drink_draught(c) -> Dictionary:
+	var d = c.inventory.draught
+	if d == null or draught_left(c) <= 0.0: return fail("empty", {"text": Tx.t("sim.inventory.no_draught")})
+	if game.combat.is_wounded(c.id): return fail("wounded")
+	if c.pools.cooldown("item:healing") > 0.0: return fail("cooldown", {"remaining": c.pools.cooldown("item:healing")})
+	var def := ContentDB.item(str(d.id))
+	d.count = int(d.count) - 1
+	if int(d.count) <= 0: c.inventory.draught = null
+	c.pools.cooldowns["item:healing"] = float(COOLDOWN_GROUPS.get("healing", 15.0))
+	# Half a pill's toxicity (S44): the data carries it already halved.
+	game.progression.apply_toxicity(c.id, float(def.get("draught", {}).get("toxicity", 0)))
+	game.apply_effects(c.id, def.get("use", []), "item:" + str(d.id))
+	emit("item_used", {"actor": c.id, "item": str(d.id), "factor": 1.0})
+	return ok({"item": str(d.id)})
 
 ## A piece's durability (S44: a furnace loses 10 to a blast and is mended at the forge).
 func apply_durability(actor_id: String, inst: Dictionary, value: int, slot: String) -> void:
@@ -635,6 +677,7 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 		"incubate": return game.pets.incubate_egg(c, index)
 		"tame": return game.pets.attempt_tame(c, str(s.id), -1.0)
 		"absorb_flame": return game.crafting.absorb_flame(c, index)
+		"bath": return game.progression.start_bath(c, str(s.id))
 	# Natural treasures answer once in each great realm (the Mindwell Lotus).
 	var great_realm := str(ContentDB.realm(c.cultivator.realm_key).get("realm", ""))
 	var once := str(def.get("use_limit", "")) == "realm"

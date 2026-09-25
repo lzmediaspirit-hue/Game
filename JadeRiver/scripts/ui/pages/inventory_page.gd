@@ -212,6 +212,7 @@ func _draw_detail(r: Rect2) -> void:
 			var verb := Tx.t("ui.inventory.use")
 			if def.has("raw"): verb = Tx.t("ui.inventory.absorb") if def.has("core") else Tx.t("ui.inventory.eat_raw")
 			elif str(def.get("use_action", "")) == "absorb_flame": verb = Tx.t("ui.inventory.absorb")
+			elif str(def.get("use_action", "")) == "bath": verb = Tx.t("ui.inventory.bathe")
 			btn(Rect2(bx, by, bw, 50), verb, "use", null, true)
 			var q_on = ch.inventory.quick_use == id
 			btn(Rect2(bx + bw + 10, by, bw, 50), Tx.t("ui.inventory.quick") if q_on else Tx.t("ui.inventory.quick_use"), "quick", null, false, Unlocks.is_unlocked(ch.id, "quick_use"), Tx.t("ui.inventory.quick_use_is_not_unlocked"))

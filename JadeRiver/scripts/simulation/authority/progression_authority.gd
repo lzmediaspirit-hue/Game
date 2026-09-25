@@ -14,10 +14,12 @@ var last_level: Dictionary = {}
 func intents() -> Array:
 	return ["start_meditation", "stop_meditation", "toggle_meditation", "start_breakthrough", "learn_method", "switch_method",
 		"open_meridian", "reset_meridians", "equip_technique", "unequip_technique", "rank_up_technique", "set_contemplate",
-		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade"]
+		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade", "start_bath"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("loadout_swapped", _on_loadout_swapped, 30)
+	# S44: a pill whose effect is on loan (the Qi Flow Pill) pays it back when the buff wears off.
+	GameEvents.subscribe("buff_expired", func(p): _on_buff_expired(p), 30)
 	# S44: a furnace blast leaves a minor body injury.
 	GameEvents.subscribe("furnace_blast", func(p): apply_injury(str(p.get("actor", "")), "body", 1), 30)
 	GameEvents.subscribe("hit_landed", _on_hit_landed, 30)
@@ -49,6 +51,7 @@ func handle(intent: Dictionary) -> Dictionary:
 			contemplate[c.id] = str(intent.get("dao", ""))
 			return ok()
 		"enter_seclusion": return enter_seclusion(c, str(intent.get("focus", "accumulate")))
+		"start_bath": return start_bath(c, str(intent.get("item", intent.get("recipe", ""))))
 		"claim_offline": return claim_offline(c, float(intent.get("elapsed", 0.0)))
 		"train_object": return fail("use_attack")
 		"attune_jade": return attune_jade(c, str(intent.get("zone", "")), int(intent.get("index", -1)))
@@ -704,6 +707,10 @@ func apply_open_dao(actor_id: String, dao: String) -> void:
 	# round trip through the multiplier never lands a fraction short of the threshold.
 	apply_insight(actor_id, dao, float(first[0]) / (1.0 + c.stats.value("insight_rate")) + 0.01, "teacher:" + dao)
 
+func _on_buff_expired(p: Dictionary) -> void:
+	var then: Array = ContentDB.item(str(p.get("source", ""))).get("then", [])
+	if not then.is_empty(): game.apply_effects(str(p.get("actor", "")), then, "then:" + str(p.source))
+
 func apply_injury(actor_id: String, kind: String, severity: int) -> void:
 	var c = game.character(actor_id)
 	if c == null or not ContentDB.has_entry("injuries", kind): return
@@ -965,6 +972,46 @@ func enter_seclusion(c, focus: String) -> Dictionary:
 	emit("seclusion_entered", {"actor": c.id, "focus": focus, "spot": spot})
 	return ok()
 
+## A medicinal bath (S44): at a Bath station it takes the seclusion slot. The bath is poured now; what it gives
+## comes when you claim the seclusion (a full hour gives it all).
+func start_bath(c, item_id: String) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "medicinal_bath"): return fail("locked", {"text": Unlocks.locked_text("medicinal_bath")})
+	var def := ContentDB.item(item_id)
+	if not def.has("bath") or c.inventory.count(item_id) < 1: return fail("no_bath", {"text": Tx.t("sim.progression.no_bath")})
+	if not game.crafting.station_near(c, ["bath_station"]): return fail("no_station", {"text": Tx.t("sim.progression.bath_station")})
+	game.inventory.apply_remove(c.id, item_id, 1, "bath")
+	var room = game.room_rt.def if game.room_rt else {}
+	c.seclusion = {"spot": str(room.get("id", "")), "focus": "bath", "bath": item_id, "started_utc": Clock.now_utc(),
+		"cap_h": seclusion_cap(room), "density": float(room.get("qi_density", 1.0))}
+	emit("seclusion_entered", {"actor": c.id, "focus": "bath", "spot": str(room.get("id", ""))})
+	return ok({"item": item_id})
+
+## What a bath gives for the minutes soaked: body XP, residue, the foundation's pill share, its toxicity. A bath of a
+## grade beyond your body (the body tier before the one it prepares) injures the body.
+func _bath_gains(c, item_id: String, minutes: float) -> Dictionary:
+	var b: Dictionary = ContentDB.item(item_id).get("bath", {})
+	var f := clampf(minutes / (60.0 * float(b.get("hours", 1.0))), 0.0, 1.0)
+	var gains := {}
+	if f <= 0.0: return gains
+	var xp := float(b.get("body_xp", 0)) * f
+	apply_body_xp(c.id, xp, "bath")
+	gains.body_xp = xp
+	var cu: CultivatorState = c.cultivator
+	var res := minf(cu.residue, float(b.get("residue", 0)) * f)
+	if res > 0.0:
+		apply_residue(c.id, -res)
+		gains.residue = res
+	if str(cu.foundation.get("realm", "")) == ProgressionRules.great_realm(cu.realm_key):
+		var drop := float(cu.foundation.get("total_qp", 0.0)) * float(b.get("share", 0.1)) * f
+		gains.foundation = minf(drop, float(cu.foundation.get("pill_qp", 0.0)))
+		cu.foundation.pill_qp = maxf(0.0, float(cu.foundation.get("pill_qp", 0.0)) - drop)
+		emit("foundation_changed", {"actor": c.id, "share": ProgressionRules.foundation_share(cu)})
+	apply_toxicity(c.id, float(b.get("toxicity", 0)) * f)
+	# The injury itself is dealt after the seclusion's natural healing, so an hour away does not mend it at once.
+	if StatRules.grade_index(str(ContentDB.item(item_id).get("grade", "plain"))) - 1 > ProgressionRules.body_tier(cu.body_level):
+		gains.injured = true
+	return gains
+
 func seclusion_cap(room: Dictionary) -> float:
 	if room.get("gathering_formation", false): return float(ContentDB.curve("formation_cap_h", 24))
 	if room.get("retreat", false): return float(ContentDB.curve("retreat_cap_h", 16))
@@ -1007,6 +1054,8 @@ func claim_offline(c, elapsed_s: float) -> Dictionary:
 			var sp := float(ContentDB.curve("soul_offline_per_hour", 20)) * minutes / 60.0
 			apply_soul(c.id, sp)
 			gains.soul = sp
+		"bath":
+			gains = _bath_gains(c, str(c.seclusion.get("bath", "")), minutes)
 		"settle_foundation":
 			# G1: sit with what the pills gave you until it is your own; the residue burns off with it.
 			var k: Dictionary = ContentDB.stat_const("pill_life", {})
@@ -1023,6 +1072,7 @@ func claim_offline(c, elapsed_s: float) -> Dictionary:
 				gains.residue = res
 	# Injuries also heal at their natural rate while away.
 	if focus != "heal": _tick_injuries(c, minutes * 60.0, 1.0)
+	if focus == "bath" and gains.get("injured", false): apply_injury(c.id, "body", 1)   # a bath too strong for the body (S44)
 	c.seclusion = {}
 	var result := {"gains": gains, "capped": span.capped, "hours": minutes / 60.0, "focus": focus}
 	emit("offline_claimed", {"actor": c.id, "gains": gains, "capped": span.capped, "hours": minutes / 60.0, "focus": focus})

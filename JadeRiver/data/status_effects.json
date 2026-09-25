@@ -125,6 +125,30 @@
    "id": "veiled",
    "resist": "none",
    "icon": "confusion"
+  },
+  {
+   "id": "viper_oil",
+   "resist": "none",
+   "icon": "poison",
+   "buff": true,
+   "oil": {
+    "status": "poison",
+    "chance": 0.2,
+    "power": 0.02,
+    "duration_s": 4
+   }
+  },
+  {
+   "id": "ember_oil",
+   "resist": "none",
+   "icon": "burn",
+   "buff": true,
+   "oil": {
+    "status": "burn",
+    "chance": 0.2,
+    "power": 0.02,
+    "duration_s": 4
+   }
   }
  ]
 }

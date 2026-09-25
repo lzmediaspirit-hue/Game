@@ -120,7 +120,7 @@
     {
      "kind": "add_modifier",
      "stat": "insight_rate",
-     "op": "pct_add",
+     "op": "flat",
      "value": 0.15,
      "duration": 540,
      "source": "raw_mist_lotus"
@@ -2186,6 +2186,166 @@
    }
   },
   {
+   "id": "viper_smoke_pill",
+   "name": "Viper Smoke Pill",
+   "type": "throwable",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "viper_smoke_pill",
+   "desc": "A poison pill. Thrown, it bursts into a green cloud: 4% of max HP a second for 5 s to everything within 90.",
+   "use": [
+    {
+     "kind": "throw",
+     "art": "smoke",
+     "count": 1,
+     "mult": 0.2,
+     "speed": 520,
+     "range": 340,
+     "burst": 90,
+     "cloud": {
+      "status": "poison",
+      "power": 0.04,
+      "duration_s": 5
+     }
+    }
+   ],
+   "food": {
+    "group": "throw"
+   }
+  },
+  {
+   "id": "viper_oil",
+   "name": "Viper Oil",
+   "type": "oil",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "viper_oil",
+   "desc": "Rubbed on the blade: for 5 minutes each hit has a 20% chance to poison. One oil at a time.",
+   "use": [
+    {
+     "kind": "cure_status",
+     "status": "ember_oil"
+    },
+    {
+     "kind": "apply_status",
+     "status": "viper_oil",
+     "duration": 300
+    }
+   ],
+   "food": {
+    "group": "utility"
+   }
+  },
+  {
+   "id": "ember_oil",
+   "name": "Ember Oil",
+   "type": "oil",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "ember_oil",
+   "desc": "Rubbed on the blade: for 5 minutes each hit has a 20% chance to set the foe burning. One oil at a time.",
+   "use": [
+    {
+     "kind": "cure_status",
+     "status": "viper_oil"
+    },
+    {
+     "kind": "apply_status",
+     "status": "ember_oil",
+     "duration": 300
+    }
+   ],
+   "food": {
+    "group": "utility"
+   }
+  },
+  {
+   "id": "riverreed_draught",
+   "name": "Riverreed Draught",
+   "type": "draught",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 9,
+   "icon": "riverreed_draught",
+   "desc": "A liquid medicine: +30% HP and a minor body injury mended. It goes to the Draught slot and goes flat 10 minutes after it is made.",
+   "use": [
+    {
+     "kind": "heal",
+     "pct": 0.3,
+     "over_s": 3
+    },
+    {
+     "kind": "cure_injury",
+     "injury": "body",
+     "max_severity": 1
+    }
+   ],
+   "draught": {
+    "toxicity": 2,
+    "expires_s": 600
+   }
+  },
+  {
+   "id": "copper_body_bath",
+   "name": "Copper Body Bath",
+   "type": "bath",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 9,
+   "icon": "copper_body_bath",
+   "desc": "A body-trial bath of tortoise plate, mole claw and willow moss. Soak in it at a Bath station (seclusion): +600 body XP, 10 residue cleared, the pill share of your foundation 10 points lower. Too strong a bath for your body injures it.",
+   "use": [],
+   "use_action": "bath",
+   "bath": {
+    "body_xp": 600,
+    "residue": 10,
+    "share": 0.1,
+    "toxicity": 5,
+    "hours": 1.0
+   }
+  },
+  {
+   "id": "marrow_washing_bath",
+   "name": "Marrow Washing Bath",
+   "type": "bath",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 9,
+   "icon": "marrow_washing_bath",
+   "desc": "A bath that scours the marrow: ginseng, hound fang, ape fur and Mist Lotus. Soak in it at a Bath station (seclusion): +1500 body XP, 20 residue cleared, the pill share of your foundation 10 points lower. Too strong a bath for your body injures it.",
+   "use": [],
+   "use_action": "bath",
+   "bath": {
+    "body_xp": 1500,
+    "residue": 20,
+    "share": 0.1,
+    "toxicity": 8,
+    "hours": 1.0
+   }
+  },
+  {
+   "id": "calm_heart_incense",
+   "name": "Calm Heart Incense",
+   "type": "other",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "calm_heart_incense",
+   "desc": "Incense of prayer beads and Mist Lotus. Burn it and sit: heart demon -10.",
+   "use": [
+    {
+     "kind": "add_heart_demon",
+     "amount": -10
+    }
+   ],
+   "food": {
+    "group": "utility"
+   }
+  },
+  {
    "id": "lightning_rod_talisman",
    "name": "Lightning Rod Talisman",
    "type": "talisman",
@@ -2879,7 +3039,7 @@
     {
      "kind": "add_modifier",
      "stat": "insight_rate",
-     "op": "pct_add",
+     "op": "flat",
      "value": 0.5,
      "duration": 1800,
      "source": "clear_mind"
@@ -3097,6 +3257,59 @@
    "soul_effect": "iron_skin"
   },
   {
+   "id": "qi_flow_pill",
+   "name": "Qi Flow Pill",
+   "type": "pill",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "qi_flow_pill",
+   "desc": "+20% accumulation for 60 minutes. When it wears off, the toxicity it held back comes due: +15.",
+   "pill": {
+    "mark": "spiral_up",
+    "toxicity": 5,
+    "cause": "energy",
+    "group": "buff"
+   },
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "accumulation_rate",
+     "op": "flat",
+     "value": 0.2,
+     "duration": 3600,
+     "source": "qi_flow_pill"
+    }
+   ],
+   "soul_effect": "iron_skin",
+   "then": [
+    {
+     "kind": "add_toxicity",
+     "amount": 15
+    }
+   ],
+   "family": "accumulation"
+  },
+  {
+   "id": "murky_pill",
+   "name": "Murky Pill",
+   "type": "pill",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "murky_pill",
+   "desc": "What a failed experiment leaves: grey, gritty, and good for nothing but a stomach ache. A trader gives a tael for it.",
+   "pill": {
+    "mark": "drop_leaf",
+    "toxicity": 8,
+    "cause": null,
+    "group": "utility"
+   },
+   "use": [],
+   "soul_effect": "steady_heart",
+   "value_override": 1
+  },
+  {
    "id": "herbal_tea",
    "name": "Herbal Tea",
    "type": "food",
@@ -3290,7 +3503,7 @@
     {
      "kind": "add_modifier",
      "stat": "accumulation_rate",
-     "op": "pct_add",
+     "op": "flat",
      "value": 0.05,
      "duration": 1800,
      "source": "carp_congee"

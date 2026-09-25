@@ -558,7 +558,7 @@ func on_action(id: String, data) -> void:
 				"fire": fire})
 			scores.append(float(st.get("score", 0.0)))
 			Audio.play("forge" if craft == "smithing" else "alchemy", "UI")
-			if scores.size() >= int(ContentDB.curve("craft_step.steps", 3)):
+			if scores.size() >= (Game.crafting.steps_for(sel) if craft == "alchemy" else int(ContentDB.curve("craft_step.steps", 3))):
 				game_on = false
 				var r2 := submit({"type": "refine" if craft == "alchemy" else "forge", "recipe": sel, "count": count, "fire": fire, "substitute": subst})
 				if r2.get("ok", false):

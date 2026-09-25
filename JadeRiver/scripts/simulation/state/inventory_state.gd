@@ -19,6 +19,7 @@ var vessel := ""                   # the flight vessel ridden when flying (a key
 var loadout: Dictionary = {"spare": null, "active": "a"}   # S47 dual loadout: the weapon not in hand, and which of A/B is held
 var appearance_override: Dictionary = {}   # S47 wardrobe: slot -> look id shown instead of the item's own
 var furnace = null                  # S44 furnace slot (tool_furnace): the furnace instance you refine in, or null
+var draught = null                  # S44 Draught slot: {id, count, made_utc}; a liquid goes flat 10 minutes after it is made
 
 ## Furnaces before S44 were tools in the key-item pouch; their ids now name furnace equipment.
 const OLD_FURNACES := {"bronze_furnace": "bronze_furnace", "earth_vein_furnace": "jadeiron_furnace", "cloud_pattern_furnace": "cloudsteel_furnace",
@@ -90,7 +91,8 @@ func snapshot() -> Dictionary:
 	return {"bag": bag.duplicate(true), "equipped": eq, "quick_use": quick_use, "key_items": key_items.duplicate(true),
 		"locked": locked.keys(), "next_uid": next_uid, "treasures": treasures.duplicate(), "vessel": vessel,
 		"loadout": {"spare": loadout.spare.duplicate(true) if loadout.get("spare") != null else null, "active": str(loadout.get("active", "a"))},
-		"appearance_override": appearance_override.duplicate(), "furnace": furnace.duplicate(true) if furnace != null else null}
+		"appearance_override": appearance_override.duplicate(), "furnace": furnace.duplicate(true) if furnace != null else null,
+		"draught": draught.duplicate(true) if draught != null else null}
 
 func restore(d: Dictionary) -> void:
 	bag = []
@@ -133,6 +135,8 @@ func restore(d: Dictionary) -> void:
 	var fu = d.get("furnace")
 	furnace = fu.duplicate(true) if fu is Dictionary and str(ContentDB.item(str(fu.get("id", ""))).get("slot", "")) == "tool_furnace" else null
 	if furnace != null: next_uid = maxi(next_uid, int(furnace.get("uid", 0)) + 1)
+	var dr = d.get("draught")
+	draught = dr.duplicate(true) if dr is Dictionary and ContentDB.item(str(dr.get("id", ""))).has("draught") else null
 	resize(capacity())
 	_migrate_furnaces()
 

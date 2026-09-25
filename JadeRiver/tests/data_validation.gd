@@ -156,10 +156,14 @@ func data_suite() -> void:
 	# Items that start systems name a known action; manuals teach something real.
 	for it in ContentDB.all("items"):
 		check_effects(it.get("use", []), "item " + str(it.id))
+		# Rate stats are bonuses read as (1 + value) from a zero base: a percentage of them adds nothing, so they are flat.
+		for e in it.get("use", []):
+			if str(e.get("kind", "")) == "add_modifier" and str(e.get("stat", "")) in ["accumulation_rate", "insight_rate"]:
+				check(str(e.get("op", "flat")) == "flat", "item %s: %s is raised flat" % [it.id, e.stat])
 		# S44: every herb has a nature and the roles it can fill.
 		if str(it.get("type", "")) == "herb":
 			check(str(it.get("nature", "")) in ["hot", "cold", "neutral"] and not (it.get("roles", []) as Array).is_empty(), "herb %s nature and roles" % it.id)
-		if it.has("use_action"): check(str(it.use_action) in ["appraise", "incubate", "tame", "absorb_flame", "talisman"], "item %s use_action" % it.id)
+		if it.has("use_action"): check(str(it.use_action) in ["appraise", "incubate", "tame", "absorb_flame", "talisman", "bath"], "item %s use_action" % it.id)
 		# S47: a treasure item points at its entry in treasures.json, with a cooldown or charges and a QI cost.
 		if it.has("treasure"):
 			var t := ContentDB.entry("treasures", str(it.treasure))

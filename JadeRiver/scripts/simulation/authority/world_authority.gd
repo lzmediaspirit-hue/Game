@@ -375,6 +375,9 @@ func interact(c, object_id: String) -> Dictionary:
 			return game.quest.start_set_piece(c, str(o.get("event", "")))
 		"storage_chest":
 			result.open_page = "storage"
+		"bath_station":
+			# S44: the bath is a seclusion focus, chosen on the Seclusion page.
+			result.open_page = "seclusion"
 		"cooking_pot", "alchemy_furnace", "earth_vent", "forge_anvil", "formation_table", "garden_bed", "chart_table", "shipyard_slip":
 			result.open_page = str(o.get("page", {"cooking_pot": "cooking", "alchemy_furnace": "alchemy", "earth_vent": "alchemy", "forge_anvil": "forge",
 				"formation_table": "formations", "garden_bed": "garden", "chart_table": "charts", "shipyard_slip": "vessels"}[o.type]))
@@ -452,6 +455,7 @@ func _verb(o: Dictionary) -> String:
 		"cooking_pot": return Tx.t("sim.world.cook")
 		"alchemy_furnace", "earth_vent": return Tx.t("sim.world.refine")
 		"forge_anvil": return Tx.t("sim.world.forge")
+		"bath_station": return Tx.t("sim.world.bathe")
 		"teleport_stone": return Tx.t("sim.world.travel")
 		"notice_board", "signpost", "inspect": return Tx.t("sim.world.read")
 		"rite_circle": return Tx.t("sim.world.begin")

@@ -165,7 +165,8 @@ func _handle_preview_args(user_args: Array) -> void:
 		if str(a).begins_with("--give=") and Game.active() != null:
 			# Debug tools (S38): --give=item[:count[:quality]] puts items in the bag for previews.
 			var g := str(a).trim_prefix("--give=").split(":")
-			Game.inventory.apply_add(Game.active().id, g[0], int(g[1]) if g.size() > 1 else 1, "debug", {"quality": g[2]} if g.size() > 2 else {})
+			if ContentDB.item(g[0]).has("draught"): Game.inventory.apply_draught(Game.active().id, g[0], int(g[1]) if g.size() > 1 else 1, "debug")
+			else: Game.inventory.apply_add(Game.active().id, g[0], int(g[1]) if g.size() > 1 else 1, "debug", {"quality": g[2]} if g.size() > 2 else {})
 		if str(a).begins_with("--learn=") and Game.active() != null:
 			# Debug tools (S38): --learn=craft learns every recipe of one craft, for previews of its page.
 			var learn: Array = []

@@ -125,6 +125,12 @@
  "offline_cap_h": 12,
  "retreat_cap_h": 16,
  "formation_cap_h": 24,
+ "body_tiers": [
+  18,
+  36,
+  54,
+  72
+ ],
  "offline_temper_body_xp_per_min": 10,
  "offline_heal_mult": 1.0,
  "idle_material_factor": 0.25,

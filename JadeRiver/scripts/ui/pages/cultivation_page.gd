@@ -223,6 +223,10 @@ func _seclusion(ch) -> void:
 		["heal", Tx.t("ui.cultivation.heal"), Tx.t("ui.cultivation.treat_injuries"), "seclusion"], ["contemplate", Tx.t("ui.cultivation.contemplate"), Tx.t("ui.cultivation.dao_insight"), "insight_sites"],
 		["refine_qi", Tx.t("ui.cultivation.refine_qi"), Tx.t("ui.cultivation.purity"), "refine_qi"], ["nourish_soul", Tx.t("ui.cultivation.nourish_soul"), Tx.t("ui.cultivation.soul"), "nourish_soul"],
 		["settle_foundation", Tx.t("ui.cultivation.settle_foundation"), Tx.t("ui.cultivation.settle_foundation_desc"), "seclusion"]]
+	# S44: a medicinal bath takes the seclusion slot at a Bath station.
+	var bath_item := _bath_item(ch)
+	foci.append(["bath", Tx.t("ui.cultivation.bath"), Tx.t("ui.cultivation.bath_desc") % [ContentDB.item_name(bath_item), ch.inventory.count(bath_item)]
+		if bath_item != "" else Tx.t("ui.cultivation.bath_none"), "medicinal_bath"])
 	var cur := str(ch.seclusion.get("focus", ""))
 	for i in foci.size():
 		var f: Array = foci[i]
@@ -234,6 +238,15 @@ func _seclusion(ch) -> void:
 		region(rr, "focus", f[0], ok, Unlocks.locked_text(f[3]))
 	if cur != "":
 		text(Vector2(r.position.x + 24, r.end.y - 30), Tx.t("ui.cultivation.set_close_the_game_and") % cur.replace("_", " ").capitalize(), 19, UiKit.BRIGHT_JADE)
+
+## The strongest bath in the bag, or "".
+func _bath_item(ch) -> String:
+	var best := ""
+	for s in ch.inventory.bag:
+		if s != null and ContentDB.item(str(s.id)).has("bath"):
+			if best == "" or StatRules.grade_index(str(ContentDB.item(str(s.id)).get("grade", "plain"))) > StatRules.grade_index(str(ContentDB.item(best).get("grade", "plain"))):
+				best = str(s.id)
+	return best
 
 func on_action(id: String, data) -> void:
 	var ch = c()
@@ -252,4 +265,9 @@ func on_action(id: String, data) -> void:
 			submit({"type": "set_contemplate", "dao": str(data)})
 			flash(Tx.t("ui.cultivation.contemplating_in_seclusion") % ContentDB.name_of("daos", str(data)))
 		"focus":
+			if str(data) == "bath":
+				var rb := submit({"type": "start_bath", "item": _bath_item(ch)})
+				if rb.get("ok", false): flash(Tx.t("ui.cultivation.seclusion_set"))
+				elif str(rb.get("text", "")) != "": flash(str(rb.text))
+				return
 			if submit({"type": "enter_seclusion", "focus": str(data)}).get("ok", false): flash(Tx.t("ui.cultivation.seclusion_set"))

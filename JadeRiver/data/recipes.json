@@ -3003,6 +3003,250 @@
     "smithing": "adept",
     "formations": "adept"
    }
+  },
+  {
+   "id": "qi_flow_pill",
+   "craft": "alchemy",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "riverreed_ginseng_100",
+     "count": 1
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    },
+    {
+     "item": "leech_oil",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "qi_flow_pill",
+     "count": 1
+    }
+   ],
+   "element": "earth",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
+  },
+  {
+   "id": "viper_smoke_pill",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "venom_sac",
+     "count": 2
+    },
+    {
+     "item": "viper_fang",
+     "count": 1
+    },
+    {
+     "item": "river_mud",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "viper_smoke_pill",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "element": "wood",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
+  },
+  {
+   "id": "viper_oil",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "venom_sac",
+     "count": 1
+    },
+    {
+     "item": "toad_oil",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "viper_oil",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "element": "wood",
+   "roles": [
+    "principal",
+    "minister"
+   ]
+  },
+  {
+   "id": "ember_oil",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "ember_pepper",
+     "count": 2
+    },
+    {
+     "item": "toad_oil",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "ember_oil",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "element": "fire",
+   "roles": [
+    "principal",
+    "minister"
+   ]
+  },
+  {
+   "id": "riverreed_draught",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "riverreed_ginseng_10",
+     "count": 1
+    },
+    {
+     "item": "river_minnow",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "riverreed_draught",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "liquid": true,
+   "element": "water",
+   "roles": [
+    "principal",
+    "minister"
+   ]
+  },
+  {
+   "id": "copper_body_bath",
+   "craft": "alchemy",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "tortoise_plate",
+     "count": 2
+    },
+    {
+     "item": "mole_claw",
+     "count": 2
+    },
+    {
+     "item": "willow_moss",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "copper_body_bath",
+     "count": 1
+    }
+   ],
+   "element": "earth",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
+  },
+  {
+   "id": "marrow_washing_bath",
+   "craft": "alchemy",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "riverreed_ginseng_100",
+     "count": 1
+    },
+    {
+     "item": "hound_fang",
+     "count": 3
+    },
+    {
+     "item": "ape_fur",
+     "count": 2
+    },
+    {
+     "item": "mist_lotus",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "marrow_washing_bath",
+     "count": 1
+    }
+   ],
+   "element": "water",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant",
+    "envoy"
+   ]
+  },
+  {
+   "id": "calm_heart_incense",
+   "craft": "alchemy",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "prayer_beads",
+     "count": 1
+    },
+    {
+     "item": "lantern_wick",
+     "count": 2
+    },
+    {
+     "item": "mist_lotus",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "calm_heart_incense",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "element": "wood",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
   }
  ]
 }

@@ -1576,6 +1576,31 @@
    "same_stage_ok": true
   },
   {
+   "id": "medicinal_bath",
+   "label": "Medicinal baths",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "copper_body_bath"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "marrow_washing_bath"
+    }
+   ],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
    "id": "wardrobe",
    "label": "Wardrobe",
    "trigger": {

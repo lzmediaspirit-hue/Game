@@ -272,13 +272,25 @@ def recipes():
       "sage", default=True, xp=60, requires_ranks={"smithing": "adept"})
     r("storm_sloop", "shipwright", [("spirit_wood", 10), ("comet_iron", 6), ("formation_stone", 4), ("kite_silk", 4)], [("storm_sloop", 1)],
       "sage", xp=90, requires_ranks={"smithing": "adept", "formations": "adept"})
+    # S44 / Part 8 new forms. Oils, the poison pill, the draught and the incense are Mei Qing's common knowledge; the baths
+    # come with the Bath station (Qi Unfurling 1); the Qi Flow Pill is the Alchemist Guild's Expert reward.
+    r("qi_flow_pill", "alchemy", [("riverreed_ginseng_100", 1), ("jade_scale", 2), ("leech_oil", 1)], [("qi_flow_pill", 1)], "earth")
+    r("viper_smoke_pill", "alchemy", [("venom_sac", 2), ("viper_fang", 1), ("river_mud", 1)], [("viper_smoke_pill", 1)], "common", default=True)
+    r("viper_oil", "alchemy", [("venom_sac", 1), ("toad_oil", 1)], [("viper_oil", 1)], "common", default=True)
+    r("ember_oil", "alchemy", [("ember_pepper", 2), ("toad_oil", 1)], [("ember_oil", 1)], "common", default=True)
+    r("riverreed_draught", "alchemy", [("riverreed_ginseng_10", 1), ("river_minnow", 1)], [("riverreed_draught", 1)], "common", default=True, liquid=True)
+    r("copper_body_bath", "alchemy", [("tortoise_plate", 2), ("mole_claw", 2), ("willow_moss", 4)], [("copper_body_bath", 1)], "common")
+    r("marrow_washing_bath", "alchemy", [("riverreed_ginseng_100", 1), ("hound_fang", 3), ("ape_fur", 2), ("mist_lotus", 1)], [("marrow_washing_bath", 1)], "earth")
+    r("calm_heart_incense", "alchemy", [("prayer_beads", 1), ("lantern_wick", 2), ("mist_lotus", 1)], [("calm_heart_incense", 1)], "earth", default=True)
     # S44 element affinity: a furnace of a pill's element adds 5% to its quality roll (the Nine-Dragon Cauldron is Water).
     PILL_ELEMENT = {"healing_pill": "wood", "qi_restoration_pill": "water", "qi_gathering_pill": "earth", "bone_strengthening_pill": "earth",
                     "purging_pill": "water", "viper_antidote": "wood", "tiger_blood_pill": "fire", "cleansing_pill": "water",
                     "foundation_guard_pill": "earth", "clear_mind_pill": "water", "meridian_reversal_pill": "metal",
                     "method_conversion_pill": "metal", "qi_refining_pill": "water", "soul_soothing_pill": "water",
                     "mind_lake_opening_pill": "water", "sage_condensing_pill": "metal", "storm_blood_pill": "wood",
-                    "sovereign_settling_pill": "fire"}
+                    "sovereign_settling_pill": "fire", "qi_flow_pill": "earth", "viper_smoke_pill": "wood", "viper_oil": "wood",
+                    "ember_oil": "fire", "riverreed_draught": "water", "copper_body_bath": "earth", "marrow_washing_bath": "water",
+                    "calm_heart_incense": "wood"}
     ROLES = ["principal", "minister", "assistant", "envoy"]
     for x in R:
         if x["craft"] == "alchemy":
@@ -502,7 +514,7 @@ def achievements():
     entries("achievements", A)
     T = [
         {"id": "fleet_footed", "name": "Fleet-Footed", "modifiers": [{"stat": "move_speed", "op": "pct_add", "value": 0.01}]},
-        {"id": "sage_born", "name": "Sage-Born", "modifiers": [{"stat": "accumulation_rate", "op": "pct_add", "value": 0.01}]},
+        {"id": "sage_born", "name": "Sage-Born", "modifiers": [{"stat": "accumulation_rate", "op": "flat", "value": 0.01}]},
         {"id": "storm_herder", "name": "Storm Herder", "modifiers": [{"stat": "attunement_bonus", "op": "flat", "value": 1}]},
         {"id": "alliance_envoy", "name": "Alliance Envoy", "modifiers": [{"stat": "attunement_bonus", "op": "flat", "value": 2}]},
         {"id": "free_cultivator", "name": "Free Cultivator", "modifiers": [{"stat": "drop_rate", "op": "pct_add", "value": 0.03}]},

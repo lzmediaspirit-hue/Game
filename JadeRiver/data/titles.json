@@ -18,7 +18,7 @@
    "modifiers": [
     {
      "stat": "accumulation_rate",
-     "op": "pct_add",
+     "op": "flat",
      "value": 0.01
     }
    ]

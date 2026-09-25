@@ -726,6 +726,75 @@ for _id, _fn in (('manual_page', manual_page), ('riverbreath_scroll', riverbreat
     register(FAM, _id, _fn, GROUP)
 
 
+# ============================================================================ S44 new forms: oils, a draught, baths, incense
+def _oil(liquid):
+    def draw():
+        from families.beast_parts import vial
+        c = Canvas(32)
+        vial(c, liquid, cork=R['red'], shape='tall', level=0.72, x=13)
+        # a cloth wiping rag tied round the neck: oils are rubbed on the blade
+        rag = c.poly([(17, 9), (25, 12), (23, 16), (16, 12)])
+        c.put(rag, R['hemp'], 'ray', base=2, sep=True)
+        c.outline()
+        return c
+    return draw
+
+
+def riverreed_draught():
+    c = Canvas(32)
+    bowl = c.ellipse(16, 22, 11, 6) & (c.Y > 20)
+    bowl |= c.ellipse(16, 20, 11, 2.2)
+    c.put(bowl, R['porcelain'], 'ray', sep=True)
+    c.put(c.ellipse(16, 20, 9.5, 1.6), R['tea'], 'flat', base=3)
+    c.put(c.rect(11, 20, 14, 20), R['tea'], 'flat', base=4)
+    c.put(c.rect(11, 28, 21, 29), R['porcelain'], 'flat', base=1)
+    root = S.bez_line(c, (20, 19), (24, 13), (22, 8), 1.6)
+    c.put(root, R['straw'], 'flat', base=3)
+    steam = S.bez_line(c, (13, 17), (10, 13), (13, 9)) | S.bez_line(c, (17, 16), (15, 12), (17, 7))
+    c.put(steam & ~c.a, R['mist'], 'flat', base=3)
+    c.outline()
+    return c
+
+
+def _bath(ribbon, herb):
+    def draw():
+        c = Canvas(32)
+        bundle = c.ellipse(16, 20, 10, 8) | c.poly([(10, 14), (13, 9), (19, 9), (22, 14)])
+        c.put(bundle, R['hemp'], 'ray', base=2)
+        for (a, b) in (((12, 10), (9, 3)), ((16, 9), (16, 2)), ((20, 10), (24, 4))):
+            c.put(S.bez_line(c, a, ((a[0] + b[0]) / 2 - 1, (a[1] + b[1]) / 2), b, 1.5), herb, 'flat', base=3)
+        band = c.rect(6, 15, 26, 17) & bundle
+        c.put(band, ribbon, 'flat', base=3, sep=True)
+        c.put(c.rect(14, 15, 17, 17), ribbon, 'flat', base=4)
+        c.outline()
+        return c
+    return draw
+
+
+def calm_heart_incense():
+    c = Canvas(32)
+    bowl = c.ellipse(16, 24, 10, 5) & (c.Y > 21)
+    bowl |= c.ellipse(16, 22, 10, 2)
+    c.put(bowl, R['jade'], 'ray', sep=True)
+    c.put(c.ellipse(16, 22, 8.5, 1.4), R['warmstone'], 'flat', base=3)
+    for x in (14, 18):
+        st = c.rect(x, 10 + abs(x - 16), x, 21)
+        c.put(st, R['plum'], 'flat', base=2)
+        c.put(c.rect(x, 10 + abs(x - 16), x, 10 + abs(x - 16)), R['fire'], 'flat', base=4)
+    beads = c.ring(16, 23, 11.5, 1.2, 4) & (c.Y > 24)
+    c.put(beads, R['wood'], 'flat', base=3)
+    smoke = S.bez_line(c, (14, 9), (10, 6), (14, 3)) | S.bez_line(c, (18, 9), (22, 6), (19, 2))
+    c.put(smoke, R['lotuspink'], 'flat', base=3)
+    c.outline()
+    return c
+
+
+for _id, _fn in (('viper_oil', _oil(R['venom'])), ('ember_oil', _oil(R['ember'])), ('riverreed_draught', riverreed_draught),
+                 ('copper_body_bath', _bath(R['copper'], R['moss'])), ('marrow_washing_bath', _bath(R['bone'], R['lotuspink'])),
+                 ('calm_heart_incense', calm_heart_incense)):
+    register(FAM, _id, _fn, GROUP)
+
+
 # ============================================================================ Act II · Sunscar Desert
 SUN_GLOW = '#FFC870'
 

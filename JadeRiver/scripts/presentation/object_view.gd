@@ -4,7 +4,7 @@ extends Node2D
 ## stations, boards, stones, fishing ripples, quest pickups. Reads RoomRuntime
 ## object state; shows a verb prompt when it is the context target.
 
-const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "training_stump": "training_stump", "lifting_stone": "lifting_stone",
+const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "bath_station": "bath_tub", "training_stump": "training_stump", "lifting_stone": "lifting_stone",
 	"training_dummy": "training_dummy", "jar": "jar", "crate": "crate", "wine_jar": "wine_jar", "chest": "chest", "storage_chest": "storage_chest",
 	"notice_board": "notice_board", "signpost": "signpost", "teleport_stone": "teleport_stone", "insight_stone": "insight_stone",
 	"cooking_pot": "cooking_pot", "alchemy_furnace": "alchemy_furnace", "forge_anvil": "forge_anvil", "fishing_spot": "fishing_ripple",

@@ -137,6 +137,10 @@ PILLS = [
     ('law_touching_pill', 'mystic', 'eye_gate', R['silver'], R['plum'][2]),
     ('monarch_condensing_pill', 'mystic', 'crown', R['gold'], R['red'][1]),
     ('sigil_anchor_pill', 'mystic', 'anchor', R['red'], R['plum'][2]),
+    # S44 / Part 8 new forms.
+    ('qi_flow_pill', 'earth', 'spiral_up', R['jade'], R['qi'][1]),
+    ('murky_pill', 'common', 'drop_leaf', R['mud'], R['earth'][1]),
+    ('viper_smoke_pill', 'common', 'leaf', R['venom'], R['navy'][2]),
 ]
 
 for _id, _grade, _mark, _ramp, _ink in PILLS:

@@ -5,6 +5,42 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V4c · New forms: poison pill, oils, a draught, baths, Qi Flow and incense (S44, Part 8)
+- **Qi Flow Pill** (Earth): +20 % accumulation for an hour. When it wears off, the 15 toxicity it held back comes
+  due. The recipe is the Alchemist Guild's Expert reward (V4d).
+- **Viper Smoke Pill**, a poison pill. Thrown from quick-use, it bursts into a cloud: 4 % of max HP a second for
+  5 s to everything within 90. It still bursts where it lands if it hits no one.
+- **Weapon oils.** Viper Oil (poison) and Ember Oil (burn) coat the blade for 5 minutes. Each hit has a 20 % chance
+  to carry the status. A second oil wipes off the first.
+- **Riverreed Draught**, a liquid medicine: +30 % HP and a minor body injury mended.
+  - A liquid takes two strikes, with no Condensation.
+  - It goes straight to the new **Draught slot**, next to Quick-use on the HUD (key V). The slot shows the count
+    and the time left.
+  - It goes flat 10 minutes after it is made (`draught_expired`), the one thing in the game that spoils.
+- **Medicinal baths** (Qi Unfurling 1).
+  - A Bath station (a cedar tub) now stands in the retreat rooms and cave abodes.
+  - A bath takes the seclusion slot. Choose *Medicinal bath* on the Seclusion page, or *Bathe* on the bath itself.
+  - An hour's soak gives:
+
+    | Bath | Body XP | Residue cleared | Foundation pill share |
+    |---|---|---|---|
+    | Copper Body Bath | +600 | 10 | 10 points lower |
+    | Marrow-Washing Bath | +1,500 | 20 | 10 points lower |
+
+  - A bath beyond your body tier injures the body. Body tiers go by body level: Copper Body from 18, Iron from 36,
+    until the S48 trials arrive.
+  - The two bath recipes come with the unlock.
+- **Calm Heart Incense**: heart demon −10.
+- **Murky Pill**: what a failed experiment leaves (V4d). It sells for a tael.
+- **Fixes.**
+  - A heal over time ("30 % HP over 5 s") now runs in a fight too, and resting no longer multiplies it. Before, a
+    Healing Pill used mid-fight gave only its first fifth.
+  - Accumulation and insight-rate bonuses are now added flat. A percentage of their zero base used to add nothing,
+    so the Clear Mind Pill, Jade Carp Congee, raw Mist Lotus and the Sage-Born title had no effect. Data
+    validation now guards this.
+- **Tests:** the Qi Flow debt, oil chance and exclusivity, the smoke cloud, the draught's slot, strikes and expiry,
+  both baths with the body-tier injury, and the incense.
+
 ### V4b · Herb natures, recipe roles and furnace blasts (S44, Part 8)
 - **Herb natures.** Every herb is hot, cold or neutral:
   - hot: Riverreed Ginseng, Ember Pepper, Ember Cactus;

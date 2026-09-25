@@ -211,6 +211,37 @@ def storage_chest(state, f):
 
 
 # ------------------------------------------------------------------ crafting stations
+@prop("bath_tub", 40, 26, states=(("idle", 1, 0), ("steam", 4, 5)))
+def bath_tub(state, f):
+    """S44 Bath station: a low cedar tub bound with iron, dark herb water, steam when it is warm."""
+    W, H = 40, 26
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    ground_shadow(cv, 20, 24, 19, 1.5)
+    # the tub: wider than it is tall, staves bound with two iron hoops
+    body = m_poly(W, H, [(3, 10), (37, 10), (35, 24), (5, 24)])
+    shade(cv, body, WOOD, contour=True, mode="cyl", base=0.5)
+    for sx in range(7, 34, 5):
+        cv.fill(m_rect(W, H, sx, 11, sx, 23) & body, WOOD[2])
+    for hy in (13, 21):
+        cv.fill(body & (yy == hy), IRON[3])
+        cv.fill(body & (yy == hy) & (xx < 12), IRON[5])
+    # the rim and the water inside it
+    rim = m_ellipse(W, H, 20, 10, 17.5, 3.2)
+    shade(cv, rim, WOOD, contour=True, base=0.62)
+    water = m_ellipse(W, H, 20, 10, 15, 2.1)
+    cv.fill(water, WATER[3])
+    cv.fill(water & (yy <= 9), WATER[5])
+    cv.fill(m_rect(W, H, 12, 9, 15, 9) & water, WATER[7])
+    # a few herbs floating
+    for (hx, hy, col) in ((24, 10, MOSS[4] if 'MOSS' in globals() else JADE), (17, 11, JADE), (28, 9, JADE)):
+        cv.put(hx, hy, col)
+    if state == "steam":
+        smoke(cv, 13, 7, f, 4, height=7, seed=11, count=2, size=1.4, alpha=0.55)
+        smoke(cv, 26, 7, (f + 2) % 4, 4, height=8, seed=12, count=2, size=1.4, alpha=0.55)
+    return cv
+
+
 @prop("cooking_pot", 28, 26, states=(("idle", 1, 0), ("steam", 4, 6)))
 def cooking_pot(state, f):
     W, H = 28, 26

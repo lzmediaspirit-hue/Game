@@ -473,6 +473,9 @@ def unlocks():
     u("talisman", "Talismans", all_of(realm("qi_kindling_6")), "ink_and_paper", ["page:talisman"], same_stage_ok=True)  # v2 Part 8: Talismans and "is it real" both open at QK6
     # S47 natal treasure and the wardrobe (appearance overrides) open at the same stage.
     u("natal", "Natal treasure", all_of(realm("heart_tempering_1")), "", [], same_stage_ok=True)
+    # S44 medicinal baths (Part 8: Qi Unfurling 1, retreat rooms): a Bath station and its two recipes.
+    u("medicinal_bath", "Medicinal baths", all_of(realm("qi_unfurling_1")), "", [], same_stage_ok=True,
+      effects=[{"kind": "learn_recipe", "recipe": "copper_body_bath"}, {"kind": "learn_recipe", "recipe": "marrow_washing_bath"}])
     u("wardrobe", "Wardrobe", all_of(realm("heart_tempering_1")), "", [], same_stage_ok=True, toast=False)
     u("healing", "Healing", all_of(realm("heart_tempering_3")), "the_infirmary", [], effects=[{"kind": "grant_item", "item": "needle_case", "count": 1}])
     u("array_plates", "Array plates", all_of(realm("heart_tempering_5")), "carry_a_wall", [])

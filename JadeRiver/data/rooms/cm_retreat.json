@@ -94,6 +94,24 @@
    },
    "locked_text": "Seclusion comes at Bone Forging 7.",
    "label": "Retreat"
+  },
+  {
+   "id": "bath_cm_retreat",
+   "type": "bath_station",
+   "at": [
+    300,
+    830
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "medicinal_bath"
+     }
+    ]
+   },
+   "locked_text": "A cedar tub, dry. Medicinal baths come at Qi Unfurling 1.",
+   "label": "Bath"
   }
  ],
  "spawns": [],

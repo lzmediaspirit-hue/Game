@@ -222,7 +222,7 @@ func craft_step(c, recipe_id: String, craft_kind: String, offset: float, fire :=
 	if not craft_kind in ["alchemy", "smithing"] or not ContentDB.has_entry("recipes", recipe_id): return fail("bad_step")
 	var k: Dictionary = ContentDB.curve("craft_step", {})
 	var session: Dictionary = steps.get(c.id, {})
-	if str(session.get("recipe", "")) != recipe_id or (session.get("scores", []) as Array).size() >= int(k.get("steps", 3)):
+	if str(session.get("recipe", "")) != recipe_id or (session.get("scores", []) as Array).size() >= steps_for(recipe_id):
 		session = {"recipe": recipe_id, "craft": craft_kind, "scores": [], "fire": fire if craft_kind == "alchemy" and fire in fires_available(c) else "charcoal"}
 	var tolerance := float(k.get("tolerance", 0.3)) * (band_mult(c, str(session.get("fire", "charcoal"))) if craft_kind == "alchemy" else 1.0)
 	var score := clampf(1.0 - absf(offset) / tolerance, 0.0, 1.0)
@@ -231,6 +231,11 @@ func craft_step(c, recipe_id: String, craft_kind: String, offset: float, fire :=
 	var grade := "perfect" if score >= float(k.get("perfect", 0.85)) else ("good" if score >= float(k.get("good", 0.5)) else "miss")
 	emit("craft_step_result", {"actor": c.id, "recipe": recipe_id, "step": session.scores.size(), "score": score, "grade": grade})
 	return ok({"score": score, "grade": grade, "step": session.scores.size()})
+
+## How many strikes a recipe takes: a liquid has no Condensation (S44), so two.
+func steps_for(recipe_id: String) -> int:
+	var n := int(ContentDB.curve("craft_step", {}).get("steps", 3))
+	return n - 1 if ContentDB.entry("recipes", recipe_id).get("liquid", false) else n
 
 func _take_steps(c, recipe_id: String) -> Array:
 	var session: Dictionary = steps.get(c.id, {})
@@ -282,6 +287,8 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, 
 				var inst := LootRules.make_instance(str(out.item), int(def.get("ilv", 1)), quality, Rng.stream(c.id, "affix"), c.inventory.next_uid)
 				c.inventory.next_uid += 1
 				game.inventory.apply_add_instance(c.id, inst, "forge")
+		elif craft_kind == "alchemy" and ContentDB.item(str(out.item)).has("draught"):
+			game.inventory.apply_draught(c.id, str(out.item), n, "craft")   # a liquid goes to the Draught slot (S44)
 		elif craft_kind == "alchemy":
 			game.inventory.apply_add(c.id, str(out.item), n, "craft", {"quality": quality, "marks": marks} if marks > 0 else {"quality": quality})
 		elif craft_kind == "talisman" and ContentDB.has_entry("talismans", str(out.item)):
