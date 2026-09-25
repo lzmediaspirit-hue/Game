@@ -461,7 +461,13 @@ def build_items():
     rows.append(item("purifying_offering", "taming", "earth", 20, "Incense and salt bound in a lotus leaf. Offered to a weakened demonic beast, it lets the beast be tamed; offered to a Hollowed one, it cleanses the grey from it first. Use it from quick-use beside one.",
                      use=[], use_action="tame"))
     rows.append(item("beast_revival_pill", "pill", "earth", 20, "A pill for a spirit animal, not for you. It mends a Grievous Wound at once.",
-                     use=[effect("heal_pet_wound")], pill={"toxicity": 0, "group": "utility"}))
+                     use=[effect("heal_pet_wound")], pill={"toxicity": 0, "group": "utility"}, use_action="pet_item"))
+    # S46 bloodline: a drop of a great beast's essence blood lifts a spirit animal's purity, seals a Blood
+    # Contract or rerolls an unhatched egg's hidden trait; the marrow pill rerolls one weak aptitude.
+    rows.append(item("beast_essence_blood", "taming", "earth", 20, "A drop of a great beast's essence blood in a jade vial. Your active spirit animal drinks it for +10 bloodline purity; it also seals a Blood Contract or rerolls one hidden trait of an egg you are warming.",
+                     use=[effect("add_pet_purity", amount=10)], use_action="pet_item"))
+    rows.append(item("beast_marrow_washing_pill", "pill", "earth", 20, "A pill for a spirit animal, not for you. It washes the marrow of your active animal's weakest gift and rolls it again. It leaves no toxicity. The animal must be a Juvenile before its gifts show.",
+                     use=[effect("wash_pet_marrow")], pill={"toxicity": 0, "group": "utility"}, use_action="pet_item"))
     rows.append(item("tiny_hollow_shard", "hollow", "common", 99, "A grey sliver that drinks warmth. Handle with care."))
     rows.append(item("hollow_shard", "hollow", "earth", 99, "A shard of the Hollow Tide. Appraise before use."))
     rows.append(item("grey_hide", "hollow", "common", 99, "Hide from a Hollowed beast, grey and cold."))

@@ -113,8 +113,9 @@ Progress is recorded in `docs/CHANGELOG.md`.
   S49 world calendar.
 - Next:
   - V7 (S46 beasts). V7a is done: pet state depth, beast ranks and natures, cores and the Core Exchange, Grievous
-    Wound and the Beast Revival Pill, the Purifying Offering and the taming fix. Next come V7b (bloodline awakening,
-    suppression, contracts, command capacity, incubation input, the Beast Marrow Washing Pill, Fox Spirit's
-    Favour), V7c (skill books, gear, fusion, breakthroughs), V7d (the beast bag, the mount slot, Beast Kings and
-    Tides) and V7e (the Beast Arena, the Trial Grove, the Taming Dao);
+    Wound and the Beast Revival Pill, the Purifying Offering and the taming fix. V7b is done: bloodline awakenings
+    at 50 and 90, trait strength, Beast Essence Blood, suppression, the Equal and Blood Contracts, command capacity
+    with a party beside you, incubation input, 3-heart hatchlings, the Beast Marrow Washing Pill and Fox Spirit's
+    Favour. Next come V7c (skill books, gear, fusion, breakthroughs), V7d (the beast bag, the mount slot, Beast
+    Kings and Tides) and V7e (the Beast Arena, the Trial Grove, the Taming Dao);
   - V8 (S49 living world, with S45's treasure births and gathering trials).

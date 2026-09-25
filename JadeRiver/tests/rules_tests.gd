@@ -59,6 +59,7 @@ func _main() -> void:
 	garden_suite()
 	herb_prep_suite()
 	beasts_suite()
+	bloodline_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -1646,6 +1647,188 @@ func beasts_suite() -> void:
 		if e.summoned: Game.enemies.release(e)
 	c.pets = pets_was
 	c.active_pet = active_was
+
+## S46 · bloodline awakenings, suppression, contracts, command capacity, incubation input and beast medicine.
+func bloodline_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var pets_was: Array = c.pets.duplicate(true)
+	var active_was: String = c.active_pet
+	var party_was: Array = c.party_pets.duplicate()
+	var eggs_was: Array = c.eggs.duplicate(true)
+	var realm_was: String = c.cultivator.realm_key
+	var fates_was: Array = c.cultivator.fates.duplicate(true)
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	c.quests.flags.erase("equal_contract")
+	c.cooldowns.erase("essence_blood")
+	Unlocks.force_unlock(c.id, "spirit_animals")
+	Unlocks.force_unlock(c.id, "spirit_eggs")
+	Game.world.load_room(c, "lf_reed_shallows", "")
+	var heard := {}
+	GameEvents.event.connect(func(n, p): heard[n] = p)
+	# Purity thresholds: 49 and 50, 89 and 90.
+	Game.pets.apply_grant(c.id, "ember_fox")
+	var fox: Dictionary = c.pets[c.pets.size() - 1]
+	c.active_pet = str(fox.uid)
+	fox.purity = 48
+	Game.pets.add_purity(c, fox, 1)
+	GameEvents.flush()
+	check(int(fox.purity) == 49 and int(fox.get("awakened", 0)) == 0 and Game.pets.bloodline_skill(fox).is_empty(), "purity 49: no awakening yet")
+	Game.pets.add_purity(c, fox, 1)
+	GameEvents.flush()
+	check(int(fox.awakened) == 1 and str(Game.pets.bloodline_skill(fox).get("name", "")) == "Nine-Tail Flame" and int(heard.get("bloodline_awakened", {}).get("step", 0)) == 1,
+		"purity 50: the Nine-Tail Flame awakens")
+	var m89 := Game.pets.stat_mult(fox, "attack")
+	fox.purity = 88
+	Game.pets.add_purity(c, fox, 1)
+	check(int(fox.awakened) == 1 and Game.pets.form_of(fox).is_empty(), "purity 89: still its first form")
+	Game.pets.add_purity(c, fox, 1)
+	GameEvents.flush()
+	check(int(fox.awakened) == 2 and str(Game.pets.form_of(fox).get("name", "")) == "Nine-Tail Fox" and near(Game.pets.stat_mult(fox, "attack"), m89 * 1.1, 0.001),
+		"purity 90: the Nine-Tail Fox, +10% to every stat")
+	check(int(heard.get("bloodline_awakened", {}).get("step", 0)) == 2, "each awakening is announced once")
+	Game.pets.add_purity(c, fox, 50)
+	check(int(fox.purity) == 100, "purity stops at 100")
+	# Trait strength: +0.2% a point of purity.
+	fox.traits = ["stormborn", "quick_paws", "loyal"]
+	fox.revealed = 1
+	fox.purity = 0
+	var t0 := Game.pets._trait_sum(fox, "pet_damage")
+	fox.purity = 100
+	check(near(t0, 0.15) and near(Game.pets._trait_sum(fox, "pet_damage"), 0.15 * 1.2), "a pure bloodline strengthens its traits by 20%")
+	# Suppression (the Pressure contest): an Epic, awakened fox cows a rank 1 rat, not a rank 9 boss.
+	check(near(CombatRules.pressure_loss(2.0, 1.0), 0.25) and near(CombatRules.pressure_loss(1.0, 2.0), 0.0) and near(CombatRules.pressure_loss(9.0, 1.0), 0.5),
+		"Pressure over Will: min(50%, 25% x (P/W - 1))")
+	fox.rarity = "epic"
+	var st: ActorState = Game.actor_state(c.id)
+	var rat: EnemyState = Game.enemies.spawn_at("reedtail_rat", st.plane + Vector2(80, 0), 2)
+	check(Game.pets.bloodline_tier(fox) == 6 and Game.pets.beast_tier(rat) == 1 and Game.pets.suppresses(fox, rat), "an Epic fox with both awakenings (tier 6) outranks a rank 1 rat (tier 1)")
+	fox.rarity = "common"
+	fox.awakened = 0
+	check(not Game.pets.suppresses(fox, rat), "a Common fox (tier 1) does not")
+	Unlocks.force_unlock(c.id, "taming")
+	rat.pools.hp = rat.pools.max_hp * 0.1
+	var plain := Game.pets.tame_chance(c, rat, "bonding_offering_common", 0.5)
+	fox.rarity = "epic"
+	fox.awakened = 2
+	check(near(Game.pets.tame_chance(c, rat, "bonding_offering_common", 0.5), minf(plain + 0.1, float(ContentDB.config("taming").get("max", 0.95)))),
+		"suppression adds +10% to the taming chance")
+	Game.pets._spawn(c)
+	var ally: EnemyState = Game.room_rt.enemies.get(Game.pets.ally_uid)
+	check(ally != null and float(ally.def.art.get("scale", 1.0)) > 1.0, "the true form stands larger")
+	if ally != null:
+		ally.plane = rat.plane + Vector2(-40, 0)
+		ally.ai.sup_t = 0.0
+		Game.pets._suppress(c, fox, ally, 0.1)
+		GameEvents.flush()
+		check(rat.ai.get("suppressed", false) and rat.pools.has_status("fear") and heard.has("beast_suppressed"), "and its blood grips the rat with Fear")
+	Game.enemies.release(rat)
+	# Skill casts: the awakened skill hits x2.5 every 12 s.
+	if ally != null:
+		ally.ai.state = "windup"
+		ally.ai.timer = 0.01
+		ally.ai.skill_cd = 0.0
+		check(near(Game.pets._skill_mult(c, fox, ally, 0.02), 2.5) and float(ally.ai.skill_cd) > 11.0, "the bloodline skill lands at x2.5, then rests 12 s")
+		ally.ai.timer = 0.01
+		check(near(Game.pets._skill_mult(c, fox, ally, 0.02), 1.0), "not again while it rests")
+	# Contracts: Equal at 10 hearts, once per character; Blood with essence blood.
+	fox.bond = 9.0
+	check(str(Game.submit({"type": "offer_contract", "pet": fox.uid, "kind": "equal"}).get("reason", "")) == "hearts", "no Equal Contract at 9 hearts")
+	heard.erase("contract_offered")
+	Game.pets.apply_bond(c.id, 1.0, str(fox.uid))
+	GameEvents.flush()
+	check(heard.has("contract_offered"), "at 10 hearts the fox offers one")
+	check(Game.submit({"type": "offer_contract", "pet": fox.uid, "kind": "equal"}).get("ok", false) and str(fox.contract) == "equal", "an Equal Contract is formed")
+	if ally != null:
+		ally = Game.room_rt.enemies.get(Game.pets.ally_uid)
+		ally.ai.state = "windup"
+		ally.ai.timer = 0.01
+		ally.ai.skill_cd = 5.0
+		check(near(Game.pets._skill_mult(c, fox, ally, 0.02), 2.5) and not ally.ai.free_cast, "Equal: one free skill cast in a fight")
+		ally.ai.timer = 0.01
+		check(near(Game.pets._skill_mult(c, fox, ally, 0.02), 1.0), "only one")
+	Game.pets.apply_grant(c.id, "reed_otter")
+	var otter: Dictionary = c.pets[c.pets.size() - 1]
+	otter.bond = 10.0
+	check(str(Game.submit({"type": "offer_contract", "pet": otter.uid, "kind": "equal"}).get("reason", "")) == "once", "one Equal Contract per character, ever")
+	check(str(Game.submit({"type": "offer_contract", "pet": otter.uid, "kind": "blood"}).get("reason", "")) == "no_blood", "a Blood Contract needs essence blood")
+	Game.inventory.apply_add(c.id, "beast_essence_blood", 3, "test")
+	var om := Game.pets.stat_mult(otter, "hp")
+	check(Game.submit({"type": "offer_contract", "pet": otter.uid, "kind": "blood"}).get("ok", false) and near(Game.pets.stat_mult(otter, "hp"), om * 1.15, 0.001)
+		and c.inventory.count("beast_essence_blood") == 2, "a Blood Contract: +15% stats for a drop of essence blood")
+	# Command capacity by realm, and the party beside you.
+	c.cultivator.realm_key = "heart_tempering_9"
+	check(Game.pets.command_capacity(c) == 1, "one animal at a time before Spirit Awakening")
+	check(str(Game.submit({"type": "set_party", "pet": otter.uid, "on": true}).get("reason", "")) == "capacity", "a second must wait")
+	c.cultivator.realm_key = "spirit_awakening_1"
+	check(Game.pets.command_capacity(c) == 2, "two from Spirit Awakening")
+	check(Game.submit({"type": "set_party", "pet": otter.uid, "on": true}).get("ok", false) and Game.pets.allies.size() == 2 and Game.pets.party(c).size() == 2,
+		"the otter walks beside the fox")
+	c.cultivator.realm_key = "sage_1"
+	check(Game.pets.command_capacity(c) == 3, "three from Sage")
+	# A Blood-bound animal knocked out bruises its owner's soul.
+	var inj0 := int(c.cultivator.injuries.get("soul", {}).get("severity", 0))
+	var oa: EnemyState = Game.room_rt.enemies.get(int(Game.pets.allies.get(str(otter.uid), 0)))
+	if oa != null: Game.pets.apply_retreat(oa)
+	check(oa != null and int(c.cultivator.injuries.get("soul", {}).get("severity", 0)) == inj0 + 1, "the otter's knockout gives a soul injury")
+	c.cultivator.injuries.erase("soul")
+	Game.submit({"type": "set_party", "pet": otter.uid, "on": false})
+	check(c.party_pets.is_empty() and Game.pets.allies.size() == 1, "sent home again")
+	# Resonance flows both ways under an Equal Contract.
+	fox.role = "combat"
+	fox.stage = "adult"
+	check(Game.pets.resonance(c) > 0.0, "an Equal animal resonates whatever its role")
+	var xp0 := float(fox.xp)
+	var lv0 := int(fox.level)
+	GameEvents.emit_event("meditation_tick", {"actor": c.id})
+	GameEvents.flush()
+	check(float(fox.xp) > xp0 or int(fox.level) > lv0, "and your meditation feeds it")
+	# Incubation input.
+	c.eggs = [{"species": "reed_otter", "hatch_utc": Clock.now_utc() - 1.0}]
+	var hp_before: float = c.pools.max_hp
+	check(Game.submit({"type": "incubate_input", "egg": 0, "kind": "blood"}).get("ok", false) and near(c.pools.max_hp, hp_before * 0.9, hp_before * 0.02)
+		and float(c.cooldowns.get("essence_blood", 0.0)) > Clock.now_utc() + 23.0 * 3600.0, "your essence blood: -10% max HP for 24 h")
+	check(str(Game.submit({"type": "incubate_input", "egg": 0, "kind": "blood"}).get("reason", "")) == "already", "once per egg")
+	Game.inventory.apply_add(c.id, "earth_core_low", 1, "test")
+	check(str(Game.submit({"type": "incubate_input", "egg": 0, "kind": "element", "item": "earth_core_low"}).get("reason", "")) == "no_element", "no egg of earth answers an earth core")
+	Game.inventory.apply_add(c.id, "fire_core_low", 1, "test")
+	check(Game.submit({"type": "incubate_input", "egg": 0, "kind": "element", "item": "fire_core_low"}).get("ok", false) and str(c.eggs[0].species) == "ember_fox",
+		"a fire core steers the egg to fire")
+	check(Game.submit({"type": "incubate_input", "egg": 0, "kind": "reroll"}).get("ok", false) and (c.eggs[0].traits as Array).size() == 3, "essence blood rerolls a hidden trait")
+	c.cultivator.fates.append({"id": "fox_spirits_favour", "realm": "sage", "next": {"egg_purity": 10}})
+	var n0: int = c.pets.size()
+	Game.submit({"type": "hatch_egg", "index": 0})
+	var chick: Dictionary = c.pets[c.pets.size() - 1] if c.pets.size() > n0 else {}
+	check(not chick.is_empty() and near(float(chick.bond), 3.0) and int(chick.purity) >= 25 and str(chick.species) == "ember_fox",
+		"a self-warmed hatchling starts at 3 hearts with +10 purity and Fox Spirit's Favour's +10 (%s)" % str(chick.get("purity", "")))
+	check(ProgressionRules.fate_pool(Game.ctx(c)).any(func(f): return str(f.id) == "fox_spirits_favour"), "Fox Spirit's Favour is in the deck once eggs are open")
+	c.cooldowns["essence_blood"] = Clock.now_utc() - 1.0
+	Game.pets.essence_check = 0.0
+	Game.pets.tick(0.1)
+	check(not c.cooldowns.has("essence_blood") and near(c.pools.max_hp, hp_before, hp_before * 0.02), "a day later your blood has recovered")
+	# Beast medicine: essence blood lifts purity; the marrow pill needs a Juvenile and leaves no toxicity.
+	c.active_pet = str(chick.uid)
+	var pu0 := int(chick.purity)
+	Game.submit({"type": "use_item", "index": _bag_index(c, "beast_essence_blood"), "confirm": true})
+	check(int(chick.purity) == mini(100, pu0 + 10), "Beast Essence Blood: +10 purity")
+	Game.inventory.apply_add(c.id, "beast_marrow_washing_pill", 2, "test")
+	check(str(Game.submit({"type": "use_item", "index": _bag_index(c, "beast_marrow_washing_pill"), "confirm": true}).get("reason", "")) == "too_young"
+		and c.inventory.count("beast_marrow_washing_pill") == 2, "the marrow pill waits for a Juvenile, and is not spent")
+	chick.stage = "juvenile"
+	chick.aptitude = {"hp": 1.1, "attack": 0.8, "defence": 1.0, "speed": 1.2}
+	var tox0: float = c.cultivator.toxicity
+	check(Game.submit({"type": "use_item", "index": _bag_index(c, "beast_marrow_washing_pill"), "confirm": true}).get("ok", false)
+		and near(float(chick.aptitude.hp), 1.1) and near(float(chick.aptitude.speed), 1.2) and near(c.cultivator.toxicity, tox0), "it rolls only the weakest gift again, with no toxicity")
+	c.pets = pets_was
+	c.active_pet = active_was
+	c.party_pets = party_was
+	c.eggs = eggs_was
+	c.cultivator.realm_key = realm_was
+	c.cultivator.fates = fates_was
+	c.quests.flags.erase("equal_contract")
+	c.cooldowns.erase("essence_blood")
+	Game.combat.refresh_stats(c.id)
+	if room_was != "": Game.world.load_room(c, room_was, "")
 
 func tribulation_suite() -> void:
 	var c = Game.active()

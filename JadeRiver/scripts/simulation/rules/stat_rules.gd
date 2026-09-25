@@ -221,6 +221,10 @@ static func rebuild(c) -> Array:
 		var ap: Dictionary = c.cultivator.aptitude[key]
 		if key == "physique": sb.add_modifier({"stat": "max_hp", "op": "pct_add", "value": float(ap.get("value", 0)), "source": "aptitude:physique"})
 		if key == "spirit_aptitude": sb.add_modifier({"stat": "max_soul", "op": "pct_add", "value": float(ap.get("value", 0)), "source": "aptitude:spirit"})
+	# S46 incubation: essence blood dripped into an egg costs 10% max HP for 24 hours.
+	if float(c.cooldowns.get("essence_blood", 0.0)) > Clock.now_utc():
+		var eb: Dictionary = ContentDB.config("pet_growth").get("incubation", {}).get("blood", {})
+		sb.add_modifier({"stat": "max_hp", "op": "pct_add", "value": float(eb.get("max_hp_pct", -0.1)), "source": "essence_blood"})
 	for m in c.get_meta("extra_modifiers", []): sb.add_modifier(m)
 	# Attributes first.
 	var attr_base := attribute_bases(c, lv)

@@ -16,12 +16,12 @@ func draw_page() -> void:
 	# Open on the active animal (or the first one) instead of an empty panel.
 	if not ch.pets.is_empty() and not ch.pets.any(func(p): return str(p.uid) == sel):
 		sel = ch.active_pet if ch.active_pet != "" else str(ch.pets[0].uid)
-	var eggs_h := 96.0 if not ch.eggs.is_empty() else 0.0
+	var eggs_h := 150.0 if not ch.eggs.is_empty() else 0.0
 	list("pets", Rect2(left.position, left.size - Vector2(0, eggs_h)).grow(-10), ch.pets.size(), 70, func(i: int, rr: Rect2):
 		var p: Dictionary = ch.pets[i]
 		panel(rr, "minor_panel", "selected" if sel == str(p.uid) else "normal")
 		creature_at(Rect2(rr.position + Vector2(6, 4), Vector2(62, 60)), _art(p))
-		text(rr.position + Vector2(76, 30), str(p.name) + ("  ◆" if ch.active_pet == str(p.uid) else ""), 20)
+		text(rr.position + Vector2(76, 30), str(p.name) + ("  ◆" if ch.active_pet == str(p.uid) else ("  ◇" if ch.party_pets.has(str(p.uid)) else "")), 20)
 		text(rr.position + Vector2(76, 54), Tx.t("ui.pets.lv") % [ContentDB.name_of("pets", str(p.species)), int(p.level), str(p.role).capitalize()], 15, UiKit.MIST)
 		region(rr, "sel", str(p.uid))
 	)
@@ -37,7 +37,9 @@ func draw_page() -> void:
 	var colw := right.size.x - 290   # left column; the right column holds the portrait and growth
 	var stage := Rect2(right.end.x - 230, right.position.y + 18, 206, 148)
 	draw_style_box(UiKit.style("slot"), stage)
-	creature_at(stage.grow_individual(-8, -8, -8, -14), _art(pet), "walk" if ch.active_pet == sel else "idle")
+	var form_tint: Dictionary = Game.pets.form_of(pet)
+	creature_at(stage.grow_individual(-8, -8, -8, -14), _art(pet), "walk" if ch.active_pet == sel else "idle",
+		Color.WHITE.lerp(Color(str(form_tint.get("tint", "#ffffff"))), 0.5) if not form_tint.is_empty() else Color.WHITE)
 	heading(right.position + Vector2(24, 44), str(pet.name), colw)
 	var stage_name := str(Game.pets.stage_def(str(pet.get("stage", "hatchling"))).get("name", Tx.t("ui.pets.hatchling")))
 	var branch := str(pet.get("branch", ""))
@@ -63,9 +65,18 @@ func draw_page() -> void:
 	if pet.get("variant", false): blood += "  ·  " + Tx.t("ui.pets.variant")
 	text(right.position + Vector2(24, 252), fit(blood, 16, colw), 16, UiKit.BRIGHT_JADE)
 	text(right.position + Vector2(24, 274), fit(apt_line, 15, colw), 15, UiKit.MIST)
-	var y := right.position.y + 290
+	# The contract, the awakened skill or form, and Resonance while it sits beside you.
+	var bond_line := Tx.t("ui.pets.contract_" + str(pet.get("contract", "master")))
+	var form: Dictionary = Game.pets.form_of(pet)
+	var skill: Dictionary = Game.pets.bloodline_skill(pet)
+	if not form.is_empty(): bond_line += "  ·  " + Tx.t("ui.pets.form") % str(form.get("name", ""))
+	elif not skill.is_empty(): bond_line += "  ·  " + Tx.t("ui.pets.bloodline_skill") % str(skill.get("name", ""))
+	var res := Game.pets.resonance(ch) if Game.pets.party(ch).any(func(q): return str(q.uid) == sel) else 0.0
+	if res > 0.0: bond_line += "  ·  " + Tx.t("ui.pets.resonance") % int(round(res * 100.0))
+	text(right.position + Vector2(24, 296), fit(bond_line, 15, colw), 15, UiKit.PALE_GOLD)
+	var y := right.position.y + 312
 	if pet.get("wounded", false):
-		text(right.position + Vector2(24, 298), fit(Tx.t("ui.pets.wounded"), 15, colw), 15, UiKit.RED)
+		text(right.position + Vector2(24, 320), fit(Tx.t("ui.pets.wounded"), 15, colw), 15, UiKit.RED)
 		y += 20
 	var roles := ["combat", "gatherer", "cultivation"]
 	if Game.pets.mountable(pet): roles.append("mount")
@@ -74,9 +85,20 @@ func draw_page() -> void:
 	for role in roles:
 		btn(Rect2(px + roles.find(role) * (bw + 8), y, bw, 46), fit(Tx.t("ui.pets.role_" + role), 15, bw - 10), "role", role, str(pet.role) == role, true, "", 15)
 	y += 60
-	btn(Rect2(px, y, 220, 50), Tx.t("ui.pets.set_active") if ch.active_pet != sel else Tx.t("ui.pets.rest"), "active", sel, ch.active_pet != sel)
-	var res := Game.pets.resonance(ch) if ch.active_pet == sel else 0.0
-	if res > 0.0: text(Vector2(px + 236, y + 32), Tx.t("ui.pets.resonance") % int(round(res * 100.0)), 17, UiKit.BRIGHT_JADE)
+	# Set active; Beside You once the Soul commands more than one (S46); a contract when one is open.
+	var aw := (colw - 16.0) / 3.0
+	btn(Rect2(px, y, aw, 50), fit(Tx.t("ui.pets.set_active") if ch.active_pet != sel else Tx.t("ui.pets.rest"), 17, aw - 12), "active", sel, ch.active_pet != sel, true, "", 17)
+	var cap: int = Game.pets.command_capacity(ch)
+	if cap > 1 and ch.active_pet != sel:
+		var beside: bool = ch.party_pets.has(sel)
+		var room_left: bool = beside or Game.pets.party(ch).size() < cap
+		btn(Rect2(px + aw + 8, y, aw, 50), fit(Tx.t("ui.pets.send_home") if beside else Tx.t("ui.pets.beside"), 17, aw - 12), "party", not beside, beside, room_left,
+			Tx.t("ui.pets.capacity_full") % cap, 17)
+	var ctr := ""
+	if Game.pets.equal_contract_open(ch, pet): ctr = "equal"
+	elif str(pet.get("contract", "master")) == "master" and ch.inventory.count(str(ContentDB.config("pet_growth").get("contracts", {}).get("blood", {}).get("item", ""))) > 0: ctr = "blood"
+	if ctr != "":
+		btn(Rect2(px + 2.0 * (aw + 8), y, aw, 50), fit(Tx.t("ui.pets.contract_btn_" + ctr), 17, aw - 12), "contract", ctr, ctr == "equal", true, "", 17)
 	btn(Rect2(stage.position.x, stage.end.y + 8, stage.size.x, 38), Tx.t("ui.pets.unlock") if pet.get("locked", false) else Tx.t("ui.pets.lock"),
 		"lock", sel, false, true, "", 16)
 	_growth(ch, pet, Rect2(stage.position.x, stage.end.y + 56, stage.size.x, right.end.y - stage.end.y - 70))
@@ -121,15 +143,30 @@ func _eggs(ch, r: Rect2) -> void:
 	panel(r, "minor_panel")
 	text(r.position + Vector2(12, 24), Tx.t("ui.pets.eggs"), 17, UiKit.GOLD)
 	var x := r.position.x + 12
+	var each := (r.size.x - 24.0) / maxf(1.0, float(ch.eggs.size()))
 	for i in ch.eggs.size():
 		var egg: Dictionary = ch.eggs[i]
 		slot_box(Rect2(x, r.position.y + 30, 50, 50), "spirit_egg", 0, str(egg.get("rarity", "")) if egg.get("bred", false) else "")
 		var left_s := float(egg.hatch_utc) - Clock.now_utc()
 		if left_s <= 0.0:
-			btn(Rect2(x + 58, r.position.y + 32, 120, 46), Tx.t("ui.pets.hatch"), "hatch", i, true)
+			btn(Rect2(x + 58, r.position.y + 32, minf(120.0, each - 66.0), 46), Tx.t("ui.pets.hatch"), "hatch", i, true)
 		else:
-			text(Vector2(x + 58, r.position.y + 62), Tx.t("ui.pets.hatches_in") % ceili(left_s / 3600.0), 16, UiKit.MIST)
-		x += 200
+			var hl := Tx.t("ui.pets.hatches_in") if each >= 200.0 else Tx.t("ui.pets.hatches_short")
+			text(Vector2(x + 58, r.position.y + 62), fit(hl % ceili(left_s / 3600.0), 16, each - 64.0), 16, UiKit.MIST)
+		# S46 incubation input: your blood, a core to steer the element, essence blood to reroll a trait.
+		if i == 0:
+			var used: Array = egg.get("inputs", [])
+			var bw := (r.size.x - 24 - 16) / 3.0
+			var core := _steering_core(ch, egg)
+			var reroll_item := str(ContentDB.config("pet_growth").get("incubation", {}).get("reroll_item", ""))
+			var opts := [["blood", "", not used.has("blood") and float(ch.cooldowns.get("essence_blood", 0.0)) <= Clock.now_utc()],
+				["element", core, not used.has("element") and core != "" and not egg.get("bred", false)],
+				["reroll", "", not used.has("reroll") and ch.inventory.count(reroll_item) > 0]]
+			for k in opts.size():
+				var o: Array = opts[k]
+				btn(Rect2(r.position.x + 12 + k * (bw + 8), r.position.y + 88, bw, 44), fit(Tx.t("ui.pets.egg_" + str(o[0])) + (" ✓" if used.has(str(o[0])) else ""), 15, bw - 10),
+					"infuse", [i, str(o[0]), str(o[1])], false, bool(o[2]), Tx.t("ui.pets.egg_" + str(o[0]) + "_why"), 15)
+		x += each
 
 ## Next stage: each gate ticked or not, then Evolve (or the two branches at Adult).
 func _growth(ch, pet: Dictionary, r: Rect2) -> void:
@@ -151,6 +188,17 @@ func _growth(ch, pet: Dictionary, r: Rect2) -> void:
 	else:
 		btn(Rect2(r.position.x, y, r.size.x, 46), Tx.t("ui.pets.evolve"), "evolve", "", true, ready, Tx.t("ui.pets.not_ready_yet"))
 
+## The first core in the bag whose element some other egg answers (to steer this one).
+func _steering_core(ch, egg: Dictionary) -> String:
+	var own := str(ContentDB.entry("pets", str(egg.get("species", ""))).get("element", ""))
+	var els := {}
+	for r in ContentDB.config("eggs").get("species", []): els[str(ContentDB.entry("pets", str(r.species)).get("element", ""))] = true
+	for st in ch.inventory.bag:
+		if st == null: continue
+		var el := str(ContentDB.item(str(st.id)).get("core", {}).get("element", ""))
+		if el != "" and el != own and els.has(el): return str(st.id)
+	return ""
+
 func _art(p: Dictionary) -> String:
 	return str(ContentDB.entry("pets", str(p.species)).get("art", p.species))
 
@@ -167,3 +215,6 @@ func on_action(id: String, data) -> void:
 		"evolve": submit({"type": "evolve_pet", "pet": sel, "branch": str(data)})
 		"breed": submit({"type": "breed", "a": sel, "b": str(data)})
 		"hatch": submit({"type": "hatch_egg", "index": int(data)})
+		"party": submit({"type": "set_party", "pet": sel, "on": bool(data)})
+		"contract": submit({"type": "offer_contract", "pet": sel, "kind": str(data)})
+		"infuse": submit({"type": "incubate_input", "egg": int(data[0]), "kind": str(data[1]), "item": str(data[2])})

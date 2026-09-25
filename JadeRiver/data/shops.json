@@ -1422,6 +1422,18 @@
     {
      "item": "beast_revival_pill",
      "price": 45
+    },
+    {
+     "item": "beast_essence_blood",
+     "price": 600,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       }
+      ]
+     }
     }
    ]
   },

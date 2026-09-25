@@ -54,7 +54,7 @@ each physics frame; the tests call it directly without any scene.
 | `WorkshopAuthority` | Appraisal, formations, infirmary healing, puppets, manual restoration, teaching |
 | `TrainingSectAuthority` | Training sect membership, rank, contribution |
 | `SectAuthority` | Your own sect: buildings, disciples, expeditions, defence raids |
-| `PetAuthority`, `CompanionAuthority` | Spirit animals (starter, taming, eggs) and AI companions fighting beside you |
+| `PetAuthority`, `CompanionAuthority` | Spirit animals (starter, taming, eggs, bloodline, contracts, the party up to the command capacity) and AI companions fighting beside you |
 | `AccountAuthority`, `MailAuthority`, `AchievementAuthority` | Slots and idle tasks, letters with attachments, achievements and titles |
 
 ## Unlocks and the HUD

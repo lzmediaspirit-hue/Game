@@ -5,6 +5,35 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V7b · Spirit beasts: awakenings, contracts, command capacity and incubation (S46)
+- **Bloodline awakenings.** At 50 purity an ancestral skill wakes: a heavy strike (×2.5) every 12 s of a fight,
+  such as the Ember Fox's Nine-Tail Flame. At 90 the animal takes its true form (the Nine-Tail Fox): +10 % to every
+  stat, drawn larger and in its lineage's colour. Every point of purity strengthens revealed traits by 0.2 %.
+- **Beast Essence Blood** (Hermit Yao, from Heart Tempering 1): +10 purity for the active animal. It also seals a
+  Blood Contract and rerolls an egg's hidden trait.
+- **Suppression** reads the S12 Pressure contest (`CombatRules.pressure_loss`). An animal's bloodline tier (rarity
+  step plus awakenings) against a wild beast's (rank ÷ 2, +1 elite, +2 boss): when it wins, the beast is gripped by
+  Fear once and taming it is 10 % likelier.
+- **Contracts.**
+  - At 10 hearts an animal offers the one Equal Contract a character ever makes. Resonance flows both ways (it
+    resonates at half strength whatever its role, and your meditation feeds it XP) and it casts one free skill a
+    fight.
+  - A Blood Contract costs a drop of essence blood: +15 % to its stats, but its knockout bruises your soul.
+- **Command capacity** tied to Soul: 1 animal, 2 from Spirit Awakening, 3 from Sage. "Beside You" on the Spirit
+  Animals page brings more animals along; each fights with its own strength.
+- **Incubation input**, once of each kind per egg: drip your own essence blood (+10 purity, −10 % max HP for 24
+  real hours), add a beast core to steer its element, or Beast Essence Blood to reroll a hidden trait. Animals
+  hatched from an egg you warmed start at 3 hearts.
+- **Beast Marrow Washing Pill** (alchemy): rerolls the active animal's weakest aptitude, with no toxicity; it waits
+  for a Juvenile. Pet medicines now check they can help before they are spent.
+- **Fox Spirit's Favour** joins the fate deck once eggs are open: the next egg hatches with +10 purity.
+- **Events:** `bloodline_awakened`, `contract_formed`, `contract_offered`, `pet_skill_cast`, `beast_suppressed`,
+  `egg_infused` and `party_changed`, with HUD toasts and notes. Debug flags: `--pet=species[:stage[:purity[:hearts]]]`
+  and `--egg=species`.
+- **Tests:** purity at 49, 50, 89 and 90; trait strength; the Pressure rule and suppression; skill casts; Equal
+  once per character and only at 10 hearts; Blood stats and the soul injury; capacity by realm and the party;
+  every incubation input; the Fox fate; and the marrow pill.
+
 ### V7a · Spirit beasts: bloodline, beast ranks, cores, wounds and taming by nature (S46)
 - **Pet state depth.** Every animal now carries these fields, filled with neutral values on animals from older
   saves: bloodline purity, growth, aptitude, contract, learned skills, gear, a wound flag, knockouts, core grade,

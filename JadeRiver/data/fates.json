@@ -172,7 +172,6 @@
    "id": "fox_spirits_favour",
    "name": "Fox Spirit's Favour",
    "weight": 8,
-   "available": false,
    "gift_text": "Your next pet egg hatches with +10 purity.",
    "cost_text": "-5% max QI this realm.",
    "realm_modifiers": [
@@ -182,7 +181,17 @@
      "value": -0.05
     }
    ],
-   "note": "Offered once pets have purity (S46)."
+   "next": {
+    "egg_purity": 10
+   },
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "spirit_eggs"
+     }
+    ]
+   }
   },
   {
    "id": "scar_of_failure",

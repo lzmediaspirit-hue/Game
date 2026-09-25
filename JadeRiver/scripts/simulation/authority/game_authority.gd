@@ -223,6 +223,8 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 				training.apply_rank(actor_id, "elder")
 			"open_dao": progression.apply_open_dao(actor_id, str(e.dao))
 			"heal_pet_wound": pets.heal_wound(actor_id)
+			"add_pet_purity": pets.apply_purity(actor_id, float(e.get("amount", 10)), source)
+			"wash_pet_marrow": pets.wash_marrow(actor_id)
 			_: push_warning("Unknown effect kind: " + str(e.get("kind", "")))
 
 # ------------------------------------------------------------------ simulation

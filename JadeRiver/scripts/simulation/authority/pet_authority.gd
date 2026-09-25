@@ -4,11 +4,13 @@ extends Authority
 ## their owner. They never die: at 0 HP they retreat into their token for 60 s
 ## (or until the owner meditates).
 
-var ally_uid := 0
+var ally_uid := 0              # the active animal's ally in this room (0 when none)
+var allies: Dictionary = {}    # pet uid -> ally uid in the current room (S46 command capacity)
+var essence_check := 0.0
 
 func intents() -> Array:
 	return ["set_active_pet", "set_pet_role", "feed_pet", "pet_command", "rename_pet", "choose_starter", "attempt_tame", "incubate_egg", "hatch_egg", "evolve_pet", "breed",
-		"lock_pet", "devour_core", "sell_cores", "rest_pets"]
+		"lock_pet", "devour_core", "sell_cores", "rest_pets", "offer_contract", "incubate_input", "set_party"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("room_entered", _on_room_entered, 45)
@@ -24,6 +26,7 @@ func handle(intent: Dictionary) -> Dictionary:
 			var uid := str(intent.get("pet", ""))
 			if uid != "" and _pet(c, uid).is_empty(): return fail("unknown_pet")
 			c.active_pet = uid
+			c.party_pets.erase(uid)
 			_spawn(c)
 			emit("pet_changed", {"actor": c.id, "pet": uid})
 			return ok()
@@ -78,6 +81,9 @@ func handle(intent: Dictionary) -> Dictionary:
 		"devour_core": return devour_core(c, str(intent.get("pet", c.active_pet)), str(intent.get("item", "")))
 		"sell_cores": return sell_cores(c, str(intent.get("item", "")), maxi(1, int(intent.get("count", 1))))
 		"rest_pets": return rest_pets(c)
+		"offer_contract": return offer_contract(c, str(intent.get("pet", c.active_pet)), str(intent.get("kind", "")))
+		"incubate_input": return incubate_input(c, int(intent.get("egg", 0)), str(intent.get("kind", "")), str(intent.get("item", "")))
+		"set_party": return set_party(c, str(intent.get("pet", "")), bool(intent.get("on", true)))
 	return fail("unknown_intent")
 
 func _pet(c, uid: String) -> Dictionary:
@@ -126,6 +132,8 @@ func stat_mult(p: Dictionary, stat: String) -> float:
 	ensure_fields(p)
 	var m := float(p.get("growth", 1.0)) * float(p.get("aptitude", {}).get(stat, 1.0))
 	if p.get("wounded", false): m *= float(growth().get("grievous", {}).get("mult", 0.8))
+	if int(p.get("awakened", 0)) >= 2: m *= 1.0 + float(growth().get("awakening", {}).get("form_bonus", 0.1))
+	if str(p.get("contract", "master")) == "blood": m *= 1.0 + float(growth().get("contracts", {}).get("blood", {}).get("stats", 0.15))
 	return m
 
 func active_pet(c) -> Dictionary:
@@ -145,9 +153,13 @@ func apply_grant(actor_id: String, species: String, born: Dictionary = {}) -> vo
 		"role": str(sp.get("strength_role", "combat")), "stage": "hatchling", "hunger_day": Clock.reset_day(Clock.now_utc()),
 		"rarity": str(born.get("rarity", "common")), "branch": "", "traits": born.get("traits", _roll_traits(c)), "revealed": 0}
 	_roll_bloodline(c, pet)
+	# An egg you warmed yourself: its hatchling knows you (3 hearts) and keeps what you dripped into it.
+	if born.has("hearts"): pet.bond = float(born.hearts)
+	if float(born.get("purity_bonus", 0.0)) != 0.0: pet.purity = clampi(int(pet.purity) + int(born.purity_bonus), 0, 100)
 	c.pets.append(pet)
 	if c.active_pet == "": c.active_pet = uid
 	emit("pet_bonded", {"actor": actor_id, "pet": uid, "species": species})
+	_check_awakening(c, pet)
 	_spawn(c)
 
 func apply_bond(actor_id: String, amount: float, uid := "") -> void:
@@ -157,7 +169,11 @@ func apply_bond(actor_id: String, amount: float, uid := "") -> void:
 	if amount > 0.0: amount *= 1.0 + _trait_sum(p, "bond_gain")
 	var before := int(float(p.bond))
 	p.bond = clampf(float(p.bond) + amount, 0.0, 10.0)
-	if int(float(p.bond)) != before: emit("bond_changed", {"actor": actor_id, "pet": p.uid, "value": p.bond})
+	if int(float(p.bond)) != before:
+		emit("bond_changed", {"actor": actor_id, "pet": p.uid, "value": p.bond})
+		# At 10 hearts the animal may offer an Equal Contract (S46).
+		var need := int(growth().get("contracts", {}).get("equal", {}).get("hearts", 10))
+		if before < need and int(float(p.bond)) >= need and equal_contract_open(c, p): emit("contract_offered", {"actor": actor_id, "pet": str(p.uid)})
 
 # ------------------------------------------------------------------ rarity and breeding (S22)
 func rarity_def(id: String) -> Dictionary:
@@ -268,32 +284,47 @@ func guard_pet(c) -> Dictionary:
 
 func _spawn(c) -> void:
 	if c == null or game.room_rt == null: return
-	# Uids restart in every room: only remove the entry if it really is our pet.
-	var old: EnemyState = game.room_rt.enemies.get(ally_uid) if ally_uid != 0 else null
-	if old != null and old.team == "ally" and old.pet_owner == c.id: game.room_rt.enemies.erase(ally_uid)
+	# Uids restart in every room: only remove entries that really are our animals.
+	for puid in allies:
+		var old: EnemyState = game.room_rt.enemies.get(allies[puid])
+		if old != null and old.team == "ally" and old.pet_owner == c.id and str(old.ai.get("pet", "")) == str(puid): game.room_rt.enemies.erase(allies[puid])
+	allies.clear()
 	ally_uid = 0
-	var p := active_pet(c)
-	if p.is_empty() or game.room_rt.def.get("type", "") == "interior" or not mount_of(c).is_empty(): return
-	if str(p.get("role", "")) == "guard": return   # on Guard duty it stays home by the garden (S45)
+	if game.room_rt.def.get("type", "") == "interior": return
+	var i := 0
+	for p in party(c):
+		if str(p.uid) == c.active_pet and not mount_of(c).is_empty(): continue   # it carries you instead of following
+		var a := _make_ally(c, p, i)
+		allies[str(p.uid)] = a.uid
+		if str(p.uid) == c.active_pet: ally_uid = a.uid
+		i += 1
+
+func _make_ally(c, p: Dictionary, i: int) -> EnemyState:
 	var sp := ContentDB.entry("pets", str(p.species))
 	var st: ActorState = game.actor_state(c.id)
 	var a := EnemyState.new()
 	a.uid = game.room_rt.uid()
 	a.def_id = str(sp.get("art", p.species))
-	a.def = {"name": str(p.name), "art": {"creature": str(sp.get("art", p.species))}, "half_width": 16, "height": 30, "ally": true,
+	var art := {"creature": str(sp.get("art", p.species))}
+	var form := form_of(p)
+	if not form.is_empty():
+		art.scale = float(form.get("scale", 1.0))
+		art.tint = str(form.get("tint", "#ffffff"))
+	a.def = {"name": str(p.name), "art": art, "half_width": 16, "height": 30, "ally": true,
 		"movement": sp.get("movement", {"jump": 530, "climb": false, "fly": false, "drop": true})}
 	a.team = "ally"
 	a.pet_owner = c.id
 	a.level = int(p.level)
 	a.pools.max_hp = c.pools.max_hp * float(growth().get("hp_share", 0.4)) * rarity_power(p) * stat_mult(p, "hp")
 	a.pools.hp = a.pools.max_hp
-	a.plane = (st.plane if st else Vector2(c.position.x, c.position.y)) + Vector2(-50, 12)
+	a.plane = (st.plane if st else Vector2(c.position.x, c.position.y)) + Vector2(-50 - i * 40, 12 + i * 14)
 	AllyBrain.settle(game, a, st)
-	a.ai = {"state": "follow", "timer": 0.0, "offset": 56, "depth_offset": 14, "speed": 200}
+	a.ai = {"state": "follow", "timer": 0.0, "offset": 56 + i * 40, "depth_offset": 14 + i * 14, "speed": 200, "pet": str(p.uid),
+		"free_cast": true, "skill_cd": 0.0, "calm": 0.0, "sup_t": 0.0}
 	a.stats = {"attack": 0.0}
 	game.room_rt.enemies[a.uid] = a
-	ally_uid = a.uid
 	emit("ally_spawned", {"uid": a.uid, "kind": "pet"})
+	return a
 
 func tick(delta: float) -> void:
 	for actor in dismounted.keys():
@@ -302,16 +333,26 @@ func tick(delta: float) -> void:
 			dismounted.erase(actor)
 			_spawn(game.character(actor))
 	var c = game.active()
-	if c == null or game.room_rt == null or ally_uid == 0: return
-	var a: EnemyState = game.room_rt.enemies.get(ally_uid)
-	if a == null: return
-	var p := active_pet(c)
-	var power: float = c.stats.value("physical_attack") * inherit_share(p) * care_mult(p) * (1.0 + trait_bonus(c, "pet_damage")) * rarity_power(p) * stat_mult(p, "attack")
+	if c == null: return
+	_tick_essence_blood(c, delta)
+	if game.room_rt == null or allies.is_empty(): return
+	for puid in allies.keys():
+		var a: EnemyState = game.room_rt.enemies.get(allies[puid])
+		if a == null or str(a.ai.get("pet", "")) != str(puid): continue
+		var p := _pet(c, str(puid))
+		if p.is_empty(): continue
+		var power := pet_power(c, p) * _skill_mult(c, p, a, delta)
+		var was_down: bool = a.ai.state == "downed"
+		AllyBrain.think(game, a, delta, power, 36.0)
+		if was_down and a.ai.state != "downed":
+			emit("pet_returned", {"actor": c.id, "uid": a.uid, "pet": str(puid)})
+		_suppress(c, p, a, delta)
+
+## One animal's strike: a share of the owner's attack, by stage, care, traits, rarity, gifts and role.
+func pet_power(c, p: Dictionary) -> float:
+	var power: float = c.stats.value("physical_attack") * inherit_share(p) * care_mult(p) * (1.0 + _trait_sum(p, "pet_damage")) * rarity_power(p) * stat_mult(p, "attack")
 	power *= 1.0 + role_match(p) if p.get("role", "combat") == "combat" else 0.6
-	var was_down: bool = a.ai.state == "downed"
-	AllyBrain.think(game, a, delta, power, 36.0)
-	if was_down and a.ai.state != "downed":
-		emit("pet_returned", {"actor": c.id, "uid": a.uid, "pet": str(p.get("uid", ""))})
+	return power
 
 ## Combat brought the animal to 0 HP: it retreats into its token (S22), never dies.
 func apply_retreat(a: EnemyState) -> void:
@@ -319,8 +360,14 @@ func apply_retreat(a: EnemyState) -> void:
 	a.ai.timer = float(growth().get("retreat_s", 60))
 	a.action_time = 0.0
 	var c = game.active()
-	emit("pet_retreated", {"actor": c.id if c else "", "uid": a.uid, "pet": c.active_pet if c else ""})
-	if c != null: _knocked_out(c, active_pet(c))
+	var puid := str(a.ai.get("pet", c.active_pet if c else ""))
+	emit("pet_retreated", {"actor": c.id if c else "", "uid": a.uid, "pet": puid})
+	if c == null: return
+	var p := _pet(c, puid)
+	_knocked_out(c, p)
+	# A Blood Contract binds the two of you: its knockout bruises your soul.
+	if str(p.get("contract", "")) == "blood":
+		game.progression.apply_injury(c.id, "soul", int(growth().get("contracts", {}).get("blood", {}).get("soul_injury", 1)))
 
 ## S46 Grievous Wound: three knockouts inside five minutes leave the animal at 80% until it rests or is dosed.
 func _knocked_out(c, p: Dictionary) -> void:
@@ -419,6 +466,9 @@ func _on_meditation_tick(_p: Dictionary) -> void:
 	var c = game.active()
 	if active_pet(c).is_empty(): return
 	if game.tick_count % 60 == 0: apply_bond(c.id, 0.01)
+	# The other way of an Equal Contract: your cultivation feeds the animal.
+	for p in party(c):
+		if str(p.get("contract", "")) == "equal": add_xp(c, p, float(growth().get("contracts", {}).get("equal", {}).get("xp_per_tick", 0.5)))
 
 # ------------------------------------------------------------------ growth (S22)
 func growth() -> Dictionary:
@@ -516,16 +566,22 @@ func _trait_sum(p: Dictionary, key: String) -> float:
 	var total := 0.0
 	for t in revealed_traits(p):
 		total += float(ContentDB.entry("pet_traits", str(t)).get("bonus", {}).get(key, 0.0))
-	return total
+	# Every point of bloodline purity strengthens the traits by 0.2% (S46).
+	return total * (1.0 + float(p.get("purity", 0)) * float(growth().get("awakening", {}).get("trait_per_purity", 0.002)))
 
 ## Resonance: an active animal in the Cultivation role adds to accumulation (Spirit Awakening 1+).
+## An Equal Contract lets it flow both ways: an Equal animal beside you resonates at half strength whatever its role.
 func resonance(c) -> float:
-	var p := active_pet(c)
-	if p.is_empty() or str(p.get("role", "")) != "cultivation": return 0.0
 	var gate := str(growth().get("resonance_unlock", "spirit_awakening_1"))
-	if not ProgressionRules.at_least(c.cultivator.realm_key, gate): return 0.0
-	var base := float(stage_def(str(p.get("stage", "hatchling"))).get("resonance", 0.0)) + trait_bonus(c, "resonance")
-	return base * (1.0 + role_match(p)) * care_mult(p)
+	if c == null or not ProgressionRules.at_least(c.cultivator.realm_key, gate): return 0.0
+	var total := 0.0
+	for p in party(c):
+		var share := 1.0 if str(p.get("role", "")) == "cultivation" and str(p.uid) == c.active_pet else 0.0
+		if share == 0.0 and str(p.get("contract", "")) == "equal": share = float(growth().get("contracts", {}).get("equal", {}).get("resonance_share", 0.5))
+		if share == 0.0: continue
+		var base := float(stage_def(str(p.get("stage", "hatchling"))).get("resonance", 0.0)) + _trait_sum(p, "resonance")
+		total += base * (1.0 + role_match(p)) * care_mult(p) * share
+	return total
 
 # ------------------------------------------------------------------ starter, taming, eggs (S22)
 ## The hermit's three young ones: one choice per character, ever.
@@ -566,6 +622,7 @@ func tame_chance(c, e: EnemyState, offering: String, result: float) -> float:
 	chance += gap * float(cfg.get("per_level_over", 0.03)) if gap >= 0 else -gap * float(cfg.get("per_level_under", -0.08))
 	chance += int(c.cultivator.daos.get("beast_taming", {}).get("tier", 0)) * float(cfg.get("per_dao_tier", 0.05))
 	if result >= 0.0: chance += (clampf(result, 0.0, 1.0) - 0.5) * 0.3
+	if suppressed_by_party(c, e): chance += float(growth().get("suppression", {}).get("tame_bonus", 0.1))   # S46
 	return clampf(chance, float(cfg.get("min", 0.05)), float(cfg.get("max", 0.95)))
 
 ## Use a Bonding Offering beside a weakened paw-marked monster. `result` is the calm
@@ -630,6 +687,278 @@ func hatch_egg(c, index: int) -> Dictionary:
 	var egg: Dictionary = c.eggs[index]
 	if Clock.now_utc() < float(egg.hatch_utc): return fail("not_ready", {"text": Tx.t("sim.pet.it_is_still_warm_and")})
 	c.eggs.remove_at(index)
-	apply_grant(c.id, str(egg.species), egg)
+	var born: Dictionary = egg.duplicate(true)
+	born.hearts = float(growth().get("incubation", {}).get("hatch_hearts", 3))
+	born.purity_bonus = float(egg.get("purity_bonus", 0)) + game.progression.spend_fate_next(c, "egg_purity")   # Fox Spirit's Favour
+	apply_grant(c.id, str(egg.species), born)
 	emit("egg_hatched", {"actor": c.id, "species": egg.species})
 	return ok({"species": egg.species})
+
+# ------------------------------------------------------------------ bloodline (S46)
+## Raise an animal's bloodline purity (0-100); crossing 50 wakes its ancestral skill, 90 its true form.
+func add_purity(c, p: Dictionary, amount: int) -> int:
+	ensure_fields(p)
+	var before := int(p.purity)
+	p.purity = clampi(before + amount, 0, 100)
+	if int(p.purity) != before: emit("pet_changed", {"actor": c.id, "pet": str(p.uid)})
+	_check_awakening(c, p)
+	return int(p.purity) - before
+
+## Beast Essence Blood (an Effect): the active animal drinks it.
+func apply_purity(actor_id: String, amount: float, _source := "") -> void:
+	var c = game.character(actor_id)
+	var p := active_pet(c)
+	if p.is_empty(): return
+	var got := add_purity(c, p, int(round(amount)))
+	log_line(c.id, Tx.t("sim.pet.purity_up") % [str(p.name), got, int(p.purity)], "loot")
+
+func _check_awakening(c, p: Dictionary) -> void:
+	var cfg: Dictionary = growth().get("awakening", {})
+	var sp := ContentDB.entry("pets", str(p.get("species", "")))
+	var woke := false
+	for step in [[1, int(cfg.get("skill_at", 50)), "bloodline_skill"], [2, int(cfg.get("form_at", 90)), "form_change"]]:
+		if int(p.get("awakened", 0)) >= int(step[0]) or int(p.get("purity", 0)) < int(step[1]): continue
+		p.awakened = int(step[0])
+		woke = true
+		emit("bloodline_awakened", {"actor": c.id, "pet": str(p.uid), "step": int(step[0]), "name": str(sp.get(str(step[2]), {}).get("name", "")),
+			"purity": int(p.purity)})
+	if woke and allies.has(str(p.uid)): _spawn(c)   # the new form shows at once
+
+## The ancestral skill woken at 50 purity ({} before).
+func bloodline_skill(p: Dictionary) -> Dictionary:
+	if int(p.get("awakened", 0)) < 1: return {}
+	return ContentDB.entry("pets", str(p.get("species", ""))).get("bloodline_skill", {})
+
+## The lineage form taken at 90 purity ({} before).
+func form_of(p: Dictionary) -> Dictionary:
+	if int(p.get("awakened", 0)) < 2: return {}
+	return ContentDB.entry("pets", str(p.get("species", ""))).get("form_change", {})
+
+## The name to show for a skill cast before any awakening: the species' third skill.
+func _signature_skill(p: Dictionary) -> String:
+	var skills: Array = ContentDB.entry("pets", str(p.get("species", ""))).get("skills", [])
+	return str(skills[mini(2, skills.size() - 1)]) if not skills.is_empty() else str(p.get("name", ""))
+
+## S46 casts: an awakened bloodline skill every 12 s of a fight, and an Equal Contract's free cast once a fight.
+## Returns the multiplier for the strike this frame (1.0 when no skill goes with it).
+func _skill_mult(c, p: Dictionary, a: EnemyState, delta: float) -> float:
+	var eq: Dictionary = growth().get("contracts", {}).get("equal", {})
+	a.ai.skill_cd = maxf(0.0, float(a.ai.get("skill_cd", 0.0)) - delta)
+	var st: ActorState = game.actor_state(c.id)
+	var fighting := false
+	if st != null:
+		for e in game.room_rt.living_enemies():
+			if e.team == "enemy" and not e.hidden and not e.def.get("passive", false) and e.plane.distance_to(st.plane) < 400.0:
+				fighting = true
+				break
+	if fighting: a.ai.calm = 0.0
+	else:
+		a.ai.calm = float(a.ai.get("calm", 0.0)) + delta
+		if float(a.ai.calm) >= float(eq.get("calm_s", 5.0)): a.ai.free_cast = true   # the fight is over
+	# Only the strike that lands this frame carries a skill.
+	if str(a.ai.get("state", "")) != "windup" or float(a.ai.timer) - delta > 0.0: return 1.0
+	var skill := bloodline_skill(p)
+	if str(p.get("contract", "")) == "equal" and a.ai.get("free_cast", false):
+		a.ai.free_cast = false
+		emit("pet_skill_cast", {"actor": c.id, "pet": str(p.uid), "skill": str(skill.get("name", _signature_skill(p))), "free": true})
+		return maxf(float(eq.get("free_cast_mult", 2.5)), float(skill.get("mult", 1.0)))
+	if not skill.is_empty() and float(a.ai.skill_cd) <= 0.0:
+		a.ai.skill_cd = float(growth().get("awakening", {}).get("skill_cd", 12.0))
+		emit("pet_skill_cast", {"actor": c.id, "pet": str(p.uid), "skill": str(skill.get("name", "")), "free": false})
+		return float(skill.get("mult", 2.5))
+	return 1.0
+
+# ------------------------------------------------------------------ suppression (S46, the S12 Pressure contest)
+## An animal's bloodline tier: its rarity step (Common 1 ... Primordial 5) plus its awakenings.
+func bloodline_tier(p: Dictionary) -> int:
+	var order: Array = growth().get("rarities", []).map(func(r): return str(r.id))
+	return 1 + maxi(0, order.find(str(p.get("rarity", "common")))) + int(p.get("awakened", 0))
+
+## A wild beast's: its rank halved (rounded up), one more for an elite, two for a boss. 0 for non-beasts.
+func beast_tier(e: EnemyState) -> int:
+	var cfg: Dictionary = growth().get("suppression", {})
+	var rank := WorldAuthority.beast_rank(e.def, e.level)
+	if rank <= 0: return 0
+	var t := ceili(float(rank) / float(cfg.get("rank_div", 2)))
+	if e.is_boss(): t += int(cfg.get("boss", 2))
+	elif e.elite: t += int(cfg.get("elite", 1))
+	return t
+
+func suppresses(p: Dictionary, e: EnemyState) -> bool:
+	var will := beast_tier(e)
+	return will > 0 and CombatRules.pressure_loss(float(bloodline_tier(p)), float(will)) > 0.0
+
+func suppressed_by_party(c, e: EnemyState) -> bool:
+	for p in party(c):
+		if suppresses(p, e): return true
+	return false
+
+## Once a second an animal presses its blood on the wild beasts near it: each weaker one is gripped by Fear, once.
+func _suppress(c, p: Dictionary, a: EnemyState, delta: float) -> void:
+	var cfg: Dictionary = growth().get("suppression", {})
+	a.ai.sup_t = float(a.ai.get("sup_t", 0.0)) - delta
+	if float(a.ai.sup_t) > 0.0 or str(a.ai.get("state", "")) == "downed": return
+	a.ai.sup_t = float(cfg.get("every_s", 1.0))
+	for e in game.room_rt.living_enemies():
+		if e.team != "enemy" or e.hidden or e.ai.get("suppressed", false) or e.plane.distance_to(a.plane) > float(cfg.get("reach", 260)): continue
+		if not suppresses(p, e): continue
+		e.ai["suppressed"] = true
+		game.combat.apply_enemy_status(e, {"id": "fear", "power": 1.0, "remaining": float(cfg.get("fear_s", 2.0)), "source": c.id})
+		emit("beast_suppressed", {"actor": c.id, "pet": str(p.uid), "enemy": e.uid, "def": e.def_id})
+
+# ------------------------------------------------------------------ contracts (S46)
+## At 10 hearts an animal may offer the one Equal Contract a character ever makes.
+func equal_contract_open(c, p: Dictionary) -> bool:
+	var need := float(growth().get("contracts", {}).get("equal", {}).get("hearts", 10))
+	return str(p.get("contract", "master")) != "equal" and float(p.get("bond", 0.0)) >= need and not c.quests.has_flag("equal_contract")
+
+func offer_contract(c, uid: String, kind: String) -> Dictionary:
+	var p := _pet(c, uid)
+	if p.is_empty(): return fail("unknown_pet")
+	var cfg: Dictionary = growth().get("contracts", {})
+	match kind:
+		"equal":
+			if c.quests.has_flag("equal_contract"): return fail("once", {"text": Tx.t("sim.pet.equal_once")})
+			if float(p.get("bond", 0.0)) < float(cfg.get("equal", {}).get("hearts", 10)):
+				return fail("hearts", {"text": Tx.t("sim.pet.equal_hearts") % int(cfg.get("equal", {}).get("hearts", 10))})
+			game.quest.apply_flag(c.id, "equal_contract")
+		"blood":
+			if str(p.get("contract", "master")) != "master": return fail("bound", {"text": Tx.t("sim.pet.already_bound")})
+			var item := str(cfg.get("blood", {}).get("item", "beast_essence_blood"))
+			if c.inventory.count(item) <= 0: return fail("no_blood", {"text": Tx.t("sim.pet.needs_item") % ContentDB.item_name(item)})
+			game.inventory.apply_remove(c.id, item, 1, "blood_contract")
+		_: return fail("bad_kind")
+	p.contract = kind
+	emit("contract_formed", {"actor": c.id, "pet": uid, "kind": kind})
+	_spawn(c)
+	return ok({"contract": kind})
+
+# ------------------------------------------------------------------ command capacity (S46)
+## Animals that may fight beside you at once, tied to Soul: 1, 2 from Spirit Awakening, 3 from Sage.
+func command_capacity(c) -> int:
+	var n := 1
+	for step in growth().get("command", []):
+		if str(step.get("realm", "")) == "" or ProgressionRules.at_least(c.cultivator.realm_key, str(step.realm)): n = maxi(n, int(step.get("count", 1)))
+	return n
+
+## The animals beside you: the active one first, then the party, up to the command capacity.
+func party(c) -> Array:
+	var out: Array = []
+	if c == null: return out
+	var act := active_pet(c)
+	if not act.is_empty() and str(act.get("role", "")) != "guard": out.append(act)   # on Guard duty it stays home (S45)
+	for uid in c.party_pets:
+		if out.size() >= command_capacity(c): break
+		var p := _pet(c, str(uid))
+		if p.is_empty() or str(p.uid) == c.active_pet or str(p.get("role", "")) in ["guard", "mount"]: continue
+		out.append(p)
+	return out
+
+func set_party(c, uid: String, on: bool) -> Dictionary:
+	var p := _pet(c, uid)
+	if p.is_empty(): return fail("unknown_pet")
+	if uid == c.active_pet: return fail("already_active")
+	c.party_pets = c.party_pets.filter(func(u): return str(u) != uid and not _pet(c, str(u)).is_empty())
+	if on:
+		if str(p.get("role", "")) in ["guard", "mount"]: return fail("busy", {"text": Tx.t("sim.pet.party_busy") % str(p.name)})
+		var cap := command_capacity(c)
+		if c.party_pets.size() + 1 >= cap: return fail("capacity", {"text": Tx.t("sim.pet.capacity") % cap})
+		c.party_pets.append(uid)
+	_spawn(c)
+	emit("party_changed", {"actor": c.id, "count": party(c).size()})
+	return ok({"party": c.party_pets.duplicate()})
+
+# ------------------------------------------------------------------ incubation input (S46)
+## Once of each kind per egg: your own essence blood (+10 purity, -10% max HP for 24 h), a beast core to steer
+## the element, or Beast Essence Blood to reroll one hidden trait.
+func incubate_input(c, index: int, kind: String, item: String) -> Dictionary:
+	if index < 0 or index >= c.eggs.size(): return fail("bad_index")
+	var egg: Dictionary = c.eggs[index]
+	var inputs: Array = egg.get("inputs", [])
+	if kind in inputs: return fail("already", {"text": Tx.t("sim.pet.egg_already")})
+	var cfg: Dictionary = growth().get("incubation", {})
+	match kind:
+		"blood":
+			if float(c.cooldowns.get("essence_blood", 0.0)) > Clock.now_utc(): return fail("weak", {"text": Tx.t("sim.pet.still_weak")})
+			egg.purity_bonus = float(egg.get("purity_bonus", 0)) + float(cfg.get("blood", {}).get("purity", 10))
+			c.cooldowns["essence_blood"] = Clock.now_utc() + float(cfg.get("blood", {}).get("hours", 24)) * 3600.0
+			game.combat.refresh_stats(c.id)
+		"element":
+			if egg.get("bred", false): return fail("bred", {"text": Tx.t("sim.pet.bred_egg")})
+			var core: Dictionary = ContentDB.item(item).get("core", {})
+			if not core.has("element"): return fail("not_a_core")
+			if c.inventory.count(item) <= 0: return fail("no_core")
+			var el := str(core.element)
+			if str(ContentDB.entry("pets", str(egg.species)).get("element", "")) == el: return fail("same", {"text": Tx.t("sim.pet.egg_same_element")})
+			var pool: Array = (ContentDB.config("eggs").get("species", []) as Array).filter(
+				func(r): return str(ContentDB.entry("pets", str(r.species)).get("element", "")) == el)
+			if pool.is_empty(): return fail("no_element", {"text": Tx.t("sim.pet.egg_no_element") % ContentDB.name_of("elements", el)})
+			game.inventory.apply_remove(c.id, item, 1, "incubate_input")
+			var rng := Rng.stream(c.id, "taming")
+			var total := 0.0
+			for r in pool: total += float(r.get("weight", 1))
+			var roll := rng.randf() * total
+			for r in pool:
+				roll -= float(r.get("weight", 1))
+				if roll <= 0.0:
+					egg.species = str(r.species)
+					break
+		"reroll":
+			var reroll_item := str(cfg.get("reroll_item", "beast_essence_blood"))
+			if c.inventory.count(reroll_item) <= 0: return fail("no_blood", {"text": Tx.t("sim.pet.needs_item") % ContentDB.item_name(reroll_item)})
+			game.inventory.apply_remove(c.id, reroll_item, 1, "incubate_input")
+			if not egg.has("traits"): egg.traits = _roll_traits(c)
+			var rng2 := Rng.stream(c.id, "pet")
+			var fresh: Array = ContentDB.all("pet_traits").map(func(t): return str(t.id)).filter(func(t): return not (egg.traits as Array).has(t))
+			if not fresh.is_empty(): egg.traits[rng2.randi_range(0, (egg.traits as Array).size() - 1)] = fresh[rng2.randi_range(0, fresh.size() - 1)]
+		_: return fail("bad_kind")
+	inputs.append(kind)
+	egg.inputs = inputs
+	emit("egg_infused", {"actor": c.id, "egg": index, "kind": kind})
+	return ok({"kind": kind})
+
+func _tick_essence_blood(c, delta: float) -> void:
+	if not c.cooldowns.has("essence_blood"): return
+	essence_check -= delta
+	if essence_check > 0.0: return
+	essence_check = 5.0
+	if Clock.now_utc() >= float(c.cooldowns.essence_blood):
+		c.cooldowns.erase("essence_blood")
+		game.combat.refresh_stats(c.id)
+
+# ------------------------------------------------------------------ beast medicine (S46)
+## Beast Revival Pills, Beast Essence Blood and the Beast Marrow Washing Pill: each checks it can help before it is spent.
+func use_pet_item(c, index: int) -> Dictionary:
+	var s: Dictionary = c.inventory.bag[index]
+	var id := str(s.id)
+	var def := ContentDB.item(id)
+	var p := active_pet(c)
+	for e in def.get("use", []):
+		match str(e.get("kind", "")):
+			"heal_pet_wound":
+				if not c.pets.any(func(x): return ensure_fields(x).get("wounded", false)): return fail("none_wounded", {"text": Tx.t("sim.pet.none_wounded")})
+			"add_pet_purity":
+				if p.is_empty(): return fail("no_pet", {"text": Tx.t("sim.pet.no_active")})
+				if int(p.get("purity", 0)) >= 100: return fail("pure", {"text": Tx.t("sim.pet.pure") % str(p.name)})
+			"wash_pet_marrow":
+				if p.is_empty(): return fail("no_pet", {"text": Tx.t("sim.pet.no_active")})
+				if not aptitude_known(p): return fail("too_young", {"text": Tx.t("sim.pet.gifts_hidden") % str(p.name)})
+	game.inventory.apply_remove_index(c.id, index, 1, "pet_item")
+	game.apply_effects(c.id, def.get("use", []), "item:" + id)
+	return ok({"item": id})
+
+## The Beast Marrow Washing Pill: the active animal's weakest aptitude is rolled again (no toxicity).
+func wash_marrow(actor_id: String) -> String:
+	var c = game.character(actor_id)
+	var p := active_pet(c)
+	if p.is_empty(): return ""
+	var worst := ""
+	for st in p.aptitude:
+		if worst == "" or float(p.aptitude[st]) < float(p.aptitude[worst]): worst = str(st)
+	if worst == "": return ""
+	var ar: Array = growth().get("aptitude", {}).get("range", [0.8, 1.2])
+	p.aptitude[worst] = snappedf(Rng.stream(c.id, "bloodline").randf_range(float(ar[0]), float(ar[1])), 0.01)
+	emit("pet_changed", {"actor": c.id, "pet": str(p.uid)})
+	log_line(c.id, Tx.t("sim.pet.marrow_washed") % [str(p.name), Tx.t("ui.pets.apt_" + worst), float(p.aptitude[worst])], "loot")
+	_spawn(c)
+	return worst

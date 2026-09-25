@@ -3213,6 +3213,37 @@
    ]
   },
   {
+   "id": "beast_marrow_washing_pill",
+   "craft": "alchemy",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "riverreed_ginseng_100",
+     "count": 1
+    },
+    {
+     "item": "tough_meat",
+     "count": 3
+    },
+    {
+     "item": "mist_lotus",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "beast_marrow_washing_pill",
+     "count": 1
+    }
+   ],
+   "element": "earth",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
+  },
+  {
    "id": "marrow_washing_bath",
    "craft": "alchemy",
    "grade": "earth",

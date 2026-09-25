@@ -125,7 +125,8 @@ def shops():
                    s("willow_moss_seed", price=6), s("ember_pepper_seed", price=14), s("riverreed_ginseng_seed", price=20)]},
         {"id": "hermit", "name": "Hermit Yao's Beast Hall", "currency": "silver_tael",
          "stock": [s("taming_cauldron", price=200, requires=all_of(realm("heart_tempering_1"))), s("bonding_offering_common"), s("roast_fish"), s("fish_bait"), s("maple_leaf_vessel", price=600, requires=all_of(realm("cloud_stride_1"))),
-                   s("purifying_offering", price=60, requires=all_of(realm("qi_unfurling_7"))), s("beast_revival_pill", price=45)]},
+                   s("purifying_offering", price=60, requires=all_of(realm("qi_unfurling_7"))), s("beast_revival_pill", price=45),
+                   s("beast_essence_blood", price=600, requires=all_of(realm("heart_tempering_1")))]},
         # Act II · Cloudgate Port and the Thunderhorn Plains. Spirit Stone prices come from tael prices at the exchange rate.
         {"id": "alliance_factor", "name": "Alliance Factor's Hall", "currency": "spirit_stone", "discount": {"flag": "path_alliance", "pct": 0.1},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_short_blade"), s("stormsteel_staff"),
@@ -308,6 +309,7 @@ def recipes():
     r("riverreed_draught", "alchemy", [("riverreed_ginseng_10", 1), ("river_minnow", 1)], [("riverreed_draught", 1)], "common", default=True, liquid=True)
     r("copper_body_bath", "alchemy", [("tortoise_plate", 2), ("mole_claw", 2), ("willow_moss", 4)], [("copper_body_bath", 1)], "common")
     r("beast_revival_pill", "alchemy", [("riverreed_ginseng_10", 2), ("tough_meat", 1), ("willow_moss", 1)], [("beast_revival_pill", 1)], "common")
+    r("beast_marrow_washing_pill", "alchemy", [("riverreed_ginseng_100", 1), ("tough_meat", 3), ("mist_lotus", 1)], [("beast_marrow_washing_pill", 1)], "earth")
     r("marrow_washing_bath", "alchemy", [("riverreed_ginseng_100", 1), ("hound_fang", 3), ("ape_fur", 2), ("mist_lotus", 1)], [("marrow_washing_bath", 1)], "earth")
     # S48 body ladder: each body tier teaches the next tier's bath (Iron → Jade, Jade → Gold).
     r("jade_marrow_bath", "alchemy", [("cloudtop_orchid", 1), ("jade_scale", 3), ("guardian_stone", 2), ("mist_lotus", 2)], [("jade_marrow_bath", 1)], "heaven")
@@ -490,6 +492,26 @@ def pets():
     # S43 rule 12: how each animal follows along the navigation graph (ground mounts jump at 530; none climb).
     jumps = {"reed_otter": 430, "ember_fox": 530, "jade_crane": 530, "mossback_toad": 600, "ironclaw_mole": 0, "bamboo_monkey": 600, "mist_wolf": 530,
              "green_viper": 0, "mud_hound": 530, "mist_vulture": 530, "cleansed_boarlet": 430, "pale_stag": 600}
+    # S46 bloodline: at 50 purity an ancestral skill awakens (a heavy strike every 12 s in a fight; the free cast
+    # of an Equal Contract); at 90 the animal changes form (+10% to every stat, a larger, tinted body).
+    ancestry = {
+        "reed_otter": ("Ancestral Tide", "Tide-Mother Otter", "#9fe0ff"),
+        "ember_fox": ("Nine-Tail Flame", "Nine-Tail Fox", "#ffc070"),
+        "jade_crane": ("Thousand-League Wing", "Azure Sky Crane", "#a8f0e0"),
+        "mossback_toad": ("Moon-Swallowing Croak", "Jade Moon Toad", "#c8f0a0"),
+        "ironclaw_mole": ("Earth Vein Burrow", "Mountain-Moving Mole", "#e0c890"),
+        "bamboo_monkey": ("Hundred Staff Storm", "Cloud-Staff Ape", "#f0e0a0"),
+        "mist_wolf": ("Moon-Devouring Howl", "Heaven-Howl Wolf", "#d8d0ff"),
+        "green_viper": ("Emerald Flood Coil", "Jade Flood Serpent", "#90f0b0"),
+        "mud_hound": ("Earth-Shaking Bay", "Stone Lion Hound", "#e8c8a0"),
+        "mist_vulture": ("Storm-Cleaving Dive", "Thunder Roc", "#c0d8ff"),
+        "cleansed_boarlet": ("Mountain Charge", "Ancient Iron Boar", "#d0c0b0"),
+        "pale_stag": ("White Moon Antler", "Moon-Crowned Stag", "#f0f0ff"),
+    }
+    for r in rows:
+        sk, form, tint = ancestry[r["id"]]
+        r["bloodline_skill"] = {"name": sk, "mult": 2.5}
+        r["form_change"] = {"name": form, "scale": 1.15, "tint": tint}
     for r in rows:
         r["family"] = family[r["id"]]
         r["movement"] = {"jump": jumps[r["id"]], "climb": r["id"] == "bamboo_monkey", "fly": False, "drop": True}
@@ -524,6 +546,27 @@ def pets():
                               # Grievous Wound: three knockouts in five minutes leave the animal at 80% until it rests at
                               # the Beast Hall or the Beast Pavilion, or takes a Beast Revival Pill.
                               "grievous": {"knockouts": 3, "window_s": 300, "mult": 0.8},
+                              # Bloodline awakenings: the ancestral skill at 50 purity, the form change at 90; every point
+                              # of purity strengthens revealed traits by 0.2%. Essence blood adds 10.
+                              "awakening": {"skill_at": 50, "form_at": 90, "trait_per_purity": 0.002, "skill_cd": 12.0,
+                                            "form_bonus": 0.10, "essence_blood": 10},
+                              # Suppression (the Pressure contest): an animal's bloodline tier (rarity step + awakenings)
+                              # against a wild beast's (rank / 2, +1 elite, +2 boss). Above it: Fear and +10% taming.
+                              "suppression": {"rank_div": 2, "elite": 1, "boss": 2, "fear_s": 2.0, "tame_bonus": 0.10,
+                                              "reach": 260, "every_s": 1.0},
+                              # Contracts. Equal: offered at 10 hearts, one per character, forever: Resonance flows both
+                              # ways (the owner's meditation feeds the animal, whatever its role) and one free skill
+                              # cast a fight. Blood: sealed with essence blood, +15% stats, a knockout bruises your soul.
+                              "contracts": {"equal": {"hearts": 10, "free_cast_mult": 2.5, "resonance_share": 0.5, "calm_s": 5.0,
+                                                      "xp_per_tick": 0.5},
+                                            "blood": {"stats": 0.15, "item": "beast_essence_blood", "soul_injury": 1}},
+                              # Command capacity tied to Soul: animals that fight beside you at once.
+                              "command": [{"realm": "", "count": 1}, {"realm": "spirit_awakening_1", "count": 2}, {"realm": "sage_1", "count": 3}],
+                              # Incubation input, once of each kind per egg: drip your own essence blood (-10% max HP for
+                              # 24 h, +10 purity), a beast core to steer its element, or Beast Essence Blood to reroll one
+                              # hidden trait. Animals you hatch yourself start at 3 hearts.
+                              "incubation": {"blood": {"purity": 10, "max_hp_pct": -0.10, "hours": 24}, "reroll_item": "beast_essence_blood",
+                                             "hatch_hearts": 3},
                               # Beast cores (rank 2+ at 2% a rank) by tier: the XP a pet of their element gains devouring
                               # one, and what the Core Exchange pays in Spirit Stones (capped at 60 a day).
                               "cores": {"min_rank": 2, "chance_per_rank": 0.02, "tiers": {"low": [2, 3], "mid": [4, 5], "high": [6, 7], "peak": [8, 9]},

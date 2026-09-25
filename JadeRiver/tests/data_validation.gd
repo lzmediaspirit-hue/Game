@@ -195,6 +195,22 @@ func data_suite() -> void:
 		if int(en.get("beast_rank", 0)) >= 2:
 			check(WorldAuthority.beast_core_for(en, int(en.level[0])) != "", "beast %s (rank %d) has a core" % [en.id, int(en.beast_rank)])
 	for rar in ContentDB.config("pet_growth").get("rarities", []): check(ContentDB.config("pet_growth").get("purity", {}).has(str(rar.id)), "purity band for %s" % rar.id)
+	# S46 bloodline: every species has an ancestral skill and a form; contracts, capacity and incubation read real items.
+	var pg := ContentDB.config("pet_growth")
+	for pe in ContentDB.all("pets"):
+		check(str(pe.get("bloodline_skill", {}).get("name", "")) != "" and float(pe.get("bloodline_skill", {}).get("mult", 0)) > 1.0, "pet %s has a bloodline skill" % pe.id)
+		check(str(pe.get("form_change", {}).get("name", "")) != "" and Color.html_is_valid(str(pe.get("form_change", {}).get("tint", ""))), "pet %s has a form change" % pe.id)
+	check(int(pg.get("awakening", {}).get("skill_at", 0)) == 50 and int(pg.get("awakening", {}).get("form_at", 0)) == 90, "awakenings at purity 50 and 90")
+	var caps: Array = pg.get("command", []).map(func(x): return int(x.count))
+	check(caps == [1, 2, 3], "command capacity 1, 2, 3 (%s)" % str(caps))
+	for step in pg.get("command", []):
+		check(str(step.realm) == "" or not ContentDB.realm(str(step.realm)).is_empty(), "command step realm %s" % step.realm)
+	for key in [str(pg.get("contracts", {}).get("blood", {}).get("item", "")), str(pg.get("incubation", {}).get("reroll_item", ""))]:
+		check(str(ContentDB.item(key).get("use_action", "")) == "pet_item", "S46 item %s exists and goes to a pet" % key)
+	check(ContentDB.has_entry("recipes", "beast_marrow_washing_pill") and float(ContentDB.item("beast_marrow_washing_pill").get("pill", {}).get("toxicity", 1)) == 0.0,
+		"the Beast Marrow Washing Pill is refined, and leaves no toxicity")
+	check(ContentDB.entry("fates", "fox_spirits_favour").get("available", true) and float(ContentDB.entry("fates", "fox_spirits_favour").get("next", {}).get("egg_purity", 0)) == 10.0,
+		"Fox Spirit's Favour is in the deck: the next egg +10 purity")
 	# S48 body ladder: each rung names a bath item, a Temper trial set piece with a drum, and stats that exist.
 	var stat_ids := {}
 	for sd in ContentDB.stat_const("stats", []): stat_ids[str(sd.id)] = true
@@ -261,7 +277,7 @@ func data_suite() -> void:
 		# S44: every herb has a nature and the roles it can fill.
 		if str(it.get("type", "")) == "herb":
 			check(str(it.get("nature", "")) in ["hot", "cold", "neutral"] and not (it.get("roles", []) as Array).is_empty(), "herb %s nature and roles" % it.id)
-		if it.has("use_action"): check(str(it.use_action) in ["appraise", "incubate", "tame", "absorb_flame", "talisman", "bath"], "item %s use_action" % it.id)
+		if it.has("use_action"): check(str(it.use_action) in ["appraise", "incubate", "tame", "absorb_flame", "talisman", "bath", "pet_item"], "item %s use_action" % it.id)
 		# S47: a treasure item points at its entry in treasures.json, with a cooldown or charges and a QI cost.
 		if it.has("treasure"):
 			var t := ContentDB.entry("treasures", str(it.treasure))

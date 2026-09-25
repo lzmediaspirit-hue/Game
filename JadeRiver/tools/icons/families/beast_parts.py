@@ -870,3 +870,18 @@ def alliance_badge():
 
 
 register(FAM, 'alliance_badge', alliance_badge, GROUP)
+
+
+def beast_essence_blood():
+    """S46: a squat jade vial of dark gold-flecked blood, a red cord knotted at the neck."""
+    c = Canvas(32)
+    vial(c, Ramp(['#2A0A0E', '#561420', '#8A2230', '#C0463E', '#F0A070'], '#12050A'), glass=R['jade'], cork=R['gold'], shape='round', level=0.72)
+    for x, y in ((14, 21), (18, 24), (16, 26)):
+        c.put(c.rect(x, y, x, y), R['gold'][4], 'flat')
+    c.put(c.rect(12, 9, 20, 9), R['red'], 'flat', base=3)
+    c.outline()
+    c.glow('#FFB070', (50,))
+    return c
+
+
+register(FAM, 'beast_essence_blood', beast_essence_blood, GROUP)

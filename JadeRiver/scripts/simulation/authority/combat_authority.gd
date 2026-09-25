@@ -949,6 +949,11 @@ func _oil_strike(c, e: EnemyState, ev: Dictionary) -> void:
 			applied.source = c.id
 			_apply_status_to_enemy(e, applied)
 
+## Another authority lays a status on a monster (S46 bloodline suppression: Fear).
+func apply_enemy_status(e: EnemyState, s: Dictionary) -> void:
+	if e == null or not e.alive or e.pools.steadfast.has(str(s.get("id", ""))): return
+	_apply_status_to_enemy(e, s)
+
 func _apply_status_to_enemy(e: EnemyState, s: Dictionary) -> void:
 	for existing in e.pools.statuses:
 		if existing.id == s.id:

@@ -75,7 +75,8 @@ DEPTH = {
     "Movement": ["jumped", "landed", "wall_kicked", "art_used", "climb_started", "climb_finished", "fell_out", "mover_boarded",
                  "volume_entered", "volume_left"],
     "Enemies": ["enemy_leashed"],
-    "Pets": ["pet_wounded", "pet_healed", "core_devoured", "cores_sold", "beast_cleansed"],
+    "Pets": ["pet_wounded", "pet_healed", "core_devoured", "cores_sold", "beast_cleansed", "bloodline_awakened",
+             "contract_formed", "contract_offered", "pet_skill_cast", "beast_suppressed", "egg_infused", "party_changed"],
     "World": ["ambush_sprung", "herb_ripening", "guardian_spawned"],
 }
 for _sys, _names in DEPTH.items():

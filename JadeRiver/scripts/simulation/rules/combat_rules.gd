@@ -117,3 +117,9 @@ static func badge_color(player_realm: int, enemy_realm: int, player_level: int, 
 	if lv >= 5: return "orange"
 	if lv <= -5: return "green"
 	return "white"
+
+## S12 Pressure contest: when Pressure exceeds the target's Will, the target is slowed and loses output by
+## min(50%, 25% x (Pressure / Will - 1)); 0 when it holds. S46 bloodline suppression reads the same rule.
+static func pressure_loss(pressure: float, will: float) -> float:
+	if will <= 0.0 or pressure <= will: return 0.0
+	return minf(0.5, 0.25 * (pressure / will - 1.0))

@@ -53,6 +53,9 @@ func setup(e: EnemyState) -> void:
 		sprite.fallback_color = SpriteCache.element_color(e.element).darkened(0.35)
 		add_child(sprite)
 		if e.def.get("hollow_tint", false): sprite.set_tint(Color(0.8, 0.85, 0.88))
+		# S46 form change: an animal at 90 purity stands larger in its lineage's colour.
+		if art.has("tint"): sprite.set_tint(Color(str(art.tint)))
+		if art.has("scale"): sprite.scale = Vector2.ONE * float(art.scale)
 	_update_badge(e)
 	sync(e, 0.0)
 

@@ -2244,7 +2244,45 @@
    "pill": {
     "toxicity": 0,
     "group": "utility"
-   }
+   },
+   "use_action": "pet_item"
+  },
+  {
+   "id": "beast_essence_blood",
+   "name": "Beast Essence Blood",
+   "type": "taming",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 20,
+   "icon": "beast_essence_blood",
+   "desc": "A drop of a great beast's essence blood in a jade vial. Your active spirit animal drinks it for +10 bloodline purity; it also seals a Blood Contract or rerolls one hidden trait of an egg you are warming.",
+   "use": [
+    {
+     "kind": "add_pet_purity",
+     "amount": 10
+    }
+   ],
+   "use_action": "pet_item"
+  },
+  {
+   "id": "beast_marrow_washing_pill",
+   "name": "Beast Marrow Washing Pill",
+   "type": "pill",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 20,
+   "icon": "beast_marrow_washing_pill",
+   "desc": "A pill for a spirit animal, not for you. It washes the marrow of your active animal's weakest gift and rolls it again. It leaves no toxicity. The animal must be a Juvenile before its gifts show.",
+   "use": [
+    {
+     "kind": "wash_pet_marrow"
+    }
+   ],
+   "pill": {
+    "toxicity": 0,
+    "group": "utility"
+   },
+   "use_action": "pet_item"
   },
   {
    "id": "tiny_hollow_shard",

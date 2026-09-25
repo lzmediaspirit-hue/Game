@@ -719,6 +719,7 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 		"talisman": return game.combat.use_talisman(c, index)
 		"incubate": return game.pets.incubate_egg(c, index)
 		"tame": return game.pets.attempt_tame(c, str(s.id), -1.0)
+		"pet_item": return game.pets.use_pet_item(c, index)
 		"absorb_flame": return game.crafting.absorb_flame(c, index)
 		"bath": return game.progression.start_bath(c, str(s.id))
 	# S48 vows block what they forbid: Plain Fare the burst pills, Fasting the food that lends a buff.

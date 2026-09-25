@@ -730,6 +730,22 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.pet_wounded") % _pet_name(str(p.pet)), "danger", Tx.t("hud.pet_wounded_sub"))
 		"pet_healed":
 			add_log(Tx.t("hud.pet_healed") % _pet_name(str(p.pet)), UiKit.BRIGHT_JADE)
+		"bloodline_awakened":
+			if int(p.get("step", 1)) >= 2: toast(Tx.t("hud.bloodline_form") % [_pet_name(str(p.pet)), str(p.get("name", ""))], "unlock", Tx.t("hud.bloodline_form_sub"))
+			else: toast(Tx.t("hud.bloodline_skill") % [_pet_name(str(p.pet)), str(p.get("name", ""))], "unlock", Tx.t("hud.bloodline_skill_sub"))
+		"contract_formed":
+			var ck := str(p.get("kind", "equal"))
+			toast(Tx.t("hud.contract_formed_" + ck) % _pet_name(str(p.pet)), "unlock", Tx.t("hud.contract_formed_" + ck + "_sub"))
+		"contract_offered":
+			toast(Tx.t("hud.contract_offered") % _pet_name(str(p.pet)), "unlock", Tx.t("hud.contract_offered_sub"))
+		"pet_skill_cast":
+			add_log(Tx.t("hud.pet_skill_cast") % [_pet_name(str(p.pet)), str(p.get("skill", ""))], UiKit.PALE_GOLD)
+		"beast_suppressed":
+			add_log(Tx.t("hud.beast_suppressed") % [_pet_name(str(p.pet)), ContentDB.name_of("enemies", str(p.get("def", "")))], UiKit.MIST)
+		"egg_infused":
+			add_log(Tx.t("hud.egg_infused_" + str(p.get("kind", "blood"))), UiKit.BRIGHT_JADE)
+		"party_changed":
+			add_log(Tx.t("hud.party_changed") % int(p.get("count", 1)), UiKit.MIST)
 		"core_devoured":
 			add_log(Tx.t("hud.core_devoured") % [_pet_name(str(p.pet)), ContentDB.item_name(str(p.item)), int(float(p.xp))], UiKit.BRIGHT_JADE)
 		"cores_sold":

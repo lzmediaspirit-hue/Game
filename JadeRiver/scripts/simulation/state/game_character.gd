@@ -27,6 +27,7 @@ var companions: Dictionary = {"roster": [], "active": [], "bond": {}, "downed": 
 var pets: Array = []
 var eggs: Array = []                 # [{species, hatch_utc}] incubating spirit eggs (S22)
 var active_pet := ""
+var party_pets: Array = []           # S46: more animals beside the active one, up to the command capacity
 var cooldowns: Dictionary = {}       # key -> utc until
 var rooms: Dictionary = {}           # room id -> {nodes: {obj: utc}, opened: {obj: true}}
 var skill_page := 0
@@ -56,6 +57,7 @@ func snapshot() -> Dictionary:
 		"quests": quests.snapshot(), "position": position.duplicate(true), "last_shrine": last_shrine.duplicate(true),
 		"last_town": last_town, "seclusion": seclusion.duplicate(true), "idle_task": idle_task.duplicate(true),
 		"companions": companions.duplicate(true), "pets": pets.duplicate(true), "eggs": eggs.duplicate(true), "active_pet": active_pet,
+		"party_pets": party_pets.duplicate(),
 		"cooldowns": cooldowns.duplicate(true), "rooms": rooms.duplicate(true), "skill_page": skill_page,
 		"skip_prologue": skip_prologue, "created_utc": created_utc, "last_active_utc": last_active_utc,
 		"statuses": pools.statuses.duplicate(true), "loadouts": loadouts.duplicate(true),
@@ -84,6 +86,7 @@ func restore(d: Dictionary) -> void:
 	pets = d.get("pets", []).duplicate(true)
 	eggs = d.get("eggs", []).duplicate(true)
 	active_pet = str(d.get("active_pet", ""))
+	party_pets = (d.get("party_pets", []) as Array).map(func(u): return str(u))
 	cooldowns = d.get("cooldowns", {}).duplicate(true)
 	rooms = d.get("rooms", {}).duplicate(true)
 	skill_page = clampi(int(d.get("skill_page", 0)), 0, 1)

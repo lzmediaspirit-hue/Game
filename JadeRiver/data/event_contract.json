@@ -946,6 +946,48 @@
     "pet_authority"
    ]
   },
+  "bloodline_awakened": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "contract_formed": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "contract_offered": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "pet_skill_cast": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "beast_suppressed": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "egg_infused": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "party_changed": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
   "item_added": {
    "system": "Inventory",
    "files": [

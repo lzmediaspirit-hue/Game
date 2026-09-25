@@ -168,12 +168,17 @@ func _handle_preview_args(user_args: Array) -> void:
 	var shot := screen
 	for a in user_args:
 		if str(a).begins_with("--pet=") and Game.active() != null:
-			# Debug tools (S38): --pet=species[:stage] grants an animal and makes it active (S46 previews).
+			# Debug tools (S38): --pet=species[:stage[:purity[:hearts]]] grants an animal and makes it active (S46 previews).
 			var pa := str(a).trim_prefix("--pet=").split(":")
 			Game.pets.apply_grant(Game.active().id, pa[0])
 			var np: Dictionary = Game.active().pets[Game.active().pets.size() - 1]
 			if pa.size() > 1: np.stage = pa[1]
+			if pa.size() > 2: Game.pets.add_purity(Game.active(), np, int(pa[2]) - int(np.purity))
+			if pa.size() > 3: np.bond = float(pa[3])
 			Game.active().active_pet = str(np.uid)
+		if str(a).begins_with("--egg=") and Game.active() != null:
+			# Debug tools (S38): --egg=species puts a warming egg in the nest (S46 incubation previews).
+			Game.active().eggs.append({"species": str(a).trim_prefix("--egg="), "hatch_utc": Clock.now_utc() + 7200.0})
 		if str(a).begins_with("--give=") and Game.active() != null:
 			# Debug tools (S38): --give=item[:count[:quality]] puts items in the bag for previews.
 			var g := str(a).trim_prefix("--give=").split(":")

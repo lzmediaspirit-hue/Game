@@ -738,6 +738,10 @@ func choose_fate(c, card: String) -> Dictionary:
 	emit("fate_chosen", {"actor": c.id, "card": card})
 	return ok({"card": card})
 
+## Another authority spends a fate's `next` (Fox Spirit's Favour: the next egg's purity).
+func spend_fate_next(c, key: String) -> float:
+	return _spend_fate_next(c, key)
+
 ## The fates still waiting on a `next` (a tribulation's extra bolts, a breakthrough's bonus): spent once, then gone.
 func _spend_fate_next(c, key: String) -> float:
 	var total := 0.0

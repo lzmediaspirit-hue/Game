@@ -64,6 +64,60 @@
   "window_s": 300,
   "mult": 0.8
  },
+ "awakening": {
+  "skill_at": 50,
+  "form_at": 90,
+  "trait_per_purity": 0.002,
+  "skill_cd": 12.0,
+  "form_bonus": 0.1,
+  "essence_blood": 10
+ },
+ "suppression": {
+  "rank_div": 2,
+  "elite": 1,
+  "boss": 2,
+  "fear_s": 2.0,
+  "tame_bonus": 0.1,
+  "reach": 260,
+  "every_s": 1.0
+ },
+ "contracts": {
+  "equal": {
+   "hearts": 10,
+   "free_cast_mult": 2.5,
+   "resonance_share": 0.5,
+   "calm_s": 5.0,
+   "xp_per_tick": 0.5
+  },
+  "blood": {
+   "stats": 0.15,
+   "item": "beast_essence_blood",
+   "soul_injury": 1
+  }
+ },
+ "command": [
+  {
+   "realm": "",
+   "count": 1
+  },
+  {
+   "realm": "spirit_awakening_1",
+   "count": 2
+  },
+  {
+   "realm": "sage_1",
+   "count": 3
+  }
+ ],
+ "incubation": {
+  "blood": {
+   "purity": 10,
+   "max_hp_pct": -0.1,
+   "hours": 24
+  },
+  "reroll_item": "beast_essence_blood",
+  "hatch_hearts": 3
+ },
  "cores": {
   "min_rank": 2,
   "chance_per_rank": 0.02,
