@@ -194,9 +194,10 @@ func collect_idle(char_id: String) -> Dictionary:
 			gains.kills = kills
 			gains.qp = ProgressionRules.kill_qp(ProgressionRules.level(c), lv, "normal") * kills * factor / mat
 			game.progression.apply_progress(c.id, gains.qp, "idle")
-			var coins := int(LootRules.coins_for(lv, 1.0, 0.0) * kills * 0.2)
-			if coins > 0: game.economy.apply_currency("silver_tael", coins, "idle")
-			gains.coins = coins
+			var pay := LootRules.zone_coins(str(c.idle_task.get("room", "")), int(LootRules.coins_for(lv, 1.0, 0.0) * kills * 0.2))
+			if int(pay.amount) > 0: game.economy.apply_currency(str(pay.currency), int(pay.amount), "idle")
+			gains.coins = int(pay.amount)
+			gains.coin_currency = str(pay.currency)
 		"gather":
 			var item := str(c.idle_task.get("item", ""))
 			if item != "":

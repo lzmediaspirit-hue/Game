@@ -755,6 +755,12 @@
    "group": "offense",
    "cap": null,
    "format": "percent"
+  },
+  {
+   "id": "attunement_bonus",
+   "group": "world",
+   "cap": null,
+   "format": "int"
   }
  ]
 }

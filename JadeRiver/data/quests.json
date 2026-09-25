@@ -5489,6 +5489,261 @@
      }
     ]
    }
+  },
+  {
+   "id": "through_the_gate",
+   "name": "Through the Gate",
+   "kind": "main",
+   "giver": "warden_cao",
+   "hand_in": "",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Step through the Ascension Gate",
+     "count": 1,
+     "room": "ae_landing"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Speak with the toll warden on the Arrival Terrace",
+     "count": 1,
+     "npc": "warden_cao"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 20
+    },
+    {
+     "kind": "codex",
+     "entry": "cloudgate_port"
+    }
+   ],
+   "complete_text": [
+    "Valley-born, by the mud on your boots. No toll for your first step. There will be for every other.",
+    "Welcome to Cloudgate Port, gateway of the Nine Peaks Alliance."
+   ],
+   "auto_accept": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_ascension_gate"
+     }
+    ]
+   },
+   "chapter": "11",
+   "target_room": "ae_landing",
+   "next": "a_sky_full_of_toll_roads"
+  },
+  {
+   "id": "a_sky_full_of_toll_roads",
+   "name": "A Sky Full of Toll Roads",
+   "kind": "main",
+   "giver": "warden_cao",
+   "hand_in": "broker_mu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Meet the Alliance factor in the Port Market",
+     "count": 1,
+     "npc": "factor_ruan"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Find the free broker at the Wayfarers' Inn",
+     "count": 1,
+     "npc": "broker_mu"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 30
+    },
+    {
+     "kind": "codex",
+     "entry": "nine_peaks_alliance"
+    }
+   ],
+   "offer_text": [
+    "No papers, no road. The Factor sells Alliance goods in the market. The broker at the inn sells... other things.",
+    "Talk to both. Then decide what kind of cultivator you mean to be up here."
+   ],
+   "complete_text": [
+    "The Factor told you the price of a road. I'll tell you the price of the sky: your blood.",
+    "The plains' storms pull Qi out of anyone who hasn't attuned to them. Sit. Let me show you."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "through_the_gate"
+     }
+    ]
+   },
+   "chapter": "11",
+   "target_room": "ae_port_market",
+   "next": "storm_in_the_blood"
+  },
+  {
+   "id": "storm_in_the_blood",
+   "name": "Storm in the Blood",
+   "kind": "main",
+   "giver": "broker_mu",
+   "hand_in": "broker_mu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Raise your Storm Ward jades (Character, Attunement tab)",
+     "count": 4,
+     "system": "attune_jade"
+    },
+    {
+     "kind": "kill",
+     "text": "Hunt Spark Weasels on the Stormgrass Verge",
+     "count": 6,
+     "enemy": "spark_weasel"
+    },
+    {
+     "kind": "collect",
+     "text": "Gather Storm Shards",
+     "count": 10,
+     "item": "storm_shard",
+     "consume": false
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 40
+    },
+    {
+     "kind": "grant_item",
+     "item": "storm_blood_pill",
+     "count": 2
+    },
+    {
+     "kind": "codex",
+     "entry": "storm_ward"
+    }
+   ],
+   "offer_text": [
+    "Four jades, cut from storm-glass. Carry them and feed them the shards the storm leaves in its beasts.",
+    "The more you feed them, the less the storm feeds on you. Start on the Verge. Weasels. Small, quick, angry."
+   ],
+   "complete_text": [
+    "See? You flinch less. Keep feeding the jades; the land further out asks for more.",
+    "One more thing, free: the alchemist in the Condensing Hall can make a Sage of you. She'll want thunder."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "11",
+   "target_room": "tp_stormgrass_verge",
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "storm_shard",
+     "count": 12
+    }
+   ],
+   "next": "horns_for_the_furnace"
+  },
+  {
+   "id": "horns_for_the_furnace",
+   "name": "Horns for the Furnace",
+   "kind": "main",
+   "giver": "alchemist_fen",
+   "hand_in": "alchemist_fen",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Bring Thunderhorn horns from the Flats",
+     "count": 3,
+     "item": "thunder_horn"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "sage_condensing_pill",
+     "count": 1
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "sage_condensing_pill"
+    }
+   ],
+   "offer_text": [
+    "Heaven Glimpse 3, and you want to be a Sage. Everyone does.",
+    "The condensing needs thunder. Three thunderhorn horns from the Flats. I'll press them into your pill."
+   ],
+   "complete_text": [
+    "There. Swallow it here, where the Qi is thick. Not in a field with a rhino watching."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "storm_in_the_blood"
+     }
+    ]
+   },
+   "chapter": "11",
+   "target_room": "tp_thunderhorn_flats",
+   "next": "sage"
+  },
+  {
+   "id": "sage",
+   "name": "Sage",
+   "kind": "main",
+   "giver": "alchemist_fen",
+   "hand_in": "alchemist_fen",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_realm",
+     "text": "Break through to Sage 1 (third-grade purity, the pill, a land that can hold you)",
+     "count": 1,
+     "realm": "sage_1"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 60
+    },
+    {
+     "kind": "codex",
+     "entry": "sage_qi"
+    }
+   ],
+   "offer_text": [
+    "Purity of the third grade, the pill, and a land that can hold you. The Expanse can.",
+    "Sit on the mat. Breathe until the True Qi turns to light."
+   ],
+   "complete_text": [
+    "Sage Qi. Feel how it moves? Like thunder that learned its manners.",
+    "The Nine Peaks will want your name now. So will people who are worse than the Alliance."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "horns_for_the_furnace"
+     }
+    ]
+   },
+   "chapter": "11",
+   "target_room": "ae_condensing_hall"
   }
  ]
 }

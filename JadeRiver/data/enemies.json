@@ -2890,6 +2890,194 @@
    "flying": true
   },
   {
+   "id": "spark_weasel",
+   "name": "Spark Weasel",
+   "level": [
+    64,
+    66
+   ],
+   "role": "normal",
+   "element": "thunder",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "leaper",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 170,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "static_bite",
+     "windup_s": 0.35,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       50
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "dash": 70
+    },
+    {
+     "id": "spark_bolt",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       260
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.1,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 560,
+      "art": "qi_arc"
+     },
+     "status": {
+      "id": "shock",
+      "chance": 0.2,
+      "power": 0.15,
+      "duration_s": 2
+     }
+    }
+   ],
+   "loot": "spark_weasel",
+   "drops": [
+    {
+     "item": "spark_pelt",
+     "chance": 0.45,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.35,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "spark_weasel"
+   },
+   "half_width": 24,
+   "height": 22,
+   "pack": true
+  },
+  {
+   "id": "thunderhorn_rhino",
+   "name": "Thunderhorn Rhino",
+   "level": [
+    64,
+    69
+   ],
+   "role": "normal",
+   "element": "thunder",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "charger",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 95,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "thunder_charge",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.35,
+     "dash": 160,
+     "knockback": 120,
+     "status": {
+      "id": "shock",
+      "chance": 0.3,
+      "power": 0.2,
+      "duration_s": 3
+     }
+    }
+   ],
+   "loot": "thunderhorn_rhino",
+   "drops": [
+    {
+     "item": "thunder_horn",
+     "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    },
+    {
+     "item": "tough_meat",
+     "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "thunderhorn_rhino"
+   },
+   "half_width": 40,
+   "height": 50
+  },
+  {
    "id": "big_toad_tan",
    "name": "Big Toad Tan",
    "level": [

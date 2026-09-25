@@ -52,6 +52,7 @@ func _main() -> void:
 		check(consumed or by_data or row.has("polled"), "%s has a reactor" % ev)
 	_strings_gate()
 	_forbidden_patterns()
+	_scripts_compile()
 	print("contract_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -147,3 +148,13 @@ func _forbidden_patterns() -> void:
 			if clock.search(line) != null and path.get_file() != "clock_service.gd": bad_clock.append("%s:%d" % [path.get_file(), i + 1])
 	check(bad_rng.is_empty(), "gameplay randomness comes from named Rng streams %s" % str(bad_rng))
 	check(bad_clock.is_empty(), "gameplay time comes from Clock %s" % str(bad_clock))
+
+## Every script under scripts/ parses and compiles (a page with a type error only fails when
+## the player opens it, so load them all here).
+func _scripts_compile() -> void:
+	var broken: Array = []
+	for path in _walk("res://scripts/"):
+		if not str(path).ends_with(".gd"): continue
+		var sc = load(str(path))
+		if sc == null or not (sc as GDScript).can_instantiate(): broken.append(str(path))
+	check(broken.is_empty(), "every script compiles %s" % str(broken))

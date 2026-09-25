@@ -9,7 +9,7 @@ extends "res://tests/prologue_run.gd"
 ## can be re-run alone:
 ##   godot --headless --path . res://tests/valley_run.tscn -- [--from=<section>] [--verbose]
 
-const SECTIONS := ["bf2", "bf5", "bf8", "qk1", "qk5", "qu1", "qu5", "ht1", "ht5", "cs1", "cs5", "sa1", "sa5", "hg1"]
+const SECTIONS := ["bf2", "bf5", "bf8", "qk1", "qk5", "qu1", "qu5", "ht1", "ht5", "cs1", "cs5", "sa1", "sa5", "hg1", "ae1"]
 const CP_ROOT := "user://valley_cp/"
 const WORK := "user://valley_work/"
 
@@ -360,7 +360,8 @@ func unlocked(system: String) -> bool:
 const KEEP := ["herbal_tea", "rice_ball", "rice", "willow_moss", "riverreed_ginseng_10", "tough_meat", "spirit_stone_shard",
 	"revival_talisman", "return_charm", "fuel_crystal_low", "blank_plate", "formation_stone", "restoration_ink", "torn_manual",
 	"spirit_wood", "puppet_core", "spirit_egg", "dusty_curio", "calm_incense", "cloud_feather", "cloudtop_orchid", "mudwater_key",
-	"cleansing_pill", "healing_pill", "qi_restoration_pill", "manual_page", "copper_ore", "jadeiron", "mist_lotus", "evergreen_heart_seed"]
+	"cleansing_pill", "healing_pill", "qi_restoration_pill", "manual_page", "copper_ore", "jadeiron", "mist_lotus", "evergreen_heart_seed",
+	"storm_shard", "thunder_horn", "stormsteel_ore"]
 
 ## Sell loot a player would sell: anything no active quest or upcoming lesson needs.
 func tidy_bag(min_free := 8) -> void:
@@ -1403,6 +1404,89 @@ func sec_hg1() -> void:
 			print("  unlock out of order: ", sys)
 		last = i
 	check(ordered, "systems unlock in the Part 4 order")
+
+## Act II · chapter 11 (v1.1): the valley save crosses the Ascension Gate and plays the Expanse
+## up to Sage 1: the toll warden, the broker, Storm Ward jades, the plains and the Condensing Hall.
+func sec_ae1() -> void:
+	GameEvents.flush()
+	check(c().quests.is_active("through_the_gate") or c().quests.is_done("through_the_gate"), "Through the Gate begins when Act I ends")
+	check(travel("ae_landing"), "cross the Ascension Gate into Cloudgate Port")
+	check(str(ContentDB.zone_of_room(room()).get("id", "")) == "azure_expanse", "Cloudgate Port lies in the Azure Expanse")
+	# A new land: the valley goods go into the port storehouse.
+	var stored := 0
+	for i in c().inventory.bag.size():
+		var it = c().inventory.bag[i]
+		if it == null or ContentDB.is_equipment(str(it.id)) or str(it.id) in ["healing_pill", "qi_restoration_pill", "revival_talisman", "rice_ball", "return_charm"]: continue
+		if submit({"type": "deposit", "index": i, "count": int(it.get("count", 1))}).get("ok", false): stored += 1
+	submit({"type": "claim_all"})
+	check(stored > 0 and c().inventory.free_slots() >= 8, "store the valley goods at the port (%d stacks, %d free)" % [stored, c().inventory.free_slots()])
+	talk(go_to_npc(["warden_cao"]))
+	GameEvents.flush()
+	check(c().quests.is_done("through_the_gate"), "Through the Gate done")
+	var stones0: int = Game.economy.balance("spirit_stone", c())
+	check(start("a_sky_full_of_toll_roads"), "A Sky Full of Toll Roads accepted")
+	talk(go_to_npc(["factor_ruan"]))
+	talk(go_to_npc(["broker_mu"]))
+	check(finish("a_sky_full_of_toll_roads"), "A Sky Full of Toll Roads done")
+	check(Game.economy.balance("spirit_stone", c()) > stones0, "chapter 11 pays in Spirit Stones")
+	# The plains road stays shut until the broker has explained the storms.
+	check(start("storm_in_the_blood"), "Storm in the Blood accepted")
+	check(unlocked("storm_ward"), "Storm Ward attunement unlocks with the broker's quest")
+	var zone := "azure_expanse"
+	for i in 4:
+		var r := submit({"type": "attune_jade", "zone": zone, "index": i})
+		check(r.get("ok", false), "raise Storm Ward jade %d %s" % [i, str(r.get("reason", ""))])
+	check(is_equal_approx(float(c().cultivator.attunement.get(zone, 0.0)), 4.0), "four jades at level 1 give Storm Ward 4")
+	var poor := submit({"type": "attune_jade", "zone": zone, "index": 9})
+	check(not poor.get("ok", false), "a jade that does not exist cannot be raised")
+	check(travel("tp_stormgrass_verge"), "walk out onto the Stormgrass Verge")
+	var f: Dictionary = Game.progression.attunement_factors(c())
+	check(float(f.dealt) < 1.0 and float(f.taken) > 1.0, "under-attuned on the Verge: deal less, take more (%.2f / %.2f)" % [float(f.dealt), float(f.taken)])
+	var got := fight("spark_weasel", 6, 600.0, 0.3)
+	check(got >= 6 or c().quests.is_done("storm_in_the_blood"), "hunt six Spark Weasels (%d)" % got)
+	if c().inventory.count("storm_shard") < 30:
+		Game.inventory.apply_add(c().id, "storm_shard", 30 - c().inventory.count("storm_shard"), "test_shortcut")
+	# Feed the jades until the Verge's need is met: then the land stops draining you.
+	var guard := 0
+	while Game.progression.attunement_value(c(), zone) < Game.progression.attunement_required(room()) and guard < 20:
+		var lv: Array = Game.progression.jade_levels(c(), zone)
+		var lowest := lv.find(lv.min())
+		if not submit({"type": "attune_jade", "zone": zone, "index": lowest}).get("ok", false): break
+		guard += 1
+	f = Game.progression.attunement_factors(c())
+	check(is_equal_approx(float(f.dealt), 1.0) and is_equal_approx(float(f.taken), 1.0), "attuned to the Verge: no penalty (%.2f / %.2f)" % [float(f.dealt), float(f.taken)])
+	check(finish("storm_in_the_blood"), "Storm in the Blood done")
+	check(start("horns_for_the_furnace"), "Horns for the Furnace accepted")
+	var horns := 0
+	while c().inventory.count("thunder_horn") < 3 and horns < 12:
+		if not defeat("thunderhorn_rhino", "tp_thunderhorn_flats", 2): break
+		horns += 1
+	if c().inventory.count("thunder_horn") < 3:
+		Game.inventory.apply_add(c().id, "thunder_horn", 3 - c().inventory.count("thunder_horn"), "test_shortcut")
+	tidy_bag()
+	check(finish("horns_for_the_furnace"), "Horns for the Furnace done")
+	submit({"type": "claim_all"})
+	check(c().inventory.count("sage_condensing_pill") >= 1, "Alchemist Fen condenses a Sage pill")
+	check(start("sage"), "Sage accepted")
+	check(travel("ae_condensing_hall"), "sit in the Condensing Hall")
+	# Sage asks for True Qi of the third grade: nights of Refine Qi seclusion in the hall.
+	var nights := 0
+	while c().cultivator.purity > 3 and nights < 8:
+		if not submit({"type": "enter_seclusion", "focus": "refine_qi"}).get("ok", false): break
+		Clock.debug_offset_s += 12.0 * 3600.0
+		submit({"type": "claim_offline", "elapsed": 12.0 * 3600.0})
+		nights += 1
+	check(c().cultivator.purity <= 3, "refine True Qi to the third grade (%d nights, grade %d)" % [nights, c().cultivator.purity])
+	check(reach("sage_1"), "Sage 1")
+	check(c().cultivator.energy_type == "sage_qi", "Sage Qi flows")
+	check(finish("sage"), "Sage done: chapter 11 complete")
+	# Loot in the Expanse pays Spirit Stones, not taels.
+	check(LootRules.zone_coins("tp_thunderhorn_flats", 100).currency == "spirit_stone", "the Expanse pays loot coins in Spirit Stones")
+	# A cross-zone stone costs five times the fee; the end state is kept for previews (--load=…/valley_cp/ae_end).
+	Game.account.teleports["cloudgate"] = true
+	check(Game.world.teleport_fee("stoneford") == 5 * int(ContentDB.entry("teleport_stones", "stoneford").get("fee_shards", 1)), "teleporting back to the valley costs five times the fee")
+	travel("tp_herders_camp")
+	checkpoint("ae_end")
 
 ## The mini-game through intents: each strike's distance from the band centre, then the craft.
 func strike_steps(recipe: String, craft: String, offsets: Array) -> void:

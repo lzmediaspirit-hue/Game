@@ -1,25 +1,45 @@
 extends Page
-## World map (S18, Part 9.6): the valley as a painted scroll with the Jade River
-## running through it; regions with Level ranges, visited rooms, locks and field
-## boss timers. Tap a region for its rooms.
+## World map (S18, Part 9.6): one painted scroll per discovered zone. The valley shows
+## the Jade River running through it; the Azure Expanse shows islands in a sea of cloud.
+## Regions carry Level ranges, visited rooms, locks, the attunement they ask for and
+## field boss timers. Tap a region for its rooms; tabs switch between zones.
 
 var sel := ""
+var zone_id := "jade_river_valley"
 
 func _init() -> void:
 	title = Tx.t("ui.map.jade_river_valley")
 
 func setup() -> void:
 	var ch = c()
-	if ch: sel = str(ContentDB.room(str(ch.position.get("room", ""))).get("region", ""))
+	if ch == null: return
+	var room_id := str(ch.position.get("room", ""))
+	var here_zone := str(ContentDB.zone_of_room(room_id).get("id", ""))
+	if here_zone != "": zone_id = here_zone
+	sel = str(ContentDB.room(room_id).get("region", ""))
+	# A tab per zone the account has set foot in (the valley always).
+	tabs = []
+	for z in ContentDB.all("zones"):
+		if str(z.id) == "jade_river_valley" or _zone_seen(str(z.id)):
+			tabs.append({"id": str(z.id), "label": str(z.get("name", z.id))})
+	if tabs.size() < 2: tabs = []
+	for i in tabs.size():
+		if str(tabs[i].id) == zone_id: tab = i
+	title = str(ContentDB.zone(zone_id).get("name", title))
+
+func _zone_seen(zid: String) -> bool:
+	for id in ContentDB.zone(zid).get("rooms", []):
+		if Game.account.visited_rooms.has(str(id)): return true
+	return false
 
 func regions() -> Array:
-	return ContentDB.zone("jade_river_valley").get("regions", []).filter(func(r): return not r.get("hidden", false))
+	return ContentDB.zone(zone_id).get("regions", []).filter(func(r): return not r.get("hidden", false))
 
 func region_rooms(rid: String) -> Array:
 	var out: Array = []
 	for id in ContentDB.rooms:
 		var r: Dictionary = ContentDB.rooms[id]
-		if str(r.get("region", "")) == rid and not r.get("instanced", false): out.append(id)
+		if str(r.get("region", "")) == rid and str(r.get("zone", "")) == zone_id and not r.get("instanced", false): out.append(id)
 	out.sort()
 	return out
 
@@ -32,25 +52,16 @@ func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
 	var map_r := Rect2(content.position.x, content.position.y, 780, content.size.y)
-	draw_rect(map_r, Color("d9ccaa"))
-	draw_rect(map_r.grow(-6), Color("e8dcbc"))
+	var sky := zone_id != "jade_river_valley"
+	draw_rect(map_r, Color("c9d6dc") if sky else Color("d9ccaa"))
+	draw_rect(map_r.grow(-6), Color("e2ebee") if sky else Color("e8dcbc"))
 	draw_rect(map_r, UiKit.BRONZE, false, 3)
 	var pts := {}
 	for r in regions():
 		var m: Array = r.get("map", [0.5, 0.5])
 		pts[str(r.id)] = map_r.position + Vector2(float(m[0]) * map_r.size.x, float(m[1]) * map_r.size.y)
-	# Ink mountains along the top.
-	for i in 9:
-		var bx := map_r.position.x + 40 + i * 88
-		var by := map_r.position.y + 70 + (i % 3) * 8
-		draw_colored_polygon(PackedVector2Array([Vector2(bx - 44, by + 20), Vector2(bx, by - 30 - (i % 2) * 14), Vector2(bx + 44, by + 20)]), Color(0.35, 0.42, 0.40, 0.35))
-	# The Jade River: east to west through the valley.
-	var river := PackedVector2Array()
-	for i in 41:
-		var f := i / 40.0
-		river.append(map_r.position + Vector2(map_r.size.x * (1.0 - f), map_r.size.y * (0.62 + 0.10 * sin(f * 7.0))))
-	draw_polyline(river, Color("2c9e8f"), 14.0)
-	draw_polyline(river, Color("67d6bd"), 4.0)
+	if sky: _draw_cloud_sea(map_r, pts)
+	else: _draw_valley(map_r)
 	# Routes between neighbouring regions via portals.
 	for r in regions():
 		for id in region_rooms(str(r.id)):
@@ -63,9 +74,10 @@ func draw_page() -> void:
 		var rid := str(r.id)
 		var p: Vector2 = pts[rid]
 		var seen := visited(rid)
+		var planned: bool = r.get("planned", false)
 		var col := UiKit.BRONZE if seen else Color(0.45, 0.42, 0.36)
-		draw_circle(p, 17, UiKit.INK)
-		draw_circle(p, 14, col if rid != sel else UiKit.GOLD)
+		draw_circle(p, 17, UiKit.INK if not planned else Color(0.3, 0.34, 0.38, 0.6))
+		draw_circle(p, 14, (col if rid != sel else UiKit.GOLD) if not planned else Color(0.62, 0.68, 0.72, 0.8))
 		if rid == here:
 			draw_colored_polygon(PackedVector2Array([p + Vector2(0, -34), p + Vector2(10, -20), p + Vector2(-10, -20)]), UiKit.RED)
 		var name_ := str(r.name) if seen else "?"
@@ -83,6 +95,16 @@ func draw_page() -> void:
 	var lv: Array = reg.get("levels", [0, 0])
 	text(right.position + Vector2(20, 72), Tx.t("ui.map.safe") if int(lv[1]) == 0 else Tx.t("ui.map.monster_level") % [int(lv[0]), int(lv[1])], 18, UiKit.MIST)
 	var y := right.position.y + 90
+	var att = ContentDB.zone(zone_id).get("attunement")
+	if att is Dictionary and reg.has("attunement"):
+		var have: float = Game.progression.attunement_value(ch, zone_id) if str(ContentDB.zone_of_room(str(ch.position.get("room", ""))).get("id", "")) == zone_id else float(ch.cultivator.attunement.get(zone_id, 0.0))
+		var need := float(reg.attunement)
+		text(Vector2(right.position.x + 20, y + 10), Tx.t("ui.map.attunement_need") % [str(att.get("name", "")), int(need), int(have)], 17,
+			UiKit.BRIGHT_JADE if have >= need else UiKit.RED)
+		y += 28
+	if reg.get("planned", false):
+		para(Rect2(right.position.x + 20, y + 4, right.size.x - 40, 80), Tx.t("ui.map.way_not_open"), 17, UiKit.HOLLOW)
+		return
 	for id in region_rooms(sel):
 		var seen2: bool = Game.account.visited_rooms.has(id)
 		var room := ContentDB.room(id)
@@ -98,5 +120,37 @@ func draw_page() -> void:
 		y += 28
 		if y > right.end.y - 40: break
 
+## The valley: ink mountains along the top and the Jade River from east to west.
+func _draw_valley(map_r: Rect2) -> void:
+	for i in 9:
+		var bx := map_r.position.x + 40 + i * 88
+		var by := map_r.position.y + 70 + (i % 3) * 8
+		draw_colored_polygon(PackedVector2Array([Vector2(bx - 44, by + 20), Vector2(bx, by - 30 - (i % 2) * 14), Vector2(bx + 44, by + 20)]), Color(0.35, 0.42, 0.40, 0.35))
+	var river := PackedVector2Array()
+	for i in 41:
+		var f := i / 40.0
+		river.append(map_r.position + Vector2(map_r.size.x * (1.0 - f), map_r.size.y * (0.62 + 0.10 * sin(f * 7.0))))
+	draw_polyline(river, Color("2c9e8f"), 14.0)
+	draw_polyline(river, Color("67d6bd"), 4.0)
+
+## The Expanse: soft cloud bands, and each region an island adrift under its marker.
+func _draw_cloud_sea(map_r: Rect2, pts: Dictionary) -> void:
+	for k in 7:
+		var y := map_r.position.y + 40 + k * (map_r.size.y - 60) / 6.0
+		var band := PackedVector2Array()
+		for i in 33:
+			var f := i / 32.0
+			band.append(Vector2(map_r.position.x + 10 + f * (map_r.size.x - 20), y + 6.0 * sin(f * 9.0 + k * 1.7)))
+		draw_polyline(band, Color(1, 1, 1, 0.55), 5.0)
+	for rid in pts:
+		var p: Vector2 = pts[rid]
+		var isle := PackedVector2Array([p + Vector2(-34, 8), p + Vector2(34, 8), p + Vector2(18, 20), p + Vector2(4, 38), p + Vector2(-10, 24), p + Vector2(-26, 18)])
+		draw_colored_polygon(isle, Color(0.42, 0.48, 0.60, 0.55))
+		draw_line(p + Vector2(-34, 8), p + Vector2(34, 8), Color(0.45, 0.62, 0.50, 0.8), 4)
+
 func on_action(id: String, data) -> void:
 	if id == "sel": sel = str(data)
+	if id == "_tab":
+		zone_id = str(data)
+		title = str(ContentDB.zone(zone_id).get("name", title))
+		sel = ""

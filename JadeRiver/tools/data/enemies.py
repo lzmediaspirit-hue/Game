@@ -146,6 +146,15 @@ def build():
             [atk("antler_charge", 0.5, 60, 1.2, dash=140)], ai="charger", speed=120, width=30, height=56, hollowing=5, cleansable=True),
         mob("cloudpeak_roc", (58, 63), "normal", "wind", "summit", [d("roc_feather", 0.5), d("mystic_ore", 0.1)],
             [atk("wing_gust", 0.7, 160, 1.0, depth=60, knockback=120)], ai="flyer", speed=110, flying=True, width=40, height=50),
+        # Azure Expanse (Act II) · Thunderhorn Plains
+        mob("spark_weasel", (64, 66), "normal", "thunder", "azure", [d("spark_pelt", 0.45), d("storm_shard", 0.35)],
+            [atk("static_bite", 0.35, 50, 1.0, dash=70),
+             atk("spark_bolt", 0.55, 260, 1.1, damage_type="qi", projectile={"speed": 560, "art": "qi_arc"},
+                 status={"id": "shock", "chance": 0.2, "power": 0.15, "duration_s": 2})],
+            ai="leaper", speed=170, pack=True, width=24, height=22, tameable=False),
+        mob("thunderhorn_rhino", (64, 69), "normal", "thunder", "azure", [d("thunder_horn", 0.4), d("storm_shard", 0.5, (1, 2)), d("tough_meat", 0.4)],
+            [atk("thunder_charge", 0.7, 60, 1.35, dash=160, knockback=120, status={"id": "shock", "chance": 0.3, "power": 0.2, "duration_s": 3})],
+            ai="charger", speed=95, width=40, height=50),
         # Bosses
         mob("big_toad_tan", 18, "dungeon_boss", "none", None, [d("mudwater_manual", 1.0)],
             [atk("club_swing", 0.55, 90, 1.2, depth=34, knockback=60), atk("call_bandits", 1.0, 0, 0.0, summon="mudwater_bandit")],
@@ -223,6 +232,14 @@ def build():
                    "coins": {"chance": 1.0, "mult": 5}, "rare": [], "equipment": {"chance": 0.3, "min_quality": "fine"}})
     tables.append({"id": "chest_dungeon", "guaranteed": [{"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "foundation_guard_pill", "weight": 1, "count": [1, 1]}]}],
+                   "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {"chance": 0.6, "min_quality": "fine"}})
+    # Act II (S32): jars and chests of the Azure Expanse. Coins here are paid in Spirit Stones (zone coin_scale).
+    tables.append({"id": "jar_expanse", "groups": [{"chance": 0.6, "pick": [{"item": "storm_shard", "weight": 2, "count": [1, 2]},
+                   {"item": "spirit_stone_shard", "weight": 2, "count": [1, 2]}, {"item": "qi_restoration_pill", "weight": 1, "count": [1, 1]}]}],
+                   "coins": {"chance": 0.6, "mult": 2}, "rare": [], "equipment": {}})
+    tables.append({"id": "chest_expanse", "guaranteed": [{"item": "storm_shard", "count": [3, 6], "chance": 1.0},
+                                                         {"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
+                   "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "stormsteel_ore", "weight": 2, "count": [1, 2]}]}],
                    "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {"chance": 0.6, "min_quality": "fine"}})
     entries("loot_tables.json", tables)
     return M

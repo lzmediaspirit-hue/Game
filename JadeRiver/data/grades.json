@@ -68,7 +68,9 @@
   "common": "#e8e1cf",
   "earth": "#67d67a",
   "heaven": "#6fb8f0",
-  "mystic": "#b07ce8"
+  "mystic": "#b07ce8",
+  "spirit": "#5ee0e8",
+  "sage": "#d8c27a"
  },
  "pill_qualities": {
   "flawed": 0.5,
@@ -135,13 +137,17 @@
   "common": 0,
   "earth": 1,
   "heaven": 1,
-  "mystic": 2
+  "mystic": 2,
+  "spirit": 2,
+  "sage": 3
  },
  "wear_level": {
   "plain": 0,
   "common": 10,
   "earth": 19,
   "heaven": 37,
-  "mystic": 55
+  "mystic": 55,
+  "spirit": 64,
+  "sage": 73
  }
 }

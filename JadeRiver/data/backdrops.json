@@ -296,5 +296,57 @@
         "bottom": 720
       }
     ]
+  },
+  "storm_plains": {
+    "sky": "#1C2440",
+    "horizon": "#EEF2EA",
+    "layers": [
+      {
+        "file": "res://art/backdrops/storm_plains_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/storm_plains_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/storm_plains_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/storm_plains_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "sky_port": {
+    "sky": "#2B5E8E",
+    "horizon": "#FDF6E6",
+    "layers": [
+      {
+        "file": "res://art/backdrops/sky_port_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/sky_port_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/sky_port_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/sky_port_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
   }
 }

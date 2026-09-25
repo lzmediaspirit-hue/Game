@@ -95,6 +95,35 @@ def shops():
          "stock": [s("rice"), s("rice_ball"), s("cleansing_pill"), s("purging_pill"), s("grey_hide")]},
         {"id": "hermit", "name": "Hermit Yao's Offerings", "currency": "silver_tael",
          "stock": [s("bonding_offering_common"), s("roast_fish"), s("fish_bait")]},
+        # Act II · Cloudgate Port and the Thunderhorn Plains. Spirit Stone prices come from tael prices at the exchange rate.
+        {"id": "alliance_factor", "name": "Alliance Factor's Hall", "currency": "spirit_stone",
+         "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_short_blade"), s("stormsteel_staff"),
+                   s("stormsteel_bow"), s("stormsilk_hat"), s("stormsilk_robe"), s("stormsilk_trousers"), s("stormsilk_boots"),
+                   s("stormsteel_gourd", requires=all_of(realm("sage_1")))],
+         "rotation": {"count": 1, "pool": [s("storm_shard", price=4), s("spirit_stone_mid", price=12)]}},
+        {"id": "port_peddler", "name": "Peddler Gou's Packs", "currency": "spirit_stone", "buys_all": True,
+         "stock": [s("healing_pill"), s("qi_restoration_pill"), s("return_charm"), s("escape_talisman"), s("rice_ball"), s("revival_talisman"),
+                   s("fuel_crystal_mid", requires=all_of(realm("sage_1")))],
+         "rotation": {"count": 2, "pool": [s("clear_mind_pill"), s("soul_soothing_pill"), s("manual_page", price=6), s("spirit_egg", price=14)]}},
+        {"id": "stormsteel_smith", "name": "Hong's Stormsteel Forge", "currency": "spirit_stone", "buys_all": True,
+         "stock": [s("stormsteel_ore"), s("mystic_ore"),
+                   s("recipe_scroll", learn="stormsteel_jian", price=40, requires=all_of(realm("sage_1"))),
+                   s("recipe_scroll", learn="stormsteel_spear", price=40, requires=all_of(realm("sage_1"))),
+                   s("recipe_scroll", learn="stormsteel_gauntlets", price=40, requires=all_of(realm("sage_1"))),
+                   s("recipe_scroll", learn="stormsteel_short_blade", price=40, requires=all_of(realm("sage_1"))),
+                   s("recipe_scroll", learn="stormsteel_staff", price=40, requires=all_of(realm("sage_1"))),
+                   s("recipe_scroll", learn="stormsteel_bow", price=40, requires=all_of(realm("sage_1"))),
+                   s("recipe_scroll", learn="bp_stormsilk_robe", price=40, requires=all_of(realm("sage_1")))]},
+        {"id": "port_apothecary", "name": "Apothecary Wu's Cabinet", "currency": "spirit_stone",
+         "stock": [s("soulbell_flower"), s("cloudtop_orchid"), s("mist_lotus"), s("healing_pill"), s("qi_restoration_pill"),
+                   s("recipe_scroll", learn="storm_blood_pill", price=30)],
+         "rotation": {"count": 1, "pool": [s("jade_core", price=20), s("roc_feather", price=12)]}},
+        {"id": "wayfarers_inn", "name": "Wayfarers' Inn Kitchen", "currency": "spirit_stone",
+         "stock": [s("rice_ball"), s("herbal_tea"), s("jade_carp_congee"), s("cloudtop_orchid_broth"), s("thunderhorn_stew")]},
+        {"id": "condensing_hall", "name": "Condensing Hall Stores", "currency": "spirit_stone",
+         "stock": [s("clear_mind_pill"), s("soul_soothing_pill"), s("calm_incense"), s("sage_condensing_pill", price=90, requires=all_of(realm("heaven_glimpse_3")))]},
+        {"id": "herders_camp", "name": "Herders' Camp", "currency": "spirit_stone", "buys_all": True,
+         "stock": [s("tough_meat"), s("thunderhorn_stew"), s("bonding_offering_heaven"), s("storm_blood_pill")]},
     ]
     entries("shops", rows)
 
@@ -136,7 +165,8 @@ def recipes():
          ("qi_refining_pill", "earth", [("pearl", 2), ("mist_lotus", 2), ("serpent_core", 1)], 600),
          ("soul_soothing_pill", "heaven", [("mirror_dust", 2), ("soul_wax", 1), ("mist_lotus", 1)], 600),
          ("mind_lake_opening_pill", "heaven", [("cloud_feather", 3), ("mist_lotus", 2), ("cloudtop_orchid", 1)], 900),
-         ("sage_condensing_pill", "mystic", [("roc_feather", 2), ("jade_core", 1), ("soulbell_flower", 2)], 1200)]
+         ("sage_condensing_pill", "mystic", [("roc_feather", 2), ("jade_core", 1), ("soulbell_flower", 2)], 1200),
+         ("storm_blood_pill", "mystic", [("spark_pelt", 1), ("storm_shard", 2), ("soulbell_flower", 1)], 900)]
     for pid, grade, inputs, t in A:
         r(pid, "alchemy", inputs, [(pid, 1)], grade, time_s=t)
     # Cooking (Part 8) incl. pet foods and bonding offerings
@@ -146,16 +176,19 @@ def recipes():
          ("cloudtop_orchid_broth", [("cloudtop_orchid", 1), ("tough_meat", 2)], False), ("jade_carp_congee", [("jade_carp_fish", 1), ("rice", 1)], False),
          ("roast_fish", [("river_minnow", 2)], False), ("ember_pepper_broth", [("ember_pepper", 1), ("tough_meat", 1)], False),
          ("bonding_offering_common", [("tough_meat", 1), ("rice", 1)], False), ("bonding_offering_earth", [("jade_carp_fish", 1), ("mist_lotus", 1)], False),
-         ("bonding_offering_heaven", [("mist_trout", 2), ("cloudtop_orchid", 1)], False)]
+         ("bonding_offering_heaven", [("mist_trout", 2), ("cloudtop_orchid", 1)], False),
+         ("thunderhorn_stew", [("tough_meat", 2), ("thunder_horn", 1)], False)]
     for cid, inputs, default in C:
         r(cid, "cooking", inputs, [(cid, 1)], "plain", default=default, pet_food=cid in ("roast_fish", "ember_pepper_broth"))
     # Forge blueprints (weapons per family and armour per slot, per grade)
     bands = {"common": ("iron", "copper_ore", "riverstone", "boar_hide"), "earth": ("jadeiron", "jadeiron", "riverstone", "jade_scale"),
-             "heaven": ("cloudsteel", "cloudsteel_ore", "jadeiron", "cloud_feather"), "mystic": ("mistjade", "mystic_ore", "cloudsteel_ore", "roc_feather")}
+             "heaven": ("cloudsteel", "cloudsteel_ore", "jadeiron", "cloud_feather"), "mystic": ("mistjade", "mystic_ore", "cloudsteel_ore", "roc_feather"),
+             "spirit": ("stormsteel", "stormsteel_ore", "mystic_ore", "spark_pelt")}
     for grade, (prefix, metal, second, binder) in bands.items():
         for fam in ["gauntlets", "jian", "spear", "short_blade", "staff", "bow"]:
             r("%s_%s" % (prefix, fam), "smithing", [(metal, 6), (second, 3 if grade == "common" else 4), (binder, 2)], [("%s_%s" % (prefix, fam), 1)], grade)
-    armour = {"common": ("cotton", "cloth_boots"), "earth": ("jadeiron", None), "heaven": ("cloudsilk", None), "mystic": ("mistjade", None)}
+    armour = {"common": ("cotton", "cloth_boots"), "earth": ("jadeiron", None), "heaven": ("cloudsilk", None), "mystic": ("mistjade", None),
+              "spirit": ("stormsilk", None)}
     for grade, (prefix, boots) in armour.items():
         metal = bands[grade][1]
         binder = bands[grade][3]

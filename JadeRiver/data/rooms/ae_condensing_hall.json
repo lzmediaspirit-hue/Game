@@ -1,0 +1,164 @@
+{
+ "schema_version": 1,
+ "id": "ae_condensing_hall",
+ "zone": "azure_expanse",
+ "region": "cloudgate_port",
+ "name": "Condensing Hall",
+ "type": "insight",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 2.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    1280,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    120,
+    700
+   ],
+   "to": "ae_skydock",
+   "to_portal": "hall_door",
+   "press_up": true,
+   "label": "Skydock"
+  }
+ ],
+ "objects": [
+  {
+   "id": "furnace_ae",
+   "type": "alchemy_furnace",
+   "at": [
+    980,
+    760
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "alchemy"
+     }
+    ]
+   },
+   "locked_text": "Alchemist Fen's furnace."
+  },
+  {
+   "id": "npc_alchemist_fen",
+   "type": "npc",
+   "at": [
+    760,
+    760
+   ],
+   "npc": "alchemist_fen",
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    360,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    920,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "incense_burner",
+   "at": [
+    640,
+    760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "meditation_mat",
+   "at": [
+    420,
+    860
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "meditation_mat",
+   "at": [
+    860,
+    860
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "herb_drawers",
+   "at": [
+    1100,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "scroll_rack",
+   "at": [
+    200,
+    690
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_stone"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "music": "meditation"
+}

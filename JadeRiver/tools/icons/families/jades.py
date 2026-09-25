@@ -84,6 +84,68 @@ def insight_jade():
     return c
 
 
+# ----------------------------------------------------------------------------- attunement (S18)
+# Storm Ward jades are bi discs of storm-glass, each carved with one aspect of the storm.
+WARD = Ramp(['#16244A', '#2C4E86', '#4F86C4', '#96C8EE', '#E6F8FF'], '#0A1226')
+
+
+def _bi(c, ramp):
+    disc = c.ellipse(16, 16, 13, 13) & ~c.ellipse(16, 16, 4, 4)
+    c.put(disc, ramp, 'sphere', base=2, cx=12, cy=12, rx=16, ry=16)
+    rim = disc & ~c.ellipse(16, 16, 11.5, 11.5)
+    c.put(rim, ramp, 'flat', base=1, only_on=True)
+    c.put(c.ellipse(16, 16, 5, 5) & ~c.ellipse(16, 16, 4, 4), ramp, 'flat', base=3)
+    return disc
+
+
+def ward_thunder():
+    c = Canvas(32)
+    _bi(c, WARD)
+    for k in range(4):   # square thunder-scroll (leiwen) at the four quarters
+        a = math.pi / 4 + k * math.pi / 2
+        x, y = 16 + math.cos(a) * 8.5, 16 + math.sin(a) * 8.5
+        c.put(c.rect(int(x) - 2, int(y) - 2, int(x) + 1, int(y) + 1) & ~c.rect(int(x) - 1, int(y) - 1, int(x), int(y)), WARD[4], 'flat')
+    c.outline()
+    c.glow('#7FD4FF', (40,))
+    return c
+
+
+def ward_gale():
+    c = Canvas(32)
+    _bi(c, WARD)
+    for k in range(3):
+        a0 = k * 2 * math.pi / 3
+        pts = [(16 + math.cos(a0 + t * 0.25) * (5.5 + t * 0.9), 16 + math.sin(a0 + t * 0.25) * (5.5 + t * 0.9)) for t in range(7)]
+        c.put(c.bres_path([(int(round(x)), int(round(y))) for x, y in pts]), WARD[4], 'flat')
+    c.outline()
+    c.glow('#7FD4FF', (40,))
+    return c
+
+
+def ward_rain():
+    c = Canvas(32)
+    _bi(c, WARD)
+    for (x, y) in ((9, 10), (22, 9), (8, 20), (23, 21), (15, 25), (16, 6)):
+        c.put(c.ellipse(x, y + 0.5, 1.2, 1.6) | c.rect(x, y - 2, x, y - 1), WARD[4], 'flat')
+    c.outline()
+    c.glow('#7FD4FF', (40,))
+    return c
+
+
+def ward_lightning():
+    c = Canvas(32)
+    _bi(c, WARD)
+    for pts in (((9, 5), (6, 11), (10, 12), (7, 17)), ((24, 15), (21, 21), (25, 22), (22, 28))):
+        c.put(c.bres_path(list(pts)), '#F4FBFF', 'flat')
+    c.outline()
+    c.glow('#7FD4FF', (70,))
+    return c
+
+
+for _id, _fn in (('ward_thunder', ward_thunder), ('ward_gale', ward_gale), ('ward_rain', ward_rain), ('ward_lightning', ward_lightning)):
+    register(FAM, _id, _fn, GROUP)
+
+
 for _id, _fn in (('body_jade', body_jade), ('swift_jade', swift_jade), ('essence_jade', essence_jade),
                  ('spirit_jade', spirit_jade), ('insight_jade', insight_jade)):
     register(FAM, _id, _fn, GROUP)

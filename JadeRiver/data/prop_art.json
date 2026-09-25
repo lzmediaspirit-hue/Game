@@ -73,6 +73,23 @@
       }
     }
   },
+  "banner_alliance": {
+    "anchor": [
+      24,
+      124
+    ],
+    "file": "res://art/props/banner_alliance.png",
+    "frame": [
+      48,
+      128
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "banner_cloud": {
     "anchor": [
       24,
@@ -854,6 +871,23 @@
       240
     ],
     "roof_split": 0.467,
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "herder_yurt": {
+    "anchor": [
+      88,
+      124
+    ],
+    "file": "res://art/props/herder_yurt.png",
+    "frame": [
+      176,
+      128
+    ],
     "states": {
       "idle": {
         "col": 0,
@@ -1723,6 +1757,24 @@
       }
     }
   },
+  "sky_ship": {
+    "anchor": [
+      192,
+      220
+    ],
+    "file": "res://art/props/sky_ship.png",
+    "frame": [
+      384,
+      224
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 4,
+        "frames": 4
+      }
+    }
+  },
   "small_bell": {
     "anchor": [
       12,
@@ -1911,6 +1963,49 @@
     ],
     "states": {
       "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "storm_menhir": {
+    "anchor": [
+      32,
+      156
+    ],
+    "file": "res://art/props/storm_menhir.png",
+    "frame": [
+      64,
+      160
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 5,
+        "frames": 4
+      }
+    }
+  },
+  "stormsteel_vein": {
+    "anchor": [
+      36,
+      52
+    ],
+    "file": "res://art/props/stormsteel_vein.png",
+    "frame": [
+      72,
+      56
+    ],
+    "states": {
+      "cracked": {
+        "col": 1,
+        "frames": 1
+      },
+      "depleted": {
+        "col": 2,
+        "frames": 1
+      },
+      "full": {
         "col": 0,
         "frames": 1
       }

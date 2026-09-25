@@ -390,6 +390,32 @@
    "time_s": 1200
   },
   {
+   "id": "storm_blood_pill",
+   "craft": "alchemy",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "spark_pelt",
+     "count": 1
+    },
+    {
+     "item": "storm_shard",
+     "count": 2
+    },
+    {
+     "item": "soulbell_flower",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "storm_blood_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 900
+  },
+  {
    "id": "herbal_tea",
    "craft": "cooking",
    "grade": "plain",
@@ -681,6 +707,29 @@
    "outputs": [
     {
      "item": "bonding_offering_heaven",
+     "count": 1
+    }
+   ],
+   "default": false,
+   "pet_food": false
+  },
+  {
+   "id": "thunderhorn_stew",
+   "craft": "cooking",
+   "grade": "plain",
+   "inputs": [
+    {
+     "item": "tough_meat",
+     "count": 2
+    },
+    {
+     "item": "thunder_horn",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "thunderhorn_stew",
      "count": 1
     }
    ],
@@ -1288,6 +1337,156 @@
    ]
   },
   {
+   "id": "stormsteel_gauntlets",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "spark_pelt",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_gauntlets",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "stormsteel_jian",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "spark_pelt",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_jian",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "stormsteel_spear",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "spark_pelt",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_spear",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "stormsteel_short_blade",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "spark_pelt",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_short_blade",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "stormsteel_staff",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "spark_pelt",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_staff",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "stormsteel_bow",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "spark_pelt",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_bow",
+     "count": 1
+    }
+   ]
+  },
+  {
    "id": "bp_bamboo_hat",
    "craft": "smithing",
    "grade": "common",
@@ -1619,6 +1818,90 @@
    "outputs": [
     {
      "item": "mistjade_boots",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_stormsilk_hat",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 3
+    },
+    {
+     "item": "spark_pelt",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsilk_hat",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_stormsilk_robe",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 3
+    },
+    {
+     "item": "spark_pelt",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsilk_robe",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_stormsilk_trousers",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 3
+    },
+    {
+     "item": "spark_pelt",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsilk_trousers",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "bp_stormsilk_boots",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 3
+    },
+    {
+     "item": "spark_pelt",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsilk_boots",
      "count": 1
     }
    ]

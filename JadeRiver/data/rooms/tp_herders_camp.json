@@ -1,0 +1,296 @@
+{
+ "schema_version": 1,
+ "id": "tp_herders_camp",
+ "zone": "azure_expanse",
+ "region": "thunderhorn_plains",
+ "name": "Herders' Camp",
+ "type": "rest",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "thunder",
+ "qi_density": 1.5,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [
+  "gather"
+ ],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "storm_plains",
+ "ground": {
+  "material": "moss",
+  "tint": "#c8d6d0"
+ },
+ "spawn_point": [
+  400,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "tp_stormgrass_verge",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "tp_thunderhorn_flats",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "shrine_tp_camp",
+   "type": "shrine",
+   "at": [
+    900,
+    700
+   ]
+  },
+  {
+   "id": "npc_herder_suo",
+   "type": "npc",
+   "at": [
+    1600,
+    780
+   ],
+   "npc": "herder_suo",
+   "facing": -1
+  },
+  {
+   "id": "npc_herder_a_lan",
+   "type": "npc",
+   "at": [
+    2000,
+    900
+   ],
+   "npc": "herder_a_lan",
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "pine_tree",
+   "at": [
+    201,
+    633
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "storm_menhir",
+   "at": [
+    831,
+    634
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1308,
+    629
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2008,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "storm_menhir",
+   "at": [
+    1568,
+    652
+   ],
+   "layer": "back",
+   "flip": false
+  },
+  {
+   "prop": "herder_yurt",
+   "at": [
+    420,
+    668
+   ],
+   "layer": "back",
+   "flip": false
+  },
+  {
+   "prop": "herder_yurt",
+   "at": [
+    1120,
+    668
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "herder_yurt",
+   "at": [
+    1820,
+    668
+   ],
+   "layer": "back",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    147,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    445,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    746,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1108,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1321,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1624,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1986,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2304,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2512,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "fence_wood",
+   "at": [
+    1200,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "hay_bale",
+   "at": [
+    1400,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "cooking_pot",
+   "at": [
+    1680,
+    800
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "drying_rack_fish",
+   "at": [
+    1900,
+    700
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "storm_plains",
+ "ambience": "wind_ambience"
+}

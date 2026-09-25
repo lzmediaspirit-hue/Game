@@ -1331,6 +1331,89 @@
    ]
   },
   {
+   "id": "spark_weasel",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "spark_pelt",
+       "chance": 0.45,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "chance": 0.35,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "thunderhorn_rhino",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "thunder_horn",
+       "chance": 0.4,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "chance": 0.5,
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      },
+      {
+       "item": "tough_meat",
+       "chance": 0.4,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
    "id": "big_toad_tan",
    "groups": [],
    "coins": {
@@ -1734,6 +1817,99 @@
        "count": [
         1,
         1
+       ]
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 1.0,
+    "mult": 10
+   },
+   "rare": [],
+   "equipment": {
+    "chance": 0.6,
+    "min_quality": "fine"
+   }
+  },
+  {
+   "id": "jar_expanse",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "storm_shard",
+       "weight": 2,
+       "count": [
+        1,
+        2
+       ]
+      },
+      {
+       "item": "spirit_stone_shard",
+       "weight": 2,
+       "count": [
+        1,
+        2
+       ]
+      },
+      {
+       "item": "qi_restoration_pill",
+       "weight": 1,
+       "count": [
+        1,
+        1
+       ]
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.6,
+    "mult": 2
+   },
+   "rare": [],
+   "equipment": {}
+  },
+  {
+   "id": "chest_expanse",
+   "guaranteed": [
+    {
+     "item": "storm_shard",
+     "count": [
+      3,
+      6
+     ],
+     "chance": 1.0
+    },
+    {
+     "item": "spirit_stone_shard",
+     "count": [
+      2,
+      4
+     ],
+     "chance": 1.0
+    }
+   ],
+   "groups": [
+    {
+     "chance": 1.0,
+     "pick": [
+      {
+       "item": "manual_page",
+       "weight": 1,
+       "count": [
+        1,
+        2
+       ]
+      },
+      {
+       "item": "stormsteel_ore",
+       "weight": 2,
+       "count": [
+        1,
+        2
        ]
       }
      ]

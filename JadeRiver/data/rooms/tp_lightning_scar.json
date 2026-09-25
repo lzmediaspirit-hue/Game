@@ -1,0 +1,685 @@
+{
+ "schema_version": 1,
+ "id": "tp_lightning_scar",
+ "zone": "azure_expanse",
+ "region": "thunderhorn_plains",
+ "name": "Lightning Scar",
+ "type": "field",
+ "level_range": [
+  67,
+  69
+ ],
+ "recommended_cp": 1226,
+ "element": "thunder",
+ "qi_density": 1.4,
+ "hazards": [
+  "lightning"
+ ],
+ "gather_tier": "expanse_low",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "storm_plains",
+ "ground": {
+  "material": "moss",
+  "tint": "#c8d6d0"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "tp_thunderhorn_flats",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "ore_1",
+   "type": "ore_vein",
+   "at": [
+    1004,
+    690
+   ],
+   "item": "stormsteel_ore",
+   "prop": "stormsteel_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "master",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "ore_2",
+   "type": "ore_vein",
+   "at": [
+    2820,
+    690
+   ],
+   "item": "stormsteel_ore",
+   "prop": "stormsteel_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "master",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    410,
+    900
+   ],
+   "loot": "jar_expanse",
+   "level": 68,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    1166,
+    930
+   ],
+   "loot": "jar_expanse",
+   "level": 68,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    1921,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 68,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_6",
+   "type": "jar",
+   "at": [
+    2713,
+    900
+   ],
+   "loot": "jar_expanse",
+   "level": 68,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_7",
+   "type": "jar",
+   "at": [
+    3377,
+    900
+   ],
+   "loot": "jar_expanse",
+   "level": 68,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_8",
+   "type": "chest",
+   "at": [
+    3480,
+    700
+   ],
+   "loot": "chest_expanse",
+   "level": 69
+  },
+  {
+   "id": "insight_thunder",
+   "type": "insight_stone",
+   "at": [
+    1900,
+    720
+   ],
+   "element": "thunder",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "insight_sites"
+     }
+    ]
+   },
+   "locked_text": "A glassy stone, fused by lightning."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "thunderhorn_rhino",
+   "surface": "ground",
+   "points": [
+    [
+     533,
+     745
+    ],
+    [
+     1279,
+     885
+    ],
+    [
+     1973,
+     800
+    ],
+    [
+     2561,
+     726
+    ],
+    [
+     3235,
+     845
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 16,
+   "level": [
+    67,
+    69
+   ]
+  },
+  {
+   "enemy": "spark_weasel",
+   "surface": "ground",
+   "points": [
+    [
+     872,
+     770
+    ],
+    [
+     1877,
+     783
+    ],
+    [
+     3036,
+     752
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 12,
+   "level": [
+    66,
+    67
+   ]
+  },
+  {
+   "enemy": "thunderhorn_rhino",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    69,
+    69
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "pine_tree",
+   "at": [
+    148,
+    629
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "storm_menhir",
+   "at": [
+    673,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1186,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "storm_menhir",
+   "at": [
+    1808,
+    636
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    2361,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "storm_menhir",
+   "at": [
+    2828,
+    639
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    3329,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    139,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    497,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    800,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1063,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1426,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1751,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1979,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2263,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2682,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2977,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3276,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3642,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    162,
+    632
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "storm_menhir",
+   "at": [
+    778,
+    634
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1427,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    1929,
+    629
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "storm_menhir",
+   "at": [
+    2558,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "pine_tree",
+   "at": [
+    3282,
+    630
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "storm_menhir",
+   "at": [
+    510,
+    652
+   ],
+   "layer": "back",
+   "flip": false
+  },
+  {
+   "prop": "storm_menhir",
+   "at": [
+    1318,
+    652
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "storm_menhir",
+   "at": [
+    1955,
+    652
+   ],
+   "layer": "back",
+   "flip": false
+  },
+  {
+   "prop": "storm_menhir",
+   "at": [
+    2764,
+    652
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "storm_menhir",
+   "at": [
+    3431,
+    652
+   ],
+   "layer": "back",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    109,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    469,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    817,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1129,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1294,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1521,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1700,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2013,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2293,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2614,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2894,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3235,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3402,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3698,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "storm_plains",
+ "ambience": "wind_ambience",
+ "attunement_required": 12
+}

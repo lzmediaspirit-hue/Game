@@ -132,6 +132,16 @@
    "desc": "Ore that hums faintly in cold wind."
   },
   {
+   "id": "stormsteel_ore",
+   "name": "Stormsteel Ore",
+   "type": "ore",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "stormsteel_ore",
+   "desc": "Blue-black ore from where lightning strikes the same ground twice."
+  },
+  {
    "id": "ore_dust",
    "name": "Ore Dust",
    "type": "beast_part",
@@ -440,6 +450,36 @@
    "stack": 99,
    "icon": "roc_feather",
    "desc": "A material taken from a valley beast."
+  },
+  {
+   "id": "spark_pelt",
+   "name": "Spark Pelt",
+   "type": "beast_part",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "spark_pelt",
+   "desc": "A golden pelt that snaps with static. Taken from Spark Weasels."
+  },
+  {
+   "id": "thunder_horn",
+   "name": "Thunder Horn",
+   "type": "beast_part",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "thunder_horn",
+   "desc": "A thunderhorn's horn. It still holds a charge."
+  },
+  {
+   "id": "storm_shard",
+   "name": "Storm Shard",
+   "type": "material",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 999,
+   "icon": "storm_shard",
+   "desc": "A splinter of the Expanse's storms. Levels your Storm Ward jades (Character > Attunement)."
   },
   {
    "id": "serpent_core",
@@ -1959,6 +1999,32 @@
    "use": []
   },
   {
+   "id": "storm_blood_pill",
+   "name": "Storm Blood Pill",
+   "type": "pill",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "storm_blood_pill",
+   "desc": "+4 attunement in the zone you stand in for 30 minutes.",
+   "pill": {
+    "mark": "bolt",
+    "toxicity": 10,
+    "cause": null,
+    "group": "buff"
+   },
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "attunement_bonus",
+     "op": "flat",
+     "value": 4,
+     "duration": 1800,
+     "source": "storm_blood"
+    }
+   ]
+  },
+  {
    "id": "herbal_tea",
    "name": "Herbal Tea",
    "type": "food",
@@ -2156,6 +2222,38 @@
      "value": 0.05,
      "duration": 1800,
      "source": "carp_congee"
+    }
+   ],
+   "food": {
+    "group": "buff",
+    "pet_food": false
+   }
+  },
+  {
+   "id": "thunderhorn_stew",
+   "name": "Thunderhorn Stew",
+   "type": "food",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "thunderhorn_stew",
+   "desc": "+8% max HP and +5% physical defence for 30 minutes.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "max_hp",
+     "op": "pct_add",
+     "value": 0.08,
+     "duration": 1800,
+     "source": "thunderhorn_stew"
+    },
+    {
+     "kind": "add_modifier",
+     "stat": "physical_defense",
+     "op": "pct_add",
+     "value": 0.05,
+     "duration": 1800,
+     "source": "thunderhorn_stew"
     }
    ],
    "food": {

@@ -176,12 +176,20 @@ func apply_return_to_shrine(actor_id: String) -> void:
 		return
 	load_room(c, str(c.last_shrine.room), "", Vector2(float(c.last_shrine.x) + 50, float(c.last_shrine.y) + 20))
 
+## S18: a stone in another zone answers across the sky, at five times its fee.
+func teleport_fee(stone_id: String) -> int:
+	var stone := ContentDB.entry("teleport_stones", stone_id)
+	var fee := int(stone.get("fee_shards", 1))
+	if game.room_rt != null and ContentDB.room_zone.get(str(stone.get("room", "")), "") != ContentDB.room_zone.get(game.room_rt.room_id, ""):
+		fee *= int(ContentDB.stat_const("teleport_cross_zone_mult", 5))
+	return fee
+
 func teleport(c, stone_id: String) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "teleport_stones"): return fail("locked")
 	if not game.account.teleports.has(stone_id): return fail("undiscovered")
 	var stone := ContentDB.entry("teleport_stones", stone_id)
 	if stone.is_empty(): return fail("unknown_stone")
-	var fee := int(stone.get("fee_shards", 1))
+	var fee := teleport_fee(stone_id)
 	if c.inventory.count("spirit_stone_shard") < fee: return fail("no_fee", {"text": Tx.t("sim.world.needs_spirit_stone_shard") % fee})
 	game.inventory.apply_remove(c.id, "spirit_stone_shard", fee, "teleport")
 	emit("teleported", {"actor": c.id, "stone": stone_id})
@@ -460,7 +468,7 @@ func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float) -> void:
 		if inst.is_empty(): continue
 		c.inventory.next_uid += 1
 		drops.append({"item": inst.id, "count": 1, "instance": inst})
-	if int(drop.get("coins", 0)) > 0: drops.append({"coins": int(drop.coins)})
+	if int(drop.get("coins", 0)) > 0: drops.append({"coins": int(LootRules.zone_coins(rt.room_id, int(drop.coins)).amount)})
 	var i := 0
 	var items_out: Array = []
 	for d in drops:
@@ -484,7 +492,7 @@ func pick_up(c, uid: int) -> Dictionary:
 func _collect(c, l: Dictionary) -> Dictionary:
 	var rt: RoomRuntime = game.room_rt
 	if int(l.coins) > 0:
-		game.economy.apply_currency(str(ContentDB.zone_of_room(rt.room_id).get("currency", {}).get("everyday", "silver_tael")), int(l.coins), "loot")
+		game.economy.apply_currency(str(LootRules.zone_coins(rt.room_id, 1).currency), int(l.coins), "loot")
 		rt.loot.erase(l)
 		emit("loot_picked", {"actor": c.id, "uid": l.uid, "coins": l.coins})
 		return ok()

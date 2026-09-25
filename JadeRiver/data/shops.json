@@ -943,6 +943,338 @@
      "item": "fish_bait"
     }
    ]
+  },
+  {
+   "id": "alliance_factor",
+   "name": "Alliance Factor's Hall",
+   "currency": "spirit_stone",
+   "stock": [
+    {
+     "item": "stormsteel_jian"
+    },
+    {
+     "item": "stormsteel_spear"
+    },
+    {
+     "item": "stormsteel_gauntlets"
+    },
+    {
+     "item": "stormsteel_short_blade"
+    },
+    {
+     "item": "stormsteel_staff"
+    },
+    {
+     "item": "stormsteel_bow"
+    },
+    {
+     "item": "stormsilk_hat"
+    },
+    {
+     "item": "stormsilk_robe"
+    },
+    {
+     "item": "stormsilk_trousers"
+    },
+    {
+     "item": "stormsilk_boots"
+    },
+    {
+     "item": "stormsteel_gourd",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_1"
+       }
+      ]
+     }
+    }
+   ],
+   "rotation": {
+    "count": 1,
+    "pool": [
+     {
+      "item": "storm_shard",
+      "price": 4
+     },
+     {
+      "item": "spirit_stone_mid",
+      "price": 12
+     }
+    ]
+   }
+  },
+  {
+   "id": "port_peddler",
+   "name": "Peddler Gou's Packs",
+   "currency": "spirit_stone",
+   "buys_all": true,
+   "stock": [
+    {
+     "item": "healing_pill"
+    },
+    {
+     "item": "qi_restoration_pill"
+    },
+    {
+     "item": "return_charm"
+    },
+    {
+     "item": "escape_talisman"
+    },
+    {
+     "item": "rice_ball"
+    },
+    {
+     "item": "revival_talisman"
+    },
+    {
+     "item": "fuel_crystal_mid",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_1"
+       }
+      ]
+     }
+    }
+   ],
+   "rotation": {
+    "count": 2,
+    "pool": [
+     {
+      "item": "clear_mind_pill"
+     },
+     {
+      "item": "soul_soothing_pill"
+     },
+     {
+      "item": "manual_page",
+      "price": 6
+     },
+     {
+      "item": "spirit_egg",
+      "price": 14
+     }
+    ]
+   }
+  },
+  {
+   "id": "stormsteel_smith",
+   "name": "Hong's Stormsteel Forge",
+   "currency": "spirit_stone",
+   "buys_all": true,
+   "stock": [
+    {
+     "item": "stormsteel_ore"
+    },
+    {
+     "item": "mystic_ore"
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "stormsteel_jian",
+     "price": 40,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "stormsteel_spear",
+     "price": 40,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "stormsteel_gauntlets",
+     "price": 40,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "stormsteel_short_blade",
+     "price": 40,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "stormsteel_staff",
+     "price": 40,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "stormsteel_bow",
+     "price": 40,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "bp_stormsilk_robe",
+     "price": 40,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_1"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "port_apothecary",
+   "name": "Apothecary Wu's Cabinet",
+   "currency": "spirit_stone",
+   "stock": [
+    {
+     "item": "soulbell_flower"
+    },
+    {
+     "item": "cloudtop_orchid"
+    },
+    {
+     "item": "mist_lotus"
+    },
+    {
+     "item": "healing_pill"
+    },
+    {
+     "item": "qi_restoration_pill"
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "storm_blood_pill",
+     "price": 30
+    }
+   ],
+   "rotation": {
+    "count": 1,
+    "pool": [
+     {
+      "item": "jade_core",
+      "price": 20
+     },
+     {
+      "item": "roc_feather",
+      "price": 12
+     }
+    ]
+   }
+  },
+  {
+   "id": "wayfarers_inn",
+   "name": "Wayfarers' Inn Kitchen",
+   "currency": "spirit_stone",
+   "stock": [
+    {
+     "item": "rice_ball"
+    },
+    {
+     "item": "herbal_tea"
+    },
+    {
+     "item": "jade_carp_congee"
+    },
+    {
+     "item": "cloudtop_orchid_broth"
+    },
+    {
+     "item": "thunderhorn_stew"
+    }
+   ]
+  },
+  {
+   "id": "condensing_hall",
+   "name": "Condensing Hall Stores",
+   "currency": "spirit_stone",
+   "stock": [
+    {
+     "item": "clear_mind_pill"
+    },
+    {
+     "item": "soul_soothing_pill"
+    },
+    {
+     "item": "calm_incense"
+    },
+    {
+     "item": "sage_condensing_pill",
+     "price": 90,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heaven_glimpse_3"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "herders_camp",
+   "name": "Herders' Camp",
+   "currency": "spirit_stone",
+   "buys_all": true,
+   "stock": [
+    {
+     "item": "tough_meat"
+    },
+    {
+     "item": "thunderhorn_stew"
+    },
+    {
+     "item": "bonding_offering_heaven"
+    },
+    {
+     "item": "storm_blood_pill"
+    }
+   ]
   }
  ]
 }

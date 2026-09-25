@@ -196,6 +196,23 @@ def jade_carp_congee():
     return c
 
 
+def thunderhorn_stew():
+    c = Canvas(32)
+    for x in (3.5, 28.5):
+        c.put(c.ring(x, 16, 2.4, 1.2), R['darkwood'], 'flat', base=3)
+    inner = bowl(c, R['darkwood'], R['broth'], cy=15, rx=13, depth=12, band=False)
+    for (x, y, r) in ((10, 15, 2.2), (17, 16, 2.0), (22, 14.5, 1.8)):
+        c.put(c.circle(x, y, r) & inner, R['earth'], 'sphere', base=2)
+    horn = c.poly([(12, 13), (15, 13), (20, 6), (21, 4), (18, 6)])
+    c.put(horn, R['bone'], 'ray', base=3, sep=True)
+    bolt = c.bres_path([(24, 4), (22, 8), (25, 9), (23, 13)])
+    c.put(bolt, '#F4FBFF', 'flat')
+    steam(c, (8, 26), 11, 6, R['paper'])
+    c.outline()
+    c.glow('#7FD4FF', (40,))
+    return c
+
+
 def roast_fish():
     c = Canvas(32)
     stick = c.seg(4, 29, 28, 4, 1.8)
@@ -238,5 +255,5 @@ for _id, _fn in (('herbal_tea', herbal_tea), ('rice_ball', rice_ball), ('riverfi
                  ('lotus_root_tea', lotus_root_tea), ('toad_oil_dumplings', toad_oil_dumplings),
                  ('cloudtop_orchid_broth', cloudtop_orchid_broth), ('jade_carp_congee', jade_carp_congee),
                  ('roast_fish', roast_fish), ('ember_pepper_broth', ember_pepper_broth),
-                 ('willow_salve', willow_salve)):
+                 ('willow_salve', willow_salve), ('thunderhorn_stew', thunderhorn_stew)):
     register(FAM, _id, _fn, GROUP)

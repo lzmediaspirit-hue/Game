@@ -1,0 +1,35 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "warden_cao": {
+   "id": "warden_cao",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "a_sky_full_of_toll_roads"
+       }
+      ]
+     },
+     "node": "toll"
+    }
+   ],
+   "nodes": {
+    "toll": {
+     "lines": [
+      "The Alliance keeps the roads safe. Mostly from people who don't pay.",
+      "Your valley token means nothing here. Earn an Alliance name, or a reputation."
+     ],
+     "choices": [
+      {
+       "text": "Understood.",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

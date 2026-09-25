@@ -1,11 +1,12 @@
-# Jade River — the Complete Valley (Act I)
+# Jade River — the Complete Valley (Act I) and the Azure Expanse (Act II, in progress)
 
 A 2.5D side-scrolling wuxia/xianxia cultivation RPG built in Godot 4.5.1 (GL Compatibility,
 1280×720, touch-first with full keyboard support). You begin as a fisher's child in Lotus Ferry
 with bare fists and no Qi. The Prologue teaches one thing at a time: talking, carrying, jumping,
 money, healing, fighting. After a night the village will not forget, you step onto the cultivation
 ladder. Act I climbs from Bone Forging through Qi Kindling, Qi Unfurling, Heart Tempering, Cloud
-Stride and Spirit Awakening to Heaven Glimpse and the Ascension Gate.
+Stride and Spirit Awakening to Heaven Glimpse and the Ascension Gate. Beyond the gate, Act II opens
+the Azure Expanse: a sky harbour, storm plains and the first Sage breakthrough (chapter 11).
 
 Open `project.godot` in Godot 4.5.1 and press F5. The first import rebuilds the generated caches.
 
@@ -13,13 +14,23 @@ Open `project.godot` in Godot 4.5.1 and press F5. The first import rebuilds the 
 
 | | |
 |---|---|
-| Rooms | 71 hand-built rooms in 20 regions: Lotus Ferry, Willow Path, Stoneford, both training sects, Stonewall Quarry, the Reed Marsh and Greyreed Hamlet, the Bamboo Grove, Crane Falls, the Caravan Road, Mudwater Hideout, Cleansing Peak, Deepwater Bend, the Drowned Shrine, Whitewater Gorge, the Crane Cliffs, the Misty Peaks, the Summit Ridge and the Hidden Vale |
-| Story | 115 quests: the 10-quest Prologue, 12 Act I chapters of main story, a guided quest for every system as it unlocks, companion, village and merchant side stories, daily sect missions |
+| Rooms | 75 hand-built rooms in 20 regions: Lotus Ferry, Willow Path, Stoneford, both training sects, Stonewall Quarry, the Reed Marsh and Greyreed Hamlet, the Bamboo Grove, Crane Falls, the Caravan Road, Mudwater Hideout, Cleansing Peak, Deepwater Bend, the Drowned Shrine, Whitewater Gorge, the Crane Cliffs, the Misty Peaks, the Summit Ridge and the Hidden Vale |
+| Story | 127 quests: the 10-quest Prologue, 12 Act I chapters of main story, a guided quest for every system as it unlocks, companion, village and merchant side stories, daily sect missions |
 | People | 62 NPCs in dyed outfits, 4 AI companions, 7 spirit-animal species |
 | Combat | 53 monsters (normals, elites, field bosses, dungeon and story bosses), 30 techniques, 25 Daos, weapon families with their own combos |
 | Cultivation | 89 realm stages with their requirements, 9 methods, meridians, purity, stability, injuries, offline seclusion |
 | Crafts | Herb gathering, mining, fishing, cooking, alchemy, the forge, formations and array plates, appraisal, healing, puppetry, research, teaching |
 | Your sect | Found it at four character slots: buildings that appear as they are built, NPC disciples, expeditions, raids to defend |
+
+## Beyond the gate (v1.1, Phase A)
+
+| | |
+|---|---|
+| Rooms | 9 rooms in the Azure Expanse: Cloudgate Port (Arrival Terrace, Port Market, Skydock, Wayfarers' Inn, Condensing Hall) and the Thunderhorn Plains (Stormgrass Verge, Herders' Camp, Thunderhorn Flats, Lightning Scar) |
+| Story | Chapter 11, "Beyond the Gate": five main quests from the toll warden's terrace to Sage 1 |
+| People | 15 new NPCs of the port and plains, two new hats (the Alliance's jade guan, a veiled weimao) |
+| Combat | Spark Weasel and Thunderhorn Rhino; Storm Ward attunement with four jades on the Character page |
+| Economy | Spirit Stones as everyday money, Spirit-grade stormsteel and stormsilk gear, five port shops |
 
 No cultivation, no Qi: the QI bar appears only when the pool exists (Bone Forging 7). Weapons appear only
 at the Weapon Hall (Bone Forging 3). Every HUD button is revealed by the system that introduces it.

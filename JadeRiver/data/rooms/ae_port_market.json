@@ -1,0 +1,331 @@
+{
+ "schema_version": 1,
+ "id": "ae_port_market",
+ "zone": "azure_expanse",
+ "region": "cloudgate_port",
+ "name": "Port Market",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.3,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [
+  "gather"
+ ],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "sky_port",
+ "ground": {
+  "material": "stone",
+  "tint": "#dfe6ee"
+ },
+ "spawn_point": [
+  300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "factors_hall",
+   "rect": [
+    360,
+    598,
+    400,
+    92
+   ],
+   "height": 168,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "village_store"
+  },
+  {
+   "id": "wayfarers_inn",
+   "rect": [
+    1290,
+    598,
+    380,
+    92
+   ],
+   "height": 158,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "village_house"
+  },
+  {
+   "id": "port_warehouse",
+   "rect": [
+    3060,
+    598,
+    440,
+    92
+   ],
+   "height": 168,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "warehouse"
+  }
+ ],
+ "portals": [
+  {
+   "id": "inn_door",
+   "type": "door",
+   "at": [
+    1520,
+    704
+   ],
+   "to": "ae_wayfarers_inn",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Wayfarers' Inn"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ae_landing",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "sealed",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "tp_stormgrass_verge",
+   "to_portal": "west",
+   "requires": {
+    "any": [
+     {
+      "kind": "quest_active",
+      "quest": "storm_in_the_blood"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "storm_in_the_blood"
+     }
+    ]
+   },
+   "locked_text": "A gate guard: \"Valley-soft blood won't last out there. Ask at the inn about the storms first.\""
+  }
+ ],
+ "objects": [
+  {
+   "id": "stone_cloudgate",
+   "type": "teleport_stone",
+   "at": [
+    1900,
+    880
+   ],
+   "stone": "cloudgate"
+  },
+  {
+   "id": "board_ae",
+   "type": "notice_board",
+   "at": [
+    760,
+    700
+   ]
+  },
+  {
+   "id": "storage_ae",
+   "type": "storage_chest",
+   "at": [
+    1200,
+    710
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "storage"
+     }
+    ]
+   },
+   "locked_text": "The storehouse is locked."
+  },
+  {
+   "id": "exchange_ae",
+   "type": "inspect",
+   "at": [
+    2000,
+    720
+   ],
+   "prop": "counter",
+   "text": "The Alliance exchange: taels for Spirit Stones, at the Alliance's rate.",
+   "open_page": "exchange",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "currency_exchange"
+     }
+    ]
+   },
+   "locked_text": "The exchange clerk ignores you."
+  },
+  {
+   "id": "npc_factor_ruan",
+   "type": "npc",
+   "at": [
+    560,
+    730
+   ],
+   "npc": "factor_ruan",
+   "facing": 1
+  },
+  {
+   "id": "npc_peddler_gou",
+   "type": "npc",
+   "at": [
+    980,
+    830
+   ],
+   "npc": "peddler_gou",
+   "facing": 1
+  },
+  {
+   "id": "npc_smith_hong",
+   "type": "npc",
+   "at": [
+    2240,
+    830
+   ],
+   "npc": "smith_hong",
+   "facing": -1
+  },
+  {
+   "id": "npc_apothecary_wu",
+   "type": "npc",
+   "at": [
+    2700,
+    830
+   ],
+   "npc": "apothecary_wu",
+   "facing": 1
+  },
+  {
+   "id": "npc_sky_sailor_pei",
+   "type": "npc",
+   "at": [
+    3500,
+    900
+   ],
+   "npc": "sky_sailor_pei",
+   "facing": -1
+  },
+  {
+   "id": "sign_ae_market",
+   "type": "signpost",
+   "at": [
+    3700,
+    860
+   ],
+   "text": "East: the Thunderhorn Plains (Lv 64-69, Storm Ward 6-12) · West: Arrival Terrace."
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "market_stall",
+   "at": [
+    980,
+    780
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "market_stall",
+   "at": [
+    2240,
+    780
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "market_stall",
+   "at": [
+    2700,
+    780
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "lantern_string",
+   "at": [
+    1000,
+    560
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "lantern_string",
+   "at": [
+    2400,
+    560
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "banner_alliance",
+   "at": [
+    300,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "sack_pile",
+   "at": [
+    3000,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    3080,
+    740
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "sky_port",
+ "ambience": "town_ambience",
+ "town": true
+}

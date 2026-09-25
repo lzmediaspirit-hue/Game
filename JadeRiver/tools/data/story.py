@@ -212,6 +212,54 @@ def npcs():
         ["Three wins for the qualifier. No excuses.", "The Valley Tournament crowns one champion a year."], ["Next bout!"], services=["spar:sparring_disciple"],
         service_labels={"spar:sparring_disciple": "Arena match"})
 
+    # Act II · Cloudgate Port and the Thunderhorn Plains (Azure Expanse, v1.1)
+    npc("warden_cao", "Warden Cao", "Nine Peaks toll warden", outfit("topknot", 0, "disciple", "martial", "boots", hat="guan", weapon="spear",
+        shirt_dye="indigo", pants_dye="ink"),
+        ["Every sky road in the Expanse belongs to the Nine Peaks Alliance.", "Toll first, questions after. The Factor's hall is in the market."],
+        ["Toll tokens, please.", "Next!"], tree="warden_cao")
+    npc("alliance_guard", "Alliance Guard", "Nine Peaks patrol", outfit("short_knot", 0, "disciple", "martial", "boots", weapon="spear",
+        shirt_dye="indigo", pants_dye="indigo"),
+        ["Keep your Qi to yourself inside the port.", "Nine peaks, one law. The Alliance's."], ["Move along."])
+    npc("wanderer_jiang", "Jiang", "Independent cultivator", outfit("flowing", 0, "vneck", "straight", "boots", weapon="sword", cape="tattered",
+        shirt_dye="grey", pants_dye="ink"),
+        ["The Alliance calls us 'unaffiliated'. We call ourselves free.", "Valley folk come through that gate every few years. Most go home."],
+        ["Hm. Fresh from the valley."])
+    npc("factor_ruan", "Factor Ruan", "Alliance factor", outfit("long_tied", 1, "scholar", "scholar", "folded", hat="guan", cape="solid",
+        shirt_dye="indigo", pants_dye="ink"),
+        ["Stormsteel, stormsilk, fair Alliance prices.", "Spirit Stones only. Taels are for the valley."],
+        ["Alliance-grade goods!"], services=["shop:alliance_factor"])
+    npc("peddler_gou", "Peddler Gou", "Sky road peddler", outfit("short_knot", 5, "vneck", "loose", "folded", hat="straw", shirt_dye="ochre"),
+        ["Pills, charms, rice balls. Everything a traveller forgets.", "I've walked every sky road twice. Once to go, once to come back for my hat."],
+        ["Traveller's goods!"], services=["shop:port_peddler"])
+    npc("smith_hong", "Smith Hong", "Stormsteel smith", outfit("short_knot", 0, "sleeveless", "martial", "boots", shirt_dye="crimson"),
+        ["Stormsteel wants a Sage's hands. Before that, it bites.", "Lightning Scar ore, spark pelt for the grip. That's the recipe."],
+        ["*crackle* *clang*"], services=["shop:stormsteel_smith"])
+    npc("apothecary_wu", "Apothecary Wu", "Port apothecary", outfit("ponytail", 3, "cardigan", "scholar", "slippers", shirt_dye="jade"),
+        ["Storm blood is real. Newcomers bleed Qi into the wind until they attune.", "A Storm Blood Pill buys you half an hour of patience."],
+        ["Remedies!"], services=["shop:port_apothecary"])
+    npc("sky_sailor_pei", "Sailor Pei", "Sky-ship hand", outfit("short_knot", 0, "vneck", "cuffed", "boots", hat="headband", shirt_dye="cloud"),
+        ["Never look down from a sky-ship. Look at the sails.", "The Alliance ships run to Nine Peaks. When they feel like it."], ["Heave!"])
+    npc("sky_sailor_ning", "Sailor Ning", "Sky-ship hand", outfit("ponytail", 0, "vneck", "cuffed", "boots", hat="headband", shirt_dye="indigo"),
+        ["The Qi cushion under the keel? Twelve stones a day to keep it fed.", "Storms on the plains sink ships. We go round."], ["Mind the ropes!"])
+    npc("dockmaster_fu", "Dockmaster Fu", "Skydock master", outfit("topknot", 5, "scholar", "scholar", "folded", hat="tied", shirt_dye="ochre", pants_dye="grey"),
+        ["No berths for private ships without Alliance papers.", "The Condensing Hall? Behind me. Mind the alchemist; she bites harder than the smith."],
+        ["Berths full!"])
+    npc("innkeeper_tang", "Innkeeper Tang", "Wayfarers' Inn", outfit("long_tied", 3, "cardigan", "straight", "slippers", shirt_dye="rose"),
+        ["Rooms by the night, soup by the bowl, gossip for free.", "The broker in the corner? Pays her bill. That's all I ask."],
+        ["Soup's on!"], services=["shop:wayfarers_inn"])
+    npc("broker_mu", "Broker Mu", "Free broker", outfit("flowing", 1, "cardigan", "straight", "boots", hat="weimao", cape="solid", shirt_dye="ink", pants_dye="ink"),
+        ["I sell what the Alliance doesn't want sold. Mostly, the truth.", "Your blood is still valley-soft. The storms here will drink it."],
+        ["Information, fairly priced."], tree="broker_mu")
+    npc("alchemist_fen", "Alchemist Fen", "Condensing Hall", outfit("long_tied", 1, "scholar", "scholar", "folded", hat="guan", shirt_dye="white", pants_dye="grey"),
+        ["Sage Qi is True Qi pressed until it remembers it was once light.", "Bring me thunder and I'll condense it into something you can swallow."],
+        ["Don't touch the furnace."], services=["shop:condensing_hall"])
+    npc("herder_suo", "Old Suo", "Thunderhorn herder", outfit("short_knot", 5, "vneck", "loose", "boots", hat="tied", cape="tattered", shirt_dye="earth"),
+        ["The thunderhorns aren't cruel. They're just very sure of where they're going.", "Stew's hot. Stones, not taels, I'm afraid."],
+        ["Easy, easy..."], services=["shop:herders_camp"])
+    npc("herder_a_lan", "A-Lan", "Herder's daughter", outfit("ponytail", 0, "cardigan", "cuffed", "boots", shirt_dye="crimson"),
+        ["Spark weasels steal the lightning out of the grass. Then they spit it at you!", "Grandpa Suo says the storms remember everyone who crosses."],
+        ["Hup! Hup!"], scale=0.9)
+
     # Companions (S26)
     npc("lan_yue", "Lan Yue", "Healer", outfit("flowing", 4, "cardigan", "scholar", "slippers", weapon="staff", shirt_dye="indigo"),
         ["Stay close. I can't heal what I can't reach."], ["Careful!"], companion="lan_yue")
@@ -362,6 +410,9 @@ def unlocks():
     u("teaching", "Teaching", all_of(realm("spirit_awakening_7")), "passing_it_on", [])
     u("cape_slot", "Cape slot", all_of(realm("heaven_glimpse_1")), "a_wider_sky", [])
     u("currency_exchange", "Currency exchange", all_of(realm("heaven_glimpse_3")), "beyond_the_valley", ["page:exchange"])
+    # Act II (S18): the zone's attunement jades open once the broker has explained the storms.
+    u("storm_ward", "Storm Ward attunement", all_of(realm("heaven_glimpse_3"), qdone("a_sky_full_of_toll_roads")), "storm_in_the_blood", [],
+      same_stage_ok=True)
     entries("unlocks", U)
     return U
 
@@ -948,6 +999,59 @@ def main_quests():
         complete=["I'm still here. Because you cleared every defence. Thank you."])
 
 
+def spirit_stones(n):
+    return {"kind": "grant_currency", "currency": "spirit_stone", "amount": n}
+
+
+def act2_quests():
+    """Act II · chapter 11, Beyond the Gate (docs/act2_design.md)."""
+    quest("through_the_gate", "Through the Gate", "main", "warden_cao", [
+        o("reach_room", "Step through the Ascension Gate", room="ae_landing"),
+        o("talk_to", "Speak with the toll warden on the Arrival Terrace", npc="warden_cao"),
+    ], [spirit_stones(20), fx("codex", entry="cloudgate_port")], hand_in="", auto_accept=True, requires=all_of(qdone("the_ascension_gate")),
+        chapter="11", target_room="ae_landing",
+        complete=["Valley-born, by the mud on your boots. No toll for your first step. There will be for every other.",
+                  "Welcome to Cloudgate Port, gateway of the Nine Peaks Alliance."],
+        next="a_sky_full_of_toll_roads")
+    quest("a_sky_full_of_toll_roads", "A Sky Full of Toll Roads", "main", "warden_cao", [
+        o("talk_to", "Meet the Alliance factor in the Port Market", npc="factor_ruan"),
+        o("talk_to", "Find the free broker at the Wayfarers' Inn", npc="broker_mu"),
+    ], [spirit_stones(30), fx("codex", entry="nine_peaks_alliance")], hand_in="broker_mu", requires=all_of(qdone("through_the_gate")), chapter="11",
+        target_room="ae_port_market",
+        offer=["No papers, no road. The Factor sells Alliance goods in the market. The broker at the inn sells... other things.",
+               "Talk to both. Then decide what kind of cultivator you mean to be up here."],
+        complete=["The Factor told you the price of a road. I'll tell you the price of the sky: your blood.",
+                  "The plains' storms pull Qi out of anyone who hasn't attuned to them. Sit. Let me show you."],
+        next="storm_in_the_blood")
+    quest("storm_in_the_blood", "Storm in the Blood", "main", "broker_mu", [
+        o("use_system", "Raise your Storm Ward jades (Character, Attunement tab)", 4, system="attune_jade"),
+        o("kill", "Hunt Spark Weasels on the Stormgrass Verge", 6, enemy="spark_weasel"),
+        o("collect", "Gather Storm Shards", 10, item="storm_shard", consume=False),
+    ], [spirit_stones(40), item("storm_blood_pill", 2), fx("codex", entry="storm_ward")], offered_by_unlock=True, chapter="11",
+        target_room="tp_stormgrass_verge", on_accept=[item("storm_shard", 12)],
+        offer=["Four jades, cut from storm-glass. Carry them and feed them the shards the storm leaves in its beasts.",
+               "The more you feed them, the less the storm feeds on you. Start on the Verge. Weasels. Small, quick, angry."],
+        complete=["See? You flinch less. Keep feeding the jades; the land further out asks for more.",
+                  "One more thing, free: the alchemist in the Condensing Hall can make a Sage of you. She'll want thunder."],
+        next="horns_for_the_furnace")
+    quest("horns_for_the_furnace", "Horns for the Furnace", "main", "alchemist_fen", [
+        o("collect", "Bring Thunderhorn horns from the Flats", 3, item="thunder_horn"),
+    ], [item("sage_condensing_pill", 1), fx("learn_recipe", recipe="sage_condensing_pill")], requires=all_of(qdone("storm_in_the_blood")),
+        chapter="11", target_room="tp_thunderhorn_flats",
+        offer=["Heaven Glimpse 3, and you want to be a Sage. Everyone does.",
+               "The condensing needs thunder. Three thunderhorn horns from the Flats. I'll press them into your pill."],
+        complete=["There. Swallow it here, where the Qi is thick. Not in a field with a rhino watching."],
+        next="sage")
+    quest("sage", "Sage", "main", "alchemist_fen", [
+        o("reach_realm", "Break through to Sage 1 (third-grade purity, the pill, a land that can hold you)", realm="sage_1"),
+    ], [spirit_stones(60), fx("codex", entry="sage_qi")], requires=all_of(qdone("horns_for_the_furnace")), chapter="11",
+        target_room="ae_condensing_hall",
+        offer=["Purity of the third grade, the pill, and a land that can hold you. The Expanse can.",
+               "Sit on the mat. Breathe until the True Qi turns to light."],
+        complete=["Sage Qi. Feel how it moves? Like thunder that learned its manners.",
+                  "The Nine Peaks will want your name now. So will people who are worse than the Alliance."])
+
+
 def side_quests():
     # Small valley threads for the people who had none (optional; Part 8 "about 35 side quests").
     quest("nets_and_shells", "Nets and Shells", "side", "fisher_wen", [o("collect", "Bring Mudshell Crab shells", 5, item="crab_shell")],
@@ -1081,6 +1185,15 @@ def dialogue():
          {"dinner": {"lines": ["Sit, sit. Fish congee. Your favourite.", "...Lu took you out on the water tonight? Be careful. The river's been strange."],
                      "choices": [{"text": "I'll be careful.", "close": True}]}})
     tree("lu", [], {})
+    # Flavour trees speak only once the NPC has no quest to give (a tree entry outranks quest offers).
+    tree("warden_cao", [{"requires": all_of(qdone("a_sky_full_of_toll_roads")), "node": "toll"}],
+         {"toll": {"lines": ["The Alliance keeps the roads safe. Mostly from people who don't pay.",
+                             "Your valley token means nothing here. Earn an Alliance name, or a reputation."],
+                   "choices": [{"text": "Understood.", "close": True}]}})
+    tree("broker_mu", [{"requires": all_of(qdone("storm_in_the_blood"), noflag("heard_grey_pilgrim")), "node": "rumours"}],
+         {"rumours": {"lines": ["A tip, free, because you pay your bills: someone is buying Hollow shards across the Expanse.",
+                                "Grey robes. No shadow, even at noon. The herders on the plains saw him too."],
+                      "choices": [{"text": "I'll keep my eyes open.", "effects": [{"kind": "set_flag", "flag": "heard_grey_pilgrim"}], "close": True}]}})
     tree("shen_lian", [], {})
     tree("uncle_guo", [], {})
     comps = [("lan_yue", "Lan Yue, the healer", "Lan Yue mends what others break. Quiet, stubborn, never leaves a wounded friend."),
@@ -1154,6 +1267,10 @@ def codex():
         {"id": "flight", "title": "Flight", "body": "At Cloud Stride, Qi carries the body."},
         {"id": "azure_expanse", "title": "The Azure Expanse", "body": "Beyond the Ascension Gate: a larger world."},
         {"id": "act_one_end", "title": "Beyond the Gate", "body": "You passed the Gate Guardian. The river keeps flowing."},
+        {"id": "cloudgate_port", "title": "Cloudgate Port", "body": "A harbour on a floating island where the Ascension Gate opens onto the Azure Expanse. Sky-ships, toll wardens and every kind of traveller."},
+        {"id": "nine_peaks_alliance", "title": "The Nine Peaks Alliance", "body": "Nine sects on nine peaks, one law between them. They keep the sky roads safe and tax every step taken on them."},
+        {"id": "storm_ward", "title": "Storm Ward", "body": "The Expanse's storms draw Qi out of anyone not attuned to them. Four jades, fed with Storm Shards, ward the blood. Each region asks for more."},
+        {"id": "sage_qi", "title": "Sage Qi", "body": "True Qi pressed until it remembers it was light. Stronger by far, and the valley could never have held it."},
         {"id": "river_of_time", "title": "River of Time and Space", "body": "Locked.", "locked": True},
         {"id": "jade_river", "title": "The Jade River", "body": "It runs through every land you will ever see."},
     ]
@@ -1221,6 +1338,7 @@ def build():
     guided_quests()
     main_quests()
     side_quests()
+    act2_quests()
     entries("quests", Q)
     d = os.path.join(DATA, "dialogue")
     os.makedirs(d, exist_ok=True)

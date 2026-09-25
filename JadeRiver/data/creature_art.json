@@ -1631,6 +1631,54 @@
     "flying": false,
     "hit_frame": 2
   },
+  "spark_weasel": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      64,
+      112
+    ],
+    "cell": 128,
+    "file": "res://art/creatures/spark_weasel.png",
+    "flying": false,
+    "hit_frame": 1
+  },
   "stone_guardian": {
     "actions": {
       "attack": {
@@ -1820,6 +1868,54 @@
     ],
     "cell": 192,
     "file": "res://art/creatures/thornback_boar.png",
+    "flying": false,
+    "hit_frame": 2
+  },
+  "thunderhorn_rhino": {
+    "actions": {
+      "attack": {
+        "fps": 12,
+        "frames": 4,
+        "loop": false,
+        "row": 3
+      },
+      "death": {
+        "fps": 10,
+        "frames": 5,
+        "loop": false,
+        "row": 5
+      },
+      "hurt": {
+        "fps": 10,
+        "frames": 2,
+        "loop": false,
+        "row": 4
+      },
+      "idle": {
+        "fps": 6,
+        "frames": 4,
+        "loop": true,
+        "row": 0
+      },
+      "walk": {
+        "fps": 10,
+        "frames": 6,
+        "loop": true,
+        "row": 1
+      },
+      "windup": {
+        "fps": 8,
+        "frames": 3,
+        "loop": false,
+        "row": 2
+      }
+    },
+    "anchor": [
+      96,
+      168
+    ],
+    "cell": 192,
+    "file": "res://art/creatures/thunderhorn_rhino.png",
     "flying": false,
     "hit_frame": 2
   },

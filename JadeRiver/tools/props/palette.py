@@ -62,6 +62,7 @@ CLOUDSTEEL = ramp("#26384a", "#44607a", "#6a8ba6", "#99b6cc", "#c9dfec", "#f4fbf
 JADEIRON = ramp("#0e2420", "#1b3d33", "#2a5a45", "#3f7a55", "#63a06a", "#9cc98b")
 RIVERSTONE = ramp("#1b2833", "#2e4352", "#4a6576", "#6d8b99", "#9ab6bf", "#cfe2e2")
 MYSTIC = ramp("#1a1030", "#2e1c55", "#4b3285", "#7556ab", "#a687e0", "#d6c4ff")
+STORMSTEEL = ramp("#141c33", "#26345a", "#3e5a8a", "#6a8fc0", "#a6c8ec", "#e6f6ff")
 BONE = ramp("#4a4538", "#766e5a", "#a49a80", "#cbc2a6", "#ebe5cf")
 FEATHER = ramp("#2b1b12", "#4c2f1d", "#72482a", "#9b6a3c", "#c29460")
 PLASTER = ramp("#6f6a5c", "#8f8a78", "#aca690", "#c6bfa6", "#dcd5bd", "#ece6d0")

@@ -277,6 +277,7 @@ ORES = {
     "spirit_shard_vein": dict(stone=STONE_DARK, ore=SHARD, accent=QI_CYAN, kind="crystal"),
     "cloudsteel_vein": dict(stone=STONE, ore=CLOUDSTEEL, accent=PAPER, kind="metal"),
     "mystic_vein": dict(stone=STONE_DARK, ore=MYSTIC, accent=SOUL_VIOLET, kind="crystal"),
+    "stormsteel_vein": dict(stone=STONE_DARK, ore=STORMSTEEL, accent=QI_CYAN, kind="metal"),
 }
 
 

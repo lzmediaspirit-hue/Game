@@ -1,0 +1,182 @@
+{
+ "schema_version": 1,
+ "id": "ae_skydock",
+ "zone": "azure_expanse",
+ "region": "cloudgate_port",
+ "name": "Skydock",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.3,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "sky_port",
+ "ground": {
+  "material": "wood"
+ },
+ "spawn_point": [
+  2300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "condensing_hall",
+   "rect": [
+    1820,
+    570,
+    520,
+    120
+   ],
+   "height": 120,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "hall"
+  }
+ ],
+ "portals": [
+  {
+   "id": "hall_door",
+   "type": "door",
+   "at": [
+    2080,
+    704
+   ],
+   "to": "ae_condensing_hall",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Condensing Hall"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "ae_landing",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_dockmaster_fu",
+   "type": "npc",
+   "at": [
+    1100,
+    780
+   ],
+   "npc": "dockmaster_fu",
+   "facing": 1
+  },
+  {
+   "id": "npc_sky_sailor_ning",
+   "type": "npc",
+   "at": [
+    600,
+    900
+   ],
+   "npc": "sky_sailor_ning",
+   "facing": 1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "sky_ship",
+   "at": [
+    700,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "sky_ship",
+   "at": [
+    1700,
+    640
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "mooring_post",
+   "at": [
+    420,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "mooring_post",
+   "at": [
+    1000,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "mooring_post",
+   "at": [
+    1500,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "mooring_post",
+   "at": [
+    2000,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "crate",
+   "at": [
+    1180,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "sack_pile",
+   "at": [
+    1260,
+    730
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "sky_port",
+ "ambience": "wind_ambience",
+ "town": true
+}

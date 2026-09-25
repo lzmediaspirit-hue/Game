@@ -1,0 +1,45 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "broker_mu": {
+   "id": "broker_mu",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "storm_in_the_blood"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "heard_grey_pilgrim"
+       }
+      ]
+     },
+     "node": "rumours"
+    }
+   ],
+   "nodes": {
+    "rumours": {
+     "lines": [
+      "A tip, free, because you pay your bills: someone is buying Hollow shards across the Expanse.",
+      "Grey robes. No shadow, even at noon. The herders on the plains saw him too."
+     ],
+     "choices": [
+      {
+       "text": "I'll keep my eyes open.",
+       "effects": [
+        {
+         "kind": "set_flag",
+         "flag": "heard_grey_pilgrim"
+        }
+       ],
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

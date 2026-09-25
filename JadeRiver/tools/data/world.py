@@ -75,11 +75,12 @@ ORES = {
     "spirit_stone_shard": ("spirit_shard_vein", [1, 1]),
     "cloudsteel_ore": ("cloudsteel_vein", [1, 2]),
     "mystic_ore": ("mystic_vein", [1, 1]),
+    "stormsteel_ore": ("stormsteel_vein", [1, 2]),
 }
 HERB_RANK = {"willow_moss": "apprentice", "riverreed_ginseng_10": "apprentice", "ember_pepper": "apprentice",
              "mist_lotus": "adept", "cloudtop_orchid": "expert", "soulbell_flower": "expert"}
 ORE_RANK = {"copper_ore": "apprentice", "riverstone": "apprentice", "jadeiron": "adept", "spirit_stone_shard": "adept",
-            "cloudsteel_ore": "expert", "mystic_ore": "expert"}
+            "cloudsteel_ore": "expert", "mystic_ore": "expert", "stormsteel_ore": "master"}
 
 
 class Room:
@@ -1307,8 +1308,154 @@ def valley():
     r.edge("west", "west", "hv_sect_grounds", "east", y=850)
 
 
+
+# ---------------------------------------------------------------------------------------------
+# Act II · The Azure Expanse (v1.1, docs/act2_design.md). Phase A: Cloudgate Port and the
+# Thunderhorn Plains. Every room here is in zone azure_expanse; plains rooms ask for Storm Ward.
+AE = {"zone": "azure_expanse"}
+
+
+def plains_scenery(r, stones=3, yurts=0):
+    """Open grass, wind-bent pines and lightning-split menhirs; herders' yurts near the camp."""
+    back_trees(r, ("pine_tree", "storm_menhir", "pine_tree"), step=620)
+    for i in range(stones):
+        x = int(r.w * (i + 0.6) / max(1, stones)) + r.rng.randint(-120, 120)
+        r.decor("storm_menhir", [x, 652], layer="back", flip=bool(i % 2))
+    for i in range(yurts):
+        r.decor("herder_yurt", [420 + i * 700, 668], layer="back", flip=bool(i % 2))
+    front_grass(r, props=("tall_grass", "tall_grass", "rock_small"), step=260)
+
+
+def azure_expanse():
+    # --- Cloudgate Port: a sky harbour on a floating island, the Alliance's door into the Expanse
+    r = town("ae_landing", "Arrival Terrace", "cloudgate_port", 2, backdrop="sky_port", material="stone", tint="#dfe6ee",
+             music="sky_port", ambience="wind_ambience", spawn_point=[560, 820], qi=1.3, **AE)
+    r.decor("paifang_gate", [300, 650])
+    r.portal("gate", "gate", [300, 710], "mp_ascension_gate", "ascend", press_up=True, label="Ascension Gate")
+    r.decor("portal_swirl", [300, 700])
+    r.decor("banner_alliance", [620, 662])
+    r.decor("banner_alliance", [1960, 662], flip=True)
+    r.decor("statue_guardian_lion", [820, 690])
+    r.decor("statue_guardian_lion", [1760, 690], flip=True)
+    lantern_row(r, [1040, 1540, 2240], y=670)
+    r.obj("shrine_ae_landing", "shrine", [1300, 700])
+    r.obj("sign_ae_landing", "signpost", [2380, 860], text="Cloudgate Port. East: Port Market · West: the Skydock · The gate behind you leads home to the valley.")
+    r.npc("warden_cao", [960, 780], facing=-1)
+    r.npc("alliance_guard", [1700, 900], facing=-1)
+    r.npc("wanderer_jiang", [2100, 760], facing=-1)
+    r.edge("east", "east", "ae_port_market", "west", y=850)
+    r.edge("west", "west", "ae_skydock", "east", y=850)
+
+    r = town("ae_port_market", "Port Market", "cloudgate_port", 3, backdrop="sky_port", material="stone", tint="#dfe6ee",
+             music="sky_port", spawn_point=[300, 820], qi=1.3, idle=["gather"], **AE)
+    r.building("factors_hall", "village_store", 560, front=690)
+    r.building("wayfarers_inn", "village_house", 1480, front=690, door_dx=40,
+               door=("ae_wayfarers_inn", "entry", "inn_door", {"label": "Wayfarers' Inn"}))
+    r.building("port_warehouse", "warehouse", 3280, front=690)
+    for x, flip in ((980, False), (2240, True), (2700, False)):
+        r.decor("market_stall", [x, 780], flip=flip)
+    r.decor("lantern_string", [1000, 560], layer="back")
+    r.decor("lantern_string", [2400, 560], layer="back")
+    r.decor("banner_alliance", [300, 662])
+    r.decor("sack_pile", [3000, 720])
+    r.decor("barrel", [3080, 740])
+    r.obj("stone_cloudgate", "teleport_stone", [1900, 880], stone="cloudgate")
+    r.obj("board_ae", "notice_board", [760, 700])
+    r.obj("storage_ae", "storage_chest", [1200, 710], requires=all_of(unlock("storage")), locked_text="The storehouse is locked.")
+    r.obj("exchange_ae", "inspect", [2000, 720], prop="counter", text="The Alliance exchange: taels for Spirit Stones, at the Alliance's rate.",
+          open_page="exchange", requires=all_of(unlock("currency_exchange")), locked_text="The exchange clerk ignores you.")
+    r.npc("factor_ruan", [560, 730], facing=1)
+    r.npc("peddler_gou", [980, 830], facing=1)
+    r.npc("smith_hong", [2240, 830], facing=-1)
+    r.npc("apothecary_wu", [2700, 830], facing=1)
+    r.npc("sky_sailor_pei", [3500, 900], facing=-1)
+    r.obj("sign_ae_market", "signpost", [3700, 860], text="East: the Thunderhorn Plains (Lv 64-69, Storm Ward 6-12) · West: Arrival Terrace.")
+    r.edge("west", "west", "ae_landing", "east", y=850)
+    r.edge("east", "east", "tp_stormgrass_verge", "west", y=850, ptype="sealed",
+           requires=any_of(qactive("storm_in_the_blood"), qdone("storm_in_the_blood")),
+           locked_text="A gate guard: \"Valley-soft blood won't last out there. Ask at the inn about the storms first.\"")
+
+    r = interior("ae_wayfarers_inn", "Wayfarers' Inn", "cloudgate_port", wall="wall_wood", music="sky_port", qi=1.3,
+                 rtype="rest", **AE)
+    for x in (300, 700, 1000):
+        r.decor("table", [x, 760])
+        r.decor("cushion", [x - 50, 790])
+    r.decor("wine_jar", [140, 700])
+    r.decor("wine_jar", [1180, 700])
+    r.decor("counter", [520, 700])
+    r.decor("screen_folding", [860, 690])
+    r.npc("innkeeper_tang", [520, 730], facing=1)
+    r.npc("broker_mu", [960, 800], facing=-1)
+    r.portal("entry", "door", [120, 700], "ae_port_market", "inn_door", press_up=True, label="Port Market")
+
+    r = town("ae_skydock", "Skydock", "cloudgate_port", 2, backdrop="sky_port", material="wood", music="sky_port",
+             ambience="wind_ambience", spawn_point=[2300, 820], qi=1.3, **AE)
+    r.decor("sky_ship", [700, 660], layer="back")
+    r.decor("sky_ship", [1700, 640], layer="back", flip=True)
+    for x in (420, 1000, 1500, 2000):
+        r.decor("mooring_post", [x, 700])
+    r.decor("crate", [1180, 720])
+    r.decor("sack_pile", [1260, 730])
+    r.painted("condensing_hall", "hall", 2080, 520, 120, 120, front=690)
+    r.portal("hall_door", "door", [2080, 704], "ae_condensing_hall", "entry", press_up=True, label="Condensing Hall")
+    r.npc("dockmaster_fu", [1100, 780], facing=1)
+    r.npc("sky_sailor_ning", [600, 900], facing=1)
+    r.edge("east", "east", "ae_landing", "west", y=850)
+
+    r = interior("ae_condensing_hall", "Condensing Hall", "cloudgate_port", wall="wall_stone", floor="floor_stone",
+                 music="meditation", qi=2.0, rtype="insight", **AE)
+    r.decor("incense_burner", [640, 760])
+    for x in (420, 860):
+        r.decor("meditation_mat", [x, 860])
+    r.decor("herb_drawers", [1100, 690])
+    r.decor("scroll_rack", [200, 690])
+    r.obj("furnace_ae", "alchemy_furnace", [980, 760], requires=all_of(unlock("alchemy")), locked_text="Alchemist Fen's furnace.")
+    r.npc("alchemist_fen", [760, 760], facing=-1)
+    r.portal("entry", "door", [120, 700], "ae_skydock", "hall_door", press_up=True, label="Skydock")
+
+    # --- Thunderhorn Plains: open storm grass, herds of rhinos and weasels that spit lightning
+    plains = dict(backdrop="storm_plains", material="moss", tint="#c8d6d0", music="storm_plains", ambience="wind_ambience", element="thunder",
+                  gather_tier="expanse_low", qi=1.4, loot="jar_expanse", trees=("pine_tree", "storm_menhir"), **AE)
+    r = field("tp_stormgrass_verge", "Stormgrass Verge", "thunderhorn_plains", 3, [64, 66],
+              spawns=[("spark_weasel", 5, [64, 66])], ores=("stormsteel_ore",), jars=4, attunement_required=6,
+              hazards=["lightning"], **plains)
+    plains_scenery(r, stones=2)
+    r.obj("sign_tp_verge", "signpost", [200, 860], text="Thunderhorn Plains. West: Cloudgate Port · East: the Herders' Camp.")
+    r.edge("west", "west", "ae_port_market", "east", y=850)
+    r.edge("east", "east", "tp_herders_camp", "west", y=850)
+
+    r = Room("tp_herders_camp", "Herders' Camp", "rest", "thunderhorn_plains", 2, backdrop="storm_plains", material="moss", tint="#c8d6d0",
+             music="storm_plains", ambience="wind_ambience", element="thunder", qi=1.5, spawn_point=[400, 820],
+             idle=["gather"], **AE)
+    plains_scenery(r, stones=1, yurts=3)
+    r.decor("fence_wood", [1200, 700])
+    r.decor("hay_bale", [1400, 720])
+    r.decor("cooking_pot", [1680, 800])
+    r.decor("drying_rack_fish", [1900, 700])
+    r.obj("shrine_tp_camp", "shrine", [900, 700])
+    r.npc("herder_suo", [1600, 780], facing=-1)
+    r.npc("herder_a_lan", [2000, 900], facing=-1)
+    r.edge("west", "west", "tp_stormgrass_verge", "east", y=850)
+    r.edge("east", "east", "tp_thunderhorn_flats", "west", y=850)
+
+    r = field("tp_thunderhorn_flats", "Thunderhorn Flats", "thunderhorn_plains", 3, [65, 68],
+              spawns=[("thunderhorn_rhino", 3, [65, 68], 16), ("spark_weasel", 3, [64, 66])], ores=("stormsteel_ore",), jars=4,
+              attunement_required=10, hazards=["lightning"], **plains)
+    plains_scenery(r, stones=3)
+    r.edge("west", "west", "tp_herders_camp", "east", y=850)
+    r.edge("east", "east", "tp_lightning_scar", "west", y=850)
+
+    r = field("tp_lightning_scar", "Lightning Scar", "thunderhorn_plains", 3, [67, 69],
+              spawns=[("thunderhorn_rhino", 4, [67, 69], 16), ("spark_weasel", 2, [66, 67])], ores=("stormsteel_ore", "stormsteel_ore"),
+              jars=5, chest="chest_expanse", attunement_required=12, hazards=["lightning"], **plains)
+    plains_scenery(r, stones=5)
+    r.obj("insight_thunder", "insight_stone", [1900, 720], element="thunder", requires=all_of(unlock("insight_sites")),
+          locked_text="A glassy stone, fused by lightning.")
+    r.edge("west", "west", "tp_thunderhorn_flats", "east", y=850)
+
 def zone_json():
-    rooms = sorted(ROOMS.keys())
+    rooms = sorted(k for k, r in ROOMS.items() if r.d["zone"] == "jade_river_valley")
+    expanse = sorted(k for k, r in ROOMS.items() if r.d["zone"] == "azure_expanse")
     zones = [{
         "id": "jade_river_valley", "tier": 1, "name": "Jade River Valley", "level_range": [0, 63], "ceiling": "heaven_glimpse_3",
         "laws": ["water", "wood", "earth"], "currency": {"everyday": "silver_tael", "high": "spirit_stone"}, "attunement": None,
@@ -1336,12 +1483,30 @@ def zone_json():
             {"id": "hidden_vale", "name": "Hidden Vale", "levels": [0, 0], "map": [0.96, 0.22]},
             {"id": "story", "name": "Story", "levels": [0, 0], "map": [0.5, 0.5], "hidden": True},
         ],
-        "planned": ["ae_landing"],
+        "exit": {"room": "mp_ascension_gate", "to_zone": "azure_expanse"},
     }, {
         "id": "azure_expanse", "tier": 2, "name": "Azure Expanse", "level_range": [55, 81], "ceiling": "sage_sovereign_3",
         "laws": ["water", "wood", "earth", "fire", "metal", "wind", "thunder"], "currency": {"everyday": "spirit_stone", "high": "sage_crystal"},
-        "attunement": {"stat": "storm_ward", "required": [10, 60]}, "panorama": "valley_day", "start_room": "ae_landing",
-        "rooms": [], "planned": ["ae_landing"], "status": "planned",
+        # Loot coins are counted in taels; the Expanse pays them out in Spirit Stones at this rate (S21).
+        "coin_scale": 0.05, "qi_density": [1.2, 2.0],
+        "attunement": {"stat": "storm_ward", "name": "Storm Ward", "shard": "storm_shard", "required": [10, 60], "unlock": "storm_ward",
+                       "jade_max": 15, "jade_value": 1.0, "cost": {"base": 1, "per_level": 1},
+                       "jades": [{"id": "thunder", "name": "Thunder Jade"}, {"id": "gale", "name": "Gale Jade"},
+                                 {"id": "rain", "name": "Rain Jade"}, {"id": "lightning", "name": "Lightning Jade"}]},
+        "panorama": "sky_port", "start_room": "ae_landing", "rooms": expanse,
+        "regions": [
+            {"id": "cloudgate_port", "name": "Cloudgate Port", "levels": [0, 0], "map": [0.82, 0.62]},
+            {"id": "thunderhorn_plains", "name": "Thunderhorn Plains", "levels": [64, 69], "attunement": 10, "map": [0.62, 0.70]},
+            {"id": "rimefrost_heights", "name": "Rimefrost Heights", "levels": [67, 72], "attunement": 20, "map": [0.50, 0.22], "planned": True},
+            {"id": "mirrorwater_lake", "name": "Mirrorwater Lake", "levels": [68, 75], "attunement": 25, "map": [0.70, 0.42], "planned": True},
+            {"id": "nine_peaks", "name": "Nine Peaks", "levels": [0, 0], "map": [0.40, 0.46], "planned": True},
+            {"id": "gale_canyons", "name": "Gale Canyons", "levels": [73, 78], "attunement": 40, "map": [0.26, 0.30], "planned": True},
+            {"id": "ironroot_hold", "name": "Ironroot Clan Hold", "levels": [0, 0], "map": [0.30, 0.60], "planned": True},
+            {"id": "sunscar_desert", "name": "Sunscar Desert", "levels": [73, 81], "attunement": 50, "map": [0.16, 0.74], "planned": True},
+            {"id": "tomb_of_sunscar", "name": "Tomb of Sunscar", "levels": [77, 77], "attunement": 55, "map": [0.08, 0.84], "planned": True},
+            {"id": "skyport_wreck", "name": "Skyport Wreck", "levels": [76, 81], "attunement": 60, "map": [0.10, 0.18], "planned": True},
+        ],
+        "exit": {"room": "ae_landing", "to_zone": "jade_river_valley"},
     }]
     entries("zones", zones)
 
@@ -1352,6 +1517,7 @@ def teleport_stones():
         {"id": "jade_academy", "name": "Jade Sect Academy", "room": "ja_gate_street", "at": [520, 880], "fee_shards": 1},
         {"id": "cloud_monastery", "name": "Cloud Sect Monastery", "room": "cm_cliff_stair", "at": [460, 880], "fee_shards": 1},
         {"id": "hidden_vale", "name": "Hidden Vale", "room": "hv_vale_gate", "at": [300, 880], "fee_shards": 1},
+        {"id": "cloudgate", "name": "Cloudgate Port", "room": "ae_port_market", "at": [1900, 880], "fee_shards": 1, "zone": "azure_expanse"},
     ]
     entries("teleport_stones", rows)
     # Every teleport stone object must name one of these.
@@ -1381,7 +1547,7 @@ def set_pieces():
 
 def check_links():
     """Every portal target exists (or is planned) and every edge/door has a matching return portal."""
-    planned = {"ae_landing"}
+    planned = set()
     for r in ROOMS.values():
         for p in r.d["portals"]:
             to = p["to"]
@@ -1414,6 +1580,7 @@ def build():
     stoneford()
     sects()
     valley()
+    azure_expanse()
     check_links()
     reachability()
     os.makedirs(ROOMS_DIR, exist_ok=True)

@@ -97,6 +97,26 @@
    "body": "You passed the Gate Guardian. The river keeps flowing."
   },
   {
+   "id": "cloudgate_port",
+   "title": "Cloudgate Port",
+   "body": "A harbour on a floating island where the Ascension Gate opens onto the Azure Expanse. Sky-ships, toll wardens and every kind of traveller."
+  },
+  {
+   "id": "nine_peaks_alliance",
+   "title": "The Nine Peaks Alliance",
+   "body": "Nine sects on nine peaks, one law between them. They keep the sky roads safe and tax every step taken on them."
+  },
+  {
+   "id": "storm_ward",
+   "title": "Storm Ward",
+   "body": "The Expanse's storms draw Qi out of anyone not attuned to them. Four jades, fed with Storm Shards, ward the blood. Each region asks for more."
+  },
+  {
+   "id": "sage_qi",
+   "title": "Sage Qi",
+   "body": "True Qi pressed until it remembers it was light. Stronger by far, and the valley could never have held it."
+  },
+  {
    "id": "river_of_time",
    "title": "River of Time and Space",
    "body": "Locked.",

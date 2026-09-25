@@ -1,5 +1,5 @@
 extends Page
-## Character (S10, S11, S34): overview, stats with Combat Power, aptitude and titles.
+## Character (S10, S11, S18, S34): overview, stats with Combat Power, aptitude, titles and attunement.
 
 const Avatar = preload("res://scripts/avatar.gd")
 var STATS := [["max_hp", Tx.t("ui.character.max_hp")], ["max_qi", Tx.t("ui.character.max_qi")], ["max_soul", Tx.t("ui.character.max_soul")], ["physical_attack", Tx.t("ui.character.physical_attack")],
@@ -11,7 +11,7 @@ var doll: Node2D
 
 func _init() -> void:
 	title = Tx.t("ui.character.character")
-	tabs = [{"id": "overview", "label": Tx.t("ui.character.overview")}, {"id": "stats", "label": Tx.t("ui.character.stats")}, {"id": "aptitude", "label": Tx.t("ui.character.aptitude")}, {"id": "titles", "label": Tx.t("ui.character.titles")}]
+	tabs = [{"id": "overview", "label": Tx.t("ui.character.overview")}, {"id": "stats", "label": Tx.t("ui.character.stats")}, {"id": "aptitude", "label": Tx.t("ui.character.aptitude")}, {"id": "titles", "label": Tx.t("ui.character.titles")}, {"id": "attunement", "label": Tx.t("ui.character.attunement")}]
 
 func setup() -> void:
 	doll = Avatar.new()
@@ -65,6 +65,65 @@ func draw_page() -> void:
 				var tid := str(titles[i])
 				var tr := Rect2(r.position.x + 30, r.position.y + 20 + i * 64, 600, 56)
 				btn(tr, ContentDB.name_of("titles", tid), "title", tid, ch.cultivator.active_title == tid)
+		"attunement": _attunement(ch, r)
+
+## S18 attunement: the four jades of the zone you stand in (or the first zone that asks for
+## attunement), what raising each costs, and how the total compares with each region's need.
+func _attunement(ch, r: Rect2) -> void:
+	var here := str(ContentDB.zone_of_room(str(ch.position.get("room", ""))).get("id", ""))
+	var zone_id := ""
+	for z in ContentDB.all("zones"):
+		if z.get("attunement") is Dictionary and (zone_id == "" or str(z.id) == here): zone_id = str(z.id)
+	if zone_id == "":
+		para(r.grow(-40), Tx.t("ui.character.no_attunement_yet"), 20, UiKit.HOLLOW)
+		return
+	var zone := ContentDB.zone(zone_id)
+	var att: Dictionary = zone.attunement
+	var x := r.position.x + 36
+	heading(Vector2(x, r.position.y + 48), "%s · %s" % [str(att.get("name", "")), str(zone.get("name", ""))], r.size.x - 72)
+	var total: float = Game.progression.attunement_value(ch, zone_id) if here == zone_id else float(ch.cultivator.attunement.get(zone_id, 0.0))
+	var line := Tx.t("ui.character.attunement_total") % int(total)
+	if here == zone_id:
+		var need: float = Game.progression.attunement_required(str(ch.position.get("room", "")))
+		var f: Dictionary = Game.progression.attunement_factors(ch)
+		line += "   " + Tx.t("ui.character.attunement_here") % [int(need), int(round(float(f.dealt) * 100.0)), int(round(float(f.taken) * 100.0))]
+	text(Vector2(x, r.position.y + 84), fit(line, 19, r.size.x - 72), 19, UiKit.MIST)
+	var unlocked := Unlocks.is_unlocked(ch.id, str(att.get("unlock", "")))
+	var shard := str(att.get("shard", ""))
+	icon_at(Rect2(r.end.x - 250, r.position.y + 26, 36, 36), shard)
+	text(Vector2(r.end.x - 206, r.position.y + 52), "%s × %s" % [ContentDB.item_name(shard), UiKit.fmt(ch.inventory.count(shard))], 18, UiKit.PALE_GOLD)
+	var levels: Array = Game.progression.jade_levels(ch, zone_id)
+	var jades: Array = att.get("jades", [])
+	var cw := (r.size.x - 72 - 3 * 16) / 4.0
+	for i in jades.size():
+		var jr := Rect2(x + i * (cw + 16), r.position.y + 104, cw, 236)
+		panel(jr, "minor_panel")
+		icon_at(Rect2(jr.position.x + (cw - 88) / 2.0, jr.position.y + 12, 88, 88), "ward_" + str(jades[i].id))
+		text(Vector2(jr.position.x, jr.position.y + 128), str(jades[i].name), 19, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, cw)
+		var lv := int(levels[i]) if i < levels.size() else 0
+		var top := int(att.get("jade_max", 15))
+		bar(Rect2(jr.position.x + 14, jr.position.y + 142, cw - 28, 20), float(lv) / maxf(1.0, top), UiKit.QI, Tx.t("ui.character.jade_level") % [lv, top])
+		if lv >= top:
+			text(Vector2(jr.position.x, jr.position.y + 204), Tx.t("ui.character.jade_full"), 17, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_CENTER, cw)
+		else:
+			var cost: int = Game.progression.jade_cost(zone_id, lv)
+			var can: bool = unlocked and ch.inventory.count(shard) >= cost
+			btn(Rect2(jr.position.x + 14, jr.position.y + 174, cw - 28, 48), Tx.t("ui.character.raise_jade") % cost, "attune", [zone_id, i], false, can,
+				Unlocks.locked_text(str(att.get("unlock", ""))) if not unlocked else Tx.t("ui.character.needs_more_shards"), 17)
+	# What each region asks for, ticked when the total meets it.
+	var y := r.position.y + 366
+	text(Vector2(x, y), Tx.t("ui.character.regions_ask"), 18, UiKit.GOLD)
+	y += 4
+	var col := 0
+	for reg in zone.get("regions", []):
+		if not reg.has("attunement"): continue
+		var met := total >= float(reg.attunement)
+		var at := Vector2(x + col * ((r.size.x - 72) / 2.0), y + 30)
+		text(at, fit(("✓ " if met else "· ") + "%s  %d" % [str(reg.name), int(reg.attunement)], 17, (r.size.x - 72) / 2.0 - 12), 17, UiKit.BRIGHT_JADE if met else UiKit.MIST)
+		col += 1
+		if col == 2:
+			col = 0
+			y += 26
 
 ## Pools (QI and Soul only once the character has them), four headline stats and who travels along.
 func _vitals(ch, r: Rect2) -> void:
@@ -93,3 +152,4 @@ func _party(ch, r: Rect2) -> void:
 
 func on_action(id: String, data) -> void:
 	if id == "title": submit({"type": "set_title", "title": str(data)})
+	if id == "attune": submit({"type": "attune_jade", "zone": str(data[0]), "index": int(data[1])})

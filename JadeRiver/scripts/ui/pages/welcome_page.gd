@@ -18,7 +18,9 @@ func draw_page() -> void:
 	if float(w.get("body_xp", 0.0)) > 0.0: rows.append([Tx.t("ui.welcome.body_training"), "+%s" % UiKit.fmt(float(w.body_xp))])
 	if float(w.get("insight", 0.0)) > 0.0: rows.append([Tx.t("ui.welcome.insight"), "+%s" % UiKit.fmt(float(w.insight))])
 	if float(w.get("halo", 0.0)) > 0.0: rows.append([Tx.t("ui.welcome.pill_halo"), "+%d%%" % int(round(float(w.halo) * 100.0))])
-	if int(w.get("coins", 0)) > 0: rows.append([Tx.t("ui.welcome.silver_taels"), "+%s" % UiKit.fmt(int(w.coins))])
+	if int(w.get("coins", 0)) > 0:
+		var cur_key := "ui.welcome.spirit_stones" if str(w.get("coin_currency", "")) == "spirit_stone" else "ui.welcome.silver_taels"
+		rows.append([Tx.t(cur_key), "+%s" % UiKit.fmt(int(w.coins))])
 	for it in w.get("items", []):
 		rows.append([ContentDB.item_name(str(it.get("item", it.get("id", "")))), "×%d" % int(it.get("count", 1))])
 	if bool(args.get("capped", false)): rows.append([Tx.t("ui.welcome.time_limit_reached"), Tx.t("ui.welcome.extend_it_with_retreat_rooms")])

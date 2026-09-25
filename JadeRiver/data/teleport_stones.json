@@ -40,6 +40,17 @@
     880
    ],
    "fee_shards": 1
+  },
+  {
+   "id": "cloudgate",
+   "name": "Cloudgate Port",
+   "room": "ae_port_market",
+   "at": [
+    1900,
+    880
+   ],
+   "fee_shards": 1,
+   "zone": "azure_expanse"
   }
  ]
 }

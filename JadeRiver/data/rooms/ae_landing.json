@@ -1,0 +1,215 @@
+{
+ "schema_version": 1,
+ "id": "ae_landing",
+ "zone": "azure_expanse",
+ "region": "cloudgate_port",
+ "name": "Arrival Terrace",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.3,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "sky_port",
+ "ground": {
+  "material": "stone",
+  "tint": "#dfe6ee"
+ },
+ "spawn_point": [
+  560,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "gate",
+   "type": "gate",
+   "at": [
+    300,
+    710
+   ],
+   "to": "mp_ascension_gate",
+   "to_portal": "ascend",
+   "press_up": true,
+   "label": "Ascension Gate"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "ae_port_market",
+   "to_portal": "west"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ae_skydock",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "shrine_ae_landing",
+   "type": "shrine",
+   "at": [
+    1300,
+    700
+   ]
+  },
+  {
+   "id": "sign_ae_landing",
+   "type": "signpost",
+   "at": [
+    2380,
+    860
+   ],
+   "text": "Cloudgate Port. East: Port Market · West: the Skydock · The gate behind you leads home to the valley."
+  },
+  {
+   "id": "npc_warden_cao",
+   "type": "npc",
+   "at": [
+    960,
+    780
+   ],
+   "npc": "warden_cao",
+   "facing": -1
+  },
+  {
+   "id": "npc_alliance_guard",
+   "type": "npc",
+   "at": [
+    1700,
+    900
+   ],
+   "npc": "alliance_guard",
+   "facing": -1
+  },
+  {
+   "id": "npc_wanderer_jiang",
+   "type": "npc",
+   "at": [
+    2100,
+    760
+   ],
+   "npc": "wanderer_jiang",
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "paifang_gate",
+   "at": [
+    300,
+    650
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "portal_swirl",
+   "at": [
+    300,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "banner_alliance",
+   "at": [
+    620,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "banner_alliance",
+   "at": [
+    1960,
+    662
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "statue_guardian_lion",
+   "at": [
+    820,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "statue_guardian_lion",
+   "at": [
+    1760,
+    690
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "lantern_post",
+   "at": [
+    1040,
+    670
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_post",
+   "at": [
+    1540,
+    670
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_post",
+   "at": [
+    2240,
+    670
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "sky_port",
+ "ambience": "wind_ambience",
+ "town": true
+}

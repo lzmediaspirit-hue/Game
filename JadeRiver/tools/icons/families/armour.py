@@ -22,6 +22,7 @@ CLOTH = {
     'heaven': dict(cloth=R['sky'], trim=R['cloud'], sash=R['silk_navy'], plate=None, gem=R['qi'], glow=None),
     'mystic': dict(cloth=R['mistjade'], trim=R['gold'], sash=R['plum'], plate=None, gem=R['violet'],
                    glow='#B18DE2'),
+    'spirit': dict(cloth=R['storm'], trim=R['silver'], sash=R['navy'], plate=None, gem=R['cyan'], glow='#7FD4FF'),
 }
 
 
@@ -133,7 +134,7 @@ def boots(grade):
     c = Canvas(32)
     cl, tr = P['cloth'], P['trim']
     sole = R['paper'] if grade in ('common', 'heaven') else R['leather'] if grade == 'earth' else R['gold'] \
-        if grade == 'mystic' else R['hemp']
+        if grade == 'mystic' else R['silver'] if grade == 'spirit' else R['hemp']
     _boot(c, -4, -2, cl, sole, tr, base=1)
     m = _boot(c, 1, 3, cl, sole, tr, base=2)
     if P['plate'] is not None:
@@ -242,6 +243,23 @@ def cloudsilk_hat():
     c.outline()
     return c
 
+def stormsilk_hat():
+    """Spirit grade: a silver crown with a lightning crest and a cyan spark stone."""
+    c = Canvas(32)
+    bun = c.ellipse(16, 20, 8, 6)
+    c.put(bun, R['ink'], 'ray', base=3)
+    crown = c.poly([(8, 22), (8, 14), (12, 11), (14, 5), (16, 12), (18, 5), (20, 11), (24, 14), (24, 22)])
+    c.put(crown, R['storm'], 'ray', base=2, sep=True)
+    c.put(c.rect(8, 19, 24, 22), R['silver'], 'vgrad', base=3, sep=True)
+    gem = S.diamond(c, 16, 15, 2.4, 3)
+    c.put(gem, R['cyan'], 'ray', base=4, sep=True)
+    pin = c.seg(1.5, 17.5, 30, 15, 1.6)
+    c.put(pin & ~c.rect(9, 13, 23, 22), R['silver'], 'flat', base=3)
+    c.outline()
+    c.glow('#7FD4FF', (95, 40))
+    return c
+
+
 def mistjade_hat():
     c = Canvas(32)
     bun = c.ellipse(16, 20, 8, 6)
@@ -309,11 +327,11 @@ def cloud_talisman():
 def gourd(kind):
     c = Canvas(32)
     body = {'starter': R['straw'], 'bamboo': R['bamboo'], 'jadeiron': R['jadeiron'], 'cloud': R['porcelain'],
-            'mistjade': R['mistjade']}[kind]
+            'mistjade': R['mistjade'], 'stormsteel': R['storm']}[kind]
     band_r = {'starter': R['hemp'], 'bamboo': R['bamboo'], 'jadeiron': R['iron'], 'cloud': R['sky'],
-              'mistjade': R['gold']}[kind]
+              'mistjade': R['gold'], 'stormsteel': R['silver']}[kind]
     stop = {'starter': R['wood'], 'bamboo': R['wood'], 'jadeiron': R['jade'], 'cloud': R['silver'],
-            'mistjade': R['gold']}[kind]
+            'mistjade': R['gold'], 'stormsteel': R['cyan']}[kind]
     low = c.circle(16, 21.5, 8.5)
     up = c.circle(16, 10.5, 5.5)
     waist = c.rect(13, 13, 18, 16)
@@ -351,14 +369,20 @@ def gourd(kind):
         for y in (18, 25):
             c.put(c.rect(7, y, 25, y) & low, R['gold'], 'flat', base=3)
         c.put(c.circle(16, 21.5, 1.8), R['violet'], 'flat', base=4)
+    elif kind == 'stormsteel':
+        for y in (18, 25):
+            c.put(c.rect(7, y, 25, y) & low, R['silver'], 'flat', base=3)
+        c.put(c.circle(16, 21.5, 1.8), R['cyan'], 'flat', base=4)
     c.outline()
     if kind == 'mistjade':
         c.glow('#B18DE2', (95, 40))
+    if kind == 'stormsteel':
+        c.glow('#7FD4FF', (95, 40))
     return c
 
 
 for _g, _w in (('plain', 'hemp'), ('common', 'cotton'), ('earth', 'jadeiron'), ('heaven', 'cloudsilk'),
-               ('mystic', 'mistjade')):
+               ('mystic', 'mistjade'), ('spirit', 'stormsilk')):
     register(FAM, '%s_robe' % _w, (lambda gr=_g: robe(gr)), 'armour')
     register(FAM, '%s_trousers' % _w, (lambda gr=_g: trousers(gr)), 'armour')
     if _g not in ('plain', 'common'):
@@ -370,7 +394,8 @@ register(FAM, 'bamboo_hat', bamboo_hat, 'armour')
 register(FAM, 'jadeiron_hat', jadeiron_hat, 'armour')
 register(FAM, 'cloudsilk_hat', cloudsilk_hat, 'armour')
 register(FAM, 'mistjade_hat', mistjade_hat, 'armour')
+register(FAM, 'stormsilk_hat', stormsilk_hat, 'armour')
 register(FAM, 'mistjade_cape', mistjade_cape, 'armour')
 register(FAM, 'cloud_talisman', cloud_talisman, 'armour')
-for _k in ('starter', 'bamboo', 'jadeiron', 'cloud', 'mistjade'):
+for _k in ('starter', 'bamboo', 'jadeiron', 'cloud', 'mistjade', 'stormsteel'):
     register(FAM, '%s_gourd' % _k, (lambda k=_k: gourd(k)), 'gourds')

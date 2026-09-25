@@ -870,3 +870,98 @@ def m_meditation():
     tr.add("bowl", bowl(440.0, rb, dur=7.0), tr.tb(6, 2.0), 0.28)
     tr.add("water", stream(tr.L, tr.T, tr.r("water"), density=6, fmin=300, fmax=1100, bed=0.9, bub=0.5), 0)
     return tr.mix(t60=3.0, wet=0.4, predelay=0.03)
+
+
+@music("sky_port")
+def m_sky_port():
+    """Cloudgate Port: a bright, busy harbour in the sky. Guzheng arpeggios, pipa tremolo lead,
+    a dizi answer, ship bells and a thin wind high above everything."""
+    tr = Track("sky_port", 88, 4, 14)                  # 38.2 s
+    sc = Scale(62, 0)                                  # D gong, tonic D4
+    tr.bus("pad", -24, 0.35)
+    tr.bus("wind", -38, 0.2)
+    tr.bus("zheng", -6, 0.25, ZHENG_BODY)
+    tr.bus("pipa", -5, 0.22, PIPA_BODY)
+    tr.bus("flute", -5, 0.35)
+    tr.bus("bell", -8, 0.55)
+    tr.bus("perc", -8, 0.2)
+    tr.add("pad", drone(tr.L, tr.T, tr.r("pad"), [(mtof(50), 1.0), (mtof(57), 0.5)], harm=SOFT, swell=(2, 0.5)), 0)
+    tr.add("wind", wind(tr.L, tr.T, tr.r("wind"), base=800, spread=1800, width=1.0, cycles=(1, 2, 3), floor=0.2,
+                        tilt_db=0.0, whistle=0.2), 0)
+    prog = [0, 0, -2, -1, 0, 0, 1, -2, 0, 0, -2, -1, 1, 0]
+    rz = tr.r("zheng")
+    pats = [[0, 3, 5, 7, 5, 3, 5, 7], [0, 5, 3, 7, 5, 8, 7, 5]]
+    for bar, root in enumerate(prog):
+        arp(tr, "zheng", tr.tb(bar), tr.spb / 2, sc, root, pats[bar % 2], rz, vel=0.34, octave=-1, accent=1.3, ring=1.8)
+    rm = tr.r("melody")
+    rp = tr.r("pipa")
+    p1 = period(rm, R_MID, lo=-1, hi=8, first=2)
+    for p, notes in enumerate(p1):
+        for b, d, i in notes:
+            dur = d * tr.spb
+            if dur >= 0.5:
+                tr.pipa_trem("pipa", tr.tb(2 * p, b), dur, sc(i), 0.6, rp)
+            else:
+                tr.pipa("pipa", tr.tb(2 * p, b), sc(i), 0.62, rp, ring=0.6)
+    answer = [vary(rm, p1[0], 2, -1, 8, 0.5), p1[2], vary(rm, p1[3], 0, -1, 8, 0.6)]
+    fl = []
+    for p, notes in enumerate(answer):
+        fl += to_flute(tr, notes, sc, tr.tb(8 + 2 * p), rm, octave=0, grace_p=0.4)
+    tr.flute("flute", fl, tr.r("flute_sig"), kind="dizi", vib_depth=16)
+    rb = tr.r("bell")
+    for bar, f0 in ((0, 1174.7), (4, 1318.5), (8, 1174.7), (12, 880.0)):
+        tr.add("bell", bell(f0, rb, dur=2.0, kind="small", strike=0.15), tr.tb(bar, 2.0), 0.5)
+    rq = tr.r("perc")
+    muyu = [woodblock(780 * rq.uniform(0.98, 1.02), rq, t60=0.09) for _ in range(3)]
+    for bar in range(14):
+        lane(tr, "perc", bar, "x.o.x.o." if bar % 4 != 3 else "x.o.x.xx", muyu, rq, vel=0.7)
+    return tr.mix(t60=2.0, wet=0.34)
+
+
+@music("storm_plains")
+def m_storm_plains():
+    """Thunderhorn Plains: a galloping 6/8 over open grass. Deep drums, a low gong for far thunder,
+    pipa tremolo in the minor (yu) mode and a xiao that answers across the wind."""
+    tr = Track("storm_plains", 150, 6, 16)             # 38.4 s, eighth-note pulse
+    sc = Scale(53, 4)                                  # F gong, D yu, tonic D4
+    tr.bus("wind", -33, 0.2)
+    tr.bus("drone", -21, 0.25)
+    tr.bus("drum", 0, 0.14)
+    tr.bus("thunder", 4, 0.35, (lowpass(900),))
+    tr.bus("bass", -10, 0.1, ZHENG_BODY)
+    tr.bus("pipa", -5, 0.24, PIPA_BODY)
+    tr.bus("flute", -6, 0.4)
+    tr.add("wind", wind(tr.L, tr.T, tr.r("wind"), base=500, spread=1400, width=1.0, cycles=(1, 2, 3, 5), floor=0.25,
+                        tilt_db=-1.0, whistle=0.1), 0)
+    tr.add("drone", drone(tr.L, tr.T, tr.r("drone"), [(mtof(38), 1.0), (mtof(45), 0.45)], harm=SOFT, swell=(4, 0.5)), 0)
+    rd = tr.r("drums")
+    big = [membrane(70 * rd.uniform(0.98, 1.02), rd, t60=0.45, drop=0.6, noise_amt=0.3, noise_fc=900) for _ in range(3)]
+    tom = [membrane(150 * rd.uniform(0.97, 1.03), rd, t60=0.22, drop=0.35, noise_amt=0.35) for _ in range(3)]
+    for bar in range(16):
+        lane(tr, "drum", bar, "X..x.x", big, rd, vel=0.9)          # the herd's gallop
+        lane(tr, "drum", bar, ".x..x." if bar % 4 != 3 else ".xx.xx", tom, rd, vel=0.55)
+    rt = tr.r("thunder")
+    for bar in (3, 11):
+        tr.add("thunder", gong(55.0, rt, dur=5.0, pitch=(0.0, -120.0), tau=0.9, bloom=0.5, bright=0.6), tr.tb(bar, 3.0), 0.8)
+    prog = [0, 0, -2, -2, 0, 0, 1, -1, 0, 0, -2, -2, 1, 1, -1, 0]
+    rb = tr.r("bass")
+    for bar, root in enumerate(prog):
+        for k, off in enumerate((0, None, None, 3, None, 0)):
+            if off is not None:
+                tr.zheng("bass", tr.tb(bar, k), sc(root + off) - 24, 0.7 if k == 0 else 0.5, rb, ring=0.5, jitter=0.003)
+    rm = tr.r("melody")
+    rp = tr.r("pipa")
+    p1 = period(rm, R_68, lo=-2, hi=7, first=0)
+    for p, notes in enumerate(p1):
+        for b, d, i in notes:
+            dur = d * tr.spb
+            if dur >= 0.55:
+                tr.pipa_trem("pipa", tr.tb(2 * p, b), dur, sc(i), 0.62, rp)
+            else:
+                tr.pipa("pipa", tr.tb(2 * p, b), sc(i), 0.64, rp, ring=0.5)
+    p2 = period(rm, R_68, lo=-1, hi=8, first=3)
+    fl = []
+    for p, notes in enumerate(p2):
+        fl += to_flute(tr, simplify(notes, 1.5), sc, tr.tb(8 + 2 * p), rm, octave=0, grace_p=0.3)
+    tr.flute("flute", fl, tr.r("flute_sig"), kind="xiao", vib_depth=18, vib_rate=5.0)
+    return tr.mix(t60=1.8, wet=0.3)

@@ -2491,6 +2491,141 @@ def sect_cloud():
 
 
 # =============================================================== scene: interior
+# =============================================================== Azure Expanse (Act II)
+def floating_island(cv, cx, top, hw, depth, grass, rock, seed, trees=None, fall=None):
+    """An island adrift in the sky: a grassy crown over a jagged rock root tapering down."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    g = rng("isle", seed)
+    d = wdx(xx, cx)
+    crown = (np.abs(d) <= hw) & (yy >= top) & (yy <= top + 4 + (pn2(h, ("isc", seed), 6, 2, 1) * 2).astype(int))
+    # the root: a lumpy downward wedge
+    t = np.clip(1.0 - np.abs(d) / max(1.0, hw), 0, 1)
+    bottom = top + 3 + depth * (t ** 0.8) * (0.75 + 0.5 * pn2(h, ("isr", seed), 5, 3, 1))
+    root = (np.abs(d) <= hw) & (yy > top + 2) & (yy <= bottom)
+    v = 2.6 - (yy - top) / max(1.0, depth) * 2.2 - np.clip(d / max(1.0, hw), -1, 1) * 0.8
+    paint(cv, root, rock, v, sharp=2.0)
+    flat(cv, left_rim(root) & (yy > top + 3), rock[-1])
+    paint(cv, crown, grass, np.full((h, W), 2.2) - np.clip(d / max(1.0, hw), -1, 1), sharp=2.0)
+    flat(cv, top_rim(crown), grass[-1])
+    if trees is not None:
+        for k in range(max(1, int(hw // 9))):
+            tx = cx - hw + 5 + g.uniform(0, 2 * hw - 10)
+            cone(cv, tx, top + 1, int(g.uniform(7, 13)), int(g.uniform(3, 5)), trees, g.uniform(0, 1))
+    if fall is not None:  # a thin waterfall spilling off the island's lip, blown to mist as it drops
+        fx = int(cx + hw * 0.55)
+        ln = depth + 34
+        for k in range(6):
+            y0, y1 = top + 2 + ln * k / 6.0, top + 2 + ln * (k + 1) / 6.0
+            fm = (np.abs(wdx(xx, fx) + k * 0.4) <= (0.6 if k < 3 else 1.2)) & (yy > y0) & (yy <= y1)
+            a = 0.95 - k * 0.15
+            flat(cv, fm, fall[0], a)
+            flat(cv, fm & ((yy + fx) % 5 < 2), fall[1], a * 0.8)
+    return root | crown
+
+
+def storm_plains():
+    layers = []
+    sky = sky_layer([(0.0, "#1c2440"), (0.22, "#2f3d66"), (0.45, "#56709c"), (0.66, "#9db5d0"), (0.82, "#dde8ef"),
+                     (1.0, "#eef2ea")])
+    overcast(sky, 40, "spo", R("#1a1f34", "#2c3656", "#6e82aa"), lobe=16, depth=10, top_dark=36)
+    for i, (cx, y, ln) in enumerate(((120, 96, 150), (420, 118, 190), (560, 150, 120))):
+        streak(sky, cx, y, ln, R("#8095b8", "#b4c6dc", "#e8f0f6"), ("sps", i), rows=2)
+    # a far lightning fork dropping out of the cloud deck
+    bolt = wline(SKY_H, [(468, 48), (462, 70), (472, 84), (464, 108), (470, 126)], 1)
+    flat(sky, bolt, "#f4fbff")
+    flat(sky, sh(bolt, 1, 0) & ~bolt, "#9cc4ff", 0.7)
+    layers.append((sky, 0.0, 720))
+
+    fh = 220
+    far = Canvas(W, fh)
+    grass_f = R("#4d6a7a", "#5e7d86", "#6f8f92", "#86a3a2")
+    rock_f = R("#3e4a66", "#4c5a78", "#5e6c8a", "#76849e", "#94a2b6")
+    for i, (cx, top, hw, dp) in enumerate(((80, 40, 30, 46), (260, 70, 18, 30), (410, 30, 40, 60), (580, 84, 16, 24))):
+        floating_island(far, cx, top, hw, dp, grass_f, rock_f, ("spf", i),
+                        fall=(C("#dbe8f2"), C("#ffffff")) if i in (0, 2) else None)
+    cloud_bank(far, 186, "spcb0", R("#8ea3bd", "#aebfd2", "#c9d6e3", "#e2eaf1", "#f4f8fa", "#ffffff"), r_lo=5, r_hi=12,
+               rows=2, row_gap=10, amp=5, fill_below=True)
+    layers.append((far, 0.08, 560))
+
+    mh = 180
+    mid = Canvas(W, mh)
+    # the open plain: long low swells of storm-bleached grass running to the horizon
+    prof = hill_profile(104, 7, "spm", cell=220, octaves=2)
+    hill_row(mid, prof, R("#3f5a4a", "#4c6a50", "#5d7c56", "#71905e", "#8ba46a", "#a9bc7c"), "spm", gain=0.35, fall=2.2,
+             sharp=2.0)
+    for k, (y, th) in enumerate(((122, 3), (138, 4), (158, 5))):   # wind-combed bands in the grass
+        mist_band(mid, y, th, ("spg", k), "#9fb878", alphas=(0.14, 0.22), amp=2, cell=120, gaps=0.3)
+    g = rng("spm_trees")
+    for k in range(9):   # lone wind-bent trees and a few copses
+        x = int(g.uniform(0, W))
+        for j in range(int(g.integers(1, 4))):
+            tx = x + j * 5
+            cone(mid, tx, int(prof[tx % W]) + 1, int(g.uniform(6, 11)), 2, R("#1f3530", "#2a4438", "#365440", "#46664a"), 1)
+    # standing stones on the plain, split by old lightning
+    for i, x in enumerate((140, 372, 530)):
+        by = int(prof[x % W]) + 2
+        stone = wpoly(mh, [(x - 4, by), (x - 3, by - 16 - i * 3), (x + 1, by - 19 - i * 3), (x + 4, by)])
+        paint(mid, stone, R("#2c3446", "#3c465c", "#56617a", "#7a86a0"), np.full((mh, W), 2.0), sharp=2)
+        flat(mid, left_rim(stone), "#8c98b2")
+    layers.append((mid, 0.18, 620))
+
+    near = Canvas(W, 200)
+    prof2 = hill_profile(150, 6, "spn", cell=160, octaves=2)
+    hill_row(near, prof2, R("#243a2c", "#2e4832", "#3a583a", "#4a6a42", "#5e7e4c", "#76925a"), "spn", gain=0.4, sharp=2.0)
+    reeds(near, 0, W, 158, "spnr", R("#4a6a42", "#6a8a52", "#94ae6a"), count=140, hmin=5, hmax=13)
+    layers.append((near, 0.32, 720))
+    return dict(sky="#1c2440", horizon="#eef2ea", layers=layers)
+
+
+def sky_port():
+    layers = []
+    sky = sky_layer([(0.0, "#2b5e8e"), (0.3, "#4f86b4"), (0.55, "#8fb9d8"), (0.75, "#cfe2ee"), (0.9, "#f1f6f7"),
+                     (1.0, "#fdf6e6")])
+    for i, (cx, y, ln) in enumerate(((80, 70, 180), (300, 40, 140), (520, 96, 210))):
+        streak(sky, cx, y, ln, R("#9bbfdc", "#cfe2ee", "#ffffff"), ("sks", i), rows=2)
+    disc(sky, 520, 70, 13, R("#f2d9a0", "#fff6d8", "#fffbeb"), halo="#fff2c8")
+    layers.append((sky, 0.0, 720))
+
+    fh = 220
+    far = Canvas(W, fh)
+    grass_f = R("#5a7f84", "#6c9290", "#83a79e", "#a3c2b2")
+    rock_f = R("#4a5a78", "#5a6c8a", "#6e809c", "#8a9bb2", "#a9b7c8")
+    for i, (cx, top, hw, dp) in enumerate(((40, 60, 26, 40), (200, 90, 20, 30), (360, 50, 34, 52), (520, 76, 22, 34))):
+        floating_island(far, cx, top, hw, dp, grass_f, rock_f, ("skf", i), fall=(C("#e4eef5"), C("#ffffff")) if i == 2 else None)
+        if i in (0, 2):
+            pagoda(far, cx, top + 1, 3 if i == 2 else 2, 12 if i == 2 else 9, R("#243a4a", "#2f4c5c", "#3d6070", "#5a7e8a"),
+                   windows="#ffd98a")
+    cloud_bank(far, 178, "skcb0", R("#a3bcd2", "#bfd1e1", "#d6e3ee", "#e9f1f6", "#f7fafc", "#ffffff"), r_lo=5, r_hi=12,
+               rows=2, row_gap=10, amp=5, fill_below=True)
+    layers.append((far, 0.08, 560))
+
+    mh = 180
+    mid = Canvas(W, mh)
+    # the port's own island: a broad rock shelf with halls, masts and a moored sky-ship
+    shelf = floating_island(mid, 320, 70, 250, 70, R("#4c6a5c", "#5a7c64", "#6e906e", "#8aa87e"),
+                            R("#344058", "#425070", "#56648a", "#7482a2", "#98a6bf"), "skm")
+    for k, (x, tiers) in enumerate(((150, 2), (260, 1), (420, 2), (520, 1))):
+        hall(mid, x - 20, 71, 40, 8, 7, R("#1d2c3a", "#2a3e50", "#43607a", "#6a8aa4"), R("#8c8a82", "#d8d4c8", "#f0ece2"),
+             post_col="#7a2e28", tiers=tiers, lit="#ffd98a", seed=k)
+    # a sky-ship at the dock: hull, mast and a furled sail
+    hull = wpoly(mh, [(330, 64), (382, 64), (374, 72), (338, 72)])
+    paint(mid, hull, R("#3a2618", "#553824", "#76502f", "#9c6c3f"), np.full((mh, W), 2.0), sharp=2)
+    mast = wline(mh, [(356, 64), (356, 36)], 1)
+    flat(mid, mast, "#5a3a24")
+    sail = wpoly(mh, [(357, 38), (372, 44), (357, 58)])
+    paint(mid, sail, R("#b8b0a0", "#d8d0c0", "#f0ead8"), np.full((mh, W), 2.0), sharp=2)
+    cloud_bank(mid, 150, "skcb1", R("#98b2c9", "#b2c6d8", "#cddbe6", "#e3ecf2", "#f4f8fa", "#ffffff"), r_lo=8, r_hi=18,
+               rows=2, row_gap=16, amp=6, fill_below=True)
+    layers.append((mid, 0.18, 620))
+
+    near = Canvas(W, 200)
+    cloud_bank(near, 150, "skcb2", R("#a9c0d4", "#c0d2e1", "#d6e3ed", "#e8f0f5", "#f6f9fb", "#ffffff"), r_lo=10, r_hi=22,
+               rows=2, row_gap=20, amp=8, fill_below=True)
+    layers.append((near, 0.32, 720))
+    return dict(sky="#2b5e8e", horizon="#fdf6e6", layers=layers)
+
+
 def interior():
     sky = sky_layer([(0.0, "#120c09"), (0.25, "#1d140e"), (0.5, "#2c1e14"), (0.62, "#35241a"), (0.8, "#261a12"),
                      (1.0, "#150e0a")], bands=14, sharp=2.0)
@@ -2511,9 +2646,11 @@ SCENES = {
     "sect_jade": sect_jade,
     "sect_cloud": sect_cloud,
     "interior": interior,
+    "storm_plains": storm_plains,
+    "sky_port": sky_port,
 }
 ORDER = ["valley_day", "valley_dusk", "valley_night", "marsh", "bamboo", "quarry", "mist_peak", "gorge", "cave",
-         "sect_jade", "sect_cloud", "interior"]
+         "sect_jade", "sect_cloud", "interior", "storm_plains", "sky_port"]
 
 
 def hexs(c):

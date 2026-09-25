@@ -173,6 +173,21 @@ def mystic_ore():
     return c
 
 
+
+def stormsteel_ore():
+    c = Canvas(32)
+    m = rock(c, [(4, 23), (7, 15), (13, 12), (21, 13), (28, 19), (27, 27), (16, 29), (6, 28)], R['shadow'],
+             top_pts=[(7, 16), (13, 13), (21, 14), (16, 19), (9, 20)],
+             facet_lines=[((9, 20), (16, 19)), ((16, 19), (24, 24))])
+    crystal(c, 14, 18, 92, 16, 3.4, R['storm'])
+    crystal(c, 20, 19, 58, 11, 2.8, R['storm'])
+    crystal(c, 9, 20, 132, 8, 2.2, R['storm'])
+    bolt = c.bres_path([(15, 6), (13, 10), (16, 11), (14, 15)])
+    c.put(bolt & c.a, '#F4FBFF', 'flat')
+    c.outline()
+    c.glow('#7FD4FF', (100, 40))
+    return c
+
 # ----------------------------------------------------------------------------- spirit stones
 def _spirit_stone(level):
     c = Canvas(32)
@@ -293,6 +308,7 @@ register(FAM, 'jadeiron', jadeiron, GROUP)
 register(FAM, 'spirit_stone_shard', spirit_stone_shard, GROUP)
 register(FAM, 'cloudsteel_ore', cloudsteel_ore, GROUP)
 register(FAM, 'mystic_ore', mystic_ore, GROUP)
+register(FAM, 'stormsteel_ore', stormsteel_ore, GROUP)
 register(FAM, 'spirit_stone_low', lambda: _spirit_stone(0), GROUP)
 register(FAM, 'spirit_stone_mid', lambda: _spirit_stone(1), GROUP)
 register(FAM, 'spirit_stone_high', lambda: _spirit_stone(2), GROUP)

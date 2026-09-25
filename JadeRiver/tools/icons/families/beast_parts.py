@@ -592,6 +592,41 @@ def _hollow_shard(big):
     return c
 
 
+# ============================================================================ Azure Expanse (Act II)
+def spark_pelt():
+    c = Canvas(32)
+    hide(c, R['yellow'], pale_marks=((12, 15, 2.2), (19, 20, 2)))
+    stripe = c.bres_path([(6, 12), (14, 10), (22, 12), (27, 16)])
+    c.put(stripe, R['navy'], 'flat', base=2, only_on=True)
+    c.outline()
+    S.sparkle(c, 25, 7, '#FFFFFF', R['cyan'][3], 2)
+    return c
+
+
+def thunder_horn():
+    c = Canvas(32)
+    fang(c, (8, 27), (14, 12), (24, 4), 8.0, R['bone'], root_col=R['storm'])
+    arc = c.bres_path([(20, 8), (23, 12), (21, 14), (25, 18)])
+    c.put(arc, R['cyan'], 'flat', base=4)
+    c.outline()
+    c.glow('#7FD4FF', (60,))
+    return c
+
+
+def storm_shard():
+    c = Canvas(32)
+    shard(c, [(11, 28), (8, 17), (13, 6), (18, 3), (22, 13), (19, 24), (15, 29)], R['storm'],
+          facet=[(9, 17), (13, 7), (17, 5), (15, 17)])
+    bolt = c.bres_path([(16, 8), (13, 15), (18, 16), (14, 24)])
+    c.put(bolt & c.a, '#F4FBFF', 'flat')
+    c.outline()
+    c.glow('#7FD4FF', (90, 40))
+    return c
+
+
+register(FAM, 'spark_pelt', spark_pelt, GROUP)
+register(FAM, 'thunder_horn', thunder_horn, GROUP)
+register(FAM, 'storm_shard', storm_shard, GROUP)
 register(FAM, 'ore_dust', ore_dust, GROUP)
 register(FAM, 'crab_shell', crab_shell, GROUP)
 register(FAM, 'rat_tail', rat_tail, GROUP)

@@ -5,6 +5,15 @@ extends RefCounted
 static func coins_for(level: int, mult: float, coin_find: float) -> int:
 	return maxi(1, int(round((1.0 + 0.5 * level) * mult * (1.0 + clampf(coin_find, 0.0, 1.0)))))
 
+## S21: coins are counted in taels; a zone pays them in its everyday currency at its coin_scale
+## (the Expanse pays Spirit Stones). Returns {currency, amount}; never rounds a drop down to zero.
+static func zone_coins(room_id: String, taels: int) -> Dictionary:
+	var zone := ContentDB.zone_of_room(room_id)
+	var currency := str(zone.get("currency", {}).get("everyday", "silver_tael"))
+	if taels <= 0: return {"currency": currency, "amount": 0}
+	var scale := float(zone.get("coin_scale", 1.0))
+	return {"currency": currency, "amount": maxi(1, int(round(taels * scale)))}
+
 ## Roll a loot table. Returns {items: [{item, count}], coins, equipment: [instance specs]}.
 static func roll(table_id: String, rng: RandomNumberGenerator, level: int, drop_rate: float, coin_find: float, extra := {}) -> Dictionary:
 	var table := ContentDB.entry("loot_tables", table_id)
@@ -54,7 +63,7 @@ static func grade_for_ilv(ilv: int) -> String:
 ## Build an equipment instance from a drop spec (S32): iLv = monster Level ± 2 inside
 ## the grade band; quality and affixes from the `affix` stream and Fortune.
 static func make_equipment(rng: RandomNumberGenerator, level: int, min_quality: String, fortune: float, allow_weapons: bool, uid: int) -> Dictionary:
-	var ilv := clampi(level + rng.randi_range(-2, 2), 1, 63)
+	var ilv := clampi(level + rng.randi_range(-2, 2), 1, 81)   # to the Azure Expanse's top Level
 	var grade := grade_for_ilv(ilv)
 	var candidates: Array = []
 	for a in ContentDB.all("artifacts"):

@@ -27,6 +27,7 @@ var daos: Dictionary = {}
 var insight_memory: Dictionary = {}  # context -> last tick (diminishing returns)
 # World track
 var attunement: Dictionary = {}
+var attunement_jades: Dictionary = {}   # zone -> [jade levels] (S18); attunement[zone] is their total
 var inner_world = null
 var events_passed: Array = []        # heavens_cleansing, heart_trial ...
 # Shared
@@ -75,7 +76,7 @@ func snapshot() -> Dictionary:
 		"consolidation_left": consolidation_left, "breakthrough_cooldown": breakthrough_cooldown,
 		"energy_type": energy_type, "purity": purity, "purity_points": purity_points,
 		"body_level": body_level, "body_xp": body_xp, "soul_cultivation": soul_cultivation,
-		"daos": daos.duplicate(true), "attunement": attunement.duplicate(true), "inner_world": inner_world,
+		"daos": daos.duplicate(true), "attunement": attunement.duplicate(true), "attunement_jades": attunement_jades.duplicate(true), "inner_world": inner_world,
 		"events_passed": events_passed.duplicate(), "stability": stability, "stability_progress": stability_progress,
 		"injuries": injuries.duplicate(true), "toxicity": toxicity, "treasure_uses": treasure_uses.duplicate(), "method_id": method_id,
 		"methods_known": methods_known.duplicate(), "aptitude": aptitude.duplicate(true), "origin": origin,
@@ -105,6 +106,7 @@ func restore(d: Dictionary) -> void:
 	soul_cultivation = _num(d, "soul_cultivation", 0.0)
 	daos = _dict(d, "daos")
 	attunement = _dict(d, "attunement")
+	attunement_jades = _dict(d, "attunement_jades")
 	inner_world = d.get("inner_world", null)
 	events_passed = _arr(d, "events_passed")
 	stability = str(d.get("stability", "stable"))

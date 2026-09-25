@@ -1,5 +1,40 @@
 # Changelog
 
+## 1.1 (in progress) — The Azure Expanse (Act II)
+
+Built in phases (docs/act2_design.md). Phase A, "Beyond the Gate", is playable end to end.
+
+### Phase A · Foundation
+- The crossing: after the Gate Guardian falls, the Ascension Gate opens onto **Cloudgate Port**, a sky
+  harbour on a floating island (Arrival Terrace, Port Market, Skydock, the Wayfarers' Inn and the
+  Condensing Hall). The Expanse is its own zone: ceiling Sage Sovereign 3, Qi density 1.2–2.0,
+  Spirit Stones as the everyday currency.
+- **Thunderhorn Plains** (Lv 64–69): the Stormgrass Verge, Thunderhorn Flats, the Lightning Scar and the
+  Herders' Camp, with two new monsters, the lightning-spitting **Spark Weasel** and the charging
+  **Thunderhorn Rhino**, stormsteel ore veins and a thunder insight stone.
+- **Storm Ward attunement** (S18): four jades per zone (Thunder, Gale, Rain, Lightning) on a new
+  Character › Attunement tab, each raised with Storm Shards (level n costs n shards, up to 15). The total
+  is set against what each room asks; under-attuned, you deal less and take more (S18 formula). Safe
+  rooms ask nothing; a Storm Blood Pill adds +4 for 30 minutes.
+- **Chapter 11**: Through the Gate, A Sky Full of Toll Roads, Storm in the Blood, Horns for the Furnace
+  and Sage — the first breakthrough of the Expanse, to Sage 1 in the Condensing Hall (third-grade purity,
+  the Sage Condensing Pill, and a land that can hold it).
+- Fifteen new NPCs of the port and plains: the Alliance toll warden and factor, a veiled free broker,
+  the Condensing Hall's alchemist, sky-ship hands, a stormsteel smith, an apothecary, innkeeper and
+  herders. Two new avatar hats: the jade **Guan** crown of Alliance officials and the veiled
+  **Weimao**, pose-registered in every action and both facings.
+- Spirit-grade (stormsteel/stormsilk) gear in the Alliance Factor's hall, stormsteel forge blueprints
+  from Sage 1 (Sage realms may refine Spirit grade), Thunderhorn Stew, the Storm Blood Pill, and five
+  Spirit Stone shops. Spirit Stone prices come from tael prices at the exchange rate; loot coins in the
+  Expanse pay Spirit Stones.
+- A zone-aware World map (one tab per zone you have set foot in; the Expanse as islands in a sea of
+  cloud, with each region's Storm Ward need). Teleporting across zones costs five times the fee.
+- Art and sound: two new parallax backdrops (the storm plains under a thunder deck, the sky port among
+  floating islands), sky-ships, herders' yurts, storm menhirs, the Alliance banner, stormsteel veins,
+  Storm Ward jade icons, and two synthesized music loops (Cloudgate Port, the Thunderhorn Plains).
+- Tests: the valley run now crosses the gate and plays chapter 11 to Sage 1 (a new ae1 section);
+  the contract suite loads and compiles every script.
+
 ## 1.0 — The Complete Valley (Act I)
 
 Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 engine checks pass).

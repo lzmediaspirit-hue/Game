@@ -6374,6 +6374,300 @@
           }
         }
       ]
+    },
+    "guan": {
+      "label": "Jade crown",
+      "layers": [
+        {
+          "section": "1",
+          "z": 125.0,
+          "animations": {
+            "attack": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_attack_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "bow": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_bow_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "idle": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_idle_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "jump": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_jump_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "meditate": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_meditate_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "punch": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_punch_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "punch_1": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_punch_1_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "punch_2": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_punch_2_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "punch_3": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_punch_3_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "swing": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_swing_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "swing_1": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_swing_1_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "swing_2": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_swing_2_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "swing_3": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_swing_3_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "thrust_1": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_thrust_1_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "thrust_2": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_thrust_2_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "thrust_3": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_thrust_3_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "walk": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_guan_1_walk_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            }
+          }
+        }
+      ]
+    },
+    "weimao": {
+      "label": "Veiled hat",
+      "layers": [
+        {
+          "section": "1",
+          "z": 125.0,
+          "animations": {
+            "attack": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_attack_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "bow": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_bow_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "idle": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_idle_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "jump": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_jump_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "meditate": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_meditate_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "punch": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_punch_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "punch_1": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_punch_1_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "punch_2": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_punch_2_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "punch_3": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_punch_3_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "swing": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_swing_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "swing_1": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_swing_1_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "swing_2": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_swing_2_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "swing_3": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_swing_3_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "thrust_1": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_thrust_1_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "thrust_2": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_thrust_2_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "thrust_3": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_thrust_3_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            },
+            "walk": {
+              "cell": 256,
+              "sheets": [
+                "art_v12/hat_weimao_1_walk_0.png"
+              ],
+              "z": 125.0,
+              "source": "generated:bake_act2_hats.py"
+            }
+          }
+        }
+      ]
     }
   },
   "pants": {

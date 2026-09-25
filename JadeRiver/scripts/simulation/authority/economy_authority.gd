@@ -82,6 +82,10 @@ func stock(c, shop_id: String) -> Array:
 			locked = RequirementRules.first_failure_text(s.requires, game.ctx(c))
 		var price := int(s.get("price", LootRules.buy_price(item_id)))
 		if currency == "contribution": price = int(s.get("price", maxi(5, int(LootRules.value_of(item_id) / 2))))
+		elif currency != "silver_tael" and not s.has("price"):
+			# Tael prices convert at the exchange rate (S21): a Spirit Stone shop charges what the taels would buy.
+			var rate := float(ContentDB.config("currencies").get("exchange", {}).get("silver_tael>" + currency, 1.0))
+			price = maxi(1, int(round(price * rate)))
 		out.append({"item": item_id, "price": price, "currency": str(s.get("currency", currency)), "locked": locked,
 			"rotating": s.get("rotating", false), "learn": str(s.get("learn", ""))})
 	return out

@@ -358,9 +358,10 @@
      "hidden": true
     }
    ],
-   "planned": [
-    "ae_landing"
-   ]
+   "exit": {
+    "room": "mp_ascension_gate",
+    "to_zone": "azure_expanse"
+   }
   },
   {
    "id": "azure_expanse",
@@ -384,20 +385,199 @@
     "everyday": "spirit_stone",
     "high": "sage_crystal"
    },
+   "coin_scale": 0.05,
+   "qi_density": [
+    1.2,
+    2.0
+   ],
    "attunement": {
     "stat": "storm_ward",
+    "name": "Storm Ward",
+    "shard": "storm_shard",
     "required": [
      10,
      60
+    ],
+    "unlock": "storm_ward",
+    "jade_max": 15,
+    "jade_value": 1.0,
+    "cost": {
+     "base": 1,
+     "per_level": 1
+    },
+    "jades": [
+     {
+      "id": "thunder",
+      "name": "Thunder Jade"
+     },
+     {
+      "id": "gale",
+      "name": "Gale Jade"
+     },
+     {
+      "id": "rain",
+      "name": "Rain Jade"
+     },
+     {
+      "id": "lightning",
+      "name": "Lightning Jade"
+     }
     ]
    },
-   "panorama": "valley_day",
+   "panorama": "sky_port",
    "start_room": "ae_landing",
-   "rooms": [],
-   "planned": [
-    "ae_landing"
+   "rooms": [
+    "ae_condensing_hall",
+    "ae_landing",
+    "ae_port_market",
+    "ae_skydock",
+    "ae_wayfarers_inn",
+    "tp_herders_camp",
+    "tp_lightning_scar",
+    "tp_stormgrass_verge",
+    "tp_thunderhorn_flats"
    ],
-   "status": "planned"
+   "regions": [
+    {
+     "id": "cloudgate_port",
+     "name": "Cloudgate Port",
+     "levels": [
+      0,
+      0
+     ],
+     "map": [
+      0.82,
+      0.62
+     ]
+    },
+    {
+     "id": "thunderhorn_plains",
+     "name": "Thunderhorn Plains",
+     "levels": [
+      64,
+      69
+     ],
+     "attunement": 10,
+     "map": [
+      0.62,
+      0.7
+     ]
+    },
+    {
+     "id": "rimefrost_heights",
+     "name": "Rimefrost Heights",
+     "levels": [
+      67,
+      72
+     ],
+     "attunement": 20,
+     "map": [
+      0.5,
+      0.22
+     ],
+     "planned": true
+    },
+    {
+     "id": "mirrorwater_lake",
+     "name": "Mirrorwater Lake",
+     "levels": [
+      68,
+      75
+     ],
+     "attunement": 25,
+     "map": [
+      0.7,
+      0.42
+     ],
+     "planned": true
+    },
+    {
+     "id": "nine_peaks",
+     "name": "Nine Peaks",
+     "levels": [
+      0,
+      0
+     ],
+     "map": [
+      0.4,
+      0.46
+     ],
+     "planned": true
+    },
+    {
+     "id": "gale_canyons",
+     "name": "Gale Canyons",
+     "levels": [
+      73,
+      78
+     ],
+     "attunement": 40,
+     "map": [
+      0.26,
+      0.3
+     ],
+     "planned": true
+    },
+    {
+     "id": "ironroot_hold",
+     "name": "Ironroot Clan Hold",
+     "levels": [
+      0,
+      0
+     ],
+     "map": [
+      0.3,
+      0.6
+     ],
+     "planned": true
+    },
+    {
+     "id": "sunscar_desert",
+     "name": "Sunscar Desert",
+     "levels": [
+      73,
+      81
+     ],
+     "attunement": 50,
+     "map": [
+      0.16,
+      0.74
+     ],
+     "planned": true
+    },
+    {
+     "id": "tomb_of_sunscar",
+     "name": "Tomb of Sunscar",
+     "levels": [
+      77,
+      77
+     ],
+     "attunement": 55,
+     "map": [
+      0.08,
+      0.84
+     ],
+     "planned": true
+    },
+    {
+     "id": "skyport_wreck",
+     "name": "Skyport Wreck",
+     "levels": [
+      76,
+      81
+     ],
+     "attunement": 60,
+     "map": [
+      0.1,
+      0.18
+     ],
+     "planned": true
+    }
+   ],
+   "exit": {
+    "room": "ae_landing",
+    "to_zone": "jade_river_valley"
+   }
   }
  ]
 }

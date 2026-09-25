@@ -1646,6 +1646,406 @@
    }
   },
   {
+   "id": "warden_cao",
+   "name": "Warden Cao",
+   "title": "Nine Peaks toll warden",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "guan",
+    "cape": "none",
+    "weapon": "spear",
+    "shirt_dye": "indigo",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "Every sky road in the Expanse belongs to the Nine Peaks Alliance.",
+    "Toll first, questions after. The Factor's hall is in the market."
+   ],
+   "barks": [
+    "Toll tokens, please.",
+    "Next!"
+   ],
+   "services": [],
+   "tree": "warden_cao"
+  },
+  {
+   "id": "alliance_guard",
+   "name": "Alliance Guard",
+   "title": "Nine Peaks patrol",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "spear",
+    "shirt_dye": "indigo",
+    "pants_dye": "indigo"
+   },
+   "lines": [
+    "Keep your Qi to yourself inside the port.",
+    "Nine peaks, one law. The Alliance's."
+   ],
+   "barks": [
+    "Move along."
+   ],
+   "services": []
+  },
+  {
+   "id": "wanderer_jiang",
+   "name": "Jiang",
+   "title": "Independent cultivator",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 0,
+    "shirt": "vneck",
+    "pants": "straight",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "tattered",
+    "weapon": "sword",
+    "shirt_dye": "grey",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "The Alliance calls us 'unaffiliated'. We call ourselves free.",
+    "Valley folk come through that gate every few years. Most go home."
+   ],
+   "barks": [
+    "Hm. Fresh from the valley."
+   ],
+   "services": []
+  },
+  {
+   "id": "factor_ruan",
+   "name": "Factor Ruan",
+   "title": "Alliance factor",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "guan",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "indigo",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "Stormsteel, stormsilk, fair Alliance prices.",
+    "Spirit Stones only. Taels are for the valley."
+   ],
+   "barks": [
+    "Alliance-grade goods!"
+   ],
+   "services": [
+    "shop:alliance_factor"
+   ]
+  },
+  {
+   "id": "peddler_gou",
+   "name": "Peddler Gou",
+   "title": "Sky road peddler",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 5,
+    "shirt": "vneck",
+    "pants": "loose",
+    "shoes": "folded",
+    "hat": "straw",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "ochre"
+   },
+   "lines": [
+    "Pills, charms, rice balls. Everything a traveller forgets.",
+    "I've walked every sky road twice. Once to go, once to come back for my hat."
+   ],
+   "barks": [
+    "Traveller's goods!"
+   ],
+   "services": [
+    "shop:port_peddler"
+   ]
+  },
+  {
+   "id": "smith_hong",
+   "name": "Smith Hong",
+   "title": "Stormsteel smith",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 0,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "crimson"
+   },
+   "lines": [
+    "Stormsteel wants a Sage's hands. Before that, it bites.",
+    "Lightning Scar ore, spark pelt for the grip. That's the recipe."
+   ],
+   "barks": [
+    "*crackle* *clang*"
+   ],
+   "services": [
+    "shop:stormsteel_smith"
+   ]
+  },
+  {
+   "id": "apothecary_wu",
+   "name": "Apothecary Wu",
+   "title": "Port apothecary",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 3,
+    "shirt": "cardigan",
+    "pants": "scholar",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "jade"
+   },
+   "lines": [
+    "Storm blood is real. Newcomers bleed Qi into the wind until they attune.",
+    "A Storm Blood Pill buys you half an hour of patience."
+   ],
+   "barks": [
+    "Remedies!"
+   ],
+   "services": [
+    "shop:port_apothecary"
+   ]
+  },
+  {
+   "id": "sky_sailor_pei",
+   "name": "Sailor Pei",
+   "title": "Sky-ship hand",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 0,
+    "shirt": "vneck",
+    "pants": "cuffed",
+    "shoes": "boots",
+    "hat": "headband",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "cloud"
+   },
+   "lines": [
+    "Never look down from a sky-ship. Look at the sails.",
+    "The Alliance ships run to Nine Peaks. When they feel like it."
+   ],
+   "barks": [
+    "Heave!"
+   ],
+   "services": []
+  },
+  {
+   "id": "sky_sailor_ning",
+   "name": "Sailor Ning",
+   "title": "Sky-ship hand",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 0,
+    "shirt": "vneck",
+    "pants": "cuffed",
+    "shoes": "boots",
+    "hat": "headband",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "indigo"
+   },
+   "lines": [
+    "The Qi cushion under the keel? Twelve stones a day to keep it fed.",
+    "Storms on the plains sink ships. We go round."
+   ],
+   "barks": [
+    "Mind the ropes!"
+   ],
+   "services": []
+  },
+  {
+   "id": "dockmaster_fu",
+   "name": "Dockmaster Fu",
+   "title": "Skydock master",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 5,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "tied",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "ochre",
+    "pants_dye": "grey"
+   },
+   "lines": [
+    "No berths for private ships without Alliance papers.",
+    "The Condensing Hall? Behind me. Mind the alchemist; she bites harder than the smith."
+   ],
+   "barks": [
+    "Berths full!"
+   ],
+   "services": []
+  },
+  {
+   "id": "innkeeper_tang",
+   "name": "Innkeeper Tang",
+   "title": "Wayfarers' Inn",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 3,
+    "shirt": "cardigan",
+    "pants": "straight",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "rose"
+   },
+   "lines": [
+    "Rooms by the night, soup by the bowl, gossip for free.",
+    "The broker in the corner? Pays her bill. That's all I ask."
+   ],
+   "barks": [
+    "Soup's on!"
+   ],
+   "services": [
+    "shop:wayfarers_inn"
+   ]
+  },
+  {
+   "id": "broker_mu",
+   "name": "Broker Mu",
+   "title": "Free broker",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 1,
+    "shirt": "cardigan",
+    "pants": "straight",
+    "shoes": "boots",
+    "hat": "weimao",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "ink",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "I sell what the Alliance doesn't want sold. Mostly, the truth.",
+    "Your blood is still valley-soft. The storms here will drink it."
+   ],
+   "barks": [
+    "Information, fairly priced."
+   ],
+   "services": [],
+   "tree": "broker_mu"
+  },
+  {
+   "id": "alchemist_fen",
+   "name": "Alchemist Fen",
+   "title": "Condensing Hall",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "guan",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "white",
+    "pants_dye": "grey"
+   },
+   "lines": [
+    "Sage Qi is True Qi pressed until it remembers it was once light.",
+    "Bring me thunder and I'll condense it into something you can swallow."
+   ],
+   "barks": [
+    "Don't touch the furnace."
+   ],
+   "services": [
+    "shop:condensing_hall"
+   ]
+  },
+  {
+   "id": "herder_suo",
+   "name": "Old Suo",
+   "title": "Thunderhorn herder",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 5,
+    "shirt": "vneck",
+    "pants": "loose",
+    "shoes": "boots",
+    "hat": "tied",
+    "cape": "tattered",
+    "weapon": "none",
+    "shirt_dye": "earth"
+   },
+   "lines": [
+    "The thunderhorns aren't cruel. They're just very sure of where they're going.",
+    "Stew's hot. Stones, not taels, I'm afraid."
+   ],
+   "barks": [
+    "Easy, easy..."
+   ],
+   "services": [
+    "shop:herders_camp"
+   ]
+  },
+  {
+   "id": "herder_a_lan",
+   "name": "A-Lan",
+   "title": "Herder's daughter",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 0,
+    "shirt": "cardigan",
+    "pants": "cuffed",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "crimson"
+   },
+   "lines": [
+    "Spark weasels steal the lightning out of the grass. Then they spit it at you!",
+    "Grandpa Suo says the storms remember everyone who crosses."
+   ],
+   "barks": [
+    "Hup! Hup!"
+   ],
+   "services": [],
+   "scale": 0.9
+  },
+  {
    "id": "lan_yue",
    "name": "Lan Yue",
    "title": "Healer",

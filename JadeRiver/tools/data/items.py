@@ -1,7 +1,7 @@
 """S14/S15/Part 8: items.json (non-equipment) and artifacts.json (equipment bases)."""
 from common import entries, titled, req, c
 
-MID_ILV = {"plain": 5, "common": 14, "earth": 27, "heaven": 45, "mystic": 59}
+MID_ILV = {"plain": 5, "common": 14, "earth": 27, "heaven": 45, "mystic": 59, "spirit": 68, "sage": 77}
 
 
 def item(id, type, grade="plain", stack=99, desc="", name=None, icon=None, **extra):
@@ -27,6 +27,7 @@ ORES = [
     ("spirit_stone_shard", "earth", "A splinter of crystallised Qi. Fuel and small change.", "Spirit Stone Shard"),
     ("cloudsteel_ore", "heaven", "Feather-light ore from the sky ledges."),
     ("mystic_ore", "mystic", "Ore that hums faintly in cold wind."),
+    ("stormsteel_ore", "spirit", "Blue-black ore from where lightning strikes the same ground twice."),
 ]
 BEAST = ["ore_dust", "crab_shell", "rat_tail", "boar_hide", "tough_meat", "toad_oil", "moss", "beetle_shell", "tortoise_plate",
          "mole_claw", "frog_leg", "leech_oil", "bamboo_shoot", "viper_fang", "venom_sac", "thorn_hide", "hound_fang", "jade_scale",
@@ -81,6 +82,8 @@ def pills():
           effect("add_soul", amount=50)], cause="soul")
     pill("mind_lake_opening_pill", "heaven", "eye_gate", "Required to break through from Cloud Stride 9 to Spirit Awakening 1.", 15, [], cause="material", group="utility")
     pill("sage_condensing_pill", "mystic", "knot", "Required to break through from Heaven Glimpse 3 to Sage 1.", 20, [], cause="material", group="utility")
+    pill("storm_blood_pill", "mystic", "bolt", "+4 attunement in the zone you stand in for 30 minutes.", 10,
+         [effect("add_modifier", stat="attunement_bonus", op="flat", value=4, duration=1800, source="storm_blood")], group="buff")
     return P
 
 
@@ -100,6 +103,9 @@ def foods():
     food("toad_oil_dumplings", "+5% move speed for 15 minutes.", [effect("add_modifier", stat="move_speed", op="pct_add", value=0.05, duration=900, source="toad_dumplings")])
     food("cloudtop_orchid_broth", "+300 body XP.", [effect("add_body_xp", amount=300)], grade="heaven", group="utility")
     food("jade_carp_congee", "+5% accumulation for 30 minutes.", [effect("add_modifier", stat="accumulation_rate", op="pct_add", value=0.05, duration=1800, source="carp_congee")], grade="earth")
+    food("thunderhorn_stew", "+8% max HP and +5% physical defence for 30 minutes.",
+         [effect("add_modifier", stat="max_hp", op="pct_add", value=0.08, duration=1800, source="thunderhorn_stew"),
+          effect("add_modifier", stat="physical_defense", op="pct_add", value=0.05, duration=1800, source="thunderhorn_stew")], grade="spirit")
     food("roast_fish", "A spirit animal favourite.", [effect("heal", pct=0.1, over_s=3)], pet_food=True)
     food("ember_pepper_broth", "A spicy broth spirit animals love.", [effect("heal", pct=0.1, over_s=3)], grade="common", pet_food=True)
     F.append(item("willow_salve", "talisman", "plain", 99, "Cures a minor body injury.", use=[effect("cure_injury", injury="body", max_severity=1)],
@@ -115,6 +121,11 @@ def build_items():
         rows.append(item(o[0], "ore", o[1], 99, o[2], name=o[3] if len(o) > 3 else None))
     for b in BEAST:
         rows.append(item(b, "beast_part", BEAST_GRADE[b], 99, "A material taken from a valley beast."))
+    # Azure Expanse beasts (Act II)
+    rows.append(item("spark_pelt", "beast_part", "spirit", 99, "A golden pelt that snaps with static. Taken from Spark Weasels."))
+    rows.append(item("thunder_horn", "beast_part", "spirit", 99, "A thunderhorn's horn. It still holds a charge."))
+    rows.append(item("storm_shard", "material", "spirit", 999,
+                     "A splinter of the Expanse's storms. Levels your Storm Ward jades (Character > Attunement)."))
     for (cid, grade, desc) in [("serpent_core", "earth", "The core of the Riverbed Serpent; a pill ingredient."),
                                ("guardian_stone", "earth", "Heart-stone of a Stone Guardian."),
                                ("jade_core", "heaven", "A jade core from a Forgotten Monastery sentinel."),
@@ -215,8 +226,8 @@ FAMILY_APPEARANCE = {"gauntlets": "none", "jian": "sword", "spear": "spear", "sh
 # Garment dyes (data/parts.json "_dyes"): plain hemp is undyed brown, better cloth takes richer colour.
 GRADE_DYE = {"plain": {"robe": "earth", "trousers": "earth"}, "common": {"robe": "grey", "trousers": "ink"},
              "earth": {"robe": "indigo", "trousers": "ink"}, "heaven": {"robe": "cloud", "trousers": "grey"},
-             "mystic": {"robe": "white", "trousers": "jade"}}
-GRADE_WORD = {"plain": "training", "common": "iron", "earth": "jadeiron", "heaven": "cloudsteel", "mystic": "mistjade"}
+             "mystic": {"robe": "white", "trousers": "jade"}, "spirit": {"robe": "indigo", "trousers": "cloud"}}
+GRADE_WORD = {"plain": "training", "common": "iron", "earth": "jadeiron", "heaven": "cloudsteel", "mystic": "mistjade", "spirit": "stormsteel"}
 ARMOUR = {
     "plain": {"hat": ("plain_straw_hat", "Plain Straw Hat", "straw"), "robe": ("hemp_robe", "Hemp Robe", "sleeveless"),
               "trousers": ("hemp_trousers", "Hemp Trousers", "loose"), "boots": ("straw_sandals", "Straw Sandals", "slippers")},
@@ -228,13 +239,16 @@ ARMOUR = {
                "trousers": ("cloudsilk_trousers", "Cloudsilk Trousers", "cuffed"), "boots": ("cloudsilk_boots", "Cloudsilk Boots", "boots")},
     "mystic": {"hat": ("mistjade_hat", "Mistjade Circlet", "headband"), "robe": ("mistjade_robe", "Mistjade Robe", "scholar"),
                "trousers": ("mistjade_trousers", "Mistjade Trousers", "scholar"), "boots": ("mistjade_boots", "Mistjade Boots", "folded")},
+    # Spirit grade (Azure Expanse, Sage realm)
+    "spirit": {"hat": ("stormsilk_hat", "Stormsilk Crown", "guan"), "robe": ("stormsilk_robe", "Stormsilk Robe", "vneck"),
+               "trousers": ("stormsilk_trousers", "Stormsilk Trousers", "martial"), "boots": ("stormsilk_boots", "Stormsilk Boots", "boots")},
 }
 
 
 def artifact(id, slot, grade, name, appearance, family=None, ilv=None, icon=None, **extra):
     row = {"id": id, "name": name, "slot": slot, "grade": grade, "ilv": ilv or MID_ILV[grade], "appearance": appearance,
-           "energy_type": {"plain": "none", "common": "primal_qi", "earth": "primal_qi", "heaven": "true_qi", "mystic": "true_qi"}[grade],
-           "sockets": {"plain": 0, "common": 0, "earth": 1, "heaven": 1, "mystic": 2}[grade], "icon": icon or id, "type": "equipment",
+           "energy_type": {"plain": "none", "common": "primal_qi", "earth": "primal_qi", "heaven": "true_qi", "mystic": "true_qi", "spirit": "sage_qi"}[grade],
+           "sockets": {"plain": 0, "common": 0, "earth": 1, "heaven": 1, "mystic": 2, "spirit": 2}[grade], "icon": icon or id, "type": "equipment",
            "stack": 1}
     if family:
         row["family"] = family
@@ -254,9 +268,9 @@ def build_artifacts():
                 extra["requires"] = req(c("level_at_least", level=3), c("unlock", system="weapons"))
                 extra["source"] = ["weapon_hall"]
             if fam == "bow":
-                extra["attribute_req"] = {"agility": {"plain": 8, "common": 18, "earth": 30, "heaven": 50, "mystic": 65}[grade]}
+                extra["attribute_req"] = {"agility": {"plain": 8, "common": 18, "earth": 30, "heaven": 50, "mystic": 65, "spirit": 80}[grade]}
             if fam == "staff":
-                extra["attribute_req"] = {"body": {"plain": 8, "common": 18, "earth": 30, "heaven": 50, "mystic": 65}[grade]}
+                extra["attribute_req"] = {"body": {"plain": 8, "common": 18, "earth": 30, "heaven": 50, "mystic": 65, "spirit": 80}[grade]}
             rows.append(artifact(id, "weapon", grade, name, look, fam, **extra))
     for grade, slots in ARMOUR.items():
         for slot, (id, name, look) in slots.items():
@@ -264,7 +278,7 @@ def build_artifacts():
             rows.append(artifact(id, slot, grade, name, look, ilv=(1 if id == "plain_straw_hat" else None), **extra))
     gourds = [("starter_gourd", "plain", "Starter Spirit Gourd", 25, 5), ("bamboo_gourd", "common", "Bamboo Gourd", 30, 8),
               ("jadeiron_gourd", "earth", "Jadeiron Gourd", 35, 10), ("cloud_gourd", "heaven", "Cloud Gourd", 40, 12),
-              ("mistjade_gourd", "mystic", "Mistjade Gourd", 45, 15)]
+              ("mistjade_gourd", "mystic", "Mistjade Gourd", 45, 15), ("stormsteel_gourd", "spirit", "Stormsteel Gourd", 50, 16)]
     for id, grade, name, bag, quick in gourds:
         rows.append(artifact(id, "gourd", grade, name, "none", gourd={"bag": bag, "quick": quick}, ilv=(1 if grade == "plain" else None)))
     rows.append(artifact("mistjade_cape", "cape", "mystic", "Mistjade Cape", "solid", resist=["water", "wind"]))

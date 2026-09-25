@@ -1947,6 +1947,27 @@
    "effects": [],
    "scope": "character",
    "quest": "beyond_the_valley"
+  },
+  {
+   "id": "storm_ward",
+   "label": "Storm Ward attunement",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heaven_glimpse_3"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "a_sky_full_of_toll_roads"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "storm_in_the_blood",
+   "same_stage_ok": true
   }
  ]
 }
