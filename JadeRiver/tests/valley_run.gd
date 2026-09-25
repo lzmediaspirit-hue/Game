@@ -947,6 +947,11 @@ func sec_qu5() -> void:
 	check(c().pets.size() >= 1 and c().active_pet != "", "a spirit animal bonds with you")
 	check(finish("a_friend_in_the_reeds"), "A Friend in the Reeds done")
 	check(reach("qi_unfurling_6"), "Qi Unfurling 6")
+	# S43: Cloud Ladder Step, the double jump, is taught by the librarians at Qi Unfurling 6.
+	check(start("cloud_ladder"), "Cloud Ladder accepted")
+	check("cloud_ladder_step" in c().cultivator.secret_arts, "the librarian teaches Cloud Ladder Step")
+	check(double_jumps(3) == 3, "double jump three times")
+	check(finish("cloud_ladder"), "Cloud Ladder done")
 	check(start("full_hands"), "Full Hands accepted")
 	var tid := "flowing_palm"
 	var m: Dictionary = c().cultivator.mastery.get(tid, {})
@@ -1075,6 +1080,10 @@ func tame_one() -> bool:
 # ------------------------------------------------------------------ Heart Tempering
 func sec_ht1() -> void:
 	check(reach("heart_tempering_1", ["foundation_guard_pill"]), "Heart Tempering 1")
+	# S47: the first Treasure button opens with the Practice Bell.
+	check(start("a_treasure_in_hand"), "A Treasure in Hand accepted")
+	check(ring_the_bell(3) == 3, "ring the Practice Bell three times")
+	check(finish("a_treasure_in_hand"), "A Treasure in Hand done")
 	check(start("quiet_before_the_storm"), "Quiet Before the Storm accepted")
 	check(travel("wg_rapids_terraces"), "reach the Rapids Terraces")
 	check(fight("rapids_lizard", 8, 600.0) >= 8, "defeat eight Rapids Lizards")
@@ -1097,6 +1106,13 @@ func sec_ht1() -> void:
 		elif i == 0: print("  treat: ", tr)
 	check(treated == 3, "treat three patients (%d)" % treated)
 	check(finish("the_infirmary"), "The Infirmary done")
+	# S43: Wall-Step is learned in the Echo Cliffs shaft at Heart Tempering 4.
+	check(reach("heart_tempering_4"), "Heart Tempering 4")
+	check(start("between_two_walls"), "Between Two Walls accepted")
+	check(travel("wg_echo_cliffs"), "reach the Echo Cliffs")
+	check(wall_step_shaft() == 3, "kick up the shaft three times")
+	check(fight("mist_vulture", 3, 600.0) >= 3, "defeat three Mist Vultures")
+	check(finish("between_two_walls"), "Between Two Walls done")
 
 func sec_ht5() -> void:
 	check(reach("heart_tempering_5"), "Heart Tempering 5")
@@ -2006,6 +2022,69 @@ func forge_with(recipe: String, offsets: Array) -> Dictionary:
 
 ## Cloud Stride flight through the real solver: Combat grants it and pays QI; the body climbs,
 ## holds its altitude, then descends and lands on the ground.
+## S43 movement arts go through the body's own authority, so their art_used events reach the quests.
+func body_authority() -> LocalAuthority:
+	if st == null: place(Vector2(float(c().position.x), float(c().position.y)))
+	var la := LocalAuthority.new(st, Game.room_rt.geometry)
+	la.actor_id = c().id
+	return la
+
+var body_seq := 0
+func body_step(la: LocalAuthority, seconds: float, axis := Vector2.ZERO, speed := 205.0) -> void:
+	var t := 0.0
+	while t < seconds - 0.0001:
+		body_seq += 1
+		la.move(body_seq, axis, 1.0 / 60.0, speed)
+		t += 1.0 / 60.0
+	GameEvents.flush()
+
+## Jump from the room's spawn point and press again near the top: Cloud Ladder Step.
+func double_jumps(times: int) -> int:
+	var sp: Array = Game.room_rt.def.get("spawn_point", [700, 850])
+	var used := 0
+	for i in times:
+		place(Vector2(float(sp[0]), float(sp[1])))
+		var la := body_authority()
+		la.jump()
+		body_step(la, 0.4)
+		if la.jump() and st.jumps_used == 2: used += 1
+		for k in 120:
+			if st.surface != null: break
+			body_step(la, 1.0 / 60.0)
+	return used
+
+## The Echo Cliffs shaft: two rock walls 100 apart. Kick off one, drift across, kick off the other.
+func wall_step_shaft() -> int:
+	place(Vector2(1368, 690))
+	var la := body_authority()
+	var kicks := 0
+	var side := -1
+	la.jump()
+	body_step(la, 0.25)
+	for i in 3:
+		if la.wall_step(side) != 0: kicks += 1
+		elif verbose: print("  no wall at x %.0f alt %.0f side %d" % [st.plane.x, st.altitude, side])
+		body_step(la, 0.2, Vector2(-side, 0), MovementSolver.WALL_KICK_SPEED)
+		body_step(la, 0.05)
+		side = -side
+	for k in 300:
+		if st.surface != null: break
+		body_step(la, 1.0 / 60.0)
+	return kicks
+
+## Set the Practice Bell in Treasure button 1 and ring it, waiting out its cooldown between rings.
+func ring_the_bell(times: int) -> int:
+	submit({"type": "set_treasure", "slot": 0, "item": "practice_bell"})
+	var rung := 0
+	for i in times:
+		c().pools.qi = c().pools.max_qi
+		var r := submit({"type": "use_treasure", "slot": 0})
+		if r.get("ok", false): rung += 1
+		elif verbose: print("  bell: ", r)
+		for k in 104: Game.tick(0.25)
+	GameEvents.flush()
+	return rung
+
 func take_to_the_air() -> void:
 	place(Vector2(700, 850))
 	c().pools.qi = c().pools.max_qi

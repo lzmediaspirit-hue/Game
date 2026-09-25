@@ -498,8 +498,11 @@ def unlocks():
     u("clans", "Clans", all_of(realm("sage_2"), qdone("the_canyon_toll")), "ironroot_blood", [], same_stage_ok=True)
     # S09 secret arts that come with a realm (the quest-taught ones come from the mentor).
     for art, rk, label in [("appraisal_eye", "qi_kindling_6", "Appraisal Eye"), ("breath_control", "qi_unfurling_3", "Breath Control"),
-                           ("wall_step", "heart_tempering_4", "Wall-Step"), ("wind_blink", "spirit_awakening_5", "Wind Blink")]:
+                           ("wind_blink", "spirit_awakening_5", "Wind Blink")]:
         u(art, label, all_of(realm(rk)), "", [], effects=[fx("learn_secret_art", art=art)], same_stage_ok=True)
+    # S43 movement arts: a guided quest offers each, and the art is usable from its acceptance.
+    u("double_jump", "Cloud Ladder Step", all_of(realm("qi_unfurling_6")), "cloud_ladder", [], same_stage_ok=True)
+    u("wall_step", "Wall-Step", all_of(realm("heart_tempering_4")), "between_two_walls", [], same_stage_ok=True)
     # Act II · Phase E (Part 4): Sage 3 opens the Starsea crafts and the will to survive out there; Sage 1 paired cultivation;
     # Sage Sovereign 1 upgrades the training sect's token.
     u("star_charting", "Star charts", all_of(realm("sage_3"), qdone("ironroot_blood")), "a_chart_of_ones_own", [], same_stage_ok=True)
@@ -880,6 +883,22 @@ def guided_quests():
         on_accept=[item("fuel_crystal_low", 3)],
         offer=["Three nodes, one centre, fuel in each. A gathering formation thickens Qi around you."],
         complete=["Lines hold. Formations are patience made visible."])
+    # S43 movement-art quests (Part 8 guided unlock quests).
+    quest("cloud_ladder", "Cloud Ladder", "guided", "jade_librarian", [
+        o("use_system", "Double jump to three high ledges", 3, system="double_jump"),
+    ], [taels(80)], offered_by_unlock=True, chapter="qu6", same_stage_ok=True, giver_any=LIBRARIANS, hand_in_any=LIBRARIANS,
+        on_accept=[fx("learn_secret_art", art="cloud_ladder_step")],
+        offer=["This scroll is older than the sect: Cloud Ladder Step. Press off the air itself, once, at the top of a jump.",
+               "Try it now. Three ledges you could not reach before, and tell me what the valley looks like from there."],
+        complete=["Now you understand why the old masters built their halls so high."])
+    quest("between_two_walls", "Between Two Walls", "guided", "elder_hu", [
+        o("use_system", "Climb the Echo Cliffs shaft with Wall-Step", 3, system="wall_step"),
+        o("kill", "Defeat Mist Vultures on the top tier", 3, enemy="mist_vulture"),
+    ], [taels(120)], offered_by_unlock=True, chapter="ht4", same_stage_ok=True, giver_any=MENTORS, hand_in_any=MENTORS, target_room="wg_echo_cliffs",
+        on_accept=[fx("learn_secret_art", art="wall_step")],
+        offer=["Two walls close together are a ladder, if you are light enough. Push into one, kick, and reach for the other.",
+               "Climb the shaft at the Echo Cliffs. The vultures nest at the top; clear three."],
+        complete=["Three kicks and you were above them. Good. Height is a weapon."])
     quest("a_treasure_in_hand", "A Treasure in Hand", "guided", "elder_hu", [
         o("use_system", "Ring the Practice Bell in a fight", 3, system="treasure"),
     ], [taels(60)], offered_by_unlock=True, chapter="ht1", same_stage_ok=True, giver_any=M, hand_in_any=M,

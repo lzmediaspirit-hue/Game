@@ -212,6 +212,8 @@ func _system_reported(system: String) -> bool:
 		if src.contains("system_used") and src.contains('"%s"' % system): return true
 	for rid in ContentDB.rooms:
 		if JSON.stringify(ContentDB.room(rid)).contains('"system":"%s"' % system): return true
+	# S43 movement arts report as art_used from the solver.
+	if FileAccess.get_file_as_string("res://scripts/simulation/movement_solver.gd").contains('"art":"%s"' % system): return true
 	return false
 
 # ------------------------------------------------------------------ rooms

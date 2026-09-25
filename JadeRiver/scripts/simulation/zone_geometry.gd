@@ -5,6 +5,8 @@ var surfaces: Array[WalkSurface]=[]
 var index: Dictionary={}
 var obstacles: Array[Dictionary]=[]
 var bounds: Rect2
+var climbables: Array=[]                 # S43: ladders, ropes, vines and chains (climb mode)
+var void_altitude=-250.0                 # below this a fall returns to the last safe position (S43 rule 6)
 func configure(data: Dictionary):
 	surfaces.clear()
 	index.clear()
@@ -16,6 +18,21 @@ func configure(data: Dictionary):
 		assert(not index.has(surface.id),"Duplicate surface ID")
 		surfaces.append(surface)
 		index[surface.id]=surface
+	# S43 blocks: a solid box whose top is a walkable surface with every edge open.
+	for b in data.get("blocks",[]):
+		var r2: Array=b.rect
+		var top=float(b.top)
+		var surface_spec={"id":str(b.id),"rect":r2,"height":top,"kind":"block","stratum":"platform","block_kind":str(b.get("kind","crate"))}
+		var top_surface=WalkSurface.new(surface_spec)
+		assert(not index.has(top_surface.id),"Duplicate surface ID")
+		surfaces.append(top_surface)
+		index[top_surface.id]=top_surface
+		obstacles.append({"id":str(b.id),"block":true,"footprint":Rect2(r2[0],r2[1],r2[2],r2[3]),"base":float(b.get("base",0.0)),
+			"height":top-float(b.get("base",0.0)),"radius":6.0,"step":8.0,"wall_faces":bool(b.get("wall_faces",true)),"blocks":true})
+	climbables=data.get("climbables",[]).duplicate(true)
+	var lowest=0.0
+	for s in surfaces: lowest=minf(lowest,s.base+minf(0.0,s.rise))
+	void_altitude=float(data.get("void_altitude",lowest-250.0))
 	for spec in data.get("objects",[]):
 		var obstacle=spec.duplicate(true)
 		if obstacle.get("blocks",true):
@@ -32,7 +49,8 @@ func blocks(point: Vector2,state: ActorState) -> bool:
 func blocks_at(point: Vector2,altitude: float,stratum: String) -> bool:
 	for obstacle in obstacles:
 		if not obstacle.get("blocks",true): continue
-		if altitude>=float(obstacle.get("base",0))+float(obstacle.get("height",9999)): continue
+		# A block lets an actor within 8 of its top step over it (S43); other volumes need the full height.
+		if altitude>=float(obstacle.get("base",0))+float(obstacle.get("height",9999))-float(obstacle.get("step",0.0)): continue
 		var shape: WalkSurface=index.get(obstacle.get("support_shape",""))
 		if shape and not shape.contains(point): continue
 		if (obstacle.footprint as Rect2).grow(float(obstacle.get("radius",11))).has_point(point): return true
@@ -128,3 +146,42 @@ func render_depth(state: ActorState) -> int:
 		if (candidate.stratum=="platform" or candidate.base>0 or candidate.rise!=0) and candidate.contains(state.plane) and state.altitude>=candidate.height_at(state.plane)-0.001:
 			depth=maxi(depth,1502+int(candidate.bounds.end.y))
 	return depth
+
+## A wall face at this point and height: a block side (unless it has wall_faces false) or any other solid volume.
+func wall_face_at(point: Vector2,altitude: float,stratum: String) -> bool:
+	for obstacle in obstacles:
+		if not obstacle.get("blocks",true) or (obstacle.get("block",false) and not obstacle.get("wall_faces",true)): continue
+		if altitude>=float(obstacle.get("base",0))+float(obstacle.get("height",9999)): continue
+		if altitude<float(obstacle.get("base",0)): continue
+		var shape: WalkSurface=index.get(obstacle.get("support_shape",""))
+		if shape and not shape.contains(point): continue
+		if (obstacle.footprint as Rect2).grow(float(obstacle.get("radius",11))).has_point(point): return true
+	return false
+## Ledge mantle (S43 rule 4): the top of a surface or block 0-24 units above `altitude` whose near side is
+## within `reach` of the actor in the direction it pushes, at the same depth. {} when there is none.
+func mantle_contact(point: Vector2,altitude: float,push: int,rise: float,reach: float,departed:="") -> Dictionary:
+	if push==0: return {}
+	var best: Dictionary={}
+	var best_h=INF
+	for s in surfaces:
+		if s.id==departed or s.rise!=0.0 or s.kind=="ladder": continue
+		var top=s.base
+		if top<altitude-0.01 or top>altitude+rise: continue
+		if point.y<s.bounds.position.y or point.y>=s.bounds.end.y: continue
+		var near_x=s.bounds.position.x if push>0 else s.bounds.end.x
+		var gap=(near_x-point.x)*push
+		if gap<-2.0 or gap>reach: continue
+		var p=Vector2(near_x+push*6.0,point.y)
+		if not s.contains(p) or blocks_at(p,top,s.stratum): continue
+		if top<best_h:
+			best={"surface":s,"point":p}
+			best_h=top
+	return best
+## The climbable within `radius` of a plane point at either end (its foot on the ground, or its top), or {}.
+func climbable_near(point: Vector2,altitude: float,radius:=28.0) -> Dictionary:
+	for c in climbables:
+		var at: Array=c.at
+		var top_at: Array=c.get("top_at",c.at)
+		if Vector2(float(at[0]),float(at[1])).distance_to(point)<=radius and absf(altitude-float(c.bottom_alt))<12.0: return c.merged({"from_top":false})
+		if Vector2(float(top_at[0]),float(top_at[1])).distance_to(point)<=radius and absf(altitude-float(c.top_alt))<12.0: return c.merged({"from_top":true})
+	return {}

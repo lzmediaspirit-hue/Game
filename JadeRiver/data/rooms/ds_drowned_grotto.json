@@ -56,7 +56,7 @@
     260,
     46
    ],
-   "height": 110,
+   "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -152,7 +152,7 @@
    ],
    "loot": "chest_dungeon",
    "level": 27,
-   "alt": 110,
+   "alt": 100,
    "surface": "ledge_grotto"
   }
  ],

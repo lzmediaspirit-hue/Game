@@ -63,7 +63,37 @@ func painted_building(a: Vector2,width: float):
 	draw_texture_rect_region(BUILDINGS,Rect2(a,Vector2(width,surface.bounds.size.y)),roof_source)
 	var front=Vector2(a.x,surface.bounds.end.y-surface.base)
 	draw_texture_rect_region(BUILDINGS,Rect2(front,Vector2(width,surface.base)),facade_source)
+## S43 blocks: a solid box with a flat, lit top you can stand on. `art` holds the block kind.
+const BLOCK_COLORS={"crate":["8a6236","a57a45","5c3f22"],"barrel":["6b4a2c","86603a","3f2a18"],"cart":["7d5a33","9b7443","4d3620"],
+	"wall":["7c7d78","9a9b95","4f504c"],"rock":["6f7568","8d9384","474c43"],"fence":["80603a","a07c4c","52391f"],
+	"stall":["9a3b2e","b8574a","5e231b"],"pillar":["9f2f2a","c24a3f","5f1a17"],"statue":["8b8f86","a9ada2","5a5d56"],
+	"well":["71776f","8f958b","4a4f48"],"lantern":["a8342a","cf5a45","641d17"]}
+func _draw_block():
+	var r=surface.bounds
+	var top=surface.base
+	var cols: Array=BLOCK_COLORS.get(art if art!="" else "crate",BLOCK_COLORS.crate)
+	var body=Color(cols[0])
+	var lit=Color(cols[1])
+	var dark=Color(cols[2])
+	# Front face from the ground line up to the top's front edge.
+	var front=Rect2(r.position.x,r.end.y-top,r.size.x,top)
+	draw_rect(front,body)
+	draw_rect(Rect2(front.position.x,front.end.y-4,front.size.x,4),dark)
+	if art in ["crate","cart","fence","stall"]:
+		for x in range(int(r.position.x)+12,int(r.end.x)-4,18):
+			draw_line(Vector2(x,front.position.y+3),Vector2(x,front.end.y-3),dark,1.5)
+	elif art in ["wall","rock","well","statue"]:
+		for y in range(int(front.position.y)+10,int(front.end.y),14):
+			draw_line(Vector2(r.position.x+2,y),Vector2(r.end.x-2,y),dark,1.0)
+	# The walkable top: a flat highlight with a lit lip on its front edge (S43 visual language).
+	var top_rect=Rect2(r.position.x,r.position.y-top,r.size.x,r.size.y)
+	draw_rect(top_rect,lit)
+	draw_rect(Rect2(top_rect.position.x,top_rect.end.y-3,top_rect.size.x,3),Color(1.0,0.93,0.72,0.9))
+	draw_rect(Rect2(r.position.x,r.position.y-top,r.size.x,r.size.y+top),dark,false,2.0)
 func _draw():
+	if surface.kind=="block":
+		_draw_block()
+		return
 	var r=surface.bounds
 	var a=pt(r.position.x,r.position.y)
 	var d=pt(r.position.x,r.end.y)

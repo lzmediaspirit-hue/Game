@@ -30,6 +30,7 @@ var sense_center := Vector2(749, 640)
 var quick_center := Vector2(887, 555)
 var pet_center := Vector2(965, 560)   # moved from (975, 555) so it clears skill slot 2 (v2 S24)
 var guard_center := Vector2(799, 555)
+var context_center := Vector2(1165, 500)   # S24/S43: Climb or Enter while an enemy is aggroed
 ## S24/S47: the Treasure buttons above Quick-use and Guard (the second opens at Spirit Awakening 1).
 var treasure_centers := [Vector2(887, 470), Vector2(799, 470)]
 var minimap_rect := Rect2(1032, 16, 232, 140)
@@ -74,7 +75,7 @@ func _exit_tree() -> void:
 func _apply_hand() -> void:
 	if not left_handed: return
 	for i in slots.size(): slots[i] = _mirror(slots[i])
-	for k in ["attack_center", "jump_center", "meditate_center", "sense_center", "quick_center", "pet_center", "guard_center"]:
+	for k in ["attack_center", "jump_center", "meditate_center", "sense_center", "quick_center", "pet_center", "guard_center", "context_center"]:
 		set(k, _mirror(get(k)))
 	treasure_centers = treasure_centers.map(func(tp): return _mirror(tp))
 
@@ -163,6 +164,7 @@ func role_at(p: Vector2) -> String:
 	if p.distance_to(quick_center) < 30 and shown("quick_use"): return "quick"
 	if p.distance_to(pet_center) < 30 and shown("pet"): return "pet"
 	if p.distance_to(guard_center) < 30 and shown("guard"): return "guard"
+	if p.distance_to(context_center) < 30 and _fight_context(): return "context"
 	for ti in 2:
 		if p.distance_to(treasure_centers[ti]) < 30 and shown("treasure_%d" % (ti + 1)): return "treasure:%d" % ti
 	for center in slots:
@@ -212,6 +214,7 @@ func press(id: int, p: Vector2):
 				var sr := Game.submit({"type": "sense_pulse"})
 				if not sr.ok and sr.has("text"): add_log(str(sr.text), UiKit.MIST)
 		"pet": if bound(): open_page.emit("spirit_animals", {})
+		"context": use_context()
 		"treasure:0", "treasure:1": use_treasure(int(role.get_slice(":", 1)))
 		"minimap": open_page.emit("world_map", {})
 		"portrait": open_page.emit("character", {})
@@ -278,13 +281,23 @@ func primary() -> void:
 	if Unlocks.is_unlocked(Game.active_id, "attack"): player.attack()
 	elif not context.is_empty(): use_context()
 
+## S43 rule 5: the Attack button shows Climb or Enter only while no enemy is aggroed on the player within 400.
 func _enemy_close() -> bool:
 	if Game.room_rt == null: return false
 	for e in Game.room_rt.living_enemies():
-		if e.team == "enemy" and not e.def.get("passive", false) and e.plane.distance_to(player.plane) < 150.0: return true
+		if e.team != "enemy" or e.def.get("passive", false): continue
+		if str(e.ai.get("state", "")) in ["aggro", "windup", "attack", "recover"] and e.plane.distance_to(player.plane) < 400.0: return true
 	return false
 
+## The in-fight Context button: a ladder or portal is in reach while an enemy is aggroed (S43).
+func _fight_context() -> bool:
+	return bound() and str(context.get("type", "")) in ["climbable", "portal"] and _enemy_close()
+
 func use_context() -> void:
+	if str(context.get("type", "")) == "climbable":
+		player.climb_hold = 0.0
+		player.authority.climb()
+		return
 	if context.has("portal"):
 		world.request_portal(str(context.portal))
 		return
@@ -816,7 +829,7 @@ func _draw_controls(c) -> void:
 	var ctx_glyph := ""
 	if not context.is_empty() and (not _enemy_close() or not Unlocks.is_unlocked(c.id, "attack")):
 		ctx_glyph = {"npc": "talk", "herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish", "chest": "open", "storage_chest": "open",
-			"portal": "enter", "cooking_pot": "cook", "alchemy_furnace": "alchemy", "earth_vent": "alchemy", "forge_anvil": "forge", "star_sight": "gather",
+			"portal": "enter", "climbable": "enter", "cooking_pot": "cook", "alchemy_furnace": "alchemy", "earth_vent": "alchemy", "forge_anvil": "forge", "star_sight": "gather",
 			"chart_table": "forge", "shipyard_slip": "forge", "starsea_dock": "enter"}.get(str(context.get("type", "")), "open")
 	if shown("attack") or ctx_glyph != "":
 		ring(attack_center, 66, Game.combat.is_busy(c.id) or channel.object != "", 1.0, pulses.has("hud:attack"))
@@ -886,6 +899,10 @@ func _draw_controls(c) -> void:
 			var ti_bag: int = c.inventory.first_index(tid)
 			var left_n := int(c.inventory.bag[ti_bag].get("charges", int(tdef.charges))) if ti_bag >= 0 else 0
 			UiKit.draw_outlined(self, "×%d" % left_n, tc + Vector2(-4, 26), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 30)
+	if _fight_context():
+		ring(context_center, 26, false, 1.0, true)
+		glyph("enter", context_center, 28)
+		UiKit.draw_outlined(self, str(context.get("label", "")), context_center + Vector2(-50, 40), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 100)
 	if shown("guard"):
 		ring(guard_center, 26, Game.combat.timeline(c.id).guard)
 		glyph("dodge" if Unlocks.is_unlocked(c.id, "dodge_dash") else "guard", guard_center, 28)

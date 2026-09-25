@@ -142,7 +142,11 @@ def build():
         {"id": "dodge_dash", "name": "Dodge Dash", "unlock": "bone_forging_5", "desc": "Dash 140 units; 0.25 s invulnerable.", "icon": "dodge_dash"},
         {"id": "appraisal_eye", "name": "Appraisal Eye", "unlock": "qi_kindling_6", "desc": "Identify items without the loupe.", "icon": "appraisal_eye"},
         {"id": "breath_control", "name": "Breath Control", "unlock": "qi_unfurling_3", "desc": "Stay underwater 30 s; enter flooded rooms.", "icon": "breath_control"},
-        {"id": "wall_step", "name": "Wall-Step", "unlock": "heart_tempering_4", "desc": "One kick off a wall per jump.", "icon": "wall_step"},
+        {"id": "wall_step", "name": "Wall-Step", "unlock": "heart_tempering_4", "movement": True, "quest": "between_two_walls",
+         "desc": "Jump while pushing into a wall: kick up 88 and 90 away. Three kicks before you land.", "icon": "wall_step"},
+        # S43 movement arts: each comes with a guided quest and is usable from its acceptance.
+        {"id": "cloud_ladder_step", "name": "Cloud Ladder Step", "unlock": "qi_unfurling_6", "movement": True, "quest": "cloud_ladder",
+         "desc": "Jump again in the air: a second jump of +80 from where you use it, once before you land.", "icon": "wall_step"},
         {"id": "concealment", "name": "Concealment", "unlock": "spirit_awakening_2", "desc": "Enemies' aggro range -50% while not attacking.", "icon": "concealment"},
         {"id": "lotus_heart_breathing", "name": "Lotus Heart Breathing", "unlock": "spirit_awakening_5", "desc": "Heal 2% HP per second for 5 s.", "icon": "concealment"},
         {"id": "wind_blink", "name": "Wind Blink", "unlock": "spirit_awakening_5", "desc": "Blink 120 units; cooldown 10 s.", "icon": "dodge_dash"},

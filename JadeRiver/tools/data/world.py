@@ -206,12 +206,21 @@ class Room:
         """Painted atlas building (gate, hall, two_storey, tower) scaled to a roof height."""
         self.surface(sid, [x - width // 2, front - depth, width, depth], height, kind="roof", stratum="platform", art=art, **kw)
 
-    def ladder(self, sid, x, front, height, width=48, depth=70):
-        """A ladder: a narrow ramp in front of a facade, `height` at its back edge (the roof
-        line) and 0 at its front edge. Walkers may step between a ladder and any surface
-        at the same height (the only cross-layer move the engine allows)."""
-        return self.surface(sid, [x - width // 2, front, width, depth], height, kind="ladder", stratum="platform",
-                            rise=-height, rise_axis="y", open_edges=False)
+    def ladder(self, sid, x, front, height, depth=70, kind="ladder", bottom="ground", top="", base=0):
+        """A climbable (S43 rule 5): a ladder, rope, vine or chain against a facade or cliff. Its foot stands
+        on `bottom` in front of the face; its top steps onto the surface `height` above, just behind the face."""
+        c = {"id": sid, "kind": kind, "at": [x, front + depth // 2], "top_at": [x, front - 8], "bottom_alt": base,
+             "top_alt": height, "bottom": bottom, "top": top}
+        self.d.setdefault("climbables", []).append(c)
+        return c
+
+    def solid(self, sid, rect, top, kind="crate", base=0, **kw):
+        """A block (S43 rule 1): a solid box you walk around or jump onto. Tops use the standard heights
+        40, 60, 80 or 110; up to 60 high and 100 deep it can be jumped over while walking."""
+        b = {"id": sid, "rect": list(rect), "base": base, "top": top, "kind": kind}
+        b.update(kw)
+        self.d.setdefault("blocks", []).append(b)
+        return b
 
     def stairs(self, sid, rect, height, rise_axis="y"):
         return self.surface(sid, rect, 0, kind="stairs", stratum="ground", rise=-height if rise_axis == "y" else height,
@@ -419,7 +428,7 @@ def lotus_ferry():
     # Village Square
     r.building("old_ma_store", "village_store", 1720, front=690, door_dx=40, door=("lf_old_ma_store", "exit", "store_door", {"label": "Old Ma's Store"}))
     r.painted("village_hall", "hall", 2150, 420, 110, 88, front=690)
-    r.ladder("hall_ladder", 1920, 690, 88)
+    r.ladder("hall_ladder", 1962, 690, 88)   # climb to the hall roof, then jump to the inn for the kite
     r.painted("ferry_inn", "two_storey", 2470, 240, 120, 176, front=680)
     r.obj("kite", "pickup", [2470, 610], alt=176, item="kite", count=1, prop="stuck_kite",
           hidden_if=all_of(qdone("the_runaway_kite")), requires=all_of(qactive("the_runaway_kite")),
@@ -1240,6 +1249,10 @@ def valley():
               [("boulder_serpent", 4, [32, 35]), ("mist_vulture", 3, [34, 36])], ores=("jadeiron", "jadeiron"), jars=4,
               music="field_mountain", trees=("pine_tree", "cliff_face"),
               platforms=[(400, 680, 360, 100), (900, 650, 360, 200), (1500, 640, 360, 300), (2000, 660, 320, 200)], loot="jar_valley_mid")
+    # Between Two Walls (S43, Heart Tempering 4): two cliff walls 100 apart. Wall-Step kicks up the shaft to the
+    # 300 ledge where the vultures nest.
+    r.solid("shaft_west", [1300, 600, 60, 180], 300, kind="rock")
+    r.solid("shaft_east", [1460, 600, 60, 180], 300, kind="rock")
     r.edge("east", "east", "wg_rapids_terraces", "west", y=850)
     r.edge("west", "west", "cc_cliff_faces", "east", y=850, ptype="sealed", requires=all_of(realm("cloud_stride_1")),
            locked_text="Crane Cliffs need wings. Cloud Stride first.")
@@ -2140,7 +2153,9 @@ def set_pieces():
 # rooftops, Wall-Step and flight something to do. Low props become standable blocks, flat fields and
 # dungeons get ledges with a reward on the higher one, towns get raised decks, and from the Crane
 # Cliffs on a cloud ledge above double-jump height waits for fliers.
-JUMP_ONE, JUMP_TWO, FLIGHT_LEDGE = 110, 220, 320   # single jump peaks at 122, double at 244
+# S43 standard heights: one jump peaks at 122 (required rises stay at or below 100); Cloud Ladder Step
+# peaks at 202 (double-jump ledges at 176, two storeys); flight-only ledges sit above that.
+JUMP_ONE, JUMP_TWO, FLIGHT_LEDGE = 100, 176, 300
 STANDABLE = {   # prop: (share of the art's width that is solid, height of its top)
     "crate": (0.8, 36), "barrel": (0.7, 48), "sack_pile": (0.8, 38), "hay_bale": (0.8, 42), "rock_small": (0.8, 32),
     "table": (0.85, 42), "stone_wall_low": (0.9, 48), "bed": (0.85, 40), "counter": (0.9, 58), "rock_large": (0.75, 78),

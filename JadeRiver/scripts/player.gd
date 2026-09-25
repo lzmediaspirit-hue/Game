@@ -66,6 +66,7 @@ var fly_up := false                 # held Jump while flying (touch); Space on t
 var fly_down := false               # held Guard while flying (touch); K on the keyboard
 var kick_t := 0.0                   # Wall-Step: the body is pushed away from the wall for a moment
 var kick_dir := 0
+var climb_hold := 0.0               # S43: seconds the joystick has been held toward a ladder
 signal attack_started(family: String, plane_position: Vector2, elevation: float, direction: int)
 signal arrow_released(plane_position: Vector2, elevation: float, direction: int)
 
@@ -88,9 +89,20 @@ func jump():
 		if Game.combat.is_wounded(actor_id) or Game.character(actor_id).pools.blocked("move"): return
 		if not Unlocks.is_unlocked(actor_id, "jump"): return
 		if meditating: Game.submit({"type": "stop_meditation", "reason": "jump"})
-		# Wall-Step (secret art): in the air beside a wall, kick off it for one more jump.
-		if surface == null and not state.flying and "wall_step" in Game.character(actor_id).cultivator.secret_arts:
-			var side: int = authority.wall_step()
+		# S43 rule 5: a jump lets go of a ladder, rope or vine, sideways with the joystick.
+		if not state.climbing.is_empty():
+			authority.release_climb(int(signf(last_axis.x)), true)
+			avatar.play("jump")
+			avatar.elapsed = 0
+			Audio.play("jump")
+			return
+		# S43 rule 3: joystick toward the camera + Jump drops through the platform underfoot.
+		if surface != null and last_axis.y >= 0.7 and absf(last_axis.x) < 0.3 and authority.drop_through():
+			avatar.play("jump")
+			return
+		# Wall-Step (S43): in the air, pushing into a wall face, kick off it (three kicks per airtime).
+		if surface == null and not state.flying:
+			var side: int = authority.wall_step(int(signf(last_axis.x)))
 			if side != 0:
 				kick_dir = -side
 				kick_t = 0.2
@@ -263,9 +275,31 @@ func step(delta: float, axis: Vector2):
 	if sprinting: factor *= float(ContentDB.stat_const("move.sprint", 1.7))
 	factor *= _area_factor()
 	var forced: Dictionary = Game.combat.forced_motion(actor_id)
+	_sync_arts(c)
+	var kick_speed := 0.0
 	if kick_t > 0.0:
+		# A Wall-Step kick carries the body 90 units away from the wall over 0.2 s (S43).
 		kick_t -= delta
 		axis = Vector2(kick_dir, axis.y * 0.3)
+		kick_speed = MovementSolver.WALL_KICK_SPEED
+	# S43 rule 5: hold toward a ladder's top (up at its foot, down at its top) for 0.3 s to climb on.
+	if not state.climbing.is_empty():
+		command_sequence += 1
+		authority.move(command_sequence, Vector2(0, axis.y), delta, 205.0)
+		climb_hold = 0.0
+		_animate(c, tl, busy, wounded)
+		sync_visual()
+		return
+	var near_climb: Dictionary = world.geometry.climbable_near(plane, altitude) if surface != null and not busy else {}
+	var toward: bool = (axis.y < -0.7 and not near_climb.get("from_top", false)) or (axis.y > 0.7 and near_climb.get("from_top", false))
+	if not near_climb.is_empty() and toward and absf(axis.x) < 0.3:
+		climb_hold += delta
+		if climb_hold >= 0.3 and authority.climb(near_climb):
+			climb_hold = 0.0
+			sync_visual()
+			return
+	else:
+		climb_hold = 0.0
 	if state.flying:
 		# Combat stops paying (no QI, wounded, a new room): the body falls. Landing ends it too.
 		if not Game.combat.is_flying(actor_id): authority.fly(false)
@@ -281,14 +315,26 @@ func step(delta: float, axis: Vector2):
 	elif drift != Vector2.ZERO:
 		var walk: Vector2 = axis.limit_length() * speed * factor + drift
 		authority.move(command_sequence, walk.normalized(), delta, walk.length())
+	elif kick_speed > 0.0:
+		authority.move(command_sequence, Vector2(kick_dir, 0), delta, kick_speed)
 	else:
 		authority.move(command_sequence, axis if not meditating else Vector2.ZERO, delta, speed * factor)
 	if absf(velocity.x) < 5: reset_sprint()
 	if not state.flying and Game.combat.is_flying(actor_id): Game.submit({"type": "stop_flight", "reason": "landed"})
-	if altitude < -250: world.recover_to_safe()
+	if altitude < world.geometry.void_altitude: world.recover_to_safe()
 	_animate(c, tl, busy, wounded)
 	_ride(c)
 	sync_visual()
+
+## S43: the movement arts this character knows reach the body's solver (double jump, Wall-Step, drop, mantle, climb).
+func _sync_arts(c) -> void:
+	var known: Array = c.cultivator.secret_arts
+	state.arts = {"double_jump": "cloud_ladder_step" in known, "wall_step": "wall_step" in known,
+		"drop_through": Unlocks.is_unlocked(actor_id, "jump"), "mantle": true, "climb": true}
+
+## A hit knocks the body off a ladder, rope or vine (S43 rule 5).
+func knock_off_climb() -> void:
+	if not state.climbing.is_empty(): authority.release_climb(-facing, false)
 
 ## S22 Mount role: the animal is drawn under the rider, who stands on its back.
 var mount_sprite: CreatureSprite
@@ -394,7 +440,7 @@ func _legacy_step(delta: float, axis: Vector2) -> void:
 	command_sequence += 1
 	authority.move(command_sequence, axis if not _meditating else Vector2.ZERO, delta, speed * factor)
 	if absf(velocity.x) < 5: reset_sprint()
-	if altitude < -250: world.recover_to_safe()
+	if altitude < world.geometry.void_altitude: world.recover_to_safe()
 	if _meditating: _qi = minf(100, _qi + 12 * delta)
 	avatar.facing = facing
 	avatar.playback_speed = 1.7 if sprinting and surface != null else 1.0

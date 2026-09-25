@@ -54,7 +54,7 @@
     280,
     50
    ],
-   "height": 110,
+   "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -67,7 +67,7 @@
     280,
     50
    ],
-   "height": 220,
+   "height": 176,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true

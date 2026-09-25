@@ -108,7 +108,7 @@
     240,
     44
    ],
-   "height": 320,
+   "height": 300,
    "kind": "cloud",
    "stratum": "platform",
    "open_edges": true
@@ -244,7 +244,7 @@
    ],
    "loot": "chest_dungeon",
    "level": 43,
-   "alt": 320,
+   "alt": 300,
    "surface": "cloud_mv"
   }
  ],

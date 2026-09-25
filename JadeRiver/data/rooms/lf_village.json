@@ -144,21 +144,6 @@
    "art": "hall"
   },
   {
-   "id": "hall_ladder",
-   "rect": [
-    1896,
-    690,
-    48,
-    70
-   ],
-   "height": 88,
-   "kind": "ladder",
-   "stratum": "platform",
-   "open_edges": false,
-   "rise": -88,
-   "rise_axis": "y"
-  },
-  {
    "id": "ferry_inn",
    "rect": [
     2350,
@@ -873,6 +858,24 @@
     2560,
     3840
    ]
+  }
+ ],
+ "climbables": [
+  {
+   "id": "hall_ladder",
+   "kind": "ladder",
+   "at": [
+    1962,
+    725
+   ],
+   "top_at": [
+    1962,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": ""
   }
  ]
 }

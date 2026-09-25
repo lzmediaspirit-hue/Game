@@ -18,6 +18,7 @@ const EVENT_KINDS := {
 	"sect_joined": ["join_sect"], "dodged": ["use_system"], "attack_started": ["use_system"], "event_passed": ["pass_event"],
 	"loot_picked": ["use_system"], "portal_used": ["use_portal"], "bottleneck_viewed": ["open_page"], "qp_milestone": ["reach_progress"],
 	"sect_rank_changed": ["reach_rank"], "mail_read": ["read_mail"], "quick_use_changed": ["use_system"], "pill_used": ["use_item"],
+	"art_used": ["use_system"],   # S43 movement arts (double jump, Wall-Step, glide...) count as the system of that name
 }
 
 func intents() -> Array:
@@ -422,6 +423,7 @@ func _match(c, o: Dictionary, p: Dictionary, ev: String) -> int:
 			if ev == "attack_started": return 1 if str(o.system) == "attack" and not p.get("enemy", false) else 0
 			if ev == "loot_picked": return 1 if str(o.system) == "pick_up" else 0
 			if ev == "quick_use_changed": return 1 if str(o.system) == "set_quick_use" else 0
+			if ev == "art_used": return 1 if str(o.system) == str(p.get("art", "")) else 0
 			return 1 if str(p.get("system", "")) == str(o.system) else 0
 		"teleport": return 1
 		"enter_seclusion": return 1 if str(o.get("focus", "any")) in ["any", str(p.get("focus", ""))] else 0

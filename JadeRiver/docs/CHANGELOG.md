@@ -5,6 +5,36 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V2a · Traversal engine (S43)
+- **Surfaces have sides.** Each walk surface records which of its four edges are open. A platform is closed
+  at the back (north) and open on the other three; the ground and ramps are closed all round. Walking off an
+  open edge starts a fall; a closed edge stops you.
+- **Blocks** (crates, walls, rocks, carts) are solid boxes: you walk around them, or jump onto their tops at
+  40, 60, 80 or 110. A block is an obstacle and a small platform at once, open on every side.
+- **Jump feel.** Coyote time 0.10 s after walking off an edge, and a 0.12 s jump buffer that fires on landing.
+- **Cloud Ladder Step** (double jump, impulse 430, about 202 high from the ground) is learned in *Cloud Ladder*,
+  a Qi Unfurling 6 guided quest from the librarians. It no longer comes free with the first realm.
+- **Wall-Step** is learned in *Between Two Walls*, a Heart Tempering 4 guided quest at the Echo Cliffs. Push
+  into a wall and jump to kick off it, up to three kicks per airtime; each kick springs away from the wall. The
+  Echo Cliffs now have a shaft of two rock walls 100 apart that climbs to the 300 ledge.
+- **Drop-through.** Down + Jump on a platform drops through it.
+- **Mantle.** Falling past a ledge lip within 24 of your feet pulls you up onto it.
+- **Climbables.** Ladders, ropes, vines and chains are their own objects, not ramps. Hold toward one for 0.3 s
+  (or use the context button) to climb; jumping lets go. The Lotus Ferry hall ladder is the first.
+- **Air attacks.** A basic attack in the air is a single stronger strike (×1.1) and slows drift less.
+- **Falls.** Falling out of a room returns you to the last safe spot (0.3 s standing, at least 24 from an open
+  edge) and costs 5 % of max HP, except in towns, the prologue and the Lotus Ferry.
+- **Context button** (1165, 500) appears in a fight when a ladder or door is in reach, since Attack takes
+  the main button then.
+- **Doors** need Up held 0.3 s, so a passing jump no longer walks you through them.
+- **Events:** `jumped`, `landed` (with fall height), `wall_kicked`, `art_used`, `climb_started`,
+  `climb_finished` and `fell_out`.
+- **Standard heights** 100 (one jump), 176 (double jump, two storeys) and 300 (flight only). The room
+  catalogue uses them; docs/movement.md has the reach table.
+- **Tests.** A traversal suite covers edges, blocks, coyote time, the buffer, the double jump, drop-through,
+  mantle, climbing, Wall-Step and falls, and checks that a room's blocks and climbables reach its geometry. The
+  valley run now plays *Cloud Ladder*, *A Treasure in Hand* and *Between Two Walls*.
+
 ### V1b · Pill rules follow Build Prompt v2 (S44)
 - **Lifetime resistance** counts every 5 doses of a family as 1 (`pill_resistance {family: {count, doses}}`); a
   pill works at 1 ÷ (1 + 0.25 × count). Each major breakthrough drops every count by 1 and then halves it. A

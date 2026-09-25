@@ -114,9 +114,15 @@ func _build_room() -> void:
 			if spec.id == s.id:
 				terrain.art = str(spec.get("art", ""))
 				if spec.has("material"): terrain.ground_material = str(spec.material)
+		if s.is_block:
+			for b in room_def.get("blocks", []):
+				if str(b.id) == s.id: terrain.art = str(b.get("kind", "crate"))
 		if s.stratum == "ground" and s.base > 0 and terrain.ground_material in ["earth", "moss"]: terrain.ground_material = "stone"
 		room_layer.add_child(terrain)
 		terrain_visuals.append(terrain)
+	# S43 climbables: ladders, ropes, vines and chains, drawn from the foot to the top step.
+	for cdef in room_def.get("climbables", []):
+		room_layer.add_child(ClimbableView.make(cdef))
 	for spec in room_def.get("scenery", []):
 		if spec.get("art", "props") == "none": continue
 		var prop := SceneryProp.new()
@@ -185,6 +191,7 @@ func _place_player() -> void:
 	player.state.jumps_used = 0
 	player.facing = int(c.position.get("facing", 1))
 	player.authority = LocalAuthority.new(player.state, geometry)
+	player.authority.actor_id = player.actor_id
 	Game.bind_movement(Game.active_id, player.state)
 	player.sync_visual()
 	camera.position = camera_target()
@@ -219,13 +226,14 @@ func _check_portals(delta: float) -> void:
 		var outward := 1.0 if pos.x > w * 0.5 else -1.0
 		var at_edge := pos.x < 100.0 or pos.x > w - 100.0
 		var walking_out = at_edge and type in ["edge", "gate", "sealed"] and not p.get("press_up", false) and axis.x * outward > 0.5
-		var pressing_up := axis.y < -0.6
+		# S43 controls: a plain press up walks into depth, so a portal needs a 0.3 s hold with little sideways input.
+		var pressing_up := axis.y < -0.6 and absf(axis.x) < 0.3
 		if pressing_up: up_hold += delta
-		if walking_out or (pressing_up and up_hold > 0.18):
+		if walking_out or (pressing_up and up_hold >= 0.3):
 			up_hold = 0.0
 			request_portal(str(p.id), walking_out)
 			return
-	if axis.y >= -0.6: up_hold = 0.0
+	if axis.y >= -0.6 or absf(axis.x) >= 0.3: up_hold = 0.0
 
 func request_portal(portal_id: String, crossing := false) -> void:
 	if transfer_cooldown > 0.0: return
@@ -262,13 +270,17 @@ func _process(delta: float) -> void:
 	else:
 		camera.offset = Vector2.ZERO
 	camera.position = camera.position.snapped(Vector2(2, 2))
-	record_safe_position()
+	_track_safe(delta)
 	update_occlusion()
 	_update_context()
 
 func _update_context() -> void:
 	var c = Game.active()
 	var ctx: Dictionary = Game.world.query_context(c) if c else {}
+	# S43: a ladder, rope or vine in reach offers "Climb".
+	if ctx.is_empty() and player and player.surface != null and player.state.climbing.is_empty():
+		var near_c: Dictionary = geometry.climbable_near(player.plane, player.altitude, 48.0)
+		if not near_c.is_empty(): ctx = {"type": "climbable", "climbable": str(near_c.id), "label": Tx.t("hud.climb")}
 	for id in object_views: object_views[id].focus = ctx.get("object", "") == id
 	for id in npc_views:
 		npc_views[id].focus = ctx.get("object", "") == id
@@ -296,7 +308,19 @@ func _on_event(name: String, p: Dictionary) -> void:
 				var lv = LootView.new()
 				lv.setup(l)
 				room_layer.add_child(lv)
+		# S43 traversal feedback.
+		"landed":
+			if str(p.get("actor", "")) == player.actor_id and float(p.get("fall_height", 0)) > 120.0:
+				fx.add("ring", player.position, {"color": Color(0.85, 0.8, 0.7, 0.6), "radius": 34.0, "dur": 0.3})
+				Audio.play("land")
+		"wall_kicked":
+			if str(p.get("actor", "")) == player.actor_id:
+				fx.add("spark", player.position + Vector2(-int(p.get("side", 1)) * -14, -50), {"color": UiKit.PAPER, "dur": 0.25})
+		"fell_out":
+			if str(p.get("actor", "")) == player.actor_id:
+				fx.add("text", player.position + Vector2(0, -130), {"text": Tx.t("hud.fell"), "color": UiKit.MIST, "size": 18, "dur": 1.4})
 		"hit_landed":
+			if str(p.get("target_kind", "")) == "player" and str(p.get("target", "")) == player.actor_id: player.knock_off_climb()
 			var pos := Vector2(float(p.get("x", 0)), float(p.get("y", 0)) - float(p.get("alt", 60)))
 			var kind := str(p.get("target_kind", "enemy"))
 			var amount := int(p.get("amount", 0))
@@ -484,6 +508,25 @@ func spawn_arrow(origin: Vector2, elevation: float, direction: int) -> void:
 	projectile.z_index = geometry.render_depth(player.state) + 1
 	add_child(projectile)
 
+## S43 rule 6: the safe spot is recorded after 0.3 s standing on a surface at least 24 units from any open
+## edge. record_safe_position() still forces a record (room entry, tests).
+var safe_stand := 0.0
+func _track_safe(delta: float) -> void:
+	var s: WalkSurface = player.surface if player else null
+	if s == null or not player.state.climbing.is_empty() or not _clear_of_open_edges(s, player.plane):
+		safe_stand = 0.0
+		return
+	safe_stand += delta
+	if safe_stand >= 0.3: record_safe_position()
+
+func _clear_of_open_edges(s: WalkSurface, p: Vector2) -> bool:
+	var margin := 24.0
+	if s.edges.get("n", "open") == "open" and p.y - s.bounds.position.y < margin: return false
+	if s.edges.get("s", "open") == "open" and s.bounds.end.y - p.y < margin: return false
+	if s.edges.get("w", "open") == "open" and p.x - s.bounds.position.x < margin: return false
+	if s.edges.get("e", "open") == "open" and s.bounds.end.x - p.x < margin: return false
+	return true
+
 func record_safe_position() -> void:
 	if player and player.surface:
 		last_safe = {"map_revision": MAP_REVISION, "surface": player.surface.id, "x": player.plane.x, "y": player.plane.y, "map_theme": map_theme,
@@ -545,7 +588,16 @@ func recover_to_safe() -> void:
 	player.state.air_peak = player.altitude
 	player.state.air_base = player.altitude
 	player.state.air_stratum = player.surface.stratum
+	player.state.climbing = {}
 	travel.reset(player.plane, player.altitude)
+	# S43 rule 6: a fall costs 5% of max HP (never below 1), except in the Prologue, towns and safe rooms.
+	if room_mode and player.bound():
+		var c = Game.character(player.actor_id)
+		var free_fall: bool = bool(room_def.get("safe", false)) or str(room_def.get("region", "")) == "lotus_ferry" or str(room_def.get("type", "")) in ["town", "prologue"]
+		if c != null and not free_fall:
+			var cost: float = minf(c.pools.max_hp * float(ContentDB.stat_const("move.fall_cost_pct", 0.05)), c.pools.hp - 1.0)
+			if cost > 0.0: Game.combat.apply_resource_change(c.id, "hp", -cost, "fall")
+		player.authority.fell_out({"x": player.plane.x, "y": player.plane.y, "surface": player.surface.id})
 
 func save_game() -> Error:
 	if room_mode:

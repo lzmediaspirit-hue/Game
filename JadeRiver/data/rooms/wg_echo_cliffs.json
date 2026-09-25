@@ -442,5 +442,31 @@
  ],
  "areas": [],
  "music": "field_mountain",
- "ambience": ""
+ "ambience": "",
+ "blocks": [
+  {
+   "id": "shaft_west",
+   "rect": [
+    1300,
+    600,
+    60,
+    180
+   ],
+   "base": 0,
+   "top": 300,
+   "kind": "rock"
+  },
+  {
+   "id": "shaft_east",
+   "rect": [
+    1460,
+    600,
+    60,
+    180
+   ],
+   "base": 0,
+   "top": 300,
+   "kind": "rock"
+  }
+ ]
 }

@@ -63,9 +63,10 @@ DEPTH = {
                     "debt_recorded", "debt_called"],
     "Crafting": ["flame_absorbed", "pill_cloud"],
     "Combat": ["treasure_used"],
+    "Movement": ["jumped", "landed", "wall_kicked", "art_used", "climb_started", "climb_finished", "fell_out"],
 }
 for _sys, _names in DEPTH.items():
-    CATALOGUE[_sys] = CATALOGUE[_sys] + _names
+    CATALOGUE[_sys] = CATALOGUE.get(_sys, []) + _names
 
 # The scripts that make up each system (an authority plus its rule and brain helpers).
 SYSTEMS = {
@@ -75,6 +76,7 @@ SYSTEMS = {
     "Crafting": ["crafting_authority", "workshop_authority"], "TrainingSect": ["training_sect_authority"],
     "Achievement": ["achievement_authority"], "Economy": ["economy_authority"], "Unlocks": ["unlock_service"],
     "Mail": ["mail_authority"], "Companion": ["companion_authority"], "Notifier": ["notifier"],
+    "Movement": ["local_authority", "movement_solver"],
 }
 
 # A second system that may also announce the event, and why.
@@ -106,6 +108,9 @@ POLLED = {
     "residue_changed": "The Cultivation page's Heart tab reads residue.",
     "pill_resistance_changed": "Pill tooltips and the Heart tab read each family's count.",
     "foundation_changed": "The Heart tab and the risk preview read the foundation share.",
+    "jumped": "The player node plays its own jump pose and sound when the press succeeds.",
+    "climb_started": "The player node reads its climbing state for the climb pose.",
+    "climb_finished": "The player node reads its climbing state for the climb pose.",
     "debt_recorded": "The Cultivation page's Heart tab lists debts; the callback is debt_called.",
 }
 

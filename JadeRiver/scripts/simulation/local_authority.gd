@@ -6,6 +6,7 @@ var tick=0
 var last_sequence=-1
 var state: ActorState
 var zone: ZoneGeometry
+var actor_id=""                          # the character this body belongs to, for traversal events (S43)
 func _init(actor: ActorState,geometry: ZoneGeometry):
 	state=actor
 	zone=geometry
@@ -15,9 +16,46 @@ func move(sequence: int,axis: Vector2,delta: float,server_speed: float) -> bool:
 	last_sequence=sequence
 	tick+=1
 	MovementSolver.advance(state,zone,delta,axis.limit_length()*server_speed)
+	_announce()
 	return true
-func jump() -> bool: return MovementSolver.jump(state)
-func wall_step() -> int: return MovementSolver.wall_step(state,zone)
+func jump() -> bool:
+	var ok=MovementSolver.jump(state)
+	_announce()
+	return ok
+func wall_step(push:=0) -> int:
+	var side=MovementSolver.wall_step(state,zone,push)
+	_announce()
+	return side
+## Drop through the platform underfoot (S43 rule 3).
+func drop_through() -> bool:
+	var ok=MovementSolver.drop_through(state)
+	_announce()
+	return ok
+## Climb the ladder, rope, vine or chain in reach (S43 rule 5); {} climbable means the nearest one.
+func climb(climbable:={}) -> bool:
+	var c=climbable if not climbable.is_empty() else zone.climbable_near(state.plane,state.altitude)
+	if c.is_empty() or state.surface==null: return false
+	var ok=MovementSolver.start_climb(state,c,bool(c.get("from_top",false)))
+	_announce()
+	return ok
+func release_climb(side: int,jumped: bool) -> bool:
+	var ok=MovementSolver.release_climb(state,side,jumped)
+	_announce()
+	return ok
+## A fall into the void returned the body to a safe position (S43 rule 6).
+func fell_out(recovered_to: Dictionary) -> void:
+	state.events.append({"name":"fell_out","recovered_to":recovered_to})
+	_announce()
+## Traversal events (jumped, landed, wall_kicked, art_used, climb_started, climb_finished, fell_out) go out
+## on the event bus for presentation, achievements and quests.
+func _announce() -> void:
+	for e in state.events:
+		var p: Dictionary=e.duplicate()
+		var n=str(p.name)
+		p.erase("name")
+		p.actor=actor_id if actor_id!="" else state.entity_id
+		GameEvents.emit_event(n,p)
+	state.events.clear()
 ## Flight is granted by the Combat authority (which pays its QI); this only moves the body.
 func fly(on: bool,climb_speed:=220.0,ceiling:=340.0) -> bool:
 	if on: return MovementSolver.start_flight(state,climb_speed,ceiling)

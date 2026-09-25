@@ -7,20 +7,46 @@ so this document and the game can't drift apart silently.
 
 ## The mechanics
 
+The rules follow Build Prompt v2 S43. The numbers are constants in `MovementSolver`, and the traversal
+suite in `tests/rules_tests.gd` checks each one.
+
 | Move | How | Reach |
 |---|---|---|
-| Walk | Across the ground strip and onto anything whose height meets the feet (stairs, ramps, ladders) | — |
-| Jump | `JUMP_IMPULSE` 530 against `GRAVITY` 1150 | peak **122** units |
-| Double jump | A second press in the air (`jumps_used` ≤ 2) | peak **244** units |
-| Drop through | Platforms are one-way: rise through them from below, land on them from above | — |
-| Wall-Step | Secret art, learned at Heart Tempering 4. In the air beside a wall, jump again to kick off it: a fresh 0.95 jump, pushed away from the wall, once per time in the air | +110 above the kick point |
+| Walk | Across the ground strip and onto anything whose height meets the feet (stairs, ramps) | — |
+| Jump | `JUMP_IMPULSE` 530 against `GRAVITY` 1150. Height is fixed and never scales with stats or gear. Coyote time 0.10 s after walking off an edge; a press up to 0.12 s before landing is buffered and fires on landing | peak **122** units |
+| Cloud Ladder Step (double jump) | Learned from the guided quest *Cloud Ladder* at Qi Unfurling 6, usable from acceptance. A second jump in the air at impulse 430, once per airtime | **+80** from where it is used; about **202** from the ground |
+| Drop through | Joystick toward the camera (≥ 0.7, sideways < 0.3) + Jump, on a platform only: never the ground or a block | — |
+| Ledge mantle | Automatic. Falling while pushing toward a top 0–24 units up and within 16 across pulls you onto it | +24 |
+| Climb | Ladders, ropes, vines and chains (`climbables` in room data). Hold toward the ladder's end for 0.3 s (up at its foot, down at its top) or use the Climb context. 160 units/s, stop anywhere; Jump lets go sideways; a hit knocks you off | the climbable's top |
+| Wall-Step | Learned from the guided quest *Between Two Walls* (Echo Cliffs, Heart Tempering 4), usable from acceptance. In the air, pushing into a wall face within 12 units: vertical speed 450 (+88) and 90 units away from the wall. Three kicks per airtime | shafts 60–160 wide |
+| Air attack | One hit, no combo, +10 % damage; horizontal speed stays at ×0.8 (ground attacks ×0.3) | — |
 | Wind Blink | Secret art, learned at Spirit Awakening 5. Dodge in the air: a 120-unit blink along the facing with a small lift. 10 s cooldown (`combat.wind_blink_cooldown_s`) | 120 across |
-| Flight | Cloud Stride 1. Hold jump at the top of a jump to take off; QI drains while aloft | ceiling **340**, climb 220/s |
+| Flight | Cloud Stride 1. Jump again at the top of a double jump to take off; QI drains while aloft | ceiling **340**, climb 220/s |
 | Breath Control | Secret art, learned at Qi Unfurling 3. Lets you go down into flooded places (the Drowned Grotto) | — |
 
-Two passive secret arts are unlocked along the same ladder: **Appraisal Eye** (Qi Kindling 6), which
-appraises without the tool, and **Lotus Heart Breathing**, which now heals 10% over 5 s when HP falls below 30%
-(60 s cooldown).
+**Edges.** Each surface edge is `open` (walk off and fall), `closed` (blocks walking) or `wall` (closed, and a
+wall face). Platforms close their back (north) edge by default, so walking into the screen off a roof no
+longer drops you below the world. Their front and side edges stay open. Ground surfaces are closed all
+round.
+
+**Blocks.** `blocks` in room data are solid boxes with a walkable top, open all round:
+- Standard tops are 40, 60, 80 or 110.
+- An actor more than 8 below the top slides along the block. One that falls onto the top lands on it.
+- A 60 block is jumped over at walk speed.
+- Block sides are wall faces for Wall-Step.
+- The top is drawn with a lit lip.
+
+**Falls.** A fall below the room's void altitude (by default 250 under its lowest surface) returns you to the
+last safe position, which is recorded after 0.3 s standing at least 24 units from an open edge. The fall
+costs 5 % of max HP (never below 1), except in the Prologue, towns and safe rooms.
+
+**Controls.** A portal needs a 0.3 s press-up hold with little sideways input, because a plain press up walks
+into depth. The Attack button offers Climb or Enter only while no enemy is aggroed on you within 400. In a
+fight, a separate Context button appears at (1165, 500).
+
+**Events.** The movement authority announces `jumped`, `landed` (with the fall height), `wall_kicked`,
+`art_used`, `climb_started`, `climb_finished` and `fell_out`. `art_used` advances guided-quest objectives
+named after the art.
 
 ### Surfaces
 
@@ -30,7 +56,7 @@ collides.
 - **ground** (stratum ground): the walk strip. Terraces are grounds with a `base` (a raised wall).
 - **roof**: every building made with `Room.building()`. The roof is a platform. `ZoneLayout` gives it a
   solid body, so the facade below is a wall you can't walk through, and one Wall-Step can kick off it.
-- **stairs, ramp, ladder**: grounds that climb. A ladder is the one bridge between strata.
+- **stairs, ramp**: grounds that climb. Ladders are climbables, not surfaces (see Climb above).
 - **rock_ledge, branch, cloud, balcony, dock, deck**: one-way platforms drawn as rock shelves, garden
   decks, cloud banks, timber balconies on posts, and ship planking.
 - **support**: the top of a solid prop. Any scenery block no taller than 80 units, or flagged
@@ -46,9 +72,9 @@ body within 48 units of the object's altitude. Chests on ledges and air pockets 
 
 | Constant | Height | Meaning |
 |---|---|---|
-| `JUMP_ONE` | 110 | One jump lands on it (peak 122) |
-| `JUMP_TWO` | 220 | Out of reach of one jump; a double jump lands on it (peak 244) |
-| `FLIGHT_LEDGE` | 320 | Out of reach of a double jump; only fliers land on it (ceiling 340) |
+| `JUMP_ONE` | 100 | One jump lands on it (peak 122); the highest required rise before the double jump (S43) |
+| `JUMP_TWO` | 176 | Out of reach of one jump; Cloud Ladder Step lands on it (peak 202) |
+| `FLIGHT_LEDGE` | 300 | Out of reach of the double jump; only fliers land on it (ceiling 340) |
 
 ## The room audit
 

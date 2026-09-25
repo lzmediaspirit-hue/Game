@@ -70,7 +70,8 @@ func move_factor(actor_id: String) -> float:
 	var tl := timeline(actor_id)
 	var f := 1.0
 	if tl.guard: f *= float(ContentDB.stat_const("move.guard_factor", 0.5))
-	if is_busy(actor_id): f *= float(ContentDB.stat_const("move.attack_factor", 0.3))
+	# S43 rule 2: attacking on the ground slows you to x0.3; in the air you keep x0.8 and still make the gap.
+	if is_busy(actor_id): f *= float(ContentDB.stat_const("move.air_attack_factor", 0.8)) if airborne(actor_id) else float(ContentDB.stat_const("move.attack_factor", 0.3))
 	var slow = c.pools.status("slow")
 	if not slow.is_empty(): f *= 1.0 - clampf(float(slow.power), 0.0, 0.5)
 	if float(tl.flinch) > 0.0: f *= 0.2
@@ -216,6 +217,11 @@ func target_for(c, reach: float, depth: float, facing: int) -> Dictionary:
 	if best: return {"facing": facing, "target": best.uid}
 	return {"facing": turn_to}
 
+## In the air: neither standing on a surface, climbing nor flying (S43).
+func airborne(actor_id: String) -> bool:
+	var st: ActorState = game.actor_state(actor_id)
+	return st != null and st.surface == null and not st.flying and st.climbing.is_empty()
+
 func basic_attack(c, facing: int) -> Dictionary:
 	var reason := can_act(c)
 	if reason != "": return fail(reason)
@@ -225,13 +231,21 @@ func basic_attack(c, facing: int) -> Dictionary:
 	var fam := StatRules.family(c)
 	var combo: Array = fam.get("combo", [])
 	if combo.is_empty(): return fail("no_combo")
+	var in_air := airborne(c.id)
 	if is_busy(c.id):
-		if int(tl.combo) >= 0 and int(tl.combo) < combo.size() - 1: tl.queued = mini(int(tl.queued) + 1, combo.size() - 1 - int(tl.combo))
+		if not in_air and int(tl.combo) >= 0 and int(tl.combo) < combo.size() - 1: tl.queued = mini(int(tl.queued) + 1, combo.size() - 1 - int(tl.combo))
 		return ok({"queued": true})
-	var index := int(tl.combo) + 1 if float(tl.window) > 0.0 and int(tl.combo) < combo.size() - 1 else 0
+	# S43 air attack: one hit, no combo, +10% damage.
+	var index := 0 if in_air else (int(tl.combo) + 1 if float(tl.window) > 0.0 and int(tl.combo) < combo.size() - 1 else 0)
 	var aim := target_for(c, float(fam.get("reach", 46)), float(fam.get("depth", 30)), facing)
 	_start_step(c, fam, index, int(aim.facing))
-	return ok({"action": tl.action, "duration": tl.duration, "facing": tl.facing, "combo": index})
+	if in_air:
+		tl.step = (tl.step as Dictionary).duplicate()
+		tl.step.mult = float(tl.step.get("mult", 1.0)) * float(ContentDB.stat_const("move.air_attack_mult", 1.1))
+		tl.air_attack = true
+	else:
+		tl.air_attack = false
+	return ok({"action": tl.action, "duration": tl.duration, "facing": tl.facing, "combo": index, "air": in_air})
 
 func _start_step(c, fam: Dictionary, index: int, facing: int) -> void:
 	var tl := timeline(c.id)

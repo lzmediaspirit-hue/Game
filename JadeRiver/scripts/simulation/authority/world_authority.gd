@@ -60,6 +60,9 @@ func handle(intent: Dictionary) -> Dictionary:
 static func compile_geometry(def: Dictionary) -> Dictionary:
 	var data := {"bounds": def.get("bounds", [0, 480, 1280, 480]), "surfaces": def.get("surfaces", []).duplicate(true),
 		"objects": def.get("scenery", []).duplicate(true), "gates": []}
+	# S43 traversal sections pass straight through to the geometry.
+	for k in ["blocks", "climbables", "void_altitude"]:
+		if def.has(k): data[k] = def[k].duplicate(true) if def[k] is Array else def[k]
 	for o in def.get("objects", []):
 		if o.has("footprint") and o.get("blocks", false):
 			data.objects.append({"id": "obj_" + str(o.id), "art": "none", "footprint": o.footprint, "height": float(o.get("height", 60)), "radius": 4})

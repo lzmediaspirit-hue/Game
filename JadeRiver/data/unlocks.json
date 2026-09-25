@@ -2084,27 +2084,6 @@
    "same_stage_ok": true
   },
   {
-   "id": "wall_step",
-   "label": "Wall-Step",
-   "trigger": {
-    "all": [
-     {
-      "kind": "realm_at_least",
-      "realm": "heart_tempering_4"
-     }
-    ]
-   },
-   "reveals": [],
-   "effects": [
-    {
-     "kind": "learn_secret_art",
-     "art": "wall_step"
-    }
-   ],
-   "scope": "character",
-   "same_stage_ok": true
-  },
-  {
    "id": "wind_blink",
    "label": "Wind Blink",
    "trigger": {
@@ -2123,6 +2102,40 @@
     }
    ],
    "scope": "character",
+   "same_stage_ok": true
+  },
+  {
+   "id": "double_jump",
+   "label": "Cloud Ladder Step",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_6"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "cloud_ladder",
+   "same_stage_ok": true
+  },
+  {
+   "id": "wall_step",
+   "label": "Wall-Step",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_4"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "between_two_walls",
    "same_stage_ok": true
   },
   {

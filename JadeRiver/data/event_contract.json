@@ -831,6 +831,58 @@
    "files": [
     "sect_authority"
    ]
+  },
+  "jumped": {
+   "system": "Movement",
+   "files": [
+    "local_authority",
+    "movement_solver"
+   ],
+   "polled": "The player node plays its own jump pose and sound when the press succeeds."
+  },
+  "landed": {
+   "system": "Movement",
+   "files": [
+    "local_authority",
+    "movement_solver"
+   ]
+  },
+  "wall_kicked": {
+   "system": "Movement",
+   "files": [
+    "local_authority",
+    "movement_solver"
+   ]
+  },
+  "art_used": {
+   "system": "Movement",
+   "files": [
+    "local_authority",
+    "movement_solver"
+   ]
+  },
+  "climb_started": {
+   "system": "Movement",
+   "files": [
+    "local_authority",
+    "movement_solver"
+   ],
+   "polled": "The player node reads its climbing state for the climb pose."
+  },
+  "climb_finished": {
+   "system": "Movement",
+   "files": [
+    "local_authority",
+    "movement_solver"
+   ],
+   "polled": "The player node reads its climbing state for the climb pose."
+  },
+  "fell_out": {
+   "system": "Movement",
+   "files": [
+    "local_authority",
+    "movement_solver"
+   ]
   }
  }
 }

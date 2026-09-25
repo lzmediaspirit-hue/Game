@@ -21,6 +21,15 @@ var flying=false
 var climb=0.0
 var fly_climb_speed=220.0
 var fly_ceiling=340.0
+# S43 traversal. Movement arts the actor knows (an unbound legacy actor knows the old set); the
+# coyote and jump-buffer timers; Wall-Step kicks per airtime; the climbable being climbed.
+var arts: Dictionary={"double_jump":true,"wall_step":true,"drop_through":true,"mantle":true,"climb":true}
+var coyote_left=0.0
+var buffer_left=0.0
+var wall_kicks=0
+var climbing: Dictionary={}          # {id, kind, at, top_at, bottom_alt, top_alt, bottom, top} while in climb mode
+var mantle_left=0.0                  # a ledge mantle in progress (presentation pose)
+var events: Array=[]                 # traversal events this step, for the authority to announce
 func snapshot(tick: int) -> Dictionary:
 	return {"schema":2,"tick":tick,"entity_id":entity_id,"zone_id":zone_id,
 		"x":plane.x,"y":plane.y,"altitude":altitude,"vz":vertical_speed,

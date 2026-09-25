@@ -58,7 +58,7 @@
     280,
     50
    ],
-   "height": 110,
+   "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -71,7 +71,7 @@
     280,
     50
    ],
-   "height": 220,
+   "height": 176,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -84,7 +84,7 @@
     240,
     44
    ],
-   "height": 320,
+   "height": 300,
    "kind": "cloud",
    "stratum": "platform",
    "open_edges": true
@@ -250,7 +250,7 @@
    ],
    "loot": "chest_valley",
    "level": 51,
-   "alt": 220,
+   "alt": 176,
    "surface": "ledge_mv_1"
   },
   {
@@ -262,7 +262,7 @@
    ],
    "loot": "chest_dungeon",
    "level": 51,
-   "alt": 320,
+   "alt": 300,
    "surface": "cloud_mv"
   }
  ],

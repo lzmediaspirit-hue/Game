@@ -7,7 +7,9 @@ var rise: float
 var rise_axis: String
 var kind: String
 var stratum: String
-var open_edges: bool
+var open_edges: bool                 # true when at least one edge is open (walk off and fall)
+var edges: Dictionary = {}           # S43 rule 1: n, s, e, w -> "open" | "closed" | "wall"
+var is_block := false                # the walkable top of a solid block (S43 blocks)
 var visual_variant: int
 var support_mask: Array=[]
 const FOOT_CONTACT=Vector2(9,12)
@@ -22,7 +24,34 @@ func _init(data: Dictionary):
 	rise_axis=data.get("rise_axis","x")
 	kind=data.get("kind","stone")
 	stratum=data.get("stratum","platform")
-	open_edges=data.get("open_edges",true)
+	is_block=kind=="block"
+	edges=default_edges(data,stratum,is_block)
+	open_edges=edges.values().has("open")
+## S43 rule 1: platforms default to a closed back (north) edge and open south, east and west edges;
+## open_edges false (and every ground surface) closes all four; a block top is open all round.
+static func default_edges(data: Dictionary,stratum: String,block: bool) -> Dictionary:
+	var closed={"n":"closed","s":"closed","e":"closed","w":"closed"}
+	var e: Dictionary
+	if block: e={"n":"open","s":"open","e":"open","w":"open"}
+	elif stratum=="ground" or not data.get("open_edges",stratum!="ground"): e=closed
+	else: e={"n":"closed","s":"open","e":"open","w":"open"}
+	for side in data.get("edges",{}): e[side]=str(data.edges[side])
+	return e
+## The kind of edge crossed when walking from inside the rectangle to `point` outside it:
+## the most restrictive of the sides crossed (wall, then closed, then open). A hole in a shaped
+## support mask inside the rectangle is an open drop.
+func edge_toward(point: Vector2) -> String:
+	var crossed: Array=[]
+	if point.y<bounds.position.y: crossed.append("n")
+	if point.y>=bounds.end.y: crossed.append("s")
+	if point.x<bounds.position.x: crossed.append("w")
+	if point.x>=bounds.end.x: crossed.append("e")
+	if crossed.is_empty(): return "open"
+	var worst="open"
+	for side in crossed:
+		var k=str(edges.get(side,"open"))
+		if k=="wall" or (k=="closed" and worst=="open"): worst=k
+	return worst
 func height_at(point: Vector2) -> float:
 	var t=(point.y-bounds.position.y)/bounds.size.y if rise_axis=="y" else (point.x-bounds.position.x)/bounds.size.x
 	return base+rise*clampf(t,0,1)

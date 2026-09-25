@@ -2172,6 +2172,107 @@
    ]
   },
   {
+   "id": "cloud_ladder",
+   "name": "Cloud Ladder",
+   "kind": "guided",
+   "giver": "jade_librarian",
+   "hand_in": "jade_librarian",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Double jump to three high ledges",
+     "count": 3,
+     "system": "double_jump"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "This scroll is older than the sect: Cloud Ladder Step. Press off the air itself, once, at the top of a jump.",
+    "Try it now. Three ledges you could not reach before, and tell me what the valley looks like from there."
+   ],
+   "complete_text": [
+    "Now you understand why the old masters built their halls so high."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qu6",
+   "same_stage_ok": true,
+   "giver_any": [
+    "jade_librarian",
+    "cloud_librarian"
+   ],
+   "hand_in_any": [
+    "jade_librarian",
+    "cloud_librarian"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_secret_art",
+     "art": "cloud_ladder_step"
+    }
+   ]
+  },
+  {
+   "id": "between_two_walls",
+   "name": "Between Two Walls",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Climb the Echo Cliffs shaft with Wall-Step",
+     "count": 3,
+     "system": "wall_step"
+    },
+    {
+     "kind": "kill",
+     "text": "Defeat Mist Vultures on the top tier",
+     "count": 3,
+     "enemy": "mist_vulture"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 120
+    }
+   ],
+   "offer_text": [
+    "Two walls close together are a ladder, if you are light enough. Push into one, kick, and reach for the other.",
+    "Climb the shaft at the Echo Cliffs. The vultures nest at the top; clear three."
+   ],
+   "complete_text": [
+    "Three kicks and you were above them. Good. Height is a weapon."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "ht4",
+   "same_stage_ok": true,
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "wg_echo_cliffs",
+   "on_accept": [
+    {
+     "kind": "learn_secret_art",
+     "art": "wall_step"
+    }
+   ]
+  },
+  {
    "id": "a_treasure_in_hand",
    "name": "A Treasure in Hand",
    "kind": "guided",

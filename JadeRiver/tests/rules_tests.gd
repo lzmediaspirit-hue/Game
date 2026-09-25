@@ -38,6 +38,7 @@ func _main() -> void:
 	movement_suite()
 	g1_suite()
 	g2_suite()
+	traversal_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -663,7 +664,7 @@ func movement_suite() -> void:
 	if c == null: return
 	var back := str(c.position.get("room", "lf_village"))
 	check(near(MovementSolver.JUMP_IMPULSE * MovementSolver.JUMP_IMPULSE / (2.0 * MovementSolver.GRAVITY), 122.1, 0.5),
-		"a single jump peaks at 122 units, a double jump at 244")
+		"a single jump peaks at 122 units; Cloud Ladder Step adds 80 (about 202)")
 	# A field made climbable: a jump onto the low ledge, a double jump onto the high one (where the chest waits).
 	Game.world.apply_teleport(c.id, "tp_thunderhorn_flats")
 	var geo: ZoneGeometry = Game.room_rt.geometry
@@ -673,13 +674,13 @@ func movement_suite() -> void:
 	if low and high:
 		var under := Vector2(low.bounds.get_center().x, low.bounds.end.y + 30.0)
 		var st1 := _jump_to(geo, under, low.bounds.get_center(), 1)
-		check(st1.surface == low and near(st1.altitude, 110.0, 0.5), "one jump lands on the 110-unit ledge (%s)" % (st1.surface.id if st1.surface else "air"))
+		check(st1.surface == low and near(st1.altitude, 100.0, 0.5), "one jump lands on the 100-unit ledge (%s)" % (st1.surface.id if st1.surface else "air"))
 		var st1b := _jump_to(geo, Vector2(high.bounds.get_center().x, high.bounds.end.y + 30.0), high.bounds.get_center(), 1)
-		check(st1b.surface == null or st1b.surface != high, "one jump does not reach the 220-unit ledge")
+		check(st1b.surface == null or st1b.surface != high, "one jump does not reach the 176-unit ledge")
 		var st2 := _jump_to(geo, Vector2(high.bounds.get_center().x, high.bounds.end.y + 30.0), high.bounds.get_center(), 2)
-		check(st2.surface == high and near(st2.altitude, 220.0, 0.5), "a double jump reaches it (%s)" % (st2.surface.id if st2.surface else "air"))
+		check(st2.surface == high and near(st2.altitude, 176.0, 0.5), "a double jump reaches it (%s)" % (st2.surface.id if st2.surface else "air"))
 		var chest: Dictionary = Game.room_rt.object_def("chest_ledge_mv_1")
-		check(not chest.is_empty() and near(float(chest.get("alt", 0)), 220.0), "the chest waits on the high ledge")
+		check(not chest.is_empty() and near(float(chest.get("alt", 0)), 176.0), "the chest waits on the high ledge")
 		var cloud: WalkSurface = geo.index.get("cloud_mv")
 		var st3 := _jump_to(geo, Vector2(cloud.bounds.get_center().x, cloud.bounds.end.y + 30.0), cloud.bounds.get_center(), 2)
 		check(st3.surface != cloud, "the cloud ledge is above double-jump reach: it is for fliers")
@@ -693,23 +694,23 @@ func movement_suite() -> void:
 	if crate_top:
 		var st4 := _jump_to(geo, crate_top.bounds.get_center() + Vector2(0, 40), crate_top.bounds.get_center(), 1)
 		check(st4.surface == crate_top, "a jump lands on the crate (%s)" % (st4.surface.id if st4.surface else "air"))
-	# Wall-Step: in the air beside a building's facade there is a wall to kick off, once per jump.
+	# Wall-Step: in the air, pushing into a building's facade, there is a wall to kick off (S43).
 	Game.world.apply_teleport(c.id, "lf_village")
 	geo = Game.room_rt.geometry
 	var roof: WalkSurface = geo.index.get("old_ma_store")
 	if roof:
 		var st5 := ActorState.new()
-		st5.plane = Vector2(roof.bounds.position.x - 16.0, roof.bounds.end.y - 20.0)
+		st5.plane = Vector2(roof.bounds.position.x - 8.0, roof.bounds.end.y - 20.0)
 		st5.altitude = 60.0
 		st5.air_stratum = "ground"
 		st5.jumps_used = 2
-		var side := MovementSolver.wall_step(st5, geo)
-		check(side == 1 and st5.vertical_speed > 400.0, "Wall-Step kicks off the store's facade")
-		check(MovementSolver.wall_step(st5, geo) == 0, "only once per time in the air")
+		var side := MovementSolver.wall_step(st5, geo, 1)
+		check(side == 1 and near(st5.vertical_speed, 450.0), "Wall-Step kicks off the store's facade (within 12 units, pushing in)")
+		check(MovementSolver.wall_step(st5, geo) == 0, "not without pushing into the wall")
 		var st6 := ActorState.new()
 		st6.plane = Vector2(roof.bounds.position.x - 200.0, roof.bounds.end.y - 20.0)
 		st6.altitude = 60.0
-		check(MovementSolver.wall_step(st6, geo) == 0, "no wall, no kick")
+		check(MovementSolver.wall_step(st6, geo, 1) == 0, "no wall, no kick")
 	# The rooms: count how many give the jump something to do.
 	var flat: Array = []
 	for rid in ContentDB.rooms:
@@ -1094,6 +1095,159 @@ func g2_suite() -> void:
 	Game.combat.refresh_stats(c.id)
 	c.pools.hp = c.pools.max_hp
 	Game.world.apply_teleport(c.id, back)
+
+# ------------------------------------------------------------------ traversal (Build Prompt v2 S43)
+func _trav_zone() -> ZoneGeometry:
+	var z := ZoneGeometry.new()
+	z.configure({"bounds": [0, 480, 3000, 480], "surfaces": [
+		{"id": "ground", "rect": [0, 560, 3000, 400], "height": 0, "kind": "ground", "stratum": "ground", "open_edges": false},
+		{"id": "deck", "rect": [200, 600, 400, 100], "height": 100, "kind": "roof", "stratum": "platform"},
+		{"id": "loft", "rect": [1150, 600, 200, 88], "height": 88, "kind": "roof", "stratum": "platform"}],
+		"blocks": [{"id": "crate", "rect": [800, 700, 60, 60], "base": 0, "top": 60, "kind": "crate"},
+			{"id": "wall", "rect": [1600, 560, 40, 400], "base": 0, "top": 300, "kind": "wall"}],
+		"climbables": [{"id": "ladder", "kind": "ladder", "at": [1250, 725], "top_at": [1250, 680], "bottom_alt": 0, "top_alt": 88, "bottom": "ground", "top": "loft"}]})
+	return z
+
+func _trav_actor(z: ZoneGeometry, sid: String, at: Vector2, arts := {}) -> ActorState:
+	var st := ActorState.new()
+	st.surface = z.index[sid]
+	st.plane = at
+	st.altitude = st.surface.height_at(at)
+	st.arts = {"double_jump": false, "wall_step": false, "drop_through": true, "mantle": true, "climb": true}
+	st.arts.merge(arts, true)
+	return st
+
+func _trav_run(st: ActorState, z: ZoneGeometry, secs: float, v: Vector2, dt := 1.0 / 120.0) -> void:
+	var t := 0.0
+	while t < secs - 0.0001:
+		MovementSolver.advance(st, z, dt, v)
+		t += dt
+
+func traversal_suite() -> void:
+	var z := _trav_zone()
+	# Rule 1: platform back edges are closed, the others open; a block top is open all round.
+	var d: WalkSurface = z.index.deck
+	check(d.edges == {"n": "closed", "s": "open", "e": "open", "w": "open"} and (z.index.ground as WalkSurface).edges.n == "closed"
+		and (z.index.crate as WalkSurface).edges.n == "open", "platforms close their back edge by default; blocks are open all round")
+	var st := _trav_actor(z, "deck", Vector2(400, 620))
+	_trav_run(st, z, 1.0, Vector2(0, -205))
+	check(st.surface == d and st.plane.y >= 600.0, "walking north off a roof is stopped by its closed back edge")
+	_trav_run(st, z, 1.5, Vector2(0, 205))
+	check(st.surface != null and st.surface.id == "ground", "walking south off it drops to the ground")
+	# Blocks stop walking, can be stood on, and a 60 block can be jumped over at walk speed.
+	st = _trav_actor(z, "ground", Vector2(760, 730))
+	_trav_run(st, z, 0.8, Vector2(205, 0))
+	check(st.plane.x < 800.0 and st.surface.id == "ground", "a crate stops a walker (x %.0f)" % st.plane.x)
+	st = _trav_actor(z, "ground", Vector2(700, 730))
+	MovementSolver.jump(st)
+	_trav_run(st, z, 1.4, Vector2(205, 0))
+	check(st.surface != null and st.surface.id == "ground" and st.plane.x > 866.0, "a 60 block is jumped over at walk speed (x %.0f)" % st.plane.x)
+	st = _trav_actor(z, "ground", Vector2(775, 730))
+	MovementSolver.jump(st)
+	_trav_run(st, z, 0.3, Vector2(205, 0))
+	_trav_run(st, z, 1.0, Vector2.ZERO)
+	check(st.surface != null and st.surface.id == "crate" and near(st.altitude, 60.0), "a crate can be stood on")
+	# Rule 2: coyote time, jump buffer and the fixed jump, at three frame rates.
+	for dt in [1.0 / 30.0, 1.0 / 60.0, 1.0 / 120.0]:
+		st = _trav_actor(z, "deck", Vector2(400, 690))
+		_trav_run(st, z, 0.1, Vector2(0, 205), dt)
+		var off := st.surface == null
+		var coy := MovementSolver.jump(st)
+		check(off and coy and near(st.vertical_speed, 530.0) and st.jumps_used == 1, "a jump just after walking off an edge is still a ground jump (dt %.3f)" % dt)
+		st = _trav_actor(z, "ground", Vector2(1000, 800))
+		MovementSolver.jump(st)
+		while st.vertical_speed > -480.0: MovementSolver.advance(st, z, 1.0 / 240.0, Vector2.ZERO)
+		var early := MovementSolver.jump(st)
+		st.events.clear()
+		_trav_run(st, z, 0.2, Vector2.ZERO, dt)
+		var names: Array = st.events.map(func(e): return e.name)
+		check(not early and names.find("landed") >= 0 and names.find("jumped", names.find("landed")) > 0,
+			"a jump pressed just before landing fires on landing (dt %.3f) %s" % [dt, str(names)])
+	st = _trav_actor(z, "ground", Vector2(1000, 800))
+	MovementSolver.jump(st)
+	var peak := 0.0
+	for i in 240:
+		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2.ZERO)
+		peak = maxf(peak, st.altitude)
+	check(near(peak, 122.1, 0.01), "the base jump peaks at 122 (%.1f)" % peak)
+	# Cloud Ladder Step: a second jump of +80 from where it is used; none without the art.
+	st = _trav_actor(z, "ground", Vector2(1000, 800))
+	MovementSolver.jump(st)
+	while st.vertical_speed > 0.0: MovementSolver.advance(st, z, 1.0 / 120.0, Vector2.ZERO)
+	check(not MovementSolver.jump(st), "no double jump without Cloud Ladder Step")
+	st = _trav_actor(z, "ground", Vector2(1000, 800), {"double_jump": true})
+	MovementSolver.jump(st)
+	while st.vertical_speed > 0.0: MovementSolver.advance(st, z, 1.0 / 120.0, Vector2.ZERO)
+	var from_h: float = st.altitude
+	check(MovementSolver.jump(st) and near(st.vertical_speed, 430.0), "Cloud Ladder Step jumps again at impulse 430")
+	peak = 0.0
+	for i in 240:
+		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2.ZERO)
+		peak = maxf(peak, st.altitude)
+	check(near(peak - from_h, 80.4, 0.02) and near(peak, 202.0, 0.02), "+80 from where it is used; about 202 from the ground (%.0f)" % peak)
+	# Wall-Step: push into a wall face within 12 and kick (vertical 450), three times per airtime.
+	st = _trav_actor(z, "ground", Vector2(1590, 800), {"wall_step": true})
+	MovementSolver.jump(st)
+	_trav_run(st, z, 0.2, Vector2.ZERO)
+	check(MovementSolver.wall_step(st, z, 0) == 0, "no Wall-Step without pushing into the wall")
+	var kicks := 0
+	for i in 4:
+		if MovementSolver.wall_step(st, z, 1) != 0: kicks += 1
+	check(kicks == 3 and near(st.vertical_speed, 450.0), "three Wall-Step kicks per airtime at vertical speed 450 (%d)" % kicks)
+	# Rule 3: drop through a platform, never the ground or a block.
+	st = _trav_actor(z, "deck", Vector2(400, 650))
+	check(MovementSolver.drop_through(st), "drop through the deck")
+	_trav_run(st, z, 1.2, Vector2.ZERO)
+	check(st.surface != null and st.surface.id == "ground", "and land on the ground below it")
+	check(not MovementSolver.drop_through(st), "the ground cannot be dropped through")
+	st = _trav_actor(z, "crate", Vector2(830, 730))
+	check(not MovementSolver.drop_through(st), "nor a block")
+	# Rule 4: a just-missed ledge within 24 up and 16 across is mantled.
+	st = _trav_actor(z, "ground", Vector2(190, 650))
+	st.surface = null
+	st.altitude = 84.0
+	st.air_peak = 110.0
+	st.vertical_speed = -50.0
+	st.jumps_used = 1
+	MovementSolver.advance(st, z, 1.0 / 120.0, Vector2(205, 0))
+	check(st.surface == d and near(st.altitude, 100.0), "a ledge 16 above is mantled")
+	# Rule 5: climb a ladder, stop, reach the top, come down, jump off, be knocked off.
+	st = _trav_actor(z, "ground", Vector2(1250, 740))
+	var ladder: Dictionary = z.climbable_near(st.plane, st.altitude)
+	check(not ladder.is_empty() and MovementSolver.start_climb(st, ladder, false), "the ladder is in reach and can be climbed")
+	_trav_run(st, z, 0.2, Vector2(0, -205))
+	var mid: float = st.altitude
+	_trav_run(st, z, 0.2, Vector2.ZERO)
+	check(near(mid, 32.0, 0.05) and near(st.altitude, mid), "climbing at 160 a second, and stopping on the rungs (%.0f)" % mid)
+	for i in 120:
+		if st.climbing.is_empty(): break
+		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2(0, -205))
+	check(st.climbing.is_empty() and st.surface != null and st.surface.id == "loft", "the top step lands on the loft")
+	var down_from: Dictionary = z.climbable_near(st.plane, st.altitude)
+	check(not down_from.is_empty() and MovementSolver.start_climb(st, down_from, true), "climb back down from the top")
+	for i in 120:
+		if st.climbing.is_empty(): break
+		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2(0, 205))
+	check(st.climbing.is_empty() and st.surface.id == "ground", "the foot steps onto the ground")
+	MovementSolver.start_climb(st, z.climbable_near(st.plane, st.altitude), false)
+	_trav_run(st, z, 0.2, Vector2(0, -205))
+	check(MovementSolver.release_climb(st, 1, true) and st.surface == null and st.vertical_speed > 0.0, "a jump lets go of the ladder")
+	st = _trav_actor(z, "ground", Vector2(1250, 740))
+	MovementSolver.start_climb(st, z.climbable_near(st.plane, st.altitude), false)
+	check(MovementSolver.release_climb(st, -1, false) and st.surface == null and near(st.vertical_speed, 0.0), "a hit knocks the climber off")
+	# Rule 6: the void lies 250 below the lowest surface.
+	check(near(z.void_altitude, -250.0), "void altitude defaults to 250 below the lowest surface")
+	# Traversal events are recorded for the authority to announce.
+	st = _trav_actor(z, "ground", Vector2(1000, 800))
+	MovementSolver.jump(st)
+	check(st.events.any(func(e): return e.name == "jumped"), "a jump records a jumped event")
+	# Room data reaches the room's geometry: blocks, climbables and the void (the World authority compiles it).
+	var echo := ZoneGeometry.new()
+	echo.configure(WorldAuthority.compile_geometry(ContentDB.room("wg_echo_cliffs")))
+	check(echo.index.has("shaft_west") and echo.wall_face_at(Vector2(1356, 690), 120.0, "ground"), "the Echo Cliffs shaft walls are in the room's geometry")
+	var ferry := ZoneGeometry.new()
+	ferry.configure(WorldAuthority.compile_geometry(ContentDB.room("lf_village")))
+	check(ferry.climbables.size() >= 1, "the Lotus Ferry hall ladder is in the room's geometry")
 
 # ------------------------------------------------------------------ emotes (S34)
 func emotes_suite() -> void:
