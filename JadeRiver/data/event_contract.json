@@ -1454,6 +1454,42 @@
    ],
    "polled": "The player node reads the water state and volumes each frame."
   },
+  "world_event_scheduled": {
+   "system": "Calendar",
+   "files": [
+    "calendar_authority"
+   ]
+  },
+  "world_event_started": {
+   "system": "Calendar",
+   "files": [
+    "calendar_authority"
+   ]
+  },
+  "world_event_ended": {
+   "system": "Calendar",
+   "files": [
+    "calendar_authority"
+   ]
+  },
+  "season_changed": {
+   "system": "Calendar",
+   "files": [
+    "calendar_authority"
+   ]
+  },
+  "weather_changed": {
+   "system": "Calendar",
+   "files": [
+    "calendar_authority"
+   ]
+  },
+  "rift_opened": {
+   "system": "Calendar",
+   "files": [
+    "calendar_authority"
+   ]
+  },
   "merit_changed": {
    "system": "Relations",
    "files": [

@@ -12,7 +12,8 @@ const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "bath_stati
 	"ore_vein": "copper_vein", "formation_table": "formation_node", "garden_bed": "treasure_plot",
 	"defence_drum": "small_bell", "treasure_plot": "treasure_plot", "treasure_tree": "nine_bough_jade_tree",
 	"star_sight": "star_sight_stone", "chart_table": "star_chart_table", "shipyard_slip": "shipyard_slip", "starsea_dock": "cloud_skiff",
-	"air_pocket": "qi_spring", "earth_vent": "gas_vent", "egg_nest": "beast_nest", "beast_tide_drum": "small_bell", "beast_trial_stone": "rite_circle"}
+	"air_pocket": "qi_spring", "earth_vent": "gas_vent", "egg_nest": "beast_nest", "beast_tide_drum": "small_bell", "beast_trial_stone": "rite_circle",
+	"rift_tear": "portal_swirl"}
 
 var def: Dictionary = {}
 var object_id := ""
@@ -105,6 +106,14 @@ func _draw() -> void:
 				draw_circle(sp, 2.4, Color(1.0, 0.95, 0.7, 0.95))
 				draw_line(sp - Vector2(4, 0), sp + Vector2(4, 0), Color(1.0, 0.9, 0.55, 0.7), 1.0)
 				draw_line(sp - Vector2(0, 4), sp + Vector2(0, 4), Color(1.0, 0.9, 0.55, 0.7), 1.0)
+		if def.type == "rift_tear":
+			# S49 spatial rift: a violet tear in the air, the swirl inside it, motes drawn in.
+			for k in 3:
+				draw_circle(Vector2(0, -60), 70.0 - k * 18.0 + 4.0 * sin(t * 2.0 + k), Color(0.55, 0.25, 0.85, 0.10 + k * 0.06))
+			for i in 8:
+				var a := -t * 1.2 + i * TAU / 8.0
+				var r := 60.0 - fmod(t * 30.0 + i * 9.0, 50.0)
+				draw_circle(Vector2(cos(a) * r, -60.0 + sin(a) * r * 0.7), 2.2, Color(0.85, 0.7, 1.0, 0.9))
 		drawn = SpriteCache.draw_prop(self, current_prop(), st, t, Vector2.ZERO, bool(def.get("flip", false)))
 		if rare and not ripe and st == "ready": draw_circle(Vector2(0, -14), 22.0, Color(0.05, 0.1, 0.1, 0.25))   # still growing
 	if def.type == "herb_patch" and def.has("ripen"): _draw_sensed()

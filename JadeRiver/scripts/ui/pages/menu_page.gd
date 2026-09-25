@@ -9,6 +9,7 @@ var ENTRIES := [
 	["inventory", Tx.t("ui.menu.bag"), "bag", "bag"],
 	["quests", Tx.t("ui.menu.quests"), "quest", "navigation"],
 	["world_map", Tx.t("ui.menu.map"), "world_map", "world_menu"],
+	["calendar", Tx.t("ui.menu.calendar"), "calendar", "world_menu"],
 	["training_sect", Tx.t("ui.menu.sect"), "sect", "sect_choice"],
 	["your_sect", Tx.t("ui.menu.your_sect"), "account", "your_sect"],
 	["spirit_animals", Tx.t("ui.menu.spirit_animals"), "spirit_animals", "spirit_animals"],
@@ -29,7 +30,7 @@ func _init() -> void:
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
-	var cols := 6
+	var cols := 7
 	var cw := (content.size.x - 20) / cols
 	var ch_h := 150.0
 	for i in ENTRIES.size():

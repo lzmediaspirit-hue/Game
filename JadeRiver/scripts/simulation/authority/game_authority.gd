@@ -40,6 +40,7 @@ var companions: CompanionAuthority
 var sect: SectAuthority
 var workshop: WorkshopAuthority
 var relations: RelationsAuthority
+var calendar: CalendarAuthority
 
 func _ready() -> void:
 	build_authorities()
@@ -64,8 +65,9 @@ func build_authorities() -> void:
 	sect = SectAuthority.new(self)
 	workshop = WorkshopAuthority.new(self)
 	relations = RelationsAuthority.new(self)
+	calendar = CalendarAuthority.new(self)
 	authorities = [combat, progression, enemies, world, inventory, quest, economy, accounts, crafting, training, mail,
-		achievements, pets, companions, sect, workshop, relations]
+		achievements, pets, companions, sect, workshop, relations, calendar]
 	for a in authorities:
 		for type in a.intents():
 			assert(not handlers.has(type), "Intent registered twice: " + type)
@@ -148,6 +150,7 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"add_fame": relations.apply_fame(actor_id, int(e.get("amount", 0)), str(e.get("reason", source)))
 			"add_affinity": relations.apply_affinity(actor_id, str(e.npc), int(e.get("amount", 0)), str(e.get("reason", source)))
 			"master_legacy": relations.apply_master_legacy(actor_id)
+			"rift_reward": world.apply_rift_reward(actor_id, str(e.get("loot", "chest_dungeon")), int(e.get("level", 1)))
 			"learn_inner_art": progression.apply_learn_inner_art(actor_id, str(e.art))
 			"add_residue": progression.apply_residue(actor_id, float(e.get("amount", 0)))
 			"clear_residue": progression.apply_residue(actor_id, -float(e.get("amount", 1000000.0)))

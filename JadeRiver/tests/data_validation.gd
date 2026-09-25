@@ -336,6 +336,16 @@ func data_suite() -> void:
 	for m in ContentDB.entry("bonds", "master").get("legacy", {}):
 		check(ContentDB.has_entry("inner_arts", str(ContentDB.entry("bonds", "master").legacy[m])), "legacy art of %s" % m)
 	check(ContentDB.has_entry("titles", str(ContentDB.entry("bonds", "sworn").get("title", ""))), "the sworn title")
+	# S49 calendar: every event names real rooms and realms; every rift room has its tear.
+	for ev in ContentDB.all("calendar"):
+		check(str(ev.get("name", "")) != "" and str(ev.get("desc", "")) != "", "calendar %s has a name and a line" % ev.id)
+		if str(ev.get("room", "")) != "": check(ContentDB.rooms.has(str(ev.room)), "calendar %s room %s" % [ev.id, ev.room])
+		if str(ev.get("cap_below", "")) != "": check(ContentDB.realm_index.has(str(ev.cap_below)), "calendar %s cap %s" % [ev.id, ev.cap_below])
+		for rr in ev.get("rooms", []):
+			var has_tear := false
+			for o in ContentDB.room(str(rr)).get("objects", []):
+				if str(o.type) == "rift_tear": has_tear = true
+			check(has_tear, "rift room %s has a tear" % rr)
 	var last_bolts := 0
 	for tb in ContentDB.all("tribulations"):
 		check(ContentDB.realm_index.has(str(tb.from)) and bool(ContentDB.realm(str(ContentDB.realm(str(tb.from)).get("next", ""))).get("major", false)),

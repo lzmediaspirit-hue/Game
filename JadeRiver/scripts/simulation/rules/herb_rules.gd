@@ -12,9 +12,12 @@ static func game_day(utc: float) -> int:
 	return int(floor(utc / day_s()))
 
 # ------------------------------------------------------------------ seasons
-## The season turns with the weekly reset: four seasons of one real week each.
+## The season turns with the weekly reset: four seasons of one real week each, spring first from the account's
+## creation week (S49; the Calendar sets origin_week, 0 on older saves).
+static var origin_week := 0
+
 static func season_index(utc: float) -> int:
-	return posmod(Clock.reset_week(utc), 4)
+	return posmod(Clock.reset_week(utc) - origin_week, 4)
 
 static func season(utc: float) -> String:
 	var all: Array = ContentDB.all("seasons")

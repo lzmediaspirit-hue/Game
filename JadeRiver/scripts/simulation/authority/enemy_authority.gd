@@ -73,6 +73,10 @@ func _spawn_allowed(spec: Dictionary) -> bool:
 		if not Unlocks.is_unlocked(game.active_id, "field_bosses"): return false
 	# S46: the paw-marked beasts that gather while a Beast King lives.
 	if spec.has("king_alive") and not king_alive(str(spec.king_alive)): return false
+	# S49: a calendar boss (the Drowned Abbot) wakes again after its first defeat only while its event is open.
+	if spec.has("calendar"):
+		var c = game.active()
+		if c != null and c.collection_first_kills.has(str(spec.enemy)) and not game.calendar.repeat_open(c, str(spec.calendar)): return false
 	return true
 
 func populate() -> void:

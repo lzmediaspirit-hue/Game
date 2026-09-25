@@ -66,6 +66,7 @@ func _main() -> void:
 	relations_suite()
 	bonds_suite()
 	grudges_suite()
+	calendar_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -2600,6 +2601,96 @@ func grudges_suite() -> void:
 	c.quests.flags = flags_was
 	Game.account.currencies["silver_tael"] = taels0
 	while Game.account.mail.size() > mail0: Game.account.mail.pop_front()
+	if room_was != "": Game.world.load_room(c, room_was, "")
+
+## S49 v1.0 world calendar: seeded and identical for the same save, events on their rhythm, repeat runs behind the
+## cycle and a realm cap (first visits never), the spatial rift, seasons from the account's first week.
+func calendar_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var realm_was: String = c.cultivator.realm_key
+	var kills_was: Dictionary = c.collection_first_kills.duplicate()
+	var cd_was: Dictionary = c.cooldowns.duplicate(true)
+	var created_was: float = Game.account.created_utc
+	var seed_was: int = Game.account.rng_seed
+	var over_was: float = Clock.override_utc
+	var origin := 1_700_000_000.0
+	Game.account.created_utc = origin
+	Game.account.rng_seed = 424242
+	var rift := CalendarRules.event("spatial_rift")
+	var shrine := CalendarRules.event("shrine_reopening")
+	var fall := CalendarRules.event("waterfall_reopening")
+	# The same seed and first day give the same calendar on any device; another seed moves the rifts.
+	var a := CalendarRules.schedule(origin + 40 * 86400.0, 424242, origin)
+	var b := CalendarRules.schedule(origin + 40 * 86400.0, 424242, origin)
+	check(a == b and not a.is_empty(), "the same save sees the same calendar")
+	var differ := false
+	for k in 12:
+		if str(CalendarRules.occurrence(rift, k, 424242, origin).room) != str(CalendarRules.occurrence(rift, k, 7, origin).room): differ = true
+	check(differ, "another seed opens the rifts elsewhere")
+	# Rhythms: a rift every three days for an hour in a valley field room; the shrine every five days for a day;
+	# the Waterfall Cave on the same rhythm, two days later.
+	var r0 := CalendarRules.occurrence(rift, 0, 424242, origin)
+	var r1 := CalendarRules.occurrence(rift, 1, 424242, origin)
+	check(absf(float(r1.start) - float(r0.start) - 3 * 86400.0) <= 12 * 3600.0 and near(float(r0.end) - float(r0.start), 3600.0)
+		and (rift.rooms as Array).has(str(r0.room)), "a rift every three days, for an hour, in a field room")
+	var s0 := CalendarRules.occurrence(shrine, 0, 424242, origin)
+	var f0 := CalendarRules.occurrence(fall, 0, 424242, origin)
+	check(near(float(CalendarRules.occurrence(shrine, 1, 424242, origin).start) - float(s0.start), 5 * 86400.0)
+		and near(float(f0.start) - float(s0.start), 2 * 86400.0) and near(float(s0.end) - float(s0.start), 86400.0), "reopenings every five days for a day, the cave two days after the shrine")
+	check(CalendarRules.active(shrine, float(s0.start) + 3600.0, 424242, origin).get("k", -1) == 0
+		and CalendarRules.active(shrine, float(s0.end) + 3600.0, 424242, origin).is_empty(), "open for its day, closed after")
+	# Repeat runs only while open and at or below the cap; the first defeat never waits.
+	c.cultivator.realm_key = "qi_unfurling_5"
+	check(CalendarRules.repeat_open(shrine, float(s0.start) + 60.0, 424242, origin, c.cultivator.realm_key), "the Abbot again: open at Qi Unfurling 5")
+	check(not CalendarRules.repeat_open(shrine, float(s0.start) + 60.0, 424242, origin, "heart_tempering_2"), "not at Heart Tempering (past the cap)")
+	Clock.override_utc = float(s0.end) + 3600.0
+	var spec := {"enemy": "drowned_abbot", "calendar": "shrine_reopening"}
+	c.collection_first_kills.erase("drowned_abbot")
+	check(Game.enemies._spawn_allowed(spec), "the first defeat is never behind the cycle")
+	c.collection_first_kills["drowned_abbot"] = true
+	check(not Game.enemies._spawn_allowed(spec), "a repeat waits for the shrine to surface")
+	Clock.override_utc = float(s0.start) + 3600.0
+	check(Game.enemies._spawn_allowed(spec), "and wakes while it has")
+	# The Waterfall Cave's inner cache: once per opening.
+	Clock.override_utc = float(f0.start) + 3600.0
+	var cache := {}
+	for o in ContentDB.room("wg_waterfall_cave").get("objects", []):
+		if str(o.id) == "cave_inner_cache": cache = o
+	check(not cache.is_empty() and Game.world.open_key(cache) == "cave_inner_cache@0", "the cache is keyed to this opening")
+	# The spatial rift: its tear shows in its room while open; touching it pours out that room's beasts, stronger.
+	Clock.override_utc = float(r0.start) + 600.0
+	Game.world.load_room(c, str(r0.room), "")
+	GameEvents.flush()
+	var tear := {}
+	for o in Game.room_rt.def.get("objects", []):
+		if str(o.type) == "rift_tear": tear = o
+	check(not tear.is_empty() and Game.world.object_visible(c, tear), "the tear shows in %s while the rift is open" % r0.room)
+	c.cooldowns.erase("rift_k")
+	var opened: Dictionary = Game.calendar.open_rift(c)
+	check(opened.get("ok", false) and str(Game.room_rt.event.get("id", "")) == "spatial_rift", "touching it starts the rift")
+	check(str(Game.calendar.open_rift(c).get("reason", "")) in ["done", "busy"], "once per rift")
+	var top := 0
+	for w in Game.room_rt.event.get("waves", []): top = maxi(top, int(w.level))
+	var room_top := 0
+	for sp in Game.room_rt.def.get("spawns", []):
+		if not sp.get("boss", false) and not sp.has("requires"): room_top = maxi(room_top, int((sp.get("level", [0]) as Array).back()))
+	check(top == room_top + 3, "its beasts come three levels stronger (%d over %d)" % [top, room_top])
+	Game.world._end_event(c, Game.room_rt, false)
+	Clock.override_utc = float(r0.end) + 600.0
+	check(not Game.world.object_visible(c, tear), "the tear closes with the hour")
+	# Seasons from the account's first week: spring first.
+	HerbRules.origin_week = Clock.reset_week(origin)
+	check(HerbRules.season(origin + 3600.0) == "spring" and HerbRules.season(origin + 7 * 86400.0 + 3600.0) != "spring", "spring comes first, from the account's first week")
+	HerbRules.origin_week = 0
+	if Game.room_rt.event.get("active", false): Game.world._end_event(c, Game.room_rt, false)
+	Clock.override_utc = over_was
+	Game.account.created_utc = created_was
+	Game.account.rng_seed = seed_was
+	c.cultivator.realm_key = realm_was
+	c.collection_first_kills = kills_was
+	c.cooldowns = cd_was
 	if room_was != "": Game.world.load_room(c, room_was, "")
 
 func _seeded(seed: int) -> RandomNumberGenerator:

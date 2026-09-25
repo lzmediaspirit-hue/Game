@@ -5,6 +5,40 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V8d1 · The living world: the world calendar, spatial rifts and reopenings (S49)
+- **Calendar authority** (new, account level). The schedule is pure (`CalendarRules`): it comes from the account
+  seed, the account's first day and the UTC clock, so the same save shows the same calendar on any device.
+  - Draws come from `Rng.keyed`, which is stateless and never moves a gameplay stream.
+  - The authority announces events a day ahead (a notification through the Notifier), when they start and when
+    they end, the season and the weather.
+- **calendar.json** (`tools/data/living_world.py`):
+  - A **Spatial Rift** every three days for an hour, in one of the valley's seventeen field rooms. Its violet tear
+    shows only then. Touch it and the room's beasts pour out three levels stronger for a minute; survive, and it
+    leaves a chest's roll at your feet (once per rift).
+  - **The Drowned Shrine Surfaces** every fifth day, for a day. After its first defeat the Drowned Abbot wakes
+    again only then, at Qi Unfurling 9 and below.
+  - **The Waterfall Cave Opens** two days later on the same rhythm. A new inner cache fills once per opening,
+    at Heart Tempering 9 and below.
+  - First visits, the story entry and the vault are never behind the cycle.
+  - The weekly Beast Tide shows on the calendar too.
+- **Seasons** now run from the account's first week, spring first. Saves from before this keep the old count.
+  The account gains `created_utc` and a `calendar` block.
+- **Weather** (v1.1 groundwork): a seeded pick every three hours for Reedmarsh and Whitewater Gorge (rain or fog)
+  and Summit Ridge (storms or fog). Those rooms carry their region. Effects and visuals come in V8d2.
+- **Calendar page** (a new Menu entry; the Menu is now seven tiles wide): the season and its days left, the
+  weather by region, this week's Beast Tide, and every world event with when, where and whether its repeat runs
+  are open to you.
+- New requirement kinds `world_event_active` and `world_event_here`; chests that `reopens` with an event.
+- **Events:** `world_event_scheduled`, `world_event_started`, `world_event_ended`, `season_changed`,
+  `weather_changed` and `rift_opened`, with HUD notes.
+- **Tests:**
+  - the same save gives the same calendar, and another seed moves the rifts;
+  - each rhythm and duration;
+  - repeat runs open and capped, while the first defeat is never gated;
+  - the cache is keyed to each opening;
+  - the rift tear, its once-per-rift rule and its +3 levels;
+  - spring first from the account's week.
+
 ### V8c · The living world: grudges, hunters, bounties, mercy and named debts (S49)
 - **Grudges** (factions.json) against three factions:
   - the Mudwater Bandits (hunters at 30; 200 taels, or a duel with Tan the Younger);

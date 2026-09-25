@@ -349,6 +349,23 @@
      }
     ]
    }
+  },
+  {
+   "id": "rift_tear",
+   "type": "rift_tear",
+   "at": [
+    1408,
+    820
+   ],
+   "radius": 140,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "world_event_here",
+      "event": "spatial_rift"
+     }
+    ]
+   }
   }
  ],
  "spawns": [
@@ -596,6 +613,7 @@
    ]
   }
  ],
+ "weather": "marsh",
  "climbables": [
   {
    "id": "ledge_0_vine_1",

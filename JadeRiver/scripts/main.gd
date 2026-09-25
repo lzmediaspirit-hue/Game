@@ -38,6 +38,7 @@ const PAGES := {
 	"relations": "res://scripts/ui/pages/relations_page.gd",
 	"gift": "res://scripts/ui/pages/gift_page.gd",
 	"mercy": "res://scripts/ui/pages/mercy_page.gd",
+	"calendar": "res://scripts/ui/pages/calendar_page.gd",
 	"companions": "res://scripts/ui/pages/companions_page.gd",
 	"crafts": "res://scripts/ui/pages/crafts_page.gd",
 	"cooking": "res://scripts/ui/pages/crafts_page.gd",

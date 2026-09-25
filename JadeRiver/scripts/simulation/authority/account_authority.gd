@@ -63,6 +63,7 @@ func create_character(intent: Dictionary) -> Dictionary:
 	c.appearance = appearance
 	c.cultivator.origin = origin
 	c.created_utc = Clock.now_utc()
+	if game.account.created_utc <= 0.0: game.account.created_utc = c.created_utc   # the calendar's day zero (S49)
 	c.rng_seed = (int(game.account.rng_seed) + slot * 7919) & 0x7fffffff
 	Rng.forget(c.id)
 	Rng.ensure(c.id, c.rng_seed)

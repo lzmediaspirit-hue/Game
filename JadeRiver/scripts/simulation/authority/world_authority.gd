@@ -413,7 +413,7 @@ func _restore_object_states(c, rt: RoomRuntime) -> void:
 		if o.type in ["herb_patch", "ore_vein", "star_sight"] and float(mem.nodes.get(id, 0.0)) > now:
 			st.state = "depleted"
 			st.timer = float(mem.nodes[id]) - now
-		if o.type in ["chest"] and mem.opened.has(id): st.state = "open"
+		if o.type in ["chest"] and mem.opened.has(open_key(o)): st.state = "open"
 		if o.type in BREAKABLES and float(mem.broken.get(id, 0.0)) > now:
 			st.state = "broken"
 			st.timer = float(mem.broken[id]) - now
@@ -430,6 +430,12 @@ func climbable_open(c, climbable: Dictionary) -> Dictionary:
 	if climbable.has("requires") and not RequirementRules.passes(climbable.requires, game.ctx(c)):
 		return {"ok": false, "text": str(climbable.get("locked_text", RequirementRules.first_failure_text(climbable.requires, game.ctx(c))))}
 	return {"ok": true}
+
+## A chest that `reopens` with a calendar event is opened once per occurrence (S49); any other chest once.
+func open_key(o: Dictionary) -> String:
+	if str(o.get("reopens", "")) == "": return str(o.id)
+	var occ: Dictionary = game.calendar.active_of(str(o.reopens))
+	return "%s@%d" % [str(o.id), int(occ.get("k", -1))]
 
 func object_available(c, o: Dictionary) -> Dictionary:
 	if not object_visible(c, o): return {"ok": false, "text": "", "hidden": true}
@@ -517,7 +523,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 		"chest":
 			var s: Dictionary = game.room_rt.objects.get(object_id, {})
 			s.state = "open"
-			_room_mem(c, game.room_rt.room_id).opened[object_id] = true
+			_room_mem(c, game.room_rt.room_id).opened[open_key(o)] = true
 			var drop := LootRules.roll(str(o.get("loot", "chest_valley")), Rng.stream(c.id, "loot"), int(o.get("level", ProgressionRules.level(c))),
 				c.stats.value("drop_rate"), c.stats.value("coin_find"), {"no_equipment": not Unlocks.is_unlocked(c.id, "weapons")})
 			_drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0)
@@ -575,6 +581,8 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			result.text = Tx.t("sim.world.nest_egg")
 		"beast_tide_drum":
 			return start_beast_tide(c)
+		"rift_tear":
+			return game.calendar.open_rift(c)
 		"beast_trial_stone":
 			return start_beast_trial(c)
 		"treasure_plot":
@@ -647,6 +655,7 @@ func _verb(o: Dictionary) -> String:
 		"rite_circle": return Tx.t("sim.world.begin")
 		"spar_post": return Tx.t("sim.world.spar")
 		"bell", "beast_tide_drum": return Tx.t("sim.world.ring")
+		"rift_tear": return Tx.t("sim.world.touch")
 		"beast_trial_stone": return Tx.t("sim.world.begin")
 		"egg_nest": return Tx.t("sim.world.take")
 		"treasure_plot", "garden_bed": return Tx.t("sim.world.tend")
@@ -1081,6 +1090,15 @@ func apply_voyage_arrive(actor_id: String) -> void:
 ## Start a timed event in the loaded room (set pieces, sect defence).
 func start_room_event(c, ev: Dictionary) -> void:
 	if game.room_rt: _start_event(c, game.room_rt, ev)
+
+## What a survived rift leaves behind: a chest's roll at the rift's level, dropped at your feet (S49).
+func apply_rift_reward(actor_id: String, loot: String, level: int) -> void:
+	var c = game.character(actor_id)
+	var st: ActorState = game.actor_state(actor_id)
+	if c == null or st == null: return
+	var drop := LootRules.roll(loot, Rng.stream(c.id, "loot"), level, c.stats.value("drop_rate"), c.stats.value("coin_find"),
+		{"no_equipment": not Unlocks.is_unlocked(c.id, "weapons")})
+	_drop_loot(c, drop, st.plane, 0.0)
 
 func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 	if ev.has("requires") and not RequirementRules.passes(ev.requires, game.ctx(c)): return

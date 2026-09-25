@@ -1334,7 +1334,8 @@ def valley():
                   set_flag="inscription_%s_%d" % (rid, i), visible_if=all_of(qactive("lus_handwriting")))
     r = Room("ds_abbots_sanctum", "Abbot's Sanctum", "boss_arena", "drowned_shrine", 2, backdrop="cave", material="floor_stone",
              music="boss", levels=[27, 27], safe=False, spawn_point=[200, 820], dungeon_exit="dw_bend_shore")
-    r.spawn("drowned_abbot", [[1700, 840]], 1, respawn=86400, level=[27, 27], boss=True)
+    # S49: after the first defeat the Abbot wakes again only while the shrine has surfaced (calendar, QU9 and below).
+    r.spawn("drowned_abbot", [[1700, 840]], 1, respawn=86400, level=[27, 27], boss=True, calendar="shrine_reopening")
     for i, x in enumerate([500, 1100, 1700, 2300]):
         r.obj("small_bell_%d" % i, "bell", [x, 700])
     r.obj("vault", "chest", [2400, 700], loot="abbots_vault", level=27, requires=all_of(realm("spirit_awakening_3")),
@@ -1383,6 +1384,12 @@ def valley():
     r.obj("journal_cave", "pickup", [900, 740], item="lu_journal_page", count=1, prop="scroll_rack", set_flag="journal_cave",
           hidden_if=all_of(flag("journal_cave")))
     r.chest([1100, 720], loot="chest_dungeon", level=33)
+    # S49 reopening: behind the thinned falls, an inner cache that fills again each time the cave opens (calendar,
+    # Heart Tempering 9 and below). The first visit and the journal page never wait for it.
+    r.obj("cave_inner_cache", "chest", [1700, 700], loot="chest_dungeon", level=33, reopens="waterfall_reopening",
+          visible_if=all_of({"kind": "world_event_active", "event": "waterfall_reopening"}),
+          requires=all_of({"kind": "realm_below", "realm": "cloud_stride_1"}),
+          locked_text="The cache is for those still finding their way. Your realm is past it.")
     r.portal("entry", "door", [140, 700], "wg_rapids_terraces", "cave", press_up=True)
 
     # Crane Cliffs (CS1-CS9)
@@ -2689,6 +2696,25 @@ def paths_above_json():
     entries("paths_above", rows)
 
 
+def weather_regions():
+    """S49 weather (v1.1): the valley rooms that have weather of their own: rain and fog in the marsh and the gorge,
+    storms on Summit Ridge (calendar.json tables). Interiors and towns keep the sky out."""
+    prefixes = {"rm_": "marsh", "wg_": "gorge", "sr_": "summit"}
+    for rid, r in ROOMS.items():
+        for pre, region in prefixes.items():
+            if rid.startswith(pre) and r.d["type"] in ("field", "path"):
+                r.d["weather"] = region
+
+
+def rift_tears():
+    """S49 spatial rifts: every valley field room with beasts has a tear that shows only while the calendar's rift is
+    open there (living_world.py lists the same rooms)."""
+    for rid, r in ROOMS.items():
+        if r.d["zone"] == "jade_river_valley" and r.d["type"] == "field" and r.d["spawns"]:
+            r.obj("rift_tear", "rift_tear", [int(r.w * 0.55), 820], radius=140,
+                  visible_if=all_of({"kind": "world_event_here", "event": "spatial_rift"}))
+
+
 def build():
     ROOMS.clear()
     lotus_ferry()
@@ -2708,6 +2734,8 @@ def build():
     bandit_ambushes()
     recipe_pages()
     body_trial_grounds()
+    rift_tears()
+    weather_regions()
     catalogue.run(ROOMS)
     movement_pass()
     verticality.run(ROOMS)

@@ -103,6 +103,34 @@
    "loot": "chest_dungeon",
    "level": 33,
    "alt": 100
+  },
+  {
+   "id": "cave_inner_cache",
+   "type": "chest",
+   "at": [
+    1700,
+    700
+   ],
+   "loot": "chest_dungeon",
+   "level": 33,
+   "reopens": "waterfall_reopening",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "world_event_active",
+      "event": "waterfall_reopening"
+     }
+    ]
+   },
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_below",
+      "realm": "cloud_stride_1"
+     }
+    ]
+   },
+   "locked_text": "The cache is for those still finding their way. Your realm is past it."
   }
  ],
  "spawns": [],

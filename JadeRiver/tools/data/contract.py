@@ -73,6 +73,8 @@ DEPTH = {
     "Movement": ["jumped", "landed", "wall_kicked", "art_used", "climb_started", "climb_finished", "fell_out", "mover_boarded",
                  "volume_entered", "volume_left"],
     "Enemies": ["enemy_leashed", "beast_king_spawned", "king_nest_opened"],
+    # S49: the world calendar (account level): world events, the season, the weather, the spatial rift.
+    "Calendar": ["world_event_scheduled", "world_event_started", "world_event_ended", "season_changed", "weather_changed", "rift_opened"],
     # S49: the karma ledger, alignment and Fame (per character).
     "Relations": ["merit_changed", "sin_changed", "debt_recorded", "debt_called", "alignment_changed", "fame_changed",
                   "young_master_challenge", "affinity_changed", "bond_formed", "grudge_changed", "hunter_dispatched", "bounty_taken",
@@ -95,6 +97,7 @@ SYSTEMS = {
     "Achievement": ["achievement_authority"], "Economy": ["economy_authority"], "Unlocks": ["unlock_service"],
     "Mail": ["mail_authority"], "Companion": ["companion_authority"], "Notifier": ["notifier"],
     "Movement": ["local_authority", "movement_solver"], "Relations": ["relations_authority"],
+    "Calendar": ["calendar_authority"],
 }
 
 # A second system that may also announce the event, and why.

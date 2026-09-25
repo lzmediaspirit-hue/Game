@@ -389,6 +389,23 @@
    "locked_text": "Heat rises from a crack in the stone. An alchemist could use it."
   },
   {
+   "id": "rift_tear",
+   "type": "rift_tear",
+   "at": [
+    2112,
+    820
+   ],
+   "radius": 140,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "world_event_here",
+      "event": "spatial_rift"
+     }
+    ]
+   }
+  },
+  {
    "id": "rare_ginseng_rt",
    "type": "herb_patch",
    "at": [
@@ -725,6 +742,7 @@
    ]
   }
  ],
+ "weather": "gorge",
  "climbables": [
   {
    "id": "ledge_0_rope_1",

@@ -457,6 +457,7 @@
  ],
  "music": "marsh",
  "ambience": "marsh_ambience",
+ "weather": "marsh",
  "climbables": [
   {
    "id": "causeway_0_ladder_1",

@@ -33,6 +33,8 @@ var economy: Dictionary = {"rotation_day": -1, "rotation": {}, "buyback": [], "s
 var resets: Dictionary = {"last_daily_day": -1, "last_weekly": -1}
 var rooms: Dictionary = {"field_boss_timers": {}}
 var rng_seed := 0
+var created_utc := 0.0                 # S49: the calendar's day zero (seasons, world events); 0 on saves from before it
+var calendar: Dictionary = {}          # S49 Calendar: {active: {event: k}, told: {event: k}, season, weather: {region: tag}, rifts: {k: true}}
 var rng_state: Dictionary = {}
 var welcome_pending: Dictionary = {}
 
@@ -56,7 +58,7 @@ func snapshot() -> Dictionary:
 		"settings": settings.duplicate(true), "clock": clock.duplicate(), "unlocks": unlocks.keys(),
 		"achievements": achievements.duplicate(true), "economy": economy.duplicate(true), "resets": resets.duplicate(),
 		"rooms": rooms.duplicate(true), "rng": {"seed": str(rng_seed), "streams": rng_state.get("streams", {})},
-		"welcome_pending": welcome_pending.duplicate(true)}
+		"welcome_pending": welcome_pending.duplicate(true), "created_utc": created_utc, "calendar": calendar.duplicate(true)}
 
 func restore(d: Dictionary) -> void:
 	account_id = str(d.get("account_id", account_id))
@@ -91,6 +93,8 @@ func restore(d: Dictionary) -> void:
 	resets = d.get("resets", resets).duplicate()
 	rooms = d.get("rooms", rooms).duplicate(true)
 	var r: Dictionary = d.get("rng", {})
+	created_utc = float(d.get("created_utc", 0.0))
+	calendar = d.get("calendar", {}).duplicate(true) if d.get("calendar") is Dictionary else {}
 	rng_seed = int(str(r.get("seed", "0")))
 	rng_state = r.duplicate(true)
 	welcome_pending = d.get("welcome_pending", {}).duplicate(true)

@@ -649,6 +649,23 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id: open_page.emit("mercy", {"enemy": int(p.enemy), "def": str(p.def)})
 		"foe_judged":
 			add_log(Tx.t("hud.foe_spared") % ContentDB.name_of("enemies", str(p.def)) if p.get("spared", false) else Tx.t("hud.foe_killed") % ContentDB.name_of("enemies", str(p.def)), UiKit.MIST)
+		# S49 world calendar: what is under way, what is coming (a notification a day ahead), season and weather.
+		"world_event_started":
+			var ev := CalendarRules.event(str(p.event))
+			toast(Tx.t("hud.world_event_started") % str(ev.get("name", p.event)), "gold",
+				ContentDB.name_of("rooms", str(p.room)) if str(p.get("room", "")) != "" else "")
+		"world_event_ended":
+			add_log(Tx.t("hud.world_event_ended") % str(CalendarRules.event(str(p.event)).get("name", p.event)), UiKit.MIST)
+		"world_event_scheduled":
+			var ev2 := CalendarRules.event(str(p.event))
+			Notifier.schedule("world_event", str(ev2.get("name", p.event)), str(ev2.get("desc", "")), float(p.start))
+		"season_changed":
+			toast(Tx.t("hud.season_changed") % ContentDB.name_of("seasons", str(p.season)), "gold")
+		"weather_changed":
+			if Game.room_rt != null and str(Game.room_rt.def.get("weather", "")) == str(p.region):
+				add_log(Tx.t("hud.weather_" + str(p.weather)), UiKit.MIST)
+		"rift_opened":
+			toast(Tx.t("hud.rift_opened") % int(p.level), "danger", Tx.t("hud.rift_hint"))
 		"young_master_challenge":
 			if str(p.get("actor", "")) == Game.active_id:
 				toast(Tx.t("hud.young_master"), "quest")

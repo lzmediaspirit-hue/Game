@@ -12,6 +12,13 @@ var _seeds: Dictionary = {}     # owner -> base seed
 static func mix(seed_value: int, name: String) -> int:
 	return hash(str(seed_value) + ":" + name) & 0x7fffffffffff
 
+## A stateless draw keyed by a seed and a name (S49 calendar): the same key always gives the same numbers, and no
+## saved stream moves, so a schedule is identical on every device and never perturbs gameplay streams.
+func keyed(seed_value: int, key: String) -> RandomNumberGenerator:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = mix(seed_value, key)
+	return rng
+
 func ensure(owner: String, seed_value: int) -> void:
 	if _streams.has(owner): return
 	_seeds[owner] = seed_value
