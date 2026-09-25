@@ -74,7 +74,65 @@ def deeds():
     return rows
 
 
+# NPC affinity (S49, Part 8): 0-5 hearts. One gift per NPC a day; what they love is worth a heart, what they like
+# a little less, anything else a courtesy. Hearts pay out once each (a recipe taught, a keepsake), open the NPC's
+# shop discount (3 and 5 hearts), a companion's friendly duel (3), sworn siblings (4) and a Dao Companion (5).
+def learn(recipe):
+    return {"kind": "learn_recipe", "recipe": recipe}
+
+
+def give(item, n=1):
+    return {"kind": "grant_item", "item": item, "count": n}
+
+
+AFFINITY = {
+    # Part 8's favourite gifts.
+    "aunt_ping": {"loved": ["riverfish_soup"], "liked": ["herbal_tea", "jade_carp_fish", "jade_carp_congee"],
+                  "rewards": {"3": [learn("riverfish_soup")], "5": [learn("jade_carp_congee")]}},
+    "granny_liu": {"loved": ["mist_lotus"], "liked": ["herbal_tea", "lotus_root_tea", "clear_mind_pill"],
+                   "rewards": {"3": [learn("healing_pill")], "5": [give("calm_heart_incense", 2)]}},
+    "old_ma": {"loved": ["pearl"], "liked": ["dusty_curio", "old_net", "river_minnow"], "rewards": {"5": [give("spirit_jade", 3)]}},
+    "mei_qing": {"loved": ["cloudtop_orchid"], "liked": ["mist_lotus", "cloudtop_orchid_broth", "spirit_jade"],
+                 "rewards": {"5": [learn("cloudtop_orchid_broth")]}},
+    "lan_yue": {"loved": ["lotus_root_tea"], "liked": ["herbal_tea", "mist_lotus", "jade_carp_congee"], "rewards": {"3": [learn("lotus_root_tea")]}},
+    "tie_niu": {"loved": ["boar_bone_broth"], "liked": ["roast_fish", "ember_pepper_stew", "thunderhorn_stew"], "rewards": {"3": [learn("boar_bone_broth")]}},
+    "qiu_feng": {"loved": ["vulture_plume"], "liked": ["storm_feather", "roast_fish", "toad_oil_dumplings"], "rewards": {"3": [learn("roast_fish")]}},
+    "bai_ling": {"loved": ["formation_stone"], "liked": ["spirit_paper", "spirit_jade", "lantern_wick"], "rewards": {"3": [give("formation_stone", 2)]}},
+    # The build's other named NPCs.
+    "little_dou": {"loved": ["dusty_curio"], "liked": ["rice_ball", "reed_perch", "roast_fish"], "rewards": {"3": [give("rice_ball", 5)]}},
+    "lu_boatman": {"loved": ["rice_wine"], "liked": ["roast_fish", "river_minnow", "herbal_tea"], "rewards": {"3": [give("jade_carp_fish", 3)]}},
+    "uncle_guo": {"loved": ["ember_pepper_stew"], "liked": ["rice_wine", "boar_bone_broth", "roast_fish"], "rewards": {"3": [learn("ember_pepper_stew")]}},
+    "shen_lian": {"loved": ["roast_fish"], "liked": ["river_minnow", "rice_ball", "reed_perch"], "rewards": {"3": [give("clear_mind_pill", 2)]}},
+    "elder_hu": {"loved": ["spirit_jade"], "liked": ["herbal_tea", "manual_page", "mist_lotus"], "rewards": {"3": [give("manual_page", 3)]}},
+    "elder_sung": {"loved": ["storm_feather"], "liked": ["herbal_tea", "manual_page", "cloudtop_orchid"], "rewards": {"3": [give("manual_page", 3)]}},
+}
+# One person, two NPC rows (a stall and the sect; a fisher kid and a rival): affinity is kept under one id.
+AFFINITY_ALIAS = {"mei_qing_sect": "mei_qing", "shen_lian_npc": "shen_lian"}
+# The mentors' legacy arts (Inner Arts), passed on in "The Elder's Last Lesson".
+LEGACY = {"elder_hu": "lotus_mind_legacy", "elder_sung": "drifting_cloud_legacy"}
+
+
+def bonds():
+    rows = [
+        {"id": "dao_companion", "name": "Dao Companion", "hearts": 5, "max": 1, "from": "companions",
+         # Beside you (in the party): one risk step off every major breakthrough, +10% insight, and resonance
+         # meditation (+25% while you both sit).
+         "support_steps": 1, "insight": 0.10, "resonance": 0.25},
+        {"id": "sworn", "name": "Sworn Siblings", "hearts": 4, "max": 3, "from": "companions", "title": "sworn_sibling",
+         # Each sworn sibling in the party.
+         "per_sibling": [{"stat": "physical_attack", "op": "pct_add", "value": 0.03}, {"stat": "qi_attack", "op": "pct_add", "value": 0.03},
+                         {"stat": "physical_defense", "op": "pct_add", "value": 0.03}]},
+        {"id": "master", "name": "Master", "from": "mentors", "formed_by": "the_mentors_gift", "inheritance": "the_elders_last_lesson",
+         "mentors": {"jade_sect": "elder_hu", "cloud_sect": "elder_sung"}, "legacy": LEGACY},
+    ]
+    entries("bonds", rows,
+            affinity={"per_heart": 100, "max_hearts": 5, "loved": 100, "liked": 40, "other": 15, "quest": 30, "duel": 20,
+                      "discount": [[3, 0.05], [5, 0.10]], "duel_hearts": 3})
+    return rows
+
+
 def build():
+    bonds()
     entries("karma", deeds(),
             # 100 merit eases one major breakthrough by a risk step, once in each great realm.
             merit_step=100,

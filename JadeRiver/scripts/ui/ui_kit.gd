@@ -280,5 +280,19 @@ static func _creature_bounds(key: String, texture: Texture2D, cell: Rect2i) -> R
 		_bounds[k] = Rect2(r) if r.size.x > 0 else Rect2(Vector2.ZERO, Vector2(cell.size))
 	return _bounds[k]
 
+## A row of hearts (S49 affinity): `filled` of `total`, each `r` px across half its width; left edge at pos.x,
+## vertical centre at pos.y.
+static func draw_hearts(ci: CanvasItem, pos: Vector2, filled: int, total: int, r := 10.0) -> void:
+	for i in total:
+		var c := pos + Vector2(r + i * r * 2.5, 0)
+		_heart(ci, c, r + 1.5, Color(0.08, 0.03, 0.04, 0.85))
+		_heart(ci, c, r, Color("e05a6e") if i < filled else Color(0.32, 0.16, 0.2, 0.9))
+		if i < filled: ci.draw_circle(c + Vector2(-r * 0.45, -r * 0.4), r * 0.18, Color(1, 1, 1, 0.55))
+
+static func _heart(ci: CanvasItem, c: Vector2, r: float, col: Color) -> void:
+	ci.draw_circle(c + Vector2(-r * 0.48, -r * 0.22), r * 0.56, col)
+	ci.draw_circle(c + Vector2(r * 0.48, -r * 0.22), r * 0.56, col)
+	ci.draw_colored_polygon(PackedVector2Array([c + Vector2(-r * 1.02, -r * 0.08), c + Vector2(r * 1.02, -r * 0.08), c + Vector2(0, r * 0.98)]), col)
+
 static func draw_frame(ci: CanvasItem, rect: Rect2, asset := "minor_panel", state := "normal") -> void:
 	ci.draw_style_box(style(asset, state), rect)

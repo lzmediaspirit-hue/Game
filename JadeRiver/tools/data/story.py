@@ -384,6 +384,17 @@ def npcs():
             n["concealed_lines"] = concealed[n["id"]]
     missing = set(concealed) - {n["id"] for n in N}
     assert not missing, missing
+    # S49 affinity: favourite gifts, the id hearts are kept under, and what each heart pays once.
+    from relations import AFFINITY, AFFINITY_ALIAS
+    for n in N:
+        aid = AFFINITY_ALIAS.get(n["id"], n["id"])
+        if aid in AFFINITY:
+            a = AFFINITY[aid]
+            n["affinity"] = aid
+            n["gifts"] = {"loved": list(a["loved"]), "liked": list(a["liked"])}
+            n["heart_rewards"] = dict(a.get("rewards", {}))
+    missing = (set(AFFINITY) | set(AFFINITY_ALIAS)) - {n["id"] for n in N}
+    assert not missing, missing
     entries("npcs", N)
     return {n["id"] for n in N}
 
@@ -1134,6 +1145,16 @@ def guided_quests():
                "The way out runs past the Frozen Shrine. Walk it once, then come back and tell me what you saw."],
         complete=["The Gate is past the shrine, then. Before you go, the village will want to see you."],
         next="farewells")
+    # S49 master inheritance: before the valley lets you go, your master goes into closed-door cultivation and passes
+    # on the one art never written down.
+    quest("the_elders_last_lesson", "The Elder's Last Lesson", "side", "elder_hu", [
+        o("meditate_seconds", "Sit with your master one last time", 60),
+    ], [fx("master_legacy")], giver_any=M, hand_in_any=M, requires=all_of(qdone("the_mentors_gift"), qdone("beyond_the_valley")),
+        chapter="10",
+        offer=["You are leaving the valley. So am I, in my way: I am going into closed-door cultivation, and I do not know when I will come out.",
+               "Sit with me once more. There is one thing I never wrote down."],
+        complete=["Breathe as I breathe. There. That is all of it, and now it is yours.",
+                  "Go. If the heavens are kind, we will meet above the clouds."])
     quest("farewells", "Farewells", "main", "lu_boatman", [
         o("talk_to", "Visit Aunt Ping", npc="aunt_ping"),
         o("talk_to", "Visit Old Ma", npc="old_ma"),
@@ -1944,6 +1965,8 @@ def codex():
          "body": "The world keeps a ledger. Mercy and help earn merit: a hundred of it eases one great breakthrough in each realm. Cruelty and the back-room markets earn sin, and sin feeds the heart demon and strengthens the heavenly tribulation. Some deeds come back as letters. The Relations page keeps the ledger."},
         {"id": "alignment", "title": "The righteous and the demonic",
          "body": "Every choice leans you one way or the other, from demonic through shadowed, balanced and upright to righteous. The Cloud Sect's abbots keep some of their wares for the upright, and Broker Mu keeps his worst goods for the shadowed. Alignment opens and closes doors like these; it never stands between you and your next realm."},
+        {"id": "affinity", "title": "Hearts and bonds",
+         "body": "People remember kindness. Each quest done for someone, and one gift a day, brings you closer: up to five hearts. What a person loves is worth a heart at once. Hearts teach recipes and give keepsakes, shopkeepers take a little off at three and five, and companions spar with you at three. At four hearts a companion can be sworn as a sibling (three at most); at five, one can become your Dao Companion, who steadies your breakthroughs, shares your insight and meditates with you. The elder who takes you as a personal disciple is your master."},
         {"id": "fame", "title": "Fame",
          "body": "Your own name, apart from any sect's standing: Unknown, Noted, Rising, Renowned, Legendary. Tournaments, great foes and the Beast Tide raise it. People talk, and losing a spar where the town can see costs you. From Rising, young masters of good families come looking to test you. Accept and win, and your name grows; decline, and it shrinks a little."},
         {"id": "furnaces_and_fire", "title": "Furnace and fire",

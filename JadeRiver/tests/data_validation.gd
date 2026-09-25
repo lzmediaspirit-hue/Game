@@ -297,7 +297,9 @@ func data_suite() -> void:
 	for ia in ContentDB.all("inner_arts"):
 		for m5 in ia.get("modifiers", []): check(stat_ids.has(str(m5.stat)), "inner art %s stat %s" % [ia.id, m5.stat])
 		if ia.has("family"): check(ContentDB.has_entry("weapon_families", str(ia.family)), "inner art %s family %s" % [ia.id, ia.family])
-		check(shop_learns.has(str(ia.id)), "inner art %s is taught in a shop" % ia.id)
+		# A master's legacy (S49) is passed on, never sold; every other art is taught in a shop.
+		if ia.has("legacy"): check(not shop_learns.has(str(ia.id)), "legacy art %s is not sold" % ia.id)
+		else: check(shop_learns.has(str(ia.id)), "inner art %s is taught in a shop" % ia.id)
 	var stance_fams := {}
 	for sn in ContentDB.all("stances"):
 		check(ContentDB.has_entry("weapon_families", str(sn.family)) and not stance_fams.has(str(sn.family)), "stance %s: one for family %s" % [sn.id, sn.family])
@@ -319,6 +321,21 @@ func data_suite() -> void:
 		for w in ContentDB.config("karma").get(key, []):
 			check(ContentDB.strings.has("ui.relations." + ("fame_" if key == "fame_tiers" else "align_") + str(w.id)), "%s %s has a label" % [key, w.id])
 	check(ContentDB.has_entry("enemies", str(ContentDB.config("karma").get("young_master", {}).get("enemy", ""))), "the young master is an enemy")
+	# S49 affinity: gifts are real items; heart rewards are valid effects; every companion can duel; legacies exist.
+	for n in ContentDB.all("npcs"):
+		for key in ["loved", "liked"]:
+			for it in n.get("gifts", {}).get(key, []): check(item_ok(str(it)), "npc %s %s gift %s" % [n.id, key, it])
+		for h in n.get("heart_rewards", {}):
+			check(int(h) >= 1 and int(h) <= 5, "npc %s heart reward at %s" % [n.id, h])
+			check_effects(n.heart_rewards[h], "npc %s heart %s" % [n.id, h])
+		if n.has("affinity"): check(ContentDB.has_entry("npcs", str(n.affinity)), "npc %s affinity id %s" % [n.id, n.affinity])
+	for cp in ContentDB.all("companions"):
+		check(ContentDB.has_entry("enemies", "duel_" + str(cp.id)), "companion %s has a duel form" % cp.id)
+		check(not ContentDB.entry("npcs", str(cp.id)).get("gifts", {}).is_empty(), "companion %s has favourite gifts" % cp.id)
+	for kind in ["dao_companion", "sworn", "master"]: check(ContentDB.has_entry("bonds", kind), "bond %s" % kind)
+	for m in ContentDB.entry("bonds", "master").get("legacy", {}):
+		check(ContentDB.has_entry("inner_arts", str(ContentDB.entry("bonds", "master").legacy[m])), "legacy art of %s" % m)
+	check(ContentDB.has_entry("titles", str(ContentDB.entry("bonds", "sworn").get("title", ""))), "the sworn title")
 	var last_bolts := 0
 	for tb in ContentDB.all("tribulations"):
 		check(ContentDB.realm_index.has(str(tb.from)) and bool(ContentDB.realm(str(ContentDB.realm(str(tb.from)).get("next", ""))).get("major", false)),

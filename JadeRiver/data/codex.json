@@ -262,6 +262,11 @@
    "body": "Every choice leans you one way or the other, from demonic through shadowed, balanced and upright to righteous. The Cloud Sect's abbots keep some of their wares for the upright, and Broker Mu keeps his worst goods for the shadowed. Alignment opens and closes doors like these; it never stands between you and your next realm."
   },
   {
+   "id": "affinity",
+   "title": "Hearts and bonds",
+   "body": "People remember kindness. Each quest done for someone, and one gift a day, brings you closer: up to five hearts. What a person loves is worth a heart at once. Hearts teach recipes and give keepsakes, shopkeepers take a little off at three and five, and companions spar with you at three. At four hearts a companion can be sworn as a sibling (three at most); at five, one can become your Dao Companion, who steadies your breakthroughs, shares your insight and meditates with you. The elder who takes you as a personal disciple is your master."
+  },
+  {
    "id": "fame",
    "title": "Fame",
    "body": "Your own name, apart from any sect's standing: Unknown, Noted, Rising, Renowned, Legendary. Tournaments, great foes and the Beast Tide raise it. People talk, and losing a spar where the town can see costs you. From Rising, young masters of good families come looking to test you. Accept and win, and your name grows; decline, and it shrinks a little."

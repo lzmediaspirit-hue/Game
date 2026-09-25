@@ -5,6 +5,48 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V8b · The living world: hearts, gifts and bonds (S49)
+- **NPC affinity**: 0–5 hearts with fourteen named people and the four companions.
+  - Part 8's favourite gifts: Aunt Ping's Riverfish Soup, Granny Liu's Mist Lotus, Old Ma's pearls, Mei Qing's
+    Cloudtop Orchid, Lan Yue's Lotus Root Tea, Tie Niu's Boar Bone Broth, Qiu Feng's vulture plume and Bai
+    Ling's formation stone. There are more for Little Dou, Lu, Uncle Guo, Shen Lian and the two elders.
+  - One gift per person a day: a loved gift is a whole heart (+100), a liked one +40, anything else +15.
+  - Each quest done for someone is +30.
+  - Mei Qing and Shen Lian keep one heart count across their two rows.
+  - What someone loves or likes is remembered once you learn it.
+- **Hearts pay out once each**: a recipe taught at three (Aunt Ping's soup, Lan Yue's tea, Tie Niu's broth and
+  more) and keepsakes at three or five. A shopkeeper takes 5% off at three hearts and 10% at five. New
+  requirement kind `hearts_at_least`; new effect `add_affinity`.
+- **Companions**, on the Companions page:
+  - A friendly duel from three hearts, at your level (+20 for a win, once a day).
+  - **Sworn Siblings** at four hearts, up to three: +3% attack and defence for each one in the party, and the
+    Sworn Sibling title.
+  - A **Dao Companion** at five hearts, only one. While they are with you, they hold the breakthrough support
+    slot (one risk step), share +10% insight and meditate with you (+25% resonance meditation, from the day the
+    bond is sworn).
+- **Master**: passing the personal-disciple trial makes your sect's elder your master. **The Elder's Last
+  Lesson** (a new chapter 10 quest before the farewells) passes on their legacy Inner Art, which is never sold:
+  Elder Hu's Lotus Mind (+8% insight, +5% Will) or Elder Sung's Drifting Cloud (+6% move speed, +5% evasion).
+- **UI**:
+  - A **Gift** page from any gift-taker's dialogue ("Give a gift") and from the Companions page.
+  - Hearts beside the speaker's name in dialogue.
+  - Companion cards show hearts, a bond tag, and Gift, Duel, Swear and Dao Companion buttons.
+  - The Relations page's Bonds tab lists every friend with their hearts.
+  - A Codex entry, "Hearts and bonds".
+- **Events:** `affinity_changed` and `bond_formed`, with HUD notes. Intents: `give_gift`, `offer_bond` and
+  `companion_duel`.
+- **Debug flags:** `--companion=id`, `--hearts=npc:n` and `--open-page=gift:npc`.
+- **Tests:**
+  - loved, liked and courtesy gifts, and once a day;
+  - gear and key items refused;
+  - Mei Qing's shared hearts;
+  - one-time heart rewards and quest affinity;
+  - keeper discounts;
+  - the duel's heart gate, level and daily reward;
+  - sworn and Dao Companion rules and their effects;
+  - the master and the legacy.
+  The valley run now takes the Last Lesson.
+
 ### V8a · The living world: the Relations authority, karma deeds, alignment and Fame (S49)
 - **Relations authority** (new, per character). It owns the karma ledger, which moves off the cultivator, and old
   saves carry their merit, sin, debts and eased realms across. Progression, Combat and the tribulation now read the

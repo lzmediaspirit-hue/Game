@@ -76,6 +76,11 @@ HUMAN = {
     "wen_zhao": {"hair": "flowing", "hair_color": 0, "shirt": "cardigan", "pants": "martial", "shoes": "folded", "weapon": "sword", "hat": "none"},
     "young_master": {"hair": "flowing", "hair_color": 0, "shirt": "cardigan", "pants": "martial", "shoes": "folded", "weapon": "sword", "hat": "guan",
                      "shirt_dye": "crimson", "pants_dye": "ink"},
+    # S49 friendly duels: the four companions, as they look beside you.
+    "duel_lan_yue": {"hair": "flowing", "hair_color": 4, "shirt": "cardigan", "pants": "scholar", "shoes": "slippers", "weapon": "staff", "hat": "none", "shirt_dye": "indigo"},
+    "duel_tie_niu": {"hair": "short_knot", "hair_color": 0, "shirt": "sleeveless", "pants": "martial", "shoes": "boots", "weapon": "none", "hat": "none", "shirt_dye": "earth"},
+    "duel_qiu_feng": {"hair": "high_pony", "hair_color": 0, "shirt": "vneck", "pants": "cuffed", "shoes": "boots", "weapon": "bow", "hat": "none", "shirt_dye": "jade"},
+    "duel_bai_ling": {"hair": "ponytail", "hair_color": 2, "shirt": "disciple", "pants": "straight", "shoes": "slippers", "weapon": "sword", "hat": "none", "shirt_dye": "cloud"},
     "trial_disciple": {"hair": "topknot", "hair_color": 0, "shirt": "disciple", "pants": "loose", "shoes": "slippers", "weapon": "none", "hat": "none"},
     "alliance_champion": {"hair": "topknot", "hair_color": 0, "shirt": "disciple", "pants": "martial", "shoes": "boots", "weapon": "spear", "hat": "guan",
                           "shirt_dye": "indigo", "pants_dye": "ink"},
@@ -95,7 +100,8 @@ HUMAN = {
     "ninth_presence": {"hair": "flowing", "hair_color": 1, "shirt": "scholar", "pants": "scholar", "shoes": "folded", "weapon": "staff", "hat": "guan",
                        "shirt_dye": "white", "pants_dye": "white", "cape": "solid", "tint": "#d9ccff"},
 }
-NAMES = {"young_master": "Young Master Luo Heng", "rogue_cultivator": "Rogue Cultivator", "rogue_treasure_adept": "Rogue Mirror Adept", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
+NAMES = {"duel_lan_yue": "Lan Yue", "duel_tie_niu": "Tie Niu", "duel_qiu_feng": "Qiu Feng", "duel_bai_ling": "Bai Ling",
+         "young_master": "Young Master Luo Heng", "rogue_cultivator": "Rogue Cultivator", "rogue_treasure_adept": "Rogue Mirror Adept", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
          "ninth_presence": "The Ninth Presence"}
 
 
@@ -352,6 +358,17 @@ def build():
                                                             atk("golden_crescent", 0.65, 280, 1.15, damage_type="qi",
                                                                 projectile={"speed": 520, "art": "qi_arc"})],
             ai="duelist", art=human("young_master"), race="human", width=18, height=90, spar=True, name="Young Master Luo Heng"),
+        # S49: a friendly duel with a companion at 3 hearts, at your own level.
+        mob("duel_lan_yue", 20, "trial", "water", None, [], [atk("staff_sweep", 0.45, 64, 1.0, depth=34),
+                                                            atk("tide_palm", 0.6, 240, 1.05, damage_type="qi", projectile={"speed": 480, "art": "qi_arc"})],
+            ai="duelist", art=human("duel_lan_yue"), race="human", width=18, height=90, spar=True, name="Lan Yue"),
+        mob("duel_tie_niu", 20, "trial", "earth", None, [], [atk("iron_fist", 0.4, 48, 1.15, knockback=70), atk("ox_charge", 0.7, 90, 1.2, dash=180)],
+            ai="duelist", art=human("duel_tie_niu"), race="human", width=20, height=92, spar=True, name="Tie Niu"),
+        mob("duel_qiu_feng", 20, "trial", "wood", None, [], [atk("reed_shot", 0.5, 320, 1.0, projectile={"speed": 620, "art": "arrow"}),
+                                                            atk("kick_away", 0.35, 50, 0.9, knockback=90)],
+            ai="duelist", art=human("duel_qiu_feng"), race="human", width=18, height=90, spar=True, name="Qiu Feng"),
+        mob("duel_bai_ling", 20, "trial", "wind", None, [], [atk("line_cut", 0.42, 70, 1.05), atk("biting_array", 0.8, 200, 1.2, damage_type="qi", depth=60, both_sides=True)],
+            ai="duelist", art=human("duel_bai_ling"), race="human", width=18, height=90, spar=True, name="Bai Ling"),
     ]
     # Starter spirit animals exist as enemy templates (non-hostile wild versions from Qi Unfurling 7).
     for pid, el in [("reed_otter", "water"), ("ember_fox", "fire"), ("jade_crane_chick", "wind")]:

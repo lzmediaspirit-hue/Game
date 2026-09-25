@@ -127,18 +127,39 @@ func _bonds(ch) -> void:
 		["sworn", ", ".join((r.bonds.get("sworn", []) as Array).map(func(id): return ContentDB.name_of("npcs", str(id))))]]
 	var gap := 16.0
 	var w := (content.size.x - gap * 2) / 3.0
+	var top_h := 250.0
 	for i in 3:
 		var kind: String = cols[i][0]
 		var who: String = cols[i][1]
-		var box := Rect2(content.position.x + i * (w + gap), content.position.y, w, content.size.y)
+		var box := Rect2(content.position.x + i * (w + gap), content.position.y, w, top_h)
 		panel(box)
 		var x := box.position.x + 22
 		heading(Vector2(x, box.position.y + 40), Tx.t("ui.relations.bond_" + kind), w - 44)
 		if who == "":
-			text(Vector2(x, box.position.y + 96), Tx.t("ui.relations.bond_none"), 22, UiKit.MIST)
+			text(Vector2(x, box.position.y + 90), Tx.t("ui.relations.bond_none"), 21, UiKit.MIST)
 		else:
-			text(Vector2(x, box.position.y + 96), fit(who if kind == "sworn" else ContentDB.name_of("npcs", who), 22, w - 44), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-		para(Rect2(x, box.position.y + 124, w - 44, box.size.y - 140), Tx.t("ui.relations.bond_" + kind + "_note"), 16, UiKit.MIST)
+			text(Vector2(x, box.position.y + 90), fit(who if kind == "sworn" else ContentDB.name_of("npcs", who), 21, w - 44), 21, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+		para(Rect2(x, box.position.y + 106, w - 44, top_h - 116), Tx.t("ui.relations.bond_" + kind + "_note"), 15, UiKit.MIST, 5)
+	# Below: everyone who knows you well enough to have hearts.
+	var low := Rect2(content.position.x, content.position.y + top_h + gap, content.size.x, content.size.y - top_h - gap)
+	panel(low)
+	heading(Vector2(low.position.x + 22, low.position.y + 40), Tx.t("ui.relations.friends"), low.size.x - 44)
+	var rows: Array = []
+	for id in r.affinity:
+		if int(r.affinity[id].get("points", 0)) > 0: rows.append(str(id))
+	rows.sort_custom(func(a, b): return int(r.affinity[a].points) > int(r.affinity[b].points))
+	if rows.is_empty():
+		para(Rect2(low.position.x + 22, low.position.y + 56, low.size.x - 44, 60), Tx.t("ui.relations.no_friends"), 17, UiKit.MIST, 2)
+		return
+	var colw := (low.size.x - 44) / 2.0
+	list("friends", Rect2(low.position.x + 22, low.position.y + 56, low.size.x - 34, low.size.y - 66), int(ceil(rows.size() / 2.0)), 38, func(row: int, rr: Rect2):
+		for k in 2:
+			var j := row * 2 + k
+			if j >= rows.size(): break
+			var x := rr.position.x + k * colw
+			text(Vector2(x, rr.position.y + 24), fit(ContentDB.name_of("npcs", rows[j]), 18, colw - 170), 18, UiKit.PAPER)
+			UiKit.draw_hearts(self, Vector2(x + colw - 160, rr.position.y + 17), r.hearts_of(rows[j]), 5, 9.0)
+	)
 
 # ------------------------------------------------------------------ Grudges
 func _grudges(ch) -> void:

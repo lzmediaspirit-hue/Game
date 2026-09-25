@@ -1,0 +1,75 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "dao_companion",
+   "name": "Dao Companion",
+   "hearts": 5,
+   "max": 1,
+   "from": "companions",
+   "support_steps": 1,
+   "insight": 0.1,
+   "resonance": 0.25
+  },
+  {
+   "id": "sworn",
+   "name": "Sworn Siblings",
+   "hearts": 4,
+   "max": 3,
+   "from": "companions",
+   "title": "sworn_sibling",
+   "per_sibling": [
+    {
+     "stat": "physical_attack",
+     "op": "pct_add",
+     "value": 0.03
+    },
+    {
+     "stat": "qi_attack",
+     "op": "pct_add",
+     "value": 0.03
+    },
+    {
+     "stat": "physical_defense",
+     "op": "pct_add",
+     "value": 0.03
+    }
+   ]
+  },
+  {
+   "id": "master",
+   "name": "Master",
+   "from": "mentors",
+   "formed_by": "the_mentors_gift",
+   "inheritance": "the_elders_last_lesson",
+   "mentors": {
+    "jade_sect": "elder_hu",
+    "cloud_sect": "elder_sung"
+   },
+   "legacy": {
+    "elder_hu": "lotus_mind_legacy",
+    "elder_sung": "drifting_cloud_legacy"
+   }
+  }
+ ],
+ "affinity": {
+  "per_heart": 100,
+  "max_hearts": 5,
+  "loved": 100,
+  "liked": 40,
+  "other": 15,
+  "quest": 30,
+  "duel": 20,
+  "discount": [
+   [
+    3,
+    0.05
+   ],
+   [
+    5,
+    0.1
+   ]
+  ],
+  "duel_hearts": 3
+ }
+}

@@ -217,6 +217,10 @@ func talk(c, npc: String) -> Dictionary:
 			convo.choices.append({"text": str(n.get("service_labels", {}).get(svc, Tx.t("sim.quest.open"))), "page": svc.trim_prefix("page:")})
 		elif svc.begins_with("spar:") and Unlocks.is_unlocked(c.id, "attack"):
 			convo.choices.append({"text": Tx.t("sim.quest.spar"), "spar": svc.trim_prefix("spar:")})
+	# S49: people with favourite gifts take one a day.
+	if not n.get("gifts", {}).is_empty():
+		convo.hearts = c.relations.hearts_of(npc)
+		if convo.choices.size() < 4: convo.choices.append({"text": Tx.t("sim.quest.give_gift"), "page": "gift", "args": {"npc": npc}})
 	convo.choices.append({"text": Tx.t("sim.quest.farewell"), "close": true})
 	return ok({"dialogue": convo})
 

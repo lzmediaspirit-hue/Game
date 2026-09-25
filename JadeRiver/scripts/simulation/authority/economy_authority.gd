@@ -92,6 +92,9 @@ func stock(c, shop_id: String) -> Array:
 		var disc: Dictionary = shop.get("discount", {})
 		if not disc.is_empty() and c.quests.has_flag(str(disc.get("flag", ""))):
 			price = maxi(1, int(round(price * (1.0 - float(disc.get("pct", 0.0))))))
+		# S49: a keeper who likes you (3 and 5 hearts) gives a little off.
+		var fond: float = game.relations.shop_discount(c, shop_id)
+		if fond > 0.0: price = maxi(1, int(round(price * (1.0 - fond))))
 		out.append({"item": item_id, "price": price, "currency": str(s.get("currency", currency)), "locked": locked,
 			"rotating": s.get("rotating", false), "learn": str(s.get("learn", "")), "sealed": s.get("sealed", false)})
 	return out

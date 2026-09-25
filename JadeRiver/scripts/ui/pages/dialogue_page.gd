@@ -64,6 +64,8 @@ func draw_page() -> void:
 	var plaque := Rect2(250, 470, maxf(240, UiKit.text_width(str(convo.get("speaker", "")), 26, true) + 130), 48)
 	draw_style_box(UiKit.style("title_plaque"), plaque)
 	text(plaque.position + Vector2(0, 34), str(convo.get("speaker", "")), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, plaque.size.x, true)
+	# S49: how this person feels about you, as hearts beside their name.
+	if convo.has("hearts"): UiKit.draw_hearts(self, Vector2(plaque.end.x + 12, plaque.position.y + 26), int(convo.hearts), 5, 10.0)
 	var s := current()
 	var visible := s.left(int(shown_chars))
 	var choices: Array = convo.get("choices", [])

@@ -1496,6 +1496,18 @@
    "files": [
     "relations_authority"
    ]
+  },
+  "affinity_changed": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
+  },
+  "bond_formed": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
   }
  }
 }

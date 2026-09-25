@@ -75,7 +75,7 @@ DEPTH = {
     "Enemies": ["enemy_leashed", "beast_king_spawned", "king_nest_opened"],
     # S49: the karma ledger, alignment and Fame (per character).
     "Relations": ["merit_changed", "sin_changed", "debt_recorded", "debt_called", "alignment_changed", "fame_changed",
-                  "young_master_challenge"],
+                  "young_master_challenge", "affinity_changed", "bond_formed"],
     "Pets": ["pet_wounded", "pet_healed", "core_devoured", "cores_sold", "beast_cleansed", "bloodline_awakened",
              "contract_formed", "contract_offered", "pet_skill_cast", "beast_suppressed", "egg_infused", "party_changed",
              "pet_skill_learned", "pets_fused", "pet_core_formed", "pet_breakthrough", "pet_gear_changed", "pet_swapped",

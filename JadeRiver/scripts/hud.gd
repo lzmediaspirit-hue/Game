@@ -627,6 +627,10 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if p.get("tier_up", false): toast(Tx.t("hud.fame_tier") % Tx.t("ui.relations.fame_" + str(p.tier)), "unlock")
 			elif int(p.get("delta", 0)) < 0: add_log(Tx.t("hud.fame_lost") % -int(p.delta), UiKit.MIST)
 			elif int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.fame_gained") % int(p.delta), UiKit.PALE_GOLD)
+		"affinity_changed":
+			if p.get("heart_up", false): toast(Tx.t("hud.heart_up") % [ContentDB.name_of("npcs", str(p.npc)), int(p.hearts)], "gold")
+		"bond_formed":
+			toast(Tx.t("hud.bond_" + str(p.kind)) % ContentDB.name_of("npcs", str(p.npc)), "unlock")
 		"young_master_challenge":
 			if str(p.get("actor", "")) == Game.active_id:
 				toast(Tx.t("hud.young_master"), "quest")

@@ -113,6 +113,46 @@
    ],
    "price": 300,
    "realm": "heart_tempering_1"
+  },
+  {
+   "id": "lotus_mind_legacy",
+   "name": "Lotus Mind",
+   "desc": "Elder Hu's legacy: +8% insight and +5% Will.",
+   "legacy": "elder_hu",
+   "modifiers": [
+    {
+     "stat": "insight_rate",
+     "op": "flat",
+     "value": 0.08
+    },
+    {
+     "stat": "will",
+     "op": "pct_add",
+     "value": 0.05
+    }
+   ],
+   "price": 0,
+   "realm": "qi_unfurling_1"
+  },
+  {
+   "id": "drifting_cloud_legacy",
+   "name": "Drifting Cloud",
+   "desc": "Elder Sung's legacy: +6% move speed and +5% evasion.",
+   "legacy": "elder_sung",
+   "modifiers": [
+    {
+     "stat": "move_speed",
+     "op": "pct_add",
+     "value": 0.06
+    },
+    {
+     "stat": "evasion",
+     "op": "pct_add",
+     "value": 0.05
+    }
+   ],
+   "price": 0,
+   "realm": "qi_unfurling_1"
   }
  ],
  "slots": [

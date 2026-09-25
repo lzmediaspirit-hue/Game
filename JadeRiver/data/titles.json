@@ -310,6 +310,17 @@
    ]
   },
   {
+   "id": "sworn_sibling",
+   "name": "Sworn Sibling",
+   "modifiers": [
+    {
+     "stat": "max_hp",
+     "op": "pct_add",
+     "value": 0.02
+    }
+   ]
+  },
+  {
    "id": "guild_adept",
    "name": "Guild Adept",
    "modifiers": [

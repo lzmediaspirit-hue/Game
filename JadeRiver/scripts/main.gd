@@ -36,6 +36,7 @@ const PAGES := {
 	"spirit_animals": "res://scripts/ui/pages/pets_page.gd",
 	"beast_arena": "res://scripts/ui/pages/beast_arena_page.gd",
 	"relations": "res://scripts/ui/pages/relations_page.gd",
+	"gift": "res://scripts/ui/pages/gift_page.gd",
 	"companions": "res://scripts/ui/pages/companions_page.gd",
 	"crafts": "res://scripts/ui/pages/crafts_page.gd",
 	"cooking": "res://scripts/ui/pages/crafts_page.gd",
@@ -198,6 +199,13 @@ func _handle_preview_args(user_args: Array) -> void:
 		if str(a).begins_with("--deed=") and Game.active() != null:
 			# Debug tools (S38): --deed=id applies one karma.json deed (S49 Relations previews); repeatable.
 			Game.relations.apply_deed(Game.active().id, str(a).trim_prefix("--deed="))
+		if str(a).begins_with("--companion=") and Game.active() != null:
+			# Debug tools (S38): --companion=id adds a fellow disciple to the party (S26/S49 previews).
+			Game.companions.apply_add(Game.active().id, str(a).trim_prefix("--companion="))
+		if str(a).begins_with("--hearts=") and Game.active() != null:
+			# Debug tools (S38): --hearts=npc:n sets that person's hearts (S49 affinity previews).
+			var hp := str(a).trim_prefix("--hearts=").split(":")
+			Game.relations.apply_affinity(Game.active().id, hp[0], int(hp[1]) * 100 - Game.relations.points(Game.active(), hp[0]) if hp.size() > 1 else 100, "debug")
 		if str(a) == "--challenge" and Game.active() != null:
 			# Debug tools (S38): a young master's challenge waits in this room (S49 Fame previews).
 			Game.relations.offer_challenge(Game.active(), "young_master")

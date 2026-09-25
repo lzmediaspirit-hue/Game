@@ -6,7 +6,7 @@ extends RefCounted
 
 const ATTRIBUTES := ["body", "agility", "essence", "spirit", "insight", "fortune"]
 const PERMANENT_PREFIXES := ["gear:", "set:", "title:", "injury:", "gate:", "legacy:", "collection:", "jade:", "pet:", "sect:", "aptitude:", "dao:",
-	"body_tier:", "physique:", "fate:", "inner_art:", "stance:", "vow:"]
+	"body_tier:", "physique:", "fate:", "inner_art:", "stance:", "vow:", "sworn:"]
 
 static func poly(spec: Dictionary, x: float) -> float:
 	return float(spec.get("a", 0)) + float(spec.get("b", 0)) * x + float(spec.get("c", 0)) * x * x
@@ -154,6 +154,15 @@ static func rebuild(c) -> Array:
 		var sev := int(c.cultivator.injuries[kind].get("severity", 1))
 		for e in ContentDB.entry("injuries", kind).get("effects", []):
 			sb.add_modifier({"stat": e.stat, "op": e.op, "value": float(e.per_severity) * sev, "source": "injury:" + kind + ":" + str(e.stat)})
+	# S49 sworn siblings: each one fighting beside you lends the listed party buff.
+	if c.get("relations") != null:
+		var here := 0
+		for sib in c.relations.bonds.get("sworn", []):
+			if (c.companions.get("active", []) as Array).has(sib): here += 1
+		if here > 0:
+			var per: Array = ContentDB.entry("bonds", "sworn").get("per_sibling", [])
+			for i in per.size():
+				sb.add_modifier({"stat": str(per[i].stat), "op": str(per[i].get("op", "pct_add")), "value": float(per[i].value) * here, "source": "sworn:%d" % i})
 	# Title bonus (S34): the worn title's listed modifiers.
 	var title := ContentDB.entry("titles", c.cultivator.active_title)
 	if not title.is_empty() and title.has("stat"):

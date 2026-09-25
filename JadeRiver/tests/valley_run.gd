@@ -1554,6 +1554,12 @@ func sec_hg1() -> void:
 	check(start("beyond_the_valley"), "Beyond the Valley accepted")
 	check(travel("sr_frozen_shrine"), "follow Lu's map to the Frozen Shrine")
 	check(finish("beyond_the_valley"), "Beyond the Valley done")
+	# S49 master inheritance: the personal-disciple trial made the mentor your master; the last lesson passes a legacy.
+	check(str(c().relations.bonds.get("master", "")) in ["elder_hu", "elder_sung"], "your mentor is your master")
+	check(start("the_elders_last_lesson"), "The Elder's Last Lesson accepted")
+	meditate(62.0)
+	check(finish("the_elders_last_lesson"), "The Elder's Last Lesson done")
+	check(c().cultivator.inner_arts_known.has("lotus_mind_legacy") or c().cultivator.inner_arts_known.has("drifting_cloud_legacy"), "the master's legacy art is yours")
 	check(start("farewells"), "Farewells accepted")
 	for npc in ["aunt_ping", "old_ma", "granny_liu", "little_dou", "uncle_guo"]:
 		talk(go_to_npc([npc]))

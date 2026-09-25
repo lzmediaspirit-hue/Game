@@ -3613,6 +3613,55 @@
    "next": "farewells"
   },
   {
+   "id": "the_elders_last_lesson",
+   "name": "The Elder's Last Lesson",
+   "kind": "side",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "meditate_seconds",
+     "text": "Sit with your master one last time",
+     "count": 60
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "master_legacy"
+    }
+   ],
+   "offer_text": [
+    "You are leaving the valley. So am I, in my way: I am going into closed-door cultivation, and I do not know when I will come out.",
+    "Sit with me once more. There is one thing I never wrote down."
+   ],
+   "complete_text": [
+    "Breathe as I breathe. There. That is all of it, and now it is yours.",
+    "Go. If the heavens are kind, we will meet above the clouds."
+   ],
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_mentors_gift"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "beyond_the_valley"
+     }
+    ]
+   },
+   "chapter": "10"
+  },
+  {
    "id": "farewells",
    "name": "Farewells",
    "kind": "main",

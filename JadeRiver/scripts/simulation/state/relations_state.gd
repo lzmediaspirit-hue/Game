@@ -19,6 +19,12 @@ var fortune: Dictionary = {}         # {meter, last_utc}
 var deeds: Dictionary = {}           # once-only deeds done: id (or id:key) -> true
 var ledger: Array = []               # the latest karma entries, newest first: {reason, merit, sin, utc}
 
+## Hearts with a person (0-5), under the id their affinity is kept by (bonds.json per_heart).
+func hearts_of(npc: String) -> int:
+	var id := str(ContentDB.entry("npcs", npc).get("affinity", npc))
+	var ac: Dictionary = ContentDB.config("bonds").get("affinity", {})
+	return mini(int(ac.get("max_hearts", 5)), int(affinity.get(id, {}).get("points", 0)) / maxi(1, int(ac.get("per_heart", 100))))
+
 func snapshot() -> Dictionary:
 	return {"merit": merit, "sin": sin, "debts": debts.duplicate(true), "merit_used": merit_used.duplicate(), "alignment": alignment,
 		"fame": fame, "affinity": affinity.duplicate(true), "bonds": bonds.duplicate(true), "grudges": grudges.duplicate(),

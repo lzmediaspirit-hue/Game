@@ -10,7 +10,7 @@ var debt_clock := 0.0
 var challenges: Dictionary = {}   # actor -> {enemy, level, room}: a young master waiting for an answer (not saved)
 
 func intents() -> Array:
-	return ["answer_challenge"]
+	return ["answer_challenge", "give_gift", "offer_bond", "companion_duel"]
 
 func subscribe() -> void:
 	# Every event a deed listens for (karma.json); the ledger answers before the default subscribers.
@@ -19,6 +19,8 @@ func subscribe() -> void:
 	for ev in events:
 		if str(ev) != "": GameEvents.subscribe(str(ev), _on_deed_event.bind(str(ev)), 85)
 	GameEvents.subscribe("room_entered", _on_room_entered, 86)
+	GameEvents.subscribe("quest_completed", _on_quest_completed, 86)
+	GameEvents.subscribe("spar_ended", _on_spar_ended, 86)
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -33,6 +35,13 @@ func handle(intent: Dictionary) -> Dictionary:
 				return ok({"declined": true})
 			var sp: Dictionary = game.quest.start_spar(c, str(ch.enemy), int(ch.level))
 			return sp if not sp.get("ok", false) else ok({"spar": str(ch.enemy)})
+		"give_gift": return give_gift(c, str(intent.get("npc", "")), int(intent.get("index", -1)))
+		"offer_bond": return offer_bond(c, str(intent.get("kind", "")), str(intent.get("npc", "")))
+		"companion_duel":
+			var cid := str(intent.get("companion", ""))
+			if not (c.companions.get("roster", []) as Array).has(cid): return fail("not_companion")
+			if hearts(c, cid) < int(acfg().get("duel_hearts", 3)): return fail("hearts", {"text": Tx.t("sim.relations.duel_hearts") % int(acfg().get("duel_hearts", 3))})
+			return game.quest.start_spar(c, "duel_" + cid, ProgressionRules.level(c))
 	return fail("unknown_intent")
 
 func cfg() -> Dictionary:
@@ -188,3 +197,169 @@ func challenge_of(c) -> Dictionary:
 	var ch: Dictionary = challenges.get(c.id, {})
 	if ch.is_empty() or game.room_rt == null or str(ch.room) != game.room_rt.room_id: return {}
 	return ch
+
+# ------------------------------------------------------------------ affinity and gifts (S49 v1.0)
+func acfg() -> Dictionary:
+	return ContentDB.config("bonds").get("affinity", {})
+
+## The id hearts are kept under (one person may have two NPC rows).
+func aff_id(npc: String) -> String:
+	var n := ContentDB.entry("npcs", npc)
+	if not n.is_empty(): return str(n.get("affinity", npc))
+	return npc
+
+func has_affinity(npc: String) -> bool:
+	return not ContentDB.entry("npcs", npc).get("gifts", {}).is_empty() or ContentDB.has_entry("companions", npc)
+
+func points(c, npc: String) -> int:
+	return int(c.relations.affinity.get(aff_id(npc), {}).get("points", 0))
+
+func hearts(c, npc: String) -> int:
+	return c.relations.hearts_of(npc)
+
+## Gifts a person loves and likes (companions carry theirs on their NPC row).
+func gifts_of(npc: String) -> Dictionary:
+	var n := ContentDB.entry("npcs", npc)
+	if n.is_empty() or n.get("gifts", {}).is_empty():
+		for row in ContentDB.all("npcs"):
+			if str(row.get("affinity", row.id)) == aff_id(npc) and not row.get("gifts", {}).is_empty(): return row.gifts
+	return n.get("gifts", {})
+
+func _npc_row(npc: String) -> Dictionary:
+	var id := aff_id(npc)
+	var n := ContentDB.entry("npcs", id)
+	return n if not n.is_empty() else ContentDB.entry("npcs", npc)
+
+## Affinity changes: hearts crossed pay their one-time reward (a recipe, a keepsake).
+func apply_affinity(actor_id: String, npc: String, delta: int, reason: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or delta == 0 or not has_affinity(npc): return
+	var id := aff_id(npc)
+	var a: Dictionary = c.relations.affinity.get(id, {})
+	var before := hearts(c, id)
+	if not game.account.codex.has("affinity"): game.quest.apply_codex("affinity")
+	var cap := int(acfg().get("max_hearts", 5)) * int(acfg().get("per_heart", 100))
+	a["points"] = clampi(int(a.get("points", 0)) + delta, 0, cap)
+	c.relations.affinity[id] = a
+	var after := hearts(c, id)
+	for h in range(before + 1, after + 1):
+		var fx: Array = _npc_row(id).get("heart_rewards", {}).get(str(h), [])
+		if not fx.is_empty() and not (a.get("paid", []) as Array).has(h):
+			var paid: Array = a.get("paid", [])
+			paid.append(h)
+			a["paid"] = paid
+			game.apply_effects(c.id, fx, "hearts:" + id)
+	emit("affinity_changed", {"actor": c.id, "npc": id, "value": int(a.points), "hearts": after, "delta": delta, "reason": reason,
+		"heart_up": after > before})
+
+## One gift per person a day. Loved is a heart; liked less; anything else a courtesy.
+func give_gift(c, npc: String, index: int) -> Dictionary:
+	if gifts_of(npc).is_empty(): return fail("no_gifts", {"text": Tx.t("sim.relations.no_gifts")})
+	var id := aff_id(npc)
+	var day := Clock.reset_day(Clock.now_utc())
+	var a: Dictionary = c.relations.affinity.get(id, {})
+	if int(a.get("gift_day", -1)) == day: return fail("gifted_today", {"text": Tx.t("sim.relations.gifted_today")})
+	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("no_item")
+	var item_id := str(c.inventory.bag[index].id)
+	if not giftable(c.inventory.bag[index]): return fail("not_giftable", {"text": Tx.t("sim.relations.not_giftable")})
+	var g := gifts_of(npc)
+	var reaction := "loved" if (g.get("loved", []) as Array).has(item_id) else ("liked" if (g.get("liked", []) as Array).has(item_id) else "other")
+	game.inventory.apply_remove_index(c.id, index, 1, "gift:" + id)
+	a = c.relations.affinity.get(id, {})
+	a["gift_day"] = day
+	var known: Dictionary = a.get("known", {})
+	if reaction != "other": known[item_id] = reaction
+	a["known"] = known
+	c.relations.affinity[id] = a
+	apply_affinity(c.id, id, int(acfg().get(reaction, 15)), "gift:" + reaction)
+	return ok({"reaction": reaction, "item": item_id, "hearts": hearts(c, id)})
+
+## Key items, tools, bound relics and gear stay with you; anything else can be given.
+static func giftable(slot: Dictionary) -> bool:
+	var id := str(slot.get("id", ""))
+	return not (str(ContentDB.item(id).get("type", "")) in ["key", "tool", "currency_item", "vessel"]) and not slot.get("bound", false) \
+		and not ContentDB.is_equipment(id)
+
+## Quests make friends: the giver likes you a little more for each one done.
+func _on_quest_completed(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c == null: return
+	var def := ContentDB.entry("quests", str(p.get("quest", "")))
+	var giver := str(def.get("giver", ""))
+	if giver != "" and not gifts_of(giver).is_empty(): apply_affinity(c.id, giver, int(acfg().get("quest", 30)), "quest")
+	# S49 master: passing the personal-disciple trial makes the elder your master.
+	var m := ContentDB.entry("bonds", "master")
+	if str(p.get("quest", "")) == str(m.get("formed_by", "")) and str(c.relations.bonds.get("master", "")) == "":
+		var sect := str(c.training_sect.get("id", "jade_sect"))
+		var who := str(m.get("mentors", {}).get(sect, "elder_hu"))
+		c.relations.bonds["master"] = who
+		emit("bond_formed", {"actor": c.id, "kind": "master", "npc": who})
+
+## A friendly duel won against a companion (once a day counts).
+func _on_spar_ended(p: Dictionary) -> void:
+	var opp := str(p.get("opponent", ""))
+	if not opp.begins_with("duel_") or str(p.get("winner", "")) != "player": return
+	var c = game.character(str(p.get("actor", game.active_id)))
+	if c == null: return
+	var cid := opp.trim_prefix("duel_")
+	var day := Clock.reset_day(Clock.now_utc())
+	var a: Dictionary = c.relations.affinity.get(cid, {})
+	if int(a.get("duel_day", -1)) == day: return
+	a["duel_day"] = day
+	c.relations.affinity[cid] = a
+	apply_affinity(c.id, cid, int(acfg().get("duel", 20)), "duel")
+
+## The shop discount a keeper's hearts give (3 hearts 5%, 5 hearts 10%).
+func shop_discount(c, shop_id: String) -> float:
+	var best := 0.0
+	for n in ContentDB.all("npcs"):
+		if not (n.get("services", []) as Array).has("shop:" + shop_id) or n.get("gifts", {}).is_empty(): continue
+		var h := hearts(c, str(n.id))
+		for step in acfg().get("discount", []):
+			if h >= int(step[0]): best = maxf(best, float(step[1]))
+	return best
+
+# ------------------------------------------------------------------ bonds
+## Dao Companion (5 hearts, one) or sworn sibling (4 hearts, up to three), from the companions who travel with you.
+func offer_bond(c, kind: String, npc: String) -> Dictionary:
+	var b := ContentDB.entry("bonds", kind)
+	if b.is_empty() or str(b.get("from", "")) != "companions": return fail("unknown_bond")
+	if not (c.companions.get("roster", []) as Array).has(npc): return fail("not_companion", {"text": Tx.t("sim.relations.not_companion")})
+	var need := int(b.get("hearts", 5))
+	if hearts(c, npc) < need: return fail("hearts", {"text": Tx.t("sim.relations.bond_hearts") % need})
+	var r: RelationsState = c.relations
+	if kind == "dao_companion":
+		if str(r.bonds.get("dao_companion", "")) != "": return fail("taken", {"text": Tx.t("sim.relations.dao_taken")})
+		if (r.bonds.get("sworn", []) as Array).has(npc): return fail("sworn", {"text": Tx.t("sim.relations.already_sworn")})
+		r.bonds["dao_companion"] = npc
+	else:
+		var sworn: Array = r.bonds.get("sworn", [])
+		if sworn.has(npc) or str(r.bonds.get("dao_companion", "")) == npc: return fail("already", {"text": Tx.t("sim.relations.already_sworn")})
+		if sworn.size() >= int(b.get("max", 3)): return fail("full", {"text": Tx.t("sim.relations.sworn_full") % int(b.get("max", 3))})
+		sworn.append(npc)
+		r.bonds["sworn"] = sworn
+		if str(b.get("title", "")) != "": game.achievements.apply_title(c.id, str(b.title))
+	game.combat.refresh_stats(c.id)
+	emit("bond_formed", {"actor": c.id, "kind": kind, "npc": npc})
+	return ok({"kind": kind, "npc": npc})
+
+## Is the Dao Companion fighting beside you (in the party, not downed)?
+func dao_in_party(c) -> bool:
+	var dc := str(c.relations.bonds.get("dao_companion", ""))
+	return dc != "" and (c.companions.get("active", []) as Array).has(dc)
+
+## The Dao Companion's support slot: risk steps off a major breakthrough while they are with you.
+func bond_support(c) -> int:
+	return int(ContentDB.entry("bonds", "dao_companion").get("support_steps", 1)) if dao_in_party(c) else 0
+
+## Shared insight while the Dao Companion is with you.
+func insight_share(c) -> float:
+	return float(ContentDB.entry("bonds", "dao_companion").get("insight", 0.1)) if dao_in_party(c) else 0.0
+
+## The master's legacy art (The Elder's Last Lesson): an Inner Art only that elder taught.
+func apply_master_legacy(actor_id: String) -> void:
+	var c = game.character(actor_id)
+	if c == null: return
+	var who := str(c.relations.bonds.get("master", ""))
+	var art := str(ContentDB.entry("bonds", "master").get("legacy", {}).get(who, ""))
+	if art != "": game.progression.apply_learn_inner_art(c.id, art)

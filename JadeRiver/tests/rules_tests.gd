@@ -64,6 +64,7 @@ func _main() -> void:
 	beast_world_suite()
 	beast_arena_suite()
 	relations_suite()
+	bonds_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -2356,6 +2357,119 @@ func relations_suite() -> void:
 	GameEvents.unsubscribe_object(self)
 	c.relations.restore(rel_was)
 	c.cooldowns = cd_was
+	if room_was != "": Game.world.load_room(c, room_was, "")
+
+## S49 v1.0: NPC affinity (hearts, gifts once a day, heart rewards, discounts), companion duels, sworn siblings, the
+## Dao Companion and the master's legacy.
+func bonds_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var rel_was: Dictionary = c.relations.snapshot()
+	var comp_was: Dictionary = c.companions.duplicate(true)
+	var recipes_was: Array = c.crafting.recipes.duplicate()
+	var arts_was: Array = c.cultivator.inner_arts_known.duplicate()
+	var title_was: String = c.cultivator.active_title
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var rel: RelationsState = c.relations
+	rel.restore({})
+	c.inventory.bag.fill(null)
+	Game.world.load_room(c, "lf_reed_shallows", "")
+	# A gift a day: loved is a heart; the second gift that day is refused.
+	Game.inventory.apply_add(c.id, "riverfish_soup", 2, "test")
+	var r1: Dictionary = Game.submit({"type": "give_gift", "npc": "aunt_ping", "index": _bag_index(c, "riverfish_soup")})
+	check(r1.get("ok", false) and str(r1.reaction) == "loved" and rel.hearts_of("aunt_ping") == 1, "Riverfish Soup is Aunt Ping's favourite: a whole heart")
+	check(str(Game.submit({"type": "give_gift", "npc": "aunt_ping", "index": _bag_index(c, "riverfish_soup")}).get("reason", "")) == "gifted_today", "one gift a day")
+	check(str(rel.affinity.aunt_ping.known.get("riverfish_soup", "")) == "loved", "and you remember what she loves")
+	Game.inventory.apply_add(c.id, "rice_ball", 1, "test")
+	Game.submit({"type": "give_gift", "npc": "granny_liu", "index": _bag_index(c, "rice_ball")})
+	check(int(rel.affinity.granny_liu.points) == 15, "anything else is a courtesy (+15)")
+	Game.inventory.apply_add(c.id, "training_jian", 1, "test")
+	check(str(Game.submit({"type": "give_gift", "npc": "old_ma", "index": _bag_index(c, "training_jian")}).get("reason", "")) == "not_giftable"
+		and not RelationsAuthority.giftable({"id": "kite", "count": 1}), "gear and key items stay with you")
+	# One person, two rows: Mei Qing at her stall and in the sect keep one heart count.
+	Game.inventory.apply_add(c.id, "cloudtop_orchid", 1, "test")
+	Game.submit({"type": "give_gift", "npc": "mei_qing_sect", "index": _bag_index(c, "cloudtop_orchid")})
+	check(rel.hearts_of("mei_qing") == 1 and rel.hearts_of("mei_qing_sect") == 1, "Mei Qing is one person wherever you meet her")
+	# Hearts pay once: Aunt Ping teaches Riverfish Soup at three.
+	c.crafting.recipes.erase("riverfish_soup")
+	Game.relations.apply_affinity(c.id, "aunt_ping", 200, "test")
+	check(rel.hearts_of("aunt_ping") == 3 and c.crafting.recipes.has("riverfish_soup"), "three hearts: Aunt Ping teaches her soup")
+	c.crafting.recipes.erase("riverfish_soup")
+	Game.relations.apply_affinity(c.id, "aunt_ping", -100, "test")
+	Game.relations.apply_affinity(c.id, "aunt_ping", 100, "test")
+	check(not c.crafting.recipes.has("riverfish_soup"), "and only once")
+	check(RequirementRules.passes({"all": [{"kind": "hearts_at_least", "npc": "aunt_ping", "value": 3}]}, {"char": c}), "hearts_at_least reads the hearts")
+	# Quests make friends.
+	var gp: int = int(rel.affinity.get("granny_liu", {}).get("points", 0))
+	Game.relations._on_quest_completed({"actor": c.id, "quest": "grannys_remedy"})
+	check(int(rel.affinity.granny_liu.points) == gp + 30, "a quest done for Granny Liu: +30")
+	# A keeper who likes you gives a little off.
+	var dear := ""
+	var price0 := 0
+	for row in Game.economy.stock(c, "old_ma"):
+		if int(row.price) > price0:
+			price0 = int(row.price)
+			dear = str(row.item)
+	Game.relations.apply_affinity(c.id, "old_ma", 300, "test")
+	var price1 := 0
+	for row in Game.economy.stock(c, "old_ma"):
+		if str(row.item) == dear: price1 = int(row.price)
+	check(Game.relations.shop_discount(c, "old_ma") == 0.05 and price1 < price0, "three hearts with Old Ma: 5% off (%d -> %d)" % [price0, price1])
+	# Companions: a duel at three hearts, sworn at four, a Dao Companion at five.
+	c.companions = {"roster": ["lan_yue", "tie_niu"], "active": ["lan_yue", "tie_niu"], "bond": {}, "downed": {}}
+	Game.submit({"type": "set_active_companions", "ids": ["lan_yue", "tie_niu"]})
+	check(str(Game.submit({"type": "companion_duel", "companion": "lan_yue"}).get("reason", "")) == "hearts", "no duel before three hearts")
+	Game.relations.apply_affinity(c.id, "lan_yue", 300, "test")
+	check(c.crafting.recipes.has("lotus_root_tea"), "three hearts with Lan Yue: her tea")
+	check(Game.submit({"type": "companion_duel", "companion": "lan_yue"}).get("ok", false), "a friendly duel at three")
+	var dz: EnemyState = null
+	for e in Game.room_rt.living_enemies():
+		if e.def_id == "duel_lan_yue": dz = e
+	check(dz != null and dz.level == ProgressionRules.level(c), "Lan Yue duels at your level")
+	var lp: int = int(rel.affinity.lan_yue.points)
+	if dz != null:
+		Game.enemies.end_spar(dz, c.id)
+		GameEvents.flush()
+	check(int(rel.affinity.lan_yue.points) == lp + 20, "winning the duel: +20")
+	Game.relations._on_spar_ended({"actor": c.id, "opponent": "duel_lan_yue", "winner": "player"})
+	check(int(rel.affinity.lan_yue.points) == lp + 20, "once a day")
+	check(str(Game.submit({"type": "offer_bond", "kind": "sworn", "npc": "lan_yue"}).get("reason", "")) == "hearts", "sworn siblings need four hearts")
+	Game.relations.apply_affinity(c.id, "lan_yue", 100, "test")
+	var atk0: float = c.stats.value("physical_attack")
+	check(Game.submit({"type": "offer_bond", "kind": "sworn", "npc": "lan_yue"}).get("ok", false) and (rel.bonds.sworn as Array).has("lan_yue"), "four hearts: sworn")
+	check(c.stats.value("physical_attack") > atk0 and c.cultivator.titles.has("sworn_sibling"), "a sworn sibling in the party lifts your attack, and you share a title")
+	check(str(Game.submit({"type": "offer_bond", "kind": "sworn", "npc": "lan_yue"}).get("reason", "")) == "already", "once")
+	Game.relations.apply_affinity(c.id, "tie_niu", 500, "test")
+	check(str(Game.submit({"type": "offer_bond", "kind": "dao_companion", "npc": "lan_yue"}).get("reason", "")) in ["hearts", "sworn"], "a sworn sibling is not a Dao Companion")
+	check(Game.submit({"type": "offer_bond", "kind": "dao_companion", "npc": "tie_niu"}).get("ok", false), "five hearts: Tie Niu is your Dao Companion")
+	Game.relations.apply_affinity(c.id, "lan_yue", 100, "test")
+	check(str(Game.submit({"type": "offer_bond", "kind": "dao_companion", "npc": "lan_yue"}).get("reason", "")) in ["taken", "sworn"], "one Dao Companion only")
+	check(Game.relations.bond_support(c) == 1 and near(Game.relations.insight_share(c), 0.1), "beside you: the support slot and +10% insight")
+	c.cultivator.meditating = true
+	check(near(Game.companions.paired_bonus(c), 0.25), "resonance meditation with the Dao Companion: +25%")
+	c.cultivator.meditating = false
+	Game.submit({"type": "set_active_companions", "ids": ["lan_yue"]})
+	check(Game.relations.bond_support(c) == 0, "not when they stay behind")
+	# The master: the personal-disciple trial binds you; the last lesson passes the legacy art.
+	Game.relations._on_quest_completed({"actor": c.id, "quest": "the_mentors_gift"})
+	var mentor := "elder_sung" if str(c.training_sect.get("id", "")) == "cloud_sect" else "elder_hu"
+	check(str(rel.bonds.master) == mentor, "the mentor's trial makes %s your master" % mentor)
+	c.cultivator.inner_arts_known.erase("lotus_mind_legacy")
+	c.cultivator.inner_arts_known.erase("drifting_cloud_legacy")
+	Game.apply_effects(c.id, [{"kind": "master_legacy"}], "test")
+	check(c.cultivator.inner_arts_known.has("lotus_mind_legacy" if mentor == "elder_hu" else "drifting_cloud_legacy"), "the last lesson passes the master's legacy art")
+	var sold := false
+	for row in ContentDB.entry("shops", "jade_sect").get("stock", []):
+		if str(row.get("learn", "")) in ["lotus_mind_legacy", "drifting_cloud_legacy"]: sold = true
+	check(not sold, "legacy arts are never sold")
+	c.relations.restore(rel_was)
+	c.companions = comp_was
+	c.crafting.recipes = recipes_was
+	c.cultivator.inner_arts_known = arts_was
+	c.cultivator.titles.erase("sworn_sibling")
+	c.cultivator.active_title = title_was
+	c.inventory.bag.fill(null)
+	Game.combat.refresh_stats(c.id)
 	if room_was != "": Game.world.load_room(c, room_was, "")
 
 func _seeded(seed: int) -> RandomNumberGenerator:

@@ -419,7 +419,10 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 	if retreat: reasons.append(Tx.t("sim.progression.retreat_room"))
 	var guarded = game.workshop.formation_effect(c, "breakthrough_risk_step") < 0.0
 	if guarded: reasons.append(Tx.t("sim.progression.guard_formation"))
-	var word := ProgressionRules.risk_word(ProgressionRules.risk_index(soft, unstable, cu.injuries.size(), mini(supports, 3) + (1 if guarded else 0), retreat,
+	# S49: a Dao Companion in the party holds the joint breakthrough-support slot.
+	var held: int = game.relations.bond_support(c) if major else 0
+	if held > 0: reasons.append(Tx.t("sim.progression.dao_companion_holds") % ContentDB.name_of("companions", str(c.relations.bonds.dao_companion)))
+	var word := ProgressionRules.risk_word(ProgressionRules.risk_index(soft, unstable, cu.injuries.size(), mini(supports, 3) + (1 if guarded else 0) + held, retreat,
 		demon_steps - merit)) if major else "none"
 	var can := cu.state == "bottleneck" and hard_ok and cu.breakthrough_cooldown <= 0.0 and not channels.has(c.id)
 	var blocked := ""
@@ -1108,7 +1111,7 @@ func apply_insight(actor_id: String, dao: String, amount: float, context: String
 		if mem.has(key) and game.sim_time - float(mem[key]) < window: amount *= float(ContentDB.curve("insight_repeat_factor", 0.2))
 		mem[key] = game.sim_time
 		if mem.size() > 64: mem.clear()
-		amount *= 1.0 + c.stats.value("insight_rate")
+		amount *= 1.0 + c.stats.value("insight_rate") + game.relations.insight_share(c)   # S49: a Dao Companion beside you
 		# S48 Dao Echo: the chosen Dao learns faster and every other Dao slower.
 		for rec in c.cultivator.fates:
 			if rec.has("dao") and str(rec.dao) != "": amount *= 1.2 if str(rec.dao) == dao else 0.9

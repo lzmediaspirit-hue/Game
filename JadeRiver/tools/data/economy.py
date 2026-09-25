@@ -35,7 +35,8 @@ def shops():
     def inner_art_stock():
         # S48 Inner Arts: every Mission Hall teaches all eight, each from its realm, for contribution.
         from paths import inner_arts
-        return [s("inner_art_manual", learn=a["id"], price=a["price"], requires=all_of(realm(a["realm"]))) for a in inner_arts(write=False)]
+        return [s("inner_art_manual", learn=a["id"], price=a["price"], requires=all_of(realm(a["realm"]))) for a in inner_arts(write=False)
+                if not a.get("legacy")]
     rows = [
         {"id": "old_ma", "name": "Old Ma's Store", "currency": "silver_tael", "buys_all": True,
          "stock": [s("herbal_tea", price=6), s("rice_ball", price=4), s("rice", price=2), s("bamboo_rod", requires=all_of(realm("bone_forging_8"))),
@@ -777,6 +778,8 @@ def achievements():
         {"id": "guos_student", "name": "Guo's Student", "modifiers": [{"stat": "fist_attack", "op": "pct_add", "value": 0.01}]},
         {"id": "big_sibling", "name": "Big Sibling", "modifiers": [{"stat": "max_hp", "op": "pct_add", "value": 0.01}]},
         {"id": "rivals_respect", "name": "Rival's Respect", "modifiers": [{"stat": "crit_chance", "op": "flat", "value": 0.01}]},
+        # S49: sworn siblings share a title.
+        {"id": "sworn_sibling", "name": "Sworn Sibling", "modifiers": [{"stat": "max_hp", "op": "pct_add", "value": 0.02}]},
         # S44 Alchemist Guild badges.
         {"id": "guild_adept", "name": "Guild Adept", "modifiers": [{"stat": "crafting_control", "op": "flat", "value": 0.02}]},
         {"id": "guild_expert", "name": "Guild Expert", "modifiers": [{"stat": "crafting_control", "op": "flat", "value": 0.04}]},

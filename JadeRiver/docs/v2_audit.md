@@ -125,6 +125,8 @@ Progress is recorded in `docs/CHANGELOG.md`.
   - V8 (S49 living world, with S45's treasure births and gathering trials). V8a is done: the Relations authority
     owns the karma ledger (old saves migrate), karma.json deeds from effects, code and events (Part 8's +30
     cleansing and +2 healing), the righteous-demonic alignment with its requirement kinds and first gates, personal
-    Fame with its tiers, town greetings and Young Master challenges, and the Relations page. Next: V8b (affinity,
-    gifts, bonds), V8c (grudges, factions, hunters, bounties, Part 8 debts and spare/surrender choices), V8d
+    Fame with its tiers, town greetings and Young Master challenges, and the Relations page. V8b is done: NPC hearts
+    with Part 8's favourite gifts, one gift a day, heart rewards and keeper discounts, companion duels, sworn
+    siblings, the Dao Companion (support slot, shared insight, resonance meditation) and the master with The Elder's
+    Last Lesson. Next: V8c (grudges, factions, hunters, bounties, Part 8 debts and spare/surrender choices), V8d
     (calendar), V8e-g (the rest).

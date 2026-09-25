@@ -156,6 +156,11 @@ def inner_arts(write=True):
          "family": "bow", "modifiers": [mod("attack_speed", 0.10, "flat")], "price": 200, "realm": "qi_unfurling_1"},
         {"id": "ember_channel", "name": "Ember Channel", "desc": "Fire techniques cost 10% less QI.",
          "modifiers": [mod("technique_cost", 0.10, "flat", element="fire")], "price": 300, "realm": "heart_tempering_1"},
+        # S49 master inheritance (The Elder's Last Lesson): never sold, only passed on.
+        {"id": "lotus_mind_legacy", "name": "Lotus Mind", "desc": "Elder Hu's legacy: +8% insight and +5% Will.", "legacy": "elder_hu",
+         "modifiers": [mod("insight_rate", 0.08, "flat"), mod("will", 0.05)], "price": 0, "realm": "qi_unfurling_1"},
+        {"id": "drifting_cloud_legacy", "name": "Drifting Cloud", "desc": "Elder Sung's legacy: +6% move speed and +5% evasion.", "legacy": "elder_sung",
+         "modifiers": [mod("move_speed", 0.06), mod("evasion", 0.05)], "price": 0, "realm": "qi_unfurling_1"},
     ]
     if write:
         entries("inner_arts", rows, slots=[["qi_unfurling_1", 2], ["heart_tempering_1", 3], ["spirit_awakening_1", 4]])

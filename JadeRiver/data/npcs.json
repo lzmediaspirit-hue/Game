@@ -28,7 +28,32 @@
     "Who left the net out again?"
    ],
    "services": [],
-   "tree": "aunt_ping"
+   "tree": "aunt_ping",
+   "affinity": "aunt_ping",
+   "gifts": {
+    "loved": [
+     "riverfish_soup"
+    ],
+    "liked": [
+     "herbal_tea",
+     "jade_carp_fish",
+     "jade_carp_congee"
+    ]
+   },
+   "heart_rewards": {
+    "3": [
+     {
+      "kind": "learn_recipe",
+      "recipe": "riverfish_soup"
+     }
+    ],
+    "5": [
+     {
+      "kind": "learn_recipe",
+      "recipe": "jade_carp_congee"
+     }
+    ]
+   }
   },
   {
    "id": "lu_boatman",
@@ -57,7 +82,27 @@
     "Tide's turning."
    ],
    "services": [],
-   "tree": "lu"
+   "tree": "lu",
+   "affinity": "lu_boatman",
+   "gifts": {
+    "loved": [
+     "rice_wine"
+    ],
+    "liked": [
+     "roast_fish",
+     "river_minnow",
+     "herbal_tea"
+    ]
+   },
+   "heart_rewards": {
+    "3": [
+     {
+      "kind": "grant_item",
+      "item": "jade_carp_fish",
+      "count": 3
+     }
+    ]
+   }
   },
   {
    "id": "little_dou",
@@ -85,7 +130,27 @@
    ],
    "services": [],
    "scale": 0.8,
-   "tree": "little_dou"
+   "tree": "little_dou",
+   "affinity": "little_dou",
+   "gifts": {
+    "loved": [
+     "dusty_curio"
+    ],
+    "liked": [
+     "rice_ball",
+     "reed_perch",
+     "roast_fish"
+    ]
+   },
+   "heart_rewards": {
+    "3": [
+     {
+      "kind": "grant_item",
+      "item": "rice_ball",
+      "count": 5
+     }
+    ]
+   }
   },
   {
    "id": "old_ma",
@@ -114,7 +179,27 @@
    "services": [
     "shop:old_ma"
    ],
-   "tree": "old_ma"
+   "tree": "old_ma",
+   "affinity": "old_ma",
+   "gifts": {
+    "loved": [
+     "pearl"
+    ],
+    "liked": [
+     "dusty_curio",
+     "old_net",
+     "river_minnow"
+    ]
+   },
+   "heart_rewards": {
+    "5": [
+     {
+      "kind": "grant_item",
+      "item": "spirit_jade",
+      "count": 3
+     }
+    ]
+   }
   },
   {
    "id": "granny_liu",
@@ -144,7 +229,33 @@
    "services": [
     "shop:granny_liu"
    ],
-   "tree": "granny_liu"
+   "tree": "granny_liu",
+   "affinity": "granny_liu",
+   "gifts": {
+    "loved": [
+     "mist_lotus"
+    ],
+    "liked": [
+     "herbal_tea",
+     "lotus_root_tea",
+     "clear_mind_pill"
+    ]
+   },
+   "heart_rewards": {
+    "3": [
+     {
+      "kind": "learn_recipe",
+      "recipe": "healing_pill"
+     }
+    ],
+    "5": [
+     {
+      "kind": "grant_item",
+      "item": "calm_heart_incense",
+      "count": 2
+     }
+    ]
+   }
   },
   {
    "id": "shen_lian_npc",
@@ -171,7 +282,27 @@
     "Bet you can't catch me."
    ],
    "services": [],
-   "tree": "shen_lian"
+   "tree": "shen_lian",
+   "affinity": "shen_lian",
+   "gifts": {
+    "loved": [
+     "roast_fish"
+    ],
+    "liked": [
+     "river_minnow",
+     "rice_ball",
+     "reed_perch"
+    ]
+   },
+   "heart_rewards": {
+    "3": [
+     {
+      "kind": "grant_item",
+      "item": "clear_mind_pill",
+      "count": 2
+     }
+    ]
+   }
   },
   {
    "id": "uncle_guo",
@@ -198,7 +329,26 @@
     "Keep your elbow in."
    ],
    "services": [],
-   "tree": "uncle_guo"
+   "tree": "uncle_guo",
+   "affinity": "uncle_guo",
+   "gifts": {
+    "loved": [
+     "ember_pepper_stew"
+    ],
+    "liked": [
+     "rice_wine",
+     "boar_bone_broth",
+     "roast_fish"
+    ]
+   },
+   "heart_rewards": {
+    "3": [
+     {
+      "kind": "learn_recipe",
+      "recipe": "ember_pepper_stew"
+     }
+    ]
+   }
   },
   {
    "id": "fisher_wen",
@@ -712,7 +862,26 @@
    "services": [
     "shop:mei_qing",
     "shop:mei_qing_recipes"
-   ]
+   ],
+   "affinity": "mei_qing",
+   "gifts": {
+    "loved": [
+     "cloudtop_orchid"
+    ],
+    "liked": [
+     "mist_lotus",
+     "cloudtop_orchid_broth",
+     "spirit_jade"
+    ]
+   },
+   "heart_rewards": {
+    "5": [
+     {
+      "kind": "learn_recipe",
+      "recipe": "cloudtop_orchid_broth"
+     }
+    ]
+   }
   },
   {
    "id": "mei_qing_sect",
@@ -736,7 +905,26 @@
    "barks": [
     "Mind the fumes."
    ],
-   "services": []
+   "services": [],
+   "affinity": "mei_qing",
+   "gifts": {
+    "loved": [
+     "cloudtop_orchid"
+    ],
+    "liked": [
+     "mist_lotus",
+     "cloudtop_orchid_broth",
+     "spirit_jade"
+    ]
+   },
+   "heart_rewards": {
+    "5": [
+     {
+      "kind": "learn_recipe",
+      "recipe": "cloudtop_orchid_broth"
+     }
+    ]
+   }
   },
   {
    "id": "apprentice_tao",
@@ -859,6 +1047,26 @@
    ],
    "service_labels": {
     "spar:shen_lian": "Spar"
+   },
+   "affinity": "shen_lian",
+   "gifts": {
+    "loved": [
+     "roast_fish"
+    ],
+    "liked": [
+     "river_minnow",
+     "rice_ball",
+     "reed_perch"
+    ]
+   },
+   "heart_rewards": {
+    "3": [
+     {
+      "kind": "grant_item",
+      "item": "clear_mind_pill",
+      "count": 2
+     }
+    ]
    }
   },
   {
@@ -1677,7 +1885,27 @@
    "sect": "jade_sect",
    "concealed_lines": [
     "You can hide your realm from bandits, child. Not from the one who taught you to breathe."
-   ]
+   ],
+   "affinity": "elder_hu",
+   "gifts": {
+    "loved": [
+     "spirit_jade"
+    ],
+    "liked": [
+     "herbal_tea",
+     "manual_page",
+     "mist_lotus"
+    ]
+   },
+   "heart_rewards": {
+    "3": [
+     {
+      "kind": "grant_item",
+      "item": "manual_page",
+      "count": 3
+     }
+    ]
+   }
   },
   {
    "id": "elder_sung",
@@ -1708,7 +1936,27 @@
    "sect": "cloud_sect",
    "concealed_lines": [
     "A cloud can look like a small thing from below. I am not below you. Put the mask away when we talk."
-   ]
+   ],
+   "affinity": "elder_sung",
+   "gifts": {
+    "loved": [
+     "storm_feather"
+    ],
+    "liked": [
+     "herbal_tea",
+     "manual_page",
+     "cloudtop_orchid"
+    ]
+   },
+   "heart_rewards": {
+    "3": [
+     {
+      "kind": "grant_item",
+      "item": "manual_page",
+      "count": 3
+     }
+    ]
+   }
   },
   {
    "id": "arena_master",
@@ -2677,7 +2925,26 @@
     "Careful!"
    ],
    "services": [],
-   "companion": "lan_yue"
+   "companion": "lan_yue",
+   "affinity": "lan_yue",
+   "gifts": {
+    "loved": [
+     "lotus_root_tea"
+    ],
+    "liked": [
+     "herbal_tea",
+     "mist_lotus",
+     "jade_carp_congee"
+    ]
+   },
+   "heart_rewards": {
+    "3": [
+     {
+      "kind": "learn_recipe",
+      "recipe": "lotus_root_tea"
+     }
+    ]
+   }
   },
   {
    "id": "tie_niu",
@@ -2702,7 +2969,26 @@
     "HAH!"
    ],
    "services": [],
-   "companion": "tie_niu"
+   "companion": "tie_niu",
+   "affinity": "tie_niu",
+   "gifts": {
+    "loved": [
+     "boar_bone_broth"
+    ],
+    "liked": [
+     "roast_fish",
+     "ember_pepper_stew",
+     "thunderhorn_stew"
+    ]
+   },
+   "heart_rewards": {
+    "3": [
+     {
+      "kind": "learn_recipe",
+      "recipe": "boar_bone_broth"
+     }
+    ]
+   }
   },
   {
    "id": "qiu_feng",
@@ -2727,7 +3013,26 @@
     "Mark!"
    ],
    "services": [],
-   "companion": "qiu_feng"
+   "companion": "qiu_feng",
+   "affinity": "qiu_feng",
+   "gifts": {
+    "loved": [
+     "vulture_plume"
+    ],
+    "liked": [
+     "storm_feather",
+     "roast_fish",
+     "toad_oil_dumplings"
+    ]
+   },
+   "heart_rewards": {
+    "3": [
+     {
+      "kind": "learn_recipe",
+      "recipe": "roast_fish"
+     }
+    ]
+   }
   },
   {
    "id": "bai_ling",
@@ -2752,7 +3057,27 @@
     "Lines drawn!"
    ],
    "services": [],
-   "companion": "bai_ling"
+   "companion": "bai_ling",
+   "affinity": "bai_ling",
+   "gifts": {
+    "loved": [
+     "formation_stone"
+    ],
+    "liked": [
+     "spirit_paper",
+     "spirit_jade",
+     "lantern_wick"
+    ]
+   },
+   "heart_rewards": {
+    "3": [
+     {
+      "kind": "grant_item",
+      "item": "formation_stone",
+      "count": 2
+     }
+    ]
+   }
   }
  ]
 }

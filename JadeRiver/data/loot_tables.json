@@ -2421,6 +2421,38 @@
    "guaranteed": []
   },
   {
+   "id": "duel_lan_yue",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
+   "id": "duel_tie_niu",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
+   "id": "duel_qiu_feng",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
+   "id": "duel_bai_ling",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
    "id": "reed_otter",
    "groups": [
     {

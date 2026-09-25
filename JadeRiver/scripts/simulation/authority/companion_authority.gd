@@ -22,6 +22,7 @@ func handle(intent: Dictionary) -> Dictionary:
 			if c.companions.roster.has(id) and active.size() < 2: active.append(id)
 		c.companions.active = active
 		_spawn_all(c)
+		game.combat.refresh_stats(c.id)   # sworn siblings' party buff (S49)
 		emit("companions_changed", {"actor": c.id})
 		return ok()
 	return fail("unknown_intent")
@@ -92,7 +93,13 @@ func tick(delta: float) -> void:
 ## Paired cultivation (v1.1, Sage 1): meditating beside a fellow disciple who sits with you
 ## breathes the Qi between you both. One partner is enough; a downed one cannot pair.
 func paired_bonus(c) -> float:
-	if c == null or not c.cultivator.meditating or not Unlocks.is_unlocked(c.id, "paired_cultivation") or game.room_rt == null: return 0.0
+	if c == null or not c.cultivator.meditating or game.room_rt == null: return 0.0
+	# S49 resonance meditation: a Dao Companion sitting with you, from the day the bond is sworn.
+	var dc := str(c.relations.bonds.get("dao_companion", ""))
+	if dc != "" and allies.has(dc):
+		var d: EnemyState = game.room_rt.enemies.get(allies[dc])
+		if d != null and d.ai.get("state", "") != "downed": return float(ContentDB.entry("bonds", "dao_companion").get("resonance", 0.25))
+	if not Unlocks.is_unlocked(c.id, "paired_cultivation"): return 0.0
 	for id in allies:
 		var a: EnemyState = game.room_rt.enemies.get(allies[id])
 		if a != null and a.ai.get("state", "") != "downed": return float(ContentDB.curve("paired_cultivation", 0.15))
