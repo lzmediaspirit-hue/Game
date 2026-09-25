@@ -32,6 +32,73 @@ ORES = [
     ("stormsteel_ore", "spirit", "Blue-black ore from where lightning strikes the same ground twice."),
     ("sunglass_ore", "sage", "Desert glass the Sunscar sun fused out of the dunes. It holds heat and light like a lamp.", "Sunglass"),
 ]
+# S47 talisman craft: inks and papers (Part 8).
+TALISMAN_MATS = [("cinnabar", "common", "Red mercury ore ground to powder: the ink every talisman begins with. Stoneford General Store sells it.", "Cinnabar"),
+                 ("beast_blood_ink", "earth", "Ink cut with a beast's blood; it holds a stronger charge than cinnabar alone.", "Beast-Blood Ink"),
+                 ("spirit_paper", "earth", "Talisman paper steeped with Mist Lotus until it drinks Qi.", "Spirit Paper")]
+# The talismans themselves: (id, grade, kind, desc). Numbers live in talismans.json.
+# Item text: one line on where it comes from and what it is for (the UI shows it under the name).
+BEAST_DESC = {
+    "ore_dust": "Glittering grit from an Ironclaw Mole's tunnels. Smiths pack it into Thunderclap Pellets.",
+    "crab_shell": "A mud-brown shell from a Mudshell Crab. Traders buy it to burn for lime.",
+    "rat_tail": "A Reedtail Rat's tail. Ink-makers boil it down for its binding fat.",
+    "boar_hide": "Bristly hide from a Wild Boarlet. Smiths wrap iron hilts with it.",
+    "tough_meat": "Stringy meat from a big beast. Slow-stewed, it builds a body up.",
+    "toad_oil": "Slick oil wrung from a Mossback Toad's skin. Cooks fold it into dumplings.",
+    "moss": "Damp moss scraped from a Mossback Toad's back. Qi Gathering Pills start with it.",
+    "beetle_shell": "A Rock Beetle's plate, hard as slate. Needle-smiths and Iron Wall talismans both use it.",
+    "tortoise_plate": "A slab of Stone Tortoise shell. Bone Strengthening Pills and Body Jades need it.",
+    "mole_claw": "A digging claw from an Ironclaw Mole, still sharp enough to scratch iron.",
+    "frog_leg": "A Reed Frog's leg. Jade-smiths set its spring into a Swift Jade.",
+    "leech_oil": "Oil pressed from a Marsh Leech. Qi Restoration Pills and Essence Jades use it.",
+    "bamboo_shoot": "A tender shoot a Bamboo Monkey was hoarding. Traders buy them by the basket.",
+    "viper_fang": "A Green Viper's fang, still beaded with venom. It binds a sealing talisman's stroke.",
+    "venom_sac": "A Green Viper's venom sac. Antidotes start here, and so do poisons.",
+    "thorn_hide": "Hide from a Thornback Boar, studded with thorn-like bristles. Tiger Blood Pills need it.",
+    "hound_fang": "A Mud Hound's fang. Boiled with rat tail, it makes beast-blood ink.",
+    "jade_scale": "A green scale from a Jade Carp, cool to the touch. Jadeiron smiths and alchemists both want it.",
+    "tide_shell": "A Tide Crab's shell, ridged like waves. It rings when tapped.",
+    "pearl": "A small river pearl. Traders buy them; alchemists grind them for clear pills.",
+    "lizard_scale": "A slick scale from a Rapids Lizard. Water runs off it without wetting it.",
+    "serpent_scale": "A heavy scale from a river serpent. Traders pay well for an unchipped one.",
+    "vulture_plume": "A grey Mist Vulture plume. A Wind Step talisman's stroke needs its lightness.",
+    "cloud_feather": "A white Cloudwing Crane feather that drifts upward when dropped.",
+    "storm_feather": "A Stormwing Hawk's feather that crackles in dry air. Thunder talismans need it.",
+    "ape_fur": "Thick fur from a Cliff Ape, warm enough for the high passes.",
+    "mist_pelt": "A Mist Wolf's pelt, grey and hard to look at directly.",
+    "mirror_dust": "Silver dust shed by a Mirror Wisp. It remembers what it last reflected.",
+    "soul_wax": "Wax from a Weeping Lantern that burns without heat. Soul Soothing Pills need it.",
+    "hollow_antler": "A Hollow Stag's antler, grey and cold. Handle it with gloves.",
+    "roc_feather": "A great flight feather from a Cloudpeak Roc, as long as a spear.",
+}
+FISH_DESC = {
+    "river_minnow": "A silver minnow from the Jade River shallows. Bait, or a quick snack.",
+    "reed_perch": "A striped perch that hides among the reeds.",
+    "jade_carp_fish": "A green-gold carp from the deeper pools. Said to bring luck to a household.",
+    "river_eel": "A slippery river eel. Smoked, it keeps for a month.",
+    "mist_trout": "A pale trout from the cold falls pool, lean and full of Qi.",
+    "rapids_salmon": "A strong salmon caught where the river runs white.",
+    "moon_carp": "A carp that shines faintly in the dark. It bites only at night, in any water.",
+}
+TOOL_DESC = {
+    "old_pickaxe": "A worn pickaxe with a loose head. It still breaks ore, slowly.",
+    "iron_pickaxe": "A sound iron pickaxe: veins give up their ore faster.",
+    "herb_sickle": "A curved sickle for cutting herbs cleanly at the stem, so they keep their potency.",
+    "bamboo_rod": "A bamboo fishing rod with a horsehair line. Every fisher starts with one.",
+    "clay_pot": "A blackened clay pot. Cooking starts here.",
+    "forge_hammer": "A smith's hammer, balanced for long days at the anvil.",
+    "formation_kit": "Chalk, a compass and a pouch of flags: all a formation needs to be laid out.",
+    "needle_case": "A case of fine silver needles for acupuncture and stitching wounds.",
+    "appraisers_loupe": "A jade loupe that shows what a curio really is, and what it is worth.",
+    "drying_rack": "A folding bamboo rack. Dried herbs keep longer and refine cleaner.",
+}
+
+TALISMANS = [("flame_talisman", "common", "attack", "Thrown, it bursts into a sheet of fire: 180% fire damage at the talisman's own grade within 80."),
+             ("thunder_talisman", "earth", "attack", "Thrown, it calls a bolt: 240% thunder damage at the talisman's own grade, and Shock."),
+             ("iron_wall_talisman", "common", "defence", "Burned, it wraps you in iron Qi: a shield that absorbs 20% of your max HP for 6 s."),
+             ("wind_step_talisman", "common", "movement", "Burned, it lends you one free dodge within 60 s, cooldown or not."),
+             ("veil_talisman", "earth", "movement", "Burned, it hides you for 10 s: monsters that have not found you pass you by."),
+             ("binding_talisman", "earth", "sealing", "Thrown, it roots the nearest foe for 2 s. Bosses shrug it off.")]
 # S47 gear upkeep: what Salvage gives back, and what steadies an enhancement.
 REFINING = [("refining_essence", "common", "The refined Qi of a salvaged piece. The forge feeds it into an enhancement to steady it.", "Refining Essence")]
 BEAST = ["ore_dust", "crab_shell", "rat_tail", "boar_hide", "tough_meat", "toad_oil", "moss", "beetle_shell", "tortoise_plate",
@@ -226,10 +293,15 @@ def build_items():
                          name=h[3] if len(h) > 3 else None, **extra))
     for o in ORES:
         rows.append(item(o[0], "ore", o[1], 99, o[2], name=o[3] if len(o) > 3 else None))
-    for o in REFINING:
+    for o in REFINING + TALISMAN_MATS:
         rows.append(item(o[0], "material", o[1], 99, o[2], name=o[3]))
+    for tid, grade, kind, desc in TALISMANS:
+        rows.append(item(tid, "talisman", grade, 20, desc, use=[], use_action="talisman", talisman=kind))
+    # A Shattered Relic (S47): the Drowned Abbot's old blade in pieces; a master smith restores it.
+    rows.append(item("shattered_moon_blade", "relic_shard", "heaven", 1, "The pieces of a jian that once held a spirit, pale as moonlight. "
+                     "A smith of Expert rank could restore it at the forge.", name="Shattered Moon Blade", sell=False, restores="moonlit_blade"))
     for b in BEAST:
-        rows.append(item(b, "beast_part", BEAST_GRADE[b], 99, "A material taken from a valley beast."))
+        rows.append(item(b, "beast_part", BEAST_GRADE[b], 99, BEAST_DESC.get(b, "A material taken from a valley beast.")))
     # Azure Expanse beasts (Act II)
     rows.append(item("spark_pelt", "beast_part", "spirit", 99, "A golden pelt that snaps with static. Taken from Spark Weasels."))
     rows.append(item("thunder_horn", "beast_part", "spirit", 99, "A thunderhorn's horn. It still holds a charge."))
@@ -287,7 +359,7 @@ def build_items():
     rows.append(item("hollow_shard", "hollow", "earth", 99, "A shard of the Hollow Tide. Appraise before use."))
     rows.append(item("grey_hide", "hollow", "common", 99, "Hide from a Hollowed beast, grey and cold."))
     for f, g in FISH:
-        rows.append(item(f, "fish", g, 99, "A fish from the Jade River.", name="Jade Carp" if f == "jade_carp_fish" else None))
+        rows.append(item(f, "fish", g, 99, FISH_DESC.get(f, "A fish from the Jade River."), name="Jade Carp" if f == "jade_carp_fish" else None))
     for (sid, grade, desc) in [("manual_page", "common", "A loose technique manual page. Raises mastery beyond tier 3."),
                                ("riverbreath_scroll", "heaven", "The Riverbreath inheritance scroll: the complete method."),
                                ("lu_journal_page", "plain", "A page of Lu's journal, water-stained."),
@@ -318,10 +390,20 @@ def build_items():
                          use=[effect("learn_technique", technique=tech)]))
     rows.append(item("old_net", "other", "plain", 99, "A torn fishing net. Old Ma buys these.", value_override=40))
     rows.append(item("snapper_claw", "other", "common", 99, "Old Snapper's claw. Worth 40 taels to a trader.", value_override=40))
-    for oid, grade in [("river_mud", "plain"), ("cloth", "common"), ("arrows", "common"), ("bow_parts", "common"), ("prayer_beads", "earth"),
-                       ("talisman_paper", "earth"), ("ink", "earth"), ("formation_stone", "earth"), ("lantern_wick", "heaven"), ("rice", "plain"),
-                       ("restoration_ink", "heaven"), ("fish_bait", "plain")]:
-        rows.append(item(oid, "material", grade, 99, "A common valley good."))
+    for oid, grade, desc in [
+            ("river_mud", "plain", "Thick grey mud from the riverbank. Potters and wall-menders pay a little for it."),
+            ("cloth", "common", "A bolt of plain hemp cloth, for bandages, patches and tailoring."),
+            ("arrows", "common", "A bundle of fletched arrows. Hunters and bandits never have enough."),
+            ("bow_parts", "common", "A cracked bow limb and a spool of string. A bowyer can make something of them."),
+            ("prayer_beads", "earth", "Worn sandalwood beads, smooth from years of counted breaths."),
+            ("talisman_paper", "common", "Coarse yellow paper cut to a talisman's size. It takes cinnabar well."),
+            ("ink", "earth", "Pine-soot ink ground with spirit water. Scribes and formation masters use it."),
+            ("formation_stone", "earth", "A palm-sized stone that holds a trace of Qi: the anchor of every array."),
+            ("lantern_wick", "heaven", "A wick braided with spirit silk. It burns for a month without trimming."),
+            ("rice", "plain", "A sack of valley rice. Every kitchen starts here."),
+            ("restoration_ink", "heaven", "Ink steeped with mending herbs: it can close a torn scripture and still hold a stroke."),
+            ("fish_bait", "plain", "Worms and dough in a clay pot. The fish of the valley are not picky.")]:
+        rows.append(item(oid, "material", grade, 99, desc))
     rows.append(item("calm_incense", "other", "plain", 99, "Calming incense. Burn it and meditate to steady the heart.", use=[effect("add_composure", amount=30)]))
     rows.append(item("myriad_year_calm_incense", "treasure", "heaven", 1, "Clears Heart Demons (-20) and steadies Composure for an hour. Never sold.", sell=False,
                      use=[effect("add_heart_demon", amount=-20), effect("add_modifier", stat="will", op="flat", value=20, duration=3600, source="calm_incense")]))
@@ -345,7 +427,7 @@ def build_items():
              ("appraisers_loupe", "common", "appraisal", 1.0), ("drying_rack", "common", "alchemy", 1.0)]
     for tid, grade, craft, power in tools:
         extra = {"furnace": FURNACES["bronze_furnace"][1]} if tid == "bronze_furnace" else {}
-        desc = FURNACES["bronze_furnace"][0] if tid == "bronze_furnace" else "A %s tool." % craft
+        desc = FURNACES["bronze_furnace"][0] if tid == "bronze_furnace" else TOOL_DESC[tid]
         rows.append(item(tid, "tool", grade, 1, desc, tool={"craft": craft, "power": power},
                          icon="appraiser_loupe" if tid == "appraisers_loupe" else tid, **extra))
     # Furnaces (gap report G1, S15 "special furnace"): the best one you carry is the one you refine in.
@@ -504,6 +586,9 @@ def build_artifacts():
     # S47 rogue cultivators drop what they carry in the open.
     rows.append(artifact("serpent_tongue_jian", "weapon", "earth", "Serpent-Tongue Jian", "sword", "jian", icon="jadeiron_jian", ilv=30,
                          desc="A rogue cultivator's jian, its blade forked at the tip. Whoever it belonged to, it is yours now."))
+    rows.append(artifact("moonlit_blade", "weapon", "heaven", "The Moonlit Blade", "sword", "jian", icon="cloudsteel_jian", ilv=50,
+                         relic=True, unique="Awake spirit: +8% Qi attack",
+                         spirit={"name": "Moon Spirit", "strength": 26, "effect": {"stat": "qi_attack", "op": "pct_add", "value": 0.08}}))
     rows.append(artifact("sleeping_blade", "weapon", "heaven", "The Sleeping Blade", "sword", "jian", icon="cloudsteel_jian", ilv=52,
                          relic=True, unique="Awake spirit: +10% crit damage",
                          spirit={"name": "Blade Spirit", "strength": 30, "effect": {"stat": "crit_damage", "op": "flat", "value": 0.1}}))

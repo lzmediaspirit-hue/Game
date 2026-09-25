@@ -490,6 +490,12 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.breakthrough_failed") + ContentDB.text("failure." + str(p.failure_id)), UiKit.RED)
 		"achievement_unlocked":
 			toast(Tx.t("hud.achievement") + str(p.get("name", "")), "gold")
+		"talisman_crafted":
+			if p.get("spoiled", false): add_log(Tx.t("hud.talisman_spoiled"), UiKit.MIST)
+		"talisman_used":
+			if str(p.get("kind", "")) == "movement": add_log(Tx.t("hud.talisman_used") % ContentDB.item_name(str(p.get("item", ""))), UiKit.PALE_GOLD)
+		"relic_restored":
+			toast(Tx.t("hud.relic_restored") % ContentDB.item_name(str(p.get("item", ""))), "gold")
 		"natal_grew":
 			if int(p.get("level", 0)) > 0: add_log(Tx.t("hud.natal_grew") % [ContentDB.item_name(str(p.get("item", ""))), int(p.get("level", 0))], UiKit.GOLD)
 		"natal_broken":

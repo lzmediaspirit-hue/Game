@@ -150,7 +150,7 @@ func data_suite() -> void:
 	# Items that start systems name a known action; manuals teach something real.
 	for it in ContentDB.all("items"):
 		check_effects(it.get("use", []), "item " + str(it.id))
-		if it.has("use_action"): check(str(it.use_action) in ["appraise", "incubate", "tame", "absorb_flame"], "item %s use_action" % it.id)
+		if it.has("use_action"): check(str(it.use_action) in ["appraise", "incubate", "tame", "absorb_flame", "talisman"], "item %s use_action" % it.id)
 		# S47: a treasure item points at its entry in treasures.json, with a cooldown or charges and a QI cost.
 		if it.has("treasure"):
 			var t := ContentDB.entry("treasures", str(it.treasure))

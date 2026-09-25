@@ -1533,6 +1533,31 @@
    "desc": "A rogue cultivator's jian, its blade forked at the tip. Whoever it belonged to, it is yours now."
   },
   {
+   "id": "moonlit_blade",
+   "name": "The Moonlit Blade",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 50,
+   "appearance": "sword",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian",
+   "relic": true,
+   "unique": "Awake spirit: +8% Qi attack",
+   "spirit": {
+    "name": "Moon Spirit",
+    "strength": 26,
+    "effect": {
+     "stat": "qi_attack",
+     "op": "pct_add",
+     "value": 0.08
+    }
+   }
+  },
+  {
    "id": "sleeping_blade",
    "name": "The Sleeping Blade",
    "slot": "weapon",

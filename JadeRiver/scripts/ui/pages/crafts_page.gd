@@ -4,7 +4,7 @@ extends Page
 ## glowing band); its scores go to the authority, which rolls the quality.
 
 var CRAFTS := [["cooking", Tx.t("ui.crafts.cooking")], ["alchemy", Tx.t("ui.crafts.alchemy")], ["smithing", Tx.t("ui.crafts.forge")], ["formations", Tx.t("ui.crafts.arrays")],
-	["star_charting", Tx.t("ui.crafts.charts")], ["shipwright", Tx.t("ui.crafts.vessels")]]
+	["talisman", Tx.t("ui.crafts.talismans")], ["star_charting", Tx.t("ui.crafts.charts")], ["shipwright", Tx.t("ui.crafts.vessels")]]
 ## The Starsea crafts (S16) take no mini-game: the chart or the hull is made in one go.
 const DIRECT := {"cooking": "cook", "formations": "inscribe", "star_charting": "chart_route", "shipwright": "build_vessel"}
 
@@ -23,6 +23,11 @@ var pick_uid := -1                 # the piece chosen in Enhance and Reroll, and
 var to_uid := -1                   # Inherit's target
 var picked: Dictionary = {}        # Salvage: uid -> true
 var essence := 0
+## S47 talisman tracing: the stroke path shown on paper, and the path the brush takes over it.
+var trace_on := false
+var trace_rect := Rect2()
+var trace_pts: Array = []
+var trace_t0 := 0.0
 ## The fires under a furnace (gap report G1), in the order the selector shows them.
 const FIRES := ["charcoal", "earth_fire", "beast_fire", "heavenly_flame"]
 
@@ -34,11 +39,11 @@ func setup() -> void:
 	tabs = []
 	for cr in CRAFTS:
 		tabs.append({"id": cr[0], "label": cr[1], "locked": "" if Unlocks.is_unlocked(ch.id, cr[0]) else Unlocks.locked_text(cr[0])})
-	var want = {"cooking": 0, "alchemy": 1, "forge": 2, "arrays": 3, "charts": 4, "vessels": 5}.get(page_id, -1)
+	var want = {"cooking": 0, "alchemy": 1, "forge": 2, "arrays": 3, "talisman": 4, "charts": 5, "vessels": 6}.get(page_id, -1)
 	# The Starsea tabs stay hidden until Sage 3 opens them, so the valley page is unchanged.
 	if not Unlocks.is_unlocked(ch.id, "star_charting"):
-		tabs = tabs.slice(0, 4)
-		if want >= 4: want = -1
+		tabs = tabs.slice(0, 5)
+		if want >= 5: want = -1
 	# A page opened for one recipe (a quest link, or a preview: --open-page=alchemy:healing_pill).
 	var pick := str(args.get("tab", ""))
 	if ContentDB.has_entry("recipes", pick): sel = pick
@@ -104,15 +109,15 @@ func draw_page() -> void:
 	panel(right)
 	if sel == "" or ContentDB.entry("recipes", sel).is_empty() or str(ContentDB.entry("recipes", sel).craft) != craft:
 		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), (Tx.t("ui.crafts.choose_a_recipe_stand_near") % {"cooking": Tx.t("ui.crafts.cooking_pot"), "alchemy": "furnace", "smithing": "forge",
-			"star_charting": Tx.t("ui.crafts.chart_table"), "shipwright": Tx.t("ui.crafts.slipway")}[craft]) if craft != "formations" else Tx.t("ui.crafts.choose_a_plate_to_etch"), 19, UiKit.MIST)
+			"star_charting": Tx.t("ui.crafts.chart_table"), "shipwright": Tx.t("ui.crafts.slipway")}[craft]) if not craft in ["formations", "talisman"] else Tx.t("ui.crafts.choose_a_plate_to_etch") if craft == "formations" else Tx.t("ui.crafts.choose_a_talisman"), 19, UiKit.MIST)
 		if craft == "alchemy": _auto(ch, right)
 		return
 	var rec := ContentDB.entry("recipes", sel)
 	var out2 := str(rec.outputs[0].item)
 	slot_box(Rect2(right.position + Vector2(24, 24), Vector2(72, 72)), out2, int(rec.outputs[0].count))
 	text(right.position + Vector2(110, 56), ContentDB.item_name(out2), 24, UiKit.grade_color(str(rec.get("grade", "plain"))))
-	text(right.position + Vector2(110, 84), fit(str(ContentDB.item(out2).get("desc", "")), 16, right.size.x - 130), 16, UiKit.MIST)
-	var y := right.position.y + 120
+	para(Rect2(right.position + Vector2(110, 68), Vector2(right.size.x - 130, 44)), str(ContentDB.item(out2).get("desc", "")), 16, UiKit.MIST, 2)
+	var y := right.position.y + 124
 	for inp in rec.inputs:
 		var have = ch.inventory.count(str(inp.item))
 		var need := int(inp.count) * count
@@ -140,8 +145,11 @@ func draw_page() -> void:
 				btn(fr, Tx.t("ui.crafts.fire_" + f), "fire", f, fire == f, f in have, Tx.t("ui.crafts.fire_" + f + "_locked"), 17)
 	var why2 := Game.crafting.recipe_check(ch, sel, count, craft)
 	if game_on: _draw_minigame(Rect2(right.position.x + 24, right.end.y - 210, right.size.x - 48, 60))
+	if craft == "talisman" and trace_on:
+		_draw_trace(right)
+		return
 	var label = {"cooking": Tx.t("ui.crafts.cook"), "alchemy": Tx.t("ui.crafts.refine"), "smithing": Tx.t("ui.crafts.forge"), "formations": Tx.t("ui.crafts.etch"),
-		"star_charting": Tx.t("ui.crafts.chart"), "shipwright": Tx.t("ui.crafts.build")}[craft]
+		"talisman": Tx.t("ui.crafts.write"), "star_charting": Tx.t("ui.crafts.chart"), "shipwright": Tx.t("ui.crafts.build")}[craft]
 	btn(Rect2(right.end.x - 244, right.end.y - 76, 220, 58), Tx.t("ui.crafts.strike") if game_on else label, "strike" if game_on else "craft", null, true, why2 == "" or game_on, why2)
 	if craft == "alchemy" and Unlocks.is_unlocked(ch.id, "auto_refine") and not game_on:
 		btn(Rect2(right.end.x - 474, right.end.y - 76, 220, 58), Tx.t("ui.crafts.queue_batch"), "queue", null, false, why2 == "", why2)
@@ -349,6 +357,84 @@ func _forge_natal(ch, r: Rect2) -> void:
 		btn(Rect2(r.position.x + 220, y + 6, 130, 44), Tx.t("ui.forge.feed") % 5, "natal_feed", [ore, 5], false, not inst.get("broken", false) and ch.inventory.count(ore) >= 5, "", 16)
 	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.reforge"), "natal_reforge", null, true)
 
+# ------------------------------------------------------------------ talisman tracing (S47)
+func _template(r: Rect2) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	var tal := ContentDB.entry("talismans", str(ContentDB.entry("recipes", sel).outputs[0].item))
+	for p in tal.get("strokes", []): out.append(r.position + Vector2(float(p[0]), float(p[1])) * r.size)
+	return out
+
+func _draw_trace(right: Rect2) -> void:
+	var side := minf(right.size.x - 48, right.size.y - 150)
+	trace_rect = Rect2(right.position.x + (right.size.x - side) / 2.0, right.position.y + 110, side, side)
+	draw_rect(trace_rect, Color("efe3c2"))
+	draw_rect(trace_rect, Color("8a6a3a"), false, 3.0)
+	var tpl := _template(trace_rect)
+	if tpl.size() > 1:
+		draw_polyline(tpl, Color(0.75, 0.2, 0.18, 0.35), 14.0)
+		draw_circle(tpl[0], 9, Color(0.75, 0.2, 0.18, 0.7))
+	if trace_pts.size() > 1: draw_polyline(PackedVector2Array(trace_pts), Color("1c1a18"), 7.0)
+	text(Vector2(right.position.x + 24, right.end.y - 24), Tx.t("ui.crafts.trace_hint"), 17, UiKit.MIST)
+	btn(Rect2(right.end.x - 164, right.position.y + 40, 140, 46), Tx.t("ui.crafts.stop_tracing"), "trace_cancel", null, false, true, "", 16)
+
+## How the stroke went: its mean and worst distance from the path (as a share of the paper), whether it began at
+## the red dot and ran to the end, and its pace. A stroke that strays too far or stops short is broken.
+func _finish_trace() -> void:
+	var tpl := _template(trace_rect)
+	var cfg: Dictionary = ContentDB.config("talismans").get("trace", {})
+	var side := maxf(1.0, trace_rect.size.x)
+	var total := 0.0
+	var worst := 0.0
+	var far_t := 0.0
+	var lens: Array = [0.0]
+	for i in range(1, tpl.size()): lens.append(float(lens[-1]) + tpl[i - 1].distance_to(tpl[i]))
+	var start_t := -1.0
+	for p in trace_pts:
+		var best := INF
+		var best_t := 0.0
+		for i in range(1, tpl.size()):
+			var q: Vector2 = Geometry2D.get_closest_point_to_segment(p, tpl[i - 1], tpl[i])
+			var dd: float = (p as Vector2).distance_to(q)
+			if dd < best:
+				best = dd
+				best_t = float(lens[i - 1]) + tpl[i - 1].distance_to(q)
+		total += best
+		worst = maxf(worst, best)
+		far_t = maxf(far_t, best_t)
+		if start_t < 0.0: start_t = best_t
+	var mean := total / maxf(1.0, trace_pts.size()) / side
+	var length := maxf(1.0, float(lens[-1]))
+	var broken := worst / side > float(cfg.get("break_at", 0.24)) or start_t > length * 0.12 or far_t < length * 0.9 or trace_pts.size() < 8
+	var secs := Time.get_ticks_msec() / 1000.0 - trace_t0
+	var pace := 1.0 if secs >= float(cfg.get("min_s", 0.6)) and secs <= float(cfg.get("max_s", 5.0)) else 0.85
+	var score := clampf(1.0 - 0.5 * mean / float(cfg.get("tolerance", 0.09)), 0.0, 1.0) * pace
+	var r := submit({"type": "trace_talisman", "recipe": sel, "score": score, "broken": broken})
+	trace_on = false
+	trace_pts = []
+	if r.get("ok", false):
+		Audio.play("technique", "UI")
+		flash(Tx.t("ui.crafts.quality_made") % [str(r.quality).replace("_", " ").capitalize(), int(r.count)])
+	elif str(r.get("text", "")) != "": flash(str(r.text))
+
+func _gui_input(event: InputEvent) -> void:
+	if trace_on and str(tabs[tab].id) == "talisman":
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed and trace_rect.has_point(event.position):
+				trace_pts = [event.position]
+				trace_t0 = Time.get_ticks_msec() / 1000.0
+				accept_event()
+				return
+			if not event.pressed and not trace_pts.is_empty():
+				_finish_trace()
+				accept_event()
+				return
+		elif event is InputEventMouseMotion and event.button_mask & MOUSE_BUTTON_MASK_LEFT and not trace_pts.is_empty():
+			trace_pts.append(event.position)
+			queue_redraw()
+			accept_event()
+			return
+	super._gui_input(event)
+
 func _auto(ch, right: Rect2) -> void:
 	var q: Array = ch.crafting.get("auto_queue", [])
 	if q.is_empty(): return
@@ -385,7 +471,19 @@ func on_action(id: String, data) -> void:
 			game_on = false
 		"count": count = clampi(count + int(data), 1, int(Game.crafting.furnace_of(ch).get("batch", 10)) if craft == "alchemy" else 10)
 		"fire": fire = str(data)
+		"trace_cancel":
+			trace_on = false
+			trace_pts = []
 		"craft":
+			if craft == "talisman":
+				# Inks and spirit paper are simply made; a talisman is traced.
+				if ContentDB.entry("recipes", sel).get("traced", false):
+					trace_on = true
+					trace_pts = []
+				else:
+					var rt := submit({"type": "trace_talisman", "recipe": sel})
+					if rt.get("ok", false): flash(Tx.t("ui.crafts.made") % int(rt.count))
+				return
 			if DIRECT.has(craft):
 				var r := submit({"type": DIRECT[craft], "recipe": sel, "count": count if craft in ["cooking", "formations"] else 1})
 				if r.get("ok", false):
@@ -426,6 +524,7 @@ func on_action(id: String, data) -> void:
 		"_tab":
 			sel = ""
 			game_on = false
+			trace_on = false
 		"forge_mode":
 			forge_mode = str(data)
 			pick_uid = -1

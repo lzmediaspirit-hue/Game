@@ -1879,6 +1879,97 @@
    ]
   },
   {
+   "id": "ink_and_paper",
+   "name": "Ink and Paper",
+   "kind": "guided",
+   "giver": "old_scribe_bai",
+   "hand_in": "old_scribe_bai",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "craft",
+     "text": "Write a Flame Talisman at Old Scribe Bai's table",
+     "count": 1,
+     "recipe": "flame_talisman",
+     "craft": "talisman"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "thunder_talisman"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "veil_talisman"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "binding_talisman"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "beast_blood_ink"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "spirit_paper"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "revival_talisman"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "lightning_rod_talisman"
+    }
+   ],
+   "offer_text": [
+    "Paper, cinnabar and one clean stroke. That is all a talisman is, and all it ever will be.",
+    "Trace the character without lifting your hand. Smooth and unhurried makes a strong one; a broken stroke spoils the paper."
+   ],
+   "complete_text": [
+    "Not bad for a first. Here: the rest of my book. Beast-blood ink for the stronger ones; spirit paper for anything that must hold."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk6",
+   "giver_any": [
+    "old_scribe_bai"
+   ],
+   "hand_in_any": [
+    "old_scribe_bai"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "flame_talisman"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "iron_wall_talisman"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "wind_step_talisman"
+    },
+    {
+     "kind": "grant_item",
+     "item": "talisman_paper",
+     "count": 3
+    },
+    {
+     "kind": "grant_item",
+     "item": "cinnabar",
+     "count": 3
+    },
+    {
+     "kind": "grant_item",
+     "item": "ember_pepper",
+     "count": 1
+    }
+   ]
+  },
+  {
    "id": "the_sect_forge",
    "name": "The Sect Forge",
    "kind": "guided",

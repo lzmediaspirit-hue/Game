@@ -685,6 +685,7 @@ def stoneford():
     r.obj("furnace_sf", "alchemy_furnace", [2160, 760], requires=all_of(unlock("alchemy")), locked_text="Mei Qing's furnace.")
     r.npc("smith_bao", [520, 760], facing=1)
     r.npc("tinkerer_yu", [860, 900], facing=1)
+    r.npc("old_scribe_bai", [1580, 880], facing=-1)   # S47: the talisman craft (Qi Kindling 6)
     r.npc("elder_gu", [1120, 760], facing=1, hidden_if=all_of(flag("gu_fled")))
     r.npc("madam_hua", [1120, 760], oid="npc_madam_hua", visible_if=all_of(flag("gu_fled")), facing=1)
     r.npc("mei_qing", [1960, 760], facing=-1)

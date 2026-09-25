@@ -227,6 +227,16 @@
    "facing": 1
   },
   {
+   "id": "npc_old_scribe_bai",
+   "type": "npc",
+   "at": [
+    1580,
+    880
+   ],
+   "npc": "old_scribe_bai",
+   "facing": -1
+  },
+  {
    "id": "npc_elder_gu",
    "type": "npc",
    "at": [

@@ -453,7 +453,11 @@ func guard(c, on: bool) -> Dictionary:
 func dodge(c, direction, facing: int) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "dodge_dash"): return fail("locked")
 	if wounded.has(c.id) or c.pools.blocked("move"): return fail("stunned")
-	if c.pools.cooldown("dodge") > 0.0: return fail("cooldown")
+	if c.pools.cooldown("dodge") > 0.0:
+		# A Wind Step Talisman's charge (S47) spends itself on a dodge the cooldown would refuse.
+		var fx0: Dictionary = treasure_fx.get(c.id, {})
+		if float(fx0.get("free_dodge", 0.0)) <= 0.0: return fail("cooldown")
+		fx0.erase("free_dodge")
 	var dir: Vector2 = direction if direction is Vector2 and direction.length() > 0.2 else Vector2(1 if facing >= 0 else -1, 0)
 	dir = dir.normalized()
 	var conf: Dictionary = ContentDB.stat_const("combat", {})
@@ -1081,6 +1085,57 @@ func self_detonate(c, index: int, confirm: bool) -> Dictionary:
 		"x": pv.x, "y": pv.y, "alt": pv.alt})
 	return ok({"targets": n, "power": power})
 
+# ------------------------------------------------------------------ talismans (S47)
+## Use a talisman from the bag. Attack talismans strike at the talisman's own grade and quality, never the user's
+## stats; Iron Wall shields; Wind Step holds a free dodge; the Veil hides you; Binding roots (bosses shrug it off).
+func use_talisman(c, index: int) -> Dictionary:
+	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
+	var s: Dictionary = c.inventory.bag[index]
+	var tal := ContentDB.entry("talismans", str(s.id))
+	if tal.is_empty() or str(tal.get("kind", "")) in ["revival", "tribulation"]: return fail("not_usable", {"text": Tx.t("sim.combat.talisman_passive")})
+	var reason := can_act(c)
+	if reason != "": return fail(reason)
+	var cfg: Dictionary = ContentDB.config("talismans")
+	var qmult := float(cfg.get("quality_mult", {}).get(str(s.get("quality", "common")), 1.0))
+	var pv := player_view(c)
+	var at := Vector2(float(pv.x), float(pv.y))
+	var hits := 0
+	match str(tal.kind):
+		"attack":
+			var base := float(cfg.get("base_power", {}).get(str(tal.get("grade", "common")), 90.0))
+			var amount := base * float(tal.get("power", 1.0)) * qmult
+			var facing := int(pv.facing)
+			var center := at + Vector2(facing * minf(float(tal.get("range", 300)), 160.0), 0)
+			var foe := _nearest_enemy(at + Vector2(facing * 80, 0), float(tal.get("range", 300)))
+			if foe != null: center = foe.plane
+			for e in game.room_rt.living_enemies() if game.room_rt else []:
+				if e.team != "enemy" or e.hidden or e.plane.distance_to(center) > float(tal.get("radius", 80)): continue
+				_damage_enemy(e, amount, c.id, "qi", str(tal.get("element", "none")), false, {"source": "talisman"}, facing)
+				if e.alive and tal.has("status") and not e.pools.steadfast.has(str(tal.status.id)):
+					_apply_status_to_enemy(e, {"id": str(tal.status.id), "power": float(tal.status.get("power", 1)), "remaining": float(tal.status.get("duration_s", 2)), "source": c.id})
+				hits += 1
+			at = center
+		"defence":
+			c.pools.shield = maxf(c.pools.shield, c.pools.max_hp * float(tal.get("shield_pct", 0.2)) * qmult)
+			var fx1: Dictionary = treasure_fx.get(c.id, {})
+			fx1.shield_t = float(tal.get("duration_s", 6))
+			treasure_fx[c.id] = fx1
+		"movement":
+			var fx2: Dictionary = treasure_fx.get(c.id, {})
+			if str(tal.get("effect", "")) == "free_dodge": fx2.free_dodge = float(tal.get("duration_s", 60))
+			else: apply_status(c.id, "veiled", float(tal.get("duration_s", 10)) * qmult, 1.0)
+			treasure_fx[c.id] = fx2
+		"sealing":
+			var foe2 := _nearest_enemy(at, float(tal.get("range", 260)))
+			if foe2 == null: return fail("no_target", {"text": Tx.t("sim.combat.no_target_near")})
+			if foe2.is_boss() or foe2.pools.steadfast.has("root"): emit("hit_immune", {"attacker": c.id, "target": str(foe2.uid), "x": foe2.plane.x, "y": foe2.plane.y, "alt": foe2.altitude})
+			else: _apply_status_to_enemy(foe2, {"id": "root", "power": 1.0, "remaining": float(tal.status.get("duration_s", 2)) * qmult, "source": c.id})
+			at = foe2.plane
+			hits = 1
+	game.inventory.apply_remove_index(c.id, index, 1, "talisman")
+	emit("talisman_used", {"actor": c.id, "item": str(s.id), "kind": str(tal.kind), "targets": hits, "x": at.x, "y": at.y, "alt": pv.alt})
+	return ok({"kind": str(tal.kind), "targets": hits})
+
 # ------------------------------------------------------------------ projectiles
 func _spawn_projectile(p: Dictionary) -> void:
 	if game.room_rt == null: return
@@ -1296,6 +1351,15 @@ func _tick_treasures(c, delta: float) -> void:
 	if fxs.is_empty(): return
 	for k in ["reflect", "gourd"]:
 		if float(fxs.get(k, 0.0)) > 0.0: fxs[k] = maxf(0.0, float(fxs[k]) - delta)
+	# S47 talismans: Iron Wall's shield fades when its time is up; Wind Step's free dodge lapses unused.
+	if fxs.has("shield_t"):
+		fxs.shield_t = float(fxs.shield_t) - delta
+		if float(fxs.shield_t) <= 0.0:
+			fxs.erase("shield_t")
+			c.pools.shield = 0.0
+	if fxs.has("free_dodge"):
+		fxs.free_dodge = float(fxs.free_dodge) - delta
+		if float(fxs.free_dodge) <= 0.0: fxs.erase("free_dodge")
 	var w: Dictionary = fxs.get("wisps", {})
 	if not w.is_empty():
 		w.left = float(w.left) - delta

@@ -238,6 +238,81 @@ def revival_talisman():
     return c
 
 
+# S47 talisman craft: each talisman shows its own traced glyph (the stroke template in talismans.json).
+TALISMAN_GLYPHS = {
+    "flame_talisman": ("fire", [(0.25, 0.9), (0.4, 0.45), (0.5, 0.7), (0.6, 0.2), (0.75, 0.9)]),
+    "thunder_talisman": ("storm", [(0.62, 0.05), (0.35, 0.5), (0.62, 0.5), (0.38, 0.95)]),
+    "iron_wall_talisman": ("iron", [(0.2, 0.2), (0.8, 0.2), (0.8, 0.8), (0.2, 0.8), (0.2, 0.25)]),
+    "wind_step_talisman": ("jade", [(0.5, 0.5), (0.7, 0.42), (0.72, 0.7), (0.38, 0.78), (0.25, 0.4), (0.55, 0.15), (0.9, 0.28)]),
+    "veil_talisman": ("violet", [(0.08, 0.5), (0.3, 0.3), (0.5, 0.5), (0.7, 0.3), (0.92, 0.5)]),
+    "binding_talisman": ("seal", [(0.2, 0.8), (0.5, 0.2), (0.8, 0.8), (0.2, 0.45), (0.8, 0.45)]),
+}
+
+
+def _glyph_talisman(tid):
+    ramp_id, pts = TALISMAN_GLYPHS[tid]
+    c = Canvas(32)
+    m = talisman_strip(c)
+    path = [(11 + p[0] * 9, 6 + p[1] * 17) for p in pts]
+    g = c.polyline(path, 1.6)
+    c.put(g & m, R[ramp_id], 'flat', base=1)
+    c.put(c.circle(15.5, 25.5, 1.8) & m, R['seal'], 'flat', base=2)
+    c.outline()
+    return c
+
+
+def cinnabar():
+    """Cinnabar: a heap of red powder in a shallow porcelain dish."""
+    c = Canvas(32)
+    dish = c.ellipse(16, 23, 12, 5)
+    c.put(dish, R['porcelain'], 'sphere', base=2, cx=13, cy=21, rx=13, ry=6)
+    heap = c.ellipse(16, 19, 8, 5) & (c.Y < 23)
+    c.put(heap, R['red'], 'sphere', base=2, cx=14, cy=16, rx=9, ry=6)
+    for (x, y) in ((12, 17), (18, 16), (15, 19), (20, 19)):
+        c.put(c.circle(x, y, 0.7), R['red'][4], 'flat')
+    c.outline()
+    return c
+
+
+def beast_blood_ink():
+    """Beast-blood ink: a squat ink pot of dark red, a brush resting across it."""
+    c = Canvas(32)
+    pot = c.ellipse(16, 21, 9, 7)
+    c.put(pot, R['clay'], 'sphere', base=2, cx=13, cy=18, rx=10, ry=8)
+    c.put(c.ellipse(16, 16, 6, 2.2), R['red'][0], 'flat')
+    c.put(c.ellipse(15, 15.6, 3.5, 1.1), R['red'][2], 'flat')
+    c.put(c.seg(6, 11, 26, 18, 1.4), R['bamboo'], 'ray', base=1)
+    c.put(c.ellipse(26, 18.5, 2.2, 1.6), R['ink'], 'flat', base=1)
+    c.outline()
+    return c
+
+
+def spirit_paper():
+    """Spirit paper: a small stack of talisman paper breathing a pale blue Qi."""
+    c = Canvas(32)
+    for i, (y, t) in enumerate(((20, 1), (15, 0), (10, -1))):
+        sheet = c.poly([(7 + t, y), (25 + t, y - 2), (26 + t, y + 5), (8 + t, y + 7)])
+        c.put(sheet, R['talisman'], 'bevel', base=3)
+    c.put(c.rect(10, 12, 22, 12), R['sky'], 'flat', base=3)
+    for (x, y) in ((9, 6), (22, 5), (26, 10)):
+        c.put(c.circle(x, y, 1.1), R['sky'], 'flat', base=4)
+    c.outline()
+    return c
+
+
+def shattered_moon_blade():
+    """The Shattered Moon Blade: a pale jian in three pieces, a faint glow still in the steel."""
+    c = Canvas(32)
+    steel = R['silver']
+    for (x0, y0, x1, y1) in ((6, 27, 10, 23), (13, 20, 17, 16), (21, 12, 26, 7)):
+        c.put(c.seg(x0, y0, x1, y1, 2.4), steel, 'ray', base=2)
+    c.put(c.seg(4, 25, 8, 29, 1.4), R['gold'], 'flat', base=2)
+    c.put(c.seg(3, 30, 6, 27, 1.6), R['darkwood'], 'flat', base=1)
+    c.outline()
+    c.glow('#CFE3FF', (70,))
+    return c
+
+
 def return_charm():
     c = Canvas(32)
     cord = c.ring(16, 6, 3, 1.2) & (c.Y < 8)
@@ -315,6 +390,11 @@ def _offering(grade):
     return c
 
 
+for _tid in TALISMAN_GLYPHS:
+    register(FAM, _tid, (lambda t: lambda: _glyph_talisman(t))(_tid), 'talismans')
+for _id, _fn in (('cinnabar', cinnabar), ('beast_blood_ink', beast_blood_ink), ('spirit_paper', spirit_paper),
+                 ('shattered_moon_blade', shattered_moon_blade)):
+    register(FAM, _id, _fn, 'talismans')
 for _id, _fn in (('revival_talisman', revival_talisman), ('return_charm', return_charm),
                  ('escape_talisman', escape_talisman),
                  ('bonding_offering_common', lambda: _offering('common')),

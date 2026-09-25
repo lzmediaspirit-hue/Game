@@ -46,6 +46,7 @@ func _main() -> void:
 	forge_upkeep_suite()
 	sword_loadout_suite()
 	natal_wardrobe_suite()
+	talisman_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -350,6 +351,85 @@ func natal_wardrobe_suite() -> void:
 		var k2: int = c.inventory.first_index(id)
 		if k2 >= 0: Game.inventory.apply_remove_index(c.id, k2, 1, "test")
 	c.cultivator.injuries.clear()
+
+# ------------------------------------------------------------------ S47 talisman craft and Shattered Relics
+func talisman_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	Unlocks.force_unlock(c.id, "talisman")
+	var learn: Array = []
+	for r in ["flame_talisman", "iron_wall_talisman", "wind_step_talisman", "binding_talisman", "beast_blood_ink"]:
+		learn.append({"kind": "learn_recipe", "recipe": r})
+	Game.apply_effects(c.id, learn, "test")
+	for need in [["talisman_paper", 12], ["cinnabar", 12], ["ember_pepper", 8], ["beetle_shell", 4], ["vulture_plume", 2], ["hound_fang", 2], ["rat_tail", 2]]:
+		Game.inventory.apply_add(c.id, str(need[0]), int(need[1]), "test")
+	# A broken stroke spoils the paper and nothing else.
+	var paper0: int = c.inventory.count("talisman_paper")
+	var cin0: int = c.inventory.count("cinnabar")
+	var br := Game.submit({"type": "trace_talisman", "recipe": "flame_talisman", "score": 0.9, "broken": true})
+	check(str(br.get("reason", "")) == "spoiled" and c.inventory.count("talisman_paper") == paper0 - 1 and c.inventory.count("cinnabar") == cin0
+		and c.inventory.count("flame_talisman") == 0, "a broken stroke spoils one sheet of paper and makes nothing")
+	# Tracing score to quality: a clean, unhurried stroke writes a better talisman than a shaky one.
+	var order: Array = ContentDB.config("grades").get("quality_order", ["flawed", "common", "fine", "superior", "perfect"])
+	var good := Game.submit({"type": "trace_talisman", "recipe": "flame_talisman", "score": 1.0})
+	var poor := Game.submit({"type": "trace_talisman", "recipe": "flame_talisman", "score": 0.1})
+	check(good.get("ok", false) and poor.get("ok", false) and order.find(str(good.quality)) > order.find(str(poor.quality)),
+		"a clean stroke writes a better talisman (%s) than a shaky one (%s)" % [str(good.get("quality", "")), str(poor.get("quality", ""))])
+	check(Game.submit({"type": "trace_talisman", "recipe": "beast_blood_ink"}).get("ok", false) and c.inventory.count("beast_blood_ink") >= 1, "inks are made without tracing")
+	# An attack talisman strikes at its own grade and quality, never the user's stats.
+	var st: ActorState = Game.actor_state(c.id)
+	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal"]: Game.combat.cure_status(c.id, sid)
+	var foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(60, 0), 2)
+	foe.pools.max_hp = 99999.0
+	foe.pools.hp = 99999.0
+	var used_q := [""]
+	var dealt := func() -> float:
+		var hp0: float = foe.pools.hp
+		for k in 8:
+			var old: int = c.inventory.first_index("flame_talisman")
+			if old < 0: break
+			Game.inventory.apply_remove_index(c.id, old, int(c.inventory.bag[old].get("count", 1)), "test")
+		Game.submit({"type": "trace_talisman", "recipe": "flame_talisman", "score": 1.0})
+		var idx: int = c.inventory.first_index("flame_talisman")
+		if idx >= 0: used_q[0] = str(c.inventory.bag[idx].get("quality", "common"))
+		Game.submit({"type": "use_item", "index": idx})
+		return hp0 - foe.pools.hp
+	var d1: float = dealt.call()
+	var q1: String = str(used_q[0])
+	Game.combat.apply_buff(c.id, {"stat": "qi_attack", "op": "pct_add", "value": 2.0, "duration": 30.0, "source": "test"}, "test")
+	var d2: float = dealt.call()
+	var qm := float(ContentDB.config("talismans").get("quality_mult", {}).get(q1, 1.0))
+	var qm2 := float(ContentDB.config("talismans").get("quality_mult", {}).get(str(used_q[0]), 1.0))
+	check(d1 > 0.0 and near(d1 / qm, d2 / qm2, 0.001) and near(d1, 90.0 * 1.8 * qm, 0.01), "a Flame Talisman deals 180%% at its own grade, whatever your Qi attack (%.0f, %.0f)" % [d1, d2])
+	# Iron Wall shields 20% of max HP; Wind Step holds one free dodge; Binding roots a foe but not a boss.
+	Game.submit({"type": "trace_talisman", "recipe": "iron_wall_talisman", "score": 0.6})
+	c.pools.shield = 0.0
+	Game.submit({"type": "use_item", "index": c.inventory.first_index("iron_wall_talisman")})
+	check(c.pools.shield > c.pools.max_hp * 0.15, "Iron Wall shields about a fifth of your max HP (%.0f)" % c.pools.shield)
+	Game.submit({"type": "trace_talisman", "recipe": "wind_step_talisman", "score": 0.6})
+	Game.submit({"type": "use_item", "index": c.inventory.first_index("wind_step_talisman")})
+	Unlocks.force_unlock(c.id, "dodge_dash")
+	c.pools.cooldowns["dodge"] = 5.0
+	var dg := Game.submit({"type": "dodge", "direction": Vector2(1, 0), "facing": 1})
+	check(dg.get("ok", false) and not Game.combat.treasure_fx.get(c.id, {}).has("free_dodge"), "Wind Step spends its charge on a dodge the cooldown would refuse")
+	Game.apply_effects(c.id, [{"kind": "learn_recipe", "recipe": "binding_talisman"}], "test")
+	Game.inventory.apply_add(c.id, "binding_talisman", 1, "test")
+	var bi := Game.submit({"type": "use_item", "index": c.inventory.first_index("binding_talisman")})
+	check(bi.get("ok", false) and foe.pools.has_status("root"), "a Binding Talisman roots the nearest foe")
+	# A Shattered Relic needs an Expert smith at a forge.
+	Game.inventory.apply_add(c.id, "shattered_moon_blade", 1, "test")
+	var rr := Game.submit({"type": "restore_relic", "index": c.inventory.first_index("shattered_moon_blade")})
+	check(not rr.get("ok", true) and str(rr.get("reason", "")) in ["no_station", "rank"], "a Shattered Relic waits for an Expert smith at a forge (%s)" % str(rr.get("reason", "")))
+	check(ContentDB.item("moonlit_blade").get("relic", false) and str(ContentDB.item("shattered_moon_blade").get("restores", "")) == "moonlit_blade",
+		"the Moon Blade's shards restore into a relic")
+	# Tidy up.
+	if foe != null: foe.alive = false
+	c.pools.shield = 0.0
+	for id in ["flame_talisman", "iron_wall_talisman", "wind_step_talisman", "binding_talisman", "shattered_moon_blade", "beast_blood_ink"]:
+		for k in 8:
+			var at: int = c.inventory.first_index(id)
+			if at < 0: break
+			Game.inventory.apply_remove_index(c.id, at, int(c.inventory.bag[at].get("count", 1)), "test")
 
 # ------------------------------------------------------------------ formulas
 func rules_suite() -> void:

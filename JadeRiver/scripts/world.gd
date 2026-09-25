@@ -439,6 +439,16 @@ func _on_event(name: String, p: Dictionary) -> void:
 			fx.add("flash", player.position + Vector2(0, -50), {"color": Color("ffe0a0"), "radius": 90.0, "dur": 0.35})
 			shake = 0.35
 			Audio.play("rumble")
+		"talisman_used":
+			# S47: the paper flares and burns away; attack talismans burst where they land.
+			var tat := Vector2(float(p.get("x", player.position.x)), float(p.get("y", player.position.y)) - float(p.get("alt", 0.0)) - 40.0)
+			match str(p.get("kind", "")):
+				"attack":
+					fx.add("wave", tat, {"color": Color("ff8a4a") if str(p.get("item", "")) == "flame_talisman" else Color("9fd8ff"), "radius": 90.0, "dur": 0.45})
+					fx.add("flash", tat, {"color": Color("fff0c0"), "radius": 50.0, "dur": 0.3})
+				"defence": fx.add("wave", player.position + Vector2(0, -50), {"color": Color("c8ccd0"), "radius": 46.0, "dur": 0.6})
+				_: fx.add("spark", player.position + Vector2(0, -70), {"color": Color("e8d99a"), "dur": 0.4})
+			Audio.play("technique")
 		"item_blooded":
 			# S47 blood-drop bind: a bead of blood falls onto a piece worn for the first time.
 			fx.add("spark", player.position + Vector2(0, -70), {"color": Color("c0303a"), "dur": 0.5})

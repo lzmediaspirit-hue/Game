@@ -127,6 +127,9 @@ def npcs():
     npc("tinkerer_yu", "Tinkerer Yu", "Tinkerer", outfit("ponytail", 3, "scholar", "cuffed", "folded", shirt_dye="grey"),
         ["Tools are just patience you can hold.", "A better pickaxe means more ore and fewer blisters."], ["Where's my small spanner?"], services=["shop:tinkerer", "page:workshop"],
         service_labels={"page:workshop": "Puppet bench"}, service_unlocks={"page:workshop": "puppetry"})
+    npc("old_scribe_bai", "Old Scribe Bai", "Talisman master", outfit("topknot", 5, "scholar", "scholar", "slippers", hat="guan", shirt_dye="ink"),
+        ["A talisman is a sentence the world has to finish.", "Steady wrist, one breath, no lifting the brush."], ["Mind the ink."],
+        services=["page:talisman"], service_labels={"page:talisman": "Write talismans"}, service_unlocks={"page:talisman": "talisman"})
     npc("elder_gu", "Elder Gu", "Trade house master", outfit("long_tied", 1, "scholar", "scholar", "folded", cape="solid", shirt_dye="crimson"),
         ["Everything has a price. Most things have two.", "Bring me curiosities and I'll tell you what they're worth."], ["Hmm, interesting."], services=["shop:gu_trade_house", "page:workshop"],
         service_labels={"page:workshop": "Appraise"}, service_unlocks={"page:workshop": "appraisal"})
@@ -466,6 +469,8 @@ def unlocks():
     u("perfect_timing", "Perfect timing", all_of(realm("heart_tempering_1")), "lines_in_the_sand", [], same_stage_ok=True, toast=False)
     # S47 dual loadout: a spare weapon and the Swap button (R).
     u("dual_loadout", "Weapon swap", all_of(realm("heart_tempering_1")), "", ["hud:weapon_swap"], same_stage_ok=True)
+    # S47 talisman craft (Qi Kindling 6): Old Scribe Bai on Artisan Row teaches the brush.
+    u("talisman", "Talismans", all_of(realm("qi_kindling_6")), "ink_and_paper", ["page:talisman"], same_stage_ok=True)  # v2 Part 8: Talismans and "is it real" both open at QK6
     # S47 natal treasure and the wardrobe (appearance overrides) open at the same stage.
     u("natal", "Natal treasure", all_of(realm("heart_tempering_1")), "", [], same_stage_ok=True)
     u("wardrobe", "Wardrobe", all_of(realm("heart_tempering_1")), "", [], same_stage_ok=True, toast=False)
@@ -854,6 +859,16 @@ def guided_quests():
                                                              "bow": "pinning_arrow"})],
         offer=["Qi Unfurling. Your Qi can fly now. Send it at a target ten times."],
         complete=["Inner Disciple. A retreat room is yours; the door is past the mission hall."])
+    quest("ink_and_paper", "Ink and Paper", "guided", "old_scribe_bai", [
+        o("craft", "Write a Flame Talisman at Old Scribe Bai's table", recipe="flame_talisman", craft="talisman"),
+    ], [fx("learn_recipe", recipe="thunder_talisman"), fx("learn_recipe", recipe="veil_talisman"), fx("learn_recipe", recipe="binding_talisman"),
+        fx("learn_recipe", recipe="beast_blood_ink"), fx("learn_recipe", recipe="spirit_paper"), fx("learn_recipe", recipe="revival_talisman"),
+        fx("learn_recipe", recipe="lightning_rod_talisman")], offered_by_unlock=True, chapter="qk6", giver_any=["old_scribe_bai"], hand_in_any=["old_scribe_bai"],
+        on_accept=[fx("learn_recipe", recipe="flame_talisman"), fx("learn_recipe", recipe="iron_wall_talisman"), fx("learn_recipe", recipe="wind_step_talisman"),
+                   item("talisman_paper", 3), item("cinnabar", 3), item("ember_pepper", 1)],
+        offer=["Paper, cinnabar and one clean stroke. That is all a talisman is, and all it ever will be.",
+               "Trace the character without lifting your hand. Smooth and unhurried makes a strong one; a broken stroke spoils the paper."],
+        complete=["Not bad for a first. Here: the rest of my book. Beast-blood ink for the stronger ones; spirit paper for anything that must hold."])
     quest("the_sect_forge", "The Sect Forge", "guided", "jade_smith", [
         o("craft", "Forge a Common weapon", craft="smithing"),
         o("use_system", "Enhance it to +1", system="enhance"),

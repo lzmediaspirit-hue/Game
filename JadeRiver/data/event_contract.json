@@ -330,6 +330,12 @@
     "combat_authority"
    ]
   },
+  "talisman_used": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
   "loot_dropped": {
    "system": "World",
    "files": [
@@ -519,6 +525,20 @@
    ]
   },
   "affix_locked": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "talisman_crafted": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "relic_restored": {
    "system": "Crafting",
    "files": [
     "crafting_authority",

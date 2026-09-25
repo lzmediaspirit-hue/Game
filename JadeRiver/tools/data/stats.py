@@ -276,6 +276,8 @@ def build():
         {"id": "qi_backlash", "resist": "none", "cc": True, "blocks": ["move", "attack"], "icon": "stun"},
         {"id": "exhausted", "resist": "none", "attack_mult": -0.2, "icon": "exhausted"},
         {"id": "spawn_protection", "resist": "none", "invulnerable": True, "icon": "spawn_protection"},
+        # S47 Veil Talisman: monsters that have not found you pass you by.
+        {"id": "veiled", "resist": "none", "icon": "confusion"},
     ])
 
     entries("weapon_families.json", [

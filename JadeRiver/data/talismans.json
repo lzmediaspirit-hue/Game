@@ -1,0 +1,302 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "flame_talisman",
+   "kind": "attack",
+   "grade": "common",
+   "power": 1.8,
+   "element": "fire",
+   "radius": 80,
+   "range": 300,
+   "strokes": [
+    [
+     0.25,
+     0.9
+    ],
+    [
+     0.4,
+     0.45
+    ],
+    [
+     0.5,
+     0.7
+    ],
+    [
+     0.6,
+     0.2
+    ],
+    [
+     0.75,
+     0.9
+    ]
+   ]
+  },
+  {
+   "id": "thunder_talisman",
+   "kind": "attack",
+   "grade": "earth",
+   "power": 2.4,
+   "element": "thunder",
+   "radius": 90,
+   "range": 320,
+   "status": {
+    "id": "shock",
+    "chance": 1.0,
+    "power": 1,
+    "duration_s": 3
+   },
+   "strokes": [
+    [
+     0.62,
+     0.05
+    ],
+    [
+     0.35,
+     0.5
+    ],
+    [
+     0.62,
+     0.5
+    ],
+    [
+     0.38,
+     0.95
+    ]
+   ]
+  },
+  {
+   "id": "iron_wall_talisman",
+   "kind": "defence",
+   "grade": "common",
+   "shield_pct": 0.2,
+   "duration_s": 6,
+   "strokes": [
+    [
+     0.2,
+     0.2
+    ],
+    [
+     0.8,
+     0.2
+    ],
+    [
+     0.8,
+     0.8
+    ],
+    [
+     0.2,
+     0.8
+    ],
+    [
+     0.2,
+     0.25
+    ]
+   ]
+  },
+  {
+   "id": "wind_step_talisman",
+   "kind": "movement",
+   "grade": "common",
+   "effect": "free_dodge",
+   "duration_s": 60,
+   "strokes": [
+    [
+     0.5,
+     0.5
+    ],
+    [
+     0.7,
+     0.42
+    ],
+    [
+     0.72,
+     0.7
+    ],
+    [
+     0.38,
+     0.78
+    ],
+    [
+     0.25,
+     0.4
+    ],
+    [
+     0.55,
+     0.15
+    ],
+    [
+     0.9,
+     0.28
+    ]
+   ]
+  },
+  {
+   "id": "veil_talisman",
+   "kind": "movement",
+   "grade": "earth",
+   "effect": "veil",
+   "duration_s": 10,
+   "strokes": [
+    [
+     0.08,
+     0.5
+    ],
+    [
+     0.3,
+     0.3
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     0.7,
+     0.3
+    ],
+    [
+     0.92,
+     0.5
+    ]
+   ]
+  },
+  {
+   "id": "binding_talisman",
+   "kind": "sealing",
+   "grade": "earth",
+   "status": {
+    "id": "root",
+    "chance": 1.0,
+    "power": 1,
+    "duration_s": 2
+   },
+   "range": 260,
+   "strokes": [
+    [
+     0.2,
+     0.8
+    ],
+    [
+     0.5,
+     0.2
+    ],
+    [
+     0.8,
+     0.8
+    ],
+    [
+     0.2,
+     0.45
+    ],
+    [
+     0.8,
+     0.45
+    ]
+   ]
+  },
+  {
+   "id": "revival_talisman",
+   "kind": "revival",
+   "grade": "common",
+   "strokes": [
+    [
+     0.86,
+     0.5
+    ],
+    [
+     0.812,
+     0.68
+    ],
+    [
+     0.68,
+     0.812
+    ],
+    [
+     0.5,
+     0.86
+    ],
+    [
+     0.32,
+     0.812
+    ],
+    [
+     0.188,
+     0.68
+    ],
+    [
+     0.14,
+     0.5
+    ],
+    [
+     0.188,
+     0.32
+    ],
+    [
+     0.32,
+     0.188
+    ],
+    [
+     0.5,
+     0.14
+    ],
+    [
+     0.68,
+     0.188
+    ],
+    [
+     0.812,
+     0.32
+    ],
+    [
+     0.86,
+     0.5
+    ]
+   ]
+  },
+  {
+   "id": "lightning_rod_talisman",
+   "kind": "tribulation",
+   "grade": "heaven",
+   "strokes": [
+    [
+     0.5,
+     0.05
+    ],
+    [
+     0.5,
+     0.95
+    ],
+    [
+     0.28,
+     0.72
+    ],
+    [
+     0.72,
+     0.72
+    ]
+   ]
+  }
+ ],
+ "base_power": {
+  "plain": 40,
+  "common": 90,
+  "earth": 260,
+  "heaven": 700,
+  "mystic": 1600,
+  "spirit": 3200,
+  "sage": 6000
+ },
+ "quality_mult": {
+  "flawed": 0.8,
+  "common": 1.0,
+  "fine": 1.1,
+  "superior": 1.2,
+  "perfect": 1.3
+ },
+ "trace": {
+  "tolerance": 0.09,
+  "break_at": 0.24,
+  "min_s": 0.6,
+  "max_s": 5.0
+ }
+}

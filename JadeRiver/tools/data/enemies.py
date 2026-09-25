@@ -292,7 +292,7 @@ def build():
             [atk("bell_shockwave", 0.7, 180, 1.2, depth=70, both_sides=True, knockback=80),
              atk("summon_ghosts", 1.2, 0, 0.0, summon="paper_talisman_ghost")], ai="boss_abbot", art=human("drowned_abbot"),
             race="human", energy="primal_qi", width=22, height=96, weak_to="fire",
-            phases=[{"below": 0.66, "action": "flood"}, {"below": 0.33, "action": "summon"}], first_defeat=["cold_lamp_flame", "bronze_bell"]),
+            phases=[{"below": 0.66, "action": "flood"}, {"below": 0.33, "action": "summon"}], first_defeat=["cold_lamp_flame", "bronze_bell", "shattered_moon_blade"]),
         mob("the_reflection", 36, "story_boss", "none", None, [], [atk("mirror_strike", 0.45, 70, 1.0)], ai="reflection",
             art={"avatar": "player"}, race="human", energy="primal_qi", width=18, height=90),
         # Gap report G1: every 25 on the heart-demon meter brings one of these into the Trial of Reflections.

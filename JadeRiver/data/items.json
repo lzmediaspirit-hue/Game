@@ -282,6 +282,126 @@
    "desc": "The refined Qi of a salvaged piece. The forge feeds it into an enhancement to steady it."
   },
   {
+   "id": "cinnabar",
+   "name": "Cinnabar",
+   "type": "material",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "cinnabar",
+   "desc": "Red mercury ore ground to powder: the ink every talisman begins with. Stoneford General Store sells it."
+  },
+  {
+   "id": "beast_blood_ink",
+   "name": "Beast-Blood Ink",
+   "type": "material",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "beast_blood_ink",
+   "desc": "Ink cut with a beast's blood; it holds a stronger charge than cinnabar alone."
+  },
+  {
+   "id": "spirit_paper",
+   "name": "Spirit Paper",
+   "type": "material",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "spirit_paper",
+   "desc": "Talisman paper steeped with Mist Lotus until it drinks Qi."
+  },
+  {
+   "id": "flame_talisman",
+   "name": "Flame Talisman",
+   "type": "talisman",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 20,
+   "icon": "flame_talisman",
+   "desc": "Thrown, it bursts into a sheet of fire: 180% fire damage at the talisman's own grade within 80.",
+   "use": [],
+   "use_action": "talisman",
+   "talisman": "attack"
+  },
+  {
+   "id": "thunder_talisman",
+   "name": "Thunder Talisman",
+   "type": "talisman",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 20,
+   "icon": "thunder_talisman",
+   "desc": "Thrown, it calls a bolt: 240% thunder damage at the talisman's own grade, and Shock.",
+   "use": [],
+   "use_action": "talisman",
+   "talisman": "attack"
+  },
+  {
+   "id": "iron_wall_talisman",
+   "name": "Iron Wall Talisman",
+   "type": "talisman",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 20,
+   "icon": "iron_wall_talisman",
+   "desc": "Burned, it wraps you in iron Qi: a shield that absorbs 20% of your max HP for 6 s.",
+   "use": [],
+   "use_action": "talisman",
+   "talisman": "defence"
+  },
+  {
+   "id": "wind_step_talisman",
+   "name": "Wind Step Talisman",
+   "type": "talisman",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 20,
+   "icon": "wind_step_talisman",
+   "desc": "Burned, it lends you one free dodge within 60 s, cooldown or not.",
+   "use": [],
+   "use_action": "talisman",
+   "talisman": "movement"
+  },
+  {
+   "id": "veil_talisman",
+   "name": "Veil Talisman",
+   "type": "talisman",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 20,
+   "icon": "veil_talisman",
+   "desc": "Burned, it hides you for 10 s: monsters that have not found you pass you by.",
+   "use": [],
+   "use_action": "talisman",
+   "talisman": "movement"
+  },
+  {
+   "id": "binding_talisman",
+   "name": "Binding Talisman",
+   "type": "talisman",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 20,
+   "icon": "binding_talisman",
+   "desc": "Thrown, it roots the nearest foe for 2 s. Bosses shrug it off.",
+   "use": [],
+   "use_action": "talisman",
+   "talisman": "sealing"
+  },
+  {
+   "id": "shattered_moon_blade",
+   "name": "Shattered Moon Blade",
+   "type": "relic_shard",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "shattered_moon_blade",
+   "desc": "The pieces of a jian that once held a spirit, pale as moonlight. A smith of Expert rank could restore it at the forge.",
+   "sell": false,
+   "restores": "moonlit_blade"
+  },
+  {
    "id": "ore_dust",
    "name": "Ore Dust",
    "type": "beast_part",
@@ -289,7 +409,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "ore_dust",
-   "desc": "A material taken from a valley beast."
+   "desc": "Glittering grit from an Ironclaw Mole's tunnels. Smiths pack it into Thunderclap Pellets."
   },
   {
    "id": "crab_shell",
@@ -299,7 +419,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "crab_shell",
-   "desc": "A material taken from a valley beast."
+   "desc": "A mud-brown shell from a Mudshell Crab. Traders buy it to burn for lime."
   },
   {
    "id": "rat_tail",
@@ -309,7 +429,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "rat_tail",
-   "desc": "A material taken from a valley beast."
+   "desc": "A Reedtail Rat's tail. Ink-makers boil it down for its binding fat."
   },
   {
    "id": "boar_hide",
@@ -319,7 +439,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "boar_hide",
-   "desc": "A material taken from a valley beast."
+   "desc": "Bristly hide from a Wild Boarlet. Smiths wrap iron hilts with it."
   },
   {
    "id": "tough_meat",
@@ -329,7 +449,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "tough_meat",
-   "desc": "A material taken from a valley beast."
+   "desc": "Stringy meat from a big beast. Slow-stewed, it builds a body up."
   },
   {
    "id": "toad_oil",
@@ -339,7 +459,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "toad_oil",
-   "desc": "A material taken from a valley beast."
+   "desc": "Slick oil wrung from a Mossback Toad's skin. Cooks fold it into dumplings."
   },
   {
    "id": "moss",
@@ -349,7 +469,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "moss",
-   "desc": "A material taken from a valley beast."
+   "desc": "Damp moss scraped from a Mossback Toad's back. Qi Gathering Pills start with it."
   },
   {
    "id": "beetle_shell",
@@ -359,7 +479,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "beetle_shell",
-   "desc": "A material taken from a valley beast."
+   "desc": "A Rock Beetle's plate, hard as slate. Needle-smiths and Iron Wall talismans both use it."
   },
   {
    "id": "tortoise_plate",
@@ -369,7 +489,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "tortoise_plate",
-   "desc": "A material taken from a valley beast."
+   "desc": "A slab of Stone Tortoise shell. Bone Strengthening Pills and Body Jades need it."
   },
   {
    "id": "mole_claw",
@@ -379,7 +499,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "mole_claw",
-   "desc": "A material taken from a valley beast."
+   "desc": "A digging claw from an Ironclaw Mole, still sharp enough to scratch iron."
   },
   {
    "id": "frog_leg",
@@ -389,7 +509,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "frog_leg",
-   "desc": "A material taken from a valley beast."
+   "desc": "A Reed Frog's leg. Jade-smiths set its spring into a Swift Jade."
   },
   {
    "id": "leech_oil",
@@ -399,7 +519,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "leech_oil",
-   "desc": "A material taken from a valley beast."
+   "desc": "Oil pressed from a Marsh Leech. Qi Restoration Pills and Essence Jades use it."
   },
   {
    "id": "bamboo_shoot",
@@ -409,7 +529,7 @@
    "ilv": 14,
    "stack": 99,
    "icon": "bamboo_shoot",
-   "desc": "A material taken from a valley beast."
+   "desc": "A tender shoot a Bamboo Monkey was hoarding. Traders buy them by the basket."
   },
   {
    "id": "viper_fang",
@@ -419,7 +539,7 @@
    "ilv": 14,
    "stack": 99,
    "icon": "viper_fang",
-   "desc": "A material taken from a valley beast."
+   "desc": "A Green Viper's fang, still beaded with venom. It binds a sealing talisman's stroke."
   },
   {
    "id": "venom_sac",
@@ -429,7 +549,7 @@
    "ilv": 14,
    "stack": 99,
    "icon": "venom_sac",
-   "desc": "A material taken from a valley beast."
+   "desc": "A Green Viper's venom sac. Antidotes start here, and so do poisons."
   },
   {
    "id": "thorn_hide",
@@ -439,7 +559,7 @@
    "ilv": 14,
    "stack": 99,
    "icon": "thorn_hide",
-   "desc": "A material taken from a valley beast."
+   "desc": "Hide from a Thornback Boar, studded with thorn-like bristles. Tiger Blood Pills need it."
   },
   {
    "id": "hound_fang",
@@ -449,7 +569,7 @@
    "ilv": 14,
    "stack": 99,
    "icon": "hound_fang",
-   "desc": "A material taken from a valley beast."
+   "desc": "A Mud Hound's fang. Boiled with rat tail, it makes beast-blood ink."
   },
   {
    "id": "jade_scale",
@@ -459,7 +579,7 @@
    "ilv": 27,
    "stack": 99,
    "icon": "jade_scale",
-   "desc": "A material taken from a valley beast."
+   "desc": "A green scale from a Jade Carp, cool to the touch. Jadeiron smiths and alchemists both want it."
   },
   {
    "id": "tide_shell",
@@ -469,7 +589,7 @@
    "ilv": 27,
    "stack": 99,
    "icon": "tide_shell",
-   "desc": "A material taken from a valley beast."
+   "desc": "A Tide Crab's shell, ridged like waves. It rings when tapped."
   },
   {
    "id": "pearl",
@@ -479,7 +599,7 @@
    "ilv": 27,
    "stack": 99,
    "icon": "pearl",
-   "desc": "A material taken from a valley beast."
+   "desc": "A small river pearl. Traders buy them; alchemists grind them for clear pills."
   },
   {
    "id": "lizard_scale",
@@ -489,7 +609,7 @@
    "ilv": 27,
    "stack": 99,
    "icon": "lizard_scale",
-   "desc": "A material taken from a valley beast."
+   "desc": "A slick scale from a Rapids Lizard. Water runs off it without wetting it."
   },
   {
    "id": "serpent_scale",
@@ -499,7 +619,7 @@
    "ilv": 27,
    "stack": 99,
    "icon": "serpent_scale",
-   "desc": "A material taken from a valley beast."
+   "desc": "A heavy scale from a river serpent. Traders pay well for an unchipped one."
   },
   {
    "id": "vulture_plume",
@@ -509,7 +629,7 @@
    "ilv": 27,
    "stack": 99,
    "icon": "vulture_plume",
-   "desc": "A material taken from a valley beast."
+   "desc": "A grey Mist Vulture plume. A Wind Step talisman's stroke needs its lightness."
   },
   {
    "id": "cloud_feather",
@@ -519,7 +639,7 @@
    "ilv": 45,
    "stack": 99,
    "icon": "cloud_feather",
-   "desc": "A material taken from a valley beast."
+   "desc": "A white Cloudwing Crane feather that drifts upward when dropped."
   },
   {
    "id": "storm_feather",
@@ -529,7 +649,7 @@
    "ilv": 45,
    "stack": 99,
    "icon": "storm_feather",
-   "desc": "A material taken from a valley beast."
+   "desc": "A Stormwing Hawk's feather that crackles in dry air. Thunder talismans need it."
   },
   {
    "id": "ape_fur",
@@ -539,7 +659,7 @@
    "ilv": 45,
    "stack": 99,
    "icon": "ape_fur",
-   "desc": "A material taken from a valley beast."
+   "desc": "Thick fur from a Cliff Ape, warm enough for the high passes."
   },
   {
    "id": "mist_pelt",
@@ -549,7 +669,7 @@
    "ilv": 45,
    "stack": 99,
    "icon": "mist_pelt",
-   "desc": "A material taken from a valley beast."
+   "desc": "A Mist Wolf's pelt, grey and hard to look at directly."
   },
   {
    "id": "mirror_dust",
@@ -559,7 +679,7 @@
    "ilv": 45,
    "stack": 99,
    "icon": "mirror_dust",
-   "desc": "A material taken from a valley beast."
+   "desc": "Silver dust shed by a Mirror Wisp. It remembers what it last reflected."
   },
   {
    "id": "soul_wax",
@@ -569,7 +689,7 @@
    "ilv": 45,
    "stack": 99,
    "icon": "soul_wax",
-   "desc": "A material taken from a valley beast."
+   "desc": "Wax from a Weeping Lantern that burns without heat. Soul Soothing Pills need it."
   },
   {
    "id": "hollow_antler",
@@ -579,7 +699,7 @@
    "ilv": 59,
    "stack": 99,
    "icon": "hollow_antler",
-   "desc": "A material taken from a valley beast."
+   "desc": "A Hollow Stag's antler, grey and cold. Handle it with gloves."
   },
   {
    "id": "roc_feather",
@@ -589,7 +709,7 @@
    "ilv": 59,
    "stack": 99,
    "icon": "roc_feather",
-   "desc": "A material taken from a valley beast."
+   "desc": "A great flight feather from a Cloudpeak Roc, as long as a spear."
   },
   {
    "id": "spark_pelt",
@@ -1043,7 +1163,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "river_minnow",
-   "desc": "A fish from the Jade River."
+   "desc": "A silver minnow from the Jade River shallows. Bait, or a quick snack."
   },
   {
    "id": "reed_perch",
@@ -1053,7 +1173,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "reed_perch",
-   "desc": "A fish from the Jade River."
+   "desc": "A striped perch that hides among the reeds."
   },
   {
    "id": "jade_carp_fish",
@@ -1063,7 +1183,7 @@
    "ilv": 27,
    "stack": 99,
    "icon": "jade_carp_fish",
-   "desc": "A fish from the Jade River."
+   "desc": "A green-gold carp from the deeper pools. Said to bring luck to a household."
   },
   {
    "id": "river_eel",
@@ -1073,7 +1193,7 @@
    "ilv": 14,
    "stack": 99,
    "icon": "river_eel",
-   "desc": "A fish from the Jade River."
+   "desc": "A slippery river eel. Smoked, it keeps for a month."
   },
   {
    "id": "mist_trout",
@@ -1083,7 +1203,7 @@
    "ilv": 27,
    "stack": 99,
    "icon": "mist_trout",
-   "desc": "A fish from the Jade River."
+   "desc": "A pale trout from the cold falls pool, lean and full of Qi."
   },
   {
    "id": "rapids_salmon",
@@ -1093,7 +1213,7 @@
    "ilv": 27,
    "stack": 99,
    "icon": "rapids_salmon",
-   "desc": "A fish from the Jade River."
+   "desc": "A strong salmon caught where the river runs white."
   },
   {
    "id": "moon_carp",
@@ -1103,7 +1223,7 @@
    "ilv": 45,
    "stack": 99,
    "icon": "moon_carp",
-   "desc": "A fish from the Jade River."
+   "desc": "A carp that shines faintly in the dark. It bites only at night, in any water."
   },
   {
    "id": "manual_page",
@@ -1450,7 +1570,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "river_mud",
-   "desc": "A common valley good."
+   "desc": "Thick grey mud from the riverbank. Potters and wall-menders pay a little for it."
   },
   {
    "id": "cloth",
@@ -1460,7 +1580,7 @@
    "ilv": 14,
    "stack": 99,
    "icon": "cloth",
-   "desc": "A common valley good."
+   "desc": "A bolt of plain hemp cloth, for bandages, patches and tailoring."
   },
   {
    "id": "arrows",
@@ -1470,7 +1590,7 @@
    "ilv": 14,
    "stack": 99,
    "icon": "arrows",
-   "desc": "A common valley good."
+   "desc": "A bundle of fletched arrows. Hunters and bandits never have enough."
   },
   {
    "id": "bow_parts",
@@ -1480,7 +1600,7 @@
    "ilv": 14,
    "stack": 99,
    "icon": "bow_parts",
-   "desc": "A common valley good."
+   "desc": "A cracked bow limb and a spool of string. A bowyer can make something of them."
   },
   {
    "id": "prayer_beads",
@@ -1490,17 +1610,17 @@
    "ilv": 27,
    "stack": 99,
    "icon": "prayer_beads",
-   "desc": "A common valley good."
+   "desc": "Worn sandalwood beads, smooth from years of counted breaths."
   },
   {
    "id": "talisman_paper",
    "name": "Talisman Paper",
    "type": "material",
-   "grade": "earth",
-   "ilv": 27,
+   "grade": "common",
+   "ilv": 14,
    "stack": 99,
    "icon": "talisman_paper",
-   "desc": "A common valley good."
+   "desc": "Coarse yellow paper cut to a talisman's size. It takes cinnabar well."
   },
   {
    "id": "ink",
@@ -1510,7 +1630,7 @@
    "ilv": 27,
    "stack": 99,
    "icon": "ink",
-   "desc": "A common valley good."
+   "desc": "Pine-soot ink ground with spirit water. Scribes and formation masters use it."
   },
   {
    "id": "formation_stone",
@@ -1520,7 +1640,7 @@
    "ilv": 27,
    "stack": 99,
    "icon": "formation_stone",
-   "desc": "A common valley good."
+   "desc": "A palm-sized stone that holds a trace of Qi: the anchor of every array."
   },
   {
    "id": "lantern_wick",
@@ -1530,7 +1650,7 @@
    "ilv": 45,
    "stack": 99,
    "icon": "lantern_wick",
-   "desc": "A common valley good."
+   "desc": "A wick braided with spirit silk. It burns for a month without trimming."
   },
   {
    "id": "rice",
@@ -1540,7 +1660,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "rice",
-   "desc": "A common valley good."
+   "desc": "A sack of valley rice. Every kitchen starts here."
   },
   {
    "id": "restoration_ink",
@@ -1550,7 +1670,7 @@
    "ilv": 45,
    "stack": 99,
    "icon": "restoration_ink",
-   "desc": "A common valley good."
+   "desc": "Ink steeped with mending herbs: it can close a torn scripture and still hold a stroke."
   },
   {
    "id": "fish_bait",
@@ -1560,7 +1680,7 @@
    "ilv": 5,
    "stack": 99,
    "icon": "fish_bait",
-   "desc": "A common valley good."
+   "desc": "Worms and dough in a clay pot. The fish of the valley are not picky."
   },
   {
    "id": "calm_incense",
@@ -1706,7 +1826,7 @@
    "ilv": 5,
    "stack": 1,
    "icon": "old_pickaxe",
-   "desc": "A mining tool.",
+   "desc": "A worn pickaxe with a loose head. It still breaks ore, slowly.",
    "tool": {
     "craft": "mining",
     "power": 1.0
@@ -1720,7 +1840,7 @@
    "ilv": 14,
    "stack": 1,
    "icon": "iron_pickaxe",
-   "desc": "A mining tool.",
+   "desc": "A sound iron pickaxe: veins give up their ore faster.",
    "tool": {
     "craft": "mining",
     "power": 1.3
@@ -1734,7 +1854,7 @@
    "ilv": 14,
    "stack": 1,
    "icon": "herb_sickle",
-   "desc": "A gathering tool.",
+   "desc": "A curved sickle for cutting herbs cleanly at the stem, so they keep their potency.",
    "tool": {
     "craft": "gathering",
     "power": 1.3
@@ -1748,7 +1868,7 @@
    "ilv": 5,
    "stack": 1,
    "icon": "bamboo_rod",
-   "desc": "A fishing tool.",
+   "desc": "A bamboo fishing rod with a horsehair line. Every fisher starts with one.",
    "tool": {
     "craft": "fishing",
     "power": 1.0
@@ -1762,7 +1882,7 @@
    "ilv": 5,
    "stack": 1,
    "icon": "clay_pot",
-   "desc": "A cooking tool.",
+   "desc": "A blackened clay pot. Cooking starts here.",
    "tool": {
     "craft": "cooking",
     "power": 1.0
@@ -1796,7 +1916,7 @@
    "ilv": 14,
    "stack": 1,
    "icon": "forge_hammer",
-   "desc": "A smithing tool.",
+   "desc": "A smith's hammer, balanced for long days at the anvil.",
    "tool": {
     "craft": "smithing",
     "power": 1.0
@@ -1810,7 +1930,7 @@
    "ilv": 27,
    "stack": 1,
    "icon": "formation_kit",
-   "desc": "A formations tool.",
+   "desc": "Chalk, a compass and a pouch of flags: all a formation needs to be laid out.",
    "tool": {
     "craft": "formations",
     "power": 1.0
@@ -1824,7 +1944,7 @@
    "ilv": 27,
    "stack": 1,
    "icon": "needle_case",
-   "desc": "A healing tool.",
+   "desc": "A case of fine silver needles for acupuncture and stitching wounds.",
    "tool": {
     "craft": "healing",
     "power": 1.0
@@ -1838,7 +1958,7 @@
    "ilv": 14,
    "stack": 1,
    "icon": "appraiser_loupe",
-   "desc": "A appraisal tool.",
+   "desc": "A jade loupe that shows what a curio really is, and what it is worth.",
    "tool": {
     "craft": "appraisal",
     "power": 1.0
@@ -1852,7 +1972,7 @@
    "ilv": 14,
    "stack": 1,
    "icon": "drying_rack",
-   "desc": "A alchemy tool.",
+   "desc": "A folding bamboo rack. Dried herbs keep longer and refine cleaner.",
    "tool": {
     "craft": "alchemy",
     "power": 1.0

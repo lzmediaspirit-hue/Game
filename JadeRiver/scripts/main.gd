@@ -40,6 +40,7 @@ const PAGES := {
 	"forge": "res://scripts/ui/pages/crafts_page.gd",
 	"formations": "res://scripts/ui/pages/workshop_page.gd",
 	"workshop": "res://scripts/ui/pages/workshop_page.gd",
+	"talisman": "res://scripts/ui/pages/crafts_page.gd",
 	"arrays": "res://scripts/ui/pages/crafts_page.gd",
 	"charts": "res://scripts/ui/pages/crafts_page.gd",
 	"vessels": "res://scripts/ui/pages/crafts_page.gd",
@@ -164,6 +165,12 @@ func _handle_preview_args(user_args: Array) -> void:
 			# Debug tools (S38): --give=item[:count[:quality]] puts items in the bag for previews.
 			var g := str(a).trim_prefix("--give=").split(":")
 			Game.inventory.apply_add(Game.active().id, g[0], int(g[1]) if g.size() > 1 else 1, "debug", {"quality": g[2]} if g.size() > 2 else {})
+		if str(a).begins_with("--learn=") and Game.active() != null:
+			# Debug tools (S38): --learn=craft learns every recipe of one craft, for previews of its page.
+			var learn: Array = []
+			for r in ContentDB.all("recipes"):
+				if str(r.get("craft", "")) == str(a).trim_prefix("--learn="): learn.append({"kind": "learn_recipe", "recipe": str(r.id)})
+			Game.apply_effects(Game.active().id, learn, "debug")
 		if str(a).begins_with("--vessel=") and Game.active() != null:
 			# Debug tools (S38): preview a flight vessel (G2); pair it with --fly.
 			var vid := str(a).trim_prefix("--vessel=")

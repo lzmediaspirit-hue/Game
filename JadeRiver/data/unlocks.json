@@ -1541,6 +1541,25 @@
    "same_stage_ok": true
   },
   {
+   "id": "talisman",
+   "label": "Talismans",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_6"
+     }
+    ]
+   },
+   "reveals": [
+    "page:talisman"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "ink_and_paper",
+   "same_stage_ok": true
+  },
+  {
    "id": "natal",
    "label": "Natal treasure",
    "trigger": {

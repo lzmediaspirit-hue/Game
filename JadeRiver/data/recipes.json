@@ -2541,16 +2541,241 @@
    ]
   },
   {
+   "id": "flame_talisman",
+   "craft": "talisman",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "talisman_paper",
+     "count": 1
+    },
+    {
+     "item": "cinnabar",
+     "count": 1
+    },
+    {
+     "item": "ember_pepper",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "flame_talisman",
+     "count": 1
+    }
+   ],
+   "traced": true
+  },
+  {
+   "id": "thunder_talisman",
+   "craft": "talisman",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "spirit_paper",
+     "count": 1
+    },
+    {
+     "item": "beast_blood_ink",
+     "count": 1
+    },
+    {
+     "item": "storm_feather",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "thunder_talisman",
+     "count": 1
+    }
+   ],
+   "traced": true
+  },
+  {
+   "id": "iron_wall_talisman",
+   "craft": "talisman",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "talisman_paper",
+     "count": 1
+    },
+    {
+     "item": "cinnabar",
+     "count": 1
+    },
+    {
+     "item": "beetle_shell",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_wall_talisman",
+     "count": 1
+    }
+   ],
+   "traced": true
+  },
+  {
+   "id": "wind_step_talisman",
+   "craft": "talisman",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "talisman_paper",
+     "count": 1
+    },
+    {
+     "item": "cinnabar",
+     "count": 1
+    },
+    {
+     "item": "vulture_plume",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "wind_step_talisman",
+     "count": 1
+    }
+   ],
+   "traced": true
+  },
+  {
+   "id": "veil_talisman",
+   "craft": "talisman",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "spirit_paper",
+     "count": 1
+    },
+    {
+     "item": "restoration_ink",
+     "count": 1
+    },
+    {
+     "item": "tiny_hollow_shard",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "veil_talisman",
+     "count": 1
+    }
+   ],
+   "traced": true
+  },
+  {
+   "id": "binding_talisman",
+   "craft": "talisman",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "spirit_paper",
+     "count": 1
+    },
+    {
+     "item": "beast_blood_ink",
+     "count": 1
+    },
+    {
+     "item": "viper_fang",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "binding_talisman",
+     "count": 1
+    }
+   ],
+   "traced": true
+  },
+  {
    "id": "revival_talisman",
-   "craft": "formations",
+   "craft": "talisman",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "talisman_paper",
+     "count": 1
+    },
+    {
+     "item": "cinnabar",
+     "count": 1
+    },
+    {
+     "item": "snapper_claw",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "revival_talisman",
+     "count": 1
+    }
+   ],
+   "traced": true
+  },
+  {
+   "id": "lightning_rod_talisman",
+   "craft": "talisman",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "spirit_paper",
+     "count": 1
+    },
+    {
+     "item": "beast_blood_ink",
+     "count": 1
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "lightning_rod_talisman",
+     "count": 1
+    }
+   ],
+   "traced": true
+  },
+  {
+   "id": "beast_blood_ink",
+   "craft": "talisman",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "hound_fang",
+     "count": 2
+    },
+    {
+     "item": "rat_tail",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "beast_blood_ink",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "spirit_paper",
+   "craft": "talisman",
    "grade": "earth",
    "inputs": [
     {
      "item": "talisman_paper",
-     "count": 2
-    },
-    {
-     "item": "ink",
      "count": 1
     },
     {
@@ -2560,7 +2785,7 @@
    ],
    "outputs": [
     {
-     "item": "revival_talisman",
+     "item": "spirit_paper",
      "count": 1
     }
    ]

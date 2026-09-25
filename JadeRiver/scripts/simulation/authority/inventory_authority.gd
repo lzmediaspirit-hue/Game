@@ -606,6 +606,7 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 	# Items that start a system instead of applying effects; each owner validates before consuming.
 	match str(def.get("use_action", "")):
 		"appraise": return game.workshop.appraise(c, index)
+		"talisman": return game.combat.use_talisman(c, index)
 		"incubate": return game.pets.incubate_egg(c, index)
 		"tame": return game.pets.attempt_tame(c, str(s.id), -1.0)
 		"absorb_flame": return game.crafting.absorb_flame(c, index)

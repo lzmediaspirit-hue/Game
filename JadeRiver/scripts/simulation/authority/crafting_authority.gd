@@ -19,6 +19,8 @@ const RANK_CAPS := {
 	# S16: the Starsea crafts open at Sage 3 and rise with the Sovereign stages.
 	"star_charting": [["sage_3", "adept"], ["sage_sovereign_1", "expert"], ["sage_sovereign_3", "master"]],
 	"shipwright": [["sage_3", "adept"], ["sage_sovereign_1", "expert"], ["sage_sovereign_3", "master"]],
+	# S47: Old Scribe Bai's brush, from Qi Kindling 6.
+	"talisman": [["qi_kindling_6", "adept"], ["heart_tempering_1", "expert"], ["cloud_stride_1", "master"]],
 }
 ## Stations and the verb each craft uses; the Starsea crafts take no mini-game.
 const STATIONS := {"cooking": ["cooking_pot"], "alchemy": ["alchemy_furnace", "earth_vent"], "smithing": ["forge_anvil"],
@@ -28,7 +30,8 @@ const GRADE_CAP := [["qi_kindling_1", "common"], ["qi_unfurling_1", "earth"], ["
 
 func intents() -> Array:
 	return ["complete_node", "catch_fish", "cook", "craft_step", "refine", "queue_auto_refine", "collect_auto_refine", "forge", "enhance", "salvage_item",
-		"salvage", "inherit_enhancement", "reroll_affixes", "choose_affixes", "lock_affix", "chart_route", "build_vessel", "absorb_flame"]
+		"salvage", "inherit_enhancement", "reroll_affixes", "choose_affixes", "lock_affix", "chart_route", "build_vessel", "absorb_flame",
+		"trace_talisman", "restore_relic"]
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -52,6 +55,8 @@ func handle(intent: Dictionary) -> Dictionary:
 		"reroll_affixes": return reroll(c, int(intent.get("uid", -1)))
 		"choose_affixes": return choose_affixes(c, int(intent.get("uid", -1)), str(intent.get("keep", "new")) == "new")
 		"lock_affix": return lock_affix(c, int(intent.get("uid", -1)), int(intent.get("affix", -1)))
+		"trace_talisman": return trace_talisman(c, str(intent.get("recipe", "")), float(intent.get("score", 0.0)), bool(intent.get("broken", false)))
+		"restore_relic": return restore_relic(c, int(intent.get("index", -1)))
 		"chart_route": return craft(c, str(intent.get("recipe", "")), 1, [], "star_charting")
 		"build_vessel": return craft(c, str(intent.get("recipe", "")), 1, [], "shipwright")
 	return fail("unknown_intent")
@@ -243,7 +248,7 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, 
 	var r := ContentDB.entry("recipes", recipe_id)
 	var rng := Rng.stream(c.id, "crafting")
 	var quality := "common"
-	if craft_kind in ["alchemy", "smithing"]:
+	if craft_kind in ["alchemy", "smithing", "talisman"]:
 		var total := 0.0
 		for s in scores: total += clampf(float(s), 0.0, 1.0)
 		var avg := total / maxf(1.0, scores.size()) if not scores.is_empty() else 0.6
@@ -271,6 +276,8 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, 
 				game.inventory.apply_add_instance(c.id, inst, "forge")
 		elif craft_kind == "alchemy":
 			game.inventory.apply_add(c.id, str(out.item), n, "craft", {"quality": quality, "marks": marks} if marks > 0 else {"quality": quality})
+		elif craft_kind == "talisman" and ContentDB.has_entry("talismans", str(out.item)):
+			game.inventory.apply_add(c.id, str(out.item), n, "craft", {"quality": quality})
 		else:
 			game.inventory.apply_add(c.id, str(out.item), n, "craft")
 		produced += n
@@ -643,6 +650,50 @@ func lock_affix(c, uid: int, affix: int) -> Dictionary:
 	else: at.inst.locked_affix = affix
 	emit("affix_locked", {"actor": c.id, "item": at.inst.id, "affix": affix})
 	return ok({"locked": affix})
+
+# ------------------------------------------------------------------ talisman craft (S47)
+## Write a talisman: the page traces the stroke path and sends how well it went (0..1, smoothness and pace). A
+## broken stroke spoils the paper; otherwise the score sets the quality as a strike score does at the forge. Inks
+## and spirit paper are made without tracing.
+func trace_talisman(c, recipe_id: String, score: float, broken: bool) -> Dictionary:
+	var r := ContentDB.entry("recipes", recipe_id)
+	if r.is_empty() or str(r.get("craft", "")) != "talisman": return fail("unknown_recipe")
+	var why := recipe_check(c, recipe_id, 1, "talisman")
+	if why != "": return fail("cannot_craft", {"text": why})
+	var out := str(r.outputs[0].item)
+	if not r.get("traced", false): return craft(c, recipe_id, 1, [], "talisman")
+	if broken:
+		for inp in r.get("inputs", []):
+			if "paper" in str(inp.item): game.inventory.apply_remove(c.id, str(inp.item), 1, "talisman_spoiled")
+		emit("talisman_crafted", {"actor": c.id, "item": out, "quality": "", "spoiled": true})
+		return fail("spoiled", {"text": Tx.t("sim.crafting.talisman_spoiled")})
+	var res := craft(c, recipe_id, 1, [clampf(score, 0.0, 1.0)], "talisman")
+	if res.get("ok", false): emit("talisman_crafted", {"actor": c.id, "item": out, "quality": str(res.quality), "spoiled": false})
+	return res
+
+## Restore a Shattered Relic at the forge (S47): Expert smithing, Cloudsteel and Refining Essence make it whole again,
+## a relic with its spirit still asleep (bind it to wake it, S14).
+func restore_relic(c, index: int) -> Dictionary:
+	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
+	var shard := str(c.inventory.bag[index].id)
+	var target := str(ContentDB.item(shard).get("restores", ""))
+	if target == "": return fail("not_a_relic")
+	if not station_near(c, ["forge_anvil"]): return fail("no_station", {"text": Tx.t("sim.crafting.you_need_a") % "forge"})
+	if rank_index(rank_of(c, "smithing")) < rank_index("expert"): return fail("rank", {"text": Tx.t("sim.crafting.relic_needs_expert")})
+	for need in [["cloudsteel_ore", 6], ["refining_essence", 6]]:
+		if c.inventory.count(str(need[0])) < int(need[1]): return fail("materials", {"text": Tx.t("sim.crafting.needs_2") % [int(need[1]), ContentDB.item_name(str(need[0]))]})
+	if game.economy.balance("silver_tael") < 3000: return fail("insufficient_funds")
+	game.inventory.apply_remove(c.id, "cloudsteel_ore", 6, "restore_relic")
+	game.inventory.apply_remove(c.id, "refining_essence", 6, "restore_relic")
+	game.economy.apply_currency("silver_tael", -3000, "restore_relic")
+	game.inventory.apply_remove_index(c.id, c.inventory.first_index(shard), 1, "restore_relic")
+	var def := ContentDB.item(target)
+	var inst := LootRules.make_instance(target, int(def.get("ilv", 1)), "fine", Rng.stream(c.id, "affix"), c.inventory.next_uid)
+	c.inventory.next_uid += 1
+	game.inventory.apply_add_instance(c.id, inst, "restore_relic")
+	emit("relic_restored", {"actor": c.id, "item": target, "from": shard})
+	emit("system_used", {"actor": c.id, "system": "restore_relic"})
+	return ok({"item": target})
 
 func tick(_delta: float) -> void:
 	pass

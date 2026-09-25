@@ -5,6 +5,37 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V3c · Talisman craft and Shattered Relics (S47)
+- **Talisman craft** (Qi Kindling 6). Old Scribe Bai in Artisan Row teaches it through the guided quest
+  *Ink and Paper*. He opens the Talismans page, a tab of the crafting table.
+- **Tracing.**
+  - Each talisman has a stroke path. Trace it in one motion on the canvas.
+  - Staying near the path and keeping an unhurried pace (0.6 to 5 s) set the quality, Flawed to Perfect.
+  - Straying too far breaks the stroke and spoils one sheet of paper; the ink is kept.
+  - Inks and spirit paper are made without tracing.
+- **Talismans.** They work at the talisman's own grade and quality, never from the user's stats.
+  - Attack: Flame (180% fire in a burst) and Thunder (240% thunder, with Shock).
+  - Defence: Iron Wall, a shield of 20% max HP for 6 s.
+  - Movement: Wind Step, one free dodge within 60 s, even on cooldown.
+  - Concealment: Veil, which hides you from foes for 10 s.
+  - Sealing: Binding, which roots the nearest foe. Bosses are Steadfast.
+  - The Revival and Lightning Rod talismans move here from Formations.
+- **Materials.**
+  - Talisman paper and spirit paper (paper and Mist Lotus).
+  - Cinnabar, sold at Stoneford's general store.
+  - Beast-blood ink, from hound fangs and rat tails.
+- **Data.** `talismans.json` holds base power by grade, quality multipliers, the stroke paths and the trace
+  tolerances. Events: `talisman_crafted` (spoiled or not) and `talisman_used`.
+- **Shattered Relics.**
+  - The Drowned Abbot's first defeat leaves the Shattered Moon Blade.
+  - An Expert smith at a forge restores it into the Moonlit Blade, a Heaven relic whose spirit still sleeps.
+    It costs 6 Cloudsteel, 6 Refining Essence and 3000 taels.
+  - The Restore button is on the shard's item details. Event: `relic_restored`.
+- **Tests.**
+  - `talisman_suite`: spoiled strokes, stroke quality, grade-fixed damage whatever your Qi attack, Iron Wall,
+    Wind Step on cooldown, Binding, and the relic's gates.
+  - The valley run writes the first Flame Talisman at Qi Kindling 6.
+
 ### V3c · Natal treasure, wardrobe, blood-drop bind and rogue cultivators (S47)
 - **Natal treasure** (Heart Tempering 1).
   - Flag one weapon as Natal, in the forge's Natal mode.

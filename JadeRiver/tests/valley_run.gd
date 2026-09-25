@@ -810,6 +810,13 @@ func sec_qk5() -> void:
 		else: print("  appraise: ", ap)
 	check(appraised == 3, "appraise three curios (%d)" % appraised)
 	check(finish("is_it_real"), "Is It Real? done")
+	# S47: Old Scribe Bai's talisman craft; one clean stroke writes the first Flame Talisman.
+	tidy_bag()
+	check(start("ink_and_paper"), "Ink and Paper accepted")
+	var tr := submit({"type": "trace_talisman", "recipe": "flame_talisman", "score": 0.85})
+	if not tr.get("ok", false): print("  trace: ", tr)
+	check(tr.get("ok", false) and c().inventory.count("flame_talisman") >= 1, "trace a Flame Talisman")
+	check(finish("ink_and_paper"), "Ink and Paper done")
 	check(start("bandits_on_the_road"), "Bandits on the Road accepted")
 	check(travel("cr_caravan_road"), "reach the Caravan Road")
 	check(fight("mudwater_bandit", 10, 600.0) >= 10, "defeat ten Mudwater Bandits")

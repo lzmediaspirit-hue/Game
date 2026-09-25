@@ -120,6 +120,11 @@
    "resist": "none",
    "invulnerable": true,
    "icon": "spawn_protection"
+  },
+  {
+   "id": "veiled",
+   "resist": "none",
+   "icon": "confusion"
   }
  ]
 }

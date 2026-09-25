@@ -4,6 +4,7 @@ pets, pet_traits, achievements, titles, emotes, mission_templates, sect_building
 expeditions, disciples, strings/en.json.
 """
 import json
+import math
 import os
 
 from common import DATA, write, entries
@@ -36,7 +37,7 @@ def shops():
          "stock": [s("herbal_tea"), s("willow_salve"), s("revival_talisman"), s("purging_pill", requires=all_of(realm("qi_kindling_2"))),
                    s("calm_incense", requires=all_of(realm("qi_unfurling_9")))]},
         {"id": "stoneford_general", "name": "Stoneford General Store", "currency": "silver_tael", "buys_all": True,
-         "stock": [s("herbal_tea"), s("lotus_root_tea"), s("rice_ball"), s("rice"), s("return_charm"), s("herb_sickle", requires=all_of(realm("bone_forging_4"))),
+         "stock": [s("cinnabar", price=8), s("herbal_tea"), s("lotus_root_tea"), s("rice_ball"), s("rice"), s("return_charm"), s("herb_sickle", requires=all_of(realm("bone_forging_4"))),
                    s("iron_pickaxe", requires=all_of(realm("bone_forging_5"))), s("bamboo_gourd"), s("escape_talisman"), s("fish_bait"),
                    s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1")))],
          "rotation": {"count": 1, "pool": [s("bamboo_rod"), s("lantern_wick"), s("clay_pot")]}},
@@ -251,7 +252,19 @@ def recipes():
     r("mystic_tripod", "smithing", [("cloud_pattern_furnace", 1), ("mystic_ore", 12), ("roc_feather", 4)], [("mystic_tripod", 1)], "mystic",
       default=True, requires_ranks={"smithing": "master"})
     r("array_plate", "formations", [("blank_plate", 1), ("formation_stone", 1)], [("array_plate", 1)], "earth")
-    r("revival_talisman", "formations", [("talisman_paper", 2), ("ink", 1), ("mist_lotus", 1)], [("revival_talisman", 1)], "earth")
+    # S47: the Revival Talisman moves to the talisman craft (Part 8), with the rest of Old Scribe Bai's recipes.
+    T = [("flame_talisman", "common", [("talisman_paper", 1), ("cinnabar", 1), ("ember_pepper", 1)]),
+         ("thunder_talisman", "earth", [("spirit_paper", 1), ("beast_blood_ink", 1), ("storm_feather", 1)]),
+         ("iron_wall_talisman", "common", [("talisman_paper", 1), ("cinnabar", 1), ("beetle_shell", 2)]),
+         ("wind_step_talisman", "common", [("talisman_paper", 1), ("cinnabar", 1), ("vulture_plume", 1)]),
+         ("veil_talisman", "earth", [("spirit_paper", 1), ("restoration_ink", 1), ("tiny_hollow_shard", 1)]),
+         ("binding_talisman", "earth", [("spirit_paper", 1), ("beast_blood_ink", 1), ("viper_fang", 1)]),
+         ("revival_talisman", "common", [("talisman_paper", 1), ("cinnabar", 1), ("snapper_claw", 1)]),
+         ("lightning_rod_talisman", "heaven", [("spirit_paper", 1), ("beast_blood_ink", 1), ("cloudsteel_ore", 1)])]
+    for tid, grade, inputs in T:
+        r(tid, "talisman", inputs, [(tid, 1)], grade, traced=True)
+    r("beast_blood_ink", "talisman", [("hound_fang", 2), ("rat_tail", 2)], [("beast_blood_ink", 1)], "earth")
+    r("spirit_paper", "talisman", [("talisman_paper", 1), ("mist_lotus", 1)], [("spirit_paper", 1)], "earth")
     # S16 star charts (Sage 3): 40 XP per route. Vessels need a smith's rank; the sloop a formation master's too.
     r("star_chart_wreck", "star_charting", [("star_reading", 4), ("sky_ink", 2)], [("star_chart_wreck", 1)], "sage", default=True, xp=40)
     r("star_chart_lantern", "star_charting", [("star_reading", 8), ("sky_ink", 4)], [("star_chart_lantern", 1)], "sage", xp=40)
@@ -627,6 +640,31 @@ def strings():
     write("en.json", {"strings": S}, folder=os.path.join(DATA, "strings"))
 
 
+def talismans():
+    """S47 talismans.json: what each talisman does (at its own grade, not the user's stats) and the stroke path that
+    is traced to write it (points in a unit square; smoothness and pace along it set the quality)."""
+    circle = [[round(0.5 + 0.36 * math.cos(a * math.pi / 6), 3), round(0.5 + 0.36 * math.sin(a * math.pi / 6), 3)] for a in range(13)]
+    rows = [
+        {"id": "flame_talisman", "kind": "attack", "grade": "common", "power": 1.8, "element": "fire", "radius": 80, "range": 300,
+         "strokes": [[0.25, 0.9], [0.4, 0.45], [0.5, 0.7], [0.6, 0.2], [0.75, 0.9]]},
+        {"id": "thunder_talisman", "kind": "attack", "grade": "earth", "power": 2.4, "element": "thunder", "radius": 90, "range": 320,
+         "status": {"id": "shock", "chance": 1.0, "power": 1, "duration_s": 3}, "strokes": [[0.62, 0.05], [0.35, 0.5], [0.62, 0.5], [0.38, 0.95]]},
+        {"id": "iron_wall_talisman", "kind": "defence", "grade": "common", "shield_pct": 0.2, "duration_s": 6,
+         "strokes": [[0.2, 0.2], [0.8, 0.2], [0.8, 0.8], [0.2, 0.8], [0.2, 0.25]]},
+        {"id": "wind_step_talisman", "kind": "movement", "grade": "common", "effect": "free_dodge", "duration_s": 60,
+         "strokes": [[0.5, 0.5], [0.7, 0.42], [0.72, 0.7], [0.38, 0.78], [0.25, 0.4], [0.55, 0.15], [0.9, 0.28]]},
+        {"id": "veil_talisman", "kind": "movement", "grade": "earth", "effect": "veil", "duration_s": 10,
+         "strokes": [[0.08, 0.5], [0.3, 0.3], [0.5, 0.5], [0.7, 0.3], [0.92, 0.5]]},
+        {"id": "binding_talisman", "kind": "sealing", "grade": "earth", "status": {"id": "root", "chance": 1.0, "power": 1, "duration_s": 2}, "range": 260,
+         "strokes": [[0.2, 0.8], [0.5, 0.2], [0.8, 0.8], [0.2, 0.45], [0.8, 0.45]]},
+        {"id": "revival_talisman", "kind": "revival", "grade": "common", "strokes": circle},
+        {"id": "lightning_rod_talisman", "kind": "tribulation", "grade": "heaven", "strokes": [[0.5, 0.05], [0.5, 0.95], [0.28, 0.72], [0.72, 0.72]]},
+    ]
+    entries("talismans", rows, base_power={"plain": 40, "common": 90, "earth": 260, "heaven": 700, "mystic": 1600, "spirit": 3200, "sage": 6000},
+            quality_mult={"flawed": 0.8, "common": 1.0, "fine": 1.1, "superior": 1.2, "perfect": 1.3},
+            trace={"tolerance": 0.09, "break_at": 0.24, "min_s": 0.6, "max_s": 5.0})
+
+
 def forge_upkeep():
     """S47 gear upkeep. Salvage returns by grade (Part 8, extended past Mystic with the zone metals); the same
     metal is what an enhancement of that grade eats. Pity, essence, Inherit and reroll costs."""
@@ -657,6 +695,7 @@ def forge_upkeep():
 def build():
     shops()
     forge_upkeep()
+    talismans()
     auction()
     currencies()
     rec = recipes()

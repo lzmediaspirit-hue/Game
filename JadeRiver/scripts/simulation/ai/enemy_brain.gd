@@ -53,7 +53,7 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 	var c = auth.game.active()
 	if c != null and "concealment" in c.cultivator.secret_arts: aggro_r *= 0.5
 	# A fuelled Concealment formation hides the player until struck; Restraint slows monsters (S16).
-	var hidden: bool = c != null and e.team == "enemy" and auth.game.workshop.formation_effect(c, "conceal") > 0.0
+	var hidden: bool = c != null and e.team == "enemy" and (auth.game.workshop.formation_effect(c, "conceal") > 0.0 or c.pools.has_status("veiled"))   # S47 Veil Talisman
 	if hidden: aggro_r = 0.0
 	match str(ai.state):
 		"idle", "patrol":

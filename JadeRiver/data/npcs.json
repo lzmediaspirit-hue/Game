@@ -544,6 +544,39 @@
    }
   },
   {
+   "id": "old_scribe_bai",
+   "name": "Old Scribe Bai",
+   "title": "Talisman master",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 5,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "slippers",
+    "hat": "guan",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "ink"
+   },
+   "lines": [
+    "A talisman is a sentence the world has to finish.",
+    "Steady wrist, one breath, no lifting the brush."
+   ],
+   "barks": [
+    "Mind the ink."
+   ],
+   "services": [
+    "page:talisman"
+   ],
+   "service_labels": {
+    "page:talisman": "Write talismans"
+   },
+   "service_unlocks": {
+    "page:talisman": "talisman"
+   }
+  },
+  {
    "id": "elder_gu",
    "name": "Elder Gu",
    "title": "Trade house master",

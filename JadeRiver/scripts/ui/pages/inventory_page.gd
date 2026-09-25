@@ -183,6 +183,9 @@ func _draw_detail(r: Rect2) -> void:
 	var bw := (r.size.x - 38) / 2
 	var by := r.end.y - 118
 	if sel.has("bag"):
+		# S47: a Shattered Relic is restored at a forge by an Expert smith.
+		if def.has("restores"):
+			btn(Rect2(bx, by, r.size.x - 28, 50), Tx.t("ui.inventory.restore_relic"), "restore", null, true)
 		# S47 self-detonation: a spare artifact bursts for damage by its grade and is gone (confirmed first).
 		if (ContentDB.is_equipment(id) or def.has("treasure")) and Unlocks.is_unlocked(ch.id, "treasures"):
 			btn(Rect2(bx, by - 56, r.size.x - 28, 46), Tx.t("ui.inventory.detonate"), "detonate", null, false, not ch.inventory.locked.has(int(s.get("uid", -1))), Tx.t("ui.forge.locked_item"))
@@ -292,6 +295,10 @@ func on_action(id: String, data) -> void:
 				flash(Tx.t("ui.inventory.spare_set"))
 				sel = {}
 		"spare_out": submit({"type": "set_spare_weapon", "index": -1})
+		"restore":
+			var rr := submit({"type": "restore_relic", "index": int(sel.bag)})
+			if rr.get("ok", false): sel = {}
+			elif str(rr.get("text", "")) != "": flash(str(rr.text))
 		"swap": submit({"type": "swap_loadout"})
 		"detonate":
 			var dr := submit({"type": "self_detonate", "index": int(sel.bag)})

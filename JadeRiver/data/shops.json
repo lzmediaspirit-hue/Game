@@ -117,6 +117,10 @@
    "buys_all": true,
    "stock": [
     {
+     "item": "cinnabar",
+     "price": 8
+    },
+    {
      "item": "herbal_tea"
     },
     {
