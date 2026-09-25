@@ -58,6 +58,8 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
   pacing table (Qi Kindling at 4.7 h, Heaven Glimpse at 52 h, the end of the Act at 61 h), and the next gear
   upgrade costs 0.8 h of play at Level 15 and 1.4 h at Level 25.
 - Monster kills before the Weapon Hall can no longer drop equipment.
+- The weekly mission from the content catalogue, Sect Service: twenty daily missions or one field boss for
+  150 contribution. Every other row of the Part 8 catalogue was already in the data.
 
 ### Found and fixed by the scripted Act I run
 - Event spawns were wiped on room entry; stale companion uids could delete monsters; daily missions

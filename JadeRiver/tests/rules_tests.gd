@@ -5,6 +5,7 @@ extends Node
 ##   Replay:  same seed plus same intents gives the same state.
 ##   Offline: caps, a backward clock, bottlenecks hold, no breakthrough while away.
 ##   Pets:    stage gates need all three conditions, branches, traits, resonance, hunger.
+##   Weekly:  Sect Service ends on either path and survives the daily reset.
 ## Run headless:  godot --headless --path . res://tests/rules_tests.tscn
 
 var checks := 0
@@ -27,6 +28,7 @@ func _main() -> void:
 	replay_suite()
 	offline_suite()
 	pets_suite()
+	weekly_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -188,3 +190,20 @@ func pets_suite() -> void:
 	check(Game.progression.accumulation_bonus(c) >= Game.pets.resonance(c) - 0.0001, "resonance feeds accumulation")
 	p.role = "combat"
 	check(near(Game.pets.resonance(c), 0.0), "no resonance outside the Cultivation role")
+
+# ------------------------------------------------------------------ weekly mission (S20)
+func weekly_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	Game.quest.start_weekly(true)
+	var id := "weekly_%d" % Clock.reset_week(Clock.now_utc())
+	check(c.quests.is_active(id), "Sect Service is offered for the week")
+	Game.quest.start_daily(true)
+	check(c.quests.is_active(id), "the daily reset leaves the weekly mission alone")
+	# Either path finishes it: here, one field boss.
+	GameEvents.emit_event("actor_defeated", {"victim": "0", "victim_kind": "enemy", "def": "cloudpeak_roc", "role": "field_boss", "killer": c.id, "level": 40,
+		"room": str(c.position.get("room", "")), "x": 400.0, "y": 800.0, "alt": 0.0, "elite": false, "summoned": false, "first_hit_by_player": true})
+	GameEvents.flush()
+	check(c.quests.done.has(id) and not c.quests.is_active(id), "a field boss completes Sect Service")
+	Game.quest.start_weekly(true)
+	check(not c.quests.is_active(id), "Sect Service is offered once a week")

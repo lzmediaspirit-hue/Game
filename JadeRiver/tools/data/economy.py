@@ -377,6 +377,9 @@ def missions():
             opt("Sparring practice", {"kind": "win_spar", "count": 1, "text": "Win a spar"}, 0, 70)]},
     ]
     entries("mission_templates", rows)
+    # S20 weekly mission (Part 8): finish 20 daily missions or defeat a field boss; 150 contribution.
+    write("weekly_mission.json", {"schema_version": 1, "name": "Sect Service", "dailies": 20, "role": "field_boss",
+                                  "contribution": 150, "taels_base": 100, "taels_per_level": 10})
 
 
 def sect_tables():

@@ -28,6 +28,7 @@ func subscribe() -> void:
 		GameEvents.subscribe(ev, _on_event.bind(ev), 60)
 	GameEvents.subscribe("unlock_offered", _on_unlock_offered, 60)
 	GameEvents.subscribe("daily_reset", _on_daily_reset, 60)
+	GameEvents.subscribe("weekly_reset", func(_p): start_weekly(false), 61)
 	for ev in ["quest_completed", "realm_changed", "flag_set", "room_entered", "quest_accepted", "item_added", "character_created"]:
 		GameEvents.subscribe(ev, _refresh_offers, 65)
 
@@ -316,9 +317,12 @@ func _check_ready(c, qid: String) -> void:
 	var def := quest_def(c, qid)
 	var st: Dictionary = c.quests.active.get(qid, {})
 	if st.is_empty(): return
-	var all_done := true
+	var any_one: bool = str(def.get("complete_on", "all")) == "any"   # e.g. the weekly: one path or the other
+	var all_done := not any_one
 	for i in def.get("objectives", []).size():
-		if int(st.progress[i]) < int(def.objectives[i].get("count", 1)): all_done = false
+		var met := int(st.progress[i]) >= int(def.objectives[i].get("count", 1))
+		if any_one and met: all_done = true
+		elif not any_one and not met: all_done = false
 	if all_done and st.state != "ready":
 		st.state = "ready"
 		emit("quest_ready", {"actor": c.id, "quest": qid})
@@ -344,7 +348,7 @@ func hand_in(c, qid: String) -> Dictionary:
 	emit("quest_completed", {"actor": c.id, "quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side"))})
 	if c.quests.daily.has(qid):
 		c.quests.daily.erase(qid)
-		emit("system_used", {"actor": c.id, "system": "daily_mission_done"})
+		if qid.begins_with("daily_"): emit("system_used", {"actor": c.id, "system": "daily_mission_done"})
 	var nxt := str(def.get("next", ""))
 	if nxt != "":
 		var ndef := ContentDB.entry("quests", nxt)
@@ -383,6 +387,7 @@ func _match(c, o: Dictionary, p: Dictionary, ev: String) -> int:
 		"reach_room": return 1 if str(p.get("room", "")) == str(o.room) else 0
 		"kill":
 			if o.has("room") and str(p.get("room", "")) != str(o.room): return 0
+			if o.has("role"): return 1 if str(p.get("role", "")) == str(o.role) else 0
 			return 1 if str(o.enemy) == "any" or str(p.get("def", "")) == str(o.enemy) else 0
 		"use_item": return 1 if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
 		"win_spar": return 1 if p.get("winner", "") == "player" and str(o.get("opponent", "any")) in ["any", str(p.get("opponent", ""))] else 0
@@ -525,13 +530,35 @@ func tick(_delta: float) -> void:
 func _on_daily_reset(_p: Dictionary) -> void:
 	start_daily(false)
 
+## S20 weekly mission: Sect Service, finished by 20 daily missions or one field boss.
+func start_weekly(force: bool) -> void:
+	var c = game.active()
+	if c == null or (not force and not Unlocks.is_unlocked(c.id, "daily_missions")): return
+	var week := Clock.reset_week(Clock.now_utc())
+	var id := "weekly_%d" % week
+	for qid in c.quests.daily.keys():
+		if str(qid).begins_with("weekly_") and qid != id:
+			c.quests.active.erase(qid)
+			c.quests.daily.erase(qid)
+	if c.quests.daily.has(id) or c.quests.done.has(id): return
+	var cfg := ContentDB.config("weekly_mission")
+	var lv := ProgressionRules.level(c)
+	c.quests.daily[id] = {"id": id, "name": str(cfg.get("name", "Sect Service")), "kind": "daily", "complete_on": "any", "hand_in": "", "auto_complete": true,
+		"objectives": [{"kind": "use_system", "system": "daily_mission_done", "count": int(cfg.get("dailies", 20)), "text": "Finish daily missions"},
+			{"kind": "kill", "enemy": "any", "role": str(cfg.get("role", "field_boss")), "count": 1, "text": "Or defeat a field boss"}],
+		"rewards": [{"kind": "add_contribution", "amount": int(cfg.get("contribution", 150))},
+			{"kind": "grant_currency", "currency": "silver_tael", "amount": int(cfg.get("taels_base", 100)) + lv * int(cfg.get("taels_per_level", 10))}],
+		"qp": "weekly"}
+	accept(c, id)
+
 func start_daily(force: bool) -> void:
 	var c = game.active()
 	if c == null or (not force and not Unlocks.is_unlocked(c.id, "daily_missions")): return
 	for qid in c.quests.daily.keys():
+		if not str(qid).begins_with("daily_"): continue   # the weekly mission keeps its week
 		c.quests.active.erase(qid)
 		c.quests.tracked.erase(qid)
-	c.quests.daily.clear()
+		c.quests.daily.erase(qid)
 	var rng := Rng.stream(c.id, "world")
 	var templates: Array = ContentDB.all("mission_templates")
 	var lv := ProgressionRules.level(c)

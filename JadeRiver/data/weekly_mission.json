@@ -1,0 +1,9 @@
+{
+ "schema_version": 1,
+ "name": "Sect Service",
+ "dailies": 20,
+ "role": "field_boss",
+ "contribution": 150,
+ "taels_base": 100,
+ "taels_per_level": 10
+}

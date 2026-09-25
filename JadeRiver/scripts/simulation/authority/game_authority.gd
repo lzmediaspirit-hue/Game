@@ -180,7 +180,9 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"add_purity": progression.apply_purity(actor_id, float(e.amount))
 			"unlock_slot": accounts.apply_slot(int(e.get("slot", 0)))
 			"codex": quest.apply_codex(str(e.entry))
-			"start_daily": quest.start_daily(true)
+			"start_daily":
+				quest.start_daily(true)
+				quest.start_weekly(true)
 			"system_used": GameEvents.emit_event("system_used", {"actor": actor_id, "system": str(e.system)})
 			"sect_defence_result": sect.apply_defence_result(actor_id, bool(e.get("won", true)))
 			_: push_warning("Unknown effect kind: " + str(e.get("kind", "")))
