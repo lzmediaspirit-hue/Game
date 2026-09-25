@@ -37,8 +37,9 @@ func setup(e: EnemyState) -> void:
 		var outfit = art.avatar
 		if outfit is String and outfit == "player":
 			outfit = InventoryAuthority.outfit_for(Game.active()) if Game.active() else Wardrobe.defaults()
-			name_text = Tx.t("view.reflection")
+			if e.def_id == "the_reflection": name_text = Tx.t("view.reflection")
 		var o: Dictionary = (outfit as Dictionary).duplicate()
+		if art.has("tint"): o.tint = str(art.tint)   # a heart demon wears your face in crimson (G1)
 		for k in ["hat", "cape", "weapon"]:
 			if not o.has(k): o[k] = "none"
 		avatar.outfit = o

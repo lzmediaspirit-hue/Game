@@ -47,6 +47,25 @@ FISH = [("river_minnow", "plain"), ("reed_perch", "plain"), ("jade_carp_fish", "
         ("mist_trout", "earth"), ("rapids_salmon", "earth"), ("moon_carp", "heaven")]
 
 
+FURNACES = {
+    "bronze_furnace": ("A bronze furnace. Three pills to a batch; it holds heat well enough.",
+                       {"band": 0.0, "batch": 3, "filter": 0.0, "yield": 0.05}),
+    "earth_vein_furnace": ("A furnace cast around a vein of jadeiron. Five pills to a batch, a steadier heat and a cleaner fire.",
+                           {"band": 0.05, "batch": 5, "filter": 0.03, "yield": 0.08}),
+    "cloud_pattern_furnace": ("Cloudsteel walls etched with drifting clouds. Eight pills to a batch; impurities slide off its walls.",
+                              {"band": 0.10, "batch": 8, "filter": 0.06, "yield": 0.12}),
+    "mystic_tripod": ("A three-legged tripod of mystic ore that hums over the fire. Ten pills to a batch.",
+                      {"band": 0.15, "batch": 10, "filter": 0.08, "yield": 0.15}),
+    "nine_dragon_cauldron": ("Alchemist Fen's cauldron: nine bronze dragons coil round it and drink the heat. A named furnace: on any fire a perfect run can reach Halo and Soul. Ten pills to a batch.",
+                             {"band": 0.20, "batch": 10, "filter": 0.10, "yield": 0.15, "named": True}),
+}
+FLAMES = [
+    ("cold_lamp_flame", "earth", "A blue flame the Drowned Abbot kept burning under the water for two hundred years."),
+    ("sunscar_throne_ember", "sage", "An ember from under the Tomb King's throne. It remembers three thousand years of sun."),
+    ("comet_tail_flame", "sage", "A white flame torn from a comet's tail, kept in Comet Captain Rao's lamp."),
+]
+
+
 def effect(kind, **f):
     d = {"kind": kind}
     d.update(f)
@@ -122,10 +141,28 @@ def foods():
     return F
 
 
+# Eaten raw (gap report G1): 30% of the herb's pill at twice its toxicity. An emergency, and the reason
+# alchemy exists. Herbs never rot.
+RAW_HERB = {
+    "willow_moss": ([effect("heal", pct=0.09, over_s=5)], 10),
+    "riverreed_ginseng_10": ([effect("add_progress", pct_of_need=0.024)], 20),
+    "riverreed_ginseng_100": ([effect("add_progress", pct_of_need=0.05)], 30),
+    "ember_pepper": ([effect("add_modifier", stat="physical_attack", op="pct_add", value=0.06, duration=60, source="raw_ember_pepper")], 24),
+    "mist_lotus": ([effect("add_modifier", stat="insight_rate", op="pct_add", value=0.15, duration=540, source="raw_mist_lotus")], 16),
+    "cloudtop_orchid": ([effect("add_body_xp", amount=90)], 30),
+    "soulbell_flower": ([effect("add_soul", amount=15)], 16),
+    "frost_lotus": ([effect("cure_injury", injury="meridian", max_severity=1), effect("add_composure", amount=20)], 30),
+    "ember_cactus": ([effect("heal", pct=0.1, over_s=5)], 30),
+}
+
+
 def build_items():
     rows = []
     for h in HERBS:
-        rows.append(item(h[0], "herb", h[1], 99, h[2], name=h[3] if len(h) > 3 else None))
+        raw = RAW_HERB.get(h[0])
+        extra = {"use": raw[0], "raw": {"toxicity": raw[1]}} if raw else {}
+        rows.append(item(h[0], "herb", h[1], 99, h[2] + (" Can be eaten raw in need: weak, and hard on the meridians." if raw else ""),
+                         name=h[3] if len(h) > 3 else None, **extra))
     for o in ORES:
         rows.append(item(o[0], "ore", o[1], 99, o[2], name=o[3] if len(o) > 3 else None))
     for b in BEAST:
@@ -179,7 +216,10 @@ def build_items():
                                ("guardian_stone", "earth", "Heart-stone of a Stone Guardian."),
                                ("jade_core", "heaven", "A jade core from a Forgotten Monastery sentinel."),
                                ("pebble_core", "common", "A tiny earth core from a Pebble Imp.")]:
-        rows.append(item(cid, "core", grade, 99, desc, core={"qp_pct": 0.05 if grade == "common" else 0.1}))
+        # A core can be absorbed for Qi (it counts toward a hollow foundation) or burnt as Beast Fire under a furnace.
+        qp = 0.05 if grade == "common" else 0.1
+        rows.append(item(cid, "core", grade, 99, desc + " Absorb it for Qi, or burn it as Beast Fire.", core={"qp_pct": qp},
+                         use=[effect("add_progress", pct_of_need=qp)], raw={"toxicity": 12}))
     rows.append(item("tiny_hollow_shard", "hollow", "common", 99, "A grey sliver that drinks warmth. Handle with care."))
     rows.append(item("hollow_shard", "hollow", "earth", 99, "A shard of the Hollow Tide. Appraise before use."))
     rows.append(item("grey_hide", "hollow", "common", 99, "Hide from a Hollowed beast, grey and cold."))
@@ -218,8 +258,8 @@ def build_items():
                        ("restoration_ink", "heaven"), ("fish_bait", "plain")]:
         rows.append(item(oid, "material", grade, 99, "A common valley good."))
     rows.append(item("calm_incense", "other", "plain", 99, "Calming incense. Burn it and meditate to steady the heart.", use=[effect("add_composure", amount=30)]))
-    rows.append(item("myriad_year_calm_incense", "treasure", "heaven", 1, "Clears Heart Demons and steadies Composure for an hour. Never sold.", sell=False,
-                     use=[effect("add_modifier", stat="will", op="flat", value=20, duration=3600, source="calm_incense")]))
+    rows.append(item("myriad_year_calm_incense", "treasure", "heaven", 1, "Clears Heart Demons (-40) and steadies Composure for an hour. Never sold.", sell=False,
+                     use=[effect("add_heart_demon", amount=-40), effect("add_modifier", stat="will", op="flat", value=20, duration=3600, source="calm_incense")]))
     # Natural treasures (Part 5): one job each, never sold.
     rows.append(item("mindwell_lotus", "treasure", "heaven", 9,
                      "Heals and shields the soul: +500 Soul, mends a soul injury, soul defence +30% for an hour. It answers once in each great realm. Never sold.",
@@ -239,8 +279,21 @@ def build_items():
              ("forge_hammer", "common", "smithing", 1.0), ("formation_kit", "earth", "formations", 1.0), ("needle_case", "earth", "healing", 1.0),
              ("appraisers_loupe", "common", "appraisal", 1.0), ("drying_rack", "common", "alchemy", 1.0)]
     for tid, grade, craft, power in tools:
-        rows.append(item(tid, "tool", grade, 1, "A %s tool." % craft, tool={"craft": craft, "power": power},
-                         icon="appraiser_loupe" if tid == "appraisers_loupe" else tid))
+        extra = {"furnace": FURNACES["bronze_furnace"][1]} if tid == "bronze_furnace" else {}
+        desc = FURNACES["bronze_furnace"][0] if tid == "bronze_furnace" else "A %s tool." % craft
+        rows.append(item(tid, "tool", grade, 1, desc, tool={"craft": craft, "power": power},
+                         icon="appraiser_loupe" if tid == "appraisers_loupe" else tid, **extra))
+    # Furnaces (gap report G1, S15 "special furnace"): the best one you carry is the one you refine in.
+    # band = strike band widened, batch = pills per batch, filter = impurities it keeps out (a better
+    # quality roll), yield = chance of one extra pill; a named furnace reaches Halo and Soul on any fire.
+    for fid, grade, icon in [("earth_vein_furnace", "earth", "bronze_furnace"), ("cloud_pattern_furnace", "heaven", "bronze_furnace"),
+                             ("mystic_tripod", "mystic", "bronze_furnace"), ("nine_dragon_cauldron", "sage", "bronze_furnace")]:
+        rows.append(item(fid, "tool", grade, 1, FURNACES[fid][0], tool={"craft": "alchemy", "power": 1.0}, icon=icon,
+                         furnace=FURNACES[fid][1], sell=fid != "nine_dragon_cauldron"))
+    # Heavenly Flames (gap report G1): one to a zone tier, taken from a boss; absorbed for good and kept in the Codex.
+    for fid, grade, desc in FLAMES:
+        rows.append(item(fid, "treasure", grade, 1, desc + " Absorb it: a Heavenly Flame burns under any furnace you use, for good. Never sold.",
+                         sell=False, use=[], use_action="absorb_flame", icon="ember_cactus"))
     rows.append(item("revival_talisman", "talisman", "common", 99, "Revive where you fall: 30% HP, 5 s invulnerable. Once per 5 minutes.", value_override=15))
     rows.append(item("return_charm", "talisman", "plain", 99, "Teleports you to the last town.", use=[effect("teleport", target="last_town")]))
     rows.append(item("escape_talisman", "talisman", "common", 99, "Leaves a dungeon at once.", use=[effect("teleport", target="dungeon_exit")]))

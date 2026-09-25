@@ -96,6 +96,7 @@ func accumulation_bonus(c) -> float:
 	bonus += 0.02 * game.account.legacy.size()
 	bonus += game.pets.resonance(c)
 	bonus += game.companions.paired_bonus(c)
+	bonus -= ProgressionRules.residue_penalty(c.cultivator)   # residue does not drain on its own (G1)
 	return bonus
 
 func tick(delta: float) -> void:
@@ -118,6 +119,7 @@ func tick(delta: float) -> void:
 			if cu.state == "consolidating": cu.state = "accumulating"
 			emit("consolidation_finished", {"actor": c.id})
 	if cu.breakthrough_cooldown > 0.0: cu.breakthrough_cooldown = maxf(0.0, cu.breakthrough_cooldown - delta)
+	if not cu.debts.is_empty(): _settle_debts(c)
 	_tick_injuries(c, delta, 3.0 if cu.meditating else 1.0)
 	if cu.toxicity > 0.0:
 		var drain := float(ContentDB.stat_const("toxicity.drain_per_min", 1)) / 60.0 * delta
@@ -162,6 +164,8 @@ func _meditation_second(c) -> void:
 		apply_soul(c.id, float(ContentDB.curve("soul_meditate_per_hour", 10)) / 3600.0)
 	if mc.stone != "":
 		apply_insight(c.id, mc.stone, float(ContentDB.curve("insight_stone_per_min", 20)) / 60.0 * mult, "insight_stone")
+	if cu.heart_demon > 0.0:
+		apply_heart_demon(c.id, -float(ContentDB.stat_const("heart_demon", {}).get("meditate_drain_per_min", 0.25)) / 60.0 * mult, "meditation")
 	emit("meditation_tick", {"actor": c.id, "gains": gains, "spring": mc.spring, "paired": game.companions.paired_bonus(c) > 0.0})
 
 func _step_stability(c, direction: int) -> void:
@@ -286,6 +290,7 @@ func apply_progress(actor_id: String, amount: float, source: String, pct_of_need
 	amount += pct_of_need * n
 	if amount <= 0.0 or n <= 0.0: return
 	var before_level := ProgressionRules.level(c)
+	_track_foundation(cu, amount, source)
 	if cu.state == "bottleneck":
 		var factor := float(ContentDB.curve("ceiling_stored_qi_mult", 0.25)) if at_zone_ceiling(c) else 1.0
 		cu.stored_qi = minf(ProgressionRules.stored_qi_cap(c), cu.stored_qi + amount * factor)
@@ -301,6 +306,14 @@ func apply_progress(actor_id: String, amount: float, source: String, pct_of_need
 	emit("progress_changed", {"actor": c.id, "progress": cu.progress_fraction(), "stored": cu.stored_qi, "source": source, "amount": amount})
 	var after_level := ProgressionRules.level(c)
 	if after_level != before_level: _levels_gained(c, before_level, after_level)
+
+## Foundation (G1): how much of this great realm's Qi came from pills, raw herbs and cores.
+func _track_foundation(cu: CultivatorState, amount: float, source: String) -> void:
+	var gr := ProgressionRules.great_realm(cu.realm_key)
+	if str(cu.foundation.get("realm", "")) != gr: cu.foundation = {"realm": gr, "total": 0.0, "pill": 0.0}
+	cu.foundation.total = float(cu.foundation.total) + amount
+	if source.begins_with("item:") and ProgressionRules.pill_family(ContentDB.item(source.substr(5))) != "":
+		cu.foundation.pill = float(cu.foundation.pill) + amount
 
 func _levels_gained(c, from_level: int, to_level: int) -> void:
 	for lv in range(from_level + 1, to_level + 1):
@@ -333,13 +346,28 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 			hard_ok = false
 	var supports := 0
 	var reasons: Array = []
+	var fails: Dictionary = cu.support_fails.get(cu.realm_key, {})
+	var fail_limit := int(ContentDB.stat_const("pill_life", {}).get("support_fail_limit", 2))
 	for item_id in support_items:
-		var p: Dictionary = ContentDB.item(str(item_id)).get("pill", {})
 		var sup: Dictionary = ContentDB.item(str(item_id)).get("support", {})
 		if sup.is_empty() or c.inventory.count(str(item_id)) <= 0: continue
 		if sup.has("event") and str(sup.event) != str(spec.get("event", "")): continue
+		# A support pill that has already failed this breakthrough twice no longer answers it (G1).
+		if int(fails.get(str(item_id), 0)) >= fail_limit:
+			reasons.append(Tx.t("sim.progression.support_spent") % ContentDB.item_name(str(item_id)))
+			continue
 		supports += 1
 		reasons.append(Tx.t("sim.progression.lowers_risk") % ContentDB.item_name(str(item_id)))
+	# What the character's past adds (G1): a hollow foundation is an unmet soft requirement,
+	# each 25 heart demon a step, and merit eases one breakthrough per great realm.
+	var hollow := major and ProgressionRules.foundation_hollow(cu)
+	if hollow:
+		results.append({"ok": false, "hard": false, "cause": "structure", "kind": "foundation", "fix": "page:cultivation",
+			"text": Tx.t("sim.progression.foundation_hollow") % int(round(ProgressionRules.foundation_share(cu) * 100.0))})
+	var demon_steps := ProgressionRules.heart_demon_steps(cu) if major else 0
+	if demon_steps > 0: reasons.append(Tx.t("sim.progression.heart_demons") % [int(cu.heart_demon), demon_steps])
+	var merit := ProgressionRules.merit_step(cu) if major else 0
+	if merit > 0: reasons.append(Tx.t("sim.progression.merit_eases") % cu.merit)
 	var soft := RequirementRules.soft_unmet(results)
 	if soft > 0: reasons.append(Tx.t("sim.progression.unmet_soft_requirement") % soft)
 	var unstable := cu.stability == "unstable"
@@ -349,7 +377,8 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 	if retreat: reasons.append(Tx.t("sim.progression.retreat_room"))
 	var guarded = game.workshop.formation_effect(c, "breakthrough_risk_step") < 0.0
 	if guarded: reasons.append(Tx.t("sim.progression.guard_formation"))
-	var word := ProgressionRules.risk_word(ProgressionRules.risk_index(soft, unstable, cu.injuries.size(), mini(supports, 3) + (1 if guarded else 0), retreat)) if major else "none"
+	var word := ProgressionRules.risk_word(ProgressionRules.risk_index(soft, unstable, cu.injuries.size(), mini(supports, 3) + (1 if guarded else 0), retreat,
+		demon_steps - merit)) if major else "none"
 	var can := cu.state == "bottleneck" and hard_ok and cu.breakthrough_cooldown <= 0.0 and not channels.has(c.id)
 	var blocked := ""
 	if cu.state != "bottleneck": blocked = Tx.t("sim.progression.keep_accumulating") % int(cu.progress_fraction() * 100)
@@ -357,7 +386,7 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 	elif not hard_ok: blocked = Tx.t("sim.progression.a_hard_requirement_is_unmet")
 	return {"from": cu.realm_key, "to": to, "major": major, "results": results, "risk": word, "reasons": reasons,
 		"success": ProgressionRules.success_chance(word) if major else 1.0, "can": can, "blocked": blocked,
-		"event": str(spec.get("event", "")) if major else "", "zone_ok": zone_ok}
+		"event": str(spec.get("event", "")) if major else "", "zone_ok": zone_ok, "hollow": hollow, "heart_demon_steps": demon_steps, "merit": merit}
 
 func start_breakthrough(c, support_items: Array) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "cultivation"): return fail("locked")
@@ -382,7 +411,11 @@ func start_breakthrough(c, support_items: Array) -> Dictionary:
 	var unmet_causes: Array = []
 	for r in q.results:
 		if not r.ok: unmet_causes.append(r.cause)
-	channels[c.id] = {"to": q.to, "risk": q.risk, "remaining": CHANNEL_S, "causes": unmet_causes, "used": used, "from": c.cultivator.realm_key}
+	var hd: Dictionary = ContentDB.stat_const("heart_demon", {})
+	if used.size() >= int(hd.get("forced_supports", 2)): apply_heart_demon(c.id, float(hd.get("forced_breakthrough", 5)), "forced_breakthrough")
+	if int(q.get("merit", 0)) > 0: c.cultivator.merit_used[ProgressionRules.great_realm(c.cultivator.realm_key)] = true
+	channels[c.id] = {"to": q.to, "risk": q.risk, "remaining": CHANNEL_S, "causes": unmet_causes, "used": used, "from": c.cultivator.realm_key,
+		"hollow": bool(q.get("hollow", false))}
 	emit("breakthrough_started", {"actor": c.id, "from": c.cultivator.realm_key, "to": q.to, "risk": q.risk, "duration": CHANNEL_S})
 	return ok({"result": "channeling", "risk": q.risk})
 
@@ -398,7 +431,14 @@ func _tick_channel(c, delta: float) -> void:
 	if guaranteed or rng.randf() < ProgressionRules.success_chance(str(ch.risk)):
 		_advance(c, str(ch.to), true)
 	else:
-		_fail_breakthrough(c, ProgressionRules.pick_failure(rng, ch.causes, c.cultivator.realm_key), rng)
+		var from := str(ch.get("from", c.cultivator.realm_key))
+		var fails: Dictionary = c.cultivator.support_fails.get(from, {})
+		for item_id in ch.get("used", []): fails[str(item_id)] = int(fails.get(str(item_id), 0)) + 1
+		if not fails.is_empty(): c.cultivator.support_fails[from] = fails
+		# A hollow foundation gives way where it is weakest (G1).
+		var failure := "weak_foundation" if ch.get("hollow", false) and ContentDB.has_entry("failures", "weak_foundation") \
+			else ProgressionRules.pick_failure(rng, ch.causes, c.cultivator.realm_key)
+		_fail_breakthrough(c, failure, rng)
 
 func is_channeling(actor_id: String) -> bool:
 	return channels.has(actor_id)
@@ -426,6 +466,12 @@ func _advance(c, to: String, major: bool) -> void:
 		cu.stability_progress = 0.0
 		emit("stability_changed", {"actor": c.id, "word": cu.stability})
 	if major and energy == "true_qi" and ContentDB.realm(from).get("energy") != "true_qi": cu.purity = mini(cu.purity, 9)
+	if major:
+		# Each major breakthrough forgets one dose of every pill family (G1).
+		for fam in cu.pill_resistance.keys():
+			cu.pill_resistance[fam] = maxi(0, int(cu.pill_resistance[fam]) - 1)
+			if int(cu.pill_resistance[fam]) == 0: cu.pill_resistance.erase(fam)
+		cu.support_fails.erase(from)
 	emit("breakthrough_succeeded", {"actor": c.id, "from": from, "to": to, "major": major,
 		"formation": "guard" if game.workshop.formation_effect(c, "breakthrough_risk_step") < 0.0 else ""})
 	emit("realm_changed", {"actor": c.id, "from": from, "to": to, "major": major, "level": ProgressionRules.level(c)})
@@ -516,6 +562,7 @@ func _on_gravely_wounded(p: Dictionary) -> void:
 	if rng.randf() < float(ContentDB.stat_const("death.injury_chance", 0.5)) and int(cu.injuries.get("body", {}).get("severity", 0)) < 2:
 		apply_injury(c.id, "body", 1)
 	if p.get("cause", "") == "soul": apply_injury(c.id, "soul", 1)
+	apply_heart_demon(c.id, float(ContentDB.stat_const("heart_demon", {}).get("death", 3)), "defeat")
 	emit("progress_changed", {"actor": c.id, "progress": cu.progress_fraction(), "stored": cu.stored_qi, "source": "wounded", "amount": 0})
 
 func _on_technique_used(p: Dictionary) -> void:
@@ -642,9 +689,52 @@ func apply_toxicity(actor_id: String, amount: float) -> void:
 	var c = game.character(actor_id)
 	if c == null: return
 	c.cultivator.toxicity = maxf(0.0, c.cultivator.toxicity + amount)
+	if amount > 0.0: apply_residue(c.id, amount * float(ContentDB.stat_const("pill_life", {}).get("residue_share", 0.05)))
 	emit("toxicity_changed", {"actor": c.id, "value": c.cultivator.toxicity})
 	if amount > 0 and c.cultivator.toxicity > c.stats.value("toxicity_tolerance"):
 		apply_injury(c.id, "meridian", 1)
+
+## Residue (G1): the part of toxicity that never drains on its own. Negative amounts clear it.
+func apply_residue(actor_id: String, amount: float) -> void:
+	var c = game.character(actor_id)
+	if c == null or amount == 0.0: return
+	c.cultivator.residue = maxf(0.0, c.cultivator.residue + amount)
+	emit("residue_changed", {"actor": c.id, "value": c.cultivator.residue})
+
+## The heart-demon meter (G1), 0-100.
+func apply_heart_demon(actor_id: String, amount: float, source: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or amount == 0.0: return
+	var before := int(ProgressionRules.heart_demon_steps(c.cultivator))
+	c.cultivator.heart_demon = clampf(c.cultivator.heart_demon + amount, 0.0, 100.0)
+	if amount > 0.0 and not game.account.codex.has("heart_demons"): game.quest.apply_codex("heart_demons")
+	emit("heart_demon_changed", {"actor": c.id, "value": c.cultivator.heart_demon, "delta": amount, "source": source,
+		"step_crossed": ProgressionRules.heart_demon_steps(c.cultivator) != before})
+
+## The karma ledger (G1): merit and sin. Sin also feeds the heart demon.
+func apply_karma(actor_id: String, merit: int, sin: int, reason: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or (merit == 0 and sin == 0): return
+	c.cultivator.merit = maxi(0, c.cultivator.merit + merit)
+	c.cultivator.sin = maxi(0, c.cultivator.sin + sin)
+	if not game.account.codex.has("karma"): game.quest.apply_codex("karma")
+	if sin > 0: apply_heart_demon(c.id, sin * float(ContentDB.stat_const("heart_demon", {}).get("per_sin", 0.2)), "sin")
+	emit("karma_changed", {"actor": c.id, "merit": c.cultivator.merit, "sin": c.cultivator.sin, "delta_merit": merit, "delta_sin": sin, "reason": reason})
+
+## A named debt (G1): a deed the world remembers. When it falls due its mail arrives (the saved repay you).
+func apply_karma_debt(actor_id: String, debt_id: String, due_h: float, mail: String, attachments: Array) -> void:
+	var c = game.character(actor_id)
+	if c == null or c.cultivator.debts.has(debt_id): return
+	c.cultivator.debts[debt_id] = {"due_utc": Clock.now_utc() + due_h * 3600.0, "mail": mail, "attachments": attachments.duplicate(true), "paid": false}
+	emit("karma_debt_recorded", {"actor": c.id, "debt": debt_id})
+
+func _settle_debts(c) -> void:
+	for id in c.cultivator.debts:
+		var d: Dictionary = c.cultivator.debts[id]
+		if d.get("paid", false) or Clock.now_utc() < float(d.get("due_utc", 0.0)): continue
+		d.paid = true
+		if str(d.get("mail", "")) != "": game.mail.apply_send(c.id, str(d.mail), d.get("attachments", []), {})
+		emit("karma_debt_repaid", {"actor": c.id, "debt": id})
 
 ## The Sovereign Settling Pill: what is left of this stage's consolidation ends on the next tick.
 func apply_settle(actor_id: String) -> void:
@@ -725,6 +815,7 @@ func switch_method(c, method_id: String, use_pill: bool) -> Dictionary:
 	c.cultivator.qp = maxf(0.0, c.cultivator.qp - cost)
 	c.cultivator.method_id = method_id
 	c.cultivator.stability = "unstable"
+	apply_heart_demon(c.id, float(ContentDB.stat_const("heart_demon", {}).get("method_switch", 10)), "method_switch")
 	emit("stability_changed", {"actor": c.id, "word": "unstable"})
 	emit("method_changed", {"actor": c.id, "method": method_id, "cost": cost})
 	emit("progress_changed", {"actor": c.id, "progress": c.cultivator.progress_fraction(), "stored": c.cultivator.stored_qi, "source": "method_switch", "amount": -cost})
@@ -810,7 +901,7 @@ func consult_jade_tree(c) -> Dictionary:
 func enter_seclusion(c, focus: String) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "seclusion"): return fail("locked", {"text": Unlocks.locked_text("seclusion")})
 	var allowed := {"accumulate": "seclusion", "temper_body": "seclusion", "heal": "seclusion", "contemplate": "insight_sites",
-		"refine_qi": "refine_qi", "nourish_soul": "nourish_soul"}
+		"refine_qi": "refine_qi", "nourish_soul": "nourish_soul", "settle_foundation": "seclusion"}
 	if not allowed.has(focus) or not Unlocks.is_unlocked(c.id, allowed[focus]): return fail("focus_locked")
 	var room = game.room_rt.def if game.room_rt else {}
 	var spot := str(room.get("id", ""))
@@ -862,6 +953,18 @@ func claim_offline(c, elapsed_s: float) -> Dictionary:
 			var sp := float(ContentDB.curve("soul_offline_per_hour", 20)) * minutes / 60.0
 			apply_soul(c.id, sp)
 			gains.soul = sp
+		"settle_foundation":
+			# G1: sit with what the pills gave you until it is your own; the residue burns off with it.
+			var k: Dictionary = ContentDB.stat_const("pill_life", {})
+			var cu2: CultivatorState = c.cultivator
+			if str(cu2.foundation.get("realm", "")) == ProgressionRules.great_realm(cu2.realm_key):
+				var drop := maxf(float(cu2.foundation.get("total", 0.0)), cu2.need()) * float(k.get("settle_share_per_h", 0.06)) * minutes / 60.0
+				gains.foundation = minf(drop, float(cu2.foundation.get("pill", 0.0)))
+				cu2.foundation.pill = maxf(0.0, float(cu2.foundation.get("pill", 0.0)) - drop)
+			var res := minf(cu2.residue, float(k.get("settle_residue_per_h", 3)) * minutes / 60.0)
+			if res > 0.0:
+				apply_residue(c.id, -res)
+				gains.residue = res
 	# Injuries also heal at their natural rate while away.
 	if focus != "heal": _tick_injuries(c, minutes * 60.0, 1.0)
 	# A Pill Halo in the bag drinks the dense Qi of a cave abode (S15).

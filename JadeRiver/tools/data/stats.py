@@ -102,6 +102,19 @@ def build():
         "toxicity": {"tolerance_base": 30, "drain_per_min": 1, "meditate_drain_mult": 2, "repeat_window_s": 300,
                      "repeat_factor": 0.5},
         "hollowing": {"valley_cap": 49, "decay_per_min": 1, "meditate_mult": 3},
+        # Gap report G1 · what pills cost over a life. An accumulation pill works at 1 / (1 + 0.25 x doses of its
+        # family); every major breakthrough forgets one dose. A support pill stops helping a breakthrough after
+        # two failed attempts at it. Above 30% of a great realm's QP from pills the foundation is hollow; 5% of
+        # toxicity stays as residue (-1% accumulation per 10, at most -10%). Settle foundation drains both.
+        "pill_life": {"resistance_step": 0.25, "support_fail_limit": 2, "hollow_share": 0.30, "residue_share": 0.05,
+                      "residue_step": 10, "residue_step_pct": 0.01, "residue_cap_pct": 0.10,
+                      "settle_share_per_h": 0.06, "settle_residue_per_h": 3},
+        # The heart-demon meter: 25 points are one risk step at a major breakthrough and one more Heart Demon at
+        # the Reflection. Sin feeds it; meditation and Calm Incense drain it.
+        "heart_demon": {"step": 25, "method_switch": 10, "forced_breakthrough": 5, "forced_supports": 2, "death": 3,
+                        "per_sin": 0.2, "meditate_drain_per_min": 0.25},
+        # The karma ledger: 100 merit eases one major breakthrough in each great realm by a step.
+        "karma": {"merit_step": 100, "black_market_sin": 2},
         # S17 hazards: below the answer an effect falls off to half; answered, pushes and statuses stop
         # and a strike still deals this share of its damage.
         "hazard": {"partial": 0.5, "answered_damage": 0.35, "shelter_radius": 220, "flyer_push": 1.5},
@@ -274,6 +287,16 @@ def build():
             "toxicity": {"flawed": 1.5, "pill_grain": 0.5},
             "rare": {"pill_grain": 0.2, "pill_halo": 0.06, "pill_soul": 0.015},
             "halo": {"min_density": 2.0, "per_hour": 0.05, "cap": 0.5},
+            # The fire under the furnace (S15 "rare fire"): it widens the strike band and decides how far a
+            # perfect run can climb. Charcoal stops at Perfect; Earth Fire (vent rooms) and Beast Fire (a core per
+            # batch) reach Grain; a Heavenly Flame, absorbed for good, reaches Halo and Soul. So does a named furnace.
+            "fires": {"charcoal": {"band": 0.0, "rare": []},
+                      "earth_fire": {"band": 0.10, "rare": ["pill_grain"], "needs": "earth_vent"},
+                      "beast_fire": {"band": 0.15, "rare": ["pill_grain"], "consumes": "core"},
+                      "heavenly_flame": {"band": 0.20, "rare": ["pill_grain", "pill_halo", "pill_soul"], "needs": "flame"}},
+            # Pill marks: 0-9 gold lines by quality; each adds 2% to the pill's effect. Pills never decay.
+            "marks": {"per_line": 0.02, "ranges": {"flawed": [0, 0], "common": [0, 1], "fine": [1, 3], "superior": [2, 5], "perfect": [4, 7],
+                                                   "pill_grain": [6, 8], "pill_halo": [7, 9], "pill_soul": [9, 9]}},
             "soul": {"chance": 0.5, "effects": [
                 {"id": "clear_mind", "kind": "add_modifier", "stat": "insight", "op": "flat", "value": 10, "duration": 1800, "source": "pill_soul"},
                 {"id": "steady_heart", "kind": "add_composure", "amount": 25},

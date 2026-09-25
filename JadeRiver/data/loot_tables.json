@@ -2215,6 +2215,24 @@
    "guaranteed": []
   },
   {
+   "id": "heart_demon",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": []
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
    "id": "elder_gu",
    "groups": [],
    "coins": {

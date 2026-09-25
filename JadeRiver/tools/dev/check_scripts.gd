@@ -11,7 +11,8 @@ func _process(_delta: float) -> bool:
 	for dir in ["res://scripts", "res://tests"]:
 		for path in _walk(dir):
 			var s = load(path)
-			if s == null:
+			# A script with a parse error still loads; it just cannot be instantiated.
+			if s == null or not (s as GDScript).can_instantiate():
 				bad += 1
 				print("FAILED ", path)
 	print("check_scripts done, failures: ", bad)

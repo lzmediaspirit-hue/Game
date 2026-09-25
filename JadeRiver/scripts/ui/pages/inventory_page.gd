@@ -85,6 +85,7 @@ func draw_page() -> void:
 				else:
 					slot_box(r2, str(s.id), int(s.get("count", 1)), str(s.get("quality", "")), "bag", i, int(sel.get("bag", -1)) == i,
 						inv.locked.has(int(s.get("uid", -1))))
+					pill_marks(r2, int(s.get("marks", 0)))
 					if inv.new_items.has(str(s.id)): draw_circle(r2.position + Vector2(cell - 8, 8), 5, UiKit.BRIGHT_JADE)
 		)
 		text(Vector2(grid.position.x, grid.end.y + 36), "%d / %d" % [inv.bag.size() - inv.free_slots(), inv.capacity()], 18, UiKit.MIST)
@@ -126,6 +127,7 @@ func _draw_detail(r: Rect2) -> void:
 	var name_col := UiKit.quality_color(q) if q != "" else UiKit.grade_color(str(def.get("grade", "plain")))
 	var y := r.position.y + 16
 	slot_box(Rect2(r.position.x + 16, y, 64, 64), id, int(s.get("count", 1)), q)
+	pill_marks(Rect2(r.position.x + 16, y, 64, 64), int(s.get("marks", 0)))
 	para(Rect2(r.position.x + 92, y - 4, r.size.x - 104, 60), ContentDB.item_name(id) + (" +%d" % int(s.enhance) if int(s.get("enhance", 0)) > 0 else ""), 20, name_col, 2)
 	y += 78
 	var sub := "%s · %s" % [str(def.get("grade", "plain")).capitalize(), str(def.get("slot", def.get("type", ""))).replace("_", " ").capitalize()]
@@ -152,6 +154,9 @@ func _draw_detail(r: Rect2) -> void:
 		# S15: quality sets potency; a Pill Halo also shows what dense-Qi seclusion has added.
 		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.potency") % int(round(InventoryAuthority.pill_potency(s) * 100.0)), 16, name_col)
 		y += 22
+		if int(s.get("marks", 0)) > 0:
+			text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.pill_marks") % [int(s.marks), int(s.marks) * 2], 16, UiKit.GOLD)
+			y += 22
 		if q == "pill_halo":
 			text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.halo_charge") % int(round(float(s.get("halo", 0.0)) * 100.0)), 16, UiKit.PALE_GOLD)
 			y += 22
@@ -165,7 +170,10 @@ func _draw_detail(r: Rect2) -> void:
 			var ok := RequirementRules.passes(def.get("requires", {}), Game.ctx(ch))
 			btn(Rect2(bx, by, bw, 50), Tx.t("ui.inventory.equip"), "equip", null, true, ok, RequirementRules.first_failure_text(def.get("requires", {}), Game.ctx(ch)))
 		elif def.has("use"):
-			btn(Rect2(bx, by, bw, 50), Tx.t("ui.inventory.use"), "use", null, true)
+			var verb := Tx.t("ui.inventory.use")
+			if def.has("raw"): verb = Tx.t("ui.inventory.absorb") if def.has("core") else Tx.t("ui.inventory.eat_raw")
+			elif str(def.get("use_action", "")) == "absorb_flame": verb = Tx.t("ui.inventory.absorb")
+			btn(Rect2(bx, by, bw, 50), verb, "use", null, true)
 			var q_on = ch.inventory.quick_use == id
 			btn(Rect2(bx + bw + 10, by, bw, 50), Tx.t("ui.inventory.quick") if q_on else Tx.t("ui.inventory.quick_use"), "quick", null, false, Unlocks.is_unlocked(ch.id, "quick_use"), Tx.t("ui.inventory.quick_use_is_not_unlocked"))
 		btn(Rect2(bx, by + 58, bw, 46), Tx.t("ui.inventory.unlock") if ch.inventory.locked.has(int(s.get("uid", -1))) else Tx.t("ui.inventory.lock"), "lock")

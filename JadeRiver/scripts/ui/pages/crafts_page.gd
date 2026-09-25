@@ -15,6 +15,9 @@ var needle := 0.0
 var needle_dir := 1.0
 var scores: Array = []
 var band := Vector2(0.45, 0.62)
+var fire := "charcoal"
+## The fires under a furnace (gap report G1), in the order the selector shows them.
+const FIRES := ["charcoal", "earth_fire", "beast_fire", "heavenly_flame"]
 
 func _init() -> void:
 	title = Tx.t("ui.crafts.crafts")
@@ -29,6 +32,9 @@ func setup() -> void:
 	if not Unlocks.is_unlocked(ch.id, "star_charting"):
 		tabs = tabs.slice(0, 4)
 		if want >= 4: want = -1
+	# A page opened for one recipe (a quest link, or a preview: --open-page=alchemy:healing_pill).
+	var pick := str(args.get("tab", ""))
+	if ContentDB.has_entry("recipes", pick): sel = pick
 	if want >= 0: tab = want
 	else:
 		for i in tabs.size():
@@ -97,6 +103,21 @@ func draw_page() -> void:
 		btn(Rect2(right.position.x + 24, right.end.y - 140, 56, 50), "−", "count", -1)
 		text(Vector2(right.position.x + 84, right.end.y - 104), "×%d" % count, 22, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 70)
 		btn(Rect2(right.position.x + 158, right.end.y - 140, 56, 50), "+", "count", 1)
+	if craft == "alchemy":
+		# The furnace you carry and the fire under it (G1).
+		var fu: Dictionary = Game.crafting.furnace_of(ch)
+		if str(fu.get("id", "")) != "":
+			text(Vector2(right.position.x + 232, right.end.y - 122), ContentDB.item_name(str(fu.id)), 17, UiKit.PALE_GOLD)
+			text(Vector2(right.position.x + 232, right.end.y - 100), Tx.t("ui.crafts.furnace_stats") % [int(fu.get("batch", 1)), int(round(float(fu.get("band", 0.0)) * 100)),
+				int(round(float(fu.get("yield", 0.0)) * 100))], 15, UiKit.MIST)
+		if not game_on:
+			var have: Array = Game.crafting.fires_available(ch)
+			if not fire in have: fire = "charcoal"
+			var fw := (right.size.x - 48 - 24) / 4.0
+			for i in FIRES.size():
+				var f: String = FIRES[i]
+				var fr := Rect2(right.position.x + 24 + i * (fw + 8), right.end.y - 212, fw, 50)
+				btn(fr, Tx.t("ui.crafts.fire_" + f), "fire", f, fire == f, f in have, Tx.t("ui.crafts.fire_" + f + "_locked"), 17)
 	var why2 := Game.crafting.recipe_check(ch, sel, count, craft)
 	if game_on: _draw_minigame(Rect2(right.position.x + 24, right.end.y - 210, right.size.x - 48, 60))
 	var label = {"cooking": Tx.t("ui.crafts.cook"), "alchemy": Tx.t("ui.crafts.refine"), "smithing": Tx.t("ui.crafts.forge"), "formations": Tx.t("ui.crafts.etch"),
@@ -137,7 +158,8 @@ func on_action(id: String, data) -> void:
 			sel = str(data)
 			count = 1
 			game_on = false
-		"count": count = clampi(count + int(data), 1, 10)
+		"count": count = clampi(count + int(data), 1, int(Game.crafting.furnace_of(ch).get("batch", 10)) if craft == "alchemy" else 10)
+		"fire": fire = str(data)
 		"craft":
 			if DIRECT.has(craft):
 				var r := submit({"type": DIRECT[craft], "recipe": sel, "count": count if craft in ["cooking", "formations"] else 1})
@@ -151,20 +173,26 @@ func on_action(id: String, data) -> void:
 				needle = 0.0
 				needle_dir = 1.0
 				band = Vector2(0.4 + Rng.stream(c().id, "minigame").randf() * 0.2, 0.0)
-				band.y = band.x + 0.16
+				band.y = band.x + 0.16 * _band_mult(craft)
 		"strike":
 			# Crafting scores the strike (craft_step_result); the page only reports where it landed.
 			var mid := (band.x + band.y) * 0.5
-			var st := submit({"type": "craft_step", "recipe": sel, "craft": "alchemy" if craft == "alchemy" else "smithing", "offset": needle - mid})
+			# The band drawn is the band scored: the authority widens its tolerance by the same fire.
+			var st := submit({"type": "craft_step", "recipe": sel, "craft": "alchemy" if craft == "alchemy" else "smithing", "offset": needle - mid,
+				"fire": fire})
 			scores.append(float(st.get("score", 0.0)))
 			Audio.play("forge" if craft == "smithing" else "alchemy", "UI")
 			if scores.size() >= int(ContentDB.curve("craft_step.steps", 3)):
 				game_on = false
-				var r2 := submit({"type": "refine" if craft == "alchemy" else "forge", "recipe": sel, "count": count})
-				if r2.get("ok", false): flash(Tx.t("ui.crafts.quality_made") % [str(r2.quality).capitalize(), int(r2.count)])
+				var r2 := submit({"type": "refine" if craft == "alchemy" else "forge", "recipe": sel, "count": count, "fire": fire})
+				if r2.get("ok", false):
+					var made := Tx.t("ui.crafts.quality_made") % [str(r2.quality).replace("_", " ").capitalize(), int(r2.count)]
+					if int(r2.get("marks", 0)) > 0: made += " · " + Tx.t("ui.crafts.marks") % int(r2.marks)
+					flash(made)
+				elif str(r2.get("text", "")) != "": flash(str(r2.text))
 			else:
 				band.x = 0.25 + Rng.stream(c().id, "minigame").randf() * 0.5
-				band.y = band.x + 0.14
+				band.y = band.x + 0.14 * _band_mult(craft)
 		"queue":
 			if submit({"type": "queue_auto_refine", "recipe": sel, "count": count}).get("ok", false):
 				flash(Tx.t("ui.crafts.batch_queued"))
@@ -173,3 +201,6 @@ func on_action(id: String, data) -> void:
 		"_tab":
 			sel = ""
 			game_on = false
+
+func _band_mult(craft: String) -> float:
+	return Game.crafting.band_mult(c(), fire) if craft == "alchemy" else 1.0

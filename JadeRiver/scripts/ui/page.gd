@@ -257,6 +257,18 @@ func slot_box(rect: Rect2, item_id: String, count := 0, quality := "", id := "",
 	if selected: draw_style_box(UiKit.style("selected_slot_glow"), rect.grow(4))
 	if id != "": region(rect, id, data)
 
+## Pill marks (G1): one short gold line per mark along the slot's foot, 0-9.
+func pill_marks(rect: Rect2, marks: int) -> void:
+	if marks <= 0: return
+	var w := 3.0
+	var gap := 2.0
+	var total := marks * w + (marks - 1) * gap
+	var x0 := rect.get_center().x - total * 0.5
+	for i in marks:
+		var lr := Rect2(x0 + i * (w + gap), rect.end.y - 12, w, 7)
+		draw_rect(lr.grow(1), Color(UiKit.INK, 0.8))
+		draw_rect(lr, UiKit.GOLD)
+
 ## Pill Grain, Halo and Soul (S15): a soft pulsing halo behind the icon and a corner mark
 ## (dot, ring, star) so the quality reads without relying on colour.
 func _pill_glow(rect: Rect2, quality: String) -> void:

@@ -5,6 +5,52 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### G1 · What pills cost, heart demons, karma, fire and furnace (gap report priorities 1–3)
+- **Lifetime pill resistance.** Each dose of a pill family (Qi, body, soul or insight) weakens the next:
+  1 / (1 + 0.25 × doses). A major breakthrough forgets one dose. A Pill Grain slips past resistance. A support
+  pill that has failed the same breakthrough twice stops lowering its risk.
+- **Foundation.** Every great realm tracks how much of its Qi came from pills, raw herbs and cores.
+  - Above 30 % the foundation is hollow: the next major breakthrough counts it as an unmet soft requirement,
+    and a failure is always *Weak foundation*.
+  - The new seclusion focus **Settle foundation** makes pill-given Qi your own and burns off residue.
+- **Residue.** 5 % of all toxicity stays behind. Each 10 residue costs 1 % accumulation, up to −10 %.
+  Purging Pills don't touch it. A **flawless Heaven's Cleansing** (not hit once) washes it all away.
+- **Heart-demon meter (0–100).** It is fed by:
+  - a changed method (+10);
+  - a pill-forced breakthrough with two or more supports (+5);
+  - a defeat (+3);
+  - sin.
+
+  Each 25 is a risk step at every major breakthrough and one more crimson **Heart Demon**, wearing your face,
+  at the Trial of Reflections. Meditation wears it down. Myriad-Year Calm Incense now really clears 40.
+- **Karma ledger.**
+  - Merit comes from the Hollow Night rescues, resealing the Tomb, freeing Gu, burning the Black Ledger,
+    and ten helping quests. 100 merit eases one great breakthrough in each realm.
+  - Sin comes from leaving Gu in chains, sending the ledger pages home, and every purchase in Broker Mu's
+    back room. Sin feeds the heart demon.
+  - Named debts come back as letters. Freed, Gu repays you two days later; the Gu family remembers otherwise.
+- **Fire and furnace** (the S15 "rare fire or special furnace", now defined).
+  - Fires:
+    - Charcoal takes a pill as far as Perfect.
+    - Earth Fire, at a vent in Whitewater Gorge and on the Scorpion Flats, reaches Pill Grain.
+    - Beast Fire, burning one beast core a batch, also reaches Pill Grain.
+    - Heavenly Flames, absorbed for good, reach Halo and Soul. They are the Cold Lamp (Drowned Abbot),
+      the Sunscar Throne Ember (Tomb King) and the Comet Tail (Captain Rao), each a Codex collectable.
+  - Each fire widens the strike band. The Crafts page has a fire selector.
+  - Furnaces are items that set the batch (Bronze 3, Earth-Vein 5, Cloud-Pattern 8, Mystic Tripod 10),
+    with band, filter and yield-chance stats. Each is cast around the last at the forge.
+    **Alchemist Fen's Nine-Dragon Cauldron** is a named furnace that reaches Soul on any fire.
+- **Pill marks.** Every batch rolls 0–9 gold lines by quality, each +2 % effect, drawn on the slot. When a Halo or
+  Soul pill forms, a coloured pill cloud boils up and nearby NPCs cry out.
+- **Undefined rules settled.**
+  - Pills never decay; the Codex says so.
+  - Auto-refine teaches 25 % of the XP refining by hand does.
+  - Herbs can be eaten raw in need (a third of a pill, twice the toxicity), and beast cores can be absorbed
+    for Qi.
+- The Cultivation page has a new **Heart** tab: the meter with its steps, merit, sin and debts, the foundation
+  share against the hollow line, residue, and each pill family's resistance.
+- 38 new rules checks drive every G1 rule through the real authorities.
+
 ### Text and button quality pass
 - **Type.** Words and page figures are now set in Cormorant Garamond, as the style guide asks: semi-bold for
   text, bold for headers, with lining figures so "Lv 0" no longer reads as "Lv o". Previously every label was

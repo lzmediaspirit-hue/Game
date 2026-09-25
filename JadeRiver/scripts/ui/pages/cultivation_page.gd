@@ -1,6 +1,7 @@
 extends Page
 ## Cultivation (S04–S10, Part 9.6): Overview with the realm, progress, stability and
-## bottleneck; Foundation (body and meridians); Methods; Dao; Seclusion.
+## bottleneck; Foundation (body and meridians); Heart (what the past costs: heart demons, karma,
+## a hollow foundation, residue and pill resistance, gap report G1); Methods; Dao; Seclusion.
 
 func _init() -> void:
 	title = Tx.t("ui.cultivation.cultivation")
@@ -9,10 +10,12 @@ func setup() -> void:
 	var ch = c()
 	tabs = [{"id": "overview", "label": Tx.t("ui.cultivation.overview")},
 		{"id": "foundation", "label": Tx.t("ui.cultivation.foundation"), "locked": "" if Unlocks.is_unlocked(ch.id, "foundation") else Unlocks.locked_text("foundation")},
+		{"id": "heart", "label": Tx.t("ui.cultivation.heart")},
 		{"id": "methods", "label": Tx.t("ui.cultivation.methods")},
 		{"id": "dao", "label": Tx.t("ui.cultivation.dao"), "locked": "" if Unlocks.is_unlocked(ch.id, "dao_tree") else Unlocks.locked_text("dao_tree")},
 		{"id": "seclusion", "label": Tx.t("ui.cultivation.seclusion"), "locked": "" if Unlocks.is_unlocked(ch.id, "seclusion") else Unlocks.locked_text("seclusion")}]
-	if page_id == "seclusion" and Unlocks.is_unlocked(ch.id, "seclusion"): tab = 4
+	if page_id == "seclusion" and Unlocks.is_unlocked(ch.id, "seclusion"): tab = 5
+	if page_id == "heart": tab = 2
 
 func draw_page() -> void:
 	var ch = c()
@@ -20,6 +23,7 @@ func draw_page() -> void:
 	match str(tabs[tab].id):
 		"overview": _overview(ch)
 		"foundation": _foundation(ch)
+		"heart": _heart(ch)
 		"methods": _methods(ch)
 		"dao": _dao(ch)
 		"seclusion": _seclusion(ch)
@@ -99,6 +103,73 @@ func _foundation(ch) -> void:
 	var free := not ProgressionRules.at_least(cu.realm_key, "qi_unfurling_1")
 	btn(Rect2(r.position.x + 24, r.end.y - 70, 420, 52), Tx.t("ui.cultivation.reset_free") if free else Tx.t("ui.cultivation.reset_meridian_reversal_pill"), "reset_meridians")
 
+## Heart (G1): the meter, the ledger, the foundation and what the pills have left behind.
+func _heart(ch) -> void:
+	var cu: CultivatorState = ch.cultivator
+	var left := Rect2(content.position.x, content.position.y, 540, content.size.y)
+	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
+	panel(left)
+	panel(right)
+	var x := left.position.x + 24
+	var y := left.position.y + 44
+	heading(Vector2(x, y), Tx.t("ui.cultivation.heart_demons"), left.size.x - 48)
+	y += 26
+	var hb := Rect2(x, y, left.size.x - 48, 30)
+	bar(hb, cu.heart_demon / 100.0, Color("b0283c"), "%d / 100" % int(cu.heart_demon))
+	for k in [25, 50, 75]:
+		var tx: float = hb.position.x + hb.size.x * float(k) / 100.0
+		draw_line(Vector2(tx, hb.position.y - 4), Vector2(tx, hb.end.y + 4), Color(UiKit.PALE_GOLD, 0.7), 2)
+	y += 62
+	var steps := ProgressionRules.heart_demon_steps(cu)
+	para(Rect2(x, y - 20, left.size.x - 48, 70), Tx.t("ui.cultivation.heart_demon_steps") % steps if steps > 0 else Tx.t("ui.cultivation.heart_calm"), 17,
+		UiKit.RED if steps > 0 else UiKit.MIST, 3)
+	y += 70
+	heading(Vector2(x, y), Tx.t("ui.cultivation.karma"), left.size.x - 48)
+	y += 40
+	text(Vector2(x, y), Tx.t("ui.cultivation.merit") % cu.merit, 21, UiKit.PALE_GOLD)
+	text(Vector2(x + 250, y), Tx.t("ui.cultivation.sin") % cu.sin, 21, Color("e07a7a"))
+	y += 28
+	var merit_ready := ProgressionRules.merit_step(cu) > 0
+	text(Vector2(x, y), Tx.t("ui.cultivation.merit_ready") if merit_ready else Tx.t("ui.cultivation.merit_not_ready") % int(ContentDB.stat_const("karma", {}).get("merit_step", 100)),
+		16, UiKit.BRIGHT_JADE if merit_ready else UiKit.MIST)
+	y += 34
+	for id in cu.debts:
+		var d: Dictionary = cu.debts[id]
+		text(Vector2(x, y), Tx.t("ui.cultivation.debt_" + str(id)), 17, UiKit.PAPER)
+		text(Vector2(left.end.x - 24, y), Tx.t("ui.cultivation.debt_settled") if d.get("paid", false) else Tx.t("ui.cultivation.debt_open"), 16,
+			UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, -1)
+		y += 26
+	# Right: foundation, residue, resistance.
+	x = right.position.x + 24
+	y = right.position.y + 44
+	heading(Vector2(x, y), Tx.t("ui.cultivation.foundation_share"), right.size.x - 48)
+	y += 26
+	var share := ProgressionRules.foundation_share(cu)
+	var hollow_at := float(ContentDB.stat_const("pill_life", {}).get("hollow_share", 0.3))
+	var fb := Rect2(x, y, right.size.x - 48, 30)
+	bar(fb, share, Color("c8923e") if share > hollow_at else UiKit.JADE, "%d%%" % int(round(share * 100)))
+	var hx := fb.position.x + fb.size.x * hollow_at
+	draw_line(Vector2(hx, fb.position.y - 4), Vector2(hx, fb.end.y + 4), UiKit.RED, 2)
+	y += 60
+	para(Rect2(x, y - 20, right.size.x - 48, 60), Tx.t("ui.cultivation.foundation_hollow") if share > hollow_at else Tx.t("ui.cultivation.foundation_sound"), 16,
+		Color("e0a860") if share > hollow_at else UiKit.MIST, 2)
+	y += 56
+	heading(Vector2(x, y), Tx.t("ui.cultivation.residue"), right.size.x - 48)
+	y += 36
+	var pen := int(round(ProgressionRules.residue_penalty(cu) * 100))
+	text(Vector2(x, y), Tx.t("ui.cultivation.residue_value") % [cu.residue, pen] if pen > 0 else Tx.t("ui.cultivation.residue_harmless") % cu.residue, 18,
+		UiKit.PAPER if pen == 0 else Color("e0a860"))
+	y += 44
+	heading(Vector2(x, y), Tx.t("ui.cultivation.pill_resistance"), right.size.x - 48)
+	y += 36
+	if cu.pill_resistance.is_empty():
+		text(Vector2(x, y), Tx.t("ui.cultivation.no_resistance"), 17, UiKit.MIST)
+	for fam in cu.pill_resistance:
+		text(Vector2(x, y), Tx.t("ui.cultivation.family_" + str(fam)), 18, UiKit.PAPER)
+		text(Vector2(right.end.x - 24, y), Tx.t("ui.cultivation.resistance_row") % [int(cu.pill_resistance[fam]),
+			int(round(ProgressionRules.resistance_factor(cu, str(fam)) * 100))], 17, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, -1)
+		y += 28
+
 func _methods(ch) -> void:
 	var cu: CultivatorState = ch.cultivator
 	var r := Rect2(content.position.x, content.position.y, content.size.x, content.size.y)
@@ -149,7 +220,8 @@ func _seclusion(ch) -> void:
 	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 90)), Tx.t("ui.cultivation.choose_what_to_cultivate_while") % int(cap), 19, UiKit.PAPER)
 	var foci := [["accumulate", Tx.t("ui.cultivation.accumulate"), Tx.t("ui.cultivation.realm_progress"), "seclusion"], ["temper_body", Tx.t("ui.cultivation.temper_body"), Tx.t("ui.cultivation.body_training"), "seclusion"],
 		["heal", Tx.t("ui.cultivation.heal"), Tx.t("ui.cultivation.treat_injuries"), "seclusion"], ["contemplate", Tx.t("ui.cultivation.contemplate"), Tx.t("ui.cultivation.dao_insight"), "insight_sites"],
-		["refine_qi", Tx.t("ui.cultivation.refine_qi"), Tx.t("ui.cultivation.purity"), "refine_qi"], ["nourish_soul", Tx.t("ui.cultivation.nourish_soul"), Tx.t("ui.cultivation.soul"), "nourish_soul"]]
+		["refine_qi", Tx.t("ui.cultivation.refine_qi"), Tx.t("ui.cultivation.purity"), "refine_qi"], ["nourish_soul", Tx.t("ui.cultivation.nourish_soul"), Tx.t("ui.cultivation.soul"), "nourish_soul"],
+		["settle_foundation", Tx.t("ui.cultivation.settle_foundation"), Tx.t("ui.cultivation.settle_foundation_desc"), "seclusion"]]
 	var cur := str(ch.seclusion.get("focus", ""))
 	for i in foci.size():
 		var f: Array = foci[i]

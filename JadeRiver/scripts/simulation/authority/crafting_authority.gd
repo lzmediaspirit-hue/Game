@@ -21,14 +21,14 @@ const RANK_CAPS := {
 	"shipwright": [["sage_3", "adept"], ["sage_sovereign_1", "expert"], ["sage_sovereign_3", "master"]],
 }
 ## Stations and the verb each craft uses; the Starsea crafts take no mini-game.
-const STATIONS := {"cooking": ["cooking_pot"], "alchemy": ["alchemy_furnace"], "smithing": ["forge_anvil"],
+const STATIONS := {"cooking": ["cooking_pot"], "alchemy": ["alchemy_furnace", "earth_vent"], "smithing": ["forge_anvil"],
 	"star_charting": ["chart_table"], "shipwright": ["shipyard_slip"]}
 const GRADE_CAP := [["qi_kindling_1", "common"], ["qi_unfurling_1", "earth"], ["cloud_stride_1", "heaven"], ["heaven_glimpse_1", "mystic"], ["sage_1", "spirit"],
 	["sage_sovereign_1", "sage"]]
 
 func intents() -> Array:
 	return ["complete_node", "catch_fish", "cook", "craft_step", "refine", "queue_auto_refine", "collect_auto_refine", "forge", "enhance", "salvage_item",
-		"chart_route", "build_vessel"]
+		"chart_route", "build_vessel", "absorb_flame"]
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -37,10 +37,13 @@ func handle(intent: Dictionary) -> Dictionary:
 		"complete_node": return complete_node(c, str(intent.get("object", "")))
 		"catch_fish": return catch_fish(c, str(intent.get("object", "")), intent.get("result", {}))
 		"cook": return craft(c, str(intent.get("recipe", "")), maxi(1, int(intent.get("count", 1))), [], "cooking")
-		"craft_step": return craft_step(c, str(intent.get("recipe", "")), str(intent.get("craft", "alchemy")), float(intent.get("offset", 1.0)))
-		"refine": return craft(c, str(intent.get("recipe", "")), clampi(int(intent.get("count", 1)), 1, 10), _take_steps(c, str(intent.get("recipe", ""))), "alchemy")
+		"craft_step": return craft_step(c, str(intent.get("recipe", "")), str(intent.get("craft", "alchemy")), float(intent.get("offset", 1.0)),
+			str(intent.get("fire", "charcoal")))
+		"refine": return craft(c, str(intent.get("recipe", "")), clampi(int(intent.get("count", 1)), 1, 10), _take_steps(c, str(intent.get("recipe", ""))), "alchemy",
+			str(intent.get("fire", "charcoal")))
 		"forge": return craft(c, str(intent.get("recipe", "")), 1, _take_steps(c, str(intent.get("recipe", ""))), "smithing")
 		"queue_auto_refine": return queue_auto(c, str(intent.get("recipe", "")), clampi(int(intent.get("count", 1)), 1, 10))
+		"absorb_flame": return absorb_flame(c, int(intent.get("index", -1)))
 		"collect_auto_refine": return collect_auto(c)
 		"enhance": return enhance(c, int(intent.get("index", -1)), str(intent.get("slot", "")))
 		"salvage_item": return salvage(c, int(intent.get("index", -1)))
@@ -204,13 +207,14 @@ func recipe_check(c, recipe_id: String, count: int, craft: String) -> String:
 
 ## One strike of the alchemy or forge mini-game: `offset` is how far from the band centre
 ## it landed (0 = dead centre). Scored here, so the craft uses only what Crafting measured.
-func craft_step(c, recipe_id: String, craft_kind: String, offset: float) -> Dictionary:
+func craft_step(c, recipe_id: String, craft_kind: String, offset: float, fire := "charcoal") -> Dictionary:
 	if not craft_kind in ["alchemy", "smithing"] or not ContentDB.has_entry("recipes", recipe_id): return fail("bad_step")
 	var k: Dictionary = ContentDB.curve("craft_step", {})
 	var session: Dictionary = steps.get(c.id, {})
 	if str(session.get("recipe", "")) != recipe_id or (session.get("scores", []) as Array).size() >= int(k.get("steps", 3)):
-		session = {"recipe": recipe_id, "craft": craft_kind, "scores": []}
-	var score := clampf(1.0 - absf(offset) / float(k.get("tolerance", 0.3)), 0.0, 1.0)
+		session = {"recipe": recipe_id, "craft": craft_kind, "scores": [], "fire": fire if craft_kind == "alchemy" and fire in fires_available(c) else "charcoal"}
+	var tolerance := float(k.get("tolerance", 0.3)) * (band_mult(c, str(session.get("fire", "charcoal"))) if craft_kind == "alchemy" else 1.0)
+	var score := clampf(1.0 - absf(offset) / tolerance, 0.0, 1.0)
 	session.scores.append(score)
 	steps[c.id] = session
 	var grade := "perfect" if score >= float(k.get("perfect", 0.85)) else ("good" if score >= float(k.get("good", 0.5)) else "miss")
@@ -222,7 +226,13 @@ func _take_steps(c, recipe_id: String) -> Array:
 	steps.erase(c.id)
 	return session.get("scores", []) if str(session.get("recipe", "")) == recipe_id else []
 
-func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String) -> Dictionary:
+func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, fire := "charcoal") -> Dictionary:
+	var furnace := furnace_of(c) if craft_kind == "alchemy" else {}
+	if craft_kind == "alchemy":
+		# The furnace sets the batch (G1); the fire must be one you have here.
+		if count > int(furnace.get("batch", 1)):
+			return fail("batch", {"text": Tx.t("sim.crafting.furnace_batch") % [ContentDB.item_name(str(furnace.get("id", ""))), int(furnace.get("batch", 1))]})
+		if not fire in fires_available(c): fire = "charcoal"
 	var why := recipe_check(c, recipe_id, count, craft_kind)
 	if why != "": return fail("cannot_craft", {"text": why})
 	var r := ContentDB.entry("recipes", recipe_id)
@@ -233,13 +243,20 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String) 
 		for s in scores: total += clampf(float(s), 0.0, 1.0)
 		var avg := total / maxf(1.0, scores.size()) if not scores.is_empty() else 0.6
 		avg += c.stats.value("crafting_control") * 0.2 + 0.05 * int(c.cultivator.daos.get("alchemy" if craft_kind == "alchemy" else "refining", {}).get("tier", 0))
+		avg += float(furnace.get("filter", 0.0))   # a cleaner furnace keeps impurities out
 		var roll := avg + rng.randf_range(-0.08, 0.08)
 		quality = "flawed" if roll < 0.35 else ("common" if roll < 0.6 else ("fine" if roll < 0.78 else ("superior" if roll < 0.9 else "perfect")))
-		if craft_kind == "alchemy" and quality == "perfect": quality = _rare_pill_quality(c, scores, rng)
+		if craft_kind == "alchemy" and quality == "perfect": quality = _rare_pill_quality(c, scores, rng, rare_allowed(furnace, fire))
 	for inp in r.get("inputs", []): game.inventory.apply_remove(c.id, str(inp.item), int(inp.count) * count, "craft:" + recipe_id)
+	if craft_kind == "alchemy" and fire == "beast_fire": game.inventory.apply_remove(c.id, _core_to_burn(c), 1, "beast_fire")
 	var produced := 0
+	# Marks and a furnace's extra pill roll on their own stream, so the crafting stream's sequence
+	# (quality, and every forged piece after it) is the same as before furnaces existed.
+	var frng := Rng.stream(c.id, "furnace")
+	var marks := _roll_marks(quality, frng) if craft_kind == "alchemy" else 0
 	for out in r.get("outputs", []):
 		var n := int(out.count) * count
+		if craft_kind == "alchemy" and frng.randf() < float(furnace.get("yield", 0.0)): n += 1   # the furnace gives one more
 		if craft_kind == "cooking" and rng.randf() < c.stats.value("insight") * 0.002: n += int(out.count)
 		if craft_kind == "smithing" and ContentDB.is_equipment(str(out.item)):
 			var def := ContentDB.item(str(out.item))
@@ -248,7 +265,7 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String) 
 				c.inventory.next_uid += 1
 				game.inventory.apply_add_instance(c.id, inst, "forge")
 		elif craft_kind == "alchemy":
-			game.inventory.apply_add(c.id, str(out.item), n, "craft", {"quality": quality})
+			game.inventory.apply_add(c.id, str(out.item), n, "craft", {"quality": quality, "marks": marks} if marks > 0 else {"quality": quality})
 		else:
 			game.inventory.apply_add(c.id, str(out.item), n, "craft")
 		produced += n
@@ -259,8 +276,70 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String) 
 	add_xp(c, craft_kind, xp)
 	if craft_kind == "alchemy": game.progression.apply_insight(c.id, "alchemy", 3.0 * count, "craft:" + recipe_id)
 	if craft_kind == "smithing": game.progression.apply_insight(c.id, "refining", 3.0, "craft:" + recipe_id)
-	emit("craft_completed", {"actor": c.id, "recipe": recipe_id, "craft": craft_kind, "quality": quality, "count": produced})
-	return ok({"quality": quality, "count": produced})
+	emit("craft_completed", {"actor": c.id, "recipe": recipe_id, "craft": craft_kind, "quality": quality, "count": produced, "marks": marks, "fire": fire})
+	if quality in ["pill_halo", "pill_soul"]: emit("pill_cloud", {"actor": c.id, "recipe": recipe_id, "quality": quality})
+	return ok({"quality": quality, "count": produced, "marks": marks, "fire": fire})
+
+# ------------------------------------------------------------------ furnaces and fire (gap report G1)
+## The best furnace carried (batch first, then band): {id, band, batch, filter, yield, named}.
+func furnace_of(c) -> Dictionary:
+	var best := {"id": "", "band": 0.0, "batch": 1, "filter": 0.0, "yield": 0.0}
+	var ids: Array = []
+	for s in c.inventory.bag:
+		if s != null: ids.append(str(s.id))
+	for k in c.inventory.key_items: ids.append(str(k.id))
+	for id in ids:
+		var f: Dictionary = ContentDB.item(id).get("furnace", {})
+		if f.is_empty(): continue
+		if int(f.get("batch", 1)) > int(best.batch) or (int(f.get("batch", 1)) == int(best.batch) and float(f.get("band", 0)) > float(best.band)):
+			best = f.duplicate()
+			best.id = id
+	return best
+
+## Fires this character can light here: charcoal always; Earth Fire at a vent; Beast Fire with a core to burn;
+## a Heavenly Flame once one is absorbed.
+func fires_available(c) -> Array:
+	var out := ["charcoal"]
+	if station_near(c, ["earth_vent"]): out.append("earth_fire")
+	if _core_to_burn(c) != "": out.append("beast_fire")
+	if not (c.crafting.get("flames", []) as Array).is_empty(): out.append("heavenly_flame")
+	return out
+
+## How much wider the strike band is on this fire in this character's furnace.
+func band_mult(c, fire: String) -> float:
+	var fires: Dictionary = ContentDB.config("grades").get("pill", {}).get("fires", {})
+	return 1.0 + float(fires.get(fire, {}).get("band", 0.0)) + float(furnace_of(c).get("band", 0.0))
+
+## The rare qualities a perfect run can reach: the fire's, or all three in a named furnace.
+func rare_allowed(furnace: Dictionary, fire: String) -> Array:
+	if furnace.get("named", false): return ["pill_grain", "pill_halo", "pill_soul"]
+	return ContentDB.config("grades").get("pill", {}).get("fires", {}).get(fire, {}).get("rare", [])
+
+func _core_to_burn(c) -> String:
+	for s in c.inventory.bag:
+		if s != null and ContentDB.item(str(s.id)).has("core"): return str(s.id)
+	return ""
+
+func _roll_marks(quality: String, rng: RandomNumberGenerator) -> int:
+	var r: Array = ContentDB.config("grades").get("pill", {}).get("marks", {}).get("ranges", {}).get(quality, [0, 0])
+	return rng.randi_range(int(r[0]), int(r[1]))
+
+## Absorb a Heavenly Flame: it burns under every furnace from now on. A second copy gutters into Spirit Stones.
+func absorb_flame(c, index: int) -> Dictionary:
+	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
+	var id := str(c.inventory.bag[index].id)
+	if str(ContentDB.item(id).get("use_action", "")) != "absorb_flame": return fail("not_a_flame")
+	var flames: Array = c.crafting.get("flames", [])
+	game.inventory.apply_remove_index(c.id, index, 1, "absorb_flame")
+	if flames.has(id):
+		game.economy.apply_currency("spirit_stone", 20, "flame_gutters")
+		return ok({"text": Tx.t("sim.crafting.flame_gutters") % ContentDB.item_name(id), "duplicate": true})
+	flames.append(id)
+	c.crafting["flames"] = flames
+	if ContentDB.has_entry("codex", id): game.apply_effects(c.id, [{"kind": "codex", "entry": id}], "flame")
+	emit("flame_absorbed", {"actor": c.id, "flame": id})
+	emit("system_used", {"actor": c.id, "system": "absorb_flame"})
+	return ok({"text": Tx.t("sim.crafting.flame_absorbed") % ContentDB.item_name(id)})
 
 # ------------------------------------------------------------------ natural treasures
 ## The Evergreen Heart Tree: one per character, planted in rich earth; its first fruit comes a
@@ -302,7 +381,7 @@ func tend_treasure_plot(c, o: Dictionary) -> Dictionary:
 
 ## Pill Grain, Halo and Soul (S15): a perfect run (every strike perfect, from Heart Tempering 1)
 ## plus luck; a special furnace and the Alchemy Dao improve the odds.
-func _rare_pill_quality(c, scores: Array, rng: RandomNumberGenerator) -> String:
+func _rare_pill_quality(c, scores: Array, rng: RandomNumberGenerator, allowed: Array = ["pill_grain", "pill_halo", "pill_soul"]) -> String:
 	var k: Dictionary = ContentDB.curve("craft_step", {})
 	if scores.size() < int(k.get("steps", 3)) or not Unlocks.is_unlocked(c.id, "perfect_timing"): return "perfect"
 	for sc in scores:
@@ -312,6 +391,7 @@ func _rare_pill_quality(c, scores: Array, rng: RandomNumberGenerator) -> String:
 	var roll := rng.randf()
 	var edge := 0.0
 	for q in ["pill_soul", "pill_halo", "pill_grain"]:
+		if not q in allowed: continue   # charcoal stops at Perfect (G1)
 		edge += float(rare.get(q, 0.0)) * boost
 		if roll < edge: return q
 	return "perfect"
@@ -332,6 +412,7 @@ func queue_auto(c, recipe_id: String, count: int) -> Dictionary:
 	if c.crafting.auto_queue.size() >= 5: return fail("queue_full")
 	var why := recipe_check(c, recipe_id, count, "alchemy")
 	if why != "": return fail("cannot_craft", {"text": why})
+	if count > int(furnace_of(c).get("batch", 1)): return fail("batch", {"text": Tx.t("sim.crafting.furnace_batch") % [ContentDB.item_name(str(furnace_of(c).get("id", ""))), int(furnace_of(c).get("batch", 1))]})
 	var r := ContentDB.entry("recipes", recipe_id)
 	for inp in r.get("inputs", []): game.inventory.apply_remove(c.id, str(inp.item), int(inp.count) * count, "auto_refine")
 	c.crafting.auto_queue.append({"recipe": recipe_id, "count": count, "done_utc": Clock.now_utc() + float(r.get("time_s", 300)) * count, "quality": "common"})
@@ -347,6 +428,9 @@ func collect_auto(c) -> Dictionary:
 				game.inventory.apply_add(c.id, str(out.item), int(out.count) * int(q.count), "auto_refine")
 			c.crafting.auto_queue.erase(q)
 			got += 1
+			# Auto-refine teaches a quarter of what refining by hand does (G1, matching S23's idle rule).
+			var ar := ContentDB.entry("recipes", str(q.recipe))
+			add_xp(c, "alchemy", float(ContentDB.curve("profession_xp.craft_per_grade", 10)) * (StatRules.grade_index(str(ar.get("grade", "plain"))) + 1) * int(q.count) * 0.25)
 			emit("craft_completed", {"actor": c.id, "recipe": q.recipe, "craft": "alchemy", "quality": "common", "count": q.count, "auto": true})
 	if got == 0: return fail("not_ready", {"text": Tx.t("sim.crafting.no_batch_is_finished_yet")})
 	emit("system_used", {"actor": c.id, "system": "auto_refine_collected"})

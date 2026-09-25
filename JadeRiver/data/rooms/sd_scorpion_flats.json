@@ -242,6 +242,23 @@
    ]
   },
   {
+   "id": "earth_vent_sd",
+   "type": "earth_vent",
+   "at": [
+    680,
+    900
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "alchemy"
+     }
+    ]
+   },
+   "locked_text": "Heat rises from a crack in the stone. An alchemist could use it."
+  },
+  {
    "id": "chest_cloud_mv",
    "type": "chest",
    "at": [

@@ -97,6 +97,72 @@
    "per_hour": 0.05,
    "cap": 0.5
   },
+  "fires": {
+   "charcoal": {
+    "band": 0.0,
+    "rare": []
+   },
+   "earth_fire": {
+    "band": 0.1,
+    "rare": [
+     "pill_grain"
+    ],
+    "needs": "earth_vent"
+   },
+   "beast_fire": {
+    "band": 0.15,
+    "rare": [
+     "pill_grain"
+    ],
+    "consumes": "core"
+   },
+   "heavenly_flame": {
+    "band": 0.2,
+    "rare": [
+     "pill_grain",
+     "pill_halo",
+     "pill_soul"
+    ],
+    "needs": "flame"
+   }
+  },
+  "marks": {
+   "per_line": 0.02,
+   "ranges": {
+    "flawed": [
+     0,
+     0
+    ],
+    "common": [
+     0,
+     1
+    ],
+    "fine": [
+     1,
+     3
+    ],
+    "superior": [
+     2,
+     5
+    ],
+    "perfect": [
+     4,
+     7
+    ],
+    "pill_grain": [
+     6,
+     8
+    ],
+    "pill_halo": [
+     7,
+     9
+    ],
+    "pill_soul": [
+     9,
+     9
+    ]
+   }
+  },
   "soul": {
    "chance": 0.5,
    "effects": [

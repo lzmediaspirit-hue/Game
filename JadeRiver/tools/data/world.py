@@ -1315,6 +1315,7 @@ def valley():
     r = Room("si_trial_of_reflections", "Trial of Reflections", "story", "story", 1, backdrop="mist_peak", material="floor_stone",
              music="boss", instanced=True, safe=False, spawn_point=[240, 820], dungeon_exit="",
              event={"id": "trial_of_reflections", "duration": 600, "fixed_spawns": [{"enemy": "the_reflection", "at": [1000, 840]}],
+                    "heart_demons": "heart_demon",
                     "win_on_kill": "the_reflection", "on_complete": [{"kind": "event_passed", "event": "heart_trial"}],
                     "on_timeout": [{"kind": "teleport", "target": "ja_elder_hu_peak", "portal": ""}]})
     r.portal("exit", "door", [140, 700], "ja_elder_hu_peak", "path", press_up=True, label="Leave",
@@ -2112,7 +2113,9 @@ def set_pieces():
     rows = [
         {"id": "heavens_cleansing", "name": "Heaven's Cleansing", "room_event": {"id": "heavens_cleansing", "duration": 45,
          "wave": {"enemy": "stone_guardian", "every_s": 6, "max": 3, "points": [[300, 860], [1000, 860]]},
-         "on_complete": [{"kind": "event_passed", "event": "heavens_cleansing"}, {"kind": "set_flag", "flag": "cleansing_done"}]},
+         "on_complete": [{"kind": "event_passed", "event": "heavens_cleansing"}, {"kind": "set_flag", "flag": "cleansing_done"}],
+         # Untouched by the heavens' judgment, the body is washed clean of every residue (gap report G1).
+         "on_flawless": [{"kind": "clear_residue"}, {"kind": "set_flag", "flag": "cleansing_flawless"}]},
          "requires": all_of(realm("qi_kindling_9"))},
         {"id": "riverbreath_trial", "name": "The Riverbreath Trial", "room_event": {"id": "riverbreath_trial", "duration": 40,
          "wave": {"enemy": "drowned_acolyte", "every_s": 7, "max": 3, "points": [[900, 860], [1700, 860]]},
@@ -2200,6 +2203,15 @@ def _zone_chest(r):
 def _ledge_reward(r, sid, x, width, h, loot=None):
     o = r.chest([x + width // 2, 665], loot=loot or _zone_chest(r), level=max(1, r.d["level_range"][1]), alt=h, surface=sid, oid="chest_" + sid)
     return o
+
+
+def earth_vents():
+    """Earth Fire (gap report G1): one vent to a zone, where an alchemist sets a furnace over the ground's own fire."""
+    for rid, oid, y in [("wg_rapids_terraces", "earth_vent_wg", 900), ("sd_scorpion_flats", "earth_vent_sd", 900)]:
+        r = ROOMS[rid]
+        x = next(x for x in range(600, r.w - 400, 80) if _clear(r, x, y, 180))
+        r.obj(oid, "earth_vent", [x, y], requires=all_of(unlock("alchemy")),
+              locked_text="Heat rises from a crack in the stone. An alchemist could use it.")
 
 
 def movement_extras():
@@ -2360,6 +2372,7 @@ def build():
     nine_peaks_and_canyons()
     sunscar()
     skyport_wreck()
+    earth_vents()
     movement_extras()
     movement_pass()
     check_links()

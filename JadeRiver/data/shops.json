@@ -1351,6 +1351,7 @@
    "id": "free_market",
    "name": "Broker Mu's Back Room",
    "currency": "spirit_stone",
+   "black_market": true,
    "requires": {
     "all": [
      {

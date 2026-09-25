@@ -53,6 +53,11 @@
          "count": 1
         },
         {
+         "kind": "karma",
+         "merit": 20,
+         "reason": "ledger_burned"
+        },
+        {
          "kind": "grant_title",
          "title": "ledger_burner"
         }
@@ -70,6 +75,11 @@
          "kind": "remove_item",
          "item": "black_ledger",
          "count": 1
+        },
+        {
+         "kind": "karma",
+         "sin": 10,
+         "reason": "ledger_returned"
         },
         {
          "kind": "grant_title",

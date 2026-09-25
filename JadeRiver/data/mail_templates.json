@@ -50,6 +50,18 @@
    "body": "The hammer fell in your favour. Your lot is enclosed, with the Pavilion's compliments."
   },
   {
+   "id": "gu_repays",
+   "from": "Gu, a free man",
+   "subject": "What I owe you",
+   "body": "I paid the valley what I could. This is for the fisher's child who broke my chains. A man who is paid back remembers how it felt."
+  },
+  {
+   "id": "gu_remembers",
+   "from": "Unsigned",
+   "subject": "We know your name",
+   "body": "You left our uncle in chains for the Alliance to weigh. The Gu family keeps ledgers too. One day it will be your page we open."
+  },
+  {
    "id": "elder_token",
    "from": "Your mentor",
    "subject": "An Elder's token",

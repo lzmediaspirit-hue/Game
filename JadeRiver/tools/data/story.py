@@ -428,7 +428,8 @@ def unlocks():
     u("technique_slots_2", "Techniques", all_of(realm("qi_kindling_1")), "first_technique", ["hud:skills", "page:techniques"])
     u("dao_tree", "Dao tree", all_of(realm("qi_kindling_1")), "first_technique", ["page:dao"], same_stage_ok=True, toast=False)
     u("storage", "Storage", all_of({"kind": "account_realm", "realm": "qi_kindling_1"}), "", ["page:storage"], scope="account")
-    u("alchemy", "Alchemy", all_of(realm("qi_kindling_2")), "mei_qings_furnace", [], effects=[{"kind": "grant_item", "item": "bronze_furnace", "count": 1}])
+    u("alchemy", "Alchemy", all_of(realm("qi_kindling_2")), "mei_qings_furnace", [], effects=[{"kind": "grant_item", "item": "bronze_furnace", "count": 1},
+      {"kind": "codex", "entry": "pills_and_the_body"}, {"kind": "codex", "entry": "furnaces_and_fire"}])
     u("teleport_stones", "Teleport stones", all_of(realm("qi_kindling_3")), "stones_that_move_you", ["page:teleport"],
       effects=[{"kind": "grant_item", "item": "spirit_stone_shard", "count": 2}])
     u("insight_sites", "Insight sites", all_of(realm("qi_kindling_4")), "listening_to_the_waterfall", [])
@@ -520,10 +521,18 @@ def o(kind, text, count=1, **kw):
     return d
 
 
+# Gap report G1 · the karma ledger: deeds that ease another's lot earn merit on completion.
+KARMA_QUESTS = {"grannys_remedy": 5, "the_rite": 10, "the_infirmary": 10, "what_remains": 10, "passing_it_on": 10,
+                "guos_old_wound": 10, "cleansing_the_well": 15, "grey_roofs": 10, "dous_kite_returns": 5, "a_second_try": 5}
+
+
 def quest(qid, name, kind, giver, objectives, rewards=(), hand_in=None, offer=(), complete=(), progress=(), **kw):
+    rewards = list(rewards)
+    if qid in KARMA_QUESTS:
+        rewards.append({"kind": "karma", "merit": KARMA_QUESTS[qid], "reason": qid})
     d = {"id": qid, "name": name, "kind": kind, "giver": giver, "hand_in": giver if hand_in is None else hand_in,
          "marker": kw.pop("marker", "gold" if kind in ("main", "prologue") else "blue"),
-         "objectives": list(objectives), "rewards": list(rewards)}
+         "objectives": list(objectives), "rewards": rewards}
     if offer:
         d["offer_text"] = list(offer)
     if complete:
@@ -1128,11 +1137,13 @@ def act2_quests():
         next="horns_for_the_furnace")
     quest("horns_for_the_furnace", "Horns for the Furnace", "main", "alchemist_fen", [
         o("collect", "Bring Thunderhorn horns from the Flats", 3, item="thunder_horn"),
-    ], [item("sage_condensing_pill", 1), fx("learn_recipe", recipe="sage_condensing_pill")], requires=all_of(qdone("storm_in_the_blood"), realm("heaven_glimpse_3")),
+    ], [item("sage_condensing_pill", 1), fx("learn_recipe", recipe="sage_condensing_pill"), item("nine_dragon_cauldron", 1)],
+        requires=all_of(qdone("storm_in_the_blood"), realm("heaven_glimpse_3")),
         chapter="11", target_room="tp_thunderhorn_flats",
         offer=["Heaven Glimpse 3, and you want to be a Sage. Everyone does.",
                "The condensing needs thunder. Three thunderhorn horns from the Flats. I'll press them into your pill."],
-        complete=["There. Swallow it here, where the Qi is thick. Not in a field with a rhino watching."],
+        complete=["There. Swallow it here, where the Qi is thick. Not in a field with a rhino watching.",
+                  "And take my old cauldron. Nine dragons, and every one of them drinks heat. My hands shake too much for it now."],
         next="sage")
     quest("sage", "Sage", "main", "alchemist_fen", [
         o("reach_realm", "Break through to Sage 1 (third-grade purity, the pill, a land that can hold you)", realm="sage_1"),
@@ -1566,13 +1577,13 @@ def dialogue():
     # Night: send villagers to the hut.
     tree("little_dou", [{"requires": all_of({"kind": "in_room", "room": "lf_village_night"}, noflag("dou_safe")), "node": "night"}],
          {"night": {"lines": ["The water's grey! There's something in it!"],
-                    "choices": [{"text": "Run to the hut! Now!", "effects": [{"kind": "set_flag", "flag": "dou_safe"}], "close": True}]}})
+                    "choices": [{"text": "Run to the hut! Now!", "effects": [{"kind": "set_flag", "flag": "dou_safe"}, {"kind": "karma", "merit": 10, "reason": "the_hollow_night"}], "close": True}]}})
     tree("granny_liu", [{"requires": all_of({"kind": "in_room", "room": "lf_village_night"}, noflag("granny_safe")), "node": "night"}],
          {"night": {"lines": ["My old legs... help me, child."],
-                    "choices": [{"text": "Lean on me. To Aunt Ping's hut.", "effects": [{"kind": "set_flag", "flag": "granny_safe"}], "close": True}]}})
+                    "choices": [{"text": "Lean on me. To Aunt Ping's hut.", "effects": [{"kind": "set_flag", "flag": "granny_safe"}, {"kind": "karma", "merit": 10, "reason": "the_hollow_night"}], "close": True}]}})
     tree("old_ma", [{"requires": all_of({"kind": "in_room", "room": "lf_village_night"}, noflag("ma_safe")), "node": "night"}],
          {"night": {"lines": ["My shop! My stock!"],
-                    "choices": [{"text": "Leave it! Get to the hut!", "effects": [{"kind": "set_flag", "flag": "ma_safe"}], "close": True}]}})
+                    "choices": [{"text": "Leave it! Get to the hut!", "effects": [{"kind": "set_flag", "flag": "ma_safe"}, {"kind": "karma", "merit": 10, "reason": "the_hollow_night"}], "close": True}]}})
     # Sect choice at the Recruitment Fair.
     for rid, s, sname, pitch in [("recruiter_jade", "jade_sect", "Jade Sect", "Water's patience, the sword's clarity. Jade Current Scripture: steady, deep, forgiving."),
                                  ("recruiter_cloud", "cloud_sect", "Cloud Sect", "Wind and height. Cloudpiercing Canon: fast, sharp, a little wild.")]:
@@ -1615,6 +1626,7 @@ def dialogue():
                                 {"kind": "grant_title", "title": "seal_keeper"}], "close": True},
                                {"text": "No. It goes back into the King's hand, and the tomb stays shut.",
                                 "effects": [{"kind": "set_flag", "flag": "tomb_resealed"}, {"kind": "remove_item", "item": "sunscar_seal", "count": 1},
+                                            {"kind": "karma", "merit": 20, "reason": "tomb_resealed"},
                                             {"kind": "grant_title", "title": "sunscar_sealer"}], "close": True}]},
           "waiting": {"lines": ["Go on. He is waiting on his throne, as he has for three thousand years.", "I will wait too. I am good at it."],
                       "choices": [{"text": "(Leave him.)", "close": True}]}})
@@ -1625,10 +1637,15 @@ def dialogue():
                                "I sold them the ledger for passage. They kept the ledger and kept me. The names they wanted were never the valley's.",
                                "Three disciples of the Nine Peaks sold them the Gate's watch. It is all in the ledger. Free me and it is yours."],
                      "choices": [{"text": "(Break his chains.) Go home, Gu. Pay your debts there.",
-                                  "effects": [{"kind": "set_flag", "flag": "gu_freed"}, {"kind": "grant_item", "item": "black_ledger", "count": 1}],
+                                  "effects": [{"kind": "set_flag", "flag": "gu_freed"}, {"kind": "grant_item", "item": "black_ledger", "count": 1},
+                                              {"kind": "karma", "merit": 15, "reason": "gu_freed"},
+                                              {"kind": "karma_debt", "id": "gu_repays", "due_h": 48, "mail": "gu_repays",
+                                               "attachments": [{"currency": "spirit_stone", "amount": 60}, {"item": "sentinel_core", "count": 1}]}],
                                   "close": True},
                                  {"text": "(Take the ledger from his belt.) The Alliance can decide about you.",
-                                  "effects": [{"kind": "set_flag", "flag": "gu_left"}, {"kind": "grant_item", "item": "black_ledger", "count": 1}],
+                                  "effects": [{"kind": "set_flag", "flag": "gu_left"}, {"kind": "grant_item", "item": "black_ledger", "count": 1},
+                                              {"kind": "karma", "sin": 10, "reason": "gu_left"},
+                                              {"kind": "karma_debt", "id": "gu_remembers", "due_h": 72, "mail": "gu_remembers", "attachments": []}],
                                   "close": True}]}})
     # Chapter 15: after the Gate holds, the Black Ledger's fate.
     tree("elder_zhong", [{"requires": all_of(qactive("the_gate_holds"), {"kind": "event_passed", "event": "sect_war"},
@@ -1638,9 +1655,11 @@ def dialogue():
                                "Burn it and nobody pays again. Or send each page home, and let every family decide what their secret is worth."],
                      "choices": [{"text": "Burn it. The debts end here.",
                                   "effects": [{"kind": "set_flag", "flag": "ledger_burned"}, {"kind": "remove_item", "item": "black_ledger", "count": 1},
+                                              {"kind": "karma", "merit": 20, "reason": "ledger_burned"},
                                               {"kind": "grant_title", "title": "ledger_burner"}], "close": True},
                                  {"text": "Send each page home to its family.",
                                   "effects": [{"kind": "set_flag", "flag": "ledger_returned"}, {"kind": "remove_item", "item": "black_ledger", "count": 1},
+                                              {"kind": "karma", "sin": 10, "reason": "ledger_returned"},
                                               {"kind": "grant_title", "title": "ledger_returner"}], "close": True}]}})
     tree("broker_mu", [{"requires": all_of(qdone("the_mirror_remembers"), noflag("heard_nine_seats")), "node": "rumours"}],
          {"rumours": {"lines": ["You look like someone who has seen a ghost in a lake. It happens.",
@@ -1695,6 +1714,10 @@ def mail_templates():
         {"id": "idle_report", "from": "Your disciple", "subject": "While you were away", "body": "{summary}"},
         {"id": "mentor_letter", "from": "Your mentor", "subject": "A second path", "body": "One cultivator cannot walk every road."},
         {"id": "auction_won", "from": "The Auction Pavilion", "subject": "Your lot: {item}", "body": "The hammer fell in your favour. Your lot is enclosed, with the Pavilion's compliments."},
+        {"id": "gu_repays", "from": "Gu, a free man", "subject": "What I owe you",
+         "body": "I paid the valley what I could. This is for the fisher's child who broke my chains. A man who is paid back remembers how it felt."},
+        {"id": "gu_remembers", "from": "Unsigned", "subject": "We know your name",
+         "body": "You left our uncle in chains for the Alliance to weigh. The Gu family keeps ledgers too. One day it will be your page we open."},
         {"id": "elder_token", "from": "Your mentor", "subject": "An Elder's token", "body": "Word reached the sect that you are a Sage Sovereign. Your token is an Elder's now: at any teleport stone it will call you home, and the sect will not ask for shards. Come home sometimes."},
     ]
     entries("mail_templates", rows)
@@ -1740,6 +1763,21 @@ def codex():
         {"id": "lus_crossing", "title": "Lu's Crossing", "body": "Five pages across the Expanse: the port, the lake, the tomb, the canyons, the peak. Lu sat the Presence Trial, felt himself go thin, and chose the river instead."},
         {"id": "presence_trial", "title": "The Presence Trial", "body": "Eight seats of the Nine Peaks press their Presence on one cultivator. Whoever stays themselves under it holds the key to Will Manifest."},
         {"id": "lantern_star_field", "title": "The Lantern Star Field", "body": "Past the Starsea Launch: a field of lanterns hanging in the dark. No one hangs them. They are simply there, waiting for the next age of your road."},
+        # Gap report G1: what pills cost, the heart, the ledger, fire and furnace.
+        {"id": "pills_and_the_body", "title": "What pills cost",
+         "body": "Pills never spoil, but the body remembers them. Each dose of one kind works less than the last, until a great breakthrough lets it forget one. Qi that came mostly from pills makes a hollow foundation, and 5% of every pill's poison stays behind as residue. Settle foundation in seclusion, or pass through Heaven's Cleansing untouched, to make it your own again."},
+        {"id": "heart_demons", "title": "Heart demons",
+         "body": "Doubt, a forced breakthrough, a broken path, a death, a cruelty: each feeds the heart demon. Every 25 makes a major breakthrough one step riskier and brings one more demon into the Trial of Reflections. Meditation wears it down; Calm Incense clears it."},
+        {"id": "karma", "title": "Merit and sin",
+         "body": "The world keeps a ledger. Mercy and help earn merit: a hundred of it eases one great breakthrough in each realm. Cruelty and the back-room markets earn sin, and sin feeds the heart demon. Some deeds come back as letters."},
+        {"id": "furnaces_and_fire", "title": "Furnace and fire",
+         "body": "A furnace sets the batch and how steady the heat is; better ones are cast around the last at a forge. Charcoal takes a pill as far as Perfect. Earth Fire at a vent, or a beast core burnt as Beast Fire, can reach Pill Grain. Only a Heavenly Flame, or a named furnace, reaches Halo and Soul."},
+        {"id": "cold_lamp_flame", "title": "Heavenly Flame: Cold Lamp",
+         "body": "Blue and quiet, it burned under the Drowned Shrine for two hundred years. Absorbed, it widens every strike band a fifth."},
+        {"id": "sunscar_throne_ember", "title": "Heavenly Flame: Sunscar Throne Ember",
+         "body": "Three thousand years of desert sun, banked under a dead king's throne."},
+        {"id": "comet_tail_flame", "title": "Heavenly Flame: Comet Tail",
+         "body": "White fire from a comet's tail, which Captain Rao kept in a lamp and never learned to use."},
         {"id": "sage_qi", "title": "Sage Qi", "body": "True Qi pressed until it remembers it was light. Stronger by far, and the valley could never have held it."},
         {"id": "river_of_time", "title": "River of Time and Space", "body": "Locked.", "locked": True},
         {"id": "jade_river", "title": "The Jade River", "body": "It runs through every land you will ever see."},

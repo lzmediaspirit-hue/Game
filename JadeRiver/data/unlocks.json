@@ -1057,6 +1057,14 @@
      "kind": "grant_item",
      "item": "bronze_furnace",
      "count": 1
+    },
+    {
+     "kind": "codex",
+     "entry": "pills_and_the_body"
+    },
+    {
+     "kind": "codex",
+     "entry": "furnaces_and_fire"
     }
    ],
    "scope": "character",

@@ -85,6 +85,18 @@ func _draw() -> void:
 			"flash":
 				var bright := 0.5 if Game.account.settings.get("flashes", true) else 0.15
 				draw_circle(e.pos, float(e.radius) * (0.5 + k), Color(c, bright * (1.0 - k)))
+			"pill_cloud":
+				# A Halo or Soul pill forms (G1): a coloured cloud boils up over the furnace, then thins away.
+				var fade := 1.0 if k < 0.7 else 1.0 - (k - 0.7) / 0.3
+				for i in 14:
+					var ang := i * 2.39996 + k * 1.6
+					var rr := 18.0 + (i % 5) * 11.0 + 20.0 * k
+					var pc: Vector2 = e.pos + Vector2(cos(ang) * rr * 1.5, sin(ang) * rr * 0.45 - 40.0 * k)
+					draw_circle(pc, 16.0 + (i % 3) * 6.0 + 10.0 * k, Color(c, 0.22 * fade))
+				for i in 10:
+					var ph := fmod(k * 2.0 + i / 10.0, 1.0)
+					var sp: Vector2 = e.pos + Vector2(sin(i * 1.7 + ph * 5.0) * 60.0, -20.0 - ph * 90.0)
+					draw_rect(Rect2(sp.snapped(Vector2(2, 2)), Vector2(4, 4)), Color(1.0, 0.95, 0.75, 0.9 * fade * (1.0 - ph)))
 			"text":
 				var a2 := 1.0 if k < 0.7 else 1.0 - (k - 0.7) / 0.3
 				UiKit.draw_outlined(self, e.text, e.pos + Vector2(-200, 0), int(e.size), Color(c, a2), HORIZONTAL_ALIGNMENT_CENTER, 400)

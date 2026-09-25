@@ -2346,6 +2346,93 @@
    ]
   },
   {
+   "id": "earth_vein_furnace",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "bronze_furnace",
+     "count": 1
+    },
+    {
+     "item": "jadeiron",
+     "count": 12
+    },
+    {
+     "item": "riverstone",
+     "count": 8
+    }
+   ],
+   "outputs": [
+    {
+     "item": "earth_vein_furnace",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "requires_ranks": {
+    "smithing": "adept"
+   }
+  },
+  {
+   "id": "cloud_pattern_furnace",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "earth_vein_furnace",
+     "count": 1
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 12
+    },
+    {
+     "item": "cloud_feather",
+     "count": 6
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloud_pattern_furnace",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "requires_ranks": {
+    "smithing": "expert"
+   }
+  },
+  {
+   "id": "mystic_tripod",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "cloud_pattern_furnace",
+     "count": 1
+    },
+    {
+     "item": "mystic_ore",
+     "count": 12
+    },
+    {
+     "item": "roc_feather",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mystic_tripod",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "requires_ranks": {
+    "smithing": "master"
+   }
+  },
+  {
    "id": "array_plate",
    "craft": "formations",
    "grade": "earth",

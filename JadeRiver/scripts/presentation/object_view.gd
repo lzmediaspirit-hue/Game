@@ -12,7 +12,7 @@ const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "training_s
 	"ore_vein": "copper_vein", "formation_table": "formation_node", "garden_bed": "willow_moss_patch",
 	"defence_drum": "small_bell", "treasure_plot": "treasure_plot", "treasure_tree": "nine_bough_jade_tree",
 	"star_sight": "star_sight_stone", "chart_table": "star_chart_table", "shipyard_slip": "shipyard_slip", "starsea_dock": "cloud_skiff",
-	"air_pocket": "qi_spring"}
+	"air_pocket": "qi_spring", "earth_vent": "gas_vent"}
 
 var def: Dictionary = {}
 var object_id := ""
@@ -92,6 +92,7 @@ func _draw() -> void:
 		drawn = SpriteCache.draw_prop(self, current_prop(), st, t, Vector2.ZERO, bool(def.get("flip", false)))
 	if not drawn and def.type != "pickup":
 		draw_rect(Rect2(-12, -24, 24, 24), UiKit.BRONZE)
+	if def.type == "earth_vent": _draw_earth_fire()
 	if focus:
 		var c = Game.active()
 		var avail: Dictionary = Game.world.object_available(c, def) if c else {"ok": true}
@@ -99,3 +100,14 @@ func _draw() -> void:
 		var h := SpriteCache.prop_size(current_prop()).y if prop_id != "" else 40.0
 		UiKit.draw_outlined(self, label if avail.ok else str(avail.get("text", "")), Vector2(-120, -h - 8), 16,
 			UiKit.PALE_GOLD if avail.ok else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 240)
+
+## Earth Fire (G1): tongues of flame lick up out of the vent; an alchemist can set a furnace over it.
+func _draw_earth_fire() -> void:
+	for i in 5:
+		var ph := t * (5.0 + i) + i * 1.7
+		var x := -26.0 + i * 13.0 + sin(ph) * 2.0
+		var h := 26.0 + 14.0 * absf(sin(ph * 0.8)) + (8.0 if i == 2 else 0.0)
+		var w := 7.0 + (3.0 if i == 2 else 0.0)
+		draw_colored_polygon(PackedVector2Array([Vector2(x - w, -2), Vector2(x + w, -2), Vector2(x + sin(ph * 1.3) * 3.0, -2 - h)]), Color(1.0, 0.45, 0.12, 0.75))
+		draw_colored_polygon(PackedVector2Array([Vector2(x - w * 0.5, -2), Vector2(x + w * 0.5, -2), Vector2(x + sin(ph * 1.3) * 2.0, -2 - h * 0.6)]), Color(1.0, 0.85, 0.4, 0.85))
+	draw_circle(Vector2(0, -8), 34.0, Color(1.0, 0.5, 0.15, 0.10 + 0.04 * sin(t * 6.0)))

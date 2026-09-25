@@ -46,6 +46,7 @@ const PAGES := {
 	"garden": "res://scripts/ui/pages/crafts_page.gd",
 	"fishing": "res://scripts/ui/pages/fishing_page.gd",
 	"seclusion": "res://scripts/ui/pages/cultivation_page.gd",
+	"heart": "res://scripts/ui/pages/cultivation_page.gd",
 	"library": "res://scripts/ui/pages/shop_page.gd",
 	"exchange": "res://scripts/ui/pages/exchange_page.gd",
 	"auction": "res://scripts/ui/pages/auction_page.gd",

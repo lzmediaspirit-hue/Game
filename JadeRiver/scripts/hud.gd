@@ -467,6 +467,20 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.treasure_harvested") % ContentDB.item_name(str(p.get("item", ""))), "gold")
 		"treasure_used":
 			toast(Tx.t("hud.treasure_used." + str(p.treasure)), "gold")
+		# Gap report G1: the heart, the ledger, the flames and debts that come due.
+		"heart_demon_changed":
+			if p.get("step_crossed", false):
+				if float(p.get("delta", 0)) > 0: toast(Tx.t("hud.heart_demons_stir") % int(p.value), "danger")
+				else: add_log(Tx.t("hud.heart_demons_calm"), UiKit.BRIGHT_JADE)
+		"karma_changed":
+			if int(p.get("delta_merit", 0)) > 0: add_log(Tx.t("hud.merit_gained") % int(p.delta_merit), UiKit.PALE_GOLD)
+			if int(p.get("delta_sin", 0)) > 0: add_log(Tx.t("hud.sin_gained") % int(p.delta_sin), Color("e07a7a"))
+		"flame_absorbed":
+			toast(Tx.t("hud.flame_absorbed") % ContentDB.item_name(str(p.flame)), "gold")
+		"karma_debt_repaid":
+			toast(Tx.t("hud.debt_" + str(p.debt)), "quest")
+		"room_event_flawless":
+			toast(Tx.t("hud.flawless") , "gold")
 		"pill_soul_awakened":
 			toast(Tx.t("hud.pill_soul") % Tx.t("hud.pill_soul_effect." + str(p.effect)), "gold")
 		"spar_ended":
@@ -775,7 +789,7 @@ func _draw_controls(c) -> void:
 	var ctx_glyph := ""
 	if not context.is_empty() and (not _enemy_close() or not Unlocks.is_unlocked(c.id, "attack")):
 		ctx_glyph = {"npc": "talk", "herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish", "chest": "open", "storage_chest": "open",
-			"portal": "enter", "cooking_pot": "cook", "alchemy_furnace": "alchemy", "forge_anvil": "forge", "star_sight": "gather",
+			"portal": "enter", "cooking_pot": "cook", "alchemy_furnace": "alchemy", "earth_vent": "alchemy", "forge_anvil": "forge", "star_sight": "gather",
 			"chart_table": "forge", "shipyard_slip": "forge", "starsea_dock": "enter"}.get(str(context.get("type", "")), "open")
 	if shown("attack") or ctx_glyph != "":
 		ring(attack_center, 66, Game.combat.is_busy(c.id) or channel.object != "", 1.0, pulses.has("hud:attack"))

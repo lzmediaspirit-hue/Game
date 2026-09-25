@@ -208,12 +208,13 @@ static func pill_entry(item_id: String, fields: Dictionary) -> Dictionary:
 
 ## Stacks merge only with the same item, quality and Halo charge.
 static func stack_key(s: Dictionary) -> String:
-	return "%s|%s|%.3f" % [str(s.get("id", "")), str(s.get("quality", "common")), float(s.get("halo", 0.0))]
+	return "%s|%s|%.3f|%d" % [str(s.get("id", "")), str(s.get("quality", "common")), float(s.get("halo", 0.0)), int(s.get("marks", 0))]
 
 ## Potency of one pill from its quality (Flawed 50% to Pill Soul 220%) plus any Halo charge.
 static func pill_potency(s: Dictionary) -> float:
 	var q := str(s.get("quality", "common"))
-	return float(ContentDB.config("grades").get("pill_qualities", {}).get(q, 1.0)) * (1.0 + float(s.get("halo", 0.0)))
+	var marks := float(ContentDB.config("grades").get("pill", {}).get("marks", {}).get("per_line", 0.02)) * int(s.get("marks", 0))
+	return float(ContentDB.config("grades").get("pill_qualities", {}).get(q, 1.0)) * (1.0 + float(s.get("halo", 0.0))) * (1.0 + marks)
 
 ## Pill Halo grows stronger while its owner sits in seclusion in a dense-Qi spot (S15).
 func apply_halo_growth(actor_id: String, hours: float, density: float) -> float:
@@ -367,6 +368,7 @@ static func outfit_for(c) -> Dictionary:
 # ------------------------------------------------------------------ use (S15 limits)
 func use_warning(c, def: Dictionary) -> String:
 	var p: Dictionary = def.get("pill", {})
+	if p.is_empty() and def.has("raw"): return Tx.t("sim.inventory.eat_raw_warning") % int(def.raw.get("toxicity", 10))
 	if p.is_empty(): return ""
 	var cause := str(p.get("cause", ""))
 	if c.cultivator.state == "bottleneck" and cause != "" and def.get("use", []).size() > 0:
@@ -391,6 +393,7 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 		"appraise": return game.workshop.appraise(c, index)
 		"incubate": return game.pets.incubate_egg(c, index)
 		"tame": return game.pets.attempt_tame(c, str(s.id), -1.0)
+		"absorb_flame": return game.crafting.absorb_flame(c, index)
 	# Natural treasures answer once in each great realm (the Mindwell Lotus).
 	var great_realm := str(ContentDB.realm(c.cultivator.realm_key).get("realm", ""))
 	var once := str(def.get("use_limit", "")) == "realm"
@@ -405,6 +408,15 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 	var p: Dictionary = def.get("pill", {})
 	var quality := str(s.get("quality", "common"))
 	var pill_cfg: Dictionary = ContentDB.config("grades").get("pill", {})
+	# Eaten raw (a herb, a beast core): a third of a pill's strength at twice the toxicity (G1).
+	if p.is_empty() and def.has("raw"):
+		p = {"toxicity": float(def.raw.get("toxicity", 10)), "group": "raw"}   # data already carries the doubled toxicity
+		quality = "common"
+	# Lifetime resistance (G1): each dose of a family weakens the next; a Pill Grain slips past it.
+	var family := ProgressionRules.pill_family(def)
+	if family != "" and quality != "pill_grain":
+		factor *= ProgressionRules.resistance_factor(c.cultivator, family)
+		c.cultivator.pill_resistance[family] = int(c.cultivator.pill_resistance.get(family, 0)) + 1
 	if not p.is_empty():
 		# Quality (S15): a Flawed pill poisons more, a Pill Grain less.
 		var tox := float(p.get("toxicity", 0)) * float(pill_cfg.get("toxicity", {}).get(quality, 1.0))
@@ -444,8 +456,9 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 			game.apply_effects(c.id, [extra], "pill_soul:" + str(s.id))
 			emit("pill_soul_awakened", {"actor": c.id, "item": s.id, "effect": soul_effect})
 	emit("item_used", {"actor": c.id, "item": s.id, "factor": factor})
-	if not p.is_empty(): emit("pill_used", {"actor": c.id, "item": s.id, "factor": factor, "quality": quality})
-	return ok({"factor": factor, "quality": quality, "soul_effect": soul_effect})
+	if def.has("pill"): emit("pill_used", {"actor": c.id, "item": s.id, "factor": factor, "quality": quality, "family": family,
+		"resistance": int(c.cultivator.pill_resistance.get(family, 0))})
+	return ok({"factor": factor, "quality": quality, "soul_effect": soul_effect, "family": family})
 
 func move_item(c, from: int, to: int) -> Dictionary:
 	var bag: Array = c.inventory.bag

@@ -132,7 +132,8 @@ def shops():
         {"id": "oasis_keeper", "name": "Oasis of Bones Stores", "currency": "spirit_stone", "buys_all": True,
          "stock": [s("herbal_tea"), s("rice_ball"), s("viper_antidote"), s("qi_restoration_pill"), s("storm_blood_pill"), s("cactus_water", price=12),
                    s("tough_meat")]},
-        {"id": "free_market", "name": "Broker Mu's Back Room", "currency": "spirit_stone",
+        # A back-room market (gap report G1 karma): every purchase is a small sin.
+        {"id": "free_market", "name": "Broker Mu's Back Room", "currency": "spirit_stone", "black_market": True,
          "requires": {"all": [{"kind": "flag_set", "flag": "path_independent"}]},
          "stock": [s("manual_page", price=5), s("torn_manual", price=24), s("storm_blood_pill"), s("spirit_egg", price=36)],
          "rotation": {"count": 2, "pool": [s("sage_condensing_pill", price=80), s("mirror_eye", price=70), s("jade_core", price=18),
@@ -233,6 +234,13 @@ def recipes():
         r(jade, "smithing", [("jadeiron", 3), extra, ("spirit_stone_shard", 1)], [(jade, 1)], "earth")
     r("fuel_crystal_low", "smithing", [("spirit_stone_shard", 2)], [("fuel_crystal_low", 1)], "common", default=True)
     r("fuel_crystal_mid", "smithing", [("fuel_crystal_low", 10)], [("fuel_crystal_mid", 1)], "earth")
+    # Furnaces are refined at the forge like weapons (gap report G1): each is cast around the last.
+    r("earth_vein_furnace", "smithing", [("bronze_furnace", 1), ("jadeiron", 12), ("riverstone", 8)], [("earth_vein_furnace", 1)], "earth",
+      default=True, requires_ranks={"smithing": "adept"})
+    r("cloud_pattern_furnace", "smithing", [("earth_vein_furnace", 1), ("cloudsteel_ore", 12), ("cloud_feather", 6)], [("cloud_pattern_furnace", 1)],
+      "heaven", default=True, requires_ranks={"smithing": "expert"})
+    r("mystic_tripod", "smithing", [("cloud_pattern_furnace", 1), ("mystic_ore", 12), ("roc_feather", 4)], [("mystic_tripod", 1)], "mystic",
+      default=True, requires_ranks={"smithing": "master"})
     r("array_plate", "formations", [("blank_plate", 1), ("formation_stone", 1)], [("array_plate", 1)], "earth")
     r("revival_talisman", "formations", [("talisman_paper", 2), ("ink", 1), ("mist_lotus", 1)], [("revival_talisman", 1)], "earth")
     # S16 star charts (Sage 3): 40 XP per route. Vessels need a smith's rank; the sloop a formation master's too.

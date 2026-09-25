@@ -36,6 +36,7 @@ func _main() -> void:
 	hazards_suite()
 	starsea_suite()
 	movement_suite()
+	g1_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -705,6 +706,157 @@ func movement_suite() -> void:
 			if sc.get("standable", false) or float(sc.get("height", 999)) <= 80.0: up = true
 		if not up and not str(def.get("type", "")) in ["interior", "insight", "home", "story", "event", "sect"]: flat.append(rid)
 	check(flat.size() <= 3, "fields, towns and dungeons all have something to climb %s" % str(flat))
+	Game.world.apply_teleport(c.id, back)
+
+# ------------------------------------------------------------------ what pills cost (gap report G1)
+func _bag_index(c, id: String) -> int:
+	for i in c.inventory.bag.size():
+		if c.inventory.bag[i] != null and str(c.inventory.bag[i].id) == id: return i
+	return -1
+
+func g1_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var cu: CultivatorState = c.cultivator
+	var back := str(c.position.get("room", "lf_village"))
+	cu.realm_key = "heart_tempering_3"
+	cu.state = "accumulating"
+	cu.qp = 0.0
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	# Lifetime resistance: each Qi pill works at 1 / (1 + 0.25 x doses taken); a Pill Grain slips past it.
+	cu.pill_resistance.clear()
+	Game.inventory.apply_add(c.id, "qi_gathering_pill", 3, "test")
+	var r1 := _use_fresh(c, _bag_index(c, "qi_gathering_pill"))
+	var r2 := _use_fresh(c, _bag_index(c, "qi_gathering_pill"))
+	var r3 := _use_fresh(c, _bag_index(c, "qi_gathering_pill"))
+	check(near(float(r1.get("factor", 0)), 1.0) and near(float(r2.get("factor", 0)), 0.8) and near(float(r3.get("factor", 0)), 1.0 / 1.5),
+		"a Qi pill works at 100%%, then 80%%, then 67%% (%s %s %s)" % [r1.get("factor"), r2.get("factor"), r3.get("factor")])
+	check(int(cu.pill_resistance.get("qi", 0)) == 3, "three doses of the Qi family are remembered")
+	Game.inventory.apply_add(c.id, "qi_gathering_pill", 1, "test", {"quality": "pill_grain"})
+	var rg := _use_fresh(c, _bag_index(c, "qi_gathering_pill"))
+	check(near(float(rg.get("factor", 0)), InventoryAuthority.pill_potency({"quality": "pill_grain"})) and int(cu.pill_resistance.get("qi", 0)) == 3,
+		"a Pill Grain ignores lifetime resistance and adds no dose")
+	Game.progression._advance(c, "heart_tempering_4", true)
+	check(int(cu.pill_resistance.get("qi", 0)) == 2, "a major breakthrough forgets one dose")
+	# Raw herbs: weak and poisonous, and they count toward resistance.
+	cu.realm_key = "heart_tempering_3"
+	Game.inventory.apply_add(c.id, "riverreed_ginseng_10", 1, "test")
+	var raw_i := _bag_index(c, "riverreed_ginseng_10")
+	c.pools.cooldowns.clear()
+	check(str(Game.inventory.use_item(c, raw_i, false).get("reason", "")) == "confirm", "eating a herb raw asks first")
+	_use_fresh(c, raw_i)
+	check(near(cu.toxicity, 20.0) and int(cu.pill_resistance.get("qi", 0)) == 3, "a raw ginseng root: toxicity 20, one more Qi dose")
+	# Residue: 5% of toxicity stays; each 10 costs 1% accumulation.
+	cu.residue = 0.0
+	Game.progression.apply_toxicity(c.id, 100.0)
+	check(near(cu.residue, 5.0) and near(ProgressionRules.residue_penalty(cu), 0.0), "100 toxicity leaves 5 residue (no penalty yet)")
+	Game.progression.apply_toxicity(c.id, 300.0)
+	check(near(ProgressionRules.residue_penalty(cu), 0.02), "20 residue: accumulation -2%")
+	Game.apply_effects(c.id, [{"kind": "add_toxicity", "amount": -1000}], "test")
+	check(near(cu.residue, 20.0), "a Purging Pill does not touch residue")
+	cu.toxicity = 0.0
+	c.inventory.bag.fill(null)
+	# Foundation: Qi from pills beyond 30% of the great realm leaves it hollow.
+	cu.realm_key = "heart_tempering_9"
+	cu.foundation = {}
+	Game.progression.apply_progress(c.id, cu.need() * 0.2, "meditation")
+	check(not ProgressionRules.foundation_hollow(cu), "meditated Qi keeps the foundation sound")
+	Game.progression.apply_progress(c.id, cu.need() * 0.5, "item:qi_gathering_pill")
+	check(ProgressionRules.foundation_hollow(cu) and near(ProgressionRules.foundation_share(cu), 0.5, 0.02), "pill Qi past 30%% leaves it hollow (%.2f)" % ProgressionRules.foundation_share(cu))
+	var q := Game.progression.query_breakthrough(c)
+	var hollow_row := false
+	for row in q.results:
+		if str(row.get("kind", "")) == "foundation" and not row.ok and not row.hard: hollow_row = true
+	check(q.get("hollow", false) and hollow_row, "a major breakthrough counts a hollow foundation as an unmet soft requirement")
+	c.seclusion = {"spot": "", "focus": "settle_foundation", "started_utc": 0.0, "cap_h": 12, "density": 1.0}
+	var settled := Game.progression.claim_offline(c, 8 * 3600.0)
+	check(not ProgressionRules.foundation_hollow(cu) and cu.residue < 20.0 and float(settled.gains.get("foundation", 0)) > 0.0,
+		"eight hours settling the foundation make it sound and burn off residue (%.1f left)" % cu.residue)
+	# Heart demons: a changed method feeds them; each 25 is a risk step; Calm Incense clears them.
+	cu.heart_demon = 0.0
+	cu.methods_known = ["riverbreath_fragment", "jade_current_scripture"]
+	cu.method_id = "riverbreath_fragment"
+	Game.progression.switch_method(c, "jade_current_scripture", false)
+	check(near(cu.heart_demon, 10.0), "switching method feeds the heart demon (+10)")
+	Game.progression.apply_heart_demon(c.id, 45.0, "test")
+	var q2 := Game.progression.query_breakthrough(c)
+	check(int(q2.get("heart_demon_steps", 0)) == 2, "55 heart demon is two risk steps at a major breakthrough")
+	check(ProgressionRules.risk_index(0, false, 0, 0, false, 2) == 2 and ProgressionRules.risk_index(0, false, 0, 0, false, -1) == 0, "risk steps add and merit subtracts, within Low..Severe")
+	Game.inventory.apply_add(c.id, "myriad_year_calm_incense", 1, "test")
+	_use_fresh(c, _bag_index(c, "myriad_year_calm_incense"))
+	check(near(cu.heart_demon, 15.0), "Myriad-Year Calm Incense clears 40")
+	# Karma: merit eases one breakthrough per great realm; sin feeds the demon; the back room is a sin.
+	cu.merit = 0
+	cu.merit_used.clear()
+	Game.apply_effects(c.id, [{"kind": "karma", "merit": 100, "reason": "test"}], "test")
+	check(ProgressionRules.merit_step(cu) == 1 and int(Game.progression.query_breakthrough(c).get("merit", 0)) == 1, "100 merit eases a great breakthrough")
+	cu.merit_used[ProgressionRules.great_realm(cu.realm_key)] = true
+	check(ProgressionRules.merit_step(cu) == 0, "once in each great realm")
+	var hd0 := cu.heart_demon
+	Game.apply_effects(c.id, [{"kind": "karma", "sin": 25, "reason": "test"}], "test")
+	check(cu.sin >= 25 and near(cu.heart_demon, hd0 + 5.0), "sin feeds the heart demon (25 sin: +5)")
+	Game.quest.apply_flag(c.id, "path_independent")
+	Unlocks.force_unlock(c.id, "shop")
+	Game.economy.apply_currency("spirit_stone", 100, "test")
+	var sin0 := cu.sin
+	var bought := Game.economy.buy(c, "free_market", "manual_page", 1, -1)
+	check(bought.get("ok", false) and cu.sin == sin0 + 2, "Broker Mu's back room stains the ledger (+2 sin) %s" % str(bought.get("reason", "")))
+	# A named debt comes due as a letter.
+	var mails0: int = Game.account.mail.size() if Game.account.get("mail") is Array else 0
+	Game.apply_effects(c.id, [{"kind": "karma_debt", "id": "test_debt", "due_h": 0.0, "mail": "gu_repays", "attachments": [{"currency": "spirit_stone", "amount": 1}]}], "test")
+	Game.progression.tick(0.1)
+	check(bool(cu.debts.get("test_debt", {}).get("paid", false)), "a debt that falls due is repaid by letter")
+	cu.debts.erase("test_debt")
+	# Furnace and fire: the bronze furnace holds three; charcoal stops at Perfect; a named furnace or a flame reaches Soul.
+	c.inventory.key_items = c.inventory.key_items.filter(func(k): return not ContentDB.item(str(k.id)).has("furnace"))
+	Game.inventory.apply_add(c.id, "bronze_furnace", 1, "test")
+	var fu: Dictionary = Game.crafting.furnace_of(c)
+	check(str(fu.id) == "bronze_furnace" and int(fu.batch) == 3, "the bronze furnace refines three to a batch")
+	check(Game.crafting.rare_allowed(fu, "charcoal").is_empty() and Game.crafting.rare_allowed(fu, "earth_fire") == ["pill_grain"]
+		and "pill_soul" in Game.crafting.rare_allowed(fu, "heavenly_flame"), "charcoal stops at Perfect, Earth Fire reaches Grain, a Heavenly Flame reaches Soul")
+	check("pill_soul" in Game.crafting.rare_allowed(ContentDB.item("nine_dragon_cauldron").furnace, "charcoal"), "the Nine-Dragon Cauldron reaches Soul on any fire")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var any_rare := false
+	for i in 400:
+		if Game.crafting._rare_pill_quality(c, [1.0, 1.0, 1.0], rng, []) != "perfect": any_rare = true
+	check(not any_rare, "no rare quality ever comes out of charcoal")
+	Game.inventory.apply_add(c.id, "earth_vein_furnace", 1, "test")
+	check(str(Game.crafting.furnace_of(c).id) == "earth_vein_furnace" and near(Game.crafting.band_mult(c, "beast_fire"), 1.2),
+		"the best furnace carried is used; Beast Fire in it widens the band by 20%")
+	check(not "beast_fire" in Game.crafting.fires_available(c), "no core, no Beast Fire")
+	Game.inventory.apply_add(c.id, "pebble_core", 1, "test")
+	check("beast_fire" in Game.crafting.fires_available(c), "a beast core in the bag lights Beast Fire")
+	Game.world.apply_teleport(c.id, "wg_rapids_terraces")
+	var vent: Dictionary = Game.room_rt.object_def("earth_vent_wg")
+	check(not vent.is_empty(), "Whitewater Gorge has an Earth Fire vent")
+	if not vent.is_empty():
+		Game.actor_state(c.id).plane = Vector2(float(vent.at[0]) + 60.0, float(vent.at[1]))
+		check("earth_fire" in Game.crafting.fires_available(c) and Game.crafting.station_near(c, ["alchemy_furnace", "earth_vent"]),
+			"at the vent: Earth Fire, and the vent serves as a furnace")
+	# Pill marks: a Pill Soul carries all nine; each is +2%.
+	check(Game.crafting._roll_marks("pill_soul", rng) == 9 and Game.crafting._roll_marks("flawed", rng) == 0, "marks: Soul nine, Flawed none")
+	check(near(InventoryAuthority.pill_potency({"quality": "common", "marks": 5}), 1.1), "five marks: +10%")
+	# A Heavenly Flame is absorbed once; a second copy gutters into Spirit Stones.
+	c.crafting["flames"] = []
+	Game.inventory.apply_add(c.id, "cold_lamp_flame", 2, "test")
+	var fr := Game.inventory.use_item(c, _bag_index(c, "cold_lamp_flame"), true)
+	check(fr.get("ok", false) and (c.crafting.flames as Array).has("cold_lamp_flame") and Game.account.codex.has("cold_lamp_flame"),
+		"the Cold Lamp Flame is absorbed and entered in the Codex")
+	check("heavenly_flame" in Game.crafting.fires_available(c), "an absorbed flame burns under any furnace")
+	var ss0: int = Game.economy.balance("spirit_stone")
+	Game.inventory.use_item(c, _bag_index(c, "cold_lamp_flame"), true)
+	check(Game.economy.balance("spirit_stone") == ss0 + 20, "a second copy gutters into 20 Spirit Stones")
+	# The Reflection brings a heart demon for every 25.
+	var ev: Dictionary = ContentDB.room("si_trial_of_reflections").get("event", {})
+	check(str(ev.get("heart_demons", "")) == "heart_demon" and ContentDB.has_entry("enemies", "heart_demon"), "the Trial of Reflections summons heart demons")
+	var cleansing := ContentDB.entry("set_pieces", "heavens_cleansing")
+	check(str(cleansing.get("room_event", {}).get("on_flawless", [{}])[0].get("kind", "")) == "clear_residue", "a flawless Heaven's Cleansing clears residue")
+	c.inventory.bag.fill(null)
+	cu.heart_demon = 0.0
+	cu.residue = 0.0
+	cu.foundation = {}
+	cu.pill_resistance.clear()
 	Game.world.apply_teleport(c.id, back)
 
 # ------------------------------------------------------------------ emotes (S34)

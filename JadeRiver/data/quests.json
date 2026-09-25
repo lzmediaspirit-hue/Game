@@ -211,6 +211,11 @@
      "kind": "grant_item",
      "item": "herbal_tea",
      "count": 3
+    },
+    {
+     "kind": "karma",
+     "merit": 5,
+     "reason": "grannys_remedy"
     }
    ],
    "offer_text": [
@@ -2185,6 +2190,11 @@
     {
      "kind": "add_contribution",
      "amount": 100
+    },
+    {
+     "kind": "karma",
+     "merit": 10,
+     "reason": "the_infirmary"
     }
    ],
    "offer_text": [
@@ -3013,7 +3023,13 @@
      "system": "teach"
     }
    ],
-   "rewards": [],
+   "rewards": [
+    {
+     "kind": "karma",
+     "merit": 10,
+     "reason": "passing_it_on"
+    }
+   ],
    "offer_text": [
     "Teach, and learn twice."
    ],
@@ -3554,6 +3570,11 @@
     {
      "kind": "codex",
      "entry": "yan_heng"
+    },
+    {
+     "kind": "karma",
+     "merit": 10,
+     "reason": "the_rite"
     }
    ],
    "offer_text": [
@@ -4078,7 +4099,13 @@
      ]
     }
    ],
-   "rewards": [],
+   "rewards": [
+    {
+     "kind": "karma",
+     "merit": 10,
+     "reason": "what_remains"
+    }
+   ],
    "complete_text": [
     "I'm still here. Because you cleared every defence. Thank you."
    ],
@@ -4489,6 +4516,11 @@
      "kind": "grant_currency",
      "currency": "silver_tael",
      "amount": 80
+    },
+    {
+     "kind": "karma",
+     "merit": 10,
+     "reason": "guos_old_wound"
     }
    ],
    "offer_text": [
@@ -4563,6 +4595,11 @@
     {
      "kind": "grant_title",
      "title": "guos_student"
+    },
+    {
+     "kind": "karma",
+     "merit": 5,
+     "reason": "a_second_try"
     }
    ],
    "offer_text": [
@@ -4604,6 +4641,11 @@
      "kind": "grant_currency",
      "currency": "silver_tael",
      "amount": 50
+    },
+    {
+     "kind": "karma",
+     "merit": 5,
+     "reason": "dous_kite_returns"
     }
    ],
    "offer_text": [
@@ -4681,6 +4723,11 @@
      "kind": "grant_currency",
      "currency": "silver_tael",
      "amount": 120
+    },
+    {
+     "kind": "karma",
+     "merit": 10,
+     "reason": "grey_roofs"
     }
    ],
    "offer_text": [
@@ -4719,6 +4766,11 @@
      "kind": "grant_currency",
      "currency": "silver_tael",
      "amount": 150
+    },
+    {
+     "kind": "karma",
+     "merit": 15,
+     "reason": "cleansing_the_well"
     }
    ],
    "offer_text": [
@@ -5690,6 +5742,11 @@
     {
      "kind": "learn_recipe",
      "recipe": "sage_condensing_pill"
+    },
+    {
+     "kind": "grant_item",
+     "item": "nine_dragon_cauldron",
+     "count": 1
     }
    ],
    "offer_text": [
@@ -5697,7 +5754,8 @@
     "The condensing needs thunder. Three thunderhorn horns from the Flats. I'll press them into your pill."
    ],
    "complete_text": [
-    "There. Swallow it here, where the Qi is thick. Not in a field with a rhino watching."
+    "There. Swallow it here, where the Qi is thick. Not in a field with a rhino watching.",
+    "And take my old cauldron. Nine dragons, and every one of them drinks heat. My hands shake too much for it now."
    ],
    "requires": {
     "all": [

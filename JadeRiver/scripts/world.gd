@@ -358,6 +358,20 @@ func _on_event(name: String, p: Dictionary) -> void:
 			fx.add("text", player.position + Vector2(0, -150), {"text": ContentDB.realm_label(str(p.to)), "color": UiKit.PALE_GOLD, "size": 28, "dur": 2.5})
 			shake = 0.2
 			Audio.play("breakthrough")
+		"pill_cloud":
+			# The whole room sees a Halo or Soul pill form, and says so (G1).
+			var gold := Color("ffd76a") if str(p.get("quality", "")) == "pill_halo" else Color("ff9a6a")
+			fx.add("pill_cloud", player.position + Vector2(0, -70), {"color": gold, "dur": 3.5})
+			fx.add("text", player.position + Vector2(0, -190), {"text": Tx.t("world_view.pill_cloud_" + str(p.get("quality", "pill_halo"))), "color": gold, "size": 26, "dur": 3.0})
+			shake = 0.12
+			Audio.play("breakthrough")
+			var n := 0
+			for id in npc_views:
+				var nv = npc_views[id]
+				if nv.visible and nv.position.distance_to(player.position) < 700.0:
+					nv.bark = Tx.t("world_view.pill_cloud_bark_%d" % (n % 3))
+					nv.bark_time = 3.5
+					n += 1
 		"breakthrough_started":
 			fx.add("ring", player.position, {"color": UiKit.QI, "radius": 90, "dur": float(p.get("duration", 3.0))})
 		"breakthrough_failed":

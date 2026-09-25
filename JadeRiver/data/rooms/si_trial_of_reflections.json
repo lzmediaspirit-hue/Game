@@ -89,6 +89,7 @@
     ]
    }
   ],
+  "heart_demons": "heart_demon",
   "win_on_kill": "the_reflection",
   "on_complete": [
    {

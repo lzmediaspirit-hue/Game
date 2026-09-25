@@ -390,6 +390,30 @@
   "decay_per_min": 1,
   "meditate_mult": 3
  },
+ "pill_life": {
+  "resistance_step": 0.25,
+  "support_fail_limit": 2,
+  "hollow_share": 0.3,
+  "residue_share": 0.05,
+  "residue_step": 10,
+  "residue_step_pct": 0.01,
+  "residue_cap_pct": 0.1,
+  "settle_share_per_h": 0.06,
+  "settle_residue_per_h": 3
+ },
+ "heart_demon": {
+  "step": 25,
+  "method_switch": 10,
+  "forced_breakthrough": 5,
+  "forced_supports": 2,
+  "death": 3,
+  "per_sin": 0.2,
+  "meditate_drain_per_min": 0.25
+ },
+ "karma": {
+  "merit_step": 100,
+  "black_market_sin": 2
+ },
  "hazard": {
   "partial": 0.5,
   "answered_damage": 0.35,

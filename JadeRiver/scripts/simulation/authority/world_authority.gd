@@ -18,6 +18,13 @@ func subscribe() -> void:
 	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 50)
 	GameEvents.subscribe("actor_defeated", _event_kill, 55)
 	GameEvents.subscribe("bottleneck_reached", _on_bottleneck, 50)
+	GameEvents.subscribe("hit_landed", _on_hit_during_event, 50)
+
+## Room events remember every blow the player takes: a flawless Heaven's Cleansing burns off residue (G1).
+func _on_hit_during_event(p: Dictionary) -> void:
+	var rt: RoomRuntime = game.room_rt
+	if rt == null or not rt.event.get("active", false) or str(p.get("target_kind", "")) != "player": return
+	if int(p.get("amount", 0)) > 0: rt.event.hits_taken = int(rt.event.get("hits_taken", 0)) + 1
 
 ## S18: at the zone's ceiling the land itself is the limit.
 func _on_bottleneck(p: Dictionary) -> void:
@@ -352,8 +359,8 @@ func interact(c, object_id: String) -> Dictionary:
 			return game.quest.start_set_piece(c, str(o.get("event", "")))
 		"storage_chest":
 			result.open_page = "storage"
-		"cooking_pot", "alchemy_furnace", "forge_anvil", "formation_table", "garden_bed", "chart_table", "shipyard_slip":
-			result.open_page = str(o.get("page", {"cooking_pot": "cooking", "alchemy_furnace": "alchemy", "forge_anvil": "forge",
+		"cooking_pot", "alchemy_furnace", "earth_vent", "forge_anvil", "formation_table", "garden_bed", "chart_table", "shipyard_slip":
+			result.open_page = str(o.get("page", {"cooking_pot": "cooking", "alchemy_furnace": "alchemy", "earth_vent": "alchemy", "forge_anvil": "forge",
 				"formation_table": "formations", "garden_bed": "garden", "chart_table": "charts", "shipyard_slip": "vessels"}[o.type]))
 		"notice_board":
 			result.open_page = "notice_board"
@@ -427,7 +434,7 @@ func _verb(o: Dictionary) -> String:
 		"pickup": return Tx.t("sim.world.take")
 		"lifting_stone": return Tx.t("sim.world.lift")
 		"cooking_pot": return Tx.t("sim.world.cook")
-		"alchemy_furnace": return Tx.t("sim.world.refine")
+		"alchemy_furnace", "earth_vent": return Tx.t("sim.world.refine")
 		"forge_anvil": return Tx.t("sim.world.forge")
 		"teleport_stone": return Tx.t("sim.world.travel")
 		"notice_board", "signpost", "inspect": return Tx.t("sim.world.read")
@@ -466,6 +473,12 @@ func _on_actor_defeated(p: Dictionary) -> void:
 		c.collection_first_kills[str(p.def)] = true
 		var bonus := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), 1.0, 0.0, {"no_equipment": true})
 		drop.items.append_array(bonus.items)
+	# A boss's one-time treasure (a Heavenly Flame, G1): guaranteed on its first defeat, outside the loot roll.
+	for it in def.get("first_defeat", []):
+		var flag := "first_defeat:%s:%s" % [str(p.def), str(it)]
+		if c.quests.has_flag(flag): continue
+		game.quest.apply_flag(c.id, flag)
+		drop.items.append({"item": str(it), "count": 1})
 	_drop_loot(c, drop, Vector2(float(p.x), float(p.y)), float(p.get("alt", 0.0)))
 
 func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float) -> void:
@@ -804,9 +817,16 @@ func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 	rt.event.wave_timers = []
 	for w in waves: rt.event.wave_timers.append(float(w.get("first_s", 2.0)))
 	rt.event.timed_done = []
+	rt.event.hits_taken = 0
 	emit("room_event_started", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "duration": rt.event.remaining})
 	for sp in ev.get("fixed_spawns", []):
 		game.enemies.spawn_at(str(sp.enemy), Vector2(float(sp.at[0]), float(sp.at[1])), int(sp.get("level", -1)))
+	# The Reflection brings your heart demons with it: one for every 25 on the meter (G1).
+	var demons := ProgressionRules.heart_demon_steps(c.cultivator) if str(ev.get("heart_demons", "")) != "" else 0
+	for i in demons:
+		game.enemies.spawn_at(str(ev.heart_demons), Vector2(700.0 + 260.0 * i, 860.0), int(ev.get("level", -1)))
+	if demons > 0: emit("room_event_wave", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "enemy": str(ev.heart_demons),
+		"text": Tx.t("sim.world.heart_demons_rise") % demons})
 
 func _tick_event(c, rt: RoomRuntime, delta: float) -> void:
 	var ev: Dictionary = rt.event
@@ -846,6 +866,9 @@ func _end_event(c, rt: RoomRuntime, won: bool) -> void:
 	for e in rt.living_enemies():
 		if e.summoned: game.enemies.release(e)   # the rest scatter: no loot, no kill credit
 	game.apply_effects(c.id, ev.get("on_complete" if won else "on_timeout", []), "event:" + str(ev.get("id", "")))
+	if won and int(ev.get("hits_taken", 0)) == 0 and not ev.get("on_flawless", []).is_empty():
+		emit("room_event_flawless", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", ""))})
+		game.apply_effects(c.id, ev.on_flawless, "event:" + str(ev.get("id", "")) + ":flawless")
 
 ## A kill-to-win event ends the moment its foe falls.
 func _event_kill(p: Dictionary) -> void:

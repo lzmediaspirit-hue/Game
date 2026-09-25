@@ -103,9 +103,52 @@ static func is_major(key: String) -> bool:
 
 ## Risk word index from counts (S05): +1 per unmet soft, +1 unstable, +1 per untreated
 ## injury, -1 per support item, -1 in a retreat room; floor Low, ceiling Severe.
-static func risk_index(soft_unmet: int, unstable: bool, injuries: int, supports: int, retreat: bool) -> int:
-	var r := soft_unmet + (1 if unstable else 0) + injuries - supports - (1 if retreat else 0)
+static func risk_index(soft_unmet: int, unstable: bool, injuries: int, supports: int, retreat: bool, extra := 0) -> int:
+	var r := soft_unmet + (1 if unstable else 0) + injuries - supports - (1 if retreat else 0) + extra
 	return clampi(r, 0, 3)
+
+# ------------------------------------------------------------------ what pills cost over a life (gap report G1)
+const PILL_FAMILY := {"add_progress": "qi", "add_body_xp": "body", "add_soul": "soul", "add_insight": "insight"}
+
+## The accumulation family of an item's effects ("" when it does not build anything up).
+static func pill_family(def: Dictionary) -> String:
+	if not (def.has("pill") or def.has("raw") or def.has("core")): return ""
+	for e in def.get("use", []):
+		if PILL_FAMILY.has(str(e.get("kind", ""))): return PILL_FAMILY[str(e.kind)]
+	return ""
+
+## Lifetime pill resistance: 1 / (1 + 0.25 x doses of the family taken).
+static func resistance_factor(cu, family: String) -> float:
+	if family == "": return 1.0
+	var step := float(ContentDB.stat_const("pill_life", {}).get("resistance_step", 0.25))
+	return 1.0 / (1.0 + step * float(cu.pill_resistance.get(family, 0)))
+
+## The great realm a realm key belongs to (qi_kindling_3 -> qi_kindling).
+static func great_realm(realm_key: String) -> String:
+	return str(ContentDB.realm(realm_key).get("realm", realm_key))
+
+## Share of this great realm's Qi that came from pills and cores (0..1), against at least one stage's need.
+static func foundation_share(cu) -> float:
+	var f: Dictionary = cu.foundation
+	if str(f.get("realm", "")) != great_realm(cu.realm_key): return 0.0
+	return clampf(float(f.get("pill", 0.0)) / maxf(float(f.get("total", 0.0)), maxf(1.0, cu.need())), 0.0, 1.0)
+
+static func foundation_hollow(cu) -> bool:
+	return foundation_share(cu) > float(ContentDB.stat_const("pill_life", {}).get("hollow_share", 0.3))
+
+## Accumulation lost to residue: -1% per 10, at most -10%.
+static func residue_penalty(cu) -> float:
+	var k: Dictionary = ContentDB.stat_const("pill_life", {})
+	return minf(float(k.get("residue_cap_pct", 0.1)), floorf(cu.residue / float(k.get("residue_step", 10))) * float(k.get("residue_step_pct", 0.01)))
+
+## Risk steps the heart demon adds at a major breakthrough (one per 25).
+static func heart_demon_steps(cu) -> int:
+	return int(floor(cu.heart_demon / float(ContentDB.stat_const("heart_demon", {}).get("step", 25))))
+
+## Merit eases one major breakthrough in each great realm by a step.
+static func merit_step(cu) -> int:
+	var need := int(ContentDB.stat_const("karma", {}).get("merit_step", 100))
+	return 1 if cu.merit >= need and not cu.merit_used.has(great_realm(cu.realm_key)) else 0
 
 static func risk_word(index: int) -> String:
 	var words: Array = ContentDB.curve("risk_words", ["low", "moderate", "high", "severe"])

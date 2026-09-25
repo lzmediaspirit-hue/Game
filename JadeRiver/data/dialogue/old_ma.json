@@ -32,6 +32,11 @@
         {
          "kind": "set_flag",
          "flag": "ma_safe"
+        },
+        {
+         "kind": "karma",
+         "merit": 10,
+         "reason": "the_hollow_night"
         }
        ],
        "close": true

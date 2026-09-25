@@ -31,6 +31,15 @@
       "kind": "set_flag",
       "flag": "cleansing_done"
      }
+    ],
+    "on_flawless": [
+     {
+      "kind": "clear_residue"
+     },
+     {
+      "kind": "set_flag",
+      "flag": "cleansing_flawless"
+     }
     ]
    },
    "requires": {

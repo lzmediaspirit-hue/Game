@@ -314,6 +314,23 @@
     ]
    },
    "locked_text": "You have no rod."
+  },
+  {
+   "id": "earth_vent_wg",
+   "type": "earth_vent",
+   "at": [
+    1320,
+    900
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "alchemy"
+     }
+    ]
+   },
+   "locked_text": "Heat rises from a crack in the stone. An alchemist could use it."
   }
  ],
  "spawns": [
