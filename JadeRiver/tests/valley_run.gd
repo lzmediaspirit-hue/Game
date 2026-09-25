@@ -1560,6 +1560,10 @@ func sec_ae2() -> void:
 	check(reach("sage_2"), "Sage 2")
 	check(start("the_mirror_remembers"), "The Mirror Remembers accepted")
 	attune_to("azure_expanse", 28.0)
+	# Mirrorwater's field boss is Level 68: a player sails there in the port's Spirit-grade stormsteel, not the
+	# valley's jadeiron (the same rule as the desert road; a lucky run used to win without it).
+	tidy_bag(12)
+	gear_up_stones("alliance_factor")
 	check(travel("ml_reedless_shore"), "sail the sky-ship to Mirrorwater Lake")
 	check(travel("ml_lake_shrine"), "cross the Sentinel Causeway to the Lake Shrine")
 	check(interact("mirror_altar").get("ok", false), "look into the bronze mirror")

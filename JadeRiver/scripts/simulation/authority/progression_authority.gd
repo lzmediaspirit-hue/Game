@@ -663,7 +663,9 @@ func apply_open_dao(actor_id: String, dao: String) -> void:
 	if c == null or not ContentDB.has_entry("daos", dao) or c.cultivator.daos.has(dao): return
 	c.cultivator.daos[dao] = {"tier": 0, "insight": 0.0}
 	var first: Array = ContentDB.curve("dao_tiers", [100])
-	apply_insight(actor_id, dao, float(first[0]) / (1.0 + c.stats.value("insight_rate")), "teacher:" + dao)
+	# A teacher opens the Dao at tier 1: the insight rate is divided out, with a hair's margin so the
+	# round trip through the multiplier never lands a fraction short of the threshold.
+	apply_insight(actor_id, dao, float(first[0]) / (1.0 + c.stats.value("insight_rate")) + 0.01, "teacher:" + dao)
 
 func apply_injury(actor_id: String, kind: String, severity: int) -> void:
 	var c = game.character(actor_id)

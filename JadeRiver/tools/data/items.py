@@ -286,14 +286,13 @@ def build_items():
     # Furnaces (gap report G1, S15 "special furnace"): the best one you carry is the one you refine in.
     # band = strike band widened, batch = pills per batch, filter = impurities it keeps out (a better
     # quality roll), yield = chance of one extra pill; a named furnace reaches Halo and Soul on any fire.
-    for fid, grade, icon in [("earth_vein_furnace", "earth", "bronze_furnace"), ("cloud_pattern_furnace", "heaven", "bronze_furnace"),
-                             ("mystic_tripod", "mystic", "bronze_furnace"), ("nine_dragon_cauldron", "sage", "bronze_furnace")]:
-        rows.append(item(fid, "tool", grade, 1, FURNACES[fid][0], tool={"craft": "alchemy", "power": 1.0}, icon=icon,
+    for fid, grade in [("earth_vein_furnace", "earth"), ("cloud_pattern_furnace", "heaven"), ("mystic_tripod", "mystic"), ("nine_dragon_cauldron", "sage")]:
+        rows.append(item(fid, "tool", grade, 1, FURNACES[fid][0], tool={"craft": "alchemy", "power": 1.0},
                          furnace=FURNACES[fid][1], sell=fid != "nine_dragon_cauldron"))
     # Heavenly Flames (gap report G1): one to a zone tier, taken from a boss; absorbed for good and kept in the Codex.
     for fid, grade, desc in FLAMES:
         rows.append(item(fid, "treasure", grade, 1, desc + " Absorb it: a Heavenly Flame burns under any furnace you use, for good. Never sold.",
-                         sell=False, use=[], use_action="absorb_flame", icon="ember_cactus"))
+                         sell=False, use=[], use_action="absorb_flame"))
     rows.append(item("revival_talisman", "talisman", "common", 99, "Revive where you fall: 30% HP, 5 s invulnerable. Once per 5 minutes.", value_override=15))
     rows.append(item("return_charm", "talisman", "plain", 99, "Teleports you to the last town.", use=[effect("teleport", target="last_town")]))
     rows.append(item("escape_talisman", "talisman", "common", 99, "Leaves a dungeon at once.", use=[effect("teleport", target="dungeon_exit")]))
