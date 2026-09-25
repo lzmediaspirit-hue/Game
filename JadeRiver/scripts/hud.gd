@@ -455,6 +455,12 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.expedition_to") % [ContentDB.name_of("expeditions", str(p.region)), Tx.t("hud.returned_with_spoils") if p.get("success", false) else Tx.t("hud.came_back_empty_handed")], UiKit.PALE_GOLD)
 		"reputation_changed":
 			add_log(Tx.t("hud.reputation") % [str(p.faction).replace("_", " ").capitalize(), int(p.value)], UiKit.MIST)
+		"item_bound":
+			toast(Tx.t("hud.item_bound") % ContentDB.item_name(str(p.item)), "gold")
+		"binding_interrupted":
+			add_log(Tx.t("hud.binding_broken"), UiKit.RED)
+		"artifact_spirit_awakened":
+			toast(Tx.t("hud.spirit_awake") % ContentDB.item_name(str(p.item)), "gold")
 		"pet_evolved":
 			toast(Tx.t("hud.grows_into_a") % [_pet_name(str(p.pet)), str(p.get("branch", "")) if str(p.get("branch", "")) != "" else str(Game.pets.stage_def(str(p.stage)).get("name", ""))], "gold")
 		"trait_revealed":

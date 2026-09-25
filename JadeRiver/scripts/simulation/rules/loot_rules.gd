@@ -77,6 +77,9 @@ static func make_instance(item_id: String, ilv: int, quality: String, rng: Rando
 	var def := ContentDB.item(item_id)
 	var inst := {"uid": uid, "id": item_id, "count": 1, "ilv": ilv, "quality": quality, "affixes": [], "enhance": 0,
 		"bound": false, "durability": 100, "inlays": []}
+	if def.get("relic", false):
+		inst.sealed = true   # S14: found artifacts keep their power sealed until bound
+		if def.has("spirit"): inst.spirit = "dormant"
 	var n := int(ContentDB.config("grades").get("qualities", {}).get(quality, {}).get("affixes", 0))
 	var pool: Array = []
 	for a in ContentDB.all("affixes"):

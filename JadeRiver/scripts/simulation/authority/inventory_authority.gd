@@ -7,13 +7,105 @@ extends Authority
 const COOLDOWN_GROUPS := {"restoration": 15.0, "healing": 15.0, "buff": 30.0, "utility": 5.0}
 
 func intents() -> Array:
-	return ["move_item", "equip", "unequip", "use_item", "use_quick", "set_quick_use", "lock_item", "discard", "split_stack", "sort_bag"]
+	return ["move_item", "equip", "unequip", "use_item", "use_quick", "set_quick_use", "lock_item", "discard", "split_stack", "sort_bag",
+		"bind_item", "subdue_spirit"]
+
+var binding: Dictionary = {}   # actor -> {uid, left, total}: a relic being bound (S14)
+var spirit_cd: Dictionary = {} # actor -> seconds before another soul contest
+
+func subscribe() -> void:
+	GameEvents.subscribe("hit_landed", _on_hit, 40)
+
+## A blow breaks the binding channel.
+func _on_hit(p: Dictionary) -> void:
+	var who := str(p.get("target", ""))
+	if binding.has(who):
+		binding.erase(who)
+		emit("binding_interrupted", {"actor": who})
+
+func tick(delta: float) -> void:
+	for actor in spirit_cd.keys():
+		spirit_cd[actor] = float(spirit_cd[actor]) - delta
+		if float(spirit_cd[actor]) <= 0.0: spirit_cd.erase(actor)
+	for actor in binding.keys():
+		var b: Dictionary = binding[actor]
+		b.left = float(b.left) - delta
+		if float(b.left) > 0.0: continue
+		binding.erase(actor)
+		var c = game.character(actor)
+		var found := _instance_by_uid(c, int(b.uid)) if c else {}
+		if found.is_empty(): continue
+		found.inst.erase("sealed")
+		found.inst.bound = true
+		emit("item_bound", {"actor": actor, "item": str(found.inst.id)})
+		emit("system_used", {"actor": actor, "system": "bind"})
+		if found.slot != "": emit("equipment_changed", {"actor": actor, "slot": found.slot, "old": found.inst.id, "new": found.inst.id})
+
+## {inst, slot} for an equipped slot or a bag index.
+func _instance(c, slot: String, index: int) -> Dictionary:
+	if slot != "":
+		var e = c.inventory.equipped.get(slot)
+		return {"inst": e, "slot": slot} if e is Dictionary else {}
+	if index >= 0 and index < c.inventory.bag.size() and c.inventory.bag[index] is Dictionary:
+		return {"inst": c.inventory.bag[index], "slot": ""}
+	return {}
+
+func _instance_by_uid(c, uid: int) -> Dictionary:
+	for slot in c.inventory.equipped:
+		var e = c.inventory.equipped[slot]
+		if e is Dictionary and int(e.get("uid", -1)) == uid: return {"inst": e, "slot": str(slot)}
+	for it in c.inventory.bag:
+		if it is Dictionary and int(it.get("uid", -1)) == uid: return {"inst": it, "slot": ""}
+	return {}
+
+## S14 binding: a timed channel by grade; a hit breaks it.
+func bind_item(c, slot: String, index: int) -> Dictionary:
+	var cfg: Dictionary = ContentDB.stat_const("binding", {})
+	if not Unlocks.is_unlocked(c.id, str(cfg.get("unlock", "binding"))): return fail("locked", {"text": Unlocks.locked_text("binding")})
+	var found := _instance(c, slot, index)
+	if found.is_empty() or not found.inst.get("sealed", false): return fail("not_sealed")
+	if binding.has(c.id): return fail("busy")
+	var grade := str(ContentDB.item(str(found.inst.id)).get("grade", "common"))
+	var secs := float(cfg.get("seconds", {}).get(grade, 10))
+	binding[c.id] = {"uid": int(found.inst.get("uid", -1)), "left": secs, "total": secs}
+	emit("binding_started", {"actor": c.id, "item": str(found.inst.id), "seconds": secs})
+	return ok({"seconds": secs})
+
+func binding_progress(actor_id: String) -> float:
+	var b: Dictionary = binding.get(actor_id, {})
+	return 1.0 - float(b.left) / maxf(0.01, float(b.total)) if not b.is_empty() else -1.0
+
+## Waking an Artifact Spirit: the owner's Spirit against the spirit's strength. A failed contest bruises the soul.
+func subdue_spirit(c, slot: String, index: int) -> Dictionary:
+	var cfg: Dictionary = ContentDB.stat_const("binding", {})
+	var found := _instance(c, slot, index)
+	if found.is_empty() or found.inst.get("sealed", false) or str(found.inst.get("spirit", "")) != "dormant": return fail("no_spirit")
+	if spirit_cd.has(c.id): return fail("cooldown", {"text": Tx.t("sim.inventory.the_spirit_is_still_wary")})
+	var chance := spirit_chance(c, str(found.inst.id))
+	spirit_cd[c.id] = float(cfg.get("spirit_cooldown_s", 60))
+	if Rng.stream(c.id, "spirit").randf() < chance:
+		found.inst.spirit = "awake"
+		emit("artifact_spirit_awakened", {"actor": c.id, "item": str(found.inst.id)})
+		if found.slot != "": emit("equipment_changed", {"actor": c.id, "slot": found.slot, "old": found.inst.id, "new": found.inst.id})
+		return ok({"awake": true, "chance": chance})
+	game.progression.apply_injury(c.id, "soul", int(cfg.get("soul_injury", 1)))
+	emit("artifact_spirit_resisted", {"actor": c.id, "item": str(found.inst.id)})
+	return ok({"awake": false, "chance": chance})
+
+func spirit_chance(c, item_id: String) -> float:
+	var cfg: Dictionary = ContentDB.stat_const("binding", {})
+	var strength := float(ContentDB.item(item_id).get("spirit", {}).get("strength", 30))
+	var mine: float = c.stats.value("spirit")
+	var lim: Array = cfg.get("spirit_chance", [0.1, 0.9])
+	return clampf(mine / maxf(1.0, mine + strength), float(lim[0]), float(lim[1]))
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
 	if c == null: return fail("no_character")
 	match str(intent.type):
 		"equip": return equip(c, int(intent.get("index", -1)))
+		"bind_item": return bind_item(c, str(intent.get("slot", "")), int(intent.get("index", -1)))
+		"subdue_spirit": return subdue_spirit(c, str(intent.get("slot", "")), int(intent.get("index", -1)))
 		"unequip": return unequip(c, str(intent.get("slot", "")))
 		"use_item": return use_item(c, int(intent.get("index", -1)), bool(intent.get("confirm", false)))
 		"use_quick":

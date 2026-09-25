@@ -275,7 +275,8 @@ def build_artifacts():
         rows.append(artifact("crane_%s" % slot, slot, "heaven", "Crane %s" % slot.capitalize(), app, icon="cloudsilk_%s" % slot, set="crane", ilv=45,
                              **({"dye": "white" if slot == "robe" else "cloud"} if slot in ("robe", "trousers") else {})))
     rows.append(artifact("sleeping_blade", "weapon", "heaven", "The Sleeping Blade", "sword", "jian", icon="cloudsteel_jian", ilv=52,
-                         relic=True, unique="Awake spirit: +10% crit damage"))
+                         relic=True, unique="Awake spirit: +10% crit damage",
+                         spirit={"name": "Blade Spirit", "strength": 30, "effect": {"stat": "crit_damage", "op": "flat", "value": 0.1}}))
     entries("artifacts.json", rows)
     return rows
 

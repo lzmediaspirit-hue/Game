@@ -1209,7 +1209,16 @@
    "stack": 1,
    "family": "jian",
    "relic": true,
-   "unique": "Awake spirit: +10% crit damage"
+   "unique": "Awake spirit: +10% crit damage",
+   "spirit": {
+    "name": "Blade Spirit",
+    "strength": 30,
+    "effect": {
+     "stat": "crit_damage",
+     "op": "flat",
+     "value": 0.1
+    }
+   }
   }
  ]
 }

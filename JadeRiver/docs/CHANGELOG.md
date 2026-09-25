@@ -51,6 +51,9 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
 - Flight from Cloud Stride 1: jump again at the top of a double jump to ride a cloud; hold Jump to climb and
   Guard to descend. Combat pays the QI each second, no-flight rooms and interiors refuse, landing or an
   empty pool ends it. "Wings of Cloud" now teaches it.
+- Binding (Spirit Awakening 3): a found relic's power is sealed until bound with a channel that a blow
+  breaks; its Artifact Spirit wakes through a soul contest (a failure bruises the soul). The Sleeping Blade
+  goes from bare-hand power to its full edge once bound.
 - Spirit animals grow: Hatchling, Juvenile and Adult (a branch choice) need level, hearts and your realm
   together; three hidden traits reveal as they grow and change real numbers; Resonance adds to accumulation.
 - Zone ceilings and attunement (S18) are announced and applied; alchemy and forge strikes are scored by

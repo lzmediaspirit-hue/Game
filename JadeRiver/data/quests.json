@@ -2786,10 +2786,16 @@
     },
     {
      "kind": "collect",
-     "text": "Bind the Sleeping Blade",
+     "text": "Take the Sleeping Blade from its altar",
      "count": 1,
      "item": "sleeping_blade",
      "consume": false
+    },
+    {
+     "kind": "use_system",
+     "text": "Bind it (Bag: tap the blade, Bind; stand clear of blows)",
+     "count": 1,
+     "system": "bind"
     }
    ],
    "rewards": [],

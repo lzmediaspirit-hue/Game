@@ -788,7 +788,8 @@ def guided_quests():
         offer=["Hidden doors all over the valley. Sense them. Use them."], complete=["Concealment: be what the eyes miss."])
     quest("the_sleeping_blade", "The Sleeping Blade", "guided", "elder_hu", [
         o("reach_room", "Reach the Drowned Shrine vault", room="ds_abbots_sanctum"),
-        o("collect", "Bind the Sleeping Blade", item="sleeping_blade", consume=False),
+        o("collect", "Take the Sleeping Blade from its altar", item="sleeping_blade", consume=False),
+        o("use_system", "Bind it (Bag: tap the blade, Bind; stand clear of blows)", system="bind"),
     ], [], offered_by_unlock=True, chapter="sa3", giver_any=M, hand_in_any=M,
         offer=["The Abbot's vault holds a blade that sleeps. Your soul can wake it."], complete=["It chose you. Treat it well."])
     quest("quiet_waters", "Quiet Waters", "guided", "elder_hu", [

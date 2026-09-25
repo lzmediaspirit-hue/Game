@@ -141,6 +141,7 @@ func _draw_detail(r: Rect2) -> void:
 			y += 22
 	if def.get("pill", {}).has("toxicity"):
 		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.toxicity") % int(def.pill.toxicity), 16, UiKit.RED)
+	_relic(ch, s, def, r, y)
 	# Actions.
 	var bx := r.position.x + 14
 	var bw := (r.size.x - 38) / 2
@@ -158,9 +159,37 @@ func _draw_detail(r: Rect2) -> void:
 	elif sel.has("slot"):
 		btn(Rect2(bx, by + 30, r.size.x - 28, 54), Tx.t("ui.inventory.unequip"), "unequip", null, false, str(sel.slot) != "gourd", Tx.t("ui.inventory.the_spirit_gourd_holds_your"))
 
+## S14: a sealed relic offers Bind (a channel a hit breaks); a bound one with a dormant spirit offers the contest.
+func _relic(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> void:
+	if not def.get("relic", false): return
+	var target := {"slot": str(sel.slot)} if sel.has("slot") else {"index": int(sel.get("bag", -1))}
+	var bx := r.position.x + 14
+	var bw := r.size.x - 28
+	var by := r.end.y - 176
+	var prog: float = Game.inventory.binding_progress(ch.id)
+	if s.get("sealed", false):
+		text(Vector2(bx, y + 22), Tx.t("ui.inventory.sealed_bind_it_to_wake"), 16, UiKit.RED)
+		if prog >= 0.0:
+			bar(Rect2(bx, by, bw, 34), prog, UiKit.JADE, Tx.t("ui.inventory.binding"))
+		else:
+			var secs := float(ContentDB.stat_const("binding", {}).get("seconds", {}).get(str(def.get("grade", "common")), 10))
+			btn(Rect2(bx, by - 6, bw, 46), Tx.t("ui.inventory.bind_s") % int(secs), "bind", target, true, Unlocks.is_unlocked(ch.id, "binding"), Unlocks.locked_text("binding"))
+	elif str(s.get("spirit", "")) == "dormant":
+		text(Vector2(bx, y + 22), Tx.t("ui.inventory.a_spirit_sleeps_in_it"), 16, UiKit.SOUL)
+		var chance: float = Game.inventory.spirit_chance(ch, str(s.id))
+		btn(Rect2(bx, by - 6, bw, 46), Tx.t("ui.inventory.subdue_the_spirit") % int(round(chance * 100.0)), "subdue", target, false)
+	elif str(s.get("spirit", "")) == "awake":
+		text(Vector2(bx, y + 22), Tx.t("ui.inventory.spirit_awake") % str(def.get("unique", "")), 16, UiKit.PALE_GOLD)
+
 func on_action(id: String, data) -> void:
 	var ch = c()
 	match id:
+		"bind":
+			var br := submit(({"type": "bind_item"} as Dictionary).merged(data))
+			if br.get("ok", false): flash(Tx.t("ui.inventory.binding_hold_still"))
+		"subdue":
+			var sr := submit(({"type": "subdue_spirit"} as Dictionary).merged(data))
+			if sr.get("ok", false): flash(Tx.t("ui.inventory.the_spirit_wakes_and_answers") if sr.get("awake", false) else Tx.t("ui.inventory.the_spirit_throws_you_off"))
 		"bag":
 			sel = {"bag": int(data)}
 			var s = ch.inventory.bag[int(data)]

@@ -51,8 +51,11 @@ static func instance_mult(instance, energy_type: String) -> float:
 ## Stat modifiers granted by one equipped instance (base stats, affixes, inlays).
 static func instance_modifiers(slot: String, instance, energy_type: String) -> Array:
 	var out: Array = []
-	if instance == null: return out
+	if instance == null or instance.get("sealed", false): return out   # an unbound relic gives nothing
 	var def := ContentDB.item(instance.id)
+	if str(instance.get("spirit", "")) == "awake" and def.has("spirit"):
+		var fx: Dictionary = def.spirit.get("effect", {})
+		if not fx.is_empty(): out.append({"stat": str(fx.stat), "op": str(fx.op), "value": float(fx.value), "source": "spirit:" + slot})
 	var ilv := float(instance.get("ilv", def.get("ilv", 1)))
 	var mult := instance_mult(instance, energy_type)
 	var src := "gear:" + slot
@@ -183,7 +186,7 @@ static func rebuild(c) -> Array:
 	# Weapon family attack (S12): weapon attack × (1 + 0.8% first + 0.4% second) × enhancement.
 	var weapon = c.inventory.equipped.get("weapon")
 	var watk := 0.0
-	if weapon == null or str(fam.get("id", "fists")) == "fists":
+	if weapon == null or str(fam.get("id", "fists")) == "fists" or weapon.get("sealed", false):   # a sealed relic strikes like bare hands
 		watk = weapon_attack(maxf(1.0, lv)) * float(ContentDB.stat_const("equipment.fist_weapon_pct", 0.6))
 	else:
 		var wdef := ContentDB.item(weapon.id)

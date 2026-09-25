@@ -1202,7 +1202,8 @@ func sec_sa1() -> void:
 	check(start("the_sleeping_blade"), "The Sleeping Blade accepted")
 	check(travel("ds_abbots_sanctum"), "reach the Abbot's vault")
 	check(interact("sleeping_blade_altar").get("ok", false), "lift the blade from the altar")
-	check(c().inventory.count_including_equipped("sleeping_blade") >= 1, "bind the Sleeping Blade")
+	check(c().inventory.count_including_equipped("sleeping_blade") >= 1, "the Sleeping Blade is in the bag")
+	bind_the_blade()
 	check(finish("the_sleeping_blade"), "The Sleeping Blade done")
 	check(reach("spirit_awakening_4"), "Spirit Awakening 4")
 	check(start("quiet_waters"), "Quiet Waters accepted")
@@ -1360,3 +1361,29 @@ func take_to_the_air() -> void:
 	check(held, "flight holds its altitude")
 	check(not st.flying and st.surface != null, "descending onto the ground lands")
 	check(c().pools.qi < qi0 and not Game.combat.is_flying(c().id), "flight costs QI and ends on landing")
+
+## S14 binding: a found relic's power is sealed until bound; then its spirit can be challenged.
+func bind_the_blade() -> void:
+	var idx: int = c().inventory.first_index("sleeping_blade")
+	check(idx >= 0 and c().inventory.bag[idx].get("sealed", false), "a found relic starts sealed")
+	travel("ja_elder_hu_peak")   # bind where no blow can break the channel
+	var old_weapon = c().inventory.equipped.get("weapon")
+	var old_uid := int(old_weapon.get("uid", -1)) if old_weapon is Dictionary else -1
+	check(submit({"type": "equip", "index": c().inventory.first_index("sleeping_blade")}).get("ok", false), "hold the sealed blade")
+	var sealed_atk: float = c().stats.value("physical_attack")
+	var r := submit({"type": "bind_item", "slot": "weapon"})
+	check(r.get("ok", false), "begin binding %s" % str(r.get("reason", "")))
+	step(float(r.get("seconds", 20)) + 0.5)
+	if Game.inventory.binding.has(c().id) and verbose: print("  binding still running: ", Game.inventory.binding)
+	var blade = c().inventory.equipped.get("weapon")
+	check(blade is Dictionary and not blade.get("sealed", false) and blade.get("bound", false), "the Sleeping Blade is bound")
+	check(c().stats.value("physical_attack") > sealed_atk * 1.2, "a bound relic wakes its power (%.0f → %.0f attack)" % [sealed_atk, c().stats.value("physical_attack")])
+	var s := submit({"type": "subdue_spirit", "slot": "weapon"})
+	check(s.get("ok", false) and s.has("awake"), "challenge the blade's spirit (%.0f%%)" % (float(s.get("chance", 0.0)) * 100.0))
+	# Back to the weapon the run was built around.
+	if old_uid >= 0:
+		for i in c().inventory.bag.size():
+			var it = c().inventory.bag[i]
+			if it is Dictionary and int(it.get("uid", -2)) == old_uid:
+				submit({"type": "equip", "index": i})
+				break

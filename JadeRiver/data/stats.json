@@ -161,6 +161,22 @@
   "guard_factor": 0.5,
   "shallows_factor": 0.7
  },
+ "binding": {
+  "unlock": "binding",
+  "seconds": {
+   "plain": 4,
+   "common": 6,
+   "earth": 12,
+   "heaven": 20,
+   "mystic": 30
+  },
+  "spirit_chance": [
+   0.1,
+   0.9
+  ],
+  "spirit_cooldown_s": 60,
+  "soul_injury": 1
+ },
  "flight": {
   "unlock": "flight",
   "qi_pct_per_s": 0.02,
