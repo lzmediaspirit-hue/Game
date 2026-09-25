@@ -104,6 +104,15 @@
     1900,
     700
    ]
+  },
+  {
+   "id": "defence_bell",
+   "type": "defence_drum",
+   "at": [
+    2400,
+    720
+   ],
+   "text": "The alarm bell. Ring it when raiders come."
   }
  ],
  "spawns": [],

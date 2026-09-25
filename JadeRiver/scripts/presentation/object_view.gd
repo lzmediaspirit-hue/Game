@@ -9,7 +9,8 @@ const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "training_s
 	"notice_board": "notice_board", "signpost": "signpost", "teleport_stone": "teleport_stone", "insight_stone": "insight_stone",
 	"cooking_pot": "cooking_pot", "alchemy_furnace": "alchemy_furnace", "forge_anvil": "forge_anvil", "fishing_spot": "fishing_ripple",
 	"rite_circle": "rite_circle", "bell": "small_bell", "spar_post": "weapon_rack", "inspect": "grey_patch", "herb_patch": "willow_moss_patch",
-	"ore_vein": "copper_vein", "formation_table": "formation_node", "garden_bed": "willow_moss_patch"}
+	"ore_vein": "copper_vein", "formation_table": "formation_node", "garden_bed": "willow_moss_patch",
+	"defence_drum": "small_bell"}
 
 var def: Dictionary = {}
 var object_id := ""

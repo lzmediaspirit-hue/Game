@@ -38,6 +38,7 @@ var achievements: AchievementAuthority
 var pets: PetAuthority
 var companions: CompanionAuthority
 var sect: SectAuthority
+var workshop: WorkshopAuthority
 
 func _ready() -> void:
 	build_authorities()
@@ -60,8 +61,9 @@ func build_authorities() -> void:
 	pets = PetAuthority.new(self)
 	companions = CompanionAuthority.new(self)
 	sect = SectAuthority.new(self)
+	workshop = WorkshopAuthority.new(self)
 	authorities = [combat, progression, enemies, world, inventory, quest, economy, accounts, crafting, training, mail,
-		achievements, pets, companions, sect]
+		achievements, pets, companions, sect, workshop]
 	for a in authorities:
 		for type in a.intents():
 			assert(not handlers.has(type), "Intent registered twice: " + type)
@@ -157,6 +159,12 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"send_mail": mail.apply_send(str(e.get("to", actor_id)), str(e.template), e.get("attachments", []), e.get("args", {}))
 			"teleport": world.apply_teleport(actor_id, str(e.get("target", "")), str(e.get("portal", "")))
 			"learn_technique": progression.apply_learn_technique(actor_id, str(e.technique))
+			"learn_technique_for_weapon":
+				var ch = character(actor_id)
+				var w = ch.inventory.equipped.get("weapon") if ch else null
+				var fam := str(ContentDB.item(str(w.id)).get("family", "none")) if w != null else "none"
+				var opts: Dictionary = e.get("options", {})
+				progression.apply_learn_technique(actor_id, str(opts.get(fam, opts.get("none", ""))))
 			"learn_method": progression.apply_learn_method(actor_id, str(e.method))
 			"learn_recipe": crafting.apply_learn_recipe(actor_id, str(e.recipe))
 			"learn_secret_art": progression.apply_learn_secret_art(actor_id, str(e.art))
@@ -167,11 +175,14 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"grant_equipment": inventory.apply_add_equipment(actor_id, str(e.item), int(e.get("ilv", 0)), str(e.get("quality", "common")), source)
 			"add_companion": companions.apply_add(actor_id, str(e.companion))
 			"grant_pet": pets.apply_grant(actor_id, str(e.species))
+			"choose_starter": pets.choose_starter(character(actor_id), str(e.species))
 			"add_stability": progression.apply_stability(actor_id, str(e.value))
 			"add_purity": progression.apply_purity(actor_id, float(e.amount))
 			"unlock_slot": accounts.apply_slot(int(e.get("slot", 0)))
 			"codex": quest.apply_codex(str(e.entry))
 			"start_daily": quest.start_daily(true)
+			"system_used": GameEvents.emit_event("system_used", {"actor": actor_id, "system": str(e.system)})
+			"sect_defence_result": sect.apply_defence_result(actor_id, bool(e.get("won", true)))
 			_: push_warning("Unknown effect kind: " + str(e.get("kind", "")))
 
 # ------------------------------------------------------------------ simulation

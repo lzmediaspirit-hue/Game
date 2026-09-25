@@ -6,7 +6,7 @@ extends Authority
 var timer := 0.0
 
 func intents() -> Array:
-	return ["found_sect", "upgrade_building", "recruit_disciple", "send_expedition", "collect_expedition"]
+	return ["found_sect", "upgrade_building", "recruit_disciple", "send_expedition", "collect_expedition", "start_defence", "repair_building"]
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -16,6 +16,8 @@ func handle(intent: Dictionary) -> Dictionary:
 		"recruit_disciple": return recruit(int(intent.get("index", 0)))
 		"send_expedition": return send_expedition(str(intent.get("region", "")), int(intent.get("hours", 1)), intent.get("disciples", []))
 		"collect_expedition": return collect_expedition(c, int(intent.get("index", 0)))
+		"start_defence": return start_defence(c)
+		"repair_building": return repair(c, str(intent.get("building", "")))
 	return fail("unknown_intent")
 
 func sect() -> Dictionary:
@@ -171,3 +173,58 @@ func tick(delta: float) -> void:
 			sect().queue.erase(q)
 			emit("building_upgraded", {"building": q.building, "level": q.level})
 			apply_prestige(int(ContentDB.config("sect_levels").get("prestige_building", 20)), "building")
+
+# ------------------------------------------------------------------ defence events (S25)
+## A raid can be fought when one is due (sect level 6+, every 2-3 days) or when the
+## "Walls of the Vale" lesson asks for the first one.
+func defence_due(c) -> bool:
+	if not founded(): return false
+	if c != null and c.quests.active.has("walls_of_the_vale"): return true
+	var cfg := ContentDB.config("defence")
+	return int(sect().level) >= int(cfg.get("from_level", 6)) and Clock.now_utc() >= float(sect().get("next_defence_utc", 0.0))
+
+func start_defence(c) -> Dictionary:
+	if c == null or not founded(): return fail("no_sect")
+	if not defence_due(c): return fail("not_due", {"text": "No raid is coming yet."})
+	var cfg := ContentDB.config("defence")
+	if game.room_rt == null or game.room_rt.room_id != str(cfg.get("room", "hv_sect_grounds")):
+		return fail("wrong_room", {"text": "Meet the raiders in the Sect Grounds."})
+	if game.room_rt.event.get("active", false): return fail("event_running")
+	var waves: Array = cfg.get("waves", [])
+	var tier := clampi(int(sect().get("defences_won", 0)) / 2, 0, waves.size() - 1)
+	var wave: Dictionary = waves[tier].duplicate(true)
+	wave["points"] = cfg.get("points", [[400, 860]])
+	var ev := {"id": "sect_defence", "duration": float(cfg.get("duration", 60)), "wave": wave,
+		"on_complete": [{"kind": "sect_defence_result", "won": true}]}
+	game.world.start_room_event(c, ev)
+	emit("defence_warning", {"started": true})
+	return ok()
+
+func apply_defence_result(actor_id: String, won: bool) -> void:
+	if not founded(): return
+	var cfg := ContentDB.config("defence")
+	var days: Array = cfg.get("interval_days", [2, 3])
+	sect().next_defence_utc = Clock.now_utc() + Rng.stream("account", "sect").randf_range(float(days[0]), float(days[1])) * 86400.0
+	if won:
+		sect().defences_won = int(sect().get("defences_won", 0)) + 1
+		game.economy.apply_currency("silver_tael", int(cfg.get("taels_win", 200)), "defence")
+		apply_prestige(int(cfg.get("prestige_win", 40)), "defence")
+		emit("system_used", {"actor": actor_id, "system": "defence_won"})
+	else:
+		var built: Array = sect().get("buildings", {}).keys()
+		if not built.is_empty():
+			var hit := str(built[Rng.stream("account", "sect").randi_range(0, built.size() - 1)])
+			var damaged: Dictionary = sect().get("damaged", {})
+			damaged[hit] = true
+			sect().damaged = damaged
+	emit("defence_result", {"won": won})
+
+func repair(c, id: String) -> Dictionary:
+	var damaged: Dictionary = sect().get("damaged", {})
+	if not damaged.has(id): return fail("not_damaged")
+	var cost := int(building_cost(id, maxi(1, level_building(id))).silver_tael / 4)
+	if game.economy.balance("silver_tael") < cost: return fail("insufficient_funds")
+	game.economy.apply_currency("silver_tael", -cost, "repair")
+	damaged.erase(id)
+	emit("building_repaired", {"building": id})
+	return ok()

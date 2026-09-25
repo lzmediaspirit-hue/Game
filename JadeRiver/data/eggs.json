@@ -1,0 +1,26 @@
+{
+ "schema_version": 1,
+ "hatch_hours": [
+  2,
+  24
+ ],
+ "max_incubating": 1,
+ "species": [
+  {
+   "species": "reed_otter",
+   "weight": 3
+  },
+  {
+   "species": "ember_fox",
+   "weight": 3
+  },
+  {
+   "species": "jade_crane",
+   "weight": 2
+  },
+  {
+   "species": "mossback_toad",
+   "weight": 2
+  }
+ ]
+}

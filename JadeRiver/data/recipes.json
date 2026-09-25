@@ -1789,8 +1789,8 @@
    "grade": "earth",
    "inputs": [
     {
-     "item": "jadeiron",
-     "count": 2
+     "item": "blank_plate",
+     "count": 1
     },
     {
      "item": "formation_stone",
@@ -1799,7 +1799,7 @@
    ],
    "outputs": [
     {
-     "item": "blank_plate",
+     "item": "array_plate",
      "count": 1
     }
    ]

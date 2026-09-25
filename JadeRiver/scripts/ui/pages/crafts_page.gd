@@ -3,7 +3,7 @@ extends Page
 ## Alchemy and forging play a short timing mini-game (three strikes into the
 ## glowing band); its scores go to the authority, which rolls the quality.
 
-const CRAFTS := [["cooking", "Cooking"], ["alchemy", "Alchemy"], ["smithing", "Forge"]]
+const CRAFTS := [["cooking", "Cooking"], ["alchemy", "Alchemy"], ["smithing", "Forge"], ["formations", "Arrays"]]
 
 var sel := ""
 var count := 1
@@ -21,7 +21,7 @@ func setup() -> void:
 	tabs = []
 	for cr in CRAFTS:
 		tabs.append({"id": cr[0], "label": cr[1], "locked": "" if Unlocks.is_unlocked(ch.id, cr[0]) else Unlocks.locked_text(cr[0])})
-	var want = {"cooking": 0, "alchemy": 1, "forge": 2}.get(page_id, -1)
+	var want = {"cooking": 0, "alchemy": 1, "forge": 2, "arrays": 3}.get(page_id, -1)
 	if want >= 0: tab = want
 	else:
 		for i in tabs.size():
@@ -70,7 +70,7 @@ func draw_page() -> void:
 	var right := Rect2(list_r.end.x + 20, content.position.y, content.end.x - list_r.end.x - 20, content.size.y)
 	panel(right)
 	if sel == "" or ContentDB.entry("recipes", sel).is_empty() or str(ContentDB.entry("recipes", sel).craft) != craft:
-		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), "Choose a recipe. Stand near a %s to craft." % {"cooking": "cooking pot", "alchemy": "furnace", "smithing": "forge"}[craft], 19, UiKit.MIST)
+		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), ("Choose a recipe. Stand near a %s to craft." % {"cooking": "cooking pot", "alchemy": "furnace", "smithing": "forge"}[craft]) if craft != "formations" else "Choose a plate to etch. Array plates are one-use formations you carry.", 19, UiKit.MIST)
 		if craft == "alchemy": _auto(ch, right)
 		return
 	var rec := ContentDB.entry("recipes", sel)
@@ -91,7 +91,7 @@ func draw_page() -> void:
 		btn(Rect2(right.position.x + 158, right.end.y - 140, 56, 50), "+", "count", 1)
 	var why2 := Game.crafting.recipe_check(ch, sel, count, craft)
 	if game_on: _draw_minigame(Rect2(right.position.x + 24, right.end.y - 210, right.size.x - 48, 60))
-	var label = {"cooking": "Cook", "alchemy": "Refine", "smithing": "Forge"}[craft]
+	var label = {"cooking": "Cook", "alchemy": "Refine", "smithing": "Forge", "formations": "Etch"}[craft]
 	btn(Rect2(right.end.x - 244, right.end.y - 76, 220, 58), "Strike!" if game_on else label, "strike" if game_on else "craft", null, true, why2 == "" or game_on, why2)
 	if craft == "alchemy" and Unlocks.is_unlocked(ch.id, "auto_refine") and not game_on:
 		btn(Rect2(right.end.x - 474, right.end.y - 76, 220, 58), "Queue batch", "queue", null, false, why2 == "", why2)
@@ -125,11 +125,11 @@ func on_action(id: String, data) -> void:
 			game_on = false
 		"count": count = clampi(count + int(data), 1, 10)
 		"craft":
-			if craft == "cooking":
-				var r := submit({"type": "cook", "recipe": sel, "count": count})
+			if craft in ["cooking", "formations"]:
+				var r := submit({"type": "cook" if craft == "cooking" else "inscribe", "recipe": sel, "count": count})
 				if r.get("ok", false):
-					Audio.play("cook", "UI")
-					flash("Cooked %d" % int(r.count))
+					Audio.play("cook" if craft == "cooking" else "forge", "UI")
+					flash(("Cooked %d" if craft == "cooking" else "Etched %d") % int(r.count))
 			else:
 				game_on = true
 				scores = []
@@ -151,10 +151,8 @@ func on_action(id: String, data) -> void:
 		"queue":
 			if submit({"type": "queue_auto_refine", "recipe": sel, "count": count}).get("ok", false):
 				flash("Batch queued.")
-				Game.submit({"type": "report_system_used", "system": "auto_refine_queued"})
 		"collect":
-			if submit({"type": "collect_auto_refine"}).get("ok", false):
-				Game.submit({"type": "report_system_used", "system": "auto_refine_collected"})
+			submit({"type": "collect_auto_refine"})
 		"_tab":
 			sel = ""
 			game_on = false

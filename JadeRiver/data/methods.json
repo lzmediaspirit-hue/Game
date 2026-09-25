@@ -8,7 +8,9 @@
    "affinity": "water",
    "rate": 1.0,
    "capacity": 1.0,
-   "source": "lu_boatman"
+   "source": "lu_boatman",
+   "fragment": true,
+   "desc": "Lu's half-remembered method. A full scripture replaces it without cost."
   },
   {
    "id": "jade_current_scripture",

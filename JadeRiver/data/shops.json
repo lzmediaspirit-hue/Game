@@ -401,6 +401,30 @@
        }
       ]
      }
+    },
+    {
+     "item": "spirit_wood",
+     "price": 30,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "cloud_stride_5"
+       }
+      ]
+     }
+    },
+    {
+     "item": "puppet_core",
+     "price": 300,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "cloud_stride_5"
+       }
+      ]
+     }
     }
    ]
   },
@@ -421,11 +445,35 @@
      }
     },
     {
+     "item": "dusty_curio",
+     "price": 20,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_6"
+       }
+      ]
+     }
+    },
+    {
      "item": "spirit_stone_shard"
     },
     {
      "item": "manual_page",
      "price": 400
+    },
+    {
+     "item": "blank_plate",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_5"
+       }
+      ]
+     }
     }
    ],
    "rotation": {
@@ -649,10 +697,27 @@
    "id": "old_pan",
    "name": "Old Pan's Wares",
    "currency": "spirit_stone",
-   "stock": [],
+   "stock": [
+    {
+     "item": "dusty_curio",
+     "price": 1
+    }
+   ],
    "rotation": {
     "count": 3,
     "pool": [
+     {
+      "item": "torn_manual",
+      "price": 5,
+      "requires": {
+       "all": [
+        {
+         "kind": "realm_at_least",
+         "realm": "spirit_awakening_6"
+        }
+       ]
+      }
+     },
      {
       "item": "riverreed_ginseng_100",
       "price": 4

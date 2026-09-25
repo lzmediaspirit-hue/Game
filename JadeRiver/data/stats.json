@@ -314,6 +314,7 @@
   "flinch_pct": 0.2,
   "flinch_s": 0.4,
   "leash": 600,
+  "shrine_sanctuary": 240,
   "threat_heal": 1.5,
   "spawn_protection_s": 1.5,
   "depth_band": 26,

@@ -184,6 +184,8 @@ def build():
     entries("enemies.json", M)
 
     tables = []
+    # Key items drop only while a quest still needs them (S32 quest drops).
+    QUEST_DROPS = {"mudwater_bandit": [{"item": "mudwater_key", "chance": 0.3, "count": [1, 1], "quest": "the_caravan_road"}]}
     for m in M:
         role = m["role"]
         drops = m.get("drops", [])
@@ -204,6 +206,8 @@ def build():
             table["equipment"] = {"chance": 1.0, "min_quality": "superior"} if role != "story_boss" else {}
         else:
             table["guaranteed"] = [dict(x) for x in drops if x["chance"] >= 1.0]
+        if m["id"] in QUEST_DROPS:
+            table["quest_drops"] = QUEST_DROPS[m["id"]]
         tables.append(table)
     tables.append({"id": "jar_valley_low", "groups": [{"chance": 0.5, "pick": [{"item": "rice", "weight": 2, "count": [1, 1]},
                    {"item": "willow_moss", "weight": 2, "count": [1, 2]}, {"item": "herbal_tea", "weight": 1, "count": [1, 1]}]}],

@@ -81,6 +81,7 @@ func meditation_context(c) -> Dictionary:
 			if o.type == "qi_spring" and Unlocks.is_unlocked(c.id, "qi_springs"): spring = true
 			if o.type == "insight_stone" and Unlocks.is_unlocked(c.id, "insight_sites"): stone = str(o.get("dao", "water"))
 			if o.type == "gathering_formation": density += 0.5
+	density += game.workshop.formation_effect(c, "qi_density")
 	if spring: density *= float(ContentDB.curve("qi_spring_mult", 2))
 	return {"density": density, "spring": spring, "stone": stone}
 
@@ -263,7 +264,9 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 	if not cu.injuries.is_empty(): reasons.append("%d untreated injury" % cu.injuries.size())
 	var retreat := bool(game.room_rt.def.get("retreat", false)) if game.room_rt else false
 	if retreat: reasons.append("Retreat room")
-	var word := ProgressionRules.risk_word(ProgressionRules.risk_index(soft, unstable, cu.injuries.size(), mini(supports, 3), retreat)) if major else "none"
+	var guarded = game.workshop.formation_effect(c, "breakthrough_risk_step") < 0.0
+	if guarded: reasons.append("Guard formation")
+	var word := ProgressionRules.risk_word(ProgressionRules.risk_index(soft, unstable, cu.injuries.size(), mini(supports, 3) + (1 if guarded else 0), retreat)) if major else "none"
 	var can := cu.state == "bottleneck" and hard_ok and cu.breakthrough_cooldown <= 0.0 and not channels.has(c.id)
 	var blocked := ""
 	if cu.state != "bottleneck": blocked = "Keep accumulating: %d%%" % int(cu.progress_fraction() * 100)
@@ -340,7 +343,8 @@ func _advance(c, to: String, major: bool) -> void:
 		cu.stability_progress = 0.0
 		emit("stability_changed", {"actor": c.id, "word": cu.stability})
 	if major and energy == "true_qi" and ContentDB.realm(from).get("energy") != "true_qi": cu.purity = mini(cu.purity, 9)
-	emit("breakthrough_succeeded", {"actor": c.id, "from": from, "to": to, "major": major})
+	emit("breakthrough_succeeded", {"actor": c.id, "from": from, "to": to, "major": major,
+		"formation": "guard" if game.workshop.formation_effect(c, "breakthrough_risk_step") < 0.0 else ""})
 	emit("realm_changed", {"actor": c.id, "from": from, "to": to, "major": major, "level": ProgressionRules.level(c)})
 	var after_level := ProgressionRules.level(c)
 	_levels_gained(c, before_level, after_level)
@@ -556,9 +560,15 @@ func apply_learn_method(actor_id: String, method_id: String) -> void:
 	var c = game.character(actor_id)
 	if c == null or not ContentDB.has_entry("methods", method_id): return
 	if not c.cultivator.methods_known.has(method_id): c.cultivator.methods_known.append(method_id)
-	if c.cultivator.method_id == "":
+	var current := ContentDB.entry("methods", c.cultivator.method_id)
+	var fresh := ContentDB.entry("methods", method_id)
+	# A fragment (Lu's Riverbreath) is replaced by a full scripture at no cost (S08 switching applies to real methods).
+	var upgrade := bool(current.get("fragment", false)) and not bool(fresh.get("fragment", false)) \
+		and ContentDB.realm_position(str(fresh.get("ceiling", ""))) > ContentDB.realm_position(str(current.get("ceiling", "")))
+	if c.cultivator.method_id == "" or upgrade:
 		c.cultivator.method_id = method_id
-		emit("method_changed", {"actor": c.id, "method": method_id})
+		emit("method_changed", {"actor": c.id, "method": method_id, "cost": 0.0})
+		if upgrade: log_line(c.id, "%s replaces %s." % [str(fresh.get("name", ContentDB.name_of("methods", method_id))), ContentDB.name_of("methods", str(current.id))], "progress")
 	emit("method_learned", {"actor": c.id, "method": method_id})
 
 func apply_learn_technique(actor_id: String, tid: String) -> void:

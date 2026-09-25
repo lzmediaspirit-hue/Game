@@ -533,8 +533,15 @@
     "Where's my small spanner?"
    ],
    "services": [
-    "shop:tinkerer"
-   ]
+    "shop:tinkerer",
+    "page:workshop"
+   ],
+   "service_labels": {
+    "page:workshop": "Puppet bench"
+   },
+   "service_unlocks": {
+    "page:workshop": "puppetry"
+   }
   },
   {
    "id": "elder_gu",
@@ -560,8 +567,15 @@
     "Hmm, interesting."
    ],
    "services": [
-    "shop:gu_trade_house"
-   ]
+    "shop:gu_trade_house",
+    "page:workshop"
+   ],
+   "service_labels": {
+    "page:workshop": "Appraise"
+   },
+   "service_unlocks": {
+    "page:workshop": "appraisal"
+   }
   },
   {
    "id": "madam_hua",
@@ -916,7 +930,8 @@
    ],
    "services": [
     "shop:hermit"
-   ]
+   ],
+   "tree": "hermit_yao"
   },
   {
    "id": "jade_steward",
@@ -1053,10 +1068,15 @@
     "Shh."
    ],
    "services": [
-    "page:library"
+    "page:library",
+    "page:workshop"
    ],
    "service_labels": {
-    "page:library": "Browse"
+    "page:library": "Browse",
+    "page:workshop": "Restore manuals"
+   },
+   "service_unlocks": {
+    "page:workshop": "research"
    },
    "sect": "jade_sect"
   },
@@ -1109,7 +1129,18 @@
    "barks": [
     "Mind the lines."
    ],
-   "services": [],
+   "services": [
+    "page:workshop",
+    "page:arrays"
+   ],
+   "service_labels": {
+    "page:workshop": "Formations",
+    "page:arrays": "Etch plates"
+   },
+   "service_unlocks": {
+    "page:workshop": "formations",
+    "page:arrays": "array_plates"
+   },
    "sect": "jade_sect"
   },
   {
@@ -1135,7 +1166,15 @@
    "barks": [
     "Next patient."
    ],
-   "services": [],
+   "services": [
+    "page:workshop"
+   ],
+   "service_labels": {
+    "page:workshop": "Infirmary"
+   },
+   "service_unlocks": {
+    "page:workshop": "healing"
+   },
    "sect": "jade_sect"
   },
   {
@@ -1326,10 +1365,15 @@
     "Shh."
    ],
    "services": [
-    "page:library"
+    "page:library",
+    "page:workshop"
    ],
    "service_labels": {
-    "page:library": "Browse"
+    "page:library": "Browse",
+    "page:workshop": "Restore manuals"
+   },
+   "service_unlocks": {
+    "page:workshop": "research"
    },
    "sect": "cloud_sect"
   },
@@ -1382,7 +1426,18 @@
    "barks": [
     "Mind the lines."
    ],
-   "services": [],
+   "services": [
+    "page:workshop",
+    "page:arrays"
+   ],
+   "service_labels": {
+    "page:workshop": "Formations",
+    "page:arrays": "Etch plates"
+   },
+   "service_unlocks": {
+    "page:workshop": "formations",
+    "page:arrays": "array_plates"
+   },
    "sect": "cloud_sect"
   },
   {
@@ -1408,7 +1463,15 @@
    "barks": [
     "Next patient."
    ],
-   "services": [],
+   "services": [
+    "page:workshop"
+   ],
+   "service_labels": {
+    "page:workshop": "Infirmary"
+   },
+   "service_unlocks": {
+    "page:workshop": "healing"
+   },
    "sect": "cloud_sect"
   },
   {

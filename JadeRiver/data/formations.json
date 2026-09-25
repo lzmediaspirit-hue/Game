@@ -1,0 +1,47 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "gathering",
+   "name": "Gathering Formation",
+   "unlock": "formations",
+   "nodes": 3,
+   "fuel": "fuel_crystal_low",
+   "fuel_per_node": 1,
+   "hours_per_crystal": 2.0,
+   "max_hours": 24,
+   "effect": {
+    "qi_density": 0.5
+   },
+   "desc": "Thickens the Qi in this room while fuelled."
+  },
+  {
+   "id": "protection",
+   "name": "Protection Formation",
+   "unlock": "formations",
+   "nodes": 3,
+   "fuel": "fuel_crystal_low",
+   "fuel_per_node": 1,
+   "hours_per_crystal": 1.0,
+   "max_hours": 6,
+   "effect": {
+    "defense_pct": 0.15
+   },
+   "desc": "A barrier: +15% defence while you stay in this room."
+  },
+  {
+   "id": "guard",
+   "name": "Guard Formation",
+   "unlock": "guard_formation",
+   "nodes": 5,
+   "fuel": "fuel_crystal_low",
+   "fuel_per_node": 1,
+   "hours_per_crystal": 1.0,
+   "max_hours": 6,
+   "effect": {
+    "breakthrough_risk_step": -1
+   },
+   "desc": "Nothing interrupts, nothing surprises: breakthrough risk one step lower."
+  }
+ ]
+}

@@ -54,9 +54,11 @@ def shops():
                    s("bamboo_hat"), s("cotton_robe"), s("cotton_trousers"), s("cloth_boots"), s("copper_ore"), s("riverstone")],
          "rotation": {"count": 1, "pool": [s("jadeiron_jian"), s("jadeiron_spear"), s("jadeiron_robe"), s("jadeiron_gourd")]}},
         {"id": "tinkerer", "name": "Tinkerer's Workshop", "currency": "silver_tael",
-         "stock": [s("iron_pickaxe"), s("herb_sickle"), s("bamboo_rod"), s("clay_pot"), s("drying_rack", requires=all_of(realm("qi_kindling_8")))]},
+         "stock": [s("iron_pickaxe"), s("herb_sickle"), s("bamboo_rod"), s("clay_pot"), s("drying_rack", requires=all_of(realm("qi_kindling_8"))),
+                   s("spirit_wood", price=30, requires=all_of(realm("cloud_stride_5"))), s("puppet_core", price=300, requires=all_of(realm("cloud_stride_5")))]},
         {"id": "gu_trade_house", "name": "Trade House", "currency": "silver_tael",
-         "stock": [s("appraisers_loupe", requires=all_of(realm("qi_kindling_6"))), s("spirit_stone_shard"), s("manual_page", price=400)],
+         "stock": [s("appraisers_loupe", requires=all_of(realm("qi_kindling_6"))), s("dusty_curio", price=20, requires=all_of(realm("qi_kindling_6"))),
+                   s("spirit_stone_shard"), s("manual_page", price=400), s("blank_plate", price=60, requires=all_of(realm("heart_tempering_5")))],
          "rotation": {"count": 1, "pool": [s("jadeiron_hat"), s("cloudsilk_robe"), s("jadeiron_gourd")]}},
         {"id": "jade_sect", "name": "Jade Sect Mission Hall", "currency": "contribution",
          "requires": {"all": [{"kind": "training_sect", "sect": "jade_sect"}]},
@@ -75,7 +77,7 @@ def shops():
                    s("cloudpiercing_robe", requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"}))],
          "rotation": {"count": 1, "pool": [s("manual_page")]}},
         {"id": "old_pan", "name": "Old Pan's Wares", "currency": "spirit_stone",
-         "stock": [], "rotation": {"count": 3, "pool": [s("riverreed_ginseng_100", price=4), s("manual_page", price=6), s("spirit_egg", price=12,
+         "stock": [s("dusty_curio", price=1)], "rotation": {"count": 3, "pool": [s("torn_manual", price=5, requires=all_of(realm("spirit_awakening_6"))), s("riverreed_ginseng_100", price=4), s("manual_page", price=6), s("spirit_egg", price=12,
                    requires=all_of(realm("heart_tempering_5"))), s("mist_lotus", price=3), s("clear_mind_pill", price=3), s("spirit_jade", price=8)]}},
         {"id": "greyreed", "name": "Greyreed Trade Post", "currency": "silver_tael", "buys_all": True,
          "stock": [s("rice"), s("rice_ball"), s("cleansing_pill"), s("purging_pill"), s("grey_hide")]},
@@ -156,7 +158,7 @@ def recipes():
         r(jade, "smithing", [("jadeiron", 3), extra, ("spirit_stone_shard", 1)], [(jade, 1)], "earth")
     r("fuel_crystal_low", "smithing", [("spirit_stone_shard", 2)], [("fuel_crystal_low", 1)], "common", default=True)
     r("fuel_crystal_mid", "smithing", [("fuel_crystal_low", 10)], [("fuel_crystal_mid", 1)], "earth")
-    r("array_plate", "formations", [("jadeiron", 2), ("formation_stone", 1)], [("blank_plate", 1)], "earth")
+    r("array_plate", "formations", [("blank_plate", 1), ("formation_stone", 1)], [("array_plate", 1)], "earth")
     r("revival_talisman", "formations", [("talisman_paper", 2), ("ink", 1), ("mist_lotus", 1)], [("revival_talisman", 1)], "earth")
     entries("recipes", R)
     return {x["id"] for x in R}

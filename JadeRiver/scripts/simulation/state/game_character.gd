@@ -25,6 +25,7 @@ var seclusion: Dictionary = {}
 var idle_task: Dictionary = {}
 var companions: Dictionary = {"roster": [], "active": [], "bond": {}, "downed": {}}
 var pets: Array = []
+var eggs: Array = []                 # [{species, hatch_utc}] incubating spirit eggs (S22)
 var active_pet := ""
 var cooldowns: Dictionary = {}       # key -> utc until
 var rooms: Dictionary = {}           # room id -> {nodes: {obj: utc}, opened: {obj: true}}
@@ -54,7 +55,7 @@ func snapshot() -> Dictionary:
 		"crafting": crafting.duplicate(true), "training_sect": training_sect.duplicate(true),
 		"quests": quests.snapshot(), "position": position.duplicate(true), "last_shrine": last_shrine.duplicate(true),
 		"last_town": last_town, "seclusion": seclusion.duplicate(true), "idle_task": idle_task.duplicate(true),
-		"companions": companions.duplicate(true), "pets": pets.duplicate(true), "active_pet": active_pet,
+		"companions": companions.duplicate(true), "pets": pets.duplicate(true), "eggs": eggs.duplicate(true), "active_pet": active_pet,
 		"cooldowns": cooldowns.duplicate(true), "rooms": rooms.duplicate(true), "skill_page": skill_page,
 		"skip_prologue": skip_prologue, "created_utc": created_utc, "last_active_utc": last_active_utc,
 		"statuses": pools.statuses.duplicate(true), "loadouts": loadouts.duplicate(true),
@@ -81,6 +82,7 @@ func restore(d: Dictionary) -> void:
 	idle_task = d.get("idle_task", {}) if d.get("idle_task") is Dictionary else {}
 	companions = d.get("companions", companions).duplicate(true)
 	pets = d.get("pets", []).duplicate(true)
+	eggs = d.get("eggs", []).duplicate(true)
 	active_pet = str(d.get("active_pet", ""))
 	cooldowns = d.get("cooldowns", {}).duplicate(true)
 	rooms = d.get("rooms", {}).duplicate(true)

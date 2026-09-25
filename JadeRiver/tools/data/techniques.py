@@ -23,8 +23,10 @@ def tech(id, unlock, source, family, element, dtype, mult, hits, targets, cd, qi
 
 def build():
     T = [
-        tech("flowing_palm", "qi_kindling_1", "training_hall_jade", "fists", "water", "physical", (1.10, 1.30), 2, 1, 3, 8,
-             "Two flowing palm strikes. Tier 3: slows the target by 20% for 2 s.", tier3={"status": {"id": "slow", "chance": 1.0, "power": 0.2, "duration_s": 2}}),
+        # The first technique every disciple learns: a free-hand palm, so it works whatever the weapon.
+        tech("flowing_palm", "qi_kindling_1", "training_hall_jade", "any", "water", "physical", (1.10, 1.30), 2, 1, 3, 8,
+             "Two flowing palm strikes with the free hand; any weapon. Tier 3: slows the target by 20% for 2 s.",
+             tier3={"status": {"id": "slow", "chance": 1.0, "power": 0.2, "duration_s": 2}}, action="punch", dao="fist", reach=80),
         tech("jade_thrust", "qi_kindling_1", "training_hall_cloud", "spear", "none", "physical", (1.40, 1.70), 1, 2, 4, 10,
              "A piercing thrust that hits two foes in a line. Tier 5: becomes a Qi lance.", line=True),
         tech("cloudpiercing_stroke", "qi_kindling_1", "training_hall", "jian", "wind", "physical", (1.20, 1.50), 1, 2, 3.5, 9,

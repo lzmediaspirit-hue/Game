@@ -273,6 +273,18 @@ func defeat(e: EnemyState, killer: String) -> void:
 	emit("actor_defeated", payload)
 	if e.role == "field_boss": emit("field_boss_defeated", {"room": rt.room_id, "enemy": e.def_id})
 
+## Remove a monster without a defeat (tamed or fled): no loot, no kill credit; its spawn slot refills.
+func release(e: EnemyState) -> void:
+	if not e.alive: return
+	e.alive = false
+	e.action = "death"
+	e.dead_time = 0.0
+	for slot in game.room_rt.spawn_slots:
+		if int(slot.uid) == e.uid:
+			slot.uid = 0
+			slot.timer = float(slot.spec.get("respawn_s", 12.0))
+	emit("actor_released", {"uid": e.uid, "def": e.def_id})
+
 func end_spar(e: EnemyState, winner_actor: String) -> void:
 	e.alive = false
 	e.action = "hurt"

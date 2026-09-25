@@ -23,6 +23,11 @@ static func roll(table_id: String, rng: RandomNumberGenerator, level: int, drop_
 	for r in table.get("rare", []):
 		if rng.randf() < float(r.get("chance", 0.0)) * dr:
 			out.items.append({"item": r.item, "count": rng.randi_range(int(r.count[0]), int(r.count[1]))})
+	# Quest drops: only while the quest is active and the item is still missing (`extra.needs`).
+	var needs: Dictionary = extra.get("needs", {})
+	for q in table.get("quest_drops", []):
+		if needs.has(str(q.item)) and needs[str(q.item)] == str(q.get("quest", "")) and rng.randf() < float(q.get("chance", 1.0)):
+			out.items.append({"item": q.item, "count": rng.randi_range(int(q.count[0]), int(q.count[1]))})
 	var coins: Dictionary = table.get("coins", {})
 	if not coins.is_empty() and rng.randf() < float(coins.get("chance", 0.0)):
 		out.coins = coins_for(level, float(coins.get("mult", 1)), coin_find)

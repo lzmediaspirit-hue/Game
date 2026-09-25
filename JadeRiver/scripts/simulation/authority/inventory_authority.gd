@@ -170,7 +170,7 @@ func wear_check(c, def: Dictionary) -> String:
 	for attr in def.get("attribute_req", {}):
 		if c.stats.value(attr) < float(def.attribute_req[attr]): return "Requires %s %d" % [attr.capitalize(), int(def.attribute_req[attr])]
 	var slot := str(def.get("slot", ""))
-	var slot_unlock := {"weapon": "weapon_slot", "cape": "cape_slot", "talisman": "soul_talisman_slot"}
+	var slot_unlock := {"weapon": "weapons", "cape": "cape_slot", "talisman": "spirit_sense"}
 	if slot_unlock.has(slot) and not Unlocks.is_unlocked(c.id, slot_unlock[slot]): return Unlocks.locked_text(slot_unlock[slot])
 	return ""
 
@@ -243,6 +243,11 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 	var def := ContentDB.item(str(s.id))
 	if not def.has("use"): return fail("not_usable")
 	if game.combat.is_wounded(c.id): return fail("wounded")
+	# Items that start a system instead of applying effects; each owner validates before consuming.
+	match str(def.get("use_action", "")):
+		"appraise": return game.workshop.appraise(c, index)
+		"incubate": return game.pets.incubate_egg(c, index)
+		"tame": return game.pets.attempt_tame(c, str(s.id), -1.0)
 	var group := str(def.get("pill", def.get("food", {})).get("group", "utility"))
 	var cd_key := "item:" + group
 	if c.pools.cooldown(cd_key) > 0.0: return fail("cooldown", {"remaining": c.pools.cooldown(cd_key)})

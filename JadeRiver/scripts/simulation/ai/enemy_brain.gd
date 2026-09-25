@@ -10,7 +10,20 @@ static func target_position(auth, e: EnemyState) -> Dictionary:
 	var st: ActorState = auth.game.actor_state(c.id)
 	if st == null: return {}
 	if c.pools.has_status("spawn_protection") and e.ai.state in ["idle", "patrol"]: return {}
+	if in_sanctuary(auth, st.plane) and not e.is_boss(): return {}
 	return {"id": c.id, "pos": st.plane, "alt": st.altitude}
+
+## Shrines are sanctuaries: monsters neither aggro on nor chase a player standing by one,
+## so nobody is killed again while resting after a revival.
+static func in_sanctuary(auth, p: Vector2) -> bool:
+	var rt = auth.game.room_rt
+	if rt == null: return false
+	var r := float(ContentDB.stat_const("combat.shrine_sanctuary", 240))
+	for o in rt.def.get("objects", []):
+		if str(o.get("type", "")) == "shrine":
+			var at: Array = o.get("at", [0, 0])
+			if p.distance_to(Vector2(float(at[0]), float(at[1]))) <= r: return true
+	return false
 
 const ATTACK_CD := {"slow_melee": 1.8, "melee": 1.1, "charger": 1.5, "ranged": 1.6, "ranged_melee": 1.4, "leaper": 1.5, "flyer": 1.4,
 	"flyer_ranged": 1.6, "burrower": 1.6, "caster": 1.8, "guard_counter": 1.4, "humanoid": 1.0, "duelist": 0.9, "snapper": 1.6}

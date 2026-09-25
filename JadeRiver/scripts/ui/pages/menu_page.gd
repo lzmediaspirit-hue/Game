@@ -14,6 +14,7 @@ const ENTRIES := [
 	["spirit_animals", "Spirit Animals", "spirit_animals", "spirit_animals"],
 	["companions", "Companions", "characters", "companions"],
 	["crafts", "Crafts", "crafts", "herb_gathering"],
+	["workshop", "Workshop", "formation", "appraisal"],
 	["characters", "Characters", "characters", "idle_tasks"],
 	["codex", "Codex", "codex", "codex"],
 	["collection", "Collection", "collection", "collection_book"],

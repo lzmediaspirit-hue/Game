@@ -130,7 +130,7 @@ func use_portal(c, portal_id: String, crossing: bool) -> Dictionary:
 		emit("portal_blocked", {"actor": c.id, "portal": portal_id, "text": state.text})
 		return fail("sealed", {"text": state.text})
 	if c.cultivator.meditating: game.progression.stop_meditation(c, "portal")
-	emit("portal_used", {"actor": c.id, "portal": portal_id, "room": game.room_rt.room_id, "to": str(p.to)})
+	emit("portal_used", {"actor": c.id, "portal": portal_id, "room": game.room_rt.room_id, "to": str(p.to), "hidden": str(p.get("type", "")) == "hidden"})
 	var r := load_room(c, str(p.to), str(p.get("to_portal", "")))
 	return r
 
@@ -327,6 +327,8 @@ func interact(c, object_id: String) -> Dictionary:
 			result.text = str(o.get("text", "Meditate here."))
 		"spar_post":
 			return game.quest.start_spar_from_object(c, o)
+		"defence_drum":
+			return game.sect.start_defence(c)
 		"bell":
 			var bs: Dictionary = game.room_rt.objects.get(object_id, {})
 			bs.state = "open"
@@ -402,7 +404,7 @@ func _on_actor_defeated(p: Dictionary) -> void:
 	if def.is_empty(): return
 	var rng := Rng.stream(c.id, "loot")
 	var drop := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), c.stats.value("drop_rate"), c.stats.value("coin_find"),
-		{"no_equipment": false})
+		{"no_equipment": false, "needs": game.quest.item_needs(c)})
 	if bool(p.get("elite", false)) and def.get("role", "normal") == "normal":
 		var extra := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), c.stats.value("drop_rate"), c.stats.value("coin_find"))
 		drop.items.append_array(extra.items)
@@ -504,6 +506,10 @@ func tick(delta: float) -> void:
 	if rt.event.get("active", false): _tick_event(c, rt, delta)
 
 # ------------------------------------------------------------------ room events (survival, S27 night)
+## Start a timed event in the loaded room (set pieces, sect defence).
+func start_room_event(c, ev: Dictionary) -> void:
+	if game.room_rt: _start_event(c, game.room_rt, ev)
+
 func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 	if ev.has("requires") and not RequirementRules.passes(ev.requires, game.ctx(c)): return
 	rt.event = ev.duplicate(true)

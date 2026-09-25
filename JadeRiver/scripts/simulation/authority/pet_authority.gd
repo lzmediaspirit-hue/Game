@@ -7,7 +7,7 @@ extends Authority
 var ally_uid := 0
 
 func intents() -> Array:
-	return ["set_active_pet", "set_pet_role", "feed_pet", "pet_command", "rename_pet"]
+	return ["set_active_pet", "set_pet_role", "feed_pet", "pet_command", "rename_pet", "choose_starter", "attempt_tame", "incubate_egg", "hatch_egg"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("room_entered", _on_room_entered, 45)
@@ -48,6 +48,10 @@ func handle(intent: Dictionary) -> Dictionary:
 		"pet_command":
 			emit("pet_commanded", {"actor": c.id, "command": str(intent.get("command", "follow"))})
 			return ok()
+		"choose_starter": return choose_starter(c, str(intent.get("species", "")))
+		"attempt_tame": return attempt_tame(c, str(intent.get("offering", "")), float(intent.get("result", -1.0)))
+		"incubate_egg": return incubate_egg(c, int(intent.get("index", -1)))
+		"hatch_egg": return hatch_egg(c, int(intent.get("index", 0)))
 		"rename_pet":
 			var p3 := _pet(c, str(intent.get("pet", c.active_pet)))
 			if p3.is_empty(): return fail("unknown_pet")
@@ -140,3 +144,100 @@ func _on_meditation_tick(_p: Dictionary) -> void:
 	var c = game.active()
 	if active_pet(c).is_empty(): return
 	if game.tick_count % 60 == 0: apply_bond(c.id, 0.01)
+
+# ------------------------------------------------------------------ starter, taming, eggs (S22)
+## The hermit's three young ones: one choice per character, ever.
+func choose_starter(c, species: String) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "spirit_animals"): return fail("locked", {"text": Unlocks.locked_text("spirit_animals")})
+	if not ContentDB.entry("pets", species).get("starter", false): return fail("not_starter")
+	if c.quests.has_flag("starter_chosen"): return fail("already_chosen", {"text": "Your first companion has already chosen you."})
+	game.quest.apply_flag(c.id, "starter_chosen")
+	apply_grant(c.id, species)
+	return ok({"species": species})
+
+## Nearest paw-marked monster within reach and below the taming HP line.
+func tame_target(c) -> EnemyState:
+	if game.room_rt == null: return null
+	var st: ActorState = game.actor_state(c.id)
+	if st == null: return null
+	var cfg := ContentDB.config("taming")
+	var best: EnemyState = null
+	var best_d := 240.0
+	for e in game.room_rt.living_enemies():
+		if e.team != "enemy" or not e.def.get("tameable", false): continue
+		if e.pools.hp > e.pools.max_hp * float(cfg.get("hp_below", 0.3)): continue
+		var d = e.plane.distance_to(st.plane)
+		if d < best_d:
+			best_d = d
+			best = e
+	return best
+
+func tame_species(e: EnemyState) -> String:
+	var sp := str(e.def.get("tame_species", e.def_id))
+	if not ContentDB.has_entry("pets", sp): sp = sp.trim_suffix("_chick")
+	return sp if ContentDB.has_entry("pets", sp) else ""
+
+func tame_chance(c, e: EnemyState, offering: String, result: float) -> float:
+	var cfg := ContentDB.config("taming")
+	var chance := float(cfg.get("base", 0.35)) + float(cfg.get("offering_bonus", {}).get(offering, 0.0))
+	var gap := ProgressionRules.level(c) - e.level
+	chance += gap * float(cfg.get("per_level_over", 0.03)) if gap >= 0 else -gap * float(cfg.get("per_level_under", -0.08))
+	chance += int(c.cultivator.daos.get("beast_taming", {}).get("tier", 0)) * float(cfg.get("per_dao_tier", 0.05))
+	if result >= 0.0: chance += (clampf(result, 0.0, 1.0) - 0.5) * 0.3
+	return clampf(chance, float(cfg.get("min", 0.05)), float(cfg.get("max", 0.95)))
+
+## Use a Bonding Offering beside a weakened paw-marked monster. `result` is the calm
+## mini-game score (0..1), or -1 when the offering was used from quick-use.
+func attempt_tame(c, offering: String, result: float) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "taming"): return fail("locked", {"text": Unlocks.locked_text("taming")})
+	if offering == "" or not offering in ContentDB.config("taming").get("offerings", []): return fail("bad_offering")
+	if c.inventory.count(offering) <= 0: return fail("no_offering")
+	var e := tame_target(c)
+	if e == null: return fail("no_target", {"text": "Weaken a paw-marked spirit beast below 30% first."})
+	var species := tame_species(e)
+	if species == "": return fail("no_species")
+	game.inventory.apply_remove(c.id, offering, 1, "taming")
+	var chance := tame_chance(c, e, offering, result)
+	var success := Rng.stream(c.id, "taming").randf() < chance
+	game.enemies.release(e)
+	emit("tame_attempted", {"actor": c.id, "species": species, "success": success, "chance": chance})
+	if success:
+		apply_grant(c.id, species)
+		game.progression.apply_insight(c.id, "beast_taming", 5.0, "taming")
+		log_line(c.id, "The %s calms and bonds with you." % ContentDB.name_of("pets", species), "loot")
+	else:
+		log_line(c.id, "The %s bolts into the reeds." % ContentDB.name_of("pets", species), "warn")
+	return ok({"success": success, "species": species, "chance": chance})
+
+func incubate_egg(c, index: int) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "spirit_eggs"): return fail("locked", {"text": Unlocks.locked_text("spirit_eggs")})
+	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
+	if str(ContentDB.item(str(c.inventory.bag[index].id)).get("use_action", "")) != "incubate": return fail("not_an_egg")
+	var cfg := ContentDB.config("eggs")
+	if c.eggs.size() >= int(cfg.get("max_incubating", 1)): return fail("busy", {"text": "One egg at a time needs your warmth."})
+	var rng := Rng.stream(c.id, "taming")
+	var total := 0.0
+	for r in cfg.get("species", []): total += float(r.get("weight", 1))
+	var roll := rng.randf() * total
+	var species := ""
+	for r in cfg.get("species", []):
+		roll -= float(r.get("weight", 1))
+		if roll <= 0.0:
+			species = str(r.species)
+			break
+	var hours: Array = cfg.get("hatch_hours", [2, 24])
+	var h := rng.randf_range(float(hours[0]), float(hours[1]))
+	game.inventory.apply_remove_index(c.id, index, 1, "incubate")
+	c.eggs.append({"species": species, "hatch_utc": Clock.now_utc() + h * 3600.0})
+	emit("egg_incubated", {"actor": c.id, "hours": h})
+	emit("system_used", {"actor": c.id, "system": "egg_incubated"})
+	return ok({"hours": h})
+
+func hatch_egg(c, index: int) -> Dictionary:
+	if index < 0 or index >= c.eggs.size(): return fail("bad_index")
+	var egg: Dictionary = c.eggs[index]
+	if Clock.now_utc() < float(egg.hatch_utc): return fail("not_ready", {"text": "It is still warm and quiet."})
+	c.eggs.remove_at(index)
+	apply_grant(c.id, str(egg.species))
+	emit("egg_hatched", {"actor": c.id, "species": egg.species})
+	return ok({"species": egg.species})

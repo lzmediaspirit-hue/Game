@@ -173,13 +173,21 @@ func talk(c, npc: String) -> Dictionary:
 		var node_id := _tree_entry(c, tree)
 		if node_id != "":
 			return ok({"dialogue": _tree_node(c, npc, n, tree, node_id)})
+	# Every quest this NPC can offer, story first (main, guided, side); the first one speaks.
+	var offers: Array = []
 	for q in c.quests.offered:
 		var def2 := ContentDB.entry("quests", q)
-		if is_giver(def2, npc) and can_offer(c, def2) and not def2.get("auto_accept", false):
-			convo.lines = def2.get("offer_text", ["I have a task for you."]).duplicate()
-			convo.choices = [{"text": "Accept: %s" % def2.get("name", q), "accept": q}, {"text": "Not now", "close": true}]
-			convo.quest = q
-			return ok({"dialogue": convo})
+		if is_giver(def2, npc) and can_offer(c, def2) and not def2.get("auto_accept", false): offers.append(q)
+	if not offers.is_empty():
+		var rank := {"prologue": 0, "main": 1, "guided": 2, "side": 3}
+		offers.sort_custom(func(a, b): return int(rank.get(str(ContentDB.entry("quests", a).get("kind", "side")), 4)) < int(rank.get(str(ContentDB.entry("quests", b).get("kind", "side")), 4)))
+		var first := ContentDB.entry("quests", offers[0])
+		convo.lines = first.get("offer_text", ["I have a task for you."]).duplicate()
+		for q2 in offers.slice(0, 3):
+			convo.choices.append({"text": "Accept: %s" % ContentDB.entry("quests", q2).get("name", q2), "accept": q2})
+		convo.choices.append({"text": "Not now", "close": true})
+		convo.quest = offers[0]
+		return ok({"dialogue": convo})
 	for q in c.quests.active:
 		var def3 := quest_def(c, q)
 		if is_giver(def3, npc) and def3.has("progress_text"):
@@ -199,6 +207,8 @@ func talk(c, npc: String) -> Dictionary:
 		elif svc == "missions" and Unlocks.is_unlocked(c.id, "daily_missions"):
 			convo.choices.append({"text": "Missions", "page": "training_sect"})
 		elif svc.begins_with("page:"):
+			var gate := str(n.get("service_unlocks", {}).get(svc, ""))
+			if gate != "" and not Unlocks.is_unlocked(c.id, gate): continue
 			convo.choices.append({"text": str(n.get("service_labels", {}).get(svc, "Open")), "page": svc.trim_prefix("page:")})
 		elif svc.begins_with("spar:") and Unlocks.is_unlocked(c.id, "attack"):
 			convo.choices.append({"text": "Spar", "spar": svc.trim_prefix("spar:")})
@@ -261,6 +271,16 @@ func accept(c, qid: String) -> Dictionary:
 	_recount(c, qid)
 	return ok({"quest": qid})
 
+## Items active quests still need: item id -> quest id (quest drops, S32).
+func item_needs(c) -> Dictionary:
+	var out := {}
+	for qid in c.quests.active:
+		var def := quest_def(c, qid)
+		for o in def.get("objectives", []):
+			if str(o.get("kind", "")) in ["collect", "deliver"] and c.inventory.count(str(o.get("item", ""))) < int(o.get("count", 1)):
+				out[str(o.item)] = str(qid)
+	return out
+
 ## Objectives that mirror state (collect, reach_realm...) are recomputed, not incremented.
 func _recount(c, qid: String) -> void:
 	var def := quest_def(c, qid)
@@ -271,7 +291,9 @@ func _recount(c, qid: String) -> void:
 		var o: Dictionary = def.objectives[i]
 		var v := int(st.progress[i])
 		match str(o.kind):
-			"collect", "deliver": v = mini(c.inventory.count(str(o.item)), int(o.get("count", 1)))
+			"collect", "deliver":
+				v = mini(c.inventory.count(str(o.item)), int(o.get("count", 1)))
+				if not bool(o.get("consume", true)): v = maxi(v, int(st.progress[i]))
 			"reach_realm": v = 1 if ProgressionRules.at_least(c.cultivator.realm_key, str(o.realm)) else 0
 			"reach_body_level": v = mini(c.cultivator.body_level, int(o.get("count", 1)))
 			"set_flag": v = 1 if c.quests.has_flag(str(o.flag)) or (o.has("alt_flag") and c.quests.has_flag(str(o.alt_flag))) else 0
@@ -384,7 +406,7 @@ func _match(c, o: Dictionary, p: Dictionary, ev: String) -> int:
 			return 1
 		"dodge_attacks": return 1
 		"learn_technique": return 1 if str(o.get("technique", "any")) in ["any", str(p.get("technique", ""))] else 0
-		"breakthrough": return 1
+		"breakthrough": return 1 if str(o.get("formation", "")) in ["", str(p.get("formation", ""))] else 0
 		"buy_item": return int(p.get("count", 1)) if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
 		"sell_item": return int(p.get("count", 1)) if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
 		"open_page": return 1 if str(p.get("page", "")) == str(o.page) else 0
@@ -399,7 +421,7 @@ func _match(c, o: Dictionary, p: Dictionary, ev: String) -> int:
 		"choose_companion": return 1
 		"bond_pet": return 1
 		"pass_event": return 1 if str(p.get("event", "")) == str(o.event) else 0
-		"use_portal": return 1
+		"use_portal": return 0 if o.get("hidden", false) and not p.get("hidden", false) else 1
 		"read_mail": return 1
 	return 0
 
@@ -531,5 +553,5 @@ func start_daily(force: bool) -> void:
 			"hand_in": "", "rewards": [{"kind": "add_contribution", "amount": int(ContentDB.curve("contribution.daily", 20))},
 			{"kind": "grant_currency", "currency": "silver_tael", "amount": 10 + lv * 3}], "qp": "daily", "auto_complete": true}
 		made += 1
-	for qid in c.quests.daily: accept(c, qid)
+	for qid in c.quests.daily.keys(): accept(c, qid)   # a copy: accepting can auto-complete and erase
 	emit("missions_refreshed", {"actor": c.id, "count": made})

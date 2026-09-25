@@ -14,6 +14,36 @@
       ]
      },
      "node": "young"
+    },
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_active",
+        "quest": "two_hands_full"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "companion_1"
+       }
+      ]
+     },
+     "node": "companion"
+    },
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_active",
+        "quest": "brothers_in_arms"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "companion_2"
+       }
+      ]
+     },
+     "node": "companion_2"
     }
    ],
    "nodes": {
@@ -26,6 +56,249 @@
       {
        "text": "Yes, Elder.",
        "close": true
+      }
+     ]
+    },
+    "companion": {
+     "lines": [
+      "Four disciples of your year still walk alone. One of them should walk with you.",
+      "Who will it be?"
+     ],
+     "choices": [
+      {
+       "text": "Lan Yue, the healer",
+       "requires": {
+        "all": [
+         {
+          "kind": "companion_owned",
+          "companion": "lan_yue",
+          "value": false
+         }
+        ]
+       },
+       "effects": [
+        {
+         "kind": "add_companion",
+         "companion": "lan_yue"
+        },
+        {
+         "kind": "set_flag",
+         "flag": "companion_1"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Tie Niu, the brawler",
+       "requires": {
+        "all": [
+         {
+          "kind": "companion_owned",
+          "companion": "tie_niu",
+          "value": false
+         }
+        ]
+       },
+       "effects": [
+        {
+         "kind": "add_companion",
+         "companion": "tie_niu"
+        },
+        {
+         "kind": "set_flag",
+         "flag": "companion_1"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Qiu Feng, the archer",
+       "requires": {
+        "all": [
+         {
+          "kind": "companion_owned",
+          "companion": "qiu_feng",
+          "value": false
+         }
+        ]
+       },
+       "effects": [
+        {
+         "kind": "add_companion",
+         "companion": "qiu_feng"
+        },
+        {
+         "kind": "set_flag",
+         "flag": "companion_1"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Bai Ling, the formation student",
+       "requires": {
+        "all": [
+         {
+          "kind": "companion_owned",
+          "companion": "bai_ling",
+          "value": false
+         }
+        ]
+       },
+       "effects": [
+        {
+         "kind": "add_companion",
+         "companion": "bai_ling"
+        },
+        {
+         "kind": "set_flag",
+         "flag": "companion_1"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Tell me about them",
+       "next": "about_1"
+      },
+      {
+       "text": "Later",
+       "close": true
+      }
+     ]
+    },
+    "companion_2": {
+     "lines": [
+      "The gorge is too much for two. Who else will you trust?"
+     ],
+     "choices": [
+      {
+       "text": "Lan Yue, the healer",
+       "requires": {
+        "all": [
+         {
+          "kind": "companion_owned",
+          "companion": "lan_yue",
+          "value": false
+         }
+        ]
+       },
+       "effects": [
+        {
+         "kind": "add_companion",
+         "companion": "lan_yue"
+        },
+        {
+         "kind": "set_flag",
+         "flag": "companion_2"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Tie Niu, the brawler",
+       "requires": {
+        "all": [
+         {
+          "kind": "companion_owned",
+          "companion": "tie_niu",
+          "value": false
+         }
+        ]
+       },
+       "effects": [
+        {
+         "kind": "add_companion",
+         "companion": "tie_niu"
+        },
+        {
+         "kind": "set_flag",
+         "flag": "companion_2"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Qiu Feng, the archer",
+       "requires": {
+        "all": [
+         {
+          "kind": "companion_owned",
+          "companion": "qiu_feng",
+          "value": false
+         }
+        ]
+       },
+       "effects": [
+        {
+         "kind": "add_companion",
+         "companion": "qiu_feng"
+        },
+        {
+         "kind": "set_flag",
+         "flag": "companion_2"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Bai Ling, the formation student",
+       "requires": {
+        "all": [
+         {
+          "kind": "companion_owned",
+          "companion": "bai_ling",
+          "value": false
+         }
+        ]
+       },
+       "effects": [
+        {
+         "kind": "add_companion",
+         "companion": "bai_ling"
+        },
+        {
+         "kind": "set_flag",
+         "flag": "companion_2"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Tell me about them",
+       "next": "about_2"
+      },
+      {
+       "text": "Later",
+       "close": true
+      }
+     ]
+    },
+    "about_1": {
+     "lines": [
+      "Lan Yue mends what others break. Quiet, stubborn, never leaves a wounded friend.",
+      "Tie Niu hits first and apologises never. A wall with fists.",
+      "Qiu Feng can split a reed at a hundred paces. Keeps to the back.",
+      "Bai Ling draws lines that bite. Clever, impatient, loyal."
+     ],
+     "choices": [
+      {
+       "text": "I'm ready to choose",
+       "next": "companion"
+      }
+     ]
+    },
+    "about_2": {
+     "lines": [
+      "Lan Yue mends what others break. Quiet, stubborn, never leaves a wounded friend.",
+      "Tie Niu hits first and apologises never. A wall with fists.",
+      "Qiu Feng can split a reed at a hundred paces. Keeps to the back.",
+      "Bai Ling draws lines that bite. Clever, impatient, loyal."
+     ],
+     "choices": [
+      {
+       "text": "I'm ready to choose",
+       "next": "companion_2"
       }
      ]
     }

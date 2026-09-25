@@ -621,7 +621,18 @@
     "chance": 0.05,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [],
+   "quest_drops": [
+    {
+     "item": "mudwater_key",
+     "chance": 0.3,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "the_caravan_road"
+    }
+   ]
   },
   {
    "id": "stone_guardian",

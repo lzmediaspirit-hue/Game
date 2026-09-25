@@ -125,9 +125,11 @@ def npcs():
     npc("smith_bao", "Smith Bao", "Blacksmith", outfit("short_knot", 0, "sleeveless", "martial", "boots", shirt_dye="ink"),
         ["Iron remembers every hammer blow.", "Bring me Jadeiron and I'll make you something that sings."], ["*clang*"], services=["shop:stoneford_smith"])
     npc("tinkerer_yu", "Tinkerer Yu", "Tinkerer", outfit("ponytail", 3, "scholar", "cuffed", "folded", shirt_dye="grey"),
-        ["Tools are just patience you can hold.", "A better pickaxe means more ore and fewer blisters."], ["Where's my small spanner?"], services=["shop:tinkerer"])
+        ["Tools are just patience you can hold.", "A better pickaxe means more ore and fewer blisters."], ["Where's my small spanner?"], services=["shop:tinkerer", "page:workshop"],
+        service_labels={"page:workshop": "Puppet bench"}, service_unlocks={"page:workshop": "puppetry"})
     npc("elder_gu", "Elder Gu", "Trade house master", outfit("long_tied", 1, "scholar", "scholar", "folded", cape="solid", shirt_dye="crimson"),
-        ["Everything has a price. Most things have two.", "Bring me curiosities and I'll tell you what they're worth."], ["Hmm, interesting."], services=["shop:gu_trade_house"])
+        ["Everything has a price. Most things have two.", "Bring me curiosities and I'll tell you what they're worth."], ["Hmm, interesting."], services=["shop:gu_trade_house", "page:workshop"],
+        service_labels={"page:workshop": "Appraise"}, service_unlocks={"page:workshop": "appraisal"})
     npc("madam_hua", "Madam Hua", "Trade house master", outfit("flowing", 2, "cardigan", "straight", "slippers", cape="solid", shirt_dye="jade"),
         ["The trade house deals fairly now. I promise you that.", "Gu's ledgers made interesting reading."], ["Fair prices!"], services=["shop:gu_trade_house"])
     npc("mei_qing", "Mei Qing", "Alchemist", outfit("flowing", 3, "cardigan", "scholar", "slippers", shirt_dye="indigo"),
@@ -156,7 +158,7 @@ def npcs():
     npc("hamlet_trader_min", "Trader Min", "Greyreed trade post", outfit("ponytail", 0, "vneck", "cuffed", "boots", shirt_dye="jade"),
         ["Greyreed trades again! Thanks to you."], ["Market day!"], services=["shop:greyreed"])
     npc("hermit_yao", "Hermit Yao", "Marsh hermit", outfit("flowing", 1, "scholar", "loose", "folded", hat="straw", cape="tattered", shirt_dye="earth"),
-        ["The otters trust me. Maybe one day they'll trust you.", "Spirit beasts are not tools. They are friends who bite."], ["Shh. Listen to the reeds."], services=["shop:hermit"])
+        ["The otters trust me. Maybe one day they'll trust you.", "Spirit beasts are not tools. They are friends who bite."], ["Shh. Listen to the reeds."], services=["shop:hermit"], tree="hermit_yao")
 
     # Sects: mirrored roles (Jade / Cloud)
     first_sect_npc = len(N)
@@ -177,16 +179,20 @@ def npcs():
         npc(s + "_librarian", {"jade": "Librarian Zhu", "cloud": "Librarian Pei"}[s], "Librarian",
             outfit("long_tied", 1, "scholar", "scholar", "folded", shirt_dye="grey", pants_dye=dye),
             ["Methods by rank. Manuals by contribution. Silence by law.", "Torn pages can be restored. Torn students less so."], ["Shh."],
-            services=["page:library"], service_labels={"page:library": "Browse"})
+            services=["page:library", "page:workshop"], service_labels={"page:library": "Browse", "page:workshop": "Restore manuals"},
+            service_unlocks={"page:workshop": "research"})
         npc(s + "_smith", {"jade": "Smith Ouyang", "cloud": "Smith Tan"}[s], "Sect smith",
             outfit("short_knot", 5, "sleeveless", "martial", "boots", shirt_dye="ink"),
             ["The sect forge answers to disciples with Qi in their hands.", "Common first. Earth when you've earned it."], ["*clang*"])
         npc(s + "_formation_elder", {"jade": "Elder Bian", "cloud": "Elder Lou"}[s], "Formation elder",
             outfit("flowing", 1, "scholar", "scholar", "folded", cape="solid", shirt_dye=dye),
-            ["Lines on the floor, fuel in the nodes, intent in the centre.", "A good formation outlives its maker."], ["Mind the lines."])
+            ["Lines on the floor, fuel in the nodes, intent in the centre.", "A good formation outlives its maker."], ["Mind the lines."],
+            services=["page:workshop", "page:arrays"], service_labels={"page:workshop": "Formations", "page:arrays": "Etch plates"},
+            service_unlocks={"page:workshop": "formations", "page:arrays": "array_plates"})
         npc(s + "_physician", {"jade": "Physician Nan", "cloud": "Physician Qu"}[s], "Sect physician",
             outfit("ponytail", 3, "cardigan", "scholar", "slippers", shirt_dye="white"),
-            ["Injured disciples, bitter medicine.", "A needle in the right place is worth a hundred pills."], ["Next patient."])
+            ["Injured disciples, bitter medicine.", "A needle in the right place is worth a hundred pills."], ["Next patient."],
+            services=["page:workshop"], service_labels={"page:workshop": "Infirmary"}, service_unlocks={"page:workshop": "healing"})
         npc(s + "_gardener" if s == "jade" else "cloud_gardener", "Gardener Ji" if s == "jade" else "Gardener Ren", "Sect gardener",
             outfit("short_knot", 5, "vneck", "cuffed", "slippers", hat="straw", shirt_dye="earth"),
             ["Plant, water, wait. Harvest.", "Willow moss likes shade and gossip."], ["Grow, little ones."])
@@ -502,7 +508,8 @@ def guided_quests():
         o("reach_realm", "Reach Bone Forging 2", realm="bone_forging_2"),
         o("set_flag", "Climb to the trial bell", flag="trial_climbed"),
         o("kill", "Beat the Trial Puppet", enemy="trial_puppet"),
-    ], [fx("sect_rank", rank="service_disciple"), item("entry_token", 1), fx("codex", entry="training_sects")], hand_in="",
+    ], [fx("sect_rank", rank="service_disciple"), item("entry_token", 1), fx("codex", entry="training_sects"),
+        fx("set_flag", flag="prologue_done")], hand_in="",
         offered_by_unlock=True, auto_accept=True, target_room="sf_fairground", chapter="bf2",
         complete=["Service Disciple! Report to the steward at your sect's gate."])
     quest("a_disciples_chores", "A Disciple's Chores", "main", "jade_steward", [
@@ -617,6 +624,7 @@ def guided_quests():
     quest("is_it_real", "Is It Real?", "guided", "elder_gu", [
         o("use_system", "Appraise items", 3, system="appraise"),
     ], [item("spirit_stone_shard", 3)], offered_by_unlock=True, chapter="qk6", target_room="sf_artisan_row",
+        on_accept=[item("dusty_curio", 3)],
         offer=["Here's a loupe. Look at three things and tell me what they really are. Half the valley's jade is glass."],
         complete=["Good eye. Keep it. The wandering merchant Old Pan will trade with you now."])
     quest("the_caravan_road", "The Caravan Road", "guided", "elder_gu", [
@@ -642,6 +650,9 @@ def guided_quests():
     quest("after_the_cleansing", "After the Cleansing", "guided", "elder_hu", [
         o("use_technique", "Use a ranged technique", 10, ranged=True),
     ], [fx("sect_rank", rank="inner_disciple"), fx("add_contribution", amount=100)], offered_by_unlock=True, chapter="4", giver_any=M, hand_in_any=M,
+        on_accept=[fx("learn_technique_for_weapon", options={"none": "palm_wave", "gauntlets": "palm_wave", "jian": "crescent_arc",
+                                                             "spear": "spear_lance", "short_blade": "flying_blades", "staff": "earthshaker_wave",
+                                                             "bow": "pinning_arrow"})],
         offer=["Qi Unfurling. Your Qi can fly now. Send it at a target ten times."],
         complete=["Inner Disciple. A retreat room is yours."])
     quest("the_sect_forge", "The Sect Forge", "guided", "jade_smith", [
@@ -690,6 +701,7 @@ def guided_quests():
     quest("lines_in_the_sand", "Lines in the Sand", "guided", "jade_formation_elder", [
         o("use_system", "Place and fuel a gathering formation", system="formation_placed"),
     ], [item("fuel_crystal_low", 10)], offered_by_unlock=True, chapter="ht1", giver_any=FORMATION_ELDERS, hand_in_any=FORMATION_ELDERS,
+        on_accept=[item("fuel_crystal_low", 3)],
         offer=["Three nodes, one centre, fuel in each. A gathering formation thickens Qi around you."],
         complete=["Lines hold. Formations are patience made visible."])
     quest("the_infirmary", "The Infirmary", "guided", "jade_physician", [
@@ -699,10 +711,11 @@ def guided_quests():
     quest("carry_a_wall", "Carry a Wall", "guided", "jade_formation_elder", [
         o("craft", "Craft an Array Plate", recipe="array_plate"),
     ], [item("blank_plate", 3)], offered_by_unlock=True, chapter="ht5", same_stage_ok=True, giver_any=FORMATION_ELDERS, hand_in_any=FORMATION_ELDERS,
+        on_accept=[fx("learn_recipe", recipe="array_plate"), item("blank_plate", 1), item("formation_stone", 1)],
         offer=["A formation you can carry. Etch one plate."], complete=["Take these blanks."])
     quest("the_warm_egg", "The Warm Egg", "guided", "hermit_yao", [
         o("use_system", "Incubate a spirit egg", system="egg_incubated"),
-    ], [item("spirit_egg", 1)], offered_by_unlock=True, chapter="ht5", same_stage_ok=True,
+    ], [item("spirit_egg", 1)], offered_by_unlock=True, chapter="ht5", same_stage_ok=True, on_accept=[item("spirit_egg", 1)],
         offer=["An egg, warm and humming. Keep it close."], complete=["Another life in your care."])
     quest("brothers_in_arms", "Brothers in Arms", "guided", "elder_hu", [
         o("choose_companion", "Choose a second companion"),
@@ -710,7 +723,7 @@ def guided_quests():
     ], [], offered_by_unlock=True, chapter="ht6", giver_any=M, hand_in_any=M,
         offer=["The gorge is too much for two. Take a second companion."], complete=["Three together. Good."])
     quest("keep_watch", "Keep Watch", "guided", "jade_formation_elder", [
-        o("breakthrough", "Break through a stage inside a guard formation"),
+        o("breakthrough", "Break through a stage inside a guard formation", formation="guard"),
     ], [item("fuel_crystal_low", 2)], offered_by_unlock=True, chapter="ht7", giver_any=FORMATION_ELDERS, hand_in_any=FORMATION_ELDERS,
         offer=["A guard formation around you while you break through: nothing interrupts, nothing surprises."], complete=["Safe and stronger."])
     quest("the_heart_trial", "The Heart Trial", "main", "elder_hu", [
@@ -742,7 +755,8 @@ def guided_quests():
         offer=["Floor 3 is for core disciples."], complete=["Mind the dust. Some manuals bite."])
     quest("hands_of_wood", "Hands of Wood", "guided", "tinkerer_yu", [
         o("use_system", "Build a worker puppet", system="puppet_built"),
-    ], [], offered_by_unlock=True, chapter="cs5", offer=["A puppet that gathers while you cultivate. Build one."], complete=["Look at it go!"])
+    ], [], offered_by_unlock=True, chapter="cs5", on_accept=[item("spirit_wood", 4), item("puppet_core", 1)],
+        offer=["A puppet that gathers while you cultivate. Here's wood and a core; build one at my bench."], complete=["Look at it go!"])
     quest("opening_the_lake", "Opening the Lake", "guided", "mei_qing", [
         o("collect", "Gather Cloud Feathers", 3, item="cloud_feather", consume=False),
         o("collect", "Gather Cloudtop Orchids", 2, item="cloudtop_orchid", consume=False),
@@ -754,7 +768,7 @@ def guided_quests():
     ], [item("cloud_talisman", 1)], offered_by_unlock=True, chapter="sa1", giver_any=M, hand_in_any=M,
         offer=["Your soul has a lake now. Pulse it outward: Spirit Sense."], complete=["The world has more in it than eyes see."])
     quest("what_the_eyes_miss", "What the Eyes Miss", "main", "elder_hu", [
-        o("use_portal", "Find and use hidden portals", 3),
+        o("use_portal", "Find and use hidden portals", 3, hidden=True),
     ], [fx("learn_secret_art", art="concealment")], offered_by_unlock=True, chapter="8", giver_any=M, hand_in_any=M,
         offer=["Hidden doors all over the valley. Sense them. Use them."], complete=["Concealment: be what the eyes miss."])
     quest("the_sleeping_blade", "The Sleeping Blade", "guided", "elder_hu", [
@@ -773,6 +787,7 @@ def guided_quests():
     quest("torn_pages", "Torn Pages", "guided", "jade_librarian", [
         o("use_system", "Restore a damaged manual", system="restore_manual"),
     ], [item("restoration_ink", 3)], offered_by_unlock=True, chapter="sa6", giver_any=LIBRARIANS, hand_in_any=LIBRARIANS,
+        on_accept=[item("torn_manual", 1), item("restoration_ink", 1)],
         offer=["Restore a manual. Ink, patience, insight."], complete=["You gave a dead technique back its voice."])
     quest("passing_it_on", "Passing It On", "guided", "elder_hu", [
         o("use_system", "Teach an NPC disciple", system="teach"),
@@ -984,9 +999,39 @@ def dialogue():
     tree("lu", [], {})
     tree("shen_lian", [], {})
     tree("uncle_guo", [], {})
-    tree("mentor", [{"requires": all_of({"kind": "realm_below", "realm": "bone_forging_4"}), "node": "young"}],
+    comps = [("lan_yue", "Lan Yue, the healer", "Lan Yue mends what others break. Quiet, stubborn, never leaves a wounded friend."),
+             ("tie_niu", "Tie Niu, the brawler", "Tie Niu hits first and apologises never. A wall with fists."),
+             ("qiu_feng", "Qiu Feng, the archer", "Qiu Feng can split a reed at a hundred paces. Keeps to the back."),
+             ("bai_ling", "Bai Ling, the formation student", "Bai Ling draws lines that bite. Clever, impatient, loyal.")]
+
+    def comp_choices(flag_id, about_node):
+        return [{"text": label, "requires": all_of({"kind": "companion_owned", "companion": cid, "value": False}),
+                 "effects": [{"kind": "add_companion", "companion": cid}, {"kind": "set_flag", "flag": flag_id}], "close": True}
+                for cid, label, _ in comps] + [{"text": "Tell me about them", "next": about_node}, {"text": "Later", "close": True}]
+
+    def about(back):
+        return {"lines": [blurb for _, _, blurb in comps], "choices": [{"text": "I'm ready to choose", "next": back}]}
+    tree("mentor", [{"requires": all_of({"kind": "realm_below", "realm": "bone_forging_4"}), "node": "young"},
+                    {"requires": all_of(qactive("two_hands_full"), noflag("companion_1")), "node": "companion"},
+                    {"requires": all_of(qactive("brothers_in_arms"), noflag("companion_2")), "node": "companion_2"}],
          {"young": {"lines": ["Come back when your body is ready. Bone Forging 4, at least.", "Sweep, train, eat. In that order."],
-                    "choices": [{"text": "Yes, Elder.", "close": True}]}})
+                    "choices": [{"text": "Yes, Elder.", "close": True}]},
+          "companion": {"lines": ["Four disciples of your year still walk alone. One of them should walk with you.", "Who will it be?"],
+                        "choices": comp_choices("companion_1", "about_1")},
+          "companion_2": {"lines": ["The gorge is too much for two. Who else will you trust?"], "choices": comp_choices("companion_2", "about_2")},
+          "about_1": about("companion"), "about_2": about("companion_2")})
+    # Hermit Yao: the starter spirit animal (S22) and the mount bond at Cloud Stride.
+    tree("hermit_yao", [{"requires": all_of(qactive("a_friend_in_the_reeds"), noflag("starter_chosen")), "node": "starter"},
+                        {"requires": all_of(qactive("riding_the_wind"), noflag("mount_bonded")), "node": "mount"}],
+         {"starter": {"lines": ["Three young ones came to me after the grey took their mothers.",
+                                "The otter gathers, the fox fights, the crane chick cultivates and will carry you one day. Which one looks back at you?"],
+                      "choices": [{"text": "The Reed Otter", "effects": [{"kind": "choose_starter", "species": "reed_otter"}], "close": True},
+                                  {"text": "The Ember Fox kit", "effects": [{"kind": "choose_starter", "species": "ember_fox"}], "close": True},
+                                  {"text": "The Jade Crane chick", "effects": [{"kind": "choose_starter", "species": "jade_crane"}], "close": True},
+                                  {"text": "Let me watch them a while", "close": True}]},
+          "mount": {"lines": ["Cloud Stride, eh? Then a big enough friend can carry you.", "This crane has watched you for weeks. Hold out your hand."],
+                    "choices": [{"text": "Hold out a hand", "effects": [{"kind": "grant_pet", "species": "jade_crane"}, {"kind": "set_flag", "flag": "mount_bonded"}], "close": True},
+                                {"text": "Not yet", "close": True}]}})
     for tid, t in trees.items():
         write(tid + ".json", {"trees": {tid: t}}, folder=os.path.join(DATA, "dialogue"))
 

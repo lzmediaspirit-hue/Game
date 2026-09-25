@@ -1,0 +1,20 @@
+{
+ "schema_version": 1,
+ "hp_below": 0.3,
+ "base": 0.35,
+ "offering_bonus": {
+  "bonding_offering_common": 0.0,
+  "bonding_offering_earth": 0.2,
+  "bonding_offering_heaven": 0.35
+ },
+ "per_level_over": 0.03,
+ "per_level_under": -0.08,
+ "per_dao_tier": 0.05,
+ "min": 0.05,
+ "max": 0.95,
+ "offerings": [
+  "bonding_offering_common",
+  "bonding_offering_earth",
+  "bonding_offering_heaven"
+ ]
+}

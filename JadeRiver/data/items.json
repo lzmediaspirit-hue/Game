@@ -1027,7 +1027,9 @@
    "ilv": 27,
    "stack": 1,
    "icon": "spirit_egg",
-   "desc": "A warm egg. Something stirs inside."
+   "desc": "A warm egg. Something stirs inside. Use it to start incubating.",
+   "use": [],
+   "use_action": "incubate"
   },
   {
    "id": "old_pickaxe",
@@ -1234,7 +1236,9 @@
    "ilv": 14,
    "stack": 99,
    "icon": "bonding_offering_common",
-   "desc": "An offering that calms a wounded spirit beast so it may bond with you."
+   "desc": "Calms a wounded spirit beast (below 30% HP, paw-marked) so it may bond with you. Use it from quick-use beside one.",
+   "use": [],
+   "use_action": "tame"
   },
   {
    "id": "bonding_offering_earth",
@@ -1244,7 +1248,9 @@
    "ilv": 27,
    "stack": 99,
    "icon": "bonding_offering_earth",
-   "desc": "An offering that calms a wounded spirit beast so it may bond with you."
+   "desc": "Calms a wounded spirit beast (below 30% HP, paw-marked) so it may bond with you. Use it from quick-use beside one.",
+   "use": [],
+   "use_action": "tame"
   },
   {
    "id": "bonding_offering_heaven",
@@ -1254,7 +1260,9 @@
    "ilv": 45,
    "stack": 99,
    "icon": "bonding_offering_heaven",
-   "desc": "An offering that calms a wounded spirit beast so it may bond with you."
+   "desc": "Calms a wounded spirit beast (below 30% HP, paw-marked) so it may bond with you. Use it from quick-use beside one.",
+   "use": [],
+   "use_action": "tame"
   },
   {
    "id": "body_jade",
@@ -1345,6 +1353,103 @@
      10
     ]
    }
+  },
+  {
+   "id": "dusty_curio",
+   "name": "Dusty Curio",
+   "type": "curio",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "prayer_beads",
+   "desc": "An old trinket of uncertain worth. Appraise it to learn what it really is.",
+   "value_override": 15,
+   "use": [],
+   "use_action": "appraise"
+  },
+  {
+   "id": "jade_trinket",
+   "name": "Jade Trinket",
+   "type": "valuable",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "jade_token",
+   "desc": "A small carving of real river jade.",
+   "value_override": 60
+  },
+  {
+   "id": "string_of_old_coins",
+   "name": "String of Old Coins",
+   "type": "valuable",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "coin",
+   "desc": "Coins from a dynasty nobody remembers. Still silver.",
+   "value_override": 25
+  },
+  {
+   "id": "fake_jade",
+   "name": "Fake Jade",
+   "type": "valuable",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "pebble_core",
+   "desc": "Green glass. Half the valley's jade is glass.",
+   "value_override": 1
+  },
+  {
+   "id": "torn_manual",
+   "name": "Torn Manual",
+   "type": "scroll",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "lu_journal_page",
+   "desc": "A water-stained manual, half its characters gone. A librarian's bench can restore it.",
+   "value_override": 30
+  },
+  {
+   "id": "spirit_wood",
+   "name": "Spirit Wood",
+   "type": "material",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "bamboo_shoot",
+   "desc": "Pale wood that holds a trace of Qi. Puppet frames are cut from it."
+  },
+  {
+   "id": "puppet_core",
+   "name": "Puppet Core",
+   "type": "material",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "jade_core",
+   "desc": "A carved jade heart that lets a puppet follow simple orders."
+  },
+  {
+   "id": "array_plate",
+   "name": "Array Plate",
+   "type": "formation",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 20,
+   "icon": "blank_plate",
+   "desc": "A portable one-use protection formation: +15% defence for two minutes.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "physical_defense",
+     "op": "pct_add",
+     "value": 0.15,
+     "duration": 120,
+     "source": "array_plate"
+    }
+   ]
   },
   {
    "id": "healing_pill",

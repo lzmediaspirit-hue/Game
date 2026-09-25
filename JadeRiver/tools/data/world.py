@@ -963,8 +963,8 @@ def valley():
     r.decor("cart_broken", [2400, 740], flip=True)
     r.obj("sign_cr", "signpost", [3600, 860], text="Mudwater Hideout — turn back, traveller.")
     r.edge("east", "east", "sf_fairground", "west", y=850)
-    r.edge("west", "west", "dw_bend_shore", "east", y=850, ptype="sealed", requires=all_of(realm("qi_unfurling_1")),
-           locked_text="Deepwater Bend lies beyond. Qi Unfurling first.")
+    r.edge("west", "west", "dw_bend_shore", "east", y=850, ptype="sealed", requires=all_of(realm("qi_kindling_7")),
+           locked_text="Deepwater Bend lies beyond. Qi Kindling 7 first.")
     r.portal("hideout", "dungeon", [3000, 700], "mh_stockade", "west", press_up=True, label="Mudwater Hideout",
              requires=all_of({"kind": "item_owned", "item": "mudwater_key", "count": 1}), locked_text="A barred stockade gate. You need a key.")
     for rid, name, spawns, nxt, prev, extra in [
@@ -1175,6 +1175,7 @@ def valley():
     r.obj("sect_hall", "inspect", [1280, 720], prop="altar", text="Your sect's hall.", open_page="your_sect")
     r.obj("storage_hv", "storage_chest", [700, 720])
     r.obj("shrine_hv", "shrine", [1900, 700])
+    r.obj("defence_bell", "defence_drum", [2400, 720], text="The alarm bell. Ring it when raiders come.")
     r.edge("west", "west", "hv_vale_gate", "east", y=850)
     r.edge("east", "east", "hv_back_mountain", "west", y=850, ptype="sealed", requires=all_of({"kind": "sect_level", "level": 4}),
            locked_text="The Back Mountain opens at sect level 4.")

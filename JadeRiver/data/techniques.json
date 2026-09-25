@@ -4,7 +4,7 @@
   {
    "id": "flowing_palm",
    "name": "Flowing Palm",
-   "family": "fists",
+   "family": "any",
    "element": "water",
    "damage_type": "physical",
    "mult": [
@@ -16,7 +16,7 @@
    "hitbox": {
     "x": [
      -10,
-     70
+     80
     ],
     "depth": 30,
     "alt": [
@@ -33,8 +33,8 @@
    "dao": "fist",
    "unlock": "qi_kindling_1",
    "source": "training_hall_jade",
-   "desc": "Two flowing palm strikes. Tier 3: slows the target by 20% for 2 s.",
-   "action": "punch_2",
+   "desc": "Two flowing palm strikes with the free hand; any weapon. Tier 3: slows the target by 20% for 2 s.",
+   "action": "punch",
    "icon": "flowing_palm",
    "mastery": {
     "dmg_per_tier": 0.08,

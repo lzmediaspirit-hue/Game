@@ -1,0 +1,110 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "hermit_yao": {
+   "id": "hermit_yao",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_active",
+        "quest": "a_friend_in_the_reeds"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "starter_chosen"
+       }
+      ]
+     },
+     "node": "starter"
+    },
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_active",
+        "quest": "riding_the_wind"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "mount_bonded"
+       }
+      ]
+     },
+     "node": "mount"
+    }
+   ],
+   "nodes": {
+    "starter": {
+     "lines": [
+      "Three young ones came to me after the grey took their mothers.",
+      "The otter gathers, the fox fights, the crane chick cultivates and will carry you one day. Which one looks back at you?"
+     ],
+     "choices": [
+      {
+       "text": "The Reed Otter",
+       "effects": [
+        {
+         "kind": "choose_starter",
+         "species": "reed_otter"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "The Ember Fox kit",
+       "effects": [
+        {
+         "kind": "choose_starter",
+         "species": "ember_fox"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "The Jade Crane chick",
+       "effects": [
+        {
+         "kind": "choose_starter",
+         "species": "jade_crane"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Let me watch them a while",
+       "close": true
+      }
+     ]
+    },
+    "mount": {
+     "lines": [
+      "Cloud Stride, eh? Then a big enough friend can carry you.",
+      "This crane has watched you for weeks. Hold out your hand."
+     ],
+     "choices": [
+      {
+       "text": "Hold out a hand",
+       "effects": [
+        {
+         "kind": "grant_pet",
+         "species": "jade_crane"
+        },
+        {
+         "kind": "set_flag",
+         "flag": "mount_bonded"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Not yet",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

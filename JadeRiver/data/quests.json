@@ -722,6 +722,10 @@
     {
      "kind": "codex",
      "entry": "training_sects"
+    },
+    {
+     "kind": "set_flag",
+     "flag": "prologue_done"
     }
    ],
    "complete_text": [
@@ -1518,7 +1522,14 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qk6",
-   "target_room": "sf_artisan_row"
+   "target_room": "sf_artisan_row",
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "dusty_curio",
+     "count": 3
+    }
+   ]
   },
   {
    "id": "the_caravan_road",
@@ -1686,6 +1697,20 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_technique_for_weapon",
+     "options": {
+      "none": "palm_wave",
+      "gauntlets": "palm_wave",
+      "jian": "crescent_arc",
+      "spear": "spear_lance",
+      "short_blade": "flying_blades",
+      "staff": "earthshaker_wave",
+      "bow": "pinning_arrow"
+     }
+    }
    ]
   },
   {
@@ -2053,6 +2078,13 @@
    "hand_in_any": [
     "jade_formation_elder",
     "cloud_formation_elder"
+   ],
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "fuel_crystal_low",
+     "count": 3
+    }
    ]
   },
   {
@@ -2131,6 +2163,22 @@
    "hand_in_any": [
     "jade_formation_elder",
     "cloud_formation_elder"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "array_plate"
+    },
+    {
+     "kind": "grant_item",
+     "item": "blank_plate",
+     "count": 1
+    },
+    {
+     "kind": "grant_item",
+     "item": "formation_stone",
+     "count": 1
+    }
    ]
   },
   {
@@ -2163,7 +2211,14 @@
    ],
    "offered_by_unlock": true,
    "chapter": "ht5",
-   "same_stage_ok": true
+   "same_stage_ok": true,
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "spirit_egg",
+     "count": 1
+    }
+   ]
   },
   {
    "id": "brothers_in_arms",
@@ -2214,7 +2269,8 @@
     {
      "kind": "breakthrough",
      "text": "Break through a stage inside a guard formation",
-     "count": 1
+     "count": 1,
+     "formation": "guard"
     }
    ],
    "rewards": [
@@ -2486,13 +2542,25 @@
    ],
    "rewards": [],
    "offer_text": [
-    "A puppet that gathers while you cultivate. Build one."
+    "A puppet that gathers while you cultivate. Here's wood and a core; build one at my bench."
    ],
    "complete_text": [
     "Look at it go!"
    ],
    "offered_by_unlock": true,
-   "chapter": "cs5"
+   "chapter": "cs5",
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "spirit_wood",
+     "count": 4
+    },
+    {
+     "kind": "grant_item",
+     "item": "puppet_core",
+     "count": 1
+    }
+   ]
   },
   {
    "id": "opening_the_lake",
@@ -2590,7 +2658,8 @@
     {
      "kind": "use_portal",
      "text": "Find and use hidden portals",
-     "count": 3
+     "count": 3,
+     "hidden": true
     }
    ],
    "rewards": [
@@ -2769,6 +2838,18 @@
    "hand_in_any": [
     "jade_librarian",
     "cloud_librarian"
+   ],
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "torn_manual",
+     "count": 1
+    },
+    {
+     "kind": "grant_item",
+     "item": "restoration_ink",
+     "count": 1
+    }
    ]
   },
   {

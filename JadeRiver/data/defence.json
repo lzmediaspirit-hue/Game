@@ -1,0 +1,44 @@
+{
+ "schema_version": 1,
+ "room": "hv_sect_grounds",
+ "from_level": 6,
+ "interval_days": [
+  2,
+  3
+ ],
+ "duration": 60,
+ "waves": [
+  {
+   "enemy": "mudwater_bandit",
+   "every_s": 5,
+   "max": 4
+  },
+  {
+   "enemy": "mud_hound",
+   "every_s": 5,
+   "max": 5
+  },
+  {
+   "enemy": "hollow_stag",
+   "every_s": 4,
+   "max": 4
+  }
+ ],
+ "points": [
+  [
+   300,
+   860
+  ],
+  [
+   1500,
+   860
+  ],
+  [
+   2600,
+   860
+  ]
+ ],
+ "prestige_win": 40,
+ "taels_win": 200,
+ "per_disciple_guard": 0.1
+}

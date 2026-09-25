@@ -79,7 +79,7 @@ def build():
                           "trial": {"hp": 3, "attack": 0.7, "defence": 1.0}},
                 "own_element_resistance": 0.3, "overcome_element_resistance": 0.15},
         "combat": {"hitstop": 0.05, "hitstop_crit": 0.1, "knockback_light": 20, "knockback_heavy": 80, "flinch_pct": 0.2,
-                   "flinch_s": 0.4, "leash": 600, "threat_heal": 1.5, "spawn_protection_s": 1.5, "depth_band": 26,
+                   "flinch_s": 0.4, "leash": 600, "shrine_sanctuary": 240, "threat_heal": 1.5, "spawn_protection_s": 1.5, "depth_band": 26,
                    "auto_turn_range": 160, "backlash_stun_s": 1.0, "backlash_qi_pct": 0.05, "dodge_distance": 140,
                    "dodge_invuln_s": 0.25, "dodge_cooldown_s": 2.5, "parry_stagger_s": 0.8, "parry_stagger_boss_s": 0.3,
                    "combo_window_s": 0.5, "steadfast_s": 8, "vulnerable": 0.2, "shock": 0.2, "status_duration_tenacity": 0.5},
@@ -277,7 +277,8 @@ def build():
     ])
 
     entries("methods.json", [
-        {"id": "riverbreath_fragment", "grade": "common", "ceiling": "bone_forging_9", "affinity": "water", "rate": 1.0, "capacity": 1.0, "source": "lu_boatman"},
+        {"id": "riverbreath_fragment", "grade": "common", "ceiling": "bone_forging_9", "affinity": "water", "rate": 1.0, "capacity": 1.0, "source": "lu_boatman",
+         "fragment": True, "desc": "Lu's half-remembered method. A full scripture replaces it without cost."},
         {"id": "jade_current_scripture", "grade": "common", "ceiling": "heart_tempering_9", "affinity": "water", "rate": 1.0, "capacity": 1.1, "source": "jade_sect"},
         {"id": "cloudpiercing_canon", "grade": "common", "ceiling": "heart_tempering_9", "affinity": "wind", "rate": 1.15, "capacity": 0.95, "source": "cloud_sect"},
         {"id": "stonebody_canon", "grade": "earth", "ceiling": "spirit_awakening_9", "affinity": "earth", "rate": 1.05, "capacity": 1.0, "body_growth": 0.1, "source": "library_2"},

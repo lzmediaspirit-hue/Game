@@ -138,11 +138,12 @@ func hit_object(id: String, times: int) -> void:
 	GameEvents.flush()
 
 ## Fight `count` enemies of one kind with the basic combo, standing beside each.
-func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0) -> int:
-	var tally := {"killed": 0}
+func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, allow_elite := false) -> int:
+	var tally := {"killed": 0, "attacker": 0}
 	var t := 0.0
 	var heard := func(n: String, p: Dictionary):
 		if n == "actor_defeated" and str(p.get("def", "")) == def_id: tally.killed += 1
+		if n == "hit_landed" and str(p.get("target_kind", "")) == "player" and str(p.get("attacker", "")).is_valid_int(): tally.attacker = int(str(p.attacker))
 		if verbose and n == "hit_landed" and str(p.get("target_kind", "")) == "player":
 			var att = Game.room_rt.enemies.get(int(str(p.get("attacker", "0")))) if str(p.get("attacker", "")).is_valid_int() else null
 			print("    hit by ", att.def_id if att else p.get("attacker"), " for ", p.amount, " hp ", c().pools.hp)
@@ -152,6 +153,11 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0) -
 	var target: EnemyState = null
 	while int(tally.killed) < count and t < limit_s:
 		# Keep one target until it falls; prefer anything already attacking us.
+		# Whatever keeps hitting us (a ranged thrower, say) comes first.
+		var hitter: EnemyState = Game.room_rt.enemies.get(int(tally.attacker)) if int(tally.attacker) != 0 else null
+		if hitter != null and hitter.alive and hitter.team != "ally" and hitter != target:
+			target = hitter
+			tally.attacker = 0
 		if target == null or not target.alive or not Game.room_rt.enemies.has(target.uid):
 			target = null
 			for e in Game.room_rt.living_enemies():
@@ -159,7 +165,7 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0) -
 					target = e
 			if target == null:
 				for e in Game.room_rt.living_enemies():
-					if e.def_id == def_id and e.team != "ally" and (not e.elite or str(e.def.get("role", "")) == "elite"):
+					if e.def_id == def_id and e.team != "ally" and (allow_elite or not e.elite or str(e.def.get("role", "")) == "elite"):
 						if target == null or st == null or e.plane.distance_to(st.plane) < target.plane.distance_to(st.plane): target = e
 		if target == null:
 			step(0.5)
@@ -191,6 +197,7 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0) -
 		if Game.combat.is_wounded(c().id):
 			var here := room()
 			submit({"type": "choose_revival", "where": "shrine"})
+			place(Vector2(float(c().position.x), float(c().position.y)))
 			step(1.0)
 			if verbose: print("  revived at ", room(), "; walking back to ", here)
 			var rest_t := 0.0

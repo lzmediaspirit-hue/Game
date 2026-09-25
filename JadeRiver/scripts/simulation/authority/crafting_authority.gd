@@ -231,6 +231,7 @@ func queue_auto(c, recipe_id: String, count: int) -> Dictionary:
 	for inp in r.get("inputs", []): game.inventory.apply_remove(c.id, str(inp.item), int(inp.count) * count, "auto_refine")
 	c.crafting.auto_queue.append({"recipe": recipe_id, "count": count, "done_utc": Clock.now_utc() + float(r.get("time_s", 300)) * count, "quality": "common"})
 	emit("craft_started", {"actor": c.id, "recipe": recipe_id, "count": count})
+	emit("system_used", {"actor": c.id, "system": "auto_refine_queued"})
 	return ok()
 
 func collect_auto(c) -> Dictionary:
@@ -242,6 +243,8 @@ func collect_auto(c) -> Dictionary:
 			c.crafting.auto_queue.erase(q)
 			got += 1
 			emit("craft_completed", {"actor": c.id, "recipe": q.recipe, "craft": "alchemy", "quality": "common", "count": q.count, "auto": true})
+	if got == 0: return fail("not_ready", {"text": "No batch is finished yet."})
+	emit("system_used", {"actor": c.id, "system": "auto_refine_collected"})
 	return ok({"batches": got})
 
 func enhance(c, index: int, slot: String) -> Dictionary:

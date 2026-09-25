@@ -154,7 +154,7 @@ def build_items():
     rows.append(item("fuel_crystal_low", "material", "earth", 99, "Formation fuel pressed from Spirit Stone shards."))
     rows.append(item("fuel_crystal_mid", "material", "heaven", 99, "Ten low fuel crystals fused into one."))
     rows.append(item("blank_plate", "material", "earth", 99, "A blank jade plate for portable arrays."))
-    rows.append(item("spirit_egg", "egg", "earth", 1, "A warm egg. Something stirs inside."))
+    rows.append(item("spirit_egg", "egg", "earth", 1, "A warm egg. Something stirs inside. Use it to start incubating.", use=[], use_action="incubate"))
     tools = [("old_pickaxe", "plain", "mining", 1.0), ("iron_pickaxe", "common", "mining", 1.3), ("herb_sickle", "common", "gathering", 1.3),
              ("bamboo_rod", "plain", "fishing", 1.0), ("clay_pot", "plain", "cooking", 1.0), ("bronze_furnace", "common", "alchemy", 1.0),
              ("forge_hammer", "common", "smithing", 1.0), ("formation_kit", "earth", "formations", 1.0), ("needle_case", "earth", "healing", 1.0),
@@ -166,10 +166,21 @@ def build_items():
     rows.append(item("return_charm", "talisman", "plain", 99, "Teleports you to the last town.", use=[effect("teleport", target="last_town")]))
     rows.append(item("escape_talisman", "talisman", "common", 99, "Leaves a dungeon at once.", use=[effect("teleport", target="dungeon_exit")]))
     for g in ["common", "earth", "heaven"]:
-        rows.append(item("bonding_offering_" + g, "taming", g, 99, "An offering that calms a wounded spirit beast so it may bond with you.",
-                         name="Bonding Offering (%s)" % g.capitalize()))
+        rows.append(item("bonding_offering_" + g, "taming", g, 99,
+                         "Calms a wounded spirit beast (below 30% HP, paw-marked) so it may bond with you. Use it from quick-use beside one.",
+                         name="Bonding Offering (%s)" % g.capitalize(), use=[], use_action="tame"))
     for j, attr in [("body_jade", "body"), ("swift_jade", "agility"), ("essence_jade", "essence"), ("spirit_jade", "spirit"), ("insight_jade", "insight")]:
         rows.append(item(j, "jade", "common", 99, "A Qi jade for an inlay socket. +3/+6/+10 %s at Common/Earth/Heaven." % attr, jade={"attribute": attr, "values": [3, 6, 10]}))
+    # Workshop goods (S16 appraisal, research, puppetry; formations and array plates).
+    rows.append(item("dusty_curio", "curio", "common", 99, "An old trinket of uncertain worth. Appraise it to learn what it really is.", icon="prayer_beads", value_override=15, use=[], use_action="appraise"))
+    rows.append(item("jade_trinket", "valuable", "common", 99, "A small carving of real river jade.", icon="jade_token", value_override=60))
+    rows.append(item("string_of_old_coins", "valuable", "plain", 99, "Coins from a dynasty nobody remembers. Still silver.", icon="coin", value_override=25))
+    rows.append(item("fake_jade", "valuable", "plain", 99, "Green glass. Half the valley's jade is glass.", icon="pebble_core", value_override=1))
+    rows.append(item("torn_manual", "scroll", "earth", 99, "A water-stained manual, half its characters gone. A librarian's bench can restore it.", icon="lu_journal_page", value_override=30))
+    rows.append(item("spirit_wood", "material", "common", 99, "Pale wood that holds a trace of Qi. Puppet frames are cut from it.", icon="bamboo_shoot"))
+    rows.append(item("puppet_core", "material", "earth", 99, "A carved jade heart that lets a puppet follow simple orders.", icon="jade_core"))
+    rows.append(item("array_plate", "formation", "earth", 20, "A portable one-use protection formation: +15% defence for two minutes.", icon="blank_plate",
+                     use=[{"kind": "add_modifier", "stat": "physical_defense", "op": "pct_add", "value": 0.15, "duration": 120, "source": "array_plate"}]))
     rows.extend(pills())
     rows.extend(foods())
     rows.append(item("sphere_comprehension_stone", "treasure", "will", 1, "A stone that holds a folded world. (Later zones.)", sell=False, ilv=95))
