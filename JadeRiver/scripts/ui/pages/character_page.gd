@@ -40,6 +40,8 @@ func draw_page() -> void:
 			text(Vector2(x, r.position.y + 210), Tx.t("ui.character.combat_power"), 20, UiKit.MIST)
 			text(Vector2(x, r.position.y + 256), UiKit.fmt(StatRules.combat_power(ch)), 44, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 			if ch.cultivator.active_title != "": text(Vector2(x, r.position.y + 300), Tx.t("ui.character.title") % ContentDB.name_of("titles", ch.cultivator.active_title), 19, UiKit.BRIGHT_JADE)
+			_vitals(ch, Rect2(x, r.position.y + 322, r.end.x - x - 30, r.end.y - r.position.y - 340))
+			_party(ch, Rect2(r.position.x + 30, r.end.y - 80, 420, 70))
 		"stats":
 			for i in STATS.size():
 				var s: Array = STATS[i]
@@ -63,6 +65,31 @@ func draw_page() -> void:
 				var tid := str(titles[i])
 				var tr := Rect2(r.position.x + 30, r.position.y + 20 + i * 64, 600, 56)
 				btn(tr, ContentDB.name_of("titles", tid), "title", tid, ch.cultivator.active_title == tid)
+
+## Pools (QI and Soul only once the character has them), four headline stats and who travels along.
+func _vitals(ch, r: Rect2) -> void:
+	var y := r.position.y
+	var pools := [["hp", ch.pools.hp, ch.pools.max_hp, UiKit.RED, Tx.t("ui.character.hp_bar")]]
+	if ch.pools.max_qi > 0.0: pools.append(["qi", ch.pools.qi, ch.pools.max_qi, UiKit.QI, Tx.t("ui.character.qi_bar")])
+	if ch.pools.max_soul > 0.0: pools.append(["soul", ch.pools.soul, ch.pools.max_soul, UiKit.SOUL, Tx.t("ui.character.soul_bar")])
+	for p in pools:
+		bar(Rect2(r.position.x, y, r.size.x, 24), float(p[1]) / maxf(1.0, float(p[2])), p[3], p[4] % [int(p[1]), int(p[2])])
+		y += 30
+	y += 4
+	var picks := [["physical_attack", Tx.t("ui.character.physical_attack")], ["qi_attack", Tx.t("ui.character.qi_attack")],
+		["physical_defense", Tx.t("ui.character.physical_defence")], ["move_speed", Tx.t("ui.character.move_speed")]]
+	var cw := r.size.x / 2.0
+	for i in picks.size():
+		var at := Vector2(r.position.x + (i % 2) * cw, y + (i / 2) * 30 + 20)
+		text(at, str(picks[i][1]), 18, UiKit.MIST)
+		text(at, UiKit.fmt(ch.stats.value(str(picks[i][0]))), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, cw - 24)
+
+## Who travels along: the active spirit animal and companions, under the portrait.
+func _party(ch, r: Rect2) -> void:
+	var pet: Dictionary = Game.pets.active_pet(ch)
+	var mates: Array = (ch.companions.get("active", []) as Array).map(func(cid): return ContentDB.name_of("companions", str(cid)))
+	if not pet.is_empty(): text(Vector2(r.position.x, r.position.y + 20), fit(Tx.t("ui.character.spirit_animal") % str(pet.name), 17, r.size.x), 17, UiKit.BRIGHT_JADE)
+	if not mates.is_empty(): text(Vector2(r.position.x, r.position.y + 48), fit(Tx.t("ui.character.companions") % ", ".join(mates), 17, r.size.x), 17, UiKit.BRIGHT_JADE)
 
 func on_action(id: String, data) -> void:
 	if id == "title": submit({"type": "set_title", "title": str(data)})
