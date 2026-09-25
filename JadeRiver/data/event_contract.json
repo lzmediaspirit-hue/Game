@@ -601,6 +601,20 @@
     "workshop_authority"
    ]
   },
+  "pill_tribulation_result": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "pill_soul_flight": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
   "currency_changed": {
    "system": "Economy",
    "files": [

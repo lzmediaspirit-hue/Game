@@ -50,6 +50,7 @@ func _main() -> void:
 	herb_nature_suite()
 	new_forms_suite()
 	guild_suite()
+	tribulation_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -679,6 +680,51 @@ func guild_suite() -> void:
 	GameEvents.flush()
 	check(Game.crafting.guild_rank(c, "alchemy") == "expert" and Game.crafting.knows(c, "qi_flow_pill"), "Guild Expert, and the Qi Flow Pill recipe")
 	c.crafting["guild"] = {}
+	c.inventory.bag.fill(null)
+
+# ------------------------------------------------------------------ S44 pill tribulation and the Pill Soul's flight
+func tribulation_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	c.inventory.bag.fill(null)
+	var t1 := Game.crafting.begin_tribulation(c, "soul_soothing_pill", 1, "pill_halo", "charcoal", {})
+	check(str(t1.get("pending", "")) == "tribulation" and (t1.bolts as Array).size() == 3, "a Heaven pill faces 3 bolts")
+	var last := {}
+	for i in 3: last = Game.crafting.tribulation_shield(c, i, 0.05)
+	var got := str(last.get("quality", ""))
+	if str(last.get("pending", "")) == "soul": got = str(Game.crafting.catch_pill_soul(c, 0.0).get("quality", ""))
+	check(got in ["pill_halo", "pill_soul"] and c.inventory.count("soul_soothing_pill") >= 1, "every bolt held: the Halo holds (or rises), and the pills are yours (%s)" % got)
+	Game.crafting.begin_tribulation(c, "soul_soothing_pill", 1, "pill_halo", "charcoal", {})
+	Game.crafting.tribulation_shield(c, 0, 0.0)
+	Game.crafting.tribulation_shield(c, 1, 0.9)
+	var miss := Game.crafting.tribulation_shield(c, 2, 0.0)
+	check(str(miss.get("quality", "")) == "perfect", "one bolt missed: the pills drop to Perfect")
+	check((Game.crafting.begin_tribulation(c, "sage_condensing_pill", 1, "pill_halo", "charcoal", {}).bolts as Array).size() == 5, "a Mystic pill faces 5 bolts")
+	Game.crafting.tribulations.erase(c.id)
+	check((Game.crafting.begin_tribulation(c, "sovereign_settling_pill", 1, "pill_halo", "charcoal", {}).bolts as Array).size() == 9, "a Sage pill: 9 bolts, the most there are")
+	Game.crafting.tribulations.erase(c.id)
+	# The Pill Soul flees; a missed catch settles the batch as Pill Halo, never loses it.
+	Game.crafting.begin_tribulation(c, "soul_soothing_pill", 2, "pill_soul", "charcoal", {})
+	var fl := {}
+	for i in 3: fl = Game.crafting.tribulation_shield(c, i, 0.0)
+	check(str(fl.get("pending", "")) == "soul", "a Soul pill that comes through flees the furnace")
+	var n0: int = c.inventory.count("soul_soothing_pill")
+	var cp := Game.crafting.catch_pill_soul(c, 0.8)
+	check(not cp.get("caught", true) and str(cp.get("quality", "")) == "pill_halo" and c.inventory.count("soul_soothing_pill") >= n0 + 2,
+		"a missed catch: the batch settles as Pill Halo, not lost")
+	# A tribulation left unfinished settles when the next craft begins: every unanswered bolt struck.
+	Game.crafting.begin_tribulation(c, "soul_soothing_pill", 1, "pill_halo", "charcoal", {})
+	var before: int = c.inventory.count("soul_soothing_pill")
+	Game.crafting.craft_step(c, "healing_pill", "alchemy", 0.0)
+	check(not Game.crafting.tribulations.has(c.id) and c.inventory.count("soul_soothing_pill") == before + 1, "an abandoned tribulation settles, and its pills still come")
+	# A shop that sells several recipe scrolls sells the one asked for.
+	Game.economy.apply_currency("silver_tael", 5000, "test")
+	c.crafting.recipes.erase("qi_refining_pill")
+	var realm_was: String = c.cultivator.realm_key
+	if ProgressionRules.realm_index(realm_was) < ProgressionRules.realm_index("heart_tempering_5"): c.cultivator.realm_key = "heart_tempering_5"
+	var bs := Game.submit({"type": "buy", "shop": "mei_qing_recipes", "item": "recipe_scroll", "count": 1, "learn": "qi_refining_pill"})
+	check(bs.get("ok", false) and c.crafting.recipes.has("qi_refining_pill"), "the Recipe Box sells the Qi Refining scroll asked for, not the first on the shelf")
+	c.cultivator.realm_key = realm_was
 	c.inventory.bag.fill(null)
 
 # ------------------------------------------------------------------ formulas

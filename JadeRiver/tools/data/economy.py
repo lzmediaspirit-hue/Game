@@ -769,6 +769,11 @@ def forge_upkeep():
         "nature_shift": 0.08,           # S44: each hot herb moves the Extraction band up 8% of the bar; each cold one down
         "substitute_tier": 5,           # S44: the Alchemy Dao tier that lets one herb stand in for another
         "blast_durability": 10,         # S44: a furnace blast costs the furnace 10 durability
+        "deduce_per_page": 0.2, "deduce_per_tier": 0.1, "deduce_cap": 0.95,   # S44 Deduce odds
+        # S44 pill tribulation: 3 bolts (+2 a grade above Heaven, at most 9), a shield window either side of each strike,
+        # a 10% chance to rise a tier when every bolt is held; the Pill Soul's flight and its catch window.
+        "tribulation": {"bolts": 3, "per_grade": 2, "max": 9, "first_s": 1.2, "gap_min_s": 0.7, "gap_max_s": 1.3, "window_s": 0.22,
+                        "rise_chance": 0.1, "soul_min_s": 1.0, "soul_max_s": 1.6, "soul_window_s": 0.2},
         "risky_from": 5,                # attempts from +5 to +6 upward can fail
         "fail_step": 0.12,              # base chance falls 12% a level from there
         "essence_step": 0.025,          # each Refining Essence fed into an attempt adds 2.5%...

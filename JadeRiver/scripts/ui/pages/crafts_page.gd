@@ -19,6 +19,8 @@ const DIRECT := {"cooking": "cook", "formations": "inscribe", "star_charting": "
 var sel := ""
 var count := 1
 var game_on := false
+## S44 pill tribulation and the Pill Soul's flight: {stage: "bolts"|"soul", times[], window, t0 (ms), next, results[], catch_at}.
+var trib: Dictionary = {}
 var needle := 0.0
 var needle_dir := 1.0
 var scores: Array = []
@@ -57,6 +59,9 @@ func setup() -> void:
 	# A page opened for one recipe (a quest link, or a preview: --open-page=alchemy:healing_pill).
 	var pick := str(args.get("tab", ""))
 	if ContentDB.has_entry("recipes", pick) or pick == EXPERIMENT: sel = pick
+	if pick == "__tribulation":   # a preview of the tribulation screen (--open-page=alchemy:__tribulation); nothing is refined
+		sel = "soul_soothing_pill"
+		trib = {"stage": "bolts", "times": [0.2, 0.5, 1.0, 1.9, 2.8], "window": 0.22, "t0": Time.get_ticks_msec(), "next": 2, "results": [true, false], "preview": true}
 	if pick in FORGE_MODES:   # --open-page=forge:enhance (a preview shows the first piece chosen)
 		forge_mode = pick
 		var gear := _gear(ch)
@@ -76,6 +81,14 @@ func recipes_for(ch, craft: String) -> Array:
 
 func _process(delta: float) -> void:
 	super._process(delta)
+	if not trib.is_empty():
+		# A bolt or a fleeing Soul that goes by unanswered counts as missed.
+		var el := _trib_elapsed()
+		if str(trib.stage) == "bolts" and int(trib.next) < (trib.times as Array).size() and el > float(trib.times[int(trib.next)]) + float(trib.window):
+			_trib_answer(99.0)
+		elif str(trib.stage) == "soul" and el > float(trib.catch_at) + float(trib.window):
+			_trib_catch(99.0)
+		queue_redraw()
 	if game_on:
 		needle += needle_dir * delta * (0.9 + scores.size() * 0.35)
 		if needle > 1.0:
@@ -154,6 +167,11 @@ func draw_page() -> void:
 	slot_box(Rect2(right.position + Vector2(24, 24), Vector2(72, 72)), out2, int(rec.outputs[0].count))
 	text(right.position + Vector2(110, 56), ContentDB.item_name(out2), 24, UiKit.grade_color(str(rec.get("grade", "plain"))))
 	para(Rect2(right.position + Vector2(110, 68), Vector2(right.size.x - 130, 44)), str(ContentDB.item(out2).get("desc", "")), 16, UiKit.MIST, 2)
+	# S44: during a pill tribulation the heavens take over the furnace's panel.
+	if not trib.is_empty():
+		_draw_tribulation(Rect2(right.position.x + 24, right.position.y + 150, right.size.x - 48, right.size.y - 250))
+		btn(Rect2(right.end.x - 244, right.end.y - 76, 220, 58), Tx.t("ui.crafts.shield") if str(trib.stage) == "bolts" else Tx.t("ui.crafts.catch"), "trib", null, true)
+		return
 	var alch := craft == "alchemy"
 	var y := right.position.y + (118 if alch else 124)
 	var inputs: Array = Game.crafting.inputs_with(sel, subst) if alch else rec.inputs
@@ -625,6 +643,81 @@ func _rank_at_least(have: String, want: String) -> bool:
 	for rk in Game.crafting.guild_def("alchemy").get("ranks", []): ids.append(str(rk.id))
 	return have != "" and ids.find(have) >= ids.find(want)
 
+func _trib_elapsed() -> float:
+	return (Time.get_ticks_msec() - int(trib.get("t0", 0))) / 1000.0
+
+func _trib_answer(timing: float) -> void:
+	if trib.get("preview", false): return
+	var r := submit({"type": "tribulation_shield", "bolt": int(trib.next), "timing": timing})
+	(trib.results as Array).append(bool(r.get("held", false)))
+	trib.next = int(trib.next) + 1
+	Audio.play("hit" if r.get("held", false) else "hurt", "UI")
+	if str(r.get("pending", "")) == "soul":
+		trib = {"stage": "soul", "catch_at": float(r.catch_at), "window": float(r.window), "t0": Time.get_ticks_msec(), "results": trib.results}
+		flash(Tx.t("ui.crafts.soul_flees"))
+	elif int(r.get("left", 1)) == 0 and r.has("quality"):
+		trib = {}
+		flash(Tx.t("ui.crafts.quality_made") % [str(r.quality).replace("_", " ").capitalize(), int(r.get("count", 0))])
+
+func _trib_catch(timing: float) -> void:
+	var r := submit({"type": "catch_pill_soul", "timing": timing})
+	trib = {}
+	if r.get("ok", false):
+		flash(Tx.t("ui.crafts.soul_caught") if r.get("caught", false) else Tx.t("ui.crafts.soul_lost"))
+
+## The sky over the furnace: each bolt's ring closes on its strike; raise the shield as it lands. Then the Soul
+## streaks across; catch it as it crosses the mark.
+func _draw_tribulation(r: Rect2) -> void:
+	# A storm sky: darker at the top, the furnace's glow below.
+	for k in 8:
+		var band := Rect2(r.position.x, r.position.y + k * r.size.y / 8.0, r.size.x, r.size.y / 8.0 + 1)
+		draw_rect(band, Color(0.03 + k * 0.008, 0.04 + k * 0.006, 0.09 + k * 0.004))
+	draw_rect(r, Color(UiKit.GOLD, 0.35), false, 1.0)
+	var el := _trib_elapsed()
+	var ground := r.end.y - 34
+	if str(trib.stage) == "bolts":
+		var times: Array = trib.times
+		text(Vector2(r.position.x + 14, r.position.y + 26), Tx.t("ui.crafts.stage_tribulation") % [mini(int(trib.next) + 1, times.size()), times.size()], 17, UiKit.PALE_GOLD)
+		for i in times.size():
+			var cx := r.position.x + (i + 0.5) * r.size.x / times.size()
+			var cloud := Vector2(cx, r.position.y + 58)
+			var node := Vector2(cx, ground)
+			draw_circle(cloud + Vector2(-12, 2), 12, Color(0.18, 0.2, 0.3))
+			draw_circle(cloud + Vector2(8, 0), 15, Color(0.22, 0.24, 0.34))
+			draw_circle(cloud + Vector2(20, 5), 10, Color(0.18, 0.2, 0.3))
+			if i < (trib.results as Array).size():
+				# Answered: a shield arc that held, or the bolt that got through.
+				if trib.results[i]:
+					draw_arc(node, 26, PI, TAU, 24, UiKit.BRIGHT_JADE, 4)
+				else:
+					_bolt(cloud + Vector2(0, 14), node, Color(1.0, 0.45, 0.4))
+				continue
+			draw_circle(node, 7, Color(UiKit.GOLD, 0.8))
+			var until := float(times[i]) - el
+			if i == int(trib.next) and until < 1.2:
+				# The telegraph: a ring closing on the strike, the sky flickering as it comes.
+				var rad := 12.0 + maxf(0.0, until) * 60.0
+				draw_arc(node, rad, 0, TAU, 32, Color(0.75, 0.85, 1.0, 0.9), 3)
+				if until < 0.25: _bolt(cloud + Vector2(0, 14), node, Color(0.85, 0.9, 1.0, 0.9))
+	else:
+		text(Vector2(r.position.x + 14, r.position.y + 26), Tx.t("ui.crafts.stage_soul"), 17, UiKit.PALE_GOLD)
+		var mark_x := r.position.x + r.size.x * 0.7
+		r = Rect2(r.position.x, r.position.y + 40, r.size.x, r.size.y - 40)
+		draw_line(Vector2(mark_x, r.position.y + 10), Vector2(mark_x, r.end.y - 10), Color(UiKit.GOLD, 0.8), 2)
+		var f := clampf(el / maxf(0.1, float(trib.catch_at)), 0.0, 1.6) * 0.7
+		var p := Vector2(r.position.x + r.size.x * f, r.position.y + r.size.y * 0.5 + sin(el * 9.0) * 22.0)
+		draw_circle(p, 12, Color(1.0, 0.95, 0.7))
+		draw_circle(p, 20, Color(1.0, 0.9, 0.5, 0.3))
+
+## A jagged bolt from a cloud to the ground.
+func _bolt(a: Vector2, b: Vector2, col: Color) -> void:
+	var pts := PackedVector2Array([a])
+	for k in range(1, 6):
+		var t := k / 6.0
+		pts.append(a.lerp(b, t) + Vector2(10.0 if k % 2 == 0 else -10.0, 0))
+	pts.append(b)
+	draw_polyline(pts, col, 3.0)
+
 func _draw_minigame(r: Rect2) -> void:
 	# The alchemy strikes are the furnace's stages (S15): Extraction, Fusion, Condensation.
 	if str(tabs[tab].id) == "alchemy":
@@ -652,6 +745,7 @@ func on_action(id: String, data) -> void:
 	var craft := str(tabs[tab].id)
 	match id:
 		"sel":
+			if not trib.is_empty(): return   # the heavens do not wait while you browse
 			sel = str(data)
 			count = 1
 			game_on = false
@@ -723,8 +817,13 @@ func on_action(id: String, data) -> void:
 			Audio.play("forge" if craft == "smithing" else "alchemy", "UI")
 			if scores.size() >= (Game.crafting.steps_for(sel) if craft == "alchemy" else int(ContentDB.curve("craft_step.steps", 3))):
 				game_on = false
-				var r2 := submit({"type": "refine" if craft == "alchemy" else "forge", "recipe": sel, "count": count, "fire": fire, "substitute": subst})
-				if r2.get("ok", false):
+				var r2 := submit({"type": "refine" if craft == "alchemy" else "forge", "recipe": sel, "count": count, "fire": fire, "substitute": subst, "live": true})
+				if r2.get("ok", false) and str(r2.get("pending", "")) == "tribulation":
+					# S44: Heaven-grade Halo or Soul: the heavens test the pill before it is yours.
+					trib = {"stage": "bolts", "times": r2.bolts, "window": float(r2.window), "t0": Time.get_ticks_msec(), "next": 0, "results": [],
+						"quality": str(r2.quality)}
+					flash(Tx.t("ui.crafts.tribulation_begins"))
+				elif r2.get("ok", false):
 					var made := Tx.t("ui.crafts.quality_made") % [str(r2.quality).replace("_", " ").capitalize(), int(r2.count)]
 					if int(r2.get("marks", 0)) > 0: made += " · " + Tx.t("ui.crafts.marks") % int(r2.marks)
 					flash(made)
@@ -732,6 +831,12 @@ func on_action(id: String, data) -> void:
 			else:
 				band.x = 0.25 + Rng.stream(c().id, "minigame").randf() * 0.5
 				band.y = band.x + 0.14 * _band_mult(craft)
+		"trib":
+			var el := _trib_elapsed()
+			if str(trib.get("stage", "")) == "bolts" and int(trib.next) < (trib.times as Array).size():
+				_trib_answer(el - float(trib.times[int(trib.next)]))
+			elif str(trib.get("stage", "")) == "soul":
+				_trib_catch(el - float(trib.catch_at))
 		"queue":
 			if submit({"type": "queue_auto_refine", "recipe": sel, "count": count}).get("ok", false):
 				flash(Tx.t("ui.crafts.batch_queued"))

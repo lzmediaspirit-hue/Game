@@ -32,7 +32,7 @@ func intents() -> Array:
 	return ["complete_node", "catch_fish", "cook", "craft_step", "refine", "queue_auto_refine", "collect_auto_refine", "forge", "enhance", "salvage_item",
 		"salvage", "inherit_enhancement", "reroll_affixes", "choose_affixes", "lock_affix", "chart_route", "build_vessel", "absorb_flame",
 		"trace_talisman", "restore_relic", "mend_furnace", "deduce_recipe", "start_experiment", "take_guild_exam", "accept_commission",
-		"deliver_commission"]
+		"deliver_commission", "tribulation_shield", "catch_pill_soul"]
 
 func subscribe() -> void:
 	# S44 guild exams count what comes out of the furnace while the candle burns.
@@ -48,7 +48,9 @@ func handle(intent: Dictionary) -> Dictionary:
 		"craft_step": return craft_step(c, str(intent.get("recipe", "")), str(intent.get("craft", "alchemy")), float(intent.get("offset", 1.0)),
 			str(intent.get("fire", "charcoal")))
 		"refine": return craft(c, str(intent.get("recipe", "")), clampi(int(intent.get("count", 1)), 1, 10), _take_steps(c, str(intent.get("recipe", ""))), "alchemy",
-			str(intent.get("fire", "charcoal")), intent.get("substitute", {}) if intent.get("substitute", {}) is Dictionary else {})
+			str(intent.get("fire", "charcoal")), intent.get("substitute", {}) if intent.get("substitute", {}) is Dictionary else {}, bool(intent.get("live", false)))
+		"tribulation_shield": return tribulation_shield(c, int(intent.get("bolt", -1)), float(intent.get("timing", 99.0)))
+		"catch_pill_soul": return catch_pill_soul(c, float(intent.get("timing", 99.0)))
 		"forge": return craft(c, str(intent.get("recipe", "")), 1, _take_steps(c, str(intent.get("recipe", ""))), "smithing")
 		"queue_auto_refine": return queue_auto(c, str(intent.get("recipe", "")), clampi(int(intent.get("count", 1)), 1, 10))
 		"absorb_flame": return absorb_flame(c, int(intent.get("index", -1)))
@@ -230,6 +232,7 @@ func recipe_check(c, recipe_id: String, count: int, craft: String, inputs: Array
 ## it landed (0 = dead centre). Scored here, so the craft uses only what Crafting measured.
 func craft_step(c, recipe_id: String, craft_kind: String, offset: float, fire := "charcoal") -> Dictionary:
 	if not craft_kind in ["alchemy", "smithing"] or not ContentDB.has_entry("recipes", recipe_id): return fail("bad_step")
+	_settle_tribulation(c)
 	var k: Dictionary = ContentDB.curve("craft_step", {})
 	var session: Dictionary = steps.get(c.id, {})
 	if str(session.get("recipe", "")) != recipe_id or (session.get("scores", []) as Array).size() >= steps_for(recipe_id):
@@ -252,7 +255,8 @@ func _take_steps(c, recipe_id: String) -> Array:
 	steps.erase(c.id)
 	return session.get("scores", []) if str(session.get("recipe", "")) == recipe_id else []
 
-func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, fire := "charcoal", substitute: Dictionary = {}) -> Dictionary:
+func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, fire := "charcoal", substitute: Dictionary = {}, live := false) -> Dictionary:
+	_settle_tribulation(c)
 	var furnace := furnace_of(c) if craft_kind == "alchemy" else {}
 	# S44: an Alchemy Dao tier-5 substitute swaps one herb for another of the same nature and role.
 	var inputs: Array = ContentDB.entry("recipes", recipe_id).get("inputs", [])
@@ -282,6 +286,17 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, 
 		if craft_kind == "alchemy" and quality == "perfect": quality = _rare_pill_quality(c, scores, rng, rare_allowed(furnace, fire))
 	for inp in inputs: game.inventory.apply_remove(c.id, str(inp.item), int(inp.count) * count, "craft:" + recipe_id)
 	if craft_kind == "alchemy" and fire == "beast_fire": game.inventory.apply_remove(c.id, _core_to_burn(c), 1, "beast_fire")
+	# S44 pill tribulation: a Heaven-grade (or better) pill that reaches Halo or Soul at the furnace must first come
+	# through the bolts; its pills wait until it does (the page plays the screen; other callers keep the roll).
+	if craft_kind == "alchemy" and live and quality in ["pill_halo", "pill_soul"] \
+			and StatRules.grade_index(str(r.get("grade", "plain"))) >= StatRules.grade_index("heaven"):
+		return begin_tribulation(c, recipe_id, count, quality, fire, furnace)
+	return _grant(c, recipe_id, count, quality, fire, craft_kind, furnace)
+
+## Hands over what a craft made: the outputs (a furnace's extra pill, a liquid to the Draught slot), XP and events.
+func _grant(c, recipe_id: String, count: int, quality: String, fire: String, craft_kind: String, furnace: Dictionary) -> Dictionary:
+	var r := ContentDB.entry("recipes", recipe_id)
+	var rng := Rng.stream(c.id, "crafting")
 	var produced := 0
 	# Marks and a furnace's extra pill roll on their own stream, so the crafting stream's sequence
 	# (quality, and every forged piece after it) is the same as before furnaces existed.
@@ -385,6 +400,76 @@ func blast(c, recipe_id: String, inputs: Array, count: int, clash: Dictionary) -
 	emit("furnace_blast", {"actor": c.id, "recipe": recipe_id, "conflict": str(clash.id), "herbs": clash.get("herbs", []),
 		"durability": int(inst.get("durability", 0)) if inst != null else 0})
 	return fail("blast", {"text": Tx.t("sim.crafting.furnace_blast") % str(clash.get("text", ""))})
+
+# ------------------------------------------------------------------ S44 pill tribulation and the Pill Soul's flight
+var tribulations: Dictionary = {}   # actor -> the tribulation in progress {recipe, count, quality, fire, furnace, bolts[], blocked, answered, stage}
+
+## 3 bolts, +2 for each grade above Heaven, at most 9, at times drawn from the crafting stream.
+func begin_tribulation(c, recipe_id: String, count: int, quality: String, fire: String, furnace: Dictionary) -> Dictionary:
+	var k: Dictionary = upkeep("tribulation", {})
+	var above := StatRules.grade_index(str(ContentDB.entry("recipes", recipe_id).get("grade", "heaven"))) - StatRules.grade_index("heaven")
+	var n := clampi(int(k.get("bolts", 3)) + int(k.get("per_grade", 2)) * above, 1, int(k.get("max", 9)))
+	var rng := Rng.stream(c.id, "crafting")
+	var times: Array = []
+	var t := float(k.get("first_s", 1.2))
+	for i in n:
+		times.append(snappedf(t, 0.01))
+		t += rng.randf_range(float(k.get("gap_min_s", 0.7)), float(k.get("gap_max_s", 1.3)))
+	tribulations[c.id] = {"recipe": recipe_id, "count": count, "quality": quality, "fire": fire, "furnace": furnace.duplicate(),
+		"bolts": times, "blocked": 0, "answered": 0, "stage": "bolts"}
+	return ok({"pending": "tribulation", "bolts": times, "window": float(k.get("window_s", 0.22)), "quality": quality})
+
+## One bolt: `timing` is how far from its strike the shield went up (seconds, either side); inside the window it holds.
+func tribulation_shield(c, bolt: int, timing: float) -> Dictionary:
+	var tr: Dictionary = tribulations.get(c.id, {})
+	if tr.is_empty() or str(tr.stage) != "bolts": return fail("no_tribulation")
+	if bolt != int(tr.answered): return fail("wrong_bolt")
+	var k: Dictionary = upkeep("tribulation", {})
+	var held := absf(timing) <= float(k.get("window_s", 0.22))
+	tr.answered = int(tr.answered) + 1
+	if held: tr.blocked = int(tr.blocked) + 1
+	if int(tr.answered) < (tr.bolts as Array).size(): return ok({"held": held, "left": (tr.bolts as Array).size() - int(tr.answered)})
+	# Every bolt answered: all held keeps the result (a 10% chance to rise a tier); one missed drops it to Perfect.
+	var before := str(tr.quality)
+	var after := before
+	if int(tr.blocked) < (tr.bolts as Array).size(): after = "perfect"
+	elif before == "pill_halo" and Rng.stream(c.id, "crafting").randf() < float(k.get("rise_chance", 0.1)): after = "pill_soul"
+	tr.quality = after
+	emit("pill_tribulation_result", {"actor": c.id, "recipe": str(tr.recipe), "bolts": (tr.bolts as Array).size(), "blocked": int(tr.blocked),
+		"before": before, "after": after})
+	if after == "pill_soul":
+		# The Pill Soul flees the furnace: one tap as it passes the mark catches it.
+		tr.stage = "soul"
+		tr.catch_at = snappedf(Rng.stream(c.id, "crafting").randf_range(float(k.get("soul_min_s", 1.0)), float(k.get("soul_max_s", 1.6))), 0.01)
+		return ok({"held": held, "left": 0, "pending": "soul", "catch_at": tr.catch_at, "window": float(k.get("soul_window_s", 0.2)), "quality": after})
+	tribulations.erase(c.id)
+	var res := _grant(c, str(tr.recipe), int(tr.count), after, str(tr.fire), "alchemy", tr.furnace)
+	res.held = held
+	res.left = 0
+	return res
+
+## The Pill Soul's flight: caught, it stays a Pill Soul; missed, it settles as a Pill Halo. The batch is never lost.
+func catch_pill_soul(c, timing: float) -> Dictionary:
+	var tr: Dictionary = tribulations.get(c.id, {})
+	if tr.is_empty() or str(tr.stage) != "soul": return fail("no_soul")
+	var caught := absf(timing) <= float(upkeep("tribulation", {}).get("soul_window_s", 0.2))
+	var quality := "pill_soul" if caught else "pill_halo"
+	tribulations.erase(c.id)
+	emit("pill_soul_flight", {"actor": c.id, "recipe": str(tr.recipe), "caught": caught})
+	var res := _grant(c, str(tr.recipe), int(tr.count), quality, str(tr.fire), "alchemy", tr.furnace)
+	res.caught = caught
+	return res
+
+## A tribulation left unfinished (the page closed, another craft begun) settles as if every bolt that was not
+## answered had struck, and a fleeing Soul got away.
+func _settle_tribulation(c) -> void:
+	var tr: Dictionary = tribulations.get(c.id, {})
+	if tr.is_empty(): return
+	if str(tr.stage) == "soul": catch_pill_soul(c, 99.0)
+	else:
+		while tribulations.has(c.id) and str(tribulations[c.id].get("stage", "")) == "bolts":
+			tribulation_shield(c, int(tribulations[c.id].answered), 99.0)
+		if tribulations.has(c.id): catch_pill_soul(c, 99.0)
 
 ## The quality score a craft rolls around: the strikes, the crafter, and the furnace (S44). The furnace's impurity
 ## filter takes out that share of what each strike missed; a furnace of the pill's own element adds 5%.

@@ -92,9 +92,8 @@ Progress is recorded in `docs/CHANGELOG.md`.
   - Artifact Spirit depth (affinity, barks, devour);
   - the heavy sabre, flute and fan weapon families;
   - the rooftop thief chase (S43 rule 15).
-- **V4**: in progress, in five parts:
-  - V4a: furnaces;
-  - V4b: herb natures and conflicts;
-  - V4c: new forms;
-  - V4d: fragments, experiments and the guild;
-  - V4e: pill tribulation.
+- **V4**: done, in five parts (V4a–V4e: furnaces; herb natures and conflicts; new forms; fragments, experiments and
+  the guild; pill tribulation), except these, which wait on later phases:
+  - the Beast Marrow Washing Pill, the Beast Revival Pill and the Purifying Offering (with S46, V7);
+  - the Guild's Master rank (Azure Expanse, not defined by the spec);
+  - the full five-screen furnace mini-game (the three strikes are labelled Extraction, Fusion and Condensation).

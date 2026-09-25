@@ -5,6 +5,24 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V4e · Pill tribulation and the Pill Soul's flight (S44)
+- **Pill tribulation.** When a Heaven-grade (or better) pill reaches Halo or Soul at the furnace, the heavens test
+  it before the pills are yours.
+  - Bolts come down in turn: 3 for a Heaven pill, 2 more for each grade above, at most 9. Their timing comes from
+    the crafting stream.
+  - Each bolt is telegraphed by a ring closing on its strike. *Raise shield* as it lands, within 0.22 s either side.
+  - Every bolt held keeps the result, with a 10 % chance to rise a tier. One bolt through drops the batch to Perfect.
+- **The Pill Soul's flight.** A Soul pill that comes through flees the furnace. One *Catch* tap as it crosses the
+  mark keeps it. A miss settles the batch as Pill Halo; the batch is never lost.
+- **Unfinished tribulations.** If the page closes or another craft begins, the tribulation settles as though every
+  unanswered bolt struck and the Soul got away. Its pills still come.
+- **Who plays it.** Only a live refine from the furnace page plays the tribulation. Auto-refine and other callers
+  keep the roll as it is.
+- **Events:** `pill_tribulation_result` and `pill_soul_flight`, with HUD toasts. The constants are in
+  `forge_upkeep.json` (`tribulation`).
+- **Tests:** bolt counts by grade, held and missed outcomes, the Soul's flight and a missed catch, settling an
+  abandoned tribulation, and buying a named recipe scroll.
+
 ### V4d · The Alchemist Guild, ancient recipes and experiments (S44, Part 8)
 - **The Alchemist Guild** (Qi Kindling 8, alongside *Batch Work*). Guildmaster Tang keeps its corner of Stoneford's
   Artisan Row: a stall, the Guild Board, and a new **Guild** tab in Crafts.

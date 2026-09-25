@@ -63,7 +63,7 @@ DEPTH = {
                     "debt_recorded", "debt_called"],
     "Crafting": ["flame_absorbed", "pill_cloud", "items_salvaged", "enhancement_inherited", "affixes_rerolled", "affix_locked", "talisman_crafted",
                  "relic_restored", "furnace_blast", "recipe_page_found", "recipe_deduced", "experiment_result", "guild_exam_started",
-                 "guild_exam_failed", "guild_rank_changed", "commission_completed"],
+                 "guild_exam_failed", "guild_rank_changed", "commission_completed", "pill_tribulation_result", "pill_soul_flight"],
     "Combat": ["treasure_used", "sword_released", "sword_returned", "sword_intent_changed", "artifact_detonated", "talisman_used"],
     "Inventory": ["loadout_swapped", "natal_grew", "natal_broken", "item_blooded"],
     "Movement": ["jumped", "landed", "wall_kicked", "art_used", "climb_started", "climb_finished", "fell_out", "mover_boarded",

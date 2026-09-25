@@ -595,6 +595,11 @@ func _on_event(name: String, p: Dictionary) -> void:
 			toast(Tx.t("hud.guild_rank") % Tx.t("ui.guild.rank_" + str(p.rank)), "unlock")
 		"commission_completed":
 			add_log(Tx.t("hud.commission_paid") % int(p.get("paid", 0)) + (" " + Tx.t("hud.commission_capped") if p.get("capped", false) else ""), UiKit.PALE_GOLD)
+		"pill_tribulation_result":
+			if str(p.after) != str(p.before): toast(Tx.t("hud.tribulation_changed") % Tx.t("ui.quality." + str(p.after)), "gold" if str(p.after) == "pill_soul" else "danger")
+			else: toast(Tx.t("hud.tribulation_held"), "gold")
+		"pill_soul_flight":
+			if not p.get("caught", false): add_log(Tx.t("hud.soul_escaped"), UiKit.MIST)
 		"furnace_blast":
 			toast(Tx.t("hud.furnace_blast") % int(p.get("durability", 0)), "danger")
 		"debt_called":
