@@ -48,28 +48,15 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "rotten_boards",
    "rect": [
-    260,
-    640,
-    280,
-    50
+    1480,
+    650,
+    200,
+    70
    ],
    "height": 100,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "ledge_mv_1",
-   "rect": [
-    840,
-    640,
-    280,
-    50
-   ],
-   "height": 176,
-   "kind": "rock_ledge",
+   "kind": "bridge",
    "stratum": "platform",
    "open_edges": true
   }
@@ -191,18 +178,6 @@
    ],
    "loot": "chest_dungeon",
    "level": 20
-  },
-  {
-   "id": "chest_ledge_mv_1",
-   "type": "chest",
-   "at": [
-    980,
-    665
-   ],
-   "loot": "chest_dungeon",
-   "level": 20,
-   "alt": 176,
-   "surface": "ledge_mv_1"
   }
  ],
  "spawns": [
@@ -452,5 +427,20 @@
  ],
  "music": "dungeon",
  "ambience": "",
- "dungeon_exit": "cr_caravan_road"
+ "dungeon_exit": "cr_caravan_road",
+ "volumes": [
+  {
+   "id": "rotten_boards_crumble",
+   "kind": "crumble",
+   "rect": [
+    1480,
+    650,
+    200,
+    70
+   ],
+   "surface": "rotten_boards",
+   "break_s": 0.8,
+   "return_s": 5.0
+  }
+ ]
 }

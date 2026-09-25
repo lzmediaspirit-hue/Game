@@ -1,7 +1,8 @@
 # World movement
 
 How the body moves through Jade River's rooms, what it can stand on, and what every room gives
-the jump to do. Numbers come from `scripts/simulation/movement_solver.gd` and `tools/data/stats.py`.
+the jump to do. Numbers live in `data/movement.json` (built by `tools/data/stats.py`); the solver's constants
+in `scripts/simulation/movement_solver.gd` must match it, and `data_validation` checks that they do.
 The rules test `movement_suite` (`tests/rules_tests.gd`) runs the real solver against the built rooms,
 so this document and the game can't drift apart silently.
 
@@ -20,9 +21,14 @@ suite in `tests/rules_tests.gd` checks each one.
 | Climb | Ladders, ropes, vines and chains (`climbables` in room data). Hold toward the ladder's end for 0.3 s (up at its foot, down at its top) or use the Climb context. 160 units/s, stop anywhere; Jump lets go sideways; a hit knocks you off | the climbable's top |
 | Wall-Step | Learned from the guided quest *Between Two Walls* (Echo Cliffs, Heart Tempering 4), usable from acceptance. In the air, pushing into a wall face within 12 units: vertical speed 450 (+88) and 90 units away from the wall. Three kicks per airtime | shafts 60–160 wide |
 | Air attack | One hit, no combo, +10 % damage; horizontal speed stays at ×0.8 (ground attacks ×0.3) | — |
-| Wind Blink | Secret art, learned at Spirit Awakening 5. Dodge in the air: a 120-unit blink along the facing with a small lift. 10 s cooldown (`combat.wind_blink_cooldown_s`) | 120 across |
-| Flight | Cloud Stride 1. Jump again at the top of a double jump to take off; QI drains while aloft | ceiling **340**, climb 220/s |
-| Breath Control | Secret art, learned at Qi Unfurling 3. Lets you go down into flooded places (the Drowned Grotto) | — |
+| Plunge | Learned in the *Outer Trial* (Bone Forging 4). Joystick toward the camera + Attack in the air: straight down at 900. The landing strikes everything within 60 for 120 % damage and a 0.5 s stun, and breaks jars and cracked floors. 4 s cooldown | — |
+| Dodge Dash | Bone Forging 5. Evade tap on the ground: 140 units, 0.25 s invulnerable, 2.5 s cooldown. No dodging in shallow water | 140 |
+| Falling Leaf Glide | Learned in *Leaf on the Wind* (Falls Pool, Qi Kindling 3). Hold Jump while falling, from the take-off press or after a second press: the fall is capped at 120/s and drift is ×1.1. 2 QI a second. Works where flight is refused | about **300** flat from an apex jump, 1.5 s aloft |
+| Swallow Dart | Learned in *Swallow Dart* (the library's first floor, Qi Kindling 7). Evade tap in the air: 140 units while the height is held for 0.25 s. Once per airtime; shares the dodge's cooldown | 140 across |
+| Water Skimming | Learned in the hermit's *Skipping Stones* (Qi Unfurling 8). Sprint onto deep water and keep running; stopping for 0.5 s sinks you | any deep water |
+| Wind Blink | Secret art, learned at Spirit Awakening 5. When Swallow Dart is spent or unknown, an Evade tap in the air blinks 120 along the facing with a small lift. 10 s cooldown (`combat.wind_blink_cooldown_s`) | 120 across |
+| Flight | Cloud Stride 1. Hold Jump as you start to fall (it replaces the glide where flight is allowed and QI is above 10 %). Hold Jump to rise, hold Evade to descend, neither to hold height; tap Evade to dash. Refused indoors, on sect grounds, in dungeons and in `no_flight` volumes | ceiling **340**, climb 220/s |
+| Breath Control | Secret art, learned at Qi Unfurling 3. Lets you go down into flooded places (the Drowned Grotto) and swim deep water for 30 s at ×0.6 | — |
 
 **Edges.** Each surface edge is `open` (walk off and fall), `closed` (blocks walking) or `wall` (closed, and a
 wall face). Platforms close their back (north) edge by default, so walking into the screen off a roof no
@@ -44,9 +50,34 @@ costs 5 % of max HP (never below 1), except in the Prologue, towns and safe room
 into depth. The Attack button offers Climb or Enter only while no enemy is aggroed on you within 400. In a
 fight, a separate Context button appears at (1165, 500).
 
-**Events.** The movement authority announces `jumped`, `landed` (with the fall height), `wall_kicked`,
-`art_used`, `climb_started`, `climb_finished` and `fell_out`. `art_used` advances guided-quest objectives
-named after the art.
+**Events.** The movement authority announces `jumped`, `landed` (with the fall height and whether it was a
+Plunge), `wall_kicked`, `art_used`, `climb_started`, `climb_finished`, `fell_out`, `mover_boarded`,
+`volume_entered` and `volume_left`. `art_used` advances guided-quest objectives named after the art
+(`plunge`, `glide`, `air_dash`, `double_jump`, `water_skimming`, `wall_step`, `drop_through`, `mantle`).
+The first time an art is learned, a toast gives its name and a one-line how-to.
+
+### Volumes and movers
+
+`volumes` in room data are rectangles on the plane with an altitude range (`alt: [low, high]`):
+
+| Volume | Effect | Where |
+|---|---|---|
+| `water_shallow` | Walking ×0.7; no sprint and no dodge. Every `shallows` area makes one | Reed Shallows, Bend Shore, the Drowned Shrine |
+| `water_deep` | A body standing in it sinks 40 over 1 s and is returned to the last safe spot. Breath Control swims for 30 s at ×0.6; Water Skimming runs across while sprinting. No safe spot is ever recorded in it | the hermit's pond |
+| `current` | Pushes a body standing in it along `push` | Flooded Gate (80 west) |
+| `updraft` | While falling, gliding or flying, vertical speed eases toward +220 | Falls Pool spray, Cliff Faces |
+| `wind` | Pushes along `push` on a 4 s cycle: strong for 1.5 s, a breeze (×0.3) the rest, ×1.5 within 48 of an open edge | Windswept Ridge |
+| `bounce` | Landing on it launches at 700 (apex about 213) | the Fairground drum |
+| `crumble` | Its surface gives way 0.8 s after a foot lands and returns 5 s later | Mudwater Tunnels' rotten boards |
+| `rising_water` | Deep water whose top follows a script keyed to an event (`rise`: event, match, to, over_s, hold_s, back_to) | Serpent's Shallows: at half health the serpent floods the shallows to 30 for 14 s |
+| `hazard` | Status and damage each pulse while inside | — (S17 hazards cover the current rooms) |
+| `no_flight` | Flight refused; glide still works | — (room types cover sect grounds and dungeons) |
+
+`movers` carry a surface or block along `path` (offsets `[dx, depth, altitude]`) at `speed`, waiting `wait_s`
+at each end, in `loop`, `pingpong` or `trigger` mode. The position is a pure function of the room clock
+(`ZoneGeometry.time`, advanced by the World authority each tick), so replays match. Riders move with the
+mover's change of offset before their own step. The hermit's raft crosses the pond this way. A surface with
+`cracked: true` breaks under a Plunge and stays broken for the visit.
 
 ### Surfaces
 

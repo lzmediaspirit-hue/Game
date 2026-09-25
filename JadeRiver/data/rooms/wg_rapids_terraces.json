@@ -612,5 +612,21 @@
   }
  ],
  "music": "field_mountain",
- "ambience": "waterfall_ambience"
+ "ambience": "waterfall_ambience",
+ "volumes": [
+  {
+   "id": "water_shallow_0",
+   "kind": "water_shallow",
+   "rect": [
+    600,
+    880,
+    2600,
+    80
+   ],
+   "alt": [
+    -50,
+    10
+   ]
+  }
+ ]
 }

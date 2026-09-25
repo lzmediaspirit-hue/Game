@@ -230,6 +230,31 @@ class Room:
         a = {"kind": kind, "rect": list(rect)}
         a.update(kw)
         self.d["areas"].append(a)
+        if kind == "shallows":
+            # S43: shallow water slows walking to x0.7 and stops sprints and dodges.
+            self.volume("water_shallow", rect, alt=[-50, 10])
+
+    def volume(self, kind, rect, alt=None, **kw):
+        """An S43 volume: a rect on the plane and an altitude range with a behaviour (water_shallow, water_deep,
+        current, updraft, wind, bounce, crumble, rising_water, hazard, no_flight)."""
+        v = {"id": kw.pop("vid", "%s_%d" % (kind, len(self.d.setdefault("volumes", [])))), "kind": kind, "rect": list(rect)}
+        if alt is not None:
+            v["alt"] = list(alt)
+        v.update(kw)
+        self.d.setdefault("volumes", []).append(v)
+        return v
+
+    def deep_water(self, vid, rect, top=10, **kw):
+        """Deep water (S43): drawn as water; a body standing in it sinks unless it swims or skims."""
+        self.d["areas"].append({"kind": "water", "rect": list(rect)})
+        return self.volume("water_deep", rect, alt=[-100, top], vid=vid, **kw)
+
+    def mover(self, surface, path, speed=60, wait_s=1.0, mode="pingpong"):
+        """A mover (S43): a surface or block that travels its path of offsets [dx, dy, dalt] as a pure function
+        of the room clock (loop, pingpong, or trigger: one trip out and back once stood on)."""
+        m = {"surface": surface, "path": [list(p) for p in path], "speed": speed, "wait_s": wait_s, "mode": mode}
+        self.d.setdefault("movers", []).append(m)
+        return m
 
     # -- portals
     def portal(self, pid, ptype, at, to, to_portal, **kw):
@@ -676,6 +701,9 @@ def stoneford():
     r.npc("wen_zhao", [3000, 780], facing=-1, visible_if=all_of(realm("qi_kindling_1")))
     r.npc("fair_vendor_he", [2200, 900], facing=1)
     r.npc("adventurer_rui", [3300, 900], facing=-1)
+    # S43 bounce: the fair's great drum throws whoever lands on it straight back up (apex about 213).
+    r.solid("fair_drum", [1215, 750, 70, 60], 40, kind="drum")
+    r.volume("bounce", [1215, 750, 70, 60], alt=[30, 50], speed=700, vid="fair_drum_bounce")
     r.obj("spar_sf", "spar_post", [2800, 860], opponent="sparring_disciple", requires=all_of(unlock("attack")))
     r.portal("trial_jade", "door", [900, 700], "sf_trial_jade", "entry", press_up=True, label="Entry Trial (Jade)",
              requires=all_of(qactive("entry_trial"), sect("jade_sect")), locked_text="Choose the Jade Sect first.")
@@ -1058,7 +1086,15 @@ def valley():
     r.npc("hermit_yao", [500, 800], facing=1)
     r.obj("shrine_hermit", "shrine", [1100, 720])
     r.obj("spring_hermit", "qi_spring", [300, 900], spring=True, requires=all_of(unlock("qi_springs")), locked_text="Still water.")
-    r.herb("riverreed_ginseng_10", [1000, 900])
+    r.herb("riverreed_ginseng_10", [1180, 760])
+    # S43: the pond under the stilts. Deep water with a rock in the middle; a raft poles across it, and from
+    # Qi Unfurling 8 the hermit teaches Water Skimming here (Skipping Stones).
+    r.deep_water("hermit_pond", [600, 700, 460, 140])
+    r.solid("pond_rock", [800, 765, 70, 50], 40, kind="rock")
+    r.obj("pond_lotus", "pickup", [835, 790], alt=40, item="mist_lotus", count=1, prop="mist_lotus_patch", set_flag="pond_lotus",
+          requires=all_of(qactive("skipping_stones")), hidden_if=all_of(flag("pond_lotus")))
+    r.surface("pond_raft", [612, 712, 90, 40], 14, kind="raft")
+    r.mover("pond_raft", [[350, 0, 0]], speed=45, wait_s=2.5)
     r.portal("stairs", "door", [140, 700], "rm_sunken_causeway", "stilts", press_up=True, label="Sunken Causeway")
     r.decor("reeds", [1200, 650])
 
@@ -1102,6 +1138,10 @@ def valley():
     r.obj("spring_falls", "qi_spring", [600, 900], spring=True, requires=all_of(unlock("qi_springs")), locked_text="Cold spray.")
     r.herb("mist_lotus", [1300, 900])
     r.obj("shrine_falls", "shrine", [1900, 700])
+    # S43 (Leaf on the Wind, Qi Kindling 3): a vine up to a ledge beside the falls, and the spray's updraft.
+    r.surface("falls_ledge", [700, 640, 240, 70], 200, kind="rock_ledge")
+    r.ladder("falls_vine", 820, 710, 200, kind="vine", top="falls_ledge")
+    r.volume("updraft", [1170, 620, 160, 200], alt=[0, 260], vid="falls_spray")
     r.spawn("jade_crane_chick", [[1700, 880]], 1, respawn=600, level=[19, 19], wild_pet=True, requires=all_of(unlock("taming")))
     r.edge("west", "west", "bg_thicket_heart", "east", y=850)
     r.edge("east", "east", "cp_pilgrim_stairs", "west", y=850, ptype="sealed", requires=all_of(realm("qi_kindling_9")),
@@ -1150,6 +1190,9 @@ def valley():
             for x, y in [(700, 800), (1350, 900), (1950, 770)]:
                 r.decor("gas_vent", [x, y])
                 r.area("poison_mist", [x - 90, y - 40, 180, 64])
+            # S43 crumble: rotten boards over the tunnel floor give way 0.8 s after a foot lands and return after 5 s.
+            r.surface("rotten_boards", [1480, 650, 200, 70], 100, kind="bridge")
+            r.volume("crumble", [1480, 650, 200, 70], surface="rotten_boards", break_s=0.8, return_s=5.0, vid="rotten_boards_crumble")
     r = Room("mh_boss_den", "Boss Den", "boss_arena", "mudwater_hideout", 2, backdrop="cave", material="earth", music="boss",
              levels=[18, 18], safe=False, spawn_point=[200, 820], dungeon_exit="cr_caravan_road")
     r.spawn("big_toad_tan", [[1700, 840]], 1, respawn=86400, level=[18, 18], boss=True)
@@ -1193,6 +1236,10 @@ def valley():
     for i, x in enumerate([900, 1700, 2500]):
         r.surface("high_rock_%d" % i, [x, 700, 180, 60], 100, kind="rock_ledge")
     r.spawn("riverbed_serpent", [[1900, 900]], 1, respawn=2700, level=[25, 25], field_boss=True, boss=True)
+    # S43 rising water: at half health the serpent floods the shallows to 30 for 14 s; the rocks stay dry.
+    r.volume("rising_water", [400, 820, 3000, 140], alt=[-100, -20], vid="serpent_flood",
+             rise=[{"event": "boss_phase", "match": {"action": "flood"}, "to": 30, "over_s": 4.0, "hold_s": 14.0, "back_to": -20},
+                   {"event": "field_boss_defeated", "to": -20, "over_s": 3.0}])
     r.portal("shore", "door", [140, 700], "dw_bend_shore", "shallows", press_up=True, label="Bend Shore")
     r.edge("east", "east", "dw_bend_shore", "shallows", y=850)
     for rid, name, spawns, nxt, prev in [
@@ -1203,6 +1250,9 @@ def valley():
         r = field(rid, name, "drowned_shrine", 2, [21, 27], "cave", "floor_stone", spawns, jars=5, rtype="secret", chest="chest_dungeon",
                   music="dungeon", trees=("stone_lantern",), loot="jar_valley_mid", dungeon_exit="dw_bend_shore", elite=False, idle=[])
         r.area("shallows", [0, 900, r.w, 60])
+        if rid == "ds_flooded_gate":
+            # S43 current: the flood still drains west through the gate.
+            r.volume("current", [0, 900, r.w, 60], alt=[-50, 10], push=[-80, 0], vid="gate_drain")
         r.edge("west", "west", prev[0], prev[1], y=850, ptype="gate" if rid == "ds_flooded_gate" else "edge")
         r.edge("east", "east", nxt, "west", y=850)
         if rid == "ds_scripture_well":
@@ -1268,6 +1318,8 @@ def valley():
               [("cloudwing_crane", 5, [37, 40]), ("stormwing_hawk", 3, [38, 43])], herbs=("cloudtop_orchid",), ores=("cloudsteel_ore",),
               jars=4, element="wind", music="field_mountain", ambience="wind_ambience", trees=("pine_tree", "cliff_face"),
               platforms=[(600, 660, 280, 180), (1300, 640, 280, 300), (2100, 650, 280, 240), (2900, 660, 280, 160)], loot="jar_valley_mid")
+    # S43 updraft: warm air climbs the cliff beside the 300 ledge; fall, glide or fly into it and it lifts you.
+    r.volume("updraft", [1150, 620, 140, 340], alt=[0, 360], vid="cliff_updraft")
     r.edge("east", "east", "wg_echo_cliffs", "west", y=850)
     r.edge("west", "west", "cc_sky_ledges", "east", y=850)
     r = field("cc_sky_ledges", "Sky Ledges", "crane_cliffs", 2, [40, 45], "mist_peak", "rock",
@@ -1304,6 +1356,8 @@ def valley():
               [("hollow_stag", 5, [55, 59]), ("cloudpeak_roc", 3, [58, 63])], ores=("mystic_ore", "mystic_ore"), jars=4,
               element="wind", music="summit", ambience="wind_ambience", trees=("dead_tree_grey", "rock_large"), hazards=["wind_gust"],
               platforms=[(900, 660, 300, 160), (2000, 650, 300, 220)], loot="jar_valley_mid")
+    # S43 wind: gusts pulse down the ridge every 4 s (1.5 s strong), harder near the edges of ledges.
+    r.volume("wind", [600, 620, 2800, 340], alt=[-50, 600], push=[-110, 0], cycle=4.0, strong_s=1.5, calm=0.3, edge_factor=1.5, vid="ridge_wind")
     r.edge("east", "east", "mp_forgotten_monastery", "west", y=850)
     r.edge("west", "west", "sr_frozen_shrine", "east", y=850)
     r = field("sr_frozen_shrine", "Frozen Shrine", "summit_ridge", 2, [58, 63], "mist_peak", "snow",

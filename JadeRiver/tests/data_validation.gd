@@ -24,6 +24,7 @@ func _main() -> void:
 	_learn_kinds()
 	data_suite()
 	room_suite()
+	movement_suite()
 	print("data_validation: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -285,3 +286,60 @@ func room_suite() -> void:
 		if v.get("planned", false): continue
 		check(ContentDB.rooms.has(str(v.get("to", ""))) and ContentDB.room(str(v.get("crossing", ""))).get("crossing", false)
 			and ContentDB.has_entry("items", str(v.get("chart", ""))), "voyage %s: destination, crossing and chart exist" % v.id)
+# ------------------------------------------------------------------ S43 movement data
+const VOLUME_KINDS := ["water_shallow", "water_deep", "current", "updraft", "wind", "bounce", "crumble", "rising_water", "hazard", "no_flight"]
+
+func movement_suite() -> void:
+	# movement.json is the one table of traversal numbers: the solver's constants must match it.
+	var pairs := {"jump.impulse": MovementSolver.JUMP_IMPULSE, "jump.gravity": MovementSolver.GRAVITY, "jump.coyote_s": MovementSolver.COYOTE_S,
+		"jump.buffer_s": MovementSolver.BUFFER_S, "double_jump.impulse": MovementSolver.DOUBLE_JUMP_IMPULSE,
+		"wall_step.kick_speed": MovementSolver.WALL_KICK_SPEED, "wall_step.kicks": MovementSolver.WALL_KICKS, "wall_step.reach": MovementSolver.WALL_REACH,
+		"mantle.rise": MovementSolver.MANTLE_RISE, "mantle.reach": MovementSolver.MANTLE_REACH, "climb.speed": MovementSolver.CLIMB_SPEED,
+		"glide.fall": MovementSolver.GLIDE_FALL, "glide.drift": MovementSolver.GLIDE_DRIFT, "air_dash.hold_s": MovementSolver.AIR_DASH_HOLD,
+		"plunge.speed": MovementSolver.PLUNGE_SPEED, "water.shallow_factor": MovementSolver.SHALLOW_FACTOR, "water.swim_factor": MovementSolver.SWIM_FACTOR,
+		"water.sink_factor": MovementSolver.SINK_FACTOR, "water.sink_s": MovementSolver.SINK_S, "water.sink_depth": MovementSolver.SINK_DEPTH,
+		"water.swim_s": MovementSolver.SWIM_S, "water.skim_min_speed": MovementSolver.SKIM_MIN_SPEED, "water.skim_still_s": MovementSolver.SKIM_STILL_S,
+		"updraft.speed": MovementSolver.UPDRAFT_SPEED, "updraft.ease": MovementSolver.UPDRAFT_EASE, "bounce.speed": MovementSolver.BOUNCE_SPEED,
+		"wind.edge": MovementSolver.WIND_EDGE}
+	for path in pairs:
+		check(absf(float(ContentDB.movement(path, -999.0)) - float(pairs[path])) < 0.0001, "movement.json %s matches the solver (%s)" % [path, str(pairs[path])])
+	# Every movement art: a secret art with a how-to line, taught by a quest that learns it on acceptance.
+	for a in ContentDB.movement("arts", []):
+		if not a.has("secret_art"): continue
+		var sa := ContentDB.entry("secret_arts", str(a.secret_art))
+		check(not sa.is_empty() and str(sa.get("movement_art", "")) == str(a.art) and str(sa.get("how_to", "")) != "", "movement art %s is a secret art with a how-to" % a.art)
+		if str(a.art) == "dodge": continue
+		var q := ContentDB.entry("quests", str(sa.get("quest", "")))
+		var learns := false
+		for e in q.get("on_accept", []):
+			if str(e.get("kind", "")) == "learn_secret_art" and str(e.get("art", "")) == str(a.secret_art): learns = true
+		check(learns, "%s is taught when its quest (%s) is accepted" % [a.secret_art, str(sa.get("quest", ""))])
+	# Rooms: volumes, movers and climbables point at real things, and nothing waits inside deep water.
+	for rid in ContentDB.rooms:
+		var room: Dictionary = ContentDB.rooms[rid]
+		var ids := {}
+		for sf in room.get("surfaces", []): ids[str(sf.id)] = true
+		for b in room.get("blocks", []): ids[str(b.id)] = true
+		for v in room.get("volumes", []):
+			check(str(v.kind) in VOLUME_KINDS, "%s: volume kind %s" % [rid, v.kind])
+			if str(v.kind) == "crumble": check(ids.has(str(v.get("surface", ""))), "%s: crumble %s names a surface" % [rid, v.id])
+			if str(v.kind) != "water_deep": continue
+			var r: Array = v.rect
+			var area := Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
+			var top := float(v.get("alt", [-100, 10])[1])
+			for o in room.get("objects", []):
+				var at: Array = o.get("at", [0, 0])
+				check(not area.has_point(Vector2(float(at[0]), float(at[1]))) or float(o.get("alt", 0.0)) >= top, "%s: %s is not under deep water" % [rid, o.id])
+			for p in room.get("portals", []):
+				var pa: Array = p.get("at", [0, 0])
+				check(not area.has_point(Vector2(float(pa[0]), float(pa[1]))), "%s: portal %s is not in deep water" % [rid, p.id])
+			for sp in room.get("spawns", []):
+				for pt in sp.get("points", []):
+					check(not area.has_point(Vector2(float(pt[0]), float(pt[1]))), "%s: %s spawns clear of deep water" % [rid, sp.enemy])
+			var spawn: Array = room.get("spawn_point", [0, 0])
+			check(not area.has_point(Vector2(float(spawn[0]), float(spawn[1]))), "%s: the spawn point is dry" % rid)
+		for m in room.get("movers", []):
+			check(ids.has(str(m.surface)) and str(m.get("mode", "pingpong")) in ["loop", "pingpong", "trigger"] and not m.get("path", []).is_empty(),
+				"%s: mover %s moves a real surface along a path" % [rid, m.surface])
+		for cb in room.get("climbables", []):
+			check(str(cb.get("kind", "")) in ["ladder", "rope", "vine", "chain"] and (str(cb.get("top", "")) == "" or ids.has(str(cb.top))), "%s: climbable %s" % [rid, cb.id])

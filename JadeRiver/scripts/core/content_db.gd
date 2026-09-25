@@ -152,6 +152,14 @@ func stat_const(path: String, fallback = 0.0):
 		else: return fallback
 	return node
 
+## Dotted lookup into movement.json (S43: every traversal constant), e.g. "glide.qi_per_s".
+func movement(path: String, fallback = 0.0):
+	var node = config("movement")
+	for part in path.split("."):
+		if node is Dictionary and node.has(part): node = node[part]
+		else: return fallback
+	return node
+
 func curve(path: String, fallback = 0.0):
 	var node = config("curves")
 	for part in path.split("."):

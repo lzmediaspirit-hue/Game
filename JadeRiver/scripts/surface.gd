@@ -10,6 +10,13 @@ var stratum: String
 var open_edges: bool                 # true when at least one edge is open (walk off and fall)
 var edges: Dictionary = {}           # S43 rule 1: n, s, e, w -> "open" | "closed" | "wall"
 var is_block := false                # the walkable top of a solid block (S43 blocks)
+# S43 movers and volumes: a surface can move (tick-pure), crumble away for a while, or be broken by a Plunge.
+var disabled := false                # crumbled or broken: nothing stands on it
+var cracked := false                 # a Plunge breaks it
+var moving := false                  # carried by a mover
+var origin := Vector2.ZERO           # the rectangle's position at offset zero
+var origin_base := 0.0
+var offset := Vector3.ZERO           # the mover's current offset (x, depth, altitude)
 var visual_variant: int
 var support_mask: Array=[]
 const FOOT_CONTACT=Vector2(9,12)
@@ -25,6 +32,9 @@ func _init(data: Dictionary):
 	kind=data.get("kind","stone")
 	stratum=data.get("stratum","platform")
 	is_block=kind=="block"
+	cracked=bool(data.get("cracked",false))
+	origin=bounds.position
+	origin_base=base
 	edges=default_edges(data,stratum,is_block)
 	open_edges=edges.values().has("open")
 ## S43 rule 1: platforms default to a closed back (north) edge and open south, east and west edges;
@@ -52,6 +62,11 @@ func edge_toward(point: Vector2) -> String:
 		var k=str(edges.get(side,"open"))
 		if k=="wall" or (k=="closed" and worst=="open"): worst=k
 	return worst
+## Move the surface to a mover offset (S43 movers).
+func set_offset(o: Vector3) -> void:
+	offset=o
+	bounds.position=origin+Vector2(o.x,o.y)
+	base=origin_base+o.z
 func height_at(point: Vector2) -> float:
 	var t=(point.y-bounds.position.y)/bounds.size.y if rise_axis=="y" else (point.x-bounds.position.x)/bounds.size.x
 	return base+rise*clampf(t,0,1)

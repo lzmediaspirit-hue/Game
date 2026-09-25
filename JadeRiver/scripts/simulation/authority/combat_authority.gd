@@ -14,10 +14,12 @@ const STAT_EVENTS := ["realm_changed", "level_changed", "equipment_changed", "in
 	"legacy_recorded", "consolidation_finished", "aptitude_revealed", "collection_page_completed"]
 
 func intents() -> Array:
-	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival", "start_flight", "stop_flight", "use_treasure"]
+	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival", "start_flight", "stop_flight", "use_treasure",
+		"plunge", "glide"]
 
 var attune: Dictionary = {}          # actor -> {dealt, taken} for the zone they stand in (S18)
 var flying: Dictionary = {}          # actor -> true while flight holds them up (S18); QI pays for it
+var gliding: Dictionary = {}         # actor -> true while Falling Leaf Glide holds them (S43); 2 QI a second
 var treasure_fx: Dictionary = {}     # actor -> {reflect, gourd, gourd_r, wisps}: a treasure's lingering effect (G2)
 var captured: Dictionary = {}        # enemy uid -> true: taken by the Beast-Taking Cauldron (World doubles its materials)
 
@@ -89,6 +91,8 @@ func handle(intent: Dictionary) -> Dictionary:
 		"choose_revival": return choose_revival(c, str(intent.get("where", "shrine")))
 		"start_flight": return start_flight(c)
 		"use_treasure": return use_treasure(c, int(intent.get("slot", 0)))
+		"plunge": return plunge(c)
+		"glide": return glide(c, bool(intent.get("on", true)))
 		"stop_flight":
 			stop_flight(c.id, str(intent.get("reason", "landed")))
 			return ok()
@@ -102,8 +106,7 @@ func start_flight(c) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, str(cfg.get("unlock", "flight"))): return fail("locked", {"text": Unlocks.locked_text("flight")})
 	if flying.has(c.id): return fail("already_flying")
 	if wounded.has(c.id) or c.pools.blocked("move"): return fail("blocked")
-	var room: Dictionary = game.room_rt.def if game.room_rt else {}
-	if room.get("no_flight", false) or str(room.get("type", "")) == "interior":
+	if not flight_allowed(c.id):
 		return fail("no_flight", {"text": Tx.t("sim.combat.no_flight_here")})
 	if c.pools.qi < c.pools.max_qi * float(cfg.get("start_qi_pct", 0.1)) or c.pools.max_qi <= 0.0:
 		return fail("no_qi", {"text": Tx.t("sim.combat.not_enough_qi_to_fly")})
@@ -111,6 +114,15 @@ func start_flight(c) -> Dictionary:
 	emit("flight_started", {"actor": c.id})
 	emit("system_used", {"actor": c.id, "system": "flight"})
 	return ok({"climb": float(cfg.get("climb", 220)), "ceiling": float(cfg.get("ceiling", 340))})
+
+## Flight is refused indoors, on sect grounds, in dungeons, in rooms that forbid it and inside a no_flight
+## volume (S43); gliding still works there.
+func flight_allowed(actor_id: String) -> bool:
+	var room: Dictionary = game.room_rt.def if game.room_rt else {}
+	if room.get("no_flight", false) or str(room.get("type", "")) in ContentDB.stat_const("flight.no_flight_types", ["interior"]): return false
+	var st: ActorState = game.actor_state(actor_id)
+	if st != null and game.room_rt and not game.room_rt.geometry.volume_at(st.plane, st.altitude, "no_flight").is_empty(): return false
+	return true
 
 func stop_flight(actor_id: String, reason: String) -> void:
 	if not flying.has(actor_id): return
@@ -129,6 +141,9 @@ func _tick_flight(c, delta: float) -> void:
 	if wounded.has(c.id):
 		stop_flight(c.id, "wounded")
 		return
+	if not flight_allowed(c.id):
+		stop_flight(c.id, "no_flight")
+		return
 	var cfg: Dictionary = ContentDB.stat_const("flight", {})
 	var cost = maxf(float(cfg.get("qi_min_per_s", 2.0)), c.pools.max_qi * float(cfg.get("qi_pct_per_s", 0.02))) * delta * game.pets.flight_qi_mult(c) \
 		* vessel_qi_mult(c)
@@ -136,6 +151,82 @@ func _tick_flight(c, delta: float) -> void:
 		stop_flight(c.id, "no_qi")
 		return
 	apply_resource_change(c.id, "qi", -cost, "flight", 0.0, true)
+
+# ------------------------------------------------------------------ movement arts (S43)
+## The movement art a secret art grants (secret_arts.json `movement_art`), known to this character.
+func knows_art(c, art: String) -> bool:
+	for sa in c.cultivator.secret_arts:
+		if str(ContentDB.entry("secret_arts", str(sa)).get("movement_art", "")) == art: return true
+	return false
+
+## Plunge (Bone Forging 4): Down + Attack in the air drops at 900; the landing strikes within 60.
+func plunge(c) -> Dictionary:
+	if not knows_art(c, "plunge"): return fail("locked")
+	var why := can_act(c)
+	if why != "": return fail(why)
+	if c.pools.cooldown("plunge") > 0.0: return fail("cooldown")
+	var st: ActorState = game.actor_state(c.id)
+	if st == null: return fail("no_body")
+	st.arts["plunge"] = true
+	if not MovementSolver.plunge(st): return fail("not_airborne")
+	c.pools.cooldowns["plunge"] = float(ContentDB.movement("plunge.cooldown_s", 4.0))
+	LocalAuthority.announce(st, c.id)
+	return ok()
+
+## The Plunge lands: 120% damage and a 0.5 s stun to foes within 60 of the landing, breakables broken (S43).
+func _resolve_plunge(c, st: ActorState) -> void:
+	var at: Dictionary = st.plunge_impact
+	st.plunge_impact = {}
+	var here := Vector2(float(at.x), float(at.y))
+	var radius := float(ContentDB.movement("plunge.radius", 60.0))
+	var pv := player_view(c)
+	var hitbox := {"x": [-radius, radius], "depth": radius, "alt": ContentDB.movement("combat_bands.melee", [-30, 60])}
+	var atk := {"damage_type": "physical", "element": "none", "mult": [float(ContentDB.movement("plunge.mult", 1.2)), float(ContentDB.movement("plunge.mult", 1.2))],
+		"range": [1.0, 1.0], "knockback": 0.0, "source": "plunge"}
+	var struck := 0
+	for e in _enemies_within(here, radius):
+		if not hit_test(pv, 1, hitbox, enemy_view(e), true): continue
+		_player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
+		if e.alive and not e.is_boss():
+			_apply_status_to_enemy(e, {"id": "stun", "power": 1.0, "remaining": float(ContentDB.movement("plunge.stun_s", 0.5)), "source": c.id})
+		struck += 1
+	for o in game.world.hittable_objects(pv, 1, hitbox):
+		game.world.apply_object_hit(c.id, o)
+	emit("system_used", {"actor": c.id, "system": "plunge_strike"})
+	if struck > 0: hitstop = float(ContentDB.stat_const("combat.hitstop_crit", 0.08))
+
+## Falling Leaf Glide (Qi Kindling 3): Jump held while descending. 2 QI a second while it lasts.
+func glide(c, on: bool) -> Dictionary:
+	var st: ActorState = game.actor_state(c.id)
+	if not on:
+		gliding.erase(c.id)
+		if st != null: MovementSolver.glide(st, false)
+		return ok()
+	if not knows_art(c, "glide"): return fail("locked")
+	if wounded.has(c.id) or c.pools.blocked("move"): return fail("blocked")
+	if st == null: return fail("no_body")
+	if c.pools.max_qi <= 0.0 or c.pools.qi < float(ContentDB.movement("glide.qi_per_s", 2.0)) * 0.25: return fail("no_qi", {"text": Tx.t("sim.combat.not_enough_qi_to_glide")})
+	st.arts["glide"] = true
+	if not MovementSolver.glide(st, true): return fail("not_airborne")
+	gliding[c.id] = true
+	LocalAuthority.announce(st, c.id)
+	return ok()
+
+func is_gliding(actor_id: String) -> bool:
+	return gliding.has(actor_id)
+
+func _tick_glide(c, delta: float) -> void:
+	if not gliding.has(c.id): return
+	var st: ActorState = game.actor_state(c.id)
+	if st == null or not st.gliding:
+		gliding.erase(c.id)
+		return
+	var cost := float(ContentDB.movement("glide.qi_per_s", 2.0)) * delta
+	if c.pools.qi <= cost:
+		gliding.erase(c.id)
+		MovementSolver.glide(st, false)
+		return
+	apply_resource_change(c.id, "qi", -cost, "glide", 0.0, true)
 
 # ------------------------------------------------------------------ views
 func player_view(c) -> Dictionary:
@@ -222,9 +313,15 @@ func airborne(actor_id: String) -> bool:
 	var st: ActorState = game.actor_state(actor_id)
 	return st != null and st.surface == null and not st.flying and st.climbing.is_empty()
 
+## Hands are busy on a ladder, rope, vine or chain: techniques wait unless flagged on_climb (S43 rule 5).
+func climbing(actor_id: String) -> bool:
+	var st: ActorState = game.actor_state(actor_id)
+	return st != null and not st.climbing.is_empty()
+
 func basic_attack(c, facing: int) -> Dictionary:
 	var reason := can_act(c)
 	if reason != "": return fail(reason)
+	if climbing(c.id): return fail("climbing")
 	if not Unlocks.is_unlocked(c.id, "attack"): return fail("locked")
 	var tl := timeline(c.id)
 	facing = 1 if facing >= 0 else -1
@@ -275,6 +372,7 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	var t := ContentDB.entry("techniques", str(tid))
 	var tl := timeline(c.id)
 	if is_busy(c.id): return fail("busy")
+	if climbing(c.id) and not t.get("on_climb", false): return fail("climbing")
 	var fam := StatRules.family(c)
 	var tfam := str(t.get("family", "any"))
 	if tfam != "any" and not (tfam == str(fam.id) or (tfam == "fists" and fam.id in ["fists", "gauntlets"])): return fail("wrong_weapon", {"text": Tx.t("sim.combat.needs_a") % tfam.replace("_", " ")})
@@ -351,6 +449,24 @@ func dodge(c, direction, facing: int) -> Dictionary:
 	# Wind Blink (secret art, Spirit Awakening 5): a dodge in mid-air blinks 120 units along the wind
 	# and holds the body up for a breath, so a gap too wide to jump can be crossed.
 	var st: ActorState = game.actor_state(c.id)
+	# Shallow water drags at the feet: no dodging in it (S43 volumes).
+	if st != null and st.surface != null and game.room_rt and not game.room_rt.geometry.volume_at(st.plane, st.altitude, "water_shallow").is_empty():
+		return fail("in_water")
+	# Swallow Dart (Qi Kindling 7): an Evade tap in the air darts 140 and holds the height for 0.25 s,
+	# once per airtime. It shares the dodge's cooldown.
+	if st != null and st.surface == null and not st.flying and st.climbing.is_empty() and knows_art(c, "air_dash") and not st.air_dash_used \
+			and c.pools.cooldown("dodge") <= 0.0:
+		st.arts["air_dash"] = true
+		if MovementSolver.air_dash(st):
+			var ax := signf(dir.x) if absf(dir.x) > 0.2 else (1.0 if facing >= 0 else -1.0)
+			var dash_s := float(ContentDB.movement("air_dash.hold_s", 0.25))
+			tl.forced = Vector2(ax, 0) * float(ContentDB.movement("air_dash.distance", 140.0)) / dash_s
+			tl.forced_t = dash_s
+			var dcd := float(conf.get("dodge_cooldown_s", 2.5))
+			if int(c.cultivator.meridians.get("agility", 0)) >= 25: dcd *= 0.8
+			c.pools.cooldowns["dodge"] = dcd
+			LocalAuthority.announce(st, c.id)
+			return ok({"air_dash": true})
 	if st != null and st.surface == null and not st.flying and "wind_blink" in c.cultivator.secret_arts and c.pools.cooldown("wind_blink") <= 0.0:
 		var bx := signf(dir.x) if absf(dir.x) > 0.2 else (1.0 if facing >= 0 else -1.0)
 		var blink := float(ContentDB.stat_const("combat.wind_blink_distance", 120))
@@ -381,7 +497,10 @@ func tick(delta: float) -> void:
 		_tick_player(c, delta)
 		_tick_pools(c, delta)
 		_tick_flight(c, delta)
+		_tick_glide(c, delta)
 		_tick_treasures(c, delta)
+		var body: ActorState = game.actor_state(c.id)
+		if body != null and not body.plunge_impact.is_empty(): _resolve_plunge(c, body)
 	_tick_projectiles(delta)
 	if game.room_rt:
 		for e in game.room_rt.enemies.values():

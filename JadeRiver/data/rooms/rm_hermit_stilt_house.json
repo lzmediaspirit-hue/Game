@@ -58,6 +58,19 @@
    "stratum": "platform",
    "open_edges": true,
    "art": "stilt_house"
+  },
+  {
+   "id": "pond_raft",
+   "rect": [
+    612,
+    712,
+    90,
+    40
+   ],
+   "height": 14,
+   "kind": "raft",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -115,8 +128,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    1000,
-    900
+    1180,
+    760
    ],
    "item": "riverreed_ginseng_10",
    "prop": "riverreed_ginseng_patch",
@@ -135,6 +148,35 @@
     ]
    },
    "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "pond_lotus",
+   "type": "pickup",
+   "at": [
+    835,
+    790
+   ],
+   "alt": 40,
+   "item": "mist_lotus",
+   "count": 1,
+   "prop": "mist_lotus_patch",
+   "set_flag": "pond_lotus",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "skipping_stones"
+     }
+    ]
+   },
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "pond_lotus"
+     }
+    ]
+   }
   }
  ],
  "spawns": [],
@@ -149,7 +191,62 @@
    "layer": "play"
   }
  ],
- "areas": [],
+ "areas": [
+  {
+   "kind": "water",
+   "rect": [
+    600,
+    700,
+    460,
+    140
+   ]
+  }
+ ],
  "music": "meditation",
- "ambience": "marsh_ambience"
+ "ambience": "marsh_ambience",
+ "volumes": [
+  {
+   "id": "hermit_pond",
+   "kind": "water_deep",
+   "rect": [
+    600,
+    700,
+    460,
+    140
+   ],
+   "alt": [
+    -100,
+    10
+   ]
+  }
+ ],
+ "blocks": [
+  {
+   "id": "pond_rock",
+   "rect": [
+    800,
+    765,
+    70,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  }
+ ],
+ "movers": [
+  {
+   "surface": "pond_raft",
+   "path": [
+    [
+     350,
+     0,
+     0
+    ]
+   ],
+   "speed": 45,
+   "wait_s": 2.5,
+   "mode": "pingpong"
+  }
+ ]
 }

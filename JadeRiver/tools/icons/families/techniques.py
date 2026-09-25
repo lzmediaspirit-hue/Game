@@ -544,6 +544,63 @@ def wall_step():
     return done(c)
 
 
+# S43 movement arts.
+def plunge():
+    c, mk, d = emblem('earth', secret=True)
+    shaft = c.seg(16, 5, 16, 17, 2.4)
+    head = c.poly([(10, 14), (22, 14), (16, 22)])
+    mark(c, shaft | head, mk, base=3)
+    ground = c.seg(6, 25, 26, 25, 1.6) & c.circle(16, 16, 12.8)
+    c.put(ground, mk, 'flat', base=1)
+    for (x0, x1) in ((9, 6), (23, 26)):
+        crack = c.seg(x0, 23, x1, 20, 1.2) & c.circle(16, 16, 12.8)
+        c.put(crack, mk, 'flat', base=2)
+    return done(c)
+
+
+def falling_leaf_glide():
+    c, mk, d = emblem('wood', secret=True)
+    leaf = c.circle(9, 9, 14) & c.circle(22, 22, 14)
+    mark(c, leaf, mk, base=3)
+    c.put(c.seg(8, 7, 22, 21, 1.0) & leaf, mk[1], 'flat')
+    for (x, y) in ((13, 13), (17, 17)):
+        c.put(c.seg(x, y, x - 3, y + 3, 0.8) & leaf, mk[1], 'flat')
+    for k, (x, y) in enumerate(((9, 23), (13, 26), (6, 19))):
+        c.put(c.circle(x, y, 1.0 + 0.3 * (k == 0)) & c.circle(16, 16, 12.5), mk, 'flat', base=2)
+    return done(c)
+
+
+def swallow_dart():
+    c, mk, d = emblem('wind', secret=True)
+    wings = c.polyline([(7, 11), (13, 15), (18, 14), (25, 9)], 2.2)
+    body = c.ellipse(17, 16, 4.2, 2.4)
+    tail = c.polyline([(14, 17), (10, 23)], 1.6) | c.polyline([(16, 18), (15, 24)], 1.6)
+    mark(c, wings | body | tail, mk, base=3)
+    for y in (19, 22):
+        c.put(c.seg(21, y, 26, y, 1.0) & c.circle(16, 16, 12.5), mk, 'flat', base=1)
+    return done(c)
+
+
+def cloud_ladder_step():
+    c, mk, d = emblem('qi', secret=True)
+    for (x, y) in ((10, 23), (16, 16), (22, 9)):
+        puff = c.circle(x - 2.5, y, 2.8) | c.circle(x + 2.5, y, 2.8) | c.circle(x, y - 2, 3.2)
+        mark(c, puff & c.circle(16, 16, 12.8), mk, base=3)
+    return done(c)
+
+
+def water_skimming():
+    c, mk, d = emblem('water', secret=True)
+    c.put(S.wave_line(c, 5, 27, 23, 1, 6) & c.circle(16, 16, 12.5), mk, 'flat', base=2)
+    # Three skips across the water, each splash an arch that grows as the stone (or runner) slows.
+    for k, (x, r) in enumerate(((8, 2.6), (15, 3.2), (23, 3.8))):
+        splash = c.arc(x, 22, r, 1.4, 20, 160) & c.circle(16, 16, 12.5)
+        mark(c, splash, mk, base=3)
+    path = c.polyline([(8, 19), (11, 14), (15, 19), (19, 12), (23, 18)], 1.0) & c.circle(16, 16, 12.5)
+    c.put(path, mk, 'flat', base=1)
+    return done(c)
+
+
 def concealment():
     c, mk, d = emblem('shadow', secret=True)
     lid = crescent(c, 16, 10, 11, 0, -3.5, 11.5) & (c.Y > 11)
@@ -570,6 +627,8 @@ TECHS = [
     ('soul_lantern_ward', soul_lantern_ward), ('glimpse_of_heaven', glimpse_of_heaven),
     ('dodge_dash', dodge_dash), ('appraisal_eye', appraisal_eye), ('breath_control', breath_control),
     ('wall_step', wall_step), ('concealment', concealment),
+    ('plunge', plunge), ('falling_leaf_glide', falling_leaf_glide), ('swallow_dart', swallow_dart),
+    ('cloud_ladder_step', cloud_ladder_step), ('water_skimming', water_skimming),
 ]
 for _id, _fn in TECHS:
     register(FAM, _id, _fn, GROUP)

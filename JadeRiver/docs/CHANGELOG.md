@@ -5,6 +5,51 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V2b · Movement arts, volumes and movers (S43)
+- **Four new movement arts**, each taught by a guided quest when the quest is accepted:
+  - **Plunge** (*Outer Trial*, Bone Forging 4): Down + Attack in the air drops at 900. The landing strikes
+    within 60 for 120 % damage and a 0.5 s stun, breaks jars and cracked floors, and has a 4 s cooldown.
+  - **Falling Leaf Glide** (*Leaf on the Wind*, Falls Pool, Qi Kindling 3): hold Jump while falling. The fall
+    is capped at 120 a second and drift is 10 % faster, for 2 QI a second. The Falls Pool gains a vine, a
+    200 ledge and the waterfall's updraft.
+  - **Swallow Dart** (*Swallow Dart*, the library's first floor, Qi Kindling 7): tap Evade in the air to dart
+    140 while holding your height for 0.25 s, once per airtime, on the dodge's cooldown.
+  - **Water Skimming** (the hermit's side quest *Skipping Stones*, Qi Unfurling 8): sprint across deep water.
+    The pond under the hermit's stilts has a rock with a Mist Lotus on it and a raft that poles across.
+- **Flight by holding Jump.** Hold Jump as you start to fall to take off. Flight replaces the glide where it
+  is allowed and QI is above 10 %. In the air, hold Jump to rise, hold Evade to descend, and tap Evade to
+  dash. Flight is refused indoors, on sect grounds, in dungeons and in `no_flight` volumes. The third-press
+  take-off is gone.
+- **Volumes** in room data:
+  - shallow water: ×0.7, no sprint or dodge;
+  - deep water: sink in 1 s and return to the last safe spot, or swim 30 s with Breath Control;
+  - current, updraft, wind (a 4 s pulse, stronger at edges), bounce (700) and crumble (0.8 s, back after 5 s);
+  - rising water keyed to events, hazard and no_flight.
+
+  They are placed in the Flooded Gate (current), Falls Pool and Cliff Faces (updrafts), Windswept Ridge
+  (wind), the Fairground (a bounce drum) and the Mudwater Tunnels (rotten boards). In the Serpent's
+  Shallows the Riverbed Serpent floods the arena to 30 for 14 s at half health.
+- **Movers.** A surface or block follows a path as a pure function of the room clock, in loop, pingpong or
+  trigger mode, and carries its riders. The hermit's raft is the first.
+- **Controls and feedback:**
+  - techniques and attacks wait while climbing;
+  - the climb-speed stat now counts;
+  - a fall fades the screen briefly;
+  - no safe spot is recorded in deep water, on a mover or on a crumbling floor.
+- **Learning an art** shows a toast with its name and a one-line how-to. Each of the five arts has its own
+  icon.
+- **Data.** `data/movement.json` holds every traversal number, and data validation checks the solver
+  against it. Every movement art in `secret_arts.json` names its `movement_art`, how-to and quest. The new
+  events are `mover_boarded`, `volume_entered` and `volume_left`.
+- **Tests.** The solver is tested at each art's numbers:
+  - the glide lasts 1.5 s and covers about 300;
+  - the dart covers 140 with no height lost;
+  - a Plunge breaks a cracked floor.
+
+  Every volume behaves as its table row says, movers replay identically, and rising water follows its
+  event. Game-level tests cover the Plunge blow and stun, glide QI, the air dash and flight on sect grounds.
+  The valley run plays the four new quests.
+
 ### V2a · Traversal engine (S43)
 - **Surfaces have sides.** Each walk surface records which of its four edges are open. A platform is closed
   at the back (north) and open on the other three; the ground and ramps are closed all round. Walking off an

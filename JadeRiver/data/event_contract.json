@@ -883,6 +883,29 @@
     "local_authority",
     "movement_solver"
    ]
+  },
+  "mover_boarded": {
+   "system": "Movement",
+   "files": [
+    "local_authority",
+    "movement_solver"
+   ],
+   "polled": "The player node reads rider_of; movers carry their riders in the solver."
+  },
+  "volume_entered": {
+   "system": "Movement",
+   "files": [
+    "local_authority",
+    "movement_solver"
+   ]
+  },
+  "volume_left": {
+   "system": "Movement",
+   "files": [
+    "local_authority",
+    "movement_solver"
+   ],
+   "polled": "The player node reads the water state and volumes each frame."
   }
  }
 }

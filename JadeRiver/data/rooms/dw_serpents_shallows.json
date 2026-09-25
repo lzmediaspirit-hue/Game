@@ -143,5 +143,52 @@
    ]
   }
  ],
- "music": "boss"
+ "music": "boss",
+ "volumes": [
+  {
+   "id": "water_shallow_0",
+   "kind": "water_shallow",
+   "rect": [
+    400,
+    820,
+    3000,
+    140
+   ],
+   "alt": [
+    -50,
+    10
+   ]
+  },
+  {
+   "id": "serpent_flood",
+   "kind": "rising_water",
+   "rect": [
+    400,
+    820,
+    3000,
+    140
+   ],
+   "alt": [
+    -100,
+    -20
+   ],
+   "rise": [
+    {
+     "event": "boss_phase",
+     "match": {
+      "action": "flood"
+     },
+     "to": 30,
+     "over_s": 4.0,
+     "hold_s": 14.0,
+     "back_to": -20
+    },
+    {
+     "event": "field_boss_defeated",
+     "to": -20,
+     "over_s": 3.0
+    }
+   ]
+  }
+ ]
 }

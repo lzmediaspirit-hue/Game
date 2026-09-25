@@ -501,8 +501,11 @@ def unlocks():
                            ("wind_blink", "spirit_awakening_5", "Wind Blink")]:
         u(art, label, all_of(realm(rk)), "", [], effects=[fx("learn_secret_art", art=art)], same_stage_ok=True)
     # S43 movement arts: a guided quest offers each, and the art is usable from its acceptance.
-    u("double_jump", "Cloud Ladder Step", all_of(realm("qi_unfurling_6")), "cloud_ladder", [], same_stage_ok=True)
-    u("wall_step", "Wall-Step", all_of(realm("heart_tempering_4")), "between_two_walls", [], same_stage_ok=True)
+    # The art's own toast (with its how-to) shows when it is learned, so these unlocks stay quiet.
+    u("glide", "Falling Leaf Glide", all_of(realm("qi_kindling_3")), "leaf_on_the_wind", [], same_stage_ok=True, toast=False)
+    u("air_dash", "Swallow Dart", all_of(realm("qi_kindling_7")), "swallow_dart", [], same_stage_ok=True, toast=False)
+    u("double_jump", "Cloud Ladder Step", all_of(realm("qi_unfurling_6")), "cloud_ladder", [], same_stage_ok=True, toast=False)
+    u("wall_step", "Wall-Step", all_of(realm("heart_tempering_4")), "between_two_walls", [], same_stage_ok=True, toast=False)
     # Act II · Phase E (Part 4): Sage 3 opens the Starsea crafts and the will to survive out there; Sage 1 paired cultivation;
     # Sage Sovereign 1 upgrades the training sect's token.
     u("star_charting", "Star charts", all_of(realm("sage_3"), qdone("ironroot_blood")), "a_chart_of_ones_own", [], same_stage_ok=True)
@@ -712,10 +715,28 @@ def guided_quests():
         complete=["You see it now. The valley glows, faintly, everywhere."])
     quest("outer_trial", "Outer Trial", "guided", "elder_hu", [
         o("win_spar", "Win spars at the practice posts", 3),
+        o("use_system", "Climb a roof and Plunge to the practice ground", 1, system="plunge"),
     ], [fx("sect_rank", rank="outer_disciple"), fx("add_contribution", amount=50)], offered_by_unlock=True, chapter="1", giver_any=M, hand_in_any=M,
-        target_room="ja_pavilion_rooftops",
-        offer=["Outer disciples are chosen by their fists. Win three spars at the practice posts."],
+        target_room="ja_pavilion_rooftops", on_accept=[fx("learn_secret_art", art="plunge")],
+        offer=["Outer disciples are chosen by their fists. Win three spars at the practice posts.",
+               "And learn to come down hard. From any height, pull down and strike: we call it Plunge. Show me once, from a roof."],
         complete=["Outer Disciple. You'll get a proper robe soon."])
+    # S43 movement arts (Qi Kindling 3 and 7): each guided quest teaches its art on acceptance.
+    quest("leaf_on_the_wind", "Leaf on the Wind", "guided", "elder_hu", [
+        o("reach_room", "Go to the Falls Pool", room="cf_falls_pool"),
+        o("use_system", "Climb the vine and glide over the pool", 2, system="glide"),
+    ], [taels(60)], offered_by_unlock=True, chapter="qk3", same_stage_ok=True, giver_any=M, hand_in_any=M, target_room="cf_falls_pool",
+        on_accept=[fx("learn_secret_art", art="falling_leaf_glide")],
+        offer=["Watch a leaf fall from Crane Falls. It never hurries. Hold your breath, hold the jump, and fall like that.",
+               "Climb the vine beside the falls and glide over the pool. The spray will carry you if you let it."],
+        complete=["You came down like a leaf, not a stone. Good."])
+    quest("swallow_dart", "Swallow Dart", "guided", "jade_librarian", [
+        o("use_system", "Dart through the air three times", 3, system="air_dash"),
+    ], [taels(100)], offered_by_unlock=True, chapter="qk7", same_stage_ok=True, giver_any=LIBRARIANS, hand_in_any=LIBRARIANS,
+        on_accept=[fx("learn_secret_art", art="swallow_dart")],
+        offer=["The first floor keeps a slim scroll: Swallow Dart. A swallow turns in the air without touching anything.",
+               "Jump, then tap Evade. You will hang for a breath and dart ahead. Three times, and mind the shelves."],
+        complete=["Once per leap, remember. Even swallows land."])
     quest("stone_and_sweat", "Stone and Sweat", "guided", "foreman_dong", [
         o("gather_node", "Mine Copper", 5, item="copper_ore", craft="mining"),
         o("kill", "Defeat Rock Beetles", 5, enemy="rock_beetle"),
@@ -915,6 +936,14 @@ def guided_quests():
     ], [item("blank_plate", 3)], offered_by_unlock=True, chapter="ht5", same_stage_ok=True, giver_any=FORMATION_ELDERS, hand_in_any=FORMATION_ELDERS,
         on_accept=[fx("learn_recipe", recipe="array_plate"), item("blank_plate", 1), item("formation_stone", 1)],
         offer=["A formation you can carry. Etch one plate."], complete=["Take these blanks."])
+    quest("skipping_stones", "Skipping Stones", "side", "hermit_yao", [
+        o("use_system", "Sprint across the pond under the stilt house", 1, system="water_skimming"),
+        o("collect", "Pick the Mist Lotus on the pond's rock", item="mist_lotus"),
+    ], [taels(300)], requires=all_of(realm("qi_unfurling_8")), target_room="rm_hermit_stilt_house",
+        on_accept=[fx("learn_secret_art", art="water_skimming")],
+        offer=["A stone skips if it is fast and flat. So can you. Sprint at the pond and do not stop.",
+               "A Mist Lotus grows on the rock in the middle. Stop on the water and you'll be fishing yourself out."],
+        complete=["Wet to the knees only. The otters are impressed."])
     quest("the_warm_egg", "The Warm Egg", "guided", "hermit_yao", [
         o("use_system", "Incubate a spirit egg", system="egg_incubated"),
     ], [item("spirit_egg", 1)], offered_by_unlock=True, chapter="ht5", same_stage_ok=True, on_accept=[item("spirit_egg", 1)],
@@ -936,7 +965,7 @@ def guided_quests():
                "Take this: Elder Hu's Heaven-Splitting Palm, folded into paper. Three charges. Set it in a Treasure button and keep it for the worst moment."],
         complete=["You looked yourself in the eye and didn't blink. Cloud Stride awaits."])
     quest("wings_of_cloud", "Wings of Cloud", "main", "elder_hu", [
-        o("use_system", "Take to the air: jump again at the top of a double jump", system="flight"),
+        o("use_system", "Take to the air: hold Jump as you start to fall", system="flight"),
         o("reach_room", "Reach the Cliff Faces", room="cc_cliff_faces"),
         o("kill", "Defeat Cloudwing Cranes", 3, enemy="cloudwing_crane"),
     ], [fx("codex", entry="flight")], offered_by_unlock=True, chapter="7", giver_any=M, hand_in_any=M,

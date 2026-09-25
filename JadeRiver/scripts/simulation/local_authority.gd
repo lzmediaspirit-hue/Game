@@ -46,16 +46,19 @@ func release_climb(side: int,jumped: bool) -> bool:
 func fell_out(recovered_to: Dictionary) -> void:
 	state.events.append({"name":"fell_out","recovered_to":recovered_to})
 	_announce()
-## Traversal events (jumped, landed, wall_kicked, art_used, climb_started, climb_finished, fell_out) go out
-## on the event bus for presentation, achievements and quests.
+## Traversal events (jumped, landed, wall_kicked, art_used, climb_started, climb_finished, fell_out,
+## mover_boarded, volume_entered, volume_left) go out on the event bus for presentation, achievements and quests.
 func _announce() -> void:
-	for e in state.events:
+	announce(state,actor_id)
+## Emit a body's pending traversal events (also used when Combat starts an art on the body: Plunge, glide, dash).
+static func announce(body: ActorState,actor:="") -> void:
+	for e in body.events:
 		var p: Dictionary=e.duplicate()
 		var n=str(p.name)
 		p.erase("name")
-		p.actor=actor_id if actor_id!="" else state.entity_id
+		p.actor=actor if actor!="" else body.entity_id
 		GameEvents.emit_event(n,p)
-	state.events.clear()
+	body.events.clear()
 ## Flight is granted by the Combat authority (which pays its QI); this only moves the body.
 func fly(on: bool,climb_speed:=220.0,ceiling:=340.0) -> bool:
 	if on: return MovementSolver.start_flight(state,climb_speed,ceiling)

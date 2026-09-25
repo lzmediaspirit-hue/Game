@@ -468,6 +468,9 @@ func sec_bf2() -> void:
 		if wins >= 3 or posts.is_empty(): break
 		if spar_with(func(): return interact(str(posts[0].id))): wins += 1
 	check(wins >= 3, "win three practice spars (%d)" % wins)
+	# S43: the Outer Trial teaches Plunge; come down hard from a jump once.
+	check("plunge" in c().cultivator.secret_arts, "the mentor teaches Plunge")
+	check(plunges(1) == 1, "plunge from the air")
 	check(finish("outer_trial"), "Outer Trial done")
 	check(str(c().training_sect.get("rank", "")) == "outer_disciple", "Outer Disciple")
 
@@ -709,6 +712,11 @@ func sec_qk1() -> void:
 	check(tp.get("ok", false), "teleport once %s" % str(tp))
 	if tp.get("ok", false): place(Vector2(float(c().position.x), float(c().position.y)))
 	check(finish("stones_that_move_you"), "Stones That Move You done")
+	# S43: Falling Leaf Glide at the Falls Pool.
+	check(start("leaf_on_the_wind"), "Leaf on the Wind accepted")
+	check(travel("cf_falls_pool"), "reach the Falls Pool for the glide")
+	check(glides(2) == 2, "glide twice")
+	check(finish("leaf_on_the_wind"), "Leaf on the Wind done")
 	# Qi Kindling 4: the waterfall.
 	check(reach("qi_kindling_4"), "Qi Kindling 4")
 	check(start("listening_to_the_waterfall"), "Listening to the Waterfall accepted")
@@ -795,6 +803,10 @@ func sec_qk5() -> void:
 	check(finish("bandits_on_the_road"), "Bandits on the Road done")
 	# Qi Kindling 7: the Caravan Road, the key, the Hideout and Gu's cargo.
 	check(reach("qi_kindling_7"), "Qi Kindling 7")
+	# S43: Swallow Dart from the library's first floor.
+	check(start("swallow_dart"), "Swallow Dart accepted")
+	check(air_dashes(3) == 3, "dart through the air three times")
+	check(finish("swallow_dart"), "Swallow Dart done")
 	check(start("the_caravan_road"), "The Caravan Road accepted")
 	check(travel("cr_caravan_road"), "back on the Caravan Road")
 	check(fight("mudwater_bandit", 6, 600.0) >= 6, "defeat six more Mudwater Bandits")
@@ -894,7 +906,8 @@ func sec_qu1() -> void:
 	# Qi Unfurling 2: the sect forge.
 	check(reach("qi_unfurling_2"), "Qi Unfurling 2")
 	check(start("the_sect_forge"), "The Sect Forge accepted")
-	for need in [["copper_ore", 6], ["riverstone", 3], ["boar_hide", 2]]:
+	# The Iron Jian takes 6 copper and its first enhancement 2 more.
+	for need in [["copper_ore", 8], ["riverstone", 3], ["boar_hide", 2]]:
 		var have: int = c().inventory.count(str(need[0]))
 		if have < int(need[1]): Game.inventory.apply_add(c().id, str(need[0]), int(need[1]) - have, "test_materials")
 	check(go_to_station("forge_anvil"), "reach a forge")
@@ -971,6 +984,12 @@ func sec_qu5() -> void:
 	check(tame_one(), "tame a wild spirit animal")
 	check(finish("calming_the_wild"), "Calming the Wild done")
 	check(reach("qi_unfurling_8"), "Qi Unfurling 8")
+	# S43: the hermit's Skipping Stones teaches Water Skimming over the pond under the stilts.
+	check(start("skipping_stones"), "Skipping Stones accepted")
+	check(travel("rm_hermit_stilt_house"), "reach the hermit's pond")
+	check(skim_the_pond(), "sprint across the deep pond")
+	check(interact("pond_lotus").get("ok", false) and c().inventory.count("mist_lotus") >= 1, "pick the Mist Lotus on the rock")
+	check(finish("skipping_stones"), "Skipping Stones done")
 	check(start("the_valley_tournament"), "The Valley Tournament accepted")
 	var arena := go_to_npc(["arena_master"])
 	var wins := 0
@@ -2027,6 +2046,10 @@ func body_authority() -> LocalAuthority:
 	if st == null: place(Vector2(float(c().position.x), float(c().position.y)))
 	var la := LocalAuthority.new(st, Game.room_rt.geometry)
 	la.actor_id = c().id
+	# The body knows the movement arts its character has learned (the player node does this each frame).
+	for sa in c().cultivator.secret_arts:
+		var art := str(ContentDB.entry("secret_arts", str(sa)).get("movement_art", ""))
+		if art != "": st.arts[art] = true
 	return la
 
 var body_seq := 0
@@ -2071,6 +2094,70 @@ func wall_step_shaft() -> int:
 		if st.surface != null: break
 		body_step(la, 1.0 / 60.0)
 	return kicks
+
+## Jump and Plunge: Down + Attack in the air; the landing strikes (Combat resolves it on the next tick).
+func plunges(times: int) -> int:
+	var sp: Array = Game.room_rt.def.get("spawn_point", [700, 850])
+	var done := 0
+	for i in times:
+		c().pools.cooldowns.erase("plunge")
+		place(Vector2(float(sp[0]), float(sp[1])))
+		var la := body_authority()
+		la.jump()
+		body_step(la, 0.35)
+		if submit({"type": "plunge"}).get("ok", false): done += 1
+		for k in 120:
+			if st.surface != null: break
+			body_step(la, 1.0 / 60.0)
+		Game.tick(0.05)
+	return done
+
+## Jump, and once falling hold Jump: Falling Leaf Glide (2 QI a second).
+func glides(times: int) -> int:
+	var sp: Array = Game.room_rt.def.get("spawn_point", [700, 850])
+	var done := 0
+	for i in times:
+		c().pools.qi = c().pools.max_qi
+		place(Vector2(float(sp[0]), float(sp[1])))
+		var la := body_authority()
+		la.jump()
+		body_step(la, 0.5)
+		if submit({"type": "glide", "on": true}).get("ok", false): done += 1
+		for k in 240:
+			if st.surface != null: break
+			body_step(la, 1.0 / 60.0, Vector2(1, 0))
+			Game.tick(1.0 / 60.0)
+	return done
+
+## Jump and tap Evade in the air: Swallow Dart, waiting out the dodge's cooldown between darts.
+func air_dashes(times: int) -> int:
+	var sp: Array = Game.room_rt.def.get("spawn_point", [700, 850])
+	var done := 0
+	for i in times:
+		c().pools.cooldowns.erase("dodge")
+		place(Vector2(float(sp[0]), float(sp[1])))
+		var la := body_authority()
+		la.jump()
+		body_step(la, 0.3)
+		if submit({"type": "dodge", "direction": Vector2(1, 0), "facing": 1}).get("air_dash", false): done += 1
+		for k in 120:
+			if st.surface != null: break
+			body_step(la, 1.0 / 60.0)
+			Game.tick(1.0 / 60.0)
+	return done
+
+## Sprint at the pond and keep running: Water Skimming over deep water to its far side.
+func skim_the_pond() -> bool:
+	place(Vector2(560, 740))
+	var la := body_authority()
+	st.sprinting = true
+	var skimmed := false
+	for k in 150:
+		body_step(la, 1.0 / 60.0, Vector2(1, 0), 348.0)
+		if st.water.get("skimming", false): skimmed = true
+		if st.plane.x > 1090.0: break
+	st.sprinting = false
+	return skimmed and not st.drowned and st.plane.x > 1070.0
 
 ## Set the Practice Bell in Treasure button 1 and ring it, waiting out its cooldown between rings.
 func ring_the_bell(times: int) -> int:

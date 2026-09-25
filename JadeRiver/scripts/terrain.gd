@@ -67,8 +67,41 @@ func painted_building(a: Vector2,width: float):
 const BLOCK_COLORS={"crate":["8a6236","a57a45","5c3f22"],"barrel":["6b4a2c","86603a","3f2a18"],"cart":["7d5a33","9b7443","4d3620"],
 	"wall":["7c7d78","9a9b95","4f504c"],"rock":["6f7568","8d9384","474c43"],"fence":["80603a","a07c4c","52391f"],
 	"stall":["9a3b2e","b8574a","5e231b"],"pillar":["9f2f2a","c24a3f","5f1a17"],"statue":["8b8f86","a9ada2","5a5d56"],
-	"well":["71776f","8f958b","4a4f48"],"lantern":["a8342a","cf5a45","641d17"]}
+	"well":["71776f","8f958b","4a4f48"],"lantern":["a8342a","cf5a45","641d17"],"drum":["9c2c24","efe2c0","5a1814"]}
+## The fair's great drum (S43 bounce): a red barrel with brass studs under a taut cream skin.
+func _draw_drum():
+	var r=surface.bounds
+	var top=surface.base
+	var cx=r.get_center().x
+	var rx=r.size.x*0.5
+	var ry=r.size.y*0.32
+	var cy_top=r.get_center().y-top
+	var cy_bottom=r.get_center().y
+	var body=PackedVector2Array()
+	for i in 17:
+		var a=PI*float(i)/16.0
+		body.append(Vector2(cx+cos(a)*rx,cy_bottom+sin(a)*ry))
+	body.append(Vector2(cx-rx,cy_top))
+	body.append(Vector2(cx+rx,cy_top))
+	draw_colored_polygon(body,Color("9c2c24"))
+	draw_rect(Rect2(cx-rx,cy_top,rx*0.35,top),Color("7a1f19"))
+	draw_rect(Rect2(cx+rx*0.55,cy_top,rx*0.45,top),Color("b8473a"))
+	for k in 2:
+		var yy=cy_top+4.0 if k==0 else cy_bottom-2.0
+		for i in 7:
+			var a=PI*(0.1+0.8*float(i)/6.0)
+			draw_circle(Vector2(cx-cos(a)*rx*0.96,yy+sin(a)*ry*0.9),2.0,Color("e0b84a"))
+	var skin=PackedVector2Array()
+	for i in 32:
+		var a=TAU*float(i)/32.0
+		skin.append(Vector2(cx+cos(a)*rx,cy_top+sin(a)*ry))
+	draw_colored_polygon(skin,Color("efe2c0"))
+	draw_polyline(skin+PackedVector2Array([skin[0]]),Color("7a1f19"),2.0)
+	draw_arc(Vector2(cx,cy_top),rx*0.4,0,TAU,24,Color(0.8,0.2,0.16,0.6),2.0)
 func _draw_block():
+	if art=="drum":
+		_draw_drum()
+		return
 	var r=surface.bounds
 	var top=surface.base
 	var cols: Array=BLOCK_COLORS.get(art if art!="" else "crate",BLOCK_COLORS.crate)
@@ -91,6 +124,7 @@ func _draw_block():
 	draw_rect(Rect2(top_rect.position.x,top_rect.end.y-3,top_rect.size.x,3),Color(1.0,0.93,0.72,0.9))
 	draw_rect(Rect2(r.position.x,r.position.y-top,r.size.x,r.size.y+top),dark,false,2.0)
 func _draw():
+	if surface.disabled: return   # crumbled or broken (S43); it returns when the floor does
 	if surface.kind=="block":
 		_draw_block()
 		return
@@ -137,6 +171,35 @@ func _draw():
 		if surface.base>0:
 			draw_rect(Rect2(d,Vector2(r.size.x,surface.base)),Color("3b2c22"))
 			draw_line(d,d+Vector2(r.size.x,0),Color("c9a46a"),2)
+		return
+	if surface.kind=="raft":
+		# S43 mover: a bamboo raft, poles lashed across two cross-bars, riding low on the water.
+		draw_rect(Rect2(a,r.size),Color("6f5d2e"))
+		for y in range(0,int(r.size.y),7):
+			draw_line(a+Vector2(2,y+3),a+Vector2(r.size.x-2,y+3),Color("c2ab6a"),3)
+		for x in [10.0,r.size.x-14]:
+			draw_line(a+Vector2(x,0),a+Vector2(x,r.size.y),Color("4a3a1c"),3)
+		draw_rect(Rect2(d,Vector2(r.size.x,maxf(4.0,surface.base))),Color("4a3a1c"))
+		draw_line(d,d+Vector2(r.size.x,0),Color(1.0,0.93,0.72,0.9),2)
+		return
+	if surface.kind=="bridge":
+		# Rotten boards on two posts: a walkable lip, gaps between the planks (S43 crumble).
+		for x in [6.0,r.size.x*0.5-3,r.size.x-12]:
+			draw_rect(Rect2(d+Vector2(x,0),Vector2(6,surface.base)),Color("3d2c1e"))
+			draw_line(d+Vector2(x+1,0),d+Vector2(x+1,surface.base),Color("6b5034"),1)
+		draw_rect(Rect2(a,r.size),Color("2e2218"))
+		var row=0
+		for y in range(0,int(r.size.y)-4,9):
+			row+=1
+			# Old planks laid across the way, a few split or missing: it will not hold for long.
+			var sag=sin(float(row)*1.7)*1.5
+			for seg in [[0.0,0.46],[0.52,1.0]] if row%3==1 else [[0.0,1.0]]:
+				var x0=r.size.x*float(seg[0])+2
+				var x1=r.size.x*float(seg[1])-2
+				draw_rect(Rect2(a+Vector2(x0,y+sag),Vector2(x1-x0,7)),Color("6b5034"))
+				draw_line(a+Vector2(x0,y+sag),a+Vector2(x1,y+sag),Color("9c7a52"),1.5)
+		draw_rect(Rect2(d,Vector2(r.size.x,5)),Color("3a2a1e"))
+		draw_line(d,d+Vector2(r.size.x,0),Color(1.0,0.93,0.72,0.8),2)
 		return
 	if surface.kind in ["dock","deck"]:
 		draw_rect(Rect2(a,r.size),Color("5a4130"))

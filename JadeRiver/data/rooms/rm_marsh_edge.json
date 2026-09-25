@@ -549,5 +549,21 @@
   }
  ],
  "music": "marsh",
- "ambience": "marsh_ambience"
+ "ambience": "marsh_ambience",
+ "volumes": [
+  {
+   "id": "water_shallow_0",
+   "kind": "water_shallow",
+   "rect": [
+    400,
+    860,
+    1700,
+    100
+   ],
+   "alt": [
+    -50,
+    10
+   ]
+  }
+ ]
 }

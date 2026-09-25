@@ -127,6 +127,15 @@ func hand_in(npc: String, quest: String) -> void:
 	var ok := talk_choose(npc, "hand_in", quest)
 	check(ok and c().quests.is_done(quest), "hand in %s to %s" % [quest, npc])
 
+## The nearest point off shallow water, a step away from a foe (S43 volumes).
+func _dry_ground_near(p: Vector2) -> Vector2:
+	var geo: ZoneGeometry = Game.room_rt.geometry
+	for dy in [-60, -100, -140, -180, -220, 60, 100]:
+		var q := Vector2(p.x - 34.0, p.y + dy)
+		if geo.volume_at(q, 0.0, "water_shallow").is_empty() and geo.volume_at(q, 0.0, "water_deep").is_empty() and geo.ground_contains(q) and not geo.blocks_at(q, 0.0, "ground"):
+			return q
+	return p + Vector2(-34, 0)
+
 func interact(id: String) -> Dictionary:
 	var o: Dictionary = Game.room_rt.object_def(id)
 	place(Vector2(float(o.at[0]) - 30, float(o.at[1]) + 10), float(o.get("alt", 0.0)))
@@ -185,7 +194,9 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, a
 		# Bosses: roll through the strike late in its wind-up (dash i-frames), as a practised player does.
 		if str(target.ai.get("state", "")) == "windup" and target.role in ["dungeon_boss", "field_boss", "story_boss"] and Unlocks.is_unlocked(c().id, "dodge_dash"):
 			if float(target.ai.get("timer", 1.0)) <= 0.2:
-				submit({"type": "dodge", "direction": Vector2.ZERO, "facing": 1})
+				var dr := submit({"type": "dodge", "direction": Vector2.ZERO, "facing": 1})
+				# No dodging in shallow water (S43): a practised player steps up onto dry ground instead.
+				if str(dr.get("reason", "")) == "in_water": place(_dry_ground_near(target.plane))
 			step(0.05)
 			t += 0.05
 			continue

@@ -378,5 +378,21 @@
  ],
  "music": "dungeon",
  "ambience": "",
- "dungeon_exit": "dw_bend_shore"
+ "dungeon_exit": "dw_bend_shore",
+ "volumes": [
+  {
+   "id": "water_shallow_0",
+   "kind": "water_shallow",
+   "rect": [
+    0,
+    900,
+    2560,
+    60
+   ],
+   "alt": [
+    -50,
+    10
+   ]
+  }
+ ]
 }

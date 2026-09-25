@@ -66,7 +66,8 @@ def build():
                       "jade_tree_share": 0.75, "jade_tree_min_insight": 500},
         # S18 flight (Cloud Stride 1): QI per second is a share of the pool (with a floor); take off needs a
         # little QI in hand. Climb in px/s, ceiling in px of altitude.
-        "flight": {"unlock": "flight", "qi_pct_per_s": 0.02, "qi_min_per_s": 2.0, "start_qi_pct": 0.1, "climb": 220, "ceiling": 340},
+        "flight": {"unlock": "flight", "qi_pct_per_s": 0.02, "qi_min_per_s": 2.0, "start_qi_pct": 0.1, "climb": 220, "ceiling": 340,
+                   "no_flight_types": ["interior", "sect", "dungeon"]},
         # S18: A_dealt = min(cap, floor + slope x attunement / required); A_taken = 1 + max(0, 1 - attunement / required)
         "attunement": {"floor": 0.3, "slope": 0.7, "cap": 1.1},
         "crit": {"base": 0.05, "per_agility": 0.001, "per_fortune": 0.0005, "cap": 0.75, "damage_base": 1.5, "damage_cap": 3.0,
@@ -123,6 +124,47 @@ def build():
                         ["spirit", 64, 72], ["sage", 73, 81], ["sovereign", 82, 90], ["will", 91, 99], ["sphere", 100, 108],
                         ["law", 109, 120], ["monarch", 121, 140], ["inner_heaven", 141, 165]],
         "stats": [{"id": s, "group": g, "cap": cap, "format": f} for (s, g, cap, f) in STAT_LIST],
+    })
+
+    # S43 traversal: every movement constant in one place. The solver's constants must match these
+    # (data_validation checks it), and the room lint and reach tests read them.
+    write("movement.json", {
+        "schema_version": 1,
+        "jump": {"impulse": 530, "gravity": 1150, "substep_s": 1 / 120, "apex": 122, "coyote_s": 0.10, "buffer_s": 0.12},
+        "double_jump": {"impulse": 430, "apex_from_ground": 202},
+        "wall_step": {"kick_speed": 450, "away": 90, "kicks": 3, "reach": 12, "shaft": [60, 160]},
+        "mantle": {"rise": 24, "reach": 16, "time_s": 0.2},
+        "drop_through": {"ignore_s": 0.25, "axis_y": 0.7, "axis_x": 0.3},
+        "climb": {"speed": 160, "stat_cap": 0.5, "hold_s": 0.3, "reach": 28, "sideways_max": 0.3, "rope_jump_bonus": 0.2},
+        "plunge": {"speed": 900, "radius": 60, "mult": 1.2, "stun_s": 0.5, "cooldown_s": 4.0},
+        "glide": {"fall": 120, "drift": 1.1, "qi_per_s": 2.0},
+        "air_dash": {"distance": 140, "hold_s": 0.25},
+        "dodge": {"distance": 140, "invuln_s": 0.25, "cooldown_s": 2.5},
+        "sprint": {"factor": 1.7, "after_s": 2.0},
+        "attack_move": {"ground": 0.3, "air": 0.8, "air_mult": 1.1},
+        "falls": {"void_below_lowest": 250, "hp_cost_pct": 0.05, "safe_after_s": 0.3, "safe_edge": 24, "fade_s": 0.3},
+        "water": {"shallow_factor": 0.7, "swim_factor": 0.6, "sink_factor": 0.3, "sink_s": 1.0, "sink_depth": 40, "swim_s": 30,
+                  "skim_min_speed": 60, "skim_still_s": 0.5},
+        "updraft": {"speed": 220, "ease": 3.0},
+        "wind": {"cycle_s": 4.0, "strong_s": 1.5, "calm": 0.3, "edge": 48, "edge_factor": 1.5},
+        "bounce": {"speed": 700, "apex": 213},
+        "crumble": {"break_s": 0.8, "return_s": 5.0},
+        "combat_bands": {"melee": [-30, 60], "qi_arc": [-10, 80], "projectile_launch": 58},
+        "heights": {"jump_one": 100, "jump_two": 176, "flight_ledge": 300, "blocks": [40, 60, 80, 110], "built": 88, "natural": 100},
+        "flight": {"ceiling": 340, "climb": 220},
+        # Each movement art, the secret art that grants it and the realm band that first has it (S43 rule 7).
+        "arts": [
+            {"art": "jump", "realm": "prologue"}, {"art": "climb", "realm": "prologue"}, {"art": "drop_through", "realm": "prologue"},
+            {"art": "mantle", "realm": "prologue"}, {"art": "sprint", "realm": "prologue"},
+            {"art": "plunge", "secret_art": "plunge", "realm": "bone_forging_4"},
+            {"art": "dodge", "secret_art": "dodge_dash", "realm": "bone_forging_5"},
+            {"art": "glide", "secret_art": "falling_leaf_glide", "realm": "qi_kindling_3"},
+            {"art": "air_dash", "secret_art": "swallow_dart", "realm": "qi_kindling_7"},
+            {"art": "double_jump", "secret_art": "cloud_ladder_step", "realm": "qi_unfurling_6"},
+            {"art": "water_skimming", "secret_art": "water_skimming", "realm": "qi_unfurling_8"},
+            {"art": "wall_step", "secret_art": "wall_step", "realm": "heart_tempering_4"},
+            {"art": "flight", "realm": "cloud_stride_1"},
+        ],
     })
 
     # S38 balance simulator: how an active hour is spent, and the Part 4 pacing table it must meet (±15%).

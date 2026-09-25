@@ -390,6 +390,7 @@ func top_page() -> Page:
 func _on_game_event(name: String, p: Dictionary) -> void:
 	match name:
 		"room_left": fade = 1.0
+		"fell_out": if str(p.get("actor", "")) == Game.active_id: fade = maxf(fade, 0.85)   # S43: a short fade on recovery
 		"room_entered":
 			fade = maxf(fade, 0.9)
 			close_all_pages()

@@ -2105,6 +2105,42 @@
    "same_stage_ok": true
   },
   {
+   "id": "glide",
+   "label": "Falling Leaf Glide",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_3"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "leaf_on_the_wind",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
+   "id": "air_dash",
+   "label": "Swallow Dart",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_7"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "swallow_dart",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
    "id": "double_jump",
    "label": "Cloud Ladder Step",
    "trigger": {
@@ -2119,7 +2155,8 @@
    "effects": [],
    "scope": "character",
    "quest": "cloud_ladder",
-   "same_stage_ok": true
+   "same_stage_ok": true,
+   "toast": false
   },
   {
    "id": "wall_step",
@@ -2136,7 +2173,8 @@
    "effects": [],
    "scope": "character",
    "quest": "between_two_walls",
-   "same_stage_ok": true
+   "same_stage_ok": true,
+   "toast": false
   },
   {
    "id": "star_charting",

@@ -17,6 +17,7 @@ var room_mode := false
 var geometry := ZoneGeometry.new()
 var surfaces: Array[WalkSurface] = []
 var terrain_visuals: Array = []
+var dynamic_terrain: Array = []     # S43: mover, crumble and cracked surfaces, redrawn every frame
 var props: Array[Node2D] = []
 var map_bounds: Rect2
 var map_data: Dictionary = {}
@@ -123,6 +124,13 @@ func _build_room() -> void:
 	# S43 climbables: ladders, ropes, vines and chains, drawn from the foot to the top step.
 	for cdef in room_def.get("climbables", []):
 		room_layer.add_child(ClimbableView.make(cdef))
+	# S43 volumes that have a look of their own, and the surfaces that move, crumble or break.
+	for v in geometry.volumes:
+		if str(v.kind) in ["updraft", "wind", "current", "rising_water", "bounce"]: room_layer.add_child(VolumeView.make(geometry, v))
+	dynamic_terrain.clear()
+	for tv in terrain_visuals:
+		var ts: WalkSurface = tv.surface
+		if ts.moving or ts.cracked or not geometry.crumble_volume(ts.id).is_empty(): dynamic_terrain.append(tv)
 	for spec in room_def.get("scenery", []):
 		if spec.get("art", "props") == "none": continue
 		var prop := SceneryProp.new()
@@ -262,6 +270,7 @@ func _process(delta: float) -> void:
 		_legacy_process(delta)
 		return
 	if player == null: return
+	for tv in dynamic_terrain: tv.queue_redraw()
 	camera.position = camera.position.lerp(camera_target(), 1.0 - exp(-delta * 6.0))
 	if shake > 0.0:
 		shake = maxf(0.0, shake - delta)
@@ -310,9 +319,24 @@ func _on_event(name: String, p: Dictionary) -> void:
 				room_layer.add_child(lv)
 		# S43 traversal feedback.
 		"landed":
-			if str(p.get("actor", "")) == player.actor_id and float(p.get("fall_height", 0)) > 120.0:
+			if str(p.get("actor", "")) == player.actor_id and p.get("plunge", false):
+				# Plunge: a shock ring the size of its strike (60) and a jolt.
+				fx.add("ring", player.position, {"color": Color(UiKit.PALE_GOLD, 0.8), "radius": 60.0, "dur": 0.35})
+				fx.add("dust", player.position, {"color": Color(0.8, 0.74, 0.62, 0.7), "dur": 0.4})
+				Audio.play("rumble")
+				shake = maxf(shake, 0.2)
+			elif str(p.get("actor", "")) == player.actor_id and float(p.get("fall_height", 0)) > 120.0:
 				fx.add("ring", player.position, {"color": Color(0.85, 0.8, 0.7, 0.6), "radius": 34.0, "dur": 0.3})
 				Audio.play("land")
+		"art_used":
+			if str(p.get("actor", "")) == player.actor_id:
+				match str(p.get("art", "")):
+					"air_dash": Audio.play("dodge")
+					"glide": fx.add("dust", player.position + Vector2(0, -40), {"color": Color(UiKit.BRIGHT_JADE, 0.5), "dur": 0.3})
+					"water_skimming": Audio.play("water_step")
+					"bounce": Audio.play("land")
+		"volume_entered":
+			if str(p.get("actor", "")) == player.actor_id and str(p.get("kind", "")) in ["water_deep", "rising_water"]: Audio.play("water_step")
 		"wall_kicked":
 			if str(p.get("actor", "")) == player.actor_id:
 				fx.add("spark", player.position + Vector2(-int(p.get("side", 1)) * -14, -50), {"color": UiKit.PAPER, "dur": 0.25})
@@ -513,7 +537,9 @@ func spawn_arrow(origin: Vector2, elevation: float, direction: int) -> void:
 var safe_stand := 0.0
 func _track_safe(delta: float) -> void:
 	var s: WalkSurface = player.surface if player else null
-	if s == null or not player.state.climbing.is_empty() or not _clear_of_open_edges(s, player.plane):
+	# Never a safe spot in deep water, on a mover or on a floor that crumbles (S43).
+	if s == null or not player.state.climbing.is_empty() or not _clear_of_open_edges(s, player.plane) or not player.state.water.is_empty() \
+			or s.moving or s.disabled or not geometry.crumble_volume(s.id).is_empty():
 		safe_stand = 0.0
 		return
 	safe_stand += delta
@@ -531,6 +557,7 @@ func record_safe_position() -> void:
 	if player and player.surface:
 		last_safe = {"map_revision": MAP_REVISION, "surface": player.surface.id, "x": player.plane.x, "y": player.plane.y, "map_theme": map_theme,
 			"map_seed": map_seed, "generator_version": MapGenerator.VERSION}
+		player.state.last_safe = {"room": str(room_def.get("id", "")) if room_mode else "", "surface": player.surface.id, "x": player.plane.x, "y": player.plane.y}
 
 func restore_progress(state: Dictionary) -> void:
 	if int(state.get("map_revision", 0)) not in [2, 3, 4, 5, 6, MAP_REVISION]: return
@@ -558,7 +585,7 @@ func recover_to_safe() -> void:
 		var sp: Array = room_def.get("spawn_point", [200, 800])
 		var target := Vector2(float(last_safe.get("x", sp[0])), float(last_safe.get("y", sp[1]))) if not last_safe.is_empty() else Vector2(float(sp[0]), float(sp[1]))
 		var s: WalkSurface = by_id(str(last_safe.get("surface", "")))
-		if s == null or not s.contains(target):
+		if s == null or s.disabled or not s.contains(target):
 			s = surfaces[0]
 			target = Vector2(float(sp[0]), float(sp[1]))
 		player.surface = s
@@ -589,6 +616,12 @@ func recover_to_safe() -> void:
 	player.state.air_base = player.altitude
 	player.state.air_stratum = player.surface.stratum
 	player.state.climbing = {}
+	player.state.gliding = false
+	player.state.plunging = false
+	player.state.water = {}
+	player.state.sink_depth = 0.0
+	player.state.drowned = false
+	if player.bound() and Game.combat.is_gliding(player.actor_id): Game.submit({"type": "glide", "on": false})
 	travel.reset(player.plane, player.altitude)
 	# S43 rule 6: a fall costs 5% of max HP (never below 1), except in the Prologue, towns and safe rooms.
 	if room_mode and player.bound():

@@ -398,5 +398,36 @@
  "areas": [],
  "music": "fair",
  "ambience": "town_ambience",
- "town": true
+ "town": true,
+ "blocks": [
+  {
+   "id": "fair_drum",
+   "rect": [
+    1215,
+    750,
+    70,
+    60
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "drum"
+  }
+ ],
+ "volumes": [
+  {
+   "id": "fair_drum_bounce",
+   "kind": "bounce",
+   "rect": [
+    1215,
+    750,
+    70,
+    60
+   ],
+   "alt": [
+    30,
+    50
+   ],
+   "speed": 700
+  }
+ ]
 }

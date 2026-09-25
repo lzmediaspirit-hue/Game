@@ -4996,7 +4996,13 @@
    "half_width": 70,
    "height": 150,
    "respawn_min": 45,
-   "flying": true
+   "flying": true,
+   "phases": [
+    {
+     "below": 0.5,
+     "action": "flood"
+    }
+   ]
   },
   {
    "id": "thousand_eye_toad",

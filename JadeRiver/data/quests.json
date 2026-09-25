@@ -980,6 +980,12 @@
      "kind": "win_spar",
      "text": "Win spars at the practice posts",
      "count": 3
+    },
+    {
+     "kind": "use_system",
+     "text": "Climb a roof and Plunge to the practice ground",
+     "count": 1,
+     "system": "plunge"
     }
    ],
    "rewards": [
@@ -993,7 +999,8 @@
     }
    ],
    "offer_text": [
-    "Outer disciples are chosen by their fists. Win three spars at the practice posts."
+    "Outer disciples are chosen by their fists. Win three spars at the practice posts.",
+    "And learn to come down hard. From any height, pull down and strike: we call it Plunge. Show me once, from a roof."
    ],
    "complete_text": [
     "Outer Disciple. You'll get a proper robe soon."
@@ -1008,7 +1015,114 @@
     "elder_hu",
     "elder_sung"
    ],
-   "target_room": "ja_pavilion_rooftops"
+   "target_room": "ja_pavilion_rooftops",
+   "on_accept": [
+    {
+     "kind": "learn_secret_art",
+     "art": "plunge"
+    }
+   ]
+  },
+  {
+   "id": "leaf_on_the_wind",
+   "name": "Leaf on the Wind",
+   "kind": "guided",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Go to the Falls Pool",
+     "count": 1,
+     "room": "cf_falls_pool"
+    },
+    {
+     "kind": "use_system",
+     "text": "Climb the vine and glide over the pool",
+     "count": 2,
+     "system": "glide"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 60
+    }
+   ],
+   "offer_text": [
+    "Watch a leaf fall from Crane Falls. It never hurries. Hold your breath, hold the jump, and fall like that.",
+    "Climb the vine beside the falls and glide over the pool. The spray will carry you if you let it."
+   ],
+   "complete_text": [
+    "You came down like a leaf, not a stone. Good."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk3",
+   "same_stage_ok": true,
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "cf_falls_pool",
+   "on_accept": [
+    {
+     "kind": "learn_secret_art",
+     "art": "falling_leaf_glide"
+    }
+   ]
+  },
+  {
+   "id": "swallow_dart",
+   "name": "Swallow Dart",
+   "kind": "guided",
+   "giver": "jade_librarian",
+   "hand_in": "jade_librarian",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Dart through the air three times",
+     "count": 3,
+     "system": "air_dash"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 100
+    }
+   ],
+   "offer_text": [
+    "The first floor keeps a slim scroll: Swallow Dart. A swallow turns in the air without touching anything.",
+    "Jump, then tap Evade. You will hang for a breath and dart ahead. Three times, and mind the shelves."
+   ],
+   "complete_text": [
+    "Once per leap, remember. Even swallows land."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk7",
+   "same_stage_ok": true,
+   "giver_any": [
+    "jade_librarian",
+    "cloud_librarian"
+   ],
+   "hand_in_any": [
+    "jade_librarian",
+    "cloud_librarian"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_secret_art",
+     "art": "swallow_dart"
+    }
+   ]
   },
   {
    "id": "stone_and_sweat",
@@ -2420,6 +2534,57 @@
    ]
   },
   {
+   "id": "skipping_stones",
+   "name": "Skipping Stones",
+   "kind": "side",
+   "giver": "hermit_yao",
+   "hand_in": "hermit_yao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Sprint across the pond under the stilt house",
+     "count": 1,
+     "system": "water_skimming"
+    },
+    {
+     "kind": "collect",
+     "text": "Pick the Mist Lotus on the pond's rock",
+     "count": 1,
+     "item": "mist_lotus"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 300
+    }
+   ],
+   "offer_text": [
+    "A stone skips if it is fast and flat. So can you. Sprint at the pond and do not stop.",
+    "A Mist Lotus grows on the rock in the middle. Stop on the water and you'll be fishing yourself out."
+   ],
+   "complete_text": [
+    "Wet to the knees only. The otters are impressed."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_8"
+     }
+    ]
+   },
+   "target_room": "rm_hermit_stilt_house",
+   "on_accept": [
+    {
+     "kind": "learn_secret_art",
+     "art": "water_skimming"
+    }
+   ]
+  },
+  {
    "id": "the_warm_egg",
    "name": "The Warm Egg",
    "kind": "guided",
@@ -2591,7 +2756,7 @@
    "objectives": [
     {
      "kind": "use_system",
-     "text": "Take to the air: jump again at the top of a double jump",
+     "text": "Take to the air: hold Jump as you start to fall",
      "count": 1,
      "system": "flight"
     },

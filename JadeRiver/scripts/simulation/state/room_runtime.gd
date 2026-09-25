@@ -20,6 +20,7 @@ var arrival_protection := 0.0
 var first_visit := false
 var hazards: Dictionary = {}          # hazard id -> {phase, t, dur, spots: [[x, y, alt]], dir, pulse, inside}
 var hazard_drift := Vector2.ZERO      # the push the room's hazards put on the active character this tick
+var hazard_pulse: Dictionary = {}      # S43 hazard volumes: seconds to each one's next pulse
 
 func uid() -> int:
 	next_uid += 1

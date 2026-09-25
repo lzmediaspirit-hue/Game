@@ -496,5 +496,21 @@
   }
  ],
  "music": "river",
- "ambience": "river_ambience"
+ "ambience": "river_ambience",
+ "volumes": [
+  {
+   "id": "water_shallow_0",
+   "kind": "water_shallow",
+   "rect": [
+    600,
+    870,
+    1400,
+    90
+   ],
+   "alt": [
+    -50,
+    10
+   ]
+  }
+ ]
 }

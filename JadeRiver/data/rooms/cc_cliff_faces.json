@@ -525,5 +525,21 @@
  ],
  "areas": [],
  "music": "field_mountain",
- "ambience": "wind_ambience"
+ "ambience": "wind_ambience",
+ "volumes": [
+  {
+   "id": "cliff_updraft",
+   "kind": "updraft",
+   "rect": [
+    1150,
+    620,
+    140,
+    340
+   ],
+   "alt": [
+    0,
+    360
+   ]
+  }
+ ]
 }

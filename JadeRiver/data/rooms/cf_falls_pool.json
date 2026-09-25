@@ -44,6 +44,19 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "falls_ledge",
+   "rect": [
+    700,
+    640,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -231,5 +244,39 @@
   }
  ],
  "music": "meditation",
- "ambience": "waterfall_ambience"
+ "ambience": "waterfall_ambience",
+ "climbables": [
+  {
+   "id": "falls_vine",
+   "kind": "vine",
+   "at": [
+    820,
+    745
+   ],
+   "top_at": [
+    820,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "falls_ledge"
+  }
+ ],
+ "volumes": [
+  {
+   "id": "falls_spray",
+   "kind": "updraft",
+   "rect": [
+    1170,
+    620,
+    160,
+    200
+   ],
+   "alt": [
+    0,
+    260
+   ]
+  }
+ ]
 }

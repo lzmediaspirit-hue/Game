@@ -536,5 +536,21 @@
   }
  ],
  "music": "reeds_day",
- "ambience": "river_ambience"
+ "ambience": "river_ambience",
+ "volumes": [
+  {
+   "id": "water_shallow_0",
+   "kind": "water_shallow",
+   "rect": [
+    620,
+    850,
+    1500,
+    110
+   ],
+   "alt": [
+    -50,
+    10
+   ]
+  }
+ ]
 }

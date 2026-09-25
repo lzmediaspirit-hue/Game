@@ -67,6 +67,8 @@ var fly_down := false               # held Guard while flying (touch); K on the 
 var kick_t := 0.0                   # Wall-Step: the body is pushed away from the wall for a moment
 var kick_dir := 0
 var climb_hold := 0.0               # S43: seconds the joystick has been held toward a ladder
+var jump_held := false              # S43: the Jump button is down (touch); Space on the keyboard
+var hold_spent := false             # this press already started a glide or a flight
 signal attack_started(family: String, plane_position: Vector2, elevation: float, direction: int)
 signal arrow_released(plane_position: Vector2, elevation: float, direction: int)
 
@@ -111,10 +113,7 @@ func jump():
 				avatar.elapsed = 0
 				Audio.play("jump")
 				return
-		# Cloud Stride: a third press at the top of a double jump takes to the air.
-		if surface == null and not state.flying and state.jumps_used >= 2 and Unlocks.is_unlocked(actor_id, "flight"):
-			take_off()
-			return
+		hold_spent = false   # a new press: holding it may glide or fly once it starts to fall (S43)
 	if authority.jump():
 		_meditating = false
 		attack_time = 0
@@ -126,13 +125,29 @@ func jump():
 		avatar.playback_speed = 1
 		if bound(): Audio.play("jump")
 
-func take_off() -> void:
+func take_off(quiet := false) -> bool:
 	var r := Game.submit({"type": "start_flight"})
 	if not r.get("ok", false):
-		if r.has("text"): world.fx.add("text", position + Vector2(0, -130), {"text": str(r.text), "color": UiKit.MIST, "size": 18, "dur": 1.6})
-		return
+		if r.has("text") and not quiet: world.fx.add("text", position + Vector2(0, -130), {"text": str(r.text), "color": UiKit.MIST, "size": 18, "dur": 1.6})
+		return false
 	authority.fly(true, float(r.climb), float(r.ceiling))
 	Audio.play("jump")
+	return true
+
+## S43: Jump held while descending. From Cloud Stride 1 (where flight is allowed and QI holds) the body takes
+## to the air; otherwise Falling Leaf Glide slows the fall. Letting go ends a glide.
+func _hold_jump(c) -> void:
+	var holding := jump_held or Input.is_physical_key_pressed(KEY_SPACE)
+	if surface != null or not state.climbing.is_empty() or state.flying or state.plunging:
+		if state.gliding and surface != null: Game.submit({"type": "glide", "on": false})
+		return
+	if not holding:
+		if state.gliding: Game.submit({"type": "glide", "on": false})
+		return
+	if hold_spent or state.vertical_speed >= 0.0 or state.gliding: return
+	hold_spent = true
+	if Unlocks.is_unlocked(actor_id, "flight") and Game.combat.flight_allowed(actor_id) and take_off(true): return
+	Game.submit({"type": "glide", "on": true})
 
 func land_from_flight(reason: String) -> void:
 	if state.flying: authority.fly(false)
@@ -140,6 +155,13 @@ func land_from_flight(reason: String) -> void:
 
 func attack():
 	if bound():
+		# S43 Plunge: joystick toward the camera + Attack in the air.
+		if surface == null and not state.flying and state.climbing.is_empty() and last_axis.y >= 0.7 and absf(last_axis.x) < 0.3:
+			var pr := Game.submit({"type": "plunge"})
+			if pr.get("ok", false):
+				avatar.play("jump")
+				Audio.play("dodge")
+				return
 		var r := Game.submit({"type": "basic_attack", "facing": facing})
 		if r.ok and r.has("facing"): facing = int(r.facing)
 		return
@@ -261,7 +283,8 @@ func step(delta: float, axis: Vector2):
 	if wounded: axis = Vector2.ZERO
 	if axis.x != 0 and not busy: facing = 1 if axis.x > 0 else -1
 	if busy: facing = int(tl.facing)
-	if absf(axis.x) > 0.12 and not busy and not meditating:
+	var shallow: bool = surface != null and not world.geometry.volume_at(plane, altitude, "water_shallow").is_empty()
+	if absf(axis.x) > 0.12 and not busy and not meditating and not shallow:
 		var horizontal := Vector2(signf(axis.x), 0)
 		if sprint_direction != horizontal:
 			reset_sprint()
@@ -273,7 +296,7 @@ func step(delta: float, axis: Vector2):
 	speed = c.stats.value("move_speed") if c.stats.value("move_speed") > 0 else 205.0
 	var factor: float = Game.combat.move_factor(actor_id) * Game.pets.mount_speed(c)
 	if sprinting: factor *= float(ContentDB.stat_const("move.sprint", 1.7))
-	factor *= _area_factor()
+	state.sprinting = sprinting
 	var forced: Dictionary = Game.combat.forced_motion(actor_id)
 	_sync_arts(c)
 	var kick_speed := 0.0
@@ -291,6 +314,7 @@ func step(delta: float, axis: Vector2):
 		sync_visual()
 		return
 	var near_climb: Dictionary = world.geometry.climbable_near(plane, altitude) if surface != null and not busy else {}
+	if not near_climb.is_empty(): near_climb.speed_bonus = c.stats.value("climb_speed")
 	var toward: bool = (axis.y < -0.7 and not near_climb.get("from_top", false)) or (axis.y > 0.7 and near_climb.get("from_top", false))
 	if not near_climb.is_empty() and toward and absf(axis.x) < 0.3:
 		climb_hold += delta
@@ -306,6 +330,7 @@ func step(delta: float, axis: Vector2):
 		var up := fly_up or Input.is_physical_key_pressed(KEY_SPACE)
 		var down := fly_down or Input.is_physical_key_pressed(KEY_K)
 		authority.set_climb(float(up) - float(down))
+	_hold_jump(c)
 	command_sequence += 1
 	# Gusts and currents (S17) add their push to walking; a meditating body is anchored.
 	var drift: Vector2 = Game.world.hazard_drift(actor_id) if not meditating and not wounded else Vector2.ZERO
@@ -322,15 +347,22 @@ func step(delta: float, axis: Vector2):
 	if absf(velocity.x) < 5: reset_sprint()
 	if not state.flying and Game.combat.is_flying(actor_id): Game.submit({"type": "stop_flight", "reason": "landed"})
 	if altitude < world.geometry.void_altitude: world.recover_to_safe()
+	elif state.drowned:
+		# Deep water without the art (S43 rule 6): back to the last safe spot.
+		state.drowned = false
+		state.water = {}
+		state.sink_depth = 0.0
+		world.recover_to_safe()
 	_animate(c, tl, busy, wounded)
 	_ride(c)
 	sync_visual()
 
 ## S43: the movement arts this character knows reach the body's solver (double jump, Wall-Step, drop, mantle, climb).
 func _sync_arts(c) -> void:
-	var known: Array = c.cultivator.secret_arts
-	state.arts = {"double_jump": "cloud_ladder_step" in known, "wall_step": "wall_step" in known,
-		"drop_through": Unlocks.is_unlocked(actor_id, "jump"), "mantle": true, "climb": true}
+	state.arts = {"drop_through": Unlocks.is_unlocked(actor_id, "jump"), "mantle": true, "climb": true}
+	for sa in c.cultivator.secret_arts:
+		var art := str(ContentDB.entry("secret_arts", str(sa)).get("movement_art", ""))
+		if art != "": state.arts[art] = true
 
 ## A hit knocks the body off a ladder, rope or vine (S43 rule 5).
 func knock_off_climb() -> void:
@@ -357,15 +389,6 @@ func _ride(c) -> void:
 	mount_sprite.play("walk" if velocity.length() > 5 and surface != null else "idle")
 	avatar.position = Vector2(0, -float(m.get("saddle", 40)))
 	if str(avatar.action) in ["walk", "jump"]: avatar.play("idle")   # the rider stands; the animal walks
-
-func _area_factor() -> float:
-	if world == null or not world.room_mode or surface == null: return 1.0
-	for area in world.room_def.get("areas", []):
-		if str(area.get("kind", "")) != "shallows": continue
-		var r: Array = area.rect
-		if Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3])).has_point(plane) and altitude < 1.0:
-			return float(area.get("speed", ContentDB.stat_const("move.shallows_factor", 0.7)))
-	return 1.0
 
 var emote: Dictionary = {}   # the emote being played (S34) and its time left
 var emote_time := 0.0
@@ -416,6 +439,9 @@ func _animate(c, tl: Dictionary, busy: bool, wounded: bool) -> void:
 	if state.flying:
 		avatar.play("idle")
 		return
+	if state.gliding or state.plunging or state.dash_hold > 0.0:
+		avatar.play("jump")
+		return
 	if _emote_pose(c, busy): return
 	avatar.play("meditate" if meditating else ("jump" if surface == null else ("walk" if velocity.length() > 5 else "idle")))
 
@@ -448,17 +474,45 @@ func _legacy_step(delta: float, axis: Vector2) -> void:
 	sync_visual()
 
 func sync_visual():
-	position = Vector2(plane.x, plane.y - altitude).snapped(Vector2(2, 2))
+	# A body sinking or swimming in deep water shows lower in it (S43).
+	position = Vector2(plane.x, plane.y - altitude + state.sink_depth).snapped(Vector2(2, 2))
 	z_index = world.geometry.render_depth(state)
 	queue_redraw()
 
 func _draw():
 	if meditating: draw_arc(Vector2(0, -4), 28, 0, TAU, 24, Color(0.4, 0.85, 0.76, 0.4), 2, false)
 	if state.flying: _draw_cloud()
+	if state.gliding: _draw_glide()
+	if state.sink_depth > 0.0 or state.water.get("skimming", false): _draw_water_ring()
 	if bound():
 		var tl: Dictionary = Game.combat.timeline(actor_id)
 		if tl.guard:
 			draw_arc(Vector2(facing * 18, -48), 30, -1.2 if facing > 0 else PI - 1.2 + 0.4, 1.2 if facing > 0 else PI + 1.2 - 0.4, 12, Color(UiKit.PALE_GOLD, 0.7), 3)
+
+## Falling Leaf Glide: two pale leaves of Qi either side of the body and a faint trail.
+func _draw_glide() -> void:
+	var t := Time.get_ticks_msec() / 1000.0
+	for side in [-1.0, 1.0]:
+		var sway := sin(t * 5.0 + side) * 3.0
+		var base := Vector2(side * 16, -54 + sway)
+		var leaf := PackedVector2Array([base, base + Vector2(side * 34, -8), base + Vector2(side * 46, 4), base + Vector2(side * 30, 10)])
+		draw_colored_polygon(leaf, Color(UiKit.BRIGHT_JADE, 0.45))
+		draw_polyline(leaf + PackedVector2Array([leaf[0]]), Color(UiKit.JADE, 0.8), 1.5)
+		draw_line(base, base + Vector2(side * 40, 1), Color(1, 1, 1, 0.5), 1.0)
+	for k in 3:
+		draw_line(Vector2(-facing * (10 + k * 10), -30 - k * 8), Vector2(-facing * (22 + k * 10), -26 - k * 8), Color(1, 1, 1, 0.25 - k * 0.07), 1.5)
+
+## Deep water: a ripple ring at the waterline (skimming leaves a splash trail instead).
+func _draw_water_ring() -> void:
+	var t := Time.get_ticks_msec() / 1000.0
+	var y: float = -state.sink_depth
+	var skim: bool = state.water.get("skimming", false)
+	var rw := 26.0 + sin(t * 6.0) * 3.0
+	draw_arc(Vector2(0, y), rw, 0, TAU, 28, Color(0.85, 0.95, 1.0, 0.7), 2.0)
+	draw_arc(Vector2(0, y), rw * 0.65, 0, TAU, 20, Color(0.6, 0.85, 0.95, 0.5), 1.5)
+	if skim:
+		for k in 3:
+			draw_circle(Vector2(-facing * (18 + k * 14), y - 4 - k * 2), 3.0 - k * 0.6, Color(0.9, 0.97, 1.0, 0.7 - k * 0.2))
 
 ## A small rolling cloud under the feet while Qi holds the body in the air, or the ridden vessel (G2).
 func _draw_cloud() -> void:

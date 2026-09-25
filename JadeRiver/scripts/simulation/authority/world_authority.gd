@@ -15,6 +15,9 @@ func intents() -> Array:
 	return ["use_portal", "interact", "teleport", "pick_up", "enter_world", "sense_pulse", "set_sail"]
 
 func subscribe() -> void:
+	# S43 rising water: a boss phase or a boss's fall moves the water in the room.
+	for ev in ["boss_phase", "field_boss_defeated"]:
+		GameEvents.subscribe(ev, _on_room_script.bind(ev), 50)
 	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 50)
 	GameEvents.subscribe("actor_defeated", _event_kill, 55)
 	GameEvents.subscribe("bottleneck_reached", _on_bottleneck, 50)
@@ -61,7 +64,7 @@ static func compile_geometry(def: Dictionary) -> Dictionary:
 	var data := {"bounds": def.get("bounds", [0, 480, 1280, 480]), "surfaces": def.get("surfaces", []).duplicate(true),
 		"objects": def.get("scenery", []).duplicate(true), "gates": []}
 	# S43 traversal sections pass straight through to the geometry.
-	for k in ["blocks", "climbables", "void_altitude"]:
+	for k in ["blocks", "climbables", "void_altitude", "volumes", "movers"]:
 		if def.has(k): data[k] = def[k].duplicate(true) if def[k] is Array else def[k]
 	for o in def.get("objects", []):
 		if o.has("footprint") and o.get("blocks", false):
@@ -403,7 +406,7 @@ func query_context(c) -> Dictionary:
 		if o.type in BREAKABLES or o.type in TRAINING or o.type in ["decor", "air_pocket"]: continue
 		if not object_visible(c, o): continue
 		var at: Array = o.get("at", [0, 0])
-		var d := st.plane.distance_to(Vector2(float(at[0]), float(at[1])))
+		var d: float = st.plane.distance_to(Vector2(float(at[0]), float(at[1])))
 		if d > float(o.get("radius", 110)): continue
 		var avail := object_available(c, o)
 		if avail.get("spent", false): continue
@@ -412,7 +415,7 @@ func query_context(c) -> Dictionary:
 			priority = 1.0 if game.quest.npc_marker(c, str(o.npc)) != "" else 2.0
 		elif o.type in ["herb_patch", "ore_vein", "fishing_spot", "star_sight"]: priority = 4.0
 		elif o.type == "pickup": priority = 0.5
-		var score := priority * 1000.0 + d
+		var score: float = priority * 1000.0 + d
 		if score < best_score:
 			best_score = score
 			best = {"object": str(o.id), "type": o.type, "label": _verb(o), "ok": avail.ok, "text": avail.text, "npc": str(o.get("npc", ""))}
@@ -548,7 +551,10 @@ func tick(delta: float) -> void:
 	var c = game.active()
 	if rt == null or c == null: return
 	rt.elapsed += delta
+	# S43: the room clock moves movers, drops crumbled floors and raises water.
+	rt.geometry.advance(delta)
 	var st: ActorState = game.actor_state(c.id)
+	if st != null: _tick_hazard_volumes(c, rt, st, delta)
 	if st != null and st.surface != null:
 		c.position.x = st.plane.x
 		c.position.y = st.plane.y
@@ -603,6 +609,29 @@ func _init_hazards(c, rt: RoomRuntime) -> void:
 			"spots": [], "dir": 1, "pulse": 0.0, "inside": false}
 
 ## The push the room puts on a character this tick (gusts, currents); the presentation adds it to walking.
+func _on_room_script(p: Dictionary, ev: String) -> void:
+	if game.room_rt != null: game.room_rt.geometry.on_event(ev, p)
+
+## S43 hazard volumes (lava, spores, poison vents): status and damage each pulse while inside their rect and altitude.
+func _tick_hazard_volumes(c, rt: RoomRuntime, st: ActorState, delta: float) -> void:
+	if rt.geometry.volumes.is_empty() or game.combat.is_wounded(c.id) or c.pools.has_status("spawn_protection"): return
+	for v in rt.geometry.volumes_at(st.plane, st.altitude):
+		if str(v.kind) != "hazard": continue
+		var key := "hazard_vol:" + str(v.id)
+		var left := float(rt.hazard_pulse.get(key, 0.0)) - delta
+		if left > 0.0:
+			rt.hazard_pulse[key] = left
+			continue
+		rt.hazard_pulse[key] = float(v.get("pulse_s", 1.0))
+		var amount := 0.0
+		if float(v.get("damage_pct", 0.0)) > 0.0:
+			amount = game.combat.apply_hazard_damage(c, c.pools.max_hp * float(v.damage_pct), str(v.get("damage_type", "physical")),
+				str(v.get("element", "none")), "hazard:" + str(v.id))
+		var sd: Dictionary = v.get("status", {})
+		if not sd.is_empty(): game.combat.apply_status(c.id, str(sd.id), float(sd.get("s", 2.0)), float(sd.get("power", 1.0)))
+		emit("hazard_struck", {"actor": c.id, "room": rt.room_id, "hazard": str(v.get("hazard", v.id)), "amount": int(round(maxf(0.0, amount))),
+			"share": 1.0, "answered": false, "stat": "", "need": 0, "have": 0})
+
 func hazard_drift(actor_id: String) -> Vector2:
 	if game.room_rt == null or actor_id != game.active_id: return Vector2.ZERO
 	return game.room_rt.hazard_drift

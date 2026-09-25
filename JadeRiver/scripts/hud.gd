@@ -106,7 +106,7 @@ func _process(delta: float) -> void:
 	for l in log_lines: l.t += delta
 	log_lines = log_lines.filter(func(l): return l.t < 6.0)
 	for tt in toasts: tt.t += delta
-	toasts = toasts.filter(func(tt): return tt.t < 3.2)
+	toasts = toasts.filter(func(tt): return tt.t < float(tt.get("life", 3.2)))
 	banner.t += delta
 	caption.t = float(caption.t) + delta
 	for k in pulses.keys():
@@ -120,7 +120,7 @@ func _process(delta: float) -> void:
 			open_page.emit("cultivation", {})
 	if guard_pressed:
 		guard_hold += delta
-		if guard_hold > 0.18 and bound() and not Game.combat.timeline(Game.active_id).guard:
+		if guard_hold > 0.18 and bound() and not player.state.flying and not Game.combat.timeline(Game.active_id).guard:
 			Game.submit({"type": "guard_start"})
 	_tick_channel(delta)
 	if bound() and world: context = world.context
@@ -191,7 +191,8 @@ func press(id: int, p: Vector2):
 		"attack": primary()
 		"jump":
 			player.jump()
-			player.fly_up = true    # held Jump climbs while flying
+			player.jump_held = true   # S43: held while falling it glides, or from Cloud Stride 1 flies
+			player.fly_up = true      # held Jump climbs while flying
 		"meditate":
 			if bound():
 				cultivate_pressed = true
@@ -203,11 +204,9 @@ func press(id: int, p: Vector2):
 				if p.distance_to(slots[i]) < 43:
 					touches[id]["slot"] = i + skill_page * 4
 		"guard":
-			if player.state.flying:
-				player.fly_down = true   # held Guard descends while flying
-			else:
-				guard_pressed = true
-				guard_hold = 0.0
+			if player.state.flying: player.fly_down = true   # held Evade descends while flying; a tap dashes (S43)
+			guard_pressed = true
+			guard_hold = 0.0
 		"quick": use_quick()
 		"sense":
 			if bound():
@@ -255,7 +254,9 @@ func release(id: int):
 		var r: Dictionary = player.use_technique(int(info.slot))
 		if not r.ok and r.get("reason", "") in ["no_qi", "cooldown", "wrong_weapon", "sealed", "needs_flight"]:
 			add_log({"no_qi": Tx.t("hud.not_enough_qi"), "cooldown": Tx.t("hud.not_ready"), "wrong_weapon": str(r.get("text", Tx.t("hud.wrong_weapon"))), "sealed": Tx.t("hud.your_qi_is_sealed"), "needs_flight": Tx.t("hud.only_in_flight")}[r.reason], UiKit.MIST)
-	if info.get("role", "") == "jump": player.fly_up = false
+	if info.get("role", "") == "jump":
+		player.fly_up = false
+		player.jump_held = false
 	if info.get("role", "") == "guard": player.fly_down = false
 	if info.get("role", "") == "guard" and bound() and guard_pressed:
 		guard_pressed = false
@@ -374,7 +375,7 @@ func _input(event):
 				KEY_F: if not context.is_empty(): use_context()
 				KEY_C: if shown("cultivate"): tap_cultivate()
 				KEY_K:
-					if shown("guard") and not player.state.flying:
+					if shown("guard"):
 						guard_pressed = true
 						guard_hold = 0.0
 				KEY_Q: if shown("quick_use"): use_quick()
@@ -427,8 +428,8 @@ func _draw_caption() -> void:
 	draw_rect(Rect2(640 - w / 2.0, 604, w, 30), Color(0, 0, 0, 0.55 * a))
 	UiKit.draw_text(self, "[" + str(caption.text) + "]", Vector2(640 - w / 2.0, 625), 17, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_CENTER, w)
 
-func toast(text: String, kind := "unlock") -> void:
-	toasts.append({"text": text, "t": 0.0, "kind": kind})
+func toast(text: String, kind := "unlock", sub := "") -> void:
+	toasts.append({"text": text, "t": 0.0, "kind": kind, "sub": sub, "life": 3.2 if sub == "" else 5.0})
 	while toasts.size() > 3: toasts.pop_front()
 
 func _on_event(name: String, p: Dictionary) -> void:
@@ -444,6 +445,11 @@ func _on_event(name: String, p: Dictionary) -> void:
 				add_log("+%d %s" % [int(p.delta), ContentDB.text("currency." + str(p.currency))], UiKit.PALE_GOLD)
 		"system_unlocked":
 			if p.get("toast", true) and str(p.get("label", "")) != "": toast(Tx.t("hud.new") + str(p.label))
+		"secret_art_learned":
+			# S43: the first time a movement art is usable, its name and a one-line how-to.
+			var art := ContentDB.entry("secret_arts", str(p.get("art", "")))
+			if str(p.get("actor", "")) == Game.active_id and not art.is_empty():
+				toast(Tx.t("hud.new_art") + str(art.get("name", "")), "unlock", str(art.get("how_to", "")))
 		"hud_element_revealed":
 			pulses[str(p.element)] = 1.2
 		"quest_accepted":
@@ -938,13 +944,15 @@ func _draw_banner() -> void:
 func _draw_toasts() -> void:
 	var y := 300.0
 	for tt in toasts:
-		var a := clampf(tt.t / 0.2, 0, 1) * clampf((3.2 - tt.t) / 0.4, 0, 1)
-		var r := Rect2(820, y, 380, 44)
+		var a := clampf(tt.t / 0.2, 0, 1) * clampf((float(tt.get("life", 3.2)) - tt.t) / 0.4, 0, 1)
+		var sub := str(tt.get("sub", ""))
+		var r := Rect2(820, y, 380, 44 if sub == "" else 66)
 		var st = UiKit.style("toast")
 		draw_style_box(st, r)
 		var col = UiKit.PALE_GOLD if tt.kind in ["unlock", "gold"] else (UiKit.RED if tt.kind == "danger" else UiKit.BRIGHT_JADE)
 		UiKit.draw_text(self, str(tt.text), r.position + Vector2(16, 28), 17, Color(col, a), HORIZONTAL_ALIGNMENT_LEFT, 350)
-		y += 50
+		if sub != "": UiKit.draw_text(self, sub, r.position + Vector2(16, 52), 15, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_LEFT, 350)
+		y += r.size.y + 6
 
 func _draw_boss() -> void:
 	if Game.room_rt == null: return

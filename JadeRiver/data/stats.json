@@ -191,7 +191,12 @@
   "qi_min_per_s": 2.0,
   "start_qi_pct": 0.1,
   "climb": 220,
-  "ceiling": 340
+  "ceiling": 340,
+  "no_flight_types": [
+   "interior",
+   "sect",
+   "dungeon"
+  ]
  },
  "attunement": {
   "floor": 0.3,

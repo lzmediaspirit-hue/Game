@@ -456,5 +456,29 @@
  ],
  "areas": [],
  "music": "summit",
- "ambience": "wind_ambience"
+ "ambience": "wind_ambience",
+ "volumes": [
+  {
+   "id": "ridge_wind",
+   "kind": "wind",
+   "rect": [
+    600,
+    620,
+    2800,
+    340
+   ],
+   "alt": [
+    -50,
+    600
+   ],
+   "push": [
+    -110,
+    0
+   ],
+   "cycle": 4.0,
+   "strong_s": 1.5,
+   "calm": 0.3,
+   "edge_factor": 1.5
+  }
+ ]
 }
