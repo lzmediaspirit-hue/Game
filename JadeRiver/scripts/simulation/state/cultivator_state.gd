@@ -4,7 +4,7 @@ extends RefCounted
 ## plus shared cultivation state. Scene-free: primitives, arrays, dictionaries and
 ## stable IDs only. HP/QI/Soul current values live in the ResourcePool.
 
-const VERSION := 4
+const VERSION := 5
 
 # Realm track
 var realm_key := "mortal"
@@ -39,15 +39,15 @@ var pill_memory: Dictionary = {}     # pill group -> last use sim time (repeat w
 # What yesterday's shortcuts cost (gap report G1): lasting pill resistance, the share of this
 # great realm's QP that came from pills and cores, the residue that never drains on its own,
 # the heart-demon meter and the karma ledger.
-var pill_resistance: Dictionary = {} # pill family (qi, body, soul, insight) -> doses taken
-var foundation: Dictionary = {}      # {realm (great realm), total, pill} QP this great realm
+var pill_resistance: Dictionary = {} # pill family -> {count, doses}: every 5 doses add 1 to count (S44)
+var foundation: Dictionary = {}      # {realm (great realm), total_qp, pill_qp} QP since the last major breakthrough (S44)
 var residue := 0.0
 var heart_demon := 0.0               # 0-100: each 25 is a risk step at a major breakthrough
 var merit := 0
 var sin := 0
 var debts: Dictionary = {}           # named karma debts: id -> {text, due_utc, kind, paid}
 var merit_used: Dictionary = {}      # great realm -> true once merit has eased its breakthrough
-var support_fails: Dictionary = {}   # realm key -> {support item: failed attempts it was used in}
+var support_failures: Dictionary = {} # realm key -> failed attempts made there with support pills (S44)
 var treasure_uses: Dictionary = {}   # natural treasure -> realm (or stage) it was last used in
 var method_id := ""
 var methods_known: Array = []
@@ -93,7 +93,7 @@ func snapshot() -> Dictionary:
 		"injuries": injuries.duplicate(true), "toxicity": toxicity, "treasure_uses": treasure_uses.duplicate(), "method_id": method_id,
 		"pill_resistance": pill_resistance.duplicate(), "foundation": foundation.duplicate(), "residue": residue,
 		"heart_demon": heart_demon, "merit": merit, "sin": sin, "debts": debts.duplicate(true), "merit_used": merit_used.duplicate(),
-		"support_fails": support_fails.duplicate(true),
+		"support_failures": support_failures.duplicate(),
 		"methods_known": methods_known.duplicate(), "aptitude": aptitude.duplicate(true), "origin": origin,
 		"meridians": meridians.duplicate(), "unspent_meridian_points": unspent_meridian_points,
 		"meridian_levels_granted": meridian_levels_granted,
@@ -129,15 +129,27 @@ func restore(d: Dictionary) -> void:
 	injuries = _dict(d, "injuries")
 	toxicity = _num(d, "toxicity", 0.0)
 	treasure_uses = _dict(d, "treasure_uses")
-	pill_resistance = _dict(d, "pill_resistance")
+	# Version 5 (S44): resistance counts every 5 doses; foundation keys are pill_qp and total_qp.
+	pill_resistance = {}
+	for fam in _dict(d, "pill_resistance"):
+		var v = d.pill_resistance[fam]
+		var key := "accumulation" if str(fam) == "qi" else str(fam)
+		pill_resistance[key] = {"count": int(v.get("count", 0)), "doses": int(v.get("doses", 0))} if v is Dictionary else {"count": int(v) / 5, "doses": int(v) % 5}
 	foundation = _dict(d, "foundation")
+	if foundation.has("total") or foundation.has("pill"):
+		foundation = {"realm": str(foundation.get("realm", "")), "total_qp": float(foundation.get("total", 0.0)), "pill_qp": float(foundation.get("pill", 0.0))}
 	residue = maxf(0.0, _num(d, "residue", 0.0))
 	heart_demon = clampf(_num(d, "heart_demon", 0.0), 0.0, 100.0)
 	merit = maxi(0, int(_num(d, "merit", 0)))
 	sin = maxi(0, int(_num(d, "sin", 0)))
 	debts = _dict(d, "debts")
 	merit_used = _dict(d, "merit_used")
-	support_fails = _dict(d, "support_fails")
+	support_failures = {}
+	for rk in _dict(d, "support_failures"): support_failures[rk] = int(d.support_failures[rk])
+	for rk in _dict(d, "support_fails"):   # version 4: per item; the worst item's count carries over
+		var worst := 0
+		for it in d.support_fails[rk]: worst = maxi(worst, int(d.support_fails[rk][it]))
+		support_failures[rk] = maxi(int(support_failures.get(rk, 0)), worst)
 	method_id = str(d.get("method_id", ""))
 	methods_known = _arr(d, "methods_known")
 	aptitude = _dict(d, "aptitude")

@@ -223,19 +223,15 @@ static func pill_potency(s: Dictionary) -> float:
 	var marks := float(ContentDB.config("grades").get("pill", {}).get("marks", {}).get("per_line", 0.02)) * int(s.get("marks", 0))
 	return float(ContentDB.config("grades").get("pill_qualities", {}).get(q, 1.0)) * (1.0 + float(s.get("halo", 0.0))) * (1.0 + marks)
 
-## Pill Halo grows stronger while its owner sits in seclusion in a dense-Qi spot (S15).
-func apply_halo_growth(actor_id: String, hours: float, density: float) -> float:
-	var c = game.character(actor_id)
+## A Pill Halo stack in a storage chest grows 1% a day while the chest's room holds Qi density 2 or more,
+## up to +20% (S44). The growth is worked out from the deposit time when the stack is looked at or taken out.
+static func halo_now(s: Dictionary) -> float:
+	var halo := float(s.get("halo", 0.0))
+	if str(s.get("quality", "")) != "pill_halo" or not s.has("stored_utc"): return halo
 	var h: Dictionary = ContentDB.config("grades").get("pill", {}).get("halo", {})
-	if c == null or hours <= 0.0 or density < float(h.get("min_density", 2.0)): return 0.0
-	var gained := 0.0
-	for s in c.inventory.bag:
-		if s == null or str(s.get("quality", "")) != "pill_halo": continue
-		var before := float(s.get("halo", 0.0))
-		s.halo = minf(float(h.get("cap", 0.5)), before + float(h.get("per_hour", 0.05)) * hours)
-		gained = maxf(gained, float(s.halo) - before)
-	if gained > 0.0: emit("bag_changed", {"actor": actor_id})
-	return gained
+	if float(s.get("stored_density", 1.0)) < float(h.get("min_density", 2.0)): return halo
+	var days := floorf(maxf(0.0, Clock.now_utc() - float(s.stored_utc)) / 86400.0)
+	return minf(float(h.get("cap", 0.2)), halo + days * float(h.get("per_day", 0.01)))
 
 ## What does not fit waits in the mail for three days.
 func apply_overflow(actor_id: String, items: Array) -> void:
@@ -423,7 +419,7 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 	var family := ProgressionRules.pill_family(def)
 	if family != "" and quality != "pill_grain":
 		factor *= ProgressionRules.resistance_factor(c.cultivator, family)
-		c.cultivator.pill_resistance[family] = int(c.cultivator.pill_resistance.get(family, 0)) + 1
+		game.progression.apply_pill_dose(c.id, family)
 	if not p.is_empty():
 		# Quality (S15): a Flawed pill poisons more, a Pill Grain less.
 		var tox := float(p.get("toxicity", 0)) * float(pill_cfg.get("toxicity", {}).get(quality, 1.0))
@@ -451,20 +447,17 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 	if once:
 		c.cultivator.treasure_uses[str(s.id)] = great_realm
 		emit("natural_treasure_used", {"actor": c.id, "treasure": str(s.id)})
-	# A Pill Soul may carry one unique effect of its own.
+	# A Pill Soul carries its recipe's own unique effect (S44 soul_effect), every time.
 	var soul_effect := ""
 	if quality == "pill_soul":
-		var ps: Dictionary = pill_cfg.get("soul", {})
-		var pool: Array = ps.get("effects", [])
-		var rng := Rng.stream(c.id, "crafting")
-		if not pool.is_empty() and rng.randf() < float(ps.get("chance", 0.5)):
-			var extra: Dictionary = pool[rng.randi() % pool.size()]
-			soul_effect = str(extra.get("id", ""))
+		for extra in pill_cfg.get("soul", {}).get("effects", []):
+			if str(extra.get("id", "")) != str(def.get("soul_effect", "")): continue
+			soul_effect = str(extra.id)
 			game.apply_effects(c.id, [extra], "pill_soul:" + str(s.id))
 			emit("pill_soul_awakened", {"actor": c.id, "item": s.id, "effect": soul_effect})
 	emit("item_used", {"actor": c.id, "item": s.id, "factor": factor})
 	if def.has("pill"): emit("pill_used", {"actor": c.id, "item": s.id, "factor": factor, "quality": quality, "family": family,
-		"resistance": int(c.cultivator.pill_resistance.get(family, 0))})
+		"resistance": ProgressionRules.resistance_count(c.cultivator, family)})
 	return ok({"factor": factor, "quality": quality, "soul_effect": soul_effect, "family": family})
 
 ## A treasure set in one of the HUD's Treasure buttons (G2). The treasure stays in the bag; "" clears the slot.

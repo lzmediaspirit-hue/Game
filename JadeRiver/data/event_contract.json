@@ -175,6 +175,20 @@
     "progression_authority"
    ]
   },
+  "pill_resistance_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "polled": "Pill tooltips and the Heart tab read each family's count."
+  },
+  "foundation_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "polled": "The Heart tab and the risk preview read the foundation share."
+  },
   "heart_demon_changed": {
    "system": "Progression",
    "files": [

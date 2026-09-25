@@ -398,8 +398,9 @@
   "residue_step": 10,
   "residue_step_pct": 0.01,
   "residue_cap_pct": 0.1,
-  "settle_share_per_h": 0.06,
-  "settle_residue_per_h": 3
+  "settle_share_per_h": 0.05,
+  "settle_residue_per_h": 5,
+  "doses_per_count": 5
  },
  "heart_demon": {
   "step": 25,

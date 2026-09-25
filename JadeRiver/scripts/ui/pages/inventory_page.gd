@@ -160,6 +160,13 @@ func _draw_detail(r: Rect2) -> void:
 		if q == "pill_halo":
 			text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.halo_charge") % int(round(float(s.get("halo", 0.0)) * 100.0)), 16, UiKit.PALE_GOLD)
 			y += 22
+	# S44: what lifetime resistance leaves of this pill's effect.
+	var fam := ProgressionRules.pill_family(def)
+	if fam != "" and not def.get("pill", {}).is_empty():
+		var line := Tx.t("ui.inventory.ignores_resistance") if q == "pill_grain" \
+			else Tx.t("ui.inventory.resistance") % [Tx.t("ui.cultivation.family_" + fam), int(round(ProgressionRules.resistance_factor(ch.cultivator, fam) * 100.0))]
+		text(Vector2(r.position.x + 16, y + 20), line, 16, UiKit.MIST)
+		y += 22
 	_relic(ch, s, def, r, y)
 	y = _treasure_lines(ch, s, def, r, y)
 	# Actions.

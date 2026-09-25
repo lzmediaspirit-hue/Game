@@ -38,7 +38,8 @@
    ],
    "raw": {
     "toxicity": 20
-   }
+   },
+   "family": "accumulation"
   },
   {
    "id": "riverreed_ginseng_100",
@@ -57,7 +58,8 @@
    ],
    "raw": {
     "toxicity": 30
-   }
+   },
+   "family": "accumulation"
   },
   {
    "id": "ember_pepper",
@@ -122,7 +124,8 @@
    ],
    "raw": {
     "toxicity": 30
-   }
+   },
+   "family": "body"
   },
   {
    "id": "soulbell_flower",
@@ -141,7 +144,8 @@
    ],
    "raw": {
     "toxicity": 16
-   }
+   },
+   "family": "soul"
   },
   {
    "id": "frost_lotus",
@@ -919,7 +923,8 @@
    ],
    "raw": {
     "toxicity": 12
-   }
+   },
+   "family": "accumulation"
   },
   {
    "id": "guardian_stone",
@@ -941,7 +946,8 @@
    ],
    "raw": {
     "toxicity": 12
-   }
+   },
+   "family": "accumulation"
   },
   {
    "id": "jade_core",
@@ -963,7 +969,8 @@
    ],
    "raw": {
     "toxicity": 12
-   }
+   },
+   "family": "accumulation"
   },
   {
    "id": "pebble_core",
@@ -985,7 +992,8 @@
    ],
    "raw": {
     "toxicity": 12
-   }
+   },
+   "family": "accumulation"
   },
   {
    "id": "tiny_hollow_shard",
@@ -2483,7 +2491,8 @@
      "pct": 0.3,
      "over_s": 5
     }
-   ]
+   ],
+   "soul_effect": "mend_meridians"
   },
   {
    "id": "qi_restoration_pill",
@@ -2511,7 +2520,8 @@
      "injury": "meridian",
      "max_severity": 1
     }
-   ]
+   ],
+   "soul_effect": "mend_meridians"
   },
   {
    "id": "qi_gathering_pill",
@@ -2533,7 +2543,9 @@
      "kind": "add_progress",
      "pct_of_need": 0.08
     }
-   ]
+   ],
+   "soul_effect": "steady_heart",
+   "family": "accumulation"
   },
   {
    "id": "bone_strengthening_pill",
@@ -2555,7 +2567,9 @@
      "kind": "add_body_xp",
      "amount": 150
     }
-   ]
+   ],
+   "soul_effect": "iron_skin",
+   "family": "body"
   },
   {
    "id": "purging_pill",
@@ -2577,7 +2591,8 @@
      "kind": "add_toxicity",
      "amount": -30
     }
-   ]
+   ],
+   "soul_effect": "steady_heart"
   },
   {
    "id": "viper_antidote",
@@ -2599,7 +2614,8 @@
      "kind": "cure_status",
      "status": "poison"
     }
-   ]
+   ],
+   "soul_effect": "steady_heart"
   },
   {
    "id": "tiger_blood_pill",
@@ -2631,7 +2647,8 @@
      "delay": 60,
      "duration": 60
     }
-   ]
+   ],
+   "soul_effect": "iron_skin"
   },
   {
    "id": "cleansing_pill",
@@ -2649,10 +2666,12 @@
     "group": "utility"
    },
    "use": [],
+   "soul_effect": "steady_heart",
    "support": {
     "risk": -1,
     "event": "heavens_cleansing"
-   }
+   },
+   "family": "support"
   },
   {
    "id": "foundation_guard_pill",
@@ -2670,9 +2689,11 @@
     "group": "utility"
    },
    "use": [],
+   "soul_effect": "steady_heart",
    "support": {
     "risk": -1
-   }
+   },
+   "family": "support"
   },
   {
    "id": "clear_mind_pill",
@@ -2698,7 +2719,9 @@
      "duration": 1800,
      "source": "clear_mind"
     }
-   ]
+   ],
+   "soul_effect": "clear_mind",
+   "family": "insight"
   },
   {
    "id": "meridian_reversal_pill",
@@ -2719,7 +2742,8 @@
     {
      "kind": "reset_meridians"
     }
-   ]
+   ],
+   "soul_effect": "steady_heart"
   },
   {
    "id": "method_conversion_pill",
@@ -2737,6 +2761,7 @@
     "group": "utility"
    },
    "use": [],
+   "soul_effect": "clear_mind",
    "method_conversion": true
   },
   {
@@ -2754,7 +2779,8 @@
     "cause": "material",
     "group": "utility"
    },
-   "use": []
+   "use": [],
+   "soul_effect": "steady_heart"
   },
   {
    "id": "soul_soothing_pill",
@@ -2789,7 +2815,9 @@
      "kind": "add_soul",
      "amount": 50
     }
-   ]
+   ],
+   "soul_effect": "clear_mind",
+   "family": "soul"
   },
   {
    "id": "mind_lake_opening_pill",
@@ -2806,7 +2834,8 @@
     "cause": "material",
     "group": "utility"
    },
-   "use": []
+   "use": [],
+   "soul_effect": "clear_mind"
   },
   {
    "id": "sage_condensing_pill",
@@ -2823,7 +2852,8 @@
     "cause": "material",
     "group": "utility"
    },
-   "use": []
+   "use": [],
+   "soul_effect": "steady_heart"
   },
   {
    "id": "sovereign_settling_pill",
@@ -2844,7 +2874,8 @@
     {
      "kind": "settle_consolidation"
     }
-   ]
+   ],
+   "soul_effect": "steady_heart"
   },
   {
    "id": "will_tempering_pill",
@@ -2870,7 +2901,8 @@
      "duration": 1800,
      "source": "will_tempering"
     }
-   ]
+   ],
+   "soul_effect": "iron_skin"
   },
   {
    "id": "storm_blood_pill",
@@ -2896,7 +2928,8 @@
      "duration": 1800,
      "source": "storm_blood"
     }
-   ]
+   ],
+   "soul_effect": "iron_skin"
   },
   {
    "id": "herbal_tea",

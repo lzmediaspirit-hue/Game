@@ -108,7 +108,7 @@ def build():
         # toxicity stays as residue (-1% accumulation per 10, at most -10%). Settle foundation drains both.
         "pill_life": {"resistance_step": 0.25, "support_fail_limit": 2, "hollow_share": 0.30, "residue_share": 0.05,
                       "residue_step": 10, "residue_step_pct": 0.01, "residue_cap_pct": 0.10,
-                      "settle_share_per_h": 0.06, "settle_residue_per_h": 3},
+                      "settle_share_per_h": 0.05, "settle_residue_per_h": 5, "doses_per_count": 5},
         # The heart-demon meter (S48): 25 points are one risk step at a major breakthrough and one more Heart Demon
         # at the Reflection. +1 per 10 sin; meditation drains 1 per 5 minutes; passing the Heart Trial clears 30.
         "heart_demon": {"step": 25, "method_switch": 10, "forced_breakthrough": 5, "forced_supports": 2, "death": 3,
@@ -286,7 +286,8 @@ def build():
         "pill": {
             "toxicity": {"flawed": 1.5, "pill_grain": 0.5},
             "rare": {"pill_grain": 0.2, "pill_halo": 0.06, "pill_soul": 0.015},
-            "halo": {"min_density": 2.0, "per_hour": 0.05, "cap": 0.5},
+            # A Pill Halo grows 1% a day in a storage chest in a room of Qi density 2 or more, to +20% (S44).
+            "halo": {"min_density": 2.0, "per_day": 0.01, "cap": 0.2},
             # The fire under the furnace (S15 "rare fire"): it widens the strike band and decides how far a
             # perfect run can climb. Charcoal stops at Perfect; Earth Fire (vent rooms) and Beast Fire (a core per
             # batch) reach Grain; a Heavenly Flame, absorbed for good, reaches Halo and Soul. So does a named furnace.
@@ -295,9 +296,10 @@ def build():
                       "beast_fire": {"band": 0.15, "rare": ["pill_grain"], "consumes": "core"},
                       "heavenly_flame": {"band": 0.20, "rare": ["pill_grain", "pill_halo", "pill_soul"], "needs": "flame"}},
             # Pill marks: 0-9 gold lines by quality; each adds 2% to the pill's effect. Pills never decay.
-            "marks": {"per_line": 0.02, "ranges": {"flawed": [0, 0], "common": [0, 1], "fine": [1, 3], "superior": [2, 5], "perfect": [4, 7],
-                                                   "pill_grain": [6, 8], "pill_halo": [7, 9], "pill_soul": [9, 9]}},
-            "soul": {"chance": 0.5, "effects": [
+            "marks": {"per_line": 0.02, "ranges": {"flawed": [0, 0], "common": [0, 1], "fine": [1, 2], "superior": [2, 4], "perfect": [4, 6],
+                                                   "pill_grain": [6, 7], "pill_halo": [8, 8], "pill_soul": [9, 9]}},
+            # Each recipe's Pill Soul carries one of these, named by its soul_effect (S44); it always applies.
+            "soul": {"effects": [
                 {"id": "clear_mind", "kind": "add_modifier", "stat": "insight", "op": "flat", "value": 10, "duration": 1800, "source": "pill_soul"},
                 {"id": "steady_heart", "kind": "add_composure", "amount": 25},
                 {"id": "mend_meridians", "kind": "cure_injury", "injury": "meridian", "max_severity": 2},

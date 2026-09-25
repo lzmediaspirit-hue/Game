@@ -316,16 +316,30 @@ func pills_suite() -> void:
 	var rare: Dictionary = ContentDB.config("grades").pill.rare
 	check(near(float(got.get("pill_grain", 0)) / 4000.0, float(rare.pill_grain) * boost, 0.03), "a perfect run rolls Pill Grain about %d%% of the time (%s)" % [int(float(rare.pill_grain) * boost * 100), str(got)])
 	check(got.has("pill_halo") and got.has("pill_soul") and int(got.get("pill_soul", 0)) < int(got.get("pill_halo", 0)), "Halo is rarer than Grain, Soul rarer still")
-	# Pill Halo grows while its owner sits in seclusion in a dense-Qi spot, up to +50%.
+	# Pill Halo grows 1% a day in a storage chest in a room of Qi density 2 or more, up to +20% (S44).
+	var day := 86400.0
+	check(near(InventoryAuthority.halo_now({"quality": "pill_halo", "stored_utc": Clock.now_utc() - 5 * day, "stored_density": 1.0}), 0.0),
+		"a Pill Halo stored in thin Qi does not grow")
+	check(near(InventoryAuthority.halo_now({"quality": "pill_halo", "stored_utc": Clock.now_utc() - 5.5 * day, "stored_density": 2.2}), 0.05),
+		"five days in a dense-Qi chest: Halo +5%")
+	check(near(InventoryAuthority.halo_now({"quality": "pill_halo", "stored_utc": Clock.now_utc() - 60 * day, "stored_density": 2.2}), 0.2),
+		"Halo growth stops at +20% (240% potency)")
+	Unlocks.force_unlock(c.id, "storage")
+	var dens0 = Game.room_rt.def.get("qi_density", 1.0)
+	Game.room_rt.def.qi_density = 2.2
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
 	Game.inventory.apply_add(c.id, pill, 1, "test", {"quality": "pill_halo"})
-	check(near(Game.inventory.apply_halo_growth(c.id, 4.0, 1.0), 0.0), "a Pill Halo does not grow in thin Qi")
-	check(near(Game.inventory.apply_halo_growth(c.id, 4.0, 2.2), 0.2), "four hours in a cave abode: Halo +20%")
-	Game.inventory.apply_halo_growth(c.id, 100.0, 2.2)
-	var halo := -1
-	for i in _pill_stacks(c, pill):
-		if str(c.inventory.bag[i].get("quality", "")) == "pill_halo": halo = i
-	check(near(InventoryAuthority.pill_potency(c.inventory.bag[halo]), 2.0 * 1.5), "Halo growth stops at +50% (300% potency)")
-	# A Pill Soul may carry a unique effect.
+	var n_store: int = Game.account.storage.get("items", []).size()
+	check(Game.accounts.deposit(c, _bag_index(c, pill), 1).get("ok", false), "a Halo pill goes into the storage chest")
+	Game.room_rt.def.qi_density = dens0
+	var stored: Dictionary = Game.account.storage.items[n_store]
+	stored.stored_utc = float(stored.stored_utc) - 10 * day
+	Game.accounts.withdraw(c, n_store)
+	var halo_i := _bag_index(c, pill)
+	check(halo_i >= 0 and near(float(c.inventory.bag[halo_i].get("halo", 0.0)), 0.1) and not c.inventory.bag[halo_i].has("stored_utc"),
+		"taken out after ten days in the pavilion's chest: Halo +10%")
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	# A Pill Soul always carries its recipe's own unique effect.
 	Game.inventory.apply_add(c.id, pill, 8, "test", {"quality": "pill_soul"})
 	var awakened := 0
 	for n in 8:
@@ -334,7 +348,7 @@ func pills_suite() -> void:
 			if str(c.inventory.bag[i].get("quality", "")) == "pill_soul": soul = i
 		if soul < 0: break
 		if str(_use_fresh(c, soul).get("soul_effect", "")) != "": awakened += 1
-	check(awakened > 0 and awakened < 8, "a Pill Soul sometimes adds a unique effect (%d of 8)" % awakened)
+	check(awakened == 8 and str(ContentDB.item(pill).get("soul_effect", "")) == "mend_meridians", "a Healing Pill Soul mends the meridians, every time (%d of 8)" % awakened)
 	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
 
 # ------------------------------------------------------------------ natural treasures (Part 5)
@@ -724,21 +738,26 @@ func g1_suite() -> void:
 	cu.state = "accumulating"
 	cu.qp = 0.0
 	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
-	# Lifetime resistance: each Qi pill works at 1 / (1 + 0.25 x doses taken); a Pill Grain slips past it.
+	# Lifetime resistance (S44): every 5 doses of a family add 1 to its count; a pill works at 1 / (1 + 0.25 x count).
 	cu.pill_resistance.clear()
-	Game.inventory.apply_add(c.id, "qi_gathering_pill", 3, "test")
-	var r1 := _use_fresh(c, _bag_index(c, "qi_gathering_pill"))
-	var r2 := _use_fresh(c, _bag_index(c, "qi_gathering_pill"))
-	var r3 := _use_fresh(c, _bag_index(c, "qi_gathering_pill"))
-	check(near(float(r1.get("factor", 0)), 1.0) and near(float(r2.get("factor", 0)), 0.8) and near(float(r3.get("factor", 0)), 1.0 / 1.5),
-		"a Qi pill works at 100%%, then 80%%, then 67%% (%s %s %s)" % [r1.get("factor"), r2.get("factor"), r3.get("factor")])
-	check(int(cu.pill_resistance.get("qi", 0)) == 3, "three doses of the Qi family are remembered")
+	check(ProgressionRules.pill_family(ContentDB.item("qi_gathering_pill")) == "accumulation" and ProgressionRules.pill_family(ContentDB.item("healing_pill")) == ""
+		and ProgressionRules.pill_family(ContentDB.item("foundation_guard_pill")) == "support", "pill families come from data; healing pills are exempt")
+	Game.inventory.apply_add(c.id, "qi_gathering_pill", 6, "test")
+	var factors: Array = []
+	for i in 6: factors.append(snappedf(float(_use_fresh(c, _bag_index(c, "qi_gathering_pill")).get("factor", 0)), 0.01))
+	check(factors == [1.0, 1.0, 1.0, 1.0, 1.0, 0.8], "five Qi pills at full strength, the sixth at 80%% (%s)" % str(factors))
+	check(ProgressionRules.resistance_count(cu, "accumulation") == 1 and int(cu.pill_resistance.accumulation.doses) == 1, "count 1 and one dose toward the next")
 	Game.inventory.apply_add(c.id, "qi_gathering_pill", 1, "test", {"quality": "pill_grain"})
 	var rg := _use_fresh(c, _bag_index(c, "qi_gathering_pill"))
-	check(near(float(rg.get("factor", 0)), InventoryAuthority.pill_potency({"quality": "pill_grain"})) and int(cu.pill_resistance.get("qi", 0)) == 3,
+	check(near(float(rg.get("factor", 0)), InventoryAuthority.pill_potency({"quality": "pill_grain"})) and int(cu.pill_resistance.accumulation.doses) == 1,
 		"a Pill Grain ignores lifetime resistance and adds no dose")
+	cu.pill_resistance.accumulation.count = 3
 	Game.progression._advance(c, "heart_tempering_4", true)
-	check(int(cu.pill_resistance.get("qi", 0)) == 2, "a major breakthrough forgets one dose")
+	check(ProgressionRules.resistance_count(cu, "accumulation") == 1, "a major breakthrough: count 3 drops by 1, then halves (1)")
+	var old := CultivatorState.new()
+	old.restore({"pill_resistance": {"qi": 7}, "foundation": {"realm": "heart_tempering", "total": 10.0, "pill": 4.0}, "support_fails": {"x": {"a": 1, "b": 2}}})
+	check(old.pill_resistance.get("accumulation", {}).get("count", -1) == 1 and int(old.pill_resistance.accumulation.doses) == 2
+		and near(float(old.foundation.pill_qp), 4.0) and int(old.support_failures.get("x", 0)) == 2, "a version 4 save migrates to the v2 shapes")
 	# Raw herbs: weak and poisonous, and they count toward resistance.
 	cu.realm_key = "heart_tempering_3"
 	Game.inventory.apply_add(c.id, "riverreed_ginseng_10", 1, "test")
@@ -746,7 +765,7 @@ func g1_suite() -> void:
 	c.pools.cooldowns.clear()
 	check(str(Game.inventory.use_item(c, raw_i, false).get("reason", "")) == "confirm", "eating a herb raw asks first")
 	_use_fresh(c, raw_i)
-	check(near(cu.toxicity, 20.0) and int(cu.pill_resistance.get("qi", 0)) == 3, "a raw ginseng root: toxicity 20, one more Qi dose")
+	check(near(cu.toxicity, 20.0) and int(cu.pill_resistance.accumulation.doses) == 2, "a raw ginseng root: toxicity 20, one more accumulation dose")
 	# Residue: 5% of toxicity stays; each 10 costs 1% accumulation.
 	cu.residue = 0.0
 	Game.progression.apply_toxicity(c.id, 100.0)
@@ -763,16 +782,16 @@ func g1_suite() -> void:
 	Game.progression.apply_progress(c.id, cu.need() * 0.2, "meditation")
 	check(not ProgressionRules.foundation_hollow(cu), "meditated Qi keeps the foundation sound")
 	Game.progression.apply_progress(c.id, cu.need() * 0.5, "item:qi_gathering_pill")
-	check(ProgressionRules.foundation_hollow(cu) and near(ProgressionRules.foundation_share(cu), 0.5, 0.02), "pill Qi past 30%% leaves it hollow (%.2f)" % ProgressionRules.foundation_share(cu))
+	check(ProgressionRules.foundation_hollow(cu) and near(ProgressionRules.foundation_share(cu), 0.5 / 0.7, 0.02), "pill Qi past 30%% of the realm's Qi leaves it hollow (%.2f)" % ProgressionRules.foundation_share(cu))
 	var q := Game.progression.query_breakthrough(c)
 	var hollow_row := false
 	for row in q.results:
 		if str(row.get("kind", "")) == "foundation" and not row.ok and not row.hard: hollow_row = true
 	check(q.get("hollow", false) and hollow_row, "a major breakthrough counts a hollow foundation as an unmet soft requirement")
 	c.seclusion = {"spot": "", "focus": "settle_foundation", "started_utc": 0.0, "cap_h": 12, "density": 1.0}
-	var settled := Game.progression.claim_offline(c, 8 * 3600.0)
-	check(not ProgressionRules.foundation_hollow(cu) and cu.residue < 20.0 and float(settled.gains.get("foundation", 0)) > 0.0,
-		"eight hours settling the foundation make it sound and burn off residue (%.1f left)" % cu.residue)
+	var settled := Game.progression.claim_offline(c, 9 * 3600.0)
+	check(not ProgressionRules.foundation_hollow(cu) and near(cu.residue, 0.0) and float(settled.gains.get("foundation", 0)) > 0.0,
+		"nine hours settling (5 points and 5 residue an hour) make the foundation sound and burn off the residue (%.2f)" % ProgressionRules.foundation_share(cu))
 	# Heart demons: a changed method feeds them; each 25 is a risk step; Calm Incense clears them.
 	cu.heart_demon = 0.0
 	cu.methods_known = ["riverbreath_fragment", "jade_current_scripture"]

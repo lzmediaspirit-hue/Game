@@ -108,30 +108,30 @@ static func risk_index(soft_unmet: int, unstable: bool, injuries: int, supports:
 	return clampi(r, 0, 3)
 
 # ------------------------------------------------------------------ what pills cost over a life (gap report G1)
-const PILL_FAMILY := {"add_progress": "qi", "add_body_xp": "body", "add_soul": "soul", "add_insight": "insight"}
-
-## The accumulation family of an item's effects ("" when it does not build anything up).
+## The lifetime-resistance family of a pill, raw herb or beast core (S44 `family` field; "" = exempt).
 static func pill_family(def: Dictionary) -> String:
-	if not (def.has("pill") or def.has("raw") or def.has("core")): return ""
-	for e in def.get("use", []):
-		if PILL_FAMILY.has(str(e.get("kind", ""))): return PILL_FAMILY[str(e.kind)]
-	return ""
+	return str(def.get("family", ""))
 
-## Lifetime pill resistance: 1 / (1 + 0.25 x doses of the family taken).
+## The resistance count of a family: every 5 doses add 1 (S44).
+static func resistance_count(cu, family: String) -> int:
+	var r = cu.pill_resistance.get(family, {})
+	return int(r.get("count", 0)) if r is Dictionary else 0
+
+## Lifetime pill resistance: a pill works at 1 / (1 + 0.25 x count) of its family (S44).
 static func resistance_factor(cu, family: String) -> float:
 	if family == "": return 1.0
 	var step := float(ContentDB.stat_const("pill_life", {}).get("resistance_step", 0.25))
-	return 1.0 / (1.0 + step * float(cu.pill_resistance.get(family, 0)))
+	return 1.0 / (1.0 + step * float(resistance_count(cu, family)))
 
 ## The great realm a realm key belongs to (qi_kindling_3 -> qi_kindling).
 static func great_realm(realm_key: String) -> String:
 	return str(ContentDB.realm(realm_key).get("realm", realm_key))
 
-## Share of this great realm's Qi that came from pills and cores (0..1), against at least one stage's need.
+## Share of this major realm's Qi that came from pills and cores: pill_qp / total_qp (S44).
 static func foundation_share(cu) -> float:
 	var f: Dictionary = cu.foundation
-	if str(f.get("realm", "")) != great_realm(cu.realm_key): return 0.0
-	return clampf(float(f.get("pill", 0.0)) / maxf(float(f.get("total", 0.0)), maxf(1.0, cu.need())), 0.0, 1.0)
+	if str(f.get("realm", "")) != great_realm(cu.realm_key) or float(f.get("total_qp", 0.0)) <= 0.0: return 0.0
+	return clampf(float(f.get("pill_qp", 0.0)) / float(f.total_qp), 0.0, 1.0)
 
 static func foundation_hollow(cu) -> bool:
 	return foundation_share(cu) > float(ContentDB.stat_const("pill_life", {}).get("hollow_share", 0.3))

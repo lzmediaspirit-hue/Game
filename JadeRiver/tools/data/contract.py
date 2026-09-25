@@ -59,7 +59,8 @@ CATALOGUE = {
 # Build Prompt v2 · Traversal, depth and living-world events (S43-S49), as far as those systems are built.
 # The karma rows move to Relations when that authority exists (S49); until then Progression keeps the ledger.
 DEPTH = {
-    "Progression": ["heart_demon_changed", "residue_changed", "merit_changed", "sin_changed", "debt_recorded", "debt_called"],
+    "Progression": ["pill_resistance_changed", "foundation_changed", "heart_demon_changed", "residue_changed", "merit_changed", "sin_changed",
+                    "debt_recorded", "debt_called"],
     "Crafting": ["flame_absorbed", "pill_cloud"],
     "Combat": ["treasure_used"],
 }
@@ -103,6 +104,8 @@ POLLED = {
     "notification_scheduled": "Handed to the platform notifier on phones; nothing to show on desktop.",
     "weekly_reset": "No weekly content in Act I.",
     "residue_changed": "The Cultivation page's Heart tab reads residue.",
+    "pill_resistance_changed": "Pill tooltips and the Heart tab read each family's count.",
+    "foundation_changed": "The Heart tab and the risk preview read the foundation share.",
     "debt_recorded": "The Cultivation page's Heart tab lists debts; the callback is debt_called.",
 }
 

@@ -5,6 +5,34 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V1b · Pill rules follow Build Prompt v2 (S44)
+- **Lifetime resistance** counts every 5 doses of a family as 1 (`pill_resistance {family: {count, doses}}`); a
+  pill works at 1 ÷ (1 + 0.25 × count). Each major breakthrough drops every count by 1 and then halves it. A
+  normal ten pills a realm now keeps pills near two-thirds strength, where the gap report's rule left them at 29 %.
+- **Families come from data** (`family` on each pill, raw herb and core):
+  - accumulation (Qi Gathering; herbs and cores that add Qi);
+  - body (Bone Strengthening);
+  - insight (Clear Mind);
+  - soul (Soul Soothing);
+  - support (Foundation Guard, Cleansing).
+
+  Healing, restoration, antidote, purging and conversion pills are exempt. Pill details show what resistance
+  leaves of a pill, or that a Pill Grain ignores it.
+- **Foundation.** The share is pill QP ÷ total QP since the last major breakthrough, and resets at each major
+  breakthrough. Beast cores count as pill QP. *Settle foundation* lowers the share by 5 points an hour and burns
+  off 5 residue an hour.
+- **Support pills.** After two failed attempts at the same breakthrough (`support_failures`), support pills stop
+  lowering its risk.
+- **Pill marks** by quality: Fine 1–2, Superior 2–4, Perfect 4–6, Grain 6–7, Halo 8, Soul 9.
+- **Pill Halo** grows +1 % a day, to +20 %, while in a storage chest in a room of Qi density 2 or more. It no
+  longer grows in the bag during seclusion.
+- **Pill Soul** always carries its recipe's own `soul_effect`.
+- **Events and saves.**
+  - Events: `pill_resistance_changed` and `foundation_changed` are emitted.
+  - Saves move to version 5: version 4 resistance, foundation and support-failure data migrate on load.
+- **Tests.** `tools/run_tests.sh` now fails a suite that prints a script error. A runtime error used to abort a
+  suite part-way and skip its remaining checks silently.
+
 ### V1a · Treasures, talismans and throwables follow Build Prompt v2 (S47, Part 8)
 Build Prompt v2 folds the gap report into the build prompt and wins where they disagree (docs/v2_audit.md).
 G2a's treasures now match its Part 8.

@@ -310,10 +310,33 @@ func apply_progress(actor_id: String, amount: float, source: String, pct_of_need
 ## Foundation (G1): how much of this great realm's Qi came from pills, raw herbs and cores.
 func _track_foundation(cu: CultivatorState, amount: float, source: String) -> void:
 	var gr := ProgressionRules.great_realm(cu.realm_key)
-	if str(cu.foundation.get("realm", "")) != gr: cu.foundation = {"realm": gr, "total": 0.0, "pill": 0.0}
-	cu.foundation.total = float(cu.foundation.total) + amount
-	if source.begins_with("item:") and ProgressionRules.pill_family(ContentDB.item(source.substr(5))) != "":
-		cu.foundation.pill = float(cu.foundation.pill) + amount
+	if str(cu.foundation.get("realm", "")) != gr: cu.foundation = {"realm": gr, "total_qp": 0.0, "pill_qp": 0.0}
+	cu.foundation.total_qp = float(cu.foundation.total_qp) + amount
+	# Qi from a pill of a resistance family, a raw herb or a beast core is not the cultivator's own (S44).
+	if source.begins_with("item:"):
+		var def := ContentDB.item(source.substr(5))
+		if ProgressionRules.pill_family(def) != "" or def.has("core"):
+			cu.foundation.pill_qp = float(cu.foundation.pill_qp) + amount
+			emit("foundation_changed", {"actor": cu_owner(cu), "share": ProgressionRules.foundation_share(cu)})
+
+## The character that owns a cultivator state (events carry the actor id).
+func cu_owner(cu: CultivatorState) -> String:
+	for c in game.characters.values():
+		if c.cultivator == cu: return c.id
+	return game.active_id
+
+## One dose of a resistance family (S44): every 5 doses add 1 to its count.
+func apply_pill_dose(actor_id: String, family: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or family == "": return
+	var r: Dictionary = c.cultivator.pill_resistance.get(family, {"count": 0, "doses": 0})
+	r.doses = int(r.get("doses", 0)) + 1
+	var per := int(ContentDB.stat_const("pill_life", {}).get("doses_per_count", 5))
+	if int(r.doses) >= per:
+		r.doses = int(r.doses) - per
+		r.count = int(r.get("count", 0)) + 1
+	c.cultivator.pill_resistance[family] = r
+	emit("pill_resistance_changed", {"actor": c.id, "family": family, "count": int(r.count), "doses": int(r.doses)})
 
 func _levels_gained(c, from_level: int, to_level: int) -> void:
 	for lv in range(from_level + 1, to_level + 1):
@@ -347,14 +370,14 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 	var supports := 0
 	var supports_used: Array = []   # only these are consumed and counted at the attempt
 	var reasons: Array = []
-	var fails: Dictionary = cu.support_fails.get(cu.realm_key, {})
+	var failed := int(cu.support_failures.get(cu.realm_key, 0))
 	var fail_limit := int(ContentDB.stat_const("pill_life", {}).get("support_fail_limit", 2))
 	for item_id in support_items:
 		var sup: Dictionary = ContentDB.item(str(item_id)).get("support", {})
 		if sup.is_empty() or c.inventory.count(str(item_id)) <= 0: continue
 		if sup.has("event") and str(sup.event) != str(spec.get("event", "")): continue
-		# A support pill that has already failed this breakthrough twice no longer answers it (G1).
-		if int(fails.get(str(item_id), 0)) >= fail_limit:
+		# After two failed attempts at this breakthrough, support pills no longer answer it (S44).
+		if failed >= fail_limit:
 			reasons.append(Tx.t("sim.progression.support_spent") % ContentDB.item_name(str(item_id)))
 			continue
 		supports += 1
@@ -434,9 +457,8 @@ func _tick_channel(c, delta: float) -> void:
 		_advance(c, str(ch.to), true)
 	else:
 		var from := str(ch.get("from", c.cultivator.realm_key))
-		var fails: Dictionary = c.cultivator.support_fails.get(from, {})
-		for item_id in ch.get("used", []): fails[str(item_id)] = int(fails.get(str(item_id), 0)) + 1
-		if not fails.is_empty(): c.cultivator.support_fails[from] = fails
+		if not (ch.get("used", []) as Array).is_empty():
+			c.cultivator.support_failures[from] = int(c.cultivator.support_failures.get(from, 0)) + 1
 		# A hollow foundation gives way where it is weakest (G1).
 		var failure := "weak_foundation" if ch.get("hollow", false) and ContentDB.has_entry("failures", "weak_foundation") \
 			else ProgressionRules.pick_failure(rng, ch.causes, c.cultivator.realm_key)
@@ -469,11 +491,16 @@ func _advance(c, to: String, major: bool) -> void:
 		emit("stability_changed", {"actor": c.id, "word": cu.stability})
 	if major and energy == "true_qi" and ContentDB.realm(from).get("energy") != "true_qi": cu.purity = mini(cu.purity, 9)
 	if major:
-		# Each major breakthrough forgets one dose of every pill family (G1).
+		# Each major breakthrough: every resistance count drops by 1, then halves (S44).
 		for fam in cu.pill_resistance.keys():
-			cu.pill_resistance[fam] = maxi(0, int(cu.pill_resistance[fam]) - 1)
-			if int(cu.pill_resistance[fam]) == 0: cu.pill_resistance.erase(fam)
-		cu.support_fails.erase(from)
+			var pr: Dictionary = cu.pill_resistance[fam]
+			var before_count := int(pr.get("count", 0))
+			pr.count = maxi(0, before_count - 1) / 2
+			if int(pr.count) != before_count: emit("pill_resistance_changed", {"actor": c.id, "family": fam, "count": int(pr.count), "doses": int(pr.get("doses", 0))})
+		cu.support_failures.erase(from)
+		# The foundation share starts again with the new major realm.
+		cu.foundation = {"realm": ProgressionRules.great_realm(to), "total_qp": 0.0, "pill_qp": 0.0}
+		emit("foundation_changed", {"actor": c.id, "share": 0.0})
 	emit("breakthrough_succeeded", {"actor": c.id, "from": from, "to": to, "major": major,
 		"formation": "guard" if game.workshop.formation_effect(c, "breakthrough_risk_step") < 0.0 else ""})
 	emit("realm_changed", {"actor": c.id, "from": from, "to": to, "major": major, "level": ProgressionRules.level(c)})
@@ -962,19 +989,18 @@ func claim_offline(c, elapsed_s: float) -> Dictionary:
 			# G1: sit with what the pills gave you until it is your own; the residue burns off with it.
 			var k: Dictionary = ContentDB.stat_const("pill_life", {})
 			var cu2: CultivatorState = c.cultivator
+			# S44: the share falls 5 points an hour and 5 residue burns off; no progress is made.
 			if str(cu2.foundation.get("realm", "")) == ProgressionRules.great_realm(cu2.realm_key):
-				var drop := maxf(float(cu2.foundation.get("total", 0.0)), cu2.need()) * float(k.get("settle_share_per_h", 0.06)) * minutes / 60.0
-				gains.foundation = minf(drop, float(cu2.foundation.get("pill", 0.0)))
-				cu2.foundation.pill = maxf(0.0, float(cu2.foundation.get("pill", 0.0)) - drop)
-			var res := minf(cu2.residue, float(k.get("settle_residue_per_h", 3)) * minutes / 60.0)
+				var drop := float(cu2.foundation.get("total_qp", 0.0)) * float(k.get("settle_share_per_h", 0.05)) * minutes / 60.0
+				gains.foundation = minf(drop, float(cu2.foundation.get("pill_qp", 0.0)))
+				cu2.foundation.pill_qp = maxf(0.0, float(cu2.foundation.get("pill_qp", 0.0)) - drop)
+				emit("foundation_changed", {"actor": c.id, "share": ProgressionRules.foundation_share(cu2)})
+			var res := minf(cu2.residue, float(k.get("settle_residue_per_h", 5)) * minutes / 60.0)
 			if res > 0.0:
 				apply_residue(c.id, -res)
 				gains.residue = res
 	# Injuries also heal at their natural rate while away.
 	if focus != "heal": _tick_injuries(c, minutes * 60.0, 1.0)
-	# A Pill Halo in the bag drinks the dense Qi of a cave abode (S15).
-	var halo: float = game.inventory.apply_halo_growth(c.id, minutes / 60.0, float(c.seclusion.get("density", 1.0)))
-	if halo > 0.0: gains.halo = halo
 	c.seclusion = {}
 	var result := {"gains": gains, "capped": span.capped, "hours": minutes / 60.0, "focus": focus}
 	emit("offline_claimed", {"actor": c.id, "gains": gains, "capped": span.capped, "hours": minutes / 60.0, "focus": focus})

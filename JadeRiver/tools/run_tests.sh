@@ -9,8 +9,11 @@ suites=(engine_tests data_validation rules_tests contract_tests balance_sim perf
 failed=()
 for s in "${suites[@]}"; do
   echo "== $s"
-  "$GODOT" --headless --path . "res://tests/$s.tscn" 2>&1 | grep -E "checks|passed|FAIL|SCRIPT ERROR" || true
-  [[ ${PIPESTATUS[0]} -ne 0 ]] && failed+=("$s")
+  out="$("$GODOT" --headless --path . "res://tests/$s.tscn" 2>&1)"
+  code=$?
+  grep -E "checks|passed|FAIL|SCRIPT ERROR" <<<"$out" || true
+  # A script error aborts a suite part-way and skips its remaining checks, so it fails the run too.
+  if [[ $code -ne 0 ]] || grep -q "SCRIPT ERROR" <<<"$out"; then failed+=("$s"); fi
 done
 if [[ ${#failed[@]} -gt 0 ]]; then echo "Failed: ${failed[*]}"; exit 1; fi
 echo "All suites passed."

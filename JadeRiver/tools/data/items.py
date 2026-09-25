@@ -105,12 +105,24 @@ def effect(kind, **f):
     return d
 
 
+# S44 · Pill families for lifetime resistance (Part 8). Pills not listed are exempt.
+PILL_FAMILIES = {"qi_gathering_pill": "accumulation", "qi_flow_pill": "accumulation", "bone_strengthening_pill": "body",
+                 "clear_mind_pill": "insight", "soul_soothing_pill": "soul", "foundation_guard_pill": "support", "cleansing_pill": "support"}
+# The unique effect a Pill Soul of each recipe carries (S44 soul_effect; the effects live in grades.json pill.soul).
+SOUL_BY_GROUP = {"healing": "mend_meridians", "restoration": "mend_meridians", "buff": "iron_skin", "utility": "steady_heart"}
+SOUL_EFFECT = {"clear_mind_pill": "clear_mind", "soul_soothing_pill": "clear_mind", "mind_lake_opening_pill": "clear_mind",
+               "method_conversion_pill": "clear_mind", "bone_strengthening_pill": "iron_skin", "tiger_blood_pill": "iron_skin"}
+
+
 def pills():
     P = []
 
     def pill(id, grade, mark, desc, toxicity, effects, cause=None, group="restoration", **extra):
+        fam = PILL_FAMILIES.get(id)
+        if fam:
+            extra["family"] = fam
         P.append(item(id, "pill", grade, 99, desc, pill={"mark": mark, "toxicity": toxicity, "cause": cause, "group": group},
-                      use=effects, **extra))
+                      use=effects, soul_effect=SOUL_EFFECT.get(id, SOUL_BY_GROUP.get(group, "steady_heart")), **extra))
     pill("healing_pill", "common", "heart", "Cures a minor body injury and restores 30% HP over 5 s.", 5,
          [effect("cure_injury", injury="body", max_severity=1), effect("heal", pct=0.3, over_s=5)], cause="structure", group="healing")
     pill("qi_restoration_pill", "common", "spiral", "Restores 40% QI and cures a minor meridian injury.", 5,
@@ -189,12 +201,25 @@ RAW_HERB = {
 }
 
 
+def raw_family(effects):
+    """A raw herb counts toward the family of what it builds up (S44)."""
+    kinds = {e["kind"] for e in effects}
+    for kind, fam in (("add_progress", "accumulation"), ("add_body_xp", "body"), ("add_soul", "soul"), ("add_insight", "insight")):
+        if kind in kinds:
+            return fam
+    return ""
+
+
 def build_items():
     rows = []
     TREASURE_DEFS.clear()
     for h in HERBS:
         raw = RAW_HERB.get(h[0])
         extra = {"use": raw[0], "raw": {"toxicity": raw[1]}} if raw else {}
+        if raw:
+            fam = raw_family(raw[0])
+            if fam:
+                extra["family"] = fam
         rows.append(item(h[0], "herb", h[1], 99, h[2] + (" Can be eaten raw in need: weak, and hard on the meridians." if raw else ""),
                          name=h[3] if len(h) > 3 else None, **extra))
     for o in ORES:
@@ -253,7 +278,7 @@ def build_items():
         # A core can be absorbed for Qi (it counts toward a hollow foundation) or burnt as Beast Fire under a furnace.
         qp = 0.05 if grade == "common" else 0.1
         rows.append(item(cid, "core", grade, 99, desc + " Absorb it for Qi, or burn it as Beast Fire.", core={"qp_pct": qp},
-                         use=[effect("add_progress", pct_of_need=qp)], raw={"toxicity": 12}))
+                         use=[effect("add_progress", pct_of_need=qp)], raw={"toxicity": 12}, family="accumulation"))
     rows.append(item("tiny_hollow_shard", "hollow", "common", 99, "A grey sliver that drinks warmth. Handle with care."))
     rows.append(item("hollow_shard", "hollow", "earth", 99, "A shard of the Hollow Tide. Appraise before use."))
     rows.append(item("grey_hide", "hollow", "common", 99, "Hide from a Hollowed beast, grey and cold."))

@@ -166,7 +166,8 @@ func _heart(ch) -> void:
 		text(Vector2(x, y), Tx.t("ui.cultivation.no_resistance"), 17, UiKit.MIST)
 	for fam in cu.pill_resistance:
 		text(Vector2(x, y), Tx.t("ui.cultivation.family_" + str(fam)), 18, UiKit.PAPER)
-		text(Vector2(right.end.x - 24, y), Tx.t("ui.cultivation.resistance_row") % [int(cu.pill_resistance[fam]),
+		var rr: Dictionary = cu.pill_resistance[fam]
+		text(Vector2(right.end.x - 24, y), Tx.t("ui.cultivation.resistance_row") % [int(rr.get("count", 0)), int(rr.get("doses", 0)),
 			int(round(ProgressionRules.resistance_factor(cu, str(fam)) * 100))], 17, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, -1)
 		y += 28
 

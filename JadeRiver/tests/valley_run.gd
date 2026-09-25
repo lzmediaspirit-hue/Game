@@ -1733,7 +1733,7 @@ func sec_ae4() -> void:
 		if c().inventory.count("ember_cactus") >= 4: break
 		if travel(rid): gather("ember_cactus", 4 - c().inventory.count("ember_cactus"), 3)
 	check(c().inventory.count("ember_cactus") >= 4, "pick Ember Cactus flowers across the dunes (%d)" % c().inventory.count("ember_cactus"))
-	for i in 10:
+	for i in 20:   # a tooth drops about one kill in three, but a run can go a long time without
 		if c().inventory.count("worm_glass_tooth") >= 3: break
 		if travel("sd_worm_sea"): fight("dune_worm", 2, 300.0, 0.3)
 		revive_if_needed()
@@ -1876,6 +1876,11 @@ func sec_ae5() -> void:
 		if not travel("np_alliance_gate"): break
 		c().pools.hp = c().pools.max_hp
 		var g := interact("war_gong_np")
+		if not g.get("ok", false) and str(g.get("reason", "")) == "cooldown":
+			# Beaten back: a careful player returns when the comet sails have regrouped (about 20 h).
+			Clock.debug_offset_s += 21.0 * 3600.0
+			c().pools.hp = c().pools.max_hp
+			g = interact("war_gong_np")
 		if not g.get("ok", false):
 			print("  war gong: ", g)
 			break

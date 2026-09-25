@@ -228,7 +228,7 @@ func deposit(c, index: int, count: int) -> Dictionary:
 	var bag_item = c.inventory.bag[index] if index >= 0 and index < c.inventory.bag.size() else null
 	if bag_item == null: return fail("empty")
 	if ContentDB.item(str(bag_item.id)).get("type") == "key": return fail("key_item")
-	var stackable := not ContentDB.is_equipment(str(bag_item.id))
+	var stackable := not ContentDB.is_equipment(str(bag_item.id)) and str(bag_item.get("quality", "")) != "pill_halo"   # a Halo stack keeps its own deposit time
 	if stackable:
 		for s in items:
 			if InventoryAuthority.stack_key(s) == InventoryAuthority.stack_key(bag_item):
@@ -238,6 +238,10 @@ func deposit(c, index: int, count: int) -> Dictionary:
 				return ok()
 	if items.size() >= storage_size(): return fail("storage_full")
 	var removed2 = game.inventory.apply_remove_index(c.id, index, count, "deposit")
+	if str(removed2.get("quality", "")) == "pill_halo":
+		# A Halo pill drinks the Qi of the room its chest stands in (S44).
+		removed2.stored_utc = Clock.now_utc()
+		removed2.stored_density = float(game.room_rt.def.get("qi_density", 1.0)) if game.room_rt else 1.0
 	items.append(removed2)
 	game.account.storage.items = items
 	emit("storage_changed", {})
@@ -247,6 +251,10 @@ func withdraw(c, index: int) -> Dictionary:
 	var items: Array = game.account.storage.get("items", [])
 	if c == null or index < 0 or index >= items.size(): return fail("bad_index")
 	var s: Dictionary = items[index]
+	if s.has("stored_utc"):
+		s.halo = InventoryAuthority.halo_now(s)
+		s.erase("stored_utc")
+		s.erase("stored_density")
 	var added := 0
 	if ContentDB.is_equipment(str(s.id)): added = game.inventory.apply_add_instance(c.id, s, "withdraw", false)
 	else: added = game.inventory.apply_add(c.id, str(s.id), int(s.get("count", 1)), "withdraw", s, false)
