@@ -194,7 +194,7 @@ func apply_add(actor_id: String, item_id: String, count: int, source: String, fi
 			emit("treasure_set", {"actor": c.id, "slot": 0, "item": item_id})
 	if left > 0:
 		var over := {"item": item_id, "count": left}
-		for f in ["quality", "halo"]:
+		for f in ["quality", "halo", "marks"]:
 			if entry.has(f): over[f] = entry[f]
 		emit("bag_full", {"actor": c.id, "items": [over]})
 		if overflow:
@@ -210,6 +210,7 @@ static func pill_entry(item_id: String, fields: Dictionary) -> Dictionary:
 	var q := str(fields.get("quality", "common"))
 	if q != "common": e.quality = q
 	if float(fields.get("halo", 0.0)) > 0.0: e.halo = float(fields.halo)
+	if int(fields.get("marks", 0)) > 0: e.marks = int(fields.marks)   # gold lines from the furnace (G1)
 	return e
 
 ## Stacks merge only with the same item, quality and Halo charge.

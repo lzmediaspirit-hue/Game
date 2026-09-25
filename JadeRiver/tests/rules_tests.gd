@@ -838,6 +838,10 @@ func g1_suite() -> void:
 	# Pill marks: a Pill Soul carries all nine; each is +2%.
 	check(Game.crafting._roll_marks("pill_soul", rng) == 9 and Game.crafting._roll_marks("flawed", rng) == 0, "marks: Soul nine, Flawed none")
 	check(near(InventoryAuthority.pill_potency({"quality": "common", "marks": 5}), 1.1), "five marks: +10%")
+	Game.inventory.apply_add(c.id, "qi_gathering_pill", 2, "test", {"quality": "fine", "marks": 3})
+	Game.inventory.apply_add(c.id, "qi_gathering_pill", 1, "test", {"quality": "fine"})
+	var marked = c.inventory.bag[_bag_index(c, "qi_gathering_pill")]
+	check(int(marked.get("marks", 0)) == 3 and int(marked.count) == 2, "a refined stack keeps its gold marks, apart from an unmarked one")
 	# A Heavenly Flame is absorbed once; a second copy gutters into Spirit Stones.
 	c.crafting["flames"] = []
 	Game.inventory.apply_add(c.id, "cold_lamp_flame", 2, "test")
