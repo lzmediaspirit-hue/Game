@@ -230,7 +230,7 @@ func deposit(c, index: int, count: int) -> Dictionary:
 	var stackable := not ContentDB.is_equipment(str(bag_item.id))
 	if stackable:
 		for s in items:
-			if s.id == bag_item.id:
+			if InventoryAuthority.stack_key(s) == InventoryAuthority.stack_key(bag_item):
 				var removed = game.inventory.apply_remove_index(c.id, index, count, "deposit")
 				s.count = int(s.count) + int(removed.get("count", 0))
 				emit("storage_changed", {})
@@ -248,7 +248,7 @@ func withdraw(c, index: int) -> Dictionary:
 	var s: Dictionary = items[index]
 	var added := 0
 	if ContentDB.is_equipment(str(s.id)): added = game.inventory.apply_add_instance(c.id, s, "withdraw", false)
-	else: added = game.inventory.apply_add(c.id, str(s.id), int(s.get("count", 1)), "withdraw", {}, false)
+	else: added = game.inventory.apply_add(c.id, str(s.id), int(s.get("count", 1)), "withdraw", s, false)
 	if added <= 0: return fail("bag_full")
 	if ContentDB.is_equipment(str(s.id)) or added >= int(s.get("count", 1)): items.remove_at(index)
 	else: s.count = int(s.count) - added

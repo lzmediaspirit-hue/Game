@@ -758,6 +758,9 @@ func claim_offline(c, elapsed_s: float) -> Dictionary:
 			gains.soul = sp
 	# Injuries also heal at their natural rate while away.
 	if focus != "heal": _tick_injuries(c, minutes * 60.0, 1.0)
+	# A Pill Halo in the bag drinks the dense Qi of a cave abode (S15).
+	var halo: float = game.inventory.apply_halo_growth(c.id, minutes / 60.0, float(c.seclusion.get("density", 1.0)))
+	if halo > 0.0: gains.halo = halo
 	c.seclusion = {}
 	var result := {"gains": gains, "capped": span.capped, "hours": minutes / 60.0, "focus": focus}
 	emit("offline_claimed", {"actor": c.id, "gains": gains, "capped": span.capped, "hours": minutes / 60.0, "focus": focus})

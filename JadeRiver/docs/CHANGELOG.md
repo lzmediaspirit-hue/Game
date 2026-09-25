@@ -30,6 +30,11 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
   Reflection, Elder Gu who flees with his ledger, the Gate Guardian), revival at shrines or on the spot.
 - Crafts: gathering, mining, fishing, cooking, alchemy and the forge (timing mini-game), array plates,
   appraisal, formations, infirmary healing, worker puppets, manual restoration and teaching.
+- Pill qualities: every refined pill keeps its quality (Flawed 50% with extra toxicity up to Perfect
+  160%). From Heart Tempering 1 a run with every strike perfect may give a Pill Grain (180%, half the
+  toxicity), a Pill Halo (200%, grows up to +50% while you sit in seclusion somewhere the Qi is dense)
+  or a Pill Soul (220%, sometimes a unique effect). Sect Alchemy Hall furnaces and the Alchemy Dao
+  raise the odds; quality pills glow in the bag with a dot, ring or star mark.
 - Companions, spirit animals (starter choice, taming with offerings, eggs), your own sect (buildings
   that appear as built, disciples, expeditions, defence raids), mail, achievements and titles.
 - 27 pages on one shared frame, a HUD that reveals itself, a minimap, dialogue with portraits, shops,

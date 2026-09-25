@@ -216,6 +216,7 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String) 
 		avg += c.stats.value("crafting_control") * 0.2 + 0.05 * int(c.cultivator.daos.get("alchemy" if craft_kind == "alchemy" else "refining", {}).get("tier", 0))
 		var roll := avg + rng.randf_range(-0.08, 0.08)
 		quality = "flawed" if roll < 0.35 else ("common" if roll < 0.6 else ("fine" if roll < 0.78 else ("superior" if roll < 0.9 else "perfect")))
+		if craft_kind == "alchemy" and quality == "perfect": quality = _rare_pill_quality(c, scores, rng)
 	for inp in r.get("inputs", []): game.inventory.apply_remove(c.id, str(inp.item), int(inp.count) * count, "craft:" + recipe_id)
 	var produced := 0
 	for out in r.get("outputs", []):
@@ -227,19 +228,46 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String) 
 				var inst := LootRules.make_instance(str(out.item), int(def.get("ilv", 1)), quality, Rng.stream(c.id, "affix"), c.inventory.next_uid)
 				c.inventory.next_uid += 1
 				game.inventory.apply_add_instance(c.id, inst, "forge")
-		elif craft_kind == "alchemy" and quality == "flawed":
-			game.inventory.apply_add(c.id, str(out.item), maxi(1, n / 2), "craft")
+		elif craft_kind == "alchemy":
+			game.inventory.apply_add(c.id, str(out.item), n, "craft", {"quality": quality})
 		else:
 			game.inventory.apply_add(c.id, str(out.item), n, "craft")
 		produced += n
 	var xp := float(ContentDB.curve("profession_xp.craft_per_grade", 10)) * (StatRules.grade_index(str(r.get("grade", "plain"))) + 1) * count
 	if craft_kind == "cooking": xp = float(ContentDB.curve("profession_xp.cook", 6)) * count
-	if quality in ["fine", "superior", "perfect"]: xp *= 1.5
+	if quality in ["fine", "superior", "perfect", "pill_grain", "pill_halo", "pill_soul"]: xp *= 1.5
 	add_xp(c, craft_kind, xp)
 	if craft_kind == "alchemy": game.progression.apply_insight(c.id, "alchemy", 3.0 * count, "craft:" + recipe_id)
 	if craft_kind == "smithing": game.progression.apply_insight(c.id, "refining", 3.0, "craft:" + recipe_id)
 	emit("craft_completed", {"actor": c.id, "recipe": recipe_id, "craft": craft_kind, "quality": quality, "count": produced})
 	return ok({"quality": quality, "count": produced})
+
+## Pill Grain, Halo and Soul (S15): a perfect run (every strike perfect, from Heart Tempering 1)
+## plus luck; a special furnace and the Alchemy Dao improve the odds.
+func _rare_pill_quality(c, scores: Array, rng: RandomNumberGenerator) -> String:
+	var k: Dictionary = ContentDB.curve("craft_step", {})
+	if scores.size() < int(k.get("steps", 3)) or not Unlocks.is_unlocked(c.id, "perfect_timing"): return "perfect"
+	for sc in scores:
+		if float(sc) < float(k.get("perfect", 0.85)): return "perfect"
+	var rare: Dictionary = ContentDB.config("grades").get("pill", {}).get("rare", {})
+	var boost := 1.0 + furnace_bonus(c) + 0.1 * int(c.cultivator.daos.get("alchemy", {}).get("tier", 0))
+	var roll := rng.randf()
+	var edge := 0.0
+	for q in ["pill_soul", "pill_halo", "pill_grain"]:
+		edge += float(rare.get(q, 0.0)) * boost
+		if roll < edge: return q
+	return "perfect"
+
+## The nearest alchemy furnace's bonus to rare pill qualities (sect halls keep better furnaces).
+func furnace_bonus(c) -> float:
+	var st: ActorState = game.actor_state(c.id)
+	if game.room_rt == null: return 0.0
+	var best := 0.0
+	for o in game.room_rt.def.get("objects", []):
+		if str(o.type) != "alchemy_furnace": continue
+		var at: Array = o.get("at", [0, 0])
+		if st == null or st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) < 180.0: best = maxf(best, float(o.get("furnace_bonus", 0.0)))
+	return best
 
 func queue_auto(c, recipe_id: String, count: int) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "auto_refine"): return fail("locked")

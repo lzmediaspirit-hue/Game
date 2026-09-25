@@ -30,6 +30,7 @@ func _main() -> void:
 	offline_suite()
 	pets_suite()
 	weekly_suite()
+	pills_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
@@ -209,6 +210,84 @@ func weekly_suite() -> void:
 	check(c.quests.done.has(id) and not c.quests.is_active(id), "a field boss completes Sect Service")
 	Game.quest.start_weekly(true)
 	check(not c.quests.is_active(id), "Sect Service is offered once a week")
+
+# ------------------------------------------------------------------ pill qualities (S15)
+func _pill_stacks(c, id: String) -> Array:
+	var out: Array = []
+	for i in c.inventory.bag.size():
+		var s = c.inventory.bag[i]
+		if s != null and str(s.id) == id: out.append(i)
+	return out
+
+func _use_fresh(c, index: int) -> Dictionary:
+	c.pools.cooldowns.clear()
+	c.cultivator.toxicity = 0.0
+	c.cultivator.pill_memory.clear()
+	return Game.inventory.use_item(c, index, true)
+
+func pills_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	c.cultivator.realm_key = "heart_tempering_1"
+	var pill := "healing_pill"
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	Game.inventory.apply_add(c.id, pill, 2, "test")
+	Game.inventory.apply_add(c.id, pill, 2, "test", {"quality": "pill_grain"})
+	Game.inventory.apply_add(c.id, pill, 1, "test", {"quality": "pill_grain"})
+	var idx := _pill_stacks(c, pill)
+	check(idx.size() == 2 and int(c.inventory.bag[idx[1]].count) == 3, "a Pill Grain stacks apart from Common pills")
+	check(c.inventory.count(pill) == 5, "the bag counts every quality of a pill")
+	check(not c.inventory.bag[idx[0]].has("quality"), "a Common pill is a plain stack (older saves read unchanged)")
+	Game.inventory.move_item(c, idx[1], idx[0])
+	check(_pill_stacks(c, pill).size() == 2, "moving a Pill Grain onto Common pills swaps instead of merging")
+	check(near(InventoryAuthority.pill_potency({"id": pill}), 1.0) and near(InventoryAuthority.pill_potency({"id": pill, "quality": "flawed"}), 0.5)
+		and near(InventoryAuthority.pill_potency({"id": pill, "quality": "pill_soul"}), 2.2), "potency: Flawed 50%, Common 100%, Pill Soul 220%")
+	var grain := -1
+	for i in _pill_stacks(c, pill):
+		if str(c.inventory.bag[i].get("quality", "")) == "pill_grain": grain = i
+	var used := _use_fresh(c, grain)
+	check(near(float(used.get("factor", 0.0)), 1.8), "a Pill Grain works at 180%% (%s)" % str(used))
+	check(near(c.cultivator.toxicity, float(ContentDB.item(pill).pill.toxicity) * 0.5), "and leaves half the toxicity")
+	Game.inventory.apply_add(c.id, pill, 1, "test", {"quality": "flawed"})
+	var flawed := -1
+	for i in _pill_stacks(c, pill):
+		if str(c.inventory.bag[i].get("quality", "")) == "flawed": flawed = i
+	_use_fresh(c, flawed)
+	check(near(c.cultivator.toxicity, float(ContentDB.item(pill).pill.toxicity) * 1.5), "a Flawed pill poisons more")
+	# Grain, Halo and Soul need every strike perfect, from Heart Tempering 1 (perfect timing).
+	Unlocks.force_unlock(c.id, "perfect_timing")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 2026
+	check(Game.crafting._rare_pill_quality(c, [0.95, 0.6, 0.95], rng) == "perfect", "one imperfect strike: no rare quality")
+	check(Game.crafting._rare_pill_quality(c, [1.0, 1.0], rng) == "perfect", "an unfinished run: no rare quality")
+	var got := {}
+	for i in 4000:
+		var q := Game.crafting._rare_pill_quality(c, [1.0, 0.9, 0.95], rng)
+		got[q] = int(got.get(q, 0)) + 1
+	var boost: float = 1.0 + Game.crafting.furnace_bonus(c) + 0.1 * int(c.cultivator.daos.get("alchemy", {}).get("tier", 0))
+	var rare: Dictionary = ContentDB.config("grades").pill.rare
+	check(near(float(got.get("pill_grain", 0)) / 4000.0, float(rare.pill_grain) * boost, 0.03), "a perfect run rolls Pill Grain about %d%% of the time (%s)" % [int(float(rare.pill_grain) * boost * 100), str(got)])
+	check(got.has("pill_halo") and got.has("pill_soul") and int(got.get("pill_soul", 0)) < int(got.get("pill_halo", 0)), "Halo is rarer than Grain, Soul rarer still")
+	# Pill Halo grows while its owner sits in seclusion in a dense-Qi spot, up to +50%.
+	Game.inventory.apply_add(c.id, pill, 1, "test", {"quality": "pill_halo"})
+	check(near(Game.inventory.apply_halo_growth(c.id, 4.0, 1.0), 0.0), "a Pill Halo does not grow in thin Qi")
+	check(near(Game.inventory.apply_halo_growth(c.id, 4.0, 2.2), 0.2), "four hours in a cave abode: Halo +20%")
+	Game.inventory.apply_halo_growth(c.id, 100.0, 2.2)
+	var halo := -1
+	for i in _pill_stacks(c, pill):
+		if str(c.inventory.bag[i].get("quality", "")) == "pill_halo": halo = i
+	check(near(InventoryAuthority.pill_potency(c.inventory.bag[halo]), 2.0 * 1.5), "Halo growth stops at +50% (300% potency)")
+	# A Pill Soul may carry a unique effect.
+	Game.inventory.apply_add(c.id, pill, 8, "test", {"quality": "pill_soul"})
+	var awakened := 0
+	for n in 8:
+		var soul := -1
+		for i in _pill_stacks(c, pill):
+			if str(c.inventory.bag[i].get("quality", "")) == "pill_soul": soul = i
+		if soul < 0: break
+		if str(_use_fresh(c, soul).get("soul_effect", "")) != "": awakened += 1
+	check(awakened > 0 and awakened < 8, "a Pill Soul sometimes adds a unique effect (%d of 8)" % awakened)
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
 
 # ------------------------------------------------------------------ saves (Part 7 · Save migration)
 func save_suite() -> void:

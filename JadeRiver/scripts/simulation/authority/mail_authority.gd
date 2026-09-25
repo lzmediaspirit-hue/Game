@@ -94,7 +94,7 @@ func claim(c, id: int) -> Dictionary:
 			game.economy.apply_currency(str(a.currency), int(a.amount), "mail")
 			added = 1
 		else:
-			added = game.inventory.apply_add(c.id, str(a.item), int(a.get("count", 1)), "mail", {}, false)
+			added = game.inventory.apply_add(c.id, str(a.item), int(a.get("count", 1)), "mail", a, false)
 		if added < int(a.get("count", 1)) and not a.has("currency") and not a.has("instance"):
 			var rest: Dictionary = a.duplicate()
 			rest.count = int(a.get("count", 1)) - added

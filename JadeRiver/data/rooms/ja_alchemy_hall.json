@@ -85,7 +85,8 @@
      }
     ]
    },
-   "locked_text": "Not yet."
+   "locked_text": "Not yet.",
+   "furnace_bonus": 0.5
   }
  ],
  "spawns": [],

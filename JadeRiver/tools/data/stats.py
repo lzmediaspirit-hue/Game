@@ -251,6 +251,20 @@ def build():
                            "relic": "#e5b84c", "pill_grain": "#e5b84c", "pill_halo": "#e8764c", "pill_soul": "#f2e6ff"},
         "grade_colors": {"plain": "#b9b2a0", "common": "#e8e1cf", "earth": "#67d67a", "heaven": "#6fb8f0", "mystic": "#b07ce8"},
         "pill_qualities": {"flawed": 0.5, "common": 1.0, "fine": 1.2, "superior": 1.4, "perfect": 1.6, "pill_grain": 1.8, "pill_halo": 2.0, "pill_soul": 2.2},
+        # S15 pill qualities: toxicity multipliers, the odds of a rare quality on a perfect run
+        # (times 1 + furnace bonus + 0.1 per Alchemy Dao tier), Halo growth in dense-Qi seclusion,
+        # and the unique effects a Pill Soul may carry.
+        "pill": {
+            "toxicity": {"flawed": 1.5, "pill_grain": 0.5},
+            "rare": {"pill_grain": 0.2, "pill_halo": 0.06, "pill_soul": 0.015},
+            "halo": {"min_density": 2.0, "per_hour": 0.05, "cap": 0.5},
+            "soul": {"chance": 0.5, "effects": [
+                {"id": "clear_mind", "kind": "add_modifier", "stat": "insight", "op": "flat", "value": 10, "duration": 1800, "source": "pill_soul"},
+                {"id": "steady_heart", "kind": "add_composure", "amount": 25},
+                {"id": "mend_meridians", "kind": "cure_injury", "injury": "meridian", "max_severity": 2},
+                {"id": "iron_skin", "kind": "add_modifier", "stat": "physical_defense", "op": "pct_add", "value": 0.1, "duration": 1800, "source": "pill_soul"},
+            ]},
+        },
         "sockets": {"plain": 0, "common": 0, "earth": 1, "heaven": 1, "mystic": 2},
         "wear_level": {"plain": 0, "common": 10, "earth": 19, "heaven": 37, "mystic": 55},
     })

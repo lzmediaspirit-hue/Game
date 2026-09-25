@@ -62,6 +62,40 @@
    "title": "steady_hands"
   },
   {
+   "id": "grain_of_heaven",
+   "name": "Grain of Heaven",
+   "desc": "Refine a Pill Grain",
+   "event": "craft_completed",
+   "match": {
+    "craft": "alchemy",
+    "quality": "pill_grain"
+   },
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "spirit_stone_mid",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "id": "the_furnace_breathes",
+   "name": "The Furnace Breathes",
+   "desc": "Refine a Pill Soul",
+   "event": "craft_completed",
+   "match": {
+    "craft": "alchemy",
+    "quality": "pill_soul"
+   },
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "spirit_stone_mid",
+     "count": 10
+    }
+   ]
+  },
+  {
    "id": "deep_roots",
    "name": "Deep Roots",
    "desc": "Reach Mining Adept",

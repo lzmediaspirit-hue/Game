@@ -166,9 +166,11 @@ func apply_add(actor_id: String, item_id: String, count: int, source: String, fi
 	var stack := int(def.get("stack", 99))
 	var left := count
 	var bag: Array = c.inventory.bag
+	var entry := pill_entry(item_id, fields)
+	var key := stack_key(entry)
 	for s in bag:
 		if left <= 0: break
-		if s != null and s.id == item_id and int(s.count) < stack:
+		if s != null and not s.has("uid") and stack_key(s) == key and int(s.count) < stack:
 			var n := mini(left, stack - int(s.count))
 			s.count = int(s.count) + n
 			left -= n
@@ -176,18 +178,56 @@ func apply_add(actor_id: String, item_id: String, count: int, source: String, fi
 		if left <= 0: break
 		if bag[i] == null:
 			var n := mini(left, stack)
-			bag[i] = {"id": item_id, "count": n}
+			var fresh: Dictionary = entry.duplicate()
+			fresh.count = n
+			bag[i] = fresh
 			left -= n
 	var added_n := count - left
 	if added_n > 0:
 		c.inventory.new_items[item_id] = true
 		emit("item_added", {"actor": c.id, "item": item_id, "count": added_n, "source": source})
 	if left > 0:
-		emit("bag_full", {"actor": c.id, "items": [{"item": item_id, "count": left}]})
+		var over := {"item": item_id, "count": left}
+		for f in ["quality", "halo"]:
+			if entry.has(f): over[f] = entry[f]
+		emit("bag_full", {"actor": c.id, "items": [over]})
 		if overflow:
-			apply_overflow(c.id, [{"item": item_id, "count": left}])
+			apply_overflow(c.id, [over])
 			return count
 	return added_n
+
+## A new stack entry. Pills carry their refining quality and Halo charge (S15);
+## a Common pill is a plain {id, count} so older saves read unchanged.
+static func pill_entry(item_id: String, fields: Dictionary) -> Dictionary:
+	var e := {"id": item_id, "count": 0}
+	if ContentDB.item(item_id).get("pill", {}).is_empty(): return e
+	var q := str(fields.get("quality", "common"))
+	if q != "common": e.quality = q
+	if float(fields.get("halo", 0.0)) > 0.0: e.halo = float(fields.halo)
+	return e
+
+## Stacks merge only with the same item, quality and Halo charge.
+static func stack_key(s: Dictionary) -> String:
+	return "%s|%s|%.3f" % [str(s.get("id", "")), str(s.get("quality", "common")), float(s.get("halo", 0.0))]
+
+## Potency of one pill from its quality (Flawed 50% to Pill Soul 220%) plus any Halo charge.
+static func pill_potency(s: Dictionary) -> float:
+	var q := str(s.get("quality", "common"))
+	return float(ContentDB.config("grades").get("pill_qualities", {}).get(q, 1.0)) * (1.0 + float(s.get("halo", 0.0)))
+
+## Pill Halo grows stronger while its owner sits in seclusion in a dense-Qi spot (S15).
+func apply_halo_growth(actor_id: String, hours: float, density: float) -> float:
+	var c = game.character(actor_id)
+	var h: Dictionary = ContentDB.config("grades").get("pill", {}).get("halo", {})
+	if c == null or hours <= 0.0 or density < float(h.get("min_density", 2.0)): return 0.0
+	var gained := 0.0
+	for s in c.inventory.bag:
+		if s == null or str(s.get("quality", "")) != "pill_halo": continue
+		var before := float(s.get("halo", 0.0))
+		s.halo = minf(float(h.get("cap", 0.5)), before + float(h.get("per_hour", 0.05)) * hours)
+		gained = maxf(gained, float(s.halo) - before)
+	if gained > 0.0: emit("bag_changed", {"actor": actor_id})
+	return gained
 
 ## What does not fit waits in the mail for three days.
 func apply_overflow(actor_id: String, items: Array) -> void:
@@ -358,8 +398,12 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 	if warning != "" and not confirm: return fail("confirm", {"text": warning})
 	var factor := 1.0
 	var p: Dictionary = def.get("pill", {})
+	var quality := str(s.get("quality", "common"))
+	var pill_cfg: Dictionary = ContentDB.config("grades").get("pill", {})
 	if not p.is_empty():
-		var tox := float(p.get("toxicity", 0))
+		# Quality (S15): a Flawed pill poisons more, a Pill Grain less.
+		var tox := float(p.get("toxicity", 0)) * float(pill_cfg.get("toxicity", {}).get(quality, 1.0))
+		factor *= pill_potency(s)
 		var last := float(c.cultivator.pill_memory.get(str(s.id), -9999.0))
 		if game.sim_time - last < float(ContentDB.stat_const("toxicity.repeat_window_s", 300)): factor *= float(ContentDB.stat_const("toxicity.repeat_factor", 0.5))
 		c.cultivator.pill_memory[str(s.id)] = game.sim_time
@@ -380,16 +424,27 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 			if ed.has(k) and factor != 1.0: ed[k] = float(ed[k]) * factor
 		effects.append(ed)
 	game.apply_effects(c.id, effects, "item:" + str(s.id))
+	# A Pill Soul may carry one unique effect of its own.
+	var soul_effect := ""
+	if quality == "pill_soul":
+		var ps: Dictionary = pill_cfg.get("soul", {})
+		var pool: Array = ps.get("effects", [])
+		var rng := Rng.stream(c.id, "crafting")
+		if not pool.is_empty() and rng.randf() < float(ps.get("chance", 0.5)):
+			var extra: Dictionary = pool[rng.randi() % pool.size()]
+			soul_effect = str(extra.get("id", ""))
+			game.apply_effects(c.id, [extra], "pill_soul:" + str(s.id))
+			emit("pill_soul_awakened", {"actor": c.id, "item": s.id, "effect": soul_effect})
 	emit("item_used", {"actor": c.id, "item": s.id, "factor": factor})
-	if not p.is_empty(): emit("pill_used", {"actor": c.id, "item": s.id, "factor": factor})
-	return ok({"factor": factor})
+	if not p.is_empty(): emit("pill_used", {"actor": c.id, "item": s.id, "factor": factor, "quality": quality})
+	return ok({"factor": factor, "quality": quality, "soul_effect": soul_effect})
 
 func move_item(c, from: int, to: int) -> Dictionary:
 	var bag: Array = c.inventory.bag
 	if from < 0 or to < 0 or from >= bag.size() or to >= bag.size() or bag[from] == null: return fail("bad_index")
 	var a = bag[from]
 	var b = bag[to]
-	if b != null and b.id == a.id and not ContentDB.is_equipment(str(a.id)):
+	if b != null and not ContentDB.is_equipment(str(a.id)) and stack_key(a) == stack_key(b):
 		var stack := int(ContentDB.item(str(a.id)).get("stack", 99))
 		var n := mini(int(a.count), stack - int(b.count))
 		b.count = int(b.count) + n
@@ -416,7 +471,9 @@ func split(c, index: int, count: int) -> Dictionary:
 	if int(s.get("count", 1)) <= count or count <= 0: return fail("bad_count")
 	for i in bag.size():
 		if bag[i] == null:
-			bag[i] = {"id": s.id, "count": count}
+			var part: Dictionary = s.duplicate()
+			part.count = count
+			bag[i] = part
 			s.count = int(s.count) - count
 			emit("bag_changed", {"actor": c.id})
 			return ok()

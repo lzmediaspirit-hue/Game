@@ -124,7 +124,7 @@ func _draw_detail(r: Rect2) -> void:
 	para(Rect2(r.position.x + 92, y - 4, r.size.x - 104, 60), ContentDB.item_name(id) + (" +%d" % int(s.enhance) if int(s.get("enhance", 0)) > 0 else ""), 20, name_col, 2)
 	y += 78
 	var sub := "%s · %s" % [str(def.get("grade", "plain")).capitalize(), str(def.get("slot", def.get("type", ""))).replace("_", " ").capitalize()]
-	if q != "": sub = q.capitalize() + " " + sub
+	if q != "": sub = q.capitalize() + " · " + sub
 	text(Vector2(r.position.x + 16, y), sub, 16, UiKit.MIST)
 	y += 10
 	y += para(Rect2(r.position.x + 16, y, r.size.x - 32, 120), str(def.get("desc", "")), 17, UiKit.PAPER, 5)
@@ -140,7 +140,16 @@ func _draw_detail(r: Rect2) -> void:
 			text(Vector2(r.position.x + 16, y + 20), "✦ %s" % str(a.get("stat", "")).replace("_", " "), 16, UiKit.PALE_GOLD)
 			y += 22
 	if def.get("pill", {}).has("toxicity"):
-		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.toxicity") % int(def.pill.toxicity), 16, UiKit.RED)
+		var tox_mult := float(ContentDB.config("grades").get("pill", {}).get("toxicity", {}).get(q if q != "" else "common", 1.0))
+		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.toxicity") % int(round(float(def.pill.toxicity) * tox_mult)), 16, UiKit.RED)
+		y += 22
+	if not def.get("pill", {}).is_empty() and q != "":
+		# S15: quality sets potency; a Pill Halo also shows what dense-Qi seclusion has added.
+		text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.potency") % int(round(InventoryAuthority.pill_potency(s) * 100.0)), 16, name_col)
+		y += 22
+		if q == "pill_halo":
+			text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.inventory.halo_charge") % int(round(float(s.get("halo", 0.0)) * 100.0)), 16, UiKit.PALE_GOLD)
+			y += 22
 	_relic(ch, s, def, r, y)
 	# Actions.
 	var bx := r.position.x + 14

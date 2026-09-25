@@ -17,6 +17,7 @@ func draw_page() -> void:
 	if float(w.get("stored_qi", 0.0)) > 0.0: rows.append([Tx.t("ui.welcome.stored_qi"), "+%s" % UiKit.fmt(float(w.stored_qi))])
 	if float(w.get("body_xp", 0.0)) > 0.0: rows.append([Tx.t("ui.welcome.body_training"), "+%s" % UiKit.fmt(float(w.body_xp))])
 	if float(w.get("insight", 0.0)) > 0.0: rows.append([Tx.t("ui.welcome.insight"), "+%s" % UiKit.fmt(float(w.insight))])
+	if float(w.get("halo", 0.0)) > 0.0: rows.append([Tx.t("ui.welcome.pill_halo"), "+%d%%" % int(round(float(w.halo) * 100.0))])
 	if int(w.get("coins", 0)) > 0: rows.append([Tx.t("ui.welcome.silver_taels"), "+%s" % UiKit.fmt(int(w.coins))])
 	for it in w.get("items", []):
 		rows.append([ContentDB.item_name(str(it.get("item", it.get("id", "")))), "×%d" % int(it.get("count", 1))])

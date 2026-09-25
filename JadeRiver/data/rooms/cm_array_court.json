@@ -171,7 +171,8 @@
      }
     ]
    },
-   "locked_text": "The monastery furnace."
+   "locked_text": "The monastery furnace.",
+   "furnace_bonus": 0.5
   }
  ],
  "spawns": [],

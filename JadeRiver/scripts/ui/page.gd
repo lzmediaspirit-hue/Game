@@ -245,6 +245,7 @@ func slot_box(rect: Rect2, item_id: String, count := 0, quality := "", id := "",
 	if item_id != "":
 		var tex := SpriteCache.icon(item_id)
 		var inner := rect.grow(-6)
+		if quality.begins_with("pill_"): _pill_glow(rect, quality)
 		if tex: draw_texture_rect(tex, inner, false)
 		else:
 			draw_rect(inner, UiKit.DEEP_TEAL)
@@ -256,6 +257,22 @@ func slot_box(rect: Rect2, item_id: String, count := 0, quality := "", id := "",
 		if locked: _lock_icon(rect.position + Vector2(4, 4))
 	if selected: draw_style_box(UiKit.style("selected_slot_glow"), rect.grow(4))
 	if id != "": region(rect, id, data)
+
+## Pill Grain, Halo and Soul (S15): a soft pulsing halo behind the icon and a corner mark
+## (dot, ring, star) so the quality reads without relying on colour.
+func _pill_glow(rect: Rect2, quality: String) -> void:
+	var col := UiKit.quality_color(quality)
+	var c := rect.get_center()
+	var pulse := 0.5 + 0.5 * sin(t * 2.4)
+	for i in 4:
+		draw_circle(c, rect.size.x * (0.34 + 0.05 * i), Color(col.r, col.g, col.b, (0.16 - 0.035 * i) * (0.7 + 0.3 * pulse)))
+	var m := rect.position + Vector2(11, 11)
+	match quality:
+		"pill_grain": draw_circle(m, 3.5, col)
+		"pill_halo": draw_arc(m, 4.5, 0.0, TAU, 16, col, 2.0)
+		"pill_soul":
+			for a in 4:
+				draw_line(m - Vector2.from_angle(a * PI / 4.0) * 5.0, m + Vector2.from_angle(a * PI / 4.0) * 5.0, col, 1.6)
 
 func icon_at(rect: Rect2, icon_id: String) -> void:
 	var tex := SpriteCache.icon(icon_id)

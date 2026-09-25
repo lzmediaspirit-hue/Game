@@ -148,6 +148,11 @@ func _handle_preview_args(user_args: Array) -> void:
 		enter_world(1)
 	var shot := screen
 	for a in user_args:
+		if str(a).begins_with("--give=") and Game.active() != null:
+			# Debug tools (S38): --give=item[:count[:quality]] puts items in the bag for previews.
+			var g := str(a).trim_prefix("--give=").split(":")
+			Game.inventory.apply_add(Game.active().id, g[0], int(g[1]) if g.size() > 1 else 1, "debug", {"quality": g[2]} if g.size() > 2 else {})
+	for a in user_args:
 		if str(a).begins_with("--open-page="):
 			await get_tree().create_timer(0.8).timeout
 			open_page(str(a).trim_prefix("--open-page="), {})

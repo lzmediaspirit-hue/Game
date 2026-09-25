@@ -765,7 +765,9 @@ def sects():
         for npc, x in npcs:
             r.npc(npc, [x, 760], facing=-1)
         for oid, ot, at, rq in objs:
-            r.obj(oid, ot, at, requires=rq, locked_text="Not yet.")
+            o = r.obj(oid, ot, at, requires=rq, locked_text="Not yet.")
+            if ot == "alchemy_furnace":
+                o["furnace_bonus"] = 0.5   # the Alchemy Hall's furnace: better odds of a rare pill quality
         if rid == "ja_weapon_hall":
             r.decor("weapon_rack_full", [300, 670])
             r.decor("weapon_rack_full", [460, 670])
@@ -829,7 +831,7 @@ def sects():
     r.painted("retreat_rooms_cm", "tower", 1900, 280, 140, 200, front=690)
     r.portal("retreat", "door", [1900, 704], "cm_retreat", "exit", press_up=True, label="Retreat Rooms",
              requires=all_of(unlock("retreat_room")), locked_text="The retreat rooms are kept for inner disciples.")
-    r.obj("furnace_cm", "alchemy_furnace", [2200, 760], requires=all_of(unlock("alchemy")), locked_text="The monastery furnace.")
+    r.obj("furnace_cm", "alchemy_furnace", [2200, 760], requires=all_of(unlock("alchemy")), locked_text="The monastery furnace.", furnace_bonus=0.5)
     r.surface("rope_ledge", [1500, 640, 260, 50], 150, kind="rock_ledge")
     r.edge("west", "west", "cm_sword_court", "east", y=850)
     r.portal("peak_path", "door", [2400, 700], "cm_elder_sung_peak", "path", press_up=True, label="Elder Sung's Peak")
