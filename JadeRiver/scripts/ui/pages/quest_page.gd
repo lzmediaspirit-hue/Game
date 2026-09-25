@@ -27,15 +27,24 @@ func ids_for(ch, which: String) -> Array:
 
 ## Between chapters the Main tab says what the story is waiting for.
 func _next_chapter(ch, left: Rect2) -> void:
-	for d in ContentDB.all("quests"):
+	var keyed: Array = []   # [chapter * 1000 + data order, quest]: story order, stable within a chapter
+	var all_q: Array = ContentDB.all("quests")
+	for i in all_q.size():
+		var dq: Dictionary = all_q[i]
+		if str(dq.get("kind", "")) != "main": continue
+		var chap := str(dq.get("chapter", ""))
+		keyed.append([(int(chap) if chap.is_valid_int() else 0) * 1000 + i, dq])
+	keyed.sort_custom(func(a, b): return int(a[0]) < int(b[0]))
+	for kd in keyed:
+		var d: Dictionary = kd[1]
 		var q := str(d.id)
-		if str(d.get("kind", "")) != "main" or ch.quests.done.has(q) or ch.quests.is_active(q): continue
+		if ch.quests.done.has(q) or ch.quests.is_active(q) or d.get("hidden", false): continue
 		var waits := true
 		for r in d.get("requires", {}).get("all", []):
 			if str(r.get("kind", "")) == "quest_done" and not ch.quests.done.has(str(r.get("quest", ""))): waits = false
 		if not waits: continue
 		var why := RequirementRules.first_failure_text(d.get("requires", {}), Game.ctx(ch))
-		var body := "Next chapter: %s" % str(d.get("name", q))
+		var body := "Next in the story: %s" % str(d.get("name", q))
 		if why != "": body += "\n" + why
 		else: body += "\nThe river will call when it is time."
 		para(Rect2(left.position + Vector2(24, 100), Vector2(left.size.x - 48, 120)), body, 18, UiKit.MIST)
