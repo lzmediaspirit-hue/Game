@@ -1,48 +1,98 @@
-# Jade River — clean source
+# Jade River — the Complete Valley (Act I)
 
-Version 0.13 fixes the difference between visible platform tops and hidden depth coordinates. Descending feet can land on the visible top after reaching its elevation; single/double-jump height limits and solid collisions still apply. Holding up no longer requires guessing the platform's depth. Ordinary roof-edge falls retain physical support checks.
+A 2.5D side-scrolling wuxia/xianxia cultivation RPG built in Godot 4.5.1 (GL Compatibility,
+1280×720, touch-first with full keyboard support). You begin as a fisher's child in Lotus Ferry
+with bare fists and no Qi. The Prologue teaches one thing at a time: talking, carrying, jumping,
+money, healing, fighting. After a night the village will not forget, you step onto the cultivation
+ladder. Act I climbs from Bone Forging through Qi Kindling, Qi Unfurling, Heart Tempering, Cloud
+Stride and Spirit Awakening to Heaven Glimpse and the Ascension Gate.
 
-Rooms now connect through visible gates. Cross the complete opening, including the player's trailing side, to travel. Touching a post, retreating, walking beside a gate or reaching the map edge does not trigger travel. The next room places the player safely inside its entrance and retains the held joystick, resources and sprint state.
+Open `project.godot` in Godot 4.5.1 and press F5. The first import rebuilds the generated caches.
 
-Version 0.12 uses weapon-specific three-hit combos. Swords perform rising cut → return cut → heavy descending cut; spears, daggers and staves perform straight thrust → low thrust → high lunge; unarmed attacks perform jab → cross → uppercut. Tap once per strike; three quick taps buffer the full combo. Bow shots are unchanged.
+## What is in the valley
 
-All nine attacks have eight registered frames, matching body, hair, clothing, shoes and equipment layers, both facings and all six hair dyes. Shared authoring recipes preserve foot registration, articulate the original poses and keep weapons rigid at their grips. The recipes and reproducible baker are `scripts/combo_rig.gd` and `tests/bake_combos.gd`.
+| | |
+|---|---|
+| Rooms | 71 hand-built rooms in 20 regions: Lotus Ferry, Willow Path, Stoneford, both training sects, Stonewall Quarry, the Reed Marsh and Greyreed Hamlet, the Bamboo Grove, Crane Falls, the Caravan Road, Mudwater Hideout, Cleansing Peak, Deepwater Bend, the Drowned Shrine, Whitewater Gorge, the Crane Cliffs, the Misty Peaks, the Summit Ridge and the Hidden Vale |
+| Story | 115 quests: the 10-quest Prologue, 12 Act I chapters of main story, a guided quest for every system as it unlocks, companion, village and merchant side stories, daily sect missions |
+| People | 62 NPCs in dyed outfits, 4 AI companions, 7 spirit-animal species |
+| Combat | 53 monsters (normals, elites, field bosses, dungeon and story bosses), 30 techniques, 25 Daos, weapon families with their own combos |
+| Cultivation | 89 realm stages with their requirements, 9 methods, meridians, purity, stability, injuries, offline seclusion |
+| Crafts | Herb gathering, mining, fishing, cooking, alchemy, the forge, formations and array plates, appraisal, healing, puppetry, research, teaching |
+| Your sect | Found it at four character slots: buildings that appear as they are built, NPC disciples, expeditions, raids to defend |
 
-The 0.45-second chain window, jump/equipment-change cancellation, foot-sized platform landing contact and stable sideways branch walking are preserved. Real platform ends and deliberate depth-only exits remain open.
-Rear building circulation, bidirectional roof routes, floating platforms above the ground edge and stairs are preserved. See `docs/review-v09.md` for that review.
-
-Open `project.godot` in Godot 4.5.1 and press F5. Create or select a disciple and enter the world. The first import rebuilds generated caches omitted from the ZIP.
+No cultivation, no Qi: the QI bar appears only when the pool exists (Bone Forging 7). Weapons appear only
+at the Weapon Hall (Bone Forging 3). Every HUD button is revealed by the system that introduces it.
 
 ## Controls
 
-| Action | Mobile | Desktop |
+| Action | Touch | Keyboard |
 |---|---|---|
-| Move horizontally / in depth | Invisible left joystick | WASD / arrows |
-| Sprint | Move left or right for over two seconds | Same |
-| Jump / double jump | Tap jump once / twice | Space once / twice |
-| Attack / fire equipped bow | Attack button | J |
-| Meditate | Meditation button | M |
-| Switch four empty skill slots | Swipe slots vertically | Swipe / Tab |
-| Save and return to selection | System Back | Esc |
+| Move (horizontal and depth) | Left joystick | WASD / arrows |
+| Sprint | Keep moving sideways for 2 s | Hold Shift |
+| Jump / double jump | Jump | Space |
+| Attack / context action (talk, gather, pray, travel) | Attack button (changes with context) | J / Enter, F for the context |
+| Guard / dodge dash | Guard button: hold to guard, tap to dash | K: hold / tap |
+| Techniques | Skill slots | 1–8 |
+| Cultivate | Cultivate button | C |
+| Quick-use item | Gourd button | Q |
+| Menu, Bag, Map, Quests, Pet, Cultivation | HUD buttons | Tab, I or B, M, L, E, P |
+| Back / close page | System back | Esc |
 
-Stopping or reversing horizontal direction resets sprint buildup; depth steering preserves it. Creation previews only idle and offers six hair dyes.
+## Architecture in one paragraph
 
-## World and persistence
+Five layers: data (`data/*.json`, built by `tools/data/`), state (plain objects with stable IDs),
+rules (pure formulas), authorities (the only writers of state, one per system) and presentation
+(scenes and pages that only send intents). Every change goes through `Game.submit(intent)`;
+authorities validate, change their own state and emit events on `GameEvents`; other systems react
+to events. Randomness comes from named `Rng` streams, time from `Clock`. See `docs/architecture.md`.
 
-Six seeded region themes connect through their entrance gates. Ground depth and elevation are separate from jump height. Roofs, balconies, branches and clouds use walkable support masks. Scenery footprints and altitude determine collision; sprite depth handles partial occlusion. Runtime images and original character assets retain their quality.
+## Building the data
 
-Three local slots store appearance, equipment and progress. Autosave runs every five seconds and on pause, focus loss, selection return and normal close. Midair saves retain the last supported position. Temporary writes and backup recovery protect saves. There is no cloud save or multiplayer server.
+The game reads only `data/`. Authoring modules in `tools/data/` generate it:
 
-## Architecture
+```
+python3 tools/data/build_data.py            # everything
+python3 tools/data/build_data.py world story # just some modules
+```
 
-Simulation owns actor state and movement; zone geometry owns support, collision and depth rules. Map generation produces validated data. World nodes bind simulation to presentation, camera and persistence. Initial entry and region travel share world setup. See `docs/architecture.md` and `docs/map-generation.md` for the future multiplayer boundaries.
+Modules: realms, stats, items, techniques, enemies, world, story, economy, crafts. Each validates its
+own references; `tests/data_validation` checks the whole set again inside Godot.
 
-## Testing and packaging
+## Testing
 
-The mandatory compatibility rules are in `AGENTS.md`. Every future movement starts by redrawing the main unclothed body into the new poses; review that body first, then author matching hair, clothing and equipment. The v0.12 combo baker only rebuilds the existing clips and is not a substitute for that body-first authoring rule. `Validate-Animations.ps1` checks every item, action, facing and dye against registered frame counts; it runs before testing, packaging and `Export-Android.ps1`. Inspect the rendered compatibility galleries; numerical checks cannot certify alignment.
+```
+tools/run_tests.sh                 # Linux/macOS (GODOT=/path/to/godot)
+./Test.ps1 -GodotPath <godot>       # Windows
+```
 
-Run `./Test.ps1 -GodotPath <Godot-console-path>` for engine tests. Additional suites in `tests/` run with `--headless --path . --script res://tests/<name>.gd`. Visual/input suites require a display.
+| Suite | What it proves |
+|---|---|
+| `engine_tests` | Movement, avatar, surfaces, saves (3,660 checks) |
+| `data_validation` | Every ID resolves, known effect and requirement kinds, appearances and dyes exist, every room reachable, portals link both ways, spawns on surfaces and clear of portals |
+| `rules_tests` | Formulas at the spec's sample values, same-seed replay, offline caps, no offline breakthroughs |
+| `prologue_run` | A scripted Prologue to Bone Forging 2 with the HUD reveal order |
+| `valley_run` | The whole of Act I from a new character to the Ascension Gate, through intents only (about a minute) |
 
-Run `./Package.ps1` to build the source ZIP, optionally supplying `-OutputPath`. It refuses overwrites. The user permits packages over 30 MB; include only necessary source, runtime assets, tests, credits and art provenance. Caches, concepts and working documents stay outside the package. No lossy image recompression is applied.
+`valley_run` saves a checkpoint at the start of each section, so one part can be replayed:
+`godot --headless --path . res://tests/valley_run.tscn -- --from=ht5 --only --verbose`.
 
-Character attribution: `data/LPC-CREDITS.txt`. Font license: `art/fonts/OFL.txt`.
+The art rules in `AGENTS.md` still apply to every new item and animation (`Validate-Animations.ps1`).
+
+## Preview and debug arguments
+
+```
+godot --path . -- --preview-world --room=hv_sect_grounds --unlock-all --debug-sect
+godot --path . -- --preview-world --room=lf_village --talk=washer_mei --shot=name --capture
+```
+
+`--preview-world` enters with a preview character, `--room=` starts in a room, `--unlock-all` opens
+every system, `--debug-sect` gives a founded sect with all buildings, `--open-page=<id>` and
+`--talk=<npc>` open UI, `--log-events` prints the event stream, `--capture` saves `../<shot>-preview.png`.
+
+## Art and credits
+
+Characters use the layered avatar engine (body, hair, garments in ten dyes, shoes, weapons, hats,
+capes) with pose-registered sheets; enemies and NPCs are drawn with the same engine or with the
+creature sheets in `art/creatures/`. Backdrops, props, UI and audio are original to this project.
+Character attribution: `data/LPC-CREDITS.txt`. Font licence: `art/fonts/OFL.txt`.

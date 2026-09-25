@@ -138,6 +138,10 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 			var need_lv := int(cond.get("value", cond.get("level", 1)))
 			ok = account != null and int(account.sect.get("level", 0)) >= need_lv
 			text = "Your sect reaches level %d" % need_lv
+		"sect_building_at_least":
+			var bl := int(account.sect.get("buildings", {}).get(str(cond.building), 0)) if account != null else 0
+			ok = bl >= int(cond.get("value", 1))
+			text = "%s level %d" % [ContentDB.name_of("sect_buildings", str(cond.building)), int(cond.get("value", 1))]
 		"sect_founded":
 			ok = account != null and not account.sect.is_empty()
 			text = "Found your sect"

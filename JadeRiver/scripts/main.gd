@@ -128,6 +128,12 @@ func _handle_preview_args(user_args: Array) -> void:
 			var ch = Game.character("c1")
 			ch.position = {"room": room, "portal": "", "x": 0.0, "y": 0.0, "surface": "", "facing": 1}
 			if "--unlock-all" in user_args: Unlocks.debug_force_all = true
+			if "--debug-sect" in user_args:
+				# Debug tools (S38): a founded sect with every building at level 1, for previews.
+				var b := {}
+				for row in ContentDB.all("sect_buildings"): b[str(row.id)] = 1
+				Game.account.sect = {"name": "Preview Sect", "emblem": [0, 0], "level": 6, "prestige": 0, "buildings": b, "queue": [],
+					"disciples": [], "candidates": [], "expeditions": [], "candidate_day": -1}
 		enter_world(1)
 	var shot := screen
 	for a in user_args:

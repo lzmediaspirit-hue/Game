@@ -25,7 +25,7 @@
  ],
  "backdrop": "sect_jade",
  "ground": {
-  "material": "floor_stone"
+  "material": "stone"
  },
  "spawn_point": [
   200,
@@ -90,6 +90,254 @@
    "open_page": "your_sect"
   },
   {
+   "id": "hall_pagoda",
+   "type": "inspect",
+   "at": [
+    1280,
+    640
+   ],
+   "prop": "pagoda",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "sect_hall",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "z_back": false,
+   "text": "Your sect's sect hall."
+  },
+  {
+   "id": "hall_gate",
+   "type": "inspect",
+   "at": [
+    300,
+    640
+   ],
+   "prop": "paifang_gate",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "sect_hall",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "z_back": false,
+   "text": "Your sect's sect hall."
+  },
+  {
+   "id": "treasury_hv",
+   "type": "inspect",
+   "at": [
+    640,
+    640
+   ],
+   "prop": "warehouse",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "treasury",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "z_back": false,
+   "text": "Your sect's treasury."
+  },
+  {
+   "id": "pavilion_hv",
+   "type": "inspect",
+   "at": [
+    1720,
+    640
+   ],
+   "prop": "stilt_house",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "meditation_pavilion",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "z_back": false,
+   "text": "Your sect's meditation pavilion."
+  },
+  {
+   "id": "guest_house_hv",
+   "type": "inspect",
+   "at": [
+    2140,
+    640
+   ],
+   "prop": "village_house",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "guest_house",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "z_back": false,
+   "text": "Your sect's guest house."
+  },
+  {
+   "id": "mission_hall_hv",
+   "type": "inspect",
+   "at": [
+    960,
+    640
+   ],
+   "prop": "village_store",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "mission_hall",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "z_back": false,
+   "text": "Your sect's mission hall."
+  },
+  {
+   "id": "alchemy_hall_hv",
+   "type": "inspect",
+   "at": [
+    2420,
+    640
+   ],
+   "prop": "herb_hut",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "alchemy_hall",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "z_back": false,
+   "text": "Your sect's alchemy hall."
+  },
+  {
+   "id": "library_hv",
+   "type": "inspect",
+   "at": [
+    1540,
+    640
+   ],
+   "prop": "bookcase",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "library",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "z_back": false,
+   "text": "Your sect's library."
+  },
+  {
+   "id": "forge_hv",
+   "type": "inspect",
+   "at": [
+    1060,
+    640
+   ],
+   "prop": "weapon_rack_full",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "forge",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "z_back": false,
+   "text": "Your sect's forge."
+  },
+  {
+   "id": "beast_pavilion_hv",
+   "type": "inspect",
+   "at": [
+    180,
+    640
+   ],
+   "prop": "thatched_hut",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "beast_pavilion",
+      "value": 1
+     }
+    ]
+   },
+   "open_page": "your_sect",
+   "z_back": false,
+   "text": "Your sect's beast pavilion."
+  },
+  {
+   "id": "array_node_0",
+   "type": "inspect",
+   "at": [
+    1180,
+    900
+   ],
+   "prop": "formation_node",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "formation_array",
+      "value": 1
+     }
+    ]
+   },
+   "text": "A node of the sect's Formation Array."
+  },
+  {
+   "id": "array_node_1",
+   "type": "inspect",
+   "at": [
+    1380,
+    900
+   ],
+   "prop": "formation_node",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "sect_building_at_least",
+      "building": "formation_array",
+      "value": 1
+     }
+    ]
+   },
+   "text": "A node of the sect's Formation Array."
+  },
+  {
    "id": "storage_hv",
    "type": "storage_chest",
    "at": [
@@ -117,7 +365,32 @@
  ],
  "spawns": [],
  "scenery": [],
- "decor": [],
+ "decor": [
+  {
+   "prop": "banner_jade",
+   "at": [
+    820,
+    660
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    1120,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "stone_lantern",
+   "at": [
+    1440,
+    700
+   ],
+   "layer": "play"
+  }
+ ],
  "areas": [],
  "music": "sect",
  "ambience": "town_ambience",
