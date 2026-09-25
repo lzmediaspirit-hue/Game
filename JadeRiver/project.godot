@@ -15,6 +15,12 @@ Game="*res://scripts/simulation/authority/game_authority.gd"
 Audio="*res://scripts/audio/audio_director.gd"
 Notifier="*res://scripts/shell/notifier.gd"
 Wardrobe="*res://scripts/wardrobe.gd"
+[debug]
+
+file_logging/enable_file_logging=true
+file_logging/enable_file_logging.pc=true
+file_logging/max_log_files=5
+
 [display]
 window/size/viewport_width=1280
 window/size/viewport_height=720

@@ -268,5 +268,12 @@ func save_all() -> Error:
 	if ea != OK: err = ea
 	return err
 
+## S40 · Manual export: save first so the file holds the latest state.
+func export_save() -> String:
+	save_all()
+	var slots: Array = []
+	for id in characters: slots.append(int(characters[id].slot))
+	return Saves.export_bundle(slots)
+
 func pause(value: bool) -> void:
 	paused = value

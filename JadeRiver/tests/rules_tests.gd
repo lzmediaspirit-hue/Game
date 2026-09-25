@@ -428,5 +428,18 @@ func save_suite() -> void:
 	f.close()
 	var back: Dictionary = repo.load_character(1)
 	check(str(back.get("name", "")) == "First" and repo.last_recovered.has("char_1.json"), "a damaged save is restored from its .bak")
+	# S40: a manual export carries the account and characters; importing it restores them.
+	repo.save_account({"version": 3, "account_id": "export-test", "characters": {"1": {}}})
+	var saved_repo = Saves.repo
+	Saves.repo = repo
+	var path := Saves.export_bundle([1])
+	check(path != "" and FileAccess.file_exists(path), "a save exports to one file (%s)" % path)
+	repo.save_account({"version": 3, "account_id": "changed", "characters": {}})
+	check(Saves.import_bundle(path) == OK and str(repo.load_account().get("account_id", "")) == "export-test", "importing the export restores the account")
+	check(str(repo.load_character(1).get("name", "")) != "", "and its characters")
+	check(Saves.import_bundle("user://no_such_file.json") != OK, "a missing or foreign file is refused")
+	check(Saves.list_exports().any(func(e): return str(e.path) == path), "exports are listed for restoring")
+	DirAccess.remove_absolute(path)
+	Saves.repo = saved_repo
 	var old: Dictionary = Saves.migrate_character({"name": "Old", "version": 2})
 	check(int(old.get("version", 0)) == Saves.VERSION, "an older character file is brought to the current version")

@@ -42,6 +42,10 @@ signal fishing_requested(object_id: String)
 var log_lines: Array = []          # [{text, t, color}]
 var toasts: Array = []             # [{text, t, kind}]
 var banner := {"text": "", "sub": "", "t": 0.0}
+# S40 captions: sound-only cues written out when the player turns captions on.
+const CAPTIONS := {"boss_phase": "boss_roar", "field_boss_spawned": "distant_roar", "bell_rung": "bell", "mail_received": "letter",
+	"qi_backlash": "backlash", "defence_warning": "war_drums", "attack_started": "wind_up", "enemy_aggro": "noticed"}
+var caption := {"text": "", "t": 9.0}
 var context: Dictionary = {}
 var channel := {"object": "", "t": 0.0, "dur": 0.0, "action": ""}
 var cultivate_hold := 0.0
@@ -100,6 +104,7 @@ func _process(delta: float) -> void:
 	for tt in toasts: tt.t += delta
 	toasts = toasts.filter(func(tt): return tt.t < 3.2)
 	banner.t += delta
+	caption.t = float(caption.t) + delta
 	for k in pulses.keys():
 		pulses[k] -= delta
 		if pulses[k] <= 0: pulses.erase(k)
@@ -368,12 +373,36 @@ func _pet_name(uid: String) -> String:
 		if str(pt.uid) == uid: return str(pt.name)
 	return Tx.t("hud.your_spirit_animal")
 
+## Wind-ups only from bosses and elites, notices only from monsters off screen.
+func _caption_worthy(name: String, p: Dictionary) -> bool:
+	if name == "attack_started":
+		var e = Game.room_rt.enemies.get(int(str(p.get("actor", "0")))) if Game.room_rt and str(p.get("actor", "")).is_valid_int() else null
+		return e != null and (e.is_boss() or e.elite)
+	if name == "enemy_aggro":
+		var e2 = Game.room_rt.enemies.get(int(p.get("enemy", 0))) if Game.room_rt else null
+		var st = Game.actor_state(Game.active_id)
+		return e2 != null and st != null and absf(e2.plane.x - st.plane.x) > 640.0
+	return true
+
+## Vibration on phones, when the player allows it (S40 haptics toggle).
+func _buzz(ms: int) -> void:
+	if Game.account.settings.get("haptics", true) and OS.has_feature("mobile"): Input.vibrate_handheld(ms)
+
+func _draw_caption() -> void:
+	if caption.text == "" or float(caption.t) > 2.6: return
+	var a := clampf((2.6 - float(caption.t)) / 0.4, 0.0, 1.0)
+	var w := 520.0
+	draw_rect(Rect2(640 - w / 2.0, 604, w, 30), Color(0, 0, 0, 0.55 * a))
+	UiKit.draw_text(self, "[" + str(caption.text) + "]", Vector2(640 - w / 2.0, 625), 17, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_CENTER, w)
+
 func toast(text: String, kind := "unlock") -> void:
 	toasts.append({"text": text, "t": 0.0, "kind": kind})
 	while toasts.size() > 3: toasts.pop_front()
 
 func _on_event(name: String, p: Dictionary) -> void:
 	if not bound(): return
+	if CAPTIONS.has(name) and Game.account.settings.get("captions", false) and _caption_worthy(name, p):
+		caption = {"text": Tx.t("hud.caption." + str(CAPTIONS[name])), "t": 0.0}
 	match name:
 		"item_added":
 			if str(p.get("actor", "")) == Game.active_id and shown("system_log"):
@@ -422,6 +451,10 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"craft_completed":
 			add_log(Tx.t("hud.crafted") % [ContentDB.name_of("recipes", str(p.recipe)), str(p.quality).capitalize()], UiKit.quality_color(str(p.quality)))
 			if str(p.quality).begins_with("pill_"): toast(Tx.t("hud.rare_pill") % str(p.quality).capitalize(), "gold")
+		"breakthrough_succeeded":
+			_buzz(120)
+		"player_gravely_wounded":
+			_buzz(200)
 		"pets_bred":
 			toast(Tx.t("hud.pets_bred") % ceili(float(p.get("hours", 24.0))), "gold")
 		"treasure_planted":
@@ -587,6 +620,7 @@ func _draw():
 	if shown("progress_bar"): _draw_progress(c)
 	if shown("system_log"): _draw_log()
 	_draw_banner()
+	_draw_caption()
 	_draw_toasts()
 	_draw_boss()
 	if joystick_id != -999:

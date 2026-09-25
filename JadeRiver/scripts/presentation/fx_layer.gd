@@ -83,7 +83,8 @@ func _draw() -> void:
 					var p2: Vector2 = e.pos + Vector2(sin(i * 2.1 + ph * 4.0) * 26.0, -ph * 70.0)
 					draw_rect(Rect2(p2.snapped(Vector2(2, 2)), Vector2(4, 4)), Color(c, 0.8 * (1.0 - ph)))
 			"flash":
-				draw_circle(e.pos, float(e.radius) * (0.5 + k), Color(c, 0.5 * (1.0 - k)))
+				var bright := 0.5 if Game.account.settings.get("flashes", true) else 0.15
+				draw_circle(e.pos, float(e.radius) * (0.5 + k), Color(c, bright * (1.0 - k)))
 			"text":
 				var a2 := 1.0 if k < 0.7 else 1.0 - (k - 0.7) / 0.3
 				UiKit.draw_outlined(self, e.text, e.pos + Vector2(-200, 0), int(e.size), Color(c, a2), HORIZONTAL_ALIGNMENT_CENTER, 400)

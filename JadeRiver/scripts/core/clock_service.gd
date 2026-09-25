@@ -11,6 +11,10 @@ func now_utc() -> float:
 	if override_utc >= 0.0: return override_utc + debug_offset_s
 	return Time.get_unix_time_from_system() + debug_offset_s
 
+## A file-name-safe date and time for exports ("2026-09-25_14-03-12").
+func file_stamp() -> String:
+	return Time.get_datetime_string_from_unix_time(int(now_utc()), false).replace(":", "-").replace("T", "_")
+
 func uptime_s() -> float:
 	return Time.get_ticks_msec() / 1000.0
 

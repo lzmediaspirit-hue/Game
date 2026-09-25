@@ -59,6 +59,12 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
 - Emotes: a wheel in the Menu with the six starting emotes (bow, wave, cheer, fist salute, laugh, sit) and
   two earned from achievements (Champion, Beast Call). The avatar holds a pose, leans or bounces, with a
   speech bubble, until you move or act.
+- Release checklist (S40): Settings > Data exports every save to one file (the device's Documents folder
+  when allowed) and restores an export found on the device, keeping the current saves as backups; the
+  engine log (five rotating files) can be exported for bug reports. A Credits screen (title and Settings)
+  lists every LPC author and licence in full, the OFL fonts and the engine. Accessibility adds Bright
+  flashes, Vibration and Captions for sounds (boss roars, bells, war drums, heavy wind-ups, off-screen
+  notices). The notification toggle now switches every category. The Android preset is version 1.0.0.
 - Companions, spirit animals (starter choice, taming with offerings, eggs), your own sect (buildings
   that appear as built, disciples, expeditions, defence raids), mail, achievements and titles.
 - 27 pages on one shared frame, a HUD that reveals itself, a minimap, dialogue with portraits, shops,

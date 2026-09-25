@@ -28,6 +28,7 @@ const PAGES := {
 	"revival": "res://scripts/ui/pages/revival_page.gd",
 	"teleport": "res://scripts/ui/pages/teleport_page.gd",
 	"emotes": "res://scripts/ui/pages/emotes_page.gd",
+	"credits": "res://scripts/ui/pages/credits_page.gd",
 	"notice_board": "res://scripts/ui/pages/notice_page.gd",
 	"training_sect": "res://scripts/ui/pages/training_sect_page.gd",
 	"your_sect": "res://scripts/ui/pages/your_sect_page.gd",
@@ -220,6 +221,7 @@ func _on_title(action: String) -> void:
 			if Game.characters.is_empty(): show_creation(1)
 			else: show_selection()
 		"settings": open_page("settings", {})
+		"credits": open_page("credits", {})
 		"quit": save_and_quit()
 
 func show_selection() -> void:
@@ -315,6 +317,16 @@ func save_and_quit() -> void:
 func open_page(id: String, a: Dictionary) -> void:
 	if id == "_exit":
 		return_to_selection()
+		return
+	if id == "_import":
+		# S40: replace the saves with an export (the current files are saved first and kept as .bak).
+		Game.save_all()
+		if screen == "world": _unmount_world()
+		close_all_pages()
+		var err := Saves.import_bundle(str(a.get("path", "")))
+		Game.boot()
+		show_selection()
+		if err != OK: push_warning("import failed: %s" % err)
 		return
 	if id == "_switch":
 		var r := Game.submit({"type": "switch_character", "slot": int(a.get("slot", 1))})
