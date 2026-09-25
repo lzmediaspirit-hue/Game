@@ -9,7 +9,7 @@ const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "bath_stati
 	"notice_board": "notice_board", "signpost": "signpost", "teleport_stone": "teleport_stone", "insight_stone": "insight_stone",
 	"cooking_pot": "cooking_pot", "alchemy_furnace": "alchemy_furnace", "forge_anvil": "forge_anvil", "fishing_spot": "fishing_ripple",
 	"rite_circle": "rite_circle", "bell": "small_bell", "spar_post": "weapon_rack", "inspect": "grey_patch", "herb_patch": "willow_moss_patch",
-	"ore_vein": "copper_vein", "formation_table": "formation_node", "garden_bed": "willow_moss_patch",
+	"ore_vein": "copper_vein", "formation_table": "formation_node", "garden_bed": "treasure_plot",
 	"defence_drum": "small_bell", "treasure_plot": "treasure_plot", "treasure_tree": "nine_bough_jade_tree",
 	"star_sight": "star_sight_stone", "chart_table": "star_chart_table", "shipyard_slip": "shipyard_slip", "starsea_dock": "cloud_skiff",
 	"air_pocket": "qi_spring", "earth_vent": "gas_vent"}
@@ -111,6 +111,7 @@ func _draw() -> void:
 	if not drawn and def.type != "pickup":
 		draw_rect(Rect2(-12, -24, 24, 24), UiKit.BRONZE)
 	if def.type == "earth_vent": _draw_earth_fire()
+	if def.type == "garden_bed": _draw_bed_herb()
 	if focus:
 		var c = Game.active()
 		var avail: Dictionary = Game.world.object_available(c, def) if c else {"ok": true}
@@ -118,6 +119,21 @@ func _draw() -> void:
 		var h := SpriteCache.prop_size(current_prop()).y if prop_id != "" else 40.0
 		UiKit.draw_outlined(self, label if avail.ok else str(avail.get("text", "")), Vector2(-120, -h - 8), 16,
 			UiKit.PALE_GOLD if avail.ok else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 240)
+
+## A garden bed (S45) shows its herb's patch art, small as a seedling and full size when ready.
+func _draw_bed_herb() -> void:
+	var c = Game.active()
+	if c == null or Game.room_rt == null: return
+	var rec: Dictionary = Game.crafting.beds(c).get(Game.room_rt.room_id + ":" + object_id, {})
+	if str(rec.get("herb", "")) == "": return
+	var prop := str(ContentDB.config("garden").get("props", {}).get(HerbRules.family(str(rec.herb)), ""))
+	if prop == "": return
+	var g := clampf(float(rec.get("progress", 0.0)), 0.0, 1.0)
+	var k := 0.45 + 0.55 * g
+	draw_set_transform(Vector2(0, -6), 0.0, Vector2(k, k))
+	SpriteCache.draw_prop(self, prop, "ready", t, Vector2.ZERO, false)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if g >= 1.0: draw_circle(Vector2(0, -20), 16.0 + 2.0 * sin(t * 3.0), Color(0.6, 1.0, 0.7, 0.18))
 
 ## A Spirit Sense pulse (S45) reads a rare herb's time for a few seconds: how long it stays ripe, when it ripens,
 ## or the season it flowers in.

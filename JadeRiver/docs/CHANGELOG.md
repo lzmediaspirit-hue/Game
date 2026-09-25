@@ -5,6 +5,40 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V6b · The herb garden: beds, Spirit Soil, spring water, transplanting and the Verdant Dew Vial (S45)
+- **Garden beds** grow a herb from seed on the clock, offline too. A new Garden page, opened from a bed, shows each
+  bed with its herb, age, growth and time left.
+  - Grow times: willow moss 2 h, ember pepper 3 h, ginseng 4 h, mist lotus 6 h, orchid and soulbell 8 h.
+  - A room's Qi speeds its beds by half its bonus.
+  - Harvest gives 2–3 of a young herb (one of an aged one), with a 20 % chance of the seed back.
+  - A planted bed shows its herb growing from a seedling in the room.
+- **Field grades.** A Low bed grows up to Earth-grade herbs, Mid up to Heaven and High up to Mystic.
+  - Spirit Soil raises a bed one grade for good. It drops 1 % from beasts of rank 3 and above (Level 19+), and one
+    lies in the Drowned Abbot's vault.
+  - The Jade Herb Terraces have 3 Low beds. The Cloud Sect's Array Court gets 3 Low beds and Gardener Ren; before,
+    Cloud disciples had no beds and could not finish Seeds of the Valley.
+  - Each cave abode has 2 Mid beds.
+- **Spring water.** A Qi spring gives three bottles a reset day once the garden is open. A bottle poured on a bed
+  gives +25 % growth.
+- **Transplanting.** With a Spirit Spade (Stoneford General Store, from Cloud Stride 1) and Expert gathering, a
+  rare herb offers Pick it or Dig it up.
+  - Dug up, it moves at its age to the first free bed that can hold it, grown.
+  - It dies 25 % of the time at Expert, 5 % less per rank above. Either way the node waits for its next ripening.
+- **The Verdant Dew Vial** (A Lake Inside, Spirit Awakening 1) fills with a drop a day, offline too, up to three.
+  A drop ages a bed's herb one tier, up to 1,000 years in the valley.
+- **Seeds of the Valley** now gives three willow moss seeds to plant (text fixed to name the seed sources) and three
+  bottles of spring water.
+- **Events:** `herb_planted`, `bed_watered`, `bed_enriched`, `herb_aged`, `spring_bottled` and
+  `transplant_result`, with HUD notes. A Codex entry covers the garden. Debug flag: `--garden-preview`.
+- **Tests:**
+  - soil caps the grade, and Spirit Soil lifts it;
+  - three bottles a day, and +25 % a watering;
+  - offline growth to the minute;
+  - the dew accrues offline and is capped at three; it ages a root to 1,000 years and no further;
+  - transplant odds by rank, and the survival rate under a fixed seed;
+  - data validation for beds;
+  - the valley run plants three beds and harvests one.
+
 ### V6a · Rare herbs, the harvest tap, seeds and seasons (S45)
 - **Herb ages.** Every herb has a family and an age (10, 100 or 1,000 years; `garden.json`). New aged herbs, each
   with raw uses and a gold-haloed icon:

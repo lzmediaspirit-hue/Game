@@ -188,7 +188,7 @@ func handle(intent: Dictionary) -> Dictionary:
 	if c == null: return fail("no_character")
 	match str(intent.type):
 		"use_portal": return use_portal(c, str(intent.get("portal", "")), bool(intent.get("crossing", false)))
-		"interact": return interact(c, str(intent.get("object", "")))
+		"interact": return interact(c, str(intent.get("object", "")), bool(intent.get("pick", false)))
 		"teleport": return teleport(c, str(intent.get("stone", "")))
 		"pick_up": return pick_up(c, int(intent.get("uid", -1)))
 		"enter_world": return enter_world(c)
@@ -466,7 +466,8 @@ func apply_object_hit(actor_id: String, o: Dictionary) -> void:
 		_drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0)
 		emit("object_broken", {"actor": actor_id, "object": id, "type": o.type})
 
-func interact(c, object_id: String) -> Dictionary:
+## `pick` (S45): go straight to the harvest at a rare herb, past the Pick / Dig it up choice.
+func interact(c, object_id: String, pick := false) -> Dictionary:
 	if game.room_rt == null: return fail("no_room")
 	var o = game.room_rt.object_def(object_id)
 	if o.is_empty(): return fail("unknown_object")
@@ -492,6 +493,12 @@ func interact(c, object_id: String) -> Dictionary:
 			GameEvents.save_pending = true
 			result.text = Tx.t("sim.world.the_shrine_remembers_you_wounds")
 		"herb_patch", "ore_vein", "fishing_spot", "star_sight":
+			# S45: with a Spirit Spade and Expert gathering, a rare herb can be dug up whole instead of picked.
+			if o.type == "herb_patch" and o.has("ripen") and not pick and game.crafting.can_transplant(c):
+				return ok({"dialogue": {"npc": "", "speaker": ContentDB.item_name(str(o.item)), "portrait": {}, "lines": [Tx.t("sim.world.rare_herb_choice")],
+					"choices": [{"text": Tx.t("sim.world.pick_it"), "page": "_harvest", "args": {"object": object_id}},
+						{"text": Tx.t("sim.world.dig_it_up") % int(round(game.crafting.transplant_death(c) * 100.0)), "intent": {"type": "transplant", "object": object_id}},
+						{"text": Tx.t("sim.world.leave_it"), "close": true}]}})
 			return game.crafting.gather(c, o)
 		"starsea_dock":
 			return set_sail(c, str(o.get("route", "")))
@@ -538,8 +545,12 @@ func interact(c, object_id: String) -> Dictionary:
 			result.open_page = "notice_board"
 		"signpost":
 			result.text = str(o.get("text", ""))
-		"insight_stone", "qi_spring":
+		"insight_stone":
 			result.text = str(o.get("text", Tx.t("sim.world.meditate_here")))
+		"qi_spring":
+			# S45: a gardener bottles the spring's water, three bottles a day; otherwise it is a place to meditate.
+			var sw: Dictionary = game.crafting.bottle_spring_water(c) if Unlocks.is_unlocked(c.id, "herb_garden") else {}
+			result.text = str(sw.get("text", o.get("text", Tx.t("sim.world.meditate_here"))))
 		"spar_post":
 			return game.quest.start_spar_from_object(c, o)
 		"defence_drum":
@@ -614,7 +625,7 @@ func _verb(o: Dictionary) -> String:
 		"rite_circle": return Tx.t("sim.world.begin")
 		"spar_post": return Tx.t("sim.world.spar")
 		"bell": return Tx.t("sim.world.ring")
-		"treasure_plot": return Tx.t("sim.world.tend")
+		"treasure_plot", "garden_bed": return Tx.t("sim.world.tend")
 		"treasure_tree": return Tx.t("sim.world.sit_beneath")
 		"star_sight": return Tx.t("sim.world.observe")
 		"chart_table": return Tx.t("sim.world.chart")
@@ -651,6 +662,11 @@ func _on_actor_defeated(p: Dictionary) -> void:
 		game.combat.captured.erase(str(p.victim))
 		drop = {"items": LootRules.capture_materials(str(def.get("loot", p.def))), "coins": 0, "equipment": []}
 		emit("beast_captured", {"actor": c.id, "def": str(p.def), "items": drop.items.size()})
+	# S45 Spirit Soil: 1% from a beast of rank 3 or above (Level 19+), on its own stream so the loot roll is untouched.
+	var soil: Dictionary = ContentDB.config("garden").get("spirit_soil", {})
+	if str(def.get("race", "")) == "beast" and int(p.level) >= int(soil.get("min_level", 19)) and not bool(p.get("summoned", false)) \
+			and Rng.stream(c.id, "garden").randf() < float(soil.get("chance", 0.01)):
+		drop.items.append({"item": "spirit_soil", "count": 1})
 	# A boss's one-time treasure (a Heavenly Flame, G1): guaranteed on its first defeat, outside the loot roll.
 	# An elite can carry one too (the Weeping Lantern's Mist Lantern Flame, S44): only the elite of its kind drops it.
 	var once: Array = def.get("first_defeat", []).duplicate()

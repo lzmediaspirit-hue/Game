@@ -341,7 +341,14 @@ func use_context() -> void:
 	if context.has("portal"):
 		world.request_portal(str(context.portal))
 		return
-	var r := Game.submit({"type": "interact", "object": str(context.get("object", ""))})
+	_after_interact(Game.submit({"type": "interact", "object": str(context.get("object", ""))}), str(context.get("object", "")))
+
+## S45: "Pick it" at a rare herb (from the Pick / Dig it up choice) starts the ordinary hold and tap.
+func begin_harvest(object_id: String) -> void:
+	if object_id == "" or not bound(): return
+	_after_interact(Game.submit({"type": "interact", "object": object_id, "pick": true}), object_id)
+
+func _after_interact(r: Dictionary, object_id: String) -> void:
 	if not r.ok:
 		if r.has("text"): add_log(str(r.text), UiKit.MIST)
 		return
@@ -349,13 +356,13 @@ func use_context() -> void:
 		dialogue_requested.emit(r.dialogue)
 		return
 	if r.has("open_page"):
-		open_page.emit(str(r.open_page), {"object": str(context.get("object", ""))})
+		open_page.emit(str(r.open_page), {"object": object_id})
 		return
 	if str(r.get("minigame", "")) == "fishing":
-		fishing_requested.emit(str(context.object))
+		fishing_requested.emit(object_id)
 		return
 	if float(r.get("channel", 0.0)) > 0.0:
-		channel = {"object": str(context.object), "t": 0.0, "dur": float(r.channel), "action": str(r.get("action", "gather")), "tap": r.get("tap", {})}
+		channel = {"object": object_id, "t": 0.0, "dur": float(r.channel), "action": str(r.get("action", "gather")), "tap": r.get("tap", {})}
 		if r.get("early", false): add_log(Tx.t("hud.herb_early"), UiKit.MIST)
 		return
 	if r.has("text") and str(r.text) != "": add_log(str(r.text), UiKit.PAPER)
@@ -709,6 +716,19 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if p.get("perfect", false): add_log(Tx.t("hud.herb_perfect") % [ContentDB.item_name(str(p.item)), int(p.age)], UiKit.GOLD)
 		"seed_found":
 			toast(Tx.t("hud.seed_found") % ContentDB.item_name(str(p.seed)), "gold")
+		"herb_planted":
+			add_log(Tx.t("hud.herb_planted") % ContentDB.item_name(str(p.herb)), UiKit.BRIGHT_JADE)
+		"bed_watered":
+			add_log(Tx.t("hud.bed_watered") % int(float(p.progress) * 100.0), UiKit.BRIGHT_JADE)
+		"bed_enriched":
+			toast(Tx.t("hud.bed_enriched") % Tx.t("ui.garden.grade_" + str(p.grade)), "gold")
+		"herb_aged":
+			toast(Tx.t("hud.herb_aged") % [ContentDB.item_name(str(p.herb)), int(p.age)], "gold")
+		"spring_bottled":
+			add_log(Tx.t("hud.spring_bottled") % int(p.left), UiKit.BRIGHT_JADE)
+		"transplant_result":
+			if p.get("ok", false): toast(Tx.t("hud.transplanted") % ContentDB.item_name(str(p.herb)), "gold", Tx.t("hud.transplanted_sub"))
+			else: toast(Tx.t("hud.transplant_died") % ContentDB.item_name(str(p.herb)), "danger")
 		"guardian_spawned":
 			toast(Tx.t("hud.guardian") % ContentDB.name_of("enemies", str(p.enemy)), "danger", Tx.t("hud.guardian_sub"))
 		"ambush_sprung":

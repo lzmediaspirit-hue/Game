@@ -177,6 +177,14 @@ func data_suite() -> void:
 			if o.has("guardian"): check(ContentDB.has_entry("enemies", str(o.guardian.get("enemy", ""))), "rare herb %s.%s guardian" % [rid, o.id])
 			if o.has("season"): check(ContentDB.has_entry("seasons", str(o.season)), "rare herb %s.%s season" % [rid, o.id])
 	check(rare_nodes >= 9, "the Part 8 rare herb nodes are placed (%d)" % rare_nodes)
+	var bed_count := 0
+	for rid in ContentDB.rooms:
+		for o in ContentDB.room(rid).get("objects", []):
+			if str(o.get("type", "")) != "garden_bed": continue
+			bed_count += 1
+			check(str(o.get("field_grade", "")) in garden.get("field_grades", []), "garden bed %s.%s has a field grade" % [rid, o.id])
+	check(bed_count >= 10, "garden beds in both sects and the cave abodes (%d)" % bed_count)
+	for fam in garden.get("families", {}): check(garden.get("grow_hours", {}).has(fam) and garden.get("props", {}).has(fam), "garden grows %s" % fam)
 	# S48 body ladder: each rung names a bath item, a Temper trial set piece with a drum, and stats that exist.
 	var stat_ids := {}
 	for sd in ContentDB.stat_const("stats", []): stat_ids[str(sd.id)] = true

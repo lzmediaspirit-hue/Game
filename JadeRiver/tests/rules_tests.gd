@@ -56,6 +56,7 @@ func _main() -> void:
 	arts_suite()
 	vows_suite()
 	herbs_suite()
+	garden_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -1364,6 +1365,105 @@ func herbs_suite() -> void:
 	c.professions["herb_gathering"] = prof_was
 	if had_conceal and not cu.secret_arts.has("concealment"): cu.secret_arts.append("concealment")
 	if not had_conceal: cu.secret_arts.erase("concealment")
+
+# ------------------------------------------------------------------ S45 garden beds, soil, water, dew, transplanting
+func garden_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	Unlocks.force_unlock(c.id, "herb_garden")
+	Unlocks.force_unlock(c.id, "herb_gathering")
+	var now := 1950000000.0
+	Clock.override_utc = now
+	Game.world.load_room(c, "ja_herb_terraces", "")
+	var bed := "ja_herb_terraces:bed_0"
+	var garden_was: Dictionary = Game.crafting.beds(c).duplicate(true)
+	Game.crafting.beds(c).clear()
+	for id in ["willow_moss_seed", "cloudtop_orchid_seed", "spring_water", "spirit_soil"]:
+		Game.inventory.apply_remove(c.id, id, c.inventory.count(id), "test")
+	Game.inventory.apply_add(c.id, "willow_moss_seed", 2, "test")
+	Game.inventory.apply_add(c.id, "cloudtop_orchid_seed", 1, "test")
+	# Soil caps the grade: a Low bed grows up to Earth; an orchid (Heaven) needs Spirit Soil first.
+	var poor := Game.submit({"type": "plant_seed", "bed": bed, "seed": "cloudtop_orchid_seed"})
+	check(not poor.get("ok", false) and str(poor.get("reason", "")) == "soil" and Game.crafting.bed_grade(c, bed) == "low", "a Low bed cannot grow a Heaven-grade orchid")
+	Game.inventory.apply_add(c.id, "spirit_soil", 1, "test")
+	check(Game.submit({"type": "apply_spirit_soil", "bed": bed}).get("ok", false) and Game.crafting.bed_grade(c, bed) == "mid", "Spirit Soil raises the bed to Mid, for good")
+	check(Game.submit({"type": "plant_seed", "bed": bed, "seed": "cloudtop_orchid_seed"}).get("ok", false) and c.inventory.count("cloudtop_orchid_seed") == 0,
+		"now the orchid takes")
+	# Spring water: three bottles a day at a Qi spring, each +25% growth.
+	var spring: Dictionary = {}
+	for o in ContentDB.room("ja_elder_hu_peak").get("objects", []):
+		if str(o.type) == "qi_spring": spring = o
+	Unlocks.force_unlock(c.id, "qi_springs")
+	var bottled := 0
+	for i in 4:
+		if Game.crafting.bottle_spring_water(c).get("ok", false): bottled += 1
+	check(bottled == 3 and c.inventory.count("spring_water") == 3, "a spring gives three bottles a day (%d)" % bottled)
+	Clock.override_utc = now + 86400.0
+	check(Game.crafting.bottle_spring_water(c).get("ok", false), "and three more the next day")
+	Clock.override_utc = now
+	Game.crafting.settle_bed(c, bed)
+	check(Game.submit({"type": "water_bed", "bed": bed}).get("ok", false) and near(float(Game.crafting.bed_view(c, bed).progress), 0.25, 0.001), "watering: +25% growth")
+	# It grows on the clock, offline too: 8 hours for an orchid, the watered quarter already done.
+	Clock.override_utc = now + 6.0 * 3600.0 - 60.0
+	check(not Game.crafting.bed_view(c, bed).ready, "not yet at six hours less a minute")
+	Clock.override_utc = now + 6.0 * 3600.0 + 1.0
+	check(Game.crafting.bed_view(c, bed).ready, "ready after six hours (a quarter watered off eight)")
+	var hv := Game.submit({"type": "harvest_bed", "bed": bed})
+	check(hv.get("ok", false) and str(hv.get("item", "")) == "cloudtop_orchid" and int(hv.get("count", 0)) >= 2 and str(Game.crafting.bed_view(c, bed).herb) == "",
+		"harvest: the orchids, and the bed is free (%s)" % str(hv))
+	# The Verdant Dew Vial: a drop a day, offline too, three at most; a drop ages the herb one tier, to 1,000 years.
+	Game.inventory.apply_add(c.id, "verdant_dew_vial", 1, "test")
+	c.crafting["dew"] = {"count": 0, "last": 0.0}
+	check(int(Game.crafting.dew_state(c).dew) == 0, "a new vial starts dry")
+	Clock.override_utc = now + 6.0 * 3600.0 + 2.0 * 86400.0 + 10.0
+	check(int(Game.crafting.dew_state(c).dew) == 2, "two days away: two drops")
+	Clock.override_utc = now + 30.0 * 86400.0
+	check(int(Game.crafting.dew_state(c).dew) == 3, "a month away: still three, the vial is full")
+	Game.inventory.apply_add(c.id, "riverreed_ginseng_seed", 1, "test")
+	Game.submit({"type": "plant_seed", "bed": bed, "seed": "riverreed_ginseng_seed"})
+	var d1 := Game.submit({"type": "use_dew", "bed": bed})
+	var d2 := Game.submit({"type": "use_dew", "bed": bed})
+	var d3 := Game.submit({"type": "use_dew", "bed": bed})
+	check(str(d1.get("herb", "")) == "riverreed_ginseng_100" and str(d2.get("herb", "")) == "riverreed_ginseng_1000" and not d3.get("ok", true)
+		and int(Game.crafting.dew_state(c).dew) == 1, "dew ages the root to a hundred, then a thousand years, and no further in the valley")
+	Game.crafting.beds(c).clear()
+	Game.crafting.bed_record(c, bed).soil = 1
+	# Transplanting: a Spirit Spade and Expert gathering; 25% it dies at Expert, 20% at Master.
+	c.professions["herb_gathering"] = {"rank": "expert", "xp": 5000.0}
+	check(not Game.crafting.can_transplant(c), "no spade, no transplant")
+	Game.inventory.apply_add(c.id, "spirit_spade", 1, "test")
+	check(Game.crafting.can_transplant(c) and near(Game.crafting.transplant_death(c), 0.25), "with a spade at Expert: 25% it dies")
+	c.professions["herb_gathering"] = {"rank": "master", "xp": 20000.0}
+	check(near(Game.crafting.transplant_death(c), 0.20), "at Master: 20%")
+	c.professions["herb_gathering"] = {"rank": "expert", "xp": 5000.0}
+	Game.world.load_room(c, "cf_falls_pool", "")
+	var lotus: Dictionary = Game.room_rt.object_def("rare_lotus_fp")
+	var L := HerbRules.day_s()
+	Clock.override_utc = float(30000 * 3 + int(lotus.ripen.offset)) * L + 0.75 * L
+	var st: ActorState = Game.actor_state(c.id)
+	st.plane = Vector2(float(lotus.at[0]) - 30.0, float(lotus.at[1]))
+	st.altitude = float(lotus.alt)
+	var prompt := Game.submit({"type": "interact", "object": "rare_lotus_fp"})
+	check(prompt.has("dialogue") and (prompt.dialogue.choices as Array).size() == 3, "with a spade, a rare herb asks: pick it or dig it up")
+	var rng := Rng.stream(c.id, "garden")
+	var rng_was := rng.state
+	rng.seed = 777
+	var lived := 0
+	for i in 100:
+		Game.room_rt.objects["rare_lotus_fp"] = {"state": "ready", "timer": 0.0, "hits": 0}
+		Game.crafting.bed_record(c, bed).herb = ""
+		var tr := Game.submit({"type": "transplant", "object": "rare_lotus_fp"})
+		if tr.get("survived", false): lived += 1
+	rng.state = rng_was
+	check(lived >= 62 and lived <= 88, "three in four transplants live at Expert (%d of 100)" % lived)
+	check(str(Game.crafting.bed_view(c, bed).herb) == "mist_lotus_100" or lived < 100, "a transplanted lotus keeps its hundred years in the bed")
+	# Spirit Soil drops from strong beasts, on its own stream.
+	var soil: Dictionary = ContentDB.config("garden").spirit_soil
+	check(near(float(soil.chance), 0.01) and int(soil.min_level) == 19 and ContentDB.entry("loot_tables", "abbots_vault").guaranteed.any(func(g): return str(g.item) == "spirit_soil"),
+		"Spirit Soil: 1% from rank 3+ beasts, and one in the Abbot's vault")
+	Clock.override_utc = -1.0
+	c.crafting["garden"] = garden_was
+	for id in ["spirit_spade", "verdant_dew_vial"]: Game.inventory.apply_remove(c.id, id, 1, "test")
 
 func tribulation_suite() -> void:
 	var c = Game.active()

@@ -344,3 +344,34 @@ register(FAM, 'riverreed_ginseng_seed', lambda: _seed_pouch(R['red'], 2.5, 2.5),
 register(FAM, 'mist_lotus_seed', lambda: _seed_pouch(R['pearl'], 2.6, 3.0), GROUP)
 register(FAM, 'cloudtop_orchid_seed', lambda: _seed_pouch(R['sky'], 1.9, 2.4), GROUP)
 register(FAM, 'soulbell_flower_seed', lambda: _seed_pouch(R['violet'], 2.4, 2.8), GROUP)
+
+
+def spring_water():
+    """S45: a stoppered bottle gourd of Qi-spring water, beaded with cold."""
+    c = Canvas(32)
+    gourd = c.circle(16, 22, 7.5) | c.circle(16, 11.5, 4.6)
+    c.put(gourd, R['straw'], 'sphere', base=2, sep=True)
+    c.put(c.rect(11, 15, 21, 16) & gourd, R['hemp'], 'flat', base=2)
+    c.put(c.rect(14, 4, 18, 7), R['wood'], 'ray', base=2, sep=True)
+    for (x, y) in ((11, 22), (20, 25), (18, 19)):
+        c.put(c.circle(x, y, 1.1), R['cyan'], 'flat', base=4)
+    c.outline()
+    c.glow('#9FE6FF', (60,))
+    return c
+
+
+def spirit_soil():
+    """S45: a mound of black earth threaded with faint jade veins."""
+    c = Canvas(32)
+    mound = c.ellipse(16, 22, 12, 7.5) | c.ellipse(16, 17, 7.5, 6)
+    c.put(mound, R['mud'], 'sphere', base=1, sep=True)
+    for (a, b) in (((8, 22), (14, 18)), ((14, 18), (20, 21)), ((18, 14), (22, 19))):
+        c.put(c.seg(a[0], a[1], b[0], b[1], 0.9) & mound, R['jade'], 'flat', base=3)
+    c.put(S.leaf(c, 16, 11.5, 70, 6, 2.6, 0.1), R['leaf'], 'ray', base=2, sep=True)
+    c.outline()
+    c.glow('#6FD9A0', (55,))
+    return c
+
+
+register(FAM, 'spring_water', spring_water, GROUP)
+register(FAM, 'spirit_soil', spirit_soil, GROUP)

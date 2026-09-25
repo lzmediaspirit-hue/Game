@@ -116,8 +116,12 @@ func _choose(i: int) -> void:
 		close()
 		return
 	if ch.has("page"):
-		navigate.emit(str(ch.page), {"npc": npc})
+		navigate.emit(str(ch.page), ch.get("args", {"npc": npc}))
 		close()
+		return
+	# A choice that is itself an intent (S45: dig up a rare herb); its authority validates it.
+	if ch.has("intent"):
+		if submit(ch.intent).get("ok", false): close()   # a refusal stays open with its reason flashed
 		return
 	var needs_authority := ch.has("accept") or ch.has("hand_in") or ch.has("effects") or ch.has("next") or ch.has("spar")
 	if needs_authority:

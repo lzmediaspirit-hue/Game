@@ -159,6 +159,18 @@
      }
     },
     {
+     "item": "spirit_spade",
+     "price": 900,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "cloud_stride_1"
+       }
+      ]
+     }
+    },
+    {
      "item": "iron_pickaxe",
      "requires": {
       "all": [

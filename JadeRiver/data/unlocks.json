@@ -1402,7 +1402,12 @@
     ]
    },
    "reveals": [],
-   "effects": [],
+   "effects": [
+    {
+     "kind": "codex",
+     "entry": "herb_garden"
+    }
+   ],
    "scope": "character",
    "quest": "seeds_of_the_valley"
   },

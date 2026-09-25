@@ -49,6 +49,7 @@ def shops():
                    s("willow_moss_seed", price=6), s("ember_pepper_seed", price=14), s("riverreed_ginseng_seed", price=20)]},
         {"id": "stoneford_general", "name": "Stoneford General Store", "currency": "silver_tael", "buys_all": True,
          "stock": [s("cinnabar", price=8), s("herbal_tea"), s("lotus_root_tea"), s("rice_ball"), s("rice"), s("return_charm"), s("herb_sickle", requires=all_of(realm("bone_forging_4"))),
+                   s("spirit_spade", price=900, requires=all_of(realm("cloud_stride_1"))),
                    s("iron_pickaxe", requires=all_of(realm("bone_forging_5"))), s("bamboo_gourd"), s("escape_talisman"), s("fish_bait"),
                    s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1")))],
          "rotation": {"count": 1, "pool": [s("bamboo_rod"), s("lantern_wick"), s("clay_pot")]}},

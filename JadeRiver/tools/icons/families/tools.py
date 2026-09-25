@@ -203,6 +203,40 @@ def appraiser_loupe():
     return c
 
 
+def spirit_spade():
+    """S45: a jade-edged spade on a dark wooden shaft, a leaf tied at the grip."""
+    c = Canvas(32)
+    handle(c, (6, 27), (19, 12), R['darkwood'], 2.6, [(0.0, 0.25)], R['hemp'])
+    blade = c.poly([(17, 13), (23, 5), (28, 8), (29, 13), (22, 17)])
+    c.put(blade, R['jade'], 'ray', base=2, sep=True)
+    c.put(c.poly([(24, 7), (28, 9), (28, 12)]) & blade, R['jade'][4], 'flat')
+    collar = c.circle(18.5, 13.5, 2.2)
+    c.put(collar, R['bronze'], 'sphere', sep=True)
+    c.put(S.leaf(c, 7, 23, 200, 6, 2.6, 0.1), R['leaf'], 'ray', base=2, sep=True)
+    c.outline()
+    S.sparkle(c, 27, 5, '#FFFFFF', R['jade'][3], 1)
+    return c
+
+
+def verdant_dew_vial():
+    """S45: a green glass vial with a jade stopper, a single bright dewdrop inside."""
+    c = Canvas(32)
+    body = c.ellipse(16, 21, 7.5, 8) | c.rect(13, 8, 19, 14)
+    c.put(body, R['mistjade'], 'sphere', base=2, sep=True)
+    liquid = c.ellipse(16, 23, 6, 5.5) & body
+    c.put(liquid, R['jade'], 'sphere', base=3)
+    stopper = c.rect(12, 4, 20, 8)
+    c.put(stopper, R['deepjade'], 'ray', base=2, sep=True)
+    c.put(c.circle(16, 22, 2.2), R['cyan'], 'sphere', base=3)
+    c.put(c.rect(11, 16, 12, 22) & body, R['mistjade'][4], 'flat')
+    c.outline()
+    c.glow('#8CF0B4', (70,))
+    return c
+
+
+for _id, _fn in (('spirit_spade', spirit_spade), ('verdant_dew_vial', verdant_dew_vial)):
+    register(FAM, _id, _fn, 'tools')
+
 for _id, _fn in (('old_pickaxe', old_pickaxe), ('iron_pickaxe', iron_pickaxe), ('herb_sickle', herb_sickle),
                  ('bamboo_rod', bamboo_rod), ('clay_pot', clay_pot), ('bronze_furnace', bronze_furnace),
                  ('forge_hammer', forge_hammer), ('formation_kit', formation_kit), ('needle_case', needle_case),

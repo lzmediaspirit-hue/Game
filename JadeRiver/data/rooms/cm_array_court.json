@@ -186,6 +186,70 @@
    },
    "locked_text": "The monastery furnace.",
    "furnace_bonus": 0.5
+  },
+  {
+   "id": "bed_cm_0",
+   "type": "garden_bed",
+   "at": [
+    330,
+    900
+   ],
+   "field_grade": "low",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_garden"
+     }
+    ]
+   },
+   "locked_text": "Garden beds belong to inner disciples."
+  },
+  {
+   "id": "bed_cm_1",
+   "type": "garden_bed",
+   "at": [
+    470,
+    900
+   ],
+   "field_grade": "low",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_garden"
+     }
+    ]
+   },
+   "locked_text": "Garden beds belong to inner disciples."
+  },
+  {
+   "id": "bed_cm_2",
+   "type": "garden_bed",
+   "at": [
+    610,
+    900
+   ],
+   "field_grade": "low",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_garden"
+     }
+    ]
+   },
+   "locked_text": "Garden beds belong to inner disciples."
+  },
+  {
+   "id": "npc_cloud_gardener",
+   "type": "npc",
+   "at": [
+    760,
+    880
+   ],
+   "npc": "cloud_gardener",
+   "facing": -1
   }
  ],
  "spawns": [],

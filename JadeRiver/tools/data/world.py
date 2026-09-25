@@ -863,7 +863,8 @@ def sects():
     r.surface("terrace_1", [600, 660, 500, 90], 60, kind="rock_ledge")
     r.surface("terrace_2", [1300, 640, 500, 90], 120, kind="rock_ledge")
     for i, x in enumerate([700, 850, 1000]):
-        r.obj("bed_%d" % i, "garden_bed", [x, 700], alt=60, requires=all_of(unlock("herb_garden")), locked_text="Garden beds belong to inner disciples.")
+        r.obj("bed_%d" % i, "garden_bed", [x, 700], alt=60, field_grade="low", requires=all_of(unlock("herb_garden")),
+              locked_text="Garden beds belong to inner disciples.")
     r.herb("willow_moss", [400, 900])
     r.herb("riverreed_ginseng_10", [1500, 700], alt=120)
     r.npc("jade_gardener", [1200, 860], facing=-1)
@@ -963,6 +964,11 @@ def sects():
              requires=all_of(unlock("retreat_room")), locked_text="The retreat rooms are kept for inner disciples.")
     r.obj("furnace_cm", "alchemy_furnace", [2200, 760], requires=all_of(unlock("alchemy")), locked_text="The monastery furnace.", furnace_bonus=0.5)
     r.surface("rope_ledge", [1500, 640, 260, 50], 150, kind="rock_ledge")
+    # S45: the monastery's herb beds by the furnace court, and Gardener Ren to tend them with you.
+    for i, x in enumerate([330, 470, 610]):
+        r.obj("bed_cm_%d" % i, "garden_bed", [x, 900], field_grade="low", requires=all_of(unlock("herb_garden")),
+              locked_text="Garden beds belong to inner disciples.")
+    r.npc("cloud_gardener", [760, 880], facing=-1)
     r.edge("west", "west", "cm_sword_court", "east", y=850)
     r.portal("peak_path", "door", [2400, 700], "cm_elder_sung_peak", "path", press_up=True, label="Elder Sung's Peak")
 
@@ -1045,6 +1051,10 @@ def cave_abode(rid, sect_id, peak, element):
     r.decor("scholar_rock", [640, 690])
     r.decor("wine_jar", [1240, 760])
     r.obj("plot_" + rid, "treasure_plot", [380, 880], requires=all_of(unlock("natural_treasures")), locked_text="Rich dark earth, ringed with river stones.")
+    # S45: two Mid-grade garden beds in the abode's dense Qi.
+    for i, x in enumerate([960, 1100]):
+        r.obj("bed_%d_%s" % (i, rid), "garden_bed", [x, 900], field_grade="mid", requires=all_of(unlock("herb_garden")),
+              locked_text="A bed of dark abode earth.")
     r.portal("exit", "door", [120, 700], peak, "abode", press_up=True, label=ROOMS[peak].d["name"])
     return r
 

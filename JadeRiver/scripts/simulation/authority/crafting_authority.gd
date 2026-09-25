@@ -32,7 +32,8 @@ func intents() -> Array:
 	return ["complete_node", "catch_fish", "cook", "craft_step", "refine", "queue_auto_refine", "collect_auto_refine", "forge", "enhance", "salvage_item",
 		"salvage", "inherit_enhancement", "reroll_affixes", "choose_affixes", "lock_affix", "chart_route", "build_vessel", "absorb_flame",
 		"trace_talisman", "restore_relic", "mend_furnace", "deduce_recipe", "start_experiment", "take_guild_exam", "accept_commission",
-		"deliver_commission", "tribulation_shield", "catch_pill_soul"]
+		"deliver_commission", "tribulation_shield", "catch_pill_soul", "plant_seed", "water_bed", "harvest_bed", "apply_spirit_soil", "use_dew",
+		"transplant"]
 
 func subscribe() -> void:
 	# S44 guild exams count what comes out of the furnace while the candle burns.
@@ -70,6 +71,12 @@ func handle(intent: Dictionary) -> Dictionary:
 		"take_guild_exam": return take_exam(c, str(intent.get("craft", "alchemy")), str(intent.get("rank", "")))
 		"accept_commission": return accept_commission(c, str(intent.get("id", "")))
 		"deliver_commission": return deliver_commission(c, str(intent.get("id", "")), str(intent.get("pay", "taels")))
+		"plant_seed": return plant_seed(c, str(intent.get("bed", "")), str(intent.get("seed", "")))
+		"water_bed": return water_bed(c, str(intent.get("bed", "")))
+		"harvest_bed": return harvest_bed(c, str(intent.get("bed", "")))
+		"apply_spirit_soil": return apply_spirit_soil(c, str(intent.get("bed", "")))
+		"use_dew": return use_dew(c, str(intent.get("bed", "")))
+		"transplant": return transplant(c, str(intent.get("object", "")))
 		"chart_route": return craft(c, str(intent.get("recipe", "")), 1, [], "star_charting")
 		"build_vessel": return craft(c, str(intent.get("recipe", "")), 1, [], "shipwright")
 	return fail("unknown_intent")
@@ -202,6 +209,241 @@ func _harvest(c, o: Dictionary, timing: float) -> Dictionary:
 	emit("herb_harvested", {"actor": c.id, "object": object_id, "item": item, "age": HerbRules.item_age(item), "perfect": perfect, "early": early})
 	if seed != "": emit("seed_found", {"actor": c.id, "seed": seed, "object": object_id})
 	return ok({"item": item, "count": count, "perfect": perfect, "early": early, "age": HerbRules.item_age(item), "seed": seed})
+
+# ------------------------------------------------------------------ S45 garden beds
+## Beds are room objects; each character keeps its own record of every bed it tends, keyed "room:object":
+## {herb, progress (0..1), updated (utc), grow_s, soil}. Growth is settled from the clock, so it runs offline.
+func beds(c) -> Dictionary:
+	if not (c.crafting.get("garden") is Dictionary): c.crafting["garden"] = {}
+	return c.crafting.garden
+
+func bed_def(key: String) -> Dictionary:
+	var room := key.get_slice(":", 0)
+	for o in ContentDB.room(room).get("objects", []):
+		if str(o.get("id", "")) == key.get_slice(":", 1) and str(o.get("type", "")) == "garden_bed": return o
+	return {}
+
+func bed_record(c, key: String) -> Dictionary:
+	var b := beds(c)
+	if not b.has(key): b[key] = {"herb": "", "progress": 0.0, "updated": 0.0, "grow_s": 1.0, "soil": 0}
+	return b[key]
+
+## Low / Mid / High: the bed's own grade plus the Spirit Soil worked into it.
+func bed_grade(c, key: String) -> String:
+	var grades: Array = ContentDB.config("garden").get("field_grades", ["low", "mid", "high"])
+	var i := grades.find(str(bed_def(key).get("field_grade", "low"))) + int(bed_record(c, key).get("soil", 0))
+	return str(grades[clampi(i, 0, grades.size() - 1)])
+
+## Can this bed hold a herb of this grade?
+func bed_holds(c, key: String, herb: String) -> bool:
+	var cap := str(ContentDB.config("garden").get("field_cap", {}).get(bed_grade(c, key), "earth"))
+	return StatRules.grade_index(str(ContentDB.item(herb).get("grade", "plain"))) <= StatRules.grade_index(cap)
+
+## A room's Qi speeds its beds by half its bonus.
+func bed_speed(key: String) -> float:
+	var qi := float(ContentDB.room(key.get_slice(":", 0)).get("qi", 1.0))
+	return maxf(0.25, 1.0 + (qi - 1.0) * float(ContentDB.config("garden").get("qi_growth", 0.5)))
+
+func settle_bed(c, key: String) -> Dictionary:
+	var rec := bed_record(c, key)
+	var now := Clock.now_utc()
+	if str(rec.herb) != "" and float(rec.updated) > 0.0:
+		var el := Clock.elapsed_since(float(rec.updated))
+		if el.valid: rec.progress = minf(1.0, float(rec.progress) + float(el.elapsed) * bed_speed(key) / maxf(1.0, float(rec.grow_s)))
+	rec.updated = now
+	return rec
+
+## What the Garden page shows for a bed.
+func bed_view(c, key: String) -> Dictionary:
+	var rec := settle_bed(c, key)
+	var left := (1.0 - float(rec.progress)) * float(rec.grow_s) / bed_speed(key) if str(rec.herb) != "" else 0.0
+	return {"key": key, "herb": str(rec.herb), "age": HerbRules.item_age(str(rec.herb)) if str(rec.herb) != "" else 0, "progress": float(rec.progress),
+		"seconds": left, "ready": str(rec.herb) != "" and float(rec.progress) >= 1.0, "grade": bed_grade(c, key), "soil": int(rec.get("soil", 0))}
+
+## The beds a character can tend in a room.
+func room_beds(c, room_id: String) -> Array:
+	var out: Array = []
+	for o in ContentDB.room(room_id).get("objects", []):
+		if str(o.get("type", "")) == "garden_bed" and game.world.object_visible(c, o) and (not o.has("requires") or RequirementRules.passes(o.requires, game.ctx(c))):
+			out.append(room_id + ":" + str(o.id))
+	return out
+
+func _bed_check(c, key: String) -> String:
+	if not Unlocks.is_unlocked(c.id, "herb_garden"): return Unlocks.locked_text("herb_garden")
+	if bed_def(key).is_empty(): return Tx.t("sim.crafting.no_such_bed")
+	if game.room_rt == null or game.room_rt.room_id != key.get_slice(":", 0): return Tx.t("sim.crafting.bed_elsewhere")
+	return ""
+
+func plant_seed(c, key: String, seed: String) -> Dictionary:
+	var why := _bed_check(c, key)
+	if why != "": return fail("bed", {"text": why})
+	var fam := str(ContentDB.item(seed).get("seed", {}).get("family", ""))
+	if fam == "" or c.inventory.count(seed) <= 0: return fail("no_seed")
+	var rec := settle_bed(c, key)
+	if str(rec.herb) != "": return fail("planted", {"text": Tx.t("sim.crafting.bed_taken")})
+	var herb := str(ContentDB.config("garden").get("families", {}).get(fam, {}).get("10", ""))
+	if not bed_holds(c, key, herb): return fail("soil", {"text": Tx.t("sim.crafting.soil_too_poor") % ContentDB.item_name(herb)})
+	game.inventory.apply_remove(c.id, seed, 1, "garden")
+	rec.herb = herb
+	rec.progress = 0.0
+	rec.grow_s = float(ContentDB.config("garden").get("grow_hours", {}).get(fam, 4)) * 3600.0
+	rec.updated = Clock.now_utc()
+	emit("herb_planted", {"actor": c.id, "bed": key, "herb": herb})
+	emit("system_used", {"actor": c.id, "system": "plant_seed"})
+	return ok({"herb": herb})
+
+## Bottled spring water hurries the herb in a bed by a quarter of its growth.
+func water_bed(c, key: String) -> Dictionary:
+	var why := _bed_check(c, key)
+	if why != "": return fail("bed", {"text": why})
+	var rec := settle_bed(c, key)
+	if str(rec.herb) == "" or float(rec.progress) >= 1.0: return fail("nothing_to_water")
+	if c.inventory.count("spring_water") <= 0: return fail("no_water", {"text": Tx.t("sim.crafting.no_spring_water")})
+	game.inventory.apply_remove(c.id, "spring_water", 1, "garden")
+	rec.progress = minf(1.0, float(rec.progress) + float(ContentDB.config("garden").get("water", {}).get("growth", 0.25)))
+	emit("bed_watered", {"actor": c.id, "bed": key, "progress": float(rec.progress)})
+	return ok({"progress": float(rec.progress)})
+
+func harvest_bed(c, key: String) -> Dictionary:
+	var why := _bed_check(c, key)
+	if why != "": return fail("bed", {"text": why})
+	var rec := settle_bed(c, key)
+	if str(rec.herb) == "" or float(rec.progress) < 1.0: return fail("not_ready")
+	var herb := str(rec.herb)
+	var g := ContentDB.config("garden")
+	var rng := Rng.stream(c.id, "garden")
+	var y: Array = g.get("bed_yield", {}).get("young" if HerbRules.item_age(herb) <= 10 else "aged", [1, 1])
+	var count := rng.randi_range(int(y[0]), int(y[1]))
+	game.inventory.apply_add(c.id, herb, count, "garden")
+	var seed := str(g.get("seeds", {}).get(HerbRules.family(herb), ""))
+	if seed != "" and HerbRules.item_age(herb) <= 10 and rng.randf() < float(g.get("seed_back", 0.2)):
+		game.inventory.apply_add(c.id, seed, 1, "garden")
+		emit("seed_found", {"actor": c.id, "seed": seed, "object": key})
+	else:
+		seed = ""
+	rec.herb = ""
+	rec.progress = 0.0
+	add_xp(c, "herb_gathering", float(ContentDB.curve("profession_xp.gather", 5)))
+	emit("herb_harvested", {"actor": c.id, "object": key, "item": herb, "age": HerbRules.item_age(herb), "perfect": false, "early": false, "bed": true})
+	return ok({"item": herb, "count": count, "seed": seed})
+
+## Spirit Soil raises a bed's field grade one step, for good.
+func apply_spirit_soil(c, key: String) -> Dictionary:
+	var why := _bed_check(c, key)
+	if why != "": return fail("bed", {"text": why})
+	if c.inventory.count("spirit_soil") <= 0: return fail("no_soil")
+	var grades: Array = ContentDB.config("garden").get("field_grades", ["low", "mid", "high"])
+	if bed_grade(c, key) == str(grades.back()): return fail("max", {"text": Tx.t("sim.crafting.bed_at_best")})
+	game.inventory.apply_remove(c.id, "spirit_soil", 1, "garden")
+	var rec := bed_record(c, key)
+	rec.soil = int(rec.get("soil", 0)) + 1
+	emit("bed_enriched", {"actor": c.id, "bed": key, "grade": bed_grade(c, key)})
+	return ok({"grade": bed_grade(c, key)})
+
+# ------------------------------------------------------------------ the Verdant Dew Vial and spring water
+## One dew a day, offline too, up to the vial's three. {dew, cap, next_s, has}
+func dew_state(c) -> Dictionary:
+	var k: Dictionary = ContentDB.config("garden").get("dew", {})
+	var has := tool_power(c, "garden_dew") > 0.0
+	if not (c.crafting.get("dew") is Dictionary): c.crafting["dew"] = {"count": 0, "last": 0.0}
+	var d: Dictionary = c.crafting.dew
+	var every := float(k.get("every_s", 86400))
+	var cap := int(k.get("cap", 3))
+	if not has: return {"dew": 0, "cap": cap, "next_s": 0.0, "has": false}
+	var now := Clock.now_utc()
+	if float(d.last) <= 0.0: d.last = now
+	var el := Clock.elapsed_since(float(d.last))
+	if not el.valid: d.last = now
+	var n := int(floor(float(el.elapsed) / every)) if el.valid else 0
+	if n > 0:
+		d.count = mini(cap, int(d.count) + n)
+		d.last = float(d.last) + n * every
+	if int(d.count) >= cap: d.last = now   # a full vial doesn't bank time toward the next drop
+	return {"dew": int(d.count), "cap": cap, "next_s": maxf(0.0, float(d.last) + every - now), "has": true}
+
+## A drop of dew ages the herb in a bed one tier, as far as the land's Qi allows (a thousand years in the valley).
+func use_dew(c, key: String) -> Dictionary:
+	var why := _bed_check(c, key)
+	if why != "": return fail("bed", {"text": why})
+	var ds := dew_state(c)
+	if int(ds.dew) <= 0: return fail("no_dew", {"text": Tx.t("sim.crafting.no_dew")})
+	var rec := settle_bed(c, key)
+	if str(rec.herb) == "": return fail("empty")
+	var older: Array = HerbRules.older_than(str(rec.herb))
+	var cap_age := int(ContentDB.config("garden").get("dew", {}).get("valley_age_cap", 1000))
+	if older.is_empty() or HerbRules.item_age(str(older[0])) > cap_age: return fail("age_cap", {"text": Tx.t("sim.crafting.dew_age_cap")})
+	if not bed_holds(c, key, str(older[0])): return fail("soil", {"text": Tx.t("sim.crafting.soil_too_poor") % ContentDB.item_name(str(older[0]))})
+	c.crafting.dew.count = int(c.crafting.dew.count) - 1
+	var was := str(rec.herb)
+	rec.herb = str(older[0])
+	emit("herb_aged", {"actor": c.id, "bed": key, "from": was, "herb": str(rec.herb), "age": HerbRules.item_age(str(rec.herb))})
+	return ok({"herb": str(rec.herb)})
+
+## A Qi spring gives three bottles a reset day (S45).
+func bottle_spring_water(c) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "herb_garden"): return fail("locked")
+	var per := int(ContentDB.config("garden").get("water", {}).get("per_day", 3))
+	var day := Clock.reset_day(Clock.now_utc())
+	if not (c.crafting.get("spring") is Dictionary) or int(c.crafting.spring.get("day", -1)) != day: c.crafting["spring"] = {"day": day, "count": 0}
+	if int(c.crafting.spring.count) >= per: return fail("spent", {"text": Tx.t("sim.crafting.spring_spent")})
+	game.inventory.apply_add(c.id, "spring_water", 1, "spring")
+	c.crafting.spring.count = int(c.crafting.spring.count) + 1
+	var left := per - int(c.crafting.spring.count)
+	emit("spring_bottled", {"actor": c.id, "left": left})
+	return ok({"text": Tx.t("sim.crafting.spring_bottled") % left, "left": left})
+
+# ------------------------------------------------------------------ transplanting (S45)
+## Can this character dig up a rare herb? A Spirit Spade and Expert gathering.
+func can_transplant(c) -> bool:
+	var need := str(ContentDB.config("garden").get("transplant", {}).get("rank", "expert"))
+	return tool_power(c, "transplant") > 0.0 and rank_index(rank_of(c, "herb_gathering")) >= rank_index(need)
+
+## The odds it dies on the way: 25% at Expert, 5% less per rank above.
+func transplant_death(c) -> float:
+	var t: Dictionary = ContentDB.config("garden").get("transplant", {})
+	var above := rank_index(rank_of(c, "herb_gathering")) - rank_index(str(t.get("rank", "expert")))
+	return maxf(0.0, float(t.get("death", 0.25)) - float(t.get("per_rank", 0.05)) * maxi(0, above))
+
+## Dig a rare herb up whole and move it, at its age, to the first free bed that can hold it (grown and ready).
+## Picked before it ripens it is a tier younger, as a pick would be. Either way the node is spent until its next
+## ripening.
+func transplant(c, object_id: String) -> Dictionary:
+	var rt: RoomRuntime = game.room_rt
+	if rt == null: return fail("no_room")
+	var o := rt.object_def(object_id)
+	if o.is_empty() or str(o.get("type", "")) != "herb_patch" or not o.has("ripen"): return fail("not_rare")
+	if not can_transplant(c): return fail("cannot", {"text": Tx.t("sim.crafting.transplant_needs")})
+	var avail: Dictionary = game.world.object_available(c, o)
+	if not avail.ok: return fail("unavailable", {"text": str(avail.get("text", ""))})
+	var guard: String = game.world.herb_guard_text(c, o)
+	if guard != "": return fail("guarded", {"text": guard})
+	var now := Clock.now_utc()
+	var herb := HerbRules.aged_down(str(o.item), 0 if bool(HerbRules.ripen_state(o, now).ripe) else 1)
+	var target := ""
+	for key in beds(c).keys() + _known_bed_keys(c):
+		if str(settle_bed(c, str(key)).herb) == "" and bed_holds(c, str(key), herb):
+			target = str(key)
+			break
+	if target == "": return fail("no_bed", {"text": Tx.t("sim.crafting.no_free_bed") % ContentDB.item_name(herb)})
+	game.world.apply_node_depleted(c, object_id, maxf(60.0, HerbRules.regrow_at(o, now) - now))
+	var died := Rng.stream(c.id, "garden").randf() < transplant_death(c)
+	if not died:
+		var rec := bed_record(c, target)
+		rec.herb = herb
+		rec.progress = 1.0
+		rec.grow_s = float(ContentDB.config("garden").get("grow_hours", {}).get(HerbRules.family(herb), 4)) * 3600.0
+		rec.updated = now
+	emit("transplant_result", {"actor": c.id, "object": object_id, "herb": herb, "ok": not died, "bed": target})
+	return ok({"herb": herb, "survived": not died, "bed": target})
+
+## Every bed the character can use, in rooms it has been to (a transplant looks for room in any of them).
+func _known_bed_keys(c) -> Array:
+	var out: Array = []
+	for rid in ContentDB.rooms:
+		if not game.account.visited_rooms.has(rid): continue
+		for key in room_beds(c, str(rid)):
+			if not out.has(key): out.append(key)
+	return out
 
 ## Fishing result from the mini-game (S33). The authority rolls the catch.
 func catch_fish(c, object_id: String, result: Dictionary) -> Dictionary:

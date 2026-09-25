@@ -106,8 +106,9 @@ Progress is recorded in `docs/CHANGELOG.md`.
   ambushes, the nascent-soul escape, the Comet Captain's self-detonation). S48 is complete.
 - **V6a**: done (herb ages, rare nodes with ripening, guardians and seasons, the harvest tap, seeds, the Codex
   calendar).
+- **V6b**: done (garden beds and the Garden page, field grades, Spirit Soil, spring water, transplanting, the
+  Verdant Dew Vial; Cloud Sect beds). The 10,000-year herbs of the Azure Expanse wait for their nodes (v1.1).
 - Next:
-  - V6b: garden beds, field grades, Spirit Soil, spring water, transplanting, the Verdant Dew Vial;
   - V6c: racks, raids, fakes, treasure births, gathering trials;
   - V7 (S46 beasts, with the pet pills, the Purifying Offering and Fox Spirit's Favour);
   - V8 (S49 living world).

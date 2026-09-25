@@ -46,7 +46,7 @@ const PAGES := {
 	"arrays": "res://scripts/ui/pages/crafts_page.gd",
 	"charts": "res://scripts/ui/pages/crafts_page.gd",
 	"vessels": "res://scripts/ui/pages/crafts_page.gd",
-	"garden": "res://scripts/ui/pages/crafts_page.gd",
+	"garden": "res://scripts/ui/pages/garden_page.gd",
 	"fishing": "res://scripts/ui/pages/fishing_page.gd",
 	"seclusion": "res://scripts/ui/pages/cultivation_page.gd",
 	"heart": "res://scripts/ui/pages/cultivation_page.gd",
@@ -262,6 +262,21 @@ func _handle_preview_args(user_args: Array) -> void:
 				var hs := HerbRules.ripen_state(ho, Clock.now_utc())
 				if HerbRules.in_season(ho, Clock.now_utc()) and hs.ripe: break
 				Clock.debug_offset_s += 604800.0 if not HerbRules.in_season(ho, Clock.now_utc()) else float(hs.seconds) + 120.0
+	if "--garden-preview" in user_args and Game.room_rt:
+		# Debug tools (S38): fill this room's garden beds to show every state (S45).
+		var gc = Game.active()
+		var keys: Array = Game.crafting.room_beds(gc, Game.room_rt.room_id)
+		var fill := [["willow_moss", 0.45, 0], ["cloudtop_orchid", 0.8, 1], ["riverreed_ginseng_100", 1.0, 0]]
+		for i in mini(keys.size(), fill.size()):
+			var rec: Dictionary = Game.crafting.bed_record(gc, str(keys[i]))
+			rec.herb = str(fill[i][0])
+			rec.progress = float(fill[i][1])
+			rec.soil = int(fill[i][2])
+			rec.grow_s = 8.0 * 3600.0
+			rec.updated = Clock.now_utc()
+		for it in [["spring_water", 2], ["spirit_soil", 1], ["verdant_dew_vial", 1], ["willow_moss_seed", 3], ["ember_pepper_seed", 2]]:
+			Game.inventory.apply_add(gc.id, str(it[0]), int(it[1]), "debug")
+		gc.crafting["dew"] = {"count": 2, "last": Clock.now_utc() - 3600.0}
 	if "--tap-preview" in user_args and is_instance_valid(hud):
 		# Debug tools (S38): hold the harvest ring part-way through its shrink (S45).
 		await get_tree().create_timer(1.0).timeout
@@ -395,6 +410,10 @@ func save_and_quit() -> void:
 
 # ------------------------------------------------------------------ pages
 func open_page(id: String, a: Dictionary) -> void:
+	if id == "_harvest":
+		# S45: "Pick it" at a rare herb hands back to the HUD's hold-and-tap harvest.
+		if is_instance_valid(hud): hud.begin_harvest(str(a.get("object", "")))
+		return
 	if id == "_exit":
 		return_to_selection()
 		return

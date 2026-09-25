@@ -105,6 +105,7 @@
     700
    ],
    "alt": 100,
+   "field_grade": "low",
    "requires": {
     "all": [
      {
@@ -123,6 +124,7 @@
     700
    ],
    "alt": 100,
+   "field_grade": "low",
    "requires": {
     "all": [
      {
@@ -141,6 +143,7 @@
     700
    ],
    "alt": 100,
+   "field_grade": "low",
    "requires": {
     "all": [
      {

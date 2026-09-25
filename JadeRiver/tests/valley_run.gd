@@ -1002,8 +1002,16 @@ func sec_qu1() -> void:
 	check(reach("qi_unfurling_4"), "Qi Unfurling 4")
 	check(start("seeds_of_the_valley"), "Seeds of the Valley accepted")
 	check(travel("ja_herb_terraces"), "reach the Herb Terraces")
-	for o in objects_of("garden_bed"): interact(str(o.id))
+	var planted := 0
+	for o in objects_of("garden_bed"):
+		interact(str(o.id))
+		if submit({"type": "plant_seed", "bed": Game.room_rt.room_id + ":" + str(o.id), "seed": "willow_moss_seed"}).get("ok", false): planted += 1
+	check(planted == 3, "plant the three willow moss seeds Gardener Ji gives (%d)" % planted)
 	check(finish("seeds_of_the_valley"), "Seeds of the Valley done")
+	# Two hours on, the moss is grown: harvest one bed.
+	Clock.debug_offset_s += 2.0 * 3600.0 + 60.0
+	var moss := submit({"type": "harvest_bed", "bed": "ja_herb_terraces:bed_0"})
+	check(moss.get("ok", false) and str(moss.get("item", "")) == "willow_moss", "two hours later the first bed is ready to harvest %s" % str(moss))
 
 # ------------------------------------------------------------------ Qi Unfurling 5-9
 func sec_qu5() -> void:

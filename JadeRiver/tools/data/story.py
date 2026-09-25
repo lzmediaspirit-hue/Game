@@ -491,7 +491,7 @@ def unlocks():
     u("your_sect", "Your own sect", all_of({"kind": "account_realm", "realm": "qi_unfurling_1"}), "a_hall_of_our_own", ["page:your_sect"], scope="account")
     u("smithing", "Smithing", all_of(realm("qi_unfurling_2")), "the_sect_forge", [], effects=[{"kind": "grant_item", "item": "forge_hammer", "count": 1}])
     u("inheritances", "Inheritances", all_of(realm("qi_unfurling_3")), "the_shrine_surfaces", [])
-    u("herb_garden", "Herb garden", all_of(realm("qi_unfurling_4")), "seeds_of_the_valley", [])
+    u("herb_garden", "Herb garden", all_of(realm("qi_unfurling_4")), "seeds_of_the_valley", [], effects=[{"kind": "codex", "entry": "herb_garden"}])
     u("spirit_animals", "Spirit animals", all_of(realm("qi_unfurling_5")), "a_friend_in_the_reeds", ["hud:pet", "page:spirit_animals"])
     u("technique_slots_8", "Eight technique slots", all_of(realm("qi_unfurling_6")), "full_hands", [])
     u("field_bosses", "Field bosses", all_of(realm("qi_unfurling_7")), "the_riverbed_serpent", [])
@@ -927,9 +927,13 @@ def guided_quests():
         offer=["A disciple with Qi in their hands can work the sect forge. Take this hammer. Forge something, then make it better."],
         complete=["An Earth blueprint. Don't waste the Jadeiron."])
     quest("seeds_of_the_valley", "Seeds of the Valley", "guided", "jade_gardener", [
-        o("interact_object", "Tend a garden bed", 3, type="garden_bed"),
-    ], [item("willow_moss", 5)], offered_by_unlock=True, chapter="qu4", giver_any=["jade_gardener", "cloud_gardener"], hand_in_any=["jade_gardener", "cloud_gardener"],
-        offer=["Plant, water, harvest. Three beds."], complete=["You've got green hands."])
+        o("use_system", "Plant a seed in three garden beds", 3, system="plant_seed"),
+    ], [item("willow_moss", 5), item("spring_water", 3)], offered_by_unlock=True, chapter="qu4", giver_any=["jade_gardener", "cloud_gardener"],
+        hand_in_any=["jade_gardener", "cloud_gardener"], on_accept=[fx("grant_item", item="willow_moss_seed", count=3)],
+        offer=["Three willow moss seeds, three beds. Plant them.",
+               "Granny Liu sells the common seeds. A perfect harvest shakes rarer ones loose, and the old inheritances hide the rarest."],
+        complete=["You've got green hands. Water them with spring water and they grow while you're away.",
+                  "A Qi spring gives three bottles a day. Here are three to start."])
     quest("a_friend_in_the_reeds", "A Friend in the Reeds", "guided", "hermit_yao", [
         o("bond_pet", "Choose a starter spirit animal"),
     ], [item("bonding_offering_common", 5)], offered_by_unlock=True, chapter="qu5", target_room="rm_hermit_stilt_house",
@@ -1077,8 +1081,9 @@ def guided_quests():
         offer=["Spirit Awakening needs a mind lake. This pill opens it."], complete=["Take it when you're ready to wake."])
     quest("a_lake_inside", "A Lake Inside", "guided", "elder_hu", [
         o("use_system", "Pulse Spirit Sense", 5, system="spirit_sense"),
-    ], [item("cloud_talisman", 1)], offered_by_unlock=True, chapter="sa1", giver_any=M, hand_in_any=M,
-        offer=["Your soul has a lake now. Pulse it outward: Spirit Sense."], complete=["The world has more in it than eyes see."])
+    ], [item("cloud_talisman", 1), item("verdant_dew_vial", 1)], offered_by_unlock=True, chapter="sa1", giver_any=M, hand_in_any=M,
+        offer=["Your soul has a lake now. Pulse it outward: Spirit Sense."],
+        complete=["The world has more in it than eyes see.", "Take this vial too. It gathers a drop of dew a day. Pour it on your garden and the herb there grows a century."])
     quest("what_the_eyes_miss", "What the Eyes Miss", "main", "elder_hu", [
         o("use_portal", "Find and use hidden portals", 3, hidden=True),
     ], [fx("learn_secret_art", art="concealment")], offered_by_unlock=True, chapter="8", giver_any=M, hand_in_any=M,
@@ -1937,6 +1942,8 @@ def codex():
          "body": "Guildmaster Tang keeps the guild's hall in Stoneford's Artisan Row. Each rank is one exam against the candle: five Fine Healing Pills in three minutes for Adept, three Superior Foundation Guard Pills in five for Expert. A badge opens the guild shop and the commission board, three orders a morning, paid in taels or contribution up to a fifth of what a day's work would earn you."},
         {"id": "rare_herbs", "title": "Rare herbs",
          "body": "Most herbs are ten years old when you find them. A few patches, always on high ground, grow for a hundred years or a thousand. They ripen only for twenty minutes around their hour, every second, third or fifth day, and some flower in one season only. Pick one early and it is a tier younger. The hold ends in a ring: tap inside the gold band for a perfect harvest, which keeps the herb's full age and may shake a seed loose. Miss, and it drops a tier. Guardians wake when you climb toward a ripe one: kill them, draw them off past their leash, or pick the herb unseen under Concealment. A Spirit Sense pulse reads each patch's time. In a recipe an older herb can stand in for a younger one of its family, and it refines better."},
+        {"id": "herb_garden", "title": "The herb garden",
+         "body": "A garden bed grows a herb from seed while you are away: willow moss in two hours, a ginseng root in four, an orchid in eight. A room's Qi speeds it (a cave abode's beds grow half again as fast). Bottled spring water, three bottles a day from any Qi spring, hurries a herb by a quarter. Each bed has a field grade: Low beds grow up to Earth-grade herbs, Mid up to Heaven, High up to Mystic. Spirit Soil raises a bed one grade for good. With a Spirit Spade and Expert gathering you can dig up a rare herb and bring it home at its age, though one in four dies on the way. The Verdant Dew Vial fills with a drop a day; each drop ages the herb in a bed one tier, as far as the valley's Qi allows: a thousand years."},
         {"id": "seasons", "title": "Seasons",
          "body": "The year turns every week with the Monday reset: Spring, Summer, Autumn, Winter. A rare herb tied to a season lies dormant outside it. The Codex's Seasons tab shows the calendar. No road and no realm ever waits on a season."},
         {"id": "experiments", "title": "Experiments",

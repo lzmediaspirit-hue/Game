@@ -2631,6 +2631,14 @@
      "chance": 1.0
     },
     {
+     "item": "spirit_soil",
+     "count": [
+      1,
+      1
+     ],
+     "chance": 1.0
+    },
+    {
      "item": "spirit_stone_shard",
      "count": [
       2,

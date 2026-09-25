@@ -767,6 +767,48 @@
     "workshop_authority"
    ]
   },
+  "herb_planted": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "bed_watered": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "bed_enriched": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "herb_aged": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "spring_bottled": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
+  "transplant_result": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
   "currency_changed": {
    "system": "Economy",
    "files": [

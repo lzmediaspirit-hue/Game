@@ -2036,10 +2036,10 @@
    "marker": "blue",
    "objectives": [
     {
-     "kind": "interact_object",
-     "text": "Tend a garden bed",
+     "kind": "use_system",
+     "text": "Plant a seed in three garden beds",
      "count": 3,
-     "type": "garden_bed"
+     "system": "plant_seed"
     }
    ],
    "rewards": [
@@ -2047,13 +2047,20 @@
      "kind": "grant_item",
      "item": "willow_moss",
      "count": 5
+    },
+    {
+     "kind": "grant_item",
+     "item": "spring_water",
+     "count": 3
     }
    ],
    "offer_text": [
-    "Plant, water, harvest. Three beds."
+    "Three willow moss seeds, three beds. Plant them.",
+    "Granny Liu sells the common seeds. A perfect harvest shakes rarer ones loose, and the old inheritances hide the rarest."
    ],
    "complete_text": [
-    "You've got green hands."
+    "You've got green hands. Water them with spring water and they grow while you're away.",
+    "A Qi spring gives three bottles a day. Here are three to start."
    ],
    "offered_by_unlock": true,
    "chapter": "qu4",
@@ -2064,6 +2071,13 @@
    "hand_in_any": [
     "jade_gardener",
     "cloud_gardener"
+   ],
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "willow_moss_seed",
+     "count": 3
+    }
    ]
   },
   {
@@ -3195,13 +3209,19 @@
      "kind": "grant_item",
      "item": "cloud_talisman",
      "count": 1
+    },
+    {
+     "kind": "grant_item",
+     "item": "verdant_dew_vial",
+     "count": 1
     }
    ],
    "offer_text": [
     "Your soul has a lake now. Pulse it outward: Spirit Sense."
    ],
    "complete_text": [
-    "The world has more in it than eyes see."
+    "The world has more in it than eyes see.",
+    "Take this vial too. It gathers a drop of dew a day. Pour it on your garden and the herb there grows a century."
    ],
    "offered_by_unlock": true,
    "chapter": "sa1",

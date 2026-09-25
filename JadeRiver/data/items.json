@@ -510,6 +510,26 @@
    }
   },
   {
+   "id": "spring_water",
+   "name": "Bottled Spring Water",
+   "type": "material",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 20,
+   "icon": "spring_water",
+   "desc": "Qi-spring water in a stoppered gourd. Poured on a garden bed, it hurries the herb along by a quarter. A spring gives three bottles a day."
+  },
+  {
+   "id": "spirit_soil",
+   "name": "Spirit Soil",
+   "type": "material",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 20,
+   "icon": "spirit_soil",
+   "desc": "Black earth that still remembers a spirit vein. Worked into a garden bed, it raises the bed's field grade one step, for good. Strong beasts sometimes carry it in their hides."
+  },
+  {
    "id": "copper_ore",
    "name": "Copper",
    "type": "ore",
@@ -2287,6 +2307,34 @@
    "desc": "A folding bamboo rack. Dried herbs keep longer and refine cleaner.",
    "tool": {
     "craft": "alchemy",
+    "power": 1.0
+   }
+  },
+  {
+   "id": "spirit_spade",
+   "name": "Spirit Spade",
+   "type": "tool",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "spirit_spade",
+   "desc": "A jade-edged spade that cuts earth without cutting roots. With Expert gathering, dig a rare herb up whole and move it to a garden bed.",
+   "tool": {
+    "craft": "transplant",
+    "power": 1.0
+   }
+  },
+  {
+   "id": "verdant_dew_vial",
+   "name": "Verdant Dew Vial",
+   "type": "tool",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 1,
+   "icon": "verdant_dew_vial",
+   "desc": "A green glass vial that fills with one drop of dew a day, even while you are away (it holds three). A drop ages the herb in a bed one tier.",
+   "tool": {
+    "craft": "garden_dew",
     "power": 1.0
    }
   },

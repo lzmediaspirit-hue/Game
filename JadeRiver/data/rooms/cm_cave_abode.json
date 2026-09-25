@@ -157,6 +157,42 @@
     ]
    },
    "locked_text": "Rich dark earth, ringed with river stones."
+  },
+  {
+   "id": "bed_0_cm_cave_abode",
+   "type": "garden_bed",
+   "at": [
+    960,
+    900
+   ],
+   "field_grade": "mid",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_garden"
+     }
+    ]
+   },
+   "locked_text": "A bed of dark abode earth."
+  },
+  {
+   "id": "bed_1_cm_cave_abode",
+   "type": "garden_bed",
+   "at": [
+    1100,
+    900
+   ],
+   "field_grade": "mid",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_garden"
+     }
+    ]
+   },
+   "locked_text": "A bed of dark abode earth."
   }
  ],
  "spawns": [],

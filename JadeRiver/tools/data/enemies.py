@@ -369,6 +369,7 @@ def build():
                    "groups": [], "coins": {"chance": 1.0, "mult": 12}, "rare": [], "equipment": {}})
     # The Drowned Abbot's sealed vault (SA3, S44): the Nine-Dragon Cauldron he kept, and a dungeon chest's worth besides.
     tables.append({"id": "abbots_vault", "guaranteed": [{"item": "nine_dragon_cauldron", "count": [1, 1], "chance": 1.0},
+                                                        {"item": "spirit_soil", "count": [1, 1], "chance": 1.0},
                                                         {"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "foundation_guard_pill", "weight": 1, "count": [1, 1]}]}],
                    "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {}})
