@@ -35,6 +35,7 @@ const PAGES := {
 	"your_sect": "res://scripts/ui/pages/your_sect_page.gd",
 	"spirit_animals": "res://scripts/ui/pages/pets_page.gd",
 	"beast_arena": "res://scripts/ui/pages/beast_arena_page.gd",
+	"relations": "res://scripts/ui/pages/relations_page.gd",
 	"companions": "res://scripts/ui/pages/companions_page.gd",
 	"crafts": "res://scripts/ui/pages/crafts_page.gd",
 	"cooking": "res://scripts/ui/pages/crafts_page.gd",
@@ -194,6 +195,12 @@ func _handle_preview_args(user_args: Array) -> void:
 		if str(a).begins_with("--arena=") and Game.active() != null:
 			# Debug tools (S38): --arena=solo|trio fights one Beast Arena challenge (S46 previews).
 			Game.pets.arena_challenge(Game.active(), str(a).trim_prefix("--arena="))
+		if str(a).begins_with("--deed=") and Game.active() != null:
+			# Debug tools (S38): --deed=id applies one karma.json deed (S49 Relations previews); repeatable.
+			Game.relations.apply_deed(Game.active().id, str(a).trim_prefix("--deed="))
+		if str(a) == "--challenge" and Game.active() != null:
+			# Debug tools (S38): a young master's challenge waits in this room (S49 Fame previews).
+			Game.relations.offer_challenge(Game.active(), "young_master")
 		if str(a).begins_with("--egg=") and Game.active() != null:
 			# Debug tools (S38): --egg=species puts a warming egg in the nest (S46 incubation previews).
 			Game.active().eggs.append({"species": str(a).trim_prefix("--egg="), "hatch_utc": Clock.now_utc() + 7200.0})

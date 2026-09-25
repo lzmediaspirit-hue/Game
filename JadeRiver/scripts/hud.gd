@@ -620,6 +620,17 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.merit_gained") % int(p.delta), UiKit.PALE_GOLD)
 		"sin_changed":
 			if int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.sin_gained") % int(p.delta), Color("e07a7a"))
+		# S49: alignment and Fame; a young master's challenge opens the Fame tab, where it is answered.
+		"alignment_changed":
+			if p.get("word_changed", false): toast(Tx.t("hud.alignment_now") % Tx.t("ui.relations.align_" + str(p.word)), "gold")
+		"fame_changed":
+			if p.get("tier_up", false): toast(Tx.t("hud.fame_tier") % Tx.t("ui.relations.fame_" + str(p.tier)), "unlock")
+			elif int(p.get("delta", 0)) < 0: add_log(Tx.t("hud.fame_lost") % -int(p.delta), UiKit.MIST)
+			elif int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.fame_gained") % int(p.delta), UiKit.PALE_GOLD)
+		"young_master_challenge":
+			if str(p.get("actor", "")) == Game.active_id:
+				toast(Tx.t("hud.young_master"), "quest")
+				open_page.emit("relations", {"tab": "fame"})
 		"draught_expired":
 			toast(Tx.t("hud.draught_expired") % ContentDB.item_name(str(p.get("item", ""))), "danger")
 		"flame_absorbed":

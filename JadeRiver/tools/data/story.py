@@ -593,15 +593,15 @@ def o(kind, text, count=1, **kw):
     return d
 
 
-# Gap report G1 · the karma ledger: deeds that ease another's lot earn merit on completion.
-KARMA_QUESTS = {"grannys_remedy": 5, "the_rite": 10, "the_infirmary": 10, "what_remains": 10, "passing_it_on": 10,
-                "guos_old_wound": 10, "cleansing_the_well": 15, "grey_roofs": 10, "dous_kite_returns": 5, "a_second_try": 5}
+# Gap report G1 · the karma ledger: deeds that ease another's lot earn merit on completion. Their merit, alignment
+# and Fame are in karma.json (relations.py, S49); the quest reward names the deed.
+from relations import QUEST_DEEDS as KARMA_QUESTS
 
 
 def quest(qid, name, kind, giver, objectives, rewards=(), hand_in=None, offer=(), complete=(), progress=(), **kw):
     rewards = list(rewards)
     if qid in KARMA_QUESTS:
-        rewards.append({"kind": "add_merit", "amount": KARMA_QUESTS[qid], "reason": qid})
+        rewards.append({"kind": "deed", "deed": qid})
     d = {"id": qid, "name": name, "kind": kind, "giver": giver, "hand_in": giver if hand_in is None else hand_in,
          "marker": kw.pop("marker", "gold" if kind in ("main", "prologue") else "blue"),
          "objectives": list(objectives), "rewards": rewards}
@@ -1725,13 +1725,13 @@ def dialogue():
     # Night: send villagers to the hut.
     tree("little_dou", [{"requires": all_of({"kind": "in_room", "room": "lf_village_night"}, noflag("dou_safe")), "node": "night"}],
          {"night": {"lines": ["The water's grey! There's something in it!"],
-                    "choices": [{"text": "Run to the hut! Now!", "effects": [{"kind": "set_flag", "flag": "dou_safe"}, {"kind": "add_merit", "amount": 10, "reason": "the_hollow_night"}], "close": True}]}})
+                    "choices": [{"text": "Run to the hut! Now!", "effects": [{"kind": "set_flag", "flag": "dou_safe"}, {"kind": "deed", "deed": "rescue_dou"}], "close": True}]}})
     tree("granny_liu", [{"requires": all_of({"kind": "in_room", "room": "lf_village_night"}, noflag("granny_safe")), "node": "night"}],
          {"night": {"lines": ["My old legs... help me, child."],
-                    "choices": [{"text": "Lean on me. To Aunt Ping's hut.", "effects": [{"kind": "set_flag", "flag": "granny_safe"}, {"kind": "add_merit", "amount": 10, "reason": "the_hollow_night"}], "close": True}]}})
+                    "choices": [{"text": "Lean on me. To Aunt Ping's hut.", "effects": [{"kind": "set_flag", "flag": "granny_safe"}, {"kind": "deed", "deed": "rescue_granny"}], "close": True}]}})
     tree("old_ma", [{"requires": all_of({"kind": "in_room", "room": "lf_village_night"}, noflag("ma_safe")), "node": "night"}],
          {"night": {"lines": ["My shop! My stock!"],
-                    "choices": [{"text": "Leave it! Get to the hut!", "effects": [{"kind": "set_flag", "flag": "ma_safe"}, {"kind": "add_merit", "amount": 10, "reason": "the_hollow_night"}], "close": True}]}})
+                    "choices": [{"text": "Leave it! Get to the hut!", "effects": [{"kind": "set_flag", "flag": "ma_safe"}, {"kind": "deed", "deed": "rescue_ma"}], "close": True}]}})
     # Sect choice at the Recruitment Fair.
     for rid, s, sname, pitch in [("recruiter_jade", "jade_sect", "Jade Sect", "Water's patience, the sword's clarity. Jade Current Scripture: steady, deep, forgiving."),
                                  ("recruiter_cloud", "cloud_sect", "Cloud Sect", "Wind and height. Cloudpiercing Canon: fast, sharp, a little wild.")]:
@@ -1774,7 +1774,7 @@ def dialogue():
                                 {"kind": "grant_title", "title": "seal_keeper"}], "close": True},
                                {"text": "No. It goes back into the King's hand, and the tomb stays shut.",
                                 "effects": [{"kind": "set_flag", "flag": "tomb_resealed"}, {"kind": "remove_item", "item": "sunscar_seal", "count": 1},
-                                            {"kind": "add_merit", "amount": 20, "reason": "tomb_resealed"},
+                                            {"kind": "deed", "deed": "tomb_resealed"},
                                             {"kind": "grant_title", "title": "sunscar_sealer"}], "close": True}]},
           "waiting": {"lines": ["Go on. He is waiting on his throne, as he has for three thousand years.", "I will wait too. I am good at it."],
                       "choices": [{"text": "(Leave him.)", "close": True}]}})
@@ -1786,13 +1786,13 @@ def dialogue():
                                "Three disciples of the Nine Peaks sold them the Gate's watch. It is all in the ledger. Free me and it is yours."],
                      "choices": [{"text": "(Break his chains.) Go home, Gu. Pay your debts there.",
                                   "effects": [{"kind": "set_flag", "flag": "gu_freed"}, {"kind": "grant_item", "item": "black_ledger", "count": 1},
-                                              {"kind": "add_merit", "amount": 15, "reason": "gu_freed"},
+                                              {"kind": "deed", "deed": "gu_freed"},
                                               {"kind": "record_debt", "id": "gu_repays", "due_h": 48, "mail": "gu_repays",
                                                "attachments": [{"currency": "spirit_stone", "amount": 60}, {"item": "sentinel_core", "count": 1}]}],
                                   "close": True},
                                  {"text": "(Take the ledger from his belt.) The Alliance can decide about you.",
                                   "effects": [{"kind": "set_flag", "flag": "gu_left"}, {"kind": "grant_item", "item": "black_ledger", "count": 1},
-                                              {"kind": "add_sin", "amount": 10, "reason": "gu_left"},
+                                              {"kind": "deed", "deed": "gu_left"},
                                               {"kind": "record_debt", "id": "gu_remembers", "due_h": 72, "mail": "gu_remembers", "attachments": []}],
                                   "close": True}]}})
     # Chapter 15: after the Gate holds, the Black Ledger's fate.
@@ -1803,11 +1803,11 @@ def dialogue():
                                "Burn it and nobody pays again. Or send each page home, and let every family decide what their secret is worth."],
                      "choices": [{"text": "Burn it. The debts end here.",
                                   "effects": [{"kind": "set_flag", "flag": "ledger_burned"}, {"kind": "remove_item", "item": "black_ledger", "count": 1},
-                                              {"kind": "add_merit", "amount": 20, "reason": "ledger_burned"},
+                                              {"kind": "deed", "deed": "ledger_burned"},
                                               {"kind": "grant_title", "title": "ledger_burner"}], "close": True},
                                  {"text": "Send each page home to its family.",
                                   "effects": [{"kind": "set_flag", "flag": "ledger_returned"}, {"kind": "remove_item", "item": "black_ledger", "count": 1},
-                                              {"kind": "add_sin", "amount": 10, "reason": "ledger_returned"},
+                                              {"kind": "deed", "deed": "ledger_returned"},
                                               {"kind": "grant_title", "title": "ledger_returner"}], "close": True}]}})
     tree("broker_mu", [{"requires": all_of(qdone("the_mirror_remembers"), noflag("heard_nine_seats")), "node": "rumours"}],
          {"rumours": {"lines": ["You look like someone who has seen a ghost in a lake. It happens.",
@@ -1941,7 +1941,11 @@ def codex():
         {"id": "inner_arts", "title": "Inner Arts",
          "body": "Inner Arts are passive: a way of breathing, of standing, of carrying the Qi. The Mission Halls teach them from thin manuals. Two can be worn from Qi Unfurling 1, three from Heart Tempering 1, four from Spirit Awakening 1. A few belong to one weapon and sleep while another is in hand."},
         {"id": "karma", "title": "Merit and sin",
-         "body": "The world keeps a ledger. Mercy and help earn merit: a hundred of it eases one great breakthrough in each realm. Cruelty and the back-room markets earn sin, and sin feeds the heart demon. Some deeds come back as letters."},
+         "body": "The world keeps a ledger. Mercy and help earn merit: a hundred of it eases one great breakthrough in each realm. Cruelty and the back-room markets earn sin, and sin feeds the heart demon and strengthens the heavenly tribulation. Some deeds come back as letters. The Relations page keeps the ledger."},
+        {"id": "alignment", "title": "The righteous and the demonic",
+         "body": "Every choice leans you one way or the other, from demonic through shadowed, balanced and upright to righteous. The Cloud Sect's abbots keep some of their wares for the upright, and Broker Mu keeps his worst goods for the shadowed. Alignment opens and closes doors like these; it never stands between you and your next realm."},
+        {"id": "fame", "title": "Fame",
+         "body": "Your own name, apart from any sect's standing: Unknown, Noted, Rising, Renowned, Legendary. Tournaments, great foes and the Beast Tide raise it. People talk, and losing a spar where the town can see costs you. From Rising, young masters of good families come looking to test you. Accept and win, and your name grows; decline, and it shrinks a little."},
         {"id": "furnaces_and_fire", "title": "Furnace and fire",
          "body": "The furnace you set in the furnace slot decides the batch, how steady the heat is, how many impurities it strains out, and sometimes one pill more. Better ones are forged at the forge, and enhancing one steadies its heat. Charcoal takes a pill as far as Perfect. Earth Fire at a vent, or a beast core of rank 2 or more burnt as Beast Fire, can reach Pill Grain. Only a Heavenly Flame, or the Nine-Dragon Cauldron, reaches Halo and Soul."},
         {"id": "alchemist_guild", "title": "The Alchemist Guild",

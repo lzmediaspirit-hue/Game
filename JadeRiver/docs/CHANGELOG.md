@@ -5,6 +5,48 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V8a · The living world: the Relations authority, karma deeds, alignment and Fame (S49)
+- **Relations authority** (new, per character). It owns the karma ledger, which moves off the cultivator, and old
+  saves carry their merit, sin, debts and eased realms across. Progression, Combat and the tribulation now read the
+  ledger from it. `merit_changed`, `sin_changed`, `debt_recorded` and `debt_called` are its events now.
+- **karma.json** (new, from `tools/data/relations.py`): every deed with its merit, sin, alignment and Fame.
+  - A deed fires three ways: from the `deed` effect (quest rewards, dialogue choices), from code (a patient
+    healed), or from a matching event (a back-room purchase, the Beast Tide held, a field lord felled, a spar won
+    or lost where a town can see).
+  - Flags: once, once per boss, per item bought, and town-only.
+  - Part 8 numbers: cleansing a Hollowed village or well is +30 merit (it was +15 and +10), and each patient
+    healed is +2. The build's own deeds (the Hollow Night rescues, the tomb, Elder Gu, the ledger) are now named
+    deeds.
+- **Alignment**: −100 (demonic) to +100 (righteous), named Demonic, Shadowed, Balanced, Upright or Righteous.
+  - Deeds lean it.
+  - New requirement kinds: `alignment_at_least`, `alignment_at_most`, `merit_at_least` and `fame_at_least`.
+  - The Cloud Sect sells Calm Heart Incense only to the upright. Broker Mu keeps Mid Soul Cores and Beast
+    Essence Blood under the counter for the shadowed.
+  - Data validation keeps these kinds off every realm breakthrough.
+- **Personal Fame**: Unknown, Noted, Rising, Renowned, Legendary.
+  - Raised by tournaments (qualifier +20, last eight +60, finals +150), great foes, cleansings and the Beast Tide.
+  - Losing a spar in a town costs 5.
+  - From Noted, townsfolk greet you by name.
+  - From Rising, Young Master Luo Heng may be waiting when you walk into a town (once a day). Accept, and he
+    spars at your level (+15 Fame for humbling him). Decline, and you lose 5.
+- **Relations page** (Character → Relations; also the Heart tab's Ledger button) with four tabs:
+  - Karma: merit, sin, the merit step, the alignment scale, recent deeds and named debts.
+  - Bonds and Grudges: filled in by V8b and V8c.
+  - Fame: the tier ladder and what each tier brings, plus a waiting challenge with Accept and Decline.
+- Quest rewards list the merit and Fame a deed gives. There are Codex entries for alignment and Fame.
+- **Events:** `alignment_changed`, `fame_changed` and `young_master_challenge`, with HUD notes. Intent:
+  `answer_challenge`.
+- **Debug flags:** `--deed=id` and `--challenge`.
+- **Tests:**
+  - old-save migration;
+  - once-only deeds;
+  - public and private spars;
+  - once-per-boss Fame;
+  - tier-ups;
+  - alignment clamps and gates;
+  - per-item black-market sin;
+  - the young master's chance, daily limit, decline, accept (at your level) and lapse.
+
 ### V7e · Spirit beasts: the Beast Arena, the Trial Grove and the Taming Dao (S46)
 - **Beast Arena** (the ladder board on Market Street, and a new page). Ten NPC tamers, from Farmhand Qiao at rank 10
   to Jing Mo at rank 1.

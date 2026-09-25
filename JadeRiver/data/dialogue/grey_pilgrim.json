@@ -74,9 +74,8 @@
          "count": 1
         },
         {
-         "kind": "add_merit",
-         "amount": 20,
-         "reason": "tomb_resealed"
+         "kind": "deed",
+         "deed": "tomb_resealed"
         },
         {
          "kind": "grant_title",

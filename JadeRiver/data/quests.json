@@ -259,9 +259,8 @@
      "count": 3
     },
     {
-     "kind": "add_merit",
-     "amount": 5,
-     "reason": "grannys_remedy"
+     "kind": "deed",
+     "deed": "grannys_remedy"
     }
    ],
    "offer_text": [
@@ -2607,9 +2606,8 @@
      "amount": 100
     },
     {
-     "kind": "add_merit",
-     "amount": 10,
-     "reason": "the_infirmary"
+     "kind": "deed",
+     "deed": "the_infirmary"
     }
    ],
    "offer_text": [
@@ -3512,9 +3510,8 @@
    ],
    "rewards": [
     {
-     "kind": "add_merit",
-     "amount": 10,
-     "reason": "passing_it_on"
+     "kind": "deed",
+     "deed": "passing_it_on"
     }
    ],
    "offer_text": [
@@ -4059,9 +4056,8 @@
      "entry": "yan_heng"
     },
     {
-     "kind": "add_merit",
-     "amount": 10,
-     "reason": "the_rite"
+     "kind": "deed",
+     "deed": "the_rite"
     }
    ],
    "offer_text": [
@@ -4598,9 +4594,8 @@
    ],
    "rewards": [
     {
-     "kind": "add_merit",
-     "amount": 10,
-     "reason": "what_remains"
+     "kind": "deed",
+     "deed": "what_remains"
     }
    ],
    "complete_text": [
@@ -5015,9 +5010,8 @@
      "amount": 80
     },
     {
-     "kind": "add_merit",
-     "amount": 10,
-     "reason": "guos_old_wound"
+     "kind": "deed",
+     "deed": "guos_old_wound"
     }
    ],
    "offer_text": [
@@ -5094,9 +5088,8 @@
      "title": "guos_student"
     },
     {
-     "kind": "add_merit",
-     "amount": 5,
-     "reason": "a_second_try"
+     "kind": "deed",
+     "deed": "a_second_try"
     }
    ],
    "offer_text": [
@@ -5140,9 +5133,8 @@
      "amount": 50
     },
     {
-     "kind": "add_merit",
-     "amount": 5,
-     "reason": "dous_kite_returns"
+     "kind": "deed",
+     "deed": "dous_kite_returns"
     }
    ],
    "offer_text": [
@@ -5222,9 +5214,8 @@
      "amount": 120
     },
     {
-     "kind": "add_merit",
-     "amount": 10,
-     "reason": "grey_roofs"
+     "kind": "deed",
+     "deed": "grey_roofs"
     }
    ],
    "offer_text": [
@@ -5265,9 +5256,8 @@
      "amount": 150
     },
     {
-     "kind": "add_merit",
-     "amount": 15,
-     "reason": "cleansing_the_well"
+     "kind": "deed",
+     "deed": "cleansing_the_well"
     }
    ],
    "offer_text": [

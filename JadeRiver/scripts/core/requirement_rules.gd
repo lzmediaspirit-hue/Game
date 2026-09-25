@@ -86,6 +86,19 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 				if str(tiers[i].id) == str(cond.tier): need_i = i + 1
 			ok = c != null and ProgressionRules.body_tier_index(c.cultivator) >= need_i
 			text = Tx.t("req.body_tier") % ContentDB.name_of("body_tiers", str(cond.tier))
+		# S49 relations: never on a core realm requirement (data_validation holds that line).
+		"alignment_at_least":
+			ok = c != null and c.relations.alignment >= int(cond.value)
+			text = Tx.t("req.alignment_at_least") % [_alignment_name(int(cond.value)), int(cond.value)]
+		"alignment_at_most":
+			ok = c != null and c.relations.alignment <= int(cond.value)
+			text = Tx.t("req.alignment_at_most") % [_alignment_name(int(cond.value)), int(cond.value)]
+		"merit_at_least":
+			ok = c != null and c.relations.merit >= int(cond.value)
+			text = Tx.t("req.merit_at_least") % int(cond.value)
+		"fame_at_least":
+			ok = c != null and c.relations.fame >= int(cond.value)
+			text = Tx.t("req.fame_at_least") % int(cond.value)
 		"soul_at_least":
 			ok = c != null and c.pools.max_soul >= float(cond.value)
 			text = Tx.t("req.soul_pool") % int(cond.value)
@@ -231,6 +244,12 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 			text = Tx.t("req.unknown_requirement") + kind
 	if cond.has("text") and kind not in ["flag_set", "flag_not_set", "unlock", "never", "method_learned"]: text = str(cond.text)
 	return {"ok": ok, "cause": str(cond.get("cause", "")), "hard": bool(cond.get("hard", true)), "text": text, "fix": str(cond.get("fix", "")), "kind": kind}
+
+## The alignment word a value falls in (Demonic ... Righteous), for requirement text.
+static func _alignment_name(v: int) -> String:
+	for w in ContentDB.config("karma").get("alignment_words", []):
+		if v <= int(w.get("max", 100)): return str(w.get("name", w.id))
+	return ""
 
 ## A method's ceiling makes the next major breakthrough a material bottleneck (S08).
 static func method_supports_next(c) -> bool:

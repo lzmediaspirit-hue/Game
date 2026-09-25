@@ -136,7 +136,6 @@ func tick(delta: float) -> void:
 			emit("consolidation_finished", {"actor": c.id})
 	if cu.breakthrough_cooldown > 0.0: cu.breakthrough_cooldown = maxf(0.0, cu.breakthrough_cooldown - delta)
 	if cu.epiphany_cooldown > 0.0: cu.epiphany_cooldown = maxf(0.0, cu.epiphany_cooldown - delta)   # two hours of play (S48)
-	if not cu.debts.is_empty(): _settle_debts(c)
 	_tick_injuries(c, delta, 3.0 if cu.meditating else 1.0)
 	if cu.toxicity > 0.0:
 		var drain := float(ContentDB.stat_const("toxicity.drain_per_min", 1)) / 60.0 * delta
@@ -409,8 +408,8 @@ func query_breakthrough(c, support_items: Array = []) -> Dictionary:
 			"text": Tx.t("sim.progression.foundation_hollow") % int(round(ProgressionRules.foundation_share(cu) * 100.0))})
 	var demon_steps := ProgressionRules.heart_demon_steps(cu) if major else 0
 	if demon_steps > 0: reasons.append(Tx.t("sim.progression.heart_demons") % [int(cu.heart_demon), demon_steps])
-	var merit := ProgressionRules.merit_step(cu) if major else 0
-	if merit > 0: reasons.append(Tx.t("sim.progression.merit_eases") % cu.merit)
+	var merit := ProgressionRules.merit_step(c) if major else 0
+	if merit > 0: reasons.append(Tx.t("sim.progression.merit_eases") % c.relations.merit)
 	var soft := RequirementRules.soft_unmet(results)
 	if soft > 0: reasons.append(Tx.t("sim.progression.unmet_soft_requirement") % soft)
 	var unstable := cu.stability == "unstable"
@@ -457,7 +456,7 @@ func start_breakthrough(c, support_items: Array) -> Dictionary:
 		if not r.ok: unmet_causes.append(r.cause)
 	var hd: Dictionary = ContentDB.stat_const("heart_demon", {})
 	if used.size() >= int(hd.get("forced_supports", 2)): apply_heart_demon(c.id, float(hd.get("forced_breakthrough", 5)), "forced_breakthrough")
-	if int(q.get("merit", 0)) > 0: c.cultivator.merit_used[ProgressionRules.great_realm(c.cultivator.realm_key)] = true
+	if int(q.get("merit", 0)) > 0: game.relations.apply_merit_used(c.id, ProgressionRules.great_realm(c.cultivator.realm_key))
 	var bonus := _spend_fate_next(c, "breakthrough_bonus")   # S48 Scar of Failure: the next attempt only
 	channels[c.id] = {"to": q.to, "risk": q.risk, "remaining": CHANNEL_S, "causes": unmet_causes, "used": used, "from": c.cultivator.realm_key,
 		"hollow": bool(q.get("hollow", false)), "bonus": bonus}
@@ -510,7 +509,7 @@ func _start_tribulation(c, ch: Dictionary) -> void:
 	var from := str(ch.get("from", cu.realm_key))
 	var k := ContentDB.config("tribulations")
 	var extra := int(_spend_fate_next(c, "tribulation_bolts"))
-	var total := ProgressionRules.tribulation_bolts(from, cu.heart_demon, cu.sin, extra)
+	var total := ProgressionRules.tribulation_bolts(from, cu.heart_demon, c.relations.sin, extra)
 	var row := ProgressionRules.tribulation_row(from)
 	var per_wave := int(row.bolts)
 	var rng := Rng.stream(c.id, "breakthrough")
@@ -1196,32 +1195,6 @@ func apply_heart_demon(actor_id: String, amount: float, source: String) -> void:
 	if amount > 0.0 and not game.account.codex.has("heart_demons"): game.quest.apply_codex("heart_demons")
 	emit("heart_demon_changed", {"actor": c.id, "value": c.cultivator.heart_demon, "delta": amount, "source": source,
 		"step_crossed": ProgressionRules.heart_demon_steps(c.cultivator) != before})
-
-## The karma ledger (G1): merit and sin. Sin also feeds the heart demon.
-func apply_karma(actor_id: String, merit: int, sin: int, reason: String) -> void:
-	var c = game.character(actor_id)
-	if c == null or (merit == 0 and sin == 0): return
-	c.cultivator.merit = maxi(0, c.cultivator.merit + merit)
-	c.cultivator.sin = maxi(0, c.cultivator.sin + sin)
-	if not game.account.codex.has("karma"): game.quest.apply_codex("karma")
-	if sin > 0: apply_heart_demon(c.id, sin * float(ContentDB.stat_const("heart_demon", {}).get("per_sin", 0.1)), "sin")
-	if merit != 0: emit("merit_changed", {"actor": c.id, "value": c.cultivator.merit, "delta": merit, "reason": reason})
-	if sin != 0: emit("sin_changed", {"actor": c.id, "value": c.cultivator.sin, "delta": sin, "reason": reason})
-
-## A named debt (G1): a deed the world remembers. When it falls due its mail arrives (the saved repay you).
-func apply_karma_debt(actor_id: String, debt_id: String, due_h: float, mail: String, attachments: Array) -> void:
-	var c = game.character(actor_id)
-	if c == null or c.cultivator.debts.has(debt_id): return
-	c.cultivator.debts[debt_id] = {"due_utc": Clock.now_utc() + due_h * 3600.0, "mail": mail, "attachments": attachments.duplicate(true), "paid": false}
-	emit("debt_recorded", {"actor": c.id, "debt": debt_id})
-
-func _settle_debts(c) -> void:
-	for id in c.cultivator.debts:
-		var d: Dictionary = c.cultivator.debts[id]
-		if d.get("paid", false) or Clock.now_utc() < float(d.get("due_utc", 0.0)): continue
-		d.paid = true
-		if str(d.get("mail", "")) != "": game.mail.apply_send(c.id, str(d.mail), d.get("attachments", []), {})
-		emit("debt_called", {"actor": c.id, "debt": id})
 
 ## The Sovereign Settling Pill: what is left of this stage's consolidation ends on the next tick.
 func apply_settle(actor_id: String) -> void:

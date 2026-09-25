@@ -325,6 +325,24 @@ func _update_context() -> void:
 		context = ctx
 		context_changed.emit(ctx)
 
+## S49 Fame: from Noted, the nearest townsfolk know your name when you walk in.
+func _fame_greeting() -> void:
+	var c = Game.active()
+	if c == null or Game.room_rt == null or str(Game.room_rt.def.get("type", "")) != "town": return
+	var tier := str(Game.relations.fame_tier(c).get("id", "unknown"))
+	if tier in ["", "unknown"]: return
+	var best = null
+	var best_d := 900.0
+	for id in npc_views:
+		var nv = npc_views[id]
+		var dd: float = nv.position.distance_to(player.position)
+		if nv.visible and dd < best_d:
+			best = nv
+			best_d = dd
+	if best == null: return
+	best.bark = Tx.t("world_view.fame_greet_" + tier) % c.name
+	best.bark_time = 4.0
+
 # ------------------------------------------------------------------ events → effects
 func _on_event(name: String, p: Dictionary) -> void:
 	match name:
@@ -332,6 +350,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id:
 				_build_room()
 				_place_player()
+				_fame_greeting()
 		"enemy_aggro":
 			var foe: EnemyState = Game.room_rt.enemies.get(int(p.get("enemy", 0))) if Game.room_rt else null
 			if foe and not foe.hidden: fx.number(Vector2(foe.plane.x, foe.plane.y - foe.altitude - foe.height() - 24), "!", UiKit.GOLD, 26)

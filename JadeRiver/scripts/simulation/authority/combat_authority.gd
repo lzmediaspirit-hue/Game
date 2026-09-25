@@ -203,7 +203,7 @@ func apply_tribulation_strike(c, at: Vector2, radius: float, depth: float) -> Di
 		return {"hit": true, "absorbed": true, "damage": 0.0}
 	var tl := timeline(c.id)
 	var cu = c.cultivator
-	var dmg := ProgressionRules.tribulation_damage(c.pools.max_hp, int(cu.sin), float(cu.heart_demon), bool(tl.guard))
+	var dmg := ProgressionRules.tribulation_damage(c.pools.max_hp, int(c.relations.sin), float(cu.heart_demon), bool(tl.guard))
 	var p: ResourcePool = c.pools
 	var lethal := p.hp - dmg <= 0.0
 	p.set_value("hp", p.max_hp * float(ContentDB.config("tribulations").get("survive_hp", 0.1)) if lethal else p.hp - dmg)

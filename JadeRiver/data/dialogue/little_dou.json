@@ -34,9 +34,8 @@
          "flag": "dou_safe"
         },
         {
-         "kind": "add_merit",
-         "amount": 10,
-         "reason": "the_hollow_night"
+         "kind": "deed",
+         "deed": "rescue_dou"
         }
        ],
        "close": true

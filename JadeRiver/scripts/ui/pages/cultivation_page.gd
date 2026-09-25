@@ -193,21 +193,18 @@ func _heart(ch) -> void:
 	para(Rect2(x, y - 20, left.size.x - 48, 70), Tx.t("ui.cultivation.heart_demon_steps") % steps if steps > 0 else Tx.t("ui.cultivation.heart_calm"), 17,
 		UiKit.RED if steps > 0 else UiKit.MIST, 3)
 	y += 70
+	# The karma ledger belongs to Relations (S49); the Heart shows what it does to a breakthrough, and links there.
 	heading(Vector2(x, y), Tx.t("ui.cultivation.karma"), left.size.x - 48)
+	btn(Rect2(left.end.x - 24 - 150, y - 30, 150, 40), Tx.t("ui.cultivation.ledger"), "relations", null, false, true, "", 16)
 	y += 40
-	text(Vector2(x, y), Tx.t("ui.cultivation.merit") % cu.merit, 21, UiKit.PALE_GOLD)
-	text(Vector2(x + 250, y), Tx.t("ui.cultivation.sin") % cu.sin, 21, Color("e07a7a"))
+	var rel: RelationsState = ch.relations
+	text(Vector2(x, y), Tx.t("ui.cultivation.merit") % rel.merit, 21, UiKit.PALE_GOLD)
+	text(Vector2(x + 250, y), Tx.t("ui.cultivation.sin") % rel.sin, 21, Color("e07a7a"))
 	y += 28
-	var merit_ready := ProgressionRules.merit_step(cu) > 0
-	text(Vector2(x, y), Tx.t("ui.cultivation.merit_ready") if merit_ready else Tx.t("ui.cultivation.merit_not_ready") % int(ContentDB.stat_const("karma", {}).get("merit_step", 100)),
+	var merit_ready := ProgressionRules.merit_step(ch) > 0
+	text(Vector2(x, y), Tx.t("ui.cultivation.merit_ready") if merit_ready else Tx.t("ui.cultivation.merit_not_ready") % int(Game.relations.cfg().get("merit_step", 100)),
 		16, UiKit.BRIGHT_JADE if merit_ready else UiKit.MIST)
 	y += 34
-	for id in cu.debts:
-		var d: Dictionary = cu.debts[id]
-		text(Vector2(x, y), Tx.t("ui.cultivation.debt_" + str(id)), 17, UiKit.PAPER)
-		text(Vector2(left.end.x - 24, y), Tx.t("ui.cultivation.debt_settled") if d.get("paid", false) else Tx.t("ui.cultivation.debt_open"), 16,
-			UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, -1)
-		y += 26
 	# S48 fates: the cards chosen at major breakthroughs, and one waiting to be chosen.
 	if not cu.fates.is_empty() or not cu.fate_offer.is_empty():
 		y += 16
@@ -247,8 +244,8 @@ func _heart(ch) -> void:
 	for fam in cu.pill_resistance:
 		text(Vector2(x, y), Tx.t("ui.cultivation.family_" + str(fam)), 18, UiKit.PAPER)
 		var rr: Dictionary = cu.pill_resistance[fam]
-		text(Vector2(right.end.x - 24, y), Tx.t("ui.cultivation.resistance_row") % [int(rr.get("count", 0)), int(rr.get("doses", 0)),
-			int(round(ProgressionRules.resistance_factor(cu, str(fam)) * 100))], 17, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, -1)
+		text(Vector2(right.end.x - 24 - 320, y), Tx.t("ui.cultivation.resistance_row") % [int(rr.get("count", 0)), int(rr.get("doses", 0)),
+			int(round(ProgressionRules.resistance_factor(cu, str(fam)) * 100))], 17, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 320)
 		y += 28
 
 func _methods(ch) -> void:
@@ -335,6 +332,7 @@ func on_action(id: String, data) -> void:
 			if submit({"type": "toggle_meditation"}).get("ok", false): close()
 		"breakthrough": navigate.emit("breakthrough", {})
 		"fates": navigate.emit("fates", {})
+		"relations": navigate.emit("relations", {})
 		"vow_on": submit({"type": "set_vow", "vow": str(data), "on": true})
 		"vow_off": ask(Tx.t("ui.cultivation.break_vow_confirm") % [ContentDB.name_of("vows", str(data)), int(ContentDB.config("vows").get("break_heart_demon", 15))], "vow_break", data, true)
 		"vow_break": submit({"type": "set_vow", "vow": str(data), "on": false})

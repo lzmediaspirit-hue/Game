@@ -154,8 +154,6 @@ def build():
         "qi_deviation": {"duration_s": 600, "elements": ["water", "wood", "fire", "earth", "metal"]},
         # S48 body ladder: body techniques spend HP at this rate when QI is short (Copper Body), never below this share.
         "body_path": {"hp_per_qi": 1.5, "hp_floor": 0.2, "air_metre_px": 50},
-        # The karma ledger: 100 merit eases one major breakthrough in each great realm by a step.
-        "karma": {"merit_step": 100, "black_market_sin": 2},
         # S17 hazards: below the answer an effect falls off to half; answered, pushes and statuses stop
         # and a strike still deals this share of its damage.
         "hazard": {"partial": 0.5, "answered_damage": 0.35, "shelter_radius": 220, "flyer_push": 1.5},

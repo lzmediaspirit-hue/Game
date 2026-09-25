@@ -1160,6 +1160,18 @@
      }
     },
     {
+     "item": "calm_heart_incense",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "alignment_at_least",
+        "value": 20
+       }
+      ]
+     }
+    },
+    {
      "item": "inner_art_manual",
      "learn": "riverflow_circulation",
      "price": 150,
@@ -1928,6 +1940,30 @@
     {
      "item": "spirit_egg",
      "price": 36
+    },
+    {
+     "item": "soul_core_mid",
+     "price": 45,
+     "requires": {
+      "all": [
+       {
+        "kind": "alignment_at_most",
+        "value": -20
+       }
+      ]
+     }
+    },
+    {
+     "item": "beast_essence_blood",
+     "price": 25,
+     "requires": {
+      "all": [
+       {
+        "kind": "alignment_at_most",
+        "value": -20
+       }
+      ]
+     }
     }
    ],
    "rotation": {

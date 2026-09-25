@@ -177,6 +177,7 @@ func treat_patient(c) -> Dictionary:
 	var what := str(ailments[Rng.stream(c.id, "crafting").randi_range(0, ailments.size() - 1)])
 	game.training.apply_contribution(c.id, int(p.get("contribution", 20)), "healing")
 	game.progression.apply_insight(c.id, "life_death", 2.0, "healing")
+	game.relations.apply_deed(c.id, "heal_patient")   # S49 Part 8: +2 merit a patient
 	_used(c, "treat_patient", "healing", float(p.get("xp_per_use", 0)))
 	log_line(c.id, Tx.t("sim.workshop.you_treated") % what, "craft")
 	return ok({"text": Tx.t("sim.workshop.you_treated") % what, "left": int(p.get("patients_per_day", 5)) - int(h.treated)})

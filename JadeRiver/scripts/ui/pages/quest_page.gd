@@ -126,6 +126,10 @@ func _reward_lines(d: Dictionary) -> Array:
 			"grant_title": out.append(Tx.t("ui.quest.reward_title") % ContentDB.name_of("titles", str(r.title)))
 			"sect_rank": out.append(Tx.t("ui.quest.reward_rank") % str(r.rank).replace("_", " ").capitalize())
 			"add_contribution": out.append(Tx.t("ui.quest.reward_contribution") % int(r.amount))
+			"deed":
+				var dd := ContentDB.entry("karma", str(r.deed))
+				if int(dd.get("merit", 0)) > 0: out.append(Tx.t("ui.quest.reward_merit") % int(dd.merit))
+				if int(dd.get("fame", 0)) > 0: out.append(Tx.t("ui.quest.reward_fame") % int(dd.fame))
 	var pct := float(ContentDB.curve("quest_qp_pct.%s" % str(d.get("qp", d.get("kind", "side"))), 0.0))
 	if pct > 0.0: out.append(Tx.t("ui.quest.reward_progress") % int(round(pct * 100.0)))
 	return out

@@ -2413,6 +2413,14 @@
    "guaranteed": []
   },
   {
+   "id": "young_master",
+   "groups": [],
+   "coins": {},
+   "equipment": {},
+   "rare": [],
+   "guaranteed": []
+  },
+  {
    "id": "reed_otter",
    "groups": [
     {

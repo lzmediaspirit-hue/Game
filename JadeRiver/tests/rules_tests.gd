@@ -63,6 +63,7 @@ func _main() -> void:
 	pet_growth_suite()
 	beast_world_suite()
 	beast_arena_suite()
+	relations_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -868,7 +869,7 @@ func heaven_suite() -> void:
 	var st: ActorState = Game.actor_state(c.id)
 	var realm_was := cu.realm_key
 	var hd_was := cu.heart_demon
-	var sin_was := cu.sin
+	var sin_was: int = c.relations.sin
 	c.inventory.bag.fill(null)
 	# Bolt counts by realm, heart demon and sin.
 	check(ProgressionRules.tribulation_bolts("heart_tempering_9", 0, 0) == 0, "no tribulation into Cloud Stride (the Heart Trial is the set piece)")
@@ -884,7 +885,7 @@ func heaven_suite() -> void:
 	Game.world.apply_teleport(c.id, "cp_cleansing_summit")
 	cu.realm_key = "cloud_stride_9"
 	cu.heart_demon = 0.0
-	cu.sin = 0
+	c.relations.sin = 0
 	cu.fates.clear()
 	cu.fate_offer = []
 	Game.combat.refresh_stats(c.id)
@@ -1010,7 +1011,7 @@ func heaven_suite() -> void:
 	cu.fate_offer = []
 	cu.realm_key = realm_was
 	cu.heart_demon = hd_was
-	cu.sin = sin_was
+	c.relations.sin = sin_was
 	cu.purity = 9
 	c.cultivator.injuries.clear()
 	Game.combat.refresh_stats(c.id)
@@ -2239,6 +2240,124 @@ func beast_arena_suite() -> void:
 	c.inventory.bag.fill(null)
 	if room_was != "": Game.world.load_room(c, room_was, "")
 
+## S49: the Relations authority owns the karma ledger, alignment and Fame; deeds come from karma.json.
+func relations_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var rel_was: Dictionary = c.relations.snapshot()
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var cd_was: Dictionary = c.cooldowns.duplicate(true)
+	var rel: RelationsState = c.relations
+	rel.restore({})
+	# A save from before S49 carries its ledger on the cultivator; it moves across.
+	var old_save: Dictionary = c.snapshot()
+	old_save.erase("relations")
+	old_save.cultivator["merit"] = 77
+	old_save.cultivator["sin"] = 5
+	old_save.cultivator["debts"] = {"gu_repays": {"due_utc": 1.0, "mail": "gu_repays", "attachments": [], "paid": true}}
+	old_save.cultivator["merit_used"] = {"cloud_stride": true}
+	var moved := GameCharacter.new()
+	moved.restore(old_save)
+	check(moved.relations.merit == 77 and moved.relations.sin == 5 and moved.relations.debts.has("gu_repays") and moved.relations.merit_used.has("cloud_stride"),
+		"an old save's merit, sin, debts and eased realms move to Relations")
+	check(not moved.cultivator.snapshot().has("merit") and moved.snapshot().relations.merit == 77, "and are saved there from now on")
+	# A named deed from an effect: merit, alignment and Fame together, once.
+	Game.apply_effects(c.id, [{"kind": "deed", "deed": "cleansing_the_well"}], "test")
+	GameEvents.flush()
+	check(rel.merit == 30 and rel.alignment == 5 and rel.fame == 15, "cleansing the well: +30 merit, +5 alignment, +15 Fame (Part 8)")
+	Game.apply_effects(c.id, [{"kind": "deed", "deed": "cleansing_the_well"}], "test")
+	check(rel.merit == 30, "a once-only deed counts once")
+	check(str(rel.ledger[0].reason) == "cleansing_the_well", "the ledger remembers the deed")
+	Game.relations.apply_deed(c.id, "heal_patient")
+	Game.relations.apply_deed(c.id, "heal_patient")
+	check(rel.merit == 34, "each patient healed is +2 merit, again and again")
+	# Event deeds: a spar won in a town square is public; the same spar in the wilds is not.
+	Game.world.load_room(c, "sf_market", "")
+	var f0 := rel.fame
+	Game.relations._on_deed_event({"actor": c.id, "opponent": "sparring_disciple", "winner": "player", "room": "sf_market"}, "spar_ended")
+	check(rel.fame == f0 + 3, "a public win: +3 Fame")
+	Game.relations._on_deed_event({"actor": c.id, "opponent": "sparring_disciple", "winner": "opponent", "room": "sf_market"}, "spar_ended")
+	check(rel.fame == f0 - 2, "a public defeat costs 5")
+	Game.world.load_room(c, "lf_reed_shallows", "")
+	Game.relations._on_deed_event({"actor": c.id, "opponent": "sparring_disciple", "winner": "opponent", "room": "lf_reed_shallows"}, "spar_ended")
+	check(rel.fame == f0 - 2, "no one sees a spar in the reeds")
+	var f1 := rel.fame
+	var boss := {"victim": "9", "victim_kind": "enemy", "def": "riverbed_serpent", "role": "field_boss", "killer": c.id}
+	Game.relations._on_deed_event(boss, "actor_defeated")
+	Game.relations._on_deed_event(boss, "actor_defeated")
+	boss.def = "thousand_eye_toad"
+	Game.relations._on_deed_event(boss, "actor_defeated")
+	check(rel.fame == f1 + 20, "each field lord felled is +10 Fame, the first time")
+	# Fame tiers and the tier-up.
+	rel.fame = 140
+	var ups: Array = []
+	var on_fame := func(p: Dictionary): if p.get("tier_up", false): ups.append(str(p.tier))
+	GameEvents.subscribe("fame_changed", on_fame, 200)
+	Game.relations.apply_fame(c.id, 20, "test")
+	GameEvents.flush()
+	check(str(Game.relations.fame_tier(c).id) == "rising" and ups == ["rising"], "150 Fame is Rising, and the step up is announced")
+	Game.relations.apply_fame(c.id, -1000, "test")
+	check(rel.fame == 0, "Fame never goes below 0")
+	# Alignment: clamped, named, and a gate on optional things only.
+	rel.alignment = 0
+	var upright := {"all": [{"kind": "alignment_at_least", "value": 20}]}
+	var shadowed := {"all": [{"kind": "alignment_at_most", "value": -20}]}
+	check(not RequirementRules.passes(upright, {"char": c}) and not RequirementRules.passes(shadowed, {"char": c}), "a balanced cultivator is neither upright nor shadowed")
+	Game.relations.apply_alignment(c.id, 500, "test")
+	check(rel.alignment == 100 and Game.relations.alignment_word(c) == "righteous" and RequirementRules.passes(upright, {"char": c}), "alignment stops at +100 (Righteous)")
+	Game.relations.apply_alignment(c.id, -130, "test")
+	check(rel.alignment == -30 and Game.relations.alignment_word(c) == "shadowed" and RequirementRules.passes(shadowed, {"char": c}), "and leans the other way")
+	var cloud := ContentDB.entry("shops", "cloud_sect")
+	var incense := {}
+	for row in cloud.get("stock", []):
+		if str(row.item) == "calm_heart_incense": incense = row
+	check(not RequirementRules.passes(incense.get("requires", {}), {"char": c}), "the Cloud Sect's incense is for the upright")
+	check(RequirementRules.passes({"all": [{"kind": "realm_at_least", "realm": c.cultivator.realm_key}]}, {"char": c}), "alignment never touches a realm requirement")
+	# A black-market purchase is a deed from the event, per item.
+	rel.alignment = 0
+	var sin0 := rel.sin
+	Game.relations._on_deed_event({"actor": c.id, "shop": "free_market", "item": "manual_page", "count": 3}, "item_bought")
+	check(rel.sin == sin0 + 6 and rel.alignment == -3, "three items from the back room: +6 sin, -3 alignment")
+	# Young masters: from Rising Fame, a town may bring one out; answer him or lose face.
+	Game.world.load_room(c, "sf_market", "")
+	GameEvents.flush()
+	rel.fame = 100
+	c.cooldowns.erase("young_master_day")
+	for i in 40: Game.relations._on_room_entered({})
+	check(Game.relations.challenge_of(c).is_empty(), "below Rising no one comes")
+	rel.fame = 200
+	var came := false
+	for i in 60:
+		c.cooldowns.erase("young_master_day")
+		Game.relations._on_room_entered({})
+		if not Game.relations.challenge_of(c).is_empty():
+			came = true
+			break
+	check(came, "a Rising name draws a young master in town")
+	Game.relations._on_room_entered({})
+	check(Game.relations.challenge_of(c).is_empty(), "once a day at most")
+	Game.relations.offer_challenge(c, "young_master")
+	check(Game.submit({"type": "answer_challenge", "accept": false}).get("ok", false) and rel.fame == 195, "declining costs 5 Fame")
+	check(not Game.submit({"type": "answer_challenge", "accept": true}).get("ok", false), "and the challenge is gone")
+	Game.relations.offer_challenge(c, "young_master")
+	check(Game.submit({"type": "answer_challenge", "accept": true}).get("ok", false), "accepting starts the spar")
+	var ym: EnemyState = null
+	for e in Game.room_rt.living_enemies():
+		if e.def_id == "young_master": ym = e
+	check(ym != null and ym.level == ProgressionRules.level(c), "he fights at your own level")
+	if ym != null:
+		Game.enemies.end_spar(ym, c.id)
+		GameEvents.flush()
+		check(rel.fame == 195 + 15 + 3, "humbling him in the square: +18 Fame")
+	Game.relations.offer_challenge(c, "young_master")
+	Game.world.load_room(c, "lf_reed_shallows", "")
+	GameEvents.flush()
+	check(Game.relations.challenge_of(c).is_empty(), "walking away lets the challenge lapse")
+	GameEvents.unsubscribe_object(self)
+	c.relations.restore(rel_was)
+	c.cooldowns = cd_was
+	if room_was != "": Game.world.load_room(c, room_was, "")
+
 func _seeded(seed: int) -> RandomNumberGenerator:
 	var r := RandomNumberGenerator.new()
 	r.seed = seed
@@ -3051,27 +3170,30 @@ func g1_suite() -> void:
 	_use_fresh(c, _bag_index(c, "myriad_year_calm_incense"))
 	check(near(cu.heart_demon, 35.0), "Myriad-Year Calm Incense clears 20")
 	# Karma: merit eases one breakthrough per great realm; sin feeds the demon; the back room is a sin.
-	cu.merit = 0
-	cu.merit_used.clear()
+	var rel: RelationsState = c.relations
+	rel.merit = 0
+	rel.merit_used.clear()
 	Game.apply_effects(c.id, [{"kind": "add_merit", "amount": 100, "reason": "test"}], "test")
-	check(ProgressionRules.merit_step(cu) == 1 and int(Game.progression.query_breakthrough(c).get("merit", 0)) == 1, "100 merit eases a great breakthrough")
-	cu.merit_used[ProgressionRules.great_realm(cu.realm_key)] = true
-	check(ProgressionRules.merit_step(cu) == 0, "once in each great realm")
+	check(ProgressionRules.merit_step(c) == 1 and int(Game.progression.query_breakthrough(c).get("merit", 0)) == 1, "100 merit eases a great breakthrough")
+	rel.merit_used[ProgressionRules.great_realm(cu.realm_key)] = true
+	check(ProgressionRules.merit_step(c) == 0, "once in each great realm")
 	var hd0 := cu.heart_demon
 	Game.apply_effects(c.id, [{"kind": "add_sin", "amount": 30, "reason": "test"}], "test")
-	check(cu.sin >= 30 and near(cu.heart_demon, hd0 + 3.0), "sin feeds the heart demon (+1 per 10 sin)")
+	check(rel.sin >= 30 and near(cu.heart_demon, hd0 + 3.0), "sin feeds the heart demon (+1 per 10 sin)")
 	Game.quest.apply_flag(c.id, "path_independent")
 	Unlocks.force_unlock(c.id, "shop")
 	Game.economy.apply_currency("spirit_stone", 100, "test")
-	var sin0 := cu.sin
+	var sin0: int = rel.sin
 	var bought := Game.economy.buy(c, "free_market", "manual_page", 1, -1)
-	check(bought.get("ok", false) and cu.sin == sin0 + 2, "Broker Mu's back room stains the ledger (+2 sin) %s" % str(bought.get("reason", "")))
+	GameEvents.flush()
+	check(bought.get("ok", false) and rel.sin == sin0 + 2, "Broker Mu's back room stains the ledger (+2 sin) %s" % str(bought.get("reason", "")))
 	# A named debt comes due as a letter.
 	var mails0: int = Game.account.mail.size() if Game.account.get("mail") is Array else 0
 	Game.apply_effects(c.id, [{"kind": "record_debt", "id": "test_debt", "due_h": 0.0, "mail": "gu_repays", "attachments": [{"currency": "spirit_stone", "amount": 1}]}], "test")
-	Game.progression.tick(0.1)
-	check(bool(cu.debts.get("test_debt", {}).get("paid", false)), "a debt that falls due is repaid by letter")
-	cu.debts.erase("test_debt")
+	Game.relations.debt_clock = 0.0
+	Game.relations.tick(0.1)
+	check(bool(rel.debts.get("test_debt", {}).get("paid", false)), "a debt that falls due is repaid by letter")
+	rel.debts.erase("test_debt")
 	# Furnace and fire (S44): the furnace slot holds one furnace instance; the bronze one holds three; charcoal stops
 	# at Perfect; a named furnace or a flame reaches Soul.
 	Unlocks.force_unlock(c.id, "alchemy")

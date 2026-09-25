@@ -38,15 +38,11 @@ var toxicity := 0.0
 var pill_memory: Dictionary = {}     # pill group -> last use sim time (repeat window)
 # What yesterday's shortcuts cost (gap report G1): lasting pill resistance, the share of this
 # great realm's QP that came from pills and cores, the residue that never drains on its own,
-# the heart-demon meter and the karma ledger.
+# and the heart-demon meter (the karma ledger moved to RelationsState, S49).
 var pill_resistance: Dictionary = {} # pill family -> {count, doses}: every 5 doses add 1 to count (S44)
 var foundation: Dictionary = {}      # {realm (great realm), total_qp, pill_qp} QP since the last major breakthrough (S44)
 var residue := 0.0
 var heart_demon := 0.0               # 0-100: each 25 is a risk step at a major breakthrough
-var merit := 0
-var sin := 0
-var debts: Dictionary = {}           # named karma debts: id -> {text, due_utc, kind, paid}
-var merit_used: Dictionary = {}      # great realm -> true once merit has eased its breakthrough
 var support_failures: Dictionary = {} # realm key -> failed attempts made there with support pills (S44)
 var treasure_uses: Dictionary = {}   # natural treasure -> realm (or stage) it was last used in
 # Heart and fate (S48). Version 6 writes every field; the rules that read vows, Inner Arts, stances, the false
@@ -108,7 +104,7 @@ func snapshot() -> Dictionary:
 		"events_passed": events_passed.duplicate(), "stability": stability, "stability_progress": stability_progress,
 		"injuries": injuries.duplicate(true), "toxicity": toxicity, "treasure_uses": treasure_uses.duplicate(), "method_id": method_id,
 		"pill_resistance": pill_resistance.duplicate(), "foundation": foundation.duplicate(), "residue": residue,
-		"heart_demon": heart_demon, "merit": merit, "sin": sin, "debts": debts.duplicate(true), "merit_used": merit_used.duplicate(),
+		"heart_demon": heart_demon,
 		"support_failures": support_failures.duplicate(),
 		"body_tier": body_tier, "body_trials": body_trials.duplicate(), "body_baths": body_baths.duplicate(), "core_grade": core_grade,
 		"fates": fates.duplicate(true), "fate_offer": fate_offer.duplicate(), "physiques": physiques.duplicate(), "vows": vows.duplicate(), "inner_arts": inner_arts.duplicate(), "inner_arts_known": inner_arts_known.duplicate(),
@@ -159,10 +155,6 @@ func restore(d: Dictionary) -> void:
 		foundation = {"realm": str(foundation.get("realm", "")), "total_qp": float(foundation.get("total", 0.0)), "pill_qp": float(foundation.get("pill", 0.0))}
 	residue = maxf(0.0, _num(d, "residue", 0.0))
 	heart_demon = clampf(_num(d, "heart_demon", 0.0), 0.0, 100.0)
-	merit = maxi(0, int(_num(d, "merit", 0)))
-	sin = maxi(0, int(_num(d, "sin", 0)))
-	debts = _dict(d, "debts")
-	merit_used = _dict(d, "merit_used")
 	support_failures = {}
 	for rk in _dict(d, "support_failures"): support_failures[rk] = int(d.support_failures[rk])
 	for rk in _dict(d, "support_fails"):   # version 4: per item; the worst item's count carries over

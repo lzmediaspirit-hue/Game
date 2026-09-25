@@ -45,9 +45,8 @@
          "count": 1
         },
         {
-         "kind": "add_merit",
-         "amount": 15,
-         "reason": "gu_freed"
+         "kind": "deed",
+         "deed": "gu_freed"
         },
         {
          "kind": "record_debt",
@@ -81,9 +80,8 @@
          "count": 1
         },
         {
-         "kind": "add_sin",
-         "amount": 10,
-         "reason": "gu_left"
+         "kind": "deed",
+         "deed": "gu_left"
         },
         {
          "kind": "record_debt",

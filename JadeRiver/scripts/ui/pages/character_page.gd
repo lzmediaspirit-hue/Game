@@ -45,6 +45,11 @@ func draw_page() -> void:
 			text(Vector2(x, r.position.y + 150), Tx.t("ui.character.origin") % ContentDB.name_of("origins", ch.cultivator.origin), 18, UiKit.MIST)
 			text(Vector2(x, r.position.y + 210), Tx.t("ui.character.combat_power"), 20, UiKit.MIST)
 			text(Vector2(x, r.position.y + 256), UiKit.fmt(StatRules.combat_power(ch)), 44, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+			# S49: the Relations page (karma, bonds, grudges, Fame) lives under Character.
+			var rb := Rect2(r.end.x - 250, r.position.y + 196, 220, 52)
+			btn(rb, Tx.t("ui.character.relations"), "relations", null, false, true, "", 20)
+			text(Vector2(rb.position.x, rb.end.y + 22), fit(Tx.t("ui.relations.fame_" + str(Game.relations.fame_tier(ch).get("id", "unknown"))) + "  ·  " +
+				Tx.t("ui.relations.align_" + Game.relations.alignment_word(ch)), 15, rb.size.x), 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, rb.size.x)
 			if ch.cultivator.active_title != "": text(Vector2(x, r.position.y + 300), Tx.t("ui.character.title") % ContentDB.name_of("titles", ch.cultivator.active_title), 19, UiKit.BRIGHT_JADE)
 			_vitals(ch, Rect2(x, r.position.y + 322, r.end.x - x - 30, r.end.y - r.position.y - 340))
 			_party(ch, Rect2(r.position.x + 30, r.end.y - 80, 420, 70))
@@ -183,6 +188,7 @@ func _party(ch, r: Rect2) -> void:
 	if not mates.is_empty(): text(Vector2(r.position.x, r.position.y + 48), fit(Tx.t("ui.character.companions") % ", ".join(mates), 17, r.size.x), 17, UiKit.BRIGHT_JADE)
 
 func on_action(id: String, data) -> void:
+	if id == "relations": navigate.emit("relations", {})
 	if id == "title": submit({"type": "set_title", "title": str(data)})
 	if id == "attune": submit({"type": "attune_jade", "zone": str(data[0]), "index": int(data[1])})
 	if id == "look":

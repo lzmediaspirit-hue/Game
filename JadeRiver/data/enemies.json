@@ -6545,6 +6545,96 @@
    }
   },
   {
+   "id": "young_master",
+   "name": "Young Master Luo Heng",
+   "level": [
+    20,
+    20
+   ],
+   "role": "trial",
+   "element": "fire",
+   "race": "human",
+   "energy": "none",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "peacock_slash",
+     "windup_s": 0.42,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       70
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.05
+    },
+    {
+     "id": "golden_crescent",
+     "windup_s": 0.65,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       280
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.15,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 520,
+      "art": "qi_arc"
+     }
+    }
+   ],
+   "loot": "young_master",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "flowing",
+     "hair_color": 0,
+     "shirt": "cardigan",
+     "pants": "martial",
+     "shoes": "folded",
+     "weapon": "sword",
+     "hat": "guan",
+     "shirt_dye": "crimson",
+     "pants_dye": "ink",
+     "name": "Young Master Luo Heng",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "spar": true,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
    "id": "reed_otter",
    "name": "Reed Otter",
    "level": [

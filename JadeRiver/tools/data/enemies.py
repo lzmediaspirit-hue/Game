@@ -74,6 +74,8 @@ HUMAN = {
     "elder_gu": {"hair": "long_tied", "hair_color": 1, "shirt": "scholar", "pants": "scholar", "shoes": "folded", "weapon": "none", "hat": "none"},
     "shen_lian": {"hair": "high_pony", "hair_color": 2, "shirt": "vneck", "pants": "martial", "shoes": "boots", "weapon": "none", "hat": "none"},
     "wen_zhao": {"hair": "flowing", "hair_color": 0, "shirt": "cardigan", "pants": "martial", "shoes": "folded", "weapon": "sword", "hat": "none"},
+    "young_master": {"hair": "flowing", "hair_color": 0, "shirt": "cardigan", "pants": "martial", "shoes": "folded", "weapon": "sword", "hat": "guan",
+                     "shirt_dye": "crimson", "pants_dye": "ink"},
     "trial_disciple": {"hair": "topknot", "hair_color": 0, "shirt": "disciple", "pants": "loose", "shoes": "slippers", "weapon": "none", "hat": "none"},
     "alliance_champion": {"hair": "topknot", "hair_color": 0, "shirt": "disciple", "pants": "martial", "shoes": "boots", "weapon": "spear", "hat": "guan",
                           "shirt_dye": "indigo", "pants_dye": "ink"},
@@ -93,7 +95,7 @@ HUMAN = {
     "ninth_presence": {"hair": "flowing", "hair_color": 1, "shirt": "scholar", "pants": "scholar", "shoes": "folded", "weapon": "staff", "hat": "guan",
                        "shirt_dye": "white", "pants_dye": "white", "cape": "solid", "tint": "#d9ccff"},
 }
-NAMES = {"rogue_cultivator": "Rogue Cultivator", "rogue_treasure_adept": "Rogue Mirror Adept", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
+NAMES = {"young_master": "Young Master Luo Heng", "rogue_cultivator": "Rogue Cultivator", "rogue_treasure_adept": "Rogue Mirror Adept", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
          "ninth_presence": "The Ninth Presence"}
 
 
@@ -344,6 +346,12 @@ def build():
             ai="duelist", art=human("wen_zhao"), race="human", width=18, height=90, spar=True),
         mob("sparring_disciple", 10, "trial", "none", None, [], [atk("palm", 0.45, 46, 1.0)], ai="duelist", art=human("trial_disciple"),
             race="human", width=18, height=90, spar=True),
+        # S49 Fame: a young master of a good family who hears your name and wants to prove he is better. He spars at
+        # the challenged cultivator's own level.
+        mob("young_master", 20, "trial", "fire", None, [], [atk("peacock_slash", 0.42, 70, 1.05),
+                                                            atk("golden_crescent", 0.65, 280, 1.15, damage_type="qi",
+                                                                projectile={"speed": 520, "art": "qi_arc"})],
+            ai="duelist", art=human("young_master"), race="human", width=18, height=90, spar=True, name="Young Master Luo Heng"),
     ]
     # Starter spirit animals exist as enemy templates (non-hostile wild versions from Qi Unfurling 7).
     for pid, el in [("reed_otter", "water"), ("ember_fox", "fire"), ("jade_crane_chick", "wind")]:

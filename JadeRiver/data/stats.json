@@ -535,10 +535,6 @@
   "hp_floor": 0.2,
   "air_metre_px": 50
  },
- "karma": {
-  "merit_step": 100,
-  "black_market_sin": 2
- },
  "hazard": {
   "partial": 0.5,
   "answered_damage": 0.35,

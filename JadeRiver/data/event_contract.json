@@ -202,31 +202,6 @@
    ],
    "polled": "The Cultivation page's Heart tab reads residue."
   },
-  "merit_changed": {
-   "system": "Progression",
-   "files": [
-    "progression_authority"
-   ]
-  },
-  "sin_changed": {
-   "system": "Progression",
-   "files": [
-    "progression_authority"
-   ]
-  },
-  "debt_recorded": {
-   "system": "Progression",
-   "files": [
-    "progression_authority"
-   ],
-   "polled": "The Cultivation page's Heart tab lists debts; the callback is debt_called."
-  },
-  "debt_called": {
-   "system": "Progression",
-   "files": [
-    "progression_authority"
-   ]
-  },
   "body_trial_passed": {
    "system": "Progression",
    "files": [
@@ -1478,6 +1453,49 @@
     "movement_solver"
    ],
    "polled": "The player node reads the water state and volumes each frame."
+  },
+  "merit_changed": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
+  },
+  "sin_changed": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
+  },
+  "debt_recorded": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ],
+   "polled": "The Relations page's Karma tab lists debts; the callback is debt_called."
+  },
+  "debt_called": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
+  },
+  "alignment_changed": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
+  },
+  "fame_changed": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
+  },
+  "young_master_challenge": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
   }
  }
 }

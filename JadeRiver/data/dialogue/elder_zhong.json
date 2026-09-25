@@ -53,9 +53,8 @@
          "count": 1
         },
         {
-         "kind": "add_merit",
-         "amount": 20,
-         "reason": "ledger_burned"
+         "kind": "deed",
+         "deed": "ledger_burned"
         },
         {
          "kind": "grant_title",
@@ -77,9 +76,8 @@
          "count": 1
         },
         {
-         "kind": "add_sin",
-         "amount": 10,
-         "reason": "ledger_returned"
+         "kind": "deed",
+         "deed": "ledger_returned"
         },
         {
          "kind": "grant_title",

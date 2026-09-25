@@ -1,0 +1,414 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "grannys_remedy",
+   "name": "Eased Granny Liu's cough",
+   "merit": 5,
+   "sin": 0,
+   "alignment": 2,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "the_rite",
+   "name": "Kept the Rite for the drowned",
+   "merit": 10,
+   "sin": 0,
+   "alignment": 3,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "the_infirmary",
+   "name": "Tended the infirmary",
+   "merit": 10,
+   "sin": 0,
+   "alignment": 3,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "what_remains",
+   "name": "Laid the dead to rest",
+   "merit": 10,
+   "sin": 0,
+   "alignment": 3,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "passing_it_on",
+   "name": "Passed a kindness on",
+   "merit": 10,
+   "sin": 0,
+   "alignment": 3,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "guos_old_wound",
+   "name": "Mended Uncle Guo's old wound",
+   "merit": 10,
+   "sin": 0,
+   "alignment": 3,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "cleansing_the_well",
+   "name": "Cleansed the Hollowed well",
+   "merit": 30,
+   "sin": 0,
+   "alignment": 5,
+   "fame": 15,
+   "once": true
+  },
+  {
+   "id": "grey_roofs",
+   "name": "Cleansed the Grey Pools village",
+   "merit": 30,
+   "sin": 0,
+   "alignment": 5,
+   "fame": 15,
+   "once": true
+  },
+  {
+   "id": "dous_kite_returns",
+   "name": "Brought Little Dou's kite home",
+   "merit": 5,
+   "sin": 0,
+   "alignment": 2,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "a_second_try",
+   "name": "Gave a failed disciple a second try",
+   "merit": 5,
+   "sin": 0,
+   "alignment": 2,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "rescue_dou",
+   "name": "Carried Little Dou through the Hollow Night",
+   "merit": 10,
+   "sin": 0,
+   "alignment": 3,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "rescue_granny",
+   "name": "Carried Granny Liu through the Hollow Night",
+   "merit": 10,
+   "sin": 0,
+   "alignment": 3,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "rescue_ma",
+   "name": "Carried Old Ma through the Hollow Night",
+   "merit": 10,
+   "sin": 0,
+   "alignment": 3,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "tomb_resealed",
+   "name": "Resealed the tomb",
+   "merit": 20,
+   "sin": 0,
+   "alignment": 5,
+   "fame": 10,
+   "once": true
+  },
+  {
+   "id": "gu_freed",
+   "name": "Freed Elder Gu",
+   "merit": 15,
+   "sin": 0,
+   "alignment": 5,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "gu_left",
+   "name": "Left Elder Gu to the sands",
+   "merit": 0,
+   "sin": 10,
+   "alignment": -5,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "ledger_burned",
+   "name": "Burned the smugglers' ledger",
+   "merit": 20,
+   "sin": 0,
+   "alignment": 5,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "ledger_returned",
+   "name": "Sold the ledger back to its owners",
+   "merit": 0,
+   "sin": 10,
+   "alignment": -10,
+   "fame": 0,
+   "once": true
+  },
+  {
+   "id": "heal_patient",
+   "name": "Healed a patient",
+   "merit": 2,
+   "sin": 0,
+   "alignment": 0,
+   "fame": 0
+  },
+  {
+   "id": "black_market",
+   "name": "Bought in a back room",
+   "merit": 0,
+   "sin": 2,
+   "alignment": -1,
+   "fame": 0,
+   "per_count": true,
+   "event": "item_bought",
+   "match": {
+    "shop": "free_market"
+   }
+  },
+  {
+   "id": "beast_tide_held",
+   "name": "Held the gate against the Beast Tide",
+   "merit": 10,
+   "sin": 0,
+   "alignment": 2,
+   "fame": 10,
+   "event": "beast_tide_result",
+   "match": {
+    "won": true
+   }
+  },
+  {
+   "id": "tournament_qualifier",
+   "name": "Qualified for the Valley Tournament",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": 20,
+   "once": true,
+   "event": "quest_completed",
+   "match": {
+    "quest": "the_valley_tournament"
+   }
+  },
+  {
+   "id": "tournament_bracket",
+   "name": "Reached the tournament's last eight",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": 60,
+   "once": true,
+   "event": "quest_completed",
+   "match": {
+    "quest": "the_bracket"
+   }
+  },
+  {
+   "id": "tournament_finals",
+   "name": "Fought in the tournament finals",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": 150,
+   "once": true,
+   "event": "quest_completed",
+   "match": {
+    "quest": "the_valley_finals"
+   }
+  },
+  {
+   "id": "field_boss_felled",
+   "name": "Felled a field lord",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": 10,
+   "once_key": "def",
+   "event": "actor_defeated",
+   "match": {
+    "victim_kind": "enemy",
+    "role": "field_boss"
+   }
+  },
+  {
+   "id": "story_boss_felled",
+   "name": "Defeated a great foe",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": 15,
+   "once_key": "def",
+   "event": "actor_defeated",
+   "match": {
+    "victim_kind": "enemy",
+    "role": "story_boss"
+   }
+  },
+  {
+   "id": "dungeon_boss_felled",
+   "name": "Cleared a lair",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": 5,
+   "once_key": "def",
+   "event": "actor_defeated",
+   "match": {
+    "victim_kind": "enemy",
+    "role": "dungeon_boss"
+   }
+  },
+  {
+   "id": "arena_win",
+   "name": "Won in the Beast Arena",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": 2,
+   "event": "arena_battle",
+   "match": {
+    "won": true
+   }
+  },
+  {
+   "id": "public_spar_won",
+   "name": "Won a spar in public",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": 3,
+   "in_town": true,
+   "event": "spar_ended",
+   "match": {
+    "winner": "player"
+   }
+  },
+  {
+   "id": "public_spar_lost",
+   "name": "Lost a spar in public",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": -5,
+   "in_town": true,
+   "event": "spar_ended",
+   "match": {
+    "winner": "opponent"
+   }
+  },
+  {
+   "id": "young_master_humbled",
+   "name": "Humbled a young master",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": 15,
+   "event": "spar_ended",
+   "match": {
+    "opponent": "young_master",
+    "winner": "player"
+   }
+  },
+  {
+   "id": "young_master_lost",
+   "name": "Lost to a young master",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": -10,
+   "event": "spar_ended",
+   "match": {
+    "opponent": "young_master",
+    "winner": "opponent"
+   }
+  },
+  {
+   "id": "challenge_declined",
+   "name": "Declined a young master's challenge",
+   "merit": 0,
+   "sin": 0,
+   "alignment": 0,
+   "fame": -5
+  }
+ ],
+ "merit_step": 100,
+ "fame_tiers": [
+  {
+   "id": "unknown",
+   "name": "Unknown",
+   "min": 0
+  },
+  {
+   "id": "noted",
+   "name": "Noted",
+   "min": 50
+  },
+  {
+   "id": "rising",
+   "name": "Rising",
+   "min": 150
+  },
+  {
+   "id": "renowned",
+   "name": "Renowned",
+   "min": 400
+  },
+  {
+   "id": "legendary",
+   "name": "Legendary",
+   "min": 1000
+  }
+ ],
+ "alignment_words": [
+  {
+   "id": "demonic",
+   "name": "Demonic",
+   "max": -60
+  },
+  {
+   "id": "shadowed",
+   "name": "Shadowed",
+   "max": -20
+  },
+  {
+   "id": "balanced",
+   "name": "Balanced",
+   "max": 19
+  },
+  {
+   "id": "upright",
+   "name": "Upright",
+   "max": 59
+  },
+  {
+   "id": "righteous",
+   "name": "Righteous",
+   "max": 100
+  }
+ ],
+ "young_master": {
+  "fame": 150,
+  "chance": 0.25,
+  "enemy": "young_master",
+  "decline_deed": "challenge_declined"
+ }
+}

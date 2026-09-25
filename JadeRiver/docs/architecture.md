@@ -56,6 +56,7 @@ each physics frame; the tests call it directly without any scene.
 | `SectAuthority` | Your own sect: buildings, disciples, expeditions, defence raids |
 | `PetAuthority`, `CompanionAuthority` | Spirit animals (starter, taming, eggs, bloodline, contracts, the party up to the command capacity) and AI companions fighting beside you |
 | `AccountAuthority`, `MailAuthority`, `AchievementAuthority` | Slots and idle tasks, letters with attachments, achievements and titles |
+| `RelationsAuthority` | What the world remembers of each character (S49): the karma ledger (merit, sin, named debts), the righteous-demonic alignment, personal Fame and young masters' challenges; deeds come from karma.json |
 
 ## Unlocks and the HUD
 

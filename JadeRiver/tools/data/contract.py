@@ -57,10 +57,8 @@ CATALOGUE = {
         "defence_warning", "defence_result", "building_damaged"],
 }
 # Build Prompt v2 · Traversal, depth and living-world events (S43-S49), as far as those systems are built.
-# The karma rows move to Relations when that authority exists (S49); until then Progression keeps the ledger.
 DEPTH = {
-    "Progression": ["pill_resistance_changed", "foundation_changed", "heart_demon_changed", "residue_changed", "merit_changed", "sin_changed",
-                    "debt_recorded", "debt_called", "body_trial_passed", "body_tier_reached", "physique_awakened", "core_graded",
+    "Progression": ["pill_resistance_changed", "foundation_changed", "heart_demon_changed", "residue_changed", "body_trial_passed", "body_tier_reached", "physique_awakened", "core_graded",
                     "fate_offered", "fate_chosen", "tribulation_started", "tribulation_bolt", "tribulation_result", "qi_deviation",
                     "inner_art_learned", "inner_art_equipped", "stance_changed", "vow_taken", "vow_broken", "false_realm_changed",
                     "epiphany", "soul_escaped"],
@@ -75,6 +73,9 @@ DEPTH = {
     "Movement": ["jumped", "landed", "wall_kicked", "art_used", "climb_started", "climb_finished", "fell_out", "mover_boarded",
                  "volume_entered", "volume_left"],
     "Enemies": ["enemy_leashed", "beast_king_spawned", "king_nest_opened"],
+    # S49: the karma ledger, alignment and Fame (per character).
+    "Relations": ["merit_changed", "sin_changed", "debt_recorded", "debt_called", "alignment_changed", "fame_changed",
+                  "young_master_challenge"],
     "Pets": ["pet_wounded", "pet_healed", "core_devoured", "cores_sold", "beast_cleansed", "bloodline_awakened",
              "contract_formed", "contract_offered", "pet_skill_cast", "beast_suppressed", "egg_infused", "party_changed",
              "pet_skill_learned", "pets_fused", "pet_core_formed", "pet_breakthrough", "pet_gear_changed", "pet_swapped",
@@ -92,7 +93,7 @@ SYSTEMS = {
     "Crafting": ["crafting_authority", "workshop_authority"], "TrainingSect": ["training_sect_authority"],
     "Achievement": ["achievement_authority"], "Economy": ["economy_authority"], "Unlocks": ["unlock_service"],
     "Mail": ["mail_authority"], "Companion": ["companion_authority"], "Notifier": ["notifier"],
-    "Movement": ["local_authority", "movement_solver"],
+    "Movement": ["local_authority", "movement_solver"], "Relations": ["relations_authority"],
 }
 
 # A second system that may also announce the event, and why.
@@ -127,7 +128,7 @@ POLLED = {
     "jumped": "The player node plays its own jump pose and sound when the press succeeds.",
     "climb_started": "The player node reads its climbing state for the climb pose.",
     "climb_finished": "The player node reads its climbing state for the climb pose.",
-    "debt_recorded": "The Cultivation page's Heart tab lists debts; the callback is debt_called.",
+    "debt_recorded": "The Relations page's Karma tab lists debts; the callback is debt_called.",
     "mover_boarded": "The player node reads rider_of; movers carry their riders in the solver.",
     "volume_left": "The player node reads the water state and volumes each frame.",
     "enemy_leashed": "Enemy views read the return state; the out-of-reach rule is the brain's own business.",

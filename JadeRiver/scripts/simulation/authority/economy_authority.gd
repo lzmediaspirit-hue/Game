@@ -132,9 +132,7 @@ func buy(c, shop_id: String, item_id: String, count: int, seen_price: int, learn
 	else:
 		game.inventory.apply_add(c.id, item_id, count, "shop:" + shop_id)
 	emit("item_bought", {"actor": c.id, "shop": shop_id, "item": item_id, "count": count, "price": total})
-	# A back-room market's goods come with a small stain on the ledger (G1 karma).
-	if shop.get("black_market", false):
-		game.progression.apply_karma(c.id, 0, int(ContentDB.stat_const("karma", {}).get("black_market_sin", 2)) * count, "black_market")
+	# A back-room market's goods stain the ledger: the Relations authority's "black_market" deed answers item_bought.
 	return ok({"spent": total})
 
 func sell(c, index: int, count: int) -> Dictionary:

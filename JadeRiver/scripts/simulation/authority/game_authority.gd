@@ -39,6 +39,7 @@ var pets: PetAuthority
 var companions: CompanionAuthority
 var sect: SectAuthority
 var workshop: WorkshopAuthority
+var relations: RelationsAuthority
 
 func _ready() -> void:
 	build_authorities()
@@ -62,8 +63,9 @@ func build_authorities() -> void:
 	companions = CompanionAuthority.new(self)
 	sect = SectAuthority.new(self)
 	workshop = WorkshopAuthority.new(self)
+	relations = RelationsAuthority.new(self)
 	authorities = [combat, progression, enemies, world, inventory, quest, economy, accounts, crafting, training, mail,
-		achievements, pets, companions, sect, workshop]
+		achievements, pets, companions, sect, workshop, relations]
 	for a in authorities:
 		for type in a.intents():
 			assert(not handlers.has(type), "Intent registered twice: " + type)
@@ -137,9 +139,13 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"add_progress": progression.apply_progress(actor_id, float(e.get("amount", 0)), source, float(e.get("pct_of_need", 0)))
 			# Gap report G1: the heart-demon meter, the karma ledger and its named debts, residue.
 			"add_heart_demon": progression.apply_heart_demon(actor_id, float(e.get("amount", 0)), source)
-			"add_merit": progression.apply_karma(actor_id, int(e.get("amount", 0)), 0, str(e.get("reason", source)))
-			"add_sin": progression.apply_karma(actor_id, 0, int(e.get("amount", 0)), str(e.get("reason", source)))
-			"record_debt": progression.apply_karma_debt(actor_id, str(e.id), float(e.get("due_h", 24)), str(e.get("mail", "")), e.get("attachments", []))
+			"add_merit": relations.apply_karma(actor_id, int(e.get("amount", 0)), 0, str(e.get("reason", source)))
+			"add_sin": relations.apply_karma(actor_id, 0, int(e.get("amount", 0)), str(e.get("reason", source)))
+			"record_debt": relations.apply_karma_debt(actor_id, str(e.id), float(e.get("due_h", 24)), str(e.get("mail", "")), e.get("attachments", []))
+			# S49: a named deed from karma.json (merit, sin, alignment and Fame together), and the two axes alone.
+			"deed": relations.apply_deed(actor_id, str(e.deed))
+			"add_alignment": relations.apply_alignment(actor_id, int(e.get("amount", 0)), str(e.get("reason", source)))
+			"add_fame": relations.apply_fame(actor_id, int(e.get("amount", 0)), str(e.get("reason", source)))
 			"add_residue": progression.apply_residue(actor_id, float(e.get("amount", 0)))
 			"clear_residue": progression.apply_residue(actor_id, -float(e.get("amount", 1000000.0)))
 			# S48 body ladder and physiques.

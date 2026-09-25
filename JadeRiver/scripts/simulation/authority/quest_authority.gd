@@ -517,14 +517,15 @@ func start_set_piece(c, event: String) -> Dictionary:
 func start_spar_from_object(c, o: Dictionary) -> Dictionary:
 	return start_spar(c, str(o.get("opponent", "sparring_disciple")))
 
-func start_spar(c, opponent: String) -> Dictionary:
+## A spar at a set level (-1: the opponent's own; the sparring disciple always matches you).
+func start_spar(c, opponent: String, level := -1) -> Dictionary:
 	if game.room_rt == null: return fail("no_room")
 	for e in game.room_rt.living_enemies():
 		if e.def.get("spar", false): return fail("spar_running")
 	var st: ActorState = game.actor_state(c.id)
 	var at = st.plane + Vector2(160, 0) if st else Vector2(600, 800)
 	at.x = clampf(at.x, 80, game.room_rt.width() - 80)
-	var lvl := -1
+	var lvl := level
 	if opponent == "sparring_disciple": lvl = maxi(1, ProgressionRules.level(c))
 	game.enemies.start_spar(opponent, at, lvl)
 	return ok({"spar": opponent})

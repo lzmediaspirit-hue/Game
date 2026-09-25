@@ -254,7 +254,17 @@
   {
    "id": "karma",
    "title": "Merit and sin",
-   "body": "The world keeps a ledger. Mercy and help earn merit: a hundred of it eases one great breakthrough in each realm. Cruelty and the back-room markets earn sin, and sin feeds the heart demon. Some deeds come back as letters."
+   "body": "The world keeps a ledger. Mercy and help earn merit: a hundred of it eases one great breakthrough in each realm. Cruelty and the back-room markets earn sin, and sin feeds the heart demon and strengthens the heavenly tribulation. Some deeds come back as letters. The Relations page keeps the ledger."
+  },
+  {
+   "id": "alignment",
+   "title": "The righteous and the demonic",
+   "body": "Every choice leans you one way or the other, from demonic through shadowed, balanced and upright to righteous. The Cloud Sect's abbots keep some of their wares for the upright, and Broker Mu keeps his worst goods for the shadowed. Alignment opens and closes doors like these; it never stands between you and your next realm."
+  },
+  {
+   "id": "fame",
+   "title": "Fame",
+   "body": "Your own name, apart from any sect's standing: Unknown, Noted, Rising, Renowned, Legendary. Tournaments, great foes and the Beast Tide raise it. People talk, and losing a spar where the town can see costs you. From Rising, young masters of good families come looking to test you. Accept and win, and your name grows; decline, and it shrinks a little."
   },
   {
    "id": "furnaces_and_fire",

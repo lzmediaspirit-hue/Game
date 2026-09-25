@@ -309,10 +309,10 @@ static func residue_penalty(cu) -> float:
 static func heart_demon_steps(cu) -> int:
 	return int(floor(cu.heart_demon / float(ContentDB.stat_const("heart_demon", {}).get("step", 25))))
 
-## Merit eases one major breakthrough in each great realm by a step.
-static func merit_step(cu) -> int:
-	var need := int(ContentDB.stat_const("karma", {}).get("merit_step", 100))
-	return 1 if cu.merit >= need and not cu.merit_used.has(great_realm(cu.realm_key)) else 0
+## Merit eases one major breakthrough in each great realm by a step (the ledger is the character's RelationsState).
+static func merit_step(c) -> int:
+	var need := int(ContentDB.config("karma").get("merit_step", 100))
+	return 1 if c.relations.merit >= need and not c.relations.merit_used.has(great_realm(c.cultivator.realm_key)) else 0
 
 static func risk_word(index: int) -> String:
 	var words: Array = ContentDB.curve("risk_words", ["low", "moderate", "high", "severe"])

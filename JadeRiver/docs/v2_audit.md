@@ -122,4 +122,9 @@ Progress is recorded in `docs/CHANGELOG.md`.
     Beast Kings with their zone buff and nests, and the weekly Beast Tide. V7e is done: the Beast Arena ladder with
     pet auto-battles, the daily Beast Trial Grove, Beast Taming Dao tiers 3-6, the Pavilion Feeding Trough and
     renaming. S46 is complete except the Insect Swarm (v1.2) and Dao tiers 5-6 (hooks, later ages);
-  - V8 (S49 living world, with S45's treasure births and gathering trials).
+  - V8 (S49 living world, with S45's treasure births and gathering trials). V8a is done: the Relations authority
+    owns the karma ledger (old saves migrate), karma.json deeds from effects, code and events (Part 8's +30
+    cleansing and +2 healing), the righteous-demonic alignment with its requirement kinds and first gates, personal
+    Fame with its tiers, town greetings and Young Master challenges, and the Relations page. Next: V8b (affinity,
+    gifts, bonds), V8c (grudges, factions, hunters, bounties, Part 8 debts and spare/surrender choices), V8d
+    (calendar), V8e-g (the rest).

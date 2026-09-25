@@ -115,7 +115,9 @@ def shops():
                    s("manual_stonebody_canon", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_willow_breath_art", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_emberheart_sutra", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
-                   s("manual_nine_winds_canon", price=800, requires=all_of({"kind": "sect_rank_at_least", "rank": "core_disciple"}))] + inner_art_stock(),
+                   s("manual_nine_winds_canon", price=800, requires=all_of({"kind": "sect_rank_at_least", "rank": "core_disciple"})),
+                   # S49 alignment: the abbots keep their incense for the upright.
+                   s("calm_heart_incense", price=60, requires=all_of({"kind": "alignment_at_least", "value": 20}))] + inner_art_stock(),
          "rotation": {"count": 1, "pool": [s("manual_page")]}},
         {"id": "old_pan", "name": "Old Pan's Wares", "currency": "spirit_stone",
          "stock": [s("dusty_curio", price=1)], "rotation": {"count": 3, "pool": [s("torn_manual", price=5, requires=all_of(realm("spirit_awakening_6"))), s("riverreed_ginseng_100", price=4, sealed=True), s("manual_page", price=6), s("spirit_egg", price=12,
@@ -171,7 +173,10 @@ def shops():
         # A back-room market (gap report G1 karma): every purchase is a small sin.
         {"id": "free_market", "name": "Broker Mu's Back Room", "currency": "spirit_stone", "black_market": True,
          "requires": {"all": [{"kind": "flag_set", "flag": "path_independent"}]},
-         "stock": [s("manual_page", price=5), s("torn_manual", price=24), s("storm_blood_pill"), s("spirit_egg", price=36)],
+         "stock": [s("manual_page", price=5), s("torn_manual", price=24), s("storm_blood_pill"), s("spirit_egg", price=36),
+                   # S49 alignment: what Broker Mu keeps under the counter for the shadowed.
+                   s("soul_core_mid", price=45, requires=all_of({"kind": "alignment_at_most", "value": -20})),
+                   s("beast_essence_blood", price=25, requires=all_of({"kind": "alignment_at_most", "value": -20}))],
          "rotation": {"count": 2, "pool": [s("sage_condensing_pill", price=80), s("mirror_eye", price=70), s("jade_core", price=18),
                                            s("sentinel_core", price=30), s("frost_lotus", price=9)]}},
         {"id": "ironroot_clan", "name": "Ironroot Clan Forge", "currency": "spirit_stone", "buys_all": True,

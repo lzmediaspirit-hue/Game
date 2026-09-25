@@ -11,6 +11,7 @@ var slot := 1
 var name := "Disciple"
 var appearance: Dictionary = {}      # body, hair, hair_color (creator look; equipment overrides garments)
 var cultivator := CultivatorState.new()
+var relations := RelationsState.new()  # S49: karma ledger, alignment, Fame, affinity, bonds, grudges (Relations authority)
 var pools := ResourcePool.new()
 var stats := StatBlock.new()
 var inventory := InventoryState.new()
@@ -55,7 +56,7 @@ func has_qi_pool() -> bool:
 
 func snapshot() -> Dictionary:
 	return {"version": VERSION, "slot": slot, "id": id, "name": name, "appearance": appearance.duplicate(true),
-		"origin": cultivator.origin, "cultivator": cultivator.snapshot(), "pools": pools.snapshot(),
+		"origin": cultivator.origin, "cultivator": cultivator.snapshot(), "relations": relations.snapshot(), "pools": pools.snapshot(),
 		"buffs": stats.snapshot(), "inventory": inventory.snapshot(), "professions": professions.duplicate(true),
 		"crafting": crafting.duplicate(true), "training_sect": training_sect.duplicate(true),
 		"quests": quests.snapshot(), "position": position.duplicate(true), "last_shrine": last_shrine.duplicate(true),
@@ -76,6 +77,11 @@ func restore(d: Dictionary) -> void:
 	appearance = d.get("appearance", {}).duplicate(true)
 	cultivator.restore(d.get("cultivator", {}))
 	if cultivator.origin == "": cultivator.origin = str(d.get("origin", ""))
+	if d.get("relations") is Dictionary: relations.restore(d.relations)
+	else:
+		# Before S49 the karma ledger lived on the cultivator (G1); it moves across unchanged.
+		var cd: Dictionary = d.get("cultivator", {}) if d.get("cultivator") is Dictionary else {}
+		relations.restore({"merit": cd.get("merit", 0), "sin": cd.get("sin", 0), "debts": cd.get("debts", {}), "merit_used": cd.get("merit_used", {})})
 	inventory.restore(d.get("inventory", {}))
 	professions = d.get("professions", {}).duplicate(true)
 	crafting = d.get("crafting", crafting).duplicate(true)
