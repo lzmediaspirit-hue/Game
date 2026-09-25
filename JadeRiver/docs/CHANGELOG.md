@@ -5,6 +5,32 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V8d2 · The living world: Auction Day, Spirit Fruit births, the Herb Terraces trial and weather (S49)
+- **Auction Day** (Part 8): every Saturday an auctioneer's stall stands on Market Street. It shows only while the
+  calendar event runs.
+  - The valley house is a second auction beside the Pavilion's. It offers five lots at a time from rare seeds,
+    spirit eggs, manual pages and recipe scrolls, for Spirit Stones. Every lot closes when the day ends.
+  - Winning a recipe scroll teaches the recipe at once, and a letter confirms it.
+  - The Pavilion auction is unchanged. Its lots, seeding and saves are as before.
+- **A Spirit Fruit ripens** every fourth day for six hours, under a glowing tree in one of the valley's dry field
+  rooms.
+  - Reach for it and the room's beasts withdraw. Two rival cultivators and the Fruit-Guardian Boar, two levels
+    above the room, stand in the way.
+  - Beat all three and the fruit is yours, once per birth. Eating it gives 8% of this realm's progress, and heart
+    demons fall by 5.
+- **The Herb Terraces Trial** runs every Wednesday on the Jade Herb Terraces. Every herb you gather there while it
+  runs counts against five of the valley's gatherers, whose scores come from a seeded draw.
+  - The ranking pays out once, when the day is over. The top three learn the Foundation Guard Pill, and the top
+    two also receive pills.
+  - The Calendar page shows your standing while the trial runs.
+- **Weather effects** (never gating):
+  - Rain widens the fishing bite window and adds 10% gathering power.
+  - Fog adds 5% evasion.
+  - A storm adds 10% elemental power to Thunder techniques.
+  - The effects apply when you enter a room and change with the sky. Rain and storms draw streaks and a grey tint
+    (storms also flash), and fog drifts over the room.
+- Debug: `--event=<id>` moves the clock to an event's next opening, and `--weather=rain|fog|storm` previews a sky.
+
 ### V8d1 · The living world: the world calendar, spatial rifts and reopenings (S49)
 - **Calendar authority** (new, account level). The schedule is pure (`CalendarRules`): it comes from the account
   seed, the account's first day and the UTC clock, so the same save shows the same calendar on any device.
@@ -24,7 +50,7 @@ the Ascension Gate to the Starsea Launch.
 - **Seasons** now run from the account's first week, spring first. Saves from before this keep the old count.
   The account gains `created_utc` and a `calendar` block.
 - **Weather** (v1.1 groundwork): a seeded pick every three hours for Reedmarsh and Whitewater Gorge (rain or fog)
-  and Summit Ridge (storms or fog). Those rooms carry their region. Effects and visuals come in V8d2.
+  and Summit Ridge (storms or fog). Those rooms carry their region. Effects and visuals came in V8d2.
 - **Calendar page** (a new Menu entry; the Menu is now seven tiles wide): the season and its days left, the
   weather by region, this week's Beast Tide, and every world event with when, where and whether its repeat runs
   are open to you.

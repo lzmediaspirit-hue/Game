@@ -389,23 +389,6 @@
    "locked_text": "Heat rises from a crack in the stone. An alchemist could use it."
   },
   {
-   "id": "rift_tear",
-   "type": "rift_tear",
-   "at": [
-    2112,
-    820
-   ],
-   "radius": 140,
-   "visible_if": {
-    "all": [
-     {
-      "kind": "world_event_here",
-      "event": "spatial_rift"
-     }
-    ]
-   }
-  },
-  {
    "id": "rare_ginseng_rt",
    "type": "herb_patch",
    "at": [
@@ -443,6 +426,41 @@
     "enemy": "tide_crab",
     "level": 32,
     "elite": true
+   }
+  },
+  {
+   "id": "rift_tear",
+   "type": "rift_tear",
+   "at": [
+    2112,
+    820
+   ],
+   "radius": 140,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "world_event_here",
+      "event": "spatial_rift"
+     }
+    ]
+   }
+  },
+  {
+   "id": "spirit_fruit_tree",
+   "type": "treasure_birth",
+   "at": [
+    1344,
+    800
+   ],
+   "radius": 150,
+   "prop": "nine_bough_jade_tree",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "world_event_here",
+      "event": "treasure_birth"
+     }
+    ]
    }
   }
  ],

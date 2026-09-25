@@ -106,6 +106,12 @@ func _draw() -> void:
 				draw_circle(sp, 2.4, Color(1.0, 0.95, 0.7, 0.95))
 				draw_line(sp - Vector2(4, 0), sp + Vector2(4, 0), Color(1.0, 0.9, 0.55, 0.7), 1.0)
 				draw_line(sp - Vector2(0, 4), sp + Vector2(0, 4), Color(1.0, 0.9, 0.55, 0.7), 1.0)
+		if def.type == "treasure_birth":
+			# S49: a Spirit Fruit ripe on the tree, pale jade and gold, breathing light.
+			var fp := Vector2(18, -120)
+			draw_circle(fp, 26.0 + 3.0 * sin(t * 2.4), Color(0.6, 1.0, 0.8, 0.16))
+			draw_circle(fp, 9.0, Color("9fe8c8"))
+			draw_circle(fp + Vector2(3, 2), 5.0, Color("f2c85a"))
 		if def.type == "rift_tear":
 			# S49 spatial rift: a violet tear in the air, the swirl inside it, motes drawn in.
 			for k in 3:

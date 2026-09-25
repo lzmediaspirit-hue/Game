@@ -9,6 +9,18 @@ var clock := 0.0
 func intents() -> Array:
 	return []
 
+func subscribe() -> void:
+	GameEvents.subscribe("node_gathered", _on_gathered, 90)
+	GameEvents.subscribe("room_entered", _on_room_entered, 90)
+
+func _on_room_entered(_p: Dictionary) -> void:
+	var c = game.active()
+	if c != null: game.combat.apply_weather(c.id, weather_here())
+
+## What the weather here does to fishing (a longer reaction window in rain).
+func fishing_bonus() -> float:
+	return float(ContentDB.config("calendar").get("weather_effects", {}).get(weather_here(), {}).get("fishing_window", 0.0))
+
 func cal_seed() -> int:
 	return int(game.account.rng_seed)
 
@@ -31,8 +43,11 @@ func repeat_open(c, id: String) -> bool:
 	var ev := CalendarRules.event(id)
 	return not ev.is_empty() and c != null and CalendarRules.repeat_open(ev, Clock.now_utc(), cal_seed(), origin(), c.cultivator.realm_key)
 
+var debug_weather := ""   # debug tools: --weather=storm previews a sky
+
 func weather_here() -> String:
 	if game.room_rt == null: return "clear"
+	if debug_weather != "" and str(game.room_rt.def.get("weather", "")) != "": return debug_weather
 	return CalendarRules.weather(str(game.room_rt.def.get("weather", "")), Clock.now_utc(), cal_seed())
 
 func tick(delta: float) -> void:
@@ -60,6 +75,8 @@ func tick(delta: float) -> void:
 		if not up.is_empty() and float(up.start) > now and float(up.start) - now <= notice and int(cal.told.get(id, -1)) != int(up.k):
 			cal.told[id] = int(up.k)
 			emit("world_event_scheduled", {"event": id, "k": int(up.k), "room": str(up.room), "start": float(up.start)})
+	var c = game.active()
+	if c != null: _pay_trial(c)
 	var season := HerbRules.season(now)
 	if str(cal.get("season", "")) != season:
 		if cal.has("season"): emit("season_changed", {"season": season})
@@ -70,6 +87,8 @@ func tick(delta: float) -> void:
 			var had: bool = cal.weather.has(region)
 			cal.weather[region] = w
 			if had: emit("weather_changed", {"region": str(region), "weather": w})
+			if game.room_rt != null and str(game.room_rt.def.get("weather", "")) == str(region) and game.active() != null:
+				game.combat.apply_weather(game.active_id, w)
 
 # ------------------------------------------------------------------ the spatial rift
 ## Touch the tear: the room's own beasts pour out of it, the rift's levels stronger, for a minute. Once a rift per
@@ -100,3 +119,81 @@ func open_rift(c) -> Dictionary:
 		"on_complete": [{"kind": "rift_reward", "loot": str(ev.get("loot", "chest_dungeon")), "level": top}]})
 	emit("rift_opened", {"actor": c.id, "room": rt.room_id, "k": int(occ.k), "level": top})
 	return ok({"rift": true})
+
+# ------------------------------------------------------------------ treasure births (Part 8: the Spirit Fruit)
+## Reach for the ripe fruit: two rival cultivators and its guardian stand in the way (the room's own beasts
+## withdraw). Beat all three and the fruit is yours, once per birth.
+func open_treasure(c) -> Dictionary:
+	var rt = game.room_rt
+	var ev := CalendarRules.event("treasure_birth")
+	var occ: Dictionary = active_of("treasure_birth")
+	if rt == null or occ.is_empty() or str(occ.room) != rt.room_id: return fail("gone", {"text": Tx.t("sim.calendar.fruit_gone")})
+	if int(c.cooldowns.get("birth_k", -1)) == int(occ.k): return fail("taken", {"text": Tx.t("sim.calendar.fruit_taken")})
+	if rt.event.get("active", false): return fail("busy")
+	var top := 1
+	for spec in rt.def.get("spawns", []):
+		if not spec.get("boss", false): top = maxi(top, int((spec.get("level", [1]) as Array).back()))
+	var lv := top + int(ev.get("level_bonus", 2))
+	var tree_x := 800.0
+	for o in rt.def.get("objects", []):
+		if str(o.type) == "treasure_birth": tree_x = float(o.at[0])
+	var spawns: Array = [{"enemy": str(ev.get("rivals", "rogue_cultivator")), "at": [clampf(tree_x - 320.0, 120.0, rt.width() - 120.0), 860], "level": lv},
+		{"enemy": str(ev.get("rivals", "rogue_cultivator")), "at": [clampf(tree_x + 320.0, 120.0, rt.width() - 120.0), 860], "level": lv},
+		{"enemy": str(ev.get("guardian", "fruit_guardian")), "at": [tree_x, 880], "level": lv}]
+	game.world.start_room_event(c, {"id": "treasure_birth", "duration": 150.0, "clear_room": true, "fixed_spawns": spawns,
+		"kill_count": {"enemy": "*", "count": spawns.size()}, "on_complete": [{"kind": "treasure_claim", "k": int(occ.k)}]})
+	return ok({"birth": true})
+
+## The rivals and the guardian are down: the fruit is yours.
+func apply_treasure_claim(actor_id: String, k: int) -> void:
+	var c = game.character(actor_id)
+	if c == null or int(c.cooldowns.get("birth_k", -1)) == k: return
+	c.cooldowns["birth_k"] = k
+	var item := str(CalendarRules.event("treasure_birth").get("item", "spirit_fruit"))
+	game.inventory.apply_add(c.id, item, 1, "treasure_birth")
+	emit("treasure_claimed", {"actor": c.id, "item": item, "room": game.room_rt.room_id if game.room_rt else ""})
+
+# ------------------------------------------------------------------ the gathering trial (Part 8)
+## Every herb gathered on the Terraces while the trial runs counts; the Jade Sect weighs it against the valley's
+## other gatherers (seeded scores) when the day ends.
+func _on_gathered(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	var occ: Dictionary = active_of("gathering_trial")
+	if c == null or occ.is_empty() or game.room_rt == null or game.room_rt.room_id != str(occ.room): return
+	var gt: Dictionary = c.cooldowns.get("gtrial", {})
+	if int(gt.get("k", -1)) != int(occ.k): gt = {"k": int(occ.k), "pts": 0, "paid": false}
+	gt.pts = int(gt.pts) + int(p.get("count", 1))
+	c.cooldowns["gtrial"] = gt
+
+## The other gatherers' scores for one trial: the same for every device (seeded by the account and the trial).
+func trial_rivals(k: int) -> Array:
+	var ev := CalendarRules.event("gathering_trial")
+	var sc: Array = ev.get("rival_score", [6, 22])
+	var r := CalendarRules.draw(cal_seed(), "gathering_trial:rivals", k)
+	var out: Array = []
+	for name in ev.get("rivals", []): out.append({"name": str(name), "pts": r.randi_range(int(sc[0]), int(sc[1]))})
+	return out
+
+## Your place: 1 + how many rivals gathered more than you.
+func trial_rank(c) -> int:
+	var gt: Dictionary = c.cooldowns.get("gtrial", {})
+	if gt.is_empty(): return 0
+	var rank := 1
+	for rv in trial_rivals(int(gt.k)):
+		if int(rv.pts) > int(gt.pts): rank += 1
+	return rank
+
+## When the trial day has passed, the ranking pays once: the top three learn the Foundation Guard Pill.
+func _pay_trial(c) -> void:
+	var gt: Dictionary = c.cooldowns.get("gtrial", {})
+	if gt.is_empty() or gt.get("paid", false) or int(gt.get("pts", 0)) <= 0: return
+	var occ: Dictionary = active_of("gathering_trial")
+	if not occ.is_empty() and int(occ.k) == int(gt.k): return
+	gt.paid = true
+	var rank := trial_rank(c)
+	var rw: Dictionary = CalendarRules.event("gathering_trial").get("rewards", {}).get(str(rank), CalendarRules.event("gathering_trial").get("rewards", {}).get("rest", {}))
+	var fx: Array = []
+	if str(rw.get("learn", "")) != "": fx.append({"kind": "learn_recipe", "recipe": str(rw.learn)})
+	if str(rw.get("item", "")) != "": fx.append({"kind": "grant_item", "item": str(rw.item), "count": int(rw.get("count", 1))})
+	game.apply_effects(c.id, fx, "gathering_trial")
+	emit("gathering_trial_ranked", {"actor": c.id, "rank": rank, "points": int(gt.pts), "of": trial_rivals(int(gt.k)).size() + 1})

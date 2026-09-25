@@ -287,23 +287,6 @@
    "respawn_s": 300
   },
   {
-   "id": "rift_tear",
-   "type": "rift_tear",
-   "at": [
-    1408,
-    820
-   ],
-   "radius": 140,
-   "visible_if": {
-    "all": [
-     {
-      "kind": "world_event_here",
-      "event": "spatial_rift"
-     }
-    ]
-   }
-  },
-  {
    "id": "rare_orchid_sl",
    "type": "herb_patch",
    "at": [
@@ -343,6 +326,41 @@
     "elite": true
    },
    "season": "spring"
+  },
+  {
+   "id": "rift_tear",
+   "type": "rift_tear",
+   "at": [
+    1408,
+    820
+   ],
+   "radius": 140,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "world_event_here",
+      "event": "spatial_rift"
+     }
+    ]
+   }
+  },
+  {
+   "id": "spirit_fruit_tree",
+   "type": "treasure_birth",
+   "at": [
+    896,
+    800
+   ],
+   "radius": 150,
+   "prop": "nine_bough_jade_tree",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "world_event_here",
+      "event": "treasure_birth"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

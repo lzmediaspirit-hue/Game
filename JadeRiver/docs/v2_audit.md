@@ -131,5 +131,8 @@ Progress is recorded in `docs/CHANGELOG.md`.
     Last Lesson. V8c is done: grudges against three factions with hunters, blood money, a duel, Old Scores and a
     story-bound ring; the town bounty board; Part 8's surrender choice, named debts (Dou, the lieutenant, his brother)
     and the night peddler. V8d1 is done: the Calendar authority and page, seeded world events (rifts, the shrine and
-    cave reopenings with realm caps), seasons from the account's first week, weather tables and notifications.
-    Next: V8d2 (valley auction day, Spirit Fruit treasure births, the gathering trial, weather effects), V8e-g.
+    cave reopenings with realm caps), seasons from the account's first week, weather tables and notifications. V8d2
+    is done: the Saturday auction day on Market Street (seeds, eggs, recipe scrolls that teach on the hammer), Spirit
+    Fruit treasure births with rivals and a guardian, the weekly Herb Terraces gathering trial with its ranking, and
+    weather effects and visuals. Next: V8e-g (fortune deck, heavenly phenomena, rankings, Trial Tower, activity
+    chests, auto-path and auto-hunt, the mortal kingdom, leisure arts, lifespan, territory).

@@ -1894,6 +1894,8 @@ def mail_templates():
         {"id": "idle_report", "from": "Your disciple", "subject": "While you were away", "body": "{summary}"},
         {"id": "mentor_letter", "from": "Your mentor", "subject": "A second path", "body": "One cultivator cannot walk every road."},
         {"id": "auction_won", "from": "The Auction Pavilion", "subject": "Your lot: {item}", "body": "The hammer fell in your favour. Your lot is enclosed, with the Pavilion's compliments."},
+        {"id": "auction_won_recipe", "from": "The Market Street auctioneer", "subject": "Your lot: {item}",
+         "body": "The hammer fell in your favour. The scroll was read to you on the spot, as is the custom; the recipe is yours."},
         {"id": "gu_repays", "from": "Gu, a free man", "subject": "What I owe you",
          "body": "I paid the valley what I could. This is for the fisher's child who broke my chains. A man who is paid back remembers how it felt."},
         # S49 named debts (Part 8).

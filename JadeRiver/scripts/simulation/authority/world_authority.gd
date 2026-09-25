@@ -545,6 +545,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 		"inspect":
 			result.text = str(o.get("text", ""))
 			if o.has("open_page"): result.open_page = str(o.open_page)
+			if o.has("page_args"): result.page_args = o.page_args
 			# Some things teach you something the first time you look (a Codex entry): once per character.
 			if o.has("effects") and not c.quests.has_flag("inspected_" + object_id):
 				c.quests.flags["inspected_" + object_id] = true
@@ -583,6 +584,8 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			return start_beast_tide(c)
 		"rift_tear":
 			return game.calendar.open_rift(c)
+		"treasure_birth":
+			return game.calendar.open_treasure(c)
 		"beast_trial_stone":
 			return start_beast_trial(c)
 		"treasure_plot":
@@ -656,6 +659,7 @@ func _verb(o: Dictionary) -> String:
 		"spar_post": return Tx.t("sim.world.spar")
 		"bell", "beast_tide_drum": return Tx.t("sim.world.ring")
 		"rift_tear": return Tx.t("sim.world.touch")
+		"treasure_birth": return Tx.t("sim.world.reach")
 		"beast_trial_stone": return Tx.t("sim.world.begin")
 		"egg_nest": return Tx.t("sim.world.take")
 		"treasure_plot", "garden_bed": return Tx.t("sim.world.tend")

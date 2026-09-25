@@ -23,7 +23,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"sell": return sell(c, int(intent.get("index", -1)), maxi(1, int(intent.get("count", 1))))
 		"exchange_currency": return exchange(str(intent.get("from", "")), str(intent.get("to", "")), int(intent.get("amount", 0)))
 		"buyback": return buyback(c, int(intent.get("index", -1)))
-		"auction_bid": return auction_bid(c, str(intent.get("lot", "")), int(intent.get("amount", 0)))
+		"auction_bid": return auction_bid(c, str(intent.get("lot", "")), int(intent.get("amount", 0)), str(intent.get("house", "pavilion")))
 	return fail("unknown_intent")
 
 func balance(currency: String, c = null) -> int:
@@ -190,25 +190,47 @@ func exchange(from: String, to: String, amount: int) -> Dictionary:
 ## clock. NPC bidders answer at once up to a limit they keep to themselves; a bid above it holds
 ## the lot, the stones stay with the house, and the item arrives by mail when the lot closes.
 ## An outbid character is refunded at once. The Alliance pays a larger premium than the free path.
+## S49: the valley's Saturday auction on Market Street is a second house on the same rules, open only while the
+## calendar's Auction Day lasts; its lots close with the day, and a recipe scroll is taught when the hammer falls.
+const HOUSES := {"pavilion": "auction", "valley": "valley_auction"}
 var _auction_t := 0.0
 
 func tick(delta: float) -> void:
 	_auction_t += delta
 	if _auction_t < 2.0: return
 	_auction_t = 0.0
-	_auction_close()
-	auction_roll()
+	for house in HOUSES:
+		_auction_close(house)
+		auction_roll(house)
 
-func auction_lots() -> Array:
-	return game.account.economy.get("auction", {}).get("lots", [])
+func _au_cfg(house: String) -> Dictionary:
+	var base := ContentDB.config("auction")
+	if house == "pavilion": return base
+	var v: Dictionary = base.get(house, {}).duplicate()
+	for k in ["min_increment", "npc_drift"]:
+		if not v.has(k): v[k] = base.get(k)
+	return v
 
-## The Pavilion keeps a few lots open at all times: when one closes, the next is drawn from the
+func auction_lots(house := "pavilion") -> Array:
+	return game.account.economy.get(HOUSES.get(house, "auction"), {}).get("lots", [])
+
+## The Pavilion is always open; the valley's house only on Auction Day. Returns the day's end (or INF).
+func auction_open_until(house: String) -> float:
+	var cal := str(_au_cfg(house).get("calendar", ""))
+	if cal == "": return INF
+	var occ: Dictionary = game.calendar.active_of(cal)
+	return float(occ.end) if not occ.is_empty() else -1.0
+
+## A house keeps a few lots open at all times: when one closes, the next is drawn from the
 ## pool (seeded by the lot's running number and the account, so the sequence is fixed per account).
-func auction_roll() -> void:
-	var cfg := ContentDB.config("auction")
+func auction_roll(house := "pavilion") -> void:
+	var cfg := _au_cfg(house)
 	if cfg.is_empty() or (cfg.get("pool", []) as Array).is_empty(): return
-	_auction_rebase()
-	var au: Dictionary = game.account.economy.get("auction", {})
+	var until := auction_open_until(house)
+	if until < 0.0: return
+	_auction_rebase(house)
+	var key := str(HOUSES.get(house, "auction"))
+	var au: Dictionary = game.account.economy.get(key, {})
 	var lots: Array = au.get("lots", [])
 	var open := lots.filter(func(l): return not l.get("closed", false))
 	var want := int(cfg.get("lots_open", 4))
@@ -223,7 +245,7 @@ func auction_roll() -> void:
 	var n := int(au.get("next", 0))
 	var rng := RandomNumberGenerator.new()
 	while open.size() < want:
-		rng.seed = hash("auction:%d" % n) ^ int(game.account.rng_seed)
+		rng.seed = hash(("auction:%d" if house == "pavilion" else house + "_auction:%d") % n) ^ int(game.account.rng_seed)
 		var pick: Dictionary = pool[0]
 		for attempt in 6:   # never two open lots of the same goods
 			var r := rng.randf() * total
@@ -232,13 +254,16 @@ func auction_roll() -> void:
 				if r <= 0.0:
 					pick = p
 					break
-			if not open.any(func(o): return str(o.item) == str(pick.item)): break
+			if not open.any(func(o): return str(o.item) == str(pick.item) and str(o.get("learn", "")) == str(pick.get("learn", ""))): break
 		var start := int(pick.get("start", 10))
-		# Staggered closing times, so lots come and go through the day.
+		# Staggered closing times, so lots come and go through the day (never past the house's closing).
 		var hours := rng.randf_range(float(dur[0]), float(dur[1])) + open.size() * 0.5
-		var lot := {"id": "lot_%d" % n, "item": str(pick.item), "count": int(pick.get("count", 1)), "start": start, "bid": start,
-			"bidder": "npc", "npc": rng.randi_range(0, maxi(0, bidders.size() - 1)), "cap": int(round(start * rng.randf_range(float(cap[0]), float(cap[1])))),
-			"opened": now, "ends": now + hours * 3600.0, "paid": 0, "closed": false}
+		var lot := {"id": "%s_%d" % ["lot" if house == "pavilion" else house, n], "item": str(pick.item), "count": int(pick.get("count", 1)),
+			"start": start, "bid": start, "bidder": "npc", "npc": rng.randi_range(0, maxi(0, bidders.size() - 1)),
+			"cap": int(round(start * rng.randf_range(float(cap[0]), float(cap[1])))),
+			"opened": now, "ends": minf(now + hours * 3600.0, until), "paid": 0, "closed": false}
+		if house != "pavilion": lot.house = house
+		if str(pick.get("learn", "")) != "": lot.learn = str(pick.learn)
 		lots.append(lot)
 		open.append(lot)
 		n += 1
@@ -253,43 +278,44 @@ func auction_roll() -> void:
 		lots.remove_at(oldest)
 	au["next"] = n
 	au["lots"] = lots
-	game.account.economy["auction"] = au
-	emit("shop_restocked", {"shop": "auction"})
+	game.account.economy[key] = au
+	emit("shop_restocked", {"shop": "auction" if house == "pavilion" else house + "_auction"})
 
 ## What a lot stands at now: an NPC-held lot creeps up over its life (never past its limit).
 func auction_price(l: Dictionary) -> int:
 	if str(l.get("bidder", "npc")) != "npc": return int(l.bid)
 	var span := maxf(1.0, float(l.ends) - float(l.opened))
 	var f := clampf((Clock.now_utc() - float(l.opened)) / span, 0.0, 1.0)
-	var drift := int(round(float(l.start) + (float(l.cap) * float(ContentDB.config("auction").get("npc_drift", 0.6)) - float(l.start)) * f))
+	var drift := int(round(float(l.start) + (float(l.cap) * float(_au_cfg(str(l.get("house", "pavilion"))).get("npc_drift", 0.6)) - float(l.start)) * f))
 	return maxi(int(l.bid), mini(drift, int(l.cap)))
 
 func auction_min_bid(l: Dictionary) -> int:
-	var inc := float(ContentDB.config("auction").get("min_increment", 0.1))
+	var inc := float(_au_cfg(str(l.get("house", "pavilion"))).get("min_increment", 0.1))
 	var p := auction_price(l)
 	return maxi(p + 1, int(ceil(p * (1.0 + inc))))
 
 ## The house premium on top of a bid: smaller on the free path (S20).
-func auction_fee(c) -> float:
-	var fees: Dictionary = ContentDB.config("auction").get("premium", {})
+func auction_fee(c, house := "pavilion") -> float:
+	var fees: Dictionary = _au_cfg(house).get("premium", {})
 	var path := "alliance" if c.quests.has_flag("path_alliance") else ("independent" if c.quests.has_flag("path_independent") else "none")
 	return float(fees.get(path, 0.1))
 
-func auction_bid(c, lot_id: String, amount: int) -> Dictionary:
-	if not Unlocks.is_unlocked(c.id, "auction_house"): return fail("locked", {"text": Unlocks.locked_text("auction_house")})
+func auction_bid(c, lot_id: String, amount: int, house := "pavilion") -> Dictionary:
+	if house == "pavilion" and not Unlocks.is_unlocked(c.id, "auction_house"): return fail("locked", {"text": Unlocks.locked_text("auction_house")})
+	if house != "pavilion" and auction_open_until(house) < 0.0: return fail("closed", {"text": Tx.t("sim.economy.lot_closed")})
 	var l := {}
-	for x in auction_lots():
+	for x in auction_lots(house):
 		if str(x.id) == lot_id: l = x
 	if l.is_empty() or l.get("closed", false) or Clock.now_utc() >= float(l.ends): return fail("closed", {"text": Tx.t("sim.economy.lot_closed")})
 	if str(l.bidder) == c.id: return fail("leading", {"text": Tx.t("sim.economy.you_hold_the_lot")})
 	var need := auction_min_bid(l)
 	if amount < need: return fail("too_low", {"text": Tx.t("sim.economy.bid_at_least") % need})
-	var cost := int(ceil(amount * (1.0 + auction_fee(c))))
+	var cost := int(ceil(amount * (1.0 + auction_fee(c, house))))
 	if balance("spirit_stone") < cost: return fail("insufficient_funds", {"text": Tx.t("sim.economy.not_enough_stones")})
 	emit("system_used", {"actor": c.id, "system": "auction_bid"})
 	# An NPC answers at once while the bid is inside its limit.
 	if amount < int(l.cap):
-		l.bid = mini(int(l.cap), maxi(amount + 1, int(ceil(amount * (1.0 + float(ContentDB.config("auction").get("min_increment", 0.1)))))))
+		l.bid = mini(int(l.cap), maxi(amount + 1, int(ceil(amount * (1.0 + float(_au_cfg(house).get("min_increment", 0.1)))))))
 		if str(l.bidder) != "npc": _auction_refund(l)
 		l.bidder = "npc"
 		emit("auction_outbid", {"actor": c.id, "lot": lot_id, "item": str(l.item), "bid": int(l.bid)})
@@ -309,22 +335,27 @@ func _auction_refund(l: Dictionary) -> void:
 	l.paid = 0
 
 ## A clock that moved backward resets the reference (Part 2 · Time): an open lot keeps the time it had left.
-func _auction_rebase() -> void:
+func _auction_rebase(house := "pavilion") -> void:
 	var now := Clock.now_utc()
-	for l in auction_lots():
+	for l in auction_lots(house):
 		if l.get("closed", false) or float(l.opened) <= now + 1.0: continue
 		var back := float(l.opened) - now
 		l.opened = now
 		l.ends = float(l.ends) - back
 
-func _auction_close() -> void:
-	_auction_rebase()
+func _auction_close(house := "pavilion") -> void:
+	_auction_rebase(house)
 	var now := Clock.now_utc()
-	for l in auction_lots():
+	for l in auction_lots(house):
 		if l.get("closed", false) or now < float(l.ends): continue
 		l.closed = true
 		if str(l.bidder) != "npc" and game.character(str(l.bidder)) != null:
-			game.mail.apply_send(str(l.bidder), "auction_won", [{"item": str(l.item), "count": int(l.count)}],
-				{"item": ContentDB.item_name(str(l.item))})
+			if str(l.get("learn", "")) != "":
+				# A recipe scroll is read the moment it is yours.
+				game.crafting.apply_learn_recipe(str(l.bidder), str(l.learn))
+				game.mail.apply_send(str(l.bidder), "auction_won_recipe", [], {"item": ContentDB.name_of("recipes", str(l.learn))})
+			else:
+				game.mail.apply_send(str(l.bidder), "auction_won", [{"item": str(l.item), "count": int(l.count)}],
+					{"item": ContentDB.item_name(str(l.item))})
 			emit("auction_won", {"actor": str(l.bidder), "lot": str(l.id), "item": str(l.item), "count": int(l.count), "bid": int(l.bid)})
 

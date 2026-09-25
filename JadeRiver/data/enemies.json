@@ -6640,6 +6640,94 @@
    }
   },
   {
+   "id": "fruit_guardian",
+   "name": "Fruit-Guardian Boar",
+   "level": [
+    20,
+    20
+   ],
+   "role": "elite",
+   "element": "wood",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "charger",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "thorn_charge",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.3,
+     "dash": 220,
+     "knockback": 110
+    },
+    {
+     "id": "root_stamp",
+     "windup_s": 0.8,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       120
+      ],
+      "depth": 60,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.2,
+     "both_sides": true
+    }
+   ],
+   "loot": "fruit_guardian",
+   "drops": [
+    {
+     "item": "thorn_hide",
+     "chance": 1.0,
+     "count": [
+      2,
+      3
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "creature": "thornback_boar"
+   },
+   "half_width": 46,
+   "height": 60,
+   "hp_mult": 3.0,
+   "movement": {
+    "jump": 0,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   },
+   "beast_rank": 3,
+   "nature": "spirit"
+  },
+  {
    "id": "mudwater_lieutenant",
    "name": "Lieutenant Kuai",
    "level": [

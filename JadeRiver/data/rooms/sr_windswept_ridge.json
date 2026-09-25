@@ -293,6 +293,18 @@
    "respawn_s": 300
   },
   {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    1400,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 60,
+   "alt": 300,
+   "surface": "cloud_mv"
+  },
+  {
    "id": "rift_tear",
    "type": "rift_tear",
    "at": [
@@ -310,16 +322,22 @@
    }
   },
   {
-   "id": "chest_cloud_mv",
-   "type": "chest",
+   "id": "spirit_fruit_tree",
+   "type": "treasure_birth",
    "at": [
-    1400,
-    665
+    1344,
+    800
    ],
-   "loot": "chest_dungeon",
-   "level": 60,
-   "alt": 300,
-   "surface": "cloud_mv"
+   "radius": 150,
+   "prop": "nine_bough_jade_tree",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "world_event_here",
+      "event": "treasure_birth"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

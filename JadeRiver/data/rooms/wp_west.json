@@ -355,6 +355,18 @@
    "locked_text": "The Temper drum for the Copper Body trial. Body level 18 before you strike it."
   },
   {
+   "id": "chest_pine_top",
+   "type": "chest",
+   "at": [
+    1750,
+    635
+   ],
+   "loot": "chest_valley",
+   "level": 3,
+   "alt": 240,
+   "surface": "pine_top"
+  },
+  {
    "id": "rift_tear",
    "type": "rift_tear",
    "at": [
@@ -370,18 +382,6 @@
      }
     ]
    }
-  },
-  {
-   "id": "chest_pine_top",
-   "type": "chest",
-   "at": [
-    1750,
-    635
-   ],
-   "loot": "chest_valley",
-   "level": 3,
-   "alt": 240,
-   "surface": "pine_top"
   }
  ],
  "spawns": [

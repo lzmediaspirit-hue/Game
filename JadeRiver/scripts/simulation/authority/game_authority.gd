@@ -151,6 +151,7 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"add_affinity": relations.apply_affinity(actor_id, str(e.npc), int(e.get("amount", 0)), str(e.get("reason", source)))
 			"master_legacy": relations.apply_master_legacy(actor_id)
 			"rift_reward": world.apply_rift_reward(actor_id, str(e.get("loot", "chest_dungeon")), int(e.get("level", 1)))
+			"treasure_claim": calendar.apply_treasure_claim(actor_id, int(e.get("k", -1)))
 			"learn_inner_art": progression.apply_learn_inner_art(actor_id, str(e.art))
 			"add_residue": progression.apply_residue(actor_id, float(e.get("amount", 0)))
 			"clear_residue": progression.apply_residue(actor_id, -float(e.get("amount", 1000000.0)))

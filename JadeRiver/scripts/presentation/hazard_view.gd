@@ -356,6 +356,7 @@ func _draw_air() -> void:
 			air.draw_circle(p.snapped(Vector2(2, 2)), 8.0 + 10.0 * k, Color(DUST, 0.7 * (1.0 - k)))
 	var tsa := _trib_state()
 	if not tsa.is_empty(): _air_lightning({}, tsa, view)
+	_air_weather(rt, view)
 	for hid in rt.hazards:
 		var h := ContentDB.entry("hazards", str(hid))
 		var hs: Dictionary = rt.hazards[hid]
@@ -636,3 +637,27 @@ func _air_cold(rt: RoomRuntime, hs: Dictionary, view: Rect2) -> void:
 					_: r = Rect2(view.end.x - depth, view.position.y + f * view.size.y, depth, view.size.y / 16.0 + 2)
 				air.draw_rect(r, Color(FROST, float(frost)))
 	if phase == "warn": _mark(air, _player_pos() + Vector2(36, -150), 0.7 + 0.3 * sin(t * 12.0))
+
+## S49 weather (calendar): rain slants across the view, fog drifts low, a storm adds rain and far lightning.
+func _air_weather(rt: RoomRuntime, view: Rect2) -> void:
+	if str(rt.def.get("weather", "")) == "": return
+	var w: String = Game.calendar.weather_here()
+	if w in ["rain", "storm"]:
+		air.draw_rect(view, Color(0.35, 0.42, 0.5, 0.10 if w == "rain" else 0.16))   # the sky closes in
+		var n := 110 if w == "rain" else 160
+		var fall := 900.0 if w == "rain" else 1150.0
+		var slant := 120.0 if w == "rain" else 320.0
+		for i in n:
+			var x := view.position.x + fposmod(_h(i, 201) * view.size.x + t * slant, view.size.x)
+			var y := view.position.y + fposmod(_h(i, 202) * view.size.y + t * fall * (0.8 + 0.4 * _h(i, 203)), view.size.y)
+			var d := Vector2(slant, fall).normalized() * (14.0 + 8.0 * _h(i, 204))
+			air.draw_line(Vector2(x, y), Vector2(x, y) + d, Color(0.78, 0.86, 0.95, 0.5), 1.6)
+	if w == "storm":
+		# Far lightning: a short sheet of light every few seconds.
+		var cyc := fposmod(t, 6.3)
+		if cyc < 0.12 or (cyc > 0.25 and cyc < 0.32): air.draw_rect(view, Color(0.85, 0.9, 1.0, 0.18))
+	if w == "fog":
+		for i in 18:
+			var x := view.position.x - 100 + fposmod(_h(i, 211) * (view.size.x + 200) + t * (10.0 + 8.0 * _h(i, 212)), view.size.x + 200)
+			var y := view.end.y - 120 - _h(i, 213) * (view.size.y * 0.55)
+			_ellipse(air, Vector2(x, y), 150.0 + 60.0 * _h(i, 214), 50.0 + 20.0 * _h(i, 215), Color(0.9, 0.93, 0.95, 0.10))

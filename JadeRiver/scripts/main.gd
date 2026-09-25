@@ -212,6 +212,13 @@ func _handle_preview_args(user_args: Array) -> void:
 			# Debug tools (S38): --grudge=faction:n sets a faction's grudge (S49 previews).
 			var gp := str(a).trim_prefix("--grudge=").split(":")
 			Game.relations.apply_grudge(Game.active().id, gp[0], int(gp[1]) - Game.relations.grudge(Game.active(), gp[0]) if gp.size() > 1 else 30, "debug")
+		if str(a).begins_with("--event=") and Game.active() != null:
+			# Debug tools (S38): --event=id moves the clock ten minutes into that world event's next opening (S49).
+			var up: Dictionary = Game.calendar.upcoming_of(str(a).trim_prefix("--event="))
+			if not up.is_empty(): Clock.debug_offset_s += maxf(0.0, float(up.start) + 600.0 - Clock.now_utc())
+		if str(a).begins_with("--weather="):
+			# Debug tools (S38): --weather=rain|fog|storm previews a sky in rooms that have weather (S49).
+			Game.calendar.debug_weather = str(a).trim_prefix("--weather=")
 		if str(a) == "--challenge" and Game.active() != null:
 			# Debug tools (S38): a young master's challenge waits in this room (S49 Fame previews).
 			Game.relations.offer_challenge(Game.active(), "young_master")

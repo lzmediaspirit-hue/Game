@@ -314,23 +314,6 @@
    "alt": 200
   },
   {
-   "id": "rift_tear",
-   "type": "rift_tear",
-   "at": [
-    1408,
-    820
-   ],
-   "radius": 140,
-   "visible_if": {
-    "all": [
-     {
-      "kind": "world_event_here",
-      "event": "spatial_rift"
-     }
-    ]
-   }
-  },
-  {
    "id": "pit_shard",
    "type": "pickup",
    "at": [
@@ -350,6 +333,41 @@
     ]
    },
    "set_flag": "pit_shard"
+  },
+  {
+   "id": "rift_tear",
+   "type": "rift_tear",
+   "at": [
+    1408,
+    820
+   ],
+   "radius": 140,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "world_event_here",
+      "event": "spatial_rift"
+     }
+    ]
+   }
+  },
+  {
+   "id": "spirit_fruit_tree",
+   "type": "treasure_birth",
+   "at": [
+    896,
+    800
+   ],
+   "radius": 150,
+   "prop": "nine_bough_jade_tree",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "world_event_here",
+      "event": "treasure_birth"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

@@ -37,6 +37,18 @@ func subscribe() -> void:
 func _on_stat_source(p: Dictionary) -> void:
 	refresh_stats(str(p.get("actor", "")))
 
+## S49 weather (v1.1): the sky over this room lends its modifiers (calendar.json weather_effects); never gating.
+func apply_weather(actor_id: String, weather: String) -> void:
+	var c = game.character(actor_id)
+	if c == null: return
+	c.stats.remove_prefix("weather:")
+	var mods: Array = ContentDB.config("calendar").get("weather_effects", {}).get(weather, {}).get("stats", [])
+	for i in mods.size():
+		var m: Dictionary = mods[i].duplicate(true)
+		m.source = "weather:%s:%d" % [weather, i]
+		c.stats.add_modifier(m)
+	refresh_stats(actor_id)
+
 func refresh_stats(actor_id: String) -> void:
 	var c = game.character(actor_id)
 	if c == null: return

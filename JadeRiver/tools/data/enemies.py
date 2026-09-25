@@ -374,6 +374,10 @@ def build():
                                                             atk("golden_crescent", 0.65, 280, 1.15, damage_type="qi",
                                                                 projectile={"speed": 520, "art": "qi_arc"})],
             ai="duelist", art=human("young_master"), race="human", width=18, height=90, spar=True, name="Young Master Luo Heng"),
+        # S49 treasure births: the beast that wakes when a Spirit Fruit ripens (the room's level, +2).
+        mob("fruit_guardian", 20, "elite", "wood", None, [d("thorn_hide", 1.0, (2, 3))],
+            [atk("thorn_charge", 0.55, 60, 1.3, dash=220, knockback=110), atk("root_stamp", 0.8, 120, 1.2, both_sides=True, depth=60)],
+            ai="charger", art={"creature": "thornback_boar"}, width=46, height=60, hp_mult=3.0, name="Fruit-Guardian Boar"),
         # S49 grudges. The Mudwater lieutenant yields at a fifth of his health: spare him (he remembers) or not (his
         # brother hunts you on the Caravan Road).
         mob("mudwater_lieutenant", 19, "elite", "none", None, [d("cloth", 1.0), d("mudwater_manual", 0.3)],

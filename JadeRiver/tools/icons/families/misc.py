@@ -750,6 +750,23 @@ def evergreen_heart_fruit():
     return c
 
 
+def spirit_fruit():
+    """S49 treasure births: a pale jade peach with a blush of gold, two leaves, a halo of Qi."""
+    c = Canvas(32)
+    body = c.circle(16, 18, 8.4) | c.poly([(10, 14), (22, 14), (16, 6.5)])
+    c.put(body, R['jade'], 'sphere', base=3)
+    c.put(c.circle(19.5, 20, 4.2) & body, R['gold'], 'sphere', base=3)
+    c.put(c.circle(12.5, 15, 1.7) & body, R['jade'], 'flat', base=5)
+    stem = c.rect(16, 4, 16, 8)
+    c.put(stem, R['wood'], 'flat', base=2)
+    for a, L in ((155, 8), (30, 7)):
+        c.put(S.leaf(c, 16, 6, a, L, 2.6, 0.0), R['leaf'], 'ray', base=2, sep=True)
+    c.outline()
+    c.glow('#9FE8C8', (60,))
+    S.sparkle(c, 25, 10, '#FFFFFF', R['gold'][3], 2)
+    return c
+
+
 for _id, _fn in (('manual_page', manual_page), ('riverbreath_scroll', riverbreath_scroll),
                  ('lu_journal_page', lu_journal_page), ('recipe_scroll', recipe_scroll),
                  ('river_token', river_token), ('jade_token', jade_token), ('cloud_token', cloud_token),
@@ -767,7 +784,8 @@ for _id, _fn in (('manual_page', manual_page), ('riverbreath_scroll', riverbreat
                  ('beast_bag_cloud', _beast_bag(R['cloud'], R['sky'], R['jade'])), ('beast_bag_mist', _beast_bag(R['deepjade'], R['jade'], R['pearl'])),
                  ('beast_bag_star', _beast_bag(R['violetsilk'], R['gold'], R['gold'])),
                  ('drying_rack', drying_rack), ('mindwell_lotus', mindwell_lotus),
-                 ('evergreen_heart_seed', evergreen_heart_seed), ('evergreen_heart_fruit', evergreen_heart_fruit)):
+                 ('evergreen_heart_seed', evergreen_heart_seed), ('evergreen_heart_fruit', evergreen_heart_fruit),
+                 ('spirit_fruit', spirit_fruit)):
     register(FAM, _id, _fn, GROUP)
 
 

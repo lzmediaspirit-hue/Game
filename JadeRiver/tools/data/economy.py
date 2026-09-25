@@ -415,6 +415,17 @@ def auction():
                  lot("mirror_eye", 80, weight=0.5), lot("frost_lotus", 30, 3), lot("stormsteel_ore", 35, 10), lot("clear_mind_pill", 20, 3),
                  lot("fuel_crystal_mid", 30, 5), lot("spirit_stone_mid", 60, 5, weight=0.7), lot("storm_blood_pill", 25, 3),
                  lot("sentinel_core", 40, 2, weight=0.7), lot("manual_page", 18, 5)],
+        # S49 Part 8: the valley's own auction day, on Market Street every Saturday (calendar "auction_day"): rare
+        # seeds, recipe scrolls (taught when the hammer falls) and eggs, for Spirit Stones. Every lot closes with the day.
+        "valley": {"calendar": "auction_day", "lots_open": 5, "duration_h": [3, 9], "npc_limit": [1.3, 2.2],
+                   "premium": {"none": 0.06, "alliance": 0.06, "independent": 0.06},
+                   "bidders": ["Madam Hua's steward", "Old Pan", "a Stoneford herbalist", "a Jade Sect deacon", "a caravan master"],
+                   "pool": [lot("cloudtop_orchid_seed", 14, 2), lot("soulbell_flower_seed", 20), lot("riverreed_ginseng_seed", 8, 3),
+                            lot("mist_lotus_seed", 6, 4), lot("spirit_egg", 18), lot("rare_spirit_egg", 45, weight=0.4),
+                            dict(lot("recipe_scroll", 16, weight=0.8), learn="foundation_guard_pill"),
+                            dict(lot("recipe_scroll", 12, weight=0.8), learn="cloudtop_orchid_broth"),
+                            dict(lot("recipe_scroll", 20, weight=0.6), learn="clear_mind_pill"),
+                            lot("manual_page", 8, 3)]},
     })
 
 

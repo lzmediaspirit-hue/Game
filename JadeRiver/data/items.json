@@ -3032,6 +3032,27 @@
    ]
   },
   {
+   "id": "spirit_fruit",
+   "name": "Spirit Fruit",
+   "type": "treasure",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 3,
+   "icon": "spirit_fruit",
+   "desc": "A fruit that ripened on Qi alone: 8% of this realm's progress at once, and heart demons -5. Never sold.",
+   "sell": false,
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.08
+    },
+    {
+     "kind": "add_heart_demon",
+     "amount": -5
+    }
+   ]
+  },
+  {
    "id": "evergreen_heart_seed",
    "name": "Evergreen Heart Seed",
    "type": "treasure",

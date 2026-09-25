@@ -36,8 +36,17 @@ func draw_page() -> void:
 	heading(Vector2(x, y + 20), Tx.t("ui.calendar.tide"), left.size.x - 44)
 	y += 50
 	var due: bool = Game.world.tide_due(ch)
-	para(Rect2(x, y - 16, left.size.x - 44, 70), Tx.t("ui.calendar.tide_due") if due else Tx.t("ui.calendar.tide_done") % maxi(1, Game.world.tide_days_left(ch)), 17,
+	y += para(Rect2(x, y - 16, left.size.x - 44, 70), Tx.t("ui.calendar.tide_due") if due else Tx.t("ui.calendar.tide_done") % maxi(1, Game.world.tide_days_left(ch)), 17,
 		UiKit.BRIGHT_JADE if due else UiKit.MIST, 3)
+	# The Herb Terraces trial: your herbs against the valley's gatherers, while it runs.
+	var gt: Dictionary = ch.cooldowns.get("gtrial", {})
+	var trial: Dictionary = Game.calendar.active_of("gathering_trial")
+	if not trial.is_empty():
+		heading(Vector2(x, y + 20), Tx.t("ui.calendar.trial"), left.size.x - 44)
+		var pts := int(gt.get("pts", 0)) if int(gt.get("k", -1)) == int(trial.k) else 0
+		var place := Game.calendar.trial_rank(ch) if pts > 0 else 0
+		para(Rect2(x, y + 34, left.size.x - 44, 60), Tx.t("ui.calendar.trial_standing") % [pts, place, Game.calendar.trial_rivals(int(trial.k)).size() + 1] if pts > 0
+			else Tx.t("ui.calendar.trial_none"), 16, UiKit.PAPER, 3)
 	# Right: every world event, soonest first.
 	x = right.position.x + 22
 	heading(Vector2(x, right.position.y + 40), Tx.t("ui.calendar.events"), right.size.x - 44)

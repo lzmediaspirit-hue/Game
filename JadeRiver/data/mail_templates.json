@@ -50,6 +50,12 @@
    "body": "The hammer fell in your favour. Your lot is enclosed, with the Pavilion's compliments."
   },
   {
+   "id": "auction_won_recipe",
+   "from": "The Market Street auctioneer",
+   "subject": "Your lot: {item}",
+   "body": "The hammer fell in your favour. The scroll was read to you on the spot, as is the custom; the recipe is yours."
+  },
+  {
    "id": "gu_repays",
    "from": "Gu, a free man",
    "subject": "What I owe you",

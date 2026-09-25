@@ -1490,6 +1490,18 @@
     "calendar_authority"
    ]
   },
+  "treasure_claimed": {
+   "system": "Calendar",
+   "files": [
+    "calendar_authority"
+   ]
+  },
+  "gathering_trial_ranked": {
+   "system": "Calendar",
+   "files": [
+    "calendar_authority"
+   ]
+  },
   "merit_changed": {
    "system": "Relations",
    "files": [

@@ -250,6 +250,24 @@
      }
     ]
    }
+  },
+  {
+   "id": "spirit_fruit_tree",
+   "type": "treasure_birth",
+   "at": [
+    896,
+    800
+   ],
+   "radius": 150,
+   "prop": "nine_bough_jade_tree",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "world_event_here",
+      "event": "treasure_birth"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

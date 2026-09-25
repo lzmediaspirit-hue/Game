@@ -541,6 +541,11 @@ def build_items():
                      sell=False, use_limit="realm",
                      use=[effect("add_soul", amount=500), effect("cure_injury", injury="soul", max_severity=3),
                           effect("add_modifier", stat="soul_defense", op="pct_add", value=0.3, duration=3600, source="mindwell_lotus")]))
+    # S49 treasure births (Part 8): a Spirit Fruit ripens in a field room every fourth day; rivals and a guardian stand
+    # in the way. It carries a slice of the next realm and steadies the heart.
+    rows.append(item("spirit_fruit", "treasure", "heaven", 3,
+                     "A fruit that ripened on Qi alone: 8% of this realm's progress at once, and heart demons -5. Never sold.", sell=False,
+                     use=[effect("add_progress", pct_of_need=0.08), effect("add_heart_demon", amount=-5)]))
     rows.append(item("evergreen_heart_seed", "treasure", "heaven", 1,
                      "A seed with a slow pulse. Plant it in rich earth where Qi gathers: a cave abode or your sect's Back Mountain. Never sold.", sell=False))
     rows.append(item("evergreen_heart_fruit", "treasure", "heaven", 3,

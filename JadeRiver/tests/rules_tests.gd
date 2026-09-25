@@ -67,6 +67,7 @@ func _main() -> void:
 	bonds_suite()
 	grudges_suite()
 	calendar_suite()
+	world_events_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -2691,6 +2692,107 @@ func calendar_suite() -> void:
 	c.cultivator.realm_key = realm_was
 	c.collection_first_kills = kills_was
 	c.cooldowns = cd_was
+	if room_was != "": Game.world.load_room(c, room_was, "")
+
+## S49 v1.0/v1.1: Auction Day on Market Street, a Spirit Fruit birth, the Herb Terraces trial, the weather.
+func world_events_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var cd_was: Dictionary = c.cooldowns.duplicate(true)
+	var recipes_was: Array = c.crafting.recipes.duplicate()
+	var created_was: float = Game.account.created_utc
+	var seed_was: int = Game.account.rng_seed
+	var over_was: float = Clock.override_utc
+	var stones0 := int(Game.account.currencies.get("spirit_stone", 0))
+	var econ_was: Dictionary = Game.account.economy.duplicate(true)
+	var mail0: int = Game.account.mail.size()
+	var origin := 1_700_000_000.0
+	Game.account.created_utc = origin
+	Game.account.rng_seed = 777
+	c.inventory.bag.fill(null)
+	# Auction Day: the valley's house opens only on Saturdays, its lots close with the day, a recipe is taught.
+	var ad := CalendarRules.occurrence(CalendarRules.event("auction_day"), 1, 777, origin)
+	check(int(Time.get_datetime_dict_from_unix_time(int(ad.start)).weekday) == 6, "Auction Day falls on a Saturday")
+	Clock.override_utc = float(ad.start) - 3600.0
+	Game.account.economy.erase("valley_auction")
+	Game.economy.auction_roll("valley")
+	check(Game.economy.auction_lots("valley").is_empty(), "no valley lots before the day")
+	Clock.override_utc = float(ad.start) + 3600.0
+	Game.economy.auction_roll("valley")
+	var vlots: Array = Game.economy.auction_lots("valley")
+	check(vlots.size() == 5 and vlots.all(func(l): return float(l.ends) <= float(ad.end) and str(l.get("house", "")) == "valley"), "five lots on the day, all closing with it")
+	var pool_ok := vlots.all(func(l): return str(l.item) in ["recipe_scroll", "spirit_egg", "rare_spirit_egg", "manual_page"] or str(l.item).ends_with("_seed"))
+	check(pool_ok, "seeds, recipe scrolls and eggs")
+	var lot: Dictionary = {}
+	for l in vlots:
+		if str(l.get("learn", "")) != "": lot = l
+	if lot.is_empty():
+		lot = vlots[0]
+		lot.learn = "cloudtop_orchid_broth"
+		lot.item = "recipe_scroll"
+	c.crafting.recipes.erase(str(lot.learn))
+	Game.account.currencies["spirit_stone"] = 5000
+	var won: Dictionary = Game.submit({"type": "auction_bid", "house": "valley", "lot": str(lot.id), "amount": int(lot.cap) + 5})
+	check(won.get("top", false), "a bid above the house's limit holds the lot")
+	Clock.override_utc = float(ad.end) + 60.0
+	Game.economy._auction_close("valley")
+	check(c.crafting.recipes.has(str(lot.learn)) and Game.account.mail.size() > mail0, "when the hammer falls the recipe is yours")
+	check(str(Game.submit({"type": "auction_bid", "house": "valley", "lot": str(vlots[0].id), "amount": 999}).get("reason", "")) == "closed", "after the day the stall is gone")
+	# A Spirit Fruit birth: two rivals and a guardian; beat all three and the fruit is yours, once.
+	var tb := CalendarRules.occurrence(CalendarRules.event("treasure_birth"), 2, 777, origin)
+	Clock.override_utc = float(tb.start) + 600.0
+	Game.world.load_room(c, str(tb.room), "")
+	GameEvents.flush()
+	var tree := {}
+	for o in Game.room_rt.def.get("objects", []):
+		if str(o.type) == "treasure_birth": tree = o
+	check(not tree.is_empty() and Game.world.object_visible(c, tree), "the fruit tree stands in %s while the fruit is ripe" % tb.room)
+	c.cooldowns.erase("birth_k")
+	check(Game.calendar.open_treasure(c).get("ok", false), "reaching for it wakes its guardians")
+	var foes: Array = Game.room_rt.living_enemies().filter(func(e): return e.summoned)
+	var defs: Array = foes.map(func(e): return e.def_id)
+	check(defs.count("rogue_cultivator") == 2 and defs.has("fruit_guardian"), "two rival cultivators and the Fruit-Guardian Boar %s" % str(defs))
+	for e in foes:
+		Game.combat.apply_execute(e, c.id)
+		GameEvents.flush()
+	check(c.inventory.count("spirit_fruit") == 1 and not Game.room_rt.event.get("active", false), "all three down: the Spirit Fruit is yours")
+	check(str(Game.calendar.open_treasure(c).get("reason", "")) == "taken", "one fruit per birth")
+	# The Herb Terraces trial: herbs gathered there count; the ranking pays when the day ends.
+	var gtr := CalendarRules.occurrence(CalendarRules.event("gathering_trial"), 1, 777, origin)
+	Clock.override_utc = float(gtr.start) + 3600.0
+	Game.world.load_room(c, "ja_herb_terraces", "")
+	GameEvents.flush()
+	c.cooldowns.erase("gtrial")
+	Game.calendar._on_gathered({"actor": c.id, "item": "mist_lotus", "count": 30})
+	check(int(c.cooldowns.gtrial.pts) == 30 and Game.calendar.trial_rank(c) == 1, "thirty herbs lead the valley's gatherers")
+	check(Game.calendar.trial_rivals(int(gtr.k)) == Game.calendar.trial_rivals(int(gtr.k)), "the rivals' scores are fixed for the trial")
+	c.crafting.recipes.erase("foundation_guard_pill")
+	Game.calendar._pay_trial(c)
+	check(not c.crafting.recipes.has("foundation_guard_pill"), "nothing is paid while the trial runs")
+	Clock.override_utc = float(gtr.end) + 60.0
+	Game.calendar._pay_trial(c)
+	GameEvents.flush()
+	check(c.crafting.recipes.has("foundation_guard_pill") and c.inventory.count("foundation_guard_pill") == 3, "first place: the Foundation Guard Pill recipe and three pills")
+	var n3: int = c.inventory.count("foundation_guard_pill")
+	Game.calendar._pay_trial(c)
+	check(c.inventory.count("foundation_guard_pill") == n3, "paid once")
+	# Weather: a storm feeds Thunder; rain widens the fishing window; clear skies take it all away.
+	Game.combat.apply_weather(c.id, "storm")
+	check(near(c.stats.conditional("elemental_power", "element", "thunder"), 0.10), "a storm: Thunder +10%")
+	Game.combat.apply_weather(c.id, "clear")
+	check(near(c.stats.conditional("elemental_power", "element", "thunder"), 0.0), "and it passes")
+	check(near(float(ContentDB.config("calendar").weather_effects.rain.fishing_window), 0.2), "rain: fish bite eagerly (+20% window)")
+	check(CalendarRules.weather("marsh", origin + 5000.0, 777) == CalendarRules.weather("marsh", origin + 5000.0, 777), "the weather is the same on every device")
+	c.cooldowns = cd_was
+	c.crafting.recipes = recipes_was
+	c.inventory.bag.fill(null)
+	Clock.override_utc = over_was
+	Game.account.created_utc = created_was
+	Game.account.rng_seed = seed_was
+	Game.account.currencies["spirit_stone"] = stones0
+	Game.account.economy = econ_was
+	while Game.account.mail.size() > mail0: Game.account.mail.pop_front()
 	if room_was != "": Game.world.load_room(c, room_was, "")
 
 func _seeded(seed: int) -> RandomNumberGenerator:

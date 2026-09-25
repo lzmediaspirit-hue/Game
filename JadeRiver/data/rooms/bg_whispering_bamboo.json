@@ -354,6 +354,18 @@
    "respawn_s": 300
   },
   {
+   "id": "chest_bamboo_top",
+   "type": "chest",
+   "at": [
+    1610,
+    620
+   ],
+   "loot": "chest_valley",
+   "level": 14,
+   "alt": 330,
+   "surface": "bamboo_top"
+  },
+  {
    "id": "rift_tear",
    "type": "rift_tear",
    "at": [
@@ -371,16 +383,22 @@
    }
   },
   {
-   "id": "chest_bamboo_top",
-   "type": "chest",
+   "id": "spirit_fruit_tree",
+   "type": "treasure_birth",
    "at": [
-    1610,
-    620
+    896,
+    800
    ],
-   "loot": "chest_valley",
-   "level": 14,
-   "alt": 330,
-   "surface": "bamboo_top"
+   "radius": 150,
+   "prop": "nine_bough_jade_tree",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "world_event_here",
+      "event": "treasure_birth"
+     }
+    ]
+   }
   }
  ],
  "spawns": [

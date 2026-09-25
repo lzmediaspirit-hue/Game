@@ -213,6 +213,37 @@
    "locked_text": "Tamers only: bond with a spirit animal first."
   },
   {
+   "id": "auction_sf",
+   "type": "inspect",
+   "at": [
+    680,
+    860
+   ],
+   "prop": "market_stall",
+   "text": "Today's lots on Market Street.",
+   "open_page": "auction",
+   "page_args": {
+    "house": "valley"
+   },
+   "visible_if": {
+    "all": [
+     {
+      "kind": "world_event_here",
+      "event": "auction_day"
+     }
+    ]
+   },
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "shop"
+     }
+    ]
+   },
+   "locked_text": "Trading comes later."
+  },
+  {
    "id": "storage_sf",
    "type": "storage_chest",
    "at": [

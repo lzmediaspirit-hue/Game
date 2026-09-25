@@ -538,7 +538,7 @@ func catch_fish(c, object_id: String, result: Dictionary) -> Dictionary:
 	pending.erase(c.id)
 	var reaction := float(result.get("reaction_s", 9.9))
 	var tension_ok := bool(result.get("tension_ok", false))
-	var window: float = (0.6 + 0.1 * (tool_power(c, "fishing") - 1.0)) * (1.0 + game.pets.trait_bonus(c, "fish_chance"))
+	var window: float = (0.6 + 0.1 * (tool_power(c, "fishing") - 1.0)) * (1.0 + game.pets.trait_bonus(c, "fish_chance") + game.calendar.fishing_bonus())
 	if reaction > window or reaction < 0.05 or not tension_ok:
 		emit("fish_escaped", {"actor": c.id})
 		return ok({"caught": false})

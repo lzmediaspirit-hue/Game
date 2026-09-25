@@ -2421,6 +2421,39 @@
    "guaranteed": []
   },
   {
+   "id": "fruit_guardian",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "equipment": {
+    "chance": 0.25,
+    "min_quality": "fine"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
+   "guaranteed": [
+    {
+     "item": "thorn_hide",
+     "chance": 1.0,
+     "count": [
+      2,
+      3
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
    "id": "mudwater_lieutenant",
    "groups": [],
    "coins": {

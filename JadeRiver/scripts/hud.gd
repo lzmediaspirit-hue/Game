@@ -369,7 +369,9 @@ func _after_interact(r: Dictionary, object_id: String) -> void:
 		dialogue_requested.emit(r.dialogue)
 		return
 	if r.has("open_page"):
-		open_page.emit(str(r.open_page), {"object": object_id})
+		var pa := {"object": object_id}
+		pa.merge(r.get("page_args", {}), true)
+		open_page.emit(str(r.open_page), pa)
 		return
 	if str(r.get("minigame", "")) == "fishing":
 		fishing_requested.emit(object_id)
@@ -664,6 +666,10 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"weather_changed":
 			if Game.room_rt != null and str(Game.room_rt.def.get("weather", "")) == str(p.region):
 				add_log(Tx.t("hud.weather_" + str(p.weather)), UiKit.MIST)
+		"treasure_claimed":
+			toast(Tx.t("hud.treasure_claimed") % ContentDB.item_name(str(p.item)), "gold")
+		"gathering_trial_ranked":
+			toast(Tx.t("hud.trial_ranked") % [int(p.rank), int(p.of), int(p.points)], "gold" if int(p.rank) <= 3 else "quest")
 		"rift_opened":
 			toast(Tx.t("hud.rift_opened") % int(p.level), "danger", Tx.t("hud.rift_hint"))
 		"young_master_challenge":

@@ -677,6 +677,10 @@ def stoneford():
           requires=all_of(unlock("spirit_animals")), locked_text="Tamers only: bond with a spirit animal first.")
     r.portal("grove", "door", [2440, 700], "sf_beast_grove", "entry", press_up=True, label="Beast Trial Grove",
              requires=all_of(unlock("spirit_animals")), locked_text="The Trial Grove is for spirit animals and their keepers.")
+    # S49 Part 8: on Auction Day (Saturdays) an auctioneer's stall stands on Market Street.
+    r.obj("auction_sf", "inspect", [680, 860], prop="market_stall", text="Today's lots on Market Street.", open_page="auction",
+          page_args={"house": "valley"}, visible_if=all_of({"kind": "world_event_here", "event": "auction_day"}),
+          requires=all_of(unlock("shop")), locked_text="Trading comes later.")
     r.obj("storage_sf", "storage_chest", [1100, 710], requires=all_of(unlock("storage")), locked_text="The storehouse opens for Qi Kindling cultivators.")
     r.obj("exchange_sf", "inspect", [2240, 720], prop="counter", text="The exchange counter.", open_page="exchange",
           requires=all_of(unlock("currency_exchange")), locked_text="Currency exchange opens at Heaven Glimpse 3.")
@@ -2706,12 +2710,31 @@ def weather_regions():
                 r.d["weather"] = region
 
 
+def _dry_x(r, x, y):
+    """Slide a point along the ground until it is out of every deep-water volume (the room's pools)."""
+    deep = [v["rect"] for v in r.d.get("volumes", []) if v.get("kind") == "water_deep"]
+    for step in range(0, 12):
+        for cand in (x + step * 180, x - step * 180):
+            if 120 <= cand <= r.w - 120 and not any(q[0] <= cand <= q[0] + q[2] and q[1] <= y <= q[1] + q[3] for q in deep):
+                return cand
+    return x
+
+
+def fruit_trees():
+    """S49 treasure births: every candidate room has a Spirit Fruit tree that shows only while the fruit is ripe there
+    (calendar "treasure_birth"; living_world.py lists the same rooms)."""
+    for rid, r in ROOMS.items():
+        if r.d["zone"] == "jade_river_valley" and r.d["type"] == "field" and r.d["spawns"] and rid not in ("lf_reed_shallows", "wp_west"):
+            r.obj("spirit_fruit_tree", "treasure_birth", [_dry_x(r, int(r.w * 0.35), 800), 800], radius=150, prop="nine_bough_jade_tree",
+                  visible_if=all_of({"kind": "world_event_here", "event": "treasure_birth"}))
+
+
 def rift_tears():
     """S49 spatial rifts: every valley field room with beasts has a tear that shows only while the calendar's rift is
     open there (living_world.py lists the same rooms)."""
     for rid, r in ROOMS.items():
         if r.d["zone"] == "jade_river_valley" and r.d["type"] == "field" and r.d["spawns"]:
-            r.obj("rift_tear", "rift_tear", [int(r.w * 0.55), 820], radius=140,
+            r.obj("rift_tear", "rift_tear", [_dry_x(r, int(r.w * 0.55), 820), 820], radius=140,
                   visible_if=all_of({"kind": "world_event_here", "event": "spatial_rift"}))
 
 
@@ -2734,13 +2757,14 @@ def build():
     bandit_ambushes()
     recipe_pages()
     body_trial_grounds()
-    rift_tears()
     weather_regions()
     catalogue.run(ROOMS)
     movement_pass()
     verticality.run(ROOMS)
     tier_natives_pass()
     rare_herbs()   # after the tiers are final: rare nodes go on named raised surfaces
+    rift_tears()   # S49: after every volume is in place, so tears and fruit trees stand on dry ground
+    fruit_trees()
     check_links()
     reachability()
     os.makedirs(ROOMS_DIR, exist_ok=True)
