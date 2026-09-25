@@ -14,14 +14,16 @@ const STAT_EVENTS := ["realm_changed", "level_changed", "equipment_changed", "in
 	"legacy_recorded", "consolidation_finished", "aptitude_revealed", "collection_page_completed"]
 
 func intents() -> Array:
-	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival"]
+	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival", "start_flight", "stop_flight"]
 
 var attune: Dictionary = {}          # actor -> {dealt, taken} for the zone they stand in (S18)
+var flying: Dictionary = {}          # actor -> true while flight holds them up (S18); QI pays for it
 
 func subscribe() -> void:
 	for ev in STAT_EVENTS:
 		GameEvents.subscribe(ev, _on_stat_source, 20)
 	GameEvents.subscribe("attunement_changed", func(p): attune[str(p.get("actor", ""))] = {"dealt": float(p.dealt), "taken": float(p.taken)}, 20)
+	GameEvents.subscribe("room_entered", func(p): if flying.has(str(p.get("actor", ""))): stop_flight(str(p.actor), "room"), 20)
 
 func _on_stat_source(p: Dictionary) -> void:
 	refresh_stats(str(p.get("actor", "")))
@@ -82,7 +84,49 @@ func handle(intent: Dictionary) -> Dictionary:
 		"guard_end": return guard(c, false)
 		"dodge": return dodge(c, intent.get("direction", Vector2.ZERO), int(intent.get("facing", 1)))
 		"choose_revival": return choose_revival(c, str(intent.get("where", "shrine")))
+		"start_flight": return start_flight(c)
+		"stop_flight":
+			stop_flight(c.id, str(intent.get("reason", "landed")))
+			return ok()
 	return fail("unknown_intent")
+
+# ------------------------------------------------------------------ flight (S18)
+## Cloud Stride lets Qi hold the body in the air. The movement solver moves it; Combat
+## owns whether it may, and pays the QI every second.
+func start_flight(c) -> Dictionary:
+	var cfg: Dictionary = ContentDB.stat_const("flight", {})
+	if not Unlocks.is_unlocked(c.id, str(cfg.get("unlock", "flight"))): return fail("locked", {"text": Unlocks.locked_text("flight")})
+	if flying.has(c.id): return fail("already_flying")
+	if wounded.has(c.id) or c.pools.blocked("move"): return fail("blocked")
+	var room: Dictionary = game.room_rt.def if game.room_rt else {}
+	if room.get("no_flight", false) or str(room.get("type", "")) == "interior":
+		return fail("no_flight", {"text": Tx.t("sim.combat.no_flight_here")})
+	if c.pools.qi < c.pools.max_qi * float(cfg.get("start_qi_pct", 0.1)) or c.pools.max_qi <= 0.0:
+		return fail("no_qi", {"text": Tx.t("sim.combat.not_enough_qi_to_fly")})
+	flying[c.id] = true
+	emit("flight_started", {"actor": c.id})
+	emit("system_used", {"actor": c.id, "system": "flight"})
+	return ok({"climb": float(cfg.get("climb", 220)), "ceiling": float(cfg.get("ceiling", 340))})
+
+func stop_flight(actor_id: String, reason: String) -> void:
+	if not flying.has(actor_id): return
+	flying.erase(actor_id)
+	emit("flight_ended", {"actor": actor_id, "reason": reason})
+
+func is_flying(actor_id: String) -> bool:
+	return flying.has(actor_id)
+
+func _tick_flight(c, delta: float) -> void:
+	if not flying.has(c.id): return
+	if wounded.has(c.id):
+		stop_flight(c.id, "wounded")
+		return
+	var cfg: Dictionary = ContentDB.stat_const("flight", {})
+	var cost := maxf(float(cfg.get("qi_min_per_s", 2.0)), c.pools.max_qi * float(cfg.get("qi_pct_per_s", 0.02))) * delta
+	if c.pools.qi <= cost:
+		stop_flight(c.id, "no_qi")
+		return
+	apply_resource_change(c.id, "qi", -cost, "flight", 0.0, true)
 
 # ------------------------------------------------------------------ views
 func player_view(c) -> Dictionary:
@@ -301,6 +345,7 @@ func tick(delta: float) -> void:
 	if c != null:
 		_tick_player(c, delta)
 		_tick_pools(c, delta)
+		_tick_flight(c, delta)
 	_tick_projectiles(delta)
 	if game.room_rt:
 		for e in game.room_rt.enemies.values():

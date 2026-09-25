@@ -2423,6 +2423,12 @@
    "marker": "gold",
    "objectives": [
     {
+     "kind": "use_system",
+     "text": "Take to the air: jump again at the top of a double jump",
+     "count": 1,
+     "system": "flight"
+    },
+    {
      "kind": "reach_room",
      "text": "Reach the Cliff Faces",
      "count": 1,

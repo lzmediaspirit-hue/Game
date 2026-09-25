@@ -746,6 +746,7 @@ def guided_quests():
         offer=["Step into the circle on my peak. What comes out of the mirror is you. Beat it."],
         complete=["You looked yourself in the eye and didn't blink. Cloud Stride awaits."])
     quest("wings_of_cloud", "Wings of Cloud", "main", "elder_hu", [
+        o("use_system", "Take to the air: jump again at the top of a double jump", system="flight"),
         o("reach_room", "Reach the Cliff Faces", room="cc_cliff_faces"),
         o("kill", "Defeat Cloudwing Cranes", 3, enemy="cloudwing_crane"),
     ], [fx("codex", entry="flight")], offered_by_unlock=True, chapter="7", giver_any=M, hand_in_any=M,

@@ -4,6 +4,7 @@ const GRAVITY=1150.0
 const JUMP_IMPULSE=530.0
 const MAX_STEP=1.0/120.0
 static func jump(state: ActorState) -> bool:
+	if state.flying: return false
 	if state.surface:
 		state.jumps_used=0
 		state.air_stratum=state.surface.stratum
@@ -16,6 +17,26 @@ static func jump(state: ActorState) -> bool:
 	state.vertical_speed=JUMP_IMPULSE
 	state.surface=null
 	return true
+## Take off from the ground or from the top of a jump. Speed and ceiling come from data.
+static func start_flight(state: ActorState,climb_speed: float,ceiling: float) -> bool:
+	if state.flying: return false
+	if state.surface: state.air_stratum=state.surface.stratum
+	state.flying=true
+	state.fly_climb_speed=climb_speed
+	state.fly_ceiling=ceiling
+	state.surface=null
+	state.vertical_speed=0
+	state.departed_surface=""
+	state.landing_assist=""
+	state.air_base=state.altitude
+	state.climb=0.0
+	return true
+## Stop holding the air: the actor falls under gravity from here.
+static func stop_flight(state: ActorState):
+	state.flying=false
+	state.climb=0.0
+	state.vertical_speed=0
+	state.jumps_used=2
 static func advance(state: ActorState,zone: ZoneGeometry,delta: float,velocity: Vector2):
 	# Bounded substeps prevent missed thin surfaces, stair entrances, and long-frame tunnelling.
 	var remaining=delta
@@ -71,6 +92,20 @@ static func integrate(state: ActorState,zone: ZoneGeometry,dt: float,velocity: V
 				state.surface=best_target
 				state.plane=best_slide
 				state.altitude=best_target.height_at(best_slide)
+	elif state.flying:
+		# Hold altitude; climb with input up to the ceiling; descending onto a surface lands.
+		next=zone.constrain_air_motion(start,next,state.altitude)
+		var previous=state.altitude
+		state.altitude=minf(state.fly_ceiling,state.altitude+state.climb*state.fly_climb_speed*dt)
+		state.air_peak=maxf(state.air_peak,state.altitude)
+		if state.climb<0:
+			var touch=zone.landing_contact(next,previous,state.altitude,"")
+			if not touch.is_empty():
+				state.flying=false
+				state.climb=0.0
+				land(state,touch,velocity)
+				return
+		state.plane=zone.resolve_motion(start,next,state)
 	else:
 		next=zone.constrain_air_motion(start,next,state.altitude)
 		var previous=state.altitude

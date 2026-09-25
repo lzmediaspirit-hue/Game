@@ -15,6 +15,11 @@ var landing_assist=""
 var landing_y=0.0
 var departed_surface=""
 var air_peak=0.0
+# Flight (S18, Cloud Stride 1): no gravity; climb is the vertical input (-1 descend .. 1 rise).
+var flying=false
+var climb=0.0
+var fly_climb_speed=220.0
+var fly_ceiling=340.0
 func snapshot(tick: int) -> Dictionary:
 	return {"schema":2,"tick":tick,"entity_id":entity_id,"zone_id":zone_id,
 		"x":plane.x,"y":plane.y,"altitude":altitude,"vz":vertical_speed,

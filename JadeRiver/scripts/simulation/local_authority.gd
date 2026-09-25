@@ -17,6 +17,13 @@ func move(sequence: int,axis: Vector2,delta: float,server_speed: float) -> bool:
 	MovementSolver.advance(state,zone,delta,axis.limit_length()*server_speed)
 	return true
 func jump() -> bool: return MovementSolver.jump(state)
+## Flight is granted by the Combat authority (which pays its QI); this only moves the body.
+func fly(on: bool,climb_speed:=220.0,ceiling:=340.0) -> bool:
+	if on: return MovementSolver.start_flight(state,climb_speed,ceiling)
+	if state.flying: MovementSolver.stop_flight(state)
+	return true
+func set_climb(value: float) -> void:
+	state.climb=clampf(value,-1.0,1.0) if is_finite(value) else 0.0
 func snapshot() -> Dictionary: return state.snapshot(tick)
 func restore_authoritative_snapshot(value: Dictionary) -> bool:
 	# For trusted server snapshots or replay only; never expose this to client commands.
@@ -53,5 +60,6 @@ func restore_authoritative_snapshot(value: Dictionary) -> bool:
 	state.landing_y=lane
 	state.departed_surface=departed
 	state.air_peak=peak
+	state.flying=false
 	tick=int(value.tick)
 	return true

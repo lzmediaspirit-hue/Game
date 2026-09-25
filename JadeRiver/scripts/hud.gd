@@ -177,7 +177,9 @@ func press(id: int, p: Vector2):
 				joystick_pos = p
 				player.joystick_engaged = true
 		"attack": primary()
-		"jump": player.jump()
+		"jump":
+			player.jump()
+			player.fly_up = true    # held Jump climbs while flying
 		"meditate":
 			if bound():
 				cultivate_pressed = true
@@ -189,8 +191,11 @@ func press(id: int, p: Vector2):
 				if p.distance_to(slots[i]) < 43:
 					touches[id]["slot"] = i + skill_page * 4
 		"guard":
-			guard_pressed = true
-			guard_hold = 0.0
+			if player.state.flying:
+				player.fly_down = true   # held Guard descends while flying
+			else:
+				guard_pressed = true
+				guard_hold = 0.0
 		"quick": use_quick()
 		"sense":
 			if bound():
@@ -236,7 +241,9 @@ func release(id: int):
 		var r: Dictionary = player.use_technique(int(info.slot))
 		if not r.ok and r.get("reason", "") in ["no_qi", "cooldown", "wrong_weapon", "sealed", "needs_flight"]:
 			add_log({"no_qi": Tx.t("hud.not_enough_qi"), "cooldown": Tx.t("hud.not_ready"), "wrong_weapon": str(r.get("text", Tx.t("hud.wrong_weapon"))), "sealed": Tx.t("hud.your_qi_is_sealed"), "needs_flight": Tx.t("hud.only_in_flight")}[r.reason], UiKit.MIST)
-	if info.get("role", "") == "guard" and bound():
+	if info.get("role", "") == "jump": player.fly_up = false
+	if info.get("role", "") == "guard": player.fly_down = false
+	if info.get("role", "") == "guard" and bound() and guard_pressed:
 		guard_pressed = false
 		if guard_hold <= 0.18:
 			Game.submit({"type": "dodge", "direction": player.last_axis, "facing": player.facing})
@@ -332,7 +339,7 @@ func _input(event):
 				KEY_F: if not context.is_empty(): use_context()
 				KEY_C: if shown("cultivate"): tap_cultivate()
 				KEY_K:
-					if shown("guard"):
+					if shown("guard") and not player.state.flying:
 						guard_pressed = true
 						guard_hold = 0.0
 				KEY_Q: if shown("quick_use"): use_quick()

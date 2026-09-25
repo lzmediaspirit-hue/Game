@@ -31,6 +31,7 @@ at the Weapon Hall (Bone Forging 3). Every HUD button is revealed by the system 
 | Move (horizontal and depth) | Left joystick | WASD / arrows |
 | Sprint | Keep moving sideways for 2 s | Hold Shift |
 | Jump / double jump | Jump | Space |
+| Fly (Cloud Stride 1): take off, climb, descend | Jump again at the top of a double jump; hold Jump to climb, hold Guard to descend | Space; hold Space / K |
 | Attack / context action (talk, gather, pray, travel) | Attack button (changes with context) | J / Enter, F for the context |
 | Guard / dodge dash | Guard button: hold to guard, tap to dash | K: hold / tap |
 | Techniques | Skill slots | 1–8 |
@@ -93,7 +94,7 @@ godot --path . -- --preview-world --room=lf_village --talk=washer_mei --shot=nam
 ```
 
 `--preview-world` enters with a preview character, `--room=` starts in a room, `--unlock-all` opens
-every system, `--debug-sect` gives a founded sect with all buildings, `--open-page=<id>` and
+every system, `--debug-sect` gives a founded sect with all buildings, `--fly` takes off, `--open-page=<id>` and
 `--talk=<npc>` open UI, `--log-events` prints the event stream, `--capture` saves `../<shot>-preview.png`.
 
 ## Art and credits

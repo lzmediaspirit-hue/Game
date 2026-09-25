@@ -62,6 +62,8 @@ var last_axis = Vector2.ZERO
 var sprint_direction = Vector2.ZERO
 var channel_time := 0.0             # gather/mine/lift channels driven by the HUD
 var channel_action := ""
+var fly_up := false                 # held Jump while flying (touch); Space on the keyboard
+var fly_down := false               # held Guard while flying (touch); K on the keyboard
 signal attack_started(family: String, plane_position: Vector2, elevation: float, direction: int)
 signal arrow_released(plane_position: Vector2, elevation: float, direction: int)
 
@@ -84,6 +86,10 @@ func jump():
 		if Game.combat.is_wounded(actor_id) or Game.character(actor_id).pools.blocked("move"): return
 		if not Unlocks.is_unlocked(actor_id, "jump"): return
 		if meditating: Game.submit({"type": "stop_meditation", "reason": "jump"})
+		# Cloud Stride: a third press at the top of a double jump takes to the air.
+		if surface == null and not state.flying and state.jumps_used >= 2 and Unlocks.is_unlocked(actor_id, "flight"):
+			take_off()
+			return
 	if authority.jump():
 		_meditating = false
 		attack_time = 0
@@ -94,6 +100,18 @@ func jump():
 		avatar.elapsed = 0
 		avatar.playback_speed = 1
 		if bound(): Audio.play("jump")
+
+func take_off() -> void:
+	var r := Game.submit({"type": "start_flight"})
+	if not r.get("ok", false):
+		if r.has("text"): world.fx.add("text", position + Vector2(0, -130), {"text": str(r.text), "color": UiKit.MIST, "size": 18, "dur": 1.6})
+		return
+	authority.fly(true, float(r.climb), float(r.ceiling))
+	Audio.play("jump")
+
+func land_from_flight(reason: String) -> void:
+	if state.flying: authority.fly(false)
+	if bound() and Game.combat.is_flying(actor_id): Game.submit({"type": "stop_flight", "reason": reason})
 
 func attack():
 	if bound():
@@ -231,6 +249,12 @@ func step(delta: float, axis: Vector2):
 	if sprinting: factor *= float(ContentDB.stat_const("move.sprint", 1.7))
 	factor *= _area_factor()
 	var forced: Dictionary = Game.combat.forced_motion(actor_id)
+	if state.flying:
+		# Combat stops paying (no QI, wounded, a new room): the body falls. Landing ends it too.
+		if not Game.combat.is_flying(actor_id): authority.fly(false)
+		var up := fly_up or Input.is_physical_key_pressed(KEY_SPACE)
+		var down := fly_down or Input.is_physical_key_pressed(KEY_K)
+		authority.set_climb(float(up) - float(down))
 	command_sequence += 1
 	if not forced.is_empty():
 		var v: Vector2 = forced.velocity
@@ -238,6 +262,7 @@ func step(delta: float, axis: Vector2):
 	else:
 		authority.move(command_sequence, axis if not meditating else Vector2.ZERO, delta, speed * factor)
 	if absf(velocity.x) < 5: reset_sprint()
+	if not state.flying and Game.combat.is_flying(actor_id): Game.submit({"type": "stop_flight", "reason": "landed"})
 	if altitude < -250: world.recover_to_safe()
 	_animate(c, tl, busy, wounded)
 	sync_visual()
@@ -272,6 +297,9 @@ func _animate(c, tl: Dictionary, busy: bool, wounded: bool) -> void:
 	avatar.externally_timed = false
 	if channel_action != "" and channel_time > 0.0:
 		avatar.play({"gather": "punch", "mine": "swing", "lift": "attack", "fish": "idle"}.get(channel_action, "idle"))
+		return
+	if state.flying:
+		avatar.play("idle")
 		return
 	avatar.play("meditate" if meditating else ("jump" if surface == null else ("walk" if velocity.length() > 5 else "idle")))
 
@@ -310,7 +338,22 @@ func sync_visual():
 
 func _draw():
 	if meditating: draw_arc(Vector2(0, -4), 28, 0, TAU, 24, Color(0.4, 0.85, 0.76, 0.4), 2, false)
+	if state.flying: _draw_cloud()
 	if bound():
 		var tl: Dictionary = Game.combat.timeline(actor_id)
 		if tl.guard:
 			draw_arc(Vector2(facing * 18, -48), 30, -1.2 if facing > 0 else PI - 1.2 + 0.4, 1.2 if facing > 0 else PI + 1.2 - 0.4, 12, Color(UiKit.PALE_GOLD, 0.7), 3)
+
+## A small rolling cloud under the feet while Qi holds the body in the air.
+func _draw_cloud() -> void:
+	var t := Time.get_ticks_msec() / 1000.0
+	var puffs := [Vector2(-26, 2), Vector2(-10, 7), Vector2(9, 6), Vector2(26, 2), Vector2(0, -1)]
+	for i in puffs.size():
+		var p: Vector2 = puffs[i] + Vector2(sin(t * 2.2 + i) * 2.0, cos(t * 1.7 + i * 1.3) * 1.5)
+		var r := 13.0 - absf(p.x) * 0.14
+		draw_circle(p + Vector2(0, 3), r + 2.0, Color(UiKit.JADE, 0.55))           # jade rim of an auspicious cloud
+		draw_circle(p, r, Color(0.95, 0.99, 0.97, 0.95))
+	for i in 2:   # curled tails
+		var side := -1.0 if i == 0 else 1.0
+		draw_arc(Vector2(side * 34, 0), 6, 0.0 if side > 0 else PI, TAU * 0.75 + (0.0 if side > 0 else PI), 10, Color(UiKit.JADE, 0.8), 2.0)
+	draw_circle(Vector2(-7, -3), 5.0, Color(1, 1, 1, 0.95))

@@ -161,6 +161,14 @@
   "guard_factor": 0.5,
   "shallows_factor": 0.7
  },
+ "flight": {
+  "unlock": "flight",
+  "qi_pct_per_s": 0.02,
+  "qi_min_per_s": 2.0,
+  "start_qi_pct": 0.1,
+  "climb": 220,
+  "ceiling": 340
+ },
  "attunement": {
   "floor": 0.3,
   "slope": 0.7,

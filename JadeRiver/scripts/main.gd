@@ -156,6 +156,16 @@ func _handle_preview_args(user_args: Array) -> void:
 			var r := Game.submit({"type": "talk", "npc": str(a).trim_prefix("--talk=")})
 			if r.get("ok", false) and r.has("dialogue"): open_page("dialogue", {"convo": r.dialogue})
 		if str(a).begins_with("--shot="): shot = str(a).trim_prefix("--shot=")
+	if "--fly" in user_args and is_instance_valid(world):
+		# Debug tools (S38): preview flight with a filled QI pool.
+		await get_tree().create_timer(0.5).timeout
+		var fc = Game.active()
+		fc.pools.max_qi = maxf(fc.pools.max_qi, 400.0)
+		fc.pools.qi = fc.pools.max_qi
+		world.player.take_off()
+		world.player.fly_up = true
+		await get_tree().create_timer(0.9).timeout
+		world.player.fly_up = false
 	if "--capture" in user_args:
 		await get_tree().create_timer(2.5).timeout
 		await RenderingServer.frame_post_draw

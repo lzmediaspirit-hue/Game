@@ -1102,6 +1102,7 @@ func sec_cs1() -> void:
 	check(reach("cloud_stride_1"), "Cloud Stride 1")
 	check(start("wings_of_cloud"), "Wings of Cloud accepted")
 	check(travel("cc_cliff_faces"), "reach the Cliff Faces")
+	take_to_the_air()
 	check(fight("cloudwing_crane", 3, 600.0) >= 3, "defeat three Cloudwing Cranes")
 	check(finish("wings_of_cloud"), "Wings of Cloud done")
 	check(start("riding_the_wind"), "Riding the Wind accepted")
@@ -1327,3 +1328,35 @@ func refine_with(recipe: String, count: int, offsets: Array) -> Dictionary:
 func forge_with(recipe: String, offsets: Array) -> Dictionary:
 	strike_steps(recipe, "smithing", offsets)
 	return submit({"type": "forge", "recipe": recipe})
+
+## Cloud Stride flight through the real solver: Combat grants it and pays QI; the body climbs,
+## holds its altitude, then descends and lands on the ground.
+func take_to_the_air() -> void:
+	place(Vector2(700, 850))
+	c().pools.qi = c().pools.max_qi
+	var r := submit({"type": "start_flight"})
+	check(r.get("ok", false), "take to the air %s" % str(r.get("reason", "")))
+	if not r.get("ok", false): return
+	MovementSolver.start_flight(st, float(r.climb), float(r.ceiling))
+	var geo: ZoneGeometry = Game.room_rt.geometry
+	var qi0: float = c().pools.qi
+	st.climb = 1.0
+	for i in 40:
+		MovementSolver.advance(st, geo, 0.05, Vector2(80, 0))
+		Game.tick(0.05)
+	var high: float = st.altitude
+	st.climb = 0.0
+	for i in 20:
+		MovementSolver.advance(st, geo, 0.05, Vector2.ZERO)
+		Game.tick(0.05)
+	var held := absf(st.altitude - high) < 0.5
+	st.climb = -1.0
+	for i in 100:
+		MovementSolver.advance(st, geo, 0.05, Vector2.ZERO)
+		Game.tick(0.05)
+		if not st.flying: break
+	submit({"type": "stop_flight", "reason": "landed"})
+	check(high > 150.0 and high <= float(r.ceiling) + 0.01, "flight climbs to at most the ceiling (%.0f px)" % high)
+	check(held, "flight holds its altitude")
+	check(not st.flying and st.surface != null, "descending onto the ground lands")
+	check(c().pools.qi < qi0 and not Game.combat.is_flying(c().id), "flight costs QI and ends on landing")

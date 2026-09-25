@@ -48,6 +48,9 @@ Built on the v0.13 movement and avatar engine, which is kept intact (its 3,660 e
   quest tab says which chapter comes next and what it waits for; the board never lists the same mission twice.
 
 ### Systems finished against the spec
+- Flight from Cloud Stride 1: jump again at the top of a double jump to ride a cloud; hold Jump to climb and
+  Guard to descend. Combat pays the QI each second, no-flight rooms and interiors refuse, landing or an
+  empty pool ends it. "Wings of Cloud" now teaches it.
 - Spirit animals grow: Hatchling, Juvenile and Adult (a branch choice) need level, hearts and your realm
   together; three hidden traits reveal as they grow and change real numbers; Resonance adds to accumulation.
 - Zone ceilings and attunement (S18) are announced and applied; alchemy and forge strikes are scored by
