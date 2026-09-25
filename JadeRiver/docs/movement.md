@@ -79,6 +79,44 @@ at each end, in `loop`, `pingpong` or `trigger` mode. The position is a pure fun
 mover's change of offset before their own step. The hermit's raft crosses the pond this way. A surface with
 `cracked: true` breaks under a Plunge and stays broken for the visit.
 
+### Camera, combat on tiers, monsters and allies
+
+**Camera** (S43 rule 13). Room data may give `camera {bounds: [x0, y0, x1, y1], look_ahead}`; the old
+`y_min`/`y_max` still work. The default vertical range is 180–600, so high tiers stay in view while the floor
+never scrolls off.
+- The camera leads by a quarter of the body's velocity.
+- Vertically it follows the surface underfoot, not the jump arc, settling in about 0.4 s after a landing.
+- A fall of more than one tier (100) is followed down.
+- Standing still for 0.5 s near an open edge above a drop of more than 150 looks down 60.
+
+**Heights in a fight** (rule 10):
+- Blows reach −30 to +60 of the attacker's height; Qi and Soul techniques reach −10 to +80. From the ground
+  you cannot strike someone standing on an 88 roof, but you can catch them mid-jump.
+- Flying monsters hover about 48 up, inside a grounded fighter's reach.
+- Shots pass through platform decks but stop at blocks and building walls, whoever fired them.
+
+**Monsters** (rule 11). Every species has `movement {jump, climb, fly, drop}` in `enemies.json`: humans,
+duelists and leapers jump at 530, plain melee beasts hop at 430, and heavy beasts cannot jump.
+- Each room builds a navigation graph once per movement profile: nodes are surfaces and block tops; edges
+  are walk, jump (rise up to 85 % of the species' apex, gaps to 160), drop and climb. The graph is the same
+  on every build.
+- A melee monster whose target stands on another surface walks to the edge's take-off point and hops along
+  the path.
+- One that cannot reach its target (no path, or the target is more than 60 above its surface) waits beneath
+  it. After 2 s it takes half damage from that target; after 6 s it goes home, healing 10 % a second.
+- Archers, imps and apes shoot or throw from where they stand. Flyers ignore the graph and sink or climb
+  toward the height they hunt at.
+- Archers, imps, frogs, toads and vultures start on raised tiers where the room has them (walkers only on
+  tiers of 100 or less).
+
+**Allies** (rule 12):
+- Pets and companions walk on surfaces and follow along the graph (pets carry `movement` in `pets.json`).
+- An ally more than 480 away, or unable to reach its owner's surface for 2 s, blinks to the owner in a puff
+  of mist.
+
+**Landing ring and minimap.** While airborne within 200 above a surface, a jade ring marks where you will
+land. The minimap draws blocks as small squares, climbables as vertical lines and movers as dashed lines.
+
 ### Surfaces
 
 Every surface has a `kind`, which decides how it is drawn, and a `stratum`, which decides how it

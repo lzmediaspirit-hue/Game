@@ -11,7 +11,8 @@ def tech(id, unlock, source, family, element, dtype, mult, hits, targets, cd, qi
     row = {"id": id, "name": titled(id), "family": family, "element": element, "damage_type": dtype,
            "mult": list(mult), "hits": hits, "max_targets": targets,
            "hitbox": {"x": [-10, x_reach or {"fists": 70, "jian": 100, "spear": 150, "short_blade": 70, "staff": 120, "bow": 480, "any": 110}[family]],
-                      "depth": f.pop("depth", 30), "alt": [0, 110]},
+                      # S43 rule 10: Qi and Soul arcs reach -10..+80 of the user's height; physical techniques the melee band.
+                      "depth": f.pop("depth", 30), "alt": [-10, 80] if dtype in ("qi", "soul") else [-30, 60]},
            "windup_s": f.pop("windup", 0.2), "active_s": f.pop("active", 0.2), "cooldown_s": cd, "qi_cost": qi,
            "soul_cost": f.pop("soul", 0), "composure_cost": f.pop("composure", 0), "dao": f.pop("dao", {
                "fists": "fist", "jian": "sword", "spear": "spear", "short_blade": "blade", "staff": "staff", "bow": "bow"}.get(family, element)),

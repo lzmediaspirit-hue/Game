@@ -202,6 +202,7 @@ func _place_player() -> void:
 	player.authority.actor_id = player.actor_id
 	Game.bind_movement(Game.active_id, player.state)
 	player.sync_visual()
+	cam_follow_y = player.position.y
 	camera.position = camera_target()
 	record_safe_position()
 	transfer_cooldown = 0.4
@@ -256,14 +257,37 @@ func camera_target() -> Vector2:
 		target.x = clampf(target.x, 640, map_bounds.end.x - 640)
 		target.y = clampf(target.y, 180, 730)
 		return target
+	# S43 rule 13: the room's camera {bounds [x0, y0, x1, y1], look_ahead}. It leads by a quarter of the
+	# velocity and follows the surface underfoot rather than the jump arc (no bobbing); falls of more than a
+	# tier are followed; standing still near a high open edge looks down 60.
 	var cam: Dictionary = room_def.get("camera", {})
-	var look := float(player.facing) * 60.0
-	var target2 := Vector2(player.position.x + look, player.position.y - 110)
+	var look := float(cam.get("look_ahead", ContentDB.movement("camera.look_ahead", 0.25)))
+	var target2 := Vector2(player.position.x + player.velocity.x * look, cam_follow_y - 110.0 + cam_look_down)
 	var w := map_bounds.size.x
-	if w <= 1280.0: target2.x = w * 0.5
+	var bounds: Array = cam.get("bounds", [])
+	if bounds.size() == 4: target2.x = clampf(target2.x, float(bounds[0]), float(bounds[2]))
+	elif w <= 1280.0: target2.x = w * 0.5
 	else: target2.x = clampf(target2.x, 640, w - 640)
-	target2.y = clampf(target2.y, float(cam.get("y_min", 470)), float(cam.get("y_max", 600)))
+	var y_min := float(bounds[1]) if bounds.size() == 4 else float(cam.get("y_min", ContentDB.movement("camera.y_min", 180)))
+	var y_max := float(bounds[3]) if bounds.size() == 4 else float(cam.get("y_max", ContentDB.movement("camera.y_max", 600)))
+	target2.y = clampf(target2.y, y_min, y_max)
 	return target2
+
+var cam_follow_y := 0.0      # the height the camera follows: the support underfoot, not the jump arc
+var cam_look_down := 0.0
+var cam_still := 0.0
+func _update_camera_follow(delta: float) -> void:
+	var st: ActorState = player.state
+	if st.surface != null or st.flying or not st.climbing.is_empty():
+		cam_follow_y = player.position.y
+	elif player.position.y > cam_follow_y + 100.0:
+		cam_follow_y = player.position.y - 100.0   # a fall of more than one tier: follow it down
+	# Look down over a drop of more than 150 after standing still 0.5 s near an open edge.
+	var s: WalkSurface = st.surface
+	if s != null and player.velocity.length() < 5.0: cam_still += delta
+	else: cam_still = 0.0
+	var peer := cam_still >= 0.5 and s != null and s.base > 150.0 and geometry.open_edge_distance(s, player.plane) < 40.0
+	cam_look_down = move_toward(cam_look_down, 60.0 if peer else 0.0, delta * 150.0)
 
 func _process(delta: float) -> void:
 	if not room_mode:
@@ -271,7 +295,10 @@ func _process(delta: float) -> void:
 		return
 	if player == null: return
 	for tv in dynamic_terrain: tv.queue_redraw()
-	camera.position = camera.position.lerp(camera_target(), 1.0 - exp(-delta * 6.0))
+	_update_camera_follow(delta)
+	var ct := camera_target()
+	# Across at the old pace; up and down it settles in about 0.4 s after a landing.
+	camera.position = Vector2(lerpf(camera.position.x, ct.x, 1.0 - exp(-delta * 6.0)), lerpf(camera.position.y, ct.y, 1.0 - exp(-delta * 7.5)))
 	if shake > 0.0:
 		shake = maxf(0.0, shake - delta)
 		if Game.account.settings.get("screen_shake", true):

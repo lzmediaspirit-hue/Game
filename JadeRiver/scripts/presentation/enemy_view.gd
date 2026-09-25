@@ -156,7 +156,9 @@ func _draw() -> void:
 	var rt: RoomRuntime = Game.room_rt
 	var e: EnemyState = rt.enemies.get(uid) if rt else null
 	if e == null: return
-	var ground := Vector2(0, e.altitude + e.hover)
+	# The shadow falls on the surface under the body (a ledge, or the ground below a hop), not always on y = 0.
+	var under: WalkSurface = rt.geometry.surface_under(e.plane, e.altitude + 0.5) if e.altitude > 0.5 else null
+	var ground := Vector2(0, e.altitude + e.hover - (under.height_at(e.plane) if under else 0.0))
 	var w := e.half_width()
 	if burrowed:
 		_draw_mound(ground, w)
@@ -171,6 +173,13 @@ func _draw() -> void:
 		UiKit.draw_outlined(self, "!", Vector2(-40, top - 14), 26, Color(UiKit.RED, tell), HORIZONTAL_ALIGNMENT_CENTER, 80)
 	if ally:
 		UiKit.draw_outlined(self, name_text, Vector2(-80, top), 16, Color("8fd3ff"), HORIZONTAL_ALIGNMENT_CENTER, 160)
+		# S43 rule 12: a blink to the owner arrives in a puff of mist.
+		var bt := float(e.ai.get("blink_t", 0.0))
+		if bt > 0.0:
+			var k := bt / 0.5
+			for i in 6:
+				var a := TAU * float(i) / 6.0
+				draw_circle(Vector2(cos(a) * (18.0 + 16.0 * (1.0 - k)), -30.0 + sin(a) * 10.0), 9.0 * k + 3.0, Color(0.9, 0.97, 0.95, 0.55 * k))
 		return
 	var show_hp := hp_timer > 0.0 or elite or boss
 	if Game.is_revealed("hud:enemy_hp_bars") or boss:

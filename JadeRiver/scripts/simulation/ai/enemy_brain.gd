@@ -3,6 +3,9 @@ extends RefCounted
 ## S13 · Monster AI: idle → patrol (own platform) → aggro (on sight or hit) →
 ## wind-up (readable 0.3–0.6 s tell) → attack → recover → flee/return. Monsters
 ## never follow through portals; leaving the 600-unit leash resets them.
+## S43 rule 11: a target on another surface is chased along the room's navigation graph (walk, jump,
+## drop and climb edges, by the species' movement data). A melee monster that cannot reach its target
+## takes half damage from it after 2 s and goes home after 6 s, healing 10% a second; flyers ignore the graph.
 
 static func target_position(auth, e: EnemyState) -> Dictionary:
 	var c = auth.game.active()
@@ -33,6 +36,9 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 	var def := e.def
 	var profile := str(def.get("ai", {}).get("profile", "melee"))
 	ai.timer = float(ai.timer) - delta
+	if not e.hop.is_empty():
+		_hop(auth, e, delta)   # a jump, drop or climb finishes before anything else
+		return
 	if e.pools.blocked("move") and ai.state not in ["dead"]:
 		e.velocity = Vector2.ZERO
 		if ai.state in ["windup", "attack"]:
@@ -82,6 +88,9 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 				return
 			var attacks: Array = def.get("attacks", [])
 			if attacks.is_empty(): return
+			if _chase_on_graph(auth, e, tgt, delta): return
+			# Flyers ignore the graph: they sink or climb toward the height they hunt at.
+			if bool(def.get("flying", false)): e.altitude = move_toward(e.altitude, maxf(0.0, float(tgt.get("alt", 0.0))), 120.0 * delta)
 			var attack: Dictionary = attacks[_choose_attack(auth, e, attacks)]
 			var reach := float(attack.hitbox.x[1])
 			var d: Vector2 = tgt.pos - e.plane
@@ -160,10 +169,27 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 			e.action = "walk"
 			auth.move_enemy(e, delta)
 		"return":
+			# Led home by the out-of-reach rule: heal 10% a second on the way (S43).
+			if ai.get("leashed", false): e.pools.hp = minf(e.pools.max_hp, e.pools.hp + e.pools.max_hp * 0.1 * delta)
+			if e.home_surface != "" and e.surface_id != e.home_surface and not bool(def.get("flying", false)):
+				var home_path: Array = auth.game.room_rt.geometry.nav_path(e.surface_id, e.home_surface, movement_of(e))
+				if not home_path.is_empty() and float(ai.timer) > 0.0:
+					_follow_edge(auth, e, home_path[0], delta)
+					return
+				# No way back on foot: it slips home out of sight.
+				e.surface_id = e.home_surface
+				e.plane = e.spawn_point
+				var hs: WalkSurface = auth.game.room_rt.geometry.index.get(e.home_surface)
+				e.altitude = hs.height_at(e.plane) if hs else 0.0
+			if bool(def.get("flying", false)) and e.home_surface != "":
+				var home: WalkSurface = auth.game.room_rt.geometry.index.get(e.home_surface)
+				if home: e.altitude = move_toward(e.altitude, home.height_at(e.spawn_point), 120.0 * delta)
 			var back := e.spawn_point - e.plane
 			if back.length() < 12.0 or float(ai.timer) <= 0.0:
 				e.pools.hp = e.pools.max_hp
 				e.threat.clear()
+				ai.leashed = false
+				ai.unreach = 0.0
 				_set_state(auth, e, "idle", 1.0)
 				return
 			e.facing = 1 if back.x >= 0 else -1
@@ -212,6 +238,105 @@ static func _wander(auth, e: EnemyState, delta: float, speed_factor: float) -> v
 	e.velocity = d.normalized() * float(e.def.get("ai", {}).get("move_speed", 90)) * speed_factor
 	e.action = "walk"
 	auth.move_enemy(e, delta)
+
+# ------------------------------------------------------------------ S43 rule 11: moving between surfaces
+static func movement_of(e: EnemyState) -> Dictionary:
+	var fly := bool(e.def.get("flying", false))
+	return e.def.get("movement", {"jump": 0, "climb": false, "fly": fly, "drop": not fly})
+
+static func _has_ranged(e: EnemyState) -> bool:
+	for a in e.def.get("attacks", []):
+		if float(a.get("hitbox", {}).get("x", [0, 0])[1]) > 200.0: return true
+	return false
+
+## Chase a target standing on another surface along the navigation graph. Returns true when this frame's
+## movement is handled here (following an edge, waiting beneath an unreachable target, or giving up).
+static func _chase_on_graph(auth, e: EnemyState, tgt: Dictionary, delta: float) -> bool:
+	var mv := movement_of(e)
+	if bool(mv.get("fly", false)) or bool(e.def.get("flying", false)) or e.is_boss() or auth.game.room_rt == null: return false
+	var geo: ZoneGeometry = auth.game.room_rt.geometry
+	var tpos: Vector2 = tgt.pos
+	var talt := float(tgt.get("alt", 0.0))
+	var under: WalkSurface = geo.surface_under(tpos, talt)
+	var above := talt - (under.height_at(tpos) if under else 0.0)
+	var tsurf := under.id if under else ""
+	var path: Array = []
+	var reachable := above <= 60.0
+	if reachable and tsurf != "" and tsurf != e.surface_id:
+		path = geo.nav_path(e.surface_id, tsurf, mv)
+		reachable = not path.is_empty()
+	if reachable:
+		e.ai.unreach = 0.0
+		if path.is_empty(): return false
+		# Archers and throwers shoot from where they stand while the target is in range.
+		if _has_ranged(e) and absf(tpos.x - e.plane.x) <= 320.0: return false
+		_follow_edge(auth, e, path[0], delta)
+		return true
+	e.ai.unreach = float(e.ai.get("unreach", 0.0)) + delta
+	if _has_ranged(e): return false   # imps and apes throw rubble up at it
+	if float(e.ai.unreach) >= 6.0:
+		e.threat.clear()
+		e.ai.leashed = true
+		auth.emit("enemy_leashed", {"enemy": e.uid, "reason": "out_of_reach"})
+		_set_state(auth, e, "return", 8.0)
+		return true
+	# Pace beneath it, waiting for it to come down.
+	var dx := tpos.x - e.plane.x
+	e.facing = 1 if dx >= 0 else -1
+	var speed := float(e.def.get("ai", {}).get("move_speed", 90))
+	e.velocity = Vector2(signf(dx), 0) * speed if absf(dx) > 30.0 else Vector2.ZERO
+	e.action = "walk" if e.velocity != Vector2.ZERO else "idle"
+	auth.move_enemy(e, delta)
+	return true
+
+## Walk to an edge's take-off point, then hop along it.
+static func _follow_edge(auth, e: EnemyState, edge: Dictionary, delta: float) -> void:
+	var d: Vector2 = (edge.from_pt as Vector2) - e.plane
+	if d.length() <= 10.0:
+		_start_hop(auth, e, edge)
+		return
+	var speed := float(e.def.get("ai", {}).get("move_speed", 90))
+	e.facing = 1 if d.x >= 0 else -1
+	e.velocity = d.normalized() * speed
+	e.action = "walk"
+	var before := e.plane
+	auth.move_enemy(e, delta)
+	if e.plane.distance_to(before) < 0.01: _start_hop(auth, e, edge)   # blocked short of the spot: go from here
+
+static func _start_hop(_auth, e: EnemyState, edge: Dictionary) -> void:
+	var g := MovementSolver.GRAVITY
+	var a0 := e.altitude
+	var a1 := float(edge.to_alt)
+	var h := {"edge": edge, "t": 0.0, "from": e.plane, "to": edge.to_pt, "a0": a0, "a1": a1, "kind": str(edge.kind), "v": 0.0, "T": 0.3}
+	match str(edge.kind):
+		"jump":
+			var v := float(movement_of(e).get("jump", 530))
+			h.v = v
+			h.T = (v + sqrt(maxf(0.0, v * v - 2.0 * g * (a1 - a0)))) / g
+		"drop": h.T = 0.1 + sqrt(2.0 * maxf(1.0, a0 - a1) / g)
+		"climb": h.T = absf(a1 - a0) / 80.0 + 0.2
+		"walk": h.T = maxf(0.05, (e.plane as Vector2).distance_to(edge.to_pt) / maxf(1.0, float(e.def.get("ai", {}).get("move_speed", 90))))
+	e.hop = h
+	e.facing = 1 if (edge.to_pt as Vector2).x >= e.plane.x else -1
+
+static func _hop(auth, e: EnemyState, delta: float) -> void:
+	var h := e.hop
+	h.t = float(h.t) + delta
+	var t := float(h.t)
+	var k := clampf(t / maxf(0.01, float(h.T)), 0.0, 1.0)
+	e.plane = (h.from as Vector2).lerp(h.to, k)
+	match str(h.kind):
+		"jump": e.altitude = float(h.a0) + float(h.v) * t - 0.5 * MovementSolver.GRAVITY * t * t
+		"drop": e.altitude = maxf(float(h.a1), float(h.a0) - 0.5 * MovementSolver.GRAVITY * maxf(0.0, t - 0.1) * maxf(0.0, t - 0.1))
+		_: e.altitude = lerpf(float(h.a0), float(h.a1), k)
+	e.velocity = Vector2.ZERO
+	e.action = "walk"
+	if k >= 1.0:
+		var edge: Dictionary = h.edge
+		var s: WalkSurface = auth.game.room_rt.geometry.index.get(str(edge.to)) if auth.game.room_rt else null
+		e.surface_id = str(edge.to)
+		e.altitude = s.height_at(e.plane) if s else float(h.a1)
+		e.hop = {}
 
 static func _set_state(_auth, e: EnemyState, state: String, timer: float) -> void:
 	e.ai.state = state

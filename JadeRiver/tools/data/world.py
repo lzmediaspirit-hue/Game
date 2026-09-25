@@ -2430,6 +2430,34 @@ def reachability():
     assert not unreached, ("unreachable", unreached)
 
 
+# S43 rule 11: archers, imps, frogs, monkeys and vultures start on raised surfaces, so fights use height.
+TIER_NATIVES = {"bandit_archer", "pebble_imp", "reed_frog", "bamboo_monkey", "mist_vulture", "mossback_toad"}
+FLYING_NATIVES = {"mist_vulture"}
+
+
+def tier_natives_pass():
+    moved = 0
+    for rid, r in ROOMS.items():
+        if r.d.get("type") not in ("field", "path", "dungeon", "secret"):
+            continue
+        tiers = [sf for sf in r.d["surfaces"] if sf.get("stratum") == "platform" and sf.get("kind") in ("rock_ledge", "branch", "deck", "balcony", "cloud")
+                 and 0 < float(sf.get("height", 0)) <= 200 and sf["rect"][2] >= 120 and sf["rect"][3] >= 40]
+        for i, sp in enumerate(r.d["spawns"]):
+            if sp["enemy"] not in TIER_NATIVES or sp.get("boss") or sp.get("elite") or sp.get("surface", "ground") != "ground":
+                continue
+            # Walkers keep to tiers one jump reaches (100); flyers may nest higher.
+            ok = [t for t in tiers if float(t["height"]) <= (200 if sp["enemy"] in FLYING_NATIVES else JUMP_ONE)]
+            if not ok:
+                continue
+            t = ok[i % len(ok)]
+            x, y, w, h = t["rect"]
+            n = max(1, min(len(sp["points"]), 3))
+            sp["surface"] = t["id"]
+            sp["points"] = [[int(x + 30 + (w - 60) * (k + 0.5) / n), int(y + h / 2)] for k in range(n)]
+            moved += 1
+    print("tier natives:", moved)
+
+
 def build():
     ROOMS.clear()
     lotus_ferry()
@@ -2445,6 +2473,7 @@ def build():
     earth_vents()
     movement_extras()
     movement_pass()
+    tier_natives_pass()
     check_links()
     reachability()
     os.makedirs(ROOMS_DIR, exist_ok=True)

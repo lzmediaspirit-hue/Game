@@ -13,12 +13,14 @@ var movers: Array=[]                     # {surface, path, speed, wait_s, mode, 
 var time=0.0
 var crumbles: Dictionary={}              # surface id -> {start, broken_at}
 var water_goals: Dictionary={}           # rising water: volume id -> {from, to, t0, over}
+var nav_cache: Dictionary={}             # S43 rule 11: navigation graphs by movement profile
 func configure(data: Dictionary):
 	surfaces.clear()
 	index.clear()
 	obstacles.clear()
 	volumes.clear()
 	movers.clear()
+	nav_cache.clear()
 	crumbles.clear()
 	water_goals.clear()
 	time=0.0
@@ -183,6 +185,17 @@ func wall_face_at(point: Vector2,altitude: float,stratum: String) -> bool:
 		var shape: WalkSurface=index.get(obstacle.get("support_shape",""))
 		if shape and not shape.contains(point): continue
 		if (obstacle.footprint as Rect2).grow(float(obstacle.get("radius",11))).has_point(point): return true
+	return false
+## A shot at this point and height hits something solid: a block or a building's wall (S43 rule 10).
+## Platform decks and scenery do not stop it.
+func stops_shot(point: Vector2,altitude: float) -> bool:
+	for obstacle in obstacles:
+		if obstacle.get("disabled",false) or not obstacle.get("blocks",true): continue
+		if not (obstacle.get("block",false) or str(obstacle.get("surface",""))!=""): continue
+		if altitude<float(obstacle.get("base",0)) or altitude>=float(obstacle.get("base",0))+float(obstacle.get("height",0)): continue
+		var shape: WalkSurface=index.get(obstacle.get("support_shape",""))
+		if shape and not shape.contains(point): continue
+		if (obstacle.footprint as Rect2).has_point(point): return true
 	return false
 ## Ledge mantle (S43 rule 4): the top of a surface or block 0-24 units above `altitude` whose near side is
 ## within `reach` of the actor in the direction it pushes, at the same depth. {} when there is none.
@@ -361,3 +374,114 @@ func on_event(event_name: String,payload: Dictionary) -> void:
 			for k in r.get("match",{}):
 				if str(payload.get(k,""))!=str(r.match[k]): fits=false
 			if fits: raise_water(str(v.id),float(r.to),float(r.get("over_s",4.0)),float(r.get("hold_s",-1.0)),float(r.get("back_to",NAN)))
+
+# ------------------------------------------------------------------ S43 rule 11: the navigation graph
+const NAV_GAP=160.0                      # the widest gap a species hops across
+const NAV_DROP_GAP=70.0
+## The graph of surfaces and block tops a species with this movement {jump, climb, drop} can travel:
+## {surface id: [{to, kind, from_pt, to_pt, from_alt, to_alt}]}. Built once per profile per room, the same
+## on every build of the same room (surfaces in data order, nearest points by clamping).
+func nav_graph(move: Dictionary) -> Dictionary:
+	var impulse=float(move.get("jump",0.0))
+	var key="%d_%s_%s" % [int(impulse),str(move.get("climb",false)),str(move.get("drop",true))]
+	if nav_cache.has(key): return nav_cache[key]
+	var max_rise=impulse*impulse/(2.0*MovementSolver.GRAVITY)*0.85
+	var nodes: Array=[]
+	for s in surfaces:
+		if s.kind=="ladder" or s.moving or s.cracked: continue
+		nodes.append(s)
+	var g: Dictionary={}
+	for a in nodes: g[a.id]=[]
+	for a in nodes:
+		for b in nodes:
+			if a==b: continue
+			var e=_nav_edge(a,b,impulse,max_rise,bool(move.get("drop",true)))
+			if not e.is_empty(): g[a.id].append(e)
+	if move.get("climb",false):
+		for c in climbables:
+			var bottom=str(c.get("bottom","")) if str(c.get("bottom",""))!="" else "ground"
+			var top=str(c.get("top",""))
+			if not g.has(bottom) or not g.has(top): continue
+			var at: Array=c.at
+			var top_at: Array=c.get("top_at",c.at)
+			var foot=Vector2(float(at[0]),float(at[1]))
+			var head=Vector2(float(top_at[0]),float(top_at[1]))
+			g[bottom].append({"to":top,"kind":"climb","from_pt":foot,"to_pt":head,"from_alt":float(c.bottom_alt),"to_alt":float(c.top_alt)})
+			g[top].append({"to":bottom,"kind":"climb","from_pt":head,"to_pt":foot,"from_alt":float(c.top_alt),"to_alt":float(c.bottom_alt)})
+	nav_cache[key]=g
+	return g
+func _nav_edge(a: WalkSurface,b: WalkSurface,impulse: float,max_rise: float,can_drop: bool) -> Dictionary:
+	var inset=Vector2(4,4)
+	var ta: Vector2=b.bounds.get_center().clamp(a.bounds.position+inset,a.bounds.end-inset)
+	var lb: Vector2=ta.clamp(b.bounds.position+inset,b.bounds.end-inset)
+	ta=lb.clamp(a.bounds.position+inset,a.bounds.end-inset)
+	var ha=a.height_at(ta)
+	var hb=b.height_at(lb)
+	var rise=hb-ha
+	var overlap=a.bounds.intersects(b.bounds)
+	if overlap and rise<-8.0:
+		# B lies under A: step off A through its nearest open edge onto B.
+		if not can_drop: return {}
+		for side in ["s","e","w","n"]:
+			if str(a.edges.get(side,"open"))!="open": continue
+			var out=ta
+			match side:
+				"s": out=Vector2(ta.x,a.bounds.end.y+6)
+				"n": out=Vector2(ta.x,a.bounds.position.y-6)
+				"e": out=Vector2(a.bounds.end.x+6,ta.y)
+				"w": out=Vector2(a.bounds.position.x-6,ta.y)
+			if b.contains(out) and not blocks_at(out,b.height_at(out),b.stratum):
+				var edge_pt=out.clamp(a.bounds.position+Vector2(1,1),a.bounds.end-Vector2(1,1))
+				return {"to":b.id,"kind":"drop","from_pt":edge_pt,"to_pt":out,"from_alt":ha,"to_alt":b.height_at(out)}
+		return {}
+	if overlap and rise>8.0:
+		# B sits above A (a platform over the ground, a block top): jump straight up to it from beside or below.
+		if impulse<=0.0 or rise>max_rise: return {}
+		var take=ta
+		if b.is_block:
+			# A block's footprint is solid: take off just in front of it.
+			take=Vector2(lb.x,b.bounds.end.y+8)
+			if not a.contains(take): take=Vector2(lb.x,b.bounds.position.y-8)
+			if not a.contains(take): return {}
+			lb=Vector2(lb.x,b.bounds.end.y-6 if take.y>b.bounds.end.y else b.bounds.position.y+6)
+		if blocks_at(take,a.height_at(take),a.stratum): return {}
+		return {"to":b.id,"kind":"jump","from_pt":take,"to_pt":lb,"from_alt":a.height_at(take),"to_alt":b.height_at(lb)}
+	var gap=ta.distance_to(lb)
+	if gap<=2.0 and absf(rise)<=8.0:
+		return {"to":b.id,"kind":"walk","from_pt":ta,"to_pt":lb,"from_alt":ha,"to_alt":hb}
+	if rise<-8.0:
+		if not can_drop or gap>NAV_DROP_GAP or a.edge_toward(lb)!="open": return {}
+		return {"to":b.id,"kind":"drop","from_pt":ta,"to_pt":lb,"from_alt":ha,"to_alt":hb}
+	if impulse<=0.0 or rise>max_rise or gap>NAV_GAP or a.edge_toward(lb)=="wall": return {}
+	return {"to":b.id,"kind":"jump","from_pt":ta,"to_pt":lb,"from_alt":ha,"to_alt":hb}
+## The cheapest chain of edges from one surface to another for this movement, or [] when there is none.
+func nav_path(from_id: String,to_id: String,move: Dictionary) -> Array:
+	if from_id==to_id: return []
+	var g=nav_graph(move)
+	if not g.has(from_id) or not g.has(to_id): return []
+	var dist: Dictionary={from_id:0.0}
+	var prev: Dictionary={}
+	var open: Array=[from_id]
+	while not open.is_empty():
+		var best=0
+		for i in open.size():
+			if float(dist[open[i]])<float(dist[open[best]]): best=i
+		var u=open[best]
+		open.remove_at(best)
+		if u==to_id: break
+		for e in g[u]:
+			var cost=float(dist[u])+40.0+(e.from_pt as Vector2).distance_to(e.to_pt)
+			if not dist.has(e.to) or cost<float(dist[e.to]):
+				dist[e.to]=cost
+				prev[e.to]={"from":u,"edge":e}
+				if e.to not in open: open.append(e.to)
+	if not prev.has(to_id): return []
+	var path: Array=[]
+	var cur=to_id
+	while cur!=from_id:
+		path.push_front(prev[cur].edge)
+		cur=prev[cur].from
+	return path
+## The surface under a point at an altitude (what a body there stands on or would land on), or null.
+func surface_under(point: Vector2,altitude: float) -> WalkSurface:
+	return landing_target(point,altitude+1.0,-INF)

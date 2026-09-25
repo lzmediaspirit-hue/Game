@@ -100,7 +100,8 @@ func tick(delta: float) -> void:
 		if e.def.get("ai", {}).get("profile", "") == "burrower":
 			e.hidden = e.ai.state in ["aggro", "patrol"] and e.velocity.length() > 5.0
 		if bool(e.def.get("flying", false)):
-			e.hover = 70.0 + sin(game.sim_time * 2.0 + e.uid) * 10.0 - (40.0 if e.ai.state in ["attack"] else 0.0)
+			# Flyers hover within a grounded fighter's melee band (+60, S43) and swoop lower to strike.
+			e.hover = 48.0 + sin(game.sim_time * 2.0 + e.uid) * 8.0 - (32.0 if e.ai.state in ["attack"] else 0.0)
 
 func _spawn(slot: Dictionary) -> EnemyState:
 	var rt: RoomRuntime = game.room_rt
@@ -139,6 +140,7 @@ func _spawn(slot: Dictionary) -> EnemyState:
 				surf = s
 				break
 	e.surface_id = surf.id if surf else ""
+	e.home_surface = e.surface_id
 	e.altitude = surf.height_at(point) if surf else 0.0
 	e.facing = -1 if rng.randf() < 0.5 else 1
 	e.ai = {"state": "idle", "timer": rng.randf_range(0.5, 2.0), "target": "", "attack": 0, "patrol_x": point.x, "patrol_y": point.y,

@@ -55,13 +55,15 @@ func _spawn_all(c) -> void:
 		var a := EnemyState.new()
 		a.uid = game.room_rt.uid()
 		a.def_id = str(id)
-		a.def = {"name": str(def.get("name", id)), "art": {"avatar": def.get("outfit", {})}, "half_width": 14, "height": 88, "ally": true}
+		a.def = {"name": str(def.get("name", id)), "art": {"avatar": def.get("outfit", {})}, "half_width": 14, "height": 88, "ally": true,
+			"movement": {"jump": 530, "climb": true, "fly": false, "drop": true}}
 		a.team = "ally"
 		a.pet_owner = c.id
 		a.level = ProgressionRules.level(c)
 		a.pools.max_hp = c.pools.max_hp * 0.8
 		a.pools.hp = a.pools.max_hp
 		a.plane = (st.plane if st else Vector2(c.position.x, c.position.y)) + Vector2(-90 - i * 50, -16 + i * 30)
+		AllyBrain.settle(game, a, st)
 		a.ai = {"state": "follow", "timer": 0.0, "offset": 90 + i * 50, "depth_offset": -16 + i * 30, "speed": 210, "role": str(def.get("role", "brawler"))}
 		a.stats = {"attack": 0.0}
 		game.room_rt.enemies[a.uid] = a

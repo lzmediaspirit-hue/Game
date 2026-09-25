@@ -41,6 +41,7 @@ func _main() -> void:
 	traversal_suite()
 	arts_volumes_suite()
 	arts_combat_suite()
+	nav_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -1490,6 +1491,91 @@ func arts_combat_suite() -> void:
 		check(str(Game.submit({"type": "use_technique", "slot": 0, "facing": 1}).get("reason", "")) == "climbing", "techniques wait while you climb")
 	check(str(Game.submit({"type": "basic_attack", "facing": 1}).get("reason", "")) == "climbing", "and so do attacks")
 	st.climbing = {}
+
+# ------------------------------------------------------------------ S43 rules 10-12: bands, shots, navigation, allies (V2c)
+func nav_suite() -> void:
+	# Rule 10: the melee band is -30..+60 of the attacker's height, Qi arcs -10..+80.
+	var ground := {"x": 0.0, "y": 800.0, "alt": 0.0}
+	var melee := {"x": [0, 60], "depth": 30, "alt": ContentDB.movement("combat_bands.melee", [])}
+	var qi_arc := {"x": [0, 60], "depth": 30, "alt": ContentDB.movement("combat_bands.qi_arc", [])}
+	var on_roof := {"x": 30.0, "y": 800.0, "alt": 88.0, "half_width": 14.0, "height": 88.0}
+	var mid_jump := {"x": 30.0, "y": 800.0, "alt": 40.0, "half_width": 14.0, "height": 88.0}
+	check(not CombatAuthority.hit_test(ground, 1, melee, on_roof) and CombatAuthority.hit_test(ground, 1, melee, mid_jump),
+		"a ground fighter cannot strike a target on an 88 roof, but can strike it mid-jump")
+	check(CombatAuthority.hit_test(ground, 1, qi_arc, {"x": 30.0, "y": 800.0, "alt": 75.0, "half_width": 14.0, "height": 40.0})
+		and not CombatAuthority.hit_test(ground, 1, melee, {"x": 30.0, "y": 800.0, "alt": 75.0, "half_width": 14.0, "height": 40.0}), "a Qi arc reaches 80 up; a blow reaches 60")
+	var jb: Array = ContentDB.entry("weapon_families", "jian").altitude
+	var vb: Array = ContentDB.entry("enemies", "green_viper").attacks[0].hitbox.alt
+	check(near(float(jb[0]), -30.0) and near(float(jb[1]), 60.0) and near(float(vb[0]), -30.0) and near(float(vb[1]), 60.0), "weapons and monsters strike in the melee band")
+	# Shots stop at blocks and walls, never at platform decks.
+	var z := _trav_zone()
+	check(z.stops_shot(Vector2(830, 730), 40.0) and not z.stops_shot(Vector2(830, 730), 70.0) and not z.stops_shot(Vector2(400, 650), 58.0),
+		"a shot stops at a crate below its top, flies over it, and passes a roof deck")
+	# Rule 11: the navigation graph, by species movement.
+	var jumper := {"jump": 530, "climb": false, "drop": true}
+	var g: Dictionary = z.nav_graph(jumper)
+	var kinds := func(from: String, to: String) -> Array:
+		return g.get(from, []).filter(func(e): return e.to == to).map(func(e): return e.kind)
+	check(kinds.call("ground", "deck") == ["jump"] and kinds.call("deck", "ground") == ["drop"] and kinds.call("ground", "crate") == ["jump"],
+		"a jumper can hop onto a 100 deck and a crate and drop back down")
+	check(kinds.call("ground", "wall").is_empty(), "a 300 wall is out of a 530 jump")
+	check(z.nav_graph({"jump": 0, "climb": false, "drop": true}).get("ground", []).filter(func(e): return e.to == "deck").is_empty(), "a species that cannot jump stays below")
+	var climber: Dictionary = z.nav_graph({"jump": 0, "climb": true, "drop": true})
+	check(climber.get("ground", []).any(func(e): return e.to == "loft" and e.kind == "climb"), "a climber takes the ladder to the loft")
+	var z2 := _trav_zone()
+	check(str(z2.nav_graph(jumper)) == str(g), "the graph is identical on two builds of the same room")
+	check(z.nav_path("ground", "deck", jumper).size() == 1 and z.nav_path("deck", "loft", {"jump": 0, "climb": true, "drop": true}).size() == 2,
+		"paths chain drop and climb edges")
+	# In a real room: a jumping monster follows the player onto a ledge; one that cannot jump gives up.
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var st: ActorState = Game.actor_state(c.id)
+	Game.world.apply_teleport(c.id, "wg_echo_cliffs")
+	for sid in ["stun", "slow", "shock", "spawn_protection"]: Game.combat.cure_status(c.id, sid)
+	var geo: ZoneGeometry = Game.room_rt.geometry
+	for e0 in Game.room_rt.living_enemies(): e0.alive = false
+	var ledge: WalkSurface = geo.index.get("ledge_0")
+	st.surface = ledge
+	st.plane = ledge.bounds.get_center()
+	st.altitude = ledge.height_at(st.plane)
+	st.vertical_speed = 0.0
+	c.pools.hp = c.pools.max_hp
+	var hunter: EnemyState = Game.enemies.spawn_at("mudwater_bandit", Vector2(ledge.bounds.get_center().x + 60, 860), 16)
+	var plodder: EnemyState = Game.enemies.spawn_at("stone_tortoise", Vector2(ledge.bounds.get_center().x - 60, 860), 5)
+	for e1 in [hunter, plodder]:
+		e1.ai.state = "aggro"
+		e1.ai.timer = 99.0
+		e1.threat[c.id] = 1.0
+	var on_ledge := false
+	var unreach := 0.0
+	for i in 240:
+		Game.tick(0.05)
+		c.pools.hp = c.pools.max_hp
+		if hunter.surface_id == "ledge_0": on_ledge = true
+		unreach = maxf(unreach, float(plodder.ai.get("unreach", 0.0)))
+		st.surface = ledge
+		st.altitude = ledge.height_at(st.plane)
+	check(on_ledge, "a bandit jumps up the ledge after you")
+	check(unreach >= 2.0, "a tortoise that cannot jump finds you out of reach (%.1f s)" % unreach)
+	check(str(plodder.ai.state) == "return" or bool(plodder.ai.get("leashed", false)) or plodder.surface_id == plodder.home_surface, "after 6 s it goes home to heal")
+	# Rule 12: an ally that cannot reach its owner blinks to them after 2 s.
+	var high: WalkSurface = geo.index.get("ledge_2")
+	st.surface = high
+	st.plane = high.bounds.get_center()
+	st.altitude = high.height_at(st.plane)
+	var pal := EnemyState.new()
+	pal.team = "ally"
+	pal.def = {"name": "Test", "movement": {"jump": 0, "climb": false, "fly": false, "drop": true}}
+	pal.plane = Vector2(st.plane.x - 100, 860)
+	pal.surface_id = "ground"
+	pal.ai = {"state": "follow", "timer": 0.0, "offset": 56, "depth_offset": 14, "speed": 200}
+	for e2 in Game.room_rt.living_enemies(): e2.alive = false
+	for i in 50: AllyBrain.think(Game, pal, 0.05, 1.0, 36.0)
+	check(pal.surface_id == "ledge_2" and near(pal.altitude, 300.0), "an ally that cannot follow blinks to its owner after 2 s")
+	pal.plane = Vector2(st.plane.x + 900, 860)
+	pal.surface_id = "ground"
+	AllyBrain.think(Game, pal, 0.05, 1.0, 36.0)
+	check(pal.plane.distance_to(st.plane) < 120.0, "and at once when more than 480 away")
 
 # ------------------------------------------------------------------ emotes (S34)
 func emotes_suite() -> void:

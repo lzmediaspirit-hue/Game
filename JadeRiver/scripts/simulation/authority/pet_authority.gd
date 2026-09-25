@@ -216,13 +216,15 @@ func _spawn(c) -> void:
 	var a := EnemyState.new()
 	a.uid = game.room_rt.uid()
 	a.def_id = str(sp.get("art", p.species))
-	a.def = {"name": str(p.name), "art": {"creature": str(sp.get("art", p.species))}, "half_width": 16, "height": 30, "ally": true}
+	a.def = {"name": str(p.name), "art": {"creature": str(sp.get("art", p.species))}, "half_width": 16, "height": 30, "ally": true,
+		"movement": sp.get("movement", {"jump": 530, "climb": false, "fly": false, "drop": true})}
 	a.team = "ally"
 	a.pet_owner = c.id
 	a.level = int(p.level)
 	a.pools.max_hp = c.pools.max_hp * float(growth().get("hp_share", 0.4)) * rarity_power(p)
 	a.pools.hp = a.pools.max_hp
 	a.plane = (st.plane if st else Vector2(c.position.x, c.position.y)) + Vector2(-50, 12)
+	AllyBrain.settle(game, a, st)
 	a.ai = {"state": "follow", "timer": 0.0, "offset": 56, "depth_offset": 14, "speed": 200}
 	a.stats = {"attack": 0.0}
 	game.room_rt.enemies[a.uid] = a

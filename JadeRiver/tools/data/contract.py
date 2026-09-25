@@ -65,6 +65,7 @@ DEPTH = {
     "Combat": ["treasure_used"],
     "Movement": ["jumped", "landed", "wall_kicked", "art_used", "climb_started", "climb_finished", "fell_out", "mover_boarded",
                  "volume_entered", "volume_left"],
+    "Enemies": ["enemy_leashed"],
 }
 for _sys, _names in DEPTH.items():
     CATALOGUE[_sys] = CATALOGUE.get(_sys, []) + _names
@@ -115,6 +116,7 @@ POLLED = {
     "debt_recorded": "The Cultivation page's Heart tab lists debts; the callback is debt_called.",
     "mover_boarded": "The player node reads rider_of; movers carry their riders in the solver.",
     "volume_left": "The player node reads the water state and volumes each frame.",
+    "enemy_leashed": "Enemy views read the return state; the out-of-reach rule is the brain's own business.",
 }
 
 

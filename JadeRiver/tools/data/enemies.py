@@ -2,7 +2,7 @@
 from common import entries, titled
 
 
-def atk(id, windup, reach, mult=1.0, depth=26, alt=(0, 70), **extra):
+def atk(id, windup, reach, mult=1.0, depth=26, alt=(-30, 60), **extra):   # S43 rule 10: the melee band
     d = {"id": id, "windup_s": windup, "active_s": extra.pop("active", 0.18), "recover_s": extra.pop("recover", 0.45),
          "hitbox": {"x": [-6, reach], "depth": depth, "alt": list(alt)}, "mult": mult}
     d.update(extra)
@@ -20,7 +20,20 @@ def mob(id, levels, role, element, page, drops, attacks, ai="melee", art=None, w
            "collection": {"page": page, "kills_to_fill": 50} if page else None,
            "art": art or {"creature": id}, "half_width": width, "height": height}
     row.update(extra)
+    # S43 rule 11: how the species gets about a vertical room (the navigation graph uses it).
+    if "movement" not in row:
+        prof = row["ai"]["profile"]
+        fly = bool(row.get("flying", False))
+        boss = role.endswith("boss")
+        jump = MOVE_JUMP.get(id, 530 if prof in ("duelist", "humanoid", "leaper") or row["race"] == "human" else (430 if prof == "melee" else 0))
+        row["movement"] = {"jump": 0 if fly or boss else jump, "climb": (row["race"] == "human" or id in CLIMBERS) and not boss,
+                           "fly": fly, "drop": not boss and not fly}
     return row
+
+
+# Species that jump harder or softer than their profile suggests, and those that climb (S43 rule 11).
+MOVE_JUMP = {"reed_frog": 600, "bamboo_monkey": 600, "cliff_ape": 530, "pebble_imp": 430, "mossback_toad": 430}
+CLIMBERS = {"bamboo_monkey", "cliff_ape"}
 
 
 HUMAN = {

@@ -415,6 +415,14 @@
     "enemy_brain"
    ]
   },
+  "enemy_leashed": {
+   "system": "Enemies",
+   "files": [
+    "enemy_authority",
+    "enemy_brain"
+   ],
+   "polled": "Enemy views read the return state; the out-of-reach rule is the brain's own business."
+  },
   "craft_step_result": {
    "system": "Crafting",
    "files": [

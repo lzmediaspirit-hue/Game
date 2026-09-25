@@ -803,9 +803,22 @@ func _draw_minimap(c) -> void:
 	var to_map := func(pos: Vector2, alt: float) -> Vector2:
 		return inner.position + Vector2(pos.x * sx, (pos.y - alt - top) * sy)
 	for s in Game.room_rt.geometry.surfaces if Game.room_rt else []:
+		if s.disabled: continue
 		var y0: Vector2 = to_map.call(Vector2(s.bounds.position.x, s.bounds.position.y), s.base)
 		var y1: Vector2 = to_map.call(Vector2(s.bounds.end.x, s.bounds.position.y), s.base)
-		draw_line(y0, y1, Color(0.85, 0.92, 0.9, 0.55 if s.stratum == "ground" else 0.8), 2)
+		if s.is_block:
+			# S43: blocks as small squares, climbables as vertical lines, movers as dashed lines.
+			var mid := (y0 + y1) * 0.5
+			draw_rect(Rect2(mid - Vector2(2.5, 2.5), Vector2(5, 5)), Color(0.85, 0.92, 0.9, 0.8))
+		elif s.moving:
+			draw_dashed_line(y0, y1, Color(0.95, 0.85, 0.55, 0.9), 2.0, 3.0)
+		else:
+			draw_line(y0, y1, Color(0.85, 0.92, 0.9, 0.55 if s.stratum == "ground" else 0.8), 2)
+	for cb in Game.room_rt.geometry.climbables if Game.room_rt else []:
+		var ca: Array = cb.at
+		var foot: Vector2 = to_map.call(Vector2(float(ca[0]), float(ca[1])), float(cb.bottom_alt))
+		var head: Vector2 = to_map.call(Vector2(float(ca[0]), float(ca[1])), float(cb.top_alt))
+		draw_line(foot, head, Color(0.8, 0.7, 0.45, 0.9), 1.5)
 	for p in room.get("portals", []):
 		var at: Array = p.at
 		var st: Dictionary = Game.world.portal_state(c, p)

@@ -393,8 +393,11 @@ def pets():
     # Breeding pairs two Adults of one family (S22).
     family = {"reed_otter": "river", "mossback_toad": "river", "ember_fox": "hound", "mist_wolf": "hound",
               "ironclaw_mole": "burrow", "bamboo_monkey": "burrow", "jade_crane": "wing"}
+    # S43 rule 12: how each animal follows along the navigation graph (ground mounts jump at 530; none climb).
+    jumps = {"reed_otter": 430, "ember_fox": 530, "jade_crane": 530, "mossback_toad": 600, "ironclaw_mole": 0, "bamboo_monkey": 600, "mist_wolf": 530}
     for r in rows:
         r["family"] = family[r["id"]]
+        r["movement"] = {"jump": jumps[r["id"]], "climb": r["id"] == "bamboo_monkey", "fly": False, "drop": True}
     entries("pets", rows)
     # Three hidden traits per animal, revealed at Juvenile, Awakened and Sovereign. `bonus` is what a revealed
     # trait of the active animal adds (read by the system that owns that number).

@@ -24,8 +24,8 @@
    "third_hit_bonus": 0.2,
    "depth": 30,
    "altitude": [
-    0,
-    90
+    -30,
+    60
    ],
    "combo": [
     {
@@ -72,8 +72,8 @@
    "third_hit_bonus": 0.2,
    "depth": 30,
    "altitude": [
-    0,
-    90
+    -30,
+    60
    ],
    "combo": [
     {
@@ -119,8 +119,8 @@
    "hud_glyph": "jian",
    "depth": 30,
    "altitude": [
-    0,
-    110
+    -30,
+    60
    ],
    "qi_arc_discount": 0.1,
    "combo": [
@@ -167,8 +167,8 @@
    "hud_glyph": "spear",
    "depth": 26,
    "altitude": [
-    0,
-    100
+    -30,
+    60
    ],
    "penetration": 0.1,
    "line_targets": 2,
@@ -216,8 +216,8 @@
    "hud_glyph": "short_blade",
    "depth": 28,
    "altitude": [
-    0,
-    90
+    -30,
+    60
    ],
    "backstab": 1.5,
    "combo": [
@@ -263,8 +263,8 @@
    "hud_glyph": "staff",
    "depth": 32,
    "altitude": [
-    0,
-    110
+    -30,
+    60
    ],
    "knockback_every_hit": 30,
    "qi_attack_bonus": 0.1,

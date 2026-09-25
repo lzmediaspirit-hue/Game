@@ -269,7 +269,7 @@ static func hit_test(a: Dictionary, facing: int, hitbox: Dictionary, t: Dictiona
 	var hw := float(t.get("half_width", 16))
 	if dx < float(xr[0]) - hw or dx > float(xr[1]) + hw: return false
 	if absf(float(t.y) - float(a.y)) > float(hitbox.get("depth", 26)): return false
-	var alt: Array = hitbox.get("alt", [0, 90])
+	var alt: Array = hitbox.get("alt", [-30, 60])   # S43 rule 10: relative to the attacker's height
 	var a0 := float(a.alt) + float(alt[0])
 	var a1 := float(a.alt) + float(alt[1])
 	var t0 := float(t.alt)
@@ -607,7 +607,7 @@ func _resolve_basic(c) -> void:
 			"art": "arrow", "attack": {"damage_type": "physical", "element": "none", "mult": [float(step.get("mult", 1.0)), float(step.get("mult", 1.0))],
 			"range": fam.range, "source": "basic"}})
 		return
-	var hitbox := {"x": [-8, float(fam.get("reach", 46))], "depth": float(fam.get("depth", 30)), "alt": fam.get("altitude", [0, 90])}
+	var hitbox := {"x": [-8, float(fam.get("reach", 46))], "depth": float(fam.get("depth", 30)), "alt": fam.get("altitude", [-30, 60])}
 	var mult := float(step.get("mult", 1.0))
 	var max_targets := int(fam.get("line_targets", 1))
 	var hit_any := false
@@ -672,7 +672,7 @@ func _resolve_technique(c, t: Dictionary) -> void:
 				"attack": attack, "delay": i * 0.08, "seek": pr.get("seek", false), "technique": str(t.id), "element": str(t.get("element", "none"))})
 		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": count, "targets": count})
 		return
-	var hitbox: Dictionary = t.get("hitbox", {"x": [0, 80], "depth": 30, "alt": [0, 110]})
+	var hitbox: Dictionary = t.get("hitbox", {"x": [0, 80], "depth": 30, "alt": [-10, 80]})
 	var targets := _enemies_in(pv, facing, hitbox, t.get("both_sides", false))
 	targets.sort_custom(func(a, b): return absf(a.plane.x - float(pv.x)) < absf(b.plane.x - float(pv.x)))
 	var max_targets := int(t.get("max_targets", 1))
@@ -721,7 +721,10 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 		emit("hit_missed", {"attacker": c.id, "target": str(e.uid), "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover + e.height()})
 		return
 	e.threat[c.id] = float(e.threat.get(c.id, 0.0)) + float(r.amount)
-	_damage_enemy(e, float(r.amount), c.id, r.type, r.element, r.crit, attack, facing)
+	var amount := float(r.amount)
+	# S43 rule 11: a melee monster that has not been able to reach you for 2 s takes half damage from you.
+	if float(e.ai.get("unreach", 0.0)) >= 2.0: amount *= 0.5
+	_damage_enemy(e, amount, c.id, r.type, r.element, r.crit, attack, facing)
 	if e.alive and not attack.get("status", {}).is_empty():
 		var s: Dictionary = attack.status
 		if not e.pools.steadfast.has(str(s.id)):
@@ -774,7 +777,7 @@ func enemy_strike(e: EnemyState, attack: Dictionary) -> void:
 	if c == null or wounded.has(c.id): return
 	var pv := player_view(c)
 	var ev := enemy_view(e)
-	var hitbox: Dictionary = attack.get("hitbox", {"x": [0, 40], "depth": 26, "alt": [0, 70]})
+	var hitbox: Dictionary = attack.get("hitbox", {"x": [0, 40], "depth": 26, "alt": [-30, 60]})
 	if hit_test(ev, e.facing, hitbox, pv, attack.get("both_sides", false)):
 		_enemy_hits_player(e, c, ev, pv, attack)
 	_enemy_hits_allies(e, attack, ev)
@@ -782,7 +785,7 @@ func enemy_strike(e: EnemyState, attack: Dictionary) -> void:
 ## The same strike lands on companions and spirit animals inside its hitbox.
 func _enemy_hits_allies(e: EnemyState, attack: Dictionary, ev: Dictionary) -> void:
 	if game.room_rt == null: return
-	var hitbox: Dictionary = attack.get("hitbox", {"x": [0, 40], "depth": 26, "alt": [0, 70]})
+	var hitbox: Dictionary = attack.get("hitbox", {"x": [0, 40], "depth": 26, "alt": [-30, 60]})
 	for a in game.room_rt.enemies.values():
 		if a.team != "ally" or not a.alive or a.ai.state == "downed" or a.hidden: continue
 		var view := {"x": a.plane.x, "y": a.plane.y, "alt": 0.0, "half_width": a.half_width(), "height": a.height()}
@@ -978,7 +981,8 @@ func _tick_projectiles(delta: float) -> void:
 			p.x = float(p.x) + float(p.dir) * s
 			p.travelled = float(p.travelled) + s
 			remaining -= s
-			if rt.geometry.blocks_at(Vector2(p.x, p.y), float(p.alt), "ground") and p.team == "enemy" and float(p.alt) < 60:
+			# S43 rule 10: shots pass through platform decks but stop at blocks and walls, whoever threw them.
+			if rt.geometry.stops_shot(Vector2(p.x, p.y), float(p.alt)):
 				done = true
 				break
 			if p.team == "player":

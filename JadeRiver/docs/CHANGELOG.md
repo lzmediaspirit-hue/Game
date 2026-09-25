@@ -5,6 +5,35 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V2c · Camera, heights in a fight, monster navigation and allies (S43 rules 10–13)
+- **Camera.**
+  - Rooms may set camera bounds and look-ahead.
+  - The camera leads by a quarter of the velocity and follows the surface underfoot instead of the jump arc,
+    settling in 0.4 s after a landing.
+  - It follows falls of more than a tier and looks down 60 near a high edge.
+  - The vertical range opens to 180 so high tiers stay in view.
+- **Heights in a fight.**
+  - Blows reach −30 to +60 of the attacker's height, and Qi and Soul techniques −10 to +80: from the ground
+    you cannot hit someone on an 88 roof, only mid-jump.
+  - Flyers hover at about 48 so grounded fighters can still reach them.
+  - Every shot stops at blocks and building walls and passes platform decks.
+- **Monsters move through vertical rooms.**
+  - Each species has `movement {jump, climb, fly, drop}`. Each room builds a deterministic navigation graph
+    of walk, jump, drop and climb edges, and melee monsters hop along it after their target.
+  - A monster that cannot reach you waits beneath you. After 2 s it takes half damage from you, and after 6 s
+    it goes home, healing 10 % a second.
+  - Flyers sink toward the height they hunt at.
+  - Archers, imps, frogs, toads and vultures start on raised tiers in five rooms.
+- **Allies** walk on surfaces and follow along the graph. More than 480 away, or unable to reach you for 2 s,
+  they blink to you in a puff of mist.
+- **Landing ring** under an airborne player within 200 of the surface below. The minimap shows blocks,
+  climbables and movers. Enemy shadows fall on the surface under them.
+- **Tests:**
+  - the melee and Qi bands, and shots against blocks and decks;
+  - graph edges by species, a graph identical on two builds, and chained paths;
+  - a bandit chasing up a ledge, a tortoise hitting the out-of-reach rule, and allies blinking after 2 s and
+    past 480.
+
 ### V2b · Movement arts, volumes and movers (S43)
 - **Four new movement arts**, each taught by a guided quest when the quest is accepted:
   - **Plunge** (*Outer Trial*, Bone Forging 4): Down + Attack in the air drops at 900. The landing strikes

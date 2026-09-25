@@ -134,6 +134,16 @@
   "ceiling": 340,
   "climb": 220
  },
+ "camera": {
+  "look_ahead": 0.25,
+  "y_min": 180,
+  "y_max": 600,
+  "settle_s": 0.4,
+  "fall_follow": 100,
+  "look_down": 60,
+  "look_down_after_s": 0.5,
+  "look_down_drop": 150
+ },
  "arts": [
   {
    "art": "jump",

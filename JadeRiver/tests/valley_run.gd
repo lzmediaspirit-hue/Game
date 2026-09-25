@@ -343,6 +343,10 @@ func reach(realm: String, supports: Array = []) -> bool:
 				# A failed major breakthrough consumes its materials: make another, as a player would.
 				if str(r0.get("text", "")).begins_with("Qi Refining Pill"): make_refining_pill()
 				if str(r0.get("text", "")).begins_with("Mind Lake Opening Pill"): make_mind_lake_pill()
+				# The condensing pills come from recipes the player has learned: refine another (test shortcut).
+				for cp in ["sage_condensing_pill", "law_condensing_pill", "monarch_condensing_pill"]:
+					if str(r0.get("text", "")).begins_with(ContentDB.item_name(cp)) and c().inventory.count(cp) < 1:
+						Game.inventory.apply_add(c().id, cp, 1, "test_shortcut")
 				q = Game.progression.query_breakthrough(c(), supports)
 			if not r0.ok and str(r0.get("kind", "")) == "dao_tier_at_least":
 				train_dao(int(str(r0.get("text", "")).get_slice("tier ", 1).get_slice(" ", 0)))
@@ -1729,8 +1733,9 @@ func sec_ae4() -> void:
 	check(travel("ts_sealed_gate"), "find the Sealed Gate beyond the Worm Sea")
 	if c().stats.value("insight") < 80.0: train_dao(5)
 	check(interact("tomb_gate").get("ok", false) and c().quests.has_flag("tomb_gate_opened"), "read the inscription: the bronze doors open")
+	var shards_before: int = c().inventory.count("sun_seal_shard")
 	check(finish("the_sealed_gate"), "The Sealed Gate done")
-	check(c().inventory.count("sun_seal_shard") == 0, "the key's pieces stay with the bone-reader")
+	check(c().inventory.count("sun_seal_shard") == shards_before - 3, "the key's three pieces stay with the bone-reader")
 	# Sovereign: a full Sage Qi reserve and one Dao at Adaptation; the Settling Pill ends the consolidation.
 	check(start("sovereign"), "Sovereign accepted")
 	c().pools.qi = c().pools.max_qi

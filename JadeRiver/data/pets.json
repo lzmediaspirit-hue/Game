@@ -27,7 +27,13 @@
     "juvenile": 0.3,
     "adult": 0.35
    },
-   "family": "river"
+   "family": "river",
+   "movement": {
+    "jump": 430,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
   },
   {
    "id": "ember_fox",
@@ -61,7 +67,13 @@
     "lift": 0,
     "saddle": 40
    },
-   "family": "hound"
+   "family": "hound",
+   "movement": {
+    "jump": 530,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
   },
   {
    "id": "jade_crane",
@@ -96,7 +108,13 @@
     "saddle": 44,
     "flying": true
    },
-   "family": "wing"
+   "family": "wing",
+   "movement": {
+    "jump": 530,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
   },
   {
    "id": "mossback_toad",
@@ -119,7 +137,13 @@
     "Moss Sage Toad",
     "Thorn Toad"
    ],
-   "family": "river"
+   "family": "river",
+   "movement": {
+    "jump": 600,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
   },
   {
    "id": "ironclaw_mole",
@@ -142,7 +166,13 @@
     "Gem Mole",
     "Burrow Guard"
    ],
-   "family": "burrow"
+   "family": "burrow",
+   "movement": {
+    "jump": 0,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
   },
   {
    "id": "bamboo_monkey",
@@ -165,7 +195,13 @@
     "Monkey Thief",
     "Staff Monkey"
    ],
-   "family": "burrow"
+   "family": "burrow",
+   "movement": {
+    "jump": 600,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
   },
   {
    "id": "mist_wolf",
@@ -194,7 +230,13 @@
     "lift": 0,
     "saddle": 50
    },
-   "family": "hound"
+   "family": "hound",
+   "movement": {
+    "jump": 530,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
   }
  ]
 }

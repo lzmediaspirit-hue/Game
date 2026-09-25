@@ -11,3 +11,9 @@ func _process(_delta):
 	queue_redraw()
 func _draw():
 	draw_circle(Vector2.ZERO,15,Color(0.01,0.035,0.04,0.4))
+	# S43 landing ring: airborne within 200 of the surface below, a ring marks where you will land.
+	var st=player.state
+	if st.surface==null and not st.flying and st.climbing.is_empty() and player.jump_height<=200.0 and player.jump_height>4.0:
+		var k=1.0-player.jump_height/200.0
+		draw_arc(Vector2.ZERO,24.0,0,TAU,32,Color(0.55,0.95,0.8,0.35+0.45*k),2.5/scale.y*0.26)
+		draw_arc(Vector2.ZERO,24.0+6.0*(1.0-k),0,TAU,32,Color(0.55,0.95,0.8,0.25*k),1.5/scale.y*0.26)
