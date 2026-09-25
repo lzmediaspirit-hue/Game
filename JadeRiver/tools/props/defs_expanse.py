@@ -1208,3 +1208,1385 @@ def sarcophagus(state, f):
     sand_heap(cv, 63, gy, 6, 5, "sarc_r", rough=0.2)
     outline(cv)
     return cv
+
+
+# ------------------------------------------------------------------ Skyport Wreck, Skydock yards and the Trial Hall
+# The Skyport Wreck on the Starsea shore (an ancient sky-port broken apart, now a pirates' nest), the
+# navigator's and shipwright's yards at the Cloudgate Skydock, and the Nine Peaks Alliance's Trial Hall.
+from parts import motes  # noqa: E402
+from pixlib import m_curve  # noqa: E402
+
+STARGLASS = ramp("#221f3d", "#343461", "#4d5690", "#7185bd", "#a5c6e2", "#e3f6fb")
+INDIGO = ramp("#0b0a20", "#161339", "#221e55", "#312b73", "#463f93", "#6760b4")
+RUST = ramp("#1f100c", "#3b1d13", "#5d2d18", "#80411f", "#a35a2b", "#c27a40")
+SHORE = ramp("#3a3236", "#5a4f4e", "#7d6f63", "#a08f78", "#bfae90", "#d9caac", "#ede2c8")
+SAIL_OLD = ramp("#3a342b", "#5e5645", "#857a62", "#aa9e80", "#c9bd9c", "#e2d8b9")
+STARLIGHT = ramp("#140d2e", "#261a56", "#3d2f88", "#5d4fb8", "#8f84dd", "#c9c3f6", "#f6f4ff")
+
+
+def _rot(ox, oy, a):
+    """Point transform: local (u, v) rotated clockwise on screen by a (radians), then moved to (ox, oy)."""
+    ca, sa = math.cos(a), math.sin(a)
+    return lambda u, v: (ox + u * ca - v * sa, oy + u * sa + v * ca)
+
+
+def _shard(cv, x, by, h, w=2, lean=0.0, pal=STARGLASS):
+    """One star-crystal shard standing on row `by`: a pointed prism lit on its left facet."""
+    W, H = cv.w, cv.h
+    m = m_poly(W, H, [(x - w / 2, by), (x + lean - 0.3, by - h), (x + lean + 0.3, by - h), (x + w / 2, by)])
+    xx = grid(W, H)[0]
+    mid = x + lean * 0.5
+    cv.fill(m & (xx < mid), pal[4])
+    cv.fill(m & (xx >= mid), pal[2])
+    cv.fill(bottom_edge(m), pal[1])
+    cv.put(round(x + lean), by - h + 1, pal[5])
+    return m
+
+
+def _crust(cv, m, seed, cover=0.5, pal=STARGLASS, spacing=5):
+    """Barnacle-like star-crystal crust on mask m: little clumps of faceted crystal, each a dark
+    rounded foot with two or three pale points lit from the upper left."""
+    W, H = cv.w, cv.h
+    nz = vnoise(W, H, 5, seed_of("crust", seed), 2)
+    area = m & erode(m) & (nz > 1.0 - cover)
+    g = rng("crustclump", seed)
+    for y in range(1, H - 2, spacing - 1):
+        for x in range(1, W - 2, spacing):
+            px = x + int(g.integers(0, spacing - 1))
+            py = y + int(g.integers(0, 2))
+            if px + 2 >= W or py + 2 >= H or not area[py, px] or g.random() < 0.25:
+                continue
+            w = 3 if g.random() < 0.6 else 2
+            foot = m_rect(W, H, px - 1, py, px - 2 + w, py + 1) & m
+            cv.fill(foot, pal[1])
+            cv.fill(foot & shift(foot, 1, 0) & ~shift(foot, 0, -1), pal[2])
+            cv.put(px - 1, py, pal[3])
+            cv.put(px, py - 1 if m[max(0, py - 1), px] else py, pal[5] if g.random() < 0.4 else pal[4])
+            if w == 3:
+                cv.put(px + 1, py, pal[3])
+    return area
+
+
+def _chunk(cv, pts, seed, pal=STONE, base=0.55, gain=1.2):
+    """A broken block of dressed skyport masonry: flat faces, lit upper-left edge."""
+    W, H = cv.w, cv.h
+    m = m_poly(W, H, pts)
+    nz = vnoise(W, H, 3, seed_of("chunk", seed), 1)
+    shade(cv, m, pal, contour=True, R=2, strength=2.0, base=base, gain=gain, noise=nz, namp=0.12)
+    cv.fill(top_edge(m) & ~right_edge(m), pal[min(len(pal) - 1, 5)])
+    return m
+
+
+def _rubble(cv, cx, by, rx, ry, seed, pal=STONE, n=None, shards=2):
+    """A heap of skyport rubble on row `by`: a mound of pale shore grit with broken masonry blocks and
+    boulders half-buried in it and a few star-crystal shards poking out."""
+    W, H = cv.w, cv.h
+    yy = grid(W, H)[1]
+    g = rng("rubble", seed)
+    bed = blob_mask(W, H, cx, by, rx, ry, ("rub", seed), 0.14, flat_base=by)
+    nz = vnoise(W, H, 3, seed_of("rubn", seed), 2)
+
+    def grit(m):
+        shade(cv, m, SHORE, contour=True, contour_c=SHORE[2], R=2, strength=1.6, base=0.55, gain=1.1, noise=nz,
+              namp=0.25, top=0.1)
+
+    grit(bed)
+    cols = bed.any(axis=0)
+    surf = np.where(cols, np.argmax(bed, axis=0), by)
+    n = n or max(2, int(rx / 4))
+    items = []
+    for i in range(n):
+        px = cx - rx * 0.8 + 1.6 * rx * (i + g.uniform(0.25, 0.75)) / n
+        sy = surf[int(np.clip(round(px), 0, W - 1))]
+        sz = g.uniform(2.4, 3.8) * min(1.0, 0.55 + ry / 14)
+        py = min(by - sz * 0.4, sy + sz * g.uniform(0.0, 0.5))
+        items.append((py, px, sz, g.random(), g.uniform(-0.7, 0.7), g.uniform(1.1, 1.8)))
+    for k, (py, px, sz, kind, ang, asp) in enumerate(sorted(items)):
+        if kind < 0.4:
+            rock(cv, px, int(round(min(by, py + sz * 0.7))), sz * 1.1, sz * 0.85, ("rubrock", seed, k), pal=pal, R=1,
+                 facets=1, base=0.5)
+        else:
+            hw, hh = sz * asp * 0.9, sz * 0.75
+            ca, sa = math.cos(ang), math.sin(ang)
+            pts = [(px + u * ca - v * sa, min(by, py + u * sa + v * ca)) for (u, v) in
+                   ((-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh))]
+            _chunk(cv, pts, ("rubchunk", seed, k), pal=pal, base=0.52)
+    # grit washed back over the feet of the blocks
+    front = bed & (yy >= by - max(1.5, ry * 0.3) + (nz - 0.5) * 3)
+    grit(front)
+    for k in range(shards):
+        sx = cx + g.uniform(-rx * 0.7, rx * 0.7)
+        _shard(cv, round(sx), int(surf[int(np.clip(round(sx), 0, W - 1))]) + 2, int(g.integers(3, 6)), 2,
+               g.uniform(-1.2, 1.2))
+    return bed
+
+
+# ------------------------------------------------------------------ Starsea pirate banner
+@prop("pirate_banner", 24, 64)
+def pirate_banner(state, f):
+    """The banner of the Starsea pirates: deep indigo cloth with a pale comet streaking over a watching
+    eye, hung from a salvaged spar and torn ragged at the hem."""
+    W, H = 24, 64
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    ground_shadow(cv, 12, 62, 8, 1.3)
+    plank_h(cv, 6, 57, 17, 61, STONE_DARK, grain=False)
+    plank_v(cv, 11, 3, 12, 57, WOOD, grain=False)
+    cv.fill(m_poly(W, H, [(10, 3), (11.5, -0.5), (13, 3)]), IRON[4])
+    cv.fill(m_rect(W, H, 12, 1, 12, 2), IRON[2])
+    plank_h(cv, 3, 5, 20, 6, WOOD, grain=False, base=0.6)
+    pts_l = [(4 + math.sin(y * 0.25) * 0.8, y) for y in range(7, 47)]
+    pts_r = [(19 + math.sin(y * 0.25 + 0.6) * 0.8, y) for y in range(46, 6, -1)]
+    hem = [(4, 50), (5.5, 54), (7, 49), (8.5, 52), (10, 48.5), (11.5, 56), (13, 50), (14.5, 53), (16, 48),
+           (17.5, 51), (19, 47)]
+    ban = m_poly(W, H, pts_l + hem + pts_r)
+    shade(cv, ban, INDIGO, contour=True, mode="cyl", base=0.55, gain=0.9, bias=np.sin(yy * 0.25) * 0.12)
+    # frayed pale border and a torn hole near the hem
+    cv.fill(ban & ((xx == 5) | (xx == 18)) & (yy < 45) & ((yy % 7) != 3), BONE[2])
+    cv.fill(ban & (yy == 8), BONE[3])
+    # the emblem: a comet diving over a wide-open eye, three streaks of tail fading out behind it
+    hx, hy = 8.5, 20.5
+    d = np.hypot(xx - hx, yy - hy)
+    for (x0, y0, x1, y1) in ((9, 19, 17, 10), (7, 18, 12, 11), (11, 21, 18, 15)):
+        ln = m_line(W, H, [(x0, y0), (x1, y1)]) & ban
+        cv.fill(ln, BONE[2])
+        cv.fill(ln & (d < 7), BONE[3])
+        cv.fill(ln & (d < 4), BONE[4])
+    head = m_ellipse(W, H, hx, hy, 2.0, 2.0)
+    cv.fill(head, BONE[4])
+    cv.fill(m_rect(W, H, 7, 20, 9, 20) | m_rect(W, H, 8, 19, 8, 21), WHITE_HOT)
+    eye = m_poly(W, H, [(5, 28), (8, 25), (11.5, 24.2), (15, 25), (18, 28), (15, 31), (11.5, 31.8), (8, 31)])
+    cv.fill(eye, BONE[4])
+    cv.fill(bottom_edge(eye) | (right_edge(eye) & (yy > 27)), BONE[2])
+    iris = m_ellipse(W, H, 11.5, 28, 2.4, 2.4) & eye
+    cv.fill(iris, INDIGO[1])
+    cv.put(11, 28, INDIGO[0])
+    cv.put(12, 28, INDIGO[0])
+    cv.put(10, 27, BONE[4])
+    for (sx, sy) in ((8, 36), (11, 38), (15, 36)):
+        cv.put(sx, sy, BONE[3])
+    cv.erase(m_rect(W, H, 14, 42, 15, 43) | m_rect(W, H, 15, 44, 15, 44))
+    # frayed rope ends hanging from the spar
+    for tx in (3, 20):
+        cv.fill(m_rect(W, H, tx, 7, tx, 12), ROPE[3])
+        cv.put(tx, 13, ROPE[2])
+        cv.put(tx, 9, ROPE[1])
+    cv.fill(m_rect(W, H, 10, 5, 13, 6), ROPE[2])
+    cv.fill(m_rect(W, H, 10, 5, 13, 6) & ((xx - yy) % 3 == 0), ROPE[4])
+    outline(cv)
+    return cv
+
+
+# ------------------------------------------------------------------ Starsea anchor
+def _chain(cv, pts, pal=IRON, start=0, step=3.0):
+    """A heavy chain along a spline: links alternate face-on ovals (with a dark eye) and edge-on bars."""
+    W, H = cv.w, cv.h
+    sp = _spline(pts, 0.5)
+    acc, links, last = step, [], sp[0]
+    for p in sp:
+        acc += math.hypot(p[0] - last[0], p[1] - last[1])
+        last = p
+        if acc >= step:
+            links.append(p)
+            acc = 0.0
+    for i, (x, y) in enumerate(links):
+        j = min(len(links) - 1, i + 1)
+        dx, dy = links[j][0] - links[max(0, i - 1)][0], links[j][1] - links[max(0, i - 1)][1]
+        n = math.hypot(dx, dy) or 1.0
+        ux, uy = dx / n, dy / n
+        if (i + start) % 2 == 0:
+            m = tube(W, H, [(x - ux * 1.7, y - uy * 1.7), (x + ux * 1.7, y + uy * 1.7)], 1.6)
+            cv.fill(m, pal[3])
+            cv.fill(m & ~shift(m, -1, -1), pal[2])
+            cv.fill(m & ~shift(m, 1, 1), pal[5])
+            cv.put(round(x), round(y), pal[0])
+        else:
+            m = m_line(W, H, [(x - ux * 2.2, y - uy * 2.2), (x + ux * 2.2, y + uy * 2.2)])
+            cv.fill(m, pal[2])
+
+
+@prop("starsea_anchor", 44, 48, ground=3)
+def starsea_anchor(state, f):
+    """A huge old iron anchor from the skyport's moorings, fallen and half-sunk in the rubble: rust
+    blooming on the iron, a crust of star-crystal on the buried crown, and a length of heavy chain
+    run out from the ring."""
+    W, H = 44, 48
+    cv = Canvas(W, H)
+    yy = grid(W, H)[1]
+    gy = 45
+    ground_shadow(cv, 22, gy, 21, 1.6)
+    P = _rot(19.0, 41.0, math.radians(15))
+    nz = vnoise(W, H, 3, seed_of("anchor"), 2)
+    rn = vnoise(W, H, 4, seed_of("anchor_rust"), 2)
+
+    def iron(m, base=0.5, gain=1.3, R=2):
+        shade(cv, m, IRON, contour=True, R=R, strength=2.2, base=base, gain=gain, noise=nz, namp=0.15)
+        rust = m & erode(m) & (rn > 0.62)
+        lit = m & ~shift(m, 1, 1)
+        cv.fill(rust & ~lit, RUST[2])
+        cv.fill(rust & lit, RUST[4])
+        cv.fill(rust & (rn > 0.72) & ~lit, RUST[3])
+        return m
+
+    # stock (behind the shank), shank, ring
+    iron(tube(W, H, [P(-9, -29.5), P(9, -29.5)], 1.4), base=0.5, R=1)
+    for u in (-9.5, 9.5):
+        iron(m_ellipse(W, H, *P(u, -29.5), 2.3, 2.3), base=0.6, R=1)
+    iron(tube(W, H, [P(0, -33), P(0, -3)], 2.2, 3.1), base=0.58)
+    rc = P(0, -37.5)
+    ring = m_ellipse(W, H, rc[0], rc[1], 4.3, 4.3) & ~m_ellipse(W, H, rc[0], rc[1], 2.1, 2.1)
+    iron(ring, base=0.6, R=1)
+    # arms and broad spade flukes
+    for s in (-1, 1):
+        arm = tube(W, H, [P(0, -1), P(s * 6.5, 0), P(s * 11, -3.5), P(s * 13, -8.5)], 2.6, 1.9)
+        iron(arm, base=0.6 if s < 0 else 0.42)
+        fl = m_poly(W, H, [P(s * 9.5, -5.5), P(s * 13, -15.5), P(s * 17.5, -7), P(s * 13.5, -4)])
+        iron(fl, base=0.62 if s < 0 else 0.42, R=1)
+    iron(m_ellipse(W, H, *P(0, -1), 3.4, 3.4), base=0.5, R=1)
+    _crust(cv, cv.solid & (yy > 30), "anchor", 0.3)
+    # rubble drifted over the crown, the chain run out from the ring and down over it
+    _rubble(cv, 19, gy, 16, 11, "anchor_l", n=5, shards=2)
+    _chain(cv, [(rc[0] + 1.5, rc[1] + 3.5), (37, 14), (40.5, 25), (40, 36), (36, gy - 1), (29, gy)], step=3.4)
+    _rubble(cv, 39, gy, 4.5, 3, "anchor_r", n=1, shards=0)
+    outline(cv)
+    return cv
+
+
+# ------------------------------------------------------------------ star-sight stone
+@prop("star_sight_stone", 36, 56, states=(("idle", 1, 0), ("active", 4, 5)), ground=3)
+def star_sight_stone(state, f):
+    """A weathered standing stone of the navigators, its face engraved with the sky-road constellations
+    and a bronze sighting ring set on its crown. Wakened, the engraved stars shine pale jade."""
+    W, H = 36, 56
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    gy = 53
+    on = state == "active"
+    ground_shadow(cv, 18, gy, 16, 1.6)
+    # the slab: a tapering monolith with a chipped crown
+    st = m_poly(W, H, [(8, gy), (9, 30), (10, 20), (12, 16), (16, 14), (21, 14.5), (25, 17), (26, 24), (27, 36),
+                       (28, gy)])
+    nz = vnoise(W, H, 3, seed_of("sightstone"), 2)
+    shade(cv, st, STONE, contour=True, R=3, strength=2.2, base=0.55, gain=1.3, noise=nz, namp=0.2, ao=0.1)
+    cv.fill(left_edge(st) & (yy > 18) & (yy < gy - 2), STONE[5])
+    # constellations: star pits joined by fine engraved lines
+    consts = [[(13, 21), (16, 19), (19, 22), (22, 20)],
+              [(12, 29), (15, 31), (14, 35), (18, 34), (21, 37), (24, 34)],
+              [(14, 42), (18, 44), (22, 42), (19, 47)]]
+    big = {(16, 19), (18, 34), (18, 44)}
+    face = erode(st)
+    for ci, stars in enumerate(consts):
+        lit = on and (f % 4 != (ci + 1) % 4)
+        peak = on and (f % 4 == ci % 4)
+        ln = m_line(W, H, stars) & face
+        cv.fill(ln, (JADE_R[4] if peak else JADE_R[3]) if lit else STONE[2])
+        if not on:
+            cv.fill(shift(ln, 1, 1) & face & ~ln, STONE[4])
+        for (sx, sy) in stars:
+            pit = m_rect(W, H, sx, sy, sx, sy)
+            if (sx, sy) in big:
+                pit |= m_rect(W, H, sx - 1, sy, sx + 1, sy) | m_rect(W, H, sx, sy - 1, sx, sy + 1)
+            if lit:
+                cv.fill(pit, JADE_R[5])
+                cv.put(sx, sy, JADE_R[6] if peak or (sx, sy) in big else JADE_R[5])
+            else:
+                cv.fill(pit, STONE[1])
+                cv.fill(shift(pit, 1, 1) & face & ~pit, STONE[5])
+    # lichen low on the weather side and a few chips
+    moss_c = st & (nz > 0.62) & (yy > 44) & ~dilate(m_rect(W, H, 10, 40, 25, 49))
+    cv.fill(moss_c, MOSS[2])
+    cv.fill(moss_c & shift(~moss_c, 0, -1), MOSS[3])
+    # the bronze sighting ring, held in a fork on a short post, with fine cross-wires
+    rcx, rcy, rr = 17.5, 6.5, 6.0
+    hole = m_ellipse(W, H, rcx, rcy, rr - 1.6, rr - 1.6)
+    post = m_rect(W, H, 17, 12, 18, 15)
+    shade(cv, post, BRONZE, contour=True, mode="cyl", base=0.55, gain=1.0)
+    cv.fill(m_rect(W, H, 15, 14, 20, 15), BRONZE[3])
+    cv.fill(m_rect(W, H, 15, 14, 19, 14), BRONZE[5])
+    ringm = m_ellipse(W, H, rcx, rcy, rr, rr) & ~hole
+    shade(cv, ringm, BRONZE, contour=False, mode="sphere", base=0.62, gain=1.2)
+    cv.fill(ringm & ~shift(ringm, 1, 1) & (xx + yy < rcx + rcy), GOLD[5])
+    cv.fill(ringm & ~shift(ringm, -1, -1) & (xx + yy > rcx + rcy), BRONZE[1])
+    wires = (m_rect(W, H, rcx - rr, 6, rcx + rr, 6) | m_rect(W, H, 17, rcy - rr, 17, rcy + rr)) & hole
+    cv.fill(wires, BRONZE[2])
+    cv.put(17, 6, GOLD[5])
+    for sx in (11, 23):
+        cv.put(sx, 6, BRONZE[4])
+    # rubble and tufts at the foot
+    rock(cv, 7, gy, 3.5, 2.8, "sight_r1", pal=STONE, R=1, facets=1)
+    rock(cv, 29, gy, 3, 2.4, "sight_r2", pal=STONE, R=1, facets=1)
+    grass_tuft(cv, 11, gy, "sight_g1", h=4, n=3)
+    grass_tuft(cv, 25, gy, "sight_g2", h=3, n=2)
+    outline(cv, skip=hole & ~cv.solid)
+    if on:
+        a = (0.08, 0.12, 0.1, 0.14)[f % 4]
+        glow(cv, 18, 33, 12, 18, BRIGHT_JADE, steps=((1.0, a * 0.6), (0.65, a)))
+        motes(cv, 9, 8, 27, 46, f, 4, "sight_m", count=6, pal=(BRIGHT_JADE, JADE_R[6]))
+    return cv
+
+
+# ------------------------------------------------------------------ Trial Hall: pressure pillar
+_PILLAR_GLYPHS = ((".#.", "#.#", ".#.", "...", "###"), ("#.#", ".#.", "#.#", "...", "#.#"),
+                  ("###", "...", ".#.", "...", "###"), (".#.", "###", ".#.", "#.#", "#.#"),
+                  ("#.#", "###", "#.#", "...", ".#."), ("###", "#.#", "...", ".#.", ".#."))
+
+@prop("pressure_pillar", 28, 96, states=(("idle", 1, 0), ("active", 4, 6)), ground=3)
+def pressure_pillar(state, f):
+    """A tall pillar of the Trial Hall carved with two bands of pressure runes. While the Presence Trial
+    runs, the runes pulse violet-white, the brightest glyph climbing the shaft."""
+    W, H = 28, 96
+    cv = Canvas(W, H)
+    gy = 93
+    on = state == "active"
+    ground_shadow(cv, 14, gy, 13, 1.6)
+    nz = vnoise(W, H, 3, seed_of("pillar"), 2)
+
+    def block(m, base=0.55, gain=1.2, R=2, mode="bevel"):
+        shade(cv, m, STONE, contour=True, mode=mode, R=R, strength=2.0, base=base, gain=gain, noise=nz, namp=0.18)
+        return m
+
+    # stepped plinth
+    block(m_rect(W, H, 2, 88, 25, gy), base=0.5, R=1)
+    cv.fill(m_rect(W, H, 2, 88, 25, 88), STONE[5])
+    block(m_rect(W, H, 4, 83, 23, 87), base=0.55, R=1)
+    cv.fill(m_rect(W, H, 4, 83, 23, 83), STONE[5])
+    # shaft
+    block(m_rect(W, H, 6, 16, 21, 82), mode="cyl", base=0.55, gain=1.1)
+    # bronze collars
+    for (y0, y1) in ((16, 18), (79, 81)):
+        band = m_rect(W, H, 5, y0, 22, y1)
+        shade(cv, band, BRONZE, contour=True, mode="cyl", base=0.55, gain=1.2)
+        cv.fill(m_rect(W, H, 5, y0, 22, y0), BRONZE[5])
+    # capital: a flared cap with a peaked top
+    cap = m_poly(W, H, [(6, 15), (3, 11), (3, 9), (24, 9), (24, 11), (21, 15)])
+    block(cap, base=0.58, R=1)
+    cv.fill(m_rect(W, H, 3, 9, 24, 9), STONE[6])
+    top = m_poly(W, H, [(5, 8), (9, 4), (18, 4), (22, 8)])
+    block(top, base=0.6, R=1)
+    cv.fill(m_poly(W, H, [(12, 4), (13.5, 0), (15, 4)]), BRONZE[4])
+    cv.put(13, 1, BRONZE[6])
+    # two recessed rune bands
+    pulse = (0, 1, 2, 3)[f % 4]
+    for bx in (8, 15):
+        chan = m_rect(W, H, bx, 21, bx + 4, 77)
+        cv.fill(chan, STONE[1] if not on else VIOLET[1])
+        cv.fill(left_edge(chan) | top_edge(chan), STONE[0] if not on else VIOLET[0])
+        cv.fill(right_edge(chan) & ~top_edge(chan), STONE[3])
+        g = rng("pillar_runes", bx)
+        for k, gy2 in enumerate(range(23, 75, 7)):
+            rows = _PILLAR_GLYPHS[int(g.integers(0, len(_PILLAR_GLYPHS)))]
+            glyph = np.zeros((H, W), bool)
+            for r, row in enumerate(rows):
+                for c, ch in enumerate(row):
+                    if ch == "#":
+                        glyph[gy2 + r, bx + 1 + c] = True
+            if on:
+                lvl = (k + (bx == 15) * 3 + 2 * pulse) % 8
+                c = VIOLET[6] if lvl < 1 else (VIOLET[5] if lvl < 3 else VIOLET[4])
+                cv.fill(glyph, c)
+                if lvl < 1:
+                    cv.put(bx + 2, gy2 + 2, WHITE_HOT)
+            else:
+                cv.fill(glyph, STONE[3])
+    outline(cv)
+    if on:
+        a = (0.1, 0.14, 0.12, 0.16)[f % 4]
+        glow(cv, 13.5, 49, 11, 34, VIOLET[5], steps=((1.0, a * 0.5), (0.7, a * 0.7), (0.45, a)))
+        motes(cv, 5, 12, 22, 80, f, 4, "pillar_m", count=6, pal=(VIOLET[5], WHITE_HOT))
+    return cv
+
+
+# ------------------------------------------------------------------ Trial Hall: elder's seat
+@prop("trial_seat", 48, 72, ground=3)
+def trial_seat(state, f):
+    """A high stone seat of the Trial Hall, one of nine set in a ring: a tall back crowned with three
+    peaks and carved with the Alliance's mountain mark, a jade stone set above the summit."""
+    W, H = 48, 72
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    gy = 69
+    cx = 24
+    P = STONE
+    nz = vnoise(W, H, 3, seed_of("trialseat"), 2)
+    ground_shadow(cv, cx, gy, 23, 1.8)
+
+    def block(m, base=0.55, gain=1.2, R=2, mode="bevel"):
+        shade(cv, m, P, contour=True, mode=mode, R=R, strength=2.0, base=base, gain=gain, noise=nz, namp=0.12)
+        return m
+
+    # tall back with a three-peak crest
+    back = m_poly(W, H, [(12, 48), (12, 13), (15, 8), (18.5, 12), (24, 2), (29.5, 12), (33, 8), (36, 13), (36, 48)])
+    block(back, base=0.55, gain=1.1)
+    cv.fill(m_line(W, H, [(12, 13), (15, 8), (18, 11)]) | m_line(W, H, [(19, 11), (24, 2)]), P[6])
+    # carved panel: the mountain mark in relief with jade in the summit
+    panel = m_rect(W, H, 16, 17, 32, 40)
+    cv.fill(erode(panel), P[3])
+    cv.fill(top_edge(panel) | left_edge(panel), P[1])
+    cv.fill((right_edge(panel) | bottom_edge(panel)) & ~(top_edge(panel) | left_edge(panel)), P[5])
+    # three summits in relief, each with a lit west face and a shaded east face
+    for (ax, ay, hw) in ((19.5, 28, 3.5), (28.5, 28, 3.5), (24, 23, 5.5)):
+        pk = m_poly(W, H, [(ax - hw, 36), (ax, ay), (ax + hw, 36)])
+        cv.fill(pk & (xx < ax), P[5])
+        cv.fill(pk & (xx >= ax), P[3])
+        cv.fill(left_edge(pk) & (xx < ax), P[6])
+        cv.fill(right_edge(pk) & (xx > ax), P[2])
+    cv.fill(m_rect(W, H, 23, 23, 24, 24), P[6])
+    cv.fill(m_rect(W, H, 18, 37, 30, 37), P[2])
+    for x in (19, 21, 23, 25, 27, 29):
+        cv.put(x, 38, P[4] if x < 24 else P[2])
+    jade = m_poly(W, H, [(24, 18), (26, 20), (24, 22), (22, 20)])
+    cv.fill(jade, JADE_R[3])
+    cv.fill(top_edge(jade) | left_edge(jade), JADE_R[5])
+    cv.fill(bottom_edge(jade) & right_edge(jade), JADE_R[1])
+    cv.put(23, 19, JADE_R[6])
+    # armrests: blocks with a cloud scroll on the front
+    for (x0, x1) in ((6, 13), (35, 42)):
+        arm = m_rect(W, H, x0, 38, x1, 57)
+        block(arm, base=0.6 if x0 < cx else 0.45, gain=1.1)
+        cv.fill(m_rect(W, H, x0, 38, x1, 39), P[5] if x0 < cx else P[4])
+        sc = ellipse_ring(W, H, (x0 + x1) / 2, 47, 2.5, 2.5)
+        cv.fill(sc & (xx + yy < (x0 + x1) / 2 + 47), P[2])
+        cv.fill(sc & (xx + yy >= (x0 + x1) / 2 + 47), P[4])
+        cv.put((x0 + x1) // 2, 47, P[2])
+    # seat with a navy cushion
+    seat = m_rect(W, H, 12, 45, 36, 57)
+    block(seat, base=0.45, gain=1.0)
+    cv.fill(m_rect(W, H, 12, 45, 36, 46), P[4])
+    navy = ramp("#0b1226", "#16213f", "#223260", "#2f4580", "#4460a0", "#6a86bf")
+    cush = m_poly(W, H, [(13, 44), (35, 44), (35, 48), (13, 48)])
+    shade(cv, cush, navy, contour=True, R=1, base=0.6, gain=1.0)
+    cv.fill(m_rect(W, H, 14, 44, 34, 44), navy[5])
+    cv.fill(m_rect(W, H, 13, 48, 35, 48) & ((xx % 3) == 0), GOLD[3])
+    # two-step dais
+    for (x0, x1, y0, y1) in ((4, 43, 58, 63), (1, 46, 64, gy)):
+        step = m_rect(W, H, x0, y0, x1, y1)
+        block(step, base=0.5, gain=1.0, R=1)
+        cv.fill(m_rect(W, H, x0, y0, x1, y0), P[5])
+        cv.fill(m_rect(W, H, x0, y0, x0, y1), P[4])
+        for jx in range(x0 + 9, x1 - 3, 10):
+            cv.fill(m_rect(W, H, jx, y0 + 1, jx, y1), P[2])
+    outline(cv)
+    return cv
+
+
+# ------------------------------------------------------------------ navigator's yard: armillary sphere
+def _view3d(yaw, elev):
+    """World (x right, y down, z toward the viewer) -> view rotation: turn about the vertical axis by
+    yaw, then tip toward the viewer by elev so near points sit lower on screen."""
+    cy_, sy_ = math.cos(yaw), math.sin(yaw)
+    ce, se = math.cos(elev), math.sin(elev)
+    ry = np.array([[cy_, 0, sy_], [0, 1, 0], [-sy_, 0, cy_]])
+    rx = np.array([[1, 0, 0], [0, ce, se], [0, -se, ce]])
+    return rx @ ry
+
+
+def _ring_pts(u, v, r, n=180, c=(0.0, 0.0, 0.0)):
+    """Sample a 3D circle of radius r spanned by the unit vectors u, v around centre c."""
+    s = np.linspace(0, 2 * math.pi, n, endpoint=False)
+    u, v, c = np.asarray(u, float), np.asarray(v, float), np.asarray(c, float)
+    return c[None, :] + r * (np.cos(s)[:, None] * u[None, :] + np.sin(s)[:, None] * v[None, :])
+
+
+class _ZBuf:
+    """A tiny depth buffer for drawing interlocking rings: each pixel keeps the nearest sample's
+    palette, ramp index and depth."""
+
+    def __init__(self, W, H):
+        self.W, self.H = W, H
+        self.z = np.full((H, W), -1e9)
+        self.v = np.zeros((H, W))
+        self.pal = np.full((H, W), -1, int)
+        self.pals = []
+
+    def splat(self, pts, view, cx, cy, pal, rad=0.8, lit=0.5, gain=1.2, scale=1.0):
+        pid = len(self.pals)
+        self.pals.append(pal)
+        P = pts @ view.T
+        rr = int(math.ceil(rad))
+        R = np.max(np.linalg.norm(P, axis=1)) or 1.0
+        for (x, y, z) in P:
+            sx, sy = cx + x, cy + y
+            val = lit + gain * (0.35 * z / R - 0.18 * (x + y) / R)
+            for dy in range(-rr, rr + 1):
+                for dx in range(-rr, rr + 1):
+                    px, py = int(round(sx + dx)), int(round(sy + dy))
+                    if not (0 <= px < self.W and 0 <= py < self.H):
+                        continue
+                    if (px - sx) ** 2 + (py - sy) ** 2 > rad * rad + 0.25:
+                        continue
+                    if z > self.z[py, px]:
+                        self.z[py, px] = z
+                        self.v[py, px] = val
+                        self.pal[py, px] = pid
+
+    def paint(self, cv):
+        for pid, pal in enumerate(self.pals):
+            m = self.pal == pid
+            if m.any():
+                cv.fill_idx(m, np.clip(np.floor(self.v * len(pal)), 0, len(pal) - 1), pal)
+        return self.pal >= 0
+
+
+@prop("armillary_sphere", 40, 64, states=(("idle", 4, 3),), ground=3)
+def armillary_sphere(state, f):
+    """A bronze armillary sphere of the navigators on a stone plinth: a fixed meridian ring and horizon
+    ring on curved legs, a gilt ring that turns slowly about the tilted polar axis, and a small jade
+    star held at the heart of it all."""
+    W, H = 40, 64
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    gy = 61
+    cx, cy, r = 20, 22, 14.5
+    ground_shadow(cv, cx, gy, 17, 1.6)
+    nz = vnoise(W, H, 3, seed_of("armillary"), 2)
+    # plinth: a stepped stone block with a carved band
+    for (x0, x1, y0, y1) in ((6, 33, 53, gy), (10, 29, 46, 52)):
+        blk = m_rect(W, H, x0, y0, x1, y1)
+        shade(cv, blk, STONE, contour=True, R=1, base=0.5, gain=1.1, noise=nz, namp=0.15)
+        cv.fill(m_rect(W, H, x0, y0, x1, y0), STONE[5])
+        cv.fill(m_rect(W, H, x0, y0, x0, y1), STONE[4])
+    cv.fill(m_rect(W, H, 9, 57, 30, 57) & ((xx % 3) != 0), STONE[2])
+    # the column and two curved legs up to the horizon ring
+    col = m_rect(W, H, 18, 36, 21, 45)
+    shade(cv, col, BRONZE, contour=True, mode="cyl", base=0.55, gain=1.1)
+    cv.fill(m_rect(W, H, 16, 44, 23, 45), BRONZE[3])
+    cv.fill(m_rect(W, H, 16, 44, 22, 44), BRONZE[5])
+    for s in (-1, 1):
+        leg = tube(W, H, [(cx + s * 7, 45), (cx + s * 12.5, 40), (cx + s * 15, 32), (cx + s * 14.8, 24)], 1.3, 1.0)
+        shade(cv, leg, BRONZE, contour=True, R=1, base=0.55 if s < 0 else 0.4, gain=1.1)
+    # the rings, drawn through a depth buffer so they pass in front of and behind each other
+    view = _view3d(math.radians(32), math.radians(14))
+    a = math.radians(28)
+    pole = np.array([math.sin(a), -math.cos(a), 0.0])
+    w = np.array([math.cos(a), math.sin(a), 0.0])
+    phi = math.radians(45 * (f % 4))
+    zb = _ZBuf(W, H)
+    zb.splat(_ring_pts((1, 0, 0), (0, 1, 0), r), view, cx, cy, BRONZE, rad=1.1, lit=0.55)          # meridian
+    zb.splat(_ring_pts((1, 0, 0), (0, 0, 1), r + 0.5), view, cx, cy, BRONZE, rad=1.0, lit=0.5)     # horizon
+    zb.splat(_ring_pts(pole, w * math.cos(phi) + np.array([0, 0, 1.0]) * math.sin(phi), r - 6.5), view, cx, cy,
+             GOLD, rad=0.8, lit=0.62, gain=1.4)                                                      # turning ring
+    axis = np.array([pole * t for t in np.linspace(-(r + 2.5), r + 2.5, 80)])
+    zb.splat(axis, view, cx, cy, BRONZE, rad=0.5, lit=0.5)
+    rings = zb.paint(cv)
+    # meridian graduations
+    for k in range(12):
+        s = 2 * math.pi * k / 12
+        p = (np.array([math.cos(s), math.sin(s), 0.0]) * r) @ view.T
+        px, py = int(round(cx + p[0])), int(round(cy + p[1]))
+        if rings[py, px] and zb.pal[py, px] == 0:
+            cv.put(px, py, BRONZE[1] if k % 3 else GOLD[5])
+    # the jade star at the heart
+    sm = (m_rect(W, H, cx - 3, cy, cx + 3, cy) | m_rect(W, H, cx, cy - 3, cx, cy + 3)
+          | m_rect(W, H, cx - 1, cy - 1, cx + 1, cy + 1))
+    cv.fill(dilate(sm) & ~rings, JADE_R[1])
+    cv.fill(sm, JADE_R[4])
+    cv.fill(sm & (xx + yy < cx + cy), JADE_R[5])
+    cv.fill(m_rect(W, H, cx - 1, cy - 1, cx, cy), JADE_R[6])
+    cv.put(cx - 1, cy - 1, WHITE_HOT)
+    # the pole caps
+    for t in (-1, 1):
+        p = (pole * t * (r + 2.5)) @ view.T
+        cap = m_ellipse(W, H, cx + p[0], cy + p[1], 1.3, 1.3)
+        cv.fill(cap, GOLD[4] if t > 0 else BRONZE[3])
+    hole = m_ellipse(W, H, cx, cy, r - 1.5, r - 1.5) & ~cv.solid
+    outline(cv, skip=hole)
+    glow(cv, cx, cy, 6, 6, BRIGHT_JADE, steps=((1.0, 0.07), (0.6, 0.1)))
+    return cv
+
+
+# ------------------------------------------------------------------ Skyport Wreck: star ballista
+@prop("star_ballista", 64, 48, ground=3)
+def star_ballista(state, f):
+    """A heavy deck crossbow salvaged by the Starsea pirates: a red-lacquered prod on a long weathered
+    stock that swivels on a bronze drum, a winch at the breech, a rune burned into the stock, and a
+    bronze bolt tipped with star-iron laid in the groove."""
+    W, H = 64, 48
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    gy = 45
+    ground_shadow(cv, 32, gy, 24, 1.8)
+    nz = vnoise(W, H, 3, seed_of("ballista"), 2)
+    # timber deck block and the bronze swivel drum
+    deck = m_rect(W, H, 14, 41, 50, gy)
+    shade(cv, deck, WOOD, contour=True, R=1, base=0.45, gain=1.0, noise=nz, namp=0.15)
+    cv.fill(m_rect(W, H, 14, 41, 50, 41), WOOD[4])
+    for bx in (22, 32, 42):
+        cv.fill(m_rect(W, H, bx, 42, bx, gy), WOOD[1])
+    for bx in (14, 49):
+        cv.fill(m_rect(W, H, bx, 41, bx + 1, 43), IRON[3])
+        cv.put(bx, 41, IRON[5])
+    drum = m_rect(W, H, 25, 35, 38, 40)
+    shade(cv, drum, BRONZE, contour=True, mode="cyl", base=0.5, gain=1.2)
+    cv.fill(m_rect(W, H, 25, 40, 38, 40), BRONZE[1])
+    top = m_rect(W, H, 23, 34, 40, 35)
+    shade(cv, top, BRONZE, contour=True, R=1, base=0.6, gain=0.8)
+    cv.fill(m_rect(W, H, 23, 34, 40, 34), GOLD[5])
+    # the yoke cheeks and trunnion
+    yoke = m_poly(W, H, [(27, 35), (28.5, 25), (34.5, 25), (36, 35)])
+    shade(cv, yoke, BRONZE, contour=True, R=1, base=0.45, gain=1.2)
+    cv.fill(left_edge(yoke), BRONZE[5])
+    # the stock: a long weathered beam rising toward the prod
+    x0, y0, x1, y1 = 6.0, 33.0, 55.0, 19.0
+    slope = (y1 - y0) / (x1 - x0)
+
+    def sy(x):
+        return y0 + (x - x0) * slope
+
+    stock = m_poly(W, H, [(x0, y0 - 2), (x1, y1 - 2), (x1, y1 + 1.5), (x0 + 3, y0 + 2.5), (x0, y0 + 2.5)])
+    shade(cv, stock, WOOD_GREY, contour=True, R=1, base=0.55, gain=1.3)
+    for gx in (12, 26, 40):
+        cv.fill(m_line(W, H, [(gx, sy(gx)), (gx + 5, sy(gx + 5))]) & erode(stock), WOOD_GREY[2])
+    for bxx in (10, 45, 53):
+        band = stock & (np.abs(xx - bxx) <= 0.6)
+        cv.fill(band, GOLD[4])
+        cv.fill(band & shift(~stock, 0, 1), BRONZE[2])
+    cv.fill(m_ellipse(W, H, 31.5, sy(31.5) + 0.5, 1.4, 1.4), GOLD[5])
+    cv.put(32, int(round(sy(31.5) + 1)), BRONZE[2])
+    # rune burned into the breech
+    ry0 = int(round(sy(15)))
+    rune = (m_rect(W, H, 14, ry0, 16, ry0) | m_rect(W, H, 15, ry0 - 1, 15, ry0 + 1)
+            | m_rect(W, H, 14, ry0 + 2, 14, ry0 + 2) | m_rect(W, H, 16, ry0 + 2, 16, ry0 + 2))
+    cv.fill(dilate(rune) & stock, WOOD_GREY[1])
+    cv.fill(rune & stock, RUNE[3])
+    cv.put(15, ry0, RUNE[4])
+    # winch at the breech: a spoked wheel with a crank
+    wc = (10, 39)
+    for k in range(4):
+        a = math.pi / 4 + k * math.pi / 2
+        bar = m_line(W, H, [wc, (wc[0] + math.cos(a) * 5, wc[1] + math.sin(a) * 5)], 1)
+        cv.fill(bar, WOOD[5] if k in (2, 3) else WOOD[3])
+    hub = m_ellipse(W, H, *wc, 2.2, 2.2)
+    shade(cv, hub, GOLD, contour=True, mode="sphere", base=0.5, gain=1.2)
+    cv.put(wc[0], wc[1], BRONZE[1])
+    # the prod: a lacquered recurve bow set crosswise at the head, drawn back and spanned
+    bx, by = 47.0, sy(47)
+    tips = []
+    for s in (-1, 1):
+        pts = [(bx, by), (bx - 1.5, by + s * 7), (bx - 4.5, by + s * 13), (bx - 6.0, by + s * 15.5),
+               (bx - 5.2, by + s * 17)]
+        limb = tube(W, H, pts, 2.2, 0.9)
+        shade(cv, limb, LACQUER, contour=True, R=1, base=0.55 if s < 0 else 0.4, gain=1.2)
+        cv.fill(m_ellipse(W, H, pts[-1][0], pts[-1][1], 1.2, 1.2), GOLD[4])
+        tips.append(pts[-2])
+    cv.fill(m_rect(W, H, int(bx) - 1, int(by) - 2, int(bx) + 1, int(by) + 2), GOLD[3])
+    cv.fill(m_rect(W, H, int(bx) - 1, int(by) - 2, int(bx) - 1, int(by) + 1), GOLD[5])
+    nut = (23.0, sy(23) - 2)
+    for t in tips:
+        cv.fill(m_line(W, H, [t, nut]), ROPE[4])
+    cv.fill(m_rect(W, H, 21, int(nut[1]) - 1, 24, int(nut[1]) + 1), GOLD[3])
+    # the bolt: a bronze shaft with vanes and a long four-pointed star-iron head
+    bs, be = (24.0, sy(24) - 3), (57.0, sy(57) - 3)
+    shaft = m_line(W, H, [bs, be])
+    cv.fill(shift(shaft, 0, 1) & ~shaft, BRONZE[1])
+    cv.fill(shaft, BRONZE[5])
+    vane = m_poly(W, H, [(25, sy(25) - 3), (29, sy(29) - 3), (24, sy(24) - 6.5)])
+    cv.fill(vane, GOLD[4])
+    cv.fill(bottom_edge(vane) | right_edge(vane), BRONZE[3])
+    hx, hy = 58.5, sy(58.5) - 3
+    ux, uy = math.cos(math.atan(slope)), math.sin(math.atan(slope))
+    head = m_poly(W, H, [(hx - ux * 2, hy - uy * 2), (hx + uy * 2.6, hy - ux * 2.6), (hx + ux * 5, hy + uy * 5),
+                         (hx - uy * 2.6, hy + ux * 2.6)])
+    cv.fill(head, STORMSTEEL[3])
+    cv.fill(head & (yy < hy - 0.2), STORMSTEEL[4])
+    cv.fill(head & (yy > hy + 1.2), STORMSTEEL[2])
+    cv.put(int(round(hx + 1)), int(round(hy - 1)), STORMSTEEL[5])
+    outline(cv)
+    glow(cv, 15, ry0 + 0.5, 3.5, 3, RUNE[3], steps=((1.0, 0.12),))
+    sparkle(cv, int(round(hx + 1)), int(round(hy - 1)), 1, WHITE_HOT, STORMSTEEL[4], 0.7)
+    return cv
+
+
+# ------------------------------------------------------------------ navigator's yard: star chart table
+@prop("star_chart_table", 64, 44, ground=3)
+def star_chart_table(state, f):
+    """The navigator's work table: a star chart spread flat under four bronze weights, dotted with the
+    sky-road constellations, beside a brass sighting compass, an ink stone and a brush."""
+    W, H = 64, 44
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    gy = 41
+    ground_shadow(cv, 32, gy, 30, 1.8)
+    nz = vnoise(W, H, 3, seed_of("charttable"), 2)
+    P = ROSEWOOD
+    # back legs, apron, front legs with scrolled feet and a stretcher
+    for lx in (12, 49):
+        shade(cv, m_rect(W, H, lx, 24, lx + 2, gy - 5), P, contour=True, mode="cyl", base=0.3, gain=0.8)
+    shade(cv, m_rect(W, H, 8, 33, 55, 34), P, contour=True, R=1, base=0.45, gain=1.0)
+    for lx, s in ((5, -1), (55, 1)):
+        leg = m_rect(W, H, lx, 23, lx + 3, gy - 1)
+        shade(cv, leg, P, contour=True, mode="cyl", base=0.55, gain=1.1)
+        foot = m_ellipse(W, H, lx + 1.5 + s * 1.2, gy - 0.5, 2.8, 1.6) & (yy <= gy)
+        shade(cv, foot, P, contour=True, R=1, base=0.5, gain=1.0)
+    apron = m_rect(W, H, 5, 22, 58, 25)
+    shade(cv, apron, P, contour=True, R=1, base=0.45, gain=1.0)
+    for k, ax in enumerate(range(12, 54, 8)):
+        sc = ellipse_ring(W, H, ax, 23.5, 1.6, 1.2)
+        cv.fill(sc & apron, P[1] if k % 2 else P[4])
+    for cxx in (5, 58):
+        cv.fill(m_rect(W, H, cxx - (cxx > 30), 22, cxx + (cxx < 30), 23), GOLD[3])
+    # the table top: front edge and the top surface seen from a little above
+    edge = m_rect(W, H, 2, 18, 61, 21)
+    shade(cv, edge, P, contour=True, R=1, base=0.55, gain=1.0)
+    cv.fill(m_rect(W, H, 2, 18, 61, 18), P[5])
+    surf = m_poly(W, H, [(5, 7), (58, 7), (61, 17), (2, 17)])
+    shade(cv, surf, P, mode="flat", base=0.62, gain=0.0, noise=nz, namp=0.12,
+          bias=np.clip((yy - 7) / 10.0, 0, 1) * 0.12)
+    cv.fill(top_edge(surf), P[2])
+    # the star chart: pale paper laid across the top and hanging over the front edge to a rolled end
+    chart = m_poly(W, H, [(15, 8), (46, 8), (48, 17), (13, 17)])
+    drape = m_rect(W, H, 14, 17, 47, 24)
+    shade(cv, chart, PAPER_R, mode="flat", base=0.72, gain=0.0, noise=nz, namp=0.1,
+          bias=-np.clip((xx - 13) / 36.0, 0, 1) * 0.1)
+    shade(cv, drape, PAPER_R, mode="flat", base=0.6, gain=0.0, noise=nz, namp=0.1,
+          bias=-np.clip((xx - 13) / 36.0, 0, 1) * 0.1)
+    cv.fill(left_edge(chart) | top_edge(chart), PAPER_R[5])
+    cv.fill(m_rect(W, H, 14, 17, 47, 17), PAPER_R[5])
+    cv.fill(right_edge(drape), PAPER_R[2])
+    roll = m_rect(W, H, 13, 24, 48, 26)
+    shade(cv, roll, PAPER_R, mode="cylh", base=0.6, gain=1.0)
+    for ex in (12, 49):
+        cv.fill(m_rect(W, H, ex, 24, ex, 26), LACQUER[3])
+        cv.put(ex, 24, LACQUER[5])
+    paper = chart | drape
+    circ = ((ellipse_ring(W, H, 30.5, 12.5, 12, 3.6) & chart & (yy < 16))
+            | (ellipse_ring(W, H, 30.5, 23, 11, 4.5) & drape & (yy > 18)))
+    cv.fill(circ, PAPER_R[3])
+    ink = hexc("#23304f")
+    for stars in ([(17, 10), (20, 9), (23, 11), (21, 14)], [(27, 13), (30, 11), (33, 12), (36, 10)],
+                  [(39, 15), (42, 12), (44, 14)], [(40, 9), (43, 10)],
+                  [(17, 19), (20, 21), (19, 23)], [(24, 18), (27, 20), (31, 19), (33, 22)],
+                  [(37, 20), (40, 18), (44, 21)]):
+        cv.fill(m_line(W, H, stars) & paper, PAPER_R[1])
+        for (sx, sy_) in stars:
+            cv.put(sx, sy_, ink)
+    for (sx, sy_) in ((30, 11), (27, 20)):
+        cv.put(sx, sy_, CLOTH_RED[4])
+    cv.put(42, 12, GOLD[3])
+    cv.put(40, 18, GOLD[3])
+    # bronze weights on the corners
+    for (wx, wy) in ((14, 7), (44, 7), (12, 15), (46, 15)):
+        wm = m_rect(W, H, wx, wy, wx + 2, wy + 1)
+        cv.fill(wm, BRONZE[3])
+        cv.fill(m_rect(W, H, wx, wy, wx + 1, wy), BRONZE[5])
+        cv.put(wx + 2, wy + 1, BRONZE[1])
+    # ink stone with its pool of ink, and a brush beside it
+    stone = m_rect(W, H, 4, 10, 10, 14)
+    shade(cv, stone, STONE_DARK, contour=True, R=1, base=0.45, gain=1.0)
+    cv.fill(m_rect(W, H, 4, 10, 10, 10) | m_rect(W, H, 4, 10, 4, 14), STONE_DARK[5])
+    cv.fill(m_rect(W, H, 6, 11, 8, 12), INK)
+    cv.put(6, 11, STONE_DARK[3])
+    cv.fill(m_line(W, H, [(4, 16), (10, 15)]), STRAW[4])
+    cv.fill(m_rect(W, H, 11, 15, 12, 15), INK)
+    # the brass sighting compass: a round dial with a needle under a standing sight-arc
+    dial = m_ellipse(W, H, 54, 12, 4.5, 2)
+    shade(cv, dial, GOLD, contour=True, R=1, base=0.6, gain=0.9)
+    cv.fill(m_ellipse(W, H, 54, 12, 3, 1), PAPER_R[4])
+    cv.fill(m_rect(W, H, 55, 12, 56, 12), CLOTH_RED[3])
+    cv.fill(m_rect(W, H, 52, 12, 53, 12), IRON[2])
+    arc = ellipse_ring(W, H, 54, 11, 4, 5) & (yy <= 11)
+    shade(cv, arc, GOLD, contour=False, R=1, base=0.6, gain=1.0)
+    cv.fill(arc & (xx < 54), GOLD[6])
+    cv.fill(m_rect(W, H, 53, 5, 55, 5), GOLD[4])
+    cv.put(54, 4, GOLD[6])
+    outline(cv, skip=m_ellipse(W, H, 54, 10, 3, 4) & (yy < 11) & ~cv.solid)
+    return cv
+
+
+# ------------------------------------------------------------------ Skyport Wreck: broken mast
+@prop("broken_mast", 56, 128, states=(("idle", 4, 4),), ground=3)
+def broken_mast(state, f):
+    """A snapped sky-junk mast still standing in the wreck rubble: one yard hangs askew across it, the
+    batten sail below torn to strips that stir in the wind off the Starsea, rigging lines trailing."""
+    W, H = 56, 128
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    gy = 125
+    ground_shadow(cv, 28, gy, 26, 2.0)
+    ph = 2 * math.pi * (f % 4) / 4
+    # a stay from the masthead to the ground on the right (behind everything)
+    cv.fill(m_line(W, H, [(30, 16), (53, gy - 6)]), ROPE[2])
+    # the mast: a tall round spar leaning a little, snapped off at the top along a ragged slant
+    mast = tube(W, H, [(27, gy - 4), (28, 60), (29.5, 8)], 3.3, 2.7)
+    keep = mast & (yy >= 15 + (xx - 26) * -0.9 + ((xx * 7) % 3 - 1))
+    shade(cv, keep, WOOD, contour=True, mode="cyl", base=0.5, gain=1.2)
+    brk = keep & ~shift(keep, 0, 1)
+    cv.fill(brk | (shift(brk, 0, 1) & keep & (xx < 29)), WOOD[5])
+    for (sx, sy0, sy1) in ((31, 6, 11), (30, 9, 12), (27, 12, 16), (32, 10, 12)):
+        sp = m_rect(W, H, sx, sy0, sx, sy1)
+        cv.fill(sp, WOOD[5] if sx < 31 else WOOD[4])
+        cv.put(sx, sy1, WOOD[2])
+    for by in (48, 86, 104):
+        band = keep & (yy >= by) & (yy <= by + 1)
+        cv.fill(band, IRON[3])
+        cv.fill(band & (yy == by) & (xx < 28), IRON[5])
+    # the yard, hanging askew and lashed where it crosses the mast
+    ya, yb = (5.0, 32.0), (52.0, 25.0)
+
+    def yard_y(x):
+        return ya[1] + (x - ya[0]) * (yb[1] - ya[1]) / (yb[0] - ya[0])
+
+    # the sail: a header band under the yard, torn below into flat ragged strips that sway
+    strips = ((6, 14, 60, 0.0, (2, -3, 1)), (15, 22, 47, 1.2, (-2, 2, 0)), (23, 30, 76, 2.3, (1, -2, 3)),
+              (31, 37, 55, 3.1, (-3, 1, -1)), (38, 45, 68, 4.4, (2, 0, -3)), (46, 51, 41, 5.3, (-1, 2, 0)))
+    header = m_poly(W, H, [(6, yard_y(6) + 1), (51, yard_y(51) + 1), (51, yard_y(51) + 7), (6, yard_y(6) + 7)])
+    shade(cv, header, SAIL_OLD, contour=True, R=1, base=0.55, gain=0.9)
+    for i, (x0, x1, bot, p, rag) in enumerate(strips):
+        top = yard_y((x0 + x1) / 2) + 6
+        L = bot - top
+        sway = math.sin(ph + p) * 1.7
+        pts_l, pts_r = [], []
+        for k in range(0, int(L) + 1, 2):
+            t = k / L
+            dx = sway * t * t
+            pts_l.append((x0 + dx + 0.6 * t, top + k))
+            pts_r.append((x1 + dx - 0.9 * t, top + k))
+        w = x1 - x0
+        cut = [(x1 + sway - 0.9, bot + rag[2]), (x0 + w * 0.66 + sway, bot + rag[1]), (x0 + w * 0.33 + sway, bot + 2),
+               (x0 + sway + 0.6, bot + rag[0])]
+        strip = m_poly(W, H, pts_l + [cut[3], cut[2], cut[1], cut[0]] + list(reversed(pts_r)))
+        rel = (xx - (x0 + sway * np.clip((yy - top) / L, 0, 1) ** 2)) / max(1, w)
+        shade(cv, strip, SAIL_OLD, contour=True, mode="flat", base=0.6 - 0.05 * (i % 2), gain=0.0,
+              bias=-(rel - 0.3) * 0.28)
+        cv.fill(left_edge(strip) & (yy > top + 1), SAIL_OLD[4])
+        for by in range(int(top) + 5, int(bot) - 3, 9):
+            cv.fill(strip & (yy == by), WOOD[2])
+    cv.fill(m_line(W, H, [(6, yard_y(6) + 7), (51, yard_y(51) + 7)]) & header, SAIL_OLD[2])
+    yard = tube(W, H, [ya, yb], 1.4)
+    shade(cv, yard, WOOD, contour=True, R=1, base=0.55, gain=1.2)
+    for ex in (ya, yb):
+        cv.fill(m_ellipse(W, H, ex[0], ex[1], 1.4, 1.4), IRON[3])
+    lash = dilate(yard) & dilate(keep) & (np.abs(xx - 28.5) < 3)
+    cv.fill(lash, ROPE[2])
+    cv.fill(lash & ((xx - yy) % 3 == 0), ROPE[4])
+    # rigging: a loose line swinging from the yard's low end, another trailing to the rubble
+    sw = math.sin(ph) * 1.5
+    cv.fill(m_curve(W, H, [(5, 33), (3 + sw * 0.5, 55), (4 + sw, 76), (6 + sw, 84)]), ROPE[3])
+    cv.fill(m_curve(W, H, [(51, 27), (53, 50), (52 + sw * 0.4, 70), (50, 88)]), ROPE[2])
+    # the rubble it stands in
+    _rubble(cv, 28, gy, 25, 12, "mast", n=7, shards=3)
+    rope_coil = ellipse_ring(W, H, 12, gy - 3, 4, 1.6) | ellipse_ring(W, H, 12, gy - 4, 3, 1.2)
+    cv.fill(rope_coil, ROPE[3])
+    cv.fill(rope_coil & (xx < 12) & (yy < gy - 3), ROPE[5])
+    outline(cv)
+    return cv
+
+
+# ------------------------------------------------------------------ Cloudgate Skydock: the player's cloud skiff
+@prop("cloud_skiff", 128, 72, states=(("idle", 4, 4),), ground=5)
+def cloud_skiff(state, f):
+    """The player's own small sky-vessel, moored at the Cloudgate Skydock: a low jade-banded hull with
+    a painted eye, a woven-mat canopy over the stern, one batten sail, a long steering oar, a ward
+    lantern hung from a crook at the bow, and a cushion of Qi mist under the keel."""
+    W, H = 128, 72
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    bob = (0, -1, -1, 0)[f % 4]
+    gy = 66
+    # mooring post at the bow and its line
+    ground_shadow(cv, 121, gy, 5, 1.2)
+    plank_v(cv, 119, 53, 122, gy, WOOD, grain=False, seed="skiff_post")
+    cv.fill(m_rect(W, H, 118, 52, 123, 53), IRON[3])
+    cv.fill(m_curve(W, H, [(120, 54), (116, 51 + bob), (111, 46 + bob)]), ROPE[3])
+    # the Qi cushion under the keel
+    for i, (cx, rx) in enumerate(((48, 16), (70, 19), (92, 14))):
+        dx = ((f + i) % 4) - 1.5
+        lobe = m_ellipse(W, H, cx + dx, 56, rx, 4) & ~m_ellipse(W, H, cx + dx, 61, rx - 4, 2.5)
+        cv.fill(lobe, QI_MIST[2], 0.55)
+        cv.fill(lobe & (yy <= 54), QI_MIST[3], 0.6)
+    y0 = 39 + bob
+    # the steering oar, run out over the stern (drawn before the hull so the loom tucks behind it)
+    oar = tube(W, H, [(26, y0 - 4), (15, y0 + 6), (9, y0 + 12)], 1.0)
+    shade(cv, oar, WOOD, contour=True, R=1, base=0.55, gain=1.0)
+    blade = m_poly(W, H, [(11, y0 + 9), (5, y0 + 12), (3, y0 + 17), (7, y0 + 16), (11, y0 + 12)])
+    shade(cv, blade, WOOD, contour=True, R=1, base=0.5, gain=1.0)
+    cv.fill(m_line(W, H, [(26, y0 - 4), (29, y0 - 7)]), WOOD[4])
+    # hull
+    top, bot = [], []
+    for x in range(18, 119):
+        t = (x - 18) / 100.0
+        ty = y0 - 5 * max(0.0, (0.18 - t) / 0.18) ** 1.3 - 8 * max(0.0, (t - 0.8) / 0.2) ** 1.4
+        by = y0 + 11 - 6 * max(0.0, (0.16 - t) / 0.16) ** 1.3 - 10 * max(0.0, (t - 0.7) / 0.3) ** 1.5
+        top.append((x, ty))
+        bot.append((x, by))
+    hull = m_poly(W, H, top + list(reversed(bot)))
+    nz = vnoise(W, H, 4, seed_of("skiff"), 2)
+    shade(cv, hull, WOOD, contour=True, R=2, base=0.45, gain=1.1, noise=nz, namp=0.2)
+    for k in (5, 8):
+        seam = m_poly(W, H, [(x, y + k) for x, y in top] + [(x, y + k + 0.8) for x, y in reversed(top)])
+        cv.fill(seam & hull & erode(hull), WOOD[1])
+    band = m_poly(W, H, [(x, y + 1.5) for x, y in top] + [(x, y + 3.8) for x, y in reversed(top)]) & hull
+    shade(cv, band, ROOF, R=1, base=0.5, gain=0.8)
+    cv.fill(band & ((xx % 10) == 0), GOLD[4])
+    rail = m_poly(W, H, [(x, y - 1) for x, y in top] + [(x, y + 1.2) for x, y in reversed(top)])
+    shade(cv, rail, WOOD, R=1, base=0.7, gain=0.8)
+    cv.fill(top_edge(rail), WOOD[6])
+    # the painted eye on the bow
+    ex, ey = 103, int(y0 + 5)
+    cv.fill(m_ellipse(W, H, ex, ey, 3, 1.6) & hull, PAPER_R[5])
+    cv.fill(m_ellipse(W, H, ex + 0.5, ey, 1.1, 1.1) & hull, INK)
+    cv.put(ex, ey - 1, PAPER_R[5])
+    # woven-mat canopy over the stern
+    can = m_ellipse(W, H, 38, y0 - 2, 12, 8) & (yy <= y0 - 2)
+    shade(cv, can, THATCH, contour=True, R=2, base=0.55, gain=1.2, top=0.2)
+    cv.fill(can & erode(can) & ((xx % 4) == 0), THATCH[2])
+    cv.fill(can & erode(can) & (((xx + yy) % 4) == 1) & ((xx % 4) != 0), THATCH[4])
+    cv.fill(m_rect(W, H, 26, y0 - 3, 50, y0 - 2), WOOD[2])
+    # mast and the single batten sail
+    mx, mtop = 72, 3
+    plank_v(cv, mx - 1, mtop, mx + 1, int(y0), WOOD, grain=False, seed="skiff_mast")
+    sx0, sx1, st, sb = 56, 90, 6, int(y0 - 4)
+    sail = m_poly(W, H, [(sx0 + 3, st), (sx1 - 1, st + 2), (sx1 + 2, sb), (sx0 - 1, sb)])
+    bow_f = np.clip((xx - sx0) / max(1, sx1 - sx0), 0, 1)
+    shade(cv, sail, SAIL, contour=True, R=2, base=0.5, gain=1.1, bias=-(bow_f - 0.4) * 0.25)
+    for by in range(st + 5, sb, 6):
+        batten = m_line(W, H, [(sx0 - 1, by), ((sx0 + sx1) / 2, by + 1), (sx1 + 1, by)], 1) & sail
+        cv.fill(batten, WOOD[2])
+        cv.fill(shift(batten, 0, 1) & sail & ~batten, SAIL[5])
+    cv.fill(m_line(W, H, [(mx, mtop), (112, int(y0 - 7))]) & ~sail, ROPE[2])
+    pen = m_poly(W, H, [(mx + 1, mtop), (mx + 9 + (f % 2), mtop + 1 + (f % 2)), (mx + 1, mtop + 3)])
+    cv.fill(pen, CLOTH_JADE[4])
+    cv.fill(bottom_edge(pen), CLOTH_JADE[2])
+    # the ward lantern on its crook at the bow
+    crook = m_curve(W, H, [(113, int(y0 - 7)), (115, int(y0 - 16)), (118, int(y0 - 20)), (122, int(y0 - 20))])
+    cv.fill(crook | shift(crook, 1, 0), WOOD[3])
+    cv.fill(crook, WOOD[5])
+    lx, ly = 122, int(y0 - 19)
+    cv.fill(m_rect(W, H, lx, ly, lx, ly + 1), INK)
+    body = m_poly(W, H, [(lx - 2, ly + 3), (lx + 2, ly + 3), (lx + 3, ly + 5), (lx + 2, ly + 8), (lx - 2, ly + 8),
+                         (lx - 3, ly + 5)])
+    cv.fill(body, JADE_R[5])
+    cv.fill(m_rect(W, H, lx - 1, ly + 4, lx, ly + 6), JADE_R[6])
+    cv.fill(m_rect(W, H, lx - 2, ly + 2, lx + 2, ly + 2) | m_rect(W, H, lx - 2, ly + 9, lx + 2, ly + 9), BRONZE[4])
+    cv.fill(m_rect(W, H, lx + 1, ly + 3, lx + 1, ly + 8), BRONZE[2])
+    tal = m_rect(W, H, lx, ly + 10, lx + 1, ly + 14)
+    cv.fill(tal, STRAW[5])
+    cv.fill(tal & (yy % 2 == 0) & (xx == lx), CLOTH_RED[3])
+    outline(cv)
+    a = (0.14, 0.18, 0.15, 0.2)[f % 4]
+    glow(cv, lx, ly + 5, 7, 7, BRIGHT_JADE, steps=((1.0, a * 0.6), (0.6, a)))
+    glow(cv, 70, 57, 44, 7, QI_CYAN, steps=((1.0, 0.08), (0.7, 0.07)))
+    return cv
+
+
+# ------------------------------------------------------------------ Skyport Wreck: the broken hull
+FADED_LACQUER = ramp("#2a1516", "#462320", "#63342a", "#80493a", "#9a604b", "#b47b62")
+FADED_ROOF = ramp("#141e22", "#1f3033", "#2d4544", "#3f5b56", "#577468", "#77917f")
+WRECK_WOOD = ramp("#161310", "#28221c", "#3b3329", "#524737", "#6b5e49", "#877860", "#a5967a")
+
+
+@prop("wreck_hull", 200, 96, ground=4)
+def wreck_hull(state, f):
+    """The broken hull of an ancient sky-junk lying tilted on the Starsea shore, its bow heaved up on a
+    bank of rubble: planks gone amidships so the ribs show through, the stern castle crushed under
+    its own roof, a crust of star-crystal grown over the keel like barnacles, and a torn batten
+    sail dragged over the side."""
+    W, H = 200, 96
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    gy = 91
+    ground_shadow(cv, 100, gy, 96, 2.2)
+    a = math.radians(-10.0)
+    ox, oy = 11.0, 78.0
+    P = _rot(ox, oy, a)
+    ca, sa = math.cos(a), math.sin(a)
+    U = (xx - ox) * ca + (yy - oy) * sa
+    V = -(xx - ox) * sa + (yy - oy) * ca
+    L = 180.0
+
+    def top_v(u):
+        t = np.clip(np.asarray(u, float) / L, 0, 1)
+        return -12 * np.maximum(0.0, (0.2 - t) / 0.2) ** 1.2 - 9 * np.maximum(0.0, (t - 0.84) / 0.16) ** 1.4
+
+    def bot_v(u):
+        t = np.clip(np.asarray(u, float) / L, 0, 1)
+        return 24 - 8 * np.maximum(0.0, (0.14 - t) / 0.14) ** 1.3 - 14 * np.maximum(0.0, (t - 0.78) / 0.22) ** 1.5
+
+    nz = vnoise(W, H, 4, seed_of("wreck"), 2)
+    nz2 = vnoise(W, H, 2, seed_of("wreck2"), 2)
+    TV, BV = top_v(U), bot_v(U)
+    g = rng("wreck")
+    # the bank of rubble the bow has ridden up onto (behind the hull)
+    _rubble(cv, 170, gy, 29, 28, "wreck_bank", n=9, shards=2)
+    # a broken mast stump, leaning with the hull
+    stump = tube(W, H, [P(80, -2), P(79, -36)], 2.8, 2.2)
+    stump &= ~(V < -33 + ((xx * 5) % 3) + (U - 79) * 0.8)
+    shade(cv, stump, WRECK_WOOD, contour=True, mode="cyl", base=0.55, gain=1.2)
+    cv.fill(stump & ~shift(stump, 0, 1) & (V < -29), WRECK_WOOD[6])
+    # hull
+    top = [P(u, float(top_v(u))) for u in np.arange(0, L + 0.5, 1.0)]
+    bot = [P(u, float(bot_v(u))) for u in np.arange(0, L + 0.5, 1.0)]
+    hull = m_poly(W, H, top + list(reversed(bot))) & (yy <= gy)
+    shade(cv, hull, WRECK_WOOD, contour=True, R=2, base=0.5, gain=1.1, noise=nz, namp=0.22)
+    depth = V - TV
+    seam = hull & erode(hull) & (np.mod(depth, 5.0) < 0.9) & (depth > 4)
+    cv.fill(seam, WRECK_WOOD[1])
+    k = np.floor(depth / 5.0)
+    butt = hull & erode(hull) & (np.mod(U + k * 23.0, 31.0) < 0.9) & (depth > 4) & ~seam
+    cv.fill(butt, WRECK_WOOD[2])
+    # faded lacquer band peeling off below the gunwale, with a few gold studs left
+    band = hull & (depth >= 1.5) & (depth < 4.5)
+    peel = band & (nz2 > 0.62)
+    shade(cv, band & ~peel, FADED_LACQUER, R=1, base=0.5, gain=0.8)
+    cv.fill(band & ~peel & (np.mod(U, 12.0) < 1.0) & (nz > 0.45), GOLD[3])
+    rail = hull & (depth < 1.5)
+    cv.fill(rail, WRECK_WOOD[4])
+    cv.fill(rail & ~shift(hull, 0, 1), WRECK_WOOD[6])
+    # the breach amidships: planks torn away strake by strake, ribs and the far side showing through
+    ends_l = 66 + np.array([int(g.integers(-4, 7)) for _ in range(8)])
+    ends_r = 118 + np.array([int(g.integers(-7, 5)) for _ in range(8)])
+    ki = np.clip(k.astype(int), 0, 7)
+    breach = hull & (depth > 1.5) & (V < BV - 3) & (U > ends_l[ki]) & (U < ends_r[ki])
+    breach &= ~(rail)
+    inner = breach & erode(breach)
+    dv = np.clip((V - TV) / np.maximum(1.0, BV - TV), 0, 1)
+    _idx_fill(cv, breach, WOOD, 1.6 - dv * 1.6)
+    cv.fill(breach & (np.mod(depth, 5.0) < 0.9), WOOD[0])
+    for i, ru in enumerate((71, 79, 86, 95, 102, 111)):
+        cu = ru - (dv * dv) * 3.0
+        rib = breach & (U >= cu) & (U < cu + 2.2)
+        if i in (2, 4):
+            rib &= depth < (9 if i == 2 else 13) + ((xx * 3) % 2)
+        cv.fill(rib, WOOD[3])
+        cv.fill(rib & (U < cu + 0.9), WOOD[4])
+        cv.fill(rib & (V > BV - 7), WOOD[2])
+    beam = breach & (depth >= 3) & (depth < 5)
+    cv.fill(beam, WOOD[2])
+    cv.fill(beam & (depth < 3.9), WOOD[3])
+    ragged = breach & ~inner
+    cv.fill(ragged & (U < 92), WRECK_WOOD[5])
+    cv.fill(ragged & (U >= 92), WRECK_WOOD[1])
+    # a dangling plank end at the breach
+    dang = m_poly(W, H, [P(111, 9), P(115, 9), P(113, 19), P(110, 18)])
+    shade(cv, dang, WRECK_WOOD, contour=True, R=1, base=0.5, gain=1.0)
+    # star-crystal crust grown over the keel and along the lower planks
+    low = hull & ~breach & (V > BV - 10 - (nz - 0.5) * 8)
+    _crust(cv, low, "wreck_crust", 0.8, spacing=4)
+    # the faded painted eye on the bow
+    ec = P(170, 3)
+    cv.fill(m_ellipse(W, H, ec[0], ec[1], 3.5, 2.3) & hull, PAPER_R[3])
+    cv.fill(m_ellipse(W, H, ec[0] + 0.5, ec[1], 1.4, 1.4) & hull, WRECK_WOOD[0])
+    cv.fill(m_ellipse(W, H, ec[0], ec[1], 3.5, 2.3) & hull & (nz2 > 0.6), WRECK_WOOD[3])
+    # the crushed stern castle: stubs of lacquered wall, and the roof snapped at the ridge and caved in
+    for pts in ([P(1, -12), P(10, -10.5), P(10, -20), P(5, -22.5), P(1, -21)],
+                [P(24, -8.5), P(33, -6), P(33, -13), P(28, -15), P(24, -14)]):
+        wall = m_poly(W, H, pts)
+        shade(cv, wall, FADED_LACQUER, contour=True, R=1, base=0.45, gain=0.8, noise=nz, namp=0.2)
+    win = m_poly(W, H, [P(3, -13.5), P(8, -12.5), P(8, -17), P(3, -18)])
+    cv.fill(win, INK)
+    cv.fill(win & (np.mod(U, 2.5) < 1.0), FADED_LACQUER[2])
+    post = tube(W, H, [P(33, -8), P(35, -26)], 1.1)
+    post &= ~(V < -24 + ((xx * 3) % 2))
+    shade(cv, post, FADED_LACQUER, contour=True, mode="cyl", base=0.55, gain=1.0)
+    pu, pv = 17.0, -10.5
+    halves = []
+    for side, r in ((-1, math.radians(26)), (1, math.radians(-20))):
+        body = [(0, 1.5), (0, -8.5), (side * 13, -8.5), (side * 15, -5), (side * 20.5, 0), (side * 17.5, 0.5),
+                (side * 8, -0.8)]
+        pts = [P(pu + x * math.cos(r) - y * math.sin(r), pv + x * math.sin(r) + y * math.cos(r)) for (x, y) in body]
+        half = m_poly(W, H, pts)
+        ru_ = (U - pu) * math.cos(r) + (V - pv) * math.sin(r)
+        rv_ = -(U - pu) * math.sin(r) + (V - pv) * math.cos(r)
+        half &= ~((np.abs(ru_) < 2.5) & (np.mod(rv_ * 1.7, 3.0) < 1.2))
+        shade(cv, half, FADED_ROOF, contour=True, R=2, base=0.5 if side < 0 else 0.42, gain=1.2)
+        cv.fill(half & erode(half) & (np.mod(ru_, 3.0) < 1.0), FADED_ROOF[2])
+        ridge = half & (rv_ < -7.2)
+        cv.fill(ridge, FADED_ROOF[4])
+        cv.fill(ridge & ~shift(half, 0, 1), FADED_ROOF[5])
+        holes = half & erode(erode(half)) & (nz2 > 0.78)
+        cv.fill(dilate(holes) & half & erode(half), FADED_ROOF[1])
+        cv.fill(holes, INK)
+        halves.append(half)
+    for (tu, tv) in ((40, -1.5), (47, -1.5)):
+        tp = P(tu, tv)
+        cv.fill(m_rect(W, H, tp[0], tp[1], tp[0] + 1, tp[1]), FADED_ROOF[3])
+        cv.put(tp[0], tp[1], FADED_ROOF[5])
+    # the torn batten sail dragged over the side from its fallen yard, hanging in ragged tongues
+    su0, su1 = 124, 162
+    hem = [(124, 12), (127, 17), (130, 13), (134, 19), (138, 14), (141, 15), (145, 21), (149, 15), (153, 17),
+           (157, 13), (160, 16), (162, 11)]
+
+    def hem_v(u):
+        return float(np.interp(u, [q[0] for q in hem], [q[1] for q in hem]))
+
+    sail_pts = [P(u, float(top_v(u)) - 2.5) for u in range(su0, su1 + 1)] + \
+               [P(u, float(top_v(u)) + hem_v(u)) for u in range(su1, su0 - 1, -1)]
+    sail = m_poly(W, H, sail_pts)
+    fold_u = np.mod(U - su0, 7.0)
+    shade(cv, sail, SAIL, contour=True, contour_c=SAIL[1], mode="flat", base=0.66, gain=0.0,
+          bias=-np.clip((U - su0) / (su1 - su0), 0, 1) * 0.2 - np.clip(depth / 18.0, 0, 1) * 0.2
+          + np.where(fold_u < 2.5, 0.08, 0.0) - np.where(fold_u > 5.5, 0.12, 0.0))
+    cv.fill(sail & (depth < 0), SAIL[5])
+    for bv in (5, 11):
+        bat = sail & (np.abs(depth - bv - np.sin((U - su0) * 0.45) * 0.8) < 0.6)
+        cv.fill(bat, WOOD[2])
+    cv.fill(bottom_edge(sail), SAIL[1])
+    yard = tube(W, H, [P(118, -3.5), P(166, -8.5), P(176, -13)], 1.4)
+    shade(cv, yard, WRECK_WOOD, contour=True, R=1, base=0.6, gain=1.2)
+    # shore rubble and grit drifted against the hull, burying the keel
+    for (cx, rx, ry, sd) in ((22, 24, 9, "wreck_s"), (70, 22, 6, "wreck_m"), (116, 20, 7, "wreck_m2"),
+                             (150, 16, 8, "wreck_b")):
+        _rubble(cv, cx, gy, rx, ry, sd, n=max(3, rx // 6), shards=0)
+    for (sx, h, ln) in ((8, 8, -1.5), (11, 5, 1.0), (96, 6, -1.0), (133, 8, 1.5), (136, 5, -0.5)):
+        _shard(cv, sx, gy - 1, h, 3, ln)
+    outline(cv)
+    return cv
+
+
+# ------------------------------------------------------------------ Cloudgate Skydock: shipwright's slip
+NEW_WOOD = ramp("#2a1c10", "#4a3219", "#6e4d26", "#946c38", "#b88e4f", "#d6b06e", "#ecd29a")
+BAMBOO_POLE = ramp("#23240f", "#3e3f19", "#5f5d27", "#827d37", "#a79f4f", "#c9c274", "#e2dca0")
+
+
+@prop("shipyard_slip", 176, 96, ground=4)
+def shipyard_slip(state, f):
+    """The shipwright's slip at the Cloudgate Skydock: a small sky-vessel in frame on a timber slipway,
+    keel laid, bare ribs up and the first strakes pinned on, with bamboo scaffolding, a mallet, a coil
+    of rope and a stack of formation plates waiting by the bow."""
+    W, H = 176, 96
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    gy = 91
+    ground_shadow(cv, 88, gy, 86, 2.2)
+    nz = vnoise(W, H, 3, seed_of("slip"), 2)
+
+    def slip_y(x):
+        return 81.0 + (x - 4) * 3.0 / 168.0
+
+    # scaffold poles behind the hull (far side)
+    for px in (62, 110):
+        plank_v(cv, px, 30, px + 1, int(slip_y(px)) - 1, BAMBOO_POLE, grain=False, base=0.4)
+    # slipway: a long sloping timber on trestle posts, with sleeper ends along it
+    for px in (10, 40, 70, 100, 130, 160):
+        top = int(slip_y(px)) + 3
+        post = m_rect(W, H, px - 1, top, px + 1, gy)
+        shade(cv, post, WOOD, contour=True, mode="cyl", base=0.45, gain=1.0)
+        cv.fill(m_line(W, H, [(px - 6, gy), (px, top + 2)]) | m_line(W, H, [(px + 6, gy), (px, top + 2)]), WOOD[2])
+    rail = m_poly(W, H, [(4, slip_y(4)), (172, slip_y(172)), (172, slip_y(172) + 3), (4, slip_y(4) + 3)])
+    shade(cv, rail, WOOD, contour=True, R=1, base=0.5, gain=1.1, noise=nz, namp=0.15)
+    cv.fill(top_edge(rail), WOOD[5])
+    for sx in range(8, 172, 9):
+        cv.fill(m_rect(W, H, sx, int(slip_y(sx)) + 1, sx + 1, int(slip_y(sx)) + 2), WOOD[1])
+    # the vessel in frame: a rockered bottom rising into a raked sternpost and a tall curved stem
+    k0, k1 = 30.0, 146.0
+
+    def bot_y(x):
+        t = (x - k0) / (k1 - k0)
+        return slip_y(x) - 7.0 - 10.0 * max(0.0, (0.2 - t) / 0.2) ** 1.6 - 18.0 * max(0.0, (t - 0.72) / 0.28) ** 1.7
+
+    def top_y(x):
+        t = (x - k0) / (k1 - k0)
+        return 50.0 - 10.0 * max(0.0, (0.22 - t) / 0.22) ** 1.3 - 13.0 * max(0.0, (t - 0.78) / 0.22) ** 1.4
+
+    # keel blocks and the keel
+    for bx in range(46, 124, 15):
+        by = int(slip_y(bx)) - 1
+        shade(cv, m_rect(W, H, bx - 2, by - 4, bx + 2, by), WOOD, contour=True, R=1, base=0.4, gain=1.0)
+    keel = m_poly(W, H, [(40, bot_y(40) - 1), (128, bot_y(128) - 1), (128, bot_y(128) + 2), (40, bot_y(40) + 2)])
+    # frames: ribs from the bottom curve up past the sheer, their heads standing proud
+    frames = np.zeros((H, W), bool)
+    fxs = list(range(int(k0) + 5, int(k1) - 3, 7))
+    for fx in fxs:
+        t = (fx - k0) / (k1 - k0)
+        flare = (t - 0.5) * 5.0
+        by_, ty_ = bot_y(fx), top_y(fx) - 3
+        frames |= tube(W, H, [(fx, by_), (fx + flare * 0.25, by_ - (by_ - ty_) * 0.4), (fx + flare, ty_)], 0.9)
+    shade(cv, frames, NEW_WOOD, contour=True, R=1, base=0.5, gain=1.2)
+    cv.fill(left_edge(frames), NEW_WOOD[5])
+    stern = tube(W, H, [(k0 + 8, bot_y(k0 + 8)), (k0 + 1, bot_y(k0 + 1) - 2), (k0 - 5, top_y(k0) - 6)], 1.7, 1.3)
+    stem = tube(W, H, [(k1 - 10, bot_y(k1 - 10)), (k1 - 3, bot_y(k1 - 3) - 3), (k1 + 2, top_y(k1) - 2),
+                       (k1 + 3, top_y(k1) - 10)], 1.9, 1.4)
+    for part in (keel, stern, stem):
+        shade(cv, part, NEW_WOOD, contour=True, R=1, base=0.55, gain=1.2)
+    cv.fill(left_edge(stern) | left_edge(stem), NEW_WOOD[5])
+    # bent ribbands holding the frames fair: the sheer and one lower down
+    for frac, c in ((0.0, NEW_WOOD[5]), (0.45, NEW_WOOD[4])):
+        pts = [(x, top_y(x) + (bot_y(x) - top_y(x)) * frac) for x in np.arange(k0 - 3, k1 + 2.5, 2.0)]
+        rb = m_line(W, H, pts)
+        cv.fill(shift(rb, 0, 1) & ~rb, NEW_WOOD[1])
+        cv.fill(rb, c)
+    # the first strakes pinned on low along the bottom, each plank ending at its own frame
+    g = rng("slip_strakes")
+    for s_ in range(3):
+        x0 = fxs[1 + s_ + int(g.integers(0, 2))]
+        x1 = fxs[-2 - s_ * 2 - int(g.integers(0, 2))]
+        up = [(x, bot_y(x) - 1.5 - s_ * 3.2) for x in np.arange(x0, x1 + 0.5, 1.0)]
+        dn = [(x, bot_y(x) + 0.8 - s_ * 3.2) for x in np.arange(x1, x0 - 0.5, -1.0)]
+        pl = m_poly(W, H, up + dn)
+        shade(cv, pl, NEW_WOOD, contour=True, R=1, base=0.62 - s_ * 0.05, gain=1.0)
+        cv.fill(top_edge(pl), NEW_WOOD[6])
+        for fx in fxs:
+            if x0 < fx < x1:
+                cv.put(fx, int(round(bot_y(fx) - 0.5 - s_ * 3.2)), NEW_WOOD[1])
+    # bamboo scaffolding in front: two poles, a ledger with a plank walk, lashings
+    for px in (20, 156):
+        plank_v(cv, px, 24, px + 1, gy, BAMBOO_POLE, grain=False, base=0.6)
+        for ny in range(30, gy, 9):
+            cv.put(px + 1, ny, BAMBOO_POLE[1])
+    walk = m_rect(W, H, 12, 55, 44, 57)
+    shade(cv, walk, WOOD, contour=True, R=1, base=0.55, gain=1.0)
+    cv.fill(m_rect(W, H, 12, 55, 44, 55), WOOD[5])
+    plank_v(cv, 42, 55, 43, int(slip_y(42)) - 1, BAMBOO_POLE, grain=False, base=0.5)
+    cv.fill(m_line(W, H, [(140, 42), (157, 42)]), BAMBOO_POLE[4])
+    for (lx, ly) in ((20, 55), (156, 42), (42, 55)):
+        lash = m_rect(W, H, lx - 1, ly - 1, lx + 2, ly + 1)
+        cv.fill(lash, ROPE[2])
+        cv.fill(lash & ((xx - yy) % 3 == 0), ROPE[4])
+    # spare planks stacked under the walk, a big wooden mallet lying in front, a coil of rope
+    for k in range(3):
+        pl = m_rect(W, H, 26 + k, gy - 1 - k * 2, 52 - k * 2, gy - k * 2)
+        shade(cv, pl, NEW_WOOD, contour=True, R=1, base=0.55 - k * 0.03, gain=1.0)
+        cv.fill(top_edge(pl), NEW_WOOD[5])
+    handle = m_line(W, H, [(72, gy - 1), (85, gy - 4)])
+    cv.fill(shift(handle, 0, 1) & ~handle, WOOD[2])
+    cv.fill(handle, WOOD[5])
+    head = m_poly(W, H, [(84, gy - 8), (90, gy - 8), (91, gy), (85, gy)])
+    shade(cv, head, WOOD, contour=True, R=1, base=0.62, gain=1.1)
+    cv.fill(m_rect(W, H, 84, gy - 6, 90, gy - 6) | m_rect(W, H, 85, gy - 2, 91, gy - 2), IRON[4])
+    coil = (ellipse_ring(W, H, 9, gy - 2, 5, 1.8) | ellipse_ring(W, H, 9, gy - 3, 3.6, 1.3)
+            | ellipse_ring(W, H, 9, gy - 4, 2.4, 0.9))
+    cv.fill(coil, ROPE[3])
+    cv.fill(coil & (xx < 9) & (yy <= gy - 3), ROPE[5])
+    cv.fill(m_line(W, H, [(14, gy - 2), (18, gy - 1), (23, gy)]), ROPE[3])
+    # formation plates stacked by the bow, the top one engraved with a ring of array lines
+    for k in range(3):
+        y0 = gy - k * 2
+        x0 = 156 + (k % 2)
+        pl = m_rect(W, H, x0, y0 - 1, x0 + 13, y0)
+        cv.fill(pl, BRONZE[3] if k % 2 else BRONZE[2])
+        cv.fill(top_edge(pl), BRONZE[5] if k % 2 else BRONZE[4])
+    top_pl = m_poly(W, H, [(158, gy - 9), (168, gy - 9), (170, gy - 6), (156, gy - 6)])
+    shade(cv, top_pl, BRONZE, contour=True, R=1, base=0.55, gain=0.8)
+    cv.fill(ellipse_ring(W, H, 163, gy - 7.5, 4, 1.2) & top_pl, JADE_R[4])
+    cv.put(163, gy - 8, JADE_R[6])
+    leaning = m_poly(W, H, [(171, gy), (174, gy), (171, gy - 13), (168.5, gy - 12)])
+    shade(cv, leaning, BRONZE, contour=True, R=1, base=0.5, gain=1.0)
+    cv.fill(m_line(W, H, [(171, gy - 3), (170, gy - 9)]), JADE_R[4])
+    outline(cv)
+    glow(cv, 163, gy - 7.5, 6, 3, BRIGHT_JADE, steps=((1.0, 0.1),))
+    return cv
+
+
+# ------------------------------------------------------------------ Starsea Launch cradle
+@prop("launch_ring", 112, 128, states=(("idle", 1, 0), ("active", 4, 4)), ground=4)
+def launch_ring(state, f):
+    """The Starsea Launch: two tall arms of stone and bronze cradle a great open bronze ring tipped
+    back to face the sky, rune lamps set all round it. Wakened, the lamps burn white and the ring
+    fills with a slow swirl of star light."""
+    W, H = 112, 128
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    gy = 123
+    on = state == "active"
+    cx, cy, rx, ry = 55.5, 56.0, 43.0, 30.4
+    ground_shadow(cv, cx, gy, 54, 2.2)
+    nz = vnoise(W, H, 3, seed_of("launch"), 2)
+
+    def stone(m, base=0.55, gain=1.1, R=2):
+        shade(cv, m, STONE, contour=True, R=R, strength=2.0, base=base, gain=gain, noise=nz, namp=0.07)
+        return m
+
+    # the dais: two broad steps with a rune circle inlaid in the upper one
+    for (x0, x1, y0, y1) in ((2, 109, 117, gy), (14, 97, 110, 116)):
+        stone(m_rect(W, H, x0, y0, x1, y1), base=0.5, R=1)
+        cv.fill(m_rect(W, H, x0, y0, x1, y0), STONE[5])
+        cv.fill(m_rect(W, H, x0, y0, x0, y1), STONE[4])
+        for jx in range(x0 + 12, x1 - 4, 14):
+            cv.fill(m_rect(W, H, jx, y0 + 1, jx, y1), STONE[2])
+    inlay = ellipse_ring(W, H, cx, 113, 22, 2)
+    cv.fill(inlay & (yy >= 111), STARLIGHT[3] if on else STONE[2])
+    # the arms: stone pedestals, bronze claws rising past the pivots
+    for s in (-1, 1):
+        px = cx + s * (rx + 4)
+        ped = m_poly(W, H, [(px - 9, 110), (px + 9, 110), (px + 7, 86), (px + 5, 80), (px - 5, 80), (px - 7, 86)])
+        stone(ped, base=0.6 if s < 0 else 0.45)
+        cv.fill(m_rect(W, H, px - 7, 86, px + 7, 87), STONE[2])
+        cv.fill(m_rect(W, H, px - 5, 80, px + 5, 80), STONE[5])
+        g_ = rng("launch_ped", s)
+        for gy2 in (90, 97):
+            rows = _PILLAR_GLYPHS[int(g_.integers(0, len(_PILLAR_GLYPHS)))]
+            for r_, row in enumerate(rows):
+                for c_, ch in enumerate(row):
+                    if ch == "#":
+                        cv.put(int(px) - 1 + c_, gy2 + r_, STARLIGHT[5] if on else STONE[2])
+        arm = tube(W, H, [(px, 81), (px + s * 3, 70), (px + s * 1.5, cy), (px - s * 2, 38), (px - s * 7, 26),
+                          (px - s * 10, 22)], 4.0, 1.8)
+        shade(cv, arm, BRONZE, contour=True, R=2, base=0.58 if s < 0 else 0.42, gain=1.2)
+        cv.fill(left_edge(arm) & (yy > 30), BRONZE[5] if s < 0 else BRONZE[3])
+        for by in (72, 44):
+            band = arm & (np.abs(yy - by) <= 0.6)
+            cv.fill(band, GOLD[4])
+        tip = m_ellipse(W, H, px - s * 10.5, 21.5, 1.8, 1.8)
+        shade(cv, tip, GOLD, contour=True, mode="sphere", base=0.6, gain=1.0)
+    # the ring, tipped back: outer and inner rims, the far half showing its inner face,
+    # the near half showing its outer face
+    outer = m_ellipse(W, H, cx, cy, rx, ry)
+    inner = m_ellipse(W, H, cx, cy, rx - 7, ry - 6)
+    band = outer & ~inner
+    ap = inner & m_ellipse(W, H, cx, cy + 4, rx - 7, ry - 6)
+    inner_face = inner & ~ap
+    outer_face = m_ellipse(W, H, cx, cy + 4, rx, ry) & ~outer & (yy > cy)
+    if on:
+        # the swirl of star light in the opening, turning slowly
+        dxn = (xx - cx) / (rx - 7)
+        dyn = (yy - cy - 2) / (ry - 6)
+        r = np.sqrt(dxn * dxn + dyn * dyn)
+        th = np.arctan2(dyn, dxn)
+        phase = f / 4.0 * (2 * math.pi / 3)
+        spiral = np.mod((th - phase) * 3 / (2 * math.pi) + r * 1.6, 1.0)
+        _idx_fill(cv, ap, STARLIGHT, 1.0 + (1 - r) * 0.8)
+        arms_ = ap & (spiral < 0.36) & (r > 0.12)
+        cv.fill(arms_, STARLIGHT[3])
+        cv.fill(arms_ & (spiral < 0.18) & (r > 0.2), STARLIGHT[4])
+        cv.fill(arms_ & (spiral < 0.07) & (r > 0.35), STARLIGHT[5])
+        cv.fill(ap & (r < 0.14), STARLIGHT[5])
+        cv.fill(ap & (r < 0.07), WHITE_HOT)
+        # stars drawn in along the arms toward the heart, each looping back out to the rim
+        g_ = rng("launch_stars")
+        for i in range(18):
+            a0, off = g_.uniform(0, 2 * math.pi), g_.uniform(0, 1)
+            t = (off + f / 4.0) % 1.0
+            r0 = 0.95 - 0.7 * t
+            a1 = a0 + t * (2 * math.pi / 3)
+            sx_, sy_ = int(round(cx + math.cos(a1) * r0 * (rx - 7))), int(round(cy + 2 + math.sin(a1) * r0 * (ry - 6)))
+            if 0 <= sx_ < W and 0 <= sy_ < H and ap[sy_, sx_]:
+                cv.put(sx_, sy_, STARLIGHT[6] if i % 3 else WHITE_HOT)
+    shade(cv, outer_face, BRONZE, contour=True, R=1, base=0.4, gain=1.0)
+    cv.fill(outer_face & ~shift(outer_face, 0, 1), BRONZE[1])
+    shade(cv, inner_face, BRONZE, R=1, base=0.28, gain=0.8)
+    shade(cv, band, BRONZE, contour=False, mode="sphere", base=0.6, gain=1.3, noise=nz, namp=0.1)
+    cv.fill(ellipse_ring(W, H, cx, cy, rx, ry) & (xx + yy * 1.4 < cx + cy * 1.4 - 10), GOLD[5])
+    cv.fill(ellipse_ring(W, H, cx, cy, rx - 7, ry - 6) & (yy > cy + 4), BRONZE[5])
+    mid = ellipse_ring(W, H, cx, cy, rx - 3.5, ry - 3)
+    cv.fill(mid & band & ((xx + yy) % 5 == 0), BRONZE[2])
+    # rune lamps round the ring, chasing each other when the ring wakes
+    lamps = []
+    for k in range(14):
+        a = 2 * math.pi * k / 14 - math.pi / 2
+        lx, ly = cx + math.cos(a) * (rx - 3.5), cy + math.sin(a) * (ry - 3)
+        lamps.append((int(round(lx)), int(round(ly))))
+        hous = m_rect(W, H, round(lx) - 1, round(ly) - 1, round(lx) + 1, round(ly) + 1)
+        cv.fill(hous, BRONZE[1])
+        if on:
+            hot = (k - f * 3.5) % 14 < 3.5
+            core = m_rect(W, H, round(lx) - 1, round(ly) - 1, round(lx), round(ly))
+            cv.fill(core, STARLIGHT[6] if hot else STARLIGHT[5])
+            if hot:
+                cv.put(round(lx) - 1, round(ly) - 1, WHITE_HOT)
+        else:
+            cv.fill(m_rect(W, H, round(lx) - 1, round(ly) - 1, round(lx), round(ly)), STARLIGHT[2])
+            cv.put(round(lx) - 1, round(ly) - 1, STARLIGHT[3])
+    # pivot bosses where the arms take the ring
+    for s in (-1, 1):
+        hx = cx + s * (rx + 1)
+        boss = m_ellipse(W, H, hx, cy, 4.2, 4.2)
+        shade(cv, boss, GOLD, contour=True, mode="sphere", base=0.55, gain=1.1)
+        cv.fill(m_ellipse(W, H, hx, cy, 1.4, 1.4), BRONZE[1])
+    hole = ap & ~cv.solid
+    outline(cv, skip=hole)
+    if on:
+        a = (0.1, 0.13, 0.11, 0.14)[f % 4]
+        glow(cv, cx, cy + 2, rx - 4, ry - 3, STARLIGHT[5], steps=((1.0, a * 0.6), (0.7, a), (0.4, a)))
+        for (lx, ly) in lamps:
+            cv.light(m_ellipse(W, H, lx - 0.5, ly - 0.5, 2.5, 2.5) & ~cv.solid, STARLIGHT[5], 0.25)
+        motes(cv, 20, 4, 92, 60, f, 4, "launch_m", count=10, pal=(STARLIGHT[5], WHITE_HOT))
+    return cv

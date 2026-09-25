@@ -38,6 +38,24 @@
       }
     }
   },
+  "armillary_sphere": {
+    "anchor": [
+      40,
+      122
+    ],
+    "file": "res://art/props/armillary_sphere.png",
+    "frame": [
+      80,
+      128
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 3,
+        "frames": 4
+      }
+    }
+  },
   "bamboo_cluster": {
     "anchor": [
       70,
@@ -226,6 +244,24 @@
       }
     }
   },
+  "broken_mast": {
+    "anchor": [
+      56,
+      250
+    ],
+    "file": "res://art/props/broken_mast.png",
+    "frame": [
+      112,
+      256
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 4,
+        "frames": 4
+      }
+    }
+  },
   "bronze_mirror": {
     "anchor": [
       44,
@@ -330,6 +366,24 @@
       "idle": {
         "col": 0,
         "frames": 1
+      }
+    }
+  },
+  "cloud_skiff": {
+    "anchor": [
+      128,
+      134
+    ],
+    "file": "res://art/props/cloud_skiff.png",
+    "frame": [
+      256,
+      144
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 4,
+        "frames": 4
       }
     }
   },
@@ -1203,6 +1257,28 @@
       }
     }
   },
+  "launch_ring": {
+    "anchor": [
+      112,
+      248
+    ],
+    "file": "res://art/props/launch_ring.png",
+    "frame": [
+      224,
+      256
+    ],
+    "states": {
+      "active": {
+        "col": 1,
+        "fps": 4,
+        "frames": 4
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "lifting_stone": {
     "anchor": [
       28,
@@ -1515,6 +1591,23 @@
       }
     }
   },
+  "pirate_banner": {
+    "anchor": [
+      24,
+      124
+    ],
+    "file": "res://art/props/pirate_banner.png",
+    "frame": [
+      48,
+      128
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "plum_tree": {
     "anchor": [
       100,
@@ -1547,6 +1640,28 @@
         "col": 0,
         "fps": 10,
         "frames": 6
+      }
+    }
+  },
+  "pressure_pillar": {
+    "anchor": [
+      28,
+      186
+    ],
+    "file": "res://art/props/pressure_pillar.png",
+    "frame": [
+      56,
+      192
+    ],
+    "states": {
+      "active": {
+        "col": 1,
+        "fps": 6,
+        "frames": 4
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
       }
     }
   },
@@ -1920,6 +2035,23 @@
       }
     }
   },
+  "shipyard_slip": {
+    "anchor": [
+      176,
+      184
+    ],
+    "file": "res://art/props/shipyard_slip.png",
+    "frame": [
+      352,
+      192
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "shrine": {
     "anchor": [
       40,
@@ -2041,6 +2173,79 @@
         "frames": 1
       },
       "full": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "star_ballista": {
+    "anchor": [
+      64,
+      90
+    ],
+    "file": "res://art/props/star_ballista.png",
+    "frame": [
+      128,
+      96
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "star_chart_table": {
+    "anchor": [
+      64,
+      82
+    ],
+    "file": "res://art/props/star_chart_table.png",
+    "frame": [
+      128,
+      88
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "star_sight_stone": {
+    "anchor": [
+      36,
+      106
+    ],
+    "file": "res://art/props/star_sight_stone.png",
+    "frame": [
+      72,
+      112
+    ],
+    "states": {
+      "active": {
+        "col": 1,
+        "fps": 5,
+        "frames": 4
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "starsea_anchor": {
+    "anchor": [
+      44,
+      90
+    ],
+    "file": "res://art/props/starsea_anchor.png",
+    "frame": [
+      88,
+      96
+    ],
+    "states": {
+      "idle": {
         "col": 0,
         "frames": 1
       }
@@ -2463,6 +2668,23 @@
       }
     }
   },
+  "trial_seat": {
+    "anchor": [
+      48,
+      138
+    ],
+    "file": "res://art/props/trial_seat.png",
+    "frame": [
+      96,
+      144
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "village_house": {
     "anchor": [
       190,
@@ -2772,6 +2994,23 @@
     "frame": [
       320,
       90
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "wreck_hull": {
+    "anchor": [
+      200,
+      184
+    ],
+    "file": "res://art/props/wreck_hull.png",
+    "frame": [
+      400,
+      192
     ],
     "states": {
       "idle": {
