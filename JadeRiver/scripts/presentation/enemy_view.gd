@@ -143,6 +143,7 @@ func _draw() -> void:
 	var col := UiKit.badge_color(badge)
 	if elite: col = UiKit.GOLD
 	UiKit.draw_outlined(self, label, Vector2(-110, top), 16, col, HORIZONTAL_ALIGNMENT_CENTER, 220)
+	if not boss: _danger_marks(UiKit.text_width(label, 16) * 0.5 + 8, top - 6, col)
 	if elite:
 		var cx := -UiKit.text_width(label, 16) * 0.5 - 12
 		draw_colored_polygon(PackedVector2Array([Vector2(cx - 7, top - 4), Vector2(cx - 7, top - 12), Vector2(cx - 3, top - 8),
@@ -152,3 +153,17 @@ func _draw() -> void:
 		var ic := SpriteCache.icon(str(ContentDB.entry("status_effects", str(s.id)).get("icon", s.id)))
 		if ic: draw_texture_rect(ic, Rect2(sx, top - 30, 14, 14), false)
 		sx += 14
+
+## Colour-blind-safe danger badge: shapes say what the colour says (S40 release checklist).
+## ▲ tougher (5+ levels above), ▲▲ a realm or more above, ▽ weaker (5+ below), none otherwise.
+func _danger_marks(x: float, y: float, col: Color) -> void:
+	var ups: int = int({"orange": 1, "red": 2}.get(badge, 0))
+	for i in ups:
+		var cx: float = x + i * 11.0
+		var tri := PackedVector2Array([Vector2(cx - 5, y + 4), Vector2(cx + 5, y + 4), Vector2(cx, y - 5)])
+		draw_colored_polygon(tri, UiKit.INK)
+		draw_colored_polygon(PackedVector2Array([Vector2(cx - 3.5, y + 3), Vector2(cx + 3.5, y + 3), Vector2(cx, y - 3)]), col)
+	if badge in ["green", "grey"]:
+		var down := PackedVector2Array([Vector2(x - 5, y - 4), Vector2(x + 5, y - 4), Vector2(x, y + 5)])
+		draw_colored_polygon(down, UiKit.INK)
+		draw_colored_polygon(PackedVector2Array([Vector2(x - 3.5, y - 3), Vector2(x + 3.5, y - 3), Vector2(x, y + 3)]), col)
