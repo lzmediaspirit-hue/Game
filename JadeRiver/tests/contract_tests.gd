@@ -5,6 +5,8 @@ extends Node
 ## page handler, an achievement or quest rule — unless the contract says the
 ## reactor reads state every frame instead. Strings: no player-facing text is
 ## written in the player-facing scripts; it comes from data/strings via Tx.t(key).
+## Forbidden patterns: gameplay code takes randomness from named Rng streams and
+## time from Clock.
 ## Run headless:  godot --headless --path . res://tests/contract_tests.tscn
 
 var checks := 0
@@ -49,6 +51,7 @@ func _main() -> void:
 		var by_data := data_text.contains("\"event\": " + q)
 		check(consumed or by_data or row.has("polled"), "%s has a reactor" % ev)
 	_strings_gate()
+	_forbidden_patterns()
 	print("contract_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -123,3 +126,24 @@ func _walk(dir: String) -> Array:
 	for f in DirAccess.get_files_at(dir):
 		if f.ends_with(".gd"): out.append(dir + f)
 	return out
+
+# ------------------------------------------------------------------ forbidden patterns (Part 7)
+## Seeded generators that are allowed: the stream service itself, the map layout (seeded by the
+## room's map seed), the daily shop rotation (seeded by day and account seed) and the enemy
+## authority's placeholder, which is swapped for the character's "world" stream on room entry.
+const RNG_OK := ["rng_service.gd", "map_generator.gd", "economy_authority.gd", "enemy_authority.gd"]
+
+func _forbidden_patterns() -> void:
+	var raw_rng := RegEx.create_from_string("(?<![.\\w])(randi|randf|randf_range|randi_range|randfn)\\(|RandomNumberGenerator\\.new\\(")
+	var clock := RegEx.create_from_string("\\bTime\\.get_|\\bOS\\.get_(unix|ticks|datetime|date|time)")
+	var bad_rng: Array = []
+	var bad_clock: Array = []
+	for path in _walk("res://scripts/simulation/") + _walk("res://scripts/core/"):
+		var lines := FileAccess.get_file_as_string(path).split("\n")
+		for i in lines.size():
+			var line: String = lines[i]
+			if line.strip_edges().begins_with("#"): continue
+			if raw_rng.search(line) != null and not path.get_file() in RNG_OK: bad_rng.append("%s:%d" % [path.get_file(), i + 1])
+			if clock.search(line) != null and path.get_file() != "clock_service.gd": bad_clock.append("%s:%d" % [path.get_file(), i + 1])
+	check(bad_rng.is_empty(), "gameplay randomness comes from named Rng streams %s" % str(bad_rng))
+	check(bad_clock.is_empty(), "gameplay time comes from Clock %s" % str(bad_clock))
