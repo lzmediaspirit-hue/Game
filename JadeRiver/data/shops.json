@@ -1273,6 +1273,51 @@
    ]
   },
   {
+   "id": "navigator",
+   "name": "Navigator Sun's Charts",
+   "currency": "spirit_stone",
+   "stock": [
+    {
+     "item": "sky_ink",
+     "price": 30
+    },
+    {
+     "item": "clear_mind_pill"
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "star_chart_lantern",
+     "price": 400,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sage_sovereign_3"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "shipwright",
+   "name": "Lao's Slipway Stores",
+   "currency": "spirit_stone",
+   "buys_all": true,
+   "stock": [
+    {
+     "item": "spirit_wood",
+     "price": 40
+    },
+    {
+     "item": "formation_stone"
+    },
+    {
+     "item": "stormsteel_ore"
+    }
+   ]
+  },
+  {
    "id": "oasis_keeper",
    "name": "Oasis of Bones Stores",
    "currency": "spirit_stone",

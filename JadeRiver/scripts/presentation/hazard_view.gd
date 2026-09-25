@@ -62,6 +62,8 @@ func _on_phase(hid: String, hs: Dictionary, was: String) -> void:
 			"poison_mist": Audio.play("hiss")
 			"sandstorm": Audio.play("gust")
 			"quicksand": Audio.play("surge")
+			"star_wind": Audio.play("gust")
+			"presence": Audio.play("frost")
 	if str(h.get("kind", "")) == "strike" and phase == "cooldown" and was == "active":
 		for sp in hs.spots:
 			var at := Vector2(float(sp[0]), float(sp[1]) - float(sp[2]))
@@ -313,6 +315,8 @@ func _draw_air() -> void:
 			"cold": _air_cold(rt, hs, view)
 			"sandstorm": _air_sandstorm(rt, hs, view)
 			"scorching_heat": _air_heat(rt, h, hs, view)
+			"star_wind": _air_star_wind(hs, view)
+			"presence": _air_presence(hs, view)
 			"spike_traps":
 				if hs.phase == "warn":
 					for sp in hs.spots: _mark(air, Vector2(float(sp[0]), float(sp[1]) - float(sp[2])) + Vector2(0, -128), 0.7 + 0.3 * sin(t * 12.0))
@@ -447,6 +451,61 @@ func _air_heat(rt: RoomRuntime, h: Dictionary, hs: Dictionary, view: Rect2) -> v
 			pts.append(Vector2(x + j * 10.0, y + sin(t * 6.0 + i + j * 0.9) * 3.0).snapped(Vector2(2, 2)))
 		air.draw_polyline(pts, Color(1.0, 0.95, 0.8, 0.28), 2.0)
 	if phase == "warn": _mark(air, _player_pos() + Vector2(36, -150), 0.7 + 0.3 * sin(t * 12.0))
+
+## The Starsea's star wind: motes of starlight stream sideways, then the gust tears jade Qi
+## motes off the player and carries them downwind.
+func _air_star_wind(hs: Dictionary, view: Rect2) -> void:
+	var k := _phase_k(hs)
+	var phase := str(hs.phase)
+	var n: int = int({"tell": 18, "warn": 36, "active": 70, "cooldown": 24}.get(phase, 10))
+	var speed: float = float({"warn": 260.0, "active": 900.0}.get(phase, 80.0))
+	var tail: float = float({"warn": 18.0, "active": 70.0}.get(phase, 4.0))
+	if phase == "active": air.draw_rect(view, Color(0.55, 0.62, 0.95, 0.08))
+	for i in n:
+		var x := view.end.x - fposmod(_h(i, 211) * (view.size.x + 200.0) + t * speed * (0.7 + 0.6 * _h(i, 212)), view.size.x + 200.0) + 100.0
+		var y := view.position.y + 40.0 + _h(i, 213) * (view.size.y - 80.0)
+		var p := Vector2(x, y).snapped(Vector2(2, 2))
+		var a := (0.35 + 0.5 * _h(i, 214)) * (1.0 - k if phase == "cooldown" else 1.0)
+		if tail > 6.0: air.draw_line(p, p + Vector2(tail * (0.6 + _h(i, 215)), 0), Color(0.75, 0.84, 1.0, a * 0.5), 2.0)
+		air.draw_rect(Rect2(p, Vector2(2, 2)), Color(0.92, 0.96, 1.0, a))
+	if phase == "active":
+		var pp := _player_pos() + Vector2(0, -60)
+		for i in 10:
+			var f := fposmod(t * 1.4 + _h(i, 216), 1.0)
+			var q := pp + Vector2(-f * 240.0 - 10.0, sin(t * 5.0 + i) * 20.0 * f + (_h(i, 217) - 0.5) * 60.0)
+			air.draw_rect(Rect2(q.snapped(Vector2(2, 2)), Vector2(4, 4)), Color(0.55, 0.95, 0.8, 0.8 * (1.0 - f)))
+	if phase == "warn": _mark(air, _player_pos() + Vector2(36, -150), 0.7 + 0.3 * sin(t * 12.0))
+
+## The Presence of the eight seats: violet rings close in on the player, the edges of sight darken
+## and bars of weight press down while it lands.
+func _air_presence(hs: Dictionary, view: Rect2) -> void:
+	var k := _phase_k(hs)
+	var phase := str(hs.phase)
+	var weight: float = float({"tell": 0.2 * k, "warn": 0.2 + 0.5 * k, "active": 1.0, "cooldown": 1.0 - k}.get(phase, 0.0))
+	var pp := _player_pos() + Vector2(0, -50)
+	var violet := Color(0.62, 0.52, 0.95)
+	# darkened edges of sight
+	for j in 4:
+		var inset := 30.0 * j
+		var a := 0.10 * weight
+		air.draw_rect(Rect2(view.position + Vector2(inset, inset), Vector2(view.size.x - 2 * inset, 30)), Color(0.12, 0.08, 0.22, a))
+		air.draw_rect(Rect2(view.position.x + inset, view.end.y - inset - 30, view.size.x - 2 * inset, 30), Color(0.12, 0.08, 0.22, a))
+		air.draw_rect(Rect2(view.position.x + inset, view.position.y + inset, 30, view.size.y - 2 * inset), Color(0.12, 0.08, 0.22, a))
+		air.draw_rect(Rect2(view.end.x - inset - 30, view.position.y + inset, 30, view.size.y - 2 * inset), Color(0.12, 0.08, 0.22, a))
+	# rings closing in (three at a time), tighter while it lands
+	var rmin: float = 120.0 if phase == "active" else 200.0
+	for i in 3:
+		var f := fposmod(t * (0.6 if phase != "active" else 1.3) + i / 3.0, 1.0)
+		var r := lerpf(520.0, rmin, f)
+		_dashed(air, pp, r, r * 0.42, Color(violet, 0.55 * weight * (0.4 + 0.6 * f)), t * 0.4 + i, 22, 3.0, true)
+	if phase == "active":
+		for i in 6:
+			var x := pp.x - 90.0 + i * 36.0
+			var y0 := pp.y - 170.0 - 20.0 * _h(i, 221)
+			var y1 := y0 + 40.0 + 30.0 * fposmod(t * 2.0 + _h(i, 222), 1.0)
+			air.draw_line(Vector2(x, y0).snapped(Vector2(2, 2)), Vector2(x, y1).snapped(Vector2(2, 2)), Color(UiKit.INK, 0.5), 7.0)
+			air.draw_line(Vector2(x, y0).snapped(Vector2(2, 2)), Vector2(x, y1).snapped(Vector2(2, 2)), Color(violet, 0.8), 3.0)
+	if phase == "warn": _mark(air, pp + Vector2(36, -100), 0.7 + 0.3 * sin(t * 12.0))
 
 func _air_fog(rt: RoomRuntime, h: Dictionary, hs: Dictionary, view: Rect2) -> void:
 	var k := _phase_k(hs)

@@ -6468,6 +6468,412 @@
    "qp": "act2_main"
   },
   {
+   "id": "gus_ledger",
+   "name": "Gu's Ledger",
+   "kind": "main",
+   "giver": "auctioneer_tong",
+   "hand_in": "navigator_sun",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Ask Broker Mu who sells pages of a valley ledger",
+     "count": 1,
+     "npc": "broker_mu"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Ask Navigator Sun at the Shipwrights' Yard about the Starsea",
+     "count": 1,
+     "npc": "navigator_sun"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 200
+    },
+    {
+     "kind": "grant_item",
+     "item": "sky_ink",
+     "count": 4
+    },
+    {
+     "kind": "codex",
+     "entry": "starsea"
+    }
+   ],
+   "offer_text": [
+    "A lot came in this morning that I would not sell: one page of a smuggler's ledger. Valley family names, and what each paid him.",
+    "The seller fled on a skiff with no flag, out toward the Starsea. Your valley's names. I thought you would want to know."
+   ],
+   "complete_text": [
+    "The Skyport Wreck. Pirates of the comet sails nest there now, where the old port broke on the edge of the Starsea.",
+    "Nobody walks there. You sail, or you stay. I can teach you to chart the way; Lao can build you something to sail in."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_tomb_king"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_1"
+     }
+    ]
+   },
+   "chapter": "15",
+   "target_room": "ae_shipyard",
+   "next": "the_skyport_wreck",
+   "qp": "act2_main"
+  },
+  {
+   "id": "the_skyport_wreck",
+   "name": "The Skyport Wreck",
+   "kind": "main",
+   "giver": "navigator_sun",
+   "hand_in": "elder_zhong",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Chart the Wreck Run at Navigator Sun's table",
+     "count": 1,
+     "item": "star_chart_wreck",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Build a vessel on Shipwright Lao's slipway",
+     "count": 1,
+     "item": "cloud_skiff",
+     "consume": false
+    },
+    {
+     "kind": "reach_room",
+     "text": "Sail the Wreck Run to the Skyport Wreck",
+     "count": 1,
+     "room": "sw_broken_pier"
+    },
+    {
+     "kind": "collect",
+     "text": "Take back the ledger pages the pirates carry",
+     "count": 3,
+     "item": "ledger_page",
+     "consume": true
+    },
+    {
+     "kind": "set_flag",
+     "text": "Find the seller on the Pirate Deck",
+     "count": 1,
+     "flag": "gu_freed",
+     "alt_flag": "gu_left"
+    },
+    {
+     "kind": "collect",
+     "text": "Keep the Black Ledger",
+     "count": 1,
+     "item": "black_ledger",
+     "consume": false
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 350
+    },
+    {
+     "kind": "grant_item",
+     "item": "comet_iron",
+     "count": 3
+    },
+    {
+     "kind": "codex",
+     "entry": "skyport_wreck"
+    }
+   ],
+   "offer_text": [
+    "Four readings and two measures of sky ink make the Wreck Run. The sighting stones are here, on Rimefrost Summit and on the Presence Terrace.",
+    "Then a hull. Lao is waiting. When you are over the Starsea, trust the chart, not your eyes."
+   ],
+   "complete_text": [
+    "Gu. Of course it was Gu. And the comet sails did not take his ledger for the valley's pennies.",
+    "They took it for the names of three of our own peaks' disciples, who sold them the Gate's watch rota. The Gate is next."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "gus_ledger"
+     }
+    ]
+   },
+   "chapter": "15",
+   "target_room": "ae_shipyard",
+   "next": "the_gate_holds",
+   "qp": "act2_main"
+  },
+  {
+   "id": "the_gate_holds",
+   "name": "Sect War",
+   "kind": "main",
+   "giver": "elder_zhong",
+   "hand_in": "elder_zhong",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_realm",
+     "text": "Break through to Sage Sovereign 2",
+     "count": 1,
+     "realm": "sage_sovereign_2"
+    },
+    {
+     "kind": "pass_event",
+     "text": "Strike the war gong at the Alliance Gate and hold the Gate against the comet sails",
+     "count": 1,
+     "event": "sect_war"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Decide what becomes of the Black Ledger",
+     "count": 1,
+     "flag": "ledger_burned",
+     "alt_flag": "ledger_returned"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 450
+    },
+    {
+     "kind": "grant_item",
+     "item": "will_tempering_pill",
+     "count": 2
+    },
+    {
+     "kind": "codex",
+     "entry": "sect_war"
+    }
+   ],
+   "offer_text": [
+    "They will come when the watch changes, as the rota says. The rota is wrong now, but they do not know that.",
+    "Every peak sends its best to the Gate. You are not ours, but you are the one who brought the warning. Stand with us."
+   ],
+   "complete_text": [
+    "The comet sails are scattered and their captain is in chains. Nine peaks owe you, and eight of them will even admit it.",
+    "A man came through here once with a river token like yours. He asked about the Trial Hall. Ask Wen about him."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_skyport_wreck"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_1"
+     }
+    ]
+   },
+   "chapter": "15",
+   "target_room": "np_alliance_gate",
+   "next": "lus_last_page",
+   "qp": "act2_main"
+  },
+  {
+   "id": "lus_last_page",
+   "name": "Lu's Last Page",
+   "kind": "main",
+   "giver": "elder_zhong",
+   "hand_in": "trial_master_wen",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Climb the Riven Peak above the Skyport Wreck",
+     "count": 1,
+     "room": "sw_riven_peak"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Find Lu's last page where the stars are clearest",
+     "count": 1,
+     "flag": "journal_riven"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Show the page to Trial Master Wen in the Trial Hall",
+     "count": 1,
+     "npc": "trial_master_wen"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 300
+    },
+    {
+     "kind": "codex",
+     "entry": "lus_crossing"
+    }
+   ],
+   "offer_text": [
+    "Wen keeps the names of everyone who sat the Presence Trial. Your valley man's is written there, and then crossed out.",
+    "He left something on the Riven Peak before he went home, the pirates say. They were too afraid of the stars up there to take it."
+   ],
+   "complete_text": [
+    "'I sat under eight seats and felt myself go thin as paper. I got up. The river was still in me, so I went home to it.'",
+    "He did not fail, whatever the ink says. He chose. Now it is your turn to sit."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_gate_holds"
+     }
+    ]
+   },
+   "chapter": "16",
+   "target_room": "sw_riven_peak",
+   "next": "the_presence_trial",
+   "qp": "act2_main"
+  },
+  {
+   "id": "the_presence_trial",
+   "name": "The Presence Trial",
+   "kind": "main",
+   "giver": "trial_master_wen",
+   "hand_in": "trial_master_wen",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_realm",
+     "text": "Break through to Sage Sovereign 3",
+     "count": 1,
+     "realm": "sage_sovereign_3"
+    },
+    {
+     "kind": "pass_event",
+     "text": "Sit beneath the empty ninth seat and bear the Presence of the other eight",
+     "count": 1,
+     "event": "presence_trial"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 500
+    },
+    {
+     "kind": "grant_item",
+     "item": "will_tempering_pill",
+     "count": 2
+    },
+    {
+     "kind": "grant_title",
+     "title": "presence_bearer"
+    },
+    {
+     "kind": "codex",
+     "entry": "presence_trial"
+    }
+   ],
+   "offer_text": [
+    "The Presence Trial is the door to Will Manifest. You cannot open it here; this land cannot hold a Will Manifest. You can earn the key.",
+    "Sage Sovereign 3, then the circle. Bring Will. Will Tempering Pills help. Stubbornness does not."
+   ],
+   "complete_text": [
+    "The ninth seat looked like you, and you did not look away. That is the whole trial. Most people look away.",
+    "Your Presence is yours now. The Expanse is too small to hold what comes next. Go and ask the Launch where it points."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "lus_last_page"
+     }
+    ]
+   },
+   "chapter": "16",
+   "target_room": "np_trial_hall",
+   "next": "stars_beyond",
+   "qp": "act2_main"
+  },
+  {
+   "id": "stars_beyond",
+   "name": "Stars Beyond",
+   "kind": "main",
+   "giver": "trial_master_wen",
+   "hand_in": "launch_warden_he",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Chart the Lantern Run from the stars over the Riven Peak",
+     "count": 1,
+     "item": "star_chart_lantern",
+     "consume": false
+    },
+    {
+     "kind": "reach_room",
+     "text": "Go to the Starsea Launch",
+     "count": 1,
+     "room": "sw_starsea_launch"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Ask Warden He where the ring points",
+     "count": 1,
+     "npc": "launch_warden_he"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 600
+    },
+    {
+     "kind": "set_flag",
+     "flag": "stars_beyond_done"
+    },
+    {
+     "kind": "grant_title",
+     "title": "starsea_voyager"
+    },
+    {
+     "kind": "codex",
+     "entry": "lantern_star_field"
+    }
+   ],
+   "offer_text": [
+    "Navigator Sun sells the lesson for the Lantern Run to Sage Sovereigns who ask nicely. Eight readings, and the stars over the Riven Peak are clearest.",
+    "Then go to the Launch. The ring points somewhere. I have always wanted to know where."
+   ],
+   "complete_text": [
+    "The ring lit when you walked up. It has not done that in two hundred years.",
+    "Out there: the Lantern Star Field. Your chart reaches it. Your road does, too, when the time comes. Not today. Soon."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_presence_trial"
+     }
+    ]
+   },
+   "chapter": "16",
+   "target_room": "sw_starsea_launch",
+   "qp": "act2_main"
+  },
+  {
    "id": "snow_for_the_cabinet",
    "name": "Snow for the Cabinet",
    "kind": "side",
@@ -6858,6 +7264,423 @@
     ]
    },
    "target_room": "sd_scorpion_flats",
+   "qp": "act2_side"
+  },
+  {
+   "id": "a_chart_of_ones_own",
+   "name": "A Chart of One's Own",
+   "kind": "guided",
+   "giver": "navigator_sun",
+   "hand_in": "navigator_sun",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "gather_node",
+     "text": "Take star readings through the sighting stones",
+     "count": 4,
+     "item": "star_reading",
+     "craft": "star_charting"
+    },
+    {
+     "kind": "craft",
+     "text": "Chart the Wreck Run at the chart table",
+     "count": 1,
+     "recipe": "star_chart_wreck"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "sky_ink",
+     "count": 4
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 60
+    }
+   ],
+   "offer_text": [
+    "Sighting stones: here, on Rimefrost Summit, on the Presence Terrace. Each gives one reading every little while.",
+    "Four readings and two measures of ink. I will give you the ink for the first chart."
+   ],
+   "complete_text": [
+    "Your first chart. The lines are shaky, but they go where they should. That is all a chart is."
+   ],
+   "offered_by_unlock": true,
+   "target_room": "ae_shipyard",
+   "qp": "act2_side"
+  },
+  {
+   "id": "keel_and_ward",
+   "name": "Keel and Ward",
+   "kind": "guided",
+   "giver": "shipwright_lao",
+   "hand_in": "shipwright_lao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "craft",
+     "text": "Build a Cloud Skiff on the slipway",
+     "count": 1,
+     "recipe": "cloud_skiff"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 80
+    },
+    {
+     "kind": "grant_item",
+     "item": "formation_stone",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "Six spirit wood, four stormsteel, two formation stones, three harpy plumes. Bring them, lay the keel, and I'll check your lines.",
+    "You'll need a smith's hand. Adept, at least. Hulls forgive nothing."
+   ],
+   "complete_text": [
+    "She floats. On nothing, which is the point. Don't sail her anywhere you haven't charted."
+   ],
+   "offered_by_unlock": true,
+   "target_room": "ae_shipyard",
+   "qp": "act2_side"
+  },
+  {
+   "id": "two_breaths",
+   "name": "Two Breaths, One River",
+   "kind": "guided",
+   "giver": "alchemist_fen",
+   "hand_in": "alchemist_fen",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "meditate_seconds",
+     "text": "Meditate with a companion beside you",
+     "count": 30,
+     "near": "companion"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 40
+    },
+    {
+     "kind": "grant_item",
+     "item": "qi_restoration_pill",
+     "count": 3
+    }
+   ],
+   "offer_text": [
+    "Sage Qi is thick. Two cultivators breathing together thin it for each other. Paired cultivation, the old texts call it.",
+    "Sit with one of your companions. Breathe when they breathe. See what happens."
+   ],
+   "complete_text": [
+    "Faster, yes? Keep a companion close when you sit. The river flows better with two banks."
+   ],
+   "offered_by_unlock": true,
+   "target_room": "ae_condensing_hall",
+   "qp": "act2_side"
+  },
+  {
+   "id": "the_deserters",
+   "name": "The Deserters",
+   "kind": "side",
+   "giver": "champion_qiao",
+   "hand_in": "champion_qiao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Bring down the rogue Nine Peaks disciples at the Broken Pier",
+     "count": 6,
+     "enemy": "nine_peaks_disciple"
+    },
+    {
+     "kind": "collect",
+     "text": "Return their scratched badges",
+     "count": 4,
+     "item": "alliance_badge",
+     "consume": true
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 160
+    },
+    {
+     "kind": "grant_item",
+     "item": "will_tempering_pill",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "Some of ours ran to the comet sails. They scratch the peaks off their badges, as if that makes them someone else.",
+    "Bring the badges home. Six of them will not come quietly."
+   ],
+   "complete_text": [
+    "Four badges. I'll give them back to their peaks. What the peaks do with them is their business."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "gus_ledger"
+     }
+    ]
+   },
+   "target_room": "sw_broken_pier",
+   "qp": "act2_side"
+  },
+  {
+   "id": "iron_from_a_comet",
+   "name": "Iron from a Comet",
+   "kind": "side",
+   "giver": "shipwright_lao",
+   "hand_in": "shipwright_lao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Bring comet iron from the pirates' hulls",
+     "count": 6,
+     "item": "comet_iron",
+     "consume": true
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 150
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "storm_sloop"
+    }
+   ],
+   "offer_text": [
+    "The comet sails outrun everything in the Expanse. It's the iron: flew through a comet's tail and came out ringing.",
+    "Six ingots. I'll teach you the sloop. Two sails, comet keel. You'll need a formation master's plates too."
+   ],
+   "complete_text": [
+    "Listen to it ring. Here: the sloop's lines. Half again as fast as the skiff, if your formations hold."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "keel_and_ward"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "gus_ledger"
+     }
+    ]
+   },
+   "target_room": "sw_pirate_deck",
+   "qp": "act2_side"
+  },
+  {
+   "id": "clear_skies_over_the_peak",
+   "name": "Clear Skies over the Peak",
+   "kind": "side",
+   "giver": "navigator_sun",
+   "hand_in": "navigator_sun",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "gather_node",
+     "text": "Take star readings on the Riven Peak",
+     "count": 3,
+     "item": "star_reading",
+     "craft": "star_charting"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 120
+    },
+    {
+     "kind": "grant_item",
+     "item": "sky_ink",
+     "count": 6
+    }
+   ],
+   "offer_text": [
+    "The stars over the Riven Peak are the clearest in the Expanse. The pirates say they watch you back.",
+    "Three readings from up there. I want to see if they are right."
+   ],
+   "complete_text": [
+    "These are... very clear. Hm. Keep your chart close up there."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_skyport_wreck"
+     }
+    ]
+   },
+   "target_room": "sw_riven_peak",
+   "qp": "act2_side"
+  },
+  {
+   "id": "blood_remembers",
+   "name": "Blood Remembers",
+   "kind": "side",
+   "giver": "matriarch_tie",
+   "hand_in": "matriarch_tie",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "set_flag",
+     "text": "Kneel before the Ironroot tablets in the Ancestor Hall",
+     "count": 1,
+     "flag": "tablets_honoured"
+    },
+    {
+     "kind": "reach_realm",
+     "text": "Become a Sage Sovereign",
+     "count": 1,
+     "realm": "sage_sovereign_1"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "open_dao",
+     "dao": "blood"
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 100
+    }
+   ],
+   "offer_text": [
+    "Kin by adoption is kin. But the blood still has to learn to hear you. Kneel before the tablets.",
+    "And grow. The Blood Dao listens to Sovereigns. Come back when you are one."
+   ],
+   "complete_text": [
+    "There. Feel it? Every Ironroot who ever lived, in the beat under your ribs. That is the Blood Dao. It is yours now."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "ironroot_blood"
+     }
+    ]
+   },
+   "target_room": "ir_ancestor_hall",
+   "qp": "act2_side"
+  },
+  {
+   "id": "what_the_bones_say",
+   "name": "What the Bones Say",
+   "kind": "side",
+   "giver": "bone_reader_xiu",
+   "hand_in": "bone_reader_xiu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Bring shards of the Terracotta Wardens, who died and did not die",
+     "count": 3,
+     "item": "terracotta_shard",
+     "consume": true
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "open_dao",
+     "dao": "life_death"
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 100
+    }
+   ],
+   "offer_text": [
+    "The wardens were men once. Then clay. Then something that remembers being men. Bring me what is left of three.",
+    "I will show you the line between living and not. It is thinner than you think, and it moves."
+   ],
+   "complete_text": [
+    "Hold this shard. Warm, yes? The Life and Death Dao begins where you stop being sure which side it is on."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_tomb_king"
+     }
+    ]
+   },
+   "target_room": "ts_hall_of_sand_kings",
+   "qp": "act2_side"
+  },
+  {
+   "id": "the_sound_of_snow",
+   "name": "The Sound of Snow",
+   "kind": "side",
+   "giver": "hermit_shuang",
+   "hand_in": "hermit_shuang",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Quiet the Snow Apes on their ledges",
+     "count": 6,
+     "enemy": "snow_ape"
+    },
+    {
+     "kind": "meditate_seconds",
+     "text": "Sit in silence in the hermit's ice cave",
+     "count": 30
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "open_dao",
+     "dao": "emotion"
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 100
+    }
+   ],
+   "offer_text": [
+    "...",
+    "The apes are loud. Quiet them. Then sit here, with me, until you can hear what you feel."
+   ],
+   "complete_text": [
+    "...",
+    "There. Every feeling has a sound. The Emotion Dao is only listening. You were loud for a long time."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "frost_and_silence"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_1"
+     }
+    ]
+   },
+   "target_room": "rf_hermits_ice_cave",
    "qp": "act2_side"
   }
  ]

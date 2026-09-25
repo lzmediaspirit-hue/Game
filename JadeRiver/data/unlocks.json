@@ -1991,6 +1991,117 @@
    "same_stage_ok": true
   },
   {
+   "id": "star_charting",
+   "label": "Star charts",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_3"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "ironroot_blood"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "a_chart_of_ones_own",
+   "same_stage_ok": true
+  },
+  {
+   "id": "shipwright",
+   "label": "Vessel building",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_3"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "ironroot_blood"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "keel_and_ward",
+   "same_stage_ok": true
+  },
+  {
+   "id": "starsea",
+   "label": "Starsea survival",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_3"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "ironroot_blood"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
+   "id": "paired_cultivation",
+   "label": "Paired cultivation",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "sage"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "two_breaths",
+   "same_stage_ok": true
+  },
+  {
+   "id": "elder_token",
+   "label": "Elder's token",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_1"
+     },
+     {
+      "kind": "has_training_sect",
+      "value": true
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "upgrade_sect_token"
+    },
+    {
+     "kind": "send_mail",
+     "template": "elder_token"
+    }
+   ],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
    "id": "storm_ward",
    "label": "Storm Ward attunement",
    "trigger": {

@@ -656,6 +656,144 @@
    "desc": "An iron-hard sliver of root, carved with the Ironroot clan's mark."
   },
   {
+   "id": "star_reading",
+   "name": "Star Reading",
+   "type": "material",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 99,
+   "icon": "star_reading",
+   "desc": "A star's place, taken through a sighting ring and written in sky ink. Charts are made of them."
+  },
+  {
+   "id": "sky_ink",
+   "name": "Sky Ink",
+   "type": "material",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "sky_ink",
+   "desc": "Ink ground with star-dust. The Starsea wind cannot fade it."
+  },
+  {
+   "id": "comet_iron",
+   "name": "Comet Iron",
+   "type": "material",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 99,
+   "icon": "comet_iron",
+   "desc": "Iron hammered from a pirate hull that once flew through a comet's tail. It rings like a bell."
+  },
+  {
+   "id": "alliance_badge",
+   "name": "Scratched Alliance Badge",
+   "type": "beast_part",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "alliance_badge",
+   "desc": "A Nine Peaks disciple's jade badge, its peak scratched out by a deserter's knife."
+  },
+  {
+   "id": "ledger_page",
+   "name": "Black Ledger Page",
+   "type": "material",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 9,
+   "icon": "ledger_page",
+   "desc": "A page of the Black Ledger: valley family names, and what each paid to keep them secret.",
+   "sell": false,
+   "quest_item": true
+  },
+  {
+   "id": "black_ledger",
+   "name": "Black Ledger",
+   "type": "key",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 1,
+   "icon": "black_ledger",
+   "desc": "Elder Gu's Black Ledger, stitched back together. Every valley family that ever paid him is in it.",
+   "sell": false,
+   "quest_item": true
+  },
+  {
+   "id": "star_chart_wreck",
+   "name": "Star Chart: the Wreck Run",
+   "type": "key",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 1,
+   "icon": "star_chart_wreck",
+   "desc": "A chart of the Wreck Run: from the Cloudgate Skydock across the Starsea to the Skyport Wreck, and home.",
+   "sell": false,
+   "chart": "wreck_run"
+  },
+  {
+   "id": "star_chart_lantern",
+   "name": "Star Chart: the Lantern Run",
+   "type": "key",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 1,
+   "icon": "star_chart_lantern",
+   "desc": "A chart that ends at a field of lanterns hanging in the dark. No one alive has sailed it.",
+   "sell": false,
+   "chart": "lantern_run"
+  },
+  {
+   "id": "cloud_skiff",
+   "name": "Cloud Skiff",
+   "type": "key",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 1,
+   "icon": "cloud_skiff",
+   "desc": "A one-sail skiff with a ward-lantern at the bow. Slow, stubborn, and yours. Crosses the Starsea.",
+   "sell": false,
+   "vessel": {
+    "speed": 1.0
+   }
+  },
+  {
+   "id": "storm_sloop",
+   "name": "Storm Sloop",
+   "type": "key",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 1,
+   "icon": "storm_sloop",
+   "desc": "A two-sail sloop with a comet-iron keel and a formation ward. It crosses the Starsea half again as fast.",
+   "sell": false,
+   "vessel": {
+    "speed": 1.5
+   }
+  },
+  {
+   "id": "jade_elder_token",
+   "name": "Jade Elder's Token",
+   "type": "key",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 1,
+   "icon": "jade_elder_token",
+   "desc": "An Elder's token of the Jade Sect. At any teleport stone it calls you home to the Academy, free.",
+   "sell": false
+  },
+  {
+   "id": "cloud_elder_token",
+   "name": "Cloud Elder's Token",
+   "type": "key",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 1,
+   "icon": "cloud_elder_token",
+   "desc": "An Elder's token of the Cloud Sect. At any teleport stone it calls you home to the Monastery, free.",
+   "sell": false
+  },
+  {
    "id": "storm_shard",
    "name": "Storm Shard",
    "type": "material",
@@ -2200,6 +2338,32 @@
    "use": [
     {
      "kind": "settle_consolidation"
+    }
+   ]
+  },
+  {
+   "id": "will_tempering_pill",
+   "name": "Will Tempering Pill",
+   "type": "pill",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 99,
+   "icon": "will_tempering_pill",
+   "desc": "+40 Will for 30 minutes: another's Presence weighs less on you.",
+   "pill": {
+    "mark": "eye",
+    "toxicity": 12,
+    "cause": "soul",
+    "group": "buff"
+   },
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "will",
+     "op": "flat",
+     "value": 40,
+     "duration": 1800,
+     "source": "will_tempering"
     }
    ]
   },

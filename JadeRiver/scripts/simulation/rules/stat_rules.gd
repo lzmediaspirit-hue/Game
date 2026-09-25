@@ -5,7 +5,7 @@ extends RefCounted
 ## touches the character's StatBlock and pool maxima.
 
 const ATTRIBUTES := ["body", "agility", "essence", "spirit", "insight", "fortune"]
-const PERMANENT_PREFIXES := ["gear:", "set:", "title:", "injury:", "gate:", "legacy:", "collection:", "jade:", "pet:", "sect:", "aptitude:"]
+const PERMANENT_PREFIXES := ["gear:", "set:", "title:", "injury:", "gate:", "legacy:", "collection:", "jade:", "pet:", "sect:", "aptitude:", "dao:"]
 
 static func poly(spec: Dictionary, x: float) -> float:
 	return float(spec.get("a", 0)) + float(spec.get("b", 0)) * x + float(spec.get("c", 0)) * x * x
@@ -154,6 +154,12 @@ static func rebuild(c) -> Array:
 	var title := ContentDB.entry("titles", c.cultivator.active_title)
 	if not title.is_empty() and title.has("stat"):
 		sb.add_modifier({"stat": title.stat, "op": str(title.get("op", "pct_add")), "value": float(title.get("value", 0.01)), "source": "title:" + title.id})
+	# Rare Daos (taught in the Azure Expanse): each tier reached adds its listed modifiers.
+	for d in c.cultivator.daos:
+		var mods: Array = ContentDB.entry("daos", str(d)).get("mods", [])
+		for i in mini(int(c.cultivator.daos[d].get("tier", 0)), mods.size()):
+			for m in mods[i]:
+				sb.add_modifier({"stat": str(m.stat), "op": str(m.get("op", "pct_add")), "value": float(m.value), "source": "dao:%s:%d:%s" % [d, i, m.stat]})
 	# Meridian gates at 25 points (stat gates only; flags are read by rules).
 	var gates: Dictionary = ContentDB.stat_const("meridian_gates", {})
 	for ch in gates:

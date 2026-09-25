@@ -2390,6 +2390,119 @@
      "count": 1
     }
    ]
+  },
+  {
+   "id": "star_chart_wreck",
+   "craft": "star_charting",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "star_reading",
+     "count": 4
+    },
+    {
+     "item": "sky_ink",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "star_chart_wreck",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "xp": 40
+  },
+  {
+   "id": "star_chart_lantern",
+   "craft": "star_charting",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "star_reading",
+     "count": 8
+    },
+    {
+     "item": "sky_ink",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "star_chart_lantern",
+     "count": 1
+    }
+   ],
+   "xp": 40
+  },
+  {
+   "id": "cloud_skiff",
+   "craft": "shipwright",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "spirit_wood",
+     "count": 6
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "formation_stone",
+     "count": 2
+    },
+    {
+     "item": "harpy_plume",
+     "count": 3
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloud_skiff",
+     "count": 1
+    }
+   ],
+   "default": true,
+   "xp": 60,
+   "requires_ranks": {
+    "smithing": "adept"
+   }
+  },
+  {
+   "id": "storm_sloop",
+   "craft": "shipwright",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "spirit_wood",
+     "count": 10
+    },
+    {
+     "item": "comet_iron",
+     "count": 6
+    },
+    {
+     "item": "formation_stone",
+     "count": 4
+    },
+    {
+     "item": "kite_silk",
+     "count": 4
+    }
+   ],
+   "outputs": [
+    {
+     "item": "storm_sloop",
+     "count": 1
+    }
+   ],
+   "xp": 90,
+   "requires_ranks": {
+    "smithing": "adept",
+    "formations": "adept"
+   }
   }
  ]
 }

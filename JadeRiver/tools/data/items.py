@@ -87,6 +87,8 @@ def pills():
     pill("sage_condensing_pill", "mystic", "knot", "Required to break through from Heaven Glimpse 3 to Sage 1.", 20, [], cause="material", group="utility")
     pill("sovereign_settling_pill", "sage", "knot", "Settles a new Sage Sovereign stage at once: its consolidation ends.", 15,
          [effect("settle_consolidation")], cause="structure", group="utility")
+    pill("will_tempering_pill", "sage", "eye", "+40 Will for 30 minutes: another's Presence weighs less on you.", 12,
+         [effect("add_modifier", stat="will", op="flat", value=40, duration=1800, source="will_tempering")], cause="soul", group="buff")
     pill("storm_blood_pill", "mystic", "bolt", "+4 attunement in the zone you stand in for 30 minutes.", 10,
          [effect("add_modifier", stat="attunement_bonus", op="flat", value=4, duration=1800, source="storm_blood")], group="buff")
     return P
@@ -148,6 +150,29 @@ def build_items():
                      quest_item=True))
     rows.append(item("alliance_token", "key", "spirit", 1, "A jade token of the Nine Peaks Alliance. Sky roads open for its bearer."))
     rows.append(item("ironroot_token", "key", "spirit", 1, "An iron-hard sliver of root, carved with the Ironroot clan's mark."))
+    # Phase E · the Starsea: star readings and charts (S16 star charting), vessels (shipwright), pirates' goods.
+    rows.append(item("star_reading", "material", "sage", 99,
+                     "A star's place, taken through a sighting ring and written in sky ink. Charts are made of them."))
+    rows.append(item("sky_ink", "material", "spirit", 99, "Ink ground with star-dust. The Starsea wind cannot fade it."))
+    rows.append(item("comet_iron", "material", "sage", 99, "Iron hammered from a pirate hull that once flew through a comet's tail. It rings like a bell."))
+    rows.append(item("alliance_badge", "beast_part", "spirit", 99, "A Nine Peaks disciple's jade badge, its peak scratched out by a deserter's knife.",
+                     name="Scratched Alliance Badge"))
+    rows.append(item("ledger_page", "material", "sage", 9, "A page of the Black Ledger: valley family names, and what each paid to keep them secret.",
+                     name="Black Ledger Page", sell=False, quest_item=True))
+    rows.append(item("black_ledger", "key", "sage", 1, "Elder Gu's Black Ledger, stitched back together. Every valley family that ever paid him is in it.",
+                     sell=False, quest_item=True))
+    rows.append(item("star_chart_wreck", "key", "sage", 1, "A chart of the Wreck Run: from the Cloudgate Skydock across the Starsea to the Skyport Wreck, and home.",
+                     name="Star Chart: the Wreck Run", sell=False, chart="wreck_run"))
+    rows.append(item("star_chart_lantern", "key", "sage", 1, "A chart that ends at a field of lanterns hanging in the dark. No one alive has sailed it.",
+                     name="Star Chart: the Lantern Run", sell=False, chart="lantern_run"))
+    rows.append(item("cloud_skiff", "key", "sage", 1, "A one-sail skiff with a ward-lantern at the bow. Slow, stubborn, and yours. Crosses the Starsea.",
+                     sell=False, vessel={"speed": 1.0}))
+    rows.append(item("storm_sloop", "key", "sage", 1, "A two-sail sloop with a comet-iron keel and a formation ward. It crosses the Starsea half again as fast.",
+                     sell=False, vessel={"speed": 1.5}))
+    rows.append(item("jade_elder_token", "key", "sage", 1, "An Elder's token of the Jade Sect. At any teleport stone it calls you home to the Academy, free.",
+                     name="Jade Elder's Token", sell=False))
+    rows.append(item("cloud_elder_token", "key", "sage", 1, "An Elder's token of the Cloud Sect. At any teleport stone it calls you home to the Monastery, free.",
+                     name="Cloud Elder's Token", sell=False))
     rows.append(item("storm_shard", "material", "spirit", 999,
                      "A splinter of the Expanse's storms. Levels your Storm Ward jades (Character > Attunement)."))
     for (cid, grade, desc) in [("serpent_core", "earth", "The core of the Riverbed Serpent; a pill ingredient."),

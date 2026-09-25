@@ -110,6 +110,37 @@
      }
     ]
    }
+  },
+  {
+   "id": "sect_war",
+   "name": "Sect War: the Alliance Gate",
+   "room": "si_sect_war",
+   "portal": "exit",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_2"
+     }
+    ]
+   },
+   "repeatable": {
+    "cooldown_h": 20
+   }
+  },
+  {
+   "id": "presence_trial",
+   "name": "The Presence Trial",
+   "room": "si_presence_trial",
+   "portal": "exit",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_3"
+     }
+    ]
+   }
   }
  ]
 }

@@ -197,6 +197,30 @@
     ]
    },
    "locked_text": "A stone glazed with clear ice."
+  },
+  {
+   "id": "sight_rimefrost",
+   "type": "star_sight",
+   "at": [
+    1500,
+    700
+   ],
+   "item": "star_reading",
+   "prop": "star_sight_stone",
+   "yield": [
+    1,
+    1
+   ],
+   "regrow_s": 600,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "star_charting"
+     }
+    ]
+   },
+   "locked_text": "A ring of bronze on an old stone. Only a navigator knows what to sight through it."
   }
  ],
  "spawns": [

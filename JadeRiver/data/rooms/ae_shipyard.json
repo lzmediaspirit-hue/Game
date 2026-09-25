@@ -1,0 +1,208 @@
+{
+ "schema_version": 1,
+ "id": "ae_shipyard",
+ "zone": "azure_expanse",
+ "region": "cloudgate_port",
+ "name": "Shipwrights' Yard",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.4,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "sky_port",
+ "ground": {
+  "material": "wood"
+ },
+ "spawn_point": [
+  520,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "ae_skydock",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "dock_cloudgate",
+   "type": "starsea_dock",
+   "at": [
+    260,
+    700
+   ],
+   "route": "wreck_run",
+   "prop": "cloud_skiff",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "starsea"
+     }
+    ]
+   },
+   "locked_text": "Skiffs for the Starsea. A Sage's Qi freezes out there before Sage 3."
+  },
+  {
+   "id": "slip_cloudgate",
+   "type": "shipyard_slip",
+   "at": [
+    1000,
+    700
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "shipwright"
+     }
+    ]
+   },
+   "locked_text": "Shipwright Lao's slipway. He builds for those who can crew what they build."
+  },
+  {
+   "id": "chart_table_cloudgate",
+   "type": "chart_table",
+   "at": [
+    1720,
+    760
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "star_charting"
+     }
+    ]
+   },
+   "locked_text": "Navigator Sun's chart table. Star maps, weighted at the corners."
+  },
+  {
+   "id": "sight_cloudgate",
+   "type": "star_sight",
+   "at": [
+    2240,
+    700
+   ],
+   "item": "star_reading",
+   "prop": "star_sight_stone",
+   "yield": [
+    1,
+    1
+   ],
+   "regrow_s": 600,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "star_charting"
+     }
+    ]
+   },
+   "locked_text": "A ring of bronze on an old stone. Only a navigator knows what to sight through it."
+  },
+  {
+   "id": "npc_shipwright_lao",
+   "type": "npc",
+   "at": [
+    1180,
+    800
+   ],
+   "npc": "shipwright_lao",
+   "facing": -1
+  },
+  {
+   "id": "npc_navigator_sun",
+   "type": "npc",
+   "at": [
+    1560,
+    780
+   ],
+   "npc": "navigator_sun",
+   "facing": 1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "mooring_post",
+   "at": [
+    120,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "mooring_post",
+   "at": [
+    420,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "crate",
+   "at": [
+    1250,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "rope",
+   "at": [
+    1320,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "armillary_sphere",
+   "at": [
+    1960,
+    700
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "sky_port",
+ "ambience": "wind_ambience",
+ "town": true
+}

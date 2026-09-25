@@ -1,0 +1,86 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "elder_zhong": {
+   "id": "elder_zhong",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_active",
+        "quest": "the_gate_holds"
+       },
+       {
+        "kind": "event_passed",
+        "event": "sect_war"
+       },
+       {
+        "kind": "item_owned",
+        "item": "black_ledger",
+        "count": 1
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "ledger_burned"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "ledger_returned"
+       }
+      ]
+     },
+     "node": "ledger"
+    }
+   ],
+   "nodes": {
+    "ledger": {
+     "lines": [
+      "The deserters' names are copied. The rest of that book is your valley's business, not the Alliance's.",
+      "Burn it and nobody pays again. Or send each page home, and let every family decide what their secret is worth."
+     ],
+     "choices": [
+      {
+       "text": "Burn it. The debts end here.",
+       "effects": [
+        {
+         "kind": "set_flag",
+         "flag": "ledger_burned"
+        },
+        {
+         "kind": "remove_item",
+         "item": "black_ledger",
+         "count": 1
+        },
+        {
+         "kind": "grant_title",
+         "title": "ledger_burner"
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "Send each page home to its family.",
+       "effects": [
+        {
+         "kind": "set_flag",
+         "flag": "ledger_returned"
+        },
+        {
+         "kind": "remove_item",
+         "item": "black_ledger",
+         "count": 1
+        },
+        {
+         "kind": "grant_title",
+         "title": "ledger_returner"
+        }
+       ],
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

@@ -45,6 +45,20 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "trial_hall",
+   "rect": [
+    410,
+    570,
+    460,
+    120
+   ],
+   "height": 120,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "hall"
   }
  ],
  "portals": [
@@ -76,6 +90,18 @@
     ]
    },
    "locked_text": "Champion Qiao: \"The canyons are the Alliance's business. Take a seat in the Hall first.\""
+  },
+  {
+   "id": "trial_door",
+   "type": "door",
+   "at": [
+    640,
+    704
+   ],
+   "to": "np_trial_hall",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Trial Hall"
   }
  ],
  "objects": [
@@ -114,6 +140,30 @@
     860
    ],
    "text": "East: the Gale Canyons (Lv 73-78, Storm Ward 35-42). Tolls collected at the Canyon Mouth."
+  },
+  {
+   "id": "sight_presence_terrace",
+   "type": "star_sight",
+   "at": [
+    2100,
+    700
+   ],
+   "item": "star_reading",
+   "prop": "star_sight_stone",
+   "yield": [
+    1,
+    1
+   ],
+   "regrow_s": 600,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "star_charting"
+     }
+    ]
+   },
+   "locked_text": "A ring of bronze on an old stone. Only a navigator knows what to sight through it."
   }
  ],
  "spawns": [],

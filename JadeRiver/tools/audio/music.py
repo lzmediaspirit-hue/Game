@@ -1017,6 +1017,50 @@ def m_desert():
     return tr.mix(t60=2.4, wet=0.36)
 
 
+@music("starsea")
+def m_starsea():
+    """The Starsea and the Skyport Wreck: weightless and glittering. A slow 3/4 sway like a skiff
+    riding on air, a deep drone, wind that never touches ground, jade chimes that twinkle on the
+    off-beats like stars, zheng glissandi that rise and fall like swells, and a dizi melody in the
+    shang mode that keeps looking past the horizon."""
+    tr = Track("starsea", 66, 3, 16)                   # 43.6 s
+    sc = Scale(55, 1)                                  # G gong, A shang, tonic A4
+    tr.bus("drone", -17, 0.4, (lowpass(900, 0.7),))
+    tr.bus("wind", -34, 0.35)
+    tr.bus("chime", -9, 0.7, (highpass(900),))
+    tr.bus("zheng", -6, 0.5, ZHENG_BODY)
+    tr.bus("bass", -11, 0.25, ZHENG_BODY)
+    tr.bus("flute", -5, 0.5)
+    tr.add("drone", drone(tr.L, tr.T, tr.r("drone"), [(mtof(45), 1.0), (mtof(52), 0.5), (mtof(57), 0.25), (mtof(64), 0.08)],
+                          harm=SOFT, swell=(2, 0.6), detune=5.0), 0)
+    tr.add("wind", wind(tr.L, tr.T, tr.r("wind"), base=900, spread=2200, width=1.2, cycles=(1, 2, 4), floor=0.25,
+                        tilt_db=-1.0, whistle=0.12), 0)
+    # Stars: jade chimes on scattered off-beats, high in the scale.
+    rc = tr.r("chime")
+    for bar in range(16):
+        for beat in (1.5, 2.5):
+            if rc.random() < 0.55:
+                i = int(rc.integers(5, 12))
+                tr.add("chime", chime(mtof(sc(i) + 12), rc, dur=1.4), tr.tb(bar, beat), rc.uniform(0.18, 0.34))
+    # Swells: a rising glissando every four bars, a falling one two bars later.
+    rz = tr.r("zheng")
+    for bar in (0, 4, 8, 12):
+        gliss(tr, "zheng", tr.tb(bar, 0.0), sc, -3, 5, rz, dt=0.06, vel=0.36, ring=2.2)
+        gliss(tr, "zheng", tr.tb(bar + 2, 1.0), sc, 6, 0, rz, dt=0.07, vel=0.3, ring=2.0)
+    prog = [0, 0, -2, -2, 1, 1, 0, 0, -1, -1, -2, -2, 0, 1, 0, 0]
+    rb = tr.r("bass")
+    for bar, root in enumerate(prog):
+        tr.zheng("bass", tr.tb(bar, 0), sc(root) - 24, 0.65, rb, ring=2.4, jitter=0.003)
+        tr.zheng("bass", tr.tb(bar, 2), sc(root + 2) - 24, 0.35, rb, ring=1.2, jitter=0.003)
+    rm = tr.r("melody")
+    p1 = period(rm, R_34, lo=-1, hi=8, first=2)
+    fl = []
+    for p, notes in enumerate(p1):
+        fl += to_flute(tr, simplify(notes, 1.0), sc, tr.tb(2 * p + 4), rm, octave=0, grace_p=0.35)
+    tr.flute("flute", fl, tr.r("flute_sig"), kind="dizi", vib_depth=16, vib_rate=5.2)
+    return tr.mix(t60=3.2, wet=0.48, predelay=0.04)
+
+
 @music("tomb")
 def m_tomb():
     """The Tomb of Sunscar: a buried palace that is still awake. A deep bowed drone, singing

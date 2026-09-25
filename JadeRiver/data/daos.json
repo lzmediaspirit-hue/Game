@@ -216,6 +216,9 @@
      "area": true
     }
    ],
+   "zone_caps": {
+    "azure_expanse": 5
+   },
    "name": "Water Dao"
   },
   {
@@ -247,6 +250,9 @@
      "area": true
     }
    ],
+   "zone_caps": {
+    "azure_expanse": 5
+   },
    "name": "Wood Dao"
   },
   {
@@ -278,6 +284,9 @@
      "area": true
     }
    ],
+   "zone_caps": {
+    "azure_expanse": 5
+   },
    "name": "Earth Dao"
   },
   {
@@ -309,6 +318,9 @@
      "area": true
     }
    ],
+   "zone_caps": {
+    "azure_expanse": 5
+   },
    "name": "Wind Dao"
   },
   {
@@ -340,6 +352,9 @@
      "area": true
     }
    ],
+   "zone_caps": {
+    "azure_expanse": 5
+   },
    "name": "Fire Dao"
   },
   {
@@ -371,6 +386,9 @@
      "area": true
     }
    ],
+   "zone_caps": {
+    "azure_expanse": 5
+   },
    "name": "Metal Dao"
   },
   {
@@ -402,6 +420,9 @@
      "area": true
     }
    ],
+   "zone_caps": {
+    "azure_expanse": 5
+   },
    "name": "Thunder Dao"
   },
   {
@@ -433,6 +454,9 @@
      "area": true
     }
    ],
+   "zone_caps": {
+    "azure_expanse": 5
+   },
    "name": "Soul Dao"
   },
   {
@@ -543,16 +567,103 @@
    "id": "life_death",
    "family": "rare",
    "valley_cap": 0,
-   "tiers": [],
-   "effects": [],
+   "zone_caps": {
+    "azure_expanse": 4
+   },
+   "tiers": [
+    "+5% max Soul",
+    "Injuries heal 25% faster",
+    "+10% soul defence",
+    "+5% Hollow Ward; can teach it"
+   ],
+   "effects": [
+    {},
+    {},
+    {},
+    {}
+   ],
+   "mods": [
+    [
+     {
+      "stat": "max_soul",
+      "value": 0.05
+     }
+    ],
+    [
+     {
+      "stat": "injury_recovery",
+      "op": "flat",
+      "value": 0.25
+     }
+    ],
+    [
+     {
+      "stat": "soul_defense",
+      "value": 0.1
+     }
+    ],
+    [
+     {
+      "stat": "hollow_ward",
+      "op": "flat",
+      "value": 0.05
+     }
+    ]
+   ],
+   "teacher": true,
    "name": "Life Death Dao"
   },
   {
    "id": "blood",
    "family": "rare",
    "valley_cap": 0,
-   "tiers": [],
-   "effects": [],
+   "zone_caps": {
+    "azure_expanse": 4
+   },
+   "tiers": [
+    "+5% max HP",
+    "+40% HP regeneration",
+    "+5% tenacity",
+    "+5% attack; can teach it"
+   ],
+   "effects": [
+    {},
+    {},
+    {},
+    {}
+   ],
+   "mods": [
+    [
+     {
+      "stat": "max_hp",
+      "value": 0.05
+     }
+    ],
+    [
+     {
+      "stat": "hp_regen",
+      "value": 0.4
+     }
+    ],
+    [
+     {
+      "stat": "tenacity",
+      "op": "flat",
+      "value": 0.05
+     }
+    ],
+    [
+     {
+      "stat": "physical_attack",
+      "value": 0.05
+     },
+     {
+      "stat": "qi_attack",
+      "value": 0.05
+     }
+    ]
+   ],
+   "teacher": true,
    "name": "Blood Dao"
   },
   {
@@ -567,8 +678,49 @@
    "id": "emotion",
    "family": "rare",
    "valley_cap": 0,
-   "tiers": [],
-   "effects": [],
+   "zone_caps": {
+    "azure_expanse": 4
+   },
+   "tiers": [
+    "+10% Will",
+    "+10% insight rate",
+    "+5% soul attack",
+    "+10% Will; can teach it"
+   ],
+   "effects": [
+    {},
+    {},
+    {},
+    {}
+   ],
+   "mods": [
+    [
+     {
+      "stat": "will",
+      "value": 0.1
+     }
+    ],
+    [
+     {
+      "stat": "insight_rate",
+      "op": "flat",
+      "value": 0.1
+     }
+    ],
+    [
+     {
+      "stat": "soul_attack",
+      "value": 0.05
+     }
+    ],
+    [
+     {
+      "stat": "will",
+      "value": 0.1
+     }
+    ]
+   ],
+   "teacher": true,
    "name": "Emotion Dao"
   }
  ]

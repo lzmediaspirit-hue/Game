@@ -107,7 +107,8 @@
   "gather": 10,
   "mine": 10,
   "fish": 12,
-  "cook": 8
+  "cook": 8,
+  "observe": 15
  },
  "craft_step": {
   "tolerance": 0.3,

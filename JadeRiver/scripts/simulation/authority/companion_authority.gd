@@ -87,6 +87,15 @@ func tick(delta: float) -> void:
 		if was_down and a.ai.state != "downed":
 			emit("companion_revived", {"actor": c.id, "uid": a.uid, "companion": str(id)})
 
+## Paired cultivation (v1.1, Sage 1): meditating beside a fellow disciple who sits with you
+## breathes the Qi between you both. One partner is enough; a downed one cannot pair.
+func paired_bonus(c) -> float:
+	if c == null or not c.cultivator.meditating or not Unlocks.is_unlocked(c.id, "paired_cultivation") or game.room_rt == null: return 0.0
+	for id in allies:
+		var a: EnemyState = game.room_rt.enemies.get(allies[id])
+		if a != null and a.ai.get("state", "") != "downed": return float(ContentDB.curve("paired_cultivation", 0.15))
+	return 0.0
+
 ## Is this ally in the room a fellow disciple (not a spirit animal)?
 func is_companion_ally(a: EnemyState) -> bool:
 	return allies.has(a.def_id) and int(allies[a.def_id]) == a.uid

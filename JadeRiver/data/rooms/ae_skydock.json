@@ -128,6 +128,16 @@
    ],
    "to": "ae_landing",
    "to_portal": "west"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ae_shipyard",
+   "to_portal": "east"
   }
  ],
  "objects": [

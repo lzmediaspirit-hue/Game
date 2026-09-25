@@ -10,7 +10,8 @@ const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "training_s
 	"cooking_pot": "cooking_pot", "alchemy_furnace": "alchemy_furnace", "forge_anvil": "forge_anvil", "fishing_spot": "fishing_ripple",
 	"rite_circle": "rite_circle", "bell": "small_bell", "spar_post": "weapon_rack", "inspect": "grey_patch", "herb_patch": "willow_moss_patch",
 	"ore_vein": "copper_vein", "formation_table": "formation_node", "garden_bed": "willow_moss_patch",
-	"defence_drum": "small_bell", "treasure_plot": "treasure_plot", "treasure_tree": "nine_bough_jade_tree"}
+	"defence_drum": "small_bell", "treasure_plot": "treasure_plot", "treasure_tree": "nine_bough_jade_tree",
+	"star_sight": "star_sight_stone", "chart_table": "star_chart_table", "shipyard_slip": "shipyard_slip", "starsea_dock": "cloud_skiff"}
 
 var def: Dictionary = {}
 var object_id := ""
@@ -37,6 +38,7 @@ func state_name() -> String:
 	var c = Game.active()
 	match str(def.type):
 		"herb_patch": return "depleted" if s == "depleted" else "ready"
+		"star_sight": return "idle" if s == "depleted" else "active"   # the engraved stars glow while a reading waits
 		"ore_vein": return "depleted" if s == "depleted" else ("cracked" if int(st.get("hits", 0)) > 0 else "full")
 		"jar", "crate", "wine_jar": return "broken" if s == "broken" else "intact"
 		"chest": return "open" if s == "open" else "closed"

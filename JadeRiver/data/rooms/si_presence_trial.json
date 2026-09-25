@@ -1,0 +1,208 @@
+{
+ "schema_version": 1,
+ "id": "si_presence_trial",
+ "zone": "azure_expanse",
+ "region": "story",
+ "name": "The Presence Trial",
+ "type": "story",
+ "level_range": [
+  81,
+  81
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [
+  "presence"
+ ],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "nine_peaks",
+ "ground": {
+  "material": "floor_stone",
+  "tint": "#c8c0dc"
+ },
+ "spawn_point": [
+  1280,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "exit",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "np_trial_hall",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Leave",
+   "requires": {
+    "all": [
+     {
+      "kind": "event_passed",
+      "event": "presence_trial"
+     }
+    ]
+   },
+   "locked_text": "The seats have not finished looking at you."
+  }
+ ],
+ "objects": [],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "rite_circle",
+   "at": [
+    1280,
+    880
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "trial_seat",
+   "at": [
+    300,
+    690
+   ],
+   "layer": "back",
+   "flip": false
+  },
+  {
+   "prop": "trial_seat",
+   "at": [
+    600,
+    690
+   ],
+   "layer": "back",
+   "flip": false
+  },
+  {
+   "prop": "trial_seat",
+   "at": [
+    900,
+    690
+   ],
+   "layer": "back",
+   "flip": false
+  },
+  {
+   "prop": "trial_seat",
+   "at": [
+    1660,
+    690
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "trial_seat",
+   "at": [
+    1960,
+    690
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "trial_seat",
+   "at": [
+    2260,
+    690
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "pressure_pillar",
+   "at": [
+    1100,
+    690
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "pressure_pillar",
+   "at": [
+    1460,
+    690
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "boss",
+ "instanced": true,
+ "dungeon_exit": "",
+ "event": {
+  "id": "presence_trial",
+  "duration": 90,
+  "waves": [
+   {
+    "enemy": "presence_phantom",
+    "every_s": 7,
+    "max": 3,
+    "points": [
+     [
+      400,
+      820
+     ],
+     [
+      2200,
+      820
+     ],
+     [
+      1280,
+      920
+     ]
+    ]
+   }
+  ],
+  "timed_spawns": [
+   {
+    "enemy": "ninth_presence",
+    "at": [
+     2100,
+     840
+    ],
+    "after_s": 45,
+    "text": "The ninth seat fills. Its Presence is your own, grown old."
+   }
+  ],
+  "on_complete": [
+   {
+    "kind": "event_passed",
+    "event": "presence_trial"
+   },
+   {
+    "kind": "set_flag",
+    "flag": "presence_trial_passed"
+   }
+  ]
+ }
+}

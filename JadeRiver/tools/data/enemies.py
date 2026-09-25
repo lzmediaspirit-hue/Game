@@ -40,12 +40,25 @@ HUMAN = {
                         "shirt_dye": "earth", "pants_dye": "earth"},
     "canyon_brigand": {"hair": "ponytail", "hair_color": 3, "shirt": "vneck", "pants": "cuffed", "shoes": "boots", "weapon": "dagger", "hat": "weimao",
                        "shirt_dye": "ochre", "pants_dye": "earth"},
+    # Phase E · the Starsea: pirates of the comet sails, deserters of the Alliance, and the Trial Hall's phantoms.
+    "starsea_pirate": {"hair": "short_knot", "hair_color": 0, "shirt": "sleeveless", "pants": "cuffed", "shoes": "boots", "weapon": "sword", "hat": "headband",
+                       "shirt_dye": "indigo", "pants_dye": "ink"},
+    "nine_peaks_disciple": {"hair": "topknot", "hair_color": 2, "shirt": "disciple", "pants": "martial", "shoes": "boots", "weapon": "sword", "hat": "guan",
+                            "shirt_dye": "grey", "pants_dye": "ink", "cape": "tattered"},
+    "pirate_captain": {"hair": "long_tied", "hair_color": 5, "shirt": "vneck", "pants": "cuffed", "shoes": "boots", "weapon": "sword", "hat": "headband",
+                       "shirt_dye": "crimson", "pants_dye": "ink", "cape": "tattered"},
+    "presence_phantom": {"hair": "topknot", "hair_color": 0, "shirt": "scholar", "pants": "scholar", "shoes": "folded", "weapon": "none", "hat": "guan",
+                         "shirt_dye": "white", "pants_dye": "white", "tint": "#b4a6ee"},
+    "ninth_presence": {"hair": "flowing", "hair_color": 1, "shirt": "scholar", "pants": "scholar", "shoes": "folded", "weapon": "staff", "hat": "guan",
+                       "shirt_dye": "white", "pants_dye": "white", "cape": "solid", "tint": "#d9ccff"},
 }
+NAMES = {"pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
+         "ninth_presence": "The Ninth Presence"}
 
 
 def human(id):
     o = dict(HUMAN[id])
-    o["name"] = titled(id)
+    o["name"] = NAMES.get(id, titled(id))
     o["body"] = "light"
     return {"avatar": o}
 
@@ -207,6 +220,28 @@ def build():
         mob("canyon_brigand", (73, 76), "normal", "wind", None, [d("storm_shard", 0.5), d("spirit_stone_shard", 0.4, (1, 2))],
             [atk("dagger_flurry", 0.35, 50, 1.1), atk("throwing_knife", 0.5, 240, 1.0, projectile={"speed": 600, "art": "arrow"})],
             ai="duelist", art=human("canyon_brigand"), race="human", energy="sage_qi", width=18, height=90),
+        # Act II · Phase E: the Skyport Wreck and the Starsea.
+        mob("starsea_pirate", (79, 81), "normal", "metal", "azure", [d("comet_iron", 0.4), d("storm_shard", 0.55, (1, 2)),
+                                                                    d("spirit_stone_shard", 0.4, (1, 2)), d("will_tempering_pill", 0.04)],
+            [atk("cutlass_combo", 0.4, 70, 1.2), atk("boarding_hook", 0.6, 260, 1.0, projectile={"speed": 560, "art": "arrow"})],
+            ai="duelist", art=human("starsea_pirate"), race="human", energy="sage_qi", width=18, height=90, pack=True),
+        mob("nine_peaks_disciple", (76, 78), "normal", "metal", "azure", [d("alliance_badge", 0.45), d("storm_shard", 0.5, (1, 2))],
+            [atk("peak_sword", 0.45, 84, 1.2), atk("nine_step_lunge", 0.7, 160, 1.3, dash=120, knockback=70)],
+            ai="duelist", art=human("nine_peaks_disciple"), race="human", energy="sage_qi", width=18, height=90,
+            name="Rogue Nine Peaks Disciple"),
+        mob("pirate_captain", 80, "story_boss", "metal", None, [d("comet_iron", 1.0, (3, 5)), d("storm_shard", 1.0, (10, 15)),
+                                                               d("will_tempering_pill", 1.0, (1, 2))],
+            [atk("comet_cleave", 0.6, 130, 1.4, depth=50, knockback=110), atk("anchor_throw", 0.9, 330, 1.25, projectile={"speed": 520, "art": "pebble"}),
+             atk("boarding_call", 1.0, 0, 0.0, summon="starsea_pirate")],
+            ai="duelist", art=human("pirate_captain"), race="human", energy="sage_qi", width=20, height=94, name="Comet Captain Rao",
+            hp_mult=1.5, attack_mult=0.9, phases=[{"below": 0.4, "action": "enrage", "cooldown": 0.7, "damage": 1.25}]),
+        mob("presence_phantom", 81, "normal", "none", None, [], [atk("weight_of_a_seat", 0.55, 90, 1.1, damage_type="soul")],
+            ai="duelist", art=human("presence_phantom"), race="human", energy="sage_qi", width=18, height=90, name="Presence of a Seat"),
+        mob("ninth_presence", 81, "normal", "none", None, [], [atk("ninth_seat_palm", 0.7, 120, 1.3, damage_type="soul", depth=50, knockback=100),
+                                                              atk("crown_of_nine", 1.1, 240, 1.2, damage_type="soul", depth=90, both_sides=True,
+                                                                  status={"id": "slow", "chance": 0.6, "power": 0.3, "duration_s": 3})],
+            ai="duelist", art=human("ninth_presence"), race="human", energy="sage_qi", width=20, height=96, name="The Ninth Presence",
+            hp_mult=12.0, attack_mult=1.2),
         mob("alliance_champion", 72, "trial", "metal", None, [], [atk("peak_thrust", 0.45, 110, 1.2, depth=30),
                                                                  atk("nine_step_sweep", 0.7, 150, 1.3, depth=50, knockback=90)],
             ai="duelist", art=human("alliance_champion"), race="human", width=18, height=90, spar=True),
@@ -263,7 +298,8 @@ def build():
     # Key items drop only while a quest still needs them (S32 quest drops).
     QUEST_DROPS = {"mudwater_bandit": [{"item": "mudwater_key", "chance": 0.3, "count": [1, 1], "quest": "the_caravan_road"}],
                    "dune_worm": [{"item": "sun_seal_shard", "chance": 0.5, "count": [1, 1], "quest": "the_sealed_gate"}],
-                   "tomb_king": [{"item": "sunscar_seal", "chance": 1.0, "count": [1, 1], "quest": "the_tomb_king"}]}
+                   "tomb_king": [{"item": "sunscar_seal", "chance": 1.0, "count": [1, 1], "quest": "the_tomb_king"}],
+                   "starsea_pirate": [{"item": "ledger_page", "chance": 0.35, "count": [1, 1], "quest": "the_skyport_wreck"}]}
     for m in M:
         role = m["role"]
         drops = m.get("drops", [])
@@ -313,6 +349,13 @@ def build():
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [2, 3]},
                                                        {"item": "sovereign_settling_pill", "weight": 1, "count": [1, 1]},
                                                        {"item": "ember_cactus", "weight": 1, "count": [1, 2]}]}],
+                   "coins": {"chance": 1.0, "mult": 16}, "rare": [], "equipment": {"chance": 0.8, "min_quality": "fine"}})
+    # The pirates' strongbox on the Pirate Deck (chapter 15) and the Starsea Launch's cache.
+    tables.append({"id": "chest_wreck", "guaranteed": [{"item": "storm_shard", "count": [6, 10], "chance": 1.0},
+                                                       {"item": "comet_iron", "count": [2, 3], "chance": 1.0}],
+                   "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [2, 3]},
+                                                       {"item": "will_tempering_pill", "weight": 1, "count": [1, 2]},
+                                                       {"item": "sky_ink", "weight": 1, "count": [2, 3]}]}],
                    "coins": {"chance": 1.0, "mult": 16}, "rare": [], "equipment": {"chance": 0.8, "min_quality": "fine"}})
     entries("loot_tables.json", tables)
     return M

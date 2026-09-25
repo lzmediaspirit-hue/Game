@@ -48,6 +48,12 @@
    "from": "The Auction Pavilion",
    "subject": "Your lot: {item}",
    "body": "The hammer fell in your favour. Your lot is enclosed, with the Pavilion's compliments."
+  },
+  {
+   "id": "elder_token",
+   "from": "Your mentor",
+   "subject": "An Elder's token",
+   "body": "Word reached the sect that you are a Sage Sovereign. Your token is an Elder's now: at any teleport stone it will call you home, and the sect will not ask for shards. Come home sometimes."
   }
  ]
 }

@@ -159,7 +159,7 @@ def build():
         "dao_tier_names": ["observation", "imitation", "reliable_execution", "explanation", "adaptation", "original_application"],
         "insight_repeat_factor": 0.2, "insight_repeat_window_s": 60, "insight_stone_per_min": 20, "contemplate_offline_per_min": 5,
         "profession_ranks": [["apprentice", 0], ["adept", 1000], ["expert", 5000], ["master", 20000], ["grandmaster", 60000]],
-        "profession_xp": {"craft_per_grade": 10, "fine_bonus": 0.5, "gather": 10, "mine": 10, "fish": 12, "cook": 8},
+        "profession_xp": {"craft_per_grade": 10, "fine_bonus": 0.5, "gather": 10, "mine": 10, "fish": 12, "cook": 8, "observe": 15},
         # Alchemy and forge mini-game: a strike this far from the band centre scores 0; three strikes per craft.
         "craft_step": {"tolerance": 0.3, "steps": 3, "perfect": 0.85, "good": 0.5},
         "purity_points_per_grade": 100, "purity_meditate_per_hour": 10, "purity_offline_per_hour": 25,

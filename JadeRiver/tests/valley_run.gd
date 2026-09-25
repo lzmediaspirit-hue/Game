@@ -9,7 +9,8 @@ extends "res://tests/prologue_run.gd"
 ## can be re-run alone:
 ##   godot --headless --path . res://tests/valley_run.tscn -- [--from=<section>] [--verbose]
 
-const SECTIONS := ["bf2", "bf5", "bf8", "qk1", "qk5", "qu1", "qu5", "ht1", "ht5", "cs1", "cs5", "sa1", "sa5", "hg1", "ae1", "ae2", "ae3", "ae4"]
+const SECTIONS := ["bf2", "bf5", "bf8", "qk1", "qk5", "qu1", "qu5", "ht1", "ht5", "cs1", "cs5", "sa1", "sa5", "hg1", "ae1", "ae2", "ae3", "ae4",
+	"ae5", "ae6"]
 const CP_ROOT := "user://valley_cp/"
 const WORK := "user://valley_work/"
 
@@ -267,7 +268,7 @@ func gather(item: String, count: int, limit := 20) -> int:
 	while got < count and tries < limit:
 		tries += 1
 		var any := false
-		for o in objects_of("herb_patch") + objects_of("ore_vein"):
+		for o in objects_of("herb_patch") + objects_of("ore_vein") + objects_of("star_sight"):
 			if str(o.get("item", "")) != item: continue
 			var s: Dictionary = Game.room_rt.objects.get(str(o.id), {"state": "ready"})
 			if s.get("state", "ready") != "ready": continue
@@ -1741,7 +1742,245 @@ func sec_ae4() -> void:
 	check(finish("stingers_for_the_hold"), "Stingers for the Hold done")
 	check(c().inventory.count("cactus_water") >= 1, "cactus water in the gourd")
 	travel("sd_oasis_of_bones")
+
+## S18 Starsea travel through the real intents: walk to the route's dock, set sail, fight off
+## whatever boards the vessel while the crossing runs, and make port at the far end.
+func sail(route: String) -> bool:
+	var v := ContentDB.entry("voyages", route)
+	if room() != str(v.get("from", "")) and not travel(str(v.get("from", ""))): return false
+	var docks := objects_of("starsea_dock", "route", route)
+	if docks.is_empty(): return false
+	place(obj_at(str(docks[0].id)) + Vector2(40, 60))
+	var r := interact(str(docks[0].id))
+	if not r.get("ok", false):
+		print("  set sail on ", route, ": ", r)
+		return false
+	var t0: float = Game.sim_time
+	while room() == str(v.crossing) and Game.sim_time - t0 < 240.0:
+		var foes: Array = Game.room_rt.living_enemies().filter(func(e): return e.team != "ally")
+		if foes.is_empty():
+			step(1.0)
+		else:
+			fight(str(foes[0].def_id), 1, 20.0, 0.25)
+		if Game.combat.is_wounded(c().id): break
+	revive_if_needed()
+	return room() == str(v.get("to", ""))
+
+## Hold a set piece's room event: fight what it sends (its win-on-kill foe first) until it ends.
+func hold_event(limit_s := 400.0) -> bool:
+	var t0: float = Game.sim_time
+	var inside := room()
+	while room() == inside and Game.room_rt.event.get("active", false) and Game.sim_time - t0 < limit_s:
+		var boss := str(Game.room_rt.event.get("win_on_kill", ""))
+		var foes: Array = Game.room_rt.living_enemies().filter(func(e): return e.team != "ally")
+		var pick := ""
+		for e in foes:
+			if e.def_id == boss: pick = boss
+		if pick == "" and not foes.is_empty(): pick = str(foes[0].def_id)
+		if pick == "":
+			step(1.0)
+		else:
+			fight(pick, 1, 30.0, 0.2)
+		if Game.combat.is_wounded(c().id): return false
+	return not Game.combat.is_wounded(c().id)
+
+func craft_at(station: String, intent: String, recipe: String) -> bool:
+	if not go_to_station(station): return false
+	place(obj_at(str(objects_of(station)[0].id)) + Vector2(60, 70))
+	var r := submit({"type": intent, "recipe": recipe})
+	if not r.get("ok", false): print("  ", intent, " ", recipe, ": ", r)
+	return r.get("ok", false)
+
+func sec_ae5() -> void:
+	# Act II · chapter 15, Pirates of the Starsea (Sage Sovereign 1-2), and the Shipwrights' Yard.
+	tidy_bag(12)
+	check(unlocked("starsea") and c().cultivator.offered.has("star_charting") and c().cultivator.offered.has("shipwright"),
+		"Sage 3: Starsea survival, and the Yard offers star charts and vessels")
+	check(unlocked("elder_token") and c().inventory.count(str(ContentDB.entry("sects", str(c().training_sect.id)).token).replace("_token", "_elder_token")) == 1
+		and str(c().training_sect.rank) == "elder", "Sage Sovereign 1: the sect token becomes an Elder's token")
+	var home_stone := "jade_academy" if str(c().training_sect.id) == "jade_sect" else "cloud_monastery"
+	check(Game.world.teleport_fee(home_stone, c()) == 0 and Game.world.teleport_fee("sunscar", c()) > 0, "the Elder's token calls its bearer home for free")
+	# A Chart of One's Own: star readings from three sighting stones, sky ink, the chart table.
+	check(start("a_chart_of_ones_own"), "A Chart of One's Own accepted")
+	for rid in ["ae_shipyard", "rf_rimefrost_summit", "np_presence_terrace", "ae_shipyard"]:
+		if c().inventory.count("star_reading") >= 4: break
+		if travel(rid): gather("star_reading", 4 - c().inventory.count("star_reading"), 22)
+	check(c().inventory.count("star_reading") >= 4, "take four star readings (%d)" % c().inventory.count("star_reading"))
+	travel("ae_shipyard")
+	check(buy("navigator", "sky_ink", 2), "buy sky ink from Navigator Sun")
+	check(craft_at("chart_table", "chart_route", "star_chart_wreck") and c().inventory.count("star_chart_wreck") == 1, "chart the Wreck Run")
+	check(finish("a_chart_of_ones_own"), "A Chart of One's Own done")
+	# Keel and Ward: a smith's hand (test shortcut for the rank), the Yard's timber and plates, the canyon's plumes.
+	check(start("keel_and_ward"), "Keel and Ward accepted")
+	if Game.crafting.rank_index(Game.crafting.rank_of(c(), "smithing")) < Game.crafting.rank_index("adept"):
+		Game.crafting.add_xp(c(), "smithing", 1000.0)
+	for i in 8:
+		if c().inventory.count("harpy_plume") >= 3: break
+		if travel("gc_harpy_roosts"): fight("canyon_harpy", 3, 300.0, 0.3)
+		revive_if_needed()
+	check(c().inventory.count("harpy_plume") >= 3, "harpy plumes for the sail")
+	travel("ae_shipyard")
+	for need in [["spirit_wood", 6], ["stormsteel_ore", 4], ["formation_stone", 2]]:
+		var short: int = int(need[1]) - c().inventory.count(str(need[0]))
+		if short > 0: buy("shipwright", str(need[0]), short)
+	check(craft_at("shipyard_slip", "build_vessel", "cloud_skiff") and c().inventory.count("cloud_skiff") == 1, "build a Cloud Skiff")
+	check(finish("keel_and_ward"), "Keel and Ward done")
+	# Two Breaths, One River: meditate beside a companion.
+	check(start("two_breaths"), "Two Breaths, One River accepted")
+	travel("ae_condensing_hall")
+	step(2.0)
+	var rate0: float = Game.progression.accumulation_bonus(c())
+	var med := submit({"type": "start_meditation"})
+	step(3.0)
+	if verbose: print("  paired: ", med, " allies ", Game.companions.allies, " meditating ", c().cultivator.meditating, " unlocked ", unlocked("paired_cultivation"),
+		" room type ", Game.room_rt.def.get("type", ""))
+	check(Game.progression.accumulation_bonus(c()) > rate0 + 0.1, "paired cultivation: a companion beside you speeds the Qi (+%.0f%%)" % ((Game.progression.accumulation_bonus(c()) - rate0) * 100.0))
+	step(32.0)
+	submit({"type": "stop_meditation"})
+	check(finish("two_breaths"), "Two Breaths, One River done")
+	# Gu's Ledger.
+	check(start("gus_ledger"), "Gu's Ledger accepted")
+	for npc in ["broker_mu", "navigator_sun"]:
+		var n := go_to_npc([npc])
+		if n != "": talk(n)
+	check(finish("gus_ledger"), "Gu's Ledger done")
+	# The Skyport Wreck: sail the chart, take back the pages, find the seller.
+	check(start("the_skyport_wreck"), "The Skyport Wreck accepted")
+	attune_to("azure_expanse", 60.0)
+	check(sail("wreck_run"), "sail the Wreck Run across the Starsea to the Broken Pier")
+	check(c().quests.is_done("the_skyport_wreck") or _objective("the_skyport_wreck", 2) >= 1, "arrive at the Skyport Wreck")
+	for rid in ["sw_broken_pier", "sw_pirate_deck", "sw_pirate_deck", "sw_riven_peak", "sw_pirate_deck"]:
+		if c().inventory.count("ledger_page") >= 3: break
+		if travel(rid): fight("starsea_pirate", 3, 300.0, 0.3)
+		revive_if_needed()
+	check(c().inventory.count("ledger_page") >= 3, "take three ledger pages from the pirates")
+	check(travel("sw_pirate_deck") and talk_choose(go_to_npc(["gu_in_chains"]), "effects", "Break his chains"), "free Elder Gu on the Pirate Deck")
+	check(c().quests.has_flag("gu_freed") and c().inventory.count("black_ledger") == 1, "the Black Ledger")
+	var box := interact("pirate_strongbox")
+	check(box.get("ok", false), "Gu opens the pirates' strongbox")
+	check(sail("wreck_run_home"), "sail home to the Shipwrights' Yard")
+	check(finish("the_skyport_wreck"), "The Skyport Wreck done")
+	check(c().inventory.count("ledger_page") == 0, "the ledger pages go into the Black Ledger")
+	# Sect War: Sage Sovereign 2, then hold the Alliance Gate.
+	check(start("the_gate_holds"), "Sect War accepted")
+	check(reach("sage_sovereign_2"), "Sage Sovereign 2")
+	c().pools.hp = c().pools.max_hp
+	var held := false
+	for i in 3:
+		if "sect_war" in c().cultivator.events_passed: break
+		stock_up()
+		if not travel("np_alliance_gate"): break
+		c().pools.hp = c().pools.max_hp
+		var g := interact("war_gong_np")
+		if not g.get("ok", false):
+			print("  war gong: ", g)
+			break
+		held = hold_event()
+		revive_if_needed()
+	check("sect_war" in c().cultivator.events_passed, "the Alliance Gate holds: Comet Captain Rao falls")
+	check("gate_defender" in c().cultivator.titles, "Defender of the Alliance Gate")
+	if room() == "si_sect_war": go("exit")
+	check(talk_choose(go_to_npc(["elder_zhong"]), "effects", "Burn it"), "burn the Black Ledger")
+	check(c().quests.has_flag("ledger_burned") and c().inventory.count("black_ledger") == 0, "the valley's debts end in ashes")
+	check(finish("the_gate_holds"), "Sect War done: chapter 15 complete")
+	# The sect war repeats (S25): the gong answers again once the comet sails have regrouped.
+	travel("np_alliance_gate")
+	var again := interact("war_gong_np")
+	check(not again.get("ok", false) and str(again.get("reason", "")) == "cooldown", "the war gong waits for the comet sails to regroup")
+	# Side stories of the Wreck.
+	check(start("the_deserters") and start("iron_from_a_comet"), "the Wreck's side stories accepted")
+	check(sail("wreck_run"), "back across the Starsea")
+	for i in 10:
+		if _objective("the_deserters", 0) >= 6 and c().inventory.count("alliance_badge") >= 4: break
+		if travel("sw_broken_pier"): fight("nine_peaks_disciple", 3, 300.0, 0.3)
+		revive_if_needed()
+	for i in 10:
+		if c().inventory.count("comet_iron") >= 6: break
+		if travel("sw_pirate_deck"): fight("starsea_pirate", 3, 300.0, 0.3)
+		revive_if_needed()
+	check(sail("wreck_run_home"), "home again")
+	check(finish("the_deserters"), "The Deserters done")
+	check(finish("iron_from_a_comet") and Game.crafting.knows(c(), "storm_sloop"), "Iron from a Comet done: the storm sloop's lines")
+
+func sec_ae6() -> void:
+	# Act II · chapter 16, The Presence Trial (Sage Sovereign 3), and the rare Daos of the Expanse's teachers.
+	tidy_bag(12)
+	# Blood Remembers: kneel before the Ironroot tablets.
+	check(start("blood_remembers"), "Blood Remembers accepted")
+	check(travel("ir_ancestor_hall") and interact("ancestral_tablets").get("ok", false), "kneel before the tablets")
+	check(finish("blood_remembers"), "Blood Remembers done")
+	check(int(c().cultivator.daos.get("blood", {}).get("tier", 0)) >= 1, "the Blood Dao opens (tier %d)" % int(c().cultivator.daos.get("blood", {}).get("tier", 0)))
+	var hp0: float = c().stats.value("max_hp")
+	Game.progression.apply_insight(c().id, "blood", 300.0, "test_shortcut")
+	check(c().stats.value("max_hp") >= hp0, "Blood Dao tiers add their modifiers")
+	# What the Bones Say: shards of the Terracotta Wardens.
+	check(start("what_the_bones_say"), "What the Bones Say accepted")
+	for i in 8:
+		if c().inventory.count("terracotta_shard") >= 3: break
+		if travel("ts_hall_of_sand_kings"): fight("terracotta_warden", 2, 300.0, 0.3)
+		revive_if_needed()
+	check(finish("what_the_bones_say") and c().cultivator.daos.has("life_death"), "What the Bones Say done: the Life and Death Dao")
+	# Lu's Last Page.
+	check(start("lus_last_page"), "Lu's Last Page accepted")
+	check(sail("wreck_run"), "sail to the Wreck")
+	check(travel("sw_riven_peak") and interact("journal_riven").get("ok", false), "Lu's last page on the Riven Peak")
+	# The Lantern Run's readings while the stars are clear.
+	for i in 3:
+		if c().inventory.count("star_reading") >= 8: break
+		gather("star_reading", 8 - c().inventory.count("star_reading"), 25)
+	check(travel("sw_starsea_launch"), "on to the Starsea Launch")
+	check(teleport_home(), "the Launch's teleport stone carries you back to Cloudgate")
+	check(finish("lus_last_page"), "Lu's Last Page done")
+	# The Presence Trial: Sage Sovereign 3, then sit beneath the ninth seat.
+	check(start("the_presence_trial"), "The Presence Trial accepted")
+	check(reach("sage_sovereign_3"), "Sage Sovereign 3")
+	var will0: float = c().stats.value("will")
+	var pi: int = c().inventory.first_index("will_tempering_pill")
+	if pi >= 0: submit({"type": "use_item", "index": pi, "confirm": true})
+	check(c().stats.value("will") > will0 or pi < 0, "a Will Tempering Pill steadies the will (%.0f -> %.0f)" % [will0, c().stats.value("will")])
+	for i in 3:
+		if "presence_trial" in c().cultivator.events_passed: break
+		stock_up()
+		if not travel("np_trial_hall"): break
+		c().pools.hp = c().pools.max_hp
+		var r := interact("presence_gate")
+		if not r.get("ok", false):
+			print("  presence gate: ", r)
+			break
+		hold_event(120.0)
+		revive_if_needed()
+	check("presence_trial" in c().cultivator.events_passed, "the Presence Trial is passed")
+	if room() == "si_presence_trial": go("exit")
+	check(finish("the_presence_trial"), "The Presence Trial done")
+	var q: Dictionary = Game.progression.query_breakthrough(c(), [])
+	check(str(q.get("to", "")) == "will_manifest_1" and not q.can, "the Expanse cannot hold a Will Manifest: the zone ceiling locks it")
+	# Stars Beyond: chart the Lantern Run, stand at the Launch.
+	check(start("stars_beyond"), "Stars Beyond accepted")
+	travel("ae_shipyard")
+	check(buy("navigator", "recipe_scroll", 1) or Game.crafting.knows(c(), "star_chart_lantern"), "the navigator's lesson for the Lantern Run")
+	var sc: int = c().inventory.first_index("recipe_scroll")
+	if sc >= 0 and not Game.crafting.knows(c(), "star_chart_lantern"): submit({"type": "use_item", "index": sc, "confirm": true})
+	var ink: int = 4 - c().inventory.count("sky_ink")
+	if ink > 0: buy("navigator", "sky_ink", ink)
+	for rid in ["ae_shipyard", "np_presence_terrace", "rf_rimefrost_summit", "ae_shipyard"]:
+		if c().inventory.count("star_reading") >= 8: break
+		if travel(rid): gather("star_reading", 8 - c().inventory.count("star_reading"), 22)
+	check(craft_at("chart_table", "chart_route", "star_chart_lantern"), "chart the Lantern Run")
+	check(sail("wreck_run"), "sail to the Wreck")
+	check(travel("sw_starsea_launch"), "reach the Starsea Launch")
+	var planned := interact("dock_launch")
+	check(not planned.get("ok", true) and str(planned.get("reason", "")) == "planned", "the Lantern Run waits for the next age (Act III)")
+	check(finish("stars_beyond"), "Stars Beyond done: chapter 16 and Act II complete")
+	check("starsea_voyager" in c().cultivator.titles and c().quests.has_flag("stars_beyond_done"), "Voyager of the Starsea")
 	checkpoint("ae_end")
+
+## From the Skyport Wreck back to the Expanse: the Launch's teleport stone (cross-region fee).
+func teleport_home() -> bool:
+	if not travel("sw_starsea_launch"): return false
+	interact("stone_skyport")
+	var r := submit({"type": "teleport", "stone": "cloudgate"})
+	if not r.get("ok", false): print("  teleport home: ", r)
+	return r.get("ok", false)
 
 ## The mini-game through intents: each strike's distance from the band centre, then the craft.
 func strike_steps(recipe: String, craft: String, offsets: Array) -> void:

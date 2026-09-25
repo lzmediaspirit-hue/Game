@@ -4112,6 +4112,527 @@
    "height": 90
   },
   {
+   "id": "starsea_pirate",
+   "name": "Starsea Pirate",
+   "level": [
+    79,
+    81
+   ],
+   "role": "normal",
+   "element": "metal",
+   "race": "human",
+   "energy": "sage_qi",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "cutlass_combo",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       70
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2
+    },
+    {
+     "id": "boarding_hook",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       260
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.0,
+     "projectile": {
+      "speed": 560,
+      "art": "arrow"
+     }
+    }
+   ],
+   "loot": "starsea_pirate",
+   "drops": [
+    {
+     "item": "comet_iron",
+     "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.55,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    },
+    {
+     "item": "spirit_stone_shard",
+     "chance": 0.4,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    },
+    {
+     "item": "will_tempering_pill",
+     "chance": 0.04,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "avatar": {
+     "hair": "short_knot",
+     "hair_color": 0,
+     "shirt": "sleeveless",
+     "pants": "cuffed",
+     "shoes": "boots",
+     "weapon": "sword",
+     "hat": "headband",
+     "shirt_dye": "indigo",
+     "pants_dye": "ink",
+     "name": "Starsea Pirate",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "pack": true
+  },
+  {
+   "id": "nine_peaks_disciple",
+   "name": "Rogue Nine Peaks Disciple",
+   "level": [
+    76,
+    78
+   ],
+   "role": "normal",
+   "element": "metal",
+   "race": "human",
+   "energy": "sage_qi",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "peak_sword",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       84
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2
+    },
+    {
+     "id": "nine_step_lunge",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       160
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.3,
+     "dash": 120,
+     "knockback": 70
+    }
+   ],
+   "loot": "nine_peaks_disciple",
+   "drops": [
+    {
+     "item": "alliance_badge",
+     "chance": 0.45,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "azure",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "avatar": {
+     "hair": "topknot",
+     "hair_color": 2,
+     "shirt": "disciple",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "sword",
+     "hat": "guan",
+     "shirt_dye": "grey",
+     "pants_dye": "ink",
+     "cape": "tattered",
+     "name": "Rogue Nine Peaks Disciple",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90
+  },
+  {
+   "id": "pirate_captain",
+   "name": "Comet Captain Rao",
+   "level": [
+    80,
+    80
+   ],
+   "role": "story_boss",
+   "element": "metal",
+   "race": "human",
+   "energy": "sage_qi",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "comet_cleave",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       130
+      ],
+      "depth": 50,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.4,
+     "knockback": 110
+    },
+    {
+     "id": "anchor_throw",
+     "windup_s": 0.9,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       330
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.25,
+     "projectile": {
+      "speed": 520,
+      "art": "pebble"
+     }
+    },
+    {
+     "id": "boarding_call",
+     "windup_s": 1.0,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       0
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 0.0,
+     "summon": "starsea_pirate"
+    }
+   ],
+   "loot": "pirate_captain",
+   "drops": [
+    {
+     "item": "comet_iron",
+     "chance": 1.0,
+     "count": [
+      3,
+      5
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 1.0,
+     "count": [
+      10,
+      15
+     ],
+     "weight": 1
+    },
+    {
+     "item": "will_tempering_pill",
+     "chance": 1.0,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "long_tied",
+     "hair_color": 5,
+     "shirt": "vneck",
+     "pants": "cuffed",
+     "shoes": "boots",
+     "weapon": "sword",
+     "hat": "headband",
+     "shirt_dye": "crimson",
+     "pants_dye": "ink",
+     "cape": "tattered",
+     "name": "Comet Captain Rao",
+     "body": "light"
+    }
+   },
+   "half_width": 20,
+   "height": 94,
+   "hp_mult": 1.5,
+   "attack_mult": 0.9,
+   "phases": [
+    {
+     "below": 0.4,
+     "action": "enrage",
+     "cooldown": 0.7,
+     "damage": 1.25
+    }
+   ]
+  },
+  {
+   "id": "presence_phantom",
+   "name": "Presence of a Seat",
+   "level": [
+    81,
+    81
+   ],
+   "role": "normal",
+   "element": "none",
+   "race": "human",
+   "energy": "sage_qi",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "weight_of_a_seat",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 26,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.1,
+     "damage_type": "soul"
+    }
+   ],
+   "loot": "presence_phantom",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "topknot",
+     "hair_color": 0,
+     "shirt": "scholar",
+     "pants": "scholar",
+     "shoes": "folded",
+     "weapon": "none",
+     "hat": "guan",
+     "shirt_dye": "white",
+     "pants_dye": "white",
+     "tint": "#b4a6ee",
+     "name": "Presence of a Seat",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90
+  },
+  {
+   "id": "ninth_presence",
+   "name": "The Ninth Presence",
+   "level": [
+    81,
+    81
+   ],
+   "role": "normal",
+   "element": "none",
+   "race": "human",
+   "energy": "sage_qi",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "ninth_seat_palm",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       120
+      ],
+      "depth": 50,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.3,
+     "damage_type": "soul",
+     "knockback": 100
+    },
+    {
+     "id": "crown_of_nine",
+     "windup_s": 1.1,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       240
+      ],
+      "depth": 90,
+      "alt": [
+       0,
+       70
+      ]
+     },
+     "mult": 1.2,
+     "damage_type": "soul",
+     "both_sides": true,
+     "status": {
+      "id": "slow",
+      "chance": 0.6,
+      "power": 0.3,
+      "duration_s": 3
+     }
+    }
+   ],
+   "loot": "ninth_presence",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "flowing",
+     "hair_color": 1,
+     "shirt": "scholar",
+     "pants": "scholar",
+     "shoes": "folded",
+     "weapon": "staff",
+     "hat": "guan",
+     "shirt_dye": "white",
+     "pants_dye": "white",
+     "cape": "solid",
+     "tint": "#d9ccff",
+     "name": "The Ninth Presence",
+     "body": "light"
+    }
+   },
+   "half_width": 20,
+   "height": 96,
+   "hp_mult": 12.0,
+   "attack_mult": 1.2
+  },
+  {
    "id": "alliance_champion",
    "name": "Alliance Champion",
    "level": [

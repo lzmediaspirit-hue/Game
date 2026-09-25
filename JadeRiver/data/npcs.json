@@ -2154,7 +2154,8 @@
    "barks": [
     "Hm."
    ],
-   "services": []
+   "services": [],
+   "tree": "elder_zhong"
   },
   {
    "id": "auctioneer_tong",
@@ -2386,6 +2387,141 @@
    ],
    "services": [],
    "tree": "bone_reader_xiu"
+  },
+  {
+   "id": "navigator_sun",
+   "name": "Navigator Sun",
+   "title": "Star navigator",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "straw",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "indigo",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "The Starsea has no roads. Only stars, and the lines we draw between them.",
+    "A chart is four readings and the patience to trust them. Most sailors have the readings."
+   ],
+   "barks": [
+    "Mind the table."
+   ],
+   "services": [
+    "shop:navigator"
+   ]
+  },
+  {
+   "id": "shipwright_lao",
+   "name": "Shipwright Lao",
+   "title": "Skydock shipwright",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 4,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "headband",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "ochre",
+    "pants_dye": "earth"
+   },
+   "lines": [
+    "A hull is a formation you can stand on. Get one line wrong and the Starsea finds it.",
+    "Spirit wood for the ribs, stormsteel for the keel, harpy plumes for the sail. The plumes are the hard part."
+   ],
+   "barks": [
+    "*tok tok tok*"
+   ],
+   "services": [
+    "shop:shipwright"
+   ]
+  },
+  {
+   "id": "gu_in_chains",
+   "name": "Elder Gu",
+   "title": "A prisoner of the comet sails",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "grey",
+    "pants_dye": "grey"
+   },
+   "lines": [
+    "...",
+    "Water. Or the key. Either."
+   ],
+   "barks": [
+    "..."
+   ],
+   "services": [],
+   "tree": "gu_in_chains"
+  },
+  {
+   "id": "launch_warden_he",
+   "name": "Warden He",
+   "title": "Starsea Launch",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 5,
+    "shirt": "vneck",
+    "pants": "straight",
+    "shoes": "boots",
+    "hat": "straw",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "white",
+    "pants_dye": "indigo"
+   },
+   "lines": [
+    "The ring was built to throw ships at the stars. It has not thrown one in two hundred years.",
+    "On clear nights you can see lanterns out there. Nobody hangs them. They are just there."
+   ],
+   "barks": [
+    "The ring is quiet."
+   ],
+   "services": []
+  },
+  {
+   "id": "trial_master_wen",
+   "name": "Trial Master Wen",
+   "title": "Trial Hall",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 0,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "guan",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "white",
+    "pants_dye": "indigo"
+   },
+   "lines": [
+    "Eight seats, eight Presences. The ninth seat waits for whoever can sit under the other eight and stay themselves.",
+    "Will is not stubbornness. Stubbornness breaks. Will bends and comes back."
+   ],
+   "barks": [
+    "Sit up straight."
+   ],
+   "services": []
   },
   {
    "id": "lan_yue",

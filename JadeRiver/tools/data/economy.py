@@ -123,6 +123,12 @@ def shops():
         {"id": "condensing_hall", "name": "Condensing Hall Stores", "currency": "spirit_stone",
          "stock": [s("clear_mind_pill"), s("soul_soothing_pill"), s("calm_incense"), s("sage_condensing_pill", price=90, requires=all_of(realm("heaven_glimpse_3"))),
                    s("sovereign_settling_pill", price=120, requires=all_of(realm("sage_sovereign_1")))]},
+        # Phase E · the Shipwrights' Yard: sky ink for charts; timber, plates and plumes for hulls.
+        {"id": "navigator", "name": "Navigator Sun's Charts", "currency": "spirit_stone",
+         "stock": [s("sky_ink", price=30), s("clear_mind_pill"), s("recipe_scroll", learn="star_chart_lantern", price=400,
+                                                                   requires=all_of(realm("sage_sovereign_3")))]},
+        {"id": "shipwright", "name": "Lao's Slipway Stores", "currency": "spirit_stone", "buys_all": True,
+         "stock": [s("spirit_wood", price=40), s("formation_stone"), s("stormsteel_ore")]},
         {"id": "oasis_keeper", "name": "Oasis of Bones Stores", "currency": "spirit_stone", "buys_all": True,
          "stock": [s("herbal_tea"), s("rice_ball"), s("viper_antidote"), s("qi_restoration_pill"), s("storm_blood_pill"), s("cactus_water", price=12),
                    s("tough_meat")]},
@@ -229,6 +235,13 @@ def recipes():
     r("fuel_crystal_mid", "smithing", [("fuel_crystal_low", 10)], [("fuel_crystal_mid", 1)], "earth")
     r("array_plate", "formations", [("blank_plate", 1), ("formation_stone", 1)], [("array_plate", 1)], "earth")
     r("revival_talisman", "formations", [("talisman_paper", 2), ("ink", 1), ("mist_lotus", 1)], [("revival_talisman", 1)], "earth")
+    # S16 star charts (Sage 3): 40 XP per route. Vessels need a smith's rank; the sloop a formation master's too.
+    r("star_chart_wreck", "star_charting", [("star_reading", 4), ("sky_ink", 2)], [("star_chart_wreck", 1)], "sage", default=True, xp=40)
+    r("star_chart_lantern", "star_charting", [("star_reading", 8), ("sky_ink", 4)], [("star_chart_lantern", 1)], "sage", xp=40)
+    r("cloud_skiff", "shipwright", [("spirit_wood", 6), ("stormsteel_ore", 4), ("formation_stone", 2), ("harpy_plume", 3)], [("cloud_skiff", 1)],
+      "sage", default=True, xp=60, requires_ranks={"smithing": "adept"})
+    r("storm_sloop", "shipwright", [("spirit_wood", 10), ("comet_iron", 6), ("formation_stone", 4), ("kite_silk", 4)], [("storm_sloop", 1)],
+      "sage", xp=90, requires_ranks={"smithing": "adept", "formations": "adept"})
     entries("recipes", R)
     return {x["id"] for x in R}
 
@@ -260,6 +273,8 @@ def sects():
         {"id": "core_disciple", "name": "Core Disciple", "requires": all_of(realm("cloud_stride_1"), {"kind": "flag_set", "flag": "tournament_top8"})},
         {"id": "personal_disciple", "name": "Personal Disciple", "requires": all_of(realm("spirit_awakening_5"))},
         {"id": "deacon", "name": "Deacon", "requires": all_of(realm("heaven_glimpse_1"))},
+        # S20: Elder at Sage or higher; the Elder's token comes at Sage Sovereign 1 (the token upgrade).
+        {"id": "elder", "name": "Elder", "requires": all_of(realm("sage_sovereign_1"))},
     ]
     write("sect_ranks.json", {"order": [x["id"] for x in ranks], "ranks": ranks})
 
@@ -431,6 +446,11 @@ def achievements():
          "match": {"def": "thousand_eye_toad"}, "rewards": [{"kind": "grant_item", "item": "spirit_stone_mid", "count": 5}]},
         {"id": "the_king_sleeps", "name": "The King Sleeps", "desc": "Defeat the Tomb King of Sunscar", "event": "actor_defeated",
          "match": {"def": "tomb_king"}, "title": "sunscar_victor"},
+        {"id": "cast_off", "name": "Cast Off", "desc": "Cross the Starsea in a vessel you built", "event": "voyage_arrived", "title": "starsea_sailor"},
+        {"id": "the_gate_holds", "name": "The Gate Holds", "desc": "Win the sect war at the Alliance Gate", "event": "event_passed",
+         "match": {"event": "sect_war"}, "title": "gate_defender"},
+        {"id": "eight_seats_bowed", "name": "Eight Seats Bowed", "desc": "Pass the Presence Trial", "event": "event_passed",
+         "match": {"event": "presence_trial"}, "title": "presence_bearer"},
     ]
     entries("achievements", A)
     T = [
@@ -443,6 +463,12 @@ def achievements():
         {"id": "seal_keeper", "name": "Keeper of the Sun Seal", "modifiers": [{"stat": "qi_attack", "op": "pct_add", "value": 0.03}]},
         {"id": "sunscar_sealer", "name": "Sealer of Sunscar", "modifiers": [{"stat": "max_soul", "op": "pct_add", "value": 0.05}]},
         {"id": "sunscar_victor", "name": "Kingsbane of Sunscar", "modifiers": [{"stat": "essence", "op": "flat", "value": 3}]},
+        {"id": "starsea_sailor", "name": "Starsea Sailor", "modifiers": [{"stat": "spirit", "op": "flat", "value": 3}]},
+        {"id": "gate_defender", "name": "Defender of the Alliance Gate", "modifiers": [{"stat": "physical_defense", "op": "pct_add", "value": 0.03}]},
+        {"id": "ledger_burner", "name": "The Ledger's Ashes", "modifiers": [{"stat": "will", "op": "pct_add", "value": 0.03}]},
+        {"id": "ledger_returner", "name": "Bearer of Old Debts", "modifiers": [{"stat": "fortune", "op": "flat", "value": 3}]},
+        {"id": "presence_bearer", "name": "Bearer of Presence", "modifiers": [{"stat": "will", "op": "pct_add", "value": 0.05}]},
+        {"id": "starsea_voyager", "name": "Voyager of the Starsea", "modifiers": [{"stat": "attunement_bonus", "op": "flat", "value": 2}]},
         {"id": "shore_warden", "name": "Shore Warden", "modifiers": [{"stat": "physical_defense", "op": "pct_add", "value": 0.01}]},
         {"id": "iron_fist", "name": "Iron Fist", "modifiers": [{"stat": "fist_attack", "op": "pct_add", "value": 0.01}]},
         {"id": "steady_hands", "name": "Steady Hands", "modifiers": [{"stat": "crafting_control", "op": "pct_add", "value": 0.01}]},
@@ -514,12 +540,16 @@ def sect_tables():
          ("mission_hall", "Mission Hall", 600, "copper_ore", 15, 2), ("alchemy_hall", "Alchemy Hall", 900, "willow_moss", 20, 3),
          ("forge", "Forge", 900, "copper_ore", 30, 3), ("herb_terraces", "Herb Terraces", 700, "willow_moss", 15, 4),
          ("beast_pavilion", "Beast Pavilion", 700, "tough_meat", 15, 4), ("library", "Library", 1000, "talisman_paper", 10, 5),
-         ("formation_array", "Formation Array", 1200, "formation_stone", 10, 6), ("ancestral_shrine", "Ancestral Shrine", 1500, "jade_core", 1, 7)]
+         ("formation_array", "Formation Array", 1200, "formation_stone", 10, 6), ("ancestral_shrine", "Ancestral Shrine", 1500, "jade_core", 1, 7),
+         # S18/S25 zone outpost (v1.1): a waystation in the Azure Expanse that lends every member its Storm Ward.
+         ("expanse_outpost", "Expanse Outpost", 2500, "stormsteel_ore", 6, 8)]
     # What each level gives. A building damaged in a lost raid gives defence.damaged_output of it until repaired.
     OUTPUT = {"treasury": {"taels_per_level": 20},
               "meditation_pavilion": {"idle_rate_per_level": 0.1, "idle_cap_hours": [[2, 4], [4, 8], [5, 12]]},
-              "guest_house": {"disciples_base": 2, "disciples_per_level": 1}}
-    entries("sect_buildings", [dict({"id": b, "name": n, "base_cost": c, "material": m, "material_count": k, "sect_level": lv, "max_level": 10},
+              "guest_house": {"disciples_base": 2, "disciples_per_level": 1},
+              "expanse_outpost": {"attunement_per_level": 1.0, "zone": "azure_expanse", "requires_realm": "sage_1"}}
+    MAX = {"expanse_outpost": 5}
+    entries("sect_buildings", [dict({"id": b, "name": n, "base_cost": c, "material": m, "material_count": k, "sect_level": lv, "max_level": MAX.get(b, 10)},
                                     **({"output": OUTPUT[b]} if b in OUTPUT else {}))
                                for b, n, c, m, k, lv in B])
     write("sect_levels.json", {"prestige_building": 20, "levels": [{"level": n, "prestige": int(round(200 * n ** 1.8))} for n in range(1, 21)]})
@@ -536,6 +566,13 @@ def sect_tables():
          "rewards": [{"item": "jade_scale", "count": 2}, {"item": "pearl", "count": 1}, {"item": "riverreed_ginseng_100", "count": 1, "chance": 0.3}]},
         {"id": "whitewater_gorge", "name": "Whitewater Gorge", "hours": [8], "danger_level": 5,
          "rewards": [{"item": "jadeiron", "count": 3}, {"item": "mist_lotus", "count": 2}]},
+        # Beyond the gate: only a sect with an Expanse Outpost can send disciples this far.
+        {"id": "thunderhorn_plains", "name": "Thunderhorn Plains", "hours": [4, 8], "danger_level": 9, "requires_building": "expanse_outpost",
+         "rewards": [{"item": "storm_shard", "count": 6}, {"item": "thunder_horn", "count": 1}, {"coins": 400}]},
+        {"id": "gale_canyons", "name": "Gale Canyons", "hours": [8], "danger_level": 11, "requires_building": "expanse_outpost",
+         "rewards": [{"item": "stormsteel_ore", "count": 3}, {"item": "kite_silk", "count": 2}, {"item": "storm_shard", "count": 8}]},
+        {"id": "sunscar_desert", "name": "Sunscar Desert", "hours": [8], "danger_level": 12, "requires_building": "expanse_outpost",
+         "rewards": [{"item": "sunglass_ore", "count": 2}, {"item": "ember_cactus", "count": 2}, {"item": "storm_shard", "count": 8}]},
         {"id": "mist_peak", "name": "Mist Peak", "hours": [8], "danger_level": 8,
          "rewards": [{"item": "soulbell_flower", "count": 2}, {"item": "soul_wax", "count": 1}, {"item": "spirit_egg", "count": 1, "chance": 0.1}]},
     ])

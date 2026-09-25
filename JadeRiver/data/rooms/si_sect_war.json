@@ -1,0 +1,220 @@
+{
+ "schema_version": 1,
+ "id": "si_sect_war",
+ "zone": "azure_expanse",
+ "region": "story",
+ "name": "Sect War: the Alliance Gate",
+ "type": "story",
+ "level_range": [
+  78,
+  81
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "nine_peaks",
+ "ground": {
+  "material": "stone",
+  "tint": "#d6d0c4"
+ },
+ "spawn_point": [
+  500,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "exit",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "np_alliance_gate",
+   "to_portal": "east",
+   "press_up": true,
+   "label": "Leave",
+   "requires": {
+    "all": [
+     {
+      "kind": "event_passed",
+      "event": "sect_war"
+     }
+    ]
+   },
+   "locked_text": "Hold the Gate!"
+  }
+ ],
+ "objects": [],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "paifang_gate",
+   "at": [
+    700,
+    650
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "banner_alliance",
+   "at": [
+    300,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "banner_alliance",
+   "at": [
+    1100,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "sky_ship",
+   "at": [
+    3200,
+    600
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "star_ballista",
+   "at": [
+    2600,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "pirate_banner",
+   "at": [
+    3000,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "stockade_wall",
+   "at": [
+    1700,
+    660
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "boss",
+ "instanced": true,
+ "dungeon_exit": "",
+ "event": {
+  "id": "sect_war",
+  "duration": 300,
+  "waves": [
+   {
+    "enemy": "starsea_pirate",
+    "every_s": 5,
+    "max": 4,
+    "points": [
+     [
+      3300,
+      800
+     ],
+     [
+      3500,
+      900
+     ],
+     [
+      3600,
+      760
+     ]
+    ]
+   },
+   {
+    "enemy": "nine_peaks_disciple",
+    "every_s": 9,
+    "max": 2,
+    "first_s": 12,
+    "points": [
+     [
+      3200,
+      880
+     ],
+     [
+      3500,
+      820
+     ]
+    ]
+   }
+  ],
+  "timed_spawns": [
+   {
+    "enemy": "pirate_captain",
+    "at": [
+     3300,
+     840
+    ],
+    "after_s": 40,
+    "text": "Comet Captain Rao drops from the pirate junk onto the Gate!"
+   }
+  ],
+  "win_on_kill": "pirate_captain",
+  "on_complete": [
+   {
+    "kind": "event_passed",
+    "event": "sect_war"
+   },
+   {
+    "kind": "grant_currency",
+    "currency": "spirit_stone",
+    "amount": 150
+   },
+   {
+    "kind": "grant_item",
+    "item": "comet_iron",
+    "count": 2
+   },
+   {
+    "kind": "grant_item",
+    "item": "storm_shard",
+    "count": 10
+   }
+  ],
+  "on_timeout": [
+   {
+    "kind": "teleport",
+    "target": "np_alliance_gate",
+    "portal": ""
+   }
+  ]
+ }
+}

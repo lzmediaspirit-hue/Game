@@ -206,6 +206,33 @@
     "def": "tomb_king"
    },
    "title": "sunscar_victor"
+  },
+  {
+   "id": "cast_off",
+   "name": "Cast Off",
+   "desc": "Cross the Starsea in a vessel you built",
+   "event": "voyage_arrived",
+   "title": "starsea_sailor"
+  },
+  {
+   "id": "the_gate_holds",
+   "name": "The Gate Holds",
+   "desc": "Win the sect war at the Alliance Gate",
+   "event": "event_passed",
+   "match": {
+    "event": "sect_war"
+   },
+   "title": "gate_defender"
+  },
+  {
+   "id": "eight_seats_bowed",
+   "name": "Eight Seats Bowed",
+   "desc": "Pass the Presence Trial",
+   "event": "event_passed",
+   "match": {
+    "event": "presence_trial"
+   },
+   "title": "presence_bearer"
   }
  ]
 }

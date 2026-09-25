@@ -101,6 +101,72 @@
    ]
   },
   {
+   "id": "starsea_sailor",
+   "name": "Starsea Sailor",
+   "modifiers": [
+    {
+     "stat": "spirit",
+     "op": "flat",
+     "value": 3
+    }
+   ]
+  },
+  {
+   "id": "gate_defender",
+   "name": "Defender of the Alliance Gate",
+   "modifiers": [
+    {
+     "stat": "physical_defense",
+     "op": "pct_add",
+     "value": 0.03
+    }
+   ]
+  },
+  {
+   "id": "ledger_burner",
+   "name": "The Ledger's Ashes",
+   "modifiers": [
+    {
+     "stat": "will",
+     "op": "pct_add",
+     "value": 0.03
+    }
+   ]
+  },
+  {
+   "id": "ledger_returner",
+   "name": "Bearer of Old Debts",
+   "modifiers": [
+    {
+     "stat": "fortune",
+     "op": "flat",
+     "value": 3
+    }
+   ]
+  },
+  {
+   "id": "presence_bearer",
+   "name": "Bearer of Presence",
+   "modifiers": [
+    {
+     "stat": "will",
+     "op": "pct_add",
+     "value": 0.05
+    }
+   ]
+  },
+  {
+   "id": "starsea_voyager",
+   "name": "Voyager of the Starsea",
+   "modifiers": [
+    {
+     "stat": "attunement_bonus",
+     "op": "flat",
+     "value": 2
+    }
+   ]
+  },
+  {
    "id": "shore_warden",
    "name": "Shore Warden",
    "modifiers": [

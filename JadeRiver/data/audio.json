@@ -55,6 +55,11 @@
    "loop": true,
    "volume_db": -6
   },
+  "starsea": {
+   "file": "res://art/audio/music/starsea.wav",
+   "loop": true,
+   "volume_db": -6
+  },
   "storm_plains": {
    "file": "res://art/audio/music/storm_plains.wav",
    "loop": true,

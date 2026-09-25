@@ -196,6 +196,16 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 				quest.start_weekly(true)
 			"system_used": GameEvents.emit_event("system_used", {"actor": actor_id, "system": str(e.system)})
 			"sect_defence_result": sect.apply_defence_result(actor_id, bool(e.get("won", true)))
+			"voyage_arrive": world.apply_voyage_arrive(actor_id)
+			"upgrade_sect_token":
+				# Part 4 · Sage Sovereign 1: the training sect's token becomes an Elder's token.
+				var tc = character(actor_id)
+				if tc == null or tc.training_sect.is_empty(): continue
+				var token := str(ContentDB.entry("sects", str(tc.training_sect.get("id", ""))).get("token", ""))
+				if token == "" or tc.inventory.count(token.replace("_token", "_elder_token")) > 0: continue
+				inventory.apply_add(actor_id, token.replace("_token", "_elder_token"), 1, source)
+				training.apply_rank(actor_id, "elder")
+			"open_dao": progression.apply_open_dao(actor_id, str(e.dao))
 			_: push_warning("Unknown effect kind: " + str(e.get("kind", "")))
 
 # ------------------------------------------------------------------ simulation

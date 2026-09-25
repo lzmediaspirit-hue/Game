@@ -41,6 +41,8 @@ const PAGES := {
 	"formations": "res://scripts/ui/pages/workshop_page.gd",
 	"workshop": "res://scripts/ui/pages/workshop_page.gd",
 	"arrays": "res://scripts/ui/pages/crafts_page.gd",
+	"charts": "res://scripts/ui/pages/crafts_page.gd",
+	"vessels": "res://scripts/ui/pages/crafts_page.gd",
 	"garden": "res://scripts/ui/pages/crafts_page.gd",
 	"fishing": "res://scripts/ui/pages/fishing_page.gd",
 	"seclusion": "res://scripts/ui/pages/cultivation_page.gd",

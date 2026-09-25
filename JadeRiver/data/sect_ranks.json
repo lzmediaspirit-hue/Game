@@ -6,7 +6,8 @@
   "inner_disciple",
   "core_disciple",
   "personal_disciple",
-  "deacon"
+  "deacon",
+  "elder"
  ],
  "ranks": [
   {
@@ -73,6 +74,18 @@
      {
       "kind": "realm_at_least",
       "realm": "heaven_glimpse_1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "elder",
+   "name": "Elder",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_1"
      }
     ]
    }

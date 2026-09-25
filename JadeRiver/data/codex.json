@@ -162,6 +162,36 @@
    "body": "The Sage whose Qi governs the land around it. A Sovereign's breakthrough needs a full reserve and one Dao that has learned to adapt."
   },
   {
+   "id": "starsea",
+   "title": "The Starsea",
+   "body": "Beyond the Expanse's last peaks the sky has no floor: stars below as well as above. Only a Sage's Qi survives its wind, and only a charted vessel finds the far shore."
+  },
+  {
+   "id": "skyport_wreck",
+   "title": "The Skyport Wreck",
+   "body": "An old sky-port that broke on the edge of the Starsea. Its piers hang over nothing; the pirates of the comet sails made a nest of its biggest hull."
+  },
+  {
+   "id": "sect_war",
+   "title": "The War at the Gate",
+   "body": "When the comet sails struck the Alliance Gate, every peak sent its best. A valley cultivator held the line beside them."
+  },
+  {
+   "id": "lus_crossing",
+   "title": "Lu's Crossing",
+   "body": "Five pages across the Expanse: the port, the lake, the tomb, the canyons, the peak. Lu sat the Presence Trial, felt himself go thin, and chose the river instead."
+  },
+  {
+   "id": "presence_trial",
+   "title": "The Presence Trial",
+   "body": "Eight seats of the Nine Peaks press their Presence on one cultivator. Whoever stays themselves under it holds the key to Will Manifest."
+  },
+  {
+   "id": "lantern_star_field",
+   "title": "The Lantern Star Field",
+   "body": "Past the Starsea Launch: a field of lanterns hanging in the dark. No one hangs them. They are simply there, waiting for the next age of your road."
+  },
+  {
    "id": "sage_qi",
    "title": "Sage Qi",
    "body": "True Qi pressed until it remembers it was light. Stronger by far, and the valley could never have held it."

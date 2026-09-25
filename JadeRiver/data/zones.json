@@ -430,6 +430,7 @@
     "ae_condensing_hall",
     "ae_landing",
     "ae_port_market",
+    "ae_shipyard",
     "ae_skydock",
     "ae_wayfarers_inn",
     "gc_canyon_mouth",
@@ -448,6 +449,7 @@
     "np_auction_pavilion",
     "np_hall_of_nine",
     "np_presence_terrace",
+    "np_trial_hall",
     "rf_frostpine_climb",
     "rf_hermits_ice_cave",
     "rf_rimefrost_summit",
@@ -456,6 +458,13 @@
     "sd_oasis_of_bones",
     "sd_scorpion_flats",
     "sd_worm_sea",
+    "si_presence_trial",
+    "si_sect_war",
+    "ss_starsea_crossing",
+    "sw_broken_pier",
+    "sw_pirate_deck",
+    "sw_riven_peak",
+    "sw_starsea_launch",
     "tp_herders_camp",
     "tp_lightning_scar",
     "tp_stormgrass_verge",
@@ -591,8 +600,20 @@
      "map": [
       0.1,
       0.18
+     ]
+    },
+    {
+     "id": "starsea",
+     "name": "Starsea",
+     "levels": [
+      79,
+      81
      ],
-     "planned": true
+     "map": [
+      0.05,
+      0.1
+     ],
+     "hidden": true
     }
    ],
    "exit": {

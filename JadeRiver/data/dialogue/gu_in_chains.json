@@ -1,0 +1,70 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "gu_in_chains": {
+   "id": "gu_in_chains",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_active",
+        "quest": "the_skyport_wreck"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "gu_freed"
+       },
+       {
+        "kind": "flag_not_set",
+        "flag": "gu_left"
+       }
+      ]
+     },
+     "node": "chains"
+    }
+   ],
+   "nodes": {
+    "chains": {
+     "lines": [
+      "You. The fisher's child from Lotus Ferry. Look at you now.",
+      "I sold them the ledger for passage. They kept the ledger and kept me. The names they wanted were never the valley's.",
+      "Three disciples of the Nine Peaks sold them the Gate's watch. It is all in the ledger. Free me and it is yours."
+     ],
+     "choices": [
+      {
+       "text": "(Break his chains.) Go home, Gu. Pay your debts there.",
+       "effects": [
+        {
+         "kind": "set_flag",
+         "flag": "gu_freed"
+        },
+        {
+         "kind": "grant_item",
+         "item": "black_ledger",
+         "count": 1
+        }
+       ],
+       "close": true
+      },
+      {
+       "text": "(Take the ledger from his belt.) The Alliance can decide about you.",
+       "effects": [
+        {
+         "kind": "set_flag",
+         "flag": "gu_left"
+        },
+        {
+         "kind": "grant_item",
+         "item": "black_ledger",
+         "count": 1
+        }
+       ],
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

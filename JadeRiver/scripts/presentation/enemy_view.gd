@@ -93,7 +93,9 @@ func sync(e: EnemyState, delta: float) -> void:
 	if avatar:
 		avatar.facing = e.facing
 		if e.flash > 0.0: avatar.modulate = Color(2, 2, 2) if int(e.flash * 60) % 2 == 0 else Color.WHITE
-		elif e.def_id != "the_reflection" and not avatar.outfit.has("tint"): avatar.modulate = Color.WHITE
+		elif avatar.outfit.has("tint"): avatar.modulate = Color(str(avatar.outfit.tint))   # phantoms keep their colour after a hit
+		elif e.def_id == "the_reflection": avatar.modulate = Color(0.75, 0.85, 1.0, 0.85)
+		else: avatar.modulate = Color.WHITE
 	if not e.alive:
 		death_fade = maxf(0.0, 1.0 - e.dead_time / 1.4)
 		modulate.a = death_fade if avatar else 1.0

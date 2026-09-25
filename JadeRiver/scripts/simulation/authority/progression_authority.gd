@@ -95,6 +95,7 @@ func accumulation_bonus(c) -> float:
 		bonus = (1.0 + bonus) * float(ContentDB.curve("ancestral_guidance", 1.5)) - 1.0
 	bonus += 0.02 * game.account.legacy.size()
 	bonus += game.pets.resonance(c)
+	bonus += game.companions.paired_bonus(c)
 	return bonus
 
 func tick(delta: float) -> void:
@@ -161,7 +162,7 @@ func _meditation_second(c) -> void:
 		apply_soul(c.id, float(ContentDB.curve("soul_meditate_per_hour", 10)) / 3600.0)
 	if mc.stone != "":
 		apply_insight(c.id, mc.stone, float(ContentDB.curve("insight_stone_per_min", 20)) / 60.0 * mult, "insight_stone")
-	emit("meditation_tick", {"actor": c.id, "gains": gains, "spring": mc.spring})
+	emit("meditation_tick", {"actor": c.id, "gains": gains, "spring": mc.spring, "paired": game.companions.paired_bonus(c) > 0.0})
 
 func _step_stability(c, direction: int) -> void:
 	var order: Array = ContentDB.curve("stability_order", ["unstable", "settling", "stable", "solid"])
@@ -205,7 +206,7 @@ func attunement_required(room_id: String) -> float:
 ## that zone, plus temporary bonuses such as a Storm Blood Pill.
 func attunement_value(c, zone_id: String) -> float:
 	if c == null or zone_id == "": return 0.0
-	return float(c.cultivator.attunement.get(zone_id, 0.0)) + c.stats.value("attunement_bonus")
+	return float(c.cultivator.attunement.get(zone_id, 0.0)) + c.stats.value("attunement_bonus") + game.sect.outpost_attunement(zone_id)
 
 func attunement_factors(c) -> Dictionary:
 	var room_id := str(c.position.get("room", ""))
@@ -594,15 +595,28 @@ func apply_insight(actor_id: String, dao: String, amount: float, context: String
 	mem[key] = game.sim_time
 	if mem.size() > 64: mem.clear()
 	amount *= 1.0 + c.stats.value("insight_rate")
+	# A rare Dao grows only after a teacher has opened it (apply_open_dao).
+	if str(ContentDB.entry("daos", dao).get("family", "")) == "rare" and not c.cultivator.daos.has(dao): return
 	var d: Dictionary = c.cultivator.daos.get(dao, {"tier": 0, "insight": 0.0})
 	d.insight = float(d.insight) + amount
-	var cap := int(ContentDB.entry("daos", dao).get("valley_cap", 6))
+	# A Dao deepens as far as the land's Laws allow: its valley cap, or the cap of the zone you stand in.
+	var ddef := ContentDB.entry("daos", dao)
+	var zone_id := str(ContentDB.room_zone.get(str(c.position.get("room", "")), ""))
+	var cap := maxi(int(ddef.get("valley_cap", 6)), int(ddef.get("zone_caps", {}).get(zone_id, 0)))
 	var tier := mini(ProgressionRules.dao_tier_for(float(d.insight)), cap)
 	var gained := tier > int(d.tier)
 	d.tier = maxi(int(d.tier), tier)
 	c.cultivator.daos[dao] = d
 	emit("insight_gained", {"actor": c.id, "dao": dao, "amount": amount})
 	if gained: emit("dao_tier_up", {"actor": c.id, "dao": dao, "tier": d.tier})
+
+## A teacher of the Expanse opens a rare Dao: the first tier's insight comes with the lesson.
+func apply_open_dao(actor_id: String, dao: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or not ContentDB.has_entry("daos", dao) or c.cultivator.daos.has(dao): return
+	c.cultivator.daos[dao] = {"tier": 0, "insight": 0.0}
+	var first: Array = ContentDB.curve("dao_tiers", [100])
+	apply_insight(actor_id, dao, float(first[0]) / (1.0 + c.stats.value("insight_rate")), "teacher:" + dao)
 
 func apply_injury(actor_id: String, kind: String, severity: int) -> void:
 	var c = game.character(actor_id)

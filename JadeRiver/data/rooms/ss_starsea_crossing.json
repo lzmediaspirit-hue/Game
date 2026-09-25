@@ -1,0 +1,157 @@
+{
+ "schema_version": 1,
+ "id": "ss_starsea_crossing",
+ "zone": "azure_expanse",
+ "region": "starsea",
+ "name": "Starsea Crossing",
+ "type": "story",
+ "level_range": [
+  79,
+  81
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [
+  "star_wind"
+ ],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": true,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "starsea",
+ "ground": {
+  "material": "wood",
+  "tint": "#b8a58a"
+ },
+ "spawn_point": [
+  900,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [],
+ "objects": [],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "sky_ship",
+   "at": [
+    3300,
+    600
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "broken_mast",
+   "at": [
+    1500,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "crate",
+   "at": [
+    600,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "crate",
+   "at": [
+    2400,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "rope",
+   "at": [
+    1200,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    2000,
+    720
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "starsea",
+ "ambience": "wind_ambience",
+ "instanced": true,
+ "crossing": true,
+ "dungeon_exit": "",
+ "attunement_required": 60,
+ "event": {
+  "id": "starsea_crossing",
+  "duration": 70,
+  "waves": [
+   {
+    "enemy": "starsea_pirate",
+    "every_s": 10,
+    "max": 2,
+    "first_s": 8,
+    "points": [
+     [
+      3400,
+      820
+     ],
+     [
+      3500,
+      900
+     ]
+    ]
+   },
+   {
+    "enemy": "wind_kite",
+    "every_s": 14,
+    "max": 2,
+    "first_s": 16,
+    "points": [
+     [
+      2800,
+      780
+     ],
+     [
+      3300,
+      760
+     ]
+    ]
+   }
+  ],
+  "on_complete": [
+   {
+    "kind": "voyage_arrive"
+   }
+  ]
+ }
+}

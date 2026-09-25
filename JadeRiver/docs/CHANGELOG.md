@@ -1,8 +1,50 @@
 # Changelog
 
-## 1.1 (in progress) — The Azure Expanse (Act II)
+## 1.1 — The Azure Expanse (Act II)
 
-Built in phases (docs/act2_design.md). Phases A to D (chapters 11 to 14) are playable end to end.
+Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
+the Ascension Gate to the Starsea Launch.
+
+### Phase E · the Starsea
+- **The Shipwrights' Yard** at the west end of the Cloudgate Skydock: Navigator Sun's chart table, Shipwright
+  Lao's slipway, an armillary sphere and the first Starsea dock.
+- **Star charts and vessels (S16, Sage 3).** Two new crafts on the Crafts page, shown from Sage 3. Sighting
+  stones on high places (the Yard, Rimefrost Summit, the Presence Terrace, the Riven Peak) give one star reading
+  every ten minutes. Readings and sky ink make a route's chart (40 XP a route). Vessels are built on the slipway: the Cloud Skiff
+  (smithing Adept) and the Storm Sloop (smithing and formations Adept, comet iron, half again as fast).
+- **Starsea voyages (S18).** At a dock, a vessel and the route's chart set sail into an instanced crossing on
+  the vessel's deck. The crossing lasts as long as the vessel takes: pirates board, wind kites dive, and the
+  **star wind** strips Qi from anyone whose Spirit cannot hold it in (Starsea survival). The crossing ends in port
+  at the far end. Falling overboard abandons it.
+- **The Skyport Wreck** (Lv 76–81, Storm Ward 56–60), reached only by sailing: the Broken Pier, the Pirate
+  Deck, the Riven Peak and the Starsea Launch (rest, teleport stone), with a wrecked-sky-port backdrop, an open
+  Starsea backdrop for the crossing, and a new synthesized Starsea theme.
+- Five new foes drawn with the avatar engine: the **Starsea Pirate**, the **Rogue Nine Peaks Disciple**,
+  **Comet Captain Rao** and the Trial Hall's **Presences** (tinted phantoms, and the Ninth Presence).
+- **Chapter 15, Pirates of the Starsea**:
+  - Gu's Ledger: a page of the valley's secrets turns up at the auction.
+  - The Skyport Wreck: chart, build, sail, take back the pages, and free Elder Gu or leave him.
+  - Sect War: at Sage Sovereign 2, the defence of the Alliance Gate, with waves of pirates and deserters and then the captain. Burn the Black Ledger or send each page home. Afterwards the Alliance war gong calls a new battle every 20 hours, for Spirit Stones, comet iron and storm shards.
+- **Chapter 16, The Presence Trial**:
+  - Lu's Last Page, on the Riven Peak.
+  - The Presence Trial: at Sage Sovereign 3, ninety seconds beneath the eight seats of the Trial Hall. Their Presence presses down, answered by Will; phantoms attack; the Ninth Presence arrives half-way. Passing it holds the key to Will Manifest, which the Expanse's ceiling still locks.
+  - Stars Beyond: chart the Lantern Run, and the Launch's ring lights toward the Lantern Star Field (Act III).
+- Act II systems from the v1.1 row:
+  - **Elder's token** at Sage Sovereign 1: the training sect's token upgrades, the Elder rank follows, and home is a free teleport.
+  - **Expanse Outpost**, a sect building from sect level 8: +1 Storm Ward per level for every member, and expeditions to three Expanse regions.
+  - **Paired cultivation** from Sage 1: +15% accumulation while a companion sits with you.
+  - **Rare Daos from teachers:**
+    - Blood (Matriarch Tie);
+    - Life and Death (Bone-Reader Xiu);
+    - Emotion (Hermit Shuang).
+    - Each has four tiers of stat bonuses and grows only after its teacher opens it.
+  - The Expanse's own Laws (Fire, Metal, Thunder, Soul) now deepen past their valley caps there.
+- Six side stories (The Deserters, Iron from a Comet, Clear Skies over the Peak and the three Dao lessons), three
+  guided quests, five NPCs, six codex entries, seven titles and three achievements.
+- Fixes: a tinted avatar enemy (a drowned acolyte, a phantom) kept its hit-flash white instead of its colour.
+- Tests: two new valley_run sections (ae5, ae6) sail, build, fight the sect war and sit the Presence Trial through
+  intents; 18 new rules checks cover docks, charts, vessels, the star wind, the outpost, rare Daos, zone caps and
+  the Elder's token; data validation follows Starsea routes when it checks that every room can be reached.
 
 ### Phase D · Sunscar
 - **The Sunscar Desert** (Lv 73–81, Storm Ward 45–50), south of Ironroot Hold down the desert road from the

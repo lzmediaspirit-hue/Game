@@ -1,0 +1,463 @@
+{
+ "schema_version": 1,
+ "id": "sw_broken_pier",
+ "zone": "azure_expanse",
+ "region": "skyport_wreck",
+ "name": "Broken Pier",
+ "type": "field",
+ "level_range": [
+  76,
+  78
+ ],
+ "recommended_cp": 1388,
+ "element": "metal",
+ "qi_density": 1.9,
+ "hazards": [
+  "wind_gust"
+ ],
+ "gather_tier": "expanse_high",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "skyport_wreck",
+ "ground": {
+  "material": "stone",
+  "tint": "#c9c2d6"
+ },
+ "spawn_point": [
+  420,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "sw_pirate_deck",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "ore_1",
+   "type": "ore_vein",
+   "at": [
+    1953,
+    690
+   ],
+   "item": "stormsteel_ore",
+   "prop": "stormsteel_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "master",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_2",
+   "type": "jar",
+   "at": [
+    463,
+    900
+   ],
+   "loot": "jar_expanse",
+   "level": 77,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_3",
+   "type": "crate",
+   "at": [
+    1414,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 77,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    2469,
+    720
+   ],
+   "loot": "jar_expanse",
+   "level": 77,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_5",
+   "type": "crate",
+   "at": [
+    3347,
+    900
+   ],
+   "loot": "jar_expanse",
+   "level": 77,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "dock_wreck",
+   "type": "starsea_dock",
+   "at": [
+    220,
+    700
+   ],
+   "route": "wreck_run_home",
+   "prop": "cloud_skiff"
+  },
+  {
+   "id": "shrine_sw_pier",
+   "type": "shrine",
+   "at": [
+    700,
+    700
+   ]
+  },
+  {
+   "id": "sign_sw",
+   "type": "signpost",
+   "at": [
+    560,
+    860
+   ],
+   "text": "The Skyport Wreck. East: the Pirate Deck. Beyond it the peak, and the Starsea Launch."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "nine_peaks_disciple",
+   "surface": "ground",
+   "points": [
+    [
+     152,
+     901
+    ],
+    [
+     1300,
+     840
+    ],
+    [
+     1897,
+     774
+    ],
+    [
+     2599,
+     899
+    ],
+    [
+     3278,
+     836
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 12,
+   "level": [
+    76,
+    78
+   ]
+  },
+  {
+   "enemy": "starsea_pirate",
+   "surface": "ground",
+   "points": [
+    [
+     1310,
+     710
+    ],
+    [
+     1989,
+     894
+    ],
+    [
+     3010,
+     890
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 12,
+   "level": [
+    78,
+    79
+   ]
+  },
+  {
+   "enemy": "nine_peaks_disciple",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    78,
+    78
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    131,
+    633
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    664,
+    634
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    1215,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1751,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    2293,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2917,
+    639
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    3425,
+    630
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    95,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    429,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    734,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1045,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1328,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1604,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1910,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2155,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2397,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2766,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3083,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3434,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3750,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "wreck_hull",
+   "at": [
+    1700,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "starsea_anchor",
+   "at": [
+    1100,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "pirate_banner",
+   "at": [
+    2300,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "broken_mast",
+   "at": [
+    2900,
+    690
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "starsea",
+ "ambience": "wind_ambience",
+ "attunement_required": 56
+}

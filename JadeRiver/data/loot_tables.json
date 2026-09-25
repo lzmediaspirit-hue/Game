@@ -1877,6 +1877,185 @@
    "rare": []
   },
   {
+   "id": "starsea_pirate",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "comet_iron",
+       "chance": 0.4,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "chance": 0.55,
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      },
+      {
+       "item": "spirit_stone_shard",
+       "chance": 0.4,
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "will_tempering_pill",
+     "chance": 0.04,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "quest_drops": [
+    {
+     "item": "ledger_page",
+     "chance": 0.35,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "the_skyport_wreck"
+    }
+   ]
+  },
+  {
+   "id": "nine_peaks_disciple",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "alliance_badge",
+       "chance": 0.45,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "storm_shard",
+       "chance": 0.5,
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "pirate_captain",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 40
+   },
+   "equipment": {},
+   "rare": [],
+   "guaranteed": [
+    {
+     "item": "comet_iron",
+     "chance": 1.0,
+     "count": [
+      3,
+      5
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 1.0,
+     "count": [
+      10,
+      15
+     ],
+     "weight": 1
+    },
+    {
+     "item": "will_tempering_pill",
+     "chance": 1.0,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "presence_phantom",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": []
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "ninth_presence",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": []
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
    "id": "alliance_champion",
    "groups": [],
    "coins": {},
@@ -2492,6 +2671,67 @@
        "count": [
         1,
         2
+       ]
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 1.0,
+    "mult": 16
+   },
+   "rare": [],
+   "equipment": {
+    "chance": 0.8,
+    "min_quality": "fine"
+   }
+  },
+  {
+   "id": "chest_wreck",
+   "guaranteed": [
+    {
+     "item": "storm_shard",
+     "count": [
+      6,
+      10
+     ],
+     "chance": 1.0
+    },
+    {
+     "item": "comet_iron",
+     "count": [
+      2,
+      3
+     ],
+     "chance": 1.0
+    }
+   ],
+   "groups": [
+    {
+     "chance": 1.0,
+     "pick": [
+      {
+       "item": "manual_page",
+       "weight": 1,
+       "count": [
+        2,
+        3
+       ]
+      },
+      {
+       "item": "will_tempering_pill",
+       "weight": 1,
+       "count": [
+        1,
+        2
+       ]
+      },
+      {
+       "item": "sky_ink",
+       "weight": 1,
+       "count": [
+        2,
+        3
        ]
       }
      ]

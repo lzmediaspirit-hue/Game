@@ -111,8 +111,29 @@ def build():
                  "Formations take no damage for the first 10 s"], "effects": [{}, {}, {}, {}, {}]})
     for d in ["refining", "puppetry", "beast_taming"]:
         daos.append({"id": d, "family": "craft", "valley_cap": 2, "tiers": ["+5% quality or speed", "-10% materials"], "effects": [{}, {}]})
+    # The Azure Expanse's own Laws (five elements, Wind, Thunder) deepen past the valley's caps there (S18 World Laws).
+    for d in daos:
+        if d["family"] == "element":
+            d["zone_caps"] = {"azure_expanse": 5}
+    # Rare Daos (v1.1): taught by the Expanse's teachers, four tiers each while Act II lasts; each tier adds its modifiers.
+    RARE = {
+        "blood": (["+5% max HP", "+40% HP regeneration", "+5% tenacity", "+5% attack; can teach it"],
+                  [[{"stat": "max_hp", "value": 0.05}], [{"stat": "hp_regen", "value": 0.4}], [{"stat": "tenacity", "op": "flat", "value": 0.05}],
+                   [{"stat": "physical_attack", "value": 0.05}, {"stat": "qi_attack", "value": 0.05}]]),
+        "life_death": (["+5% max Soul", "Injuries heal 25% faster", "+10% soul defence", "+5% Hollow Ward; can teach it"],
+                       [[{"stat": "max_soul", "value": 0.05}], [{"stat": "injury_recovery", "op": "flat", "value": 0.25}],
+                        [{"stat": "soul_defense", "value": 0.1}], [{"stat": "hollow_ward", "op": "flat", "value": 0.05}]]),
+        "emotion": (["+10% Will", "+10% insight rate", "+5% soul attack", "+10% Will; can teach it"],
+                    [[{"stat": "will", "value": 0.1}], [{"stat": "insight_rate", "op": "flat", "value": 0.1}],
+                     [{"stat": "soul_attack", "value": 0.05}], [{"stat": "will", "value": 0.1}]]),
+    }
     for d in ["space", "time", "life_death", "blood", "karma", "emotion"]:
-        daos.append({"id": d, "family": "rare", "valley_cap": 0, "tiers": [], "effects": []})
+        if d in RARE:
+            tiers, mods = RARE[d]
+            daos.append({"id": d, "family": "rare", "valley_cap": 0, "zone_caps": {"azure_expanse": 4}, "tiers": tiers,
+                         "effects": [{} for _ in tiers], "mods": mods, "teacher": True})
+        else:
+            daos.append({"id": d, "family": "rare", "valley_cap": 0, "tiers": [], "effects": []})
     for d in daos:
         d["name"] = "%s Dao" % titled(d["id"])
     entries("daos.json", daos)

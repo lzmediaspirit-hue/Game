@@ -34,6 +34,7 @@ func _main() -> void:
 	pills_suite()
 	treasures_suite()
 	hazards_suite()
+	starsea_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -530,6 +531,95 @@ func hazards_suite() -> void:
 	_answer(c, "", -1.0)
 	for s in ["stun", "slow", "shock", "bleed", "poison"]: Game.combat.cure_status(c.id, s)
 	c.pools.hollowing = 0.0
+	Game.world.apply_teleport(c.id, back)
+
+# ------------------------------------------------------------------ the Starsea and Act II systems (v1.1)
+func starsea_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var back := str(c.position.get("room", "lf_village"))
+	# S18: a dock asks for the Starsea's survival (Sage 3), a vessel and the route's chart, in that order.
+	Game.world.apply_teleport(c.id, "ae_skydock")
+	check(str(Game.world.set_sail(c, "wreck_run").get("reason", "")) == "wrong_dock", "a route sails only from its own dock")
+	Game.world.apply_teleport(c.id, "ae_shipyard")
+	var had := Unlocks.is_unlocked(c.id, "starsea")
+	if not had: check(str(Game.world.set_sail(c, "wreck_run").get("reason", "")) == "locked", "the Starsea is closed before Sage 3")
+	Unlocks.force_unlock(c.id, "starsea")
+	check(str(Game.world.set_sail(c, "wreck_run").get("reason", "")) == "no_vessel", "no vessel, no voyage")
+	Game.inventory.apply_add(c.id, "cloud_skiff", 1, "test")
+	check(str(Game.world.set_sail(c, "wreck_run").get("reason", "")) == "no_chart", "no chart, no voyage")
+	Game.inventory.apply_add(c.id, "star_chart_wreck", 1, "test")
+	var r := Game.world.set_sail(c, "wreck_run")
+	check(r.get("ok", false) and Game.room_rt.room_id == "ss_starsea_crossing" and near(float(Game.room_rt.event.remaining), 70.0, 0.5),
+		"a skiff crosses the Wreck Run in 70 s")
+	Game.room_rt.event.remaining = 0.01
+	Game.tick(0.05)
+	GameEvents.flush()
+	check(Game.room_rt.room_id == "sw_broken_pier", "the crossing ends in port at the Broken Pier")
+	Game.inventory.apply_add(c.id, "storm_sloop", 1, "test")
+	r = Game.world.set_sail(c, "wreck_run_home")
+	check(r.get("ok", false) and near(float(Game.room_rt.event.remaining), 70.0 / 1.5, 0.5), "a storm sloop crosses half again as fast")
+	Game.world.apply_teleport(c.id, "ae_shipyard")
+	check(not Game.world.voyages.has(c.id), "leaving the crossing abandons the voyage")
+	Game.world.apply_teleport(c.id, "sw_starsea_launch")
+	check(str(Game.world.set_sail(c, "lantern_run").get("reason", "")) == "planned", "the Lantern Run waits for the next act")
+	for k in ["cloud_skiff", "storm_sloop", "star_chart_wreck"]: Game.inventory.apply_remove(c.id, k, 1, "test")
+	# The star wind strips Qi; Spirit holds it in.
+	if c.pools.max_qi > 0.0:
+		var hs := _hazard_room(c, "sw_riven_peak", Vector2(1500, 820))
+		hs = Game.room_rt.hazards.get("star_wind", {})
+		_answer(c, "spirit", 1.0)
+		c.pools.qi = c.pools.max_qi
+		_hazard_to_active(hs)
+		check(c.pools.qi < c.pools.max_qi * 0.97, "the star wind strips Qi (%.0f%%)" % (100.0 * c.pools.qi / c.pools.max_qi))
+		_answer(c, "spirit", 9999.0)
+		c.pools.qi = c.pools.max_qi
+		_hazard_to_active(hs)
+		_hazard_to_active(hs)
+		check(near(c.pools.qi, c.pools.max_qi, 1.0), "enough Spirit keeps every drop of it")
+		_answer(c, "", -1.0)
+	# The Presence of the eight seats is answered by Will (S17 Weight zones).
+	var pres := ContentDB.entry("hazards", "presence")
+	check(str(pres.answer) == "will" and HazardRules.need(pres, ContentDB.room("si_presence_trial")) == 189, "the Presence Trial asks Will 189 (2.2 x (5 + 81))")
+	# S18: an Expanse Outpost lends every member of the sect its Storm Ward.
+	var saved: Dictionary = Game.account.sect.duplicate(true)
+	var base := Game.progression.attunement_value(c, "azure_expanse")
+	Game.account.sect = {"level": 8, "buildings": {"expanse_outpost": 3}, "damaged": {}}
+	check(near(Game.progression.attunement_value(c, "azure_expanse") - base, 3.0), "an Expanse Outpost at level 3 adds 3 Storm Ward")
+	check(Game.sect.outpost_attunement("jade_river_valley") == 0.0, "and nothing in the valley")
+	Game.account.sect = saved
+	# Paired cultivation only while meditating.
+	check(Game.companions.paired_bonus(c) == 0.0, "no paired bonus while not meditating")
+	# Rare Daos: closed until a teacher opens them; each tier adds its modifiers. Zone caps: the Expanse's Laws go deeper.
+	Game.world.apply_teleport(c.id, "ae_landing")
+	Unlocks.force_unlock(c.id, "dao_tree")
+	var daos_saved: Dictionary = c.cultivator.daos.duplicate(true)
+	c.cultivator.daos.erase("blood")
+	Game.progression.apply_insight(c.id, "blood", 500.0, "test:blood:a")
+	check(not c.cultivator.daos.has("blood"), "a rare Dao cannot be contemplated before a teacher opens it")
+	StatRules.rebuild(c)
+	var hp0: float = c.stats.value("max_hp")
+	Game.progression.apply_open_dao(c.id, "blood")
+	StatRules.rebuild(c)
+	check(int(c.cultivator.daos.get("blood", {}).get("tier", 0)) == 1 and c.stats.value("max_hp") > hp0 * 1.04,
+		"a teacher opens the Blood Dao at tier 1: +5%% max HP (%.0f -> %.0f)" % [hp0, c.stats.value("max_hp")])
+	Game.world.apply_teleport(c.id, "lf_village")
+	c.cultivator.daos["thunder"] = {"tier": 0, "insight": 0.0}
+	Game.progression.apply_insight(c.id, "thunder", 3000.0, "test:thunder:valley")
+	var valley_tier := int(c.cultivator.daos.thunder.tier)
+	Game.world.apply_teleport(c.id, "ae_landing")
+	Game.progression.apply_insight(c.id, "thunder", 10.0, "test:thunder:expanse")
+	check(valley_tier == 2 and int(c.cultivator.daos.thunder.tier) == 4, "the Thunder Dao stops at tier 2 in the valley and deepens in the Expanse (%d, %d)" % [valley_tier, int(c.cultivator.daos.thunder.tier)])
+	c.cultivator.daos = daos_saved
+	StatRules.rebuild(c)
+	# The Elder's token (Sage Sovereign 1): home to the training sect for no shards.
+	if not c.training_sect.is_empty():
+		var sid := str(c.training_sect.id)
+		var stone := "jade_academy" if sid == "jade_sect" else "cloud_monastery"
+		var fee := Game.world.teleport_fee(stone, c)
+		Game.apply_effects(c.id, [{"kind": "upgrade_sect_token"}], "test")
+		check(fee > 0 and Game.world.teleport_fee(stone, c) == 0, "an Elder's token calls its bearer home for free")
+		Game.inventory.apply_remove(c.id, sid.replace("_sect", "") + "_elder_token", 1, "test")
 	Game.world.apply_teleport(c.id, back)
 
 # ------------------------------------------------------------------ emotes (S34)

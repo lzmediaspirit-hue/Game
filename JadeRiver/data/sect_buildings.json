@@ -132,6 +132,20 @@
    "material_count": 1,
    "sect_level": 7,
    "max_level": 10
+  },
+  {
+   "id": "expanse_outpost",
+   "name": "Expanse Outpost",
+   "base_cost": 2500,
+   "material": "stormsteel_ore",
+   "material_count": 6,
+   "sect_level": 8,
+   "max_level": 5,
+   "output": {
+    "attunement_per_level": 1.0,
+    "zone": "azure_expanse",
+    "requires_realm": "sage_1"
+   }
   }
  ]
 }

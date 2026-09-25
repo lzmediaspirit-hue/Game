@@ -8,7 +8,7 @@ extends Authority
 var pending: Dictionary = {}   # actor -> {object, kind, started, channel}
 var steps: Dictionary = {}     # actor -> {recipe, craft, scores}: the mini-game in progress
 
-const NODE_CRAFT := {"herb_patch": "herb_gathering", "ore_vein": "mining", "fishing_spot": "fishing"}
+const NODE_CRAFT := {"herb_patch": "herb_gathering", "ore_vein": "mining", "fishing_spot": "fishing", "star_sight": "star_charting"}
 const RANK_CAPS := {
 	"herb_gathering": [["qi_kindling_1", "adept"], ["cloud_stride_1", "expert"], ["sage_1", "master"]],
 	"mining": [["qi_unfurling_1", "adept"], ["spirit_awakening_1", "expert"], ["sage_sovereign_1", "master"]],
@@ -16,12 +16,19 @@ const RANK_CAPS := {
 	"fishing": [["qi_kindling_1", "adept"], ["cloud_stride_1", "expert"], ["sage_1", "master"]],
 	"alchemy": [["qi_unfurling_1", "adept"], ["cloud_stride_1", "expert"], ["heaven_glimpse_1", "master"]],
 	"smithing": [["qi_unfurling_1", "adept"], ["cloud_stride_1", "expert"], ["heaven_glimpse_1", "master"]],
+	# S16: the Starsea crafts open at Sage 3 and rise with the Sovereign stages.
+	"star_charting": [["sage_3", "adept"], ["sage_sovereign_1", "expert"], ["sage_sovereign_3", "master"]],
+	"shipwright": [["sage_3", "adept"], ["sage_sovereign_1", "expert"], ["sage_sovereign_3", "master"]],
 }
+## Stations and the verb each craft uses; the Starsea crafts take no mini-game.
+const STATIONS := {"cooking": ["cooking_pot"], "alchemy": ["alchemy_furnace"], "smithing": ["forge_anvil"],
+	"star_charting": ["chart_table"], "shipwright": ["shipyard_slip"]}
 const GRADE_CAP := [["qi_kindling_1", "common"], ["qi_unfurling_1", "earth"], ["cloud_stride_1", "heaven"], ["heaven_glimpse_1", "mystic"], ["sage_1", "spirit"],
 	["sage_sovereign_1", "sage"]]
 
 func intents() -> Array:
-	return ["complete_node", "catch_fish", "cook", "craft_step", "refine", "queue_auto_refine", "collect_auto_refine", "forge", "enhance", "salvage_item"]
+	return ["complete_node", "catch_fish", "cook", "craft_step", "refine", "queue_auto_refine", "collect_auto_refine", "forge", "enhance", "salvage_item",
+		"chart_route", "build_vessel"]
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -37,6 +44,8 @@ func handle(intent: Dictionary) -> Dictionary:
 		"collect_auto_refine": return collect_auto(c)
 		"enhance": return enhance(c, int(intent.get("index", -1)), str(intent.get("slot", "")))
 		"salvage_item": return salvage(c, int(intent.get("index", -1)))
+		"chart_route": return craft(c, str(intent.get("recipe", "")), 1, [], "star_charting")
+		"build_vessel": return craft(c, str(intent.get("recipe", "")), 1, [], "shipwright")
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ professions
@@ -88,14 +97,14 @@ func tool_power(c, craft: String) -> float:
 func gather(c, o: Dictionary) -> Dictionary:
 	var craft: String = NODE_CRAFT.get(str(o.type), "")
 	if not Unlocks.is_unlocked(c.id, craft): return fail("locked", {"text": Unlocks.locked_text(craft)})
-	var tool_craft = {"herb_gathering": "gathering", "mining": "mining", "fishing": "fishing"}[craft]
-	if craft != "herb_gathering" and tool_power(c, tool_craft) <= 0.0: return fail("no_tool", {"text": Tx.t("sim.crafting.you_need_a") % {"mining": "pickaxe", "fishing": Tx.t("sim.crafting.fishing_rod")}[craft]})
+	if craft in ["mining", "fishing"] and tool_power(c, craft) <= 0.0: return fail("no_tool", {"text": Tx.t("sim.crafting.you_need_a") % {"mining": "pickaxe", "fishing": Tx.t("sim.crafting.fishing_rod")}[craft]})
 	var need_rank := str(o.get("rank", "apprentice"))
 	if rank_index(rank_of(c, craft)) < rank_index(need_rank): return fail("rank", {"text": Tx.t("sim.crafting.needs") % [craft.replace("_", " ").capitalize(), need_rank.capitalize()]})
-	var channel = {"herb_patch": 1.5, "ore_vein": 2.4, "fishing_spot": 0.0}[str(o.type)]
+	var channel = {"herb_patch": 1.5, "ore_vein": 2.4, "fishing_spot": 0.0, "star_sight": 3.0}[str(o.type)]
 	pending[c.id] = {"object": str(o.id), "kind": str(o.type), "started": game.sim_time, "channel": channel}
 	emit("node_action_started", {"actor": c.id, "object": o.id, "kind": o.type, "channel": channel})
-	return ok({"channel": channel, "minigame": "fishing" if o.type == "fishing_spot" else "", "action": {"herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish"}[str(o.type)]})
+	return ok({"channel": channel, "minigame": "fishing" if o.type == "fishing_spot" else "",
+		"action": {"herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish", "star_sight": "gather"}[str(o.type)]})
 
 func complete_node(c, object_id: String) -> Dictionary:
 	var p: Dictionary = pending.get(c.id, {})
@@ -109,16 +118,16 @@ func complete_node(c, object_id: String) -> Dictionary:
 	var craft: String = NODE_CRAFT[str(o.type)]
 	var rng := Rng.stream(c.id, "crafting")
 	var y: Array = o.get("yield", [1, 2])
-	var power := maxf(1.0, tool_power(c, "gathering" if craft == "herb_gathering" else "mining"))
+	var power := 1.0 if craft == "star_charting" else maxf(1.0, tool_power(c, "gathering" if craft == "herb_gathering" else "mining"))
 	var count := rng.randi_range(int(y[0]), int(y[1]))
 	if rng.randf() < (power - 1.0) * 0.5: count += 1
-	if game.pets.gatherer_active(c.id) and rng.randf() < 0.25: count += 1
+	if craft != "star_charting" and game.pets.gatherer_active(c.id) and rng.randf() < 0.25: count += 1
 	var herb_bonus: float = game.pets.trait_bonus(c, "herb_yield") if craft == "herb_gathering" else 0.0
 	if herb_bonus > 0.0 and rng.randf() < herb_bonus * count: count += 1
 	var item := str(o.get("item", ""))
 	game.inventory.apply_add(c.id, item, count, craft)
 	game.world.apply_node_depleted(c, object_id, float(o.get("regrow_s", 300)))
-	add_xp(c, craft, float(ContentDB.curve("profession_xp.%s" % ("mine" if craft == "mining" else "gather"), 5)))
+	add_xp(c, craft, float(ContentDB.curve("profession_xp.%s" % {"mining": "mine", "star_charting": "observe"}.get(craft, "gather"), 5)))
 	emit("node_gathered", {"actor": c.id, "object": object_id, "item": item, "count": count, "craft": craft})
 	return ok({"item": item, "count": count})
 
@@ -176,8 +185,17 @@ func recipe_check(c, recipe_id: String, count: int, craft: String) -> String:
 	if r.is_empty() or str(r.craft) != craft: return Tx.t("sim.crafting.unknown_recipe")
 	if not Unlocks.is_unlocked(c.id, craft): return Unlocks.locked_text(craft)
 	if not knows(c, recipe_id): return Tx.t("sim.crafting.you_have_not_learned_this")
-	var station = {"cooking": ["cooking_pot"], "alchemy": ["alchemy_furnace"], "smithing": ["forge_anvil"]}.get(craft, [])
-	if not station.is_empty() and not station_near(c, station): return Tx.t("sim.crafting.you_need_a") % [Tx.t("sim.crafting.cooking_pot"), "furnace", "forge"][["cooking", "alchemy", "smithing"].find(craft)]
+	var station: Array = STATIONS.get(craft, [])
+	if not station.is_empty() and not station_near(c, station):
+		return Tx.t("sim.crafting.you_need_a") % [Tx.t("sim.crafting.cooking_pot"), "furnace", "forge", Tx.t("sim.crafting.chart_table"),
+			Tx.t("sim.crafting.slipway")][["cooking", "alchemy", "smithing", "star_charting", "shipwright"].find(craft)]
+	# A vessel needs a smith's hand and a formation master's plates (S16).
+	var ranks: Dictionary = r.get("requires_ranks", {})
+	for rc in ranks:
+		if rank_index(rank_of(c, str(rc))) < rank_index(str(ranks[rc])):
+			return Tx.t("sim.crafting.needs") % [str(rc).replace("_", " ").capitalize(), str(ranks[rc]).capitalize()]
+	if r.has("rank") and rank_index(rank_of(c, craft)) < rank_index(str(r.rank)):
+		return Tx.t("sim.crafting.needs") % [craft.replace("_", " ").capitalize(), str(r.rank).capitalize()]
 	var grade := str(r.get("grade", "plain"))
 	if craft in ["alchemy", "smithing"] and StatRules.grade_index(grade) > StatRules.grade_index(grade_cap(c)): return Tx.t("sim.crafting.your_realm_cannot_refine_grade") % grade.capitalize()
 	for inp in r.get("inputs", []):
@@ -236,6 +254,7 @@ func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String) 
 		produced += n
 	var xp := float(ContentDB.curve("profession_xp.craft_per_grade", 10)) * (StatRules.grade_index(str(r.get("grade", "plain"))) + 1) * count
 	if craft_kind == "cooking": xp = float(ContentDB.curve("profession_xp.cook", 6)) * count
+	if r.has("xp"): xp = float(r.xp) * count   # star charts: 40 per route (S29)
 	if quality in ["fine", "superior", "perfect", "pill_grain", "pill_halo", "pill_soul"]: xp *= 1.5
 	add_xp(c, craft_kind, xp)
 	if craft_kind == "alchemy": game.progression.apply_insight(c.id, "alchemy", 3.0 * count, "craft:" + recipe_id)

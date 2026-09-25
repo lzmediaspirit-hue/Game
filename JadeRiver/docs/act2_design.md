@@ -68,7 +68,7 @@ Three threads carry the act:
 - **C · Nine Peaks (done).** Alliance or independence, auction house, clans (Ironroot), Gale Canyons;
   chapter 13. The Trial Hall moves to phase E with the Presence Trial.
 - **D · Sunscar (done).** Desert, the Tomb of Sunscar and its King; chapter 14; Sage-grade equipment.
-- **E · Starsea.** Skyport Wreck, pirates, star charts and vessels, sect war; chapters 15–16 and the
+- **E · Starsea (done).** Skyport Wreck, pirates, star charts and vessels, sect war; chapters 15–16 and the
   Presence Trial.
 
 ## Attunement numbers
@@ -108,4 +108,31 @@ at about 63 h and Sage Sovereign 1 at about 104 h, inside ±15%).
 - **Gale Canyons (73–78, Storm Ward 40).** Canyon Mouth, Kite Winds, Harpy Roosts, Windbridge; Wind Kite
   and Canyon Harpy; wind gusts in every canyon room (the S17 hazard system, built after phase C).
 - **Chapter 13:** Nine Seats · Ironroot Blood · The Canyon Toll.
+
+## Phase E · the Starsea (built)
+
+- **Shipwrights' Yard** (Cloudgate Port, west of the Skydock): chart table, slipway, the Wreck Run dock.
+- **Star charts (S16, Sage 3):** sighting stones give a reading every ten minutes; a chart is readings plus sky
+  ink (Wreck Run 4 + 2, Lantern Run 8 + 4); 40 profession XP a route. **Vessels:** Cloud Skiff (speed 1.0,
+  smithing Adept) and Storm Sloop (speed 1.5, smithing and formations Adept, taught by "Iron from a Comet").
+- **Voyages (S18):** `voyages.json` routes; `set_sail` checks the dock, the Starsea unlock (Sage 3), a vessel
+  and the chart, then loads the instanced crossing whose room event lasts `base_s / speed` and ends with
+  `voyage_arrive`. The star wind (Spirit, drains 8% Qi a blow) is the Starsea's survival test.
+- **Skyport Wreck (76–81, Storm Ward 56–60):** Broken Pier (dock home), Pirate Deck (Elder Gu, the strongbox),
+  Riven Peak (sighting stones, star wind, Lu's page), Starsea Launch (rest, teleport stone, the Lantern Run
+  dock marked planned for Act III).
+- **Sect war (SS2):** the set piece `sect_war`, an instanced Alliance Gate: pirate and deserter waves, Comet Captain Rao at 40 s,
+  won when he falls. **Presence Trial (SS3):** the set piece `presence_trial` in the Trial Hall: 90 s under
+  the pressing Presence (Will 2.2 × (5 + 81) = 189), phantoms, and the Ninth Presence at 45 s. Passing it sets
+  the `presence_trial` event that Will Manifest 1 asks for.
+- **Chapters 15–16:** Gu's Ledger · The Skyport Wreck · Sect War · Lu's Last Page · The Presence Trial ·
+  Stars Beyond.
+- **The rest of the v1.1 row:**
+  - the Elder's token at SS1 (Elder rank, a free teleport home);
+  - the Expanse Outpost (sect level 8: Storm Ward per level, Expanse expeditions);
+  - paired cultivation (Sage 1, +15%);
+  - rare Daos from three teachers (Blood, Life and Death, Emotion; four tiers in Act II);
+  - zone caps that let the Expanse's Laws deepen.
+- The sect war repeats: once the story battle is won, the war gong calls a new one every 20 hours (Spirit Stones,
+  comet iron, storm shards). Left for later: weekly Trial Hall ladders.
 

@@ -3,7 +3,10 @@ extends Page
 ## Alchemy and forging play a short timing mini-game (three strikes into the
 ## glowing band); its scores go to the authority, which rolls the quality.
 
-var CRAFTS := [["cooking", Tx.t("ui.crafts.cooking")], ["alchemy", Tx.t("ui.crafts.alchemy")], ["smithing", Tx.t("ui.crafts.forge")], ["formations", Tx.t("ui.crafts.arrays")]]
+var CRAFTS := [["cooking", Tx.t("ui.crafts.cooking")], ["alchemy", Tx.t("ui.crafts.alchemy")], ["smithing", Tx.t("ui.crafts.forge")], ["formations", Tx.t("ui.crafts.arrays")],
+	["star_charting", Tx.t("ui.crafts.charts")], ["shipwright", Tx.t("ui.crafts.vessels")]]
+## The Starsea crafts (S16) take no mini-game: the chart or the hull is made in one go.
+const DIRECT := {"cooking": "cook", "formations": "inscribe", "star_charting": "chart_route", "shipwright": "build_vessel"}
 
 var sel := ""
 var count := 1
@@ -21,7 +24,11 @@ func setup() -> void:
 	tabs = []
 	for cr in CRAFTS:
 		tabs.append({"id": cr[0], "label": cr[1], "locked": "" if Unlocks.is_unlocked(ch.id, cr[0]) else Unlocks.locked_text(cr[0])})
-	var want = {"cooking": 0, "alchemy": 1, "forge": 2, "arrays": 3}.get(page_id, -1)
+	var want = {"cooking": 0, "alchemy": 1, "forge": 2, "arrays": 3, "charts": 4, "vessels": 5}.get(page_id, -1)
+	# The Starsea tabs stay hidden until Sage 3 opens them, so the valley page is unchanged.
+	if not Unlocks.is_unlocked(ch.id, "star_charting"):
+		tabs = tabs.slice(0, 4)
+		if want >= 4: want = -1
 	if want >= 0: tab = want
 	else:
 		for i in tabs.size():
@@ -70,7 +77,8 @@ func draw_page() -> void:
 	var right := Rect2(list_r.end.x + 20, content.position.y, content.end.x - list_r.end.x - 20, content.size.y)
 	panel(right)
 	if sel == "" or ContentDB.entry("recipes", sel).is_empty() or str(ContentDB.entry("recipes", sel).craft) != craft:
-		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), (Tx.t("ui.crafts.choose_a_recipe_stand_near") % {"cooking": Tx.t("ui.crafts.cooking_pot"), "alchemy": "furnace", "smithing": "forge"}[craft]) if craft != "formations" else Tx.t("ui.crafts.choose_a_plate_to_etch"), 19, UiKit.MIST)
+		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), (Tx.t("ui.crafts.choose_a_recipe_stand_near") % {"cooking": Tx.t("ui.crafts.cooking_pot"), "alchemy": "furnace", "smithing": "forge",
+			"star_charting": Tx.t("ui.crafts.chart_table"), "shipwright": Tx.t("ui.crafts.slipway")}[craft]) if craft != "formations" else Tx.t("ui.crafts.choose_a_plate_to_etch"), 19, UiKit.MIST)
 		if craft == "alchemy": _auto(ch, right)
 		return
 	var rec := ContentDB.entry("recipes", sel)
@@ -85,13 +93,14 @@ func draw_page() -> void:
 		slot_box(Rect2(right.position.x + 24, y, 52, 52), str(inp.item))
 		text(Vector2(right.position.x + 90, y + 34), "%s  %d / %d" % [ContentDB.item_name(str(inp.item)), have, need], 18, UiKit.BRIGHT_JADE if have >= need else UiKit.RED)
 		y += 60
-	if craft != "smithing":
+	if craft in ["cooking", "alchemy", "formations"]:
 		btn(Rect2(right.position.x + 24, right.end.y - 140, 56, 50), "−", "count", -1)
 		text(Vector2(right.position.x + 84, right.end.y - 104), "×%d" % count, 22, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 70)
 		btn(Rect2(right.position.x + 158, right.end.y - 140, 56, 50), "+", "count", 1)
 	var why2 := Game.crafting.recipe_check(ch, sel, count, craft)
 	if game_on: _draw_minigame(Rect2(right.position.x + 24, right.end.y - 210, right.size.x - 48, 60))
-	var label = {"cooking": Tx.t("ui.crafts.cook"), "alchemy": Tx.t("ui.crafts.refine"), "smithing": Tx.t("ui.crafts.forge"), "formations": Tx.t("ui.crafts.etch")}[craft]
+	var label = {"cooking": Tx.t("ui.crafts.cook"), "alchemy": Tx.t("ui.crafts.refine"), "smithing": Tx.t("ui.crafts.forge"), "formations": Tx.t("ui.crafts.etch"),
+		"star_charting": Tx.t("ui.crafts.chart"), "shipwright": Tx.t("ui.crafts.build")}[craft]
 	btn(Rect2(right.end.x - 244, right.end.y - 76, 220, 58), Tx.t("ui.crafts.strike") if game_on else label, "strike" if game_on else "craft", null, true, why2 == "" or game_on, why2)
 	if craft == "alchemy" and Unlocks.is_unlocked(ch.id, "auto_refine") and not game_on:
 		btn(Rect2(right.end.x - 474, right.end.y - 76, 220, 58), Tx.t("ui.crafts.queue_batch"), "queue", null, false, why2 == "", why2)
@@ -130,11 +139,12 @@ func on_action(id: String, data) -> void:
 			game_on = false
 		"count": count = clampi(count + int(data), 1, 10)
 		"craft":
-			if craft in ["cooking", "formations"]:
-				var r := submit({"type": "cook" if craft == "cooking" else "inscribe", "recipe": sel, "count": count})
+			if DIRECT.has(craft):
+				var r := submit({"type": DIRECT[craft], "recipe": sel, "count": count if craft in ["cooking", "formations"] else 1})
 				if r.get("ok", false):
 					Audio.play("cook" if craft == "cooking" else "forge", "UI")
-					flash((Tx.t("ui.crafts.cooked") if craft == "cooking" else Tx.t("ui.crafts.etched")) % int(r.count))
+					flash({"cooking": Tx.t("ui.crafts.cooked"), "formations": Tx.t("ui.crafts.etched"), "star_charting": Tx.t("ui.crafts.charted"),
+						"shipwright": Tx.t("ui.crafts.built")}[craft] % int(r.count))
 			else:
 				game_on = true
 				scores = []

@@ -47,6 +47,13 @@ func idle_rate_bonus(task: String) -> float:
 	if task != "seclusion": return 0.0
 	return float(output("meditation_pavilion", "idle_rate_per_level")) * level_building("meditation_pavilion") * output_mult("meditation_pavilion")
 
+## S18: a zone outpost adds to every member's attunement in its zone.
+func outpost_attunement(zone_id: String) -> float:
+	if not founded(): return 0.0
+	var b := ContentDB.entry("sect_buildings", "expanse_outpost")
+	if str(b.get("output", {}).get("zone", "")) != zone_id: return 0.0
+	return float(output("expanse_outpost", "attunement_per_level")) * level_building("expanse_outpost") * output_mult("expanse_outpost")
+
 func treasury_bonus() -> int:
 	return int(float(output("treasury", "taels_per_level")) * level_building("treasury") * output_mult("treasury"))
 
@@ -85,6 +92,9 @@ func upgrade(c, id: String) -> Dictionary:
 	if sect().queue.size() >= max_parallel: return fail("queue_busy", {"text": Tx.t("sim.sect.builders_are_busy")})
 	var next := level_building(id) + 1
 	if next > int(b.get("max_level", 5)): return fail("max_level")
+	var need_realm := str(b.get("output", {}).get("requires_realm", ""))
+	if need_realm != "" and not ProgressionRules.at_least(game.account.highest_realm, need_realm):
+		return fail("realm", {"text": Tx.t("sim.sect.needs_a_member_at") % ContentDB.name_of("realms", need_realm)})
 	var cost := building_cost(id, next)
 	if game.economy.balance("silver_tael") < int(cost.silver_tael): return fail("insufficient_funds")
 	for m in cost.materials:
@@ -136,6 +146,8 @@ func send_expedition(region: String, hours: int, disciples: Array) -> Dictionary
 	if not founded(): return fail("no_sect")
 	var ex := ContentDB.entry("expeditions", region)
 	if ex.is_empty() or not hours in ex.get("hours", [1, 4, 8]): return fail("bad_expedition")
+	if ex.has("requires_building") and level_building(str(ex.requires_building)) <= 0:
+		return fail("needs_building", {"text": Tx.t("sim.sect.needs_building") % ContentDB.name_of("sect_buildings", str(ex.requires_building))})
 	if disciples.is_empty() or disciples.size() > 4: return fail("bad_party")
 	var busy := {}
 	for e in sect().expeditions:

@@ -1,0 +1,141 @@
+{
+ "schema_version": 1,
+ "id": "sw_starsea_launch",
+ "zone": "azure_expanse",
+ "region": "skyport_wreck",
+ "name": "Starsea Launch",
+ "type": "rest",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 2.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [
+  "gather"
+ ],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "skyport_wreck",
+ "ground": {
+  "material": "stone",
+  "tint": "#c9c2d6"
+ },
+ "spawn_point": [
+  400,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "sw_riven_peak",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "launch_ring",
+   "type": "inspect",
+   "at": [
+    1500,
+    700
+   ],
+   "prop": "launch_ring",
+   "state_flag": {
+    "flag": "stars_beyond_done",
+    "on": "active",
+    "off": "idle"
+   },
+   "text": "The ring of the Starsea Launch. Its lamps follow a line of stars out past the edge of the Expanse, toward a field of lanterns."
+  },
+  {
+   "id": "dock_launch",
+   "type": "starsea_dock",
+   "at": [
+    2250,
+    700
+   ],
+   "route": "lantern_run",
+   "prop": "cloud_skiff"
+  },
+  {
+   "id": "shrine_sw_launch",
+   "type": "shrine",
+   "at": [
+    1100,
+    700
+   ]
+  },
+  {
+   "id": "stone_skyport",
+   "type": "teleport_stone",
+   "at": [
+    1900,
+    880
+   ],
+   "stone": "skyport_wreck"
+  },
+  {
+   "id": "npc_launch_warden_he",
+   "type": "npc",
+   "at": [
+    1300,
+    780
+   ],
+   "npc": "launch_warden_he",
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "armillary_sphere",
+   "at": [
+    900,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "starsea_anchor",
+   "at": [
+    620,
+    720
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "starsea",
+ "ambience": "wind_ambience"
+}

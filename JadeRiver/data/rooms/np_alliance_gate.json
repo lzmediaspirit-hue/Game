@@ -107,6 +107,33 @@
     860
    ],
    "text": "Nine Peaks, seat of the Alliance. East: the Hall of Nine."
+  },
+  {
+   "id": "war_gong_np",
+   "type": "rite_circle",
+   "at": [
+    1650,
+    880
+   ],
+   "event": "sect_war",
+   "prop": "small_bell",
+   "visible_if": {
+    "all": [
+     {
+      "any": [
+       {
+        "kind": "quest_active",
+        "quest": "the_gate_holds"
+       },
+       {
+        "kind": "quest_done",
+        "quest": "the_gate_holds"
+       }
+      ]
+     }
+    ]
+   },
+   "text": "The Alliance war gong. Strike it and the Gate's defenders take their places."
   }
  ],
  "spawns": [],

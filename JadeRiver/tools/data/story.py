@@ -277,7 +277,7 @@ def npcs():
     npc("elder_zhong", "Elder Zhong", "First Peak elder", outfit("flowing", 5, "scholar", "scholar", "folded", hat="guan", cape="solid",
         shirt_dye="white", pants_dye="grey"),
         ["The First Peak remembers when there was no Alliance. There were more graves then.",
-         "A Hollow shard in the wrong hands is a war waiting for a reason."], ["Hm."])
+         "A Hollow shard in the wrong hands is a war waiting for a reason."], ["Hm."], tree="elder_zhong")
     npc("auctioneer_tong", "Auctioneer Tong", "Auction Pavilion", outfit("topknot", 1, "scholar", "scholar", "folded", hat="guan",
         shirt_dye="crimson", pants_dye="ink"),
         ["Lots at dawn, hammers at dusk. Bid with your head, pay with your stones.",
@@ -311,6 +311,31 @@ def npcs():
         shirt_dye="ink", pants_dye="ochre"),
         ["The bones remember the sand kings. I only read them aloud.", "Every crack in a shoulder blade is a road. Most end in the tomb."],
         ["The bones are warm today."], tree="bone_reader_xiu")
+
+    # Act II · Phase E: the Shipwrights' Yard, the Skyport Wreck, the Trial Hall.
+    npc("navigator_sun", "Navigator Sun", "Star navigator", outfit("flowing", 1, "scholar", "scholar", "folded", hat="straw", cape="solid",
+        shirt_dye="indigo", pants_dye="ink"),
+        ["The Starsea has no roads. Only stars, and the lines we draw between them.",
+         "A chart is four readings and the patience to trust them. Most sailors have the readings."],
+        ["Mind the table."], services=["shop:navigator"])
+    npc("shipwright_lao", "Shipwright Lao", "Skydock shipwright", outfit("short_knot", 4, "sleeveless", "martial", "boots", hat="headband",
+        shirt_dye="ochre", pants_dye="earth"),
+        ["A hull is a formation you can stand on. Get one line wrong and the Starsea finds it.",
+         "Spirit wood for the ribs, stormsteel for the keel, harpy plumes for the sail. The plumes are the hard part."],
+        ["*tok tok tok*"], services=["shop:shipwright"])
+    npc("gu_in_chains", "Elder Gu", "A prisoner of the comet sails", outfit("long_tied", 1, "scholar", "scholar", "folded",
+        shirt_dye="grey", pants_dye="grey"),
+        ["...", "Water. Or the key. Either."], ["..."], tree="gu_in_chains")
+    npc("launch_warden_he", "Warden He", "Starsea Launch", outfit("topknot", 5, "vneck", "straight", "boots", hat="straw",
+        shirt_dye="white", pants_dye="indigo"),
+        ["The ring was built to throw ships at the stars. It has not thrown one in two hundred years.",
+         "On clear nights you can see lanterns out there. Nobody hangs them. They are just there."],
+        ["The ring is quiet."])
+    npc("trial_master_wen", "Trial Master Wen", "Trial Hall", outfit("flowing", 0, "scholar", "scholar", "folded", hat="guan", cape="solid",
+        shirt_dye="white", pants_dye="indigo"),
+        ["Eight seats, eight Presences. The ninth seat waits for whoever can sit under the other eight and stay themselves.",
+         "Will is not stubbornness. Stubbornness breaks. Will bends and comes back."],
+        ["Sit up straight."])
 
     # Companions (S26)
     npc("lan_yue", "Lan Yue", "Healer", outfit("flowing", 4, "cardigan", "scholar", "slippers", weapon="staff", shirt_dye="indigo"),
@@ -465,6 +490,14 @@ def unlocks():
     # Act II · Phase C (S20/S21): the auction house after the Hall of Nine, clans at Sage 2.
     u("auction_house", "Auction house", all_of(realm("sage_1"), qdone("nine_seats")), "going_once", [], same_stage_ok=True)
     u("clans", "Clans", all_of(realm("sage_2"), qdone("the_canyon_toll")), "ironroot_blood", [], same_stage_ok=True)
+    # Act II · Phase E (Part 4): Sage 3 opens the Starsea crafts and the will to survive out there; Sage 1 paired cultivation;
+    # Sage Sovereign 1 upgrades the training sect's token.
+    u("star_charting", "Star charts", all_of(realm("sage_3"), qdone("ironroot_blood")), "a_chart_of_ones_own", [], same_stage_ok=True)
+    u("shipwright", "Vessel building", all_of(realm("sage_3"), qdone("ironroot_blood")), "keel_and_ward", [], same_stage_ok=True)
+    u("starsea", "Starsea survival", all_of(realm("sage_3"), qdone("ironroot_blood")), "", [], same_stage_ok=True)
+    u("paired_cultivation", "Paired cultivation", all_of(realm("sage_1"), qdone("sage")), "two_breaths", [], same_stage_ok=True)
+    u("elder_token", "Elder's token", all_of(realm("sage_sovereign_1"), {"kind": "has_training_sect", "value": True}), "",
+      [], effects=[{"kind": "upgrade_sect_token"}, {"kind": "send_mail", "template": "elder_token"}], same_stage_ok=True)
     # Act II (S18): the zone's attunement jades open once the broker has explained the storms.
     u("storm_ward", "Storm Ward attunement", all_of(realm("heaven_glimpse_3"), qdone("a_sky_full_of_toll_roads")), "storm_in_the_blood", [],
       same_stage_ok=True)
@@ -1230,6 +1263,140 @@ def act2_chapter14():
         next="the_tomb_king")
 
 
+def act2_chapters_15_16():
+    """Act II · chapter 15, Pirates of the Starsea (SS1-2), and chapter 16, The Presence Trial (SS3)."""
+    quest("gus_ledger", "Gu's Ledger", "main", "auctioneer_tong", [
+        o("talk_to", "Ask Broker Mu who sells pages of a valley ledger", npc="broker_mu"),
+        o("talk_to", "Ask Navigator Sun at the Shipwrights' Yard about the Starsea", npc="navigator_sun"),
+    ], [spirit_stones(200), item("sky_ink", 4), fx("codex", entry="starsea")],
+        requires=all_of(qdone("the_tomb_king"), realm("sage_sovereign_1")), hand_in="navigator_sun", chapter="15", target_room="ae_shipyard",
+        offer=["A lot came in this morning that I would not sell: one page of a smuggler's ledger. Valley family names, and what each paid him.",
+               "The seller fled on a skiff with no flag, out toward the Starsea. Your valley's names. I thought you would want to know."],
+        complete=["The Skyport Wreck. Pirates of the comet sails nest there now, where the old port broke on the edge of the Starsea.",
+                  "Nobody walks there. You sail, or you stay. I can teach you to chart the way; Lao can build you something to sail in."],
+        next="the_skyport_wreck")
+    quest("the_skyport_wreck", "The Skyport Wreck", "main", "navigator_sun", [
+        o("collect", "Chart the Wreck Run at Navigator Sun's table", item="star_chart_wreck", consume=False),
+        o("collect", "Build a vessel on Shipwright Lao's slipway", item="cloud_skiff", consume=False),
+        o("reach_room", "Sail the Wreck Run to the Skyport Wreck", room="sw_broken_pier"),
+        o("collect", "Take back the ledger pages the pirates carry", 3, item="ledger_page", consume=True),
+        o("set_flag", "Find the seller on the Pirate Deck", flag="gu_freed", alt_flag="gu_left"),
+        o("collect", "Keep the Black Ledger", item="black_ledger", consume=False),
+    ], [spirit_stones(350), item("comet_iron", 3), fx("codex", entry="skyport_wreck")],
+        requires=all_of(qdone("gus_ledger")), hand_in="elder_zhong", chapter="15", target_room="ae_shipyard",
+        offer=["Four readings and two measures of sky ink make the Wreck Run. The sighting stones are here, on Rimefrost Summit and on the Presence Terrace.",
+               "Then a hull. Lao is waiting. When you are over the Starsea, trust the chart, not your eyes."],
+        complete=["Gu. Of course it was Gu. And the comet sails did not take his ledger for the valley's pennies.",
+                  "They took it for the names of three of our own peaks' disciples, who sold them the Gate's watch rota. The Gate is next."],
+        next="the_gate_holds")
+    quest("the_gate_holds", "Sect War", "main", "elder_zhong", [
+        o("reach_realm", "Break through to Sage Sovereign 2", realm="sage_sovereign_2"),
+        o("pass_event", "Strike the war gong at the Alliance Gate and hold the Gate against the comet sails", event="sect_war"),
+        o("set_flag", "Decide what becomes of the Black Ledger", flag="ledger_burned", alt_flag="ledger_returned"),
+    ], [spirit_stones(450), item("will_tempering_pill", 2), fx("codex", entry="sect_war")],
+        requires=all_of(qdone("the_skyport_wreck"), realm("sage_sovereign_1")), hand_in="elder_zhong", chapter="15", target_room="np_alliance_gate",
+        offer=["They will come when the watch changes, as the rota says. The rota is wrong now, but they do not know that.",
+               "Every peak sends its best to the Gate. You are not ours, but you are the one who brought the warning. Stand with us."],
+        complete=["The comet sails are scattered and their captain is in chains. Nine peaks owe you, and eight of them will even admit it.",
+                  "A man came through here once with a river token like yours. He asked about the Trial Hall. Ask Wen about him."],
+        next="lus_last_page")
+    quest("lus_last_page", "Lu's Last Page", "main", "elder_zhong", [
+        o("reach_room", "Climb the Riven Peak above the Skyport Wreck", room="sw_riven_peak"),
+        o("set_flag", "Find Lu's last page where the stars are clearest", flag="journal_riven"),
+        o("talk_to", "Show the page to Trial Master Wen in the Trial Hall", npc="trial_master_wen"),
+    ], [spirit_stones(300), fx("codex", entry="lus_crossing")],
+        requires=all_of(qdone("the_gate_holds")), hand_in="trial_master_wen", chapter="16", target_room="sw_riven_peak",
+        offer=["Wen keeps the names of everyone who sat the Presence Trial. Your valley man's is written there, and then crossed out.",
+               "He left something on the Riven Peak before he went home, the pirates say. They were too afraid of the stars up there to take it."],
+        complete=["'I sat under eight seats and felt myself go thin as paper. I got up. The river was still in me, so I went home to it.'",
+                  "He did not fail, whatever the ink says. He chose. Now it is your turn to sit."],
+        next="the_presence_trial")
+    quest("the_presence_trial", "The Presence Trial", "main", "trial_master_wen", [
+        o("reach_realm", "Break through to Sage Sovereign 3", realm="sage_sovereign_3"),
+        o("pass_event", "Sit beneath the empty ninth seat and bear the Presence of the other eight", event="presence_trial"),
+    ], [spirit_stones(500), item("will_tempering_pill", 2), fx("grant_title", title="presence_bearer"), fx("codex", entry="presence_trial")],
+        requires=all_of(qdone("lus_last_page")), hand_in="trial_master_wen", chapter="16", target_room="np_trial_hall",
+        offer=["The Presence Trial is the door to Will Manifest. You cannot open it here; this land cannot hold a Will Manifest. You can earn the key.",
+               "Sage Sovereign 3, then the circle. Bring Will. Will Tempering Pills help. Stubbornness does not."],
+        complete=["The ninth seat looked like you, and you did not look away. That is the whole trial. Most people look away.",
+                  "Your Presence is yours now. The Expanse is too small to hold what comes next. Go and ask the Launch where it points."],
+        next="stars_beyond")
+    quest("stars_beyond", "Stars Beyond", "main", "trial_master_wen", [
+        o("collect", "Chart the Lantern Run from the stars over the Riven Peak", item="star_chart_lantern", consume=False),
+        o("reach_room", "Go to the Starsea Launch", room="sw_starsea_launch"),
+        o("talk_to", "Ask Warden He where the ring points", npc="launch_warden_he"),
+    ], [spirit_stones(600), fx("set_flag", flag="stars_beyond_done"), fx("grant_title", title="starsea_voyager"), fx("codex", entry="lantern_star_field")],
+        requires=all_of(qdone("the_presence_trial")), hand_in="launch_warden_he", chapter="16", target_room="sw_starsea_launch",
+        offer=["Navigator Sun sells the lesson for the Lantern Run to Sage Sovereigns who ask nicely. Eight readings, and the stars over the Riven Peak are clearest.",
+               "Then go to the Launch. The ring points somewhere. I have always wanted to know where."],
+        complete=["The ring lit when you walked up. It has not done that in two hundred years.",
+                  "Out there: the Lantern Star Field. Your chart reaches it. Your road does, too, when the time comes. Not today. Soon."])
+
+
+def act2_starsea_side_quests():
+    """Phase E side stories and guided quests: the Yard's two crafts, paired cultivation, deserters, comet iron, three rare Daos."""
+    quest("a_chart_of_ones_own", "A Chart of One's Own", "guided", "navigator_sun", [
+        o("gather_node", "Take star readings through the sighting stones", 4, item="star_reading", craft="star_charting"),
+        o("craft", "Chart the Wreck Run at the chart table", recipe="star_chart_wreck"),
+    ], [item("sky_ink", 4), spirit_stones(60)], offered_by_unlock=True, target_room="ae_shipyard",
+        offer=["Sighting stones: here, on Rimefrost Summit, on the Presence Terrace. Each gives one reading every little while.",
+               "Four readings and two measures of ink. I will give you the ink for the first chart."],
+        complete=["Your first chart. The lines are shaky, but they go where they should. That is all a chart is."])
+    quest("keel_and_ward", "Keel and Ward", "guided", "shipwright_lao", [
+        o("craft", "Build a Cloud Skiff on the slipway", recipe="cloud_skiff"),
+    ], [spirit_stones(80), item("formation_stone", 2)], offered_by_unlock=True, target_room="ae_shipyard",
+        offer=["Six spirit wood, four stormsteel, two formation stones, three harpy plumes. Bring them, lay the keel, and I'll check your lines.",
+               "You'll need a smith's hand. Adept, at least. Hulls forgive nothing."],
+        complete=["She floats. On nothing, which is the point. Don't sail her anywhere you haven't charted."])
+    quest("two_breaths", "Two Breaths, One River", "guided", "alchemist_fen", [
+        o("meditate_seconds", "Meditate with a companion beside you", 30, near="companion"),
+    ], [spirit_stones(40), item("qi_restoration_pill", 3)], offered_by_unlock=True, target_room="ae_condensing_hall",
+        offer=["Sage Qi is thick. Two cultivators breathing together thin it for each other. Paired cultivation, the old texts call it.",
+               "Sit with one of your companions. Breathe when they breathe. See what happens."],
+        complete=["Faster, yes? Keep a companion close when you sit. The river flows better with two banks."])
+    quest("the_deserters", "The Deserters", "side", "champion_qiao", [
+        o("kill", "Bring down the rogue Nine Peaks disciples at the Broken Pier", 6, enemy="nine_peaks_disciple"),
+        o("collect", "Return their scratched badges", 4, item="alliance_badge", consume=True),
+    ], [spirit_stones(160), item("will_tempering_pill", 1)], requires=all_of(qdone("gus_ledger")), target_room="sw_broken_pier",
+        offer=["Some of ours ran to the comet sails. They scratch the peaks off their badges, as if that makes them someone else.",
+               "Bring the badges home. Six of them will not come quietly."],
+        complete=["Four badges. I'll give them back to their peaks. What the peaks do with them is their business."])
+    quest("iron_from_a_comet", "Iron from a Comet", "side", "shipwright_lao", [
+        o("collect", "Bring comet iron from the pirates' hulls", 6, item="comet_iron", consume=True),
+    ], [spirit_stones(150), fx("learn_recipe", recipe="storm_sloop")], requires=all_of(qdone("keel_and_ward"), qdone("gus_ledger")),
+        target_room="sw_pirate_deck",
+        offer=["The comet sails outrun everything in the Expanse. It's the iron: flew through a comet's tail and came out ringing.",
+               "Six ingots. I'll teach you the sloop. Two sails, comet keel. You'll need a formation master's plates too."],
+        complete=["Listen to it ring. Here: the sloop's lines. Half again as fast as the skiff, if your formations hold."])
+    quest("clear_skies_over_the_peak", "Clear Skies over the Peak", "side", "navigator_sun", [
+        o("gather_node", "Take star readings on the Riven Peak", 3, item="star_reading", craft="star_charting"),
+    ], [spirit_stones(120), item("sky_ink", 6)], requires=all_of(qdone("the_skyport_wreck")), target_room="sw_riven_peak",
+        offer=["The stars over the Riven Peak are the clearest in the Expanse. The pirates say they watch you back.",
+               "Three readings from up there. I want to see if they are right."],
+        complete=["These are... very clear. Hm. Keep your chart close up there."])
+    # Rare Daos (v1.1): three teachers of the Expanse open a Dao the valley never taught.
+    quest("blood_remembers", "Blood Remembers", "side", "matriarch_tie", [
+        o("set_flag", "Kneel before the Ironroot tablets in the Ancestor Hall", flag="tablets_honoured"),
+        o("reach_realm", "Become a Sage Sovereign", realm="sage_sovereign_1"),
+    ], [fx("open_dao", dao="blood"), spirit_stones(100)], requires=all_of(qdone("ironroot_blood")), target_room="ir_ancestor_hall",
+        offer=["Kin by adoption is kin. But the blood still has to learn to hear you. Kneel before the tablets.",
+               "And grow. The Blood Dao listens to Sovereigns. Come back when you are one."],
+        complete=["There. Feel it? Every Ironroot who ever lived, in the beat under your ribs. That is the Blood Dao. It is yours now."])
+    quest("what_the_bones_say", "What the Bones Say", "side", "bone_reader_xiu", [
+        o("collect", "Bring shards of the Terracotta Wardens, who died and did not die", 3, item="terracotta_shard", consume=True),
+    ], [fx("open_dao", dao="life_death"), spirit_stones(100)], requires=all_of(qdone("the_tomb_king")), target_room="ts_hall_of_sand_kings",
+        offer=["The wardens were men once. Then clay. Then something that remembers being men. Bring me what is left of three.",
+               "I will show you the line between living and not. It is thinner than you think, and it moves."],
+        complete=["Hold this shard. Warm, yes? The Life and Death Dao begins where you stop being sure which side it is on."])
+    quest("the_sound_of_snow", "The Sound of Snow", "side", "hermit_shuang", [
+        o("kill", "Quiet the Snow Apes on their ledges", 6, enemy="snow_ape"),
+        o("meditate_seconds", "Sit in silence in the hermit's ice cave", 30),
+    ], [fx("open_dao", dao="emotion"), spirit_stones(100)], requires=all_of(qdone("frost_and_silence"), realm("sage_sovereign_1")),
+        target_room="rf_hermits_ice_cave",
+        offer=["...", "The apes are loud. Quiet them. Then sit here, with me, until you can hear what you feel."],
+        complete=["...", "There. Every feeling has a sound. The Emotion Dao is only listening. You were loud for a long time."])
+
+
 def act2_side_quests():
     """Act II side stories of the port, the plains, the heights, the lake, the canyons and the Hold."""
     quest("snow_for_the_cabinet", "Snow for the Cabinet", "side", "apothecary_wu", [
@@ -1448,6 +1615,29 @@ def dialogue():
           "waiting": {"lines": ["Go on. He is waiting on his throne, as he has for three thousand years.", "I will wait too. I am good at it."],
                       "choices": [{"text": "(Leave him.)", "close": True}]}})
     tree("bone_reader_xiu", [], {})
+    # Chapter 15: the smuggler in chains on the Pirate Deck. Freed or left, the Black Ledger comes with you.
+    tree("gu_in_chains", [{"requires": all_of(qactive("the_skyport_wreck"), noflag("gu_freed"), noflag("gu_left")), "node": "chains"}],
+         {"chains": {"lines": ["You. The fisher's child from Lotus Ferry. Look at you now.",
+                               "I sold them the ledger for passage. They kept the ledger and kept me. The names they wanted were never the valley's.",
+                               "Three disciples of the Nine Peaks sold them the Gate's watch. It is all in the ledger. Free me and it is yours."],
+                     "choices": [{"text": "(Break his chains.) Go home, Gu. Pay your debts there.",
+                                  "effects": [{"kind": "set_flag", "flag": "gu_freed"}, {"kind": "grant_item", "item": "black_ledger", "count": 1}],
+                                  "close": True},
+                                 {"text": "(Take the ledger from his belt.) The Alliance can decide about you.",
+                                  "effects": [{"kind": "set_flag", "flag": "gu_left"}, {"kind": "grant_item", "item": "black_ledger", "count": 1}],
+                                  "close": True}]}})
+    # Chapter 15: after the Gate holds, the Black Ledger's fate.
+    tree("elder_zhong", [{"requires": all_of(qactive("the_gate_holds"), {"kind": "event_passed", "event": "sect_war"},
+                                             {"kind": "item_owned", "item": "black_ledger", "count": 1}, noflag("ledger_burned"),
+                                             noflag("ledger_returned")), "node": "ledger"}],
+         {"ledger": {"lines": ["The deserters' names are copied. The rest of that book is your valley's business, not the Alliance's.",
+                               "Burn it and nobody pays again. Or send each page home, and let every family decide what their secret is worth."],
+                     "choices": [{"text": "Burn it. The debts end here.",
+                                  "effects": [{"kind": "set_flag", "flag": "ledger_burned"}, {"kind": "remove_item", "item": "black_ledger", "count": 1},
+                                              {"kind": "grant_title", "title": "ledger_burner"}], "close": True},
+                                 {"text": "Send each page home to its family.",
+                                  "effects": [{"kind": "set_flag", "flag": "ledger_returned"}, {"kind": "remove_item", "item": "black_ledger", "count": 1},
+                                              {"kind": "grant_title", "title": "ledger_returner"}], "close": True}]}})
     tree("broker_mu", [{"requires": all_of(qdone("the_mirror_remembers"), noflag("heard_nine_seats")), "node": "rumours"}],
          {"rumours": {"lines": ["You look like someone who has seen a ghost in a lake. It happens.",
                                 "Word from Nine Peaks: the Alliance is counting heads. Everyone who crossed the gate this year gets asked to pick a side."],
@@ -1501,6 +1691,7 @@ def mail_templates():
         {"id": "idle_report", "from": "Your disciple", "subject": "While you were away", "body": "{summary}"},
         {"id": "mentor_letter", "from": "Your mentor", "subject": "A second path", "body": "One cultivator cannot walk every road."},
         {"id": "auction_won", "from": "The Auction Pavilion", "subject": "Your lot: {item}", "body": "The hammer fell in your favour. Your lot is enclosed, with the Pavilion's compliments."},
+        {"id": "elder_token", "from": "Your mentor", "subject": "An Elder's token", "body": "Word reached the sect that you are a Sage Sovereign. Your token is an Elder's now: at any teleport stone it will call you home, and the sect will not ask for shards. Come home sometimes."},
     ]
     entries("mail_templates", rows)
 
@@ -1539,6 +1730,12 @@ def codex():
         {"id": "tomb_of_sunscar", "title": "The Tomb of Sunscar", "body": "A burial palace sealed from within. Clay soldiers guard its halls, and a gate of bronze answers only a key of gold and jade."},
         {"id": "tomb_king", "title": "The Tomb King", "body": "A sage-king who carried the sun seal into his tomb rather than let the Hollow have it. Sand kept him; duty kept him awake."},
         {"id": "sage_sovereign", "title": "Sage Sovereign", "body": "The Sage whose Qi governs the land around it. A Sovereign's breakthrough needs a full reserve and one Dao that has learned to adapt."},
+        {"id": "starsea", "title": "The Starsea", "body": "Beyond the Expanse's last peaks the sky has no floor: stars below as well as above. Only a Sage's Qi survives its wind, and only a charted vessel finds the far shore."},
+        {"id": "skyport_wreck", "title": "The Skyport Wreck", "body": "An old sky-port that broke on the edge of the Starsea. Its piers hang over nothing; the pirates of the comet sails made a nest of its biggest hull."},
+        {"id": "sect_war", "title": "The War at the Gate", "body": "When the comet sails struck the Alliance Gate, every peak sent its best. A valley cultivator held the line beside them."},
+        {"id": "lus_crossing", "title": "Lu's Crossing", "body": "Five pages across the Expanse: the port, the lake, the tomb, the canyons, the peak. Lu sat the Presence Trial, felt himself go thin, and chose the river instead."},
+        {"id": "presence_trial", "title": "The Presence Trial", "body": "Eight seats of the Nine Peaks press their Presence on one cultivator. Whoever stays themselves under it holds the key to Will Manifest."},
+        {"id": "lantern_star_field", "title": "The Lantern Star Field", "body": "Past the Starsea Launch: a field of lanterns hanging in the dark. No one hangs them. They are simply there, waiting for the next age of your road."},
         {"id": "sage_qi", "title": "Sage Qi", "body": "True Qi pressed until it remembers it was light. Stronger by far, and the valley could never have held it."},
         {"id": "river_of_time", "title": "River of Time and Space", "body": "Locked.", "locked": True},
         {"id": "jade_river", "title": "The Jade River", "body": "It runs through every land you will ever see."},
@@ -1613,10 +1810,12 @@ def build():
     act2_chapter12()
     act2_chapter13()
     act2_chapter14()
+    act2_chapters_15_16()
     for q in Q[n0:]:
         q.setdefault("qp", "act2_main")
     n1 = len(Q)
     act2_side_quests()
+    act2_starsea_side_quests()
     for q in Q[n1:]:
         q.setdefault("qp", "act2_side")
     entries("quests", Q)

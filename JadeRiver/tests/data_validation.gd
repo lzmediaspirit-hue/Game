@@ -217,8 +217,12 @@ func room_suite() -> void:
 	var queue := [start]
 	while not queue.is_empty():
 		var rid: String = queue.pop_front()
-		for p in ContentDB.room(rid).get("portals", []):
-			var to := str(p.get("to", ""))
+		var ways: Array = []
+		for p in ContentDB.room(rid).get("portals", []): ways.append(str(p.get("to", "")))
+		# A Starsea dock sails to the far end of its route (S18): the Skyport Wreck has no other way in.
+		for o in ContentDB.room(rid).get("objects", []):
+			if str(o.get("type", "")) == "starsea_dock": ways.append(str(ContentDB.entry("voyages", str(o.get("route", ""))).get("to", "")))
+		for to in ways:
 			if to != "" and ContentDB.rooms.has(to) and not seen.has(to):
 				seen[to] = true
 				queue.append(to)
@@ -265,3 +269,13 @@ func room_suite() -> void:
 			if o.has("loot"): check(ContentDB.has_entry("loot_tables", str(o.loot)), "%s object %s loot %s" % [rid2, o.id, o.loot])
 			check_req(o.get("requires", {}), "%s:%s" % [rid2, o.id])
 		if room.has("event"): check_effects(room.event.get("on_complete", []) + room.event.get("on_timeout", []), "%s event" % rid2)
+
+	# Every Starsea route starts at a dock in its own room and ends in a real room with a crossing to sail through.
+	for v in ContentDB.all("voyages"):
+		var docked := false
+		for o in ContentDB.room(str(v.get("from", ""))).get("objects", []):
+			if str(o.get("type", "")) == "starsea_dock" and str(o.get("route", "")) == str(v.id): docked = true
+		check(docked, "voyage %s leaves from a dock in %s" % [v.id, v.get("from", "")])
+		if v.get("planned", false): continue
+		check(ContentDB.rooms.has(str(v.get("to", ""))) and ContentDB.room(str(v.get("crossing", ""))).get("crossing", false)
+			and ContentDB.has_entry("items", str(v.get("chart", ""))), "voyage %s: destination, crossing and chart exist" % v.id)

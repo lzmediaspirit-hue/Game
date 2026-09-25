@@ -405,6 +405,7 @@ func _match(c, o: Dictionary, p: Dictionary, ev: String) -> int:
 		"craft": return int(p.get("count", 1)) if str(o.get("recipe", "any")) in ["any", str(p.get("recipe", ""))] and str(o.get("craft", "")) in ["", str(p.get("craft", ""))] else 0
 		"meditate_seconds":
 			if o.has("near") and not p.get("spring", false) and str(o.near) == "qi_spring": return 0
+			if o.has("near") and not p.get("paired", false) and str(o.near) == "companion": return 0
 			return 1
 		"use_technique":
 			if o.has("technique") and str(o.technique) != "any" and str(p.get("technique", "")) != str(o.technique): return 0
@@ -494,7 +495,13 @@ func start_set_piece(c, event: String) -> Dictionary:
 	if sp.is_empty(): return fail("unknown_event")
 	if sp.has("requires") and not RequirementRules.passes(sp.requires, game.ctx(c)):
 		return fail("not_ready", {"text": RequirementRules.first_failure_text(sp.requires, game.ctx(c))})
-	if event in c.cultivator.events_passed: return fail("already_passed", {"text": Tx.t("sim.quest.you_have_already_passed_this")})
+	if event in c.cultivator.events_passed:
+		# A repeatable set piece (the sect war, S25) can be fought again once its cooldown has run.
+		if not sp.has("repeatable"): return fail("already_passed", {"text": Tx.t("sim.quest.you_have_already_passed_this")})
+		var until := float(c.cooldowns.get("set_piece:" + event, 0.0))
+		if Clock.now_utc() < until:
+			return fail("cooldown", {"text": Tx.t("sim.quest.the_next_battle_comes_in") % maxi(1, int(ceil((until - Clock.now_utc()) / 3600.0)))})
+		c.cooldowns["set_piece:" + event] = Clock.now_utc() + float(sp.repeatable.get("cooldown_h", 20)) * 3600.0
 	emit("set_piece_started", {"actor": c.id, "event": event})
 	if sp.has("room"):
 		return game.world.load_room(c, str(sp.room), str(sp.get("portal", "")))

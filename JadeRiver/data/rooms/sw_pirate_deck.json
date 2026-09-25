@@ -1,0 +1,502 @@
+{
+ "schema_version": 1,
+ "id": "sw_pirate_deck",
+ "zone": "azure_expanse",
+ "region": "skyport_wreck",
+ "name": "Pirate Deck",
+ "type": "field",
+ "level_range": [
+  78,
+  81
+ ],
+ "recommended_cp": 1424,
+ "element": "metal",
+ "qi_density": 1.9,
+ "hazards": [
+  "wind_gust"
+ ],
+ "gather_tier": "expanse_high",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "skyport_wreck",
+ "ground": {
+  "material": "wood",
+  "tint": "#b8a58a"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "sw_broken_pier",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "sw_riven_peak",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    438,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 79,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_2",
+   "type": "jar",
+   "at": [
+    1143,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 79,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    1884,
+    930
+   ],
+   "loot": "jar_expanse",
+   "level": 79,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    2742,
+    720
+   ],
+   "loot": "jar_expanse",
+   "level": 79,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    3451,
+    700
+   ],
+   "loot": "jar_expanse",
+   "level": 79,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "npc_gu_in_chains",
+   "type": "npc",
+   "at": [
+    2900,
+    780
+   ],
+   "npc": "gu_in_chains",
+   "facing": -1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_skyport_wreck"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pirate_strongbox",
+   "type": "chest",
+   "at": [
+    3200,
+    900
+   ],
+   "loot": "chest_wreck",
+   "level": 80,
+   "requires": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "gu_freed"
+     }
+    ]
+   },
+   "locked_text": "The pirates' strongbox. The lock is a formation; Gu knows its word."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "starsea_pirate",
+   "surface": "ground",
+   "points": [
+    [
+     515,
+     840
+    ],
+    [
+     1085,
+     824
+    ],
+    [
+     1658,
+     811
+    ],
+    [
+     2232,
+     762
+    ],
+    [
+     2721,
+     871
+    ],
+    [
+     3283,
+     810
+    ]
+   ],
+   "max": 5,
+   "respawn_s": 14,
+   "level": [
+    79,
+    81
+   ]
+  },
+  {
+   "enemy": "nine_peaks_disciple",
+   "surface": "ground",
+   "points": [
+    [
+     1107,
+     839
+    ],
+    [
+     2719,
+     867
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 12,
+   "level": [
+    78,
+    78
+   ]
+  },
+  {
+   "enemy": "starsea_pirate",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    81,
+    81
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    158,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    702,
+    640
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    1269,
+    631
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1878,
+    632
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    2446,
+    638
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2941,
+    632
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    3501,
+    630
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    103,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    360,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    766,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    980,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1370,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1750,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1934,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2312,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2602,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2926,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3166,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3441,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3829,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "star_ballista",
+   "at": [
+    700,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_ballista",
+   "at": [
+    2500,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "pirate_banner",
+   "at": [
+    400,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "pirate_banner",
+   "at": [
+    1500,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "pirate_banner",
+   "at": [
+    3400,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "broken_mast",
+   "at": [
+    1900,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    1100,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "crate",
+   "at": [
+    1180,
+    730
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "starsea",
+ "ambience": "wind_ambience",
+ "attunement_required": 58
+}

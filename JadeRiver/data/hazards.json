@@ -269,6 +269,47 @@
    "note": "Grit shivers over a pressure plate before bronze spikes spring from the floor. Agility gets the feet clear."
   },
   {
+   "id": "star_wind",
+   "name": "Star wind",
+   "kind": "aura",
+   "answer": "spirit",
+   "k": 1.3,
+   "cycle": [
+    3.0,
+    1.5,
+    3.0,
+    7.0
+   ],
+   "qi_drain_pct": 0.08,
+   "damage_pct": 0.03,
+   "damage_type": "qi",
+   "shelter": [
+    "shrine"
+   ],
+   "note": "Starlight streams sideways before each gust of the star wind, which strips Qi from anyone it passes. Spirit holds the Qi in."
+  },
+  {
+   "id": "presence",
+   "name": "Pressing Presence",
+   "kind": "aura",
+   "answer": "will",
+   "k": 2.2,
+   "cycle": [
+    2.0,
+    1.5,
+    3.0,
+    4.0
+   ],
+   "damage_pct": 0.06,
+   "damage_type": "soul",
+   "buff": {
+    "stat": "physical_attack",
+    "op": "pct_add",
+    "value": -0.3
+   },
+   "note": "The seats of the Nine lean on you: the air thickens, then their Presence lands and the arms grow heavy. Will stands under it."
+  },
+  {
    "id": "poison_mist",
    "name": "Poison mist",
    "kind": "pool",

@@ -12,7 +12,7 @@ const TRAINING := ["training_stump", "training_dummy"]
 var pending_transfer: Dictionary = {}   # presentation performs the fade, then calls complete_transfer
 
 func intents() -> Array:
-	return ["use_portal", "interact", "teleport", "pick_up", "enter_world", "sense_pulse"]
+	return ["use_portal", "interact", "teleport", "pick_up", "enter_world", "sense_pulse", "set_sail"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 50)
@@ -46,6 +46,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"pick_up": return pick_up(c, int(intent.get("uid", -1)))
 		"enter_world": return enter_world(c)
 		"sense_pulse": return sense_pulse(c)
+		"set_sail": return set_sail(c, str(intent.get("route", "")))
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ rooms
@@ -60,6 +61,7 @@ static func compile_geometry(def: Dictionary) -> Dictionary:
 func load_room(c, room_id: String, portal_id: String, point := Vector2.INF) -> Dictionary:
 	var def := ContentDB.room(room_id)
 	if def.is_empty(): return fail("unknown_room")
+	if voyages.has(c.id) and not def.get("crossing", false): voyages.erase(c.id)   # a crossing abandoned (fallen overboard)
 	var old = game.room_rt.room_id if game.room_rt else ""
 	if old != "":
 		emit("room_left", {"actor": c.id, "room": old, "portal": portal_id})
@@ -178,9 +180,13 @@ func apply_return_to_shrine(actor_id: String) -> void:
 	load_room(c, str(c.last_shrine.room), "", Vector2(float(c.last_shrine.x) + 50, float(c.last_shrine.y) + 20))
 
 ## S18: a stone in another zone answers across the sky, at five times its fee.
-func teleport_fee(stone_id: String) -> int:
+func teleport_fee(stone_id: String, c = null) -> int:
 	var stone := ContentDB.entry("teleport_stones", stone_id)
 	var fee := int(stone.get("fee_shards", 1))
+	# An Elder's token (Sage Sovereign 1) calls its bearer home to the training sect for nothing.
+	if c != null and str(stone.get("sect", "")) != "" and str(stone.get("sect", "")) == str(c.training_sect.get("id", "")):
+		var elder := str(ContentDB.entry("sects", str(stone.sect)).get("token", "")).replace("_token", "_elder_token")
+		if c.inventory.count(elder) > 0: return 0
 	if game.room_rt != null and ContentDB.room_zone.get(str(stone.get("room", "")), "") != ContentDB.room_zone.get(game.room_rt.room_id, ""):
 		fee *= int(ContentDB.stat_const("teleport_cross_zone_mult", 5))
 	return fee
@@ -190,7 +196,7 @@ func teleport(c, stone_id: String) -> Dictionary:
 	if not game.account.teleports.has(stone_id): return fail("undiscovered")
 	var stone := ContentDB.entry("teleport_stones", stone_id)
 	if stone.is_empty(): return fail("unknown_stone")
-	var fee := teleport_fee(stone_id)
+	var fee := teleport_fee(stone_id, c)
 	if c.inventory.count("spirit_stone_shard") < fee: return fail("no_fee", {"text": Tx.t("sim.world.needs_spirit_stone_shard") % fee})
 	game.inventory.apply_remove(c.id, "spirit_stone_shard", fee, "teleport")
 	emit("teleported", {"actor": c.id, "stone": stone_id})
@@ -237,7 +243,7 @@ func _restore_object_states(c, rt: RoomRuntime) -> void:
 	for o in rt.def.get("objects", []):
 		var id := str(o.get("id", ""))
 		var st := {"state": "ready", "timer": 0.0, "hits": 0}
-		if o.type in ["herb_patch", "ore_vein"] and float(mem.nodes.get(id, 0.0)) > now:
+		if o.type in ["herb_patch", "ore_vein", "star_sight"] and float(mem.nodes.get(id, 0.0)) > now:
 			st.state = "depleted"
 			st.timer = float(mem.nodes[id]) - now
 		if o.type in ["chest"] and mem.opened.has(id): st.state = "open"
@@ -313,8 +319,10 @@ func interact(c, object_id: String) -> Dictionary:
 			if c.pools.max_qi > 0: game.combat.apply_resource_change(c.id, "qi", c.pools.max_qi, "shrine")
 			GameEvents.save_pending = true
 			result.text = Tx.t("sim.world.the_shrine_remembers_you_wounds")
-		"herb_patch", "ore_vein", "fishing_spot":
+		"herb_patch", "ore_vein", "fishing_spot", "star_sight":
 			return game.crafting.gather(c, o)
+		"starsea_dock":
+			return set_sail(c, str(o.get("route", "")))
 		"chest":
 			var s: Dictionary = game.room_rt.objects.get(object_id, {})
 			s.state = "open"
@@ -344,9 +352,9 @@ func interact(c, object_id: String) -> Dictionary:
 			return game.quest.start_set_piece(c, str(o.get("event", "")))
 		"storage_chest":
 			result.open_page = "storage"
-		"cooking_pot", "alchemy_furnace", "forge_anvil", "formation_table", "garden_bed":
+		"cooking_pot", "alchemy_furnace", "forge_anvil", "formation_table", "garden_bed", "chart_table", "shipyard_slip":
 			result.open_page = str(o.get("page", {"cooking_pot": "cooking", "alchemy_furnace": "alchemy", "forge_anvil": "forge",
-				"formation_table": "formations", "garden_bed": "garden"}[o.type]))
+				"formation_table": "formations", "garden_bed": "garden", "chart_table": "charts", "shipyard_slip": "vessels"}[o.type]))
 		"notice_board":
 			result.open_page = "notice_board"
 		"signpost":
@@ -392,7 +400,7 @@ func query_context(c) -> Dictionary:
 		var priority := 3.0
 		if o.type == "npc":
 			priority = 1.0 if game.quest.npc_marker(c, str(o.npc)) != "" else 2.0
-		elif o.type in ["herb_patch", "ore_vein", "fishing_spot"]: priority = 4.0
+		elif o.type in ["herb_patch", "ore_vein", "fishing_spot", "star_sight"]: priority = 4.0
 		elif o.type == "pickup": priority = 0.5
 		var score := priority * 1000.0 + d
 		if score < best_score:
@@ -428,6 +436,10 @@ func _verb(o: Dictionary) -> String:
 		"bell": return Tx.t("sim.world.ring")
 		"treasure_plot": return Tx.t("sim.world.tend")
 		"treasure_tree": return Tx.t("sim.world.sit_beneath")
+		"star_sight": return Tx.t("sim.world.observe")
+		"chart_table": return Tx.t("sim.world.chart")
+		"shipyard_slip": return Tx.t("sim.world.build")
+		"starsea_dock": return Tx.t("sim.world.set_sail")
 	return Tx.t("sim.world.use")
 
 # ------------------------------------------------------------------ loot (S32)
@@ -723,8 +735,51 @@ func _hazard_hit(c, rt: RoomRuntime, h: Dictionary, calm: bool) -> void:
 			"duration": HazardRules.duration(h, "active") + 1.0, "source": "hazard:" + str(h.id)}, "hazard")
 	if float(h.get("hollowing", 0.0)) > 0.0 and share > 0.0:
 		game.combat.apply_resource_change(c.id, "hollowing", float(h.hollowing) * share, "hazard")
+	# The Starsea's star wind strips Qi before it touches the body (Starsea survival, Sage 3).
+	if float(h.get("qi_drain_pct", 0.0)) > 0.0 and share > 0.0 and c.pools.max_qi > 0.0:
+		game.combat.apply_resource_change(c.id, "qi", -c.pools.max_qi * float(h.qi_drain_pct) * share, "hazard")
 	emit("hazard_struck", {"actor": c.id, "room": rt.room_id, "hazard": str(h.id), "amount": int(round(amount)), "share": share,
 		"answered": share <= 0.0, "stat": str(h.answer), "need": int(need_v), "have": int(have)})
+
+# ------------------------------------------------------------------ Starsea voyages (S18)
+var voyages: Dictionary = {}   # actor -> {route, vessel, seconds}: a crossing under way
+
+## The best vessel the character owns: the one that crosses fastest.
+func best_vessel(c) -> String:
+	var best := ""
+	var speed := 0.0
+	for k in c.inventory.key_items:
+		var v: Dictionary = ContentDB.item(str(k.id)).get("vessel", {})
+		if not v.is_empty() and float(v.get("speed", 1.0)) > speed:
+			speed = float(v.get("speed", 1.0))
+			best = str(k.id)
+	return best
+
+## Board at a Starsea dock: a vessel, the route's star chart and a Qi that survives the star wind
+## (Sage 3). The crossing is its own room: the event runs while the vessel sails, and ends in port.
+func set_sail(c, route_id: String) -> Dictionary:
+	var v := ContentDB.entry("voyages", route_id)
+	if v.is_empty(): return fail("unknown_route")
+	if game.room_rt == null or game.room_rt.room_id != str(v.get("from", "")): return fail("wrong_dock")
+	if v.get("planned", false): return fail("planned", {"text": str(v.get("planned_text", Tx.t("sim.world.this_route_is_not_charted_yet")))})
+	if not Unlocks.is_unlocked(c.id, "starsea"): return fail("locked", {"text": Unlocks.locked_text("starsea")})
+	var vessel := best_vessel(c)
+	if vessel == "": return fail("no_vessel", {"text": Tx.t("sim.world.you_need_a_vessel_to_sail")})
+	if c.inventory.count(str(v.chart)) <= 0:
+		return fail("no_chart", {"text": Tx.t("sim.world.you_need_the_chart") % ContentDB.item_name(str(v.chart))})
+	var speed := float(ContentDB.item(vessel).get("vessel", {}).get("speed", 1.0))
+	voyages[c.id] = {"route": route_id, "vessel": vessel, "seconds": float(v.get("base_s", 60)) / maxf(0.25, speed)}
+	emit("voyage_started", {"actor": c.id, "route": route_id, "vessel": vessel, "seconds": voyages[c.id].seconds})
+	return load_room(c, str(v.crossing), "")
+
+## The crossing's event ended: make port at the far end of the route.
+func apply_voyage_arrive(actor_id: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or not voyages.has(actor_id): return
+	var v := ContentDB.entry("voyages", str(voyages[actor_id].route))
+	voyages.erase(actor_id)
+	emit("voyage_arrived", {"actor": actor_id, "route": str(v.get("id", "")), "room": str(v.get("to", ""))})
+	load_room(c, str(v.get("to", "")), str(v.get("to_portal", "")))
 
 # ------------------------------------------------------------------ room events (survival, S27 night)
 ## Start a timed event in the loaded room (set pieces, sect defence).
@@ -736,7 +791,17 @@ func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 	rt.event = ev.duplicate(true)
 	rt.event.active = true
 	rt.event.remaining = float(ev.get("duration", 60))
+	# A voyage lasts as long as its vessel takes to cross (S18).
+	if voyages.has(c.id) and str(ev.get("id", "")) == "starsea_crossing":
+		rt.event.remaining = float(voyages[c.id].get("seconds", rt.event.remaining))
+	rt.event.duration = rt.event.remaining
 	rt.event.spawn_timer = 2.0
+	# Several waves can run at once, each on its own timer; timed spawns arrive once, part-way through.
+	var waves: Array = ev.get("waves", [ev.wave] if ev.has("wave") else [])
+	rt.event.waves = waves.duplicate(true)
+	rt.event.wave_timers = []
+	for w in waves: rt.event.wave_timers.append(float(w.get("first_s", 2.0)))
+	rt.event.timed_done = []
 	emit("room_event_started", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "duration": rt.event.remaining})
 	for sp in ev.get("fixed_spawns", []):
 		game.enemies.spawn_at(str(sp.enemy), Vector2(float(sp.at[0]), float(sp.at[1])), int(sp.get("level", -1)))
@@ -744,17 +809,27 @@ func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 func _tick_event(c, rt: RoomRuntime, delta: float) -> void:
 	var ev: Dictionary = rt.event
 	ev.remaining = float(ev.remaining) - delta
-	ev.spawn_timer = float(ev.spawn_timer) - delta
-	if float(ev.spawn_timer) <= 0.0 and ev.has("wave"):
-		ev.spawn_timer = float(ev.wave.get("every_s", 4.0))
+	var rng := Rng.stream(c.id, "world")
+	for i in (ev.waves as Array).size():
+		var w: Dictionary = ev.waves[i]
+		ev.wave_timers[i] = float(ev.wave_timers[i]) - delta
+		if float(ev.wave_timers[i]) > 0.0: continue
+		ev.wave_timers[i] = float(w.get("every_s", 4.0))
 		var alive := 0
 		for e in rt.living_enemies():
-			if e.def_id == str(ev.wave.enemy): alive += 1
-		if alive < int(ev.wave.get("max", 6)):
-			var pts: Array = ev.wave.get("points", [[400, 800]])
-			var rng := Rng.stream(c.id, "world")
+			if e.def_id == str(w.enemy): alive += 1
+		if alive < int(w.get("max", 6)):
+			var pts: Array = w.get("points", [[400, 800]])
 			var p: Array = pts[rng.randi_range(0, pts.size() - 1)]
-			game.enemies.spawn_at(str(ev.wave.enemy), Vector2(float(p[0]), float(p[1])))
+			game.enemies.spawn_at(str(w.enemy), Vector2(float(p[0]), float(p[1])), int(w.get("level", -1)))
+	var elapsed := float(ev.duration) - float(ev.remaining)
+	var timed: Array = ev.get("timed_spawns", [])
+	for i in timed.size():
+		if i in ev.timed_done or elapsed < float(timed[i].get("after_s", 0.0)): continue
+		ev.timed_done.append(i)
+		game.enemies.spawn_at(str(timed[i].enemy), Vector2(float(timed[i].at[0]), float(timed[i].at[1])), int(timed[i].get("level", -1)))
+		emit("room_event_wave", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "enemy": str(timed[i].enemy),
+			"text": str(timed[i].get("text", ""))})
 	if float(ev.remaining) <= 0.0:
 		# A kill-to-win event (a trial) that runs out of time is failed, not passed.
 		if ev.has("win_on_kill"):

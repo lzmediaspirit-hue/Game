@@ -132,6 +132,7 @@ PILLS = [
     ('sage_condensing_pill', 'mystic', 'knot', R['gold'], R['plum'][2]),
     ('storm_blood_pill', 'mystic', 'bolt', R['storm'], R['navy'][2]),
     ('sovereign_settling_pill', 'mystic', 'gate', R['sand'], R['clay'][1]),
+    ('will_tempering_pill', 'mystic', 'eye', R['violet'], R['navy'][2]),
     ('law_condensing_pill', 'mystic', 'law', R['storm'], R['plum'][2]),
     ('law_touching_pill', 'mystic', 'eye_gate', R['silver'], R['plum'][2]),
     ('monarch_condensing_pill', 'mystic', 'crown', R['gold'], R['red'][1]),

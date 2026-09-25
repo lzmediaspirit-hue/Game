@@ -130,6 +130,13 @@ HAZARDS = [
     {"id": "spike_traps", "name": "Spike traps", "kind": "strike", "answer": "agility", "k": 1.3, "cycle": [1.5, 1.0, 0.35, 5.0],
      "count": 2, "radius": 52, "aim": "near", "spread": 220, "damage_pct": 0.07, "status": {"id": "bleed", "s": 3.0, "power": 0.01},
      "note": "Grit shivers over a pressure plate before bronze spikes spring from the floor. Agility gets the feet clear."},
+    # Phase E: the Starsea's star wind (Starsea survival, Sage 3) and the Trial Hall's pressing Presences.
+    {"id": "star_wind", "name": "Star wind", "kind": "aura", "answer": "spirit", "k": 1.3, "cycle": [3.0, 1.5, 3.0, 7.0],
+     "qi_drain_pct": 0.08, "damage_pct": 0.03, "damage_type": "qi", "shelter": ["shrine"],
+     "note": "Starlight streams sideways before each gust of the star wind, which strips Qi from anyone it passes. Spirit holds the Qi in."},
+    {"id": "presence", "name": "Pressing Presence", "kind": "aura", "answer": "will", "k": 2.2, "cycle": [2.0, 1.5, 3.0, 4.0],
+     "damage_pct": 0.06, "damage_type": "soul", "buff": {"stat": "physical_attack", "op": "pct_add", "value": -0.3},
+     "note": "The seats of the Nine lean on you: the air thickens, then their Presence lands and the arms grow heavy. Will stands under it."},
     {"id": "poison_mist", "name": "Poison mist", "kind": "pool", "answer": "body", "k": 1.3, "cycle": [3.0, 1.5, 4.0, 5.0],
      "areas": ["poison_mist"], "pulse": 1.0, "status": {"id": "poison", "s": 6.0, "power": 0.012},
      "note": "The bandits vent marsh gas through the tunnels: the vents hiss before they breathe. Body tolerates the poison."},
@@ -139,7 +146,7 @@ HAZARDS = [
 def hazards_json():
     for h in HAZARDS:
         assert h["kind"] in ("strike", "gust", "flow", "aura", "pool"), h["id"]
-        assert h["answer"] in ("body", "agility", "essence", "spirit", "insight", "fortune"), h["id"]
+        assert h["answer"] in ("body", "agility", "essence", "spirit", "insight", "fortune", "will"), h["id"]   # Will: S17 Weight zones
         assert len(h["cycle"]) == 4 and h["cycle"][2] > 0, h["id"]
     entries("hazards", HAZARDS)
 
@@ -255,9 +262,9 @@ class Room:
         self._n += 1
         return self.obj("%s_%d" % (kind, self._n), kind, at, loot=loot, level=level, hp=1, respawn_s=300)
 
-    def chest(self, at, loot="chest_valley", level=1, **kw):
+    def chest(self, at, loot="chest_valley", level=1, oid=None, **kw):
         self._n += 1
-        return self.obj("chest_%d" % self._n, "chest", at, loot=loot, level=level, **kw)
+        return self.obj(oid or "chest_%d" % self._n, "chest", at, loot=loot, level=level, **kw)
 
     def spawn(self, enemy, points, mx, respawn=12, level=None, surface="ground", **kw):
         s = {"enemy": enemy, "surface": surface, "points": [list(p) for p in points], "max": mx, "respawn_s": respawn}
@@ -1478,6 +1485,7 @@ def azure_expanse():
     r.npc("dockmaster_fu", [1100, 780], facing=1)
     r.npc("sky_sailor_ning", [600, 900], facing=1)
     r.edge("east", "east", "ae_landing", "west", y=850)
+    r.edge("west", "west", "ae_shipyard", "east", y=850)
 
     r = interior("ae_condensing_hall", "Condensing Hall", "cloudgate_port", wall="wall_stone", floor="floor_stone",
                  music="meditation", qi=2.0, rtype="insight", **AE)
@@ -1826,6 +1834,185 @@ def sunscar():
     r.portal("exit", "door", [2460, 860], "sd_worm_sea", "tomb", press_up=True, label="Worm Sea")
 
 
+def star_sight(r, oid, at, **kw):
+    """A sighting stone: one star reading every ten minutes for a navigator (S16 star charts, Sage 3)."""
+    return r.obj(oid, "star_sight", at, item="star_reading", prop="star_sight_stone", **{"yield": [1, 1]}, regrow_s=600,
+                 requires=all_of(unlock("star_charting")), locked_text="A ring of bronze on an old stone. Only a navigator knows what to sight through it.",
+                 **kw)
+
+
+def skyport_wreck():
+    """Phase E: the Shipwrights' Yard at Cloudgate, the Starsea crossing, the Skyport Wreck (Storm Ward 56-60), the Trial
+    Hall of the Nine Peaks, and the story instances of chapters 15-16 (the defence of the Alliance Gate, the Presence Trial)."""
+    r = town("ae_shipyard", "Shipwrights' Yard", "cloudgate_port", 2, backdrop="sky_port", material="wood", music="sky_port",
+             ambience="wind_ambience", spawn_point=[520, 820], qi=1.4, **AE)
+    r.obj("dock_cloudgate", "starsea_dock", [260, 700], route="wreck_run", prop="cloud_skiff",
+          requires=all_of(unlock("starsea")), locked_text="Skiffs for the Starsea. A Sage's Qi freezes out there before Sage 3.")
+    r.decor("mooring_post", [120, 700])
+    r.decor("mooring_post", [420, 700])
+    r.obj("slip_cloudgate", "shipyard_slip", [1000, 700], requires=all_of(unlock("shipwright")),
+          locked_text="Shipwright Lao's slipway. He builds for those who can crew what they build.")
+    r.decor("crate", [1250, 720])
+    r.decor("rope", [1320, 690])
+    r.obj("chart_table_cloudgate", "chart_table", [1720, 760], requires=all_of(unlock("star_charting")),
+          locked_text="Navigator Sun's chart table. Star maps, weighted at the corners.")
+    r.decor("armillary_sphere", [1960, 700])
+    star_sight(r, "sight_cloudgate", [2240, 700])
+    r.npc("shipwright_lao", [1180, 800], facing=-1)
+    r.npc("navigator_sun", [1560, 780], facing=1)
+    r.edge("east", "east", "ae_skydock", "west", y=850)
+
+    # Star-sighting stones on the Expanse's high places: the Wreck Run is charted before anyone sails it.
+    star_sight(ROOMS["rf_rimefrost_summit"], "sight_rimefrost", [1500, 700])
+    star_sight(ROOMS["np_presence_terrace"], "sight_presence_terrace", [2100, 700])
+
+    # The crossing (instanced): the vessel's deck under the Starsea; the event runs as long as the vessel takes to cross.
+    r = Room("ss_starsea_crossing", "Starsea Crossing", "story", "starsea", 3, backdrop="starsea", material="wood", tint="#b8a58a",
+             music="starsea", ambience="wind_ambience", instanced=True, safe=False, crossing=True, levels=[79, 81],
+             spawn_point=[900, 820], hazards=["star_wind"], no_flight=True, dungeon_exit="", attunement_required=60,
+             event={"id": "starsea_crossing", "duration": 70,
+                    "waves": [{"enemy": "starsea_pirate", "every_s": 10, "max": 2, "first_s": 8, "points": [[3400, 820], [3500, 900]]},
+                              {"enemy": "wind_kite", "every_s": 14, "max": 2, "first_s": 16, "points": [[2800, 780], [3300, 760]]}],
+                    "on_complete": [{"kind": "voyage_arrive"}]}, **AE)
+    r.decor("sky_ship", [3300, 600], layer="back", flip=True)
+    r.decor("broken_mast", [1500, 690])
+    for x in (600, 2400):
+        r.decor("crate", [x, 720])
+    r.decor("rope", [1200, 690])
+    r.decor("barrel", [2000, 720])
+
+    wreck = dict(backdrop="skyport_wreck", material="stone", music="starsea", ambience="wind_ambience", element="metal",
+                 gather_tier="expanse_high", qi=1.9, loot="jar_expanse", trees=("dead_tree_grey", "rock_large"), ledge="rock_ledge",
+                 front=("rock_small",), tint="#c9c2d6", **AE)
+    r = field("sw_broken_pier", "Broken Pier", "skyport_wreck", 3, [76, 78],
+              spawns=[("nine_peaks_disciple", 4, [76, 78]), ("starsea_pirate", 2, [78, 79])], ores=("stormsteel_ore",), jars=4,
+              attunement_required=56, hazards=["wind_gust"], spawn_point=[420, 820], **wreck)
+    r.obj("dock_wreck", "starsea_dock", [220, 700], route="wreck_run_home", prop="cloud_skiff")
+    r.obj("shrine_sw_pier", "shrine", [700, 700])
+    r.decor("wreck_hull", [1700, 640], layer="back")
+    r.decor("starsea_anchor", [1100, 720])
+    r.decor("pirate_banner", [2300, 662])
+    r.decor("broken_mast", [2900, 690])
+    r.obj("sign_sw", "signpost", [560, 860], text="The Skyport Wreck. East: the Pirate Deck. Beyond it the peak, and the Starsea Launch.")
+    r.edge("east", "east", "sw_pirate_deck", "west", y=850)
+
+    r = field("sw_pirate_deck", "Pirate Deck", "skyport_wreck", 3, [78, 81],
+              spawns=[("starsea_pirate", 5, [79, 81], 14), ("nine_peaks_disciple", 1, [78, 78])], jars=5, chest=None,
+              attunement_required=58, hazards=["wind_gust"], **dict(wreck, material="wood", tint="#b8a58a"))
+    for x in (700, 2500):
+        r.decor("star_ballista", [x, 700])
+    for x in (400, 1500, 3400):
+        r.decor("pirate_banner", [x, 662])
+    r.decor("broken_mast", [1900, 690])
+    r.decor("barrel", [1100, 720])
+    r.decor("crate", [1180, 730])
+    r.npc("gu_in_chains", [2900, 780], facing=-1, visible_if=all_of(qactive("the_skyport_wreck")))
+    r.chest([3200, 900], loot="chest_wreck", level=80, oid="pirate_strongbox", requires=all_of(flag("gu_freed")),
+            locked_text="The pirates' strongbox. The lock is a formation; Gu knows its word.")
+    r.edge("west", "west", "sw_broken_pier", "east", y=850)
+    r.edge("east", "east", "sw_riven_peak", "west", y=850)
+
+    r = field("sw_riven_peak", "Riven Peak", "skyport_wreck", 3, [79, 81],
+              spawns=[("starsea_pirate", 3, [79, 81]), ("wind_kite", 2, [78, 78])], jars=3, chest="chest_expanse",
+              attunement_required=60, hazards=["star_wind", "lightning"], platforms=[(900, 650, 300, 240), (2100, 640, 300, 320)],
+              **dict(wreck, element="none", qi=2.0))
+    star_sight(r, "sight_riven_a", [1050, 650], alt=240, surface="ledge_0")
+    star_sight(r, "sight_riven_b", [2250, 640], alt=320, surface="ledge_1")
+    star_sight(r, "sight_riven_c", [3300, 700])
+    r.decor("broken_mast", [1600, 690])
+    r.obj("journal_riven", "pickup", [2700, 900], item="lu_journal_page", count=1, prop="scroll_rack", set_flag="journal_riven",
+          visible_if=all_of(qactive("lus_last_page")), hidden_if=all_of(flag("journal_riven")))
+    r.edge("west", "west", "sw_pirate_deck", "east", y=850)
+    r.edge("east", "east", "sw_starsea_launch", "west", y=850)
+
+    r = Room("sw_starsea_launch", "Starsea Launch", "rest", "skyport_wreck", 2, backdrop="skyport_wreck", material="stone", tint="#c9c2d6",
+             music="starsea", ambience="wind_ambience", qi=2.0, spawn_point=[400, 820], idle=["gather"], **AE)
+    r.obj("launch_ring", "inspect", [1500, 700], prop="launch_ring", state_flag={"flag": "stars_beyond_done", "on": "active", "off": "idle"},
+          text="The ring of the Starsea Launch. Its lamps follow a line of stars out past the edge of the Expanse, toward a field of lanterns.")
+    r.obj("dock_launch", "starsea_dock", [2250, 700], route="lantern_run", prop="cloud_skiff")
+    r.decor("armillary_sphere", [900, 700])
+    r.decor("starsea_anchor", [620, 720])
+    r.obj("shrine_sw_launch", "shrine", [1100, 700])
+    r.obj("stone_skyport", "teleport_stone", [1900, 880], stone="skyport_wreck")
+    r.npc("launch_warden_he", [1300, 780], facing=-1)
+    r.edge("west", "west", "sw_riven_peak", "east", y=850)
+
+    # Nine Peaks · the Trial Hall (chapter 16) off the Presence Terrace.
+    ROOMS["np_presence_terrace"].painted("trial_hall", "hall", 640, 460, 120, 120, front=690)
+    ROOMS["np_presence_terrace"].portal("trial_door", "door", [640, 704], "np_trial_hall", "entry", press_up=True, label="Trial Hall")
+    r = interior("np_trial_hall", "Trial Hall", "nine_peaks", wall="wall_stone", floor="floor_stone", music="meditation", qi=2.0,
+                 rtype="insight", **AE)
+    for i, x in enumerate((160, 290, 420, 550, 730, 860, 990, 1120)):
+        r.decor("trial_seat", [x, 690], layer="back", flip=i >= 4)
+    r.decor("pressure_pillar", [640, 690], layer="back")
+    r.obj("presence_gate", "rite_circle", [640, 860], event="presence_trial", prop="rite_circle",
+          visible_if=all_of(any_of(qactive("the_presence_trial"), qdone("the_presence_trial"))),
+          text="The ninth seat is empty. Sit in the circle below it and let the other eight look at you.")
+    r.npc("trial_master_wen", [880, 800], facing=-1)
+    r.portal("entry", "door", [120, 700], "np_presence_terrace", "trial_door", press_up=True, label="Presence Terrace")
+    ROOMS["np_alliance_gate"].obj("war_gong_np", "rite_circle", [1650, 880], event="sect_war", prop="small_bell",
+                                  visible_if=all_of(any_of(qactive("the_gate_holds"), qdone("the_gate_holds"))),
+                                  text="The Alliance war gong. Strike it and the Gate's defenders take their places.")
+
+    # Story instances: the defence of the Alliance Gate (the sect war, SS2) and the Presence Trial (SS3).
+    r = Room("si_sect_war", "Sect War: the Alliance Gate", "story", "story", 3, backdrop="nine_peaks", material="stone", tint="#d6d0c4",
+             music="boss", instanced=True, safe=False, spawn_point=[500, 820], levels=[78, 81], dungeon_exit="",
+             event={"id": "sect_war", "duration": 300,
+                    "waves": [{"enemy": "starsea_pirate", "every_s": 5, "max": 4, "points": [[3300, 800], [3500, 900], [3600, 760]]},
+                              {"enemy": "nine_peaks_disciple", "every_s": 9, "max": 2, "first_s": 12, "points": [[3200, 880], [3500, 820]]}],
+                    "timed_spawns": [{"enemy": "pirate_captain", "at": [3300, 840], "after_s": 40,
+                                      "text": "Comet Captain Rao drops from the pirate junk onto the Gate!"}],
+                    "win_on_kill": "pirate_captain",
+                    "on_complete": [{"kind": "event_passed", "event": "sect_war"}, {"kind": "grant_currency", "currency": "spirit_stone", "amount": 150},
+                                    {"kind": "grant_item", "item": "comet_iron", "count": 2}, {"kind": "grant_item", "item": "storm_shard", "count": 10}],
+                    "on_timeout": [{"kind": "teleport", "target": "np_alliance_gate", "portal": ""}]}, **AE)
+    r.decor("paifang_gate", [700, 650])
+    for x in (300, 1100):
+        r.decor("banner_alliance", [x, 662])
+    r.decor("sky_ship", [3200, 600], layer="back", flip=True)
+    r.decor("star_ballista", [2600, 700])
+    r.decor("pirate_banner", [3000, 662])
+    r.decor("stockade_wall", [1700, 660])
+    r.portal("exit", "door", [140, 700], "np_alliance_gate", "east", press_up=True, label="Leave",
+             requires=all_of({"kind": "event_passed", "event": "sect_war"}), locked_text="Hold the Gate!")
+    r = Room("si_presence_trial", "The Presence Trial", "story", "story", 2, backdrop="nine_peaks", material="floor_stone", tint="#c8c0dc",
+             music="boss", instanced=True, safe=False, spawn_point=[1280, 820], levels=[81, 81], dungeon_exit="", hazards=["presence"],
+             event={"id": "presence_trial", "duration": 90,
+                    "waves": [{"enemy": "presence_phantom", "every_s": 7, "max": 3, "points": [[400, 820], [2200, 820], [1280, 920]]}],
+                    "timed_spawns": [{"enemy": "ninth_presence", "at": [2100, 840], "after_s": 45,
+                                      "text": "The ninth seat fills. Its Presence is your own, grown old."}],
+                    "on_complete": [{"kind": "event_passed", "event": "presence_trial"}, {"kind": "set_flag", "flag": "presence_trial_passed"}]},
+             **AE)
+    r.decor("rite_circle", [1280, 880])
+    for i, x in enumerate((300, 600, 900, 1660, 1960, 2260)):
+        r.decor("trial_seat", [x, 690], layer="back", flip=i >= 3)
+    for x in (1100, 1460):
+        r.decor("pressure_pillar", [x, 690], layer="back")
+    r.portal("exit", "door", [140, 700], "np_trial_hall", "entry", press_up=True, label="Leave",
+             requires=all_of({"kind": "event_passed", "event": "presence_trial"}), locked_text="The seats have not finished looking at you.")
+
+
+VOYAGES = [
+    {"id": "wreck_run", "name": "The Wreck Run", "from": "ae_shipyard", "to": "sw_broken_pier", "to_portal": "",
+     "chart": "star_chart_wreck", "crossing": "ss_starsea_crossing", "base_s": 70},
+    {"id": "wreck_run_home", "name": "The Wreck Run (home)", "from": "sw_broken_pier", "to": "ae_shipyard", "to_portal": "",
+     "chart": "star_chart_wreck", "crossing": "ss_starsea_crossing", "base_s": 70},
+    {"id": "lantern_run", "name": "The Lantern Run", "from": "sw_starsea_launch", "chart": "star_chart_lantern", "planned": True,
+     "planned_text": "The ring points past the edge of the Expanse, toward the Lantern Star Field. That voyage belongs to the next age of your road."},
+]
+
+
+def voyages():
+    """S18 Starsea routes: each needs its star chart and a vessel; the crossing room plays the voyage."""
+    entries("voyages", VOYAGES)
+    ids = {v["id"]: v for v in VOYAGES}
+    for r in ROOMS.values():
+        for o in r.d["objects"]:
+            if o["type"] == "starsea_dock":
+                v = ids.get(o.get("route"))
+                assert v and v["from"] == r.id, (r.id, o)
+
+
 def check_hazards():
     """Every hazard a room names exists, is never in a safe room, and has the areas its kind needs."""
     by_id = {h["id"]: h for h in HAZARDS}
@@ -1889,7 +2076,8 @@ def zone_json():
             {"id": "ironroot_hold", "name": "Ironroot Clan Hold", "levels": [0, 0], "map": [0.30, 0.60]},
             {"id": "sunscar_desert", "name": "Sunscar Desert", "levels": [73, 81], "attunement": 50, "map": [0.16, 0.74]},
             {"id": "tomb_of_sunscar", "name": "Tomb of Sunscar", "levels": [77, 77], "attunement": 55, "map": [0.08, 0.84]},
-            {"id": "skyport_wreck", "name": "Skyport Wreck", "levels": [76, 81], "attunement": 60, "map": [0.10, 0.18], "planned": True},
+            {"id": "skyport_wreck", "name": "Skyport Wreck", "levels": [76, 81], "attunement": 60, "map": [0.10, 0.18]},
+            {"id": "starsea", "name": "Starsea", "levels": [79, 81], "map": [0.05, 0.10], "hidden": True},
         ],
         "exit": {"room": "ae_landing", "to_zone": "jade_river_valley"},
     }]
@@ -1899,12 +2087,13 @@ def zone_json():
 def teleport_stones():
     rows = [
         {"id": "stoneford", "name": "Stoneford Market", "room": "sf_market", "at": [1480, 880], "fee_shards": 1},
-        {"id": "jade_academy", "name": "Jade Sect Academy", "room": "ja_gate_street", "at": [520, 880], "fee_shards": 1},
-        {"id": "cloud_monastery", "name": "Cloud Sect Monastery", "room": "cm_cliff_stair", "at": [460, 880], "fee_shards": 1},
+        {"id": "jade_academy", "name": "Jade Sect Academy", "room": "ja_gate_street", "at": [520, 880], "fee_shards": 1, "sect": "jade_sect"},
+        {"id": "cloud_monastery", "name": "Cloud Sect Monastery", "room": "cm_cliff_stair", "at": [460, 880], "fee_shards": 1, "sect": "cloud_sect"},
         {"id": "hidden_vale", "name": "Hidden Vale", "room": "hv_vale_gate", "at": [300, 880], "fee_shards": 1},
         {"id": "cloudgate", "name": "Cloudgate Port", "room": "ae_port_market", "at": [1900, 880], "fee_shards": 1, "zone": "azure_expanse"},
         {"id": "nine_peaks", "name": "Nine Peaks", "room": "np_alliance_gate", "at": [2100, 880], "fee_shards": 1, "zone": "azure_expanse"},
         {"id": "sunscar", "name": "Oasis of Bones", "room": "sd_oasis_of_bones", "at": [2150, 880], "fee_shards": 1, "zone": "azure_expanse"},
+        {"id": "skyport_wreck", "name": "Starsea Launch", "room": "sw_starsea_launch", "at": [1900, 880], "fee_shards": 1, "zone": "azure_expanse"},
     ]
     entries("teleport_stones", rows)
     # Every teleport stone object must name one of these.
@@ -1928,6 +2117,11 @@ def set_pieces():
          "requires": all_of(realm("heart_tempering_9"))},
         {"id": "siege_of_two_sects", "name": "Siege of Two Sects", "room": "si_siege", "portal": "exit",
          "requires": all_of(realm("heaven_glimpse_2"))},
+        # Act II · chapters 15-16: the defence of the Alliance Gate (S25 sect war) and the Presence Trial (S05, into Will Manifest).
+        {"id": "sect_war", "name": "Sect War: the Alliance Gate", "room": "si_sect_war", "portal": "exit",
+         "requires": all_of(realm("sage_sovereign_2")), "repeatable": {"cooldown_h": 20}},
+        {"id": "presence_trial", "name": "The Presence Trial", "room": "si_presence_trial", "portal": "exit",
+         "requires": all_of(realm("sage_sovereign_3"))},
     ]
     entries("set_pieces", rows)
 
@@ -1956,6 +2150,10 @@ def reachability():
         seen.add(rid)
         for p in ROOMS[rid].d["portals"]:
             todo.append(p["to"])
+        # A Starsea dock is a way on too: the Skyport Wreck is only reached by sailing.
+        for o in ROOMS[rid].d["objects"]:
+            if o["type"] == "starsea_dock":
+                todo += [v["to"] for v in VOYAGES if v["id"] == o.get("route") and "to" in v]
     unreached = [rid for rid, r in ROOMS.items() if rid not in seen and not r.d.get("instanced")]
     assert not unreached, ("unreachable", unreached)
 
@@ -1971,6 +2169,7 @@ def build():
     rimefrost_and_mirrorwater()
     nine_peaks_and_canyons()
     sunscar()
+    skyport_wreck()
     check_links()
     reachability()
     os.makedirs(ROOMS_DIR, exist_ok=True)
@@ -1982,6 +2181,7 @@ def build():
     zone_json()
     teleport_stones()
     set_pieces()
+    voyages()
     hazards_json()
     check_hazards()
     print("rooms:", len(ROOMS))

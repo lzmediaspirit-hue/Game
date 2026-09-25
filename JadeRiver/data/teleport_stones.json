@@ -19,7 +19,8 @@
     520,
     880
    ],
-   "fee_shards": 1
+   "fee_shards": 1,
+   "sect": "jade_sect"
   },
   {
    "id": "cloud_monastery",
@@ -29,7 +30,8 @@
     460,
     880
    ],
-   "fee_shards": 1
+   "fee_shards": 1,
+   "sect": "cloud_sect"
   },
   {
    "id": "hidden_vale",
@@ -69,6 +71,17 @@
    "room": "sd_oasis_of_bones",
    "at": [
     2150,
+    880
+   ],
+   "fee_shards": 1,
+   "zone": "azure_expanse"
+  },
+  {
+   "id": "skyport_wreck",
+   "name": "Starsea Launch",
+   "room": "sw_starsea_launch",
+   "at": [
+    1900,
     880
    ],
    "fee_shards": 1,

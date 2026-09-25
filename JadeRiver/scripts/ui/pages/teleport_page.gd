@@ -19,7 +19,7 @@ func draw_page() -> void:
 		var here: bool = Game.room_rt != null and Game.room_rt.room_id == str(s.room)
 		var ok := known and not here and Unlocks.is_unlocked(ch.id, "teleport_stones")
 		var why := Tx.t("ui.teleport.not_yet_discovered") if not known else (Tx.t("ui.teleport.you_are_here") if here else Unlocks.locked_text("teleport_stones"))
-		btn(Rect2(content.position.x, y, content.size.x, gap - 8.0), Tx.t("ui.teleport.shard") % [str(s.name) if known else Tx.t("ui.teleport.undiscovered"), Game.world.teleport_fee(str(s.id))], "go", str(s.id), false, ok, why)
+		btn(Rect2(content.position.x, y, content.size.x, gap - 8.0), Tx.t("ui.teleport.shard") % [str(s.name) if known else Tx.t("ui.teleport.undiscovered"), Game.world.teleport_fee(str(s.id), Game.active())], "go", str(s.id), false, ok, why)
 		y += gap
 
 func on_action(id: String, data) -> void:

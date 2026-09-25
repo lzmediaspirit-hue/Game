@@ -753,7 +753,8 @@ func _draw_controls(c) -> void:
 	var ctx_glyph := ""
 	if not context.is_empty() and (not _enemy_close() or not Unlocks.is_unlocked(c.id, "attack")):
 		ctx_glyph = {"npc": "talk", "herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish", "chest": "open", "storage_chest": "open",
-			"portal": "enter", "cooking_pot": "cook", "alchemy_furnace": "alchemy", "forge_anvil": "forge"}.get(str(context.get("type", "")), "open")
+			"portal": "enter", "cooking_pot": "cook", "alchemy_furnace": "alchemy", "forge_anvil": "forge", "star_sight": "gather",
+			"chart_table": "forge", "shipyard_slip": "forge", "starsea_dock": "enter"}.get(str(context.get("type", "")), "open")
 	if shown("attack") or ctx_glyph != "":
 		ring(attack_center, 66, Game.combat.is_busy(c.id) or channel.object != "", 1.0, pulses.has("hud:attack"))
 		if ctx_glyph != "":

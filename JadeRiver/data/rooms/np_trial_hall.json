@@ -1,0 +1,214 @@
+{
+ "schema_version": 1,
+ "id": "np_trial_hall",
+ "zone": "azure_expanse",
+ "region": "nine_peaks",
+ "name": "Trial Hall",
+ "type": "insight",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 2.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    1280,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    120,
+    700
+   ],
+   "to": "np_presence_terrace",
+   "to_portal": "trial_door",
+   "press_up": true,
+   "label": "Presence Terrace"
+  }
+ ],
+ "objects": [
+  {
+   "id": "presence_gate",
+   "type": "rite_circle",
+   "at": [
+    640,
+    860
+   ],
+   "event": "presence_trial",
+   "prop": "rite_circle",
+   "visible_if": {
+    "all": [
+     {
+      "any": [
+       {
+        "kind": "quest_active",
+        "quest": "the_presence_trial"
+       },
+       {
+        "kind": "quest_done",
+        "quest": "the_presence_trial"
+       }
+      ]
+     }
+    ]
+   },
+   "text": "The ninth seat is empty. Sit in the circle below it and let the other eight look at you."
+  },
+  {
+   "id": "npc_trial_master_wen",
+   "type": "npc",
+   "at": [
+    880,
+    800
+   ],
+   "npc": "trial_master_wen",
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    360,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    920,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "trial_seat",
+   "at": [
+    160,
+    690
+   ],
+   "layer": "back",
+   "flip": false
+  },
+  {
+   "prop": "trial_seat",
+   "at": [
+    290,
+    690
+   ],
+   "layer": "back",
+   "flip": false
+  },
+  {
+   "prop": "trial_seat",
+   "at": [
+    420,
+    690
+   ],
+   "layer": "back",
+   "flip": false
+  },
+  {
+   "prop": "trial_seat",
+   "at": [
+    550,
+    690
+   ],
+   "layer": "back",
+   "flip": false
+  },
+  {
+   "prop": "trial_seat",
+   "at": [
+    730,
+    690
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "trial_seat",
+   "at": [
+    860,
+    690
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "trial_seat",
+   "at": [
+    990,
+    690
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "trial_seat",
+   "at": [
+    1120,
+    690
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "pressure_pillar",
+   "at": [
+    640,
+    690
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_stone"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "music": "meditation"
+}

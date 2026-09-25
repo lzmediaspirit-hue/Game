@@ -1,0 +1,522 @@
+{
+ "schema_version": 1,
+ "id": "sw_riven_peak",
+ "zone": "azure_expanse",
+ "region": "skyport_wreck",
+ "name": "Riven Peak",
+ "type": "field",
+ "level_range": [
+  79,
+  81
+ ],
+ "recommended_cp": 1442,
+ "element": "none",
+ "qi_density": 2.0,
+ "hazards": [
+  "star_wind",
+  "lightning"
+ ],
+ "gather_tier": "expanse_high",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "skyport_wreck",
+ "ground": {
+  "material": "stone",
+  "tint": "#c9c2d6"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    900,
+    650,
+    300,
+    50
+   ],
+   "height": 240,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    2100,
+    640,
+    300,
+    50
+   ],
+   "height": 320,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "sw_pirate_deck",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "sw_starsea_launch",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    592,
+    930
+   ],
+   "loot": "jar_expanse",
+   "level": 80,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_2",
+   "type": "crate",
+   "at": [
+    1961,
+    930
+   ],
+   "loot": "jar_expanse",
+   "level": 80,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    3267,
+    900
+   ],
+   "loot": "jar_expanse",
+   "level": 80,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_4",
+   "type": "chest",
+   "at": [
+    3480,
+    700
+   ],
+   "loot": "chest_expanse",
+   "level": 81
+  },
+  {
+   "id": "sight_riven_a",
+   "type": "star_sight",
+   "at": [
+    1050,
+    650
+   ],
+   "item": "star_reading",
+   "prop": "star_sight_stone",
+   "yield": [
+    1,
+    1
+   ],
+   "regrow_s": 600,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "star_charting"
+     }
+    ]
+   },
+   "locked_text": "A ring of bronze on an old stone. Only a navigator knows what to sight through it.",
+   "alt": 240,
+   "surface": "ledge_0"
+  },
+  {
+   "id": "sight_riven_b",
+   "type": "star_sight",
+   "at": [
+    2250,
+    640
+   ],
+   "item": "star_reading",
+   "prop": "star_sight_stone",
+   "yield": [
+    1,
+    1
+   ],
+   "regrow_s": 600,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "star_charting"
+     }
+    ]
+   },
+   "locked_text": "A ring of bronze on an old stone. Only a navigator knows what to sight through it.",
+   "alt": 320,
+   "surface": "ledge_1"
+  },
+  {
+   "id": "sight_riven_c",
+   "type": "star_sight",
+   "at": [
+    3300,
+    700
+   ],
+   "item": "star_reading",
+   "prop": "star_sight_stone",
+   "yield": [
+    1,
+    1
+   ],
+   "regrow_s": 600,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "star_charting"
+     }
+    ]
+   },
+   "locked_text": "A ring of bronze on an old stone. Only a navigator knows what to sight through it."
+  },
+  {
+   "id": "journal_riven",
+   "type": "pickup",
+   "at": [
+    2700,
+    900
+   ],
+   "item": "lu_journal_page",
+   "count": 1,
+   "prop": "scroll_rack",
+   "set_flag": "journal_riven",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "lus_last_page"
+     }
+    ]
+   },
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "journal_riven"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "starsea_pirate",
+   "surface": "ground",
+   "points": [
+    [
+     600,
+     929
+    ],
+    [
+     1517,
+     888
+    ],
+    [
+     2337,
+     845
+    ],
+    [
+     3232,
+     725
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 12,
+   "level": [
+    79,
+    81
+   ]
+  },
+  {
+   "enemy": "wind_kite",
+   "surface": "ground",
+   "points": [
+    [
+     876,
+     752
+    ],
+    [
+     1933,
+     831
+    ],
+    [
+     2986,
+     774
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 12,
+   "level": [
+    78,
+    78
+   ]
+  },
+  {
+   "enemy": "starsea_pirate",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    81,
+    81
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    180,
+    629
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    684,
+    632
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    1202,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1680,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    2190,
+    639
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2819,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "dead_tree_grey",
+   "at": [
+    3269,
+    638
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    134,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    385,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    736,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1035,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1341,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1584,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1956,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2318,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2525,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2904,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3082,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3511,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3784,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "broken_mast",
+   "at": [
+    1600,
+    690
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "starsea",
+ "ambience": "wind_ambience",
+ "attunement_required": 60
+}
