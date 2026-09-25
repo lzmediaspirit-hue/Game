@@ -263,13 +263,13 @@ def pets():
     rows = [
         {"id": "reed_otter", "name": "Reed Otter", "art": "reed_otter", "element": "water", "strength_role": "gatherer", "starter": True,
          "skills": ["Splash", "Reed Dive", "Otter Current", "River Gift"], "favourite_foods": ["roast_fish", "riverfish_soup"],
-         "branches": ["River Otter Sage", "Tide Otter"], "inherit_owner": {"hatchling": 0.2, "juvenile": 0.35, "adult": 0.5}},
+         "branches": ["River Otter Sage", "Tide Otter"], "inherit_owner": {"hatchling": 0.2, "juvenile": 0.3, "adult": 0.35}},
         {"id": "ember_fox", "name": "Ember Fox", "art": "ember_fox", "element": "fire", "strength_role": "combat", "starter": True,
          "skills": ["Ember Bite", "Flare", "Fox Fire", "Nine Embers"], "favourite_foods": ["roast_fish", "ember_pepper_broth"],
-         "branches": ["Twin-Tail Fox", "Hearth Fox"], "inherit_owner": {"hatchling": 0.25, "juvenile": 0.4, "adult": 0.55}},
+         "branches": ["Twin-Tail Fox", "Hearth Fox"], "inherit_owner": {"hatchling": 0.25, "juvenile": 0.32, "adult": 0.4}},
         {"id": "jade_crane", "name": "Jade Crane", "art": "jade_crane_chick", "element": "wind", "strength_role": "mount", "starter": True,
          "skills": ["Wing Buffet", "Crane Call", "Cloud Lift", "Sky Dance"], "favourite_foods": ["mist_trout", "lotus_root_tea"],
-         "branches": ["Cloud Crane", "Sage Crane"], "inherit_owner": {"hatchling": 0.2, "juvenile": 0.35, "adult": 0.5}},
+         "branches": ["Cloud Crane", "Sage Crane"], "inherit_owner": {"hatchling": 0.2, "juvenile": 0.3, "adult": 0.35}},
         {"id": "mossback_toad", "name": "Mossback Toad", "art": "mossback_toad", "element": "wood", "strength_role": "gatherer", "tame": True,
          "skills": ["Tongue Lash", "Moss Shield", "Herb Sense", "Garden Back"], "favourite_foods": ["frog_leg", "rice_ball"], "branches": ["Moss Sage Toad", "Thorn Toad"]},
         {"id": "ironclaw_mole", "name": "Ironclaw Mole", "art": "ironclaw_mole", "element": "earth", "strength_role": "gatherer", "tame": True,
@@ -280,12 +280,29 @@ def pets():
          "skills": ["Mist Bite", "Howl", "Fog Step", "Moon Hunt"], "favourite_foods": ["tough_meat", "riverfish_soup"], "branches": ["Fog Wolf", "Moon Wolf"]},
     ]
     entries("pets", rows)
+    # Three hidden traits per animal, revealed at Juvenile, Awakened and Sovereign. `bonus` is what a revealed
+    # trait of the active animal adds (read by the system that owns that number).
     entries("pet_traits", [
-        {"id": "deep_diver", "name": "Deep Diver", "effect": "+30% fishing"}, {"id": "stormborn", "name": "Stormborn", "effect": "+15% thunder damage"},
-        {"id": "keen_nose", "name": "Keen Nose", "effect": "+10% herb yield"}, {"id": "iron_hide", "name": "Iron Hide", "effect": "+10% defence"},
-        {"id": "quick_paws", "name": "Quick Paws", "effect": "+10% attack speed"}, {"id": "lucky_find", "name": "Lucky Find", "effect": "+5% drop rate"},
-        {"id": "calm_spirit", "name": "Calm Spirit", "effect": "+5% Resonance"}, {"id": "loyal", "name": "Loyal", "effect": "+1 bond per day"},
+        {"id": "deep_diver", "name": "Deep Diver", "effect": "+30% time to strike a bite", "bonus": {"fish_chance": 0.3}},
+        {"id": "stormborn", "name": "Stormborn", "effect": "+15% pet damage", "bonus": {"pet_damage": 0.15}},
+        {"id": "keen_nose", "name": "Keen Nose", "effect": "+10% herb yield", "bonus": {"herb_yield": 0.1}},
+        {"id": "iron_hide", "name": "Iron Hide", "effect": "Takes 10% less damage", "bonus": {"pet_damage_taken": -0.1}},
+        {"id": "quick_paws", "name": "Quick Paws", "effect": "+10% pet damage", "bonus": {"pet_damage": 0.1}},
+        {"id": "lucky_find", "name": "Lucky Find", "effect": "+5% drop chance", "bonus": {"drop_chance": 0.05}},
+        {"id": "calm_spirit", "name": "Calm Spirit", "effect": "+5% Resonance", "bonus": {"resonance": 0.05}},
+        {"id": "loyal", "name": "Loyal", "effect": "+50% bond from food", "bonus": {"bond_gain": 0.5}},
     ])
+    # S22 stages: every gate (level, hearts, owner realm) must be met. Inherit = share of the owner's attack;
+    # resonance = accumulation bonus while in the Cultivation role (from Spirit Awakening 1).
+    write("pet_growth.json", {"schema_version": 1, "traits_per_pet": 3, "role_match_bonus": 0.25, "hungry_mult": 0.7,
+                              "resonance_unlock": "spirit_awakening_1", "hp_share": 0.4, "retreat_s": 60,
+                              "stages": [
+                                  {"id": "hatchling", "name": "Hatchling", "inherit": 0.2, "resonance": 0.0},
+                                  {"id": "juvenile", "name": "Juvenile", "level": 15, "bond": 3, "realm": "heart_tempering_1", "reveal_trait": True, "inherit": 0.3, "resonance": 0.05},
+                                  {"id": "adult", "name": "Adult", "level": 35, "bond": 5, "realm": "spirit_awakening_1", "branch": True, "inherit": 0.35, "resonance": 0.1},
+                                  {"id": "awakened", "name": "Awakened", "level": 55, "bond": 7, "realm": "sage_1", "reveal_trait": True, "inherit": 0.4, "resonance": 0.2},
+                                  {"id": "sovereign", "name": "Sovereign", "level": 75, "bond": 9, "realm": "sphere_lord_1", "reveal_trait": True, "inherit": 0.4, "resonance": 0.3},
+                                  {"id": "primordial", "name": "Primordial", "level": 95, "bond": 10, "realm": "inner_heaven_1", "primordial_only": True, "inherit": 0.4, "resonance": 0.3}]})
 
 
 def achievements():
@@ -369,7 +386,12 @@ def sect_tables():
          ("forge", "Forge", 900, "copper_ore", 30, 3), ("herb_terraces", "Herb Terraces", 700, "willow_moss", 15, 4),
          ("beast_pavilion", "Beast Pavilion", 700, "tough_meat", 15, 4), ("library", "Library", 1000, "talisman_paper", 10, 5),
          ("formation_array", "Formation Array", 1200, "formation_stone", 10, 6), ("ancestral_shrine", "Ancestral Shrine", 1500, "jade_core", 1, 7)]
-    entries("sect_buildings", [{"id": b, "name": n, "base_cost": c, "material": m, "material_count": k, "sect_level": lv, "max_level": 10}
+    # What each level gives. A building damaged in a lost raid gives defence.damaged_output of it until repaired.
+    OUTPUT = {"treasury": {"taels_per_level": 20},
+              "meditation_pavilion": {"idle_rate_per_level": 0.1, "idle_cap_hours": [[2, 4], [4, 8], [5, 12]]},
+              "guest_house": {"disciples_base": 2, "disciples_per_level": 1}}
+    entries("sect_buildings", [dict({"id": b, "name": n, "base_cost": c, "material": m, "material_count": k, "sect_level": lv, "max_level": 10},
+                                    **({"output": OUTPUT[b]} if b in OUTPUT else {}))
                                for b, n, c, m, k, lv in B])
     write("sect_levels.json", {"prestige_building": 20, "levels": [{"level": n, "prestige": int(round(200 * n ** 1.8))} for n in range(1, 21)]})
     entries("expeditions", [

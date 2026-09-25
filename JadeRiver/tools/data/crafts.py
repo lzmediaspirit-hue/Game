@@ -69,4 +69,5 @@ def build():
                                                  {"enemy": "mud_hound", "every_s": 5, "max": 5},
                                                  {"enemy": "hollow_stag", "every_s": 4, "max": 4}],
                        "points": [[300, 860], [1500, 860], [2600, 860]],
-                       "prestige_win": 40, "taels_win": 200, "per_disciple_guard": 0.1})
+                       "prestige_win": 40, "taels_win": 200, "per_disciple_guard": 0.1,
+                       "damaged_output": 0.5, "repair_cost_fraction": 0.25})

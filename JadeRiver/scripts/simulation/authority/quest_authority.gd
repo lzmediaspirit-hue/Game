@@ -21,7 +21,7 @@ const EVENT_KINDS := {
 }
 
 func intents() -> Array:
-	return ["talk", "choose_dialogue", "accept_quest", "hand_in_quest", "track_quest", "abandon_quest", "report_page_opened", "report_system_used"]
+	return ["talk", "choose_dialogue", "accept_quest", "hand_in_quest", "track_quest", "abandon_quest", "report_page_opened"]
 
 func subscribe() -> void:
 	for ev in EVENT_KINDS:
@@ -58,9 +58,6 @@ func handle(intent: Dictionary) -> Dictionary:
 			return ok()
 		"report_page_opened":
 			emit("page_opened", {"actor": c.id, "page": str(intent.get("page", ""))})
-			return ok()
-		"report_system_used":
-			emit("system_used", {"actor": c.id, "system": str(intent.get("system", ""))})
 			return ok()
 	return fail("unknown_intent")
 

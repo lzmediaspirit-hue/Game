@@ -161,6 +161,11 @@
   "guard_factor": 0.5,
   "shallows_factor": 0.7
  },
+ "attunement": {
+  "floor": 0.3,
+  "slope": 0.7,
+  "cap": 1.1
+ },
  "crit": {
   "base": 0.05,
   "per_agility": 0.001,

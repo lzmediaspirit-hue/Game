@@ -115,6 +115,11 @@ func _draw_minigame(r: Rect2) -> void:
 	for i in scores.size():
 		draw_circle(Vector2(r.position.x + 12 + i * 22, r.end.y + 16), 7, UiKit.JADE if float(scores[i]) > 0.6 else UiKit.RED)
 
+func on_event(name: String, p: Dictionary) -> void:
+	if name == "craft_step_result":
+		flash({"perfect": "Perfect!", "good": "Good", "miss": "Miss"}.get(str(p.get("grade", "miss")), ""))
+	queue_redraw()
+
 func on_action(id: String, data) -> void:
 	var ch = c()
 	var craft := str(tabs[tab].id)
@@ -135,18 +140,20 @@ func on_action(id: String, data) -> void:
 				scores = []
 				needle = 0.0
 				needle_dir = 1.0
-				band = Vector2(0.4 + randf() * 0.2, 0.0)
+				band = Vector2(0.4 + Rng.stream(c().id, "minigame").randf() * 0.2, 0.0)
 				band.y = band.x + 0.16
 		"strike":
+			# Crafting scores the strike (craft_step_result); the page only reports where it landed.
 			var mid := (band.x + band.y) * 0.5
-			scores.append(clampf(1.0 - absf(needle - mid) / 0.3, 0.0, 1.0))
+			var st := submit({"type": "craft_step", "recipe": sel, "craft": "alchemy" if craft == "alchemy" else "smithing", "offset": needle - mid})
+			scores.append(float(st.get("score", 0.0)))
 			Audio.play("forge" if craft == "smithing" else "alchemy", "UI")
-			if scores.size() >= 3:
+			if scores.size() >= int(ContentDB.curve("craft_step.steps", 3)):
 				game_on = false
-				var r2 := submit({"type": "refine" if craft == "alchemy" else "forge", "recipe": sel, "count": count, "scores": scores})
+				var r2 := submit({"type": "refine" if craft == "alchemy" else "forge", "recipe": sel, "count": count})
 				if r2.get("ok", false): flash("%s quality · %d made" % [str(r2.quality).capitalize(), int(r2.count)])
 			else:
-				band.x = 0.25 + randf() * 0.5
+				band.x = 0.25 + Rng.stream(c().id, "minigame").randf() * 0.5
 				band.y = band.x + 0.14
 		"queue":
 			if submit({"type": "queue_auto_refine", "recipe": sel, "count": count}).get("ok", false):

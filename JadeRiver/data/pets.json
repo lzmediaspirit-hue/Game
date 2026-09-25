@@ -24,8 +24,8 @@
    ],
    "inherit_owner": {
     "hatchling": 0.2,
-    "juvenile": 0.35,
-    "adult": 0.5
+    "juvenile": 0.3,
+    "adult": 0.35
    }
   },
   {
@@ -51,8 +51,8 @@
    ],
    "inherit_owner": {
     "hatchling": 0.25,
-    "juvenile": 0.4,
-    "adult": 0.55
+    "juvenile": 0.32,
+    "adult": 0.4
    }
   },
   {
@@ -78,8 +78,8 @@
    ],
    "inherit_owner": {
     "hatchling": 0.2,
-    "juvenile": 0.35,
-    "adult": 0.5
+    "juvenile": 0.3,
+    "adult": 0.35
    }
   },
   {

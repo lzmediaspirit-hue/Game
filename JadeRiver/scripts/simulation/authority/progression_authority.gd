@@ -22,6 +22,7 @@ func subscribe() -> void:
 	GameEvents.subscribe("player_gravely_wounded", _on_gravely_wounded, 30)
 	GameEvents.subscribe("technique_used", _on_technique_used, 30)
 	GameEvents.subscribe("object_hit", _on_object_hit, 30)
+	GameEvents.subscribe("zone_entered", _on_zone_entered, 30)
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -90,6 +91,7 @@ func accumulation_bonus(c) -> float:
 	if ProgressionRules.realm_index(game.account.highest_realm) - ProgressionRules.realm_index(c.cultivator.realm_key) >= 2:
 		bonus = (1.0 + bonus) * float(ContentDB.curve("ancestral_guidance", 1.5)) - 1.0
 	bonus += 0.02 * game.account.legacy.size()
+	bonus += game.pets.resonance(c)
 	return bonus
 
 func tick(delta: float) -> void:
@@ -188,6 +190,33 @@ func _heal_time(severity: int) -> float:
 	return float(times.get(["minor", "moderate", "severe"][clampi(severity - 1, 0, 2)], 600))
 
 # ------------------------------------------------------------------ accumulation (S05)
+## S18 attunement: jades plus small bonuses (character state, per zone) against what the room asks.
+func attunement_required(room_id: String) -> float:
+	var room := ContentDB.room(room_id)
+	if room.has("attunement_required"): return float(room.attunement_required)
+	var att = ContentDB.zone_of_room(room_id).get("attunement")
+	return float((att.get("required", [0]) as Array)[0]) if att is Dictionary else 0.0
+
+func attunement_factors(c) -> Dictionary:
+	var room_id := str(c.position.get("room", ""))
+	var zone_id := str(ContentDB.zone_of_room(room_id).get("id", ""))
+	return CombatRules.attunement_factors(float(c.cultivator.attunement.get(zone_id, 0.0)), attunement_required(room_id))
+
+func _on_zone_entered(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c == null: return
+	var room_id := str(c.position.get("room", ""))
+	var f := attunement_factors(c)
+	emit("attunement_changed", {"actor": c.id, "zone": str(p.get("zone", "")), "value": float(c.cultivator.attunement.get(str(p.get("zone", "")), 0.0)),
+		"required": attunement_required(room_id), "dealt": f.dealt, "taken": f.taken})
+
+## The bar is full. At the zone's ceiling the land itself is the limit (S18).
+func _bottleneck(c, realm: String) -> void:
+	emit("bottleneck_reached", {"actor": c.id, "realm_key": realm, "major": ProgressionRules.is_major(realm), "requirements": query_requirements(c)})
+	if at_zone_ceiling(c):
+		var zone := ContentDB.zone_of_room(str(c.position.get("room", "")))
+		emit("zone_ceiling_reached", {"actor": c.id, "zone": str(zone.get("id", "")), "ceiling": realm})
+
 func at_zone_ceiling(c) -> bool:
 	var zone := ContentDB.zone_of_room(c.position.get("room", ""))
 	return str(zone.get("ceiling", "")) == c.cultivator.realm_key
@@ -209,12 +238,10 @@ func apply_progress(actor_id: String, amount: float, source: String, pct_of_need
 		if cu.qp >= n:
 			var surplus := cu.qp - n
 			cu.qp = n
-			if cu.state != "consolidating" or cu.consolidation_left <= 0.0: cu.state = "bottleneck"
-			else: cu.state = "bottleneck"
+			cu.state = "bottleneck"
 			cu.stored_qi = minf(ProgressionRules.stored_qi_cap(c), cu.stored_qi + surplus)
 			cu.bottleneck_seconds = 0.0
-			emit("bottleneck_reached", {"actor": c.id, "realm_key": cu.realm_key, "major": ProgressionRules.is_major(cu.realm_key),
-				"requirements": query_requirements(c)})
+			_bottleneck(c, cu.realm_key)
 	emit("progress_changed", {"actor": c.id, "progress": cu.progress_fraction(), "stored": cu.stored_qi, "source": source, "amount": amount})
 	var after_level := ProgressionRules.level(c)
 	if after_level != before_level: _levels_gained(c, before_level, after_level)
@@ -352,7 +379,7 @@ func _advance(c, to: String, major: bool) -> void:
 	if cu.qp >= n and n > 0:
 		cu.qp = n
 		cu.state = "bottleneck"
-		emit("bottleneck_reached", {"actor": c.id, "realm_key": to, "major": ProgressionRules.is_major(to), "requirements": query_requirements(c)})
+		_bottleneck(c, to)
 	emit("progress_changed", {"actor": c.id, "progress": cu.progress_fraction(), "stored": cu.stored_qi, "source": "breakthrough", "amount": 0})
 
 func _fail_breakthrough(c, failure_id: String, rng: RandomNumberGenerator) -> void:

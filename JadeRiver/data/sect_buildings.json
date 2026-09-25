@@ -17,7 +17,10 @@
    "material": "copper_ore",
    "material_count": 20,
    "sect_level": 1,
-   "max_level": 10
+   "max_level": 10,
+   "output": {
+    "taels_per_level": 20
+   }
   },
   {
    "id": "meditation_pavilion",
@@ -26,7 +29,24 @@
    "material": "riverstone",
    "material_count": 20,
    "sect_level": 1,
-   "max_level": 10
+   "max_level": 10,
+   "output": {
+    "idle_rate_per_level": 0.1,
+    "idle_cap_hours": [
+     [
+      2,
+      4
+     ],
+     [
+      4,
+      8
+     ],
+     [
+      5,
+      12
+     ]
+    ]
+   }
   },
   {
    "id": "guest_house",
@@ -35,7 +55,11 @@
    "material": "boar_hide",
    "material_count": 10,
    "sect_level": 2,
-   "max_level": 10
+   "max_level": 10,
+   "output": {
+    "disciples_base": 2,
+    "disciples_per_level": 1
+   }
   },
   {
    "id": "mission_hall",

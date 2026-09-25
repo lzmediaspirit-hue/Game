@@ -651,7 +651,7 @@ func sec_qk1() -> void:
 	var made := 0
 	for i in 5:
 		if made >= 3: break
-		var rf := submit({"type": "refine", "recipe": "healing_pill", "count": 1, "scores": [0.8, 0.8, 0.8]})
+		var rf := refine_with("healing_pill", 1, [0.06, 0.06, 0.06])
 		if rf.get("ok", false): made += int(rf.count)
 		else: print("  refine: ", rf)
 	check(made >= 3, "refine three Healing Pills (%d)" % made)
@@ -861,7 +861,7 @@ func sec_qu1() -> void:
 	check(go_to_station("forge_anvil"), "reach a forge")
 	var anvil := objects_of("forge_anvil")
 	if not anvil.is_empty(): place(Vector2(float(anvil[0].at[0]) - 40, float(anvil[0].at[1]) + 10))
-	var fg := submit({"type": "forge", "recipe": "iron_jian", "scores": [0.9, 0.8, 0.85]})
+	var fg := forge_with("iron_jian", [0.03, 0.06, 0.045])
 	check(fg.get("ok", false), "forge an Iron Jian %s" % str(fg))
 	var idx: int = c().inventory.first_index("iron_jian")
 	var en := submit({"type": "enhance", "index": idx}) if idx >= 0 else submit({"type": "enhance", "slot": "weapon"})
@@ -970,7 +970,7 @@ func make_mind_lake_pill() -> bool:
 	go_to_station("alchemy_furnace")
 	var furn := objects_of("alchemy_furnace")
 	if not furn.is_empty(): place(Vector2(float(furn[0].at[0]) - 40, float(furn[0].at[1]) + 10))
-	var rf := submit({"type": "refine", "recipe": "mind_lake_opening_pill", "count": 1, "scores": [0.9, 0.9, 0.9]})
+	var rf := refine_with("mind_lake_opening_pill", 1, [0.03, 0.03, 0.03])
 	if not rf.get("ok", false): print("  refine mind lake: ", rf)
 	return c().inventory.count("mind_lake_opening_pill") > 0
 
@@ -986,7 +986,7 @@ func make_refining_pill() -> bool:
 	go_to_station("alchemy_furnace")
 	var furn := objects_of("alchemy_furnace")
 	if not furn.is_empty(): place(Vector2(float(furn[0].at[0]) - 40, float(furn[0].at[1]) + 10))
-	var r := submit({"type": "refine", "recipe": "qi_refining_pill", "count": 1, "scores": [0.9, 0.9, 0.9]})
+	var r := refine_with("qi_refining_pill", 1, [0.03, 0.03, 0.03])
 	if not r.get("ok", false): print("  refine qi_refining_pill: ", r)
 	return c().inventory.count("qi_refining_pill") > 0
 
@@ -1311,3 +1311,15 @@ func sec_hg1() -> void:
 			print("  unlock out of order: ", sys)
 		last = i
 	check(ordered, "systems unlock in the Part 4 order")
+
+## The mini-game through intents: each strike's distance from the band centre, then the craft.
+func strike_steps(recipe: String, craft: String, offsets: Array) -> void:
+	for o in offsets: submit({"type": "craft_step", "recipe": recipe, "craft": craft, "offset": o})
+
+func refine_with(recipe: String, count: int, offsets: Array) -> Dictionary:
+	strike_steps(recipe, "alchemy", offsets)
+	return submit({"type": "refine", "recipe": recipe, "count": count})
+
+func forge_with(recipe: String, offsets: Array) -> Dictionary:
+	strike_steps(recipe, "smithing", offsets)
+	return submit({"type": "forge", "recipe": recipe})

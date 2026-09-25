@@ -4,6 +4,7 @@ extends Node
 ##            factors, mastery, risk, offline caps).
 ##   Replay:  same seed plus same intents gives the same state.
 ##   Offline: caps, a backward clock, bottlenecks hold, no breakthrough while away.
+##   Pets:    stage gates need all three conditions, branches, traits, resonance, hunger.
 ## Run headless:  godot --headless --path . res://tests/rules_tests.tscn
 
 var checks := 0
@@ -25,6 +26,7 @@ func _main() -> void:
 	rules_suite()
 	replay_suite()
 	offline_suite()
+	pets_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -52,6 +54,15 @@ func rules_suite() -> void:
 	check(CombatRules.defence_reduction(100.0, 10, 0.4) < CombatRules.defence_reduction(100.0, 10, 0.0), "penetration lowers defence")
 	check(CombatRules.realm_gap_factor(3, 1) > 1.0 and CombatRules.realm_gap_factor(1, 3) < 1.0, "realm gap favours the higher realm")
 	check(near(CombatRules.realm_gap_factor(2, 2), 1.0), "same realm: no gap factor")
+	# S18 attunement at 0.5x, 1x and 1.15x the requirement; a zone that asks nothing changes nothing.
+	var half := CombatRules.attunement_factors(5.0, 10.0)
+	check(near(half.dealt, 0.65) and near(half.taken, 1.5), "attunement at half: 65%% dealt, 150%% taken")
+	var full := CombatRules.attunement_factors(10.0, 10.0)
+	check(near(full.dealt, 1.0) and near(full.taken, 1.0), "attunement met: no change")
+	var over := CombatRules.attunement_factors(11.5, 10.0)
+	check(near(over.dealt, 1.1) and near(over.taken, 1.0), "attunement 1.15x: dealt capped at 110%%")
+	var none := CombatRules.attunement_factors(0.0, 0.0)
+	check(near(none.dealt, 1.0) and near(none.taken, 1.0), "no requirement: no attunement factor")
 	# S09 mastery doubles per tier; S05 risk words
 	check(near(ProgressionRules.mastery_needed(1), 100.0) and near(ProgressionRules.mastery_needed(3), 400.0), "mastery 100 / 200 / 400")
 	check(ProgressionRules.risk_index(0, false, 0, 0, false) == 0 and ProgressionRules.risk_index(5, true, 3, 0, false) == 3, "risk index clamps 0..3")
@@ -137,3 +148,43 @@ func offline_suite() -> void:
 	var rate := ProgressionRules.meditation_rate(c, 1.0, Game.progression.accumulation_bonus(c))
 	check(near(float(r12.get("gains", {}).get("qp", 0.0)), rate * float(ContentDB.curve("offline_factor", 0.1)) * 720.0, 0.05), "offline factor 0.1 of the meditation rate")
 	Clock.override_utc = -1.0
+
+# ------------------------------------------------------------------ pets (S22)
+func pets_suite() -> void:
+	var c = Game.active()
+	if c == null:
+		check(false, "pet suite needs a character")
+		return
+	c.cultivator.realm_key = "qi_unfurling_5"
+	Game.pets.apply_grant(c.id, "reed_otter")
+	var p: Dictionary = c.pets[c.pets.size() - 1]
+	c.active_pet = str(p.uid)
+	check((p.traits as Array).size() == 3 and int(p.revealed) == 0, "a new animal carries three hidden traits")
+	# Juvenile: Level 15, 3 hearts, owner at Heart Tempering. Each gate alone is not enough.
+	p.level = 15
+	p.bond = 1.0
+	check(not Game.submit({"type": "evolve_pet", "pet": p.uid}).get("ok", false), "level alone does not evolve")
+	p.bond = 3.0
+	check(not Game.submit({"type": "evolve_pet", "pet": p.uid}).get("ok", false), "level and hearts without the owner's realm do not evolve")
+	c.cultivator.realm_key = "heart_tempering_1"
+	p.level = 14
+	check(not Game.submit({"type": "evolve_pet", "pet": p.uid}).get("ok", false), "hearts and realm without the level do not evolve")
+	p.level = 15
+	check(Game.submit({"type": "evolve_pet", "pet": p.uid}).get("ok", false) and str(p.stage) == "juvenile", "all three gates: Hatchling to Juvenile")
+	check(int(p.revealed) == 1 and Game.pets.revealed_traits(p).size() == 1, "Juvenile reveals the first trait")
+	# Adult needs a branch from the species.
+	p.level = 35
+	p.bond = 5.0
+	c.cultivator.realm_key = "spirit_awakening_1"
+	check(Game.submit({"type": "evolve_pet", "pet": p.uid}).get("reason", "") == "choose_branch", "Adult asks for a branch")
+	check(Game.submit({"type": "evolve_pet", "pet": p.uid, "branch": "Tide Otter"}).get("ok", false) and str(p.branch) == "Tide Otter", "Adult takes one of the two branches")
+	# Resonance: Cultivation role from Spirit Awakening 1, Adult +10%; hunger costs 30%.
+	p.role = "cultivation"
+	p.hunger_day = Clock.reset_day(Clock.now_utc())
+	var fed: float = Game.pets.resonance(c) - Game.pets.trait_bonus(c, "resonance")
+	check(near(fed, 0.10), "Adult resonance is +10%% (%.3f)" % fed)
+	p.hunger_day = Clock.reset_day(Clock.now_utc()) - 2
+	check(near(Game.pets.care_mult(p), 0.7), "a hungry animal works at 70%")
+	check(Game.progression.accumulation_bonus(c) >= Game.pets.resonance(c) - 0.0001, "resonance feeds accumulation")
+	p.role = "combat"
+	check(near(Game.pets.resonance(c), 0.0), "no resonance outside the Cultivation role")

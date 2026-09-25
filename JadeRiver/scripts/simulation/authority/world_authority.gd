@@ -404,7 +404,7 @@ func _on_actor_defeated(p: Dictionary) -> void:
 	var def := ContentDB.entry("enemies", str(p.def))
 	if def.is_empty(): return
 	var rng := Rng.stream(c.id, "loot")
-	var drop := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), c.stats.value("drop_rate"), c.stats.value("coin_find"),
+	var drop := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), c.stats.value("drop_rate") + game.pets.trait_bonus(c, "drop_chance"), c.stats.value("coin_find"),
 		{"no_equipment": false, "needs": game.quest.item_needs(c)})
 	if bool(p.get("elite", false)) and def.get("role", "normal") == "normal":
 		var extra := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), c.stats.value("drop_rate"), c.stats.value("coin_find"))

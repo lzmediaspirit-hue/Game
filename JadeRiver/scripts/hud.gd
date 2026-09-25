@@ -355,6 +355,12 @@ func add_log(text: String, color = UiKit.PAPER) -> void:
 	log_lines.append({"text": text, "t": 0.0, "color": color})
 	while log_lines.size() > 5: log_lines.pop_front()
 
+func _pet_name(uid: String) -> String:
+	var c = Game.active()
+	for pt in (c.pets if c else []):
+		if str(pt.uid) == uid: return str(pt.name)
+	return "Your spirit animal"
+
 func toast(text: String, kind := "unlock") -> void:
 	toasts.append({"text": text, "t": 0.0, "kind": kind})
 	while toasts.size() > 3: toasts.pop_front()
@@ -410,6 +416,24 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log("Crafted %s (%s)" % [ContentDB.name_of("recipes", str(p.recipe)), str(p.quality).capitalize()], UiKit.quality_color(str(p.quality)))
 		"spar_ended":
 			toast("Spar won!" if p.get("winner", "") == "player" else "Spar lost — try again", "quest")
+		"pet_evolved":
+			toast("%s grows into a %s!" % [_pet_name(str(p.pet)), str(p.get("branch", "")) if str(p.get("branch", "")) != "" else str(Game.pets.stage_def(str(p.stage)).get("name", ""))], "gold")
+		"trait_revealed":
+			toast("%s shows a trait: %s" % [_pet_name(str(p.pet)), ContentDB.name_of("pet_traits", str(p.trait))], "gold")
+		"pet_level_up":
+			add_log("%s reached level %d" % [_pet_name(str(p.pet)), int(p.level)], UiKit.PALE_GOLD)
+		"pet_retreated":
+			add_log("Your spirit animal retreats into its token", UiKit.MIST)
+		"pet_returned":
+			add_log("Your spirit animal is back", UiKit.MIST)
+		"companion_downed":
+			add_log("%s is down" % ContentDB.name_of("companions", str(p.get("companion", ""))), UiKit.RED)
+		"companion_revived":
+			add_log("%s is back on their feet" % ContentDB.name_of("companions", str(p.get("companion", ""))), UiKit.MIST)
+		"building_damaged":
+			toast("Raiders damaged your %s · repair it at Your Sect" % ContentDB.name_of("sect_buildings", str(p.building)), "danger")
+		"zone_ceiling_reached":
+			toast("This land can take you no higher", "gold")
 
 # ------------------------------------------------------------------ drawing
 func ring(center: Vector2, radius: float, active := false, opacity := 1.0, gold := false) -> void:

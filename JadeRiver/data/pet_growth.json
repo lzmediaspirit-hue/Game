@@ -1,0 +1,67 @@
+{
+ "schema_version": 1,
+ "traits_per_pet": 3,
+ "role_match_bonus": 0.25,
+ "hungry_mult": 0.7,
+ "resonance_unlock": "spirit_awakening_1",
+ "hp_share": 0.4,
+ "retreat_s": 60,
+ "stages": [
+  {
+   "id": "hatchling",
+   "name": "Hatchling",
+   "inherit": 0.2,
+   "resonance": 0.0
+  },
+  {
+   "id": "juvenile",
+   "name": "Juvenile",
+   "level": 15,
+   "bond": 3,
+   "realm": "heart_tempering_1",
+   "reveal_trait": true,
+   "inherit": 0.3,
+   "resonance": 0.05
+  },
+  {
+   "id": "adult",
+   "name": "Adult",
+   "level": 35,
+   "bond": 5,
+   "realm": "spirit_awakening_1",
+   "branch": true,
+   "inherit": 0.35,
+   "resonance": 0.1
+  },
+  {
+   "id": "awakened",
+   "name": "Awakened",
+   "level": 55,
+   "bond": 7,
+   "realm": "sage_1",
+   "reveal_trait": true,
+   "inherit": 0.4,
+   "resonance": 0.2
+  },
+  {
+   "id": "sovereign",
+   "name": "Sovereign",
+   "level": 75,
+   "bond": 9,
+   "realm": "sphere_lord_1",
+   "reveal_trait": true,
+   "inherit": 0.4,
+   "resonance": 0.3
+  },
+  {
+   "id": "primordial",
+   "name": "Primordial",
+   "level": 95,
+   "bond": 10,
+   "realm": "inner_heaven_1",
+   "primordial_only": true,
+   "inherit": 0.4,
+   "resonance": 0.3
+  }
+ ]
+}

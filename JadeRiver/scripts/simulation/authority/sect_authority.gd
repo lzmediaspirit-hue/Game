@@ -29,18 +29,29 @@ func founded() -> bool:
 func level_building(id: String) -> int:
 	return int(sect().get("buildings", {}).get(id, 0))
 
+## A building's `output` numbers (sect_buildings.json), scaled down while it is damaged.
+func output(id: String, key: String, fallback = 0.0):
+	return ContentDB.entry("sect_buildings", id).get("output", {}).get(key, fallback)
+
+func output_mult(id: String) -> float:
+	return float(ContentDB.config("defence").get("damaged_output", 0.5)) if sect().get("damaged", {}).has(id) else 1.0
+
 func idle_cap_bonus() -> float:
 	var lv := level_building("meditation_pavilion")
-	if lv >= 5: return 12.0
-	if lv >= 4: return 8.0
-	if lv >= 2: return 4.0
-	return 0.0
+	var hours := 0.0
+	for step in output("meditation_pavilion", "idle_cap_hours", []):
+		if lv >= int(step[0]): hours = float(step[1])
+	return hours * output_mult("meditation_pavilion")
 
 func idle_rate_bonus(task: String) -> float:
-	return 0.1 * level_building("meditation_pavilion") if task == "seclusion" else 0.0
+	if task != "seclusion": return 0.0
+	return float(output("meditation_pavilion", "idle_rate_per_level")) * level_building("meditation_pavilion") * output_mult("meditation_pavilion")
 
 func treasury_bonus() -> int:
-	return 20 * level_building("treasury")
+	return int(float(output("treasury", "taels_per_level")) * level_building("treasury") * output_mult("treasury"))
+
+func disciple_cap() -> int:
+	return int(output("guest_house", "disciples_base", 2)) + int(output("guest_house", "disciples_per_level", 1)) * level_building("guest_house")
 
 func found(c, name: String, emblem) -> Dictionary:
 	if c == null or not Unlocks.is_unlocked(c.id, "your_sect"): return fail("locked")
@@ -112,8 +123,7 @@ func _refresh_candidates() -> void:
 
 func recruit(index: int) -> Dictionary:
 	if not founded(): return fail("no_sect")
-	var cap := 2 + level_building("guest_house")
-	if sect().disciples.size() >= cap: return fail("full", {"text": "Build more Guest House rooms."})
+	if sect().disciples.size() >= disciple_cap(): return fail("full", {"text": "Build more Guest House rooms."})
 	var cands: Array = sect().get("candidates", [])
 	if index < 0 or index >= cands.size(): return fail("bad_index")
 	sect().disciples.append(cands[index])
@@ -217,12 +227,13 @@ func apply_defence_result(actor_id: String, won: bool) -> void:
 			var damaged: Dictionary = sect().get("damaged", {})
 			damaged[hit] = true
 			sect().damaged = damaged
+			emit("building_damaged", {"actor": actor_id, "building": hit, "output": float(cfg.get("damaged_output", 0.5))})
 	emit("defence_result", {"won": won})
 
 func repair(c, id: String) -> Dictionary:
 	var damaged: Dictionary = sect().get("damaged", {})
 	if not damaged.has(id): return fail("not_damaged")
-	var cost := int(building_cost(id, maxi(1, level_building(id))).silver_tael / 4)
+	var cost := int(building_cost(id, maxi(1, level_building(id))).silver_tael * float(ContentDB.config("defence").get("repair_cost_fraction", 0.25)))
 	if game.economy.balance("silver_tael") < cost: return fail("insufficient_funds")
 	game.economy.apply_currency("silver_tael", -cost, "repair")
 	damaged.erase(id)

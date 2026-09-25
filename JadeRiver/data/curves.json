@@ -107,6 +107,12 @@
   "fish": 12,
   "cook": 8
  },
+ "craft_step": {
+  "tolerance": 0.3,
+  "steps": 3,
+  "perfect": 0.85,
+  "good": 0.5
+ },
  "purity_points_per_grade": 100,
  "purity_meditate_per_hour": 10,
  "purity_offline_per_hour": 25,

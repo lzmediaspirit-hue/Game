@@ -40,5 +40,7 @@
  ],
  "prestige_win": 40,
  "taels_win": 200,
- "per_disciple_guard": 0.1
+ "per_disciple_guard": 0.1,
+ "damaged_output": 0.5,
+ "repair_cost_fraction": 0.25
 }

@@ -31,27 +31,62 @@ func draw_page() -> void:
 		if str(p.uid) == sel: pet = p
 	if pet.is_empty(): return
 	var sp := ContentDB.entry("pets", str(pet.species))
+	var px := right.position.x + 24
+	var colw := right.size.x - 290   # left column; the right column holds the portrait and growth
 	var stage := Rect2(right.end.x - 230, right.position.y + 18, 206, 148)
 	draw_style_box(UiKit.style("slot"), stage)
 	creature_at(stage.grow_individual(-8, -8, -8, -14), _art(pet), "walk" if ch.active_pet == sel else "idle")
-	heading(right.position + Vector2(24, 44), str(pet.name), right.size.x - 290)
-	text(right.position + Vector2(24, 80), "%s · %s · %s" % [str(sp.get("name", "")), str(sp.get("element", "")).capitalize(), str(pet.get("stage", "hatchling")).capitalize()], 18, UiKit.MIST)
-	bar(Rect2(right.position.x + 24, right.position.y + 100, 400, 30), float(pet.get("bond", 0.0)) / 10.0, UiKit.RED, "Bond %.1f / 10" % float(pet.get("bond", 0.0)))
-	text(right.position + Vector2(24, 170), "Skills: " + ", ".join(sp.get("skills", [])), 16)
-	text(right.position + Vector2(24, 196), "Favourite foods: " + ", ".join((sp.get("favourite_foods", []) as Array).map(func(f): return ContentDB.item_name(str(f)))), 16, UiKit.MIST)
-	var y := right.position.y + 230
-	for role in ["combat", "gatherer", "cultivation"]:
-		btn(Rect2(right.position.x + 24 + ["combat", "gatherer", "cultivation"].find(role) * 170, y, 160, 48), role.capitalize(), "role", role, str(pet.role) == role)
-	y += 70
-	btn(Rect2(right.position.x + 24, y, 240, 52), "Set active" if ch.active_pet != sel else "Rest", "active", sel, ch.active_pet != sel)
+	heading(right.position + Vector2(24, 44), str(pet.name), colw)
+	var stage_name := str(Game.pets.stage_def(str(pet.get("stage", "hatchling"))).get("name", "Hatchling"))
+	var branch := str(pet.get("branch", ""))
+	text(right.position + Vector2(24, 80), fit("%s · %s · %s" % [str(sp.get("name", "")), str(sp.get("element", "")).capitalize(), branch if branch != "" else stage_name], 18, colw), 18, UiKit.MIST)
+	bar(Rect2(px, right.position.y + 96, colw, 28), float(pet.get("bond", 0.0)) / 10.0, UiKit.RED, "Bond %.1f / 10" % float(pet.get("bond", 0.0)))
+	var need := float(ContentDB.curve("pet_xp.base", 20)) * pow(int(pet.level), float(ContentDB.curve("pet_xp.per_level_pow", 1.5)))
+	bar(Rect2(px, right.position.y + 130, colw, 24), float(pet.get("xp", 0.0)) / need, UiKit.GOLD, "Level %d · %d / %d" % [int(pet.level), int(pet.get("xp", 0.0)), int(need)])
+	text(right.position + Vector2(24, 180), fit("Skills: " + ", ".join(sp.get("skills", [])), 16, colw), 16)
+	text(right.position + Vector2(24, 204), fit("Favourite foods: " + ", ".join((sp.get("favourite_foods", []) as Array).map(func(f): return ContentDB.item_name(str(f)))), 16, colw), 16, UiKit.MIST)
+	var shown: Array = Game.pets.revealed_traits(pet).map(func(t): return ContentDB.name_of("pet_traits", str(t)))
+	while shown.size() < int(ContentDB.config("pet_growth").get("traits_per_pet", 3)): shown.append("?")
+	text(right.position + Vector2(24, 228), fit("Traits: " + " · ".join(shown), 16, colw), 16, UiKit.PALE_GOLD)
+	var y := right.position.y + 248
+	var roles := ["combat", "gatherer", "cultivation"]
+	var bw := (colw - 16) / 3.0
+	for role in roles:
+		btn(Rect2(px + roles.find(role) * (bw + 8), y, bw, 46), role.capitalize(), "role", role, str(pet.role) == role, true, "", 17)
+	y += 60
+	btn(Rect2(px, y, 220, 50), "Set active" if ch.active_pet != sel else "Rest", "active", sel, ch.active_pet != sel)
+	var res := Game.pets.resonance(ch) if ch.active_pet == sel else 0.0
+	if res > 0.0: text(Vector2(px + 236, y + 32), "Resonance +%d%%" % int(round(res * 100.0)), 17, UiKit.BRIGHT_JADE)
+	_growth(ch, pet, Rect2(stage.position.x, stage.end.y + 14, stage.size.x, right.end.y - stage.end.y - 28))
 	var foods: Array = (sp.get("favourite_foods", []) as Array).filter(func(f): return ch.inventory.count(str(f)) > 0)
 	for f in ["roast_fish", "ember_pepper_broth"]:
 		if ch.inventory.count(f) > 0 and not foods.has(f): foods.append(f)
-	var x := right.position.x + 24
+	var x := px
 	for f in foods:
-		slot_box(Rect2(x, y + 80, 60, 60), str(f), ch.inventory.count(str(f)), "", "feed", str(f))
+		if x + 60 > px + colw: break
+		slot_box(Rect2(x, y + 84, 60, 60), str(f), ch.inventory.count(str(f)), "", "feed", str(f))
 		x += 68
-	if not foods.is_empty(): text(Vector2(right.position.x + 24, y + 74), "Tap food to feed", 16, UiKit.MIST)
+	if not foods.is_empty(): text(Vector2(px, y + 76), "Tap food to feed", 16, UiKit.MIST)
+
+## Next stage: each gate ticked or not, then Evolve (or the two branches at Adult).
+func _growth(ch, pet: Dictionary, r: Rect2) -> void:
+	var nx: Dictionary = Game.pets.next_stage(pet)
+	if nx.is_empty():
+		para(r, "Fully grown for this land.", 16, UiKit.MIST)
+		return
+	text(r.position + Vector2(0, 18), "Next: %s" % str(nx.get("name", "")), 18, UiKit.GOLD)
+	var y := r.position.y + 30
+	for g in Game.pets.evolve_gates(ch, pet):
+		text(Vector2(r.position.x, y + 18), ("✓ " if g.ok else "· ") + str(g.text), 16, UiKit.BRIGHT_JADE if g.ok else UiKit.MIST)
+		y += 24
+	var ready: bool = Game.pets.can_evolve(ch, pet)
+	y += 8
+	if nx.get("branch", false):
+		for b in ContentDB.entry("pets", str(pet.species)).get("branches", []):
+			btn(Rect2(r.position.x, y, r.size.x, 42), str(b), "evolve", str(b), ready, ready, "Not ready yet", 17)
+			y += 48
+	else:
+		btn(Rect2(r.position.x, y, r.size.x, 46), "Evolve", "evolve", "", true, ready, "Not ready yet")
 
 func _art(p: Dictionary) -> String:
 	return str(ContentDB.entry("pets", str(p.species)).get("art", p.species))
@@ -62,3 +97,4 @@ func on_action(id: String, data) -> void:
 		"role": submit({"type": "set_pet_role", "pet": sel, "role": str(data)})
 		"active": submit({"type": "set_active_pet", "pet": "" if c().active_pet == sel else sel})
 		"feed": submit({"type": "feed_pet", "pet": sel, "item": str(data)})
+		"evolve": submit({"type": "evolve_pet", "pet": sel, "branch": str(data)})

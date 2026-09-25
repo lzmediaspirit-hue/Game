@@ -6,6 +6,7 @@ extends Authority
 ## with the `crafting` stream, grant output and profession XP, emit craft_completed.
 
 var pending: Dictionary = {}   # actor -> {object, kind, started, channel}
+var steps: Dictionary = {}     # actor -> {recipe, craft, scores}: the mini-game in progress
 
 const NODE_CRAFT := {"herb_patch": "herb_gathering", "ore_vein": "mining", "fishing_spot": "fishing"}
 const RANK_CAPS := {
@@ -19,7 +20,7 @@ const RANK_CAPS := {
 const GRADE_CAP := [["qi_kindling_1", "common"], ["qi_unfurling_1", "earth"], ["cloud_stride_1", "heaven"], ["heaven_glimpse_1", "mystic"]]
 
 func intents() -> Array:
-	return ["complete_node", "catch_fish", "cook", "refine", "queue_auto_refine", "collect_auto_refine", "forge", "enhance", "salvage_item"]
+	return ["complete_node", "catch_fish", "cook", "craft_step", "refine", "queue_auto_refine", "collect_auto_refine", "forge", "enhance", "salvage_item"]
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -28,8 +29,9 @@ func handle(intent: Dictionary) -> Dictionary:
 		"complete_node": return complete_node(c, str(intent.get("object", "")))
 		"catch_fish": return catch_fish(c, str(intent.get("object", "")), intent.get("result", {}))
 		"cook": return craft(c, str(intent.get("recipe", "")), maxi(1, int(intent.get("count", 1))), [], "cooking")
-		"refine": return craft(c, str(intent.get("recipe", "")), clampi(int(intent.get("count", 1)), 1, 10), intent.get("scores", []), "alchemy")
-		"forge": return craft(c, str(intent.get("recipe", "")), 1, intent.get("scores", []), "smithing")
+		"craft_step": return craft_step(c, str(intent.get("recipe", "")), str(intent.get("craft", "alchemy")), float(intent.get("offset", 1.0)))
+		"refine": return craft(c, str(intent.get("recipe", "")), clampi(int(intent.get("count", 1)), 1, 10), _take_steps(c, str(intent.get("recipe", ""))), "alchemy")
+		"forge": return craft(c, str(intent.get("recipe", "")), 1, _take_steps(c, str(intent.get("recipe", ""))), "smithing")
 		"queue_auto_refine": return queue_auto(c, str(intent.get("recipe", "")), clampi(int(intent.get("count", 1)), 1, 10))
 		"collect_auto_refine": return collect_auto(c)
 		"enhance": return enhance(c, int(intent.get("index", -1)), str(intent.get("slot", "")))
@@ -110,6 +112,8 @@ func complete_node(c, object_id: String) -> Dictionary:
 	var count := rng.randi_range(int(y[0]), int(y[1]))
 	if rng.randf() < (power - 1.0) * 0.5: count += 1
 	if game.pets.gatherer_active(c.id) and rng.randf() < 0.25: count += 1
+	var herb_bonus: float = game.pets.trait_bonus(c, "herb_yield") if craft == "herb_gathering" else 0.0
+	if herb_bonus > 0.0 and rng.randf() < herb_bonus * count: count += 1
 	var item := str(o.get("item", ""))
 	game.inventory.apply_add(c.id, item, count, craft)
 	st.state = "depleted"
@@ -130,7 +134,8 @@ func catch_fish(c, object_id: String, result: Dictionary) -> Dictionary:
 	pending.erase(c.id)
 	var reaction := float(result.get("reaction_s", 9.9))
 	var tension_ok := bool(result.get("tension_ok", false))
-	if reaction > 0.6 + 0.1 * (tool_power(c, "fishing") - 1.0) or reaction < 0.05 or not tension_ok:
+	var window: float = (0.6 + 0.1 * (tool_power(c, "fishing") - 1.0)) * (1.0 + game.pets.trait_bonus(c, "fish_chance"))
+	if reaction > window or reaction < 0.05 or not tension_ok:
 		emit("fish_escaped", {"actor": c.id})
 		return ok({"caught": false})
 	var o = game.room_rt.object_def(object_id)
@@ -183,6 +188,26 @@ func recipe_check(c, recipe_id: String, count: int, craft: String) -> String:
 	for inp in r.get("inputs", []):
 		if c.inventory.count(str(inp.item)) < int(inp.count) * count: return "Missing %s" % ContentDB.item_name(str(inp.item))
 	return ""
+
+## One strike of the alchemy or forge mini-game: `offset` is how far from the band centre
+## it landed (0 = dead centre). Scored here, so the craft uses only what Crafting measured.
+func craft_step(c, recipe_id: String, craft_kind: String, offset: float) -> Dictionary:
+	if not craft_kind in ["alchemy", "smithing"] or not ContentDB.has_entry("recipes", recipe_id): return fail("bad_step")
+	var k: Dictionary = ContentDB.curve("craft_step", {})
+	var session: Dictionary = steps.get(c.id, {})
+	if str(session.get("recipe", "")) != recipe_id or (session.get("scores", []) as Array).size() >= int(k.get("steps", 3)):
+		session = {"recipe": recipe_id, "craft": craft_kind, "scores": []}
+	var score := clampf(1.0 - absf(offset) / float(k.get("tolerance", 0.3)), 0.0, 1.0)
+	session.scores.append(score)
+	steps[c.id] = session
+	var grade := "perfect" if score >= float(k.get("perfect", 0.85)) else ("good" if score >= float(k.get("good", 0.5)) else "miss")
+	emit("craft_step_result", {"actor": c.id, "recipe": recipe_id, "step": session.scores.size(), "score": score, "grade": grade})
+	return ok({"score": score, "grade": grade, "step": session.scores.size()})
+
+func _take_steps(c, recipe_id: String) -> Array:
+	var session: Dictionary = steps.get(c.id, {})
+	steps.erase(c.id)
+	return session.get("scores", []) if str(session.get("recipe", "")) == recipe_id else []
 
 func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String) -> Dictionary:
 	var why := recipe_check(c, recipe_id, count, craft_kind)

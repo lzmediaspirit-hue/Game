@@ -16,9 +16,12 @@ const STAT_EVENTS := ["realm_changed", "level_changed", "equipment_changed", "in
 func intents() -> Array:
 	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival"]
 
+var attune: Dictionary = {}          # actor -> {dealt, taken} for the zone they stand in (S18)
+
 func subscribe() -> void:
 	for ev in STAT_EVENTS:
 		GameEvents.subscribe(ev, _on_stat_source, 20)
+	GameEvents.subscribe("attunement_changed", func(p): attune[str(p.get("actor", ""))] = {"dealt": float(p.dealt), "taken": float(p.taken)}, 20)
 
 func _on_stat_source(p: Dictionary) -> void:
 	refresh_stats(str(p.get("actor", "")))
@@ -509,6 +512,10 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 	var rng := Rng.stream(c.id, "combat")
 	var ev := enemy_view(e)
 	if attack.has("crit_bonus"): pv = pv.duplicate(); pv.crit_bonus = attack.crit_bonus
+	var dealt := float(attune.get(c.id, {}).get("dealt", 1.0))
+	if dealt != 1.0:
+		attack = attack.duplicate()
+		attack.attunement = float(attack.get("attunement", 1.0)) * dealt
 	var r := CombatRules.resolve(pv, ev, attack, rng)
 	if r.miss:
 		emit("hit_missed", {"attacker": c.id, "target": str(e.uid), "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover + e.height()})
@@ -587,7 +594,7 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 			_player_hits_enemy(c, pv, e, {"damage_type": "physical", "element": "wood", "mult": [2.0, 2.0], "range": [1.0, 1.0], "source": "counter"}, int(tl.facing))
 		return
 	var a := {"damage_type": str(attack.get("damage_type", "physical")), "element": e.element, "mult": [float(attack.get("mult", 1.0)), float(attack.get("mult", 1.0))],
-		"range": [0.9, 1.1], "knockback": float(attack.get("knockback", 0))}
+		"range": [0.9, 1.1], "knockback": float(attack.get("knockback", 0)), "attunement": float(attune.get(c.id, {}).get("taken", 1.0))}
 	var guard_pv := pv.duplicate()
 	if not (tl.guard and frontal): guard_pv.guarding = 0.0
 	var r := CombatRules.resolve(ev, guard_pv, a, Rng.stream(c.id, "combat"))

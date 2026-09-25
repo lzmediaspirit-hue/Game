@@ -22,8 +22,7 @@ func setup() -> void:
 	object_id = str(args.get("object", ""))
 	phase = "wait"
 	timer = 0.0
-	bite_at = randf_range(1.5, 4.0)
-	Game.submit({"type": "report_system_used", "system": "fishing_cast"})
+	bite_at = Rng.stream(c().id, "minigame").randf_range(1.5, 4.0) if c() else 2.5
 
 func _process(delta: float) -> void:
 	super._process(delta)

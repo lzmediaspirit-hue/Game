@@ -54,6 +54,8 @@ def build():
         },
         "move": {"base": 205, "sprint": 1.7, "sprint_after_s": 2.0, "cap_pct": 0.4, "attack_factor": 0.3, "guard_factor": 0.5,
                  "shallows_factor": 0.7},
+        # S18: A_dealt = min(cap, floor + slope x attunement / required); A_taken = 1 + max(0, 1 - attunement / required)
+        "attunement": {"floor": 0.3, "slope": 0.7, "cap": 1.1},
         "crit": {"base": 0.05, "per_agility": 0.001, "per_fortune": 0.0005, "cap": 0.75, "damage_base": 1.5, "damage_cap": 3.0,
                  "tenacity_divisor": 4},
         "hit": {"base": 1.1, "k": 0.35, "floor": 0.55, "cap": 1.0},
@@ -113,6 +115,8 @@ def build():
         "insight_repeat_factor": 0.2, "insight_repeat_window_s": 60, "insight_stone_per_min": 20, "contemplate_offline_per_min": 5,
         "profession_ranks": [["apprentice", 0], ["adept", 1000], ["expert", 5000], ["master", 20000], ["grandmaster", 60000]],
         "profession_xp": {"craft_per_grade": 10, "fine_bonus": 0.5, "gather": 10, "mine": 10, "fish": 12, "cook": 8},
+        # Alchemy and forge mini-game: a strike this far from the band centre scores 0; three strikes per craft.
+        "craft_step": {"tolerance": 0.3, "steps": 3, "perfect": 0.85, "good": 0.5},
         "purity_points_per_grade": 100, "purity_meditate_per_hour": 10, "purity_offline_per_hour": 25,
         "soul_meditate_per_hour": 10, "soul_offline_per_hour": 20,
         "offline_factor": 0.1, "offline_cap_h": 12, "retreat_cap_h": 16, "formation_cap_h": 24,

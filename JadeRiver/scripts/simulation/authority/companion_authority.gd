@@ -82,7 +82,10 @@ func tick(delta: float) -> void:
 			game.combat.apply_resource_change(c.id, "hp", c.pools.max_hp * 0.15, "companion_heal")
 			c.pools.cooldowns["comp_heal"] = 12.0
 			emit("companion_healed", {"actor": c.id, "companion": id})
+		var was_down: bool = a.ai.state == "downed"
 		AllyBrain.think(game, a, delta, c.stats.value("physical_attack") * 0.35, reach)
+		if was_down and a.ai.state != "downed":
+			emit("companion_revived", {"actor": c.id, "uid": a.uid, "companion": str(id)})
 
 ## Enemy attacks also hit companions and pets inside the hitbox.
 func enemy_strike_companions(e: EnemyState, attack: Dictionary, ev: Dictionary) -> void:
@@ -93,12 +96,13 @@ func enemy_strike_companions(e: EnemyState, attack: Dictionary, ev: Dictionary) 
 		var view := {"x": a.plane.x, "y": a.plane.y, "alt": 0.0, "half_width": a.half_width(), "height": a.height()}
 		if CombatAuthority.hit_test(ev, e.facing, hitbox, view, attack.get("both_sides", false)):
 			var dmg := maxf(1.0, float(e.stats.attack) * float(attack.get("mult", 1.0)) * 0.8)
+			if not allies.has(a.def_id): dmg *= maxf(0.1, 1.0 + game.pets.trait_bonus(game.active(), "pet_damage_taken"))
 			a.pools.hp -= dmg
 			a.flash = 0.12
 			emit("hit_landed", {"attacker": str(e.uid), "target": str(a.uid), "target_kind": "ally", "amount": int(dmg), "type": "physical",
 				"crit": false, "element": e.element, "x": a.plane.x, "y": a.plane.y, "alt": a.height()})
 			if a.pools.hp <= 0.0:
 				a.ai.state = "downed"
-				a.ai.timer = 30.0 if a.def_id in allies else 60.0
+				a.ai.timer = 30.0 if a.def_id in allies else float(ContentDB.config("pet_growth").get("retreat_s", 60))
 				a.action_time = 0.0
 				emit("companion_downed" if allies.has(a.def_id) else "pet_retreated", {"uid": a.uid, "companion": a.def_id})

@@ -4,42 +4,66 @@
   {
    "id": "deep_diver",
    "name": "Deep Diver",
-   "effect": "+30% fishing"
+   "effect": "+30% time to strike a bite",
+   "bonus": {
+    "fish_chance": 0.3
+   }
   },
   {
    "id": "stormborn",
    "name": "Stormborn",
-   "effect": "+15% thunder damage"
+   "effect": "+15% pet damage",
+   "bonus": {
+    "pet_damage": 0.15
+   }
   },
   {
    "id": "keen_nose",
    "name": "Keen Nose",
-   "effect": "+10% herb yield"
+   "effect": "+10% herb yield",
+   "bonus": {
+    "herb_yield": 0.1
+   }
   },
   {
    "id": "iron_hide",
    "name": "Iron Hide",
-   "effect": "+10% defence"
+   "effect": "Takes 10% less damage",
+   "bonus": {
+    "pet_damage_taken": -0.1
+   }
   },
   {
    "id": "quick_paws",
    "name": "Quick Paws",
-   "effect": "+10% attack speed"
+   "effect": "+10% pet damage",
+   "bonus": {
+    "pet_damage": 0.1
+   }
   },
   {
    "id": "lucky_find",
    "name": "Lucky Find",
-   "effect": "+5% drop rate"
+   "effect": "+5% drop chance",
+   "bonus": {
+    "drop_chance": 0.05
+   }
   },
   {
    "id": "calm_spirit",
    "name": "Calm Spirit",
-   "effect": "+5% Resonance"
+   "effect": "+5% Resonance",
+   "bonus": {
+    "resonance": 0.05
+   }
   },
   {
    "id": "loyal",
    "name": "Loyal",
-   "effect": "+1 bond per day"
+   "effect": "+50% bond from food",
+   "bonus": {
+    "bond_gain": 0.5
+   }
   }
  ]
 }

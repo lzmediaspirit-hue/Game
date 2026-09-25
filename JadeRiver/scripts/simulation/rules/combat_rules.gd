@@ -22,6 +22,14 @@ static func element_factor(att_el: String, def_el: String) -> float:
 	if over.get(d, "") == a: return float(conf.get("cycle_disadvantage", 0.75))
 	return 1.0
 
+## S18 attunement: how much of your power reaches a zone's foes, and how much more theirs hurts.
+static func attunement_factors(attunement: float, required: float) -> Dictionary:
+	if required <= 0.0: return {"dealt": 1.0, "taken": 1.0}
+	var k: Dictionary = ContentDB.stat_const("attunement", {})
+	var ratio := maxf(0.0, attunement) / required
+	return {"dealt": minf(float(k.get("cap", 1.1)), float(k.get("floor", 0.3)) + float(k.get("slope", 0.7)) * ratio),
+		"taken": 1.0 + maxf(0.0, 1.0 - ratio)}
+
 static func realm_gap_factor(att_realm: int, def_realm: int) -> float:
 	var g: Dictionary = ContentDB.stat_const("realm_gap", {})
 	var diff := att_realm - def_realm

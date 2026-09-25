@@ -3,7 +3,7 @@ extends Node
 ## argument and never create their own. Seeds and positions are saved so a fight,
 ## a drop, a craft or a breakthrough replays exactly from a saved seed.
 
-const CHARACTER_STREAMS := ["combat", "loot", "crafting", "breakthrough", "taming", "affix", "world", "fishing", "pet"]
+const CHARACTER_STREAMS := ["combat", "loot", "crafting", "breakthrough", "taming", "affix", "world", "fishing", "pet", "minigame"]
 const ACCOUNT_STREAMS := ["sect", "account"]
 
 var _streams: Dictionary = {}   # owner -> {name: RandomNumberGenerator}

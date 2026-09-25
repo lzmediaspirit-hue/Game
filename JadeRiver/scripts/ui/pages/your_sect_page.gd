@@ -37,9 +37,13 @@ func draw_page() -> void:
 			list("b", Rect2(r.position + Vector2(10, 64), r.size - Vector2(20, 74)), bs.size(), 70, func(i: int, rr: Rect2):
 				var b: Dictionary = bs[i]
 				var lv := Game.sect.level_building(str(b.id))
-				panel(rr)
+				var hurt: bool = s.get("damaged", {}).has(str(b.id))
+				panel(rr, "minor_panel", "disabled" if hurt else "normal")
 				text(rr.position + Vector2(20, 30), str(b.name), 20)
-				text(rr.position + Vector2(20, 54), "Level %d · needs sect level %d" % [lv, int(b.get("sect_level", 1))], 15, UiKit.MIST)
+				text(rr.position + Vector2(20, 54), "Damaged in a raid · output halved" if hurt else "Level %d · needs sect level %d" % [lv, int(b.get("sect_level", 1))], 15, UiKit.RED if hurt else UiKit.MIST)
+				if hurt:
+					btn(Rect2(rr.end.x - 170, rr.position.y + 8, 150, 48), "Repair", "repair", str(b.id), true)
+					return
 				var cost: Dictionary = Game.sect.building_cost(str(b.id), lv + 1)
 				if not cost.is_empty(): text(rr.position + Vector2(360, 42), "%s taels%s" % [UiKit.fmt(int(cost.get("silver_tael", 0))), "".join((cost.get("materials", {}) as Dictionary).keys().map(func(m): return " · %d %s" % [int(cost.materials[m]), ContentDB.item_name(str(m))]))], 16, UiKit.PALE_GOLD)
 				btn(Rect2(rr.end.x - 170, rr.position.y + 8, 150, 48), "Build" if lv == 0 else "Upgrade", "upgrade", str(b.id))
@@ -50,13 +54,13 @@ func draw_page() -> void:
 			text(r.position + Vector2(30, 90), "Disciples: %d" % ds.size(), 20)
 			var y := r.position.y + 110
 			for d in ds:
-				text(Vector2(r.position.x + 30, y + 22), "%s · Lv %d · %s" % [str(d.get("name", "")), int(d.get("level", 1)), ", ".join(d.get("traits", []))], 17)
+				text(Vector2(r.position.x + 30, y + 22), "%s · Lv %d · %s" % [str(d.get("name", "")), int(d.get("level", 1)), _traits(d)], 17)
 				y += 30
 			text(Vector2(r.position.x + 30, y + 30), "Candidates today", 20, UiKit.GOLD)
 			y += 40
 			for i in cands.size():
 				var cd: Dictionary = cands[i]
-				text(Vector2(r.position.x + 30, y + 30), "%s · %s" % [str(cd.get("name", "")), ", ".join(cd.get("traits", []))], 17)
+				text(Vector2(r.position.x + 30, y + 30), "%s · Strength %d · Spirit %d · Craft %d · %s" % [str(cd.get("name", "")), int(cd.get("strength", 1)), int(cd.get("spirit", 1)), int(cd.get("craft", 1)), _traits(cd)], 17)
 				btn(Rect2(r.end.x - 190, y + 4, 160, 44), "Recruit", "recruit", i)
 				y += 52
 		"expeditions":
@@ -76,6 +80,12 @@ func draw_page() -> void:
 				if left <= 0: btn(Rect2(r.end.x - 190, y2, 160, 40), "Collect", "collect", i, true)
 				y2 += 46
 
+## Disciples carry one trait id (older saves may hold a list).
+func _traits(d: Dictionary) -> String:
+	var tr = d.get("trait", d.get("traits", []))
+	var ids: Array = tr if tr is Array else [tr]
+	return ", ".join(ids.map(func(t): return str(t).replace("_", " ").capitalize()))
+
 func on_action(id: String, data) -> void:
 	match id:
 		"found":
@@ -83,6 +93,7 @@ func on_action(id: String, data) -> void:
 				name_field.queue_free()
 				name_field = null
 		"upgrade": submit({"type": "upgrade_building", "building": str(data)})
+		"repair": submit({"type": "repair_building", "building": str(data)})
 		"recruit": submit({"type": "recruit_disciple", "index": int(data)})
 		"send":
 			var ds: Array = Game.sect.sect().get("disciples", [])
