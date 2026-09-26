@@ -121,6 +121,14 @@ static func active_inner_arts(c) -> Array:
 		out.append(art)
 	return out
 
+## S10 Insight 100: a Dao at Explanation (tier 4) or beyond gives one more tier's effect than it has reached.
+static func effective_dao_tier(c, dao: String) -> int:
+	var tier := int(c.cultivator.daos.get(dao, {}).get("tier", 0))
+	if tier >= 4 and StatRules.gate_flag(c, "extra_dao_effect"):
+		var most: int = (ContentDB.entry("daos", dao).get("tiers", []) as Array).size()
+		tier = mini(tier + 1, maxi(tier, most))
+	return tier
+
 ## A number an active Inner Art or stance sets (sword_intent_max, reach_mult, backstab_crit, still_damage, parry_counter).
 static func path_flag(c, key: String, fallback = null):
 	for art in active_inner_arts(c):

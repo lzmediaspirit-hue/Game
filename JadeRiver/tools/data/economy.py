@@ -206,7 +206,10 @@ def shops():
         {"id": "night_peddler", "name": "Peddler Shao's Mat", "currency": "silver_tael", "black_market": True,
          "requires": {"all": [{"kind": "time_of_day", "phases": ["night"]}]},
          "stock": [s("manual_page", price=45), s("torn_manual", price=160), s("iron_needles", price=24), s("viper_smoke_pill", price=35),
-                   s("bonding_offering_common", price=60), s("spirit_egg", price=900, requires=all_of(realm("qi_unfurling_1")))]},
+                   s("bonding_offering_common", price=60), s("spirit_egg", price=900, requires=all_of(realm("qi_unfurling_1"))),
+                   # S48 the Poison path: the peddler's copies of two poison arts.
+                   s("technique_manual", learn="venom_needles", price=420, requires=all_of(realm("qi_unfurling_1"))),
+                   s("technique_manual", learn="miasma_palm", price=900, requires=all_of(realm("heart_tempering_1")))]},
         {"id": "ironroot_clan", "name": "Ironroot Clan Forge", "currency": "spirit_stone", "buys_all": True,
          "discount": {"flag": "clan_ironroot", "pct": 0.15},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_staff"), s("stormsilk_robe"),

@@ -14,6 +14,9 @@ static func target_position(auth, e: EnemyState) -> Dictionary:
 	if st == null: return {}
 	if c.pools.has_status("spawn_protection") and e.ai.state in ["idle", "patrol"]: return {}
 	if in_sanctuary(auth, st.plane) and not e.is_boss(): return {}
+	# S48 Phantom Double: an illusion of the player draws the foes near it (bosses see through it).
+	var d: Dictionary = auth.game.combat.decoy_for(e, c.id)
+	if not d.is_empty(): return {"id": "decoy", "pos": Vector2(float(d.x), float(d.y)), "alt": float(d.alt)}
 	return {"id": c.id, "pos": st.plane, "alt": st.altitude}
 
 ## Shrines are sanctuaries: monsters neither aggro on nor chase a player standing by one,

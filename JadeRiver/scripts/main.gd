@@ -401,11 +401,15 @@ func _handle_preview_args(user_args: Array) -> void:
 		# Debug tools (S38): hold the harvest ring part-way through its shrink (S45).
 		await get_tree().create_timer(1.0).timeout
 		hud.tapping = {"object": "preview", "t": 660.0, "ring": 1000.0, "target": 0.7, "window": 0.16}
-	if ("--melody" in user_args or "--throw" in user_args) and Game.active() != null:
-		# Debug tools (S38): --melody holds the flute's melody; --throw throws the fan (S47 v1.1 previews).
-		await get_tree().create_timer(1.0 if "--melody" in user_args else 2.2).timeout
+	if ("--melody" in user_args or "--throw" in user_args or "--illusion" in user_args) and Game.active() != null:
+		# Debug tools (S38): --melody holds the flute's melody; --throw throws the fan (S47 v1.1 previews);
+		# --illusion leaves Phantom Double's illusion and steps the player aside (S48 the Soul line).
+		await get_tree().create_timer(1.0 if "--melody" in user_args or "--illusion" in user_args else 2.2).timeout
 		Unlocks.force_unlock(Game.active_id, "composure")
 		if "--melody" in user_args: Game.submit({"type": "channel_melody", "on": true})
+		elif "--illusion" in user_args:
+			Game.combat._cast_illusion(Game.active(), ContentDB.entry("techniques", "phantom_double"))
+			if is_instance_valid(world) and world.player: world.player.state.plane += Vector2(-150, 30)
 		else: Game.combat._start_step(Game.active(), ContentDB.entry("weapon_families", "fan"), 2, 1)
 	if "--pet-wheel" in user_args and is_instance_valid(hud):
 		# Debug tools (S38): hold the Pet button's command wheel open, Stay picked (v2 HUD previews).

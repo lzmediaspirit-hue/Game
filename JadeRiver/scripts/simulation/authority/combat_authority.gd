@@ -29,6 +29,9 @@ var sword_intent: Dictionary = {}    # actor -> {stacks, t}: Sword Intent from c
 var killing_intent: Dictionary = {}  # actor -> {stacks, t}: kills in quick succession (S48; not saved)
 var melody: Dictionary = {}          # actor -> {next}: the flute's held melody aura (S47 v1.1; not saved)
 var ally_hots: Dictionary = {}       # ally uid -> [{per_s, left}]: heals over time on companions and pets (S47 v1.1)
+var decoys: Dictionary = {}          # actor -> {x, y, alt, t, hits, max_hits, radius}: Phantom Double's illusion (S48 Soul line; not saved)
+var searched: Dictionary = {}        # enemy uid (text) -> {actor, t}: a Soul Search mark; its death gives up memories and a hidden drop (S48)
+var poison_touch: Dictionary = {}    # enemy uid -> sim time the Poison Body last touched it (S48 Poison path)
 
 func subscribe() -> void:
 	for ev in STAT_EVENTS:
@@ -37,6 +40,7 @@ func subscribe() -> void:
 	GameEvents.subscribe("room_entered", func(p): if flying.has(str(p.get("actor", ""))): stop_flight(str(p.actor), "room"), 20)
 	GameEvents.subscribe("room_entered", func(p): if melody.has(str(p.get("actor", ""))): _end_melody(game.character(str(p.actor)), "room"), 20)
 	GameEvents.subscribe("room_entered", func(_p): ally_hots.clear(), 20)
+	GameEvents.subscribe("room_entered", func(_p): _clear_room_marks(), 20)
 
 func _on_stat_source(p: Dictionary) -> void:
 	refresh_stats(str(p.get("actor", "")))
@@ -262,7 +266,8 @@ func _tick_flight(c, delta: float) -> void:
 
 ## S48 Cloud Lung and the flight_qi stat: what the air costs this body.
 func air_qi_mult(c) -> float:
-	return maxf(0.5, 1.0 + c.stats.value("flight_qi"))
+	var gate := float(ContentDB.stat_const("gates", {}).get("flight_qi_mult", 0.8)) if StatRules.gate_flag(c, "flight_qi_20") else 1.0   # S10 Essence 50
+	return maxf(0.5, (1.0 + c.stats.value("flight_qi")) * gate)
 
 ## The ground covered in the air counts toward Cloud Lung (S48).
 func _air_distance(c, delta: float) -> void:
@@ -508,6 +513,9 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 		var st: ActorState = game.actor_state(c.id)
 		if st == null or st.surface != null: return fail("needs_flight")
 	var cost := technique_cost(c, t)
+	# S10 Essence 25: the first technique of each fight costs no QI.
+	var free_first: bool = StatRules.gate_flag(c, "first_technique_free") and game.sim_time - float(tl.get("fight_t", -999.0)) > float(ContentDB.stat_const("gates", {}).get("fight_gap_s", 8.0))
+	if free_first: cost = 0.0
 	# S48 Copper Body: a body technique the QI cannot pay for spends HP instead, never below a fifth of it.
 	var hp_cost := body_hp_cost(c, t, cost)
 	if float(t.get("qi_cost", 0)) > 0 and hp_cost <= 0.0 and (c.pools.max_qi <= 0.0 or c.pools.qi < cost): return fail("no_qi")
@@ -520,7 +528,8 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 		apply_resource_change(c.id, "hp", -blood, "technique")
 		if t.has("injury"): game.progression.apply_injury(c.id, str(t.injury.get("kind", "body")), int(t.injury.get("severity", 1)))
 	if hp_cost > 0.0: apply_resource_change(c.id, "hp", -hp_cost, "technique")
-	else: apply_resource_change(c.id, "qi", -cost, "technique")
+	elif cost > 0.0: apply_resource_change(c.id, "qi", -cost, "technique")
+	tl.fight_t = game.sim_time
 	_natal_overcharge(c)
 	if float(t.get("soul_cost", 0)) > 0: apply_resource_change(c.id, "soul", -float(t.soul_cost), "technique")
 	if float(t.get("composure_cost", 0)) > 0:
@@ -556,7 +565,7 @@ func technique_cost(c, t: Dictionary) -> float:
 	var lv := ProgressionRules.level(c)
 	var m: Dictionary = c.cultivator.mastery.get(str(t.id), {"tier": 1})
 	var mastery_red := float(st.get("mastery_cost_per_tier", -0.05)) * (int(m.tier) - 1)
-	var dao_tier := int(c.cultivator.daos.get(str(t.get("dao", "")), {}).get("tier", 0))
+	var dao_tier := ProgressionRules.effective_dao_tier(c, str(t.get("dao", "")))
 	var dao_red := -0.1 if dao_tier >= 2 else 0.0
 	var comp := float(st.get("composure_zero_factor", 1.5)) if Unlocks.is_unlocked(c.id, "composure") and c.pools.composure <= 0.0 else 1.0
 	# S48 Ember Channel: some cost cuts hold only for one element's techniques.
@@ -579,11 +588,16 @@ func guard(c, on: bool) -> Dictionary:
 func dodge(c, direction, facing: int) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "dodge_dash"): return fail("locked")
 	if wounded.has(c.id) or c.pools.blocked("move"): return fail("stunned")
+	# S10 Agility 50: a second dodge charge, on its own cooldown.
+	var charge := "dodge"
 	if c.pools.cooldown("dodge") > 0.0:
-		# A Wind Step Talisman's charge (S47) spends itself on a dodge the cooldown would refuse.
-		var fx0: Dictionary = treasure_fx.get(c.id, {})
-		if float(fx0.get("free_dodge", 0.0)) <= 0.0: return fail("cooldown")
-		fx0.erase("free_dodge")
+		if StatRules.gate_flag(c, "dodge_second_charge") and c.pools.cooldown("dodge_2") <= 0.0:
+			charge = "dodge_2"
+		else:
+			# A Wind Step Talisman's charge (S47) spends itself on a dodge the cooldown would refuse.
+			var fx0: Dictionary = treasure_fx.get(c.id, {})
+			if float(fx0.get("free_dodge", 0.0)) <= 0.0: return fail("cooldown")
+			fx0.erase("free_dodge")
 	var dir: Vector2 = direction if direction is Vector2 and direction.length() > 0.2 else Vector2(1 if facing >= 0 else -1, 0)
 	dir = dir.normalized()
 	var conf: Dictionary = ContentDB.stat_const("combat", {})
@@ -625,7 +639,7 @@ func dodge(c, direction, facing: int) -> Dictionary:
 	tl.dodge_t = float(conf.get("dodge_invuln_s", 0.25))
 	var cd: float = float(conf.get("dodge_cooldown_s", 2.5)) * (1.0 + c.stats.value("dodge_cooldown"))   # S48 Swallow's Breath
 	if int(c.cultivator.meridians.get("agility", 0)) >= 25: cd *= 0.8
-	c.pools.cooldowns["dodge"] = cd
+	c.pools.cooldowns[charge] = cd
 	if c.cultivator.meditating: game.progression.stop_meditation(c, "dodge")
 	emit("dodged", {"actor": c.id, "direction": dir})
 	return ok()
@@ -648,6 +662,10 @@ func tick(delta: float) -> void:
 		if body != null and not body.plunge_impact.is_empty(): _resolve_plunge(c, body)
 	_tick_projectiles(delta)
 	_tick_ally_hots(delta)
+	_tick_decoys(delta)
+	for uid in searched.keys():
+		searched[uid].t = float(searched[uid].t) - delta
+		if float(searched[uid].t) <= -2.0: searched.erase(uid)   # a little grace: the death is judged after the blow
 	if game.room_rt:
 		for e in game.room_rt.enemies.values():
 			if e.alive: _tick_enemy_statuses(e, delta)
@@ -750,7 +768,8 @@ func _resolve_basic(c) -> void:
 	if fam.get("ranged", false):
 		# The bow looses an arrow; the flute (S47 v1.1) sends a note of Qi.
 		_spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 28, "y": float(pv.y), "alt": float(pv.alt) + 58,
-			"dir": facing, "speed": float(fam.get("projectile_speed", 620)), "range": float(fam.get("reach", 480)), "pierce": 0,
+			"dir": facing, "speed": float(fam.get("projectile_speed", 620)), "range": float(fam.get("reach", 480)),
+			"pierce": 1 if str(fam.get("damage_type", "physical")) == "qi" and StatRules.gate_flag(c, "projectile_pierce") else 0,
 			"art": str(fam.get("projectile_art", "arrow")), "attack": {"damage_type": str(fam.get("damage_type", "physical")), "element": "none",
 			"mult": [float(step.get("mult", 1.0)), float(step.get("mult", 1.0))], "range": fam.range, "source": "basic",
 			"dao_tier": _dao_tier(c, str(fam.get("dao", "")))}})
@@ -806,10 +825,20 @@ func _resolve_technique(c, t: Dictionary) -> void:
 			apply_buff(c.id, {"stat": b.stat, "op": b.get("op", "pct_add"), "value": b.value, "duration": b.duration, "source": "tech:" + str(t.id)}, "technique")
 		for b2 in t.get("buffs", []):
 			apply_buff(c.id, {"stat": b2.stat, "op": b2.get("op", "pct_add"), "value": b2.value, "duration": b2.duration, "source": "tech:%s:%s" % [t.id, b2.stat]}, "technique")
+		# Soul Lantern Ward: a shield of a share of max Soul that takes blows of any kind until its time is up.
+		if float(t.get("shield_soul_pct", 0.0)) > 0.0 and c.pools.max_soul > 0.0:
+			c.pools.shield = maxf(c.pools.shield, c.pools.max_soul * float(t.shield_soul_pct))
+			var wfx: Dictionary = treasure_fx.get(c.id, {})
+			wfx["shield_t"] = float(t.get("shield_s", 6))
+			treasure_fx[c.id] = wfx
 		var healed := 0
 		if float(t.get("allies_heal_pct", 0.0)) > 0.0:
 			healed = heal_circle(c, float(t.allies_heal_pct), float(t.get("allies_heal_s", 6)), float(t.get("heal_radius", 220)), "tech:" + str(t.id))
 		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": 1, "targets": healed})
+		return
+	if dtype == "illusion":
+		_cast_illusion(c, t)
+		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": 1, "targets": 0})
 		return
 	if dtype == "stance":
 		tl.stance = float(t.get("stance_s", 2.0))
@@ -826,6 +855,8 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		"status": t.get("status", {}), "source": "tech:" + str(t.id), "technique": str(t.id)}
 	if t.has("armour_break"): attack.armour_break = t.armour_break
 	if float(t.get("knockup_s", 0.0)) > 0.0: attack.knockup_s = float(t.knockup_s)
+	if float(t.get("sense_lock_s", 0.0)) > 0.0: attack.sense_lock_s = float(t.sense_lock_s)
+	if float(t.get("soul_search_s", 0.0)) > 0.0: attack.soul_search_s = float(t.soul_search_s)
 	if tier >= 3 and t.has("tier3"):
 		var t3: Dictionary = t.tier3
 		if t3.has("status"): attack.status = t3.status
@@ -858,7 +889,8 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		for i in count:
 			_spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 30, "y": float(pv.y) + (i - (count - 1) * 0.5) * 8.0,
 				"alt": float(pv.alt) + 56 + i * 4, "dir": facing, "speed": float(pr.get("speed", 600)), "range": float(pr.get("range", 400)),
-				"pierce": int(pr.get("pierce", 0)), "art": str(pr.get("art", "qi_" + str(t.get("element", "none")) if dtype == "qi" else "arrow")),
+				"pierce": int(pr.get("pierce", 0)) + (1 if dtype == "qi" and StatRules.gate_flag(c, "projectile_pierce") else 0),   # S10 Essence 100
+				"art": str(pr.get("art", "qi_" + str(t.get("element", "none")) if dtype == "qi" else "arrow")),
 				"returning": pr.get("returning", false),
 				"attack": attack, "delay": i * 0.08, "seek": pr.get("seek", false), "technique": str(t.id), "element": str(t.get("element", "none"))})
 		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": count, "targets": count})
@@ -902,7 +934,7 @@ func _combo_after(c, pv: Dictionary, facing: int, cfx: Dictionary, struck: Array
 				if e.alive: _apply_status_to_enemy(e, {"id": "bleed", "power": float(cfx.get("power", 0.02)), "remaining": float(cfx.get("duration_s", 4)), "source": c.id})
 
 func _dao_tier(c, dao: String) -> int:
-	return int(c.cultivator.daos.get(dao, {}).get("tier", 0))
+	return ProgressionRules.effective_dao_tier(c, dao)   # S10 Insight 100 counts one tier more from Explanation
 
 func _enemies_in(pv: Dictionary, facing: int, hitbox: Dictionary, both_sides: bool) -> Array:
 	var out: Array = []
@@ -940,6 +972,14 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 	if dealt != 1.0:
 		attack = attack.duplicate()
 		attack.attunement = float(attack.get("attunement", 1.0)) * dealt
+	# S48 Sense Lock: a locked foe cannot evade. S10 Spirit 100: soul attacks ignore a fifth of Soul Defence.
+	if e.pools.has_status("sense_locked") and not attack.get("never_miss", false):
+		attack = attack.duplicate()
+		attack.never_miss = true
+	if str(attack.get("damage_type", "")) == "soul" and StatRules.gate_flag(c, "soul_ignore_20"):
+		attack = attack.duplicate()
+		attack.ignore_resistance = float(attack.get("ignore_resistance", 0.0)) + float(ContentDB.stat_const("gates", {}).get("soul_ignore", 0.2))
+	timeline(c.id).fight_t = game.sim_time
 	var r := CombatRules.resolve(pv, ev, attack, rng)
 	if r.miss:
 		emit("hit_missed", {"attacker": c.id, "target": str(e.uid), "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover + e.height()})
@@ -976,6 +1016,81 @@ func _weapon_after_hit(c, e: EnemyState, attack: Dictionary) -> void:
 	if up > 0.0 and not e.is_boss() and not e.def.get("knockback_immune", false) and not e.def.get("flying", false) \
 			and not e.pools.steadfast.has("launched") and not e.pools.has_status("launched"):
 		_apply_status_to_enemy(e, {"id": "launched", "power": 1.0, "remaining": up, "duration": up, "source": c.id})
+	# S48 the Soul line: Sense Lock fixes the soul's eye on the foe; Soul Search marks an elite for its memories.
+	var lock := float(attack.get("sense_lock_s", 0.0))
+	if lock > 0.0:
+		_apply_status_to_enemy(e, {"id": "sense_locked", "power": 1.0, "remaining": lock, "source": c.id})
+		e.hidden = false
+	var search := float(attack.get("soul_search_s", 0.0))
+	if search > 0.0 and (e.elite or e.is_boss() or e.role == "elite"):
+		_apply_status_to_enemy(e, {"id": "soul_searched", "power": 1.0, "remaining": search, "source": c.id})
+		searched[str(e.uid)] = {"actor": c.id, "t": search}
+	_poison_body(c, e)
+
+## S48 the Poison Body (v1.1): with a poison art known and toxicity past half its tolerance, each hit turns a point of
+## the body's own toxicity into poison on the foe (once per foe per half second).
+func poison_body_active(c) -> bool:
+	if c == null: return false
+	var cfg: Dictionary = ContentDB.stat_const("poison_body", {})
+	var tol: float = maxf(1.0, c.stats.value("toxicity_tolerance"))
+	if float(c.cultivator.toxicity) <= tol * float(cfg.get("threshold", 0.5)): return false
+	for tid in c.cultivator.techniques_known:
+		if bool(ContentDB.entry("techniques", str(tid)).get("poison_path", false)): return true
+	return false
+
+func _poison_body(c, e: EnemyState) -> void:
+	if not e.alive or e.pools.steadfast.has("poison") or not poison_body_active(c): return
+	var cfg: Dictionary = ContentDB.stat_const("poison_body", {})
+	if game.sim_time - float(poison_touch.get(e.uid, -99.0)) < float(cfg.get("per_foe_s", 0.5)): return
+	poison_touch[e.uid] = game.sim_time
+	game.progression.apply_toxicity(c.id, -float(cfg.get("toxicity_per_hit", 1.0)))
+	_apply_status_to_enemy(e, {"id": "poison", "power": float(cfg.get("power", 0.02)), "remaining": float(cfg.get("duration_s", 4.0)), "source": c.id})
+
+func _clear_room_marks() -> void:
+	searched.clear()
+	poison_touch.clear()
+	for aid in decoys.keys():
+		decoys.erase(aid)
+		emit("illusion_broken", {"actor": aid, "reason": "room"})
+
+# ------------------------------------------------------------------ Phantom Double (S48 the Soul line)
+## An illusion of the caster stands where they were: foes within its radius (not bosses) turn on it until it has
+## been struck its number of times or its time runs out. It fights no one.
+func _cast_illusion(c, t: Dictionary) -> void:
+	var pv := player_view(c)
+	var secs := float(t.get("illusion_s", 6.0)) + _dao_tier(c, "soul")
+	decoys[c.id] = {"x": float(pv.x), "y": float(pv.y), "alt": float(pv.alt), "t": secs, "hits": 0,
+		"max_hits": int(t.get("illusion_hits", 3)), "radius": float(t.get("illusion_radius", 500)), "facing": int(pv.get("facing", 1))}
+	emit("illusion_cast", {"actor": c.id, "x": float(pv.x), "y": float(pv.y), "alt": float(pv.alt), "duration": secs, "facing": int(pv.get("facing", 1))})
+
+## Where an enemy should aim: the illusion when one draws it, else nothing (the brain uses the player).
+func decoy_for(e: EnemyState, actor_id: String) -> Dictionary:
+	var d: Dictionary = decoys.get(actor_id, {})
+	if d.is_empty() or e.is_boss() or e.team != "enemy": return {}
+	if e.plane.distance_to(Vector2(float(d.x), float(d.y))) > float(d.radius): return {}
+	return d
+
+func _tick_decoys(delta: float) -> void:
+	for aid in decoys.keys():
+		var d: Dictionary = decoys[aid]
+		d.t = float(d.t) - delta
+		if float(d.t) <= 0.0:
+			decoys.erase(aid)
+			emit("illusion_broken", {"actor": aid, "reason": "time"})
+
+## A foe's blow lands on the illusion instead: each strike wears it down.
+func _strike_decoy(e: EnemyState, ev: Dictionary, hitbox: Dictionary, attack: Dictionary) -> void:
+	var c = game.active()
+	if c == null or not decoys.has(c.id): return
+	var d: Dictionary = decoys[c.id]
+	var view := {"x": float(d.x), "y": float(d.y), "alt": float(d.alt), "half_width": 14.0, "height": 60.0}
+	if not CombatAuthority.hit_test(ev, e.facing, hitbox, view, attack.get("both_sides", false)): return
+	d.hits = int(d.hits) + 1
+	emit("hit_landed", {"attacker": str(e.uid), "target": "decoy", "target_kind": "decoy", "amount": 0, "type": "physical",
+		"crit": false, "element": e.element, "x": float(d.x), "y": float(d.y), "alt": 60.0})
+	if int(d.hits) >= int(d.max_hits):
+		decoys.erase(c.id)
+		emit("illusion_broken", {"actor": c.id, "reason": "struck"})
 
 func _tick_hots(c, delta: float) -> void:
 	var list: Array = hots.get(c.id, [])
@@ -1086,6 +1201,7 @@ func enemy_strike(e: EnemyState, attack: Dictionary) -> void:
 	var hitbox: Dictionary = attack.get("hitbox", {"x": [0, 40], "depth": 26, "alt": [-30, 60]})
 	if hit_test(ev, e.facing, hitbox, pv, attack.get("both_sides", false)):
 		_enemy_hits_player(e, c, ev, pv, attack)
+	_strike_decoy(e, ev, hitbox, attack)
 	_enemy_hits_allies(e, attack, ev)
 
 ## The same strike lands on companions and spirit animals inside its hitbox.
@@ -1143,6 +1259,9 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 	_damage_player(c, float(r.amount), str(e.uid), r.type, a, r.crit, e)
 	if attack.has("status") and not attack.status.is_empty():
 		var applied := CombatRules.status_roll(attack.status, pv, Rng.stream(c.id, "combat"))
+		# S10 Spirit 50: fear and confusion from a weaker foe slide off.
+		if not applied.is_empty() and str(applied.id) in ["fear", "confusion"] and StatRules.gate_flag(c, "fear_immune_weaker") and e.level < ProgressionRules.level(c):
+			applied = {}
 		if not applied.is_empty(): apply_status(c.id, str(applied.id), float(applied.remaining), float(applied.power))
 	if float(e.def.get("hollowing", 0)) > 0: apply_resource_change(c.id, "hollowing", float(e.def.hollowing), "hollow")
 	if float(attack.get("drain", 0)) > 0: e.pools.hp = minf(e.pools.max_hp, e.pools.hp + r.amount * float(attack.drain))
@@ -1160,6 +1279,7 @@ func apply_hazard_damage(c, amount: float, dtype: String, element: String, sourc
 func _damage_player(c, amount: float, attacker: String, dtype: String, attack: Dictionary, crit := false, e: EnemyState = null) -> void:
 	var p: ResourcePool = c.pools
 	if wounded.has(c.id): return
+	if attacker != "" and dtype != "dot": timeline(c.id).fight_t = game.sim_time
 	if p.shield > 0.0:
 		var absorbed := minf(p.shield, amount)
 		p.shield -= absorbed

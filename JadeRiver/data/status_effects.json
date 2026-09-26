@@ -172,6 +172,18 @@
    ],
    "icon": "stun",
    "lift": 46
+  },
+  {
+   "id": "sense_locked",
+   "resist": "spirit",
+   "icon": "sense_locked",
+   "never_miss": true,
+   "reveals": true
+  },
+  {
+   "id": "soul_searched",
+   "resist": "spirit",
+   "icon": "injury_soul"
   }
  ]
 }

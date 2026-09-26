@@ -1065,7 +1065,7 @@ def guided_quests():
     quest("brothers_in_arms", "Brothers in Arms", "guided", "elder_hu", [
         o("choose_companion", "Choose a second companion"),
         o("reach_room", "Clear Echo Cliffs together", room="wg_echo_cliffs"),
-    ], [], offered_by_unlock=True, chapter="ht6", giver_any=M, hand_in_any=M,
+    ], [fx("learn_technique", technique="still_water_focus")], offered_by_unlock=True, chapter="ht6", giver_any=M, hand_in_any=M,
         offer=["The gorge is too much for two. Take a second companion."], complete=["Three together. Good."])
     quest("keep_watch", "Keep Watch", "guided", "jade_formation_elder", [
         o("breakthrough", "Break through a stage inside a guard formation", formation="guard"),
@@ -1115,7 +1115,7 @@ def guided_quests():
         offer=["Spirit Awakening needs a mind lake. This pill opens it."], complete=["Take it when you're ready to wake."])
     quest("a_lake_inside", "A Lake Inside", "guided", "elder_hu", [
         o("use_system", "Pulse Spirit Sense", 5, system="spirit_sense"),
-    ], [item("cloud_talisman", 1), item("verdant_dew_vial", 1)], offered_by_unlock=True, chapter="sa1", giver_any=M, hand_in_any=M,
+    ], [item("cloud_talisman", 1), item("verdant_dew_vial", 1), fx("learn_technique", technique="mirror_mind_spike")], offered_by_unlock=True, chapter="sa1", giver_any=M, hand_in_any=M,
         offer=["Your soul has a lake now. Pulse it outward: Spirit Sense."],
         complete=["The world has more in it than eyes see.", "Take this vial too. It gathers a drop of dew a day. Pour it on your garden and the herb there grows a century."])
     quest("what_the_eyes_miss", "What the Eyes Miss", "main", "elder_hu", [
@@ -1134,7 +1134,7 @@ def guided_quests():
         offer=["Souls tire. Rest yours."], complete=["Soul Soothing Pills, for the worst days."])
     quest("the_mentors_gift", "The Mentor's Gift", "guided", "elder_hu", [
         o("win_spar", "Pass the personal-disciple trial", opponent="sparring_disciple"),
-    ], [fx("learn_secret_art", art="lotus_heart_breathing")], offered_by_unlock=True, chapter="sa5", giver_any=M, hand_in_any=M,
+    ], [fx("learn_secret_art", art="lotus_heart_breathing"), fx("learn_technique", technique="soul_lantern_ward")], offered_by_unlock=True, chapter="sa5", giver_any=M, hand_in_any=M,
         offer=["Beat my best disciple and I'll teach you personally."],
         complete=["My personal disciple. My secret art is yours, and the cave behind the pagoda is your abode."])
     quest("treasures_of_heaven_and_earth", "Treasures of Heaven and Earth", "guided", "elder_hu", [
@@ -1956,6 +1956,17 @@ def codex():
         {"id": "flight", "title": "Flight", "body": "At Cloud Stride, Qi carries the body."},
         {"id": "azure_expanse", "title": "The Azure Expanse", "body": "Beyond the Ascension Gate: a larger world."},
         {"id": "act_one_end", "title": "Beyond the Gate", "body": "You passed the Gate Guardian. The river keeps flowing."},
+        # S48 Soul Search: what an elite's soul gives up when it dies searched, one page at a time.
+        {"id": "soul_memory_1", "title": "A soul's memory: the grey morning", "body": "A wolf remembers the morning the colour drained out of the forest one tree at a time, and the pack stopped hearing each other."},
+        {"id": "soul_memory_2", "title": "A soul's memory: the ferry coin", "body": "A bandit remembers a fare paid in silver stamped with a sect crest no one on the river had seen for fifty years."},
+        {"id": "soul_memory_3", "title": "A soul's memory: one rope", "body": "A guard remembers Jade and Cloud disciples hauling on one rope to raise the Gate stones, before either sect had a name."},
+        {"id": "soul_memory_4", "title": "A soul's memory: lanterns under water", "body": "A spirit remembers lanterns burning under the river at the Drowned Shrine, tended by monks who no longer needed breath."},
+        {"id": "soul_memory_5", "title": "A soul's memory: forty pills", "body": "A rogue cultivator remembers forty pills in a month, a breakthrough that held for a day, and a laugh that would not stop."},
+        {"id": "soul_memory_6", "title": "A soul's memory: the open palm", "body": "A beast remembers a man kneeling in the tall grass with an open palm, and the pack deciding not to eat him."},
+        {"id": "soul_memory_7", "title": "A soul's memory: the sky toll", "body": "A pirate remembers a toll warden of the Nine Peaks taking three coins and a finger for a missing seal."},
+        {"id": "soul_memory_8", "title": "A soul's memory: the buried city", "body": "A tomb guard remembers a king who ordered the desert poured over his own city so that no one could ever leave it."},
+        {"id": "soul_memory_9", "title": "A soul's memory: the oath", "body": "A ghost remembers a blade laid on an altar by someone who swore never to draw it again, and drew it the next night."},
+        {"id": "soul_memory_10", "title": "A soul's memory: the star sea", "body": "Deep under this soul lies a memory that is not its own: a ship sailing a sea of stars, and a voice saying the river runs there too."},
         {"id": "cloudgate_port", "title": "Cloudgate Port", "body": "A harbour on a floating island where the Ascension Gate opens onto the Azure Expanse. Sky-ships, toll wardens and every kind of traveller."},
         {"id": "nine_peaks_alliance", "title": "The Nine Peaks Alliance", "body": "Nine sects on nine peaks, one law between them. They keep the sky roads safe and tax every step taken on them."},
         {"id": "storm_ward", "title": "Storm Ward", "body": "The Expanse's storms draw Qi out of anyone not attuned to them. Four jades, fed with Storm Shards, ward the blood. Each region asks for more."},

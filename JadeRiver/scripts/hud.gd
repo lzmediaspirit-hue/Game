@@ -680,6 +680,14 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.sword_released"), UiKit.PALE_GOLD)
 		"sword_returned":
 			if str(p.get("reason", "")) != "recalled": add_log(Tx.t("hud.sword_returned"), UiKit.MIST)
+		"illusion_cast":
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.illusion_cast"), UiKit.SOUL)
+		"illusion_broken":
+			if str(p.get("actor", "")) == Game.active_id and str(p.get("reason", "")) in ["struck", "time"]: add_log(Tx.t("hud.illusion_broken"), UiKit.MIST)
+		"soul_searched":
+			if str(p.get("actor", "")) == Game.active_id:
+				var mem := str(p.get("memory", ""))
+				add_log(Tx.t("hud.soul_searched") % str(ContentDB.entry("codex", mem).get("title", "")) if mem != "" else Tx.t("hud.soul_searched_none"), UiKit.SOUL)
 		"melody_changed":
 			if str(p.get("actor", "")) == Game.active_id and not p.get("on", false) and str(p.get("reason", "")) in ["composure", "broken"]:
 				add_log(Tx.t("hud.melody_spent" if str(p.reason) == "composure" else "hud.melody_broken"), UiKit.MIST)
@@ -1318,6 +1326,7 @@ func _draw_player_panel(c) -> void:
 	if c.pools.hollowing > 5: icons.append("hollowing")
 	if ProgressionRules.heart_demon_steps(c.cultivator) >= 1: icons.append("heart_demon")   # S48: 25 and more
 	if Game.combat.killing_intent_stacks(c.id) >= 5: icons.append("buff_attack")               # S48 Killing Intent
+	if Game.combat.poison_body_active(c): icons.append("poison_body")                          # S48 the Poison Body
 	if Unlocks.is_unlocked(c.id, "composure") and c.pools.composure < 100: icons.append("composure")
 	for s in c.pools.statuses:
 		if s.id != "spawn_protection": icons.append(str(ContentDB.entry("status_effects", str(s.id)).get("icon", s.id)))

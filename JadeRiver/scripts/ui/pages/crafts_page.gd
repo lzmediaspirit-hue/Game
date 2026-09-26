@@ -405,10 +405,13 @@ func _forge_reroll(ch, r: Rect2) -> void:
 		btn(Rect2(r.position.x + 24, r.end.y - 76, 200, 58), Tx.t("ui.forge.keep_old"), "choose", "old")
 		btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.take_new"), "choose", "new", true)
 		return
-	var cost: Dictionary = Game.crafting.reroll_cost(inst)
-	y = _cost_line(r, y + 10, "refining_essence", int(cost.essence))
-	text(Vector2(r.position.x + 24, y + 24), Tx.t("ui.forge.taels") % int(cost.taels) + (("  " + Tx.t("ui.forge.lock_doubles")) if lock >= 0 else ""), 17,
-		UiKit.BRIGHT_JADE if Game.economy.balance("silver_tael") >= int(cost.taels) else UiKit.RED)
+	var cost: Dictionary = Game.crafting.reroll_cost(inst, ch)
+	if cost.get("free", false):
+		text(Vector2(r.position.x + 24, y + 34), Tx.t("ui.forge.free_reroll"), 18, UiKit.BRIGHT_JADE)   # S10 Insight 25
+	else:
+		y = _cost_line(r, y + 10, "refining_essence", int(cost.essence))
+		text(Vector2(r.position.x + 24, y + 24), Tx.t("ui.forge.taels") % int(cost.taels) + (("  " + Tx.t("ui.forge.lock_doubles")) if lock >= 0 else ""), 17,
+			UiKit.BRIGHT_JADE if Game.economy.balance("silver_tael") >= int(cost.taels) else UiKit.RED)
 	var why2: String = Game.crafting.reroll_check(ch, inst)
 	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.reroll"), "do_reroll", null, true, why2 == "", why2)
 

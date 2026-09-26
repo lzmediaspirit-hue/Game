@@ -142,6 +142,11 @@ def build():
                      "contexts": ["contemplate", "insight_stone", "tech", "kill"]},
         # S48 Killing Intent: +1 a kill within 10 s of the last, up to 10, +1% crit each; at 10, weaker foes nearby hesitate.
         "killing_intent": {"window_s": 10.0, "max": 10, "crit_per_stack": 0.01, "hesitate_s": 0.5, "radius": 520},
+        # S48 the Poison Body (v1.1): past half your toxicity tolerance, a known poison art turns each hit's toxicity
+        # into poison on the foe (one point a hit, at most once per foe per half second).
+        "poison_body": {"threshold": 0.5, "toxicity_per_hit": 1.0, "power": 0.02, "duration_s": 4.0, "per_foe_s": 0.5},
+        # S10 meridian gates: a fight begins after this long without a blow (Essence 25: its first technique is free).
+        "gates": {"fight_gap_s": 8.0, "sense_cost_mult": 0.75, "flight_qi_mult": 0.8, "soul_ignore": 0.2, "insight_site_mult": 2.0},
         # S48 nascent-soul escape: from Sage a grave wound costs 5% of the stage instead of 10%.
         "soul_escape": {"from": "sage_1", "progress_loss": 0.05},
         # S48 false realm: Concealment can show a realm up to two great realms lower.
@@ -319,6 +324,9 @@ def build():
         # wind throws a foe into the air, helpless until it lands.
         {"id": "sundered", "resist": "tenacity", "icon": "vulnerable", "pierce_defence": 0.25},
         {"id": "launched", "resist": "body", "cc": True, "blocks": ["move", "attack"], "icon": "stun", "lift": 46},
+        # S48 the Soul line: Sense Lock (no evasion, no hiding) and Soul Search (its death gives up its memories).
+        {"id": "sense_locked", "resist": "spirit", "icon": "sense_locked", "never_miss": True, "reveals": True},
+        {"id": "soul_searched", "resist": "spirit", "icon": "injury_soul"},
     ])
 
     entries("weapon_families.json", [

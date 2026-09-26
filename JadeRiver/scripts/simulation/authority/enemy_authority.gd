@@ -145,7 +145,7 @@ func tick(delta: float) -> void:
 				continue
 		EnemyBrain.think(self, e, delta)
 		if e.def.get("ai", {}).get("profile", "") == "burrower":
-			e.hidden = e.ai.state in ["aggro", "patrol"] and e.velocity.length() > 5.0
+			e.hidden = e.ai.state in ["aggro", "patrol"] and e.velocity.length() > 5.0 and not e.pools.has_status("sense_locked")
 		if bool(e.def.get("flying", false)):
 			# Flyers hover within a grounded fighter's melee band (+60, S43) and swoop lower to strike.
 			e.hover = 48.0 + sin(game.sim_time * 2.0 + e.uid) * 8.0 - (32.0 if e.ai.state in ["attack"] else 0.0)

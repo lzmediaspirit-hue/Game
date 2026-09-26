@@ -102,6 +102,56 @@
    "body": "You passed the Gate Guardian. The river keeps flowing."
   },
   {
+   "id": "soul_memory_1",
+   "title": "A soul's memory: the grey morning",
+   "body": "A wolf remembers the morning the colour drained out of the forest one tree at a time, and the pack stopped hearing each other."
+  },
+  {
+   "id": "soul_memory_2",
+   "title": "A soul's memory: the ferry coin",
+   "body": "A bandit remembers a fare paid in silver stamped with a sect crest no one on the river had seen for fifty years."
+  },
+  {
+   "id": "soul_memory_3",
+   "title": "A soul's memory: one rope",
+   "body": "A guard remembers Jade and Cloud disciples hauling on one rope to raise the Gate stones, before either sect had a name."
+  },
+  {
+   "id": "soul_memory_4",
+   "title": "A soul's memory: lanterns under water",
+   "body": "A spirit remembers lanterns burning under the river at the Drowned Shrine, tended by monks who no longer needed breath."
+  },
+  {
+   "id": "soul_memory_5",
+   "title": "A soul's memory: forty pills",
+   "body": "A rogue cultivator remembers forty pills in a month, a breakthrough that held for a day, and a laugh that would not stop."
+  },
+  {
+   "id": "soul_memory_6",
+   "title": "A soul's memory: the open palm",
+   "body": "A beast remembers a man kneeling in the tall grass with an open palm, and the pack deciding not to eat him."
+  },
+  {
+   "id": "soul_memory_7",
+   "title": "A soul's memory: the sky toll",
+   "body": "A pirate remembers a toll warden of the Nine Peaks taking three coins and a finger for a missing seal."
+  },
+  {
+   "id": "soul_memory_8",
+   "title": "A soul's memory: the buried city",
+   "body": "A tomb guard remembers a king who ordered the desert poured over his own city so that no one could ever leave it."
+  },
+  {
+   "id": "soul_memory_9",
+   "title": "A soul's memory: the oath",
+   "body": "A ghost remembers a blade laid on an altar by someone who swore never to draw it again, and drew it the next night."
+  },
+  {
+   "id": "soul_memory_10",
+   "title": "A soul's memory: the star sea",
+   "body": "Deep under this soul lies a memory that is not its own: a ship sailing a sea of stars, and a voice saying the river runs there too."
+  },
+  {
    "id": "cloudgate_port",
    "title": "Cloudgate Port",
    "body": "A harbour on a floating island where the Ascension Gate opens onto the Azure Expanse. Sky-ships, toll wardens and every kind of traveller."

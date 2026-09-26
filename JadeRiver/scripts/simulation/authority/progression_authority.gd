@@ -182,7 +182,8 @@ func _meditation_second(c) -> void:
 	if c.pools.max_soul > 0:
 		apply_soul(c.id, float(ContentDB.curve("soul_meditate_per_hour", 10)) / 3600.0)
 	if mc.stone != "":
-		apply_insight(c.id, mc.stone, float(ContentDB.curve("insight_stone_per_min", 20)) / 60.0 * mult, "insight_stone")
+		var site := float(ContentDB.stat_const("gates", {}).get("insight_site_mult", 2.0)) if StatRules.gate_flag(c, "insight_sites_double") else 1.0   # S10 Insight 50
+		apply_insight(c.id, mc.stone, float(ContentDB.curve("insight_stone_per_min", 20)) / 60.0 * mult * site, "insight_stone")
 	if cu.heart_demon > 0.0:
 		apply_heart_demon(c.id, -float(ContentDB.stat_const("heart_demon", {}).get("meditate_drain_per_min", 0.2)) / 60.0, "meditation")   # -1 per 5 min (S48)
 	if str(c.position.get("room", "")) == "cf_falls_pool" and Clock.time_of_day() == "night": _falls_pool_second(c)

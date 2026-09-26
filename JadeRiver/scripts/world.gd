@@ -11,6 +11,7 @@ const Player = preload("res://scripts/player.gd")
 const Terrain = preload("res://scripts/terrain.gd")
 const Arrow = preload("res://scripts/arrow.gd")
 const OcclusionOutline = preload("res://scripts/occlusion_outline.gd")
+const AvatarScript = preload("res://scripts/avatar.gd")
 const MAP_REVISION = 7
 
 var room_mode := false
@@ -23,6 +24,7 @@ var map_bounds: Rect2
 var map_data: Dictionary = {}
 var room_def: Dictionary = {}
 var player: Node2D
+var illusion_view: Node2D = null     # S48 Phantom Double: the player's illusion, a pale copy of the avatar
 var player_shadow: Node2D
 var player_outline: Node2D
 var camera: Camera2D
@@ -482,6 +484,25 @@ func _on_event(name: String, p: Dictionary) -> void:
 			fx.add("flash", player.position + Vector2(0, -50), {"color": Color("ff6a5a"), "radius": 70.0, "dur": 0.4})
 			shake = 0.3
 			Audio.play("break")
+		"illusion_cast":
+			if str(p.get("actor", "")) == Game.active_id and player:
+				if is_instance_valid(illusion_view): illusion_view.queue_free()
+				var gh := AvatarScript.new()
+				gh.outfit = player.avatar.outfit.duplicate(true)
+				gh.facing = int(p.get("facing", 1))
+				gh.modulate = Color(0.78, 0.68, 1.0, 0.55)
+				gh.position = Vector2(float(p.x), float(p.y) - float(p.alt)).snapped(Vector2(2, 2))
+				gh.z_index = 1500 + int(float(p.y))
+				room_layer.add_child(gh)
+				illusion_view = gh
+				fx.add("wave", Vector2(float(p.x), float(p.y)), {"color": UiKit.SOUL, "radius": 70.0, "dur": 0.5})
+				Audio.play("technique")
+		"illusion_broken":
+			if str(p.get("actor", "")) == Game.active_id and is_instance_valid(illusion_view):
+				fx.add("spark", illusion_view.position + Vector2(0, -60), {"color": UiKit.SOUL, "dur": 0.45})
+				fx.add("wave", illusion_view.position, {"color": UiKit.SOUL, "radius": 50.0, "dur": 0.4})
+				illusion_view.queue_free()
+				illusion_view = null
 		"melody_pulse":
 			# S47 v1.1 flute: the melody spreads as a jade ring, notes drifting up from the player.
 			var mat := Vector2(float(p.x), float(p.y))

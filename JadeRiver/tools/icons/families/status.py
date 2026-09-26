@@ -367,11 +367,36 @@ rRRrRRrRRr
 ...rrrr...
 """
 
+S['sense_locked'] = """
+....VV....
+....VV....
+..WWWWWW..
+.WWUUUUWW.
+VWWUkkUWWV
+VWWUkkUWWV
+.WWUUUUWW.
+..WWWWWW..
+....VV....
+....VV....
+"""
+S['poison_body'] = """
+...GGGG...
+...GLLG...
+...GGGG...
+.GGGGGGGG.
+G.GGLGGG.G
+G.GGGGgG.G
+..GGGGgg..
+..GG..gg..
+.gGG..GGg.
+.g......g.
+"""
+
 ORDER = ['injury_body', 'injury_meridian', 'injury_soul', 'stability_unstable', 'stability_settling',
          'stability_stable', 'stability_solid', 'toxicity', 'hollowing', 'composure', 'poison', 'burn', 'slow',
          'stun', 'root', 'bleed', 'freeze', 'shock', 'qi_seal', 'vulnerable', 'confusion', 'fear', 'buff_attack',
          'buff_defense', 'buff_speed', 'exhausted', 'meditating', 'consolidating', 'bottleneck',
-         'spawn_protection', 'qi_deviation', 'heart_demon']
+         'spawn_protection', 'qi_deviation', 'heart_demon', 'sense_locked', 'poison_body']
 
 PYRAMIDS = {
     'stability_unstable': (1, 'P', 'R', True, False),

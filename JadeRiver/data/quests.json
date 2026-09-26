@@ -2796,7 +2796,12 @@
      "room": "wg_echo_cliffs"
     }
    ],
-   "rewards": [],
+   "rewards": [
+    {
+     "kind": "learn_technique",
+     "technique": "still_water_focus"
+    }
+   ],
    "offer_text": [
     "The gorge is too much for two. Take a second companion."
    ],
@@ -3216,6 +3221,10 @@
      "kind": "grant_item",
      "item": "verdant_dew_vial",
      "count": 1
+    },
+    {
+     "kind": "learn_technique",
+     "technique": "mirror_mind_spike"
     }
    ],
    "offer_text": [
@@ -3377,6 +3386,10 @@
     {
      "kind": "learn_secret_art",
      "art": "lotus_heart_breathing"
+    },
+    {
+     "kind": "learn_technique",
+     "technique": "soul_lantern_ward"
     }
    ],
    "offer_text": [

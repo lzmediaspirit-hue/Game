@@ -712,6 +712,56 @@ def clear_heart_melody():
     return done(c)
 
 
+# ----------------------------------------------------------------------------- S48 the Soul line and the Poison path
+def sense_lock():
+    c, mk, d = emblem('soul')
+    eye = c.ellipse(16, 16, 9, 4.8)
+    mark(c, eye, mk, base=2)
+    c.put(c.circle(16, 16, 3.3) & eye, mk, 'flat', base=4)
+    c.put(c.circle(16, 16, 1.4), '#05080B', 'flat')
+    for (x0, y0, x1, y1) in ((16, 4.5, 16, 9), (16, 23, 16, 27.5), (4.5, 16, 6.5, 16), (25.5, 16, 27.5, 16)):
+        c.put(c.seg(x0, y0, x1, y1, 1.5), mk, 'flat', base=3)
+    return done(c)
+
+
+def phantom_double():
+    c, mk, d = emblem('soul')
+
+    def figure(x):
+        return c.circle(x, 10.5, 2.7) | c.poly([(x - 3.6, 14.5), (x + 3.6, 14.5), (x + 4.6, 25), (x - 4.6, 25)])
+    c.put(figure(19.5), mk, 'flat', base=1)
+    mark(c, figure(12.5), mk, base=3)
+    return done(c)
+
+
+def soul_search():
+    c, mk, d = emblem('soul')
+    wisp = c.poly([(16, 5.5), (21.5, 13), (22, 20), (16, 26), (10, 20), (10.5, 13)])
+    mark(c, wisp, mk, base=2)
+    c.put(c.circle(16, 18.5, 3.3) & wisp, mk, 'flat', base=4)
+    probe = c.seg(26, 27, 18.5, 20, 1.6)
+    c.put(probe, R['gold'], 'flat', base=3)
+    return done(c)
+
+
+def venom_needles():
+    c, mk, d = emblem('wood')
+    for dy in (-5, 0, 5):
+        mark(c, c.seg(6.5, 19 + dy, 22, 13 + dy, 1.1), mk, base=3)
+    for (x, y) in ((24.5, 10.5), (25, 16), (25.5, 21.5)):
+        c.put(c.circle(x, y, 1.6), R['venom'], 'flat', base=3)
+    return done(c)
+
+
+def miasma_palm():
+    c, mk, d = emblem('wood')
+    palm = S.rounded_rect(c, 11, 12, 20, 24, 2) | c.rect(11, 7, 12.6, 13) | c.rect(13.6, 6, 15.2, 13) | c.rect(16.2, 6, 17.8, 13) | c.rect(18.8, 7.5, 20, 13)
+    mark(c, palm, mk, base=2)
+    for (x, y, r) in ((24, 20, 3.4), (22, 25, 2.6), (8, 22, 2.8), (7.5, 16, 2.0)):
+        c.put(c.circle(x, y, r) & ~palm, R['venom'], 'flat', base=2)
+    return done(c)
+
+
 TECHS = [
     ('flowing_palm', flowing_palm), ('jade_thrust', jade_thrust), ('cloudpiercing_stroke', cloudpiercing_stroke),
     ('reedcutter_slash', reedcutter_slash), ('riverstone_sweep', riverstone_sweep),
@@ -730,6 +780,8 @@ TECHS = [
     ('cloud_ladder_step', cloud_ladder_step), ('water_skimming', water_skimming),
     ('mountain_cleaver', mountain_cleaver), ('thunder_dao_arc', thunder_dao_arc), ('gale_fan', gale_fan),
     ('returning_crane_fan', returning_crane_fan), ('reed_song', reed_song), ('clear_heart_melody', clear_heart_melody),
+    ('sense_lock', sense_lock), ('phantom_double', phantom_double), ('soul_search', soul_search),
+    ('venom_needles', venom_needles), ('miasma_palm', miasma_palm),
 ]
 for _id, _fn in TECHS:
     register(FAM, _id, _fn, GROUP)

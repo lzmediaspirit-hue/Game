@@ -461,6 +461,18 @@
     "combat_authority"
    ]
   },
+  "illusion_cast": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "illusion_broken": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
   "loot_dropped": {
    "system": "World",
    "files": [
@@ -602,6 +614,12 @@
    ]
   },
   "treasure_birth_announced": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "soul_searched": {
    "system": "World",
    "files": [
     "world_authority"

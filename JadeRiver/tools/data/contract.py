@@ -68,7 +68,7 @@ DEPTH = {
                  "herb_harvested", "seed_found", "herb_planted", "bed_watered", "bed_enriched", "herb_aged", "spring_bottled", "transplant_result",
                  "rack_started", "rack_collected", "garden_raided", "herb_appraised"],
     "Combat": ["treasure_used", "sword_released", "sword_returned", "sword_intent_changed", "artifact_detonated", "talisman_used", "combo_landed", "killing_intent_changed",
-               "beast_subdued", "melody_changed", "melody_pulse"],
+               "beast_subdued", "melody_changed", "melody_pulse", "illusion_cast", "illusion_broken"],
     "Inventory": ["loadout_swapped", "natal_grew", "natal_broken", "item_blooded"],
     "Movement": ["jumped", "landed", "wall_kicked", "art_used", "climb_started", "climb_finished", "fell_out", "mover_boarded",
                  "volume_entered", "volume_left"],
@@ -88,7 +88,7 @@ DEPTH = {
              "arena_battle", "arena_rewarded", "pet_fed", "pet_commanded"],
     "World": ["ambush_sprung", "herb_ripening", "guardian_spawned", "beast_tide_started", "beast_tide_result", "beast_trial_result",
               "tower_floor_cleared", "tower_swept", "auto_hunt_changed", "auto_path_started", "auto_path_ended",
-              "treasure_birth_announced"],
+              "treasure_birth_announced", "soul_searched"],
     # S49 territory: the spirit-stone mines your sect takes, holds, loses and collects from (account level).
     "Sect": ["mine_claimed", "mine_contested", "mine_defended", "mine_lost", "mine_collected"],
 }

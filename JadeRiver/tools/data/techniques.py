@@ -106,17 +106,37 @@ def build():
         tech("ember_burst", "heart_tempering_3", "gorge_bandit_drop", "any", "fire", "qi", (1.40, 1.70), 1, 8, 9, 20,
              "An explosion of fire within 150 units that burns for 3 s.", both_sides=True, reach=150, depth=60,
              status={"id": "burn", "chance": 1.0, "power": 0.05, "duration_s": 3}, action="meditate_burst"),
-        tech("still_water_focus", "heart_tempering_5", "mentor", "any", "water", "buff", (0, 0), 0, 0, 25, 15,
+        tech("still_water_focus", "heart_tempering_5", "brothers_in_arms", "any", "water", "buff", (0, 0), 0, 0, 25, 15,
              "Your next technique hits its perfect-timing bonus.", buff={"stat": "perfect_timing", "op": "flat", "value": 1, "duration": 10}, action="meditate_burst"),
         tech("shadowstep_cut", "cloud_stride_4", "library_3", "short_blade", "wind", "physical", (2.00, 2.60), 1, 1, 12, 20,
              "Blink behind the target and cut.", blink=True, reach=240),
         tech("cloud_descent", "cloud_stride_3", "above_the_mist", "any", "wind", "physical", (1.60, 2.00), 1, 8, 8, 20,
              "An aerial dive that strikes everything below (flying only).", flying_only=True, both_sides=True, reach=120, depth=60, action="jump"),
-        tech("mirror_mind_spike", "spirit_awakening_1", "mentor", "any", "soul", "soul", (1.50, 1.80), 1, 1, 9, 10,
+        tech("mirror_mind_spike", "spirit_awakening_1", "a_lake_inside", "any", "soul", "soul", (1.50, 1.80), 1, 1, 9, 10,
              "A spike of will that ignores armour; 20% confusion.", soul=15, ignore_armor=True, reach=260,
              status={"id": "confusion", "chance": 0.2, "power": 1, "duration_s": 2}, action="meditate_burst"),
-        tech("soul_lantern_ward", "spirit_awakening_5", "mentor_secret", "any", "soul", "buff", (0, 0), 0, 0, 30, 0,
-             "A ward that absorbs damage equal to 20% max Soul for 6 s.", soul=20, buff={"stat": "shield_soul_pct", "op": "flat", "value": 0.2, "duration": 6}, action="meditate_burst"),
+        tech("soul_lantern_ward", "spirit_awakening_5", "the_mentors_gift", "any", "soul", "buff", (0, 0), 0, 0, 30, 0,
+             "A ward that absorbs damage equal to 20% max Soul for 6 s.", soul=20, shield_soul_pct=0.2, shield_s=6, action="meditate_burst"),
+        # S48 the Soul line (v1.0), taught by the Soul Dao's first three tiers: a lock the eyes of the soul put on a foe,
+        # an illusion that draws foes off you, and a search of an elite's soul for its memories and what it hid.
+        tech("sense_lock", "spirit_awakening_1", "soul_dao_1", "any", "soul", "soul", (0.60, 0.80), 1, 1, 14, 0,
+             "Fix your Spirit Sense on one foe within 420 for 8 s: it cannot evade you or hide from you.",
+             soul=10, reach=420, sense_lock_s=8, action="meditate_burst"),
+        tech("phantom_double", "spirit_awakening_2", "soul_dao_2", "any", "soul", "illusion", (0, 0), 0, 0, 24, 0,
+             "Leave an illusion of yourself where you stand for 6 s (+1 s a Soul Dao tier). Foes within 500 turn on it until it has been struck three times. Bosses see through it.",
+             soul=25, illusion_s=6, illusion_hits=3, illusion_radius=500, action="meditate_burst"),
+        tech("soul_search", "spirit_awakening_3", "soul_dao_3", "any", "soul", "soul", (0.80, 1.00), 1, 1, 18, 0,
+             "A spike into an elite's soul that ignores armour. If it dies within 12 s, you read its memories (a Codex page) and find what it hid (an extra drop).",
+             soul=20, reach=220, soul_search_s=12, ignore_armor=True, action="meditate_burst"),
+        # S48 the Poison path (v1.1): sold at night on the Caravan Road. Knowing one opens the Poison Body.
+        tech("venom_needles", "qi_unfurling_1", "night_peddler", "any", "wood", "physical", (0.40, 0.55), 3, 3, 8, 12,
+             "Three seeking needles; each poisons its mark (2% of its health a second for 5 s).",
+             projectile={"speed": 600, "range": 340, "count": 3, "seek": True, "art": "needle"},
+             status={"id": "poison", "chance": 1.0, "power": 0.02, "duration_s": 5}, poison_path=True, dao="wood"),
+        tech("miasma_palm", "heart_tempering_1", "night_peddler", "any", "wood", "qi", (0.50, 0.70), 1, 8, 14, 18,
+             "A palm of green miasma that poisons every foe within 160 on both sides (3% of their health a second for 6 s).",
+             both_sides=True, reach=160, depth=70, status={"id": "poison", "chance": 1.0, "power": 0.03, "duration_s": 6},
+             poison_path=True, action="punch", dao="wood"),
         # S48 costly secret art: the Blood Dao's teacher shows how to burn one's own blood for a fight.
         tech("blood_burning", "sage_sovereign_1", "blood_remembers", "any", "none", "buff", (0, 0), 0, 0, 45, 0,
              "Burn your own blood: +50% attack for 10 s. It costs 30% of your HP and leaves a body injury.",
@@ -152,7 +172,13 @@ def build():
         daos.append(row)
     for d in ["water", "wood", "earth", "wind", "fire", "metal", "thunder"]:
         daos.append(dict({"id": d, "family": "element", "valley_cap": 5 if d in ("water", "wood", "earth", "wind") else 2}, **element_dao))
-    daos.append({"id": "soul", "family": "element", "valley_cap": 3, "tiers": element_dao["tiers"], "effects": element_dao["effects"]})
+    # S48 the Soul line: the Soul Dao's first three tiers each teach one of its techniques.
+    soul_effects = [dict(e) for e in element_dao["effects"]]
+    soul_tiers = list(element_dao["tiers"])
+    for i, (tid, word) in enumerate([("sense_lock", "Sense Lock"), ("phantom_double", "Phantom Double"), ("soul_search", "Soul Search")]):
+        soul_effects[i]["learn_technique"] = tid
+        soul_tiers[i] = "%s; learn %s" % (soul_tiers[i], word)
+    daos.append({"id": "soul", "family": "element", "valley_cap": 3, "tiers": soul_tiers, "effects": soul_effects})
     daos.append({"id": "alchemy", "family": "craft", "valley_cap": 5, "tiers": ["+5% quality chance", "-10% ingredient loss on mistakes", "Wider heat band",
                  "Can teach; +1 auto-refine queue slot", "Substitute one ingredient per recipe"], "effects": [{"quality": 0.05}, {}, {"band": 0.1}, {"queue": 1}, {}]})
     daos.append({"id": "formation", "family": "craft", "valley_cap": 5, "tiers": ["+10% formation duration", "-10% fuel", "+1 node", "Can teach; faster placement",

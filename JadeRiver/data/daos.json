@@ -493,21 +493,24 @@
    "family": "element",
    "valley_cap": 3,
    "tiers": [
-    "+5% elemental power",
-    "Element techniques -10% QI",
-    "+10% chance to apply the element's status",
+    "+5% elemental power; learn Sense Lock",
+    "Element techniques -10% QI; learn Phantom Double",
+    "+10% chance to apply the element's status; learn Soul Search",
     "+5% resistance to the element; can teach it",
     "Element techniques gain area or pierce"
    ],
    "effects": [
     {
-     "elemental_power": 0.05
+     "elemental_power": 0.05,
+     "learn_technique": "sense_lock"
     },
     {
-     "cost_pct": -0.1
+     "cost_pct": -0.1,
+     "learn_technique": "phantom_double"
     },
     {
-     "status_chance": 0.1
+     "status_chance": 0.1,
+     "learn_technique": "soul_search"
     },
     {
      "resistance": 0.05,

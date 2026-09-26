@@ -1456,7 +1456,7 @@
    "composure_cost": 0,
    "dao": "water",
    "unlock": "heart_tempering_5",
-   "source": "mentor",
+   "source": "brothers_in_arms",
    "desc": "Your next technique hits its perfect-timing bonus.",
    "action": "meditate_burst",
    "icon": "still_water_focus",
@@ -1588,7 +1588,7 @@
    "composure_cost": 0,
    "dao": "soul",
    "unlock": "spirit_awakening_1",
-   "source": "mentor",
+   "source": "a_lake_inside",
    "desc": "A spike of will that ignores armour; 20% confusion.",
    "action": "meditate_burst",
    "icon": "mirror_mind_spike",
@@ -1636,7 +1636,7 @@
    "composure_cost": 0,
    "dao": "soul",
    "unlock": "spirit_awakening_5",
-   "source": "mentor_secret",
+   "source": "the_mentors_gift",
    "desc": "A ward that absorbs damage equal to 20% max Soul for 6 s.",
    "action": "meditate_burst",
    "icon": "soul_lantern_ward",
@@ -1644,13 +1644,242 @@
     "dmg_per_tier": 0.08,
     "cost_per_tier": -0.05
    },
-   "buff": {
-    "stat": "shield_soul_pct",
-    "op": "flat",
-    "value": 0.2,
-    "duration": 6
-   },
+   "shield_soul_pct": 0.2,
+   "shield_s": 6,
    "grade": "heaven"
+  },
+  {
+   "id": "sense_lock",
+   "name": "Sense Lock",
+   "family": "any",
+   "element": "soul",
+   "damage_type": "soul",
+   "mult": [
+    0.6,
+    0.8
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     420
+    ],
+    "depth": 30,
+    "alt": [
+     -10,
+     80
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 14,
+   "qi_cost": 0,
+   "soul_cost": 10,
+   "composure_cost": 0,
+   "dao": "soul",
+   "unlock": "spirit_awakening_1",
+   "source": "soul_dao_1",
+   "desc": "Fix your Spirit Sense on one foe within 420 for 8 s: it cannot evade you or hide from you.",
+   "action": "meditate_burst",
+   "icon": "sense_lock",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "sense_lock_s": 8,
+   "grade": "heaven"
+  },
+  {
+   "id": "phantom_double",
+   "name": "Phantom Double",
+   "family": "any",
+   "element": "soul",
+   "damage_type": "illusion",
+   "mult": [
+    0,
+    0
+   ],
+   "hits": 0,
+   "max_targets": 0,
+   "hitbox": {
+    "x": [
+     -10,
+     110
+    ],
+    "depth": 30,
+    "alt": [
+     -30,
+     60
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 24,
+   "qi_cost": 0,
+   "soul_cost": 25,
+   "composure_cost": 0,
+   "dao": "soul",
+   "unlock": "spirit_awakening_2",
+   "source": "soul_dao_2",
+   "desc": "Leave an illusion of yourself where you stand for 6 s (+1 s a Soul Dao tier). Foes within 500 turn on it until it has been struck three times. Bosses see through it.",
+   "action": "meditate_burst",
+   "icon": "phantom_double",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "illusion_s": 6,
+   "illusion_hits": 3,
+   "illusion_radius": 500,
+   "grade": "heaven"
+  },
+  {
+   "id": "soul_search",
+   "name": "Soul Search",
+   "family": "any",
+   "element": "soul",
+   "damage_type": "soul",
+   "mult": [
+    0.8,
+    1.0
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     220
+    ],
+    "depth": 30,
+    "alt": [
+     -10,
+     80
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 18,
+   "qi_cost": 0,
+   "soul_cost": 20,
+   "composure_cost": 0,
+   "dao": "soul",
+   "unlock": "spirit_awakening_3",
+   "source": "soul_dao_3",
+   "desc": "A spike into an elite's soul that ignores armour. If it dies within 12 s, you read its memories (a Codex page) and find what it hid (an extra drop).",
+   "action": "meditate_burst",
+   "icon": "soul_search",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "soul_search_s": 12,
+   "ignore_armor": true,
+   "grade": "heaven"
+  },
+  {
+   "id": "venom_needles",
+   "name": "Venom Needles",
+   "family": "any",
+   "element": "wood",
+   "damage_type": "physical",
+   "mult": [
+    0.4,
+    0.55
+   ],
+   "hits": 3,
+   "max_targets": 3,
+   "hitbox": {
+    "x": [
+     -10,
+     110
+    ],
+    "depth": 30,
+    "alt": [
+     -30,
+     60
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 8,
+   "qi_cost": 12,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "wood",
+   "unlock": "qi_unfurling_1",
+   "source": "night_peddler",
+   "desc": "Three seeking needles; each poisons its mark (2% of its health a second for 5 s).",
+   "action": null,
+   "icon": "venom_needles",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "projectile": {
+    "speed": 600,
+    "range": 340,
+    "count": 3,
+    "seek": true,
+    "art": "needle"
+   },
+   "status": {
+    "id": "poison",
+    "chance": 1.0,
+    "power": 0.02,
+    "duration_s": 5
+   },
+   "poison_path": true,
+   "grade": "earth"
+  },
+  {
+   "id": "miasma_palm",
+   "name": "Miasma Palm",
+   "family": "any",
+   "element": "wood",
+   "damage_type": "qi",
+   "mult": [
+    0.5,
+    0.7
+   ],
+   "hits": 1,
+   "max_targets": 8,
+   "hitbox": {
+    "x": [
+     -10,
+     160
+    ],
+    "depth": 70,
+    "alt": [
+     -10,
+     80
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 14,
+   "qi_cost": 18,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "wood",
+   "unlock": "heart_tempering_1",
+   "source": "night_peddler",
+   "desc": "A palm of green miasma that poisons every foe within 160 on both sides (3% of their health a second for 6 s).",
+   "action": "punch",
+   "icon": "miasma_palm",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "both_sides": true,
+   "status": {
+    "id": "poison",
+    "chance": 1.0,
+    "power": 0.03,
+    "duration_s": 6
+   },
+   "poison_path": true,
+   "grade": "earth"
   },
   {
    "id": "blood_burning",

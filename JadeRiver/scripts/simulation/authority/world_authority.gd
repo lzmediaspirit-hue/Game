@@ -385,6 +385,7 @@ func sense_pulse(c) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "spirit_sense"): return fail("locked", {"text": Unlocks.locked_text("spirit_sense")})
 	if c.pools.cooldown("sense") > 0.0: return fail("cooldown")
 	var cost := 10.0
+	if StatRules.gate_flag(c, "sense_cost_25"): cost *= float(ContentDB.stat_const("gates", {}).get("sense_cost_mult", 0.75))   # S10 Spirit 25
 	if c.pools.get_value("soul") < cost: return fail("no_soul", {"text": Tx.t("sim.world.not_enough_soul")})
 	c.pools.set_value("soul", c.pools.get_value("soul") - cost)
 	c.pools.cooldowns["sense"] = 6.0
@@ -729,6 +730,14 @@ static func core_chance(def: Dictionary, level: int) -> float:
 	return float(ContentDB.config("pet_growth").get("cores", {}).get("chance_per_rank", 0.02)) * beast_rank(def, level)
 
 # ------------------------------------------------------------------ loot (S32)
+## The next soul memory the account has not read ("" once all are read).
+func _next_soul_memory() -> String:
+	for i in range(1, 100):
+		var id := "soul_memory_%d" % i
+		if not ContentDB.has_entry("codex", id): return ""
+		if not game.account.codex.has(id): return id
+	return ""
+
 func _on_actor_defeated(p: Dictionary) -> void:
 	if p.get("victim_kind", "") != "enemy" or game.room_rt == null: return
 	var c = game.character(str(p.get("killer", game.active_id)))
@@ -752,6 +761,15 @@ func _on_actor_defeated(p: Dictionary) -> void:
 		c.collection_first_kills[str(p.def)] = true
 		var bonus := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), 1.0, 0.0, {"no_equipment": true})
 		drop.items.append_array(bonus.items)
+	# S48 Soul Search: a searched elite gives up what it hid (one more roll) and a memory for the Codex.
+	var sm: Dictionary = game.combat.searched.get(str(p.get("victim", "")), {})
+	if not sm.is_empty():
+		game.combat.searched.erase(str(p.victim))
+		var hid := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), c.stats.value("drop_rate"), 0.0, {"no_equipment": true})
+		drop.items.append_array(hid.items)
+		var memory := _next_soul_memory()
+		if memory != "": game.apply_effects(c.id, [{"kind": "codex", "entry": memory}], "soul_search")
+		emit("soul_searched", {"actor": c.id, "def": str(p.def), "memory": memory, "items": hid.items.size()})
 	# Taken whole by the Taming Cauldron (S47): its materials at full count, no loot roll, no coins, nothing it wore.
 	if game.combat.captured.has(str(p.get("victim", ""))):
 		game.combat.captured.erase(str(p.victim))

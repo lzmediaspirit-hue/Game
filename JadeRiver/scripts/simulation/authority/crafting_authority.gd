@@ -1178,7 +1178,7 @@ func enhance_check(c, inst: Dictionary, essence := 0) -> String:
 ## Why a reroll cannot be paid for now ("" when it can).
 func reroll_check(c, inst: Dictionary) -> String:
 	if (inst.get("affixes", []) as Array).is_empty(): return Tx.t("sim.crafting.no_affixes")
-	var cost := reroll_cost(inst)
+	var cost := reroll_cost(inst, c)
 	if c.inventory.count("refining_essence") < int(cost.essence): return Tx.t("sim.crafting.needs_2") % [int(cost.essence), ContentDB.item_name("refining_essence")]
 	if game.economy.balance("silver_tael") < int(cost.taels): return Tx.t("ui.forge.taels") % int(cost.taels)
 	return ""
@@ -1272,12 +1272,17 @@ func salvage(c, uids: Array) -> Dictionary:
 	emit("system_used", {"actor": c.id, "system": "salvage"})
 	return ok({"items": ids, "returned": pv.returns})
 
-## What rerolling an item's affixes costs: {essence, taels}; a locked affix doubles it.
-func reroll_cost(inst: Dictionary) -> Dictionary:
+## What rerolling an item's affixes costs: {essence, taels}; a locked affix doubles it. S10 Insight 25: one reroll a
+## week is free ({free: true}).
+func reroll_cost(inst: Dictionary, c = null) -> Dictionary:
+	if c != null and free_reroll_ready(c): return {"essence": 0, "taels": 0, "free": true}
 	var gi := StatRules.grade_index(str(ContentDB.item(str(inst.id)).get("grade", "plain")))
 	var ess: Array = upkeep("reroll_essence", [1])
 	var mult := int(upkeep("lock_mult", 2)) if int(inst.get("locked_affix", -1)) >= 0 else 1
 	return {"essence": int(ess[mini(gi, ess.size() - 1)]) * mult, "taels": int(upkeep("reroll_taels", 60)) * (gi + 1) * mult}
+
+func free_reroll_ready(c) -> bool:
+	return StatRules.gate_flag(c, "extra_reroll") and int(c.cooldowns.get("free_reroll_wk", -1)) != Clock.reset_week(Clock.now_utc())
 
 ## Reroll (S47 affix lock): every affix but the locked one is rolled again on the affix stream. The new roll waits
 ## beside the old one until you choose which to keep.
@@ -1287,11 +1292,12 @@ func reroll(c, uid: int) -> Dictionary:
 	if at.is_empty() or not ContentDB.is_equipment(str(at.inst.id)): return fail("not_equipment")
 	var inst: Dictionary = at.inst
 	if (inst.get("affixes", []) as Array).is_empty(): return fail("no_affixes", {"text": Tx.t("sim.crafting.no_affixes")})
-	var cost := reroll_cost(inst)
+	var cost := reroll_cost(inst, c)
 	if c.inventory.count("refining_essence") < int(cost.essence): return fail("materials", {"text": Tx.t("sim.crafting.needs_2") % [int(cost.essence), ContentDB.item_name("refining_essence")]})
 	if game.economy.balance("silver_tael") < int(cost.taels): return fail("insufficient_funds")
-	game.inventory.apply_remove(c.id, "refining_essence", int(cost.essence), "reroll")
-	game.economy.apply_currency("silver_tael", -int(cost.taels), "reroll")
+	if cost.get("free", false): c.cooldowns["free_reroll_wk"] = Clock.reset_week(Clock.now_utc())
+	if int(cost.essence) > 0: game.inventory.apply_remove(c.id, "refining_essence", int(cost.essence), "reroll")
+	if int(cost.taels) > 0: game.economy.apply_currency("silver_tael", -int(cost.taels), "reroll")
 	var lock := int(inst.get("locked_affix", -1))
 	var old: Array = inst.affixes
 	var fresh: Array = []

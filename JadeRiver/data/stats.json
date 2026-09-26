@@ -502,6 +502,20 @@
   "hesitate_s": 0.5,
   "radius": 520
  },
+ "poison_body": {
+  "threshold": 0.5,
+  "toxicity_per_hit": 1.0,
+  "power": 0.02,
+  "duration_s": 4.0,
+  "per_foe_s": 0.5
+ },
+ "gates": {
+  "fight_gap_s": 8.0,
+  "sense_cost_mult": 0.75,
+  "flight_qi_mult": 0.8,
+  "soul_ignore": 0.2,
+  "insight_site_mult": 2.0
+ },
  "soul_escape": {
   "from": "sage_1",
   "progress_loss": 0.05

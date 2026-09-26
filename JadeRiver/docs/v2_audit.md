@@ -149,6 +149,9 @@ Progress is recorded in `docs/CHANGELOG.md`.
 - V9a is done (hooks and small gaps). V9b is done: the heavy sabre (cleave of three, armour break), the fan
   (returning throw, knock-up) and the flute (the held melody aura that slows, confuses and heals, paid in
   Composure), with stances, techniques, the Fan and Music Daos, and Mission Hall manuals for every library technique.
+- V9c1 is done: the Soul line (Sense Lock, Phantom Double, Soul Search, Spirit scaling), the Poison path (two poison
+  arts and the Poison Body), and the S10 meridian gates completed. V9c2 (Blood and Buddhist) and V9c3 (sect role
+  variants) are next.
 - Next (V9): everything v2 makes due by v1.1 that is still open. A sweep of every audit row against the build
   after V8g3 found these, in six phases:
   - **V9a**, hooks and small gaps:

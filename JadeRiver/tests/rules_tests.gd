@@ -76,6 +76,7 @@ func _main() -> void:
 	depth_hooks_suite()
 	v2_hooks_suite()
 	weapon_families_suite()
+	soul_poison_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -464,6 +465,182 @@ func weapon_families_suite() -> void:
 	c.inventory.equipped["weapon"] = held_before
 	Game.combat.refresh_stats(c.id)
 	c.pools.composure = 100.0
+
+# ------------------------------------------------------------------ S48 the Soul line, the Poison path and the S10 meridian gates
+func soul_poison_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var st: ActorState = Game.actor_state(c.id)
+	Game.world.apply_teleport(c.id, "wp_west")
+	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear", "poison"]: Game.combat.cure_status(c.id, sid)
+	var meridians_before: Dictionary = c.cultivator.meridians.duplicate()
+	var known_before: Array = c.cultivator.techniques_known.duplicate()
+	var tox_before: float = c.cultivator.toxicity
+	var lv := ProgressionRules.level(c) + 12
+	# The mentor's techniques now have a teacher, and the Soul Dao's first three tiers teach the Soul line.
+	var grants := {}
+	for q in ContentDB.all("quests"):
+		for fx in q.get("rewards", []) + q.get("on_accept", []):
+			if fx is Dictionary and str(fx.get("kind", "")) == "learn_technique": grants[str(fx.get("technique", ""))] = str(q.id)
+	for tid in ["mirror_mind_spike", "soul_lantern_ward", "still_water_focus"]:
+		check(grants.has(tid), "%s is taught by a quest (%s)" % [tid, str(grants.get(tid, "none"))])
+	for tid in ["sense_lock", "phantom_double", "soul_search"]: c.cultivator.techniques_known.erase(tid)
+	c.cultivator.daos["soul"] = {"tier": 0, "insight": 0.0}
+	var need := 0.0
+	for t in 200:
+		if ProgressionRules.dao_tier_for(need) >= 3: break
+		need += 50.0
+	Game.progression.apply_insight(c.id, "soul", need + 1.0, "teacher:test")
+	check(c.cultivator.techniques_known.has("sense_lock") and c.cultivator.techniques_known.has("phantom_double") and c.cultivator.techniques_known.has("soul_search"),
+		"Soul Dao tiers 1-3 teach Sense Lock, Phantom Double and Soul Search (tier %d)" % int(c.cultivator.daos.soul.tier))
+	# Spirit is a main stat for soul attacks, whatever the weapon.
+	c.cultivator.meridians["spirit"] = 0
+	Game.combat.refresh_stats(c.id)
+	var soul0: float = c.stats.value("soul_attack")
+	c.cultivator.meridians["spirit"] = 60
+	Game.combat.refresh_stats(c.id)
+	check(c.stats.value("soul_attack") > soul0 * 1.3, "60 Spirit lifts soul attack by more than a third (%.0f -> %.0f)" % [soul0, c.stats.value("soul_attack")])
+	# S10 meridian gates open exactly at their thresholds.
+	c.cultivator.meridians["spirit"] = 24
+	check(not StatRules.gate_flag(c, "sense_cost_25"), "Spirit 24 opens no gate")
+	c.cultivator.meridians["spirit"] = 25
+	check(StatRules.gate_flag(c, "sense_cost_25") and not StatRules.gate_flag(c, "fear_immune_weaker"), "Spirit 25 opens the Sense gate and no more")
+	c.cultivator.meridians["spirit"] = 100
+	check(StatRules.gate_flag(c, "fear_immune_weaker") and StatRules.gate_flag(c, "soul_ignore_20"), "Spirit 100 opens all three Spirit gates")
+	c.cultivator.meridians["essence"] = 0
+	var air0 := Game.combat.air_qi_mult(c)
+	c.cultivator.meridians["essence"] = 50
+	check(near(Game.combat.air_qi_mult(c), air0 * 0.8, 0.001), "Essence 50: flight costs 20% less QI")
+	c.cultivator.daos["soul"] = {"tier": 4, "insight": 0.0}
+	c.cultivator.meridians["insight"] = 99
+	var t4 := ProgressionRules.effective_dao_tier(c, "soul")
+	c.cultivator.meridians["insight"] = 100
+	check(t4 == 4 and ProgressionRules.effective_dao_tier(c, "soul") == 5, "Insight 100: a Dao at Explanation gives one tier more")
+	c.cultivator.meridians["insight"] = 25
+	c.cooldowns.erase("free_reroll_wk")
+	var fake := {"id": "iron_jian", "affixes": [{"id": "x"}]}
+	check(bool(Game.crafting.reroll_cost(fake, c).get("free", false)), "Insight 25: one affix reroll a week is free")
+	c.cooldowns["free_reroll_wk"] = Clock.reset_week(Clock.now_utc())
+	check(not Game.crafting.reroll_cost(fake, c).get("free", false), "and only one")
+	# Agility 50: a second dodge charge.
+	Unlocks.force_unlock(c.id, "dodge_dash")
+	c.pools.cooldowns.erase("dodge")
+	c.pools.cooldowns.erase("dodge_2")
+	c.cultivator.meridians["agility"] = 0
+	Game.submit({"type": "dodge", "direction": Vector2.RIGHT, "facing": 1})
+	var d2 := Game.submit({"type": "dodge", "direction": Vector2.RIGHT, "facing": 1})
+	check(not d2.get("ok", false), "without the gate a second dodge waits for the cooldown")
+	c.pools.cooldowns.erase("dodge")
+	c.cultivator.meridians["agility"] = 50
+	Game.submit({"type": "dodge", "direction": Vector2.RIGHT, "facing": 1})
+	var d3 := Game.submit({"type": "dodge", "direction": Vector2.RIGHT, "facing": 1})
+	check(d3.get("ok", false), "Agility 50: a second dodge charge (%s)" % str(d3))
+	for i in 20: Game.tick(0.05)
+	# Essence 25: the first technique of each fight costs no QI.
+	_idle_hands(c)
+	c.cultivator.meridians["essence"] = 25
+	var slot_before = c.cultivator.technique_slots[0]
+	c.cultivator.technique_slots[0] = "flowing_palm"
+	if not c.cultivator.techniques_known.has("flowing_palm"): c.cultivator.techniques_known.append("flowing_palm")
+	c.pools.qi = c.pools.max_qi
+	c.pools.cooldowns.erase("tech:flowing_palm")
+	Game.combat.timeline(c.id)["fight_t"] = -999.0
+	var q0: float = c.pools.qi
+	var u1 := Game.submit({"type": "use_technique", "slot": 0, "facing": 1})
+	check(u1.get("ok", false) and near(c.pools.qi, q0, 0.01), "Essence 25: the first technique of a fight is free (%s)" % str(u1))
+	_idle_hands(c)
+	c.pools.cooldowns.erase("tech:flowing_palm")
+	var q1: float = c.pools.qi
+	Game.submit({"type": "use_technique", "slot": 0, "facing": 1})
+	check(c.pools.qi < q1, "the next one in the same fight is paid for")
+	_idle_hands(c)
+	c.cultivator.technique_slots[0] = slot_before
+	# Sense Lock: a foe that evades everything cannot evade a locked soul.
+	var foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(60, 0), lv)
+	foe.stats["evasion"] = 999999.0
+	var heard := {"miss": 0, "hit": 0, "search": "", "broken": ""}
+	var listen := func(n: String, p: Dictionary):
+		if n == "hit_missed" and str(p.get("target", "")) == str(foe.uid): heard.miss = int(heard.miss) + 1
+		if n == "hit_landed" and str(p.get("target", "")) == str(foe.uid): heard.hit = int(heard.hit) + 1
+		if n == "soul_searched": heard.search = str(p.get("memory", "?"))
+		if n == "illusion_broken": heard.broken = str(p.get("reason", ""))
+	GameEvents.event.connect(listen)
+	var atk := {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1.0, 1.0], "source": "test"}
+	for i in 30: Game.combat._player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
+	GameEvents.flush()
+	check(int(heard.miss) >= 5, "an evasive foe dodges ordinary blows (%d of 30 missed)" % int(heard.miss))
+	Game.combat._weapon_after_hit(c, foe, {"sense_lock_s": 8.0})
+	heard.miss = 0
+	for i in 30: Game.combat._player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
+	GameEvents.flush()
+	check(foe.pools.has_status("sense_locked") and int(heard.miss) == 0, "Sense Locked, it cannot evade (%d missed)" % int(heard.miss))
+	foe.alive = false
+	# Phantom Double: foes near it turn on the illusion; three strikes break it; time also ends it.
+	var foe2: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(150, 0), lv)
+	Game.combat._cast_illusion(c, ContentDB.entry("techniques", "phantom_double"))
+	var aim := EnemyBrain.target_position(Game.enemies, foe2)
+	check(str(aim.get("id", "")) == "decoy", "a foe near the illusion hunts it instead of the player")
+	var d: Dictionary = Game.combat.decoys[c.id]
+	foe2.plane = Vector2(float(d.x) + 30.0, float(d.y))
+	foe2.facing = -1
+	var ev := Game.combat.enemy_view(foe2)
+	for i in 3: Game.combat._strike_decoy(foe2, ev, {"x": [0, 60], "depth": 30, "alt": [-30, 60]}, {})
+	GameEvents.flush()
+	check(not Game.combat.decoys.has(c.id) and heard.broken == "struck", "three strikes break the illusion")
+	heard.broken = ""
+	Game.combat._cast_illusion(c, ContentDB.entry("techniques", "phantom_double"))
+	for i in 240:
+		Game.tick(0.05)
+		if not Game.combat.decoys.has(c.id): break
+	GameEvents.flush()
+	check(not Game.combat.decoys.has(c.id) and heard.broken == "time", "the illusion fades when its time is up")
+	foe2.alive = false
+	# Soul Search: an elite searched and slain gives up a memory and an extra drop; a common foe is not marked.
+	var common: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(80, 20), lv)
+	Game.combat._weapon_after_hit(c, common, {"soul_search_s": 12.0})
+	check(not Game.combat.searched.has(str(common.uid)), "Soul Search marks only elites and bosses")
+	common.alive = false
+	var elite: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(80, -20), lv, {"elite": true})
+	Game.combat._weapon_after_hit(c, elite, {"soul_search_s": 12.0})
+	check(Game.combat.searched.has(str(elite.uid)) and elite.pools.has_status("soul_searched"), "an elite is marked for Soul Search")
+	Game.combat._damage_enemy(elite, elite.pools.hp + 10.0, c.id, "soul", "soul", false, {})
+	for i in 4: Game.tick(0.05)
+	GameEvents.flush()
+	check(heard.search != "" and (heard.search == "?" or Game.account.codex.has(heard.search)), "a searched elite's death gives up a soul memory (%s)" % heard.search)
+	# Soul Lantern Ward: a shield of 20% max Soul for 6 s.
+	c.pools.shield = 0.0
+	if c.pools.max_soul <= 0.0: c.pools.max_soul = 100.0
+	Game.combat._resolve_technique(c, ContentDB.entry("techniques", "soul_lantern_ward"))
+	check(near(c.pools.shield, c.pools.max_soul * 0.2, 0.5), "Soul Lantern Ward shields 20%% of max Soul (%.1f)" % c.pools.shield)
+	for i in 130: Game.tick(0.05)
+	check(c.pools.shield == 0.0, "and fades after 6 s")
+	# The Poison Body: a poison art known and toxicity past half its tolerance turns hits into poison.
+	var tol: float = c.stats.value("toxicity_tolerance")
+	c.cultivator.techniques_known.erase("venom_needles")
+	c.cultivator.toxicity = tol * 0.8
+	check(not Game.combat.poison_body_active(c), "no Poison Body without a poison art")
+	c.cultivator.techniques_known.append("venom_needles")
+	check(Game.combat.poison_body_active(c), "a poison art and toxicity past half open the Poison Body")
+	var pf: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(60, 0), lv)
+	var tx0: float = c.cultivator.toxicity
+	Game.combat._poison_body(c, pf)
+	check(pf.pools.has_status("poison") and near(c.cultivator.toxicity, tx0 - 1.0, 0.01), "each hit turns a point of toxicity into poison on the foe")
+	Game.combat._poison_body(c, pf)
+	check(near(c.cultivator.toxicity, tx0 - 1.0, 0.01), "at most once per foe each half second")
+	c.cultivator.toxicity = tol * 0.3
+	check(not Game.combat.poison_body_active(c), "below half the tolerance it closes")
+	pf.alive = false
+	var peddler := ContentDB.entry("shops", "night_peddler")
+	var sells := []
+	for sitem in peddler.get("stock", []):
+		if str(sitem.get("item", "")) == "technique_manual": sells.append(str(sitem.learn))
+	check("venom_needles" in sells and "miasma_palm" in sells, "the night peddler sells both poison arts")
+	GameEvents.event.disconnect(listen)
+	c.cultivator.meridians = meridians_before
+	c.cultivator.techniques_known = known_before
+	c.cultivator.toxicity = tox_before
+	c.cooldowns.erase("free_reroll_wk")
+	Game.combat.refresh_stats(c.id)
 
 # ------------------------------------------------------------------ S47 natal treasure, wardrobe, blood-drop, rogue cultivators
 func natal_wardrobe_suite() -> void:

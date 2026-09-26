@@ -2565,6 +2565,32 @@
        }
       ]
      }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "venom_needles",
+     "price": 420,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "miasma_palm",
+     "price": 900,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       }
+      ]
+     }
     }
    ]
   },

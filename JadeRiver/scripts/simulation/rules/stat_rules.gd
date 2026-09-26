@@ -215,7 +215,7 @@ static func rebuild(c) -> Array:
 	# Rare Daos (taught in the Azure Expanse): each tier reached adds its listed modifiers.
 	for d in c.cultivator.daos:
 		var mods: Array = ContentDB.entry("daos", str(d)).get("mods", [])
-		for i in mini(int(c.cultivator.daos[d].get("tier", 0)), mods.size()):
+		for i in mini(ProgressionRules.effective_dao_tier(c, str(d)), mods.size()):
 			for m in mods[i]:
 				sb.add_modifier({"stat": str(m.stat), "op": str(m.get("op", "pct_add")), "value": float(m.value), "source": "dao:%s:%d:%s" % [d, i, m.stat]})
 	# Meridian gates at 25 points (stat gates only; flags are read by rules).
@@ -263,7 +263,9 @@ static func rebuild(c) -> Array:
 	var fam_attack = watk * (1.0 + 0.008 * A.get(scales[0], 0) + 0.004 * A.get(scales[1] if scales.size() > 1 else scales[0], 0))
 	sb.set_base("physical_attack", fam_attack)
 	sb.set_base("qi_attack", fam_attack * (1.0 + float(fx.essence.qi_attack_pct) * A.essence) * (1.0 + float(fam.get("qi_attack_bonus", 0.0))))
-	sb.set_base("soul_attack", fam_attack * (1.0 + float(fx.spirit.soul_attack_pct) * A.spirit))
+	# S48 the Soul line: soul attacks draw on Spirit (and Insight) whatever the weapon, so Spirit is a main-stat build.
+	var soul_scaled = watk * (1.0 + 0.008 * A.get("spirit", 0) + 0.004 * A.get("insight", 0))
+	sb.set_base("soul_attack", soul_scaled * (1.0 + float(fx.spirit.soul_attack_pct) * A.spirit))
 	sb.set_base("accuracy", 10.0 + 2.0 * lv + float(fx.agility.accuracy) * A.agility + float(fx.insight.accuracy) * A.insight)
 	sb.set_base("evasion", float(fx.agility.evasion) * A.agility)
 	sb.set_base("crit_chance", float(ContentDB.stat_const("crit.base", 0.05)) + float(fx.agility.crit_chance) * A.agility
@@ -322,6 +324,14 @@ static func body_tiers_reached(c) -> Array:
 		out.append(str(t.id))
 		if str(t.id) == tier: break
 	return out
+
+## S10 meridian gates: a flag (dodge_second_charge, sense_cost_25, ...) opened by 25, 50 or 100 points in its channel.
+static func gate_flag(c, flag: String) -> bool:
+	var gates: Dictionary = ContentDB.stat_const("meridian_gates", {})
+	for ch in gates:
+		for need in gates[ch]:
+			if str(gates[ch][need].get("flag", "")) == flag: return int(c.cultivator.meridians.get(ch, 0)) >= int(need)
+	return false
 
 ## S48: a body-tier flag (hp_techniques, qi_seal_immune) held by any tier reached.
 static func body_flag(c, flag: String) -> bool:

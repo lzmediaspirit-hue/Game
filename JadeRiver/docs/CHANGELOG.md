@@ -5,6 +5,49 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V9c1 · The Soul line, the Poison path and the meridian gates (S48, S10)
+- **The Soul line** (S48, v1.0). The Soul Dao's first three tiers each teach a technique:
+  - **Sense Lock** (tier 1): fixes your Spirit Sense on one foe within 420 for 8 s. It cannot evade you and cannot
+    hide (a burrower stays in sight).
+  - **Phantom Double** (tier 2): leaves an illusion where you stand for 6 s (+1 s per Soul Dao tier). Foes within
+    500 hunt it until it has been struck three times; bosses see through it. The world draws it as a pale copy of
+    you (`illusion_cast` and `illusion_broken`).
+  - **Soul Search** (tier 3): a spike into an elite or boss that ignores armour. If it dies within 12 s you read a
+    memory from its soul (ten new Codex pages) and find what it hid: one more loot roll (`soul_searched`).
+- **Spirit as a main stat.** Soul attack now scales with Spirit and Insight (+0.8% and +0.4% a point) whatever the
+  weapon, on top of Spirit's +0.5% soul attack.
+- **Soul Lantern Ward** now works: a shield of 20% of max Soul for 6 s. Before, it set a stat nothing read.
+- **Teachers for the mentor's techniques.** Three techniques had no source:
+  - Elder Hu teaches Mirror Mind Spike in "A Lake Inside" (Spirit Awakening 1);
+  - Soul Lantern Ward in "The Mentor's Gift" (Spirit Awakening 5);
+  - Still Water Focus in "Brothers in Arms" (Heart Tempering 6).
+- **The Poison path** (S48, v1.1).
+  - Peddler Shao sells two poison arts at night: Venom Needles (three seeking needles that poison, Qi Unfurling 1)
+    and Miasma Palm (poisons every foe within 160, Heart Tempering 1).
+  - **Poison Body**: with a poison art known and toxicity past half your tolerance, each hit turns a point of your
+    own toxicity into poison on the foe (2% of its health a second for 4 s, once per foe each half second). A HUD
+    icon shows while it is open.
+- **The S10 meridian gates, completed.** Ten of the fifteen gates had no effect; all now work:
+  - Agility 50: a second dodge charge.
+  - Essence 25: the first technique of each fight costs no QI. A fight starts after 8 s without a blow.
+  - Essence 50: flight costs 20% less QI.
+  - Essence 100: Qi projectiles pierce one more foe (flute notes too).
+  - Spirit 25: the Sense pulse costs 25% less.
+  - Spirit 50: fear and confusion from weaker foes do not take.
+  - Spirit 100: soul attacks ignore 20% of Soul Defence.
+  - Insight 25: one free affix reroll a week (the Forge says so).
+  - Insight 50: insight stones give double.
+  - Insight 100: a Dao at Explanation or above gives one more tier's effect.
+- New art: five technique icons and two status icons (Sense Locked, Poison Body).
+- The new rules suite covers:
+  - the grants and the Soul Dao's teaching;
+  - Spirit scaling and every gate at its threshold;
+  - Sense Lock against an evasive foe;
+  - the illusion (drawing foes, breaking, fading) and Soul Search on elites only;
+  - the ward, the Poison Body and the peddler's stock.
+
+  Debug flag: `--illusion`.
+
 ### V9b · Weapon families: the heavy sabre, the fan and the flute (S47 v1.1, the Music path)
 Three new weapon families, each with seven grades (Training to Sunsteel), smithing recipes, icons, avatar art in every
 animation, a stance, two techniques and a Dao.
