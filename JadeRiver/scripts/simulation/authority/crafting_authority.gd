@@ -1954,9 +1954,9 @@ func _pass_exam(c, craft: String, rk: Dictionary) -> void:
 	emit("guild_rank_changed", {"actor": c.id, "craft": craft, "rank": str(rk.id), "title": str(rk.get("title", ""))})
 
 # ------------------------------------------------------------------ S44/S49 commissions
-## The day's number (commissions refresh each morning).
+## The day's number (commissions refresh each morning, with the daily reset).
 static func commission_day() -> int:
-	return int(floor(Clock.now_utc() / 86400.0))
+	return Clock.reset_day(Clock.now_utc())
 
 ## Where a guild's board keeps its day (the Alchemist Guild's keeps its first key, so old saves carry on).
 static func _board_key(craft: String) -> String:
@@ -2025,16 +2025,19 @@ func deliver_commission(c, id: String, pay: String) -> Dictionary:
 	var o: Dictionary = found.order
 	var craft: String = found.craft
 	if not o.get("accepted", false): return fail("not_accepted", {"text": Tx.t("sim.crafting.commission_accept_first")})
-	# Pieces or pills of the order's quality or better, from any stacks.
+	# Pieces or pills of the order's quality or better, from any stacks; a locked piece is never handed over.
+	var fits := func(s) -> bool:
+		return s != null and str(s.id) == str(o.item) and quality_rank(str(s.get("quality", "common"))) >= quality_rank(str(o.quality)) \
+			and not c.inventory.locked.has(int(s.get("uid", -1)))
 	var have := 0
 	for s in c.inventory.bag:
-		if s != null and str(s.id) == str(o.item) and quality_rank(str(s.get("quality", "common"))) >= quality_rank(str(o.quality)): have += int(s.get("count", 1))
+		if fits.call(s): have += int(s.get("count", 1))
 	if have < int(o.count): return fail("materials", {"text": Tx.t("sim.crafting.missing") % ContentDB.item_name(str(o.item))})
 	var left := int(o.count)
 	for i in c.inventory.bag.size():
 		if left <= 0: break
 		var s = c.inventory.bag[i]
-		if s == null or str(s.id) != str(o.item) or quality_rank(str(s.get("quality", "common"))) < quality_rank(str(o.quality)): continue
+		if not fits.call(s): continue
 		var take := mini(left, int(s.get("count", 1)))
 		game.inventory.apply_remove_index(c.id, i, take, "commission")
 		left -= take

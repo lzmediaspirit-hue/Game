@@ -7641,6 +7641,7 @@ func fixes_suite() -> void:
 	_fix_buyback(c)
 	_fix_uids(c)
 	_fix_full_bag(c)
+	_fix_commissions(c)
 	Clock.override_utc = utc0
 	Clock.override_tz_offset_s = tz0
 	HerbRules.origin_week = 0
@@ -7732,3 +7733,24 @@ func _fix_full_bag(c) -> void:
 	check(c.inventory.count("rice_ball") == 1, "and the loot is picked up as soon as there is room")
 	rt.loot.clear()
 	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+
+## B5 and B6: a guild order never takes a locked piece, and the board turns over with the daily reset.
+func _fix_commissions(c) -> void:
+	c.crafting["guild"] = {"smithing": "adept"}
+	var day := CraftingAuthority.commission_day()
+	c.crafting["commission_state_smithing"] = {"day": day, "paid": 0, "orders": [{"id": "smithing_t_0", "item": "hemp_robe", "count": 1, "quality": "common",
+		"pay": 50, "accepted": true, "done": false}]}
+	Game.inventory.apply_add_equipment(c.id, "hemp_robe", 1, "common", "test")
+	var i := _bag_index(c, "hemp_robe")
+	c.inventory.locked[int(c.inventory.bag[i].uid)] = true
+	var r := Game.crafting.deliver_commission(c, "smithing_t_0", "taels")
+	check(not r.get("ok", false) and c.inventory.count("hemp_robe") == 1, "a locked piece is never handed to a guild order (%s)" % str(r))
+	for j in c.inventory.bag.size(): c.inventory.bag[j] = null
+	Clock.override_tz_offset_s = -8 * 3600
+	var noon := 1767225600.0 + 20.0 * 3600.0   # 20:00 UTC is 12:00 at UTC-8
+	Clock.override_utc = noon
+	var a := CraftingAuthority.commission_day()
+	Clock.override_utc = noon + 5.0 * 3600.0     # 01:00 UTC the next day is 17:00 the same local day
+	check(CraftingAuthority.commission_day() == a, "the guild boards turn over with the daily reset, not at midnight UTC")
+	Clock.override_utc = 1767225600.0
+	Clock.override_tz_offset_s = -99999
