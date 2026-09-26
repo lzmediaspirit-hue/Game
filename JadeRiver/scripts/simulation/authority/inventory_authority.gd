@@ -257,7 +257,9 @@ func handle(intent: Dictionary) -> Dictionary:
 		"devour_gear": return devour_gear(c, int(intent.get("index", -1)))
 		"unequip": return unequip(c, str(intent.get("slot", "")))
 		"drink_draught": return drink_draught(c)
-		"use_item": return use_item(c, int(intent.get("index", -1)), bool(intent.get("confirm", false)))
+		"use_item":
+			if intent.has("key"): return use_key_item(c, int(intent.key))   # a tool in the key-item pouch (the guqin)
+			return use_item(c, int(intent.get("index", -1)), bool(intent.get("confirm", false)))
 		"set_treasure": return set_treasure(c, str(intent.get("item", "")), int(intent.get("slot", 0)))
 		"choose_vessel": return choose_vessel(c, str(intent.get("item", "")))
 		"swap_loadout": return swap_loadout(c)
@@ -841,6 +843,15 @@ func use_warning(c, def: Dictionary) -> String:
 	if grade_gap >= 2: return Tx.t("sim.inventory.this_pill_is_two_grades")
 	if c.cultivator.toxicity + float(p.get("toxicity", 0)) > c.stats.value("toxicity_tolerance"): return Tx.t("sim.inventory.toxicity_above_tolerance_the_pill")
 	return ""
+
+## A tool kept in the key-item pouch that starts its own system (S49: the guqin opens its page). Never consumed.
+func use_key_item(c, index: int) -> Dictionary:
+	if index < 0 or index >= c.inventory.key_items.size(): return fail("empty")
+	var def := ContentDB.item(str(c.inventory.key_items[index].id))
+	if game.combat.is_wounded(c.id): return fail("wounded")
+	match str(def.get("use_action", "")):
+		"guqin": return ok({"open_page": "guqin"})
+	return fail("not_usable")
 
 func use_item(c, index: int, confirm: bool) -> Dictionary:
 	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")

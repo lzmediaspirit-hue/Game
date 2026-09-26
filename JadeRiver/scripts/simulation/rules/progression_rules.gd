@@ -282,6 +282,11 @@ static func dao_tier_for(insight: float) -> int:
 		if insight >= float(tiers[i]): tier = i + 1
 	return tier
 
+## The insight in all that a Dao at `tier` needs for the next tier (tier n + 1 needs dao_tiers[n]); 0 at the top tier.
+static func dao_next_need(tier: int) -> float:
+	var tiers: Array = ContentDB.curve("dao_tiers", [])
+	return float(tiers[tier]) if tier >= 0 and tier < tiers.size() else 0.0
+
 static func stored_qi_cap(c) -> float:
 	return c.cultivator.need() * float(ContentDB.curve("stored_qi_cap_stages", 1.0))
 

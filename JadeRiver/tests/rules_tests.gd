@@ -99,6 +99,7 @@ func _main() -> void:
 	aggro_cap_suite()
 	emotes_suite()
 	text_suite()
+	ui_fixes_suite()
 	await ui_suite()
 	max_character_suite()
 	save_suite()
@@ -189,6 +190,26 @@ func ui_suite() -> void:
 	check(small.is_empty(), "every tap target is at least 48 px on a side (%s)" % str(small.slice(0, 6)))
 	check(overlaps.is_empty(), "no two buttons share a point (%s)" % str(overlaps.slice(0, 6)))
 	check(UiKit.size_for("text", 8) >= UiKit.size_for("text", UiKit.MIN_SIZE), "text asked for under the minimum size is drawn at the minimum")
+
+## The P2 UI inventory's bugs (docs/ui_inventory.md, "Found while inventorying"), each at its rule.
+func ui_fixes_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	# B1: tier n + 1 needs dao_tiers[n] insight in all; the top tier has no next target (the Dao tab indexed one ahead).
+	var steps: Array = ContentDB.curve("dao_tiers", [])
+	var agree := true
+	for t in steps.size():
+		var need := ProgressionRules.dao_next_need(t)
+		if need != float(steps[t]) or ProgressionRules.dao_tier_for(need) != t + 1 or ProgressionRules.dao_tier_for(need - 1.0) != t: agree = false
+	check(agree and ProgressionRules.dao_next_need(steps.size()) == 0.0, "B1: a Dao's next target is the next tier's threshold, and none at the top")
+	# B2: the guqin is a tool in the key-item pouch, and from there it opens its page.
+	Game.inventory.apply_add(c.id, "guqin", 1, "test")
+	var gi := -1
+	for i in c.inventory.key_items.size():
+		if str(c.inventory.key_items[i].id) == "guqin": gi = i
+	var gr := Game.submit({"type": "use_item", "key": gi})
+	check(gi >= 0 and gr.get("ok", false) and str(gr.get("open_page", "")) == "guqin", "B2: the guqin in the key-item pouch opens its page")
+	check(not Game.submit({"type": "use_item", "key": c.inventory.key_items.size()}).get("ok", false), "B2: an empty key slot uses nothing")
 
 func text_suite() -> void:
 	var probe := "Pick up Herbal Tea"

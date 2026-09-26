@@ -244,6 +244,8 @@ func _draw_detail(r: Rect2) -> void:
 		var riding := str(ch.inventory.vessel) == id
 		btn(Rect2(bx, by + 30, r.size.x - 28, 54), Tx.t("ui.inventory.stop_riding") if riding else Tx.t("ui.inventory.ride_in_flight"), "vessel",
 			"" if riding else id, not riding, Unlocks.is_unlocked(ch.id, "flight"), Unlocks.locked_text("flight"))
+	elif sel.has("key") and str(def.get("use_action", "")) != "":
+		btn(Rect2(bx, by + 30, r.size.x - 28, 54), Tx.t("ui.inventory.play") if str(def.use_action) == "guqin" else Tx.t("ui.inventory.use"), "use_key", null, true)
 	elif sel.has("slot"):
 		btn(Rect2(bx, by + 30, r.size.x - 28, 54), Tx.t("ui.inventory.unequip"), "unequip", null, false, str(sel.slot) != "gourd", Tx.t("ui.inventory.the_spirit_gourd_holds_your"))
 		var spare = ch.inventory.loadout.get("spare")
@@ -368,6 +370,9 @@ func on_action(id: String, data) -> void:
 			if not r.get("ok", false) and r.get("reason", "") == "confirm":
 				ask(str(r.get("text", Tx.t("ui.inventory.use_it_anyway"))), "use_confirm", int(sel.bag))
 		"use_confirm": submit({"type": "use_item", "index": int(data), "confirm": true})
+		"use_key":
+			var rk := submit({"type": "use_item", "key": int(sel.key)})
+			if rk.get("ok", false) and str(rk.get("open_page", "")) != "": navigate.emit(str(rk.open_page), {})
 		"appraise":
 			var ar := submit({"type": "appraise_item", "index": int(sel.bag)})
 			if ar.get("ok", false): flash(str(ar.get("text", "")))

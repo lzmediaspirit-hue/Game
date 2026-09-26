@@ -344,10 +344,12 @@ func _dao(ch) -> void:
 		text(rr.position + Vector2(20, 32), ContentDB.name_of("daos", d), 22, UiKit.PAPER)
 		text(rr.position + Vector2(20, 60), tiers[clampi(tier, 0, tiers.size() - 1)], 16, UiKit.GOLD)
 		var ins := float(st.get("insight", 0.0))
-		var need := float(ContentDB.curve("dao_tiers", [0, 100, 400, 1200, 3000, 8000, 20000])[mini(tier + 1, 6)])
-		bar(Rect2(rr.position.x + 330, rr.position.y + 18, 520, 30), ins / maxf(1.0, need), UiKit.SOUL, Tx.t("ui.cultivation.insight_2") % [UiKit.fmt(ins), UiKit.fmt(need)])
+		var need := ProgressionRules.dao_next_need(tier)
+		var bar_r := Rect2(rr.position.x + 330, rr.position.y + 18, 520, 30)
+		if need > 0.0: bar(bar_r, ins / need, UiKit.SOUL, Tx.t("ui.cultivation.insight_2") % [UiKit.fmt(ins), UiKit.fmt(need)])
+		else: bar(bar_r, 1.0, UiKit.SOUL, Tx.t("ui.cultivation.insight_top") % UiKit.fmt(ins))
 		if Unlocks.is_unlocked(ch.id, "contemplate"):
-			btn(Rect2(rr.end.x - 170, rr.position.y + 12, 150, 44), Tx.t("ui.cultivation.contemplate"), "contemplate", d)
+			btn(Rect2(rr.end.x - 170, rr.position.y + 12, 150, 44), Tx.t("ui.cultivation.contemplate"), "contemplate", d, false, need > 0.0, Tx.t("ui.cultivation.dao_top_tier"))
 	)
 
 func _seclusion(ch) -> void:
