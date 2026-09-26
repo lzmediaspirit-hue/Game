@@ -1216,7 +1216,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Stats**: Weapon Attack 428.5 at iLv 48, Common quality (`stats.json` equipment.weapon_attack); Family jian; Energy type true_qi; Sockets 1; Appearance sword; Imitation: {"effect": {"op": "flat", "stat": "crit_damage", "value": 0.06}, "of": "sleeping_blade", "share": 0.6}
 - **Sources**:
-  - Drop: banded equipment roll, grade Heaven: see [Banded equipment drops](#banded-heaven)
   - Crafting: Recipe `drowsing_edge` (Smithing, Heaven): Cloudsteel Ore ×8, Refining Essence ×4, Stormsteel Ore ×2
 
 <a id="item-moonshadow_jian"></a>
@@ -1229,7 +1228,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Stats**: Weapon Attack 428.5 at iLv 48, Common quality (`stats.json` equipment.weapon_attack); Family jian; Energy type true_qi; Sockets 1; Appearance sword; Imitation: {"effect": {"op": "pct_add", "stat": "qi_attack", "value": 0.048}, "of": "moonlit_blade", "share": 0.6}
 - **Sources**:
-  - Drop: banded equipment roll, grade Heaven: see [Banded equipment drops](#banded-heaven)
   - Crafting: Recipe `moonshadow_jian` (Smithing, Heaven): Cloudsteel Ore ×8, Refining Essence ×4, Mist Lotus ×2
 
 <a id="item-moonlit_blade"></a>
@@ -1366,7 +1364,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Stats**: Weapon Attack 691.5 at iLv 64, Common quality (`stats.json` equipment.weapon_attack); Family flute; Energy type true_qi; Sockets 2; Appearance flute; Legend: {"chain": "crane_mourning", "effect": {"op": "pct_add", "stat": "soul_attack", "value": 0.08}, "skill": {"art": "note", "damage_type": "soul", "element": "none", "every_hits": 10, "mult": 2.0, "name": "Crane's Lament", "reach": 340}}
 - **Notes**: cannot be sold
 - **Sources**:
-  - Drop: banded equipment roll, grade Mystic: see [Banded equipment drops](#banded-mystic)
   - Crafting: Recipe `crane_mourning_flute` (Smithing, Mystic): Crane Bone Mouthpiece ×1, Crane Jade Body ×1, Crane Tassel ×1, Mystic Ore ×4, Refining Essence ×8
   - Crafting: legendary chain Crane Mourning Flute: its pieces ([Crane Bone Mouthpiece](#item-crane_mouthpiece), [Crane Jade Body](#item-crane_jade_body), [Crane Tassel](#item-crane_tassel)) made whole by an Expert smith
 
@@ -1381,7 +1378,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Stats**: Weapon Attack 691.5 at iLv 64, Common quality (`stats.json` equipment.weapon_attack); Family bow; Energy type true_qi; Sockets 2; Appearance bow; Legend: {"chain": "dragonfly", "effect": {"op": "flat", "stat": "crit_damage", "value": 0.12}, "skill": {"art": "arrow", "count": 3, "damage_type": "physical", "element": "wind", "every_hits": 8, "mult": 1.6, "name": "Dragonfly Volley", "reach": 420}}
 - **Notes**: cannot be sold
 - **Sources**:
-  - Drop: banded equipment roll, grade Mystic: see [Banded equipment drops](#banded-mystic)
   - Crafting: Recipe `dragonfly_bow` (Smithing, Mystic): Dragonfly Limb ×1, Dragonfly String ×1, Dragonfly Sight ×1, Mystic Ore ×4, Refining Essence ×8
   - Crafting: legendary chain Dragonfly Bow: its pieces ([Dragonfly Limb](#item-dragonfly_limb), [Dragonfly String](#item-dragonfly_string), [Dragonfly Sight](#item-dragonfly_sight)) made whole by an Expert smith
 
@@ -1396,7 +1392,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Stats**: Weapon Attack 691.5 at iLv 64, Common quality (`stats.json` equipment.weapon_attack); Family spear; Energy type true_qi; Sockets 2; Appearance spear; Legend: {"chain": "heron_reach", "effect": {"op": "flat", "stat": "crit_chance", "value": 0.04}, "skill": {"art": "flying_sword", "damage_type": "physical", "element": "metal", "every_hits": 10, "mult": 2.6, "name": "Heron Strike", "reach": 380}}
 - **Notes**: cannot be sold
 - **Sources**:
-  - Drop: banded equipment roll, grade Mystic: see [Banded equipment drops](#banded-mystic)
   - Crafting: Recipe `heron_reach_spear` (Smithing, Mystic): Heron Spearhead ×1, Heron Shaft ×1, Heron Tassel ×1, Mystic Ore ×4, Refining Essence ×8
   - Crafting: legendary chain Heron's Reach: its pieces ([Heron Spearhead](#item-heron_spearhead), [Heron Shaft](#item-heron_shaft), [Heron Tassel](#item-heron_tassel)) made whole by an Expert smith
 
@@ -1411,7 +1406,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Stats**: Weapon Attack 691.5 at iLv 64, Common quality (`stats.json` equipment.weapon_attack); Family heavy_sabre; Energy type true_qi; Sockets 2; Appearance sabre; Legend: {"chain": "mountainsplit", "effect": {"op": "pct_add", "stat": "physical_attack", "value": 0.06}, "skill": {"damage_type": "physical", "element": "earth", "every_hits": 12, "mult": 3.0, "name": "Split the Mountain", "reach": 150, "shape": "ring"}}
 - **Notes**: cannot be sold
 - **Sources**:
-  - Drop: banded equipment roll, grade Mystic: see [Banded equipment drops](#banded-mystic)
   - Crafting: Recipe `mountainsplit_sabre` (Smithing, Mystic): Mountainsplit Spine ×1, Mountainsplit Edge ×1, Mountainsplit Guard ×1, Mystic Ore ×4, Refining Essence ×8
   - Crafting: legendary chain Mountainsplit Sabre: its pieces ([Mountainsplit Spine](#item-mountainsplit_spine), [Mountainsplit Edge](#item-mountainsplit_edge), [Mountainsplit Guard](#item-mountainsplit_guard)) made whole by an Expert smith
 
@@ -1426,7 +1420,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Stats**: Weapon Attack 691.5 at iLv 64, Common quality (`stats.json` equipment.weapon_attack); Family short_blade; Energy type true_qi; Sockets 2; Appearance dagger; Legend: {"chain": "reedwhisper", "effect": {"op": "pct_add", "stat": "evasion", "value": 0.08}, "skill": {"art": "flying_sword", "damage_type": "physical", "element": "wood", "every_hits": 8, "mult": 1.8, "name": "Whisper Through Reeds", "reach": 300}}
 - **Notes**: cannot be sold
 - **Sources**:
-  - Drop: banded equipment roll, grade Mystic: see [Banded equipment drops](#banded-mystic)
   - Crafting: Recipe `reedwhisper_dagger` (Smithing, Mystic): Reedwhisper Edge ×1, Reedwhisper Grip ×1, Reedwhisper Sheath ×1, Mystic Ore ×4, Refining Essence ×8
   - Crafting: legendary chain Reedwhisper Dagger: its pieces ([Reedwhisper Edge](#item-reedwhisper_edge), [Reedwhisper Grip](#item-reedwhisper_grip), [Reedwhisper Sheath](#item-reedwhisper_sheath)) made whole by an Expert smith
 
@@ -1441,7 +1434,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Stats**: Weapon Attack 691.5 at iLv 64, Common quality (`stats.json` equipment.weapon_attack); Family jian; Energy type true_qi; Sockets 2; Appearance sword; Legend: {"chain": "riverlight", "effect": {"op": "pct_add", "stat": "qi_attack", "value": 0.08}, "skill": {"art": "moon_crescent", "damage_type": "qi", "element": "water", "every_hits": 10, "mult": 2.4, "name": "Riverlight Cut", "reach": 320}}
 - **Notes**: cannot be sold
 - **Sources**:
-  - Drop: banded equipment roll, grade Mystic: see [Banded equipment drops](#banded-mystic)
   - Crafting: Recipe `riverlight_jian` (Smithing, Mystic): Riverlight Hilt ×1, Riverlight Blade ×1, Riverlight Soul Bead ×1, Mystic Ore ×4, Refining Essence ×8
   - Crafting: legendary chain Riverlight Jian: its pieces ([Riverlight Hilt](#item-riverlight_hilt), [Riverlight Blade](#item-riverlight_blade), [Riverlight Soul Bead](#item-riverlight_soul)) made whole by an Expert smith
 
@@ -1456,7 +1448,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Stats**: Weapon Attack 691.5 at iLv 64, Common quality (`stats.json` equipment.weapon_attack); Family fan; Energy type true_qi; Sockets 2; Appearance fan; Legend: {"chain": "seven_winds", "effect": {"op": "pct_add", "stat": "qi_attack", "value": 0.06}, "skill": {"art": "sand_crescent", "damage_type": "qi", "element": "wind", "every_hits": 10, "mult": 2.2, "name": "The Seventh Wind", "reach": 340}}
 - **Notes**: cannot be sold
 - **Sources**:
-  - Drop: banded equipment roll, grade Mystic: see [Banded equipment drops](#banded-mystic)
   - Crafting: Recipe `seven_winds_fan` (Smithing, Mystic): Seven Winds Rib ×1, Seven Winds Silk ×1, Seven Winds Pin ×1, Mystic Ore ×4, Refining Essence ×8
   - Crafting: legendary chain Seven Winds Fan: its pieces ([Seven Winds Rib](#item-seven_winds_rib), [Seven Winds Silk](#item-seven_winds_silk), [Seven Winds Pin](#item-seven_winds_pin)) made whole by an Expert smith
 
@@ -1471,7 +1462,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Stats**: Weapon Attack 691.5 at iLv 64, Common quality (`stats.json` equipment.weapon_attack); Family gauntlets; Energy type true_qi; Sockets 2; Legend: {"chain": "stone_drum", "effect": {"op": "pct_add", "stat": "physical_defense", "value": 0.08}, "skill": {"damage_type": "physical", "element": "earth", "every_hits": 10, "mult": 2.4, "name": "Mountain Drum", "reach": 170, "shape": "ring"}}
 - **Notes**: cannot be sold
 - **Sources**:
-  - Drop: banded equipment roll, grade Mystic: see [Banded equipment drops](#banded-mystic)
   - Crafting: Recipe `stone_drum_gauntlets` (Smithing, Mystic): Stone Drum Knuckle ×1, Stone Drum Cuff ×1, Stone Drum Heart ×1, Mystic Ore ×4, Refining Essence ×8
   - Crafting: legendary chain Stone Drum Gauntlets: its pieces ([Stone Drum Knuckle](#item-stone_drum_knuckle), [Stone Drum Cuff](#item-stone_drum_cuff), [Stone Drum Heart](#item-stone_drum_heart)) made whole by an Expert smith
 
@@ -1486,7 +1476,6 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Stats**: Weapon Attack 691.5 at iLv 64, Common quality (`stats.json` equipment.weapon_attack); Family staff; Energy type true_qi; Sockets 2; Appearance staff; Legend: {"chain": "ferryman", "effect": {"op": "pct_add", "stat": "max_hp", "value": 0.06}, "skill": {"damage_type": "physical", "element": "water", "every_hits": 10, "mult": 2.2, "name": "Pole the Current", "reach": 190, "shape": "ring"}}
 - **Notes**: cannot be sold
 - **Sources**:
-  - Drop: banded equipment roll, grade Mystic: see [Banded equipment drops](#banded-mystic)
   - Crafting: Recipe `ferrymans_pole` (Smithing, Mystic): Ferryman's Iron Cap ×1, Ferryman's Oak Shaft ×1, Ferryman's Knot ×1, Mystic Ore ×4, Refining Essence ×8
   - Crafting: legendary chain The Ferryman's Pole: its pieces ([Ferryman's Iron Cap](#item-ferryman_iron_cap), [Ferryman's Oak Shaft](#item-ferryman_oak_shaft), [Ferryman's Knot](#item-ferryman_knot)) made whole by an Expert smith
 
@@ -3324,7 +3313,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 > A pale trout from the cold falls pool, lean and full of Qi.
 
 - **Sources**:
-  - Gathering: Fishing at Falls pool (no room has this spot) · 86.21% of catches
+  - Gathering: Fishing at Falls pool (Falls Pool (Crane Falls)) · 86.21% of catches
   - Gathering: Fishing at Mirror lake (Reedless Shore (Mirrorwater Lake)) · 46.3% of catches
   - Gathering: Post: River Angling, gate Lv 20
 
@@ -3350,7 +3339,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Sources**:
   - Gathering: Fishing at Bend shore (Bend Shore (Deepwater Bend)) · 9.09% of catches (night only)
-  - Gathering: Fishing at Falls pool (no room has this spot) · 13.79% of catches (night only)
+  - Gathering: Fishing at Falls pool (Falls Pool (Crane Falls)) · 13.79% of catches (night only)
   - Gathering: Fishing at Marsh edge (Marsh Edge (Reed Marsh)) · 7.77% of catches (night only)
   - Gathering: Fishing at Mirror lake (Reedless Shore (Mirrorwater Lake)) · 7.41% of catches (night only)
   - Gathering: Fishing at Rapids (Rapids Terraces (Whitewater Gorge)) · 13.79% of catches (night only)
@@ -5432,7 +5421,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Drop: [Pirate Gunner](monsters.md#enemy-pirate_gunner) (Lv 85–90) · 30% ×1–2 (group 60%, weight 1 of 2)
   - Drop: [Star Jellyfish](monsters.md#enemy-star_jellyfish) (Lv 82–87) · 30% ×1–2 (group 60%, weight 1 of 2)
   - Drop: [Void Crab](monsters.md#enemy-void_crab) (Lv 94–99) · 30% ×1–3 (group 60%, weight 1 of 2)
-  - Container: Chest in Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Flagship Deck (Blackmast Haven), Golem Foundry (Orbit Ruins), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart), Inverted Hall (Orbit Ruins), Smugglers' Cove (Blackmast Haven), War Camp (Ashen Reach) (Lv 87–99) · 100% ×4–8 (guaranteed)
+  - Container: Chest in Ashborn Palisade (Ashen Reach), Blackmast Docks (Blackmast Haven), Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flagship Deck (Blackmast Haven), Flame Heart (The Lantern Heart), Golem Foundry (Orbit Ruins), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart) and 8 more (Lv 84–99) · 100% ×4–8 (guaranteed)
   - Container: Crate in Ashborn Palisade (Ashen Reach), Cinder Fields (Ashen Reach), Crab Grottoes (Nebula Deep), Drone Hive (Tidebreak Front), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Golem Foundry (Orbit Ruins), Greyfall Breach (Tidebreak Front), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart), Hollow Wake (Tidebreak Front), Nebula Verge (Nebula Deep) and 5 more (Lv 86–98) · 30% ×1–2 (group 60%, weight 2 of 4)
   - Container: Jar in Ashborn Palisade (Ashen Reach), Blackmast Docks (Blackmast Haven), Cinder Fields (Ashen Reach), Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Golem Foundry (Orbit Ruins), Greyfall Breach (Tidebreak Front), Guardian's Crown (Wyrmnest Isles), Gunners' Battery (Blackmast Haven) and 10 more (Lv 83–98) · 30% ×1–2 (group 60%, weight 2 of 4)
   - Shop: Peddler Ning's Silk and Sundries (Peddler Ning in Harbor Market (Lanternfall Harbor)) · daily rotation (2 of 4)
@@ -5581,10 +5570,10 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Drop: [Warden Qu Heng](monsters.md#enemy-blackreed_warden) (Lv 16) · 100% ×2–4 (guaranteed)
   - Drop: [Warden Rong Yan](monsters.md#enemy-scarlet_kiln_warden) (Lv 66) · 100% ×3–5 (guaranteed)
   - Container: Chest in Abbot's Sanctum (Drowned Shrine) (Lv 27) · 100% ×2–4 (guaranteed)
-  - Container: Chest in Ashborn Palisade (Ashen Reach), Behind the Falls (Crane Falls), Blackmast Docks (Blackmast Haven), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Drowned Grotto (Drowned Shrine), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flame Heart (The Lantern Heart) and 20 more (Lv 0–99) · 100% ×2–4 (guaranteed)
-  - Container: Chest in Bend Shore (Deepwater Bend), Blackmast Docks (Blackmast Haven), Driftglass Bank (Drifting Shoals), Eggshell Terraces (Wyrmnest Isles), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Jellyfish Shallows (Drifting Shoals), Leviathan's Maw (Nebula Deep), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy) and 3 more (Lv 3–99) · 100% ×1–3 (guaranteed)
+  - Container: Chest in Ashborn Palisade (Ashen Reach), Blackmast Docks (Blackmast Haven), Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flagship Deck (Blackmast Haven), Flame Heart (The Lantern Heart), Golem Foundry (Orbit Ruins), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart) and 8 more (Lv 84–99) · 100% ×3–5 (guaranteed)
+  - Container: Chest in Behind the Falls (Crane Falls), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Drowned Grotto (Drowned Shrine), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Hall of Lanterns (Drowned Shrine), Hidden Grotto (Somewhere Unmapped), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Scripture Well (Drowned Shrine) and 5 more (Lv 0–60) · 100% ×2–4 (guaranteed)
+  - Container: Chest in Bend Shore (Deepwater Bend), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy), Thicket Heart (Bamboo Grove), Whispering Bamboo (Bamboo Grove), Willow Path West (Willow Path) (Lv 3–63) · 100% ×1–3 (guaranteed)
   - Container: Chest in Broken Pier (Skyport Wreck), Canyon Mouth (Gale Canyons), Frostpine Climb (Rimefrost Heights), Glass Dunes (Sunscar Desert), Hall of Sand Kings (Tomb of Sunscar), Harpy Roosts (Gale Canyons), Lightning Scar (Thunderhorn Plains), Mirror Crypt (Tomb of Sunscar), Mirror Shallows (Mirrorwater Lake), Pirate Deck (Skyport Wreck), Reedless Shore (Mirrorwater Lake), Rimefrost Summit (Rimefrost Heights) and 10 more (Lv 66–81) · 100% ×2–4 (guaranteed)
-  - Container: Chest in Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Flagship Deck (Blackmast Haven), Golem Foundry (Orbit Ruins), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart), Inverted Hall (Orbit Ruins), Smugglers' Cove (Blackmast Haven), War Camp (Ashen Reach) (Lv 87–99) · 100% ×3–5 (guaranteed)
   - Container: Crate in Ashborn Palisade (Ashen Reach), Cinder Fields (Ashen Reach), Crab Grottoes (Nebula Deep), Drone Hive (Tidebreak Front), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Golem Foundry (Orbit Ruins), Greyfall Breach (Tidebreak Front), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart), Hollow Wake (Tidebreak Front), Nebula Verge (Nebula Deep) and 5 more (Lv 86–98) · 15% ×2–3 (group 60%, weight 1 of 4)
   - Container: Crate in Broken Pier (Skyport Wreck), Canyon Mouth (Gale Canyons), Hall of Sand Kings (Tomb of Sunscar), Harpy Roosts (Gale Canyons), Kite Winds (Gale Canyons), Mirror Crypt (Tomb of Sunscar), Riven Peak (Skyport Wreck), Sealed Gate (Tomb of Sunscar), Windbridge (Gale Canyons) (Lv 74–80) · 24% ×1–2 (group 60%, weight 2 of 5)
   - Container: Crate in Caravan Road, Cliff Faces (Crane Cliffs), Echo Cliffs (Whitewater Gorge), Gorge Mouth (Whitewater Gorge), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Rapids Terraces (Whitewater Gorge), Sky Ledges (Crane Cliffs), Stockade (Mudwater Hideout), Tunnels (Mudwater Hideout) (Lv 16–48) · 15% (group 60%, weight 1 of 4)
@@ -5688,7 +5677,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 > Glass the star tides have worn smooth on the Driftglass Bank. Lantern-makers grind it into lenses.
 
 - **Sources**:
-  - Container: Chest in Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Flagship Deck (Blackmast Haven), Golem Foundry (Orbit Ruins), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart), Inverted Hall (Orbit Ruins), Smugglers' Cove (Blackmast Haven), War Camp (Ashen Reach) (Lv 87–99) · 50% ×1–2 (group 100%, weight 2 of 4)
+  - Container: Chest in Ashborn Palisade (Ashen Reach), Blackmast Docks (Blackmast Haven), Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flagship Deck (Blackmast Haven), Flame Heart (The Lantern Heart), Golem Foundry (Orbit Ruins), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart) and 8 more (Lv 84–99) · 50% ×1–2 (group 100%, weight 2 of 4)
   - Gathering: Ore vein, master rank in Cinder Fields (Ashen Reach), Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Golem Foundry (Orbit Ruins)
   - Gathering: Post: Vein Delving, gate Lv 50
   - Shop: Tidebreak Armoury (Quartermaster Bai in Tidebreak Bastion (Tidebreak Front)) · 6 Sage Crystals
@@ -5993,7 +5982,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Effect**: Cure injury (injury body, max severity 1); Heal (over s 5, pct 0.3); Pill: {"cause": "structure", "group": "healing", "mark": "heart", "toxicity": 5}; Soul effect: mend_meridians
 - **Sources**:
-  - Container: Chest in Bend Shore (Deepwater Bend), Blackmast Docks (Blackmast Haven), Driftglass Bank (Drifting Shoals), Eggshell Terraces (Wyrmnest Isles), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Jellyfish Shallows (Drifting Shoals), Leviathan's Maw (Nebula Deep), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy) and 3 more (Lv 3–99) · 50% ×1–2 (group 100%, weight 2 of 4)
+  - Container: Chest in Bend Shore (Deepwater Bend), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy), Thicket Heart (Bamboo Grove), Whispering Bamboo (Bamboo Grove), Willow Path West (Willow Path) (Lv 3–63) · 50% ×1–2 (group 100%, weight 2 of 4)
   - Container: Crate in Caravan Road, Cliff Faces (Crane Cliffs), Echo Cliffs (Whitewater Gorge), Gorge Mouth (Whitewater Gorge), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Rapids Terraces (Whitewater Gorge), Sky Ledges (Crane Cliffs), Stockade (Mudwater Hideout), Tunnels (Mudwater Hideout) (Lv 16–48) · 15% (group 60%, weight 1 of 4)
   - Container: Jar in Bend Shore (Deepwater Bend), Caravan Road, Cliff Faces (Crane Cliffs), Echo Cliffs (Whitewater Gorge), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Frozen Shrine (Summit Ridge), Gorge Mouth (Whitewater Gorge), Hall of Lanterns (Drowned Shrine), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Rapids Terraces (Whitewater Gorge) and 5 more (Lv 16–60) · 15% (group 60%, weight 1 of 4)
   - Container: Trial Tower floors 1–12, clear or daily sweep, in Trial Tower (Stoneford) (Lv 4–26) · 50% ×1–2 (group 100%, weight 2 of 4)
@@ -6032,7 +6021,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 - **Effect**: Add progress (pct of need 0.08); Pill: {"cause": "energy", "group": "utility", "mark": "spiral_up", "toxicity": 10}; Soul effect: steady_heart; Family: accumulation
 - **Sources**:
-  - Container: Chest in Bend Shore (Deepwater Bend), Blackmast Docks (Blackmast Haven), Driftglass Bank (Drifting Shoals), Eggshell Terraces (Wyrmnest Isles), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Jellyfish Shallows (Drifting Shoals), Leviathan's Maw (Nebula Deep), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy) and 3 more (Lv 3–99) · 25% (group 100%, weight 1 of 4)
+  - Container: Chest in Bend Shore (Deepwater Bend), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy), Thicket Heart (Bamboo Grove), Whispering Bamboo (Bamboo Grove), Willow Path West (Willow Path) (Lv 3–63) · 25% (group 100%, weight 1 of 4)
   - Container: Trial Tower floors 1–12, clear or daily sweep, in Trial Tower (Stoneford) (Lv 4–26) · 25% (group 100%, weight 1 of 4)
   - Crafting: Recipe `qi_gathering_pill` (Alchemy, Common): Riverreed Ginseng (10 yr) ×2, Moss ×2
   - Crafting: appraising a [Sealed Storage Pouch](#item-sealed_storage_pouch) · 6.25% ×2
@@ -6167,7 +6156,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Effect**: Pill: {"cause": "structure", "group": "utility", "mark": "gate", "toxicity": 12}; Support: {"risk": -1}; Soul effect: steady_heart; Family: support
 - **Sources**:
   - Container: Chest in Abbot's Sanctum (Drowned Shrine) (Lv 27) · 50% (group 100%, weight 1 of 2)
-  - Container: Chest in Ashborn Palisade (Ashen Reach), Behind the Falls (Crane Falls), Blackmast Docks (Blackmast Haven), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Drowned Grotto (Drowned Shrine), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flame Heart (The Lantern Heart) and 20 more (Lv 0–99) · 50% (group 100%, weight 1 of 2)
+  - Container: Chest in Behind the Falls (Crane Falls), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Drowned Grotto (Drowned Shrine), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Hall of Lanterns (Drowned Shrine), Hidden Grotto (Somewhere Unmapped), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Scripture Well (Drowned Shrine) and 5 more (Lv 0–60) · 50% (group 100%, weight 1 of 2)
   - Container: Spatial Rift (calendar event) in 17 field rooms · 50% (group 100%, weight 1 of 2)
   - Container: Trial Tower floors 13–30, clear or daily sweep, in Trial Tower (Stoneford) (Lv 28–62) · 50% (group 100%, weight 1 of 2)
   - Crafting: Recipe `foundation_guard_pill` (Alchemy, Earth): Serpent Core ×1, Riverreed Ginseng (100 yr) ×2, Guardian Stone ×1
@@ -6353,7 +6342,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Drop: [General Kharn](monsters.md#enemy-general_kharn) (Lv 92) · 100% ×1–2 (guaranteed)
   - Drop: [Nebula Leviathan](monsters.md#enemy-nebula_leviathan) (Lv 99) · 100% ×2–3 (guaranteed)
   - Drop: [Starsea Pirate](monsters.md#enemy-starsea_pirate) (Lv 78–90) · 4% (rare)
-  - Container: Chest in Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Flagship Deck (Blackmast Haven), Golem Foundry (Orbit Ruins), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart), Inverted Hall (Orbit Ruins), Smugglers' Cove (Blackmast Haven), War Camp (Ashen Reach) (Lv 87–99) · 25% (group 100%, weight 1 of 4)
+  - Container: Chest in Ashborn Palisade (Ashen Reach), Blackmast Docks (Blackmast Haven), Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flagship Deck (Blackmast Haven), Flame Heart (The Lantern Heart), Golem Foundry (Orbit Ruins), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart) and 8 more (Lv 84–99) · 25% (group 100%, weight 1 of 4)
   - Container: Chest in Pirate Deck (Skyport Wreck) (Lv 80) · 33.33% ×1–2 (group 100%, weight 1 of 3)
   - Shop: Lanternwright Han's Shelf (Lanternwright Han in Star Chandlery (Lanternfall Harbor)) · 6 Sage Crystals
   - Shop: Peddler Ning's Silk and Sundries (Peddler Ning in Harbor Market (Lanternfall Harbor)) · 6 Sage Crystals
@@ -6490,10 +6479,10 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Drop: [Warden Qu Heng](monsters.md#enemy-blackreed_warden) (Lv 16) · 5% (rare)
   - Drop: [Warden Rong Yan](monsters.md#enemy-scarlet_kiln_warden) (Lv 66) · 5% (rare)
   - Container: Chest in Abbot's Sanctum (Drowned Shrine) (Lv 27) · 50% ×1–2 (group 100%, weight 1 of 2)
-  - Container: Chest in Ashborn Palisade (Ashen Reach), Behind the Falls (Crane Falls), Blackmast Docks (Blackmast Haven), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Drowned Grotto (Drowned Shrine), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flame Heart (The Lantern Heart) and 20 more (Lv 0–99) · 50% ×1–2 (group 100%, weight 1 of 2)
-  - Container: Chest in Bend Shore (Deepwater Bend), Blackmast Docks (Blackmast Haven), Driftglass Bank (Drifting Shoals), Eggshell Terraces (Wyrmnest Isles), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Jellyfish Shallows (Drifting Shoals), Leviathan's Maw (Nebula Deep), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy) and 3 more (Lv 3–99) · 25% (group 100%, weight 1 of 4)
+  - Container: Chest in Ashborn Palisade (Ashen Reach), Blackmast Docks (Blackmast Haven), Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flagship Deck (Blackmast Haven), Flame Heart (The Lantern Heart), Golem Foundry (Orbit Ruins), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart) and 8 more (Lv 84–99) · 25% ×2–3 (group 100%, weight 1 of 4)
+  - Container: Chest in Behind the Falls (Crane Falls), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Drowned Grotto (Drowned Shrine), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Hall of Lanterns (Drowned Shrine), Hidden Grotto (Somewhere Unmapped), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Scripture Well (Drowned Shrine) and 5 more (Lv 0–60) · 50% ×1–2 (group 100%, weight 1 of 2)
+  - Container: Chest in Bend Shore (Deepwater Bend), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy), Thicket Heart (Bamboo Grove), Whispering Bamboo (Bamboo Grove), Willow Path West (Willow Path) (Lv 3–63) · 25% (group 100%, weight 1 of 4)
   - Container: Chest in Broken Pier (Skyport Wreck), Canyon Mouth (Gale Canyons), Frostpine Climb (Rimefrost Heights), Glass Dunes (Sunscar Desert), Hall of Sand Kings (Tomb of Sunscar), Harpy Roosts (Gale Canyons), Lightning Scar (Thunderhorn Plains), Mirror Crypt (Tomb of Sunscar), Mirror Shallows (Mirrorwater Lake), Pirate Deck (Skyport Wreck), Reedless Shore (Mirrorwater Lake), Rimefrost Summit (Rimefrost Heights) and 10 more (Lv 66–81) · 33.33% ×1–2 (group 100%, weight 1 of 3)
-  - Container: Chest in Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Flagship Deck (Blackmast Haven), Golem Foundry (Orbit Ruins), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart), Inverted Hall (Orbit Ruins), Smugglers' Cove (Blackmast Haven), War Camp (Ashen Reach) (Lv 87–99) · 25% ×2–3 (group 100%, weight 1 of 4)
   - Container: Chest in Hall of Sand Kings (Tomb of Sunscar), Throne of the Tomb King (Tomb of Sunscar) (Lv 77) · 33.33% ×2–3 (group 100%, weight 1 of 3)
   - Container: Chest in Pirate Deck (Skyport Wreck) (Lv 80) · 33.33% ×2–3 (group 100%, weight 1 of 3)
   - Container: Spatial Rift (calendar event) in 17 field rooms · 50% ×1–2 (group 100%, weight 1 of 2)
@@ -8341,8 +8330,8 @@ Pieces: [Hemp Robe](#item-hemp_robe), [Hemp Trousers](#item-hemp_trousers), [Pla
 
 Rolled by:
 
-- Chest in Ashborn Palisade (Ashen Reach), Behind the Falls (Crane Falls), Blackmast Docks (Blackmast Haven), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Drowned Grotto (Drowned Shrine), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flame Heart (The Lantern Heart) and 20 more (Lv 0–99) · 60%
-- Chest in Bend Shore (Deepwater Bend), Blackmast Docks (Blackmast Haven), Driftglass Bank (Drifting Shoals), Eggshell Terraces (Wyrmnest Isles), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Jellyfish Shallows (Drifting Shoals), Leviathan's Maw (Nebula Deep), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy) and 3 more (Lv 3–99) · 30%
+- Chest in Behind the Falls (Crane Falls), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Drowned Grotto (Drowned Shrine), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Hall of Lanterns (Drowned Shrine), Hidden Grotto (Somewhere Unmapped), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Scripture Well (Drowned Shrine) and 5 more (Lv 0–60) · 60%
+- Chest in Bend Shore (Deepwater Bend), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy), Thicket Heart (Bamboo Grove), Whispering Bamboo (Bamboo Grove), Willow Path West (Willow Path) (Lv 3–63) · 30%
 - Crate in Artisan Row (Stoneford), Collapsed Tunnel (Stonewall Quarry), Lower Pit (Stonewall Quarry), Pilgrim Stairs (Cleansing Peak), Quarry Rim (Stonewall Quarry), Willow Path East (Willow Path) (Lv 1–18) · 2%
 - Jar in Collapsed Tunnel (Stonewall Quarry), Granny Liu's Herb Hut (Lotus Ferry), Grey Pools (Reed Marsh), Lotus Ferry Village (Lotus Ferry), Lower Pit (Stonewall Quarry), Marsh Edge (Reed Marsh), Pilgrim Stairs (Cleansing Peak), Quarry Rim (Stonewall Quarry), Reed Shallows (Lotus Ferry), Sunken Causeway (Reed Marsh), Thicket Heart (Bamboo Grove), Whispering Bamboo (Bamboo Grove) and 2 more (Lv 1–18) · 2%
 - Trial Tower floors 1–12, clear or daily sweep, in Trial Tower (Stoneford) (Lv 4–26) · 30%
@@ -8373,8 +8362,8 @@ Pieces: [Bamboo Hat](#item-bamboo_hat), [Cloth Boots](#item-cloth_boots), [Cotto
 
 Rolled by:
 
-- Chest in Ashborn Palisade (Ashen Reach), Behind the Falls (Crane Falls), Blackmast Docks (Blackmast Haven), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Drowned Grotto (Drowned Shrine), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flame Heart (The Lantern Heart) and 20 more (Lv 0–99) · 60%
-- Chest in Bend Shore (Deepwater Bend), Blackmast Docks (Blackmast Haven), Driftglass Bank (Drifting Shoals), Eggshell Terraces (Wyrmnest Isles), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Jellyfish Shallows (Drifting Shoals), Leviathan's Maw (Nebula Deep), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy) and 3 more (Lv 3–99) · 30%
+- Chest in Behind the Falls (Crane Falls), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Drowned Grotto (Drowned Shrine), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Hall of Lanterns (Drowned Shrine), Hidden Grotto (Somewhere Unmapped), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Scripture Well (Drowned Shrine) and 5 more (Lv 0–60) · 60%
+- Chest in Bend Shore (Deepwater Bend), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy), Thicket Heart (Bamboo Grove), Whispering Bamboo (Bamboo Grove), Willow Path West (Willow Path) (Lv 3–63) · 30%
 - Crate in Artisan Row (Stoneford), Collapsed Tunnel (Stonewall Quarry), Lower Pit (Stonewall Quarry), Pilgrim Stairs (Cleansing Peak), Quarry Rim (Stonewall Quarry), Willow Path East (Willow Path) (Lv 1–18) · 2%
 - Crate in Caravan Road, Cliff Faces (Crane Cliffs), Echo Cliffs (Whitewater Gorge), Gorge Mouth (Whitewater Gorge), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Rapids Terraces (Whitewater Gorge), Sky Ledges (Crane Cliffs), Stockade (Mudwater Hideout), Tunnels (Mudwater Hideout) (Lv 16–48) · 2%
 - Jar in Bend Shore (Deepwater Bend), Caravan Road, Cliff Faces (Crane Cliffs), Echo Cliffs (Whitewater Gorge), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Frozen Shrine (Summit Ridge), Gorge Mouth (Whitewater Gorge), Hall of Lanterns (Drowned Shrine), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Rapids Terraces (Whitewater Gorge) and 5 more (Lv 16–60) · 2%
@@ -8415,8 +8404,8 @@ Pieces: [Jadeiron Greaves](#item-jadeiron_boots), [Jadeiron Bow](#item-jadeiron_
 
 Rolled by:
 
-- Chest in Ashborn Palisade (Ashen Reach), Behind the Falls (Crane Falls), Blackmast Docks (Blackmast Haven), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Drowned Grotto (Drowned Shrine), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flame Heart (The Lantern Heart) and 20 more (Lv 0–99) · 60%
-- Chest in Bend Shore (Deepwater Bend), Blackmast Docks (Blackmast Haven), Driftglass Bank (Drifting Shoals), Eggshell Terraces (Wyrmnest Isles), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Jellyfish Shallows (Drifting Shoals), Leviathan's Maw (Nebula Deep), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy) and 3 more (Lv 3–99) · 30%
+- Chest in Behind the Falls (Crane Falls), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Drowned Grotto (Drowned Shrine), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Hall of Lanterns (Drowned Shrine), Hidden Grotto (Somewhere Unmapped), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Scripture Well (Drowned Shrine) and 5 more (Lv 0–60) · 60%
+- Chest in Bend Shore (Deepwater Bend), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy), Thicket Heart (Bamboo Grove), Whispering Bamboo (Bamboo Grove), Willow Path West (Willow Path) (Lv 3–63) · 30%
 - Crate in Artisan Row (Stoneford), Collapsed Tunnel (Stonewall Quarry), Lower Pit (Stonewall Quarry), Pilgrim Stairs (Cleansing Peak), Quarry Rim (Stonewall Quarry), Willow Path East (Willow Path) (Lv 1–18) · 2%
 - Crate in Caravan Road, Cliff Faces (Crane Cliffs), Echo Cliffs (Whitewater Gorge), Gorge Mouth (Whitewater Gorge), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Rapids Terraces (Whitewater Gorge), Sky Ledges (Crane Cliffs), Stockade (Mudwater Hideout), Tunnels (Mudwater Hideout) (Lv 16–48) · 2%
 - Jar in Bend Shore (Deepwater Bend), Caravan Road, Cliff Faces (Crane Cliffs), Echo Cliffs (Whitewater Gorge), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Frozen Shrine (Summit Ridge), Gorge Mouth (Whitewater Gorge), Hall of Lanterns (Drowned Shrine), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Rapids Terraces (Whitewater Gorge) and 5 more (Lv 16–60) · 2%
@@ -8460,14 +8449,14 @@ Rolled by:
 
 <a id="banded-heaven"></a>
 
-### Heaven (15 pieces)
+### Heaven (13 pieces)
 
-Pieces: [Cloudsilk Boots](#item-cloudsilk_boots), [Cloudsilk Band](#item-cloudsilk_hat), [Cloudsilk Robe](#item-cloudsilk_robe), [Cloudsilk Trousers](#item-cloudsilk_trousers), [Cloudsteel Bow](#item-cloudsteel_bow), [Cloudsteel Fan](#item-cloudsteel_fan), [Cloudsteel Flute](#item-cloudsteel_flute), [Cloudsteel Gauntlets](#item-cloudsteel_gauntlets), [Cloudsteel Heavy Sabre](#item-cloudsteel_heavy_sabre), [Cloudsteel Jian](#item-cloudsteel_jian), [Cloudsteel Short Blade](#item-cloudsteel_short_blade), [Cloudsteel Spear](#item-cloudsteel_spear), [Cloudsteel Staff](#item-cloudsteel_staff), [Drowsing Edge](#item-drowsing_edge), [Moonshadow Jian](#item-moonshadow_jian)
+Pieces: [Cloudsilk Boots](#item-cloudsilk_boots), [Cloudsilk Band](#item-cloudsilk_hat), [Cloudsilk Robe](#item-cloudsilk_robe), [Cloudsilk Trousers](#item-cloudsilk_trousers), [Cloudsteel Bow](#item-cloudsteel_bow), [Cloudsteel Fan](#item-cloudsteel_fan), [Cloudsteel Flute](#item-cloudsteel_flute), [Cloudsteel Gauntlets](#item-cloudsteel_gauntlets), [Cloudsteel Heavy Sabre](#item-cloudsteel_heavy_sabre), [Cloudsteel Jian](#item-cloudsteel_jian), [Cloudsteel Short Blade](#item-cloudsteel_short_blade), [Cloudsteel Spear](#item-cloudsteel_spear), [Cloudsteel Staff](#item-cloudsteel_staff)
 
 Rolled by:
 
-- Chest in Ashborn Palisade (Ashen Reach), Behind the Falls (Crane Falls), Blackmast Docks (Blackmast Haven), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Drowned Grotto (Drowned Shrine), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flame Heart (The Lantern Heart) and 20 more (Lv 0–99) · 60%
-- Chest in Bend Shore (Deepwater Bend), Blackmast Docks (Blackmast Haven), Driftglass Bank (Drifting Shoals), Eggshell Terraces (Wyrmnest Isles), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Jellyfish Shallows (Drifting Shoals), Leviathan's Maw (Nebula Deep), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy) and 3 more (Lv 3–99) · 30%
+- Chest in Behind the Falls (Crane Falls), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Drowned Grotto (Drowned Shrine), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Hall of Lanterns (Drowned Shrine), Hidden Grotto (Somewhere Unmapped), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Scripture Well (Drowned Shrine) and 5 more (Lv 0–60) · 60%
+- Chest in Bend Shore (Deepwater Bend), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy), Thicket Heart (Bamboo Grove), Whispering Bamboo (Bamboo Grove), Willow Path West (Willow Path) (Lv 3–63) · 30%
 - Crate in Caravan Road, Cliff Faces (Crane Cliffs), Echo Cliffs (Whitewater Gorge), Gorge Mouth (Whitewater Gorge), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Rapids Terraces (Whitewater Gorge), Sky Ledges (Crane Cliffs), Stockade (Mudwater Hideout), Tunnels (Mudwater Hideout) (Lv 16–48) · 2%
 - Jar in Bend Shore (Deepwater Bend), Caravan Road, Cliff Faces (Crane Cliffs), Echo Cliffs (Whitewater Gorge), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Frozen Shrine (Summit Ridge), Gorge Mouth (Whitewater Gorge), Hall of Lanterns (Drowned Shrine), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Rapids Terraces (Whitewater Gorge) and 5 more (Lv 16–60) · 2%
 - Trial Tower floors 13–30, clear or daily sweep, in Trial Tower (Stoneford) (Lv 28–62) · 60%
@@ -8490,14 +8479,14 @@ Rolled by:
 
 <a id="banded-mystic"></a>
 
-### Mystic (22 pieces)
+### Mystic (13 pieces)
 
-Pieces: [Crane Mourning Flute](#item-crane_mourning_flute), [Dragonfly Bow](#item-dragonfly_bow), [The Ferryman's Pole](#item-ferrymans_pole), [Heron's Reach](#item-heron_reach_spear), [Mistjade Boots](#item-mistjade_boots), [Mistjade Bow](#item-mistjade_bow), [Mistjade Fan](#item-mistjade_fan), [Mistjade Flute](#item-mistjade_flute), [Mistjade Gauntlets](#item-mistjade_gauntlets), [Mistjade Circlet](#item-mistjade_hat), [Mistjade Heavy Sabre](#item-mistjade_heavy_sabre), [Mistjade Jian](#item-mistjade_jian), [Mistjade Robe](#item-mistjade_robe), [Mistjade Short Blade](#item-mistjade_short_blade), [Mistjade Spear](#item-mistjade_spear), [Mistjade Staff](#item-mistjade_staff), [Mistjade Trousers](#item-mistjade_trousers), [Mountainsplit Sabre](#item-mountainsplit_sabre), [Reedwhisper Dagger](#item-reedwhisper_dagger), [Riverlight Jian](#item-riverlight_jian), [Seven Winds Fan](#item-seven_winds_fan), [Stone Drum Gauntlets](#item-stone_drum_gauntlets)
+Pieces: [Mistjade Boots](#item-mistjade_boots), [Mistjade Bow](#item-mistjade_bow), [Mistjade Fan](#item-mistjade_fan), [Mistjade Flute](#item-mistjade_flute), [Mistjade Gauntlets](#item-mistjade_gauntlets), [Mistjade Circlet](#item-mistjade_hat), [Mistjade Heavy Sabre](#item-mistjade_heavy_sabre), [Mistjade Jian](#item-mistjade_jian), [Mistjade Robe](#item-mistjade_robe), [Mistjade Short Blade](#item-mistjade_short_blade), [Mistjade Spear](#item-mistjade_spear), [Mistjade Staff](#item-mistjade_staff), [Mistjade Trousers](#item-mistjade_trousers)
 
 Rolled by:
 
-- Chest in Ashborn Palisade (Ashen Reach), Behind the Falls (Crane Falls), Blackmast Docks (Blackmast Haven), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Drowned Grotto (Drowned Shrine), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flame Heart (The Lantern Heart) and 20 more (Lv 0–99) · 60%
-- Chest in Bend Shore (Deepwater Bend), Blackmast Docks (Blackmast Haven), Driftglass Bank (Drifting Shoals), Eggshell Terraces (Wyrmnest Isles), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Jellyfish Shallows (Drifting Shoals), Leviathan's Maw (Nebula Deep), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy) and 3 more (Lv 3–99) · 30%
+- Chest in Behind the Falls (Crane Falls), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Drowned Grotto (Drowned Shrine), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Hall of Lanterns (Drowned Shrine), Hidden Grotto (Somewhere Unmapped), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Scripture Well (Drowned Shrine) and 5 more (Lv 0–60) · 60%
+- Chest in Bend Shore (Deepwater Bend), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy), Thicket Heart (Bamboo Grove), Whispering Bamboo (Bamboo Grove), Willow Path West (Willow Path) (Lv 3–63) · 30%
 - Jar in Bend Shore (Deepwater Bend), Caravan Road, Cliff Faces (Crane Cliffs), Echo Cliffs (Whitewater Gorge), Flooded Gate (Drowned Shrine), Forgotten Monastery (Mist Peak), Frozen Shrine (Summit Ridge), Gorge Mouth (Whitewater Gorge), Hall of Lanterns (Drowned Shrine), Loot Cave (Mudwater Hideout), Misty Slopes (Mist Peak), Rapids Terraces (Whitewater Gorge) and 5 more (Lv 16–60) · 2%
 - Jar in Broken Pier (Skyport Wreck), Canyon Mouth (Gale Canyons), Frostpine Climb (Rimefrost Heights), Glass Dunes (Sunscar Desert), Hall of Sand Kings (Tomb of Sunscar), Harpy Roosts (Gale Canyons), Kite Winds (Gale Canyons), Lightning Scar (Thunderhorn Plains), Mirror Crypt (Tomb of Sunscar), Mirror Shallows (Mirrorwater Lake), Pirate Deck (Skyport Wreck), Reedless Shore (Mirrorwater Lake) and 10 more (Lv 65–80) · 2%
 - Trial Tower floors 13–30, clear or daily sweep, in Trial Tower (Stoneford) (Lv 28–62) · 60%
@@ -8520,7 +8509,7 @@ Pieces: [Stormsilk Boots](#item-stormsilk_boots), [Stormsilk Crown](#item-storms
 
 Rolled by:
 
-- Chest in Bend Shore (Deepwater Bend), Blackmast Docks (Blackmast Haven), Driftglass Bank (Drifting Shoals), Eggshell Terraces (Wyrmnest Isles), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Jellyfish Shallows (Drifting Shoals), Leviathan's Maw (Nebula Deep), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy) and 3 more (Lv 3–99) · 30%
+- Chest in Bend Shore (Deepwater Bend), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy), Thicket Heart (Bamboo Grove), Whispering Bamboo (Bamboo Grove), Willow Path West (Willow Path) (Lv 3–63) · 30%
 - Chest in Broken Pier (Skyport Wreck), Canyon Mouth (Gale Canyons), Frostpine Climb (Rimefrost Heights), Glass Dunes (Sunscar Desert), Hall of Sand Kings (Tomb of Sunscar), Harpy Roosts (Gale Canyons), Lightning Scar (Thunderhorn Plains), Mirror Crypt (Tomb of Sunscar), Mirror Shallows (Mirrorwater Lake), Pirate Deck (Skyport Wreck), Reedless Shore (Mirrorwater Lake), Rimefrost Summit (Rimefrost Heights) and 10 more (Lv 66–81) · 60%
 - Crate in Broken Pier (Skyport Wreck), Canyon Mouth (Gale Canyons), Hall of Sand Kings (Tomb of Sunscar), Harpy Roosts (Gale Canyons), Kite Winds (Gale Canyons), Mirror Crypt (Tomb of Sunscar), Riven Peak (Skyport Wreck), Sealed Gate (Tomb of Sunscar), Windbridge (Gale Canyons) (Lv 74–80) · 2%
 - Jar in Broken Pier (Skyport Wreck), Canyon Mouth (Gale Canyons), Frostpine Climb (Rimefrost Heights), Glass Dunes (Sunscar Desert), Hall of Sand Kings (Tomb of Sunscar), Harpy Roosts (Gale Canyons), Kite Winds (Gale Canyons), Lightning Scar (Thunderhorn Plains), Mirror Crypt (Tomb of Sunscar), Mirror Shallows (Mirrorwater Lake), Pirate Deck (Skyport Wreck), Reedless Shore (Mirrorwater Lake) and 10 more (Lv 65–80) · 2%
@@ -8549,10 +8538,8 @@ Pieces: [Ink-Warden's Brush](#item-ink_warden_brush), [Sunsilk Boots](#item-suns
 
 Rolled by:
 
-- Chest in Ashborn Palisade (Ashen Reach), Behind the Falls (Crane Falls), Blackmast Docks (Blackmast Haven), Boss Den (Mudwater Hideout), Cliff Faces (Crane Cliffs), Collapsed Tunnel (Stonewall Quarry), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Drowned Grotto (Drowned Shrine), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flame Heart (The Lantern Heart) and 20 more (Lv 0–99) · 60%
-- Chest in Bend Shore (Deepwater Bend), Blackmast Docks (Blackmast Haven), Driftglass Bank (Drifting Shoals), Eggshell Terraces (Wyrmnest Isles), Frozen Shrine (Summit Ridge), Gate Street (Jade Sect Academy), Grey Pools (Reed Marsh), Jellyfish Shallows (Drifting Shoals), Leviathan's Maw (Nebula Deep), Lower Pit (Stonewall Quarry), Misty Slopes (Mist Peak), Pavilion Rooftops (Jade Sect Academy) and 3 more (Lv 3–99) · 30%
+- Chest in Ashborn Palisade (Ashen Reach), Blackmast Docks (Blackmast Haven), Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Flagship Deck (Blackmast Haven), Flame Heart (The Lantern Heart), Golem Foundry (Orbit Ruins), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart) and 8 more (Lv 84–99) · 60%
 - Chest in Broken Pier (Skyport Wreck), Canyon Mouth (Gale Canyons), Frostpine Climb (Rimefrost Heights), Glass Dunes (Sunscar Desert), Hall of Sand Kings (Tomb of Sunscar), Harpy Roosts (Gale Canyons), Lightning Scar (Thunderhorn Plains), Mirror Crypt (Tomb of Sunscar), Mirror Shallows (Mirrorwater Lake), Pirate Deck (Skyport Wreck), Reedless Shore (Mirrorwater Lake), Rimefrost Summit (Rimefrost Heights) and 10 more (Lv 66–81) · 60%
-- Chest in Crab Grottoes (Nebula Deep), Driftglass Bank (Drifting Shoals), Drone Hive (Tidebreak Front), Flagship Deck (Blackmast Haven), Golem Foundry (Orbit Ruins), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart), Inverted Hall (Orbit Ruins), Smugglers' Cove (Blackmast Haven), War Camp (Ashen Reach) (Lv 87–99) · 60%
 - Chest in Hall of Sand Kings (Tomb of Sunscar), Throne of the Tomb King (Tomb of Sunscar) (Lv 77) · 80%
 - Chest in Pirate Deck (Skyport Wreck) (Lv 80) · 80%
 - Crate in Ashborn Palisade (Ashen Reach), Cinder Fields (Ashen Reach), Crab Grottoes (Nebula Deep), Drone Hive (Tidebreak Front), Eel Currents (Nebula Deep), Eggshell Terraces (Wyrmnest Isles), Golem Foundry (Orbit Ruins), Greyfall Breach (Tidebreak Front), Guardian's Crown (Wyrmnest Isles), Hall of Burning Stars (The Lantern Heart), Hollow Wake (Tidebreak Front), Nebula Verge (Nebula Deep) and 5 more (Lv 86–98) · 2%

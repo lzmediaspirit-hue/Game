@@ -99,6 +99,7 @@ func _main() -> void:
 	aggro_cap_suite()
 	emotes_suite()
 	legacy_suite()
+	drop_pool_suite()
 	text_suite()
 	await ui_suite()
 	max_character_suite()
@@ -7611,6 +7612,19 @@ func nav_suite() -> void:
 # ------------------------------------------------------------------ emotes (S34)
 ## The Account Legacy (P10 finding F1): the unlock exists at Bone Forging 1 for the whole account, a save that reached
 ## great realms before it existed has them recorded once when it arrives, and each record adds 2% to accumulation.
+## P7a finding: the banded equipment roll never makes a legendary weapon or an imitation relic.
+func drop_pool_suite() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var bad: Array = []
+	for level in [64, 70, 76, 81]:
+		for i in 400:
+			var inst: Dictionary = LootRules.make_equipment(rng, level, "common", 0.0, true, i)
+			if inst.is_empty(): continue
+			var def: Dictionary = ContentDB.item(str(inst.id))
+			if def.has("legend") or def.has("imitation"): bad.append(str(inst.id))
+	check(bad.is_empty(), "no legendary weapon or imitation relic from an ordinary equipment drop (%s)" % str(bad.slice(0, 4)))
+
 func legacy_suite() -> void:
 	var entry: Dictionary = ContentDB.entry("unlocks", "account_legacy")
 	check(str(entry.get("scope", "")) == "account", "the Account Legacy is an account-wide unlock")

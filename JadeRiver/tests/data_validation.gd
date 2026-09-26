@@ -133,7 +133,10 @@ func data_suite() -> void:
 	# Loot, shops, recipes
 	for t in ContentDB.all("loot_tables"):
 		for g in t.get("groups", []):
-			for p in g.get("pick", []): check(item_ok(str(p.item)), "loot %s: %s" % [t.id, p.item])
+			for p in g.get("pick", []):
+				check(item_ok(str(p.item)), "loot %s: %s" % [t.id, p.item])
+				# A group rolls once and picks by weight: a chance on a picked row would be read by nothing (P7a).
+				check(not p.has("chance"), "loot %s: the group row %s carries a weight, not a chance" % [t.id, p.item])
 		for key4 in ["guaranteed", "rare", "quest_drops"]:
 			for r in t.get(key4, []): check(item_ok(str(r.item)), "loot %s: %s" % [t.id, r.item])
 		for qd in t.get("quest_drops", []): check(ContentDB.has_entry("quests", str(qd.quest)), "loot %s: quest %s" % [t.id, qd.quest])

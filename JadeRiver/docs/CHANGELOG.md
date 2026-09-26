@@ -17,6 +17,19 @@
   `KNOWN_SOURCE_GAPS` for P7b: 12 beast cores no beast carries, the high Spirit Stone, two beast bags, five Hour
   Incenses and the Wandering Incense, six snare kits and rite tablets, three gourds, and 13 set pieces (the sect sets'
   hats, trousers and boots, and the Mudwater, Drowned Abbot and Crane sets but the Abbot's robe).
+- **Found by the scan, fixed:**
+  - The banded equipment roll could make one of the nine legendary weapons or the two imitation relics as ordinary
+    Mystic or Heaven gear; they come only from their chains and the forge now (`drop_pool_suite`).
+  - Loot group rows carried a `chance` the roll never read (a group rolls once and picks by weight); the rows keep
+    only their weight, and `data_validation` refuses a chance on a group row.
+  - The Lantern Star Field's ledge and cloud chests used the valley's chest tables; each zone's chests now use its own
+    table (`ZONE_CHESTS` in `tools/data/world.py`). The Flame Heart's ledge chest, in a room with no Level of its own,
+    was Level 1; a chest in such a room now takes its region's top Level.
+  - The mist trout's valley spot at the Falls Pool had no fishing spot; it has one in the shallows now.
+- **Left for P7b:** 43 items nothing in the data hands out (12 beast cores, incense sticks, snare kits and rite tablets,
+  three gourds, the sect sets' hats, trousers and boots, pieces of the Mudwater, Drowned and Crane sets,
+  `spirit_stone_high`, two beast bags). `data_validation` lists them in `KNOWN_SOURCE_GAPS`: a new unsourced item
+  fails, and a listed item fails once it gains a source, so the list only shrinks.
 
 ## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
 

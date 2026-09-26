@@ -124,7 +124,7 @@
     2000,
     665
    ],
-   "loot": "chest_dungeon",
+   "loot": "chest_lantern",
    "level": 90,
    "alt": 200,
    "surface": "ledge_mv_1"
