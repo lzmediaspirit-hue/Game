@@ -132,8 +132,8 @@ func buy(c, shop_id: String, item_id: String, count: int, seen_price: int, learn
 		var chance := float(ContentDB.config("garden").get("fakes", {}).get("chance", 0.3))
 		var rng := Rng.stream(c.id, "garden")
 		for i in count:
-			c.inventory.next_uid += 1
-			game.inventory.apply_add(c.id, item_id, 1, "shop:" + shop_id, {"unappraised": true, "fake": rng.randf() < chance, "seal": c.inventory.next_uid})
+			var seal: int = c.inventory.take_uid() + 1
+			game.inventory.apply_add(c.id, item_id, 1, "shop:" + shop_id, {"unappraised": true, "fake": rng.randf() < chance, "seal": seal})
 	else:
 		game.inventory.apply_add(c.id, item_id, count, "shop:" + shop_id)
 	emit("item_bought", {"actor": c.id, "shop": shop_id, "item": item_id, "count": count, "price": total})

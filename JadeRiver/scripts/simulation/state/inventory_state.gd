@@ -79,6 +79,12 @@ func locate(uid: int, spare := false) -> Dictionary:
 	var i := find_uid(uid)
 	return {"inst": bag[i], "slot": "", "index": i} if i >= 0 else {}
 
+## An instance by worn slot (when that slot holds one) or else by bag index: {inst, slot, index}, or {}.
+func at_slot(slot: String, index: int) -> Dictionary:
+	if slot != "" and equipped.get(slot) is Dictionary: return {"inst": equipped[slot], "slot": slot, "index": -1}
+	if index >= 0 and index < bag.size() and bag[index] is Dictionary: return {"inst": bag[index], "slot": "", "index": index}
+	return {}
+
 ## A fresh instance uid: every uid minted for this inventory comes from here.
 func take_uid() -> int:
 	next_uid += 1
@@ -170,8 +176,7 @@ func _migrate_furnaces() -> void:
 			key_items.erase(k)
 	found.sort_custom(func(a, b): return int(ContentDB.item(a).get("furnace", {}).get("batch", 1)) > int(ContentDB.item(b).get("furnace", {}).get("batch", 1)))
 	for id in found:
-		var inst := LootRules.make_instance(id, int(ContentDB.item(id).get("ilv", 1)), "common", null, next_uid)
-		next_uid += 1
+		var inst := LootRules.make_instance(id, int(ContentDB.item(id).get("ilv", 1)), "common", null, take_uid())
 		if furnace == null:
 			furnace = inst
 			continue

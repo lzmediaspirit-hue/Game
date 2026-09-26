@@ -844,7 +844,7 @@ func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float) -> void:
 	for eq in drop.get("equipment", []):
 		var inst := LootRules.make_equipment(Rng.stream(c.id, "affix"), int(eq.level), str(eq.min_quality), c.stats.value("fortune"), allow_weapons, c.inventory.next_uid)
 		if inst.is_empty(): continue
-		c.inventory.next_uid += 1
+		c.inventory.take_uid()   # the uid it was made with
 		drops.append({"item": inst.id, "count": 1, "instance": inst})
 	if int(drop.get("coins", 0)) > 0: drops.append({"coins": int(LootRules.zone_coins(rt.room_id, int(drop.coins)).amount)})
 	var i := 0

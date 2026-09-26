@@ -82,8 +82,7 @@ func create_character(intent: Dictionary) -> Dictionary:
 	# Weaponless start (S27): creator look becomes the starting hemp garments.
 	for s in [["starter_gourd", {}], ["hemp_robe", {"appearance": appearance.shirt}], ["hemp_trousers", {"appearance": appearance.pants}], ["straw_sandals", {"appearance": appearance.shoes}]]:
 		var def := ContentDB.item(s[0])
-		var inst := LootRules.make_instance(s[0], int(def.get("ilv", 1)), "common", null, c.inventory.next_uid)
-		c.inventory.next_uid += 1
+		var inst := LootRules.make_instance(s[0], int(def.get("ilv", 1)), "common", null, c.inventory.take_uid())
 		for k in s[1]: inst[k] = s[1][k]
 		c.inventory.equipped[str(def.slot)] = inst
 	c.inventory.resize(c.inventory.capacity())
@@ -252,8 +251,7 @@ func _max_gear(c) -> void:
 	if by_family.has("jian"): best["weapon"] = by_family.jian
 	for slot in best:
 		var def: Dictionary = best[slot]
-		var inst := LootRules.make_instance(str(def.id), int(def.get("ilv", 1)), "perfect", rng, c.inventory.next_uid)
-		c.inventory.next_uid += 1
+		var inst := LootRules.make_instance(str(def.id), int(def.get("ilv", 1)), "perfect", rng, c.inventory.take_uid())
 		inst.enhance = 10
 		if slot == "tool_furnace": c.inventory.furnace = inst
 		elif c.inventory.equipped.has(slot): c.inventory.equipped[slot] = inst
