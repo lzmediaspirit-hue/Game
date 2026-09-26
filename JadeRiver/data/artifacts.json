@@ -2201,6 +2201,304 @@
    }
   },
   {
+   "id": "stone_drum_gauntlets",
+   "name": "Stone Drum Gauntlets",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 64,
+   "appearance": "none",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_gauntlets",
+   "type": "equipment",
+   "stack": 1,
+   "family": "gauntlets",
+   "legend": {
+    "chain": "stone_drum",
+    "effect": {
+     "stat": "physical_defense",
+     "op": "pct_add",
+     "value": 0.08
+    },
+    "skill": {
+     "name": "Mountain Drum",
+     "every_hits": 10,
+     "mult": 2.4,
+     "damage_type": "physical",
+     "element": "earth",
+     "shape": "ring",
+     "reach": 170
+    }
+   },
+   "desc": "A monk of the old river temple beat these like a drum, and the mountain answered.",
+   "sell": false
+  },
+  {
+   "id": "riverlight_jian",
+   "name": "Riverlight Jian",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 64,
+   "appearance": "sword",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian",
+   "legend": {
+    "chain": "riverlight",
+    "effect": {
+     "stat": "qi_attack",
+     "op": "pct_add",
+     "value": 0.08
+    },
+    "skill": {
+     "name": "Riverlight Cut",
+     "every_hits": 10,
+     "mult": 2.4,
+     "damage_type": "qi",
+     "element": "water",
+     "art": "moon_crescent",
+     "reach": 320
+    }
+   },
+   "desc": "Forged in the shallows at dawn, so the saying goes, and quenched in the river's first light.",
+   "sell": false
+  },
+  {
+   "id": "heron_reach_spear",
+   "name": "Heron's Reach",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 64,
+   "appearance": "spear",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_spear",
+   "type": "equipment",
+   "stack": 1,
+   "family": "spear",
+   "legend": {
+    "chain": "heron_reach",
+    "effect": {
+     "stat": "crit_chance",
+     "op": "flat",
+     "value": 0.04
+    },
+    "skill": {
+     "name": "Heron Strike",
+     "every_hits": 10,
+     "mult": 2.6,
+     "damage_type": "physical",
+     "element": "metal",
+     "art": "flying_sword",
+     "reach": 380
+    }
+   },
+   "desc": "Its bearer stood in the reeds so still that herons landed on the shaft.",
+   "sell": false
+  },
+  {
+   "id": "reedwhisper_dagger",
+   "name": "Reedwhisper Dagger",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 64,
+   "appearance": "dagger",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_short_blade",
+   "type": "equipment",
+   "stack": 1,
+   "family": "short_blade",
+   "legend": {
+    "chain": "reedwhisper",
+    "effect": {
+     "stat": "evasion",
+     "op": "pct_add",
+     "value": 0.08
+    },
+    "skill": {
+     "name": "Whisper Through Reeds",
+     "every_hits": 8,
+     "mult": 1.8,
+     "damage_type": "physical",
+     "element": "wood",
+     "art": "flying_sword",
+     "reach": 300
+    }
+   },
+   "desc": "It makes no more sound than wind in the reeds. Its last owner was never heard coming.",
+   "sell": false
+  },
+  {
+   "id": "ferrymans_pole",
+   "name": "The Ferryman's Pole",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 64,
+   "appearance": "staff",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_staff",
+   "type": "equipment",
+   "stack": 1,
+   "family": "staff",
+   "legend": {
+    "chain": "ferryman",
+    "effect": {
+     "stat": "max_hp",
+     "op": "pct_add",
+     "value": 0.06
+    },
+    "skill": {
+     "name": "Pole the Current",
+     "every_hits": 10,
+     "mult": 2.2,
+     "damage_type": "physical",
+     "element": "water",
+     "shape": "ring",
+     "reach": 190
+    }
+   },
+   "desc": "A ferryman poled the dead across the river with it for three hundred years, and never once lost his footing.",
+   "sell": false
+  },
+  {
+   "id": "mountainsplit_sabre",
+   "name": "Mountainsplit Sabre",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 64,
+   "appearance": "sabre",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_heavy_sabre",
+   "type": "equipment",
+   "stack": 1,
+   "family": "heavy_sabre",
+   "legend": {
+    "chain": "mountainsplit",
+    "effect": {
+     "stat": "physical_attack",
+     "op": "pct_add",
+     "value": 0.06
+    },
+    "skill": {
+     "name": "Split the Mountain",
+     "every_hits": 12,
+     "mult": 3.0,
+     "damage_type": "physical",
+     "element": "earth",
+     "shape": "ring",
+     "reach": 150
+    }
+   },
+   "desc": "They say it split a hill in two. The hill, they add, had it coming.",
+   "sell": false
+  },
+  {
+   "id": "seven_winds_fan",
+   "name": "Seven Winds Fan",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 64,
+   "appearance": "fan",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_fan",
+   "type": "equipment",
+   "stack": 1,
+   "family": "fan",
+   "legend": {
+    "chain": "seven_winds",
+    "effect": {
+     "stat": "qi_attack",
+     "op": "pct_add",
+     "value": 0.06
+    },
+    "skill": {
+     "name": "The Seventh Wind",
+     "every_hits": 10,
+     "mult": 2.2,
+     "damage_type": "qi",
+     "element": "wind",
+     "art": "sand_crescent",
+     "reach": 340
+    }
+   },
+   "desc": "Six winds answer anyone who waves it. The seventh answers only a friend.",
+   "sell": false
+  },
+  {
+   "id": "crane_mourning_flute",
+   "name": "Crane Mourning Flute",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 64,
+   "appearance": "flute",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_flute",
+   "type": "equipment",
+   "stack": 1,
+   "family": "flute",
+   "legend": {
+    "chain": "crane_mourning",
+    "effect": {
+     "stat": "soul_attack",
+     "op": "pct_add",
+     "value": 0.08
+    },
+    "skill": {
+     "name": "Crane's Lament",
+     "every_hits": 10,
+     "mult": 2.0,
+     "damage_type": "soul",
+     "element": "none",
+     "art": "note",
+     "reach": 340
+    }
+   },
+   "desc": "Carved from the wing bone of a crane that outlived its mate. Every tune it plays is a little sad.",
+   "sell": false
+  },
+  {
+   "id": "dragonfly_bow",
+   "name": "Dragonfly Bow",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 64,
+   "appearance": "bow",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_bow",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bow",
+   "legend": {
+    "chain": "dragonfly",
+    "effect": {
+     "stat": "crit_damage",
+     "op": "flat",
+     "value": 0.12
+    },
+    "skill": {
+     "name": "Dragonfly Volley",
+     "every_hits": 8,
+     "mult": 1.6,
+     "damage_type": "physical",
+     "element": "wind",
+     "art": "arrow",
+     "reach": 420,
+     "count": 3
+    }
+   },
+   "desc": "Light as a dragonfly's wing, and its arrows turn in the air the way a dragonfly does.",
+   "sell": false
+  },
+  {
    "id": "moonshadow_jian",
    "name": "Moonshadow Jian",
    "slot": "weapon",

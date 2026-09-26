@@ -1106,7 +1106,10 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"artifact_spirit_spoke":
 			add_log(Tx.t("hud.spirit_says") % [str(ContentDB.item(str(p.item)).get("spirit", {}).get("name", "")), str(p.get("line", ""))], UiKit.SOUL)
 		"artifact_skill_used":
-			add_log(Tx.t("hud.spirit_skill") % str(p.get("skill", "")), UiKit.SOUL)
+			if p.get("awakened", false): add_log(Tx.t("hud.awakened_skill") % str(p.get("skill", "")), UiKit.GOLD)
+			else: add_log(Tx.t("hud.spirit_skill") % str(p.get("skill", "")), UiKit.SOUL)
+		"weapon_awakened":
+			toast(Tx.t("hud.weapon_awakened") % ContentDB.item_name(str(p.item)), "gold", Tx.t("hud.weapon_awakened_sub") % str(p.get("skill", "")))
 		"pet_evolved":
 			toast(Tx.t("hud.grows_into_a") % [_pet_name(str(p.pet)), str(p.get("branch", "")) if str(p.get("branch", "")) != "" else str(Game.pets.stage_def(str(p.stage)).get("name", ""))], "gold")
 		"trait_revealed":

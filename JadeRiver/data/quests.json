@@ -3456,6 +3456,775 @@
    ]
   },
   {
+   "id": "a_blade_that_answers",
+   "name": "A Blade That Answers",
+   "kind": "side",
+   "giver": "smith_hong",
+   "hand_in": "smith_hong",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "set_flag",
+     "text": "Forge a weapon of Heaven grade or better to +10",
+     "count": 1,
+     "flag": "forged_plus10"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "weapon_soul_crystal",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "Every smith up here can make steel sing. Few can make it wake.",
+    "Bring a Heaven blade to +10 and I'll give you the crystal that does it. The rest is your own Dao."
+   ],
+   "complete_text": [
+    "There. At my forge, or any forge: crystal, blade, and a Dao that has learned to explain itself.",
+    "Come back when you want more crystals. They are not cheap."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_ascension_gate"
+     }
+    ]
+   },
+   "chapter": "12"
+  },
+  {
+   "id": "legend_stone_drum",
+   "name": "Stone Drum Gauntlets",
+   "kind": "side",
+   "giver": "smith_bao",
+   "hand_in": "smith_bao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Recover the Stone Drum Knuckle",
+     "count": 1,
+     "item": "stone_drum_knuckle",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Stone Drum Cuff",
+     "count": 1,
+     "item": "stone_drum_cuff",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Stone Drum Heart",
+     "count": 1,
+     "item": "stone_drum_heart",
+     "consume": false
+    },
+    {
+     "kind": "craft",
+     "text": "Make Stone Drum Gauntlets whole at a forge (Expert smithing)",
+     "count": 1,
+     "recipe": "stone_drum_gauntlets",
+     "craft": "smithing"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Forge it to +10 and awaken it",
+     "count": 1,
+     "flag": "awakened:stone_drum_gauntlets"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 200
+    }
+   ],
+   "offer_text": [
+    "A monk of the old river temple beat these like a drum, and the mountain answered.",
+    "The pieces are scattered: one with an old foe of the valley, two beyond the Gate. Bring them to me."
+   ],
+   "complete_text": [
+    "Stone Drum Gauntlets, whole and awake. Some smiths wait their whole lives to see that."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_ascension_gate"
+     }
+    ]
+   },
+   "chapter": "12",
+   "giver_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "hand_in_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "stone_drum_gauntlets"
+    }
+   ]
+  },
+  {
+   "id": "legend_riverlight",
+   "name": "Riverlight Jian",
+   "kind": "side",
+   "giver": "smith_bao",
+   "hand_in": "smith_bao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Recover the Riverlight Hilt",
+     "count": 1,
+     "item": "riverlight_hilt",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Riverlight Blade",
+     "count": 1,
+     "item": "riverlight_blade",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Riverlight Soul Bead",
+     "count": 1,
+     "item": "riverlight_soul",
+     "consume": false
+    },
+    {
+     "kind": "craft",
+     "text": "Make Riverlight Jian whole at a forge (Expert smithing)",
+     "count": 1,
+     "recipe": "riverlight_jian",
+     "craft": "smithing"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Forge it to +10 and awaken it",
+     "count": 1,
+     "flag": "awakened:riverlight_jian"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 200
+    }
+   ],
+   "offer_text": [
+    "Forged in the shallows at dawn, so the saying goes, and quenched in the river's first light.",
+    "The pieces are scattered: one with an old foe of the valley, two beyond the Gate. Bring them to me."
+   ],
+   "complete_text": [
+    "Riverlight Jian, whole and awake. Some smiths wait their whole lives to see that."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_ascension_gate"
+     }
+    ]
+   },
+   "chapter": "12",
+   "giver_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "hand_in_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "riverlight_jian"
+    }
+   ]
+  },
+  {
+   "id": "legend_heron_reach",
+   "name": "Heron's Reach",
+   "kind": "side",
+   "giver": "smith_bao",
+   "hand_in": "smith_bao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Recover the Heron Spearhead",
+     "count": 1,
+     "item": "heron_spearhead",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Heron Shaft",
+     "count": 1,
+     "item": "heron_shaft",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Heron Tassel",
+     "count": 1,
+     "item": "heron_tassel",
+     "consume": false
+    },
+    {
+     "kind": "craft",
+     "text": "Make Heron's Reach whole at a forge (Expert smithing)",
+     "count": 1,
+     "recipe": "heron_reach_spear",
+     "craft": "smithing"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Forge it to +10 and awaken it",
+     "count": 1,
+     "flag": "awakened:heron_reach_spear"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 200
+    }
+   ],
+   "offer_text": [
+    "Its bearer stood in the reeds so still that herons landed on the shaft.",
+    "The pieces are scattered: one with an old foe of the valley, two beyond the Gate. Bring them to me."
+   ],
+   "complete_text": [
+    "Heron's Reach, whole and awake. Some smiths wait their whole lives to see that."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_ascension_gate"
+     }
+    ]
+   },
+   "chapter": "12",
+   "giver_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "hand_in_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "heron_reach_spear"
+    }
+   ]
+  },
+  {
+   "id": "legend_reedwhisper",
+   "name": "Reedwhisper Dagger",
+   "kind": "side",
+   "giver": "smith_bao",
+   "hand_in": "smith_bao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Recover the Reedwhisper Edge",
+     "count": 1,
+     "item": "reedwhisper_edge",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Reedwhisper Grip",
+     "count": 1,
+     "item": "reedwhisper_grip",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Reedwhisper Sheath",
+     "count": 1,
+     "item": "reedwhisper_sheath",
+     "consume": false
+    },
+    {
+     "kind": "craft",
+     "text": "Make Reedwhisper Dagger whole at a forge (Expert smithing)",
+     "count": 1,
+     "recipe": "reedwhisper_dagger",
+     "craft": "smithing"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Forge it to +10 and awaken it",
+     "count": 1,
+     "flag": "awakened:reedwhisper_dagger"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 200
+    }
+   ],
+   "offer_text": [
+    "It makes no more sound than wind in the reeds. Its last owner was never heard coming.",
+    "The pieces are scattered: one with an old foe of the valley, two beyond the Gate. Bring them to me."
+   ],
+   "complete_text": [
+    "Reedwhisper Dagger, whole and awake. Some smiths wait their whole lives to see that."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_ascension_gate"
+     }
+    ]
+   },
+   "chapter": "12",
+   "giver_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "hand_in_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "reedwhisper_dagger"
+    }
+   ]
+  },
+  {
+   "id": "legend_ferryman",
+   "name": "The Ferryman's Pole",
+   "kind": "side",
+   "giver": "smith_bao",
+   "hand_in": "smith_bao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Recover the Ferryman's Iron Cap",
+     "count": 1,
+     "item": "ferryman_iron_cap",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Ferryman's Oak Shaft",
+     "count": 1,
+     "item": "ferryman_oak_shaft",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Ferryman's Knot",
+     "count": 1,
+     "item": "ferryman_knot",
+     "consume": false
+    },
+    {
+     "kind": "craft",
+     "text": "Make The Ferryman's Pole whole at a forge (Expert smithing)",
+     "count": 1,
+     "recipe": "ferrymans_pole",
+     "craft": "smithing"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Forge it to +10 and awaken it",
+     "count": 1,
+     "flag": "awakened:ferrymans_pole"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 200
+    }
+   ],
+   "offer_text": [
+    "A ferryman poled the dead across the river with it for three hundred years, and never once lost his footing.",
+    "The pieces are scattered: one with an old foe of the valley, two beyond the Gate. Bring them to me."
+   ],
+   "complete_text": [
+    "The Ferryman's Pole, whole and awake. Some smiths wait their whole lives to see that."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_ascension_gate"
+     }
+    ]
+   },
+   "chapter": "12",
+   "giver_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "hand_in_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "ferrymans_pole"
+    }
+   ]
+  },
+  {
+   "id": "legend_mountainsplit",
+   "name": "Mountainsplit Sabre",
+   "kind": "side",
+   "giver": "smith_bao",
+   "hand_in": "smith_bao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Recover the Mountainsplit Spine",
+     "count": 1,
+     "item": "mountainsplit_spine",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Mountainsplit Edge",
+     "count": 1,
+     "item": "mountainsplit_edge",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Mountainsplit Guard",
+     "count": 1,
+     "item": "mountainsplit_guard",
+     "consume": false
+    },
+    {
+     "kind": "craft",
+     "text": "Make Mountainsplit Sabre whole at a forge (Expert smithing)",
+     "count": 1,
+     "recipe": "mountainsplit_sabre",
+     "craft": "smithing"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Forge it to +10 and awaken it",
+     "count": 1,
+     "flag": "awakened:mountainsplit_sabre"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 200
+    }
+   ],
+   "offer_text": [
+    "They say it split a hill in two. The hill, they add, had it coming.",
+    "The pieces are scattered: one with an old foe of the valley, two beyond the Gate. Bring them to me."
+   ],
+   "complete_text": [
+    "Mountainsplit Sabre, whole and awake. Some smiths wait their whole lives to see that."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_ascension_gate"
+     }
+    ]
+   },
+   "chapter": "12",
+   "giver_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "hand_in_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "mountainsplit_sabre"
+    }
+   ]
+  },
+  {
+   "id": "legend_seven_winds",
+   "name": "Seven Winds Fan",
+   "kind": "side",
+   "giver": "smith_bao",
+   "hand_in": "smith_bao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Recover the Seven Winds Rib",
+     "count": 1,
+     "item": "seven_winds_rib",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Seven Winds Silk",
+     "count": 1,
+     "item": "seven_winds_silk",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Seven Winds Pin",
+     "count": 1,
+     "item": "seven_winds_pin",
+     "consume": false
+    },
+    {
+     "kind": "craft",
+     "text": "Make Seven Winds Fan whole at a forge (Expert smithing)",
+     "count": 1,
+     "recipe": "seven_winds_fan",
+     "craft": "smithing"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Forge it to +10 and awaken it",
+     "count": 1,
+     "flag": "awakened:seven_winds_fan"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 200
+    }
+   ],
+   "offer_text": [
+    "Six winds answer anyone who waves it. The seventh answers only a friend.",
+    "The pieces are scattered: one with an old foe of the valley, two beyond the Gate. Bring them to me."
+   ],
+   "complete_text": [
+    "Seven Winds Fan, whole and awake. Some smiths wait their whole lives to see that."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_ascension_gate"
+     }
+    ]
+   },
+   "chapter": "12",
+   "giver_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "hand_in_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "seven_winds_fan"
+    }
+   ]
+  },
+  {
+   "id": "legend_crane_mourning",
+   "name": "Crane Mourning Flute",
+   "kind": "side",
+   "giver": "smith_bao",
+   "hand_in": "smith_bao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Recover the Crane Bone Mouthpiece",
+     "count": 1,
+     "item": "crane_mouthpiece",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Crane Jade Body",
+     "count": 1,
+     "item": "crane_jade_body",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Crane Tassel",
+     "count": 1,
+     "item": "crane_tassel",
+     "consume": false
+    },
+    {
+     "kind": "craft",
+     "text": "Make Crane Mourning Flute whole at a forge (Expert smithing)",
+     "count": 1,
+     "recipe": "crane_mourning_flute",
+     "craft": "smithing"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Forge it to +10 and awaken it",
+     "count": 1,
+     "flag": "awakened:crane_mourning_flute"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 200
+    }
+   ],
+   "offer_text": [
+    "Carved from the wing bone of a crane that outlived its mate. Every tune it plays is a little sad.",
+    "The pieces are scattered: one with an old foe of the valley, two beyond the Gate. Bring them to me."
+   ],
+   "complete_text": [
+    "Crane Mourning Flute, whole and awake. Some smiths wait their whole lives to see that."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_ascension_gate"
+     }
+    ]
+   },
+   "chapter": "12",
+   "giver_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "hand_in_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "crane_mourning_flute"
+    }
+   ]
+  },
+  {
+   "id": "legend_dragonfly",
+   "name": "Dragonfly Bow",
+   "kind": "side",
+   "giver": "smith_bao",
+   "hand_in": "smith_bao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Recover the Dragonfly Limb",
+     "count": 1,
+     "item": "dragonfly_limb",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Dragonfly String",
+     "count": 1,
+     "item": "dragonfly_string",
+     "consume": false
+    },
+    {
+     "kind": "collect",
+     "text": "Recover the Dragonfly Sight",
+     "count": 1,
+     "item": "dragonfly_sight",
+     "consume": false
+    },
+    {
+     "kind": "craft",
+     "text": "Make Dragonfly Bow whole at a forge (Expert smithing)",
+     "count": 1,
+     "recipe": "dragonfly_bow",
+     "craft": "smithing"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Forge it to +10 and awaken it",
+     "count": 1,
+     "flag": "awakened:dragonfly_bow"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 200
+    }
+   ],
+   "offer_text": [
+    "Light as a dragonfly's wing, and its arrows turn in the air the way a dragonfly does.",
+    "The pieces are scattered: one with an old foe of the valley, two beyond the Gate. Bring them to me."
+   ],
+   "complete_text": [
+    "Dragonfly Bow, whole and awake. Some smiths wait their whole lives to see that."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_ascension_gate"
+     }
+    ]
+   },
+   "chapter": "12",
+   "giver_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "hand_in_any": [
+    "smith_bao",
+    "smith_hong"
+   ],
+   "on_accept": [
+    {
+     "kind": "learn_recipe",
+     "recipe": "dragonfly_bow"
+    }
+   ]
+  },
+  {
    "id": "quiet_waters",
    "name": "Quiet Waters",
    "kind": "guided",

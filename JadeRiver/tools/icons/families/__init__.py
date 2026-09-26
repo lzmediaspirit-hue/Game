@@ -16,3 +16,4 @@ from families import hud  # noqa: F401
 from families import status  # noqa: F401
 from families import markers  # noqa: F401
 from families import treasures  # noqa: F401
+from families import legends  # noqa: F401

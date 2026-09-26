@@ -1,0 +1,555 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "stone_drum",
+   "family": "gauntlets",
+   "weapon": "stone_drum_gauntlets",
+   "name": "Stone Drum Gauntlets",
+   "quest": "legend_stone_drum",
+   "pieces": [
+    {
+     "item": "stone_drum_knuckle",
+     "source": "gorge_stalker",
+     "chance": 0.5,
+     "zone": "jade_river_valley"
+    },
+    {
+     "item": "stone_drum_cuff",
+     "source": "thunderhorn_rhino",
+     "chance": 0.12,
+     "zone": "azure_expanse"
+    },
+    {
+     "item": "stone_drum_heart",
+     "source": "thousand_eye_toad",
+     "chance": 1.0,
+     "zone": "azure_expanse"
+    }
+   ],
+   "restore": {
+    "recipe": "stone_drum_gauntlets",
+    "station": "forge_anvil",
+    "rank": "expert",
+    "grade": "mystic"
+   },
+   "awaken": {
+    "enhance": 10,
+    "dao_tier": 4,
+    "item": "weapon_soul_crystal",
+    "skill": {
+     "name": "Mountain Drum",
+     "every_hits": 10,
+     "mult": 2.4,
+     "damage_type": "physical",
+     "element": "earth",
+     "shape": "ring",
+     "reach": 170
+    }
+   },
+   "later": [
+    {
+     "grade": "spirit",
+     "zone": "outer_heavens",
+     "version": "1.4",
+     "step": "reforge"
+    },
+    {
+     "grade": "sage",
+     "zone": "outer_heavens",
+     "version": "1.5",
+     "step": "reforge"
+    }
+   ]
+  },
+  {
+   "id": "riverlight",
+   "family": "jian",
+   "weapon": "riverlight_jian",
+   "name": "Riverlight Jian",
+   "quest": "legend_riverlight",
+   "pieces": [
+    {
+     "item": "riverlight_hilt",
+     "source": "drowned_abbot",
+     "chance": 1.0,
+     "zone": "jade_river_valley"
+    },
+    {
+     "item": "riverlight_blade",
+     "source": "azure_carp_dragonet",
+     "chance": 0.12,
+     "zone": "azure_expanse"
+    },
+    {
+     "item": "riverlight_soul",
+     "source": "tomb_king",
+     "chance": 1.0,
+     "zone": "azure_expanse"
+    }
+   ],
+   "restore": {
+    "recipe": "riverlight_jian",
+    "station": "forge_anvil",
+    "rank": "expert",
+    "grade": "mystic"
+   },
+   "awaken": {
+    "enhance": 10,
+    "dao_tier": 4,
+    "item": "weapon_soul_crystal",
+    "skill": {
+     "name": "Riverlight Cut",
+     "every_hits": 10,
+     "mult": 2.4,
+     "damage_type": "qi",
+     "element": "water",
+     "art": "moon_crescent",
+     "reach": 320
+    }
+   },
+   "later": [
+    {
+     "grade": "spirit",
+     "zone": "outer_heavens",
+     "version": "1.4",
+     "step": "reforge"
+    },
+    {
+     "grade": "sage",
+     "zone": "outer_heavens",
+     "version": "1.5",
+     "step": "reforge"
+    }
+   ]
+  },
+  {
+   "id": "heron_reach",
+   "family": "spear",
+   "weapon": "heron_reach_spear",
+   "name": "Heron's Reach",
+   "quest": "legend_heron_reach",
+   "pieces": [
+    {
+     "item": "heron_spearhead",
+     "source": "knife_hand_sui",
+     "chance": 0.5,
+     "zone": "jade_river_valley"
+    },
+    {
+     "item": "heron_shaft",
+     "source": "cloudpeak_roc",
+     "chance": 0.12,
+     "zone": "azure_expanse"
+    },
+    {
+     "item": "heron_tassel",
+     "source": "scarlet_kiln_warden",
+     "chance": 0.6,
+     "zone": "azure_expanse"
+    }
+   ],
+   "restore": {
+    "recipe": "heron_reach_spear",
+    "station": "forge_anvil",
+    "rank": "expert",
+    "grade": "mystic"
+   },
+   "awaken": {
+    "enhance": 10,
+    "dao_tier": 4,
+    "item": "weapon_soul_crystal",
+    "skill": {
+     "name": "Heron Strike",
+     "every_hits": 10,
+     "mult": 2.6,
+     "damage_type": "physical",
+     "element": "metal",
+     "art": "flying_sword",
+     "reach": 380
+    }
+   },
+   "later": [
+    {
+     "grade": "spirit",
+     "zone": "outer_heavens",
+     "version": "1.4",
+     "step": "reforge"
+    },
+    {
+     "grade": "sage",
+     "zone": "outer_heavens",
+     "version": "1.5",
+     "step": "reforge"
+    }
+   ]
+  },
+  {
+   "id": "reedwhisper",
+   "family": "short_blade",
+   "weapon": "reedwhisper_dagger",
+   "name": "Reedwhisper Dagger",
+   "quest": "legend_reedwhisper",
+   "pieces": [
+    {
+     "item": "reedwhisper_edge",
+     "source": "one_eye_pang",
+     "chance": 0.5,
+     "zone": "jade_river_valley"
+    },
+    {
+     "item": "reedwhisper_grip",
+     "source": "frost_lynx",
+     "chance": 0.12,
+     "zone": "azure_expanse"
+    },
+    {
+     "item": "reedwhisper_sheath",
+     "source": "tomb_king",
+     "chance": 1.0,
+     "zone": "azure_expanse"
+    }
+   ],
+   "restore": {
+    "recipe": "reedwhisper_dagger",
+    "station": "forge_anvil",
+    "rank": "expert",
+    "grade": "mystic"
+   },
+   "awaken": {
+    "enhance": 10,
+    "dao_tier": 4,
+    "item": "weapon_soul_crystal",
+    "skill": {
+     "name": "Whisper Through Reeds",
+     "every_hits": 8,
+     "mult": 1.8,
+     "damage_type": "physical",
+     "element": "wood",
+     "art": "flying_sword",
+     "reach": 300
+    }
+   },
+   "later": [
+    {
+     "grade": "spirit",
+     "zone": "outer_heavens",
+     "version": "1.4",
+     "step": "reforge"
+    },
+    {
+     "grade": "sage",
+     "zone": "outer_heavens",
+     "version": "1.5",
+     "step": "reforge"
+    }
+   ]
+  },
+  {
+   "id": "ferryman",
+   "family": "staff",
+   "weapon": "ferrymans_pole",
+   "name": "The Ferryman's Pole",
+   "quest": "legend_ferryman",
+   "pieces": [
+    {
+     "item": "ferryman_iron_cap",
+     "source": "ferryman_lou",
+     "chance": 0.6,
+     "zone": "jade_river_valley"
+    },
+    {
+     "item": "ferryman_oak_shaft",
+     "source": "river_sentinel",
+     "chance": 0.12,
+     "zone": "azure_expanse"
+    },
+    {
+     "item": "ferryman_knot",
+     "source": "thousand_eye_toad",
+     "chance": 1.0,
+     "zone": "azure_expanse"
+    }
+   ],
+   "restore": {
+    "recipe": "ferrymans_pole",
+    "station": "forge_anvil",
+    "rank": "expert",
+    "grade": "mystic"
+   },
+   "awaken": {
+    "enhance": 10,
+    "dao_tier": 4,
+    "item": "weapon_soul_crystal",
+    "skill": {
+     "name": "Pole the Current",
+     "every_hits": 10,
+     "mult": 2.2,
+     "damage_type": "physical",
+     "element": "water",
+     "shape": "ring",
+     "reach": 190
+    }
+   },
+   "later": [
+    {
+     "grade": "spirit",
+     "zone": "outer_heavens",
+     "version": "1.4",
+     "step": "reforge"
+    },
+    {
+     "grade": "sage",
+     "zone": "outer_heavens",
+     "version": "1.5",
+     "step": "reforge"
+    }
+   ]
+  },
+  {
+   "id": "mountainsplit",
+   "family": "heavy_sabre",
+   "weapon": "mountainsplit_sabre",
+   "name": "Mountainsplit Sabre",
+   "quest": "legend_mountainsplit",
+   "pieces": [
+    {
+     "item": "mountainsplit_spine",
+     "source": "riverbed_serpent",
+     "chance": 1.0,
+     "zone": "jade_river_valley"
+    },
+    {
+     "item": "mountainsplit_edge",
+     "source": "snow_ape",
+     "chance": 0.12,
+     "zone": "azure_expanse"
+    },
+    {
+     "item": "mountainsplit_guard",
+     "source": "scarlet_kiln_warden",
+     "chance": 0.6,
+     "zone": "azure_expanse"
+    }
+   ],
+   "restore": {
+    "recipe": "mountainsplit_sabre",
+    "station": "forge_anvil",
+    "rank": "expert",
+    "grade": "mystic"
+   },
+   "awaken": {
+    "enhance": 10,
+    "dao_tier": 4,
+    "item": "weapon_soul_crystal",
+    "skill": {
+     "name": "Split the Mountain",
+     "every_hits": 12,
+     "mult": 3.0,
+     "damage_type": "physical",
+     "element": "earth",
+     "shape": "ring",
+     "reach": 150
+    }
+   },
+   "later": [
+    {
+     "grade": "spirit",
+     "zone": "outer_heavens",
+     "version": "1.4",
+     "step": "reforge"
+    },
+    {
+     "grade": "sage",
+     "zone": "outer_heavens",
+     "version": "1.5",
+     "step": "reforge"
+    }
+   ]
+  },
+  {
+   "id": "seven_winds",
+   "family": "fan",
+   "weapon": "seven_winds_fan",
+   "name": "Seven Winds Fan",
+   "quest": "legend_seven_winds",
+   "pieces": [
+    {
+     "item": "seven_winds_rib",
+     "source": "rogue_treasure_adept",
+     "chance": 0.5,
+     "zone": "jade_river_valley"
+    },
+    {
+     "item": "seven_winds_silk",
+     "source": "wind_kite",
+     "chance": 0.12,
+     "zone": "azure_expanse"
+    },
+    {
+     "item": "seven_winds_pin",
+     "source": "canyon_harpy",
+     "chance": 0.12,
+     "zone": "azure_expanse"
+    }
+   ],
+   "restore": {
+    "recipe": "seven_winds_fan",
+    "station": "forge_anvil",
+    "rank": "expert",
+    "grade": "mystic"
+   },
+   "awaken": {
+    "enhance": 10,
+    "dao_tier": 4,
+    "item": "weapon_soul_crystal",
+    "skill": {
+     "name": "The Seventh Wind",
+     "every_hits": 10,
+     "mult": 2.2,
+     "damage_type": "qi",
+     "element": "wind",
+     "art": "sand_crescent",
+     "reach": 340
+    }
+   },
+   "later": [
+    {
+     "grade": "spirit",
+     "zone": "outer_heavens",
+     "version": "1.4",
+     "step": "reforge"
+    },
+    {
+     "grade": "sage",
+     "zone": "outer_heavens",
+     "version": "1.5",
+     "step": "reforge"
+    }
+   ]
+  },
+  {
+   "id": "crane_mourning",
+   "family": "flute",
+   "weapon": "crane_mourning_flute",
+   "name": "Crane Mourning Flute",
+   "quest": "legend_crane_mourning",
+   "pieces": [
+    {
+     "item": "crane_mouthpiece",
+     "source": "big_toad_tan",
+     "chance": 1.0,
+     "zone": "jade_river_valley"
+    },
+    {
+     "item": "crane_jade_body",
+     "source": "spark_weasel",
+     "chance": 0.12,
+     "zone": "azure_expanse"
+    },
+    {
+     "item": "crane_tassel",
+     "source": "thousand_eye_toad",
+     "chance": 1.0,
+     "zone": "azure_expanse"
+    }
+   ],
+   "restore": {
+    "recipe": "crane_mourning_flute",
+    "station": "forge_anvil",
+    "rank": "expert",
+    "grade": "mystic"
+   },
+   "awaken": {
+    "enhance": 10,
+    "dao_tier": 4,
+    "item": "weapon_soul_crystal",
+    "skill": {
+     "name": "Crane's Lament",
+     "every_hits": 10,
+     "mult": 2.0,
+     "damage_type": "soul",
+     "element": "none",
+     "art": "note",
+     "reach": 340
+    }
+   },
+   "later": [
+    {
+     "grade": "spirit",
+     "zone": "outer_heavens",
+     "version": "1.4",
+     "step": "reforge"
+    },
+    {
+     "grade": "sage",
+     "zone": "outer_heavens",
+     "version": "1.5",
+     "step": "reforge"
+    }
+   ]
+  },
+  {
+   "id": "dragonfly",
+   "family": "bow",
+   "weapon": "dragonfly_bow",
+   "name": "Dragonfly Bow",
+   "quest": "legend_dragonfly",
+   "pieces": [
+    {
+     "item": "dragonfly_limb",
+     "source": "gu_enforcer",
+     "chance": 0.5,
+     "zone": "jade_river_valley"
+    },
+    {
+     "item": "dragonfly_string",
+     "source": "sandstorm_scorpion",
+     "chance": 0.12,
+     "zone": "azure_expanse"
+    },
+    {
+     "item": "dragonfly_sight",
+     "source": "tomb_king",
+     "chance": 1.0,
+     "zone": "azure_expanse"
+    }
+   ],
+   "restore": {
+    "recipe": "dragonfly_bow",
+    "station": "forge_anvil",
+    "rank": "expert",
+    "grade": "mystic"
+   },
+   "awaken": {
+    "enhance": 10,
+    "dao_tier": 4,
+    "item": "weapon_soul_crystal",
+    "skill": {
+     "name": "Dragonfly Volley",
+     "every_hits": 8,
+     "mult": 1.6,
+     "damage_type": "physical",
+     "element": "wind",
+     "art": "arrow",
+     "reach": 420,
+     "count": 3
+    }
+   },
+   "later": [
+    {
+     "grade": "spirit",
+     "zone": "outer_heavens",
+     "version": "1.4",
+     "step": "reforge"
+    },
+    {
+     "grade": "sage",
+     "zone": "outer_heavens",
+     "version": "1.5",
+     "step": "reforge"
+    }
+   ]
+  }
+ ]
+}

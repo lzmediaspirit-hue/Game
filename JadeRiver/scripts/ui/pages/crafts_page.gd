@@ -276,6 +276,7 @@ func _forge(ch, area: Rect2) -> void:
 		var sub := (Tx.t("ui.forge.in_furnace_slot") if ContentDB.item(str(inst.id)).has("furnace") else Tx.t("ui.forge.worn")) if g.worn else ""
 		if float(inst.get("pity", 0.0)) > 0.0: sub += ("  " if sub != "" else "") + Tx.t("ui.forge.pity") % int(round(float(inst.pity) * 100))
 		if ch.inventory.locked.has(uid): sub += ("  " if sub != "" else "") + Tx.t("ui.forge.locked_item")
+		if inst.get("awakened", false): sub += ("  " if sub != "" else "") + Tx.t("ui.forge.awakened_tag")
 		text(rr.position + Vector2(66, 50), sub, 14, UiKit.MIST)
 		if forge_mode == "salvage" and picked.has(uid): text(rr.position + Vector2(rr.size.x - 34, 38), "✓", 24, UiKit.BRIGHT_JADE)
 		region(rr, "gear", uid, usable, Tx.t("ui.forge.cannot_salvage"))
@@ -309,6 +310,7 @@ func _forge_enhance(ch, r: Rect2) -> void:
 	var y := _piece_header(r, inst)
 	if int(inst.get("enhance", 0)) >= 10:
 		text(Vector2(r.position.x + 24, y + 20), Tx.t("ui.forge.max"), 19, UiKit.GOLD)
+		_awaken_section(ch, r, inst, y + 36)
 		return
 	var risky := int(inst.get("enhance", 0)) >= int(Game.crafting.upkeep("risky_from", 5))
 	if not risky: essence = 0
@@ -337,6 +339,32 @@ func _forge_enhance(ch, r: Rect2) -> void:
 			var mc: Dictionary = Game.crafting.mend_cost(inst)
 			var mwhy := "" if ch.inventory.count(str(mc.metal)) >= int(mc.count) else Tx.t("sim.crafting.needs_2") % [int(mc.count), ContentDB.item_name(str(mc.metal))]
 			btn(Rect2(r.end.x - 474, r.end.y - 76, 220, 58), Tx.t("ui.forge.mend") % [int(mc.count), ContentDB.item_name(str(mc.metal))], "do_mend", null, false, mwhy == "", mwhy, 18)
+
+## S47 weapon awakening: a +10 weapon of Heaven grade or better wakes here with a Weapon Soul Crystal, once the Dao of
+## its family has reached Explanation. The skill it would gain, what it still needs, and the button.
+func _awaken_section(ch, r: Rect2, inst: Dictionary, y: float) -> void:
+	if not CraftingAuthority.awaken_grade_ok(str(inst.id)): return
+	var sk := CraftingAuthority.awakened_skill(str(inst.id))
+	if sk.is_empty(): return
+	var x := r.position.x + 24
+	var w := r.size.x - 48
+	if inst.get("awakened", false):
+		y += para(Rect2(x, y + 6, w, 60), Tx.t("ui.forge.awakened_line") % [str(sk.get("name", "")), int(sk.get("every_hits", 12))], 18, UiKit.GOLD, 2)
+		return
+	heading(Vector2(x, y + 34), Tx.t("ui.forge.awaken_title"), w)
+	y += 44
+	y += para(Rect2(x, y + 4, w, 60), Tx.t("ui.forge.awaken_skill") % [str(sk.get("name", "")), int(sk.get("every_hits", 12))], 17, UiKit.PALE_GOLD, 2)
+	var fam := ContentDB.entry("weapon_families", str(ContentDB.item(str(inst.id)).get("family", "")))
+	var dao := str(fam.get("dao", ""))
+	var tier := int(ch.cultivator.daos.get(dao, {}).get("tier", 0))
+	var have: int = ch.inventory.count("weapon_soul_crystal")
+	for row in [[tier >= 4, Tx.t("ui.forge.awaken_need_dao") % [ContentDB.name_of("daos", dao), tier]],
+			[have > 0, Tx.t("ui.forge.awaken_need_crystal") % have],
+			[Game.crafting.station_near(ch, ["forge_anvil"]), Tx.t("ui.forge.awaken_need_forge")]]:
+		text(Vector2(x, y + 22), ("✓ " if row[0] else "· ") + str(row[1]), 17, UiKit.BRIGHT_JADE if row[0] else UiKit.MIST)
+		y += 26
+	var why: String = Game.crafting.awaken_check(ch, inst)
+	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.forge.awaken"), "do_awaken", null, true, why == "", why)
 
 func _forge_inherit(ch, r: Rect2) -> void:
 	var from := _find(ch, pick_uid)
@@ -873,6 +901,9 @@ func on_action(id: String, data) -> void:
 			pick_uid = -1
 			to_uid = -1
 		"essence": essence = clampi(essence + int(data), 0, int(Game.crafting.upkeep("essence_max", 4)))
+		"do_awaken":
+			var ra := submit({"type": "awaken_weapon", "uid": pick_uid})
+			if ra.get("ok", false): flash(Tx.t("ui.forge.awakened_flash") % str(ra.get("skill", "")))
 		"do_enhance":
 			var r3 := submit({"type": "enhance", "uid": pick_uid, "essence": essence})
 			if r3.get("ok", false):

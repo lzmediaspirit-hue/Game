@@ -31,7 +31,7 @@ const GRADE_CAP := [["qi_kindling_1", "common"], ["qi_unfurling_1", "earth"], ["
 func intents() -> Array:
 	return ["complete_node", "catch_fish", "cook", "craft_step", "refine", "queue_auto_refine", "collect_auto_refine", "forge", "enhance", "salvage_item",
 		"salvage", "inherit_enhancement", "reroll_affixes", "choose_affixes", "lock_affix", "chart_route", "build_vessel", "absorb_flame",
-		"trace_talisman", "restore_relic", "mend_furnace", "deduce_recipe", "start_experiment", "take_guild_exam", "accept_commission",
+		"trace_talisman", "restore_relic", "awaken_weapon", "mend_furnace", "deduce_recipe", "start_experiment", "take_guild_exam", "accept_commission",
 		"deliver_commission", "tribulation_shield", "catch_pill_soul", "plant_seed", "water_bed", "harvest_bed", "apply_spirit_soil", "use_dew",
 		"transplant", "start_rack", "collect_racks"]
 
@@ -65,6 +65,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"lock_affix": return lock_affix(c, int(intent.get("uid", -1)), int(intent.get("affix", -1)))
 		"trace_talisman": return trace_talisman(c, str(intent.get("recipe", "")), float(intent.get("score", 0.0)), bool(intent.get("broken", false)))
 		"restore_relic": return restore_relic(c, int(intent.get("index", -1)))
+		"awaken_weapon": return awaken_weapon(c, intent)
 		"mend_furnace": return mend_furnace(c, int(intent.get("uid", -1)))
 		"deduce_recipe": return deduce(c, str(intent.get("recipe", "")))
 		"start_experiment": return experiment(c, intent.get("herbs", []) if intent.get("herbs", []) is Array else [])
@@ -1213,6 +1214,8 @@ func enhance(c, intent: Dictionary) -> Dictionary:
 	if success:
 		inst.pity = 0.0
 		game.inventory.apply_enhance(c.id, inst, lvl + 1, str(at.slot))
+		# S47 weapon awakening: a Heaven-grade (or better) weapon at +10 is ready to be woken.
+		if lvl + 1 >= 10 and awaken_grade_ok(str(inst.id)): game.quest.apply_flag(c.id, "forged_plus10")
 	else:
 		inst.pity = snappedf(float(inst.get("pity", 0.0)) + float(upkeep("pity_step", 0.05)), 0.001)
 	emit("item_enhanced", {"actor": c.id, "item": inst.id, "level": int(inst.get("enhance", 0)), "success": success, "pity": float(inst.get("pity", 0.0))})
@@ -1377,6 +1380,49 @@ func restore_relic(c, index: int) -> Dictionary:
 	emit("relic_restored", {"actor": c.id, "item": target, "from": shard})
 	emit("system_used", {"actor": c.id, "system": "restore_relic"})
 	return ok({"item": target})
+
+## S47 weapon awakening (v1.1): a weapon of Heaven grade or better, forged to +10, wakes at a forge with a Weapon Soul
+## Crystal for one whose Dao of that weapon has reached Explanation (tier 4). It glows, and strikes on its own every so
+## many blows: its family's skill, or a legend's own.
+static func awaken_grade_ok(item_id: String) -> bool:
+	var def := ContentDB.item(item_id)
+	return str(def.get("slot", "")) == "weapon" and StatRules.grade_index(str(def.get("grade", "plain"))) >= StatRules.grade_index("heaven")
+
+static func awakened_skill(item_id: String) -> Dictionary:
+	var def := ContentDB.item(item_id)
+	if def.has("legend"): return def.legend.get("skill", {})
+	return ContentDB.entry("weapon_families", str(def.get("family", ""))).get("awakened", {})
+
+## Why a piece cannot be awakened now ("" when it can).
+func awaken_check(c, inst: Dictionary) -> String:
+	if inst.is_empty() or not awaken_grade_ok(str(inst.id)): return Tx.t("sim.crafting.awaken_grade")
+	if inst.get("awakened", false): return Tx.t("sim.crafting.awaken_done")
+	if awakened_skill(str(inst.id)).is_empty(): return Tx.t("sim.crafting.awaken_grade")
+	if int(inst.get("enhance", 0)) < 10: return Tx.t("sim.crafting.awaken_plus10")
+	var dao := str(ContentDB.entry("weapon_families", str(ContentDB.item(str(inst.id)).get("family", ""))).get("dao", ""))
+	if int(c.cultivator.daos.get(dao, {}).get("tier", 0)) < 4: return Tx.t("sim.crafting.awaken_dao") % ContentDB.name_of("daos", dao)
+	if c.inventory.count("weapon_soul_crystal") <= 0: return Tx.t("sim.crafting.awaken_crystal")
+	if not station_near(c, ["forge_anvil"]): return Tx.t("sim.crafting.you_need_a") % "forge"
+	return ""
+
+func awaken_weapon(c, intent: Dictionary) -> Dictionary:
+	var at := locate(c, int(intent.get("uid", -1)))
+	if at.is_empty():
+		var slot := str(intent.get("slot", ""))
+		var index := int(intent.get("index", -1))
+		if slot != "" and c.inventory.equipped.get(slot) != null: at = {"inst": c.inventory.equipped[slot], "slot": slot, "index": -1}
+		elif index >= 0 and index < c.inventory.bag.size() and c.inventory.bag[index] != null: at = {"inst": c.inventory.bag[index], "slot": "", "index": index}
+	if at.is_empty(): return fail("not_equipment")
+	var inst: Dictionary = at.inst
+	var why := awaken_check(c, inst)
+	if why != "": return fail("cannot", {"text": why})
+	game.inventory.apply_remove(c.id, "weapon_soul_crystal", 1, "awaken")
+	inst.awakened = true
+	var sk := awakened_skill(str(inst.id))
+	game.quest.apply_flag(c.id, "awakened:" + str(inst.id))
+	emit("weapon_awakened", {"actor": c.id, "item": str(inst.id), "skill": str(sk.get("name", "")), "legend": ContentDB.item(str(inst.id)).has("legend")})
+	emit("system_used", {"actor": c.id, "system": "awaken_weapon"})
+	return ok({"skill": str(sk.get("name", ""))})
 
 ## Mend a furnace at the forge (S44): a blast costs it 10 durability, and at 0 it is cracked. Mending takes its grade's
 ## metal, two for each 10 durability lost, and brings it back to 100.

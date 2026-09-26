@@ -81,6 +81,7 @@ func _main() -> void:
 	sect_roles_suite()
 	swarm_array_puppet_suite()
 	artifact_spirit_suite()
+	awaken_legend_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -1168,6 +1169,115 @@ func artifact_spirit_suite() -> void:
 	GameEvents.event.disconnect(listen)
 	for it in ["iron_jian", "iron_spear", "refining_essence"]: Game.inventory.apply_remove(c.id, it, c.inventory.count(it), "test")
 	c.inventory.equipped["weapon"] = held
+	c.quests.flags = flags_before
+	Game.world.apply_teleport(c.id, "wp_west")
+	GameEvents.flush()
+	Game.combat.refresh_stats(c.id)
+
+
+# ------------------------------------------------------------------ S47 weapon awakening and legendary chains (v1.1+)
+func awaken_legend_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var st: ActorState = Game.actor_state(c.id)
+	var held = c.inventory.equipped.get("weapon")
+	var daos_before: Dictionary = c.cultivator.daos.duplicate(true)
+	var flags_before: Dictionary = c.quests.flags.duplicate()
+	Unlocks.force_unlock(c.id, "smithing")
+	var heard := {"awoke": "", "skills": 0, "ring": 0.0}
+	var listen := func(n: String, p: Dictionary):
+		if n == "weapon_awakened": heard.awoke = str(p.get("skill", ""))
+		if n == "artifact_skill_used" and p.get("awakened", false):
+			heard.skills = int(heard.skills) + 1
+			heard.ring = float(p.get("ring", 0.0))
+	GameEvents.event.connect(listen)
+	# The gates: Heaven grade or better, +10, the family's Dao at Explanation, a crystal, and a forge.
+	Game.inventory.apply_add_equipment(c.id, "cloudsteel_jian", 45, "common", "test")
+	var ji: int = c.inventory.first_index("cloudsteel_jian")
+	var jian: Dictionary = c.inventory.bag[ji]
+	jian.enhance = 9
+	c.cultivator.daos["sword"] = {"tier": 3, "insight": 0.0}
+	Game.world.apply_teleport(c.id, "sf_artisan_row")
+	GameEvents.flush()
+	st.plane = Vector2(700, 780)
+	check(Game.crafting.awaken_check(c, jian) == Tx.t("sim.crafting.awaken_plus10"), "only a weapon at +10 wakes")
+	jian.enhance = 10
+	check(Game.crafting.awaken_check(c, jian) == Tx.t("sim.crafting.awaken_dao") % ContentDB.name_of("daos", "sword"), "and only for a Sword Dao at Explanation")
+	c.cultivator.daos["sword"] = {"tier": 4, "insight": 0.0}
+	check(Game.crafting.awaken_check(c, jian) == Tx.t("sim.crafting.awaken_crystal"), "and it takes a Weapon Soul Crystal")
+	Game.inventory.apply_add(c.id, "weapon_soul_crystal", 1, "test")
+	st.plane = Vector2(2300, 820)
+	check(Game.crafting.awaken_check(c, jian) == Tx.t("sim.crafting.you_need_a") % "forge", "at a forge")
+	st.plane = Vector2(700, 780)
+	Game.inventory.apply_add_equipment(c.id, "jadeiron_jian", 27, "common", "test")
+	var earth: Dictionary = c.inventory.bag[c.inventory.first_index("jadeiron_jian")]
+	earth.enhance = 10
+	check(Game.crafting.awaken_check(c, earth) == Tx.t("sim.crafting.awaken_grade"), "an Earth-grade blade never wakes")
+	var aw := Game.submit({"type": "awaken_weapon", "uid": int(jian.uid)})
+	GameEvents.flush()
+	check(aw.get("ok", false) and jian.get("awakened", false) and heard.awoke == "Sword Light" and c.inventory.count("weapon_soul_crystal") == 0
+		and c.quests.has_flag("awakened:cloudsteel_jian"), "a +10 Cloudsteel Jian wakes with Sword Light (%s)" % str(aw))
+	check(str(Game.submit({"type": "awaken_weapon", "uid": int(jian.uid)}).get("reason", "")) == "cannot", "a weapon wakes once")
+	# Awake, it strikes on its own every twelfth blow of the blade.
+	c.inventory.equipped["weapon"] = jian
+	c.inventory.bag[c.inventory.find_uid(int(jian.uid))] = null
+	Game.combat.refresh_stats(c.id)
+	var foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(60, 0), ProgressionRules.level(c) + 12)
+	foe.pools.max_hp = 999999.0
+	foe.pools.hp = 999999.0
+	var atk := {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1.0, 1.0], "source": "basic", "never_miss": true}
+	Game.combat.awaken_hits.erase(c.id)
+	for i in 12: Game.combat._player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
+	GameEvents.flush()
+	check(int(heard.skills) == 1, "an awakened jian's Sword Light strikes on the twelfth blow (%d)" % int(heard.skills))
+	# A +10 Heaven piece raises the flag Smith Hong waits on.
+	Game.inventory.apply_add_equipment(c.id, "cloudsteel_spear", 45, "common", "test")
+	var sp: Dictionary = c.inventory.bag[c.inventory.first_index("cloudsteel_spear")]
+	sp.enhance = 9
+	sp.pity = 5.0
+	c.quests.flags.erase("forged_plus10")
+	var cost: Dictionary = Game.crafting.enhance_cost(sp)
+	Game.inventory.apply_add(c.id, str(cost.metal), int(cost.count), "test")
+	if int(cost.shards) > 0: Game.inventory.apply_add(c.id, "spirit_stone_shard", int(cost.shards), "test")
+	Game.economy.apply_currency("silver_tael", int(cost.taels), "test")
+	var en := Game.submit({"type": "enhance", "uid": int(sp.uid)})
+	check(en.get("ok", false) and int(sp.get("enhance", 0)) == 10 and c.quests.has_flag("forged_plus10"), "forging a Heaven weapon to +10 is what Smith Hong asks (%s)" % str(en))
+	# Legendary chains: one per weapon family, three pieces each, an Expert restore and the legend's own skill.
+	var chains := ContentDB.all("legendary_chains")
+	var fams := {}
+	for ch in chains: fams[str(ch.family)] = true
+	check(chains.size() == 9 and not fams.has("fists") and fams.has("gauntlets") and fams.has("flute"), "nine legendary chains, one per weapon family (%d)" % chains.size())
+	var rd: Dictionary = chains[1]
+	var q := ContentDB.entry("quests", str(rd.quest))
+	var kinds: Array = q.get("objectives", []).map(func(o): return str(o.kind))
+	check(kinds == ["collect", "collect", "collect", "craft", "set_flag"] and str(ContentDB.entry("recipes", str(rd.weapon)).get("requires_ranks", {}).get("smithing", "")) == "expert",
+		"a chain: three pieces, an Expert restore, and its awakening (%s)" % str(kinds))
+	var src := str(rd.pieces[0].source)
+	var pid := str(rd.pieces[0].item)
+	var d0 := LootRules.roll(src, Rng.keyed(4242, "legend"), 30, 1.0, 1.0, {"needs": {}})
+	var d1 := LootRules.roll(src, Rng.keyed(4242, "legend"), 30, 1.0, 1.0, {"needs": {pid: str(rd.quest)}})
+	check(not d0.items.any(func(it): return str(it.item) == pid) and d1.items.any(func(it): return str(it.item) == pid),
+		"the %s drops from the %s only while its chain wants it" % [pid, src])
+	var legend := LootRules.make_instance(str(chains[0].weapon), 64, "common", null, 1)
+	var mods := StatRules.instance_modifiers("weapon", legend, c.cultivator.energy_type, c)
+	check(mods.any(func(m): return str(m.source).begins_with("legend")) and str(CraftingAuthority.awakened_skill(str(chains[0].weapon)).get("name", "")) == "Mountain Drum",
+		"a legend carries its own gift, and wakes with its own skill")
+	# A ring skill: the Stone Drum Gauntlets awake strike every foe around them.
+	legend.enhance = 10
+	legend.awakened = true
+	c.inventory.equipped["weapon"] = legend
+	Game.combat.refresh_stats(c.id)
+	heard.skills = 0
+	Game.combat.awaken_hits.erase(c.id)
+	for i in 10: Game.combat._player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
+	GameEvents.flush()
+	check(int(heard.skills) == 1 and near(heard.ring, 170.0), "the Mountain Drum sounds on the tenth blow, a ring of 170")
+	foe.alive = false
+	GameEvents.event.disconnect(listen)
+	for it in ["cloudsteel_spear", "jadeiron_jian", "cloudsteel_jian", "weapon_soul_crystal", str(cost.metal)]:
+		Game.inventory.apply_remove(c.id, it, c.inventory.count(it), "test")
+	c.inventory.equipped["weapon"] = held
+	c.cultivator.daos = daos_before
 	c.quests.flags = flags_before
 	Game.world.apply_teleport(c.id, "wp_west")
 	GameEvents.flush()

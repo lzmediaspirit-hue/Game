@@ -2869,6 +2869,18 @@
      "price": 60
     },
     {
+     "item": "weapon_soul_crystal",
+     "price": 900,
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "a_blade_that_answers"
+       }
+      ]
+     }
+    },
+    {
      "item": "thunderhorn_stew",
      "requires": {
       "all": [

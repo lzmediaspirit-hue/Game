@@ -352,7 +352,7 @@ def build():
         {"id": "soul_searched", "resist": "spirit", "icon": "injury_soul"},
     ])
 
-    entries("weapon_families.json", [
+    families = [
         {"id": "fists", "appearance": ["none"], "range": [0.9, 1.1], "hits_per_s": 1.4, "reach": 46, "crit": 0.05,
          "scales": ["body", "agility"], "guard": 0.30, "parry_s": 0.18, "dao": "fist", "hud_glyph": "fist",
          "third_hit_bonus": 0.2, "depth": 30, "altitude": [-30, 60],
@@ -418,7 +418,23 @@ def build():
          "scales": ["agility", "insight"], "guard": 0.0, "parry_s": 0.0, "dao": "bow", "hud_glyph": "bow", "depth": 26,
          "altitude": [20, 110], "ranged": True, "projectile_speed": 620,
          "combo": [{"action": "bow", "duration": 1.1, "hit_at": 0.55, "mult": 1.0, "projectile": "arrow"}]},
-    ])
+    ]
+    # S47 weapon awakening (v1.1): a +10 weapon of Heaven grade or better, awakened at a forge, strikes on its own every
+    # so many blows (a legend has its own skill instead). Bare fists have no weapon to awaken.
+    awakened = {
+        "gauntlets": {"name": "Thunder Knuckles", "every_hits": 12, "mult": 1.8, "damage_type": "physical", "element": "earth", "shape": "ring", "reach": 150},
+        "jian": {"name": "Sword Light", "every_hits": 12, "mult": 1.8, "damage_type": "qi", "element": "metal", "art": "flying_sword", "reach": 320},
+        "spear": {"name": "Piercing Light", "every_hits": 12, "mult": 2.0, "damage_type": "physical", "element": "metal", "art": "flying_sword", "reach": 360},
+        "short_blade": {"name": "Shadow Twin", "every_hits": 10, "mult": 1.4, "damage_type": "physical", "element": "none", "art": "flying_sword", "reach": 280},
+        "staff": {"name": "Sweeping Gale", "every_hits": 12, "mult": 1.8, "damage_type": "physical", "element": "wind", "shape": "ring", "reach": 170},
+        "heavy_sabre": {"name": "Cleaving Wave", "every_hits": 14, "mult": 2.4, "damage_type": "physical", "element": "metal", "art": "sand_crescent", "reach": 300},
+        "fan": {"name": "Gale Leaf", "every_hits": 12, "mult": 1.8, "damage_type": "qi", "element": "wind", "art": "sand_crescent", "reach": 320},
+        "flute": {"name": "Echoing Note", "every_hits": 12, "mult": 1.6, "damage_type": "soul", "element": "none", "art": "note", "reach": 320},
+        "bow": {"name": "Twin Arrow", "every_hits": 10, "mult": 1.2, "damage_type": "physical", "element": "none", "art": "arrow", "reach": 420, "count": 2},
+    }
+    for f in families:
+        if f["id"] in awakened: f["awakened"] = awakened[f["id"]]
+    entries("weapon_families.json", families)
 
     write("grades.json", {
         "order": ["plain", "common", "earth", "heaven", "mystic", "spirit", "sage", "sovereign", "will", "sphere", "law", "monarch", "inner_heaven"],

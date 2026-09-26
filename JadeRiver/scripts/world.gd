@@ -492,8 +492,14 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == Game.active_id and player: player.say(str(p.get("line", "")))
 		"artifact_skill_used":
 			if str(p.get("actor", "")) == Game.active_id:
-				fx.add("wave", Vector2(float(p.x), float(p.y)), {"color": Color("b18de2"), "radius": 60.0, "dur": 0.3})
+				var ring := float(p.get("ring", 0.0))
+				fx.add("wave", Vector2(float(p.x), float(p.y)), {"color": Color("ffd27a") if p.get("awakened", false) else Color("b18de2"),
+					"radius": ring if ring > 0.0 else 60.0, "dur": 0.4 if ring > 0.0 else 0.3})
 				Audio.play("surge")
+		"weapon_awakened":
+			if str(p.get("actor", "")) == Game.active_id and player:
+				fx.add("wave", player.position, {"color": Color("ffd27a"), "radius": 140.0, "dur": 0.8})
+				Audio.play("breakthrough")
 		"array_faded":
 			if str(p.get("actor", "")) == Game.active_id: Audio.play("ui_close")
 		"illusion_cast":

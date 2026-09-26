@@ -66,7 +66,7 @@ DEPTH = {
                  "relic_restored", "furnace_blast", "recipe_page_found", "recipe_deduced", "experiment_result", "guild_exam_started",
                  "guild_exam_failed", "guild_rank_changed", "commission_completed", "pill_tribulation_result", "pill_soul_flight",
                  "herb_harvested", "seed_found", "herb_planted", "bed_watered", "bed_enriched", "herb_aged", "spring_bottled", "transplant_result",
-                 "rack_started", "rack_collected", "garden_raided", "herb_appraised"],
+                 "rack_started", "rack_collected", "garden_raided", "herb_appraised", "weapon_awakened"],
     "Combat": ["treasure_used", "sword_released", "sword_returned", "sword_intent_changed", "artifact_detonated", "talisman_used", "combo_landed", "killing_intent_changed",
                "beast_subdued", "melody_changed", "melody_pulse", "illusion_cast", "illusion_broken",
                "array_deployed", "array_faded", "artifact_skill_used"],

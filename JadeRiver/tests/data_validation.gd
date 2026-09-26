@@ -217,6 +217,22 @@ func data_suite() -> void:
 			var of := ContentDB.item(str(it.imitation.of))
 			check(of.get("relic", false) and absf(float(it.imitation.effect.value) - float(of.get("spirit", {}).get("effect", {}).get("value", 0)) * 0.6) < 0.0001
 				and str(it.imitation.effect.stat) == str(of.spirit.effect.stat) and ContentDB.has_entry("recipes", str(it.id)), "imitation %s copies 60%% of %s" % [it.id, it.imitation.of])
+	# S47 legendary chains and weapon awakening: every chain's weapon, pieces, sources, recipe and quest are real; every
+	# awakenable family has a skill.
+	var drops_of := {}
+	for t in ContentDB.all("loot_tables"):
+		for qd in t.get("quest_drops", []): drops_of[str(qd.item)] = str(t.id)
+	for ch in ContentDB.all("legendary_chains"):
+		var wd := ContentDB.item(str(ch.weapon))
+		check(wd.has("legend") and str(wd.get("family", "")) == str(ch.family) and StatRules.grade_index(str(wd.get("grade", ""))) >= StatRules.grade_index("heaven"),
+			"legend %s is a %s of Heaven grade or better" % [ch.weapon, ch.family])
+		check(ContentDB.has_entry("recipes", str(ch.weapon)) and ContentDB.has_entry("quests", str(ch.quest)), "legend %s has a recipe and a quest" % ch.id)
+		check((ch.pieces as Array).size() == 3 and str(ch.pieces[0].zone) == "jade_river_valley", "legend %s: three pieces, the first in the valley" % ch.id)
+		for pc in ch.pieces:
+			check(ContentDB.item(str(pc.item)).get("quest_item", false) and drops_of.get(str(pc.item), "") == str(pc.source), "piece %s drops from %s" % [pc.item, pc.source])
+		check(not (ch.get("later", []) as Array).is_empty(), "legend %s lists its later steps" % ch.id)
+	for fam in ContentDB.all("weapon_families"):
+		if str(fam.id) != "fists": check(fam.has("awakened") and int(fam.awakened.get("every_hits", 0)) > 0, "family %s can awaken" % fam.id)
 	# S46 bloodline: every species has an ancestral skill and a form; contracts, capacity and incubation read real items.
 	var pg := ContentDB.config("pet_growth")
 	for pe in ContentDB.all("pets"):

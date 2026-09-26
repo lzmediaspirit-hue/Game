@@ -95,7 +95,16 @@
      "mult": 1.2,
      "knockback": 20
     }
-   ]
+   ],
+   "awakened": {
+    "name": "Thunder Knuckles",
+    "every_hits": 12,
+    "mult": 1.8,
+    "damage_type": "physical",
+    "element": "earth",
+    "shape": "ring",
+    "reach": 150
+   }
   },
   {
    "id": "jian",
@@ -143,7 +152,16 @@
      "mult": 1.25,
      "knockback": 20
     }
-   ]
+   ],
+   "awakened": {
+    "name": "Sword Light",
+    "every_hits": 12,
+    "mult": 1.8,
+    "damage_type": "qi",
+    "element": "metal",
+    "art": "flying_sword",
+    "reach": 320
+   }
   },
   {
    "id": "spear",
@@ -192,7 +210,16 @@
      "mult": 1.3,
      "knockback": 40
     }
-   ]
+   ],
+   "awakened": {
+    "name": "Piercing Light",
+    "every_hits": 12,
+    "mult": 2.0,
+    "damage_type": "physical",
+    "element": "metal",
+    "art": "flying_sword",
+    "reach": 360
+   }
   },
   {
    "id": "short_blade",
@@ -239,7 +266,16 @@
      "hit_at": 0.3,
      "mult": 1.2
     }
-   ]
+   ],
+   "awakened": {
+    "name": "Shadow Twin",
+    "every_hits": 10,
+    "mult": 1.4,
+    "damage_type": "physical",
+    "element": "none",
+    "art": "flying_sword",
+    "reach": 280
+   }
   },
   {
    "id": "staff",
@@ -290,7 +326,16 @@
      "mult": 1.3,
      "knockback": 60
     }
-   ]
+   ],
+   "awakened": {
+    "name": "Sweeping Gale",
+    "every_hits": 12,
+    "mult": 1.8,
+    "damage_type": "physical",
+    "element": "wind",
+    "shape": "ring",
+    "reach": 170
+   }
   },
   {
    "id": "heavy_sabre",
@@ -343,7 +388,16 @@
      "knockback": 40,
      "armour_break": 1.0
     }
-   ]
+   ],
+   "awakened": {
+    "name": "Cleaving Wave",
+    "every_hits": 14,
+    "mult": 2.4,
+    "damage_type": "physical",
+    "element": "metal",
+    "art": "sand_crescent",
+    "reach": 300
+   }
   },
   {
    "id": "fan",
@@ -396,7 +450,16 @@
       "knockup_s": 0.8
      }
     }
-   ]
+   ],
+   "awakened": {
+    "name": "Gale Leaf",
+    "every_hits": 12,
+    "mult": 1.8,
+    "damage_type": "qi",
+    "element": "wind",
+    "art": "sand_crescent",
+    "reach": 320
+   }
   },
   {
    "id": "flute",
@@ -451,7 +514,16 @@
      "mult": 0.9,
      "projectile": "note"
     }
-   ]
+   ],
+   "awakened": {
+    "name": "Echoing Note",
+    "every_hits": 12,
+    "mult": 1.6,
+    "damage_type": "soul",
+    "element": "none",
+    "art": "note",
+    "reach": 320
+   }
   },
   {
    "id": "bow",
@@ -488,7 +560,17 @@
      "mult": 1.0,
      "projectile": "arrow"
     }
-   ]
+   ],
+   "awakened": {
+    "name": "Twin Arrow",
+    "every_hits": 10,
+    "mult": 1.2,
+    "damage_type": "physical",
+    "element": "none",
+    "art": "arrow",
+    "reach": 420,
+    "count": 2
+   }
   }
  ]
 }

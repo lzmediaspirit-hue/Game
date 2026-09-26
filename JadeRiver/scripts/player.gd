@@ -508,9 +508,32 @@ func _draw():
 	if bound():
 		if Game.combat.sword_released.has(actor_id): _draw_hover_sword()
 		if Game.combat.swarm_of(actor_id) > 0: _draw_swarm(self, Game.combat.swarm_of(actor_id), false)
+		if _weapon_awake(): _draw_awakened_glow(self, false)
 		var tl: Dictionary = Game.combat.timeline(actor_id)
 		if tl.guard:
 			draw_arc(Vector2(facing * 18, -48), 30, -1.2 if facing > 0 else PI - 1.2 + 0.4, 1.2 if facing > 0 else PI + 1.2 - 0.4, 12, Color(UiKit.PALE_GOLD, 0.7), 3)
+
+## S47 weapon awakening: an awakened weapon's glow. A warm halo on the weapon side behind the body, and gold motes
+## rising in front of it (so a mount or the body never hides it).
+func _weapon_awake() -> bool:
+	var held = Game.character(actor_id).inventory.equipped.get("weapon")
+	return held is Dictionary and held.get("awakened", false)
+
+func _draw_awakened_glow(on: CanvasItem, motes: bool) -> void:
+	var t := Time.get_ticks_msec() / 1000.0
+	var base := Vector2(facing * 22, avatar.position.y - 70)
+	var pulse := 0.5 + 0.5 * sin(t * 2.6)
+	if not motes:
+		on.draw_circle(base, 44 + pulse * 6, Color(1.0, 0.78, 0.32, 0.18 + 0.10 * pulse))
+		on.draw_circle(base, 26, Color(1.0, 0.86, 0.5, 0.18))
+		return
+	on.draw_circle(base, 16 + pulse * 3, Color(1.0, 0.9, 0.6, 0.14 + 0.06 * pulse))
+	for i in 12:
+		var k := fposmod(t * 0.5 + i / 12.0, 1.0)
+		var p := base + Vector2(sin(t * 1.7 + i * 2.1) * 26.0, 40.0 - k * 96.0)
+		var sz := 4.0 if i % 2 == 0 else 2.0
+		on.draw_rect(Rect2(p.snapped(Vector2(2, 2)) - Vector2(1, 1), Vector2(sz + 2, sz + 2)), Color(0.55, 0.32, 0.05, (1.0 - k) * 0.6))
+		on.draw_rect(Rect2(p.snapped(Vector2(2, 2)), Vector2(sz, sz)), Color(1.0, 0.84, 0.36, 1.0 - k))
 
 ## S47 Sword Release: the jian hangs point-up above the shoulder between strikes, bobbing in a pale sheen of Qi.
 func _draw_hover_sword() -> void:
@@ -527,6 +550,7 @@ func _draw_hover_sword() -> void:
 
 func _draw_front() -> void:
 	if bound() and Game.combat.swarm_of(actor_id) > 0: _draw_swarm(front, Game.combat.swarm_of(actor_id), true)
+	if bound() and _weapon_awake(): _draw_awakened_glow(front, true)
 	var left := speech_until - Time.get_ticks_msec() / 1000.0
 	if left > 0.0 and not speech.is_empty(): _draw_speech(clampf(left, 0.0, 1.0))
 

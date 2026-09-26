@@ -164,6 +164,11 @@ func _draw_detail(r: Rect2) -> void:
 			var nl := Tx.t("ui.forge.natal_broken") if s.get("broken", false) else Tx.t("ui.inventory.natal_line") % [int(s.get("natal_level", 0)), int(s.get("ilv_eff", s.get("ilv", 1)))]
 			text(Vector2(r.position.x + 16, y + 20), nl, 16, UiKit.RED if s.get("broken", false) else UiKit.GOLD)
 			y += 22
+		# S47 weapon awakening: an awakened weapon's own skill.
+		if s.get("awakened", false):
+			var ak := CraftingAuthority.awakened_skill(id)
+			text(Vector2(r.position.x + 16, y + 20), fit(Tx.t("ui.forge.awakened_line") % [str(ak.get("name", "")), int(ak.get("every_hits", 12))], 16, r.size.x - 32), 16, UiKit.GOLD)
+			y += 22
 		# S47: failed enhancements leave pity on the piece; the forge adds it to the next try.
 		if float(s.get("pity", 0.0)) > 0.0:
 			text(Vector2(r.position.x + 16, y + 20), Tx.t("ui.forge.pity_line") % int(round(float(s.pity) * 100)), 16, UiKit.GOLD)

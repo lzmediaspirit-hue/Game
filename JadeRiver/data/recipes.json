@@ -3121,6 +3121,330 @@
    ]
   },
   {
+   "id": "stone_drum_gauntlets",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "stone_drum_knuckle",
+     "count": 1
+    },
+    {
+     "item": "stone_drum_cuff",
+     "count": 1
+    },
+    {
+     "item": "stone_drum_heart",
+     "count": 1
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "refining_essence",
+     "count": 8
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stone_drum_gauntlets",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "expert"
+   }
+  },
+  {
+   "id": "riverlight_jian",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "riverlight_hilt",
+     "count": 1
+    },
+    {
+     "item": "riverlight_blade",
+     "count": 1
+    },
+    {
+     "item": "riverlight_soul",
+     "count": 1
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "refining_essence",
+     "count": 8
+    }
+   ],
+   "outputs": [
+    {
+     "item": "riverlight_jian",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "expert"
+   }
+  },
+  {
+   "id": "heron_reach_spear",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "heron_spearhead",
+     "count": 1
+    },
+    {
+     "item": "heron_shaft",
+     "count": 1
+    },
+    {
+     "item": "heron_tassel",
+     "count": 1
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "refining_essence",
+     "count": 8
+    }
+   ],
+   "outputs": [
+    {
+     "item": "heron_reach_spear",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "expert"
+   }
+  },
+  {
+   "id": "reedwhisper_dagger",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "reedwhisper_edge",
+     "count": 1
+    },
+    {
+     "item": "reedwhisper_grip",
+     "count": 1
+    },
+    {
+     "item": "reedwhisper_sheath",
+     "count": 1
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "refining_essence",
+     "count": 8
+    }
+   ],
+   "outputs": [
+    {
+     "item": "reedwhisper_dagger",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "expert"
+   }
+  },
+  {
+   "id": "ferrymans_pole",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "ferryman_iron_cap",
+     "count": 1
+    },
+    {
+     "item": "ferryman_oak_shaft",
+     "count": 1
+    },
+    {
+     "item": "ferryman_knot",
+     "count": 1
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "refining_essence",
+     "count": 8
+    }
+   ],
+   "outputs": [
+    {
+     "item": "ferrymans_pole",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "expert"
+   }
+  },
+  {
+   "id": "mountainsplit_sabre",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mountainsplit_spine",
+     "count": 1
+    },
+    {
+     "item": "mountainsplit_edge",
+     "count": 1
+    },
+    {
+     "item": "mountainsplit_guard",
+     "count": 1
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "refining_essence",
+     "count": 8
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mountainsplit_sabre",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "expert"
+   }
+  },
+  {
+   "id": "seven_winds_fan",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "seven_winds_rib",
+     "count": 1
+    },
+    {
+     "item": "seven_winds_silk",
+     "count": 1
+    },
+    {
+     "item": "seven_winds_pin",
+     "count": 1
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "refining_essence",
+     "count": 8
+    }
+   ],
+   "outputs": [
+    {
+     "item": "seven_winds_fan",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "expert"
+   }
+  },
+  {
+   "id": "crane_mourning_flute",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "crane_mouthpiece",
+     "count": 1
+    },
+    {
+     "item": "crane_jade_body",
+     "count": 1
+    },
+    {
+     "item": "crane_tassel",
+     "count": 1
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "refining_essence",
+     "count": 8
+    }
+   ],
+   "outputs": [
+    {
+     "item": "crane_mourning_flute",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "expert"
+   }
+  },
+  {
+   "id": "dragonfly_bow",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "dragonfly_limb",
+     "count": 1
+    },
+    {
+     "item": "dragonfly_string",
+     "count": 1
+    },
+    {
+     "item": "dragonfly_sight",
+     "count": 1
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "refining_essence",
+     "count": 8
+    }
+   ],
+   "outputs": [
+    {
+     "item": "dragonfly_bow",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "expert"
+   }
+  },
+  {
    "id": "moonshadow_jian",
    "craft": "smithing",
    "grade": "heaven",

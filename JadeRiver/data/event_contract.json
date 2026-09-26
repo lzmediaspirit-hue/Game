@@ -952,6 +952,13 @@
     "workshop_authority"
    ]
   },
+  "weapon_awakened": {
+   "system": "Crafting",
+   "files": [
+    "crafting_authority",
+    "workshop_authority"
+   ]
+  },
   "currency_changed": {
    "system": "Economy",
    "files": [

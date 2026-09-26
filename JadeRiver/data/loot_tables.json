@@ -1055,6 +1055,17 @@
      ],
      "weight": 1
     }
+   ],
+   "quest_drops": [
+    {
+     "item": "seven_winds_rib",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_seven_winds"
+    }
    ]
   },
   {
@@ -1422,6 +1433,17 @@
      ],
      "weight": 1
     }
+   ],
+   "quest_drops": [
+    {
+     "item": "heron_shaft",
+     "chance": 0.12,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_heron_reach"
+    }
    ]
   },
   {
@@ -1459,7 +1481,18 @@
     "chance": 0.03,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [],
+   "quest_drops": [
+    {
+     "item": "crane_jade_body",
+     "chance": 0.12,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_crane_mourning"
+    }
+   ]
   },
   {
    "id": "thunderhorn_rhino",
@@ -1505,7 +1538,18 @@
     "chance": 0.03,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [],
+   "quest_drops": [
+    {
+     "item": "stone_drum_cuff",
+     "chance": 0.12,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_stone_drum"
+    }
+   ]
   },
   {
    "id": "frost_lynx",
@@ -1551,6 +1595,17 @@
       1
      ],
      "weight": 1
+    }
+   ],
+   "quest_drops": [
+    {
+     "item": "reedwhisper_grip",
+     "chance": 0.12,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_reedwhisper"
     }
    ]
   },
@@ -1598,7 +1653,18 @@
     "chance": 0.03,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [],
+   "quest_drops": [
+    {
+     "item": "mountainsplit_edge",
+     "chance": 0.12,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_mountainsplit"
+    }
+   ]
   },
   {
    "id": "azure_carp_dragonet",
@@ -1635,7 +1701,18 @@
     "chance": 0.03,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [],
+   "quest_drops": [
+    {
+     "item": "riverlight_blade",
+     "chance": 0.12,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_riverlight"
+    }
+   ]
   },
   {
    "id": "river_sentinel",
@@ -1672,7 +1749,18 @@
     "chance": 0.03,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [],
+   "quest_drops": [
+    {
+     "item": "ferryman_oak_shaft",
+     "chance": 0.12,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_ferryman"
+    }
+   ]
   },
   {
    "id": "wind_kite",
@@ -1709,7 +1797,18 @@
     "chance": 0.03,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [],
+   "quest_drops": [
+    {
+     "item": "seven_winds_silk",
+     "chance": 0.12,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_seven_winds"
+    }
+   ]
   },
   {
    "id": "canyon_harpy",
@@ -1746,7 +1845,18 @@
     "chance": 0.03,
     "min_quality": "flawed"
    },
-   "rare": []
+   "rare": [],
+   "quest_drops": [
+    {
+     "item": "seven_winds_pin",
+     "chance": 0.12,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_seven_winds"
+    }
+   ]
   },
   {
    "id": "sandstorm_scorpion",
@@ -1792,6 +1902,17 @@
       1
      ],
      "weight": 1
+    }
+   ],
+   "quest_drops": [
+    {
+     "item": "dragonfly_string",
+     "chance": 0.12,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_dragonfly"
     }
    ]
   },
@@ -1930,6 +2051,33 @@
       1
      ],
      "quest": "the_tomb_king"
+    },
+    {
+     "item": "riverlight_soul",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_riverlight"
+    },
+    {
+     "item": "reedwhisper_sheath",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_reedwhisper"
+    },
+    {
+     "item": "dragonfly_sight",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_dragonfly"
     }
    ]
   },
@@ -2187,6 +2335,17 @@
      ],
      "weight": 1
     }
+   ],
+   "quest_drops": [
+    {
+     "item": "crane_mouthpiece",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_crane_mourning"
+    }
    ]
   },
   {
@@ -2219,6 +2378,17 @@
       4
      ],
      "weight": 1
+    }
+   ],
+   "quest_drops": [
+    {
+     "item": "mountainsplit_spine",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_mountainsplit"
     }
    ]
   },
@@ -2262,6 +2432,35 @@
      ],
      "weight": 1
     }
+   ],
+   "quest_drops": [
+    {
+     "item": "stone_drum_heart",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_stone_drum"
+    },
+    {
+     "item": "ferryman_knot",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_ferryman"
+    },
+    {
+     "item": "crane_tassel",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_crane_mourning"
+    }
    ]
   },
   {
@@ -2294,6 +2493,17 @@
       1
      ],
      "weight": 1
+    }
+   ],
+   "quest_drops": [
+    {
+     "item": "riverlight_hilt",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_riverlight"
     }
    ]
   },
@@ -2695,6 +2905,26 @@
      ],
      "weight": 1
     }
+   ],
+   "quest_drops": [
+    {
+     "item": "heron_tassel",
+     "chance": 0.6,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_heron_reach"
+    },
+    {
+     "item": "mountainsplit_guard",
+     "chance": 0.6,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_mountainsplit"
+    }
    ]
   },
   {
@@ -2885,6 +3115,17 @@
      ],
      "weight": 1
     }
+   ],
+   "quest_drops": [
+    {
+     "item": "stone_drum_knuckle",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_stone_drum"
+    }
    ]
   },
   {
@@ -2917,6 +3158,17 @@
       1
      ],
      "weight": 1
+    }
+   ],
+   "quest_drops": [
+    {
+     "item": "dragonfly_limb",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_dragonfly"
     }
    ]
   },
@@ -2960,6 +3212,17 @@
      ],
      "weight": 1
     }
+   ],
+   "quest_drops": [
+    {
+     "item": "reedwhisper_edge",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_reedwhisper"
+    }
    ]
   },
   {
@@ -2993,6 +3256,17 @@
      ],
      "weight": 1
     }
+   ],
+   "quest_drops": [
+    {
+     "item": "ferryman_iron_cap",
+     "chance": 0.6,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_ferryman"
+    }
    ]
   },
   {
@@ -3025,6 +3299,17 @@
       1
      ],
      "weight": 1
+    }
+   ],
+   "quest_drops": [
+    {
+     "item": "heron_spearhead",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "quest": "legend_heron_reach"
     }
    ]
   },

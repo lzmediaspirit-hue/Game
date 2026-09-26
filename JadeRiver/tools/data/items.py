@@ -1,5 +1,6 @@
 """S14/S15/Part 8: items.json (non-equipment) and artifacts.json (equipment bases)."""
 from common import entries, titled, req, c
+from legends import CHAINS as LEGENDS, piece_rows
 
 MID_ILV = {"plain": 5, "common": 14, "earth": 27, "heaven": 45, "mystic": 59, "spirit": 68, "sage": 77}
 
@@ -409,6 +410,14 @@ def build_items():
     for tid, grade, kind, desc in TALISMANS:
         rows.append(item(tid, "talisman", grade, 20, desc, use=[], use_action="talisman", talisman=kind))
     # A Shattered Relic (S47): the Drowned Abbot's old blade in pieces; a master smith restores it.
+    # S47 legendary chains: three pieces of each legend (quest drops while its chain wants them), and the crystal that
+    # awakens a +10 weapon of Heaven grade or better.
+    for pid, pname, ch, i in piece_rows():
+        where = "an old foe of the valley" if i == 0 else "the Azure Expanse"
+        rows.append(item(pid, "legend_piece", "mystic", 1, "A piece of %s, found with %s. Three pieces, and an Expert smith, make it whole." % (ch["name"], where),
+                         name=pname, sell=False, quest_item=True))
+    rows.append(item("weapon_soul_crystal", "material", "heaven", 9, "A crystal with a small flame inside. At a forge it wakes a weapon forged to +10, "
+                     "of Heaven grade or better, for one whose Dao of that weapon has reached Explanation.", name="Weapon Soul Crystal", sell=False))
     rows.append(item("shattered_moon_blade", "relic_shard", "heaven", 1, "The pieces of a jian that once held a spirit, pale as moonlight. "
                      "A smith of Expert rank could restore it at the forge.", name="Shattered Moon Blade", sell=False, restores="moonlit_blade"))
     for b in BEAST:
@@ -814,6 +823,11 @@ def build_artifacts():
                          relic=True, unique="Awake spirit: +8% Qi attack; Moonlit Crescent every 8 hits", spirit=moon))
     rows.append(artifact("sleeping_blade", "weapon", "heaven", "The Sleeping Blade", "sword", "jian", icon="cloudsteel_jian", ilv=52,
                          relic=True, unique="Awake spirit: +10% crit damage; Waking Edge every 10 hits", spirit=blade))
+    # S47 legendary chains: each legend, restored from its three pieces, is Mystic grade with a gift of its own; awakened
+    # at +10 it gains its own skill in place of its family's.
+    for ch in LEGENDS:
+        rows.append(artifact(ch["weapon"], "weapon", "mystic", ch["name"], FAMILY_APPEARANCE[ch["family"]], ch["family"], icon="mistjade_" + ch["family"], ilv=64,
+                             legend={"chain": ch["id"], "effect": ch["effect"], "skill": ch["skill"]}, desc=ch["lore"], sell=False))
     # S47 imitation relics (v1.1): a forge copy of a boss relic keeps 60% of its unique effect, always on, with no spirit,
     # no binding and no control demand.
     for iid, name, of, sp in [("moonshadow_jian", "Moonshadow Jian", "moonlit_blade", moon), ("drowsing_edge", "Drowsing Edge", "sleeping_blade", blade)]:

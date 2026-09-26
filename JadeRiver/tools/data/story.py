@@ -8,6 +8,7 @@ import json
 import os
 
 from common import DATA, write, entries
+from legends import CHAINS as LEGENDS
 
 # ---------------------------------------------------------------------------------------------
 # Requirement helpers
@@ -1147,6 +1148,29 @@ def guided_quests():
         offer=["The Abbot stole that blade from a lake that holds the moon. Its spirit has been homesick ever since.",
                "Win its trust, then take it to Mirrorwater Lake beyond the Gate. It will wake there, if anywhere."],
         complete=["The moon and the water. It is whole again, and so, a little, are you."])
+    # S47 weapon awakening (v1.1): Smith Hong shows you how a weapon forged to its limit is woken.
+    quest("a_blade_that_answers", "A Blade That Answers", "side", "smith_hong", [
+        o("set_flag", "Forge a weapon of Heaven grade or better to +10", flag="forged_plus10"),
+    ], [item("weapon_soul_crystal", 1)], requires=all_of(qdone("the_ascension_gate")), chapter="12",
+        offer=["Every smith up here can make steel sing. Few can make it wake.",
+               "Bring a Heaven blade to +10 and I'll give you the crystal that does it. The rest is your own Dao."],
+        complete=["There. At my forge, or any forge: crystal, blade, and a Dao that has learned to explain itself.",
+                  "Come back when you want more crystals. They are not cheap."])
+    # S47 legendary chains (v1.1+): one per weapon family. Three pieces (one from an old foe of the valley, two from the
+    # Expanse), an Expert smith to make it whole, and its awakening at +10.
+    for ch in LEGENDS:
+        wname = ch["name"]
+        quest("legend_" + ch["id"], wname, "side", "smith_bao", [
+            o("collect", "Recover the %s" % ch["pieces"][0][1], item=ch["pieces"][0][0], consume=False),
+            o("collect", "Recover the %s" % ch["pieces"][1][1], item=ch["pieces"][1][0], consume=False),
+            o("collect", "Recover the %s" % ch["pieces"][2][1], item=ch["pieces"][2][0], consume=False),
+            o("craft", "Make %s whole at a forge (Expert smithing)" % wname, recipe=ch["weapon"], craft="smithing"),
+            o("set_flag", "Forge it to +10 and awaken it", flag="awakened:" + ch["weapon"]),
+        ], [{"kind": "grant_currency", "currency": "spirit_stone", "amount": 200}], requires=all_of(qdone("the_ascension_gate")), chapter="12",
+            giver_any=["smith_bao", "smith_hong"], hand_in_any=["smith_bao", "smith_hong"],
+            on_accept=[fx("learn_recipe", recipe=ch["weapon"])],
+            offer=[ch["lore"], "The pieces are scattered: one with an old foe of the valley, two beyond the Gate. Bring them to me."],
+            complete=["%s, whole and awake. Some smiths wait their whole lives to see that." % wname])
     quest("quiet_waters", "Quiet Waters", "guided", "elder_hu", [
         o("enter_seclusion", "Seclusion with Nourish soul", focus="nourish_soul"),
     ], [fx("learn_recipe", recipe="soul_soothing_pill")], offered_by_unlock=True, chapter="sa4", giver_any=M, hand_in_any=M,

@@ -87,7 +87,7 @@ Progress is recorded in `docs/CHANGELOG.md`.
 - **V1** and **V2**: done.
 - **V3**: done (V3a–V3c), except these v1.1+ items, left for a later pass:
   - the sword swarm (done in V9d1);
-  - weapon awakening and legendary chains;
+  - weapon awakening and legendary chains (done in V9d3);
   - imitation relics (done in V9d2);
   - Artifact Spirit depth (affinity, barks, devour; done in V9d2);
   - the heavy sabre, flute and fan weapon families (done in V9b);
@@ -157,8 +157,9 @@ Progress is recorded in `docs/CHANGELOG.md`.
 - V9d1 is done: the sword swarm (Sword Dao 5, the Nine Swords Array, one sword per 10 Spirit), Array Plates as
   combat quick-deploys (guarding, killing and binding arrays, scaled by the Formation Dao) and the combat puppet (a
   construct in a pet slot, repaired at the tinkerer). V9d2 is done: Artifact Spirit depth (affinity from use and
-  gifts, barks, an awakening quest per relic, a skill, the control demand, devour) and imitation relics. V9d3
-  (weapon awakening and legendary chains) is next.
+  gifts, barks, an awakening quest per relic, a skill, the control demand, devour) and imitation relics. V9d3 is done:
+  weapon awakening (+10, Heaven grade or better, a crystal and Dao tier 4: a glow and a skill) and nine legendary
+  chains (shards, restore, awaken; the later reforgings are data for v1.4-1.5). V9d is complete; V9e is next.
 - Next (V9): everything v2 makes due by v1.1 that is still open. A sweep of every audit row against the build
   after V8g3 found these, in six phases:
   - **V9a**, hooks and small gaps:
@@ -197,5 +198,7 @@ written neutral from the start and round-trips through a save.
 | Flute and guqin (one family) | The `flute` family; the guqin is played at the teahouse (the V8g2 rhythm page) | A held guqin needs its own seated attack poses in every garment before it can be a weapon (AGENTS.md); the flute carries the family's melody aura |
 | (none: v2 names no field for walking a path) | `cultivator.paths {blood: true}` (saved); blood essence is transient in Combat | The Blood path is an opt-in that must survive a save; the meter is transient as v2 says |
 | orthodox-sect reputation | `training_sect.reputation[sect]`, shown as "Regard" | The field existed from S20; the Blood path is the first thing to move it |
+| One legendary chain per family (ten families) | Nine chains; bare fists have none, and the Fist Dao's chain is the gauntlets' | There is no fist weapon to restore or awaken |
+| Chains span every zone tier | The valley and Azure Expanse legs are built (three pieces, a Mystic legend, its awakening); the Spirit and Sage reforgings are listed in `legendary_chains.json` as `later` | v2 dates complete chains at v1.4-1.5; their zones do not exist yet |
 | One sword actor per swarm sword | Swarm swords are the flying sword's seeking projectiles, fired in turn from points on the orbit | Keeps 36 swords cheap and reuses the tested Sword Release strike rules |
 | `flames.json` | Heavenly Flames are items with `use_action: absorb_flame`; absorbed ones are in `crafting.flames` | Flames drop and trade as items |

@@ -8,6 +8,7 @@ import math
 import os
 
 from common import DATA, write, entries
+from legends import CHAINS as LEGENDS, RESTORE as LEGEND_RESTORE
 
 
 def realm(r):
@@ -227,6 +228,8 @@ def shops():
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_staff"), s("stormsilk_robe"),
                    s("stormsilk_boots"), s("stormsteel_ore"), s("bone_strengthening_pill"),
                    s("recipe_scroll", learn="nine_sword_array", price=60),
+                   # S47 weapon awakening: more Weapon Soul Crystals, once Smith Hong has shown you the first.
+                   s("weapon_soul_crystal", price=900, requires=all_of({"kind": "quest_done", "quest": "a_blade_that_answers"})),
                    s("thunderhorn_stew", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"})),
                    # Sage grade for kin who have become Sovereigns: sunsteel and sunsilk, worked with Sunscar glass.
                    s("sunsteel_jian", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
@@ -336,6 +339,10 @@ def recipes():
     r("mistjade_furnace", "smithing", [("mystic_ore", 6), ("roc_feather", 4), ("vulture_plume", 4)], [("mistjade_furnace", 1)], "mystic",
       default=True, requires_ranks={"smithing": "master"})
     r("array_plate", "formations", [("blank_plate", 1), ("formation_stone", 1)], [("array_plate", 1)], "earth")
+    # S47 legendary chains: an Expert smith makes a legend whole from its three pieces (the chain's quest teaches it).
+    for ch in LEGENDS:
+        r(ch["weapon"], "smithing", [(p[0], 1) for p in ch["pieces"]] + list(LEGEND_RESTORE["materials"]), [(ch["weapon"], 1)], LEGEND_RESTORE["grade"],
+          requires_ranks={"smithing": LEGEND_RESTORE["rank"]})
     # S47 imitation relics (v1.1): Expert smiths copy a boss relic's gift at 60%, with no spirit.
     r("moonshadow_jian", "smithing", [("cloudsteel_ore", 8), ("refining_essence", 4), ("mist_lotus", 2)], [("moonshadow_jian", 1)], "heaven",
       requires_ranks={"smithing": "expert"})

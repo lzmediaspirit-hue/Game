@@ -1,5 +1,6 @@
 """S13 enemies.json and S32 loot_tables.json (Part 8 monsters and bosses)."""
 from common import entries, titled
+from legends import CHAINS as LEGENDS
 
 
 def atk(id, windup, reach, mult=1.0, depth=26, alt=(-30, 60), **extra):   # S43 rule 10: the melee band
@@ -513,6 +514,10 @@ def build():
                    "dune_worm": [{"item": "sun_seal_shard", "chance": 0.5, "count": [1, 1], "quest": "the_sealed_gate"}],
                    "tomb_king": [{"item": "sunscar_seal", "chance": 1.0, "count": [1, 1], "quest": "the_tomb_king"}],
                    "starsea_pirate": [{"item": "ledger_page", "chance": 0.35, "count": [1, 1], "quest": "the_skyport_wreck"}]}
+    # S47 legendary chains: each piece drops from its foe while that chain's quest still wants it.
+    for ch in LEGENDS:
+        for pid, pname, src, chance, zone in ch["pieces"]:
+            QUEST_DROPS.setdefault(src, []).append({"item": pid, "chance": chance, "count": [1, 1], "quest": "legend_" + ch["id"]})
     for m in M:
         role = m["role"]
         drops = m.get("drops", [])

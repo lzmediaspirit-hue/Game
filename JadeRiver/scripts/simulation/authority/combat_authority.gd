@@ -35,6 +35,7 @@ var poison_touch: Dictionary = {}    # enemy uid -> sim time the Poison Body las
 var arrays: Array = []               # quick-deployed Array Plates in this room: {actor, kind, x, y, radius, t, tick, ...} (S48)
 var sword_swarm: Dictionary = {}     # actor -> {t, n, next, i}: the sword swarm orbiting you (S47 v1.1; not saved)
 var spirit_hits: Dictionary = {}     # actor -> blows since the Artifact Spirit's skill last struck (S47; not saved)
+var awaken_hits: Dictionary = {}     # actor -> blows since an awakened weapon's skill last struck (S47; not saved)
 var blood_essence: Dictionary = {}   # actor -> {v, t}: the Blood path's meter, fed by kills (S48; transient, not saved)
 
 func subscribe() -> void:
@@ -1061,26 +1062,47 @@ func _weapon_after_hit(c, e: EnemyState, attack: Dictionary) -> void:
 	_spirit_skill(c, attack)
 
 ## S47 Artifact Spirit depth: an awake spirit strikes on its own every so many blows of its blade (its skill), weighed
-## by its affinity and level. A spirit its wielder cannot control keeps its skill to itself.
+## by its affinity and level. A spirit its wielder cannot control keeps its skill to itself. S47 weapon awakening: an
+## awakened weapon strikes on its own too (its family's skill, or a legend's own), on a count of its own.
 func _spirit_skill(c, attack: Dictionary) -> void:
 	var src := str(attack.get("source", ""))
 	if not (src == "basic" or src.begins_with("tech:")): return
-	var w = InventoryAuthority.spirit_weapon(c)
-	if w == null or str(w.get("spirit", "")) != "awake" or not StatRules.spirit_controlled(c, w): return
-	var sk: Dictionary = ContentDB.item(str(w.id)).get("spirit", {}).get("skill", {})
-	if sk.is_empty(): return
-	var n := int(spirit_hits.get(c.id, 0)) + 1
-	if n < int(sk.get("every_hits", 8)):
-		spirit_hits[c.id] = n
-		return
-	spirit_hits[c.id] = 0
+	var w = c.inventory.equipped.get("weapon")
+	if not (w is Dictionary): return
+	if str(w.get("spirit", "")) == "awake" and not w.get("sealed", false) and StatRules.spirit_controlled(c, w):
+		var sk: Dictionary = ContentDB.item(str(w.id)).get("spirit", {}).get("skill", {})
+		if not sk.is_empty() and _count_to(spirit_hits, c.id, int(sk.get("every_hits", 8))):
+			_skill_strike(c, sk, float(sk.get("mult", 1.5)) * StatRules.spirit_power(c, w), "spirit:" + str(w.id), str(w.id))
+	if w.get("awakened", false):
+		var ak := CraftingAuthority.awakened_skill(str(w.id))
+		if not ak.is_empty() and _count_to(awaken_hits, c.id, int(ak.get("every_hits", 12))):
+			_skill_strike(c, ak, float(ak.get("mult", 1.5)), "awakened:" + str(w.id), str(w.id))
+
+## One more blow on a counter; true (and the count starts again) when it reaches `every`.
+func _count_to(counts: Dictionary, actor_id: String, every: int) -> bool:
+	var n := int(counts.get(actor_id, 0)) + 1
+	if n < every:
+		counts[actor_id] = n
+		return false
+	counts[actor_id] = 0
+	return true
+
+## A skill that strikes on its own: a ring around the wielder, or projectiles that pass through every foe in their path.
+func _skill_strike(c, sk: Dictionary, m: float, source: String, item_id: String) -> void:
 	var pv := player_view(c)
-	var m := float(sk.get("mult", 1.5)) * StatRules.spirit_power(c, w)
-	_spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x), "y": float(pv.y), "alt": float(pv.alt) + 60.0, "dir": int(timeline(c.id).facing),
-		"speed": 760.0, "range": float(sk.get("reach", 260)), "pierce": 99, "art": str(sk.get("art", "flying_sword")),
-		"attack": {"damage_type": str(sk.get("damage_type", "qi")), "element": str(sk.get("element", "none")), "mult": [m, m], "range": [0.95, 1.05],
-			"source": "spirit:" + str(w.id)}})
-	emit("artifact_skill_used", {"actor": c.id, "item": str(w.id), "skill": str(sk.get("name", "")), "x": float(pv.x), "y": float(pv.y)})
+	var atk := {"damage_type": str(sk.get("damage_type", "qi")), "element": str(sk.get("element", "none")), "mult": [m, m], "range": [0.95, 1.05], "source": source}
+	var here := Vector2(float(pv.x), float(pv.y))
+	if str(sk.get("shape", "")) == "ring":
+		for e in _enemies_within(here, float(sk.get("reach", 160))):
+			_player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
+	else:
+		var n := maxi(1, int(sk.get("count", 1)))
+		for i in n:
+			_spawn_projectile({"team": "player", "owner": c.id, "x": here.x, "y": here.y + (i - (n - 1) * 0.5) * 14.0, "alt": float(pv.alt) + 60.0,
+				"dir": int(timeline(c.id).facing), "speed": 760.0, "range": float(sk.get("reach", 260)), "pierce": 99, "art": str(sk.get("art", "flying_sword")),
+				"attack": atk, "delay": i * 0.08})
+	emit("artifact_skill_used", {"actor": c.id, "item": item_id, "skill": str(sk.get("name", "")), "x": here.x, "y": here.y,
+		"ring": float(sk.get("reach", 0)) if str(sk.get("shape", "")) == "ring" else 0.0, "awakened": source.begins_with("awakened")})
 
 ## S48 the Poison Body (v1.1): with a poison art known and toxicity past half its tolerance, each hit turns a point of
 ## the body's own toxicity into poison on the foe (once per foe per half second).

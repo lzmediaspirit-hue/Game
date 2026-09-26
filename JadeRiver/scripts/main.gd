@@ -317,6 +317,26 @@ func _handle_preview_args(user_args: Array) -> void:
 				world.player.avatar.outfit = InventoryAuthority.outfit_for(rc)
 				world.player.avatar.last_key = ""
 			Game.inventory.speak(rc, rinst, "awake" if str(rinst.spirit) == "awake" else "gift", true)
+		if str(a).begins_with("--awaken=") and Game.active() != null:
+			# Debug tools (S38): --awaken=item[:awake] holds that weapon at +10 with its Dao at Explanation and a Weapon Soul
+			# Crystal in the bag, awakened already with ":awake" (S47 weapon awakening previews).
+			var kc = Game.active()
+			var ka := str(a).trim_prefix("--awaken=").split(":")
+			var kinst := LootRules.make_instance(ka[0], int(ContentDB.item(ka[0]).get("ilv", 45)), "fine", null, kc.inventory.next_uid)
+			kc.inventory.next_uid += 1
+			kinst.enhance = 10
+			if ka.size() > 1 and ka[1] == "awake": kinst.awakened = true
+			var kwas = kc.inventory.equipped.get("weapon")
+			kc.inventory.equipped["weapon"] = kinst
+			if kwas != null: Game.inventory.apply_add_instance(kc.id, kwas, "debug")
+			var kdao := str(ContentDB.entry("weapon_families", str(ContentDB.item(ka[0]).get("family", ""))).get("dao", "sword"))
+			kc.cultivator.daos[kdao] = {"tier": 4, "insight": 0.0}
+			Unlocks.force_unlock(kc.id, "smithing")
+			Game.inventory.apply_add(kc.id, "weapon_soul_crystal", 1, "debug")
+			Game.combat.refresh_stats(kc.id)
+			if is_instance_valid(world) and world.player:
+				world.player.avatar.outfit = InventoryAuthority.outfit_for(kc)
+				world.player.avatar.last_key = ""
 		if str(a).begins_with("--join=") and Game.active() != null:
 			# Debug tools (S38): --join=sect[:rank] joins a training sect at a rank with 2000 contribution (sect role previews).
 			var ja := str(a).trim_prefix("--join=").split(":")

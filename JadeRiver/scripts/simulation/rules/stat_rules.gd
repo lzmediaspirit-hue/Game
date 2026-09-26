@@ -74,6 +74,10 @@ static func instance_modifiers(slot: String, instance, energy_type: String, c = 
 	if str(instance.get("spirit", "")) == "awake" and def.has("spirit"):
 		var fx: Dictionary = def.spirit.get("effect", {})
 		if not fx.is_empty(): out.append({"stat": str(fx.stat), "op": str(fx.op), "value": float(fx.value) * spirit_power(c, instance), "source": "spirit:" + slot})
+	# S47 legendary chains: a legend made whole carries its own gift.
+	if def.has("legend"):
+		var lx: Dictionary = def.legend.get("effect", {})
+		if not lx.is_empty(): out.append({"stat": str(lx.stat), "op": str(lx.op), "value": float(lx.value), "source": "legend:" + slot})
 	# S47 imitation relics: a forge copy keeps part of the original's gift, always on.
 	if def.has("imitation"):
 		var ix: Dictionary = def.imitation.get("effect", {})

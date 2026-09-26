@@ -5,6 +5,57 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V9d3 · Weapon awakening and legendary chains (S47, v1.1+)
+- **Weapon awakening.** A weapon can be awakened at any forge (the new Awaken section on the Forge's Enhance tab)
+  when:
+  - it is Heaven grade or better and at +10;
+  - its family's Dao is at Explanation (tier 4);
+  - you have a **Weapon Soul Crystal**, which is used up.
+- An awakened weapon:
+  - glows: a warm halo on the weapon side and gold motes rising in front of the body;
+  - strikes on its own every so many blows with its family's skill: Sword Light (jian), Piercing Light (spear),
+    Shadow Twin (short blade), Cleaving Wave (heavy sabre), Gale Leaf (fan), Echoing Note (flute), Twin Arrow (bow),
+    or, as a ring around you, Thunder Knuckles (gauntlets) and Sweeping Gale (staff).
+- New intent `awaken_weapon` and event `weapon_awakened` (a toast and a burst of light).
+- *A Blade That Answers* (Smith Hong, Cloudgate Port, after the Ascension Gate) asks you to forge a Heaven weapon to
+  +10 and gives the first crystal. After that, the Ironroot Clan Forge sells crystals for 900 spirit stones.
+- **Legendary chains** (`legendary_chains.json`). There is one questline per weapon family, nine in all: bare fists
+  have no weapon, so the Fist Dao's chain is the gauntlets'.
+  - Each chain gathers three pieces. One comes from an old foe of the valley (the Drowned Abbot, the Riverbed Serpent,
+    Big Toad Tan and the valley's elites). Two come from the Azure Expanse (its creatures at 12%, and the Thousand-Eye
+    Toad, the Scarlet Kiln Warden and the Tomb King).
+  - A piece drops only while its chain wants it.
+  - An Expert smith makes the pieces whole at a forge (with Mystic ore and Refining Essence). The result is a
+    Mystic-grade legend with a gift of its own.
+  - Awakened at +10, a legend strikes with its own skill instead of its family's.
+  - Smith Bao or Smith Hong gives each chain from the Ascension Gate on. The quest teaches the restoring recipe, and it
+    ends when the legend is awake.
+- **The nine legends:**
+  - Stone Drum Gauntlets (Mountain Drum, a ring);
+  - Riverlight Jian (Riverlight Cut);
+  - Heron's Reach (Heron Strike);
+  - Reedwhisper Dagger (Whisper Through Reeds);
+  - The Ferryman's Pole (Pole the Current, a ring);
+  - Mountainsplit Sabre (Split the Mountain, a ring);
+  - Seven Winds Fan (The Seventh Wind);
+  - Crane Mourning Flute (Crane's Lament);
+  - Dragonfly Bow (Dragonfly Volley, three arrows).
+- **Later steps.** Each chain lists its later steps, a Spirit-grade and a Sage-grade reforging in the Outer Heavens
+  (v1.4 and v1.5). They are data only until those zones exist.
+- **Art.** 28 new icons: the nine chains' pieces (a hilt, a fragment and a caged heart, in each legend's colour) and
+  the Weapon Soul Crystal. The legends use the Mistjade weapon art of their family.
+- **Code.** The Artifact Spirit's skill and a weapon's awakened skill share one strike: projectiles that pass through
+  every foe in their path, or a ring around the wielder.
+- **Tests.**
+  - The new rules suite covers:
+    - the awakening gates (grade, +10, Dao tier, crystal, forge), one awakening per weapon and the flag;
+    - the family skill on its count, and Smith Hong's +10 flag;
+    - the nine chains and a chain's quest shape and Expert recipe;
+    - the gated piece drop, a legend's gift and own skill, and a ring skill.
+  - Data validation checks every chain's weapon, pieces, sources, recipe, quest and later steps, and every
+    family's awakening skill.
+- Debug flag: `--awaken=item[:awake]`.
+
 ### V9d2 · Artifact Spirit depth and imitation relics (S47, v1.0 and v1.1)
 - **Affinity.** A bound relic's spirit, asleep or awake, has an affinity meter (0–100) saved on the blade.
   - **Use** feeds it: one point for every 25 blows the relic lands in your hand.
