@@ -12,7 +12,7 @@ func setup() -> void:
 		{"id": "foundation", "label": Tx.t("ui.cultivation.foundation"), "locked": "" if Unlocks.is_unlocked(ch.id, "foundation") else Unlocks.locked_text("foundation")},
 		{"id": "body", "label": Tx.t("ui.cultivation.body_tab")},
 		{"id": "heart", "label": Tx.t("ui.cultivation.heart")},
-		{"id": "vows", "label": Tx.t("ui.cultivation.vows"), "locked": "" if Unlocks.is_unlocked(ch.id, "vows") else Unlocks.locked_text("vows")},
+		{"id": "vows", "label": Tx.t("ui.cultivation.paths"), "locked": "" if Unlocks.is_unlocked(ch.id, "vows") else Unlocks.locked_text("vows")},
 		{"id": "methods", "label": Tx.t("ui.cultivation.methods")},
 		{"id": "dao", "label": Tx.t("ui.cultivation.dao"), "locked": "" if Unlocks.is_unlocked(ch.id, "dao_tree") else Unlocks.locked_text("dao_tree")},
 		{"id": "seclusion", "label": Tx.t("ui.cultivation.seclusion"), "locked": "" if Unlocks.is_unlocked(ch.id, "seclusion") else Unlocks.locked_text("seclusion")}]
@@ -155,7 +155,8 @@ func _vows(ch) -> void:
 	panel(r)
 	para(Rect2(r.position.x + 24, r.position.y + 14, r.size.x - 48, 50), Tx.t("ui.cultivation.vows_intro") % int(ContentDB.config("vows").get("break_heart_demon", 15)), 17, UiKit.MIST, 2)
 	var vows := ContentDB.all("vows")
-	var top := r.position.y + 74
+	_path_cards(ch, Rect2(r.position.x + 20, r.position.y + 66, r.size.x - 40, 150))
+	var top := r.position.y + 228
 	var h := (r.end.y - top - 12) / float(maxi(1, vows.size()))
 	for i in vows.size():
 		var v: Dictionary = vows[i]
@@ -170,6 +171,42 @@ func _vows(ch) -> void:
 			btn(Rect2(vr.end.x - 190, vr.position.y + (vr.size.y - 46) * 0.5, 172, 46), Tx.t("ui.cultivation.break_vow"), "vow_off", str(v.id), false, true, "", 18)
 		else:
 			btn(Rect2(vr.end.x - 190, vr.position.y + (vr.size.y - 46) * 0.5, 172, 46), Tx.t("ui.cultivation.take_vow"), "vow_on", str(v.id), true, true, "", 18)
+
+## S48 paths as layers: the Blood path (opt-in), the Buddhist path (vows, merit, the Golden Body) and the Poison Body.
+func _path_cards(ch, area: Rect2) -> void:
+	var w := (area.size.x - 24) / 3.0
+	var cards := [Rect2(area.position, Vector2(w, area.size.y)), Rect2(area.position + Vector2(w + 12, 0), Vector2(w, area.size.y)),
+		Rect2(area.position + Vector2((w + 12) * 2, 0), Vector2(w, area.size.y))]
+	var walking := ProgressionAuthority.walks(ch, "blood")
+	panel(cards[0], "minor_panel", "selected" if walking else "normal")
+	text(cards[0].position + Vector2(16, 30), Tx.t("ui.cultivation.blood_path"), 21, UiKit.RED if walking else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+	para(Rect2(cards[0].position + Vector2(16, 40), Vector2(w - 32, 58)), Tx.t("ui.cultivation.blood_path_desc"), 14, UiKit.MIST, 3)
+	if walking:
+		text(cards[0].position + Vector2(16, 116), Tx.t("ui.cultivation.blood_on") % [int(round(Game.combat.blood_lifesteal(ch) * 100.0)), int(Game.combat.essence_of(ch.id))], 15, UiKit.PAPER)
+		btn(Rect2(cards[0].end.x - 142, cards[0].end.y - 50, 128, 40), Tx.t("ui.cultivation.leave_blood"), "path_leave", "blood", false, true, "", 16)
+	else:
+		var cfg: Dictionary = ContentDB.stat_const("paths", {}).get("blood", {})
+		var why := ""
+		if ProgressionRules.realm_index(ch.cultivator.realm_key) < ProgressionRules.realm_index(str(cfg.get("min_realm", "heart_tempering_1"))): why = Tx.t("sim.progression.path_realm")
+		elif ch.relations.alignment > int(cfg.get("alignment_at_most", -20)): why = Tx.t("sim.progression.path_alignment")
+		btn(Rect2(cards[0].end.x - 142, cards[0].end.y - 50, 128, 40), Tx.t("ui.cultivation.walk_blood"), "path_take", "blood", true, why == "", why, 16)
+	var bud: Dictionary = ContentDB.stat_const("paths", {}).get("buddhist", {})
+	var step := int(bud.get("merit_milestone", 100))
+	panel(cards[1], "minor_panel", "selected" if not ch.cultivator.vows.is_empty() else "normal")
+	text(cards[1].position + Vector2(16, 30), Tx.t("ui.cultivation.golden_body"), 21, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+	para(Rect2(cards[1].position + Vector2(16, 40), Vector2(w - 32, 58)), Tx.t("ui.cultivation.golden_body_desc"), 14, UiKit.MIST, 3)
+	text(cards[1].position + Vector2(16, 132), Tx.t("ui.cultivation.merit_line") % [ch.relations.merit, (int(ch.relations.merit / step) + 1) * step, ch.cultivator.vows.size()], 15, UiKit.PAPER)
+	var open: bool = Game.combat.poison_body_active(ch)
+	var has_art := false
+	for tid in ch.cultivator.techniques_known:
+		if bool(ContentDB.entry("techniques", str(tid)).get("poison_path", false)): has_art = true
+	var tol: float = ch.stats.value("toxicity_tolerance")
+	panel(cards[2], "minor_panel", "selected" if open else "normal")
+	text(cards[2].position + Vector2(16, 30), Tx.t("ui.cultivation.poison_body"), 21, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+	para(Rect2(cards[2].position + Vector2(16, 40), Vector2(w - 32, 58)), Tx.t("ui.cultivation.poison_body_desc"), 14, UiKit.MIST, 3)
+	var pline := Tx.t("ui.cultivation.poison_no_art")
+	if has_art: pline = Tx.t("ui.cultivation.poison_open") % [int(ch.cultivator.toxicity), int(tol)] if open else Tx.t("ui.cultivation.poison_closed") % [int(ch.cultivator.toxicity), int(tol * 0.5)]
+	para(Rect2(cards[2].position + Vector2(16, 110), Vector2(w - 32, 36)), pline, 15, UiKit.PAPER, 2)
 
 ## Heart (G1): the meter, the ledger, the foundation and what the pills have left behind.
 func _heart(ch) -> void:
@@ -337,6 +374,9 @@ func on_action(id: String, data) -> void:
 		"fates": navigate.emit("fates", {})
 		"relations": navigate.emit("relations", {})
 		"vow_on": submit({"type": "set_vow", "vow": str(data), "on": true})
+		"path_take": submit({"type": "set_path", "path": str(data), "on": true})
+		"path_leave": ask(Tx.t("ui.cultivation.leave_blood_confirm") % int(ContentDB.stat_const("paths", {}).get("blood", {}).get("leave_heart_demon", 10)), "path_off", data, true)
+		"path_off": submit({"type": "set_path", "path": str(data), "on": false})
 		"vow_off": ask(Tx.t("ui.cultivation.break_vow_confirm") % [ContentDB.name_of("vows", str(data)), int(ContentDB.config("vows").get("break_heart_demon", 15))], "vow_break", data, true)
 		"vow_break": submit({"type": "set_vow", "vow": str(data), "on": false})
 		"meridian": submit({"type": "open_meridian", "channel": str(data)})

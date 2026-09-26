@@ -1070,6 +1070,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1087,6 +1091,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1104,6 +1112,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1121,6 +1133,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1138,6 +1154,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1155,6 +1175,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1172,6 +1196,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1189,6 +1217,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1206,6 +1238,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1223,6 +1259,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "inner_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1240,6 +1280,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "inner_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1257,6 +1301,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "inner_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1274,6 +1322,35 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "core_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "golden_body",
+     "price": 400,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_3"
+       },
+       {
+        "kind": "alignment_at_least",
+        "value": 20
+       },
+       {
+        "kind": "merit_at_least",
+        "value": 50
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1568,6 +1645,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1585,6 +1666,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1602,6 +1687,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1619,6 +1708,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1636,6 +1729,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1653,6 +1750,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1670,6 +1771,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1687,6 +1792,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1704,6 +1813,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "outer_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1721,6 +1834,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "inner_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1738,6 +1855,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "inner_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1755,6 +1876,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "inner_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1772,6 +1897,10 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "inner_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -1789,6 +1918,35 @@
        {
         "kind": "sect_rank_at_least",
         "rank": "core_disciple"
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "golden_body",
+     "price": 400,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_3"
+       },
+       {
+        "kind": "alignment_at_least",
+        "value": 20
+       },
+       {
+        "kind": "merit_at_least",
+        "value": 50
+       },
+       {
+        "kind": "reputation_at_least",
+        "value": 0
        }
       ]
      }
@@ -2588,6 +2746,57 @@
        {
         "kind": "realm_at_least",
         "realm": "heart_tempering_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "crimson_palm",
+     "price": 600,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       },
+       {
+        "kind": "alignment_at_most",
+        "value": -20
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "blood_river_slash",
+     "price": 1400,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_5"
+       },
+       {
+        "kind": "alignment_at_most",
+        "value": -20
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "sanguine_lotus",
+     "price": 3200,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "cloud_stride_1"
+       },
+       {
+        "kind": "alignment_at_most",
+        "value": -20
        }
       ]
      }

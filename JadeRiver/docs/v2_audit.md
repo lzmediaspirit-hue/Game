@@ -150,8 +150,9 @@ Progress is recorded in `docs/CHANGELOG.md`.
   (returning throw, knock-up) and the flute (the held melody aura that slows, confuses and heals, paid in
   Composure), with stances, techniques, the Fan and Music Daos, and Mission Hall manuals for every library technique.
 - V9c1 is done: the Soul line (Sense Lock, Phantom Double, Soul Search, Spirit scaling), the Poison path (two poison
-  arts and the Poison Body), and the S10 meridian gates completed. V9c2 (Blood and Buddhist) and V9c3 (sect role
-  variants) are next.
+  arts and the Poison Body), and the S10 meridian gates completed. V9c2 is done: the Blood path (opt-in by alignment,
+  Blood arts, lifesteal, blood essence, doubled heart demon, sect regard) and the Buddhist path (Golden Body, merit
+  milestones, healing merit). V9c3 (sect role variants) is next.
 - Next (V9): everything v2 makes due by v1.1 that is still open. A sweep of every audit row against the build
   after V8g3 found these, in six phases:
   - **V9a**, hooks and small gaps:
@@ -188,4 +189,6 @@ written neutral from the start and round-trips through a save.
 | `crafting.garden_beds`, `placed_formations` | `crafting.garden`, `crafting.formations` | Named before S45 |
 | pet `bloodline_purity`, `colour_variant`, `wounded_until` | `purity`, `variant`, `wounded` | `wounded` is a flag: the Grievous Wound lasts until it is treated, not on a timer |
 | Flute and guqin (one family) | The `flute` family; the guqin is played at the teahouse (the V8g2 rhythm page) | A held guqin needs its own seated attack poses in every garment before it can be a weapon (AGENTS.md); the flute carries the family's melody aura |
+| (none: v2 names no field for walking a path) | `cultivator.paths {blood: true}` (saved); blood essence is transient in Combat | The Blood path is an opt-in that must survive a save; the meter is transient as v2 says |
+| orthodox-sect reputation | `training_sect.reputation[sect]`, shown as "Regard" | The field existed from S20; the Blood path is the first thing to move it |
 | `flames.json` | Heavenly Flames are items with `use_action: absorb_flame`; absorbed ones are in `crafting.flames` | Flames drop and trade as items |

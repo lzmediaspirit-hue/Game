@@ -19,6 +19,9 @@ func draw_page() -> void:
 	var rank_name := str(ts.get("rank", "")).replace("_", " ").capitalize()
 	text(r.position + Vector2(30, 90), Tx.t("ui.training_sect.rank") % rank_name, 22)
 	currency_pill(r.position + Vector2(30, 110), "contribution", int(ts.get("contribution", 0)))
+	# S48 the Blood path lowers the sect's regard; below zero the Mission Hall lends no manuals.
+	var regard := int(ts.get("reputation", {}).get(str(ts.id), 0))
+	text(r.position + Vector2(330, 140), Tx.t("ui.training_sect.regard") % regard, 20, UiKit.PAPER if regard >= 0 else UiKit.RED)
 	var order: Array = ranks.get("order", [])
 	var i := order.find(str(ts.get("rank", "")))
 	var y := r.position.y + 180

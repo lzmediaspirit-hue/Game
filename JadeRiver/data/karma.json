@@ -172,6 +172,14 @@
    "fame": 0
   },
   {
+   "id": "heal_ally",
+   "name": "Healed an ally in a fight",
+   "merit": 1,
+   "sin": 0,
+   "alignment": 0,
+   "fame": 0
+  },
+  {
    "id": "black_market",
    "name": "Bought in a back room",
    "merit": 0,

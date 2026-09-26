@@ -509,6 +509,31 @@
   "duration_s": 4.0,
   "per_foe_s": 0.5
  },
+ "paths": {
+  "blood": {
+   "min_realm": "heart_tempering_1",
+   "alignment_at_most": -20,
+   "take_alignment": -10,
+   "take_reputation": -20,
+   "use_reputation": -1,
+   "leave_heart_demon": 10,
+   "heart_demon_mult": 2.0,
+   "lifesteal_base": 0.03,
+   "lifesteal_per_tier": 0.01,
+   "blood_art_lifesteal_mult": 2.0,
+   "essence_kill": 10,
+   "essence_elite": 25,
+   "essence_boss": 50,
+   "essence_max": 100,
+   "essence_decay_after_s": 20.0,
+   "essence_decay_per_s": 2.0
+  },
+  "buddhist": {
+   "merit_milestone": 100,
+   "milestone_heart_demon": -10,
+   "heal_ally_daily": 5
+  }
+ },
  "gates": {
   "fight_gap_s": 8.0,
   "sense_cost_mult": 0.75,

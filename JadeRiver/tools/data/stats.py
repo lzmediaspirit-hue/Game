@@ -146,6 +146,15 @@ def build():
         # into poison on the foe (one point a hit, at most once per foe per half second).
         "poison_body": {"threshold": 0.5, "toxicity_per_hit": 1.0, "power": 0.02, "duration_s": 4.0, "per_foe_s": 0.5},
         # S10 meridian gates: a fight begins after this long without a blow (Essence 25: its first technique is free).
+        # S48 paths as layers (v1.1). The Blood path is an opt-in for the demonic side: techniques paid in blood,
+        # lifesteal by the Blood Dao, a blood-essence meter fed by kills that pays those costs first, a doubled heart
+        # demon, and the orthodox sect's regard falling. The Buddhist path: merit milestones calm the heart for
+        # vow-keepers, and healing an ally is merit (a few times a day).
+        "paths": {"blood": {"min_realm": "heart_tempering_1", "alignment_at_most": -20, "take_alignment": -10, "take_reputation": -20,
+                            "use_reputation": -1, "leave_heart_demon": 10, "heart_demon_mult": 2.0, "lifesteal_base": 0.03,
+                            "lifesteal_per_tier": 0.01, "blood_art_lifesteal_mult": 2.0, "essence_kill": 10, "essence_elite": 25,
+                            "essence_boss": 50, "essence_max": 100, "essence_decay_after_s": 20.0, "essence_decay_per_s": 2.0},
+                  "buddhist": {"merit_milestone": 100, "milestone_heart_demon": -10, "heal_ally_daily": 5}},
         "gates": {"fight_gap_s": 8.0, "sense_cost_mult": 0.75, "flight_qi_mult": 0.8, "soul_ignore": 0.2, "insight_site_mult": 2.0},
         # S48 nascent-soul escape: from Sage a grave wound costs 5% of the stage instead of 10%.
         "soul_escape": {"from": "sage_1", "progress_loss": 0.05},

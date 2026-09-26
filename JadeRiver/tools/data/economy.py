@@ -43,7 +43,12 @@ def shops():
             if src not in rank or (src == "cloud_library" and sect_id != "cloud_sect"):
                 continue
             out.append(s("technique_manual", learn=t["id"], price=price[src],
-                         requires=all_of(realm(t["unlock"]), {"kind": "sect_rank_at_least", "rank": rank[src]})))
+                         requires=all_of(realm(t["unlock"]), {"kind": "sect_rank_at_least", "rank": rank[src]},
+                                         {"kind": "reputation_at_least", "value": 0})))
+        # S48 the Buddhist path: the Golden Body, lent to the upright who have earned merit.
+        out.append(s("technique_manual", learn="golden_body", price=400,
+                     requires=all_of(realm("heart_tempering_3"), {"kind": "alignment_at_least", "value": 20},
+                                     {"kind": "merit_at_least", "value": 50}, {"kind": "reputation_at_least", "value": 0})))
         return out
 
     def inner_art_stock():
@@ -209,7 +214,11 @@ def shops():
                    s("bonding_offering_common", price=60), s("spirit_egg", price=900, requires=all_of(realm("qi_unfurling_1"))),
                    # S48 the Poison path: the peddler's copies of two poison arts.
                    s("technique_manual", learn="venom_needles", price=420, requires=all_of(realm("qi_unfurling_1"))),
-                   s("technique_manual", learn="miasma_palm", price=900, requires=all_of(realm("heart_tempering_1")))]},
+                   s("technique_manual", learn="miasma_palm", price=900, requires=all_of(realm("heart_tempering_1"))),
+                   # S48 the Blood path: only for those who lean demonic.
+                   s("technique_manual", learn="crimson_palm", price=600, requires=all_of(realm("heart_tempering_1"), {"kind": "alignment_at_most", "value": -20})),
+                   s("technique_manual", learn="blood_river_slash", price=1400, requires=all_of(realm("heart_tempering_5"), {"kind": "alignment_at_most", "value": -20})),
+                   s("technique_manual", learn="sanguine_lotus", price=3200, requires=all_of(realm("cloud_stride_1"), {"kind": "alignment_at_most", "value": -20}))]},
         {"id": "ironroot_clan", "name": "Ironroot Clan Forge", "currency": "spirit_stone", "buys_all": True,
          "discount": {"flag": "clan_ironroot", "pct": 0.15},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_staff"), s("stormsilk_robe"),

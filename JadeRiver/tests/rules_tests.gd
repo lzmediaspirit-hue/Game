@@ -77,6 +77,7 @@ func _main() -> void:
 	v2_hooks_suite()
 	weapon_families_suite()
 	soul_poison_suite()
+	blood_buddhist_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -640,6 +641,163 @@ func soul_poison_suite() -> void:
 	c.cultivator.techniques_known = known_before
 	c.cultivator.toxicity = tox_before
 	c.cooldowns.erase("free_reroll_wk")
+	Game.combat.refresh_stats(c.id)
+
+# ------------------------------------------------------------------ S48 the Blood path and the Buddhist path (v1.1)
+func blood_buddhist_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var st: ActorState = Game.actor_state(c.id)
+	Game.world.apply_teleport(c.id, "wp_west")
+	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear"]: Game.combat.cure_status(c.id, sid)
+	Unlocks.force_unlock(c.id, "vows")
+	var realm_before: String = c.cultivator.realm_key
+	var align_before: int = c.relations.alignment
+	var merit_before: int = c.relations.merit
+	var hd_before: float = c.cultivator.heart_demon
+	var vows_before: Array = c.cultivator.vows.duplicate()
+	var known_before: Array = c.cultivator.techniques_known.duplicate()
+	var slot_before = c.cultivator.technique_slots[0]
+	var ts_before: Dictionary = c.training_sect.duplicate(true)
+	var daos_had_blood: bool = c.cultivator.daos.has("blood")
+	if ProgressionRules.realm_index(c.cultivator.realm_key) < ProgressionRules.realm_index("heart_tempering_1"): c.cultivator.realm_key = "heart_tempering_1"
+	if str(c.training_sect.get("id", "")) == "": c.training_sect = {"id": "jade_sect", "rank": "outer_disciple", "contribution": 0, "reputation": {"jade_sect": 10}}
+	var sect := str(c.training_sect.id)
+	var heard := {"path": 0}
+	var listen := func(n: String, _p: Dictionary):
+		if n == "path_changed": heard.path = int(heard.path) + 1
+	GameEvents.event.connect(listen)
+	# The Blood path: an opt-in for a demonic heart.
+	c.cultivator.paths.erase("blood")
+	c.relations.alignment = 0
+	var r0 := Game.submit({"type": "set_path", "path": "blood", "on": true})
+	check(not r0.get("ok", false) and str(r0.get("reason", "")) == "alignment", "a righteous or neutral heart cannot take the Blood path")
+	c.relations.alignment = -30
+	var rep0 := int(c.training_sect.get("reputation", {}).get(sect, 0))
+	var r1 := Game.submit({"type": "set_path", "path": "blood", "on": true})
+	GameEvents.flush()
+	check(r1.get("ok", false) and ProgressionAuthority.walks(c, "blood") and int(heard.path) == 1, "at alignment -30 the Blood path is taken (%s)" % str(r1))
+	check(c.relations.alignment == -40 and int(c.training_sect.reputation.get(sect, 0)) == rep0 - 20 and c.cultivator.daos.has("blood"),
+		"taking it costs 10 alignment and 20 sect regard, and opens the Blood Dao")
+	var snap: Dictionary = JSON.parse_string(JSON.stringify(c.cultivator.snapshot()))
+	var copy := CultivatorState.new()
+	copy.restore(snap)
+	check(bool(copy.paths.get("blood", false)), "the path survives a save")
+	c.cultivator.heart_demon = 10.0
+	Game.progression.apply_heart_demon(c.id, 5.0, "test")
+	check(near(c.cultivator.heart_demon, 20.0, 0.01), "on the Blood path the heart demon grows twice as fast")
+	# Blood arts: health for power; blood essence pays first; the sect's regard falls with each.
+	if not c.cultivator.techniques_known.has("crimson_palm"): c.cultivator.techniques_known.append("crimson_palm")
+	c.cultivator.technique_slots[0] = "crimson_palm"
+	_idle_hands(c)
+	c.pools.hp = c.pools.max_hp
+	c.pools.qi = c.pools.max_qi
+	c.pools.cooldowns.erase("tech:crimson_palm")
+	Game.combat.blood_essence.erase(c.id)
+	var rep1 := int(c.training_sect.reputation.get(sect, 0))
+	var u1 := Game.submit({"type": "use_technique", "slot": 0, "facing": 1})
+	check(u1.get("ok", false) and near(c.pools.hp, c.pools.max_hp * 0.95, 1.0), "Crimson Palm costs 5%% of health (%s)" % str(u1))
+	check(int(c.training_sect.reputation.get(sect, 0)) == rep1 - 1, "and a point of the sect's regard")
+	_idle_hands(c)
+	c.pools.hp = c.pools.max_hp
+	c.pools.cooldowns.erase("tech:crimson_palm")
+	Game.combat._feed_blood_essence({"victim_kind": "enemy", "killer": c.id, "def": "wild_boarlet", "elite": false, "role": "normal"})
+	check(near(Game.combat.essence_of(c.id), 10.0, 0.01), "a kill gives 10 blood essence")
+	Game.submit({"type": "use_technique", "slot": 0, "facing": 1})
+	check(near(c.pools.hp, c.pools.max_hp, 1.0) and near(Game.combat.essence_of(c.id), 5.0, 0.01), "blood essence pays the art's cost first")
+	_idle_hands(c)
+	Game.combat._feed_blood_essence({"victim_kind": "enemy", "killer": c.id, "def": "wild_boarlet", "elite": true, "role": "elite"})
+	Game.combat._feed_blood_essence({"victim_kind": "enemy", "killer": c.id, "def": "wild_boarlet", "elite": false, "role": "boss"})
+	Game.combat._feed_blood_essence({"victim_kind": "enemy", "killer": c.id, "def": "wild_boarlet", "elite": false, "role": "boss"})
+	check(near(Game.combat.essence_of(c.id), 100.0, 0.01), "elites give 25, bosses 50, up to 100")
+	Game.combat.blood_essence[c.id].t = Game.sim_time - 30.0
+	for i in 20: Game.tick(0.05)
+	check(Game.combat.essence_of(c.id) < 99.0, "unfed for 20 s, it drains")
+	# Lifesteal: 3% (+1% a Blood Dao tier), twice that for a Blood art.
+	c.cultivator.daos["blood"] = {"tier": 0, "insight": 0.0}
+	check(near(Game.combat.blood_lifesteal(c), 0.03, 0.0001), "lifesteal is 3% at Blood Dao tier 0")
+	c.pools.hp = c.pools.max_hp * 0.5
+	var h0: float = c.pools.hp
+	Game.combat._lifesteal(c, 1000.0, {"source": "basic"})
+	check(near(c.pools.hp - h0, 30.0, 0.5), "a 1000 blow drinks back 30 health")
+	h0 = c.pools.hp
+	Game.combat._lifesteal(c, 1000.0, {"technique": "crimson_palm"})
+	check(near(c.pools.hp - h0, 60.0, 0.5), "a Blood art drinks back twice that")
+	# The sect's regard below zero closes the Mission Hall's manuals.
+	c.training_sect.reputation[sect] = -5
+	var hall := ContentDB.entry("shops", sect)
+	var gated := {}
+	for sitem in hall.get("stock", []):
+		if str(sitem.get("item", "")) == "technique_manual" and str(sitem.get("learn", "")) == "tiger_rush": gated = sitem.get("requires", {})
+	check(not gated.is_empty() and not RequirementRules.passes(gated, Game.ctx(c)), "with the sect's regard below zero the Mission Hall lends no manuals")
+	c.training_sect.reputation[sect] = 10
+	check(RequirementRules.passes(gated, Game.ctx(c)) or ProgressionRules.realm_index(c.cultivator.realm_key) < ProgressionRules.realm_index("qi_kindling_5"), "and at 10 it does again")
+	# Leaving the path marks the heart.
+	c.cultivator.heart_demon = 0.0
+	var off := Game.submit({"type": "set_path", "path": "blood", "on": false})
+	GameEvents.flush()
+	check(off.get("ok", false) and not ProgressionAuthority.walks(c, "blood") and near(c.cultivator.heart_demon, 10.0, 0.01), "leaving the Blood path adds 10 heart demon")
+	_idle_hands(c)
+	c.pools.cooldowns.erase("tech:crimson_palm")
+	var u3 := Game.submit({"type": "use_technique", "slot": 0, "facing": 1})
+	check(str(u3.get("reason", "")) == "needs_blood_path", "off the path, Blood arts cannot be used")
+	# The Buddhist path: merit milestones calm a vow-keeper's heart; healing allies is merit; the Golden Body needs a vow.
+	c.cultivator.vows.clear()
+	c.cultivator.heart_demon = 30.0
+	c.relations.merit = 95
+	Game.relations.apply_karma(c.id, 10, 0, "test")
+	check(near(c.cultivator.heart_demon, 30.0, 0.01), "without a vow, merit milestones do not calm the heart")
+	Game.submit({"type": "set_vow", "vow": "mercy", "on": true})
+	c.relations.merit = 195
+	Game.relations.apply_karma(c.id, 10, 0, "test")
+	check(near(c.cultivator.heart_demon, 20.0, 0.01), "a vow-keeper crossing 200 merit loses 10 heart demon")
+	var ally: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(-60, 0), 5)
+	ally.team = "ally"
+	for k in c.relations.deeds.keys():
+		if str(k).begins_with("heal_ally:"): c.relations.deeds.erase(k)
+	var m0: int = c.relations.merit
+	for i in 7: Game.combat.heal_circle(c, 0.01, 1.0, 220.0, "test")
+	check(c.relations.merit == m0 + 5, "healing an ally is merit, five times a day (%d)" % (c.relations.merit - m0))
+	ally.alive = false
+	Game.combat.ally_hots.clear()
+	if not c.cultivator.techniques_known.has("golden_body"): c.cultivator.techniques_known.append("golden_body")
+	c.cultivator.technique_slots[0] = "golden_body"
+	c.cultivator.vows.clear()
+	_idle_hands(c)
+	c.pools.composure = 100.0
+	c.pools.cooldowns.erase("tech:golden_body")
+	var g0 := Game.submit({"type": "use_technique", "slot": 0, "facing": 1})
+	check(str(g0.get("reason", "")) == "needs_vow", "the Golden Body answers only a vow-keeper")
+	c.cultivator.vows.append("plain_fare")
+	var def0: float = c.stats.value("physical_defense")
+	Game.combat._resolve_technique(c, ContentDB.entry("techniques", "golden_body"))
+	check(c.stats.value("physical_defense") > def0 * 1.2, "the Golden Body hardens the body (+25%% defence: %.0f -> %.0f)" % [def0, c.stats.value("physical_defense")])
+	# Where the arts are found.
+	var peddler := ContentDB.entry("shops", "night_peddler")
+	var blood_ok := 0
+	for sitem in peddler.get("stock", []):
+		if str(sitem.get("learn", "")) in ["crimson_palm", "blood_river_slash", "sanguine_lotus"]:
+			for cond in sitem.get("requires", {}).get("all", []):
+				if str(cond.get("kind", "")) == "alignment_at_most": blood_ok += 1
+	check(blood_ok == 3, "the night peddler sells the three Blood arts to the demonic side only")
+	var gb := false
+	for sitem in ContentDB.entry("shops", "cloud_sect").get("stock", []):
+		if str(sitem.get("learn", "")) == "golden_body": gb = true
+	check(gb, "the Cloud Mission Hall lends the Golden Body")
+	GameEvents.event.disconnect(listen)
+	for m in c.stats.modifiers.duplicate():
+		if str(m.get("source", "")).begins_with("tech:golden_body"): c.stats.remove_source(str(m.source))
+	c.cultivator.paths.erase("blood")
+	c.cultivator.realm_key = realm_before
+	c.relations.alignment = align_before
+	c.relations.merit = merit_before
+	c.cultivator.heart_demon = hd_before
+	c.cultivator.vows = vows_before
+	c.cultivator.techniques_known = known_before
+	c.cultivator.technique_slots[0] = slot_before
+	c.training_sect = ts_before
+	if not daos_had_blood: c.cultivator.daos.erase("blood")
+	Game.combat.blood_essence.erase(c.id)
 	Game.combat.refresh_stats(c.id)
 
 # ------------------------------------------------------------------ S47 natal treasure, wardrobe, blood-drop, rogue cultivators

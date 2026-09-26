@@ -322,6 +322,12 @@
     "progression_authority"
    ]
   },
+  "path_changed": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
   "attack_started": {
    "system": "Combat",
    "files": [

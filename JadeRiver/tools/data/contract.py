@@ -61,7 +61,7 @@ DEPTH = {
     "Progression": ["pill_resistance_changed", "foundation_changed", "heart_demon_changed", "residue_changed", "body_trial_passed", "body_tier_reached", "physique_awakened", "core_graded",
                     "fate_offered", "fate_chosen", "tribulation_started", "tribulation_bolt", "tribulation_result", "qi_deviation",
                     "inner_art_learned", "inner_art_equipped", "stance_changed", "vow_taken", "vow_broken", "false_realm_changed",
-                    "epiphany", "soul_escaped", "guqin_played", "chess_solved"],
+                    "epiphany", "soul_escaped", "guqin_played", "chess_solved", "path_changed"],
     "Crafting": ["flame_absorbed", "pill_cloud", "items_salvaged", "enhancement_inherited", "affixes_rerolled", "affix_locked", "talisman_crafted",
                  "relic_restored", "furnace_blast", "recipe_page_found", "recipe_deduced", "experiment_result", "guild_exam_started",
                  "guild_exam_failed", "guild_rank_changed", "commission_completed", "pill_tribulation_result", "pill_soul_flight",

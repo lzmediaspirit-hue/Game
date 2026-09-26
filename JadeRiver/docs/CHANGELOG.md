@@ -5,6 +5,34 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V9c2 · The Blood path and the Buddhist path (S48, S49 alignment)
+- **The Blood path** (v1.1) is an opt-in for a demonic heart. It never locks anything else.
+  - Take it on the Cultivation page's new **Paths** tab (the Vows tab, renamed), from Heart Tempering 1 at alignment
+    -20 or lower. Taking it costs 10 alignment and 20 of the training sect's regard, and opens the Blood Dao.
+  - Leaving it adds 10 heart demon.
+  - While on it: the heart demon grows twice as fast; every hit drinks back 3% of its damage (+1% per Blood Dao
+    tier, twice that for Blood arts); kills fill a blood-essence meter (10 a foe, 25 an elite, 50 a boss, up to
+    100; it drains after 20 s without a kill). A thin crimson strip under the HUD bars shows it.
+  - **Three Blood arts**, sold by Peddler Shao at night to the demonic side only. Each spends health, and blood
+    essence pays first (one point per 1% of health). Each use costs a point of sect regard:
+    - Crimson Palm (5%, Heart Tempering 1);
+    - Blood River Slash (10%, Heart Tempering 5);
+    - Sanguine Lotus (15%, Cloud Stride 1).
+  - **Sect regard** now shows on the Sect page. Below zero, the Mission Hall lends no technique manuals (the new
+    `reputation_at_least` requirement).
+- **The Buddhist path** (v1.1):
+  - **Golden Body** (Heart Tempering 3): for a vow-keeper only, +25% Physical Defence and Qi Resistance and +15%
+    healing received for 10 s. The Mission Halls lend it to the upright (alignment 20, merit 50).
+  - **Merit milestones calm the heart**: each hundred merit a vow-keeper crosses takes 10 heart demon away.
+  - **Healing an ally is merit**: Clear Heart Melody reaching a companion or pet gives +1 merit, five times a day.
+- The Paths tab shows three cards (the Blood path, the Buddhist path, the Poison Body) above the vows.
+- New event: `path_changed` (HUD). Four new technique icons.
+- The new rules suite covers:
+  - the alignment gate, the costs of taking and leaving the path, and the path surviving a save;
+  - the doubled heart demon, the Blood arts' costs paid from blood essence, the essence gains and drain;
+  - lifesteal, and the sect-regard gate on manuals;
+  - merit milestones, the daily healing merit and the Golden Body's vow gate.
+
 ### V9c1 · The Soul line, the Poison path and the meridian gates (S48, S10)
 - **The Soul line** (S48, v1.0). The Soul Dao's first three tiers each teach a technique:
   - **Sense Lock** (tier 1): fixes your Spirit Sense on one foe within 420 for 8 s. It cannot evade you and cannot

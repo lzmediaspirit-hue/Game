@@ -1778,6 +1778,204 @@
    "grade": "heaven"
   },
   {
+   "id": "crimson_palm",
+   "name": "Crimson Palm",
+   "family": "any",
+   "element": "fire",
+   "damage_type": "physical",
+   "mult": [
+    1.7,
+    2.1
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     90
+    ],
+    "depth": 30,
+    "alt": [
+     -30,
+     60
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 6,
+   "qi_cost": 8,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "blood",
+   "unlock": "heart_tempering_1",
+   "source": "night_peddler",
+   "desc": "A palm soaked in your own blood: costs 5% of your health. Blood path only.",
+   "action": "punch",
+   "icon": "crimson_palm",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "hp_cost_pct": 0.05,
+   "blood_path": true,
+   "grade": "earth"
+  },
+  {
+   "id": "blood_river_slash",
+   "name": "Blood River Slash",
+   "family": "any",
+   "element": "fire",
+   "damage_type": "qi",
+   "mult": [
+    1.3,
+    1.6
+   ],
+   "hits": 1,
+   "max_targets": 8,
+   "hitbox": {
+    "x": [
+     -10,
+     110
+    ],
+    "depth": 30,
+    "alt": [
+     -10,
+     80
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 9,
+   "qi_cost": 12,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "blood",
+   "unlock": "heart_tempering_5",
+   "source": "night_peddler",
+   "desc": "A river of blood-red Qi that runs 360 units through every foe: costs 10% of your health. Blood path only.",
+   "action": null,
+   "icon": "blood_river_slash",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "projectile": {
+    "speed": 600,
+    "range": 360,
+    "count": 1,
+    "pierce": 8
+   },
+   "hp_cost_pct": 0.1,
+   "blood_path": true,
+   "grade": "earth"
+  },
+  {
+   "id": "sanguine_lotus",
+   "name": "Sanguine Lotus",
+   "family": "any",
+   "element": "fire",
+   "damage_type": "qi",
+   "mult": [
+    2.2,
+    2.6
+   ],
+   "hits": 1,
+   "max_targets": 8,
+   "hitbox": {
+    "x": [
+     -10,
+     200
+    ],
+    "depth": 70,
+    "alt": [
+     -10,
+     80
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 16,
+   "qi_cost": 20,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "blood",
+   "unlock": "cloud_stride_1",
+   "source": "night_peddler",
+   "desc": "A lotus of blood opens around you and strikes every foe within 200: costs 15% of your health. Blood path only.",
+   "action": "meditate_burst",
+   "icon": "sanguine_lotus",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "hp_cost_pct": 0.15,
+   "blood_path": true,
+   "both_sides": true,
+   "grade": "heaven"
+  },
+  {
+   "id": "golden_body",
+   "name": "Golden Body",
+   "family": "any",
+   "element": "earth",
+   "damage_type": "buff",
+   "mult": [
+    0,
+    0
+   ],
+   "hits": 0,
+   "max_targets": 0,
+   "hitbox": {
+    "x": [
+     -10,
+     110
+    ],
+    "depth": 30,
+    "alt": [
+     -30,
+     60
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 40,
+   "qi_cost": 0,
+   "soul_cost": 0,
+   "composure_cost": 25,
+   "dao": "earth",
+   "unlock": "heart_tempering_3",
+   "source": "mission_hall",
+   "desc": "Hold a vow and your body turns to gold for 10 s: +25% Physical Defence and Qi Resistance, +15% healing received.",
+   "action": "meditate_burst",
+   "icon": "golden_body",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "needs_vow": true,
+   "buffs": [
+    {
+     "stat": "physical_defense",
+     "op": "pct_add",
+     "value": 0.25,
+     "duration": 10
+    },
+    {
+     "stat": "qi_resistance",
+     "op": "pct_add",
+     "value": 0.25,
+     "duration": 10
+    },
+    {
+     "stat": "healing_received",
+     "op": "flat",
+     "value": 0.15,
+     "duration": 10
+    }
+   ],
+   "grade": "earth"
+  },
+  {
    "id": "venom_needles",
    "name": "Venom Needles",
    "family": "any",

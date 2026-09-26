@@ -128,6 +128,23 @@ def build():
         tech("soul_search", "spirit_awakening_3", "soul_dao_3", "any", "soul", "soul", (0.80, 1.00), 1, 1, 18, 0,
              "A spike into an elite's soul that ignores armour. If it dies within 12 s, you read its memories (a Codex page) and find what it hid (an extra drop).",
              soul=20, reach=220, soul_search_s=12, ignore_armor=True, action="meditate_burst"),
+        # S48 the Blood path (v1.1): usable only while walking it; each costs a share of max HP (blood essence pays first).
+        tech("crimson_palm", "heart_tempering_1", "night_peddler", "any", "fire", "physical", (1.70, 2.10), 1, 1, 6, 8,
+             "A palm soaked in your own blood: costs 5% of your health. Blood path only.", hp_cost_pct=0.05, blood_path=True,
+             dao="blood", reach=90, action="punch"),
+        tech("blood_river_slash", "heart_tempering_5", "night_peddler", "any", "fire", "qi", (1.30, 1.60), 1, 8, 9, 12,
+             "A river of blood-red Qi that runs 360 units through every foe: costs 10% of your health. Blood path only.",
+             projectile={"speed": 600, "range": 360, "count": 1, "pierce": 8}, hp_cost_pct=0.10, blood_path=True, dao="blood"),
+        tech("sanguine_lotus", "cloud_stride_1", "night_peddler", "any", "fire", "qi", (2.20, 2.60), 1, 8, 16, 20,
+             "A lotus of blood opens around you and strikes every foe within 200: costs 15% of your health. Blood path only.",
+             hp_cost_pct=0.15, blood_path=True, dao="blood", both_sides=True, reach=200, depth=70, action="meditate_burst"),
+        # S48 the Buddhist path (v1.1): the Golden Body, for those who hold a vow.
+        tech("golden_body", "heart_tempering_3", "mission_hall", "any", "earth", "buff", (0, 0), 0, 0, 40, 0,
+             "Hold a vow and your body turns to gold for 10 s: +25% Physical Defence and Qi Resistance, +15% healing received.",
+             composure=25, needs_vow=True, dao="earth", action="meditate_burst",
+             buffs=[{"stat": "physical_defense", "op": "pct_add", "value": 0.25, "duration": 10},
+                    {"stat": "qi_resistance", "op": "pct_add", "value": 0.25, "duration": 10},
+                    {"stat": "healing_received", "op": "flat", "value": 0.15, "duration": 10}]),
         # S48 the Poison path (v1.1): sold at night on the Caravan Road. Knowing one opens the Poison Body.
         tech("venom_needles", "qi_unfurling_1", "night_peddler", "any", "wood", "physical", (0.40, 0.55), 3, 3, 8, 12,
              "Three seeking needles; each poisons its mark (2% of its health a second for 5 s).",

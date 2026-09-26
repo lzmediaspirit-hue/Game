@@ -680,6 +680,8 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.sword_released"), UiKit.PALE_GOLD)
 		"sword_returned":
 			if str(p.get("reason", "")) != "recalled": add_log(Tx.t("hud.sword_returned"), UiKit.MIST)
+		"path_changed":
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.path_blood_on" if p.get("on", false) else "hud.path_blood_off"), UiKit.RED)
 		"illusion_cast":
 			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.illusion_cast"), UiKit.SOUL)
 		"illusion_broken":
@@ -737,6 +739,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if p.has("charges"): add_log(Tx.t("hud.talisman_charges") % int(p.charges) if int(p.charges) > 0 else Tx.t("hud.talisman_spent"), UiKit.PALE_GOLD)
 		# Gap report G1: the heart, the ledger, the flames and debts that come due.
 		"heart_demon_changed":
+			if str(p.get("source", "")) == "merit_milestone" and str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.merit_milestone") % int(p.value), UiKit.GOLD)
 			if p.get("step_crossed", false):
 				if float(p.get("delta", 0)) > 0: toast(Tx.t("hud.heart_demons_stir") % int(p.value), "danger")
 				else: add_log(Tx.t("hud.heart_demons_calm"), UiKit.BRIGHT_JADE)
@@ -1317,6 +1320,11 @@ func _draw_player_panel(c) -> void:
 		y += 15
 	if soul_row:
 		bar(Rect2(r.position.x + 122, r.position.y + y, 222, 10), c.pools.soul / c.pools.max_soul, UiKit.SOUL, Tx.t("hud.sl"), "%d/%d" % [int(c.pools.soul), int(c.pools.max_soul)])
+	# S48 the Blood path: a thin crimson strip for the blood essence kills have gathered.
+	if ProgressionAuthority.walks(c, "blood"):
+		var strip := Rect2(r.position.x + 122, r.end.y - 9, 222, 4)
+		draw_rect(strip.grow(1), UiKit.INK)
+		draw_rect(Rect2(strip.position, Vector2(strip.size.x * clampf(Game.combat.essence_of(c.id) / 100.0, 0.0, 1.0), strip.size.y)), Color("b3202e"))
 	# Status stack (injuries, stability, toxicity, composure, buffs, statuses).
 	var icons: Array = []
 	for kind in c.cultivator.injuries: icons.append("injury_" + kind)

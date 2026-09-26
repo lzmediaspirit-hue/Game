@@ -313,7 +313,7 @@ func data_suite() -> void:
 		check(str(cb.get("effect", {}).get("kind", "")) in ["shockwave", "extra_target", "pull", "bleed", "stun", "root"], "combo %s effect" % cb.id)
 	for tq in ContentDB.all("techniques"): check(str(tq.get("grade", "")) in ["common", "earth", "heaven"], "technique %s grade" % tq.id)
 	# S49: alignment, karma and Fame may gate optional content, never a realm (Part 7 forbidden patterns).
-	var rel_kinds := ["alignment_at_least", "alignment_at_most", "merit_at_least", "fame_at_least"]
+	var rel_kinds := ["alignment_at_least", "alignment_at_most", "merit_at_least", "fame_at_least", "reputation_at_least"]
 	for rr in ContentDB.all("realms"):
 		for cond in rr.get("major_breakthrough", {}).get("requirements", {}).get("all", []):
 			check(not str(cond.get("kind", "")) in rel_kinds, "realm %s: no %s on a breakthrough" % [rr.id, cond.get("kind", "")])

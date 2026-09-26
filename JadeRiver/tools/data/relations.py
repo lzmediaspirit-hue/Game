@@ -54,6 +54,8 @@ def deeds():
         deed("ledger_returned", "Sold the ledger back to its owners", sin=10, alignment=-10, once=True),
         # Code: each patient treated with the Healing craft (Part 8: +2 merit).
         deed("heal_patient", "Healed a patient", merit=2),
+        # Code: a healing art that reaches an ally (S48 the Buddhist path; a few times a day).
+        deed("heal_ally", "Healed an ally in a fight", merit=1),
         # Events.
         deed("black_market", "Bought in a back room", sin=2, alignment=-1, per_count=True, **on("item_bought", shop="free_market")),
         deed("beast_tide_held", "Held the gate against the Beast Tide", merit=10, alignment=2, fame=10, **on("beast_tide_result", won=True)),

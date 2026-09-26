@@ -29,6 +29,8 @@ EL = {  # disc ramp, mark ramp
               ['#74522A', '#A87E40', '#E6C88A', '#FAEECC', '#FFFFFF']),
     'wind': (['#0A2220', '#133C38', '#1E5A54', '#34827A', '#68B4A8'],
              ['#3A7E74', '#6AB4A6', '#B4EEDE', '#E8FFF6', '#FFFFFF']),
+    'blood': (['#1A0508', '#3A0B12', '#5E121C', '#8A1B28', '#C0303A'],
+              ['#6E1520', '#B3202E', '#E45858', '#FF9C86', '#FFE0D8']),
     'soul': (['#150C26', '#251640', '#3A2466', '#583C92', '#8A6CC4'],
              ['#553A90', '#8A6ACA', '#D0BCF6', '#F2EAFF', '#FFFFFF']),
     'shadow': (['#08060F', '#120F20', '#1E1934', '#302A50', '#524A7C'],
@@ -762,6 +764,47 @@ def miasma_palm():
     return done(c)
 
 
+def _drop(c, x, y, r):
+    return c.circle(x, y + r * 0.4, r) | c.poly([(x - r * 0.9, y + r * 0.1), (x, y - r * 1.8), (x + r * 0.9, y + r * 0.1)])
+
+
+def crimson_palm():
+    c, mk, d = emblem('blood')
+    palm = S.rounded_rect(c, 10, 11, 19, 22, 2) | c.rect(10, 6, 11.6, 12) | c.rect(12.6, 5, 14.2, 12) | c.rect(15.2, 5, 16.8, 12) | c.rect(17.8, 6.5, 19, 12)
+    mark(c, palm, mk, base=3)
+    for (x, y, r) in ((22.5, 18, 1.8), (21, 24.5, 1.5), (13.5, 26, 1.4)):
+        c.put(_drop(c, x, y, r), mk, 'flat', base=2)
+    return done(c)
+
+
+def blood_river_slash():
+    c, mk, d = emblem('blood')
+    arc = crescent(c, 14, 17, 11, 4, 3, 11) & c.circle(16, 16, 12.8)
+    mark(c, arc, mk, base=3)
+    for (x, y, r) in ((23, 12, 1.5), (25, 18, 1.3), (22, 23, 1.2)):
+        c.put(_drop(c, x, y, r), mk, 'flat', base=4)
+    return done(c)
+
+
+def sanguine_lotus():
+    c, mk, d = emblem('blood')
+    # Petals drawn back to front, each with its own keyline, so the flower reads as petals, not a blob.
+    for (x, y, rx, ry, base) in ((8.5, 19.5, 2.6, 4.6, 2), (23.5, 19.5, 2.6, 4.6, 2), (11.5, 16.5, 3.2, 6.5, 3),
+                                 (20.5, 16.5, 3.2, 6.5, 3), (16, 13.5, 3.6, 8.2, 4)):
+        mark(c, c.ellipse(x, y, rx, ry) & c.circle(16, 16, 12.6), mk, base=base)
+    mark(c, c.ellipse(16, 23.5, 9, 2.3), mk, base=1)
+    return done(c)
+
+
+def golden_body():
+    c, mk, d = emblem('heaven')
+    halo = c.ring(16, 11, 6.5, 1.2) & c.circle(16, 16, 12.8)
+    c.put(halo, R['gold'], 'flat', base=3)
+    body = c.circle(16, 10.5, 3) | c.poly([(11.5, 14.5), (20.5, 14.5), (22, 21), (10, 21)]) | c.ellipse(16, 22.5, 9, 3)
+    mark(c, body, R['gold'], base=3)
+    return done(c)
+
+
 TECHS = [
     ('flowing_palm', flowing_palm), ('jade_thrust', jade_thrust), ('cloudpiercing_stroke', cloudpiercing_stroke),
     ('reedcutter_slash', reedcutter_slash), ('riverstone_sweep', riverstone_sweep),
@@ -782,6 +825,8 @@ TECHS = [
     ('returning_crane_fan', returning_crane_fan), ('reed_song', reed_song), ('clear_heart_melody', clear_heart_melody),
     ('sense_lock', sense_lock), ('phantom_double', phantom_double), ('soul_search', soul_search),
     ('venom_needles', venom_needles), ('miasma_palm', miasma_palm),
+    ('crimson_palm', crimson_palm), ('blood_river_slash', blood_river_slash), ('sanguine_lotus', sanguine_lotus),
+    ('golden_body', golden_body),
 ]
 for _id, _fn in TECHS:
     register(FAM, _id, _fn, GROUP)

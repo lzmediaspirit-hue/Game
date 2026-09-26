@@ -32,6 +32,7 @@ var ally_hots: Dictionary = {}       # ally uid -> [{per_s, left}]: heals over t
 var decoys: Dictionary = {}          # actor -> {x, y, alt, t, hits, max_hits, radius}: Phantom Double's illusion (S48 Soul line; not saved)
 var searched: Dictionary = {}        # enemy uid (text) -> {actor, t}: a Soul Search mark; its death gives up memories and a hidden drop (S48)
 var poison_touch: Dictionary = {}    # enemy uid -> sim time the Poison Body last touched it (S48 Poison path)
+var blood_essence: Dictionary = {}   # actor -> {v, t}: the Blood path's meter, fed by kills (S48; transient, not saved)
 
 func subscribe() -> void:
 	for ev in STAT_EVENTS:
@@ -41,6 +42,7 @@ func subscribe() -> void:
 	GameEvents.subscribe("room_entered", func(p): if melody.has(str(p.get("actor", ""))): _end_melody(game.character(str(p.actor)), "room"), 20)
 	GameEvents.subscribe("room_entered", func(_p): ally_hots.clear(), 20)
 	GameEvents.subscribe("room_entered", func(_p): _clear_room_marks(), 20)
+	GameEvents.subscribe("actor_defeated", _feed_blood_essence, 20)
 
 func _on_stat_source(p: Dictionary) -> void:
 	refresh_stats(str(p.get("actor", "")))
@@ -509,6 +511,9 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	if tfam != "any" and not (tfam == str(fam.id) or (tfam == "fists" and fam.id in ["fists", "gauntlets"])): return fail("wrong_weapon", {"text": Tx.t("sim.combat.needs_a") % tfam.replace("_", " ")})
 	if c.pools.cooldown("tech:" + str(tid)) > 0.0: return fail("cooldown")
 	if c.pools.has_status("qi_seal") and not StatRules.body_flag(c, "qi_seal_immune"): return fail("sealed")
+	# S48 paths as layers: Blood arts need the Blood path; the Golden Body needs a vow held.
+	if t.get("blood_path", false) and not ProgressionAuthority.walks(c, "blood"): return fail("needs_blood_path", {"text": Tx.t("sim.combat.needs_blood_path")})
+	if t.get("needs_vow", false) and c.cultivator.vows.is_empty(): return fail("needs_vow", {"text": Tx.t("sim.combat.needs_vow")})
 	if t.get("flying_only", false):
 		var st: ActorState = game.actor_state(c.id)
 		if st == null or st.surface != null: return fail("needs_flight")
@@ -524,8 +529,14 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	# S48 costly arts (Blood Burning): a share of max HP and a body injury, paid up front.
 	if float(t.get("hp_cost_pct", 0.0)) > 0.0:
 		var blood: float = c.pools.max_hp * float(t.hp_cost_pct)
+		# S48 the Blood path: blood essence pays first, a point for each 1% of max HP.
+		var covered := minf(essence_of(c.id), float(t.hp_cost_pct) * 100.0) if t.get("blood_path", false) else 0.0
+		blood -= c.pools.max_hp * covered / 100.0
 		if c.pools.hp - blood < 1.0: return fail("no_hp", {"text": Tx.t("sim.combat.not_enough_blood")})
-		apply_resource_change(c.id, "hp", -blood, "technique")
+		if covered > 0.0: _spend_essence(c.id, covered)
+		if blood > 0.0: apply_resource_change(c.id, "hp", -blood, "technique")
+		if t.get("blood_path", false):
+			game.training.apply_reputation(c.id, "", int(ContentDB.stat_const("paths", {}).get("blood", {}).get("use_reputation", -1)))
 		if t.has("injury"): game.progression.apply_injury(c.id, str(t.injury.get("kind", "body")), int(t.injury.get("severity", 1)))
 	if hp_cost > 0.0: apply_resource_change(c.id, "hp", -hp_cost, "technique")
 	elif cost > 0.0: apply_resource_change(c.id, "qi", -cost, "technique")
@@ -658,6 +669,7 @@ func tick(delta: float) -> void:
 		_tick_sword(c, delta)
 		_tick_hots(c, delta)
 		_tick_melody(c, delta)
+		_tick_blood(c, delta)
 		var body: ActorState = game.actor_state(c.id)
 		if body != null and not body.plunge_impact.is_empty(): _resolve_plunge(c, body)
 	_tick_projectiles(delta)
@@ -992,6 +1004,7 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 	if e.ai.get("fled", false) and amount >= e.pools.hp and game.progression.vow_forbids(c, "fleeing_kill") != "":
 		amount = maxf(0.0, e.pools.hp - 1.0)
 	_damage_enemy(e, amount, c.id, r.type, r.element, r.crit, attack, facing)
+	_lifesteal(c, amount, attack)
 	_feed_intent(c, e, attack)
 	if e.alive and not attack.get("status", {}).is_empty():
 		var s: Dictionary = attack.status
@@ -1554,7 +1567,58 @@ func heal_circle(c, pct: float, seconds: float, radius: float, source: String) -
 		list.append({"per_s": e.pools.max_hp * pct, "left": seconds})
 		ally_hots[e.uid] = list
 		n += 1
+	# S48 the Buddhist path: healing an ally is merit (a few times a day).
+	if n > 0: game.relations.apply_daily_deed(c.id, "heal_ally", int(ContentDB.stat_const("paths", {}).get("buddhist", {}).get("heal_ally_daily", 5)))
 	return n
+
+# ------------------------------------------------------------------ the Blood path (S48)
+func _blood_cfg() -> Dictionary:
+	return ContentDB.stat_const("paths", {}).get("blood", {})
+
+## Lifesteal while walking the Blood path: 3% of the damage dealt, +1% a Blood Dao tier; Blood arts drink twice that.
+func blood_lifesteal(c) -> float:
+	if not ProgressionAuthority.walks(c, "blood"): return 0.0
+	var cfg := _blood_cfg()
+	return float(cfg.get("lifesteal_base", 0.03)) + float(cfg.get("lifesteal_per_tier", 0.01)) * _dao_tier(c, "blood")
+
+func _lifesteal(c, amount: float, attack: Dictionary) -> void:
+	var ls := blood_lifesteal(c)
+	if ls <= 0.0 or amount <= 0.0 or c.pools.hp >= c.pools.max_hp: return
+	var tid := str(attack.get("technique", ""))
+	if tid != "" and bool(ContentDB.entry("techniques", tid).get("blood_path", false)): ls *= float(_blood_cfg().get("blood_art_lifesteal_mult", 2.0))
+	apply_resource_change(c.id, "hp", amount * ls, "lifesteal", 0.0, true)
+
+func essence_of(actor_id: String) -> float:
+	return float(blood_essence.get(actor_id, {}).get("v", 0.0))
+
+func _spend_essence(actor_id: String, amount: float) -> void:
+	if not blood_essence.has(actor_id): return
+	blood_essence[actor_id].v = maxf(0.0, float(blood_essence[actor_id].v) - amount)
+
+## Kills fill the blood-essence meter of one who walks the Blood path: 10 a foe, 25 an elite, 50 a boss (to 100).
+func _feed_blood_essence(p: Dictionary) -> void:
+	if str(p.get("victim_kind", "")) != "enemy": return
+	var c = game.character(str(p.get("killer", "")))
+	if c == null or not ProgressionAuthority.walks(c, "blood"): return
+	var cfg := _blood_cfg()
+	var def := ContentDB.entry("enemies", str(p.get("def", "")))
+	var gain := float(cfg.get("essence_kill", 10))
+	if str(p.get("role", def.get("role", ""))) == "boss": gain = float(cfg.get("essence_boss", 50))
+	elif bool(p.get("elite", false)): gain = float(cfg.get("essence_elite", 25))
+	var be: Dictionary = blood_essence.get(c.id, {"v": 0.0, "t": 0.0})
+	be.v = minf(float(cfg.get("essence_max", 100)), float(be.v) + gain)
+	be.t = game.sim_time
+	blood_essence[c.id] = be
+
+func _tick_blood(c, delta: float) -> void:
+	var be: Dictionary = blood_essence.get(c.id, {})
+	if be.is_empty(): return
+	if not ProgressionAuthority.walks(c, "blood"):
+		blood_essence.erase(c.id)
+		return
+	var cfg := _blood_cfg()
+	if game.sim_time - float(be.t) > float(cfg.get("essence_decay_after_s", 20.0)):
+		be.v = maxf(0.0, float(be.v) - float(cfg.get("essence_decay_per_s", 2.0)) * delta)
 
 func _tick_ally_hots(delta: float) -> void:
 	if ally_hots.is_empty() or game.room_rt == null: return

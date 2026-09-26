@@ -16,7 +16,7 @@ var last_level: Dictionary = {}
 func intents() -> Array:
 	return ["start_meditation", "stop_meditation", "toggle_meditation", "start_breakthrough", "learn_method", "switch_method",
 		"open_meridian", "reset_meridians", "equip_technique", "unequip_technique", "rank_up_technique", "set_contemplate",
-		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade", "start_bath", "choose_fate", "equip_inner_art", "set_stance", "set_vow", "set_false_realm",
+		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade", "start_bath", "choose_fate", "equip_inner_art", "set_stance", "set_vow", "set_path", "set_false_realm",
 		"play_guqin", "solve_chess"]
 
 func subscribe() -> void:
@@ -66,6 +66,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"equip_inner_art": return equip_inner_art(c, int(intent.get("slot", -1)), str(intent.get("art", "")))
 		"set_stance": return set_stance(c, str(intent.get("family", "")), str(intent.get("stance", "")))
 		"set_vow": return set_vow(c, str(intent.get("vow", "")), bool(intent.get("on", true)))
+		"set_path": return set_path(c, str(intent.get("path", "")), bool(intent.get("on", true)))
 		"set_false_realm": return set_false_realm(c, str(intent.get("realm", "")))
 	return fail("unknown_intent")
 
@@ -611,6 +612,32 @@ func set_vow(c, vow: String, on: bool) -> Dictionary:
 	apply_heart_demon(c.id, cost, "vow_broken")
 	emit("vow_broken", {"actor": c.id, "vow": vow, "heart_demon": cost})
 	return ok({"vow": vow, "broken": true})
+
+## S48 paths as layers: the Blood path is an opt-in for a demonic heart (alignment -20 or lower, from Heart
+## Tempering). Taking it lowers alignment and the training sect's regard and opens the Blood Dao; leaving it marks the
+## heart (+10 heart demon). Never a class lock: every other technique stays open.
+func set_path(c, path: String, on: bool) -> Dictionary:
+	var cfg: Dictionary = ContentDB.stat_const("paths", {}).get(path, {})
+	if path != "blood" or cfg.is_empty(): return fail("unknown_path")
+	if not Unlocks.is_unlocked(c.id, "vows"): return fail("locked", {"text": Unlocks.locked_text("vows")})
+	var walking := bool(c.cultivator.paths.get(path, false))
+	if on == walking: return ok({"path": path, "on": on})
+	if on:
+		if ProgressionRules.realm_index(c.cultivator.realm_key) < ProgressionRules.realm_index(str(cfg.get("min_realm", "heart_tempering_1"))):
+			return fail("realm", {"text": Tx.t("sim.progression.path_realm")})
+		if c.relations.alignment > int(cfg.get("alignment_at_most", -20)): return fail("alignment", {"text": Tx.t("sim.progression.path_alignment")})
+		c.cultivator.paths[path] = true
+		game.relations.apply_alignment(c.id, int(cfg.get("take_alignment", -10)), "blood_path")
+		game.training.apply_reputation(c.id, "", int(cfg.get("take_reputation", -20)))
+		if not c.cultivator.daos.has("blood"): c.cultivator.daos["blood"] = {"tier": 0, "insight": 0.0}   # the path opens the Blood Dao
+	else:
+		c.cultivator.paths.erase(path)
+		apply_heart_demon(c.id, float(cfg.get("leave_heart_demon", 10)), "path_left")
+	emit("path_changed", {"actor": c.id, "path": path, "on": on})
+	return ok({"path": path, "on": on})
+
+static func walks(c, path: String) -> bool:
+	return c != null and bool(c.cultivator.paths.get(path, false))
 
 ## A vow held that forbids this kind of act (fleeing_kill, burst_pill, presence, food_buff).
 func vow_forbids(c, what: String) -> String:
@@ -1212,6 +1239,8 @@ func apply_heart_demon(actor_id: String, amount: float, source: String) -> void:
 	# S48: some physiques (Hollow-Touched) make every gain larger.
 	if amount > 0.0:
 		for pid in c.cultivator.physiques: amount *= float(ContentDB.entry("physiques", str(pid)).get("heart_demon_mult", 1.0))
+		# S48 the Blood path doubles every gain.
+		if walks(c, "blood"): amount *= float(ContentDB.stat_const("paths", {}).get("blood", {}).get("heart_demon_mult", 2.0))
 	var before := int(ProgressionRules.heart_demon_steps(c.cultivator))
 	c.cultivator.heart_demon = clampf(c.cultivator.heart_demon + amount, 0.0, 100.0)
 	if amount > 0.0 and not game.account.codex.has("heart_demons"): game.quest.apply_codex("heart_demons")

@@ -112,6 +112,11 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 		"hearts_at_least":
 			ok = c != null and c.relations.hearts_of(str(cond.npc)) >= int(cond.value)
 			text = Tx.t("req.hearts_at_least") % [ContentDB.name_of("npcs", str(cond.npc)), int(cond.value)]
+		# S48 the Blood path: an orthodox sect's regard for you (training_sect.reputation; joined at 10).
+		"reputation_at_least":
+			var rsect := str(cond.get("sect", c.training_sect.get("id", "") if c != null else ""))
+			ok = c != null and (rsect == "" or int(c.training_sect.get("reputation", {}).get(rsect, 0)) >= int(cond.value))
+			text = Tx.t("req.reputation_at_least") % int(cond.value)
 		"fame_at_least":
 			ok = c != null and c.relations.fame >= int(cond.value)
 			text = Tx.t("req.fame_at_least") % int(cond.value)

@@ -67,6 +67,7 @@ func apply_karma(actor_id: String, merit: int, sin: int, reason: String) -> void
 	var c = game.character(actor_id)
 	if c == null or (merit == 0 and sin == 0): return
 	var r: RelationsState = c.relations
+	var merit_before := r.merit
 	r.merit = maxi(0, r.merit + merit)
 	r.sin = maxi(0, r.sin + sin)
 	r.ledger.push_front({"reason": reason, "merit": merit, "sin": sin, "utc": Clock.now_utc()})
@@ -74,6 +75,12 @@ func apply_karma(actor_id: String, merit: int, sin: int, reason: String) -> void
 	if not game.account.codex.has("karma"): game.quest.apply_codex("karma")
 	if sin > 0: game.progression.apply_heart_demon(c.id, sin * float(ContentDB.stat_const("heart_demon", {}).get("per_sin", 0.1)), "sin")
 	if merit != 0: emit("merit_changed", {"actor": c.id, "value": r.merit, "delta": merit, "reason": reason})
+	# S48 the Buddhist path: each hundred merit crossed calms the heart of one who holds a vow.
+	var bud: Dictionary = ContentDB.stat_const("paths", {}).get("buddhist", {})
+	var step := int(bud.get("merit_milestone", 100))
+	if merit > 0 and step > 0 and not c.cultivator.vows.is_empty():
+		var crossed := int(r.merit / step) - int(merit_before / step)
+		if crossed > 0: game.progression.apply_heart_demon(c.id, float(bud.get("milestone_heart_demon", -10)) * crossed, "merit_milestone")
 	if sin != 0: emit("sin_changed", {"actor": c.id, "value": r.sin, "delta": sin, "reason": reason})
 
 ## A named debt: a deed the world remembers. It falls due after some hours or when a quest is done; then its
@@ -181,6 +188,21 @@ func apply_deed(actor_id: String, deed_id: String, times := 1, once_key := "") -
 	apply_alignment(c.id, int(dd.get("alignment", 0)) * times, deed_id)
 	apply_fame(c.id, int(dd.get("fame", 0)) * times, deed_id)
 	return true
+
+## A deed that counts only a few times a day (healing an ally: S48 the Buddhist path).
+func apply_daily_deed(actor_id: String, deed_id: String, cap: int) -> bool:
+	var day := Clock.reset_day(Clock.now_utc())
+	var c = game.character(actor_id)
+	if c == null: return false
+	for n in cap:
+		var key := "%s:%d:%d" % [deed_id, day, n]
+		if c.relations.deeds.has(key): continue
+		c.relations.deeds[key] = true
+		# Yesterday's keys are dropped so the ledger does not grow.
+		for k in c.relations.deeds.keys():
+			if str(k).begins_with(deed_id + ":") and not str(k).begins_with("%s:%d:" % [deed_id, day]): c.relations.deeds.erase(k)
+		return apply_deed(actor_id, deed_id)
+	return false
 
 ## A deed fires when its event's payload matches every {key: value} in "match".
 func _on_deed_event(p: Dictionary, event_name: String) -> void:
