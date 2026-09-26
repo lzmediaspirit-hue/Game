@@ -11,6 +11,9 @@ import json
 import os
 import verticality
 import catalogue
+import catalogue_rows_towns
+import catalogue_rows_fields
+import catalogue_rows_dungeons
 import random
 
 from common import DATA, write, entries, req, c
@@ -2930,6 +2933,10 @@ def build():
     hidden_grotto()
     weather_regions()
     catalogue.run(ROOMS)
+    # V9f3: the catalogue rows V2d left partial, by group.
+    catalogue_rows_towns.run(ROOMS)
+    catalogue_rows_fields.run(ROOMS)
+    catalogue_rows_dungeons.run(ROOMS)
     movement_pass()
     verticality.run(ROOMS)
     tier_natives_pass()
