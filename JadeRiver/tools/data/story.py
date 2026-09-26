@@ -7,46 +7,8 @@ the world (a river valley, sects, a slow climb through realms).
 import json
 import os
 
-from common import DATA, write, entries
+from common import DATA, write, entries, realm, qdone, qactive, flag, noflag, unlocked, sect, all_of, any_of
 from legends import CHAINS as LEGENDS
-
-# ---------------------------------------------------------------------------------------------
-# Requirement helpers
-def realm(r):
-    return {"kind": "realm_at_least", "realm": r}
-
-
-def qdone(q):
-    return {"kind": "quest_done", "quest": q}
-
-
-def qactive(q):
-    return {"kind": "quest_active", "quest": q}
-
-
-def flag(f):
-    return {"kind": "flag_set", "flag": f}
-
-
-def noflag(f):
-    return {"kind": "flag_not_set", "flag": f}
-
-
-def unlocked(s):
-    return {"kind": "unlock", "system": s}
-
-
-def sect(s):
-    return {"kind": "training_sect", "sect": s}
-
-
-def all_of(*c):
-    return {"all": list(c)}
-
-
-def any_of(*c):
-    return {"any": list(c)}
-
 
 # ---------------------------------------------------------------------------------------------
 # NPCs. Outfits use the player's layered avatar engine (parts.json) plus garment dyes.

@@ -18,7 +18,8 @@ import lantern
 import posts
 import random
 
-from common import DATA, write, entries, req, c
+from common import DATA, write, entries, req, c, realm, flag, noflag, qdone, qactive, sect, all_of, any_of
+from common import unlocked as unlock
 
 ROOMS_DIR = os.path.join(DATA, "rooms")
 GROUND_Y = 620
@@ -28,42 +29,6 @@ PROPS = json.load(open(os.path.join(DATA, "prop_art.json")))
 
 ROOMS = {}
 LINKS = []
-
-
-def unlock(system):
-    return {"kind": "unlock", "system": system}
-
-
-def realm(r):
-    return {"kind": "realm_at_least", "realm": r}
-
-
-def flag(f):
-    return {"kind": "flag_set", "flag": f}
-
-
-def noflag(f):
-    return {"kind": "flag_not_set", "flag": f}
-
-
-def qdone(q):
-    return {"kind": "quest_done", "quest": q}
-
-
-def qactive(q):
-    return {"kind": "quest_active", "quest": q}
-
-
-def sect(s):
-    return {"kind": "training_sect", "sect": s}
-
-
-def all_of(*conds):
-    return {"all": list(conds)}
-
-
-def any_of(*conds):
-    return {"any": list(conds)}
 
 
 # Gathering presets: node type, item, prop, unlock system.

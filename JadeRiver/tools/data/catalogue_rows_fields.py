@@ -13,27 +13,10 @@ Two engine limits shape some rows (see docs/v9f3_fields.md):
   - flight holds at most 340 above the ground (stats flight.ceiling), so the ledges above that are reached by riding
     updraft columns (jump or glide into one and it lifts you to its top), not by flying.
 """
-from catalogue import authored, drop_decor, obj, surf, clear_tiers
-
-
-def _w():
-    import world
-    return world
+from catalogue import _w, authored, drop_decor, drop_surfaces, obj, surf, clear_tiers
 
 
 # ------------------------------------------------------------------ helpers
-def drop_surfaces(r, ids):
-    """Remove surfaces (and the climbables and movers that use them); whatever stood on them comes down."""
-    ids = set(ids)
-    for o in r.d["objects"]:
-        if o.get("surface") in ids:
-            o["alt"] = 0
-            o.pop("surface", None)
-    r.d["surfaces"] = [s for s in r.d["surfaces"] if s["id"] not in ids]
-    r.d["climbables"] = [c for c in r.d.get("climbables", []) if c.get("top") not in ids and c.get("bottom") not in ids]
-    r.d["movers"] = [m for m in r.d.get("movers", []) if m["surface"] not in ids]
-
-
 def put(o, x, y, alt=0, sid=None):
     """Stand an object at (x, y) on a surface `sid` at `alt` (or on the ground)."""
     o["at"] = [x, y]

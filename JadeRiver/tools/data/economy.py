@@ -7,25 +7,9 @@ import json
 import math
 import os
 
-from common import DATA, write, entries
+from common import DATA, write, entries, realm, unlocked, flag, all_of
 from legends import CHAINS as LEGENDS, RESTORE as LEGEND_RESTORE
 import posts
-
-
-def realm(r):
-    return {"kind": "realm_at_least", "realm": r}
-
-
-def unlocked(s):
-    return {"kind": "unlock", "system": s}
-
-
-def flag(f):
-    return {"kind": "flag_set", "flag": f}
-
-
-def all_of(*c):
-    return {"all": list(c)}
 
 
 def shops():

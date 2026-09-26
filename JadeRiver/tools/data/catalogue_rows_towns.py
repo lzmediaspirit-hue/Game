@@ -1,22 +1,9 @@
 """V9f3 · the Part 8 room verticality catalogue rows V2d left partial (towns). Runs after catalogue.run(ROOMS) and
 before the movement and verticality passes (tools/data/world.py build()). Fill run(); keep to this group's rooms."""
-from catalogue import authored, drop_decor, obj, surf
-
-
-def _w():
-    import world
-    return world
+from catalogue import _w, authored, drop_decor, drop_surfaces, obj, surf
 
 
 # ------------------------------------------------------------------ helpers
-def drop_surfaces(r, ids):
-    """Remove surfaces (and the climbables and movers that serve them) by id."""
-    ids = set(ids)
-    r.d["surfaces"] = [s for s in r.d["surfaces"] if s["id"] not in ids]
-    r.d["climbables"] = [c for c in r.d.get("climbables", []) if c.get("top") not in ids and c.get("bottom") not in ids]
-    r.d["movers"] = [m for m in r.d.get("movers", []) if m["surface"] not in ids]
-
-
 def depth_stairs(r, sid, x, y_back, w, depth, hi, lo=0):
     """Depth stairs (S43, ground stratum): `hi` at the back edge down to `lo` at the front edge, like the v0.3 rear
     stairs of the Pavilion Rooftops. (Room.stairs puts the back at 0 and the front below the ground.)"""
