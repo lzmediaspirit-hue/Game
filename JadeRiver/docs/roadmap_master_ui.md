@@ -356,4 +356,10 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
    kept under `docs/mockups/`.
 5. **The item target** (C12): named gear and sets per archetype and zone (P7b).
 
+6. **The first mockups** (2026-09-26, P3): 00–05 approved, with two notes:
+   - Remove the portrait roundel with the initial ("T") left of the HP and Qi bars. Done in the HUD and in mockups 01
+     and 02: the name, realm and bars take the panel's width; the bottleneck shows on the Stored Qi edge.
+   - The icons across the whole game must look better. A style study goes to the user first (a before-and-after sheet
+     of representative icons in the proposed style); once it is approved, every icon family is redrawn to it (P4b).
+
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.

@@ -41,6 +41,15 @@
   (Heart Tempering beside Foundation Establishment, Cloud Stride beside Core Formation, and so on); each opens the
   first time the account reaches that great realm (`docs/realm_old_names.md`).
 
+### P3 · The first mockups, approved
+- Mockups 00–05 (the kit, the HUD in a fight and at rest, the hub, the cultivation ascent, the breakthrough) approved
+  by the user, with two notes, both recorded in `docs/roadmap_master_ui.md` §6.
+- **The portrait roundel is gone.** The HUD's player panel no longer draws a circle with the character's initial: the
+  name and realm sit at the panel's edge, and the HP, Qi and Soul bars take the width it freed (288 px, 14 px tall,
+  their numbers inside and grouped by thousands like every page's). The bottleneck, which the roundel's ring showed,
+  shows on the Stored Qi bar.
+- An icon style study is under way for the user's second note, that every icon in the game should look better.
+
 ### P4a · Touch targets
 - **Every tap target is at least 48 px on a side.** `Page._register` gives smaller art a margin of hit area round its
   centre (`Page.MIN_TAP`); the art keeps its look. Tabs, which are 40 px tall, now answer a tap anywhere in 48.
