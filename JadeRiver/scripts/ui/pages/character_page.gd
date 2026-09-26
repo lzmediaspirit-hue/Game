@@ -36,7 +36,7 @@ func draw_page() -> void:
 		"overview":
 			var x := r.position.x + 480
 			text(Vector2(x, r.position.y + 50), str(ch.name), 34, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-			var true_realm := ContentDB.realm_label(ch.cultivator.realm_key)
+			var true_realm := ContentDB.realm_label(ch.cultivator.realm_key, ProgressionRules.level(ch))
 			text(Vector2(x, r.position.y + 86), true_realm, 20, UiKit.GOLD)
 			if ch.cultivator.false_realm != "":
 				text(Vector2(x + UiKit.text_width(true_realm, 20) + 12, r.position.y + 86), Tx.t("ui.character.shown_as") % ContentDB.realm_label(ch.cultivator.false_realm), 15, UiKit.MIST)

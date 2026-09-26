@@ -131,11 +131,12 @@ func next_realm(key: String) -> String:
 	if i < 0 or i + 1 >= realm_order.size(): return ""
 	return realm_order[i + 1]
 
-## "Qi Kindling 3 · Lv 12"
-func realm_label(key: String) -> String:
+## "Qi Kindling 3 · Lv 12": the stage's first Level, or `level` for a character inside it. From Heaven Glimpse a stage
+## spans three Levels (Inner Heaven five), so a character's own label passes ProgressionRules.level (B15).
+func realm_label(key: String, level := -1) -> String:
 	var r := realm(key)
 	if r.is_empty(): return key
-	return "%s · Lv %d" % [text("realm." + key), int(r.level)]
+	return text("ui.realm_label") % [text("realm." + key), level if level >= 0 else int(r.level)]
 
 func item(id: String) -> Dictionary:
 	var e := entry("items", id)

@@ -22,7 +22,7 @@ func draw_page() -> void:
 			text(rr.position + Vector2(20, 48), Tx.t("ui.characters.slot_empty_create_from_the") % slot, 19, UiKit.HOLLOW)
 			return
 		text(rr.position + Vector2(20, 34), str(other.name), 22, UiKit.PALE_GOLD if other == ch else UiKit.PAPER)
-		text(rr.position + Vector2(20, 62), ContentDB.realm_label(other.cultivator.realm_key), 16, UiKit.MIST)
+		text(rr.position + Vector2(20, 62), ContentDB.realm_label(other.cultivator.realm_key, ProgressionRules.level(other)), 16, UiKit.MIST)
 		var task := str(other.idle_task.get("task", "")) if other != ch else Tx.t("ui.characters.playing")
 		text(rr.position + Vector2(300, 48), task.capitalize() if task != "" else Tx.t("ui.characters.idle_none"), 17, UiKit.BRIGHT_JADE)
 		if other != ch: btn(Rect2(rr.end.x - 160, rr.position.y + 14, 140, 50), Tx.t("ui.characters.switch"), "switch", slot)

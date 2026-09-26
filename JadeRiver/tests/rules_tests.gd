@@ -254,6 +254,22 @@ func ui_suite() -> void:
 	await get_tree().process_frame
 	check(ip._regions.any(func(r): return r.id == "use_key" and r.enabled), "B2: the guqin in the key-item pouch has a Play button")
 	ip.queue_free()
+	# B15: the Menu names the same Level as the Cultivation badge (ProgressionRules.level), not the stage's first.
+	var realm_was: String = c.cultivator.realm_key
+	var qp_was: float = c.cultivator.qp
+	c.cultivator.realm_key = "sphere_lord_3"
+	c.cultivator.qp = c.cultivator.need() * 0.5
+	var mp: Page = load(str(main_script.PAGES.menu)).new()
+	mp.text_log = []
+	add_child(mp)
+	mp.open({})
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var want := ContentDB.realm_label("sphere_lord_3", ProgressionRules.level(c))
+	check(mp.text_log.any(func(tx): return str(tx.s).ends_with(want)), "B15: the Menu says %s" % want)
+	mp.queue_free()
+	c.cultivator.realm_key = realm_was
+	c.cultivator.qp = qp_was
 	await get_tree().process_frame
 	c.cultivator.titles = keep.titles
 	c.cultivator.secret_arts = keep.arts
@@ -333,6 +349,24 @@ func ui_fixes_suite() -> void:
 	check(chosen is UiKit.LayeredBox and chosen != plain and off != plain and tint.v < 0.8, "B3: a selected panel glows and a disabled one is dimmed")
 	check(not (UiKit.style("slot", "selected") is UiKit.LayeredBox) and not (UiKit.style("tab", "selected") is UiKit.LayeredBox), "B3: drawn states keep their art")
 	check((plain.modulate if plain is HdStyleBox else Color.WHITE) == Color.WHITE, "B3: the normal panel stays untinted")
+	# B12: a great breakthrough with no trial event names none (str(null) printed "Trial: <null>").
+	var realm_was: String = c.cultivator.realm_key
+	var qp_was: float = c.cultivator.qp
+	var wrong: Array = []
+	for key in ContentDB.realm_order:
+		if not ProgressionRules.is_major(key): continue
+		c.cultivator.realm_key = key
+		var want = ProgressionRules.breakthrough_spec(key).get("event")
+		if str(Game.progression.query_breakthrough(c).get("event", "?")) != ("" if want == null else str(want)): wrong.append(key)
+	check(wrong.is_empty(), "B12: the breakthrough's trial is its event, or none (%s)" % str(wrong))
+	# B15: a stage from Heaven Glimpse on spans three Levels; a character's own label carries its Level in the stage.
+	c.cultivator.realm_key = "sphere_lord_3"
+	c.cultivator.qp = c.cultivator.need() * 0.5
+	var lv := ProgressionRules.level(c)
+	check(lv == int(ContentDB.realm("sphere_lord_3").level) + 1 and ContentDB.realm_label("sphere_lord_3", lv).ends_with(str(lv))
+		and ContentDB.realm_label("sphere_lord_3").ends_with(str(int(ContentDB.realm("sphere_lord_3").level))), "B15: halfway through Sphere Lord 3 is Level %d, and says so" % lv)
+	c.cultivator.realm_key = realm_was
+	c.cultivator.qp = qp_was
 
 func text_suite() -> void:
 	var probe := "Pick up Herbal Tea"

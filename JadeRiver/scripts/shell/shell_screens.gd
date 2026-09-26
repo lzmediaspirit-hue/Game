@@ -81,7 +81,7 @@ class SelectionScreen extends Page:
 			draw_style_box(UiKit.style("major_window" if slot == chosen and ch != null else "minor_panel"), r)
 			if ch != null:
 				text(r.position + Vector2(0, 312), str(ch.name), 26, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
-				text(r.position + Vector2(0, 342), ContentDB.realm_label(ch.cultivator.realm_key), 18, UiKit.GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+				text(r.position + Vector2(0, 342), ContentDB.realm_label(ch.cultivator.realm_key, ProgressionRules.level(ch)), 18, UiKit.GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 				var sect_name := ContentDB.name_of("sects", str(ch.training_sect.get("id", ""))) if str(ch.training_sect.get("id", "")) != "" else ContentDB.text("ui.unaffiliated")
 				text(r.position + Vector2(0, 368), sect_name, 17, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 				var status := ""

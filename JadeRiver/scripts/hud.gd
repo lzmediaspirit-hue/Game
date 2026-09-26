@@ -1491,7 +1491,7 @@ func _draw_player_panel(c) -> void:
 	UiKit.draw_text(self, c.name, r.position + Vector2(90, 30), 18, UiKit.PAPER)
 	if shown("realm_badge"):
 		# Concealment's false realm (S48) is the badge the world sees; a veil mark says it is not the true one.
-		var badge := ContentDB.realm_label(Game.progression.shown_realm(c))
+		var badge := ContentDB.realm_label(Game.progression.shown_realm(c), -1 if c.cultivator.false_realm != "" else ProgressionRules.level(c))
 		var veiled: bool = c.cultivator.false_realm != ""
 		UiKit.draw_text(self, badge, r.position + Vector2(90, 50), 15, UiKit.MIST if veiled else UiKit.PALE_GOLD)
 		if veiled: UiKit.draw_text(self, Tx.t("hud.realm_veiled"), r.position + Vector2(96 + UiKit.text_width(badge, 15), 50), 13, UiKit.MIST)

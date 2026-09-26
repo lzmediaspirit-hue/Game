@@ -52,7 +52,7 @@ func draw_page() -> void:
 			text(r.position + Vector2(r.size.x - 30, 25), str(mini(99, Game.mail.unread(ch))), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 24)
 		region(r, "open", e[0], not locked, Unlocks.locked_text(e[3]) if locked else "")
 	var y := content.end.y - 40
-	text(Vector2(content.position.x, y), "%s · %s" % [ch.name, ContentDB.realm_label(ch.cultivator.realm_key)], 20, UiKit.MIST)
+	text(Vector2(content.position.x, y), "%s · %s" % [ch.name, ContentDB.realm_label(ch.cultivator.realm_key, ProgressionRules.level(ch))], 20, UiKit.MIST)
 	var x := content.end.x - 10
 	for cur in ["contribution", "spirit_stone", "silver_tael"]:
 		if cur == "contribution" and str(ch.training_sect.get("id", "")) == "": continue
