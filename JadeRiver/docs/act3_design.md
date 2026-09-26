@@ -122,6 +122,8 @@ Throughout the zone:
 - **B · Blackmast and Wyrmnest.** Pirates, Pirate Gunner, Admiral Voss and the Presence clash; Nest
   Guardian and Hollowed Wyrmling; Hollowing thresholds and cleansing; star-tier pets and the wyrm egg;
   Sect Master; chapters 18–19.
+- **V10 · Keeping Post** (between B and C): the idle gathering milestone, `docs/idle_gathering_design.md`. The
+  Field's nodes (driftglass, Star Lotus, starwing motes) are its tier-8 posts.
 - **C · Citadel and Orbit Ruins.** Star Wardens, Sphere comprehension, Sphere Lord and the Sphere,
   Sword Domain, gravity switches, Gravity Golem and Orbit Moth, Space Dao, Dao tier 6, Confucian path;
   chapter 20.

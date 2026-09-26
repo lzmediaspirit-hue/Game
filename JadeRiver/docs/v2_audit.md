@@ -192,6 +192,18 @@ Progress is recorded in `docs/CHANGELOG.md`.
     dismounts, and the remaining room catalogue rows.
   - The Azure Heavenly Flame needs nothing more: the Cold Lamp Flame from the Thousand-Eye Toad fills the slot.
 
+- **V10 · Keeping Post** (idle gathering; `docs/idle_gathering_design.md`, from the research in
+  `docs/research/idle_gathering_research.md`). Every character who is not being played keeps post at a node or a
+  hunting ground and gathers at IdleOn's rates in Jade River's names: crafts with levels, Finesse against
+  Toughness, the Chance and Abundance bars, Windfall, Diligence, sewn Qiankun pouches, the Storehouse, the Return
+  Ledger and the Roll-Call. It runs between v1.2 Phase B and Phase C, in four phases:
+  - **V10a**, posts and crafts: Vein Delving, Spirit Foraging, River Angling and Insect Netting; tools to tier 8;
+    insect swarms; pouches; the Storehouse; Hour Incense; the Ledger and the Roll-Call;
+  - **V10b**, the Vigil: kills an hour, Provisions, Sweep tiers and Bestiary Leaves;
+  - **V10c**, Beast Snaring, Ancestral Rites with Post Vows, and the Apprentice Bench;
+  - **V10d**, the account web: the Mirror of Echoes, the Calcination Furnace, Seal Scripts, Guardian Steles,
+    Formation Flags, Post Arts and Magistrate's Favours, with a thirty-day balance run.
+
 ### Deviations (presentation)
 
 - **Type (S24).** The style guide sets words in Cormorant Garamond. The build keeps it for headings of 22 px and up,
