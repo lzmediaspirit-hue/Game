@@ -199,6 +199,24 @@ func data_suite() -> void:
 		if int(en.get("beast_rank", 0)) >= 2:
 			check(WorldAuthority.beast_core_for(en, int(en.level[0])) != "", "beast %s (rank %d) has a core" % [en.id, int(en.beast_rank)])
 	for rar in ContentDB.config("pet_growth").get("rarities", []): check(ContentDB.config("pet_growth").get("purity", {}).has(str(rar.id)), "purity band for %s" % rar.id)
+	# S47 Artifact Spirit depth: every relic spirit has a control demand, a skill, a favourite, a real resting place,
+	# every kind of bark and an awakening quest; every imitation copies 60% of a relic's gift.
+	var awaken_q := {}
+	for q in ContentDB.all("quests"):
+		for f in JSON.stringify(q.get("requires", {})).split("bound:").slice(1): awaken_q[f.get_slice("\"", 0)] = str(q.id)
+	for it in ContentDB.all("items"):
+		if it.get("relic", false) and it.has("spirit"):
+			var sp: Dictionary = it.spirit
+			check(float(sp.get("control", 0)) > 0.0 and int(sp.get("skill", {}).get("every_hits", 0)) > 0 and ContentDB.has_entry("items", str(sp.get("favourite", ""))),
+				"relic %s: control demand, skill and favourite" % it.id)
+			check(not ContentDB.room(str(sp.get("wake_room", ""))).is_empty(), "relic %s wakes in a real room" % it.id)
+			for kind in ["awake", "kill", "gift", "devour", "low_hp", "refuse"]:
+				check(not (sp.get("barks", {}).get(kind, []) as Array).is_empty(), "relic %s speaks on %s" % [it.id, kind])
+			check(awaken_q.has(str(it.id)), "relic %s has an awakening quest" % it.id)
+		if it.has("imitation"):
+			var of := ContentDB.item(str(it.imitation.of))
+			check(of.get("relic", false) and absf(float(it.imitation.effect.value) - float(of.get("spirit", {}).get("effect", {}).get("value", 0)) * 0.6) < 0.0001
+				and str(it.imitation.effect.stat) == str(of.spirit.effect.stat) and ContentDB.has_entry("recipes", str(it.id)), "imitation %s copies 60%% of %s" % [it.id, it.imitation.of])
 	# S46 bloodline: every species has an ancestral skill and a form; contracts, capacity and incubation read real items.
 	var pg := ContentDB.config("pet_growth")
 	for pe in ContentDB.all("pets"):

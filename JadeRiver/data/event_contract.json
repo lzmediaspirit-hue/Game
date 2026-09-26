@@ -491,6 +491,12 @@
     "combat_authority"
    ]
   },
+  "artifact_skill_used": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
   "loot_dropped": {
    "system": "World",
    "files": [
@@ -1218,6 +1224,24 @@
    ]
   },
   "item_blooded": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
+  "spirit_affinity_changed": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
+  "artifact_spirit_spoke": {
+   "system": "Inventory",
+   "files": [
+    "inventory_authority"
+   ]
+  },
+  "artifact_spirit_grew": {
    "system": "Inventory",
    "files": [
     "inventory_authority"

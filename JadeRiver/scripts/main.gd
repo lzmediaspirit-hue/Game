@@ -296,6 +296,27 @@ func _handle_preview_args(user_args: Array) -> void:
 				if is_instance_valid(world) and world.player:
 					world.player.avatar.outfit = InventoryAuthority.outfit_for(wc)
 					world.player.avatar.last_key = ""
+		if str(a).begins_with("--relic=") and Game.active() != null:
+			# Debug tools (S38): --relic=item[:awake[:affinity]] holds a bound relic, its spirit asleep or awake, and has
+			# the spirit speak once (S47 Artifact Spirit previews).
+			var rc = Game.active()
+			var ra := str(a).trim_prefix("--relic=").split(":")
+			var rinst := LootRules.make_instance(ra[0], int(ContentDB.item(ra[0]).get("ilv", 50)), "fine", null, rc.inventory.next_uid)
+			rc.inventory.next_uid += 1
+			rinst.erase("sealed")
+			rinst.bound = true
+			if ra.size() > 1 and ra[1] == "awake": rinst.spirit = "awake"
+			if ra.size() > 2: rinst.spirit_affinity = float(ra[2])
+			var rwas = rc.inventory.equipped.get("weapon")
+			rc.inventory.equipped["weapon"] = rinst
+			if rwas != null: Game.inventory.apply_add_instance(rc.id, rwas, "debug")
+			for fid in ["iron_jian", "iron_spear"]: Game.inventory.apply_add_equipment(rc.id, fid, 10, "common", "debug")
+			Game.inventory.apply_add(rc.id, str(ContentDB.item(ra[0]).get("spirit", {}).get("favourite", "refining_essence")), 3, "debug")
+			Game.combat.refresh_stats(rc.id)
+			if is_instance_valid(world) and world.player:
+				world.player.avatar.outfit = InventoryAuthority.outfit_for(rc)
+				world.player.avatar.last_key = ""
+			Game.inventory.speak(rc, rinst, "awake" if str(rinst.spirit) == "awake" else "gift", true)
 		if str(a).begins_with("--join=") and Game.active() != null:
 			# Debug tools (S38): --join=sect[:rank] joins a training sect at a rank with 2000 contribution (sect role previews).
 			var ja := str(a).trim_prefix("--join=").split(":")

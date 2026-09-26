@@ -790,12 +790,38 @@ def build_artifacts():
     # S47 rogue cultivators drop what they carry in the open.
     rows.append(artifact("serpent_tongue_jian", "weapon", "earth", "Serpent-Tongue Jian", "sword", "jian", icon="jadeiron_jian", ilv=30,
                          desc="A rogue cultivator's jian, its blade forked at the tip. Whoever it belonged to, it is yours now."))
+    # S47 Artifact Spirit depth: each relic's spirit has a control demand (the Spirit its full power needs), a skill
+    # (a strike every so many hits once awake), a favourite gift, the place it wakes and its one-line barks.
+    moon = {"name": "Moon Spirit", "strength": 26, "control": 60, "favourite": "mist_lotus", "wake_room": "ml_lake_shrine",
+            "effect": {"stat": "qi_attack", "op": "pct_add", "value": 0.08},
+            "skill": {"name": "Moonlit Crescent", "every_hits": 8, "mult": 1.6, "damage_type": "qi", "element": "water", "reach": 300, "art": "moon_crescent"},
+            "barks": {"awake": ["The lake remembers the moon. So do I.", "At last, a hand that listens."],
+                      "kill": ["Clean as moonlight.", "One less shadow on the water.", "Again. Like the tide."],
+                      "gift": ["Mist lotus... I dreamed of it for a hundred years.", "Mm. That is kind."],
+                      "devour": ["A small blade. It remembers little.", "I take its edge into mine."],
+                      "low_hp": ["Breathe. The water does not hurry.", "Step back, and let me shine."],
+                      "refuse": ["Your spirit is a puddle. I will not pour into it."]}}
+    blade = {"name": "Blade Spirit", "strength": 30, "control": 80, "favourite": "refining_essence", "wake_room": "ds_abbots_sanctum",
+             "effect": {"stat": "crit_damage", "op": "flat", "value": 0.1},
+             "skill": {"name": "Waking Edge", "every_hits": 10, "mult": 2.2, "damage_type": "physical", "element": "metal", "reach": 220, "art": "flying_sword"},
+             "barks": {"awake": ["I slept in the dark long enough. Show me the light.", "Hold me steady."],
+                       "kill": ["Ha. Too slow.", "The Abbot swung harder than that.", "Next."],
+                       "gift": ["Refined. Good. I can taste the fire in it.", "You feed me well."],
+                       "devour": ["Crude steel. Still, it had a heart.", "More."],
+                       "low_hp": ["Do not fall before I have had my fill.", "Get up. We are not finished."],
+                       "refuse": ["Soft hands. Soft soul. Put me down."]}}
     rows.append(artifact("moonlit_blade", "weapon", "heaven", "The Moonlit Blade", "sword", "jian", icon="cloudsteel_jian", ilv=50,
-                         relic=True, unique="Awake spirit: +8% Qi attack",
-                         spirit={"name": "Moon Spirit", "strength": 26, "effect": {"stat": "qi_attack", "op": "pct_add", "value": 0.08}}))
+                         relic=True, unique="Awake spirit: +8% Qi attack; Moonlit Crescent every 8 hits", spirit=moon))
     rows.append(artifact("sleeping_blade", "weapon", "heaven", "The Sleeping Blade", "sword", "jian", icon="cloudsteel_jian", ilv=52,
-                         relic=True, unique="Awake spirit: +10% crit damage",
-                         spirit={"name": "Blade Spirit", "strength": 30, "effect": {"stat": "crit_damage", "op": "flat", "value": 0.1}}))
+                         relic=True, unique="Awake spirit: +10% crit damage; Waking Edge every 10 hits", spirit=blade))
+    # S47 imitation relics (v1.1): a forge copy of a boss relic keeps 60% of its unique effect, always on, with no spirit,
+    # no binding and no control demand.
+    for iid, name, of, sp in [("moonshadow_jian", "Moonshadow Jian", "moonlit_blade", moon), ("drowsing_edge", "Drowsing Edge", "sleeping_blade", blade)]:
+        fx = dict(sp["effect"])
+        fx["value"] = round(fx["value"] * 0.6, 4)
+        rows.append(artifact(iid, "weapon", "heaven", name, "sword", "jian", icon="cloudsteel_jian", ilv=48,
+                             imitation={"of": of, "share": 0.6, "effect": fx},
+                             desc="A forge copy of %s. It keeps six parts in ten of the original's gift, and no spirit." % ("the Moonlit Blade" if of == "moonlit_blade" else "the Sleeping Blade")))
     entries("artifacts.json", rows)
     return rows
 

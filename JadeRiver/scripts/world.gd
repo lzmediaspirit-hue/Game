@@ -488,6 +488,12 @@ func _on_event(name: String, p: Dictionary) -> void:
 			var ac: Color = FxLayer.ARRAY_COLOURS.get(str(p.get("kind", "")), FxLayer.ARRAY_COLOURS.guard)
 			fx.add("wave", Vector2(float(p.x), float(p.y)), {"color": ac, "radius": float(p.radius), "dur": 0.5})
 			Audio.play("forge")
+		"artifact_spirit_spoke":
+			if str(p.get("actor", "")) == Game.active_id and player: player.say(str(p.get("line", "")))
+		"artifact_skill_used":
+			if str(p.get("actor", "")) == Game.active_id:
+				fx.add("wave", Vector2(float(p.x), float(p.y)), {"color": Color("b18de2"), "radius": 60.0, "dur": 0.3})
+				Audio.play("surge")
 		"array_faded":
 			if str(p.get("actor", "")) == Game.active_id: Audio.play("ui_close")
 		"illusion_cast":

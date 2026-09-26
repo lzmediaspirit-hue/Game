@@ -640,6 +640,32 @@
      }
     },
     {
+     "item": "recipe_scroll",
+     "learn": "moonshadow_jian",
+     "price": 2400,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "bound:moonlit_blade"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "drowsing_edge",
+     "price": 2400,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "bound:sleeping_blade"
+       }
+      ]
+     }
+    },
+    {
      "item": "bamboo_hat"
     },
     {

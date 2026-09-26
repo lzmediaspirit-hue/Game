@@ -69,8 +69,10 @@ DEPTH = {
                  "rack_started", "rack_collected", "garden_raided", "herb_appraised"],
     "Combat": ["treasure_used", "sword_released", "sword_returned", "sword_intent_changed", "artifact_detonated", "talisman_used", "combo_landed", "killing_intent_changed",
                "beast_subdued", "melody_changed", "melody_pulse", "illusion_cast", "illusion_broken",
-               "array_deployed", "array_faded"],
-    "Inventory": ["loadout_swapped", "natal_grew", "natal_broken", "item_blooded"],
+               "array_deployed", "array_faded", "artifact_skill_used"],
+    "Inventory": ["loadout_swapped", "natal_grew", "natal_broken", "item_blooded",
+                  # S47 Artifact Spirit depth: affinity, barks and devouring.
+                  "spirit_affinity_changed", "artifact_spirit_spoke", "artifact_spirit_grew"],
     "Movement": ["jumped", "landed", "wall_kicked", "art_used", "climb_started", "climb_finished", "fell_out", "mover_boarded",
                  "volume_entered", "volume_left"],
     "Enemies": ["enemy_leashed", "beast_king_spawned", "king_nest_opened"],

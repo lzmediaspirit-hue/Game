@@ -1395,6 +1395,7 @@ func sec_sa1() -> void:
 	check(c().inventory.count_including_equipped("sleeping_blade") >= 1, "the Sleeping Blade is in the bag")
 	bind_the_blade()
 	check(finish("the_sleeping_blade"), "The Sleeping Blade done")
+	wake_the_blade()
 	# S44: the Abbot's sealed vault answers a Spirit Awakening 3 soul; the Nine-Dragon Cauldron is inside.
 	check(travel("ds_abbots_sanctum"), "back at the Abbot's vault")
 	check(interact("vault").get("ok", false), "open the sealed vault")
@@ -2346,8 +2347,9 @@ func bind_the_blade() -> void:
 	var blade = c().inventory.equipped.get("weapon")
 	check(blade is Dictionary and not blade.get("sealed", false) and blade.get("bound", false), "the Sleeping Blade is bound")
 	check(c().stats.value("physical_attack") > sealed_atk * 1.2, "a bound relic wakes its power (%.0f → %.0f attack)" % [sealed_atk, c().stats.value("physical_attack")])
+	# S47 Artifact Spirit depth: the spirit answers only a hand it knows, and only where it slept.
 	var s := submit({"type": "subdue_spirit", "slot": "weapon"})
-	check(s.get("ok", false) and s.has("awake"), "challenge the blade's spirit (%.0f%%)" % (float(s.get("chance", 0.0)) * 100.0))
+	check(str(s.get("reason", "")) == "affinity", "a spirit that does not know you will not answer (%s)" % str(s.get("reason", "")))
 	# Back to the weapon the run was built around.
 	if old_uid >= 0:
 		for i in c().inventory.bag.size():
@@ -2355,6 +2357,34 @@ func bind_the_blade() -> void:
 			if it is Dictionary and int(it.get("uid", -2)) == old_uid:
 				submit({"type": "equip", "index": i})
 				break
+
+## S47 Artifact Spirit depth: the blade's awakening quest. Two gifts of its favourite win its trust; it wakes only in the
+## Abbot's sanctum, where it slept.
+func wake_the_blade() -> void:
+	check(start("the_blade_spirit"), "The Blade That Sleeps No More accepted")
+	var old_weapon = c().inventory.equipped.get("weapon")
+	var old_uid := int(old_weapon.get("uid", -1)) if old_weapon is Dictionary else -1
+	var bi: int = c().inventory.first_index("sleeping_blade")
+	if bi >= 0: submit({"type": "equip", "index": bi})
+	Game.inventory.apply_add(c().id, "refining_essence", 2, "test")
+	for i in 2: submit({"type": "gift_spirit", "item": "refining_essence"})
+	var blade = c().inventory.equipped.get("weapon")
+	check(blade is Dictionary and float(blade.get("spirit_affinity", 0.0)) >= 30.0 and c().quests.has_flag("spirit_close:sleeping_blade"),
+		"two gifts of its favourite and the spirit knows your hand")
+	check(travel("ds_abbots_sanctum"), "carry the blade back to the Abbot's sanctum")
+	var s := {}
+	for i in 4:
+		Game.inventory.spirit_cd.erase(c().id)
+		s = submit({"type": "subdue_spirit", "slot": "weapon"})
+		if s.get("awake", false): break
+	check(s.get("ok", false) and s.get("awake", false), "the blade's spirit wakes where it slept (%.0f%%)" % (float(s.get("chance", 0.0)) * 100.0))
+	if old_uid >= 0:
+		for i in c().inventory.bag.size():
+			var it = c().inventory.bag[i]
+			if it is Dictionary and int(it.get("uid", -2)) == old_uid:
+				submit({"type": "equip", "index": i})
+				break
+	check(finish("the_blade_spirit"), "The Blade That Sleeps No More done")
 
 ## S22 Mount role: the crane carries you (walk x1.5, no follower); the previous companion comes back after.
 func ride_the_crane() -> void:

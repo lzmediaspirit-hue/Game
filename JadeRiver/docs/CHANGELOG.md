@@ -5,6 +5,53 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V9d2 · Artifact Spirit depth and imitation relics (S47, v1.0 and v1.1)
+- **Affinity.** A bound relic's spirit, asleep or awake, has an affinity meter (0–100) saved on the blade.
+  - **Use** feeds it: one point for every 25 blows the relic lands in your hand.
+  - **Gifts** feed it: three a day, on the Bag page (Refining Essence 10, Mist Lotus 6, Cloudsteel 4, Jadeiron 2).
+    Each spirit's favourite counts double: Mist Lotus for the Moon Spirit, Refining Essence for the Blade Spirit.
+  - Affinity raises an awake spirit's gift and skill by up to half again.
+- **Waking is a quest per relic.**
+  - A spirit answers the soul contest only once it knows your hand (affinity 30), and only where it once slept.
+  - *The Blade That Sleeps No More*: the Sleeping Blade wakes in the Abbot's sanctum.
+  - *Moon on the Water*: the Moonlit Blade wakes at the Lake Shrine on Mirrorwater Lake.
+  - Elder Hu offers each quest once the relic is bound. The quest steps follow the flags `bound:`, `spirit_close:`
+    and `spirit_awake:`.
+- **Skills.** An awake spirit strikes on its own:
+  - the **Moonlit Crescent**, a Qi crescent of moonlight every 8 blows (160%);
+  - the **Waking Edge**, a flying edge every 10 blows (220%).
+  - Each goes through every foe in its path and is weighed by the spirit's power.
+- **Control demand.** An awake spirit needs Spirit at or above its demand: 60 for the Moon Spirit, 80 for the Blade
+  Spirit. Below that it gives half its gift, keeps its skill to itself, and says so when you take it in hand.
+- **Devour.** Held in hand, the spirit eats a weaker weapon of its own family: a lower grade, or the same grade at a
+  lower item level. It will not eat a locked, natal or relic weapon.
+  - Each meal adds spirit XP (by grade: 2, 4, 8 or 16) and 2 affinity.
+  - Levels 1–5 come at 10, 30, 60, 100 and 150 XP, and each adds 10% to the gift and skill.
+- **Barks.** Each spirit has its own one-line barks, for waking, kills, gifts, meals, low health, and refusing a weak
+  hand.
+  - A line shows in a violet-edged bubble over your head and in the log.
+  - Kills speak one time in four, with 40 s of quiet between lines. Waking, gifts, meals and refusals always speak.
+- **The Bag page** shows the spirit's affinity and level and what it still needs. It has Subdue, Gift (the best gift
+  you carry, favourite first) and Devour (the weakest candidate) for the relic in hand.
+- **Imitation relics** (v1.1). Expert smiths forge copies that keep 60% of a boss relic's gift, always on, with no
+  binding, spirit or control demand:
+  - the **Moonshadow Jian** (+4.8% Qi Attack, from the Moonlit Blade);
+  - the **Drowsing Edge** (+6% crit damage, from the Sleeping Blade).
+  - Their recipes are sold at the Stoneford Smith (2,400 taels) once you have bound the original.
+- New events:
+  - Inventory: `spirit_affinity_changed`, `artifact_spirit_spoke` and `artifact_spirit_grew`;
+  - Combat: `artifact_skill_used`.
+- Tests:
+  - The new rules suite covers:
+    - affinity from use and gifts, the daily cap and the favourite;
+    - the waking gates (affinity and place) and the quest flags;
+    - the gift growing with affinity, devouring (family, locks, levels) and the skill every tenth blow;
+    - the control demand halving the gift and silencing the skill, and the barks' quiet;
+    - the imitation's 60%, and its recipe and scroll gates.
+  - The valley run now wins the Blade Spirit's trust with two gifts and wakes it in the Abbot's sanctum.
+  - Data validation checks every relic spirit's fields, barks and awakening quest, and every imitation's share.
+- Debug flag: `--relic=item[:awake[:affinity]]`. `--open-page=inventory:weapon` opens the Bag on the worn weapon.
+
 ### V9d1 · The sword swarm, Array Plates in a fight, and the combat puppet (S47, S48, v1.1)
 - **The Sword Swarm** is the Sword Dao's fifth tier. It is a toggle technique (30 QI, 30 s cooldown).
   - Swords of Qi orbit you for 12 s and take turns striking the nearest foe within 420. There is one strike every

@@ -3121,6 +3121,62 @@
    ]
   },
   {
+   "id": "moonshadow_jian",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 8
+    },
+    {
+     "item": "refining_essence",
+     "count": 4
+    },
+    {
+     "item": "mist_lotus",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "moonshadow_jian",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "expert"
+   }
+  },
+  {
+   "id": "drowsing_edge",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 8
+    },
+    {
+     "item": "refining_essence",
+     "count": 4
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "drowsing_edge",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "expert"
+   }
+  },
+  {
    "id": "killing_array_plate",
    "craft": "formations",
    "grade": "earth",

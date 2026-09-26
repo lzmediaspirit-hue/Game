@@ -3338,6 +3338,124 @@
    ]
   },
   {
+   "id": "the_blade_spirit",
+   "name": "The Blade That Sleeps No More",
+   "kind": "side",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "set_flag",
+     "text": "Grow close to the Blade Spirit (fight with the blade, or gift it)",
+     "count": 1,
+     "flag": "spirit_close:sleeping_blade"
+    },
+    {
+     "kind": "reach_room",
+     "text": "Carry the blade back to the Abbot's sanctum",
+     "count": 1,
+     "room": "ds_abbots_sanctum"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Wake the spirit where it slept (Bag: tap the blade, Subdue)",
+     "count": 1,
+     "flag": "spirit_awake:sleeping_blade"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "refining_essence",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "Bound is not the same as awake. The spirit in that blade still sleeps with one eye open.",
+    "Fight beside it until it knows your hand, then take it home to the sanctum and call it."
+   ],
+   "complete_text": [
+    "Listen to it. A blade that talks back is a blade worth keeping."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "bound:sleeping_blade"
+     }
+    ]
+   },
+   "chapter": "sa3",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
+   "id": "the_moon_spirit",
+   "name": "Moon on the Water",
+   "kind": "side",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "set_flag",
+     "text": "Grow close to the Moon Spirit (fight with the blade, or gift it)",
+     "count": 1,
+     "flag": "spirit_close:moonlit_blade"
+    },
+    {
+     "kind": "reach_room",
+     "text": "Carry the Moonlit Blade to the Lake Shrine on Mirrorwater Lake",
+     "count": 1,
+     "room": "ml_lake_shrine"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Wake the spirit beside the lake (Bag: tap the blade, Subdue)",
+     "count": 1,
+     "flag": "spirit_awake:moonlit_blade"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "mist_lotus",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "The Abbot stole that blade from a lake that holds the moon. Its spirit has been homesick ever since.",
+    "Win its trust, then take it to Mirrorwater Lake beyond the Gate. It will wake there, if anywhere."
+   ],
+   "complete_text": [
+    "The moon and the water. It is whole again, and so, a little, are you."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "bound:moonlit_blade"
+     }
+    ]
+   },
+   "chapter": "sa3",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ]
+  },
+  {
    "id": "quiet_waters",
    "name": "Quiet Waters",
    "kind": "guided",

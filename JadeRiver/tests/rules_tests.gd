@@ -80,6 +80,7 @@ func _main() -> void:
 	blood_buddhist_suite()
 	sect_roles_suite()
 	swarm_array_puppet_suite()
+	artifact_spirit_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -1047,6 +1048,129 @@ func swarm_array_puppet_suite() -> void:
 	c.cultivator.techniques_known = known_before
 	c.cultivator.meridians = meridians_before
 	c.inventory.treasures = treasures_before
+	Game.combat.refresh_stats(c.id)
+
+
+# ------------------------------------------------------------------ S47 Artifact Spirit depth (v1.0) and imitation relics (v1.1)
+func artifact_spirit_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var st: ActorState = Game.actor_state(c.id)
+	Game.world.apply_teleport(c.id, "wp_west")
+	GameEvents.flush()
+	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear"]: Game.combat.cure_status(c.id, sid)
+	var held = c.inventory.equipped.get("weapon")
+	var flags_before: Dictionary = c.quests.flags.duplicate()
+	var lv := ProgressionRules.level(c) + 12
+	var heard := {"skill": 0, "spoke": [], "grew": 0, "aff": 0}
+	var listen := func(n: String, p: Dictionary):
+		if n == "artifact_skill_used": heard.skill = int(heard.skill) + 1
+		if n == "artifact_spirit_spoke": heard.spoke.append(str(p.get("kind", "")))
+		if n == "artifact_spirit_grew": heard.grew = int(p.get("level", 0))
+		if n == "spirit_affinity_changed": heard.aff = int(heard.aff) + 1
+	GameEvents.event.connect(listen)
+	# A bound Sleeping Blade in hand, its spirit asleep.
+	var blade := LootRules.make_instance("sleeping_blade", 52, "fine", null, c.inventory.next_uid)
+	c.inventory.next_uid += 1
+	blade.erase("sealed")
+	blade.bound = true
+	c.inventory.equipped["weapon"] = blade
+	Game.combat.refresh_stats(c.id)
+	check(str(blade.spirit) == "dormant" and InventoryAuthority.spirit_weapon(c) == blade, "a bound relic in hand carries a sleeping spirit")
+	# Use: a point of affinity for every 25 blows the blade lands.
+	var foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(60, 0), lv)
+	foe.pools.max_hp = 999999.0
+	foe.pools.hp = 999999.0
+	var atk := {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1.0, 1.0], "source": "basic", "never_miss": true}
+	for i in 25: Game.combat._player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
+	GameEvents.flush()
+	check(near(float(blade.get("spirit_affinity", 0.0)), 1.0), "25 blows with it: one point of affinity (%.1f)" % float(blade.get("spirit_affinity", 0.0)))
+	# Gifts: three a day; its favourite counts double; it will not take just anything.
+	check(str(Game.submit({"type": "gift_spirit", "item": "rice"}).get("reason", "")) == "not_a_gift", "the spirit will not take just anything")
+	Game.inventory.apply_add(c.id, "refining_essence", 4, "test")
+	var g1 := Game.submit({"type": "gift_spirit", "item": "refining_essence"})
+	check(g1.get("ok", false) and near(float(g1.get("worth", 0.0)), 20.0) and "gift" in heard.spoke, "its favourite gift is worth 20, and it thanks you (%s)" % str(g1))
+	Game.submit({"type": "gift_spirit", "item": "refining_essence"})
+	Game.submit({"type": "gift_spirit", "item": "refining_essence"})
+	check(str(Game.submit({"type": "gift_spirit", "item": "refining_essence"}).get("reason", "")) == "full", "three gifts a day")
+	check(c.quests.has_flag("spirit_close:sleeping_blade"), "past affinity 30, its awakening quest moves on")
+	# Waking: only where it slept.
+	Game.inventory.spirit_cd.erase(c.id)
+	check(str(Game.submit({"type": "subdue_spirit", "slot": "weapon"}).get("reason", "")) == "place", "it will not wake away from its resting place")
+	Game.world.apply_teleport(c.id, "ds_abbots_sanctum")
+	GameEvents.flush()
+	for i in 12:
+		Game.inventory.spirit_cd.erase(c.id)
+		if Game.submit({"type": "subdue_spirit", "slot": "weapon"}).get("awake", false): break
+	GameEvents.flush()
+	check(str(blade.spirit) == "awake" and c.quests.has_flag("spirit_awake:sleeping_blade") and "awake" in heard.spoke, "it wakes in the Abbot's sanctum, and speaks")
+	# Its gift grows with affinity: +10% crit damage at up to one and a half times.
+	var p0 := StatRules.spirit_power(c, blade)
+	var aff0 := float(blade.spirit_affinity)
+	check(near(p0, 1.0 + 0.5 * aff0 / 100.0, 0.001), "the gift grows with affinity (x%.2f at %d)" % [p0, int(aff0)])
+	# Devour: a weaker jian of its kind grows the spirit; a spear or a locked jian is not food.
+	for i in 3: Game.inventory.apply_add_equipment(c.id, "iron_jian", 10, "common", "test")
+	Game.inventory.apply_add_equipment(c.id, "iron_spear", 10, "common", "test")
+	var foods: Array = Game.inventory.devour_candidates(c)
+	var kinds := {}
+	for i in foods: kinds[str(c.inventory.bag[int(i)].id)] = true
+	check(kinds.has("iron_jian") and not kinds.has("iron_spear"), "only weaker blades of its own family are food")
+	var lock_uid := int(c.inventory.bag[int(foods[0])].uid)
+	c.inventory.locked[lock_uid] = true
+	check(Game.inventory.devour_candidates(c).size() == foods.size() - 1, "a locked blade is never eaten")
+	c.inventory.locked.erase(lock_uid)
+	var crit0: float = c.stats.value("crit_damage")
+	for i in 3:
+		var cand: Array = Game.inventory.devour_candidates(c)
+		var dv := Game.submit({"type": "devour_gear", "index": int(cand[0])})
+		check(dv.get("ok", false), "devour %d (%s)" % [i + 1, str(dv)])
+	GameEvents.flush()
+	check(int(blade.get("spirit_level", 0)) == 1 and heard.grew == 1 and c.stats.value("crit_damage") > crit0, "three iron jian: the spirit grows to level 1 and its gift with it")
+	# Its skill: every tenth blow of the blade the Waking Edge strikes on its own; a hand too weak to control it gets none.
+	Game.combat.spirit_hits.erase(c.id)
+	heard.skill = 0
+	for i in 10: Game.combat._player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
+	GameEvents.flush()
+	check(int(heard.skill) == 1, "the Waking Edge strikes on the tenth blow (%d)" % int(heard.skill))
+	c.stats.add_modifier({"stat": "spirit", "op": "flat", "value": -99999.0, "duration": 30.0, "source": "test:weak"})
+	Game.combat.refresh_stats(c.id)
+	check(not StatRules.spirit_controlled(c, blade) and near(StatRules.spirit_power(c, blade), StatRules.spirit_power(null, blade) * 0.5, 0.001),
+		"below its control demand the spirit gives half")
+	heard.skill = 0
+	for i in 10: Game.combat._player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
+	GameEvents.flush()
+	check(int(heard.skill) == 0, "and keeps its skill to itself")
+	c.stats.remove_prefix("test:weak")
+	Game.combat.refresh_stats(c.id)
+	# Barks wait out a quiet between them (chosen lines excepted).
+	Game.inventory.bark_at.erase(c.id)
+	heard.spoke = []
+	Game.inventory.speak(c, blade, "kill")
+	Game.inventory.speak(c, blade, "kill")
+	GameEvents.flush()
+	check(heard.spoke.size() == 1, "barks keep a quiet between them (%d)" % heard.spoke.size())
+	foe.alive = false
+	# Imitation relics: 60% of the original's gift, always on, no spirit; the smith copies a relic seen whole.
+	var im := ContentDB.item("moonshadow_jian")
+	var orig: Dictionary = ContentDB.item("moonlit_blade").spirit.effect
+	check(near(float(im.imitation.effect.value), float(orig.value) * 0.6, 0.0001) and not im.get("relic", false) and not im.has("spirit"),
+		"the Moonshadow Jian keeps 60% of the Moonlit Blade's gift, with no spirit")
+	var copy := LootRules.make_instance("moonshadow_jian", 48, "common", null, 1)
+	var mods := StatRules.instance_modifiers("weapon", copy, c.cultivator.energy_type, c)
+	check(mods.any(func(m): return str(m.source).begins_with("imitation") and str(m.stat) == "qi_attack" and near(float(m.value), 0.048, 0.0001)) and not copy.get("sealed", false),
+		"an imitation needs no binding: +4.8% Qi attack")
+	var smith := ContentDB.entry("shops", "stoneford_smith")
+	var scroll_req := {}
+	for it in smith.get("stock", []):
+		if str(it.get("learn", "")) == "moonshadow_jian": scroll_req = it.get("requires", {})
+	check(str(ContentDB.entry("recipes", "moonshadow_jian").get("requires_ranks", {}).get("smithing", "")) == "expert"
+		and JSON.stringify(scroll_req).contains("bound:moonlit_blade"), "Expert smiths copy it, once the Moonlit Blade has been bound")
+	GameEvents.event.disconnect(listen)
+	for it in ["iron_jian", "iron_spear", "refining_essence"]: Game.inventory.apply_remove(c.id, it, c.inventory.count(it), "test")
+	c.inventory.equipped["weapon"] = held
+	c.quests.flags = flags_before
+	Game.world.apply_teleport(c.id, "wp_west")
+	GameEvents.flush()
 	Game.combat.refresh_stats(c.id)
 
 # ------------------------------------------------------------------ S47 natal treasure, wardrobe, blood-drop, rogue cultivators

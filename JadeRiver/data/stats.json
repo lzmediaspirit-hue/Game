@@ -178,6 +178,38 @@
   "spirit_cooldown_s": 60,
   "soul_injury": 1
  },
+ "artifact_spirit": {
+  "hits_per_point": 25,
+  "gifts": {
+   "refining_essence": 10,
+   "cloudsteel_ore": 4,
+   "jadeiron": 2,
+   "mist_lotus": 6
+  },
+  "favourite_mult": 2,
+  "gifts_per_day": 3,
+  "wake_affinity": 30,
+  "affinity_bonus": 0.5,
+  "devour_xp": {
+   "plain": 2,
+   "common": 4,
+   "earth": 8,
+   "heaven": 16
+  },
+  "devour_affinity": 2,
+  "levels": [
+   10,
+   30,
+   60,
+   100,
+   150
+  ],
+  "per_level": 0.1,
+  "weak_share": 0.5,
+  "bark_cooldown_s": 40,
+  "kill_bark_chance": 0.25,
+  "low_hp_pct": 0.25
+ },
  "treasures": {
   "unlock": "natural_treasures",
   "season_days": 7,

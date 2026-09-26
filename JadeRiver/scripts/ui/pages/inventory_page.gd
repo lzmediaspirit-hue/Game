@@ -23,6 +23,7 @@ func setup() -> void:
 	doll.scale = Vector2.ONE * 2.0
 	add_child(doll)
 	_refresh_doll()
+	if str(args.get("tab", "")) != "" and c() != null and c().inventory.equipped.get(str(args.tab)) != null: sel = {"slot": str(args.tab)}   # open on a worn slot
 
 func _refresh_doll() -> void:
 	if c() == null or not is_instance_valid(doll): return
@@ -136,7 +137,7 @@ func _draw_detail(r: Rect2) -> void:
 	y += 10
 	y += para(Rect2(r.position.x + 16, y, r.size.x - 32, 120), str(def.get("desc", "")), 17, UiKit.PAPER, 5)
 	if def.has("slot"):
-		for m in StatRules.instance_modifiers(str(def.slot), s, ch.cultivator.energy_type):
+		for m in StatRules.instance_modifiers(str(def.slot), s, ch.cultivator.energy_type, ch):
 			if y > r.end.y - 150: break
 			var v := float(m.value)
 			var shown := ("+%d%%" % int(round(v * 100))) if str(m.op) != "flat" else ("+%s" % UiKit.fmt(v))
@@ -267,6 +268,8 @@ func _treasure_lines(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> 
 	return y
 
 ## S14: a sealed relic offers Bind (a channel a hit breaks); a bound one with a dormant spirit offers the contest.
+## S47 Artifact Spirit depth: a bound spirit shows its affinity and level; held in hand it takes gifts and devours
+## weaker blades of its kind, and warns when its wielder's Spirit is below its control demand.
 func _relic(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> void:
 	if not def.get("relic", false): return
 	var target := {"slot": str(sel.slot)} if sel.has("slot") else {"index": int(sel.get("bag", -1))}
@@ -281,12 +284,52 @@ func _relic(ch, s: Dictionary, def: Dictionary, r: Rect2, y: float) -> void:
 		else:
 			var secs := float(ContentDB.stat_const("binding", {}).get("seconds", {}).get(str(def.get("grade", "common")), 10))
 			btn(Rect2(bx, by - 6, bw, 46), Tx.t("ui.inventory.bind_s") % int(secs), "bind", target, true, Unlocks.is_unlocked(ch.id, "binding"), Unlocks.locked_text("binding"))
-	elif str(s.get("spirit", "")) == "dormant":
-		text(Vector2(bx, y + 22), Tx.t("ui.inventory.a_spirit_sleeps_in_it"), 16, UiKit.SOUL)
+		return
+	var spirit := str(s.get("spirit", ""))
+	if spirit == "": return
+	var sp: Dictionary = def.get("spirit", {})
+	var awake := spirit == "awake"
+	var line := Tx.t("ui.inventory.spirit_awake") % str(def.get("unique", "")) if awake else Tx.t("ui.inventory.spirit_sleeps_named") % str(sp.get("name", ""))
+	y += para(Rect2(bx, y + 4, bw, 44), line, 16, UiKit.PALE_GOLD if awake else UiKit.SOUL, 2)
+	var aff := float(s.get("spirit_affinity", 0.0))
+	bar(Rect2(bx, y + 4, bw, 28), aff / 100.0, UiKit.SOUL, Tx.t("ui.inventory.spirit_affinity") % [int(aff), int(s.get("spirit_level", 0))])
+	y += 34
+	if awake and not StatRules.spirit_controlled(ch, s):
+		y += para(Rect2(bx, y + 2, bw, 40), Tx.t("ui.inventory.spirit_refuses") % int(sp.get("control", 0)), 15, UiKit.RED, 2)
+	elif not awake:
+		var need := int(InventoryAuthority.spirit_cfg().get("wake_affinity", 30))
+		y += para(Rect2(bx, y + 2, bw, 40), Tx.t("ui.inventory.spirit_wakes_line") % [need, ContentDB.name_of("rooms", str(sp.get("wake_room", "")))], 15, UiKit.MIST, 2)
+	# The contest, a gift and a meal: only for the relic in hand. Stacked, or two to a row when space is short.
+	if not (sel.has("slot") and str(sel.slot) == "weapon"): return
+	var rows: Array = []
+	if not awake:
 		var chance: float = Game.inventory.spirit_chance(ch, str(s.id))
-		btn(Rect2(bx, by - 6, bw, 46), Tx.t("ui.inventory.subdue_the_spirit") % int(round(chance * 100.0)), "subdue", target, false)
-	elif str(s.get("spirit", "")) == "awake":
-		text(Vector2(bx, y + 22), Tx.t("ui.inventory.spirit_awake") % str(def.get("unique", "")), 16, UiKit.PALE_GOLD)
+		rows.append([Tx.t("ui.inventory.subdue_short") % int(round(chance * 100.0)), "subdue", target, aff >= float(InventoryAuthority.spirit_cfg().get("wake_affinity", 30)), true])
+	var gift := _best_gift(ch, sp)
+	rows.append([Tx.t("ui.inventory.gift_item") % ContentDB.item_name(gift) if gift != "" else Tx.t("ui.inventory.gift_none"), "gift_spirit", gift, gift != "", false])
+	var foods: Array = Game.inventory.devour_candidates(ch)
+	rows.append([Tx.t("ui.inventory.devour_item") % ContentDB.item_name(str(ch.inventory.bag[int(foods[0])].id)) if not foods.is_empty() else Tx.t("ui.inventory.devour_none"),
+		"devour", int(foods[0]) if not foods.is_empty() else -1, not foods.is_empty(), false])
+	var room := r.end.y - 96.0 - (y + 8.0)
+	var per := 1 if room >= rows.size() * 46.0 else 2
+	var cw := (bw - 8.0 * (per - 1)) / per
+	for i in rows.size():
+		var row: Array = rows[i]
+		var rr := Rect2(bx + (i % per) * (cw + 8), y + 8 + int(i / per) * 46, cw, 40)
+		btn(rr, fit(str(row[0]), 15, cw - 16), str(row[1]), row[2], bool(row[4]), bool(row[3]), "", 15)
+
+## The gift the spirit would like most that is in the bag: its favourite first, then the richest.
+func _best_gift(ch, sp: Dictionary) -> String:
+	var fav := str(sp.get("favourite", ""))
+	if fav != "" and ch.inventory.count(fav) > 0: return fav
+	var best := ""
+	var worth := 0.0
+	var gifts: Dictionary = InventoryAuthority.spirit_cfg().get("gifts", {})
+	for g in gifts:
+		if ch.inventory.count(str(g)) > 0 and float(gifts[g]) > worth:
+			best = str(g)
+			worth = float(gifts[g])
+	return best
 
 func on_action(id: String, data) -> void:
 	var ch = c()
@@ -297,6 +340,10 @@ func on_action(id: String, data) -> void:
 		"subdue":
 			var sr := submit(({"type": "subdue_spirit"} as Dictionary).merged(data))
 			if sr.get("ok", false): flash(Tx.t("ui.inventory.the_spirit_wakes_and_answers") if sr.get("awake", false) else Tx.t("ui.inventory.the_spirit_throws_you_off"))
+		"gift_spirit": submit({"type": "gift_spirit", "item": str(data)})
+		"devour":
+			var dr := submit({"type": "devour_gear", "index": int(data)})
+			if dr.get("ok", false): flash(Tx.t("ui.inventory.spirit_devoured") % ContentDB.item_name(str(dr.get("ate", ""))))
 		"bag":
 			sel = {"bag": int(data)}
 			var s = ch.inventory.bag[int(data)]

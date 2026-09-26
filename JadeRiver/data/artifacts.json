@@ -2088,14 +2088,52 @@
    "stack": 1,
    "family": "jian",
    "relic": true,
-   "unique": "Awake spirit: +8% Qi attack",
+   "unique": "Awake spirit: +8% Qi attack; Moonlit Crescent every 8 hits",
    "spirit": {
     "name": "Moon Spirit",
     "strength": 26,
+    "control": 60,
+    "favourite": "mist_lotus",
+    "wake_room": "ml_lake_shrine",
     "effect": {
      "stat": "qi_attack",
      "op": "pct_add",
      "value": 0.08
+    },
+    "skill": {
+     "name": "Moonlit Crescent",
+     "every_hits": 8,
+     "mult": 1.6,
+     "damage_type": "qi",
+     "element": "water",
+     "reach": 300,
+     "art": "moon_crescent"
+    },
+    "barks": {
+     "awake": [
+      "The lake remembers the moon. So do I.",
+      "At last, a hand that listens."
+     ],
+     "kill": [
+      "Clean as moonlight.",
+      "One less shadow on the water.",
+      "Again. Like the tide."
+     ],
+     "gift": [
+      "Mist lotus... I dreamed of it for a hundred years.",
+      "Mm. That is kind."
+     ],
+     "devour": [
+      "A small blade. It remembers little.",
+      "I take its edge into mine."
+     ],
+     "low_hp": [
+      "Breathe. The water does not hurry.",
+      "Step back, and let me shine."
+     ],
+     "refuse": [
+      "Your spirit is a puddle. I will not pour into it."
+     ]
     }
    }
   },
@@ -2113,16 +2151,102 @@
    "stack": 1,
    "family": "jian",
    "relic": true,
-   "unique": "Awake spirit: +10% crit damage",
+   "unique": "Awake spirit: +10% crit damage; Waking Edge every 10 hits",
    "spirit": {
     "name": "Blade Spirit",
     "strength": 30,
+    "control": 80,
+    "favourite": "refining_essence",
+    "wake_room": "ds_abbots_sanctum",
     "effect": {
      "stat": "crit_damage",
      "op": "flat",
      "value": 0.1
+    },
+    "skill": {
+     "name": "Waking Edge",
+     "every_hits": 10,
+     "mult": 2.2,
+     "damage_type": "physical",
+     "element": "metal",
+     "reach": 220,
+     "art": "flying_sword"
+    },
+    "barks": {
+     "awake": [
+      "I slept in the dark long enough. Show me the light.",
+      "Hold me steady."
+     ],
+     "kill": [
+      "Ha. Too slow.",
+      "The Abbot swung harder than that.",
+      "Next."
+     ],
+     "gift": [
+      "Refined. Good. I can taste the fire in it.",
+      "You feed me well."
+     ],
+     "devour": [
+      "Crude steel. Still, it had a heart.",
+      "More."
+     ],
+     "low_hp": [
+      "Do not fall before I have had my fill.",
+      "Get up. We are not finished."
+     ],
+     "refuse": [
+      "Soft hands. Soft soul. Put me down."
+     ]
     }
    }
+  },
+  {
+   "id": "moonshadow_jian",
+   "name": "Moonshadow Jian",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 48,
+   "appearance": "sword",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian",
+   "imitation": {
+    "of": "moonlit_blade",
+    "share": 0.6,
+    "effect": {
+     "stat": "qi_attack",
+     "op": "pct_add",
+     "value": 0.048
+    }
+   },
+   "desc": "A forge copy of the Moonlit Blade. It keeps six parts in ten of the original's gift, and no spirit."
+  },
+  {
+   "id": "drowsing_edge",
+   "name": "Drowsing Edge",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 48,
+   "appearance": "sword",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_jian",
+   "type": "equipment",
+   "stack": 1,
+   "family": "jian",
+   "imitation": {
+    "of": "sleeping_blade",
+    "share": 0.6,
+    "effect": {
+     "stat": "crit_damage",
+     "op": "flat",
+     "value": 0.06
+    }
+   },
+   "desc": "A forge copy of the Sleeping Blade. It keeps six parts in ten of the original's gift, and no spirit."
   }
  ]
 }

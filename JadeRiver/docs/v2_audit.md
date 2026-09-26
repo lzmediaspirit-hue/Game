@@ -88,8 +88,8 @@ Progress is recorded in `docs/CHANGELOG.md`.
 - **V3**: done (V3a–V3c), except these v1.1+ items, left for a later pass:
   - the sword swarm (done in V9d1);
   - weapon awakening and legendary chains;
-  - imitation relics;
-  - Artifact Spirit depth (affinity, barks, devour);
+  - imitation relics (done in V9d2);
+  - Artifact Spirit depth (affinity, barks, devour; done in V9d2);
   - the heavy sabre, flute and fan weapon families (done in V9b);
   - the rooftop thief chase (S43 rule 15).
 - **V4**: done, in five parts (V4a–V4e: furnaces; herb natures and conflicts; new forms; fragments, experiments and
@@ -156,8 +156,9 @@ Progress is recorded in `docs/CHANGELOG.md`.
   signature line) and the three-branch sect tree bought with contribution. V9c is complete.
 - V9d1 is done: the sword swarm (Sword Dao 5, the Nine Swords Array, one sword per 10 Spirit), Array Plates as
   combat quick-deploys (guarding, killing and binding arrays, scaled by the Formation Dao) and the combat puppet (a
-  construct in a pet slot, repaired at the tinkerer). V9d2 (Artifact Spirit depth, imitation relics, weapon
-  awakening and legendary chains) is next.
+  construct in a pet slot, repaired at the tinkerer). V9d2 is done: Artifact Spirit depth (affinity from use and
+  gifts, barks, an awakening quest per relic, a skill, the control demand, devour) and imitation relics. V9d3
+  (weapon awakening and legendary chains) is next.
 - Next (V9): everything v2 makes due by v1.1 that is still open. A sweep of every audit row against the build
   after V8g3 found these, in six phases:
   - **V9a**, hooks and small gaps:

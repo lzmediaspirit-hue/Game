@@ -1129,6 +1129,24 @@ def guided_quests():
         o("use_system", "Bind it (Bag: tap the blade, Bind; stand clear of blows)", system="bind"),
     ], [], offered_by_unlock=True, chapter="sa3", giver_any=M, hand_in_any=M,
         offer=["The Abbot's vault holds a blade that sleeps. Your soul can wake it."], complete=["It chose you. Treat it well."])
+    # S47 Artifact Spirit depth: one awakening quest per relic. The spirit must know you (affinity 30, by fighting
+    # with it or gifts) and wakes only where it once slept.
+    quest("the_blade_spirit", "The Blade That Sleeps No More", "side", "elder_hu", [
+        o("set_flag", "Grow close to the Blade Spirit (fight with the blade, or gift it)", flag="spirit_close:sleeping_blade"),
+        o("reach_room", "Carry the blade back to the Abbot's sanctum", room="ds_abbots_sanctum"),
+        o("set_flag", "Wake the spirit where it slept (Bag: tap the blade, Subdue)", flag="spirit_awake:sleeping_blade"),
+    ], [item("refining_essence", 2)], requires=all_of(flag("bound:sleeping_blade")), chapter="sa3", giver_any=M, hand_in_any=M,
+        offer=["Bound is not the same as awake. The spirit in that blade still sleeps with one eye open.",
+               "Fight beside it until it knows your hand, then take it home to the sanctum and call it."],
+        complete=["Listen to it. A blade that talks back is a blade worth keeping."])
+    quest("the_moon_spirit", "Moon on the Water", "side", "elder_hu", [
+        o("set_flag", "Grow close to the Moon Spirit (fight with the blade, or gift it)", flag="spirit_close:moonlit_blade"),
+        o("reach_room", "Carry the Moonlit Blade to the Lake Shrine on Mirrorwater Lake", room="ml_lake_shrine"),
+        o("set_flag", "Wake the spirit beside the lake (Bag: tap the blade, Subdue)", flag="spirit_awake:moonlit_blade"),
+    ], [item("mist_lotus", 2)], requires=all_of(flag("bound:moonlit_blade")), chapter="sa3", giver_any=M, hand_in_any=M,
+        offer=["The Abbot stole that blade from a lake that holds the moon. Its spirit has been homesick ever since.",
+               "Win its trust, then take it to Mirrorwater Lake beyond the Gate. It will wake there, if anywhere."],
+        complete=["The moon and the water. It is whole again, and so, a little, are you."])
     quest("quiet_waters", "Quiet Waters", "guided", "elder_hu", [
         o("enter_seclusion", "Seclusion with Nourish soul", focus="nourish_soul"),
     ], [fx("learn_recipe", recipe="soul_soothing_pill")], offered_by_unlock=True, chapter="sa4", giver_any=M, hand_in_any=M,

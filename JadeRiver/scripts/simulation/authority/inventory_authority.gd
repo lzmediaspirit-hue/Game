@@ -9,10 +9,11 @@ const COOLDOWN_GROUPS := {"restoration": 15.0, "healing": 15.0, "buff": 30.0, "u
 func intents() -> Array:
 	return ["move_item", "equip", "unequip", "use_item", "use_quick", "set_quick_use", "lock_item", "discard", "split_stack", "sort_bag", "drink_draught",
 		"bind_item", "subdue_spirit", "set_treasure", "choose_vessel", "swap_loadout", "set_spare_weapon", "set_appearance", "flag_natal", "feed_natal",
-		"reforge_natal"]
+		"reforge_natal", "gift_spirit", "devour_gear"]
 
 var binding: Dictionary = {}   # actor -> {uid, left, total}: a relic being bound (S14)
 var spirit_cd: Dictionary = {} # actor -> seconds before another soul contest
+var bark_at: Dictionary = {}   # actor -> sim time of the Artifact Spirit's last spoken line (S47; not saved)
 
 func subscribe() -> void:
 	GameEvents.subscribe("hit_landed", _on_hit, 40)
@@ -25,6 +26,9 @@ func _on_natal_kill(p: Dictionary) -> void:
 	var c = game.active()
 	if c != null and str(p.get("victim_kind", "")) == "enemy" and str(p.get("killer", "")) == str(c.id):
 		add_natal_xp(c, float(ContentDB.stat_const("natal.xp_per_kill_level", 1.0)) * float(p.get("level", 1)))
+		var w = spirit_weapon(c)
+		if w != null and str(w.get("spirit", "")) == "awake" and Rng.stream(c.id, "spirit").randf() < float(spirit_cfg().get("kill_bark_chance", 0.25)):
+			speak(c, w, "kill")
 
 func _on_natal_technique(p: Dictionary) -> void:
 	var c = game.character(str(p.get("actor", "")))
@@ -34,12 +38,121 @@ func _on_natal_level(p: Dictionary) -> void:
 	var c = game.character(str(p.get("actor", "")))
 	if c != null: refresh_natal(c)
 
+# ------------------------------------------------------------------ S47 Artifact Spirit depth (v1.0)
+static func spirit_cfg() -> Dictionary:
+	return ContentDB.stat_const("artifact_spirit", {})
+
+## The relic in hand whose spirit can grow: bound, with a spirit asleep or awake.
+static func spirit_weapon(c):
+	var w = c.inventory.equipped.get("weapon") if c != null else null
+	if not (w is Dictionary) or w.get("sealed", false) or str(w.get("spirit", "")) == "": return null
+	return w
+
+## Affinity 0-100. Crossing the waking mark sets the flag its awakening quest waits on.
+func add_spirit_affinity(c, inst: Dictionary, amount: float, why: String) -> void:
+	var before := float(inst.get("spirit_affinity", 0.0))
+	var after := clampf(before + amount, 0.0, 100.0)
+	if after == before: return
+	inst.spirit_affinity = after
+	var need := float(spirit_cfg().get("wake_affinity", 30))
+	if before < need and after >= need: game.quest.apply_flag(c.id, "spirit_close:" + str(inst.id))
+	emit("spirit_affinity_changed", {"actor": c.id, "item": str(inst.id), "affinity": after, "delta": after - before, "why": why})
+	if str(inst.get("spirit", "")) == "awake": game.combat.refresh_stats(c.id)
+
+## Gifts to the spirit in hand: three a day; its favourite counts double.
+func gift_spirit(c, item_id: String) -> Dictionary:
+	var w = spirit_weapon(c)
+	if w == null: return fail("no_spirit", {"text": Tx.t("sim.inventory.no_spirit_in_hand")})
+	var cfg := spirit_cfg()
+	var gifts: Dictionary = cfg.get("gifts", {})
+	var sp: Dictionary = ContentDB.item(str(w.id)).get("spirit", {})
+	if not gifts.has(item_id) and item_id != str(sp.get("favourite", "")): return fail("not_a_gift", {"text": Tx.t("sim.inventory.spirit_wont_take")})
+	if c.inventory.count(item_id) <= 0: return fail("none")
+	var today := Clock.reset_day(Clock.now_utc())
+	if int(w.get("gift_day", -1)) != today:
+		w.gift_day = today
+		w.gifts_today = 0
+	if int(w.get("gifts_today", 0)) >= int(cfg.get("gifts_per_day", 3)): return fail("full", {"text": Tx.t("sim.inventory.spirit_had_enough")})
+	apply_remove(c.id, item_id, 1, "spirit_gift")
+	w.gifts_today = int(w.get("gifts_today", 0)) + 1
+	var worth := float(gifts.get(item_id, 4))
+	if item_id == str(sp.get("favourite", "")): worth *= float(cfg.get("favourite_mult", 2))
+	add_spirit_affinity(c, w, worth, "gift")
+	speak(c, w, "gift", true)
+	return ok({"affinity": float(w.spirit_affinity), "worth": worth})
+
+## What the spirit in hand could devour from the bag: weaker weapons of its own family (a lower grade, or the same
+## grade at a lower item level), not locked, natal or relic.
+func devour_candidates(c) -> Array:
+	var w = spirit_weapon(c)
+	var out: Array = []
+	if w == null: return out
+	var wd := ContentDB.item(str(w.id))
+	var gi := StatRules.grade_index(str(wd.get("grade", "common")))
+	for i in c.inventory.bag.size():
+		var it = c.inventory.bag[i]
+		if not (it is Dictionary) or c.inventory.locked.has(int(it.get("uid", -1))) or it.get("natal", false): continue
+		var d := ContentDB.item(str(it.id))
+		if str(d.get("slot", "")) != "weapon" or str(d.get("family", "")) != str(wd.get("family", "")) or d.get("relic", false): continue
+		var g := StatRules.grade_index(str(d.get("grade", "common")))
+		if g < gi or (g == gi and int(it.get("ilv", d.get("ilv", 1))) < int(w.get("ilv", wd.get("ilv", 1)))): out.append(i)
+	return out
+
+func spirit_level_for(xp: float) -> int:
+	var lv := 0
+	for need in spirit_cfg().get("levels", [10, 30, 60, 100, 150]):
+		if xp >= float(need): lv += 1
+	return lv
+
+## Devour: the spirit in hand eats a weaker weapon of its family and grows (levels 1-5, +10% to its gift and skill).
+func devour_gear(c, index: int) -> Dictionary:
+	var w = spirit_weapon(c)
+	if w == null: return fail("no_spirit", {"text": Tx.t("sim.inventory.no_spirit_in_hand")})
+	if not index in devour_candidates(c): return fail("not_food", {"text": Tx.t("sim.inventory.spirit_wont_devour")})
+	var food: Dictionary = c.inventory.bag[index]
+	var grade := str(ContentDB.item(str(food.id)).get("grade", "common"))
+	var cfg := spirit_cfg()
+	apply_remove_index(c.id, index, 1, "spirit_devour")
+	var before := int(w.get("spirit_level", 0))
+	w.spirit_xp = float(w.get("spirit_xp", 0.0)) + float(cfg.get("devour_xp", {}).get(grade, 2))
+	w.spirit_level = spirit_level_for(float(w.spirit_xp))
+	add_spirit_affinity(c, w, float(cfg.get("devour_affinity", 2)), "devour")
+	if int(w.spirit_level) != before:
+		emit("artifact_spirit_grew", {"actor": c.id, "item": str(w.id), "level": int(w.spirit_level)})
+		game.combat.refresh_stats(c.id)
+	speak(c, w, "devour", true)
+	return ok({"level": int(w.spirit_level), "xp": float(w.spirit_xp), "ate": str(food.id)})
+
+## One line from the spirit (S47: barks). Chosen lines speak at once; the rest wait out a 40 s quiet.
+func speak(c, inst: Dictionary, kind: String, always := false) -> void:
+	var lines: Array = ContentDB.item(str(inst.id)).get("spirit", {}).get("barks", {}).get(kind, [])
+	if lines.is_empty(): return
+	if not always and game.sim_time - float(bark_at.get(c.id, -999.0)) < float(spirit_cfg().get("bark_cooldown_s", 40)): return
+	bark_at[c.id] = game.sim_time
+	var line := str(lines[Rng.stream(c.id, "spirit").randi_range(0, lines.size() - 1)])
+	emit("artifact_spirit_spoke", {"actor": c.id, "item": str(inst.id), "kind": kind, "line": line})
+
 ## A blow breaks the binding channel.
 func _on_hit(p: Dictionary) -> void:
 	var who := str(p.get("target", ""))
 	if binding.has(who):
 		binding.erase(who)
 		emit("binding_interrupted", {"actor": who})
+	# S47 Artifact Spirit depth: the relic in hand learns its wielder's hand, a point for every 25 blows it lands;
+	# when its wielder is badly hurt, an awake spirit speaks up.
+	var c = game.character(str(p.get("attacker", "")))
+	if c != null and str(p.get("target_kind", "")) == "enemy":
+		var src := str(p.get("source", ""))
+		var w = spirit_weapon(c)
+		if w != null and (src == "basic" or src.begins_with("tech:")):
+			w.spirit_hits = int(w.get("spirit_hits", 0)) + 1
+			if int(w.spirit_hits) >= int(spirit_cfg().get("hits_per_point", 25)):
+				w.spirit_hits = 0
+				add_spirit_affinity(c, w, 1.0, "use")
+	var hurt = game.character(who)
+	if hurt != null and str(p.get("target_kind", "")) == "player" and hurt.pools.hp < hurt.pools.max_hp * float(spirit_cfg().get("low_hp_pct", 0.25)):
+		var hw = spirit_weapon(hurt)
+		if hw != null and str(hw.get("spirit", "")) == "awake": speak(hurt, hw, "low_hp")
 
 func tick(delta: float) -> void:
 	# S44: a liquid in the Draught slot goes flat ten minutes after it was made.
@@ -62,6 +175,7 @@ func tick(delta: float) -> void:
 		found.inst.erase("sealed")
 		found.inst.bound = true
 		emit("item_bound", {"actor": actor, "item": str(found.inst.id)})
+		game.quest.apply_flag(actor, "bound:" + str(found.inst.id))   # S47: its awakening quest, and the smith's copy
 		emit("system_used", {"actor": actor, "system": "bind"})
 		if found.slot != "": emit("equipment_changed", {"actor": actor, "slot": found.slot, "old": found.inst.id, "new": found.inst.id})
 
@@ -105,11 +219,20 @@ func subdue_spirit(c, slot: String, index: int) -> Dictionary:
 	var found := _instance(c, slot, index)
 	if found.is_empty() or found.inst.get("sealed", false) or str(found.inst.get("spirit", "")) != "dormant": return fail("no_spirit")
 	if spirit_cd.has(c.id): return fail("cooldown", {"text": Tx.t("sim.inventory.the_spirit_is_still_wary")})
+	# S47 Artifact Spirit depth: a spirit answers only a wielder it knows (affinity 30), and only where it once slept.
+	var sp: Dictionary = ContentDB.item(str(found.inst.id)).get("spirit", {})
+	var need := float(spirit_cfg().get("wake_affinity", 30))
+	if float(found.inst.get("spirit_affinity", 0.0)) < need: return fail("affinity", {"text": Tx.t("sim.inventory.spirit_does_not_know_you") % int(need)})
+	var home := str(sp.get("wake_room", ""))
+	if home != "" and str(c.position.get("room", "")) != home:
+		return fail("place", {"text": Tx.t("sim.inventory.spirit_wakes_at") % ContentDB.name_of("rooms", home)})
 	var chance := spirit_chance(c, str(found.inst.id))
 	spirit_cd[c.id] = float(cfg.get("spirit_cooldown_s", 60))
 	if Rng.stream(c.id, "spirit").randf() < chance:
 		found.inst.spirit = "awake"
 		emit("artifact_spirit_awakened", {"actor": c.id, "item": str(found.inst.id)})
+		game.quest.apply_flag(c.id, "spirit_awake:" + str(found.inst.id))
+		speak(c, found.inst, "awake", true)
 		if found.slot != "": emit("equipment_changed", {"actor": c.id, "slot": found.slot, "old": found.inst.id, "new": found.inst.id})
 		return ok({"awake": true, "chance": chance})
 	game.progression.apply_injury(c.id, "soul", int(cfg.get("soul_injury", 1)))
@@ -130,6 +253,8 @@ func handle(intent: Dictionary) -> Dictionary:
 		"equip": return equip(c, int(intent.get("index", -1)))
 		"bind_item": return bind_item(c, str(intent.get("slot", "")), int(intent.get("index", -1)))
 		"subdue_spirit": return subdue_spirit(c, str(intent.get("slot", "")), int(intent.get("index", -1)))
+		"gift_spirit": return gift_spirit(c, str(intent.get("item", "")))
+		"devour_gear": return devour_gear(c, int(intent.get("index", -1)))
 		"unequip": return unequip(c, str(intent.get("slot", "")))
 		"drink_draught": return drink_draught(c)
 		"use_item": return use_item(c, int(intent.get("index", -1)), bool(intent.get("confirm", false)))
@@ -481,6 +606,8 @@ func equip(c, index: int) -> Dictionary:
 	if slot == "gourd": c.inventory.resize(c.inventory.capacity())
 	_first_wear(c, inst, slot)
 	emit("equipment_changed", {"actor": c.id, "slot": slot, "old": old.id if old else "", "new": inst.id})
+	# S47: an awake spirit in a hand too weak to hold it says so.
+	if str(inst.get("spirit", "")) == "awake" and not StatRules.spirit_controlled(c, inst): speak(c, inst, "refuse", true)
 	return ok()
 
 ## First time a piece is worn: its look joins the account's wardrobe, and a Plain to Heaven piece takes a drop of

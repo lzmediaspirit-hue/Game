@@ -55,6 +55,8 @@ var hp: float:
 var facing = 1
 var avatar: Node2D
 var front: Node2D                   # an overlay above the avatar
+var speech: PackedStringArray = []  # S47: an Artifact Spirit's line, wrapped, shown over the head
+var speech_until := 0.0
 var outfit: Dictionary
 var joystick_engaged = false
 var drag_seconds = 0.0
@@ -525,6 +527,35 @@ func _draw_hover_sword() -> void:
 
 func _draw_front() -> void:
 	if bound() and Game.combat.swarm_of(actor_id) > 0: _draw_swarm(front, Game.combat.swarm_of(actor_id), true)
+	var left := speech_until - Time.get_ticks_msec() / 1000.0
+	if left > 0.0 and not speech.is_empty(): _draw_speech(clampf(left, 0.0, 1.0))
+
+## S47 Artifact Spirit barks: the spirit's line in a pale bubble edged in soul violet, over the head (wrapped to three
+## lines at most), so it never reads as the character speaking.
+func say(line: String, seconds := 4.5) -> void:
+	var lines := PackedStringArray()
+	var cur := ""
+	for word in line.split(" "):
+		var tryit := word if cur == "" else cur + " " + word
+		if cur != "" and UiKit.text_width(tryit, 16) > 270.0:
+			lines.append(cur)
+			cur = word
+		else: cur = tryit
+	if cur != "": lines.append(cur)
+	speech = lines.slice(0, 3)
+	speech_until = Time.get_ticks_msec() / 1000.0 + seconds
+
+func _draw_speech(alpha: float) -> void:
+	var w := 0.0
+	for l in speech: w = maxf(w, UiKit.text_width(l, 16))
+	w += 24.0
+	var h := 10.0 + 20.0 * speech.size()
+	var r := Rect2(-w * 0.5, avatar.position.y - 118.0 - h, w, h)
+	front.draw_rect(r, Color(0.93, 0.92, 0.98, 0.95 * alpha))
+	front.draw_rect(r, Color(UiKit.SOUL, alpha), false, 2)
+	front.draw_colored_polygon(PackedVector2Array([Vector2(-6, r.end.y), Vector2(6, r.end.y), Vector2(0, r.end.y + 8)]), Color(UiKit.SOUL, alpha))
+	for i in speech.size():
+		UiKit.draw_text(front, speech[i], Vector2(r.position.x + 12, r.position.y + 21 + i * 20), 16, Color(UiKit.INK, alpha), HORIZONTAL_ALIGNMENT_LEFT, w - 24, false)
 
 ## S47 the sword swarm: slim swords of Qi circle the body, point outward; the far half of the ring is drawn
 ## behind the body (dimmer) and the near half over it.

@@ -276,6 +276,19 @@ func _draw_projectile(p: Dictionary) -> void:
 			for i in 5:
 				draw_rect(Rect2((pos + Vector2(-dir * (12 + i * 8), sin(float(p.travelled) * 0.08 + i * 1.7) * 10.0)).snapped(Vector2(2, 2)), Vector2(4, 4)),
 					Color("c9a06a", 0.7 - i * 0.12))
+		"moon_crescent":
+			# S47 the Moon Spirit's skill: a thin crescent of pale moonlight skimming forward, with a silver wake.
+			draw_circle(pos, 32, Color(0.75, 0.9, 1.0, 0.16))
+			var moon := PackedVector2Array()
+			for i in 13:
+				var a := lerpf(-1.3, 1.3, i / 12.0)
+				moon.append((pos + Vector2(dir * cos(a) * 24.0, sin(a) * 36.0)).snapped(Vector2(2, 2)))
+			draw_polyline(moon, UiKit.INK, 9.0)
+			draw_polyline(moon, Color("9fc8f0"), 6.0)
+			draw_polyline(moon, Color("f2f8ff"), 2.0)
+			for i in 4:
+				draw_rect(Rect2((pos + Vector2(-dir * (14 + i * 9), sin(float(p.travelled) * 0.07 + i * 1.9) * 12.0)).snapped(Vector2(2, 2)), Vector2(2, 2)),
+					Color(0.85, 0.95, 1.0, 0.8 - i * 0.18))
 		"bamboo":
 			draw_line(pos + Vector2(-10, -4), pos + Vector2(10, 4), UiKit.INK, 6)
 			draw_line(pos + Vector2(-10, -4), pos + Vector2(10, 4), Color("8cc05a"), 4)

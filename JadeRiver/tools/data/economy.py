@@ -106,6 +106,9 @@ def shops():
                    s("training_heavy_sabre"), s("training_fan"), s("training_flute"),
                    s("iron_heavy_sabre", requires=all_of(realm("qi_kindling_1"))), s("iron_fan", requires=all_of(realm("qi_kindling_1"))),
                    s("iron_flute", requires=all_of(realm("qi_kindling_1"))),
+                   # S47 imitation relics: the smith copies a relic only once it has been seen whole.
+                   s("recipe_scroll", learn="moonshadow_jian", price=2400, requires=all_of({"kind": "flag_set", "flag": "bound:moonlit_blade"})),
+                   s("recipe_scroll", learn="drowsing_edge", price=2400, requires=all_of({"kind": "flag_set", "flag": "bound:sleeping_blade"})),
                    s("bamboo_hat"), s("cotton_robe"), s("cotton_trousers"), s("cloth_boots"), s("copper_ore"), s("riverstone")],
          "rotation": {"count": 1, "pool": [s("jadeiron_jian"), s("jadeiron_spear"), s("jadeiron_robe"), s("jadeiron_gourd"),
                                            s("jadeiron_heavy_sabre"), s("jadeiron_fan"), s("jadeiron_flute")]}},
@@ -333,6 +336,11 @@ def recipes():
     r("mistjade_furnace", "smithing", [("mystic_ore", 6), ("roc_feather", 4), ("vulture_plume", 4)], [("mistjade_furnace", 1)], "mystic",
       default=True, requires_ranks={"smithing": "master"})
     r("array_plate", "formations", [("blank_plate", 1), ("formation_stone", 1)], [("array_plate", 1)], "earth")
+    # S47 imitation relics (v1.1): Expert smiths copy a boss relic's gift at 60%, with no spirit.
+    r("moonshadow_jian", "smithing", [("cloudsteel_ore", 8), ("refining_essence", 4), ("mist_lotus", 2)], [("moonshadow_jian", 1)], "heaven",
+      requires_ranks={"smithing": "expert"})
+    r("drowsing_edge", "smithing", [("cloudsteel_ore", 8), ("refining_essence", 4), ("stormsteel_ore", 2)], [("drowsing_edge", 1)], "heaven",
+      requires_ranks={"smithing": "expert"})
     r("killing_array_plate", "formations", [("blank_plate", 1), ("formation_stone", 1), ("ore_dust", 2)], [("killing_array_plate", 1)], "earth")
     r("binding_array_plate", "formations", [("blank_plate", 1), ("formation_stone", 1), ("willow_moss", 2)], [("binding_array_plate", 1)], "earth")
     # S47: the Revival Talisman moves to the talisman craft (Part 8), with the rest of Old Scribe Bai's recipes.

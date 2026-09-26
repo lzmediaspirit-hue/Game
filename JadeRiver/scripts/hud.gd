@@ -1096,6 +1096,17 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.binding_broken"), UiKit.RED)
 		"artifact_spirit_awakened":
 			toast(Tx.t("hud.spirit_awake") % ContentDB.item_name(str(p.item)), "gold")
+		"spirit_affinity_changed":
+			# S47: every tenth point of affinity, and the gifts, are worth a line.
+			var aff := float(p.get("affinity", 0.0))
+			if str(p.get("why", "")) != "use" or int(aff) % 10 == 0:
+				add_log(Tx.t("hud.spirit_affinity") % [ContentDB.item_name(str(p.item)), int(aff)], UiKit.SOUL)
+		"artifact_spirit_grew":
+			toast(Tx.t("hud.spirit_grew") % [ContentDB.item_name(str(p.item)), int(p.get("level", 0))], "gold")
+		"artifact_spirit_spoke":
+			add_log(Tx.t("hud.spirit_says") % [str(ContentDB.item(str(p.item)).get("spirit", {}).get("name", "")), str(p.get("line", ""))], UiKit.SOUL)
+		"artifact_skill_used":
+			add_log(Tx.t("hud.spirit_skill") % str(p.get("skill", "")), UiKit.SOUL)
 		"pet_evolved":
 			toast(Tx.t("hud.grows_into_a") % [_pet_name(str(p.pet)), str(p.get("branch", "")) if str(p.get("branch", "")) != "" else str(Game.pets.stage_def(str(p.stage)).get("name", ""))], "gold")
 		"trait_revealed":

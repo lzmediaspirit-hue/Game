@@ -52,14 +52,32 @@ static func instance_mult(instance, energy_type: String) -> float:
 	if instance.get("natal", false): m *= 1.0 + float(ContentDB.stat_const("natal.per_level", 0.02)) * int(instance.get("natal_level", 0))
 	return m
 
-## Stat modifiers granted by one equipped instance (base stats, affixes, inlays).
-static func instance_modifiers(slot: String, instance, energy_type: String) -> Array:
+## S47 Artifact Spirit depth: how much of an awake spirit's gift and skill works. Affinity adds up to half again and
+## each spirit level 10%; below the spirit's control demand in Spirit only half of it answers (it refuses a weak owner).
+static func spirit_power(c, instance: Dictionary) -> float:
+	var cfg: Dictionary = ContentDB.stat_const("artifact_spirit", {})
+	var m := 1.0 + float(cfg.get("affinity_bonus", 0.5)) * clampf(float(instance.get("spirit_affinity", 0.0)) / 100.0, 0.0, 1.0)
+	m *= 1.0 + float(cfg.get("per_level", 0.1)) * int(instance.get("spirit_level", 0))
+	if not spirit_controlled(c, instance): m *= float(cfg.get("weak_share", 0.5))
+	return m
+
+static func spirit_controlled(c, instance: Dictionary) -> bool:
+	if c == null: return true
+	return c.stats.value("spirit") >= float(ContentDB.item(str(instance.id)).get("spirit", {}).get("control", 0))
+
+## Stat modifiers granted by one equipped instance (base stats, affixes, inlays). `c` (the wearer) weighs an awake
+## Artifact Spirit's gift by its affinity, level and control demand.
+static func instance_modifiers(slot: String, instance, energy_type: String, c = null) -> Array:
 	var out: Array = []
 	if instance == null or instance.get("sealed", false): return out   # an unbound relic gives nothing
 	var def := ContentDB.item(instance.id)
 	if str(instance.get("spirit", "")) == "awake" and def.has("spirit"):
 		var fx: Dictionary = def.spirit.get("effect", {})
-		if not fx.is_empty(): out.append({"stat": str(fx.stat), "op": str(fx.op), "value": float(fx.value), "source": "spirit:" + slot})
+		if not fx.is_empty(): out.append({"stat": str(fx.stat), "op": str(fx.op), "value": float(fx.value) * spirit_power(c, instance), "source": "spirit:" + slot})
+	# S47 imitation relics: a forge copy keeps part of the original's gift, always on.
+	if def.has("imitation"):
+		var ix: Dictionary = def.imitation.get("effect", {})
+		if not ix.is_empty(): out.append({"stat": str(ix.stat), "op": str(ix.op), "value": float(ix.value), "source": "imitation:" + slot})
 	var ilv := float(instance.get("ilv_eff", instance.get("ilv", def.get("ilv", 1))))   # a natal piece fights at the level it has grown to
 	var mult := instance_mult(instance, energy_type)
 	var src := "gear:" + slot
@@ -147,7 +165,7 @@ static func rebuild(c) -> Array:
 	for p in PERMANENT_PREFIXES: sb.remove_prefix(p)
 	var energy: String = c.cultivator.energy_type
 	for slot in c.inventory.equipped:
-		for m in instance_modifiers(slot, c.inventory.equipped[slot], energy): sb.add_modifier(m)
+		for m in instance_modifiers(slot, c.inventory.equipped[slot], energy, c): sb.add_modifier(m)
 	for m in set_modifiers(c): sb.add_modifier(m)
 	# Injuries (S05): each severity step applies its listed penalties.
 	for kind in c.cultivator.injuries:

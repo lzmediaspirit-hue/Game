@@ -65,6 +65,16 @@ def build():
         # grade, broken by a hit); its Artifact Spirit wakes through a soul contest (Spirit against strength).
         "binding": {"unlock": "binding", "seconds": {"plain": 4, "common": 6, "earth": 12, "heaven": 20, "mystic": 30},
                     "spirit_chance": [0.1, 0.9], "spirit_cooldown_s": 60, "soul_injury": 1},
+        # S47 Artifact Spirit depth (v1.0). Affinity 0-100 grows by use (a point per 25 hits landed with the relic in
+        # hand) and gifts (3 a day; the favourite counts double); at 30 the spirit will answer a contest at its own
+        # resting place. Affinity raises the spirit's gift and skill by up to half again. Devouring weaker gear of the
+        # same family grows the spirit (levels 1-5, +10% each). Below its control demand in Spirit, an awake spirit
+        # gives half its gift and no skill (it refuses a weak owner).
+        "artifact_spirit": {"hits_per_point": 25, "gifts": {"refining_essence": 10, "cloudsteel_ore": 4, "jadeiron": 2, "mist_lotus": 6},
+                            "favourite_mult": 2, "gifts_per_day": 3, "wake_affinity": 30, "affinity_bonus": 0.5,
+                            "devour_xp": {"plain": 2, "common": 4, "earth": 8, "heaven": 16}, "devour_affinity": 2,
+                            "levels": [10, 30, 60, 100, 150], "per_level": 0.1, "weak_share": 0.5,
+                            "bark_cooldown_s": 40, "kill_bark_chance": 0.25, "low_hp_pct": 0.25},
         # Natural treasures (Part 5, Spirit Awakening 8): the Evergreen Heart Tree bears its first fruit a day
         # after planting, then one per season; the Nine-Bough Jade Tree gives a share of the strongest Dao's
         # gap to its next tier (at least `min_insight`), once per realm stage, only at an Understanding bottleneck.
