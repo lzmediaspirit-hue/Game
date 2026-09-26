@@ -652,9 +652,7 @@ func dodge(c, direction, facing: int) -> Dictionary:
 			var dash_s := float(ContentDB.movement("air_dash.hold_s", 0.25))
 			tl.forced = Vector2(ax, 0) * float(ContentDB.movement("air_dash.distance", 140.0)) / dash_s
 			tl.forced_t = dash_s
-			var dcd: float = float(conf.get("dodge_cooldown_s", 2.5)) * (1.0 + c.stats.value("dodge_cooldown"))
-			if int(c.cultivator.meridians.get("agility", 0)) >= 25: dcd *= 0.8
-			c.pools.cooldowns["dodge"] = dcd
+			c.pools.cooldowns["dodge"] = _dodge_cooldown(c)
 			LocalAuthority.announce(st, c.id)
 			return ok({"air_dash": true})
 	if st != null and st.surface == null and not st.flying and "wind_blink" in c.cultivator.secret_arts and c.pools.cooldown("wind_blink") <= 0.0:
@@ -671,12 +669,15 @@ func dodge(c, direction, facing: int) -> Dictionary:
 	tl.forced = dir * dist / 0.22
 	tl.forced_t = 0.22
 	tl.dodge_t = float(conf.get("dodge_invuln_s", 0.25))
-	var cd: float = float(conf.get("dodge_cooldown_s", 2.5)) * (1.0 + c.stats.value("dodge_cooldown"))   # S48 Swallow's Breath
-	if int(c.cultivator.meridians.get("agility", 0)) >= 25: cd *= 0.8
-	c.pools.cooldowns[charge] = cd
+	c.pools.cooldowns[charge] = _dodge_cooldown(c)
 	if c.cultivator.meditating: game.progression.stop_meditation(c, "dodge")
 	emit("dodged", {"actor": c.id, "direction": dir})
 	return ok()
+
+## The dodge's cooldown: Swallow's Breath (S48) shortens it, and so does the Agility 25 meridian gate (S10).
+func _dodge_cooldown(c) -> float:
+	var cd: float = float(ContentDB.stat_const("combat", {}).get("dodge_cooldown_s", 2.5)) * (1.0 + c.stats.value("dodge_cooldown"))
+	return cd * 0.8 if StatRules.gate_flag(c, "dodge_cooldown_20") else cd
 
 # ------------------------------------------------------------------ tick
 func tick(delta: float) -> void:
@@ -1310,16 +1311,16 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 			game.enemies.stagger(e, sub)
 			emit("beast_subdued", {"actor": qc.id, "enemy": e.uid, "def": e.def_id, "seconds": sub})
 			return
-	if e.pools.hp <= 0.0:
-		var payload: Dictionary = game.enemies.defeat(e, attacker)
-		if not payload.is_empty(): emit("actor_defeated", payload)
-		var killer = game.character(attacker)
-		if killer != null: _gain_killing_intent(killer, e)
+	if e.pools.hp <= 0.0: _defeat(e, attacker)
 
 ## S49: the victor finishes a foe who yielded (Relations' judgement). The death is Combat's to announce.
 func apply_execute(e: EnemyState, attacker: String) -> void:
 	if not e.alive: return
 	e.pools.hp = 0.0
+	_defeat(e, attacker)
+
+## A foe falls to `attacker`: Enemies records the defeat, Combat announces it, and a kill feeds Killing Intent.
+func _defeat(e: EnemyState, attacker: String) -> void:
 	var payload: Dictionary = game.enemies.defeat(e, attacker)
 	if not payload.is_empty(): emit("actor_defeated", payload)
 	var killer = game.character(attacker)
@@ -1456,7 +1457,7 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 	if ProgressionRules.path_flag(c, "knockback_immune", false): kb = 0.0   # Iron Horse
 	if amount >= p.max_hp * float(ContentDB.stat_const("combat.flinch_pct", 0.2)) or kb >= 60:
 		tl.flinch = float(ContentDB.stat_const("combat.flinch_s", 0.4))
-		if kb > 0 and e != null and not (int(c.cultivator.meridians.get("body", 0)) >= 50 and is_busy(c.id)):
+		if kb > 0 and e != null and not (StatRules.gate_flag(c, "knockback_immune_attacking") and is_busy(c.id)):
 			tl.forced = Vector2(signf(game.actor_state(c.id).plane.x - e.plane.x) * kb / 0.18, 0) if game.actor_state(c.id) else Vector2.ZERO
 			tl.forced_t = 0.18
 	# v1.2 the Gravity Golem's well: a blow that drags the body toward the one who struck it (into the slam).
@@ -1480,7 +1481,7 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 		apply_heal(c.id, 0.10, 0.0, 5.0, "lotus_heart_breathing")
 		emit("system_used", {"actor": c.id, "system": "lotus_heart_breathing"})
 	if p.get_value(pool) <= 0.0:
-		if int(c.cultivator.meridians.get("body", 0)) >= 100 and not tl.get("survived_lethal", false):
+		if StatRules.gate_flag(c, "survive_lethal") and not tl.get("survived_lethal", false):
 			tl.survived_lethal = true
 			p.set_value(pool, 1.0)
 			return
