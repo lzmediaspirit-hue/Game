@@ -53,6 +53,7 @@ func _main() -> void:
 	_strings_gate()
 	_forbidden_patterns()
 	_scripts_compile()
+	_export_filters()
 	print("contract_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -158,3 +159,22 @@ func _scripts_compile() -> void:
 		var sc = load(str(path))
 		if sc == null or not (sc as GDScript).can_instantiate(): broken.append(str(path))
 	check(broken.is_empty(), "every script compiles %s" % str(broken))
+
+## No export preset leaves out a file the scripts load: an excluded resource ships only as a missing
+## path, and every draw that needs it fails on the phone (Pixelify Sans was left out this way until 1.0.2).
+func _export_filters() -> void:
+	var cfg := ConfigFile.new()
+	if cfg.load("res://export_presets.cfg") != OK:
+		check(false, "export_presets.cfg reads")
+		return
+	var path_re := RegEx.create_from_string("\"res://([^\"]+)\"")
+	var used := {}
+	for path in _walk("res://scripts/"):
+		for m in path_re.search_all(FileAccess.get_file_as_string(path)): used[m.get_string(1)] = true
+	var lost: Array = []
+	for sec in cfg.get_sections():
+		if not cfg.has_section_key(sec, "exclude_filter"): continue
+		for pat in str(cfg.get_value(sec, "exclude_filter", "")).split(",", false):
+			for u in used:
+				if str(u).matchn(pat.strip_edges()) and FileAccess.file_exists("res://" + str(u)): lost.append("%s: %s" % [cfg.get_value(sec, "name", sec), u])
+	check(lost.is_empty(), "no export preset leaves out a file the scripts load %s" % str(lost))

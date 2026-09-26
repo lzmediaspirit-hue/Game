@@ -36,6 +36,10 @@ the Ascension Gate to the Starsea Launch.
   - animals, mount and companions;
   - both sects and the start room;
   - with ways open, every built room reachable.
+- **Numbers on Android.** The Android preset left `art/fonts/PixelifySans.ttf` out of the export (a filter from
+  before Pixelify was the number font). In every APK up to 1.0.1, numbers over the world failed to draw, and so did
+  what came after them in the same draw: HP and Qi values, bag counts, damage numbers, cooldowns. The font now ships.
+  `contract_tests` checks that no export preset leaves out a file the scripts load.
 - Both APKs are version 1.0.2 (code 102).
 
 ### Readability pass and the Fisher's Hut
