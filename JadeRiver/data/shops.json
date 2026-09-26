@@ -598,6 +598,48 @@
      }
     },
     {
+     "item": "training_heavy_sabre"
+    },
+    {
+     "item": "training_fan"
+    },
+    {
+     "item": "training_flute"
+    },
+    {
+     "item": "iron_heavy_sabre",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "iron_fan",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "iron_flute",
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_1"
+       }
+      ]
+     }
+    },
+    {
      "item": "bamboo_hat"
     },
     {
@@ -630,6 +672,15 @@
      },
      {
       "item": "jadeiron_gourd"
+     },
+     {
+      "item": "jadeiron_heavy_sabre"
+     },
+     {
+      "item": "jadeiron_fan"
+     },
+     {
+      "item": "jadeiron_flute"
      }
     ]
    }
@@ -1005,6 +1056,227 @@
        }
       ]
      }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "tiger_rush",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "willow_leaf_parry",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "dragon_tail_sweep",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "shadow_flick",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "bell_toll_strike",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "pinning_arrow",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "mountain_cleaver",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "gale_fan",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "clear_heart_melody",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "vine_snare",
+     "price": 150,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_2"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "stone_skin",
+     "price": 150,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_4"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "mountain_shaker",
+     "price": 150,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "shadowstep_cut",
+     "price": 300,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "cloud_stride_4"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "core_disciple"
+       }
+      ]
+     }
     }
    ],
    "rotation": {
@@ -1279,6 +1551,244 @@
        {
         "kind": "realm_at_least",
         "realm": "heart_tempering_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "tiger_rush",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "willow_leaf_parry",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "dragon_tail_sweep",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "shadow_flick",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "bell_toll_strike",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "pinning_arrow",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "mountain_cleaver",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "gale_fan",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "clear_heart_melody",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_5"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "outer_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "vine_snare",
+     "price": 150,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_2"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "stone_skin",
+     "price": 150,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_4"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "gale_step",
+     "price": 150,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_unfurling_6"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "mountain_shaker",
+     "price": 150,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "heart_tempering_1"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "inner_disciple"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "shadowstep_cut",
+     "price": 300,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "cloud_stride_4"
+       },
+       {
+        "kind": "sect_rank_at_least",
+        "rank": "core_disciple"
        }
       ]
      }

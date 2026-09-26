@@ -482,6 +482,17 @@ func _on_event(name: String, p: Dictionary) -> void:
 			fx.add("flash", player.position + Vector2(0, -50), {"color": Color("ff6a5a"), "radius": 70.0, "dur": 0.4})
 			shake = 0.3
 			Audio.play("break")
+		"melody_pulse":
+			# S47 v1.1 flute: the melody spreads as a jade ring, notes drifting up from the player.
+			var mat := Vector2(float(p.x), float(p.y))
+			fx.add("ring", mat, {"color": Color(0.56, 0.91, 0.81, 0.8), "radius": float(p.radius), "dur": 0.55})
+			for i in 2:
+				fx.add("note", player.position + Vector2(randf_range(-26, 26), -96 - i * 14), {"color": Color("8fe8cf") if i == 0 else UiKit.PALE_GOLD,
+					"vel": Vector2(randf_range(-10, 10), -46.0), "dur": 1.2, "size": 18 + i * 4, "radius": randf() * 6.0})
+		"melody_changed":
+			if str(p.get("actor", "")) == Game.active_id and p.get("on", false):
+				fx.add("wave", player.position, {"color": Color("8fe8cf"), "radius": 70.0, "dur": 0.5})
+				Audio.play("meditate")
 		"sword_released", "sword_returned":
 			fx.add("spark", player.position + Vector2(0, -100), {"color": Color("dff3ff"), "dur": 0.3})
 			Audio.play("forge")

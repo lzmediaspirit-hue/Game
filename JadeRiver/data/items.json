@@ -2549,6 +2549,16 @@
    "desc": "A thin book of breathing and bearing: one Inner Art, learned once."
   },
   {
+   "id": "technique_manual",
+   "name": "Technique Manual",
+   "type": "scroll",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "manual_page",
+   "desc": "A library copy of one technique, learned once and returned."
+  },
+  {
    "id": "manual_stonebody_canon",
    "name": "Stonebody Canon (manual)",
    "type": "scroll",

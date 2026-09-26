@@ -293,6 +293,167 @@
    ]
   },
   {
+   "id": "heavy_sabre",
+   "appearance": [
+    "sabre"
+   ],
+   "range": [
+    0.8,
+    1.25
+   ],
+   "hits_per_s": 0.75,
+   "reach": 92,
+   "crit": 0.04,
+   "scales": [
+    "body",
+    "agility"
+   ],
+   "guard": 0.45,
+   "parry_s": 0.18,
+   "dao": "blade",
+   "hud_glyph": "sabre",
+   "depth": 34,
+   "altitude": [
+    -30,
+    60
+   ],
+   "line_targets": 3,
+   "armour_break": {
+    "chance": 0.3,
+    "duration_s": 4
+   },
+   "combo": [
+    {
+     "action": "swing_1",
+     "duration": 0.72,
+     "hit_at": 0.36,
+     "mult": 1.1
+    },
+    {
+     "action": "swing_2",
+     "duration": 0.78,
+     "hit_at": 0.38,
+     "mult": 1.15
+    },
+    {
+     "action": "swing_3",
+     "duration": 0.95,
+     "hit_at": 0.5,
+     "mult": 1.5,
+     "knockback": 40,
+     "armour_break": 1.0
+    }
+   ]
+  },
+  {
+   "id": "fan",
+   "appearance": [
+    "fan"
+   ],
+   "range": [
+    0.85,
+    1.15
+   ],
+   "hits_per_s": 1.1,
+   "reach": 140,
+   "crit": 0.05,
+   "scales": [
+    "agility",
+    "insight"
+   ],
+   "guard": 0.3,
+   "parry_s": 0.2,
+   "dao": "fan",
+   "hud_glyph": "fan",
+   "depth": 36,
+   "altitude": [
+    -30,
+    80
+   ],
+   "line_targets": 2,
+   "combo": [
+    {
+     "action": "swing_1",
+     "duration": 0.5,
+     "hit_at": 0.24,
+     "mult": 1.0
+    },
+    {
+     "action": "swing_2",
+     "duration": 0.55,
+     "hit_at": 0.26,
+     "mult": 1.0
+    },
+    {
+     "action": "swing_3",
+     "duration": 0.7,
+     "hit_at": 0.34,
+     "mult": 1.2,
+     "throw": {
+      "speed": 520,
+      "range": 280,
+      "art": "fan",
+      "knockup_s": 0.8
+     }
+    }
+   ]
+  },
+  {
+   "id": "flute",
+   "appearance": [
+    "flute"
+   ],
+   "range": [
+    0.9,
+    1.1
+   ],
+   "hits_per_s": 1.0,
+   "reach": 240,
+   "crit": 0.03,
+   "scales": [
+    "insight",
+    "essence"
+   ],
+   "guard": 0.25,
+   "parry_s": 0.15,
+   "dao": "music",
+   "hud_glyph": "flute",
+   "depth": 30,
+   "altitude": [
+    0,
+    90
+   ],
+   "ranged": true,
+   "projectile_speed": 460,
+   "projectile_art": "note",
+   "damage_type": "qi",
+   "channel": {
+    "radius": 220,
+    "tick_s": 0.5,
+    "composure_per_s": 8,
+    "hold_s": 0.35,
+    "slow": {
+     "power": 0.3,
+     "duration_s": 1.2
+    },
+    "confusion_chance": 0.08,
+    "confusion_s": 1.5,
+    "ally_heal_pct": 0.02,
+    "self_heal_pct": 0.01,
+    "move_factor": 0.5,
+    "min_composure": 5
+   },
+   "combo": [
+    {
+     "action": "attack",
+     "duration": 0.6,
+     "hit_at": 0.3,
+     "mult": 0.9,
+     "projectile": "note"
+    }
+   ]
+  },
+  {
    "id": "bow",
    "appearance": [
     "bow"

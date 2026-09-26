@@ -635,6 +635,83 @@ def concealment():
     return done(c)
 
 
+# ----------------------------------------------------------------------------- S47 v1.1 weapon families
+def _fan_mark(c, px, py, rad, a0, a1):
+    pts = [(px, py)] + [(px + rad * math.cos(math.radians(a)), py - rad * math.sin(math.radians(a))) for a in range(a0, a1 + 1, 6)]
+    return c.poly(pts)
+
+
+def _note(c, x, y):
+    head = c.ellipse(x, y, 2.2, 1.7)
+    stem = c.seg(x + 1.8, y, x + 1.8, y - 7, 1.2)
+    flag = c.seg(x + 1.8, y - 7, x + 4.2, y - 5, 1.2)
+    return head | stem | flag
+
+
+def mountain_cleaver():
+    c, mk, d = emblem('metal')
+    b = c.poly([(6, 24), (18, 12), (25, 6), (27.5, 9), (26, 15), (21, 20), (10, 28)])   # a broad sabre, edge up-right
+    mark(c, b, mk, base=3)
+    c.put(c.seg(5, 28, 8.5, 24.5, 2.4), mk, 'flat', base=1)
+    c.recolor(c.seg(9, 25, 24, 10, 1.0) & b, mk[4])                            # the edge's gleam
+    for (x0, y0, x1, y1) in ((20, 22, 24, 26), (23, 20, 27, 22), (18, 25, 20, 29)):   # the armour cracks where it lands
+        c.put(c.seg(x0, y0, x1, y1, 1.1), mk, 'flat', base=4)
+    return done(c)
+
+
+def thunder_dao_arc():
+    c, mk, d = emblem('metal')
+    arc = crescent(c, 15, 17, 11, -4, 3, 11) & c.circle(16, 16, 12.8)
+    mark(c, arc, mk, base=3)
+    bolt = c.polyline([(18, 6), (15, 13), (19, 13), (15, 22)], 1.4)
+    c.put(bolt, R['yellow'], 'flat', base=4)
+    return done(c)
+
+
+def gale_fan():
+    c, mk, d = emblem('wind')
+    fan = _fan_mark(c, 9, 24, 15, 10, 80)
+    mark(c, fan & c.circle(16, 16, 12.8), mk, base=3)
+    for a in range(16, 80, 12):
+        rib = c.seg(9, 24, 9 + 14 * math.cos(math.radians(a)), 24 - 14 * math.sin(math.radians(a)), 0.8)
+        c.recolor(rib & fan, mk[1])
+    sl = speed_lines(c, [(22, 22), (24, 18), (20, 26)], 4, 20)
+    c.put(sl & ~fan, mk, 'flat', base=2)
+    return done(c)
+
+
+def returning_crane_fan():
+    c, mk, d = emblem('wind')
+    fan = _fan_mark(c, 12, 19, 9, 20, 110)
+    mark(c, fan, mk, base=3)
+    loop = c.ring(16, 16, 10.5, 1.3) & ~c.circle(12, 13, 7) & (c.Y > 11)
+    c.put(loop, mk, 'flat', base=2)
+    head = c.poly([(6.5, 17), (4, 13.5), (9, 14)])
+    c.put(head, mk, 'flat', base=2)
+    return done(c)
+
+
+def reed_song():
+    c, mk, d = emblem('wood')
+    notes = _note(c, 9, 22) | _note(c, 15, 18) | _note(c, 21, 21)
+    mark(c, notes, mk, base=3)
+    c.put(S.wave_line(c, 6, 26, 25, 1, 7) & c.circle(16, 16, 12.5), mk, 'flat', base=1)
+    return done(c)
+
+
+def clear_heart_melody():
+    c, mk, d = emblem('water')
+    flute = c.seg(7, 24, 25, 8, 2.6)
+    mark(c, flute, mk, base=3)
+    for t in (0.35, 0.5, 0.65):
+        x, y = 7 + 18 * t, 24 - 16 * t
+        c.put(c.circle(x, y, 0.7), mk, 'flat', base=0)
+    for r in (5.0, 8.0):
+        rip = c.ring(21, 21, r, 1.0) & (c.X > 15) & (c.Y > 15)
+        c.put(rip, mk, 'flat', base=2)
+    return done(c)
+
+
 TECHS = [
     ('flowing_palm', flowing_palm), ('jade_thrust', jade_thrust), ('cloudpiercing_stroke', cloudpiercing_stroke),
     ('reedcutter_slash', reedcutter_slash), ('riverstone_sweep', riverstone_sweep),
@@ -651,6 +728,8 @@ TECHS = [
     ('wall_step', wall_step), ('concealment', concealment),
     ('plunge', plunge), ('falling_leaf_glide', falling_leaf_glide), ('swallow_dart', swallow_dart),
     ('cloud_ladder_step', cloud_ladder_step), ('water_skimming', water_skimming),
+    ('mountain_cleaver', mountain_cleaver), ('thunder_dao_arc', thunder_dao_arc), ('gale_fan', gale_fan),
+    ('returning_crane_fan', returning_crane_fan), ('reed_song', reed_song), ('clear_heart_melody', clear_heart_melody),
 ]
 for _id, _fn in TECHS:
     register(FAM, _id, _fn, GROUP)

@@ -88,6 +88,8 @@ static func resolve(attacker: Dictionary, defender: Dictionary, attack: Dictiona
 	if not attack.get("ignore_armor", false):
 		var def_stat = {"physical": "physical_defense", "qi": "qi_resistance", "soul": "soul_defense"}.get(dtype, "physical_defense")
 		var pen := float(attacker.get("penetration", 0.0)) + float(attack.get("penetration_bonus", 0.0)) + float(attack.get("ignore_resistance", 0.0))
+		# S47 v1.1: armour broken by a heavy sabre lets every blow through a quarter of it.
+		if defender.get("sundered", false): pen += float(ContentDB.entry("status_effects", "sundered").get("pierce_defence", 0.25))
 		dmg *= 1.0 - defence_reduction(float(defender.get(def_stat, 0.0)), int(attacker.get("level", 1)), pen)
 	# 12 Elemental resistance
 	var res := float(defender.get("resist_" + parent_element(element), 0.0))

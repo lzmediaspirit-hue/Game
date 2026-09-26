@@ -282,6 +282,26 @@ func _handle_preview_args(user_args: Array) -> void:
 			rc0.cultivator.realm_key = str(a).trim_prefix("--realm=")
 			for k in rc0.cultivator.aptitude: rc0.cultivator.aptitude[k].revealed = true
 			Game.combat.refresh_stats(rc0.id)
+		if str(a).begins_with("--wield=") and Game.active() != null:
+			# Debug tools (S38): --wield=item puts a weapon straight into the hand (S47 v1.1 weapon family previews).
+			var wc = Game.active()
+			var wid := str(a).trim_prefix("--wield=")
+			Game.inventory.apply_add_equipment(wc.id, wid, 14, "common", "debug")
+			var wi: int = wc.inventory.first_index(wid)
+			if wi >= 0:
+				var was = wc.inventory.equipped.get("weapon")
+				wc.inventory.equipped["weapon"] = wc.inventory.bag[wi]
+				wc.inventory.bag[wi] = was
+				Game.combat.refresh_stats(wc.id)
+				if is_instance_valid(world) and world.player:
+					world.player.avatar.outfit = InventoryAuthority.outfit_for(wc)
+					world.player.avatar.last_key = ""
+		if str(a).begins_with("--foe=") and Game.active() != null and Game.actor_state(Game.active_id) != null:
+			# Debug tools (S38): --foe=enemy[:count] sets foes in front of the player (combat previews).
+			var fa := str(a).trim_prefix("--foe=").split(":")
+			var fst: ActorState = Game.actor_state(Game.active_id)
+			for k in (int(fa[1]) if fa.size() > 1 else 1):
+				Game.enemies.spawn_at(fa[0], fst.plane + Vector2(110 + k * 60, -10 + (k % 2) * 20), ProgressionRules.level(Game.active()) + 5)
 		if str(a).begins_with("--body=") and Game.active() != null:
 			# Debug tools (S38): --body=level[:tier[:trials]] sets the body ladder for previews (S48).
 			var bd := str(a).trim_prefix("--body=").split(":")
@@ -381,6 +401,12 @@ func _handle_preview_args(user_args: Array) -> void:
 		# Debug tools (S38): hold the harvest ring part-way through its shrink (S45).
 		await get_tree().create_timer(1.0).timeout
 		hud.tapping = {"object": "preview", "t": 660.0, "ring": 1000.0, "target": 0.7, "window": 0.16}
+	if ("--melody" in user_args or "--throw" in user_args) and Game.active() != null:
+		# Debug tools (S38): --melody holds the flute's melody; --throw throws the fan (S47 v1.1 previews).
+		await get_tree().create_timer(1.0 if "--melody" in user_args else 2.2).timeout
+		Unlocks.force_unlock(Game.active_id, "composure")
+		if "--melody" in user_args: Game.submit({"type": "channel_melody", "on": true})
+		else: Game.combat._start_step(Game.active(), ContentDB.entry("weapon_families", "fan"), 2, 1)
 	if "--pet-wheel" in user_args and is_instance_valid(hud):
 		# Debug tools (S38): hold the Pet button's command wheel open, Stay picked (v2 HUD previews).
 		await get_tree().create_timer(1.0).timeout

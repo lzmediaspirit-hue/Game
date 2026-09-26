@@ -149,6 +149,16 @@ func tick(delta: float) -> void:
 		if bool(e.def.get("flying", false)):
 			# Flyers hover within a grounded fighter's melee band (+60, S43) and swoop lower to strike.
 			e.hover = 48.0 + sin(game.sim_time * 2.0 + e.uid) * 8.0 - (32.0 if e.ai.state in ["attack"] else 0.0)
+		else:
+			# S47 v1.1: a foe the fan's wind has launched rises and falls in an arc until it lands.
+			var la: Dictionary = e.pools.status("launched")
+			if not la.is_empty():
+				var dur := maxf(0.1, float(la.get("duration", 0.8)))
+				e.hover = float(ContentDB.entry("status_effects", "launched").get("lift", 46)) * sin(PI * clampf(1.0 - float(la.remaining) / dur, 0.0, 1.0))
+				e.ai.lifted = true
+			elif e.ai.get("lifted", false):
+				e.hover = 0.0
+				e.ai.erase("lifted")
 
 func _spawn(slot: Dictionary) -> EnemyState:
 	var rt: RoomRuntime = game.room_rt

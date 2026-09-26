@@ -16,7 +16,7 @@ const STAT_EVENTS := ["realm_changed", "level_changed", "equipment_changed", "in
 
 func intents() -> Array:
 	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival", "start_flight", "stop_flight", "use_treasure",
-		"plunge", "glide", "toggle_sword_release", "self_detonate"]
+		"plunge", "glide", "toggle_sword_release", "self_detonate", "channel_melody"]
 
 var attune: Dictionary = {}          # actor -> {dealt, taken} for the zone they stand in (S18)
 var flying: Dictionary = {}          # actor -> true while flight holds them up (S18); QI pays for it
@@ -27,12 +27,16 @@ var captured: Dictionary = {}        # enemy uid -> true: taken by the Beast-Tak
 var sword_released: Dictionary = {}  # actor -> {t, next}: the jian flies on its own (S47 Sword Release; not saved)
 var sword_intent: Dictionary = {}    # actor -> {stacks, t}: Sword Intent from consecutive jian hits (S47; not saved)
 var killing_intent: Dictionary = {}  # actor -> {stacks, t}: kills in quick succession (S48; not saved)
+var melody: Dictionary = {}          # actor -> {next}: the flute's held melody aura (S47 v1.1; not saved)
+var ally_hots: Dictionary = {}       # ally uid -> [{per_s, left}]: heals over time on companions and pets (S47 v1.1)
 
 func subscribe() -> void:
 	for ev in STAT_EVENTS:
 		GameEvents.subscribe(ev, _on_stat_source, 20)
 	GameEvents.subscribe("attunement_changed", func(p): attune[str(p.get("actor", ""))] = {"dealt": float(p.dealt), "taken": float(p.taken)}, 20)
 	GameEvents.subscribe("room_entered", func(p): if flying.has(str(p.get("actor", ""))): stop_flight(str(p.actor), "room"), 20)
+	GameEvents.subscribe("room_entered", func(p): if melody.has(str(p.get("actor", ""))): _end_melody(game.character(str(p.actor)), "room"), 20)
+	GameEvents.subscribe("room_entered", func(_p): ally_hots.clear(), 20)
 
 func _on_stat_source(p: Dictionary) -> void:
 	refresh_stats(str(p.get("actor", "")))
@@ -94,6 +98,7 @@ func move_factor(actor_id: String) -> float:
 	var slow = c.pools.status("slow")
 	if not slow.is_empty(): f *= 1.0 - clampf(float(slow.power), 0.0, 0.5)
 	if float(tl.flinch) > 0.0: f *= 0.2
+	if melody.has(actor_id): f *= float(StatRules.family(c).get("channel", {}).get("move_factor", 0.5))   # S47 v1.1: playing as you walk
 	return f
 
 func handle(intent: Dictionary) -> Dictionary:
@@ -110,6 +115,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"use_treasure": return use_treasure(c, int(intent.get("slot", 0)))
 		"toggle_sword_release": return toggle_sword_release(c)
 		"self_detonate": return self_detonate(c, int(intent.get("index", -1)), bool(intent.get("confirm", false)))
+		"channel_melody": return channel_melody(c, bool(intent.get("on", true)))
 		"plunge": return plunge(c)
 		"glide": return glide(c, bool(intent.get("on", true)))
 		"stop_flight":
@@ -369,7 +375,7 @@ func enemy_view(e: EnemyState) -> Dictionary:
 		"crit_chance": float(s.crit_chance), "crit_damage": float(s.crit_damage), "penetration": 0.0, "energy_mult": 1.0,
 		"tenacity": float(s.tenacity), "evasion": float(s.evasion), "physical_defense": float(s.physical_defense),
 		"qi_resistance": float(s.qi_resistance), "soul_defense": float(s.soul_defense),
-		"vulnerable": e.pools.has_status("vulnerable"), "shocked": e.pools.has_status("shock"),
+		"vulnerable": e.pools.has_status("vulnerable"), "shocked": e.pools.has_status("shock"), "sundered": e.pools.has_status("sundered"),
 		"resist_" + CombatRules.parent_element(e.element): float(ContentDB.stat_const("mob.own_element_resistance", 0.3)),
 		"guarding": float(e.def.get("front_guard", 0.0)) if e.ai.state == "guard" else 0.0,
 		"x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover, "half_width": e.half_width(), "height": e.height()}
@@ -637,9 +643,11 @@ func tick(delta: float) -> void:
 		_tick_treasures(c, delta)
 		_tick_sword(c, delta)
 		_tick_hots(c, delta)
+		_tick_melody(c, delta)
 		var body: ActorState = game.actor_state(c.id)
 		if body != null and not body.plunge_impact.is_empty(): _resolve_plunge(c, body)
 	_tick_projectiles(delta)
+	_tick_ally_hots(delta)
 	if game.room_rt:
 		for e in game.room_rt.enemies.values():
 			if e.alive: _tick_enemy_statuses(e, delta)
@@ -740,10 +748,21 @@ func _resolve_basic(c) -> void:
 	var pv := player_view(c)
 	var facing := int(tl.facing)
 	if fam.get("ranged", false):
+		# The bow looses an arrow; the flute (S47 v1.1) sends a note of Qi.
 		_spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 28, "y": float(pv.y), "alt": float(pv.alt) + 58,
 			"dir": facing, "speed": float(fam.get("projectile_speed", 620)), "range": float(fam.get("reach", 480)), "pierce": 0,
-			"art": "arrow", "attack": {"damage_type": "physical", "element": "none", "mult": [float(step.get("mult", 1.0)), float(step.get("mult", 1.0))],
-			"range": fam.range, "source": "basic"}})
+			"art": str(fam.get("projectile_art", "arrow")), "attack": {"damage_type": str(fam.get("damage_type", "physical")), "element": "none",
+			"mult": [float(step.get("mult", 1.0)), float(step.get("mult", 1.0))], "range": fam.range, "source": "basic",
+			"dao_tier": _dao_tier(c, str(fam.get("dao", "")))}})
+		return
+	if step.has("throw"):
+		# The fan's third stroke (S47 v1.1): thrown, it flies out and comes back, lifting what it cuts both ways.
+		var th: Dictionary = step.throw
+		var tm := float(step.get("mult", 1.0))
+		_spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 24, "y": float(pv.y), "alt": float(pv.alt) + 56,
+			"dir": facing, "speed": float(th.get("speed", 520)), "range": float(th.get("range", 280)), "pierce": 99, "returning": true,
+			"art": str(th.get("art", "fan")), "attack": {"damage_type": "physical", "element": "wind", "mult": [tm, tm], "range": fam.get("range", [0.9, 1.1]),
+			"dao_tier": _dao_tier(c, str(fam.get("dao", ""))), "knockup_s": float(th.get("knockup_s", 0.8)), "source": "basic"}})
 		return
 	var reach_m := float(ProgressionRules.path_flag(c, "reach_mult", 1.0))   # S48 Coiled Dragon
 	var hitbox := {"x": [-8, float(fam.get("reach", 46)) * reach_m], "depth": float(fam.get("depth", 30)), "alt": fam.get("altitude", [-30, 60])}
@@ -759,6 +778,9 @@ func _resolve_basic(c) -> void:
 			"dao_tier": _dao_tier(c, str(fam.get("dao", ""))), "room_element": str(game.room_rt.def.get("element", "")) if game.room_rt else "",
 			"knockback": float(step.get("knockback", fam.get("knockback_every_hit", 0))), "source": "basic"}
 		if fam.has("backstab") and e.facing == facing: attack.situation = float(fam.backstab)
+		if fam.has("armour_break"):
+			attack.armour_break = {"chance": float(step.get("armour_break", fam.armour_break.get("chance", 0.3))),
+				"duration_s": float(fam.armour_break.get("duration_s", 4))}
 		_player_hits_enemy(c, pv, e, attack, facing)
 		n += 1
 		hit_any = true
@@ -784,7 +806,10 @@ func _resolve_technique(c, t: Dictionary) -> void:
 			apply_buff(c.id, {"stat": b.stat, "op": b.get("op", "pct_add"), "value": b.value, "duration": b.duration, "source": "tech:" + str(t.id)}, "technique")
 		for b2 in t.get("buffs", []):
 			apply_buff(c.id, {"stat": b2.stat, "op": b2.get("op", "pct_add"), "value": b2.value, "duration": b2.duration, "source": "tech:%s:%s" % [t.id, b2.stat]}, "technique")
-		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": 1, "targets": 0})
+		var healed := 0
+		if float(t.get("allies_heal_pct", 0.0)) > 0.0:
+			healed = heal_circle(c, float(t.allies_heal_pct), float(t.get("allies_heal_s", 6)), float(t.get("heal_radius", 220)), "tech:" + str(t.id))
+		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": 1, "targets": healed})
 		return
 	if dtype == "stance":
 		tl.stance = float(t.get("stance_s", 2.0))
@@ -799,6 +824,8 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		"knockback": float(t.get("knockback", 0)), "ignore_armor": t.get("ignore_armor", false),
 		"ignore_resistance": float(t.get("ignore_resistance", 0.0)), "penetration_bonus": float(t.get("penetration", 0.0)),
 		"status": t.get("status", {}), "source": "tech:" + str(t.id), "technique": str(t.id)}
+	if t.has("armour_break"): attack.armour_break = t.armour_break
+	if float(t.get("knockup_s", 0.0)) > 0.0: attack.knockup_s = float(t.knockup_s)
 	if tier >= 3 and t.has("tier3"):
 		var t3: Dictionary = t.tier3
 		if t3.has("status"): attack.status = t3.status
@@ -831,7 +858,8 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		for i in count:
 			_spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 30, "y": float(pv.y) + (i - (count - 1) * 0.5) * 8.0,
 				"alt": float(pv.alt) + 56 + i * 4, "dir": facing, "speed": float(pr.get("speed", 600)), "range": float(pr.get("range", 400)),
-				"pierce": int(pr.get("pierce", 0)), "art": "qi_" + str(t.get("element", "none")) if dtype == "qi" else "arrow",
+				"pierce": int(pr.get("pierce", 0)), "art": str(pr.get("art", "qi_" + str(t.get("element", "none")) if dtype == "qi" else "arrow")),
+				"returning": pr.get("returning", false),
 				"attack": attack, "delay": i * 0.08, "seek": pr.get("seek", false), "technique": str(t.id), "element": str(t.get("element", "none"))})
 		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": count, "targets": count})
 		return
@@ -933,7 +961,21 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 				applied.source = c.id
 				_apply_status_to_enemy(e, applied)
 	if e.alive: _oil_strike(c, e, ev)
+	if e.alive: _weapon_after_hit(c, e, attack)
 	hitstop = float(ContentDB.stat_const("combat.hitstop_crit" if r.crit else "combat.hitstop", 0.05))
+
+## S47 v1.1 families: the heavy sabre breaks armour (sundered: hits ignore part of its defence); the fan's wind lifts a
+## foe into the air, helpless until it lands (not a boss, a flyer or anything that cannot be moved).
+func _weapon_after_hit(c, e: EnemyState, attack: Dictionary) -> void:
+	var ab: Dictionary = attack.get("armour_break", {})
+	if not ab.is_empty() and not e.pools.steadfast.has("sundered"):
+		var chance := float(ab.get("chance", 0.3)) * float(ProgressionRules.path_flag(c, "armour_break_mult", 1.0))
+		if Rng.stream(c.id, "weapon").randf() < chance:
+			_apply_status_to_enemy(e, {"id": "sundered", "power": 1.0, "remaining": float(ab.get("duration_s", 4)), "source": c.id})
+	var up := float(attack.get("knockup_s", 0.0))
+	if up > 0.0 and not e.is_boss() and not e.def.get("knockback_immune", false) and not e.def.get("flying", false) \
+			and not e.pools.steadfast.has("launched") and not e.pools.has_status("launched"):
+		_apply_status_to_enemy(e, {"id": "launched", "power": 1.0, "remaining": up, "duration": up, "source": c.id})
 
 func _tick_hots(c, delta: float) -> void:
 	var list: Array = hots.get(c.id, [])
@@ -1297,6 +1339,119 @@ func _tick_sword(c, delta: float) -> void:
 		"attack": {"damage_type": "physical", "element": "metal", "mult": m, "range": [0.95, 1.05], "source": "flying_sword",
 			"dao_tier": _dao_tier(c, "sword")}})
 
+# ------------------------------------------------------------------ the flute's melody (S47 v1.1, the Music path)
+## Hold Attack with a flute to channel a melody aura: every half second it slows the foes around you and may confuse
+## them, and you and your allies (companions, pets) recover a little health, while Composure drains. It ends on
+## release, when Composure runs out, or when you are stunned, wounded, attack, use a technique or change weapon.
+func channel_melody(c, on: bool) -> Dictionary:
+	if not on:
+		_end_melody(c, "released")
+		return ok({"on": false})
+	var ch: Dictionary = StatRules.family(c).get("channel", {})
+	if ch.is_empty(): return fail("wrong_weapon", {"text": Tx.t("sim.combat.melody_needs_flute")})
+	if not Unlocks.is_unlocked(c.id, "composure"): return fail("locked", {"text": Unlocks.locked_text("composure")})
+	if melody.has(c.id): return ok({"on": true})
+	var reason := can_act(c)
+	if reason != "": return fail(reason)
+	if climbing(c.id) or flying.has(c.id): return fail("busy")
+	var tl := timeline(c.id)
+	if is_busy(c.id):
+		# The note of the tap flies first; then the hands settle into the melody.
+		if tl.technique != "" or not tl.hit_done: return fail("busy")
+		tl.action = ""
+		tl.queued = 0
+	if c.pools.composure < float(ch.get("min_composure", 5)): return fail("no_composure", {"text": Tx.t("sim.combat.melody_no_composure")})
+	melody[c.id] = {"next": float(ch.get("tick_s", 0.5)) * 0.5}
+	emit("melody_changed", {"actor": c.id, "on": true, "reason": "played"})
+	return ok({"on": true})
+
+func is_playing(actor_id: String) -> bool:
+	return melody.has(actor_id)
+
+func _end_melody(c, why: String) -> void:
+	if c == null or not melody.has(c.id): return
+	melody.erase(c.id)
+	emit("melody_changed", {"actor": c.id, "on": false, "reason": why})
+
+func _tick_melody(c, delta: float) -> void:
+	if not melody.has(c.id): return
+	var ch: Dictionary = StatRules.family(c).get("channel", {})
+	if ch.is_empty():
+		_end_melody(c, "weapon")
+		return
+	if wounded.has(c.id) or c.pools.blocked("attack") or is_busy(c.id) or flying.has(c.id):
+		_end_melody(c, "broken")
+		return
+	var cost := float(ch.get("composure_per_s", 8)) * float(ProgressionRules.path_flag(c, "channel_cost_mult", 1.0)) * delta
+	apply_resource_change(c.id, "composure", -cost, "melody", 0.0, true)
+	c.pools.since_composure_use = 0.0
+	if c.pools.composure <= 0.0:
+		_end_melody(c, "composure")
+		return
+	var m: Dictionary = melody[c.id]
+	m.next = float(m.next) - delta
+	if float(m.next) > 0.0: return
+	var tick := float(ch.get("tick_s", 0.5))
+	m.next = tick
+	var pv := player_view(c)
+	var at := Vector2(float(pv.x), float(pv.y))
+	# Each tier of the Music Dao carries the melody 5% further.
+	var radius := float(ch.get("radius", 220)) * (1.0 + 0.05 * _dao_tier(c, "music"))
+	var rng := Rng.stream(c.id, "melody")
+	var foes := 0
+	var allies := 0
+	if game.room_rt != null:
+		for e in game.room_rt.living_enemies():
+			if e.plane.distance_to(at) > radius: continue
+			if e.team == "ally":
+				if e.pools.hp < e.pools.max_hp:
+					e.pools.hp = minf(e.pools.max_hp, e.pools.hp + e.pools.max_hp * float(ch.get("ally_heal_pct", 0.02)) * tick)
+				allies += 1
+				continue
+			if e.hidden or e.ai.get("surrendered", false): continue
+			foes += 1
+			var sl: Dictionary = ch.get("slow", {})
+			if not sl.is_empty() and not e.pools.steadfast.has("slow"):
+				_apply_status_to_enemy(e, {"id": "slow", "power": float(sl.get("power", 0.3)), "remaining": float(sl.get("duration_s", 1.2)), "source": c.id})
+			if not e.is_boss() and not e.pools.steadfast.has("confusion") and not e.pools.has_status("confusion") \
+					and rng.randf() < float(ch.get("confusion_chance", 0.08)):
+				_apply_status_to_enemy(e, {"id": "confusion", "power": 1.0, "remaining": float(ch.get("confusion_s", 1.5)), "source": c.id})
+	var self_heal: float = c.pools.max_hp * float(ch.get("self_heal_pct", 0.01)) * tick * (1.0 + c.stats.value("healing_received"))
+	if self_heal > 0.0 and c.pools.hp < c.pools.max_hp: apply_resource_change(c.id, "hp", self_heal, "melody", 0.0, true)
+	emit("melody_pulse", {"actor": c.id, "x": at.x, "y": at.y, "radius": radius, "foes": foes, "allies": allies})
+
+## A healing song around the caster (Clear Heart Melody): the caster and every ally within the radius recover
+## `pct` of their health each second for `seconds`. Returns how many allies it reached.
+func heal_circle(c, pct: float, seconds: float, radius: float, source: String) -> int:
+	apply_heal(c.id, pct * seconds, 0.0, seconds, source)
+	if game.room_rt == null: return 0
+	var pv := player_view(c)
+	var at := Vector2(float(pv.x), float(pv.y))
+	var n := 0
+	for e in game.room_rt.living_enemies():
+		if e.team != "ally" or e.plane.distance_to(at) > radius: continue
+		var list: Array = ally_hots.get(e.uid, [])
+		list.append({"per_s": e.pools.max_hp * pct, "left": seconds})
+		ally_hots[e.uid] = list
+		n += 1
+	return n
+
+func _tick_ally_hots(delta: float) -> void:
+	if ally_hots.is_empty() or game.room_rt == null: return
+	for uid in ally_hots.keys():
+		var e: EnemyState = game.room_rt.enemies.get(uid)
+		if e == null or not e.alive:
+			ally_hots.erase(uid)
+			continue
+		var list: Array = ally_hots[uid]
+		for h in list:
+			var step := minf(delta, float(h.left))
+			e.pools.hp = minf(e.pools.max_hp, e.pools.hp + float(h.per_s) * step)
+			h.left = float(h.left) - step
+		list = list.filter(func(h): return float(h.left) > 0.0)
+		if list.is_empty(): ally_hots.erase(uid)
+		else: ally_hots[uid] = list
+
 ## Sword Intent: consecutive jian hits stack (max 10, +1% penetration each); at 10 a weaker foe may fear (10%).
 ## It fades 3 s after the last jian hit.
 func _feed_intent(c, e: EnemyState, attack: Dictionary) -> void:
@@ -1475,6 +1630,13 @@ func _tick_projectiles(delta: float) -> void:
 					if e2 != null:
 						_enemy_hits_player(e2, c, enemy_view(e2), cv, p.enemy_attack)
 					done = true
+		if (done or float(p.travelled) >= float(p.range)) and p.get("returning", false) and not p.get("returned", false):
+			# A thrown fan (S47 v1.1) turns at the end of its flight and cuts its way back.
+			p.returned = true
+			p.dir = -int(p.dir)
+			p.travelled = 0.0
+			p.hits = []
+			continue
 		if done or float(p.travelled) >= float(p.range):
 			# A poison pill that meets no one still breaks where it lands.
 			if c != null and p.team == "player" and (p.hits as Array).is_empty() and not (p.get("cloud", {}) as Dictionary).is_empty():

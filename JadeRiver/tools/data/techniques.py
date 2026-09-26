@@ -2,7 +2,7 @@
 from common import entries, titled
 
 FAMILY_ACTION = {"fists": "punch_2", "jian": "swing_3", "spear": "thrust_3", "short_blade": "thrust_1", "staff": "thrust_3",
-                 "bow": "bow", "any": None}
+                 "bow": "bow", "heavy_sabre": "swing_3", "fan": "swing_2", "flute": "attack", "any": None}
 
 
 def tech(id, unlock, source, family, element, dtype, mult, hits, targets, cd, qi, extra="", **f):
@@ -10,12 +10,14 @@ def tech(id, unlock, source, family, element, dtype, mult, hits, targets, cd, qi
     action = f.pop("action", FAMILY_ACTION.get(family))
     row = {"id": id, "name": titled(id), "family": family, "element": element, "damage_type": dtype,
            "mult": list(mult), "hits": hits, "max_targets": targets,
-           "hitbox": {"x": [-10, x_reach or {"fists": 70, "jian": 100, "spear": 150, "short_blade": 70, "staff": 120, "bow": 480, "any": 110}[family]],
+           "hitbox": {"x": [-10, x_reach or {"fists": 70, "jian": 100, "spear": 150, "short_blade": 70, "staff": 120, "bow": 480, "any": 110,
+                                             "heavy_sabre": 110, "fan": 180, "flute": 240}[family]],
                       # S43 rule 10: Qi and Soul arcs reach -10..+80 of the user's height; physical techniques the melee band.
                       "depth": f.pop("depth", 30), "alt": [-10, 80] if dtype in ("qi", "soul") else [-30, 60]},
            "windup_s": f.pop("windup", 0.2), "active_s": f.pop("active", 0.2), "cooldown_s": cd, "qi_cost": qi,
            "soul_cost": f.pop("soul", 0), "composure_cost": f.pop("composure", 0), "dao": f.pop("dao", {
-               "fists": "fist", "jian": "sword", "spear": "spear", "short_blade": "blade", "staff": "staff", "bow": "bow"}.get(family, element)),
+               "fists": "fist", "jian": "sword", "spear": "spear", "short_blade": "blade", "staff": "staff", "bow": "bow",
+               "heavy_sabre": "blade", "fan": "fan", "flute": "music"}.get(family, element)),
            "unlock": unlock, "source": source, "desc": extra, "action": action, "icon": id,
            "mastery": {"dmg_per_tier": 0.08, "cost_per_tier": -0.05}}
     row.update(f)
@@ -51,6 +53,26 @@ def build():
         tech("pinning_arrow", "qi_kindling_5", "library_1", "bow", "none", "physical", (1.20, 1.50), 1, 1, 7, 12,
              "An arrow that roots the target for 1.5 s.", projectile={"speed": 700, "range": 480, "count": 1},
              status={"id": "root", "chance": 1.0, "power": 1, "duration_s": 1.5}),
+        # S47 v1.1 families. The heavy sabre: a cleave that breaks armour; the fan: wind that lifts; the flute: notes
+        # that confuse (the Music path).
+        tech("mountain_cleaver", "qi_kindling_5", "library_1", "heavy_sabre", "metal", "physical", (1.60, 1.90), 1, 3, 5, 12,
+             "A two-handed cleave through up to three foes; it always breaks their armour for 4 s.",
+             armour_break={"chance": 1.0, "duration_s": 4}),
+        tech("gale_fan", "qi_kindling_5", "library_1", "fan", "wind", "qi", (0.90, 1.10), 1, 4, 5, 12,
+             "A fan-stroke of wind 180 units long that throws up to four foes into the air.", knockup_s=0.8, depth=50),
+        tech("reed_song", "qi_unfurling_1", "after_the_cleansing", "flute", "wood", "qi", (0.55, 0.70), 3, 3, 5, 12,
+             "Three notes that seek their mark; each may confuse its target for 1.5 s.",
+             projectile={"speed": 460, "range": 320, "count": 3, "seek": True, "art": "note"},
+             status={"id": "confusion", "chance": 0.2, "power": 1, "duration_s": 1.5}),
+        tech("thunder_dao_arc", "qi_unfurling_1", "after_the_cleansing", "heavy_sabre", "thunder", "qi", (1.10, 1.40), 1, 8, 6, 15,
+             "A heavy arc of sabre Qi that rolls 300 units and breaks the armour of all it cuts.",
+             projectile={"speed": 520, "range": 300, "count": 1, "pierce": 8}, armour_break={"chance": 1.0, "duration_s": 4}),
+        tech("returning_crane_fan", "qi_unfurling_1", "after_the_cleansing", "fan", "wind", "physical", (0.80, 1.00), 2, 8, 6, 14,
+             "Throw the fan: it flies 300 units and comes back, cutting and lifting everything it passes, both ways.",
+             projectile={"speed": 540, "range": 300, "count": 1, "pierce": 8, "returning": True, "art": "fan"}, knockup_s=0.6),
+        tech("clear_heart_melody", "qi_kindling_5", "library_1", "flute", "water", "buff", (0, 0), 0, 0, 20, 16,
+             "A calming melody: you and every ally beside you recover 4% of your health a second for 6 s.",
+             allies_heal_pct=0.04, allies_heal_s=6, heal_radius=220),
         tech("rising_tide", "qi_kindling_7", "mudwater_manual", "any", "water", "qi", (0.90, 1.20), 1, 8, 8, 16,
              "A wave of Qi strikes all foes within 200 units and slows them 20%.", both_sides=True, reach=200, depth=70,
              status={"id": "slow", "chance": 1.0, "power": 0.2, "duration_s": 2}, action="meditate_burst"),
@@ -120,7 +142,7 @@ def build():
                              "+5% resistance to the element; can teach it", "Element techniques gain area or pierce"],
                    "effects": [{"elemental_power": 0.05}, {"cost_pct": -0.1}, {"status_chance": 0.1}, {"resistance": 0.05, "teach": True}, {"area": True}]}
     daos = []
-    for d in ["fist", "sword", "spear", "blade", "staff", "bow"]:
+    for d in ["fist", "sword", "spear", "blade", "staff", "bow", "fan", "music"]:   # fan and music: the v1.1 families
         row = dict({"id": d, "family": "weapon", "valley_cap": 5}, **weapon_dao)
         if d == "sword":   # S47: tier 3 also teaches Sword Release
             row["tiers"] = list(row["tiers"])

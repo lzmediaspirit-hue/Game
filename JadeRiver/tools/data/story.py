@@ -939,7 +939,8 @@ def guided_quests():
     ], [fx("sect_rank", rank="inner_disciple"), fx("add_contribution", amount=100)], offered_by_unlock=True, chapter="4", giver_any=M, hand_in_any=M,
         on_accept=[fx("learn_technique_for_weapon", options={"none": "palm_wave", "gauntlets": "palm_wave", "jian": "crescent_arc",
                                                              "spear": "spear_lance", "short_blade": "flying_blades", "staff": "earthshaker_wave",
-                                                             "bow": "pinning_arrow"})],
+                                                             "bow": "pinning_arrow", "heavy_sabre": "thunder_dao_arc",
+                                                             "fan": "returning_crane_fan", "flute": "reed_song"})],
         offer=["Qi Unfurling. Your Qi can fly now. Send it at a target ten times."],
         complete=["Inner Disciple. A retreat room is yours; the door is past the mission hall."])
     quest("ink_and_paper", "Ink and Paper", "guided", "old_scribe_bai", [

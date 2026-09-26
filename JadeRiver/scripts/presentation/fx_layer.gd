@@ -68,6 +68,10 @@ func _draw() -> void:
 				draw_set_transform(e.pos, 0.0, Vector2(1, 0.35))
 				draw_arc(Vector2.ZERO, float(e.radius) * (0.3 + k), 0, TAU, 40, Color(c, 1.0 - k), 4.0)
 				draw_set_transform(Vector2.ZERO)
+			"note":
+				# A musical note of the flute's melody (S47 v1.1): rises, sways and fades.
+				var sway := sin(float(e.t) * 5.0 + float(e.radius)) * 6.0
+				_draw_note(e.pos + Vector2(sway, 0), c, 1.0 if k < 0.5 else 1.0 - (k - 0.5) * 2.0, float(e.size) / 20.0)
 			"wave":
 				draw_set_transform(e.pos, 0.0, Vector2(1, 0.35))
 				draw_arc(Vector2.ZERO, float(e.radius) * k, 0, TAU, 48, Color(c, 0.9 * (1.0 - k)), 8.0 * (1.0 - k) + 2.0)
@@ -178,6 +182,19 @@ func _cloud_bank(center: Vector2, width: float, height: float, base: Color, lit:
 			draw_circle(Vector2.ZERO, rx, Color(base if layer == 0 else lit, (0.3 if layer == 0 else 0.16) * alpha))
 	draw_set_transform(Vector2.ZERO)
 
+## A quaver: an ink-edged oval head, a stem and a flag, drawn on the 2-pixel grid.
+func _draw_note(at: Vector2, col: Color, alpha: float, sc: float) -> void:
+	var head := at.snapped(Vector2(2, 2))
+	draw_set_transform(head, -0.35, Vector2(1.0, 0.72) * sc)
+	draw_circle(Vector2.ZERO, 6.0, Color(UiKit.INK, alpha))
+	draw_circle(Vector2.ZERO, 4.2, Color(col, alpha))
+	draw_set_transform(Vector2.ZERO)
+	var top := head + Vector2(5, -20) * sc
+	draw_line(head + Vector2(5, -2) * sc, top, Color(UiKit.INK, alpha), 3.0 * sc)
+	draw_line(head + Vector2(5, -2) * sc, top, Color(col, alpha), 1.4 * sc)
+	draw_line(top, top + Vector2(7, 6) * sc, Color(UiKit.INK, alpha), 3.0 * sc)
+	draw_line(top, top + Vector2(7, 6) * sc, Color(col, alpha), 1.4 * sc)
+
 static func _hash(i: int, salt: int) -> float:
 	return fposmod(sin(float(i) * 12.9898 + float(salt) * 78.233) * 43758.5453, 1.0)
 
@@ -229,6 +246,29 @@ func _draw_projectile(p: Dictionary) -> void:
 			draw_colored_polygon(PackedVector2Array([pos + Vector2(dir * 14, -2), pos + Vector2(dir * 14, 2), pos + Vector2(dir * 20, 0)]), Color("f4fbff"))
 			draw_line(pos + Vector2(-dir * 16, -6), pos + Vector2(-dir * 16, 6), Color("b5892f"), 3)
 			draw_line(pos + Vector2(-dir * 17, 0), pos + Vector2(-dir * 24, 0), Color("5a3a22"), 3)
+		"note":
+			# The flute's note: a jade-lit quaver with a short trail of motes (S47 v1.1).
+			draw_circle(pos, 13, Color(0.55, 0.95, 0.85, 0.22))
+			for i in 3:
+				draw_rect(Rect2((pos + Vector2(-dir * (14 + i * 8), sin(float(p.travelled) * 0.09 + i * 1.3) * 5.0)).snapped(Vector2(2, 2)), Vector2(4, 4)),
+					Color(0.7, 1.0, 0.9, 0.6 - i * 0.18))
+			_draw_note(pos + Vector2(0, sin(float(p.travelled) * 0.06) * 3.0), Color("8fe8cf"), 1.0, 1.0)
+		"fan":
+			# The thrown fan (S47 v1.1): an open folding fan spinning edge-over-edge, with a wind streak.
+			var spin := float(p.travelled) * 0.05 * dir
+			for i in 3:
+				draw_line(pos + Vector2(-dir * (18 + i * 9), -6 + i * 6), pos + Vector2(-dir * (30 + i * 9), -6 + i * 6), Color(0.9, 0.96, 1.0, 0.45 - i * 0.12), 2)
+			var ribs := PackedVector2Array([pos])
+			for i in 9:
+				var a := spin + lerpf(-1.2, 1.2, i / 8.0)
+				ribs.append(pos + Vector2(cos(a), sin(a)) * 16.0)
+			draw_colored_polygon(ribs, Color("e9dcc0"))
+			draw_polyline(ribs + PackedVector2Array([pos]), UiKit.INK, 2.0)
+			for i in 5:
+				var a2 := spin + lerpf(-1.2, 1.2, i / 4.0)
+				draw_line(pos, pos + Vector2(cos(a2), sin(a2)) * 15.0, Color("8a5a34"), 1.0)
+			draw_arc(pos, 11.0, spin - 1.2, spin + 1.2, 8, Color("b0373a"), 2.0)
+			draw_circle(pos, 3, Color("5a3a22"))
 		"needle":
 			draw_line(pos + Vector2(-dir * 12, 0), pos + Vector2(dir * 8, 0), UiKit.INK, 3)
 			draw_line(pos + Vector2(-dir * 12, 0), pos + Vector2(dir * 8, 0), Color("e8eef0"), 1)

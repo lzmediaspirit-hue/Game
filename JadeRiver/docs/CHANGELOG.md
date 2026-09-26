@@ -5,6 +5,50 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V9b · Weapon families: the heavy sabre, the fan and the flute (S47 v1.1, the Music path)
+Three new weapon families, each with seven grades (Training to Sunsteel), smithing recipes, icons, avatar art in every
+animation, a stance, two techniques and a Dao.
+- **The heavy sabre** (Blade Dao, Body).
+  - It is slow (0.75 hits a second) and its cleave strikes up to three foes in a line.
+  - Every blow may break armour (30%; always on the third stroke). A **Sundered** foe takes every hit through a
+    quarter of its defence for 4 s.
+  - Its stance is Iron Ox: twice the armour-break chance, 10% slower on foot.
+  - Techniques: Mountain Cleaver and Thunder Dao Arc.
+- **The fan** (Fan Dao, Agility and Insight).
+  - Its wind reaches 140. The third stroke throws the fan 280 units out and back, cutting everything both ways.
+  - A foe the wind catches is **launched**: it rises in an arc and can neither move nor strike for 0.8 s. Bosses,
+    flyers and immovable foes are not launched.
+  - Its stance is Drifting Cloud (+15% reach).
+  - Techniques: Gale Fan, and Returning Crane Fan (a thrown fan that returns).
+- **The flute** (Music Dao, Insight and Essence).
+  - A tap sends a note of Qi 240 units.
+  - **Hold Attack** (0.35 s) to play a melody. Every half second it slows the foes within 220 by 30% and may
+    confuse them (8%). You recover 1% of your health a second, and every companion and pet in the circle 2%.
+  - Composure pays for it at 8 a second. It needs Composure (Qi Unfurling) and ends when you let go, when Composure
+    runs out, or when you are stunned, wounded, attack, fly or change rooms. You walk at half pace while playing.
+  - Each Music Dao tier carries the melody 5% further. Its stance is Clear Note (a third less Composure).
+  - Techniques: Reed Song (three seeking notes) and Clear Heart Melody. Clear Heart Melody now heals the caster and
+    every ally within 220 by 4% a second for 6 s, in a fight too.
+  - New events in the contract: `melody_changed` and `melody_pulse`. The HUD notes a melody broken or spent, and
+    the world draws a jade ring and rising notes.
+- **Monsters now answer Fear and Confusion.** A feared monster runs from its foe and a confused one stumbles back
+  and forth; neither attacks until it ends. Stun, root and the fan's launch already held them.
+- **Getting them.**
+  - The Stoneford Smith sells the training and iron grades; the jade-iron grades join its rotation.
+  - The Inner Disciple quest teaches each family's Qi technique.
+  - The Mission Halls now lend every library technique (library 1 to 3, and the Cloud library for Cloud
+    disciples) as a Technique Manual for contribution. Until now these had no source.
+- **Art.** Sabre, fan and flute avatar sheets are baked for every action and both facings (`tools/art/bake_weapons.py`).
+  They were reviewed in every animation, with plain and dyed robes. New art: equipment and technique icons, HUD
+  glyphs, and note and fan projectiles.
+- The new rules suite covers:
+  - the cleave, Sundered and launch;
+  - the returning throw and the note;
+  - the melody (slow, heals, drain, release, running dry);
+  - Fear, Clear Heart Melody and the Mission Hall manuals.
+
+  Debug flags: `--wield=item`, `--foe=enemy[:count]`, `--melody` and `--throw`.
+
 ### V9a · v2 hooks: rule kinds, the treasure-birth pillar, world-event markers and the pet command wheel
 A sweep of every v2 audit row against the build after V8g3 lists what v2 makes due by v1.1 and is still open. It
 is planned as V9a–V9f in `docs/v2_audit.md`. V9a covers the small hooks:

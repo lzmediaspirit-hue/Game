@@ -32,6 +32,20 @@ def shops():
         d.update(kw)
         return d
 
+    def technique_stock(sect_id):
+        # The library techniques (Part 8 sources library_1..3, and the Cloud library's own): taught by the Mission Hall
+        # from their realm, for contribution, the higher floors by sect rank.
+        rank = {"library_1": "outer_disciple", "library_2": "inner_disciple", "library_3": "core_disciple", "cloud_library": "inner_disciple"}
+        price = {"library_1": 60, "library_2": 150, "library_3": 300, "cloud_library": 150}
+        out = []
+        for t in json.load(open(os.path.join(DATA, "techniques.json")))["entries"]:
+            src = str(t.get("source", ""))
+            if src not in rank or (src == "cloud_library" and sect_id != "cloud_sect"):
+                continue
+            out.append(s("technique_manual", learn=t["id"], price=price[src],
+                         requires=all_of(realm(t["unlock"]), {"kind": "sect_rank_at_least", "rank": rank[src]})))
+        return out
+
     def inner_art_stock():
         # S48 Inner Arts: every Mission Hall teaches all eight, each from its realm, for contribution.
         from paths import inner_arts
@@ -83,8 +97,13 @@ def shops():
                    s("iron_jian", requires=all_of(realm("qi_kindling_1"))), s("iron_spear", requires=all_of(realm("qi_kindling_1"))),
                    s("iron_gauntlets", requires=all_of(realm("qi_kindling_1"))), s("iron_short_blade", requires=all_of(realm("qi_kindling_1"))),
                    s("iron_staff", requires=all_of(realm("qi_kindling_1"))), s("iron_bow", requires=all_of(realm("qi_kindling_1"))),
+                   # S47 v1.1 families: the heavy sabre, the fan and the flute.
+                   s("training_heavy_sabre"), s("training_fan"), s("training_flute"),
+                   s("iron_heavy_sabre", requires=all_of(realm("qi_kindling_1"))), s("iron_fan", requires=all_of(realm("qi_kindling_1"))),
+                   s("iron_flute", requires=all_of(realm("qi_kindling_1"))),
                    s("bamboo_hat"), s("cotton_robe"), s("cotton_trousers"), s("cloth_boots"), s("copper_ore"), s("riverstone")],
-         "rotation": {"count": 1, "pool": [s("jadeiron_jian"), s("jadeiron_spear"), s("jadeiron_robe"), s("jadeiron_gourd")]}},
+         "rotation": {"count": 1, "pool": [s("jadeiron_jian"), s("jadeiron_spear"), s("jadeiron_robe"), s("jadeiron_gourd"),
+                                           s("jadeiron_heavy_sabre"), s("jadeiron_fan"), s("jadeiron_flute")]}},
         {"id": "tinkerer", "name": "Tinkerer's Workshop", "currency": "silver_tael",
          "stock": [s("iron_pickaxe"), s("herb_sickle"), s("bamboo_rod"), s("clay_pot"), s("drying_rack", requires=all_of(realm("qi_kindling_8"))),
                    s("spirit_wood", price=30, requires=all_of(realm("cloud_stride_5"))), s("puppet_core", price=300, requires=all_of(realm("cloud_stride_5")))]},
@@ -103,7 +122,8 @@ def shops():
                    s("manual_stonebody_canon", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_willow_breath_art", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_emberheart_sutra", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
-                   s("manual_tidal_sovereign_scripture", price=800, requires=all_of({"kind": "sect_rank_at_least", "rank": "core_disciple"}))] + inner_art_stock(),
+                   s("manual_tidal_sovereign_scripture", price=800, requires=all_of({"kind": "sect_rank_at_least", "rank": "core_disciple"}))] + inner_art_stock()
+                  + technique_stock("jade_sect"),
          "rotation": {"count": 1, "pool": [s("manual_page")]}},
         {"id": "cloud_sect", "name": "Cloud Sect Mission Hall", "currency": "contribution",
          "requires": {"all": [{"kind": "training_sect", "sect": "cloud_sect"}]},
@@ -118,7 +138,8 @@ def shops():
                    s("manual_emberheart_sutra", price=300, requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"})),
                    s("manual_nine_winds_canon", price=800, requires=all_of({"kind": "sect_rank_at_least", "rank": "core_disciple"})),
                    # S49 alignment: the abbots keep their incense for the upright.
-                   s("calm_heart_incense", price=60, requires=all_of({"kind": "alignment_at_least", "value": 20}))] + inner_art_stock(),
+                   s("calm_heart_incense", price=60, requires=all_of({"kind": "alignment_at_least", "value": 20}))] + inner_art_stock()
+                  + technique_stock("cloud_sect"),
          "rotation": {"count": 1, "pool": [s("manual_page")]}},
         {"id": "old_pan", "name": "Old Pan's Wares", "currency": "spirit_stone",
          "stock": [s("dusty_curio", price=1)], "rotation": {"count": 3, "pool": [s("torn_manual", price=5, requires=all_of(realm("spirit_awakening_6"))), s("riverreed_ginseng_100", price=4, sealed=True), s("manual_page", price=6), s("spirit_egg", price=12,
@@ -264,7 +285,7 @@ def recipes():
              "spirit": ("stormsteel", "stormsteel_ore", "mystic_ore", "spark_pelt"),
              "sage": ("sunsteel", "sunglass_ore", "stormsteel_ore", "scorpion_stinger")}
     for grade, (prefix, metal, second, binder) in bands.items():
-        for fam in ["gauntlets", "jian", "spear", "short_blade", "staff", "bow"]:
+        for fam in ["gauntlets", "jian", "spear", "short_blade", "staff", "bow", "heavy_sabre", "fan", "flute"]:
             r("%s_%s" % (prefix, fam), "smithing", [(metal, 6), (second, 3 if grade == "common" else 4), (binder, 2)], [("%s_%s" % (prefix, fam), 1)], grade)
     armour = {"common": ("cotton", "cloth_boots"), "earth": ("jadeiron", None), "heaven": ("cloudsilk", None), "mystic": ("mistjade", None),
               "spirit": ("stormsilk", None), "sage": ("sunsilk", None)}

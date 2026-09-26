@@ -189,6 +189,68 @@
    "name": "Bow Dao"
   },
   {
+   "id": "fan",
+   "family": "weapon",
+   "valley_cap": 5,
+   "tiers": [
+    "+3% attack with the family",
+    "Linked techniques -10% QI",
+    "Linked techniques gain their tier-3 effect",
+    "+5% crit with the family; can teach it",
+    "Tier-5 forms of linked techniques"
+   ],
+   "effects": [
+    {
+     "attack_pct": 0.03
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "tier3": true
+    },
+    {
+     "crit": 0.05,
+     "teach": true
+    },
+    {
+     "tier5": true
+    }
+   ],
+   "name": "Fan Dao"
+  },
+  {
+   "id": "music",
+   "family": "weapon",
+   "valley_cap": 5,
+   "tiers": [
+    "+3% attack with the family",
+    "Linked techniques -10% QI",
+    "Linked techniques gain their tier-3 effect",
+    "+5% crit with the family; can teach it",
+    "Tier-5 forms of linked techniques"
+   ],
+   "effects": [
+    {
+     "attack_pct": 0.03
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "tier3": true
+    },
+    {
+     "crit": 0.05,
+     "teach": true
+    },
+    {
+     "tier5": true
+    }
+   ],
+   "name": "Music Dao"
+  },
+  {
    "id": "water",
    "family": "element",
    "valley_cap": 5,

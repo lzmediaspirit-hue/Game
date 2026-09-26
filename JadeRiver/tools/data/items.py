@@ -501,6 +501,8 @@ def build_items():
                                ("inner_art_manual", "earth", "A thin book of breathing and bearing: one Inner Art, learned once.")]:
         extra = {"use": [effect("learn_method", method="riverbreath_complete")]} if sid == "riverbreath_scroll" else {}
         rows.append(item(sid, "scroll", grade, 99, desc, **extra))
+    # The sect libraries lend their technique manuals through the Mission Halls (the shop entry names the technique).
+    rows.append(item("technique_manual", "scroll", "earth", 99, "A library copy of one technique, learned once and returned.", icon="manual_page"))
     # Method manuals (S08): read one to learn the method; the libraries sell them by rank.
     for mid, grade, name, desc in [("stonebody_canon", "earth", "Stonebody Canon", "An earth method: slow, heavy, the body grows with it. Ceiling Spirit Awakening 9."),
                                    ("willow_breath_art", "earth", "Willow Breath Art", "A wood method that bends and returns. Ceiling Spirit Awakening 9."),
@@ -678,7 +680,9 @@ def build_items():
     return rows
 
 
-FAMILY_APPEARANCE = {"gauntlets": "none", "jian": "sword", "spear": "spear", "short_blade": "dagger", "staff": "staff", "bow": "bow"}
+FAMILY_APPEARANCE = {"gauntlets": "none", "jian": "sword", "spear": "spear", "short_blade": "dagger", "staff": "staff", "bow": "bow",
+                     # S47 v1.1 families
+                     "heavy_sabre": "sabre", "fan": "fan", "flute": "flute"}
 # Garment dyes (data/parts.json "_dyes"): plain hemp is undyed brown, better cloth takes richer colour.
 GRADE_DYE = {"plain": {"robe": "earth", "trousers": "earth"}, "common": {"robe": "grey", "trousers": "ink"},
              "earth": {"robe": "indigo", "trousers": "ink"}, "heaven": {"robe": "cloud", "trousers": "grey"},
@@ -723,7 +727,7 @@ def build_artifacts():
     for grade, word in GRADE_WORD.items():
         for fam, look in FAMILY_APPEARANCE.items():
             id = "%s_%s" % (word, fam)
-            name = "%s %s" % (word.capitalize(), {"short_blade": "Short Blade", "jian": "Jian"}.get(fam, titled(fam)))
+            name = "%s %s" % (word.capitalize(), {"short_blade": "Short Blade", "jian": "Jian", "heavy_sabre": "Heavy Sabre"}.get(fam, titled(fam)))
             extra = {}
             if grade == "plain":
                 extra["ilv"] = 5
@@ -731,8 +735,10 @@ def build_artifacts():
                 extra["source"] = ["weapon_hall"]
             if fam == "bow":
                 extra["attribute_req"] = {"agility": {"plain": 8, "common": 18, "earth": 30, "heaven": 50, "mystic": 65, "spirit": 80, "sage": 92}[grade]}
-            if fam == "staff":
+            if fam in ("staff", "heavy_sabre"):
                 extra["attribute_req"] = {"body": {"plain": 8, "common": 18, "earth": 30, "heaven": 50, "mystic": 65, "spirit": 80, "sage": 92}[grade]}
+            if fam == "flute":
+                extra["attribute_req"] = {"insight": {"plain": 8, "common": 18, "earth": 30, "heaven": 50, "mystic": 65, "spirit": 80, "sage": 92}[grade]}
             rows.append(artifact(id, "weapon", grade, name, look, fam, **extra))
     for grade, slots in ARMOUR.items():
         for slot, (id, name, look) in slots.items():

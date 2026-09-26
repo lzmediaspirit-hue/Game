@@ -67,6 +67,9 @@ var pet_pressed := false
 var pet_hold := 0.0
 var pet_wheel := false
 var pet_pick := -1
+# S47 v1.1 flute: hold Attack past the family's hold time to play the melody; release to stop.
+var attack_pressed := false
+var attack_hold := 0.0
 const PET_WHEEL := ["follow", "stay", "attack", "passive", "ride", "bag"]
 var pulses: Dictionary = {}        # element -> seconds of reveal pulse
 var boss_uid := 0
@@ -141,6 +144,9 @@ func _process(delta: float) -> void:
 		guard_hold += delta
 		if guard_hold > 0.18 and bound() and not player.state.flying and not Game.combat.timeline(Game.active_id).guard:
 			Game.submit({"type": "guard_start"})
+	if attack_pressed:
+		attack_hold += delta
+		_try_melody()
 	_tick_channel(delta)
 	_tick_tap(delta)
 	if bound() and world: context = world.context
@@ -192,6 +198,7 @@ func _notification(what):
 		touches.clear()
 		joystick_id = -999
 		mouse_down = false
+		_attack_up()
 		if is_instance_valid(player):
 			player.movement = Vector2.ZERO
 			player.joystick_engaged = false
@@ -335,6 +342,7 @@ func release(id: int):
 			if pet_pick >= 0: _pet_wheel_do(str(PET_WHEEL[pet_pick]))
 		else:
 			open_page.emit("spirit_animals", {})
+	if info.get("role", "") == "attack": _attack_up()
 	if info.get("role", "") == "jump":
 		player.fly_up = false
 		player.jump_held = false
@@ -404,8 +412,26 @@ func primary() -> void:
 	if not context.is_empty() and not _enemy_close():
 		use_context()
 		return
-	if Unlocks.is_unlocked(Game.active_id, "attack"): player.attack()
+	if Unlocks.is_unlocked(Game.active_id, "attack"):
+		player.attack()
+		attack_pressed = true
+		attack_hold = 0.0
 	elif not context.is_empty(): use_context()
+
+## Held Attack with a flute plays the melody aura once the family's hold time has passed (S47 v1.1).
+func _try_melody() -> void:
+	if not bound() or Game.combat.is_playing(Game.active_id): return
+	var ch: Dictionary = StatRules.family(Game.active()).get("channel", {})
+	if ch.is_empty() or attack_hold < float(ch.get("hold_s", 0.35)): return
+	var r := Game.submit({"type": "channel_melody", "on": true})
+	if r.ok or str(r.get("reason", "")) == "busy": return   # a busy hand tries again next frame
+	attack_pressed = false
+	if str(r.get("reason", "")) == "no_composure" and r.has("text"): add_log(str(r.text), UiKit.MIST)
+
+func _attack_up() -> void:
+	attack_pressed = false
+	attack_hold = 0.0
+	if bound() and Game.combat.is_playing(Game.active_id): Game.submit({"type": "channel_melody", "on": false})
 
 ## S43 rule 5: the Attack button shows Climb or Enter only while no enemy is aggroed on the player within 400.
 func _enemy_close() -> bool:
@@ -552,6 +578,7 @@ func _input(event):
 				KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8:
 					if shown("skills"): player.use_technique(kc - KEY_1)
 		else:
+			if kc in [KEY_J, KEY_ENTER]: _attack_up()
 			if kc == KEY_K and guard_pressed:
 				guard_pressed = false
 				if guard_hold <= 0.18: Game.submit({"type": "dodge", "direction": player.last_axis, "facing": player.facing})
@@ -653,6 +680,9 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.sword_released"), UiKit.PALE_GOLD)
 		"sword_returned":
 			if str(p.get("reason", "")) != "recalled": add_log(Tx.t("hud.sword_returned"), UiKit.MIST)
+		"melody_changed":
+			if str(p.get("actor", "")) == Game.active_id and not p.get("on", false) and str(p.get("reason", "")) in ["composure", "broken"]:
+				add_log(Tx.t("hud.melody_spent" if str(p.reason) == "composure" else "hud.melody_broken"), UiKit.MIST)
 		"sword_intent_changed":
 			if int(p.get("stacks", 0)) >= 10: add_log(Tx.t("hud.sword_intent_full"), UiKit.GOLD)
 		"artifact_detonated":
@@ -1448,7 +1478,7 @@ func _draw_controls(c) -> void:
 			"portal": "enter", "climbable": "enter", "cooking_pot": "cook", "alchemy_furnace": "alchemy", "earth_vent": "alchemy", "forge_anvil": "forge", "star_sight": "gather",
 			"chart_table": "forge", "shipyard_slip": "forge", "starsea_dock": "enter", "mercy": "talk"}.get(str(context.get("type", "")), "open")
 	if shown("attack") or ctx_glyph != "":
-		ring(attack_center, 66, Game.combat.is_busy(c.id) or channel.object != "", 1.0, pulses.has("hud:attack"))
+		ring(attack_center, 66, Game.combat.is_busy(c.id) or channel.object != "" or Game.combat.is_playing(c.id), 1.0, pulses.has("hud:attack"))
 		if ctx_glyph != "":
 			glyph(ctx_glyph, attack_center, 64)
 			UiKit.draw_outlined(self, str(context.get("label", "")), attack_center + Vector2(-60, 50), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 120)

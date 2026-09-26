@@ -72,6 +72,40 @@
    "flags": {
     "still_damage": 0.15
    }
+  },
+  {
+   "id": "iron_ox_stance",
+   "family": "heavy_sabre",
+   "name": "Iron Ox Stance",
+   "desc": "Every blow has twice the chance to break armour; 10% slower on foot.",
+   "modifiers": [
+    {
+     "stat": "move_speed",
+     "op": "pct_add",
+     "value": -0.1
+    }
+   ],
+   "flags": {
+    "armour_break_mult": 2.0
+   }
+  },
+  {
+   "id": "drifting_cloud",
+   "family": "fan",
+   "name": "Drifting Cloud",
+   "desc": "Your fan-wind reaches 15% farther.",
+   "flags": {
+    "reach_mult": 1.15
+   }
+  },
+  {
+   "id": "clear_note",
+   "family": "flute",
+   "name": "Clear Note",
+   "desc": "A melody costs a third less Composure.",
+   "flags": {
+    "channel_cost_mult": 0.67
+   }
   }
  ]
 }

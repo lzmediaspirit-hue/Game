@@ -1035,6 +1035,81 @@
    ]
   },
   {
+   "id": "iron_heavy_sabre",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_heavy_sabre",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "iron_fan",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_fan",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "iron_flute",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 3
+    },
+    {
+     "item": "boar_hide",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_flute",
+     "count": 1
+    }
+   ]
+  },
+  {
    "id": "jadeiron_gauntlets",
    "craft": "smithing",
    "grade": "earth",
@@ -1180,6 +1255,81 @@
    "outputs": [
     {
      "item": "jadeiron_bow",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "jadeiron_heavy_sabre",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 4
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_heavy_sabre",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "jadeiron_fan",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 4
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_fan",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "jadeiron_flute",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 4
+    },
+    {
+     "item": "jade_scale",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_flute",
      "count": 1
     }
    ]
@@ -1335,6 +1485,81 @@
    ]
   },
   {
+   "id": "cloudsteel_heavy_sabre",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "jadeiron",
+     "count": 4
+    },
+    {
+     "item": "cloud_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_heavy_sabre",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "cloudsteel_fan",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "jadeiron",
+     "count": 4
+    },
+    {
+     "item": "cloud_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_fan",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "cloudsteel_flute",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "jadeiron",
+     "count": 4
+    },
+    {
+     "item": "cloud_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_flute",
+     "count": 1
+    }
+   ]
+  },
+  {
    "id": "mistjade_gauntlets",
    "craft": "smithing",
    "grade": "mystic",
@@ -1480,6 +1705,81 @@
    "outputs": [
     {
      "item": "mistjade_bow",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "mistjade_heavy_sabre",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 6
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_heavy_sabre",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "mistjade_fan",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 6
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_fan",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "mistjade_flute",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 6
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mistjade_flute",
      "count": 1
     }
    ]
@@ -1635,6 +1935,81 @@
    ]
   },
   {
+   "id": "stormsteel_heavy_sabre",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "spark_pelt",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_heavy_sabre",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "stormsteel_fan",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "spark_pelt",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_fan",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "stormsteel_flute",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "spark_pelt",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_flute",
+     "count": 1
+    }
+   ]
+  },
+  {
    "id": "sunsteel_gauntlets",
    "craft": "smithing",
    "grade": "sage",
@@ -1780,6 +2155,81 @@
    "outputs": [
     {
      "item": "sunsteel_bow",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "sunsteel_heavy_sabre",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 6
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_heavy_sabre",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "sunsteel_fan",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 6
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_fan",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "sunsteel_flute",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 6
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunsteel_flute",
      "count": 1
     }
    ]

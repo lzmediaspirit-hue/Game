@@ -194,6 +194,105 @@
    }
   },
   {
+   "id": "training_heavy_sabre",
+   "name": "Training Heavy Sabre",
+   "slot": "weapon",
+   "grade": "plain",
+   "ilv": 5,
+   "appearance": "sabre",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "training_heavy_sabre",
+   "type": "equipment",
+   "stack": 1,
+   "family": "heavy_sabre",
+   "requires": {
+    "all": [
+     {
+      "kind": "level_at_least",
+      "level": 3,
+      "hard": true
+     },
+     {
+      "kind": "unlock",
+      "system": "weapons",
+      "hard": true
+     }
+    ]
+   },
+   "source": [
+    "weapon_hall"
+   ],
+   "attribute_req": {
+    "body": 8
+   }
+  },
+  {
+   "id": "training_fan",
+   "name": "Training Fan",
+   "slot": "weapon",
+   "grade": "plain",
+   "ilv": 5,
+   "appearance": "fan",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "training_fan",
+   "type": "equipment",
+   "stack": 1,
+   "family": "fan",
+   "requires": {
+    "all": [
+     {
+      "kind": "level_at_least",
+      "level": 3,
+      "hard": true
+     },
+     {
+      "kind": "unlock",
+      "system": "weapons",
+      "hard": true
+     }
+    ]
+   },
+   "source": [
+    "weapon_hall"
+   ]
+  },
+  {
+   "id": "training_flute",
+   "name": "Training Flute",
+   "slot": "weapon",
+   "grade": "plain",
+   "ilv": 5,
+   "appearance": "flute",
+   "energy_type": "none",
+   "sockets": 0,
+   "icon": "training_flute",
+   "type": "equipment",
+   "stack": 1,
+   "family": "flute",
+   "requires": {
+    "all": [
+     {
+      "kind": "level_at_least",
+      "level": 3,
+      "hard": true
+     },
+     {
+      "kind": "unlock",
+      "system": "weapons",
+      "hard": true
+     }
+    ]
+   },
+   "source": [
+    "weapon_hall"
+   ],
+   "attribute_req": {
+    "insight": 8
+   }
+  },
+  {
    "id": "iron_gauntlets",
    "name": "Iron Gauntlets",
    "slot": "weapon",
@@ -281,6 +380,54 @@
    "family": "bow",
    "attribute_req": {
     "agility": 18
+   }
+  },
+  {
+   "id": "iron_heavy_sabre",
+   "name": "Iron Heavy Sabre",
+   "slot": "weapon",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "sabre",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "iron_heavy_sabre",
+   "type": "equipment",
+   "stack": 1,
+   "family": "heavy_sabre",
+   "attribute_req": {
+    "body": 18
+   }
+  },
+  {
+   "id": "iron_fan",
+   "name": "Iron Fan",
+   "slot": "weapon",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "fan",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "iron_fan",
+   "type": "equipment",
+   "stack": 1,
+   "family": "fan"
+  },
+  {
+   "id": "iron_flute",
+   "name": "Iron Flute",
+   "slot": "weapon",
+   "grade": "common",
+   "ilv": 14,
+   "appearance": "flute",
+   "energy_type": "primal_qi",
+   "sockets": 0,
+   "icon": "iron_flute",
+   "type": "equipment",
+   "stack": 1,
+   "family": "flute",
+   "attribute_req": {
+    "insight": 18
    }
   },
   {
@@ -374,6 +521,54 @@
    }
   },
   {
+   "id": "jadeiron_heavy_sabre",
+   "name": "Jadeiron Heavy Sabre",
+   "slot": "weapon",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "sabre",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_heavy_sabre",
+   "type": "equipment",
+   "stack": 1,
+   "family": "heavy_sabre",
+   "attribute_req": {
+    "body": 30
+   }
+  },
+  {
+   "id": "jadeiron_fan",
+   "name": "Jadeiron Fan",
+   "slot": "weapon",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "fan",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_fan",
+   "type": "equipment",
+   "stack": 1,
+   "family": "fan"
+  },
+  {
+   "id": "jadeiron_flute",
+   "name": "Jadeiron Flute",
+   "slot": "weapon",
+   "grade": "earth",
+   "ilv": 27,
+   "appearance": "flute",
+   "energy_type": "primal_qi",
+   "sockets": 1,
+   "icon": "jadeiron_flute",
+   "type": "equipment",
+   "stack": 1,
+   "family": "flute",
+   "attribute_req": {
+    "insight": 30
+   }
+  },
+  {
    "id": "cloudsteel_gauntlets",
    "name": "Cloudsteel Gauntlets",
    "slot": "weapon",
@@ -461,6 +656,54 @@
    "family": "bow",
    "attribute_req": {
     "agility": 50
+   }
+  },
+  {
+   "id": "cloudsteel_heavy_sabre",
+   "name": "Cloudsteel Heavy Sabre",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "sabre",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_heavy_sabre",
+   "type": "equipment",
+   "stack": 1,
+   "family": "heavy_sabre",
+   "attribute_req": {
+    "body": 50
+   }
+  },
+  {
+   "id": "cloudsteel_fan",
+   "name": "Cloudsteel Fan",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "fan",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_fan",
+   "type": "equipment",
+   "stack": 1,
+   "family": "fan"
+  },
+  {
+   "id": "cloudsteel_flute",
+   "name": "Cloudsteel Flute",
+   "slot": "weapon",
+   "grade": "heaven",
+   "ilv": 45,
+   "appearance": "flute",
+   "energy_type": "true_qi",
+   "sockets": 1,
+   "icon": "cloudsteel_flute",
+   "type": "equipment",
+   "stack": 1,
+   "family": "flute",
+   "attribute_req": {
+    "insight": 50
    }
   },
   {
@@ -554,6 +797,54 @@
    }
   },
   {
+   "id": "mistjade_heavy_sabre",
+   "name": "Mistjade Heavy Sabre",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "sabre",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_heavy_sabre",
+   "type": "equipment",
+   "stack": 1,
+   "family": "heavy_sabre",
+   "attribute_req": {
+    "body": 65
+   }
+  },
+  {
+   "id": "mistjade_fan",
+   "name": "Mistjade Fan",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "fan",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_fan",
+   "type": "equipment",
+   "stack": 1,
+   "family": "fan"
+  },
+  {
+   "id": "mistjade_flute",
+   "name": "Mistjade Flute",
+   "slot": "weapon",
+   "grade": "mystic",
+   "ilv": 59,
+   "appearance": "flute",
+   "energy_type": "true_qi",
+   "sockets": 2,
+   "icon": "mistjade_flute",
+   "type": "equipment",
+   "stack": 1,
+   "family": "flute",
+   "attribute_req": {
+    "insight": 65
+   }
+  },
+  {
    "id": "stormsteel_gauntlets",
    "name": "Stormsteel Gauntlets",
    "slot": "weapon",
@@ -644,6 +935,54 @@
    }
   },
   {
+   "id": "stormsteel_heavy_sabre",
+   "name": "Stormsteel Heavy Sabre",
+   "slot": "weapon",
+   "grade": "spirit",
+   "ilv": 68,
+   "appearance": "sabre",
+   "energy_type": "sage_qi",
+   "sockets": 2,
+   "icon": "stormsteel_heavy_sabre",
+   "type": "equipment",
+   "stack": 1,
+   "family": "heavy_sabre",
+   "attribute_req": {
+    "body": 80
+   }
+  },
+  {
+   "id": "stormsteel_fan",
+   "name": "Stormsteel Fan",
+   "slot": "weapon",
+   "grade": "spirit",
+   "ilv": 68,
+   "appearance": "fan",
+   "energy_type": "sage_qi",
+   "sockets": 2,
+   "icon": "stormsteel_fan",
+   "type": "equipment",
+   "stack": 1,
+   "family": "fan"
+  },
+  {
+   "id": "stormsteel_flute",
+   "name": "Stormsteel Flute",
+   "slot": "weapon",
+   "grade": "spirit",
+   "ilv": 68,
+   "appearance": "flute",
+   "energy_type": "sage_qi",
+   "sockets": 2,
+   "icon": "stormsteel_flute",
+   "type": "equipment",
+   "stack": 1,
+   "family": "flute",
+   "attribute_req": {
+    "insight": 80
+   }
+  },
+  {
    "id": "sunsteel_gauntlets",
    "name": "Sunsteel Gauntlets",
    "slot": "weapon",
@@ -731,6 +1070,54 @@
    "family": "bow",
    "attribute_req": {
     "agility": 92
+   }
+  },
+  {
+   "id": "sunsteel_heavy_sabre",
+   "name": "Sunsteel Heavy Sabre",
+   "slot": "weapon",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "sabre",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsteel_heavy_sabre",
+   "type": "equipment",
+   "stack": 1,
+   "family": "heavy_sabre",
+   "attribute_req": {
+    "body": 92
+   }
+  },
+  {
+   "id": "sunsteel_fan",
+   "name": "Sunsteel Fan",
+   "slot": "weapon",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "fan",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsteel_fan",
+   "type": "equipment",
+   "stack": 1,
+   "family": "fan"
+  },
+  {
+   "id": "sunsteel_flute",
+   "name": "Sunsteel Flute",
+   "slot": "weapon",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "flute",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "sunsteel_flute",
+   "type": "equipment",
+   "stack": 1,
+   "family": "flute",
+   "attribute_req": {
+    "insight": 92
    }
   },
   {

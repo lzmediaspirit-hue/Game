@@ -1873,7 +1873,10 @@
       "spear": "spear_lance",
       "short_blade": "flying_blades",
       "staff": "earthshaker_wave",
-      "bow": "pinning_arrow"
+      "bow": "pinning_arrow",
+      "heavy_sabre": "thunder_dao_arc",
+      "fan": "returning_crane_fan",
+      "flute": "reed_song"
      }
     }
    ]

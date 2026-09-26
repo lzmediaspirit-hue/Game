@@ -118,7 +118,10 @@
     "none": "punch",
     "spear": "attack",
     "staff": "attack",
-    "sword": "swing"
+    "sword": "swing",
+    "sabre": "swing",
+    "fan": "attack",
+    "flute": "attack"
   },
   "_colors": {
     "hair": [
@@ -13087,6 +13090,840 @@
           },
           "section": "2",
           "z": 9.0
+        }
+      ]
+    },
+    "sabre": {
+      "label": "Heavy sabre",
+      "layers": [
+        {
+          "section": "1",
+          "z": 140.0,
+          "animations": {
+            "attack": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "bow": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "idle": {
+              "cell": 256.0,
+              "fallback": "carry_attachment",
+              "sheets": [
+                "art_v12/weapon_sabre_1_idle_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 140.0
+            },
+            "jump": {
+              "cell": 256.0,
+              "fallback": "carry_attachment",
+              "sheets": [
+                "art_v12/weapon_sabre_1_jump_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 140.0
+            },
+            "meditate": {
+              "cell": 256.0,
+              "fallback": "static_attachment",
+              "sheets": [
+                "art_v12/weapon_sabre_1_meditate_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 4.0
+            },
+            "punch": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "punch_1": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "punch_2": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "punch_3": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "swing": {
+              "cell": 384.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_sabre_1_swing_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 150.0
+            },
+            "swing_1": {
+              "cell": 384.0,
+              "combo_rig": "swing_1",
+              "sheets": [
+                "art_v12/weapon_sabre_1_swing_1_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 150.0
+            },
+            "swing_2": {
+              "cell": 384.0,
+              "combo_rig": "swing_2",
+              "sheets": [
+                "art_v12/weapon_sabre_1_swing_2_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 150.0
+            },
+            "swing_3": {
+              "cell": 384.0,
+              "combo_rig": "swing_3",
+              "sheets": [
+                "art_v12/weapon_sabre_1_swing_3_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 150.0
+            },
+            "thrust_1": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "thrust_2": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "thrust_3": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "walk": {
+              "cell": 256.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_sabre_1_walk_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 140.0
+            }
+          }
+        },
+        {
+          "section": "2",
+          "z": 9.0,
+          "animations": {
+            "attack": {
+              "cell": 384.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_sabre_2_attack_combo.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 150.0
+            },
+            "bow": {
+              "cell": 384.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_sabre_2_bow_combo.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 8.0
+            },
+            "idle": {
+              "cell": 256.0,
+              "fallback": "carry_attachment",
+              "sheets": [
+                "art_v12/weapon_sabre_2_idle_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 9.0
+            },
+            "jump": {
+              "cell": 256.0,
+              "fallback": "carry_attachment",
+              "sheets": [
+                "art_v12/weapon_sabre_2_jump_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 9.0
+            },
+            "meditate": {
+              "cell": 384.0,
+              "fallback": "static_attachment",
+              "sheets": [
+                "art_v12/weapon_sabre_2_meditate_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 4.0
+            },
+            "punch": {
+              "cell": 384.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_sabre_2_punch_combo.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 8.0
+            },
+            "punch_1": {
+              "cell": 384.0,
+              "combo_rig": "punch_1",
+              "sheets": [
+                "art_v12/weapon_sabre_2_punch_1_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 8.0
+            },
+            "punch_2": {
+              "cell": 384.0,
+              "combo_rig": "punch_2",
+              "sheets": [
+                "art_v12/weapon_sabre_2_punch_2_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 8.0
+            },
+            "punch_3": {
+              "cell": 384.0,
+              "combo_rig": "punch_3",
+              "sheets": [
+                "art_v12/weapon_sabre_2_punch_3_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 8.0
+            },
+            "swing": {
+              "cell": 384.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_sabre_2_swing_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": -1.0
+            },
+            "swing_1": {
+              "cell": 384.0,
+              "combo_rig": "swing_1",
+              "sheets": [
+                "art_v12/weapon_sabre_2_swing_1_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": -1.0
+            },
+            "swing_2": {
+              "cell": 384.0,
+              "combo_rig": "swing_2",
+              "sheets": [
+                "art_v12/weapon_sabre_2_swing_2_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": -1.0
+            },
+            "swing_3": {
+              "cell": 384.0,
+              "combo_rig": "swing_3",
+              "sheets": [
+                "art_v12/weapon_sabre_2_swing_3_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": -1.0
+            },
+            "thrust_1": {
+              "cell": 384.0,
+              "combo_rig": "thrust_1",
+              "sheets": [
+                "art_v12/weapon_sabre_2_thrust_1_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 150.0
+            },
+            "thrust_2": {
+              "cell": 384.0,
+              "combo_rig": "thrust_2",
+              "sheets": [
+                "art_v12/weapon_sabre_2_thrust_2_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 150.0
+            },
+            "thrust_3": {
+              "cell": 384.0,
+              "combo_rig": "thrust_3",
+              "sheets": [
+                "art_v12/weapon_sabre_2_thrust_3_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 150.0
+            },
+            "walk": {
+              "cell": 256.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_sabre_2_walk_0.png"
+              ],
+              "source": "generated:bake_weapons.py from sword",
+              "z": 9.0
+            }
+          }
+        }
+      ]
+    },
+    "fan": {
+      "label": "Iron fan",
+      "layers": [
+        {
+          "section": "1",
+          "z": 140.0,
+          "animations": {
+            "attack": {
+              "cell": 256.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_fan_1_attack_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 140.0
+            },
+            "bow": {
+              "cell": 384.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_fan_1_bow_combo.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 8.0
+            },
+            "idle": {
+              "cell": 256.0,
+              "fallback": "carry_attachment",
+              "sheets": [
+                "art_v12/weapon_fan_1_idle_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 140.0
+            },
+            "jump": {
+              "cell": 256.0,
+              "fallback": "carry_attachment",
+              "sheets": [
+                "art_v12/weapon_fan_1_jump_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 140.0
+            },
+            "meditate": {
+              "cell": 384.0,
+              "fallback": "static_attachment",
+              "sheets": [
+                "art_v12/weapon_fan_1_meditate_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 4.0
+            },
+            "punch": {
+              "cell": 384.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_fan_1_punch_combo.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 8.0
+            },
+            "punch_1": {
+              "cell": 384.0,
+              "combo_rig": "punch_1",
+              "sheets": [
+                "art_v12/weapon_fan_1_punch_1_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 8.0
+            },
+            "punch_2": {
+              "cell": 384.0,
+              "combo_rig": "punch_2",
+              "sheets": [
+                "art_v12/weapon_fan_1_punch_2_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 8.0
+            },
+            "punch_3": {
+              "cell": 384.0,
+              "combo_rig": "punch_3",
+              "sheets": [
+                "art_v12/weapon_fan_1_punch_3_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 8.0
+            },
+            "swing": {
+              "cell": 384.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_fan_1_swing_combo.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 150.0
+            },
+            "swing_1": {
+              "cell": 384.0,
+              "combo_rig": "swing_1",
+              "sheets": [
+                "art_v12/weapon_fan_1_swing_1_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 150.0
+            },
+            "swing_2": {
+              "cell": 384.0,
+              "combo_rig": "swing_2",
+              "sheets": [
+                "art_v12/weapon_fan_1_swing_2_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 150.0
+            },
+            "swing_3": {
+              "cell": 384.0,
+              "combo_rig": "swing_3",
+              "sheets": [
+                "art_v12/weapon_fan_1_swing_3_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 150.0
+            },
+            "thrust_1": {
+              "cell": 256.0,
+              "combo_rig": "thrust_1",
+              "sheets": [
+                "art_v12/weapon_fan_1_thrust_1_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 140.0
+            },
+            "thrust_2": {
+              "cell": 256.0,
+              "combo_rig": "thrust_2",
+              "sheets": [
+                "art_v12/weapon_fan_1_thrust_2_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 140.0
+            },
+            "thrust_3": {
+              "cell": 256.0,
+              "combo_rig": "thrust_3",
+              "sheets": [
+                "art_v12/weapon_fan_1_thrust_3_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 140.0
+            },
+            "walk": {
+              "cell": 256.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_fan_1_walk_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 140.0
+            }
+          }
+        },
+        {
+          "section": "2",
+          "z": 9.0,
+          "animations": {
+            "attack": {
+              "cell": 256.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_fan_2_attack_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 9.0
+            },
+            "bow": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "idle": {
+              "cell": 256.0,
+              "fallback": "carry_attachment",
+              "sheets": [
+                "art_v12/weapon_fan_2_idle_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 9.0
+            },
+            "jump": {
+              "cell": 256.0,
+              "fallback": "carry_attachment",
+              "sheets": [
+                "art_v12/weapon_fan_2_jump_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 9.0
+            },
+            "meditate": {
+              "cell": 256.0,
+              "fallback": "static_attachment",
+              "sheets": [
+                "art_v12/weapon_fan_2_meditate_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 4.0
+            },
+            "punch": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "punch_1": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "punch_2": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "punch_3": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "swing": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "swing_1": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "swing_2": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "swing_3": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "thrust_1": {
+              "cell": 256.0,
+              "combo_rig": "thrust_1",
+              "sheets": [
+                "art_v12/weapon_fan_2_thrust_1_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 9.0
+            },
+            "thrust_2": {
+              "cell": 256.0,
+              "combo_rig": "thrust_2",
+              "sheets": [
+                "art_v12/weapon_fan_2_thrust_2_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 9.0
+            },
+            "thrust_3": {
+              "cell": 256.0,
+              "combo_rig": "thrust_3",
+              "sheets": [
+                "art_v12/weapon_fan_2_thrust_3_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 9.0
+            },
+            "walk": {
+              "cell": 256.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_fan_2_walk_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 9.0
+            }
+          }
+        }
+      ]
+    },
+    "flute": {
+      "label": "Jade flute",
+      "layers": [
+        {
+          "section": "1",
+          "z": 140.0,
+          "animations": {
+            "attack": {
+              "cell": 256.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_flute_1_attack_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 140.0
+            },
+            "bow": {
+              "cell": 384.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_flute_1_bow_combo.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 8.0
+            },
+            "idle": {
+              "cell": 256.0,
+              "fallback": "carry_attachment",
+              "sheets": [
+                "art_v12/weapon_flute_1_idle_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 140.0
+            },
+            "jump": {
+              "cell": 256.0,
+              "fallback": "carry_attachment",
+              "sheets": [
+                "art_v12/weapon_flute_1_jump_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 140.0
+            },
+            "meditate": {
+              "cell": 384.0,
+              "fallback": "static_attachment",
+              "sheets": [
+                "art_v12/weapon_flute_1_meditate_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 4.0
+            },
+            "punch": {
+              "cell": 384.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_flute_1_punch_combo.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 8.0
+            },
+            "punch_1": {
+              "cell": 384.0,
+              "combo_rig": "punch_1",
+              "sheets": [
+                "art_v12/weapon_flute_1_punch_1_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 8.0
+            },
+            "punch_2": {
+              "cell": 384.0,
+              "combo_rig": "punch_2",
+              "sheets": [
+                "art_v12/weapon_flute_1_punch_2_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 8.0
+            },
+            "punch_3": {
+              "cell": 384.0,
+              "combo_rig": "punch_3",
+              "sheets": [
+                "art_v12/weapon_flute_1_punch_3_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 8.0
+            },
+            "swing": {
+              "cell": 384.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_flute_1_swing_combo.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 150.0
+            },
+            "swing_1": {
+              "cell": 384.0,
+              "combo_rig": "swing_1",
+              "sheets": [
+                "art_v12/weapon_flute_1_swing_1_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 150.0
+            },
+            "swing_2": {
+              "cell": 384.0,
+              "combo_rig": "swing_2",
+              "sheets": [
+                "art_v12/weapon_flute_1_swing_2_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 150.0
+            },
+            "swing_3": {
+              "cell": 384.0,
+              "combo_rig": "swing_3",
+              "sheets": [
+                "art_v12/weapon_flute_1_swing_3_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 150.0
+            },
+            "thrust_1": {
+              "cell": 256.0,
+              "combo_rig": "thrust_1",
+              "sheets": [
+                "art_v12/weapon_flute_1_thrust_1_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 140.0
+            },
+            "thrust_2": {
+              "cell": 256.0,
+              "combo_rig": "thrust_2",
+              "sheets": [
+                "art_v12/weapon_flute_1_thrust_2_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 140.0
+            },
+            "thrust_3": {
+              "cell": 256.0,
+              "combo_rig": "thrust_3",
+              "sheets": [
+                "art_v12/weapon_flute_1_thrust_3_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 140.0
+            },
+            "walk": {
+              "cell": 256.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_flute_1_walk_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 140.0
+            }
+          }
+        },
+        {
+          "section": "2",
+          "z": 9.0,
+          "animations": {
+            "attack": {
+              "cell": 256.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_flute_2_attack_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 9.0
+            },
+            "bow": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "idle": {
+              "cell": 256.0,
+              "fallback": "carry_attachment",
+              "sheets": [
+                "art_v12/weapon_flute_2_idle_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 9.0
+            },
+            "jump": {
+              "cell": 256.0,
+              "fallback": "carry_attachment",
+              "sheets": [
+                "art_v12/weapon_flute_2_jump_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 9.0
+            },
+            "meditate": {
+              "cell": 256.0,
+              "fallback": "static_attachment",
+              "sheets": [
+                "art_v12/weapon_flute_2_meditate_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 4.0
+            },
+            "punch": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "punch_1": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "punch_2": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "punch_3": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "swing": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "swing_1": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "swing_2": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "swing_3": {
+              "hidden": true,
+              "reason": "Empty split weapon layer; companion layer provides the pose"
+            },
+            "thrust_1": {
+              "cell": 256.0,
+              "combo_rig": "thrust_1",
+              "sheets": [
+                "art_v12/weapon_flute_2_thrust_1_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 9.0
+            },
+            "thrust_2": {
+              "cell": 256.0,
+              "combo_rig": "thrust_2",
+              "sheets": [
+                "art_v12/weapon_flute_2_thrust_2_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 9.0
+            },
+            "thrust_3": {
+              "cell": 256.0,
+              "combo_rig": "thrust_3",
+              "sheets": [
+                "art_v12/weapon_flute_2_thrust_3_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 9.0
+            },
+            "walk": {
+              "cell": 256.0,
+              "fallback": null,
+              "sheets": [
+                "art_v12/weapon_flute_2_walk_0.png"
+              ],
+              "source": "generated:bake_weapons.py from dagger",
+              "z": 9.0
+            }
+          }
         }
       ]
     }

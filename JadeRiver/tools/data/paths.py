@@ -180,6 +180,11 @@ def stances():
          "flags": {"backstab_crit": 0.10}},
         {"id": "mountain_root", "family": "staff", "name": "Mountain Root", "desc": "Guard blocks 10% more.", "modifiers": [mod("guard", 0.10)]},
         {"id": "still_draw", "family": "bow", "name": "Still Draw", "desc": "+15% damage while you stand still.", "flags": {"still_damage": 0.15}},
+        # S47 v1.1 families.
+        {"id": "iron_ox_stance", "family": "heavy_sabre", "name": "Iron Ox Stance", "desc": "Every blow has twice the chance to break armour; 10% slower on foot.",
+         "modifiers": [mod("move_speed", -0.10)], "flags": {"armour_break_mult": 2.0}},
+        {"id": "drifting_cloud", "family": "fan", "name": "Drifting Cloud", "desc": "Your fan-wind reaches 15% farther.", "flags": {"reach_mult": 1.15}},
+        {"id": "clear_note", "family": "flute", "name": "Clear Note", "desc": "A melody costs a third less Composure.", "flags": {"channel_cost_mult": 0.67}},
     ]
     entries("stances", rows)
     return rows

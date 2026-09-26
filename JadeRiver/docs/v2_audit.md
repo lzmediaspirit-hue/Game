@@ -146,6 +146,9 @@ Progress is recorded in `docs/CHANGELOG.md`.
     five spirit-stone mines held by three rival sects, taken by a room event (their guards and warden), carts that
     fill by the hour, contests every two to four days with a twelve-hour window, disciples posted as guards, and the
     Territory tab. S49 is complete.
+- V9a is done (hooks and small gaps). V9b is done: the heavy sabre (cleave of three, armour break), the fan
+  (returning throw, knock-up) and the flute (the held melody aura that slows, confuses and heals, paid in
+  Composure), with stances, techniques, the Fan and Music Daos, and Mission Hall manuals for every library technique.
 - Next (V9): everything v2 makes due by v1.1 that is still open. A sweep of every audit row against the build
   after V8g3 found these, in six phases:
   - **V9a**, hooks and small gaps:
@@ -181,4 +184,5 @@ written neutral from the start and round-trips through a save.
 | `mount` | `mount_pet` (+ `riding`) | The Mount slot holds a pet uid, and riding is a separate switch |
 | `crafting.garden_beds`, `placed_formations` | `crafting.garden`, `crafting.formations` | Named before S45 |
 | pet `bloodline_purity`, `colour_variant`, `wounded_until` | `purity`, `variant`, `wounded` | `wounded` is a flag: the Grievous Wound lasts until it is treated, not on a timer |
+| Flute and guqin (one family) | The `flute` family; the guqin is played at the teahouse (the V8g2 rhythm page) | A held guqin needs its own seated attack poses in every garment before it can be a weapon (AGENTS.md); the flute carries the family's melody aura |
 | `flames.json` | Heavenly Flames are items with `use_action: absorb_flame`; absorbed ones are in `crafting.flames` | Flames drop and trade as items |

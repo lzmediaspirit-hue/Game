@@ -53,6 +53,18 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 	if def.get("passive", false):
 		_wander(auth, e, delta, 0.4)
 		return
+	# Fear drives a monster away from its foe; Confusion leaves it stumbling back and forth, striking nothing
+	# (S13 statuses on monsters; the flute's melody and Sword Intent lay them).
+	if ai.state == "aggro" and (e.pools.has_status("fear") or e.pools.has_status("confusion")):
+		var foe := target_position(auth, e)
+		var dir := 1.0 if int(floor(auth.game.sim_time * 1.4 + float(e.uid) * 0.37)) % 2 == 0 else -1.0
+		if e.pools.has_status("fear") and not foe.is_empty(): dir = signf(e.plane.x - float(foe.pos.x))
+		if dir == 0.0: dir = 1.0
+		e.facing = int(dir)
+		e.velocity = Vector2(dir, 0) * float(def.get("ai", {}).get("move_speed", 90)) * (0.9 if e.pools.has_status("fear") else 0.45)
+		e.action = "walk"
+		auth.move_enemy(e, delta)
+		return
 	var tgt := target_position(auth, e)
 	var aggro_r := float(def.get("ai", {}).get("aggro_range", 200))
 	var c = auth.game.active()

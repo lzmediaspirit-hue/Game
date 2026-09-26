@@ -546,6 +546,292 @@
    "grade": "common"
   },
   {
+   "id": "mountain_cleaver",
+   "name": "Mountain Cleaver",
+   "family": "heavy_sabre",
+   "element": "metal",
+   "damage_type": "physical",
+   "mult": [
+    1.6,
+    1.9
+   ],
+   "hits": 1,
+   "max_targets": 3,
+   "hitbox": {
+    "x": [
+     -10,
+     110
+    ],
+    "depth": 30,
+    "alt": [
+     -30,
+     60
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 5,
+   "qi_cost": 12,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "blade",
+   "unlock": "qi_kindling_5",
+   "source": "library_1",
+   "desc": "A two-handed cleave through up to three foes; it always breaks their armour for 4 s.",
+   "action": "swing_3",
+   "icon": "mountain_cleaver",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "armour_break": {
+    "chance": 1.0,
+    "duration_s": 4
+   },
+   "grade": "common"
+  },
+  {
+   "id": "gale_fan",
+   "name": "Gale Fan",
+   "family": "fan",
+   "element": "wind",
+   "damage_type": "qi",
+   "mult": [
+    0.9,
+    1.1
+   ],
+   "hits": 1,
+   "max_targets": 4,
+   "hitbox": {
+    "x": [
+     -10,
+     180
+    ],
+    "depth": 50,
+    "alt": [
+     -10,
+     80
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 5,
+   "qi_cost": 12,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "fan",
+   "unlock": "qi_kindling_5",
+   "source": "library_1",
+   "desc": "A fan-stroke of wind 180 units long that throws up to four foes into the air.",
+   "action": "swing_2",
+   "icon": "gale_fan",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "knockup_s": 0.8,
+   "grade": "common"
+  },
+  {
+   "id": "reed_song",
+   "name": "Reed Song",
+   "family": "flute",
+   "element": "wood",
+   "damage_type": "qi",
+   "mult": [
+    0.55,
+    0.7
+   ],
+   "hits": 3,
+   "max_targets": 3,
+   "hitbox": {
+    "x": [
+     -10,
+     240
+    ],
+    "depth": 30,
+    "alt": [
+     -10,
+     80
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 5,
+   "qi_cost": 12,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "music",
+   "unlock": "qi_unfurling_1",
+   "source": "after_the_cleansing",
+   "desc": "Three notes that seek their mark; each may confuse its target for 1.5 s.",
+   "action": "attack",
+   "icon": "reed_song",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "projectile": {
+    "speed": 460,
+    "range": 320,
+    "count": 3,
+    "seek": true,
+    "art": "note"
+   },
+   "status": {
+    "id": "confusion",
+    "chance": 0.2,
+    "power": 1,
+    "duration_s": 1.5
+   },
+   "grade": "earth"
+  },
+  {
+   "id": "thunder_dao_arc",
+   "name": "Thunder Dao Arc",
+   "family": "heavy_sabre",
+   "element": "thunder",
+   "damage_type": "qi",
+   "mult": [
+    1.1,
+    1.4
+   ],
+   "hits": 1,
+   "max_targets": 8,
+   "hitbox": {
+    "x": [
+     -10,
+     110
+    ],
+    "depth": 30,
+    "alt": [
+     -10,
+     80
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 6,
+   "qi_cost": 15,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "blade",
+   "unlock": "qi_unfurling_1",
+   "source": "after_the_cleansing",
+   "desc": "A heavy arc of sabre Qi that rolls 300 units and breaks the armour of all it cuts.",
+   "action": "swing_3",
+   "icon": "thunder_dao_arc",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "projectile": {
+    "speed": 520,
+    "range": 300,
+    "count": 1,
+    "pierce": 8
+   },
+   "armour_break": {
+    "chance": 1.0,
+    "duration_s": 4
+   },
+   "grade": "earth"
+  },
+  {
+   "id": "returning_crane_fan",
+   "name": "Returning Crane Fan",
+   "family": "fan",
+   "element": "wind",
+   "damage_type": "physical",
+   "mult": [
+    0.8,
+    1.0
+   ],
+   "hits": 2,
+   "max_targets": 8,
+   "hitbox": {
+    "x": [
+     -10,
+     180
+    ],
+    "depth": 30,
+    "alt": [
+     -30,
+     60
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 6,
+   "qi_cost": 14,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "fan",
+   "unlock": "qi_unfurling_1",
+   "source": "after_the_cleansing",
+   "desc": "Throw the fan: it flies 300 units and comes back, cutting and lifting everything it passes, both ways.",
+   "action": "swing_2",
+   "icon": "returning_crane_fan",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "projectile": {
+    "speed": 540,
+    "range": 300,
+    "count": 1,
+    "pierce": 8,
+    "returning": true,
+    "art": "fan"
+   },
+   "knockup_s": 0.6,
+   "grade": "earth"
+  },
+  {
+   "id": "clear_heart_melody",
+   "name": "Clear Heart Melody",
+   "family": "flute",
+   "element": "water",
+   "damage_type": "buff",
+   "mult": [
+    0,
+    0
+   ],
+   "hits": 0,
+   "max_targets": 0,
+   "hitbox": {
+    "x": [
+     -10,
+     240
+    ],
+    "depth": 30,
+    "alt": [
+     -30,
+     60
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 20,
+   "qi_cost": 16,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "music",
+   "unlock": "qi_kindling_5",
+   "source": "library_1",
+   "desc": "A calming melody: you and every ally beside you recover 4% of your health a second for 6 s.",
+   "action": "attack",
+   "icon": "clear_heart_melody",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "allies_heal_pct": 0.04,
+   "allies_heal_s": 6,
+   "heal_radius": 220,
+   "grade": "common"
+  },
+  {
    "id": "rising_tide",
    "name": "Rising Tide",
    "family": "any",

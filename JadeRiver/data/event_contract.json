@@ -449,6 +449,18 @@
     "combat_authority"
    ]
   },
+  "melody_changed": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "melody_pulse": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
   "loot_dropped": {
    "system": "World",
    "files": [

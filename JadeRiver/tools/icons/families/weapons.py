@@ -289,9 +289,78 @@ def bow(grade):
     return finish(c, grade)
 
 
-BUILDERS = {'gauntlets': gauntlets, 'jian': jian, 'spear': spear, 'short_blade': short_blade, 'staff': staff,
-            'bow': bow}
+# ============================================================================ heavy sabre (v1.1)
+def heavy_sabre(grade):
+    """A broad, curved dao: ring pommel, wrapped grip, a disc guard and a blade that widens toward the tip."""
+    g = G(grade)
+    c = Canvas(32)
+    ring = c.ring(5.0, 26.5, 2.8, 1.4)
+    c.put(ring, g['guard'], 'flat', base=3)
+    tas = S.bez_line(c, (5.0, 29.2), (3.4, 29.9), (2.2, 29.8), 1.1)
+    c.put(tas, R['red'] if grade != 'mystic' else R['violet'], 'flat', base=2)
+    part(c, -21, -9, 31, 2, g['grip'], LV_ROUND)
+    wraps(c, band(c, -20, -10, 31, 2), R['hemp'] if grade == 'plain' else g['wrap'], 2 if grade == 'plain' else 3)
+    vc = lambda u: 31.0 + 0.005 * (u + 6) ** 2
+    hw = lambda u: np.where(u < 16, 2.8 + (u + 6) * 0.07, np.maximum(0, 4.3 - (u - 16) * 0.66))
+    lv = ((0.25, 3), (0.62, 2), (0.8, 1), (9, 4)) if grade != 'plain' else LV_FLATLIT
+    part(c, -6, 22, vc, hw, g["blade"], lv)
+    decorate_blade(c, grade, g, -2, 14, 31.6)
+    part(c, -9, -5, 31, 5.0, g['guard'], LV_ROUND)
+    if g['gem'] is not None:
+        part(c, -8, -6, 31, 1, g['gem'], ((0.5, 4), (9, 2)), sep=True)
+    return finish(c, grade)
 
-for _fam in ('gauntlets', 'jian', 'spear', 'short_blade', 'staff', 'bow'):
+
+# ============================================================================ fan (v1.1)
+def fan(grade):
+    """A folding fan opened in a quarter-circle: paper (silk above plain) on ribs of the grade's material."""
+    g = G(grade)
+    c = Canvas(32)
+    px, py, rad = 7.0, 25.5, 21.0
+    import math
+    arc = [(px + rad * math.cos(math.radians(a)), py - rad * math.sin(math.radians(a))) for a in range(8, 84, 4)]
+    paper = c.poly([(px, py)] + arc)
+    inner = c.circle(px, py, rad * 0.36)
+    leaf = {'plain': R['paper'], 'common': R['paper'], 'earth': R['jade'], 'heaven': R['cloud'], 'mystic': R['violetsilk'],
+            'spirit': R['sky'], 'sage': R['gold']}[grade]
+    c.put(paper & ~inner, leaf, 'flat', base=3)
+    # Folds: alternate panels a shade darker.
+    for k, a in enumerate(range(8, 84, 8)):
+        a0, a1 = math.radians(a), math.radians(a + 4)
+        panel = c.poly([(px, py), (px + rad * math.cos(a0), py - rad * math.sin(a0)), (px + rad * math.cos(a1), py - rad * math.sin(a1))])
+        c.put(panel & paper & ~inner, leaf[2], 'flat', only_on=True)
+    # An ink band near the edge, and the ribs gathered into the pivot.
+    edge = paper & ~c.circle(px, py, rad - 3.0) & c.circle(px, py, rad - 1.5)
+    c.put(edge, R['ink'] if grade in ('plain', 'common') else g['accent'], 'flat', base=2, only_on=True)
+    rib_col = R['darkwood'] if grade == 'plain' else g['guard']
+    for a in range(8, 88, 8):
+        rib = c.seg(px, py, px + rad * 0.4 * math.cos(math.radians(a)), py - rad * 0.4 * math.sin(math.radians(a)), 1.2)
+        c.put(rib, rib_col, 'flat', base=2)
+    c.put(c.circle(px, py, 1.6), R['gold'], 'flat', base=4)
+    return finish(c, grade)
+
+
+# ============================================================================ flute (v1.1, the Music path)
+def flute(grade):
+    """A transverse flute along the diagonal: bamboo (or the grade's stone) with joints, finger holes and a tassel."""
+    g = G(grade)
+    c = Canvas(32)
+    body = {'plain': R['bamboo'], 'common': R['bamboo'], 'earth': R['jade'], 'heaven': R['cloud'], 'mystic': R['mistjade'],
+            'spirit': R['sky'], 'sage': R['gold']}[grade]
+    part(c, -26, 26, 31.5, 1.6, body, LV_ROUND)
+    for uc in (-18, -4, 10, 22):
+        part(c, uc, uc, 31.5, 1.8, g['accent'] if grade != 'plain' else R['darkwood'], LV_ROUND)
+    u, v = UV(c)
+    holes = band(c, -14, 18, 30.5, 0) & (((u + 14) % 5) == 0) & c.a
+    c.put(holes, R['ink'], 'flat', base=0, only_on=True)
+    tas = S.bez_line(c, (6.5, 25.5), (3.2, 26.8), (3.4, 29.6), 1.3)
+    c.put(tas, R['red'] if grade != 'mystic' else R['violet'], 'flat', base=2)
+    return finish(c, grade)
+
+
+BUILDERS = {'gauntlets': gauntlets, 'jian': jian, 'spear': spear, 'short_blade': short_blade, 'staff': staff,
+            'bow': bow, 'heavy_sabre': heavy_sabre, 'fan': fan, 'flute': flute}
+
+for _fam in ('gauntlets', 'jian', 'spear', 'short_blade', 'staff', 'bow', 'heavy_sabre', 'fan', 'flute'):
     for _word, _grade in GRADE_WORDS:
         register(FAM, '%s_%s' % (_word, _fam), (lambda f=_fam, gr=_grade: BUILDERS[f](gr)), GROUP)

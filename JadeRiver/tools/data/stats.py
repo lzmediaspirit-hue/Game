@@ -315,6 +315,10 @@ def build():
         # S48 Qi Deviation: after a failed breakthrough at Severe risk or on a Poor method, each technique strikes with a
         # random element for 10 minutes.
         {"id": "qi_deviation", "resist": "none", "icon": "qi_deviation", "scramble_element": True},
+        # S47 v1.1 weapon families: the heavy sabre breaks armour (hits ignore a quarter of its defence); the fan's
+        # wind throws a foe into the air, helpless until it lands.
+        {"id": "sundered", "resist": "tenacity", "icon": "vulnerable", "pierce_defence": 0.25},
+        {"id": "launched", "resist": "body", "cc": True, "blocks": ["move", "attack"], "icon": "stun", "lift": 46},
     ])
 
     entries("weapon_families.json", [
@@ -354,6 +358,31 @@ def build():
          "combo": [{"action": "thrust_1", "duration": 0.66, "hit_at": 0.34, "mult": 1.0, "knockback": 30},
                    {"action": "thrust_2", "duration": 0.7, "hit_at": 0.36, "mult": 1.05, "knockback": 30},
                    {"action": "thrust_3", "duration": 0.85, "hit_at": 0.45, "mult": 1.3, "knockback": 60}]},
+        # S47 v1.1: the heavy sabre (fills the Blade Dao beside the short blade): slow, a cleave that hits three, and
+        # an edge that breaks armour.
+        {"id": "heavy_sabre", "appearance": ["sabre"], "range": [0.8, 1.25], "hits_per_s": 0.75, "reach": 92, "crit": 0.04,
+         "scales": ["body", "agility"], "guard": 0.45, "parry_s": 0.18, "dao": "blade", "hud_glyph": "sabre", "depth": 34,
+         "altitude": [-30, 60], "line_targets": 3, "armour_break": {"chance": 0.3, "duration_s": 4},
+         "combo": [{"action": "swing_1", "duration": 0.72, "hit_at": 0.36, "mult": 1.1},
+                   {"action": "swing_2", "duration": 0.78, "hit_at": 0.38, "mult": 1.15},
+                   {"action": "swing_3", "duration": 0.95, "hit_at": 0.5, "mult": 1.5, "knockback": 40, "armour_break": 1.0}]},
+        # The fan: mid-range wind, and on the third stroke a returning throw that lifts what it strikes.
+        {"id": "fan", "appearance": ["fan"], "range": [0.85, 1.15], "hits_per_s": 1.1, "reach": 140, "crit": 0.05,
+         "scales": ["agility", "insight"], "guard": 0.3, "parry_s": 0.2, "dao": "fan", "hud_glyph": "fan", "depth": 36,
+         "altitude": [-30, 80], "line_targets": 2,
+         "combo": [{"action": "swing_1", "duration": 0.5, "hit_at": 0.24, "mult": 1.0},
+                   {"action": "swing_2", "duration": 0.55, "hit_at": 0.26, "mult": 1.0},
+                   {"action": "swing_3", "duration": 0.7, "hit_at": 0.34, "mult": 1.2,
+                    "throw": {"speed": 520, "range": 280, "art": "fan", "knockup_s": 0.8}}]},
+        # The flute (the Music path): a note flies at the tap; hold Attack to channel a melody aura that slows and
+        # confuses foes near you and heals your allies, paid for in Composure.
+        {"id": "flute", "appearance": ["flute"], "range": [0.9, 1.1], "hits_per_s": 1.0, "reach": 240, "crit": 0.03,
+         "scales": ["insight", "essence"], "guard": 0.25, "parry_s": 0.15, "dao": "music", "hud_glyph": "flute", "depth": 30,
+         "altitude": [0, 90], "ranged": True, "projectile_speed": 460, "projectile_art": "note", "damage_type": "qi",
+         "channel": {"radius": 220, "tick_s": 0.5, "composure_per_s": 8, "hold_s": 0.35, "slow": {"power": 0.3, "duration_s": 1.2},
+                     "confusion_chance": 0.08, "confusion_s": 1.5, "ally_heal_pct": 0.02, "self_heal_pct": 0.01,
+                     "move_factor": 0.5, "min_composure": 5},
+         "combo": [{"action": "attack", "duration": 0.6, "hit_at": 0.3, "mult": 0.9, "projectile": "note"}]},
         {"id": "bow", "appearance": ["bow"], "range": [0.75, 1.25], "hits_per_s": 0.9, "reach": 480, "crit": 0.05,
          "scales": ["agility", "insight"], "guard": 0.0, "parry_s": 0.0, "dao": "bow", "hud_glyph": "bow", "depth": 26,
          "altitude": [20, 110], "ranged": True, "projectile_speed": 620,

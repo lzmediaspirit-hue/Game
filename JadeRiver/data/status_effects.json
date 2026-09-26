@@ -155,6 +155,23 @@
    "resist": "none",
    "icon": "qi_deviation",
    "scramble_element": true
+  },
+  {
+   "id": "sundered",
+   "resist": "tenacity",
+   "icon": "vulnerable",
+   "pierce_defence": 0.25
+  },
+  {
+   "id": "launched",
+   "resist": "body",
+   "cc": true,
+   "blocks": [
+    "move",
+    "attack"
+   ],
+   "icon": "stun",
+   "lift": 46
   }
  ]
 }

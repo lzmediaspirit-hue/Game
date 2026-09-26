@@ -75,6 +75,7 @@ func _main() -> void:
 	territory_suite()
 	depth_hooks_suite()
 	v2_hooks_suite()
+	weapon_families_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -303,6 +304,166 @@ func sword_loadout_suite() -> void:
 		var k: int = c.inventory.first_index(id)
 		if k >= 0: Game.inventory.apply_remove_index(c.id, k, 1, "test")
 	if foe != null and foe.alive: foe.alive = false
+
+# ------------------------------------------------------------------ S47 v1.1 weapon families: heavy sabre, fan, flute
+## Put a fresh weapon of this id straight into the hand (wearing rules are tested elsewhere); returns what was held.
+func _wield(c, item_id: String):
+	Game.inventory.apply_add_equipment(c.id, item_id, 14, "common", "test")
+	var i: int = c.inventory.first_index(item_id)
+	var held = c.inventory.equipped.get("weapon")
+	c.inventory.equipped["weapon"] = c.inventory.bag[i]
+	c.inventory.bag[i] = null
+	Game.combat.refresh_stats(c.id)
+	return held
+
+func _idle_hands(c) -> void:
+	for i in 40:
+		if not Game.combat.is_busy(c.id): break
+		Game.tick(0.05)
+	GameEvents.flush()
+
+func weapon_families_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var st: ActorState = Game.actor_state(c.id)
+	Game.world.apply_teleport(c.id, "wp_west")
+	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear"]: Game.combat.cure_status(c.id, sid)
+	Unlocks.force_unlock(c.id, "attack")
+	Unlocks.force_unlock(c.id, "composure")
+	for fam_id in ["heavy_sabre", "fan", "flute"]:
+		var fam := ContentDB.entry("weapon_families", fam_id)
+		var look := str(fam.get("appearance", [""])[0])
+		check(not fam.is_empty() and Wardrobe.parts.weapon.has(look) and Wardrobe.parts._attack_by_weapon.has(look), "the %s family exists with its avatar weapon (%s)" % [fam_id, look])
+		for grade in ["training", "iron", "jadeiron", "cloudsteel"]:
+			check(ContentDB.entry("artifacts", "%s_%s" % [grade, fam_id]).get("family", "") == fam_id, "%s %s is a %s" % [grade, fam_id, fam_id])
+	var heard := {"hits": {}, "arts": {}, "pulse": 0, "melody_off": ""}
+	var listen := func(n: String, p: Dictionary):
+		if n == "hit_landed" and str(p.get("target_kind", "")) == "enemy":
+			heard.hits[str(p.target)] = int(heard.hits.get(str(p.target), 0)) + 1
+		if n == "projectile_spawned": heard.arts[str(p.art)] = int(heard.arts.get(str(p.art), 0)) + 1
+		if n == "melody_pulse": heard.pulse = int(heard.pulse) + 1
+		if n == "melody_changed" and not p.get("on", false): heard.melody_off = str(p.get("reason", ""))
+	GameEvents.event.connect(listen)
+	var lv := ProgressionRules.level(c) + 12
+	# The heavy sabre: slow, a cleave that reaches three foes in a line, and armour break.
+	var held_before = _wield(c, "iron_heavy_sabre")
+	check(str(StatRules.family(c).id) == "heavy_sabre", "an iron heavy sabre puts the heavy sabre family in hand")
+	var foes: Array = []
+	for i in 3: foes.append(Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(36 + i * 20, 0), lv))
+	_idle_hands(c)
+	heard.hits = {}
+	Game.combat.basic_attack(c, 1)
+	for i in 20:
+		Game.tick(0.05)
+	GameEvents.flush()
+	var struck := 0
+	for f in foes:
+		if heard.hits.has(str(f.uid)): struck += 1
+	check(struck >= 2, "one sabre cleave strikes several foes in a line (%d of 3)" % struck)
+	var foe: EnemyState = foes[0]
+	Game.combat._weapon_after_hit(c, foe, {"armour_break": {"chance": 1.0, "duration_s": 4}})
+	check(foe.pools.has_status("sundered"), "an armour break leaves the foe Sundered")
+	var pv := Game.combat.player_view(c)
+	pv["accuracy"] = 99999.0
+	var ev := Game.combat.enemy_view(foe)
+	ev["physical_defense"] = 400.0
+	var atk := {"damage_type": "physical", "element": "none", "mult": [1.0, 1.0], "range": [1.0, 1.0], "source": "test"}
+	var r1 := CombatRules.resolve(pv, ev, atk, Rng.keyed(7, "sunder"))
+	ev["sundered"] = false
+	var r2 := CombatRules.resolve(pv, ev, atk, Rng.keyed(7, "sunder"))
+	check(int(r1.amount) > int(r2.amount), "a Sundered foe takes more from every blow (%d > %d)" % [int(r1.amount), int(r2.amount)])
+	# The fan: wind that lifts a foe (helpless until it lands) and a third stroke thrown out and back.
+	_wield(c, "iron_fan")
+	var foe2: EnemyState = foes[1]
+	Game.combat._weapon_after_hit(c, foe2, {"knockup_s": 0.8})
+	check(foe2.pools.has_status("launched") and foe2.pools.blocked("move") and foe2.pools.blocked("attack"), "the fan's wind launches a foe: it can neither move nor strike")
+	for i in 8: Game.tick(0.05)
+	check(foe2.hover > 20.0, "a launched foe rises into the air (%.0f)" % foe2.hover)
+	for i in 14: Game.tick(0.05)
+	check(not foe2.pools.has_status("launched") and foe2.hover == 0.0, "and lands when it ends")
+	for f in foes:
+		f.alive = false
+	var target: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(130, 0), lv)
+	_idle_hands(c)
+	heard.hits = {}
+	heard.arts = {}
+	var fam_fan := ContentDB.entry("weapon_families", "fan")
+	Game.combat._start_step(c, fam_fan, 2, 1)
+	for i in 50:
+		Game.tick(0.05)
+	GameEvents.flush()
+	check(int(heard.arts.get("fan", 0)) == 1, "the fan's third stroke throws the fan")
+	check(int(heard.hits.get(str(target.uid), 0)) >= 2, "the thrown fan cuts on its way out and again on its way back (%d)" % int(heard.hits.get(str(target.uid), 0)))
+	target.alive = false
+	# The flute: a note of Qi at the tap; held, a melody aura that slows, heals and drains Composure.
+	_wield(c, "iron_flute")
+	_idle_hands(c)
+	heard.arts = {}
+	Game.combat.basic_attack(c, 1)
+	for i in 14: Game.tick(0.05)
+	GameEvents.flush()
+	check(int(heard.arts.get("note", 0)) == 1, "a flute's tap sends a note")
+	_idle_hands(c)
+	var near_foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(120, 0), lv)
+	var ally: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(-80, 0), 5)
+	ally.team = "ally"
+	ally.pools.hp = ally.pools.max_hp * 0.5
+	c.pools.composure = 100.0
+	c.pools.hp = c.pools.max_hp * 0.6
+	var hp0: float = c.pools.hp
+	var on := Game.submit({"type": "channel_melody", "on": true})
+	check(on.get("ok", false) and Game.combat.is_playing(c.id), "holding Attack with a flute plays the melody (%s)" % str(on))
+	check(Game.combat.move_factor(c.id) <= 0.5 + 0.001, "the player walks at half pace while playing")
+	for i in 22: Game.tick(0.05)
+	GameEvents.flush()
+	check(int(heard.pulse) >= 2, "the melody pulses every half second (%d)" % int(heard.pulse))
+	check(near_foe.pools.has_status("slow"), "foes within the aura are slowed")
+	check(ally.pools.hp > ally.pools.max_hp * 0.5 and c.pools.hp > hp0, "allies and the player recover health as it plays")
+	check(c.pools.composure < 100.0 - 6.0, "the melody drains Composure (%.1f)" % c.pools.composure)
+	Game.submit({"type": "channel_melody", "on": false})
+	GameEvents.flush()
+	check(not Game.combat.is_playing(c.id) and heard.melody_off == "released", "letting go ends it")
+	c.pools.composure = 1.0
+	Game.submit({"type": "channel_melody", "on": true})
+	check(not Game.combat.is_playing(c.id), "it will not start with almost no Composure")
+	c.pools.composure = 6.0
+	Game.submit({"type": "channel_melody", "on": true})
+	for i in 30: Game.tick(0.05)
+	GameEvents.flush()
+	check(not Game.combat.is_playing(c.id) and heard.melody_off == "composure", "it ends when Composure runs out")
+	# Confusion and Fear now move a monster: a feared foe backs away instead of closing in.
+	near_foe.ai.state = "aggro"
+	near_foe.ai.timer = 0.0
+	var d0: float = absf(near_foe.plane.x - st.plane.x)
+	Game.combat.apply_enemy_status(near_foe, {"id": "fear", "power": 1.0, "remaining": 1.5, "source": c.id})
+	for i in 10: Game.tick(0.05)
+	check(absf(near_foe.plane.x - st.plane.x) > d0 + 10.0 and str(near_foe.ai.state) == "aggro", "a feared monster runs from its foe")
+	# Clear Heart Melody: 4% a second for 6 s on the caster and every ally within 220.
+	ally.pools.hp = ally.pools.max_hp * 0.5
+	var healed := Game.combat.heal_circle(c, 0.04, 6.0, 220.0, "test")
+	for i in 20: Game.tick(0.05)
+	check(healed >= 1 and ally.pools.hp > ally.pools.max_hp * 0.52, "Clear Heart Melody heals the allies beside the player over time (%d, %.2f)" % [healed, ally.pools.hp / ally.pools.max_hp])
+	var ch := ContentDB.entry("techniques", "clear_heart_melody")
+	check(float(ch.get("allies_heal_pct", 0)) == 0.04 and not ch.has("buff"), "Clear Heart Melody is a healing song, not a resting buff")
+	# Their techniques carry the families' traits, and the library ones are taught by the Mission Hall.
+	check(ContentDB.entry("techniques", "thunder_dao_arc").has("armour_break"), "the heavy sabre's arc breaks armour")
+	check(bool(ContentDB.entry("techniques", "returning_crane_fan").projectile.get("returning", false)), "Returning Crane Fan flies out and back")
+	check(str(ContentDB.entry("techniques", "reed_song").projectile.get("art", "")) == "note", "Reed Song sends notes")
+	var hall := ContentDB.entry("shops", "jade_sect")
+	var taught := {}
+	for sitem in hall.get("stock", []):
+		if str(sitem.get("item", "")) == "technique_manual": taught[str(sitem.learn)] = true
+	var missing := []
+	for t in ContentDB.all("techniques"):
+		if str(t.get("source", "")) in ["library_1", "library_2", "library_3"] and not taught.has(str(t.id)): missing.append(str(t.id))
+	check(missing.is_empty() and taught.has("clear_heart_melody") and taught.has("gale_fan"), "the Jade Sect Mission Hall teaches every library technique (missing %s)" % str(missing))
+	GameEvents.event.disconnect(listen)
+	near_foe.alive = false
+	ally.alive = false
+	Game.combat.ally_hots.clear()
+	c.inventory.equipped["weapon"] = held_before
+	Game.combat.refresh_stats(c.id)
+	c.pools.composure = 100.0
 
 # ------------------------------------------------------------------ S47 natal treasure, wardrobe, blood-drop, rogue cultivators
 func natal_wardrobe_suite() -> void:
