@@ -266,6 +266,19 @@ static func text_width(text: String, size: int, display := false) -> float:
 	_widths[key] = w
 	return w
 
+static var _fitted: Dictionary = {}   # fitted lines drawn every frame are shortened once
+
+## `s` shortened with an ellipsis so it fits `width` at `size`, measured at the size it is drawn (never under MIN_SIZE).
+static func fit(s: String, size: int, width: float, display := false) -> String:
+	if text_width(s, size, display) <= width: return s
+	var key := "%d|%s|%d|%.2f|%s" % [size, display, int(width), text_scale(), s]
+	if _fitted.has(key): return _fitted[key]
+	var n := s.length()
+	while n > 1 and text_width(s.left(n) + "…", size, display) > width: n -= 1
+	if _fitted.size() > 2000: _fitted.clear()
+	_fitted[key] = s.left(n).strip_edges() + "…"
+	return _fitted[key]
+
 static func quality_color(q: String) -> Color:
 	return Color(str(ContentDB.config("grades").get("quality_colors", {}).get(q, "#e8e1cf")))
 

@@ -387,6 +387,11 @@ func ui_fixes_suite() -> void:
 		and ContentDB.realm_label("sphere_lord_3").ends_with(str(int(ContentDB.realm("sphere_lord_3").level))), "B15: halfway through Sphere Lord 3 is Level %d, and says so" % lv)
 	c.cultivator.realm_key = realm_was
 	c.cultivator.qp = qp_was
+	# B11: a tracker objective keeps its count whole at the right end; the words give way.
+	var hud_script = load("res://scripts/hud.gd")
+	var words: String = hud_script.tracker_objective("· Net glowflies at the Reed Shallows beside the lotus ferry", "0/5", 290.0)
+	check(words.ends_with("…") and UiKit.text_width(words, 16) + 10.0 + UiKit.text_width("0/5", 16) <= 290.0
+		and hud_script.tracker_objective("· Talk to Aunt Ping", "0/5", 290.0) == "· Talk to Aunt Ping", "B11: the count stays whole beside \"%s\"" % words)
 
 func text_suite() -> void:
 	var probe := "Pick up Herbal Tea"

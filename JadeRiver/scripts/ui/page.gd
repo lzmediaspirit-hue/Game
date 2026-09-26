@@ -219,18 +219,9 @@ func _log_text(pos: Vector2, s: String, size: int, align: int, width: float, dis
 	elif width > 0.0 and align == HORIZONTAL_ALIGNMENT_RIGHT: x += width - w
 	text_log.append({"rect": Rect2(x, pos.y - px * 0.7, w, px * 0.9), "s": s, "button": button})
 
-## `s` shortened with an ellipsis so it fits `width` at `size` (measured at the size it is drawn, never under MIN_SIZE).
+## `s` shortened with an ellipsis so it fits `width` at `size` (UiKit.fit).
 func fit(s: String, size: int, width: float, display := false) -> String:
-	if UiKit.text_width(s, size, display) <= width: return s
-	var key := "%d|%s|%d|%.2f|%s" % [size, display, int(width), UiKit.text_scale(), s]
-	if _fitted.has(key): return _fitted[key]
-	var n := s.length()
-	while n > 1 and UiKit.text_width(s.left(n) + "…", size, display) > width: n -= 1
-	if _fitted.size() > 2000: _fitted.clear()
-	_fitted[key] = s.left(n).strip_edges() + "…"
-	return _fitted[key]
-
-static var _fitted: Dictionary = {}   # fitted lines drawn every frame are shortened once
+	return UiKit.fit(s, size, width, display)
 
 func heading(pos: Vector2, s: String, width := 400.0) -> void:
 	# A long heading steps its size down to fit its width rather than being cut off at the edge.
