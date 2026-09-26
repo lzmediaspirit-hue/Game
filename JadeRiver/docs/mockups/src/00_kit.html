@@ -1,0 +1,163 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>00 kit sheet</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  .k-screen { background: radial-gradient(ellipse at 50% 0%, #0f2c33, var(--river-night) 60%, #071418); }
+  .cap { position: absolute; font-size: 14px; color: var(--mist); white-space: nowrap; text-shadow: 0 1px 0 rgba(0,0,0,.6); }
+  .cap b { color: var(--pale-gold); font-weight: 700; }
+  .sec { position: absolute; font-family: var(--f-display); font-weight: 700; font-size: 26px; color: var(--gold); white-space: nowrap;
+    text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+  .chip { display: inline-flex; align-items: center; height: 26px; padding: 0 9px; border-radius: 13px; background: rgba(7,16,21,.85);
+    border: 1px solid rgba(255,255,255,.12); font-size: 14px; font-weight: 700; margin: 0 4px 5px 0; }
+  .tsr { position: absolute; left: 0; white-space: nowrap; }
+  .tsn { position: absolute; right: 0; font-size: 14px; color: var(--mist); white-space: nowrap; text-align: right; }
+</style></head>
+<body><div class="k-screen">
+
+<!-- ============ column 1: frames, slots, buttons, tabs, toast, bands ============ -->
+<div class="sec" style="left:16px;top:4px">Frames</div>
+<div class="k-major-window abs" style="left:16px;top:40px;width:206px;height:126px"><div class="t-sm c-mist" style="margin-top:-4px">major_window</div><div class="t-xs c-mist">margin 32 · pages</div></div>
+<div class="k-minor-panel abs" style="left:232px;top:40px;width:172px;height:60px"><div class="t-sm c-paper" style="margin-top:-2px">minor_panel</div><div class="t-xs c-mist">margin 12 · cards</div></div>
+<div class="k-tooltip abs" style="left:232px;top:106px;width:172px;height:60px"><div class="t-sm c-pale" style="margin-top:-2px">tooltip</div><div class="t-xs c-mist">margin 10 · details</div></div>
+
+<div class="cap" style="left:16px;top:172px"><b>slot</b> normal · selected + glow · disabled · empty · grade rim</div>
+<div class="k-slot abs" style="left:16px;top:194px;width:64px;height:64px"><img class="ic" src="../../../art/icons/items/herbal_tea.png"><span class="k-count t-fig t-sm t-outline">38</span></div>
+<div class="k-slot is-selected abs" style="left:94px;top:194px;width:64px;height:64px"><img class="ic" src="../../../art/icons/equipment/ink_warden_brush.png"><div class="k-slot-glow"></div></div>
+<div class="k-slot is-disabled abs" style="left:172px;top:194px;width:64px;height:64px"><img class="ic" src="../../../art/icons/items/law_touching_pill.png"></div>
+<div class="k-slot is-empty abs" style="left:250px;top:194px;width:64px;height:64px"></div>
+<div class="k-slot abs" style="left:328px;top:194px;width:64px;height:64px"><img class="ic" src="../../../art/icons/equipment/sunsilk_robe.png"><div class="k-qrim" style="--q:var(--q-superior)"></div></div>
+
+<div class="cap" style="left:16px;top:266px"><b>button_primary</b> normal · pressed · disabled (a tap explains)</div>
+<div class="k-btn abs" style="left:16px;top:288px;width:124px">Meditate</div>
+<div class="k-btn is-pressed abs" style="left:148px;top:288px;width:124px">Meditate</div>
+<div class="k-btn is-disabled abs" style="left:280px;top:288px;width:124px">Break<span class="k-lock-mini"></span></div>
+<div class="cap" style="left:16px;top:342px"><b>button_secondary</b> normal · pressed · disabled</div>
+<div class="k-btn2 abs" style="left:16px;top:364px;width:124px">Details</div>
+<div class="k-btn2 is-pressed abs" style="left:148px;top:364px;width:124px">Details</div>
+<div class="k-btn2 is-disabled abs" style="left:280px;top:364px;width:124px">Reset<span class="k-lock-mini"></span></div>
+
+<div class="cap" style="left:16px;top:418px"><b>tab</b> selected · normal · locked (48 px tall)</div>
+<div class="k-tabs abs" style="left:16px;top:440px">
+  <div class="k-tab is-selected">Overview</div><div class="k-tab" style="min-width:96px">Heart</div><div class="k-tab is-locked" style="min-width:96px">Dao<span class="k-lock-mini"></span></div>
+</div>
+
+<div class="cap" style="left:16px;top:494px"><b>toast</b> · the unlock line a stage brings (E5)</div>
+<div class="k-toast abs" style="left:16px;top:516px;width:388px;height:62px;padding:6px 20px">
+  <div class="t-md c-pale">Formation Guild opened</div><div class="t-sm c-paper">Heart Tempering 5 · array plates</div>
+</div>
+
+<div class="cap" style="left:16px;top:586px"><b>stage bands</b> (C3) · <b>next unlock</b> (E5) · <b>requirement</b></div>
+<div class="abs flex" style="left:16px;top:608px;gap:6px">
+  <span class="k-band is-early">Early 1–3</span><span class="k-band is-middle">Middle 4–6</span><span class="k-band is-late">Late 7–8</span><span class="k-band is-peak">Peak 9</span>
+</div>
+<div class="abs" style="left:16px;top:640px"><span class="k-unlock"><img class="ic" src="../../../art/icons/items/array_plate.png">Opens: Array plates</span></div>
+<div class="k-realm-badge abs t-sm c-pale" style="left:236px;top:640px;height:32px">Sphere Lord 3</div>
+<div class="k-req is-met abs t-sm" style="left:16px;top:680px"><span class="dot">✓</span><span>Heart Trial passed</span></div>
+<div class="k-req is-hard abs t-sm" style="left:196px;top:680px"><span class="dot"></span><span class="c-pale">Qi Refining Pill ×1</span></div>
+
+<!-- ============ column 2: plaque, bars, pills, close, dialogue, portrait, minimap, badges, labels ============ -->
+<div class="k-plaque abs" style="left:432px;top:4px;width:400px"><span class="t-title">Cultivation</span></div>
+<div class="cap" style="left:432px;top:68px"><b>title_plaque</b> scales with its height (--h) · 41 px Cormorant</div>
+
+<div class="cap" style="left:432px;top:92px"><b>bar + reward stops</b> (E4) · Sword Dao, a stop at each tier</div>
+<div class="k-bar is-jade abs" style="left:432px;top:120px;width:400px;--v:0.882">
+  <div class="k-trough"><div class="k-fill"></div></div>
+  <div class="k-tick is-done" style="--at:0.1667"></div><div class="k-tick is-done" style="--at:0.3333"></div><div class="k-tick is-done" style="--at:0.5"></div>
+  <div class="k-tick is-done" style="--at:0.6667"></div><div class="k-tick is-done" style="--at:0.8333"></div><div class="k-tick is-next" style="--at:1"></div>
+  <div class="k-bar-text t-fig t-outline c-paper">Adaptation · 7,026 / 12,000</div>
+</div>
+<div class="abs t-xs c-pale t-outline" style="left:432px;top:154px;width:400px;text-align:right">Next stop 12,000 · Original Application</div>
+
+<div class="cap" style="left:432px;top:178px"><b>HUD bars</b> · the numeral fix (review G2)</div>
+<div class="abs t-xs c-hollow" style="left:432px;top:199px">before</div>
+<div class="abs t-xs" style="left:486px;top:199px;color:var(--hud-label)">HP</div>
+<div class="k-hudbar abs" style="left:514px;top:202px;width:210px;--v:0.74"><div class="k-fill"></div><div class="k-v t-num t-outline" style="font-size:16px">21,806/29,431</div></div>
+<div class="abs t-xs c-red" style="left:734px;top:199px">reads "Z1,806"</div>
+<div class="abs t-xs c-jade" style="left:432px;top:225px">after</div>
+<div class="abs t-xs" style="left:486px;top:225px;color:var(--hud-label)">HP</div>
+<div class="k-hudbar abs" style="left:514px;top:228px;width:210px;--v:0.74"><div class="k-fill"></div><div class="k-v t-fig t-outline c-paper">21,806 / 29,431</div></div>
+<div class="abs t-xs" style="left:486px;top:249px;color:var(--hud-label)">QI</div>
+<div class="k-hudbar is-qi abs" style="left:514px;top:253px;width:210px;--v:0.63"><div class="k-fill"></div><div class="k-v t-fig t-outline c-paper">8,412 / 13,312</div></div>
+<div class="abs t-xs" style="left:486px;top:271px;color:var(--hud-label)">SL</div>
+<div class="k-hudbar is-soul abs" style="left:514px;top:275px;width:210px;--v:0.79"><div class="k-fill"></div><div class="k-v t-fig t-outline c-paper">3,916 / 4,945</div></div>
+<div class="abs t-xs c-jade" style="left:734px;top:225px">serif figures</div>
+<div class="abs t-num-lg c-gold t-outline" style="left:744px;top:246px">18.2K</div>
+<div class="cap" style="left:734px;top:276px">Pixelify ≥ 20</div>
+
+<div class="cap" style="left:432px;top:300px"><b>currency_pill</b></div>
+<div class="abs flex" style="left:432px;top:322px;gap:8px">
+  <div class="k-pill"><img class="ic" src="../../../art/icons/hud/coin.png"><span class="v">78,541</span></div>
+  <div class="k-pill"><img class="ic" src="../../../art/icons/hud/spirit_stone.png"><span class="v" style="color:var(--bright-jade)">6,690</span></div>
+  <div class="k-pill"><img class="ic" src="../../../art/icons/items/sage_crystal.png"><span class="v">613</span></div>
+</div>
+<div class="cap" style="left:740px;top:300px"><b>close</b></div>
+<div class="k-close abs" style="left:724px;top:314px"></div>
+<div class="k-close is-pressed abs" style="left:782px;top:314px"></div>
+
+<div class="cap" style="left:432px;top:372px"><b>dialogue_box</b> · <b>portrait_frame</b></div>
+<div class="k-dialogue abs" style="left:432px;top:394px;width:400px;height:104px;padding:12px 18px 12px 112px">
+  <div class="t-label t-md" style="color:var(--bronze)">Peddler Ning</div>
+  <div class="t-sm" style="color:var(--ink);line-height:1.25">Jelly silk wraps, fresh from the Shoals! They only sting a little.</div>
+</div>
+<div class="k-portrait abs" style="left:446px;top:404px;width:84px;height:84px">
+  <img class="abs" src="../assets/portrait_peddler_ning.png" style="left:0;top:0;width:84px;height:84px;image-rendering:pixelated">
+</div>
+
+<div class="cap" style="left:432px;top:508px"><b>minimap_frame</b> (22 px header)</div>
+<div class="k-minimap abs" style="left:432px;top:530px;width:232px;height:140px">
+  <div class="k-minimap-title">Harbor Market</div>
+  <div class="abs" style="left:10px;top:100px;width:212px;height:2px;background:rgba(217,235,230,.55)"></div>
+  <div class="abs" style="left:40px;top:66px;width:58px;height:2px;background:rgba(217,235,230,.8)"></div>
+  <div class="abs" style="left:150px;top:70px;width:52px;height:2px;background:rgba(217,235,230,.8)"></div>
+  <div class="abs" style="left:118px;top:92px;width:6px;height:6px;border-radius:50%;background:var(--gold)"></div>
+  <div class="abs" style="left:104px;top:91px;width:0;height:0;border-left:9px solid #fff;border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
+  <div class="abs" style="left:14px;top:94px;width:8px;height:8px;border-radius:50%;background:#67d67a"></div>
+</div>
+<div class="cap" style="left:680px;top:508px"><b>badges</b> count · seal · new</div>
+<div class="abs" style="left:680px;top:530px;width:150px;height:44px">
+  <div class="k-badge" style="left:6px;top:12px">3</div>
+  <div class="k-seal" style="left:52px;top:8px">✓</div>
+  <div class="k-new" style="left:104px;top:17px"></div>
+</div>
+<div class="cap" style="left:680px;top:580px"><b>world labels</b></div>
+<div class="k-nameplate" style="left:756px;top:602px"><div class="n">Peddler Ning</div><div class="s">Harbour peddler</div></div>
+<div class="k-foe" style="left:756px;top:650px;color:var(--badge-white)"><span class="lv">Lv 92</span>Ashborn Raider</div>
+<div class="k-foe is-elite" style="left:756px;top:676px"><i class="k-crown"></i><span class="lv">Lv 91</span>Pyre Keeper</div>
+
+<!-- ============ column 3: HUD rings, type scale, grade colours ============ -->
+<div class="sec" style="left:864px;top:4px">HUD rings</div>
+<div class="cap" style="left:1004px;top:14px">large 132 · medium 64 · small 52</div>
+<div class="k-hud k-hud-lg" style="left:932px;top:108px"><img class="ic ic-64" src="../../../art/icons/hud/brush.png"></div>
+<div class="k-hud k-hud-lg is-pressed" style="left:1066px;top:108px"><img class="ic ic-64" src="../../../art/icons/hud/brush.png"></div>
+<div class="k-hud k-hud-lg is-active" style="left:1200px;top:108px"><img class="ic ic-64" src="../../../art/icons/hud/talk.png"></div>
+<div class="k-hud k-hud-md" style="left:900px;top:226px"><img class="ic ic-48" src="../../../art/icons/techniques/splashed_ink.png"></div>
+<div class="k-hud k-hud-md is-pressed" style="left:970px;top:226px"><img class="ic ic-48" src="../../../art/icons/techniques/upright_glyph.png"></div>
+<div class="k-hud k-hud-md is-active" style="left:1040px;top:226px"><img class="ic ic-32 is-gold" src="../../../art/icons/hud/cultivate.png"></div>
+<div class="k-hud k-hud-sm" style="left:1112px;top:226px"><img class="ic ic-32" src="../../../art/icons/hud/fan.png"></div>
+<div class="k-hud k-hud-sm is-pressed" style="left:1172px;top:226px"><img class="ic ic-32" src="../../../art/icons/hud/sense.png"></div>
+<div class="k-hud k-hud-sm is-active" style="left:1236px;top:226px"><img class="ic ic-32" src="../../../art/icons/hud/presence.png"><div class="k-arc" style="--arc:0.79;--arc-c:var(--soul)"></div></div>
+<div class="cap" style="left:872px;top:264px">normal · pressed · active, for each size</div>
+<div class="k-hud k-hud-md" style="left:900px;top:320px"><img class="ic ic-48" src="../../../art/icons/techniques/mirror_mind_spike.png"><div class="k-cd" style="--cd:0.55"></div><span class="k-cd-num t-fig t-outline c-paper">5</span></div>
+<div class="k-hud k-hud-sm" style="left:972px;top:320px"><img class="ic ic-32" src="../../../art/icons/items/herbal_tea.png"><span class="k-corner t-fig">38</span></div>
+<div class="k-hud k-hud-sm is-dim" style="left:1040px;top:320px"><img class="ic ic-32" src="../../../art/icons/hud/lock.png"></div>
+<div class="cap" style="left:1074px;top:302px">cooldown · count · locked</div>
+<div class="cap" style="left:1074px;top:322px">Soul upkeep arc (above right)</div>
+
+<div class="sec" style="left:864px;top:356px">Type</div>
+<div class="abs" style="left:864px;top:392px;width:400px;height:230px">
+  <div class="tsr t-title" style="top:0">Cultivation</div><div class="tsn" style="top:16px">title 41</div>
+  <div class="tsr t-heading" style="top:44px">Next: Heart Tempering 5</div><div class="tsn" style="top:56px">heading 31</div>
+  <div class="tsr t-subhead" style="top:80px">Requirements</div><div class="tsn" style="top:88px">subhead 26</div>
+  <div class="tsr t-xl" style="top:112px">Break Through</div><div class="tsn" style="top:118px">xl 22 · buttons</div>
+  <div class="tsr t-lg" style="top:140px">Fill the bar to the bottleneck.</div><div class="tsn" style="top:146px">lg 20</div>
+  <div class="tsr t-md t-label" style="top:166px">Peddler Ning</div><div class="tsn" style="top:170px">label 18 bold</div>
+  <div class="tsr t-sm" style="top:190px">Talk · Harbour peddler</div><div class="tsn" style="top:192px">sm 16 · HUD</div>
+  <div class="tsr t-xs c-mist" style="top:212px">Required · Material</div><div class="tsn" style="top:212px">xs 14 · the minimum</div>
+</div>
+
+<div class="sec" style="left:864px;top:628px;font-size:22px">Grades</div>
+<div class="abs" style="left:950px;top:630px;width:320px;line-height:0">
+  <span class="chip" style="color:var(--g-plain)">Plain</span><span class="chip" style="color:var(--g-common)">Common</span><span class="chip" style="color:var(--g-earth)">Earth</span><span class="chip" style="color:var(--g-heaven)">Heaven</span><span class="chip" style="color:var(--g-mystic)">Mystic</span><span class="chip" style="color:var(--g-spirit)">Spirit</span><span class="chip" style="color:var(--g-sage)">Sage</span><span class="chip" style="color:var(--g-sovereign)">Sovereign</span><span class="chip" style="color:var(--g-will)">Will</span><span class="chip" style="color:var(--g-sphere)">Sphere</span>
+</div>
+
+</div></body></html>

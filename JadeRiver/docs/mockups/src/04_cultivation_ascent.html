@@ -1,0 +1,170 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>04 Cultivation, the ascent</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  /* the mountain: the nineteen great realms as waystations on one path */
+  .mtn { position: absolute; left: 92px; top: 172px; width: 312px; height: 492px; border-radius: 4px; overflow: hidden;
+    background: linear-gradient(180deg, #0b2328 0%, #0a2027 40%, #081a1f 100%); box-shadow: inset 0 0 0 1px rgba(154,106,53,.45); }
+  .rn { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--deep-teal); box-shadow: 0 0 0 2px var(--jade-shadow), 0 0 0 3px var(--ink); }
+  .rn.done { background: var(--gold); box-shadow: 0 0 0 2px var(--bronze), 0 0 0 3px var(--ink); }
+  .rn.cur { width: 22px; height: 22px; margin: -11px 0 0 -11px; background: radial-gradient(circle, #fff3c8, var(--gold) 55%, var(--bronze));
+    box-shadow: 0 0 0 2px var(--ink), 0 0 0 4px var(--pale-gold), 0 0 16px 6px rgba(229,184,76,.55); }
+  .rn.near { background: var(--deep-teal); box-shadow: 0 0 0 2px var(--jade), 0 0 0 3px var(--ink); }
+  .rn.veil { width: 8px; height: 8px; margin: -4px 0 0 -4px; }
+  .rl { position: absolute; white-space: nowrap; font-size: 16px; text-shadow: 0 2px 0 rgba(0,0,0,.6), 1px 1px 0 rgba(0,0,0,.5); }
+  .mist { position: absolute; left: 0; right: 0; top: 0; height: 190px; pointer-events: none;
+    background: linear-gradient(180deg, rgba(175,201,209,.16), rgba(175,201,209,.06) 60%, rgba(175,201,209,0)); }
+  /* the stair of the current great realm: nine steps banded Early / Middle / Late / Peak */
+  .st { position: absolute; width: 40px; border-radius: 2px 2px 0 0; box-shadow: inset 0 0 0 1px rgba(7,16,21,.8);
+    background: linear-gradient(180deg, var(--face-top) 0 9px, var(--face) 9px, var(--face-low)); }
+  .st.b-early { --face-top: #3a8076; --face: #174e4b; --face-low: #0c2f31; }
+  .st.b-middle { --face-top: #56b8a8; --face: #1f6e66; --face-low: #103e3c; }
+  .st.b-late { --face-top: #c99a5e; --face: #6f4a24; --face-low: #3b2712; }
+  .st.b-peak { --face-top: #ffe6a1; --face: #a8812f; --face-low: #5a4214; }
+  .st .sn { position: absolute; left: 0; right: 0; top: 12px; text-align: center; font-size: 16px; color: var(--paper); text-shadow: 0 1px 0 rgba(0,0,0,.7); }
+  .st.s-done::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--gold); }
+  .st.s-cur { box-shadow: inset 0 0 0 1px rgba(7,16,21,.8), 0 0 0 2px var(--pale-gold), 0 0 14px 4px rgba(255,230,161,.35); z-index: 2; }
+  .st.s-cur .sn { color: var(--pale-gold); }
+  .st .sfill { position: absolute; left: 3px; right: 3px; bottom: 3px; background: linear-gradient(180deg, rgba(103,214,189,.65), rgba(44,158,143,.35)); }
+  .st.s-future, .st.s-next { filter: saturate(.7) brightness(.8); }
+  .bneck { position: absolute; width: 4px; margin-left: -2px; background: linear-gradient(180deg, #fff6d0, var(--gold)); border-radius: 2px;
+    box-shadow: 0 0 10px 4px rgba(229,184,76,.75), 0 0 24px 8px rgba(229,184,76,.3); z-index: 3; }
+  .gate-post { position: absolute; width: 6px; background: linear-gradient(90deg, #5a1d17, #a33a2f 50%, #5a1d17); box-shadow: 0 0 0 1px var(--ink); }
+  .gate-roof { position: absolute; height: 10px; background: linear-gradient(180deg, #2c6e67, #123d3b); border-radius: 3px 3px 1px 1px; box-shadow: 0 0 0 1px var(--ink); }
+  .stair-ic { position: absolute; width: 32px; height: 32px; image-rendering: pixelated; }
+  .stair-bg { position: absolute; left: 418px; top: 172px; width: 382px; height: 492px; border-radius: 4px;
+    background: radial-gradient(ellipse at 70% 30%, rgba(21,81,79,.35), rgba(7,16,21,0) 65%); }
+  .col-r { position: absolute; left: 812px; top: 172px; width: 376px; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_elder_hu_peak.png">
+<div class="dim-screen"></div>
+
+<div class="k-page">
+  <div class="k-major-window"></div>
+  <div class="k-page-title k-plaque"><span class="t-title">Cultivation</span></div>
+  <div class="k-page-close k-close"></div>
+  <div class="k-page-tabs k-tabs">
+    <div class="k-tab is-selected">Overview</div><div class="k-tab">Foundation</div><div class="k-tab">Body</div><div class="k-tab">Heart</div>
+    <div class="k-tab">Paths</div><div class="k-tab">Methods</div><div class="k-tab">Dao</div><div class="k-tab">Seclusion</div>
+  </div>
+</div>
+
+<!-- ============ left: the mountain of the nineteen great realms ============ -->
+<div class="mtn">
+  <svg class="abs" style="left:-92px;top:-172px" width="420" height="700">
+    <polygon points="92,664 150,520 118,430 176,330 150,260 190,190 228,262 214,340 262,420 244,500 300,560 404,664" fill="rgba(21,81,79,.28)"/>
+    <polygon points="210,664 260,560 330,520 404,470 404,664" fill="rgba(13,48,53,.55)"/>
+    <path d="M 184.4 664 L 184.4 636.0 L 213.0 603.0 L 200.4 570.0 L 159.3 537.0 L 130.9 504.0 L 143.9 471.0 L 185.1 438.0 L 215.3 418.4 L 214.8 398.8 L 195.4 379.2 L 176.6 359.6 L 177.3 340.0 L 196.7 320.4 L 215.4 300.8 L 214.6 281.2 L 195.1 261.6 L 176.5 242.0 L 177.5 222.4 L 197.1 202.8" fill="none" stroke="rgba(154,106,53,.75)" stroke-width="3" stroke-dasharray="6 5" stroke-linecap="round"/>
+  </svg>
+  <div class="mist"></div>
+</div>
+<div class="abs" style="left:0;top:0">
+<div class="rn done" style="left:184.4px;top:636.0px"></div>
+<div class="rl" style="left:200.4px;top:625.0px;color:var(--paper);font-size:16px">Mortal <span class="t-sym c-gold">✓</span></div>
+<div class="rn done" style="left:213.0px;top:603.0px"></div>
+<div class="rl" style="left:229.0px;top:592.0px;color:var(--paper);font-size:16px">Bone Forging <span class="t-sym c-gold">✓</span></div>
+<div class="rn done" style="left:200.4px;top:570.0px"></div>
+<div class="rl" style="left:216.4px;top:559.0px;color:var(--paper);font-size:16px">Qi Kindling <span class="t-sym c-gold">✓</span></div>
+<div class="rn done" style="left:159.3px;top:537.0px"></div>
+<div class="rl" style="left:175.3px;top:526.0px;color:var(--paper);font-size:16px">Qi Unfurling <span class="t-sym c-gold">✓</span></div>
+<div class="rn cur" style="left:130.9px;top:504.0px"></div>
+<div class="rl t-label" style="left:150.9px;top:490.0px;color:var(--pale-gold);font-size:20px">Heart Tempering</div>
+<div class="rn near" style="left:143.9px;top:471.0px"></div>
+<div class="rl" style="left:159.9px;top:460.0px;color:var(--paper);font-size:16px">Cloud Stride <span class="c-mist" style="font-size:14px">· Flight, Mounts</span></div>
+<div class="rn near" style="left:185.1px;top:438.0px"></div>
+<div class="rl" style="left:201.1px;top:427.0px;color:var(--paper);font-size:16px">Spirit Awakening</div>
+<div class="rn far" style="left:215.3px;top:418.4px"></div>
+<div class="rl" style="left:231.3px;top:408.4px;color:var(--mist);font-size:14px">Heaven Glimpse</div>
+<div class="rn far" style="left:214.8px;top:398.8px"></div>
+<div class="rl" style="left:230.8px;top:388.8px;color:var(--mist);font-size:14px">Sage</div>
+<div class="rn far" style="left:195.4px;top:379.2px"></div>
+<div class="rl" style="left:211.4px;top:369.2px;color:var(--mist);font-size:14px">Sage Sovereign</div>
+<div class="rn far" style="left:176.6px;top:359.6px"></div>
+<div class="rl" style="left:192.6px;top:349.6px;color:var(--mist);font-size:14px">Will Manifest</div>
+<div class="rn far" style="left:177.3px;top:340.0px"></div>
+<div class="rl" style="left:193.3px;top:330.0px;color:var(--mist);font-size:14px">Sphere Lord</div>
+<div class="rn veil" style="left:196.7px;top:320.4px"></div>
+<div class="rl" style="left:212.7px;top:310.4px;color:var(--hollow);font-size:14px">Law Touching</div>
+<div class="rn veil" style="left:215.4px;top:300.8px"></div>
+<div class="rl" style="left:231.4px;top:290.8px;color:var(--hollow);font-size:14px">Monarch</div>
+<div class="rn veil" style="left:214.6px;top:281.2px"></div>
+<div class="rl" style="left:230.6px;top:271.2px;color:var(--hollow);font-size:14px">Half-Heaven Monarch</div>
+<div class="rn veil" style="left:195.1px;top:261.6px"></div>
+<div class="rl" style="left:211.1px;top:251.6px;color:var(--hollow);font-size:14px">Dao Sigil</div>
+<div class="rn veil" style="left:176.5px;top:242.0px"></div>
+<div class="rl" style="left:192.5px;top:232.0px;color:var(--hollow);font-size:14px">Heaven's Threshold</div>
+<div class="rn veil" style="left:177.5px;top:222.4px"></div>
+<div class="rl" style="left:193.5px;top:212.4px;color:var(--hollow);font-size:14px">Inner Heaven</div>
+<div class="rn veil" style="left:197.1px;top:202.8px"></div>
+<div class="rl" style="left:213.1px;top:192.8px;color:var(--hollow);font-size:14px">World Genesis</div>
+</div>
+<!-- the leader from the current realm to its stair -->
+<svg class="abs" style="left:0;top:0" width="1280" height="720"><path d="M338 522 C 380 522, 392 560, 424 566" fill="none" stroke="rgba(255,230,161,.7)" stroke-width="2" stroke-dasharray="3 4"/></svg>
+
+<!-- ============ middle: the stair of Heart Tempering ============ -->
+<div class="stair-bg"></div>
+<div class="abs t-display" style="left:430px;top:180px">Heart Tempering</div>
+<div class="abs t-xs c-mist" style="left:432px;top:222px">Great realm 5 of 19 · nine steps</div>
+<div class="st b-early s-done" style="left:430px;top:598px;height:28px"><span class="sn t-fig">1</span></div>
+<div class="st b-early s-done" style="left:470px;top:560px;height:66px"><span class="sn t-fig">2</span></div>
+<div class="st b-early s-done" style="left:510px;top:522px;height:104px"><span class="sn t-fig">3</span></div>
+<div class="st b-middle s-cur" style="left:550px;top:484px;height:142px"><span class="sn t-fig">4</span><div class="sfill" style="height:43%"></div></div>
+<div class="st b-middle s-next" style="left:590px;top:446px;height:180px"><span class="sn t-fig">5</span></div>
+<div class="st b-middle s-future" style="left:630px;top:408px;height:218px"><span class="sn t-fig">6</span></div>
+<div class="st b-late s-future" style="left:670px;top:370px;height:256px"><span class="sn t-fig">7</span></div>
+<div class="st b-late s-future" style="left:710px;top:332px;height:294px"><span class="sn t-fig">8</span></div>
+<div class="st b-peak s-future" style="left:750px;top:294px;height:332px"><span class="sn t-fig">9</span></div>
+<!-- the bottleneck: the riser up to step 5 glows -->
+<div class="bneck" style="left:590px;top:446px;height:38px"></div>
+<img class="k-fig" style="left:566px;top:487px" src="../assets/fig_tester_ht_meditate.png">
+<!-- what each step opens (E5): the next one named on the right, the later ones as marks on their steps -->
+<img class="stair-ic" style="left:594px;top:412px" src="../../../art/icons/items/array_plate.png">
+<img class="stair-ic" style="left:634px;top:374px" src="../../../art/icons/hud/characters.png">
+<img class="stair-ic" style="left:674px;top:336px" src="../../../art/icons/hud/formation.png">
+<img class="stair-ic" style="left:714px;top:298px" src="../../../art/icons/hud/works.png">
+<!-- the gate at the top of step 9: the Heart Trial, then Cloud Stride -->
+<div class="gate-post" style="left:754px;top:236px;height:58px"></div><div class="gate-post" style="left:782px;top:236px;height:58px"></div>
+<div class="gate-roof" style="left:744px;top:228px;width:52px"></div>
+<div class="abs" style="left:750px;top:242px;width:44px;height:14px;background:var(--gold);border-radius:1px;box-shadow:0 0 0 1px var(--ink)"></div>
+<div class="abs t-xs c-pale t-outline" style="left:770px;top:204px;transform:translateX(-50%);white-space:nowrap">Cloud Stride</div>
+<!-- band words under the steps (C3) -->
+<div class="abs" style="left:432px;top:628px;width:116px;height:4px;background:var(--jade-shadow);box-shadow:0 0 0 1px var(--jade)"></div>
+<div class="abs" style="left:552px;top:628px;width:116px;height:4px;background:var(--jade)"></div>
+<div class="abs" style="left:672px;top:628px;width:76px;height:4px;background:var(--bronze)"></div>
+<div class="abs" style="left:752px;top:628px;width:36px;height:4px;background:var(--gold)"></div>
+<div class="abs k-band is-early" style="left:466px;top:636px">Early 1–3</div>
+<div class="abs k-band is-middle" style="left:568px;top:636px">Middle 4–6</div>
+<div class="abs k-band is-late" style="left:689px;top:636px">Late</div>
+<div class="abs k-band is-peak" style="left:748px;top:636px;padding:0 7px">Peak</div>
+
+<!-- ============ right: this stage, the next step, the gate ============ -->
+<div class="col-r">
+  <div class="abs k-realm-badge" style="left:0;top:4px;width:62px;height:62px"><span class="t-display" style="font-size:34px">31</span></div>
+  <div class="abs t-subhead c-pale" style="left:76px;top:4px">Heart Tempering 4</div>
+  <div class="abs t-sm c-mist" style="left:76px;top:38px"><span class="k-band is-middle" style="height:22px;margin-right:6px">Middle</span>Lv 31 · accumulating</div>
+  <div class="abs t-xs c-mist" style="left:0;top:76px">Jade Current Scripture · Primal Qi · stability settling</div>
+  <div class="k-bar is-jade abs" style="left:0;top:100px;width:376px;--v:0.435">
+    <div class="k-trough"><div class="k-fill"></div></div><div class="k-tick is-next" style="--at:1"></div>
+    <div class="k-bar-text t-fig t-outline c-paper">2,913 / 6,700 · 43%</div>
+  </div>
+  <div class="abs t-xs t-outline" style="left:0;top:138px;color:var(--qi)">Stored Qi <span class="t-fig">0</span> <span class="c-mist">· banks here once the bar is full</span></div>
+
+  <div class="abs t-subhead" style="left:0;top:166px">Next: Heart Tempering 5</div>
+  <div class="abs t-sm c-paper" style="left:0;top:198px">A minor step: fill the bar, then break through.</div>
+  <div class="abs flex" style="left:0;top:224px;gap:6px;flex-wrap:wrap;width:376px;row-gap:6px">
+    <span class="k-unlock"><img class="ic" src="../../../art/icons/items/array_plate.png">Array plates</span>
+    <span class="k-unlock"><img class="ic" src="../../../art/icons/items/spirit_egg.png">Spirit eggs</span>
+    <span class="k-unlock"><img class="ic" src="../../../art/icons/hud/formation.png">Formation Guild</span>
+  </div>
+
+  <div class="abs t-sm c-gold" style="left:0;top:300px">The gate to Cloud Stride, at step 9</div>
+  <div class="k-req is-hard abs t-sm" style="left:0;top:326px"><span class="dot"></span><span>Pass the Heart Trial <span class="c-mist t-xs">· opens at step 9</span></span></div>
+  <div class="k-req is-hard abs t-sm" style="left:0;top:354px"><span class="dot"></span><span>Qi Refining Pill ×1 <span class="c-mist t-xs">· none held</span></span></div>
+  <div class="k-req is-hard abs t-sm" style="left:0;top:382px"><span class="dot"></span><span>A method past step 9 <span class="c-mist t-xs">· Jade Current ends there</span></span></div>
+
+  <div class="k-btn abs" style="left:0;top:424px;width:176px;height:52px">Meditate</div>
+  <div class="k-btn is-disabled abs" style="left:188px;top:424px;width:188px;height:52px;font-size:20px;padding-right:20px">Break Through<span class="k-lock-mini"></span></div>
+</div>
+
+</div></body></html>
