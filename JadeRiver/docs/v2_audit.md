@@ -91,7 +91,7 @@ Progress is recorded in `docs/CHANGELOG.md`.
   - imitation relics (done in V9d2);
   - Artifact Spirit depth (affinity, barks, devour; done in V9d2);
   - the heavy sabre, flute and fan weapon families (done in V9b);
-  - the rooftop thief chase (S43 rule 15).
+  - the rooftop thief chase (S43 rule 15; done in V9f1).
 - **V4**: done, in five parts (V4a–V4e: furnaces; herb natures and conflicts; new forms; fragments, experiments and
   the guild; pill tribulation), except these, which wait on later phases:
   - the Beast Marrow Washing Pill, the Beast Revival Pill and the Purifying Offering (with S46, V7);
@@ -166,7 +166,10 @@ Progress is recorded in `docs/CHANGELOG.md`.
   array, Extraction, Fusion, Condensation; the tribulation as a sixth), through `start_refine` and `refine_input`.
   V9e3 is done: the Cloud Herb Terraces (the weekly trial on each sect's own terraces, against the other sect's
   gatherers), ten-thousand-year ginseng on the Expanse's high ledges, and Expanse beds where the Verdant Dew Vial ages
-  a herb past a thousand years. V9e is complete; V9f (traversal content) is next.
+  a herb past a thousand years. V9e is complete. V9f1 is done: the daily rooftop thief on Market Street and Gate
+  Street, and the Cloud Sect's timed Cloud Steps with its weekly board. V9f2 is done: ice traction volumes, ground
+  mounts jumping with their species impulse, and dismounting for ladders and ropes. V9f3 (the remaining room catalogue
+  rows) is under way.
 - Next (V9): everything v2 makes due by v1.1 that is still open. A sweep of every audit row against the build
   after V8g3 found these, in six phases:
   - **V9a**, hooks and small gaps:
