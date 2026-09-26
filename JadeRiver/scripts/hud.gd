@@ -869,7 +869,9 @@ func _on_event(name: String, p: Dictionary) -> void:
 				toast(Tx.t("hud.hollow_seizure"), "quest", Tx.t("hud.hollow_seizure_turned") % int(p.get("turned", 0)) if int(p.get("turned", 0)) > 0 else Tx.t("hud.hollow_seizure_sub"))
 		# S50 Keeping Post: a post taken or left, a craft level, a pouch sewn, incense burned.
 		"post_taken":
-			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.post_taken") % str(ContentDB.entry("posts", str(p.craft)).get("short", "")), UiKit.BRIGHT_JADE)
+			if str(p.get("actor", "")) == Game.active_id:
+				var what := Tx.t("hud.vigil") if str(p.craft) == "vigil" else str(ContentDB.entry("posts", str(p.craft)).get("short", ""))
+				add_log(Tx.t("hud.post_taken") % what, UiKit.BRIGHT_JADE)
 		"post_left":
 			if str(p.get("reason", "")) == "walked": add_log(Tx.t("hud.post_left") % str(Game.character(str(p.actor)).name if Game.character(str(p.actor)) else ""), UiKit.MIST)
 		"craft_leveled":
@@ -877,6 +879,8 @@ func _on_event(name: String, p: Dictionary) -> void:
 				toast(Tx.t("hud.craft_level") % [str(ContentDB.entry("posts", str(p.craft)).get("name", "")), int(p.level)], "gold", Tx.t("hud.craft_level_sub"))
 		"pouch_sewn":
 			add_log(Tx.t("hud.pouch_sewn") % UiKit.fmt(int(float(p.get("cap", 0.0)))), UiKit.PALE_GOLD)
+		"leaf_found":
+			if p.get("new_tier", false): toast(Tx.t("hud.leaf_tier") % [ContentDB.name_of("enemies", str(p.enemy)), int(p.tier)], "gold", Tx.t("hud.leaf_sub"))
 		"incense_burned":
 			add_log(Tx.t("hud.incense_burned") % int(round(float(p.get("hours", 0.0)))), UiKit.PALE_GOLD)
 		# S28 v1.2 Presence: held or let go, a new level, and two Presences meeting.

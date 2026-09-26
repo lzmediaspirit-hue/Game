@@ -39,6 +39,7 @@ var activity: Dictionary = {}          # S49 daily activity (Account): {day, poi
 var rng_state: Dictionary = {}
 var welcome_pending: Dictionary = {}
 var storehouse: Dictionary = {}        # S50 Keeping Post (V10): the account's bulk store, item -> count (Post authority)
+var leaves: Dictionary = {}            # S50 V10b Bestiary Leaves: enemy -> leaves found (Post authority)
 
 static func default_settings() -> Dictionary:
 	return {"music": 0.7, "sfx": 0.8, "ambience": 0.6, "ui": 0.7, "text_size": 1, "left_handed": false,
@@ -61,7 +62,7 @@ func snapshot() -> Dictionary:
 		"achievements": achievements.duplicate(true), "economy": economy.duplicate(true), "resets": resets.duplicate(),
 		"rooms": rooms.duplicate(true), "rng": {"seed": str(rng_seed), "streams": rng_state.get("streams", {})},
 		"welcome_pending": welcome_pending.duplicate(true), "created_utc": created_utc, "calendar": calendar.duplicate(true),
-		"activity": activity.duplicate(true), "storehouse": storehouse.duplicate()}
+		"activity": activity.duplicate(true), "storehouse": storehouse.duplicate(), "leaves": leaves.duplicate()}
 
 func restore(d: Dictionary) -> void:
 	account_id = str(d.get("account_id", account_id))
@@ -104,6 +105,11 @@ func restore(d: Dictionary) -> void:
 	if sh is Dictionary:
 		for k in sh:
 			if int(sh[k]) > 0: storehouse[str(k)] = int(sh[k])
+	leaves = {}
+	var lv = d.get("leaves", {})
+	if lv is Dictionary:
+		for k in lv:
+			if int(lv[k]) > 0: leaves[str(k)] = int(lv[k])
 	rng_seed = int(str(r.get("seed", "0")))
 	rng_state = r.duplicate(true)
 	welcome_pending = d.get("welcome_pending", {}).duplicate(true)

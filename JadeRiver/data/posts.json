@@ -105,6 +105,40 @@
   "fervour": {
    "bonus": 0.5,
    "hours": 24
+  },
+  "vigil": {
+   "pace": 0.35,
+   "sweep_rate": 0.5,
+   "down_s": 600,
+   "foe_attack_s": 2.2,
+   "qp_share": 0.25,
+   "samples": 48,
+   "loot_samples": 40,
+   "k_per_technique": 0.12,
+   "k_max": 2.2,
+   "walk_speed": 205
+  },
+  "leaves": {
+   "chance": 0.001,
+   "tiers": [
+    1,
+    5,
+    25,
+    100
+   ],
+   "values": [
+    1.0,
+    2.0,
+    3.0,
+    5.0
+   ],
+   "kinds": [
+    "martial_diligence",
+    "craft_diligence",
+    "finesse",
+    "capacity",
+    "drop_rate"
+   ]
   }
  },
  "categories": [

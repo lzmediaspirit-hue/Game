@@ -17,6 +17,15 @@ RULES = {
     "settle": {"max_days": 90, "night_share": 0.3333},
     "side_drops": {"foraging": {"item": "spirit_wood", "every": 20}},
     "fervour": {"bonus": 0.5, "hours": 24},
+    # V10b the Vigil: IdleOn's kills-an-hour with Jade River's combat numbers. `pace` scales the fighter's cap to
+    # Jade River's slower fights; a Vigil kill gives a quarter of a hunted kill's realm progress (S23 keeps realm
+    # progress away slower than play); a fall costs 600 s.
+    "vigil": {"pace": 0.35, "sweep_rate": 0.5, "down_s": 600, "foe_attack_s": 2.2, "qp_share": 0.25, "samples": 48,
+              "loot_samples": 40, "k_per_technique": 0.12, "k_max": 2.2, "walk_speed": 205},
+    # V10b Bestiary Leaves: one leaf in a thousand kills of a species (Vigil or hand); tiers at 1, 5, 25 and 100
+    # leaves; each species gives one kind of bonus, by tier.
+    "leaves": {"chance": 0.001, "tiers": [1, 5, 25, 100], "values": [1.0, 2.0, 3.0, 5.0],
+               "kinds": ["martial_diligence", "craft_diligence", "finesse", "capacity", "drop_rate"]},
 }
 
 CATEGORIES = ["ore", "herb", "fish", "insect", "material", "critter", "wisp"]

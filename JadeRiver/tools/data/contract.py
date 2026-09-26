@@ -98,7 +98,8 @@ DEPTH = {
     # S28 v1.2 field powers: Presence (Will Manifest) and, later, the Sphere (Sphere Lord).
     "Field": ["presence_toggled", "presence_leveled", "presence_clash", "presence_clash_ended"],
     # S50 V10 Keeping Post: posts, craft levels, pouches, the Storehouse and Hour Incense.
-    "Posts": ["post_taken", "post_left", "post_settled", "craft_leveled", "pouch_sewn", "storehouse_changed", "incense_burned"],
+    "Posts": ["post_taken", "post_left", "post_settled", "craft_leveled", "pouch_sewn", "storehouse_changed", "incense_burned",
+              "leaf_found"],
     # S48 sect role variants: the signature line's variant and the contribution tree.
     "TrainingSect": ["sect_role_chosen", "sect_node_bought"],
     # S49 territory: the spirit-stone mines your sect takes, holds, loses and collects from (account level).

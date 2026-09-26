@@ -1926,6 +1926,13 @@
     "post_authority",
     "post_rules"
    ]
+  },
+  "leaf_found": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ]
   }
  }
 }

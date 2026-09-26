@@ -58,6 +58,7 @@ func _main() -> void:
 	field_suite()
 	hollow_tide_suite()
 	post_suite()
+	vigil_suite()
 	body_path_suite()
 	heaven_suite()
 	arts_suite()
@@ -5281,6 +5282,53 @@ func post_suite() -> void:
 	check(int(acc.storehouse.get("glowfly", 0)) == int(Game.account.storehouse.get("glowfly", 0)), "and the account keeps its Storehouse")
 	c.posts = posts0
 	Game.account.storehouse = store0
+	Game.world.apply_teleport(c.id, back)
+
+## S50 V10b the Vigil: kills an hour from the two caps, Sweep, survivability on provisions, a settle with loot,
+## coins and realm progress, Bestiary Leaves and their bonus, migration of the old idle Hunt.
+func vigil_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var kp := PostRules.kills_per_hour(8.0, 12.0, 1.0, 0.7, 30.0, 40.0, 0.9)
+	check(near(float(kp.spawn_h), 3600.0 * 8.0 / 12.1) and near(float(kp.fighter_h), 3600.0 / (1.0 + 0.7 * maxf((30.0 / 40.0 + 0.52) / 0.9, 1.0)))
+		and near(float(kp.kills_h), floorf(minf(float(kp.spawn_h), float(kp.fighter_h)))), "kills an hour: the lesser of the spawn cap and the fighter's pace")
+	check(int(PostRules.sweep(100.0, 60.0).tier) == 0 and int(PostRules.sweep(800.0, 100.0).tier) == 3 and near(float(PostRules.sweep(800.0, 100.0).mult), 1.5),
+		"Sweep: tier floor(log2(max hit / HP)) from twice the HP; tier 3 fells half again as many")
+	var sv0 := PostRules.survivability(1000.0, 500.0, 600.0, 250.0, 0, 10.0)
+	var sv1 := PostRules.survivability(1000.0, 2000.0, 0.0, 250.0, 100, 10.0)
+	var sv2 := PostRules.survivability(1000.0, 10000.0, 0.0, 250.0, 0, 10.0)
+	check(near(float(sv0.alive), 1.0) and near(float(sv1.alive), 1.0) and int(sv1.food_used) == 80 and float(sv2.alive) < 0.5,
+		"survivability: regeneration or provisions keep the fight going; with neither the fighter keeps falling (%.0f%%)" % (100.0 * float(sv2.alive)))
+	var back := str(c.position.get("room", "lf_village"))
+	var posts0: Dictionary = c.posts.duplicate(true)
+	var leaves0: Dictionary = Game.account.leaves.duplicate()
+	Unlocks.force_unlock(c.id, "keeping_post")
+	Game.world.apply_teleport(c.id, "bg_whispering_bamboo")
+	var pr: Dictionary = Game.posts.vigil_profile(c, "bg_whispering_bamboo")
+	print("  vigil at bg_whispering_bamboo, Lv %d: %.0f kills/h (spawn %.0f, blade %.0f), hit %.0f%%, avg %.0f vs HP %.0f, sweep %d, taken %.0f/h, regen %.0f/h"
+		% [ProgressionRules.level(c), float(pr.kills_h), float(pr.spawn_h), float(pr.fighter_h), 100.0 * float(pr.hit), float(pr.avg_hit), float(pr.hp),
+		int(pr.sweep_tier), float(pr.dmg_h), float(pr.regen_h)])
+	check(not pr.is_empty() and float(pr.kills_h) > 0.0 and near(float(pr.diligence), 0.40), "a Vigil in the Whispering Bamboo hunts at 40% Martial Diligence")
+	check(not Game.posts.vigil_profile(c, "lf_village").size() > 0 or not Game.posts.vigil_allowed("lf_village"), "no Vigil where nothing may be hunted")
+	var took := Game.submit({"type": "take_vigil"})
+	check(took.get("ok", false) and str(Game.posts.post_of(c).get("kind", "")) == "vigil", "keep vigil in the room")
+	Game.posts.post_of(c)["paused"] = false
+	Game.posts.post_of(c)["since"] = Clock.now_utc() - 4.0 * 3600.0
+	var led: Dictionary = Game.posts.settle_post(c).get("ledger", {})
+	check(int(led.get("kills", 0)) > 0 and float(led.get("qp", 0.0)) > 0.0, "four hours of Vigil: %d beasts, %d kinds of loot, realm progress" % [int(led.get("kills", 0)), (led.get("items", {}) as Dictionary).size()])
+	var kind := Game.posts.leaf_kind("bamboo_monkey")
+	var b0 := Game.posts.leaf_bonus(kind)
+	Game.posts.apply_leaf(c.id, "bamboo_monkey", 5)
+	check(Game.posts.leaf_tier("bamboo_monkey") >= 2 and Game.posts.leaf_bonus(kind) > b0, "five Bamboo Monkey leaves: tier %d, +%.0f%% %s" % [Game.posts.leaf_tier("bamboo_monkey"), Game.posts.leaf_bonus(kind), kind])
+	var other := GameCharacter.new()
+	other.id = "c12"
+	other.idle_task = {"task": "hunt", "room": "bg_whispering_bamboo", "started_utc": Clock.now_utc() - 600.0}
+	Game.posts.migrate_idle(other)
+	check(str(Game.posts.post_of(other).get("kind", "")) == "vigil" and other.idle_task.is_empty(), "an old idle Hunt task becomes a Vigil")
+	var no_hunt := Game.submit({"type": "set_idle_task", "task": {"task": "hunt"}})
+	check(not no_hunt.get("ok", true), "with Keeping Post, hunting while away is a Vigil, not an idle task")
+	c.posts = posts0
+	Game.account.leaves = leaves0
 	Game.world.apply_teleport(c.id, back)
 
 func ice_mount_suite() -> void:

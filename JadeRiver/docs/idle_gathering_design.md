@@ -400,22 +400,30 @@ rod already exist and become tiers 0 and 2; the reed net is new.
 ### 7.2 Vigil (V10b)
 
 ```
-spawn_cap/s  = mobs / (respawn_s + 0.1)
-player_cap/s = K / (walk_s + wait_s × max((hp / avg_hit + 0.52) / hit, 1))       K ∈ [1, 2.2] from techniques
-kills/h      = floor(3600 × min(spawn_cap, player_cap)) × MartialDiligence × survivability × sweep
-sweep        = max(1, tier × sweep_rate)          tier = floor(log2(max_hit / hp)), sweep_rate 0.5
+spawn_cap/h  = 3600 × mobs / (respawn_s + 0.1)
+fighter_cap/h = 3600 × K / (walk_s + wait_s × max((hp / avg_hit + 0.52) / hit, 1)) × pace     K ∈ [1, 2.2]
+kills/h      = floor(min(spawn_cap, fighter_cap)) × MartialDiligence × sweep × alive
+sweep        = max(1, tier × 0.5)          tier = floor(log2(max_hit / hp)), from twice the HP
 ```
 
-- `hit`, `avg_hit` and `max_hit` come from Jade River's own combat rules (CombatRules, StatRules) against the
-  room's spawns, so the Vigil agrees with the fight you would have. Only techniques on the quick bar count.
-- `walk_s` is the room's width shared among its spawns over 130 × move speed. `wait_s` is the weapon family's
-  attack interval.
-- **Survivability:** damage taken per hour against healing from **Provisions** (a food stack set on the post,
-  eaten while away at hits × 300 / 500 / 600 by zone per heal); defeat costs 600 s. Out of provisions, the
-  share of time alive falls to what regeneration holds.
-- Each kill rolls the spawn's loot at expected value × drop rate (materials into the pouch, coins to the
-  purse), gives realm progress at the offline factor, and counts for **Bestiary Leaves** (a leaf drops 1 in
-  1,000 kills of a species; tiers at 1, 5, 25, 100 leaves).
+- `hit`, `avg_hit` and `max_hit` come from Jade River's own S12 pipeline: 48 seeded `CombatRules.resolve` blows
+  (a fixed `Rng.keyed` estimate) against each of the room's spawns at the middle of its level band, weighted by
+  how many of each the room holds. The Vigil agrees with the fight you would have.
+- `walk_s` is the room's width shared among its spawns over the walking speed (205, + Move Speed); `wait_s` is the
+  weapon family's `hits_per_s` with Attack Speed. `K` = 1 + 0.12 per technique slotted, at most 2.2.
+- `pace` = 0.35 scales the fighter's cap to Jade River's fights, which are slower than IdleOn's (wind-ups, dodges,
+  blows taken). Most valley rooms are held back by their spawn cap, as IdleOn's early maps are.
+- **Survivability:** the foes' blows (the same S12 pipeline the other way, one every 2.2 s while fighting) against
+  HP regeneration and **Provisions**: the healing food in the character's bag, the one that heals most per bite,
+  eaten as damage outpaces regeneration. Without food the fighter falls every max HP / net damage hours and loses
+  600 s each time.
+- Each kill rolls the room's loot at expected value × drop rate (40 seeded rolls, scaled; the pouch still caps it),
+  pays its coins, gives a quarter of a hunted kill's realm progress (S23 keeps progress away slower than play), and
+  counts for **Bestiary Leaves**: one leaf in 1,000 kills of a species, account-wide. A species' leaves reach tiers
+  at 1, 5, 25 and 100 and give +1 / 2 / 3 / 5% of one bonus fixed per species: Martial Diligence, Craft Diligence,
+  Finesse, pouch capacity or drop rate.
+- "Keep vigil here" is on the Roll-Call in any room whose `idle` list has `hunt`. An old idle Hunt task becomes a
+  Vigil.
 
 ### 7.3 Timed stations (V10c)
 
@@ -459,7 +467,7 @@ sweep        = max(1, tier × sweep_rate)          tier = floor(log2(max_hit / h
 | Expanse (Body 115, tier-6 pick, craft 42) | stormsteel ≥ 30% |
 | Act III (Body 150, tier-8 pick, craft 55) | driftglass ≥ 30% before any V10d bonus |
 | Pouch | an unsewn pouch fills in about half an hour; the Satchel tier (4 × 250) holds 10–16 h of a valley-end post |
-| Vigil | a valley character one-shotting its room: 150–350 kills/h at 40% |
+| Vigil | a valley character one-shotting its room: 100–200 kills/h at 40% (active hunting is about 360) |
 | Economy | a day of twelve valley posts sells for no more than a day of active hunting |
 
 The ladder is steeper than IdleOn's early tiers would suggest per step but spans fewer tiers per zone: at base Finesse a

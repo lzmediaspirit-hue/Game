@@ -5,6 +5,25 @@
 The idle gathering milestone (docs/idle_gathering_design.md), after IdleOn's AFK model in Jade River's own names. It
 runs between v1.2 Phase B and Phase C.
 
+### V10b · The Vigil
+- **Keep vigil** from the Roll-Call in any room with beasts to hunt: the character hunts the room while you play
+  someone else, at IdleOn's kills an hour. That is the lesser of the room's spawn cap (spawns / respawn) and the
+  fighter's pace (walking, blows needed, hit chance, techniques slotted), times 40% Martial Diligence and the
+  **Sweep** tier (a blow of twice a beast's life or more fells extra: tier floor(log2(hit / HP))).
+- Blows both ways come from the S12 damage pipeline itself (seeded samples), so a Vigil agrees with the fight you
+  would have.
+- **Provisions:** the best healing food in the bag is eaten as blows outpace regeneration. Without food the
+  character keeps falling, losing 600 s each time, and fights less of the hours.
+- Kills roll the room's loot at expected value into the pouch, pay coins, give a quarter of a hunted kill's realm
+  progress, and find **Bestiary Leaves**: one in a thousand per species, account-wide. Tiers at 1, 5, 25 and 100
+  leaves give a species' bonus (Martial or Craft Diligence, Finesse, pouch capacity or drop rate).
+- The Roll-Call shows a Vigil's kills an hour and Sweep tier. The Crafts tab shows Vigil Info in a hunting room:
+  what holds it back, blows landed, damage taken and healed, provisions, and time fighting over twelve hours. The
+  Return Ledger lists beasts felled, provisions eaten, realm progress, coins, leaves and loot.
+- An old idle Hunt task becomes a Vigil; with Keeping Post, hunting while away is only done by Vigil.
+- Tests: `rules_tests` `vigil_suite` (the two caps, Sweep, survivability, a four-hour Vigil settled, leaves and their
+  bonus, migration).
+
 ### V10a · Posts and crafts
 - **Keeping post.** Beside an ore vein, a herb patch, a fishing spot or an insect swarm, the Keep Post button (key O)
   leaves the character there and opens the Roll-Call to choose who to play next. Every character with a post works

@@ -340,6 +340,7 @@ func set_idle_task(c, task: Dictionary) -> Dictionary:
 	if def.has("requires") and not RequirementRules.passes(def.requires, game.ctx(c)): return fail("locked", {"text": RequirementRules.first_failure_text(def.requires, game.ctx(c))})
 	# S50: with Keeping Post, gathering while away is a post at a node, not an idle task.
 	if kind == "gather" and Unlocks.is_unlocked(c.id, "keeping_post"): return fail("use_post", {"text": Tx.t("sim.posts.use_post")})
+	if kind == "hunt" and Unlocks.is_unlocked(c.id, "keeping_post"): return fail("use_vigil", {"text": Tx.t("sim.posts.use_vigil")})
 	# S49: idle Hunt and Gather only in rooms that allow them (room.idle).
 	var idle_room := str(task.get("room", c.position.get("room", "")))
 	if not game.world.idle_allowed(idle_room, kind): return fail("room", {"text": Tx.t("sim.account.idle_room_" + kind)})

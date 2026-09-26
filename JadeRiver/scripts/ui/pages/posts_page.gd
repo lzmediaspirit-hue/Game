@@ -24,7 +24,12 @@ func draw_page() -> void:
 func _draw_roll() -> void:
 	var rows: Array = Game.posts.roll_call()
 	var top := Rect2(content.position, Vector2(content.size.x, 60))
-	para(Rect2(top.position + Vector2(0, 6), Vector2(content.size.x - 260, 56)), Tx.t("ui.posts.roll_note"), 17, UiKit.MIST, 2)
+	para(Rect2(top.position + Vector2(0, 6), Vector2(content.size.x - 520, 56)), Tx.t("ui.posts.roll_note"), 16, UiKit.MIST, 2)
+	var ch = c()
+	var here := str(Game.room_rt.room_id) if Game.room_rt != null else ""
+	if ch != null and here != "" and Game.posts.vigil_allowed(here):
+		btn(Rect2(content.end.x - 500, top.position.y + 4, 250, 52), Tx.t("ui.posts.keep_vigil"), "vigil", null, false,
+			Unlocks.is_unlocked(ch.id, "keeping_post"), Unlocks.locked_text("keeping_post"))
 	btn(Rect2(content.end.x - 240, top.position.y + 4, 240, 52), Tx.t("ui.posts.settle_all"), "settle_all", null, true)
 	var area := Rect2(content.position + Vector2(0, 70), Vector2(content.size.x, content.size.y - 70))
 	list("roll", area, rows.size(), 104, func(i: int, rr: Rect2):
@@ -35,6 +40,13 @@ func _draw_roll() -> void:
 		var r: Dictionary = row.rates
 		if p.is_empty():
 			text(rr.position + Vector2(18, 62), Tx.t("ui.posts.no_post"), 17, UiKit.HOLLOW)
+		elif str(p.get("kind", "")) == "vigil":
+			text(rr.position + Vector2(18, 60), fit(Tx.t("ui.posts.vigil_at") % str(ContentDB.room(str(p.get("room", ""))).get("name", "")), 17, 330), 17, UiKit.RED.lightened(0.3))
+			var state := Tx.t("ui.posts.playing") if row.active else Tx.t("ui.posts.away_for") % _dur(float(row.since_h))
+			text(rr.position + Vector2(18, 86), state, 15, UiKit.MIST)
+			text(Vector2(rr.position.x + 360, rr.position.y + 35), Tx.t("ui.posts.kills_h") % UiKit.fmt(int(float(r.get("kills_h", 0.0)))), 15, UiKit.PAPER)
+			if int(r.get("sweep", 0)) > 0: text(Vector2(rr.position.x + 360, rr.position.y + 60), Tx.t("ui.posts.sweep") % int(r.sweep), 15, UiKit.PALE_GOLD)
+			text(Vector2(rr.position.x + 540, rr.position.y + 35), Tx.t("ui.posts.in_pouch") % UiKit.fmt(int(row.pouch)), 15, UiKit.PAPER)
 		else:
 			var craft := ContentDB.entry("posts", str(p.get("craft", "")))
 			var where := "%s · %s" % [str(craft.get("short", "")), str(ContentDB.room(str(p.get("room", ""))).get("name", ""))]
@@ -106,6 +118,10 @@ func _draw_node_info(ch, r: Rect2) -> void:
 		var ctx: Dictionary = Game.world.query_context(ch)
 		if ctx.has("object"): o = Game.room_rt.object_def(str(ctx.object))
 	if o.is_empty() or Game.posts.craft_of_object(o) == "":
+		var here := str(Game.room_rt.room_id) if Game.room_rt != null else ""
+		if here != "" and Game.posts.vigil_allowed(here):
+			_draw_vigil_info(ch, r, here)
+			return
 		heading(r.position + Vector2(0, 24), Tx.t("ui.posts.node_info"), r.size.x)
 		para(Rect2(r.position + Vector2(0, 44), Vector2(r.size.x, 200)), Tx.t("ui.posts.node_info_none"), 17, UiKit.MIST)
 		return
@@ -131,6 +147,29 @@ func _draw_node_info(ch, r: Rect2) -> void:
 		text(Vector2(r.position.x + 40, y + 16), Tx.t("ui.posts.next_at") % UiKit.fmt(int(float(yv.next_finesse))), 14, UiKit.MIST)
 		y += 30
 		if y > r.end.y - 40: break
+
+## Vigil Info for the room: kills an hour and what limits them, the Sweep tier, blows landed, and how long the
+## character would last on the provisions it carries.
+func _draw_vigil_info(ch, r: Rect2, room: String) -> void:
+	var pr: Dictionary = Game.posts.vigil_profile(ch, room)
+	heading(r.position + Vector2(0, 24), Tx.t("ui.posts.vigil_info"), r.size.x)
+	if pr.is_empty(): return
+	var y := r.position.y + 62
+	var rows := [
+		[Tx.t("ui.posts.v_kills"), UiKit.fmt(int(float(pr.kills_h)))],
+		[Tx.t("ui.posts.v_limit"), Tx.t("ui.posts.v_spawn") if float(pr.spawn_h) < float(pr.fighter_h) else Tx.t("ui.posts.v_blade")],
+		[Tx.t("ui.posts.v_hit"), "%d%% · %s" % [int(round(100.0 * float(pr.hit))), UiKit.fmt(int(float(pr.avg_hit)))]],
+		[Tx.t("ui.posts.v_sweep"), Tx.t("ui.posts.v_sweep_val") % [int(pr.sweep_tier), float(pr.sweep)]],
+		[Tx.t("ui.posts.v_dil"), "%d%%" % int(round(100.0 * float(pr.diligence)))],
+		[Tx.t("ui.posts.v_taken"), "%s / %s" % [UiKit.fmt(int(float(pr.dmg_h))), UiKit.fmt(int(float(pr.regen_h)))]],
+		[Tx.t("ui.posts.v_food"), (ContentDB.item_name(str(pr.food)) + " ×%d" % int(pr.food_count)) if str(pr.food) != "" else Tx.t("ui.posts.v_no_food")],
+	]
+	var sv := PostRules.survivability(ch.pools.max_hp, float(pr.dmg_h), float(pr.regen_h), float(pr.heal_each), int(pr.food_count), 12.0)
+	rows.append([Tx.t("ui.posts.v_alive"), "%d%%" % int(round(100.0 * float(sv.alive)))])
+	for row in rows:
+		text(Vector2(r.position.x, y + 18), str(row[0]), 16, UiKit.MIST)
+		text(Vector2(r.position.x, y + 18), str(row[1]), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, r.size.x)
+		y += 32
 
 # ------------------------------------------------------------------ Storehouse
 func _draw_store() -> void:
@@ -171,6 +210,9 @@ func on_action(id: String, data) -> void:
 			var r := submit({"type": "burn_incense", "character": str(data), "item": inc})
 			if r.get("ok", false): flash(Tx.t("ui.posts.incense_burned") % _dur(float(r.hours)))
 		"switch": navigate.emit("_switch", {"slot": int(data)})
+		"vigil":
+			var r := submit({"type": "take_vigil"})
+			if r.get("ok", false): flash(Tx.t("ui.posts.vigil_taken"))
 		"withdraw":
 			var r := submit({"type": "withdraw_storehouse", "item": str(data), "count": 50})
 			if r.get("ok", false): flash(Tx.t("ui.posts.withdrew") % [int(r.count), ContentDB.item_name(str(data))])

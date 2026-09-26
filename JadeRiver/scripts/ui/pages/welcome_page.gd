@@ -26,7 +26,18 @@ func draw_page() -> void:
 	if bool(args.get("capped", false)): rows.append([Tx.t("ui.welcome.time_limit_reached"), Tx.t("ui.welcome.extend_it_with_retreat_rooms")])
 	# S50 Keeping Post: the Return Ledger of the post this character kept.
 	var led: Dictionary = args.get("post", {})
-	if not led.is_empty():
+	if not led.is_empty() and str(led.get("kind", "")) == "vigil":
+		rows.append([Tx.t("ui.welcome.vigil_at") % str(ContentDB.room(str(led.get("room", ""))).get("name", "")),
+			Tx.t("ui.welcome.post_hours") % [_dur(float(led.get("hours", 0.0)) * 3600.0), int(round(float(led.get("diligence", 0.4)) * 100.0))]])
+		rows.append([Tx.t("ui.welcome.vigil_kills"), "%s · %d%%" % [UiKit.fmt(int(led.get("kills", 0))), int(round(100.0 * float(led.get("alive", 1.0))))]])
+		if int(led.get("food_used", 0)) > 0: rows.append([Tx.t("ui.welcome.vigil_food") % ContentDB.item_name(str(led.food)), "×%d" % int(led.food_used)])
+		if float(led.get("qp", 0.0)) > 0.0: rows.append([Tx.t("ui.welcome.realm_progress"), "+%s" % UiKit.fmt(float(led.qp))])
+		if int(led.get("coins", 0)) > 0: rows.append([Page.currency_name(str(led.coin_currency)), "+%s" % UiKit.fmt(int(led.coins))])
+		for id in led.get("leaves", {}): rows.append([Tx.t("ui.welcome.leaf") % ContentDB.name_of("enemies", str(id)), "×%d" % int(led.leaves[id])])
+		for id in led.get("items", {}): rows.append([ContentDB.item_name(str(id)), "×%s" % UiKit.fmt(int(led.items[id]))])
+		for cat in led.get("full", {}):
+			rows.append([Tx.t("ui.welcome.pouch_full") % Tx.t("ui.pouches.cat_" + str(cat)), Tx.t("ui.welcome.full_after") % _dur(float(led.full[cat]) * 3600.0)])
+	elif not led.is_empty():
 		var craft := ContentDB.entry("posts", str(led.get("craft", "")))
 		rows.append([Tx.t("ui.welcome.post_at") % [str(craft.get("short", "")), str(ContentDB.room(str(led.get("room", ""))).get("name", ""))],
 			Tx.t("ui.welcome.post_hours") % [_dur(float(led.get("hours", 0.0)) * 3600.0), int(round(float(led.get("diligence", 0.52)) * 100.0))]])

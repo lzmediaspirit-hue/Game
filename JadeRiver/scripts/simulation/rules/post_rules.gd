@@ -149,3 +149,37 @@ static func draw(x: float, rng: RandomNumberGenerator) -> int:
 	var n := int(floorf(maxf(0.0, x)))
 	if rng != null and rng.randf() < x - floorf(x): n += 1
 	return n
+
+# ------------------------------------------------------------------ the Vigil (§7.2)
+## Kills an hour before Diligence: the room's spawn cap against the fighter's own pace (IdleOn's two caps).
+## `pace` scales the fighter's cap to Jade River's slower fights (wind-ups, dodges, hits taken).
+static func kills_per_hour(mobs: float, respawn_s: float, walk_s: float, wait_s: float, hp: float, avg_hit: float, hit: float, k := 1.0, pace := 1.0) -> Dictionary:
+	var spawn := maxf(0.0, mobs) / (maxf(0.0, respawn_s) + 0.1)
+	var swings := maxf((hp / maxf(1.0, avg_hit) + 0.52) / maxf(0.01, hit), 1.0)
+	var fighter := clampf(k, 1.0, 2.2) / (maxf(0.0, walk_s) + maxf(0.05, wait_s) * swings) * pace
+	return {"spawn_h": 3600.0 * spawn, "fighter_h": 3600.0 * fighter, "kills_h": floorf(3600.0 * minf(spawn, fighter)), "swings": swings,
+		"fight_share": (maxf(0.05, wait_s) * swings) / (maxf(0.0, walk_s) + maxf(0.05, wait_s) * swings)}
+
+## Sweep: a blow at least twice a foe's life fells more than one. tier = floor(log2(max hit / HP)); kills x max(1, tier x rate).
+static func sweep(max_hit: float, hp: float, rate := 0.5) -> Dictionary:
+	if hp <= 0.0 or max_hit < 2.0 * hp: return {"tier": 0, "mult": 1.0}
+	var tier := int(floorf(log(max_hit / hp) / log(2.0)))
+	return {"tier": tier, "mult": maxf(1.0, float(tier) * rate)}
+
+## How much of `hours` a Vigil keeps fighting. Provisions heal `heal_each` apiece and are eaten as damage outpaces
+## regeneration; once they run out the character falls every max_hp / net hours and loses `down_s` each time.
+## Returns {alive (share of the hours), food_used, fed_h}.
+static func survivability(max_hp: float, dmg_h: float, regen_h: float, heal_each: float, food: int, hours: float, down_s := 600.0) -> Dictionary:
+	var net := dmg_h - regen_h
+	if net <= 0.0 or hours <= 0.0: return {"alive": 1.0, "food_used": 0, "fed_h": hours}
+	var fed_h := 0.0
+	var used := 0
+	if heal_each > 0.0 and food > 0:
+		var per_h := net / heal_each
+		fed_h = minf(hours, float(food) / per_h)
+		used = mini(food, int(ceilf(fed_h * per_h)))
+	var die_h := maxf(0.01, max_hp / net)
+	var starving := die_h / (die_h + down_s / 3600.0)
+	var alive_h := fed_h + (hours - fed_h) * starving
+	return {"alive": alive_h / hours, "food_used": used, "fed_h": fed_h}
+
