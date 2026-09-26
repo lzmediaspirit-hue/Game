@@ -5884,6 +5884,9 @@ func lantern_heart_suite() -> void:
 	Game.crafting.apply_absorb_flame(c.id, "lantern_heart_flame")
 	check("lantern_heart_flame" in c.crafting.get("flames", []), "the Lantern Heart's flame is absorbed like any Heavenly Flame")
 	c.crafting["flames"] = flames0
+	var obs: Dictionary = ContentDB.entry("shops", "observatory")
+	check(obs.get("stock", []).any(func(r): return str(r.item) == "sphere_comprehension_stone"),
+		"Stargazer Ming sells another Sphere Comprehension Stone, so a failed Sphere Lord breakthrough never strands a player")
 	var sp: Dictionary = ContentDB.entry("set_pieces", "greyfall_stand")
 	check(not sp.is_empty() and sp.room_event.on_complete.any(func(e): return str(e.get("flag", "")) == "shen_lian_taken"),
 		"the Greyfall stand ends with Shen Lian on the far side of the Tide")

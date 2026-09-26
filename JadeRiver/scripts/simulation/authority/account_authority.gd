@@ -134,7 +134,7 @@ func create_max_character(slot: int, name: String) -> Dictionary:
 	_apply_skip_prologue(c, start)
 	c.position = {"room": str(start.get("room", "sf_fairground")), "portal": "", "x": float(start.get("x", 0)), "y": float(start.get("y", 0)), "surface": "", "facing": 1}
 	for entry in ContentDB.all("unlocks"): Unlocks.force_unlock(c.id, str(entry.id))
-	# The realm: the highest zone ceiling (Sage Sovereign 3 in v1.1); realms above it have no zone to stand in yet.
+	# The realm: the highest zone ceiling (Sphere Lord 3 in v1.2); realms above it have no zone to stand in yet.
 	var cu: CultivatorState = c.cultivator
 	var top := "mortal"
 	for z in ContentDB.all("zones"):

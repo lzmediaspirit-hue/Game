@@ -1,4 +1,4 @@
-# Jade River — the Complete Valley (Act I) and the Azure Expanse (Act II)
+# Jade River — the Complete Valley (Act I), the Azure Expanse (Act II) and the Lantern Star Field (Act III)
 
 A 2.5D side-scrolling wuxia/xianxia cultivation RPG built in Godot 4.5.1 (GL Compatibility,
 1280×720, touch-first with full keyboard support). You begin as a fisher's child in Lotus Ferry
@@ -8,7 +8,9 @@ ladder. Act I climbs from Bone Forging through Qi Kindling, Qi Unfurling, Heart 
 Stride and Spirit Awakening to Heaven Glimpse and the Ascension Gate. Beyond the gate, Act II opens
 the Azure Expanse: a sky harbour, storm plains, frozen heights, a mirror lake, the Nine Peaks
 Alliance, a clan hold, wind canyons, a desert over a sleeping king's tomb, and a pirates' wreck on
-the edge of the Starsea (chapters 11–16, Sage 1 to Sage Sovereign 3 and the Presence Trial).
+the edge of the Starsea (chapters 11–16, Sage 1 to Sage Sovereign 3 and the Presence Trial). Across the Starsea,
+Act III lands at Lanternfall Harbor in the Lantern Star Field, where the Star Wardens hold the lantern line against the
+Hollow Tide (chapters 17–22, Will Manifest 1 to Sphere Lord 3).
 
 Open `project.godot` in Godot 4.5.1 and press F5. The first import rebuilds the generated caches.
 
@@ -36,6 +38,19 @@ Open `project.godot` in Godot 4.5.1 and press F5. The first import rebuilds the 
 | Economy | Spirit Stones as everyday money, the Nine Peaks auction, clan standing, Spirit-grade stormsteel and stormsilk, Sage-grade sunsteel and sunsilk gear with three sockets |
 | The Starsea | Star charts from sighting stones, vessels built on a slipway, voyages across the Starsea that only a Sage 3 survives, the Starsea Launch pointing at Act III's Lantern Star Field |
 | Growth | Paired cultivation with a companion, rare Daos (Blood, Life and Death, Emotion) from the Expanse's teachers, the Elder's token, an Expanse Outpost for your sect |
+
+## Across the Starsea (v1.2, Act III)
+
+| | |
+|---|---|
+| Rooms | 41 rooms in 10 regions: Lanternfall Harbor, the Drifting Shoals, Blackmast Haven, the Wyrmnest Isles, the Star Warden Citadel, the Orbit Ruins, the Ashen Reach, the Tidebreak Front, the Nebula Deep and the Lantern Heart (a secret realm), plus the Lantern Run crossing and two story instances |
+| Story | 28 quests: 23 main quests in chapters 17–22 (Lanternfall and the Presence, the Blackmast pirates and Admiral Voss, the last star-wyrm egg and the Sect Master's seat, the Star Wardens and the Sphere, the Ashborn and the Tide, Lu's Lantern and Greyfall), side stories and guided quests |
+| People | 24 NPCs of the harbour, the hulks, the nests, the Citadel, the Bastion and the Ashborn |
+| Combat | 15 new monsters, among them Admiral Voss, the Gravity Golem, General Kharn (who kneels at a fifth of his health and lets you decide whether he lives) and the Nebula Leviathan; the brush (talismans by element) and the bell (strikes that ring out on both sides) as new weapon families |
+| Cultivation | Will Manifest 1 to Sphere Lord 3; **Presence**, a held pressure that meets a foe's own at a visible boundary; the **Sphere**, a small world of your own drawn from your strongest combat Dao; Dao tier 6, the Space Dao and the Confucian path |
+| The Hollow Tide | The Hollowing fills in the Field: past half it burdens techniques, at full it seizes the body and turns your allies; lanterns, incense and pills draw it out. The Tidebreak Bastion's great lantern must stay lit through a 150-second battle |
+| Economy | Sage Crystals from loot and Star Jade for savings, Starsea Endurance jades, the Law pills' recipes for the step past the Field's ceiling |
+| Growth | Star-tier beasts, the Hatchling Wyrm (the first Primordial line), the Copperjaw Beetle swarm that grows while you are away, Sect Master rank, the Lantern Heart's Heavenly Flame, gravity switches in the Orbit Ruins |
 
 No cultivation, no Qi: the QI bar appears only when the pool exists (Bone Forging 7). Weapons appear only
 at the Weapon Hall (Bone Forging 3). Every HUD button is revealed by the system that introduces it.
@@ -95,7 +110,7 @@ tools/run_tests.sh                 # Linux/macOS (GODOT=/path/to/godot)
 | `perf_tests` | Every room loads in under 0.3 s, every page opens in under 0.15 s, a frame with fifteen monsters fits 60 fps (CPU, headless) |
 | `contract_tests` | Every event in the Part 4 catalogue is emitted only by its own system and has a reactor (`data/event_contract.json`); no player-facing text is written in the scripts |
 | `prologue_run` | A scripted Prologue to Bone Forging 2 with the HUD reveal order |
-| `valley_run` | The whole of Act I and Act II, from a new character through the Ascension Gate, the Tomb King and the Starsea to the Presence Trial, through intents only |
+| `valley_run` | Acts I–III, from a new character through the Ascension Gate, the Tomb King, the Presence Trial and the Lantern Run to Greyfall, through intents only |
 
 `valley_run` saves a checkpoint at the start of each section, so one part can be replayed:
 `godot --headless --path . res://tests/valley_run.tscn -- --from=ht5 --only --verbose`.
@@ -123,7 +138,7 @@ every system, `--debug-sect` gives a founded sect with all buildings, `--fly` ta
 - **Android Max Test** (`JadeRiver-MaxTest-android-arm64.apk`, package `com.jaderiver.cleanengine.maxtest`) carries
   the custom feature `max_test`. On first launch it makes **Max Tester** in slot 1. Every system is unlocked in this
   build and every way is open. Max Tester has:
-  - the highest realm this build's zones allow (Sage Sovereign 3, Level 79);
+  - the highest realm this build's zones allow (Sphere Lord 3, Level 97);
   - every method, technique, Inner Art, movement art, recipe and Dao;
   - the best gear at Perfect +10, one best weapon of each family, all flight vessels, and pills, talismans and
     throwables in storage;
