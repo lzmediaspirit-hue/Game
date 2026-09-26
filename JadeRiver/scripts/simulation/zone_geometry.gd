@@ -361,10 +361,6 @@ static func _along(pts: Array,d: float) -> Vector3:
 func trigger_mover(surface_id: String) -> void:
 	for m in movers:
 		if str(m.surface)==surface_id and str(m.get("mode",""))=="trigger" and float(m.trigger_t)<0.0: m.trigger_t=time
-func is_mover(surface_id: String) -> bool:
-	for m in movers:
-		if str(m.surface)==surface_id: return true
-	return false
 func crumble_volume(surface_id: String) -> Dictionary:
 	for v in volumes:
 		if str(v.kind)=="crumble" and str(v.get("surface",""))==surface_id: return v

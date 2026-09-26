@@ -11,7 +11,6 @@ var sec_accum: Dictionary = {}      # actor -> fractional second for per-second 
 var contemplate: Dictionary = {}    # actor -> dao id
 var tribulations: Dictionary = {}   # actor -> heavenly tribulation under way (S48; not saved: leaving ends it)
 var streaks: Dictionary = {}        # actor -> {n, t}: kills in a row (Blood Memory; Killing Intent grows from it)
-var last_level: Dictionary = {}
 
 func intents() -> Array:
 	return ["start_meditation", "stop_meditation", "toggle_meditation", "start_breakthrough", "learn_method", "switch_method",
@@ -959,7 +958,6 @@ func _on_hit_landed(p: Dictionary) -> void:
 		game.combat.apply_backlash(c.id)
 		emit("qi_backlash", {"actor": c.id})
 	if channels.has(c.id):
-		var ch: Dictionary = channels[c.id]
 		channels.erase(c.id)
 		_fail_breakthrough(c, "interruption", Rng.stream(c.id, "breakthrough"))
 

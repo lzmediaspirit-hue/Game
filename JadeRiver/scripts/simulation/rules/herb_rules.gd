@@ -7,10 +7,6 @@ extends RefCounted
 static func day_s() -> float:
 	return float(ContentDB.curve("time_of_day.day_minutes", 48)) * 60.0
 
-## The in-game day index of a moment.
-static func game_day(utc: float) -> int:
-	return int(floor(utc / day_s()))
-
 # ------------------------------------------------------------------ seasons
 ## The season turns with the weekly reset: four seasons of one real week each, spring first from the account's
 ## creation week (S49; the Calendar sets origin_week, 0 on older saves).

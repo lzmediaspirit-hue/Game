@@ -187,12 +187,3 @@ func name_of(table: String, id: String) -> String:
 func item_name(id: String) -> String:
 	var e := item(id)
 	return str(e.get("name", id.replace("_", " ").capitalize()))
-
-# ---------------------------------------------------------------- validation
-## Cross-reference validation (Part 7 · Data validation). Returns readable errors.
-func validate() -> Array[String]:
-	var errors: Array[String] = []
-	errors.append_array(load_errors)
-	var validator = load("res://scripts/core/data_validator.gd")
-	if validator: errors.append_array(validator.validate(self))
-	return errors

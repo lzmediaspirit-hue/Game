@@ -35,10 +35,8 @@ var save_slot_index := -1
 var skill_page := 0
 var save_timer := 0.0
 var last_safe: Dictionary = {}
-var save_error: Error = OK
 var map_theme := ""
 var map_seed := 1
-var transitions_enabled := false
 var enemy_views: Dictionary = {}
 var object_views: Dictionary = {}
 var npc_views: Dictionary = {}
@@ -49,7 +47,6 @@ var shake := 0.0
 var transfer_cooldown := 0.0
 var travel := RoomTravel.new()
 
-signal region_exit(theme: String, seed_value: int, direction: int)
 signal room_changed(room_id: String)
 signal context_changed(ctx: Dictionary)
 

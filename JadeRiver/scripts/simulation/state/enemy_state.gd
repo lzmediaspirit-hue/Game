@@ -28,7 +28,6 @@ var ai := {"state": "idle", "timer": 1.0, "target": "", "attack": 0, "patrol_x":
 var threat: Dictionary = {}
 var action := "idle"                  # presentation hint: idle walk windup attack hurt death
 var action_time := 0.0
-var hurt_time := 0.0
 var flash := 0.0
 var dead_time := 0.0
 var knockback := 0.0

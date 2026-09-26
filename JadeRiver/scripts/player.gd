@@ -157,10 +157,6 @@ func _hold_jump(c) -> void:
 	if Unlocks.is_unlocked(actor_id, "flight") and Game.combat.flight_allowed(actor_id) and take_off(true): return
 	Game.submit({"type": "glide", "on": true})
 
-func land_from_flight(reason: String) -> void:
-	if state.flying: authority.fly(false)
-	if bound() and Game.combat.is_flying(actor_id): Game.submit({"type": "stop_flight", "reason": reason})
-
 func attack():
 	if bound():
 		# S43 Plunge: joystick toward the camera + Attack in the air.

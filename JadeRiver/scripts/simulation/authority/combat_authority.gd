@@ -1834,9 +1834,6 @@ func deploy_array(actor_id: String, e: Dictionary) -> void:
 	game.progression.apply_insight(c.id, "formation", 3.0, "array_plate")
 	emit("array_deployed", {"actor": c.id, "kind": a.kind, "x": a.x, "y": a.y, "radius": a.radius, "duration": secs})
 
-func arrays_inside(pos: Vector2, kind: String) -> Array:
-	return arrays.filter(func(a): return str(a.kind) == kind and pos.distance_to(Vector2(float(a.x), float(a.y))) <= float(a.radius))
-
 func _tick_arrays(delta: float) -> void:
 	if arrays.is_empty(): return
 	for a in arrays.duplicate():

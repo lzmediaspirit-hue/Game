@@ -101,7 +101,7 @@ func apply_karma_debt(actor_id: String, debt_id: String, due_h: float, mail: Str
 	emit("debt_recorded", {"actor": c.id, "debt": debt_id})
 
 func _debt_due(c, d: Dictionary) -> bool:
-	if d.has("due_quest"): return c.quests.is_done(str(d.due_quest)) or c.quests.is_active(str(d.due_quest)) and bool(d.get("on_accept", false))
+	if d.has("due_quest"): return c.quests.is_done(str(d.due_quest))
 	return Clock.now_utc() >= float(d.get("due_utc", 0.0))
 
 func settle_debts(c) -> void:

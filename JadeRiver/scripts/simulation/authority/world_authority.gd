@@ -9,7 +9,6 @@ const PORTAL_RADIUS := Vector2(64, 44)
 const BREAKABLES := ["jar", "crate", "wine_jar"]
 const TRAINING := ["training_stump", "training_dummy"]
 
-var pending_transfer: Dictionary = {}   # presentation performs the fade, then calls complete_transfer
 ## Debug tools (S38, the Max Test APK): every portal, hidden way and climb is open, whatever its quest, flag or rank.
 ## A way to a room not built yet stays "Coming soon".
 var debug_open_ways := false

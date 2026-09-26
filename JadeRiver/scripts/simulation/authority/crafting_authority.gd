@@ -176,8 +176,6 @@ func complete_node(c, object_id: String, timing := -1.0) -> Dictionary:
 	var count := rng.randi_range(int(y[0]), int(y[1]))
 	if rng.randf() < (power - 1.0) * 0.5: count += 1
 	if craft != "star_charting" and game.pets.gatherer_active(c.id) and rng.randf() < 0.25: count += 1
-	var herb_bonus: float = game.pets.trait_bonus(c, "herb_yield") if craft == "herb_gathering" else 0.0
-	if herb_bonus > 0.0 and rng.randf() < herb_bonus * count: count += 1
 	var item := str(o.get("item", ""))
 	if o.has("outputs"): item = str(Rng.weighted(rng, o.outputs).get("item", item))   # V10: a swarm's insects by weight
 	game.inventory.apply_add(c.id, item, count, craft)
@@ -2063,4 +2061,3 @@ func tick(_delta: float) -> void:
 		var ex: Dictionary = ac.crafting.guild_exam
 		ac.crafting["guild_exam"] = {}
 		emit("guild_exam_failed", {"actor": ac.id, "craft": str(ex.craft), "rank": str(ex.rank), "made": int(ex.made)})
-	pass

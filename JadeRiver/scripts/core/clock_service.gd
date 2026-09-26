@@ -15,9 +15,6 @@ func now_utc() -> float:
 func file_stamp() -> String:
 	return Time.get_datetime_string_from_unix_time(int(now_utc()), false).replace(":", "-").replace("T", "_")
 
-func uptime_s() -> float:
-	return Time.get_ticks_msec() / 1000.0
-
 func tz_offset_s() -> int:
 	if override_tz_offset_s != -99999: return override_tz_offset_s
 	return int(Time.get_time_zone_from_system().get("bias", 0)) * 60

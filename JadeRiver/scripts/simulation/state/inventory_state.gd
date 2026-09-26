@@ -35,11 +35,6 @@ func capacity() -> int:
 	if g == null: return 25 + bonus_slots
 	return int(ContentDB.item(g.id).get("gourd", {}).get("bag", 25)) + bonus_slots
 
-func quick_capacity() -> int:
-	var g = equipped.get("gourd")
-	if g == null: return 5
-	return int(ContentDB.item(g.id).get("gourd", {}).get("quick", 5))
-
 func resize(n: int) -> void:
 	while bag.size() < n: bag.append(null)
 	# Never drop items when a smaller gourd is equipped; extra slots stay until emptied.

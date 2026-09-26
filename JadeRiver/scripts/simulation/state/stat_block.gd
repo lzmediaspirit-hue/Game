@@ -21,9 +21,6 @@ func set_base(stat: String, value: float) -> void:
 		base[stat] = value
 		dirty = true
 
-func set_bases(values: Dictionary) -> void:
-	for k in values: set_base(k, float(values[k]))
-
 func add_modifier(m: Dictionary) -> void:
 	var mod := m.duplicate()
 	mod["duration"] = float(mod.get("duration", -1))
@@ -51,11 +48,6 @@ func remove_prefix(prefix: String) -> void:
 	var before := modifiers.size()
 	modifiers = modifiers.filter(func(m): return not str(m.get("source", "")).begins_with(prefix))
 	if modifiers.size() != before: dirty = true
-
-func has_source(source: String) -> bool:
-	for m in modifiers:
-		if m.get("source") == source: return true
-	return false
 
 ## Advance timed modifiers. Returns the sources that expired.
 func tick(delta: float) -> Array:

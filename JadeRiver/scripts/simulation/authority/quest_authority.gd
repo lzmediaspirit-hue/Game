@@ -218,7 +218,7 @@ func talk(c, npc: String) -> Dictionary:
 		var lines: Array = n.get("lines", ["..."])
 		# A false realm (S48 Concealment) changes how people talk to you.
 		if c.cultivator.false_realm != "" and not (n.get("concealed_lines", []) as Array).is_empty(): lines = n.concealed_lines
-		convo.lines = [lines[(c.quests.seen_dialogue.size() + game.tick_count) % lines.size()]]
+		convo.lines = [lines[game.tick_count % lines.size()]]
 	for s in n.get("services", []):
 		var svc := str(s)
 		if svc.begins_with("shop:"):
@@ -389,7 +389,7 @@ func _on_event(p: Dictionary, ev: String) -> void:
 	var c = game.active()
 	if c == null: return
 	var actor := str(p.get("actor", p.get("killer", c.id)))
-	if actor != c.id and not (ev == "actor_defeated" and game.companions.is_companion(actor)): return
+	if actor != c.id: return
 	for qid in c.quests.active.keys():
 		var def := quest_def(c, qid)
 		var st: Dictionary = c.quests.active[qid]

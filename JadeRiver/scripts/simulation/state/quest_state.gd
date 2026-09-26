@@ -8,9 +8,7 @@ var done: Dictionary = {}       # quest id -> completion count
 var tracked: Array = []         # up to 3 quest ids
 var flags: Dictionary = {}      # flag -> true
 var offered: Dictionary = {}    # quest id -> true (visible "!" markers)
-var seen_dialogue: Dictionary = {}
 var daily: Dictionary = {}      # generated daily missions {id: def}
-var last_daily_day := -1
 
 func is_done(id: String) -> bool:
 	return done.has(id)
@@ -23,8 +21,7 @@ func has_flag(flag: String) -> bool:
 
 func snapshot() -> Dictionary:
 	return {"active": active.duplicate(true), "done": done.duplicate(), "tracked": tracked.duplicate(),
-		"flags": flags.keys(), "offered": offered.keys(), "seen_dialogue": seen_dialogue.keys(),
-		"daily": daily.duplicate(true), "last_daily_day": last_daily_day}
+		"flags": flags.keys(), "offered": offered.keys(), "daily": daily.duplicate(true)}
 
 func restore(d: Dictionary) -> void:
 	active = {}
@@ -44,7 +41,4 @@ func restore(d: Dictionary) -> void:
 	for f in d.get("flags", []): flags[str(f)] = true
 	offered.clear()
 	for q in d.get("offered", []): offered[str(q)] = true
-	seen_dialogue.clear()
-	for s in d.get("seen_dialogue", []): seen_dialogue[str(s)] = true
 	daily = d.get("daily", {}).duplicate(true)
-	last_daily_day = int(d.get("last_daily_day", -1))
