@@ -221,7 +221,7 @@ func _growth_tab(ch, pet: Dictionary, sp: Dictionary, r: Rect2) -> void:
 		var inst = pet.get("equipment", {}).get(str(slot))
 		slot_box(Rect2(x, y0 + 182, 52, 52), str(inst.id) if inst is Dictionary else "", 0, str(inst.get("quality", "")) if inst is Dictionary else "", "unequip", str(slot))
 		if inst is Dictionary and int(inst.get("enhance", 0)) > 0: UiKit.draw_outlined(self, "+%d" % int(inst.enhance), Vector2(x + 4, y0 + 198), 13, UiKit.PALE_GOLD)
-		text(Vector2(x - 4, y0 + 248), fit(Tx.t("ui.pets.gear_" + str(slot)), 12, 60), 12, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 60)
+		text(Vector2(x - 1, y0 + 248), Tx.t("ui.pets.gear_" + str(slot)), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 54)   # B21: its 58 px pitch, at the size drawn
 		x += 58
 	x += 14
 	var shown := 0

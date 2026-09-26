@@ -392,6 +392,10 @@ func ui_fixes_suite() -> void:
 	var words: String = hud_script.tracker_objective("· Net glowflies at the Reed Shallows beside the lotus ferry", "0/5", 290.0)
 	check(words.ends_with("…") and UiKit.text_width(words, 16) + 10.0 + UiKit.text_width("0/5", 16) <= 290.0
 		and hud_script.tracker_objective("· Talk to Aunt Ping", "0/5", 290.0) == "· Talk to Aunt Ping", "B11: the count stays whole beside \"%s\"" % words)
+	# B21: words are measured at the size they are drawn: asked for under UiKit.MIN_SIZE, both are at the minimum (and
+	# btn() stops stepping its label down there, then shortens it; the ui_suite checks every label fits its button).
+	check(UiKit.text_width("Talisman", 12) == UiKit.text_width("Talisman", UiKit.MIN_SIZE) and UiKit.fit("Talisman", 12, 40) == UiKit.fit("Talisman", UiKit.MIN_SIZE, 40)
+		and UiKit.text_width(UiKit.fit("Talisman", 12, 40), UiKit.MIN_SIZE) <= 40.0, "B21: a word is fitted at the size it is drawn")
 	# B25: with no floor cleared, the Sweep button says why it sweeps none (it said every floor was swept).
 	var tower = load("res://scripts/ui/pages/tower_page.gd")
 	check(tower.sweep_label(0, 0) == Tx.t("ui.tower.sweep_none") and tower.sweep_label(0, 4) == Tx.t("ui.tower.swept_all")
