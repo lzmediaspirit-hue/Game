@@ -1986,6 +1986,38 @@
     "post_rules"
    ],
    "polled": "The Roll-Call's Bench tab reads the bench."
+  },
+  "post_art_learned": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ],
+   "polled": "The Works page's Arts tab reads the character's arts; Finesse and Diligence are computed on demand."
+  },
+  "seal_inscribed": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ],
+   "polled": "The Works page's Seals tab reads the seals; post rates are computed on demand."
+  },
+  "stele_raised": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ],
+   "polled": "The Works page's Steles tab reads the steles; Finesse is computed on demand."
+  },
+  "favour_granted": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ],
+   "polled": "The Works page's Favours tab reads the favours held."
   }
  }
 }

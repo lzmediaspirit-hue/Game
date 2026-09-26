@@ -44,10 +44,10 @@ static func diligence(kind: String, sources_pct := 0.0, multi := 1.0) -> float:
 
 # ------------------------------------------------------------------ Finesse (§3.3)
 ## Finesse of a craft: tool power, the craft's attribute, the craft level, flat Finesse (seals), percentage groups
-## (each multiplies on its own) and stele power added to the tool base.
+## (each multiplies on its own) and Guardian Stele power added to the tool's power.
 static func finesse(power: float, attribute: float, level: int, flat := 0.0, pct_groups: Array = [], stele_power := 0.0) -> float:
 	var f: Dictionary = rule("finesse", {})
-	var base := 2.0 * power + float(f.get("base_flat", 4.0)) + stele_power
+	var base := 2.0 * (power + stele_power) + float(f.get("base_flat", 4.0))
 	var a := maxf(0.0, attribute)
 	var inner := pow(base, float(f.get("tool_exp", 1.3))) + pow(a + 1.0, float(f.get("stat_flat_exp", 0.6))) + flat
 	var v := inner * (1.0 + float(level) * float(f.get("per_level", 0.005))) \
@@ -215,3 +215,29 @@ static func rite_result(fin: float, toughness: float, charge: float) -> Dictiona
 ## Apprentice Bench: items an hour per apprentice, 3600 x speed / progress.
 static func bench_rate(progress: float, speed := 1.0) -> float:
 	return 3600.0 * maxf(0.0, speed) / maxf(1.0, progress)
+
+# ------------------------------------------------------------------ the account web (V10d, §6)
+## The two curves every account source uses: add = x1·L; decay = x1·L/(L + x2).
+static func curve(kind: String, x1: float, x2: float, level: float) -> float:
+	if level <= 0.0: return 0.0
+	if kind == "decay": return x1 * level / (level + x2)
+	return x1 * level
+
+## Post Art points a character has for its summed craft levels.
+static func art_points(total_levels: int) -> int:
+	return int(total_levels / maxi(1, int(ContentDB.config("posts").get("arts", {}).get("points_per_levels", 2))))
+
+## {item, count} to raise a seal from `level` to the next: the ladder's item for the level band, ceil(base × growth^L).
+static func seal_cost(level: int, ladder: Array, mult := 1.0) -> Dictionary:
+	if ladder.is_empty(): return {}
+	var sc: Dictionary = ContentDB.config("posts").get("seal_cost", {})
+	var i := mini(level / maxi(1, int(sc.get("step", 4))), ladder.size() - 1)
+	return {"item": str(ladder[i]), "count": int(ceil(float(sc.get("base", 25)) * pow(float(sc.get("growth", 1.12)), level) * mult))}
+
+## {taels, item, count} to raise a Guardian Stele from `level` to the next.
+static func stele_cost(level: int) -> Dictionary:
+	var st: Dictionary = ContentDB.config("posts").get("steles", {})
+	var ladder: Array = st.get("ladder", ["copper_ore"])
+	var i := mini(level / maxi(1, int(st.get("step", 5))), ladder.size() - 1)
+	return {"taels": int(floor(float(st.get("taels", 150)) * pow(float(st.get("taels_growth", 1.22)), level))),
+		"item": str(ladder[i]), "count": int(ceil(float(st.get("stone", 10)) * pow(float(st.get("stone_growth", 1.1)), level)))}

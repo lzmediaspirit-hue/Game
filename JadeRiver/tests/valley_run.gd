@@ -666,6 +666,39 @@ func _stations() -> void:
 	check(rite.get("ok", false) and int(rite.get("wisps", 0)) > 0, "hold the rites: wave %d, %d Spirit Wisps" % [int(rite.get("wave", 0)), int(rite.get("wisps", 0))])
 	check(finish("the_ancestors_regard"), "The Ancestors' Regard done")
 
+## S50 V10d: a Post Art (Elder Hu), a Seal Script (Old Scribe Bai) and a Guardian Stele (Elder Bian), the stele's
+## stone from three hours at a copper post.
+func _works() -> void:
+	check(start("an_idle_art"), "An Idle Art accepted")
+	check(unlocked("post_arts") and Game.posts.art_points_free(c()) >= 1, "Post Arts unlock with %d points" % Game.posts.art_points_free(c()))
+	check(submit({"type": "learn_post_art", "art": "dreaming_artisan"}).get("ok", false), "learn Dreaming Artisan")
+	check(finish("an_idle_art"), "An Idle Art done")
+	var vein_room := _room_with_node("copper_ore")
+	check(vein_room != "" and travel(vein_room), "to a copper vein")
+	var veins := objects_of("ore_vein", "item", "copper_ore")
+	check(not veins.is_empty(), "a copper vein to keep post at")
+	if veins.is_empty(): return
+	place(Vector2(float(veins[0].at[0]), float(veins[0].at[1]) + 10))
+	check(submit({"type": "take_post", "object": str(veins[0].id)}).get("ok", false), "keep post at the copper vein")
+	check(submit({"type": "switch_character", "slot": 2}).get("ok", false), "the second disciple takes a turn")
+	Clock.debug_offset_s += 3.0 * 3600.0
+	check(submit({"type": "switch_character", "slot": 1}).get("ok", false), "and three hours later the first comes back")
+	submit({"type": "enter_world"})
+	place(Vector2(float(c().position.x), float(c().position.y)))
+	submit({"type": "send_to_storehouse", "character": c().id})
+	submit({"type": "leave_post"})
+	check(int(Game.account.storehouse.get("copper_ore", 0)) >= 10, "%d copper ore in the Storehouse" % int(Game.account.storehouse.get("copper_ore", 0)))
+	check(start("seals_in_red_ink"), "Seals in Red Ink accepted")
+	check(unlocked("seal_scripts"), "Seal Scripts unlock")
+	var seal := submit({"type": "inscribe_seal", "seal": "seal_green_stem"})
+	check(seal.get("ok", false), "inscribe the Seal of the Green Stem with stored willow moss (%d) %s" % [int(Game.account.storehouse.get("willow_moss", 0)), str(seal.get("text", ""))])
+	check(finish("seals_in_red_ink"), "Seals in Red Ink done")
+	check(start("the_guardian_stones"), "The Guardian Stones accepted")
+	check(unlocked("guardian_steles"), "Guardian Steles unlock")
+	var stele := submit({"type": "raise_stele", "craft": "delving"})
+	check(stele.get("ok", false) and Game.posts.stele_power("delving") > 0.0, "raise the Stele of Vein Delving %s" % str(stele.get("text", "")))
+	check(finish("the_guardian_stones"), "The Guardian Stones done")
+
 ## Do one daily mission objective (kill or gather) in a room that has it.
 func _do_mission(qid: String) -> bool:
 	var q: Dictionary = c().quests.daily.get(qid, {})
@@ -1264,6 +1297,7 @@ func sec_ht1() -> void:
 		elif i == 0: print("  treat: ", tr)
 	check(treated == 3, "treat three patients (%d)" % treated)
 	check(finish("the_infirmary"), "The Infirmary done")
+	_works()
 	# S43: Wall-Step is learned in the Echo Cliffs shaft at Heart Tempering 4.
 	check(reach("heart_tempering_4"), "Heart Tempering 4")
 	check(start("between_two_walls"), "Between Two Walls accepted")

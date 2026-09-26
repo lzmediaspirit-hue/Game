@@ -1470,6 +1470,138 @@
    "target_room": "sf_artisan_row"
   },
   {
+   "id": "an_idle_art",
+   "name": "An Idle Art",
+   "kind": "side",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Learn a Post Art (the Roll-Call's Works)",
+     "count": 1,
+     "system": "post_art"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 150
+    }
+   ],
+   "offer_text": [
+    "A disciple left at a vein learns the vein. Learns the pick, the patience, the hour when the stone gives.",
+    "Every craft level you earn buys an art of keeping post. Choose them as you would choose a sword form: for what you do most."
+   ],
+   "complete_text": [
+    "Good. Idle hands are not the same as empty ones."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk6",
+   "target_room": "ja_elder_hu_peak"
+  },
+  {
+   "id": "seals_in_red_ink",
+   "name": "Seals in Red Ink",
+   "kind": "side",
+   "giver": "old_scribe_bai",
+   "hand_in": "old_scribe_bai",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Inscribe a Seal Script with goods from the Storehouse",
+     "count": 1,
+     "system": "seal"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 200
+    }
+   ],
+   "offer_text": [
+    "A seal carved once serves every hand that works under it. Bring me ore, herbs, fish from your Storehouse; I cut the characters.",
+    "But a seal of the deep vein means nothing to one who has never swung a pick. Each of your people draws on it only as far as their own craft reaches."
+   ],
+   "complete_text": [
+    "Red ink, still wet. Every one of your people who works that craft will feel it."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qu2",
+   "target_room": "sf_artisan_row"
+  },
+  {
+   "id": "the_guardian_stones",
+   "name": "The Guardian Stones",
+   "kind": "side",
+   "giver": "jade_formation_elder",
+   "hand_in": "jade_formation_elder",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Raise a Guardian Stele for a craft",
+     "count": 1,
+     "system": "stele"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 300
+    }
+   ],
+   "offer_text": [
+    "A formation stele anchors more than arrays. Raise one for a craft and every tool of that craft bites harder, in every hand.",
+    "Silver for the masons, ore from your Storehouse for the stone. Higher steles want finer stone."
+   ],
+   "complete_text": [
+    "It stands. Your picks will ring truer for it."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qu6",
+   "target_room": "ja_east_terrace"
+  },
+  {
+   "id": "the_county_tribute",
+   "name": "The County Tribute",
+   "kind": "side",
+   "giver": "magistrate_qian",
+   "hand_in": "magistrate_qian",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Earn one of the Magistrate's Favours with silver and Storehouse tribute",
+     "count": 1,
+     "system": "favour"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 400
+    }
+   ],
+   "offer_text": [
+    "Your people work half the county's veins and pools. The county notices. Pay tribute to the granary and the county will return the courtesy.",
+    "The watch, the guilds, my own seal on your ledgers: each favour is granted once, and each is for good."
+   ],
+   "complete_text": [
+    "Granted. Show that token at any post in the county and doors will open."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "ht2",
+   "target_room": "sf_county_hall"
+  },
+  {
    "id": "earning_your_keep",
    "name": "Earning Your Keep",
    "kind": "guided",

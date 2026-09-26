@@ -41,6 +41,7 @@ var welcome_pending: Dictionary = {}
 var storehouse: Dictionary = {}        # S50 Keeping Post (V10): the account's bulk store, item -> count (Post authority)
 var leaves: Dictionary = {}            # S50 V10b Bestiary Leaves: enemy -> leaves found (Post authority)
 var post_vows: Dictionary = {}         # S50 V10c Post Vows learned for the account: vow -> true (Post authority)
+var works: Dictionary = {}             # S50 V10d the account web: seals, steles, favours, ... (Post authority)
 
 static func default_settings() -> Dictionary:
 	return {"music": 0.7, "sfx": 0.8, "ambience": 0.6, "ui": 0.7, "text_size": 1, "left_handed": false,
@@ -63,7 +64,8 @@ func snapshot() -> Dictionary:
 		"achievements": achievements.duplicate(true), "economy": economy.duplicate(true), "resets": resets.duplicate(),
 		"rooms": rooms.duplicate(true), "rng": {"seed": str(rng_seed), "streams": rng_state.get("streams", {})},
 		"welcome_pending": welcome_pending.duplicate(true), "created_utc": created_utc, "calendar": calendar.duplicate(true),
-		"activity": activity.duplicate(true), "storehouse": storehouse.duplicate(), "leaves": leaves.duplicate(), "post_vows": post_vows.keys()}
+		"activity": activity.duplicate(true), "storehouse": storehouse.duplicate(), "leaves": leaves.duplicate(), "post_vows": post_vows.keys(),
+		"works": works.duplicate(true)}
 
 func restore(d: Dictionary) -> void:
 	account_id = str(d.get("account_id", account_id))
@@ -107,6 +109,7 @@ func restore(d: Dictionary) -> void:
 		for k in sh:
 			if int(sh[k]) > 0: storehouse[str(k)] = int(sh[k])
 	post_vows = _to_set(d.get("post_vows", []))
+	works = (d.get("works", {}) as Dictionary).duplicate(true) if d.get("works", {}) is Dictionary else {}
 	leaves = {}
 	var lv = d.get("leaves", {})
 	if lv is Dictionary:

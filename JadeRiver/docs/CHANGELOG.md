@@ -5,6 +5,29 @@
 The idle gathering milestone (docs/idle_gathering_design.md), after IdleOn's AFK model in Jade River's own names. It
 runs between v1.2 Phase B and Phase C.
 
+### V10d1 · Arts, Seals, Steles and Favours
+The account web's multipliers (docs/idle_gathering_design.md §6), on a new **Works of the Post** page (the menu's
+Works). Every source uses one of two curves: add (x1·L) or decay (x1·L/(L + x2)).
+- **Post Arts** (Elder Hu's An Idle Art, Qi Kindling 6): a character's own, one point for every two craft levels
+  across all crafts; forgetting them all costs 1,000 taels.
+  - Dreaming Artisan 20·L/(L+40) Craft Diligence; Sleeping Sword 20·L/(L+50) Martial; Water-Clock Breath 8·L/(L+50)
+    both; Steady Hand 30·L/(L+60)% Finesse; Deep Sleeves 60·L/(L+60)% pouch capacity; Windfall Knack and Flowing
+    Hand feed the Windfall and Flow terms of a post's rates.
+  - Hunter's Recall (one point) now gates taking up a snare from afar, at half the catch.
+- **Seal Scripts** (Old Scribe Bai's Seals in Red Ink, Qi Unfurling 2): account-wide, paid from the Storehouse,
+  ceil(25 × 1.12^L) of the seal's ladder item for the level band. A craft seal gives +3 flat Finesse a level to its
+  craft; the Deep Pouch seal pouch capacity; the Unsleeping Hand both Diligences. A character draws on a seal only
+  up to its own level in that craft (its highest craft for the others). Levels 1–10 for now; Essence Salts open
+  the rest in V10d2.
+- **Guardian Steles** (Elder Bian's The Guardian Stones, Qi Unfurling 6): one per craft, +0.3 tool power a level
+  for everyone, floor(150 × 1.22^L) taels and ceil(10 × 1.1^L) ore from the Storehouse.
+- **Magistrate's Favours** (Magistrate Qian's The County Tribute, Heart Tempering 2): the Watch (+5% Martial
+  Diligence), the Guilds (+3% Craft Diligence) and the Red Seal (a 2.2% chance a settle's craft EXP counts twice),
+  each earned once with taels and Storehouse tribute.
+- Guardian Stele power now adds to the tool's power inside Finesse (it was added to the base once, not twice).
+- Tests: `works_suite`; the valley run learns an art, inscribes a seal with its willow moss and raises a stele with
+  three hours of a copper post.
+
 ### V10c · Snares, Rites and the Bench
 - **Beast Snaring** (Agility; Adventurer Kai's Snares Before Swords, a hemp snare kit): 16 beast trails from the Reed
   Shallows to the Drifting Shoals, each with its critter (jade frog, mist hare, reed ferret, cloud marmot, thunder

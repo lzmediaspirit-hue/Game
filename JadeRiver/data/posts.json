@@ -1164,5 +1164,357 @@
   "speed_per_point": 0.02,
   "exp_per_point": 0.03,
   "cap_per_point": 0.1
- }
+ },
+ "post_arts": [
+  {
+   "id": "dreaming_artisan",
+   "name": "Dreaming Artisan",
+   "max": 100,
+   "curve": "decay",
+   "x1": 20,
+   "x2": 40,
+   "gives": [
+    "craft_diligence"
+   ],
+   "text": "Craft Diligence +%s%%."
+  },
+  {
+   "id": "sleeping_sword",
+   "name": "Sleeping Sword",
+   "max": 100,
+   "curve": "decay",
+   "x1": 20,
+   "x2": 50,
+   "gives": [
+    "martial_diligence"
+   ],
+   "text": "Martial Diligence +%s%%."
+  },
+  {
+   "id": "water_clock_breath",
+   "name": "Water-Clock Breath",
+   "max": 100,
+   "curve": "decay",
+   "x1": 8,
+   "x2": 50,
+   "gives": [
+    "craft_diligence",
+    "martial_diligence"
+   ],
+   "text": "Craft and Martial Diligence +%s%%."
+  },
+  {
+   "id": "steady_hand",
+   "name": "Steady Hand",
+   "max": 100,
+   "curve": "decay",
+   "x1": 30,
+   "x2": 60,
+   "gives": [
+    "finesse_pct"
+   ],
+   "text": "Finesse +%s%%."
+  },
+  {
+   "id": "deep_sleeves",
+   "name": "Deep Sleeves",
+   "max": 100,
+   "curve": "decay",
+   "x1": 60,
+   "x2": 60,
+   "gives": [
+    "capacity_pct"
+   ],
+   "text": "Pouches hold %s%% more."
+  },
+  {
+   "id": "windfall_knack",
+   "name": "Windfall Knack",
+   "max": 100,
+   "curve": "decay",
+   "x1": 0.2,
+   "x2": 50,
+   "gives": [
+    "windfall"
+   ],
+   "text": "Windfall chance %s (each success may bring another)."
+  },
+  {
+   "id": "flowing_hand",
+   "name": "Flowing Hand",
+   "max": 100,
+   "curve": "decay",
+   "x1": 0.1,
+   "x2": 100,
+   "gives": [
+    "flow"
+   ],
+   "text": "Flow +%s: Abundance grows faster past a full Chance bar."
+  },
+  {
+   "id": "hunters_recall",
+   "name": "Hunter's Recall",
+   "max": 1,
+   "curve": "add",
+   "x1": 1,
+   "x2": 0,
+   "gives": [
+    "remote_snare"
+   ],
+   "text": "Take up finished snares from anywhere, at half the catch."
+  }
+ ],
+ "arts": {
+  "points_per_levels": 2,
+  "reset_taels": 1000
+ },
+ "seals": [
+  {
+   "id": "seal_open_vein",
+   "name": "Seal of the Open Vein",
+   "craft": "delving",
+   "max": 10,
+   "curve": "add",
+   "x1": 3,
+   "x2": 0,
+   "gives": [
+    "finesse_flat"
+   ],
+   "ladder": [
+    "copper_ore",
+    "riverstone",
+    "jadeiron",
+    "spirit_stone_shard",
+    "cloudsteel_ore",
+    "mystic_ore",
+    "stormsteel_ore",
+    "sunglass_ore",
+    "driftglass"
+   ]
+  },
+  {
+   "id": "seal_green_stem",
+   "name": "Seal of the Green Stem",
+   "craft": "foraging",
+   "max": 10,
+   "curve": "add",
+   "x1": 3,
+   "x2": 0,
+   "gives": [
+    "finesse_flat"
+   ],
+   "ladder": [
+    "willow_moss",
+    "ember_pepper",
+    "riverreed_ginseng_10",
+    "mist_lotus",
+    "cloudtop_orchid",
+    "soulbell_flower",
+    "frost_lotus",
+    "ember_cactus",
+    "star_lotus"
+   ]
+  },
+  {
+   "id": "seal_still_line",
+   "name": "Seal of the Still Line",
+   "craft": "angling",
+   "max": 10,
+   "curve": "add",
+   "x1": 3,
+   "x2": 0,
+   "gives": [
+    "finesse_flat"
+   ],
+   "ladder": [
+    "river_minnow",
+    "reed_perch",
+    "river_eel",
+    "jade_carp_fish",
+    "mist_trout",
+    "rapids_salmon",
+    "moon_carp"
+   ]
+  },
+  {
+   "id": "seal_light_net",
+   "name": "Seal of the Light Net",
+   "craft": "netting",
+   "max": 10,
+   "curve": "add",
+   "x1": 3,
+   "x2": 0,
+   "gives": [
+    "finesse_flat"
+   ],
+   "ladder": [
+    "glowfly",
+    "reed_cicada",
+    "jade_scarab",
+    "silk_moth",
+    "thunder_mantis",
+    "frost_cricket",
+    "ember_locust",
+    "starwing_mote"
+   ]
+  },
+  {
+   "id": "seal_patient_snare",
+   "name": "Seal of the Patient Snare",
+   "craft": "snaring",
+   "max": 10,
+   "curve": "add",
+   "x1": 3,
+   "x2": 0,
+   "gives": [
+    "finesse_flat"
+   ],
+   "ladder": [
+    "jade_frog",
+    "mist_hare",
+    "reed_ferret",
+    "cloud_marmot",
+    "thunder_hedgehog",
+    "frost_stoat",
+    "sand_fox",
+    "star_gecko"
+   ]
+  },
+  {
+   "id": "seal_ancestors_name",
+   "name": "Seal of the Ancestor's Name",
+   "craft": "rites",
+   "max": 10,
+   "curve": "add",
+   "x1": 3,
+   "x2": 0,
+   "gives": [
+    "finesse_flat"
+   ],
+   "ladder": [
+    "spirit_wisp"
+   ]
+  },
+  {
+   "id": "seal_deep_pouch",
+   "name": "Seal of the Deep Pouch",
+   "craft": "",
+   "max": 10,
+   "curve": "decay",
+   "x1": 40,
+   "x2": 40,
+   "gives": [
+    "capacity_pct"
+   ],
+   "ladder": [
+    "hemp_cord",
+    "bronze_rivet",
+    "kiln_brick",
+    "lacquer_pot",
+    "whetstone",
+    "spirit_glue"
+   ]
+  },
+  {
+   "id": "seal_unsleeping_hand",
+   "name": "Seal of the Unsleeping Hand",
+   "craft": "",
+   "max": 10,
+   "curve": "decay",
+   "x1": 15,
+   "x2": 50,
+   "gives": [
+    "craft_diligence",
+    "martial_diligence"
+   ],
+   "ladder": [
+    "spirit_wisp"
+   ],
+   "cost_mult": 2
+  }
+ ],
+ "seal_cost": {
+  "base": 25,
+  "growth": 1.12,
+  "step": 4
+ },
+ "steles": {
+  "power_per_level": 0.3,
+  "max": 40,
+  "taels": 150,
+  "taels_growth": 1.22,
+  "stone": 10,
+  "stone_growth": 1.1,
+  "step": 5,
+  "ladder": [
+   "copper_ore",
+   "riverstone",
+   "jadeiron",
+   "spirit_stone_shard",
+   "cloudsteel_ore",
+   "mystic_ore",
+   "stormsteel_ore",
+   "sunglass_ore",
+   "driftglass"
+  ]
+ },
+ "favours": [
+  {
+   "id": "favour_of_the_watch",
+   "name": "Favour of the Watch",
+   "gives": {
+    "martial_diligence": 5
+   },
+   "taels": 4000,
+   "items": [
+    {
+     "item": "mist_hare",
+     "count": 60
+    },
+    {
+     "item": "reed_perch",
+     "count": 200
+    }
+   ],
+   "text": "The county watch shares its roads. Martial Diligence +5%."
+  },
+  {
+   "id": "favour_of_the_guilds",
+   "name": "Favour of the Guilds",
+   "gives": {
+    "craft_diligence": 3
+   },
+   "taels": 6000,
+   "items": [
+    {
+     "item": "jadeiron",
+     "count": 300
+    },
+    {
+     "item": "reed_cicada",
+     "count": 200
+    }
+   ],
+   "text": "The guilds let your people work their grounds. Craft Diligence +3%."
+  },
+  {
+   "id": "favour_of_the_red_seal",
+   "name": "Favour of the Red Seal",
+   "gives": {
+    "double_exp": 2.2
+   },
+   "taels": 9000,
+   "items": [
+    {
+     "item": "spirit_wisp",
+     "count": 120
+    },
+    {
+     "item": "mist_lotus",
+     "count": 150
+    }
+   ],
+   "text": "The magistrate's own seal on your ledgers: a 2.2% chance a settle's craft EXP counts twice."
+  }
+ ]
 }

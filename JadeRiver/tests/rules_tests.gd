@@ -60,6 +60,7 @@ func _main() -> void:
 	post_suite()
 	vigil_suite()
 	station_suite()
+	works_suite()
 	body_path_suite()
 	heaven_suite()
 	arts_suite()
@@ -5390,6 +5391,72 @@ func station_suite() -> void:
 	c.posts = posts0
 	Game.account.post_vows = vows0
 	Game.world.apply_teleport(c.id, back)
+
+func works_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	check(near(PostRules.curve("add", 3.0, 0.0, 4.0), 12.0) and near(PostRules.curve("decay", 20.0, 40.0, 40.0), 10.0) and near(PostRules.curve("decay", 20.0, 40.0, 0.0), 0.0),
+		"the account curves: add = x1 L; decay = x1 L / (L + x2)")
+	check(PostRules.art_points(11) == 5, "a Post Art point for every two craft levels")
+	var ladder := ["copper_ore", "riverstone", "jadeiron"]
+	var s0 := PostRules.seal_cost(0, ladder)
+	var s5 := PostRules.seal_cost(5, ladder)
+	check(str(s0.item) == "copper_ore" and int(s0.count) == 25 and str(s5.item) == "riverstone" and int(s5.count) == int(ceil(25.0 * pow(1.12, 5))),
+		"a seal costs ceil(25 x 1.12^L) of its ladder's item for the level band (%d %s at level 5)" % [int(s5.count), str(s5.item)])
+	var t5 := PostRules.stele_cost(5)
+	check(int(PostRules.stele_cost(0).taels) == 150 and int(t5.taels) == int(floor(150.0 * pow(1.22, 5))) and str(t5.item) == "riverstone" and int(t5.count) == 17,
+		"a stele costs floor(150 x 1.22^L) taels and ceil(10 x 1.1^L) ore")
+	check(near(PostRules.finesse(6.0, 10.0, 1, 0.0, [], 1.5), PostRules.finesse(7.5, 10.0, 1)), "stele power adds to the tool's power")
+	var posts0: Dictionary = c.posts.duplicate(true)
+	var works0: Dictionary = Game.account.works.duplicate(true)
+	var store0: Dictionary = Game.account.storehouse.duplicate()
+	for u in ["keeping_post", "post_arts", "seal_scripts", "guardian_steles", "magistrates_favours"]: Unlocks.force_unlock(c.id, u)
+	Game.account.works = {}
+	c.posts["arts"] = {}
+	Game.posts.apply_craft_xp(c.id, "delving", 400.0, "test")
+	var lv := Game.posts.level(c, "delving")
+	check(Game.posts.art_points_free(c) == PostRules.art_points(Game.posts.total_craft_levels(c)) and Game.posts.art_points_free(c) >= 1,
+		"%d craft levels give %d Post Art points" % [Game.posts.total_craft_levels(c), Game.posts.art_points_free(c)])
+	# Arts: Dreaming Artisan raises Craft Diligence; Steady Hand multiplies Finesse.
+	var d0 := Game.posts.diligence_of(c)
+	check(Game.submit({"type": "learn_post_art", "art": "dreaming_artisan"}).get("ok", false) and near(Game.posts.diligence_of(c) - d0, 20.0 / 41.0 / 100.0, 0.0005),
+		"Dreaming Artisan 1: Craft Diligence +%.2f%%" % (100.0 * (Game.posts.diligence_of(c) - d0)))
+	var f0 := Game.posts.finesse_of(c, "delving")
+	c.posts.arts["steady_hand"] = 60
+	check(near(Game.posts.finesse_of(c, "delving") - 12.0, (f0 - 12.0) * 1.15, 0.01), "Steady Hand 60 multiplies Finesse (above its flat 12) by 1.15")
+	c.posts.arts.erase("steady_hand")
+	check(not Game.submit({"type": "collect_snare", "object": "nowhere", "remote": true}).get("ok", true), "without Hunter's Recall no snare is taken up from afar")
+	# Seals: paid from the Storehouse; a character draws on a seal only up to its craft level.
+	Game.account.storehouse["copper_ore"] = 5000
+	Game.account.storehouse["riverstone"] = 5000
+	for i in lv + 2: Game.submit({"type": "inscribe_seal", "seal": "seal_open_vein"})
+	check(Game.posts.seal_level("seal_open_vein") == mini(lv + 2, 10) and int(Game.account.storehouse.get("riverstone", 0)) < 5000,
+		"inscribe the Seal of the Open Vein to level %d with stored copper ore (%d left, Delving %d)" % [Game.posts.seal_level("seal_open_vein"), int(Game.account.storehouse.get("copper_ore", 0)), lv])
+	check(near(Game.posts.seal_sum(c, "finesse_flat", "delving"), 3.0 * mini(lv, Game.posts.seal_level("seal_open_vein"))) and near(Game.posts.seal_sum(c, "finesse_flat", "angling"), 0.0),
+		"a Delving level %d character uses the seal to level %d: +%.0f flat Finesse, and only for Delving" % [lv, mini(lv, Game.posts.seal_level("seal_open_vein")), Game.posts.seal_sum(c, "finesse_flat", "delving")])
+	Game.account.storehouse.erase("hemp_cord")
+	var fail := Game.submit({"type": "inscribe_seal", "seal": "seal_deep_pouch"})
+	check(not fail.get("ok", true) and str(fail.get("reason", "")) == "materials", "a seal without its goods in the Storehouse is refused")
+	# Steles: taels and ore; the tool bites harder.
+	Game.economy.apply_currency("silver_tael", 1000, "test")
+	var f1 := Game.posts.finesse_of(c, "delving")
+	check(Game.submit({"type": "raise_stele", "craft": "delving"}).get("ok", false) and near(Game.posts.stele_power("delving"), 0.3)
+		and Game.posts.finesse_of(c, "delving") > f1, "raise the Stele of Vein Delving: +0.3 tool power, Finesse %.1f -> %.1f" % [f1, Game.posts.finesse_of(c, "delving")])
+	# Favours: once each, for good.
+	Game.economy.apply_currency("silver_tael", 10000, "test")
+	Game.account.storehouse["jadeiron"] = 300
+	Game.account.storehouse["reed_cicada"] = 200
+	var d1 := Game.posts.diligence_of(c)
+	check(Game.submit({"type": "seek_favour", "favour": "favour_of_the_guilds"}).get("ok", false) and near(Game.posts.diligence_of(c) - d1, 0.03)
+		and not Game.account.storehouse.has("jadeiron"), "the Favour of the Guilds: Craft Diligence +3%, the tribute taken")
+	check(not Game.submit({"type": "seek_favour", "favour": "favour_of_the_guilds"}).get("ok", true), "a favour is granted only once")
+	var snap: Dictionary = Game.account.snapshot()
+	check(int(snap.get("works", {}).get("seals", {}).get("seal_open_vein", 0)) == Game.posts.seal_level("seal_open_vein") and snap.works.favours.has("favour_of_the_guilds"),
+		"the works are saved with the account")
+	check(Game.submit({"type": "reset_post_arts"}).get("ok", false) and Game.posts.arts(c).is_empty(), "forget every art for taels")
+	c.posts = posts0
+	Game.account.works = works0
+	Game.account.storehouse = store0
 
 func ice_mount_suite() -> void:
 	var z := ZoneGeometry.new()

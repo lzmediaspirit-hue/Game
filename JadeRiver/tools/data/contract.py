@@ -100,7 +100,7 @@ DEPTH = {
     # S50 V10 Keeping Post: posts, craft levels, pouches, the Storehouse and Hour Incense.
     "Posts": ["post_taken", "post_left", "post_settled", "craft_leveled", "pouch_sewn", "storehouse_changed", "incense_burned",
               "leaf_found", "snare_set", "snare_collected", "rite_held", "post_vow_learned", "post_vow_pledged",
-              "bench_assigned", "bench_collected"],
+              "bench_assigned", "bench_collected", "post_art_learned", "seal_inscribed", "stele_raised", "favour_granted"],
     # S48 sect role variants: the signature line's variant and the contribution tree.
     "TrainingSect": ["sect_role_chosen", "sect_node_bought"],
     # S49 territory: the spirit-stone mines your sect takes, holds, loses and collects from (account level).
@@ -165,6 +165,10 @@ POLLED = {
     "post_vow_pledged": "The Roll-Call's Vows tab reads the vows held.",
     "bench_assigned": "The Roll-Call's Bench tab reads the bench.",
     "bench_collected": "The Roll-Call's Bench tab reads the bench.",
+    "post_art_learned": "The Works page's Arts tab reads the character's arts; Finesse and Diligence are computed on demand.",
+    "seal_inscribed": "The Works page's Seals tab reads the seals; post rates are computed on demand.",
+    "stele_raised": "The Works page's Steles tab reads the steles; Finesse is computed on demand.",
+    "favour_granted": "The Works page's Favours tab reads the favours held.",
 }
 
 

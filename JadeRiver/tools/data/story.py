@@ -567,6 +567,14 @@ def unlocks():
       effects=[{"kind": "grant_item", "item": "wood_rite_tablet", "count": 1}], same_stage_ok=True)
     u("apprentice_bench", "Apprentice bench", all_of(realm("qi_kindling_1"), qdone("keeping_post")), "an_apprentices_hands", [],
       same_stage_ok=True)
+    # V10d the account web: Elder Hu's Post Arts, Old Scribe Bai's seals, Elder Bian's steles, the magistrate's favours.
+    u("post_arts", "Post arts", all_of(realm("qi_kindling_6"), qdone("keeping_post")), "an_idle_art", ["page:works"], same_stage_ok=True)
+    u("seal_scripts", "Seal scripts", all_of(realm("qi_unfurling_2"), qdone("keeping_post")), "seals_in_red_ink", ["page:works"],
+      same_stage_ok=True)
+    u("guardian_steles", "Guardian steles", all_of(realm("qi_unfurling_6"), qdone("keeping_post")), "the_guardian_stones", ["page:works"],
+      same_stage_ok=True)
+    u("magistrates_favours", "Magistrate's favours", all_of(realm("heart_tempering_2"), qdone("the_ancestors_regard")), "the_county_tribute",
+      ["page:works"], same_stage_ok=True)
     u("bottleneck_panel", "Bottlenecks", all_of(realm("bone_forging_9")), "the_wall", ["page:breakthrough"])
     u("stored_qi", "Stored Qi", all_of(realm("bone_forging_9")), "the_wall", [], same_stage_ok=True, toast=False)
 
@@ -970,6 +978,30 @@ def guided_quests():
     ], [taels(80)], offered_by_unlock=True, chapter="qk1", target_room="sf_artisan_row",
         offer=["An apprentice twisting cord all day makes more than you'd think. Give them a job at your bench; the cord and rivets pile up while you're out."],
         complete=["They'll work whether you watch or not. More crafts, more hands: a second apprentice once you've learned enough."])
+    quest("an_idle_art", "An Idle Art", "side", "elder_hu", [
+        o("use_system", "Learn a Post Art (the Roll-Call's Works)", system="post_art"),
+    ], [taels(150)], offered_by_unlock=True, chapter="qk6", target_room="ja_elder_hu_peak",
+        offer=["A disciple left at a vein learns the vein. Learns the pick, the patience, the hour when the stone gives.",
+               "Every craft level you earn buys an art of keeping post. Choose them as you would choose a sword form: for what you do most."],
+        complete=["Good. Idle hands are not the same as empty ones."])
+    quest("seals_in_red_ink", "Seals in Red Ink", "side", "old_scribe_bai", [
+        o("use_system", "Inscribe a Seal Script with goods from the Storehouse", system="seal"),
+    ], [taels(200)], offered_by_unlock=True, chapter="qu2", target_room="sf_artisan_row",
+        offer=["A seal carved once serves every hand that works under it. Bring me ore, herbs, fish from your Storehouse; I cut the characters.",
+               "But a seal of the deep vein means nothing to one who has never swung a pick. Each of your people draws on it only as far as their own craft reaches."],
+        complete=["Red ink, still wet. Every one of your people who works that craft will feel it."])
+    quest("the_guardian_stones", "The Guardian Stones", "side", "jade_formation_elder", [
+        o("use_system", "Raise a Guardian Stele for a craft", system="stele"),
+    ], [taels(300)], offered_by_unlock=True, chapter="qu6", target_room="ja_east_terrace",
+        offer=["A formation stele anchors more than arrays. Raise one for a craft and every tool of that craft bites harder, in every hand.",
+               "Silver for the masons, ore from your Storehouse for the stone. Higher steles want finer stone."],
+        complete=["It stands. Your picks will ring truer for it."])
+    quest("the_county_tribute", "The County Tribute", "side", "magistrate_qian", [
+        o("use_system", "Earn one of the Magistrate's Favours with silver and Storehouse tribute", system="favour"),
+    ], [taels(400)], offered_by_unlock=True, chapter="ht2", target_room="sf_county_hall",
+        offer=["Your people work half the county's veins and pools. The county notices. Pay tribute to the granary and the county will return the courtesy.",
+               "The watch, the guilds, my own seal on your ledgers: each favour is granted once, and each is for good."],
+        complete=["Granted. Show that token at any post in the county and doors will open."])
     quest("earning_your_keep", "Earning Your Keep", "guided", "jade_deacon", [
         o("use_system", "Finish daily missions", 2, system="daily_mission_done"),
     ], [fx("add_contribution", amount=40)], offered_by_unlock=True, chapter="bf6", giver_any=DEACONS, hand_in_any=DEACONS,

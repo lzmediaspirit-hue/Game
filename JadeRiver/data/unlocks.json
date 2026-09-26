@@ -1088,6 +1088,98 @@
    "same_stage_ok": true
   },
   {
+   "id": "post_arts",
+   "label": "Post arts",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_6"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "keeping_post"
+     }
+    ]
+   },
+   "reveals": [
+    "page:works"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "an_idle_art",
+   "same_stage_ok": true
+  },
+  {
+   "id": "seal_scripts",
+   "label": "Seal scripts",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_2"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "keeping_post"
+     }
+    ]
+   },
+   "reveals": [
+    "page:works"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "seals_in_red_ink",
+   "same_stage_ok": true
+  },
+  {
+   "id": "guardian_steles",
+   "label": "Guardian steles",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_6"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "keeping_post"
+     }
+    ]
+   },
+   "reveals": [
+    "page:works"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_guardian_stones",
+   "same_stage_ok": true
+  },
+  {
+   "id": "magistrates_favours",
+   "label": "Magistrate's favours",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_2"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_ancestors_regard"
+     }
+    ]
+   },
+   "reveals": [
+    "page:works"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_county_tribute",
+   "same_stage_ok": true
+  },
+  {
    "id": "bottleneck_panel",
    "label": "Bottlenecks",
    "trigger": {

@@ -18,6 +18,7 @@ var ENTRIES := [
 	["workshop", Tx.t("ui.menu.workshop"), "formation", "appraisal"],
 	["characters", Tx.t("ui.menu.characters"), "characters", "idle_tasks"],
 	["posts", Tx.t("ui.menu.roll_call"), "roll_call", "keeping_post"],   # S50 Keeping Post: the Roll-Call
+	["works", Tx.t("ui.menu.works"), "storehouse", "post_arts"],   # S50 V10d: the account web
 	["codex", Tx.t("ui.menu.codex"), "codex", "codex"],   # Collection and Achievements are Codex tabs
 	["mail", Tx.t("ui.menu.mail"), "mail", "mail"],
 	["emotes", Tx.t("ui.menu.emotes"), "talk", ""],

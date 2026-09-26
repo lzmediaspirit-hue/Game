@@ -336,6 +336,71 @@ def incense_items(item):
     return rows
 
 
+# --------------------------------------------------------------------------- V10d · the account web (§6, §7.4)
+# Curves: add = x1·L; decay = x1·L/(L + x2). An art's or seal's `gives` keys are the same keys vows use.
+# Post Arts: per character, one point for every `points_per_levels` craft levels it holds (all crafts summed).
+POST_ARTS = [
+    {"id": "dreaming_artisan", "name": "Dreaming Artisan", "max": 100, "curve": "decay", "x1": 20, "x2": 40, "gives": ["craft_diligence"],
+     "text": "Craft Diligence +%s%%."},
+    {"id": "sleeping_sword", "name": "Sleeping Sword", "max": 100, "curve": "decay", "x1": 20, "x2": 50, "gives": ["martial_diligence"],
+     "text": "Martial Diligence +%s%%."},
+    {"id": "water_clock_breath", "name": "Water-Clock Breath", "max": 100, "curve": "decay", "x1": 8, "x2": 50,
+     "gives": ["craft_diligence", "martial_diligence"], "text": "Craft and Martial Diligence +%s%%."},
+    {"id": "steady_hand", "name": "Steady Hand", "max": 100, "curve": "decay", "x1": 30, "x2": 60, "gives": ["finesse_pct"],
+     "text": "Finesse +%s%%."},
+    {"id": "deep_sleeves", "name": "Deep Sleeves", "max": 100, "curve": "decay", "x1": 60, "x2": 60, "gives": ["capacity_pct"],
+     "text": "Pouches hold %s%% more."},
+    {"id": "windfall_knack", "name": "Windfall Knack", "max": 100, "curve": "decay", "x1": 0.2, "x2": 50, "gives": ["windfall"],
+     "text": "Windfall chance %s (each success may bring another)."},
+    {"id": "flowing_hand", "name": "Flowing Hand", "max": 100, "curve": "decay", "x1": 0.1, "x2": 100, "gives": ["flow"],
+     "text": "Flow +%s: Abundance grows faster past a full Chance bar."},
+    {"id": "hunters_recall", "name": "Hunter's Recall", "max": 1, "curve": "add", "x1": 1, "x2": 0, "gives": ["remote_snare"],
+     "text": "Take up finished snares from anywhere, at half the catch."},
+]
+ARTS = {"points_per_levels": 2, "reset_taels": 1000}
+
+# Seal Scripts: account-wide, inscribed by Old Scribe Bai's art and paid from the Storehouse. A craft seal gives flat
+# Finesse to that craft; a character uses a seal only up to its own craft level (its highest craft for the others).
+SEAL_COST = {"base": 25, "growth": 1.12, "step": 4}
+SEALS = [
+    {"id": "seal_open_vein", "name": "Seal of the Open Vein", "craft": "delving", "max": 10, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
+    {"id": "seal_green_stem", "name": "Seal of the Green Stem", "craft": "foraging", "max": 10, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
+    {"id": "seal_still_line", "name": "Seal of the Still Line", "craft": "angling", "max": 10, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
+    {"id": "seal_light_net", "name": "Seal of the Light Net", "craft": "netting", "max": 10, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
+    {"id": "seal_patient_snare", "name": "Seal of the Patient Snare", "craft": "snaring", "max": 10, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
+    {"id": "seal_ancestors_name", "name": "Seal of the Ancestor's Name", "craft": "rites", "max": 10, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"],
+     "ladder": ["spirit_wisp"]},
+    {"id": "seal_deep_pouch", "name": "Seal of the Deep Pouch", "craft": "", "max": 10, "curve": "decay", "x1": 40, "x2": 40, "gives": ["capacity_pct"],
+     "ladder": ["hemp_cord", "bronze_rivet", "kiln_brick", "lacquer_pot", "whetstone", "spirit_glue"]},
+    {"id": "seal_unsleeping_hand", "name": "Seal of the Unsleeping Hand", "craft": "", "max": 10, "curve": "decay", "x1": 15, "x2": 50,
+     "gives": ["craft_diligence", "martial_diligence"], "ladder": ["spirit_wisp"], "cost_mult": 2},
+]
+
+# Guardian Steles: one per craft, raised at the Jade Sect's formation terrace. +0.3 tool power a level; taels and ore.
+STELES = {"power_per_level": 0.3, "max": 40, "taels": 150, "taels_growth": 1.22, "stone": 10, "stone_growth": 1.1, "step": 5,
+          "ladder": ["copper_ore", "riverstone", "jadeiron", "spirit_stone_shard", "cloudsteel_ore", "mystic_ore", "stormsteel_ore",
+                     "sunglass_ore", "driftglass"]}
+
+# Magistrate's Favours: the county's standing, bought once each with taels and Storehouse tribute.
+FAVOURS = [
+    {"id": "favour_of_the_watch", "name": "Favour of the Watch", "gives": {"martial_diligence": 5}, "taels": 4000,
+     "items": [{"item": "mist_hare", "count": 60}, {"item": "reed_perch", "count": 200}],
+     "text": "The county watch shares its roads. Martial Diligence +5%."},
+    {"id": "favour_of_the_guilds", "name": "Favour of the Guilds", "gives": {"craft_diligence": 3}, "taels": 6000,
+     "items": [{"item": "jadeiron", "count": 300}, {"item": "reed_cicada", "count": 200}],
+     "text": "The guilds let your people work their grounds. Craft Diligence +3%."},
+    {"id": "favour_of_the_red_seal", "name": "Favour of the Red Seal", "gives": {"double_exp": 2.2}, "taels": 9000,
+     "items": [{"item": "spirit_wisp", "count": 120}, {"item": "mist_lotus", "count": 150}],
+     "text": "The magistrate's own seal on your ledgers: a 2.2% chance a settle's craft EXP counts twice."},
+]
+
+
+def seal_ladder(seal):
+    if seal.get("ladder"):
+        return seal["ladder"]
+    return [iid for iid, (craft, _t, _e, gate) in sorted(NODES.items(), key=lambda kv: kv[1][3]) if craft == seal["craft"]]
+
+
 def build():
     nodes = {}
     for item_id, (craft, tough, exp, gate) in NODES.items():
@@ -359,4 +424,10 @@ def build():
         "post_vows": POST_VOWS,
         "bench": {"components": [{"item": iid, "progress": prog, "gate": gate} for iid, _g, prog, gate, _d in COMPONENTS],
                   "apprentices": [0, 60, 150], "points_per_levels": 5, "speed_per_point": 0.02, "exp_per_point": 0.03, "cap_per_point": 0.1},
+        "post_arts": POST_ARTS,
+        "arts": ARTS,
+        "seals": [dict(sl, ladder=seal_ladder(sl)) for sl in SEALS],
+        "seal_cost": SEAL_COST,
+        "steles": STELES,
+        "favours": FAVOURS,
     })

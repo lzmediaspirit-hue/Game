@@ -9,7 +9,8 @@ const NODE_CRAFT := {"ore_vein": "delving", "herb_patch": "foraging", "fishing_s
 
 func intents() -> Array:
 	return ["take_post", "take_vigil", "leave_post", "settle_post", "settle_all", "send_to_storehouse", "withdraw_storehouse", "sew_pouch", "burn_incense",
-		"set_snare", "collect_snare", "cancel_snare", "hold_rite", "learn_post_vow", "pledge_post_vow", "bench_assign", "bench_point", "bench_collect"]
+		"set_snare", "collect_snare", "cancel_snare", "hold_rite", "learn_post_vow", "pledge_post_vow", "bench_assign", "bench_point", "bench_collect",
+		"learn_post_art", "reset_post_arts", "inscribe_seal", "raise_stele", "seek_favour"]
 
 func handle(intent: Dictionary) -> Dictionary:
 	match str(intent.type):
@@ -31,6 +32,11 @@ func handle(intent: Dictionary) -> Dictionary:
 		"bench_assign": return bench_assign(char_of(intent), int(intent.get("slot", 0)), str(intent.get("item", "")))
 		"bench_point": return bench_point(char_of(intent), str(intent.get("kind", "")))
 		"bench_collect": return bench_collect(char_of(intent))
+		"learn_post_art": return learn_post_art(char_of(intent), str(intent.get("art", "")))
+		"reset_post_arts": return reset_post_arts(char_of(intent))
+		"inscribe_seal": return inscribe_seal(char_of(intent), str(intent.get("seal", "")))
+		"raise_stele": return raise_stele(char_of(intent), str(intent.get("craft", "")))
+		"seek_favour": return seek_favour(char_of(intent), str(intent.get("favour", "")))
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ state
@@ -113,11 +119,14 @@ func finesse_of(c, craft: String) -> float:
 	if float(tool.get("finesse_pct", 0.0)) > 0.0: groups.append(float(tool.finesse_pct))
 	if leaf_bonus("finesse") > 0.0: groups.append(leaf_bonus("finesse"))
 	if vow_sum(c, "finesse_pct") != 0.0: groups.append(vow_sum(c, "finesse_pct"))
-	return PostRules.finesse(float(tool.get("power", 0.0)), float(c.stats.value(attr)), level(c, craft), 0.0, groups)
+	if art_sum(c, "finesse_pct") > 0.0: groups.append(art_sum(c, "finesse_pct"))
+	return PostRules.finesse(float(tool.get("power", 0.0)), float(c.stats.value(attr)), level(c, craft), seal_sum(c, "finesse_flat", craft), groups,
+		stele_power(craft))
 
 func diligence_of(c, kind := "craft") -> float:
 	var key := ("martial" if kind == "martial" else "craft") + "_diligence"
-	var sources := 100.0 * float(game.sect.idle_rate_bonus("posts")) + leaf_bonus(key) + vow_sum(c, key)
+	var sources := 100.0 * float(game.sect.idle_rate_bonus("posts")) + leaf_bonus(key) + vow_sum(c, key) + art_sum(c, key) + seal_sum(c, key) \
+		+ favour_sum(key)
 	return PostRules.diligence(kind, sources)
 
 # ------------------------------------------------------------------ nodes and outputs
@@ -182,7 +191,7 @@ func rates_at(c, o: Dictionary) -> Dictionary:
 		if int(out.gate) <= lv: outs.append(out)
 	var tool := tool_of(c, craft)
 	var fin := finesse_of(c, craft)
-	var r := PostRules.rates(fin, outs, float(tool.get("speed", 3.0)), diligence_of(c))
+	var r := PostRules.rates(fin, outs, float(tool.get("speed", 3.0)), diligence_of(c), art_sum(c, "flow"), art_sum(c, "windfall"))
 	r.merge({"craft": craft, "finesse": fin, "tool": str(tool.get("item", "")), "diligence": diligence_of(c), "level": lv}, true)
 	var side: Dictionary = PostRules.rule("side_drops", {}).get(craft, {})
 	if not side.is_empty():
@@ -202,7 +211,8 @@ func category_of(item_id: String) -> String:
 	return str(n.get("category", "material"))
 
 func capacity(c, cat: String) -> float:
-	var cap := PostRules.capacity(PostRules.compartment_cap(int(pouch(c, cat).get("tier", 0))), leaf_bonus("capacity"))
+	var pct := leaf_bonus("capacity") + art_sum(c, "capacity_pct") + seal_sum(c, "capacity_pct")
+	var cap := PostRules.capacity(PostRules.compartment_cap(int(pouch(c, cat).get("tier", 0))), pct)
 	return cap * maxf(0.4, 1.0 + vow_sum(c, "capacity_pct") / 100.0)
 
 func held(c, cat: String) -> float:
@@ -327,9 +337,11 @@ func _work(c, hours: float, source: String) -> Dictionary:
 	_add_to_pouch(c, got)
 	var lv_before := level(c, craft)
 	var exp := float(r.exp_h) * hours * maxf(0.0, 1.0 + vow_sum(c, "craft_exp_pct") / 100.0)
+	var doubled := favour_sum("double_exp") > 0.0 and rng.randf() * 100.0 < favour_sum("double_exp")   # the Red Seal
+	if doubled: exp *= 2.0
 	apply_craft_xp(c.id, craft, exp, source)
 	var ledger := {"character": c.id, "name": c.name, "hours": hours, "craft": craft, "diligence": float(r.diligence),
-		"exp": exp, "level_before": lv_before, "level": level(c, craft), "items": got, "full": amt.full, "source": source,
+		"exp": exp, "doubled": doubled, "level_before": lv_before, "level": level(c, craft), "items": got, "full": amt.full, "source": source,
 		"room": str(post_of(c).get("room", ""))}
 	emit("post_settled", {"actor": c.id, "character": c.id, "craft": craft, "hours": hours, "items": got, "exp": exp, "full": amt.full, "source": source})
 	return ledger
@@ -729,6 +741,7 @@ func collect_snare(c, object_id: String, remote := false) -> Dictionary:
 	for x in snares(c):
 		if str(x.object) == object_id and (remote or (game.room_rt != null and str(x.room) == str(game.room_rt.room_id))): sn = x
 	if sn.is_empty(): return fail("none")
+	if remote and art_sum(c, "remote_snare") < 1.0: return fail("recall", {"text": t("sim.posts.needs_recall")})
 	if Clock.now_utc() < float(sn.done): return fail("not_ready", {"text": t("sim.posts.snare_not_ready") % _hours_text((float(sn.done) - Clock.now_utc()) / 3600.0)})
 	var sd := snare_def(str(sn.snare))
 	var n := node_def(str(sn.critter))
@@ -984,3 +997,173 @@ func bench_collect(c) -> Dictionary:
 	emit("bench_collected", {"actor": c.id, "items": got})
 	return ok({"items": got})
 
+
+# ------------------------------------------------------------------ the account web (V10d, §6)
+func works() -> Dictionary:
+	var w: Dictionary = game.account.works
+	for k in ["seals", "steles", "favours"]:
+		if not (w.get(k) is Dictionary): w[k] = {}
+	return w
+
+func _curve_of(def: Dictionary, lv: float) -> float:
+	return PostRules.curve(str(def.get("curve", "add")), float(def.get("x1", 0.0)), float(def.get("x2", 0.0)), lv)
+
+func _pay_storehouse(c, item_id: String, count: int, source: String) -> bool:
+	if int(game.account.storehouse.get(item_id, 0)) < count: return false
+	game.account.storehouse[item_id] = int(game.account.storehouse[item_id]) - count
+	if int(game.account.storehouse[item_id]) <= 0: game.account.storehouse.erase(item_id)
+	emit("storehouse_changed", {"actor": c.id, "items": {item_id: -count}, "source": source})
+	return true
+
+func _need_text(count: int, item_id: String) -> String:
+	return t("sim.posts.needs_stored") % [count, ContentDB.item_name(item_id)]
+
+## Post Arts: a character's own, bought with points from its summed craft levels.
+func arts(c) -> Dictionary:
+	if not (state(c).get("arts") is Dictionary): state(c)["arts"] = {}
+	return state(c).arts
+
+func post_art(id: String) -> Dictionary:
+	for a in ContentDB.config("posts").get("post_arts", []):
+		if str(a.id) == id: return a
+	return {}
+
+func art_level(c, id: String) -> int:
+	return int(arts(c).get(id, 0)) if c != null else 0
+
+func art_points_free(c) -> int:
+	var used := 0
+	for id in arts(c): used += int(arts(c)[id])
+	return PostRules.art_points(total_craft_levels(c)) - used
+
+## The sum of a character's arts giving `key` (craft_diligence, finesse_pct, capacity_pct, flow, windfall, ...).
+func art_sum(c, key: String) -> float:
+	if c == null: return 0.0
+	var n := 0.0
+	for a in ContentDB.config("posts").get("post_arts", []):
+		if key in a.get("gives", []): n += _curve_of(a, art_level(c, str(a.id)))
+	return n
+
+func learn_post_art(c, id: String) -> Dictionary:
+	if c == null: return fail("no_character")
+	if not Unlocks.is_unlocked(c.id, "post_arts"): return fail("locked", {"text": Unlocks.locked_text("post_arts")})
+	var a := post_art(id)
+	if a.is_empty(): return fail("unknown_art")
+	var lv := art_level(c, id)
+	if lv >= int(a.get("max", 1)): return fail("max", {"text": t("sim.posts.art_max")})
+	if art_points_free(c) <= 0: return fail("points", {"text": t("sim.posts.no_art_points")})
+	arts(c)[id] = lv + 1
+	emit("post_art_learned", {"actor": c.id, "art": id, "level": lv + 1})
+	emit("system_used", {"actor": c.id, "system": "post_art"})
+	return ok({"level": lv + 1})
+
+## Forget every art for taels; the points come back.
+func reset_post_arts(c) -> Dictionary:
+	if c == null or arts(c).is_empty(): return fail("none")
+	var cost := int(ContentDB.config("posts").get("arts", {}).get("reset_taels", 1000))
+	if game.economy.balance("silver_tael", c) < cost: return fail("funds", {"text": Tx.t("sim.economy.not_enough") % ContentDB.text("currency.silver_tael")})
+	game.economy.apply_currency("silver_tael", -cost, "reset_post_arts")
+	state(c).arts = {}
+	emit("post_art_learned", {"actor": c.id, "art": "", "level": 0})
+	return ok()
+
+## Seal Scripts: account-wide; a character draws on a seal only up to its own level in the seal's craft (its highest
+## craft for the others).
+func seal_def(id: String) -> Dictionary:
+	for sd in ContentDB.config("posts").get("seals", []):
+		if str(sd.id) == id: return sd
+	return {}
+
+func seal_level(id: String) -> int:
+	return int(works().seals.get(id, 0))
+
+func highest_craft_level(c) -> int:
+	var best := 0
+	for cr in crafts():
+		if craft_known(c, str(cr.id)): best = maxi(best, level(c, str(cr.id)))
+	return best
+
+func seal_effective(c, sd: Dictionary) -> int:
+	var cap := level(c, str(sd.craft)) if str(sd.get("craft", "")) != "" else highest_craft_level(c)
+	return mini(seal_level(str(sd.id)), cap)
+
+## Seal bonus `key` for a character; `finesse_flat` counts only the seal of `craft`.
+func seal_sum(c, key: String, craft := "") -> float:
+	if c == null: return 0.0
+	var n := 0.0
+	for sd in ContentDB.config("posts").get("seals", []):
+		if not key in sd.get("gives", []): continue
+		if key == "finesse_flat" and str(sd.get("craft", "")) != craft: continue
+		n += _curve_of(sd, seal_effective(c, sd))
+	return n
+
+func seal_next_cost(id: String) -> Dictionary:
+	var sd := seal_def(id)
+	return PostRules.seal_cost(seal_level(id), sd.get("ladder", []), float(sd.get("cost_mult", 1.0)))
+
+func inscribe_seal(c, id: String) -> Dictionary:
+	if c == null: return fail("no_character")
+	if not Unlocks.is_unlocked(c.id, "seal_scripts"): return fail("locked", {"text": Unlocks.locked_text("seal_scripts")})
+	var sd := seal_def(id)
+	if sd.is_empty(): return fail("unknown_seal")
+	var lv := seal_level(id)
+	if lv >= int(sd.get("max", 10)): return fail("max", {"text": t("sim.posts.seal_max")})
+	var cost := seal_next_cost(id)
+	if not _pay_storehouse(c, str(cost.item), int(cost.count), "seal"): return fail("materials", {"text": _need_text(int(cost.count), str(cost.item))})
+	works().seals[id] = lv + 1
+	emit("seal_inscribed", {"actor": c.id, "seal": id, "level": lv + 1})
+	emit("system_used", {"actor": c.id, "system": "seal"})
+	return ok({"level": lv + 1})
+
+## Guardian Steles: one per craft, +0.3 tool power a level for everyone.
+func stele_level(craft: String) -> int:
+	return int(works().steles.get(craft, 0))
+
+func stele_power(craft: String) -> float:
+	return float(stele_level(craft)) * float(ContentDB.config("posts").get("steles", {}).get("power_per_level", 0.3))
+
+func raise_stele(c, craft: String) -> Dictionary:
+	if c == null: return fail("no_character")
+	if not Unlocks.is_unlocked(c.id, "guardian_steles"): return fail("locked", {"text": Unlocks.locked_text("guardian_steles")})
+	if craft_def(craft).is_empty(): return fail("unknown_craft")
+	var lv := stele_level(craft)
+	if lv >= int(ContentDB.config("posts").get("steles", {}).get("max", 40)): return fail("max", {"text": t("sim.posts.stele_max")})
+	var cost := PostRules.stele_cost(lv)
+	if game.economy.balance("silver_tael", c) < int(cost.taels): return fail("funds", {"text": Tx.t("sim.economy.not_enough") % ContentDB.text("currency.silver_tael")})
+	if int(game.account.storehouse.get(str(cost.item), 0)) < int(cost.count): return fail("materials", {"text": _need_text(int(cost.count), str(cost.item))})
+	game.economy.apply_currency("silver_tael", -int(cost.taels), "raise_stele")
+	_pay_storehouse(c, str(cost.item), int(cost.count), "stele")
+	works().steles[craft] = lv + 1
+	emit("stele_raised", {"actor": c.id, "craft": craft, "level": lv + 1})
+	emit("system_used", {"actor": c.id, "system": "stele"})
+	return ok({"level": lv + 1})
+
+## Magistrate's Favours: bought once each with taels and Storehouse tribute.
+func favour_def(id: String) -> Dictionary:
+	for f in ContentDB.config("posts").get("favours", []):
+		if str(f.id) == id: return f
+	return {}
+
+func has_favour(id: String) -> bool:
+	return works().favours.has(id)
+
+func favour_sum(key: String) -> float:
+	var n := 0.0
+	for id in works().favours: n += float(favour_def(str(id)).get("gives", {}).get(key, 0.0))
+	return n
+
+func seek_favour(c, id: String) -> Dictionary:
+	if c == null: return fail("no_character")
+	if not Unlocks.is_unlocked(c.id, "magistrates_favours"): return fail("locked", {"text": Unlocks.locked_text("magistrates_favours")})
+	var f := favour_def(id)
+	if f.is_empty(): return fail("unknown_favour")
+	if has_favour(id): return fail("held")
+	if game.economy.balance("silver_tael", c) < int(f.taels): return fail("funds", {"text": Tx.t("sim.economy.not_enough") % ContentDB.text("currency.silver_tael")})
+	for need in f.get("items", []):
+		if int(game.account.storehouse.get(str(need.item), 0)) < int(need.count): return fail("materials", {"text": _need_text(int(need.count), str(need.item))})
+	game.economy.apply_currency("silver_tael", -int(f.taels), "seek_favour")
+	for need in f.get("items", []): _pay_storehouse(c, str(need.item), int(need.count), "favour")
+	works().favours[id] = true
+	emit("favour_granted", {"actor": c.id, "favour": id})
+	emit("system_used", {"actor": c.id, "system": "favour"})
+	return ok()
