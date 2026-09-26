@@ -1064,7 +1064,8 @@ def strings():
 def guilds():
     """S44/S49 guilds.json: the three profession associations. Each has rank exams, a badge title, an exam-gated shop and a
     commission board.
-    - An exam asks for so many of one recipe, or so many weapons of a grade, at a quality before the candle burns out.
+    - An exam asks for so many of one recipe, or so many weapons of a grade, at a quality before the candle burns out. The
+      Alchemist's candles allow for the five-screen furnace: about half a minute a refine.
     - A zone's daily income target is Level x 60 taels an hour for three hours of play (S39: about 850 an hour at Level
       15, 1,700 at Level 25). A guild's commissions pay at most a fifth of it a day.
     - The Master exams are sat at Cloudgate Port in the Azure Expanse (v1.1) and need a Sage's hands.
@@ -1074,12 +1075,12 @@ def guilds():
     rows = [
         {"id": "alchemist", "craft": "alchemy", "name": "Alchemist Guild", "hall": "sf_artisan_row", "master": "guildmaster_tang",
          "shop": "alchemist_guild", "unlock": "alchemist_guild",
-         "ranks": [{"id": "adept", "recipe": "healing_pill", "count": 5, "quality": "fine", "time_s": 180, "title": "guild_adept",
+         "ranks": [{"id": "adept", "recipe": "healing_pill", "count": 5, "quality": "fine", "time_s": 300, "title": "guild_adept",
                     "flag": "guild_alchemy_adept", "rewards": [], "pay_mult": 1.2},
-                   {"id": "expert", "recipe": "foundation_guard_pill", "count": 3, "quality": "superior", "time_s": 300,
+                   {"id": "expert", "recipe": "foundation_guard_pill", "count": 3, "quality": "superior", "time_s": 420,
                     "title": "guild_expert", "flag": "guild_alchemy_expert", "rewards": [{"kind": "learn_recipe", "recipe": "qi_flow_pill"}],
                     "pay_mult": 1.5},
-                   {"id": "master", "recipe": "storm_blood_pill", "count": 3, "quality": "superior", "time_s": 480, "hall": "ae_port_market",
+                   {"id": "master", "recipe": "storm_blood_pill", "count": 3, "quality": "superior", "time_s": 600, "hall": "ae_port_market",
                     "requires": sage, "title": "alchemist_master", "flag": "guild_alchemy_master",
                     "rewards": [{"kind": "learn_recipe", "recipe": "sage_condensing_pill"}], "pay_mult": 2.0}],
          "commissions": board},
@@ -1174,6 +1175,26 @@ def forge_upkeep():
         # a 10% chance to rise a tier when every bolt is held; the Pill Soul's flight and its catch window.
         "tribulation": {"bolts": 3, "per_grade": 2, "max": 9, "first_s": 1.2, "gap_min_s": 0.7, "gap_max_s": 1.3, "window_s": 0.22,
                         "rise_chance": 0.1, "soul_min_s": 1.0, "soul_max_s": 1.6, "soul_window_s": 0.2},
+        # S15/S44 the five-screen furnace. Extraction: each herb is held in a heat band (a share of the gauge) that sways
+        # about its centre for `seconds`; hot herbs raise the centre and cold ones lower it (nature_shift). Heat rises while
+        # the flame is fanned and falls when it is not. In the band `hold_full` of the time is full marks; under `scorch`
+        # the herb is ash. Impurities to tap are a quarter of the score; `seen_base` show plainly, one more for every 3%
+        # Crafting perception, the rest faint. Perception of 4% tells a sealed herb's dyed fakes on the Ingredients screen.
+        "furnace_game": {
+            "extraction": {"seconds": 5.0, "band": 0.2, "band_max": 0.5, "sway": 0.16, "period_s": [2.6, 3.8], "hold_full": 0.9,
+                           "scorch": 0.35, "impurities": [1, 3], "impurity_weight": 0.25, "seen_base": 1, "seen_per_perception": 0.03,
+                           "rise_per_s": 0.6, "fall_per_s": 0.45, "speck_s": 1.2, "ready_s": 1.2},
+            # The array under the furnace: the one that answers the principal herb's nature (Still Water under a hot
+            # herb, Rising Flame under a cold one) widens every band; the other narrows it.
+            "array": {"suited": 1.15, "unsuited": 0.85},
+            # Fusion: the essences merge in the recipe's order (60% of the score); then a needle crosses the bar in
+            # `seconds` and the array turns at each of 2-3 marks (within `window` of the bar for any credit).
+            "fusion": {"marks": [2, 3], "seconds": 3.6, "window": 0.1, "order_weight": 0.6},
+            # Condensation: the ring meets the pill `seconds` after it starts closing. Within `perfect` either side is full
+            # marks; early only weakens the pill (to `weak_floor` at worst); later than `late` cracks it and the batch is lost.
+            "condensation": {"seconds": 2.4, "perfect": 0.08, "early_span": 0.7, "weak_floor": 0.2, "late": 0.2},
+            "sense_fakes": 0.04,
+        },
         "risky_from": 5,                # attempts from +5 to +6 upward can fail
         "fail_step": 0.12,              # base chance falls 12% a level from there
         "essence_step": 0.025,          # each Refining Essence fed into an attempt adds 2.5%...

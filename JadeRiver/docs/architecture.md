@@ -50,7 +50,7 @@ each physics frame; the tests call it directly without any scene.
 | `InventoryAuthority` | Bag, key items and tools, equipment, quick-use; routes system items (appraise, incubate, tame) to their owners |
 | `QuestAuthority` | Quests, flags, dialogue trees, daily missions, set pieces, quest drops |
 | `EconomyAuthority` | Currencies, shops, buyback, exchange |
-| `CraftingAuthority` | Recipes, professions, gathering, fishing, cooking, alchemy, the forge, array plates |
+| `CraftingAuthority` | Recipes, professions, gathering, fishing, cooking, alchemy (the five-screen furnace: `start_refine`, `refine_input`, `cancel_refine`), the forge, array plates |
 | `WorkshopAuthority` | Appraisal, formations, infirmary healing, puppets, manual restoration, teaching |
 | `TrainingSectAuthority` | Training sect membership, rank, contribution |
 | `SectAuthority` | Your own sect: buildings, disciples, expeditions, defence raids; territory (S49): the spirit-stone mines it takes from rival sects (territory.json), their carts, the rivals' contest timers and the disciples on guard |

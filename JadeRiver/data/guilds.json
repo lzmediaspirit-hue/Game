@@ -15,7 +15,7 @@
      "recipe": "healing_pill",
      "count": 5,
      "quality": "fine",
-     "time_s": 180,
+     "time_s": 300,
      "title": "guild_adept",
      "flag": "guild_alchemy_adept",
      "rewards": [],
@@ -26,7 +26,7 @@
      "recipe": "foundation_guard_pill",
      "count": 3,
      "quality": "superior",
-     "time_s": 300,
+     "time_s": 420,
      "title": "guild_expert",
      "flag": "guild_alchemy_expert",
      "rewards": [
@@ -42,7 +42,7 @@
      "recipe": "storm_blood_pill",
      "count": 3,
      "quality": "superior",
-     "time_s": 480,
+     "time_s": 600,
      "hall": "ae_port_market",
      "requires": {
       "all": [

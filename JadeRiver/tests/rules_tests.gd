@@ -51,6 +51,7 @@ func _main() -> void:
 	new_forms_suite()
 	guild_suite()
 	tribulation_suite()
+	furnace_game_suite()
 	body_path_suite()
 	heaven_suite()
 	arts_suite()
@@ -1760,7 +1761,7 @@ func guild_suite() -> void:
 	var te := Game.submit({"type": "take_guild_exam", "craft": "alchemy", "rank": "expert"})
 	check(not te.get("ok", false), "the Expert exam waits for the Adept badge")
 	te = Game.submit({"type": "take_guild_exam", "craft": "alchemy", "rank": "adept"})
-	check(te.get("ok", false) and near(float(te.time_s), 180.0), "the Adept exam: three minutes")
+	check(te.get("ok", false) and near(float(te.time_s), 300.0), "the Adept exam: five minutes (a refine is five screens)")
 	GameEvents.emit_event("craft_completed", {"actor": c.id, "recipe": "healing_pill", "craft": "alchemy", "quality": "common", "count": 3})
 	GameEvents.emit_event("craft_completed", {"actor": c.id, "recipe": "healing_pill", "craft": "alchemy", "quality": "fine", "count": 3})
 	GameEvents.flush()
@@ -1783,7 +1784,7 @@ func guild_suite() -> void:
 	# The Expert exam teaches the Qi Flow Pill.
 	c.crafting["guild_exam"] = {}
 	Game.submit({"type": "take_guild_exam", "craft": "alchemy", "rank": "expert"})
-	c.crafting.guild_exam.started = Game.sim_time - 400.0
+	c.crafting.guild_exam.started = Game.sim_time - float(Game.crafting.guild_rank_def("alchemy", "expert").time_s) - 1.0
 	Game.crafting.tick(0.1)
 	GameEvents.flush()
 	check(c.crafting.get("guild_exam", {}).is_empty() and Game.crafting.guild_rank(c, "alchemy") == "adept", "a burnt-out candle fails the exam")
@@ -4620,6 +4621,167 @@ func tribulation_suite() -> void:
 	var bs := Game.submit({"type": "buy", "shop": "mei_qing_recipes", "item": "recipe_scroll", "count": 1, "learn": "qi_refining_pill"})
 	check(bs.get("ok", false) and c.crafting.recipes.has("qi_refining_pill"), "the Recipe Box sells the Qi Refining scroll asked for, not the first on the shelf")
 	c.cultivator.realm_key = realm_was
+	c.inventory.bag.fill(null)
+
+## V9e2 · the five-screen furnace (S15/S44): the plan drawn when the furnace is lit, each screen scored within range, a
+## scorched herb (early: that herb is lost), a cracked pill (late: the batch is lost), a liquid done at Fusion, the fire
+## put out, what Spirit Sense tells of sealed herbs, and the same hand with the same seed making the same pills.
+func furnace_game_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	c.inventory.bag.fill(null)
+	Unlocks.force_unlock(c.id, "alchemy")
+	Game.world.apply_teleport(c.id, "sf_artisan_row")
+	var st: ActorState = Game.actor_state(c.id)
+	var fo: Dictionary = Game.room_rt.object_def("furnace_sf")
+	st.plane = Vector2(float(fo.at[0]) - 40.0, float(fo.at[1]))
+	var furnace_was = c.inventory.furnace
+	c.inventory.furnace = null   # one pill at a time, no furnace bonuses
+	var give := func(recipe: String, n: int) -> void:
+		for inp in ContentDB.entry("recipes", recipe).inputs: Game.inventory.apply_add(c.id, str(inp.item), int(inp.count) * n, "test")
+	var r := "healing_pill"
+	for rid in [r, "riverreed_draught"]: Game.crafting.apply_learn_recipe(c.id, rid)
+	check(not Game.submit({"type": "start_refine", "recipe": r, "count": 1}).get("ok", false), "no herbs: the furnace will not light")
+	give.call(r, 3)
+	var p := Game.submit({"type": "start_refine", "recipe": r, "count": 1, "fire": "charcoal", "array": "water"})
+	if not p.get("ok", false):
+		check(false, "lit: a plan of two herbs, Extraction first (%s)" % str(p))
+		return
+	check(p.get("ok", false) and (p.plan.herbs as Array).size() == 2 and str(p.plan.stage) == "extraction", "lit: a plan of two herbs, Extraction first %s" % str(p.get("text", "")))
+	var herbs: Array = p.plan.herbs
+	var ginseng := str(herbs[0].item)
+	var moss := str(herbs[1].item)
+	check(float(herbs[0].centre) > 0.5 and near(float(herbs[1].centre), 0.5), "a hot herb's band sits high on the gauge; a neutral one in the middle")
+	check(Game.crafting.suited_array(r) == "water" and float(herbs[0].width) > Game.crafting.heat_band(c, "charcoal", r, "flame"),
+		"Still Water answers a hot Principal: its bands are wider than under Rising Flame")
+	check(p.plan.order == [0, 1], "the recipe's order: Principal, then Minister")
+	var faint := 0
+	for sp in herbs[0].specks: if sp.faint: faint += 1
+	check(faint == (herbs[0].specks as Array).size() - Game.crafting.impurities_seen(c, (herbs[0].specks as Array).size()),
+		"impurities beyond what Crafting perception shows are faint")
+	check(str(Game.submit({"type": "refine_input", "step": "fusion", "value": {}}).get("reason", "")) == "wrong_step", "Fusion waits for Extraction")
+	check(str(Game.submit({"type": "refine_input", "step": "extraction", "value": {"herb": 1, "held": 1.0}}).get("reason", "")) == "wrong_herb",
+		"the herbs go in in the recipe's order")
+	# An early mistake: the scorched herb's share is lost, the rest kept, and the refine waits for another.
+	var g0: int = c.inventory.count(ginseng)
+	var m0: int = c.inventory.count(moss)
+	var sc := Game.submit({"type": "refine_input", "step": "extraction", "value": {"herb": 0, "held": 0.1, "taps": 0}})
+	check(sc.get("scorched", false) and sc.get("retry", false) and c.inventory.count(ginseng) == g0 - int(herbs[0].count) and c.inventory.count(moss) == m0,
+		"a scorched herb is lost; the other herbs stay in the bag")
+	check(int(Game.crafting.refine_session(c).at) == 0, "the refine waits on the same herb")
+	var e1 := Game.submit({"type": "refine_input", "step": "extraction", "value": {"herb": 0, "held": 5.0, "taps": 99}})
+	check(e1.get("ok", false) and near(float(e1.score), 1.0), "the hand's report is held to what could happen: full marks and no more")
+	var e2 := Game.submit({"type": "refine_input", "step": "extraction", "value": {"herb": 1, "held": 0.6, "taps": 0}})
+	check(e2.get("ok", false) and float(e2.score) < 0.6 and str(e2.stage) == "fusion", "a middling hold scores less; then Fusion")
+	check(str(Game.submit({"type": "refine_input", "step": "fusion", "value": {"order": [0, 0]}}).get("reason", "")) == "bad_input",
+		"an essence merged twice is no fusion")
+	var fu := Game.submit({"type": "refine_input", "step": "fusion", "value": {"order": [1, 0], "marks": [0.0, 0.0, 0.0]}})
+	check(fu.get("ok", false) and not fu.get("in_order", true) and float(fu.score) < 0.5 and str(fu.stage) == "condensation",
+		"merged out of order: Fusion scores low; then Condensation")
+	# A late mistake: the pill cracks and the whole batch is lost.
+	var g1: int = c.inventory.count(ginseng)
+	var m1: int = c.inventory.count(moss)
+	var cr := Game.submit({"type": "refine_input", "step": "condensation", "value": {"offset": 0.5}})
+	check(cr.get("cracked", false) and c.inventory.count(ginseng) == g1 - 1 and c.inventory.count(moss) == m1 - 2 and c.inventory.count("healing_pill") == 0
+		and Game.crafting.refine_session(c).is_empty(), "condensed too late: the pill cracks, the batch is lost, nothing made")
+	# Early only weakens: the pill is made, the screen scores low.
+	Game.submit({"type": "start_refine", "recipe": r, "count": 1, "array": "water"})
+	for i in 2: Game.submit({"type": "refine_input", "step": "extraction", "value": {"herb": i, "held": 0.95, "taps": 3}})
+	Game.submit({"type": "refine_input", "step": "fusion", "value": {"order": [0, 1], "marks": [0.0, 0.0, 0.0]}})
+	var weak := Game.submit({"type": "refine_input", "step": "condensation", "value": {"offset": -0.5}})
+	check(weak.get("ok", false) and float(weak.step_score) < 0.5 and float(weak.step_score) >= 0.2 and c.inventory.count("healing_pill") >= 1,
+		"condensed early: a weak pill, but a pill")
+	# Putting out the fire: the herbs already in it are lost, the rest stay.
+	give.call(r, 1)
+	var g2: int = c.inventory.count(ginseng)
+	var m2: int = c.inventory.count(moss)
+	Game.submit({"type": "start_refine", "recipe": r, "count": 1})
+	Game.submit({"type": "refine_input", "step": "extraction", "value": {"herb": 0, "held": 0.9}})
+	var out := Game.submit({"type": "cancel_refine"})
+	check(out.get("ok", false) and c.inventory.count(ginseng) == g2 - 1 and c.inventory.count(moss) == m2 and Game.crafting.refine_session(c).is_empty(),
+		"put out mid-refine: the extracted herb is lost, the rest kept")
+	# A liquid has no Condensation: it is done at Fusion.
+	c.inventory.bag.fill(null)
+	give.call("riverreed_draught", 1)
+	var lq := Game.submit({"type": "start_refine", "recipe": "riverreed_draught", "count": 1})
+	for i in (lq.plan.herbs as Array).size(): Game.submit({"type": "refine_input", "step": "extraction", "value": {"herb": i, "held": 0.95, "taps": 3}})
+	var ld := Game.submit({"type": "refine_input", "step": "fusion", "value": {"order": lq.plan.order, "marks": [0.0, 0.0, 0.0]}})
+	check(ld.get("ok", false) and ld.has("quality") and (ld.scores as Array).size() == 2, "a liquid is done when the essences are one: two screens scored")
+	# Spirit Sense on the Ingredients screen: sealed roots the batch would use; a dyed fake shows only to a perceptive eye.
+	c.inventory.bag.fill(null)
+	Game.inventory.apply_add(c.id, ginseng, 1, "test")
+	Game.inventory.apply_add(c.id, moss, 2, "test", {"unappraised": true, "fake": true, "seal": 901})
+	var sealed := 0
+	var fakes := 0
+	for e in Game.crafting.sense_herbs(c, r, 1):
+		if str(e.item) == moss:
+			sealed += int(e.sealed)
+			fakes = int(e.fakes)
+	var sees: bool = c.stats.value("crafting_perception") >= float(Game.crafting.furnace_game().get("sense_fakes", 0.04))
+	check(sealed >= 1 and (fakes > 0 if sees else fakes == -1), "Spirit Sense counts the sealed roots; perception tells a fake (%d sealed, %d)" % [sealed, fakes])
+	# The same hand with the same seed makes the same pills; a clean run scores full marks on every screen.
+	var got: Array = []
+	var last := {}
+	for run in 2:
+		c.inventory.bag.fill(null)
+		give.call(r, 1)
+		Rng.restore(c.id, {}, 777)
+		var lp := Game.submit({"type": "start_refine", "recipe": r, "count": 1, "array": "water"})
+		for i in (lp.plan.herbs as Array).size():
+			Game.submit({"type": "refine_input", "step": "extraction", "value": {"herb": i, "held": 0.95, "taps": (lp.plan.herbs[i].specks as Array).size()}})
+		Game.submit({"type": "refine_input", "step": "fusion", "value": {"order": lp.plan.order, "marks": [0.0, 0.0, 0.0]}})
+		last = Game.submit({"type": "refine_input", "step": "condensation", "value": {"offset": 0.0}})
+		got.append(str(last.get("quality", "")))
+	check(got[0] == got[1] and got[0] != "", "the same seed and the same hand make the same pills (%s)" % str(got))
+	var full := true
+	for x in last.get("scores", []): if not near(float(x), 1.0): full = false
+	check(full and (last.get("scores", []) as Array).size() == 3 and got[0] in ["fine", "superior", "perfect", "pill_grain", "pill_halo", "pill_soul"],
+		"a clean run scores full marks on all three screens and makes a Fine pill or better (%s)" % got[0])
+	# The page plays the same screens: a steady hand on the fan, the essences tapped in order, the array turned on
+	# each mark and the pill condensed on the ring, frame by frame.
+	c.inventory.bag.fill(null)
+	give.call(r, 1)
+	var page = load("res://scripts/ui/pages/crafts_page.gd").new()
+	page.page_id = "alchemy"
+	page.args = {"tab": r}
+	page.setup()
+	page.on_action("craft", null)
+	check(page.screen == "furnace", "the page: Ingredients, then the Furnace screen")
+	page.on_action("light", null)
+	check(str(Game.crafting.refine_session(c).get("stage", "")) == "extraction", "the page lights the furnace: Extraction")
+	var frames := 0
+	while str(Game.crafting.refine_session(c).get("stage", "")) == "extraction" and frames < 3000:
+		var rs: Dictionary = Game.crafting.refine_session(c)
+		var h: Dictionary = rs.herbs[int(rs.at)]
+		page.fanning = float(page.play.get("heat", 0.3)) < page._band_mid(h, float(page.play.get("t", 0.0)) + 0.1)
+		for j in (h.specks as Array).size():
+			if float(page.play.get("t", -1.0)) > float(h.specks[j].t) + 0.2: page.on_action("speck", j)
+		page._tick_furnace(1.0 / 60.0)
+		frames += 1
+	var rs2: Dictionary = Game.crafting.refine_session(c)
+	check(str(rs2.get("stage", "")) == "fusion" and float(rs2.extraction[0]) > 0.8 and float(rs2.extraction[1]) > 0.8,
+		"a steady hand on the fan holds the heat in the band (%s)" % str(rs2.get("extraction", [])))
+	page._tick_furnace(1.0 / 60.0)
+	for i in rs2.order: page.on_action("orb", int(i))
+	var kf: Dictionary = Game.crafting.furnace_game().fusion
+	frames = 0
+	while str(Game.crafting.refine_session(c).get("stage", "")) == "fusion" and frames < 1000:
+		var at: int = (page.play.get("offs", []) as Array).size()
+		if at < rs2.marks.size() and float(page.play.get("t", -1.0)) / float(kf.seconds) >= float(rs2.marks[at]): page._hot("turn")
+		page._tick_furnace(1.0 / 60.0)
+		frames += 1
+	var rs3: Dictionary = Game.crafting.refine_session(c)
+	check(str(rs3.get("stage", "")) == "condensation" and float(rs3.fusion) > 0.85, "merged in order, the array turned on its marks (%.2f)" % float(rs3.get("fusion", 0.0)))
+	var kc: Dictionary = Game.crafting.furnace_game().condensation
+	frames = 0
+	while not Game.crafting.refine_session(c).is_empty() and frames < 1000:
+		if float(page.play.get("t", -1.0)) >= float(kc.seconds): page._hot("condense")
+		else: page._tick_furnace(1.0 / 60.0)
+		frames += 1
+	check(Game.crafting.refine_session(c).is_empty() and c.inventory.count(r) >= 1 and page.screen == "ingredients",
+		"condensed on the ring: the pill is made and the page is back at Ingredients")
+	page.free()
+	c.inventory.furnace = furnace_was
 	c.inventory.bag.fill(null)
 
 # ------------------------------------------------------------------ formulas

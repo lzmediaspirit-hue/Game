@@ -1,7 +1,8 @@
 extends Page
 ## Crafts (S15, S16): cooking, alchemy and the forge share one recipe book.
-## Alchemy and forging play a short timing mini-game (three strikes into the
-## glowing band); its scores go to the authority, which rolls the quality.
+## Forging plays a short timing mini-game (three strikes into the glowing band). Alchemy plays the five-screen furnace
+## (S15/S44): Ingredients and Furnace in the recipe panel, then Extraction, Fusion and Condensation full width from the
+## refine the authority keeps (and the pill tribulation as a sixth). The authority scores every screen and rolls the quality.
 
 var CRAFTS := [["cooking", Tx.t("ui.crafts.cooking")], ["alchemy", Tx.t("ui.crafts.alchemy")], ["smithing", Tx.t("ui.crafts.forge")], ["formations", Tx.t("ui.crafts.arrays")],
 	["talisman", Tx.t("ui.crafts.talismans")], ["guild", Tx.t("ui.crafts.guild")], ["star_charting", Tx.t("ui.crafts.charts")], ["shipwright", Tx.t("ui.crafts.vessels")]]
@@ -28,6 +29,15 @@ var scores: Array = []
 var band := Vector2(0.45, 0.62)
 var fire := "charcoal"
 var subst: Dictionary = {}         # S44 Alchemy Dao tier 5: {from, to}, one herb standing in for another
+## The five-screen furnace: which of the recipe panel's two screens shows, the array chosen for the furnace, the hand's
+## side of the screen being played ({stage, t, ...}), whether the fan is held, and the controls that act on the press
+## (the fan is held; the array's turn and Condense are timed), drawn this frame.
+var screen := "ingredients"
+var array := "water"
+var play: Dictionary = {}
+var fanning := false
+var hot_rects: Dictionary = {}
+var preview_rs: Dictionary = {}    # a refine drawn for a preview (--open-page=alchemy:__extraction); nothing is sent
 ## The Forge's upkeep modes (S47): forging from recipes, then Enhance, Inherit, Salvage and Reroll.
 const FORGE_MODES := ["recipes", "enhance", "inherit", "salvage", "reroll", "natal"]
 var forge_mode := "recipes"
@@ -68,6 +78,19 @@ func setup() -> void:
 	if pick == "__tribulation":   # a preview of the tribulation screen (--open-page=alchemy:__tribulation); nothing is refined
 		sel = "soul_soothing_pill"
 		trib = {"stage": "bolts", "times": [0.2, 0.5, 1.0, 1.9, 2.8], "window": 0.22, "t0": Time.get_ticks_msec(), "next": 2, "results": [true, false], "preview": true}
+	if pick in ["__furnace", "__extraction", "__scorched", "__fusion", "__fusion_turn", "__condensation"]:
+		# Previews of the furnace's screens (--open-page=alchemy:__fusion); a preview plays nothing out.
+		sel = "healing_pill"
+		if pick == "__furnace": screen = "furnace"
+		else: _preview(pick.trim_prefix("__"))
+	var rs := Game.crafting.refine_session(ch)
+	if not rs.is_empty():
+		# A refine left burning when the page closed: pick it up where it was.
+		sel = str(rs.recipe)
+		count = int(rs.count)
+		fire = str(rs.fire)
+		array = str(rs.array)
+		subst = (rs.substitute as Dictionary).duplicate()
 	if pick in FORGE_MODES:   # --open-page=forge:enhance (a preview shows the first piece chosen)
 		forge_mode = pick
 		var gear := _gear(ch)
@@ -95,6 +118,7 @@ func _process(delta: float) -> void:
 		elif str(trib.stage) == "soul" and el > float(trib.catch_at) + float(trib.window):
 			_trib_catch(99.0)
 		queue_redraw()
+	if not tabs.is_empty() and str(tabs[tab].id) == "alchemy": _tick_furnace(delta)
 	if game_on:
 		needle += needle_dir * delta * (0.9 + scores.size() * 0.35)
 		if needle > 1.0:
@@ -121,6 +145,10 @@ func draw_page() -> void:
 			return
 	if craft == "guild":
 		_guild(ch, content)
+		return
+	hot_rects.clear()
+	if craft == "alchemy" and (not _session().is_empty() or not trib.is_empty()):
+		_furnace_full(ch)
 		return
 	var top := 56.0 if craft == "smithing" else 0.0
 	var list_r := Rect2(content.position.x, content.position.y + top, 420, content.size.y - top)
@@ -173,12 +201,15 @@ func draw_page() -> void:
 	slot_box(Rect2(right.position + Vector2(24, 24), Vector2(72, 72)), out2, int(rec.outputs[0].count))
 	text(right.position + Vector2(110, 56), ContentDB.item_name(out2), 24, UiKit.grade_color(str(rec.get("grade", "plain"))))
 	para(Rect2(right.position + Vector2(110, 68), Vector2(right.size.x - 130, 44)), str(ContentDB.item(out2).get("desc", "")), 16, UiKit.MIST, 2)
-	# S44: during a pill tribulation the heavens take over the furnace's panel.
-	if not trib.is_empty():
-		_draw_tribulation(Rect2(right.position.x + 24, right.position.y + 150, right.size.x - 48, right.size.y - 250))
-		btn(Rect2(right.end.x - 244, right.end.y - 76, 220, 58), Tx.t("ui.crafts.shield") if str(trib.stage) == "bolts" else Tx.t("ui.crafts.catch"), "trib", null, true)
-		return
 	var alch := craft == "alchemy"
+	if alch:
+		var steps_all := _screens(sel)
+		var at := steps_all.find(screen) + 1
+		text(Vector2(right.end.x - 324, right.position.y + 30), Tx.t("ui.crafts.step_of") % [at, steps_all.size(), _screen_label(screen)], 15, UiKit.PALE_GOLD,
+			HORIZONTAL_ALIGNMENT_RIGHT, 300)
+	if alch and screen == "furnace":
+		_furnace_screen(ch, right)
+		return
 	var y := right.position.y + (118 if alch else 124)
 	var inputs: Array = Game.crafting.inputs_with(sel, subst) if alch else rec.inputs
 	var roles: Array = rec.get("roles", [])
@@ -198,6 +229,7 @@ func draw_page() -> void:
 			if nat in ["hot", "cold"]: bits.append(Tx.t("ui.crafts.nature_" + nat))
 			var orig := str(rec.inputs[i].item)
 			if orig != str(inp.item): bits.append(Tx.t("ui.crafts.stands_in") % ContentDB.item_name(orig))
+			bits.append_array(_sense_bits(ch, str(inp.item)))
 			text(Vector2(right.position.x + 90, y + 42), "  ·  ".join(bits), 14, UiKit.PALE_GOLD if orig != str(inp.item) else UiKit.MIST)
 			if can_swap and str(ContentDB.item(orig).get("type", "")) == "herb" and not Game.crafting.substitutes_for(ch, sel, orig).is_empty() \
 					and (subst.is_empty() or str(subst.get("from", "")) == orig):
@@ -211,34 +243,12 @@ func draw_page() -> void:
 		btn(Rect2(right.position.x + 24, right.end.y - 140, 56, 50), "−", "count", -1)
 		text(Vector2(right.position.x + 84, right.end.y - 104), "×%d" % count, 22, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 70)
 		btn(Rect2(right.position.x + 158, right.end.y - 140, 56, 50), "+", "count", 1)
-	if craft == "alchemy":
-		# The furnace you carry and the fire under it (G1).
-		var fu: Dictionary = Game.crafting.furnace_of(ch)
-		if fu.get("cracked", false):
-			text(Vector2(right.position.x + 232, right.end.y - 122), ContentDB.item_name(str(fu.id)), 17, UiKit.RED)
-			text(Vector2(right.position.x + 232, right.end.y - 100), Tx.t("sim.crafting.furnace_cracked") % ContentDB.item_name(str(fu.id)), 15, UiKit.RED)
-		elif str(fu.get("id", "")) != "":
-			text(Vector2(right.position.x + 232, right.end.y - 122), ContentDB.item_name(str(fu.id)) + ("" if str(fu.get("element", "")) == "" else "  ·  " + Tx.t("ui.crafts.furnace_element") % str(fu.element).capitalize()), 17, UiKit.PALE_GOLD)
-			text(Vector2(right.position.x + 232, right.end.y - 100), Tx.t("ui.crafts.furnace_stats") % [int(fu.get("batch", 1)), int(round(float(fu.get("band", 0.0)) * 100)),
-				int(round(float(fu.get("filter", 0.0)) * 100)), int(round(float(fu.get("yield", 0.0)) * 100))], 15, UiKit.MIST)
-		else:
-			text(Vector2(right.position.x + 232, right.end.y - 110), Tx.t("ui.crafts.no_furnace"), 15, UiKit.MIST)
-		if not game_on:
-			var have: Array = Game.crafting.fires_available(ch)
-			if not fire in have: fire = "charcoal"
-			var need_fire := str(ContentDB.entry("recipes", sel).get("fire", ""))
-			if need_fire != "" and need_fire in have: fire = need_fire   # a pill that takes only one fire (S48)
-			var fw := (right.size.x - 48 - 24) / 4.0
-			for i in FIRES.size():
-				var f: String = FIRES[i]
-				var fr := Rect2(right.position.x + 24 + i * (fw + 8), right.end.y - 212, fw, 50)
-				btn(fr, Tx.t("ui.crafts.fire_" + f), "fire", f, fire == f, f in have, Tx.t("ui.crafts.fire_" + f + "_locked"), 17)
-	var why2 := Game.crafting.recipe_check(ch, sel, count, craft)
+	var why2 := Game.crafting.recipe_check(ch, sel, count, craft, Game.crafting.inputs_with(sel, subst) if alch else [])
 	if game_on: _draw_minigame(Rect2(right.position.x + 24, right.end.y - 210, right.size.x - 48, 60))
 	if craft == "talisman" and trace_on:
 		_draw_trace(right)
 		return
-	var label = {"cooking": Tx.t("ui.crafts.cook"), "alchemy": Tx.t("ui.crafts.refine"), "smithing": Tx.t("ui.crafts.forge"), "formations": Tx.t("ui.crafts.etch"),
+	var label = {"cooking": Tx.t("ui.crafts.cook"), "alchemy": Tx.t("ui.crafts.to_furnace"), "smithing": Tx.t("ui.crafts.forge"), "formations": Tx.t("ui.crafts.etch"),
 		"talisman": Tx.t("ui.crafts.write"), "star_charting": Tx.t("ui.crafts.chart"), "shipwright": Tx.t("ui.crafts.build")}[craft]
 	btn(Rect2(right.end.x - 244, right.end.y - 76, 220, 58), Tx.t("ui.crafts.strike") if game_on else label, "strike" if game_on else "craft", null, true, why2 == "" or game_on, why2)
 	if craft == "alchemy" and Unlocks.is_unlocked(ch.id, "auto_refine") and not game_on:
@@ -547,6 +557,17 @@ func _finish_trace() -> void:
 	elif str(r.get("text", "")) != "": flash(str(r.text))
 
 func _gui_input(event: InputEvent) -> void:
+	# The furnace's timed controls act the moment they are pressed; the fan works while it is held.
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and confirm.is_empty() and not tabs.is_empty() \
+			and str(tabs[tab].id) == "alchemy":
+		if not event.pressed: fanning = false
+		else:
+			for id in hot_rects:
+				if (hot_rects[id] as Rect2).has_point(event.position):
+					if id == "fan": fanning = true
+					else: _hot(str(id))
+					accept_event()
+					return
 	if trace_on and str(tabs[tab].id) == "talisman":
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed and trace_rect.has_point(event.position):
@@ -795,13 +816,6 @@ func _bolt(a: Vector2, b: Vector2, col: Color) -> void:
 	draw_polyline(pts, col, 3.0)
 
 func _draw_minigame(r: Rect2) -> void:
-	# The alchemy strikes are the furnace's stages (S15): Extraction, Fusion, Condensation.
-	if str(tabs[tab].id) == "alchemy":
-		var stage := mini(scores.size() + 1, 3)
-		var label := Tx.t("ui.crafts.stage_%d" % stage)
-		var shift: float = Game.crafting.nature_shift(sel, subst)
-		if stage == 1 and absf(shift) > 0.001: label += "  ·  " + Tx.t("ui.crafts.band_high" if shift > 0.0 else "ui.crafts.band_low")
-		text(Vector2(r.position.x, r.position.y - 12), label, 16, UiKit.PALE_GOLD)
 	draw_rect(r, Color(0.05, 0.08, 0.09))
 	draw_rect(Rect2(r.position.x + r.size.x * band.x, r.position.y, r.size.x * (band.y - band.x), r.size.y), Color(UiKit.GOLD, 0.55))
 	var nx := r.position.x + r.size.x * needle
@@ -821,11 +835,12 @@ func on_action(id: String, data) -> void:
 	var craft := str(tabs[tab].id)
 	match id:
 		"sel":
-			if not trib.is_empty(): return   # the heavens do not wait while you browse
+			if not trib.is_empty() or not _session().is_empty(): return   # the heavens (and a lit furnace) do not wait while you browse
 			sel = str(data)
 			count = 1
 			game_on = false
 			subst = {}
+			screen = "ingredients"
 		"exp_herb":
 			var h := str(data)
 			if exp_herbs.has(h): exp_herbs.erase(h)
@@ -868,6 +883,9 @@ func on_action(id: String, data) -> void:
 					var rt := submit({"type": "trace_talisman", "recipe": sel})
 					if rt.get("ok", false): flash(Tx.t("ui.crafts.made") % int(rt.count))
 				return
+			if craft == "alchemy":
+				screen = "furnace"   # Ingredients done: on to the furnace, its fire and its array
+				return
 			if DIRECT.has(craft):
 				var r := submit({"type": DIRECT[craft], "recipe": sel, "count": count if craft in ["cooking", "formations"] else 1})
 				if r.get("ok", false):
@@ -880,40 +898,48 @@ func on_action(id: String, data) -> void:
 				needle = 0.0
 				needle_dir = 1.0
 				band = Vector2(0.4 + Rng.stream(c().id, "minigame").randf() * 0.2, 0.0)
-				var width := 0.16 * _band_mult(craft)
-				# S44: hot herbs drive the Extraction band up the bar, cold herbs draw it down.
-				if craft == "alchemy": band.x = clampf(band.x + Game.crafting.nature_shift(sel, subst), 0.04, 0.96 - width)
-				band.y = band.x + width
+				band.y = band.x + 0.16 * _band_mult(craft)
 		"strike":
 			# Crafting scores the strike (craft_step_result); the page only reports where it landed.
 			var mid := (band.x + band.y) * 0.5
-			# The band drawn is the band scored: the authority widens its tolerance by the same fire.
-			var st := submit({"type": "craft_step", "recipe": sel, "craft": "alchemy" if craft == "alchemy" else "smithing", "offset": needle - mid,
-				"fire": fire})
+			var st := submit({"type": "craft_step", "recipe": sel, "craft": "smithing", "offset": needle - mid})
 			scores.append(float(st.get("score", 0.0)))
-			Audio.play("forge" if craft == "smithing" else "alchemy", "UI")
-			if scores.size() >= (Game.crafting.steps_for(sel) if craft == "alchemy" else int(ContentDB.curve("craft_step.steps", 3))):
+			Audio.play("forge", "UI")
+			if scores.size() >= int(ContentDB.curve("craft_step.steps", 3)):
 				game_on = false
-				var r2 := submit({"type": "refine" if craft == "alchemy" else "forge", "recipe": sel, "count": count, "fire": fire, "substitute": subst, "live": true})
-				if r2.get("ok", false) and str(r2.get("pending", "")) == "tribulation":
-					# S44: Heaven-grade Halo or Soul: the heavens test the pill before it is yours.
-					trib = {"stage": "bolts", "times": r2.bolts, "window": float(r2.window), "t0": Time.get_ticks_msec(), "next": 0, "results": [],
-						"quality": str(r2.quality)}
-					flash(Tx.t("ui.crafts.tribulation_begins"))
-				elif r2.get("ok", false):
-					var made := Tx.t("ui.crafts.quality_made") % [str(r2.quality).replace("_", " ").capitalize(), int(r2.count)]
-					if int(r2.get("marks", 0)) > 0: made += " · " + Tx.t("ui.crafts.marks") % int(r2.marks)
-					flash(made)
-				elif str(r2.get("text", "")) != "": flash(str(r2.text))
+				_refine_done(submit({"type": "forge", "recipe": sel}))
 			else:
 				band.x = 0.25 + Rng.stream(c().id, "minigame").randf() * 0.5
 				band.y = band.x + 0.14 * _band_mult(craft)
-		"trib":
-			var el := _trib_elapsed()
-			if str(trib.get("stage", "")) == "bolts" and int(trib.next) < (trib.times as Array).size():
-				_trib_answer(el - float(trib.times[int(trib.next)]))
-			elif str(trib.get("stage", "")) == "soul":
-				_trib_catch(el - float(trib.catch_at))
+		"to_ingredients": screen = "ingredients"
+		"arr": array = str(data)
+		"light":
+			var rl := submit({"type": "start_refine", "recipe": sel, "count": count, "fire": fire, "array": array, "substitute": subst})
+			if rl.get("ok", false):
+				Audio.play("alchemy", "UI")
+				play = {}
+		"speck":
+			if play.get("stage", "") == "extraction" and not (play.gone as Dictionary).has(int(data)):
+				play.gone[int(data)] = true
+				play.taps = int(play.taps) + 1
+				Audio.ui("ui_tap")
+		"orb":
+			if play.get("phase", "") == "merge" and not (play.order as Array).has(int(data)):
+				(play.order as Array).append(int(data))
+				Audio.play("alchemy", "UI")
+				if (play.order as Array).size() >= (_session().herbs as Array).size():
+					play.phase = "turn"
+					play.t = -float(_fg("extraction").get("ready_s", 1.2))
+		"retry_herb": play = {}
+		"put_out": ask(Tx.t("ui.crafts.put_out_ask"), "put_out_yes", null, true)
+		"put_out_yes":
+			if not preview_rs.is_empty():
+				preview_rs = {}
+			elif submit({"type": "cancel_refine"}).get("ok", false):
+				flash(Tx.t("ui.crafts.fire_out"))
+			play = {}
+			fanning = false
+			screen = "ingredients"
 		"queue":
 			if submit({"type": "queue_auto_refine", "recipe": sel, "count": count}).get("ok", false):
 				flash(Tx.t("ui.crafts.batch_queued"))
@@ -923,6 +949,9 @@ func on_action(id: String, data) -> void:
 			sel = ""
 			game_on = false
 			trace_on = false
+			screen = "ingredients"
+			fanning = false
+			if not _session().is_empty(): sel = str(_session().recipe)   # a lit furnace keeps its recipe
 		"forge_mode":
 			forge_mode = str(data)
 			pick_uid = -1
@@ -993,6 +1022,420 @@ func on_action(id: String, data) -> void:
 				Audio.play("forge", "UI")
 				flash(Tx.t("ui.forge.reforged"))
 			elif str(r9.get("text", "")) != "": flash(str(r9.text))
+
+# ------------------------------------------------------------------ the five-screen furnace (S15, S44)
+## The refine being played: the authority's, or a preview's.
+func _session() -> Dictionary:
+	if not preview_rs.is_empty(): return preview_rs
+	return Game.crafting.refine_session(c()) if c() != null else {}
+
+func _fg(part: String) -> Dictionary:
+	return Game.crafting.furnace_game().get(part, {})
+
+## The screens a recipe goes through: a liquid has no Condensation; Heaven grade and up may meet the tribulation.
+func _screens(recipe_id: String) -> Array:
+	var r := ContentDB.entry("recipes", recipe_id)
+	var out := ["ingredients", "furnace", "extraction", "fusion"]
+	if not r.get("liquid", false): out.append("condensation")
+	if StatRules.grade_index(str(r.get("grade", "plain"))) >= StatRules.grade_index("heaven"): out.append("tribulation")
+	return out
+
+func _screen_label(id: String) -> String:
+	match id:
+		"extraction": return Tx.t("ui.crafts.stage_1")
+		"fusion": return Tx.t("ui.crafts.stage_2")
+		"condensation": return Tx.t("ui.crafts.stage_3")
+	return Tx.t("ui.crafts.screen_" + id)
+
+## What Spirit Sense tells of one herb slot: the sealed roots the batch would use (sound, dyed, or cannot tell).
+func _sense_bits(ch, item: String) -> Array:
+	if not Unlocks.is_unlocked(ch.id, "spirit_sense") or str(ContentDB.item(item).get("type", "")) != "herb": return []
+	var out: Array = []
+	var sealed := 0
+	var fakes := 0
+	for e in Game.crafting.sense_herbs(ch, sel, count, subst):
+		if str(e.item) != item: continue
+		sealed += int(e.sealed)
+		fakes = -1 if int(e.fakes) < 0 else fakes + int(e.fakes)
+	if sealed > 0:
+		if fakes < 0: out.append(Tx.t("ui.crafts.sense_sealed") % sealed)
+		elif fakes > 0: out.append(Tx.t("ui.crafts.sense_fake") % fakes)
+		else: out.append(Tx.t("ui.crafts.sense_sound") % sealed)
+	return out
+
+## Screen 2 · the Furnace: the furnace you carry, the fire under it (G1) and the array set beneath it.
+func _furnace_screen(ch, right: Rect2) -> void:
+	var x := right.position.x + 24
+	var y := right.position.y + 136
+	var fu: Dictionary = Game.crafting.furnace_of(ch)
+	if fu.get("cracked", false):
+		text(Vector2(x, y), ContentDB.item_name(str(fu.id)), 18, UiKit.RED)
+		text(Vector2(x, y + 24), Tx.t("sim.crafting.furnace_cracked") % ContentDB.item_name(str(fu.id)), 15, UiKit.RED)
+	elif str(fu.get("id", "")) != "":
+		text(Vector2(x, y), ContentDB.item_name(str(fu.id)) + ("" if str(fu.get("element", "")) == "" else "  ·  " + Tx.t("ui.crafts.furnace_element") % str(fu.element).capitalize()), 18, UiKit.PALE_GOLD)
+		text(Vector2(x, y + 24), Tx.t("ui.crafts.furnace_stats") % [int(fu.get("batch", 1)), int(round(float(fu.get("band", 0.0)) * 100)),
+			int(round(float(fu.get("filter", 0.0)) * 100)), int(round(float(fu.get("yield", 0.0)) * 100))], 15, UiKit.MIST)
+	else:
+		text(Vector2(x, y + 12), Tx.t("ui.crafts.no_furnace"), 15, UiKit.MIST)
+	# The fire, and how wide it (with the furnace, your control and the array) makes the heat band.
+	var have: Array = Game.crafting.fires_available(ch)
+	if not fire in have: fire = "charcoal"
+	var need_fire := str(ContentDB.entry("recipes", sel).get("fire", ""))
+	if need_fire != "" and need_fire in have: fire = need_fire   # a pill that takes only one fire (S48)
+	y += 60
+	text(Vector2(x, y), Tx.t("ui.crafts.fire"), 16, UiKit.GOLD)
+	var band_w: float = Game.crafting.heat_band(ch, fire, sel, array, subst)
+	text(Vector2(right.end.x - 324, y), Tx.t("ui.crafts.heat_band") % int(round(band_w * 100)), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, 300)
+	var fw := (right.size.x - 48 - 24) / 4.0
+	for i in FIRES.size():
+		var f: String = FIRES[i]
+		btn(Rect2(x + i * (fw + 8), y + 10, fw, 48), Tx.t("ui.crafts.fire_" + f), "fire", f, fire == f, f in have, Tx.t("ui.crafts.fire_" + f + "_locked"), 17)
+	# The array: the one that answers the principal herb widens every heat band.
+	y += 90
+	var suits: String = Game.crafting.suited_array(sel, subst)
+	text(Vector2(x, y), Tx.t("ui.crafts.array"), 16, UiKit.GOLD)
+	if suits != "": text(Vector2(right.end.x - 324, y), Tx.t("ui.crafts.array_suits") % Tx.t("ui.crafts.array_" + suits), 15, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_RIGHT, 300)
+	var aw := (right.size.x - 48 - 8) / 2.0
+	for i in 2:
+		var a: String = ["water", "flame"][i]
+		btn(Rect2(x + i * (aw + 8), y + 10, aw, 48), Tx.t("ui.crafts.array_" + a), "arr", a, array == a, true, "", 17)
+	para(Rect2(x, y + 70, right.size.x - 48, 44), Tx.t("ui.crafts.array_hint_" + ({"water": "hot", "flame": "cold"}.get(suits, "neutral") as String)), 15, UiKit.MIST, 2)
+	btn(Rect2(x, right.end.y - 76, 200, 58), Tx.t("ui.crafts.back_ingredients"), "to_ingredients", null, false, true, "", 18)
+	var why: String = Game.crafting.refine_block(ch, sel, count, fire, subst)
+	btn(Rect2(right.end.x - 264, right.end.y - 76, 240, 58), Tx.t("ui.crafts.light"), "light", null, true, why == "", why)
+
+## Screens 3-6, full width: the steps across the top, the batch under them, and the screen being played.
+func _furnace_full(ch) -> void:
+	var rs := _session()
+	var recipe := str(rs.get("recipe", sel))
+	var r := content
+	panel(r)
+	var stage := "tribulation" if not trib.is_empty() else str(rs.get("stage", "extraction"))
+	var ids := _screens(recipe)
+	if not ids.has("tribulation") and stage == "tribulation": ids.append("tribulation")
+	var at := ids.find(stage)
+	var w := (r.size.x - 40) / ids.size()
+	for i in ids.size():
+		var cx := r.position.x + 20 + w * (i + 0.5)
+		var cy := r.position.y + 24
+		if i > 0: draw_line(Vector2(cx - w + 14, cy), Vector2(cx - 14, cy), UiKit.JADE if i <= at else Color(UiKit.HOLLOW, 0.45), 2.0)
+		draw_circle(Vector2(cx, cy), 10, UiKit.GOLD if i == at else (UiKit.JADE if i < at else Color(UiKit.HOLLOW, 0.6)))
+		if i > at: draw_circle(Vector2(cx, cy), 6, UiKit.INK)
+		text(Vector2(cx - w * 0.5, cy + 30), "%d  %s" % [i + 1, _screen_label(str(ids[i]))], 16, UiKit.PALE_GOLD if i == at else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, w)
+	# The batch in the furnace.
+	var out := str(ContentDB.entry("recipes", recipe).outputs[0].item)
+	slot_box(Rect2(r.position.x + 20, r.position.y + 70, 48, 48), out)
+	text(Vector2(r.position.x + 80, r.position.y + 94), ContentDB.item_name(out), 20, UiKit.grade_color(str(ContentDB.entry("recipes", recipe).get("grade", "plain"))))
+	if not rs.is_empty():
+		text(Vector2(r.position.x + 80, r.position.y + 116), Tx.t("ui.crafts.batch_line") % [int(rs.count), Tx.t("ui.crafts.fire_" + str(rs.fire)),
+			Tx.t("ui.crafts.array_" + str(rs.array))], 15, UiKit.MIST)
+		btn(Rect2(r.end.x - 214, r.position.y + 70, 194, 46), Tx.t("ui.crafts.put_out"), "put_out", null, false, true, "", 16)
+	var area := Rect2(r.position.x + 20, r.position.y + 130, r.size.x - 40, r.size.y - 146)
+	if not trib.is_empty():
+		_draw_tribulation(Rect2(area.position.x, area.position.y, area.size.x - 280, area.size.y))
+		_hot_btn(Rect2(area.end.x - 250, area.end.y - 76, 250, 72), Tx.t("ui.crafts.shield") if str(trib.stage) == "bolts" else Tx.t("ui.crafts.catch"), "trib")
+		return
+	match stage:
+		"extraction": _screen_extraction(rs, area)
+		"fusion": _screen_fusion(rs, area)
+		"condensation": _screen_condensation(rs, area)
+
+## A control that acts on the press (the fan, the array's turn, Condense, the shield), drawn like a primary button.
+func _hot_btn(rect: Rect2, label: String, id: String, held := false) -> void:
+	draw_style_box(UiKit.style("button_primary", "pressed" if held else "normal"), rect)
+	UiKit.draw_text(self, label, rect.position + Vector2(0, rect.size.y * 0.5 + 8) + (Vector2(1, 2) if held else Vector2.ZERO), 22, UiKit.PALE_GOLD,
+		HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+	hot_rects[id] = rect
+
+## Where a herb's band sits at time `t` (its centre, as a share of the gauge from the bottom).
+static func _band_mid(herb: Dictionary, t: float) -> float:
+	return float(herb.centre) + float(herb.sway) * sin(TAU * maxf(0.0, t) / maxf(0.5, float(herb.period)) + float(herb.phase))
+
+## Screen 3 · Extraction: the herbs in order on the left, the heat gauge with its swaying band, the furnace mouth where
+## impurities rise, and the fan to hold.
+func _screen_extraction(rs: Dictionary, area: Rect2) -> void:
+	var herbs: Array = rs.herbs
+	var i := mini(int(rs.at), herbs.size() - 1)
+	var herb: Dictionary = herbs[i]
+	var k := _fg("extraction")
+	var secs := float(k.get("seconds", 5.0))
+	var pt := float(play.get("t", -1.0))
+	text(area.position + Vector2(0, 16), Tx.t("ui.crafts.extract_hint"), 16, UiKit.MIST)
+	# The herbs, in the order they go in.
+	for j in herbs.size():
+		var hy := area.position.y + 40 + j * 64
+		var h: Dictionary = herbs[j]
+		slot_box(Rect2(area.position.x, hy, 52, 52), str(h.item))
+		text(Vector2(area.position.x + 62, hy + 22), fit(ContentDB.item_name(str(h.item)), 15, 196), 15, UiKit.PAPER if j <= i else UiKit.MIST)
+		var st := Tx.t("ui.crafts.herb_waiting")
+		var col := UiKit.HOLLOW
+		if j < (rs.extraction as Array).size():
+			st = "%d%%" % int(round(float(rs.extraction[j]) * 100))
+			col = UiKit.BRIGHT_JADE
+		elif j == i and play.get("scorched", false):
+			st = Tx.t("ui.crafts.scorched")
+			col = UiKit.RED
+		elif j == i:
+			# Hot herbs sit their band high on the gauge, cold ones low (S44).
+			st = Tx.t("ui.crafts.herb_in_fire") + ("  ·  " + Tx.t("ui.crafts.nature_" + str(h.nature)) if str(h.nature) in ["hot", "cold"] else "")
+			col = UiKit.GOLD
+		text(Vector2(area.position.x + 62, hy + 44), st, 14, col)
+	# The heat gauge: the gold band sways; the heat rises while the flame is fanned.
+	var g := Rect2(area.position.x + 270, area.position.y + 40, 64, area.size.y - 84)
+	draw_rect(g, Color(0.04, 0.06, 0.07))
+	var heat := float(play.get("heat", 0.3))
+	var mid := _band_mid(herb, pt)
+	var half := float(herb.width) * 0.5
+	var inside := absf(heat - mid) <= half
+	draw_rect(Rect2(g.position.x, g.end.y - g.size.y * (mid + half), g.size.x, g.size.y * half * 2.0), Color(UiKit.GOLD, 0.75 if inside else 0.45))
+	draw_rect(Rect2(g.position.x + 18, g.end.y - g.size.y * heat, g.size.x - 36, g.size.y * heat), Color(0.95, 0.42, 0.2, 0.85))
+	draw_rect(Rect2(g.position.x - 6, g.end.y - g.size.y * heat - 2, g.size.x + 12, 4), UiKit.PAPER)
+	draw_rect(g, Color(UiKit.BRONZE, 0.9), false, 2.0)
+	bar(Rect2(g.position.x, area.end.y - 24, area.size.x - 290 - 270, 14), clampf(pt / secs, 0.0, 1.0), UiKit.JADE)
+	# The furnace mouth, glowing with the heat; impurities rise in it to be tapped away.
+	var rad := minf(150.0, (area.size.y - 90) * 0.5)
+	var centre := Vector2(g.end.x + 60 + rad, area.position.y + 40 + rad)
+	draw_circle(centre, rad + 10, Color(UiKit.BRONZE, 0.9))
+	draw_circle(centre, rad, Color(0.08, 0.05, 0.04))
+	draw_circle(centre, rad * (0.35 + 0.6 * heat), Color(0.95, 0.45 + 0.3 * heat, 0.18, 0.25 + 0.35 * heat))
+	var gone: Dictionary = play.get("gone", {})
+	var specks: Array = herb.specks
+	for j in specks.size():
+		var sp: Dictionary = specks[j]
+		if gone.has(j) or pt < float(sp.t) or pt > float(sp.t) + float(k.get("speck_s", 1.2)): continue
+		var at := centre + Vector2((float(sp.x) - 0.5) * rad * 1.6, (float(sp.y) - 0.5) * rad * 1.6)
+		var a := 0.3 if sp.get("faint", false) else 1.0
+		draw_circle(at, 17, Color(0.5, 0.48, 0.44, 0.35 * a))
+		draw_circle(at, 11, Color(0.12, 0.1, 0.1, a))
+		region(Rect2(at - Vector2(26, 26), Vector2(52, 52)), "speck", j)
+	if pt < 0.0 and not play.get("scorched", false):
+		text(Vector2(centre.x - 150, centre.y + 12), Tx.t("ui.crafts.ready"), 30, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 300, true)
+	if play.get("scorched", false):
+		var box := Rect2(centre.x - 190, centre.y - 70, 380, 150)
+		panel(box)
+		para(Rect2(box.position + Vector2(18, 16), Vector2(box.size.x - 36, 60)), Tx.t("ui.crafts.scorched_retry") if play.get("retry", false) else Tx.t("ui.crafts.scorched_none"), 16, UiKit.PAPER, 3)
+		if play.get("retry", false): btn(Rect2(box.position.x + 18, box.end.y - 60, 160, 46), Tx.t("ui.crafts.try_again"), "retry_herb", null, true, true, "", 17)
+		btn(Rect2(box.end.x - 178, box.end.y - 60, 160, 46), Tx.t("ui.crafts.put_out"), "put_out", null, false, true, "", 16)
+		return
+	_hot_btn(Rect2(area.end.x - 250, area.end.y - 86, 250, 76), Tx.t("ui.crafts.fan"), "fan", fanning)
+
+## A herb's place on the Fusion ring: the recipe's order is not the ring's.
+func _ring_slot(rs: Dictionary, j: int) -> int:
+	var keys: Array = []
+	for h in rs.herbs: keys.append((str(h.item) + str(rs.recipe)).hash())
+	var sorted_keys := keys.duplicate()
+	sorted_keys.sort()
+	return sorted_keys.find(keys[j])
+
+static func _nature_color(nature: String) -> Color:
+	return Color(0.95, 0.5, 0.25) if nature == "hot" else (Color(0.45, 0.7, 1.0) if nature == "cold" else UiKit.BRIGHT_JADE)
+
+## Screen 4 · Fusion: tap the essences into the core in the recipe's order; then turn the array as the needle crosses
+## each mark.
+func _screen_fusion(rs: Dictionary, area: Rect2) -> void:
+	var herbs: Array = rs.herbs
+	var merged: Array = play.get("order", [])
+	var turning := str(play.get("phase", "merge")) == "turn"
+	text(area.position + Vector2(0, 16), Tx.t("ui.crafts.turn_hint") if turning else Tx.t("ui.crafts.fuse_hint"), 16, UiKit.MIST)
+	# The core the essences merge into, brighter with each; the essences around it, placed apart from their order.
+	var orbit := (area.size.y - 44) * 0.5 - 44
+	var core := Vector2(area.position.x + 210, area.position.y + 36 + (area.size.y - 44) * 0.5)
+	var glow := 0.15 + 0.6 * merged.size() / maxf(1.0, herbs.size())
+	for g in 4: draw_circle(core, 60 - g * 12, Color(1.0, 0.8, 0.4, glow * (0.25 + g * 0.2)))
+	draw_arc(core, 60, 0, TAU, 48, Color(UiKit.GOLD, 0.9), 3.0)
+	for j in herbs.size():
+		var h: Dictionary = herbs[j]
+		var ang := -PI * 0.5 + PI / herbs.size() + TAU * _ring_slot(rs, j) / herbs.size()
+		var at := core + Vector2(cos(ang), sin(ang)) * orbit
+		var col := _nature_color(str(h.nature))
+		if merged.has(j):
+			draw_arc(at, 34, 0, TAU, 32, Color(col, 0.35), 2.0)
+			continue
+		draw_circle(at, 38, Color(col, 0.28))
+		draw_arc(at, 38, 0, TAU, 32, col, 3.0)
+		icon_at(Rect2(at - Vector2(24, 24), Vector2(48, 48)), str(ContentDB.item(str(h.item)).get("icon", h.item)))
+		text(Vector2(at.x - 90, at.y + 60), fit(ContentDB.item_name(str(h.item)), 14, 180), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 180)
+		region(Rect2(at - Vector2(42, 42), Vector2(84, 84)), "orb", j, not turning)
+	# The essences merged so far, in the order they went in.
+	var mx := area.position.x + area.size.x * 0.56
+	text(Vector2(mx, area.position.y + 58), Tx.t("ui.crafts.merged"), 16, UiKit.GOLD)
+	for n in merged.size():
+		var h2: Dictionary = herbs[int(merged[n])]
+		slot_box(Rect2(mx + n * 60, area.position.y + 70, 52, 52), str(h2.item))
+	# The array's turns: a needle crosses the bar; each mark wants a turn as it passes.
+	var bar_r := Rect2(mx, area.position.y + 190, area.end.x - mx, 26)
+	draw_rect(bar_r, Color(0.04, 0.06, 0.07))
+	var offs: Array = play.get("offs", [])
+	var marks: Array = rs.marks
+	var win := float(_fg("fusion").get("window", 0.1))
+	for m in marks.size():
+		var mxp := bar_r.position.x + bar_r.size.x * float(marks[m])
+		var mc := UiKit.GOLD
+		if m < offs.size(): mc = UiKit.BRIGHT_JADE if absf(float(offs[m])) <= win else UiKit.RED
+		draw_rect(Rect2(mxp - bar_r.size.x * win * 0.5, bar_r.position.y, bar_r.size.x * win, bar_r.size.y), Color(mc, 0.3))
+		draw_rect(Rect2(mxp - 2, bar_r.position.y - 8, 4, bar_r.size.y + 16), mc)
+	var arr := str(play.get("array", rs.array))
+	text(Vector2(mx, bar_r.position.y - 14), Tx.t("ui.crafts.array_" + arr), 16, _nature_color("cold" if arr == "water" else "hot"))
+	if turning:
+		var f := clampf(float(play.get("t", 0.0)) / float(_fg("fusion").get("seconds", 3.6)), 0.0, 1.0)
+		draw_rect(Rect2(bar_r.position.x + bar_r.size.x * f - 3, bar_r.position.y - 10, 6, bar_r.size.y + 20), UiKit.PAPER)
+		if float(play.get("t", 0.0)) < 0.0:
+			text(Vector2(mx, bar_r.end.y + 40), Tx.t("ui.crafts.ready"), 24, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+		_hot_btn(Rect2(area.end.x - 250, area.end.y - 86, 250, 76), Tx.t("ui.crafts.turn"), "turn")
+	draw_rect(bar_r, Color(UiKit.BRONZE, 0.9), false, 2.0)
+
+## Screen 5 · Condensation: the ring closes on the pill; condense as it meets the outline.
+func _screen_condensation(rs: Dictionary, area: Rect2) -> void:
+	var k := _fg("condensation")
+	var secs := float(k.get("seconds", 2.4))
+	var pt := float(play.get("t", -1.0))
+	text(area.position + Vector2(0, 16), Tx.t("ui.crafts.condense_hint"), 16, UiKit.MIST)
+	var centre := Vector2(area.position.x + area.size.x * 0.4, area.position.y + 40 + (area.size.y - 40) * 0.5)
+	var rp := 46.0
+	var rs0 := minf(180.0, (area.size.y - 60) * 0.5)
+	var rad := rp + (rs0 - rp) * (1.0 - clampf(pt, 0.0, secs) / secs)
+	if pt > secs: rad = rp - (pt - secs) / maxf(0.05, float(k.get("late", 0.2))) * rp * 0.45
+	var off := pt - secs
+	var col := UiKit.PAPER
+	if absf(off) <= float(k.get("perfect", 0.08)): col = UiKit.GOLD
+	elif off > 0.0: col = UiKit.RED
+	var out := str(ContentDB.entry("recipes", str(rs.recipe)).outputs[0].item)
+	draw_arc(centre, rs0, 0, TAU, 64, Color(UiKit.HOLLOW, 0.3), 1.5)
+	for g in 3: draw_circle(centre, rp + 26 - g * 9, Color(1.0, 0.85, 0.45, (0.05 + 0.12 * clampf(pt / secs, 0.0, 1.0)) * (g + 1)))
+	icon_at(Rect2(centre - Vector2(rp, rp) * 0.8, Vector2(rp, rp) * 1.6), str(ContentDB.item(out).get("icon", out)))
+	draw_arc(centre, rp, 0, TAU, 48, Color(UiKit.PALE_GOLD, 0.8), 2.0)
+	if pt >= 0.0: draw_arc(centre, maxf(4.0, rad), 0, TAU, 64, col, 4.0)
+	else: text(Vector2(centre.x - 150, centre.y - rp - 30), Tx.t("ui.crafts.ready"), 30, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 300, true)
+	_hot_btn(Rect2(area.end.x - 250, area.end.y - 86, 250, 76), Tx.t("ui.crafts.condense"), "condense")
+
+## A preview's refine: Healing Pill, one herb extracted; nothing is sent, and time stands still.
+func _preview(stage: String) -> void:
+	var r := ContentDB.entry("recipes", sel)
+	var herbs: Array = []
+	for i in (r.inputs as Array).size():
+		var item := str(r.inputs[i].item)
+		herbs.append({"item": item, "role": str(r.roles[i]), "nature": str(ContentDB.item(item).get("nature", "")), "count": int(r.inputs[i].count) * 2,
+			"centre": 0.58 if i == 0 else 0.5, "sway": 0.14, "period": 3.2, "phase": 0.4 + i, "width": 0.22,
+			"specks": [{"t": 0.6, "x": 0.34, "y": 0.42, "faint": false}, {"t": 0.9, "x": 0.64, "y": 0.6, "faint": true}]})
+	var order: Array = []
+	for i in herbs.size(): order.append(i)
+	var st := "fusion" if stage.begins_with("fusion") else ("extraction" if stage == "scorched" else stage)
+	preview_rs = {"recipe": sel, "count": 2, "fire": "charcoal", "array": "water", "substitute": {}, "herbs": herbs, "order": order,
+		"marks": [0.34, 0.7], "liquid": false, "stage": st, "at": 1 if st == "extraction" else herbs.size(),
+		"extraction": [0.92] if st == "extraction" else [0.92, 0.81], "fusion": 0.0, "preview": true}
+	match stage:
+		"extraction": play = {"stage": "extraction", "herb": 1, "t": 1.2, "heat": 0.5, "inside": 0.9, "taps": 0, "gone": {}, "frozen": true}
+		"scorched": play = {"stage": "extraction", "herb": 1, "t": 5.0, "heat": 0.9, "inside": 0.4, "taps": 0, "gone": {}, "frozen": true,
+			"sent": true, "scorched": true, "retry": true}
+		"fusion": play = {"stage": "fusion", "phase": "merge", "order": [0], "t": 0.0, "offs": [], "array": "water", "frozen": true}
+		"fusion_turn": play = {"stage": "fusion", "phase": "turn", "order": [0, 1], "t": 1.9, "offs": [0.03], "array": "flame", "frozen": true}
+		"condensation": play = {"stage": "condensation", "t": 1.9, "frozen": true}
+
+## The hand's side of the screen being played: timers, the heat, marks gone by, a ring gone too far.
+func _tick_furnace(delta: float) -> void:
+	var rs := _session()
+	if rs.is_empty() or not trib.is_empty() or play.get("frozen", false): return
+	var ready := float(_fg("extraction").get("ready_s", 1.2))
+	match str(rs.stage):
+		"extraction":
+			if str(play.get("stage", "")) != "extraction" or int(play.get("herb", -1)) != int(rs.at):
+				play = {"stage": "extraction", "herb": int(rs.at), "t": -ready, "heat": 0.3, "inside": 0.0, "taps": 0, "gone": {}}
+				fanning = false
+			if play.get("scorched", false) or play.get("sent", false): return
+			play.t = float(play.t) + delta
+			if float(play.t) < 0.0: return
+			var k := _fg("extraction")
+			var herb: Dictionary = rs.herbs[int(rs.at)]
+			play.heat = clampf(float(play.heat) + (float(k.get("rise_per_s", 0.6)) if fanning else -float(k.get("fall_per_s", 0.45))) * delta, 0.0, 1.0)
+			if absf(float(play.heat) - _band_mid(herb, float(play.t))) <= float(herb.width) * 0.5: play.inside = float(play.inside) + delta
+			var secs := float(k.get("seconds", 5.0))
+			if float(play.t) >= secs:
+				play.sent = true
+				fanning = false
+				var r := submit({"type": "refine_input", "step": "extraction", "value": {"herb": int(rs.at), "held": float(play.inside) / secs, "taps": int(play.taps)}})
+				if r.get("scorched", false):
+					play.scorched = true
+					play.retry = bool(r.get("retry", false))
+					flash(str(r.get("text", "")))
+					Audio.play("hurt", "UI")
+				elif r.get("ok", false): Audio.play("alchemy", "UI")
+		"fusion":
+			if str(play.get("stage", "")) != "fusion":
+				play = {"stage": "fusion", "phase": "merge", "order": [], "t": 0.0, "offs": [], "array": str(rs.array)}
+			if str(play.phase) != "turn" or play.get("sent", false): return
+			play.t = float(play.t) + delta
+			var kf := _fg("fusion")
+			var f := float(play.t) / float(kf.get("seconds", 3.6))
+			var marks: Array = rs.marks
+			var offs: Array = play.offs
+			# A mark the needle has gone well past unanswered counts as missed.
+			while offs.size() < marks.size() and f > float(marks[offs.size()]) + float(kf.get("window", 0.1)): offs.append(99.0)
+			if offs.size() >= marks.size(): _send_fusion(rs)
+		"condensation":
+			if str(play.get("stage", "")) != "condensation": play = {"stage": "condensation", "t": -ready}
+			if play.get("sent", false): return
+			play.t = float(play.t) + delta
+			var kc := _fg("condensation")
+			# Nothing pressed as the ring shrinks inside the pill: too late, it cracks.
+			if float(play.t) - float(kc.get("seconds", 2.4)) > float(kc.get("late", 0.2)) + 0.1: _send_condense(float(play.t) - float(kc.get("seconds", 2.4)))
+
+## A timed control pressed.
+func _hot(id: String) -> void:
+	var rs := _session()
+	match id:
+		"trib":
+			var el := _trib_elapsed()
+			if str(trib.get("stage", "")) == "bolts" and int(trib.next) < (trib.times as Array).size():
+				_trib_answer(el - float(trib.times[int(trib.next)]))
+			elif str(trib.get("stage", "")) == "soul":
+				_trib_catch(el - float(trib.catch_at))
+		"turn":
+			if rs.is_empty() or str(play.get("phase", "")) != "turn" or float(play.get("t", -1.0)) < 0.0 or play.get("sent", false) or play.get("frozen", false): return
+			var marks: Array = rs.marks
+			var offs: Array = play.offs
+			if offs.size() >= marks.size(): return
+			offs.append(float(play.t) / float(_fg("fusion").get("seconds", 3.6)) - float(marks[offs.size()]))
+			play.array = "flame" if str(play.array) == "water" else "water"
+			Audio.play("technique", "UI")
+			if offs.size() >= marks.size(): _send_fusion(rs)
+		"condense":
+			if rs.is_empty() or float(play.get("t", -1.0)) < 0.0 or play.get("sent", false) or play.get("frozen", false): return
+			_send_condense(float(play.t) - float(_fg("condensation").get("seconds", 2.4)))
+
+func _send_fusion(rs: Dictionary) -> void:
+	play.sent = true
+	var r := submit({"type": "refine_input", "step": "fusion", "value": {"order": play.order, "marks": play.offs}})
+	if not r.get("ok", false):
+		play = {}
+		if str(r.get("reason", "")) == "blast": screen = "ingredients"
+		return
+	if r.has("quality") or r.has("pending"): _refine_done(r)   # a liquid is done at Fusion
+	elif not r.get("in_order", true): flash(Tx.t("ui.crafts.out_of_order"))
+
+func _send_condense(offset: float) -> void:
+	play.sent = true
+	var r := submit({"type": "refine_input", "step": "condensation", "value": {"offset": offset}})
+	if r.get("cracked", false):
+		flash(str(r.get("text", "")))
+		Audio.play("hurt", "UI")
+		play = {}
+		screen = "ingredients"
+		return
+	_refine_done(r)
+
+## What came out of the furnace (or the forge): the pills, or the tribulation that must be met first.
+func _refine_done(r2: Dictionary) -> void:
+	play = {}
+	screen = "ingredients"
+	if r2.get("ok", false) and str(r2.get("pending", "")) == "tribulation":
+		# S44: Heaven-grade Halo or Soul: the heavens test the pill before it is yours.
+		trib = {"stage": "bolts", "times": r2.bolts, "window": float(r2.window), "t0": Time.get_ticks_msec(), "next": 0, "results": [],
+			"quality": str(r2.quality)}
+		flash(Tx.t("ui.crafts.tribulation_begins"))
+	elif r2.get("ok", false):
+		var made := Tx.t("ui.crafts.quality_made") % [str(r2.quality).replace("_", " ").capitalize(), int(r2.count)]
+		if int(r2.get("marks", 0)) > 0: made += " · " + Tx.t("ui.crafts.marks") % int(r2.marks)
+		flash(made)
 
 func _band_mult(craft: String) -> float:
 	return Game.crafting.band_mult(c(), fire) if craft == "alchemy" else 1.0

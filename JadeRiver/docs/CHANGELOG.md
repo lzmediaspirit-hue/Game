@@ -5,6 +5,58 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V9e2 · The five-screen furnace (S15, S44)
+- **Alchemy is now played in five screens** (the forge keeps its three strikes). A step tracker shows where you are.
+  1. **Ingredients:** the recipe, the batch, each herb's role and nature, and stand-ins. With Spirit Sense, the
+     sealed (unappraised) roots the batch would use are counted. At 4% Crafting perception, dyed fakes among them
+     are named.
+  2. **Furnace:** the fire (as before) and a new **array**, Still Water or Rising Flame.
+     - The array that answers the Principal herb's nature widens every heat band by 15%: Still Water under a hot
+       herb, Rising Flame under a cold one. The other array narrows the bands by 15%.
+     - The screen shows the band width you will get.
+  3. **Extraction** (full width), one herb at a time in the recipe's order:
+     - Hold **Fan the flame** to raise the heat, and keep it inside a gold band that sways. Hot herbs sit their band
+       high on the gauge; cold herbs sit it low.
+     - Tap the dark impurities as they rise: they are a quarter of the score. Crafting perception shows more of them
+       plainly; the rest are faint.
+     - Heat in the band less than 35% of the time **scorches the herb**. That herb's share is lost (early mistakes
+       waste ingredients). Put in another and try again, or put out the fire.
+  4. **Fusion:** tap the essences into the core in the recipe's order (Principal first), then **turn the array**
+     as a needle crosses each of 2–3 marks.
+  5. **Condensation:** a ring closes on the pill; press **Condense!** as it meets the outline.
+     - Early makes a weaker pill.
+     - Late by more than 0.2 s **cracks the pill** and the whole batch is lost (late mistakes ruin the batch).
+  6. **Pill tribulation:** unchanged, now drawn full width.
+- **Liquids** skip Condensation: they are done at Fusion.
+- **Herbs that fight each other** now blow the furnace at Fusion, as they merge.
+- **Putting out the fire** mid-refine loses the herbs already in it; the rest stay in the bag. A refine left burning
+  when the page closes is picked up where it was.
+- **Intents** (S15): `start_refine` draws the plan (band sway, impurities, the marks) on its own RNG stream, so the
+  quality roll's stream is untouched. `refine_input {step, value}` sends what the hand did, and the authority clamps
+  it to what could happen and scores it. `cancel_refine` puts out the fire. The quality roll uses the three screens'
+  scores, averaged; Extraction's score is the mean of its herbs.
+- **Crafting perception** now also grows with Spirit (0.1% a point), as S15 asks.
+- **Alchemist Guild candles** are longer, allowing about half a minute a refine: Adept five minutes, Expert seven,
+  Master ten.
+- The numbers live in `forge_upkeep.json` `furnace_game`.
+- Previews: `--open-page=alchemy:` followed by `__furnace`, `__extraction`, `__scorched`, `__fusion`,
+  `__fusion_turn` or `__condensation`.
+- Tests:
+  - `rules_tests` `furnace_game_suite`:
+    - the plan, the natures and the array;
+    - steps out of order;
+    - a scorched herb;
+    - the clamped report;
+    - out-of-order Fusion;
+    - a cracked pill;
+    - an early (weak) pill;
+    - putting out the fire;
+    - a liquid;
+    - Spirit Sense on sealed herbs;
+    - the same seed and the same hand making the same pills;
+    - the crafts page played frame by frame by a steady hand.
+  - `valley_run` refines every pill through the five screens.
+
 ### V9e1 · The Forge and Formation guilds, and the Alchemist Master (S44, S49)
 - **Three profession guilds** share one Guild tab in Crafts, with a button for each guild you have opened.
   - Each has three ranks, and each rank is an exam against the candle.

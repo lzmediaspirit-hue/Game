@@ -2160,9 +2160,20 @@ func teleport_home() -> bool:
 func strike_steps(recipe: String, craft: String, offsets: Array) -> void:
 	for o in offsets: submit({"type": "craft_step", "recipe": recipe, "craft": craft, "offset": o})
 
+## The five-screen furnace through intents (S15): each herb held in its band a little off the mark, every impurity
+## tapped, the essences merged in order with the array turned `offset` from each mark, and the pill condensed as late.
 func refine_with(recipe: String, count: int, offsets: Array) -> Dictionary:
-	strike_steps(recipe, "alchemy", offsets)
-	return submit({"type": "refine", "recipe": recipe, "count": count})
+	var off := float(offsets[0]) if not offsets.is_empty() else 0.05
+	var lit := submit({"type": "start_refine", "recipe": recipe, "count": count, "array": Game.crafting.suited_array(recipe)})
+	if not lit.get("ok", false): return lit
+	for i in (lit.plan.herbs as Array).size():
+		var ex := submit({"type": "refine_input", "step": "extraction", "value": {"herb": i, "held": 1.0 - off, "taps": (lit.plan.herbs[i].specks as Array).size()}})
+		if not ex.get("ok", false): return ex
+	var marks: Array = []
+	for m in lit.plan.marks: marks.append(off)
+	var fu := submit({"type": "refine_input", "step": "fusion", "value": {"order": lit.plan.order, "marks": marks}})
+	if not fu.get("ok", false) or fu.has("quality") or fu.has("pending"): return fu
+	return submit({"type": "refine_input", "step": "condensation", "value": {"offset": off}})
 
 func forge_with(recipe: String, offsets: Array) -> Dictionary:
 	strike_steps(recipe, "smithing", offsets)

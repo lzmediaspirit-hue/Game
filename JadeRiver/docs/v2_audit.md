@@ -96,7 +96,7 @@ Progress is recorded in `docs/CHANGELOG.md`.
   the guild; pill tribulation), except these, which wait on later phases:
   - the Beast Marrow Washing Pill, the Beast Revival Pill and the Purifying Offering (with S46, V7);
   - the Guild's Master rank (Azure Expanse, not defined by the spec);
-  - the full five-screen furnace mini-game (the three strikes are labelled Extraction, Fusion and Condensation).
+  - the full five-screen furnace mini-game (done in V9e2).
 - **V5a**: done (body ladder, Core Forging grade, named roots, physiques). Hollow-Touched is in the data but cannot
   trigger until Hollowing can pass the valley cap (v1.2).
 - **V5b**: done (heavenly tribulation, breakthrough fates, Qi Deviation). Fox Spirit's Favour waits for pet purity
@@ -162,7 +162,9 @@ Progress is recorded in `docs/CHANGELOG.md`.
   chains (shards, restore, awaken; the later reforgings are data for v1.4-1.5). V9d is complete.
 - V9e1 is done: the Forge Guild (v1.0) and the Formation Guild (v1.1) beside the Alchemist Guild, each with Adept,
   Expert and Master exams, badges, a gated shop and its own commission board; the Alchemist Master rank; Master exams
-  at Cloudgate Port. V9e2 (the five-screen furnace) is next.
+  at Cloudgate Port. V9e2 is done: the five-screen furnace (Ingredients with Spirit Sense, Furnace with fire and
+  array, Extraction, Fusion, Condensation; the tribulation as a sixth), through `start_refine` and `refine_input`.
+  V9e3 (the Cloud Herb Terraces trial and the Dew Vial's 10,000-year tier) is next.
 - Next (V9): everything v2 makes due by v1.1 that is still open. A sweep of every audit row against the build
   after V8g3 found these, in six phases:
   - **V9a**, hooks and small gaps:
