@@ -110,3 +110,83 @@ M26 (a plan for each finding) is met by the two tables above and by part (f).
 The per-system split is a second table under the authority table in `docs/architecture.md`. Each system names what
 runs locally now and what a v2.0 server must own. The rule behind it is the extension contract in the same page: the
 server owns every write, and the client submits the same intents it submits today.
+
+## (d) The UI review (U11–U12)
+
+Severity: **High** blocks or misleads a player; **Medium** slows a player down or reads badly on a phone; **Low** is
+polish. Every row names where the fault is and the phase that fixes it; P3's mockups show each fix before it is built.
+
+Evidence: the page screenshots in `docs/ui_inventory/`, captures from the valley_run character's checkpoints (a
+character who played the story, never the test character with everything unlocked), and a headless audit that opened
+every page and tab and measured each tap target.
+
+### Global issues (U12)
+
+| # | Severity | Issue | Where | Fix and phase |
+|---|---|---|---|---|
+| G1 | Medium | Tap targets under the 48 px minimum. Every page's tabs are 40 px tall. Sixteen other controls are 36–46 px on one side: the stance chips (38), the Settings volume steps (36), the Character page's look button (40), the Cultivation page's meridian, path and vow buttons (40–46), the forge mode and guild pickers (46), the exam buttons (40), the Codex rows (44), the bag's sort (44), the Roll-Call's bench points (44) and the quest chest (46). None is under 32 px | `page.gd:142` (the tab rect), and each page's `btn` call | Fixed (P4a): a 48 px hit area for every target, the small buttons made 48 px tall, the stances made a scrolled list; `rules_tests` `ui_suite` checks every page and tab, and caught the stance buttons overlapping |
+| G2 | High | Numbers on bars misread. Pixelify Sans draws 5 like an S and 2 like a Z, so at bar size "25,492" reads "ZS,49Z" (the HP, Qi and Soul bars, the enemy and boss bars) | `hud.gd` bar labels, `Page.bar` | Fixed (P4): numbers under 20 px use the bold serif's lining figures (`UiKit.PIXEL_NUMERALS_MIN`); Pixelify stays for damage numbers and large counts. Left for P5a: the HUD's 10–12 px bars are shorter than their numbers, so the new HUD gives them 16 px |
+| G3 | High | The HUD's lower middle fills up once many systems are unlocked. The technique slots and system toggles cover NPC and enemy name labels, and empty technique slots show as blank circles | `hud.gd` (the technique arc and the toggle row) | P5a from mockup `01_hud_fight`: techniques on a compact arc round the attack button, empty slots hidden, toggles folded into one fan |
+| G4 | Medium | Name labels in the world stack on each other: companions, the puppet and the pet all label at the same height, and a boss's level line runs into the next foe's name | the world's name labels (`world.gd`, `scripts/presentation/`) | P5a: labels offset in rows when they overlap, and hidden for party members out of combat |
+| G5 | Medium | Long bars have no stops. The Dao, collection, activity and Presence bars show a fill and no marks for the rewards along them (E4) | `Page.bar` | P5 from the kit's bar with reward ticks |
+| G6 | Low | Two kits live side by side: the pixel kit (`art/ui/`) and the HD kit (`art/ui/hd/`); `UiKit.style` prefers the HD one, and four assets have no HD version, so they draw from the pixel kit: `slot_empty_motif` and the three HUD circles | `ui_kit.gd:129-165` | P4: the style guide names one kit per asset |
+
+### Per screen (U11)
+
+The inventory (`docs/ui_inventory.md`) opened every page and tab as the valley_run character and logged 25 faults (B1–B25)
+and 14 inconsistencies (I1–I14), each with its file and line and a screenshot. Graded here by what a player meets; the
+fix owner is named, and each fix lands with a test or a screenshot.
+
+| Screen | Severity | Fault | Ids | Fix and owner |
+|---|---|---|---|---|
+| Cultivation › Dao | High | A script error every frame for any Dao at tier 5 or 6; those rows lose their bar and Contemplate button, and every other row shows the target one tier ahead | B1 | UI bug pass (P2) |
+| Bag › Key Items, the Guqin | High | The guqin cannot be played: it is a tool in the key pouch, and the key pouch has no Use | B2 | UI bug pass (P2) |
+| Character › Titles, Techniques › Secret Arts, Your Sect › Expeditions, Works › Favours | High | Lists run off the window and under the HUD; their lower buttons cannot be reached | B4 | UI bug pass (P2) |
+| Sect › Rank | High | The Promotion trial button can sit under Missions, so an Elder cannot start the trial | B5 | UI bug pass (P2) |
+| Every list | Medium | The selected row looks like every other row: the kit has no selected or disabled panel | B3, I3, I4 | UI bug pass (P2); one selection style in P4 |
+| Breakthrough | Medium | "Trial: <null>" for great breakthroughs with no trial | B12 | UI bug pass (P2) |
+| Every place a level shows | Medium | One character, two Levels (97 on the HUD, 98 on the Cultivation badge and the Ranking) | B15 | UI bug pass (P2) |
+| Emotes | Medium | Buttons overlapped their neighbours | B6 | Fixed (P4a) |
+| Teleport Stones | Medium | Ten stones make 27 px rows | B7, I7 | UI bug pass (P2); the `ui_suite` now opens context pages too |
+| HUD tracker | Medium | The objective count is cut off ("Shallows 0") | B11 | UI bug pass (P2) |
+| Cultivation › Paths, Body; Beast Arena; Sect tree | Medium | Cards overlap, and paragraphs stop mid-sentence with no ellipsis | B17, B18, I9 | UI bug pass (P2) |
+| Cultivation › Seclusion | Low | The "Set" line falls on the seventh card when a focus is set | B22 | UI bug pass (P2) |
+| Auction | Low | "Held by" runs under the Bid buttons | B16 | UI bug pass (P2) |
+| Shop, map, crafts | Medium | English written in scripts ("ready", "taels", "furnace"), out of reach of a translation | B8 | UI bug pass (P2), with a `contract_tests` rule |
+| Title screen, creator | Low | The title says v1.0; origins show ids ("Fishers Child") with no description | B9, B10, I10 | UI bug pass (P2) |
+| Characters | Low | "No idle task" for a character keeping a post | B20 | UI bug pass (P2) |
+| Relations › Karma | Low | Three named debts show their ids | B24 | UI bug pass (P2) |
+| Trial Tower | Low | The Sweep button says "Every floor swept today" when none was cleared | B25 | UI bug pass (P2) |
+| Settings › Controls | Low | The keyboard help names a hold that does nothing and leaves out seven keys | B23 | UI bug pass (P2) |
+| Bag, Works, Roll-Call › Bench, Spirit Animals | Medium (architecture) | The pages change game state themselves, which the page contract forbids | B19 | The code review (`docs/review-code.md`) |
+| Every page | Low | Text measured at 12–13 px but drawn at 14, so fitted labels still overrun | B21, I6 | UI bug pass (P2) |
+| Every page | Low | Off-token colours, windows off the grid, four timer styles, fixed plurals, non-integer icon scales | I2, I5, I8, I11–I14 | P4 style guide and kit |
+
+## (f) Every change, by impact against effort (U30)
+
+Impact: how much a player gains (High, Medium, Low). Effort: Low is one file and a day or less, Medium a few files,
+High a new system or art. The list runs quick wins first, then the larger items in roadmap order. Each row names the
+files it touches and the phase that owns it; each finding above points here.
+
+The faults B1–B25 in (d) are defects, not changes: the P2 bug pass fixes them before anything below, each with a
+test or a screenshot (B19 goes to the code review).
+
+| Rank | Change | From | Impact | Effort | Files | Phase |
+|---|---|---|---|---|---|---|
+| 1 | Every tap target 48 px or more (a hit margin round small art), checked on every page and tab | G1 | Medium | Low | `scripts/ui/page.gd` (`_register`, `MIN_TAP`), eleven pages' button rects, `tests/rules_tests.gd` `ui_suite` | P4 (done first) |
+| 2 | Bar numbers in a numeral face that keeps 2 and 5 apart | G2 | High | Low | `scripts/ui/ui_kit.gd` (`draw_text`, `draw_outlined` numeric branch), `hud.gd` bar labels | P4 |
+| 3 | Palette roles written down, with a contrast check of every text colour on its panel | F3 | Medium | Low | `docs/ui_style_guide.md`, `ui_kit.gd`, `ui_suite` | P4 |
+| 4 | One kit per asset (HD versions of the empty-slot motif and the three HUD circles) | G6 | Low | Low | `tools/ui/build_ui_hd.py`, `data/ui_assets_hd.json` | P4 |
+| 5 | Reward stops on long bars, and the next reward named at the bar's end | E4, G5 | Medium | Low | `Page.bar`, the Dao, Codex, activity and Presence draws | P5 |
+| 6 | The next stage's unlock named on the ascent | E5 | Medium | Low | `cultivation_page.gd`, from `data/unlocks.json` | P5b |
+| 7 | The wound screen says what was lost and what was kept | F6 | Low | Low | `revival_page.gd` | P5 |
+| 8 | The HUD's lower middle cleared: techniques on an arc round the attack button, empty slots hidden, toggles in one fan | G3 | High | Medium | `hud.gd` | P5a |
+| 9 | World name labels offset in rows when they overlap | G4 | Medium | Medium | the world's label drawing (`world.gd`, `scripts/presentation/`) | P5a |
+| 10 | Carried daily missions (one day's grace) | E2 | Medium | Low | `quest_authority.gd` daily reset, `rules_tests` | v1.3 |
+| 11 | The Dawn Censer, a cumulative login track | E1 | Medium | Medium | `account_authority.gd`, `tools/data/` (a censer module), the Welcome Back page | v1.3 (data), P5 (page) |
+| 12 | The breakthrough sequence and the boss loot fountain | F4 | High | Medium | `world.gd`, `fx_layer.gd`, `Audio`, `data/moments.json` | P6 |
+| 13 | Multi-hit numbers and element particles | F2 | Medium | Medium | `fx_layer.gd` | P6 |
+| 14 | A spectacle tier per technique | F1 | High | High | `tools/data/techniques.py` (`vfx`), `fx_layer.gd` | P6 |
+| 15 | Ground markers, phase cards and enrage timers for every boss | F5 | High | High | `EnemyBrain`, `fx_layer.gd`, `data/enemies.json` | P9 |
+| 16 | The second seal on a finished Collection page | E3 | Medium | Medium | `account_authority.gd`, `codex_page.gd` | P7b |
+| 17 | Real social loops: sect alliances, trading, shared field bosses, mail between players | E6 | High | High | the server boundary in `architecture.md` | v2.0 |

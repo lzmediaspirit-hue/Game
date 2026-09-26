@@ -1252,6 +1252,7 @@ def valley():
           locked_text="The stone hums. You can't hear it yet.")
     r.obj("spring_falls", "qi_spring", [600, 900], spring=True, requires=all_of(unlock("qi_springs")), locked_text="Cold spray.")
     r.herb("mist_lotus", [1300, 900])
+    r.fishing("falls_pool", [1600, 900], oid="fish_falls")   # the mist trout's valley spot (fish.json lists it; P7a found no room)
     r.obj("shrine_falls", "shrine", [1900, 700])
     # S43 (Leaf on the Wind, Qi Kindling 3): a vine up to a ledge beside the falls, and the spray's updraft.
     r.surface("falls_ledge", [700, 640, 240, 70], 200, kind="rock_ledge")
@@ -2438,12 +2439,26 @@ def _spans(r, width, count, lo=260):
     return out
 
 
-def _zone_chest(r):
-    return "chest_expanse" if r.d["zone"] == "azure_expanse" else ("chest_dungeon" if r.d["type"] in ("dungeon", "secret", "boss_arena") else "chest_valley")
+# Each zone past the valley has its own chest table: the Lantern Star Field's ledge and cloud chests once fell back to
+# the valley's (P7a).
+ZONE_CHESTS = {"azure_expanse": "chest_expanse", "lantern_star_field": "chest_lantern"}
+
+
+def _zone_chest(r, valley="chest_valley"):
+    if r.d["zone"] in ZONE_CHESTS: return ZONE_CHESTS[r.d["zone"]]
+    return "chest_dungeon" if r.d["type"] in ("dungeon", "secret", "boss_arena") else valley
+
+
+def _chest_level(r):
+    """A room's top Level; a room with none (a safe shrine) takes its region's, so its chest never rolls Level-1 gear."""
+    top = r.d["level_range"][1]
+    if top <= 0:
+        top = max([o.d["level_range"][1] for o in ROOMS.values() if o.d.get("region") == r.d.get("region")] + [1])
+    return max(1, top)
 
 
 def _ledge_reward(r, sid, x, width, h, loot=None):
-    o = r.chest([x + width // 2, 665], loot=loot or _zone_chest(r), level=max(1, r.d["level_range"][1]), alt=h, surface=sid, oid="chest_" + sid)
+    o = r.chest([x + width // 2, 665], loot=loot or _zone_chest(r), level=_chest_level(r), alt=h, surface=sid, oid="chest_" + sid)
     return o
 
 
@@ -2719,7 +2734,7 @@ def movement_pass():
             for x in spans:
                 sid = "cloud_mv"
                 r.surface(sid, [x, 636, 240, 44], FLIGHT_LEDGE, kind="cloud")
-                _ledge_reward(r, sid, x, 240, FLIGHT_LEDGE, loot="chest_expanse" if d["zone"] == "azure_expanse" else "chest_dungeon")
+                _ledge_reward(r, sid, x, 240, FLIGHT_LEDGE, loot=_zone_chest(r, valley="chest_dungeon"))
                 stats["cloud"] += 1
         # 4. Towns, sect grounds and rest stops with nothing to climb: a timber deck and a higher one beside it.
         if rtype in ("town", "sect", "rest") and outdoor and not has_vertical and r.w >= 2560:

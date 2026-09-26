@@ -197,7 +197,7 @@ func _draw_bench() -> void:
 	text(Vector2(x, y + 22), Tx.t("ui.posts.bench_points") % Game.posts.bench_points_free(ch), 18, UiKit.PALE_GOLD)
 	var bx := x + 300
 	for k in ["speed", "capacity", "exp"]:
-		btn(Rect2(bx, y, 200, 44), Tx.t("ui.posts.bench_" + k) % int(b.points.get(k, 0)), "bench_point", k, false, Game.posts.bench_points_free(ch) > 0, Tx.t("ui.posts.no_points_text"), 16)
+		btn(Rect2(bx, y, 200, 48), Tx.t("ui.posts.bench_" + k) % int(b.points.get(k, 0)), "bench_point", k, false, Game.posts.bench_points_free(ch) > 0, Tx.t("ui.posts.no_points_text"), 16)
 		bx += 212
 	y += 60
 	var comps: Array = ContentDB.config("posts").get("bench", {}).get("components", [])

@@ -1139,3 +1139,137 @@ def moth_dust():
 
 register(FAM, 'gravity_core', gravity_core, GROUP)
 register(FAM, 'moth_dust', moth_dust, GROUP)
+
+
+# ----------------------------------------------------------------------------- v1.2 Phase D · the Tidebreak Front
+# drone_shell: a plate broken off a Hollow drone's carapace, grey Hollow metal, pitted, a grey-violet sheen on it.
+V12D_HOLLOW_SHEEN = '#B8B0D2'
+
+
+def drone_shell():
+    """A curved plate of grey Hollow metal: a keel down its length, pits in its face, its broken edge at the top."""
+    c = Canvas(32)
+    ramp = R['hollow']
+    plate = c.poly([(4.5, 12), (7, 10.5), (8.5, 6.5), (12, 8), (14.5, 4), (17.5, 7), (21, 4.5), (24, 8), (27, 8.5),
+                    (28.5, 14), (27, 20.5), (22, 26), (16, 29), (10, 26.5), (5.5, 20.5)])
+    # the plate curves away: its thick underside shows past the lower-right edge
+    under = (move(plate, 1, 1) | move(plate, 2, 2)) & ~plate
+    c.put(under, ramp, 'flat', base=0)
+    c.put(plate, ramp, 'sphere', base=2, sep=True, sep_col=ramp[0], cx=12, cy=12, rx=17, ry=18)
+    # a bevelled rim round the plate (not along the broken top): lit on the upper-left, dark on the lower-right
+    rim = plate & ~erode4(erode4(plate)) & (c.Y > 9.5)
+    c.put(rim & (c.X + c.Y < 30), ramp[3], 'flat', out=ramp.out)
+    c.put(rim & (c.X + c.Y >= 30), ramp[1], 'flat', out=ramp.out)
+    # the grey-violet sheen lying across the lit shoulder
+    sheen = erode4(erode4(plate)) & (c.X + c.Y >= 17) & (c.X + c.Y < 21) & (c.Y > 7)
+    c.put(sheen, V12D_HOLLOW_SHEEN, 'flat', out=ramp.out)
+    # the keel: a ridge down the plate, lit on its upper-left side, dark on the other
+    keel = c.bres_path([(15, 8), (16, 15), (17, 22), (17, 26)]) & erode4(plate)
+    c.put(keel, ramp[4], 'flat', out=ramp.out)
+    c.put(move(keel, 1, 0) & erode4(plate) & ~keel, ramp[1], 'flat', out=ramp.out)
+    # pits: each a dark hole with its far wall caught by the light
+    for (x, y) in ((9, 15), (11, 21), (22, 14), (24, 20), (20, 24), (8, 19), (23, 10)):
+        c.put(c.rect(x, y, x, y) & erode4(plate), ramp[0], 'flat', out=ramp.out)
+        c.put(c.rect(x + 1, y + 1, x + 1, y + 1) & erode4(plate), ramp[3], 'flat', out=ramp.out)
+    c.outline()
+    c.glow('#EEF3F2', (40,))
+    return c
+
+
+register(FAM, 'drone_shell', drone_shell, GROUP)
+
+
+# ----------------------------------------------------------------------------- v1.2 Phase E · the Nebula Deep and the Lantern Heart
+# eel_essence: what a nebula eel leaves, one thread of blue-violet light coiled into a drop. void_carapace: a plate
+# of a void crab's shell, indigo-black, with stars in it as if it were deeper than it is thick. leviathan_scale: one
+# broad scale of the deep leviathan, violet-blue edged with silver, a slow swirl of stars in it.
+V12E_EEL_LIGHT = Ramp(['#2A2E8E', '#4C52D2', '#7E88F4', '#B6BEFE', '#F0F2FF'], '#0E1044')
+V12E_VOID = Ramp(['#05060F', '#0C0E24', '#171B3E', '#262E5E', '#404C88'], '#020208')
+V12E_LEVIATHAN = Ramp(['#12103A', '#221E64', '#3A3694', '#5E5CC4', '#9A9AEA'], '#07061A')
+V12E_STAR = '#FFFBEA'
+
+
+def eel_essence():
+    """One bright blue-violet thread of light coiled twice round into a drop, its tail trailing off the bottom."""
+    c = Canvas(32)
+    light = V12E_EEL_LIGHT
+    outer = S.drop(c, 15.5, 19, 8.0, 15.5)
+    inner = S.drop(c, 15.5, 19.5, 4.6, 9.0)
+    thread = S.outline_only(outer) | S.outline_only(inner)
+    # the thread runs in at the point, round the outer loop, then coils on into the inner loop
+    join = S.bez_line(c, (15, 5), (12, 12), (11.5, 18), 1.0) & ~S.outline_only(outer)
+    tail = S.bez_line(c, (22, 24), (26, 28.5), (29, 25), 1.0) & ~outer
+    thread |= join | tail
+    c.put(thread, light, 'flat', base=2)
+    c.put(thread & (c.X + c.Y < 33), light, 'flat', base=3)
+    # the thread is brightest where it is nearest the light and where it crosses itself
+    c.put(thread & (c.X + c.Y < 22), light, 'flat', base=4)
+    c.put(dilate4(join) & S.outline_only(inner), light, 'flat', base=4)
+    c.put(c.pts([(15, 3), (16, 4), (8, 18), (22, 15)]) & thread, V12E_STAR, 'flat', out=light.out)
+    c.outline()
+    c.glow('#8C96F0', (70, 30))
+    S.sparkle(c, 25, 8, '#FFFFFF', light[3], 1)
+    return c
+
+
+def void_carapace():
+    """A curved plate of void-crab shell: indigo-black, a few tiny stars inside it as if it went deeper than it is."""
+    c = Canvas(32)
+    void = V12E_VOID
+    plate = c.ellipse(16, 17.5, 12.5, 8.5) & (c.Y > 10.5)
+    plate |= c.ellipse(16, 13, 11, 5)
+    for x in (4.5, 27.5):
+        plate |= c.poly([(x - 1.5, 15), (x - 2.5 if x < 16 else x + 2.5, 10.5), (x + 1.5, 14)])
+    under = (move(plate, 1, 1) | move(plate, 1, 2)) & ~plate
+    c.put(under, void, 'flat', base=0)
+    c.put(plate, void, 'sphere', base=2, sep=True, sep_col=void[0], cx=13, cy=13, rx=15, ry=13)
+    # the carapace grooves, and a pale rim on the lit edge
+    for pts in ([(10, 12), (12, 16), (11, 22)], [(22, 12), (20, 16), (21, 22)], [(12, 16), (20, 16)]):
+        c.put(c.bres_path(pts) & erode4(plate), void[1], 'flat', out=void.out)
+    c.put(S.outline_only(plate) & (c.X + c.Y < 26), '#6E7CBE', 'flat', out=void.out)
+    c.put(c.ellipse(11, 13.5, 3.0, 1.4) & erode4(plate), void[4], 'flat', out=void.out)
+    # the stars inside it
+    for (x, y) in ((14, 19), (19, 21), (8, 17), (24, 18), (16, 13), (11, 24)):
+        c.put(c.rect(x, y, x, y) & erode4(plate), V12E_STAR, 'flat', out=void.out)
+    for (x, y) in ((21, 14), (6, 20), (17, 24), (13, 15)):
+        c.put(c.rect(x, y, x, y) & erode4(plate), void[4], 'flat', out=void.out)
+    c.put(S.star4(c, 19, 21, 1) & erode4(plate), R['sky'][3], 'flat', out=void.out)
+    c.put(c.rect(19, 21, 19, 21), V12E_STAR, 'flat', out=void.out)
+    c.outline()
+    c.glow('#5670A6', (35,))
+    return c
+
+
+def leviathan_scale():
+    """One broad leviathan scale, dark violet-blue with a pale silver edge, a slow swirl of stars turning in it."""
+    c = Canvas(32)
+    lev = V12E_LEVIATHAN
+    m = scale_shape(c, 16, 16, 24, 26, lev, ridges=0)
+    # the silver edge, a shade brighter where the light catches it
+    edge = S.outline_only(m)
+    c.put(edge, R['silver'], 'flat', base=2)
+    c.put(edge & (c.X + c.Y < 30), R['silver'], 'flat', base=3)
+    # the swirl: three arms of star-dust curling out of the centre
+    inner = erode4(erode4(m))
+    for k in range(3):
+        pts = []
+        for i in range(14):
+            t = i / 13.0
+            a = k * 2.094 + t * 3.4
+            r = 1.5 + t * 8.0
+            pts.append((16 + r * math.cos(a), 16.5 + r * math.sin(a) * 0.9))
+        arm = c.bres_path([(int(x), int(y)) for x, y in pts]) & inner
+        c.put(arm, lev, 'flat', base=3)
+        c.put(arm & (c.X + c.Y < 31), lev, 'flat', base=4)
+    for (x, y) in ((16, 16), (13, 12), (21, 14), (11, 20), (19, 22), (16, 9), (23, 20), (9, 15)):
+        c.put(c.rect(x, y, x, y) & inner, V12E_STAR, 'flat', out=lev.out)
+    c.put(c.rect(16, 16, 16, 16), '#FFFFFF', 'flat', out=lev.out)
+    c.outline()
+    c.glow('#7C86F0', (50,))
+    S.sparkle(c, 13, 12, '#FFFFFF', lev[4], 1)
+    return c
+
+
+register(FAM, 'eel_essence', eel_essence, GROUP)
+register(FAM, 'void_carapace', void_carapace, GROUP)
+register(FAM, 'leviathan_scale', leviathan_scale, GROUP)

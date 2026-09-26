@@ -1,5 +1,62 @@
 # Changelog
 
+## Wikis and volume (docs/roadmap_master_ui.md, P7)
+
+### P7a · The item and monster wikis
+- **`docs/wiki/items.md`**: all 614 items (472 items, 142 pieces of equipment) by type or slot, each with its icon,
+  grade, iLv, stats or effect, requirement, description and every source the data gives, with rates: enemy drops,
+  jars and chests, the Trial Tower, gathering nodes and posts, gardens, recipes and other crafts, shops and auctions,
+  quest and unlock rewards, mail. Banded equipment names the foes and chests whose roll can make it.
+- **`docs/wiki/monsters.md`**: all 121 enemies by zone, each with its sheet, room spawns, other appearances (events,
+  set pieces, the tower, tides, summons), level band, stats, attacks and phases, and its full drop table with rates.
+- Written by `tools/dev/wiki.py` from `data/` alone and byte-identical on every run; `build_data.py` runs it after a
+  full build.
+- **Every item has a source.** A `data_validation` rule scans the same channels; an item nothing hands out carries an
+  explicit mark instead (`"source": "story"`, `"system"` or `"later"`): the starting gourd, the dyed root, the murky
+  pill, the Evergreen Heart fruit and the two Monarch pills. 43 real gaps are listed in the suite's
+  `KNOWN_SOURCE_GAPS` for P7b: 12 beast cores no beast carries, the high Spirit Stone, two beast bags, five Hour
+  Incenses and the Wandering Incense, six snare kits and rite tablets, three gourds, and 13 set pieces (the sect sets'
+  hats, trousers and boots, and the Mudwater, Drowned Abbot and Crane sets but the Abbot's robe).
+- **Found by the scan, fixed:**
+  - The banded equipment roll could make one of the nine legendary weapons or the two imitation relics as ordinary
+    Mystic or Heaven gear; they come only from their chains and the forge now (`drop_pool_suite`).
+  - Loot group rows carried a `chance` the roll never read (a group rolls once and picks by weight); the rows keep
+    only their weight, and `data_validation` refuses a chance on a group row.
+  - The Lantern Star Field's ledge and cloud chests used the valley's chest tables; each zone's chests now use its own
+    table (`ZONE_CHESTS` in `tools/data/world.py`). The Flame Heart's ledge chest, in a room with no Level of its own,
+    was Level 1; a chest in such a room now takes its region's top Level.
+  - The mist trout's valley spot at the Falls Pool had no fishing spot; it has one in the shallows now.
+- **Left for P7b:** 43 items nothing in the data hands out (12 beast cores, incense sticks, snare kits and rite tablets,
+  three gourds, the sect sets' hats, trousers and boots, pieces of the Mudwater, Drowned and Crane sets,
+  `spirit_stone_high`, two beast bags). `data_validation` lists them in `KNOWN_SOURCE_GAPS`: a new unsourced item
+  fails, and a listed item fails once it gains a source, so the list only shrinks.
+
+## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
+
+### P10 · Findings fixed
+- **The Account Legacy records again.** It waited on an `account_legacy` unlock that was never defined, so its +2%
+  accumulation per recorded great realm was always 0. The unlock now opens for the whole account at Bone Forging 1, and
+  a save that reached great realms before this has them recorded once when it opens (`legacy_suite` in `rules_tests`).
+- **The old scrolls' names.** Twenty Codex entries set the common xianxia ladder's names beside Jade River's realms
+  (Heart Tempering beside Foundation Establishment, Cloud Stride beside Core Formation, and so on); each opens the
+  first time the account reaches that great realm (`docs/realm_old_names.md`).
+
+### P4a · Touch targets
+- **Every tap target is at least 48 px on a side.** `Page._register` gives smaller art a margin of hit area round its
+  centre (`Page.MIN_TAP`); the art keeps its look. Tabs, which are 40 px tall, now answer a tap anywhere in 48.
+- Buttons that were 36–46 px tall are 48: the stance, wardrobe, meridian, path, vow and ledger buttons, the bag's sort,
+  the forge mode and guild pickers, the guild exam, the bench points, the core exchange's rest, the Settings toggles and
+  the volume steps.
+- The stances on the Techniques page's Inner Arts tab are a scrolled list: nine families no longer squeeze nine buttons
+  into the panel's height.
+- **Numbers that read.** Under 20 px, numbers are drawn in the bold serif's lining figures: in Pixelify Sans a 5 read
+  as an S and a 2 as a Z on the HP, Qi and Soul bars. Damage numbers and large counts keep the pixel face.
+- The emote wheel lies on an ellipse that fills its dialog: on the old circle the diagonal buttons overlapped their
+  neighbours.
+- Tests: `rules_tests` `ui_suite` opens every page and tab with every system unlocked and checks that every tap target
+  is at least 48 px on a side, that no two buttons share a point, and that text asked for under the minimum size is
+  drawn at the minimum.
+
 ## V10 · Keeping Post (idle gathering)
 
 The idle gathering milestone (docs/idle_gathering_design.md), after IdleOn's AFK model in Jade River's own names. It
@@ -171,6 +228,16 @@ Works). Every source uses one of two curves: add (x1·L) or decay (x1·L/(L + x2
 ## 1.2 — The Lantern Star Field (Act III)
 
 Built in phases (docs/act3_design.md): zone tier 3, levels 82-99, ceiling Sphere Lord 3, Starsea Endurance 20 -> 90.
+
+### Phases D and E · art
+- **The brush and the bell in hand**: weapon sheets for both families in every pose the avatar has (idle, walk, jump,
+  meditate, attack, the three swings, thrusts and punches, the bow and punch combos), baked by
+  `tools/art/bake_weapons.py` from the dagger's grips, each in two layers, in front of the body and behind it
+  (`data/parts.json`: `weapon/brush`, `weapon/bell`).
+- **Icons** (20): cinder ash, the pyre ember, the drone shell, Kharn's glaive shard, the Copperjaw box, eel essence,
+  the void carapace, the Leviathan's scale and the Lantern Heart's flame; the four brush and bell weapons; the five
+  brush and bell manuals; the `brush` and `bell` glyphs on the attack button.
+- `data_validation` is clean again: every item, technique and weapon has its icon and its appearance.
 
 ### Phase E · The Nebula Deep and the Lantern Heart (chapter 22)
 - **The Nebula Deep** (94-99, Endurance 80-84), past the Drone Hive: Nebula Verge, Eel Currents, Crab Grottoes, and the

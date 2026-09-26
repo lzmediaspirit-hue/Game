@@ -10,6 +10,8 @@ signal closed(page: Page)
 signal navigate(page: String, args: Dictionary)
 
 const SAFE := Rect2(48, 24, 1184, 672)
+## The smallest tap target on a side, in screen px (P4, `docs/ui_style_guide.md`).
+const MIN_TAP := 48.0
 
 var page_id := ""
 var title := ""
@@ -174,13 +176,19 @@ func region(rect: Rect2, id: String, data = null, enabled := true, reason := "")
 	_register(rect, id, data, enabled, reason, "region")
 
 func _register(rect: Rect2, id: String, data, enabled: bool, reason: String, kind: String) -> void:
+	# P4: every tap target is at least MIN_TAP on each side. Smaller art keeps its look and gains a margin of hit
+	# area round its centre; `full` keeps that rect before any scroll clipping, for the ui_suite.
+	if rect.size.x < MIN_TAP or rect.size.y < MIN_TAP:
+		var grown := Vector2(maxf(rect.size.x, MIN_TAP), maxf(rect.size.y, MIN_TAP))
+		rect = Rect2(rect.get_center() - grown * 0.5, grown)
+	var full := rect
 	# Regions inside a scroll area are clipped to it.
 	for aid in _areas:
 		var a: Dictionary = _areas[aid]
 		if a.get("active", false):
 			rect = rect.intersection(a.rect)
 			if rect.size.x <= 0 or rect.size.y <= 0: return
-	_regions.append({"rect": rect, "id": id, "data": data, "enabled": enabled, "reason": reason, "kind": kind})
+	_regions.append({"rect": rect, "full": full, "id": id, "data": data, "enabled": enabled, "reason": reason, "kind": kind})
 
 func _is_pressed(id: String, data = null) -> bool:
 	if _pressed < 0 or _pressed >= _prev_regions.size(): return false

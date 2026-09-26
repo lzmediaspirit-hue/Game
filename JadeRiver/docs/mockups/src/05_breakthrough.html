@@ -1,0 +1,109 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>05 Breakthrough</title>
+<link rel="stylesheet" href="../kit/kit.css">
+<style>
+  .night { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 60%, rgba(30, 24, 10, 0.38), rgba(4, 10, 14, 0.66) 50%, rgba(3, 7, 10, 0.88) 100%); }
+  .pillar { position: absolute; left: 560px; top: 0; width: 180px; height: 660px;
+    background: linear-gradient(90deg, rgba(255,230,161,0), rgba(255,230,161,.18) 30%, rgba(255,246,214,.55) 50%, rgba(255,230,161,.18) 70%, rgba(255,230,161,0));
+    -webkit-mask: linear-gradient(180deg, rgba(0,0,0,.1), #000 40%, #000 90%, rgba(0,0,0,0)); mask: linear-gradient(180deg, rgba(0,0,0,.1), #000 40%, #000 90%, rgba(0,0,0,0)); }
+  .core { position: absolute; left: 646px; top: 0; width: 8px; height: 640px; background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,250,230,.85) 60%, #fff);
+    filter: blur(1.5px); }
+  .ring { position: absolute; border-radius: 50%; border: 2px solid rgba(255, 230, 161, 0.7); }
+  .stat { position: absolute; left: 0; width: 300px; display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+  .stat .k { width: 118px; font-size: 16px; color: var(--mist); text-align: right; }
+  .stat .v { font-size: 20px; color: var(--paper); }
+  .stat .d { font-size: 16px; color: var(--bright-jade); }
+  .beat { position: absolute; top: 686px; height: 26px; display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--mist); white-space: nowrap; }
+  .beat b { display: inline-flex; width: 22px; height: 22px; border-radius: 50%; align-items: center; justify-content: center; background: var(--deep-teal);
+    box-shadow: 0 0 0 1.5px var(--gold); color: var(--pale-gold); font-size: 14px; }
+</style></head>
+<body><div class="k-screen">
+<img class="k-plate" src="../assets/plate_elder_hu_peak.png">
+<div class="night"></div>
+
+<!-- the tribulation just passed: its last bolts fading in the sky -->
+<svg class="abs" style="left:0;top:0" width="1280" height="720">
+  <defs>
+    <filter id="dry" x="-10%" y="-30%" width="120%" height="160%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035 0.22" numOctaves="3" seed="7"/>
+      <feDisplacementMap in="SourceGraphic" scale="16"/>
+    </filter>
+    <radialGradient id="mote"><stop offset="0" stop-color="#fff8dc"/><stop offset=".45" stop-color="#ffe6a1" stop-opacity=".9"/><stop offset="1" stop-color="#e5b84c" stop-opacity="0"/></radialGradient>
+  </defs>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="248,0 236,52 262,88 240,150 258,186" stroke="rgba(143,214,255,.35)" stroke-width="3"/>
+    <polyline points="1040,0 1058,40 1034,92 1062,128" stroke="rgba(143,214,255,.28)" stroke-width="3"/>
+    <polyline points="905,0 896,30 912,58" stroke="rgba(143,214,255,.22)" stroke-width="2"/>
+  </g>
+  <!-- scorch marks where the bolts struck -->
+  <ellipse cx="470" cy="668" rx="34" ry="8" fill="rgba(5,8,10,.55)"/><ellipse cx="842" cy="652" rx="28" ry="7" fill="rgba(5,8,10,.5)"/>
+  <ellipse cx="560" cy="700" rx="22" ry="6" fill="rgba(5,8,10,.45)"/>
+</svg>
+
+<!-- ============ beat 1: the light gathers ============ -->
+<div class="pillar"></div><div class="core"></div>
+<div class="ring" style="left:520px;top:620px;width:260px;height:56px;border-color:rgba(255,230,161,.35)"></div>
+<div class="ring" style="left:568px;top:630px;width:164px;height:36px"></div>
+<div class="ring" style="left:606px;top:638px;width:88px;height:18px;border-color:#fff6d8"></div>
+<svg class="abs" style="left:0;top:0" width="1280" height="720">
+  <g stroke="rgba(255,230,161,.32)" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="2 7">
+    <path d="M430 520 Q 520 560 600 600"/><path d="M880 500 Q 780 560 700 598"/><path d="M500 430 Q 580 520 624 590"/>
+    <path d="M810 420 Q 730 510 676 588"/><path d="M360 610 Q 480 630 590 632"/><path d="M950 612 Q 820 628 712 632"/>
+    <path d="M560 380 Q 610 470 640 560"/><path d="M742 372 Q 690 470 660 560"/>
+  </g>
+  <g fill="url(#mote)">
+    <circle cx="430" cy="520" r="7"/><circle cx="880" cy="500" r="7"/><circle cx="500" cy="430" r="6"/><circle cx="810" cy="420" r="6"/>
+    <circle cx="360" cy="610" r="6"/><circle cx="950" cy="612" r="6"/><circle cx="560" cy="380" r="5"/><circle cx="742" cy="372" r="5"/>
+    <circle cx="520" cy="560" r="5"/><circle cx="782" cy="552" r="5"/><circle cx="600" cy="600" r="4"/><circle cx="700" cy="598" r="4"/>
+    <circle cx="610" cy="500" r="4"/><circle cx="690" cy="494" r="4"/><circle cx="455" cy="626" r="4"/><circle cx="842" cy="624" r="4"/>
+  </g>
+</svg>
+<div class="abs" style="left:590px;top:560px;width:120px;height:100px;border-radius:50%;background:radial-gradient(ellipse, rgba(255,240,200,.45), rgba(255,230,161,0) 70%)"></div>
+<img class="k-fig" style="left:650px;top:648px" src="../assets/fig_tester_ls4_meditate.png">
+
+<!-- ============ beat 2: the realm's name, written in one brush stroke ============ -->
+<svg class="abs" style="left:0;top:0" width="1280" height="720">
+  <path filter="url(#dry)" d="M300 196 C 360 150, 520 132, 660 138 C 800 144, 930 150, 990 176 C 1006 184, 1000 214, 976 222
+     C 900 244, 760 250, 620 246 C 480 242, 360 240, 312 232 C 284 226, 280 206, 300 196 Z" fill="rgba(7,12,15,.9)"/>
+  <path filter="url(#dry)" d="M972 170 C 1010 176, 1030 196, 1020 214 C 1040 204, 1050 190, 1036 176 Z" fill="rgba(7,12,15,.8)"/>
+  <g fill="rgba(7,12,15,.75)"><circle cx="1046" cy="226" r="5"/><circle cx="1062" cy="210" r="3"/><circle cx="288" cy="244" r="4"/><circle cx="1030" cy="244" r="2.5"/></g>
+</svg>
+<div class="abs t-subhead" style="left:0;top:104px;width:1280px;text-align:center;letter-spacing:4px;font-size:26px">BREAKTHROUGH</div>
+<div class="abs" style="left:0;top:138px;width:1280px;text-align:center;font-family:var(--f-display);font-weight:700;font-size:92px;line-height:1;color:var(--pale-gold);
+  text-shadow:0 0 18px rgba(229,184,76,.55), 0 3px 0 rgba(0,0,0,.6)">Sphere Lord</div>
+<div class="k-seal" style="left:992px;top:190px;width:44px;height:44px;font-family:var(--f-display);font-size:30px;font-weight:700">1</div>
+<div class="abs t-md" style="left:0;top:262px;width:1280px;text-align:center;color:var(--paper);text-shadow:0 2px 0 rgba(0,0,0,.7)">Will Manifest 3 <span class="t-sym c-gold">➤</span> Sphere Lord 1 <span class="c-mist">· Early</span></div>
+
+<!-- the tribulation's outcome -->
+<div class="k-toast abs" style="left:72px;top:330px;width:352px;height:104px;padding:10px 20px">
+  <div class="t-md c-pale nowrap">Heavenly Tribulation weathered</div>
+  <div class="t-sm c-paper nowrap" style="margin-top:2px">4 waves · 36 bolts · struck 3 times</div>
+  <div class="k-hudbar abs" style="left:20px;top:76px;width:220px;height:10px;--v:0.78"><div class="k-fill"></div></div>
+  <div class="abs t-xs c-mist nowrap" style="left:252px;top:72px">HP kept <span class="t-fig c-paper">78%</span></div>
+</div>
+
+<!-- ============ beat 3: the new stats rise ============ -->
+<div class="abs" style="left:880px;top:318px;width:320px;height:250px">
+  <div class="stat t-outline" style="top:0;opacity:.8"><span class="k">Level</span><span class="v t-fig">91</span><span class="d t-fig"><span class="t-sym">▲</span> from 90</span></div>
+  <div class="stat t-outline" style="top:36px;opacity:.9"><span class="k">Max HP</span><span class="v t-fig">24,687</span><span class="d t-fig"><span class="t-sym">▲</span> 576</span></div>
+  <div class="stat t-outline" style="top:72px"><span class="k">Max Qi</span><span class="v t-fig">11,215</span><span class="d t-fig"><span class="t-sym">▲</span> 281</span></div>
+  <div class="stat t-outline" style="top:108px"><span class="k">Max Soul</span><span class="v t-fig">3,850</span><span class="d t-fig"><span class="t-sym">▲</span> 144</span></div>
+  <div class="stat t-outline" style="top:144px"><span class="k">Soul attack</span><span class="v t-fig">4,778</span><span class="d t-fig"><span class="t-sym">▲</span> 47</span></div>
+  <div class="stat t-outline" style="top:180px"><span class="k">Crit chance</span><span class="v t-fig">27.0%</span><span class="d t-fig"><span class="t-sym">▲</span> 5.1%</span></div>
+  <div class="stat t-outline" style="top:216px"><span class="k">Lifespan</span><span class="v t-fig">5,000 y</span><span class="d t-fig"><span class="t-sym">▲</span> 2,000</span></div>
+</div>
+<svg class="abs" style="left:0;top:0" width="1280" height="720"><g stroke="rgba(103,214,189,.35)" stroke-width="2" stroke-linecap="round">
+  <line x1="872" y1="560" x2="872" y2="330"/><line x1="864" y1="520" x2="864" y2="400"/></g></svg>
+
+<!-- what the new stage opens (E5) -->
+<div class="abs" style="left:960px;top:588px">
+  <span class="k-unlock" style="font-size:18px;padding:6px 16px 6px 8px"><img class="ic" src="../../../art/icons/hud/sphere.png">Opens: the Sphere</span>
+</div>
+
+<!-- the sequence (a note for review, not drawn in the game) -->
+<div class="abs" style="left:0;top:682px;width:1280px;height:38px;background:rgba(3,8,10,.72);border-top:1px solid rgba(154,106,53,.6)"></div>
+<div class="beat" style="left:120px"><b>1</b>The light gathers · 0 to 0.6 s</div>
+<div class="beat" style="left:430px"><b>2</b>The name is written · 0.6 to 1.4 s</div>
+<div class="beat" style="left:760px"><b>3</b>The stats rise · 1.4 to 2.4 s · a tap skips; control returns at 1.5 s</div>
+
+</div></body></html>

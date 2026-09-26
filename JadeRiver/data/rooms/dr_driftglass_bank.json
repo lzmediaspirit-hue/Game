@@ -377,7 +377,7 @@
     2342,
     645
    ],
-   "loot": "chest_valley",
+   "loot": "chest_lantern",
    "level": 87,
    "alt": 300,
    "surface": "cloud_mv"
@@ -389,7 +389,7 @@
     2252,
     665
    ],
-   "loot": "chest_dungeon",
+   "loot": "chest_lantern",
    "level": 87,
    "alt": 300,
    "surface": "cloud_mv"

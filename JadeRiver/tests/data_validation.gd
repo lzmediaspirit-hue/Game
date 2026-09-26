@@ -23,6 +23,7 @@ func _ready() -> void:
 func _main() -> void:
 	_learn_kinds()
 	data_suite()
+	item_source_suite()
 	room_suite()
 	movement_suite()
 	auto_path_suite()
@@ -132,7 +133,10 @@ func data_suite() -> void:
 	# Loot, shops, recipes
 	for t in ContentDB.all("loot_tables"):
 		for g in t.get("groups", []):
-			for p in g.get("pick", []): check(item_ok(str(p.item)), "loot %s: %s" % [t.id, p.item])
+			for p in g.get("pick", []):
+				check(item_ok(str(p.item)), "loot %s: %s" % [t.id, p.item])
+				# A group rolls once and picks by weight: a chance on a picked row would be read by nothing (P7a).
+				check(not p.has("chance"), "loot %s: the group row %s carries a weight, not a chance" % [t.id, p.item])
 		for key4 in ["guaranteed", "rare", "quest_drops"]:
 			for r in t.get(key4, []): check(item_ok(str(r.item)), "loot %s: %s" % [t.id, r.item])
 		for qd in t.get("quest_drops", []): check(ContentDB.has_entry("quests", str(qd.quest)), "loot %s: quest %s" % [t.id, qd.quest])
@@ -479,6 +483,181 @@ func data_suite() -> void:
 			for ch in tree.nodes[nid].get("choices", []):
 				check_effects(ch.get("effects", []), "tree %s:%s" % [tid, nid])
 				if ch.has("next"): check(tree.nodes.has(str(ch.next)), "tree %s:%s next %s" % [tid, nid, ch.next])
+
+## P7a (M37): every item and piece of equipment has a source in the data, or carries an explicit mark,
+## `"source": "<mark>"` (a string, or a list holding one): story, system or later (see tools/dev/wiki.py).
+## The channels are the ones tools/dev/wiki.py lists as an item's sources; keep the two in step.
+const SOURCE_MARKS := ["story", "system", "later"]
+const TIDE_CORE_ELEMENTS := ["fire", "water", "wood", "earth", "wind", "thunder"]   # WorldAuthority.apply_tide_result
+const TIDE_CORE_TIERS := ["low", "mid", "high"]
+## Real gaps found by P7a: items nothing hands out, reported for P7b to source (a mark would say the gap is
+## meant; these are bugs). An entry must go as soon as its item has a source, so the list only shrinks.
+const KNOWN_SOURCE_GAPS := [
+	# Beast cores of an element and rank band no beast has (and the Beast Tide does not give).
+	"metal_core_low", "metal_core_mid", "metal_core_high", "star_core_low", "star_core_mid", "star_core_high",
+	"space_core_low", "space_core_mid", "space_core_high", "soul_core_high", "wood_core_peak", "soul_core_peak",
+	"spirit_stone_high", "beast_bag_mist", "beast_bag_star",
+	"hour_incense_2", "hour_incense_4", "hour_incense_12", "hour_incense_24", "hour_incense_72", "wandering_incense",
+	"iron_snare_kit", "silk_snare_kit", "star_snare_kit", "jade_rite_tablet", "cloud_rite_tablet", "star_rite_tablet",
+	"cloud_gourd", "mistjade_gourd", "sunsteel_gourd",
+	# Set pieces: the sect Mission Halls stock only the robes; the other sets have no source but a robe.
+	"jade_current_hat", "jade_current_trousers", "jade_current_boots", "cloudpiercing_hat", "cloudpiercing_trousers", "cloudpiercing_boots",
+	"mudwater_cleaver", "mudwater_robe", "drowned_hat", "drowned_boots", "crane_robe", "crane_trousers", "crane_boots",
+]
+
+func item_source_suite() -> void:
+	var got := item_sources()
+	var missing: Array = []
+	for table in ["items", "artifacts"]:
+		for it in ContentDB.all(table):
+			var src = it.get("source", [])
+			var marks: Array = src if src is Array else [src]
+			var marked := false
+			for m in marks: marked = marked or str(m) in SOURCE_MARKS
+			if it.has("source") and src is String: check(str(src) in SOURCE_MARKS, "%s %s: unknown source mark '%s'" % [table, it.id, src])
+			if got.has(str(it.id)) or marked: check(not str(it.id) in KNOWN_SOURCE_GAPS, "%s has a source now: drop it from KNOWN_SOURCE_GAPS" % it.id)
+			elif not str(it.id) in KNOWN_SOURCE_GAPS: missing.append(str(it.id))
+	for gap in KNOWN_SOURCE_GAPS: check(item_ok(str(gap)), "KNOWN_SOURCE_GAPS names an item that does not exist: %s" % gap)
+	check(missing.is_empty(), "every item has a source or a source mark (none for %s)" % ", ".join(missing))
+	print("data_validation: %d items still wait for a source (KNOWN_SOURCE_GAPS, see docs/wiki/items.md)" % KNOWN_SOURCE_GAPS.size())
+
+func item_sources() -> Dictionary:
+	var got := {}
+	var rolled_by := {}   # loot table -> [[lo, hi] Level bands of whoever rolls it]
+	var soil: Dictionary = ContentDB.config("garden").get("spirit_soil", {})
+	# Drops: loot tables, first-defeat treasures, pet books, beast cores, Spirit Soil.
+	for e in ContentDB.all("enemies"):
+		var band := [int(e.get("level", [1])[0]), int(e.get("level", [1]).back())]
+		for rid in ContentDB.rooms:
+			for sp in ContentDB.room(rid).get("spawns", []):
+				if str(sp.get("enemy", "")) == str(e.id):
+					var lv0 = sp.get("level", 1)
+					var slv: Array = lv0 if lv0 is Array else [lv0, lv0]
+					band = [mini(band[0], int(slv[0])), maxi(band[1], int(slv.back()))]
+		_rolled(rolled_by, str(e.get("loot", e.id)), band)
+		for it in e.get("first_defeat", []) + e.get("elite_first_defeat", []): got[str(it)] = true
+		if e.has("pet_book"): got[str(e.pet_book.item)] = true
+		if str(e.get("race", "beast")) == "beast":
+			for lv in range(band[0], band[1] + 1):
+				var core := WorldAuthority.beast_core_for(e, lv)
+				if core != "": got[core] = true
+			if not soil.is_empty() and band[1] >= int(soil.get("min_level", 19)): got["spirit_soil"] = true
+	# Containers: jars, crates, chests and wine jars; tower floors; calendar events.
+	for rid in ContentDB.rooms:
+		for o in ContentDB.room(rid).get("objects", []):
+			if o.has("loot") and str(o.get("type", "")) in ["jar", "crate", "chest", "wine_jar"]:
+				_rolled(rolled_by, str(o.loot), [int(o.get("level", 1)), int(o.get("level", 1))])
+	for f in ContentDB.all("tower"): _rolled(rolled_by, str(f.loot), [int(f.level), int(f.level)])
+	for ev in ContentDB.all("calendar"):
+		if ev.has("loot"): _rolled(rolled_by, str(ev.loot), [])
+	var grades := {}
+	for tid in rolled_by:
+		var t := ContentDB.entry("loot_tables", tid)
+		for g in t.get("guaranteed", []) + t.get("rare", []) + t.get("quest_drops", []): got[str(g.item)] = true
+		for grp in t.get("groups", []):
+			for p in grp.get("pick", []): got[str(p.item)] = true
+		if float(t.get("equipment", {}).get("chance", 0.0)) > 0.0:
+			for band2 in rolled_by[tid]:
+				if band2.is_empty(): continue
+				for ilv in range(clampi(band2[0] - 2, 1, 81), clampi(band2[1] + 2, 1, 81) + 1): grades[LootRules.grade_for_ilv(ilv)] = true
+	# The banded equipment roll (LootRules.make_equipment picks among these).
+	for a in ContentDB.all("artifacts"):
+		if a.has("set") or a.get("relic", false) or str(a.slot) in ["gourd", "cape", "talisman", "tool_furnace"] or a.has("pet_gear"): continue
+		if grades.has(str(a.grade)): got[str(a.id)] = true
+	# Gathering: room nodes, fishing, Beast King nests, treasure births, posts.
+	for rid in ContentDB.rooms:
+		for o in ContentDB.room(rid).get("objects", []):
+			var ty := str(o.get("type", ""))
+			if ty in ["herb_patch", "ore_vein", "star_sight", "pickup"] and o.has("item"): got[str(o.item)] = true
+			if ty == "beast_trail" and o.has("critter"): got[str(o.critter)] = true
+			if ty == "insect_swarm": _items_of(o.get("outputs", []), got)
+			if o.get("chase") is Dictionary: _items_of(o.chase.get("rewards", []), got)
+			if ty == "route_stone":
+				for medal in o.get("route", {}).get("medal_rewards", {}).values(): _items_of(medal, got)
+	for f2 in ContentDB.all("fish"): got[str(f2.item)] = true
+	for k in ContentDB.all("beast_kings"):
+		if k.get("nest", {}).has("item"): got[str(k.nest.item)] = true
+	for ev2 in ContentDB.all("calendar"):
+		if ev2.has("item"): got[str(ev2.item)] = true
+		var rw = ev2.get("rewards", {})
+		if rw is Dictionary:
+			for place in rw:
+				if rw[place] is Dictionary and rw[place].has("item"): got[str(rw[place].item)] = true
+	var posts := ContentDB.config("posts")
+	for n in posts.get("nodes", {}): got[str(n)] = true
+	for sd in posts.get("rules", {}).get("side_drops", {}).values(): got[str(sd.item)] = true
+	for outs in posts.get("swarms", {}).values():
+		for x3 in outs: got[str(x3.item)] = true
+	for tr in posts.get("trails", {}).values(): got[str(tr.critter)] = true
+	for cp in posts.get("bench", {}).get("components", []): got[str(cp.item)] = true
+	# Garden: beds grow each family's ages; a harvest returns seeds.
+	var garden := ContentDB.config("garden")
+	for fam in garden.get("families", {}):
+		for age in garden.families[fam]: got[str(garden.families[fam][age])] = true
+	for fam2 in garden.get("harvest_seeds", []):
+		if garden.get("seeds", {}).has(fam2): got[str(garden.seeds[fam2])] = true
+	# Crafting: recipes, salts, professions, curio appraisal, restoration, legendary chains, salvage.
+	for r in ContentDB.all("recipes"):
+		for o2 in r.get("outputs", []): got[str(o2.item)] = true
+	for s in posts.get("salts", []): got[str(s.id)] = true
+	for pr in ContentDB.all("professions"):
+		for x4 in pr.get("results", []): got[str(x4.item)] = true
+		for b in pr.get("blueprints", []):
+			for y in b.get("yield", []): got[str(y.item)] = true
+	for it2 in ContentDB.all("items"):
+		for x5 in it2.get("appraise", []): got[str(x5.item)] = true
+		if it2.has("restores"): got[str(it2.restores)] = true
+	for ch in ContentDB.all("legendary_chains"): got[str(ch.weapon)] = true
+	for sv in ContentDB.all("salvage"):
+		for x6 in sv.get("returns", []): got[str(x6.item)] = true
+	# Shops and auctions.
+	for sh in ContentDB.all("shops"):
+		for st in sh.get("stock", []) + sh.get("rotation", {}).get("pool", []): got[str(st.item)] = true
+	var auction := ContentDB.config("auction")
+	for lot in auction.get("pool", []) + auction.get("valley", {}).get("pool", []):
+		if lot.has("item"): got[str(lot.item)] = true
+	# Reward lists: expeditions, the Beast Tide, the beast arena and grove, sect tokens.
+	for ex in ContentDB.all("expeditions"):
+		_items_of(ex.get("rewards", []), got)
+	var tide: Dictionary = ContentDB.config("expeditions").get("beast_tide", {}).get("rewards", {})
+	for key in ["egg", "stag_egg"]:
+		if tide.has(key): got[str(tide[key])] = true
+	if int(tide.get("soil", 0)) > 0: got["spirit_soil"] = true
+	if int(tide.get("cores", 0)) > 0:
+		for el in TIDE_CORE_ELEMENTS:
+			for tier in TIDE_CORE_TIERS: got["%s_core_%s" % [el, tier]] = true
+	var arena := ContentDB.config("beast_arena")
+	_items_of(arena.get("rewards", []) + arena.get("grove", {}).get("pool", []), got)
+	if arena.get("grove", {}).has("first"): got[str(arena.grove.first)] = true
+	for sect in ContentDB.all("sects"):
+		if sect.has("token"): got[str(sect.token)] = true
+	# Effects and mail attachments anywhere: every table, room and dialogue tree.
+	for table in ContentDB.configs: _granted(ContentDB.configs[table], got)
+	for rid2 in ContentDB.rooms: _granted(ContentDB.room(rid2), got)
+	for tid2 in ContentDB.dialogue: _granted(ContentDB.dialogue[tid2], got)
+	return got
+
+func _items_of(list: Array, got: Dictionary) -> void:
+	for x in list:
+		if x is Dictionary and x.has("item"): got[str(x.item)] = true
+
+func _rolled(rolled_by: Dictionary, table: String, band: Array) -> void:
+	if not rolled_by.has(table): rolled_by[table] = []
+	rolled_by[table].append(band)
+
+func _granted(node, got: Dictionary) -> void:
+	if node is Dictionary:
+		var k := str(node.get("kind", ""))
+		if k in ["grant_item", "grant_equipment"] and node.has("item"): got[str(node.item)] = true
+		if k == "upgrade_sect_token":
+			for sect in ContentDB.all("sects"):
+				if sect.has("token"): got[str(sect.token).replace("_token", "_elder_token")] = true
+		if node.get("attachments") is Array:
+			for a in node.attachments:
+				if a is Dictionary and a.has("item"): got[str(a.item)] = true
+		for v in node.values(): _granted(v, got)
+	elif node is Array:
+		for v2 in node: _granted(v2, got)
 
 ## A `use_system` objective must be reported by an authority (never from UI code):
 ## some authority both emits system_used and names the system.

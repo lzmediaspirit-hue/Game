@@ -107,6 +107,14 @@ equipment bands, rooms). `python3 tools/data/build_data.py [module...]` writes `
 builder lays out rooms from helpers (surfaces, painted buildings, ladders, portals, spawns, objects)
 and keeps spawns clear of shrines and portals; `story.py` validates quests, NPCs and unlocks.
 
+After a full build `build_data.py` runs `tools/dev/wiki.py`, which writes `docs/wiki/items.md` (every item: icon,
+slot or type, stats or effect, grade, requirement, and its sources with rates) and `docs/wiki/monsters.md` (every
+enemy: sheet, room spawns, level band, stats, behaviour, full drop table) from `data/` alone, byte-identical on every
+run (`--gaps` prints the items nothing hands out). Its docstring lists the source channels it scans; the
+`data_validation` rule `item_source_suite` scans the same ones and fails when an item has no source and no explicit
+`"source"` mark in its data: `story` (a scripted beat or start gives it), `system` (a game system's own rule names it)
+or `later` (a zone not built yet). Real gaps wait in the suite's `KNOWN_SOURCE_GAPS` until they get a source.
+
 ## Player-facing text
 
 No script writes text the player reads. Pages, the HUD, the shell and the authorities' messages call

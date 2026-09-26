@@ -98,7 +98,10 @@ func _main() -> void:
 	awaken_legend_suite()
 	aggro_cap_suite()
 	emotes_suite()
+	legacy_suite()
+	drop_pool_suite()
 	text_suite()
+	await ui_suite()
 	fixes_suite()
 	max_character_suite()
 	save_suite()
@@ -149,6 +152,47 @@ func aggro_cap_suite() -> void:
 # ------------------------------------------------------------------ readable text
 ## The word fonts really are at their set weights (a "wght" string key is silently ignored and left Cormorant at
 ## its Light default), no word is set below the floor, and the text size setting scales every word and line.
+## P4 (`docs/ui_style_guide.md`): on every page and tab, every tap target is at least 48 px on a side and no two
+## buttons share a point, and no text is drawn under the minimum size.
+func ui_suite() -> void:
+	var main_script = load("res://scripts/main.gd")
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var small: Array = []
+	var overlaps: Array = []
+	var views := 0
+	for id in main_script.PAGES:
+		if str(id) in ["dialogue", "revival", "welcome", "shop", "fishing", "teleport"]: continue   # need a context
+		var pg: Page = load(str(main_script.PAGES[id])).new()
+		pg.page_id = str(id)
+		add_child(pg)
+		pg.open({})
+		for ti in maxi(1, pg.tabs.size()):
+			if not pg.tabs.is_empty(): pg.tab = ti
+			pg.queue_redraw()
+			await get_tree().process_frame
+			await get_tree().process_frame
+			views += 1
+			var where := "%s:%s" % [id, str(pg.tabs[ti].get("id", ti)) if not pg.tabs.is_empty() else "-"]
+			var buttons: Array = []
+			for r in pg._regions:
+				if r.kind == "scroll": continue
+				var full: Rect2 = r.get("full", r.rect)
+				if full.size.x < Page.MIN_TAP or full.size.y < Page.MIN_TAP:
+					small.append("%s %s %dx%d" % [where, r.id, int(full.size.x), int(full.size.y)])
+				if r.kind == "button": buttons.append(r)
+			for i in buttons.size():
+				for j in range(i + 1, buttons.size()):
+					var both: Rect2 = (buttons[i].rect as Rect2).intersection(buttons[j].rect)
+					if both.size.x > 0.5 and both.size.y > 0.5: overlaps.append("%s %s/%s" % [where, buttons[i].id, buttons[j].id])
+		pg.queue_free()
+	await get_tree().process_frame
+	Unlocks.debug_force_all = force_was
+	check(views >= 100, "the ui_suite opened every page and tab (%d views)" % views)
+	check(small.is_empty(), "every tap target is at least 48 px on a side (%s)" % str(small.slice(0, 6)))
+	check(overlaps.is_empty(), "no two buttons share a point (%s)" % str(overlaps.slice(0, 6)))
+	check(UiKit.size_for("text", 8) >= UiKit.size_for("text", UiKit.MIN_SIZE), "text asked for under the minimum size is drawn at the minimum")
+
 func text_suite() -> void:
 	var probe := "Pick up Herbal Tea"
 	var light := FontVariation.new()
@@ -7567,6 +7611,56 @@ func nav_suite() -> void:
 	check(pal.plane.distance_to(st.plane) < 120.0, "and at once when more than 480 away")
 
 # ------------------------------------------------------------------ emotes (S34)
+## The Account Legacy (P10 finding F1): the unlock exists at Bone Forging 1 for the whole account, a save that reached
+## great realms before it existed has them recorded once when it arrives, and each record adds 2% to accumulation.
+## P7a finding: the banded equipment roll never makes a legendary weapon or an imitation relic.
+func drop_pool_suite() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var bad: Array = []
+	for level in [64, 70, 76, 81]:
+		for i in 400:
+			var inst: Dictionary = LootRules.make_equipment(rng, level, "common", 0.0, true, i)
+			if inst.is_empty(): continue
+			var def: Dictionary = ContentDB.item(str(inst.id))
+			if def.has("legend") or def.has("imitation"): bad.append(str(inst.id))
+	check(bad.is_empty(), "no legendary weapon or imitation relic from an ordinary equipment drop (%s)" % str(bad.slice(0, 4)))
+
+func legacy_suite() -> void:
+	var entry: Dictionary = ContentDB.entry("unlocks", "account_legacy")
+	check(str(entry.get("scope", "")) == "account", "the Account Legacy is an account-wide unlock")
+	var c = Game.active()
+	if c == null: return
+	var acc: AccountState = Game.account
+	var legacy_was: Dictionary = acc.legacy.duplicate()
+	var top_was: String = acc.highest_realm
+	var bonus_before: float = Game.progression.accumulation_bonus(c)
+	acc.legacy.clear()
+	acc.highest_realm = "heart_tempering_2"
+	Game.accounts._backfill_legacy(c.id)
+	GameEvents.flush()
+	check(acc.legacy.has("qi_kindling") and acc.legacy.has("qi_unfurling") and acc.legacy.has("heart_tempering"),
+		"the backfill records every great realm the account reached (%s)" % str(acc.legacy.keys()))
+	check(not acc.legacy.has("bone_forging") and not acc.legacy.has("cloud_stride"), "but not Bone Forging, and nothing above the highest")
+	var n := acc.legacy.size()
+	Game.accounts._backfill_legacy(c.id)
+	check(acc.legacy.size() == n, "a second backfill records nothing new")
+	var bonus_three: float = Game.progression.accumulation_bonus(c)
+	acc.legacy.clear()
+	check(near(bonus_three - Game.progression.accumulation_bonus(c), 0.06), "three records add 6% to accumulation")
+	# The old scrolls' names open with the realms the account has reached, and no further.
+	var codex_was: Dictionary = acc.codex.duplicate()
+	for k in acc.codex.keys(): if str(k).begins_with("old_scrolls"): acc.codex.erase(k)
+	Game.accounts._grant_old_scrolls()
+	GameEvents.flush()
+	check(acc.codex.has("old_scrolls") and acc.codex.has("old_scrolls_mortal") and acc.codex.has("old_scrolls_heart_tempering"),
+		"the old scrolls' entries open up to the account's highest realm")
+	check(not acc.codex.has("old_scrolls_cloud_stride") and not acc.codex.has("old_scrolls_world_genesis"), "and later realms stay hidden")
+	acc.codex = codex_was
+	acc.legacy = legacy_was
+	acc.highest_realm = top_was
+	check(near(Game.progression.accumulation_bonus(c), bonus_before), "state restored")
+
 func emotes_suite() -> void:
 	var starting := ContentDB.all("emotes").filter(func(e): return str(e.get("achievement", "")) == "")
 	check(starting.size() >= 6, "six emotes from the start (%d)" % starting.size())

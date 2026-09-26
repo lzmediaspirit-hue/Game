@@ -904,3 +904,109 @@ V12C_TECHS = [('upright_glyph', upright_glyph), ('benevolent_script', benevolent
               ('rite_seal_script', rite_seal_script)]
 for _v12c_id, _v12c_fn in V12C_TECHS:
     register(FAM, _v12c_id, _v12c_fn, GROUP)
+
+
+# ----------------------------------------------------------------------------- v1.2 Phase D · the brush and the bell
+# The Star Wardens' arts. The brush arts read as ink strokes: black ink with a pale keyline on the qi disc, fire
+# strokes on the fire disc. The bell arts read as sound: a bell and the rings it sends out.
+V12D_INK = Ramp(['#05090C', '#0D161C', '#1A2830', '#2E424C', '#4E6670'], EL['qi'][1][2])
+V12D_SEAL_RED = Ramp(R['seal'].c, EL['qi'][1][2])
+
+
+def _v12d_bell_mark(c, cx, cy, s=1.0):
+    """A hand-bell mark, upright: the handle knob, the dome, the flaring skirt and the lip; the clapper below."""
+    body = c.poly([(cx - 3 * s, cy - 7 * s), (cx + 3 * s, cy - 7 * s), (cx + 4.2 * s, cy - 3 * s),
+                   (cx + 5 * s, cy + 3 * s), (cx + 7.5 * s, cy + 6 * s), (cx - 7.5 * s, cy + 6 * s),
+                   (cx - 5 * s, cy + 3 * s), (cx - 4.2 * s, cy - 3 * s)])
+    body |= c.seg(cx, cy - 9.5 * s, cx, cy - 7 * s, 2.2 * s)
+    lip = c.seg(cx - 7 * s, cy + 4.5 * s, cx + 7 * s, cy + 4.5 * s, 1.0) & body
+    clap = c.circle(cx, cy + 8 * s, 1.8 * s)
+    return body, lip, clap
+
+
+def splashed_ink():
+    """A flicked splash of black ink, the flick and its droplets flying right; the scribe's small red seal."""
+    c, mk, d = emblem('qi')
+    inner = c.circle(16, 16, 12.8)
+    blot = c.ellipse(11.5, 18, 5.2, 4.6) | c.circle(8, 21.5, 2.4) | c.circle(14.5, 22.5, 2.0)
+    flick = S.taper_curve(c, (14, 15.5), (19.5, 12), (26.5, 8.5), 3.8, 0.9)
+    drops = c.circle(21, 20.5, 1.7) | c.circle(25, 16.5, 1.3) | c.circle(27, 22, 1.1) | c.circle(22.5, 25, 0.9)
+    ink = (blot | flick | drops) & inner
+    mark(c, ink, V12D_INK, base=1, mode='ray')
+    c.put(c.ellipse(9.5, 16, 1.8, 1.2) & blot, V12D_INK, 'flat', base=3)
+    seal = c.rect(7, 6, 11, 10) & inner
+    mark(c, seal, V12D_SEAL_RED, base=2, mode='flat')
+    c.put(c.pts([(8, 7), (10, 7), (9, 8), (8, 9), (10, 9)]), V12D_SEAL_RED, 'flat', base=4)
+    return done(c)
+
+
+def cursive_storm():
+    """Four running cursive strokes in fire, thick at the start and flicked thin, overlapping as they sweep right."""
+    c, mk, d = emblem('fire')
+    inner = c.circle(16, 16, 12.8)
+    strokes = [((5.5, 9), (11, 5.5), (18, 10), 3.2, 1.0), ((7, 15), (14, 11), (24, 15.5), 3.4, 1.0),
+               ((6, 21), (13, 17), (26, 21.5), 3.4, 1.0), ((10, 26.5), (17, 22.5), (27, 27), 3.0, 0.9)]
+    for k, (p0, p1, p2, w0, w1) in enumerate(strokes):
+        st = S.taper_curve(c, p0, p1, p2, w0, w1) & inner
+        hook = S.taper_curve(c, p2, (p2[0] + 1.5, p2[1] - 2.5), (p2[0] + 0.5, p2[1] - 4.5), 1.4, 0.8) & inner
+        mark(c, st | hook, mk, base=3 if k % 2 == 0 else 2)
+        c.put(c.circle(p0[0] + 1.2, p0[1] - 0.4, 1.2) & st, mk, 'flat', base=4)
+    for (x, y) in ((19, 6), (25, 12), (27, 19), (13, 29)):
+        c.put(c.rect(x, y, x, y) & inner, mk, 'flat', base=4)
+    return done(c)
+
+
+def stilling_peal():
+    """A bell at the centre, and the rings of one long peal spreading out on both sides of it."""
+    c, mk, d = emblem('soul')
+    inner = c.circle(16, 16, 12.8)
+    for r, lv in ((7.5, 3), (10.0, 2), (12.4, 1)):
+        ring = (c.arc(16, 15.5, r, 1.2, 148, 212) | c.arc(16, 15.5, r, 1.2, 328, 32)) & inner
+        c.put(ring, mk, 'flat', base=lv)
+    body, lip, clap = _v12d_bell_mark(c, 16, 15, 0.8)
+    mark(c, body, mk, base=3)
+    c.put(lip, mk, 'flat', base=1)
+    mark(c, clap, mk, base=2)
+    return done(c)
+
+
+def qi_seal_toll():
+    """A bell at the left, one heavy wave of sound going right from it and ending in a small closed seal."""
+    c, mk, d = emblem('metal')
+    inner = c.circle(16, 16, 12.8)
+    body, lip, clap = _v12d_bell_mark(c, 9.5, 15, 0.7)
+    mark(c, body, mk, base=3)
+    c.put(lip, mk, 'flat', base=1)
+    mark(c, clap, mk, base=2)
+    pts = [(x, 15.5 + 2.6 * math.sin((x - 15) / 7.0 * 2 * math.pi)) for x in range(15, 23)]
+    wave = c.polyline(pts, 2.4) & inner
+    mark(c, wave, mk, base=3)
+    seal = c.rect(22, 12, 28, 18) & inner
+    mark(c, seal, Ramp(R['seal'].c, EL['metal'][1][2]), base=2, mode='flat')
+    c.put(c.rect(25, 13, 25, 17) | c.rect(23, 15, 27, 15), R['seal'], 'flat', base=0)
+    return done(c)
+
+
+def wardens_call():
+    """A bell above two small green sprouts, a soft ring of green light round them."""
+    c, mk, d = emblem('wood')
+    inner = c.circle(16, 16, 12.8)
+    warm = Ramp(EL['heaven'][1], EL['wood'][0][0])
+    ring = c.ring(16, 21, 8.6, 1.1) & inner & ~c.rect(9, 5, 23, 15)
+    c.put(ring, mk, 'flat', base=1)
+    body, lip, clap = _v12d_bell_mark(c, 16, 10, 0.62)
+    mark(c, body, warm, base=3)
+    c.put(lip, warm, 'flat', base=1)
+    mark(c, clap, warm, base=2)
+    for (x, s) in ((11.5, -1), (20.5, 1)):
+        stem = c.seg(x, 26, x, 19.5, 1.4)
+        lf1 = S.leaf(c, x, 22.5, 90 - 50 * s, 5.0, 3.0, 0.15 * s)
+        lf2 = S.leaf(c, x, 20.5, 90 + 40 * s, 3.8, 2.4, -0.15 * s)
+        mark(c, (stem | lf1 | lf2) & inner, mk, base=3)
+    return done(c)
+
+
+V12D_TECHS = [('splashed_ink', splashed_ink), ('cursive_storm', cursive_storm), ('stilling_peal', stilling_peal),
+              ('qi_seal_toll', qi_seal_toll), ('wardens_call', wardens_call)]
+for _v12d_id, _v12d_fn in V12D_TECHS:
+    register(FAM, _v12d_id, _v12d_fn, GROUP)

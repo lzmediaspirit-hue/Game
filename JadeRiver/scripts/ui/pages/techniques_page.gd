@@ -64,14 +64,16 @@ func _inner(ch) -> void:
 	heading(Vector2(sx, sy), Tx.t("ui.techniques.stances"), right.size.x - 36)
 	sy += 14
 	var can := Unlocks.is_unlocked(ch.id, "stances")
-	var step := minf(58.0, (right.end.y - sy - 8) / float(maxi(1, ContentDB.all("stances").size())))
-	for st in ContentDB.all("stances"):
+	var stances: Array = ContentDB.all("stances")
+	# A scrolled list, so each stance keeps a full-height (48 px) button however many families there are.
+	list("stances", Rect2(sx - 8, sy + 4, right.end.x - sx - 2, right.end.y - sy - 12), stances.size(), 58, func(i: int, rr: Rect2):
+		var st: Dictionary = stances[i]
 		var on := str(cu.stances.get(str(st.family), "")) == str(st.id)
 		var here := str(st.family) == fam
-		text(Vector2(sx, sy + 20), str(st.get("name", "")) + "  ·  " + str(st.family).replace("_", " ").capitalize(), 17, UiKit.PALE_GOLD if on and here else (UiKit.PAPER if here else UiKit.MIST), HORIZONTAL_ALIGNMENT_LEFT, right.size.x - 150)
-		text(Vector2(sx, sy + 40), fit(str(st.get("desc", "")), 14, right.size.x - 150), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, right.size.x - 150)
-		btn(Rect2(right.end.x - 116, sy + 6, 100, 38), Tx.t("ui.techniques.stance_on") if on else Tx.t("ui.techniques.stance_off"), "stance", str(st.id), on, can, Unlocks.locked_text("stances"), 16)
-		sy += step
+		text(rr.position + Vector2(8, 20), str(st.get("name", "")) + "  ·  " + str(st.family).replace("_", " ").capitalize(), 17, UiKit.PALE_GOLD if on and here else (UiKit.PAPER if here else UiKit.MIST), HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 130)
+		text(rr.position + Vector2(8, 40), fit(str(st.get("desc", "")), 14, rr.size.x - 130), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 130)
+		btn(Rect2(rr.end.x - 104, rr.position.y + 3, 100, 48), Tx.t("ui.techniques.stance_on") if on else Tx.t("ui.techniques.stance_off"), "stance", str(st.id), on, can, Unlocks.locked_text("stances"), 16)
+	)
 
 func draw_page() -> void:
 	var ch = c()

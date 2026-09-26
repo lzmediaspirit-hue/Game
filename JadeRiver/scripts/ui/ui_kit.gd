@@ -192,12 +192,16 @@ static func draw_text(ci: CanvasItem, text: String, pos: Vector2, size: int, col
 
 ## World labels (names, damage numbers, prompts) over painted scenes: bold face, a thin ink
 ## outline and a soft shadow, so serifs stay sharp instead of drowning in a heavy stroke.
+## Numbers are drawn in Pixelify Sans only from this size up (damage numbers, large counts). Smaller, its 5 reads as
+## an S and its 2 as a Z (the P2 review, G2), so bar values and slot counts use the bold serif's lining figures.
+const PIXEL_NUMERALS_MIN := 20
+
 static func draw_outlined(ci: CanvasItem, text: String, pos: Vector2, size: int, color := PAPER, align := HORIZONTAL_ALIGNMENT_CENTER, width := 200.0) -> void:
-	var numeric := is_numeric(text)
-	var f := body_font() if numeric else label_font()
-	var px := int(round(maxi(size, MIN_SIZE) * text_scale())) if numeric else size_for(text, size)
+	var pixel := size >= PIXEL_NUMERALS_MIN and is_numeric(text)
+	var f := body_font() if pixel else label_font()
+	var px := int(round(maxi(size, MIN_SIZE) * text_scale())) if pixel else size_for(text, size)
 	ci.draw_string_outline(f, pos + Vector2(0, 2), text, align, width, px, 5, Color(0, 0, 0, 0.3 * color.a))
-	ci.draw_string_outline(f, pos, text, align, width, px, 3 if not numeric else 4, Color(INK, 0.92 * color.a))
+	ci.draw_string_outline(f, pos, text, align, width, px, 3 if not pixel else 4, Color(INK, 0.92 * color.a))
 	ci.draw_string(f, pos, text, align, width, px, color)
 
 static var _plate: StyleBoxFlat

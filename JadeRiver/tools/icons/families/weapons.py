@@ -12,7 +12,7 @@ cloud engravings), mistjade (Mystic: violet + gold + faint glow).
 """
 import numpy as np
 
-from pix import Canvas, Ramp, dilate4, erode4
+from pix import Canvas, Ramp, dilate4, dilate8, erode4, rgb
 from palette import R, GRADES
 from registry import register
 import shapes as S
@@ -364,3 +364,127 @@ BUILDERS = {'gauntlets': gauntlets, 'jian': jian, 'spear': spear, 'short_blade':
 for _fam in ('gauntlets', 'jian', 'spear', 'short_blade', 'staff', 'bow', 'heavy_sabre', 'fan', 'flute'):
     for _word, _grade in GRADE_WORDS:
         register(FAM, '%s_%s' % (_word, _fam), (lambda f=_fam, gr=_grade: BUILDERS[f](gr)), GROUP)
+
+
+# ============================================================================ v1.2 Phase D · the brush and the bell
+# The Star Wardens' arms, in the same diagonal frame as the per-grade weapons. The Sage pair (ink_warden_brush,
+# wardens_handbell) carries the sage kit: sunsteel gold, jade, red silk and the sun glow. The Will pair
+# (starwrit_brush, tidebreak_bell) is darker and richer, lit by lantern light.
+V12D_ASH_TIP = Ramp(['#2A2C32', '#474A52', '#666A72', '#8C9098', '#B4B8BE'], '#101216')
+V12D_STAR_GLOW = '#F3E3A6'
+V12D_TIDE_GLOW = '#7FD4FF'
+V12D_LV_INK = ((0.3, 4), (0.62, 2), (9, 1))
+
+
+def _v12d_halo(c, mask, col, alphas):
+    """Stepped glow bands round one part only, on empty canvas (call after c.outline())."""
+    cur = dilate4(mask) & (c.alpha > 0)
+    for al in alphas:
+        ring = dilate8(cur) & ~cur
+        free = ring & (c.alpha == 0)
+        c.rgb[free] = np.array(rgb(col), np.uint8)
+        c.alpha[free] = al
+        cur |= ring
+
+
+def _v12d_brush(will):
+    """A large calligraphy brush on the diagonal: the jointed shaft, a black lacquered collar, the tapered tip, a
+    drop falling from it. Sage: sand bamboo with jade joints, an ink tip. Will: a dark shaft with a gold band,
+    an ash-grey tip lit at the point."""
+    c = Canvas(32)
+    g = G('sage')
+    shaft = R['darkwood'] if will else R['sand']
+    joint = R['gold'] if will else R['jade']
+    tip = V12D_ASH_TIP if will else R['ink']
+    # the cord loop at the butt
+    tas = S.bez_line(c, (5.5, 26.5), (2.6, 27.6), (3.2, 30.2), 1.3)
+    c.put(tas, R['red'], 'flat', base=2)
+    u, v = UV(c)
+    part(c, -25, 5, 31.5, 2.0, shaft, LV_ROUND)
+    for uc in (-18, -10, -2):
+        part(c, uc, uc + 1, 31.5, 2.3, shaft, LV_ROUND)
+        c.put(band(c, uc, uc + 1, 31.5, 2.3) & (v < 31), shaft[3], 'flat', only_on=True)
+    part(c, -27, -24, 31.5, 2.4, joint, LV_ROUND)
+    if will:
+        part(c, 3, 5, 31.5, 2.5, joint, LV_ROUND)
+    # the lacquered collar, then the tip: fuller than the shaft at its root, tapering to the point
+    part(c, 6, 9, 31.5, 2.5, R['ink'], V12D_LV_INK)
+    c.put(band(c, 6, 9, 31.5, 2.5) & (c.X + c.Y < 30), R['ink'][4], 'flat', only_on=True)
+    tip_hw = taper(9, 27, 3.4, 0.0)
+    part(c, 9, 27, 31.5, tip_hw, tip, V12D_LV_INK if not will else LV_ROUND)
+    if will:
+        pt = band(c, 22, 27, 31.5, tip_hw) & c.a
+        c.put(band(c, 25, 27, 31.5, tip_hw) & c.a, R['starlight'], 'flat', base=3)
+        c.put(band(c, 27, 27, 31.5, tip_hw) & c.a, R['starlight'], 'flat', base=4)
+    # the drop falling from the tip
+    drop = S.drop(c, 27.3, 11.5, 1.7, 3.6)
+    c.put(drop, R['starlight'] if will else R['ink'], 'ray', base=3 if will else 2)
+    c.outline()
+    if will:
+        c.glow(V12D_STAR_GLOW, (60, 25))
+        _v12d_halo(c, pt, V12D_STAR_GLOW, (130, 60))
+    else:
+        c.glow(g['glow'], (95, 40))
+    return c
+
+
+def _v12d_bell(will):
+    """A hand-bell on a short dark-wood handle, the mouth down-right: the cord loop, the handle and its collar,
+    the crown, the flaring skirt, the lip, the clapper hanging in the mouth. Sage: bronze, jade collar, red cord.
+    Will: pale grey-silver cast from a lantern cage, the lattice still on it, a blue glow at the mouth."""
+    c = Canvas(32)
+    g = G('sage')
+    body_r = R['silver'] if will else R['bronze']
+    cx = cy = 15.6
+    k = 0.70710678
+
+    def P(s, t):
+        return (cx + (s + t) * k, cy + (s - t) * k)
+
+    def prof(pts):
+        return c.poly([P(s, t) for (s, t) in pts] + [P(s, -t) for (s, t) in pts[::-1]])
+
+    # the cord loop and the handle
+    lx, ly = P(-16.5, 0)
+    loop = c.ring(lx, ly, 2.3, 1.2)
+    c.put(loop, R['red'], 'flat', base=2)
+    c.put(loop & (c.X + c.Y < lx + ly), R['red'], 'flat', base=3)
+    handle = prof([(-14.5, 1.4), (-13, 2.2), (-11.5, 1.6), (-6.5, 1.6)])
+    c.put(handle, R['darkwood'], 'ray', base=2, sep=True)
+    collar = prof([(-7.5, 2.3), (-4.5, 2.3)])
+    c.put(collar, R['gold'] if will else g['accent'], 'ray', base=2, sep=True)
+    # the bell: crown, waist, skirt and lip
+    bell = prof([(-5, 1.6), (-4, 3.4), (-2.5, 4.4), (0, 4.9), (3, 5.2), (5.5, 5.8), (7.5, 7.0), (8.5, 8.2), (9.6, 8.4)])
+    lip = prof([(8.3, 8.6), (10.2, 8.6)])
+    c.put(bell, body_r, 'ray', base=2, sep=True, bands=((0.2, 2), (0.42, 1), (0.7, 0), (0.88, -1), (9, -2)))
+    if will:
+        # the lantern cage's lattice, still cast into the metal
+        lat = ((c.xi % 3 == 1) | (c.yi % 3 == 1)) & erode4(bell) & ~prof([(-5, 3), (-2.6, 3)])
+        c.put(lat, body_r[1], 'flat', out=body_r.out)
+        c.put(lat & (c.X + c.Y < 27), body_r[3], 'flat', out=body_r.out)
+    else:
+        c.put(prof([(1.5, 5.1), (2.5, 5.1)]) & bell, body_r[1], 'flat', out=body_r.out)
+        c.put(prof([(-3, 3.9), (-2, 3.9)]) & bell, body_r[4], 'flat', out=body_r.out)
+    c.put(lip, body_r, 'ray', base=3, sep=True)
+    c.put(lip & (c.X + c.Y > 40), body_r, 'flat', base=1)
+    # the mouth, and the clapper hanging in it
+    mx, my = P(10.9, 0)
+    mouth = prof([(9.8, 7.2), (12.0, 6.6)]) & ~lip
+    c.put(mouth, R['ink'] if not will else R['ice'], 'flat', base=1 if not will else 0, sep=True)
+    if will:
+        c.put(mouth & ~erode4(mouth), R['ice'], 'flat', base=1)
+    clap = c.circle(mx + 0.4, my + 0.4, 2.0)
+    c.put(clap, R['ice'] if will else R['darkwood'], 'sphere', base=3 if will else 2, sep=True)
+    c.outline()
+    if will:
+        c.glow(V12D_STAR_GLOW, (40,))
+        _v12d_halo(c, mouth | clap, V12D_TIDE_GLOW, (120, 55))
+    else:
+        c.glow(g['glow'], (95, 40))
+    return c
+
+
+register(FAM, 'ink_warden_brush', lambda: _v12d_brush(False), GROUP)
+register(FAM, 'starwrit_brush', lambda: _v12d_brush(True), GROUP)
+register(FAM, 'wardens_handbell', lambda: _v12d_bell(False), GROUP)
+register(FAM, 'tidebreak_bell', lambda: _v12d_bell(True), GROUP)

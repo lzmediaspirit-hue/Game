@@ -82,7 +82,8 @@ static func make_equipment(rng: RandomNumberGenerator, level: int, min_quality: 
 	var grade := grade_for_ilv(ilv)
 	var candidates: Array = []
 	for a in ContentDB.all("artifacts"):
-		if a.get("grade") != grade or a.has("set") or a.get("relic", false) or a.slot in ["gourd", "cape", "talisman", "tool_furnace"] or a.has("pet_gear"): continue
+		# Legendary weapons come from their chains and imitation relics from the forge, never from an ordinary drop (P7a).
+		if a.get("grade") != grade or a.has("set") or a.get("relic", false) or a.has("legend") or a.has("imitation") or a.slot in ["gourd", "cape", "talisman", "tool_furnace"] or a.has("pet_gear"): continue
 		if a.slot == "weapon" and not allow_weapons: continue
 		candidates.append(a)
 	if candidates.is_empty(): return {}
