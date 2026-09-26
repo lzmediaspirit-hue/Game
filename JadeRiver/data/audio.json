@@ -1,5 +1,10 @@
 {
  "music": {
+  "ashen_war": {
+   "file": "res://art/audio/music/ashen_war.wav",
+   "loop": true,
+   "volume_db": -6
+  },
   "battle": {
    "file": "res://art/audio/music/battle.wav",
    "loop": true,
@@ -30,6 +35,21 @@
    "loop": true,
    "volume_db": -6
   },
+  "hollow_tide": {
+   "file": "res://art/audio/music/hollow_tide.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "lantern_harbor": {
+   "file": "res://art/audio/music/lantern_harbor.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "lantern_heart": {
+   "file": "res://art/audio/music/lantern_heart.wav",
+   "loop": true,
+   "volume_db": -6
+  },
   "meditation": {
    "file": "res://art/audio/music/meditation.wav",
    "loop": true,
@@ -52,6 +72,11 @@
   },
   "sky_port": {
    "file": "res://art/audio/music/sky_port.wav",
+   "loop": true,
+   "volume_db": -6
+  },
+  "star_field": {
+   "file": "res://art/audio/music/star_field.wav",
    "loop": true,
    "volume_db": -6
   },

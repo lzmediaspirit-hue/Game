@@ -38,6 +38,8 @@ func _draw() -> void:
 	# S48 Array Plates laid in a fight are drawn from Combat's state, on the ground under everything else.
 	if Game.combat:
 		for a in Game.combat.arrays: _draw_array(a)
+	# S28 v1.2: a held Presence is a pale ring on the ground; where it meets a foe's, the boundary shimmers.
+	if Game.field and Game.active() != null and Game.field.is_on(Game.active_id): _draw_presence(Game.active())
 	# Projectiles live in the RoomRuntime and are drawn from state.
 	if Game.room_rt:
 		for p in Game.room_rt.projectiles:
@@ -188,6 +190,38 @@ func _cloud_bank(center: Vector2, width: float, height: float, base: Color, lit:
 	draw_set_transform(Vector2.ZERO)
 
 ## An array on the ground: two rings of the array's colour, eight trigram strokes between them and a slow turn.
+func _draw_presence(c) -> void:
+	var st: ActorState = Game.actor_state(c.id)
+	if st == null: return
+	var t := float(Time.get_ticks_msec()) / 1000.0
+	var r: float = Game.field.radius_of(c)
+	var col := UiKit.PALE_GOLD
+	draw_set_transform(st.plane, 0.0, Vector2(1, 0.35))
+	draw_circle(Vector2.ZERO, r, Color(col, 0.05))
+	draw_arc(Vector2.ZERO, r, 0, TAU, 72, Color(col, 0.35 + 0.1 * sin(t * 2.0)), 2.0)
+	# Two faint ripples travel outward while it is held.
+	for i in 2:
+		var k := fmod(t * 0.5 + i * 0.5, 1.0)
+		draw_arc(Vector2.ZERO, r * (0.3 + 0.7 * k), 0, TAU, 48, Color(col, 0.25 * (1.0 - k)), 2.0)
+	draw_set_transform(Vector2.ZERO)
+	var cl: Dictionary = Game.field.clash_of(c.id)
+	if cl.is_empty(): return
+	var at := Vector2(float(cl.x), float(cl.y))
+	var dir: Vector2 = (at - st.plane).normalized() if at.distance_to(st.plane) > 1.0 else Vector2.RIGHT
+	var side := Vector2(-dir.y, dir.x)
+	var wcol := UiKit.GOLD if str(cl.winner) == "you" else (UiKit.RED if str(cl.winner) == "foe" else UiKit.MIST)
+	# A standing wall of light: a wavering line across the ground and up into the air.
+	var pts := PackedVector2Array()
+	for i in 13:
+		var u := (i - 6) / 6.0
+		var wob := sin(t * 6.0 + i) * 4.0
+		pts.append(at + side * u * 70.0 * 0.35 + dir * wob + Vector2(0, -u * 0.0))
+	draw_polyline(pts, Color(wcol, 0.8), 3.0)
+	for i in 7:
+		var h := 30.0 + 20.0 * i
+		var wob2 := sin(t * 5.0 + i * 0.8) * 5.0
+		draw_line(at + Vector2(wob2 - 4, -h), at + Vector2(wob2 + 4, -h - 14), Color(wcol, 0.55 - i * 0.06), 2.0)
+
 func _draw_array(a: Dictionary) -> void:
 	var kind := str(a.kind)
 	var col: Color = ARRAY_COLOURS.get(kind, ARRAY_COLOURS.guard)

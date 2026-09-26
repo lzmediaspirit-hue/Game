@@ -95,6 +95,11 @@ _r('wax',       ['#5C5140', '#9A8A66', '#D8C79A', '#F0E4BE', '#FFFBEA'], '#26211
 _r('cyan',      ['#0B3B52', '#166E8C', '#32BED1', '#8AEBEE', '#E2FFFB'], '#05202D')
 # Act II · Starsea: comet iron, a pale blue-grey metal (ingot and the storm sloop's keel)
 _r('cometiron', ['#2C3A4E', '#52667E', '#8FA3BA', '#CAD8E6', '#F4FAFF'], '#111A26')
+# Act III · Lantern Star Field: fallen starlight, pale gold (#F3E3A6) to star-white, its shadows drifting to
+# night indigo; lantern bronze, the metal of the star cages
+_r('starlight', ['#5E4C74', '#C49A56', '#EACA76', '#F3E3A6', '#FFFBEA'], '#211A31')
+_r('lanternbronze', ['#3A2416', '#6A4222', '#A8703A', '#D8A25A', '#F4D494'], '#1A0F08')
+STAR_GLOW = '#F3E3A6'
 
 # Weapon / armour grade material sets --------------------------------------------
 _r('jadeiron',  ['#132B26', '#21483E', '#377061', '#5FA38A', '#A8DCC0'], '#08140F')

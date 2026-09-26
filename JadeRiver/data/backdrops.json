@@ -556,5 +556,265 @@
         "bottom": 720
       }
     ]
+  },
+  "lantern_harbor": {
+    "sky": "#08071E",
+    "horizon": "#D89470",
+    "layers": [
+      {
+        "file": "res://art/backdrops/lantern_harbor_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/lantern_harbor_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/lantern_harbor_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/lantern_harbor_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "star_shoals": {
+    "sky": "#0A0C2C",
+    "horizon": "#8CB8C8",
+    "layers": [
+      {
+        "file": "res://art/backdrops/star_shoals_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/star_shoals_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/star_shoals_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/star_shoals_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "blackmast_haven": {
+    "sky": "#08060E",
+    "horizon": "#9A4A30",
+    "layers": [
+      {
+        "file": "res://art/backdrops/blackmast_haven_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/blackmast_haven_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/blackmast_haven_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/blackmast_haven_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "wyrmnest_isles": {
+    "sky": "#0A0A26",
+    "horizon": "#5A8E8E",
+    "layers": [
+      {
+        "file": "res://art/backdrops/wyrmnest_isles_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/wyrmnest_isles_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/wyrmnest_isles_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/wyrmnest_isles_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "warden_citadel": {
+    "sky": "#060C24",
+    "horizon": "#9C9E8C",
+    "layers": [
+      {
+        "file": "res://art/backdrops/warden_citadel_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/warden_citadel_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/warden_citadel_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/warden_citadel_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "orbit_ruins": {
+    "sky": "#0B0A15",
+    "horizon": "#48405A",
+    "layers": [
+      {
+        "file": "res://art/backdrops/orbit_ruins_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/orbit_ruins_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/orbit_ruins_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/orbit_ruins_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "ashen_reach": {
+    "sky": "#140606",
+    "horizon": "#E47A2A",
+    "layers": [
+      {
+        "file": "res://art/backdrops/ashen_reach_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/ashen_reach_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/ashen_reach_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/ashen_reach_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "tidebreak_front": {
+    "sky": "#070A20",
+    "horizon": "#7A5C88",
+    "layers": [
+      {
+        "file": "res://art/backdrops/tidebreak_front_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/tidebreak_front_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/tidebreak_front_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/tidebreak_front_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "nebula_deep": {
+    "sky": "#030D14",
+    "horizon": "#4A2E56",
+    "layers": [
+      {
+        "file": "res://art/backdrops/nebula_deep_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/nebula_deep_1.png",
+        "parallax": 0.08,
+        "bottom": 560
+      },
+      {
+        "file": "res://art/backdrops/nebula_deep_2.png",
+        "parallax": 0.18,
+        "bottom": 620
+      },
+      {
+        "file": "res://art/backdrops/nebula_deep_3.png",
+        "parallax": 0.32,
+        "bottom": 720
+      }
+    ]
+  },
+  "lantern_heart": {
+    "sky": "#070818",
+    "horizon": "#FFB846",
+    "layers": [
+      {
+        "file": "res://art/backdrops/lantern_heart_0.png",
+        "parallax": 0.0,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/lantern_heart_1.png",
+        "parallax": 0.06,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/lantern_heart_2.png",
+        "parallax": 0.16,
+        "bottom": 720
+      },
+      {
+        "file": "res://art/backdrops/lantern_heart_3.png",
+        "parallax": 0.3,
+        "bottom": 720
+      }
+    ]
   }
 }

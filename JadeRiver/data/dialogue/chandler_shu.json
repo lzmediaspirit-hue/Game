@@ -1,0 +1,35 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "chandler_shu": {
+   "id": "chandler_shu",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "crystal_and_jade"
+       }
+      ]
+     },
+     "node": "talk"
+    }
+   ],
+   "nodes": {
+    "talk": {
+     "lines": [
+      "The first Wardens were scholars. They wrote the word for 'stay' on every cage, and the stars stayed.",
+      "A cultivator who reads is harder to fool, and much harder to Hollow. Remember that."
+     ],
+     "choices": [
+      {
+       "text": "Thank you.",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

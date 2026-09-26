@@ -2574,6 +2574,50 @@
    "scope": "character",
    "quest": "storm_in_the_blood",
    "same_stage_ok": true
+  },
+  {
+   "id": "starsea_endurance",
+   "label": "Starsea Endurance attunement",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_3"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "crystal_and_jade"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "salt_of_the_stars",
+   "same_stage_ok": true
+  },
+  {
+   "id": "presence",
+   "label": "Presence",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "will_manifest"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:presence"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "a_presence_of_ones_own",
+   "same_stage_ok": true
   }
  ]
 }

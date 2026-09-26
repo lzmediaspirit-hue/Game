@@ -55,6 +55,7 @@ func _main() -> void:
 	expanse_herbs_suite()
 	rooftop_routes_suite()
 	ice_mount_suite()
+	field_suite()
 	body_path_suite()
 	heaven_suite()
 	arts_suite()
@@ -5016,6 +5017,85 @@ func rooftop_routes_suite() -> void:
 
 ## V9f2 · the v1.1 ice traction rule, and mounts in a vertical world (S43 rule 12): a ground mount jumps with its
 ## species impulse and cannot Wall-Step; any mount puts you down for a ladder or rope and takes you back at the landing.
+## S28 v1.2 · Presence (Will Manifest): the Pressure contest against weaker foes, clashes with a foe's Presence
+## (resolved by the S12 Pressure rule: the harder push presses the other side), levels, Soul upkeep, the requirement.
+func field_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	check(near(CombatRules.pressure_loss(150.0, 100.0), 0.125) and near(CombatRules.pressure_loss(90.0, 100.0), 0.0)
+		and near(CombatRules.pressure_loss(1000.0, 100.0), 0.5), "the Pressure rule: min(50%, 25% x (Pressure / Will - 1)), nothing under the Will")
+	check(near(FieldRules.enemy_will(85, "normal"), 90.0) and near(FieldRules.enemy_will(90, "dungeon_boss"), 95.0 * 1.3)
+		and near(FieldRules.enemy_will(85, "normal", true), 90.0 * 1.15), "a foe's Will is 5 + its Level, x1.15 for elites and x1.3 for bosses")
+	check(near(FieldRules.pressure(90, 5), 95.0 * 1.3) and near(FieldRules.pressure(90, 0), 0.0) and near(FieldRules.pressure(90, 1, 10.0), 95.0 * 1.06 + 10.0),
+		"Pressure = (5 + Level) x (1 + 6% a Presence level) + the pressure stat; no Presence, no Pressure")
+	var k := FieldRules.clash(150.0, 90.0, 120.0, 100.0)
+	check(near(k.loss_a, 0.0) and near(k.loss_b, CombatRules.pressure_loss(150.0, 120.0)) and near(k.boundary, 150.0 / 270.0),
+		"two Presences meet: the harder push presses the other side's own Presence by the Pressure rule, and holds %.0f%% of the ground" % (100.0 * k.boundary))
+	var k2 := FieldRules.clash(100.0, 90.0, 160.0, 100.0)
+	check(near(k2.loss_a, CombatRules.pressure_loss(160.0, 100.0)) and near(k2.loss_b, 0.0), "and the weaker side is the one pressed, never both")
+	var k3 := FieldRules.clash(0.0, 90.0, 120.0, 100.0)
+	check(near(k3.loss_a, CombatRules.pressure_loss(120.0, 90.0)), "with no Presence held, the Will alone stands against a foe's")
+	check(FieldRules.level_for(0.0) == 1 and FieldRules.level_for(450.0) == 5 and FieldRules.level_for(449.0) == 4 and FieldRules.level_for(1e6) == 10,
+		"Presence levels 1-10 by experience (level 5 at 450)")
+	# In a room: Will Manifest 1 and the Presence unlocked.
+	var back := str(c.position.get("room", "lf_village"))
+	Game.world.apply_teleport(c.id, "bg_whispering_bamboo")
+	var realm0: String = c.cultivator.realm_key
+	var fp0: Dictionary = c.cultivator.field_powers.duplicate(true)
+	c.cultivator.realm_key = "will_manifest_1"
+	Game.combat.refresh_stats(c.id)
+	var locked := Game.submit({"type": "toggle_presence"})
+	check(not locked.get("ok", true) and str(locked.get("reason", "")) == "locked", "no Presence before it is unlocked")
+	Unlocks.force_unlock(c.id, "presence")
+	c.pools.soul = c.pools.max_soul
+	Game.room_rt.enemies.clear()
+	var here: Vector2 = Game.actor_state(c.id).plane
+	var weak: EnemyState = Game.enemies.spawn_at("star_jellyfish", here + Vector2(120, 0), 70)
+	var far: EnemyState = Game.enemies.spawn_at("star_jellyfish", here + Vector2(900, 0), 70)
+	var strong: EnemyState = Game.enemies.spawn_at("star_jellyfish", here + Vector2(150, 20), 95)
+	check(Game.submit({"type": "toggle_presence"}).get("ok", false) and Game.field.is_on(c.id), "hold the Presence")
+	var soul0: float = c.pools.soul
+	Game.field.tick(0.5)
+	var p: float = Game.field.pressure_of(c)
+	check(near(FieldAuthority.enemy_loss(weak), CombatRules.pressure_loss(p, FieldRules.enemy_will(70, "normal")), 0.001) and FieldAuthority.enemy_loss(weak) > 0.0,
+		"a weaker foe in reach is pressed: %.1f%% slower and weaker" % (100.0 * FieldAuthority.enemy_loss(weak)))
+	check(near(FieldAuthority.enemy_loss(far), 0.0) and near(FieldAuthority.enemy_loss(strong), 0.0), "not one out of reach, nor one whose Will stands above the Pressure")
+	check(c.pools.soul < soul0 and near(soul0 - c.pools.soul, c.pools.max_soul * 0.0025 * 0.5, 0.01), "holding it costs Soul (0.25% a second)")
+	check(Game.field.presence_xp(c) > 0.0, "and trains it while it presses something")
+	# A foe with a Presence of its own: the two meet and the stronger one presses.
+	strong.def = strong.def.duplicate()
+	strong.def["presence"] = 10
+	strong.level = 120   # well above the test character's trained Will
+	strong.role = "dungeon_boss"
+	Game.field.tick(0.1)
+	var cl: Dictionary = Game.field.clash_of(c.id)
+	var foe_p := FieldAuthority.enemy_pressure(strong)
+	var want := CombatRules.pressure_loss(foe_p, maxf(c.stats.value("will"), p))
+	check(not cl.is_empty() and str(cl.winner) == "foe" and near(Game.field.loss_of(c.id), want, 0.001),
+		"a boss's stronger Presence meets yours at a boundary and presses you (%.1f%%)" % (100.0 * Game.field.loss_of(c.id)))
+	check(near(Game.combat.move_factor(c.id), 1.0 - want, 0.01) or Game.combat.move_factor(c.id) < 1.0, "pressed, you move slower")
+	Game.submit({"type": "toggle_presence", "on": false})
+	Game.field.tick(0.1)
+	check(near(FieldAuthority.enemy_loss(weak), 0.0) and Game.field.clash_of(c.id).is_empty() and Game.field.loss_of(c.id) >= want - 0.001,
+		"let go: the weak foe is free, and the boss now presses your Will alone, at least as hard")
+	# Levels and the Sphere Lord requirement (Presence level 5).
+	var req := {"all": [{"kind": "presence_level_at_least", "value": 5}]}
+	check(not RequirementRules.passes(req, Game.ctx(c)), "Presence level 5 is not met at level %d" % Game.field.presence_level(c))
+	Game.field.apply_presence_xp(c.id, 450.0, "test")
+	check(Game.field.presence_level(c) >= 5 and RequirementRules.passes(req, Game.ctx(c)), "trained to level %d, it is" % Game.field.presence_level(c))
+	# Out of Soul, it falls away.
+	Game.submit({"type": "toggle_presence", "on": true})
+	c.pools.soul = 0.1
+	Game.field.tick(0.5)
+	check(not Game.field.is_on(c.id), "with no Soul left the Presence falls away")
+	Game.room_rt.enemies.clear()
+	c.cultivator.unlocked.erase("presence")
+	c.cultivator.field_powers = fp0
+	c.cultivator.realm_key = realm0
+	Game.combat.refresh_stats(c.id)
+	c.pools.soul = c.pools.max_soul
+	Game.world.apply_teleport(c.id, back)
+
 func ice_mount_suite() -> void:
 	var z := ZoneGeometry.new()
 	z.configure({"bounds": [0, 480, 3000, 480], "surfaces": [
@@ -5630,7 +5710,19 @@ func starsea_suite() -> void:
 	Game.world.apply_teleport(c.id, "ae_shipyard")
 	check(not Game.world.voyages.has(c.id), "leaving the crossing abandons the voyage")
 	Game.world.apply_teleport(c.id, "sw_starsea_launch")
-	check(str(Game.world.set_sail(c, "lantern_run").get("reason", "")) == "planned", "the Lantern Run waits for the next act")
+	# v1.2: the Lantern Run is charted and open (Act III): the storm sloop crosses it to Lanternfall Harbor.
+	var no_chart := Game.world.set_sail(c, "lantern_run")
+	check(c.inventory.count("star_chart_lantern") > 0 or str(no_chart.get("reason", "")) != "planned", "the Lantern Run is no longer only planned")
+	if c.inventory.count("star_chart_lantern") == 0: Game.inventory.apply_add(c.id, "star_chart_lantern", 1, "test")
+	Game.world.apply_teleport(c.id, "sw_starsea_launch")
+	r = Game.world.set_sail(c, "lantern_run")
+	check(r.get("ok", false) and Game.room_rt.room_id == "ss_lantern_crossing" and near(float(Game.room_rt.event.remaining), 90.0 / 1.5, 0.5),
+		"the Lantern Run: a storm sloop crosses in 60 s")
+	Game.room_rt.event.remaining = 0.01
+	Game.tick(0.05)
+	GameEvents.flush()
+	check(Game.room_rt.room_id == "lh_arrival_quay" and str(ContentDB.zone_of_room(Game.room_rt.room_id).get("id", "")) == "lantern_star_field",
+		"and makes port at Lanternfall, in the Lantern Star Field")
 	for k in ["cloud_skiff", "storm_sloop", "star_chart_wreck"]: Game.inventory.apply_remove(c.id, k, 1, "test")
 	# The star wind strips Qi; Spirit holds it in.
 	if c.pools.max_qi > 0.0:

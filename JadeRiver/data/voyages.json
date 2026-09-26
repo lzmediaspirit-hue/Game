@@ -25,9 +25,21 @@
    "id": "lantern_run",
    "name": "The Lantern Run",
    "from": "sw_starsea_launch",
+   "to": "lh_arrival_quay",
+   "to_portal": "",
    "chart": "star_chart_lantern",
-   "planned": true,
-   "planned_text": "The ring points past the edge of the Expanse, toward the Lantern Star Field. That voyage belongs to the next age of your road."
+   "crossing": "ss_lantern_crossing",
+   "base_s": 90
+  },
+  {
+   "id": "lantern_run_home",
+   "name": "The Lantern Run (home)",
+   "from": "lh_arrival_quay",
+   "to": "sw_starsea_launch",
+   "to_portal": "",
+   "chart": "star_chart_lantern",
+   "crossing": "ss_lantern_crossing",
+   "base_s": 90
   }
  ]
 }

@@ -1,22 +1,37 @@
 extends Page
-## Currency exchange (S21/S39): taels ↔ Spirit Stones at a 20% spread.
+## Currency exchange (S21/S39): each zone's clerk trades its everyday currency with the tier below at a 20%
+## spread (rates in currencies.json "exchange"). The pairs come from currencies.json "zone_pairs".
 
 func _init() -> void:
 	title = Tx.t("ui.exchange.exchange")
 	modal = true
 	frame_rect = Rect2(320, 150, 640, 420)
 
+func _pairs() -> Array:
+	var zone := str(ContentDB.zone_of_room(Game.room_rt.room_id if Game.room_rt else "").get("id", "jade_river_valley"))
+	var all: Dictionary = ContentDB.config("currencies").get("zone_pairs", {})
+	return all.get(zone, [["silver_tael", "spirit_stone"]])
+
 func draw_page() -> void:
 	var ch = c()
 	var x := content.position.x
-	currency_pill(Vector2(x, content.position.y + 10), "silver_tael", Game.economy.balance("silver_tael", ch))
-	currency_pill(Vector2(x + 260, content.position.y + 10), "spirit_stone", Game.economy.balance("spirit_stone", ch))
-	para(Rect2(content.position + Vector2(0, 70), Vector2(content.size.x, 60)), Tx.t("ui.exchange.100_taels_buy_1_spirit"), 18, UiKit.MIST)
-	var y := content.position.y + 150
-	for amt in [500, 2500]:
-		btn(Rect2(x, y, 280, 54), Tx.t("ui.exchange.taels_stones") % UiKit.fmt(amt), "ex", ["silver_tael", "spirit_stone", amt])
-		btn(Rect2(x + 300, y, 280, 54), Tx.t("ui.exchange.stones_taels") % (amt / 100), "ex", ["spirit_stone", "silver_tael", amt / 100])
-		y += 66
+	var y := content.position.y + 10
+	var pairs := _pairs()
+	for pair in pairs:
+		var lo := str(pair[0])
+		var hi := str(pair[1])
+		currency_pill(Vector2(x, y), lo, Game.economy.balance(lo, ch))
+		currency_pill(Vector2(x + 300, y), hi, Game.economy.balance(hi, ch))
+		y += 50
+		var rate := float(ContentDB.config("currencies").get("exchange", {}).get(lo + ">" + hi, 0.01))
+		var amounts := [500, 2500] if pairs.size() == 1 else [500]
+		for amt in amounts:
+			var back := maxi(1, int(round(amt * rate)))
+			btn(Rect2(x, y, 280, 50), Tx.t("ui.exchange.pay_for") % [UiKit.fmt(amt), currency_name(lo), currency_name(hi)], "ex", [lo, hi, amt])
+			btn(Rect2(x + 300, y, 280, 50), Tx.t("ui.exchange.pay_for") % [UiKit.fmt(back), currency_name(hi), currency_name(lo)], "ex", [hi, lo, back])
+			y += 60
+		y += 10
+	para(Rect2(Vector2(x, y), Vector2(content.size.x, 60)), Tx.t("ui.exchange.rate_note"), 18, UiKit.MIST)
 
 func on_action(id: String, data) -> void:
 	if id == "ex":

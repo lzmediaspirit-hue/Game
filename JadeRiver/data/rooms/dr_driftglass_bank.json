@@ -1,0 +1,859 @@
+{
+ "schema_version": 1,
+ "id": "dr_driftglass_bank",
+ "zone": "lantern_star_field",
+ "region": "drifting_shoals",
+ "name": "Driftglass Bank",
+ "type": "field",
+ "level_range": [
+  85,
+  87
+ ],
+ "recommended_cp": 1550,
+ "element": "star",
+ "qi_density": 1.7,
+ "hazards": [],
+ "gather_tier": "lantern_low",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "star_shoals",
+ "ground": {
+  "material": "sand",
+  "tint": "#b8b4d8"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    260,
+    620,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    1393,
+    620,
+    280,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    2132,
+    610,
+    240,
+    70
+   ],
+   "height": 300,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    600,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    940,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    2420,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    2760,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_4",
+   "rect": [
+    3100,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    1673,
+    620,
+    459,
+    60
+   ],
+   "height": 200.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "dr_sparrow_reefs",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    510,
+    655
+   ],
+   "item": "star_lotus",
+   "prop": "star_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "master",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100
+  },
+  {
+   "id": "ore_2",
+   "type": "ore_vein",
+   "at": [
+    1921,
+    690
+   ],
+   "item": "driftglass",
+   "prop": "driftglass_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "master",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "ore_3",
+   "type": "ore_vein",
+   "at": [
+    3155,
+    690
+   ],
+   "item": "driftglass",
+   "prop": "driftglass_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "master",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    290,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 86,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 100
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    1423,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 86,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200
+  },
+  {
+   "id": "jar_6",
+   "type": "jar",
+   "at": [
+    1926,
+    900
+   ],
+   "loot": "jar_lantern",
+   "level": 86,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_7",
+   "type": "jar",
+   "at": [
+    2661,
+    930
+   ],
+   "loot": "jar_lantern",
+   "level": 86,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_8",
+   "type": "jar",
+   "at": [
+    3471,
+    930
+   ],
+   "loot": "jar_lantern",
+   "level": 86,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_9",
+   "type": "chest",
+   "at": [
+    2162,
+    645
+   ],
+   "loot": "chest_lantern",
+   "level": 87,
+   "alt": 300
+  },
+  {
+   "id": "insight_star",
+   "type": "insight_stone",
+   "at": [
+    1900,
+    720
+   ],
+   "element": "metal",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "insight_sites"
+     }
+    ]
+   },
+   "locked_text": "A lens of driftglass the tides have set upright. The stars in it do not match the sky."
+  },
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    2342,
+    645
+   ],
+   "loot": "chest_valley",
+   "level": 87,
+   "alt": 300,
+   "surface": "cloud_mv"
+  },
+  {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    2252,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 87,
+   "alt": 300,
+   "surface": "cloud_mv"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "star_jellyfish",
+   "surface": "ground",
+   "points": [
+    [
+     639,
+     779
+    ],
+    [
+     1486,
+     925
+    ],
+    [
+     2381,
+     872
+    ],
+    [
+     3218,
+     872
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 12,
+   "level": [
+    85,
+    87
+   ]
+  },
+  {
+   "enemy": "comet_sparrow",
+   "surface": "ground",
+   "points": [
+    [
+     752,
+     727
+    ],
+    [
+     1538,
+     719
+    ],
+    [
+     2313,
+     762
+    ],
+    [
+     3097,
+     878
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 14,
+   "level": [
+    85,
+    87
+   ]
+  },
+  {
+   "enemy": "star_jellyfish",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    87,
+    87
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    132,
+    630
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    701,
+    636
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    1171,
+    629
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1694,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    2262,
+    632
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2834,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    3249,
+    629
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    3748,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    156,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    421,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    757,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1183,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1490,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1842,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2106,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2434,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2665,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2975,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3191,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3559,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3766,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    194,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    850,
+    633
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    1538,
+    629
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    2033,
+    638
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2666,
+    639
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    3197,
+    634
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    507,
+    900
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    1196,
+    900
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    1923,
+    900
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    2786,
+    900
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    3526,
+    900
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "star_buoy",
+   "at": [
+    700,
+    930
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_cage",
+   "at": [
+    3140,
+    640
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "star_field",
+ "ambience": "wind_ambience",
+ "attunement_required": 28,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    400,
+    725
+   ],
+   "top_at": [
+    400,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "route_1_vine_2",
+   "kind": "vine",
+   "at": [
+    1060,
+    741
+   ],
+   "top_at": [
+    1060,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_1"
+  },
+  {
+   "id": "route_2_vine_3",
+   "kind": "vine",
+   "at": [
+    2540,
+    741
+   ],
+   "top_at": [
+    2540,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_2"
+  },
+  {
+   "id": "route_3_vine_4",
+   "kind": "vine",
+   "at": [
+    2880,
+    741
+   ],
+   "top_at": [
+    2880,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_3"
+  },
+  {
+   "id": "route_4_vine_5",
+   "kind": "vine",
+   "at": [
+    3220,
+    741
+   ],
+   "top_at": [
+    3220,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_4"
+  },
+  {
+   "id": "bridge_0_ladder_6",
+   "kind": "ladder",
+   "at": [
+    1822,
+    715
+   ],
+   "top_at": [
+    1822,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "bridge_0"
+  }
+ ]
+}

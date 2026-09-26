@@ -31,6 +31,9 @@
   },
   "ember_cactus": {
    "10": "ember_cactus"
+  },
+  "star_lotus": {
+   "10": "star_lotus"
   }
  },
  "ages": [
@@ -90,7 +93,8 @@
   "cloudtop_orchid": "cloudtop_orchid_patch",
   "soulbell_flower": "soulbell_flower_patch",
   "frost_lotus": "frost_lotus_patch",
-  "ember_cactus": "ember_cactus_patch"
+  "ember_cactus": "ember_cactus_patch",
+  "star_lotus": "star_lotus_patch"
  },
  "field_cap": {
   "low": "earth",
@@ -105,7 +109,8 @@
   "cloudtop_orchid": 8,
   "soulbell_flower": 8,
   "frost_lotus": 10,
-  "ember_cactus": 10
+  "ember_cactus": 10,
+  "star_lotus": 12
  },
  "qi_growth": 0.5,
  "bed_yield": {
@@ -134,7 +139,8 @@
   "valley_age_cap": 1000,
   "expanse_age_cap": 10000,
   "expanse_zones": [
-   "azure_expanse"
+   "azure_expanse",
+   "lantern_star_field"
   ]
  },
  "spirit_soil": {

@@ -451,6 +451,36 @@
    }
   },
   {
+   "id": "star_lotus",
+   "name": "Star Lotus",
+   "type": "herb",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "star_lotus",
+   "desc": "A lotus of the Drifting Shoals' starlit shallows. A small star sleeps in every seed head. A cold herb: it draws the Extraction band down. Can be eaten raw in need: weak, and hard on the meridians.",
+   "use": [
+    {
+     "kind": "add_soul",
+     "amount": 60
+    }
+   ],
+   "raw": {
+    "toxicity": 30
+   },
+   "family": "soul",
+   "nature": "cold",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ],
+   "herb": {
+    "family": "star_lotus",
+    "age": 10
+   }
+  },
+  {
    "id": "willow_moss_seed",
    "name": "Willow Moss Seed",
    "type": "seed",
@@ -647,6 +677,16 @@
    "stack": 99,
    "icon": "sunglass_ore",
    "desc": "Desert glass the Sunscar sun fused out of the dunes. It holds heat and light like a lamp."
+  },
+  {
+   "id": "driftglass",
+   "name": "Driftglass",
+   "type": "ore",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "driftglass",
+   "desc": "Glass the star tides have worn smooth on the Driftglass Bank. Lantern-makers grind it into lenses."
   },
   {
    "id": "refining_essence",
@@ -1736,6 +1776,36 @@
    "sell": false
   },
   {
+   "id": "star_shard",
+   "name": "Star Shard",
+   "type": "material",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 999,
+   "icon": "star_shard",
+   "desc": "A chip of fallen starlight. Levels your Starsea Endurance jades (Character > Attunement)."
+  },
+  {
+   "id": "jelly_silk",
+   "name": "Jelly Silk",
+   "type": "beast_part",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "jelly_silk",
+   "desc": "A Star Jellyfish's trailing silk. It glows for a day after the jelly dies, and stings for two."
+  },
+  {
+   "id": "comet_plume",
+   "name": "Comet Plume",
+   "type": "beast_part",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "comet_plume",
+   "desc": "A tail feather of a Comet Sparrow, still warm, trailing sparks when it is waved."
+  },
+  {
    "id": "storm_shard",
    "name": "Storm Shard",
    "type": "material",
@@ -2024,6 +2094,84 @@
    "family": "accumulation"
   },
   {
+   "id": "metal_core_low",
+   "name": "Low Metal Core",
+   "type": "core",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "metal_core_low",
+   "desc": "The core of a rank 2-3 metal beast. A metal spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.1,
+    "rank": 2,
+    "element": "metal",
+    "tier": "low"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.1
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "star_core_low",
+   "name": "Low Star Core",
+   "type": "core",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "star_core_low",
+   "desc": "The core of a rank 2-3 star beast. A star spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.1,
+    "rank": 2,
+    "element": "star",
+    "tier": "low"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.1
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "space_core_low",
+   "name": "Low Space Core",
+   "type": "core",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "space_core_low",
+   "desc": "The core of a rank 2-3 space beast. A space spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.1,
+    "rank": 2,
+    "element": "space",
+    "tier": "low"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.1
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
    "id": "fire_core_mid",
    "name": "Mid Fire Core",
    "type": "core",
@@ -2192,6 +2340,84 @@
     "qp_pct": 0.15,
     "rank": 4,
     "element": "soul",
+    "tier": "mid"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.15
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "metal_core_mid",
+   "name": "Mid Metal Core",
+   "type": "core",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "metal_core_mid",
+   "desc": "The core of a rank 4-5 metal beast. A metal spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.15,
+    "rank": 4,
+    "element": "metal",
+    "tier": "mid"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.15
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "star_core_mid",
+   "name": "Mid Star Core",
+   "type": "core",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "star_core_mid",
+   "desc": "The core of a rank 4-5 star beast. A star spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.15,
+    "rank": 4,
+    "element": "star",
+    "tier": "mid"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.15
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "space_core_mid",
+   "name": "Mid Space Core",
+   "type": "core",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "space_core_mid",
+   "desc": "The core of a rank 4-5 space beast. A space spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.15,
+    "rank": 4,
+    "element": "space",
     "tier": "mid"
    },
    "use": [
@@ -2388,6 +2614,84 @@
    "family": "accumulation"
   },
   {
+   "id": "metal_core_high",
+   "name": "High Metal Core",
+   "type": "core",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "metal_core_high",
+   "desc": "The core of a rank 6-7 metal beast. A metal spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.2,
+    "rank": 6,
+    "element": "metal",
+    "tier": "high"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.2
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "star_core_high",
+   "name": "High Star Core",
+   "type": "core",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "star_core_high",
+   "desc": "The core of a rank 6-7 star beast. A star spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.2,
+    "rank": 6,
+    "element": "star",
+    "tier": "high"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.2
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "space_core_high",
+   "name": "High Space Core",
+   "type": "core",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "space_core_high",
+   "desc": "The core of a rank 6-7 space beast. A space spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.2,
+    "rank": 6,
+    "element": "space",
+    "tier": "high"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.2
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
    "id": "fire_core_peak",
    "name": "Peak Fire Core",
    "type": "core",
@@ -2556,6 +2860,84 @@
     "qp_pct": 0.25,
     "rank": 8,
     "element": "soul",
+    "tier": "peak"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.25
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "metal_core_peak",
+   "name": "Peak Metal Core",
+   "type": "core",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "metal_core_peak",
+   "desc": "The core of a rank 8-9 metal beast. A metal spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.25,
+    "rank": 8,
+    "element": "metal",
+    "tier": "peak"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.25
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "star_core_peak",
+   "name": "Peak Star Core",
+   "type": "core",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "star_core_peak",
+   "desc": "The core of a rank 8-9 star beast. A star spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.25,
+    "rank": 8,
+    "element": "star",
+    "tier": "peak"
+   },
+   "use": [
+    {
+     "kind": "add_progress",
+     "pct_of_need": 0.25
+    }
+   ],
+   "raw": {
+    "toxicity": 12
+   },
+   "family": "accumulation"
+  },
+  {
+   "id": "space_core_peak",
+   "name": "Peak Space Core",
+   "type": "core",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "space_core_peak",
+   "desc": "The core of a rank 8-9 space beast. A space spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "core": {
+    "qp_pct": 0.25,
+    "rank": 8,
+    "element": "space",
     "tier": "peak"
    },
    "use": [

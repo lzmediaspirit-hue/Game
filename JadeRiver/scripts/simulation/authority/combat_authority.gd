@@ -107,6 +107,7 @@ func move_factor(actor_id: String) -> float:
 	if is_busy(actor_id): f *= float(ContentDB.stat_const("move.air_attack_factor", 0.8)) if airborne(actor_id) else float(ContentDB.stat_const("move.attack_factor", 0.3))
 	var slow = c.pools.status("slow")
 	if not slow.is_empty(): f *= 1.0 - clampf(float(slow.power), 0.0, 0.5)
+	f *= 1.0 - game.field.loss_of(actor_id)   # S28: pressed by a stronger Presence
 	if float(tl.flinch) > 0.0: f *= 0.2
 	if melody.has(actor_id): f *= float(StatRules.family(c).get("channel", {}).get("move_factor", 0.5))   # S47 v1.1: playing as you walk
 	return f
@@ -1000,7 +1001,8 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 		attack = attack.duplicate()
 		var sm := 1.0 + float(still)
 		attack.mult = [float(attack.mult[0]) * sm, float(attack.mult[1]) * sm]
-	var dealt := float(attune.get(c.id, {}).get("dealt", 1.0))
+	# S28: a stronger Presence bearing down on you takes away part of every blow.
+	var dealt: float = float(attune.get(c.id, {}).get("dealt", 1.0)) * (1.0 - game.field.loss_of(c.id))
 	if dealt != 1.0:
 		attack = attack.duplicate()
 		attack.attunement = float(attack.get("attunement", 1.0)) * dealt
@@ -1291,7 +1293,7 @@ func _enemy_hits_allies(e: EnemyState, attack: Dictionary, ev: Dictionary) -> vo
 		var view := {"x": a.plane.x, "y": a.plane.y, "alt": 0.0, "half_width": a.half_width(), "height": a.height()}
 		if not CombatAuthority.hit_test(ev, e.facing, hitbox, view, attack.get("both_sides", false)): continue
 		var companion: bool = game.companions.is_companion_ally(a)
-		var dmg := maxf(1.0, float(e.stats.attack) * float(attack.get("mult", 1.0)) * 0.8)
+		var dmg := maxf(1.0, float(e.stats.attack) * float(attack.get("mult", 1.0)) * 0.8 * (1.0 - FieldAuthority.enemy_loss(e)))
 		if not companion: dmg *= game.pets.damage_taken_mult(a)
 		a.pools.hp -= dmg
 		a.flash = 0.12
@@ -1325,7 +1327,7 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 		return
 	# S47: a boss's telegraphed "shatter" blow that lands breaks a natal weapon in hand (guarding does not save it).
 	if attack.get("shatter", false): game.inventory.natal_break(c, "shatter")
-	var m := float(attack.get("mult", 1.0)) * float(e.ai.get("enraged", {}).get("damage", 1.0))
+	var m := float(attack.get("mult", 1.0)) * float(e.ai.get("enraged", {}).get("damage", 1.0)) * (1.0 - FieldAuthority.enemy_loss(e))
 	var a := {"damage_type": str(attack.get("damage_type", "physical")), "element": e.element, "mult": [m, m],
 		"range": [0.9, 1.1], "knockback": float(attack.get("knockback", 0)), "attunement": float(attune.get(c.id, {}).get("taken", 1.0))}
 	var guard_pv := pv.duplicate()

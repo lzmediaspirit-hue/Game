@@ -1,0 +1,312 @@
+{
+ "schema_version": 1,
+ "id": "lh_arrival_quay",
+ "zone": "lantern_star_field",
+ "region": "lanternfall_harbor",
+ "name": "Arrival Quay",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.6,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "lantern_harbor",
+ "ground": {
+  "material": "wood",
+  "tint": "#c9b89a"
+ },
+ "spawn_point": [
+  700,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    300,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    610,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    920,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    1230,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "lh_harbor_market",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "dock_lantern",
+   "type": "starsea_dock",
+   "at": [
+    260,
+    700
+   ],
+   "route": "lantern_run_home",
+   "prop": "cloud_skiff"
+  },
+  {
+   "id": "shrine_lh_quay",
+   "type": "shrine",
+   "at": [
+    1700,
+    700
+   ]
+  },
+  {
+   "id": "sign_lh_quay",
+   "type": "signpost",
+   "at": [
+    2380,
+    860
+   ],
+   "text": "Lanternfall Harbor. East: the Harbor Market. Beyond the market, the Drifting Shoals. The skiffs at the pier sail home to the Starsea Launch."
+  },
+  {
+   "id": "npc_harbormaster_lin",
+   "type": "npc",
+   "at": [
+    1100,
+    780
+   ],
+   "npc": "harbormaster_lin",
+   "facing": 1
+  },
+  {
+   "id": "npc_warden_xiao",
+   "type": "npc",
+   "at": [
+    2050,
+    800
+   ],
+   "npc": "warden_xiao",
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [
+  {
+   "id": "sack_pile_1",
+   "prop": "sack_pile",
+   "position": [
+    1260,
+    730
+   ],
+   "front_y": 730,
+   "footprint": [
+    1228,
+    704,
+    64,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  }
+ ],
+ "decor": [
+  {
+   "prop": "mooring_post",
+   "at": [
+    120,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "mooring_post",
+   "at": [
+    420,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "harbor_crane",
+   "at": [
+    900,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "lantern_cage",
+   "at": [
+    1500,
+    650
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "star_buoy",
+   "at": [
+    560,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "crate",
+   "at": [
+    1180,
+    720
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    1000,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    1900,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    2350,
+    662
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "lantern_harbor",
+ "ambience": "wind_ambience",
+ "town": true,
+ "climbables": [
+  {
+   "id": "route_0_ladder_1",
+   "kind": "ladder",
+   "at": [
+    410,
+    741
+   ],
+   "top_at": [
+    410,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_ladder_2",
+   "kind": "ladder",
+   "at": [
+    1030,
+    741
+   ],
+   "top_at": [
+    1030,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_2"
+  },
+  {
+   "id": "route_3_ladder_3",
+   "kind": "ladder",
+   "at": [
+    1340,
+    741
+   ],
+   "top_at": [
+    1340,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "route_3"
+  }
+ ]
+}

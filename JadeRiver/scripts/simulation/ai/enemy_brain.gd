@@ -145,7 +145,7 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 				ai.hit_done = false
 				auth.emit("attack_started", {"actor": str(e.uid), "enemy": true, "attack": attack.id, "windup": float(attack.windup_s), "facing": e.facing})
 				return
-			var speed := float(def.get("ai", {}).get("move_speed", 90)) * (0.6 if e.pools.has_status("slow") else 1.0)
+			var speed := float(def.get("ai", {}).get("move_speed", 90)) * (0.6 if e.pools.has_status("slow") else 1.0) * (1.0 - FieldAuthority.enemy_loss(e))
 			if c != null and e.team == "enemy": speed *= 1.0 - clampf(auth.game.workshop.formation_effect(c, "enemy_slow"), 0.0, 0.9)
 			var want: Vector2 = Vector2.ZERO
 			if keep > 0.0 and absf(d.x) < keep:

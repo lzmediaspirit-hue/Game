@@ -3064,6 +3064,243 @@
    "services": []
   },
   {
+   "id": "harbormaster_lin",
+   "name": "Harbormaster Lin",
+   "title": "Lanternfall Harbor",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 5,
+    "shirt": "vneck",
+    "pants": "cuffed",
+    "shoes": "boots",
+    "hat": "straw",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "indigo",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "Skiffs from the Expanse come in once a generation. You are early.",
+    "Every island out there has a lantern over it. When one goes dark, we stop sending boats."
+   ],
+   "barks": [
+    "Mind the lines!",
+    "Tide's high on the stars tonight."
+   ],
+   "services": [],
+   "tree": "harbormaster_lin"
+  },
+  {
+   "id": "warden_xiao",
+   "name": "Warden Xiao Ning",
+   "title": "Star Warden of the harbour",
+   "outfit": {
+    "body": "light",
+    "hair": "high_pony",
+    "hair_color": 0,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "guan",
+    "cape": "solid",
+    "weapon": "spear",
+    "shirt_dye": "white",
+    "pants_dye": "indigo"
+   },
+   "lines": [
+    "The Wardens keep the lanterns lit. Everything else out here is somebody else's problem, until it isn't.",
+    "Your Will is loud. Out here that is a compliment."
+   ],
+   "barks": [
+    "Eyes on the dark.",
+    "Keep your Presence in, visitor."
+   ],
+   "services": [],
+   "tree": "warden_xiao"
+  },
+  {
+   "id": "clerk_yu",
+   "name": "Clerk Yu",
+   "title": "Harbour exchange",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "guan",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "cloud",
+    "pants_dye": "grey"
+   },
+   "lines": [
+    "A hundred Spirit Stones to the crystal, less the Wardens' fifth. The rate has not moved in four hundred years.",
+    "Star Jade is for savings. Nobody spends Star Jade."
+   ],
+   "barks": [
+    "Next."
+   ],
+   "services": []
+  },
+  {
+   "id": "peddler_ning",
+   "name": "Peddler Ning",
+   "title": "Harbour peddler",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 3,
+    "shirt": "cardigan",
+    "pants": "straight",
+    "shoes": "slippers",
+    "hat": "weimao",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "ochre"
+   },
+   "lines": [
+    "Jelly silk wraps, fresh from the Shoals! They only sting a little."
+   ],
+   "barks": [
+    "Silk! Glowing silk!"
+   ],
+   "services": [
+    "shop:lanternfall_goods"
+   ]
+  },
+  {
+   "id": "apothecary_sang",
+   "name": "Apothecary Sang",
+   "title": "Harbour apothecary",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 4,
+    "shirt": "cardigan",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "jade",
+    "pants_dye": "grey"
+   },
+   "lines": [
+    "Star Lotus clears the soul like cold water clears a cup. Too much and you forget your own name."
+   ],
+   "barks": [
+    "Mind the jars."
+   ],
+   "services": [
+    "shop:lanternfall_apothecary"
+   ]
+  },
+  {
+   "id": "smith_ou",
+   "name": "Smith Ou",
+   "title": "Harbour forge",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 4,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "headband",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "earth",
+    "pants_dye": "earth"
+   },
+   "lines": [
+    "Driftglass lenses, star iron, lantern bronze. I work what the Field gives me."
+   ],
+   "barks": [
+    "*clang*"
+   ],
+   "services": []
+  },
+  {
+   "id": "chandler_shu",
+   "name": "Chandler Shu",
+   "title": "Lantern-maker and scholar",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "guan",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "white",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "A lantern is a sentence with one word in it: stay. Every cage out there says it to a star.",
+    "Read before you fight. It is cheaper."
+   ],
+   "barks": [
+    "Hm. Mind the wicks."
+   ],
+   "services": [],
+   "tree": "chandler_shu"
+  },
+  {
+   "id": "innkeeper_fei",
+   "name": "Innkeeper Fei",
+   "title": "Tidelight Inn",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 2,
+    "shirt": "cardigan",
+    "pants": "straight",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "rose"
+   },
+   "lines": [
+    "Rooms face the lanterns. The ones facing the dark are cheaper."
+   ],
+   "barks": [
+    "Tea's hot."
+   ],
+   "services": []
+  },
+  {
+   "id": "hulk_keeper_bo",
+   "name": "Old Bo",
+   "title": "Keeper of the Moored Hulks",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 5,
+    "shirt": "vneck",
+    "pants": "cuffed",
+    "shoes": "folded",
+    "hat": "straw",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "grey"
+   },
+   "lines": [
+    "These hulls sailed here before your grandfather's grandfather. Now they hold my beans."
+   ],
+   "barks": [
+    "Hm.",
+    "Sit, if you like. The deck doesn't mind."
+   ],
+   "services": [],
+   "tree": "hulk_keeper_bo"
+  },
+  {
    "id": "lan_yue",
    "name": "Lan Yue",
    "title": "Healer",

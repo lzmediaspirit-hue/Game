@@ -1,0 +1,231 @@
+{
+ "schema_version": 1,
+ "id": "lh_tidelight_inn",
+ "zone": "lantern_star_field",
+ "region": "lanternfall_harbor",
+ "name": "Tidelight Inn",
+ "type": "rest",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.6,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "wood"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    1280,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "loft_mv",
+   "rect": [
+    820,
+    630,
+    300,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    120,
+    700
+   ],
+   "to": "lh_harbor_market",
+   "to_portal": "inn_door",
+   "press_up": true,
+   "label": "Harbor Market"
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_innkeeper_fei",
+   "type": "npc",
+   "at": [
+    520,
+    730
+   ],
+   "npc": "innkeeper_fei",
+   "facing": 1
+  }
+ ],
+ "spawns": [],
+ "scenery": [
+  {
+   "id": "table_1",
+   "prop": "table",
+   "position": [
+    700,
+    760
+   ],
+   "front_y": 760,
+   "footprint": [
+    666,
+    734,
+    68,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  },
+  {
+   "id": "table_2",
+   "prop": "table",
+   "position": [
+    1000,
+    760
+   ],
+   "front_y": 760,
+   "footprint": [
+    966,
+    734,
+    68,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  }
+ ],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    360,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    920,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "table",
+   "at": [
+    300,
+    760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "cushion",
+   "at": [
+    250,
+    790
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "cushion",
+   "at": [
+    650,
+    790
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "cushion",
+   "at": [
+    950,
+    790
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "wine_jar",
+   "at": [
+    140,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "counter",
+   "at": [
+    520,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "screen_folding",
+   "at": [
+    860,
+    690
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_wood"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "music": "lantern_harbor",
+ "climbables": [
+  {
+   "id": "loft_mv_ladder_1",
+   "kind": "ladder",
+   "at": [
+    970,
+    735
+   ],
+   "top_at": [
+    970,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "loft_mv"
+  }
+ ]
+}

@@ -412,3 +412,50 @@ def rice_wine():
 
 register(FAM, 'dyed_root', dyed_root, GROUP)
 register(FAM, 'rice_wine', rice_wine, GROUP)
+
+
+# ----------------------------------------------------------------------------- Act III · Lantern Star Field
+from palette import STAR_GLOW  # noqa: E402
+
+NEBULA_TEAL = Ramp(['#0A2436', '#123E52', '#1E6474', '#3A9498', '#8CD4C8'], '#041018')
+NEBULA_MAGENTA = Ramp(['#3A1240', '#6A2470', '#A444A0', '#D67CCC', '#F6C4EE'], '#18061C')
+SEED_HEAD = Ramp(['#443A12', '#766A22', '#B0A23E', '#DCD078', '#F6F0C0'], '#1C1806')
+
+
+def star_lotus():
+    """A pale-gold lotus that opens on the night sea, a tiny star sitting in its seed head."""
+    c = Canvas(32)
+    pad = c.ellipse(16, 25, 13, 3.6)
+    c.put(pad, NEBULA_TEAL, 'ray', base=2)
+    c.put(c.bres(16, 24, 26, 24) & pad, NEBULA_TEAL[1], 'flat', out=NEBULA_TEAL.out)
+    pr = R['starlight']
+    bx, by = 16, 22.5
+    back = [(bx - 1, by, 128, 12.5, 6.2, -0.06), (bx + 1, by, 52, 12.5, 6.2, 0.06), (bx, by + 0.5, 90, 14, 7.0, 0.0)]
+    side = [(bx - 1, by, 160, 11, 5.6, -0.12), (bx + 1, by, 20, 11, 5.6, 0.12)]
+    for (x, y, a, L, W, b) in back + side:
+        m = S.leaf(c, x, y, a, L, W, b, tip_power=0.7)
+        c.put(m, pr, 'ray', base=3, sep=True, sep_col=pr[1])
+        dx, dy = math.cos(math.radians(a)), -math.sin(math.radians(a))
+        tip = c.circle(x + dx * L * 0.92, y + dy * L * 0.92, L * 0.26) & m
+        c.put(tip, pr, 'flat', base=4)
+    # the open seed head with its star, then two low front petals cupping it
+    head = c.ellipse(16, 16.5, 4.2, 2.4)
+    c.put(head, SEED_HEAD, 'ray', base=2, sep=True, sep_col=SEED_HEAD[0])
+    for (x, y) in ((13, 16), (19, 16), (15, 15), (17, 15), (15, 17), (17, 17)):
+        c.put(c.rect(x, y, x, y) & head, SEED_HEAD[0], 'flat', out=SEED_HEAD.out)
+    for (x, y, a) in ((15, 23.5, 116), (17, 23.5, 64)):
+        m = S.leaf(c, x, y, a, 6.2, 5.0, 0.0, tip_power=0.7)
+        c.put(m, pr, 'ray', base=3, sep=True, sep_col=pr[1])
+    c.put(S.star4(c, 16, 16, 1), '#FFFBEA', 'flat', out=pr.out)
+    c.put(c.rect(16, 16, 16, 16), '#FFFFFF', 'flat', out=pr.out)
+    # a nebula ripple on the water in front of the pad
+    ripple = c.ellipse(22, 28.5, 6.5, 1.2) | c.ellipse(9, 28.2, 3.5, 1.0)
+    c.put(ripple & ~pad, NEBULA_MAGENTA, 'flat', base=2, sep=True, sep_col=NEBULA_MAGENTA[0])
+    c.put(ripple & ~pad & (c.xi <= 21), NEBULA_MAGENTA, 'flat', base=3)
+    c.outline()
+    c.glow(STAR_GLOW, (60,))
+    S.sparkle(c, 16, 3, '#FFFFFF', pr[3], 1)
+    return c
+
+
+register(FAM, 'star_lotus', star_lotus, GROUP)

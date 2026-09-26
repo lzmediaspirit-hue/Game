@@ -149,3 +149,76 @@ for _id, _fn in (('ward_thunder', ward_thunder), ('ward_gale', ward_gale), ('war
 for _id, _fn in (('body_jade', body_jade), ('swift_jade', swift_jade), ('essence_jade', essence_jade),
                  ('spirit_jade', spirit_jade), ('insight_jade', insight_jade)):
     register(FAM, _id, _fn, GROUP)
+
+
+# ----------------------------------------------------------------------------- Act III · Lantern Star Field
+# Lantern ward jades: the same bi disc, cut from four stones of the Star Field, each carved with its own sign.
+# Disc values step from near-black (void) through teal (tide) and orange (wick) to pale gold (comet), and each
+# sign has its own shape, so they read apart even in greyscale.
+from pix import dilate4, move  # noqa: E402
+
+TIDE = Ramp(['#082A30', '#10464E', '#1C6E74', '#48A8A4', '#B4EEE2'], '#03141A')
+COMET = Ramp(['#5A3A10', '#9A6A1E', '#D8A83A', '#F3E3A6', '#FFFBEA'], '#241604')
+WICK = Ramp(['#4E1A08', '#8C3212', '#D2622A', '#FFA24E', '#FFE2A0'], '#200A03')
+VOID = Ramp(['#0A0716', '#171028', '#2A1E46', '#4E3A7A', '#9C86D4'], '#040209')
+
+
+def ward_tide():
+    c = Canvas(32)
+    _bi(c, TIDE)
+    band = c.ellipse(16, 16, 11.5, 11.5) & ~c.ellipse(16, 16, 5.5, 5.5)
+    for y0 in (9, 21):   # two rolling waves cut across the disc, above and below the hole
+        w = S.wave_line(c, 4, 28, y0, 1, 7, 1)
+        c.put(move(w, 0, 2) & band, TIDE[0], 'flat')
+        c.put(move(w, 0, 1) & band, TIDE[3], 'flat')
+        c.put(w & band, TIDE[4], 'flat')
+    c.outline()
+    c.glow('#6FE0D8', (40,))
+    return c
+
+
+def ward_comet():
+    c = Canvas(32)
+    _bi(c, COMET)
+    band = c.ellipse(16, 16, 11.5, 11.5) & ~c.ellipse(16, 16, 5.5, 5.5)
+    # a comet streaking up across the disc: star head at the upper right, its tail thinning to the lower left
+    tail = S.taper_curve(c, (5.5, 19.5), (11, 14), (19, 8), 0.8, 2.6)
+    c.put(move(tail, 1, 1) & band & ~tail, COMET[0], 'flat')
+    c.put(tail & band, COMET[4], 'flat')
+    head = S.star4(c, 20, 7, 2) | c.rect(19, 6, 21, 8)
+    c.put(dilate4(head) & ~head & band & ~tail, COMET[0], 'flat')
+    c.put(head & band, '#FFFFFF', 'flat')
+    c.put(c.pts([(8, 22), (11, 20)]) & band, COMET[4], 'flat')
+    c.outline()
+    c.glow('#F3E3A6', (50,))
+    return c
+
+
+def ward_wick():
+    c = Canvas(32)
+    disc = _bi(c, WICK)
+    # a lantern flame rising from the lip of the hole, and its wick
+    fl = S.flame(c, 16, 11.5, 7, 8.5, 0.3) & disc
+    c.put(dilate4(fl) & ~fl & disc, WICK[0], 'flat')
+    c.put(fl, WICK, 'vgrad', base=4, bands=((0.45, 0), (9, -1)))
+    c.put(c.ellipse(16, 8.5, 1.3, 2.0), '#FFFFFF', 'flat')
+    c.put(c.rect(16, 11, 16, 11), WICK[0], 'flat')
+    c.outline()
+    c.glow('#FFB45A', (50,))
+    return c
+
+
+def ward_void():
+    c = Canvas(32)
+    _bi(c, VOID)
+    for (x, y, arm) in ((9, 10, 2), (23, 12, 1), (8, 21, 1), (22, 23, 2), (15, 26, 1)):
+        c.put(S.star4(c, x, y, arm), VOID[4], 'flat')
+        c.put(c.rect(x, y, x, y), '#FFFBEA', 'flat')
+    c.outline()
+    c.glow('#9B78D1', (50,))
+    return c
+
+
+for _id, _fn in (('ward_tide', ward_tide), ('ward_comet', ward_comet), ('ward_wick', ward_wick),
+                 ('ward_void', ward_void)):
+    register(FAM, _id, _fn, GROUP)

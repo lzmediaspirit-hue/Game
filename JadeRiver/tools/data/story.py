@@ -371,6 +371,37 @@ def npcs():
          "Will is not stubbornness. Stubbornness breaks. Will bends and comes back."],
         ["Sit up straight."])
 
+    # Act III · the Lantern Star Field (v1.2, docs/act3_design.md) · Phase A: Lanternfall Harbor and the Drifting Shoals.
+    npc("harbormaster_lin", "Harbormaster Lin", "Lanternfall Harbor", outfit("short_knot", 5, "vneck", "cuffed", "boots", hat="straw",
+        shirt_dye="indigo", pants_dye="ink"),
+        ["Skiffs from the Expanse come in once a generation. You are early.",
+         "Every island out there has a lantern over it. When one goes dark, we stop sending boats."],
+        ["Mind the lines!", "Tide's high on the stars tonight."], tree="harbormaster_lin")
+    npc("warden_xiao", "Warden Xiao Ning", "Star Warden of the harbour", outfit("high_pony", 0, "disciple", "martial", "boots", hat="guan",
+        cape="solid", weapon="spear", shirt_dye="white", pants_dye="indigo"),
+        ["The Wardens keep the lanterns lit. Everything else out here is somebody else's problem, until it isn't.",
+         "Your Will is loud. Out here that is a compliment."],
+        ["Eyes on the dark.", "Keep your Presence in, visitor."], tree="warden_xiao")
+    npc("clerk_yu", "Clerk Yu", "Harbour exchange", outfit("topknot", 1, "scholar", "scholar", "folded", hat="guan", shirt_dye="cloud", pants_dye="grey"),
+        ["A hundred Spirit Stones to the crystal, less the Wardens' fifth. The rate has not moved in four hundred years.",
+         "Star Jade is for savings. Nobody spends Star Jade."], ["Next."])
+    npc("peddler_ning", "Peddler Ning", "Harbour peddler", outfit("ponytail", 3, "cardigan", "straight", "slippers", hat="weimao", shirt_dye="ochre"),
+        ["Jelly silk wraps, fresh from the Shoals! They only sting a little."], ["Silk! Glowing silk!"], services=["shop:lanternfall_goods"])
+    npc("apothecary_sang", "Apothecary Sang", "Harbour apothecary", outfit("long_tied", 4, "cardigan", "scholar", "folded", shirt_dye="jade", pants_dye="grey"),
+        ["Star Lotus clears the soul like cold water clears a cup. Too much and you forget your own name."],
+        ["Mind the jars."], services=["shop:lanternfall_apothecary"])
+    npc("smith_ou", "Smith Ou", "Harbour forge", outfit("short_knot", 4, "sleeveless", "martial", "boots", hat="headband", shirt_dye="earth", pants_dye="earth"),
+        ["Driftglass lenses, star iron, lantern bronze. I work what the Field gives me."], ["*clang*"])
+    npc("chandler_shu", "Chandler Shu", "Lantern-maker and scholar", outfit("flowing", 1, "scholar", "scholar", "folded", hat="guan", cape="solid",
+        shirt_dye="white", pants_dye="ink"),
+        ["A lantern is a sentence with one word in it: stay. Every cage out there says it to a star.",
+         "Read before you fight. It is cheaper."], ["Hm. Mind the wicks."], tree="chandler_shu")
+    npc("innkeeper_fei", "Innkeeper Fei", "Tidelight Inn", outfit("long_tied", 2, "cardigan", "straight", "slippers", shirt_dye="rose"),
+        ["Rooms face the lanterns. The ones facing the dark are cheaper."], ["Tea's hot."])
+    npc("hulk_keeper_bo", "Old Bo", "Keeper of the Moored Hulks", outfit("short_knot", 5, "vneck", "cuffed", "folded", hat="straw", shirt_dye="grey"),
+        ["These hulls sailed here before your grandfather's grandfather. Now they hold my beans."],
+        ["Hm.", "Sit, if you like. The deck doesn't mind."], tree="hulk_keeper_bo")
+
     # Companions (S26)
     npc("lan_yue", "Lan Yue", "Healer", outfit("flowing", 4, "cardigan", "scholar", "slippers", weapon="staff", shirt_dye="indigo"),
         ["Stay close. I can't heal what I can't reach."], ["Careful!"], companion="lan_yue")
@@ -623,6 +654,11 @@ def unlocks():
       [], effects=[{"kind": "upgrade_sect_token"}, {"kind": "send_mail", "template": "elder_token"}], same_stage_ok=True)
     # Act II (S18): the zone's attunement jades open once the broker has explained the storms.
     u("storm_ward", "Storm Ward attunement", all_of(realm("heaven_glimpse_3"), qdone("a_sky_full_of_toll_roads")), "storm_in_the_blood", [],
+      same_stage_ok=True)
+    # Act III (v1.2, S18/S28): the Field's attunement once the Warden has explained the Starsea salt; Presence at Will Manifest 1.
+    u("starsea_endurance", "Starsea Endurance attunement", all_of(realm("sage_sovereign_3"), qdone("crystal_and_jade")), "salt_of_the_stars", [],
+      same_stage_ok=True)
+    u("presence", "Presence", all_of(realm("will_manifest_1"), qdone("will_manifest")), "a_presence_of_ones_own", ["hud:presence"],
       same_stage_ok=True)
     entries("unlocks", U)
     return U
@@ -1592,7 +1628,66 @@ def act2_chapters_15_16():
         offer=["Navigator Sun sells the lesson for the Lantern Run to Sage Sovereigns who ask nicely. Eight readings, and the stars over the Riven Peak are clearest.",
                "Then go to the Launch. The ring points somewhere. I have always wanted to know where."],
         complete=["The ring lit when you walked up. It has not done that in two hundred years.",
-                  "Out there: the Lantern Star Field. Your chart reaches it. Your road does, too, when the time comes. Not today. Soon."])
+                  "Out there: the Lantern Star Field. Your chart reaches it. Your road does, too. The ring is ready when you are."],
+        next="the_lantern_run")
+
+
+def sage_crystals(n):
+    return {"kind": "grant_currency", "currency": "sage_crystal", "amount": n}
+
+
+def act3_chapter17():
+    """Act III · chapter 17, Lanternfall (Sage Sovereign 3 - Will Manifest 1; docs/act3_design.md)."""
+    quest("the_lantern_run", "The Lantern Run", "main", "launch_warden_he", [
+        o("reach_room", "Sail the Lantern Run from the Starsea Launch", room="lh_arrival_quay"),
+        o("talk_to", "Report to the harbourmaster on the Arrival Quay", npc="harbormaster_lin"),
+    ], [sage_crystals(5), fx("codex", entry="lanternfall_harbor")], hand_in="", auto_accept=True,
+        requires=all_of(qdone("stars_beyond"), realm("sage_sovereign_3")), chapter="17", target_room="sw_starsea_launch",
+        offer=["Your chart ends at a field of lanterns. The ring has lit for you. Sail, and tell the harbour there who sent you."],
+        complete=["A skiff from the Expanse, with a Presence like a bell. Welcome to Lanternfall, the last lit harbour on the Run.",
+                  "You'll want Sage Crystals, not those stones. And you'll want to meet the Wardens before the Shoals meet you."],
+        next="crystal_and_jade")
+    quest("crystal_and_jade", "Crystal and Jade", "main", "harbormaster_lin", [
+        o("talk_to", "Find the exchange clerk in the Harbor Market", npc="clerk_yu"),
+        o("use_system", "Change Spirit Stones for Sage Crystals at the exchange counter", system="exchange"),
+        o("talk_to", "Meet the Star Warden on the Arrival Quay", npc="warden_xiao"),
+    ], [sage_crystals(8), fx("codex", entry="sage_crystals")], hand_in="warden_xiao", requires=all_of(qdone("the_lantern_run")), chapter="17",
+        target_room="lh_harbor_market",
+        offer=["Clerk Yu at the counter will turn your stones into something the Field respects. Then find Warden Xiao on the quay.",
+               "The Wardens keep the lanterns. Everyone out here listens to them, even the pirates, a little."],
+        complete=["You are the one the ring lit for. Good. We could use a Presence that loud.",
+                  "Out there the Starsea salts the blood of anyone the stars do not know. I will teach you to answer it."],
+        next="salt_of_the_stars")
+    quest("salt_of_the_stars", "Salt of the Stars", "main", "warden_xiao", [
+        o("use_system", "Raise your Starsea Endurance jades (Character, Attunement tab)", 4, system="attune_jade"),
+        o("kill", "Thin the Star Jellyfish in the Jellyfish Shallows", 6, enemy="star_jellyfish"),
+        o("collect", "Gather Star Shards", 12, item="star_shard", consume=False),
+    ], [sage_crystals(10), item("will_tempering_pill", 2), fx("codex", entry="starsea_endurance")], offered_by_unlock=True, chapter="17",
+        target_room="dr_jellyfish_shallows", on_accept=[item("star_shard", 16)],
+        offer=["Four jades: Tide, Comet, Wick and Void. Feed them the shards the fallen starlight leaves in the Field's beasts.",
+               "The more they drink, the less the Starsea drinks of you. The jellyfish in the Shallows carry plenty. They sting."],
+        complete=["Your blood stops fizzing when the stars look at it. Good. The deeper islands ask for more.",
+                  "Now your realm. The Expanse could not hold a Will Manifest. The Field can."],
+        next="will_manifest")
+    quest("will_manifest", "Will Manifest", "main", "warden_xiao", [
+        o("reach_realm", "Break through to Will Manifest 1 (Max Soul 1,500, the Presence Trial passed)", realm="will_manifest_1"),
+    ], [sage_crystals(15), fx("codex", entry="will_manifest")], requires=all_of(qdone("salt_of_the_stars")), chapter="17",
+        target_room="dr_moored_hulks",
+        offer=["You carried the key out of the Trial Hall. The Field is big enough for the door. Sit somewhere quiet and turn it.",
+               "Old Bo's hulks are quiet. The lanterns over them are steady."],
+        complete=["There. Your Will has a shape now, and everything near you can feel it.",
+                  "A shape you have not learned to hold. That comes next."],
+        next="a_presence_of_ones_own")
+    quest("a_presence_of_ones_own", "A Presence of One's Own", "main", "warden_xiao", [
+        o("use_system", "Hold your Presence (the Presence button, or G)", system="presence"),
+        o("kill", "Hunt Comet Sparrows on the Sparrow Reefs while you press them", 5, enemy="comet_sparrow"),
+        o("reach_presence", "Train your Presence to level 2", level=2),
+    ], [sage_crystals(20), item("will_tempering_pill", 2), fx("codex", entry="presence")], offered_by_unlock=True, chapter="17",
+        target_room="dr_sparrow_reefs",
+        offer=["Hold your Will outside you, like a lantern held out on a pole. Weaker things slow in its light and hit softer.",
+               "It costs Soul while you hold it. Train it on the sparrows: they are fast enough to show you the difference."],
+        complete=["Level two. It will grow as you use it: level five is what the Wardens ask of anyone who wants a Sphere.",
+                  "When a foe has a Presence of its own, you will feel the two meet. Whoever presses harder wins the ground between."])
 
 
 def act2_starsea_side_quests():
@@ -1962,6 +2057,21 @@ def dialogue():
           "mount": {"lines": ["Cloud Stride, eh? Then a big enough friend can carry you.", "This crane has watched you for weeks. Hold out your hand."],
                     "choices": [{"text": "Hold out a hand", "effects": [{"kind": "grant_pet", "species": "jade_crane"}, {"kind": "set_flag", "flag": "mount_bonded"}], "close": True},
                                 {"text": "Not yet", "close": True}]}})
+    # Act III (v1.2): flavour once each has nothing to give.
+    for tid, lines in [
+        ("harbormaster_lin", ["Twenty-eight lanterns lit, last count. There were forty when my mother kept this quay.",
+                              "The Wardens say the Tide takes a lantern the way rust takes a nail. Slowly, then all at once."]),
+        ("warden_xiao", ["A Presence is a question you ask the air: who here is stronger than me? Weaker things answer by going slow.",
+                         "Another Presence answers back. Then it is a matter of who presses harder, and who holds."]),
+        ("chandler_shu", ["The first Wardens were scholars. They wrote the word for 'stay' on every cage, and the stars stayed.",
+                          "A cultivator who reads is harder to fool, and much harder to Hollow. Remember that."]),
+        ("hulk_keeper_bo", ["That hull? A Nine Peaks junk, three hundred years dead. Her captain chose to stay. Most of them do.",
+                            "Plant something, if you like. Things grow strange under the lanterns, but they grow."]),
+    ]:
+        # A tree entry outranks quest offers, so each speaks only after its last quest of the act so far.
+        done_q = {"warden_xiao": "a_presence_of_ones_own"}.get(tid, "crystal_and_jade")
+        tree(tid, [{"requires": all_of(qdone(done_q)), "node": "talk"}],
+             {"talk": {"lines": lines, "choices": [{"text": "Thank you.", "close": True}]}})
     for tid, t in trees.items():
         write(tid + ".json", {"trees": {tid: t}}, folder=os.path.join(DATA, "dialogue"))
 
@@ -2048,6 +2158,11 @@ def codex():
         {"id": "skyport_wreck", "title": "The Skyport Wreck", "body": "An old sky-port that broke on the edge of the Starsea. Its piers hang over nothing; the pirates of the comet sails made a nest of its biggest hull."},
         {"id": "sect_war", "title": "The War at the Gate", "body": "When the comet sails struck the Alliance Gate, every peak sent its best. A valley cultivator held the line beside them."},
         {"id": "lus_crossing", "title": "Lu's Crossing", "body": "Five pages across the Expanse: the port, the lake, the tomb, the canyons, the peak. Lu sat the Presence Trial, felt himself go thin, and chose the river instead."},
+        {"id": "lanternfall_harbor", "title": "Lanternfall Harbor", "body": "The last lit harbour on the Lantern Run: a town on a drifting island, under the biggest lantern star in the Field. Skiffs from the Expanse arrive once a generation."},
+        {"id": "sage_crystals", "title": "Sage Crystals and Star Jade", "body": "The Lantern Star Field trades in Sage Crystals and saves in Star Jade. A hundred Spirit Stones buy a crystal at the harbour exchange, less the Wardens' fifth."},
+        {"id": "starsea_endurance", "title": "Starsea Endurance", "body": "The Starsea salts the blood of anyone the stars do not know. Four jades, fed with star shards, answer it. Each island of the Field asks for more."},
+        {"id": "will_manifest", "title": "Will Manifest", "body": "The realm where Will takes a shape outside the body. Only a land as wide as the Lantern Star Field can hold it; its first gift is a Presence."},
+        {"id": "presence", "title": "Presence", "body": "A Will held out into the world. Weaker foes in its reach slow and lose strength (the Pressure contest). Two Presences meet at a boundary, and the one that presses harder takes the ground between. It costs Soul while it is held, and grows with use."},
         {"id": "presence_trial", "title": "The Presence Trial", "body": "Eight seats of the Nine Peaks press their Presence on one cultivator. Whoever stays themselves under it holds the key to Will Manifest."},
         {"id": "lantern_star_field", "title": "The Lantern Star Field", "body": "Past the Starsea Launch: a field of lanterns hanging in the dark. No one hangs them. They are simply there, waiting for the next age of your road."},
         # Gap report G1: what pills cost, the heart, the ledger, fire and furnace.
@@ -2194,6 +2309,7 @@ def build():
     n1 = len(Q)
     act2_side_quests()
     act2_starsea_side_quests()
+    act3_chapter17()
     for q in Q[n1:]:
         q.setdefault("qp", "act2_side")
     entries("quests", Q)

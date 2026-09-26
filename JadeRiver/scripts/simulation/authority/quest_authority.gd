@@ -19,6 +19,7 @@ const EVENT_KINDS := {
 	"loot_picked": ["use_system"], "portal_used": ["use_portal"], "bottleneck_viewed": ["open_page"], "qp_milestone": ["reach_progress"],
 	"sect_rank_changed": ["reach_rank"], "mail_read": ["read_mail"], "quick_use_changed": ["use_system"], "pill_used": ["use_item"],
 	"art_used": ["use_system"],   # S43 movement arts (double jump, Wall-Step, glide...) count as the system of that name
+	"presence_leveled": ["reach_presence"],   # S28 v1.2: a Presence trained to a level
 }
 
 func intents() -> Array:
@@ -318,6 +319,7 @@ func _recount(c, qid: String) -> void:
 				for t in c.cultivator.mastery: best = maxi(best, int(c.cultivator.mastery[t].get("tier", 0)))
 				v = 1 if best >= int(o.get("tier", 1)) else 0
 			"equip_slot": v = 1 if c.inventory.equipped.get(str(o.slot)) != null else v
+			"reach_presence": v = 1 if game.field.presence_level(c) >= int(o.get("level", 1)) else 0
 		if v != int(st.progress[i]):
 			st.progress[i] = v
 			changed = true
@@ -381,7 +383,7 @@ func _on_event(p: Dictionary, ev: String) -> void:
 			if not _objective_open(c, def, st, i): continue
 			var need := int(o.get("count", 1))
 			var v := int(st.progress[i])
-			if o.kind in ["collect", "deliver", "reach_realm", "reach_body_level", "set_flag", "join_sect", "reach_rank", "reach_mastery", "equip_slot"]:
+			if o.kind in ["collect", "deliver", "reach_realm", "reach_body_level", "set_flag", "join_sect", "reach_rank", "reach_mastery", "equip_slot", "reach_presence"]:
 				continue
 			if v >= need: continue
 			var inc := _match(c, o, p, ev)

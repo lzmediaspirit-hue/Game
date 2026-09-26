@@ -306,9 +306,21 @@ func currency_pill(pos: Vector2, currency: String, amount: int) -> float:
 	var w := UiKit.text_width(s, 18) + 52
 	var r := Rect2(pos, Vector2(w, 34))
 	draw_style_box(UiKit.style("currency_pill"), r)
-	icon_at(Rect2(pos + Vector2(8, 5), Vector2(24, 24)), {"silver_tael": "coin", "spirit_stone": "spirit_stone", "contribution": "contribution"}.get(currency, "coin"))
+	icon_at(Rect2(pos + Vector2(8, 5), Vector2(24, 24)), currency_icon(currency))
 	text(pos + Vector2(38, 24), s, 18, UiKit.PALE_GOLD)
 	return w
+
+## The icon of a currency (currencies.json; taels show the silver coin).
+static func currency_icon(currency: String) -> String:
+	if currency == "silver_tael": return "coin"
+	for cdef in ContentDB.config("currencies").get("currencies", []):
+		if str(cdef.get("id", "")) == currency: return str(cdef.get("icon", "coin"))
+	return "coin"
+
+static func currency_name(currency: String) -> String:
+	for cdef in ContentDB.config("currencies").get("currencies", []):
+		if str(cdef.get("id", "")) == currency: return str(cdef.get("name", currency))
+	return currency
 
 ## Scrolling list: calls draw_row(i, rect) for rows inside `rect`; drag or wheel to scroll.
 func list(area: String, rect: Rect2, count: int, row_h: float, draw_row: Callable) -> void:

@@ -2734,6 +2734,85 @@
    ]
   },
   {
+   "id": "lanternfall_goods",
+   "name": "Peddler Ning's Silk and Sundries",
+   "currency": "sage_crystal",
+   "buys_all": true,
+   "stock": [
+    {
+     "item": "healing_pill"
+    },
+    {
+     "item": "qi_restoration_pill"
+    },
+    {
+     "item": "return_charm"
+    },
+    {
+     "item": "escape_talisman"
+    },
+    {
+     "item": "revival_talisman"
+    },
+    {
+     "item": "rice_ball"
+    },
+    {
+     "item": "will_tempering_pill",
+     "price": 6
+    }
+   ],
+   "rotation": {
+    "count": 2,
+    "pool": [
+     {
+      "item": "star_shard",
+      "price": 1
+     },
+     {
+      "item": "manual_page",
+      "price": 2
+     },
+     {
+      "item": "spirit_egg",
+      "price": 4
+     },
+     {
+      "item": "jelly_silk",
+      "price": 2
+     }
+    ]
+   }
+  },
+  {
+   "id": "lanternfall_apothecary",
+   "name": "Apothecary Sang's Jars",
+   "currency": "sage_crystal",
+   "stock": [
+    {
+     "item": "star_lotus",
+     "price": 5
+    },
+    {
+     "item": "ember_cactus",
+     "price": 3
+    },
+    {
+     "item": "frost_lotus",
+     "price": 3
+    },
+    {
+     "item": "clear_mind_pill"
+    },
+    {
+     "item": "soul_soothing_pill"
+    },
+    {
+     "item": "calm_incense"
+    }
+   ]
+  },
+  {
    "id": "navigator",
    "name": "Navigator Sun's Charts",
    "currency": "spirit_stone",

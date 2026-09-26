@@ -1,0 +1,512 @@
+{
+ "schema_version": 1,
+ "id": "lh_harbor_market",
+ "zone": "lantern_star_field",
+ "region": "lanternfall_harbor",
+ "name": "Harbor Market",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.6,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [
+  "gather"
+ ],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "lantern_harbor",
+ "ground": {
+  "material": "stone",
+  "tint": "#cfc2a8"
+ },
+ "spawn_point": [
+  300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "star_chandlery",
+   "rect": [
+    420,
+    598,
+    400,
+    92
+   ],
+   "height": 168,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "village_store"
+  },
+  {
+   "id": "tidelight_inn",
+   "rect": [
+    1290,
+    598,
+    380,
+    92
+   ],
+   "height": 158,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "village_house"
+  },
+  {
+   "id": "harbor_warehouse",
+   "rect": [
+    3080,
+    598,
+    440,
+    92
+   ],
+   "height": 168,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "warehouse"
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    900,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    2050,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    2360,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    2670,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    1670,
+    636,
+    380,
+    60
+   ],
+   "height": 88.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_1",
+   "rect": [
+    1120,
+    636,
+    170,
+    60
+   ],
+   "height": 88.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "chandlery_door",
+   "type": "door",
+   "at": [
+    650,
+    704
+   ],
+   "to": "lh_star_chandlery",
+   "to_portal": "entry",
+   "press_up": true,
+   "facade": true,
+   "label": "Star Chandlery"
+  },
+  {
+   "id": "inn_door",
+   "type": "door",
+   "at": [
+    1520,
+    704
+   ],
+   "to": "lh_tidelight_inn",
+   "to_portal": "entry",
+   "press_up": true,
+   "facade": true,
+   "label": "Tidelight Inn"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "lh_arrival_quay",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "sealed",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "dr_jellyfish_shallows",
+   "to_portal": "west",
+   "requires": {
+    "any": [
+     {
+      "kind": "quest_active",
+      "quest": "salt_of_the_stars"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "salt_of_the_stars"
+     }
+    ]
+   },
+   "locked_text": "A Star Warden at the gate: \"The Shoals thin the blood of anyone the stars don't know yet. See Warden Xiao first.\""
+  }
+ ],
+ "objects": [
+  {
+   "id": "stone_lanternfall",
+   "type": "teleport_stone",
+   "at": [
+    2100,
+    880
+   ],
+   "stone": "lanternfall"
+  },
+  {
+   "id": "board_lh",
+   "type": "notice_board",
+   "at": [
+    800,
+    700
+   ]
+  },
+  {
+   "id": "storage_lh",
+   "type": "storage_chest",
+   "at": [
+    1220,
+    710
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "storage"
+     }
+    ]
+   },
+   "locked_text": "The storehouse is locked."
+  },
+  {
+   "id": "exchange_lh",
+   "type": "inspect",
+   "at": [
+    2000,
+    720
+   ],
+   "prop": "counter",
+   "text": "The harbour exchange: Spirit Stones for Sage Crystals, Sage Crystals for Star Jade, at the Wardens' rate.",
+   "open_page": "exchange",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "currency_exchange"
+     }
+    ]
+   },
+   "locked_text": "The exchange clerk ignores you."
+  },
+  {
+   "id": "npc_clerk_yu",
+   "type": "npc",
+   "at": [
+    1960,
+    780
+   ],
+   "npc": "clerk_yu",
+   "facing": 1
+  },
+  {
+   "id": "npc_peddler_ning",
+   "type": "npc",
+   "at": [
+    1000,
+    830
+   ],
+   "npc": "peddler_ning",
+   "facing": 1
+  },
+  {
+   "id": "npc_apothecary_sang",
+   "type": "npc",
+   "at": [
+    2300,
+    830
+   ],
+   "npc": "apothecary_sang",
+   "facing": -1
+  },
+  {
+   "id": "npc_smith_ou",
+   "type": "npc",
+   "at": [
+    2750,
+    830
+   ],
+   "npc": "smith_ou",
+   "facing": 1
+  },
+  {
+   "id": "sign_lh_market",
+   "type": "signpost",
+   "at": [
+    3700,
+    860
+   ],
+   "text": "East: the Drifting Shoals (Lv 82-87, Starsea Endurance 20-28) · West: the Arrival Quay."
+  }
+ ],
+ "spawns": [],
+ "scenery": [
+  {
+   "id": "barrel_1",
+   "prop": "barrel",
+   "position": [
+    3080,
+    740
+   ],
+   "front_y": 740,
+   "footprint": [
+    3066,
+    714,
+    28,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  }
+ ],
+ "decor": [
+  {
+   "prop": "market_stall",
+   "at": [
+    1000,
+    780
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "market_stall",
+   "at": [
+    2300,
+    780
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "market_stall",
+   "at": [
+    2750,
+    780
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "lantern_string",
+   "at": [
+    1000,
+    560
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "lantern_string",
+   "at": [
+    2500,
+    560
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    260,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    1900,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    3050,
+    662
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "lantern_harbor",
+ "ambience": "town_ambience",
+ "town": true,
+ "climbables": [
+  {
+   "id": "star_chandlery_ladder_1",
+   "kind": "ladder",
+   "at": [
+    580,
+    725
+   ],
+   "top_at": [
+    580,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 168,
+   "bottom": "ground",
+   "top": "star_chandlery"
+  },
+  {
+   "id": "tidelight_inn_ladder_2",
+   "kind": "ladder",
+   "at": [
+    1480,
+    725
+   ],
+   "top_at": [
+    1480,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 158,
+   "bottom": "ground",
+   "top": "tidelight_inn"
+  },
+  {
+   "id": "harbor_warehouse_ladder_3",
+   "kind": "ladder",
+   "at": [
+    3300,
+    725
+   ],
+   "top_at": [
+    3300,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 168,
+   "bottom": "ground",
+   "top": "harbor_warehouse"
+  },
+  {
+   "id": "route_3_ladder_5",
+   "kind": "ladder",
+   "at": [
+    2780,
+    741
+   ],
+   "top_at": [
+    2780,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_3"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "harbor_warehouse_step_4",
+   "rect": [
+    3450,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "crate"
+  }
+ ]
+}

@@ -1,0 +1,35 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "hulk_keeper_bo": {
+   "id": "hulk_keeper_bo",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "crystal_and_jade"
+       }
+      ]
+     },
+     "node": "talk"
+    }
+   ],
+   "nodes": {
+    "talk": {
+     "lines": [
+      "That hull? A Nine Peaks junk, three hundred years dead. Her captain chose to stay. Most of them do.",
+      "Plant something, if you like. Things grow strange under the lanterns, but they grow."
+     ],
+     "choices": [
+      {
+       "text": "Thank you.",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

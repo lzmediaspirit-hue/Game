@@ -59,6 +59,13 @@ func _overview(ch) -> void:
 		[Tx.t("ui.cultivation.toxicity"), "%d / %d" % [int(cu.toxicity), int(ch.stats.value("toxicity_tolerance"))]],
 		[Tx.t("ui.cultivation.injuries"), Tx.t("ui.cultivation.none") if cu.injuries.is_empty() else ", ".join(cu.injuries.keys()).capitalize()]]
 	if cu.energy_type == "true_qi": rows.append([Tx.t("ui.cultivation.purity"), Tx.t("ui.cultivation.grade") % cu.purity])
+	# S28 v1.2: the Presence level and the experience toward the next (Will Manifest on).
+	var pl: int = Game.field.presence_level(ch)
+	if pl > 0:
+		var steps: Array = ContentDB.stat_const("presence.xp_levels", [0])
+		var xp: float = Game.field.presence_xp(ch)
+		rows.append([Tx.t("ui.cultivation.presence"), Tx.t("ui.cultivation.presence_level") % [pl, int(xp), int(steps[pl])] if pl < steps.size()
+			else Tx.t("ui.cultivation.presence_max") % pl])
 	if method.is_empty() and cu.realm_key == "mortal": rows[0][1] = Tx.t("ui.cultivation.not_yet_learned")
 	# Rows share the space above the buttons (Purity joins them at Cloud Stride).
 	var step := minf(32.0, (left.end.y - 92.0 - y) / float(rows.size()))

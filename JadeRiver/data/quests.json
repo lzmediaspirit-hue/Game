@@ -8430,7 +8430,7 @@
    ],
    "complete_text": [
     "The ring lit when you walked up. It has not done that in two hundred years.",
-    "Out there: the Lantern Star Field. Your chart reaches it. Your road does, too, when the time comes. Not today. Soon."
+    "Out there: the Lantern Star Field. Your chart reaches it. Your road does, too. The ring is ready when you are."
    ],
    "requires": {
     "all": [
@@ -8442,6 +8442,7 @@
    },
    "chapter": "16",
    "target_room": "sw_starsea_launch",
+   "next": "the_lantern_run",
    "qp": "act2_main"
   },
   {
@@ -9256,6 +9257,290 @@
     ]
    },
    "target_room": "rf_hermits_ice_cave",
+   "qp": "act2_side"
+  },
+  {
+   "id": "the_lantern_run",
+   "name": "The Lantern Run",
+   "kind": "main",
+   "giver": "launch_warden_he",
+   "hand_in": "",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Sail the Lantern Run from the Starsea Launch",
+     "count": 1,
+     "room": "lh_arrival_quay"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Report to the harbourmaster on the Arrival Quay",
+     "count": 1,
+     "npc": "harbormaster_lin"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 5
+    },
+    {
+     "kind": "codex",
+     "entry": "lanternfall_harbor"
+    }
+   ],
+   "offer_text": [
+    "Your chart ends at a field of lanterns. The ring has lit for you. Sail, and tell the harbour there who sent you."
+   ],
+   "complete_text": [
+    "A skiff from the Expanse, with a Presence like a bell. Welcome to Lanternfall, the last lit harbour on the Run.",
+    "You'll want Sage Crystals, not those stones. And you'll want to meet the Wardens before the Shoals meet you."
+   ],
+   "auto_accept": true,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "stars_beyond"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_3"
+     }
+    ]
+   },
+   "chapter": "17",
+   "target_room": "sw_starsea_launch",
+   "next": "crystal_and_jade",
+   "qp": "act2_side"
+  },
+  {
+   "id": "crystal_and_jade",
+   "name": "Crystal and Jade",
+   "kind": "main",
+   "giver": "harbormaster_lin",
+   "hand_in": "warden_xiao",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Find the exchange clerk in the Harbor Market",
+     "count": 1,
+     "npc": "clerk_yu"
+    },
+    {
+     "kind": "use_system",
+     "text": "Change Spirit Stones for Sage Crystals at the exchange counter",
+     "count": 1,
+     "system": "exchange"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Meet the Star Warden on the Arrival Quay",
+     "count": 1,
+     "npc": "warden_xiao"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 8
+    },
+    {
+     "kind": "codex",
+     "entry": "sage_crystals"
+    }
+   ],
+   "offer_text": [
+    "Clerk Yu at the counter will turn your stones into something the Field respects. Then find Warden Xiao on the quay.",
+    "The Wardens keep the lanterns. Everyone out here listens to them, even the pirates, a little."
+   ],
+   "complete_text": [
+    "You are the one the ring lit for. Good. We could use a Presence that loud.",
+    "Out there the Starsea salts the blood of anyone the stars do not know. I will teach you to answer it."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_lantern_run"
+     }
+    ]
+   },
+   "chapter": "17",
+   "target_room": "lh_harbor_market",
+   "next": "salt_of_the_stars",
+   "qp": "act2_side"
+  },
+  {
+   "id": "salt_of_the_stars",
+   "name": "Salt of the Stars",
+   "kind": "main",
+   "giver": "warden_xiao",
+   "hand_in": "warden_xiao",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Raise your Starsea Endurance jades (Character, Attunement tab)",
+     "count": 4,
+     "system": "attune_jade"
+    },
+    {
+     "kind": "kill",
+     "text": "Thin the Star Jellyfish in the Jellyfish Shallows",
+     "count": 6,
+     "enemy": "star_jellyfish"
+    },
+    {
+     "kind": "collect",
+     "text": "Gather Star Shards",
+     "count": 12,
+     "item": "star_shard",
+     "consume": false
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 10
+    },
+    {
+     "kind": "grant_item",
+     "item": "will_tempering_pill",
+     "count": 2
+    },
+    {
+     "kind": "codex",
+     "entry": "starsea_endurance"
+    }
+   ],
+   "offer_text": [
+    "Four jades: Tide, Comet, Wick and Void. Feed them the shards the fallen starlight leaves in the Field's beasts.",
+    "The more they drink, the less the Starsea drinks of you. The jellyfish in the Shallows carry plenty. They sting."
+   ],
+   "complete_text": [
+    "Your blood stops fizzing when the stars look at it. Good. The deeper islands ask for more.",
+    "Now your realm. The Expanse could not hold a Will Manifest. The Field can."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "17",
+   "target_room": "dr_jellyfish_shallows",
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "star_shard",
+     "count": 16
+    }
+   ],
+   "next": "will_manifest",
+   "qp": "act2_side"
+  },
+  {
+   "id": "will_manifest",
+   "name": "Will Manifest",
+   "kind": "main",
+   "giver": "warden_xiao",
+   "hand_in": "warden_xiao",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_realm",
+     "text": "Break through to Will Manifest 1 (Max Soul 1,500, the Presence Trial passed)",
+     "count": 1,
+     "realm": "will_manifest_1"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 15
+    },
+    {
+     "kind": "codex",
+     "entry": "will_manifest"
+    }
+   ],
+   "offer_text": [
+    "You carried the key out of the Trial Hall. The Field is big enough for the door. Sit somewhere quiet and turn it.",
+    "Old Bo's hulks are quiet. The lanterns over them are steady."
+   ],
+   "complete_text": [
+    "There. Your Will has a shape now, and everything near you can feel it.",
+    "A shape you have not learned to hold. That comes next."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "salt_of_the_stars"
+     }
+    ]
+   },
+   "chapter": "17",
+   "target_room": "dr_moored_hulks",
+   "next": "a_presence_of_ones_own",
+   "qp": "act2_side"
+  },
+  {
+   "id": "a_presence_of_ones_own",
+   "name": "A Presence of One's Own",
+   "kind": "main",
+   "giver": "warden_xiao",
+   "hand_in": "warden_xiao",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Hold your Presence (the Presence button, or G)",
+     "count": 1,
+     "system": "presence"
+    },
+    {
+     "kind": "kill",
+     "text": "Hunt Comet Sparrows on the Sparrow Reefs while you press them",
+     "count": 5,
+     "enemy": "comet_sparrow"
+    },
+    {
+     "kind": "reach_presence",
+     "text": "Train your Presence to level 2",
+     "count": 1,
+     "level": 2
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 20
+    },
+    {
+     "kind": "grant_item",
+     "item": "will_tempering_pill",
+     "count": 2
+    },
+    {
+     "kind": "codex",
+     "entry": "presence"
+    }
+   ],
+   "offer_text": [
+    "Hold your Will outside you, like a lantern held out on a pole. Weaker things slow in its light and hit softer.",
+    "It costs Soul while you hold it. Train it on the sparrows: they are fast enough to show you the difference."
+   ],
+   "complete_text": [
+    "Level two. It will grow as you use it: level five is what the Wardens ask of anyone who wants a Sphere.",
+    "When a foe has a Presence of its own, you will feel the two meet. Whoever presses harder wins the ground between."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "17",
+   "target_room": "dr_sparrow_reefs",
    "qp": "act2_side"
   }
  ]

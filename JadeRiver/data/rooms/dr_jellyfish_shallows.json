@@ -1,0 +1,711 @@
+{
+ "schema_version": 1,
+ "id": "dr_jellyfish_shallows",
+ "zone": "lantern_star_field",
+ "region": "drifting_shoals",
+ "name": "Jellyfish Shallows",
+ "type": "field",
+ "level_range": [
+  82,
+  84
+ ],
+ "recommended_cp": 1496,
+ "element": "star",
+ "qi_density": 1.7,
+ "hazards": [],
+ "gather_tier": "lantern_low",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "star_shoals",
+ "ground": {
+  "material": "sand",
+  "tint": "#b8b4d8"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    260,
+    620,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    840,
+    620,
+    280,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    1706,
+    610,
+    240,
+    70
+   ],
+   "height": 300,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    1200,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "lh_harbor_market",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "dr_moored_hulks",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    1903,
+    930
+   ],
+   "item": "star_lotus",
+   "prop": "star_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "master",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "jar_2",
+   "type": "jar",
+   "at": [
+    290,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 83,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 100
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    870,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 83,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    2320,
+    720
+   ],
+   "loot": "jar_lantern",
+   "level": 83,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    3422,
+    930
+   ],
+   "loot": "jar_lantern",
+   "level": 83,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "sign_dr_shallows",
+   "type": "signpost",
+   "at": [
+    220,
+    860
+   ],
+   "text": "The Drifting Shoals. West: Lanternfall Harbor · East: the Moored Hulks."
+  },
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    1736,
+    645
+   ],
+   "loot": "chest_valley",
+   "level": 84,
+   "alt": 300,
+   "surface": "cloud_mv"
+  },
+  {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    1826,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 84,
+   "alt": 300,
+   "surface": "cloud_mv"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "star_jellyfish",
+   "surface": "ground",
+   "points": [
+    [
+     518,
+     926
+    ],
+    [
+     1083,
+     823
+    ],
+    [
+     1630,
+     766
+    ],
+    [
+     2145,
+     897
+    ],
+    [
+     2760,
+     867
+    ],
+    [
+     3305,
+     865
+    ]
+   ],
+   "max": 5,
+   "respawn_s": 12,
+   "level": [
+    82,
+    84
+   ]
+  },
+  {
+   "enemy": "comet_sparrow",
+   "surface": "ground",
+   "points": [
+    [
+     1059,
+     802
+    ],
+    [
+     2799,
+     875
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 12,
+   "level": [
+    82,
+    83
+   ]
+  },
+  {
+   "enemy": "star_jellyfish",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    84,
+    84
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [
+  {
+   "id": "rock_large_6",
+   "prop": "rock_large",
+   "position": [
+    2756,
+    640
+   ],
+   "front_y": 640,
+   "footprint": [
+    2704,
+    614,
+    105,
+    26
+   ],
+   "height": 80,
+   "standable": true,
+   "flip": true
+  }
+ ],
+ "decor": [
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    139,
+    632
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    836,
+    636
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    1353,
+    631
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1818,
+    629
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    2292,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    3294,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    146,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    450,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    736,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1084,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1485,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1801,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2126,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2399,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2732,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3007,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3375,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3645,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    215,
+    633
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    821,
+    630
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    1476,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    2135,
+    640
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2809,
+    638
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    3423,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    661,
+    900
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    2079,
+    900
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    3409,
+    900
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "star_buoy",
+   "at": [
+    700,
+    930
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_buoy",
+   "at": [
+    2000,
+    930
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_cage",
+   "at": [
+    3140,
+    640
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [
+  {
+   "kind": "shallows",
+   "rect": [
+    900,
+    860,
+    1400,
+    120
+   ]
+  }
+ ],
+ "music": "star_field",
+ "ambience": "wind_ambience",
+ "attunement_required": 20,
+ "volumes": [
+  {
+   "id": "water_shallow_0",
+   "kind": "water_shallow",
+   "rect": [
+    900,
+    860,
+    1400,
+    120
+   ],
+   "alt": [
+    -50,
+    10
+   ]
+  }
+ ],
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    400,
+    725
+   ],
+   "top_at": [
+    400,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    980,
+    725
+   ],
+   "top_at": [
+    980,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  },
+  {
+   "id": "cloud_mv_rope_3",
+   "kind": "rope",
+   "at": [
+    1826,
+    715
+   ],
+   "top_at": [
+    1826,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "cloud_mv"
+  },
+  {
+   "id": "route_0_vine_4",
+   "kind": "vine",
+   "at": [
+    1320,
+    741
+   ],
+   "top_at": [
+    1320,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_0"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "route_0_step_5",
+   "rect": [
+    1210,
+    718,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  }
+ ]
+}

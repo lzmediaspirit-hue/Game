@@ -211,6 +211,14 @@ def shops():
         {"id": "condensing_hall", "name": "Condensing Hall Stores", "currency": "spirit_stone",
          "stock": [s("clear_mind_pill"), s("soul_soothing_pill"), s("calm_incense"), s("sage_condensing_pill", price=90, requires=all_of(realm("heaven_glimpse_3"))),
                    s("sovereign_settling_pill", price=120, requires=all_of(realm("sage_sovereign_1")))]},
+        # Act III · Lanternfall Harbor (v1.2). Sage Crystal prices come from tael prices at the crystal's tael value.
+        {"id": "lanternfall_goods", "name": "Peddler Ning's Silk and Sundries", "currency": "sage_crystal", "buys_all": True,
+         "stock": [s("healing_pill"), s("qi_restoration_pill"), s("return_charm"), s("escape_talisman"), s("revival_talisman"),
+                   s("rice_ball"), s("will_tempering_pill", price=6)],
+         "rotation": {"count": 2, "pool": [s("star_shard", price=1), s("manual_page", price=2), s("spirit_egg", price=4), s("jelly_silk", price=2)]}},
+        {"id": "lanternfall_apothecary", "name": "Apothecary Sang's Jars", "currency": "sage_crystal",
+         "stock": [s("star_lotus", price=5), s("ember_cactus", price=3), s("frost_lotus", price=3), s("clear_mind_pill"), s("soul_soothing_pill"),
+                   s("calm_incense")]},
         # Phase E · the Shipwrights' Yard: sky ink for charts; timber, plates and plumes for hulls.
         {"id": "navigator", "name": "Navigator Sun's Charts", "currency": "spirit_stone",
          "stock": [s("sky_ink", price=30), s("clear_mind_pill"), s("recipe_scroll", learn="star_chart_lantern", price=400,
@@ -268,9 +276,20 @@ def currencies():
             {"id": "silver_tael", "name": "Silver Taels", "icon": "coin_silver", "scope": "account", "everyday": True},
             {"id": "spirit_stone", "name": "Spirit Stones", "icon": "spirit_stone", "scope": "account"},
             {"id": "contribution", "name": "Contribution", "icon": "contribution", "scope": "character"},
-            {"id": "sage_crystal", "name": "Sage Crystals", "icon": "spirit_stone", "scope": "account", "planned": True},
+            # v1.2: the Lantern Star Field pays in Sage Crystals and keeps its savings in Star Jade (S21 zone currencies).
+            {"id": "sage_crystal", "name": "Sage Crystals", "icon": "sage_crystal", "scope": "account"},
+            {"id": "star_jade", "name": "Star Jade", "icon": "star_jade", "scope": "account"},
         ],
-        "exchange": {"silver_tael>spirit_stone": 0.01, "spirit_stone>silver_tael": 100},
+        # Each zone's exchange trades its everyday currency with the tier below: 100 taels buy a stone, 10 stones a Sage
+        # Crystal, 100 crystals a Star Jade.
+        "exchange": {"silver_tael>spirit_stone": 0.01, "spirit_stone>silver_tael": 100,
+                     "spirit_stone>sage_crystal": 0.1, "sage_crystal>spirit_stone": 10,
+                     "sage_crystal>star_jade": 0.01, "star_jade>sage_crystal": 100},
+        # What one of each is worth in taels: shop prices set in taels convert at this value (S21).
+        "tael_value": {"silver_tael": 1, "spirit_stone": 100, "sage_crystal": 1000, "star_jade": 100000},
+        # The pair each zone's exchange offers (the exchange page shows the one for the zone you stand in).
+        "zone_pairs": {"jade_river_valley": [["silver_tael", "spirit_stone"]], "azure_expanse": [["silver_tael", "spirit_stone"]],
+                       "lantern_star_field": [["spirit_stone", "sage_crystal"], ["sage_crystal", "star_jade"]]},
         "spread": 0.2,
     })
 

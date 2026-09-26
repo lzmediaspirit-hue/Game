@@ -86,6 +86,17 @@
    ],
    "fee_shards": 1,
    "zone": "azure_expanse"
+  },
+  {
+   "id": "lanternfall",
+   "name": "Lanternfall Harbor",
+   "room": "lh_harbor_market",
+   "at": [
+    2100,
+    880
+   ],
+   "fee_shards": 1,
+   "zone": "lantern_star_field"
   }
  ]
 }

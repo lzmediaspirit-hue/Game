@@ -1,0 +1,35 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "warden_xiao": {
+   "id": "warden_xiao",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "a_presence_of_ones_own"
+       }
+      ]
+     },
+     "node": "talk"
+    }
+   ],
+   "nodes": {
+    "talk": {
+     "lines": [
+      "A Presence is a question you ask the air: who here is stronger than me? Weaker things answer by going slow.",
+      "Another Presence answers back. Then it is a matter of who presses harder, and who holds."
+     ],
+     "choices": [
+      {
+       "text": "Thank you.",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

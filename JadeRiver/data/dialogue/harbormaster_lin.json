@@ -1,0 +1,35 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "harbormaster_lin": {
+   "id": "harbormaster_lin",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "crystal_and_jade"
+       }
+      ]
+     },
+     "node": "talk"
+    }
+   ],
+   "nodes": {
+    "talk": {
+     "lines": [
+      "Twenty-eight lanterns lit, last count. There were forty when my mother kept this quay.",
+      "The Wardens say the Tide takes a lantern the way rust takes a nail. Slowly, then all at once."
+     ],
+     "choices": [
+      {
+       "text": "Thank you.",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

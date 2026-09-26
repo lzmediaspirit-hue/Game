@@ -14,6 +14,7 @@ import catalogue
 import catalogue_rows_towns
 import catalogue_rows_fields
 import catalogue_rows_dungeons
+import lantern
 import random
 
 from common import DATA, write, entries, req, c
@@ -85,6 +86,8 @@ ORES = {
 HERBS["frost_lotus"] = ("frost_lotus_patch", [1, 1])
 HERBS["ember_cactus"] = ("ember_cactus_patch", [1, 1])
 ORES["sunglass_ore"] = ("sunglass_vein", [1, 2])
+HERBS["star_lotus"] = ("star_lotus_patch", [1, 1])
+ORES["driftglass"] = ("driftglass_vein", [1, 2])
 # S45 aged herbs grow on the base plant's patch art; a ripe one shimmers gold in the room.
 for _aged, _base in (("riverreed_ginseng_100", "riverreed_ginseng_10"), ("riverreed_ginseng_1000", "riverreed_ginseng_10"),
                      ("riverreed_ginseng_10000", "riverreed_ginseng_10"),
@@ -95,9 +98,9 @@ HERB_RANK = {"willow_moss": "apprentice", "riverreed_ginseng_10": "apprentice", 
              "mist_lotus": "adept", "cloudtop_orchid": "expert", "soulbell_flower": "expert", "frost_lotus": "master",
              "ember_cactus": "master", "riverreed_ginseng_100": "adept", "ember_pepper_100": "adept", "mist_lotus_100": "adept",
              "riverreed_ginseng_1000": "expert", "cloudtop_orchid_100": "expert", "soulbell_flower_100": "expert",
-             "riverreed_ginseng_10000": "master"}
+             "riverreed_ginseng_10000": "master", "star_lotus": "master"}
 ORE_RANK = {"copper_ore": "apprentice", "riverstone": "apprentice", "jadeiron": "adept", "spirit_stone_shard": "adept",
-            "cloudsteel_ore": "expert", "mystic_ore": "expert", "stormsteel_ore": "master", "sunglass_ore": "master"}
+            "cloudsteel_ore": "expert", "mystic_ore": "expert", "stormsteel_ore": "master", "sunglass_ore": "master", "driftglass": "master"}
 
 
 # S17 hazards. Each runs a cycle in seconds (quiet tell, warning, active, cooldown) and is answered by
@@ -2237,9 +2240,7 @@ VOYAGES = [
      "chart": "star_chart_wreck", "crossing": "ss_starsea_crossing", "base_s": 70},
     {"id": "wreck_run_home", "name": "The Wreck Run (home)", "from": "sw_broken_pier", "to": "ae_shipyard", "to_portal": "",
      "chart": "star_chart_wreck", "crossing": "ss_starsea_crossing", "base_s": 70},
-    {"id": "lantern_run", "name": "The Lantern Run", "from": "sw_starsea_launch", "chart": "star_chart_lantern", "planned": True,
-     "planned_text": "The ring points past the edge of the Expanse, toward the Lantern Star Field. That voyage belongs to the next age of your road."},
-]
+] + lantern.VOYAGES
 
 
 def voyages():
@@ -2321,7 +2322,7 @@ def zone_json():
             {"id": "starsea", "name": "Starsea", "levels": [79, 81], "map": [0.05, 0.10], "hidden": True},
         ],
         "exit": {"room": "ae_landing", "to_zone": "jade_river_valley"},
-    }]
+    }, lantern.zone(sorted(k for k, r in ROOMS.items() if r.d["zone"] == "lantern_star_field"))]
     entries("zones", zones)
 
 
@@ -2335,7 +2336,7 @@ def teleport_stones():
         {"id": "nine_peaks", "name": "Nine Peaks", "room": "np_alliance_gate", "at": [2100, 880], "fee_shards": 1, "zone": "azure_expanse"},
         {"id": "sunscar", "name": "Oasis of Bones", "room": "sd_oasis_of_bones", "at": [2150, 880], "fee_shards": 1, "zone": "azure_expanse"},
         {"id": "skyport_wreck", "name": "Starsea Launch", "room": "sw_starsea_launch", "at": [1900, 880], "fee_shards": 1, "zone": "azure_expanse"},
-    ]
+    ] + lantern.STONES
     entries("teleport_stones", rows)
     # Every teleport stone object must name one of these.
     for r in ROOMS.values():
@@ -2931,6 +2932,7 @@ def build():
     nine_peaks_and_canyons()
     sunscar()
     skyport_wreck()
+    lantern.build()   # Act III · the Lantern Star Field (v1.2)
     earth_vents()
     movement_extras()
     rogue_cultivators()

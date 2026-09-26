@@ -639,6 +639,233 @@
     "room": "ae_landing",
     "to_zone": "jade_river_valley"
    }
+  },
+  {
+   "id": "lantern_star_field",
+   "tier": 3,
+   "name": "Lantern Star Field",
+   "level_range": [
+    82,
+    99
+   ],
+   "ceiling": "sphere_lord_3",
+   "laws": [
+    "fire",
+    "metal",
+    "space",
+    "star"
+   ],
+   "currency": {
+    "everyday": "sage_crystal",
+    "high": "star_jade"
+   },
+   "coin_scale": 0.005,
+   "qi_density": [
+    1.5,
+    2.5
+   ],
+   "attunement": {
+    "stat": "starsea_endurance",
+    "name": "Starsea Endurance",
+    "shard": "star_shard",
+    "required": [
+     20,
+     90
+    ],
+    "unlock": "starsea_endurance",
+    "jade_max": 15,
+    "jade_value": 1.5,
+    "cost": {
+     "base": 1,
+     "per_level": 1
+    },
+    "jades": [
+     {
+      "id": "tide",
+      "name": "Tide Jade"
+     },
+     {
+      "id": "comet",
+      "name": "Comet Jade"
+     },
+     {
+      "id": "wick",
+      "name": "Wick Jade"
+     },
+     {
+      "id": "void",
+      "name": "Void Jade"
+     }
+    ]
+   },
+   "panorama": "lantern_harbor",
+   "start_room": "lh_arrival_quay",
+   "rooms": [
+    "dr_driftglass_bank",
+    "dr_jellyfish_shallows",
+    "dr_moored_hulks",
+    "dr_sparrow_reefs",
+    "lh_arrival_quay",
+    "lh_harbor_market",
+    "lh_star_chandlery",
+    "lh_tidelight_inn",
+    "ss_lantern_crossing"
+   ],
+   "regions": [
+    {
+     "id": "lanternfall_harbor",
+     "name": "Lanternfall Harbor",
+     "levels": [
+      0,
+      0
+     ],
+     "map": [
+      0.8,
+      0.64
+     ]
+    },
+    {
+     "id": "drifting_shoals",
+     "name": "Drifting Shoals",
+     "levels": [
+      82,
+      87
+     ],
+     "attunement": 20,
+     "map": [
+      0.64,
+      0.74
+     ]
+    },
+    {
+     "id": "blackmast_haven",
+     "name": "Blackmast Haven",
+     "levels": [
+      85,
+      90
+     ],
+     "attunement": 30,
+     "map": [
+      0.46,
+      0.82
+     ],
+     "planned": true
+    },
+    {
+     "id": "wyrmnest_isles",
+     "name": "Wyrmnest Isles",
+     "levels": [
+      85,
+      93
+     ],
+     "attunement": 40,
+     "map": [
+      0.7,
+      0.3
+     ],
+     "planned": true
+    },
+    {
+     "id": "warden_citadel",
+     "name": "Star Warden Citadel",
+     "levels": [
+      0,
+      0
+     ],
+     "map": [
+      0.5,
+      0.48
+     ],
+     "planned": true
+    },
+    {
+     "id": "orbit_ruins",
+     "name": "Orbit Ruins",
+     "levels": [
+      88,
+      93
+     ],
+     "attunement": 50,
+     "map": [
+      0.34,
+      0.3
+     ],
+     "planned": true
+    },
+    {
+     "id": "ashen_reach",
+     "name": "Ashen Reach",
+     "levels": [
+      88,
+      96
+     ],
+     "attunement": 60,
+     "map": [
+      0.22,
+      0.66
+     ],
+     "planned": true
+    },
+    {
+     "id": "tidebreak_front",
+     "name": "Tidebreak Front",
+     "levels": [
+      90,
+      99
+     ],
+     "attunement": 70,
+     "map": [
+      0.12,
+      0.4
+     ],
+     "planned": true
+    },
+    {
+     "id": "nebula_deep",
+     "name": "Nebula Deep",
+     "levels": [
+      94,
+      99
+     ],
+     "attunement": 80,
+     "map": [
+      0.3,
+      0.1
+     ],
+     "planned": true
+    },
+    {
+     "id": "lantern_heart",
+     "name": "The Lantern Heart",
+     "levels": [
+      97,
+      99
+     ],
+     "attunement": 90,
+     "map": [
+      0.52,
+      0.14
+     ],
+     "planned": true
+    },
+    {
+     "id": "lantern_crossing",
+     "name": "The Lantern Run",
+     "levels": [
+      81,
+      83
+     ],
+     "map": [
+      0.94,
+      0.86
+     ],
+     "hidden": true
+    }
+   ],
+   "exit": {
+    "room": "lh_arrival_quay",
+    "to_zone": "azure_expanse"
+   }
   }
  ]
 }

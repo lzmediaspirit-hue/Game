@@ -1,0 +1,666 @@
+{
+ "schema_version": 1,
+ "id": "dr_sparrow_reefs",
+ "zone": "lantern_star_field",
+ "region": "drifting_shoals",
+ "name": "Sparrow Reefs",
+ "type": "field",
+ "level_range": [
+  84,
+  86
+ ],
+ "recommended_cp": 1532,
+ "element": "star",
+ "qi_density": 1.7,
+ "hazards": [],
+ "gather_tier": "lantern_low",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "star_shoals",
+ "ground": {
+  "material": "sand",
+  "tint": "#b8b4d8"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    1000,
+    640,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    2200,
+    630,
+    300,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    1706,
+    610,
+    240,
+    70
+   ],
+   "height": 300,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    520,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1340,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "dr_moored_hulks",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "dr_driftglass_bank",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    1030,
+    675
+   ],
+   "loot": "jar_lantern",
+   "level": 85,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 100
+  },
+  {
+   "id": "jar_2",
+   "type": "jar",
+   "at": [
+    2230,
+    665
+   ],
+   "loot": "jar_lantern",
+   "level": 85,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    2414,
+    700
+   ],
+   "loot": "jar_lantern",
+   "level": 85,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    3383,
+    930
+   ],
+   "loot": "jar_lantern",
+   "level": 85,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    1826,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 86,
+   "alt": 300,
+   "surface": "cloud_mv"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "comet_sparrow",
+   "surface": "ground",
+   "points": [
+    [
+     607,
+     747
+    ],
+    [
+     1265,
+     708
+    ],
+    [
+     1936,
+     860
+    ],
+    [
+     2541,
+     886
+    ],
+    [
+     3262,
+     846
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 14,
+   "level": [
+    84,
+    86
+   ]
+  },
+  {
+   "enemy": "star_jellyfish",
+   "surface": "ground",
+   "points": [
+    [
+     882,
+     740
+    ],
+    [
+     1888,
+     704
+    ],
+    [
+     3004,
+     863
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 12,
+   "level": [
+    84,
+    85
+   ]
+  },
+  {
+   "enemy": "comet_sparrow",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    86,
+    86
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [
+  {
+   "id": "rock_large_5",
+   "prop": "rock_large",
+   "position": [
+    1677,
+    640
+   ],
+   "front_y": 640,
+   "footprint": [
+    1625,
+    614,
+    105,
+    26
+   ],
+   "height": 80,
+   "standable": true,
+   "flip": true
+  },
+  {
+   "id": "rock_large_6",
+   "prop": "rock_large",
+   "position": [
+    2579,
+    640
+   ],
+   "front_y": 640,
+   "footprint": [
+    2527,
+    614,
+    105,
+    26
+   ],
+   "height": 80,
+   "standable": true,
+   "flip": false
+  }
+ ],
+ "decor": [
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    132,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    646,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    1058,
+    639
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    2225,
+    632
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2768,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    3212,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    3688,
+    636
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    87,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    491,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    853,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1156,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1504,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    1826,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2201,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2468,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    2774,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3061,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3412,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "rock_small",
+   "at": [
+    3683,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    181,
+    638
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    836,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    1496,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    2085,
+    632
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    3270,
+    635
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    1193,
+    900
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "driftglass_cluster",
+   "at": [
+    3011,
+    900
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "star_buoy",
+   "at": [
+    700,
+    930
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_cage",
+   "at": [
+    3140,
+    640
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "star_field",
+ "ambience": "wind_ambience",
+ "attunement_required": 24,
+ "climbables": [
+  {
+   "id": "ledge_0_rope_1",
+   "kind": "rope",
+   "at": [
+    1140,
+    745
+   ],
+   "top_at": [
+    1140,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_0"
+  },
+  {
+   "id": "ledge_1_rope_2",
+   "kind": "rope",
+   "at": [
+    2350,
+    735
+   ],
+   "top_at": [
+    2350,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_1"
+  },
+  {
+   "id": "route_0_vine_4",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_vine_5",
+   "kind": "vine",
+   "at": [
+    1460,
+    741
+   ],
+   "top_at": [
+    1460,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_2"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "ledge_1_step_3",
+   "rect": [
+    2210,
+    712,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  }
+ ]
+}

@@ -85,8 +85,10 @@ func stock(c, shop_id: String) -> Array:
 		var price := int(s.get("price", LootRules.buy_price(item_id)))
 		if currency == "contribution": price = int(s.get("price", maxi(5, int(LootRules.value_of(item_id) / 2))))
 		elif currency != "silver_tael" and not s.has("price"):
-			# Tael prices convert at the exchange rate (S21): a Spirit Stone shop charges what the taels would buy.
-			var rate := float(ContentDB.config("currencies").get("exchange", {}).get("silver_tael>" + currency, 1.0))
+			# Tael prices convert at each currency's tael value (S21): a Spirit Stone shop charges what the taels would buy.
+			var cfg := ContentDB.config("currencies")
+			var tv := float(cfg.get("tael_value", {}).get(currency, 0.0))
+			var rate := 1.0 / tv if tv > 0.0 else float(cfg.get("exchange", {}).get("silver_tael>" + currency, 1.0))
 			price = maxi(1, int(round(price * rate)))
 		# S20: a shop may favour one path (the Alliance Factor gives Alliance members a better price).
 		var disc: Dictionary = shop.get("discount", {})
@@ -183,6 +185,7 @@ func exchange(from: String, to: String, amount: int) -> Dictionary:
 	if got <= 0: return fail("too_small")
 	apply_currency(from, -amount, "exchange")
 	apply_currency(to, got, "exchange")
+	emit("system_used", {"actor": game.active_id, "system": "exchange"})
 	return ok({"received": got})
 
 # ------------------------------------------------------------------ S21 · NPC auction house

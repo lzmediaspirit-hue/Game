@@ -94,6 +94,8 @@ DEPTH = {
               "treasure_birth_announced", "soul_searched",
               # S43 rule 15: the rooftop thief chases and timed routes (the Cloud Steps).
               "chase_started", "thief_caught", "thief_escaped", "route_started", "route_finished"],
+    # S28 v1.2 field powers: Presence (Will Manifest) and, later, the Sphere (Sphere Lord).
+    "Field": ["presence_toggled", "presence_leveled", "presence_clash", "presence_clash_ended"],
     # S48 sect role variants: the signature line's variant and the contribution tree.
     "TrainingSect": ["sect_role_chosen", "sect_node_bought"],
     # S49 territory: the spirit-stone mines your sect takes, holds, loses and collects from (account level).
@@ -111,7 +113,7 @@ SYSTEMS = {
     "Achievement": ["achievement_authority"], "Economy": ["economy_authority"], "Unlocks": ["unlock_service"],
     "Mail": ["mail_authority"], "Companion": ["companion_authority"], "Notifier": ["notifier"],
     "Movement": ["local_authority", "movement_solver"], "Relations": ["relations_authority"],
-    "Calendar": ["calendar_authority"],
+    "Calendar": ["calendar_authority"], "Field": ["field_authority", "field_rules"],
 }
 
 # A second system that may also announce the event, and why.

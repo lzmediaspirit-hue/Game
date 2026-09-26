@@ -736,6 +736,7 @@ static func beast_core_for(def: Dictionary, level: int) -> String:
 	var el := str(def.get("element", "earth")).trim_prefix("hollow_")
 	if el in ["hollow", "none", ""]: el = "soul" if el == "hollow" else "earth"
 	var id := "%s_core_%s" % [el, tier]
+	if ContentDB.item(id).is_empty(): id = "%s_core_%s" % [CombatRules.parent_element(el), tier]   # a sub-element's parent
 	return id if ContentDB.item(id).size() > 0 else ""
 
 static func core_chance(def: Dictionary, level: int) -> float:

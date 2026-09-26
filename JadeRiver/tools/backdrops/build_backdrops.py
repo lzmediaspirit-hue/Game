@@ -3656,10 +3656,10 @@ def rope_line(cv, pts, col, pennants=None, every=7, seed=0):
 EYE = [".XXX.", "XX.XX", ".XXX."]   # the Starsea pirates' watching eye
 
 
-def war_banner(cv, x, by, ht, pole, cloth, emblem, seed, bl=30, bw=10, wave=1.4, trim=None):
+def war_banner(cv, x, by, ht, pole, cloth, emblem, seed, bl=30, bw=10, wave=1.4, trim=None, sign=None):
     """A tall pole with a spear finial and a long tattered banner streaming right: waving, swallow-tailed, torn,
-    a pale trim along its top edge and the watching-eye emblem near the hoist. pole = (dark, mid, light);
-    cloth dark->light (4)."""
+    a pale trim along its top edge and the watching-eye emblem (or another `sign`, rows of 'X') near the hoist.
+    pole = (dark, mid, light); cloth dark->light (4)."""
     h = cv.h
     yy, xx, _ = grids(h)
     g = rng("banner", seed)
@@ -3691,8 +3691,9 @@ def war_banner(cv, x, by, ht, pole, cloth, emblem, seed, bl=30, bw=10, wave=1.4,
     if trim is not None:
         flat(cv, top_rim(m) & (tt < 0.8) & (((xx + int(x)) % 6) != 3), trim)
     flat(cv, m & (u < 1), cloth[0])
-    sy = int(round(top + 1 + (bw - 3) / 2.0))
-    for r_, row in enumerate(EYE):
+    sign = EYE if sign is None else sign
+    sy = int(round(top + 1 + (bw - len(sign)) / 2.0))
+    for r_, row in enumerate(sign):
         for c_, ch in enumerate(row):
             px_, py_ = x + 4 + c_, sy + r_
             if ch == "X" and m[py_ % h, px_ % W]:
@@ -4450,6 +4451,2037 @@ def starsea():
     return dict(sky="#07061a", horizon="#5e6a96", layers=layers)
 
 
+# =============================================================== the Lantern Star Field (Act III)
+LS_STAR = R("#f6c667", "#ffe4a0", "#fff5d6", "#ffffff")              # a fallen star: deep, body, core, white
+LS_CAGE = R("#22150c", "#4a301a", "#76502a", "#aa7838", "#e4b460")   # old bronze: shadow .. gleam
+LS_VERD = "#4d8676"                                                  # verdigris on the old bronze
+LS_GLOW = "#ffd889"
+LS_STARS = R("#2c2c60", "#56589a", "#9a9ed0", "#d8dcf4", "#ffffff")
+JADE_STARS = R("#2a5250", "#387462", "#56a07c", "#92d8a6", "#daf8e0", "#ffffff")
+
+
+def ring_px(m):
+    """The 4-connected inner boundary of a mask: a clean 1 px outline."""
+    return m & ~(sh(m, 1, 0) & sh(m, -1, 0) & sh(m, 0, 1) & sh(m, 0, -1))
+
+
+def under_stars(cv, seed, count, y0, y1, pal, twinkle=8):
+    """Stars under the field's glow line (the sea here is sky): sparse near the glow at y0, fuller toward y1."""
+    g = rng("ustars", seed)
+    for i in range(count):
+        x = int(g.integers(0, W))
+        y = int(g.integers(y0, y1))
+        if g.random() < (y1 - y) / max(1, y1 - y0) * 0.85:
+            continue
+        put(cv, x, y, pal[int(g.integers(0, len(pal) - 1))])
+        if i % twinkle == 0:
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                put(cv, (x + dx) % W, y + dy, pal[0])
+            put(cv, x, y, pal[-1])
+
+
+def field_sky(stops, seed, glow_y, up=520, down=260, pal=None, bands=28):
+    """The night of the Lantern Star Field: a gradient that brightens toward a glow line and sinks again below it
+    (there is no ground: the islands float in sky all the way down), stars above and below the glow."""
+    pal = LS_STARS if pal is None else pal
+    sky = sky_layer(stops, bands=bands, sharp=2.4)
+    stars(sky, (seed, "up"), up, 0, glow_y, pal, twinkle=8)
+    under_stars(sky, (seed, "dn"), down, glow_y, SKY_H, pal, twinkle=9)
+    return sky
+
+
+def sky_at(stops, cv, bottom, y):
+    """The sky colour behind row y of a layer drawn with its foot at screen row `bottom` (camera at rest)."""
+    return lerp_stops(stops, (bottom / SCALE - cv.h + y) / (SKY_H - 1.0))
+
+
+def lantern_star(cv, cx, cy, r, seed, lit=1.0, cage=None, star=None, glow=None, halo=1.0, rays=1.0, hang=None,
+                 tether=None, sag=4.0, broken=0.0, ember=None, verd=LS_VERD):
+    """A lantern star: a fallen star held in an old bronze cage, burning pale gold. A round cage of meridian ribs and
+    latitude hoops (seen a little from below, so the near arcs ride high), a domed crown with its hanging ring and a
+    finial spike beneath; the ribs catch the star on their inner faces, the rim is dark bronze flecked with
+    verdigris; a stepped halo and thin cross rays spill out. lit in [0, 1] dims the star (0: gone out, an empty cage
+    with an optional `ember` haze). hang = (x, y) the crown chain rises to; tether = (x, y) the mooring chain from
+    the finial falls to; broken tears a wedge of ribs away. Returns the cage mask."""
+    h = cv.h
+    cage = LS_CAGE if cage is None else cage
+    star = LS_STAR if star is None else star
+    glow = LS_GLOW if glow is None else glow
+    cx, cy, r = int(round(cx)), int(round(cy)), float(r)
+    yy, xx, _ = grids(h)
+    dx = wdx(xx, cx)
+    dy = (yy - cy).astype(float)
+    rr = np.sqrt(dx * dx + dy * dy)
+    g = rng("lstar", seed)
+    chn = R(cage[0], cage[2], cage[3])
+    cap_h = max(1, int(round(r * 0.2)))
+    ring_r = max(1.0, float(round(r * 0.13)))
+    top = cy - int(round(r)) - cap_h
+    fin = max(2, int(round(r * 0.4)))
+    if hang is not None:
+        chain(cv, [(cx, top - 2 * ring_r), (hang[0], hang[1])], chn, heavy=r >= 12)
+    if tether is not None:
+        chain(cv, sag_pts(cx, cy + r + fin, tether[0], tether[1], sag), chn, heavy=r >= 12)
+    if lit > 0 and halo > 0:
+        for s_, a in ((3.6, 0.035), (2.6, 0.06), (1.9, 0.09), (1.4, 0.13)):
+            flat(cv, rr <= r * s_, glow, a * halo * lit)
+    disc_m = rr <= r + 0.3
+    inside = rr <= r - 0.7
+    shell = ring_px(disc_m)
+    ribs = np.zeros((h, W), bool)
+    back = np.zeros((h, W), bool)
+    if r >= 4:
+        ribs |= (dx == 0) & inside
+        for f in ((0.45, 0.8) if r >= 9 else (0.58,)):
+            ribs |= ring_px((dx / (r * f + 0.3)) ** 2 + (dy / (r + 0.3)) ** 2 <= 1.0) & inside
+        for lat in ((-0.5, 0.0, 0.5) if r >= 9 else (0.0,)):
+            yc = cy + lat * r
+            rx = r * math.sqrt(1 - lat * lat)
+            ry = max(0.8, rx * 0.26)
+            e = ring_px((dx / (rx + 0.3)) ** 2 + ((yy - yc) / (ry + 0.3)) ** 2 <= 1.0) & inside
+            ribs |= e & (yy <= yc)
+            back |= e & (yy > yc)
+    if broken:
+        ang = np.arctan2(dy, dx)
+        a0 = g.uniform(-math.pi, math.pi)
+        gap = np.abs((ang - a0 + math.pi) % (2 * math.pi) - math.pi) < broken * math.pi
+        gap &= pn2(h, ("lsb", seed), 2, 2, 1) > 0.25
+        ribs &= ~gap
+        back &= ~gap
+        shell &= ~(gap & (pn2(h, ("lsb2", seed), 3, 3, 1) > 0.4))
+    flat(cv, back, cage[1])
+    if lit > 0:
+        flat(cv, inside, star[0], 0.45 * lit)
+        flat(cv, rr <= r * 0.62, star[1], 0.5 * lit)
+        spark = (np.sqrt(np.abs(dx)) + np.sqrt(np.abs(dy))) <= math.sqrt(max(1.0, r * 0.8 * lit))
+        flat(cv, spark & inside, star[1])
+        flat(cv, rr <= max(1.0, r * 0.3 * lit), star[2])
+        flat(cv, rr <= max(0.5, r * 0.14 * lit), star[3])
+        L = r * 2.6 * rays * lit
+        for ln, a in ((L, 0.3), (L * 0.62, 0.5), (L * 0.36, 0.85)):
+            m = ((dy == 0) & (np.abs(dx) <= ln)) | ((dx == 0) & (np.abs(dy) <= ln))
+            flat(cv, m & ~ribs & ~shell & ~inside, star[2], a)
+    elif ember is not None:
+        flat(cv, inside, ember, 0.4)
+    # rib colours: the near ribs stand dark against the star, catching its light only where they cross the core;
+    # the far arcs behind the star are lit full on
+    if lit > 0:
+        flat(cv, back, cage[3], 0.6 * lit)
+    ri = np.full((h, W), 1) + ((rr < r * 0.3) & (lit > 0.6)) * 2 + ((rr >= r * 0.3) & (rr < r * 0.62) & (lit > 0.3))
+    cv.fill_idx(ribs, ri, cage)
+    s_ = dx + dy
+    flat(cv, shell, cage[2] if lit > 0.3 else cage[1])
+    flat(cv, shell & (s_ < -r * 0.5), cage[3 + (lit > 0.5) * (r < 9)] if lit > 0 else cage[2])
+    flat(cv, shell & (s_ > r * 0.6), cage[0])
+    if lit > 0 and r >= 6:
+        flat(cv, ring_px(inside) & ~ribs & (s_ > r * 0.2), cage[4], 0.7 * lit)   # the rim's inner lip, star-lit
+    if r >= 7 and verd is not None:
+        flat(cv, (ribs | shell) & (pn2(h, ("lsv", seed), 3, 3, 1) > 0.76), verd)
+    cap = wellipse(h, cx, cy - r + 1, r * 0.34 + 1, cap_h + 1) & (yy <= cy - r + 1)
+    flat(cv, cap, cage[2])
+    flat(cv, cap & (dx < 0), cage[3])
+    flat(cv, top_rim(cap) & (dx <= 0), cage[4] if lit > 0.5 else cage[3])
+    flat(cv, right_rim(cap), cage[0])
+    rm = ring_px(dx ** 2 + (yy - (top - ring_r)) ** 2 <= (ring_r + 0.3) ** 2)
+    flat(cv, rm, cage[2])
+    fw = max(1, int(round(r * 0.14)))
+    finm = wpoly(h, [(cx - fw - 0.5, cy + r - 1), (cx + fw + 0.5, cy + r - 1), (cx + 0.5, cy + r + fin),
+                     (cx - 0.5, cy + r + fin)])
+    flat(cv, finm, cage[1])
+    flat(cv, finm & (dx < 0), cage[3])
+    return disc_m | cap | finm | rm
+
+
+def field_isle(cv, cx, top, hw, depth, ramp, seed, warm, cool, haze=None, tilt=0.0, spurs=2, cap=None,
+               under=0.45):
+    """An island of the Lantern Star Field adrift over the lower sky: a slab with a faceted, spurred underside, its
+    upper rim warmed by the lantern star above and its underside washed by the cool light of the nebulae below.
+    Returns (mask, top row per column)."""
+    m, tp = shard_isle(cv, cx, top, hw, depth, ramp, seed, tilt=tilt, spurs=spurs, rim=warm, cap=cap)
+    if not m.any():
+        return m, tp
+    yy = grids(cv.h)[0]
+    rel = np.clip((yy - tp[None, :]) / max(1.0, depth), 0, 1)
+    if haze is not None:
+        haze_fade(cv, m, haze, np.clip((rel - 0.3) / 0.7, 0, 1) * under, steps=3, sharp=4)
+    flat(cv, bot_rim(m) & (rel > 0.25), cool)
+    return m, tp
+
+
+def roof_house(cv, x0, by, w, wall_h, roof_h, roof, wall, win=None, eave=2):
+    """A harbour house in side view: a plastered wall with lamplit windows under a tiled roof (ribbed tile courses,
+    lit tile ends along the eave, a dark ridge with upturned tips). roof = (dark, mid, light), wall = (dark, mid,
+    light), win = (glow, bright). Returns its mask."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    x1 = x0 + w - 1
+    wall_m = wrect(h, x0, by - wall_h + 1, x1, by)
+    flat(cv, wall_m, wall[1])
+    flat(cv, left_rim(wall_m), wall[2])
+    flat(cv, right_rim(wall_m), wall[0])
+    flat(cv, wrect(h, x0, by - wall_h + 1, x1, by - wall_h + 1), wall[0])
+    if win is not None:
+        n = max(1, (w - 2) // 7)
+        for k in range(n):
+            wx = x0 + int(round((k + 0.5) * w / n)) - 1
+            flat(cv, wrect(h, wx, by - wall_h + 3, wx + 1, max(by - wall_h + 3, by - 2)), win[0])
+            put(cv, wx, by - wall_h + 3, win[1])
+    ty = by - wall_h
+    rm = wpoly(h, [(x0 - eave - 0.5, ty + 0.5), (x0 - eave + roof_h * 0.7, ty - roof_h + 0.5),
+                   (x1 + eave - roof_h * 0.7, ty - roof_h + 0.5), (x1 + eave + 0.5, ty + 0.5)])
+    flat(cv, rm, roof[1])
+    flat(cv, rm & (xx % 2 == 0), roof[0])
+    flat(cv, top_rim(rm), roof[2])
+    flat(cv, bot_rim(rm) & (xx % 2 == 1), roof[2])
+    ridge = wrect(h, int(round(x0 - eave + roof_h * 0.7)) - 1, ty - roof_h, int(round(x1 + eave - roof_h * 0.7)) + 1,
+                  ty - roof_h)
+    flat(cv, ridge, roof[0])
+    for x_ in (x0 - eave - 1, x1 + eave + 1):
+        put(cv, x_, ty - 1, roof[0])
+    for x_ in (int(round(x0 - eave + roof_h * 0.7)) - 2, int(round(x1 + eave - roof_h * 0.7)) + 2):
+        put(cv, x_, ty - roof_h - 1, roof[0])
+    return wall_m | rm | ridge
+
+
+def pier(cv, x0, x1, y, pal, posts=R("#1a1024", "#2c1c30"), drop=9, lamps=(), lan=None, glow=None):
+    """A timber pier run out along row y from x0 to x1: a planked deck with a lit top edge and dark underside, posts
+    and knee braces dropping beneath, and lantern posts at `lamps` x positions. pal = (dark, mid, light)."""
+    h = cv.h
+    xa, xb = min(x0, x1), max(x0, x1)
+    deck = wrect(h, xa, y, xb, y + 1)
+    for px in range(int(xa) + 3, int(xb), 8):
+        flat(cv, wrect(h, px, y + 2, px, y + drop), posts[1])
+        flat(cv, wline(h, [(px + 1, y + 2), (px + 4, y + 5)], 1), posts[0])
+    flat(cv, deck, pal[1])
+    flat(cv, top_rim(deck), pal[2])
+    flat(cv, deck & (xx_all(h) % 4 == 0) & ~top_rim(deck), pal[0])
+    for lx in lamps:
+        flat(cv, wrect(h, lx, y - 9, lx, y - 1), pal[0])
+        flat(cv, wrect(h, lx, y - 9, lx + 2, y - 9), pal[0])
+        if lan is not None:
+            lantern(cv, lx + 2, y - 8, lan, glow=glow)
+    return deck
+
+
+def junk(cv, x, wl, ln, seed, hull, sail, face=1, set_sails=True, lit=None, rig="#3a2a38", patch=None):
+    """A sky-junk at its mooring, side view, its bow toward `face`: a deep hull whose sheer sweeps up to a high stern
+    castle and a raked bow, a painted wale, two masts with batten sails (set, or reefed down to their booms), and a
+    lamplit stern gallery. (x, wl) = midship at deck level. hull = (dark, mid, light), sail = (dark, mid, light);
+    patch = colours of the pirates' patches sewn over torn sailcloth, their leeches ragged."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    g = rng("junk", seed)
+
+    def P(u, v):
+        return x + face * u, wl + v
+
+    L = ln / 2.0
+    pts = [(-L, -ln * 0.2), (-L + ln * 0.05, -ln * 0.2), (-L + ln * 0.08, -ln * 0.06), (-ln * 0.2, 0.0),
+           (ln * 0.25, 0.0), (L, -ln * 0.13), (L - ln * 0.06, ln * 0.02), (ln * 0.25, ln * 0.13), (-ln * 0.2, ln * 0.14),
+           (-L + ln * 0.04, ln * 0.06)]
+    hm = wpoly(h, [P(u, v) for u, v in pts])
+    top_v = wl - ln * 0.2
+    rel = np.clip((yy - wl) / max(1.0, ln * 0.14), -1, 1)
+    paint(cv, hm, hull, 1.6 - rel * 1.2, sharp=4)
+    wale = hm & (np.abs(yy - (wl + ln * 0.035)) < 0.6)
+    flat(cv, wale, hull[0])
+    flat(cv, top_rim(hm), hull[2])
+    flat(cv, bot_rim(hm), hull[0])
+    # stern castle with a lamplit gallery
+    cu0, cu1 = -L + ln * 0.05, -L + ln * 0.3
+    castle = wpoly(h, [P(cu0 + 1, -ln * 0.2 - ln * 0.08), P(cu1 - 1, -ln * 0.2 - ln * 0.08), P(cu1 - 1, -ln * 0.2),
+                       P(cu0 + 1, -ln * 0.2)])
+    flat(cv, castle, hull[1])
+    flat(cv, top_rim(castle), hull[2])
+    roof_m = wpoly(h, [P(cu0 - 1, -ln * 0.28), P(cu1 + 1, -ln * 0.28), P(cu1 - 1, -ln * 0.31), P(cu0 + 1, -ln * 0.31)])
+    flat(cv, roof_m, hull[0])
+    if lit is not None:
+        for k in range(3):
+            u = cu0 + 2 + k * (cu1 - cu0 - 3) / 3.0
+            px_, py_ = P(u, -ln * 0.24)
+            flat(cv, wrect(h, int(round(px_)), int(round(py_)), int(round(px_)), int(round(py_)) + 1), lit[0])
+            put(cv, px_, py_, lit[1])
+    # masts and sails
+    for k, (mu, mh_, sw) in enumerate(((ln * 0.02, ln * 0.85, ln * 0.34), (ln * 0.3, ln * 0.62, ln * 0.24))):
+        bx, by_ = P(mu, 0)
+        tx, ty = P(mu, -mh_)
+        flat(cv, wline(h, [(bx, by_), (tx, ty)], 1), hull[0])
+        if set_sails:
+            # a batten sail hung aft of the mast: a raked yard, battens fanning to a curved leech
+            y0s, y1s = ty + 2, by_ - ln * 0.08
+            sm = np.zeros((h, W), bool)
+            for yv in range(int(y0s), int(y1s) + 1):
+                t = (yv - y0s) / max(1.0, y1s - y0s)
+                wv = sw * (0.55 + 0.45 * math.sin(t * math.pi * 0.9 + 0.2))
+                if face > 0:
+                    sm |= wrect(h, int(round(bx - wv)), yv, int(round(bx)) - 1, yv)
+                else:
+                    sm |= wrect(h, int(round(bx)) + 1, yv, int(round(bx + wv)), yv)
+            if patch is not None:
+                lee = left_rim(sm) if face > 0 else right_rim(sm)
+                rag = lee & (pn2(h, ("jrag", seed, k), 1.5, 2, 1) > 0.55)
+                sm &= ~rag & ~(sh(rag, face, 0) & (pn2(h, ("jrg2", seed, k), 2, 2, 1) > 0.6))
+            flat(cv, sm, sail[1])
+            flat(cv, sm & ((yy - int(y0s)) % 4 == 0), sail[0])
+            flat(cv, (left_rim(sm) if face > 0 else right_rim(sm)), sail[2])
+            flat(cv, top_rim(sm), sail[2])
+            if patch is not None:
+                for j in range(3):
+                    pw, ph_ = int(g.integers(3, 7)), int(g.integers(3, 6))
+                    px0 = int(round(bx - face * g.uniform(3, sw * 0.8))) - (pw if face > 0 else 0)
+                    py0 = int(g.uniform(y0s + 2, max(y0s + 3, y1s - ph_)))
+                    pm = wrect(h, px0, py0, px0 + pw, py0 + ph_) & sm
+                    flat(cv, pm, patch[j % len(patch)])
+                    flat(cv, ring_px(pm) & ((xx + yy) % 2 == 0), sail[0])
+        else:
+            for j in range(3):
+                flat(cv, wline(h, [(bx, by_ - ln * 0.1 - j), (bx - face * sw * 0.8, by_ - ln * 0.1 - j)], 1),
+                     sail[j % 2])
+        # stays to the bow and stern
+        flat(cv, wline(h, [(tx, ty), P(L, -ln * 0.13)], 1), rig, 0.8)
+        if k == 0:
+            flat(cv, wline(h, [(tx, ty), P(-L + ln * 0.05, -ln * 0.28)], 1), rig, 0.8)
+    return hm
+
+
+def lantern_harbor():
+    """Lanternfall Harbor: a harbour town on a floating island at night under its great lantern star, tiled roofs
+    and lamplit windows, piers strung with lanterns and sky-junks at their moorings; the field's islands and their
+    lantern stars drift off into the violet dark above and below, the Jade River a ribbon of stars overhead."""
+    layers = []
+    stops = [(0.0, "#08071e"), (0.16, "#0e0c2c"), (0.3, "#16123a"), (0.42, "#221a4a"), (0.5, "#2e2258"),
+             (0.56, "#402a62"), (0.6, "#563468"), (0.635, "#744268"), (0.66, "#98566a"), (0.672, "#b4706e"),
+             (0.686, "#96566a"), (0.71, "#683e66"), (0.76, "#3e2e5c"), (0.86, "#221a48"), (1.0, "#110e30")]
+    glow_y = 242
+    sky = field_sky(stops, "lh", glow_y, up=520, down=240)
+    nebula(sky, "lhn_v", 116, 22, 20, "#8a58e0", alphas=(0.05, 0.08, 0.11), k=(1, 2), cell=80, gaps=0.2)
+    lo_v = nebula(sky, "lhn_lo", 300, 16, 26, "#7a4ad0", alphas=(0.05, 0.08, 0.11), k=(1, 3), cell=90, gaps=0.2)
+    lo_t = nebula(sky, "lhn_lt", 330, 10, 18, "#30b8c0", alphas=(0.05, 0.08, 0.1), k=(2, 3), cell=70, gaps=0.3)
+    g = rng("lhnst")
+    for m_, cols_ in ((lo_v, R("#8a6ad0", "#c8b0f4")), (lo_t, R("#4ab8b4", "#b8f4ec"))):
+        ys, xs = np.nonzero(m_)
+        for i in range(min(len(xs), 120)):
+            j = int(g.integers(0, len(xs)))
+            put(sky, xs[j], ys[j], cols_[0] if i % 4 else cols_[1])
+    star_river(sky, "lhjr", 58, 22, 12, "#62dc92", JADE_STARS, alphas=(0.04, 0.07, 0.1), density=0.55)
+    for i, (cx, y, ln) in enumerate(((150, 206, 170), (430, 222, 210), (600, 196, 110))):
+        streak(sky, cx, y, ln, R("#e0a07a", "#7a4a6e", "#b8726e"), ("lhs", i), rows=2)
+    for i, (cx, cy, w) in enumerate(((90, 236, 30), (340, 246, 44), (520, 232, 22))):
+        lantern_field(sky, cx, cy, w, 4, ("lhlf", i), R("#a0582c", "#ffa84a", "#ffe6a0"), "#ff9a4a", count=18)
+    layers.append((sky, 0.0, 720))
+
+    # ---------------- far: the field's islands adrift at every height, each under its own lantern star
+    fh = 220
+    far = Canvas(W, fh)
+    yy = grids(fh)[0]
+    rock = R("#1a1434", "#221a40", "#2c224c", "#382a58", "#463464", "#584074")
+    isles = [(40, 112, 24, 32, -0.05), (132, 150, 13, 16, 0.08), (250, 92, 30, 38, 0.04), (360, 158, 12, 14, -0.1),
+             (452, 118, 22, 28, 0.06), (560, 170, 10, 12, 0.1), (196, 184, 7, 8, 0.0), (600, 76, 16, 20, -0.06),
+             (318, 44, 9, 12, 0.05), (512, 52, 7, 9, -0.08), (100, 40, 6, 8, 0.1), (416, 196, 6, 7, 0.0)]
+    for i, (cx, top, hw, dp, tilt) in enumerate(isles):
+        behind = sky_at(stops, far, 560, top + dp * 0.5)
+        hz = np.clip(abs(top + 60 - glow_y) / 130.0, 0, 1)
+        ramp = hazed(rock, behind, 0.3 + (1 - hz) * 0.3)
+        m, tp = field_isle(far, cx, top, hw, dp, ramp, ("lhfi", i), mixc("#ffc878", behind, 0.35),
+                           mixc("#8a70c8", behind, 0.4), tilt=tilt, spurs=1 + (hw > 15))
+        if hw >= 12:
+            for k in range(int(hw // 8)):
+                hx = int(cx - hw * 0.62 + k * 8 + 2)
+                roof_house(far, hx, int(tp[hx % W]) + 1, 5, 3, 2, hazed(R("#140f2c", "#241c40", "#6a5070"), behind, 0.3),
+                           hazed(R("#3a3050", "#5a4c68", "#7a6a80"), behind, 0.3), win=("#e8a050", "#ffd890"), eave=1)
+        side = 1 if i % 2 else -1
+        sx, sy = cx + side * hw * 0.3, top - 14 - hw * 0.4
+        lantern_star(far, sx, sy, 2.2 + hw * 0.07, ("lhfs", i), halo=0.8, rays=0.8,
+                     tether=(cx - side * hw * 0.2, top), sag=3.0 + hw * 0.1)
+    layers.append((far, 0.08, 560))
+
+    # ---------------- mid: the harbour island, its town, piers and junks, the great lantern star above
+    mh = 300
+    mid = Canvas(W, mh)
+    yy, xx, _ = grids(mh)
+    icx, itop, ihw = 300, 204, 178
+    rock_m = R("#140f2a", "#1c1534", "#251c40", "#30244c", "#3e2e58", "#503a66", "#664a74")
+    isle, itp = field_isle(mid, icx, itop, ihw, 74, rock_m, "lhmi", "#f0b870", "#7a62c0", haze="#3a2c64", spurs=3,
+                           cap=R("#3a2a3a", "#8a6a5a"))
+    roof = R("#161430", "#262448", "#5a5478")
+    roof_w = R("#2a1a1a", "#3e2620", "#8a5238")
+    wall = R("#4a3a48", "#7a6670", "#a8948e")
+    win = ("#f0a050", "#ffe0a0")
+    lan = R("#2a1a1a", "#ff8a3a", "#ffd07a")
+    stone = R("#241c34", "#302642", "#3e3250", "#524464", "#6c5a78")
+    gy = int(itp[icx % W])
+    # the town climbs two terraces of dressed stone to the harbour hall
+    terr = [(icx - 118, icx + 128, gy - 13), (icx - 58, icx + 62, gy - 27)]
+    for k, (xa, xb, ty) in enumerate(terr):
+        tm = wrect(mh, xa, ty, xb, gy if k == 0 else terr[0][2])
+        masonry(mid, tm, stone, ("lhter", k), course=3, joint=7)
+        flat(mid, top_rim(tm), "#b08a6a")
+        for lx in range(xa + 6, xb - 4, 22):
+            lantern(mid, lx, ty + 3, lan)
+    stairs(mid, icx - 86, gy, icx - 72, terr[0][2] + 1, (stone[0], stone[2], stone[4]), width=5)
+    stairs(mid, icx + 20, terr[0][2], icx + 30, terr[1][2] + 1, (stone[0], stone[2], stone[4]), width=5)
+    hall(mid, icx - 28, terr[1][2], 56, 10, 8, R("#161430", "#262448", "#5a5478", "#8a86a8"),
+         R("#6a5660", "#a8948e", "#cbb8ac"), post_col="#7a2e28", lit="#f0a050", tiers=2)
+    g = rng("lhtown")
+    for xa, xb in ((terr[1][0] + 2, icx - 34), (icx + 34, terr[1][1] - 4)):
+        x = xa
+        while x < xb - 10:
+            w = int(g.integers(12, 17))
+            roof_house(mid, int(x), terr[1][2], w, 6, 4, roof, wall, win=win)
+            x += w + 4
+    x = terr[0][0] + 4
+    while x < terr[0][1] - 12:
+        w = int(g.integers(14, 22))
+        if not (terr[1][0] - 6 < x + w / 2 < terr[1][1] + 6):
+            roof_house(mid, int(x), terr[0][2], w, int(g.integers(6, 9)), int(g.integers(4, 6)),
+                       roof if g.random() < 0.6 else roof_w, wall, win=win)
+        x += w + int(g.integers(4, 7))
+    pagoda(mid, icx + 104, terr[0][2], 4, 12, R("#161430", "#3a3456", "#7a7098"), windows="#ffd890")
+    # the waterfront row, with lanes left open up to the stairs
+    x = icx - ihw + 10
+    while x < icx + ihw - 14:
+        w = int(g.integers(12, 20))
+        if abs(x + w / 2 - (icx - 80)) > 16 and abs(x + w / 2 - (icx + 24)) > 14:
+            roof_house(mid, int(x), int(itp[int(x + w / 2) % W]) - 1, w, int(g.integers(5, 7)), int(g.integers(3, 5)),
+                       roof_w if g.random() < 0.5 else roof, wall, win=win)
+        x += w + int(g.integers(2, 6))
+    # piers run out from both ends of the island, lanterns on their posts, junks at the moorings
+    lx0, rx0 = icx - ihw + 4, icx + ihw - 4
+    ly, ry = int(itp[lx0 % W]) + 2, int(itp[rx0 % W]) + 3
+    pier(mid, lx0 - 70, lx0, ly, R("#241620", "#4a3028", "#8a6040"), lamps=(lx0 - 64, lx0 - 38, lx0 - 12), lan=lan,
+         glow="#ff9a4a")
+    pier(mid, rx0, rx0 + 84, ry, R("#241620", "#4a3028", "#8a6040"), lamps=(rx0 + 18, rx0 + 46, rx0 + 76), lan=lan,
+         glow="#ff9a4a")
+    hullp = R("#1c1224", "#3a2632", "#7a5048")
+    junk(mid, lx0 - 40, ly - 3, 58, "lhj1", hullp, R("#5a2a2e", "#8a3e36", "#c8704a"), face=-1, lit=win)
+    junk(mid, rx0 + 52, ry - 2, 50, "lhj2", hullp, R("#3a3a5a", "#6a6a86", "#b0b0c0"), face=1, set_sails=False, lit=win)
+    # strings of lanterns across the town's lanes
+    for (xa, xb, s_) in ((icx - 120, icx - 40, 8), (icx + 30, icx + 110, 7)):
+        ya, yb = int(itp[xa % W]) - 18, int(itp[xb % W]) - 18
+        pts = sag_pts(xa, ya, xb, yb, s_)
+        rope_line(mid, pts, "#3a2838")
+        for j in range(3, len(pts) - 2, 5):
+            lantern(mid, int(round(pts[j][0])), int(round(pts[j][1])) + 1, lan)
+    # the great lantern star, moored to the island by two heavy chains
+    lantern_star(mid, icx - 20, 78, 22, "lhgreat", hang=None, tether=(icx - 110, int(itp[(icx - 110) % W]) - 4),
+                 sag=14, rays=1.2)
+    chain(mid, sag_pts(icx - 20, 78 + 22 + 9, icx + 70, int(itp[(icx + 70) % W]) - 6, 16), R("#22150c", "#76502a",
+                                                                                              "#aa7838"), heavy=True)
+    layers.append((mid, 0.18, 620))
+
+    # ---------------- near: mooring posts, a lantern rope and the lamplit swell of nebula below the quay
+    nh = 200
+    near = Canvas(W, nh)
+    yy, _, _ = grids(nh)
+    sea_n = R("#130e34", "#191242", "#21184e", "#2c1f5a", "#3c2a66", "#5a3c72", "#c08a86")
+    luminous_sea(near, 150, "lhsea_n", sea_n, [(10, 20, 14, 5), (12, 24, 16, 6), (14, 26, 18, 6)])
+    sn = (near.a > 0)
+    sea_ribbon(near, 174, "lhrn1", "#9a66e8", core="#e8d4ff", thick=4.0, amp=4, clip=sn, alphas=(0.1, 0.18, 0.26))
+    sea_glints(near, sn, "lhng", 12, R("#ffe8d0", "#ffffff"), specks=40, speck_c="#fff0e8")
+    post = R("#120c1c", "#22182c", "#3e2c3c", "#8a6040")
+    tops = []
+    for i, (px, top) in enumerate(((70, 96), (330, 110), (560, 90))):
+        pm = wrect(nh, px - 3, top, px + 3, nh)
+        flat(near, pm, post[1])
+        flat(near, left_rim(pm), post[2])
+        flat(near, right_rim(pm), post[0])
+        capm = wrect(nh, px - 4, top - 3, px + 4, top - 1)
+        flat(near, capm, LS_CAGE[2])
+        flat(near, top_rim(capm), LS_CAGE[4])
+        flat(near, bot_rim(capm), LS_CAGE[0])
+        for yb in (top + 12, top + 30):
+            band = wrect(nh, px - 3, yb, px + 3, yb + 1)
+            flat(near, band, LS_CAGE[1])
+            flat(near, band & left_rim(band), LS_CAGE[3])
+        tops.append((px, top))
+    for (ax, ay), (bx, by) in ((tops[0], tops[1]), (tops[1], tops[2])):
+        pts = sag_pts(ax + 4, ay + 4, bx - 4, by + 4, 22)
+        rope_line(near, pts, "#2e2030", pennants=R("#86283a", "#e8d6bc", "#2e2c66"), every=9, seed=ax)
+        for j in range(6, len(pts) - 4, 14):
+            lantern(near, int(round(pts[j][0])), int(round(pts[j][1])) + 1, lan, glow="#ff9a4a")
+    layers.append((near, 0.32, 720))
+    return dict(sky="#08071e", horizon="#d89470", layers=layers)
+
+
+def min_runs(on, n):
+    """Drop the runs of True shorter than n from a periodic 1-D mask."""
+    if on.all() or not on.any():
+        return on.copy()
+    start = int(np.argmin(on))
+    r = np.roll(on, -start).copy()
+    idx = np.nonzero(np.diff(np.concatenate([[0], r.astype(int), [0]])))[0]
+    for a, b in zip(idx[::2], idx[1::2]):
+        if b - a < n:
+            r[a:b] = False
+    return np.roll(r, start)
+
+
+def star_shoal(cv, y, seed, col, rim, thick=6.0, amp=2.0, alphas=(0.12, 0.2, 0.3), cell=120.0, gaps=0.3, glints=0,
+               glint_pal=None, clip=None):
+    """A shoal of starlight: shallow light pooled flat between the islets, seen nearly edge on. A lens of stepped
+    translucent layers deepest in its middle and thinning to nothing at its ends, a bright broken waterline along its
+    top, ripple dashes across it and a scatter of glints. Returns its mask."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    cols = np.arange(W)
+    ph = rng("shl", seed).uniform(0, 6.283)
+    yc = y + (pn1(("shl", seed), cell, 2) - 0.5) * 2 * amp + np.sin(cols / W * 2 * math.pi + ph) * amp * 0.5
+    ends = np.clip((pn1(("she", seed), cell * 1.5, 2) - gaps) / 0.25, 0, 1)
+    ends = np.where(min_runs(ends * thick >= 1.2, 28), ends, 0.0)
+    clip = np.ones((h, W), bool) if clip is None else clip
+    total = np.zeros((h, W), bool)
+    for i, a in enumerate(alphas):
+        hw = thick * (1 - i * 0.3) * ends
+        m = (yy >= np.round(yc - hw * 0.35)[None, :]) & (yy <= np.round(yc + hw)[None, :]) & (hw[None, :] >= 0.8)
+        m = despeck(m) & clip
+        flat(cv, m, col, a)
+        total |= m
+    wl = top_rim(total) & (pn2(h, ("shw", seed), 10, 2, 1) > 0.28)
+    flat(cv, wl, rim, 0.75)
+    rip = total & ~top_rim(total) & ((yy - np.round(yc)[None, :]).astype(int) % 4 == 1)
+    rip &= pn2(h, ("shr", seed), 6, 1.2, 2) > 0.7
+    flat(cv, rip, rim, 0.3)
+    if glints and glint_pal is not None:
+        sea_glints(cv, total, ("shg", seed), glints, glint_pal, big_every=5, specks=glints * 3, speck_c=glint_pal[0])
+    return total
+
+
+def star_jelly(cv, x, y, s, col, seed, glow=None, tent=4, drift=0.0):
+    """A jellyfish of starlight adrift over the shoals: a translucent bell with a lit crown, a glowing heart and a
+    scalloped hem, trailing tendrils that sway and fray to dots, in a stepped halo. col = (deep, body, light, core)."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    g = rng("jelly", seed)
+    x, y = int(round(x)), int(round(y))
+    if glow is not None:
+        for s_, a in ((2.8, 0.04), (1.9, 0.07), (1.3, 0.11)):
+            flat(cv, wellipse(h, x, y - s * 0.3, s * s_, s * s_ * 0.85), glow, a)
+    for k in range(tent):
+        tx = x - s * 0.75 + (k + 0.5) * (1.5 * s) / tent
+        ln = s * g.uniform(1.8, 3.2)
+        ph = g.uniform(0, 6.28)
+        n = max(2, int(ln))
+        for j in range(n):
+            t = j / (n - 1.0)
+            if t > 0.55 and j % 2:
+                continue
+            px_ = tx + math.sin(j * 0.5 + ph) * (0.4 + t * 1.3) + drift * t * ln
+            put(cv, px_, y + 1 + j, col[1] if t < 0.35 else col[0], 0.95 - t * 0.55)
+    bell = wellipse(h, x, y, s, s * 0.85) & (yy <= y)
+    flat(cv, bell, col[1], 0.8)
+    d = wdx(xx, x)
+    flat(cv, bell & (d < -s * 0.2) & ((yy - y) < -s * 0.35), col[2], 0.8)
+    flat(cv, top_rim(bell) & (d < s * 0.4), col[2])
+    hem = bot_rim(bell)
+    flat(cv, hem, col[0], 0.9)
+    flat(cv, hem & (xx % 2 == 0), col[2])
+    heart = wellipse(h, x - 0.5, y - s * 0.35, max(0.8, s * 0.28), max(0.8, s * 0.22))
+    flat(cv, heart, col[3])
+    return bell
+
+
+def lantern_ribbon(cv, seed, y0, amp, width, alphas=(0.04, 0.06, 0.09), density=0.45, k=(1, 2), twinkles=5):
+    """The Jade River where it runs faint through the far nebula of the star field: a thin jade star-river."""
+    return star_river(cv, seed, y0, amp, width, "#62dc92", JADE_STARS, alphas=alphas, density=density, k=k,
+                      twinkles=twinkles)
+
+
+def star_shoals():
+    """The Drifting Shoals: shallow shoals of starlight pooled between low drifting islets, jellyfish of light
+    glittering over them, pale cyan and violet under a clear star field; the Jade River winds faint through the
+    nebula far below."""
+    layers = []
+    stops = [(0.0, "#0a0c2c"), (0.18, "#111740"), (0.34, "#1a2454"), (0.46, "#26366a"), (0.55, "#384e80"),
+             (0.61, "#506c98"), (0.645, "#6c90b0"), (0.665, "#8cb8c8"), (0.68, "#6c94ba"), (0.7, "#4e62a0"),
+             (0.74, "#363c80"), (0.82, "#242866"), (1.0, "#101234")]
+    glow_y = 240
+    sky = field_sky(stops, "sh", glow_y, up=560, down=280)
+    nv = nebula(sky, "shn_v", 96, 26, 26, "#a878f0", alphas=(0.05, 0.08, 0.11), k=(1, 2), cell=80, gaps=0.2)
+    nt = nebula(sky, "shn_t", 168, 14, 16, "#50d8e0", alphas=(0.05, 0.08, 0.1), k=(1, 3), cell=90, gaps=0.3)
+    nl = nebula(sky, "shn_lo", 304, 18, 26, "#6a5cd0", alphas=(0.04, 0.06, 0.08), k=(1, 2), cell=80, gaps=0.15)
+    g = rng("shnst")
+    for m_, cols_ in ((nv, R("#9a7ae0", "#d8c4fa")), (nt, R("#5ac8d0", "#c8f8f4")), (nl, R("#8a72d8", "#d0c0f8"))):
+        ys, xs = np.nonzero(m_)
+        for i in range(min(len(xs), 150)):
+            j = int(g.integers(0, len(xs)))
+            put(sky, xs[j], ys[j], cols_[0] if i % 4 else cols_[1])
+    lantern_ribbon(sky, "shjr", 280, 12, 11, alphas=(0.06, 0.09, 0.13), density=0.7)
+    for i, (cx, y, ln) in enumerate(((120, 214, 200), (420, 226, 170), (560, 206, 120))):
+        streak(sky, cx, y, ln, R("#6a86b8", "#9ec8d8", "#e0f6f4"), ("shs", i), rows=2)
+    layers.append((sky, 0.0, 720))
+
+    # ---------------- far: low islets strung along the glow, lantern stars over them, the far shoals shining between
+    fh = 220
+    far = Canvas(W, fh)
+    yy = grids(fh)[0]
+    rock = R("#1c2046", "#242a54", "#2e3662", "#3a4472", "#4a5680", "#5e6e92")
+    isles = [(30, 168, 30, 10), (120, 176, 18, 7), (212, 164, 40, 12), (330, 180, 22, 8), (420, 170, 34, 10),
+             (530, 176, 26, 9), (600, 186, 12, 5), (270, 110, 12, 12), (480, 90, 16, 16), (80, 70, 10, 10)]
+    for i, (cx, top, hw, dp) in enumerate(isles):
+        behind = sky_at(stops, far, 560, top + dp * 0.5)
+        ramp = hazed(rock, behind, 0.35 + 0.25 * (top > 150))
+        m, tp = field_isle(far, cx, top, hw, dp, ramp, ("shfi", i), mixc("#e0f4ff", behind, 0.35),
+                           mixc("#8ac8e8", behind, 0.35), tilt=0.0, spurs=1)
+        if i % 2 == 0 or top < 150:
+            side = 1 if i % 3 else -1
+            lantern_star(far, cx + side * hw * 0.25, top - 12 - hw * 0.25, 2.2 + hw * 0.05, ("shfs", i), halo=0.8,
+                         rays=0.7, tether=(cx - side * hw * 0.2, top), sag=3.0)
+    for k, (y, th, c) in enumerate(((182, 3.5, "#9ae0f0"), (197, 5.0, "#b8a0f8"))):
+        star_shoal(far, y, ("shf", k), c, "#f0ffff", thick=th, amp=1.5, alphas=(0.16, 0.28), gaps=0.3, glints=14,
+                   glint_pal=R("#d8f8ff", "#ffffff"))
+    layers.append((far, 0.08, 560))
+
+    # ---------------- mid: broad low islets with crystal tufts, the shoals pooled round their feet, jellies adrift
+    mh = 240
+    mid = Canvas(W, mh)
+    yy, xx, _ = grids(mh)
+    rock_m = R("#131638", "#1a1e46", "#222854", "#2c3462", "#384272", "#4a5886", "#62769c")
+    crys = R("#1e4a6a", "#2a6a8a", "#3a8eaa", "#5ab4c8", "#9ae0e8", "#e0fcff")
+    stars_x = []
+    for i, (cx, top, hw, dp) in enumerate(((110, 160, 70, 40), (380, 170, 88, 46), (590, 150, 36, 30))):
+        m, tp = field_isle(mid, cx, top, hw, dp, rock_m, ("shmi", i), "#bce8ff", "#7ab8e0", haze="#2a3a78", spurs=2,
+                           cap=R("#26305a", "#4a6a8a"))
+        g = rng("shcrys", i)
+        for k in range(int(hw // 14)):
+            tx = int(cx - hw * 0.8 + g.uniform(0, hw * 1.6))
+            crystal(mid, tx, int(tp[tx % W]) + 1, int(g.integers(3, 7)), crys, ("shcr", i, k), glow_c="#5ac8e0",
+                    lean=g.uniform(-0.4, 0.4))
+        if i != 2:
+            sx = cx + (22 if i == 0 else -30)
+            lantern_star(mid, sx, top - 58 - i * 8, 7 + i, ("shms", i), tether=(cx - 10 + i * 36, top), sag=6)
+            stars_x.append(sx)
+    shoals = np.zeros((mh, W), bool)
+    for k, (y, th, c, a) in enumerate(((184, 6.0, "#8ad8f0", (0.14, 0.24, 0.34)), (208, 9.0, "#b8a0f8", (0.12, 0.22, 0.3)))):
+        shoals |= star_shoal(mid, y, ("shm", k), c, "#f4ffff", thick=th, amp=2.5, alphas=a, gaps=0.3, glints=18,
+                             glint_pal=R("#d8f8ff", "#ffffff"))
+    # the lantern stars laid on the shallows as broken golden streaks
+    for sx in stars_x:
+        col = shoals[:, int(sx) % W]
+        if not col.any():
+            continue
+        y0 = int(np.argmax(col))
+        for k in range(16):
+            if k % 3 == 2:
+                continue
+            wd = 2 if k < 6 else 1
+            flat(mid, wrect(mh, int(sx) - wd // 2 + (k % 2), y0 + k, int(sx) + wd // 2 + (k % 2), y0 + k) & shoals,
+                 "#ffe0a0", 0.75 - k * 0.04)
+    jel = [R("#2a6a9a", "#5ac0e0", "#b0f0f8", "#ffffff"), R("#5a3aa0", "#9a78e8", "#d8c8ff", "#ffffff"),
+           R("#8a3a8a", "#d078c8", "#f8c8f0", "#ffffff")]
+    glows = ("#6ad0f0", "#a888f8", "#e890e0")
+    g = rng("shjel")
+    for i in range(11):
+        x = (i + g.uniform(0.1, 0.9)) * W / 11
+        y = g.uniform(70, 158)
+        k = int(g.integers(0, 3))
+        star_jelly(mid, x, y, g.uniform(3.0, 5.5), jel[k], ("shj", i), glow=glows[k], tent=3, drift=g.uniform(-0.2, 0.2))
+    layers.append((mid, 0.18, 620))
+
+    # ---------------- near: the shoal at the viewer's feet, deep and glittering, and big slow jellies over it
+    nh = 200
+    near = Canvas(W, nh)
+    yy, _, _ = grids(nh)
+    crys_n = R("#18405e", "#22607e", "#3284a0", "#50aac0", "#90dae4", "#e0fcff")
+    rock_n = R("#0c0e2a", "#121538", "#191d46", "#212754", "#2c3462", "#3c4876", "#566890")
+    for i, (cx, top, hw, dp) in enumerate(((520, 150, 74, 44), (40, 172, 40, 30))):
+        m, tp = field_isle(near, cx, top, hw, dp, rock_n, ("shni", i), "#a8e0ff", "#6aa8d8", haze="#1c2660", spurs=2,
+                           cap=R("#1c2450", "#3a5a80"))
+        g = rng("shncr", i)
+        for k in range(int(hw // 10)):
+            tx = int(cx - hw * 0.8 + g.uniform(0, hw * 1.6))
+            crystal(near, tx, int(tp[tx % W]) + 1, int(g.integers(4, 10)), crys_n, ("shncx", i, k), glow_c="#5ac8e0",
+                    lean=g.uniform(-0.4, 0.4))
+    for k, (y, th, c, a) in enumerate(((166, 10.0, "#7ad0ec", (0.14, 0.24, 0.34)), (190, 14.0, "#a890f0", (0.16, 0.26, 0.36)))):
+        star_shoal(near, y, ("shn", k), c, "#f4ffff", thick=th, amp=4, alphas=a, gaps=0.3 + k * 0.08, glints=16,
+                   glint_pal=R("#d8f8ff", "#ffffff"), cell=200.0)
+    for i, (x, y, s, k) in enumerate(((90, 70, 9, 0), (300, 40, 7, 1), (520, 84, 11, 2), (410, 116, 5, 0))):
+        star_jelly(near, x, y, s, jel[k], ("shnj", i), glow=glows[k], tent=5, drift=0.15 * (1 if i % 2 else -1))
+    layers.append((near, 0.32, 720))
+    return dict(sky="#0a0c2c", horizon="#8cb8c8", layers=layers)
+
+
+def nest(cv, cx, by, w, ht, pal, seed, eggs=None, egg_n=3):
+    """A great round nest: a deep bowl woven of whole branches, a thick rim bristling with sticks and pale eggs
+    showing over it. by = the bowl's foot. pal = twigs (dark, mid, light, pale); eggs = (shade, body, light, speck)."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    g = rng("nest", seed)
+    rim_y = by - ht
+    d = wdx(xx, cx)
+    if eggs is not None:
+        for k in range(egg_n):
+            ex = cx + (k - (egg_n - 1) / 2.0) * w * 0.24 + g.uniform(-1, 1)
+            er = w * g.uniform(0.09, 0.12)
+            ey = rim_y - er * 0.6
+            em = wellipse(h, ex, ey, er, er * 1.3)
+            de = wdx(xx, ex)
+            flat(cv, em, eggs[1])
+            flat(cv, em & (de + (yy - ey) * 0.6 < -er * 0.3), eggs[2])
+            flat(cv, em & (de + (yy - ey) * 0.4 > er * 0.45), eggs[0])
+            flat(cv, em & (pn2(h, ("egs", seed, k), 1.5, 1.5, 1) > 0.78), eggs[3])
+    bowl = wellipse(h, cx, rim_y, w / 2.0, ht) & (yy >= rim_y)
+    rim = wellipse(h, cx, rim_y, w / 2.0 + 1, max(2.0, ht * 0.3))
+    m = bowl | rim
+    u = np.clip((d + w / 2.0) / max(1.0, w), 0, 1)
+    weave = (((xx + yy) % 5 == 0).astype(float) - ((xx - 2 * yy) % 7 == 0).astype(float))
+    v = 1.6 + (0.5 - u) * 1.6 + weave * 0.9 - np.clip((yy - rim_y) / max(1.0, ht), 0, 1) * 0.8
+    v = v + rim * 0.7
+    paint(cv, m, pal, v, sharp=3)
+    flat(cv, top_rim(rim) & (u < 0.7), pal[3])
+    flat(cv, bot_rim(m), pal[0])
+    for k in range(int(w / 2.5)):
+        a = g.uniform(0, 2 * math.pi)
+        sx0 = cx + math.cos(a) * w * 0.5
+        sy0 = rim_y + math.sin(a) * ht * 0.3
+        ln = g.uniform(2, 5 + w * 0.06)
+        ang = a + g.uniform(-0.6, 0.6)
+        sx1, sy1 = sx0 + math.cos(ang) * ln, sy0 + math.sin(ang) * ln * 0.6 - g.uniform(0, 2)
+        flat(cv, wline(h, [(sx0, sy0), (sx1, sy1)], 1), pal[int(g.integers(0, 3))])
+    return m
+
+
+def smoke_plume(cv, x, y, ht, col, seed, width=6.0, lean=0.35, alphas=(0.08, 0.14, 0.2)):
+    """Smoke climbing from a lamp or a fire at (x, y): a chain of billows that swell and bend downwind as they rise,
+    each alpha step one flat union of lobes (so overlaps never double up), frayed edges, thinning out at the top."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    g = rng("smk", seed)
+    n = max(3, int(ht / (width * 0.4)))
+    lobes = []
+    for k in range(n):
+        t = k / (n - 1.0)
+        r = width * (0.35 + t * 1.1) * g.uniform(0.8, 1.2)
+        lobes.append((x + lean * ht * t ** 1.4 + g.uniform(-1.5, 1.5) * (1 + t * 3), y - ht * t, r, t))
+    fray = pn2(h, ("smkf", seed), 4, 3, 2)
+    for i, a in enumerate(alphas):
+        m = np.zeros((h, W), bool)
+        for (lx, ly, r, t) in lobes:
+            s_ = (1.0 - i * 0.28) * (1.0 - t ** 3 * 0.6)
+            if s_ * r < 0.8:
+                continue
+            m |= wellipse(h, lx, ly, r * 1.25 * s_, r * s_)
+        m &= fray > 0.12 + i * 0.1
+        flat(cv, despeck(m), col, a)
+
+
+def wyrm(cv, x, y, ln, pal, seed, face=1, amp=3.0):
+    """A wyrm on the wing, far off: a long serpent body rippling in a slow wave and tapering to a finned tail, a
+    horned head, and two bat wings raised from the shoulders on splayed finger bones with scalloped trailing edges.
+    (x, y) = the head, the body trails away from `face`. pal = (body, rim light, wing membrane)."""
+    h = cv.h
+    g = rng("wyrm", seed)
+    ph = g.uniform(0, 6.28)
+    n = int(ln)
+    pts = [(x - face * t, y + amp * math.sin(t / ln * 2.2 * math.pi + ph) * min(1.0, t / (ln * 0.25)))
+           for t in range(n)]
+    body = np.zeros((h, W), bool)
+    for i in range(n - 1):
+        f = i / float(n)
+        wd = 4 if f < 0.12 else (3 if f < 0.4 else (2 if f < 0.72 else 1))
+        body |= wline(h, [pts[i], pts[i + 1]], wd)
+    tx, ty = pts[-1]
+    body |= wpoly(h, [(tx, ty), (tx - face * 4, ty - 3), (tx - face * 5, ty + 2)])
+    hx, hy = pts[0]
+    head = wpoly(h, [(hx - face * 1, hy - 2.5), (hx + face * 6, hy - 1), (hx + face * 6, hy + 1), (hx - face * 1, hy + 2.5)])
+    horns = wline(h, [(hx, hy - 2), (hx - face * 4, hy - 6)], 1) | wline(h, [(hx + face * 2, hy - 2), (hx - face * 1, hy - 6)], 1)
+    sx, sy = pts[int(ln * 0.22)]
+    for k, (reach, lift, col) in enumerate(((ln * 0.5, ln * 0.42, pal[2]), (ln * 0.34, ln * 0.3, pal[0]))):
+        wx_ = sx - face * k * 3
+        tips = [(wx_ - face * reach * 0.12, sy - lift), (wx_ - face * reach * 0.55, sy - lift * 0.82),
+                (wx_ - face * reach, sy - lift * 0.42)]
+        wing = wpoly(h, [(wx_ + face * 1, sy)] + tips + [(wx_ - face * reach * 0.62, sy - lift * 0.1),
+                                                         (wx_ - face * reach * 0.3, sy + 1)])
+        notch = np.zeros((h, W), bool)
+        for j in range(2):
+            ax, ay = tips[j]
+            bx, by = tips[j + 1]
+            notch |= wellipse(h, (ax + bx) / 2 - face * reach * 0.05, (ay + by) / 2 + reach * 0.14, reach * 0.1,
+                              reach * 0.1)
+        wing &= ~notch
+        flat(cv, wing, col)
+        for tp in tips:
+            flat(cv, wline(h, [(wx_, sy), tp], 1) & wing, pal[0])
+        flat(cv, top_rim(wing), pal[1])
+    flat(cv, body | head | horns, pal[0])
+    flat(cv, top_rim(head) | (top_rim(body) & (np.abs(wdx(xx_all(h), x)) < ln * 0.3)), pal[1])
+    return body
+
+
+def crag(cv, cx, top, hw, base, ramp, seed, **kw):
+    """A karst crag standing on an island's back: karst_peak cut off at row `base` (it would run to the canvas foot).
+    Returns (mask, profile)."""
+    h = cv.h
+    yy = grids(h)[0]
+    tmp = Canvas(W, h)
+    m, prof = karst_peak(tmp, cx, top, hw, ramp, seed, base=base + 2, **kw)
+    tmp.a[yy > base] = 0.0
+    cv.paste(tmp)
+    return m & (yy <= base), prof
+
+
+def cliff_isle(cv, cx, top, hw, base, root, ramp, seed, p=1.7, root_ramp=None, cool=None, trees=None):
+    """A tall cliff island adrift: a steep tower of rock rising off a short skirt, its foot broken off into a jagged
+    root hanging into the sky below, the underside washed by the nebula's cool light. Returns (mask, profile)."""
+    h = cv.h
+    yy = grids(h)[0]
+    tmp = Canvas(W, h)
+    m, prof = karst_peak(tmp, cx, top, hw, ramp, ("cis", seed), base=base, p=p, skirt=1.35, skirt_h=0.12, rough=1.6,
+                         gain=1.2, crevice=1.1, shoulder=0.6, ledges=0.6, trees=trees, tree_frac=0.35, asym=0.0)
+    tmp.a[yy > base] = 0.0
+    m &= yy <= base
+    rr = root_ramp or ramp
+    rm, _ = shard_isle(tmp, cx, base - 1, hw * 1.3, root, rr, ("cir", seed), spurs=2)
+    rm &= ~m
+    if cool is not None:
+        flat(tmp, bot_rim(rm) & (yy > base + 2), cool)
+    cv.paste(tmp)
+    return m | rm, prof
+
+
+def blackmast_haven():
+    """Blackmast Haven: the pirates' haven wedged among black rock islands, masts and rigging crowding the cove,
+    patched sails, the wreck of a lantern cage jammed in the rocks, smoky red-orange lamps and banners of the
+    watching eye; the Jade River shows faintly through the smoke overhead."""
+    layers = []
+    stops = [(0.0, "#08060e"), (0.18, "#0e0a18"), (0.34, "#171020"), (0.46, "#221428"), (0.55, "#34182a"),
+             (0.61, "#4e1e2a"), (0.645, "#72302c"), (0.665, "#9a4a30"), (0.68, "#7a3a2e"), (0.71, "#4a2230"),
+             (0.77, "#2a1628"), (0.87, "#170e1e"), (1.0, "#0c0812")]
+    glow_y = 240
+    sky = field_sky(stops, "bm", glow_y, up=300, down=140, pal=R("#2a2438", "#4e4460", "#8a7e98", "#d0c8d8",
+                                                                 "#ffffff"))
+    lantern_ribbon(sky, "bmjr", 54, 18, 11, alphas=(0.03, 0.05, 0.07), density=0.35)
+    for i, (y, a) in enumerate(((150, 0.08), (196, 0.1), (226, 0.12))):
+        nebula(sky, ("bmsm", i), y, 12, 18 + i * 4, "#5a3a3a", alphas=(a * 0.6, a), k=(1, 2), cell=60, gaps=0.15)
+    nebula(sky, "bmn_lo", 300, 18, 24, "#5a2a5a", alphas=(0.05, 0.08, 0.1), k=(1, 3), cell=80, gaps=0.2)
+    for i, (cx, y, ln) in enumerate(((100, 226, 190), (380, 234, 230), (560, 214, 140))):
+        streak(sky, cx, y, ln, R("#c0603a", "#4a2230", "#8a3a30"), ("bms", i), rows=2)
+    layers.append((sky, 0.0, 720))
+
+    # ---------------- far: black rock pinnacles in the smoke, far masts, the red eyes of lamps
+    fh = 220
+    far = Canvas(W, fh)
+    yy = grids(fh)[0]
+    rock = R("#0e0a12", "#141018", "#1c1620", "#261c28", "#322432", "#402c3a")
+    lamp = R("#3a1810", "#e0582a", "#ffb060")
+    for i, (x, top, ln) in enumerate(((60, 120, 50), (86, 132, 40), (300, 110, 56), (330, 128, 44), (520, 124, 48))):
+        behind = sky_at(stops, far, 560, top)
+        c = mixc("#1a1218", behind, 0.35)
+        flat(far, wline(fh, [(x, top), (x, top + ln)], 1), c)
+        flat(far, wline(fh, [(x - 8, top + 6), (x + 7, top + 5)], 1), c)
+        flat(far, wline(fh, [(x - 6, top + 18), (x + 6, top + 17)], 1), c)
+        put(far, x + 3, top + 20, lamp[1])
+    for i, (cx, top, hw, dp) in enumerate(((30, 120, 26, 60), (190, 100, 20, 70), (250, 140, 16, 40), (410, 116, 24, 64),
+                                         (470, 150, 14, 34), (600, 104, 18, 60))):
+        behind = sky_at(stops, far, 560, top + dp * 0.4)
+        ramp = hazed(rock, behind, 0.3)
+        crag(far, cx + hw * 0.2, top - 26 - i % 3 * 8, hw * 0.45, top + 3, ramp, ("bmfp", i), p=1.3, rough=2.4,
+             shoulder=0.9, crevice=1.0)
+        m, tp = field_isle(far, cx, top, hw, dp, ramp, ("bmfi", i), mixc("#e06a3a", behind, 0.4),
+                           mixc("#7a3a5a", behind, 0.4), tilt=0.05 * (1 if i % 2 else -1), spurs=3)
+        lx = int(cx - hw * 0.5)
+        lantern(far, lx, int(tp[lx % W]) - 5, lamp, glow="#e05a2a")
+    lantern_star(far, 250, 64, 4, "bmfs0", lit=0.45, halo=0.6, rays=0.5, tether=(254, 140), sag=6)
+    for i, (y, a) in enumerate(((150, 0.14), (176, 0.18))):
+        mist_band(far, y, 10, ("bmfm", i), "#5a3438", alphas=(a * 0.6, a), amp=4, cell=90, gaps=0.2)
+    layers.append((far, 0.08, 560))
+
+    # ---------------- mid: the haven: rock islands wedged close, ships moored in the cove, lamps, the broken cage
+    mh = 260
+    mid = Canvas(W, mh)
+    yy, xx, _ = grids(mh)
+    rock_m = R("#0a070c", "#110c14", "#18111c", "#221824", "#2e202e", "#3c2a38", "#4e3844")
+    warm = "#d8643a"
+    cool = "#6a3a62"
+    lamp_m = R("#3a1810", "#f0602a", "#ffc070")
+    isl = []
+    # the lamplight of the haven pooling red in its own smoke
+    for (gx, gy, rx, ry) in ((200, 140, 90, 50), (440, 150, 80, 44), (40, 150, 50, 30)):
+        for s_, a in ((1.0, 0.04), (0.66, 0.06), (0.38, 0.08)):
+            flat(mid, wellipse(mh, gx, gy, rx * s_, ry * s_), "#e0602a", a)
+    # a forest of bare masts behind the rocks: the rest of the fleet lying in the lee
+    mast_c = R("#140c12", "#2a1a1e", "#6a3a2c")
+    for i, (x, top, bot) in enumerate(((20, 60, 150), (132, 44, 150), (152, 70, 150), (368, 64, 176), (470, 50, 150),
+                                       (604, 70, 140))):
+        flat(mid, wline(mh, [(x, top), (x, bot)], 1), mast_c[1])
+        for j, (yo, ln) in enumerate(((6, 9), (22, 7), (40, 5))):
+            if top + yo < bot - 10:
+                flat(mid, wline(mh, [(x - ln, top + yo + 1), (x + ln, top + yo - 1)], 1), mast_c[1])
+                put(mid, x - ln, top + yo + 1, mast_c[2])
+        rope_line(mid, [(x, top), (x - 26, bot - 10)], mast_c[0])
+        rope_line(mid, [(x, top), (x + 22, bot - 16)], mast_c[0])
+        flat(mid, wrect(mh, x, top - 2, x, top - 1), mast_c[2])
+    for i, (x, y, ht) in enumerate(((96, 138, 80), (330, 172, 70), (590, 122, 76))):
+        smoke_plume(mid, x, y, ht, "#5a3434", ("bmsp", i), width=8, lean=0.5, alphas=(0.07, 0.11, 0.15))
+    # the wreck of a lantern cage, fallen and sunk half into the rock of the big isle, its star long gone: stove-in
+    # ribs, bent spokes, a snapped mooring chain
+    wx, wy, wr = 548, 136, 20
+    chain(mid, dangle_pts(wx - 3, wy - wr - 6, 20, sway=-3), R("#140c10", "#4a301a", "#8a5a2c"), heavy=True)
+    lantern_star(mid, wx, wy, wr, "bmwreck", lit=0.0, ember="#5a2418", broken=0.42, verd=LS_VERD)
+    g = rng("bmspoke")
+    for k in range(5):
+        a0 = g.uniform(-2.6, -0.6)
+        x0, y0 = wx + math.cos(a0) * wr, wy + math.sin(a0) * wr
+        a1 = a0 + g.uniform(-0.8, 0.8)
+        ln_ = g.uniform(4, 9)
+        flat(mid, wline(mh, [(x0, y0), (x0 + math.cos(a1) * ln_, y0 + math.sin(a1) * ln_)], 1), LS_CAGE[2])
+    for i, (cx, top, hw, dp) in enumerate(((70, 150, 72, 80), (330, 176, 44, 60), (520, 140, 80, 90))):
+        pk, pp = crag(mid, cx - hw * 0.25, top - 60 + i * 14, hw * 0.4, top + 4, rock_m, ("bmmp", i), p=1.25, rough=2.6,
+                      shoulder=1.0, crevice=1.2, gain=1.1)
+        flat(mid, left_rim(pk) & (yy < top), warm, 0.6)
+        m, tp = field_isle(mid, cx, top, hw, dp, rock_m, ("bmmi", i), warm, cool, haze="#2a1824", spurs=3)
+        isl.append((cx, top, hw, tp))
+    crag(mid, 570, 122, 10, 142, rock_m, "bmwr", p=1.4, rough=2.0, shoulder=0.0)
+    crag(mid, 526, 130, 7, 142, rock_m, "bmwr2", p=1.6, rough=2.0, shoulder=0.0)
+    # ships moored in the cove between the islands: patched sails, lamps, rigging to the rocks
+    hullp = R("#0e0a10", "#241820", "#4e3432")
+    sails = R("#2a1a1a", "#4a2a26", "#7a4436")
+    patch = R("#5e3a2a", "#3a2a24", "#6a2a2a")
+    junk(mid, 214, 150, 64, "bmj1", hullp, sails, face=1, lit=("#e0602a", "#ffb060"), patch=patch)
+    junk(mid, 420, 162, 54, "bmj2", hullp, R("#221a20", "#3e2e2e", "#6a5040"), face=-1, lit=("#e0602a", "#ffb060"),
+         patch=patch)
+    junk(mid, 300, 128, 40, "bmj3", hullp, sails, face=1, set_sails=False, lit=("#e0602a", "#ffb060"))
+    # rigging and lamp lines strung from the masts to the rocks
+    for (a, b, s_) in (((214, 96), (140, 118), 6), ((214, 96), (312, 100), 10), ((420, 116), (500, 100), 6),
+                       ((300, 100), (420, 116), 8)):
+        pts = sag_pts(a[0], a[1], b[0], b[1], s_)
+        rope_line(mid, pts, "#2a1c24")
+        for j in range(4, len(pts) - 3, 9):
+            lantern(mid, int(round(pts[j][0])), int(round(pts[j][1])) + 1, lamp_m, glow="#e05a2a")
+    # plank walks and lamps on the rocks
+    for cx, top, hw, tp in isl:
+        for k in range(2):
+            lx = int(cx - hw * 0.6 + k * hw * 0.9)
+            ly = int(tp[lx % W])
+            flat(mid, wrect(mh, lx, ly - 10, lx, ly), "#1a1016")
+            flat(mid, wrect(mh, lx, ly - 10, lx + 2, ly - 10), "#1a1016")
+            lantern(mid, lx + 2, ly - 9, lamp_m, glow="#e05a2a")
+    pier(mid, 118, 160, 152, R("#140c10", "#2e1e1e", "#6a4432"), posts=R("#0c080c", "#1a1016"), drop=10)
+    pier(mid, 452, 484, 162, R("#140c10", "#2e1e1e", "#6a4432"), posts=R("#0c080c", "#1a1016"), drop=10)
+    pole = R("#140e18", "#2a1e26", "#5a4038")
+    cloth = R("#161436", "#221f4c", "#302d66", "#46448a")
+    for i, (bx, ht) in enumerate(((40, 56), (500, 66))):
+        col = mid.a[:, bx % W] > 0
+        by = int(np.argmax(col)) if col.any() else 150
+        war_banner(mid, bx, by + 1, ht, pole, cloth, "#ece2c8", ("bmb", i), bl=24, bw=8, trim="#c8b894")
+    for i, (y, a) in enumerate(((104, 0.1), (140, 0.14))):
+        mist_band(mid, y, 12, ("bmmm", i), "#6a3a38", alphas=(a * 0.6, a), amp=5, cell=70, gaps=0.3)
+    layers.append((mid, 0.18, 620))
+
+    # ---------------- near: a black rock landing at the viewer's feet, planks run out over the drop, lamps, smoke
+    nh = 200
+    near = Canvas(W, nh)
+    yy, xx, _ = grids(nh)
+    rock_n = R("#08050a", "#0e0a10", "#150e16", "#1e141e", "#2a1c28", "#3a2632")
+    mist_band(near, 150, 18, "bmnm0", "#5a2e2e", alphas=(0.08, 0.14, 0.2), amp=6, cell=90, gaps=0.15)
+    prof = np.full(W, np.inf)
+    for i, (px, top, hw) in enumerate(((60, 104, 70), (8, 84, 26), (570, 136, 44))):
+        pr, _ = karst_profile(px, top, 206, hw, p=3.4, skirt=1.3, skirt_h=0.25, seed=("bmnp", i), rough=2.4)
+        prof = np.minimum(prof, pr)
+    rm = despeck(yy >= prof[None, :])
+    rock_mass(near, rm, rock_n, "bmnrm", gain=1.1, crevice=0.8)
+    lit_edge = top_rim(rm) | (right_rim(rm) & (yy < prof[None, :] + 30))
+    flat(near, lit_edge & (pn2(nh, "bmne", 3, 3, 1) > 0.3), "#7a3428")
+    deck_y = int(prof[96]) + 1
+    for bx in (136, 164, 192):
+        flat(near, wline(nh, [(bx, deck_y + 2), (bx - 30, deck_y + 30)], 1), "#140c10")
+    pier(near, 92, 226, deck_y, R("#0e080c", "#22161a", "#5a3a2e"), posts=R("#08060a", "#140c10"), drop=14,
+         lamps=(140, 204), lan=lamp_m, glow="#e05a2a")
+    flat(near, wrect(nh, 222, deck_y - 44, 223, deck_y), "#1a1016")
+    flat(near, wrect(nh, 219, deck_y - 44, 226, deck_y - 44), "#1a1016")
+    lantern(near, 219, deck_y - 43, lamp_m, glow="#e05a2a")
+    for i, (bx, ht) in enumerate(((36, 64),)):
+        col = near.a[:, bx % W] > 0
+        by = int(np.argmax(col)) if col.any() else 150
+        war_banner(near, bx, by + 1, ht, pole, cloth, "#ece2c8", ("bmnb", i), bl=30, bw=10, trim="#c8b894")
+    rope_line(near, sag_pts(223, deck_y - 42, 560, int(prof[560]) - 6, 30), "#1e1418",
+              pennants=R("#86283a", "#e8d6bc", "#2e2c66"), every=8, seed=5)
+    smoke_plume(near, 40, int(prof[40]) - 2, 90, "#3a2226", "bmnsp", width=10, lean=0.6, alphas=(0.06, 0.1, 0.14))
+    mist_band(near, 186, 16, "bmnm", "#4a2a2c", alphas=(0.12, 0.2, 0.28), amp=5, cell=80, gaps=0.1)
+    layers.append((near, 0.32, 720))
+    return dict(sky="#08060e", horizon="#9a4a30", layers=layers)
+
+
+def wyrmnest_isles():
+    """Wyrmnest Isles: tall cliff islands of pale eggshell rock under a violet-teal nebula sky, great round nests of
+    whole branches on their crowns and ledges, pale eggs in them, lantern stars moored above; the Jade River runs
+    through the teal nebula."""
+    layers = []
+    stops = [(0.0, "#0a0a26"), (0.16, "#120f36"), (0.3, "#1c1648"), (0.42, "#26205a"), (0.52, "#2c3068"),
+             (0.6, "#2e4a74"), (0.645, "#3a6a80"), (0.67, "#5a8e8e"), (0.69, "#46707e"), (0.72, "#34466e"),
+             (0.78, "#2a2c5e"), (0.88, "#1a1a44"), (1.0, "#0e0e2c")]
+    glow_y = 241
+    sky = field_sky(stops, "wn", glow_y, up=520, down=260)
+    nv = nebula(sky, "wnn_v", 84, 30, 34, "#b070f0", alphas=(0.06, 0.09, 0.13, 0.16), k=(1, 2), cell=90, gaps=0.1)
+    nt = nebula(sky, "wnn_t", 150, 22, 28, "#30d0c0", alphas=(0.05, 0.08, 0.12, 0.15), k=(1, 3), cell=80, gaps=0.15)
+    nl = nebula(sky, "wnn_lo", 296, 18, 26, "#8a58d8", alphas=(0.05, 0.08, 0.11), k=(2, 3), cell=70, gaps=0.2)
+    g = rng("wnnst")
+    for m_, cols_ in ((nv, R("#a680e0", "#e0ccfa")), (nt, R("#48c0b4", "#c0f8ee")), (nl, R("#8a70d0", "#d4c0f4"))):
+        ys, xs = np.nonzero(m_)
+        for i in range(min(len(xs), 170)):
+            j = int(g.integers(0, len(xs)))
+            put(sky, xs[j], ys[j], cols_[0] if i % 4 else cols_[1])
+    lantern_ribbon(sky, "wnjr", 150, 20, 11, alphas=(0.05, 0.08, 0.11), density=0.55)
+    for i, (x, y, ln, face) in enumerate(((196, 58, 46, 1), (470, 104, 34, -1), (590, 44, 24, -1))):
+        wyrm(sky, x, y, ln, R("#0a0818", "#8a7cc4", "#161230"), ("wnw", i), face=face, amp=3.0)
+    layers.append((sky, 0.0, 720))
+
+    # ---------------- far: pale cliff islands at every height, nests on their crowns, lantern stars over them
+    fh = 220
+    far = Canvas(W, fh)
+    yy = grids(fh)[0]
+    shell = R("#4a4870", "#5c5a80", "#726e92", "#8e88a6", "#aaa2b8", "#c6bec8", "#ddd6d6")
+    twig = R("#2a2030", "#3e3040", "#5a4650", "#8a7a78")
+    for i, (cx, top, hw, base, root) in enumerate(((40, 80, 14, 150, 30), (150, 110, 10, 168, 20), (260, 60, 16, 140, 34),
+                                                   (380, 96, 12, 160, 24), (480, 70, 15, 150, 30), (580, 118, 10, 170, 18))):
+        behind = sky_at(stops, far, 560, (top + base) * 0.5)
+        ramp = hazed(shell, behind, 0.42)
+        m, prof = cliff_isle(far, cx, top, hw, base, root, ramp, ("wnf", i), root_ramp=hazed(shell[:5], behind, 0.5),
+                             cool=mixc("#60d0c0", behind, 0.4))
+        ty = int(prof[int(cx) % W])
+        nest(far, cx, ty + 2, hw * 1.2, max(2.0, hw * 0.3), hazed(twig, behind, 0.4), ("wnfn", i))
+        lantern_star(far, cx + 6, ty - 18, 2.6, ("wnfs", i), halo=0.8, rays=0.7, tether=(cx + 2, ty - 2), sag=2)
+    layers.append((far, 0.08, 560))
+
+    # ---------------- mid: great cliff islands with nests on crown and ledge, eggs pale as the rock
+    mh = 280
+    mid = Canvas(W, mh)
+    yy, xx, _ = grids(mh)
+    shell_m = R("#3e3a64", "#524c76", "#6a6488", "#86809c", "#a49cb2", "#c2bac6", "#ddd4d4", "#f0eae2")
+    twig_m = R("#221a26", "#3a2c34", "#5a4642", "#8a7462")
+    eggs = R("#9a90a8", "#e8e2dc", "#fbf8f2", "#8a7a96")
+    for i, (cx, top, hw, base, root) in enumerate(((120, 60, 34, 200, 60), (400, 90, 28, 214, 46), (560, 130, 18, 220, 30))):
+        m, prof = cliff_isle(mid, cx, top, hw, base, root, shell_m, ("wnm", i), root_ramp=shell_m[:6], cool="#58c8b8")
+        ty = int(prof[int(cx) % W])
+        nest(mid, cx, ty + 6, hw * 1.5, max(5.0, hw * 0.46), twig_m, ("wnmn", i), eggs=eggs, egg_n=3 if hw > 20 else 2)
+        # a ledge nest partway down the cliff, hugging its shaded flank
+        ly = int(top + (base - top) * 0.55)
+        xs = np.nonzero(m[ly])[0]
+        if len(xs):
+            lx = int(round(cx + wdx(xs, cx).max())) - int(hw * 0.2)
+            nest(mid, lx, ly, hw * 0.8, max(4.0, hw * 0.34), twig_m, ("wnml", i), eggs=eggs, egg_n=2)
+        lantern_star(mid, cx - hw * 0.2, ty - 44 - i * 6, 8 - i, ("wnms", i), tether=(cx - hw * 0.5, ty + 2), sag=5)
+    layers.append((mid, 0.18, 620))
+
+    # ---------------- near: a cliff crown at the viewer's feet with its nest, shell shards, the nebula below
+    nh = 200
+    near = Canvas(W, nh)
+    yy, xx, _ = grids(nh)
+    shell_n = R("#15142e", "#1c1a3a", "#252248", "#302c58", "#3e3868", "#524a7a", "#6e6690", "#9a90a8")
+    mist_band(near, 172, 22, "wnnm", "#6a58c0", alphas=(0.06, 0.1, 0.14), amp=6, cell=100, gaps=0.1)
+    g = rng("wnshard")
+    for i, (px, top, hw) in enumerate(((70, 84, 44), (560, 124, 30))):
+        m, prof = karst_peak(near, px, top, hw, shell_n, ("wnnp", i), p=2.2, skirt=1.5, skirt_h=0.25, rough=1.5,
+                             gain=1.1, crevice=1.0, shoulder=0.6, ledges=0.5, asym=0.1)
+        flat(near, bot_rim(m), "#58c8b8")
+        for k in range(5):
+            sx = int(px + g.uniform(-hw * 0.8, hw * 0.8))
+            sy = int(prof[sx % W]) + int(g.integers(0, 2))
+            sm = wpoly(nh, [(sx - 2, sy), (sx + 1, sy - 2), (sx + 3, sy)])
+            flat(near, sm, "#b8b0b4")
+            flat(near, right_rim(sm), "#6a6280")
+        if i == 0:
+            nest(near, px + 4, int(prof[(px + 4) % W]) + 12, 66, 22, R("#120e18", "#221a26", "#3a2e36", "#6a584e"),
+                 "wnnn", eggs=R("#6a6280", "#b8b0b4", "#dcd6d0", "#5a4e68"), egg_n=3)
+    layers.append((near, 0.32, 720))
+    return dict(sky="#0a0a26", horizon="#5a8e8e", layers=layers)
+
+
+def obs_dome(cv, cx, by, r, pal, stone, slit="#0a0e1c", scope=True):
+    """An observatory dome of bronze on a white stone drum: a ribbed hemisphere lit from the upper left, its shutter
+    slit open with a telescope's barrel raised through it, a finial on the crown. pal = bronze dark->gleam (5);
+    stone = drum (dark, mid, light). by = foot of the drum. Returns its mask."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    d = wdx(xx, cx)
+    dh = max(2, int(round(r * 0.45)))
+    drum = (np.abs(d) <= r + 1) & (yy > by - dh) & (yy <= by)
+    flat(cv, drum, stone[1])
+    flat(cv, drum & (d < -r * 0.5), stone[2])
+    flat(cv, drum & (d > r * 0.55), stone[0])
+    flat(cv, top_rim(drum), pal[3])
+    flat(cv, drum & (yy == by - dh + 2) & (np.abs(d) <= r), pal[1])
+    for wx in np.arange(-r * 0.6, r * 0.61, max(3.0, r * 0.4)):
+        flat(cv, drum & (np.abs(d - wx) < 0.6) & (yy > by - dh + 3) & (yy < by - 1), stone[0])
+    cy = by - dh
+    dome = wellipse(h, cx, cy, r, r) & (yy <= cy)
+    dy = (yy - cy) / r
+    lt = d / r * 0.8 + dy * 0.9
+    v = 2.6 - lt * 1.6
+    rib = np.zeros((h, W), bool)
+    for f in (0.35, 0.7):
+        rib |= ring_px(((d / (r * f + 0.3)) ** 2 + ((yy - cy) / (r + 0.3)) ** 2) <= 1.0)
+    rib &= dome
+    paint(cv, dome, pal, v, sharp=4)
+    flat(cv, rib, pal[1])
+    flat(cv, rib & (d < 0) & (dy > -0.7), pal[2])
+    flat(cv, top_rim(dome) & (d < r * 0.3), pal[4])
+    flat(cv, right_rim(dome), pal[0])
+    sl = dome & (np.abs(d - r * 0.18) <= max(1.0, r * 0.1)) & (yy >= cy - r)
+    flat(cv, sl, slit)
+    if scope:
+        x0, y0 = cx + r * 0.18, cy - r * 0.35
+        x1, y1 = cx + r * 0.95, cy - r * 1.2
+        bar = wline(h, [(x0, y0), (x1, y1)], max(2, int(round(r * 0.18))))
+        flat(cv, bar, pal[2])
+        flat(cv, top_rim(bar), pal[4])
+        flat(cv, bot_rim(bar), pal[0])
+        put(cv, x1 + 1, y1 - 1, pal[4])
+    fin = wrect(h, int(cx), cy - r - 3, int(cx), cy - r)
+    flat(cv, fin, pal[1])
+    put(cv, cx, cy - r - 4, pal[4])
+    return drum | dome
+
+
+def lantern_mast(cv, x, by, ht, seed, r=4.0, pal=None, lit=1.0, arm=0):
+    """A bronze lantern mast: a slender post on a stepped foot, collared, a crook at its head from which a lantern
+    star hangs (arm > 0: an arm reaching that far to the right). pal = bronze dark->gleam."""
+    h = cv.h
+    pal = LS_CAGE if pal is None else pal
+    top = by - ht
+    post = wrect(h, x, top, x, by)
+    flat(cv, post, pal[1])
+    flat(cv, wrect(h, x - 1, by - 2, x + 1, by), pal[2])
+    flat(cv, wrect(h, x - 1, top + ht // 3, x + 1, top + ht // 3), pal[3])
+    if arm:
+        flat(cv, wrect(h, x, top, x + arm, top), pal[2])
+        put(cv, x + arm, top + 1, pal[1])
+        return lantern_star(cv, x + arm, top + r + 5, r, seed, lit=lit, hang=(x + arm, top))
+    put(cv, x, top - 1, pal[3])
+    return lantern_star(cv, x, top - r - 5, r, seed, lit=lit)
+
+
+def warden_citadel():
+    """The Star Warden Citadel: a citadel of white stone and bronze on its island, observatory domes with their
+    telescopes raised, lantern stars hung in orderly rows along its walls and far avenues of them receding into the
+    blue; stately, cool blue and gold, the Jade River bright overhead."""
+    layers = []
+    stops = [(0.0, "#060c24"), (0.18, "#0b1633"), (0.34, "#132446"), (0.46, "#1c345a"), (0.55, "#294a6e"),
+             (0.61, "#3a6284"), (0.645, "#5a7c94"), (0.665, "#9c9e8c"), (0.68, "#74889a"), (0.71, "#48648a"),
+             (0.77, "#2c4068"), (0.87, "#18264a"), (1.0, "#0c142e")]
+    glow_y = 240
+    sky = field_sky(stops, "wc", glow_y, up=560, down=240, pal=R("#24345e", "#4a6090", "#90a8d0", "#d8e4f4", "#ffffff"))
+    star_river(sky, "wcjr", 62, 26, 14, "#62dc92", JADE_STARS, alphas=(0.05, 0.08, 0.12), density=0.7)
+    nebula(sky, "wcn_b", 150, 18, 22, "#4a80d0", alphas=(0.05, 0.08, 0.1), k=(1, 2), cell=90, gaps=0.2)
+    nebula(sky, "wcn_lo", 300, 16, 26, "#3a60b0", alphas=(0.05, 0.08, 0.1), k=(1, 3), cell=80, gaps=0.2)
+    for i, (cx, y, ln) in enumerate(((140, 214, 190), (430, 224, 220), (600, 204, 120))):
+        streak(sky, cx, y, ln, R("#5a7a9a", "#a8b4b0", "#f0e8c8"), ("wcs", i), rows=2)
+    layers.append((sky, 0.0, 720))
+
+    # ---------------- far: avenues of lantern stars in rows, receding, and far towers of the Wardens on their isles
+    fh = 220
+    far = Canvas(W, fh)
+    yy = grids(fh)[0]
+    rock = R("#16223e", "#1c2a4a", "#243458", "#2e4066", "#3a4e74", "#4a6084")
+    white = R("#5a6a86", "#7a8aa2", "#9aa8bc", "#bcc6d2")
+    for i, (cx, top, hw, dp) in enumerate(((60, 150, 30, 20), (230, 166, 24, 16), (420, 146, 36, 22), (570, 170, 20, 14))):
+        behind = sky_at(stops, far, 560, top)
+        ramp = hazed(rock, behind, 0.35)
+        wh = hazed(white, behind, 0.35)
+        for k, (ox, th, w_) in enumerate(((-0.35, 26, 5), (0.1, 40, 6), (0.45, 20, 4))):
+            tx = int(cx + ox * hw)
+            tm = wrect(fh, tx - w_ // 2, top - th, tx + w_ // 2, top)
+            flat(far, tm, wh[1])
+            flat(far, left_rim(tm), wh[3])
+            flat(far, right_rim(tm), wh[0])
+            dm = wellipse(fh, tx, top - th, w_ / 2 + 1, w_ / 2 + 1) & (yy <= top - th)
+            flat(far, dm, mixc("#a8783a", behind, 0.35))
+            put(far, tx, top - th - w_ // 2 - 2, mixc("#e4b460", behind, 0.3))
+        field_isle(far, cx, top, hw, dp, ramp, ("wcfi", i), mixc("#f0d8a0", behind, 0.35), mixc("#6a9ad0", behind, 0.35),
+                   spurs=1)
+    for row, (y, gap, r, off, a) in enumerate(((58, 64, 2.6, 10, 1.0), (92, 45.714, 2.2, 30, 0.9),
+                                              (118, 32, 1.8, 4, 0.75))):
+        behind = sky_at(stops, far, 560, y)
+        flat(far, (yy == y - int(r) - 5) & (xx_all(fh) % 2 == 0), mixc("#8a6a3a", behind, 0.5))
+        for j in range(int(round(W / gap))):
+            x = off + j * gap
+            lantern_star(far, x, y, r, ("wcfr", row, j), lit=a, halo=0.7, rays=0.6, hang=(x, y - int(r) - 5), verd=None)
+    layers.append((far, 0.08, 560))
+
+    # ---------------- mid: the citadel of white stone and bronze, observatory domes, rows of lantern masts
+    mh = 300
+    mid = Canvas(W, mh)
+    yy, xx, _ = grids(mh)
+    rock_m = R("#0e1830", "#14203c", "#1c2a4a", "#263658", "#324468", "#40567a", "#546a8c")
+    stone = R("#56627a", "#6c788e", "#8490a4", "#9ea8ba", "#bcc4d0", "#dce0e6")
+    bronze = LS_CAGE
+    icx, itop, ihw = 330, 218, 212
+    isle, itp = field_isle(mid, icx, itop, ihw, 70, rock_m, "wcmi", "#f0d8a0", "#6a9ad0", haze="#1c2c56", spurs=3,
+                           cap=R("#3a4460", "#9aa4b8"))
+    gy = int(itp[icx % W])
+    # the curtain wall with its bronze coping and a gate
+    wall = wrect(mh, icx - 170, gy - 30, icx + 170, gy)
+    ashlar(mid, wall, stone[:5], "wcwall", course=7, joint=32)
+    haze_fade(mid, wall, "#26344e", np.clip((yy - gy + 26) / 30.0, 0, 1) * 0.45, steps=3, sharp=4)
+    flat(mid, wrect(mh, icx - 172, gy - 33, icx + 172, gy - 31), bronze[2])
+    flat(mid, wrect(mh, icx - 172, gy - 33, icx + 172, gy - 33), bronze[4])
+    flat(mid, wrect(mh, icx - 172, gy - 31, icx + 172, gy - 31), bronze[0])
+    for x in range(icx - 166, icx + 170, 12):
+        flat(mid, wrect(mh, x, gy - 37, x + 5, gy - 34), stone[3])
+        flat(mid, wrect(mh, x, gy - 37, x + 5, gy - 37), stone[5])
+    gate = (np.abs(wdx(xx, icx)) <= 9) & (yy >= gy - 20) & (yy <= gy)
+    gate |= wellipse(mh, icx, gy - 20, 9, 7) & (yy < gy - 20)
+    flat(mid, gate, "#1a2238")
+    flat(mid, gate & (np.abs(wdx(xx, icx)) <= 7) & (yy > gy - 18), "#f0c070", 0.35)
+    flat(mid, ring_px(gate) & (yy < gy - 18), bronze[3])
+    # towers with domes: the great observatory keep at the heart, lesser towers at the wall's ends
+    for k, (tx, tw, th, dr) in enumerate(((icx, 44, 96, 24), (icx - 150, 26, 60, 13), (icx + 150, 26, 60, 13),
+                                          (icx - 80, 20, 44, 0), (icx + 80, 20, 44, 0))):
+        tm = wrect(mh, tx - tw // 2, gy - th, tx + tw // 2, gy - 2)
+        ashlar(mid, tm, stone[:5], ("wct", k), course=7, joint=32)
+        flat(mid, left_rim(tm), stone[5])
+        flat(mid, right_rim(tm), stone[0])
+        haze_fade(mid, tm & (wdx(xx, tx) > tw * 0.2), "#3a4a6a", np.full((mh, W), 0.35), steps=2, sharp=4)
+        for wy_ in range(gy - th + 10, gy - 36, 16):
+            wm = wrect(mh, tx - 1, wy_, tx + 1, wy_ + 5)
+            flat(mid, wm, "#f4c878")
+            flat(mid, top_rim(wm), "#fff0c0")
+        band = wrect(mh, tx - tw // 2 - 1, gy - th - 3, tx + tw // 2 + 1, gy - th)
+        flat(mid, band, bronze[2])
+        flat(mid, top_rim(band), bronze[4])
+        if dr:
+            obs_dome(mid, tx, gy - th - 3, dr, bronze, stone[1:4], scope=k == 0 or k == 2)
+        else:
+            roof = wpoly(mh, [(tx - tw // 2 - 3, gy - th - 3), (tx + tw // 2 + 3, gy - th - 3), (tx, gy - th - 14)])
+            flat(mid, roof, bronze[2])
+            flat(mid, roof & (wdx(xx, tx) < 0), bronze[3])
+            flat(mid, top_rim(roof) & (wdx(xx, tx) < 0), bronze[4])
+            flat(mid, right_rim(roof), bronze[0])
+    # halls behind the wall with bronze roofs
+    for k, (hx, hw_) in enumerate(((icx - 128, 36), (icx + 92, 36))):
+        hall(mid, hx, gy - 37, hw_, 7, 7, R("#4a301a", "#8a5a2c", "#c08a44", "#f0c070"), stone[2:5],
+             post_col="#7a2e28", lit="#f4c878", tiers=1)
+    # the lantern masts along the wall top, all at one height, and a higher row on the towers
+    for k, x in enumerate(range(icx - 160, icx + 161, 40)):
+        if abs(x - icx) < 30:
+            continue
+        lantern_mast(mid, x, gy - 37, 34, ("wcmm", k), r=5.0)
+    for k, x in enumerate((icx - 150, icx + 150)):
+        chain(mid, sag_pts(x, gy - 60 - 32, icx, gy - 96 - 34, 18), R("#22150c", "#76502a", "#aa7838"))
+        pts = sag_pts(x, gy - 60 - 32, icx, gy - 96 - 34, 18)
+        for j in range(8, len(pts) - 6, 14):
+            lantern_star(mid, pts[j][0], pts[j][1] + 7, 3.5, ("wcch", k, j), hang=(pts[j][0], pts[j][1]))
+    # the great lantern star of the Wardens above the keep
+    lantern_star(mid, icx, 44, 16, "wcgreat", hang=None, tether=(icx, gy - 96 - 48), sag=0.5)
+    layers.append((mid, 0.18, 620))
+
+    # ---------------- near: the white terrace, balustrade and bronze lantern posts over the blue drop
+    nh = 200
+    near = Canvas(W, nh)
+    yy, xx, _ = grids(nh)
+    mist_band(near, 150, 24, "wcnm", "#6a90c8", alphas=(0.05, 0.08, 0.12), amp=5, cell=100, gaps=0.1)
+    terr = yy >= 164
+    ashlar(near, terr, R("#1c2436", "#242e42", "#2c374e", "#36425a", "#424e68"), "wcnt", course=10, joint=64)
+    flat(near, wrect(nh, 0, 164, W - 1, 165), "#8a94a8")
+    haze_fade(near, terr, "#0c1426", np.clip((yy - 168) / 32.0, 0, 1) * 0.6, steps=3, sharp=4)
+    balustrade(near, 164, R("#5a6478", "#8a94a6", "#b8c0cc", "#e4e8ec"), "wcnb", post_gap=32, rail_h=12)
+    for k, x in enumerate(range(48, W, 160)):
+        lantern_mast(near, x, 163, 70, ("wcnl", k), r=6.0, arm=10)
+    layers.append((near, 0.32, 720))
+    return dict(sky="#060c24", horizon="#9c9e8c", layers=layers)
+
+
+def orbit_ring(cv, cx, cy, rx, ry, tilt, width, ramp, seed, arcs=((0.0, 2 * math.pi),), part="all", joint=0.22):
+    """Broken stone ring segments orbiting (cx, cy): pieces of a tilted ellipse `width` px thick, dressed in blocks
+    with dark joints, lit on their upper edge. part = 'back' (the far half, drawn before the core), 'front' or 'all'.
+    arcs = [(t0, t1), ...] parameter ranges that survive. ramp dark->light (>= 4). Returns the mask."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    dx = wdx(xx, cx)
+    dy = yy - cy
+    c, s_ = math.cos(tilt), math.sin(tilt)
+    u = c * dx + s_ * dy
+    v = -s_ * dx + c * dy
+    e = np.sqrt((u / rx) ** 2 + (v / ry) ** 2)
+    t = np.arctan2(v / ry, u / rx) % (2 * math.pi)
+    band = np.abs(e - 1.0) * min(rx, ry) <= width / 2.0
+    sel = np.zeros((h, W), bool)
+    for (t0, t1) in arcs:
+        sel |= (t >= t0 % (2 * math.pi)) & (t <= t0 % (2 * math.pi) + (t1 - t0)) if t1 - t0 < 2 * math.pi else True
+        if t0 % (2 * math.pi) + (t1 - t0) > 2 * math.pi:
+            sel |= t <= (t0 + (t1 - t0)) % (2 * math.pi)
+    m = band & sel
+    if part == "back":
+        m &= v < 0
+    elif part == "front":
+        m &= v >= 0
+    m = despeck(m)
+    n = len(ramp)
+    rel = (e - 1.0) * min(rx, ry) / max(1.0, width)
+    val = (n - 1) * 0.55 - rel * 2.4 + (v < 0) * -0.6
+    paint(cv, m, ramp, val, sharp=4)
+    blocks = ((t / joint) % 1.0) < (1.2 / max(8.0, rx))
+    flat(cv, m & blocks, ramp[0])
+    flat(cv, top_rim(m), ramp[-1])
+    flat(cv, bot_rim(m), ramp[0])
+    return m
+
+
+def orbit_path(cv, cx, cy, rx, ry, tilt, col, a=0.35, dash=5):
+    """A faint dotted orbit traced around (cx, cy)."""
+    n = int(2 * math.pi * max(rx, ry) / 2)
+    c, s_ = math.cos(tilt), math.sin(tilt)
+    for i in range(n):
+        if (i // dash) % 2:
+            continue
+        t = 2 * math.pi * i / n
+        u, v = rx * math.cos(t), ry * math.sin(t)
+        put(cv, cx + c * u - s_ * v, cy + s_ * u + c * v, col, a)
+
+
+def orbit_ruins():
+    """The Orbit Ruins: ancient ruins broken loose and circling a dim dead core, broken stone rings and boulders
+    in slow orbits, a tumbling stair and fallen colonnades on drifting rock; muted violet and slate, the Jade River
+    a faint thread through the far nebula."""
+    layers = []
+    stops = [(0.0, "#0b0a15"), (0.2, "#13111e"), (0.36, "#1b1929"), (0.48, "#242236"), (0.57, "#2e2b42"),
+             (0.63, "#3a354e"), (0.66, "#48405a"), (0.68, "#3e3850"), (0.72, "#302c42"), (0.8, "#221f32"),
+             (1.0, "#100e1a")]
+    glow_y = 240
+    sky = field_sky(stops, "or", glow_y, up=460, down=220, pal=R("#26243a", "#48445e", "#8a86a0", "#d0cce0",
+                                                                 "#ffffff"))
+    nebula(sky, "orn_v", 110, 24, 26, "#7a68a8", alphas=(0.04, 0.07, 0.1), k=(1, 2), cell=80, gaps=0.2)
+    nebula(sky, "orn_lo", 296, 18, 28, "#5a5a88", alphas=(0.04, 0.07, 0.09), k=(1, 3), cell=70, gaps=0.2)
+    lantern_ribbon(sky, "orjr", 292, 12, 10, alphas=(0.05, 0.08, 0.1), density=0.5)
+    layers.append((sky, 0.0, 720))
+
+    # ---------------- far: the dim core and its orbits: broken rings, boulders riding them
+    fh = 220
+    far = Canvas(W, fh)
+    yy, xx, _ = grids(fh)
+    ccx, ccy, cr = 330, 104, 30
+    ring_r = R("#2a283a", "#343248", "#403c56", "#4c4864", "#5c5874")
+    for (rx, ry, tilt, wd, arcs, sd) in ((96, 22, -0.12, 5, ((0.3, 2.2), (2.6, 4.4), (4.9, 6.0)), "o1"),
+                                         (140, 34, 0.08, 4, ((0.9, 2.9), (3.5, 5.6)), "o2")):
+        orbit_path(far, ccx, ccy, rx, ry, tilt, "#7a7098", a=0.3)
+        orbit_ring(far, ccx, ccy, rx, ry, tilt, wd, ring_r, ("orf", sd), arcs=arcs, part="back")
+    for s_, a in ((2.4, 0.03), (1.8, 0.05), (1.35, 0.08)):
+        flat(far, wellipse(fh, ccx, ccy, cr * s_, cr * s_), "#8a74b8", a)
+    core = wellipse(fh, ccx, ccy, cr, cr)
+    d = wdx(xx, ccx) / cr + (yy - ccy) / cr
+    paint(far, core, R("#141220", "#1c1a2c", "#26223a", "#322c48", "#433a5c"), 2.0 - d * 1.2 + (pn2(fh, "orcore", 8, 6, 2) - 0.5) * 1.2, sharp=3)
+    flat(far, ring_px(core) & (d < -0.3), "#9a88c8")
+    flat(far, ring_px(core) & (d > 0.5), "#5a4a7a", 0.6)
+    for (rx, ry, tilt, wd, arcs, sd) in ((96, 22, -0.12, 5, ((0.3, 2.2), (2.6, 4.4), (4.9, 6.0)), "o1"),
+                                         (140, 34, 0.08, 4, ((0.9, 2.9), (3.5, 5.6)), "o2")):
+        orbit_ring(far, ccx, ccy, rx, ry, tilt, wd, ring_r, ("orf", sd), arcs=arcs, part="front")
+    g = rng("orfb")
+    boul = R("#221f30", "#2c283c", "#383248", "#463e56", "#564c68")
+    for k in range(9):
+        rx, ry, tilt = ((96, 22, -0.12), (140, 34, 0.08), (190, 48, -0.05))[k % 3]
+        t = g.uniform(0, 2 * math.pi)
+        u, v = rx * math.cos(t), ry * math.sin(t)
+        bx = ccx + math.cos(tilt) * u - math.sin(tilt) * v
+        by = ccy + math.sin(tilt) * u + math.cos(tilt) * v
+        if v < 0 and abs(bx - ccx) < cr and abs(by - ccy) < cr:
+            continue
+        rs = g.uniform(2.5, 5.5)
+        rock_blob(far, bx, by + rs, rs * 1.2, rs, boul, ("orfbb", k), facets=3)
+    orbit_path(far, ccx, ccy, 190, 48, -0.05, "#6a6088", a=0.22)
+    for i, (cx, top, hw, dp) in enumerate(((60, 150, 26, 22), (560, 140, 30, 26), (180, 176, 14, 12))):
+        behind = sky_at(stops, far, 560, top)
+        field_isle(far, cx, top, hw, dp, hazed(R("#1a1826", "#222030", "#2c283c", "#383248", "#463e56", "#564c68"),
+                                                behind, 0.35), ("orfi", i), mixc("#b0a0d0", behind, 0.4),
+                   mixc("#6a6a9a", behind, 0.4), spurs=2)
+        lantern_star(far, cx + hw * 0.3, top - 20, 2.4, ("orfs", i), lit=0.7, halo=0.7, rays=0.6,
+                     tether=(cx, top), sag=3)
+        for c_ in range(2):
+            px_ = int(cx - hw * 0.4 + c_ * hw * 0.6)
+            cm = wrect(fh, px_, top - 12 + c_ * 4, px_ + 3, top)
+            flat(far, cm, mixc("#5a5470", behind, 0.35))
+            flat(far, left_rim(cm), mixc("#8a84a0", behind, 0.35))
+    layers.append((far, 0.08, 560))
+
+    # ---------------- mid: the ruins adrift: a great broken ring gate, a fallen colonnade, the tumbling stair
+    mh = 280
+    mid = Canvas(W, mh)
+    yy, xx, _ = grids(mh)
+    rock_m = R("#110f1a", "#181524", "#201c2e", "#2a2538", "#363044", "#443c52", "#564c64")
+    slate = R("#2a2a3a", "#3a3a4c", "#4c4c60", "#606074", "#76768a", "#9090a2")
+    # the ring gate on its isle, broken through at its crown, a chunk of it floating free
+    gcx, gcy, gr = 150, 124, 50
+    m1, tp1 = field_isle(mid, gcx, 188, 64, 50, rock_m, "ormi1", "#b8a8d8", "#6a6aa8", haze="#221e36", spurs=2)
+    for s_, a in ((1.0, 0.04), (0.8, 0.06), (0.6, 0.08)):
+        flat(mid, wellipse(mh, gcx, gcy, (gr - 9) * s_, (gr - 9) * s_) & (yy <= int(tp1[gcx % W])), "#9a80e0", a)
+    ring = wellipse(mh, gcx, gcy, gr, gr) & ~wellipse(mh, gcx, gcy, gr - 9, gr - 9)
+    ang = np.arctan2(yy - gcy, wdx(xx, gcx))
+    ring &= ~((ang > -1.95) & (ang < -1.35))
+    ring &= yy <= int(tp1[gcx % W]) + 1
+    ashlar(mid, ring, slate[:5], "orring", course=5, joint=10)
+    flat(mid, ring & (wdx(xx, gcx) + (yy - gcy) > gr * 0.4), slate[1])
+    flat(mid, ring_px(ring) & (wdx(xx, gcx) + (yy - gcy) < 0), slate[5])
+    inner = ring & sh(~ring, 0, -1) & (yy > gcy)
+    flat(mid, inner, slate[4])
+    rune = ring & (np.abs(np.hypot(wdx(xx, gcx), yy - gcy) - (gr - 4.5)) < 0.6) & ((np.floor(ang * 9) % 3) == 0)
+    flat(mid, rune, "#9a8ad0")
+    chunk = wpoly(mh, [(gcx - 16, gcy - gr - 16), (gcx - 4, gcy - gr - 20), (gcx + 6, gcy - gr - 12),
+                       (gcx - 4, gcy - gr - 6), (gcx - 14, gcy - gr - 8)])
+    ashlar(mid, chunk, slate[:5], "orchunk", course=5, joint=10)
+    flat(mid, top_rim(chunk), slate[5])
+    orbit_path(mid, gcx, gcy, gr + 22, 14, -0.2, "#8a80b0", a=0.3)
+    g = rng("ormb")
+    for k in range(5):
+        t = k / 5.0 * 2 * math.pi + 0.4
+        u, v = (gr + 22) * math.cos(t), 14 * math.sin(t)
+        bx, by = gcx + math.cos(-0.2) * u - math.sin(-0.2) * v, gcy + math.sin(-0.2) * u + math.cos(-0.2) * v
+        rs = g.uniform(3, 6)
+        rock_blob(mid, bx, by + rs, rs * 1.2, rs, rock_m, ("ormbb", k), facets=3)
+    # the fallen colonnade on its isle: broken columns, a tilted architrave floating over them
+    m2, tp2 = field_isle(mid, 450, 196, 84, 58, rock_m, "ormi2", "#b8a8d8", "#6a6aa8", haze="#221e36", spurs=3,
+                         cap=R("#2a2838", "#6a6680"))
+    g = rng("orcol")
+    for k, (px_, ht) in enumerate(((396, 62), (424, 38), (452, 76), (480, 24), (508, 54))):
+        by = int(tp2[px_ % W]) + 1
+        cm = tomb_pillar(mid, px_, by - ht, by, 5, slate, ("orp", k), courses=9)
+        brk = cm & (yy < by - ht + 4) & (pn2(mh, ("orbrk", k), 2, 2, 1) > 0.45)
+        mid.a[brk] = 0.0
+    arch = wpoly(mh, [(392, 104), (470, 92), (471, 98), (393, 110)])
+    ashlar(mid, arch, slate[:5], "orarch", course=3, joint=16)
+    flat(mid, top_rim(arch), slate[5])
+    flat(mid, bot_rim(arch), slate[0])
+    for k, (dx_, dy_) in enumerate(((-6, -8), (8, -14), (40, -4))):
+        rock_blob(mid, 470 + dx_, 92 + dy_, 3, 2.5, slate, ("orfr", k), facets=2)
+    # the tumbling stair: a flight of steps on a tilted slab, drifting
+    slab = wpoly(mh, [(246, 76), (294, 50), (298, 56), (250, 84)])
+    rock_mass(mid, slab, rock_m, "orslab", gain=1.0)
+    for k in range(9):
+        sx, sy = 250 + k * 5, 74 - k * 2.8
+        st = wrect(mh, int(sx), int(sy) - 3, int(sx) + 4, int(sy))
+        flat(mid, st, slate[3])
+        flat(mid, top_rim(st), slate[5])
+        flat(mid, right_rim(st), slate[1])
+    orbit_path(mid, 450, 130, 120, 26, 0.06, "#8a80b0", a=0.25)
+    lantern_star(mid, 560, 60, 7, "orms0", tether=(512, int(tp2[512 % W])), sag=8)
+    lantern_star(mid, 96, 40, 6, "orms1", lit=0.0, ember="#4a4070", tether=(120, int(tp1[120 % W])), sag=10)
+    layers.append((mid, 0.18, 620))
+
+    # ---------------- near: boulders and a column drum drifting close, an orbit sweeping past, mist below
+    nh = 200
+    near = Canvas(W, nh)
+    yy, xx, _ = grids(nh)
+    mist_band(near, 176, 26, "ornm", "#5a5288", alphas=(0.05, 0.08, 0.12), amp=6, cell=100, gaps=0.1)
+    orbit_path(near, 320, 150, 360, 40, -0.04, "#9a90c0", a=0.3, dash=8)
+    rock_n = R("#0a0910", "#100e18", "#161420", "#1e1a2a", "#282236", "#342c44")
+    for k, (bx, by, rx, ry) in enumerate(((250, 130, 14, 11), (560, 186, 30, 24), (420, 96, 9, 7), (610, 120, 8, 6))):
+        m = rock_blob(near, bx, by, rx, ry, rock_n, ("ornb", k), facets=5, rough=0.24)
+        flat(near, top_rim(m) & (wdx(xx, bx) < rx * 0.3), "#8a7cb0")
+        flat(near, bot_rim(m), "#4a4880")
+    # a slab of dressed wall broken loose, adrift close by, its blocks still coursed
+    wall_n = wpoly(nh, [(10, 150), (60, 138), (112, 146), (120, 160), (104, 176), (116, 196), (30, 204), (0, 186)])
+    wall_n &= ~(wellipse(nh, 64, 136, 10, 6) | wellipse(nh, 112, 170, 6, 8))
+    ashlar(near, wall_n, R("#141220", "#1c1a2a", "#242236", "#2e2c42", "#3a384e"), "ornw", course=8, joint=16)
+    flat(near, top_rim(wall_n), "#8a7cb0")
+    flat(near, bot_rim(wall_n) | right_rim(wall_n), "#0a0910")
+    flat(near, sh(bot_rim(wall_n), 0, 0) & (yy > 180), "#4a4880")
+    drum = wellipse(nh, 350, 150, 10, 5)
+    drum |= wrect(nh, 340, 150, 360, 162)
+    drum_b = wellipse(nh, 350, 162, 10, 5)
+    flat(near, drum | drum_b, slate[2])
+    flat(near, wellipse(nh, 350, 150, 10, 5), slate[4])
+    flat(near, ring_px(wellipse(nh, 350, 150, 10, 5)), slate[5])
+    flat(near, (drum | drum_b) & (wdx(xx, 350) > 5), slate[1])
+    for fx in range(343, 358, 3):
+        flat(near, wrect(nh, fx, 154, fx, 163), slate[1])
+    layers.append((near, 0.32, 720))
+    return dict(sky="#0b0a15", horizon="#48405a", layers=layers)
+
+
+def pyre(cv, x, by, w, ht, seed, logs=R("#140a08", "#2a140c", "#4a2412"), flame=R("#a01c0c", "#e8501a", "#ffb040",
+                                                                                   "#fff0b0"), glow="#ff6a20", sparks=12):
+    """A war pyre: logs stacked crosswise into a squat tower, their ends glowing, flames in ragged tongues climbing
+    from it (deep red rims, orange body, yellow-white hearts), a stepped glow and sparks flying up."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    g = rng("pyre", seed)
+    for s_, a in ((2.2, 0.04), (1.6, 0.07), (1.15, 0.1)):
+        flat(cv, wellipse(h, x, by - ht * 0.45, w * s_, ht * s_ * 0.75), glow, a)
+    lh = max(2, int(ht * 0.12))
+    stack = np.zeros((h, W), bool)
+    for k in range(int(ht * 0.45 / lh)):
+        yk = by - k * lh
+        wk = w * (1 - k * 0.1)
+        lm = wrect(h, int(x - wk / 2), yk - lh + 1, int(x + wk / 2), yk)
+        flat(cv, lm, logs[1 + (k % 2)])
+        flat(cv, top_rim(lm), logs[2])
+        flat(cv, bot_rim(lm), logs[0])
+        if k % 2 == 0:
+            for ex in (int(x - wk / 2), int(x + wk / 2)):
+                put(cv, ex, yk - lh // 2, flame[1])
+        stack |= lm
+    ftop = by - int(ht * 0.45) + 1
+    for k in range(7):
+        fx = x + (k - 3) * w * 0.14 + g.uniform(-1, 1)
+        fh_ = ht * g.uniform(0.45, 0.9) * (1 - abs(k - 3) * 0.12)
+        fw = w * g.uniform(0.1, 0.16)
+        lean = g.uniform(-0.3, 0.5)
+        tongue = wpoly(h, [(fx - fw, ftop + 2), (fx + fw, ftop + 2), (fx + fw * 0.3 + lean * fh_ * 0.4, ftop - fh_ * 0.6),
+                           (fx + lean * fh_ * 0.5, ftop - fh_), (fx - fw * 0.4 + lean * fh_ * 0.2, ftop - fh_ * 0.5)])
+        flat(cv, tongue, flame[0])
+        core = tongue & ~ring_px(tongue)
+        flat(cv, core, flame[1])
+        flat(cv, core & (yy > ftop - fh_ * 0.45) & ~ring_px(core), flame[2])
+    flat(cv, wellipse(h, x, ftop, w * 0.25, 2) , flame[3])
+    for k in range(sparks):
+        put(cv, x + g.normal(0, w * 0.4), ftop - ht * 0.6 - g.uniform(0, ht * 1.2), flame[2 + (k % 2)],
+            0.9 if k % 3 else 0.6)
+
+
+def ash_fall(cv, seed, count, y0, y1, pal, streak=True, big=0):
+    """Ash falling on the wind: grey flakes drifting down and to the right, each a speck trailing a fainter one;
+    `big` of them are 2 px flakes."""
+    g = rng("ash", seed)
+    for i in range(count):
+        x = int(g.integers(0, W))
+        y = int(g.integers(y0, y1))
+        c = pal[int(g.integers(0, len(pal)))]
+        if i < big:
+            flat(cv, wrect(cv.h, x, y, x + 1, y), c)
+            put(cv, x, y + 1, c, 0.7)
+            if streak:
+                put(cv, x - 2, y - 1, c, 0.35)
+            continue
+        put(cv, x, y, c, 0.9)
+        if streak and i % 2 == 0:
+            put(cv, x - 1, y - 1, c, 0.4)
+
+
+def ashen_reach():
+    """The Ashen Reach: ash plains on a scorched island chain under a smouldering red-orange sky, the Ashborn's war
+    pyres burning on the far isles, banners, palisades and burnt trees, ash falling everywhere; the Jade River shows
+    faint and green through the smoke overhead."""
+    layers = []
+    stops = [(0.0, "#140606"), (0.16, "#200a08"), (0.3, "#300f0a"), (0.42, "#46150c"), (0.52, "#621c0e"),
+             (0.59, "#842a10"), (0.635, "#aa4014"), (0.66, "#d05c1c"), (0.675, "#e47a2a"), (0.69, "#c45820"),
+             (0.72, "#883216"), (0.78, "#541c10"), (0.88, "#2e0e0a"), (1.0, "#170706")]
+    glow_y = 243
+    sky = sky_layer(stops, bands=28, sharp=2.4)
+    stars(sky, "arst", 140, 0, 150, R("#3a1a18", "#6a3a30", "#b08070", "#f0d0c0"), twinkle=9)
+    lantern_ribbon(sky, "arjr", 56, 20, 11, alphas=(0.04, 0.06, 0.08), density=0.35)
+    for i, (y, a) in enumerate(((110, 0.08), (160, 0.1), (200, 0.12))):
+        nebula(sky, ("arsm", i), y, 14, 22 + i * 4, "#2a0e0a", alphas=(a * 0.6, a), k=(1, 2), cell=60, gaps=0.1)
+    nebula(sky, "arn_lo", 296, 18, 26, "#3a0e0a", alphas=(0.08, 0.12, 0.16), k=(1, 3), cell=80, gaps=0.1)
+    for i, (cx, y, ln) in enumerate(((110, 226, 200), (390, 236, 240), (570, 214, 150), (260, 200, 120))):
+        streak(sky, cx, y, ln, R("#6a2210", "#b8481a", "#f0943a"), ("ars", i), rows=2)
+    ash_fall(sky, "arsky", 420, 0, SKY_H, R("#5a3a34", "#7a5a52", "#a08478", "#c8b0a0"))
+    for i in range(30):
+        g = rng("arem", i)
+        put(sky, int(g.integers(0, W)), int(g.integers(150, 300)), "#ff9a3a" if i % 3 else "#ffd070", 0.8)
+    layers.append((sky, 0.0, 720))
+
+    # ---------------- far: the scorched island chain along the glow, pyres burning on it, smoke leaning off
+    fh = 220
+    far = Canvas(W, fh)
+    yy = grids(fh)[0]
+    rock = R("#1a0a08", "#240e0a", "#30140c", "#3e1a0e", "#4e2210", "#602c14")
+    chain_isles = [(30, 168, 40, 16), (140, 176, 30, 12), (250, 162, 48, 18), (370, 178, 26, 10), (470, 166, 44, 16),
+                   (590, 174, 30, 12), (320, 120, 14, 14), (540, 106, 12, 12)]
+    for i, (cx, top, hw, dp) in enumerate(chain_isles):
+        behind = sky_at(stops, far, 560, top)
+        ramp = hazed(rock, behind, 0.3)
+        m, tp = field_isle(far, cx, top, hw, dp, ramp, ("arfi", i), mixc("#ff8a3a", behind, 0.3),
+                           mixc("#8a2a1a", behind, 0.35), spurs=2)
+        if i in (6, 7):
+            lantern_star(far, cx, top - 16, 2.4, ("arfs", i), lit=0.5, halo=0.6, rays=0.5, tether=(cx - 3, top), sag=2,
+                         glow="#ffa050")
+        if i in (0, 2, 4, 5):
+            px_ = int(cx + hw * 0.2)
+            smoke_plume(far, px_ + 2, int(tp[px_ % W]) - 6, 70, "#2a100c", ("arfsp", i), width=6, lean=0.7,
+                        alphas=(0.1, 0.16, 0.22))
+            pyre(far, px_, int(tp[px_ % W]), 6, 12, ("arfp", i), glow="#ff7a2a", sparks=5)
+        for k in range(int(hw // 10)):
+            sx = int(cx - hw * 0.7 + k * 10)
+            flat(far, wrect(fh, sx, int(tp[sx % W]) - 3, sx, int(tp[sx % W])), mixc("#140806", behind, 0.2))
+    layers.append((far, 0.08, 560))
+
+    # ---------------- mid: an ash plain on its scorched isle: dunes of ash, burnt trees, the palisade, Kharn's pyre
+    mh = 260
+    mid = Canvas(W, mh)
+    yy, xx, _ = grids(mh)
+    rock_m = R("#100606", "#180a08", "#220e0a", "#2e140c", "#3c1a0e", "#4c2212", "#5e2c16")
+    icx, itop, ihw = 320, 196, 250
+    ash = R("#1a100e", "#261814", "#34201a", "#442a20", "#5a3626", "#7a4a2e", "#b06a38")
+    tmp = Canvas(W, mh)
+    dune_row(tmp, itop + 2, "ard", ash, 7, itop - 16, itop - 7, 40, 70, shade=2, ripples=0.3, amp=1.0)
+    tmp.a[(np.abs(wdx(xx, icx)) >= ihw - 14) | (yy > itop + 3)] = 0.0
+    mid.paste(tmp)
+    isle, itp = field_isle(mid, icx, itop, ihw, 56, rock_m, "armi", "#ff7a30", "#7a2a1a", haze="#2a0c08", spurs=4,
+                           cap=R("#2a1c1c", "#5a4038"))
+    # the Ashborn palisade: sharpened stakes along the plain, a gate gap
+    for x in range(icx - 200, icx - 40, 4):
+        top = itop - 14 - int((pn1("arpal", 3, 1)[x % W]) * 4)
+        st = wpoly(mh, [(x - 1, itop + 1), (x + 1.5, itop + 1), (x + 1.5, top + 2), (x + 0.25, top), (x - 1, top + 2)])
+        flat(mid, st, "#1a0c08")
+        flat(mid, left_rim(st), "#8a3a1a")
+    flat(mid, wrect(mh, icx - 200, itop - 8, icx - 40, itop - 7), "#2a140c")
+    # burnt trees on the plain
+    for k, (tx, th) in enumerate(((icx + 40, 36), (icx + 170, 44), (icx - 220, 30))):
+        dead_tree(mid, tx, itop, th, R("#0e0606", "#1c0e0a", "#6a2a14"), ("ardt", k), lean=0.2, spread=0.9, width=2)
+    # the war banners of the Ashborn
+    flame_sign = [".X.", "XXX", "X.X"]
+    pole = R("#140806", "#2a140c", "#6a3a1e")
+    cloth = R("#2a0806", "#4a0e0a", "#7a1a10", "#a82a16")
+    for k, (bx, ht) in enumerate(((icx - 196, 60), (icx - 44, 60), (icx + 110, 50))):
+        war_banner(mid, bx, itop + 1, ht, pole, cloth, "#f0a040", ("arb", k), bl=26, bw=9, trim="#c07030",
+                   sign=flame_sign)
+    # Kharn's pyre, the great one, at the heart of the plain, and over it a captured lantern star hung from a
+    # gallows of charred beams, chained down to feed the fire
+    px_ = icx - 120
+    smoke_plume(mid, px_ + 4, itop - 60, 150, "#241008", "argsp", width=14, lean=0.5, alphas=(0.08, 0.13, 0.18))
+    for bx in (px_ - 34, px_ + 34):
+        beam = wline(mh, [(bx, itop), (px_ + (bx - px_) * 0.3, itop - 112)], 2)
+        flat(mid, beam, "#140806")
+        flat(mid, left_rim(beam), "#7a3418")
+    flat(mid, wrect(mh, px_ - 16, itop - 114, px_ + 16, itop - 112), "#140806")
+    flat(mid, wrect(mh, px_ - 16, itop - 114, px_ + 16, itop - 114), "#8a3a1a")
+    lantern_star(mid, px_, itop - 94, 9, "arcapt", hang=(px_, itop - 112), star=R("#e8803a", "#ffc070", "#ffe8b8",
+                                                                                 "#ffffff"), glow="#ffa050", rays=0.8)
+    for sx in (-1, 1):
+        chain(mid, sag_pts(px_ + sx * 3, itop - 84, px_ + sx * 22, itop - 20, 4), R("#140806", "#4a2412", "#8a4a22"))
+    pyre(mid, px_, itop - 2, 26, 50, "argp", sparks=24)
+    ash_fall(mid, "armid", 140, 0, mh, R("#6a4a42", "#8a6a5e", "#b09888"), big=20)
+    layers.append((mid, 0.18, 620))
+
+    # ---------------- near: drifts of ash at the viewer's feet, charred stakes, embers, flakes falling close
+    nh = 200
+    near = Canvas(W, nh)
+    yy, xx, _ = grids(nh)
+    ash_n = R("#0e0808", "#150c0a", "#1e120e", "#2a1812", "#3a2016", "#562c1a", "#a0502a")
+    ground, lit, crests = dune_row(near, 156, "arnd", ash_n, 7, 118, 144, 44, 80, shade=2, ripples=0.5, amp=2.0)
+    g = rng("arstake")
+    for k in range(7):
+        x = int(g.uniform(0, W))
+        by = int(ground[x]) + 2
+        ht = int(g.uniform(14, 30))
+        lean = g.uniform(-4, 4)
+        st = wpoly(nh, [(x - 1.5, by), (x + 1.5, by), (x + 1 + lean, by - ht + 3), (x + lean, by - ht), (x - 1 + lean, by - ht + 3)])
+        flat(near, st, "#0e0606")
+        flat(near, left_rim(st), "#7a2e14")
+        put(near, x + lean, by - ht, "#ff8a3a")
+    for i in range(24):
+        g = rng("arnem", i)
+        x, y = int(g.integers(0, W)), int(g.integers(20, 190))
+        put(near, x, y, "#ffb050" if i % 3 else "#fff0a0")
+        if i % 4 == 0:
+            put(near, x - 1, y + 1, "#ff6a20", 0.6)
+    ash_fall(near, "arnear", 90, 0, nh, R("#7a5a52", "#a08478", "#c8b0a0"), big=40)
+    layers.append((near, 0.32, 720))
+    return dict(sky="#140606", horizon="#e47a2a", layers=layers)
+
+
+WARDEN_STAR = ["..X..", ".XXX.", "XXXXX", ".XXX.", "..X.."]   # the Star Wardens' sign
+
+
+def rampart(cv, x0, x1, top, by, pal, seed, merlon=6, gap=4, rim=None):
+    """A fortress wall from x0 to x1 (wrapping): dressed courses, a crenellated parapet (merlons and embrasures),
+    a wall-walk shadow line and arrow slits. pal dark->light (>= 5). Returns its mask."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    cw = (x1 - x0) % W
+    body = wrect(h, x0, top, x0 + cw, by)
+    rel = (xx - x0) % W
+    crenel = wrect(h, x0, top - 5, x0 + cw, top - 1) & ((rel % (merlon + gap)) < merlon)
+    m = body | crenel
+    ashlar(cv, m, pal[:5], ("ramp", seed), course=6, joint=32)
+    flat(cv, top_rim(m), pal[-1] if rim is None else rim)
+    flat(cv, body & (yy == top + 1), pal[0])
+    slit = body & ((rel % 24) == 12) & (yy > top + 4) & (yy < top + 9)
+    flat(cv, slit, pal[0])
+    return m
+
+
+def tidebreak_front():
+    """The Tidebreak Front: the Star Wardens' fortress wall strung along a chain of islands, facing the Hollow Tide
+    as it creeps in on the horizon, a grey-violet wall that drains the colour from all it touches under a sickly
+    violet glow, the lanterns in its path gone dark; a few lanterns still lit on the ramparts, the Jade River bright
+    above."""
+    layers = []
+    stops = [(0.0, "#070a20"), (0.2, "#0c1230"), (0.36, "#141a40"), (0.48, "#1d214e"), (0.56, "#282856"),
+             (0.61, "#38325e"), (0.645, "#56466c"), (0.665, "#7a5c88"), (0.68, "#6a5a76"), (0.71, "#4e4a5c"),
+             (0.77, "#38364a"), (0.87, "#242230"), (1.0, "#131218")]
+    glow_y = 240
+    sky = sky_layer(stops, bands=28, sharp=2.4)
+    stars(sky, "tfup", 520, 0, glow_y, LS_STARS, twinkle=8)
+    under_stars(sky, "tfdn", 120, glow_y, SKY_H, R("#34323c", "#4e4c56", "#76747e", "#a4a2aa", "#c8c6cc"))
+    star_river(sky, "tfjr", 58, 22, 13, "#62dc92", JADE_STARS, alphas=(0.05, 0.08, 0.12), density=0.7)
+    nebula(sky, "tfn_v", 170, 16, 24, "#8a50c8", alphas=(0.05, 0.08, 0.11), k=(1, 2), cell=80, gaps=0.15)
+    mist_band(sky, glow_y + 6, 44, "tfglow", "#a060e0", alphas=(0.05, 0.07, 0.1), amp=4, cell=120, gaps=0.0)
+    nebula(sky, "tfn_lo", 296, 16, 30, "#5a5668", alphas=(0.06, 0.1, 0.14), k=(1, 3), cell=70, gaps=0.1)
+    layers.append((sky, 0.0, 720))
+
+    # ---------------- far: the Hollow Tide on the horizon, a grey wall swallowing the islands and their lanterns
+    fh = 220
+    far = Canvas(W, fh)
+    yy, xx, _ = grids(fh)
+    rock = R("#1a1c34", "#222440", "#2c2e4c", "#383a5a", "#464868", "#58587a")
+    for i, (cx, top, hw, dp, lit) in enumerate(((50, 100, 24, 22, 0.0), (180, 60, 18, 18, 0.9), (300, 106, 28, 24, 0.0),
+                                               (430, 50, 20, 18, 0.8), (560, 98, 24, 20, 0.0), (250, 26, 10, 10, 1.0))):
+        behind = sky_at(stops, far, 560, top)
+        grey = 0.25 if lit else 0.55
+        ramp = hazed(rock, mixc(behind, "#5a5866", 0.5 if not lit else 0.0), grey)
+        field_isle(far, cx, top, hw, dp, ramp, ("tffi", i), mixc("#e0c8ff", behind, 0.4), mixc("#9a7ac8", behind, 0.4),
+                   spurs=2)
+        lantern_star(far, cx + 4, top - 16 - hw * 0.3, 2.4 + hw * 0.05, ("tffs", i), lit=lit, ember="#6a6278",
+                     halo=0.7, rays=0.6, tether=(cx, top), sag=3)
+    tide = R("#1c1a24", "#24212d", "#2c2936", "#353140", "#403b4c", "#4e485a", "#9c78c8")
+    mist_band(far, 102, 36, "tfglow_f", "#b070f0", alphas=(0.035, 0.05, 0.07), amp=5, cell=100, gaps=0.0)
+    cloud_bank(far, 112, "tftide", tide, r_lo=8, r_hi=18, rows=4, row_gap=14, amp=7, fill_below=True)
+    tm = far.a > 0.99
+    flat(far, tm & (yy < 150) & (pn2(fh, "tfsick", 30, 8, 2) > 0.45), "#8a50c0", 0.14)
+    flat(far, top_rim(tm) & (yy > 80), "#c890ff", 0.7)
+    haze_fade(far, tm, "#26232e", np.clip((yy - 130) / 60.0, 0, 1) * 0.6, steps=3, sharp=4)
+    for i, (cx, y, ln) in enumerate(((90, 100, 110), (330, 108, 140), (520, 96, 90), (220, 122, 80))):
+        streak(far, cx, y, ln, R("#4a4456", "#6c6676", "#b890e8"), ("tfts", i), rows=2)
+    layers.append((far, 0.08, 560))
+
+    # ---------------- mid: the wall line on its chain of islands, towers, a few lanterns still lit
+    mh = 280
+    mid = Canvas(W, mh)
+    yy, xx, _ = grids(mh)
+    rock_m = R("#0e1024", "#141630", "#1c1e3c", "#262848", "#303456", "#3e4266", "#505478")
+    stone = R("#262a40", "#30344c", "#3c4058", "#4a4e66", "#5c6078", "#7a7e96")
+    isles = [(60, 242, 70, 34), (250, 246, 60, 30), (440, 240, 72, 36), (600, 244, 40, 28)]
+    tops = []
+    for i, (cx, top, hw, dp) in enumerate(isles):
+        m, tp = field_isle(mid, cx, top, hw, dp, rock_m, ("tfmi", i), "#e0c890", "#8a6ac0", haze="#1c1a36", spurs=2)
+        tops.append(tp)
+    tp_all = np.minimum.reduce(tops)
+    # the wall: continuous along the islands, bridging the gaps between them on arches
+    wall_top, wall_by = 192, 246
+    wm = rampart(mid, 0, W - 1, wall_top, wall_by, stone, "tfw", rim="#8a88a8")
+    haze_fade(mid, wm, "#0e0e1c", np.clip((yy - wall_top - 10) / 50.0, 0, 1) * 0.5, steps=3, sharp=4)
+    for gx in (152, 346, 526):
+        arch = wellipse(mh, gx, wall_by, 24, 30)
+        mid.a[arch & wm & (yy > wall_top + 12)] = 0.0
+        flat(mid, ring_px(arch) & (yy > wall_top + 10) & (yy < wall_by), stone[5])
+    # towers with bronze caps, lantern stars on some, dark cages on others
+    for k, (tx, lit) in enumerate(((40, 1.0), (250, 0.0), (440, 1.0), (620, 0.0))):
+        tw, th = 22, 58
+        tm = wrect(mh, tx - tw // 2, wall_top - th + 20, tx + tw // 2, wall_by)
+        ashlar(mid, tm, stone[:5], ("tft", k), course=5, joint=16)
+        flat(mid, left_rim(tm), stone[4])
+        flat(mid, right_rim(tm), stone[0])
+        ttop = wall_top - th + 20
+        cren = wrect(mh, tx - tw // 2 - 2, ttop - 5, tx + tw // 2 + 2, ttop) & ((xx % 6) < 4)
+        flat(mid, cren, stone[3])
+        flat(mid, top_rim(cren), "#8a88a8")
+        roof = wpoly(mh, [(tx - tw // 2 - 1, ttop - 5), (tx + tw // 2 + 1, ttop - 5), (tx, ttop - 22)])
+        flat(mid, roof, LS_CAGE[2])
+        flat(mid, roof & (wdx(xx, tx) < 0), LS_CAGE[3])
+        flat(mid, right_rim(roof), LS_CAGE[0])
+        for wy_ in (ttop + 8, ttop + 20):
+            flat(mid, wrect(mh, tx - 1, wy_, tx + 1, wy_ + 4), "#f4c070" if lit else "#1a1a2a")
+        lantern_star(mid, tx + 2, ttop - 46, 7, ("tfms", k), lit=lit, ember="#5a5470", hang=None,
+                     tether=(tx, ttop - 22), sag=1)
+    # the lamps still burning on the ramparts, and a Warden banner
+    lan = R("#2a1a1a", "#ff9a3a", "#ffd890")
+    for k, lx in enumerate((96, 120, 300, 480, 504)):
+        flat(mid, wrect(mh, lx, wall_top - 14, lx, wall_top - 5), "#141628")
+        flat(mid, wrect(mh, lx, wall_top - 14, lx + 2, wall_top - 14), "#141628")
+        lantern(mid, lx + 2, wall_top - 13, lan, glow="#ffb050")
+    for k, bx in enumerate((200, 390, 560)):
+        war_banner(mid, bx, wall_top - 5, 40, R("#141628", "#2a2c40", "#8a88a8"), R("#10224a", "#1a3470", "#2a4a94",
+                                                                                   "#4a6ab8"), "#f0c870", ("tfb", k),
+                   bl=18, bw=8, trim="#e8c880", sign=WARDEN_STAR if k == 1 else [".X.", "XXX", ".X."])
+    layers.append((mid, 0.18, 620))
+
+    # ---------------- near: the parapet the defenders stand behind, a lamp post, the grey murk below
+    nh = 200
+    near = Canvas(W, nh)
+    yy, xx, _ = grids(nh)
+    mist_band(near, 150, 30, "tfnm", "#5a5468", alphas=(0.06, 0.1, 0.14), amp=6, cell=100, gaps=0.05)
+    stone_n = R("#12141f", "#181a28", "#1e2132", "#262a3e", "#30344a", "#4a4e66")
+    par = rampart(near, 0, W - 1, 168, nh, stone_n, "tfnp", merlon=14, gap=8, rim="#6a6888")
+    haze_fade(near, par, "#0a0a12", np.clip((yy - 172) / 30.0, 0, 1) * 0.5, steps=3, sharp=4)
+    for k, lx in enumerate((110, 430)):
+        flat(near, wrect(nh, lx, 110, lx + 1, 163), "#0e0f1a")
+        flat(near, wrect(nh, lx - 1, 108, lx + 12, 109), "#0e0f1a")
+        lantern(near, lx + 10, 110, lan, glow="#ffb050")
+        flat(near, wellipse(nh, lx + 11, 113, 30, 22), "#ffb050", 0.04)
+    war_banner(near, 250, 164, 70, R("#0e0f1a", "#22243a", "#6a6888"), R("#0c1a3a", "#142a5c", "#223e80", "#3a5aa4"),
+               "#f0c870", "tfnb", bl=30, bw=11, trim="#e8c880", sign=WARDEN_STAR)
+    layers.append((near, 0.32, 720))
+    return dict(sky="#070a20", horizon="#7a5c88", layers=layers)
+
+
+def nebula_cloud(cv, cx, cy, rx, ry, col, seed, alphas=(0.05, 0.08, 0.11, 0.14), rim=None):
+    """A huge soft cloud of nebula: a lumpy blob of flat translucent steps, frayed at its edges into wisps; an
+    optional lit rim along its upper edge."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    d = np.sqrt((wdx(xx, cx) / rx) ** 2 + ((yy - cy) / ry) ** 2)
+    lump = pn2(h, ("nbl", seed), rx * 0.5, ry * 0.6, 2)
+    wisp = pn2(h, ("nbwp", seed), rx * 0.9, 4, 2)
+    total = np.zeros((h, W), bool)
+    for i, a in enumerate(alphas):
+        reach = (1.0 - i * 0.2) * (0.7 + 0.6 * lump) + (wisp - 0.5) * 0.35
+        m = despeck(d < reach)
+        flat(cv, m, col, a)
+        total |= m
+    if rim is not None:
+        flat(cv, top_rim(total) & (pn2(h, ("nbr", seed), 8, 2, 1) > 0.4), rim, 0.35)
+    return total
+
+
+def star_coral(cv, x, by, ht, pal, tip, seed, spread=1.0, glow=None):
+    """A star-coral: a branching colony rising from (x, by), limbs forking and curling upward, every tip swelling
+    into a glowing bulb. pal = branch (dark, mid, light); tip = (body, core)."""
+    h = cv.h
+    g = rng("coral", seed)
+    limbs = np.zeros((h, W), bool)
+    tips = []
+
+    def limb(x0, y0, ang, ln, wdt, depth):
+        x1 = x0 + math.cos(ang) * ln
+        y1 = y0 + math.sin(ang) * ln
+        mx = (x0 + x1) / 2 + math.cos(ang + 1.57) * ln * 0.15 * g.uniform(-1, 1)
+        my = (y0 + y1) / 2
+        nonlocal limbs
+        limbs |= wline(h, [(x0, y0), (mx, my), (x1, y1)], max(1, int(round(wdt))))
+        if depth > 0 and ln > 3:
+            for k in range(2 if g.random() < 0.75 else 3):
+                na = ang + (k - 0.5) * 0.7 * spread + g.uniform(-0.25, 0.25)
+                na = min(-0.35, max(-math.pi + 0.35, na))
+                limb(x1, y1, na, ln * g.uniform(0.6, 0.8), wdt * 0.7, depth - 1)
+        else:
+            tips.append((x1, y1))
+
+    stems = 3 if ht > 30 else 2
+    for k in range(stems):
+        a0 = -math.pi / 2 + (k - (stems - 1) / 2.0) * 0.45 * spread + g.uniform(-0.12, 0.12)
+        limb(x + (k - (stems - 1) / 2.0) * 1.5, by, a0, ht * g.uniform(0.26, 0.34), max(1.5, ht * 0.055), 3)
+    flat(cv, limbs, pal[1])
+    flat(cv, left_rim(limbs), pal[2])
+    flat(cv, right_rim(limbs), pal[0])
+    for (tx, ty) in tips:
+        if glow is not None:
+            flat(cv, wellipse(h, tx, ty, 4, 4), glow, 0.12)
+        flat(cv, wellipse(h, tx, ty, 1.6, 1.6), tip[0])
+        put(cv, tx - 0.5, ty - 0.5, tip[1])
+    return limbs
+
+
+def nebula_deep():
+    """The Nebula Deep: the field thins into open nebula, huge soft clouds of deep teal and magenta at every depth,
+    floating reefs of star-coral glowing at their tips, a last lantern star or two adrift; the Jade River winds
+    right through the clouds. Very quiet, very deep."""
+    layers = []
+    stops = [(0.0, "#030d14"), (0.2, "#06161f"), (0.36, "#0a2230"), (0.48, "#0e2c3c"), (0.56, "#123646"),
+             (0.62, "#1c3c4e"), (0.66, "#2e3a56"), (0.69, "#4a2e56"), (0.72, "#40244c"), (0.8, "#281634"),
+             (0.9, "#170c22"), (1.0, "#0b0612")]
+    sky = field_sky(stops, "nd", 240, up=560, down=300, pal=R("#1c3440", "#3a5a6a", "#80a8b8", "#d0ecf0", "#ffffff"))
+    for i, (cx, cy, rx, ry, col) in enumerate(((120, 90, 150, 60, "#20a8a8"), (430, 150, 190, 70, "#c03a98"),
+                                               (620, 60, 120, 44, "#2ab0b0"), (300, 250, 200, 60, "#a0308a"),
+                                               (60, 300, 150, 50, "#20888c"))):
+        nebula_cloud(sky, cx, cy, rx, ry, col, ("ndsk", i), alphas=(0.04, 0.06, 0.08, 0.1, 0.12))
+    star_river(sky, "ndjr", 196, 36, 13, "#62dc92", JADE_STARS, alphas=(0.05, 0.08, 0.12), density=0.75, k=(1, 3))
+    g = rng("ndst")
+    for i in range(160):
+        put(sky, int(g.integers(0, W)), int(g.integers(0, SKY_H)), "#f0c8f0" if i % 3 else "#c8fff4", 0.7)
+    layers.append((sky, 0.0, 720))
+
+    # ---------------- far: the great soft clouds, coral reefs far off on their rocks, one far lantern star
+    fh = 220
+    far = Canvas(W, fh)
+    yy, xx, _ = grids(fh)
+    for i, (cx, cy, rx, ry, col, rim) in enumerate(((80, 150, 110, 40, "#1a7a80", "#6ae0d8"), (330, 120, 130, 36, "#8a2a78", "#f080d0"),
+                                                    (560, 160, 120, 44, "#1c6a78", "#6ad0d8"))):
+        nebula_cloud(far, cx, cy, rx, ry, col, ("ndf", i), alphas=(0.06, 0.1, 0.14, 0.18), rim=rim)
+    rock = R("#0c1a24", "#12222e", "#1a2c3a", "#243848", "#304656")
+    for i, (cx, top, hw, ht) in enumerate(((140, 128, 10, 30), (410, 110, 12, 36), (600, 140, 8, 24))):
+        behind = sky_at(stops, far, 560, top)
+        field_isle(far, cx, top, hw, 10, hazed(rock + [C("#3e5664")], behind, 0.35), ("ndfi", i),
+                   mixc("#80f0e0", behind, 0.4), mixc("#f080d0", behind, 0.4), spurs=1)
+        for k in range(2):
+            star_coral(far, cx - hw * 0.4 + k * hw * 0.8, top + 1, ht * (0.8 + k * 0.3), hazed(R("#3a1a48", "#6a2a70",
+                                                                                                    "#a04a98"), behind, 0.4),
+                       R(mixc("#ff8ad8", behind, 0.3), "#ffe0f4"), ("ndfc", i, k), spread=1.1)
+    lantern_star(far, 250, 60, 3.0, "ndfs", halo=0.7, rays=0.7, tether=(262, 96), sag=6)
+    layers.append((far, 0.08, 560))
+
+    # ---------------- mid: reefs of star-coral drifting on their rocks, glowing tips, clouds pouring between
+    mh = 260
+    mid = Canvas(W, mh)
+    yy, xx, _ = grids(mh)
+    nebula_cloud(mid, 320, 200, 260, 40, "#1a6a74", "ndmc0", alphas=(0.05, 0.08, 0.11, 0.14), rim="#8af0e8")
+    rock_m = R("#08121a", "#0c1822", "#12202c", "#1a2a38", "#243646", "#304456", "#40586a")
+    corals = (R("#3a1040", "#7a2478", "#c04ab0"), R("#0e3a44", "#1a6a70", "#3aaaa8"))
+    tips = (R("#ff7ad0", "#fff0fa"), R("#6af0e0", "#f0fffc"))
+    glows = ("#ff6ac8", "#5ae8d8")
+    for i, (cx, top, hw, dp) in enumerate(((90, 170, 44, 34), (330, 150, 58, 40), (540, 180, 40, 30))):
+        m, tp = field_isle(mid, cx, top, hw, dp, rock_m, ("ndmi", i), "#9af0e8", "#e070c0", haze="#16203a", spurs=2)
+        g = rng("ndmcor", i)
+        for k in range(3 + i % 2):
+            px_ = int(cx - hw * 0.7 + (k + 0.5) * hw * 1.4 / (3 + i % 2))
+            c = (i + k) % 2
+            star_coral(mid, px_, int(tp[px_ % W]) + 1, g.uniform(40, 70), corals[c], tips[c], ("ndmco", i, k),
+                       spread=g.uniform(0.9, 1.3), glow=glows[c])
+    lantern_star(mid, 212, 40, 8, "ndms", tether=(300, int(150)), sag=12)
+    nebula_cloud(mid, 180, 236, 220, 30, "#6a2064", "ndmc1", alphas=(0.06, 0.1, 0.14), rim="#f090d8")
+    g = rng("ndmote")
+    for i in range(60):
+        put(mid, int(g.integers(0, W)), int(g.integers(20, 240)), "#9af8ec" if i % 2 else "#ffb0e8", 0.8)
+    layers.append((mid, 0.18, 620))
+
+    # ---------------- near: great coral fronds close by, nebula billowing up from below, drifting motes
+    nh = 200
+    near = Canvas(W, nh)
+    yy, xx, _ = grids(nh)
+    for i, (cx, cy, rx, ry, col) in enumerate(((140, 196, 220, 40, "#12505a"), (500, 200, 200, 44, "#5a1a58"))):
+        nebula_cloud(near, cx, cy, rx, ry, col, ("ndnc", i), alphas=(0.08, 0.13, 0.18, 0.24),
+                     rim="#7ae8e0" if i == 0 else "#f07ad0")
+    rock_n = R("#050a10", "#08101a", "#0c1622", "#121e2c", "#1a2838", "#243446")
+    for i, (cx, top, hw, dp) in enumerate(((50, 150, 50, 40), (590, 164, 36, 30))):
+        m, tp = field_isle(near, cx, top, hw, dp, rock_n, ("ndni", i), "#7ae8e0", "#d060b0", haze="#0e1628", spurs=2)
+        for k in range(2):
+            px_ = int(cx - hw * 0.4 + k * hw * 0.7)
+            c = (i + k) % 2
+            star_coral(near, px_, int(tp[px_ % W]) + 1, 110 - k * 30 - i * 20, R("#10081a", "#241030", "#4a2050") if c == 0
+                       else R("#061a20", "#0c2c34", "#1a4a50"), tips[c], ("ndnco", i, k), spread=1.2, glow=glows[c])
+    g = rng("ndnmote")
+    for i in range(30):
+        x, y = int(g.integers(0, W)), int(g.integers(10, 190))
+        put(near, x, y, "#c8fff4" if i % 2 else "#ffd0f0")
+        if i % 5 == 0:
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                put(near, x + dx, y + dy, "#6ae0d8" if i % 2 else "#e070c0", 0.6)
+    layers.append((near, 0.32, 720))
+    return dict(sky="#030d14", horizon="#4a2e56", layers=layers)
+
+
+def lattice_ribs(cv, bay, foot, apex, width, pal, seed, off=0.0, pointed=1.35, hoops=(), lit_side=0.0, rivets=True,
+                 overlap=True, inner=None):
+    """The bronze lattice of the colossal lantern: pairs of ribs rising from feet `bay` px apart and curving over to
+    meet at pointed apexes, the arches overlapping by half a bay so their ribs cross into a lattice; horizontal
+    hoops at rows `hoops`; lit on the edge facing the heart, riveted. pal = bronze dark->gleam (5). Returns mask."""
+    h = cv.h
+    yy, xx, _ = grids(h)
+    m = np.zeros((h, W), bool)
+    n = int(round(W / bay)) * (2 if overlap else 1)
+    for i in range(n):
+        x0 = off + i * bay / (2.0 if overlap else 1.0)
+        ax = x0 + bay / 2.0
+        for side in (-1, 1):
+            fx = x0 if side < 0 else x0 + bay
+            pts = []
+            for t in np.linspace(0, 1, 40):
+                px_ = fx + (ax - fx) * (1 - math.cos(t * math.pi / 2)) ** pointed
+                py_ = foot - (foot - apex) * math.sin(t * math.pi / 2)
+                pts.append((px_, py_))
+            m |= wline(h, pts, width)
+    for (hy, hw_) in hoops:
+        m |= (yy >= hy) & (yy < hy + hw_)
+    m = despeck(m)
+    flat(cv, m, pal[1])
+    flat(cv, top_rim(m), pal[3])
+    flat(cv, left_rim(m) & ~top_rim(m), pal[2])
+    flat(cv, bot_rim(m) | right_rim(m), pal[0])
+    if lit_side:
+        flat(cv, top_rim(m) & (pn2(h, ("lrl", seed), 6, 3, 1) > 0.4), pal[4], lit_side)
+    if inner is not None:   # the underside of each arch, facing the heart, catches its light
+        flat(cv, bot_rim(m) & (yy < foot - 30), inner)
+        flat(cv, sh(bot_rim(m), 0, -1) & m & (yy < foot - 60), pal[3])
+    if rivets:
+        riv = m & ~top_rim(m) & ~bot_rim(m) & ((xx + yy * 3) % 9 == 0) & (pn2(h, ("lrr", seed), 3, 3, 1) > 0.5)
+        flat(cv, riv, pal[3])
+    return m
+
+
+def lantern_heart():
+    """The Lantern Heart, inside the colossal lantern: molten gold-white light pouring from the star at its heart,
+    bronze lattice ribs curving overhead in tier on tier, sparks drifting up to the open vent in the crown where
+    the night shows through, and the Jade River running across it."""
+    layers = []
+    H = 360
+    yy, xx, _ = grids(H)
+    # ---------------- sky: the vent open to the night, its bronze rim, and the molten light below
+    sky = Canvas(W, H)
+    vent = 58
+    night = sky_layer([(0.0, "#070818"), (0.12, "#0c0e28"), (0.17, "#15163a"), (1.0, "#15163a")], h=H, bands=10)
+    sky.rgb[:] = night.rgb
+    sky.a[:] = 1.0
+    stars(sky, "lhtst", 220, 0, vent, LS_STARS, twinkle=7)
+    star_river(sky, "lhtjr", 26, 8, 9, "#62dc92", JADE_STARS, alphas=(0.07, 0.11, 0.16), density=0.9, twinkles=6)
+    heat = R("#3a1204", "#5a2006", "#823408", "#ac500e", "#d07018", "#ee9428", "#ffb846", "#ffcc64", "#ffdc86")
+    dxh = wdx(xx, 320) / 330.0
+    dyh = (yy - 196) / 190.0
+    rr = np.sqrt(dxh ** 2 + dyh ** 2)
+    v = (len(heat) - 1) * np.clip(1.05 - rr * 1.05, 0, 1) ** 1.25
+    body = yy >= vent
+    paint(sky, body, heat, v, sharp=2.4)
+    rim = (yy >= vent - 3) & (yy <= vent + 9)
+    flat(sky, rim, LS_CAGE[1])
+    flat(sky, yy == vent - 3, LS_CAGE[3])
+    flat(sky, yy == vent + 9, LS_CAGE[4])
+    flat(sky, rim & (yy == vent + 1) & ((xx % 12) < 7), LS_CAGE[2])
+    flat(sky, rim & (yy == vent + 5), LS_CAGE[0])
+    flat(sky, rim & (yy >= vent + 6) & (yy <= vent + 8) & ((xx % 6) == 0), LS_CAGE[3])
+    # the fallen star itself, blazing at the heart
+    cx, cy = 320, 204
+    for s_, a in ((80, 0.08), (56, 0.12), (40, 0.16)):
+        flat(sky, wellipse(H, cx, cy, s_, s_) & body, "#ffeab0", a)
+    dcx, dcy = wdx(xx, cx), yy - cy
+    spark = (np.sqrt(np.abs(dcx)) + np.sqrt(np.abs(dcy))) <= math.sqrt(30)
+    flat(sky, spark, "#fff4d0")
+    flat(sky, wellipse(H, cx, cy, 11, 11), "#fffdf4")
+    flat(sky, wellipse(H, cx, cy, 6, 6), "#ffffff")
+    for ln, a in ((150, 0.25), (100, 0.4), (54, 0.7)):
+        flat(sky, (((dcy == 0) & (np.abs(dcx) <= ln)) | ((dcx == 0) & (np.abs(dcy) <= ln * 0.9))) & body, "#ffffff", a)
+    lantern_star(sky, cx, cy, 30, "lhtheart", halo=0.0, rays=1.8, star=R("#ffe6a0", "#fff4d0", "#fffcf0", "#ffffff"),
+                 cage=R("#3a1c08", "#6a3810", "#9a5a1c", "#d08a30", "#ffd070"))
+    g = rng("lhtsp")
+    for i in range(140):
+        x, y = int(g.integers(0, W)), int(g.integers(vent + 12, H))
+        put(sky, x, y, "#fff4c8" if i % 3 else "#ffb040", 0.8)
+    layers.append((sky, 0.0, 720))
+
+    # ---------------- far: the far wall's lattice, fine ribs crossing, hoops, glowing in the light
+    far = Canvas(W, H)
+    far_pal = R("#5a2c0e", "#8a4a18", "#b86e28", "#e09a44", "#ffd07a")
+    lattice_ribs(far, 80, H + 4, vent + 10, 2, far_pal, "lhtf", off=0, pointed=1.2,
+                 hoops=((vent + 8, 3), (150, 2), (262, 2)), lit_side=0.7, rivets=False)
+    haze_fade(far, far.a > 0, "#ffd88a", np.clip(1.0 - rr * 1.6, 0, 1) * 0.7, steps=4, sharp=3)
+    layers.append((far, 0.06, 720))
+
+    # ---------------- mid: heavier ribs curving overhead, chains of small lanterns, sparks rising
+    mid = Canvas(W, H)
+    mid_pal = R("#2a1206", "#4a2410", "#7a3e18", "#b0662a", "#f0b050")
+    lattice_ribs(mid, 213.333, H + 10, 24, 4, mid_pal, "lhtm", off=40, pointed=1.5, hoops=((104, 3),), lit_side=0.8,
+                 rivets=False, inner="#ffc060")
+    for i, x in enumerate((60, 273, 486)):
+        pts = dangle_pts(x, 100, 70 + (i % 2) * 30, sway=2.0)
+        chain(mid, pts, R("#2a1206", "#7a3e18", "#f0b050"))
+        lx, ly = pts[-1]
+        lantern_star(mid, lx, ly + 7, 5, ("lhtml", i), hang=(lx, ly), halo=0.6, rays=0.5)
+    g = rng("lhtms")
+    for i in range(70):
+        x, y = int(g.integers(0, W)), int(g.integers(20, 340))
+        put(mid, x, y, "#fff0b0" if i % 2 else "#ffa040")
+        if i % 7 == 0:
+            put(mid, x - 1, y + 1, "#ff8a2a", 0.6)
+            put(mid, x - 2, y + 2, "#ff8a2a", 0.3)
+    layers.append((mid, 0.16, 720))
+
+    # ---------------- near: massive ribs framing the view, the bronze grate floor over the glow beneath
+    near = Canvas(W, H)
+    near_pal = R("#120804", "#20100a", "#3a1c0c", "#6a3616", "#c0782a")
+    lattice_ribs(near, 320, H + 30, -4, 9, near_pal, "lhtn", off=-150, pointed=1.9, lit_side=0.9, rivets=False,
+                 overlap=False, inner="#ffb040")
+    grate = (yy >= 330)
+    flat(near, grate, near_pal[1])
+    holes = grate & (yy >= 334) & ((xx % 12) >= 4) & ((xx % 12) <= 9) & (((yy - 334) % 9) >= 4) & (((yy - 334) % 9) <= 6)
+    flat(near, holes, "#c05a18")
+    flat(near, holes & ((yy - 334) % 9 == 4), "#ffa040")
+    haze_fade(near, holes, "#20100a", np.clip((yy - 334) / 26.0, 0, 1) * 0.6, steps=3, sharp=4)
+    flat(near, grate & (yy == 330), near_pal[4])
+    flat(near, grate & (yy == 331), near_pal[3])
+    g = rng("lhtns")
+    for i in range(36):
+        x, y = int(g.integers(0, W)), int(g.integers(40, 320))
+        flat(near, wrect(H, x, y, x + 1, y), "#fff4c0" if i % 2 else "#ffb04a")
+        put(near, x - 1, y + 1, "#ff8a2a", 0.5)
+    layers.append((near, 0.3, 720))
+    return dict(sky="#070818", horizon="#ffb846", layers=layers)
+
+
 def interior():
     sky = sky_layer([(0.0, "#120c09"), (0.25, "#1d140e"), (0.5, "#2c1e14"), (0.62, "#35241a"), (0.8, "#261a12"),
                      (1.0, "#150e0a")], bands=14, sharp=2.0)
@@ -4480,10 +6512,22 @@ SCENES = {
     "sunscar_tomb": sunscar_tomb,
     "skyport_wreck": skyport_wreck,
     "starsea": starsea,
+    "lantern_harbor": lantern_harbor,
+    "star_shoals": star_shoals,
+    "blackmast_haven": blackmast_haven,
+    "wyrmnest_isles": wyrmnest_isles,
+    "warden_citadel": warden_citadel,
+    "orbit_ruins": orbit_ruins,
+    "ashen_reach": ashen_reach,
+    "tidebreak_front": tidebreak_front,
+    "nebula_deep": nebula_deep,
+    "lantern_heart": lantern_heart,
 }
 ORDER = ["valley_day", "valley_dusk", "valley_night", "marsh", "bamboo", "quarry", "mist_peak", "gorge", "cave",
          "sect_jade", "sect_cloud", "interior", "storm_plains", "sky_port", "rimefrost", "mirror_lake", "gale_canyon", "nine_peaks",
-         "sunscar", "sunscar_tomb", "skyport_wreck", "starsea"]
+         "sunscar", "sunscar_tomb", "skyport_wreck", "starsea", "lantern_harbor", "star_shoals", "blackmast_haven",
+         "wyrmnest_isles", "warden_citadel", "orbit_ruins", "ashen_reach", "tidebreak_front", "nebula_deep",
+         "lantern_heart"]
 
 
 def hexs(c):

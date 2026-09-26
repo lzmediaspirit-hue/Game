@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from synth import (SR, TAU, lowshelf, TRI, SOFT, ZHENG_BODY, PIPA_BODY, bell, bird, bowl, bubble, chime,
+from synth import (SR, TAU, lowshelf, TRI, SOFT, ZHENG_BODY, PIPA_BODY, bandpass, bell, bird, bowl, bubble, chime,
                    crickets, cymbal, db, drone, filt, flute, gong, harmonic_tone, highpass,
                    highshelf, limit, lowpass, membrane, mtof, nsamp, peak, pipa_params, pluck,
                    pnoise, reverb_ir, convolve, rms, rms_a, rng_for, smoothstep, stream, tvec, undb,
@@ -1097,3 +1097,294 @@ def m_tomb():
     tr.add("gong", g, tr.tb(2), 0.75)
     tr.add("gong", gong(92.0, rg, dur=6.0, pitch=(0, -20), bloom=1.0, bright=0.6, thump=0.0), tr.tb(7, 2.0), 0.45)
     return tr.mix(t60=4.8, wet=0.58, predelay=0.06, hf=0.3)
+
+
+# ---------------------------------------------------------------- Act III: the Lantern Star Field
+
+def horn_note(freq, dur, rng, attack=0.22, release=0.7, bright=7.0, scoop=40.0, vib=(4.4, 7.0), air=0.03):
+    """Low war horn: a long brass-like blast whose upper partials swell in after the fundamental,
+    with a small scoop up into the pitch, a slow vibrato and a breath of air in the tone."""
+    n = nsamp(dur + release)
+    t = tvec(n)
+    env = smoothstep(t / attack) * (1.0 - smoothstep((t - dur) / release))
+    cents = -scoop * np.exp(-t / 0.09) + vib[1] * smoothstep((t - 0.5) / 0.8) * np.sin(TAU * vib[0] * t)
+    ph = TAU * np.cumsum(freq * 2.0 ** (cents / 1200.0)) / SR
+    kc = 1.0 + bright * env ** 1.6
+    out = np.zeros(n)
+    for k in range(1, 32):
+        if freq * k > 0.42 * SR:
+            break
+        out += np.exp(-(k - 1) / kc) / k * np.sin(k * ph + rng.uniform(0, TAU))
+    br = filt(rng.standard_normal(n), bandpass(min(freq * 6.0, 1800.0), 0.8))
+    out += air * br / max(rms(br), 1e-9)
+    out *= env
+    return fades(out / max(peak(out), 1e-9), 0.002, 0.05)
+
+
+@music("lantern_harbor")
+def m_lantern_harbor():
+    """Lanternfall Harbor at night: a warm, unhurried town theme. Guzheng arpeggios rock like the
+    moored boats, the guzheng sings the tune first and a soft xiao joins it and then answers alone,
+    water laps at the quay, lantern bells chime now and then and a watch clapper sounds far off."""
+    tr = Track("lantern_harbor", 70, 4, 12)            # 41.1 s
+    sc = Scale(65, 0)                                  # F gong, tonic F4
+    tr.bus("pad", -25, 0.35, (lowpass(1400, 0.7),))
+    tr.bus("water", -30, 0.2, (lowpass(1800),))
+    tr.bus("arp", -8, 0.3, ZHENG_BODY)
+    tr.bus("zheng", -2, 0.34, ZHENG_BODY)
+    tr.bus("flute", -7, 0.42)
+    tr.bus("bell", -6, 0.55)
+    tr.bus("perc", -9, 0.45)
+    tr.add("pad", drone(tr.L, tr.T, tr.r("pad"), [(mtof(41), 1.0), (mtof(48), 0.45), (mtof(53), 0.2)], harm=SOFT,
+                        swell=(2, 0.5), detune=4.0), 0)
+    tr.add("water", stream(tr.L, tr.T, tr.r("water"), density=6, fmin=250, fmax=900, bed=0.9, bub=0.5), 0)
+    prog = [0, 0, -2, -1, 0, 1, -2, 0, 0, -2, 1, 0]
+    rz = tr.r("arp")
+    pats = [[0, None, 3, 5, 7, 5, 3, None], [0, None, 3, 7, 5, 3, 5, None]]
+    for bar, root in enumerate(prog):
+        tr.zheng("zheng", tr.tb(bar), sc(root) - 24, 0.6, rz, ring=4.0)
+        arp(tr, "arp", tr.tb(bar), tr.spb / 2, sc, root, pats[bar % 2], rz, vel=0.3, octave=-1, accent=1.2, ring=2.2,
+            dyn=lambda k: 0.8 + 0.2 * np.sin(np.pi * k / 8.0))
+    rm = tr.r("melody")
+    p = period(rm, R_SLOW, lo=-1, hi=6, first=2)
+    for k, notes in enumerate(p):                      # the guzheng sings bars 0-7
+        zheng_melody(tr, "zheng", notes, sc, tr.tb(2 * k), rm, octave=0, vel=0.66)
+    answer = [vary(rm, p[0], 3, -1, 6, 0.5), vary(rm, p[3], 0, -1, 6, 0.6)]
+    fl = []
+    for k, notes in enumerate(p[2:]):                  # the xiao joins in heterophony in bars 4-7
+        fl += to_flute(tr, simplify(notes, 1.0), sc, tr.tb(4 + 2 * k), rm, octave=0, vel=0.6, grace_p=0.25)
+    for k, notes in enumerate(answer):                 # and answers alone in bars 8-11
+        fl += to_flute(tr, notes, sc, tr.tb(8 + 2 * k), rm, octave=0, vel=0.85, grace_p=0.35)
+    tr.flute("flute", fl, tr.r("flute_sig"), kind="xiao", vib_depth=16, vib_rate=4.8)
+    rh = tr.r("harm")
+    for bar in (8, 10):
+        tr.add("zheng", harmonic_tone(float(mtof(sc(prog[bar] + 3) - 12)), rh, ring=3.0), tr.tb(bar, 2.0), 0.35)
+    rb = tr.r("bell")
+    for bar, i in ((3, 7), (7, 8), (11, 7)):
+        tr.add("bell", bell(float(mtof(sc(i))), rb, dur=2.0, kind="small", strike=0.12), tr.tb(bar, 2.5), 0.5)
+    rp = tr.r("perc")
+    for k, dt in enumerate((0.0, 0.3)):
+        tr.add("perc", woodblock(1500, rp, t60=0.07, click_amt=0.5), tr.tb(9, 3.0) + dt, 0.9 - 0.25 * k)
+    return tr.mix(t60=2.4, wet=0.42, predelay=0.03)
+
+
+@music("star_field")
+def m_star_field():
+    """The Lantern Star Field: open sky between the drifting islands. A wide slow pad, guzheng
+    arpeggios in open fifths that roll like the islands turning, natural harmonics and jade chimes
+    for the lantern stars, a dizi melody in the zhi mode that keeps climbing to see further, a soft
+    frame drum only on the big downbeats and a high wind that never touches ground."""
+    tr = Track("star_field", 78, 4, 13)                # 40.0 s
+    sc = Scale(64, 3)                                  # E gong, B zhi, tonic B4
+    tr.bus("pad", -23, 0.45, (lowpass(1600, 0.7),))
+    tr.bus("wind", -34, 0.3)
+    tr.bus("arp", -8, 0.36, ZHENG_BODY)
+    tr.bus("bass", -9, 0.3, ZHENG_BODY)
+    tr.bus("harm", -8, 0.6)
+    tr.bus("chime", -6, 0.7, (highpass(900),))
+    tr.bus("flute", -4, 0.45)
+    tr.bus("drum", 2, 0.35)
+    tr.add("pad", drone(tr.L, tr.T, tr.r("pad"), [(mtof(47), 1.0), (mtof(54), 0.55), (mtof(59), 0.3), (mtof(66), 0.1)],
+                        harm=SOFT, swell=(1, 0.5), detune=4.0), 0)
+    tr.add("wind", wind(tr.L, tr.T, tr.r("wind"), base=1000, spread=2400, width=1.2, cycles=(1, 2, 3, 5), floor=0.2,
+                        tilt_db=-1.0, whistle=0.15), 0)
+    prog = [0, 0, -2, -2, 1, 1, 0, 0, -1, -1, -2, 1, 0]
+    rz = tr.r("arp")
+    pats = [[0, 3, 5, 8, 5, 3, 5, 8], [0, 3, 5, 3, 8, 5, 3, 5]]
+    for bar, root in enumerate(prog):
+        arp(tr, "arp", tr.tb(bar), tr.spb / 2, sc, root, pats[(bar // 2) % 2], rz, vel=0.3, octave=-2, accent=1.3,
+            ring=2.0, dyn=lambda k: 0.7 + 0.3 * np.sin(np.pi * k / 8.0))
+        tr.zheng("bass", tr.tb(bar), sc(root) - 24, 0.6, rz, ring=3.5, jitter=0.003)
+    rh = tr.r("harm")
+    for bar in (1, 5, 9):
+        tr.add("harm", harmonic_tone(float(mtof(sc(prog[bar] + 5) - 12)), rh, ring=3.5), tr.tb(bar, 2.0), 0.6)
+    gliss(tr, "arp", tr.tb(0) + 0.02, sc, -3, 7, rh, dt=0.06, vel=0.32, octave=-1, ring=2.4)
+    gliss(tr, "arp", tr.tb(8) + 0.02, sc, -2, 8, rh, dt=0.06, vel=0.3, octave=-1, ring=2.4)
+    rc = tr.r("chime")
+    for bar in range(13):
+        for beat in (1.5, 3.5):
+            if rc.random() < 0.35:
+                i = int(rc.integers(4, 11))
+                tr.add("chime", chime(mtof(sc(i) + 12), rc, dur=1.5), tr.tb(bar, beat), rc.uniform(0.18, 0.32))
+    rm = tr.r("melody")
+    p1 = period(rm, R_SLOW, lo=-1, hi=8, first=0)
+    p2 = [vary(rm, p1[2], 4, 0, 9, 0.5), vary(rm, p1[3], 0, -1, 8, 0.5)]
+    fl = []
+    for k, notes in enumerate(p1 + p2):                # bars 1-12, one bar of pad and gliss first
+        fl += to_flute(tr, notes, sc, tr.tb(1 + 2 * k), rm, octave=0, grace_p=0.3)
+    tr.flute("flute", fl, tr.r("flute_sig"), kind="dizi", vib_depth=18, vib_rate=5.0, breath=1.2)
+    rd = tr.r("drum")
+    frame = membrane(90, rd, t60=0.9, drop=0.3, noise_amt=0.25, noise_fc=1200)
+    tom = membrane(140, rd, t60=0.5, drop=0.3, noise_amt=0.2)
+    for bar in (0, 4, 8, 12):
+        tr.add("drum", frame, tr.tb(bar), 0.8)
+    for bar in (3, 7, 11):
+        tr.add("drum", tom, tr.tb(bar, 3.0), 0.45)
+        tr.add("drum", tom, tr.tb(bar, 3.5), 0.55)
+    return tr.mix(t60=3.0, wet=0.46, predelay=0.035)
+
+
+@music("ashen_war")
+def m_ashen_war():
+    """The Ashen Reach: the Ashborn legions on the march. Big war drums drive sixteenths under a
+    call of low horns in fifths, a pipa hammers a tense ostinato that rubs a semitone against the
+    tonic, bass strings push the off-beats, cymbals crash at each phrase and a low gong answers
+    the horns."""
+    tr = Track("ashen_war", 126, 4, 20)                # 38.1 s
+    sc = Scale(50, 4)                                  # D gong, B yu, tonic B3
+    tr.bus("drone", -24, 0.2, (lowpass(700),))
+    tr.bus("drum", 0, 0.14)
+    tr.bus("tom", -5, 0.14)
+    tr.bus("hi", -13, 0.12)
+    tr.bus("cym", -12, 0.2)
+    tr.bus("horn", -5, 0.35, (lowpass(2400, 0.7),))
+    tr.bus("bass", -10, 0.1, ZHENG_BODY)
+    tr.bus("pipa", -8, 0.2, PIPA_BODY)
+    tr.bus("gong", -3, 0.4)
+    tr.add("drone", drone(tr.L, tr.T, tr.r("drone"), [(mtof(35), 1.0), (mtof(42), 0.5)], harm=TRI, swell=(5, 0.4)), 0)
+    rd = tr.r("drums")
+    dagu = [membrane(56 * rd.uniform(0.98, 1.02), rd, t60=0.65, drop=0.8, noise_amt=0.45, noise_fc=1000) for _ in range(3)]
+    tom = [membrane(112 * rd.uniform(0.97, 1.03), rd, t60=0.32, drop=0.45, noise_amt=0.3) for _ in range(3)]
+    bangu = [membrane(620 * rd.uniform(0.97, 1.03), rd, t60=0.06, drop=0.12, noise_amt=0.6, noise_fc=4000,
+                      click_amt=0.5) for _ in range(3)]
+    nao = cymbal(rd, dur=2.2, t60=1.7, fmin=320, count=64, noise_amt=0.55)
+    for bar in range(20):
+        g = bar % 4
+        lane(tr, "drum", bar, "X..x..X.X..x..x." if g != 3 else "X..x..X.X.x.XXXX", dagu, rd, vel=0.95)
+        lane(tr, "tom", bar, "..x...x...x.x.x." if g != 3 else "x.x.x.xxX.X.xxxx", tom, rd, vel=0.6)
+        lane(tr, "hi", bar, "..o...o...o...o." if g != 3 else "..o.o.o.oxoxxxXX", bangu, rd, vel=0.55)
+        if g == 0:
+            tr.add("cym", nao, tr.tb(bar), 0.75)
+    prog = [0, 0, -1, 0, 0, 0, 1, 0, 0, 0, -1, -1, 1, 1, 2, 0, 0, -1, 1, 0]
+    rb = tr.r("bass")
+    for bar, root in enumerate(prog):
+        for k, off in enumerate((0, None, 0, 3, None, 0, 4, 0)):
+            if off is not None:
+                tr.zheng("bass", tr.tb(bar, 0.5 * k), sc(root + off) - 24, 0.75 if k == 0 else 0.55, rb,
+                         ring=0.35, release=0.05, jitter=0.003)
+    # the horns: a call every four bars, the root held in fifths, a push up a step, and back
+    rh = tr.r("horn")
+    call = [(0, 0.0, 5.5, 0), (1, 2.0, 1.6, 1), (1, 3.5, 3.6, 0), (2, 3.0, 4.4, -1), (3, 3.0, 1.0, 0)]
+    for base in (0, 4, 8, 12, 16):
+        for bar, beat, beats, i in call:
+            if base == 12 and bar >= 2:
+                i += 1                                 # the fourth call climbs before the last one
+            dur = beats * tr.spb
+            for dm, g in ((0, 0.8), (7, 0.45)):
+                f = float(mtof(sc(i) - 24 + dm))
+                tr.add("horn", horn_note(f, dur, rh, attack=0.18 if beat else 0.25), tr.tb(base + bar, beat), g)
+    rg = tr.r("gong")
+    for bar in (2, 10, 18):
+        tr.add("gong", gong(72.0, rg, dur=4.0, pitch=(0.0, -90.0), tau=0.5, bloom=0.3, bright=0.7), tr.tb(bar), 0.7)
+    # the pipa ostinato: B hammered in eighths, the flat second leaning on it (from bar 4)
+    rp = tr.r("pipa")
+    tonic = sc(0)
+    osti = (tonic, tonic, tonic + 1, tonic, tonic, tonic, sc(1), tonic + 1)
+    for bar in range(4, 20):
+        for k, m in enumerate(osti):
+            if bar % 4 == 3 and k >= 4:
+                continue
+            v = 0.62 if k in (0, 4) else 0.45
+            tr.pipa("pipa", tr.tb(bar, 0.5 * k), m, v, rp, ring=0.4)
+        if bar % 4 == 3:
+            tr.pipa_trem("pipa", tr.tb(bar, 2.0), 2.0 * tr.spb, tonic + 1, 0.55, rp, rate=16.0)
+    return tr.mix(t60=1.4, wet=0.22)
+
+
+@music("hollow_tide")
+def m_hollow_tide():
+    """The Hollow Tide: the dark between the islands coming in. Grey drones rub a semitone and a
+    tritone against the root, thin out to a bare fifth as the loop turns, settle for two bars on a
+    plain minor chord and then the rub creeps back; a slow low pulse like a far heartbeat, pipa
+    notes that sink as they ring, a cracked bell and a thin grey wind."""
+    tr = Track("hollow_tide", 54, 4, 10)               # 44.4 s
+    tr.bus("drone", -15, 0.3, (lowpass(800, 0.7), lowshelf(110, -3.0)))
+    tr.bus("pad", -11, 0.45, (lowpass(1700, 0.7),))
+    tr.bus("wind", -39, 0.35)
+    tr.bus("pulse", -5, 0.3)
+    tr.bus("pluck", -5, 0.55, PIPA_BODY)
+    tr.bus("bell", -9, 0.6)
+    tr.bus("swell", -15, 0.4)
+    tr.add("drone", drone(tr.L, tr.T, tr.r("drone"), [(mtof(38), 1.0), (mtof(26), 0.45)],
+                          harm=(1.0, 0.4, 0.25, 0.12, 0.06), swell=(1, 0.45), detune=5.0), 0)
+    tr.add("wind", wind(tr.L, tr.T, tr.r("wind"), base=320, spread=520, width=0.55, cycles=(1, 2, 3), floor=0.1,
+                        whistle=0.35), 0)
+    # the harmony: a cluster that thins to a fifth, resolves, and lets the rub back in
+    rp = tr.r("pad")
+    grey = (1.0, 0.3, 0.14, 0.07, 0.03)
+    for bar, bars, notes in ((0, 3, (50, 51, 56)), (3, 3, (50, 51)), (6, 2, (50, 57)), (8, 2, (50, 53, 57))):
+        chord = [float(mtof(m)) for m in notes]
+        tr.add("pad", pad_note(chord, bars * tr.bb * tr.spb, rp, harm=grey, attack=1.6, release=2.2, detune=7.0),
+               tr.tb(bar))
+    rpl = tr.r("pulse")
+    beat = membrane(46, rpl, t60=1.0, drop=0.25, noise_amt=0.1)
+    for bar in range(0, 10, 2):
+        tr.add("pulse", beat, tr.tb(bar), 0.8)
+        tr.add("pulse", beat, tr.tb(bar, 0.45), 0.5)
+    rk = tr.r("pluck")
+    pool = [50, 51, 53, 56, 57, 62, 63]
+    tp = 1.0
+    while tp < tr.T - 1.5:
+        m = pool[int(rk.integers(len(pool)))]
+        if rk.random() < 0.5:
+            tr.pipa("pluck", tp, m, 0.55, rk, ring=3.0, bend=sink_bend(-80.0, 0.35, 1.6))
+        else:
+            tr.pipa("pluck", tp, m, 0.48, rk, ring=2.4)
+        tp += float(rk.choice([2.0, 2.5, 3.0, 4.0])) * tr.spb
+    rb = tr.r("bell")
+    for bar, f0, g in ((2, 311.1, 0.55), (7, 293.7, 0.45)):   # Eb then D: the bell settles too
+        b = bell(f0, rb, dur=5.0, kind="temple", strike=0.15)
+        tr.add("bell", b, tr.tb(bar, 1.0), g)
+        tr.add("bell", bell(f0 * 1.031, rb, dur=4.0, kind="small", strike=0.0), tr.tb(bar, 1.0) + 0.01, g * 0.35)
+    rs = tr.r("swell")
+    for bar in (6, 0):
+        sw = reverse_swell(rs, 2.6, 2.2)
+        tr.add("swell", sw, tr.tb(bar) - len(sw) / SR, 0.5)
+    return tr.mix(t60=4.5, wet=0.55, predelay=0.05, hf=0.35)
+
+
+@music("lantern_heart")
+def m_lantern_heart():
+    """The Lantern Heart, where the Lantern Heavenly Flame still burns: slow bronze bells ringing a
+    sacred melody in the gong mode over sustained tones that glow and swell, singing bowls, a great
+    temple bell on the first beat, and jade chimes glittering high above like sparks off the flame."""
+    tr = Track("lantern_heart", 46, 4, 8)              # 41.7 s
+    sc = Scale(60, 0)                                  # C gong, tonic C4
+    tr.bus("drone", -18, 0.35, (lowshelf(120, -3.0),))
+    tr.bus("pad", -14, 0.5, (lowpass(3000, 0.7),))
+    tr.bus("bells", -3, 0.45)
+    tr.bus("big", -6, 0.55)
+    tr.bus("bowl", -9, 0.5)
+    tr.bus("chime", -11, 0.75, (highpass(1200),))
+    tr.add("drone", drone(tr.L, tr.T, tr.r("drone"), [(mtof(36), 0.6), (mtof(43), 0.5), (mtof(48), 1.0)],
+                          harm=(1.0, 0.2, 0.08), swell=(1, 0.5), detune=2.0), 0)
+    rp = tr.r("pad")
+    glow_h = (1.0, 0.35, 0.12, 0.05)
+    for bar, idx in ((0, (0, 3, 7)), (2, (-1, 2, 5)), (4, (-2, 1, 3, 6)), (6, (0, 2, 3, 5))):
+        chord = [float(mtof(sc(i))) for i in idx]
+        tr.add("pad", pad_note(chord, 2 * tr.bb * tr.spb, rp, harm=glow_h, attack=2.0, release=2.6, detune=4.0),
+               tr.tb(bar))
+    rm = tr.r("melody")
+    p = period(rm, R_SLOW, lo=0, hi=7, first=0)
+    rb = tr.r("bells")
+    for k, notes in enumerate(p):
+        for b, d, i in simplify(notes, 1.5):
+            s = bell(float(mtof(sc(i) + 12)), rb, dur=float(np.clip(d * tr.spb * 1.6, 2.5, 5.0)), kind="bianzhong",
+                     strike=0.18)
+            tr.add("bells", s, tr.tb(2 * k, b) + rb.normal(0, 0.004), 0.75 * rb.uniform(0.9, 1.0))
+            if d >= 3:
+                tr.add("bells", bell(float(mtof(sc(i))), rb, dur=4.0, kind="bianzhong", strike=0.1),
+                       tr.tb(2 * k, b) + 0.02, 0.3)
+    rt = tr.r("temple")
+    tr.add("big", bell(130.8, rt, dur=9.0, kind="temple", strike=0.1), tr.tb(0), 0.9)
+    tr.add("big", bell(130.8, rt, dur=9.0, kind="temple", strike=0.1), tr.tb(4), 0.6)
+    rw = tr.r("bowl")
+    tr.add("bowl", bowl(261.6, rw, dur=8.0), tr.tb(2, 2.0), 0.6)
+    tr.add("bowl", bowl(392.0, rw, dur=7.0), tr.tb(6, 2.0), 0.5)
+    rc = tr.r("chime")
+    for bar in range(8):
+        for beat in (1.0, 2.5, 3.5):
+            if rc.random() < 0.3:
+                i = int(rc.integers(7, 13))
+                tr.add("chime", chime(mtof(sc(i) + 12), rc, dur=1.8), tr.tb(bar, beat), rc.uniform(0.15, 0.3))
+    return tr.mix(t60=4.0, wet=0.55, predelay=0.04, hf=0.5)

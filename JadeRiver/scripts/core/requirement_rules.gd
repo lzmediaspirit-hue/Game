@@ -207,7 +207,14 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 					if str(cond.technique) == "any" or t == str(cond.technique): best_t = maxi(best_t, int(c.cultivator.mastery[t].get("tier", 0)))
 			ok = best_t >= int(cond.tier)
 			text = Tx.t("req.a_technique_at_mastery_tier") % [int(cond.tier), best_t]
-		"presence_level_at_least", "law_affinity_at_least", "powers_refined_at_least":
+		"presence_level_at_least":
+			# S28 v1.2: the Presence level trained by use (Will Manifest 3 -> Sphere Lord 1 asks for 5).
+			var pl := 0
+			if c != null and Unlocks.is_unlocked(c.id, "presence"):
+				pl = FieldRules.level_for(float(c.cultivator.field_powers.get("presence", {}).get("xp", 0.0)))
+			ok = pl >= int(cond.value)
+			text = Tx.t("req.presence_level") % [int(cond.value), pl]
+		"law_affinity_at_least", "powers_refined_at_least":
 			ok = false
 			text = Tx.t("req.beyond_the_valley") % kind.replace("_", " ")
 		"event_passed":

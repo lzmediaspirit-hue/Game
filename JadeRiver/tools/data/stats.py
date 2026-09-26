@@ -156,6 +156,13 @@ def build():
         "epiphany": {"chance": 0.002, "insight_weight": 0.01, "buff_s": 60, "insight_mult": 5.0, "mastery_chance": 0.25, "cooldown_s": 7200,
                      "contexts": ["contemplate", "insight_stone", "tech", "kill"]},
         # S48 Killing Intent: +1 a kill within 10 s of the last, up to 10, +1% crit each; at 10, weaker foes nearby hesitate.
+        # S28 v1.2 Presence (Will Manifest 1): Pressure = (5 + Level) x (1 + per_level x Presence level) + the pressure stat;
+        # a foe's Will = (5 + its Level) x its role's factor. Experience from holding it over pressed foes (x2 in a clash)
+        # and from kills made while they are pressed; levels 1-10 at these totals.
+        "presence": {"per_level": 0.06, "radius_base": 220, "radius_per_level": 12, "soul_per_s_pct": 0.0025,
+                     "role_will": {"normal": 1.0, "elite": 1.15, "boss": 1.3},
+                     "xp_per_s": 1.0, "clash_xp_mult": 2.0, "kill_xp": 3.0,
+                     "xp_levels": [0, 60, 150, 280, 450, 660, 910, 1200, 1530, 1900]},
         "killing_intent": {"window_s": 10.0, "max": 10, "crit_per_stack": 0.01, "hesitate_s": 0.5, "radius": 520},
         # S48 the Poison Body (v1.1): past half your toxicity tolerance, a known poison art turns each hit's toxicity
         # into poison on the foe (one point a hit, at most once per foe per half second).
@@ -316,7 +323,7 @@ def build():
         "cycle_advantage": 1.3, "cycle_disadvantage": 0.75, "yin_yang": 1.3, "fed_bonus": 0.1, "method_affinity_bonus": 0.1,
         "colors": {"water": "#32bed1", "wood": "#67d67a", "fire": "#f08a3c", "earth": "#c9a060", "metal": "#d8dde0",
                    "wind": "#cfe8e6", "thunder": "#e8d24c", "soul": "#9b78d1", "hollow": "#87949a", "none": "#e8e1cf",
-                   "ice": "#a8e0f0"},
+                   "ice": "#a8e0f0", "star": "#f3e3a6", "space": "#8f7ae0"},
     })
 
     entries("status_effects.json", [
@@ -446,7 +453,7 @@ def build():
                            "relic": "#e5b84c", "pill_grain": "#e5b84c", "pill_halo": "#e8764c", "pill_soul": "#f2e6ff",
                            "rare": "#5aa7e8", "epic": "#b07ce8", "primordial": "#e5b84c"},
         "grade_colors": {"plain": "#b9b2a0", "common": "#e8e1cf", "earth": "#67d67a", "heaven": "#6fb8f0", "mystic": "#b07ce8",
-                         "spirit": "#5ee0e8", "sage": "#d8c27a"},
+                         "spirit": "#5ee0e8", "sage": "#d8c27a", "sovereign": "#e8a24c", "will": "#f3e3a6", "sphere": "#8f7ae0"},
         "pill_qualities": {"flawed": 0.5, "common": 1.0, "fine": 1.2, "superior": 1.4, "perfect": 1.6, "pill_grain": 1.8, "pill_halo": 2.0, "pill_soul": 2.2},
         # S15 pill qualities: toxicity multipliers, the odds of a rare quality on a perfect run
         # (times 1 + furnace bonus + 0.1 per Alchemy Dao tier), Halo growth in dense-Qi seclusion,

@@ -2262,6 +2262,90 @@
    ]
   },
   {
+   "id": "star_jellyfish",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "jelly_silk",
+       "chance": 0.45,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "star_shard",
+       "chance": 0.4,
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": [
+    {
+     "item": "star_lotus",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "comet_sparrow",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "comet_plume",
+       "chance": 0.45,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "star_shard",
+       "chance": 0.4,
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
    "id": "presence_phantom",
    "groups": [
     {
@@ -3913,6 +3997,107 @@
    "rare": [],
    "equipment": {
     "chance": 0.8,
+    "min_quality": "fine"
+   }
+  },
+  {
+   "id": "jar_lantern",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "star_shard",
+       "weight": 2,
+       "count": [
+        1,
+        2
+       ]
+      },
+      {
+       "item": "spirit_stone_shard",
+       "weight": 1,
+       "count": [
+        2,
+        3
+       ]
+      },
+      {
+       "item": "qi_restoration_pill",
+       "weight": 1,
+       "count": [
+        1,
+        1
+       ]
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.6,
+    "mult": 2
+   },
+   "rare": [],
+   "equipment": {}
+  },
+  {
+   "id": "chest_lantern",
+   "guaranteed": [
+    {
+     "item": "star_shard",
+     "count": [
+      4,
+      8
+     ],
+     "chance": 1.0
+    },
+    {
+     "item": "spirit_stone_shard",
+     "count": [
+      3,
+      5
+     ],
+     "chance": 1.0
+    }
+   ],
+   "groups": [
+    {
+     "chance": 1.0,
+     "pick": [
+      {
+       "item": "manual_page",
+       "weight": 1,
+       "count": [
+        2,
+        3
+       ]
+      },
+      {
+       "item": "driftglass",
+       "weight": 2,
+       "count": [
+        1,
+        2
+       ]
+      },
+      {
+       "item": "will_tempering_pill",
+       "weight": 1,
+       "count": [
+        1,
+        1
+       ]
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 1.0,
+    "mult": 10
+   },
+   "rare": [],
+   "equipment": {
+    "chance": 0.6,
     "min_quality": "fine"
    }
   }

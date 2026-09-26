@@ -1,0 +1,291 @@
+{
+ "schema_version": 1,
+ "id": "dr_moored_hulks",
+ "zone": "lantern_star_field",
+ "region": "drifting_shoals",
+ "name": "Moored Hulks",
+ "type": "rest",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "star",
+ "qi_density": 1.8,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [
+  "gather"
+ ],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "star_shoals",
+ "ground": {
+  "material": "wood",
+  "tint": "#b8a58a"
+ },
+ "spawn_point": [
+  400,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "deck_mv_0",
+   "rect": [
+    260,
+    620,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "deck_mv_1",
+   "rect": [
+    500,
+    612,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "dr_jellyfish_shallows",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "dr_sparrow_reefs",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "shrine_dr_hulks",
+   "type": "shrine",
+   "at": [
+    1000,
+    700
+   ]
+  },
+  {
+   "id": "npc_hulk_keeper_bo",
+   "type": "npc",
+   "at": [
+    1560,
+    780
+   ],
+   "npc": "hulk_keeper_bo",
+   "facing": -1
+  },
+  {
+   "id": "bed_dr_0",
+   "type": "garden_bed",
+   "at": [
+    1080,
+    900
+   ],
+   "field_grade": "high",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_garden"
+     }
+    ]
+   },
+   "locked_text": "Old Bo's planters, lashed to the deck. Beds are for those who keep a garden."
+  },
+  {
+   "id": "bed_dr_1",
+   "type": "garden_bed",
+   "at": [
+    1240,
+    900
+   ],
+   "field_grade": "high",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_garden"
+     }
+    ]
+   },
+   "locked_text": "Old Bo's planters, lashed to the deck. Beds are for those who keep a garden."
+  }
+ ],
+ "spawns": [],
+ "scenery": [
+  {
+   "id": "barrel_1",
+   "prop": "barrel",
+   "position": [
+    1200,
+    720
+   ],
+   "front_y": 720,
+   "footprint": [
+    1186,
+    694,
+    28,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  },
+  {
+   "id": "crate_2",
+   "prop": "crate",
+   "position": [
+    1280,
+    730
+   ],
+   "front_y": 730,
+   "footprint": [
+    1263,
+    704,
+    35,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  }
+ ],
+ "decor": [
+  {
+   "prop": "moored_hulk",
+   "at": [
+    900,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "moored_hulk",
+   "at": [
+    1900,
+    650
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "star_buoy",
+   "at": [
+    1400,
+    930
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "cooking_pot",
+   "at": [
+    1650,
+    800
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    700,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    2100,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_string",
+   "at": [
+    490,
+    380
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "star_field",
+ "ambience": "wind_ambience",
+ "climbables": [
+  {
+   "id": "deck_mv_0_ladder_1",
+   "kind": "ladder",
+   "at": [
+    370,
+    725
+   ],
+   "top_at": [
+    370,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "deck_mv_0"
+  },
+  {
+   "id": "deck_mv_1_ladder_2",
+   "kind": "ladder",
+   "at": [
+    610,
+    717
+   ],
+   "top_at": [
+    610,
+    674
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "deck_mv_1"
+  }
+ ]
+}

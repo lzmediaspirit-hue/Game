@@ -1,5 +1,59 @@
 # Changelog
 
+## 1.2 — The Lantern Star Field (Act III)
+
+Built in phases (docs/act3_design.md): zone tier 3, levels 82-99, ceiling Sphere Lord 3, Starsea Endurance 20 -> 90.
+
+### Phase A · Lanternfall and the Presence (chapter 17)
+- **The Lantern Run** is charted and open. From the Starsea Launch a vessel crosses the open Starsea (90 s, faster
+  in a storm sloop) past Comet Sparrows and Star Jellyfish to **Lanternfall Harbor**, and sails home from its pier.
+- **Zone 3, the Lantern Star Field:**
+  - Ceiling Sphere Lord 3: the Expanse cannot hold a Will Manifest, the Field can.
+  - Laws: Fire, Metal, Space and Star; Qi density 1.5-2.5.
+  - Money: loot pays in **Sage Crystals** and savings are kept in **Star Jade**. The harbour exchange trades
+    10 Spirit Stones for a crystal and 100 crystals for a Star Jade, less a fifth each way. Shops price in each
+    currency's tael value.
+  - Ten regions on the map; the ones later phases build show as planned.
+- **Starsea Endurance:** four jades (Tide, Comet, Wick, Void), fed with star shards, fifteen levels each at 1.5 a
+  level (0 to 90). The Warden's quest opens them.
+- **Rooms** (9):
+  - Lanternfall Harbor: Arrival Quay (the pier and the Warden), Harbor Market (exchange, teleport stone, shops),
+    Star Chandlery (insight), Tidelight Inn (rest).
+  - The Drifting Shoals: Jellyfish Shallows (Endurance 20), Moored Hulks (rest, garden beds), Sparrow Reefs (24),
+    Driftglass Bank (28, driftglass and Star Lotus, an insight lens).
+  - The Lantern Run crossing (instanced).
+- **Monsters:** Star Jellyfish (82-87, a confusing sting and spark trails) and Comet Sparrow (82-87, burning dives).
+- **Presence (S28, Will Manifest 1)**, a new Field authority:
+  - Hold it with the Presence button (key G). It costs 0.25% of max Soul a second and trains by use:
+    experience while it presses something, double in a clash, more for a kill made under it. Levels 1-10;
+    level 5 is what Sphere Lord asks.
+  - Pressure = (5 + Level) x (1 + 6% a Presence level) + the pressure stat. A foe's Will = 5 + its Level, x1.15
+    for elites and x1.3 for bosses.
+  - A weaker foe in reach loses output and speed by the S12 Pressure rule, min(50%, 25% x (Pressure / Will - 1)).
+  - A foe with a Presence of its own meets yours at a visible boundary. Whoever presses harder than the other
+    side's Will (or held Presence) presses them by the same rule; the weaker side is pressed, never both. Without
+    your Presence, your Will alone stands against theirs.
+  - It shows as a pale ring on the ground, a gold or red wall where two meet, and a line on the Cultivation page.
+    The requirement `presence_level_at_least` now works.
+- **Chapter 17, Lanternfall:** The Lantern Run, Crystal and Jade, Salt of the Stars, Will Manifest, A Presence of
+  One's Own. Nine new NPCs (the harbourmaster, Star Warden Xiao Ning, the exchange clerk, a peddler, an apothecary,
+  a smith, Chandler Shu, the innkeeper, Old Bo of the hulks), four codex entries, two shops.
+- Star Lotus (herb, Master) and driftglass (ore, Master); star shards, jelly silk and comet plumes; lantern jars and
+  chests. The Verdant Dew Vial ages herbs to 10,000 years in the Field as in the Expanse.
+- New art for the whole act, drawn ahead of the later phases:
+  - eleven creature sheets (Star Jellyfish, Comet Sparrow, Nest Guardian, Hollowed Wyrmling, Hatchling Wyrm,
+    Gravity Golem, Orbit Moth, Hollow Drone, Nebula Eel, Void Crab, Nebula Leviathan);
+  - ten backdrops, one per region (Lanternfall Harbor to the Lantern Heart), four layers each;
+  - 32 props (lantern-star cages and posts, driftglass, hulks, cannons, wyrm nests, orbit stones, Ashborn pyres and banners);
+  - five music tracks (`lantern_harbor`, `star_field`, `hollow_tide`, `ashen_war`, `lantern_heart`);
+  - icons for the zone's items, the Endurance jades, metal, star and space cores, and the Presence button.
+- Tests:
+  - `rules_tests` `field_suite`: the Pressure rule, foe Will and Pressure, clashes (only the weaker side is
+    pressed), levels, the pressed foe, Soul upkeep, a boss's stronger Presence, letting go, the Sphere Lord
+    requirement, running out of Soul.
+  - `starsea_suite` sails the Lantern Run to Lanternfall.
+  - `valley_run` `ls1` plays chapter 17 end to end, from the Starsea Launch to a level-2 Presence.
+
 ## 1.1 — The Azure Expanse (Act II)
 
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from

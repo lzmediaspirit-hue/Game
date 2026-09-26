@@ -41,6 +41,7 @@ var sect: SectAuthority
 var workshop: WorkshopAuthority
 var relations: RelationsAuthority
 var calendar: CalendarAuthority
+var field: FieldAuthority
 
 func _ready() -> void:
 	build_authorities()
@@ -66,8 +67,9 @@ func build_authorities() -> void:
 	workshop = WorkshopAuthority.new(self)
 	relations = RelationsAuthority.new(self)
 	calendar = CalendarAuthority.new(self)
+	field = FieldAuthority.new(self)
 	authorities = [combat, progression, enemies, world, inventory, quest, economy, accounts, crafting, training, mail,
-		achievements, pets, companions, sect, workshop, relations, calendar]
+		achievements, pets, companions, sect, workshop, relations, calendar, field]
 	for a in authorities:
 		for type in a.intents():
 			assert(not handlers.has(type), "Intent registered twice: " + type)
@@ -264,6 +266,7 @@ func tick(delta: float) -> void:
 	sim_time += delta
 	tick_count += 1
 	combat.tick(delta)
+	field.tick(delta)
 	progression.tick(delta)
 	enemies.tick(delta)
 	world.tick(delta)

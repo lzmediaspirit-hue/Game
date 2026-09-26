@@ -1,0 +1,197 @@
+{
+ "schema_version": 1,
+ "id": "ss_lantern_crossing",
+ "zone": "lantern_star_field",
+ "region": "lantern_crossing",
+ "name": "The Lantern Run",
+ "type": "story",
+ "level_range": [
+  81,
+  83
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [
+  "star_wind"
+ ],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": true,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "starsea",
+ "ground": {
+  "material": "wood",
+  "tint": "#b8a58a"
+ },
+ "spawn_point": [
+  900,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [],
+ "objects": [],
+ "spawns": [],
+ "scenery": [
+  {
+   "id": "crate_1",
+   "prop": "crate",
+   "position": [
+    600,
+    720
+   ],
+   "front_y": 720,
+   "footprint": [
+    583,
+    694,
+    35,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  },
+  {
+   "id": "crate_2",
+   "prop": "crate",
+   "position": [
+    2400,
+    720
+   ],
+   "front_y": 720,
+   "footprint": [
+    2383,
+    694,
+    35,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  },
+  {
+   "id": "barrel_3",
+   "prop": "barrel",
+   "position": [
+    2000,
+    720
+   ],
+   "front_y": 720,
+   "footprint": [
+    1986,
+    694,
+    28,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  }
+ ],
+ "decor": [
+  {
+   "prop": "sky_ship",
+   "at": [
+    3300,
+    600
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "broken_mast",
+   "at": [
+    1500,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_cage",
+   "at": [
+    2600,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "rope",
+   "at": [
+    1200,
+    690
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "starsea",
+ "ambience": "wind_ambience",
+ "instanced": true,
+ "crossing": true,
+ "dungeon_exit": "",
+ "event": {
+  "id": "starsea_crossing",
+  "duration": 90,
+  "waves": [
+   {
+    "enemy": "comet_sparrow",
+    "every_s": 11,
+    "max": 2,
+    "first_s": 8,
+    "points": [
+     [
+      3300,
+      780
+     ],
+     [
+      3500,
+      820
+     ]
+    ],
+    "level": 82
+   },
+   {
+    "enemy": "star_jellyfish",
+    "every_s": 16,
+    "max": 2,
+    "first_s": 20,
+    "points": [
+     [
+      2800,
+      760
+     ],
+     [
+      3200,
+      800
+     ]
+    ],
+    "level": 82
+   }
+  ],
+  "on_complete": [
+   {
+    "kind": "voyage_arrive"
+   }
+  ]
+ }
+}

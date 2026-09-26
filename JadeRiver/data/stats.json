@@ -543,6 +543,32 @@
    "kill"
   ]
  },
+ "presence": {
+  "per_level": 0.06,
+  "radius_base": 220,
+  "radius_per_level": 12,
+  "soul_per_s_pct": 0.0025,
+  "role_will": {
+   "normal": 1.0,
+   "elite": 1.15,
+   "boss": 1.3
+  },
+  "xp_per_s": 1.0,
+  "clash_xp_mult": 2.0,
+  "kill_xp": 3.0,
+  "xp_levels": [
+   0,
+   60,
+   150,
+   280,
+   450,
+   660,
+   910,
+   1200,
+   1530,
+   1900
+  ]
+ },
  "killing_intent": {
   "window_s": 10.0,
   "max": 10,

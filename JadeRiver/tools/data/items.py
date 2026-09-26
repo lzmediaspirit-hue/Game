@@ -2,7 +2,7 @@
 from common import entries, titled, req, c
 from legends import CHAINS as LEGENDS, piece_rows
 
-MID_ILV = {"plain": 5, "common": 14, "earth": 27, "heaven": 45, "mystic": 59, "spirit": 68, "sage": 77}
+MID_ILV = {"plain": 5, "common": 14, "earth": 27, "heaven": 45, "mystic": 59, "spirit": 68, "sage": 77, "sovereign": 86, "will": 95, "sphere": 104}
 
 
 def item(id, type, grade="plain", stack=99, desc="", name=None, icon=None, **extra):
@@ -41,6 +41,8 @@ HERBS = [
     ("cloudtop_orchid_100", "mystic", "A century-old orchid from the highest ledge. It smells of thin air.", "Cloudtop Orchid (100 yr)"),
     ("soulbell_flower_100", "mystic", "A century-old soulbell. Its ring carries in the soul for a whole breath.", "Soulbell Flower (100 yr)"),
     ("ember_cactus", "sage", "A cactus flower that stores the Sunscar sun. It glows like a coal long after dusk."),
+    # v1.2 · the Lantern Star Field.
+    ("star_lotus", "sovereign", "A lotus of the Drifting Shoals' starlit shallows. A small star sleeps in every seed head."),
 ]
 # S44 / Part 8 herb nature: a hot herb moves the Extraction band up 8% of its range, a cold one down. Roles are the
 # recipe slots a herb can fill (Principal, Minister, Assistant, Envoy); an Alchemy Dao tier-5 substitute must match both.
@@ -58,10 +60,11 @@ HERB_NATURE = {"willow_moss": ("neutral", ["assistant", "envoy"]),
                "mist_lotus_100": ("cold", ["principal", "minister", "assistant"]),
                "cloudtop_orchid_100": ("cold", ["principal", "minister"]),
                "soulbell_flower_100": ("neutral", ["principal", "assistant", "envoy"]),
-               "ember_cactus": ("hot", ["principal", "minister"])}
+               "ember_cactus": ("hot", ["principal", "minister"]),
+               "star_lotus": ("cold", ["principal", "minister", "assistant"])}
 # S45 herb ages: every herb belongs to a family and has an age (10, 100, 1,000 or, in the Azure Expanse, 10,000 years). A perfect harvest keeps the
 # age; a miss or an early pick drops one tier. An older herb stands in for a younger one of its family in a recipe.
-CORE_ELEMENTS = ["fire", "water", "wood", "earth", "wind", "thunder", "soul"]
+CORE_ELEMENTS = ["fire", "water", "wood", "earth", "wind", "thunder", "soul", "metal", "star", "space"]   # v1.2: metal, star, space
 HERB_AGE = {"willow_moss": ("willow_moss", 10), "riverreed_ginseng_10": ("riverreed_ginseng", 10),
             "riverreed_ginseng_100": ("riverreed_ginseng", 100), "riverreed_ginseng_1000": ("riverreed_ginseng", 1000),
             "riverreed_ginseng_10000": ("riverreed_ginseng", 10000),
@@ -69,7 +72,7 @@ HERB_AGE = {"willow_moss": ("willow_moss", 10), "riverreed_ginseng_10": ("riverr
             "mist_lotus": ("mist_lotus", 10), "mist_lotus_100": ("mist_lotus", 100),
             "cloudtop_orchid": ("cloudtop_orchid", 10), "cloudtop_orchid_100": ("cloudtop_orchid", 100),
             "soulbell_flower": ("soulbell_flower", 10), "soulbell_flower_100": ("soulbell_flower", 100),
-            "frost_lotus": ("frost_lotus", 10), "ember_cactus": ("ember_cactus", 10)}
+            "frost_lotus": ("frost_lotus", 10), "ember_cactus": ("ember_cactus", 10), "star_lotus": ("star_lotus", 10)}
 # Seeds (S45, Part 8): common ones from Granny Liu's and Greyreed Hamlet; Mist Lotus only from a perfect harvest;
 # Cloudtop Orchid and Soulbell only from inheritances (and secret realms, S49).
 SEEDS = [("willow_moss_seed", "willow_moss", "plain", "Dust-fine spores of willow moss, wrapped in a leaf. Granny Liu sells them."),
@@ -89,6 +92,7 @@ ORES = [
     ("mystic_ore", "mystic", "Ore that hums faintly in cold wind."),
     ("stormsteel_ore", "spirit", "Blue-black ore from where lightning strikes the same ground twice."),
     ("sunglass_ore", "sage", "Desert glass the Sunscar sun fused out of the dunes. It holds heat and light like a lamp.", "Sunglass"),
+    ("driftglass", "sovereign", "Glass the star tides have worn smooth on the Driftglass Bank. Lantern-makers grind it into lenses.", "Driftglass"),
 ]
 # S47 talisman craft: inks and papers (Part 8).
 TALISMAN_MATS = [("cinnabar", "common", "Red mercury ore ground to powder: the ink every talisman begins with. Stoneford General Store sells it.", "Cinnabar"),
@@ -370,6 +374,7 @@ RAW_HERB = {
     "cloudtop_orchid_100": ([effect("add_body_xp", amount=220)], 40),
     "soulbell_flower_100": ([effect("add_soul", amount=35)], 24),
     "ember_cactus": ([effect("heal", pct=0.1, over_s=5)], 30),
+    "star_lotus": ([effect("add_soul", amount=60)], 30),
 }
 
 
@@ -470,6 +475,11 @@ def build_items():
                      name="Jade Elder's Token", sell=False))
     rows.append(item("cloud_elder_token", "key", "sage", 1, "An Elder's token of the Cloud Sect. At any teleport stone it calls you home to the Monastery, free.",
                      name="Cloud Elder's Token", sell=False))
+    # v1.2 · the Lantern Star Field (Act III, docs/act3_design.md): shards for the Starsea Endurance jades and the Shoals' beasts.
+    rows.append(item("star_shard", "material", "sovereign", 999,
+                     "A chip of fallen starlight. Levels your Starsea Endurance jades (Character > Attunement)."))
+    rows.append(item("jelly_silk", "beast_part", "sovereign", 99, "A Star Jellyfish's trailing silk. It glows for a day after the jelly dies, and stings for two."))
+    rows.append(item("comet_plume", "beast_part", "sovereign", 99, "A tail feather of a Comet Sparrow, still warm, trailing sparks when it is waved."))
     rows.append(item("storm_shard", "material", "spirit", 999,
                      "A splinter of the Expanse's storms. Levels your Storm Ward jades (Character > Attunement)."))
     for (cid, grade, rank, desc) in [("serpent_core", "earth", 2, "The core of the Riverbed Serpent; a pill ingredient."),

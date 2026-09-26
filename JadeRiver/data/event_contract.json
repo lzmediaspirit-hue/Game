@@ -1842,6 +1842,34 @@
    "files": [
     "relations_authority"
    ]
+  },
+  "presence_toggled": {
+   "system": "Field",
+   "files": [
+    "field_authority",
+    "field_rules"
+   ]
+  },
+  "presence_leveled": {
+   "system": "Field",
+   "files": [
+    "field_authority",
+    "field_rules"
+   ]
+  },
+  "presence_clash": {
+   "system": "Field",
+   "files": [
+    "field_authority",
+    "field_rules"
+   ]
+  },
+  "presence_clash_ended": {
+   "system": "Field",
+   "files": [
+    "field_authority",
+    "field_rules"
+   ]
   }
  }
 }

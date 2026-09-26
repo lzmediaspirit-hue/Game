@@ -936,3 +936,59 @@ def reed_saddle():
 
 for _id, _fn in (('bone_collar', bone_collar), ('scale_talisman', scale_talisman), ('reed_saddle', reed_saddle)):
     register('items', _id, _fn, GROUP)
+
+
+# ----------------------------------------------------------------------------- Act III · Lantern Star Field
+from palette import STAR_GLOW  # noqa: E402
+
+JELLY = Ramp(['#262062', '#4646A4', '#7880DE', '#B2BCF8', '#EEF2FF'], '#0E0B2A')
+RUSSET = Ramp(['#3E1810', '#72301A', '#A8502A', '#D27A40', '#F2B070'], '#1A0906')
+
+
+def jelly_silk():
+    """A coil of lantern-jelly silk: loops of translucent violet-blue strands that glow brighter where they
+    cross, flecked with star specks and tied with lantern bronze."""
+    c = Canvas(32)
+    loops = [(14.5, 15.5, 11, 9), (15.5, 16.5, 10, 8), (16.5, 17.5, 9, 7)]
+    rings = [c.ring(x, y, rx, 1.3, ry) for (x, y, rx, ry) in loops]
+    coil = c.empty()
+    for r in rings:
+        coil |= r
+    c.put(coil, JELLY, 'sphere', base=3, cx=12, cy=12, rx=16, ry=14,
+          bands=((0.9, 1), (0.45, 0), (-0.1, -1), (-9, -2)))
+    # translucent: where strands cross, their light adds up
+    count = sum(r.astype(int) for r in rings)
+    c.put(coil & (count >= 2), JELLY, 'flat', base=4)
+    # a lantern-bronze tie binding the loops at the top, the loose end hanging from the bottom
+    tie = c.poly([(10.5, 5.5), (14, 4.5), (15.5, 10.5), (12, 11.5)])
+    c.put(tie, R['lanternbronze'], 'ray', base=3, sep=True)
+    c.put(c.bres(11, 8, 14, 7) & tie, R['lanternbronze'][1], 'flat', out=R['lanternbronze'].out)
+    tail = S.bez_line(c, (21, 25), (22, 29), (26.5, 28.5), 1.3)
+    c.put(tail & ~coil, JELLY, 'flat', base=3)
+    for (x, y) in ((5, 15), (26, 12), (11, 24), (22, 8), (19, 26)):
+        c.put(c.rect(x, y, x, y) & coil, '#FFFBEA', 'flat', out=JELLY.out)
+    c.outline()
+    c.glow('#8C96F0', (90, 40))
+    S.sparkle(c, 27, 4, '#FFFFFF', R['starlight'][3], 1)
+    S.sparkle(c, 4, 27, '#FFFFFF', R['starlight'][3], 1)
+    return c
+
+
+def comet_plume():
+    """A comet bird's long tail feather, russet at the quill burning to gold at the tip, sparks falling off it."""
+    c = Canvas(32)
+    vm = feather(c, RUSSET, shaft='#FFE9C0', tip=R['gold'], tip_frac=0.36, width=8.0,
+                 notches=((0.5, 1), (0.34, -1)), p0=(3.5, 29.5), p1=(7, 13.5), p2=(23.5, 5))
+    tipm = vm & (((c.X - 17) * 20 + (c.Y - 7.5) * -24) > 0)
+    c.put(tipm & ((c.xi + c.yi) <= 27), R['gold'], 'flat', base=4, only_on=True)
+    c.outline()
+    halo(c, tipm, '#FFC870', (100, 40))
+    # sparks shed by the tip, drifting down its right side
+    for (x, y, col) in ((26, 9, '#FFFBEA'), (27, 13, R['gold'][3]), (25, 16, R['gold'][2]), (28, 18, R['gold'][2])):
+        c.px(x, y, col)
+    S.sparkle(c, 27, 4, '#FFFFFF', R['gold'][3], 1)
+    return c
+
+
+register(FAM, 'jelly_silk', jelly_silk, GROUP)
+register(FAM, 'comet_plume', comet_plume, GROUP)

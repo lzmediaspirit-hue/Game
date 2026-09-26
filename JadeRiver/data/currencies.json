@@ -23,14 +23,53 @@
   {
    "id": "sage_crystal",
    "name": "Sage Crystals",
-   "icon": "spirit_stone",
-   "scope": "account",
-   "planned": true
+   "icon": "sage_crystal",
+   "scope": "account"
+  },
+  {
+   "id": "star_jade",
+   "name": "Star Jade",
+   "icon": "star_jade",
+   "scope": "account"
   }
  ],
  "exchange": {
   "silver_tael>spirit_stone": 0.01,
-  "spirit_stone>silver_tael": 100
+  "spirit_stone>silver_tael": 100,
+  "spirit_stone>sage_crystal": 0.1,
+  "sage_crystal>spirit_stone": 10,
+  "sage_crystal>star_jade": 0.01,
+  "star_jade>sage_crystal": 100
+ },
+ "tael_value": {
+  "silver_tael": 1,
+  "spirit_stone": 100,
+  "sage_crystal": 1000,
+  "star_jade": 100000
+ },
+ "zone_pairs": {
+  "jade_river_valley": [
+   [
+    "silver_tael",
+    "spirit_stone"
+   ]
+  ],
+  "azure_expanse": [
+   [
+    "silver_tael",
+    "spirit_stone"
+   ]
+  ],
+  "lantern_star_field": [
+   [
+    "spirit_stone",
+    "sage_crystal"
+   ],
+   [
+    "sage_crystal",
+    "star_jade"
+   ]
+  ]
  },
  "spread": 0.2
 }

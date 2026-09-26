@@ -463,8 +463,10 @@ register(FAM, 'comet_iron', comet_iron, GROUP)
 
 
 # ----------------------------------------------------------------------------- S46 beast cores
-_CORE_RAMP = {"fire": "fire", "water": "cyan", "wood": "leaf", "earth": "warmstone", "wind": "mist", "thunder": "violet", "soul": "qi"}
-_CORE_GLOW = {"fire": "#FF8A4A", "water": "#6FD6FF", "wood": "#7FE08A", "earth": "#E0B870", "wind": "#CFE8F0", "thunder": "#B98CFF", "soul": "#A8F0FF"}
+_CORE_RAMP = {"fire": "fire", "water": "cyan", "wood": "leaf", "earth": "warmstone", "wind": "mist", "thunder": "violet", "soul": "qi",
+              "metal": "silver", "star": "gold", "space": "plum"}
+_CORE_GLOW = {"fire": "#FF8A4A", "water": "#6FD6FF", "wood": "#7FE08A", "earth": "#E0B870", "wind": "#CFE8F0", "thunder": "#B98CFF", "soul": "#A8F0FF",
+              "metal": "#E8EEF2", "star": "#FFF0B0", "space": "#B49CFF"}
 
 
 def _beast_core(el, tier):
@@ -490,3 +492,135 @@ def _beast_core(el, tier):
 for _el in _CORE_RAMP:
     for _tier in ("low", "mid", "high", "peak"):
         register(FAM, '%s_core_%s' % (_el, _tier), (lambda e, t: lambda: _beast_core(e, t))(_el, _tier), GROUP)
+
+
+# ----------------------------------------------------------------------------- Act III · Lantern Star Field
+from palette import STAR_GLOW  # noqa: E402
+
+VIOLET_GLASS = Ramp(['#2A1F52', '#46398A', '#7462B8', '#A898DE', '#E6DEFA'], '#120C26')
+TEAL_GLASS = Ramp(['#0E3E4A', '#1A6E7A', '#36A4A8', '#7CD8CC', '#D4FAF0'], '#06181E')
+CLEAR = Ramp(['#4A5470', '#8290B0', '#BCC8DC', '#E4ECF6', '#FFFFFF'], '#161C2C')
+DEEP_JADE = Ramp(['#0A2A22', '#12473A', '#1D6B55', '#3A9B7C', '#9ADCBF'], '#04140F')
+
+
+def star_shard():
+    """A sharp chip of fallen starlight: a pale-gold crystal broken into three facets, a glint caught inside."""
+    c = Canvas(32)
+    ramp = R['starlight']
+    A, B, C, D = (25.5, 3), (27, 13.5), (20.5, 24), (13, 29)
+    E, F, G, H = (10.5, 25.5), (5, 25.5), (5.5, 17), (12.5, 8)
+    P = (16.5, 16)   # where the three facets meet
+    m = c.poly([A, B, C, D, E, F, G, H])
+    c.put(m, ramp, 'flat', base=1)
+    top = c.poly([H, A, P, G]) & m
+    right = c.poly([A, B, C, P]) & m
+    low = m & ~top & ~right
+    c.put(low, ramp, 'ray', base=2, bands=((0.3, 0), (0.75, -1), (9, -2)))
+    c.put(right, ramp, 'ray', base=3, bands=((0.35, 0), (0.8, -1), (9, -1)))
+    c.put(top, ramp, 'ray', base=4, bands=((0.5, 0), (9, -1)))
+    # ridges: bright where the lit face meets the others
+    c.put(c.bres_path([(int(A[0]), int(A[1]) + 1), (16, 15)]) & m, '#FFFFFF', 'flat', out=ramp.out)
+    c.put(c.bres_path([(16, 16), (7, 18)]) & m, ramp[4], 'flat', out=ramp.out)
+    c.put(c.bres_path([(17, 17), (20, 23)]) & m, ramp[1], 'flat', out=ramp.out)
+    c.outline()
+    c.glow(STAR_GLOW, (90, 40))
+    S.sparkle(c, 13, 22, '#FFFFFF', ramp[4], 1)
+    return c
+
+
+def driftglass():
+    """A smooth tumbled lump of sea glass: frosted violet on the near side, teal light pooling where it shines
+    through."""
+    c = Canvas(32)
+    through = (0.6, 0.55, 0.6)   # through-lit: the near side darker, light gathering toward the far side
+    m = c.poly([(3.5, 17.5), (5.5, 12.5), (10, 9.5), (16, 8.5), (21.5, 9.5), (25.5, 12), (27, 16.5), (25.5, 21),
+                (21, 24.5), (14, 25.5), (7.5, 24.5), (4, 21.5)])
+    c.put(m, VIOLET_GLASS, 'sphere', base=2, light=through)
+    teal = m & ((c.xi + c.yi) >= 30)
+    c.put(teal, TEAL_GLASS, 'sphere', base=2, cx=15.5, cy=16.5, rx=12, ry=9, light=through)
+    # the light passing through gathers in a bright crescent inside the far edge
+    inner = erode4(erode4(m))
+    cres = inner & ~move(inner, -2, -2) & ((c.xi + c.yi) >= 27)
+    c.put(cres, TEAL_GLASS, 'flat', base=3)
+    c.put(cres & ~move(inner, -3, -3) & ((c.xi + c.yi) >= 32), TEAL_GLASS, 'flat', base=4)
+    # frosted skin on the lit rim, one small wet gleam
+    rim = S.outline_only(m) & ((c.xi + c.yi) <= 24)
+    c.put(rim, VIOLET_GLASS, 'flat', base=3)
+    c.put(c.bres(7, 13, 9, 11) | c.rect(10, 10, 12, 10), '#FFFFFF', 'flat')
+    c.put(c.rect(8, 15, 8, 15), VIOLET_GLASS[4], 'flat')
+    # a smaller tumbled bead of the same glass in front
+    bead = c.poly([(19.5, 25), (21.5, 21.5), (25.5, 20.5), (28.5, 22.5), (28.5, 26.5), (25, 28.5), (21, 28)])
+    c.put(bead, TEAL_GLASS, 'sphere', base=2, sep=True, light=through)
+    c.put(bead & ((c.xi + c.yi) <= 44), VIOLET_GLASS, 'sphere', base=2, cx=24, cy=24.5, rx=5, ry=4.5, light=through)
+    c.put(c.rect(22, 22, 23, 22), '#FFFFFF', 'flat')
+    c.outline()
+    c.glow('#9C8CE0', (45,))
+    return c
+
+
+def sage_crystal():
+    """Sage Crystal (currency): a clear cut crystal with warm gold light burning at its core."""
+    c = Canvas(32)
+    cx, cy, rw, rh = 16, 16.5, 11.5, 12.5
+    k = 0.42
+    outer = [(cx - rw * k, cy - rh), (cx + rw * k, cy - rh), (cx + rw, cy - rh * k), (cx + rw, cy + rh * k),
+             (cx + rw * k, cy + rh), (cx - rw * k, cy + rh), (cx - rw, cy + rh * k), (cx - rw, cy - rh * k)]
+    m = c.poly(outer)
+    c.put(m, CLEAR, 'flat', base=2)
+    t = 0.5
+    inner = [(cx + (x - cx) * t, cy + (y - cy) * t) for x, y in outer]
+    # crown facets: lit to the upper left, dark to the lower right
+    L = (-0.7071, -0.7071)
+    for i in range(8):
+        a, b = outer[i], outer[(i + 1) % 8]
+        ta, tb = inner[i], inner[(i + 1) % 8]
+        mx, my = (a[0] + b[0]) / 2 - cx, (a[1] + b[1]) / 2 - cy
+        d = (mx * L[0] + my * L[1]) / (math.hypot(mx, my) or 1)
+        lvl = 4 if d > 0.75 else 3 if d > 0.2 else 2 if d > -0.35 else 1 if d > -0.8 else 0
+        c.put(c.poly([a, b, tb, ta]) & m, CLEAR, 'flat', base=lvl)
+    # the table holds the warm core light: pale gold round a white-hot heart
+    gold = R['starlight']
+    tab = c.poly(inner)
+    c.put(tab, gold, 'flat', base=2)
+    c.put(erode4(tab), gold, 'flat', base=3)
+    c.put(c.ellipse(cx, cy, 2.6, 3.0), gold, 'flat', base=4)
+    c.put(c.rect(15, 16, 16, 16), '#FFFFFF', 'flat')
+    # warm light caught in the facets below the core
+    c.pxs([(12, 24), (20, 24), (24, 19), (8, 19)], gold[2])
+    c.put(c.rect(10, 7, 12, 7) | c.rect(9, 8, 9, 9), '#FFFFFF', 'flat')
+    c.outline()
+    c.glow(STAR_GLOW, (120, 50))
+    S.sparkle(c, 27, 5, '#FFFFFF', gold[3], 2)
+    return c
+
+
+def star_jade():
+    """Star Jade (currency): a polished bi disc of deep jade, a star-white star inlaid round its hole."""
+    c = Canvas(32)
+    cx, cy = 16, 15.5
+    side = c.ellipse(cx, cy + 2, 12, 11)
+    c.put(side, DEEP_JADE, 'flat', base=0)
+    top = c.ellipse(cx, cy, 12, 11)
+    c.put(top, DEEP_JADE, 'sphere', base=2, sep=True, cx=12.5, cy=11.5, rx=15, ry=14)
+    pts = []
+    for k in range(8):
+        a = math.radians(90 - k * 45)
+        r = 9.0 if k % 2 == 0 else 4.4
+        pts.append((cx + math.cos(a) * r, cy - math.sin(a) * r * 0.93))
+    star = c.poly(pts) & erode4(top)
+    c.put(star, R['starlight'], 'ray', base=3, sep=True, sep_col=DEEP_JADE[0],
+          bands=((0.35, 1), (0.75, 0), (9, -1)))
+    hole = c.ellipse(cx, cy, 2.6, 2.5)
+    c.put(dilate4(hole) & ~hole, DEEP_JADE, 'flat', base=0)
+    c.erase(hole)
+    # polish: a bright arc on the lit rim
+    c.put(c.arc(cx, cy, 11, 1.3, 105, 165, 10) & top, DEEP_JADE[4], 'flat')
+    c.outline()
+    c.glow(STAR_GLOW, (45,))
+    return c
+
+
+register(FAM, 'star_shard', star_shard, GROUP)
+register(FAM, 'driftglass', driftglass, GROUP)
+register(FAM, 'sage_crystal', sage_crystal, GROUP)
+register(FAM, 'star_jade', star_jade, GROUP)

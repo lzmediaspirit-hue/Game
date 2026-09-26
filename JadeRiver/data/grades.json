@@ -70,7 +70,10 @@
   "heaven": "#6fb8f0",
   "mystic": "#b07ce8",
   "spirit": "#5ee0e8",
-  "sage": "#d8c27a"
+  "sage": "#d8c27a",
+  "sovereign": "#e8a24c",
+  "will": "#f3e3a6",
+  "sphere": "#8f7ae0"
  },
  "pill_qualities": {
   "flawed": 0.5,

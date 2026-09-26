@@ -343,6 +343,14 @@ def build():
                                                   # S48: cornered, the Captain burns his nascent soul (a telegraphed blast).
                                                   {"below": 0.12, "action": "self_detonate", "windup": 3.0, "radius": 280, "damage": 0.6}],
             first_defeat=["comet_tail_flame"]),
+        # v1.2 · the Lantern Star Field (Act III, docs/act3_design.md) · Phase A: the Drifting Shoals.
+        mob("star_jellyfish", (82, 87), "normal", "star", "lantern", [d("jelly_silk", 0.45), d("star_shard", 0.4, (1, 2)), d("star_lotus", 0.05)],
+            [atk("star_sting", 0.6, 90, 1.2, depth=40, status={"id": "confusion", "chance": 0.25, "power": 1.0, "duration_s": 2}),
+             atk("spark_trail", 0.8, 260, 1.05, damage_type="qi", projectile={"speed": 320, "art": "qi_arc"})],
+            ai="flyer_ranged", speed=70, flying=True, width=28, height=40),
+        mob("comet_sparrow", (82, 87), "normal", "fire", "lantern", [d("comet_plume", 0.45), d("star_shard", 0.4, (1, 2))],
+            [atk("comet_dive", 0.5, 110, 1.3, dash=160, status={"id": "burn", "chance": 0.3, "power": 0.01, "duration_s": 3})],
+            ai="flyer", speed=160, flying=True, pack=True, width=22, height=22),
         mob("presence_phantom", 81, "normal", "none", None, [], [atk("weight_of_a_seat", 0.55, 90, 1.1, damage_type="qi")],
             ai="duelist", art=human("presence_phantom"), race="human", energy="sage_qi", width=18, height=90, name="Presence of a Seat"),
         mob("ninth_presence", 81, "normal", "none", None, [], [atk("ninth_seat_palm", 0.7, 120, 1.3, damage_type="qi", depth=50, knockback=100),
@@ -590,6 +598,15 @@ def build():
                                                        {"item": "will_tempering_pill", "weight": 1, "count": [1, 2]},
                                                        {"item": "sky_ink", "weight": 1, "count": [2, 3]}]}],
                    "coins": {"chance": 1.0, "mult": 16}, "rare": [], "equipment": {"chance": 0.8, "min_quality": "fine"}})
+    # v1.2 (S32): jars and chests of the Lantern Star Field. Coins are paid in Sage Crystals (zone coin_scale).
+    tables.append({"id": "jar_lantern", "groups": [{"chance": 0.6, "pick": [{"item": "star_shard", "weight": 2, "count": [1, 2]},
+                   {"item": "spirit_stone_shard", "weight": 1, "count": [2, 3]}, {"item": "qi_restoration_pill", "weight": 1, "count": [1, 1]}]}],
+                   "coins": {"chance": 0.6, "mult": 2}, "rare": [], "equipment": {}})
+    tables.append({"id": "chest_lantern", "guaranteed": [{"item": "star_shard", "count": [4, 8], "chance": 1.0},
+                                                         {"item": "spirit_stone_shard", "count": [3, 5], "chance": 1.0}],
+                   "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [2, 3]}, {"item": "driftglass", "weight": 2, "count": [1, 2]},
+                                                       {"item": "will_tempering_pill", "weight": 1, "count": [1, 1]}]}],
+                   "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {"chance": 0.6, "min_quality": "fine"}})
     entries("loot_tables.json", tables)
     return M
 

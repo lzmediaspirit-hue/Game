@@ -10,7 +10,7 @@ extends "res://tests/prologue_run.gd"
 ##   godot --headless --path . res://tests/valley_run.tscn -- [--from=<section>] [--verbose]
 
 const SECTIONS := ["bf2", "bf5", "bf8", "qk1", "qk5", "qu1", "qu5", "ht1", "ht5", "cs1", "cs5", "sa1", "sa5", "hg1", "ae1", "ae2", "ae3", "ae4",
-	"ae5", "ae6"]
+	"ae5", "ae6", "ls1"]
 const CP_ROOT := "user://valley_cp/"
 const WORK := "user://valley_work/"
 
@@ -1675,8 +1675,9 @@ func attune_to(zone: String, need: float) -> void:
 		var lv: Array = Game.progression.jade_levels(c(), zone)
 		var lowest := lv.find(lv.min())
 		var cost: int = Game.progression.jade_cost(zone, int(lv[lowest]))
-		if c().inventory.count("storm_shard") < cost:
-			Game.inventory.apply_add(c().id, "storm_shard", cost, "test_shortcut")
+		var shard := str(ContentDB.zone(zone).get("attunement", {}).get("shard", "storm_shard"))
+		if c().inventory.count(shard) < cost:
+			Game.inventory.apply_add(c().id, shard, cost, "test_shortcut")
 		if not submit({"type": "attune_jade", "zone": zone, "index": lowest}).get("ok", false): break
 		guard += 1
 
@@ -2142,11 +2143,68 @@ func sec_ae6() -> void:
 	check(craft_at("chart_table", "chart_route", "star_chart_lantern"), "chart the Lantern Run")
 	check(sail("wreck_run"), "sail to the Wreck")
 	check(travel("sw_starsea_launch"), "reach the Starsea Launch")
-	var planned := interact("dock_launch")
-	check(not planned.get("ok", true) and str(planned.get("reason", "")) == "planned", "the Lantern Run waits for the next age (Act III)")
 	check(finish("stars_beyond"), "Stars Beyond done: chapter 16 and Act II complete")
 	check("starsea_voyager" in c().cultivator.titles and c().quests.has_flag("stars_beyond_done"), "Voyager of the Starsea")
 	checkpoint("ae_end")
+
+## Act III · chapter 17 (v1.2 Phase A): the Lantern Run, Lanternfall Harbor, Sage Crystals, Starsea Endurance,
+## Will Manifest and the first Presence.
+func sec_ls1() -> void:
+	tidy_bag(12)
+	check(c().quests.is_active("the_lantern_run") or c().quests.is_done("the_lantern_run"), "The Lantern Run begins when Act II ends")
+	check(sail("lantern_run"), "sail the Lantern Run across the Starsea")
+	check(str(ContentDB.zone_of_room(room()).get("id", "")) == "lantern_star_field", "Lanternfall Harbor lies in the Lantern Star Field")
+	talk(go_to_npc(["harbormaster_lin"]))
+	GameEvents.flush()
+	check(c().quests.is_done("the_lantern_run"), "The Lantern Run done")
+	check(start("crystal_and_jade"), "Crystal and Jade accepted")
+	talk(go_to_npc(["clerk_yu"]))
+	if Game.economy.balance("spirit_stone", c()) < 500: Game.economy.apply_currency("spirit_stone", 500, "test_shortcut")
+	var crystals0: int = Game.economy.balance("sage_crystal", c())
+	var ex := submit({"type": "exchange_currency", "from": "spirit_stone", "to": "sage_crystal", "amount": 500})
+	check(ex.get("ok", false) and Game.economy.balance("sage_crystal", c()) == crystals0 + 40, "500 Spirit Stones buy 40 Sage Crystals (10 to one, less the fifth)")
+	talk(go_to_npc(["warden_xiao"]))
+	check(finish("crystal_and_jade"), "Crystal and Jade done")
+	check(start("salt_of_the_stars"), "Salt of the Stars accepted")
+	check(unlocked("starsea_endurance"), "Starsea Endurance attunement unlocks with the Warden's quest")
+	var zone := "lantern_star_field"
+	for i in 4:
+		check(submit({"type": "attune_jade", "zone": zone, "index": i}).get("ok", false), "raise Starsea Endurance jade %d" % i)
+	check(is_equal_approx(float(c().cultivator.attunement.get(zone, 0.0)), 6.0), "four jades at level 1 give Endurance 6 (each level is worth 1.5)")
+	attune_to(zone, 24.0)
+	check(travel("dr_jellyfish_shallows"), "wade into the Jellyfish Shallows")
+	var f: Dictionary = Game.progression.attunement_factors(c())
+	check(float(f.dealt) >= 1.0 and float(f.taken) <= 1.0, "attuned to the Shallows: no penalty (%.2f / %.2f)" % [float(f.dealt), float(f.taken)])
+	var got := fight("star_jellyfish", 6, 600.0, 0.3)
+	check(got >= 6 or c().quests.is_done("salt_of_the_stars"), "thin six Star Jellyfish (%d)" % got)
+	if c().inventory.count("star_shard") < 12: Game.inventory.apply_add(c().id, "star_shard", 12 - c().inventory.count("star_shard"), "test_shortcut")
+	check(finish("salt_of_the_stars"), "Salt of the Stars done")
+	check(start("will_manifest"), "Will Manifest accepted")
+	check(travel("dr_moored_hulks"), "sit on the Moored Hulks")
+	if c().pools.max_soul < 1500.0:
+		# Soul cultivation to the 1,500 the step asks (the Soul pool grows with it): a test shortcut for weeks of nourishing.
+		c().cultivator.soul_cultivation += 1500.0
+		Game.combat.refresh_stats(c().id)
+	check(c().pools.max_soul >= 1500.0, "Max Soul %d reaches 1,500" % int(c().pools.max_soul))
+	check(reach("will_manifest_1"), "Will Manifest 1")
+	check(finish("will_manifest"), "Will Manifest done")
+	check(start("a_presence_of_ones_own"), "A Presence of One's Own accepted")
+	check(unlocked("presence") and Game.is_revealed("hud:presence"), "Presence unlocks, and its button shows")
+	c().pools.soul = c().pools.max_soul
+	check(submit({"type": "toggle_presence"}).get("ok", false), "hold the Presence")
+	check(travel("dr_sparrow_reefs"), "on to the Sparrow Reefs")
+	if not Game.field.is_on(c().id): submit({"type": "toggle_presence", "on": true})
+	var hunted := fight("comet_sparrow", 5, 600.0, 0.3)
+	check(hunted >= 5 or c().quests.is_done("a_presence_of_ones_own"), "hunt five Comet Sparrows under the Presence (%d)" % hunted)
+	check(Game.field.presence_xp(c()) > 0.0, "pressing them trains the Presence (%.0f)" % Game.field.presence_xp(c()))
+	if Game.field.presence_level(c()) < 2: Game.field.apply_presence_xp(c().id, 60.0, "test_shortcut")
+	check(finish("a_presence_of_ones_own"), "A Presence of One's Own done: chapter 17 complete")
+	submit({"type": "toggle_presence", "on": false})
+	LootRules.zone_coins("dr_sparrow_reefs", 100)
+	check(LootRules.zone_coins("dr_sparrow_reefs", 400).currency == "sage_crystal", "the Field pays loot coins in Sage Crystals")
+	var q: Dictionary = Game.progression.query_breakthrough(c(), [])
+	check(str(q.get("to", "")) == "will_manifest_2", "the Field holds the next order of Will Manifest")
+	checkpoint("ls1_end")
 
 ## From the Skyport Wreck back to the Expanse: the Launch's teleport stone (cross-region fee).
 func teleport_home() -> bool:

@@ -56,6 +56,46 @@
       }
     }
   },
+  "ash_pyre": {
+    "anchor": [
+      60,
+      114
+    ],
+    "file": "res://art/props/ash_pyre.png",
+    "frame": [
+      120,
+      120
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 4,
+        "frames": 4
+      },
+      "lit": {
+        "col": 4,
+        "fps": 8,
+        "frames": 4
+      }
+    }
+  },
+  "ashborn_banner": {
+    "anchor": [
+      26,
+      178
+    ],
+    "file": "res://art/props/ashborn_banner.png",
+    "frame": [
+      52,
+      184
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "bamboo_cluster": {
     "anchor": [
       70,
@@ -227,6 +267,24 @@
       }
     }
   },
+  "bastion_wall": {
+    "anchor": [
+      128,
+      188
+    ],
+    "file": "res://art/props/bastion_wall.png",
+    "frame": [
+      256,
+      192
+    ],
+    "repeat": "x",
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "bath_tub": {
     "anchor": [
       40,
@@ -352,6 +410,23 @@
       }
     }
   },
+  "broken_ring": {
+    "anchor": [
+      120,
+      172
+    ],
+    "file": "res://art/props/broken_ring.png",
+    "frame": [
+      240,
+      180
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "bronze_mirror": {
     "anchor": [
       44,
@@ -421,6 +496,23 @@
       },
       "open": {
         "col": 1,
+        "frames": 1
+      }
+    }
+  },
+  "cinder_tent": {
+    "anchor": [
+      110,
+      134
+    ],
+    "file": "res://art/props/cinder_tent.png",
+    "frame": [
+      220,
+      140
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
         "frames": 1
       }
     }
@@ -683,6 +775,48 @@
       }
     }
   },
+  "driftglass_cluster": {
+    "anchor": [
+      40,
+      54
+    ],
+    "file": "res://art/props/driftglass_cluster.png",
+    "frame": [
+      80,
+      60
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "driftglass_vein": {
+    "anchor": [
+      36,
+      52
+    ],
+    "file": "res://art/props/driftglass_vein.png",
+    "frame": [
+      72,
+      56
+    ],
+    "states": {
+      "cracked": {
+        "col": 1,
+        "frames": 1
+      },
+      "depleted": {
+        "col": 2,
+        "frames": 1
+      },
+      "full": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "driftwood": {
     "anchor": [
       48,
@@ -692,6 +826,23 @@
     "frame": [
       96,
       28
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "drone_hive": {
+    "anchor": [
+      70,
+      174
+    ],
+    "file": "res://art/props/drone_hive.png",
+    "frame": [
+      140,
+      180
     ],
     "states": {
       "idle": {
@@ -888,6 +1039,24 @@
       }
     }
   },
+  "flame_basin": {
+    "anchor": [
+      60,
+      82
+    ],
+    "file": "res://art/props/flame_basin.png",
+    "frame": [
+      120,
+      88
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 5,
+        "frames": 4
+      }
+    }
+  },
   "floor_earth": {
     "anchor": [
       0,
@@ -1048,6 +1217,32 @@
       }
     }
   },
+  "gravity_switch": {
+    "anchor": [
+      26,
+      82
+    ],
+    "file": "res://art/props/gravity_switch.png",
+    "frame": [
+      52,
+      88
+    ],
+    "states": {
+      "active": {
+        "col": 2,
+        "fps": 6,
+        "frames": 4
+      },
+      "down": {
+        "col": 1,
+        "frames": 1
+      },
+      "up": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "grey_patch": {
     "anchor": [
       40,
@@ -1083,6 +1278,23 @@
       }
     },
     "tile": true
+  },
+  "harbor_crane": {
+    "anchor": [
+      80,
+      214
+    ],
+    "file": "res://art/props/harbor_crane.png",
+    "frame": [
+      160,
+      220
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
   },
   "hay_bale": {
     "anchor": [
@@ -1151,6 +1363,24 @@
       "idle": {
         "col": 0,
         "frames": 1
+      }
+    }
+  },
+  "hollow_crystal": {
+    "anchor": [
+      30,
+      82
+    ],
+    "file": "res://art/props/hollow_crystal.png",
+    "frame": [
+      60,
+      88
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 5,
+        "frames": 4
       }
     }
   },
@@ -1312,6 +1542,28 @@
       }
     }
   },
+  "lantern_cage": {
+    "anchor": [
+      48,
+      186
+    ],
+    "file": "res://art/props/lantern_cage.png",
+    "frame": [
+      96,
+      192
+    ],
+    "states": {
+      "dark": {
+        "col": 4,
+        "frames": 1
+      },
+      "idle": {
+        "col": 0,
+        "fps": 5,
+        "frames": 4
+      }
+    }
+  },
   "lantern_post": {
     "anchor": [
       16,
@@ -1363,6 +1615,23 @@
         "fps": 4,
         "frames": 4
       },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "leviathan_bones": {
+    "anchor": [
+      180,
+      132
+    ],
+    "file": "res://art/props/leviathan_bones.png",
+    "frame": [
+      360,
+      140
+    ],
+    "states": {
       "idle": {
         "col": 0,
         "frames": 1
@@ -1535,6 +1804,23 @@
       }
     }
   },
+  "moored_hulk": {
+    "anchor": [
+      160,
+      172
+    ],
+    "file": "res://art/props/moored_hulk.png",
+    "frame": [
+      320,
+      180
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "mooring_post": {
     "anchor": [
       12,
@@ -1577,6 +1863,23 @@
       }
     }
   },
+  "nebula_coral": {
+    "anchor": [
+      40,
+      94
+    ],
+    "file": "res://art/props/nebula_coral.png",
+    "frame": [
+      80,
+      100
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "nine_bough_jade_tree": {
     "anchor": [
       120,
@@ -1609,6 +1912,41 @@
       "idle": {
         "col": 0,
         "frames": 1
+      }
+    }
+  },
+  "observatory_scope": {
+    "anchor": [
+      70,
+      154
+    ],
+    "file": "res://art/props/observatory_scope.png",
+    "frame": [
+      140,
+      160
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "orbit_stone": {
+    "anchor": [
+      40,
+      66
+    ],
+    "file": "res://art/props/orbit_stone.png",
+    "frame": [
+      80,
+      72
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 4,
+        "frames": 4
       }
     }
   },
@@ -1698,6 +2036,28 @@
       }
     }
   },
+  "pirate_cannon": {
+    "anchor": [
+      56,
+      62
+    ],
+    "file": "res://art/props/pirate_cannon.png",
+    "frame": [
+      112,
+      68
+    ],
+    "states": {
+      "fire": {
+        "col": 1,
+        "fps": 10,
+        "frames": 4
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "plum_tree": {
     "anchor": [
       100,
@@ -1730,6 +2090,23 @@
         "col": 0,
         "fps": 10,
         "frames": 6
+      }
+    }
+  },
+  "powder_keg": {
+    "anchor": [
+      22,
+      46
+    ],
+    "file": "res://art/props/powder_keg.png",
+    "frame": [
+      44,
+      52
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
       }
     }
   },
@@ -2285,6 +2662,24 @@
       }
     }
   },
+  "star_buoy": {
+    "anchor": [
+      28,
+      72
+    ],
+    "file": "res://art/props/star_buoy.png",
+    "frame": [
+      56,
+      80
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 5,
+        "frames": 4
+      }
+    }
+  },
   "star_chart_table": {
     "anchor": [
       64,
@@ -2299,6 +2694,89 @@
       "idle": {
         "col": 0,
         "frames": 1
+      }
+    }
+  },
+  "star_crystal": {
+    "anchor": [
+      30,
+      74
+    ],
+    "file": "res://art/props/star_crystal.png",
+    "frame": [
+      60,
+      80
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 4,
+        "frames": 4
+      }
+    }
+  },
+  "star_iron_vein": {
+    "anchor": [
+      36,
+      52
+    ],
+    "file": "res://art/props/star_iron_vein.png",
+    "frame": [
+      72,
+      56
+    ],
+    "states": {
+      "cracked": {
+        "col": 1,
+        "frames": 1
+      },
+      "depleted": {
+        "col": 2,
+        "frames": 1
+      },
+      "full": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "star_lantern_post": {
+    "anchor": [
+      20,
+      138
+    ],
+    "file": "res://art/props/star_lantern_post.png",
+    "frame": [
+      40,
+      144
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 5,
+        "frames": 4
+      }
+    }
+  },
+  "star_lotus_patch": {
+    "anchor": [
+      28,
+      40
+    ],
+    "file": "res://art/props/star_lotus_patch.png",
+    "frame": [
+      56,
+      44
+    ],
+    "states": {
+      "depleted": {
+        "col": 3,
+        "frames": 1
+      },
+      "ready": {
+        "col": 0,
+        "fps": 5,
+        "frames": 3
       }
     }
   },
@@ -2835,6 +3313,45 @@
       }
     }
   },
+  "void_geode": {
+    "anchor": [
+      36,
+      54
+    ],
+    "file": "res://art/props/void_geode.png",
+    "frame": [
+      72,
+      60
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "void_orchid_patch": {
+    "anchor": [
+      28,
+      40
+    ],
+    "file": "res://art/props/void_orchid_patch.png",
+    "frame": [
+      56,
+      44
+    ],
+    "states": {
+      "depleted": {
+        "col": 3,
+        "frames": 1
+      },
+      "ready": {
+        "col": 0,
+        "fps": 5,
+        "frames": 3
+      }
+    }
+  },
   "wall_plaster": {
     "anchor": [
       0,
@@ -2891,6 +3408,40 @@
       }
     },
     "tile": true
+  },
+  "war_drum": {
+    "anchor": [
+      44,
+      86
+    ],
+    "file": "res://art/props/war_drum.png",
+    "frame": [
+      88,
+      92
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "warden_statue": {
+    "anchor": [
+      44,
+      214
+    ],
+    "file": "res://art/props/warden_statue.png",
+    "frame": [
+      88,
+      220
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
   },
   "warehouse": {
     "anchor": [
@@ -3019,6 +3570,24 @@
       }
     }
   },
+  "wick_pillar": {
+    "anchor": [
+      32,
+      234
+    ],
+    "file": "res://art/props/wick_pillar.png",
+    "frame": [
+      64,
+      240
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 5,
+        "frames": 4
+      }
+    }
+  },
   "willow_moss_patch": {
     "anchor": [
       28,
@@ -3123,6 +3692,41 @@
     "frame": [
       400,
       192
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "wyrm_egg": {
+    "anchor": [
+      26,
+      58
+    ],
+    "file": "res://art/props/wyrm_egg.png",
+    "frame": [
+      52,
+      64
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 4,
+        "frames": 4
+      }
+    }
+  },
+  "wyrm_nest": {
+    "anchor": [
+      96,
+      62
+    ],
+    "file": "res://art/props/wyrm_nest.png",
+    "frame": [
+      192,
+      68
     ],
     "states": {
       "idle": {
