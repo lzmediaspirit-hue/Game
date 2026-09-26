@@ -1513,7 +1513,10 @@
    "gourd": {
     "bag": 25,
     "quick": 5
-   }
+   },
+   "source": [
+    "story"
+   ]
   },
   {
    "id": "bamboo_gourd",
