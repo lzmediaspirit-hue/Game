@@ -120,6 +120,19 @@
    "height": 300,
    "kind": "roof",
    "stratum": "platform"
+  },
+  {
+   "id": "terrace_walk",
+   "rect": [
+    1700,
+    500,
+    120,
+    60
+   ],
+   "height": 80,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
   }
  ],
  "portals": [
@@ -142,6 +155,29 @@
    ],
    "to": "ja_east_terrace",
    "to_portal": "west"
+  },
+  {
+   "id": "retreat_roof",
+   "type": "door",
+   "at": [
+    1500,
+    566
+   ],
+   "to": "ja_retreat",
+   "to_portal": "roof",
+   "press_up": true,
+   "facade": true,
+   "label": "Retreat Rooms",
+   "surface": "heaven_roof",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "retreat_room"
+     }
+    ]
+   },
+   "locked_text": "The retreat rooms are kept for inner disciples."
   }
  ],
  "objects": [
@@ -208,6 +244,33 @@
     900
    ],
    "opponent": "sparring_disciple"
+  },
+  {
+   "id": "herb_pot_pine",
+   "type": "herb_patch",
+   "at": [
+    400,
+    688
+   ],
+   "item": "willow_moss",
+   "prop": "willow_moss_patch",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "apprentice",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100,
+   "surface": "pine_branch"
   }
  ],
  "spawns": [],
@@ -267,13 +330,39 @@
    ]
   }
  ],
- "decor": [],
+ "decor": [
+  {
+   "prop": "door",
+   "at": [
+    1500,
+    566
+   ],
+   "layer": "play",
+   "alt": 300
+  }
+ ],
  "areas": [],
  "music": "sect",
  "custom_ground": true,
  "sect": "jade_sect",
  "town": true,
  "climbables": [
+  {
+   "id": "terrace_roof_ladder",
+   "kind": "ladder",
+   "at": [
+    1708,
+    538
+   ],
+   "top_at": [
+    1708,
+    572
+   ],
+   "bottom_alt": 80,
+   "top_alt": 300,
+   "bottom": "terrace_walk",
+   "top": "heaven_roof"
+  },
   {
    "id": "pine_branch_vine_1",
    "kind": "vine",
@@ -321,22 +410,6 @@
    "top_alt": 200,
    "bottom": "ground",
    "top": "east_step"
-  },
-  {
-   "id": "heaven_roof_ladder_4",
-   "kind": "ladder",
-   "at": [
-    1390,
-    745
-   ],
-   "top_at": [
-    1390,
-    702
-   ],
-   "bottom_alt": 0,
-   "top_alt": 300,
-   "bottom": "ground",
-   "top": "heaven_roof"
   }
  ]
 }

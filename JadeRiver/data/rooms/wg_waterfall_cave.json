@@ -46,11 +46,37 @@
    "open_edges": false
   },
   {
-   "id": "ledge_cave",
+   "id": "cave_ledge_low",
    "rect": [
-    400,
-    630,
+    360,
+    640,
+    260,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cave_ledge_high",
+   "rect": [
+    700,
+    600,
     240,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cave_ledge_east",
+   "rect": [
+    1000,
+    640,
+    220,
     70
    ],
    "height": 100,
@@ -77,8 +103,8 @@
    "id": "journal_cave",
    "type": "pickup",
    "at": [
-    900,
-    740
+    772,
+    635
    ],
    "item": "lu_journal_page",
    "count": 1,
@@ -91,25 +117,28 @@
       "flag": "journal_cave"
      }
     ]
-   }
+   },
+   "alt": 200,
+   "surface": "cave_ledge_high"
   },
   {
    "id": "chest_1",
    "type": "chest",
    "at": [
-    430,
-    665
+    880,
+    635
    ],
    "loot": "chest_dungeon",
    "level": 33,
-   "alt": 100
+   "alt": 200,
+   "surface": "cave_ledge_high"
   },
   {
    "id": "cave_inner_cache",
    "type": "chest",
    "at": [
-    1700,
-    700
+    1160,
+    760
    ],
    "loot": "chest_dungeon",
    "level": 33,
@@ -131,29 +160,136 @@
     ]
    },
    "locked_text": "The cache is for those still finding their way. Your realm is past it."
+  },
+  {
+   "id": "cave_lotus",
+   "type": "herb_patch",
+   "at": [
+    451,
+    675
+   ],
+   "item": "mist_lotus",
+   "prop": "mist_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "adept",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100,
+   "surface": "cave_ledge_low"
+  },
+  {
+   "id": "cave_shard_vein",
+   "type": "ore_vein",
+   "at": [
+    1121,
+    675
+   ],
+   "item": "spirit_stone_shard",
+   "prop": "spirit_shard_vein",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "adept",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 100,
+   "surface": "cave_ledge_east"
   }
  ],
  "spawns": [],
  "scenery": [],
- "decor": [],
- "areas": [],
+ "decor": [
+  {
+   "prop": "waterfall",
+   "at": [
+    1180,
+    700
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [
+  {
+   "kind": "shallows",
+   "rect": [
+    420,
+    880,
+    860,
+    80
+   ]
+  }
+ ],
  "music": "dungeon",
  "climbables": [
   {
-   "id": "ledge_cave_rope_1",
+   "id": "cave_ledge_low_rope",
    "kind": "rope",
    "at": [
-    520,
-    735
+    480,
+    745
    ],
    "top_at": [
-    520,
-    692
+    480,
+    702
    ],
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
-   "top": "ledge_cave"
+   "top": "cave_ledge_low"
+  },
+  {
+   "id": "cave_ledge_east_rope",
+   "kind": "rope",
+   "at": [
+    1110,
+    745
+   ],
+   "top_at": [
+    1110,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "cave_ledge_east"
   }
- ]
+ ],
+ "movers": [],
+ "volumes": [
+  {
+   "id": "water_shallow_0",
+   "kind": "water_shallow",
+   "rect": [
+    420,
+    880,
+    860,
+    80
+   ],
+   "alt": [
+    -50,
+    10
+   ]
+  }
+ ],
+ "vertical": "authored"
 }

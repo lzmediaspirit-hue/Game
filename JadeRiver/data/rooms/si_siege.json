@@ -46,30 +46,45 @@
    "open_edges": false
   },
   {
-   "id": "rampart_0",
+   "id": "battlement",
    "rect": [
-    1300,
+    640,
     620,
-    300,
+    1560,
     70
    ],
-   "height": 100,
-   "kind": "rock_ledge",
+   "height": 160,
+   "kind": "walltop",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "rampart_1",
+   "id": "tower_west",
+   "rect": [
+    420,
+    600,
+    220,
+    90
+   ],
+   "height": 240,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "tower"
+  },
+  {
+   "id": "tower_east",
    "rect": [
     2200,
-    620,
-    300,
-    70
+    600,
+    220,
+    90
    ],
-   "height": 100,
-   "kind": "rock_ledge",
+   "height": 240,
+   "kind": "roof",
    "stratum": "platform",
-   "open_edges": true
+   "open_edges": true,
+   "art": "tower"
   }
  ],
  "portals": [
@@ -110,18 +125,20 @@
   {
    "prop": "banner_cloud",
    "at": [
-    600,
-    660
+    1000,
+    650
    ],
-   "layer": "play"
+   "layer": "play",
+   "alt": 160
   },
   {
-   "prop": "stockade_wall",
+   "prop": "banner_jade",
    "at": [
-    900,
-    660
+    1800,
+    650
    ],
-   "layer": "play"
+   "layer": "play",
+   "alt": 160
   }
  ],
  "areas": [],
@@ -167,36 +184,93 @@
  },
  "climbables": [
   {
-   "id": "rampart_0_rope_1",
-   "kind": "rope",
+   "id": "battlement_ladder",
+   "kind": "ladder",
    "at": [
-    1450,
+    1500,
     725
    ],
    "top_at": [
-    1450,
+    1500,
     682
    ],
    "bottom_alt": 0,
-   "top_alt": 100,
+   "top_alt": 160,
    "bottom": "ground",
-   "top": "rampart_0"
+   "top": "battlement"
   },
   {
-   "id": "rampart_1_rope_2",
-   "kind": "rope",
+   "id": "tower_west_ladder",
+   "kind": "ladder",
    "at": [
-    2350,
+    460,
     725
    ],
    "top_at": [
-    2350,
+    460,
     682
    ],
    "bottom_alt": 0,
-   "top_alt": 100,
+   "top_alt": 240,
    "bottom": "ground",
-   "top": "rampart_1"
+   "top": "tower_west"
+  },
+  {
+   "id": "tower_east_ladder",
+   "kind": "ladder",
+   "at": [
+    2380,
+    725
+   ],
+   "top_at": [
+    2380,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 240,
+   "bottom": "ground",
+   "top": "tower_east"
   }
- ]
+ ],
+ "movers": [],
+ "volumes": [],
+ "blocks": [
+  {
+   "id": "battlement_step_0",
+   "rect": [
+    760,
+    700,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "wall"
+  },
+  {
+   "id": "battlement_step_1",
+   "rect": [
+    820,
+    700,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "wall"
+  },
+  {
+   "id": "battlement_step_2",
+   "rect": [
+    880,
+    700,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 110,
+   "kind": "wall"
+  }
+ ],
+ "vertical": "authored"
 }

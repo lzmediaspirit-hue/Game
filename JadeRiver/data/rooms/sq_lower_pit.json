@@ -12,7 +12,9 @@
  "recommended_cp": 110,
  "element": "earth",
  "qi_density": 1.0,
- "hazards": [],
+ "hazards": [
+  "falling_rocks"
+ ],
  "gather_tier": "valley_low",
  "idle": [
   "hunt",
@@ -130,7 +132,7 @@
    "id": "ore_1",
    "type": "ore_vein",
    "at": [
-    410,
+    1108,
     655
    ],
    "item": "copper_ore",
@@ -150,14 +152,15 @@
     ]
    },
    "locked_text": "The stone is too hard to work by hand.",
-   "alt": 200
+   "alt": 200,
+   "surface": "pit_rim_east"
   },
   {
    "id": "ore_2",
    "type": "ore_vein",
    "at": [
-    810,
-    665
+    700,
+    900
    ],
    "item": "jadeiron",
    "prop": "jadeiron_vein",
@@ -176,14 +179,14 @@
     ]
    },
    "locked_text": "The stone is too hard to work by hand.",
-   "alt": 100
+   "alt": 0
   },
   {
    "id": "ore_3",
    "type": "ore_vein",
    "at": [
-    1655,
-    690
+    756,
+    665
    ],
    "item": "riverstone",
    "prop": "riverstone_vein",
@@ -201,7 +204,9 @@
      }
     ]
    },
-   "locked_text": "The stone is too hard to work by hand."
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 100,
+   "surface": "pit_shelf"
   },
   {
    "id": "ore_4",
@@ -306,7 +311,7 @@
    "id": "chest_11",
    "type": "chest",
    "at": [
-    290,
+    410,
     655
    ],
    "loot": "chest_valley",

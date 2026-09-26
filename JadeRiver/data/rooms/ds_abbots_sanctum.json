@@ -271,14 +271,14 @@
  "dungeon_exit": "dw_bend_shore",
  "climbables": [
   {
-   "id": "bell_ledge_0_rope_1",
+   "id": "bell_ledge_0_rope",
    "kind": "rope",
    "at": [
-    530,
+    450,
     725
    ],
    "top_at": [
-    530,
+    450,
     682
    ],
    "bottom_alt": 0,
@@ -287,14 +287,14 @@
    "top": "bell_ledge_0"
   },
   {
-   "id": "bell_ledge_1_rope_2",
+   "id": "bell_ledge_1_rope",
    "kind": "rope",
    "at": [
-    1110,
+    1030,
     725
    ],
    "top_at": [
-    1110,
+    1030,
     682
    ],
    "bottom_alt": 0,
@@ -303,14 +303,14 @@
    "top": "bell_ledge_1"
   },
   {
-   "id": "bell_ledge_2_rope_4",
+   "id": "bell_ledge_2_rope",
    "kind": "rope",
    "at": [
-    1690,
+    1610,
     725
    ],
    "top_at": [
-    1690,
+    1610,
     682
    ],
    "bottom_alt": 0,
@@ -319,14 +319,14 @@
    "top": "bell_ledge_2"
   },
   {
-   "id": "bell_ledge_3_rope_5",
+   "id": "bell_ledge_3_rope",
    "kind": "rope",
    "at": [
-    2270,
+    2190,
     725
    ],
    "top_at": [
-    2270,
+    2190,
     682
    ],
    "bottom_alt": 0,
@@ -337,7 +337,7 @@
  ],
  "blocks": [
   {
-   "id": "bell_ledge_1_step_3",
+   "id": "bell_plinth_1",
    "rect": [
     1150,
     702,
@@ -345,20 +345,49 @@
     50
    ],
    "base": 0,
-   "top": 40,
-   "kind": "rock"
+   "top": 80,
+   "kind": "statue"
   },
   {
-   "id": "bell_ledge_3_step_6",
+   "id": "bell_plinth_3",
    "rect": [
-    2170,
+    2310,
     702,
     60,
     50
    ],
    "base": 0,
-   "top": 40,
-   "kind": "rock"
+   "top": 80,
+   "kind": "statue"
   }
- ]
+ ],
+ "volumes": [
+  {
+   "id": "sanctum_flood",
+   "kind": "rising_water",
+   "rect": [
+    260,
+    700,
+    2060,
+    260
+   ],
+   "alt": [
+    -100,
+    -20
+   ],
+   "rise": [
+    {
+     "event": "boss_phase",
+     "match": {
+      "action": "flood"
+     },
+     "to": 30,
+     "over_s": 4.0,
+     "hold_s": 14.0,
+     "back_to": -20
+    }
+   ]
+  }
+ ],
+ "vertical": "authored"
 }

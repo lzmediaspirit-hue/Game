@@ -44,32 +44,6 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
-  },
-  {
-   "id": "summit_rock_0",
-   "rect": [
-    240,
-    628,
-    160,
-    70
-   ],
-   "height": 100,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "summit_rock_1",
-   "rect": [
-    860,
-    628,
-    160,
-    70
-   ],
-   "height": 100,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
   }
  ],
  "portals": [
@@ -138,38 +112,69 @@
  ],
  "areas": [],
  "music": "meditation",
- "climbables": [
+ "climbables": [],
+ "movers": [],
+ "blocks": [
   {
-   "id": "summit_rock_0_rope_1",
-   "kind": "rope",
-   "at": [
-    320,
-    733
+   "id": "rite_pillar_0",
+   "rect": [
+    420,
+    770,
+    44,
+    44
    ],
-   "top_at": [
-    320,
-    690
-   ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "summit_rock_0"
+   "base": 0,
+   "top": 120,
+   "kind": "pillar"
   },
   {
-   "id": "summit_rock_1_rope_2",
-   "kind": "rope",
-   "at": [
-    940,
-    733
+   "id": "rite_pillar_1",
+   "rect": [
+    618,
+    716,
+    44,
+    44
    ],
-   "top_at": [
-    940,
-    690
+   "base": 0,
+   "top": 60,
+   "kind": "pillar"
+  },
+  {
+   "id": "rite_pillar_2",
+   "rect": [
+    816,
+    770,
+    44,
+    44
    ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "summit_rock_1"
+   "base": 0,
+   "top": 120,
+   "kind": "pillar"
+  },
+  {
+   "id": "rite_pillar_3",
+   "rect": [
+    470,
+    900,
+    44,
+    44
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "pillar"
+  },
+  {
+   "id": "rite_pillar_4",
+   "rect": [
+    766,
+    900,
+    44,
+    44
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "pillar"
   }
- ]
+ ],
+ "vertical": "authored"
 }

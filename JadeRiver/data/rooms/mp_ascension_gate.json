@@ -58,6 +58,84 @@
    "stratum": "platform",
    "open_edges": true,
    "art": "gate"
+  },
+  {
+   "id": "ring_0",
+   "rect": [
+    760,
+    780,
+    220,
+    70
+   ],
+   "height": 200,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ring_1",
+   "rect": [
+    1000,
+    690,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ring_2",
+   "rect": [
+    1280,
+    610,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ring_3",
+   "rect": [
+    2320,
+    610,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ring_4",
+   "rect": [
+    2600,
+    690,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ring_5",
+   "rect": [
+    2860,
+    780,
+    220,
+    70
+   ],
+   "height": 200,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -127,7 +205,7 @@
  "music": "boss",
  "climbables": [
   {
-   "id": "ascension_arch_ladder_1",
+   "id": "ascension_arch_ladder",
    "kind": "ladder",
    "at": [
     1860,
@@ -145,16 +223,29 @@
  ],
  "blocks": [
   {
-   "id": "ascension_arch_step_2",
+   "id": "ring_stone_west",
    "rect": [
-    2180,
-    702,
-    60,
-    50
+    1420,
+    760,
+    80,
+    60
    ],
    "base": 0,
    "top": 60,
-   "kind": "crate"
+   "kind": "rubble"
+  },
+  {
+   "id": "ring_stone_east",
+   "rect": [
+    2340,
+    760,
+    80,
+    60
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "rubble"
   }
- ]
+ ],
+ "vertical": "authored"
 }

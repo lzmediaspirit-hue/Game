@@ -46,41 +46,28 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "watchtower_w",
    "rect": [
-    940,
+    680,
     620,
-    280,
+    180,
     70
    ],
-   "height": 100,
-   "kind": "rock_ledge",
+   "height": 180,
+   "kind": "scaffold",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "ledge_mv_1",
+   "id": "watchtower_e",
    "rect": [
-    1520,
+    1680,
     620,
-    280,
+    180,
     70
    ],
-   "height": 200,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "ledge_mv_1_step_ledge_3",
-   "rect": [
-    1300,
-    620,
-    160,
-    70
-   ],
-   "height": 100,
-   "kind": "rock_ledge",
+   "height": 180,
+   "kind": "scaffold",
    "stratum": "platform",
    "open_edges": true
   }
@@ -112,33 +99,35 @@
    "id": "jar_1",
    "type": "jar",
    "at": [
-    970,
-    655
+    830,
+    634
    ],
    "loot": "jar_valley_mid",
    "level": 17,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 180,
+   "surface": "watchtower_w"
   },
   {
    "id": "crate_2",
    "type": "crate",
    "at": [
-    1550,
-    655
+    1820,
+    634
    ],
    "loot": "jar_valley_mid",
    "level": 17,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 200
+   "alt": 180,
+   "surface": "watchtower_e"
   },
   {
    "id": "jar_3",
    "type": "jar",
    "at": [
-    1338,
+    300,
     900
    ],
    "loot": "jar_valley_mid",
@@ -150,8 +139,8 @@
    "id": "crate_4",
    "type": "crate",
    "at": [
-    1752,
-    930
+    1300,
+    700
    ],
    "loot": "jar_valley_mid",
    "level": 17,
@@ -162,7 +151,7 @@
    "id": "jar_5",
    "type": "jar",
    "at": [
-    2319,
+    2300,
     720
    ],
    "loot": "jar_valley_mid",
@@ -174,24 +163,53 @@
    "id": "chest_6",
    "type": "chest",
    "at": [
-    1770,
-    655
+    1730,
+    634
    ],
    "loot": "chest_dungeon",
    "level": 20,
-   "alt": 200
+   "alt": 180,
+   "surface": "watchtower_e"
+  },
+  {
+   "id": "tower_key",
+   "type": "pickup",
+   "at": [
+    710,
+    634
+   ],
+   "alt": 180,
+   "surface": "watchtower_w",
+   "item": "mudwater_key",
+   "count": 1,
+   "prop": "none",
+   "label": "Gate Key",
+   "set_flag": "stockade_tower_key",
+   "hidden_if": {
+    "any": [
+     {
+      "kind": "flag_set",
+      "flag": "stockade_tower_key"
+     },
+     {
+      "kind": "item_owned",
+      "item": "mudwater_key",
+      "count": 1
+     }
+    ]
+   }
   },
   {
    "id": "chest_ledge_mv_1",
    "type": "chest",
    "at": [
-    1660,
-    665
+    770,
+    634
    ],
    "loot": "chest_dungeon",
    "level": 20,
-   "alt": 200,
-   "surface": "ledge_mv_1"
+   "alt": 180,
+   "surface": "watchtower_w"
   }
  ],
  "spawns": [
@@ -200,28 +218,28 @@
    "surface": "ground",
    "points": [
     [
-     455,
-     910
+     300,
+     780
     ],
     [
-     814,
-     787
+     900,
+     760
     ],
     [
-     1091,
-     768
+     1150,
+     880
     ],
     [
-     1404,
-     925
+     1420,
+     780
     ],
     [
-     1759,
-     863
+     1650,
+     900
     ],
     [
-     2192,
-     729
+     2200,
+     800
     ]
    ],
    "max": 5,
@@ -236,20 +254,20 @@
    "surface": "ground",
    "points": [
     [
-     598,
-     907
+     1000,
+     900
     ],
     [
-     1042,
-     791
+     1300,
+     700
     ],
     [
-     1573,
-     861
+     2100,
+     900
     ],
     [
-     1988,
-     857
+     2350,
+     760
     ]
    ],
    "max": 3,
@@ -257,6 +275,38 @@
    "level": [
     16,
     18
+   ]
+  },
+  {
+   "enemy": "bandit_archer",
+   "surface": "watchtower_w",
+   "points": [
+    [
+     780,
+     655
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 12,
+   "level": [
+    16,
+    19
+   ]
+  },
+  {
+   "enemy": "bandit_archer",
+   "surface": "watchtower_e",
+   "points": [
+    [
+     1780,
+     655
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 12,
+   "level": [
+    16,
+    19
    ]
   }
  ],
@@ -391,16 +441,8 @@
   {
    "prop": "stockade_wall",
    "at": [
-    640,
-    660
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "stockade_wall",
-   "at": [
-    1900,
-    660
+    1250,
+    650
    ],
    "layer": "play"
   }
@@ -409,54 +451,305 @@
  "music": "dungeon",
  "ambience": "",
  "dungeon_exit": "cr_caravan_road",
+ "blocks": [
+  {
+   "id": "palisade_0_0",
+   "rect": [
+    560,
+    620,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_0_1",
+   "rect": [
+    560,
+    648,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_0_2",
+   "rect": [
+    560,
+    676,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_0_3",
+   "rect": [
+    560,
+    704,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_0_4",
+   "rect": [
+    560,
+    732,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_0_5",
+   "rect": [
+    560,
+    760,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_0_6",
+   "rect": [
+    560,
+    788,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_0_7",
+   "rect": [
+    560,
+    816,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_0_8",
+   "rect": [
+    560,
+    844,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_1_0",
+   "rect": [
+    1900,
+    620,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_1_1",
+   "rect": [
+    1900,
+    648,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_1_2",
+   "rect": [
+    1900,
+    676,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_1_3",
+   "rect": [
+    1900,
+    704,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_1_4",
+   "rect": [
+    1900,
+    732,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_1_5",
+   "rect": [
+    1900,
+    760,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_1_6",
+   "rect": [
+    1900,
+    788,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_1_7",
+   "rect": [
+    1900,
+    816,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "palisade_1_8",
+   "rect": [
+    1900,
+    844,
+    36,
+    28
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "fence"
+  },
+  {
+   "id": "watchtower_w_crate_high",
+   "rect": [
+    874,
+    704,
+    50,
+    42
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "crate"
+  },
+  {
+   "id": "watchtower_w_crate_low",
+   "rect": [
+    874,
+    748,
+    50,
+    44
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
+  },
+  {
+   "id": "watchtower_e_crate_high",
+   "rect": [
+    1616,
+    704,
+    50,
+    42
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "crate"
+  },
+  {
+   "id": "watchtower_e_crate_low",
+   "rect": [
+    1616,
+    748,
+    50,
+    44
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
+  }
+ ],
  "climbables": [
   {
-   "id": "ledge_mv_0_rope_1",
-   "kind": "rope",
+   "id": "watchtower_w_ladder",
+   "kind": "ladder",
    "at": [
-    1080,
+    700,
     725
    ],
    "top_at": [
-    1080,
+    700,
     682
    ],
    "bottom_alt": 0,
-   "top_alt": 100,
+   "top_alt": 180,
    "bottom": "ground",
-   "top": "ledge_mv_0"
+   "top": "watchtower_w"
   },
   {
-   "id": "ledge_mv_1_rope_2",
-   "kind": "rope",
+   "id": "watchtower_e_ladder",
+   "kind": "ladder",
    "at": [
-    1660,
+    1840,
     725
    ],
    "top_at": [
-    1660,
+    1840,
     682
    ],
    "bottom_alt": 0,
-   "top_alt": 200,
+   "top_alt": 180,
    "bottom": "ground",
-   "top": "ledge_mv_1"
-  },
-  {
-   "id": "ledge_mv_1_step_ledge_3_rope_101",
-   "kind": "rope",
-   "at": [
-    1380,
-    725
-   ],
-   "top_at": [
-    1380,
-    682
-   ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "ledge_mv_1_step_ledge_3"
+   "top": "watchtower_e"
   }
- ]
+ ],
+ "vertical": "authored"
 }

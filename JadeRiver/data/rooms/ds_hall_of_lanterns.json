@@ -46,17 +46,114 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "lantern_ledge_west",
    "rect": [
-    600,
-    620,
-    280,
+    220,
+    640,
+    240,
     70
    ],
    "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
+  },
+  {
+   "id": "lantern_rest",
+   "rect": [
+    1260,
+    620,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "lantern_0",
+   "rect": [
+    570,
+    650,
+    120,
+    60
+   ],
+   "height": 100,
+   "kind": "branch",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
+  },
+  {
+   "id": "lantern_1",
+   "rect": [
+    830,
+    640,
+    120,
+    60
+   ],
+   "height": 100,
+   "kind": "branch",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
+  },
+  {
+   "id": "lantern_2",
+   "rect": [
+    1080,
+    630,
+    120,
+    60
+   ],
+   "height": 200,
+   "kind": "branch",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
+  },
+  {
+   "id": "lantern_3",
+   "rect": [
+    1620,
+    630,
+    120,
+    60
+   ],
+   "height": 200,
+   "kind": "branch",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
+  },
+  {
+   "id": "lantern_4",
+   "rect": [
+    1880,
+    640,
+    120,
+    60
+   ],
+   "height": 200,
+   "kind": "branch",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
+  },
+  {
+   "id": "lantern_loft",
+   "rect": [
+    2080,
+    600,
+    240,
+    70
+   ],
+   "height": 300,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
   }
  ],
  "portals": [
@@ -86,34 +183,36 @@
    "id": "jar_1",
    "type": "jar",
    "at": [
-    630,
-    655
+    400,
+    654
    ],
    "loot": "jar_valley_mid",
    "level": 24,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 100,
+   "surface": "lantern_ledge_west"
   },
   {
    "id": "jar_2",
    "type": "jar",
    "at": [
-    850,
-    655
+    1450,
+    634
    ],
    "loot": "jar_valley_mid",
    "level": 24,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 200,
+   "surface": "lantern_rest"
   },
   {
    "id": "jar_3",
    "type": "jar",
    "at": [
-    1268,
-    700
+    700,
+    900
    ],
    "loot": "jar_valley_mid",
    "level": 24,
@@ -124,8 +223,8 @@
    "id": "jar_4",
    "type": "jar",
    "at": [
-    1772,
-    930
+    1600,
+    720
    ],
    "loot": "jar_valley_mid",
    "level": 24,
@@ -136,8 +235,8 @@
    "id": "jar_5",
    "type": "jar",
    "at": [
-    2252,
-    720
+    2300,
+    880
    ],
    "loot": "jar_valley_mid",
    "level": 24,
@@ -148,12 +247,13 @@
    "id": "chest_6",
    "type": "chest",
    "at": [
-    740,
-    655
+    2200,
+    614
    ],
    "loot": "chest_dungeon",
    "level": 27,
-   "alt": 100
+   "alt": 300,
+   "surface": "lantern_loft"
   },
   {
    "id": "inscription_ds_hall_of_lanterns_0",
@@ -178,8 +278,8 @@
    "id": "inscription_ds_hall_of_lanterns_1",
    "type": "inspect",
    "at": [
-    950,
-    700
+    300,
+    654
    ],
    "prop": "scholar_rock",
    "text": "Lu's handwriting, faded under the silt: \"Breathe with the river, not against it.\"",
@@ -191,14 +291,16 @@
       "quest": "lus_handwriting"
      }
     ]
-   }
+   },
+   "alt": 100,
+   "surface": "lantern_ledge_west"
   },
   {
    "id": "inscription_ds_hall_of_lanterns_2",
    "type": "inspect",
    "at": [
-    1400,
-    700
+    1360,
+    634
    ],
    "prop": "scholar_rock",
    "text": "Lu's handwriting, faded under the silt: \"Breathe with the river, not against it.\"",
@@ -210,7 +312,9 @@
       "quest": "lus_handwriting"
      }
     ]
-   }
+   },
+   "alt": 200,
+   "surface": "lantern_rest"
   },
   {
    "id": "inscription_ds_hall_of_lanterns_3",
@@ -238,20 +342,20 @@
    "surface": "ground",
    "points": [
     [
-     454,
-     891
+     480,
+     880
     ],
     [
-     1024,
-     700
+     1050,
+     820
     ],
     [
-     1579,
-     818
+     1600,
+     880
     ],
     [
-     2011,
-     702
+     2050,
+     760
     ]
    ],
    "max": 3,
@@ -263,26 +367,50 @@
   },
   {
    "enemy": "paper_talisman_ghost",
+   "surface": "lantern_ledge_west",
+   "points": [
+    [
+     360,
+     675
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 12,
+   "level": [
+    22,
+    25
+   ]
+  },
+  {
+   "enemy": "paper_talisman_ghost",
+   "surface": "lantern_rest",
+   "points": [
+    [
+     1420,
+     655
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 12,
+   "level": [
+    22,
+    25
+   ]
+  },
+  {
+   "enemy": "paper_talisman_ghost",
    "surface": "ground",
    "points": [
     [
-     522,
-     867
+     2150,
+     800
     ],
     [
-     1050,
-     878
-    ],
-    [
-     1578,
-     758
-    ],
-    [
-     2009,
-     881
+     1900,
+     900
     ]
    ],
-   "max": 3,
+   "max": 1,
    "respawn_s": 12,
    "level": [
     22,
@@ -408,6 +536,30 @@
    ],
    "layer": "front",
    "flip": true
+  },
+  {
+   "prop": "lantern_string",
+   "at": [
+    640,
+    380
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "lantern_string",
+   "at": [
+    1140,
+    380
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "lantern_string",
+   "at": [
+    1680,
+    380
+   ],
+   "layer": "back"
   }
  ],
  "areas": [
@@ -442,20 +594,98 @@
  ],
  "climbables": [
   {
-   "id": "ledge_mv_0_rope_1",
+   "id": "lantern_ledge_west_rope",
    "kind": "rope",
    "at": [
-    740,
-    725
+    260,
+    745
    ],
    "top_at": [
-    740,
-    682
+    260,
+    702
    ],
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
-   "top": "ledge_mv_0"
+   "top": "lantern_ledge_west"
+  },
+  {
+   "id": "lantern_rest_rope",
+   "kind": "rope",
+   "at": [
+    1290,
+    725
+   ],
+   "top_at": [
+    1290,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "lantern_rest"
+  },
+  {
+   "id": "lantern_rest_chain",
+   "kind": "chain",
+   "at": [
+    1470,
+    725
+   ],
+   "top_at": [
+    1470,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "lantern_rest"
   }
- ]
+ ],
+ "movers": [
+  {
+   "surface": "lantern_0",
+   "mode": "swing",
+   "length": 110,
+   "amp_deg": 25,
+   "period_s": 3.2,
+   "phase_deg": 0,
+   "path": []
+  },
+  {
+   "surface": "lantern_1",
+   "mode": "circle",
+   "radius": 50,
+   "period_s": 4.4,
+   "phase_deg": 0,
+   "path": []
+  },
+  {
+   "surface": "lantern_2",
+   "mode": "swing",
+   "length": 110,
+   "amp_deg": 25,
+   "period_s": 3.2,
+   "phase_deg": 180,
+   "path": []
+  },
+  {
+   "surface": "lantern_3",
+   "mode": "swing",
+   "length": 110,
+   "amp_deg": 25,
+   "period_s": 3.2,
+   "phase_deg": 90,
+   "path": []
+  },
+  {
+   "surface": "lantern_4",
+   "mode": "circle",
+   "radius": 50,
+   "period_s": 4.4,
+   "phase_deg": 180,
+   "path": []
+  }
+ ],
+ "vertical": "authored"
 }

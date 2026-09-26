@@ -1771,9 +1771,16 @@ def side_quests():
     quest("dou_wants_to_train", "Dou Wants to Train", "side", "little_dou", [o("hit_object", "Show Dou how to punch the stump", 20, type="training_stump")],
           [fx("grant_title", title="big_sibling")], requires=all_of(qdone("dous_kite_returns")), offer=["Teach me to punch! Please please please."],
           complete=["Hi-YAH! Did you see?!"])
-    quest("grey_roofs", "Grey Roofs", "side", "hamlet_elder_gao", [o("kill", "Clear the Hollowed from the Grey Pools", 10, enemy="hollowed_boarlet")],
-          [taels(120)], requires=all_of(realm("heart_tempering_1")), target_room="rm_grey_pools",
-          offer=["Clear the pools and we can walk home."], complete=["The road home is open."])
+    # Part 8 (Hamlet Square): the grey roofs' lanterns are cleansed by hand, one on the hall and one on the granary
+    # (inspect objects in gh_hamlet_square that set these flags; the hamlet opens at the quest's own realm).
+    quest("grey_roofs", "Grey Roofs", "side", "hamlet_elder_gao", [
+        o("kill", "Clear the Hollowed from the Grey Pools", 10, enemy="hollowed_boarlet"),
+        o("set_flag", "Cleanse the grey lantern on the hall roof", flag="grey_lantern_hall"),
+        o("set_flag", "Cleanse the grey lantern on the granary roof", flag="grey_lantern_granary"),
+    ], [taels(120)], requires=all_of(realm("heart_tempering_1")), target_room="rm_grey_pools",
+          offer=["The grey came up from the pools and settled on our roofs. Clear the Hollowed from the pools, and wipe "
+                 "the grey from the lanterns on the hall and the granary. Then we can walk home."],
+          complete=["The lanterns burn and the road home is open."])
     quest("cleansing_the_well", "Cleansing the Well", "side", "hamlet_elder_gao", [o("set_flag", "Cleanse the hamlet well", flag="well_cleansed")],
           [taels(150)], requires=all_of(qdone("grey_roofs")), target_room="gh_hamlet_square",
           on_accept=[item("cleansing_pill", 1)], offer=["The well. If it runs clear, we stay."], complete=["Clear water. Thank you."])

@@ -44,19 +44,6 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
-  },
-  {
-   "id": "ledge_mv_0",
-   "rect": [
-    1620,
-    620,
-    280,
-    70
-   ],
-   "height": 100,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
   }
  ],
  "portals": [
@@ -86,34 +73,36 @@
    "id": "jar_1",
    "type": "jar",
    "at": [
-    1650,
-    655
+    645,
+    664
    ],
    "loot": "jar_valley_mid",
    "level": 17,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 160,
+   "surface": "stalagmite_high_0"
   },
   {
    "id": "crate_2",
    "type": "crate",
    "at": [
-    1870,
-    655
+    1745,
+    664
    ],
    "loot": "jar_valley_mid",
    "level": 17,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 160,
+   "surface": "stalagmite_high_2"
   },
   {
    "id": "jar_3",
    "type": "jar",
    "at": [
-    1264,
-    700
+    300,
+    900
    ],
    "loot": "jar_valley_mid",
    "level": 17,
@@ -124,8 +113,8 @@
    "id": "crate_4",
    "type": "crate",
    "at": [
-    1810,
-    930
+    1400,
+    720
    ],
    "loot": "jar_valley_mid",
    "level": 17,
@@ -136,8 +125,8 @@
    "id": "jar_5",
    "type": "jar",
    "at": [
-    2235,
-    720
+    2200,
+    700
    ],
    "loot": "jar_valley_mid",
    "level": 17,
@@ -148,12 +137,13 @@
    "id": "chest_6",
    "type": "chest",
    "at": [
-    1760,
-    655
+    1125,
+    654
    ],
    "loot": "chest_dungeon",
    "level": 20,
-   "alt": 100
+   "alt": 160,
+   "surface": "stalagmite_high_1"
   },
   {
    "id": "page_method_conversion_pill_1",
@@ -188,24 +178,24 @@
    "surface": "ground",
    "points": [
     [
-     468,
+     400,
      820
     ],
     [
-     848,
-     877
+     900,
+     880
     ],
     [
-     1234,
-     715
+     1300,
+     800
     ],
     [
-     1636,
-     859
+     1800,
+     900
     ],
     [
-     2090,
-     897
+     2150,
+     820
     ]
    ],
    "max": 4,
@@ -217,22 +207,14 @@
   },
   {
    "enemy": "bandit_archer",
-   "surface": "ledge_mv_0",
+   "surface": "stalagmite_low_0",
    "points": [
     [
-     1686,
-     655
-    ],
-    [
-     1760,
-     655
-    ],
-    [
-     1833,
-     655
+     555,
+     746
     ]
    ],
-   "max": 2,
+   "max": 1,
    "respawn_s": 12,
    "level": [
     17,
@@ -253,6 +235,22 @@
    "level": [
     19,
     19
+   ]
+  },
+  {
+   "enemy": "bandit_archer",
+   "surface": "stalagmite_low_2",
+   "points": [
+    [
+     1655,
+     746
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 12,
+   "level": [
+    17,
+    20
    ]
   }
  ],
@@ -389,22 +387,115 @@
  "music": "dungeon",
  "ambience": "",
  "dungeon_exit": "cr_caravan_road",
- "climbables": [
+ "blocks": [
   {
-   "id": "ledge_mv_0_rope_1",
-   "kind": "rope",
-   "at": [
-    1760,
-    725
+   "id": "stalagmite_low_0",
+   "rect": [
+    520,
+    716,
+    70,
+    60
    ],
-   "top_at": [
-    1760,
-    682
+   "base": 0,
+   "top": 80,
+   "kind": "stalagmite"
+  },
+  {
+   "id": "stalagmite_high_0",
+   "rect": [
+    610,
+    650,
+    70,
+    60
    ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "ledge_mv_0"
+   "base": 0,
+   "top": 160,
+   "kind": "stalagmite"
+  },
+  {
+   "id": "stalagmite_low_1",
+   "rect": [
+    1000,
+    706,
+    70,
+    60
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "stalagmite"
+  },
+  {
+   "id": "stalagmite_high_1",
+   "rect": [
+    1090,
+    640,
+    70,
+    60
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "stalagmite"
+  },
+  {
+   "id": "stalagmite_low_2",
+   "rect": [
+    1620,
+    716,
+    70,
+    60
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "stalagmite"
+  },
+  {
+   "id": "stalagmite_high_2",
+   "rect": [
+    1710,
+    650,
+    70,
+    60
+   ],
+   "base": 0,
+   "top": 160,
+   "kind": "stalagmite"
+  },
+  {
+   "id": "loot_crate_low",
+   "rect": [
+    760,
+    820,
+    56,
+    44
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
+  },
+  {
+   "id": "loot_crate_high",
+   "rect": [
+    764,
+    776,
+    56,
+    42
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "crate"
+  },
+  {
+   "id": "loot_crate_east",
+   "rect": [
+    2000,
+    700,
+    56,
+    44
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
   }
- ]
+ ],
+ "vertical": "authored"
 }

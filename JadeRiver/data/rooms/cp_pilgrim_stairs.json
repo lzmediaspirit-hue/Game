@@ -36,11 +36,24 @@
  ],
  "surfaces": [
   {
+   "id": "ground_front",
+   "rect": [
+    1236,
+    900,
+    300,
+    60
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
    "id": "ground",
    "rect": [
     0,
     620,
-    2560,
+    1236,
     340
    ],
    "height": 0,
@@ -49,11 +62,108 @@
    "open_edges": false
   },
   {
-   "id": "ledge_0",
+   "id": "ground_east",
    "rect": [
-    700,
-    660,
+    1536,
+    620,
+    1024,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "stair_flight_1",
+   "rect": [
+    1236,
+    800,
     300,
+    100
+   ],
+   "height": 80,
+   "kind": "stairs",
+   "stratum": "ground",
+   "open_edges": false,
+   "rise": -80,
+   "rise_axis": "y"
+  },
+  {
+   "id": "stair_flight_2",
+   "rect": [
+    1236,
+    680,
+    300,
+    60
+   ],
+   "height": 160,
+   "kind": "stairs",
+   "stratum": "ground",
+   "open_edges": false,
+   "rise": -80,
+   "rise_axis": "y"
+  },
+  {
+   "id": "stair_flight_3",
+   "rect": [
+    1236,
+    560,
+    300,
+    60
+   ],
+   "height": 240,
+   "kind": "stairs",
+   "stratum": "ground",
+   "open_edges": false,
+   "rise": -80,
+   "rise_axis": "y"
+  },
+  {
+   "id": "landing_80",
+   "rect": [
+    1236,
+    740,
+    300,
+    60
+   ],
+   "height": 80,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "landing_160",
+   "rect": [
+    1236,
+    620,
+    300,
+    60
+   ],
+   "height": 160,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "landing_240",
+   "rect": [
+    1236,
+    480,
+    300,
+    80
+   ],
+   "height": 240,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "shortcut_west",
+   "rect": [
+    1036,
+    610,
+    200,
     70
    ],
    "height": 100,
@@ -62,66 +172,40 @@
    "open_edges": true
   },
   {
-   "id": "ledge_1",
+   "id": "shortcut_east",
    "rect": [
-    1300,
-    640,
-    300,
+    1536,
+    610,
+    200,
     70
    ],
-   "height": 200,
+   "height": 100,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "ledge_2",
+   "id": "cliff_west",
    "rect": [
-    1900,
-    660,
-    300,
-    70
-   ],
-   "height": 200,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "route_0",
-   "rect": [
-    360,
-    636,
+    700,
+    620,
     240,
     70
    ],
    "height": 200,
-   "kind": "tree_branch",
+   "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "bridge_0",
+   "id": "cliff_east",
    "rect": [
-    1000,
-    660,
-    300,
-    60
-   ],
-   "height": 100.0,
-   "kind": "rope_bridge",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "ledge_2_step_ledge_3",
-   "rect": [
-    1680,
-    660,
-    160,
+    1830,
+    620,
+    240,
     70
    ],
-   "height": 100,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -155,25 +239,27 @@
    "type": "jar",
    "at": [
     730,
-    695
+    700
    ],
    "loot": "jar_valley_low",
    "level": 18,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 0
   },
   {
    "id": "crate_2",
    "type": "crate",
    "at": [
-    1360,
-    900
+    1296,
+    770
    ],
    "loot": "jar_valley_low",
    "level": 18,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 80,
+   "surface": "landing_80"
   },
   {
    "id": "jar_3",
@@ -185,7 +271,8 @@
    "loot": "jar_valley_low",
    "level": 18,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 0
   },
   {
    "id": "shrine_cp",
@@ -226,28 +313,72 @@
    "surface": "ground",
    "points": [
     [
-     881,
-     868
+     720,
+     860
     ],
     [
-     902,
-     882
+     820,
+     780
     ],
     [
-     1272,
-     702
+     940,
+     900
     ],
     [
-     1742,
-     926
-    ],
-    [
-     2101,
-     734
+     1060,
+     820
     ]
    ],
-   "max": 4,
+   "max": 3,
    "respawn_s": 12,
+   "level": [
+    17,
+    19
+   ]
+  },
+  {
+   "enemy": "stone_guardian",
+   "surface": "landing_80",
+   "points": [
+    [
+     1386,
+     770
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 30,
+   "level": [
+    17,
+    19
+   ]
+  },
+  {
+   "enemy": "stone_guardian",
+   "surface": "landing_160",
+   "points": [
+    [
+     1386,
+     650
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 30,
+   "level": [
+    17,
+    19
+   ]
+  },
+  {
+   "enemy": "stone_guardian",
+   "surface": "landing_240",
+   "points": [
+    [
+     1386,
+     520
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 30,
    "level": [
     17,
     19
@@ -379,68 +510,64 @@
  "ambience": "",
  "climbables": [
   {
-   "id": "ledge_1_rope_1",
+   "id": "cliff_west_rope",
    "kind": "rope",
    "at": [
-    1450,
-    745
+    820,
+    725
    ],
    "top_at": [
-    1450,
-    702
+    820,
+    682
    ],
    "bottom_alt": 0,
    "top_alt": 200,
    "bottom": "ground",
-   "top": "ledge_1"
+   "top": "cliff_west"
   },
   {
-   "id": "ledge_2_rope_2",
+   "id": "cliff_east_rope",
    "kind": "rope",
    "at": [
-    2050,
-    765
+    1950,
+    725
    ],
    "top_at": [
-    2050,
-    722
+    1950,
+    682
    ],
    "bottom_alt": 0,
    "top_alt": 200,
    "bottom": "ground",
-   "top": "ledge_2"
-  },
-  {
-   "id": "route_0_vine_4",
-   "kind": "vine",
-   "at": [
-    480,
-    741
-   ],
-   "top_at": [
-    480,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 200,
-   "bottom": "ground",
-   "top": "route_0"
-  },
-  {
-   "id": "ledge_2_step_ledge_3_rope_101",
-   "kind": "rope",
-   "at": [
-    1760,
-    765
-   ],
-   "top_at": [
-    1760,
-    722
-   ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "ledge_2_step_ledge_3"
+   "top": "cliff_east"
   }
- ]
+ ],
+ "movers": [],
+ "blocks": [
+  {
+   "id": "shortcut_west_boulder",
+   "rect": [
+    1086,
+    690,
+    70,
+    50
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "rock"
+  },
+  {
+   "id": "shortcut_east_boulder",
+   "rect": [
+    1616,
+    690,
+    70,
+    50
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "rock"
+  }
+ ],
+ "vertical": "authored"
 }

@@ -44,19 +44,6 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
-  },
-  {
-   "id": "loft_mv",
-   "rect": [
-    140,
-    630,
-    300,
-    70
-   ],
-   "height": 88,
-   "kind": "balcony",
-   "stratum": "platform",
-   "open_edges": true
   }
  ],
  "portals": [
@@ -116,7 +103,9 @@
    "at": [
     280,
     880
-   ]
+   ],
+   "alt": 40,
+   "surface": "sparring_ring"
   },
   {
    "id": "dummy_wh_1",
@@ -124,11 +113,48 @@
    "at": [
     420,
     880
-   ]
+   ],
+   "alt": 40,
+   "surface": "sparring_ring"
   }
  ],
  "spawns": [],
- "scenery": [],
+ "scenery": [
+  {
+   "id": "weapon_rack_full_1",
+   "prop": "weapon_rack_full",
+   "position": [
+    300,
+    676
+   ],
+   "front_y": 676,
+   "footprint": [
+    255,
+    652,
+    90,
+    24
+   ],
+   "height": 110,
+   "standable": true
+  },
+  {
+   "id": "weapon_rack_full_2",
+   "prop": "weapon_rack_full",
+   "position": [
+    460,
+    676
+   ],
+   "front_y": 676,
+   "footprint": [
+    415,
+    652,
+    90,
+    24
+   ],
+   "height": 110,
+   "standable": true
+  }
+ ],
  "decor": [
   {
    "prop": "hanging_lantern",
@@ -145,22 +171,6 @@
     180
    ],
    "layer": "back"
-  },
-  {
-   "prop": "weapon_rack_full",
-   "at": [
-    300,
-    670
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "weapon_rack_full",
-   "at": [
-    460,
-    670
-   ],
-   "layer": "play"
   }
  ],
  "areas": [],
@@ -176,22 +186,19 @@
  },
  "sect": "jade_sect",
  "music": "sect",
- "climbables": [
+ "blocks": [
   {
-   "id": "loft_mv_ladder_1",
-   "kind": "ladder",
-   "at": [
-    290,
-    735
+   "id": "sparring_ring",
+   "rect": [
+    200,
+    830,
+    300,
+    100
    ],
-   "top_at": [
-    290,
-    692
-   ],
-   "bottom_alt": 0,
-   "top_alt": 88,
-   "bottom": "ground",
-   "top": "loft_mv"
+   "base": 0,
+   "top": 40,
+   "kind": "wall"
   }
- ]
+ ],
+ "vertical": "authored"
 }

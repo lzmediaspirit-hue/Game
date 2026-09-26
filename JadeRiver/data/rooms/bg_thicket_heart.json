@@ -51,80 +51,80 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "canopy_west",
    "rect": [
-    600,
-    620,
-    280,
+    200,
+    630,
+    260,
     70
    ],
    "height": 100,
-   "kind": "rock_ledge",
+   "kind": "canopy",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "ledge_mv_1",
+   "id": "canopy_high_west",
    "rect": [
-    1180,
+    560,
     620,
-    280,
+    260,
     70
    ],
    "height": 200,
-   "kind": "rock_ledge",
+   "kind": "canopy",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "route_0",
+   "id": "canopy_mid",
    "rect": [
-    180,
-    636,
-    240,
+    920,
+    630,
+    260,
     70
    ],
    "height": 100,
-   "kind": "tree_branch",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "route_1",
-   "rect": [
-    1540,
-    636,
-    240,
-    70
-   ],
-   "height": 100,
-   "kind": "tree_branch",
+   "kind": "canopy",
    "stratum": "platform",
    "open_edges": true
   },
   {
    "id": "route_2",
    "rect": [
-    1880,
-    636,
-    240,
+    1280,
+    620,
+    260,
     70
    ],
    "height": 200,
-   "kind": "tree_branch",
+   "kind": "canopy",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "bridge_0",
+   "id": "canopy_east",
    "rect": [
-    880,
-    620,
-    300,
+    1640,
+    630,
+    260,
     70
    ],
-   "height": 100.0,
-   "kind": "rope_bridge",
+   "height": 100,
+   "kind": "canopy",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "canopy_high_east",
+   "rect": [
+    2000,
+    620,
+    260,
+    70
+   ],
+   "height": 200,
+   "kind": "canopy",
    "stratum": "platform",
    "open_edges": true
   }
@@ -156,8 +156,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    850,
-    655
+    1770,
+    665
    ],
    "item": "ember_pepper",
    "prop": "ember_pepper_bush",
@@ -176,7 +176,8 @@
     ]
    },
    "locked_text": "You don't know which leaves are worth picking yet.",
-   "alt": 100
+   "alt": 100,
+   "surface": "canopy_east"
   },
   {
    "id": "herb_2",
@@ -207,27 +208,29 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    630,
-    655
+    252,
+    665
    ],
    "loot": "jar_valley_low",
    "level": 13,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 100,
+   "surface": "canopy_west"
   },
   {
    "id": "jar_4",
    "type": "jar",
    "at": [
-    1210,
-    655
+    1050,
+    665
    ],
    "loot": "jar_valley_low",
    "level": 13,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 200
+   "alt": 100,
+   "surface": "canopy_mid"
   },
   {
    "id": "jar_5",
@@ -269,31 +272,84 @@
    "id": "chest_8",
    "type": "chest",
    "at": [
-    1430,
+    2065,
     655
    ],
    "loot": "chest_valley",
    "level": 15,
-   "alt": 200
+   "alt": 200,
+   "surface": "canopy_high_east"
   },
   {
-   "id": "chest_ledge_mv_1",
-   "type": "chest",
+   "id": "beast_nest_0",
+   "type": "pickup",
    "at": [
-    1320,
-    665
+    638,
+    657
    ],
-   "loot": "chest_valley",
-   "level": 15,
    "alt": 200,
-   "surface": "ledge_mv_1"
+   "surface": "canopy_high_west",
+   "item": "spirit_egg",
+   "count": 1,
+   "prop": "none",
+   "label": "Beast Nest",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "spirit_eggs"
+     }
+    ]
+   },
+   "locked_text": "A nest in the canopy, still warm. You would not know how to keep an egg alive yet (Spirit Eggs, Heart Tempering 5).",
+   "set_flag": "thicket_nest_0",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "thicket_nest_0"
+     }
+    ]
+   }
+  },
+  {
+   "id": "beast_nest_1",
+   "type": "pickup",
+   "at": [
+    2182,
+    657
+   ],
+   "alt": 200,
+   "surface": "canopy_high_east",
+   "item": "spirit_egg",
+   "count": 1,
+   "prop": "none",
+   "label": "Beast Nest",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "spirit_eggs"
+     }
+    ]
+   },
+   "locked_text": "A nest in the canopy, still warm. You would not know how to keep an egg alive yet (Spirit Eggs, Heart Tempering 5).",
+   "set_flag": "thicket_nest_1",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "thicket_nest_1"
+     }
+    ]
+   }
   },
   {
    "id": "rare_pepper_th",
    "type": "herb_patch",
    "at": [
-    2000,
-    671
+    1410,
+    655
    ],
    "item": "ember_pepper_100",
    "prop": "ember_pepper_bush",
@@ -556,14 +612,6 @@
    "flip": true
   },
   {
-   "prop": "beast_nest",
-   "at": [
-    1500,
-    700
-   ],
-   "layer": "play"
-  },
-  {
    "prop": "thorn_thicket",
    "at": [
     760,
@@ -594,6 +642,24 @@
     880
    ],
    "layer": "play"
+  },
+  {
+   "prop": "beast_nest",
+   "at": [
+    638,
+    655
+   ],
+   "layer": "play",
+   "alt": 200
+  },
+  {
+   "prop": "beast_nest",
+   "at": [
+    2182,
+    655
+   ],
+   "layer": "play",
+   "alt": 200
   }
  ],
  "areas": [
@@ -638,52 +704,86 @@
  "ambience": "bamboo_ambience",
  "climbables": [
   {
-   "id": "route_0_vine_1",
+   "id": "canopy_west_vine",
    "kind": "vine",
    "at": [
-    300,
-    741
+    330,
+    735
    ],
    "top_at": [
-    300,
-    698
+    330,
+    692
    ],
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
-   "top": "route_0"
+   "top": "canopy_west"
   },
   {
-   "id": "route_1_vine_2",
+   "id": "canopy_mid_vine",
    "kind": "vine",
    "at": [
-    1660,
-    741
+    1050,
+    735
    ],
    "top_at": [
-    1660,
-    698
+    1050,
+    692
    ],
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
-   "top": "route_1"
+   "top": "canopy_mid"
   },
   {
-   "id": "route_2_vine_3",
+   "id": "canopy_east_vine",
    "kind": "vine",
    "at": [
-    2000,
-    741
+    1770,
+    735
    ],
    "top_at": [
-    2000,
-    698
+    1770,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "canopy_east"
+  },
+  {
+   "id": "canopy_high_west_vine",
+   "kind": "vine",
+   "at": [
+    690,
+    725
+   ],
+   "top_at": [
+    690,
+    682
    ],
    "bottom_alt": 0,
    "top_alt": 200,
    "bottom": "ground",
-   "top": "route_2"
+   "top": "canopy_high_west"
+  },
+  {
+   "id": "canopy_high_east_vine",
+   "kind": "vine",
+   "at": [
+    2200,
+    725
+   ],
+   "top_at": [
+    2200,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "canopy_high_east"
   }
- ]
+ ],
+ "movers": [],
+ "vertical": "authored"
 }

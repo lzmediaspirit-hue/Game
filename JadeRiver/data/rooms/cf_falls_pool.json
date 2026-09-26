@@ -59,7 +59,20 @@
    "open_edges": true
   },
   {
-   "id": "falls_ledge_step_ledge_1",
+   "id": "lotus_rock",
+   "rect": [
+    1110,
+    858,
+    100,
+    64
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "falls_step",
    "rect": [
     480,
     640,
@@ -177,8 +190,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    1300,
-    900
+    1160,
+    890
    ],
    "item": "mist_lotus",
    "prop": "mist_lotus_patch",
@@ -196,7 +209,9 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100,
+   "surface": "lotus_rock"
   },
   {
    "id": "shrine_falls",
@@ -294,12 +309,57 @@
  ],
  "areas": [
   {
+   "kind": "shallows",
+   "rect": [
+    880,
+    800,
+    760,
+    40
+   ]
+  },
+  {
+   "kind": "shallows",
+   "rect": [
+    880,
+    840,
+    80,
+    120
+   ]
+  },
+  {
+   "kind": "shallows",
+   "rect": [
+    1210,
+    840,
+    90,
+    120
+   ]
+  },
+  {
+   "kind": "shallows",
+   "rect": [
+    1560,
+    840,
+    80,
+    120
+   ]
+  },
+  {
    "kind": "water",
    "rect": [
-    900,
-    860,
-    700,
-    100
+    960,
+    840,
+    250,
+    120
+   ]
+  },
+  {
+   "kind": "water",
+   "rect": [
+    1300,
+    840,
+    260,
+    120
    ]
   }
  ],
@@ -323,7 +383,7 @@
    "top": "falls_ledge"
   },
   {
-   "id": "falls_ledge_step_ledge_1_rope_101",
+   "id": "falls_step_rope",
    "kind": "rope",
    "at": [
     560,
@@ -336,7 +396,7 @@
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
-   "top": "falls_ledge_step_ledge_1"
+   "top": "falls_step"
   }
  ],
  "volumes": [
@@ -351,8 +411,143 @@
    ],
    "alt": [
     0,
-    260
+    280
+   ]
+  },
+  {
+   "id": "water_shallow_1",
+   "kind": "water_shallow",
+   "rect": [
+    880,
+    800,
+    760,
+    40
+   ],
+   "alt": [
+    -50,
+    10
+   ]
+  },
+  {
+   "id": "water_shallow_2",
+   "kind": "water_shallow",
+   "rect": [
+    880,
+    840,
+    80,
+    120
+   ],
+   "alt": [
+    -50,
+    10
+   ]
+  },
+  {
+   "id": "water_shallow_3",
+   "kind": "water_shallow",
+   "rect": [
+    1210,
+    840,
+    90,
+    120
+   ],
+   "alt": [
+    -50,
+    10
+   ]
+  },
+  {
+   "id": "water_shallow_4",
+   "kind": "water_shallow",
+   "rect": [
+    1560,
+    840,
+    80,
+    120
+   ],
+   "alt": [
+    -50,
+    10
+   ]
+  },
+  {
+   "id": "falls_deep_0",
+   "kind": "water_deep",
+   "rect": [
+    960,
+    840,
+    250,
+    120
+   ],
+   "alt": [
+    -100,
+    10
+   ]
+  },
+  {
+   "id": "falls_deep_1",
+   "kind": "water_deep",
+   "rect": [
+    1300,
+    840,
+    260,
+    120
+   ],
+   "alt": [
+    -100,
+    10
    ]
   }
- ]
+ ],
+ "blocks": [
+  {
+   "id": "falls_rock_west",
+   "rect": [
+    895,
+    875,
+    60,
+    44
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "rock"
+  },
+  {
+   "id": "falls_rock_mid",
+   "rect": [
+    1020,
+    885,
+    70,
+    44
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "rock"
+  },
+  {
+   "id": "falls_rock_east",
+   "rect": [
+    1340,
+    885,
+    70,
+    44
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "rock"
+  },
+  {
+   "id": "falls_rock_far",
+   "rect": [
+    1460,
+    875,
+    60,
+    44
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "rock"
+  }
+ ],
+ "vertical": "authored"
 }

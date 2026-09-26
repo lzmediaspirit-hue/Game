@@ -44,19 +44,6 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
-  },
-  {
-   "id": "loft_mv",
-   "rect": [
-    820,
-    630,
-    300,
-    70
-   ],
-   "height": 88,
-   "kind": "balcony",
-   "stratum": "platform",
-   "open_edges": true
   }
  ],
  "portals": [
@@ -71,6 +58,18 @@
    "to_portal": "retreat",
    "press_up": true,
    "label": "East Terrace"
+  },
+  {
+   "id": "roof",
+   "type": "door",
+   "at": [
+    1160,
+    660
+   ],
+   "to": "ja_pavilion_rooftops",
+   "to_portal": "retreat_roof",
+   "press_up": true,
+   "label": "Pavilion Rooftops"
   }
  ],
  "objects": [
@@ -243,23 +242,5 @@
  },
  "sect": "jade_sect",
  "music": "meditation",
- "retreat": true,
- "climbables": [
-  {
-   "id": "loft_mv_ladder_1",
-   "kind": "ladder",
-   "at": [
-    970,
-    735
-   ],
-   "top_at": [
-    970,
-    692
-   ],
-   "bottom_alt": 0,
-   "top_alt": 88,
-   "bottom": "ground",
-   "top": "loft_mv"
-  }
- ]
+ "retreat": true
 }

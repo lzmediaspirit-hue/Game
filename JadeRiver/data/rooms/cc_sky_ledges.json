@@ -51,78 +51,78 @@
   {
    "id": "ledge_0",
    "rect": [
-    500,
+    360,
     630,
-    300,
+    240,
     70
    ],
-   "height": 300,
-   "kind": "rock_ledge",
+   "height": 400,
+   "kind": "cloud",
    "stratum": "platform",
    "open_edges": true
   },
   {
    "id": "ledge_1",
    "rect": [
-    1200,
+    760,
     620,
-    300,
+    260,
     70
    ],
-   "height": 400,
-   "kind": "rock_ledge",
+   "height": 500,
+   "kind": "cloud",
    "stratum": "platform",
    "open_edges": true
   },
   {
    "id": "ledge_2",
    "rect": [
-    1900,
-    630,
-    300,
+    1180,
+    610,
+    260,
     70
    ],
-   "height": 300,
-   "kind": "rock_ledge",
+   "height": 600,
+   "kind": "cloud",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "route_0",
+   "id": "cloud_700",
    "rect": [
-    180,
-    636,
+    1600,
+    600,
     240,
     70
    ],
-   "height": 200,
-   "kind": "tree_branch",
+   "height": 700,
+   "kind": "cloud",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "route_1",
+   "id": "cloud_800",
    "rect": [
-    880,
-    636,
+    1980,
+    590,
     240,
     70
    ],
-   "height": 300,
-   "kind": "tree_branch",
+   "height": 800,
+   "kind": "cloud",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "ledge_2_step_ledge_4",
+   "id": "cloud_900",
    "rect": [
-    1680,
-    630,
-    160,
+    2320,
+    580,
+    200,
     70
    ],
-   "height": 200,
-   "kind": "rock_ledge",
+   "height": 900,
+   "kind": "cloud",
    "stratum": "platform",
    "open_edges": true
   }
@@ -163,8 +163,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    770,
-    665
+    1648,
+    635
    ],
    "item": "cloudtop_orchid",
    "prop": "cloudtop_orchid_patch",
@@ -183,14 +183,15 @@
     ]
    },
    "locked_text": "You don't know which leaves are worth picking yet.",
-   "alt": 300
+   "alt": 700,
+   "surface": "cloud_700"
   },
   {
    "id": "herb_2",
    "type": "herb_patch",
    "at": [
-    2050,
-    665
+    1310,
+    645
    ],
    "item": "cloudtop_orchid",
    "prop": "cloudtop_orchid_patch",
@@ -209,14 +210,14 @@
     ]
    },
    "locked_text": "You don't know which leaves are worth picking yet.",
-   "alt": 300
+   "alt": 600
   },
   {
    "id": "ore_3",
    "type": "ore_vein",
    "at": [
-    2130,
-    690
+    1720,
+    635
    ],
    "item": "cloudsteel_ore",
    "prop": "cloudsteel_vein",
@@ -234,33 +235,37 @@
      }
     ]
    },
-   "locked_text": "The stone is too hard to work by hand."
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 700,
+   "surface": "cloud_700"
   },
   {
    "id": "jar_4",
    "type": "jar",
    "at": [
-    530,
-    665
+    1792,
+    635
    ],
    "loot": "jar_valley_mid",
    "level": 42,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 300
+   "alt": 700,
+   "surface": "cloud_700"
   },
   {
    "id": "crate_5",
    "type": "crate",
    "at": [
-    1230,
-    655
+    2172,
+    625
    ],
    "loot": "jar_valley_mid",
    "level": 42,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 400
+   "alt": 800,
+   "surface": "cloud_800"
   },
   {
    "id": "jar_6",
@@ -287,10 +292,49 @@
    "respawn_s": 300
   },
   {
+   "id": "ore_cloudsteel_high",
+   "type": "ore_vein",
+   "at": [
+    2064,
+    625
+   ],
+   "item": "cloudsteel_ore",
+   "prop": "cloudsteel_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "expert",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 800,
+   "surface": "cloud_800"
+  },
+  {
+   "id": "chest_cloud_900",
+   "type": "chest",
+   "at": [
+    2420,
+    615
+   ],
+   "loot": "chest_dungeon",
+   "level": 45,
+   "alt": 900,
+   "surface": "cloud_900"
+  },
+  {
    "id": "rare_orchid_sl",
    "type": "herb_patch",
    "at": [
-    1350,
+    890,
     655
    ],
    "item": "cloudtop_orchid_100",
@@ -310,7 +354,7 @@
     ]
    },
    "locked_text": "You don't know which leaves are worth picking yet.",
-   "alt": 400,
+   "alt": 500,
    "surface": "ledge_1",
    "age": 100,
    "ripen": {
@@ -574,132 +618,110 @@
  "areas": [],
  "music": "field_mountain",
  "ambience": "wind_ambience",
- "climbables": [
+ "climbables": [],
+ "movers": [
   {
-   "id": "ledge_0_rope_1",
-   "kind": "rope",
-   "at": [
-    650,
-    735
+   "surface": "ledge_0",
+   "path": [
+    [
+     140,
+     0,
+     0
+    ]
    ],
-   "top_at": [
-    650,
-    692
-   ],
-   "bottom_alt": 0,
-   "top_alt": 300,
-   "bottom": "ground",
-   "top": "ledge_0"
-  },
-  {
-   "id": "ledge_1_rope_2",
-   "kind": "rope",
-   "at": [
-    1350,
-    725
-   ],
-   "top_at": [
-    1350,
-    682
-   ],
-   "bottom_alt": 0,
-   "top_alt": 400,
-   "bottom": "ground",
-   "top": "ledge_1"
-  },
-  {
-   "id": "ledge_2_rope_3",
-   "kind": "rope",
-   "at": [
-    2010,
-    735
-   ],
-   "top_at": [
-    2010,
-    692
-   ],
-   "bottom_alt": 0,
-   "top_alt": 300,
-   "bottom": "ground",
-   "top": "ledge_2"
-  },
-  {
-   "id": "route_0_vine_5",
-   "kind": "vine",
-   "at": [
-    300,
-    741
-   ],
-   "top_at": [
-    300,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 200,
-   "bottom": "ground",
-   "top": "route_0"
-  },
-  {
-   "id": "route_1_vine_7",
-   "kind": "vine",
-   "at": [
-    1000,
-    741
-   ],
-   "top_at": [
-    1000,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 300,
-   "bottom": "ground",
-   "top": "route_1"
-  },
-  {
-   "id": "route_1_vine_108",
-   "kind": "vine",
-   "at": [
-    1080,
-    741
-   ],
-   "top_at": [
-    1080,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 300,
-   "bottom": "ground",
-   "top": "route_1"
-  },
-  {
-   "id": "ledge_2_step_ledge_4_rope_101",
-   "kind": "rope",
-   "at": [
-    1760,
-    735
-   ],
-   "top_at": [
-    1760,
-    692
-   ],
-   "bottom_alt": 0,
-   "top_alt": 200,
-   "bottom": "ground",
-   "top": "ledge_2_step_ledge_4"
+   "speed": 30,
+   "wait_s": 3.0,
+   "mode": "pingpong"
   }
  ],
- "blocks": [
+ "volumes": [
   {
-   "id": "route_0_step_6",
+   "id": "updraft_ledge_0",
+   "kind": "updraft",
    "rect": [
-    350,
-    718,
-    60,
-    50
+    260,
+    630,
+    100,
+    330
    ],
-   "base": 0,
-   "top": 40,
-   "kind": "rock"
+   "alt": [
+    0,
+    460
+   ]
+  },
+  {
+   "id": "updraft_ledge_1",
+   "kind": "updraft",
+   "rect": [
+    660,
+    620,
+    100,
+    340
+   ],
+   "alt": [
+    0,
+    560
+   ]
+  },
+  {
+   "id": "updraft_ledge_2",
+   "kind": "updraft",
+   "rect": [
+    1080,
+    610,
+    100,
+    350
+   ],
+   "alt": [
+    0,
+    660
+   ]
+  },
+  {
+   "id": "updraft_cloud_700",
+   "kind": "updraft",
+   "rect": [
+    1500,
+    600,
+    100,
+    360
+   ],
+   "alt": [
+    0,
+    760
+   ]
+  },
+  {
+   "id": "updraft_cloud_800",
+   "kind": "updraft",
+   "rect": [
+    1880,
+    590,
+    100,
+    370
+   ],
+   "alt": [
+    0,
+    860
+   ]
+  },
+  {
+   "id": "updraft_cloud_900",
+   "kind": "updraft",
+   "rect": [
+    2220,
+    580,
+    100,
+    380
+   ],
+   "alt": [
+    0,
+    960
+   ]
   }
- ]
+ ],
+ "camera": {
+  "y_min": -420
+ },
+ "vertical": "authored"
 }

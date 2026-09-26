@@ -44,6 +44,84 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "catwalk_west",
+   "rect": [
+    240,
+    600,
+    700,
+    60
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "catwalk_east",
+   "rect": [
+    1620,
+    600,
+    700,
+    60
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "rafter_0",
+   "rect": [
+    620,
+    540,
+    320,
+    60
+   ],
+   "height": 264,
+   "kind": "branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "rafter_1",
+   "rect": [
+    1000,
+    540,
+    280,
+    60
+   ],
+   "height": 264,
+   "kind": "branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "rafter_2",
+   "rect": [
+    1340,
+    540,
+    280,
+    60
+   ],
+   "height": 264,
+   "kind": "branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "rafter_3",
+   "rect": [
+    1680,
+    540,
+    320,
+    60
+   ],
+   "height": 264,
+   "kind": "branch",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -65,11 +143,13 @@
    "id": "gus_vault",
    "type": "chest",
    "at": [
-    2300,
-    820
+    1920,
+    554
    ],
    "loot": "gus_vault",
-   "level": 52
+   "level": 52,
+   "alt": 264,
+   "surface": "rafter_3"
   }
  ],
  "spawns": [
@@ -115,80 +195,7 @@
    "boss": true
   }
  ],
- "scenery": [
-  {
-   "id": "sack_pile_2",
-   "prop": "sack_pile",
-   "position": [
-    500,
-    700
-   ],
-   "front_y": 700,
-   "footprint": [
-    468,
-    674,
-    64,
-    26
-   ],
-   "height": 40,
-   "standable": true,
-   "flip": false
-  },
-  {
-   "id": "sack_pile_3",
-   "prop": "sack_pile",
-   "position": [
-    800,
-    700
-   ],
-   "front_y": 700,
-   "footprint": [
-    768,
-    674,
-    64,
-    26
-   ],
-   "height": 40,
-   "standable": true,
-   "flip": false
-  },
-  {
-   "id": "sack_pile_4",
-   "prop": "sack_pile",
-   "position": [
-    1700,
-    700
-   ],
-   "front_y": 700,
-   "footprint": [
-    1668,
-    674,
-    64,
-    26
-   ],
-   "height": 40,
-   "standable": true,
-   "flip": false
-  },
-  {
-   "id": "barrel_5",
-   "prop": "barrel",
-   "position": [
-    1100,
-    700
-   ],
-   "front_y": 700,
-   "footprint": [
-    1086,
-    674,
-    28,
-    26
-   ],
-   "height": 40,
-   "standable": true,
-   "flip": false
-  }
- ],
+ "scenery": [],
  "decor": [],
  "areas": [],
  "music": "boss",
@@ -197,5 +204,178 @@
   "top": 150,
   "bottom": 650,
   "tile": "wall_wood"
- }
+ },
+ "climbables": [
+  {
+   "id": "catwalk_west_ladder",
+   "kind": "ladder",
+   "at": [
+    280,
+    695
+   ],
+   "top_at": [
+    280,
+    652
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "catwalk_west"
+  },
+  {
+   "id": "catwalk_east_ladder",
+   "kind": "ladder",
+   "at": [
+    2280,
+    695
+   ],
+   "top_at": [
+    2280,
+    652
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "catwalk_east"
+  },
+  {
+   "id": "rafter_0_ladder",
+   "kind": "ladder",
+   "at": [
+    700,
+    620
+   ],
+   "top_at": [
+    700,
+    592
+   ],
+   "bottom_alt": 176,
+   "top_alt": 264,
+   "bottom": "catwalk_west",
+   "top": "rafter_0"
+  },
+  {
+   "id": "rafter_1_rope",
+   "kind": "rope",
+   "at": [
+    1140,
+    635
+   ],
+   "top_at": [
+    1140,
+    592
+   ],
+   "bottom_alt": 0,
+   "top_alt": 264,
+   "bottom": "ground",
+   "top": "rafter_1"
+  },
+  {
+   "id": "rafter_2_rope",
+   "kind": "rope",
+   "at": [
+    1480,
+    635
+   ],
+   "top_at": [
+    1480,
+    592
+   ],
+   "bottom_alt": 0,
+   "top_alt": 264,
+   "bottom": "ground",
+   "top": "rafter_2"
+  },
+  {
+   "id": "rafter_3_ladder",
+   "kind": "ladder",
+   "at": [
+    1920,
+    620
+   ],
+   "top_at": [
+    1920,
+    592
+   ],
+   "bottom_alt": 176,
+   "top_alt": 264,
+   "bottom": "catwalk_east",
+   "top": "rafter_3"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "catwalk_west_crate_high",
+   "rect": [
+    880,
+    670,
+    56,
+    44
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "crate"
+  },
+  {
+   "id": "catwalk_west_crate_low",
+   "rect": [
+    880,
+    716,
+    56,
+    44
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
+  },
+  {
+   "id": "catwalk_east_crate_high",
+   "rect": [
+    1630,
+    670,
+    56,
+    44
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "crate"
+  },
+  {
+   "id": "catwalk_east_crate_low",
+   "rect": [
+    1630,
+    716,
+    56,
+    44
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
+  },
+  {
+   "id": "barrel_stack",
+   "rect": [
+    520,
+    760,
+    50,
+    44
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "barrel"
+  },
+  {
+   "id": "sack_stack",
+   "rect": [
+    1760,
+    780,
+    70,
+    44
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "sack"
+  }
+ ],
+ "vertical": "authored"
 }

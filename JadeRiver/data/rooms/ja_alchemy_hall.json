@@ -46,12 +46,12 @@
    "open_edges": false
   },
   {
-   "id": "loft_mv",
+   "id": "mezzanine",
    "rect": [
-    140,
-    630,
-    300,
-    70
+    60,
+    600,
+    380,
+    80
    ],
    "height": 88,
    "kind": "balcony",
@@ -99,7 +99,22 @@
     ]
    },
    "locked_text": "Not yet.",
-   "furnace_bonus": 0.5
+   "furnace_bonus": 0.5,
+   "alt": 40,
+   "surface": "furnace_platform"
+  },
+  {
+   "id": "recipe_shelf",
+   "type": "inspect",
+   "at": [
+    260,
+    606
+   ],
+   "alt": 88,
+   "surface": "mezzanine",
+   "prop": "shelf",
+   "label": "Recipe Shelf",
+   "text": "Pill recipes in cedar boxes, each tied with a coloured cord: the ones this hall has earned. Mei Qing knows every knot."
   }
  ],
  "spawns": [],
@@ -124,7 +139,7 @@
   {
    "prop": "herb_drawers",
    "at": [
-    260,
+    520,
     660
    ],
    "layer": "play"
@@ -136,6 +151,15 @@
     660
    ],
    "layer": "play"
+  },
+  {
+   "prop": "scroll_rack",
+   "at": [
+    120,
+    606
+   ],
+   "layer": "play",
+   "alt": 88
   }
  ],
  "areas": [],
@@ -151,22 +175,37 @@
  },
  "sect": "jade_sect",
  "music": "sect",
+ "blocks": [
+  {
+   "id": "furnace_platform",
+   "rect": [
+    584,
+    776,
+    112,
+    48
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "wall"
+  }
+ ],
  "climbables": [
   {
-   "id": "loft_mv_ladder_1",
+   "id": "mezzanine_ladder",
    "kind": "ladder",
    "at": [
-    290,
-    735
+    410,
+    715
    ],
    "top_at": [
-    290,
-    692
+    410,
+    672
    ],
    "bottom_alt": 0,
    "top_alt": 88,
    "bottom": "ground",
-   "top": "loft_mv"
+   "top": "mezzanine"
   }
- ]
+ ],
+ "vertical": "authored"
 }

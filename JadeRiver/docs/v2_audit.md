@@ -168,8 +168,9 @@ Progress is recorded in `docs/CHANGELOG.md`.
   gatherers), ten-thousand-year ginseng on the Expanse's high ledges, and Expanse beds where the Verdant Dew Vial ages
   a herb past a thousand years. V9e is complete. V9f1 is done: the daily rooftop thief on Market Street and Gate
   Street, and the Cloud Sect's timed Cloud Steps with its weekly board. V9f2 is done: ice traction volumes, ground
-  mounts jumping with their species impulse, and dismounting for ladders and ropes. V9f3 (the remaining room catalogue
-  rows) is under way.
+  mounts jumping with their species impulse, and dismounting for ladders and ropes. V9f3 is done: the remaining room
+  catalogue rows (about forty towns, fields and dungeons built by hand). V9f and with it V9 are complete; what remains
+  belongs to the v1.2+ updates (docs/act3_design.md for v1.2).
 - Next (V9): everything v2 makes due by v1.1 that is still open. A sweep of every audit row against the build
   after V8g3 found these, in six phases:
   - **V9a**, hooks and small gaps:

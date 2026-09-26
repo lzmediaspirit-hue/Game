@@ -6214,6 +6214,18 @@
      "text": "Clear the Hollowed from the Grey Pools",
      "count": 10,
      "enemy": "hollowed_boarlet"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Cleanse the grey lantern on the hall roof",
+     "count": 1,
+     "flag": "grey_lantern_hall"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Cleanse the grey lantern on the granary roof",
+     "count": 1,
+     "flag": "grey_lantern_granary"
     }
    ],
    "rewards": [
@@ -6228,10 +6240,10 @@
     }
    ],
    "offer_text": [
-    "Clear the pools and we can walk home."
+    "The grey came up from the pools and settled on our roofs. Clear the Hollowed from the pools, and wipe the grey from the lanterns on the hall and the granary. Then we can walk home."
    ],
    "complete_text": [
-    "The road home is open."
+    "The lanterns burn and the road home is open."
    ],
    "requires": {
     "all": [

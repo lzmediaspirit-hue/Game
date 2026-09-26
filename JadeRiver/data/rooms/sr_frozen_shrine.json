@@ -49,14 +49,40 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "shrine_ledge_west",
    "rect": [
-    600,
-    620,
-    280,
+    260,
+    640,
+    240,
     70
    ],
    "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "icicle_0",
+   "rect": [
+    580,
+    620,
+    160,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "icicle_1",
+   "rect": [
+    800,
+    620,
+    160,
+    70
+   ],
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -64,8 +90,8 @@
   {
    "id": "ledge_mv_1",
    "rect": [
-    1520,
-    620,
+    1020,
+    610,
     280,
     70
    ],
@@ -75,54 +101,28 @@
    "open_edges": true
   },
   {
-   "id": "route_0",
+   "id": "icicle_2",
    "rect": [
-    180,
-    636,
-    240,
+    1380,
+    620,
+    160,
     70
    ],
    "height": 200,
-   "kind": "tree_branch",
+   "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "route_1",
+   "id": "shrine_ledge_east",
    "rect": [
-    940,
-    636,
-    240,
-    70
-   ],
-   "height": 200,
-   "kind": "tree_branch",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "route_2",
-   "rect": [
-    1880,
-    636,
+    1620,
+    640,
     240,
     70
    ],
    "height": 100,
-   "kind": "tree_branch",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "bridge_0",
-   "rect": [
-    1180,
-    636,
-    340,
-    60
-   ],
-   "height": 200.0,
-   "kind": "rope_bridge",
+   "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
   }
@@ -154,8 +154,8 @@
    "id": "ore_1",
    "type": "ore_vein",
    "at": [
-    1305,
-    690
+    340,
+    654
    ],
    "item": "mystic_ore",
    "prop": "mystic_vein",
@@ -173,40 +173,44 @@
      }
     ]
    },
-   "locked_text": "The stone is too hard to work by hand."
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 100,
+   "surface": "shrine_ledge_west"
   },
   {
    "id": "jar_2",
    "type": "jar",
    "at": [
-    630,
-    655
+    450,
+    654
    ],
    "loot": "jar_valley_mid",
    "level": 60,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 100,
+   "surface": "shrine_ledge_west"
   },
   {
    "id": "jar_3",
    "type": "jar",
    "at": [
-    1550,
-    655
+    1780,
+    654
    ],
    "loot": "jar_valley_mid",
    "level": 60,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 200
+   "alt": 100,
+   "surface": "shrine_ledge_east"
   },
   {
    "id": "jar_4",
    "type": "jar",
    "at": [
-    1560,
-    930
+    500,
+    900
    ],
    "loot": "jar_valley_mid",
    "level": 60,
@@ -217,8 +221,8 @@
    "id": "jar_5",
    "type": "jar",
    "at": [
-    2196,
-    700
+    2450,
+    880
    ],
    "loot": "jar_valley_mid",
    "level": 60,
@@ -277,8 +281,8 @@
    "id": "chest_ledge_mv_1",
    "type": "chest",
    "at": [
-    1660,
-    665
+    1260,
+    624
    ],
    "loot": "chest_valley",
    "level": 63,
@@ -289,8 +293,8 @@
    "id": "rare_soulbell_fs",
    "type": "herb_patch",
    "at": [
-    1730,
-    655
+    1160,
+    645
    ],
    "item": "soulbell_flower_100",
    "prop": "soulbell_flower_patch",
@@ -521,55 +525,78 @@
  "weather": "summit",
  "climbables": [
   {
-   "id": "ledge_mv_0_rope_1",
+   "id": "shrine_ledge_west_rope",
    "kind": "rope",
    "at": [
-    740,
-    725
+    300,
+    745
    ],
    "top_at": [
-    740,
-    682
+    300,
+    702
    ],
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
-   "top": "ledge_mv_0"
+   "top": "shrine_ledge_west"
   },
   {
-   "id": "route_0_vine_2",
-   "kind": "vine",
+   "id": "shrine_ledge_east_rope",
+   "kind": "rope",
    "at": [
-    300,
-    741
+    1830,
+    745
    ],
    "top_at": [
-    300,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 200,
-   "bottom": "ground",
-   "top": "route_0"
-  },
-  {
-   "id": "route_2_vine_3",
-   "kind": "vine",
-   "at": [
-    2000,
-    741
-   ],
-   "top_at": [
-    2000,
-    698
+    1830,
+    702
    ],
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
-   "top": "route_2"
+   "top": "shrine_ledge_east"
   }
  ],
  "volumes": [
+  {
+   "id": "icicle_0_crumble",
+   "kind": "crumble",
+   "rect": [
+    580,
+    620,
+    160,
+    70
+   ],
+   "surface": "icicle_0",
+   "break_s": 0.8,
+   "return_s": 5.0
+  },
+  {
+   "id": "icicle_1_crumble",
+   "kind": "crumble",
+   "rect": [
+    800,
+    620,
+    160,
+    70
+   ],
+   "surface": "icicle_1",
+   "break_s": 0.8,
+   "return_s": 5.0
+  },
+  {
+   "id": "icicle_2_crumble",
+   "kind": "crumble",
+   "rect": [
+    1380,
+    620,
+    160,
+    70
+   ],
+   "surface": "icicle_2",
+   "break_s": 0.8,
+   "return_s": 5.0
+  },
   {
    "id": "shrine_ice",
    "kind": "ice",
@@ -600,5 +627,6 @@
    ],
    "traction": 380
   }
- ]
+ ],
+ "vertical": "authored"
 }

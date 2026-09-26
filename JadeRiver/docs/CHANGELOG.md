@@ -5,6 +5,50 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V9f3 · The rest of the room verticality catalogue (Part 8, S43)
+About forty valley rooms that V2d left partial are now built by hand to their catalogue rows and marked
+`authored`, so the movement and verticality passes leave them as built. Every portal, quest object, event and spawn
+the story and the tests use still works. One module per group: `tools/data/catalogue_rows_towns.py`, `_fields.py`
+and `_dungeons.py`. The room-by-room notes are in `docs/v9f3_towns.md`, `docs/v9f3_fields.md` and
+`docs/v9f3_dungeons.md`.
+- **Towns and sects:**
+  - Willow Path's stumps and lifting stones stand as blocks, and Old Pan trades from his cart deck.
+  - Market Street has galleries at 176, rooftops at 264 and the bell tower at 300; the rooftop thief's route follows them.
+  - The Fairground has stone stages and tent tops, with festival lanterns only the drum's bounce reaches.
+  - Jade Sect: terraced herb beds at 40/80/120, a mezzanine in the Alchemy Hall, weapon racks you can stand on,
+    Elder Hu's peak ledges at 100/200/300, and doors to the Retreat Rooms and cave abodes on the high tiers.
+  - Cloud Sect: the Cliff Stair's landing, rope and the Library's upper gate, and the Array Court's dais.
+  - Hidden Vale's back mountain gets ledges.
+- **Fields:**
+  - Quarry: a falling-rock pit and a rubble heap with a cracked wall that opens for Body 20.
+  - Marsh: stilt decks around the Marsh Edge; rafts, a moored chest raft and a lily-pad climb on the Grey Pools.
+  - Greyreed Hamlet: roofs chained at 88 to 176, with two grey lanterns to cleanse for "Grey Roofs". The hamlet
+    door now opens at the quest's own realm, which fixes a quest that could never be started.
+  - Water: canopy decks and spirit-egg nests in the Thicket Heart; stepping rocks and deep water at the Falls Pool;
+    docks, a ferry and a sampan roof at the Bend Shore; a current and stepping stones in the Rapids Terraces.
+  - Heights: landings and shortcuts on the Pilgrim Stairs, pillars on the Cleansing Summit, crags with updraft
+    columns on the Cliff Faces, and cloud ledges up to 900 on the Sky Ledges.
+- **Dungeons and story rooms:**
+  - Mudwater Hideout: palisades and watchtowers in the Stockade, spike pits under crumbling planks in the Tunnels,
+    stalagmites in the Loot Cave.
+  - Drowned Shrine:
+    - rafts on a current at the Flooded Gate;
+    - swinging and circling lantern platforms up to a loft in the Hall of Lanterns;
+    - a descent from a 300 rim to a flooded bottom in the Scripture Well;
+    - the Abbot's rising water.
+  - Mist Peak and beyond:
+    - ruined roofs, crumbling floors and a hidden stair at the Forgotten Monastery;
+    - cloud rings at the Ascension Gate;
+    - crumbling icicle platforms at the Frozen Shrine;
+    - a mirrored arena for the Trial of Reflections;
+    - catwalks and rafters in Gu's Warehouse;
+    - a battlement and towers for the siege.
+- Known limits (engine work for later):
+  - Portals have no altitude.
+  - Objects placed mid-roof draw behind the roof face.
+  - Bosses do not use tiers.
+  - Sect-level buildings cannot grow roofs yet.
+
 ### V9f2 · Ice, and mounts in a vertical world (S43 rules 5 and 12, v1.1)
 - **Ice (the v1.1 traction rule):** a new `ice` volume.
   - On ice, your speed only eases toward what you ask for, at 380 to 420 a second. You slide on when you let go and

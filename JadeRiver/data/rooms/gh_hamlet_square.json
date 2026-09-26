@@ -74,30 +74,32 @@
    "art": "village_house"
   },
   {
-   "id": "route_0",
+   "id": "grey_hall",
    "rect": [
-    1740,
-    636,
-    220,
-    70
+    760,
+    580,
+    350,
+    110
    ],
    "height": 88,
-   "kind": "balcony",
+   "kind": "roof",
    "stratum": "platform",
-   "open_edges": true
+   "open_edges": true,
+   "art": "hall"
   },
   {
-   "id": "route_1",
+   "id": "grey_granary",
    "rect": [
-    2050,
-    636,
-    220,
-    70
+    1680,
+    570,
+    240,
+    120
    ],
    "height": 176,
-   "kind": "balcony",
+   "kind": "roof",
    "stratum": "platform",
-   "open_edges": true
+   "open_edges": true,
+   "art": "two_storey"
   }
  ],
  "portals": [
@@ -118,8 +120,8 @@
    "id": "well_cleanse",
    "type": "inspect",
    "at": [
-    900,
-    740
+    902,
+    762
    ],
    "prop": "none",
    "text": "The well water runs clear again.",
@@ -165,30 +167,139 @@
    "id": "shrine_gh",
    "type": "shrine",
    "at": [
-    1700,
-    700
+    2250,
+    712
    ]
+  },
+  {
+   "id": "grey_lantern_hall",
+   "type": "inspect",
+   "at": [
+    1022,
+    655
+   ],
+   "alt": 88,
+   "surface": "grey_hall",
+   "prop": "stone_lantern",
+   "label": "Grey Lantern",
+   "text": "The lantern on the hall roof is furred with grey and cold as river stone. You wipe the grey away and a small flame catches inside.",
+   "set_flag": "grey_lantern_hall",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "grey_roofs"
+     }
+    ]
+   },
+   "locked_text": "A lantern gone grey and cold. Elder Gao will know what it needs.",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "grey_lantern_hall"
+     }
+    ]
+   }
+  },
+  {
+   "id": "lit_lantern_hall",
+   "type": "inspect",
+   "at": [
+    1022,
+    655
+   ],
+   "alt": 88,
+   "surface": "grey_hall",
+   "prop": "lantern_post",
+   "text": "The lantern burns warm again. Below it the roof tiles have their colour back.",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "grey_lantern_hall"
+     }
+    ]
+   }
+  },
+  {
+   "id": "grey_lantern_granary",
+   "type": "inspect",
+   "at": [
+    1752,
+    650
+   ],
+   "alt": 176,
+   "surface": "grey_granary",
+   "prop": "stone_lantern",
+   "label": "Grey Lantern",
+   "text": "The lantern on the granary roof is furred with grey and cold as river stone. You wipe the grey away and a small flame catches inside.",
+   "set_flag": "grey_lantern_granary",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "grey_roofs"
+     }
+    ]
+   },
+   "locked_text": "A lantern gone grey and cold. Elder Gao will know what it needs.",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "grey_lantern_granary"
+     }
+    ]
+   }
+  },
+  {
+   "id": "lit_lantern_granary",
+   "type": "inspect",
+   "at": [
+    1752,
+    650
+   ],
+   "alt": 176,
+   "surface": "grey_granary",
+   "prop": "lantern_post",
+   "text": "The lantern burns warm again. Below it the roof tiles have their colour back.",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "grey_lantern_granary"
+     }
+    ]
+   }
   }
  ],
  "spawns": [],
  "scenery": [],
- "decor": [
-  {
-   "prop": "well",
-   "at": [
-    900,
-    700
-   ],
-   "layer": "play"
-  }
- ],
+ "decor": [],
  "areas": [],
  "music": "village_day",
  "ambience": "town_ambience",
  "town": true,
  "climbables": [
   {
-   "id": "hamlet_house_a_ladder_1",
+   "id": "grey_granary_ladder",
+   "kind": "ladder",
+   "at": [
+    1860,
+    725
+   ],
+   "top_at": [
+    1860,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "grey_granary"
+  },
+  {
+   "id": "hamlet_house_a_ladder",
    "kind": "ladder",
    "at": [
     500,
@@ -204,7 +315,7 @@
    "top": "hamlet_house_a"
   },
   {
-   "id": "hamlet_house_b_ladder_3",
+   "id": "hamlet_house_b_ladder",
    "kind": "ladder",
    "at": [
     1400,
@@ -218,52 +329,21 @@
    "top_alt": 158,
    "bottom": "ground",
    "top": "hamlet_house_b"
-  },
-  {
-   "id": "route_0_ladder_4",
-   "kind": "ladder",
-   "at": [
-    1850,
-    741
-   ],
-   "top_at": [
-    1850,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 88,
-   "bottom": "ground",
-   "top": "route_0"
-  },
-  {
-   "id": "route_1_ladder_5",
-   "kind": "ladder",
-   "at": [
-    2160,
-    741
-   ],
-   "top_at": [
-    2160,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 176,
-   "bottom": "ground",
-   "top": "route_1"
   }
  ],
  "blocks": [
   {
-   "id": "hamlet_house_a_step_2",
+   "id": "hamlet_well",
    "rect": [
-    610,
-    702,
-    60,
-    50
+    870,
+    700,
+    64,
+    40
    ],
    "base": 0,
-   "top": 40,
-   "kind": "crate"
+   "top": 60,
+   "kind": "well"
   }
- ]
+ ],
+ "vertical": "authored"
 }

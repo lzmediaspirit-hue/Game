@@ -2556,7 +2556,7 @@ def rare_herbs():
         ROOMS[rid].herb(item, at, oid, **kw)
 
     crab = lambda lv: {"enemy": "tide_crab", "level": lv, "elite": True}
-    rare("dw_bend_shore", "rare_ginseng_bs", "riverreed_ginseng_100", "ledge_mv_1", "dawn", 2, crab(23))
+    rare("dw_bend_shore", "rare_ginseng_bs", "riverreed_ginseng_100", "sampan_roof", "dawn", 2, crab(23))   # the moored boat's roof
     rare("wg_rapids_terraces", "rare_ginseng_rt", "riverreed_ginseng_100", "route_2", "dawn", 2, crab(32))
     rare("dw_serpents_shallows", "rare_ginseng_ss", "riverreed_ginseng_1000", "high_rock_1", "night", 5,
          {"enemy": "riverbed_serpent", "boss": True}, season="summer")
@@ -2595,9 +2595,15 @@ def rooftop_routes():
         return [int(x0 + w * frac), int(y0 + dep / 2), int(float(sd["height"])), wait]
 
     purse = [{"kind": "grant_currency", "currency": "silver_tael", "amount": 150}, {"kind": "grant_item", "item": "spirit_stone_shard", "count": 1}]
-    sf = [[380, 800, 0, 0.0], on("sf_market", "general_store", 0.4, 0.6), on("sf_market", "general_store", 0.95, 0.8),
-          on("sf_market", "awning_west", 0.5, 0.7), on("sf_market", "tea_house", 0.4, 0.8), on("sf_market", "tea_house", 0.95, 0.5),
-          on("sf_market", "awning_east", 0.5, 0.7), on("sf_market", "warehouse_sf", 0.4, 0.8), on("sf_market", "warehouse_sf", 0.97, 0.6),
+    # Market Street (V9f3): up the store's ladder to its roof (176), over the house behind it (264), down the west
+    # gallery (176) to the awning (88), up the tea house (176) and its upper house (264), down the east gallery and
+    # awning, up the warehouse and its upper house, and a last hop onto the bell tower (300). Every rise he takes is
+    # one jump (88, or 36 onto the tower) or the ladder he starts from.
+    sf = [[380, 800, 0, 0.0], on("sf_market", "general_store", 0.15, 0.6), on("sf_market", "store_upper", 0.3, 0.5),
+          on("sf_market", "store_upper", 0.95, 0.5), on("sf_market", "gallery_west", 0.25, 0.4), on("sf_market", "awning_west", 0.5, 0.6),
+          on("sf_market", "tea_house", 0.2, 0.5), on("sf_market", "tea_upper", 0.5, 0.6), on("sf_market", "tea_upper", 0.95, 0.5),
+          on("sf_market", "gallery_east", 0.25, 0.4), on("sf_market", "awning_east", 0.5, 0.6), on("sf_market", "warehouse_sf", 0.2, 0.5),
+          on("sf_market", "warehouse_upper", 0.5, 0.6), on("sf_market", "warehouse_upper", 0.97, 0.5),
           on("sf_market", "bell_tower", 0.5, 2.5), on("sf_market", "bell_tower", 0.98, 0.0)]
     ROOMS["sf_market"].npc("rooftop_thief", [380, 800], oid="thief_sf", facing=1, visible_if=all_of(realm("qi_kindling_1")),
                            chase={"route": sf, "speed": 260, "catch_px": 80, "catch_alt": 40, "grace_s": 0.8, "rewards": purse})
@@ -2609,6 +2615,7 @@ def rooftop_routes():
                                        "rewards": [{"kind": "grant_currency", "currency": "silver_tael", "amount": 120},
                                                    {"kind": "add_contribution", "amount": 15}]})
     top = on("cm_cliff_stair", "ledge_top", 0.6)
+    top[1] = next(x for x in ROOMS["cm_cliff_stair"].d["surfaces"] if x["id"] == "ledge_top")["rect"][1] + 14   # V9f3: hung at the back of the ledge, in sight
     cs = ROOMS["cm_cliff_stair"]
     cs.obj("cloud_steps_bell", "route_finish", top[:2], alt=top[2], prop="small_bell")
     cs.obj("cloud_steps_stone", "route_stone", [250, 830], prop="flag_pole_cloud", requires=all_of(realm("bone_forging_3")),

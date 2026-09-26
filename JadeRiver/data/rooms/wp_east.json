@@ -49,35 +49,23 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "roadside_shrine",
    "rect": [
-    260,
-    620,
-    280,
-    70
+    1900,
+    590,
+    300,
+    110
    ],
-   "height": 100,
-   "kind": "rock_ledge",
+   "height": 88,
+   "kind": "roof",
    "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "ledge_mv_1",
-   "rect": [
-    840,
-    620,
-    280,
-    70
-   ],
-   "height": 200,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
+   "open_edges": true,
+   "art": "hall"
   },
   {
    "id": "route_0",
    "rect": [
-    1380,
+    180,
     636,
     240,
     70
@@ -90,7 +78,7 @@
   {
    "id": "route_1",
    "rect": [
-    1720,
+    520,
     636,
     240,
     70
@@ -101,12 +89,38 @@
    "open_edges": true
   },
   {
+   "id": "route_2",
+   "rect": [
+    860,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    1380,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
    "id": "bridge_0",
    "rect": [
-    1120,
+    1100,
     636,
-    260,
-    60
+    280,
+    70
    ],
    "height": 100.0,
    "kind": "rope_bridge",
@@ -166,14 +180,14 @@
    "id": "jar_2",
    "type": "jar",
    "at": [
-    290,
-    655
+    1930,
+    645
    ],
    "loot": "jar_valley_low",
    "level": 1,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 88
   },
   {
    "id": "crate_3",
@@ -212,18 +226,18 @@
    "id": "pan_spot",
    "type": "inspect",
    "at": [
-    1300,
-    700
+    1345,
+    790
    ],
-   "prop": "cart_broken",
+   "prop": "grey_patch",
    "text": "Wheel ruts. A merchant stops here sometimes."
   },
   {
    "id": "npc_old_pan_wp",
    "type": "npc",
    "at": [
-    1400,
-    780
+    1235,
+    812
    ],
    "npc": "old_pan",
    "visible_if": {
@@ -234,7 +248,9 @@
      }
     ]
    },
-   "facing": -1
+   "facing": -1,
+   "alt": 60,
+   "surface": "merchant_cart"
   },
   {
    "id": "note_lu",
@@ -246,18 +262,6 @@
    "prop": "signpost",
    "text": "A note in Lu's hand: \"West, to the training stumps. Punch until the wood remembers you.\"",
    "set_flag": "read_lu_note"
-  },
-  {
-   "id": "chest_ledge_mv_1",
-   "type": "chest",
-   "at": [
-    980,
-    665
-   ],
-   "loot": "chest_valley",
-   "level": 2,
-   "alt": 200,
-   "surface": "ledge_mv_1"
   }
  ],
  "spawns": [
@@ -275,7 +279,7 @@
     ],
     [
      1292,
-     772
+     850
     ],
     [
      1751,
@@ -412,6 +416,14 @@
    ],
    "layer": "front",
    "flip": true
+  },
+  {
+   "prop": "incense_burner",
+   "at": [
+    2050,
+    740
+   ],
+   "layer": "play"
   }
  ],
  "areas": [],
@@ -433,52 +445,36 @@
  ],
  "climbables": [
   {
-   "id": "ledge_mv_0_rope_1",
-   "kind": "rope",
+   "id": "roadside_shrine_ladder_1",
+   "kind": "ladder",
    "at": [
-    400,
-    725
+    2010,
+    735
    ],
    "top_at": [
-    400,
-    682
+    2010,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "roadside_shrine"
+  },
+  {
+   "id": "route_0_vine_2",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
    ],
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
-   "top": "ledge_mv_0"
-  },
-  {
-   "id": "ledge_mv_1_rope_2",
-   "kind": "rope",
-   "at": [
-    980,
-    725
-   ],
-   "top_at": [
-    980,
-    682
-   ],
-   "bottom_alt": 0,
-   "top_alt": 200,
-   "bottom": "ground",
-   "top": "ledge_mv_1"
-  },
-  {
-   "id": "route_1_vine_3",
-   "kind": "vine",
-   "at": [
-    1840,
-    741
-   ],
-   "top_at": [
-    1840,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 200,
-   "bottom": "ground",
-   "top": "route_1"
+   "top": "route_0"
   }
  ]
 }

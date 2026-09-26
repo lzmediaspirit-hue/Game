@@ -357,8 +357,8 @@
    "id": "fish_11",
    "type": "fishing_spot",
    "at": [
-    1720,
-    930
+    2665,
+    912
    ],
    "spot": "rapids",
    "requires": {
@@ -369,7 +369,8 @@
      }
     ]
    },
-   "locked_text": "You have no rod."
+   "locked_text": "You have no rod.",
+   "alt": 60
   },
   {
    "id": "earth_vent_wg",
@@ -763,10 +764,39 @@
    "rect": [
     600,
     880,
-    2600,
+    1640,
     80
    ],
    "current": -60
+  },
+  {
+   "kind": "shallows",
+   "rect": [
+    3100,
+    880,
+    100,
+    80
+   ],
+   "current": -60
+  },
+  {
+   "kind": "water",
+   "rect": [
+    2240,
+    880,
+    860,
+    80
+   ]
+  },
+  {
+   "kind": "current",
+   "rect": [
+    2240,
+    880,
+    860,
+    80
+   ],
+   "current": -100
   }
  ],
  "music": "field_mountain",
@@ -778,16 +808,148 @@
    "rect": [
     600,
     880,
-    2600,
+    1640,
     80
    ],
    "alt": [
     -50,
     10
    ]
+  },
+  {
+   "id": "water_shallow_1",
+   "kind": "water_shallow",
+   "rect": [
+    3100,
+    880,
+    100,
+    80
+   ],
+   "alt": [
+    -50,
+    10
+   ]
+  },
+  {
+   "id": "rapids_deep",
+   "kind": "water_deep",
+   "rect": [
+    2240,
+    880,
+    860,
+    80
+   ],
+   "alt": [
+    -100,
+    10
+   ]
+  },
+  {
+   "id": "rapids_current",
+   "kind": "current",
+   "rect": [
+    2240,
+    880,
+    860,
+    80
+   ],
+   "alt": [
+    -100,
+    10
+   ],
+   "push": [
+    -120,
+    0
+   ]
   }
  ],
  "weather": "gorge",
+ "blocks": [
+  {
+   "id": "rapids_stone_0",
+   "rect": [
+    2262,
+    890,
+    60,
+    40
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  },
+  {
+   "id": "rapids_stone_1",
+   "rect": [
+    2380,
+    886,
+    60,
+    40
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "rock"
+  },
+  {
+   "id": "rapids_stone_2",
+   "rect": [
+    2500,
+    892,
+    60,
+    40
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "rock"
+  },
+  {
+   "id": "rapids_stone_3",
+   "rect": [
+    2760,
+    890,
+    60,
+    40
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  },
+  {
+   "id": "rapids_stone_4",
+   "rect": [
+    2880,
+    886,
+    60,
+    40
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "rock"
+  },
+  {
+   "id": "rapids_stone_5",
+   "rect": [
+    3000,
+    890,
+    60,
+    40
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  },
+  {
+   "id": "salmon_stone",
+   "rect": [
+    2620,
+    884,
+    90,
+    56
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "rock"
+  }
+ ],
  "climbables": [
   {
    "id": "ledge_0_rope_1",
@@ -806,39 +968,7 @@
    "top": "ledge_0"
   },
   {
-   "id": "ledge_1_rope_2",
-   "kind": "rope",
-   "at": [
-    1950,
-    765
-   ],
-   "top_at": [
-    1950,
-    722
-   ],
-   "bottom_alt": 0,
-   "top_alt": 200,
-   "bottom": "ground",
-   "top": "ledge_1"
-  },
-  {
-   "id": "ledge_2_rope_3",
-   "kind": "rope",
-   "at": [
-    2950,
-    765
-   ],
-   "top_at": [
-    2950,
-    722
-   ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "ledge_2"
-  },
-  {
-   "id": "route_0_vine_4",
+   "id": "route_0_vine_2",
    "kind": "vine",
    "at": [
     300,
@@ -854,7 +984,7 @@
    "top": "route_0"
   },
   {
-   "id": "route_3_vine_5",
+   "id": "route_3_vine_3",
    "kind": "vine",
    "at": [
     1620,

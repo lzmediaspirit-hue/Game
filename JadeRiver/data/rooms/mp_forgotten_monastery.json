@@ -56,61 +56,63 @@
     700,
     140
    ],
-   "height": 120,
+   "height": 176,
    "kind": "roof",
    "stratum": "platform",
    "open_edges": true,
    "art": "hall"
   },
   {
-   "id": "route_0",
+   "id": "west_ruin",
    "rect": [
-    180,
-    636,
-    240,
+    490,
+    570,
+    420,
+    120
+   ],
+   "height": 88,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "two_storey"
+  },
+  {
+   "id": "east_ruin",
+   "rect": [
+    2800,
+    580,
+    400,
+    110
+   ],
+   "height": 88,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "gate"
+  },
+  {
+   "id": "west_floor",
+   "rect": [
+    960,
+    600,
+    220,
     70
    ],
-   "height": 100,
-   "kind": "tree_branch",
+   "height": 176,
+   "kind": "boards",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "route_1",
+   "id": "east_gallery",
    "rect": [
-    520,
-    636,
-    240,
+    2290,
+    640,
+    220,
     70
    ],
-   "height": 200,
-   "kind": "tree_branch",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "route_2",
-   "rect": [
-    860,
-    636,
-    240,
-    70
-   ],
-   "height": 100,
-   "kind": "tree_branch",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "route_3",
-   "rect": [
-    1260,
-    636,
-    240,
-    70
-   ],
-   "height": 100,
-   "kind": "tree_branch",
+   "height": 88,
+   "kind": "boards",
    "stratum": "platform",
    "open_edges": true
   }
@@ -144,6 +146,30 @@
     ]
    },
    "locked_text": "The ridge winds would tear a soul loose. Heaven Glimpse first."
+  },
+  {
+   "id": "hidden_cellar",
+   "type": "hidden",
+   "at": [
+    420,
+    720
+   ],
+   "to": "mp_forgotten_monastery",
+   "to_portal": "hidden_stair",
+   "press_up": true,
+   "label": "A hidden stair"
+  },
+  {
+   "id": "hidden_stair",
+   "type": "hidden",
+   "at": [
+    2260,
+    720
+   ],
+   "to": "mp_forgotten_monastery",
+   "to_portal": "hidden_cellar",
+   "press_up": true,
+   "label": "A hidden stair"
   }
  ],
  "objects": [
@@ -151,8 +177,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    2220,
-    620
+    800,
+    584
    ],
    "item": "soulbell_flower",
    "prop": "soulbell_flower_patch",
@@ -171,14 +197,15 @@
     ]
    },
    "locked_text": "You don't know which leaves are worth picking yet.",
-   "alt": 120
+   "alt": 88,
+   "surface": "west_ruin"
   },
   {
    "id": "ore_2",
    "type": "ore_vein",
    "at": [
-    2826,
-    690
+    2900,
+    760
    ],
    "item": "mystic_ore",
    "prop": "mystic_vein",
@@ -202,46 +229,50 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    1580,
-    620
+    1070,
+    614
    ],
    "loot": "jar_valley_mid",
    "level": 53,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 120
+   "alt": 176,
+   "surface": "west_floor"
   },
   {
    "id": "jar_4",
    "type": "jar",
    "at": [
-    210,
-    671
+    2400,
+    654
    ],
    "loot": "jar_valley_mid",
    "level": 53,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 88,
+   "surface": "east_gallery"
   },
   {
    "id": "jar_5",
    "type": "jar",
    "at": [
-    1625,
-    700
+    2910,
+    594
    ],
    "loot": "jar_valley_mid",
    "level": 53,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 88,
+   "surface": "east_ruin"
   },
   {
    "id": "jar_6",
    "type": "jar",
    "at": [
-    2288,
-    700
+    1450,
+    900
    ],
    "loot": "jar_valley_mid",
    "level": 53,
@@ -252,7 +283,7 @@
    "id": "jar_7",
    "type": "jar",
    "at": [
-    2958,
+    2850,
     930
    ],
    "loot": "jar_valley_mid",
@@ -264,8 +295,8 @@
    "id": "jar_8",
    "type": "jar",
    "at": [
-    3498,
-    930
+    3500,
+    900
    ],
    "loot": "jar_valley_mid",
    "level": 53,
@@ -276,12 +307,13 @@
    "id": "chest_9",
    "type": "chest",
    "at": [
-    550,
-    671
+    1700,
+    564
    ],
    "loot": "chest_dungeon",
    "level": 56,
-   "alt": 200
+   "alt": 176,
+   "surface": "monastery_hall"
   },
   {
    "id": "heaven_insight",
@@ -345,6 +377,42 @@
      }
     ]
    }
+  },
+  {
+   "id": "formation_remnant_0",
+   "type": "inspect",
+   "at": [
+    580,
+    584
+   ],
+   "alt": 88,
+   "surface": "west_ruin",
+   "prop": "formation_node",
+   "text": "A cracked formation flag, still humming. Whoever set it meant to keep something in, not out."
+  },
+  {
+   "id": "formation_remnant_1",
+   "type": "inspect",
+   "at": [
+    2100,
+    564
+   ],
+   "alt": 176,
+   "surface": "monastery_hall",
+   "prop": "formation_node",
+   "text": "Three array stones in a ring, one of them split. The Qi here runs the wrong way round."
+  },
+  {
+   "id": "formation_remnant_2",
+   "type": "inspect",
+   "at": [
+    3090,
+    594
+   ],
+   "alt": 88,
+   "surface": "east_ruin",
+   "prop": "formation_node",
+   "text": "A formation plate worn smooth by rain. The last line of its seal reads: \"until the gate opens\"."
   },
   {
    "id": "rift_tear",
@@ -428,7 +496,7 @@
      789
     ],
     [
-     2352,
+     2772,
      792
     ],
     [
@@ -633,22 +701,6 @@
    ],
    "layer": "front",
    "flip": true
-  },
-  {
-   "prop": "formation_node",
-   "at": [
-    700,
-    760
-   ],
-   "layer": "play"
-  },
-  {
-   "prop": "formation_node",
-   "at": [
-    2800,
-    760
-   ],
-   "layer": "play"
   }
  ],
  "areas": [],
@@ -656,68 +708,107 @@
  "ambience": "",
  "climbables": [
   {
-   "id": "monastery_hall_ladder_1",
+   "id": "monastery_hall_ladder",
    "kind": "ladder",
    "at": [
-    1900,
+    1600,
     725
    ],
    "top_at": [
-    1900,
+    1600,
     682
    ],
    "bottom_alt": 0,
-   "top_alt": 120,
+   "top_alt": 176,
    "bottom": "ground",
    "top": "monastery_hall"
   },
   {
-   "id": "route_0_vine_2",
-   "kind": "vine",
+   "id": "west_ruin_ladder",
+   "kind": "ladder",
    "at": [
-    300,
-    741
+    560,
+    725
    ],
    "top_at": [
-    300,
-    698
+    560,
+    682
    ],
    "bottom_alt": 0,
-   "top_alt": 100,
+   "top_alt": 88,
    "bottom": "ground",
-   "top": "route_0"
+   "top": "west_ruin"
   },
   {
-   "id": "route_2_vine_3",
-   "kind": "vine",
+   "id": "east_ruin_ladder",
+   "kind": "ladder",
    "at": [
-    980,
-    741
+    3160,
+    725
    ],
    "top_at": [
-    980,
-    698
+    3160,
+    682
    ],
    "bottom_alt": 0,
-   "top_alt": 100,
+   "top_alt": 88,
    "bottom": "ground",
-   "top": "route_2"
-  },
-  {
-   "id": "route_3_vine_4",
-   "kind": "vine",
-   "at": [
-    1380,
-    741
-   ],
-   "top_at": [
-    1380,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "route_3"
+   "top": "east_ruin"
   }
- ]
+ ],
+ "volumes": [
+  {
+   "id": "west_floor_crumble",
+   "kind": "crumble",
+   "rect": [
+    960,
+    600,
+    220,
+    70
+   ],
+   "surface": "west_floor",
+   "break_s": 0.8,
+   "return_s": 5.0
+  },
+  {
+   "id": "east_gallery_crumble",
+   "kind": "crumble",
+   "rect": [
+    2290,
+    640,
+    220,
+    70
+   ],
+   "surface": "east_gallery",
+   "break_s": 0.8,
+   "return_s": 5.0
+  }
+ ],
+ "blocks": [
+  {
+   "id": "fallen_beam",
+   "rect": [
+    2500,
+    740,
+    80,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rubble"
+  },
+  {
+   "id": "fallen_masonry",
+   "rect": [
+    1260,
+    760,
+    90,
+    60
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "rubble"
+  }
+ ],
+ "vertical": "authored"
 }

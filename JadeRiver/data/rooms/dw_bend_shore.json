@@ -49,67 +49,81 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "dock_west",
    "rect": [
-    260,
-    620,
-    280,
-    70
-   ],
-   "height": 100,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "ledge_mv_1",
-   "rect": [
-    1520,
-    620,
-    280,
-    70
-   ],
-   "height": 200,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "route_0",
-   "rect": [
-    600,
-    636,
+    560,
+    770,
     240,
-    70
+    110
    ],
-   "height": 200,
-   "kind": "tree_branch",
+   "height": 60,
+   "kind": "stilt",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "route_1",
+   "id": "dock_mid",
    "rect": [
-    940,
-    636,
+    1040,
+    770,
+    220,
+    110
+   ],
+   "height": 60,
+   "kind": "stilt",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "dock_east",
+   "rect": [
+    1500,
+    770,
     240,
-    70
+    110
    ],
-   "height": 100,
-   "kind": "tree_branch",
+   "height": 60,
+   "kind": "stilt",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "bridge_0",
+   "id": "moored_sampan",
    "rect": [
-    1180,
-    636,
-    340,
+    820,
+    882,
+    200,
+    64
+   ],
+   "height": 40,
+   "kind": "raft",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
+  },
+  {
+   "id": "sampan_roof",
+   "rect": [
+    850,
+    872,
+    170,
     60
    ],
-   "height": 100.0,
-   "kind": "rope_bridge",
+   "height": 88,
+   "kind": "deck",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ferry_boat",
+   "rect": [
+    1290,
+    900,
+    180,
+    60
+   ],
+   "height": 40,
+   "kind": "raft",
    "stratum": "platform",
    "open_edges": true
   }
@@ -183,8 +197,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    510,
-    655
+    625,
+    700
    ],
    "item": "riverreed_ginseng_10",
    "prop": "riverreed_ginseng_patch",
@@ -202,8 +216,7 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet.",
-   "alt": 100
+   "locked_text": "You don't know which leaves are worth picking yet."
   },
   {
    "id": "herb_2",
@@ -234,27 +247,29 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    290,
-    655
+    632,
+    825
    ],
    "loot": "jar_valley_mid",
    "level": 21,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 60,
+   "surface": "dock_west"
   },
   {
    "id": "jar_4",
    "type": "jar",
    "at": [
-    1550,
-    655
+    1596,
+    825
    ],
    "loot": "jar_valley_mid",
    "level": 21,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 200
+   "alt": 60,
+   "surface": "dock_east"
   },
   {
    "id": "jar_5",
@@ -273,7 +288,7 @@
    "type": "jar",
    "at": [
     1862,
-    900
+    800
    ],
    "loot": "jar_valley_mid",
    "level": 21,
@@ -296,8 +311,8 @@
    "id": "fish_8",
    "type": "fishing_spot",
    "at": [
-    1080,
-    930
+    1690,
+    868
    ],
    "spot": "bend_shore",
    "requires": {
@@ -308,26 +323,28 @@
      }
     ]
    },
-   "locked_text": "You have no rod."
+   "locked_text": "You have no rod.",
+   "alt": 60,
+   "surface": "dock_east"
   },
   {
-   "id": "chest_ledge_mv_1",
+   "id": "chest_sampan",
    "type": "chest",
    "at": [
-    1660,
-    665
+    870,
+    900
    ],
    "loot": "chest_valley",
    "level": 23,
-   "alt": 200,
-   "surface": "ledge_mv_1"
+   "alt": 88,
+   "surface": "sampan_roof"
   },
   {
    "id": "rare_ginseng_bs",
    "type": "herb_patch",
    "at": [
-    1730,
-    655
+    935,
+    902
    ],
    "item": "riverreed_ginseng_100",
    "prop": "riverreed_ginseng_patch",
@@ -346,8 +363,8 @@
     ]
    },
    "locked_text": "You don't know which leaves are worth picking yet.",
-   "alt": 200,
-   "surface": "ledge_mv_1",
+   "alt": 88,
+   "surface": "sampan_roof",
    "age": 100,
    "ripen": {
     "phase": "dawn",
@@ -413,7 +430,7 @@
     ],
     [
      1228,
-     863
+     820
     ],
     [
      1729,
@@ -441,11 +458,11 @@
     ],
     [
      912,
-     861
+     820
     ],
     [
-     1293,
-     860
+     1713,
+     820
     ],
     [
      1631,
@@ -486,11 +503,11 @@
    "points": [
     [
      900,
-     880
+     820
     ],
     [
      1700,
-     880
+     820
     ]
    ],
    "max": 1,
@@ -659,12 +676,30 @@
  ],
  "areas": [
   {
+   "kind": "water",
+   "rect": [
+    620,
+    860,
+    1340,
+    100
+   ]
+  },
+  {
    "kind": "shallows",
    "rect": [
-    600,
-    870,
-    1400,
-    90
+    440,
+    860,
+    180,
+    100
+   ]
+  },
+  {
+   "kind": "shallows",
+   "rect": [
+    1960,
+    860,
+    200,
+    100
    ]
   }
  ],
@@ -672,13 +707,41 @@
  "ambience": "river_ambience",
  "volumes": [
   {
-   "id": "water_shallow_0",
+   "id": "bend_river",
+   "kind": "water_deep",
+   "rect": [
+    620,
+    860,
+    1340,
+    100
+   ],
+   "alt": [
+    -100,
+    10
+   ]
+  },
+  {
+   "id": "water_shallow_1",
    "kind": "water_shallow",
    "rect": [
-    600,
-    870,
-    1400,
-    90
+    440,
+    860,
+    180,
+    100
+   ],
+   "alt": [
+    -50,
+    10
+   ]
+  },
+  {
+   "id": "water_shallow_2",
+   "kind": "water_shallow",
+   "rect": [
+    1960,
+    860,
+    200,
+    100
    ],
    "alt": [
     -50,
@@ -688,36 +751,122 @@
  ],
  "climbables": [
   {
-   "id": "ledge_mv_0_rope_1",
-   "kind": "rope",
+   "id": "dock_west_ladder",
+   "kind": "ladder",
    "at": [
-    400,
-    725
+    578,
+    915
    ],
    "top_at": [
-    400,
-    682
+    578,
+    872
    ],
    "bottom_alt": 0,
-   "top_alt": 100,
+   "top_alt": 60,
    "bottom": "ground",
-   "top": "ledge_mv_0"
+   "top": "dock_west"
+  }
+ ],
+ "movers": [
+  {
+   "surface": "ferry_boat",
+   "path": [
+    [
+     380,
+     0,
+     0
+    ]
+   ],
+   "speed": 50,
+   "wait_s": 2.5,
+   "mode": "pingpong"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "dock_mid_crate",
+   "rect": [
+    1110,
+    720,
+    50,
+    44
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
   },
   {
-   "id": "ledge_mv_1_rope_2",
-   "kind": "rope",
-   "at": [
-    1660,
-    725
+   "id": "dock_east_crate",
+   "rect": [
+    1680,
+    720,
+    50,
+    44
    ],
-   "top_at": [
-    1660,
-    682
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
+  },
+  {
+   "id": "bend_stone_0",
+   "rect": [
+    1290,
+    862,
+    50,
+    34
    ],
-   "bottom_alt": 0,
-   "top_alt": 200,
-   "bottom": "ground",
-   "top": "ledge_mv_1"
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  },
+  {
+   "id": "bend_stone_1",
+   "rect": [
+    1370,
+    862,
+    50,
+    34
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "rock"
+  },
+  {
+   "id": "bend_stone_2",
+   "rect": [
+    1450,
+    862,
+    50,
+    34
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  },
+  {
+   "id": "bend_stone_far_0",
+   "rect": [
+    1790,
+    875,
+    56,
+    40
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  },
+  {
+   "id": "bend_stone_far_1",
+   "rect": [
+    1880,
+    875,
+    56,
+    40
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "rock"
   }
- ]
+ ],
+ "vertical": "authored"
 }

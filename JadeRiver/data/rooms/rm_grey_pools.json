@@ -104,32 +104,6 @@
    "open_edges": true
   },
   {
-   "id": "log_raft_a",
-   "rect": [
-    440,
-    790,
-    150,
-    60
-   ],
-   "height": 30,
-   "kind": "raft",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "moored_raft",
-   "rect": [
-    900,
-    850,
-    160,
-    60
-   ],
-   "height": 30,
-   "kind": "raft",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
    "id": "lily_ledge",
    "rect": [
     1860,
@@ -144,14 +118,54 @@
    "optional": true
   },
   {
-   "id": "bridge_0",
+   "id": "log_raft_a",
+   "rect": [
+    1170,
+    760,
+    140,
+    60
+   ],
+   "height": 30,
+   "kind": "raft",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "log_raft_loop",
+   "rect": [
+    720,
+    745,
+    150,
+    60
+   ],
+   "height": 30,
+   "kind": "raft",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "moored_raft",
+   "rect": [
+    970,
+    904,
+    140,
+    52
+   ],
+   "height": 30,
+   "kind": "raft",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
+  },
+  {
+   "id": "hamlet_bridge",
    "rect": [
     1100,
     630,
     300,
     70
    ],
-   "height": 100.0,
+   "height": 100,
    "kind": "rope_bridge",
    "stratum": "platform",
    "open_edges": true
@@ -192,8 +206,8 @@
    "requires": {
     "all": [
      {
-      "kind": "quest_done",
-      "quest": "grey_roofs"
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_1"
      }
     ]
    },
@@ -205,7 +219,7 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    1276,
+    1540,
     930
    ],
    "item": "willow_moss",
@@ -224,26 +238,28 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 0
   },
   {
    "id": "jar_2",
    "type": "jar",
    "at": [
-    170,
+    192,
     665
    ],
    "loot": "jar_valley_low",
    "level": 9,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 100,
+   "surface": "reed_bank"
   },
   {
    "id": "jar_3",
    "type": "jar",
    "at": [
-    823,
+    1343,
     930
    ],
    "loot": "jar_valley_low",
@@ -255,7 +271,7 @@
    "id": "jar_4",
    "type": "jar",
    "at": [
-    1325,
+    1405,
     930
    ],
    "loot": "jar_valley_low",
@@ -267,13 +283,15 @@
    "id": "jar_5",
    "type": "jar",
    "at": [
-    1798,
-    900
+    1520,
+    665
    ],
    "loot": "jar_valley_low",
    "level": 9,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 100,
+   "surface": "hamlet_bank"
   },
   {
    "id": "jar_6",
@@ -291,13 +309,13 @@
    "id": "chest_moored_raft",
    "type": "chest",
    "at": [
-    530,
-    655
+    1040,
+    930
    ],
    "loot": "chest_valley",
    "level": 12,
-   "alt": 200,
-   "surface": "grey_crag"
+   "alt": 30,
+   "surface": "moored_raft"
   },
   {
    "id": "jar_8",
@@ -334,7 +352,7 @@
    "id": "spirit_fruit_tree",
    "type": "treasure_birth",
    "at": [
-    1256,
+    536,
     800
    ],
    "radius": 150,
@@ -366,15 +384,15 @@
    "surface": "ground",
    "points": [
     [
-     1260,
+     1400,
      901
     ],
     [
-     1300,
+     1440,
      922
     ],
     [
-     1739,
+     1480,
      790
     ],
     [
@@ -398,11 +416,11 @@
    "surface": "ground",
    "points": [
     [
-     1680,
+     1820,
      743
     ],
     [
-     1720,
+     1440,
      815
     ],
     [
@@ -573,8 +591,8 @@
   {
    "prop": "hollow_puddle",
    "at": [
-    1200,
-    900
+    1480,
+    910
    ],
    "layer": "play"
   },
@@ -589,8 +607,8 @@
   {
    "prop": "hollow_puddle",
    "at": [
-    900,
-    770
+    480,
+    790
    ],
    "layer": "play"
   },
@@ -632,8 +650,8 @@
   {
    "kind": "hollow_puddle",
    "rect": [
-    1150,
-    882,
+    1430,
+    895,
     100,
     30
    ]
@@ -650,8 +668,8 @@
   {
    "kind": "hollow_puddle",
    "rect": [
-    850,
-    752,
+    430,
+    775,
     100,
     30
    ]
@@ -668,10 +686,19 @@
   {
    "kind": "water",
    "rect": [
-    420,
-    760,
-    760,
-    170
+    700,
+    740,
+    620,
+    220
+   ]
+  },
+  {
+   "kind": "water",
+   "rect": [
+    840,
+    680,
+    340,
+    60
    ]
   }
  ],
@@ -680,20 +707,20 @@
  "weather": "marsh",
  "climbables": [
   {
-   "id": "moored_raft_ladder_1",
-   "kind": "ladder",
+   "id": "reed_bank_rope",
+   "kind": "rope",
    "at": [
-    980,
-    945
+    270,
+    735
    ],
    "top_at": [
-    980,
-    902
+    270,
+    692
    ],
    "bottom_alt": 0,
-   "top_alt": 30,
+   "top_alt": 100,
    "bottom": "ground",
-   "top": "moored_raft"
+   "top": "reed_bank"
   }
  ],
  "movers": [
@@ -701,31 +728,40 @@
    "surface": "log_raft_a",
    "path": [
     [
-     300,
+     0,
+     130,
+     0
+    ]
+   ],
+   "speed": 30,
+   "wait_s": 2.0,
+   "mode": "pingpong"
+  },
+  {
+   "surface": "log_raft_loop",
+   "path": [
+    [
+     0,
+     105,
+     0
+    ],
+    [
+     250,
+     105,
+     0
+    ],
+    [
+     250,
      0,
      0
     ]
    ],
-   "speed": 36,
-   "wait_s": 1.5,
-   "mode": "pingpong"
+   "speed": 40,
+   "wait_s": 2.5,
+   "mode": "loop"
   }
  ],
  "volumes": [
-  {
-   "id": "grey_pool",
-   "kind": "water_deep",
-   "rect": [
-    420,
-    760,
-    760,
-    170
-   ],
-   "alt": [
-    -100,
-    10
-   ]
-  },
   {
    "id": "lily_bounce",
    "kind": "bounce",
@@ -740,6 +776,34 @@
     20
    ],
    "speed": 700
+  },
+  {
+   "id": "grey_pool",
+   "kind": "water_deep",
+   "rect": [
+    700,
+    740,
+    620,
+    220
+   ],
+   "alt": [
+    -100,
+    10
+   ]
+  },
+  {
+   "id": "grey_pool_bay",
+   "kind": "water_deep",
+   "rect": [
+    840,
+    680,
+    340,
+    60
+   ],
+   "alt": [
+    -100,
+    10
+   ]
   }
  ],
  "blocks": [
@@ -755,5 +819,6 @@
    "top": 10,
    "kind": "lily"
   }
- ]
+ ],
+ "vertical": "authored"
 }

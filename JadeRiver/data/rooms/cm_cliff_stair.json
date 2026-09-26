@@ -53,7 +53,7 @@
     240,
     150
    ],
-   "height": 0,
+   "height": 100,
    "kind": "stairs",
    "stratum": "ground",
    "open_edges": false,
@@ -69,30 +69,17 @@
     80
    ],
    "height": 100,
-   "kind": "rock_ledge",
+   "kind": "ground",
    "stratum": "ground",
    "open_edges": false
   },
   {
-   "id": "ledge_hi",
-   "rect": [
-    1500,
-    640,
-    300,
-    60
-   ],
-   "height": 200,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
    "id": "ledge_top",
    "rect": [
-    1900,
-    610,
+    1500,
+    560,
     300,
-    70
+    80
    ],
    "height": 300,
    "kind": "rock_ledge",
@@ -100,14 +87,14 @@
    "open_edges": true
   },
   {
-   "id": "ledge_hi_step_ledge_2",
+   "id": "ledge_hi",
    "rect": [
-    1280,
-    640,
-    160,
+    1200,
+    490,
+    300,
     70
    ],
-   "height": 100,
+   "height": 200,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -134,6 +121,20 @@
    ],
    "to": "cm_sword_court",
    "to_portal": "west"
+  },
+  {
+   "id": "library",
+   "type": "door",
+   "at": [
+    1640,
+    566
+   ],
+   "to": "cm_cloud_library",
+   "to_portal": "cliff_door",
+   "press_up": true,
+   "facade": true,
+   "label": "Cloud Library",
+   "surface": "ledge_top"
   }
  ],
  "objects": [
@@ -303,8 +304,8 @@
    "id": "cloud_steps_bell",
    "type": "route_finish",
    "at": [
-    2080,
-    645
+    1680,
+    574
    ],
    "alt": 300,
    "prop": "small_bell"
@@ -331,8 +332,8 @@
     "name": "Cloud Steps",
     "finish": {
      "at": [
-      2080,
-      645
+      1680,
+      574
      ],
      "alt": 300,
      "radius": 90
@@ -412,6 +413,39 @@
     640
    ],
    "layer": "play"
+  },
+  {
+   "prop": "cliff_face",
+   "at": [
+    1300,
+    562
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "cliff_face",
+   "at": [
+    1620,
+    562
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "cliff_face",
+   "at": [
+    1660,
+    572
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "door",
+   "at": [
+    1640,
+    576
+   ],
+   "layer": "play",
+   "alt": 300
   }
  ],
  "areas": [],
@@ -420,52 +454,38 @@
  "town": true,
  "climbables": [
   {
-   "id": "ledge_hi_rope_1",
+   "id": "ledge_hi_rope",
    "kind": "rope",
    "at": [
-    1650,
-    735
+    1230,
+    580
    ],
    "top_at": [
-    1650,
-    692
+    1230,
+    552
    ],
-   "bottom_alt": 0,
+   "bottom_alt": 100,
    "top_alt": 200,
-   "bottom": "ground",
+   "bottom": "landing",
    "top": "ledge_hi"
   },
   {
-   "id": "ledge_top_rope_3",
+   "id": "ledge_top_rope",
    "kind": "rope",
    "at": [
-    2050,
-    715
+    1770,
+    675
    ],
    "top_at": [
-    2050,
-    672
+    1770,
+    632
    ],
    "bottom_alt": 0,
    "top_alt": 300,
    "bottom": "ground",
    "top": "ledge_top"
-  },
-  {
-   "id": "ledge_hi_step_ledge_2_rope_101",
-   "kind": "rope",
-   "at": [
-    1360,
-    745
-   ],
-   "top_at": [
-    1360,
-    702
-   ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "ledge_hi_step_ledge_2"
   }
- ]
+ ],
+ "movers": [],
+ "vertical": "authored"
 }

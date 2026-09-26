@@ -44,6 +44,32 @@
    "kind": "ground",
    "stratum": "ground",
    "open_edges": false
+  },
+  {
+   "id": "mirror_left",
+   "rect": [
+    220,
+    640,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "mirror_right",
+   "rect": [
+    820,
+    640,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
   }
  ],
  "portals": [
@@ -72,7 +98,16 @@
  "objects": [],
  "spawns": [],
  "scenery": [],
- "decor": [],
+ "decor": [
+  {
+   "prop": "bronze_mirror",
+   "at": [
+    640,
+    640
+   ],
+   "layer": "back"
+  }
+ ],
  "areas": [],
  "music": "boss",
  "instanced": true,
@@ -108,5 +143,66 @@
     "portal": ""
    }
   ]
- }
+ },
+ "climbables": [
+  {
+   "id": "mirror_left_rope",
+   "kind": "rope",
+   "at": [
+    250,
+    745
+   ],
+   "top_at": [
+    250,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "mirror_left"
+  },
+  {
+   "id": "mirror_right_rope",
+   "kind": "rope",
+   "at": [
+    1030,
+    745
+   ],
+   "top_at": [
+    1030,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "mirror_right"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "mirror_left_step",
+   "rect": [
+    390,
+    722,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  },
+  {
+   "id": "mirror_right_step",
+   "rect": [
+    830,
+    722,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  }
+ ],
+ "vertical": "authored"
 }

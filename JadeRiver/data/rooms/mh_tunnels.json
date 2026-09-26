@@ -48,15 +48,93 @@
    "open_edges": false
   },
   {
-   "id": "rotten_boards",
+   "id": "plank_a0",
    "rect": [
-    1480,
-    650,
+    865,
+    770,
+    90,
+    70
+   ],
+   "height": 60,
+   "kind": "boards",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "plank_a1",
+   "rect": [
+    965,
+    770,
+    90,
+    70
+   ],
+   "height": 60,
+   "kind": "boards",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "plank_a2",
+   "rect": [
+    1065,
+    770,
+    90,
+    70
+   ],
+   "height": 60,
+   "kind": "boards",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "plank_b0",
+   "rect": [
+    1505,
+    770,
+    90,
+    70
+   ],
+   "height": 60,
+   "kind": "boards",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "plank_b1",
+   "rect": [
+    1605,
+    770,
+    90,
+    70
+   ],
+   "height": 60,
+   "kind": "boards",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "plank_b2",
+   "rect": [
+    1705,
+    770,
+    90,
+    70
+   ],
+   "height": 60,
+   "kind": "boards",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "timber_landing",
+   "rect": [
+    1240,
+    630,
     200,
     70
    ],
-   "height": 100,
-   "kind": "boards",
+   "height": 60,
+   "kind": "scaffold",
    "stratum": "platform",
    "open_edges": true
   }
@@ -88,7 +166,7 @@
    "id": "ore_1",
    "type": "ore_vein",
    "at": [
-    1297,
+    2280,
     690
    ],
    "item": "riverstone",
@@ -113,46 +191,50 @@
    "id": "jar_2",
    "type": "jar",
    "at": [
-    1510,
-    685
+    1010,
+    784
    ],
    "loot": "jar_valley_mid",
    "level": 17,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 60,
+   "surface": "plank_a1"
   },
   {
    "id": "crate_3",
    "type": "crate",
    "at": [
     1650,
-    685
+    784
    ],
    "loot": "jar_valley_mid",
    "level": 17,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 60,
+   "surface": "plank_b1"
   },
   {
    "id": "jar_4",
    "type": "jar",
    "at": [
-    1293,
-    900
+    1280,
+    644
    ],
    "loot": "jar_valley_mid",
    "level": 17,
    "hp": 1,
-   "respawn_s": 300
+   "respawn_s": 300,
+   "alt": 60,
+   "surface": "timber_landing"
   },
   {
    "id": "crate_5",
    "type": "crate",
    "at": [
-    1780,
-    700
+    420,
+    720
    ],
    "loot": "jar_valley_mid",
    "level": 17,
@@ -163,8 +245,8 @@
    "id": "jar_6",
    "type": "jar",
    "at": [
-    2232,
-    700
+    2250,
+    900
    ],
    "loot": "jar_valley_mid",
    "level": 17,
@@ -175,41 +257,30 @@
    "id": "chest_7",
    "type": "chest",
    "at": [
-    1580,
-    685
+    1370,
+    644
    ],
    "loot": "chest_dungeon",
    "level": 20,
-   "alt": 100
+   "alt": 60,
+   "surface": "timber_landing"
   }
  ],
  "spawns": [
   {
    "enemy": "bandit_archer",
-   "surface": "ground",
+   "surface": "timber_landing",
    "points": [
     [
-     444,
-     779
+     1300,
+     665
     ],
     [
-     897,
-     897
-    ],
-    [
-     1322,
-     793
-    ],
-    [
-     1747,
-     801
-    ],
-    [
-     2172,
-     907
+     1390,
+     665
     ]
    ],
-   "max": 4,
+   "max": 2,
    "respawn_s": 12,
    "level": [
     16,
@@ -221,20 +292,20 @@
    "surface": "ground",
    "points": [
     [
-     552,
-     877
+     520,
+     880
     ],
     [
-     1074,
-     828
+     1340,
+     790
     ],
     [
-     1590,
-     837
+     2100,
+     880
     ],
     [
-     2083,
-     797
+     2400,
+     700
     ]
    ],
    "max": 3,
@@ -242,6 +313,38 @@
    "level": [
     16,
     20
+   ]
+  },
+  {
+   "enemy": "bandit_archer",
+   "surface": "beam_a_west",
+   "points": [
+    [
+     825,
+     805
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 12,
+   "level": [
+    16,
+    19
+   ]
+  },
+  {
+   "enemy": "bandit_archer",
+   "surface": "beam_b_east",
+   "points": [
+    [
+     1830,
+     805
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 12,
+   "level": [
+    16,
+    19
    ]
   }
  ],
@@ -263,6 +366,24 @@
    "height": 40,
    "standable": true,
    "flip": false
+  },
+  {
+   "id": "rock_small_9",
+   "prop": "rock_small",
+   "position": [
+    1860,
+    640
+   ],
+   "front_y": 640,
+   "footprint": [
+    1835,
+    614,
+    51,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": true
   }
  ],
  "decor": [
@@ -283,15 +404,6 @@
    ],
    "layer": "play",
    "flip": false
-  },
-  {
-   "prop": "rock_small",
-   "at": [
-    1860,
-    640
-   ],
-   "layer": "play",
-   "flip": true
   },
   {
    "prop": "rock_small",
@@ -397,6 +509,96 @@
     770
    ],
    "layer": "play"
+  },
+  {
+   "prop": "thorn_thicket",
+   "at": [
+    920,
+    720
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "thorn_thicket",
+   "at": [
+    1050,
+    760
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "thorn_thicket",
+   "at": [
+    970,
+    850
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "thorn_thicket",
+   "at": [
+    1100,
+    900
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "thorn_thicket",
+   "at": [
+    900,
+    930
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "thorn_thicket",
+   "at": [
+    1560,
+    720
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "thorn_thicket",
+   "at": [
+    1690,
+    760
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "thorn_thicket",
+   "at": [
+    1610,
+    850
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "thorn_thicket",
+   "at": [
+    1740,
+    900
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "thorn_thicket",
+   "at": [
+    1540,
+    930
+   ],
+   "layer": "play",
+   "flip": false
   }
  ],
  "areas": [
@@ -433,35 +635,191 @@
  "dungeon_exit": "cr_caravan_road",
  "volumes": [
   {
-   "id": "rotten_boards_crumble",
+   "id": "spike_pit_a",
+   "kind": "hazard",
+   "rect": [
+    860,
+    690,
+    300,
+    270
+   ],
+   "alt": [
+    -10,
+    20
+   ],
+   "hazard": "spike_traps",
+   "damage_pct": 0.05,
+   "pulse_s": 0.8,
+   "status": {
+    "id": "bleed",
+    "s": 3.0,
+    "power": 0.01
+   }
+  },
+  {
+   "id": "plank_a0_crumble",
    "kind": "crumble",
    "rect": [
-    1480,
-    650,
-    200,
+    865,
+    770,
+    90,
     70
    ],
-   "surface": "rotten_boards",
+   "surface": "plank_a0",
+   "break_s": 0.8,
+   "return_s": 5.0
+  },
+  {
+   "id": "plank_a1_crumble",
+   "kind": "crumble",
+   "rect": [
+    965,
+    770,
+    90,
+    70
+   ],
+   "surface": "plank_a1",
+   "break_s": 0.8,
+   "return_s": 5.0
+  },
+  {
+   "id": "plank_a2_crumble",
+   "kind": "crumble",
+   "rect": [
+    1065,
+    770,
+    90,
+    70
+   ],
+   "surface": "plank_a2",
+   "break_s": 0.8,
+   "return_s": 5.0
+  },
+  {
+   "id": "spike_pit_b",
+   "kind": "hazard",
+   "rect": [
+    1500,
+    690,
+    300,
+    270
+   ],
+   "alt": [
+    -10,
+    20
+   ],
+   "hazard": "spike_traps",
+   "damage_pct": 0.05,
+   "pulse_s": 0.8,
+   "status": {
+    "id": "bleed",
+    "s": 3.0,
+    "power": 0.01
+   }
+  },
+  {
+   "id": "plank_b0_crumble",
+   "kind": "crumble",
+   "rect": [
+    1505,
+    770,
+    90,
+    70
+   ],
+   "surface": "plank_b0",
+   "break_s": 0.8,
+   "return_s": 5.0
+  },
+  {
+   "id": "plank_b1_crumble",
+   "kind": "crumble",
+   "rect": [
+    1605,
+    770,
+    90,
+    70
+   ],
+   "surface": "plank_b1",
+   "break_s": 0.8,
+   "return_s": 5.0
+  },
+  {
+   "id": "plank_b2_crumble",
+   "kind": "crumble",
+   "rect": [
+    1705,
+    770,
+    90,
+    70
+   ],
+   "surface": "plank_b2",
    "break_s": 0.8,
    "return_s": 5.0
   }
  ],
- "climbables": [
+ "climbables": [],
+ "movers": [],
+ "blocks": [
   {
-   "id": "rotten_boards_ladder_1",
-   "kind": "ladder",
-   "at": [
-    1580,
-    755
+   "id": "beam_a_west",
+   "rect": [
+    800,
+    770,
+    50,
+    70
    ],
-   "top_at": [
-    1580,
-    712
+   "base": 0,
+   "top": 40,
+   "kind": "log"
+  },
+  {
+   "id": "beam_a_east",
+   "rect": [
+    1165,
+    770,
+    50,
+    70
    ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "rotten_boards"
+   "base": 0,
+   "top": 40,
+   "kind": "log"
+  },
+  {
+   "id": "beam_b_west",
+   "rect": [
+    1440,
+    770,
+    50,
+    70
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "log"
+  },
+  {
+   "id": "beam_b_east",
+   "rect": [
+    1805,
+    770,
+    50,
+    70
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "log"
+  },
+  {
+   "id": "landing_step",
+   "rect": [
+    1300,
+    712,
+    60,
+    44
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "log"
   }
- ]
+ ],
+ "vertical": "authored"
 }

@@ -72,6 +72,34 @@
    "stratum": "platform",
    "open_edges": true,
    "art": "tower"
+  },
+  {
+   "id": "abode_terrace",
+   "rect": [
+    1100,
+    500,
+    560,
+    80
+   ],
+   "height": 80,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "abode_stairs",
+   "rect": [
+    1290,
+    580,
+    200,
+    140
+   ],
+   "height": 80,
+   "kind": "stairs",
+   "stratum": "ground",
+   "open_edges": false,
+   "rise": -80,
+   "rise_axis": "y"
   }
  ],
  "portals": [
@@ -115,6 +143,29 @@
    ],
    "to": "ja_herb_terraces",
    "to_portal": "west"
+  },
+  {
+   "id": "abode",
+   "type": "door",
+   "at": [
+    1560,
+    530
+   ],
+   "to": "ja_cave_abode",
+   "to_portal": "terrace",
+   "press_up": true,
+   "facade": true,
+   "label": "Cave Abode",
+   "surface": "abode_terrace",
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_mentors_gift"
+     }
+    ]
+   },
+   "locked_text": "The cave abodes of the elders' personal disciples. Not yours, not yet."
   }
  ],
  "objects": [
@@ -312,11 +363,76 @@
    "standable": true
   }
  ],
- "decor": [],
+ "decor": [
+  {
+   "prop": "cliff_face",
+   "at": [
+    1260,
+    520
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "cliff_face",
+   "at": [
+    1540,
+    520
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "door",
+   "at": [
+    1560,
+    506
+   ],
+   "layer": "play",
+   "alt": 80
+  }
+ ],
  "areas": [],
  "music": "sect",
  "sect": "jade_sect",
  "town": true,
+ "blocks": [
+  {
+   "id": "terrace_lantern_0",
+   "rect": [
+    1246,
+    690,
+    40,
+    36
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "lantern"
+  },
+  {
+   "id": "terrace_lantern_1",
+   "rect": [
+    1494,
+    690,
+    40,
+    36
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "lantern"
+  },
+  {
+   "id": "mission_hall_step_2",
+   "rect": [
+    930,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "crate"
+  }
+ ],
  "climbables": [
   {
    "id": "mission_hall_ladder_1",
@@ -365,20 +481,6 @@
    "top_alt": 200,
    "bottom": "ground",
    "top": "retreat_rooms"
-  }
- ],
- "blocks": [
-  {
-   "id": "mission_hall_step_2",
-   "rect": [
-    930,
-    702,
-    60,
-    50
-   ],
-   "base": 0,
-   "top": 40,
-   "kind": "crate"
   }
  ]
 }

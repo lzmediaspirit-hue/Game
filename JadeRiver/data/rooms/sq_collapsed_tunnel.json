@@ -106,8 +106,8 @@
    "id": "ore_2",
    "type": "ore_vein",
    "at": [
-    938,
-    690
+    985,
+    660
    ],
    "item": "spirit_stone_shard",
    "prop": "spirit_shard_vein",
@@ -125,7 +125,8 @@
      }
     ]
    },
-   "locked_text": "The stone is too hard to work by hand."
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 0
   },
   {
    "id": "jar_3",
@@ -204,6 +205,69 @@
      {
       "kind": "flag_set",
       "flag": "journal_tunnel"
+     }
+    ]
+   }
+  },
+  {
+   "id": "cracked_wall",
+   "type": "inspect",
+   "at": [
+    1175,
+    662
+   ],
+   "prop": "rock_large",
+   "label": "Cracked Wall",
+   "text": "You set your shoulder to the cracked wall. It gives with a groan, and behind it a seam of Spirit Stone glitters.",
+   "requires": {
+    "all": [
+     {
+      "kind": "attribute_at_least",
+      "attribute": "body",
+      "value": 20
+     }
+    ]
+   },
+   "locked_text": "The wall is cracked through and something glitters behind it. It would take a stronger body to break it (Body 20).",
+   "set_flag": "tunnel_wall_broken",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "tunnel_wall_broken"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ore_wall_seam",
+   "type": "ore_vein",
+   "at": [
+    1175,
+    662
+   ],
+   "item": "spirit_stone_shard",
+   "prop": "spirit_shard_vein",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "adept",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand.",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "tunnel_wall_broken"
      }
     ]
    }
@@ -341,6 +405,30 @@
     740,
     80,
     60
+   ],
+   "base": 0,
+   "top": 80,
+   "kind": "rubble"
+  },
+  {
+   "id": "rubble_heap_low",
+   "rect": [
+    870,
+    730,
+    80,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rubble"
+  },
+  {
+   "id": "rubble_heap_high",
+   "rect": [
+    940,
+    690,
+    90,
+    50
    ],
    "base": 0,
    "top": 80,

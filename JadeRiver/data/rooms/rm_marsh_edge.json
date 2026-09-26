@@ -49,67 +49,93 @@
    "open_edges": false
   },
   {
-   "id": "ledge_0",
+   "id": "stilt_west",
    "rect": [
-    800,
-    680,
-    180,
-    70
+    260,
+    650,
+    200,
+    90
+   ],
+   "height": 60,
+   "kind": "stilt",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "stilt_reeds",
+   "rect": [
+    580,
+    660,
+    200,
+    90
+   ],
+   "height": 80,
+   "kind": "stilt",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "stilt_hut",
+   "rect": [
+    900,
+    640,
+    240,
+    90
    ],
    "height": 100,
-   "kind": "tree_branch",
+   "kind": "stilt",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "ledge_1",
+   "id": "stilt_pool",
    "rect": [
-    1500,
-    700,
-    180,
-    70
+    1260,
+    650,
+    200,
+    90
+   ],
+   "height": 60,
+   "kind": "stilt",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "stilt_nets",
+   "rect": [
+    1580,
+    660,
+    200,
+    90
+   ],
+   "height": 80,
+   "kind": "stilt",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "stilt_lookout",
+   "rect": [
+    1900,
+    640,
+    240,
+    90
    ],
    "height": 100,
-   "kind": "tree_branch",
+   "kind": "stilt",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "route_0",
+   "id": "stilt_east",
    "rect": [
-    180,
-    636,
-    240,
-    70
+    2260,
+    650,
+    200,
+    90
    ],
-   "height": 100,
-   "kind": "tree_branch",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "route_1",
-   "rect": [
-    520,
-    636,
-    240,
-    70
-   ],
-   "height": 200,
-   "kind": "tree_branch",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "route_2",
-   "rect": [
-    1040,
-    636,
-    240,
-    70
-   ],
-   "height": 200,
-   "kind": "tree_branch",
+   "height": 60,
+   "kind": "stilt",
    "stratum": "platform",
    "open_edges": true
   }
@@ -141,8 +167,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    950,
-    715
+    972,
+    685
    ],
    "item": "willow_moss",
    "prop": "willow_moss_patch",
@@ -161,14 +187,15 @@
     ]
    },
    "locked_text": "You don't know which leaves are worth picking yet.",
-   "alt": 100
+   "alt": 100,
+   "surface": "stilt_hut"
   },
   {
    "id": "herb_2",
    "type": "herb_patch",
    "at": [
-    1314,
-    690
+    2068,
+    685
    ],
    "item": "willow_moss",
    "prop": "willow_moss_patch",
@@ -186,14 +213,16 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 100,
+   "surface": "stilt_lookout"
   },
   {
    "id": "herb_3",
    "type": "herb_patch",
    "at": [
-    2076,
-    690
+    2116,
+    790
    ],
    "item": "riverreed_ginseng_10",
    "prop": "riverreed_ginseng_patch",
@@ -217,34 +246,36 @@
    "id": "jar_4",
    "type": "jar",
    "at": [
-    830,
-    715
+    680,
+    705
    ],
    "loot": "jar_valley_low",
    "level": 5,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 80,
+   "surface": "stilt_reeds"
   },
   {
    "id": "jar_5",
    "type": "jar",
    "at": [
-    1530,
-    735
+    1680,
+    705
    ],
    "loot": "jar_valley_low",
    "level": 5,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 80,
+   "surface": "stilt_nets"
   },
   {
    "id": "jar_6",
    "type": "jar",
    "at": [
-    1288,
-    700
+    1328,
+    790
    ],
    "loot": "jar_valley_low",
    "level": 5,
@@ -267,8 +298,8 @@
    "id": "jar_8",
    "type": "jar",
    "at": [
-    2282,
-    700
+    2322,
+    790
    ],
    "loot": "jar_valley_low",
    "level": 5,
@@ -389,22 +420,18 @@
  "spawns": [
   {
    "enemy": "reed_frog",
-   "surface": "ledge_0",
+   "surface": "stilt_reeds",
    "points": [
     [
-     850,
-     715
+     630,
+     705
     ],
     [
-     890,
-     715
-    ],
-    [
-     930,
-     715
+     730,
+     705
     ]
    ],
-   "max": 5,
+   "max": 3,
    "respawn_s": 12,
    "level": [
     4,
@@ -480,6 +507,26 @@
      }
     ]
    }
+  },
+  {
+   "enemy": "reed_frog",
+   "surface": "stilt_nets",
+   "points": [
+    [
+     1630,
+     705
+    ],
+    [
+     1730,
+     705
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 12,
+   "level": [
+    4,
+    6
+   ]
   }
  ],
  "scenery": [],
@@ -634,68 +681,108 @@
  "weather": "marsh",
  "climbables": [
   {
-   "id": "ledge_0_vine_1",
-   "kind": "vine",
+   "id": "stilt_west_ladder",
+   "kind": "ladder",
    "at": [
-    890,
+    290,
+    775
+   ],
+   "top_at": [
+    290,
+    732
+   ],
+   "bottom_alt": 0,
+   "top_alt": 60,
+   "bottom": "ground",
+   "top": "stilt_west"
+  },
+  {
+   "id": "stilt_hut_ladder",
+   "kind": "ladder",
+   "at": [
+    1110,
+    765
+   ],
+   "top_at": [
+    1110,
+    722
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "stilt_hut"
+  },
+  {
+   "id": "stilt_nets_ladder",
+   "kind": "ladder",
+   "at": [
+    1610,
     785
    ],
    "top_at": [
-    890,
+    1610,
     742
    ],
    "bottom_alt": 0,
-   "top_alt": 100,
+   "top_alt": 80,
    "bottom": "ground",
-   "top": "ledge_0"
+   "top": "stilt_nets"
   },
   {
-   "id": "ledge_1_vine_2",
-   "kind": "vine",
+   "id": "stilt_lookout_ladder",
+   "kind": "ladder",
    "at": [
-    1550,
-    805
+    2110,
+    765
    ],
    "top_at": [
-    1550,
-    762
+    2110,
+    722
    ],
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
-   "top": "ledge_1"
-  },
-  {
-   "id": "route_0_vine_3",
-   "kind": "vine",
-   "at": [
-    300,
-    741
-   ],
-   "top_at": [
-    300,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "route_0"
-  },
-  {
-   "id": "route_2_vine_4",
-   "kind": "vine",
-   "at": [
-    1200,
-    741
-   ],
-   "top_at": [
-    1200,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 200,
-   "bottom": "ground",
-   "top": "route_2"
+   "top": "stilt_lookout"
   }
- ]
+ ],
+ "movers": [],
+ "blocks": [
+  {
+   "id": "reed_bundle_a",
+   "rect": [
+    1300,
+    760,
+    60,
+    40
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "hay"
+  },
+  {
+   "id": "reed_bundle_b",
+   "rect": [
+    2290,
+    760,
+    60,
+    40
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "hay"
+  },
+  {
+   "id": "reed_bundle_c",
+   "rect": [
+    620,
+    770,
+    60,
+    40
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "hay"
+  }
+ ],
+ "vertical": "authored"
 }

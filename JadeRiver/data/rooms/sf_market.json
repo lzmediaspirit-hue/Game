@@ -51,11 +51,11 @@
    "id": "general_store",
    "rect": [
     320,
-    598,
+    606,
     400,
-    92
+    84
    ],
-   "height": 168,
+   "height": 176,
    "kind": "roof",
    "stratum": "platform",
    "open_edges": true,
@@ -65,11 +65,11 @@
    "id": "tea_house",
    "rect": [
     1090,
-    598,
+    616,
     380,
-    92
+    74
    ],
-   "height": 158,
+   "height": 176,
    "kind": "roof",
    "stratum": "platform",
    "open_edges": true,
@@ -79,11 +79,11 @@
    "id": "warehouse_sf",
    "rect": [
     1800,
-    598,
+    606,
     440,
-    92
+    84
    ],
-   "height": 168,
+   "height": 176,
    "kind": "roof",
    "stratum": "platform",
    "open_edges": true,
@@ -116,14 +116,82 @@
    "open_edges": true
   },
   {
+   "id": "store_upper",
+   "rect": [
+    340,
+    482,
+    360,
+    124
+   ],
+   "height": 264,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "two_storey"
+  },
+  {
+   "id": "tea_upper",
+   "rect": [
+    1110,
+    482,
+    340,
+    134
+   ],
+   "height": 264,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "two_storey"
+  },
+  {
+   "id": "warehouse_upper",
+   "rect": [
+    1820,
+    482,
+    400,
+    124
+   ],
+   "height": 264,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "two_storey"
+  },
+  {
+   "id": "gallery_west",
+   "rect": [
+    720,
+    560,
+    370,
+    64
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "gallery_east",
+   "rect": [
+    1470,
+    560,
+    330,
+    64
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
    "id": "bell_tower",
    "rect": [
     2290,
-    622,
+    610,
     180,
-    68
+    80
    ],
-   "height": 312,
+   "height": 300,
    "kind": "roof",
    "stratum": "platform",
    "open_edges": true,
@@ -353,18 +421,18 @@
    "type": "notice_board",
    "at": [
     2380,
-    652
+    650
    ],
-   "alt": 312
+   "alt": 300
   },
   {
    "id": "gutter_shard",
    "type": "pickup",
    "at": [
-    1300,
-    640
+    1230,
+    622
    ],
-   "alt": 158,
+   "alt": 176,
    "item": "spirit_stone_shard",
    "count": 1,
    "prop": "spirit_shard_vein",
@@ -377,7 +445,8 @@
      }
     ]
    },
-   "set_flag": "gutter_shard"
+   "set_flag": "gutter_shard",
+   "surface": "tea_house"
   },
   {
    "id": "thief_sf",
@@ -405,63 +474,93 @@
       0.0
      ],
      [
-      480,
-      644,
-      168,
+      380,
+      648,
+      176,
       0.6
      ],
      [
-      700,
-      644,
-      168,
-      0.8
+      448,
+      544,
+      264,
+      0.5
+     ],
+     [
+      682,
+      544,
+      264,
+      0.5
+     ],
+     [
+      812,
+      592,
+      176,
+      0.4
      ],
      [
       900,
       675,
       88,
-      0.7
+      0.6
      ],
      [
-      1242,
-      644,
-      158,
-      0.8
-     ],
-     [
-      1451,
-      644,
-      158,
+      1166,
+      653,
+      176,
       0.5
+     ],
+     [
+      1280,
+      549,
+      264,
+      0.6
+     ],
+     [
+      1433,
+      549,
+      264,
+      0.5
+     ],
+     [
+      1552,
+      592,
+      176,
+      0.4
      ],
      [
       1630,
       675,
       88,
-      0.7
-     ],
-     [
-      1976,
-      644,
-      168,
-      0.8
-     ],
-     [
-      2226,
-      644,
-      168,
       0.6
      ],
      [
+      1888,
+      648,
+      176,
+      0.5
+     ],
+     [
+      2020,
+      544,
+      264,
+      0.6
+     ],
+     [
+      2208,
+      544,
+      264,
+      0.5
+     ],
+     [
       2380,
-      656,
-      312,
+      650,
+      300,
       2.5
      ],
      [
       2466,
-      656,
-      312,
+      650,
+      300,
       0.0
      ]
     ],
@@ -527,6 +626,118 @@
  "town": true,
  "climbables": [
   {
+   "id": "general_store_ladder",
+   "kind": "ladder",
+   "at": [
+    380,
+    725
+   ],
+   "top_at": [
+    380,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "general_store"
+  },
+  {
+   "id": "tea_house_ladder",
+   "kind": "ladder",
+   "at": [
+    1160,
+    725
+   ],
+   "top_at": [
+    1160,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "tea_house"
+  },
+  {
+   "id": "warehouse_sf_ladder",
+   "kind": "ladder",
+   "at": [
+    1880,
+    725
+   ],
+   "top_at": [
+    1880,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "warehouse_sf"
+  },
+  {
+   "id": "gallery_west_ladder",
+   "kind": "ladder",
+   "at": [
+    750,
+    659
+   ],
+   "top_at": [
+    750,
+    616
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "gallery_west"
+  },
+  {
+   "id": "gallery_east_ladder",
+   "kind": "ladder",
+   "at": [
+    1500,
+    659
+   ],
+   "top_at": [
+    1500,
+    616
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "gallery_east"
+  },
+  {
+   "id": "awning_west_ladder",
+   "kind": "ladder",
+   "at": [
+    980,
+    745
+   ],
+   "top_at": [
+    980,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "awning_west"
+  },
+  {
+   "id": "awning_east_ladder",
+   "kind": "ladder",
+   "at": [
+    1710,
+    745
+   ],
+   "top_at": [
+    1710,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "awning_east"
+  },
+  {
    "id": "bell_tower_ladder",
    "kind": "ladder",
    "at": [
@@ -538,89 +749,11 @@
     682
    ],
    "bottom_alt": 0,
-   "top_alt": 312,
+   "top_alt": 300,
    "bottom": "ground",
    "top": "bell_tower"
-  },
-  {
-   "id": "general_store_ladder_1",
-   "kind": "ladder",
-   "at": [
-    480,
-    725
-   ],
-   "top_at": [
-    480,
-    682
-   ],
-   "bottom_alt": 0,
-   "top_alt": 168,
-   "bottom": "ground",
-   "top": "general_store"
-  },
-  {
-   "id": "tea_house_ladder_2",
-   "kind": "ladder",
-   "at": [
-    1240,
-    725
-   ],
-   "top_at": [
-    1240,
-    682
-   ],
-   "bottom_alt": 0,
-   "top_alt": 158,
-   "bottom": "ground",
-   "top": "tea_house"
-  },
-  {
-   "id": "warehouse_sf_ladder_3",
-   "kind": "ladder",
-   "at": [
-    2020,
-    725
-   ],
-   "top_at": [
-    2020,
-    682
-   ],
-   "bottom_alt": 0,
-   "top_alt": 168,
-   "bottom": "ground",
-   "top": "warehouse_sf"
-  },
-  {
-   "id": "awning_west_ladder_4",
-   "kind": "ladder",
-   "at": [
-    900,
-    745
-   ],
-   "top_at": [
-    900,
-    702
-   ],
-   "bottom_alt": 0,
-   "top_alt": 88,
-   "bottom": "ground",
-   "top": "awning_west"
-  },
-  {
-   "id": "awning_east_ladder_5",
-   "kind": "ladder",
-   "at": [
-    1630,
-    745
-   ],
-   "top_at": [
-    1630,
-    702
-   ],
-   "bottom_alt": 0,
-   "top_alt": 88,
-   "bottom": "ground",
-   "top": "awning_east"
   }
- ]
+ ],
+ "movers": [],
+ "vertical": "authored"
 }

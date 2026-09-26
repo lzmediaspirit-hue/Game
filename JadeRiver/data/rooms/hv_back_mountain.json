@@ -46,28 +46,41 @@
    "open_edges": false
   },
   {
-   "id": "deck_mv_0",
+   "id": "mountain_ledge_100",
    "rect": [
-    260,
-    620,
-    220,
-    70
+    1560,
+    560,
+    240,
+    80
    ],
-   "height": 88,
-   "kind": "balcony",
+   "height": 100,
+   "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
   },
   {
-   "id": "deck_mv_1",
+   "id": "mountain_ledge_200",
    "rect": [
-    500,
-    612,
-    220,
-    70
+    1800,
+    540,
+    240,
+    80
    ],
-   "height": 176,
-   "kind": "balcony",
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "mountain_ledge_300",
+   "rect": [
+    2040,
+    520,
+    260,
+    80
+   ],
+   "height": 300,
+   "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
   }
@@ -89,8 +102,8 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    290,
-    655
+    800,
+    900
    ],
    "item": "mist_lotus",
    "prop": "mist_lotus_patch",
@@ -108,15 +121,14 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet.",
-   "alt": 88
+   "locked_text": "You don't know which leaves are worth picking yet."
   },
   {
    "id": "herb_2",
    "type": "herb_patch",
    "at": [
-    1500,
-    700
+    2160,
+    528
    ],
    "item": "cloudtop_orchid",
    "prop": "cloudtop_orchid_patch",
@@ -134,14 +146,16 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 300,
+   "surface": "mountain_ledge_300"
   },
   {
    "id": "ore_3",
    "type": "ore_vein",
    "at": [
-    2100,
-    690
+    1900,
+    548
    ],
    "item": "spirit_stone_shard",
    "prop": "spirit_shard_vein",
@@ -159,7 +173,9 @@
      }
     ]
    },
-   "locked_text": "The stone is too hard to work by hand."
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 200,
+   "surface": "mountain_ledge_200"
   },
   {
    "id": "spring_hv",
@@ -205,33 +221,6 @@
    "at": [
     664,
     629
-   ],
-   "layer": "play",
-   "flip": true
-  },
-  {
-   "prop": "pine_tree",
-   "at": [
-    1483,
-    635
-   ],
-   "layer": "play",
-   "flip": true
-  },
-  {
-   "prop": "plum_tree",
-   "at": [
-    1902,
-    637
-   ],
-   "layer": "play",
-   "flip": false
-  },
-  {
-   "prop": "pine_tree",
-   "at": [
-    2293,
-    637
    ],
    "layer": "play",
    "flip": true
@@ -379,10 +368,26 @@
    "flip": true
   },
   {
-   "prop": "lantern_string",
+   "prop": "cliff_face",
    "at": [
-    490,
-    380
+    1680,
+    562
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "cliff_face",
+   "at": [
+    1960,
+    562
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "cliff_face",
+   "at": [
+    2200,
+    562
    ],
    "layer": "back"
   }
@@ -391,36 +396,53 @@
  "music": "meditation",
  "climbables": [
   {
-   "id": "deck_mv_0_ladder_1",
-   "kind": "ladder",
+   "id": "mountain_ledge_100_rope",
+   "kind": "rope",
    "at": [
-    370,
-    725
+    1590,
+    675
    ],
    "top_at": [
-    370,
-    682
+    1590,
+    632
    ],
    "bottom_alt": 0,
-   "top_alt": 88,
+   "top_alt": 100,
    "bottom": "ground",
-   "top": "deck_mv_0"
+   "top": "mountain_ledge_100"
   },
   {
-   "id": "deck_mv_1_ladder_2",
-   "kind": "ladder",
+   "id": "mountain_ledge_200_rope",
+   "kind": "rope",
    "at": [
-    610,
-    717
+    2010,
+    655
    ],
    "top_at": [
-    610,
-    674
+    2010,
+    612
    ],
    "bottom_alt": 0,
-   "top_alt": 176,
+   "top_alt": 200,
    "bottom": "ground",
-   "top": "deck_mv_1"
+   "top": "mountain_ledge_200"
+  },
+  {
+   "id": "mountain_ledge_300_rope",
+   "kind": "rope",
+   "at": [
+    2270,
+    635
+   ],
+   "top_at": [
+    2270,
+    592
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "mountain_ledge_300"
   }
- ]
+ ],
+ "vertical": "authored"
 }

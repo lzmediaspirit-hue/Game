@@ -46,24 +46,63 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "float_plank_0",
    "rect": [
-    600,
-    620,
-    280,
+    940,
+    720,
+    150,
+    60
+   ],
+   "height": 30,
+   "kind": "raft",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "float_plank_1",
+   "rect": [
+    1380,
+    800,
+    150,
+    60
+   ],
+   "height": 30,
+   "kind": "raft",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "float_plank_2",
+   "rect": [
+    1000,
+    880,
+    150,
+    60
+   ],
+   "height": 30,
+   "kind": "raft",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "sluice_deck",
+   "rect": [
+    1620,
+    630,
+    220,
     70
    ],
-   "height": 100,
-   "kind": "rock_ledge",
+   "height": 60,
+   "kind": "stilt",
    "stratum": "platform",
    "open_edges": true
   },
   {
    "id": "ledge_mv_1",
    "rect": [
-    1520,
-    620,
-    280,
+    1860,
+    600,
+    240,
     70
    ],
    "height": 200,
@@ -100,33 +139,35 @@
    "id": "jar_1",
    "type": "jar",
    "at": [
-    630,
-    655
+    1750,
+    644
    ],
    "loot": "jar_valley_mid",
    "level": 24,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 60,
+   "surface": "sluice_deck"
   },
   {
    "id": "jar_2",
    "type": "jar",
    "at": [
-    850,
-    655
+    1810,
+    644
    ],
    "loot": "jar_valley_mid",
    "level": 24,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 60,
+   "surface": "sluice_deck"
   },
   {
    "id": "jar_3",
    "type": "jar",
    "at": [
-    1280,
+    260,
     720
    ],
    "loot": "jar_valley_mid",
@@ -138,7 +179,7 @@
    "id": "jar_4",
    "type": "jar",
    "at": [
-    1785,
+    700,
     900
    ],
    "loot": "jar_valley_mid",
@@ -150,8 +191,8 @@
    "id": "jar_5",
    "type": "jar",
    "at": [
-    2224,
-    930
+    2300,
+    720
    ],
    "loot": "jar_valley_mid",
    "level": 24,
@@ -162,12 +203,13 @@
    "id": "chest_6",
    "type": "chest",
    "at": [
-    740,
-    655
+    1670,
+    644
    ],
    "loot": "chest_dungeon",
    "level": 27,
-   "alt": 100
+   "alt": 60,
+   "surface": "sluice_deck"
   },
   {
    "id": "inscription_ds_flooded_gate_0",
@@ -192,8 +234,8 @@
    "id": "chest_ledge_mv_1",
    "type": "chest",
    "at": [
-    1660,
-    665
+    1980,
+    614
    ],
    "loot": "chest_dungeon",
    "level": 27,
@@ -207,24 +249,24 @@
    "surface": "ground",
    "points": [
     [
-     468,
-     795
+     400,
+     780
     ],
     [
-     847,
-     913
+     700,
+     860
     ],
     [
-     1302,
-     842
+     1850,
+     860
     ],
     [
-     1691,
-     875
+     2100,
+     760
     ],
     [
-     2083,
-     892
+     2300,
+     900
     ]
    ],
    "max": 4,
@@ -364,6 +406,15 @@
     2560,
     60
    ]
+  },
+  {
+   "kind": "water",
+   "rect": [
+    920,
+    690,
+    640,
+    270
+   ]
   }
  ],
  "music": "dungeon",
@@ -401,24 +452,98 @@
     -80,
     0
    ]
+  },
+  {
+   "id": "gate_flood",
+   "kind": "water_deep",
+   "rect": [
+    920,
+    690,
+    640,
+    270
+   ],
+   "alt": [
+    -100,
+    10
+   ]
+  },
+  {
+   "id": "flood_current",
+   "kind": "current",
+   "rect": [
+    920,
+    690,
+    640,
+    270
+   ],
+   "alt": [
+    -100,
+    10
+   ],
+   "push": [
+    -110,
+    0
+   ]
+  }
+ ],
+ "movers": [
+  {
+   "surface": "float_plank_0",
+   "path": [
+    [
+     260,
+     0,
+     0
+    ]
+   ],
+   "speed": 38,
+   "wait_s": 1.5,
+   "mode": "pingpong"
+  },
+  {
+   "surface": "float_plank_1",
+   "path": [
+    [
+     -300,
+     0,
+     0
+    ]
+   ],
+   "speed": 34,
+   "wait_s": 1.2,
+   "mode": "pingpong"
+  },
+  {
+   "surface": "float_plank_2",
+   "path": [
+    [
+     380,
+     0,
+     0
+    ]
+   ],
+   "speed": 42,
+   "wait_s": 1.8,
+   "mode": "pingpong"
   }
  ],
  "climbables": [
   {
-   "id": "ledge_mv_0_rope_1",
-   "kind": "rope",
+   "id": "sluice_ladder",
+   "kind": "ladder",
    "at": [
-    740,
-    725
+    1800,
+    735
    ],
    "top_at": [
-    740,
-    682
+    1800,
+    692
    ],
    "bottom_alt": 0,
-   "top_alt": 100,
+   "top_alt": 60,
    "bottom": "ground",
-   "top": "ledge_mv_0"
+   "top": "sluice_deck"
   }
- ]
+ ],
+ "vertical": "authored"
 }

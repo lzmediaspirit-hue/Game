@@ -46,12 +46,12 @@
    "open_edges": false
   },
   {
-   "id": "ledge_peak_0",
+   "id": "cliff_ledge_100",
    "rect": [
-    340,
-    624,
-    200,
-    70
+    220,
+    560,
+    220,
+    80
    ],
    "height": 100,
    "kind": "rock_ledge",
@@ -59,14 +59,27 @@
    "open_edges": true
   },
   {
-   "id": "ledge_peak_1",
+   "id": "cliff_ledge_200",
    "rect": [
-    560,
-    616,
-    170,
-    70
+    440,
+    540,
+    220,
+    80
    ],
    "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cliff_ledge_300",
+   "rect": [
+    660,
+    520,
+    240,
+    80
+   ],
+   "height": 300,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -188,6 +201,19 @@
     ]
    },
    "locked_text": "Rich dark earth, ringed with river stones."
+  },
+  {
+   "id": "meditation_rock",
+   "type": "gathering_formation",
+   "at": [
+    790,
+    530
+   ],
+   "alt": 300,
+   "surface": "cliff_ledge_300",
+   "prop": "meditation_mat",
+   "radius": 60,
+   "label": "Meditation Rock"
   }
  ],
  "spawns": [],
@@ -208,6 +234,31 @@
     640
    ],
    "layer": "play"
+  },
+  {
+   "prop": "cliff_face",
+   "at": [
+    430,
+    562
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "cliff_face",
+   "at": [
+    750,
+    562
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "boulder_moss",
+   "at": [
+    790,
+    524
+   ],
+   "layer": "play",
+   "alt": 300
   }
  ],
  "areas": [],
@@ -216,36 +267,54 @@
  "town": true,
  "climbables": [
   {
-   "id": "ledge_peak_0_rope_1",
-   "kind": "rope",
+   "id": "cliff_ledge_100_ladder",
+   "kind": "ladder",
    "at": [
-    440,
-    729
+    250,
+    675
    ],
    "top_at": [
-    440,
-    686
+    250,
+    632
    ],
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
-   "top": "ledge_peak_0"
+   "top": "cliff_ledge_100"
   },
   {
-   "id": "ledge_peak_1_rope_2",
-   "kind": "rope",
+   "id": "cliff_ledge_200_ladder",
+   "kind": "ladder",
    "at": [
-    645,
-    721
+    630,
+    655
    ],
    "top_at": [
-    645,
-    678
+    630,
+    612
    ],
    "bottom_alt": 0,
    "top_alt": 200,
    "bottom": "ground",
-   "top": "ledge_peak_1"
+   "top": "cliff_ledge_200"
+  },
+  {
+   "id": "cliff_ledge_300_ladder",
+   "kind": "ladder",
+   "at": [
+    870,
+    635
+   ],
+   "top_at": [
+    870,
+    592
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "cliff_ledge_300"
   }
- ]
+ ],
+ "movers": [],
+ "vertical": "authored"
 }

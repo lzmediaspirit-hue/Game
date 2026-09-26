@@ -46,11 +46,37 @@
    "open_edges": false
   },
   {
-   "id": "ledge_mv_0",
+   "id": "well_rim",
    "rect": [
-    600,
-    620,
-    280,
+    980,
+    570,
+    260,
+    70
+   ],
+   "height": 300,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "well_ledge_200",
+   "rect": [
+    1300,
+    590,
+    260,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "well_ledge_100",
+   "rect": [
+    1000,
+    650,
+    240,
     70
    ],
    "height": 100,
@@ -107,34 +133,36 @@
    "id": "jar_1",
    "type": "jar",
    "at": [
-    630,
-    655
+    1490,
+    604
    ],
    "loot": "jar_valley_mid",
    "level": 24,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 200,
+   "surface": "well_ledge_200"
   },
   {
    "id": "jar_2",
    "type": "jar",
    "at": [
-    850,
-    655
+    1190,
+    664
    ],
    "loot": "jar_valley_mid",
    "level": 24,
    "hp": 1,
    "respawn_s": 300,
-   "alt": 100
+   "alt": 100,
+   "surface": "well_ledge_100"
   },
   {
    "id": "jar_3",
    "type": "jar",
    "at": [
-    1327,
-    700
+    400,
+    720
    ],
    "loot": "jar_valley_mid",
    "level": 24,
@@ -145,8 +173,8 @@
    "id": "jar_4",
    "type": "jar",
    "at": [
-    1843,
-    720
+    2000,
+    900
    ],
    "loot": "jar_valley_mid",
    "level": 24,
@@ -157,7 +185,7 @@
    "id": "jar_5",
    "type": "jar",
    "at": [
-    2283,
+    2300,
     720
    ],
    "loot": "jar_valley_mid",
@@ -169,12 +197,13 @@
    "id": "chest_6",
    "type": "chest",
    "at": [
-    740,
-    655
+    1050,
+    584
    ],
    "loot": "chest_dungeon",
    "level": 27,
-   "alt": 100
+   "alt": 300,
+   "surface": "well_rim"
   },
   {
    "id": "rite_riverbreath",
@@ -198,8 +227,8 @@
    "id": "inscription_ds_scripture_well_0",
    "type": "inspect",
    "at": [
-    500,
-    700
+    1150,
+    584
    ],
    "prop": "scholar_rock",
    "text": "Lu's handwriting, faded under the silt: \"Breathe with the river, not against it.\"",
@@ -211,7 +240,9 @@
       "quest": "lus_handwriting"
      }
     ]
-   }
+   },
+   "alt": 300,
+   "surface": "well_rim"
   },
   {
    "id": "page_method_conversion_pill_2",
@@ -238,35 +269,85 @@
      }
     ]
    }
+  },
+  {
+   "id": "inscription_ds_scripture_well_1",
+   "type": "inspect",
+   "at": [
+    1400,
+    604
+   ],
+   "alt": 200,
+   "surface": "well_ledge_200",
+   "prop": "scholar_rock",
+   "text": "Lu's hand again, lower down the shaft: \"The river does not fight the stone. It goes round, and in a thousand years the stone is gone.\"",
+   "set_flag": "inscription_ds_scripture_well_1"
+  },
+  {
+   "id": "inscription_ds_scripture_well_2",
+   "type": "inspect",
+   "at": [
+    1090,
+    664
+   ],
+   "alt": 100,
+   "surface": "well_ledge_100",
+   "prop": "scholar_rock",
+   "text": "Scratched just above the water line, in a hurry: \"Breathe out before you go under. The well gives back what you do not hold.\"",
+   "set_flag": "inscription_ds_scripture_well_2"
   }
  ],
  "spawns": [
   {
    "enemy": "paper_talisman_ghost",
+   "surface": "well_rim",
+   "points": [
+    [
+     1200,
+     605
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 12,
+   "level": [
+    23,
+    26
+   ]
+  },
+  {
+   "enemy": "paper_talisman_ghost",
+   "surface": "well_ledge_200",
+   "points": [
+    [
+     1350,
+     625
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 12,
+   "level": [
+    23,
+    26
+   ]
+  },
+  {
+   "enemy": "paper_talisman_ghost",
    "surface": "ground",
    "points": [
     [
-     483,
-     735
+     500,
+     800
     ],
     [
-     840,
-     925
+     2150,
+     820
     ],
     [
-     1304,
-     854
-    ],
-    [
-     2154,
-     797
-    ],
-    [
-     2092,
-     925
+     2250,
+     920
     ]
    ],
-   "max": 4,
+   "max": 2,
    "respawn_s": 12,
    "level": [
     23,
@@ -403,6 +484,15 @@
     2560,
     60
    ]
+  },
+  {
+   "kind": "water",
+   "rect": [
+    1100,
+    660,
+    360,
+    120
+   ]
   }
  ],
  "music": "dungeon",
@@ -422,24 +512,71 @@
     -50,
     10
    ]
+  },
+  {
+   "id": "well_pool",
+   "kind": "water_deep",
+   "rect": [
+    1100,
+    660,
+    360,
+    120
+   ],
+   "alt": [
+    -100,
+    10
+   ]
   }
  ],
  "climbables": [
   {
-   "id": "ledge_mv_0_rope_1",
+   "id": "well_rim_rope",
    "kind": "rope",
    "at": [
-    740,
-    725
+    1010,
+    675
    ],
    "top_at": [
-    740,
-    682
+    1010,
+    632
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "well_rim"
+  },
+  {
+   "id": "well_bucket_chain",
+   "kind": "chain",
+   "at": [
+    1530,
+    695
+   ],
+   "top_at": [
+    1530,
+    652
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "well_ledge_200"
+  },
+  {
+   "id": "well_ledge_100_rope",
+   "kind": "rope",
+   "at": [
+    1030,
+    755
+   ],
+   "top_at": [
+    1030,
+    712
    ],
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
-   "top": "ledge_mv_0"
+   "top": "well_ledge_100"
   }
- ]
+ ],
+ "vertical": "authored"
 }

@@ -324,6 +324,18 @@
    }
   },
   {
+   "id": "chest_mission_hall",
+   "type": "chest",
+   "at": [
+    2230,
+    568
+   ],
+   "loot": "chest_valley",
+   "level": 4,
+   "alt": 264,
+   "surface": "cloud_roof"
+  },
+  {
    "id": "thief_ja",
    "type": "npc",
    "at": [

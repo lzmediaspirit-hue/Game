@@ -72,6 +72,32 @@
    "open_edges": true
   },
   {
+   "id": "tent_top_jade",
+   "rect": [
+    818,
+    612,
+    164,
+    62
+   ],
+   "height": 100,
+   "kind": "awning",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "tent_top_cloud",
+   "rect": [
+    1618,
+    612,
+    164,
+    62
+   ],
+   "height": 100,
+   "kind": "awning",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
    "id": "route_0",
    "rect": [
     540,
@@ -87,7 +113,7 @@
   {
    "id": "route_1",
    "rect": [
-    1810,
+    1870,
     636,
     220,
     70
@@ -126,10 +152,10 @@
   {
    "id": "bridge_0",
    "rect": [
-    2950,
+    2090,
     636,
-    200,
-    60
+    330,
+    70
    ],
    "height": 88.0,
    "kind": "rope_bridge",
@@ -139,10 +165,10 @@
   {
    "id": "bridge_1",
    "rect": [
-    2030,
+    2950,
     636,
-    390,
-    70
+    200,
+    60
    ],
    "height": 88.0,
    "kind": "rope_bridge",
@@ -308,20 +334,24 @@
    "type": "npc",
    "at": [
     900,
-    760
+    810
    ],
    "npc": "recruiter_qing_lan",
-   "facing": 1
+   "facing": 1,
+   "alt": 40,
+   "surface": "stage_jade_step"
   },
   {
    "id": "npc_recruiter_mo_yun",
    "type": "npc",
    "at": [
     1700,
-    760
+    810
    ],
    "npc": "recruiter_mo_yun",
-   "facing": -1
+   "facing": -1,
+   "alt": 40,
+   "surface": "stage_cloud_step"
   },
   {
    "id": "npc_shen_lian",
@@ -407,6 +437,72 @@
    "open_page": "tower",
    "label": "Trial Tower",
    "text": "Thirty floors, one trial each. Names of those who reached the top are carved at the bottom, and there are not many."
+  },
+  {
+   "id": "fair_lantern_0",
+   "type": "pickup",
+   "at": [
+    1250,
+    770
+   ],
+   "alt": 280,
+   "item": "jasmine_dew_tea",
+   "count": 1,
+   "prop": "lotus_lantern",
+   "label": "Festival Lantern",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "fair_lantern_0"
+     }
+    ]
+   },
+   "set_flag": "fair_lantern_0"
+  },
+  {
+   "id": "fair_lantern_1",
+   "type": "pickup",
+   "at": [
+    1120,
+    760
+   ],
+   "alt": 272,
+   "item": "jasmine_dew_tea",
+   "count": 1,
+   "prop": "lotus_lantern",
+   "label": "Festival Lantern",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "fair_lantern_1"
+     }
+    ]
+   },
+   "set_flag": "fair_lantern_1"
+  },
+  {
+   "id": "fair_lantern_2",
+   "type": "pickup",
+   "at": [
+    1380,
+    760
+   ],
+   "alt": 272,
+   "item": "jasmine_dew_tea",
+   "count": 1,
+   "prop": "lotus_lantern",
+   "label": "Festival Lantern",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "fair_lantern_2"
+     }
+    ]
+   },
+   "set_flag": "fair_lantern_2"
   }
  ],
  "spawns": [],
@@ -530,6 +626,54 @@
    "base": 0,
    "top": 40,
    "kind": "drum"
+  },
+  {
+   "id": "stage_jade",
+   "rect": [
+    820,
+    740,
+    160,
+    50
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "wall"
+  },
+  {
+   "id": "stage_jade_step",
+   "rect": [
+    830,
+    790,
+    140,
+    36
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "wall"
+  },
+  {
+   "id": "stage_cloud",
+   "rect": [
+    1620,
+    740,
+    160,
+    50
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "wall"
+  },
+  {
+   "id": "stage_cloud_step",
+   "rect": [
+    1630,
+    790,
+    140,
+    36
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "wall"
   }
  ],
  "volumes": [
@@ -551,6 +695,38 @@
  ],
  "climbables": [
   {
+   "id": "tent_rope_jade",
+   "kind": "rope",
+   "at": [
+    975,
+    709
+   ],
+   "top_at": [
+    975,
+    666
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "tent_top_jade"
+  },
+  {
+   "id": "tent_rope_cloud",
+   "kind": "rope",
+   "at": [
+    1625,
+    709
+   ],
+   "top_at": [
+    1625,
+    666
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "tent_top_cloud"
+  },
+  {
    "id": "deck_fair_1_ladder_1",
    "kind": "ladder",
    "at": [
@@ -565,22 +741,6 @@
    "top_alt": 176,
    "bottom": "ground",
    "top": "deck_fair_1"
-  },
-  {
-   "id": "route_0_ladder_2",
-   "kind": "ladder",
-   "at": [
-    650,
-    741
-   ],
-   "top_at": [
-    650,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 88,
-   "bottom": "ground",
-   "top": "route_0"
   }
  ]
 }

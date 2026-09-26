@@ -48,28 +48,86 @@
   {
    "id": "terrace_1",
    "rect": [
-    600,
-    660,
+    560,
     500,
-    90
+    480,
+    80
    ],
-   "height": 100,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
+   "height": 40,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "terrace_stairs_1",
+   "rect": [
+    580,
+    580,
+    160,
+    100
+   ],
+   "height": 40,
+   "kind": "stairs",
+   "stratum": "ground",
+   "open_edges": false,
+   "rise": -40,
+   "rise_axis": "y"
   },
   {
    "id": "terrace_2",
    "rect": [
-    1300,
-    640,
+    1040,
     500,
-    90
+    480,
+    80
    ],
-   "height": 100,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
+   "height": 80,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "terrace_stairs_2",
+   "rect": [
+    1060,
+    580,
+    160,
+    140
+   ],
+   "height": 80,
+   "kind": "stairs",
+   "stratum": "ground",
+   "open_edges": false,
+   "rise": -80,
+   "rise_axis": "y"
+  },
+  {
+   "id": "terrace_3",
+   "rect": [
+    1520,
+    500,
+    480,
+    80
+   ],
+   "height": 120,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "terrace_stairs_3",
+   "rect": [
+    1540,
+    580,
+    160,
+    180
+   ],
+   "height": 120,
+   "kind": "stairs",
+   "stratum": "ground",
+   "open_edges": false,
+   "rise": -120,
+   "rise_axis": "y"
   }
  ],
  "portals": [
@@ -101,10 +159,10 @@
    "id": "bed_0",
    "type": "garden_bed",
    "at": [
-    700,
-    700
+    890,
+    508
    ],
-   "alt": 100,
+   "alt": 40,
    "field_grade": "low",
    "requires": {
     "all": [
@@ -114,16 +172,17 @@
      }
     ]
    },
-   "locked_text": "Garden beds belong to inner disciples."
+   "locked_text": "Garden beds belong to inner disciples.",
+   "surface": "terrace_1"
   },
   {
    "id": "bed_1",
    "type": "garden_bed",
    "at": [
-    850,
-    700
+    1370,
+    508
    ],
-   "alt": 100,
+   "alt": 80,
    "field_grade": "low",
    "requires": {
     "all": [
@@ -133,16 +192,17 @@
      }
     ]
    },
-   "locked_text": "Garden beds belong to inner disciples."
+   "locked_text": "Garden beds belong to inner disciples.",
+   "surface": "terrace_2"
   },
   {
    "id": "bed_2",
    "type": "garden_bed",
    "at": [
-    1000,
-    700
+    1850,
+    508
    ],
-   "alt": 100,
+   "alt": 120,
    "field_grade": "low",
    "requires": {
     "all": [
@@ -152,14 +212,15 @@
      }
     ]
    },
-   "locked_text": "Garden beds belong to inner disciples."
+   "locked_text": "Garden beds belong to inner disciples.",
+   "surface": "terrace_3"
   },
   {
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    400,
-    900
+    640,
+    508
    ],
    "item": "willow_moss",
    "prop": "willow_moss_patch",
@@ -177,14 +238,16 @@
      }
     ]
    },
-   "locked_text": "You don't know which leaves are worth picking yet."
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 40,
+   "surface": "terrace_1"
   },
   {
    "id": "herb_2",
    "type": "herb_patch",
    "at": [
-    1500,
-    700
+    1640,
+    508
    ],
    "item": "riverreed_ginseng_10",
    "prop": "riverreed_ginseng_patch",
@@ -203,7 +266,8 @@
     ]
    },
    "locked_text": "You don't know which leaves are worth picking yet.",
-   "alt": 100
+   "alt": 120,
+   "surface": "terrace_3"
   },
   {
    "id": "npc_jade_gardener",
@@ -229,33 +293,6 @@
    "flip": false
   },
   {
-   "prop": "pine_tree",
-   "at": [
-    681,
-    633
-   ],
-   "layer": "play",
-   "flip": true
-  },
-  {
-   "prop": "bamboo_cluster",
-   "at": [
-    1217,
-    632
-   ],
-   "layer": "play",
-   "flip": false
-  },
-  {
-   "prop": "pine_tree",
-   "at": [
-    1600,
-    629
-   ],
-   "layer": "play",
-   "flip": true
-  },
-  {
    "prop": "bamboo_cluster",
    "at": [
     2041,
@@ -269,38 +306,7 @@
  "music": "sect",
  "sect": "jade_sect",
  "town": true,
- "climbables": [
-  {
-   "id": "terrace_1_rope_1",
-   "kind": "rope",
-   "at": [
-    850,
-    785
-   ],
-   "top_at": [
-    850,
-    742
-   ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "terrace_1"
-  },
-  {
-   "id": "terrace_2_rope_2",
-   "kind": "rope",
-   "at": [
-    1550,
-    765
-   ],
-   "top_at": [
-    1550,
-    722
-   ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "terrace_2"
-  }
- ]
+ "climbables": [],
+ "movers": [],
+ "vertical": "authored"
 }

@@ -85,6 +85,18 @@
    "to": "cm_sword_court",
    "to_portal": "library",
    "press_up": true
+  },
+  {
+   "id": "cliff_door",
+   "type": "door",
+   "at": [
+    960,
+    660
+   ],
+   "to": "cm_cliff_stair",
+   "to_portal": "library",
+   "press_up": true,
+   "label": "Cliff Stair"
   }
  ],
  "objects": [

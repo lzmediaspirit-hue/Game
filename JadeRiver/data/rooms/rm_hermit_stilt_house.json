@@ -57,18 +57,32 @@
    "kind": "roof",
    "stratum": "platform",
    "open_edges": true,
-   "art": "stilt_house"
+   "art": "stilt_house",
+   "optional": true
   },
   {
    "id": "pond_raft",
    "rect": [
     612,
-    682,
-    90,
-    70
+    766,
+    100,
+    60
    ],
    "height": 14,
    "kind": "raft",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "stilt_house_deck",
+   "rect": [
+    560,
+    690,
+    380,
+    60
+   ],
+   "height": 120,
+   "kind": "stilt",
    "stratum": "platform",
    "open_edges": true
   }
@@ -177,6 +191,30 @@
      }
     ]
    }
+  },
+  {
+   "id": "hermit_mat",
+   "type": "inspect",
+   "at": [
+    700,
+    720
+   ],
+   "alt": 120,
+   "surface": "stilt_house_deck",
+   "prop": "meditation_mat",
+   "text": "The hermit's mat, worn thin. From up here you can see every otter in the pond, and every otter can see you."
+  },
+  {
+   "id": "hermit_tea",
+   "type": "inspect",
+   "at": [
+    860,
+    720
+   ],
+   "alt": 120,
+   "surface": "stilt_house_deck",
+   "prop": "cooking_pot",
+   "text": "A kettle of reed tea gone cold. \"Drink it cold. The otters drink it cold.\""
   }
  ],
  "spawns": [],
@@ -251,36 +289,21 @@
  ],
  "climbables": [
   {
-   "id": "stilt_house_ladder_1",
+   "id": "stilt_house_ladder",
    "kind": "ladder",
    "at": [
-    760,
-    725
+    578,
+    785
    ],
    "top_at": [
-    760,
-    682
+    578,
+    742
    ],
    "bottom_alt": 0,
-   "top_alt": 196,
+   "top_alt": 120,
    "bottom": "ground",
-   "top": "stilt_house"
-  },
-  {
-   "id": "stilt_house_ladder_102",
-   "kind": "ladder",
-   "at": [
-    680,
-    725
-   ],
-   "top_at": [
-    680,
-    682
-   ],
-   "bottom_alt": 0,
-   "top_alt": 196,
-   "bottom": "ground",
-   "top": "stilt_house"
+   "top": "stilt_house_deck"
   }
- ]
+ ],
+ "vertical": "authored"
 }

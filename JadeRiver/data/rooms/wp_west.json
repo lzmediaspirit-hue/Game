@@ -598,6 +598,66 @@
    "base": 0,
    "top": 60,
    "kind": "log"
+  },
+  {
+   "id": "stump_block_0",
+   "rect": [
+    681,
+    680,
+    38,
+    24
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "stump"
+  },
+  {
+   "id": "stump_block_1",
+   "rect": [
+    801,
+    700,
+    38,
+    24
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "stump"
+  },
+  {
+   "id": "stump_block_2",
+   "rect": [
+    921,
+    720,
+    38,
+    24
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "stump"
+  },
+  {
+   "id": "lift_1_block",
+   "rect": [
+    1173,
+    702,
+    54,
+    22
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "lifting"
+  },
+  {
+   "id": "lift_2_block",
+   "rect": [
+    1293,
+    882,
+    54,
+    22
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "lifting"
   }
  ],
  "climbables": [
@@ -618,39 +678,7 @@
    "top": "willow_branch_a"
   },
   {
-   "id": "pine_branch_vine_2",
-   "kind": "vine",
-   "at": [
-    610,
-    725
-   ],
-   "top_at": [
-    610,
-    682
-   ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "pine_branch"
-  },
-  {
-   "id": "willow_branch_c_vine_3",
-   "kind": "vine",
-   "at": [
-    1410,
-    725
-   ],
-   "top_at": [
-    1410,
-    682
-   ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "willow_branch_c"
-  },
-  {
-   "id": "willow_low_vine_4",
+   "id": "willow_low_vine_2",
    "kind": "vine",
    "at": [
     2050,
@@ -666,7 +694,7 @@
    "top": "willow_low"
   },
   {
-   "id": "willow_crown_vine_5",
+   "id": "willow_crown_vine_3",
    "kind": "vine",
    "at": [
     2220,

@@ -71,19 +71,6 @@
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
-  },
-  {
-   "id": "rope_ledge_step_ledge_4",
-   "rect": [
-    1280,
-    620,
-    160,
-    70
-   ],
-   "height": 100,
-   "kind": "rock_ledge",
-   "stratum": "platform",
-   "open_edges": true
   }
  ],
  "portals": [
@@ -146,11 +133,13 @@
    "id": "npc_cloud_formation_elder",
    "type": "npc",
    "at": [
-    900,
-    800
+    930,
+    830
    ],
    "npc": "cloud_formation_elder",
-   "facing": -1
+   "facing": -1,
+   "alt": 40,
+   "surface": "array_dais"
   },
   {
    "id": "npc_cloud_physician",
@@ -167,7 +156,7 @@
    "type": "formation_table",
    "at": [
     1100,
-    880
+    840
    ],
    "requires": {
     "all": [
@@ -177,7 +166,9 @@
      }
     ]
    },
-   "locked_text": "Formation lines. You can't read them yet."
+   "locked_text": "Formation lines. You can't read them yet.",
+   "alt": 40,
+   "surface": "array_dais"
   },
   {
    "id": "furnace_cm",
@@ -269,31 +260,84 @@
    "prop": "formation_node",
    "at": [
     700,
-    760
+    738
    ],
-   "layer": "play"
+   "layer": "play",
+   "alt": 60
   },
   {
    "prop": "formation_node",
    "at": [
     1000,
-    760
+    738
    ],
-   "layer": "play"
+   "layer": "play",
+   "alt": 60
   },
   {
    "prop": "formation_node",
    "at": [
     1300,
-    760
+    738
    ],
-   "layer": "play"
+   "layer": "play",
+   "alt": 60
   }
  ],
  "areas": [],
  "music": "sect",
  "sect": "cloud_sect",
  "town": true,
+ "blocks": [
+  {
+   "id": "array_dais",
+   "rect": [
+    860,
+    790,
+    480,
+    110
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "wall"
+  },
+  {
+   "id": "formation_table_0",
+   "rect": [
+    650,
+    720,
+    100,
+    44
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "table"
+  },
+  {
+   "id": "formation_table_1",
+   "rect": [
+    950,
+    720,
+    100,
+    44
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "table"
+  },
+  {
+   "id": "formation_table_2",
+   "rect": [
+    1250,
+    720,
+    100,
+    44
+   ],
+   "base": 0,
+   "top": 60,
+   "kind": "table"
+  }
+ ],
  "climbables": [
   {
    "id": "retreat_rooms_cm_ladder_1",
@@ -344,20 +388,20 @@
    "top": "rope_ledge"
   },
   {
-   "id": "rope_ledge_step_ledge_4_rope_101",
+   "id": "rope_ledge_rope_104",
    "kind": "rope",
    "at": [
-    1360,
+    1550,
     725
    ],
    "top_at": [
-    1360,
+    1550,
     682
    ],
    "bottom_alt": 0,
-   "top_alt": 100,
+   "top_alt": 200,
    "bottom": "ground",
-   "top": "rope_ledge_step_ledge_4"
+   "top": "rope_ledge"
   }
  ]
 }
