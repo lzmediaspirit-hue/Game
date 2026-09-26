@@ -3390,6 +3390,183 @@
    "tree": "gu_the_purser"
   },
   {
+   "id": "warden_commander_yao",
+   "name": "Warden-Commander Yao",
+   "title": "Commander of the Star Wardens",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 4,
+    "shirt": "disciple",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "guan",
+    "cape": "solid",
+    "weapon": "spear",
+    "shirt_dye": "white",
+    "pants_dye": "indigo"
+   },
+   "lines": [
+    "Forty lanterns when I took this command. Twenty-eight tonight. Every one that goes dark, the Tide walks in behind.",
+    "A Warden is a Will that has agreed to be a wall. Most people only agree for a while."
+   ],
+   "barks": [
+    "Hold the line.",
+    "Report."
+   ],
+   "services": []
+  },
+  {
+   "id": "stargazer_ming",
+   "name": "Stargazer Ming",
+   "title": "Keeper of the Observatory",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 3,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "guan",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "ink",
+    "pants_dye": "white"
+   },
+   "lines": [
+    "Every Sphere Lord's world is up there somewhere. Small. Turning. Waiting to be recognised.",
+    "Presence asks who is stronger. A Sphere answers: here, the rules are mine."
+   ],
+   "barks": [
+    "Mind the lenses.",
+    "Clear skies tonight."
+   ],
+   "services": [
+    "shop:observatory"
+   ],
+   "service_labels": {
+    "shop:observatory": "Star-stones"
+   }
+  },
+  {
+   "id": "shen_lian_warden",
+   "name": "Shen Lian",
+   "title": "Star Warden aspirant",
+   "outfit": {
+    "body": "light",
+    "hair": "high_pony",
+    "hair_color": 0,
+    "shirt": "vneck",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "solid",
+    "weapon": "sword",
+    "shirt_dye": "indigo",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "Lotus Ferry's two fisher boys, both out here at the edge of the sky. The Wardens will only take one of us.",
+    "I have a Sword Domain now. You will want to hold your Presence."
+   ],
+   "barks": [
+    "Again.",
+    "Don't hold back."
+   ],
+   "services": [
+    "spar:shen_lian_aspirant"
+   ],
+   "service_labels": {
+    "spar:shen_lian_aspirant": "Spar with Shen Lian"
+   }
+  },
+  {
+   "id": "presence_master_ruo",
+   "name": "Presence-Master Ruo",
+   "title": "Warden of the Presence Court",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 5,
+    "shirt": "sleeveless",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "white",
+    "pants_dye": "indigo"
+   },
+   "lines": [
+    "Hold it. Don't push. Hold. A Presence that pushes is a Presence that tires.",
+    "When two Spheres touch, one of them breaks. Make sure you know which before you let them touch."
+   ],
+   "barks": [
+    "Breathe.",
+    "Again, softer."
+   ],
+   "services": []
+  },
+  {
+   "id": "orbit_hermit",
+   "name": "The Orbit Hermit",
+   "title": "Hermit of the Orbit Ruins",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 3,
+    "shirt": "scholar",
+    "pants": "loose",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "solid",
+    "weapon": "none",
+    "shirt_dye": "cloud",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "The first Wardens built a temple to watch the stars turn. Then the island began to turn with them. I stayed.",
+    "Space is not empty. It is folded. Learn where the folds are and a step is as long as you like."
+   ],
+   "barks": [
+    "Mind the floor. It moves.",
+    "Hm? Oh. Hello."
+   ],
+   "services": []
+  },
+  {
+   "id": "lanternwright_han",
+   "name": "Lanternwright Han",
+   "title": "Scholar-lanternwright",
+   "outfit": {
+    "body": "light",
+    "hair": "flowing",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "guan",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "white",
+    "pants_dye": "indigo"
+   },
+   "lines": [
+    "The first Wardens wrote 'stay' on every cage and the stars stayed. Words are not weak. They are only rarely meant.",
+    "An upright heart writes a stronger glyph. A heart that is not upright should not write at all."
+   ],
+   "barks": [
+    "Straight lines.",
+    "Ink, brush, breath."
+   ],
+   "services": [
+    "shop:lanternwright"
+   ],
+   "service_labels": {
+    "shop:lanternwright": "Glyph-scrolls"
+   }
+  },
+  {
    "id": "tamer_qiu",
    "name": "Tamer Qiu",
    "title": "Keeper of the Wyrmnest",

@@ -10,7 +10,7 @@ extends "res://tests/prologue_run.gd"
 ##   godot --headless --path . res://tests/valley_run.tscn -- [--from=<section>] [--verbose]
 
 const SECTIONS := ["bf2", "bf5", "bf8", "qk1", "qk5", "qu1", "qu5", "ht1", "ht5", "cs1", "cs5", "sa1", "sa5", "hg1", "ae1", "ae2", "ae3", "ae4",
-	"ae5", "ae6", "ls1", "ls2", "ls3"]
+	"ae5", "ae6", "ls1", "ls2", "ls3", "ls4"]
 const CP_ROOT := "user://valley_cp/"
 const WORK := "user://valley_work/"
 
@@ -345,8 +345,9 @@ func reach(realm: String, supports: Array = []) -> bool:
 				# A failed major breakthrough consumes its materials: make another, as a player would.
 				if str(r0.get("text", "")).begins_with("Qi Refining Pill"): make_refining_pill()
 				if str(r0.get("text", "")).begins_with("Mind Lake Opening Pill"): make_mind_lake_pill()
-				# The condensing pills come from recipes the player has learned: refine another (test shortcut).
-				for cp in ["sage_condensing_pill", "law_condensing_pill", "monarch_condensing_pill"]:
+				# The condensing pills come from recipes the player has learned: refine another (test shortcut). A broken
+				# Sphere Comprehension Stone is bought again from Stargazer Ming.
+				for cp in ["sage_condensing_pill", "law_condensing_pill", "monarch_condensing_pill", "sphere_comprehension_stone"]:
 					if str(r0.get("text", "")).begins_with(ContentDB.item_name(cp)) and c().inventory.count(cp) < 1:
 						Game.inventory.apply_add(c().id, cp, 1, "test_shortcut")
 				q = Game.progression.query_breakthrough(c(), supports)
@@ -378,7 +379,7 @@ func reach(realm: String, supports: Array = []) -> bool:
 ## would (a test shortcut moves the body straight to the side).
 func weather_tribulation() -> void:
 	var guard := 0
-	while Game.progression.is_under_tribulation(c().id) and guard < 900:
+	while Game.progression.is_under_tribulation(c().id) and guard < 6000:
 		var tv: Dictionary = Game.progression.tribulation_view(c().id)
 		var w: Dictionary = tv.get("warn", {})
 		var st: ActorState = Game.actor_state(c().id)
@@ -2502,6 +2503,79 @@ func sec_ls3() -> void:
 	var q: Dictionary = Game.progression.query_breakthrough(c(), [])
 	check(str(q.get("to", "")) == "sphere_lord_1", "the next step is Sphere Lord")
 	checkpoint("ls3_end")
+
+## v1.2 Phase C · chapter 20 (The Star Wardens): the Citadel, Shen Lian's spar, the Observatory, Sphere Lord and the
+## Sphere's lesson, the Orbit Ruins (a jade gravity switch, the golems, the Space Dao) and the Confucian path.
+func sec_ls4() -> void:
+	tidy_bag(12)
+	var zone := "lantern_star_field"
+	var jade := str(c().training_sect.get("id", "")) == "jade_sect"
+	check(teleport_from("ja_gate_street" if jade else "cm_cliff_stair", "stone_ja" if jade else "stone_cm", "lanternfall"),
+		"the valley stone carries you back to Lanternfall")
+	check(start("the_citadel"), "The Citadel accepted")
+	check(travel("wc_citadel_gate"), "the Wardens' skiff to the Citadel")
+	check(finish("the_citadel"), "The Citadel done")
+	check(start("the_aspirant"), "The Aspirant accepted")
+	var npc := go_to_npc(["shen_lian_warden"])
+	var won := false
+	for i in 3:
+		won = spar_with(func(): return _spar_service(npc))
+		if won: break
+		revive_if_needed()
+	check(won, "beat Shen Lian in the Presence Court, Sword Domain and all")
+	check(finish("the_aspirant"), "The Aspirant done")
+	# Presence level 5 opens the Observatory: hold it a while (real), then the test shortcut for the long training.
+	if not Game.field.is_on(c().id): submit({"type": "toggle_presence", "on": true})
+	step(3.0)
+	var guard := 0
+	while Game.field.presence_level(c()) < 5 and guard < 40:
+		Game.field.apply_presence_xp(c().id, 40.0, "test_shortcut")
+		guard += 1
+	submit({"type": "toggle_presence", "on": false})
+	check(Game.field.presence_level(c()) >= 5, "Presence level 5")
+	check(start("the_observatory"), "The Observatory accepted")
+	check(travel("wc_observatory"), "climb to the Observatory")
+	place(obj_at("great_scope") + Vector2(0, 30))
+	interact("great_scope")
+	check(c().quests.flags.has("observed_sphere") or _objective("the_observatory", 0) >= 1, "look into the great scope")
+	check(finish("the_observatory"), "The Observatory done")
+	check(c().inventory.count("sphere_comprehension_stone") >= 1, "a Sphere Comprehension Stone")
+	check(start("sphere_lord"), "Sphere Lord accepted")
+	check(reach("sphere_lord_1"), "Sphere Lord 1")
+	check(finish("sphere_lord"), "Sphere Lord done")
+	check(start("a_sphere_of_ones_own"), "Stargazer Ming offers A Sphere of One's Own")
+	check(unlocked("sphere"), "the Sphere unlocks with its lesson")
+	var raised := submit({"type": "toggle_sphere", "on": true})
+	check(raised.get("ok", false) and Game.field.sphere_on(c().id), "raise the Sphere: %s" % str(raised.get("element", raised.get("reason", ""))))
+	step(2.0)
+	submit({"type": "toggle_sphere", "on": false})
+	check(finish("a_sphere_of_ones_own"), "A Sphere of One's Own done")
+	# The Orbit Ruins.
+	check(start("the_orbit_ruins"), "The Orbit Ruins accepted")
+	attune_to(zone, 50.0)
+	talk(go_to_npc(["orbit_hermit"]))
+	check(_objective("the_orbit_ruins", 0) >= 1, "find the Orbit Hermit in the Orbit Garden")
+	place(obj_at("switch_garden") + Vector2(0, 30))
+	var sw := interact("switch_garden")
+	check(sw.get("ok", false) and Game.room_rt.geometry.gravity_at(obj_at("switch_garden") + Vector2(0, 60), 0.0) < 1.0,
+		"press a jade switch down: the air in the garden grows light")
+	interact("switch_garden")
+	check(travel("or_golem_foundry"), "on to the Golem Foundry")
+	var golems := fight("gravity_golem", 3, 900.0, 0.3)
+	check(golems >= 3 or _objective("the_orbit_ruins", 2) >= 3, "break three Gravity Golems (%d)" % golems)
+	attune_to(zone, 56.0)
+	check(travel("or_inverted_hall"), "enter the Inverted Hall")
+	check(finish("the_orbit_ruins"), "The Orbit Ruins done")
+	check(c().cultivator.daos.has("space"), "the Orbit Hermit opens the Space Dao")
+	# The Confucian path: an upright heart and the written word.
+	check(start("the_written_word"), "Lanternwright Han offers The Written Word")
+	check(unlocked("confucian_path"), "the Confucian path unlocks with it")
+	if c().relations.alignment < 20: Game.relations.apply_alignment(c().id, 20 - c().relations.alignment, "test_shortcut")
+	var walk := submit({"type": "set_path", "path": "confucian", "on": true})
+	check(walk.get("ok", false) and ProgressionAuthority.walks(c(), "confucian"), "walk the Confucian path %s" % str(walk.get("reason", "")))
+	check(finish("the_written_word"), "The Written Word done")
+	check("upright_glyph" in c().cultivator.techniques_known, "Lanternwright Han teaches the Upright Glyph")
+	checkpoint("ls4_end")
 
 ## Walk to a teleport stone and take it to another (a cross-zone jump costs five times the fee).
 func teleport_from(stone_room: String, stone_obj: String, to_stone: String) -> bool:

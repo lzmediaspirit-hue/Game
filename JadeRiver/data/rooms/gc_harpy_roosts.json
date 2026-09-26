@@ -649,5 +649,9 @@
    "top": 40,
    "kind": "rock"
   }
+ ],
+ "terrain": [
+  "grass",
+  "stone"
  ]
 }

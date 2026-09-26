@@ -519,6 +519,7 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	if c.pools.has_status("qi_seal") and not StatRules.body_flag(c, "qi_seal_immune"): return fail("sealed")
 	# S48 paths as layers: Blood arts need the Blood path; the Golden Body needs a vow held.
 	if t.get("blood_path", false) and not ProgressionAuthority.walks(c, "blood"): return fail("needs_blood_path", {"text": Tx.t("sim.combat.needs_blood_path")})
+	if t.get("confucian_path", false) and not ProgressionAuthority.walks(c, "confucian"): return fail("needs_confucian_path", {"text": Tx.t("sim.combat.needs_confucian_path")})
 	if t.get("needs_vow", false) and c.cultivator.vows.is_empty(): return fail("needs_vow", {"text": Tx.t("sim.combat.needs_vow")})
 	if t.get("flying_only", false):
 		var st: ActorState = game.actor_state(c.id)
@@ -832,6 +833,7 @@ func _resolve_basic(c) -> void:
 		if n >= max_targets: break
 		var attack := {"damage_type": "physical", "element": "none", "mult": [mult, mult], "range": fam.get("range", [0.9, 1.1]),
 			"dao_tier": _dao_tier(c, str(fam.get("dao", ""))), "room_element": str(game.room_rt.def.get("element", "")) if game.room_rt else "",
+			"sphere_element": game.field.sphere_element(c),
 			"knockback": float(step.get("knockback", fam.get("knockback_every_hit", 0))), "source": "basic"}
 		if fam.has("backstab") and e.facing == facing: attack.situation = float(fam.backstab)
 		if fam.has("armour_break"):
@@ -887,10 +889,17 @@ func _resolve_technique(c, t: Dictionary) -> void:
 	var attack := {"damage_type": "physical" if dtype == "movement" else dtype, "element": technique_element(c, t),
 		"mult": t.get("mult", [1, 1]), "range": fam.get("range", [0.9, 1.1]), "dao_tier": _dao_tier(c, str(t.get("dao", ""))),
 		"mastery_tier": tier - 1, "room_element": str(game.room_rt.def.get("element", "")) if game.room_rt else "",
+		"sphere_element": game.field.sphere_element(c),
 		"knockback": float(t.get("knockback", 0)), "ignore_armor": t.get("ignore_armor", false),
 		"ignore_resistance": float(t.get("ignore_resistance", 0.0)), "penetration_bonus": float(t.get("penetration", 0.0)),
 		"status": t.get("status", {}), "source": "tech:" + str(t.id), "technique": str(t.id)}
 	if t.has("armour_break"): attack.armour_break = t.armour_break
+	# v1.2 the Confucian path: a written word is as strong as the mind that writes it (Insight against 5 + Level).
+	if float(t.get("insight_scale", 0.0)) > 0.0:
+		var ratio := clampf(c.stats.value("insight") / (5.0 + float(ProgressionRules.level(c))), 0.5, 3.0)
+		var k := float(t.insight_scale)
+		var im := (1.0 - k) + k * ratio
+		attack.mult = [float(attack.mult[0]) * im, float(attack.mult[1]) * im]
 	if float(t.get("knockup_s", 0.0)) > 0.0: attack.knockup_s = float(t.knockup_s)
 	if float(t.get("sense_lock_s", 0.0)) > 0.0: attack.sense_lock_s = float(t.sense_lock_s)
 	if float(t.get("soul_search_s", 0.0)) > 0.0: attack.soul_search_s = float(t.soul_search_s)
@@ -1014,6 +1023,10 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 		attack = attack.duplicate()
 		var sm := 1.0 + float(still)
 		attack.mult = [float(attack.mult[0]) * sm, float(attack.mult[1]) * sm]
+	# v1.2 the Confucian path's Righteous Qi: a quarter more against the Hollow and the demonic.
+	if ProgressionAuthority.walks(c, "confucian") and _unrighteous(e):
+		attack = attack.duplicate()
+		attack.situation = float(attack.get("situation", 1.0)) * (1.0 + float(ContentDB.stat_const("paths", {}).get("confucian", {}).get("righteous", 0.25)))
 	# S28: a stronger Presence bearing down on you takes away part of every blow.
 	var dealt: float = float(attune.get(c.id, {}).get("dealt", 1.0)) * (1.0 - game.field.loss_of(c.id))
 	if dealt != 1.0:
@@ -1342,7 +1355,8 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 	if attack.get("shatter", false): game.inventory.natal_break(c, "shatter")
 	var m := float(attack.get("mult", 1.0)) * float(e.ai.get("enraged", {}).get("damage", 1.0)) * (1.0 - FieldAuthority.enemy_loss(e))
 	var a := {"damage_type": str(attack.get("damage_type", "physical")), "element": e.element, "mult": [m, m],
-		"range": [0.9, 1.1], "knockback": float(attack.get("knockback", 0)), "attunement": float(attune.get(c.id, {}).get("taken", 1.0))}
+		"range": [0.9, 1.1], "knockback": float(attack.get("knockback", 0)), "pull": float(attack.get("pull", 0)),
+		"attunement": float(attune.get(c.id, {}).get("taken", 1.0))}
 	var guard_pv := pv.duplicate()
 	if not (tl.guard and frontal): guard_pv.guarding = 0.0
 	var r := CombatRules.resolve(ev, guard_pv, a, Rng.stream(c.id, "combat"))
@@ -1389,6 +1403,11 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 		if kb > 0 and e != null and not (int(c.cultivator.meridians.get("body", 0)) >= 50 and is_busy(c.id)):
 			tl.forced = Vector2(signf(game.actor_state(c.id).plane.x - e.plane.x) * kb / 0.18, 0) if game.actor_state(c.id) else Vector2.ZERO
 			tl.forced_t = 0.18
+	# v1.2 the Gravity Golem's well: a blow that drags the body toward the one who struck it (into the slam).
+	var pull := float(attack.get("pull", 0)) * (1.0 - clampf(c.stats.value("knockback_resistance"), 0.0, 0.9))
+	if pull > 0.0 and e != null and game.actor_state(c.id) != null and not ProgressionRules.path_flag(c, "knockback_immune", false):
+		tl.forced = Vector2(signf(e.plane.x - game.actor_state(c.id).plane.x) * pull / 0.25, 0)
+		tl.forced_t = 0.25
 	var st: ActorState = game.actor_state(c.id)
 	if spar.has(c.id) and p.hp <= p.max_hp * 0.1:
 		p.hp = p.max_hp * 0.1
@@ -2360,13 +2379,27 @@ func apply_backlash(actor_id: String) -> void:
 	var c = game.character(actor_id)
 	if c and c.pools.max_qi > 0: apply_resource_change(actor_id, "qi", -c.pools.max_qi * float(conf.get("backlash_qi_pct", 0.05)), "backlash")
 
+## A Hollow or demonic foe (Righteous Qi bites deeper): Hollowed or demonic by nature, or carrying the Hollowing.
+static func _unrighteous(e: EnemyState) -> bool:
+	return str(e.def.get("nature", "")) in ["demonic", "hollowed"] or str(e.def.get("element", "")).begins_with("hollow") \
+		or float(e.def.get("hollowing", 0.0)) > 0.0 or str(e.def.get("race", "")) in ["hollow", "demon"]
+
+## v1.2 the Sphere's pulse: a cut, a burn or a shock of `mult` times the bearer's Qi attack that cannot miss.
+func sphere_strike(c, e: EnemyState, element: String, mult: float, kind: String) -> void:
+	if c == null or not e.alive or e.invulnerable: return
+	var pv := player_view(c)
+	var attack := {"damage_type": "qi", "element": element, "mult": [mult, mult], "range": [0.95, 1.05], "never_miss": true,
+		"source": "sphere:" + kind, "sphere_kind": kind}
+	_player_hits_enemy(c, pv, e, attack, 1 if e.plane.x >= pv.get("x", e.plane.x) else -1)
+
 ## A pet or companion strike (AllyBrain) credits its owner.
 func ally_hits_enemy(a: EnemyState, e: EnemyState, attack_power: float) -> void:
 	var owner := a.pet_owner
 	var c = game.character(owner)
 	if c == null or not e.alive or e.invulnerable: return
 	var view := {"level": a.level, "realm_index": ProgressionRules.realm_index(c.cultivator.realm_key), "element": "none",
-		"physical_attack": attack_power, "accuracy": c.stats.value("accuracy"), "crit_chance": 0.05, "crit_damage": 1.5, "energy_mult": 1.0}
+		"physical_attack": attack_power * (1.0 + (float(ContentDB.stat_const("sphere.pet_bonus", 0.1)) if Unlocks.is_unlocked(owner, "sphere") else 0.0)),
+		"accuracy": c.stats.value("accuracy"), "crit_chance": 0.05, "crit_damage": 1.5, "energy_mult": 1.0}   # v1.2: a small Sphere for the pets of a Sphere Lord
 	var r := CombatRules.resolve(view, enemy_view(e), {"damage_type": "physical", "mult": [1.0, 1.0], "range": [0.85, 1.15]}, Rng.stream(owner, "pet"))
 	if r.miss:
 		emit("hit_missed", {"attacker": str(a.uid), "target": str(e.uid), "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover + e.height()})

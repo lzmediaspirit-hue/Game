@@ -555,6 +555,8 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			return game.crafting.gather(c, o)
 		"starsea_dock":
 			return set_sail(c, str(o.get("route", "")))
+		"gravity_switch":
+			return toggle_gravity(c, object_id)   # v1.2 the Orbit Ruins' jade switches
 		"beast_trail":
 			return ok({"dialogue": game.posts.trail_dialogue(c, o)})   # S50 V10c Beast Snaring
 		"ancestral_altar":
@@ -697,6 +699,7 @@ func _verb(o: Dictionary) -> String:
 		"ore_vein": return Tx.t("sim.world.mine")
 		"fishing_spot": return Tx.t("sim.world.fish")
 		"insect_swarm": return Tx.t("sim.world.net")
+		"gravity_switch": return Tx.t("sim.world.turn")
 		"beast_trail": return Tx.t("sim.world.snare")
 		"ancestral_altar": return Tx.t("sim.world.rites")
 		"chest", "storage_chest": return Tx.t("sim.world.open")
@@ -1740,6 +1743,18 @@ func auto_path_step(c) -> Dictionary:
 		return {"portal": str(s.portal), "x": float(p.at[0]), "y": float(p.at[1]), "press_up": bool(p.get("press_up", false)),
 			"surface": str(p.get("surface", ""))}
 	return {}
+
+## v1.2 gravity switches: a jade switch turns its room's low-gravity volumes on or off (every volume tied to it).
+func toggle_gravity(c, object_id: String) -> Dictionary:
+	if game.room_rt == null: return fail("no_room")
+	var st: Dictionary = game.room_rt.objects.get(object_id, {})
+	var on := str(st.get("state", "up")) != "down"
+	st["state"] = "down" if on else "up"
+	game.room_rt.objects[object_id] = st
+	game.room_rt.geometry.set_switch(object_id, on)
+	emit("gravity_switched", {"actor": c.id, "room": str(game.room_rt.room_id), "switch": object_id, "on": on})
+	emit("system_used", {"actor": c.id, "system": "gravity_switch"})
+	return ok({"on": on, "text": t("sim.world.gravity_on") if on else t("sim.world.gravity_off")})
 
 ## P1 quest direction: where the tracked quest leads from this room, the main story's first:
 ## {target, next, portal, x, y} (the exit to take here) or {} when nothing tracked leads elsewhere.

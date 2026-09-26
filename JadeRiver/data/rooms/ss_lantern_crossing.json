@@ -193,5 +193,8 @@
     "kind": "voyage_arrive"
    }
   ]
- }
+ },
+ "terrain": [
+  "wood"
+ ]
 }

@@ -223,5 +223,8 @@
    "top": "drying_mezzanine"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "wood"
+ ]
 }

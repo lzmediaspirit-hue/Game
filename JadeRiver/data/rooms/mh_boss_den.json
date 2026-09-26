@@ -245,5 +245,9 @@
    "bottom": "ground",
    "top": "wine_shelf_2"
   }
+ ],
+ "terrain": [
+  "grass",
+  "stone"
  ]
 }

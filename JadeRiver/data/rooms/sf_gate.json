@@ -387,5 +387,8 @@
    "bottom": "ground",
    "top": "county_hall"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

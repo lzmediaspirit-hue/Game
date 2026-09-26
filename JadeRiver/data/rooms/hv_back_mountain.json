@@ -444,5 +444,8 @@
    "top": "mountain_ledge_300"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "grass"
+ ]
 }

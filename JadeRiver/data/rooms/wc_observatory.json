@@ -1,0 +1,170 @@
+{
+ "schema_version": 1,
+ "id": "wc_observatory",
+ "zone": "lantern_star_field",
+ "region": "warden_citadel",
+ "name": "Observatory",
+ "type": "insight",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 2.4,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    1280,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    120,
+    700
+   ],
+   "to": "wc_citadel_gate",
+   "to_portal": "observatory_door",
+   "press_up": true,
+   "label": "Citadel Gate"
+  }
+ ],
+ "objects": [
+  {
+   "id": "great_scope",
+   "type": "inspect",
+   "at": [
+    800,
+    740
+   ],
+   "prop": "observatory_scope",
+   "set_flag": "observed_sphere",
+   "text": "You put your eye to the bronze and your Will to the stars. Among them, very small, turns a world that is shaped like you.",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_observatory"
+     }
+    ]
+   },
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "observed_sphere"
+     }
+    ]
+   }
+  },
+  {
+   "id": "npc_stargazer_ming",
+   "type": "npc",
+   "at": [
+    560,
+    760
+   ],
+   "npc": "stargazer_ming",
+   "facing": 1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    360,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    920,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "star_chart_table",
+   "at": [
+    420,
+    760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "scroll_rack",
+   "at": [
+    1100,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "observatory_scope",
+   "at": [
+    800,
+    740
+   ],
+   "layer": "play",
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_observatory"
+     }
+    ]
+   }
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_stone"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "music": "lantern_harbor",
+ "lantern": true,
+ "terrain": [
+  "stone"
+ ]
+}

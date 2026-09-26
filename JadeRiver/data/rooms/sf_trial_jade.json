@@ -273,5 +273,8 @@
    "mode": "pingpong"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "stone"
+ ]
 }

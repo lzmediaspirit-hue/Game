@@ -4,6 +4,8 @@ world.py read ZONE, STONES and VOYAGES from here.
 
 Phase A: the Lantern Run from the Starsea Launch, Lanternfall Harbor and the Drifting Shoals.
 Phase B: Blackmast Haven (Admiral Voss) and the Wyrmnest Isles (the Hollowed brood, the last star-wyrm egg).
+Phase C: the Star Warden Citadel (the Wardens, the Observatory, the Presence Court) and the Orbit Ruins (gravity switches,
+Gravity Golems and Orbit Moths, the Orbit Hermit who teaches the Space Dao).
 """
 
 LS = {"zone": "lantern_star_field"}
@@ -25,6 +27,7 @@ VOYAGES = [
 
 STONES = [
     {"id": "lanternfall", "name": "Lanternfall Harbor", "room": "lh_harbor_market", "at": [2100, 880], "fee_shards": 1, "zone": "lantern_star_field"},
+    {"id": "star_citadel", "name": "Star Warden Citadel", "room": "wc_citadel_gate", "at": [2900, 880], "fee_shards": 1, "zone": "lantern_star_field"},
 ]
 
 # Regions in map order; the ones a later phase builds are shown as planned.
@@ -33,8 +36,8 @@ REGIONS = [
     {"id": "drifting_shoals", "name": "Drifting Shoals", "levels": [82, 87], "attunement": 20, "map": [0.64, 0.74]},
     {"id": "blackmast_haven", "name": "Blackmast Haven", "levels": [85, 90], "attunement": 30, "map": [0.46, 0.82]},
     {"id": "wyrmnest_isles", "name": "Wyrmnest Isles", "levels": [85, 93], "attunement": 40, "map": [0.70, 0.30]},
-    {"id": "warden_citadel", "name": "Star Warden Citadel", "levels": [0, 0], "map": [0.50, 0.48], "planned": True},
-    {"id": "orbit_ruins", "name": "Orbit Ruins", "levels": [88, 93], "attunement": 50, "map": [0.34, 0.30], "planned": True},
+    {"id": "warden_citadel", "name": "Star Warden Citadel", "levels": [0, 0], "map": [0.50, 0.48]},
+    {"id": "orbit_ruins", "name": "Orbit Ruins", "levels": [88, 93], "attunement": 50, "map": [0.34, 0.30]},
     {"id": "ashen_reach", "name": "Ashen Reach", "levels": [88, 96], "attunement": 60, "map": [0.22, 0.66], "planned": True},
     {"id": "tidebreak_front", "name": "Tidebreak Front", "levels": [90, 99], "attunement": 70, "map": [0.12, 0.40], "planned": True},
     {"id": "nebula_deep", "name": "Nebula Deep", "levels": [94, 99], "attunement": 80, "map": [0.30, 0.10], "planned": True},
@@ -82,6 +85,10 @@ def lanternfall():
     r.obj("sign_lh_quay", "signpost", [2380, 860],
           text="Lanternfall Harbor. East: the Harbor Market. Beyond the market, the Drifting Shoals. The skiffs at the pier sail home to the Starsea Launch.")
     r.npc("harbormaster_lin", [1100, 780], facing=1)
+    # v1.2 · Phase C: the Wardens' skiff to their Citadel (chapter 20).
+    r.portal("warden_skiff", "door", [2230, 704], "wc_citadel_gate", "skiff", press_up=True, label="Warden skiff to the Citadel",
+             requires=w.any_of(w.qactive("the_citadel"), w.qdone("the_citadel")),
+             locked_text="The Wardens' skiff. It carries Wardens, and those the Wardens have asked for.")
     r.npc("warden_xiao", [2050, 800], facing=-1)
     r.edge("east", "east", "lh_harbor_market", "west", y=850)
 
@@ -123,6 +130,7 @@ def lanternfall():
     r.decor("table", [640, 760])
     r.obj("furnace_lh", "alchemy_furnace", [980, 760], requires=w.all_of(w.unlock("alchemy")), locked_text="Chandler Shu's furnace. She makes lamp oil in it, mostly.")
     r.npc("chandler_shu", [760, 760], facing=-1)
+    r.npc("lanternwright_han", [420, 760], facing=1)   # v1.2 · Phase C: the Confucian path
     r.portal("entry", "door", [120, 700], "lh_harbor_market", "chandlery_door", press_up=True, label="Harbor Market")
 
     r = w.interior("lh_tidelight_inn", "Tidelight Inn", "lanternfall_harbor", wall="wall_wood", music="lantern_harbor", qi=1.6,
@@ -316,6 +324,123 @@ def wyrmnest():
     r.portal("entry", "door", [140, 700], "wn_guardians_crown", "cave", press_up=True, label="Guardian's Crown")
 
 
+def citadel():
+    """Phase C · the Star Warden Citadel: the Wardens' fortress-town on the Field's central island (safe)."""
+    w = _w()
+    base = dict(backdrop="warden_citadel", material="stone", tint="#d8d4c8", music="lantern_harbor", ambience="wind_ambience", qi=2.0,
+                lantern=True, **LS)
+    r = w.town("wc_citadel_gate", "Citadel Gate", "warden_citadel", 3, spawn_point=[600, 820], **base)
+    r.decor("warden_statue", [300, 650], layer="back")
+    r.decor("warden_statue", [3500, 650], layer="back", flip=True)
+    r.decor("paifang_gate", [900, 660], layer="back")
+    lantern_posts(r, [1150, 2050, 3150])
+    r.decor("star_ballista", [3300, 700], flip=True)
+    r.decor("lantern_cage", [2500, 640], layer="back")
+    r.building("wardens_hall", "watch_tower", 1500, front=690, door_dx=0,
+               door=("wc_wardens_hall", "entry", "hall_door", {"label": "Wardens' Hall"}))
+    r.decor("pagoda", [2400, 690], layer="back")
+    r.portal("observatory_door", "door", [2400, 704], "wc_observatory", "entry", press_up=True, label="Observatory")
+    r.portal("skiff", "door", [560, 704], "lh_arrival_quay", "warden_skiff", press_up=True, label="Skiff to Lanternfall Harbor")
+    r.obj("shrine_wc_gate", "shrine", [1900, 700])
+    r.obj("stone_star_citadel", "teleport_stone", [2900, 880], stone="star_citadel")
+    r.obj("sign_wc", "signpost", [760, 860],
+          text="The Star Warden Citadel. West: the Presence Court. East, past the Warden line: the Orbit Ruins (Lv 88-93, Starsea Endurance 50-56).")
+    r.edge("west", "west", "wc_presence_court", "east", y=850)
+    r.edge("east", "east", "or_tumbling_stair", "west", y=850, ptype="sealed",
+           requires=w.any_of(w.qactive("the_orbit_ruins"), w.qdone("the_orbit_ruins")),
+           locked_text="A Warden bars the way: \"The Ruins turn under your feet. The Commander sends people there, not the other way round.\"")
+
+    r = w.interior("wc_wardens_hall", "Wardens' Hall", "warden_citadel", wall="wall_stone", floor="floor_stone", music="lantern_harbor", qi=2.1,
+                   lantern=True, **LS)
+    r.decor("warden_statue", [260, 650], layer="back")
+    r.decor("star_chart_table", [700, 760])
+    r.decor("scroll_rack", [1060, 690])
+    r.npc("warden_commander_yao", [860, 760], facing=-1)
+    r.portal("entry", "door", [120, 700], "wc_citadel_gate", "hall_door", press_up=True, label="Citadel Gate")
+
+    r = w.interior("wc_observatory", "Observatory", "warden_citadel", wall="wall_stone", floor="floor_stone", music="lantern_harbor", qi=2.4,
+                   rtype="insight", lantern=True, **LS)
+    r.decor("star_chart_table", [420, 760])
+    r.decor("scroll_rack", [1100, 690])
+    # The great scope (chapter 20): a Presence of level 5 looking into it sees the shape of its own Sphere.
+    r.obj("great_scope", "inspect", [800, 740], prop="observatory_scope", set_flag="observed_sphere",
+          text="You put your eye to the bronze and your Will to the stars. Among them, very small, turns a world that is shaped like you.",
+          visible_if=w.all_of(w.qactive("the_observatory")), hidden_if=w.all_of(w.flag("observed_sphere")))
+    r.decor("observatory_scope", [800, 740], hidden_if=w.all_of(w.qactive("the_observatory")))
+    r.npc("stargazer_ming", [560, 760], facing=1)
+    r.portal("entry", "door", [120, 700], "wc_citadel_gate", "observatory_door", press_up=True, label="Citadel Gate")
+
+    r = w.town("wc_presence_court", "Presence Court", "warden_citadel", 2, spawn_point=[2200, 820], **base)
+    for x in (700, 1300, 1900):
+        r.decor("pressure_pillar", [x, 660], layer="back")
+    r.decor("warden_statue", [300, 650], layer="back")
+    lantern_posts(r, [1000, 1600])
+    r.npc("shen_lian_warden", [1300, 800], facing=1, visible_if=w.any_of(w.qactive("the_aspirant"), w.qdone("the_aspirant")))
+    r.npc("presence_master_ruo", [900, 780], facing=1)
+    r.obj("sign_wc_court", "signpost", [2300, 860], text="The Presence Court. Wardens spar here with their Presence held, and their Spheres, once they have them.")
+    r.edge("east", "east", "wc_citadel_gate", "west", y=850)
+
+
+def orbit_scenery(r, stones=3):
+    for i in range(stones):
+        r.decor("orbit_stone", [500 + i * int((r.w - 1000) / max(1, stones - 1)), 640 - 40 * (i % 2)], layer="back")
+
+
+def orbit_ruins():
+    """Phase C · the Orbit Ruins: an observatory-temple of the first Wardens, broken and turning in the dark (Endurance 50-56).
+    Jade switches lighten the gravity of their halls (low_gravity volumes, 0.45 of the fall)."""
+    w = _w()
+    ruins = dict(backdrop="orbit_ruins", material="stone", tint="#c8c4d8", music="star_field", ambience="wind_ambience", element="star",
+                 gather_tier="lantern_mid", qi=2.0, loot="jar_lantern", trees=("orbit_stone", "star_crystal"), ledge="rock_ledge", **LS)
+    r = w.field("or_tumbling_stair", "Tumbling Stair", "orbit_ruins", 3, [88, 90],
+                spawns=[("orbit_moth", 3, [88, 89], 14), ("gravity_golem", 1, [88, 90], 20)], jars=4, attunement_required=50,
+                platforms=[(900, 650, 300, 110), (2000, 640, 320, 200), (3000, 650, 280, 110)], spawn_point=[400, 820], **ruins)
+    orbit_scenery(r, 3)
+    r.obj("shrine_or_stair", "shrine", [700, 700])
+    # A switch at the foot of the stair lightens the whole middle of the room.
+    r.obj("switch_stair", "gravity_switch", [1500, 700])
+    r.volume("low_gravity", [1300, 620, 1400, 340], alt=[-10, 700], switch="switch_stair", gravity=0.45, vid="lowg_stair")
+    r.edge("west", "west", "wc_citadel_gate", "east", y=850)
+    r.edge("east", "east", "or_orbit_garden", "west", y=850)
+
+    r = w.field("or_orbit_garden", "Orbit Garden", "orbit_ruins", 3, [89, 91],
+                spawns=[("orbit_moth", 4, [89, 91], 14)], herbs=("star_lotus", "star_lotus"), jars=4, attunement_required=52,
+                platforms=[(1100, 650, 300, 110), (2400, 640, 320, 200)], **ruins)
+    orbit_scenery(r, 4)
+    r.npc("orbit_hermit", [1700, 790], facing=-1)
+    r.obj("switch_garden", "gravity_switch", [2900, 700])
+    r.volume("low_gravity", [2600, 620, 900, 340], alt=[-10, 700], switch="switch_garden", gravity=0.45, vid="lowg_garden")
+    r.edge("west", "west", "or_tumbling_stair", "east", y=850)
+    r.edge("east", "east", "or_golem_foundry", "west", y=850)
+
+    r = w.field("or_golem_foundry", "Golem Foundry", "orbit_ruins", 3, [90, 92],
+                spawns=[("gravity_golem", 3, [90, 92], 20), ("orbit_moth", 2, [90, 91], 14)], ores=("driftglass", "driftglass"), jars=4,
+                chest="chest_lantern", attunement_required=54, platforms=[(900, 650, 300, 110), (2100, 640, 320, 200)], **ruins)
+    orbit_scenery(r, 3)
+    r.decor("flame_basin", [1600, 700])
+    r.edge("west", "west", "or_orbit_garden", "east", y=850)
+    r.portal("hall", "door", [3500, 704], "or_inverted_hall", "entry", press_up=True, label="Inverted Hall",
+             requires=w.any_of(w.qactive("the_orbit_ruins"), w.qdone("the_orbit_ruins")),
+             locked_text="A doorway that opens onto the ceiling of the room beyond. You would rather have a reason to go in.")
+
+    # The Inverted Hall: no flying here (the stars hold the air still). Its high gallery (400) is out of reach of any
+    # jump (a double jump tops out near 300); with the eastern switch down the air is light enough to carry one there.
+    r = w.Room("or_inverted_hall", "Inverted Hall", "dungeon", "orbit_ruins", 2, backdrop="orbit_ruins", material="stone", tint="#b8b4d0",
+               music="dungeon", levels=[92, 93], safe=False, qi=2.3, spawn_point=[220, 820], attunement_required=56, element="star",
+               no_flight=True, **LS)
+    r.spawn("gravity_golem", [[1500, 840]], 1, respawn=300, level=[93, 93], elite=True)
+    r.spawn("orbit_moth", r.points(2), 2, respawn=40, level=[92, 93])
+    orbit_scenery(r, 3)
+    r.obj("switch_hall_a", "gravity_switch", [700, 700])
+    r.obj("switch_hall_b", "gravity_switch", [2000, 700])
+    r.volume("low_gravity", [400, 620, 900, 340], alt=[-10, 800], switch="switch_hall_a", gravity=0.45, vid="lowg_hall_a")
+    r.volume("low_gravity", [1300, 620, 1000, 340], alt=[-10, 800], switch="switch_hall_b", gravity=0.45, vid="lowg_hall_b")
+    r.surface("gallery_low", [900, 650, 320, 60], 100, kind="rock_ledge")
+    r.surface("gallery_high", [1500, 630, 360, 60], 400, kind="rock_ledge", optional=True)
+    r.chest([1680, 660], loot="chest_lantern", level=93, alt=400, surface="gallery_high", oid="chest_gallery")
+    r.portal("entry", "door", [140, 700], "or_golem_foundry", "hall", press_up=True, label="Golem Foundry")
+
+
 def crossing():
     """The Lantern Run's deck under the open Starsea (instanced): the voyage lasts as long as the vessel takes to cross."""
     w = _w()
@@ -340,4 +465,6 @@ def build():
     drifting_shoals()
     blackmast()
     wyrmnest()
+    citadel()
+    orbit_ruins()
     crossing()

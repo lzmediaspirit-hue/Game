@@ -420,5 +420,8 @@
    "bottom": "ground",
    "top": "ledge_mv_1"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

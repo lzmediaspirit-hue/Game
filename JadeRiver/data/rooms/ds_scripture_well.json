@@ -578,5 +578,9 @@
    "top": "well_ledge_100"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "stone",
+  "water"
+ ]
 }

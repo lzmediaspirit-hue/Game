@@ -157,6 +157,18 @@ def build():
              "A palm of green miasma that poisons every foe within 160 on both sides (3% of their health a second for 6 s).",
              both_sides=True, reach=160, depth=70, status={"id": "poison", "chance": 1.0, "power": 0.03, "duration_s": 6},
              poison_path=True, action="punch", dao="wood"),
+        # v1.2 the Confucian path (S48): written-word arts drawn in the air as a glyph. Their strength follows Insight
+        # (insight_scale: half the multiplier rides on Insight against 5 + Level). Usable only while walking the path.
+        tech("upright_glyph", "will_manifest_2", "lanternwright_han", "any", "metal", "qi", (1.80, 2.20), 1, 4, 8, 22,
+             "Write the glyph for Upright in the air: it strikes every foe within 220 ahead. Its strength follows your Insight. Confucian path only.",
+             reach=220, depth=60, insight_scale=0.5, confucian_path=True, dao="metal", action="meditate_burst"),
+        tech("benevolent_script", "will_manifest_3", "lanternwright_han", "any", "wood", "buff", (0, 0), 0, 0, 30, 30,
+             "Write Benevolence over yourself and your allies within 260: each heals 10% of their health over 6 s. Confucian path only.",
+             allies_heal_pct=0.10, allies_heal_s=6, heal_radius=260, confucian_path=True, dao="wood", action="meditate_burst"),
+        tech("rite_seal_script", "sphere_lord_1", "lanternwright_han", "any", "none", "soul", (1.40, 1.70), 1, 6, 14, 30,
+             "Seal the ground with the Rites: every foe within 240 on both sides is rooted for 1.5 s and struck in the soul. Its strength follows your Insight. Confucian path only.",
+             both_sides=True, reach=240, depth=70, insight_scale=0.5, confucian_path=True, soul=15,
+             status={"id": "root", "chance": 1.0, "power": 1.0, "duration_s": 1.5}, dao="soul", action="meditate_burst"),
         # S48 costly secret art: the Blood Dao's teacher shows how to burn one's own blood for a fight.
         tech("blood_burning", "sage_sovereign_1", "blood_remembers", "any", "none", "buff", (0, 0), 0, 0, 45, 0,
              "Burn your own blood: +50% attack for 10 s. It costs 30% of your HP and leaves a body injury.",
@@ -237,6 +249,26 @@ def build():
                          "effects": [{} for _ in tiers], "mods": mods, "teacher": True})
         else:
             daos.append({"id": d, "family": "rare", "valley_cap": 0, "tiers": [], "effects": []})
+    # v1.2 Dao tier 6, Original Application (S13): the Lantern Star Field's Laws let every weapon, element and craft Dao
+    # reach its sixth tier there. Its own variant is the Sphere's: a Sphere drawn on a tier-6 Dao reaches 40 further
+    # and presses a tenth harder (stats.sphere).
+    TIER6 = ("Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses "
+             "a tenth harder.")
+    for d in daos:
+        if d["family"] in ("weapon", "element", "craft") and d["id"] not in ("refining", "puppetry", "beast_taming"):
+            d["tiers"] = list(d["tiers"]) + [TIER6]
+            d["effects"] = [dict(e) for e in d["effects"]] + [{"original": True}]
+            d.setdefault("zone_caps", {})["lantern_star_field"] = 6
+    # v1.2 the Space Dao, opened by the Orbit Hermit in the Orbit Ruins: six tiers in the Lantern Star Field.
+    for d in daos:
+        if d["id"] == "space":
+            d.update({"zone_caps": {"lantern_star_field": 6}, "teacher": True,
+                      "tiers": ["+5% penetration", "+5% move speed", "+10% evasion", "+10% Qi attack; can teach it",
+                                "+10% crit damage", TIER6 + " +10% penetration."],
+                      "effects": [{}, {}, {}, {}, {}, {"original": True}],
+                      "mods": [[{"stat": "penetration", "op": "flat", "value": 0.05}], [{"stat": "move_speed", "value": 0.05}],
+                               [{"stat": "evasion", "value": 0.1}], [{"stat": "qi_attack", "value": 0.1}],
+                               [{"stat": "crit_damage", "op": "flat", "value": 0.1}], [{"stat": "penetration", "op": "flat", "value": 0.1}]]})
     for d in daos:
         d["name"] = "%s Dao" % titled(d["id"])
     entries("daos.json", daos)

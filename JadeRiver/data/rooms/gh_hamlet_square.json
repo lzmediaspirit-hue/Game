@@ -345,5 +345,9 @@
    "kind": "well"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "grass",
+  "stone"
+ ]
 }

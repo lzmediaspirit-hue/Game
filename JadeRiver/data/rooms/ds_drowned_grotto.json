@@ -236,5 +236,8 @@
    "bottom": "ground",
    "top": "ledge_grotto"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

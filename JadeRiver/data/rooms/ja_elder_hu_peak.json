@@ -316,5 +316,8 @@
   }
  ],
  "movers": [],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "stone"
+ ]
 }

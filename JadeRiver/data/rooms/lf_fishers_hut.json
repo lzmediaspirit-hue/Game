@@ -326,5 +326,8 @@
    "locked_text": "The loft ladder wobbles. Aunt Ping says: after you've learned to land on your feet."
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "wood"
+ ]
 }

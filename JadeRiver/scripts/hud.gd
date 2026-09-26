@@ -28,6 +28,7 @@ var jump_center := Vector2(933, 640)
 var meditate_center := Vector2(841, 640)
 var sense_center := Vector2(749, 640)
 var presence_center := Vector2(711, 555)   # S28 v1.2: the Presence toggle, beside Guard (key G)
+var sphere_center := Vector2(711, 470)     # S28 v1.2: the Sphere toggle, above the Presence (key H)
 var quick_center := Vector2(887, 555)
 var pet_center := Vector2(965, 560)   # moved from (975, 555) so it clears skill slot 2 (v2 S24)
 var guard_center := Vector2(799, 555)
@@ -93,7 +94,7 @@ func _exit_tree() -> void:
 func _apply_hand() -> void:
 	if not left_handed: return
 	for i in slots.size(): slots[i] = _mirror(slots[i])
-	for k in ["attack_center", "jump_center", "meditate_center", "sense_center", "presence_center", "quick_center", "pet_center", "guard_center", "context_center", "swap_center"]:
+	for k in ["attack_center", "jump_center", "meditate_center", "sense_center", "presence_center", "sphere_center", "quick_center", "pet_center", "guard_center", "context_center", "swap_center"]:
 		set(k, _mirror(get(k)))
 	treasure_centers = treasure_centers.map(func(tp): return _mirror(tp))
 
@@ -213,6 +214,7 @@ func role_at(p: Vector2) -> String:
 	if p.distance_to(meditate_center) < 36 and shown("cultivate"): return "meditate"
 	if p.distance_to(sense_center) < 36 and shown("sense"): return "sense"
 	if p.distance_to(presence_center) < 30 and shown("presence"): return "presence"
+	if p.distance_to(sphere_center) < 30 and shown("sphere"): return "sphere"
 	if p.distance_to(quick_center) < 30 and shown("quick_use"): return "quick"
 	if p.distance_to(draught_center) < 22 and _has_draught(): return "draught"
 	if p.distance_to(pet_center) < 30 and shown("pet"): return "pet"
@@ -274,6 +276,7 @@ func press(id: int, p: Vector2):
 				var sr := Game.submit({"type": "sense_pulse"})
 				if not sr.ok and sr.has("text"): add_log(str(sr.text), UiKit.MIST)
 		"presence": toggle_presence()
+		"sphere": toggle_sphere()
 		"pet":
 			if bound():
 				pet_pressed = true
@@ -599,6 +602,7 @@ func _input(event):
 				KEY_Q: if shown("quick_use"): use_quick()
 				KEY_V: if _has_draught(): drink_draught()
 				KEY_G: if shown("presence"): toggle_presence()
+				KEY_H: if shown("sphere"): toggle_sphere()
 				KEY_O: if _post_chip(): keep_post()
 				KEY_R: if shown("weapon_swap"): swap_weapon()
 				KEY_Z: if shown("treasure_1"): use_treasure(0)
@@ -619,6 +623,11 @@ func _input(event):
 				Game.submit({"type": "guard_end"})
 
 # ------------------------------------------------------------------ events
+## S28 v1.2: raise or lower the Sphere (the reason shows in the log when it cannot be raised).
+func toggle_sphere() -> void:
+	var r := Game.submit({"type": "toggle_sphere"})
+	if not r.get("ok", false): add_log(str(r.get("text", Tx.t("hud.sphere_fail"))), UiKit.MIST)
+
 ## S28 v1.2: hold or release the Presence (the reason shows in the log when it cannot be held).
 func toggle_presence() -> void:
 	if not bound(): return
@@ -904,6 +913,16 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"presence_clash":
 			if str(p.get("actor", "")) == Game.active_id:
 				add_log(Tx.t("hud.presence_clash_" + str(p.get("winner", "even"))) % str(p.get("name", "")), UiKit.GOLD if str(p.get("winner", "")) == "you" else UiKit.RED)
+		"sphere_toggled":
+			if str(p.get("actor", "")) == Game.active_id:
+				var sw := str(p.get("reason", ""))
+				if p.get("on", false): add_log(Tx.t("hud.sphere_domain") if p.get("domain", false) else Tx.t("hud.sphere_on") % Tx.t("hud.el_" + str(p.get("element", "none"))), UiKit.PALE_GOLD)
+				elif sw == "broken": toast(Tx.t("hud.sphere_broken"), "danger", Tx.t("hud.sphere_broken_sub"))
+				elif sw == "qi": add_log(Tx.t("hud.sphere_qi"), UiKit.RED)
+				else: add_log(Tx.t("hud.sphere_off"), UiKit.MIST)
+		"sphere_clash":
+			if str(p.get("actor", "")) == Game.active_id and str(p.get("winner", "")) == "you":
+				toast(Tx.t("hud.sphere_clash_won") % str(p.get("name", "")), "gold", Tx.t("hud.sphere_clash_won_sub"))
 		"presence_clash_ended":
 			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.presence_clash_end"), UiKit.MIST)
 		# S43 rule 15: the rooftop thief and the Cloud Steps.
@@ -1739,6 +1758,10 @@ func _draw_controls(c) -> void:
 		ring(presence_center, 26, held, 1.0, pulses.has("hud:presence"))
 		glyph("presence", presence_center, 28, UiKit.PALE_GOLD if held else Color.WHITE)
 		UiKit.draw_outlined(self, str(Game.field.presence_level(c)), presence_center + Vector2(10, 22), 13, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 30)
+	if shown("sphere"):
+		var raised: bool = Game.field.sphere_on(c.id)
+		ring(sphere_center, 26, raised, 1.0, pulses.has("hud:sphere"))
+		glyph("sphere", sphere_center, 28, UiKit.PALE_GOLD if raised else Color.WHITE)
 	if shown("quick_use"):
 		ring(quick_center, 26)
 		var qid: String = c.inventory.quick_use

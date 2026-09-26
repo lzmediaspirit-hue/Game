@@ -751,5 +751,9 @@
    "top": "watchtower_e"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "grass",
+  "stone"
+ ]
 }

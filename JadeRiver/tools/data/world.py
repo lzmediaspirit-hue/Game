@@ -382,6 +382,14 @@ class Room:
                         fixed.append(cand)
                         break
             sp["points"] = fixed or sp["points"]
+        # S28 hook (v1.2 the Sphere): every room carries terrain tags, from its ground and its water, unless it names its own.
+        if "terrain" not in self.d:
+            mat = self.d["ground"].get("material", "moss")
+            tags = {"moss": ["grass"], "earth": ["grass", "stone"], "stone": ["stone"], "floor_stone": ["stone"], "rock": ["stone"],
+                    "slate": ["stone"], "sand": ["sand"], "snow": ["snow"], "wood": ["wood"], "floor_wood": ["wood"]}.get(mat, [])
+            wet = any(str(v.get("kind", "")).startswith("water") or v.get("kind") == "rising_water" for v in self.d.get("volumes", [])) \
+                or any(o.get("type") == "fishing_spot" for o in self.d["objects"]) or self.d.get("element") == "water"
+            self.d["terrain"] = sorted(set(tags + (["water"] if wet else [])))
         return self.d
 
 

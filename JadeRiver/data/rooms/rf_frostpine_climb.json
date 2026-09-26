@@ -649,5 +649,9 @@
    ],
    "traction": 420
   }
+ ],
+ "terrain": [
+  "snow",
+  "water"
  ]
 }

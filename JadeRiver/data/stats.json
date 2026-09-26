@@ -580,6 +580,90 @@
    1900
   ]
  },
+ "sphere": {
+  "qi_per_s_pct": 0.004,
+  "radius_base": 160,
+  "radius_per_tier": 20,
+  "tier6_radius": 40,
+  "power_per_tier": 0.08,
+  "tier6_power": 0.1,
+  "fed_bonus": 0.1,
+  "break_cooldown_s": 30,
+  "injury_severity": 1,
+  "pet_bonus": 0.1,
+  "tick_s": 1.0,
+  "foe_loss": 0.1,
+  "dao_element": {
+   "sword": "sword",
+   "blade": "metal",
+   "spear": "metal",
+   "fist": "earth",
+   "staff": "earth",
+   "bow": "wind",
+   "fan": "wind",
+   "music": "soul",
+   "space": "space"
+  },
+  "elements": {
+   "water": {
+    "slow": 0.2,
+    "terrain": {
+     "water": {
+      "slow": 0.35,
+      "freeze": true
+     }
+    }
+   },
+   "fire": {
+    "burn_pct": 0.01,
+    "terrain": {
+     "grass": {
+      "burn_pct": 0.02
+     }
+    }
+   },
+   "earth": {
+    "vulnerable": true,
+    "terrain": {
+     "stone": {
+      "root_s": 0.5
+     }
+    }
+   },
+   "wood": {
+    "regen_pct": 0.01,
+    "terrain": {
+     "grass": {
+      "regen_pct": 0.015
+     }
+    }
+   },
+   "metal": {
+    "cut_pct": 0.12
+   },
+   "sword": {
+    "cut_pct": 0.18,
+    "domain": true
+   },
+   "wind": {
+    "speed": 0.15
+   },
+   "thunder": {
+    "shock_pct": 0.4,
+    "shock_every": 2
+   },
+   "soul": {
+    "will_down": 0.15
+   },
+   "space": {
+    "pen": 0.15
+   },
+   "star": {
+    "cut_pct": 0.1,
+    "crit": 0.05
+   }
+  }
+ },
  "sect_master": {
   "stipend": 300
  },
@@ -620,6 +704,13 @@
    "merit_milestone": 100,
    "milestone_heart_demon": -10,
    "heal_ally_daily": 5
+  },
+  "confucian": {
+   "min_realm": "will_manifest_2",
+   "alignment_at_least": 20,
+   "take_alignment": 5,
+   "leave_heart_demon": 10,
+   "righteous": 0.25
   }
  },
  "gates": {

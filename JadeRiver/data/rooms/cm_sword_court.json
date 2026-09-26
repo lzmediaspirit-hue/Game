@@ -421,5 +421,8 @@
    "bottom": "ground",
    "top": "sword_hall"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

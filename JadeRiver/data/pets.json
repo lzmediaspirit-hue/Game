@@ -611,6 +611,46 @@
    }
   },
   {
+   "id": "orbit_moth",
+   "name": "Orbit Moth",
+   "art": "orbit_moth",
+   "element": "star",
+   "strength_role": "support",
+   "tame": true,
+   "tier": "star",
+   "tame_unlock": "star_beasts",
+   "skills": [
+    "Mote Ring",
+    "Dust Veil",
+    "Orbit Guard",
+    "Starlit Wings"
+   ],
+   "favourite_foods": [
+    "lotus_root_tea",
+    "cloudtop_orchid_broth"
+   ],
+   "branches": [
+    "Comet Moth",
+    "Moon Moth"
+   ],
+   "bloodline_skill": {
+    "name": "Thousand Orbit Veil",
+    "mult": 2.5
+   },
+   "form_change": {
+    "name": "Heaven-Circling Moth",
+    "scale": 1.15,
+    "tint": "#e0e8ff"
+   },
+   "family": "wing",
+   "movement": {
+    "jump": 530,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
    "id": "hatchling_wyrm",
    "name": "Hatchling Wyrm",
    "art": "hatchling_wyrm",

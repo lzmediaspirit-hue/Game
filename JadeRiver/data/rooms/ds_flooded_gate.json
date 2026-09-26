@@ -545,5 +545,9 @@
    "top": "sluice_deck"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "stone",
+  "water"
+ ]
 }

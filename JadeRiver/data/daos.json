@@ -10,7 +10,8 @@
     "Linked techniques -10% QI",
     "Linked techniques gain their tier-3 effect",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques"
+    "Tier-5 forms of linked techniques",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -28,8 +29,14 @@
     },
     {
      "tier5": true
+    },
+    {
+     "original": true
     }
    ],
+   "zone_caps": {
+    "lantern_star_field": 6
+   },
    "name": "Fist Dao"
   },
   {
@@ -41,7 +48,8 @@
     "Linked techniques -10% QI",
     "Linked techniques gain their tier-3 effect; learn Sword Release",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques; learn Sword Swarm"
+    "Tier-5 forms of linked techniques; learn Sword Swarm",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -61,8 +69,14 @@
     {
      "tier5": true,
      "learn_technique": "sword_swarm"
+    },
+    {
+     "original": true
     }
    ],
+   "zone_caps": {
+    "lantern_star_field": 6
+   },
    "name": "Sword Dao"
   },
   {
@@ -74,7 +88,8 @@
     "Linked techniques -10% QI",
     "Linked techniques gain their tier-3 effect",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques"
+    "Tier-5 forms of linked techniques",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -92,8 +107,14 @@
     },
     {
      "tier5": true
+    },
+    {
+     "original": true
     }
    ],
+   "zone_caps": {
+    "lantern_star_field": 6
+   },
    "name": "Spear Dao"
   },
   {
@@ -105,7 +126,8 @@
     "Linked techniques -10% QI",
     "Linked techniques gain their tier-3 effect",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques"
+    "Tier-5 forms of linked techniques",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -123,8 +145,14 @@
     },
     {
      "tier5": true
+    },
+    {
+     "original": true
     }
    ],
+   "zone_caps": {
+    "lantern_star_field": 6
+   },
    "name": "Blade Dao"
   },
   {
@@ -136,7 +164,8 @@
     "Linked techniques -10% QI",
     "Linked techniques gain their tier-3 effect",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques"
+    "Tier-5 forms of linked techniques",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -154,8 +183,14 @@
     },
     {
      "tier5": true
+    },
+    {
+     "original": true
     }
    ],
+   "zone_caps": {
+    "lantern_star_field": 6
+   },
    "name": "Staff Dao"
   },
   {
@@ -167,7 +202,8 @@
     "Linked techniques -10% QI",
     "Linked techniques gain their tier-3 effect",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques"
+    "Tier-5 forms of linked techniques",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -185,8 +221,14 @@
     },
     {
      "tier5": true
+    },
+    {
+     "original": true
     }
    ],
+   "zone_caps": {
+    "lantern_star_field": 6
+   },
    "name": "Bow Dao"
   },
   {
@@ -198,7 +240,8 @@
     "Linked techniques -10% QI",
     "Linked techniques gain their tier-3 effect",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques"
+    "Tier-5 forms of linked techniques",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -216,8 +259,14 @@
     },
     {
      "tier5": true
+    },
+    {
+     "original": true
     }
    ],
+   "zone_caps": {
+    "lantern_star_field": 6
+   },
    "name": "Fan Dao"
   },
   {
@@ -229,7 +278,8 @@
     "Linked techniques -10% QI",
     "Linked techniques gain their tier-3 effect",
     "+5% crit with the family; can teach it",
-    "Tier-5 forms of linked techniques"
+    "Tier-5 forms of linked techniques",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -247,8 +297,14 @@
     },
     {
      "tier5": true
+    },
+    {
+     "original": true
     }
    ],
+   "zone_caps": {
+    "lantern_star_field": 6
+   },
    "name": "Music Dao"
   },
   {
@@ -260,7 +316,8 @@
     "Element techniques -10% QI",
     "+10% chance to apply the element's status",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce"
+    "Element techniques gain area or pierce",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -278,10 +335,14 @@
     },
     {
      "area": true
+    },
+    {
+     "original": true
     }
    ],
    "zone_caps": {
-    "azure_expanse": 5
+    "azure_expanse": 5,
+    "lantern_star_field": 6
    },
    "name": "Water Dao"
   },
@@ -294,7 +355,8 @@
     "Element techniques -10% QI",
     "+10% chance to apply the element's status",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce"
+    "Element techniques gain area or pierce",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -312,10 +374,14 @@
     },
     {
      "area": true
+    },
+    {
+     "original": true
     }
    ],
    "zone_caps": {
-    "azure_expanse": 5
+    "azure_expanse": 5,
+    "lantern_star_field": 6
    },
    "name": "Wood Dao"
   },
@@ -328,7 +394,8 @@
     "Element techniques -10% QI",
     "+10% chance to apply the element's status",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce"
+    "Element techniques gain area or pierce",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -346,10 +413,14 @@
     },
     {
      "area": true
+    },
+    {
+     "original": true
     }
    ],
    "zone_caps": {
-    "azure_expanse": 5
+    "azure_expanse": 5,
+    "lantern_star_field": 6
    },
    "name": "Earth Dao"
   },
@@ -362,7 +433,8 @@
     "Element techniques -10% QI",
     "+10% chance to apply the element's status",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce"
+    "Element techniques gain area or pierce",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -380,10 +452,14 @@
     },
     {
      "area": true
+    },
+    {
+     "original": true
     }
    ],
    "zone_caps": {
-    "azure_expanse": 5
+    "azure_expanse": 5,
+    "lantern_star_field": 6
    },
    "name": "Wind Dao"
   },
@@ -396,7 +472,8 @@
     "Element techniques -10% QI",
     "+10% chance to apply the element's status",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce"
+    "Element techniques gain area or pierce",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -414,10 +491,14 @@
     },
     {
      "area": true
+    },
+    {
+     "original": true
     }
    ],
    "zone_caps": {
-    "azure_expanse": 5
+    "azure_expanse": 5,
+    "lantern_star_field": 6
    },
    "name": "Fire Dao"
   },
@@ -430,7 +511,8 @@
     "Element techniques -10% QI",
     "+10% chance to apply the element's status",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce"
+    "Element techniques gain area or pierce",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -448,10 +530,14 @@
     },
     {
      "area": true
+    },
+    {
+     "original": true
     }
    ],
    "zone_caps": {
-    "azure_expanse": 5
+    "azure_expanse": 5,
+    "lantern_star_field": 6
    },
    "name": "Metal Dao"
   },
@@ -464,7 +550,8 @@
     "Element techniques -10% QI",
     "+10% chance to apply the element's status",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce"
+    "Element techniques gain area or pierce",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -482,10 +569,14 @@
     },
     {
      "area": true
+    },
+    {
+     "original": true
     }
    ],
    "zone_caps": {
-    "azure_expanse": 5
+    "azure_expanse": 5,
+    "lantern_star_field": 6
    },
    "name": "Thunder Dao"
   },
@@ -498,7 +589,8 @@
     "Element techniques -10% QI; learn Phantom Double",
     "+10% chance to apply the element's status; learn Soul Search",
     "+5% resistance to the element; can teach it",
-    "Element techniques gain area or pierce"
+    "Element techniques gain area or pierce",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -519,10 +611,14 @@
     },
     {
      "area": true
+    },
+    {
+     "original": true
     }
    ],
    "zone_caps": {
-    "azure_expanse": 5
+    "azure_expanse": 5,
+    "lantern_star_field": 6
    },
    "name": "Soul Dao"
   },
@@ -535,7 +631,8 @@
     "-10% ingredient loss on mistakes",
     "Wider heat band",
     "Can teach; +1 auto-refine queue slot",
-    "Substitute one ingredient per recipe"
+    "Substitute one ingredient per recipe",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {
@@ -548,8 +645,14 @@
     {
      "queue": 1
     },
-    {}
+    {},
+    {
+     "original": true
+    }
    ],
+   "zone_caps": {
+    "lantern_star_field": 6
+   },
    "name": "Alchemy Dao"
   },
   {
@@ -561,15 +664,22 @@
     "-10% fuel",
     "+1 node",
     "Can teach; faster placement",
-    "Formations take no damage for the first 10 s"
+    "Formations take no damage for the first 10 s",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
    ],
    "effects": [
     {},
     {},
     {},
     {},
-    {}
+    {},
+    {
+     "original": true
+    }
    ],
+   "zone_caps": {
+    "lantern_star_field": 6
+   },
    "name": "Formation Dao"
   },
   {
@@ -634,8 +744,69 @@
    "id": "space",
    "family": "rare",
    "valley_cap": 0,
-   "tiers": [],
-   "effects": [],
+   "tiers": [
+    "+5% penetration",
+    "+5% move speed",
+    "+10% evasion",
+    "+10% Qi attack; can teach it",
+    "+10% crit damage",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder. +10% penetration."
+   ],
+   "effects": [
+    {},
+    {},
+    {},
+    {},
+    {},
+    {
+     "original": true
+    }
+   ],
+   "zone_caps": {
+    "lantern_star_field": 6
+   },
+   "teacher": true,
+   "mods": [
+    [
+     {
+      "stat": "penetration",
+      "op": "flat",
+      "value": 0.05
+     }
+    ],
+    [
+     {
+      "stat": "move_speed",
+      "value": 0.05
+     }
+    ],
+    [
+     {
+      "stat": "evasion",
+      "value": 0.1
+     }
+    ],
+    [
+     {
+      "stat": "qi_attack",
+      "value": 0.1
+     }
+    ],
+    [
+     {
+      "stat": "crit_damage",
+      "op": "flat",
+      "value": 0.1
+     }
+    ],
+    [
+     {
+      "stat": "penetration",
+      "op": "flat",
+      "value": 0.1
+     }
+    ]
+   ],
    "name": "Space Dao"
   },
   {

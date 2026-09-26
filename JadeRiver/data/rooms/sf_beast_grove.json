@@ -132,5 +132,8 @@
    "bottom": "ground",
    "top": "grove_rock"
   }
+ ],
+ "terrain": [
+  "grass"
  ]
 }

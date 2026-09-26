@@ -934,5 +934,8 @@
    "bottom": "ground",
    "top": "bridge_0"
   }
+ ],
+ "terrain": [
+  "sand"
  ]
 }

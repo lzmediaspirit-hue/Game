@@ -1,0 +1,245 @@
+{
+ "schema_version": 1,
+ "id": "or_inverted_hall",
+ "zone": "lantern_star_field",
+ "region": "orbit_ruins",
+ "name": "Inverted Hall",
+ "type": "dungeon",
+ "level_range": [
+  92,
+  93
+ ],
+ "recommended_cp": 0,
+ "element": "star",
+ "qi_density": 2.3,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": true,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "orbit_ruins",
+ "ground": {
+  "material": "stone",
+  "tint": "#b8b4d0"
+ },
+ "spawn_point": [
+  220,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "gallery_low",
+   "rect": [
+    900,
+    650,
+    320,
+    60
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "gallery_high",
+   "rect": [
+    1500,
+    630,
+    360,
+    60
+   ],
+   "height": 400,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true,
+   "optional": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "or_golem_foundry",
+   "to_portal": "hall",
+   "press_up": true,
+   "label": "Golem Foundry"
+  }
+ ],
+ "objects": [
+  {
+   "id": "switch_hall_a",
+   "type": "gravity_switch",
+   "at": [
+    700,
+    700
+   ]
+  },
+  {
+   "id": "switch_hall_b",
+   "type": "gravity_switch",
+   "at": [
+    2000,
+    700
+   ]
+  },
+  {
+   "id": "chest_gallery",
+   "type": "chest",
+   "at": [
+    1680,
+    660
+   ],
+   "loot": "chest_lantern",
+   "level": 93,
+   "alt": 400,
+   "surface": "gallery_high"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "gravity_golem",
+   "surface": "ground",
+   "points": [
+    [
+     1500,
+     840
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 300,
+   "level": [
+    93,
+    93
+   ],
+   "elite": true
+  },
+  {
+   "enemy": "orbit_moth",
+   "surface": "ground",
+   "points": [
+    [
+     737,
+     735
+    ],
+    [
+     1761,
+     742
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 40,
+   "level": [
+    92,
+    93
+   ]
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "orbit_stone",
+   "at": [
+    500,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "orbit_stone",
+   "at": [
+    1280,
+    600
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "orbit_stone",
+   "at": [
+    2060,
+    640
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "dungeon",
+ "attunement_required": 56,
+ "volumes": [
+  {
+   "id": "lowg_hall_a",
+   "kind": "low_gravity",
+   "rect": [
+    400,
+    620,
+    900,
+    340
+   ],
+   "alt": [
+    -10,
+    800
+   ],
+   "switch": "switch_hall_a",
+   "gravity": 0.45
+  },
+  {
+   "id": "lowg_hall_b",
+   "kind": "low_gravity",
+   "rect": [
+    1300,
+    620,
+    1000,
+    340
+   ],
+   "alt": [
+    -10,
+    800
+   ],
+   "switch": "switch_hall_b",
+   "gravity": 0.45
+  }
+ ],
+ "climbables": [
+  {
+   "id": "gallery_low_rope_1",
+   "kind": "rope",
+   "at": [
+    1060,
+    745
+   ],
+   "top_at": [
+    1060,
+    702
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "gallery_low"
+  }
+ ],
+ "terrain": [
+  "stone"
+ ]
+}

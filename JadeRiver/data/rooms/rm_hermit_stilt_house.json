@@ -305,5 +305,9 @@
    "top": "stilt_house_deck"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "water",
+  "wood"
+ ]
 }

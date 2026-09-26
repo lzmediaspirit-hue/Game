@@ -315,5 +315,8 @@
    "top": "west_ledge"
   }
  ],
- "movers": []
+ "movers": [],
+ "terrain": [
+  "stone"
+ ]
 }

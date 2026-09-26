@@ -821,5 +821,8 @@
    "kind": "log"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "stone"
+ ]
 }

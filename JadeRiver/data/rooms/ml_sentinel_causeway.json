@@ -546,5 +546,9 @@
    "bottom": "ground",
    "top": "route_2"
   }
+ ],
+ "terrain": [
+  "grass",
+  "water"
  ]
 }

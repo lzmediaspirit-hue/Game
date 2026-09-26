@@ -312,5 +312,9 @@
    "bottom": "ground",
    "top": "route_3"
   }
+ ],
+ "terrain": [
+  "grass",
+  "stone"
  ]
 }

@@ -89,10 +89,20 @@
    "facing": -1
   },
   {
+   "id": "npc_lanternwright_han",
+   "type": "npc",
+   "at": [
+    420,
+    760
+   ],
+   "npc": "lanternwright_han",
+   "facing": 1
+  },
+  {
    "id": "ancestral_altar",
    "type": "ancestral_altar",
    "at": [
-    384,
+    244,
     860
    ],
    "toughness": 1400,
@@ -192,5 +202,8 @@
   "y_max": 560
  },
  "music": "lantern_harbor",
- "lantern": true
+ "lantern": true,
+ "terrain": [
+  "wood"
+ ]
 }

@@ -403,5 +403,8 @@
    "bottom": "ground",
    "top": "rope_ledge"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

@@ -555,5 +555,8 @@
    "bottom": "ground",
    "top": "cloud_roof"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

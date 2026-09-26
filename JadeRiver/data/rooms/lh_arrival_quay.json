@@ -101,6 +101,31 @@
  ],
  "portals": [
   {
+   "id": "warden_skiff",
+   "type": "door",
+   "at": [
+    2230,
+    704
+   ],
+   "to": "wc_citadel_gate",
+   "to_portal": "skiff",
+   "press_up": true,
+   "label": "Warden skiff to the Citadel",
+   "requires": {
+    "any": [
+     {
+      "kind": "quest_active",
+      "quest": "the_citadel"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_citadel"
+     }
+    ]
+   },
+   "locked_text": "The Wardens' skiff. It carries Wardens, and those the Wardens have asked for."
+  },
+  {
    "id": "east",
    "type": "edge",
    "at": [
@@ -309,5 +334,8 @@
    "bottom": "ground",
    "top": "route_3"
   }
+ ],
+ "terrain": [
+  "wood"
  ]
 }

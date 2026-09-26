@@ -685,6 +685,13 @@
     "world_authority"
    ]
   },
+  "gravity_switched": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ],
+   "polled": "The switch's ObjectView and the VolumeView read the room's switch state and volumes each frame."
+  },
   "enemy_aggro": {
    "system": "Enemies",
    "files": [
@@ -1876,6 +1883,28 @@
     "field_authority",
     "field_rules"
    ]
+  },
+  "sphere_toggled": {
+   "system": "Field",
+   "files": [
+    "field_authority",
+    "field_rules"
+   ]
+  },
+  "sphere_clash": {
+   "system": "Field",
+   "files": [
+    "field_authority",
+    "field_rules"
+   ]
+  },
+  "sphere_pulse": {
+   "system": "Field",
+   "files": [
+    "field_authority",
+    "field_rules"
+   ],
+   "polled": "The FX layer draws the held Sphere each frame from FieldAuthority.sphere_of."
   },
   "post_taken": {
    "system": "Posts",

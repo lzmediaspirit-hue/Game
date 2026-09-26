@@ -176,5 +176,8 @@
    "kind": "pillar"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "stone"
+ ]
 }

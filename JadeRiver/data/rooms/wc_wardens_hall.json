@@ -1,0 +1,166 @@
+{
+ "schema_version": 1,
+ "id": "wc_wardens_hall",
+ "zone": "lantern_star_field",
+ "region": "warden_citadel",
+ "name": "Wardens' Hall",
+ "type": "interior",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 2.1,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "floor_stone"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    1280,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "loft_mv",
+   "rect": [
+    480,
+    630,
+    300,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    120,
+    700
+   ],
+   "to": "wc_citadel_gate",
+   "to_portal": "hall_door",
+   "press_up": true,
+   "label": "Citadel Gate"
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_warden_commander_yao",
+   "type": "npc",
+   "at": [
+    860,
+    760
+   ],
+   "npc": "warden_commander_yao",
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    360,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    920,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "warden_statue",
+   "at": [
+    260,
+    650
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "star_chart_table",
+   "at": [
+    700,
+    760
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "scroll_rack",
+   "at": [
+    1060,
+    690
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_stone"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "music": "lantern_harbor",
+ "lantern": true,
+ "climbables": [
+  {
+   "id": "loft_mv_ladder_1",
+   "kind": "ladder",
+   "at": [
+    630,
+    735
+   ],
+   "top_at": [
+    630,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "loft_mv"
+  }
+ ],
+ "terrain": [
+  "stone"
+ ]
+}

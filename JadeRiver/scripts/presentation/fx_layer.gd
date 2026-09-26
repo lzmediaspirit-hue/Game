@@ -40,6 +40,7 @@ func _draw() -> void:
 		for a in Game.combat.arrays: _draw_array(a)
 	# S28 v1.2: a held Presence is a pale ring on the ground; where it meets a foe's, the boundary shimmers.
 	if Game.field and Game.active() != null and Game.field.is_on(Game.active_id): _draw_presence(Game.active())
+	if Game.field and Game.active() != null and Game.field.sphere_on(Game.active_id): _draw_sphere(Game.active())
 	# Projectiles live in the RoomRuntime and are drawn from state.
 	if Game.room_rt:
 		for p in Game.room_rt.projectiles:
@@ -187,6 +188,27 @@ func _cloud_bank(center: Vector2, width: float, height: float, base: Color, lit:
 				rx *= 0.7
 			draw_set_transform(at, 0.0, Vector2(1.0, 0.46))
 			draw_circle(Vector2.ZERO, rx, Color(base if layer == 0 else lit, (0.3 if layer == 0 else 0.16) * alpha))
+	draw_set_transform(Vector2.ZERO)
+
+## v1.2 the Sphere: a filled circle of its element's colour with a bright rim; the Sword Domain rings it with turning
+## blade strokes.
+func _draw_sphere(c) -> void:
+	var st: ActorState = Game.actor_state(c.id)
+	if st == null: return
+	var sd: Dictionary = Game.field.sphere_of(c)
+	if sd.is_empty(): return
+	var t := float(Time.get_ticks_msec()) / 1000.0
+	var r := float(sd.radius)
+	var col := Color(str(ContentDB.config("elements").get("colors", {}).get(str(sd.element), "#e8d9a0"))) if str(sd.element) != "sword" else Color("dce8f0")
+	draw_set_transform(st.plane, 0.0, Vector2(1, 0.35))
+	draw_circle(Vector2.ZERO, r, Color(col, 0.10))
+	draw_arc(Vector2.ZERO, r, 0, TAU, 96, Color(col, 0.7), 3.0)
+	draw_arc(Vector2.ZERO, r * 0.94, 0, TAU, 96, Color(col, 0.25), 1.5)
+	if sd.get("domain", false) or str(sd.element) in ["metal", "star"]:
+		for i in 12:
+			var a := t * 0.8 + i * TAU / 12.0
+			var p := Vector2(cos(a), sin(a)) * r * 0.97
+			draw_line(p, p + Vector2(cos(a + 1.3), sin(a + 1.3)) * 22.0, Color(1, 1, 1, 0.75), 2.0)
 	draw_set_transform(Vector2.ZERO)
 
 ## An array on the ground: two rings of the array's colour, eight trigram strokes between them and a slow turn.

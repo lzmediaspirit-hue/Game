@@ -482,5 +482,8 @@
    "bottom": "ground",
    "top": "retreat_rooms"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

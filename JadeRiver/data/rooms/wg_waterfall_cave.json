@@ -291,5 +291,9 @@
    ]
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "stone",
+  "water"
+ ]
 }

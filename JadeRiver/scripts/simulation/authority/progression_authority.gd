@@ -618,10 +618,23 @@ func set_vow(c, vow: String, on: bool) -> Dictionary:
 ## heart (+10 heart demon). Never a class lock: every other technique stays open.
 func set_path(c, path: String, on: bool) -> Dictionary:
 	var cfg: Dictionary = ContentDB.stat_const("paths", {}).get(path, {})
-	if path != "blood" or cfg.is_empty(): return fail("unknown_path")
-	if not Unlocks.is_unlocked(c.id, "vows"): return fail("locked", {"text": Unlocks.locked_text("vows")})
+	if not path in ["blood", "confucian"] or cfg.is_empty(): return fail("unknown_path")
+	var gate := "vows" if path == "blood" else "confucian_path"
+	if not Unlocks.is_unlocked(c.id, gate): return fail("locked", {"text": Unlocks.locked_text(gate)})
 	var walking := bool(c.cultivator.paths.get(path, false))
 	if on == walking: return ok({"path": path, "on": on})
+	if on and path == "confucian":
+		# v1.2 the Confucian path: for the upright (alignment 20 or higher), never beside the Blood path.
+		if ProgressionRules.realm_index(c.cultivator.realm_key) < ProgressionRules.realm_index(str(cfg.get("min_realm", "will_manifest_1"))):
+			return fail("realm", {"text": Tx.t("sim.progression.path_realm")})
+		if c.relations.alignment < int(cfg.get("alignment_at_least", 20)): return fail("alignment", {"text": t("sim.progression.path_upright")})
+		if walks(c, "blood"): return fail("exclusive", {"text": t("sim.progression.path_exclusive")})
+		c.cultivator.paths[path] = true
+		game.relations.apply_alignment(c.id, int(cfg.get("take_alignment", 5)), "confucian_path")
+		emit("path_changed", {"actor": c.id, "path": path, "on": true})
+		emit("system_used", {"actor": c.id, "system": "confucian_path"})
+		return ok({"path": path, "on": true})
+	if on and walks(c, "confucian"): return fail("exclusive", {"text": t("sim.progression.path_exclusive")})
 	if on:
 		if ProgressionRules.realm_index(c.cultivator.realm_key) < ProgressionRules.realm_index(str(cfg.get("min_realm", "heart_tempering_1"))):
 			return fail("realm", {"text": Tx.t("sim.progression.path_realm")})

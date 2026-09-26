@@ -160,5 +160,8 @@
   "y_min": 520,
   "y_max": 560
  },
- "music": "meditation"
+ "music": "meditation",
+ "terrain": [
+  "stone"
+ ]
 }

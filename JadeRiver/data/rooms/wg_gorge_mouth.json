@@ -495,5 +495,8 @@
    "bottom": "ground",
    "top": "gorge_cliff_e"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

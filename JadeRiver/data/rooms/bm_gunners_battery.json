@@ -696,5 +696,8 @@
    "bottom": "ground",
    "top": "route_4"
   }
+ ],
+ "terrain": [
+  "wood"
  ]
 }

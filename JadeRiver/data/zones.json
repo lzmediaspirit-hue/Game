@@ -713,7 +713,15 @@
     "lh_harbor_market",
     "lh_star_chandlery",
     "lh_tidelight_inn",
+    "or_golem_foundry",
+    "or_inverted_hall",
+    "or_orbit_garden",
+    "or_tumbling_stair",
     "ss_lantern_crossing",
+    "wc_citadel_gate",
+    "wc_observatory",
+    "wc_presence_court",
+    "wc_wardens_hall",
     "wn_eggshell_terraces",
     "wn_guardians_crown",
     "wn_hatching_cave",
@@ -781,8 +789,7 @@
      "map": [
       0.5,
       0.48
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "orbit_ruins",
@@ -795,8 +802,7 @@
      "map": [
       0.34,
       0.3
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "ashen_reach",

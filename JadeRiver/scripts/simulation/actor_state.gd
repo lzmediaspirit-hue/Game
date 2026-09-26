@@ -44,6 +44,7 @@ var drowned=false                    # sank without the art: the controller retu
 var rider_of=""                      # the mover surface carrying this body
 var rider_offset=Vector3.ZERO        # the mover's offset when last carried
 var volumes_in: Array=[]             # volume IDs the body is inside (volume_entered / volume_left)
+var frozen_ground=false              # v1.2 a Water Sphere freezes the shallows under the bearer: no wading slowdown
 var last_safe: Dictionary={}         # {room, surface, x, y}: where a fall returns the body (S43 rule 6)
 ## The body's movement mode (S43): ground, air, climb, mantle, glide, flight, swim or ride.
 func mode() -> String:

@@ -204,5 +204,8 @@
    "kind": "rock"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "stone"
+ ]
 }

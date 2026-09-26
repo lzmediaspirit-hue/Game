@@ -840,5 +840,9 @@
    "kind": "hay"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "grass",
+  "water"
+ ]
 }

@@ -51,6 +51,8 @@ func configure(data: Dictionary):
 		vol.lo=float(alt[0])
 		vol.hi=float(alt[1])
 		if not vol.has("id"): vol.id="%s_%d" % [str(v.kind),volumes.size()]
+		# v1.2 gravity switches: a volume tied to a jade switch is live only while the switch says so.
+		if vol.has("switch"): vol.off=not bool(vol.get("invert",false))
 		volumes.append(vol)
 	for m in data.get("movers",[]):
 		var mv: Dictionary=m.duplicate(true)
@@ -231,14 +233,25 @@ func climbable_near(point: Vector2,altitude: float,radius:=28.0) -> Dictionary:
 func volumes_at(point: Vector2,altitude: float) -> Array:
 	var out: Array=[]
 	for v in volumes:
+		if v.get("off",false): continue
 		if (v.rect as Rect2).has_point(point) and altitude>=float(v.lo)-0.5 and altitude<=float(v.hi)+0.5: out.append(v)
 	return out
 ## The first volume of a kind holding this point at this altitude, or {}.
 func volume_at(point: Vector2,altitude: float,kind: String) -> Dictionary:
 	for v in volumes:
+		if v.get("off",false): continue
 		if str(v.kind)!=kind and not (kind=="water_deep" and str(v.kind)=="rising_water"): continue
 		if (v.rect as Rect2).has_point(point) and altitude>=float(v.lo)-0.5 and altitude<=float(v.hi)+0.5: return v
 	return {}
+## v1.2 gravity switches: turn every volume tied to `switch_id` on or off (an `invert` volume does the opposite).
+func set_switch(switch_id: String,on: bool) -> void:
+	for v in volumes:
+		if str(v.get("switch",""))==switch_id: v.off=(not on) if not v.get("invert",false) else on
+## The pull of gravity here as a share of the usual (a live low_gravity volume, 1.0 elsewhere).
+func gravity_at(point: Vector2,altitude: float) -> float:
+	if volumes.is_empty(): return 1.0
+	var g=volume_at(point,altitude,"low_gravity")
+	return float(g.get("gravity",0.45)) if not g.is_empty() else 1.0
 ## Deep water (still or rising) whose surface is above this altitude here, or {}.
 func water_at(point: Vector2,altitude: float) -> Dictionary:
 	var w=volume_at(point,altitude,"water_deep")

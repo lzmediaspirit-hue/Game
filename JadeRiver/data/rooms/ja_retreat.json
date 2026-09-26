@@ -242,5 +242,8 @@
  },
  "sect": "jade_sect",
  "music": "meditation",
- "retreat": true
+ "retreat": true,
+ "terrain": [
+  "stone"
+ ]
 }

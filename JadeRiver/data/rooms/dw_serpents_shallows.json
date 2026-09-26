@@ -292,5 +292,9 @@
    "bottom": "ground",
    "top": "high_rock_2"
   }
+ ],
+ "terrain": [
+  "grass",
+  "water"
  ]
 }

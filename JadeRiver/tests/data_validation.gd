@@ -564,7 +564,7 @@ func room_suite() -> void:
 		check(ContentDB.rooms.has(str(v.get("to", ""))) and ContentDB.room(str(v.get("crossing", ""))).get("crossing", false)
 			and ContentDB.has_entry("items", str(v.get("chart", ""))), "voyage %s: destination, crossing and chart exist" % v.id)
 # ------------------------------------------------------------------ S43 movement data
-const VOLUME_KINDS := ["water_shallow", "water_deep", "current", "updraft", "wind", "bounce", "crumble", "rising_water", "hazard", "no_flight", "ice"]
+const VOLUME_KINDS := ["water_shallow", "water_deep", "current", "updraft", "wind", "bounce", "crumble", "rising_water", "hazard", "no_flight", "ice", "low_gravity"]
 
 func movement_suite() -> void:
 	# movement.json is the one table of traversal numbers: the solver's constants must match it.
@@ -600,6 +600,10 @@ func movement_suite() -> void:
 		for v in room.get("volumes", []):
 			check(str(v.kind) in VOLUME_KINDS, "%s: volume kind %s" % [rid, v.kind])
 			if str(v.kind) == "crumble": check(ids.has(str(v.get("surface", ""))), "%s: crumble %s names a surface" % [rid, v.id])
+			if v.has("switch"):
+				var sw := str(v.switch)
+				check(room.get("objects", []).any(func(o): return str(o.id) == sw and str(o.type) == "gravity_switch"),
+					"%s: volume %s names a gravity switch in the room" % [rid, v.id])
 			if str(v.kind) != "water_deep": continue
 			var r: Array = v.rect
 			var area := Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))

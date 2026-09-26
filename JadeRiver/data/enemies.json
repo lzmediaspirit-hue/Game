@@ -5876,6 +5876,320 @@
    }
   },
   {
+   "id": "gravity_golem",
+   "name": "Gravity Golem",
+   "level": [
+    88,
+    93
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "slow_melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 55,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "gravity_well",
+     "windup_s": 1.0,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       260
+      ],
+      "depth": 90,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 0.6,
+     "damage_type": "qi",
+     "pull": 150,
+     "both_sides": true
+    },
+    {
+     "id": "orbit_slam",
+     "windup_s": 1.1,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       130
+      ],
+      "depth": 70,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.6,
+     "knockback": 140,
+     "status": {
+      "id": "stun",
+      "chance": 0.3,
+      "power": 1.0,
+      "duration_s": 0.8
+     }
+    }
+   ],
+   "loot": "gravity_golem",
+   "drops": [
+    {
+     "item": "gravity_core",
+     "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "star_shard",
+     "chance": 0.6,
+     "count": [
+      1,
+      3
+     ],
+     "weight": 1
+    },
+    {
+     "item": "orbit_stone_chip",
+     "chance": 0.35,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "lantern",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "gravity_golem"
+   },
+   "half_width": 70,
+   "height": 110,
+   "knockback_immune": true,
+   "movement": {
+    "jump": 0,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   },
+   "beast_rank": 9,
+   "nature": "spirit"
+  },
+  {
+   "id": "orbit_moth",
+   "name": "Orbit Moth",
+   "level": [
+    88,
+    93
+   ],
+   "role": "normal",
+   "element": "star",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "flyer_ranged",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "orbiting_motes",
+     "windup_s": 0.7,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       240
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.1,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 300,
+      "art": "qi_arc",
+      "count": 2
+     }
+    },
+    {
+     "id": "dust_veil",
+     "windup_s": 0.9,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       120
+      ],
+      "depth": 60,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 0.9,
+     "status": {
+      "id": "confusion",
+      "chance": 0.35,
+      "power": 1.0,
+      "duration_s": 2
+     }
+    }
+   ],
+   "loot": "orbit_moth",
+   "drops": [
+    {
+     "item": "moth_dust",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "star_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": true,
+   "collection": {
+    "page": "lantern",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "orbit_moth"
+   },
+   "half_width": 30,
+   "height": 34,
+   "flying": true,
+   "movement": {
+    "jump": 0,
+    "climb": false,
+    "fly": true,
+    "drop": false
+   },
+   "beast_rank": 9,
+   "nature": "spirit"
+  },
+  {
+   "id": "shen_lian_aspirant",
+   "name": "Shen Lian",
+   "level": [
+    91,
+    91
+   ],
+   "role": "trial",
+   "element": "metal",
+   "race": "human",
+   "energy": "sage_qi",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "starfall_thrust",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       120
+      ],
+      "depth": 36,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.25
+    },
+    {
+     "id": "domain_cut",
+     "windup_s": 0.8,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       200
+      ],
+      "depth": 70,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.1,
+     "both_sides": true
+    }
+   ],
+   "loot": "shen_lian_aspirant",
+   "drops": [],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "high_pony",
+     "hair_color": 2,
+     "shirt": "vneck",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "none",
+     "hat": "none",
+     "name": "Shen Lian",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "spar": true,
+   "presence": 3,
+   "sphere": {
+    "element": "sword",
+    "tier": 3
+   },
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
    "id": "presence_phantom",
    "name": "Presence of a Seat",
    "level": [

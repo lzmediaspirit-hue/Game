@@ -62,6 +62,7 @@ func _main() -> void:
 	station_suite()
 	works_suite()
 	guidance_suite()
+	sphere_suite()
 	body_path_suite()
 	heaven_suite()
 	arts_suite()
@@ -5555,6 +5556,148 @@ func guidance_suite() -> void:
 	Game.world.apply_teleport(c.id, "lf_reed_shallows")
 	check(Game.world.guide_step(c).is_empty(), "no mark once there")
 	c.quests.restore(q0)
+	Game.world.apply_teleport(c.id, back)
+
+## v1.2 Phase C: gravity switches in the Orbit Ruins, the Sphere (radius, power, element effects, clash, the Qi it
+## costs), the Space Dao's six tiers and the Confucian path's gates.
+func sphere_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var back := str(c.position.get("room", "lf_village"))
+	# -- Rules.
+	check(near(FieldRules.sphere_radius(1), 180.0) and near(FieldRules.sphere_radius(5), 260.0) and near(FieldRules.sphere_radius(6), 320.0),
+		"a Sphere reaches 160 + 20 a Dao tier, and 40 more at the sixth")
+	check(near(FieldRules.sphere_power(90, 3), 95.0 * 1.24) and near(FieldRules.sphere_power(90, 6), 95.0 * 1.58) and near(FieldRules.sphere_power(90, 0), 0.0),
+		"its power is (5 + Level) x (1 + 8% a tier, +10% at tier 6); no tier, no Sphere")
+	var wet := FieldRules.sphere_effects("water", ["water"])
+	check(near(float(FieldRules.sphere_effects("water", []).slow), 0.2) and wet.get("freeze", false) and near(float(wet.slow), 0.35),
+		"a Water Sphere slows by a fifth; over water it freezes the surface and slows by more")
+	check(near(float(FieldRules.sphere_effects("fire", ["grass"]).burn_pct), 0.02) and FieldRules.sphere_effects("earth", []).get("vulnerable", false),
+		"fire burns hotter on grass; earth leaves what it holds open to harm")
+	check(FieldRules.feeds("fire", "fire") and FieldRules.feeds("wood", "fire") and not FieldRules.feeds("water", "fire") and not FieldRules.feeds("", "fire"),
+		"ground feeds a technique of its own element or the one it generates (wood feeds fire)")
+	# -- The Space Dao and tier 6.
+	var space: Dictionary = ContentDB.entry("daos", "space")
+	check(space.get("tiers", []).size() == 6, "the Space Dao has six tiers")
+	check(ContentDB.entry("daos", "sword").get("tiers", []).size() >= 6 and ContentDB.entry("daos", "water").get("tiers", []).size() >= 6,
+		"weapon and element Daos reach a sixth tier (Original Application)")
+	# -- Gravity switches (the Inverted Hall).
+	Game.world.apply_teleport(c.id, "or_inverted_hall")
+	var st: ActorState = Game.actor_state(c.id)
+	var geo = Game.room_rt.geometry
+	var in_a := Vector2(1000, 800)
+	check(near(geo.gravity_at(in_a, 0.0), 1.0), "with its switch up the hall pulls as hard as anywhere")
+	st.plane = Vector2(700, 800)
+	st.altitude = 0.0
+	var heard := {"g": 0, "sphere": 0, "clash": ""}
+	var listen := func(n: String, p: Dictionary):
+		if n == "gravity_switched": heard.g = int(heard.g) + 1
+		if n == "sphere_toggled" and p.get("on", false): heard.sphere = int(heard.sphere) + 1
+		if n == "sphere_clash": heard.clash = str(p.get("winner", ""))
+	GameEvents.event.connect(listen)
+	var down := Game.submit({"type": "interact", "object": "switch_hall_a"})
+	check(down.get("ok", false) and near(geo.gravity_at(in_a, 0.0), 0.45) and int(heard.g) == 1 and str(Game.room_rt.objects.switch_hall_a.state) == "down",
+		"press the jade switch down: the air lightens to 45%% (%s)" % str(down))
+	check(near(geo.gravity_at(Vector2(1600, 800), 0.0), 1.0), "only over its own half of the hall")
+	var g := MovementSolver.GRAVITY
+	var j := MovementSolver.JUMP_IMPULSE
+	var dj := MovementSolver.DOUBLE_JUMP_IMPULSE
+	var high := 0.0
+	var low := 0.0
+	for sf in Game.room_rt.def.surfaces:
+		if str(sf.id) == "gallery_high": high = float(sf.height)
+		if str(sf.id) == "gallery_low": low = float(sf.height)
+	check(low + j * j / (2.0 * g) + dj * dj / (2.0 * g) < high and j * j / (2.0 * g * 0.45) + dj * dj / (2.0 * g * 0.45) >= high,
+		"the high gallery (%.0f) is out of reach of any jump, even from the low one (%.0f), and within a light double jump from the floor" % [high, low])
+	Game.submit({"type": "interact", "object": "switch_hall_a"})
+	check(near(geo.gravity_at(in_a, 0.0), 1.0) and str(Game.room_rt.objects.switch_hall_a.state) == "up", "press it again and the weight comes back")
+	# -- The Sphere.
+	var realm0: String = c.cultivator.realm_key
+	var daos0: Dictionary = c.cultivator.daos.duplicate(true)
+	var inj0: Dictionary = c.cultivator.injuries.duplicate(true)
+	c.cultivator.realm_key = "sphere_lord_1"
+	Game.combat.refresh_stats(c.id)
+	c.cultivator.unlocked.erase("sphere")
+	var locked := Game.submit({"type": "toggle_sphere"})
+	check(not locked.get("ok", true) and str(locked.get("reason", "")) == "locked", "no Sphere before it is unlocked")
+	Unlocks.force_unlock(c.id, "sphere")
+	c.cultivator.daos = {"water": {"tier": 3, "insight": 0.0}, "fist": {"tier": 1, "insight": 0.0}}
+	var sd: Dictionary = Game.field.sphere_of(c)
+	check(str(sd.get("element", "")) == "water" and int(sd.tier) == 3 and near(float(sd.radius), 220.0), "the Sphere is drawn from the strongest combat Dao: %s" % str(sd))
+	c.pools.qi = c.pools.max_qi
+	Game.field.sphere_cd.erase(c.id)
+	Game.room_rt.enemies.clear()
+	st.plane = Vector2(1000, 800)
+	var near_e: EnemyState = Game.enemies.spawn_at("orbit_moth", st.plane + Vector2(150, 0), 88)
+	var far_e: EnemyState = Game.enemies.spawn_at("orbit_moth", st.plane + Vector2(700, 0), 88)
+	var up := Game.submit({"type": "toggle_sphere"})
+	check(up.get("ok", false) and Game.field.sphere_on(c.id) and int(heard.sphere) == 1 and Game.field.sphere_element(c) == "water",
+		"raise the Sphere (%s)" % str(up))
+	var qi0: float = c.pools.qi
+	Game.field.tick(1.05)
+	GameEvents.flush()
+	check(c.pools.qi < qi0 and near(qi0 - c.pools.qi, c.pools.max_qi * 0.004 * 1.05, 0.05), "it costs 0.4% of the Qi a second")
+	check(near_e.pools.statuses.any(func(x): return str(x.id) == "slow") and not far_e.pools.statuses.any(func(x): return str(x.id) == "slow"),
+		"a foe inside it is slowed; one outside is not")
+	# A weaker foe's Sphere breaks against yours.
+	near_e.def = near_e.def.duplicate()
+	near_e.def["sphere"] = {"element": "fire", "tier": 1}
+	near_e.level = 60
+	Game.field.tick(1.05)
+	GameEvents.flush()
+	check(heard.clash == "you" and near_e.ai.get("sphere_broken", false) and Game.field.sphere_on(c.id), "a weaker Sphere breaks against yours")
+	# A stronger one breaks yours: a meridian injury and a wait.
+	far_e.def = far_e.def.duplicate()
+	far_e.def["sphere"] = {"element": "sword", "tier": 6}
+	far_e.level = 140
+	far_e.role = "dungeon_boss"
+	far_e.plane = st.plane + Vector2(400, 0)
+	Game.field.tick(1.05)
+	GameEvents.flush()
+	check(heard.clash == "foe" and not Game.field.sphere_on(c.id), "a stronger Sphere breaks yours")
+	var again := Game.submit({"type": "toggle_sphere"})
+	check(not again.get("ok", true) and str(again.get("reason", "")) == "broken", "and a broken Sphere cannot be raised again at once")
+	# The sword Domain needs a jian in hand.
+	c.cultivator.daos = {"sword": {"tier": 4, "insight": 0.0}}
+	var sw: Dictionary = Game.field.sphere_of(c)
+	var jian := str(StatRules.family(c).get("id", "")) == "jian"
+	check((str(sw.element) == "sword" and sw.domain) if jian else (str(sw.element) == "metal" and not sw.domain),
+		"a Sword Dao Sphere is the Sword Domain only with a jian in hand (%s)" % str(sw))
+	Game.field.sphere_cd.erase(c.id)
+	# -- The Confucian path.
+	var al0: int = c.relations.alignment
+	var paths0: Dictionary = c.cultivator.paths.duplicate()
+	c.cultivator.paths.erase("confucian")
+	c.cultivator.paths.erase("blood")
+	c.cultivator.unlocked.erase("confucian_path")
+	var r0 := Game.submit({"type": "set_path", "path": "confucian", "on": true})
+	check(not r0.get("ok", false) and str(r0.get("reason", "")) == "locked", "the written word waits for its unlock")
+	Unlocks.force_unlock(c.id, "confucian_path")
+	c.relations.alignment = 0
+	var r1 := Game.submit({"type": "set_path", "path": "confucian", "on": true})
+	check(not r1.get("ok", false) and str(r1.get("reason", "")) == "alignment", "only an upright heart may walk it")
+	c.relations.alignment = 30
+	c.cultivator.paths["blood"] = true
+	var r2 := Game.submit({"type": "set_path", "path": "confucian", "on": true})
+	check(not r2.get("ok", false) and str(r2.get("reason", "")) == "exclusive", "never beside the Blood path")
+	c.cultivator.paths.erase("blood")
+	var r3 := Game.submit({"type": "set_path", "path": "confucian", "on": true})
+	check(r3.get("ok", false) and ProgressionAuthority.walks(c, "confucian") and c.relations.alignment == 35, "walk it: +5 alignment (%s)" % str(r3))
+	var hollow: EnemyState = Game.enemies.spawn_at("hollowed_wyrmling", st.plane + Vector2(900, 0), 88)
+	check(CombatAuthority._unrighteous(hollow) and not CombatAuthority._unrighteous(near_e), "Righteous Qi knows the Hollow from a moth")
+	var tech: Dictionary = ContentDB.entry("techniques", "upright_glyph")
+	check(tech.get("confucian_path", false) and near(float(tech.get("insight_scale", 0.0)), 0.5), "the glyphs follow Insight and belong to the path")
+	GameEvents.event.disconnect(listen)
+	Game.room_rt.enemies.clear()
+	c.relations.alignment = al0
+	c.cultivator.paths = paths0
+	c.cultivator.unlocked.erase("confucian_path")
+	c.cultivator.unlocked.erase("sphere")
+	c.cultivator.daos = daos0
+	c.cultivator.realm_key = realm0
+	c.cultivator.injuries = inj0
+	Game.combat.refresh_stats(c.id)
+	c.pools.qi = c.pools.max_qi
 	Game.world.apply_teleport(c.id, back)
 
 func ice_mount_suite() -> void:

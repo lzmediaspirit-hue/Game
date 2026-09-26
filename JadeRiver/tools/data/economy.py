@@ -220,6 +220,18 @@ def shops():
         {"id": "lanternfall_apothecary", "name": "Apothecary Sang's Jars", "currency": "sage_crystal",
          "stock": [s("star_lotus", price=5), s("ember_cactus", price=3), s("frost_lotus", price=3), s("clear_mind_pill"), s("soul_soothing_pill"),
                    s("calm_incense"), s("lantern_incense", price=4), s("recipe_scroll", learn="tide_cleansing_pill", price=40)]},
+        # v1.2 Phase C · Stargazer Ming cuts another Sphere Comprehension Stone for one who has seen their Sphere and
+        # broke it on a failed breakthrough (a failed major breakthrough consumes its materials).
+        {"id": "observatory", "name": "Stargazer Ming's Star-stones", "currency": "sage_crystal",
+         "stock": [s("sphere_comprehension_stone", price=80, requires=all_of({"kind": "quest_done", "quest": "the_observatory"})),
+                   s("clear_mind_pill"), s("will_tempering_pill", price=6)]},
+        # v1.2 Phase C · Lanternwright Han keeps the first Wardens' glyphs for those who walk the written word.
+        {"id": "lanternwright", "name": "Lanternwright Han's Shelf", "currency": "sage_crystal",
+         "stock": [s("lantern_incense", price=4), s("clear_mind_pill"), s("will_tempering_pill", price=6),
+                   s("technique_manual", learn="benevolent_script", price=60,
+                     requires=all_of(realm("will_manifest_3"), {"kind": "unlock", "system": "confucian_path"})),
+                   s("technique_manual", learn="rite_seal_script", price=90,
+                     requires=all_of(realm("sphere_lord_1"), {"kind": "unlock", "system": "confucian_path"}))]},
         # Phase E · the Shipwrights' Yard: sky ink for charts; timber, plates and plumes for hulls.
         {"id": "navigator", "name": "Navigator Sun's Charts", "currency": "spirit_stone",
          "stock": [s("sky_ink", price=30), s("clear_mind_pill"), s("recipe_scroll", learn="star_chart_lantern", price=400,
@@ -731,6 +743,11 @@ def pets():
          "tier": "star", "tame_unlock": "star_beasts",
          "skills": ["Comet Peck", "Tail Flare", "Streak Dive", "Falling Star"], "favourite_foods": ["roast_fish", "ember_pepper_stew"],
          "branches": ["Meteor Sparrow", "Hearthlight Sparrow"]},
+        # v1.2 · Phase C: the Orbit Moth of the Orbit Ruins, a star-tier moth that circles its keeper with motes.
+        {"id": "orbit_moth", "name": "Orbit Moth", "art": "orbit_moth", "element": "star", "strength_role": "support", "tame": True,
+         "tier": "star", "tame_unlock": "star_beasts",
+         "skills": ["Mote Ring", "Dust Veil", "Orbit Guard", "Starlit Wings"], "favourite_foods": ["lotus_root_tea", "cloudtop_orchid_broth"],
+         "branches": ["Comet Moth", "Moon Moth"]},
         {"id": "hatchling_wyrm", "name": "Hatchling Wyrm", "art": "hatchling_wyrm", "element": "space", "strength_role": "combat", "tier": "primordial",
          "primordial": True, "skills": ["Star Breath", "Coil Guard", "Blink Pounce", "Wyrm Roar"], "favourite_foods": ["jade_carp_congee", "cloudtop_orchid_broth"],
          "branches": ["Star Wyrm", "Void Wyrm"]},
@@ -742,11 +759,11 @@ def pets():
     family = {"reed_otter": "river", "mossback_toad": "river", "ember_fox": "hound", "mist_wolf": "hound",
               "ironclaw_mole": "burrow", "bamboo_monkey": "burrow", "jade_crane": "wing",
               "green_viper": "river", "mud_hound": "hound", "mist_vulture": "wing", "cleansed_boarlet": "burrow", "pale_stag": "hound",
-              "riverstone_ox": "hoof", "cloud_stag": "hoof", "comet_sparrow": "wing", "hatchling_wyrm": "wyrm"}
+              "riverstone_ox": "hoof", "cloud_stag": "hoof", "comet_sparrow": "wing", "hatchling_wyrm": "wyrm", "orbit_moth": "wing"}
     # S43 rule 12: how each animal follows along the navigation graph (ground mounts jump at 530; none climb).
     jumps = {"reed_otter": 430, "ember_fox": 530, "jade_crane": 530, "mossback_toad": 600, "ironclaw_mole": 0, "bamboo_monkey": 600, "mist_wolf": 530,
              "green_viper": 0, "mud_hound": 530, "mist_vulture": 530, "cleansed_boarlet": 430, "pale_stag": 600,
-             "riverstone_ox": 530, "cloud_stag": 600, "comet_sparrow": 530, "hatchling_wyrm": 430}
+             "riverstone_ox": 530, "cloud_stag": 600, "comet_sparrow": 530, "hatchling_wyrm": 430, "orbit_moth": 530}
     # S46 bloodline: at 50 purity an ancestral skill awakens (a heavy strike every 12 s in a fight; the free cast
     # of an Equal Contract); at 90 the animal changes form (+10% to every stat, a larger, tinted body).
     ancestry = {
@@ -766,6 +783,7 @@ def pets():
         "cloud_stag": ("Sky-Treading Leap", "Heavenly Cloud Stag", "#e8f4ff"),
         "comet_sparrow": ("Thousand Comet Rain", "Great Comet Roc", "#ffd0a0"),
         "hatchling_wyrm": ("Starfall Breath", "Star-Crowned Wyrm", "#e8e0ff"),
+        "orbit_moth": ("Thousand Orbit Veil", "Heaven-Circling Moth", "#e0e8ff"),
     }
     for r in rows:
         if r.get("construct"):

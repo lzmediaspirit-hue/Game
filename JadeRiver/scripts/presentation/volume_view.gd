@@ -27,6 +27,25 @@ func _draw() -> void:
 		"rising_water": _rising(r, t)
 		"bounce": _bounce(r, t)
 		"ice": _ice(r, t)
+		"low_gravity": _low_gravity(r, t)
+
+## v1.2 low gravity: violet motes drifting slowly upward while the switch holds it, a faint dotted outline when not.
+func _low_gravity(r: Rect2, t: float) -> void:
+	var live: bool = not volume.get("off", false)
+	var lo := maxf(0.0, float(volume.get("lo", 0.0)))
+	var hi := minf(420.0, float(volume.get("hi", 420.0)))
+	var foot := r.end.y - 20.0
+	if not live:
+		for i in 12:
+			var x := r.position.x + r.size.x * (i / 11.0)
+			draw_circle(Vector2(x, foot), 2.0, Color(0.6, 0.5, 0.95, 0.35))
+		return
+	draw_rect(Rect2(r.position.x, foot - 6.0, r.size.x, 6.0), Color(0.55, 0.45, 0.95, 0.25))
+	for i in 14:
+		var x := r.position.x + r.size.x * (0.05 + 0.9 * fposmod(i * 0.29, 1.0))
+		var k := fposmod(t * (0.08 + 0.02 * (i % 4)) + i * 0.17, 1.0)
+		var y := foot - lerpf(lo, hi, k)
+		draw_circle(Vector2(x + sin(t + i) * 6.0, y), 2.5 + (i % 3), Color(0.72, 0.62, 1.0, sin(k * PI) * 0.7))
 
 ## A pale glaze on the ground where the footing slides (the v1.1 traction rule), with slow glints across it.
 func _ice(r: Rect2, t: float) -> void:

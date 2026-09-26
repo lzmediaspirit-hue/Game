@@ -481,5 +481,8 @@
  "music": "sect",
  "ambience": "town_ambience",
  "town": true,
- "vertical": "grows"
+ "vertical": "grows",
+ "terrain": [
+  "stone"
+ ]
 }

@@ -1826,6 +1826,36 @@
    "desc": "A bronze plate from a Nest Guardian's shell, set with a crystal that still glows."
   },
   {
+   "id": "gravity_core",
+   "name": "Gravity Core",
+   "type": "beast_part",
+   "grade": "will",
+   "ilv": 95,
+   "stack": 99,
+   "icon": "gravity_core",
+   "desc": "The heavy heart of a Gravity Golem. Set it down and small things roll toward it."
+  },
+  {
+   "id": "orbit_stone_chip",
+   "name": "Orbit Stone Chip",
+   "type": "material",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "orbit_stone_chip",
+   "desc": "A chip of an orbit stone. It turns slowly in the palm, by itself."
+  },
+  {
+   "id": "moth_dust",
+   "name": "Moth Dust",
+   "type": "beast_part",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "moth_dust",
+   "desc": "Silver dust from an Orbit Moth's wings. It hangs in the air a long while."
+  },
+  {
    "id": "wyrm_ash",
    "name": "Wyrm Ash",
    "type": "beast_part",
@@ -7483,7 +7513,7 @@
    "ilv": 95,
    "stack": 1,
    "icon": "sphere_comprehension_stone",
-   "desc": "A stone that holds a folded world. (Later zones.)",
+   "desc": "A stone that holds a folded world. The Observatory's keeper gives it to those who have seen their own Sphere in the stars; a Will Manifest 3 needs it to become a Sphere Lord.",
    "sell": false
   },
   {

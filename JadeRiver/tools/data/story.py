@@ -418,6 +418,37 @@ def npcs():
         ["You. Of course it is you. The river sends the same fish after me every time.",
          "The Admiral buys ledgers. I sell them. Nobody gets hurt who wasn't going to be hurt anyway."],
         ["Not now."], tree="gu_the_purser")
+    # v1.2 · Phase C: the Star Warden Citadel, the Orbit Ruins, and the Star Chandlery's lanternwright.
+    npc("warden_commander_yao", "Warden-Commander Yao", "Commander of the Star Wardens", outfit("long_tied", 4, "disciple", "martial", "boots", hat="guan",
+        cape="solid", weapon="spear", shirt_dye="white", pants_dye="indigo"),
+        ["Forty lanterns when I took this command. Twenty-eight tonight. Every one that goes dark, the Tide walks in behind.",
+         "A Warden is a Will that has agreed to be a wall. Most people only agree for a while."],
+        ["Hold the line.", "Report."])
+    npc("stargazer_ming", "Stargazer Ming", "Keeper of the Observatory", outfit("flowing", 3, "scholar", "scholar", "folded", hat="guan",
+        shirt_dye="ink", pants_dye="white"),
+        ["Every Sphere Lord's world is up there somewhere. Small. Turning. Waiting to be recognised.",
+         "Presence asks who is stronger. A Sphere answers: here, the rules are mine."],
+        ["Mind the lenses.", "Clear skies tonight."], services=["shop:observatory"], service_labels={"shop:observatory": "Star-stones"})
+    npc("shen_lian_warden", "Shen Lian", "Star Warden aspirant", outfit("high_pony", 0, "vneck", "martial", "boots", cape="solid", weapon="sword",
+        shirt_dye="indigo", pants_dye="ink"),
+        ["Lotus Ferry's two fisher boys, both out here at the edge of the sky. The Wardens will only take one of us.",
+         "I have a Sword Domain now. You will want to hold your Presence."],
+        ["Again.", "Don't hold back."], services=["spar:shen_lian_aspirant"], service_labels={"spar:shen_lian_aspirant": "Spar with Shen Lian"})
+    npc("presence_master_ruo", "Presence-Master Ruo", "Warden of the Presence Court", outfit("topknot", 5, "sleeveless", "martial", "boots",
+        cape="solid", shirt_dye="white", pants_dye="indigo"),
+        ["Hold it. Don't push. Hold. A Presence that pushes is a Presence that tires.",
+         "When two Spheres touch, one of them breaks. Make sure you know which before you let them touch."],
+        ["Breathe.", "Again, softer."])
+    npc("orbit_hermit", "The Orbit Hermit", "Hermit of the Orbit Ruins", outfit("long_tied", 3, "scholar", "loose", "slippers", cape="solid",
+        shirt_dye="cloud", pants_dye="ink"),
+        ["The first Wardens built a temple to watch the stars turn. Then the island began to turn with them. I stayed.",
+         "Space is not empty. It is folded. Learn where the folds are and a step is as long as you like."],
+        ["Mind the floor. It moves.", "Hm? Oh. Hello."])
+    npc("lanternwright_han", "Lanternwright Han", "Scholar-lanternwright", outfit("flowing", 1, "scholar", "scholar", "folded", hat="guan",
+        shirt_dye="white", pants_dye="indigo"),
+        ["The first Wardens wrote 'stay' on every cage and the stars stayed. Words are not weak. They are only rarely meant.",
+         "An upright heart writes a stronger glyph. A heart that is not upright should not write at all."],
+        ["Straight lines.", "Ink, brush, breath."], services=["shop:lanternwright"], service_labels={"shop:lanternwright": "Glyph-scrolls"})
     npc("tamer_qiu", "Tamer Qiu", "Keeper of the Wyrmnest", outfit("ponytail", 2, "vneck", "martial", "boots", hat="straw",
         shirt_dye="earth", pants_dye="ochre"),
         ["The star-wyrms nested here before the Wardens came. Now there is one egg left, and the grey is in the brood.",
@@ -712,6 +743,10 @@ def unlocks():
       same_stage_ok=True)
     # Part 4: star-tier spirit beasts at Will Manifest 2 (the Wyrmnest tamer's quest).
     u("star_beasts", "Star-tier spirit beasts", all_of(realm("will_manifest_2"), unlocked("taming")), "star_tier_beasts", [], same_stage_ok=True)
+    # v1.2 · Phase C: the Sphere at Sphere Lord 1 (the Observatory's lesson), the Confucian path (Lanternwright Han).
+    u("sphere", "Sphere", all_of(realm("sphere_lord_1"), qdone("sphere_lord")), "a_sphere_of_ones_own", ["hud:sphere"], same_stage_ok=True)
+    u("confucian_path", "The Confucian path", all_of(realm("will_manifest_2"), qdone("crystal_and_jade")), "the_written_word", [],
+      same_stage_ok=True)
     entries("unlocks", U)
     return U
 
@@ -1899,6 +1934,65 @@ def act3_chapters_18_19():
                   "Sect Master. It is a heavier seat than any you have sat on. The elders run the halls; you decide what they are for."])
 
 
+def act3_citadel_quests():
+    """v1.2 · Phase C, chapter 20 (The Star Wardens): the Citadel, Shen Lian the aspirant, the Observatory, Sphere Lord, the
+    Orbit Ruins; the Sphere's guided lesson and the Confucian path."""
+    quest("the_citadel", "The Citadel", "main", "warden_xiao", [
+        o("reach_room", "Take the Wardens' skiff to the Citadel", room="wc_citadel_gate"),
+        o("talk_to", "Report to Warden-Commander Yao in the Wardens' Hall", npc="warden_commander_yao"),
+    ], [sage_crystals(40), fx("codex", entry="star_wardens")], hand_in="warden_commander_yao",
+        requires=all_of(qdone("the_last_egg"), realm("will_manifest_3")), chapter="20", target_room="wc_wardens_hall",
+        offer=["The Commander has asked for you by name. That does not happen.", "Take the skiff from the quay. Wear something clean."],
+        complete=["So you are the one who broke the Blackmast. Good. I have a line to hold and not enough Wills to hold it.",
+                  "There is another from your valley here already. An aspirant. You will want to meet him."], next="the_aspirant")
+    quest("the_aspirant", "The Aspirant", "main", "warden_commander_yao", [
+        o("win_spar", "Spar with Shen Lian in the Presence Court", opponent="shen_lian_aspirant"),
+    ], [sage_crystals(40), item("will_tempering_pill", 2)], requires=all_of(qdone("the_citadel")), chapter="20", target_room="wc_presence_court",
+        offer=["The aspirant from Lotus Ferry holds a Sword Domain already. Spar with him. Hold your Presence; see what a Sphere is from the wrong side."],
+        complete=["Two fisher boys from the same river, and both of you at my Citadel. The heavens have a sense of humour.",
+                  "He will not let you forget that he had a Sphere first. Go to the Observatory. Let us see about yours."],
+        next="the_observatory")
+    quest("the_observatory", "The Observatory", "main", "warden_commander_yao", [
+        o("set_flag", "Look into the great scope in the Observatory", flag="observed_sphere"),
+        o("talk_to", "Tell Stargazer Ming what you saw", npc="stargazer_ming"),
+    ], [item("sphere_comprehension_stone", 1), sage_crystals(30), fx("codex", entry="sphere")], hand_in="stargazer_ming",
+        requires=all_of(qdone("the_aspirant"), {"kind": "presence_level_at_least", "value": 5}), chapter="20", target_room="wc_observatory",
+        offer=["A Presence of the fifth level can look into the great scope and see its own world. Stargazer Ming keeps it."],
+        complete=["Small, turning, shaped like you. Yes. Everyone describes it the same way and no two of them are alike.",
+                  "Take this stone. There is a world folded in it. When you break through, unfold it, and the world you saw becomes yours to stand in."],
+        next="sphere_lord")
+    quest("sphere_lord", "Sphere Lord", "main", "stargazer_ming", [
+        o("reach_realm", "Break through to Sphere Lord", realm="sphere_lord_1"),
+    ], [sage_crystals(60), fx("codex", entry="sphere_lord")], requires=all_of(qdone("the_observatory")), chapter="20",
+        offer=["The stone will not open for a Will that is not ready. Presence 5, a quiet heart, and the whole of your Qi. Then break."],
+        complete=["There. Can you feel the edge of it? Everything inside that circle is a little bit you now."], next="the_orbit_ruins")
+    quest("a_sphere_of_ones_own", "A Sphere of One's Own", "guided", "stargazer_ming", [
+        o("use_system", "Raise your Sphere (the Sphere button, or H)", system="sphere"),
+    ], [sage_crystals(20), item("will_tempering_pill", 1)], offered_by_unlock=True, chapter="20", target_room="wc_observatory",
+        offer=["Raise it. It is drawn from your strongest Dao: water slows what is in it, fire burns, a sword cuts.",
+               "Where it meets another Sphere, the weaker one breaks, and a broken Sphere tears a meridian. Choose your fights."],
+        complete=["Good. It will grow as your Dao does. At the sixth tier of a Dao, the Sphere drawn on it is truly your own."])
+    quest("the_orbit_ruins", "The Orbit Ruins", "main", "warden_commander_yao", [
+        o("talk_to", "Find the Orbit Hermit in the Orbit Garden", npc="orbit_hermit"),
+        o("use_system", "Press down a jade gravity switch in the Ruins", system="gravity_switch"),
+        o("kill", "Break the Gravity Golems that guard the Foundry", 3, enemy="gravity_golem"),
+        o("reach_room", "Enter the Inverted Hall", room="or_inverted_hall"),
+    ], [fx("open_dao", dao="space"), sage_crystals(70), fx("codex", entry="space_dao")], hand_in="orbit_hermit",
+        requires=all_of(qdone("sphere_lord")), chapter="20", target_room="or_orbit_garden",
+        offer=["The Orbit Ruins were the first Wardens' temple. Something there is waking the golems. There is also a hermit there who knows",
+               "more about space than anyone alive. Find him. Bring him back if he will come. He will not come."],
+        complete=["The golems woke because the island turns faster. The island turns faster because the lanterns are going out. Everything is connected.",
+                  "You walked the folds in the Hall without falling off the world. That is the first lesson of the Space Dao. The rest I will show you."])
+    quest("the_written_word", "The Written Word", "side", "lanternwright_han", [
+        o("use_system", "Walk the Confucian path (the Cultivation page, Paths)", system="confucian_path"),
+    ], [fx("learn_technique", technique="upright_glyph"), sage_crystals(25), fx("codex", entry="confucian_path")], offered_by_unlock=True,
+        chapter="20", target_room="lh_star_chandlery",
+        offer=["The first Wardens were scholars before they were soldiers. Their words held stars in cages.",
+               "If your heart is upright, walk the path of the written word with me. Righteous Qi bites the Hollow a quarter harder than any blade."],
+        complete=["Now the first glyph: Upright. Write it in the air and mean it. The strength of it is in your Insight, not your arm.",
+                  "The other glyphs are on my shelf, when you have the realm to hold them."])
+
+
 def act2_starsea_side_quests():
     """Phase E side stories and guided quests: the Yard's two crafts, paired cultivation, deserters, comet iron, three rare Daos."""
     quest("a_chart_of_ones_own", "A Chart of One's Own", "guided", "navigator_sun", [
@@ -2283,7 +2377,7 @@ def dialogue():
                        "Keep that egg warm. It is the last of a very old family."]),
     ]:
         # A tree entry outranks quest offers, so each speaks only after its last quest of the act so far.
-        done_q = {"warden_xiao": "the_admiral", "deckhand_mo": "the_admiral", "gu_the_purser": "the_admiral",
+        done_q = {"warden_xiao": "the_citadel", "deckhand_mo": "the_admiral", "gu_the_purser": "the_admiral",
                   "tamer_qiu": "the_last_egg"}.get(tid, "crystal_and_jade")
         tree(tid, [{"requires": all_of(qdone(done_q)), "node": "talk"}],
              {"talk": {"lines": lines, "choices": [{"text": "Thank you.", "close": True}]}})
@@ -2386,6 +2480,12 @@ def codex():
         {"id": "sect_master", "title": "Sect Master", "body": "The seat above the elders. A Will Manifest of the third order may be named to it; the Sect Master holds the sect's Presence and decides what its halls are for."},
         {"id": "presence_trial", "title": "The Presence Trial", "body": "Eight seats of the Nine Peaks press their Presence on one cultivator. Whoever stays themselves under it holds the key to Will Manifest."},
         {"id": "lantern_star_field", "title": "The Lantern Star Field", "body": "Past the Starsea Launch: a field of lanterns hanging in the dark. No one hangs them. They are simply there, waiting for the next age of your road."},
+        # v1.2 Phase C, chapter 20: the Citadel, the Sphere, the Space Dao and the written word.
+        {"id": "star_wardens", "title": "The Star Wardens", "body": "The Citadel on its own island keeps the Lantern Run lit. The first Wardens were scholars who caged stars in words; the Wardens now hold the line against the Hollow Tide with every Will they can find."},
+        {"id": "sphere", "title": "The Sphere", "body": "A Sphere Lord's own small world, drawn around the body from the strongest Dao. Water slows what is inside it, fire burns, wood roots, earth weighs, metal and a sword Domain cut, space bends the way things fall. It costs Qi while it is raised. Where two Spheres meet the weaker breaks, and a broken Sphere tears a meridian."},
+        {"id": "sphere_lord", "title": "Sphere Lord", "body": "The realm after Will Manifest. A Presence of the fifth level, a quiet heart and a Sphere Comprehension Stone open it. The Sphere is its gift; a room of an element that feeds the Sphere's makes it strike a tenth harder."},
+        {"id": "space_dao", "title": "The Space Dao", "body": "The Orbit Hermit's Dao: distance, folding, the way things fall. Its six tiers pierce defences and quicken the step. The Orbit Ruins teach its first lesson: in the Inverted Hall, a jade switch lightens the world and the high galleries come within reach."},
+        {"id": "confucian_path", "title": "The written word", "body": "A path beside the Dao of the sword and the Dao of blood: righteous glyphs written in the air. Their strength follows Insight rather than the arm, and Righteous Qi strikes the Hollow and the demonic a quarter harder. Only an upright heart may walk it, and never beside the blood path."},
         # Gap report G1: what pills cost, the heart, the ledger, fire and furnace.
         {"id": "pills_and_the_body", "title": "What pills cost",
          "body": "Pills never spoil, but the body remembers them. Each dose of one kind works less than the last, until a great breakthrough lets it forget one. Qi that came mostly from pills makes a hollow foundation, and 5% of every pill's poison stays behind as residue. Settle foundation in seclusion, or pass through Heaven's Cleansing untouched, to make it your own again."},
@@ -2532,6 +2632,7 @@ def build():
     act2_starsea_side_quests()
     act3_chapter17()
     act3_chapters_18_19()
+    act3_citadel_quests()
     for q in Q[n1:]:
         q.setdefault("qp", "act2_side")
     entries("quests", Q)

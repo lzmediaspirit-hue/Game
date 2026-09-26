@@ -669,5 +669,8 @@
    "kind": "slab",
    "cracked": true
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

@@ -276,5 +276,8 @@
    "bottom": "ground",
    "top": "wallwalk_1"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

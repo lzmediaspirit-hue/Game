@@ -220,5 +220,8 @@
    "bottom": "ground",
    "top": "tower_step_e"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

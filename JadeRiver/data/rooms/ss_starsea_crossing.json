@@ -232,5 +232,8 @@
    "bottom": "ground",
    "top": "quarterdeck"
   }
+ ],
+ "terrain": [
+  "wood"
  ]
 }

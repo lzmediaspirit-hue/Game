@@ -287,5 +287,8 @@
    },
    "locked_text": "The third floor is for Inner Disciples and above."
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

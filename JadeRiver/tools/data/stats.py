@@ -167,6 +167,27 @@ def build():
                      "role_will": {"normal": 1.0, "elite": 1.15, "boss": 1.3},
                      "xp_per_s": 1.0, "clash_xp_mult": 2.0, "kill_xp": 3.0,
                      "xp_levels": [0, 60, 150, 280, 450, 660, 910, 1200, 1530, 1900]},
+        # S28 v1.2 the Sphere (Sphere Lord 1): a circle of the strongest combat Dao's element. It costs Qi while held,
+        # works on the foes inside once a second, feeds techniques of its element (or the element it generates) by a
+        # tenth, and meets a foe's Sphere where they overlap: the weaker one breaks (a meridian injury for the player).
+        "sphere": {"qi_per_s_pct": 0.004, "radius_base": 160, "radius_per_tier": 20, "tier6_radius": 40, "power_per_tier": 0.08,
+                   "tier6_power": 0.1, "fed_bonus": 0.1, "break_cooldown_s": 30, "injury_severity": 1, "pet_bonus": 0.1, "tick_s": 1.0,
+                   "foe_loss": 0.1,
+                   # A weapon Dao's Sphere takes the weapon's nature; the jian's Sword Dao is the Sword Domain.
+                   "dao_element": {"sword": "sword", "blade": "metal", "spear": "metal", "fist": "earth", "staff": "earth",
+                                   "bow": "wind", "fan": "wind", "music": "soul", "space": "space"},
+                   "elements": {
+                       "water": {"slow": 0.2, "terrain": {"water": {"slow": 0.35, "freeze": True}}},
+                       "fire": {"burn_pct": 0.01, "terrain": {"grass": {"burn_pct": 0.02}}},
+                       "earth": {"vulnerable": True, "terrain": {"stone": {"root_s": 0.5}}},
+                       "wood": {"regen_pct": 0.01, "terrain": {"grass": {"regen_pct": 0.015}}},
+                       "metal": {"cut_pct": 0.12},
+                       "sword": {"cut_pct": 0.18, "domain": True},
+                       "wind": {"speed": 0.15},
+                       "thunder": {"shock_pct": 0.4, "shock_every": 2},
+                       "soul": {"will_down": 0.15},
+                       "space": {"pen": 0.15},
+                       "star": {"cut_pct": 0.1, "crit": 0.05}}},
         "sect_master": {"stipend": 300},   # v1.2 S20: contribution a day for the seat
         "killing_intent": {"window_s": 10.0, "max": 10, "crit_per_stack": 0.01, "hesitate_s": 0.5, "radius": 520},
         # S48 the Poison Body (v1.1): past half your toxicity tolerance, a known poison art turns each hit's toxicity
@@ -181,7 +202,10 @@ def build():
                             "use_reputation": -1, "leave_heart_demon": 10, "heart_demon_mult": 2.0, "lifesteal_base": 0.03,
                             "lifesteal_per_tier": 0.01, "blood_art_lifesteal_mult": 2.0, "essence_kill": 10, "essence_elite": 25,
                             "essence_boss": 50, "essence_max": 100, "essence_decay_after_s": 20.0, "essence_decay_per_s": 2.0},
-                  "buddhist": {"merit_milestone": 100, "milestone_heart_demon": -10, "heal_ally_daily": 5}},
+                  "buddhist": {"merit_milestone": 100, "milestone_heart_demon": -10, "heal_ally_daily": 5},
+                  # v1.2 the Confucian path (S48): the upright's written word. Righteous Qi +25% against Hollow and demonic foes.
+                  "confucian": {"min_realm": "will_manifest_2", "alignment_at_least": 20, "take_alignment": 5, "leave_heart_demon": 10,
+                                "righteous": 0.25}},
         "gates": {"fight_gap_s": 8.0, "sense_cost_mult": 0.75, "flight_qi_mult": 0.8, "soul_ignore": 0.2, "insight_site_mult": 2.0},
         # S48 nascent-soul escape: from Sage a grave wound costs 5% of the stage instead of 10%.
         "soul_escape": {"from": "sage_1", "progress_loss": 0.05},

@@ -272,5 +272,8 @@
    "kind": "wall"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "stone"
+ ]
 }

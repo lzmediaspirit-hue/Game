@@ -1,0 +1,481 @@
+{
+ "schema_version": 1,
+ "id": "wc_citadel_gate",
+ "zone": "lantern_star_field",
+ "region": "warden_citadel",
+ "name": "Citadel Gate",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 2.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "warden_citadel",
+ "ground": {
+  "material": "stone",
+  "tint": "#d8d4c8"
+ },
+ "spawn_point": [
+  600,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "wardens_hall",
+   "rect": [
+    1410,
+    622,
+    180,
+    68
+   ],
+   "height": 312,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "watch_tower"
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    670,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    980,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    1950,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_4",
+   "rect": [
+    2500,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_5",
+   "rect": [
+    2810,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_6",
+   "rect": [
+    3120,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_7",
+   "rect": [
+    3430,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    2170,
+    636,
+    330,
+    70
+   ],
+   "height": 88.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "hall_door",
+   "type": "door",
+   "at": [
+    1500,
+    704
+   ],
+   "to": "wc_wardens_hall",
+   "to_portal": "entry",
+   "press_up": true,
+   "facade": true,
+   "label": "Wardens' Hall"
+  },
+  {
+   "id": "observatory_door",
+   "type": "door",
+   "at": [
+    2400,
+    704
+   ],
+   "to": "wc_observatory",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Observatory"
+  },
+  {
+   "id": "skiff",
+   "type": "door",
+   "at": [
+    560,
+    704
+   ],
+   "to": "lh_arrival_quay",
+   "to_portal": "warden_skiff",
+   "press_up": true,
+   "label": "Skiff to Lanternfall Harbor"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "wc_presence_court",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "sealed",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "or_tumbling_stair",
+   "to_portal": "west",
+   "requires": {
+    "any": [
+     {
+      "kind": "quest_active",
+      "quest": "the_orbit_ruins"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_orbit_ruins"
+     }
+    ]
+   },
+   "locked_text": "A Warden bars the way: \"The Ruins turn under your feet. The Commander sends people there, not the other way round.\""
+  }
+ ],
+ "objects": [
+  {
+   "id": "shrine_wc_gate",
+   "type": "shrine",
+   "at": [
+    1900,
+    700
+   ]
+  },
+  {
+   "id": "stone_star_citadel",
+   "type": "teleport_stone",
+   "at": [
+    2900,
+    880
+   ],
+   "stone": "star_citadel"
+  },
+  {
+   "id": "sign_wc",
+   "type": "signpost",
+   "at": [
+    760,
+    860
+   ],
+   "text": "The Star Warden Citadel. West: the Presence Court. East, past the Warden line: the Orbit Ruins (Lv 88-93, Starsea Endurance 50-56)."
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "warden_statue",
+   "at": [
+    300,
+    650
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "warden_statue",
+   "at": [
+    3500,
+    650
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
+   "prop": "paifang_gate",
+   "at": [
+    900,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    1150,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    2050,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    3150,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_ballista",
+   "at": [
+    3300,
+    700
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "lantern_cage",
+   "at": [
+    2500,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "pagoda",
+   "at": [
+    2400,
+    690
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "lantern_harbor",
+ "ambience": "wind_ambience",
+ "town": true,
+ "lantern": true,
+ "climbables": [
+  {
+   "id": "wardens_hall_ladder_1",
+   "kind": "ladder",
+   "at": [
+    1460,
+    725
+   ],
+   "top_at": [
+    1460,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 312,
+   "bottom": "ground",
+   "top": "wardens_hall"
+  },
+  {
+   "id": "wardens_hall_ladder_102",
+   "kind": "ladder",
+   "at": [
+    1540,
+    725
+   ],
+   "top_at": [
+    1540,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 312,
+   "bottom": "ground",
+   "top": "wardens_hall"
+  },
+  {
+   "id": "route_0_ladder_3",
+   "kind": "ladder",
+   "at": [
+    290,
+    741
+   ],
+   "top_at": [
+    290,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_1_ladder_4",
+   "kind": "ladder",
+   "at": [
+    780,
+    741
+   ],
+   "top_at": [
+    780,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_1"
+  },
+  {
+   "id": "route_2_ladder_5",
+   "kind": "ladder",
+   "at": [
+    1090,
+    741
+   ],
+   "top_at": [
+    1090,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "route_2"
+  },
+  {
+   "id": "route_6_ladder_6",
+   "kind": "ladder",
+   "at": [
+    3230,
+    741
+   ],
+   "top_at": [
+    3230,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_6"
+  },
+  {
+   "id": "route_7_ladder_7",
+   "kind": "ladder",
+   "at": [
+    3540,
+    741
+   ],
+   "top_at": [
+    3540,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "route_7"
+  }
+ ],
+ "terrain": [
+  "stone"
+ ]
+}

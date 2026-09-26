@@ -197,7 +197,7 @@ static func _volume_velocity(state: ActorState,zone: ZoneGeometry,vols: Array,ve
 			"ice":
 				ice=vol
 			"water_shallow":
-				if state.surface: v*=float(vol.get("speed",SHALLOW_FACTOR))
+				if state.surface and not state.frozen_ground: v*=float(vol.get("speed",SHALLOW_FACTOR))
 			"current":
 				if state.surface:
 					var push: Array=vol.get("push",[0,0])
@@ -311,7 +311,8 @@ static func integrate(state: ActorState,zone: ZoneGeometry,dt: float,velocity: V
 	var start=state.plane
 	var next=start+velocity*dt
 	next=next.clamp(zone.bounds.position+Vector2(12,4),zone.bounds.end-Vector2(12,12))
-	next=PlatformLanding.guide(state,zone,next,velocity,GRAVITY)
+	var g=GRAVITY*zone.gravity_at(state.plane,state.altitude)   # v1.2: a low-gravity volume lightens the fall, never the jump
+	next=PlatformLanding.guide(state,zone,next,velocity,g)
 	if state.surface:
 		next=state.surface.follow_walk(next,velocity)
 		var prospective=zone.walk_target(next,state.altitude,state.surface)
@@ -383,8 +384,8 @@ static func integrate(state: ActorState,zone: ZoneGeometry,dt: float,velocity: V
 			state.vertical_speed=-GLIDE_FALL
 			state.altitude+=state.vertical_speed*dt
 		else:
-			state.altitude+=state.vertical_speed*dt-0.5*GRAVITY*dt*dt
-			state.vertical_speed-=GRAVITY*dt
+			state.altitude+=state.vertical_speed*dt-0.5*g*dt*dt
+			state.vertical_speed-=g*dt
 			if state.gliding: state.vertical_speed=maxf(state.vertical_speed,-GLIDE_FALL)
 		state.air_peak=maxf(state.air_peak,maxf(previous,state.altitude))
 		# Resolve the top crossing before the wall test: the end-of-step foot

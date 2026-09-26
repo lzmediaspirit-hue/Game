@@ -137,5 +137,8 @@
    "bottom": "ground",
    "top": "ledge_vale"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

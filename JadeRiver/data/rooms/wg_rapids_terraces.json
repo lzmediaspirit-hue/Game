@@ -999,5 +999,9 @@
    "bottom": "ground",
    "top": "route_3"
   }
+ ],
+ "terrain": [
+  "stone",
+  "water"
  ]
 }

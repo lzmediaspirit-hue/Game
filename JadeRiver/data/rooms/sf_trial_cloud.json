@@ -264,5 +264,8 @@
    "return_s": 5.0
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "stone"
+ ]
 }

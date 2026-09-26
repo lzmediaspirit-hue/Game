@@ -628,5 +628,8 @@
    "traction": 380
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "snow"
+ ]
 }

@@ -280,5 +280,8 @@
    "bottom": "ground",
    "top": "ledge_abode"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

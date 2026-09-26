@@ -10455,6 +10455,365 @@
    ],
    "target_room": "ja_gate_street",
    "qp": "act2_side"
+  },
+  {
+   "id": "the_citadel",
+   "name": "The Citadel",
+   "kind": "main",
+   "giver": "warden_xiao",
+   "hand_in": "warden_commander_yao",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Take the Wardens' skiff to the Citadel",
+     "count": 1,
+     "room": "wc_citadel_gate"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Report to Warden-Commander Yao in the Wardens' Hall",
+     "count": 1,
+     "npc": "warden_commander_yao"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 40
+    },
+    {
+     "kind": "codex",
+     "entry": "star_wardens"
+    }
+   ],
+   "offer_text": [
+    "The Commander has asked for you by name. That does not happen.",
+    "Take the skiff from the quay. Wear something clean."
+   ],
+   "complete_text": [
+    "So you are the one who broke the Blackmast. Good. I have a line to hold and not enough Wills to hold it.",
+    "There is another from your valley here already. An aspirant. You will want to meet him."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_last_egg"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_3"
+     }
+    ]
+   },
+   "chapter": "20",
+   "target_room": "wc_wardens_hall",
+   "next": "the_aspirant",
+   "qp": "act2_side"
+  },
+  {
+   "id": "the_aspirant",
+   "name": "The Aspirant",
+   "kind": "main",
+   "giver": "warden_commander_yao",
+   "hand_in": "warden_commander_yao",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "win_spar",
+     "text": "Spar with Shen Lian in the Presence Court",
+     "count": 1,
+     "opponent": "shen_lian_aspirant"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 40
+    },
+    {
+     "kind": "grant_item",
+     "item": "will_tempering_pill",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "The aspirant from Lotus Ferry holds a Sword Domain already. Spar with him. Hold your Presence; see what a Sphere is from the wrong side."
+   ],
+   "complete_text": [
+    "Two fisher boys from the same river, and both of you at my Citadel. The heavens have a sense of humour.",
+    "He will not let you forget that he had a Sphere first. Go to the Observatory. Let us see about yours."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_citadel"
+     }
+    ]
+   },
+   "chapter": "20",
+   "target_room": "wc_presence_court",
+   "next": "the_observatory",
+   "qp": "act2_side"
+  },
+  {
+   "id": "the_observatory",
+   "name": "The Observatory",
+   "kind": "main",
+   "giver": "warden_commander_yao",
+   "hand_in": "stargazer_ming",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "set_flag",
+     "text": "Look into the great scope in the Observatory",
+     "count": 1,
+     "flag": "observed_sphere"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Tell Stargazer Ming what you saw",
+     "count": 1,
+     "npc": "stargazer_ming"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "sphere_comprehension_stone",
+     "count": 1
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 30
+    },
+    {
+     "kind": "codex",
+     "entry": "sphere"
+    }
+   ],
+   "offer_text": [
+    "A Presence of the fifth level can look into the great scope and see its own world. Stargazer Ming keeps it."
+   ],
+   "complete_text": [
+    "Small, turning, shaped like you. Yes. Everyone describes it the same way and no two of them are alike.",
+    "Take this stone. There is a world folded in it. When you break through, unfold it, and the world you saw becomes yours to stand in."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_aspirant"
+     },
+     {
+      "kind": "presence_level_at_least",
+      "value": 5
+     }
+    ]
+   },
+   "chapter": "20",
+   "target_room": "wc_observatory",
+   "next": "sphere_lord",
+   "qp": "act2_side"
+  },
+  {
+   "id": "sphere_lord",
+   "name": "Sphere Lord",
+   "kind": "main",
+   "giver": "stargazer_ming",
+   "hand_in": "stargazer_ming",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_realm",
+     "text": "Break through to Sphere Lord",
+     "count": 1,
+     "realm": "sphere_lord_1"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 60
+    },
+    {
+     "kind": "codex",
+     "entry": "sphere_lord"
+    }
+   ],
+   "offer_text": [
+    "The stone will not open for a Will that is not ready. Presence 5, a quiet heart, and the whole of your Qi. Then break."
+   ],
+   "complete_text": [
+    "There. Can you feel the edge of it? Everything inside that circle is a little bit you now."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_observatory"
+     }
+    ]
+   },
+   "chapter": "20",
+   "next": "the_orbit_ruins",
+   "qp": "act2_side"
+  },
+  {
+   "id": "a_sphere_of_ones_own",
+   "name": "A Sphere of One's Own",
+   "kind": "guided",
+   "giver": "stargazer_ming",
+   "hand_in": "stargazer_ming",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Raise your Sphere (the Sphere button, or H)",
+     "count": 1,
+     "system": "sphere"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 20
+    },
+    {
+     "kind": "grant_item",
+     "item": "will_tempering_pill",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "Raise it. It is drawn from your strongest Dao: water slows what is in it, fire burns, a sword cuts.",
+    "Where it meets another Sphere, the weaker one breaks, and a broken Sphere tears a meridian. Choose your fights."
+   ],
+   "complete_text": [
+    "Good. It will grow as your Dao does. At the sixth tier of a Dao, the Sphere drawn on it is truly your own."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "20",
+   "target_room": "wc_observatory",
+   "qp": "act2_side"
+  },
+  {
+   "id": "the_orbit_ruins",
+   "name": "The Orbit Ruins",
+   "kind": "main",
+   "giver": "warden_commander_yao",
+   "hand_in": "orbit_hermit",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Find the Orbit Hermit in the Orbit Garden",
+     "count": 1,
+     "npc": "orbit_hermit"
+    },
+    {
+     "kind": "use_system",
+     "text": "Press down a jade gravity switch in the Ruins",
+     "count": 1,
+     "system": "gravity_switch"
+    },
+    {
+     "kind": "kill",
+     "text": "Break the Gravity Golems that guard the Foundry",
+     "count": 3,
+     "enemy": "gravity_golem"
+    },
+    {
+     "kind": "reach_room",
+     "text": "Enter the Inverted Hall",
+     "count": 1,
+     "room": "or_inverted_hall"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "open_dao",
+     "dao": "space"
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 70
+    },
+    {
+     "kind": "codex",
+     "entry": "space_dao"
+    }
+   ],
+   "offer_text": [
+    "The Orbit Ruins were the first Wardens' temple. Something there is waking the golems. There is also a hermit there who knows",
+    "more about space than anyone alive. Find him. Bring him back if he will come. He will not come."
+   ],
+   "complete_text": [
+    "The golems woke because the island turns faster. The island turns faster because the lanterns are going out. Everything is connected.",
+    "You walked the folds in the Hall without falling off the world. That is the first lesson of the Space Dao. The rest I will show you."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "sphere_lord"
+     }
+    ]
+   },
+   "chapter": "20",
+   "target_room": "or_orbit_garden",
+   "qp": "act2_side"
+  },
+  {
+   "id": "the_written_word",
+   "name": "The Written Word",
+   "kind": "side",
+   "giver": "lanternwright_han",
+   "hand_in": "lanternwright_han",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Walk the Confucian path (the Cultivation page, Paths)",
+     "count": 1,
+     "system": "confucian_path"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "learn_technique",
+     "technique": "upright_glyph"
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 25
+    },
+    {
+     "kind": "codex",
+     "entry": "confucian_path"
+    }
+   ],
+   "offer_text": [
+    "The first Wardens were scholars before they were soldiers. Their words held stars in cages.",
+    "If your heart is upright, walk the path of the written word with me. Righteous Qi bites the Hollow a quarter harder than any blade."
+   ],
+   "complete_text": [
+    "Now the first glyph: Upright. Write it in the air and mean it. The strength of it is in your Insight, not your arm.",
+    "The other glyphs are on my shelf, when you have the realm to hold them."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "20",
+   "target_room": "lh_star_chandlery",
+   "qp": "act2_side"
   }
  ]
 }

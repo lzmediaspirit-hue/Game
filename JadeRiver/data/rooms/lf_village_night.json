@@ -407,5 +407,9 @@
    "kind": "crate"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "grass",
+  "stone"
+ ]
 }

@@ -788,5 +788,9 @@
    "kind": "rock"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "grass",
+  "water"
+ ]
 }

@@ -207,5 +207,9 @@
    "top": "cabin_roof"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "water",
+  "wood"
+ ]
 }

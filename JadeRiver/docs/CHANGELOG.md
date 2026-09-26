@@ -172,6 +172,66 @@ Works). Every source uses one of two curves: add (x1·L) or decay (x1·L/(L + x2
 
 Built in phases (docs/act3_design.md): zone tier 3, levels 82-99, ceiling Sphere Lord 3, Starsea Endurance 20 -> 90.
 
+### Phase C · The Citadel, the Sphere and the Orbit Ruins (chapter 20)
+- **The Sphere (Sphere Lord 1).** A small world of your own, raised with the Sphere button (H) and drawn from your
+  strongest combat Dao.
+  - It reaches 160 + 20 a Dao tier (40 more at tier 6) and costs 0.4% of max Qi a second.
+  - Its power is (5 + Level) × (1 + 8% a tier, +10% at tier 6).
+  - What it does follows its element:
+    - Water slows by a fifth, and freezes the surface of water underfoot.
+    - Fire burns, hotter on grass. Wood heals you, more on grass.
+    - Earth leaves foes open to harm and roots them on stone.
+    - Metal cuts. A Sword Dao Sphere with a jian in hand is the Sword Domain, which cuts harder.
+    - Wind quickens you. Space pierces defences. Soul lowers the foes' Will. Thunder shocks every other pulse.
+  - A technique whose element the room or the Sphere feeds (its own, or the one it generates: Wood feeds Fire)
+    strikes 10% harder.
+  - Where two Spheres meet, the weaker breaks. A foe's broken Sphere staggers it. Yours tears a meridian and cannot
+    be raised again for 30 s.
+  - A Sphere Lord's pets carry a small Sphere of their own and strike 10% harder.
+- **Dao tier 6, Original Application,** for every weapon and element Dao (the Lantern Star Field allows it).
+- **The Space Dao, six tiers** (penetration, speed, evasion, Qi attack, crit damage), opened by the Orbit Hermit.
+- **Gravity switches.**
+  - A jade switch lightens the air over its part of a room to 45% (a longer, higher jump); press it again to restore
+    it.
+  - Volumes tied to a switch start off.
+  - The Inverted Hall's high gallery (400) is out of reach of any jump (a double jump tops out near 300) until its
+    switch is down.
+- **The Confucian path** (Will Manifest 2, an upright heart of alignment 20 or more, never beside the Blood path).
+  - Righteous Qi strikes Hollow and demonic foes 25% harder.
+  - Three glyphs whose strength follows Insight rather than the arm: the Upright Glyph (a Qi strike ahead),
+    Benevolent Script (a group heal) and Rite-Seal Script (roots and soul-strikes foes on both sides).
+- **Rooms** (8):
+  - The Star Warden Citadel, by the Wardens' skiff from the Arrival Quay: the Citadel Gate (with a teleport stone),
+    the Wardens' Hall, the Observatory and the Presence Court.
+  - The Orbit Ruins, east past the Warden line: the Tumbling Stair (Endurance 50), the Orbit Garden, the Golem Foundry
+    and the Inverted Hall (56, no flight).
+- **Monsters:**
+  - Gravity Golem (88-93): a gravity well that pulls you in, and an orbit slam. It cannot be knocked back.
+  - Orbit Moth (88-93): a ranged flyer, tameable as a star-tier pet.
+  - Shen Lian, now a Warden aspirant (91), spars with a Sword Domain Sphere of his own.
+- **Chapter 20, The Star Wardens:** The Citadel, The Aspirant, The Observatory, Sphere Lord and The Orbit Ruins. Two
+  quests come with unlocks: A Sphere of One's Own (the Sphere's lesson) and The Written Word (the Confucian path).
+  Six NPCs and five codex entries.
+- **Shops:**
+  - Lanternwright Han sells the two later glyphs.
+  - Stargazer Ming sells another Sphere Comprehension Stone after the Observatory. A failed Sphere Lord breakthrough
+    consumes the stone, and without this shop a player could be stuck.
+- **Fixes:**
+  - Reaching a Presence level now refreshes quest offers. Before, the Observatory's offer waited for a room change.
+  - Warden Xiao's harbour talk now waits until The Citadel. Before, it hid the chapter 20 offer.
+- Tests:
+  - `rules_tests` `sphere_suite`: the radius, power and element rules, feeding, the six Space tiers and tier 6.
+    - A switch lightens only its own half of the hall, and the gallery is out of jump reach without it.
+    - Raising the Sphere: its Qi cost, a foe slowed inside and not outside, a weaker Sphere broken, yours broken by a
+      stronger one and the wait after.
+    - The Sword Domain needs a jian.
+    - The Confucian gates: locked, alignment, the Blood path.
+  - `data_validation`: a switch-tied volume must name a gravity switch in its room.
+  - `valley_run` `ls4` plays chapter 20, from the valley stone back to Lanternfall through The Written Word:
+    - a 36-bolt Sphere Lord tribulation;
+    - a jade switch pressed;
+    - three golems broken.
+
 ### Phase B · Blackmast, Wyrmnest and the Hollow Tide (chapters 18-19)
 - **The Hollow Tide (S28):** the Hollowing is held under half in the valley and the Expanse. In the Lantern Star Field it
   fills.

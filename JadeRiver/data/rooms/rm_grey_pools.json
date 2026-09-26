@@ -856,5 +856,9 @@
    "kind": "lily"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "grass",
+  "water"
+ ]
 }

@@ -2121,6 +2121,144 @@
    "grade": "earth"
   },
   {
+   "id": "upright_glyph",
+   "name": "Upright Glyph",
+   "family": "any",
+   "element": "metal",
+   "damage_type": "qi",
+   "mult": [
+    1.8,
+    2.2
+   ],
+   "hits": 1,
+   "max_targets": 4,
+   "hitbox": {
+    "x": [
+     -10,
+     220
+    ],
+    "depth": 60,
+    "alt": [
+     -10,
+     80
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 8,
+   "qi_cost": 22,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "metal",
+   "unlock": "will_manifest_2",
+   "source": "lanternwright_han",
+   "desc": "Write the glyph for Upright in the air: it strikes every foe within 220 ahead. Its strength follows your Insight. Confucian path only.",
+   "action": "meditate_burst",
+   "icon": "upright_glyph",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "insight_scale": 0.5,
+   "confucian_path": true,
+   "grade": "heaven"
+  },
+  {
+   "id": "benevolent_script",
+   "name": "Benevolent Script",
+   "family": "any",
+   "element": "wood",
+   "damage_type": "buff",
+   "mult": [
+    0,
+    0
+   ],
+   "hits": 0,
+   "max_targets": 0,
+   "hitbox": {
+    "x": [
+     -10,
+     110
+    ],
+    "depth": 30,
+    "alt": [
+     -30,
+     60
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 30,
+   "qi_cost": 30,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "wood",
+   "unlock": "will_manifest_3",
+   "source": "lanternwright_han",
+   "desc": "Write Benevolence over yourself and your allies within 260: each heals 10% of their health over 6 s. Confucian path only.",
+   "action": "meditate_burst",
+   "icon": "benevolent_script",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "allies_heal_pct": 0.1,
+   "allies_heal_s": 6,
+   "heal_radius": 260,
+   "confucian_path": true,
+   "grade": "heaven"
+  },
+  {
+   "id": "rite_seal_script",
+   "name": "Rite Seal Script",
+   "family": "any",
+   "element": "none",
+   "damage_type": "soul",
+   "mult": [
+    1.4,
+    1.7
+   ],
+   "hits": 1,
+   "max_targets": 6,
+   "hitbox": {
+    "x": [
+     -10,
+     240
+    ],
+    "depth": 70,
+    "alt": [
+     -10,
+     80
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 14,
+   "qi_cost": 30,
+   "soul_cost": 15,
+   "composure_cost": 0,
+   "dao": "soul",
+   "unlock": "sphere_lord_1",
+   "source": "lanternwright_han",
+   "desc": "Seal the ground with the Rites: every foe within 240 on both sides is rooted for 1.5 s and struck in the soul. Its strength follows your Insight. Confucian path only.",
+   "action": "meditate_burst",
+   "icon": "rite_seal_script",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "both_sides": true,
+   "insight_scale": 0.5,
+   "confucian_path": true,
+   "status": {
+    "id": "root",
+    "chance": 1.0,
+    "power": 1.0,
+    "duration_s": 1.5
+   },
+   "grade": "heaven"
+  },
+  {
    "id": "blood_burning",
    "name": "Blood Burning",
    "family": "any",

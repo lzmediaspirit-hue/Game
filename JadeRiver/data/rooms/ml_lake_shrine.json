@@ -164,5 +164,8 @@
  ],
  "areas": [],
  "music": "meditation",
- "ambience": "river_ambience"
+ "ambience": "river_ambience",
+ "terrain": [
+  "stone"
+ ]
 }

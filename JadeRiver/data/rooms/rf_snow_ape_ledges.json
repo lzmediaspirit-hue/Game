@@ -760,5 +760,9 @@
    "bottom": "ground",
    "top": "route_5"
   }
+ ],
+ "terrain": [
+  "snow",
+  "water"
  ]
 }

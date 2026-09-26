@@ -488,6 +488,10 @@ def build_items():
     # ash, the Admiral's seal, and the last star-wyrm egg; the Hollow Tide's cleansings.
     rows.append(item("star_powder", "material", "sovereign", 99, "Pirate gunpowder cut with star-dust. It burns blue and bangs gold."))
     rows.append(item("guardian_scale", "beast_part", "sovereign", 99, "A bronze plate from a Nest Guardian's shell, set with a crystal that still glows."))
+    # v1.2 · Phase C: the Orbit Ruins.
+    rows.append(item("gravity_core", "beast_part", "will", 99, "The heavy heart of a Gravity Golem. Set it down and small things roll toward it."))
+    rows.append(item("orbit_stone_chip", "material", "sovereign", 99, "A chip of an orbit stone. It turns slowly in the palm, by itself."))
+    rows.append(item("moth_dust", "beast_part", "sovereign", 99, "Silver dust from an Orbit Moth's wings. It hangs in the air a long while."))
     rows.append(item("wyrm_ash", "beast_part", "will", 99, "Grey ash from a Hollowed Wyrmling. It is cold, and it is not quite dead. Cleansing pills are made from it."))
     rows.append(item("admirals_seal", "key", "will", 1, "Admiral Voss's seal of command: a bronze star on a chain. Every pirate lane in the Field answered to it.",
                      sell=False, quest_item=True))
@@ -727,7 +731,7 @@ def build_items():
                      use=[{"kind": "deploy_array", "array": "binding", "radius": 160, "duration": 10, "slow": 0.4}]))
     rows.extend(pills())
     rows.extend(foods())
-    rows.append(item("sphere_comprehension_stone", "treasure", "will", 1, "A stone that holds a folded world. (Later zones.)", sell=False, ilv=95))
+    rows.append(item("sphere_comprehension_stone", "treasure", "will", 1, "A stone that holds a folded world. The Observatory's keeper gives it to those who have seen their own Sphere in the stars; a Will Manifest 3 needs it to become a Sphere Lord.", sell=False, ilv=95))
     rows.append(item("law_condensing_pill", "pill", "law", 99, "Converts Sage Qi toward Law Qi. (Later zones.)", ilv=105, pill={"mark": "arrows", "toxicity": 20, "group": "utility"}, use=[]))
     rows.append(item("law_touching_pill", "pill", "law", 99, "Supports the attempt to touch a World Law. (Later zones.)", ilv=106, pill={"mark": "gate", "toxicity": 20, "group": "utility"}, use=[]))
     rows.append(item("monarch_condensing_pill", "pill", "monarch", 99, "Helps the Monarch conversion. (Later zones.)", ilv=115, pill={"mark": "knot", "toxicity": 25, "group": "utility"}, use=[]))

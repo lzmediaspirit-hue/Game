@@ -76,7 +76,9 @@ static func resolve(attacker: Dictionary, defender: Dictionary, attack: Dictiona
 	# 6 Element cycle
 	dmg *= element_factor(element, str(defender.get("element", "none")))
 	# 7 Zone Z (room element match); 8 Attunement A
-	if attack.get("room_element", "") != "" and parent_element(element) == parent_element(str(attack.room_element)): dmg *= 1.1
+	# Fed by the ground: the room's element or a held Sphere's is the technique's own, or generates it (Wood feeds Fire).
+	if FieldRules.feeds(str(attack.get("room_element", "")), element) or FieldRules.feeds(str(attack.get("sphere_element", "")), element):
+		dmg *= 1.0 + float(ContentDB.stat_const("sphere.fed_bonus", 0.1))
 	dmg *= float(attack.get("attunement", 1.0))
 	# 9 Realm gap
 	dmg *= realm_gap_factor(int(attacker.get("realm_index", 0)), int(defender.get("realm_index", 0)))

@@ -1,0 +1,288 @@
+{
+ "schema_version": 1,
+ "id": "wc_presence_court",
+ "zone": "lantern_star_field",
+ "region": "warden_citadel",
+ "name": "Presence Court",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 2.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "warden_citadel",
+ "ground": {
+  "material": "stone",
+  "tint": "#d8d4c8"
+ },
+ "spawn_point": [
+  2200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "deck_mv_0",
+   "rect": [
+    260,
+    620,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "deck_mv_1",
+   "rect": [
+    500,
+    612,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    780,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1090,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1400,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "wc_citadel_gate",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_shen_lian_warden",
+   "type": "npc",
+   "at": [
+    1300,
+    800
+   ],
+   "npc": "shen_lian_warden",
+   "facing": 1,
+   "visible_if": {
+    "any": [
+     {
+      "kind": "quest_active",
+      "quest": "the_aspirant"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_aspirant"
+     }
+    ]
+   }
+  },
+  {
+   "id": "npc_presence_master_ruo",
+   "type": "npc",
+   "at": [
+    900,
+    780
+   ],
+   "npc": "presence_master_ruo",
+   "facing": 1
+  },
+  {
+   "id": "sign_wc_court",
+   "type": "signpost",
+   "at": [
+    2300,
+    860
+   ],
+   "text": "The Presence Court. Wardens spar here with their Presence held, and their Spheres, once they have them."
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "pressure_pillar",
+   "at": [
+    700,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "pressure_pillar",
+   "at": [
+    1300,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "pressure_pillar",
+   "at": [
+    1900,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "warden_statue",
+   "at": [
+    300,
+    650
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    1000,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    1600,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "lantern_string",
+   "at": [
+    490,
+    380
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "lantern_harbor",
+ "ambience": "wind_ambience",
+ "town": true,
+ "lantern": true,
+ "climbables": [
+  {
+   "id": "deck_mv_0_ladder_1",
+   "kind": "ladder",
+   "at": [
+    370,
+    725
+   ],
+   "top_at": [
+    370,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "deck_mv_0"
+  },
+  {
+   "id": "route_0_ladder_2",
+   "kind": "ladder",
+   "at": [
+    890,
+    741
+   ],
+   "top_at": [
+    890,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_ladder_3",
+   "kind": "ladder",
+   "at": [
+    1510,
+    741
+   ],
+   "top_at": [
+    1510,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_2"
+  }
+ ],
+ "terrain": [
+  "stone"
+ ]
+}

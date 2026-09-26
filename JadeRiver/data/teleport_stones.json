@@ -97,6 +97,17 @@
    ],
    "fee_shards": 1,
    "zone": "lantern_star_field"
+  },
+  {
+   "id": "star_citadel",
+   "name": "Star Warden Citadel",
+   "room": "wc_citadel_gate",
+   "at": [
+    2900,
+    880
+   ],
+   "fee_shards": 1,
+   "zone": "lantern_star_field"
   }
  ]
 }

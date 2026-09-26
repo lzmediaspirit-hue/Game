@@ -327,5 +327,8 @@
    "bottom": "ground",
    "top": "terrace_3"
   }
+ ],
+ "terrain": [
+  "grass"
  ]
 }

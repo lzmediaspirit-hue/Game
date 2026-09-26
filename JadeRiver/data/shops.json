@@ -2830,6 +2830,84 @@
    ]
   },
   {
+   "id": "observatory",
+   "name": "Stargazer Ming's Star-stones",
+   "currency": "sage_crystal",
+   "stock": [
+    {
+     "item": "sphere_comprehension_stone",
+     "price": 80,
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "the_observatory"
+       }
+      ]
+     }
+    },
+    {
+     "item": "clear_mind_pill"
+    },
+    {
+     "item": "will_tempering_pill",
+     "price": 6
+    }
+   ]
+  },
+  {
+   "id": "lanternwright",
+   "name": "Lanternwright Han's Shelf",
+   "currency": "sage_crystal",
+   "stock": [
+    {
+     "item": "lantern_incense",
+     "price": 4
+    },
+    {
+     "item": "clear_mind_pill"
+    },
+    {
+     "item": "will_tempering_pill",
+     "price": 6
+    },
+    {
+     "item": "technique_manual",
+     "learn": "benevolent_script",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "will_manifest_3"
+       },
+       {
+        "kind": "unlock",
+        "system": "confucian_path"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "rite_seal_script",
+     "price": 90,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_1"
+       },
+       {
+        "kind": "unlock",
+        "system": "confucian_path"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
    "id": "navigator",
    "name": "Navigator Sun's Charts",
    "currency": "spirit_stone",

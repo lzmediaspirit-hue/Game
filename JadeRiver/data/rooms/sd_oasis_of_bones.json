@@ -298,5 +298,9 @@
    "bottom": "ground",
    "top": "rocks_oasis_1"
   }
+ ],
+ "terrain": [
+  "sand",
+  "water"
  ]
 }

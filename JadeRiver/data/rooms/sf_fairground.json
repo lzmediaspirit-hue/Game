@@ -742,5 +742,9 @@
    "bottom": "ground",
    "top": "deck_fair_1"
   }
+ ],
+ "terrain": [
+  "grass",
+  "stone"
  ]
 }

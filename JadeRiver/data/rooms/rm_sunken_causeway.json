@@ -551,5 +551,9 @@
    "top": 160,
    "kind": "stone_pillar"
   }
+ ],
+ "terrain": [
+  "water",
+  "wood"
  ]
 }

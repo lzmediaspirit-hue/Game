@@ -181,9 +181,11 @@ func _vows(ch) -> void:
 
 ## S48 paths as layers: the Blood path (opt-in), the Buddhist path (vows, merit, the Golden Body) and the Poison Body.
 func _path_cards(ch, area: Rect2) -> void:
-	var w := (area.size.x - 24) / 3.0
-	var cards := [Rect2(area.position, Vector2(w, area.size.y)), Rect2(area.position + Vector2(w + 12, 0), Vector2(w, area.size.y)),
-		Rect2(area.position + Vector2((w + 12) * 2, 0), Vector2(w, area.size.y))]
+	# v1.2: a fourth card, the Confucian path, once the lanternwright has shown it.
+	var n := 4 if Unlocks.is_unlocked(ch.id, "confucian_path") else 3
+	var w := (area.size.x - 12.0 * (n - 1)) / float(n)
+	var cards: Array = []
+	for i in n: cards.append(Rect2(area.position + Vector2((w + 12) * i, 0), Vector2(w, area.size.y)))
 	var walking := ProgressionAuthority.walks(ch, "blood")
 	panel(cards[0], "minor_panel", "selected" if walking else "normal")
 	text(cards[0].position + Vector2(16, 30), Tx.t("ui.cultivation.blood_path"), 21, UiKit.RED if walking else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
@@ -214,6 +216,20 @@ func _path_cards(ch, area: Rect2) -> void:
 	var pline := Tx.t("ui.cultivation.poison_no_art")
 	if has_art: pline = Tx.t("ui.cultivation.poison_open") % [int(ch.cultivator.toxicity), int(tol)] if open else Tx.t("ui.cultivation.poison_closed") % [int(ch.cultivator.toxicity), int(tol * 0.5)]
 	para(Rect2(cards[2].position + Vector2(16, 110), Vector2(w - 32, 36)), pline, 15, UiKit.PAPER, 2)
+	if n < 4: return
+	var upright := ProgressionAuthority.walks(ch, "confucian")
+	var cc: Dictionary = ContentDB.stat_const("paths", {}).get("confucian", {})
+	panel(cards[3], "minor_panel", "selected" if upright else "normal")
+	text(cards[3].position + Vector2(16, 30), Tx.t("ui.cultivation.confucian_path"), 21, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+	para(Rect2(cards[3].position + Vector2(16, 40), Vector2(w - 32, 58)), Tx.t("ui.cultivation.confucian_desc") % int(round(float(cc.get("righteous", 0.25)) * 100.0)), 14, UiKit.MIST, 3)
+	if upright:
+		btn(Rect2(cards[3].end.x - 142, cards[3].end.y - 50, 128, 40), Tx.t("ui.cultivation.leave_path"), "path_leave", "confucian", false, true, "", 16)
+	else:
+		var why2 := ""
+		if ProgressionRules.realm_index(ch.cultivator.realm_key) < ProgressionRules.realm_index(str(cc.get("min_realm", "will_manifest_2"))): why2 = Tx.t("sim.progression.path_realm")
+		elif ch.relations.alignment < int(cc.get("alignment_at_least", 20)): why2 = Tx.t("sim.progression.path_upright")
+		elif walking: why2 = Tx.t("sim.progression.path_exclusive")
+		btn(Rect2(cards[3].end.x - 142, cards[3].end.y - 50, 128, 40), Tx.t("ui.cultivation.walk_confucian"), "path_take", "confucian", true, why2 == "", why2, 16)
 
 ## Heart (G1): the meter, the ledger, the foundation and what the pills have left behind.
 func _heart(ch) -> void:
@@ -382,7 +398,7 @@ func on_action(id: String, data) -> void:
 		"relations": navigate.emit("relations", {})
 		"vow_on": submit({"type": "set_vow", "vow": str(data), "on": true})
 		"path_take": submit({"type": "set_path", "path": str(data), "on": true})
-		"path_leave": ask(Tx.t("ui.cultivation.leave_blood_confirm") % int(ContentDB.stat_const("paths", {}).get("blood", {}).get("leave_heart_demon", 10)), "path_off", data, true)
+		"path_leave": ask(Tx.t("ui.cultivation.leave_blood_confirm" if str(data) == "blood" else "ui.cultivation.leave_path_confirm") % int(ContentDB.stat_const("paths", {}).get(str(data), {}).get("leave_heart_demon", 10)), "path_off", data, true)
 		"path_off": submit({"type": "set_path", "path": str(data), "on": false})
 		"vow_off": ask(Tx.t("ui.cultivation.break_vow_confirm") % [ContentDB.name_of("vows", str(data)), int(ContentDB.config("vows").get("break_heart_demon", 15))], "vow_break", data, true)
 		"vow_break": submit({"type": "set_vow", "vow": str(data), "on": false})

@@ -32,7 +32,7 @@ func subscribe() -> void:
 	GameEvents.subscribe("unlock_offered", _on_unlock_offered, 60)
 	GameEvents.subscribe("daily_reset", _on_daily_reset, 60)
 	GameEvents.subscribe("weekly_reset", func(_p): start_weekly(false), 61)
-	for ev in ["quest_completed", "realm_changed", "flag_set", "room_entered", "quest_accepted", "item_added", "character_created"]:
+	for ev in ["quest_completed", "realm_changed", "flag_set", "room_entered", "quest_accepted", "item_added", "character_created", "presence_leveled"]:
 		GameEvents.subscribe(ev, _refresh_offers, 65)
 
 func handle(intent: Dictionary) -> Dictionary:

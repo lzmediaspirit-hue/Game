@@ -507,5 +507,8 @@
    "top": 80,
    "kind": "crate"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

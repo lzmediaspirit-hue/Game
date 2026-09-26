@@ -2947,6 +2947,50 @@
    "scope": "character",
    "quest": "star_tier_beasts",
    "same_stage_ok": true
+  },
+  {
+   "id": "sphere",
+   "label": "Sphere",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sphere_lord_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "sphere_lord"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:sphere"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "a_sphere_of_ones_own",
+   "same_stage_ok": true
+  },
+  {
+   "id": "confucian_path",
+   "label": "The Confucian path",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_2"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "crystal_and_jade"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_written_word",
+   "same_stage_ok": true
   }
  ]
 }

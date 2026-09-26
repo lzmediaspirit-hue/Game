@@ -235,5 +235,8 @@
    "bottom": "ground",
    "top": "loft_mv"
   }
+ ],
+ "terrain": [
+  "wood"
  ]
 }

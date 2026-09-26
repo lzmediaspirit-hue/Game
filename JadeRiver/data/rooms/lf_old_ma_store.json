@@ -256,5 +256,8 @@
    "locked_text": "Old Ma: \"The storeroom? Learn to jump first, then we'll talk.\""
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "wood"
+ ]
 }

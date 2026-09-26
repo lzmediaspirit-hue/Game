@@ -326,5 +326,8 @@
    "bottom": "ground",
    "top": "deck_mv_1"
   }
+ ],
+ "terrain": [
+  "wood"
  ]
 }

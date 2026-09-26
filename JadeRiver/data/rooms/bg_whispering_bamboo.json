@@ -817,5 +817,8 @@
    ],
    "speed": 700
   }
+ ],
+ "terrain": [
+  "grass"
  ]
 }

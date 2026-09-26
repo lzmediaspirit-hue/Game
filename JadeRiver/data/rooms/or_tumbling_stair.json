@@ -1,0 +1,606 @@
+{
+ "schema_version": 1,
+ "id": "or_tumbling_stair",
+ "zone": "lantern_star_field",
+ "region": "orbit_ruins",
+ "name": "Tumbling Stair",
+ "type": "field",
+ "level_range": [
+  88,
+  90
+ ],
+ "recommended_cp": 1604,
+ "element": "star",
+ "qi_density": 2.0,
+ "hazards": [],
+ "gather_tier": "lantern_mid",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "orbit_ruins",
+ "ground": {
+  "material": "stone",
+  "tint": "#c8c4d8"
+ },
+ "spawn_point": [
+  400,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    900,
+    630,
+    300,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    2000,
+    620,
+    320,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_2",
+   "rect": [
+    3000,
+    630,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1540,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    2360,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    2700,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "wc_citadel_gate",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "or_orbit_garden",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    930,
+    665
+   ],
+   "loot": "jar_lantern",
+   "level": 89,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 100
+  },
+  {
+   "id": "crate_2",
+   "type": "crate",
+   "at": [
+    2030,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 89,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    2324,
+    720
+   ],
+   "loot": "jar_lantern",
+   "level": 89,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_4",
+   "type": "crate",
+   "at": [
+    3371,
+    700
+   ],
+   "loot": "jar_lantern",
+   "level": 89,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "shrine_or_stair",
+   "type": "shrine",
+   "at": [
+    700,
+    700
+   ]
+  },
+  {
+   "id": "switch_stair",
+   "type": "gravity_switch",
+   "at": [
+    1500,
+    700
+   ]
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "orbit_moth",
+   "surface": "ground",
+   "points": [
+    [
+     1132,
+     806
+    ],
+    [
+     1549,
+     876
+    ],
+    [
+     2328,
+     810
+    ],
+    [
+     3169,
+     717
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 14,
+   "level": [
+    88,
+    89
+   ]
+  },
+  {
+   "enemy": "gravity_golem",
+   "surface": "ground",
+   "points": [
+    [
+     1108,
+     774
+    ],
+    [
+     2792,
+     885
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 20,
+   "level": [
+    88,
+    90
+   ]
+  },
+  {
+   "enemy": "orbit_moth",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    89,
+    89
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "orbit_stone",
+   "at": [
+    156,
+    629
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    615,
+    638
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "orbit_stone",
+   "at": [
+    1237,
+    629
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    1868,
+    634
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "orbit_stone",
+   "at": [
+    2397,
+    633
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    2876,
+    634
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "orbit_stone",
+   "at": [
+    3308,
+    631
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    141,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    461,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    760,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1151,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1410,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1688,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1967,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2257,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2661,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2977,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3386,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3666,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "orbit_stone",
+   "at": [
+    500,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "orbit_stone",
+   "at": [
+    1920,
+    600
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "orbit_stone",
+   "at": [
+    3340,
+    640
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "star_field",
+ "ambience": "wind_ambience",
+ "attunement_required": 50,
+ "volumes": [
+  {
+   "id": "lowg_stair",
+   "kind": "low_gravity",
+   "rect": [
+    1300,
+    620,
+    1400,
+    340
+   ],
+   "alt": [
+    -10,
+    700
+   ],
+   "switch": "switch_stair",
+   "gravity": 0.45
+  }
+ ],
+ "climbables": [
+  {
+   "id": "ledge_0_rope_1",
+   "kind": "rope",
+   "at": [
+    1050,
+    735
+   ],
+   "top_at": [
+    1050,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_0"
+  },
+  {
+   "id": "ledge_2_rope_2",
+   "kind": "rope",
+   "at": [
+    3100,
+    735
+   ],
+   "top_at": [
+    3100,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_2"
+  },
+  {
+   "id": "route_0_vine_3",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_1_vine_4",
+   "kind": "vine",
+   "at": [
+    1660,
+    741
+   ],
+   "top_at": [
+    1660,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_1"
+  },
+  {
+   "id": "route_2_vine_5",
+   "kind": "vine",
+   "at": [
+    2480,
+    741
+   ],
+   "top_at": [
+    2480,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_2"
+  }
+ ],
+ "terrain": [
+  "stone"
+ ]
+}

@@ -308,5 +308,8 @@
  "town": true,
  "climbables": [],
  "movers": [],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "grass"
+ ]
 }

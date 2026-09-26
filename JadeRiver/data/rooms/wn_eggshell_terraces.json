@@ -588,5 +588,8 @@
    "bottom": "ground",
    "top": "route_1"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

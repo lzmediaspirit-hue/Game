@@ -204,5 +204,8 @@
     "flag": "presence_trial_passed"
    }
   ]
- }
+ },
+ "terrain": [
+  "stone"
+ ]
 }

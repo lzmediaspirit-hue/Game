@@ -247,5 +247,8 @@
    "kind": "rubble"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "stone"
+ ]
 }

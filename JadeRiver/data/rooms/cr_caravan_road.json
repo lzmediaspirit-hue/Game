@@ -728,5 +728,9 @@
    "top": 60,
    "kind": "cart"
   }
+ ],
+ "terrain": [
+  "grass",
+  "stone"
  ]
 }

@@ -377,5 +377,8 @@
    "kind": "sack"
   }
  ],
- "vertical": "authored"
+ "vertical": "authored",
+ "terrain": [
+  "wood"
+ ]
 }

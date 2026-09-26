@@ -434,5 +434,8 @@
    "top": 80,
    "kind": "rubble"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

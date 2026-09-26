@@ -565,5 +565,8 @@
    "bottom": "ground",
    "top": "ledge_3"
   }
+ ],
+ "terrain": [
+  "stone"
  ]
 }

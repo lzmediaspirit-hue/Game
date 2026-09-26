@@ -761,5 +761,8 @@
    "bottom": "ground",
    "top": "willow_crown"
   }
+ ],
+ "terrain": [
+  "grass"
  ]
 }

@@ -1,0 +1,667 @@
+{
+ "schema_version": 1,
+ "id": "or_golem_foundry",
+ "zone": "lantern_star_field",
+ "region": "orbit_ruins",
+ "name": "Golem Foundry",
+ "type": "field",
+ "level_range": [
+  90,
+  92
+ ],
+ "recommended_cp": 1640,
+ "element": "star",
+ "qi_density": 2.0,
+ "hazards": [],
+ "gather_tier": "lantern_mid",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "orbit_ruins",
+ "ground": {
+  "material": "stone",
+  "tint": "#c8c4d8"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    900,
+    630,
+    300,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    2100,
+    620,
+    320,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    1706,
+    610,
+    240,
+    70
+   ],
+   "height": 300,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    520,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1280,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "or_orbit_garden",
+   "to_portal": "east"
+  },
+  {
+   "id": "hall",
+   "type": "door",
+   "at": [
+    3500,
+    704
+   ],
+   "to": "or_inverted_hall",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Inverted Hall",
+   "requires": {
+    "any": [
+     {
+      "kind": "quest_active",
+      "quest": "the_orbit_ruins"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_orbit_ruins"
+     }
+    ]
+   },
+   "locked_text": "A doorway that opens onto the ceiling of the room beyond. You would rather have a reason to go in."
+  }
+ ],
+ "objects": [
+  {
+   "id": "ore_1",
+   "type": "ore_vein",
+   "at": [
+    1170,
+    665
+   ],
+   "item": "driftglass",
+   "prop": "driftglass_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "master",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand.",
+   "alt": 100
+  },
+  {
+   "id": "ore_2",
+   "type": "ore_vein",
+   "at": [
+    2917,
+    690
+   ],
+   "item": "driftglass",
+   "prop": "driftglass_vein",
+   "yield": [
+    1,
+    2
+   ],
+   "rank": "master",
+   "regrow_s": 300,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "mining"
+     }
+    ]
+   },
+   "locked_text": "The stone is too hard to work by hand."
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    930,
+    665
+   ],
+   "loot": "jar_lantern",
+   "level": 91,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 100
+  },
+  {
+   "id": "crate_4",
+   "type": "crate",
+   "at": [
+    2130,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 91,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200
+  },
+  {
+   "id": "jar_5",
+   "type": "jar",
+   "at": [
+    2336,
+    900
+   ],
+   "loot": "jar_lantern",
+   "level": 91,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_6",
+   "type": "crate",
+   "at": [
+    3368,
+    930
+   ],
+   "loot": "jar_lantern",
+   "level": 91,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_7",
+   "type": "chest",
+   "at": [
+    1736,
+    645
+   ],
+   "loot": "chest_lantern",
+   "level": 92,
+   "alt": 300
+  },
+  {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    1826,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 92,
+   "alt": 300,
+   "surface": "cloud_mv"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "gravity_golem",
+   "surface": "ground",
+   "points": [
+    [
+     618,
+     800
+    ],
+    [
+     1468,
+     834
+    ],
+    [
+     2282,
+     882
+    ],
+    [
+     3184,
+     807
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 20,
+   "level": [
+    90,
+    92
+   ]
+  },
+  {
+   "enemy": "orbit_moth",
+   "surface": "ground",
+   "points": [
+    [
+     784,
+     767
+    ],
+    [
+     1965,
+     736
+    ],
+    [
+     3067,
+     787
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 14,
+   "level": [
+    90,
+    91
+   ]
+  },
+  {
+   "enemy": "gravity_golem",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    92,
+    92
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "orbit_stone",
+   "at": [
+    219,
+    639
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    707,
+    640
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "orbit_stone",
+   "at": [
+    1347,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    1795,
+    636
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "orbit_stone",
+   "at": [
+    2387,
+    630
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    2965,
+    640
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "orbit_stone",
+   "at": [
+    3444,
+    638
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    140,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    395,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    729,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1008,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1379,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1673,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1960,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2245,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2494,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2785,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3061,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3268,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3559,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "orbit_stone",
+   "at": [
+    500,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "orbit_stone",
+   "at": [
+    1920,
+    600
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "orbit_stone",
+   "at": [
+    3340,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "flame_basin",
+   "at": [
+    1600,
+    700
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "star_field",
+ "ambience": "wind_ambience",
+ "attunement_required": 54,
+ "climbables": [
+  {
+   "id": "ledge_0_rope_1",
+   "kind": "rope",
+   "at": [
+    1050,
+    735
+   ],
+   "top_at": [
+    1050,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_0"
+  },
+  {
+   "id": "ledge_1_rope_2",
+   "kind": "rope",
+   "at": [
+    2260,
+    725
+   ],
+   "top_at": [
+    2260,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_1"
+  },
+  {
+   "id": "route_0_vine_4",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_vine_5",
+   "kind": "vine",
+   "at": [
+    1400,
+    741
+   ],
+   "top_at": [
+    1400,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_2"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "ledge_1_step_3",
+   "rect": [
+    2350,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  }
+ ],
+ "terrain": [
+  "stone"
+ ]
+}
