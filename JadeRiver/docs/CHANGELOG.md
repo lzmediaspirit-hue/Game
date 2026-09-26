@@ -10,6 +10,8 @@
   the volume steps.
 - The stances on the Techniques page's Inner Arts tab are a scrolled list: nine families no longer squeeze nine buttons
   into the panel's height.
+- **Numbers that read.** Under 20 px, numbers are drawn in the bold serif's lining figures: in Pixelify Sans a 5 read
+  as an S and a 2 as a Z on the HP, Qi and Soul bars. Damage numbers and large counts keep the pixel face.
 - The emote wheel lies on an ellipse that fills its dialog: on the old circle the diagonal buttons overlapped their
   neighbours.
 - Tests: `rules_tests` `ui_suite` opens every page and tab with every system unlocked and checks that every tap target
