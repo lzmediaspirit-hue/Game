@@ -282,6 +282,19 @@ static func dao_tier_for(insight: float) -> int:
 		if insight >= float(tiers[i]): tier = i + 1
 	return tier
 
+## The Dao a character knows best: the highest tier, then the most insight ("" with none). `accept` narrows the choice
+## (the Sphere takes only combat Daos). One answer for the Sphere, Dao Echo, the chess problems and the insight sites.
+static func strongest_dao(c, accept := Callable()) -> String:
+	var best := ""
+	var best_v := -1.0
+	for d in c.cultivator.daos:
+		if accept.is_valid() and not accept.call(str(d)): continue
+		var v := float(c.cultivator.daos[d].get("tier", 0)) * 1000000.0 + float(c.cultivator.daos[d].get("insight", 0.0))
+		if v > best_v:
+			best_v = v
+			best = str(d)
+	return best
+
 static func stored_qi_cap(c) -> float:
 	return c.cultivator.need() * float(ContentDB.curve("stored_qi_cap_stages", 1.0))
 

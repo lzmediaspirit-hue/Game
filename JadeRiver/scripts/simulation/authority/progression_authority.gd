@@ -777,7 +777,7 @@ func choose_fate(c, card: String) -> Dictionary:
 	var f := ContentDB.entry("fates", card)
 	var rec := {"id": card, "realm": ProgressionRules.great_realm(cu.realm_key)}
 	if f.has("next"): rec.next = (f.next as Dictionary).duplicate()
-	if "dao_echo" in f.get("flags", []): rec.dao = _strongest_dao(c)
+	if "dao_echo" in f.get("flags", []): rec.dao = ProgressionRules.strongest_dao(c)
 	cu.fates.append(rec)
 	cu.fate_offer = []
 	game.apply_effects(c.id, f.get("effects", []), "fate:" + card)
@@ -834,16 +834,6 @@ func fate_flag(c, flag: String) -> bool:
 	for rec in c.cultivator.fates:
 		if flag in ContentDB.entry("fates", str(rec.get("id", ""))).get("flags", []): return true
 	return false
-
-func _strongest_dao(c) -> String:
-	var best := ""
-	var best_v := -1.0
-	for d in c.cultivator.daos:
-		var v := float(c.cultivator.daos[d].get("tier", 0)) * 1000000.0 + float(c.cultivator.daos[d].get("insight", 0.0))
-		if v > best_v:
-			best = str(d)
-			best_v = v
-	return best
 
 func is_channeling(actor_id: String) -> bool:
 	return channels.has(actor_id)
@@ -1605,12 +1595,6 @@ func solve_chess(c, site: String, choice: String) -> Dictionary:
 func apply_insight_best(actor_id: String, amount: float, context := "fortune") -> void:
 	var c = game.character(actor_id)
 	if c == null: return
-	var best := ""
-	var top := -1.0
-	for dao in c.cultivator.daos:
-		var v := float(c.cultivator.daos[dao].get("insight", 0.0)) + 1000.0 * int(c.cultivator.daos[dao].get("tier", 0))
-		if v > top:
-			top = v
-			best = str(dao)
+	var best := ProgressionRules.strongest_dao(c)
 	if best != "" and Unlocks.is_unlocked(c.id, "dao_tree"): apply_insight(c.id, best, amount, context + ":chess:" + str(Clock.reset_day(Clock.now_utc())))
 	else: apply_progress(c.id, 0.0, context, 0.02)

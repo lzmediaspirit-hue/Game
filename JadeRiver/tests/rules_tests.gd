@@ -7643,6 +7643,7 @@ func fixes_suite() -> void:
 	_fix_full_bag(c)
 	_fix_commissions(c)
 	_fix_wind_step(c)
+	_fix_strongest_dao(c)
 	Clock.override_utc = utc0
 	Clock.override_tz_offset_s = tz0
 	HerbRules.origin_week = 0
@@ -7773,3 +7774,13 @@ func _fix_wind_step(c) -> void:
 	c.pools.cooldowns.clear()
 	Game.combat.treasure_fx.erase(c.id)
 	Game.combat.timeline(c.id).forced_t = 0.0
+
+## B9: one answer to "the Dao you know best": the highest tier first, then the most insight.
+func _fix_strongest_dao(c) -> void:
+	Unlocks.force_unlock(c.id, "dao_tree")
+	c.cultivator.daos = {"sword": {"tier": 6, "insight": 12500.0}, "fist": {"tier": 5, "insight": 30000.0}}
+	check(str(Game.field.sphere_of(c).get("dao", "")) == "sword", "the Sphere is drawn from the tier-6 Dao")
+	Game.progression.apply_insight_best(c.id, 10.0, "chess")
+	check(float(c.cultivator.daos.sword.insight) > 12500.0 and near(float(c.cultivator.daos.fist.insight), 30000.0),
+		"and the chess problem teaches the same Dao (%s)" % str(c.cultivator.daos))
+	c.cultivator.daos = {}
