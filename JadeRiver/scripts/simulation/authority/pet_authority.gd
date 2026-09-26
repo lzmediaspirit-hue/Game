@@ -643,7 +643,9 @@ func stage_def(stage: String) -> Dictionary:
 func next_stage(p: Dictionary) -> Dictionary:
 	var stages: Array = growth().get("stages", [])
 	var i := stage_index(str(p.get("stage", "hatchling"))) + 1
-	if i >= stages.size() or stages[i].get("primordial_only", false): return {}
+	if i >= stages.size(): return {}
+	# Only a Primordial line (the Hatchling Wyrm, v1.2) grows past Sovereign.
+	if stages[i].get("primordial_only", false) and not ContentDB.entry("pets", str(p.get("species", ""))).get("primordial", false): return {}
 	return stages[i]
 
 ## Share of the owner's attack: the species' own row when it has one, else the stage's.
@@ -796,6 +798,10 @@ func attempt_tame(c, offering: String, result: float) -> Dictionary:
 	if e == null: return fail("no_target", {"text": Tx.t("sim.pet.weaken_a_paw_marked_spirit")})
 	var species := tame_species(e)
 	if species == "": return fail("no_species")
+	# v1.2 (Part 4): star-tier spirit beasts answer only a Will Manifest of the second order and up.
+	var sp_def := ContentDB.entry("pets", species)
+	if sp_def.has("tame_unlock") and not Unlocks.is_unlocked(c.id, str(sp_def.tame_unlock)):
+		return fail("locked", {"text": Unlocks.locked_text(str(sp_def.tame_unlock))})
 	# S46 Beast Taming Dao tier 3: only then can an elite be tamed.
 	if e.elite and taming_tier(c) < 3: return fail("elite_tier", {"text": Tx.t("sim.pet.elite_tier")})
 	# S46 natures: a demonic beast takes only a Purifying Offering; a Hollowed one must be cleansed by one first.
@@ -845,7 +851,10 @@ func incubate_egg(c, index: int) -> Dictionary:
 	if egg_def.has("egg_species"): species = str(egg_def.egg_species)
 	var rarity := roll_rarity(c, str(egg_def.get("egg_rarity", "egg")))
 	game.inventory.apply_remove_index(c.id, index, 1, "incubate")
-	c.eggs.append({"species": species, "hatch_utc": Clock.now_utc() + h * 3600.0, "rarity": rarity})
+	var egg := {"species": species, "hatch_utc": Clock.now_utc() + h * 3600.0, "rarity": rarity}
+	# v1.2: a star-wyrm egg warms like any other, but hatches only for a keeper of the realm it names.
+	if egg_def.has("hatch_realm"): egg["hatch_realm"] = str(egg_def.hatch_realm)
+	c.eggs.append(egg)
 	emit("egg_incubated", {"actor": c.id, "hours": h})
 	emit("system_used", {"actor": c.id, "system": "egg_incubated"})
 	return ok({"hours": h})
@@ -854,6 +863,8 @@ func hatch_egg(c, index: int) -> Dictionary:
 	if index < 0 or index >= c.eggs.size(): return fail("bad_index")
 	var egg: Dictionary = c.eggs[index]
 	if Clock.now_utc() < float(egg.hatch_utc): return fail("not_ready", {"text": Tx.t("sim.pet.it_is_still_warm_and")})
+	if egg.has("hatch_realm") and not ProgressionRules.at_least(c.cultivator.realm_key, str(egg.hatch_realm)):
+		return fail("realm", {"text": Tx.t("sim.pet.egg_waits_for_realm") % ContentDB.text("realm." + str(egg.hatch_realm))})
 	c.eggs.remove_at(index)
 	var born: Dictionary = egg.duplicate(true)
 	born.hearts = float(growth().get("incubation", {}).get("hatch_hearts", 3))

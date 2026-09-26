@@ -171,5 +171,6 @@
   "y_min": 520,
   "y_max": 560
  },
- "music": "lantern_harbor"
+ "music": "lantern_harbor",
+ "lantern": true
 }

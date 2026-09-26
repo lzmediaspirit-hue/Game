@@ -1406,3 +1406,131 @@ for _id, _fn in (('star_reading', star_reading), ('sky_ink', sky_ink), ('ledger_
                  ('cloud_skiff', cloud_skiff), ('storm_sloop', storm_sloop),
                  ('jade_elder_token', jade_elder_token), ('cloud_elder_token', cloud_elder_token)):
     register(FAM, _id, _fn, GROUP)
+
+
+# ----------------------------------------------------------------------------- Act III · Lantern Star Field
+import numpy as np  # noqa: E402
+
+import glyphs  # noqa: E402
+from palette import STAR_GLOW as LANTERN_GLOW  # noqa: E402  (misc.py already has its own STAR_GLOW)
+
+WYRM_SHELL = Ramp(['#6A6478', '#A6A0B4', '#DCD8E6', '#F3F1F7', '#FFFFFF'], '#24212E')
+SMOKE = Ramp(['#3C3A52', '#626080', '#9492B2', '#C4C2DA', '#ECEAF6'], '#16151F')
+
+
+def admirals_seal():
+    """The Lantern Admiral's seal: a bronze eight-point star, an anchor engraved in its round face, on a short
+    chain."""
+    c = Canvas(32)
+    ramp = R['lanternbronze']
+    cx, cy, ro, ri = 16, 18.5, 11.5, 7.0
+    # the chain: an edge-on link over a face-on link, down to the star's top point
+    top = c.rect(15, 1, 16, 3)
+    c.put(top, R['bronze'], 'flat', base=3)
+    c.put(c.rect(16, 1, 16, 3), R['bronze'], 'flat', base=1)
+    link = c.ring(15.5, 5.5, 2.2, 1.1, 2.6)
+    c.put(link, R['bronze'], 'ray', base=3, sep=True)
+    # the star: each point split along its spine, the half facing the light a step brighter
+    pts = []
+    for k in range(16):
+        a = math.radians(90 - k * 22.5)
+        r = ro if k % 2 == 0 else ri
+        pts.append((cx + math.cos(a) * r, cy - math.sin(a) * r))
+    star = c.poly(pts)
+    c.put(star, ramp, 'flat', base=2, sep=True)
+    for k in range(0, 16, 2):
+        tip = pts[k]
+        for side in (-1, 1):
+            nb = pts[(k + side) % 16]
+            tri = c.poly([(cx, cy), tip, nb]) & star
+            mx, my = (tip[0] + nb[0]) / 2.0 - cx, (tip[1] + nb[1]) / 2.0 - cy
+            d = (-mx - my) / (math.hypot(mx, my) or 1.0) / 1.4142
+            lvl = 3 if d > -0.2 else 2
+            if side > 0 and lvl == 3 and d < 0.6:
+                lvl = 2
+            c.put(tri, ramp, 'flat', base=lvl)
+    # the round face, its rim cut in, an anchor engraved in it
+    face = c.circle(cx, cy, 6.0)
+    c.put(face, ramp, 'flat', base=2)
+    c.put(S.outline_only(face), ramp[1], 'flat', out=ramp.out)
+    c.put(S.outline_only(face) & (c.X + c.Y > 2 * cy + 1), ramp[4], 'flat', out=ramp.out)
+    w, h = glyphs.size('anchor')
+    x0, y0 = int(round(cx - w / 2.0)), int(round(cy - h / 2.0))
+    anchor = c.from_rows(glyphs.MARKS['anchor'], x0, y0)
+    c.put(move(anchor, 1, 1) & face & ~anchor, ramp[4], 'flat', out=ramp.out)
+    c.put(anchor, ramp[0], 'flat', out=ramp.out)
+    c.outline()
+    return c
+
+
+def wyrm_egg():
+    """A star wyrm's egg: pearl-white and faintly scaled, a gold star shimmering inside; it rests in a bronze
+    cradle, not straw."""
+    c = Canvas(32)
+    cx, cy, ry = 16, 16.5, 12.5
+    # pointed at the top, full at the bottom
+    t = np.clip((cy - c.Y) / ry, 0.0, 1.0)
+    rx = 8.6 * (1.0 - 0.28 * t)
+    egg = ((c.X - cx) / rx) ** 2 + ((c.Y - cy) / ry) ** 2 <= 1.0
+    egg &= c.Y < 28.5
+    c.put(egg, WYRM_SHELL, 'sphere', base=3, cx=15.5, cy=16, rx=9.5, ry=13,
+          bands=((0.9, 1), (0.5, 0), (0.0, -1), (-9, -2)))
+    # faint rows of scales on the shell
+    inner = erode4(egg)
+    for row, y in enumerate((9, 13.5, 18, 22.5)):
+        for k in range(-3, 4):
+            x = cx + k * 4.2 + (2.1 if row % 2 else 0.0)
+            arc = c.arc(x, y - 1.2, 2.3, 1.0, 200, 340)
+            c.put(arc & inner & ~c.rect(11, 14, 21, 24), WYRM_SHELL[2], 'flat', out=WYRM_SHELL.out, only_on=True)
+    # the star inside, glowing through the shell
+    sx, sy = 16, 19
+    c.put(S.diamond(c, sx + 0.5, sy + 0.5, 3.8, 3.8) & inner, R['starlight'], 'flat', base=3)
+    c.put((c.rect(sx - 4, sy, sx + 4, sy) | c.rect(sx, sy - 4, sx, sy + 4)) & inner, R['gold'], 'flat', base=3)
+    c.put((c.rect(sx - 1, sy, sx + 1, sy) | c.rect(sx, sy - 1, sx, sy + 1)) & inner, '#FFFFFF', 'flat')
+    for (x, y) in ((12, 13), (20, 24), (20, 13)):
+        c.put(c.rect(x, y, x, y) & inner, R['gold'], 'flat', base=3)
+    # it rests on a night-indigo cushion, not straw
+    cush = (c.ellipse(16, 27.5, 10.5, 2.8) | c.ellipse(16, 28.5, 11.5, 2.0)) & ~egg
+    c.put(cush, R['navy'], 'ray', base=2, sep=True)
+    c.put(c.rect(7, 27, 25, 27) & cush, R['navy'], 'flat', base=3)
+    for x in (5, 27):
+        c.put(c.rect(x, 29, x, 30), R['gold'], 'flat', base=3)
+    c.outline()
+    c.glow(LANTERN_GLOW, (70,))
+    return c
+
+
+def lantern_incense():
+    """A coil of pale-gold lantern incense, its outer end burning with a small lantern flame, a curl of smoke."""
+    c = Canvas(32)
+    cx, cy = 14.5, 22.5
+    pts = []
+    turns = 2.2
+    n = 110
+    for i in range(n + 1):
+        f = i / float(n)
+        th = math.pi * 1.5 + f * turns * 2 * math.pi
+        r = 1.5 + 10.5 * f
+        pts.append((cx + r * math.cos(th), cy + r * 0.52 * math.sin(th)))
+    coil = c.polyline(pts, 2.0)
+    c.put(coil, R['starlight'], 'sphere', base=3, cx=cx - 3, cy=cy - 2, rx=15, ry=8,
+          bands=((0.9, 1), (0.4, 0), (-0.2, -1), (-9, -2)))
+    # the burning tip: a grey ash end, then a small lantern flame standing on it
+    ex, ey = pts[-1]
+    ix, iy = int(round(ex - 0.5)), int(round(ey - 0.5))
+    c.put(c.rect(ix, iy - 1, ix + 1, iy), SMOKE, 'flat', base=3, sep=True)
+    fl = S.flame(c, ix + 1, iy - 1, 4.4, 7.5, 0.2)
+    c.put(fl, R['fire'], 'vgrad', base=3, bands=((0.3, 1), (0.7, 0), (9, -1)), sep=True, sep_col=R['fire'][0])
+    c.put(c.rect(ix + 1, iy - 4, ix + 1, iy - 3), '#FFF6D0', 'flat')
+    # the curl of smoke rising off the flame
+    smoke = S.bez_line(c, (ix + 1, iy - 9), (ix - 6, iy - 10), (ix - 3, iy - 14)) | \
+        S.bez_line(c, (ix - 3, iy - 14), (ix + 1, iy - 17), (ix - 4, iy - 18))
+    c.put(smoke & ~c.a, SMOKE, 'flat', base=3)
+    c.outline()
+    from families.beast_parts import halo
+    halo(c, fl, '#FFB45A', (90,))
+    return c
+
+
+for _id, _fn in (('admirals_seal', admirals_seal), ('wyrm_egg', wyrm_egg), ('lantern_incense', lantern_incense)):
+    register(FAM, _id, _fn, GROUP)

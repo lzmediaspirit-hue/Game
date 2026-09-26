@@ -138,7 +138,7 @@ def shops():
          "stock": [s("appraisers_loupe", requires=all_of(realm("qi_kindling_6"))), s("dusty_curio", price=20, requires=all_of(realm("qi_kindling_6"))),
                    s("spirit_stone_shard"), s("manual_page", price=400), s("blank_plate", price=60, requires=all_of(realm("heart_tempering_5")))],
          "rotation": {"count": 1, "pool": [s("jadeiron_hat"), s("cloudsilk_robe"), s("jadeiron_gourd")]}},
-        {"id": "jade_sect", "name": "Jade Sect Mission Hall", "currency": "contribution",
+        {"id": "jade_sect", "name": "Jade Sect Mission Hall", "currency": "contribution", "discount": {"flag": "succession_named", "pct": 0.2},
          "requires": {"all": [{"kind": "training_sect", "sect": "jade_sect"}]},
          "stock": [s("manual_rain_of_reeds", requires=all_of({"kind": "sect_rank_at_least", "rank": "outer_disciple"})),
                    s("healing_pill"), s("qi_restoration_pill"), s("cleansing_pill", requires=all_of(realm("qi_kindling_9"))),
@@ -152,7 +152,7 @@ def shops():
                    s("manual_tidal_sovereign_scripture", price=800, requires=all_of({"kind": "sect_rank_at_least", "rank": "core_disciple"}))] + inner_art_stock()
                   + technique_stock("jade_sect"),
          "rotation": {"count": 1, "pool": [s("manual_page")]}},
-        {"id": "cloud_sect", "name": "Cloud Sect Mission Hall", "currency": "contribution",
+        {"id": "cloud_sect", "name": "Cloud Sect Mission Hall", "currency": "contribution", "discount": {"flag": "succession_named", "pct": 0.2},
          "requires": {"all": [{"kind": "training_sect", "sect": "cloud_sect"}]},
          "stock": [s("manual_ember_burst", requires=all_of({"kind": "sect_rank_at_least", "rank": "outer_disciple"})),
                    s("healing_pill"), s("qi_restoration_pill"), s("cleansing_pill", requires=all_of(realm("qi_kindling_9"))),
@@ -218,7 +218,7 @@ def shops():
          "rotation": {"count": 2, "pool": [s("star_shard", price=1), s("manual_page", price=2), s("spirit_egg", price=4), s("jelly_silk", price=2)]}},
         {"id": "lanternfall_apothecary", "name": "Apothecary Sang's Jars", "currency": "sage_crystal",
          "stock": [s("star_lotus", price=5), s("ember_cactus", price=3), s("frost_lotus", price=3), s("clear_mind_pill"), s("soul_soothing_pill"),
-                   s("calm_incense")]},
+                   s("calm_incense"), s("lantern_incense", price=4), s("recipe_scroll", learn="tide_cleansing_pill", price=40)]},
         # Phase E · the Shipwrights' Yard: sky ink for charts; timber, plates and plumes for hulls.
         {"id": "navigator", "name": "Navigator Sun's Charts", "currency": "spirit_stone",
          "stock": [s("sky_ink", price=30), s("clear_mind_pill"), s("recipe_scroll", learn="star_chart_lantern", price=400,
@@ -320,7 +320,8 @@ def recipes():
          ("mind_lake_opening_pill", "heaven", [("cloud_feather", 3), ("mist_lotus", 2), ("cloudtop_orchid", 1)], 900),
          ("sage_condensing_pill", "mystic", [("roc_feather", 2), ("jade_core", 1), ("soulbell_flower", 2)], 1200),
          ("storm_blood_pill", "mystic", [("spark_pelt", 1), ("storm_shard", 2), ("soulbell_flower", 1)], 900),
-         ("sovereign_settling_pill", "sage", [("ember_cactus", 2), ("worm_glass_tooth", 1), ("frost_lotus", 1)], 1500)]
+         ("sovereign_settling_pill", "sage", [("ember_cactus", 2), ("worm_glass_tooth", 1), ("frost_lotus", 1)], 1500),
+         ("tide_cleansing_pill", "sovereign", [("star_lotus", 2), ("wyrm_ash", 1), ("jelly_silk", 1)], 1200)]
     for pid, grade, inputs, t in A:
         r(pid, "alchemy", inputs, [(pid, 1)], grade, time_s=t)
     # Cooking (Part 8) incl. pet foods and bonding offerings
@@ -441,7 +442,7 @@ def recipes():
                     "mind_lake_opening_pill": "water", "sage_condensing_pill": "metal", "storm_blood_pill": "wood",
                     "sovereign_settling_pill": "fire", "qi_flow_pill": "earth", "viper_smoke_pill": "wood", "viper_oil": "wood",
                     "ember_oil": "fire", "riverreed_draught": "water", "copper_body_bath": "earth", "marrow_washing_bath": "water",
-                    "calm_heart_incense": "wood", "jade_marrow_bath": "water", "golden_body_bath": "metal", "heavenly_flame_pill": "fire", "sunfire_pill": "fire", "stillwater_pill": "water", "cloudstep_pill": "wood"}
+                    "calm_heart_incense": "wood", "jade_marrow_bath": "water", "golden_body_bath": "metal", "heavenly_flame_pill": "fire", "sunfire_pill": "fire", "stillwater_pill": "water", "cloudstep_pill": "wood", "tide_cleansing_pill": "water"}
     # S44 ancient recipes: split into pages across dungeons and secret realms (the pages are placed in world.py).
     ANCIENT = {"method_conversion_pill": 3, "sovereign_settling_pill": 4}
     ROLES = ["principal", "minister", "assistant", "envoy"]
@@ -487,6 +488,8 @@ def sects():
         {"id": "deacon", "name": "Deacon", "requires": all_of(realm("heaven_glimpse_1"))},
         # S20: Elder at Sage or higher; the Elder's token comes at Sage Sovereign 1 (the token upgrade).
         {"id": "elder", "name": "Elder", "requires": all_of(realm("sage_sovereign_1"))},
+        # v1.2 (S20): Sect Master at Will Manifest 3, by the succession quest (the mentor names you; no trial promotes you).
+        {"id": "sect_master", "name": "Sect Master", "requires": all_of(realm("will_manifest_3"), {"kind": "flag_set", "flag": "succession_named"})},
     ]
     write("sect_ranks.json", {"order": [x["id"] for x in ranks], "ranks": ranks})
     sect_roles()
@@ -718,6 +721,15 @@ def pets():
         {"id": "riverstone_ox", "name": "Riverstone Ox", "art": "riverstone_ox", "element": "earth", "strength_role": "mount", "tame": True, "mount_only": True,
          "skills": ["Steady Hoof", "Ford the River", "Stone Back", "Long Road"], "favourite_foods": ["rice_ball", "bamboo_shoot"], "branches": ["Mountain Ox", "River Ox"],
          "mount": {"art": "riverstone_ox", "scale": 1.35, "lift": 0, "saddle": 50, "speed": 1.5}},
+        # v1.2 (Part 4, S46): star-tier spirit beasts of the Lantern Star Field, tamed from Will Manifest 2; and the
+        # Hatchling Wyrm, a Primordial line, from the last egg of the Wyrmnest Isles (it hatches at Sphere Lord 2).
+        {"id": "comet_sparrow", "name": "Comet Sparrow", "art": "comet_sparrow", "element": "fire", "strength_role": "combat", "tame": True,
+         "tier": "star", "tame_unlock": "star_beasts",
+         "skills": ["Comet Peck", "Tail Flare", "Streak Dive", "Falling Star"], "favourite_foods": ["roast_fish", "ember_pepper_stew"],
+         "branches": ["Meteor Sparrow", "Hearthlight Sparrow"]},
+        {"id": "hatchling_wyrm", "name": "Hatchling Wyrm", "art": "hatchling_wyrm", "element": "space", "strength_role": "combat", "tier": "primordial",
+         "primordial": True, "skills": ["Star Breath", "Coil Guard", "Blink Pounce", "Wyrm Roar"], "favourite_foods": ["jade_carp_congee", "cloudtop_orchid_broth"],
+         "branches": ["Star Wyrm", "Void Wyrm"]},
         {"id": "cloud_stag", "name": "Cloud Stag", "art": "cloud_stag", "element": "wind", "strength_role": "mount", "mount_only": True,
          "skills": ["Cloud Step", "Wind Leap", "Sky Call", "Heaven's Stride"], "favourite_foods": ["lotus_root_tea", "mist_trout"], "branches": ["Sky Stag", "Mist Stag"],
          "mount": {"art": "cloud_stag", "scale": 1.1, "lift": 0, "saddle": 60, "speed": 1.6}},
@@ -726,11 +738,11 @@ def pets():
     family = {"reed_otter": "river", "mossback_toad": "river", "ember_fox": "hound", "mist_wolf": "hound",
               "ironclaw_mole": "burrow", "bamboo_monkey": "burrow", "jade_crane": "wing",
               "green_viper": "river", "mud_hound": "hound", "mist_vulture": "wing", "cleansed_boarlet": "burrow", "pale_stag": "hound",
-              "riverstone_ox": "hoof", "cloud_stag": "hoof"}
+              "riverstone_ox": "hoof", "cloud_stag": "hoof", "comet_sparrow": "wing", "hatchling_wyrm": "wyrm"}
     # S43 rule 12: how each animal follows along the navigation graph (ground mounts jump at 530; none climb).
     jumps = {"reed_otter": 430, "ember_fox": 530, "jade_crane": 530, "mossback_toad": 600, "ironclaw_mole": 0, "bamboo_monkey": 600, "mist_wolf": 530,
              "green_viper": 0, "mud_hound": 530, "mist_vulture": 530, "cleansed_boarlet": 430, "pale_stag": 600,
-             "riverstone_ox": 530, "cloud_stag": 600}
+             "riverstone_ox": 530, "cloud_stag": 600, "comet_sparrow": 530, "hatchling_wyrm": 430}
     # S46 bloodline: at 50 purity an ancestral skill awakens (a heavy strike every 12 s in a fight; the free cast
     # of an Equal Contract); at 90 the animal changes form (+10% to every stat, a larger, tinted body).
     ancestry = {
@@ -748,6 +760,8 @@ def pets():
         "pale_stag": ("White Moon Antler", "Moon-Crowned Stag", "#f0f0ff"),
         "riverstone_ox": ("Riverbed Stampede", "Mountain-Bearing Ox", "#e0d8c0"),
         "cloud_stag": ("Sky-Treading Leap", "Heavenly Cloud Stag", "#e8f4ff"),
+        "comet_sparrow": ("Thousand Comet Rain", "Great Comet Roc", "#ffd0a0"),
+        "hatchling_wyrm": ("Starfall Breath", "Star-Crowned Wyrm", "#e8e0ff"),
     }
     for r in rows:
         if r.get("construct"):
@@ -928,6 +942,9 @@ def achievements():
         {"id": "ledger_returner", "name": "Bearer of Old Debts", "modifiers": [{"stat": "fortune", "op": "flat", "value": 3}]},
         {"id": "presence_bearer", "name": "Bearer of Presence", "modifiers": [{"stat": "will", "op": "pct_add", "value": 0.05}]},
         {"id": "starsea_voyager", "name": "Voyager of the Starsea", "modifiers": [{"stat": "attunement_bonus", "op": "flat", "value": 2}]},
+        # v1.2 · Act III.
+        {"id": "admiral_breaker", "name": "Breaker of the Blackmast", "modifiers": [{"stat": "pressure", "op": "flat", "value": 5}]},
+        {"id": "sect_master", "name": "Sect Master", "modifiers": [{"stat": "will", "op": "pct_add", "value": 0.01}]},
         {"id": "shore_warden", "name": "Shore Warden", "modifiers": [{"stat": "physical_defense", "op": "pct_add", "value": 0.01}]},
         {"id": "iron_fist", "name": "Iron Fist", "modifiers": [{"stat": "fist_attack", "op": "pct_add", "value": 0.01}]},
         {"id": "steady_hands", "name": "Steady Hands", "modifiers": [{"stat": "crafting_control", "op": "pct_add", "value": 0.01}]},

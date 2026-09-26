@@ -177,6 +177,29 @@
    ],
    "to": "dr_sparrow_reefs",
    "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "sealed",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "bm_blackmast_docks",
+   "to_portal": "west",
+   "requires": {
+    "any": [
+     {
+      "kind": "quest_active",
+      "quest": "the_pursers_ledger"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_pursers_ledger"
+     }
+    ]
+   },
+   "locked_text": "Beyond the bank the lanes run to Blackmast Haven. The Wardens send nobody there without a reason."
   }
  ],
  "objects": [

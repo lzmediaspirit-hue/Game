@@ -17,6 +17,7 @@ FAM, GROUP = 'items', 'pills'
 
 PORCELAIN = Ramp(['#5C6A6E', '#98AAAC', '#D6E0DC', '#F2F6F0', '#FFFFFF'], '#1C2426')
 SKYWARE = Ramp(['#2E4E68', '#5A84A4', '#98C0DA', '#D0E8F4', '#F6FCFF'], '#10202C')
+TIDE_WATER = Ramp(['#08323A', '#10545E', '#228C90', '#6CCEC6', '#CCF6EE'], '#031418')  # Act III · Lantern Star Field
 
 
 def _label(c, cx, cy, mark, ink):
@@ -149,6 +150,8 @@ PILLS = [
     # S46: a pet's medicine.
     ('beast_revival_pill', 'earth', 'heart', R['leaf'], R['earth'][1]),
     ('beast_marrow_washing_pill', 'earth', 'bone', R['pearl'], R['earth'][1]),
+    # Act III · Lantern Star Field
+    ('tide_cleansing_pill', 'mystic', 'knot', TIDE_WATER, TIDE_WATER[1]),
 ]
 
 for _id, _grade, _mark, _ramp, _ink in PILLS:

@@ -259,6 +259,7 @@
  "music": "lantern_harbor",
  "ambience": "wind_ambience",
  "town": true,
+ "lantern": true,
  "climbables": [
   {
    "id": "route_0_ladder_1",

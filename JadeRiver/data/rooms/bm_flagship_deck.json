@@ -1,0 +1,203 @@
+{
+ "schema_version": 1,
+ "id": "bm_flagship_deck",
+ "zone": "lantern_star_field",
+ "region": "blackmast_haven",
+ "name": "Flagship Deck",
+ "type": "boss_arena",
+ "level_range": [
+  90,
+  90
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "blackmast_haven",
+ "ground": {
+  "material": "wood",
+  "tint": "#b8a58a"
+ },
+ "spawn_point": [
+  220,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    260,
+    620,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    840,
+    620,
+    280,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "bm_gunners_battery",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "chest_1",
+   "type": "chest",
+   "at": [
+    2300,
+    900
+   ],
+   "loot": "chest_lantern",
+   "level": 90,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_admiral"
+     }
+    ]
+   },
+   "locked_text": "The Admiral's strongbox. Not while he stands on his deck."
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "admiral_voss",
+   "surface": "ground",
+   "points": [
+    [
+     1700,
+     840
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 86400,
+   "level": [
+    90,
+    90
+   ],
+   "boss": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "broken_mast",
+   "at": [
+    1300,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "pirate_banner",
+   "at": [
+    700,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "pirate_banner",
+   "at": [
+    2100,
+    662
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "pirate_cannon",
+   "at": [
+    2300,
+    720
+   ],
+   "layer": "play",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "boss",
+ "dungeon_exit": "bm_gunners_battery",
+ "attunement_required": 36,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    400,
+    725
+   ],
+   "top_at": [
+    400,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    980,
+    725
+   ],
+   "top_at": [
+    980,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  }
+ ]
+}

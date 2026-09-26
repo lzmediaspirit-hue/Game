@@ -1,0 +1,592 @@
+{
+ "schema_version": 1,
+ "id": "wn_eggshell_terraces",
+ "zone": "lantern_star_field",
+ "region": "wyrmnest_isles",
+ "name": "Eggshell Terraces",
+ "type": "field",
+ "level_range": [
+  88,
+  91
+ ],
+ "recommended_cp": 1604,
+ "element": "earth",
+ "qi_density": 1.9,
+ "hazards": [
+  "hollow_puddle"
+ ],
+ "gather_tier": "lantern_mid",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "wyrmnest_isles",
+ "ground": {
+  "material": "stone",
+  "tint": "#d8d0c0"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    260,
+    620,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    840,
+    620,
+    280,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    1280,
+    610,
+    240,
+    70
+   ],
+   "height": 300,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    1560,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1900,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "wn_nest_cliffs",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "wn_guardians_crown",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    290,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 89,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 100
+  },
+  {
+   "id": "crate_2",
+   "type": "crate",
+   "at": [
+    870,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 89,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    2456,
+    700
+   ],
+   "loot": "jar_lantern",
+   "level": 89,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_4",
+   "type": "crate",
+   "at": [
+    3298,
+    700
+   ],
+   "loot": "jar_lantern",
+   "level": 89,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    1310,
+    645
+   ],
+   "loot": "chest_valley",
+   "level": 91,
+   "alt": 300,
+   "surface": "cloud_mv"
+  },
+  {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    1400,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 91,
+   "alt": 300,
+   "surface": "cloud_mv"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "hollowed_wyrmling",
+   "surface": "ground",
+   "points": [
+    [
+     528,
+     898
+    ],
+    [
+     1140,
+     716
+    ],
+    [
+     1673,
+     857
+    ],
+    [
+     2200,
+     900
+    ],
+    [
+     2703,
+     753
+    ],
+    [
+     3293,
+     871
+    ]
+   ],
+   "max": 5,
+   "respawn_s": 14,
+   "level": [
+    88,
+    91
+   ]
+  },
+  {
+   "enemy": "nest_guardian",
+   "surface": "ground",
+   "points": [
+    [
+     1098,
+     794
+    ],
+    [
+     2735,
+     721
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 20,
+   "level": [
+    89,
+    90
+   ]
+  },
+  {
+   "enemy": "hollowed_wyrmling",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    91,
+    91
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [
+  {
+   "id": "rock_large_5",
+   "prop": "rock_large",
+   "position": [
+    1762,
+    640
+   ],
+   "front_y": 640,
+   "footprint": [
+    1710,
+    614,
+    105,
+    26
+   ],
+   "height": 80,
+   "standable": true,
+   "flip": true
+  }
+ ],
+ "decor": [
+  {
+   "prop": "star_crystal",
+   "at": [
+    163,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    697,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    1174,
+    631
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    2157,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2689,
+    632
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    3179,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    158,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    394,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    665,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    978,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1304,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1596,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1967,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2313,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2532,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2871,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3159,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3459,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "wyrm_nest",
+   "at": [
+    900,
+    650
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "wyrm_nest",
+   "at": [
+    2500,
+    650
+   ],
+   "layer": "back",
+   "flip": true
+  }
+ ],
+ "areas": [
+  {
+   "kind": "hollow_puddle",
+   "rect": [
+    610,
+    880,
+    180,
+    60
+   ]
+  },
+  {
+   "kind": "hollow_puddle",
+   "rect": [
+    1410,
+    880,
+    180,
+    60
+   ]
+  },
+  {
+   "kind": "hollow_puddle",
+   "rect": [
+    2210,
+    880,
+    180,
+    60
+   ]
+  }
+ ],
+ "music": "star_field",
+ "ambience": "wind_ambience",
+ "attunement_required": 44,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    400,
+    725
+   ],
+   "top_at": [
+    400,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    980,
+    725
+   ],
+   "top_at": [
+    980,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  },
+  {
+   "id": "route_0_vine_3",
+   "kind": "vine",
+   "at": [
+    1680,
+    741
+   ],
+   "top_at": [
+    1680,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_1_vine_4",
+   "kind": "vine",
+   "at": [
+    2020,
+    741
+   ],
+   "top_at": [
+    2020,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_1"
+  }
+ ]
+}

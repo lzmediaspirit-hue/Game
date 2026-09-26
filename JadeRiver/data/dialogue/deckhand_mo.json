@@ -1,0 +1,35 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "deckhand_mo": {
+   "id": "deckhand_mo",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "the_admiral"
+       }
+      ]
+     },
+     "node": "talk"
+    }
+   ],
+   "nodes": {
+    "talk": {
+     "lines": [
+      "I'm going to buy a lantern and sit under it for a year. Maybe two.",
+      "The Admiral's crew are scattering over every lane. Some of them will turn Warden. Some will turn worse."
+     ],
+     "choices": [
+      {
+       "text": "Thank you.",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

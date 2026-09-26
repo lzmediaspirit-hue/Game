@@ -262,6 +262,36 @@
    "body": "A Will held out into the world. Weaker foes in its reach slow and lose strength (the Pressure contest). Two Presences meet at a boundary, and the one that presses harder takes the ground between. It costs Soul while it is held, and grows with use."
   },
   {
+   "id": "blackmast_haven",
+   "title": "Blackmast Haven",
+   "body": "A pirate harbour in the dark between islands, where no lantern has burned for fifty years. Admiral Voss ruled the Field's lanes from its flagship and bought every secret sold."
+  },
+  {
+   "id": "admiral_voss",
+   "title": "Admiral Voss",
+   "body": "Master of the Blackmast. His Presence pressed on his crews like weather. He read every ledger he bought, and decided whose lantern went dark next."
+  },
+  {
+   "id": "hollow_tide",
+   "title": "The Hollow Tide",
+   "body": "The grey that seeps in where a lantern goes out. In the Lantern Star Field the Hollowing fills past half: then arts cost more and Composure drains. At full the body is lost for a breath and allies turn. Lantern Incense, the Tide Cleansing Pill and rest under a lit lantern draw it out."
+  },
+  {
+   "id": "star_beasts",
+   "title": "Star-Tier Beasts",
+   "body": "Beasts born under a lantern star: Comet Sparrows, Orbit Moths, Void Crabs. They answer only a Will Manifest of the second order or higher."
+  },
+  {
+   "id": "primordial_beasts",
+   "title": "Primordial Beasts",
+   "body": "Older than spirit beasts: the star-wyrms and their kin. A Primordial line grows past Sovereign. The last star-wyrm egg of the Wyrmnest hatches only for a Sphere Lord of the second order."
+  },
+  {
+   "id": "sect_master",
+   "title": "Sect Master",
+   "body": "The seat above the elders. A Will Manifest of the third order may be named to it; the Sect Master holds the sect's Presence and decides what its halls are for."
+  },
+  {
    "id": "presence_trial",
    "title": "The Presence Trial",
    "body": "Eight seats of the Nine Peaks press their Presence on one cultivator. Whoever stays themselves under it holds the key to Will Manifest."

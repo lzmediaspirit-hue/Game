@@ -95,6 +95,35 @@
    ],
    "to": "dr_sparrow_reefs",
    "to_portal": "west"
+  },
+  {
+   "id": "wyrm_skiff",
+   "type": "door",
+   "at": [
+    2250,
+    704
+   ],
+   "to": "wn_nest_cliffs",
+   "to_portal": "skiff",
+   "press_up": true,
+   "label": "Skiff to the Wyrmnest Isles",
+   "requires": {
+    "any": [
+     {
+      "kind": "quest_done",
+      "quest": "the_admiral"
+     },
+     {
+      "kind": "quest_active",
+      "quest": "star_tier_beasts"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "star_tier_beasts"
+     }
+    ]
+   },
+   "locked_text": "Old Bo: \"The nest islands? Not while the pirates hold the lanes. Deal with the Admiral first.\""
   }
  ],
  "objects": [
@@ -243,6 +272,15 @@
    "layer": "play"
   },
   {
+   "prop": "sky_ship",
+   "at": [
+    2200,
+    640
+   ],
+   "layer": "back",
+   "flip": true
+  },
+  {
    "prop": "lantern_string",
    "at": [
     490,
@@ -254,6 +292,7 @@
  "areas": [],
  "music": "star_field",
  "ambience": "wind_ambience",
+ "lantern": true,
  "climbables": [
   {
    "id": "deck_mv_0_ladder_1",

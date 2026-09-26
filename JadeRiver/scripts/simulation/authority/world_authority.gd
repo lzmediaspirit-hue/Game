@@ -813,13 +813,24 @@ func _on_actor_defeated(p: Dictionary) -> void:
 		drop.items.append({"item": str(it), "count": 1})
 	_drop_loot(c, drop, Vector2(float(p.x), float(p.y)), float(p.get("alt", 0.0)))
 
+const ATTUNEMENT_SHARDS := ["storm_shard", "star_shard"]
+
+## The shard a zone's attunement jades eat ("" in a zone with no attunement).
+static func zone_shard(room_id: String) -> String:
+	var att = ContentDB.zone_of_room(room_id).get("attunement")
+	return str(att.get("shard", "")) if att is Dictionary else ""
+
 func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float) -> void:
 	var rt: RoomRuntime = game.room_rt
 	var rng := Rng.stream(c.id, "loot")
 	var drops: Array = []
+	var here_shard := zone_shard(rt.room_id)
 	for it in drop.get("items", []):
 		if ContentDB.item(str(it.item)).is_empty() or int(it.count) <= 0: continue
-		drops.append({"item": str(it.item), "count": int(it.count)})
+		var iid := str(it.item)
+		# S18 v1.2: a foe that roams two zones (the Starsea pirates) leaves the attunement shards of the zone it dies in.
+		if here_shard != "" and iid != here_shard and iid in ATTUNEMENT_SHARDS: iid = here_shard
+		drops.append({"item": iid, "count": int(it.count)})
 	var allow_weapons: bool = Unlocks.is_unlocked(c.id, "weapons")
 	for eq in drop.get("equipment", []):
 		var inst := LootRules.make_equipment(Rng.stream(c.id, "affix"), int(eq.level), str(eq.min_quality), c.stats.value("fortune"), allow_weapons, c.inventory.next_uid)

@@ -38,6 +38,8 @@ GHOSTS = {"paper_talisman_ghost", "mirror_wisp", "weeping_lantern"}
 CONSTRUCTS = {"trial_puppet", "stone_guardian", "jade_sentinel", "river_sentinel", "gate_guardian"}
 DEMONIC = {"green_viper": "green_viper", "mud_hound": "mud_hound", "mist_vulture": "mist_vulture"}
 HOLLOWED = {"hollowed_boarlet": "cleansed_boarlet", "hollow_stag": "pale_stag"}
+# Hollowed beasts with no cleansed species to tame into (v1.2): Hollowed in nature, never tamed.
+HOLLOW_UNTAMED = {"hollowed_wyrmling"}
 
 
 def beast_ranks(M):
@@ -51,7 +53,7 @@ def beast_ranks(M):
         if m["race"] != "beast":
             continue
         m["beast_rank"] = min(9, (int(m["level"][0]) - 1) // 9 + 1)
-        m["nature"] = "demonic" if m["id"] in DEMONIC else ("hollowed" if m["id"] in HOLLOWED else "spirit")
+        m["nature"] = "demonic" if m["id"] in DEMONIC else ("hollowed" if m["id"] in HOLLOWED or m["id"] in HOLLOW_UNTAMED else "spirit")
         if m["id"] in DEMONIC or m["id"] in HOLLOWED:
             m["tameable"] = True
             m["tame_species"] = DEMONIC.get(m["id"]) or HOLLOWED[m["id"]]
@@ -134,6 +136,11 @@ HUMAN = {
                             "shirt_dye": "grey", "pants_dye": "ink", "cape": "tattered"},
     "pirate_captain": {"hair": "long_tied", "hair_color": 5, "shirt": "vneck", "pants": "cuffed", "shoes": "boots", "weapon": "sword", "hat": "headband",
                        "shirt_dye": "crimson", "pants_dye": "ink", "cape": "tattered"},
+    # v1.2 · Blackmast Haven: the Admiral's gunners (bombs from a bandolier) and the Admiral himself.
+    "pirate_gunner": {"hair": "ponytail", "hair_color": 3, "shirt": "vneck", "pants": "cuffed", "shoes": "boots", "weapon": "none", "hat": "headband",
+                      "shirt_dye": "ochre", "pants_dye": "ink"},
+    "admiral_voss": {"hair": "long_tied", "hair_color": 0, "shirt": "vneck", "pants": "martial", "shoes": "boots", "weapon": "sword", "hat": "guan",
+                     "shirt_dye": "indigo", "pants_dye": "ink", "cape": "solid"},
     "presence_phantom": {"hair": "topknot", "hair_color": 0, "shirt": "scholar", "pants": "scholar", "shoes": "folded", "weapon": "none", "hat": "guan",
                          "shirt_dye": "white", "pants_dye": "white", "tint": "#b4a6ee"},
     "ninth_presence": {"hair": "flowing", "hair_color": 1, "shirt": "scholar", "pants": "scholar", "shoes": "folded", "weapon": "staff", "hat": "guan",
@@ -145,7 +152,7 @@ NAMES = {"mudwater_lieutenant": "Lieutenant Kuai", "kuai_shan": "Kuai Shan", "ta
          "duel_lan_yue": "Lan Yue", "duel_tie_niu": "Tie Niu", "duel_qiu_feng": "Qiu Feng", "duel_bai_ling": "Bai Ling",
          "young_master": "Young Master Luo Heng", "jealous_senior": "Senior Brother Hao Qian", "cloud_first_disciple": "Yun Zhiqiu", "jade_first_disciple": "Bai Yuheng",
          "iron_crane_guo": "\"Iron Crane\" Guo Ming", "hua_guard_captain": "Captain Lou Chen", "rogue_cultivator": "Rogue Cultivator", "rogue_treasure_adept": "Rogue Mirror Adept", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
-         "ninth_presence": "The Ninth Presence", "ironpine_disciple": "Ironpine Disciple", "ironpine_warden": "Warden Dai Song",
+         "ninth_presence": "The Ninth Presence", "ironpine_disciple": "Ironpine Disciple", "pirate_gunner": "Pirate Gunner", "admiral_voss": "Admiral Voss", "ironpine_warden": "Warden Dai Song",
          "blackreed_disciple": "Blackreed Disciple", "blackreed_warden": "Warden Qu Heng", "scarlet_kiln_disciple": "Scarlet Kiln Disciple",
          "scarlet_kiln_warden": "Warden Rong Yan"}
 
@@ -350,7 +357,30 @@ def build():
             ai="flyer_ranged", speed=70, flying=True, width=28, height=40),
         mob("comet_sparrow", (82, 87), "normal", "fire", "lantern", [d("comet_plume", 0.45), d("star_shard", 0.4, (1, 2))],
             [atk("comet_dive", 0.5, 110, 1.3, dash=160, status={"id": "burn", "chance": 0.3, "power": 0.01, "duration_s": 3})],
-            ai="flyer", speed=160, flying=True, pack=True, width=22, height=22),
+            ai="flyer", speed=160, flying=True, pack=True, width=22, height=22, tameable=True),
+        # v1.2 · Phase B: Blackmast Haven and the Wyrmnest Isles.
+        mob("pirate_gunner", (85, 90), "normal", "fire", "lantern", [d("star_powder", 0.45), d("star_shard", 0.5, (1, 2)), d("comet_iron", 0.2)],
+            [atk("powder_bomb", 0.7, 300, 1.2, depth=40, projectile={"speed": 420, "art": "pebble"},
+                 status={"id": "burn", "chance": 0.3, "power": 0.01, "duration_s": 3}),
+             atk("bombard", 1.2, 380, 1.5, depth=70, knockback=120, projectile={"speed": 300, "art": "pebble"})],
+            ai="ranged", art=human("pirate_gunner"), race="human", energy="sage_qi", width=18, height=90, pack=True),
+        mob("nest_guardian", (85, 93), "normal", "earth", "lantern", [d("guardian_scale", 0.45), d("star_shard", 0.6, (1, 3))],
+            [atk("club_tail", 0.9, 150, 1.45, depth=60, knockback=130, both_sides=True),
+             atk("crystal_stomp", 0.8, 110, 1.3, depth=70, status={"id": "stun", "chance": 0.2, "power": 1.0, "duration_s": 0.8})],
+            ai="slow_melee", speed=70, width=60, height=64, presence=2),
+        mob("hollowed_wyrmling", (88, 96), "normal", "hollow_fire", "lantern", [d("wyrm_ash", 0.5), d("star_shard", 0.5, (1, 2)), d("hollow_shard", 0.3)],
+            [atk("grey_flame", 0.6, 110, 1.3, depth=50, damage_type="qi", status={"id": "burn", "chance": 0.3, "power": 0.012, "duration_s": 3}),
+             atk("wyrm_snap", 0.4, 60, 1.1, dash=90)],
+            ai="melee", speed=120, width=32, height=36, hollowing=6),
+        mob("admiral_voss", 90, "dungeon_boss", "metal", "lantern", [d("admirals_seal", 1.0), d("comet_iron", 1.0, (3, 5)), d("star_shard", 1.0, (12, 18)),
+                                                                  d("star_powder", 1.0, (2, 4)), d("will_tempering_pill", 1.0, (1, 2))],
+            [atk("starsteel_cutlass", 0.5, 120, 1.35, depth=50, knockback=90),
+             atk("broadside", 1.2, 420, 1.5, depth=90, damage_type="qi", projectile={"speed": 360, "art": "pebble"}),
+             atk("all_hands", 1.0, 0, 0.0, summon="starsea_pirate")],
+            ai="duelist", art=human("admiral_voss"), race="human", energy="sage_qi", width=20, height=96, name="Admiral Voss",
+            hp_mult=1.6, attack_mult=0.9, presence=4,
+            phases=[{"below": 0.6, "action": "summon", "summon": "pirate_gunner", "summon_level": 88},
+                    {"below": 0.3, "action": "enrage", "cooldown": 0.7, "damage": 1.3}]),
         mob("presence_phantom", 81, "normal", "none", None, [], [atk("weight_of_a_seat", 0.55, 90, 1.1, damage_type="qi")],
             ai="duelist", art=human("presence_phantom"), race="human", energy="sage_qi", width=18, height=90, name="Presence of a Seat"),
         mob("ninth_presence", 81, "normal", "none", None, [], [atk("ninth_seat_palm", 0.7, 120, 1.3, damage_type="qi", depth=50, knockback=100),

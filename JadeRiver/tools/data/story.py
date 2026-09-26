@@ -402,6 +402,23 @@ def npcs():
         ["These hulls sailed here before your grandfather's grandfather. Now they hold my beans."],
         ["Hm.", "Sit, if you like. The deck doesn't mind."], tree="hulk_keeper_bo")
 
+    # Act III · Phase B: Blackmast Haven and the Wyrmnest Isles.
+    npc("deckhand_mo", "Deckhand Mo", "Escaped from the Blackmast", outfit("short_knot", 3, "sleeveless", "cuffed", "boots", hat="headband",
+        shirt_dye="grey", pants_dye="ink"),
+        ["Three years I swabbed that flagship. The Admiral keeps a purser now: old, clever, scared of everything but money.",
+         "Spike the cannons and the gangway comes down. They only raise it when the battery can cover the deck."],
+        ["Keep your head down."], tree="deckhand_mo")
+    npc("gu_the_purser", "Elder Gu", "Purser of the Blackmast", outfit("long_tied", 1, "scholar", "scholar", "folded", hat="weimao",
+        shirt_dye="grey", pants_dye="ink"),
+        ["You. Of course it is you. The river sends the same fish after me every time.",
+         "The Admiral buys ledgers. I sell them. Nobody gets hurt who wasn't going to be hurt anyway."],
+        ["Not now."], tree="gu_the_purser")
+    npc("tamer_qiu", "Tamer Qiu", "Keeper of the Wyrmnest", outfit("ponytail", 2, "vneck", "martial", "boots", hat="straw",
+        shirt_dye="earth", pants_dye="ochre"),
+        ["The star-wyrms nested here before the Wardens came. Now there is one egg left, and the grey is in the brood.",
+         "A beast that was born under a lantern star listens only to a Will that can hold its own shape."],
+        ["Hush. They're sleeping."], tree="tamer_qiu")
+
     # Companions (S26)
     npc("lan_yue", "Lan Yue", "Healer", outfit("flowing", 4, "cardigan", "scholar", "slippers", weapon="staff", shirt_dye="indigo"),
         ["Stay close. I can't heal what I can't reach."], ["Careful!"], companion="lan_yue")
@@ -660,6 +677,8 @@ def unlocks():
       same_stage_ok=True)
     u("presence", "Presence", all_of(realm("will_manifest_1"), qdone("will_manifest")), "a_presence_of_ones_own", ["hud:presence"],
       same_stage_ok=True)
+    # Part 4: star-tier spirit beasts at Will Manifest 2 (the Wyrmnest tamer's quest).
+    u("star_beasts", "Star-tier spirit beasts", all_of(realm("will_manifest_2"), unlocked("taming")), "star_tier_beasts", [], same_stage_ok=True)
     entries("unlocks", U)
     return U
 
@@ -1690,6 +1709,86 @@ def act3_chapter17():
                   "When a foe has a Presence of its own, you will feel the two meet. Whoever presses harder wins the ground between."])
 
 
+def act3_chapters_18_19():
+    """Act III · chapter 18, Blackmast (WM1-2), and chapter 19, Wyrmnest (WM2-3; docs/act3_design.md)."""
+    quest("the_pursers_ledger", "The Purser's Ledger", "main", "warden_xiao", [
+        o("talk_to", "Ask the harbourmaster who is buying ledgers in the Field", npc="harbormaster_lin"),
+        o("reach_room", "Follow the lanes past the Driftglass Bank to Blackmast Haven", room="bm_blackmast_docks"),
+        o("kill", "Cut down the Admiral's pirates on the docks", 6, enemy="starsea_pirate"),
+        o("talk_to", "Find the deckhand who escaped the flagship", npc="deckhand_mo"),
+    ], [sage_crystals(20), fx("codex", entry="blackmast_haven")], hand_in="deckhand_mo", requires=all_of(qdone("a_presence_of_ones_own")),
+        chapter="18", target_room="bm_blackmast_docks",
+        offer=["The pirates of the Blackmast answer to an Admiral named Voss. He buys ledgers, secrets, names.",
+               "Lin says a new purser came aboard this year with a valley accent. Go and look. Take your Presence with you."],
+        complete=["The purser? Elder Gu, he calls himself. Came out on the Wreck Run with a skiff full of paper.",
+                  "The Admiral reads every page. Then he decides whose lantern goes dark next."],
+        next="gunners_battery")
+    quest("gunners_battery", "Gunners' Battery", "main", "deckhand_mo", [
+        o("interact_object", "Spike the battery's three cannons", 3, type="inspect", room="bm_gunners_battery"),
+        o("kill", "Silence the Admiral's gunners", 4, enemy="pirate_gunner"),
+        o("talk_to", "Find the purser where the smugglers hide (Spirit Sense)", npc="gu_the_purser"),
+        o("reach_realm", "Break through to Will Manifest 2", realm="will_manifest_2"),
+    ], [sage_crystals(30), item("tide_cleansing_pill", 2)], hand_in="deckhand_mo", requires=all_of(qdone("the_pursers_ledger")),
+        chapter="18", target_room="bm_gunners_battery",
+        offer=["Three cannons on the battery cover the flagship's gangway. Spike them and the gangway comes down.",
+               "And the purser hides in the cove under the battery when the guns fire. Your Spirit Sense will find the door."],
+        complete=["Silent. Good. The Admiral has lowered the gangway to see what happened. He'll be waiting on the deck.",
+                  "Voss has a Presence like a hull in a storm. Hold yours up or he'll flatten you with a look."],
+        next="the_admiral")
+    quest("the_admiral", "The Admiral", "main", "deckhand_mo", [
+        o("kill", "Defeat Admiral Voss on the Flagship Deck", enemy="admiral_voss"),
+        o("collect", "Take the Admiral's seal", item="admirals_seal", consume=True),
+    ], [sage_crystals(60), fx("grant_title", title="admiral_breaker"), fx("set_flag", flag="gu_fled"), fx("codex", entry="admiral_voss")],
+        hand_in="warden_xiao", requires=all_of(qdone("gunners_battery")), chapter="18", target_room="bm_flagship_deck",
+        offer=["The gangway is down. Go now, while his gunners are still counting their dead cannons."],
+        complete=["The Blackmast is broken. The lanes are open. And Gu?",
+                  "Gone into the Hollow Wake on a skiff with no lantern. The sailors say his hand had turned grey. Nobody comes back from the Wake the same."],
+        next="star_tier_beasts")
+    quest("star_tier_beasts", "Star-Tier Beasts", "main", "tamer_qiu", [
+        o("bond_pet", "Tame a star-tier beast (a Comet Sparrow on the Nest Cliffs)"),
+    ], [sage_crystals(25), item("bonding_offering_heaven", 2), fx("codex", entry="star_beasts")], offered_by_unlock=True, chapter="19",
+        target_room="wn_nest_cliffs",
+        offer=["Beasts born under a lantern star listen only to a Will that holds its own shape. Yours does now.",
+               "Weaken a Comet Sparrow and offer it something warm. It will choose you, or it won't."],
+        complete=["It chose you. They remember that, star-beasts. Longer than we do.",
+                  "Now come and see what the grey has done to my nests."],
+        next="a_hollowed_brood")
+    quest("a_hollowed_brood", "A Hollowed Brood", "main", "tamer_qiu", [
+        o("kill", "Put the Hollowed Wyrmlings on the Eggshell Terraces to rest", 6, enemy="hollowed_wyrmling"),
+        o("use_item", "Burn Lantern Incense to draw the grey out of you", item="lantern_incense"),
+    ], [sage_crystals(35), item("lantern_incense", 3), fx("codex", entry="hollow_tide")], requires=all_of(qdone("star_tier_beasts")),
+        chapter="19", target_room="wn_eggshell_terraces", on_accept=[item("lantern_incense", 3)],
+        offer=["The wyrmlings on the terraces were my brood. The grey came up through the puddles and took them.",
+               "Out here the Hollowing does not stop at half. Past half, your arts cost you more and your calm drains. At full, you are not yours for a breath.",
+               "Burn the chandler's incense when it climbs. Rest under a lantern. Do not let it fill."],
+        complete=["They are at rest. Thank you. That grey will come back, but not today.",
+                  "There is one egg the grey never reached. It is in the hatching cave, under the guardians' crown."],
+        next="the_last_egg")
+    quest("the_last_egg", "The Last Egg", "main", "tamer_qiu", [
+        o("reach_room", "Climb to the Hatching Cave under the Guardian's Crown", room="wn_hatching_cave"),
+        o("kill", "Get past the Brood Guardian", enemy="nest_guardian", room="wn_hatching_cave"),
+        o("collect", "Take the last star-wyrm egg", item="wyrm_egg", consume=False),
+        o("use_system", "Warm the egg (Spirit Animals page, Eggs)", system="egg_incubated"),
+    ], [sage_crystals(40), fx("codex", entry="primordial_beasts")], requires=all_of(qdone("a_hollowed_brood")), chapter="19",
+        target_room="wn_hatching_cave",
+        offer=["A star-wyrm is not a spirit beast. It is older: one of the Primordial lines. The last egg should not stay here with the grey.",
+               "Take it. Warm it. It will hatch when you are a Sphere Lord of the second order, and not a day before; that is how star-wyrms choose."],
+        complete=["It hums when you hold it. Good. It knows your Will already.",
+                  "One more thing, cultivator. Your old sect in the valley has been sending letters. They want you home, briefly."],
+        next="the_masters_seat")
+    quest("the_masters_seat", "The Master's Seat", "main", "elder_hu", [
+        o("reach_realm", "Break through to Will Manifest 3", realm="will_manifest_3"),
+        o("talk_to", "Return to your mentor in the valley", npc="elder_hu", npc_any=MENTORS),
+    ], [fx("set_flag", flag="succession_named"), {"kind": "sect_rank", "rank": "sect_master"}, fx("grant_title", title="sect_master"),
+        fx("codex", entry="sect_master"), spirit_stones(800)],
+        requires=all_of(qdone("the_last_egg"), {"kind": "has_training_sect", "value": True}), chapter="19", giver_any=MENTORS, hand_in_any=MENTORS,
+        target_room="ja_gate_street",
+        offer=["The old master has stepped down. The elders met for nine days and agreed on one thing: they could not agree.",
+               "So they agreed on you. A Will Manifest of the third order can hold a sect's Presence as well as their own. Come home when you are ready."],
+        complete=["Kneel. No, not to me. To the sect. There.",
+                  "Sect Master. It is a heavier seat than any you have sat on. The elders run the halls; you decide what they are for."])
+
+
 def act2_starsea_side_quests():
     """Phase E side stories and guided quests: the Yard's two crafts, paired cultivation, deserters, comet iron, three rare Daos."""
     quest("a_chart_of_ones_own", "A Chart of One's Own", "guided", "navigator_sun", [
@@ -2067,9 +2166,15 @@ def dialogue():
                           "A cultivator who reads is harder to fool, and much harder to Hollow. Remember that."]),
         ("hulk_keeper_bo", ["That hull? A Nine Peaks junk, three hundred years dead. Her captain chose to stay. Most of them do.",
                             "Plant something, if you like. Things grow strange under the lanterns, but they grow."]),
+        ("deckhand_mo", ["I'm going to buy a lantern and sit under it for a year. Maybe two.",
+                         "The Admiral's crew are scattering over every lane. Some of them will turn Warden. Some will turn worse."]),
+        ("gu_the_purser", ["...", "Go away. I am counting."]),
+        ("tamer_qiu", ["The sparrows have started nesting again. Small things. It helps.",
+                       "Keep that egg warm. It is the last of a very old family."]),
     ]:
         # A tree entry outranks quest offers, so each speaks only after its last quest of the act so far.
-        done_q = {"warden_xiao": "a_presence_of_ones_own"}.get(tid, "crystal_and_jade")
+        done_q = {"warden_xiao": "the_admiral", "deckhand_mo": "the_admiral", "gu_the_purser": "the_admiral",
+                  "tamer_qiu": "the_last_egg"}.get(tid, "crystal_and_jade")
         tree(tid, [{"requires": all_of(qdone(done_q)), "node": "talk"}],
              {"talk": {"lines": lines, "choices": [{"text": "Thank you.", "close": True}]}})
     for tid, t in trees.items():
@@ -2163,6 +2268,12 @@ def codex():
         {"id": "starsea_endurance", "title": "Starsea Endurance", "body": "The Starsea salts the blood of anyone the stars do not know. Four jades, fed with star shards, answer it. Each island of the Field asks for more."},
         {"id": "will_manifest", "title": "Will Manifest", "body": "The realm where Will takes a shape outside the body. Only a land as wide as the Lantern Star Field can hold it; its first gift is a Presence."},
         {"id": "presence", "title": "Presence", "body": "A Will held out into the world. Weaker foes in its reach slow and lose strength (the Pressure contest). Two Presences meet at a boundary, and the one that presses harder takes the ground between. It costs Soul while it is held, and grows with use."},
+        {"id": "blackmast_haven", "title": "Blackmast Haven", "body": "A pirate harbour in the dark between islands, where no lantern has burned for fifty years. Admiral Voss ruled the Field's lanes from its flagship and bought every secret sold."},
+        {"id": "admiral_voss", "title": "Admiral Voss", "body": "Master of the Blackmast. His Presence pressed on his crews like weather. He read every ledger he bought, and decided whose lantern went dark next."},
+        {"id": "hollow_tide", "title": "The Hollow Tide", "body": "The grey that seeps in where a lantern goes out. In the Lantern Star Field the Hollowing fills past half: then arts cost more and Composure drains. At full the body is lost for a breath and allies turn. Lantern Incense, the Tide Cleansing Pill and rest under a lit lantern draw it out."},
+        {"id": "star_beasts", "title": "Star-Tier Beasts", "body": "Beasts born under a lantern star: Comet Sparrows, Orbit Moths, Void Crabs. They answer only a Will Manifest of the second order or higher."},
+        {"id": "primordial_beasts", "title": "Primordial Beasts", "body": "Older than spirit beasts: the star-wyrms and their kin. A Primordial line grows past Sovereign. The last star-wyrm egg of the Wyrmnest hatches only for a Sphere Lord of the second order."},
+        {"id": "sect_master", "title": "Sect Master", "body": "The seat above the elders. A Will Manifest of the third order may be named to it; the Sect Master holds the sect's Presence and decides what its halls are for."},
         {"id": "presence_trial", "title": "The Presence Trial", "body": "Eight seats of the Nine Peaks press their Presence on one cultivator. Whoever stays themselves under it holds the key to Will Manifest."},
         {"id": "lantern_star_field", "title": "The Lantern Star Field", "body": "Past the Starsea Launch: a field of lanterns hanging in the dark. No one hangs them. They are simply there, waiting for the next age of your road."},
         # Gap report G1: what pills cost, the heart, the ledger, fire and furnace.
@@ -2310,6 +2421,7 @@ def build():
     act2_side_quests()
     act2_starsea_side_quests()
     act3_chapter17()
+    act3_chapters_18_19()
     for q in Q[n1:]:
         q.setdefault("qp", "act2_side")
     entries("quests", Q)

@@ -1,0 +1,35 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "gu_the_purser": {
+   "id": "gu_the_purser",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "the_admiral"
+       }
+      ]
+     },
+     "node": "talk"
+    }
+   ],
+   "nodes": {
+    "talk": {
+     "lines": [
+      "...",
+      "Go away. I am counting."
+     ],
+     "choices": [
+      {
+       "text": "Thank you.",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

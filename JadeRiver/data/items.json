@@ -1806,6 +1806,80 @@
    "desc": "A tail feather of a Comet Sparrow, still warm, trailing sparks when it is waved."
   },
   {
+   "id": "star_powder",
+   "name": "Star Powder",
+   "type": "material",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "star_powder",
+   "desc": "Pirate gunpowder cut with star-dust. It burns blue and bangs gold."
+  },
+  {
+   "id": "guardian_scale",
+   "name": "Guardian Scale",
+   "type": "beast_part",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "guardian_scale",
+   "desc": "A bronze plate from a Nest Guardian's shell, set with a crystal that still glows."
+  },
+  {
+   "id": "wyrm_ash",
+   "name": "Wyrm Ash",
+   "type": "beast_part",
+   "grade": "will",
+   "ilv": 95,
+   "stack": 99,
+   "icon": "wyrm_ash",
+   "desc": "Grey ash from a Hollowed Wyrmling. It is cold, and it is not quite dead. Cleansing pills are made from it."
+  },
+  {
+   "id": "admirals_seal",
+   "name": "Admirals Seal",
+   "type": "key",
+   "grade": "will",
+   "ilv": 95,
+   "stack": 1,
+   "icon": "admirals_seal",
+   "desc": "Admiral Voss's seal of command: a bronze star on a chain. Every pirate lane in the Field answered to it.",
+   "sell": false,
+   "quest_item": true
+  },
+  {
+   "id": "wyrm_egg",
+   "name": "Wyrm Egg",
+   "type": "egg",
+   "grade": "will",
+   "ilv": 95,
+   "stack": 1,
+   "icon": "wyrm_egg",
+   "desc": "The last star-wyrm egg of the Wyrmnest Isles: pearl-white, warm, humming. It will not hatch for anyone below Sphere Lord 2, however long it is warmed.",
+   "use": [],
+   "use_action": "incubate",
+   "egg_species": "hatchling_wyrm",
+   "egg_rarity": "primordial",
+   "hatch_realm": "sphere_lord_2",
+   "sell": false
+  },
+  {
+   "id": "lantern_incense",
+   "name": "Lantern Incense",
+   "type": "other",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 20,
+   "icon": "lantern_incense",
+   "desc": "Lantern-wick incense from the Star Chandlery. Burned, it draws 15 points of Hollowing out of you.",
+   "use": [
+    {
+     "kind": "cleanse_hollowing",
+     "amount": 15
+    }
+   ]
+  },
+  {
    "id": "storm_shard",
    "name": "Storm Shard",
    "type": "material",
@@ -5509,6 +5583,29 @@
     }
    ],
    "soul_effect": "iron_skin"
+  },
+  {
+   "id": "tide_cleansing_pill",
+   "name": "Tide Cleansing Pill",
+   "type": "pill",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "tide_cleansing_pill",
+   "desc": "Draws 40 points of Hollowing out of you at once.",
+   "pill": {
+    "mark": "knot",
+    "toxicity": 12,
+    "cause": "soul",
+    "group": "restoration"
+   },
+   "use": [
+    {
+     "kind": "cleanse_hollowing",
+     "amount": 40
+    }
+   ],
+   "soul_effect": "mend_meridians"
   },
   {
    "id": "storm_blood_pill",

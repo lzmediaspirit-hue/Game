@@ -9542,6 +9542,456 @@
    "chapter": "17",
    "target_room": "dr_sparrow_reefs",
    "qp": "act2_side"
+  },
+  {
+   "id": "the_pursers_ledger",
+   "name": "The Purser's Ledger",
+   "kind": "main",
+   "giver": "warden_xiao",
+   "hand_in": "deckhand_mo",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "talk_to",
+     "text": "Ask the harbourmaster who is buying ledgers in the Field",
+     "count": 1,
+     "npc": "harbormaster_lin"
+    },
+    {
+     "kind": "reach_room",
+     "text": "Follow the lanes past the Driftglass Bank to Blackmast Haven",
+     "count": 1,
+     "room": "bm_blackmast_docks"
+    },
+    {
+     "kind": "kill",
+     "text": "Cut down the Admiral's pirates on the docks",
+     "count": 6,
+     "enemy": "starsea_pirate"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Find the deckhand who escaped the flagship",
+     "count": 1,
+     "npc": "deckhand_mo"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 20
+    },
+    {
+     "kind": "codex",
+     "entry": "blackmast_haven"
+    }
+   ],
+   "offer_text": [
+    "The pirates of the Blackmast answer to an Admiral named Voss. He buys ledgers, secrets, names.",
+    "Lin says a new purser came aboard this year with a valley accent. Go and look. Take your Presence with you."
+   ],
+   "complete_text": [
+    "The purser? Elder Gu, he calls himself. Came out on the Wreck Run with a skiff full of paper.",
+    "The Admiral reads every page. Then he decides whose lantern goes dark next."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_presence_of_ones_own"
+     }
+    ]
+   },
+   "chapter": "18",
+   "target_room": "bm_blackmast_docks",
+   "next": "gunners_battery",
+   "qp": "act2_side"
+  },
+  {
+   "id": "gunners_battery",
+   "name": "Gunners' Battery",
+   "kind": "main",
+   "giver": "deckhand_mo",
+   "hand_in": "deckhand_mo",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "interact_object",
+     "text": "Spike the battery's three cannons",
+     "count": 3,
+     "type": "inspect",
+     "room": "bm_gunners_battery"
+    },
+    {
+     "kind": "kill",
+     "text": "Silence the Admiral's gunners",
+     "count": 4,
+     "enemy": "pirate_gunner"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Find the purser where the smugglers hide (Spirit Sense)",
+     "count": 1,
+     "npc": "gu_the_purser"
+    },
+    {
+     "kind": "reach_realm",
+     "text": "Break through to Will Manifest 2",
+     "count": 1,
+     "realm": "will_manifest_2"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 30
+    },
+    {
+     "kind": "grant_item",
+     "item": "tide_cleansing_pill",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "Three cannons on the battery cover the flagship's gangway. Spike them and the gangway comes down.",
+    "And the purser hides in the cove under the battery when the guns fire. Your Spirit Sense will find the door."
+   ],
+   "complete_text": [
+    "Silent. Good. The Admiral has lowered the gangway to see what happened. He'll be waiting on the deck.",
+    "Voss has a Presence like a hull in a storm. Hold yours up or he'll flatten you with a look."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_pursers_ledger"
+     }
+    ]
+   },
+   "chapter": "18",
+   "target_room": "bm_gunners_battery",
+   "next": "the_admiral",
+   "qp": "act2_side"
+  },
+  {
+   "id": "the_admiral",
+   "name": "The Admiral",
+   "kind": "main",
+   "giver": "deckhand_mo",
+   "hand_in": "warden_xiao",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Defeat Admiral Voss on the Flagship Deck",
+     "count": 1,
+     "enemy": "admiral_voss"
+    },
+    {
+     "kind": "collect",
+     "text": "Take the Admiral's seal",
+     "count": 1,
+     "item": "admirals_seal",
+     "consume": true
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 60
+    },
+    {
+     "kind": "grant_title",
+     "title": "admiral_breaker"
+    },
+    {
+     "kind": "set_flag",
+     "flag": "gu_fled"
+    },
+    {
+     "kind": "codex",
+     "entry": "admiral_voss"
+    }
+   ],
+   "offer_text": [
+    "The gangway is down. Go now, while his gunners are still counting their dead cannons."
+   ],
+   "complete_text": [
+    "The Blackmast is broken. The lanes are open. And Gu?",
+    "Gone into the Hollow Wake on a skiff with no lantern. The sailors say his hand had turned grey. Nobody comes back from the Wake the same."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "gunners_battery"
+     }
+    ]
+   },
+   "chapter": "18",
+   "target_room": "bm_flagship_deck",
+   "next": "star_tier_beasts",
+   "qp": "act2_side"
+  },
+  {
+   "id": "star_tier_beasts",
+   "name": "Star-Tier Beasts",
+   "kind": "main",
+   "giver": "tamer_qiu",
+   "hand_in": "tamer_qiu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "bond_pet",
+     "text": "Tame a star-tier beast (a Comet Sparrow on the Nest Cliffs)",
+     "count": 1
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 25
+    },
+    {
+     "kind": "grant_item",
+     "item": "bonding_offering_heaven",
+     "count": 2
+    },
+    {
+     "kind": "codex",
+     "entry": "star_beasts"
+    }
+   ],
+   "offer_text": [
+    "Beasts born under a lantern star listen only to a Will that holds its own shape. Yours does now.",
+    "Weaken a Comet Sparrow and offer it something warm. It will choose you, or it won't."
+   ],
+   "complete_text": [
+    "It chose you. They remember that, star-beasts. Longer than we do.",
+    "Now come and see what the grey has done to my nests."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "19",
+   "target_room": "wn_nest_cliffs",
+   "next": "a_hollowed_brood",
+   "qp": "act2_side"
+  },
+  {
+   "id": "a_hollowed_brood",
+   "name": "A Hollowed Brood",
+   "kind": "main",
+   "giver": "tamer_qiu",
+   "hand_in": "tamer_qiu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Put the Hollowed Wyrmlings on the Eggshell Terraces to rest",
+     "count": 6,
+     "enemy": "hollowed_wyrmling"
+    },
+    {
+     "kind": "use_item",
+     "text": "Burn Lantern Incense to draw the grey out of you",
+     "count": 1,
+     "item": "lantern_incense"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 35
+    },
+    {
+     "kind": "grant_item",
+     "item": "lantern_incense",
+     "count": 3
+    },
+    {
+     "kind": "codex",
+     "entry": "hollow_tide"
+    }
+   ],
+   "offer_text": [
+    "The wyrmlings on the terraces were my brood. The grey came up through the puddles and took them.",
+    "Out here the Hollowing does not stop at half. Past half, your arts cost you more and your calm drains. At full, you are not yours for a breath.",
+    "Burn the chandler's incense when it climbs. Rest under a lantern. Do not let it fill."
+   ],
+   "complete_text": [
+    "They are at rest. Thank you. That grey will come back, but not today.",
+    "There is one egg the grey never reached. It is in the hatching cave, under the guardians' crown."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "star_tier_beasts"
+     }
+    ]
+   },
+   "chapter": "19",
+   "target_room": "wn_eggshell_terraces",
+   "on_accept": [
+    {
+     "kind": "grant_item",
+     "item": "lantern_incense",
+     "count": 3
+    }
+   ],
+   "next": "the_last_egg",
+   "qp": "act2_side"
+  },
+  {
+   "id": "the_last_egg",
+   "name": "The Last Egg",
+   "kind": "main",
+   "giver": "tamer_qiu",
+   "hand_in": "tamer_qiu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Climb to the Hatching Cave under the Guardian's Crown",
+     "count": 1,
+     "room": "wn_hatching_cave"
+    },
+    {
+     "kind": "kill",
+     "text": "Get past the Brood Guardian",
+     "count": 1,
+     "enemy": "nest_guardian",
+     "room": "wn_hatching_cave"
+    },
+    {
+     "kind": "collect",
+     "text": "Take the last star-wyrm egg",
+     "count": 1,
+     "item": "wyrm_egg",
+     "consume": false
+    },
+    {
+     "kind": "use_system",
+     "text": "Warm the egg (Spirit Animals page, Eggs)",
+     "count": 1,
+     "system": "egg_incubated"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 40
+    },
+    {
+     "kind": "codex",
+     "entry": "primordial_beasts"
+    }
+   ],
+   "offer_text": [
+    "A star-wyrm is not a spirit beast. It is older: one of the Primordial lines. The last egg should not stay here with the grey.",
+    "Take it. Warm it. It will hatch when you are a Sphere Lord of the second order, and not a day before; that is how star-wyrms choose."
+   ],
+   "complete_text": [
+    "It hums when you hold it. Good. It knows your Will already.",
+    "One more thing, cultivator. Your old sect in the valley has been sending letters. They want you home, briefly."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "a_hollowed_brood"
+     }
+    ]
+   },
+   "chapter": "19",
+   "target_room": "wn_hatching_cave",
+   "next": "the_masters_seat",
+   "qp": "act2_side"
+  },
+  {
+   "id": "the_masters_seat",
+   "name": "The Master's Seat",
+   "kind": "main",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_realm",
+     "text": "Break through to Will Manifest 3",
+     "count": 1,
+     "realm": "will_manifest_3"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Return to your mentor in the valley",
+     "count": 1,
+     "npc": "elder_hu",
+     "npc_any": [
+      "elder_hu",
+      "elder_sung"
+     ]
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "set_flag",
+     "flag": "succession_named"
+    },
+    {
+     "kind": "sect_rank",
+     "rank": "sect_master"
+    },
+    {
+     "kind": "grant_title",
+     "title": "sect_master"
+    },
+    {
+     "kind": "codex",
+     "entry": "sect_master"
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "spirit_stone",
+     "amount": 800
+    }
+   ],
+   "offer_text": [
+    "The old master has stepped down. The elders met for nine days and agreed on one thing: they could not agree.",
+    "So they agreed on you. A Will Manifest of the third order can hold a sect's Presence as well as their own. Come home when you are ready."
+   ],
+   "complete_text": [
+    "Kneel. No, not to me. To the sect. There.",
+    "Sect Master. It is a heavier seat than any you have sat on. The elders run the halls; you decide what they are for."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_last_egg"
+     },
+     {
+      "kind": "has_training_sect",
+      "value": true
+     }
+    ]
+   },
+   "chapter": "19",
+   "giver_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "hand_in_any": [
+    "elder_hu",
+    "elder_sung"
+   ],
+   "target_room": "ja_gate_street",
+   "qp": "act2_side"
   }
  ]
 }

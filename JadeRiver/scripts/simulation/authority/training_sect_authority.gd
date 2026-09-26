@@ -6,6 +6,15 @@ extends Authority
 func intents() -> Array:
 	return ["take_promotion_trial", "leave_sect", "set_sect_role", "buy_sect_node"]
 
+func subscribe() -> void:
+	GameEvents.subscribe("daily_reset", _on_daily_reset, 62)
+
+## v1.2 (S20): a Sect Master draws the seat's stipend of contribution each day (and pays a fifth less in the Mission Hall).
+func _on_daily_reset(_p: Dictionary) -> void:
+	for c in game.characters.values():
+		if str(c.training_sect.get("rank", "")) == "sect_master":
+			apply_contribution(c.id, int(ContentDB.stat_const("sect_master.stipend", 300)), "sect_master")
+
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
 	if c == null: return fail("no_character")

@@ -992,3 +992,83 @@ def comet_plume():
 
 register(FAM, 'jelly_silk', jelly_silk, GROUP)
 register(FAM, 'comet_plume', comet_plume, GROUP)
+
+
+STAR_DUST = Ramp(['#16204A', '#243A7A', '#3C62B4', '#78A2E4', '#D4E6FF'], '#080C22')
+DARK_BRONZE = Ramp(['#1E140C', '#3A2616', '#5E3E22', '#8A6034', '#B88A50'], '#0C0804')
+WYRM_ASH = Ramp(['#2A2634', '#46404E', '#6A6272', '#968EA0', '#C4BECC'], '#110F16')
+
+
+def star_powder():
+    """A small cloth pouch of star powder: blue dust glittering with gold, a waxed fuse cord out of its neck."""
+    c = Canvas(32)
+    pouch(c, R['red'], STAR_DUST, glints=[(22, 26), (26, 27), (13, 8)])
+    c.pxs([(20, 27), (24, 26), (27, 28), (12, 9), (15, 8)], R['gold'][3])
+    fuse = S.bez_line(c, (15, 6), (16, 1.5), (21, 3), 1.2)
+    c.put(fuse & ~c.a, R['hemp'], 'flat', base=3)
+    c.outline()
+    S.sparkle(c, 22, 3, '#FFFFFF', R['gold'][3], 1)
+    S.sparkle(c, 5, 26, '#FFFFFF', STAR_DUST[3], 1)
+    return c
+
+
+def _scute(c, s):
+    """Shield-shaped scute: a rounded top narrowing to a point at the bottom (s scales it about its centre)."""
+    cx, cy = 15.5, 14.5
+    body = c.ellipse(cx, cy - s, 11 * s, 10 * s)
+    point = c.poly([(cx - 10.2 * s, cy + 2 * s), (cx + 10.2 * s, cy + 2 * s), (cx, cy + 14 * s)])
+    return body | point
+
+
+def guardian_scale():
+    """A Star Guardian's shell plate: curved dark bronze, a pale crystal set glowing at its heart."""
+    c = Canvas(32)
+    plate = _scute(c, 1.0)
+    # the plate curves away from us: its thick underside shows past the lower-right edge
+    under = (move(plate, 1, 1) | move(plate, 2, 2)) & ~plate
+    c.put(under, DARK_BRONZE, 'flat', base=0)
+    c.put(plate, DARK_BRONZE, 'sphere', base=2, sep=True, sep_col=DARK_BRONZE[0], cx=14, cy=12, rx=15, ry=16)
+    # growth ridges following the plate's edge, lit on the upper-left side
+    for s in (0.74, 0.5):
+        ring = S.outline_only(_scute(c, s)) & erode4(plate)
+        c.put(ring, DARK_BRONZE[1], 'flat', out=DARK_BRONZE.out)
+        c.put(ring & (c.X + c.Y < 30), DARK_BRONZE[4], 'flat', out=DARK_BRONZE.out)
+    c.put(c.bres(6, 11, 9, 7) & erode4(plate), R['lanternbronze'][4], 'flat', out=DARK_BRONZE.out)
+    # the crystal in its bezel
+    bez = S.diamond(c, 16, 15.5, 4.6, 5.8)
+    c.put(bez, R['lanternbronze'], 'ray', base=3, sep=True)
+    gem = S.diamond(c, 16, 15.5, 3.0, 4.2)
+    c.put(gem, R['starlight'], 'flat', base=3, sep=True, sep_col=DARK_BRONZE[0])
+    c.put(gem & (c.X + c.Y < 31), R['starlight'], 'flat', base=4)
+    c.put(gem & (c.X - c.Y > 1) & (c.X + c.Y > 32), R['starlight'], 'flat', base=2)
+    c.put(c.rect(15, 13, 15, 13), '#FFFFFF', 'flat')
+    c.outline()
+    c.glow(STAR_GLOW, (60,))
+    return c
+
+
+def wyrm_ash():
+    """A little heap of star-wyrm ash, gone cold and grey-violet, faint violet embers still in it."""
+    c = Canvas(32)
+    heap = c.poly([(3, 27.5), (6.5, 23.5), (10.5, 18.5), (13.5, 14.5), (16, 13), (18.5, 14.5), (22, 18.5),
+                   (26, 23), (29, 27.5)]) | c.ellipse(16, 26, 13, 2.8)
+    heap &= c.Y < 28.5
+    c.put(heap, WYRM_ASH, 'sphere', base=2, cx=14, cy=19, rx=15, ry=12)
+    # a slump down one side of the pile
+    c.put(c.bres_path([(19, 16), (21, 21), (25, 24)]) & erode4(heap), WYRM_ASH[1], 'flat', out=WYRM_ASH.out)
+    # powdery texture: dark and light flecks
+    for (x, y) in ((10, 22), (14, 25), (19, 24), (23, 22), (8, 25), (17, 20), (21, 26), (12, 19)):
+        c.put(c.rect(x, y, x, y) & erode4(heap), WYRM_ASH[1], 'flat', out=WYRM_ASH.out)
+    for (x, y) in ((12, 16), (15, 14), (9, 21), (18, 17), (6, 24)):
+        c.put(c.rect(x, y, x, y) & erode4(heap), WYRM_ASH[4], 'flat', out=WYRM_ASH.out)
+    embers = c.pts([(16, 21), (13, 23), (21, 23), (18, 26), (11, 26)])
+    c.put(embers & heap, R['violet'], 'flat', base=4)
+    c.put(dilate4(c.pts([(16, 21), (21, 23)])) & heap & ~embers, R['violet'], 'flat', base=2)
+    c.outline()
+    c.glow('#9B78D1', (40,))
+    return c
+
+
+register(FAM, 'star_powder', star_powder, GROUP)
+register(FAM, 'guardian_scale', guardian_scale, GROUP)
+register(FAM, 'wyrm_ash', wyrm_ash, GROUP)

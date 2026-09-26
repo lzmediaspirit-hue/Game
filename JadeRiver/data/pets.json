@@ -571,6 +571,85 @@
    }
   },
   {
+   "id": "comet_sparrow",
+   "name": "Comet Sparrow",
+   "art": "comet_sparrow",
+   "element": "fire",
+   "strength_role": "combat",
+   "tame": true,
+   "tier": "star",
+   "tame_unlock": "star_beasts",
+   "skills": [
+    "Comet Peck",
+    "Tail Flare",
+    "Streak Dive",
+    "Falling Star"
+   ],
+   "favourite_foods": [
+    "roast_fish",
+    "ember_pepper_stew"
+   ],
+   "branches": [
+    "Meteor Sparrow",
+    "Hearthlight Sparrow"
+   ],
+   "bloodline_skill": {
+    "name": "Thousand Comet Rain",
+    "mult": 2.5
+   },
+   "form_change": {
+    "name": "Great Comet Roc",
+    "scale": 1.15,
+    "tint": "#ffd0a0"
+   },
+   "family": "wing",
+   "movement": {
+    "jump": 530,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "hatchling_wyrm",
+   "name": "Hatchling Wyrm",
+   "art": "hatchling_wyrm",
+   "element": "space",
+   "strength_role": "combat",
+   "tier": "primordial",
+   "primordial": true,
+   "skills": [
+    "Star Breath",
+    "Coil Guard",
+    "Blink Pounce",
+    "Wyrm Roar"
+   ],
+   "favourite_foods": [
+    "jade_carp_congee",
+    "cloudtop_orchid_broth"
+   ],
+   "branches": [
+    "Star Wyrm",
+    "Void Wyrm"
+   ],
+   "bloodline_skill": {
+    "name": "Starfall Breath",
+    "mult": 2.5
+   },
+   "form_change": {
+    "name": "Star-Crowned Wyrm",
+    "scale": 1.15,
+    "tint": "#e8e0ff"
+   },
+   "family": "wyrm",
+   "movement": {
+    "jump": 430,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
    "id": "cloud_stag",
    "name": "Cloud Stag",
    "art": "cloud_stag",

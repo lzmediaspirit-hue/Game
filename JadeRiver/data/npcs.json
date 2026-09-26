@@ -3301,6 +3301,87 @@
    "tree": "hulk_keeper_bo"
   },
   {
+   "id": "deckhand_mo",
+   "name": "Deckhand Mo",
+   "title": "Escaped from the Blackmast",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 3,
+    "shirt": "sleeveless",
+    "pants": "cuffed",
+    "shoes": "boots",
+    "hat": "headband",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "grey",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "Three years I swabbed that flagship. The Admiral keeps a purser now: old, clever, scared of everything but money.",
+    "Spike the cannons and the gangway comes down. They only raise it when the battery can cover the deck."
+   ],
+   "barks": [
+    "Keep your head down."
+   ],
+   "services": [],
+   "tree": "deckhand_mo"
+  },
+  {
+   "id": "gu_the_purser",
+   "name": "Elder Gu",
+   "title": "Purser of the Blackmast",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "weimao",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "grey",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "You. Of course it is you. The river sends the same fish after me every time.",
+    "The Admiral buys ledgers. I sell them. Nobody gets hurt who wasn't going to be hurt anyway."
+   ],
+   "barks": [
+    "Not now."
+   ],
+   "services": [],
+   "tree": "gu_the_purser"
+  },
+  {
+   "id": "tamer_qiu",
+   "name": "Tamer Qiu",
+   "title": "Keeper of the Wyrmnest",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 2,
+    "shirt": "vneck",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "straw",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "earth",
+    "pants_dye": "ochre"
+   },
+   "lines": [
+    "The star-wyrms nested here before the Wardens came. Now there is one egg left, and the grey is in the brood.",
+    "A beast that was born under a lantern star listens only to a Will that can hold its own shape."
+   ],
+   "barks": [
+    "Hush. They're sleeping."
+   ],
+   "services": [],
+   "tree": "tamer_qiu"
+  },
+  {
    "id": "lan_yue",
    "name": "Lan Yue",
    "title": "Healer",

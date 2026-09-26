@@ -429,6 +429,7 @@
  "music": "lantern_harbor",
  "ambience": "town_ambience",
  "town": true,
+ "lantern": true,
  "climbables": [
   {
    "id": "star_chandlery_ladder_1",

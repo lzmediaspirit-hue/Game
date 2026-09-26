@@ -1,0 +1,35 @@
+{
+ "schema_version": 1,
+ "trees": {
+  "tamer_qiu": {
+   "id": "tamer_qiu",
+   "entries": [
+    {
+     "requires": {
+      "all": [
+       {
+        "kind": "quest_done",
+        "quest": "the_last_egg"
+       }
+      ]
+     },
+     "node": "talk"
+    }
+   ],
+   "nodes": {
+    "talk": {
+     "lines": [
+      "The sparrows have started nesting again. Small things. It helps.",
+      "Keep that egg warm. It is the last of a very old family."
+     ],
+     "choices": [
+      {
+       "text": "Thank you.",
+       "close": true
+      }
+     ]
+    }
+   }
+  }
+ }
+}

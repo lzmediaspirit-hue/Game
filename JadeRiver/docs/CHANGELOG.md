@@ -4,6 +4,42 @@
 
 Built in phases (docs/act3_design.md): zone tier 3, levels 82-99, ceiling Sphere Lord 3, Starsea Endurance 20 -> 90.
 
+### Phase B · Blackmast, Wyrmnest and the Hollow Tide (chapters 18-19)
+- **The Hollow Tide (S28):** the Hollowing is held under half in the valley and the Expanse. In the Lantern Star Field it
+  fills.
+  - At 50% the burden begins: techniques cost 25% more and Composure drains instead of recovering.
+  - At 100% the Tide takes the body for 3 s (no moving, striking or casting). The allies beside you turn on you for
+    10 s. The meter falls back to 80%, and surviving it awakens Hollow-Touched.
+  - Cleansing: Lantern Incense (-15, the apothecary), the Tide Cleansing Pill (-40; Star Lotus, wyrm ash, jelly silk),
+    and resting under a lit lantern (the harbour and the hulks), which draws it out four times as fast.
+- **Rooms** (8):
+  - Blackmast Haven: Docks (Endurance 30), Gunners' Battery (33, three cannons to spike, gun decks, a hidden door to
+    the Smugglers' Cove), the Flagship Deck (36, Admiral Voss).
+  - The Wyrmnest Isles, by Old Bo's skiff from the Moored Hulks: Nest Cliffs (40, Tamer Qiu), Eggshell Terraces (44,
+    Hollow puddles), Guardian's Crown (48) and the Hatching Cave.
+- **Monsters:**
+  - Pirate Gunner (85-90): powder bombs and a slow bombard.
+  - Nest Guardian (85-93): club tail and crystal stomp, with a small Presence.
+  - Hollowed Wyrmling (88-96): grey flame that adds Hollowing.
+  - Admiral Voss (90): Presence 4, the first clash. He calls gunners at 60% and rages at 30%.
+  - The Starsea pirates now leave the shards of the zone they die in.
+- **Star-tier beasts (Will Manifest 2):** the Comet Sparrow can be tamed once Tamer Qiu has shown you how.
+- **The Hatchling Wyrm:** the first Primordial line, from the last star-wyrm egg. It warms like any egg but hatches
+  only for a Sphere Lord 2, and grows past Sovereign.
+- **Sect Master (Will Manifest 3):** the succession quest. Your valley mentor names you Sect Master, a rank above
+  Elder: 300 contribution a day and a fifth off in your sect's Mission Hall, plus the Sect Master title.
+- **Chapter 18, Blackmast:** The Purser's Ledger, Gunners' Battery, The Admiral. Gu flees into the Hollow Wake with a
+  grey hand.
+- **Chapter 19, Wyrmnest:** Star-Tier Beasts, A Hollowed Brood, The Last Egg, The Master's Seat. Three new NPCs, six
+  codex entries, two titles (Breaker of the Blackmast, Sect Master).
+- Metal, Star and Space beast cores (and a parent-element fallback), so every beast of the Field drops a core.
+- Icons for the phase's items: star powder, the guardian scale, wyrm ash, the Admiral's seal, the wyrm egg, Lantern
+  Incense and the Tide Cleansing Pill.
+- Tests:
+  - `rules_tests` `hollow_tide_suite`: the valley cap, the burden, the seizure (allies turned, back to 80,
+    Hollow-Touched), cleansing and the lantern.
+  - `valley_run` `ls2` and `ls3` play chapters 18 and 19, from the docks to the Master's Seat.
+
 ### Phase A · Lanternfall and the Presence (chapter 17)
 - **The Lantern Run** is charted and open. From the Starsea Launch a vessel crosses the open Starsea (90 s, faster
   in a storm sloop) past Comet Sparrows and Star Jellyfish to **Lanternfall Harbor**, and sails home from its pier.

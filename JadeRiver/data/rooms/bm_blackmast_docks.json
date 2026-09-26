@@ -1,0 +1,678 @@
+{
+ "schema_version": 1,
+ "id": "bm_blackmast_docks",
+ "zone": "lantern_star_field",
+ "region": "blackmast_haven",
+ "name": "Blackmast Docks",
+ "type": "field",
+ "level_range": [
+  85,
+  87
+ ],
+ "recommended_cp": 1550,
+ "element": "metal",
+ "qi_density": 1.8,
+ "hazards": [],
+ "gather_tier": "lantern_mid",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "blackmast_haven",
+ "ground": {
+  "material": "wood",
+  "tint": "#b8a58a"
+ },
+ "spawn_point": [
+  420,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    813,
+    620,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    1393,
+    620,
+    280,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    2132,
+    610,
+    240,
+    70
+   ],
+   "height": 300,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1720,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    2420,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "dr_driftglass_bank",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "bm_gunners_battery",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    843,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 86,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 100
+  },
+  {
+   "id": "jar_2",
+   "type": "jar",
+   "at": [
+    1423,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 86,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    2470,
+    930
+   ],
+   "loot": "jar_lantern",
+   "level": 86,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    3298,
+    700
+   ],
+   "loot": "jar_lantern",
+   "level": 86,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "shrine_bm_docks",
+   "type": "shrine",
+   "at": [
+    700,
+    700
+   ]
+  },
+  {
+   "id": "npc_deckhand_mo",
+   "type": "npc",
+   "at": [
+    1000,
+    800
+   ],
+   "npc": "deckhand_mo",
+   "facing": 1,
+   "visible_if": {
+    "any": [
+     {
+      "kind": "quest_active",
+      "quest": "the_pursers_ledger"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_pursers_ledger"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sign_bm",
+   "type": "signpost",
+   "at": [
+    560,
+    860
+   ],
+   "text": "Blackmast Haven. East: the Gunners' Battery, and past it the Admiral's flagship."
+  },
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    2162,
+    645
+   ],
+   "loot": "chest_valley",
+   "level": 87,
+   "alt": 300,
+   "surface": "cloud_mv"
+  },
+  {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    2252,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 87,
+   "alt": 300,
+   "surface": "cloud_mv"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "starsea_pirate",
+   "surface": "ground",
+   "points": [
+    [
+     1143,
+     812
+    ],
+    [
+     1237,
+     736
+    ],
+    [
+     1883,
+     714
+    ],
+    [
+     2620,
+     864
+    ],
+    [
+     3266,
+     780
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 12,
+   "level": [
+    85,
+    87
+   ]
+  },
+  {
+   "enemy": "pirate_gunner",
+   "surface": "ground",
+   "points": [
+    [
+     1243,
+     798
+    ],
+    [
+     1952,
+     892
+    ],
+    [
+     3004,
+     769
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 14,
+   "level": [
+    85,
+    86
+   ]
+  },
+  {
+   "enemy": "starsea_pirate",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    87,
+    87
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "barrel",
+   "at": [
+    194,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "crate",
+   "at": [
+    631,
+    634
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "sack_pile",
+   "at": [
+    1186,
+    629
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    1709,
+    629
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "crate",
+   "at": [
+    2237,
+    631
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "sack_pile",
+   "at": [
+    2772,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    3248,
+    632
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    151,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    419,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    757,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    1080,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    1409,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    1745,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    2116,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    2475,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    2825,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    3134,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    3478,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    3837,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "moored_hulk",
+   "at": [
+    1600,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "pirate_banner",
+   "at": [
+    400,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "pirate_banner",
+   "at": [
+    1300,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "pirate_banner",
+   "at": [
+    2900,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "powder_keg",
+   "at": [
+    2100,
+    730
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "pirate_cannon",
+   "at": [
+    2500,
+    720
+   ],
+   "layer": "play",
+   "flip": true
+  }
+ ],
+ "areas": [],
+ "music": "star_field",
+ "ambience": "wind_ambience",
+ "attunement_required": 30,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    953,
+    725
+   ],
+   "top_at": [
+    953,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    1533,
+    725
+   ],
+   "top_at": [
+    1533,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  },
+  {
+   "id": "route_0_vine_3",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_1_vine_4",
+   "kind": "vine",
+   "at": [
+    1840,
+    741
+   ],
+   "top_at": [
+    1840,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_1"
+  },
+  {
+   "id": "route_2_vine_6",
+   "kind": "vine",
+   "at": [
+    2540,
+    741
+   ],
+   "top_at": [
+    2540,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_2"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "route_1_step_5",
+   "rect": [
+    1730,
+    718,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  },
+  {
+   "id": "route_2_step_7",
+   "rect": [
+    2590,
+    718,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  }
+ ]
+}

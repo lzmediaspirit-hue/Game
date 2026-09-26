@@ -210,6 +210,7 @@
   "y_max": 560
  },
  "music": "lantern_harbor",
+ "lantern": true,
  "climbables": [
   {
    "id": "loft_mv_ladder_1",

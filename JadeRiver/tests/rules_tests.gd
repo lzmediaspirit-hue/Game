@@ -56,6 +56,7 @@ func _main() -> void:
 	rooftop_routes_suite()
 	ice_mount_suite()
 	field_suite()
+	hollow_tide_suite()
 	body_path_suite()
 	heaven_suite()
 	arts_suite()
@@ -5094,6 +5095,71 @@ func field_suite() -> void:
 	c.cultivator.realm_key = realm0
 	Game.combat.refresh_stats(c.id)
 	c.pools.soul = c.pools.max_soul
+	Game.world.apply_teleport(c.id, back)
+
+## S28 v1.2 · the Hollow Tide: capped under half in the valley, free in the Lantern Star Field; at 50% techniques cost more
+## and Composure drains; at 100% the body is lost for a moment, allies turn, and the meter falls back to 80.
+func hollow_tide_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var back := str(c.position.get("room", "lf_village"))
+	var events: Array = []
+	var grab := func(n, p): if str(n) == "hollow_seizure": events.append(p)
+	GameEvents.event.connect(grab)
+	var ward: float = c.stats.value("hollow_ward")
+	var per := 1.0 - clampf(ward, 0.0, 0.8)   # the Hollow Ward keeps part of every gain out
+	Game.world.apply_teleport(c.id, "bg_whispering_bamboo")
+	c.pools.hollowing = 0.0
+	Game.combat.apply_resource_change(c.id, "hollowing", 200.0, "test")
+	check(near(c.pools.hollowing, 49.0), "in the valley the Hollowing stops at 49%% (%.0f)" % c.pools.hollowing)
+	Game.world.apply_teleport(c.id, "dr_jellyfish_shallows")
+	check(near(Game.combat.hollow_cap(), 100.0), "the Lantern Star Field lets it fill")
+	c.pools.hollowing = 0.0
+	Game.combat.apply_resource_change(c.id, "hollowing", 60.0 / per, "test")
+	check(near(c.pools.hollowing, 60.0, 0.5) and CombatAuthority.hollow_burdened(c), "over half (%.0f%%) the burden begins" % c.pools.hollowing)
+	var tdef := {}
+	for t in c.cultivator.techniques_known:
+		tdef = ContentDB.entry("techniques", str(t))
+		if float(tdef.get("qi_cost", 0)) > 0: break
+	var heavy: float = Game.combat.technique_cost(c, tdef)
+	c.pools.hollowing = 10.0
+	var light: float = Game.combat.technique_cost(c, tdef)
+	check(tdef.is_empty() or near(heavy, light * 1.25, 0.01), "techniques cost 25%% more under the burden (%.1f / %.1f)" % [heavy, light])
+	c.pools.hollowing = 60.0
+	var comp_ok := Unlocks.is_unlocked(c.id, "composure")
+	c.pools.composure = 50.0
+	Game.combat._tick_pools(c, 1.0)
+	check(not comp_ok or c.pools.composure < 50.0, "and Composure drains instead of recovering (%.1f)" % c.pools.composure)
+	# At full: the seizure.
+	var st: ActorState = Game.actor_state(c.id)
+	Game.room_rt.enemies.clear()
+	var ally: EnemyState = Game.enemies.spawn_at("star_jellyfish", st.plane + Vector2(80, 0), 82, {"team": "ally"})
+	events.clear()
+	Game.combat.apply_resource_change(c.id, "hollowing", 200.0, "test")
+	GameEvents.flush()
+	check(c.pools.has_status("hollow_seizure") and c.pools.blocked("move") and c.pools.blocked("attack") and c.pools.blocked("technique"),
+		"at 100% the Tide takes the body: no moving, striking or casting")
+	check(ally != null and ally.team == "enemy" and events.size() == 1 and int(events[0].get("turned", 0)) == 1, "the ally beside you turns on you")
+	check(near(c.pools.hollowing, 80.0), "and the meter falls back to 80%% (%.0f)" % c.pools.hollowing)
+	check("hollow_touched" in c.cultivator.physiques, "surviving it awakens Hollow-Touched")
+	for i in 22: Game.combat.tick(0.5)
+	check(ally.team == "ally" and not c.pools.has_status("hollow_seizure"), "ten seconds on, the ally is itself again and the body is yours")
+	# Cleansing.
+	var h0: float = c.pools.hollowing
+	Game.apply_effects(c.id, [{"kind": "cleanse_hollowing", "amount": 40}], "test")
+	check(near(c.pools.hollowing, h0 - 40.0, 0.5), "a cleansing draws 40 out (%.0f -> %.0f)" % [h0, c.pools.hollowing])
+	# A lit lantern: the harbour draws it out four times as fast.
+	Game.world.apply_teleport(c.id, "lh_harbor_market")
+	c.pools.hollowing = 40.0
+	c.cultivator.meditating = false
+	Game.combat._tick_pools(c, 60.0)
+	check(near(c.pools.hollowing, 36.0, 0.2), "under a lit lantern a minute takes 4 points, not 1 (%.1f)" % c.pools.hollowing)
+	GameEvents.event.disconnect(grab)
+	Game.room_rt.enemies.clear()
+	c.pools.statuses.clear()
+	c.pools.hollowing = 0.0
+	c.cultivator.physiques.erase("hollow_touched")
+	Game.combat.refresh_stats(c.id)
 	Game.world.apply_teleport(c.id, back)
 
 func ice_mount_suite() -> void:

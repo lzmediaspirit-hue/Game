@@ -116,6 +116,17 @@
    "icon": "exhausted"
   },
   {
+   "id": "hollow_seizure",
+   "resist": "none",
+   "cc": true,
+   "blocks": [
+    "move",
+    "attack",
+    "technique"
+   ],
+   "icon": "hollowing"
+  },
+  {
    "id": "spawn_protection",
    "resist": "none",
    "invulnerable": true,

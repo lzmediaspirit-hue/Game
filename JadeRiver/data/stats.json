@@ -477,7 +477,18 @@
  "hollowing": {
   "valley_cap": 49,
   "decay_per_min": 1,
-  "meditate_mult": 3
+  "meditate_mult": 3,
+  "zone_caps": {
+   "lantern_star_field": 100
+  },
+  "burden_at": 50,
+  "cost_mult": 1.25,
+  "composure_drain_per_s": 2.0,
+  "seizure_at": 100,
+  "seizure_s": 3.0,
+  "turn_s": 10.0,
+  "after_seizure": 80,
+  "lantern_mult": 4
  },
  "pill_life": {
   "resistance_step": 0.25,
@@ -568,6 +579,9 @@
    1530,
    1900
   ]
+ },
+ "sect_master": {
+  "stipend": 300
  },
  "killing_intent": {
   "window_s": 10.0,

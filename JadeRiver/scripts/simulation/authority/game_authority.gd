@@ -180,6 +180,7 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"heal": combat.apply_heal(actor_id, float(e.get("pct", 0)), float(e.get("amount", 0)), float(e.get("over_s", 0)), source)
 			"restore_resource": combat.apply_resource_change(actor_id, str(e.pool), float(e.get("amount", 0)), source, float(e.get("pct", 0)))
 			"add_composure": combat.apply_resource_change(actor_id, "composure", float(e.amount), source)
+			"cleanse_hollowing": combat.apply_resource_change(actor_id, "hollowing", -float(e.amount), source)   # S28 v1.2
 			"add_modifier": combat.apply_buff(actor_id, e, source)
 			"apply_status": combat.apply_status(actor_id, str(e.status), float(e.get("duration", 1)), float(e.get("power", 0)), float(e.get("delay", 0)))
 			"cure_status": combat.cure_status(actor_id, str(e.status))

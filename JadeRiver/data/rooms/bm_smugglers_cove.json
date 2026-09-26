@@ -1,0 +1,290 @@
+{
+ "schema_version": 1,
+ "id": "bm_smugglers_cove",
+ "zone": "lantern_star_field",
+ "region": "blackmast_haven",
+ "name": "Smugglers' Cove",
+ "type": "secret",
+ "level_range": [
+  88,
+  90
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.9,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "blackmast_haven",
+ "ground": {
+  "material": "wood",
+  "tint": "#a89878"
+ },
+ "spawn_point": [
+  260,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    940,
+    620,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    1860,
+    620,
+    280,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "bm_gunners_battery",
+   "to_portal": "cove",
+   "press_up": true,
+   "label": "Gunners' Battery"
+  }
+ ],
+ "objects": [
+  {
+   "id": "chest_1",
+   "type": "chest",
+   "at": [
+    1890,
+    655
+   ],
+   "loot": "chest_lantern",
+   "level": 89,
+   "alt": 200
+  },
+  {
+   "id": "npc_gu_the_purser",
+   "type": "npc",
+   "at": [
+    1700,
+    780
+   ],
+   "npc": "gu_the_purser",
+   "facing": -1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "gunners_battery"
+     }
+    ]
+   }
+  },
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    2000,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 90,
+   "alt": 200,
+   "surface": "ledge_mv_1"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "starsea_pirate",
+   "surface": "ground",
+   "points": [
+    [
+     718,
+     910
+    ],
+    [
+     1812,
+     827
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 60,
+   "level": [
+    88,
+    90
+   ]
+  }
+ ],
+ "scenery": [
+  {
+   "id": "crate_2",
+   "prop": "crate",
+   "position": [
+    700,
+    720
+   ],
+   "front_y": 720,
+   "footprint": [
+    683,
+    694,
+    35,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  },
+  {
+   "id": "sack_pile_3",
+   "prop": "sack_pile",
+   "position": [
+    780,
+    730
+   ],
+   "front_y": 730,
+   "footprint": [
+    748,
+    704,
+    64,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  },
+  {
+   "id": "crate_4",
+   "prop": "crate",
+   "position": [
+    1500,
+    720
+   ],
+   "front_y": 720,
+   "footprint": [
+    1483,
+    694,
+    35,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  },
+  {
+   "id": "sack_pile_5",
+   "prop": "sack_pile",
+   "position": [
+    1580,
+    730
+   ],
+   "front_y": 730,
+   "footprint": [
+    1548,
+    704,
+    64,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  }
+ ],
+ "decor": [
+  {
+   "prop": "powder_keg",
+   "at": [
+    1100,
+    730
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "dungeon",
+ "attunement_required": 34,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    1080,
+    725
+   ],
+   "top_at": [
+    1080,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    2000,
+    725
+   ],
+   "top_at": [
+    2000,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "ledge_mv_1_step_3",
+   "rect": [
+    2070,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  }
+ ]
+}

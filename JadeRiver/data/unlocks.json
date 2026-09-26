@@ -2618,6 +2618,27 @@
    "scope": "character",
    "quest": "a_presence_of_ones_own",
    "same_stage_ok": true
+  },
+  {
+   "id": "star_beasts",
+   "label": "Star-tier spirit beasts",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_2"
+     },
+     {
+      "kind": "unlock",
+      "system": "taming"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "star_tier_beasts",
+   "same_stage_ok": true
   }
  ]
 }

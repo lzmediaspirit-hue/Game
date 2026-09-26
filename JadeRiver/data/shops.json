@@ -1018,6 +1018,10 @@
    "id": "jade_sect",
    "name": "Jade Sect Mission Hall",
    "currency": "contribution",
+   "discount": {
+    "flag": "succession_named",
+    "pct": 0.2
+   },
    "requires": {
     "all": [
      {
@@ -1581,6 +1585,10 @@
    "id": "cloud_sect",
    "name": "Cloud Sect Mission Hall",
    "currency": "contribution",
+   "discount": {
+    "flag": "succession_named",
+    "pct": 0.2
+   },
    "requires": {
     "all": [
      {
@@ -2809,6 +2817,15 @@
     },
     {
      "item": "calm_incense"
+    },
+    {
+     "item": "lantern_incense",
+     "price": 4
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "tide_cleansing_pill",
+     "price": 40
     }
    ]
   },

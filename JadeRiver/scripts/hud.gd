@@ -834,6 +834,10 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.treasure_birth") % [ContentDB.item_name(str(p.item)), ContentDB.name_of("rooms", str(p.room))], UiKit.PALE_GOLD)
 		"treasure_claimed":
 			toast(Tx.t("hud.treasure_claimed") % ContentDB.item_name(str(p.item)), "gold")
+		# S28 v1.2 the Hollow Tide at full: control lost for a moment, allies turned.
+		"hollow_seizure":
+			if str(p.get("actor", "")) == Game.active_id:
+				toast(Tx.t("hud.hollow_seizure"), "quest", Tx.t("hud.hollow_seizure_turned") % int(p.get("turned", 0)) if int(p.get("turned", 0)) > 0 else Tx.t("hud.hollow_seizure_sub"))
 		# S28 v1.2 Presence: held or let go, a new level, and two Presences meeting.
 		"presence_toggled":
 			if str(p.get("actor", "")) == Game.active_id:

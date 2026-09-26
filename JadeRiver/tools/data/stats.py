@@ -130,7 +130,11 @@ def build():
         "death": {"progress_loss": 0.10, "wake_hp": 0.5, "talisman_hp": 0.3, "talisman_invuln_s": 5, "talisman_cooldown_s": 300},
         "toxicity": {"tolerance_base": 30, "drain_per_min": 1, "meditate_drain_mult": 2, "repeat_window_s": 300,
                      "repeat_factor": 0.5},
-        "hollowing": {"valley_cap": 49, "decay_per_min": 1, "meditate_mult": 3},
+        # S28 Hollow Tide: held under half in the valley and the Expanse; the Lantern Star Field lets it fill. At half the
+        # burden starts (techniques cost more, Composure drains); at full the seizure (control lost, allies turn, back to 80).
+        "hollowing": {"valley_cap": 49, "decay_per_min": 1, "meditate_mult": 3, "zone_caps": {"lantern_star_field": 100},
+                      "burden_at": 50, "cost_mult": 1.25, "composure_drain_per_s": 2.0,
+                      "seizure_at": 100, "seizure_s": 3.0, "turn_s": 10.0, "after_seizure": 80, "lantern_mult": 4},
         # Gap report G1 · what pills cost over a life. An accumulation pill works at 1 / (1 + 0.25 x doses of its
         # family); every major breakthrough forgets one dose. A support pill stops helping a breakthrough after
         # two failed attempts at it. Above 30% of a great realm's QP from pills the foundation is hollow; 5% of
@@ -163,6 +167,7 @@ def build():
                      "role_will": {"normal": 1.0, "elite": 1.15, "boss": 1.3},
                      "xp_per_s": 1.0, "clash_xp_mult": 2.0, "kill_xp": 3.0,
                      "xp_levels": [0, 60, 150, 280, 450, 660, 910, 1200, 1530, 1900]},
+        "sect_master": {"stipend": 300},   # v1.2 S20: contribution a day for the seat
         "killing_intent": {"window_s": 10.0, "max": 10, "crit_per_stack": 0.01, "hesitate_s": 0.5, "radius": 520},
         # S48 the Poison Body (v1.1): past half your toxicity tolerance, a known poison art turns each hit's toxicity
         # into poison on the foe (one point a hit, at most once per foe per half second).
@@ -318,7 +323,7 @@ def build():
         "overcomes": {"wood": "earth", "earth": "water", "water": "fire", "fire": "metal", "metal": "wood"},
         "parent": {"ice": "water", "tide": "water", "thunder": "wood", "wind": "wood", "lava": "fire", "crystal": "earth",
                    "sand": "earth", "star": "metal", "blade": "metal", "hollow_water": "water", "hollow_earth": "earth",
-                   "hollow_wood": "wood"},
+                   "hollow_wood": "wood", "hollow_fire": "fire"},
         "neutral": ["space", "time", "soul", "life_death", "hollow", "none"],
         "cycle_advantage": 1.3, "cycle_disadvantage": 0.75, "yin_yang": 1.3, "fed_bonus": 0.1, "method_affinity_bonus": 0.1,
         "colors": {"water": "#32bed1", "wood": "#67d67a", "fire": "#f08a3c", "earth": "#c9a060", "metal": "#d8dde0",
@@ -342,6 +347,8 @@ def build():
         {"id": "vulnerable", "resist": "tenacity", "damage_taken": 0.2, "icon": "vulnerable"},
         {"id": "qi_backlash", "resist": "none", "cc": True, "blocks": ["move", "attack"], "icon": "stun"},
         {"id": "exhausted", "resist": "none", "attack_mult": -0.2, "icon": "exhausted"},
+        # S28 v1.2: at 100% Hollowing the Tide takes the body for a moment.
+        {"id": "hollow_seizure", "resist": "none", "cc": True, "blocks": ["move", "attack", "technique"], "icon": "hollowing"},
         {"id": "spawn_protection", "resist": "none", "invulnerable": True, "icon": "spawn_protection"},
         # S47 Veil Talisman: monsters that have not found you pass you by.
         {"id": "veiled", "resist": "none", "icon": "confusion"},

@@ -67,7 +67,8 @@ DEPTH = {
                  "guild_exam_failed", "guild_rank_changed", "commission_completed", "pill_tribulation_result", "pill_soul_flight",
                  "herb_harvested", "seed_found", "herb_planted", "bed_watered", "bed_enriched", "herb_aged", "spring_bottled", "transplant_result",
                  "rack_started", "rack_collected", "garden_raided", "herb_appraised", "weapon_awakened"],
-    "Combat": ["treasure_used", "sword_released", "sword_returned", "sword_intent_changed", "artifact_detonated", "talisman_used", "combo_landed", "killing_intent_changed",
+    "Combat": ["hollow_seizure",   # S28 v1.2: the Hollow Tide at 100% (Combat owns the Hollowing pool)
+               "treasure_used", "sword_released", "sword_returned", "sword_intent_changed", "artifact_detonated", "talisman_used", "combo_landed", "killing_intent_changed",
                "beast_subdued", "melody_changed", "melody_pulse", "illusion_cast", "illusion_broken",
                "array_deployed", "array_faded", "artifact_skill_used"],
     "Inventory": ["loadout_swapped", "natal_grew", "natal_broken", "item_blooded",

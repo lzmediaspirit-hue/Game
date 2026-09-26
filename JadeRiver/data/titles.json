@@ -189,6 +189,28 @@
    ]
   },
   {
+   "id": "admiral_breaker",
+   "name": "Breaker of the Blackmast",
+   "modifiers": [
+    {
+     "stat": "pressure",
+     "op": "flat",
+     "value": 5
+    }
+   ]
+  },
+  {
+   "id": "sect_master",
+   "name": "Sect Master",
+   "modifiers": [
+    {
+     "stat": "will",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
    "id": "shore_warden",
    "name": "Shore Warden",
    "modifiers": [

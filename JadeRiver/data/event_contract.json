@@ -401,6 +401,12 @@
     "combat_authority"
    ]
   },
+  "hollow_seizure": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
   "treasure_used": {
    "system": "Combat",
    "files": [

@@ -27,7 +27,7 @@ const RANK_CAPS := {
 const STATIONS := {"cooking": ["cooking_pot"], "alchemy": ["alchemy_furnace", "earth_vent"], "smithing": ["forge_anvil"],
 	"star_charting": ["chart_table"], "shipwright": ["shipyard_slip"]}
 const GRADE_CAP := [["qi_kindling_1", "common"], ["qi_unfurling_1", "earth"], ["cloud_stride_1", "heaven"], ["heaven_glimpse_1", "mystic"], ["sage_1", "spirit"],
-	["sage_sovereign_1", "sage"]]
+	["sage_sovereign_1", "sage"], ["will_manifest_1", "sovereign"], ["sphere_lord_1", "will"]]
 
 func intents() -> Array:
 	return ["complete_node", "catch_fish", "cook", "craft_step", "refine", "start_refine", "refine_input", "cancel_refine", "queue_auto_refine",

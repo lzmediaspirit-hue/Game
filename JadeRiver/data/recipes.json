@@ -545,6 +545,38 @@
    "fragments": 4
   },
   {
+   "id": "tide_cleansing_pill",
+   "craft": "alchemy",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "star_lotus",
+     "count": 2
+    },
+    {
+     "item": "wyrm_ash",
+     "count": 1
+    },
+    {
+     "item": "jelly_silk",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "tide_cleansing_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 1200,
+   "element": "water",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
+  },
+  {
    "id": "herbal_tea",
    "craft": "cooking",
    "grade": "plain",

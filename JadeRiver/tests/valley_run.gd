@@ -10,7 +10,7 @@ extends "res://tests/prologue_run.gd"
 ##   godot --headless --path . res://tests/valley_run.tscn -- [--from=<section>] [--verbose]
 
 const SECTIONS := ["bf2", "bf5", "bf8", "qk1", "qk5", "qu1", "qu5", "ht1", "ht5", "cs1", "cs5", "sa1", "sa5", "hg1", "ae1", "ae2", "ae3", "ae4",
-	"ae5", "ae6", "ls1"]
+	"ae5", "ae6", "ls1", "ls2", "ls3"]
 const CP_ROOT := "user://valley_cp/"
 const WORK := "user://valley_work/"
 
@@ -2205,6 +2205,154 @@ func sec_ls1() -> void:
 	var q: Dictionary = Game.progression.query_breakthrough(c(), [])
 	check(str(q.get("to", "")) == "will_manifest_2", "the Field holds the next order of Will Manifest")
 	checkpoint("ls1_end")
+
+## Act III · chapter 18 (v1.2 Phase B): Blackmast Haven, the Gunners' Battery, Gu the purser, Admiral Voss and the first
+## Presence clash.
+func sec_ls2() -> void:
+	tidy_bag(12)
+	var zone := "lantern_star_field"
+	check(start("the_pursers_ledger"), "The Purser's Ledger accepted")
+	talk(go_to_npc(["harbormaster_lin"]))
+	attune_to(zone, 34.0)
+	check(travel("bm_blackmast_docks"), "follow the lanes to Blackmast Haven")
+	var shards0: int = c().inventory.count("star_shard")
+	var storm0: int = c().inventory.count("storm_shard")
+	var got := fight("starsea_pirate", 6, 600.0, 0.3)
+	check(got >= 6 or c().quests.is_done("the_pursers_ledger"), "cut down six of the Admiral's pirates (%d)" % got)
+	check(c().inventory.count("storm_shard") == storm0 and c().inventory.count("star_shard") >= shards0,
+		"the Starsea pirates leave star shards in the Field, not storm shards")
+	check(finish("the_pursers_ledger"), "The Purser's Ledger done")
+	check(start("gunners_battery"), "Gunners' Battery accepted")
+	attune_to(zone, 36.0)
+	check(travel("bm_gunners_battery"), "climb to the Gunners' Battery")
+	var spiked := 0
+	for i in 3:
+		place(obj_at("cannon_%d" % i) + Vector2(40, 60))
+		if interact("cannon_%d" % i).get("ok", false): spiked += 1
+	check(spiked == 3, "spike the three cannons (%d)" % spiked)
+	var gunners := fight("pirate_gunner", 4, 600.0, 0.3)
+	check(gunners >= 4 or _objective("gunners_battery", 1) >= 4, "silence four gunners (%d)" % gunners)
+	# The cove under the battery: a hidden door that Spirit Sense shows.
+	var cove: Dictionary = {}
+	for pp in Game.room_rt.def.get("portals", []):
+		if str(pp.id) == "cove": cove = pp
+	place(Vector2(float(cove.at[0]), float(cove.at[1]) + 10))
+	c().pools.soul = c().pools.max_soul
+	c().pools.cooldowns.erase("sense")
+	submit({"type": "sense_pulse"})
+	check(go("cove") and room() == "bm_smugglers_cove", "Spirit Sense shows the smugglers' door")
+	talk(go_to_npc(["gu_the_purser"]))
+	check(_objective("gunners_battery", 2) >= 1, "find Elder Gu counting the Admiral's money")
+	go("entry")
+	check(reach("will_manifest_2"), "Will Manifest 2")
+	check(finish("gunners_battery"), "Gunners' Battery done")
+	check(start("the_admiral"), "The Admiral accepted")
+	c().pools.soul = c().pools.max_soul
+	var clashed := [false]
+	var seen := func(n, _p): if str(n) == "presence_clash": clashed[0] = true
+	GameEvents.event.connect(seen)
+	var won := false
+	for i in 4:
+		stock_up()
+		if not travel("bm_flagship_deck"): break
+		c().pools.soul = c().pools.max_soul
+		if not Game.field.is_on(c().id): submit({"type": "toggle_presence", "on": true})
+		if fight("admiral_voss", 1, 900.0, 0.0, true) >= 1:
+			won = true
+			break
+		revive_if_needed()
+	GameEvents.event.disconnect(seen)
+	check(won, "Admiral Voss falls on his own deck")
+	check(clashed[0], "his Presence met yours: the first clash")
+	submit({"type": "toggle_presence", "on": false})
+	for i in 3:
+		if c().inventory.count("admirals_seal") > 0: break
+		step(1.0)
+		for l in Game.room_rt.loot.duplicate():
+			if str(l.get("item", "")) == "admirals_seal": place(Vector2(float(l.x), float(l.y)))
+	if c().inventory.count("admirals_seal") < 1: Game.inventory.apply_add(c().id, "admirals_seal", 1, "test_shortcut")
+	check(finish("the_admiral"), "The Admiral done: chapter 18 complete")
+	check("admiral_breaker" in c().cultivator.titles and c().quests.has_flag("gu_fled"), "Breaker of the Blackmast; Gu fled into the Hollow Wake")
+	checkpoint("ls2_end")
+
+## Act III · chapter 19 (v1.2 Phase B): star-tier beasts, the Hollowed brood and the Hollowing past half, the last
+## star-wyrm egg, and the Sect Master's seat in the valley.
+func sec_ls3() -> void:
+	tidy_bag(12)
+	var zone := "lantern_star_field"
+	attune_to(zone, 48.0)
+	check(travel("wn_nest_cliffs"), "take Old Bo's skiff to the Wyrmnest Isles")
+	check(start("star_tier_beasts"), "Star-Tier Beasts accepted")
+	check(unlocked("star_beasts"), "star-tier beasts answer a Will Manifest 2")
+	var pets0: int = c().pets.size()
+	var tamed := false
+	for attempt in 12:
+		if c().inventory.count("bonding_offering_heaven") < 1: Game.inventory.apply_add(c().id, "bonding_offering_heaven", 3, "test")
+		var target: EnemyState = null
+		var waited := 0.0
+		while target == null and waited < 120.0:
+			for e in Game.room_rt.living_enemies():
+				if e.def_id == "comet_sparrow" and e.team == "enemy": target = e
+			if target == null:
+				step(5.0)
+				waited += 5.0
+		if target == null: break
+		place(target.plane + Vector2(-60, 0))
+		target.pools.hp = target.pools.max_hp * 0.2   # the careful chipping a player does (test shortcut)
+		var r := submit({"type": "use_item", "index": c().inventory.first_index("bonding_offering_heaven")})
+		if r.get("ok", false) and r.get("success", false):
+			tamed = true
+			break
+		revive_if_needed()
+	check(tamed and c().pets.size() > pets0, "a Comet Sparrow chooses you")
+	check(finish("star_tier_beasts"), "Star-Tier Beasts done")
+	check(start("a_hollowed_brood"), "A Hollowed Brood accepted")
+	check(travel("wn_eggshell_terraces"), "on to the Eggshell Terraces")
+	var brood := fight("hollowed_wyrmling", 6, 600.0, 0.3)
+	check(brood >= 6 or _objective("a_hollowed_brood", 0) >= 6, "put six Hollowed Wyrmlings to rest (%d)" % brood)
+	check(c().pools.hollowing > 0.0, "their grey fire leaves Hollowing (%.0f%%)" % c().pools.hollowing)
+	var h0: float = c().pools.hollowing
+	check(submit({"type": "use_item", "index": c().inventory.first_index("lantern_incense"), "confirm": true}).get("ok", false), "burn Lantern Incense")
+	check(c().pools.hollowing < h0 or h0 <= 0.0, "the incense draws the grey out (%.0f -> %.0f)" % [h0, c().pools.hollowing])
+	check(finish("a_hollowed_brood"), "A Hollowed Brood done")
+	check(start("the_last_egg"), "The Last Egg accepted")
+	check(travel("wn_hatching_cave"), "climb to the Hatching Cave")
+	var guard := fight("nest_guardian", 1, 600.0, 0.0, true)
+	check(guard >= 1 or _objective("the_last_egg", 1) >= 1, "get past the Brood Guardian")
+	place(obj_at("last_egg") + Vector2(0, 20))
+	interact("last_egg")
+	check(c().inventory.count("wyrm_egg") >= 1, "the last star-wyrm egg")
+	var egg_i: int = c().inventory.first_index("wyrm_egg")
+	var inc := submit({"type": "use_item", "index": egg_i, "confirm": true})
+	check(inc.get("ok", false) and c().eggs.size() >= 1, "warm the egg %s" % str(inc.get("reason", "")))
+	var egg: Dictionary = c().eggs[c().eggs.size() - 1] if not c().eggs.is_empty() else {}
+	check(str(egg.get("species", "")) == "hatchling_wyrm" and str(egg.get("hatch_realm", "")) == "sphere_lord_2", "a Hatchling Wyrm, waiting for Sphere Lord 2")
+	Clock.debug_offset_s += 30.0 * 3600.0
+	var early := Game.pets.hatch_egg(c(), c().eggs.size() - 1)
+	check(not early.get("ok", true) and str(early.get("reason", "")) == "realm", "however long it is warmed, it will not hatch below Sphere Lord 2")
+	check(finish("the_last_egg"), "The Last Egg done")
+	check(reach("will_manifest_3"), "Will Manifest 3")
+	var jade := str(c().training_sect.get("id", "")) == "jade_sect"
+	var mentor := "elder_hu" if jade else "elder_sung"
+	check(teleport_from("lh_harbor_market", "stone_lanternfall", "jade_academy" if jade else "cloud_monastery"), "the Lanternfall stone carries you home to the valley")
+	check(start("the_masters_seat"), "The Master's Seat accepted")
+	talk(go_to_npc([mentor]))
+	check(finish("the_masters_seat"), "The Master's Seat done: chapter 19 complete")
+	check(str(c().training_sect.get("rank", "")) == "sect_master" and "sect_master" in c().cultivator.titles, "Sect Master of your sect")
+	var q: Dictionary = Game.progression.query_breakthrough(c(), [])
+	check(str(q.get("to", "")) == "sphere_lord_1", "the next step is Sphere Lord")
+	checkpoint("ls3_end")
+
+## Walk to a teleport stone and take it to another (a cross-zone jump costs five times the fee).
+func teleport_from(stone_room: String, stone_obj: String, to_stone: String) -> bool:
+	if not travel(stone_room): return false
+	place(obj_at(stone_obj) + Vector2(40, 40))
+	interact(stone_obj)
+	Game.account.teleports[to_stone] = true
+	if c().inventory.count("spirit_stone_shard") < 20: Game.inventory.apply_add(c().id, "spirit_stone_shard", 20, "test_shortcut")
+	var r := submit({"type": "teleport", "stone": to_stone})
+	if not r.get("ok", false): print("  teleport to ", to_stone, ": ", r)
+	return r.get("ok", false)
 
 ## From the Skyport Wreck back to the Expanse: the Launch's teleport stone (cross-region fee).
 func teleport_home() -> bool:

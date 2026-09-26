@@ -701,6 +701,10 @@
    "panorama": "lantern_harbor",
    "start_room": "lh_arrival_quay",
    "rooms": [
+    "bm_blackmast_docks",
+    "bm_flagship_deck",
+    "bm_gunners_battery",
+    "bm_smugglers_cove",
     "dr_driftglass_bank",
     "dr_jellyfish_shallows",
     "dr_moored_hulks",
@@ -709,7 +713,11 @@
     "lh_harbor_market",
     "lh_star_chandlery",
     "lh_tidelight_inn",
-    "ss_lantern_crossing"
+    "ss_lantern_crossing",
+    "wn_eggshell_terraces",
+    "wn_guardians_crown",
+    "wn_hatching_cave",
+    "wn_nest_cliffs"
    ],
    "regions": [
     {
@@ -748,8 +756,7 @@
      "map": [
       0.46,
       0.82
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "wyrmnest_isles",
@@ -762,8 +769,7 @@
      "map": [
       0.7,
       0.3
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "warden_citadel",

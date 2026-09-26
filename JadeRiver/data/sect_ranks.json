@@ -7,7 +7,8 @@
   "core_disciple",
   "personal_disciple",
   "deacon",
-  "elder"
+  "elder",
+  "sect_master"
  ],
  "ranks": [
   {
@@ -86,6 +87,22 @@
      {
       "kind": "realm_at_least",
       "realm": "sage_sovereign_1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sect_master",
+   "name": "Sect Master",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "will_manifest_3"
+     },
+     {
+      "kind": "flag_set",
+      "flag": "succession_named"
      }
     ]
    }

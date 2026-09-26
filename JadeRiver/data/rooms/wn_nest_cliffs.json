@@ -1,0 +1,589 @@
+{
+ "schema_version": 1,
+ "id": "wn_nest_cliffs",
+ "zone": "lantern_star_field",
+ "region": "wyrmnest_isles",
+ "name": "Nest Cliffs",
+ "type": "field",
+ "level_range": [
+  85,
+  88
+ ],
+ "recommended_cp": 1550,
+ "element": "earth",
+ "qi_density": 1.9,
+ "hazards": [],
+ "gather_tier": "lantern_mid",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "wyrmnest_isles",
+ "ground": {
+  "material": "stone",
+  "tint": "#d8d0c0"
+ },
+ "spawn_point": [
+  400,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    1100,
+    630,
+    300,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    2300,
+    620,
+    320,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    360,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1480,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1820,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    2700,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "skiff",
+   "type": "door",
+   "at": [
+    260,
+    704
+   ],
+   "to": "dr_moored_hulks",
+   "to_portal": "wyrm_skiff",
+   "press_up": true,
+   "label": "Skiff to the Moored Hulks"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "wn_eggshell_terraces",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    1906,
+    700
+   ],
+   "item": "star_lotus",
+   "prop": "star_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "master",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "jar_2",
+   "type": "jar",
+   "at": [
+    1130,
+    665
+   ],
+   "loot": "jar_lantern",
+   "level": 86,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 100
+  },
+  {
+   "id": "crate_3",
+   "type": "crate",
+   "at": [
+    2330,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 86,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    2443,
+    700
+   ],
+   "loot": "jar_lantern",
+   "level": 86,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_5",
+   "type": "crate",
+   "at": [
+    3362,
+    930
+   ],
+   "loot": "jar_lantern",
+   "level": 86,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "shrine_wn_cliffs",
+   "type": "shrine",
+   "at": [
+    800,
+    700
+   ]
+  },
+  {
+   "id": "npc_tamer_qiu",
+   "type": "npc",
+   "at": [
+    560,
+    800
+   ],
+   "npc": "tamer_qiu",
+   "facing": 1
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "comet_sparrow",
+   "surface": "ground",
+   "points": [
+    [
+     215,
+     855
+    ],
+    [
+     1509,
+     819
+    ],
+    [
+     2355,
+     855
+    ],
+    [
+     3163,
+     799
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 14,
+   "level": [
+    85,
+    87
+   ]
+  },
+  {
+   "enemy": "nest_guardian",
+   "surface": "ground",
+   "points": [
+    [
+     1216,
+     788
+    ],
+    [
+     1905,
+     802
+    ],
+    [
+     3006,
+     892
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 20,
+   "level": [
+    86,
+    88
+   ]
+  },
+  {
+   "enemy": "comet_sparrow",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    87,
+    87
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "star_crystal",
+   "at": [
+    128,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    692,
+    630
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    1259,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1862,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    2369,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2856,
+    639
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    3418,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    130,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    376,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    690,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    957,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1317,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1650,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1912,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2302,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2595,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2965,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3342,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3596,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "wyrm_nest",
+   "at": [
+    1250,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    1800,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "sky_ship",
+   "at": [
+    400,
+    640
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "star_field",
+ "ambience": "wind_ambience",
+ "attunement_required": 40,
+ "climbables": [
+  {
+   "id": "ledge_0_rope_1",
+   "kind": "rope",
+   "at": [
+    1250,
+    735
+   ],
+   "top_at": [
+    1250,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_0"
+  },
+  {
+   "id": "route_0_vine_2",
+   "kind": "vine",
+   "at": [
+    480,
+    741
+   ],
+   "top_at": [
+    480,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_vine_3",
+   "kind": "vine",
+   "at": [
+    1940,
+    741
+   ],
+   "top_at": [
+    1940,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_2"
+  },
+  {
+   "id": "route_3_vine_4",
+   "kind": "vine",
+   "at": [
+    2820,
+    741
+   ],
+   "top_at": [
+    2820,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_3"
+  }
+ ]
+}

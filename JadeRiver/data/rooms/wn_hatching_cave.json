@@ -1,0 +1,215 @@
+{
+ "schema_version": 1,
+ "id": "wn_hatching_cave",
+ "zone": "lantern_star_field",
+ "region": "wyrmnest_isles",
+ "name": "Hatching Cave",
+ "type": "dungeon",
+ "level_range": [
+  92,
+  93
+ ],
+ "recommended_cp": 0,
+ "element": "earth",
+ "qi_density": 2.2,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "cave",
+ "ground": {
+  "material": "stone",
+  "tint": "#c8b8a0"
+ },
+ "spawn_point": [
+  220,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    600,
+    620,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    1180,
+    620,
+    280,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "wn_guardians_crown",
+   "to_portal": "cave",
+   "press_up": true,
+   "label": "Guardian's Crown"
+  }
+ ],
+ "objects": [
+  {
+   "id": "last_egg",
+   "type": "pickup",
+   "at": [
+    1850,
+    880
+   ],
+   "item": "wyrm_egg",
+   "count": 1,
+   "prop": "wyrm_egg",
+   "set_flag": "wyrm_egg_taken",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_last_egg"
+     }
+    ]
+   },
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "wyrm_egg_taken"
+     }
+    ]
+   }
+  },
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    1320,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 93,
+   "alt": 200,
+   "surface": "ledge_mv_1"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "nest_guardian",
+   "surface": "ground",
+   "points": [
+    [
+     1500,
+     840
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 600,
+   "level": [
+    93,
+    93
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "wyrm_nest",
+   "at": [
+    1800,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    900,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    2200,
+    700
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "dungeon",
+ "attunement_required": 48,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    740,
+    725
+   ],
+   "top_at": [
+    740,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    1320,
+    725
+   ],
+   "top_at": [
+    1320,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  }
+ ]
+}

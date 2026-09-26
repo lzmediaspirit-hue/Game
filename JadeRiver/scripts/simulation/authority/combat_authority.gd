@@ -589,6 +589,7 @@ func technique_cost(c, t: Dictionary) -> float:
 	var dao_tier := ProgressionRules.effective_dao_tier(c, str(t.get("dao", "")))
 	var dao_red := -0.1 if dao_tier >= 2 else 0.0
 	var comp := float(st.get("composure_zero_factor", 1.5)) if Unlocks.is_unlocked(c.id, "composure") and c.pools.composure <= 0.0 else 1.0
+	if hollow_burdened(c): comp *= float(ContentDB.stat_const("hollowing.cost_mult", 1.25))   # S28: the Hollowing's burden
 	# S48 Ember Channel: some cost cuts hold only for one element's techniques.
 	var cut: float = c.stats.value("technique_cost") + c.stats.conditional("technique_cost", "element", str(t.get("element", "none")))
 	return maxf(0.0, base * (1.0 + float(st.get("per_level", 0.04)) * lv) * (1.0 - minf(0.3, cut)) * (1.0 + mastery_red + dao_red) * comp)
@@ -693,6 +694,12 @@ func tick(delta: float) -> void:
 	if game.room_rt:
 		for e in game.room_rt.enemies.values():
 			if e.alive: _tick_enemy_statuses(e, delta)
+			# S28: an ally turned by the Hollow Tide comes back to itself.
+			if e.ai.has("turned"):
+				e.ai.turned = float(e.ai.turned) - delta
+				if float(e.ai.turned) <= 0.0:
+					e.ai.erase("turned")
+					e.team = "ally"
 
 func _tick_player(c, delta: float) -> void:
 	var tl := timeline(c.id)
@@ -760,10 +767,16 @@ func _tick_pools(c, delta: float) -> void:
 		if p.hp < p.max_hp: apply_resource_change(c.id, "hp", p.max_hp * c.stats.value("hp_regen") * rest * delta, "regen", 0.0, true)
 		if p.max_qi > 0 and p.qi < p.max_qi: apply_resource_change(c.id, "qi", p.max_qi * c.stats.value("qi_regen") * delta, "regen", 0.0, true)
 		if p.max_soul > 0 and p.soul < p.max_soul: apply_resource_change(c.id, "soul", p.max_soul * c.stats.value("soul_regen") * delta, "regen", 0.0, true)
-	if Unlocks.is_unlocked(c.id, "composure") and p.composure < 100.0 and p.since_composure_use >= float(ContentDB.stat_const("composure.recover_delay_s", 3)):
+	var burdened := hollow_burdened(c)
+	if burdened and Unlocks.is_unlocked(c.id, "composure") and p.composure > 0.0:
+		# S28: over half Hollowed, Composure drains instead of recovering.
+		apply_resource_change(c.id, "composure", -float(ContentDB.stat_const("hollowing.composure_drain_per_s", 2.0)) * delta, "hollow", 0.0, true)
+	elif Unlocks.is_unlocked(c.id, "composure") and p.composure < 100.0 and p.since_composure_use >= float(ContentDB.stat_const("composure.recover_delay_s", 3)):
 		apply_resource_change(c.id, "composure", float(ContentDB.stat_const("composure.recover_per_s", 10)) * delta, "regen", 0.0, true)
 	if p.hollowing > 0.0 and not c.cultivator.meditating:
-		apply_resource_change(c.id, "hollowing", -float(ContentDB.stat_const("hollowing.decay_per_min", 1)) / 60.0 * delta, "decay", 0.0, true)
+		# Resting under a lit lantern (the Field's harbours) draws the grey out four times as fast.
+		var lamp := float(ContentDB.stat_const("hollowing.lantern_mult", 4)) if game.room_rt and game.room_rt.def.get("lantern", false) else 1.0
+		apply_resource_change(c.id, "hollowing", -float(ContentDB.stat_const("hollowing.decay_per_min", 1)) / 60.0 * delta * lamp, "decay", 0.0, true)
 
 func _tick_enemy_statuses(e: EnemyState, delta: float) -> void:
 	for key in e.pools.steadfast.keys():
@@ -2265,13 +2278,39 @@ func apply_resource_change(actor_id: String, pool: String, amount: float, source
 	if pct != 0.0: amount += p.get_max(pool) * pct
 	if pool == "hollowing" and amount > 0:
 		amount *= 1.0 - clampf(c.stats.value("hollow_ward"), 0.0, 0.8)
-		var cap := float(ContentDB.stat_const("hollowing.valley_cap", 49))
-		p.set_value(pool, minf(cap, p.get_value(pool) + amount))
+		p.set_value(pool, minf(hollow_cap(), p.get_value(pool) + amount))
 		# S48 Hollow-Touched (v1.2): wholly Hollowed and still standing.
-		if p.hollowing >= 100.0 and p.hp > 0.0: game.progression.awaken_physique(c.id, "hollow_touched")
+		if p.hollowing >= float(ContentDB.stat_const("hollowing.seizure_at", 100)) and p.hp > 0.0:
+			game.progression.awaken_physique(c.id, "hollow_touched")
+			_hollow_seizure(c)
 	else:
 		p.set_value(pool, p.get_value(pool) + amount)
 	if not quiet: emit("resource_changed", {"actor": c.id, "pool": pool, "value": p.get_value(pool), "max": p.get_max(pool), "source": source})
+
+## S28 · How far the Hollowing can fill here: under half in the valley and the Expanse, all the way in the Lantern Star Field.
+func hollow_cap() -> float:
+	var h: Dictionary = ContentDB.stat_const("hollowing", {})
+	var zone := str(ContentDB.zone_of_room(game.room_rt.room_id).get("id", "")) if game.room_rt else ""
+	return float(h.get("zone_caps", {}).get(zone, h.get("valley_cap", 49)))
+
+## S28 · At half, the Hollowing is a burden: techniques cost more and Composure drains.
+static func hollow_burdened(c) -> bool:
+	return c.pools.hollowing >= float(ContentDB.stat_const("hollowing.burden_at", 50))
+
+## S28 · At full, the Tide takes the body for a moment (no moving, striking or casting), the allies beside you turn
+## on you for a while, and the meter falls back to 80.
+func _hollow_seizure(c) -> void:
+	var h: Dictionary = ContentDB.stat_const("hollowing", {})
+	apply_status(c.id, "hollow_seizure", float(h.get("seizure_s", 3.0)), 1.0)
+	var turned := 0
+	if game.room_rt:
+		for e in game.room_rt.living_enemies():
+			if e.team != "ally": continue
+			e.team = "enemy"
+			e.ai["turned"] = float(h.get("turn_s", 10.0))
+			turned += 1
+	c.pools.set_value("hollowing", float(h.get("after_seizure", 80)))
+	emit("hollow_seizure", {"actor": c.id, "turned": turned})
 
 func apply_heal(actor_id: String, pct: float, amount: float, over_s: float, source: String) -> void:
 	var c = game.character(actor_id)

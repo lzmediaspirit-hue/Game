@@ -1,0 +1,700 @@
+{
+ "schema_version": 1,
+ "id": "bm_gunners_battery",
+ "zone": "lantern_star_field",
+ "region": "blackmast_haven",
+ "name": "Gunners' Battery",
+ "type": "field",
+ "level_range": [
+  87,
+  89
+ ],
+ "recommended_cp": 1586,
+ "element": "metal",
+ "qi_density": 1.8,
+ "hazards": [],
+ "gather_tier": "lantern_mid",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "blackmast_haven",
+ "ground": {
+  "material": "wood",
+  "tint": "#b8a58a"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    900,
+    630,
+    300,
+    70
+   ],
+   "height": 88,
+   "kind": "deck",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    2100,
+    620,
+    300,
+    70
+   ],
+   "height": 176,
+   "kind": "deck",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1240,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1760,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    2940,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_4",
+   "rect": [
+    3280,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    420,
+    636,
+    480,
+    64
+   ],
+   "height": 88.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "cove",
+   "type": "hidden",
+   "at": [
+    2600,
+    700
+   ],
+   "to": "bm_smugglers_cove",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "Smugglers' Cove"
+  },
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "bm_blackmast_docks",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "sealed",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "bm_flagship_deck",
+   "to_portal": "west",
+   "requires": {
+    "any": [
+     {
+      "kind": "quest_active",
+      "quest": "the_admiral"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_admiral"
+     }
+    ]
+   },
+   "locked_text": "The gangway to the flagship is drawn up. Silence the battery first."
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    930,
+    665
+   ],
+   "loot": "jar_lantern",
+   "level": 88,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 88
+  },
+  {
+   "id": "jar_2",
+   "type": "jar",
+   "at": [
+    2130,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 88,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 176
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    2349,
+    720
+   ],
+   "loot": "jar_lantern",
+   "level": 88,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_4",
+   "type": "jar",
+   "at": [
+    3293,
+    900
+   ],
+   "loot": "jar_lantern",
+   "level": 88,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "cannon_0",
+   "type": "inspect",
+   "at": [
+    700,
+    720
+   ],
+   "prop": "pirate_cannon",
+   "set_flag": "cannon_spiked_0",
+   "text": "You drive a spike of comet iron into the touch-hole. This one will not fire again.",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "gunners_battery"
+     }
+    ]
+   },
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "cannon_spiked_0"
+     }
+    ]
+   }
+  },
+  {
+   "id": "cannon_1",
+   "type": "inspect",
+   "at": [
+    1700,
+    720
+   ],
+   "prop": "pirate_cannon",
+   "set_flag": "cannon_spiked_1",
+   "text": "You drive a spike of comet iron into the touch-hole. This one will not fire again.",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "gunners_battery"
+     }
+    ]
+   },
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "cannon_spiked_1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "cannon_2",
+   "type": "inspect",
+   "at": [
+    2900,
+    720
+   ],
+   "prop": "pirate_cannon",
+   "set_flag": "cannon_spiked_2",
+   "text": "You drive a spike of comet iron into the touch-hole. This one will not fire again.",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "gunners_battery"
+     }
+    ]
+   },
+   "hidden_if": {
+    "all": [
+     {
+      "kind": "flag_set",
+      "flag": "cannon_spiked_2"
+     }
+    ]
+   }
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "pirate_gunner",
+   "surface": "ground",
+   "points": [
+    [
+     516,
+     870
+    ],
+    [
+     1296,
+     812
+    ],
+    [
+     1906,
+     915
+    ],
+    [
+     3053,
+     702
+    ],
+    [
+     3239,
+     753
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 14,
+   "level": [
+    87,
+    89
+   ]
+  },
+  {
+   "enemy": "starsea_pirate",
+   "surface": "ground",
+   "points": [
+    [
+     843,
+     925
+    ],
+    [
+     1968,
+     816
+    ],
+    [
+     2961,
+     864
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 12,
+   "level": [
+    87,
+    88
+   ]
+  },
+  {
+   "enemy": "pirate_gunner",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    89,
+    89
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [
+  {
+   "id": "crate_5",
+   "prop": "crate",
+   "position": [
+    2141,
+    640
+   ],
+   "front_y": 640,
+   "footprint": [
+    2124,
+    614,
+    35,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  }
+ ],
+ "decor": [
+  {
+   "prop": "barrel",
+   "at": [
+    179,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "crate",
+   "at": [
+    571,
+    629
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "sack_pile",
+   "at": [
+    1070,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    1639,
+    634
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "sack_pile",
+   "at": [
+    2567,
+    637
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    3132,
+    638
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "crate",
+   "at": [
+    3712,
+    632
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    99,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    399,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    773,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    1080,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    1337,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    1700,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    2059,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    2326,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    2639,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    2954,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    3258,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    3588,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    3816,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "powder_keg",
+   "at": [
+    1300,
+    730
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "powder_keg",
+   "at": [
+    2400,
+    730
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "star_field",
+ "ambience": "wind_ambience",
+ "attunement_required": 33,
+ "climbables": [
+  {
+   "id": "ledge_1_ladder_1",
+   "kind": "ladder",
+   "at": [
+    2250,
+    725
+   ],
+   "top_at": [
+    2250,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "ledge_1"
+  },
+  {
+   "id": "route_2_vine_2",
+   "kind": "vine",
+   "at": [
+    1880,
+    741
+   ],
+   "top_at": [
+    1880,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_2"
+  },
+  {
+   "id": "route_3_vine_3",
+   "kind": "vine",
+   "at": [
+    3060,
+    741
+   ],
+   "top_at": [
+    3060,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_3"
+  },
+  {
+   "id": "route_4_vine_4",
+   "kind": "vine",
+   "at": [
+    3400,
+    741
+   ],
+   "top_at": [
+    3400,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_4"
+  }
+ ]
+}

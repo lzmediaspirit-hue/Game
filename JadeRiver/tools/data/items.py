@@ -304,6 +304,9 @@ def pills():
          [effect("settle_consolidation")], cause="structure", group="utility")
     pill("will_tempering_pill", "sage", "eye", "+40 Will for 30 minutes: another's Presence weighs less on you.", 12,
          [effect("add_modifier", stat="will", op="flat", value=40, duration=1800, source="will_tempering")], cause="soul", group="buff")
+    # v1.2 (S28): the Hollow Tide's cleansing: 40 points of Hollowing drawn out at once.
+    pill("tide_cleansing_pill", "sovereign", "knot", "Draws 40 points of Hollowing out of you at once.", 12,
+         [effect("cleanse_hollowing", amount=40)], cause="soul", group="restoration")
     pill("storm_blood_pill", "mystic", "bolt", "+4 attunement in the zone you stand in for 30 minutes.", 10,
          [effect("add_modifier", stat="attunement_bonus", op="flat", value=4, duration=1800, source="storm_blood")], group="buff")
     # S44 / Part 8 new forms. The Qi Flow Pill's debt comes due when its hour is up (`then`, applied on buff_expired).
@@ -480,6 +483,18 @@ def build_items():
                      "A chip of fallen starlight. Levels your Starsea Endurance jades (Character > Attunement)."))
     rows.append(item("jelly_silk", "beast_part", "sovereign", 99, "A Star Jellyfish's trailing silk. It glows for a day after the jelly dies, and stings for two."))
     rows.append(item("comet_plume", "beast_part", "sovereign", 99, "A tail feather of a Comet Sparrow, still warm, trailing sparks when it is waved."))
+    # v1.2 Phase B · Blackmast Haven and the Wyrmnest Isles: the pirates' powder, the guardians' scales, the Hollowed brood's
+    # ash, the Admiral's seal, and the last star-wyrm egg; the Hollow Tide's cleansings.
+    rows.append(item("star_powder", "material", "sovereign", 99, "Pirate gunpowder cut with star-dust. It burns blue and bangs gold."))
+    rows.append(item("guardian_scale", "beast_part", "sovereign", 99, "A bronze plate from a Nest Guardian's shell, set with a crystal that still glows."))
+    rows.append(item("wyrm_ash", "beast_part", "will", 99, "Grey ash from a Hollowed Wyrmling. It is cold, and it is not quite dead. Cleansing pills are made from it."))
+    rows.append(item("admirals_seal", "key", "will", 1, "Admiral Voss's seal of command: a bronze star on a chain. Every pirate lane in the Field answered to it.",
+                     sell=False, quest_item=True))
+    rows.append(item("wyrm_egg", "egg", "will", 1, "The last star-wyrm egg of the Wyrmnest Isles: pearl-white, warm, humming. It will not hatch for anyone below "
+                     "Sphere Lord 2, however long it is warmed.", use=[], use_action="incubate", egg_species="hatchling_wyrm", egg_rarity="primordial",
+                     hatch_realm="sphere_lord_2", sell=False))
+    rows.append(item("lantern_incense", "other", "sovereign", 20, "Lantern-wick incense from the Star Chandlery. Burned, it draws 15 points of Hollowing out of you.",
+                     use=[effect("cleanse_hollowing", amount=15)]))
     rows.append(item("storm_shard", "material", "spirit", 999,
                      "A splinter of the Expanse's storms. Levels your Storm Ward jades (Character > Attunement)."))
     for (cid, grade, rank, desc) in [("serpent_core", "earth", 2, "The core of the Riverbed Serpent; a pill ingredient."),
