@@ -100,6 +100,7 @@ func _main() -> void:
 	emotes_suite()
 	legacy_suite()
 	drop_pool_suite()
+	boss_event_suite()
 	text_suite()
 	await ui_suite()
 	max_character_suite()
@@ -7613,6 +7614,29 @@ func nav_suite() -> void:
 ## The Account Legacy (P10 finding F1): the unlock exists at Bone Forging 1 for the whole account, a save that reached
 ## great realms before it existed has them recorded once when it arrives, and each record adds 2% to accumulation.
 ## P7a finding: the banded equipment roll never makes a legendary weapon or an imitation relic.
+## P9 finding: a dungeon boss's fall is announced as boss_defeated, clean only when no grave wound came first in the
+## room, so the Untouched achievement can be earned.
+func boss_event_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var seen: Array = []
+	var grab := func(n: String, p: Dictionary): if n == "boss_defeated": seen.append(p)
+	GameEvents.event.connect(grab)
+	var room := Game.room_rt.room_id if Game.room_rt else "lf_village"
+	Game.enemies.wounded_here = false
+	Game.enemies._on_defeated({"victim": "e1", "victim_kind": "enemy", "def": "big_toad_tan", "role": "dungeon_boss", "killer": c.id, "room": room})
+	GameEvents.flush()
+	check(seen.size() == 1 and bool(seen[0].get("clean", false)), "a dungeon boss beaten with no grave wound is a clean boss_defeated")
+	Game.enemies.wounded_here = true
+	Game.enemies._on_defeated({"victim": "e2", "victim_kind": "enemy", "def": "big_toad_tan", "role": "dungeon_boss", "killer": c.id, "room": room})
+	GameEvents.flush()
+	check(seen.size() == 2 and not bool(seen[1].get("clean", true)), "after a grave wound in the room it is not clean")
+	Game.enemies._on_defeated({"victim": "e3", "victim_kind": "enemy", "def": "mudshell_crab", "role": "normal", "killer": c.id, "room": room})
+	GameEvents.flush()
+	check(seen.size() == 2, "an ordinary foe announces no boss_defeated")
+	GameEvents.event.disconnect(grab)
+	Game.enemies.wounded_here = false
+
 func drop_pool_suite() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7

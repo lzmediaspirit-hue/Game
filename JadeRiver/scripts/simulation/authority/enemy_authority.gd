@@ -12,9 +12,16 @@ func subscribe() -> void:
 	GameEvents.subscribe("item_added", _on_state_change, 40)
 	GameEvents.subscribe("flag_set", _on_state_change, 40)
 	GameEvents.subscribe("actor_defeated", _on_defeated, 45)
+	# A boss beaten "clean" (the Untouched achievement) means no grave wound in its room since the player came in.
+	GameEvents.subscribe("player_gravely_wounded", func(_p): wounded_here = true, 45)
+
+## Whether the player was gravely wounded in the current room (cleared on entering a room).
+var wounded_here := false
 
 func _on_defeated(p: Dictionary) -> void:
 	if str(p.get("role", "")) == "field_boss": emit("field_boss_defeated", {"room": str(p.get("room", "")), "enemy": str(p.get("def", ""))})
+	if str(p.get("role", "")) in ["dungeon_boss", "story_boss"] and str(p.get("killer", "")).begins_with("c"):
+		emit("boss_defeated", {"room": str(p.get("room", "")), "enemy": str(p.get("def", "")), "role": str(p.get("role", "")), "clean": not wounded_here})
 	# S46: a Beast King falls. Its zone's beasts lose the +10% at once, and its lair's egg nest opens for 30 minutes.
 	var king := ContentDB.entry("beast_kings", str(p.get("def", "")))
 	if king.is_empty(): return
@@ -56,6 +63,7 @@ func _set_king_buff(e: EnemyState, on: bool) -> void:
 	e.ai["king_buff"] = on
 
 func _on_room_entered(_p: Dictionary) -> void:
+	wounded_here = false
 	populate()
 
 func _on_state_change(_p: Dictionary) -> void:

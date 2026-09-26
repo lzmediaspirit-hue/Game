@@ -740,6 +740,36 @@
     "enemy_brain"
    ]
   },
+  "boss_phase": {
+   "system": "Enemies",
+   "files": [
+    "enemy_authority",
+    "enemy_brain"
+   ]
+  },
+  "enemy_summoned": {
+   "system": "Enemies",
+   "files": [
+    "enemy_authority",
+    "enemy_brain"
+   ],
+   "polled": "The world scene builds an enemy view for every living enemy in the room each frame."
+  },
+  "boss_fled": {
+   "system": "Enemies",
+   "files": [
+    "enemy_authority",
+    "enemy_brain"
+   ],
+   "polled": "The world scene drops the fleeing boss's view when it leaves the room's living enemies; its loot is on the ground."
+  },
+  "boss_defeated": {
+   "system": "Enemies",
+   "files": [
+    "enemy_authority",
+    "enemy_brain"
+   ]
+  },
   "enemy_leashed": {
    "system": "Enemies",
    "files": [

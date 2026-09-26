@@ -33,6 +33,14 @@
 
 ## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
 
+### P9 · The boss design, and what it found
+- `docs/boss_design.md`: all 13 bosses redesigned (phases, a telegraphed arena mechanic each, enrage timers, reward
+  loops, intro and phase cards), the shared marker system, the build order (P9a–P9f) and `boss_suite`.
+- **Untouched can be earned.** Its achievement waited on a `boss_defeated` event nothing sent. A dungeon or story boss's
+  fall now announces it, clean when no grave wound came first in the room; Untouched asks for a clean dungeon boss.
+- `boss_phase`, `enemy_summoned`, `boss_fled` and `boss_defeated` are in the event contract, so `contract_tests`
+  checks who sends and hears them (`boss_event_suite` in `rules_tests`).
+
 ### P10 · Findings fixed
 - **The Account Legacy records again.** It waited on an `account_legacy` unlock that was never defined, so its +2%
   accumulation per recorded great realm was always 0. The unlock now opens for the whole account at Bone Forging 1, and
