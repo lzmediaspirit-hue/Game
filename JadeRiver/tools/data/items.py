@@ -1,6 +1,7 @@
 """S14/S15/Part 8: items.json (non-equipment) and artifacts.json (equipment bases)."""
 from common import entries, titled, req, c
 from legends import CHAINS as LEGENDS, piece_rows
+import posts
 
 MID_ILV = {"plain": 5, "common": 14, "earth": 27, "heaven": 45, "mystic": 59, "spirit": 68, "sage": 77, "sovereign": 86, "will": 95, "sphere": 104}
 
@@ -636,9 +637,15 @@ def build_items():
              ("forge_hammer", "common", "smithing", 1.0), ("formation_kit", "earth", "formations", 1.0), ("needle_case", "earth", "healing", 1.0),
              ("appraisers_loupe", "common", "appraisal", 1.0), ("drying_rack", "common", "alchemy", 1.0),
              ("spirit_spade", "heaven", "transplant", 1.0), ("verdant_dew_vial", "spirit", "garden_dew", 1.0)]
+    post_tools = posts.existing_tool_posts()
     for tid, grade, craft, power in tools:
+        extra = {"post": post_tools[tid]} if tid in post_tools else {}
         rows.append(item(tid, "tool", grade, 1, TOOL_DESC[tid], tool={"craft": craft, "power": power},
-                         icon="appraiser_loupe" if tid == "appraisers_loupe" else tid))
+                         icon="appraiser_loupe" if tid == "appraisers_loupe" else tid, **extra))
+    # V10 Keeping Post: the post tools (four ladders to tier 8), the insects of Insect Netting, Hour Incense.
+    rows += posts.tool_items(item)
+    rows += posts.insect_items(item)
+    rows += posts.incense_items(item)
     # Treasures (gap report G2): set in the HUD's Treasure buttons (one from Heart Tempering 1, a second from
     # Spirit Awakening 1). Each is one action with a cooldown and a QI cost; none is a stat stick.
     for tid, grade, desc, t in TREASURES:

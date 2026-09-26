@@ -13,7 +13,10 @@ const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "bath_stati
 	"defence_drum": "small_bell", "treasure_plot": "treasure_plot", "treasure_tree": "nine_bough_jade_tree",
 	"star_sight": "star_sight_stone", "chart_table": "star_chart_table", "shipyard_slip": "shipyard_slip", "starsea_dock": "cloud_skiff",
 	"air_pocket": "qi_spring", "earth_vent": "gas_vent", "egg_nest": "beast_nest", "beast_tide_drum": "small_bell", "beast_trial_stone": "rite_circle",
-	"rift_tear": "portal_swirl", "spirit_mine": "spirit_shard_vein"}
+	"rift_tear": "portal_swirl", "spirit_mine": "spirit_shard_vein", "insect_swarm": "glowfly_swarm"}
+## V10 Insect Netting: the colour of each swarm's drifting motes.
+const SWARM_MOTE := {"glowfly": "d8f06a", "reed_cicada": "b8c47a", "jade_scarab": "6fd8a0", "silk_moth": "f2ead0",
+	"thunder_mantis": "9aa8ff", "frost_cricket": "c8f0ff", "ember_locust": "ff9a4a", "starwing_mote": "ffe08a"}
 
 var def: Dictionary = {}
 var object_id := ""
@@ -51,6 +54,7 @@ func state_name() -> String:
 			if s == "depleted" or (def.has("season") and not HerbRules.in_season(def, Clock.now_utc())): return "depleted"
 			return "ready"
 		"star_sight": return "idle" if s == "depleted" else "active"   # the engraved stars glow while a reading waits
+		"insect_swarm": return "depleted" if s == "depleted" else "ready"
 		"spirit_mine": return "full"
 		"ore_vein": return "depleted" if s == "depleted" else ("cracked" if int(st.get("hits", 0)) > 0 else "full")
 		"jar", "crate", "wine_jar": return "broken" if s == "broken" else "intact"
@@ -136,6 +140,8 @@ func _draw() -> void:
 		drawn = SpriteCache.draw_prop(self, current_prop(), st, t, Vector2.ZERO, bool(def.get("flip", false)))
 		if rare and not ripe and st == "ready": draw_circle(Vector2(0, -14), 22.0, Color(0.05, 0.1, 0.1, 0.25))   # still growing
 	if def.type == "herb_patch" and def.has("ripen"): _draw_sensed()
+	if def.type == "insect_swarm" and st == "ready": _draw_swarm()
+	_draw_post_flag()
 	if not drawn and def.type != "pickup":
 		draw_rect(Rect2(-12, -24, 24, 24), UiKit.BRONZE)
 	if def.type == "earth_vent": _draw_earth_fire()
@@ -247,3 +253,28 @@ func _draw_earth_fire() -> void:
 		draw_colored_polygon(PackedVector2Array([Vector2(x - w, -2), Vector2(x + w, -2), Vector2(x + sin(ph * 1.3) * 3.0, -2 - h)]), Color(1.0, 0.45, 0.12, 0.75))
 		draw_colored_polygon(PackedVector2Array([Vector2(x - w * 0.5, -2), Vector2(x + w * 0.5, -2), Vector2(x + sin(ph * 1.3) * 2.0, -2 - h * 0.6)]), Color(1.0, 0.85, 0.4, 0.85))
 	draw_circle(Vector2(0, -8), 34.0, Color(1.0, 0.5, 0.15, 0.10 + 0.04 * sin(t * 6.0)))
+
+## V10: a swarm's insects drift about it in loose loops.
+func _draw_swarm() -> void:
+	var col := Color(str(SWARM_MOTE.get(str(def.get("item", "")), "e8e0a0")))
+	for i in 9:
+		var a := t * (0.9 + 0.13 * i) + i * 0.7
+		var p := Vector2(cos(a) * (26.0 + 5.0 * float(i % 3)), -46.0 + sin(a * 1.7) * 16.0 - float(i % 3) * 6.0)
+		draw_circle(p, 2.6, Color(col, 0.28))
+		draw_circle(p, 1.4, col)
+
+## S50 Keeping Post: a jade pennant beside a node where one of your other characters keeps post.
+func _draw_post_flag() -> void:
+	if Game.room_rt == null or not str(def.type) in ["ore_vein", "herb_patch", "fishing_spot", "insect_swarm"]: return
+	var n := 0
+	for id in Game.characters:
+		if str(id) == Game.active_id: continue
+		var p: Dictionary = Game.posts.post_of(Game.character(str(id)))
+		if str(p.get("object", "")) == object_id and str(p.get("room", "")) == Game.room_rt.room_id: n += 1
+	if n == 0: return
+	var base := Vector2(40, 0)
+	draw_line(base, base + Vector2(0, -64), UiKit.BRONZE, 2.0)
+	var wave := 2.0 * sin(t * 2.2)
+	draw_colored_polygon(PackedVector2Array([base + Vector2(0, -64), base + Vector2(22, -58 + wave), base + Vector2(0, -50)]), Color("5fae8a"))
+	for k in mini(n, 3) - 1:
+		draw_circle(base + Vector2(6 + 6 * k, -44), 2.0, Color("5fae8a"))

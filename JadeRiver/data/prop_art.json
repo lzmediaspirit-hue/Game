@@ -907,6 +907,23 @@
       }
     }
   },
+  "ember_locust_swarm": {
+    "anchor": [
+      32,
+      52
+    ],
+    "file": "res://art/props/ember_locust_swarm.png",
+    "frame": [
+      64,
+      56
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "ember_pepper_bush": {
     "anchor": [
       28,
@@ -1176,6 +1193,23 @@
       }
     }
   },
+  "frost_cricket_swarm": {
+    "anchor": [
+      32,
+      52
+    ],
+    "file": "res://art/props/frost_cricket_swarm.png",
+    "frame": [
+      64,
+      56
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "frost_lotus_patch": {
     "anchor": [
       28,
@@ -1214,6 +1248,23 @@
         "col": 0,
         "fps": 4,
         "frames": 3
+      }
+    }
+  },
+  "glowfly_swarm": {
+    "anchor": [
+      32,
+      60
+    ],
+    "file": "res://art/props/glowfly_swarm.png",
+    "frame": [
+      64,
+      64
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
       }
     }
   },
@@ -1454,6 +1505,23 @@
         "fps": 6,
         "frames": 4
       },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "jade_scarab_swarm": {
+    "anchor": [
+      32,
+      48
+    ],
+    "file": "res://art/props/jade_scarab_swarm.png",
+    "frame": [
+      64,
+      52
+    ],
+    "states": {
       "idle": {
         "col": 0,
         "frames": 1
@@ -2188,6 +2256,23 @@
       }
     }
   },
+  "reed_cicada_swarm": {
+    "anchor": [
+      32,
+      56
+    ],
+    "file": "res://art/props/reed_cicada_swarm.png",
+    "frame": [
+      64,
+      60
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "reeds": {
     "anchor": [
       32,
@@ -2558,6 +2643,23 @@
       }
     }
   },
+  "silk_moth_swarm": {
+    "anchor": [
+      32,
+      56
+    ],
+    "file": "res://art/props/silk_moth_swarm.png",
+    "frame": [
+      64,
+      60
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "sky_ship": {
     "anchor": [
       192,
@@ -2811,6 +2913,23 @@
     "frame": [
       88,
       96
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "starwing_mote_swarm": {
+    "anchor": [
+      32,
+      60
+    ],
+    "file": "res://art/props/starwing_mote_swarm.png",
+    "frame": [
+      64,
+      64
     ],
     "states": {
       "idle": {
@@ -3168,6 +3287,23 @@
     "file": "res://art/props/thorn_thicket.png",
     "frame": [
       128,
+      68
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "thunder_mantis_swarm": {
+    "anchor": [
+      32,
+      64
+    ],
+    "file": "res://art/props/thunder_mantis_swarm.png",
+    "frame": [
+      64,
       68
     ],
     "states": {

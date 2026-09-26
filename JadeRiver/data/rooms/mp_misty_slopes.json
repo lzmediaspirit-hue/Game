@@ -369,6 +369,38 @@
      }
     ]
    }
+  },
+  {
+   "id": "swarm_silk_moth",
+   "type": "insect_swarm",
+   "at": [
+    1689,
+    860
+   ],
+   "item": "silk_moth",
+   "outputs": [
+    {
+     "item": "silk_moth",
+     "weight": 100
+    }
+   ],
+   "prop": "silk_moth_swarm",
+   "rank": "apprentice",
+   "regrow_s": 240,
+   "radius": 110,
+   "yield": [
+    1,
+    2
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "insect_netting"
+     }
+    ]
+   },
+   "locked_text": "You have no net, and they are too quick for bare hands."
   }
  ],
  "spawns": [

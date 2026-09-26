@@ -1,0 +1,715 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "delving",
+   "name": "Vein Delving",
+   "short": "Delving",
+   "attribute": "body",
+   "unlock": "mining",
+   "node": "ore_vein",
+   "category": "ore",
+   "tool_word": "pick",
+   "icon": "craft_delving",
+   "desc": "Working spirit-ore veins. Body drives it; a better pick breaks harder stone."
+  },
+  {
+   "id": "foraging",
+   "name": "Spirit Foraging",
+   "short": "Foraging",
+   "attribute": "insight",
+   "unlock": "herb_gathering",
+   "node": "herb_patch",
+   "category": "herb",
+   "tool_word": "sickle",
+   "icon": "craft_foraging",
+   "desc": "Cutting herbs at their stems, with spirit wood on the side. Insight drives it."
+  },
+  {
+   "id": "angling",
+   "name": "River Angling",
+   "short": "Angling",
+   "attribute": "body",
+   "unlock": "fishing",
+   "node": "fishing_spot",
+   "category": "fish",
+   "tool_word": "rod",
+   "icon": "craft_angling",
+   "desc": "Fishing a spot through the day. Body drives it; a finer line holds bigger fish."
+  },
+  {
+   "id": "netting",
+   "name": "Insect Netting",
+   "short": "Netting",
+   "attribute": "agility",
+   "unlock": "insect_netting",
+   "node": "insect_swarm",
+   "category": "insect",
+   "tool_word": "net",
+   "icon": "craft_netting",
+   "desc": "Netting spirit insects from their swarms. Agility drives it."
+  }
+ ],
+ "rules": {
+  "diligence": {
+   "craft_base": 0.52,
+   "martial_base": 0.4,
+   "floor": 0.01
+  },
+  "finesse": {
+   "flat": 12.0,
+   "base_flat": 4.0,
+   "tool_exp": 1.3,
+   "stat_flat_exp": 0.6,
+   "stat_mult_exp": 0.35,
+   "per_level": 0.005
+  },
+  "yield": {
+   "full_at": 10.0,
+   "chance_exp": 0.4,
+   "chance_min_r": 0.025,
+   "abundance_exp": 0.25,
+   "flow_cap": 0.1,
+   "windfall_chain": 4
+  },
+  "swing": {
+   "scale": 6.0,
+   "base": 1.0,
+   "per_speed": 0.2,
+   "top_speed": 10
+  },
+  "xp": {
+   "a": 15.0,
+   "base": 1.225,
+   "cut": 0.164,
+   "k": 0.135,
+   "k_off": 50.0,
+   "minus": 30.0,
+   "max_level": 200
+  },
+  "pouch": {
+   "compartments": 4,
+   "base_cap": 10,
+   "hard_cap": 2050000000
+  },
+  "settle": {
+   "max_days": 90,
+   "night_share": 0.3333
+  },
+  "side_drops": {
+   "foraging": {
+    "item": "spirit_wood",
+    "every": 20
+   }
+  },
+  "fervour": {
+   "bonus": 0.5,
+   "hours": 24
+  }
+ },
+ "categories": [
+  "ore",
+  "herb",
+  "fish",
+  "insect",
+  "material",
+  "critter",
+  "wisp"
+ ],
+ "nodes": {
+  "copper_ore": {
+   "craft": "delving",
+   "toughness": 25,
+   "exp": 12,
+   "gate": 1,
+   "category": "ore"
+  },
+  "riverstone": {
+   "craft": "delving",
+   "toughness": 60,
+   "exp": 20,
+   "gate": 5,
+   "category": "ore"
+  },
+  "jadeiron": {
+   "craft": "delving",
+   "toughness": 140,
+   "exp": 30,
+   "gate": 10,
+   "category": "ore"
+  },
+  "spirit_stone_shard": {
+   "craft": "delving",
+   "toughness": 300,
+   "exp": 48,
+   "gate": 18,
+   "category": "ore"
+  },
+  "cloudsteel_ore": {
+   "craft": "delving",
+   "toughness": 550,
+   "exp": 70,
+   "gate": 25,
+   "category": "ore"
+  },
+  "mystic_ore": {
+   "craft": "delving",
+   "toughness": 900,
+   "exp": 100,
+   "gate": 32,
+   "category": "ore"
+  },
+  "stormsteel_ore": {
+   "craft": "delving",
+   "toughness": 1400,
+   "exp": 150,
+   "gate": 40,
+   "category": "ore"
+  },
+  "sunglass_ore": {
+   "craft": "delving",
+   "toughness": 2000,
+   "exp": 210,
+   "gate": 45,
+   "category": "ore"
+  },
+  "driftglass": {
+   "craft": "delving",
+   "toughness": 2800,
+   "exp": 290,
+   "gate": 50,
+   "category": "ore"
+  },
+  "willow_moss": {
+   "craft": "foraging",
+   "toughness": 10,
+   "exp": 10,
+   "gate": 1,
+   "category": "herb"
+  },
+  "ember_pepper": {
+   "craft": "foraging",
+   "toughness": 40,
+   "exp": 18,
+   "gate": 4,
+   "category": "herb"
+  },
+  "riverreed_ginseng_10": {
+   "craft": "foraging",
+   "toughness": 120,
+   "exp": 28,
+   "gate": 9,
+   "category": "herb"
+  },
+  "mist_lotus": {
+   "craft": "foraging",
+   "toughness": 300,
+   "exp": 44,
+   "gate": 15,
+   "category": "herb"
+  },
+  "cloudtop_orchid": {
+   "craft": "foraging",
+   "toughness": 550,
+   "exp": 70,
+   "gate": 25,
+   "category": "herb"
+  },
+  "soulbell_flower": {
+   "craft": "foraging",
+   "toughness": 900,
+   "exp": 100,
+   "gate": 32,
+   "category": "herb"
+  },
+  "frost_lotus": {
+   "craft": "foraging",
+   "toughness": 1400,
+   "exp": 150,
+   "gate": 40,
+   "category": "herb"
+  },
+  "ember_cactus": {
+   "craft": "foraging",
+   "toughness": 2000,
+   "exp": 210,
+   "gate": 45,
+   "category": "herb"
+  },
+  "star_lotus": {
+   "craft": "foraging",
+   "toughness": 2800,
+   "exp": 290,
+   "gate": 50,
+   "category": "herb"
+  },
+  "river_minnow": {
+   "craft": "angling",
+   "toughness": 15,
+   "exp": 12,
+   "gate": 1,
+   "category": "fish"
+  },
+  "reed_perch": {
+   "craft": "angling",
+   "toughness": 40,
+   "exp": 18,
+   "gate": 3,
+   "category": "fish"
+  },
+  "river_eel": {
+   "craft": "angling",
+   "toughness": 120,
+   "exp": 30,
+   "gate": 10,
+   "category": "fish"
+  },
+  "jade_carp_fish": {
+   "craft": "angling",
+   "toughness": 300,
+   "exp": 44,
+   "gate": 15,
+   "category": "fish"
+  },
+  "mist_trout": {
+   "craft": "angling",
+   "toughness": 550,
+   "exp": 60,
+   "gate": 20,
+   "category": "fish"
+  },
+  "rapids_salmon": {
+   "craft": "angling",
+   "toughness": 900,
+   "exp": 85,
+   "gate": 28,
+   "category": "fish"
+  },
+  "moon_carp": {
+   "craft": "angling",
+   "toughness": 1400,
+   "exp": 130,
+   "gate": 35,
+   "category": "fish"
+  },
+  "glowfly": {
+   "craft": "netting",
+   "toughness": 10,
+   "exp": 10,
+   "gate": 1,
+   "category": "insect"
+  },
+  "reed_cicada": {
+   "craft": "netting",
+   "toughness": 45,
+   "exp": 20,
+   "gate": 5,
+   "category": "insect"
+  },
+  "jade_scarab": {
+   "craft": "netting",
+   "toughness": 140,
+   "exp": 32,
+   "gate": 12,
+   "category": "insect"
+  },
+  "silk_moth": {
+   "craft": "netting",
+   "toughness": 550,
+   "exp": 55,
+   "gate": 20,
+   "category": "insect"
+  },
+  "thunder_mantis": {
+   "craft": "netting",
+   "toughness": 900,
+   "exp": 90,
+   "gate": 30,
+   "category": "insect"
+  },
+  "frost_cricket": {
+   "craft": "netting",
+   "toughness": 1400,
+   "exp": 150,
+   "gate": 40,
+   "category": "insect"
+  },
+  "ember_locust": {
+   "craft": "netting",
+   "toughness": 2000,
+   "exp": 210,
+   "gate": 45,
+   "category": "insect"
+  },
+  "starwing_mote": {
+   "craft": "netting",
+   "toughness": 2800,
+   "exp": 290,
+   "gate": 50,
+   "category": "insect"
+  },
+  "spirit_wood": {
+   "craft": "foraging",
+   "toughness": 10,
+   "exp": 0,
+   "gate": 1,
+   "category": "herb",
+   "side": true
+  }
+ },
+ "pouch_tiers": [
+  25,
+  50,
+  100,
+  250,
+  500,
+  1000,
+  2000,
+  5000,
+  10000,
+  20000,
+  25000,
+  30000,
+  35000
+ ],
+ "sewing": [
+  {
+   "tier": 1,
+   "name": "Thimble",
+   "cap": 25,
+   "taels": 60,
+   "items": [
+    {
+     "item": "cloth",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "tier": 2,
+   "name": "Palm",
+   "cap": 50,
+   "taels": 130,
+   "items": [
+    {
+     "item": "cloth",
+     "count": 4
+    }
+   ]
+  },
+  {
+   "tier": 3,
+   "name": "Sleeve",
+   "cap": 100,
+   "taels": 280,
+   "items": [
+    {
+     "item": "thorn_hide",
+     "count": 4
+    }
+   ]
+  },
+  {
+   "tier": 4,
+   "name": "Satchel",
+   "cap": 250,
+   "taels": 580,
+   "items": [
+    {
+     "item": "serpent_scale",
+     "count": 4
+    }
+   ]
+  },
+  {
+   "tier": 5,
+   "name": "Gourd",
+   "cap": 500,
+   "taels": 1230,
+   "items": [
+    {
+     "item": "cloud_feather",
+     "count": 4
+    }
+   ]
+  },
+  {
+   "tier": 6,
+   "name": "Chest-Gourd",
+   "cap": 1000,
+   "taels": 2570,
+   "items": [
+    {
+     "item": "mist_pelt",
+     "count": 4
+    }
+   ]
+  },
+  {
+   "tier": 7,
+   "name": "Cavern-Gourd",
+   "cap": 2000,
+   "taels": 5400,
+   "items": [
+    {
+     "item": "kite_silk",
+     "count": 4
+    }
+   ]
+  },
+  {
+   "tier": 8,
+   "name": "Hall-Gourd",
+   "cap": 5000,
+   "taels": 11350,
+   "items": [
+    {
+     "item": "snow_ape_hide",
+     "count": 4
+    }
+   ]
+  },
+  {
+   "tier": 9,
+   "name": "Valley-Gourd",
+   "cap": 10000,
+   "taels": 23830,
+   "items": [
+    {
+     "item": "comet_iron",
+     "count": 4
+    }
+   ]
+  },
+  {
+   "tier": 10,
+   "name": "Mountain-Gourd",
+   "cap": 20000,
+   "taels": 50040,
+   "items": [
+    {
+     "item": "jelly_silk",
+     "count": 6
+    }
+   ]
+  },
+  {
+   "tier": 11,
+   "name": "River-Gourd",
+   "cap": 25000,
+   "taels": 105080,
+   "items": [
+    {
+     "item": "jelly_silk",
+     "count": 10
+    }
+   ]
+  },
+  {
+   "tier": 12,
+   "name": "Sky-Gourd",
+   "cap": 30000,
+   "taels": 220670,
+   "items": [
+    {
+     "item": "guardian_scale",
+     "count": 6
+    }
+   ]
+  },
+  {
+   "tier": 13,
+   "name": "Heaven-and-Earth",
+   "cap": 35000,
+   "taels": 463420,
+   "items": [
+    {
+     "item": "wyrm_ash",
+     "count": 4
+    }
+   ]
+  }
+ ],
+ "incense": {
+  "hour_incense_1": 1,
+  "hour_incense_2": 2,
+  "hour_incense_4": 4,
+  "hour_incense_12": 12,
+  "hour_incense_24": 24,
+  "hour_incense_72": 72
+ },
+ "swarms": {
+  "lf_reed_shallows": [
+   {
+    "item": "glowfly",
+    "weight": 100
+   }
+  ],
+  "wp_west": [
+   {
+    "item": "glowfly",
+    "weight": 100
+   }
+  ],
+  "rm_marsh_edge": [
+   {
+    "item": "glowfly",
+    "weight": 70
+   },
+   {
+    "item": "reed_cicada",
+    "weight": 30
+   }
+  ],
+  "rm_grey_pools": [
+   {
+    "item": "reed_cicada",
+    "weight": 70
+   },
+   {
+    "item": "glowfly",
+    "weight": 30
+   }
+  ],
+  "bg_whispering_bamboo": [
+   {
+    "item": "reed_cicada",
+    "weight": 60
+   },
+   {
+    "item": "jade_scarab",
+    "weight": 40
+   }
+  ],
+  "bg_thicket_heart": [
+   {
+    "item": "jade_scarab",
+    "weight": 100
+   }
+  ],
+  "dw_bend_shore": [
+   {
+    "item": "jade_scarab",
+    "weight": 70
+   },
+   {
+    "item": "reed_cicada",
+    "weight": 30
+   }
+  ],
+  "cc_sky_ledges": [
+   {
+    "item": "silk_moth",
+    "weight": 50
+   },
+   {
+    "item": "jade_scarab",
+    "weight": 50
+   }
+  ],
+  "mp_misty_slopes": [
+   {
+    "item": "silk_moth",
+    "weight": 100
+   }
+  ],
+  "mp_forgotten_monastery": [
+   {
+    "item": "silk_moth",
+    "weight": 70
+   },
+   {
+    "item": "jade_scarab",
+    "weight": 30
+   }
+  ],
+  "tp_stormgrass_verge": [
+   {
+    "item": "thunder_mantis",
+    "weight": 100
+   }
+  ],
+  "tp_thunderhorn_flats": [
+   {
+    "item": "thunder_mantis",
+    "weight": 100
+   }
+  ],
+  "tp_lightning_scar": [
+   {
+    "item": "thunder_mantis",
+    "weight": 80
+   },
+   {
+    "item": "silk_moth",
+    "weight": 20
+   }
+  ],
+  "rf_frostpine_climb": [
+   {
+    "item": "frost_cricket",
+    "weight": 100
+   }
+  ],
+  "rf_snow_ape_ledges": [
+   {
+    "item": "frost_cricket",
+    "weight": 100
+   }
+  ],
+  "rf_rimefrost_summit": [
+   {
+    "item": "frost_cricket",
+    "weight": 80
+   },
+   {
+    "item": "thunder_mantis",
+    "weight": 20
+   }
+  ],
+  "sd_glass_dunes": [
+   {
+    "item": "ember_locust",
+    "weight": 100
+   }
+  ],
+  "sd_scorpion_flats": [
+   {
+    "item": "ember_locust",
+    "weight": 100
+   }
+  ],
+  "sd_worm_sea": [
+   {
+    "item": "ember_locust",
+    "weight": 80
+   },
+   {
+    "item": "frost_cricket",
+    "weight": 20
+   }
+  ],
+  "dr_jellyfish_shallows": [
+   {
+    "item": "starwing_mote",
+    "weight": 100
+   }
+  ],
+  "dr_sparrow_reefs": [
+   {
+    "item": "starwing_mote",
+    "weight": 100
+   }
+  ],
+  "dr_driftglass_bank": [
+   {
+    "item": "starwing_mote",
+    "weight": 80
+   },
+   {
+    "item": "ember_locust",
+    "weight": 20
+   }
+  ]
+ }
+}

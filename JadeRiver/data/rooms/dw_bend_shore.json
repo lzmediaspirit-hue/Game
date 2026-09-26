@@ -413,6 +413,42 @@
      }
     ]
    }
+  },
+  {
+   "id": "swarm_jade_scarab",
+   "type": "insect_swarm",
+   "at": [
+    2139,
+    860
+   ],
+   "item": "jade_scarab",
+   "outputs": [
+    {
+     "item": "jade_scarab",
+     "weight": 70
+    },
+    {
+     "item": "reed_cicada",
+     "weight": 30
+    }
+   ],
+   "prop": "jade_scarab_swarm",
+   "rank": "apprentice",
+   "regrow_s": 240,
+   "radius": 110,
+   "yield": [
+    1,
+    2
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "insect_netting"
+     }
+    ]
+   },
+   "locked_text": "You have no net, and they are too quick for bare hands."
   }
  ],
  "spawns": [

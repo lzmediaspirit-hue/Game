@@ -606,6 +606,41 @@
    "services": []
   },
   {
+   "id": "tailor_xun",
+   "name": "Tailor Xun",
+   "title": "Pouch sewer",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 2,
+    "shirt": "cardigan",
+    "pants": "straight",
+    "shoes": "folded",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "indigo",
+    "pants_dye": "grey"
+   },
+   "lines": [
+    "A Qiankun pouch is only as big as the stitches that fold it. I fold them small.",
+    "Four compartments to a pouch. Ore in one, herbs in another. Never mix fish with anything."
+   ],
+   "barks": [
+    "Mind the needles.",
+    "Measure twice, fold once."
+   ],
+   "services": [
+    "page:pouches"
+   ],
+   "service_labels": {
+    "page:pouches": "Sew a pouch"
+   },
+   "service_unlocks": {
+    "page:pouches": "pouch_sewing"
+   }
+  },
+  {
    "id": "courier_lin",
    "name": "Courier Lin",
    "title": "Courier",

@@ -389,6 +389,16 @@
    "facing": 1
   },
   {
+   "id": "npc_tailor_xun",
+   "type": "npc",
+   "at": [
+    1060,
+    900
+   ],
+   "npc": "tailor_xun",
+   "facing": 1
+  },
+  {
    "id": "npc_adventurer_su",
    "type": "npc",
    "at": [

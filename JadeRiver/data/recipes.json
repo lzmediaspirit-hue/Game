@@ -2997,6 +2997,838 @@
    "default": true
   },
   {
+   "id": "copper_pick",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 6
+    },
+    {
+     "item": "spirit_wood",
+     "count": 2
+    },
+    {
+     "item": "cloth",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "copper_pick",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "copper_sickle",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 4
+    },
+    {
+     "item": "spirit_wood",
+     "count": 2
+    },
+    {
+     "item": "cloth",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "copper_sickle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "reedline_rod",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 2
+    },
+    {
+     "item": "spirit_wood",
+     "count": 3
+    },
+    {
+     "item": "cloth",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "reedline_rod",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "hemp_net",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "count": 2
+    },
+    {
+     "item": "cloth",
+     "count": 3
+    },
+    {
+     "item": "spirit_wood",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "hemp_net",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "iron_pickaxe",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "riverstone",
+     "count": 6
+    },
+    {
+     "item": "copper_ore",
+     "count": 3
+    },
+    {
+     "item": "spirit_wood",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_pickaxe",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "iron_sickle",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "riverstone",
+     "count": 4
+    },
+    {
+     "item": "copper_ore",
+     "count": 3
+    },
+    {
+     "item": "spirit_wood",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "iron_sickle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "ironwood_rod",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "riverstone",
+     "count": 2
+    },
+    {
+     "item": "spirit_wood",
+     "count": 3
+    },
+    {
+     "item": "spirit_wood",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "ironwood_rod",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "cord_net",
+   "craft": "smithing",
+   "grade": "common",
+   "inputs": [
+    {
+     "item": "riverstone",
+     "count": 2
+    },
+    {
+     "item": "cloth",
+     "count": 4
+    },
+    {
+     "item": "spirit_wood",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cord_net",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "jadeiron_pick",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 6
+    },
+    {
+     "item": "riverstone",
+     "count": 3
+    },
+    {
+     "item": "jade_scale",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_pick",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "jadeiron_sickle",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 4
+    },
+    {
+     "item": "riverstone",
+     "count": 3
+    },
+    {
+     "item": "jade_scale",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeiron_sickle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "jadeline_rod",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 2
+    },
+    {
+     "item": "spirit_wood",
+     "count": 3
+    },
+    {
+     "item": "jade_scale",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "jadeline_rod",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "silk_net",
+   "craft": "smithing",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "count": 2
+    },
+    {
+     "item": "kite_silk",
+     "count": 1
+    },
+    {
+     "item": "spirit_wood",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "silk_net",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "cloudsteel_pick",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "jadeiron",
+     "count": 3
+    },
+    {
+     "item": "cloud_feather",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_pick",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "cloudsteel_sickle",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "jadeiron",
+     "count": 3
+    },
+    {
+     "item": "cloud_feather",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsteel_sickle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "cloud_rod",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 2
+    },
+    {
+     "item": "spirit_wood",
+     "count": 3
+    },
+    {
+     "item": "cloud_feather",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloud_rod",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "cloudsilk_net",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 2
+    },
+    {
+     "item": "cloud_feather",
+     "count": 2
+    },
+    {
+     "item": "spirit_wood",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "cloudsilk_net",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "mystic_pick",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 6
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 3
+    },
+    {
+     "item": "roc_feather",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mystic_pick",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "mystic_sickle",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 4
+    },
+    {
+     "item": "cloudsteel_ore",
+     "count": 3
+    },
+    {
+     "item": "roc_feather",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mystic_sickle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "mystic_rod",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 2
+    },
+    {
+     "item": "spirit_wood",
+     "count": 3
+    },
+    {
+     "item": "roc_feather",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mystic_rod",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "mystic_net",
+   "craft": "smithing",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "mystic_ore",
+     "count": 2
+    },
+    {
+     "item": "roc_feather",
+     "count": 2
+    },
+    {
+     "item": "spirit_wood",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "mystic_net",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "stormsteel_pick",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 6
+    },
+    {
+     "item": "mystic_ore",
+     "count": 3
+    },
+    {
+     "item": "spark_pelt",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_pick",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "stormsteel_sickle",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 4
+    },
+    {
+     "item": "mystic_ore",
+     "count": 3
+    },
+    {
+     "item": "spark_pelt",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "stormsteel_sickle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "storm_rod",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 2
+    },
+    {
+     "item": "spirit_wood",
+     "count": 3
+    },
+    {
+     "item": "spark_pelt",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "storm_rod",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "storm_net",
+   "craft": "smithing",
+   "grade": "spirit",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "count": 2
+    },
+    {
+     "item": "kite_silk",
+     "count": 3
+    },
+    {
+     "item": "spirit_wood",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "storm_net",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "sunglass_pick",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 6
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 3
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunglass_pick",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "sunglass_sickle",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 4
+    },
+    {
+     "item": "stormsteel_ore",
+     "count": 3
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunglass_sickle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "sunglass_rod",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 2
+    },
+    {
+     "item": "spirit_wood",
+     "count": 3
+    },
+    {
+     "item": "scorpion_stinger",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunglass_rod",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "sunglass_net",
+   "craft": "smithing",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "sunglass_ore",
+     "count": 2
+    },
+    {
+     "item": "kite_silk",
+     "count": 4
+    },
+    {
+     "item": "spirit_wood",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "sunglass_net",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "driftglass_pick",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 6
+    },
+    {
+     "item": "sunglass_ore",
+     "count": 3
+    },
+    {
+     "item": "star_shard",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftglass_pick",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "driftglass_sickle",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 4
+    },
+    {
+     "item": "sunglass_ore",
+     "count": 3
+    },
+    {
+     "item": "star_shard",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "driftglass_sickle",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "starline_rod",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 2
+    },
+    {
+     "item": "spirit_wood",
+     "count": 3
+    },
+    {
+     "item": "star_shard",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "starline_rod",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
+   "id": "starsilk_net",
+   "craft": "smithing",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "driftglass",
+     "count": 2
+    },
+    {
+     "item": "jelly_silk",
+     "count": 3
+    },
+    {
+     "item": "spirit_wood",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "starsilk_net",
+     "count": 1
+    }
+   ],
+   "default": true
+  },
+  {
    "id": "bright_mirror",
    "craft": "smithing",
    "grade": "earth",

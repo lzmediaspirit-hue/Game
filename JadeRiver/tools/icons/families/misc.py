@@ -925,6 +925,124 @@ for _id, _fn in (('viper_oil', _oil(R['venom'])), ('ember_oil', _oil(R['ember'])
     register(FAM, _id, _fn, GROUP)
 
 
+# ============================================================================ V10 · Keeping Post: hour incense
+# A fanned bundle of sandalwood sticks tied in a cup holder, the burn time as a pixel numeral on the holder's
+# label. Longer incense: more sticks and a richer holder (clay, bronze, porcelain, jade, gold). Unlike the calm
+# incenses (low bowls) these stand in a tall cup.
+HOUR_DIGITS = {
+    '1': ['.#.', '##.', '.#.', '.#.', '###'],
+    '2': ['###', '..#', '###', '#..', '###'],
+    '4': ['#.#', '#.#', '###', '..#', '..#'],
+    '7': ['###', '..#', '..#', '.#.', '.#.'],
+}
+HOUR_INCENSE = {
+    1: dict(sticks=2, cup=R['clay'], rim=None, band=None, tie=R['hemp'], feet=None, label=R['paper'], ink=R['ink'][2]),
+    2: dict(sticks=3, cup=R['clay'], rim=R['bronze'], band=None, tie=R['hemp'], feet=None, label=R['paper'],
+            ink=R['ink'][2]),
+    4: dict(sticks=4, cup=R['bronze'], rim=R['bronze'], band=None, tie=R['red'], feet=None, label=R['paper'],
+            ink=R['ink'][2]),
+    12: dict(sticks=5, cup=R['porcelain'], rim=R['navy'], band=R['navy'], tie=R['red'], feet=R['navy'],
+             label=R['paper'], ink=R['navy'][1]),
+    24: dict(sticks=6, cup=R['jade'], rim=R['gold'], band=None, tie=R['red'], feet=R['gold'], label=R['paper'],
+             ink=R['ink'][2]),
+    72: dict(sticks=7, cup=R['gold'], rim=R['gold'], band=R['jade'], tie=R['seal'], feet=R['gold'], label=R['seal'],
+             ink=R['gold'][4]),
+}
+
+
+HOUR_STAGGER = {2: [0, 2], 3: [2, 0, 3], 4: [2, 0, 3, 1], 5: [3, 1, 0, 2, 4], 6: [3, 1, 4, 0, 2, 4],
+                7: [4, 2, 0, 3, 1, 3, 5]}
+
+
+def _hour_incense(hours):
+    H = HOUR_INCENSE[hours]
+    c = Canvas(32)
+    n = H['sticks']
+    tops = []
+    for k in range(n):
+        x, yt = 16 + 2 * k - n, 5 + HOUR_STAGGER[n][k]
+        c.put(c.rect(x, yt, x, 19), R['red'], 'flat', base=2 if k % 2 == 0 else 1)
+        tops.append((x, yt))
+    # glowing tips, and curls of smoke from the tallest sticks
+    tall = sorted(tops, key=lambda p: (p[1], p[0]))[:2 if n > 3 else 1]
+    for (x, y) in tops:
+        c.put(c.rect(x, y, x, y), R['fire'], 'flat', base=4 if (x, y) in tall else 2)
+    smoke = c.empty()
+    for (tx, ty) in tall:
+        d = -1 if tx < 16 else 1
+        smoke |= S.bez_line(c, (tx, ty - 2), (tx + 3 * d, ty - 3), (tx + d, max(1, ty - 5)))
+    c.put(smoke & ~c.a, R['mist'], 'flat', base=3)
+    # the cup holder: lip, body, optional trim bands and feet
+    cup = S.rounded_rect(c, 8, 19, 23, 28, 2)
+    c.put(cup, H['cup'], 'ray', base=2, sep=True)
+    c.put(c.rect(8, 19, 23, 19) & cup, H['cup'], 'flat', base=4)
+    if H['rim']:
+        c.put(c.rect(8, 19, 23, 20) & cup, H['rim'], 'flat', base=3)
+        c.put(c.rect(9, 20, 22, 20) & cup, H['rim'], 'flat', base=1)
+    if H['band']:
+        c.put(c.rect(8, 27, 23, 27) & cup, H['band'], 'flat', base=2)
+    if H['feet']:
+        for x in (9, 21):
+            c.put(c.rect(x, 29, x + 1, 29), H['feet'], 'flat', base=1, sep=True)
+    # label with the burn time in hours
+    digits = str(hours)
+    w = 4 * len(digits) - 1
+    x0 = 16 - (w + 1) // 2
+    lab = c.rect(x0 - 1, 21, x0 + w, 27)
+    c.put(lab, H['label'], 'flat', base=3, sep=True, sep_col=H['cup'][0])
+    for i, ch in enumerate(digits):
+        c.put(c.from_rows(HOUR_DIGITS[ch], x0 + i * 4, 22), H['ink'], 'flat', out=H['label'].out)
+    c.outline()
+    if hours == 72:
+        S.sparkle(c, 27, 22, '#FFFFFF', R['gold'][3], 2)
+    return c
+
+
+def wandering_incense():
+    """One twisting violet-brown stick in a sand dish; its smoke curls into a question mark over the ember."""
+    c = Canvas(32)
+    dish = c.ellipse(16, 27, 8, 2.6)
+    c.put(dish, R['bronze'], 'ray', base=2)
+    sand = c.ellipse(16, 25.6, 4.6, 1.8) & (c.Y < 26.5)
+    c.put(sand, R['sand'], 'ray', base=3, sep=True)
+    # the twisted stick: a slight wave with spiral stripes
+    for y in range(13, 26):
+        x = 15 + (1 if (y // 3) % 2 else 0)
+        stripe = (y % 3 == 0)
+        c.put(c.rect(x, y, x + 1, y), R['plum'], 'flat', base=1 if stripe else 3)
+        c.put(c.rect(x + 1, y, x + 1, y), R['plum'], 'flat', base=0 if stripe else 2)
+    c.put(c.rect(16, 12, 17, 12), R['fire'], 'flat', base=3)
+    c.put(c.rect(16, 11, 16, 11), R['fire'], 'flat', base=4)
+    # smoke: rises from above the ember and curls into a question-mark hook
+    rows = [
+        '...#####..',
+        '..##...###',
+        '.##.....##',
+        '........##',
+        '.......##.',
+        '......##..',
+        '.....##...',
+        '.....#....',
+        '.....#....',
+    ]
+    q = c.from_rows(rows, 11, 1)
+    c.put(q, R['violet'], 'ray', base=3)
+    c.put(q & c.rect(0, 1, 31, 2), R['violet'], 'flat', base=4)
+    wisp = c.pts([(9, 5), (8, 6), (22, 9), (23, 10)])
+    c.put(wisp, R['violet'], 'flat', base=2)
+    c.outline()
+    from families.beast_parts import halo
+    halo(c, q, '#9B78D1', (80,))
+    return c
+
+
+for _id, _fn in (('hour_incense_1', lambda: _hour_incense(1)), ('hour_incense_2', lambda: _hour_incense(2)),
+                 ('hour_incense_4', lambda: _hour_incense(4)), ('hour_incense_12', lambda: _hour_incense(12)),
+                 ('hour_incense_24', lambda: _hour_incense(24)), ('hour_incense_72', lambda: _hour_incense(72)),
+                 ('wandering_incense', wandering_incense)):
+    register(FAM, _id, _fn, GROUP)
+
+
 # ============================================================================ Act II · Sunscar Desert
 SUN_GLOW = '#FFC870'
 

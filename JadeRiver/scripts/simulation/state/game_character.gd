@@ -24,6 +24,7 @@ var last_shrine: Dictionary = {}     # {room, x, y}
 var last_town := ""
 var seclusion: Dictionary = {}
 var idle_task: Dictionary = {}
+var posts: Dictionary = {}           # S50 Keeping Post (V10): {post, crafts, pouch} (Post authority)
 var companions: Dictionary = {"roster": [], "active": [], "bond": {}, "downed": {}}
 var pets: Array = []
 var eggs: Array = []                 # [{species, hatch_utc}] incubating spirit eggs (S22)
@@ -61,7 +62,7 @@ func snapshot() -> Dictionary:
 		"buffs": stats.snapshot(), "inventory": inventory.snapshot(), "professions": professions.duplicate(true),
 		"crafting": crafting.duplicate(true), "training_sect": training_sect.duplicate(true),
 		"quests": quests.snapshot(), "position": position.duplicate(true), "last_shrine": last_shrine.duplicate(true),
-		"last_town": last_town, "seclusion": seclusion.duplicate(true), "idle_task": idle_task.duplicate(true),
+		"last_town": last_town, "seclusion": seclusion.duplicate(true), "idle_task": idle_task.duplicate(true), "posts": posts.duplicate(true),
 		"companions": companions.duplicate(true), "pets": pets.duplicate(true), "eggs": eggs.duplicate(true), "active_pet": active_pet,
 		"party_pets": party_pets.duplicate(), "pet_bag": pet_bag.duplicate(), "mount_pet": mount_pet, "riding": riding, "beast_arena": beast_arena.duplicate(true), "tower": tower.duplicate(true),
 		"cooldowns": cooldowns.duplicate(true), "rooms": rooms.duplicate(true), "skill_page": skill_page,
@@ -93,6 +94,7 @@ func restore(d: Dictionary) -> void:
 	last_town = str(d.get("last_town", ""))
 	seclusion = d.get("seclusion", {}) if d.get("seclusion") is Dictionary else {}
 	idle_task = d.get("idle_task", {}) if d.get("idle_task") is Dictionary else {}
+	posts = d.get("posts", {}).duplicate(true) if d.get("posts") is Dictionary else {}
 	companions = d.get("companions", companions).duplicate(true)
 	pets = d.get("pets", []).duplicate(true)
 	eggs = d.get("eggs", []).duplicate(true)

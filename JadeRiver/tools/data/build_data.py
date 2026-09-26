@@ -4,7 +4,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-MODULES = ["realms", "stats", "legends", "items", "herbs", "techniques", "enemies", "world", "story", "economy", "crafts", "paths", "relations", "living_world", "contract"]
+MODULES = ["realms", "stats", "legends", "posts", "items", "herbs", "techniques", "enemies", "world", "story", "economy", "crafts", "paths", "relations", "living_world", "contract"]
 
 if __name__ == "__main__":
     only = sys.argv[1:]

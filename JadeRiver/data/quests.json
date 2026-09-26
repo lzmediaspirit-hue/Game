@@ -1243,6 +1243,124 @@
    "target_room": ""
   },
   {
+   "id": "keeping_post",
+   "name": "Keeping Post",
+   "kind": "guided",
+   "giver": "fisher_wen",
+   "hand_in": "",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Keep post at a node: the pennant button beside an ore vein, herb, fishing spot or swarm",
+     "count": 1,
+     "system": "post"
+    },
+    {
+     "kind": "settle_post",
+     "text": "Play someone else, then come back to the one who kept post",
+     "count": 1
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "hour_incense_1",
+     "count": 2
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 100
+    }
+   ],
+   "offer_text": [
+    "A line left in the water still fishes. When I can't sit by mine, my nephew does, and the basket fills either way.",
+    "Leave one of yours at a vein or a pool while you walk another road. They keep working. Come back and count."
+   ],
+   "complete_text": [
+    "See? The river doesn't care who holds the rod. The Roll-Call keeps count of who is where."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "bf6",
+   "target_room": "lf_village"
+  },
+  {
+   "id": "glowflies",
+   "name": "Little Dou's Glowflies",
+   "kind": "side",
+   "giver": "little_dou",
+   "hand_in": "little_dou",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "gather_node",
+     "text": "Net glowflies at the Reed Shallows",
+     "count": 5,
+     "item": "glowfly",
+     "craft": "insect_netting"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 60
+    },
+    {
+     "kind": "grant_item",
+     "item": "reed_net",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "The glowflies are out in the reeds! I made you a net. Well, Aunt Ping made it. Catch five! For a lantern!"
+   ],
+   "complete_text": [
+    "Five! Now my lantern glows green. Keep the spare net. Ooh, and there are beetles in the bamboo too..."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "bf6",
+   "target_room": "lf_reed_shallows"
+  },
+  {
+   "id": "a_pouch_for_the_road",
+   "name": "A Pouch for the Road",
+   "kind": "side",
+   "giver": "tailor_xun",
+   "hand_in": "tailor_xun",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Have Tailor Xun sew a pouch for one of your characters",
+     "count": 1,
+     "system": "sew_pouch"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "cloth",
+     "count": 4
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "Your people come back from their posts with half their haul spilled. Ten to a compartment? Ha. Bring cloth and silver and I'll fold you more room."
+   ],
+   "complete_text": [
+    "There. Twenty-five to a compartment, four compartments. Bring better cloth and I'll fold it deeper."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk1",
+   "target_room": "sf_market"
+  },
+  {
    "id": "earning_your_keep",
    "name": "Earning Your Keep",
    "kind": "guided",

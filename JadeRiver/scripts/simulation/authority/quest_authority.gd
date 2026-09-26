@@ -20,6 +20,7 @@ const EVENT_KINDS := {
 	"sect_rank_changed": ["reach_rank"], "mail_read": ["read_mail"], "quick_use_changed": ["use_system"], "pill_used": ["use_item"],
 	"art_used": ["use_system"],   # S43 movement arts (double jump, Wall-Step, glide...) count as the system of that name
 	"presence_leveled": ["reach_presence"],   # S28 v1.2: a Presence trained to a level
+	"post_settled": ["settle_post"],   # S50 V10: a character's post settled on its return
 }
 
 func intents() -> Array:
@@ -403,6 +404,7 @@ func _match(c, o: Dictionary, p: Dictionary, ev: String) -> int:
 			if o.has("role"): return 1 if str(p.get("role", "")) == str(o.role) else 0
 			return 1 if str(o.enemy) == "any" or str(p.get("def", "")) == str(o.enemy) else 0
 		"use_item": return 1 if str(o.get("item", "any")) in ["any", str(p.get("item", ""))] else 0
+		"settle_post": return 1 if str(p.get("source", "post")) == "post" else 0
 		"win_spar": return 1 if p.get("winner", "") == "player" and str(o.get("opponent", "any")) in ["any", str(p.get("opponent", ""))] else 0
 		"survive_timer": return 1 if str(p.get("event", "")) == str(o.event) else 0
 		"interact_object":

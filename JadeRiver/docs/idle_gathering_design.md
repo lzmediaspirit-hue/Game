@@ -235,12 +235,12 @@ harvesting is unchanged; posts respect the gate.
 | copper ore | valley | 25 | 12 | 1 |
 | riverstone | valley | 60 | 20 | 5 |
 | jadeiron | valley | 140 | 30 | 10 |
-| spirit stone shard | valley | 350 | 48 | 18 |
-| cloudsteel ore | Expanse | 800 | 70 | 25 |
-| mystic ore | Expanse | 1,800 | 100 | 32 |
-| stormsteel ore | Expanse | 3,500 | 150 | 40 |
-| sunglass ore | Expanse | 6,000 | 210 | 45 |
-| driftglass | Lantern Field | 10,000 | 290 | 50 |
+| spirit stone shard | valley | 300 | 48 | 18 |
+| cloudsteel ore | Mist Peak | 550 | 70 | 25 |
+| mystic ore | Mist Peak | 900 | 100 | 32 |
+| stormsteel ore | Expanse | 1,400 | 150 | 40 |
+| sunglass ore | Expanse | 2,000 | 210 | 45 |
+| driftglass | Lantern Field | 2,800 | 290 | 50 |
 
 ### 4.2 Spirit Foraging (herbs; spirit wood as a side drop)
 
@@ -250,11 +250,11 @@ harvesting is unchanged; posts respect the gate.
 | ember pepper | 40 | 18 | 4 |
 | riverreed ginseng (10 years) | 120 | 28 | 9 |
 | mist lotus | 300 | 44 | 15 |
-| cloudtop orchid | 800 | 70 | 25 |
-| soulbell flower | 1,800 | 100 | 32 |
-| frost lotus | 3,500 | 150 | 40 |
-| ember cactus | 6,000 | 210 | 45 |
-| star lotus | 10,000 | 290 | 50 |
+| cloudtop orchid | 550 | 70 | 25 |
+| soulbell flower | 900 | 100 | 32 |
+| frost lotus | 1,400 | 150 | 40 |
+| ember cactus | 2,000 | 210 | 45 |
+| star lotus | 2,800 | 290 | 50 |
 
 A post gathers the base (youngest) herb only. Aged and ripe herbs, and everything S45 gives them, stay a thing
 of the hand.
@@ -267,9 +267,9 @@ of the hand.
 | reed perch | 40 | 18 | 3 |
 | river eel | 120 | 30 | 10 |
 | jade carp | 300 | 44 | 15 |
-| mist trout | 600 | 60 | 20 |
-| rapids salmon | 1,200 | 85 | 28 |
-| moon carp (night) | 2,500 | 130 | 35 |
+| mist trout | 550 | 60 | 20 |
+| rapids salmon | 900 | 85 | 28 |
+| moon carp (night) | 1,400 | 130 | 35 |
 
 ### 4.4 Insect Netting (new: insect swarms)
 
@@ -277,12 +277,12 @@ of the hand.
 |---|---|---|---|---|
 | glowfly | Lotus Ferry reeds, Willow Path | 10 | 10 | 1 |
 | reed cicada | reed shallows, bamboo | 45 | 20 | 5 |
-| jade scarab | Bamboo Grove, Deepwater Bend | 150 | 32 | 12 |
-| silk moth | Mist Peak | 500 | 55 | 20 |
-| thunder mantis | Thunderhorn Plains | 1,500 | 90 | 30 |
-| frost cricket | Rimefrost Heights | 3,500 | 150 | 40 |
-| ember locust | Sunscar | 6,000 | 210 | 45 |
-| starwing mote | Drifting Shoals | 10,000 | 290 | 50 |
+| jade scarab | Bamboo Grove, Deepwater Bend | 140 | 32 | 12 |
+| silk moth | Mist Peak | 550 | 55 | 20 |
+| thunder mantis | Thunderhorn Plains | 900 | 90 | 30 |
+| frost cricket | Rimefrost Heights | 1,400 | 150 | 40 |
+| ember locust | Sunscar | 2,000 | 210 | 45 |
+| starwing mote | Drifting Shoals | 2,800 | 290 | 50 |
 
 A swarm is a room object (`insect_swarm`, prop per insect family) with outputs by weight. *Stirring* a swarm
 by hand (hitting it) sets its **Swarm Fervour** (+50% netting yield in that room for 24 hours; the swarm
@@ -383,7 +383,7 @@ Rough targets: a new character 52% / 40%; mid Expanse 80–120%; late Act III pa
 
 | Tier | Delving pick | Foraging sickle | Angling rod | Silk net | Zone |
 |---|---|---|---|---|---|
-| 0 | old pickaxe (2, 3; 1) | herb sickle (3, 3; 1) | bamboo rod (3, 3; 1) | old net (4, 4; 1) | valley |
+| 0 | old pickaxe (2, 3; 1) | herb sickle (3, 3; 1) | bamboo rod (3, 3; 1) | reed net (4, 4; 1) | valley |
 | 1 | copper pick (6, 3; 3) | copper sickle (7, 3; 4) | reed-line rod (8, 3; 4) | hemp net (9, 4; 4) | valley |
 | 2 | iron pickaxe (10, 4; 8) | iron sickle (10, 3; 8) | ironwood rod (13, 4; 9) | cord net (14, 4; 10) | valley |
 | 3 | jadeiron pick (13, 4; 15) | jadeiron sickle (14, 4; 15) | jade-line rod (19, 4; 15) | silk net (20, 5; 15) | valley |
@@ -395,7 +395,7 @@ Rough targets: a new character 52% / 40%; mid Expanse 80–120%; late Act III pa
 
 Tiers 9–12 (power to 75, speed to 8, Finesse to +50%) belong to Acts IV–V. Tools are forged at the smith (the
 Forge Guild's recipes) from the zone's ores and spirit wood; the old pickaxe, iron pickaxe, herb sickle, bamboo
-rod and old net already exist and become tiers 0 and 2.
+rod already exist and become tiers 0 and 2; the reed net is new.
 
 ### 7.2 Vigil (V10b)
 
@@ -454,13 +454,16 @@ sweep        = max(1, tier × sweep_rate)          tier = floor(log2(max_hit / h
 
 | Case | Target |
 |---|---|
-| New character, old pickaxe, copper | Finesse ≈ 81, chance ≈ 64%, 70–100 ore/h, craft level 10 in 3–6 h of posts |
-| Valley end (Level 45, tier-3 tools, craft 25) | jadeiron chance ≥ 55%, spirit stone shard ≥ 35% |
-| Expanse end (Level 80, tier-6 tools, craft 45, modest bonuses) | stormsteel ≥ 30%, sunglass ≥ 25% |
-| Act III (Level 95, tier-8, craft 55, bonuses ×3) | driftglass ≥ 40% |
-| Pouch | no pouch fills in under 1 h; the Satchel tier (250) holds 6–12 h of a valley post |
+| New character, copper pick (power 6), Body 10, copper | Finesse ≈ 81, chance ≈ 64%, 70–100 ore/h, craft level 10 in 3–6 h of posts |
+| Valley end (Body 70, tier-3 pick, craft 25) | jadeiron ≈ 50%, spirit stone shard ≈ 40% |
+| Expanse (Body 115, tier-6 pick, craft 42) | stormsteel ≥ 30% |
+| Act III (Body 150, tier-8 pick, craft 55) | driftglass ≥ 30% before any V10d bonus |
+| Pouch | an unsewn pouch fills in about half an hour; the Satchel tier (4 × 250) holds 10–16 h of a valley-end post |
 | Vigil | a valley character one-shotting its room: 150–350 kills/h at 40% |
 | Economy | a day of twelve valley posts sells for no more than a day of active hunting |
+
+The ladder is steeper than IdleOn's early tiers would suggest per step but spans fewer tiers per zone: at base Finesse a
+character works its home zone's nodes at 30–50%, and the V10d account web (×2–4) is what fills the bars.
 
 ---
 
@@ -468,7 +471,7 @@ sweep        = max(1, tier × sweep_rate)          tier = floor(log2(max_hit / h
 
 | Phase | Contents | Acceptance |
 |---|---|---|
-| **V10a · Posts and crafts** | PostRules and PostAuthority; Delving, Foraging, Angling, Netting with levels and EXP; tools tiers 0–8 (36, five existing); insect swarms (8 insects, props, placement); pouches and Tailor Xun; the Storehouse; the Return Ledger; the Roll-Call with settle all; Hour and Wandering Incense; node plates and Post Info; migration of Gather; active harvesting trains crafts | `post_suite` (formulas, the worked examples, rates, capacity stop, settle determinism, clock safety, save round-trip, migration); `valley_run` posts two characters and settles them; `balance_sim` targets |
+| **V10a · Posts and crafts** | PostRules and PostAuthority; Delving, Foraging, Angling, Netting with levels and EXP; tools tiers 0–8 (36, four existing); insect swarms (8 insects, props, placement); pouches and Tailor Xun; the Storehouse; the Return Ledger; the Roll-Call with settle all; Hour and Wandering Incense; node plates and Post Info; migration of Gather; active harvesting trains crafts | `post_suite` (formulas, the worked examples, rates, capacity stop, settle determinism, clock safety, save round-trip, migration); `valley_run` posts two characters and settles them; `balance_sim` targets |
 | **V10b · Vigil** | kills/h, hit, survivability and Provisions, Sweep, quick-bar techniques, loot at expected value, Bestiary Leaves; migration of Hunt | `vigil_suite`; balance targets |
 | **V10c · Snares, Rites, Bench** | Beast Snaring, Ancestral Rites with the altar defence and Spirit Wisps, Post Vows, the Apprentice Bench | suites per system |
 | **V10d · The account web** | Mirror of Echoes, Calcination Furnace, Seal Scripts, Guardian Steles, Formation Flags, Post Arts, Magistrate's Favours, Auto-Settle, Storehouse Seal; the calibration pass | `balance_sim` over a simulated 30 days of twelve characters |

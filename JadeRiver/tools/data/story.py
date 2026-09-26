@@ -128,6 +128,11 @@ def npcs():
         ["Lotus root tea calms the belly and the Qi.", "Sit. Everyone who sits in my tea house leaves stronger."], ["Tea! Hot tea!"], services=["shop:stoneford_tea"])
     npc("keeper_shi", "Keeper Shi", "Stone keeper", outfit("topknot", 1, "scholar", "scholar", "folded", shirt_dye="jade"),
         ["Teleport stones remember those who touch them.", "A shard of Spirit Stone pays the ferryman of the stones."], ["The stones hum today."])
+    npc("tailor_xun", "Tailor Xun", "Pouch sewer", outfit("short_knot", 2, "cardigan", "straight", "folded", shirt_dye="indigo", pants_dye="grey"),
+        ["A Qiankun pouch is only as big as the stitches that fold it. I fold them small.",
+         "Four compartments to a pouch. Ore in one, herbs in another. Never mix fish with anything."],
+        ["Mind the needles.", "Measure twice, fold once."], services=["page:pouches"],
+        service_labels={"page:pouches": "Sew a pouch"}, service_unlocks={"page:pouches": "pouch_sewing"})
     npc("courier_lin", "Courier Lin", "Courier", outfit("ponytail", 0, "vneck", "cuffed", "boots", shirt_dye="indigo"),
         ["Letters to every sect, parcels to every village.", "The mail finds you. Somehow. Always."], ["Coming through!"])
     npc("adventurer_su", "Su Qing", "Herb hunter", outfit("high_pony", 4, "cardigan", "cuffed", "boots", shirt_dye="jade"),
@@ -548,6 +553,13 @@ def unlocks():
     u("cooking", "Cooking", all_of(realm("bone_forging_8")), "aunt_pings_broth", [],
       effects=[{"kind": "grant_item", "item": "clay_pot", "count": 1}, {"kind": "grant_item", "item": "bamboo_rod", "count": 1}])
     u("fishing", "Fishing", all_of(realm("bone_forging_8")), "aunt_pings_broth", [], same_stage_ok=True)
+    # V10 Keeping Post (docs/idle_gathering_design.md): posts once a second character can take over, the nets with
+    # Little Dou's glowflies, and pouch sewing at Tailor Xun once the Storage opens.
+    u("keeping_post", "Keeping post", all_of({"kind": "account_realm", "realm": "bone_forging_6"}), "keeping_post", ["page:posts"])
+    u("insect_netting", "Insect netting", all_of(realm("bone_forging_6")), "glowflies", [], effects=[{"kind": "grant_item", "item": "reed_net", "count": 1}],
+      same_stage_ok=True)
+    u("pouch_sewing", "Pouch sewing", all_of(realm("qi_kindling_1"), qdone("keeping_post")), "a_pouch_for_the_road", ["page:pouches"],
+      same_stage_ok=True)
     u("bottleneck_panel", "Bottlenecks", all_of(realm("bone_forging_9")), "the_wall", ["page:breakthrough"])
     u("stored_qi", "Stored Qi", all_of(realm("bone_forging_9")), "the_wall", [], same_stage_ok=True, toast=False)
 
@@ -916,6 +928,23 @@ def guided_quests():
         o("use_system", "Create a second character or set an idle task", system="second_path"),
     ], [taels(200)], offered_by_unlock=True, hand_in="", chapter="bf5", target_room="",
         offer=["(A letter from your mentor) One cultivator can't walk every road. Train a second disciple, or leave this one to train while you rest."])
+    quest("keeping_post", "Keeping Post", "guided", "fisher_wen", [
+        o("use_system", "Keep post at a node: the pennant button beside an ore vein, herb, fishing spot or swarm", system="post"),
+        o("settle_post", "Play someone else, then come back to the one who kept post"),
+    ], [item("hour_incense_1", 2), taels(100)], offered_by_unlock=True, hand_in="", chapter="bf6", target_room="lf_village",
+        offer=["A line left in the water still fishes. When I can't sit by mine, my nephew does, and the basket fills either way.",
+               "Leave one of yours at a vein or a pool while you walk another road. They keep working. Come back and count."],
+        complete=["See? The river doesn't care who holds the rod. The Roll-Call keeps count of who is where."])
+    quest("glowflies", "Little Dou's Glowflies", "side", "little_dou", [
+        o("gather_node", "Net glowflies at the Reed Shallows", 5, item="glowfly", craft="insect_netting"),
+    ], [taels(60), item("reed_net", 1)], offered_by_unlock=True, chapter="bf6", target_room="lf_reed_shallows",
+        offer=["The glowflies are out in the reeds! I made you a net. Well, Aunt Ping made it. Catch five! For a lantern!"],
+        complete=["Five! Now my lantern glows green. Keep the spare net. Ooh, and there are beetles in the bamboo too..."])
+    quest("a_pouch_for_the_road", "A Pouch for the Road", "side", "tailor_xun", [
+        o("use_system", "Have Tailor Xun sew a pouch for one of your characters", system="sew_pouch"),
+    ], [item("cloth", 4), taels(80)], offered_by_unlock=True, chapter="qk1", target_room="sf_market",
+        offer=["Your people come back from their posts with half their haul spilled. Ten to a compartment? Ha. Bring cloth and silver and I'll fold you more room."],
+        complete=["There. Twenty-five to a compartment, four compartments. Bring better cloth and I'll fold it deeper."])
     quest("earning_your_keep", "Earning Your Keep", "guided", "jade_deacon", [
         o("use_system", "Finish daily missions", 2, system="daily_mission_done"),
     ], [fx("add_contribution", amount=40)], offered_by_unlock=True, chapter="bf6", giver_any=DEACONS, hand_in_any=DEACONS,

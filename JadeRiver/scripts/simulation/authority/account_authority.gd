@@ -285,12 +285,20 @@ func enter_character(slot: int) -> Dictionary:
 	Rng.restore(c.id, c.rng_state, c.rng_seed if c.rng_seed != 0 else hash(c.id))
 	StatRules.rebuild(c)
 	var welcome := {}
+	game.posts.migrate_idle(c)   # S50: an old idle Gather task becomes a post before anything is collected
 	var elapsed := Clock.elapsed_since(c.last_active_utc)
 	if elapsed.valid and float(elapsed.elapsed) > 60.0 and not c.seclusion.is_empty():
 		welcome = game.progression.claim_offline(c, float(elapsed.elapsed))
 	elif not c.idle_task.is_empty():
 		welcome = collect_idle(c.id)
 		c.idle_task = {}
+	# S50 Keeping Post: a character coming in from its post settles it (the Return Ledger) and pauses it while played.
+	var ledger: Dictionary = game.posts.on_entered(c)
+	if not ledger.is_empty():
+		if not welcome.has("gains"): welcome["gains"] = {}
+		welcome["post"] = ledger
+		welcome.gains["post"] = true
+		if not welcome.has("hours"): welcome["hours"] = float(ledger.get("hours", 0.0))
 	c.cultivator.meditating = false
 	if previous != "" and previous != c.id: emit("character_switched", {"from": previous, "to": c.id})
 	emit("character_entered", {"actor": c.id, "slot": slot})
@@ -306,9 +314,13 @@ func switch_character(slot: int) -> Dictionary:
 	if target == null: return fail("empty_slot")
 	if current != null and game.room_rt != null:
 		var t := str(game.room_rt.def.get("type", ""))
-		if not (t in ["town", "sect", "home", "interior"] or game.room_rt.def.get("safe", false)):
+		# S50: a character standing at its post may be switched out there; it goes on working.
+		var posted: bool = game.posts.at_post(current)
+		if not (t in ["town", "sect", "home", "interior"] or game.room_rt.def.get("safe", false) or posted):
 			return fail("not_here", {"text": Tx.t("sim.account.switch_characters_at_a_shrine")})
-		if current.idle_task.is_empty() and Unlocks.is_unlocked(current.id, "idle_tasks"):
+		game.posts.on_left(current)
+		if posted: current.idle_task = {}
+		elif current.idle_task.is_empty() and Unlocks.is_unlocked(current.id, "idle_tasks"):
 			current.idle_task = {"task": "seclusion" if Unlocks.is_unlocked(current.id, "seclusion") else "rest", "room": game.room_rt.room_id,
 				"started_utc": Clock.now_utc(), "focus": "accumulate"}
 		elif not current.idle_task.is_empty():
@@ -326,6 +338,8 @@ func set_idle_task(c, task: Dictionary) -> Dictionary:
 	var def := ContentDB.entry("idle_tasks", kind)
 	if def.is_empty(): return fail("unknown_task")
 	if def.has("requires") and not RequirementRules.passes(def.requires, game.ctx(c)): return fail("locked", {"text": RequirementRules.first_failure_text(def.requires, game.ctx(c))})
+	# S50: with Keeping Post, gathering while away is a post at a node, not an idle task.
+	if kind == "gather" and Unlocks.is_unlocked(c.id, "keeping_post"): return fail("use_post", {"text": Tx.t("sim.posts.use_post")})
 	# S49: idle Hunt and Gather only in rooms that allow them (room.idle).
 	var idle_room := str(task.get("room", c.position.get("room", "")))
 	if not game.world.idle_allowed(idle_room, kind): return fail("room", {"text": Tx.t("sim.account.idle_room_" + kind)})
@@ -573,6 +587,7 @@ func app_paused() -> Dictionary:
 	if c != null:
 		if c.cultivator.meditating and Unlocks.is_unlocked(c.id, "seclusion") and c.seclusion.is_empty():
 			game.progression.enter_seclusion(c, "accumulate")
+		game.posts.on_app_paused(c)
 		c.last_active_utc = Clock.now_utc()
 	emit("app_paused", {"elapsed": 0})
 	game.save_all()
@@ -589,6 +604,13 @@ func app_resumed() -> Dictionary:
 		return ok({"clock_moved_back": true})
 	if not c.seclusion.is_empty() and float(el.elapsed) > 0.0:
 		result = game.progression.claim_offline(c, float(el.elapsed))
+	# S50: a character left at its post when the game was put away worked there meanwhile.
+	var ledger: Dictionary = game.posts.on_entered(c)
+	if not ledger.is_empty():
+		if not result.has("gains"): result["gains"] = {}
+		result["post"] = ledger
+		result.gains["post"] = true
+		if not result.has("hours"): result["hours"] = float(ledger.get("hours", 0.0))
 	c.last_active_utc = Clock.now_utc()
 	check_resets()
 	emit("app_resumed", {"elapsed": el.elapsed, "welcome": float(el.elapsed) > 300.0})

@@ -270,7 +270,7 @@ func gather(item: String, count: int, limit := 20) -> int:
 	while got < count and tries < limit:
 		tries += 1
 		var any := false
-		for o in objects_of("herb_patch") + objects_of("ore_vein") + objects_of("star_sight"):
+		for o in objects_of("herb_patch") + objects_of("ore_vein") + objects_of("star_sight") + objects_of("insect_swarm"):
 			if str(o.get("item", "")) != item: continue
 			var s: Dictionary = Game.room_rt.objects.get(str(o.id), {"state": "ready"})
 			if s.get("state", "ready") != "ready": continue
@@ -585,6 +585,7 @@ func sec_bf5() -> void:
 		if _do_mission(str(qid)): done += 1
 	check(done >= 2 or c().quests.active.get("earning_your_keep", {}).get("state", "") == "ready", "finish two daily missions (%d scripted)" % done)
 	check(finish("earning_your_keep"), "Earning Your Keep done")
+	_keeping_post()
 	# Bone Forging 7: the QI pool opens.
 	check(reach("bone_forging_7"), "Bone Forging 7")
 	check(start("the_first_current"), "The First Current accepted")
@@ -600,6 +601,40 @@ func sec_bf5() -> void:
 	if not sec.get("ok", false): print("  seclusion: ", sec)
 	submit({"type": "claim_offline", "elapsed": 3600.0})
 	check(finish("the_first_current"), "The First Current done")
+
+## S50 Keeping Post (V10): Fisher Wen's lesson. The first disciple keeps post at a willow moss patch in the Reed
+## Shallows while a second disciple is played; coming back settles the post. Then Little Dou's glowflies and a net.
+func _keeping_post() -> void:
+	check(start("keeping_post"), "Keeping Post accepted")
+	check(unlocked("keeping_post"), "Keeping Post unlocks once a second disciple can take over")
+	check(travel("lf_reed_shallows"), "to the Reed Shallows")
+	var moss := objects_of("herb_patch", "item", "willow_moss")
+	check(not moss.is_empty(), "willow moss grows in the Reed Shallows")
+	if moss.is_empty(): return
+	place(Vector2(float(moss[0].at[0]), float(moss[0].at[1]) + 10))
+	check(submit({"type": "take_post", "object": str(moss[0].id)}).get("ok", false), "keep post at the willow moss")
+	if not Game.characters.has("c2"):
+		submit({"type": "create_character", "slot": 2, "name": "Second Disciple", "skip_prologue": true})
+	check(submit({"type": "switch_character", "slot": 2}).get("ok", false), "switch to a second disciple, straight from the post")
+	Clock.debug_offset_s += 3.0 * 3600.0
+	var home := submit({"type": "switch_character", "slot": 1})
+	var ledger: Dictionary = home.get("welcome", {}).get("post", {})
+	check(home.get("ok", false) and int(ledger.get("items", {}).get("willow_moss", 0)) > 0 and float(ledger.get("exp", 0.0)) > 0.0,
+		"three hours later the first disciple comes back with %d willow moss and Foraging EXP" % int(ledger.get("items", {}).get("willow_moss", 0)))
+	submit({"type": "enter_world"})
+	place(Vector2(float(c().position.x), float(c().position.y)))
+	check(finish("keeping_post"), "Keeping Post done")
+	submit({"type": "send_to_storehouse", "character": c().id})
+	check(int(Game.account.storehouse.get("willow_moss", 0)) > 0, "the haul goes to the Storehouse")
+	submit({"type": "leave_post"})
+	# Little Dou's glowflies: Insect Netting.
+	check(start("glowflies"), "Little Dou's Glowflies accepted")
+	check(unlocked("insect_netting") and c().inventory.count("reed_net") > 0, "Insect Netting unlocks with a reed net")
+	check(travel("lf_reed_shallows"), "back to the Reed Shallows")
+	var got := gather("glowfly", 5, 40)
+	check(got >= 5, "net five glowflies (%d)" % got)
+	check(Game.posts.xp(c(), "netting") > 0.0, "netting by hand trains Insect Netting")
+	check(finish("glowflies"), "Little Dou's Glowflies done")
 
 ## Do one daily mission objective (kill or gather) in a room that has it.
 func _do_mission(qid: String) -> bool:

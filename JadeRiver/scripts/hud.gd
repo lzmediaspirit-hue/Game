@@ -218,6 +218,7 @@ func role_at(p: Vector2) -> String:
 	if p.distance_to(pet_center) < 30 and shown("pet"): return "pet"
 	if p.distance_to(guard_center) < 30 and shown("guard"): return "guard"
 	if p.distance_to(context_center) < 30 and _fight_context(): return "context"
+	if p.distance_to(context_center) < 30 and _post_chip(): return "post"
 	for ti in 2:
 		if p.distance_to(treasure_centers[ti]) < 30 and shown("treasure_%d" % (ti + 1)): return "treasure:%d" % ti
 	if p.distance_to(swap_center) < 30 and shown("weapon_swap"): return "swap"
@@ -279,6 +280,7 @@ func press(id: int, p: Vector2):
 				pet_hold = 0.0
 				pet_wheel = false
 		"context": use_context()
+		"post": keep_post()
 		"treasure:0", "treasure:1": use_treasure(int(role.get_slice(":", 1)))
 		"swap": swap_weapon()
 		"minimap": open_page.emit("world_map", {})
@@ -449,6 +451,32 @@ func _enemy_close() -> bool:
 func _fight_context() -> bool:
 	return bound() and str(context.get("type", "")) in ["climbable", "portal"] and _enemy_close()
 
+## S50 Keeping Post: beside a node, out of a fight, with another character to play, the Keep Post button shows.
+func _post_chip() -> bool:
+	return bound() and str(context.get("type", "")) in ["herb_patch", "ore_vein", "fishing_spot", "insect_swarm"] and not _enemy_close() \
+		and Unlocks.is_unlocked(Game.active_id, "keeping_post") and Game.characters.size() > 1
+
+## S50 node plate: beside a gathering node, the Chance a post there would have for its first output (cached).
+var _plate_key := ""
+var _plate_text := ""
+func _node_plate(c) -> String:
+	if not str(context.get("type", "")) in ["herb_patch", "ore_vein", "fishing_spot", "insect_swarm"] or not Unlocks.is_unlocked(c.id, "keeping_post"): return ""
+	var key := "%s:%d" % [str(context.get("object", "")), int(t)]
+	if key != _plate_key and Game.room_rt != null:
+		_plate_key = key
+		var r: Dictionary = Game.posts.rates_at(c, Game.room_rt.object_def(str(context.get("object", ""))))
+		var outs: Array = r.get("outputs", [])
+		_plate_text = " · %d%%" % int(round(100.0 * float(outs[0].chance))) if not outs.is_empty() else " · —"
+	return _plate_text
+
+func keep_post() -> void:
+	if not bound(): return
+	var r := Game.submit({"type": "take_post", "object": str(context.get("object", ""))})
+	if not r.get("ok", false):
+		add_log(str(r.get("text", Tx.t("hud.post_fail"))), UiKit.MIST)
+		return
+	open_page.emit("posts", {})
+
 func use_context() -> void:
 	if str(context.get("type", "")) == "climbable":
 		player.climb_hold = 0.0
@@ -571,6 +599,7 @@ func _input(event):
 				KEY_Q: if shown("quick_use"): use_quick()
 				KEY_V: if _has_draught(): drink_draught()
 				KEY_G: if shown("presence"): toggle_presence()
+				KEY_O: if _post_chip(): keep_post()
 				KEY_R: if shown("weapon_swap"): swap_weapon()
 				KEY_Z: if shown("treasure_1"): use_treasure(0)
 				KEY_X: if shown("treasure_2"): use_treasure(1)
@@ -838,6 +867,18 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"hollow_seizure":
 			if str(p.get("actor", "")) == Game.active_id:
 				toast(Tx.t("hud.hollow_seizure"), "quest", Tx.t("hud.hollow_seizure_turned") % int(p.get("turned", 0)) if int(p.get("turned", 0)) > 0 else Tx.t("hud.hollow_seizure_sub"))
+		# S50 Keeping Post: a post taken or left, a craft level, a pouch sewn, incense burned.
+		"post_taken":
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.post_taken") % str(ContentDB.entry("posts", str(p.craft)).get("short", "")), UiKit.BRIGHT_JADE)
+		"post_left":
+			if str(p.get("reason", "")) == "walked": add_log(Tx.t("hud.post_left") % str(Game.character(str(p.actor)).name if Game.character(str(p.actor)) else ""), UiKit.MIST)
+		"craft_leveled":
+			if str(p.get("actor", "")) == Game.active_id:
+				toast(Tx.t("hud.craft_level") % [str(ContentDB.entry("posts", str(p.craft)).get("name", "")), int(p.level)], "gold", Tx.t("hud.craft_level_sub"))
+		"pouch_sewn":
+			add_log(Tx.t("hud.pouch_sewn") % UiKit.fmt(int(float(p.get("cap", 0.0)))), UiKit.PALE_GOLD)
+		"incense_burned":
+			add_log(Tx.t("hud.incense_burned") % int(round(float(p.get("hours", 0.0)))), UiKit.PALE_GOLD)
 		# S28 v1.2 Presence: held or let go, a new level, and two Presences meeting.
 		"presence_toggled":
 			if str(p.get("actor", "")) == Game.active_id:
@@ -1630,7 +1671,7 @@ func _draw_controls(c) -> void:
 		ring(attack_center, 66, Game.combat.is_busy(c.id) or channel.object != "" or Game.combat.is_playing(c.id), 1.0, pulses.has("hud:attack"))
 		if ctx_glyph != "":
 			glyph(ctx_glyph, attack_center, 64)
-			UiKit.draw_outlined(self, str(context.get("label", "")), attack_center + Vector2(-60, 50), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 120)
+			UiKit.draw_outlined(self, str(context.get("label", "")) + _node_plate(c), attack_center + Vector2(-70, 50), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 140)
 		else:
 			glyph(str(StatRules.family(c).get("hud_glyph", "fist")), attack_center, 64)
 		if channel.object != "":
@@ -1653,6 +1694,11 @@ func _draw_controls(c) -> void:
 	if shown("sense"):
 		ring(sense_center, 32)
 		glyph("sense", sense_center)
+	if _post_chip():
+		var mine: bool = Game.posts.at_post(c) and str(Game.posts.post_of(c).get("object", "")) == str(context.get("object", ""))
+		ring(context_center, 26, mine, 1.0, pulses.has("hud:post"))
+		glyph("post", context_center, 28, UiKit.BRIGHT_JADE if mine else Color.WHITE)
+		UiKit.draw_outlined(self, Tx.t("hud.keep_post"), context_center + Vector2(-60, 44), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 120)
 	if shown("presence"):
 		var held: bool = Game.field.is_on(c.id)
 		ring(presence_center, 26, held, 1.0, pulses.has("hud:presence"))

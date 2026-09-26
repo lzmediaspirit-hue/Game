@@ -1,5 +1,47 @@
 # Changelog
 
+## V10 · Keeping Post (idle gathering)
+
+The idle gathering milestone (docs/idle_gathering_design.md), after IdleOn's AFK model in Jade River's own names. It
+runs between v1.2 Phase B and Phase C.
+
+### V10a · Posts and crafts
+- **Keeping post.** Beside an ore vein, a herb patch, a fishing spot or an insect swarm, the Keep Post button (key O)
+  leaves the character there and opens the Roll-Call to choose who to play next. Every character with a post works
+  while you play someone else, and while the game is put away.
+- **Four crafts**, each with its own level (1-200, IdleOn's EXP curve) per character: Vein Delving (Body), Spirit
+  Foraging (Insight, spirit wood on the side), River Angling (Body) and Insect Netting (Agility). Hand harvesting
+  trains them too.
+- **The rules** (`PostRules`, constants in `posts.json`):
+  - Finesse = 12 + (base^1.3 + (attribute + 1)^0.6) x (1 + level/200) x (1 + (attribute/100)^0.35) x (1 + base/100),
+    with base = 2 x tool power + 4.
+  - Against a node's Toughness T: the Chance bar (Finesse / 10T)^0.4, nothing below 2.5% of the mark; past full, the
+    Abundance bar floor(r^0.25) units a success.
+  - A swing takes 6 x (1 + (10 - tool speed)/5) s. Craft Diligence is 52% of full work.
+  - Worked example: a copper pick, Body 10, level 1: Finesse 81, 64% on copper, about 83 ore and 994 EXP an hour.
+- **Nodes:** nine ores, nine herbs, seven fish and eight new insects, each with a Toughness, EXP and a level gate.
+  Aged herbs stay a thing of the hand.
+- **Tools:** four ladders of nine tiers (picks, sickles, rods, nets), 32 of them new, forged by any smith from each
+  zone's ores. The best one carried is used.
+- **Insect Netting:** 22 swarms across the valley, Mist Peak, the Expanse and the Drifting Shoals, netted by hand or
+  kept as posts. Glowfly, reed cicada, jade scarab, silk moth, thunder mantis, frost cricket, ember locust and starwing
+  mote. Little Dou's Glowflies teaches it and gives the reed net.
+- **Qiankun pouches:** four compartments per category, 10 each unsewn. Tailor Xun on Market Street sews them deeper
+  (25 up to 35,000 a compartment). A full category stops filling, EXP does not, and the Return Ledger says when it
+  filled.
+- **The Storehouse:** the account's bulk store. The Ledger sends a haul there; items come out into the bag in any
+  town.
+- **The Return Ledger** on entering a character (hours, Diligence, EXP and levels, the haul, full pouches). **The
+  Roll-Call** (menu) lists every character's post, rates, pouch and time to full; it can settle one or all, burn
+  Hour Incense (1 to 72 hours, or a Wandering 5 to 500) at a post, and switch.
+- An old idle Gather task becomes a post. With Keeping Post unlocked, gathering while away is only done at a post.
+- Quests: Keeping Post (Fisher Wen), Little Dou's Glowflies, A Pouch for the Road (Tailor Xun).
+- Tests:
+  - `rules_tests` `post_suite`: the formulas and worked examples; a post taken, settled, filled and emptied; the
+    clock moved back; hand EXP; incense; the Roll-Call and settle all; migration; sewing; the save.
+  - `balance_sim` checks the calibration targets.
+  - `valley_run` plays the lesson with a second disciple, then nets the glowflies.
+
 ## 1.2 — The Lantern Star Field (Act III)
 
 Built in phases (docs/act3_design.md): zone tier 3, levels 82-99, ceiling Sphere Lord 3, Starsea Endurance 20 -> 90.

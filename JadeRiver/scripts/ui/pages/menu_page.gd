@@ -17,6 +17,7 @@ var ENTRIES := [
 	["crafts", Tx.t("ui.menu.crafts"), "crafts", "herb_gathering"],
 	["workshop", Tx.t("ui.menu.workshop"), "formation", "appraisal"],
 	["characters", Tx.t("ui.menu.characters"), "characters", "idle_tasks"],
+	["posts", Tx.t("ui.menu.roll_call"), "roll_call", "keeping_post"],   # S50 Keeping Post: the Roll-Call
 	["codex", Tx.t("ui.menu.codex"), "codex", "codex"],   # Collection and Achievements are Codex tabs
 	["mail", Tx.t("ui.menu.mail"), "mail", "mail"],
 	["emotes", Tx.t("ui.menu.emotes"), "talk", ""],
@@ -32,18 +33,19 @@ func draw_page() -> void:
 	if ch == null: return
 	var cols := 7
 	var cw := (content.size.x - 20) / cols
-	var ch_h := 150.0
+	var rows := int(ceil(ENTRIES.size() / float(cols)))
+	var ch_h := minf(150.0, (content.size.y - 20.0) / rows - 12.0)
 	for i in ENTRIES.size():
 		var e: Array = ENTRIES[i]
 		var r := Rect2(content.position.x + (i % cols) * cw + 6, content.position.y + 10 + (i / cols) * (ch_h + 12), cw - 12, ch_h)
 		var locked: bool = e[3] != "" and not Unlocks.is_unlocked(ch.id, e[3])
 		draw_style_box(UiKit.style("minor_panel", "disabled" if locked else ("pressed" if _is_pressed("open", e[0]) else "normal")), r)
-		var ic := Rect2(r.get_center().x - 32, r.position.y + 18, 64, 64)
+		var ic := Rect2(r.get_center().x - 32, r.position.y + minf(18.0, ch_h - 102.0), 64, 64)
 		icon_at(ic, e[2])
 		if locked:
 			draw_rect(ic, Color(0.02, 0.05, 0.06, 0.55))
 			_lock_icon(ic.end - Vector2(16, 18))
-		text(Vector2(r.position.x, r.position.y + 112), e[1], 20, UiKit.HOLLOW if locked else UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+		text(Vector2(r.position.x, r.position.y + minf(112.0, ch_h - 10.0)), e[1], 20, UiKit.HOLLOW if locked else UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 		if e[0] == "mail" and not locked and Game.mail.unread(ch) > 0:
 			draw_circle(r.position + Vector2(r.size.x - 18, 18), 11, UiKit.RED)
 			text(r.position + Vector2(r.size.x - 30, 25), str(mini(99, Game.mail.unread(ch))), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 24)

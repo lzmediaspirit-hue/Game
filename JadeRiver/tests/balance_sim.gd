@@ -68,6 +68,7 @@ func _main() -> void:
 		if k == "bone_forging_1": continue   # set by the Prologue, not by rates
 		check(got > 0.0 and absf(ratio - 1.0) <= tol, "%s reached at %.1f h (target %.1f h ±%d%%)" % [k, got, want, int(tol * 100.0)])
 	_currency(cfg)
+	_posts()
 	_finish()
 
 ## S39: a player can afford the next upgrade in their grade band after about 1–2 hours.
@@ -101,6 +102,25 @@ func _taels_per_hour(cfg: Dictionary, lv: int) -> float:
 	var kills_h := float(cfg.get("kills_per_min", 6)) * 60.0 * float(cfg.get("mix", {}).get("fight", 0.35))
 	var dailies := float(cfg.get("dailies_per_hour", 1.0)) * (10 + lv * 3)
 	return per_kill * kills_h + dailies
+
+## S50 Keeping Post (docs/idle_gathering_design.md §8): the calibration targets from the real formulas and node data.
+func _posts() -> void:
+	var nodes: Dictionary = ContentDB.config("posts").get("nodes", {})
+	var chance := func(fin: float, item: String) -> float: return float(PostRules.yield_of(fin, float(nodes[item].toughness)).chance)
+	var f0 := PostRules.finesse(6.0, 10.0, 1)
+	var r0 := PostRules.rates(f0, [{"item": "copper_ore", "toughness": nodes.copper_ore.toughness, "exp": nodes.copper_ore.exp, "weight": 1.0}], 3.0, PostRules.diligence("craft"))
+	check(float(r0.items.copper_ore) >= 70.0 and float(r0.items.copper_ore) <= 100.0, "a new delver's copper post: %.0f an hour (70-100)" % float(r0.items.copper_ore))
+	var fv := PostRules.finesse(13.0, 70.0, 25)
+	check(absf(chance.call(fv, "jadeiron") - 0.5) <= 0.1 and absf(chance.call(fv, "spirit_stone_shard") - 0.4) <= 0.1,
+		"valley end: jadeiron %.0f%%, spirit stone shard %.0f%% (about 50 and 40)" % [100.0 * chance.call(fv, "jadeiron"), 100.0 * chance.call(fv, "spirit_stone_shard")])
+	var fe := PostRules.finesse(24.0, 115.0, 42, 0.0, [8.0])
+	check(chance.call(fe, "stormsteel_ore") >= 0.3, "the Expanse: stormsteel %.0f%% (at least 30)" % (100.0 * chance.call(fe, "stormsteel_ore")))
+	var fl := PostRules.finesse(35.0, 150.0, 55, 0.0, [16.0])
+	check(chance.call(fl, "driftglass") >= 0.3, "Act III: driftglass %.0f%% before the account web (at least 30)" % (100.0 * chance.call(fl, "driftglass")))
+	var rv := PostRules.rates(fv, [{"item": "jadeiron", "toughness": nodes.jadeiron.toughness, "exp": 30.0, "weight": 1.0}], 4.0, PostRules.diligence("craft"))
+	var satchel := PostRules.capacity(PostRules.compartment_cap(4)) / float(rv.items.jadeiron)
+	check(satchel >= 10.0 and satchel <= 16.0, "a Satchel pouch holds %.1f h of a valley-end post (10-16)" % satchel)
+	check(PostRules.capacity(PostRules.compartment_cap(0)) / float(r0.items.copper_ore) <= 1.0, "an unsewn pouch fills within the hour")
 
 func _finish() -> void:
 	print("balance_sim: %d checks, %d failures" % [checks, failures])

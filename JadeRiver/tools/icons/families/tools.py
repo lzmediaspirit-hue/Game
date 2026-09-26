@@ -455,3 +455,272 @@ def purifying_offering():
 
 
 register(FAM, 'purifying_offering', purifying_offering, 'talismans')
+
+
+# ============================================================================ V10 · Keeping Post: tool ladders
+# Four crafts, nine tiers each (0-8). Tier 0 of the pick, sickle and rod ladders (old_pickaxe, herb_sickle,
+# bamboo_rod) and the tier-2 iron_pickaxe are drawn above and stay as they are; the net ladder starts at the new
+# reed_net (old_net is a torn fishing net, not a tool). A tier row sets the head/blade metal, the shaft,
+# the grip wrap and the trim (pick eye ring, sickle ferrule, rod reel, net collar). From tier 4 a gem sits in
+# the trim, from tier 7 the tool has a faint glow; the two glass tiers add a clear highlight streak.
+TL_STORMSTEEL = Ramp(['#0E121C', '#1C2434', '#323F56', '#566A8A', '#94A8C8'], '#05070C')
+TL_SUNGLASS = Ramp(['#6E360A', '#B46612', '#EEA232', '#FFD676', '#FFF6D2'], '#2A1204')
+TL_DRIFTGLASS = Ramp(['#2A5A6C', '#5294AA', '#96D4E2', '#D4F4F6', '#FFFFFF'], '#0C2630')
+TL_LACQUER = Ramp(['#2A0A0E', '#4E1418', '#7A2226', '#A8383A', '#D86A62'], '#140406')
+TL_BOLT = ('#E8FBFF', '#7FD4FF')   # lightning streak: core, edge
+
+TOOL_TIERS = {
+    1: dict(metal=R['copper'], shaft=R['wood'], wrap=R['hemp'], trim=R['bronze'], gem=None, glow=None),
+    2: dict(metal=R['iron'], shaft=R['darkwood'], wrap=R['leather'], trim=R['bronze'], gem=None, glow=None),
+    3: dict(metal=R['jadeiron'], shaft=R['darkwood'], wrap=R['deepjade'], trim=R['bronze'], gem=None, glow=None,
+            inlay=R['jade'], blade_base=2),
+    4: dict(metal=R['cloudsteel'], shaft=R['darkwood'], wrap=R['silk_navy'], trim=R['silver'], gem=R['qi'],
+            glow=None),
+    5: dict(metal=R['mistjade_m'], shaft=R['plum'], wrap=R['violetsilk'], trim=R['gold'], gem=R['violet'],
+            glow=None),
+    6: dict(metal=TL_STORMSTEEL, shaft=R['navy'], wrap=R['navy'], trim=R['silver'], gem=R['cyan'], glow=None,
+            bolt=True, blade_base=2),
+    7: dict(metal=TL_SUNGLASS, shaft=TL_LACQUER, wrap=R['gold'], trim=R['gold'], gem=R['ember'], glow='#FFC870',
+            glass=True),
+    8: dict(metal=TL_DRIFTGLASS, shaft=R['navy'], wrap=R['starlight'], trim=R['starlight'], gem='star',
+            glow='#BFEFFF', glass=True),
+}
+
+
+def _tl_gem(c, x, y, T, r=1.6):
+    """Tier gem (tier 4+) centred on (x, y): a round cabochon, or a star-white glint for tier 8."""
+    if T['gem'] is None:
+        return
+    if T['gem'] == 'star':
+        c.put(c.circle(x, y, r), R['starlight'], 'sphere', base=3)
+        return
+    c.put(c.circle(x, y, r), T['gem'], 'sphere', base=3)
+
+
+def _tl_finish(c, T, glint=None):
+    c.outline()
+    if T['glow']:
+        c.glow(T['glow'], (70,))
+    if T['gem'] == 'star' and glint:
+        S.sparkle(c, glint[0], glint[1], '#FFFFFF', R['starlight'][3], 2)
+
+
+# ---------------------------------------------------------------------------- Delving: picks
+def _tier_pick(t):
+    T = TOOL_TIERS[t]
+    c = Canvas(32)
+    wraps = [(0.05, 0.32)] if t < 4 else [(0.05, 0.3), (0.66, 0.74)]
+    pick = pickaxe(c, T['metal'], T['shaft'], wraps=wraps, wrap_ramp=T['wrap'])
+    if T.get('inlay'):  # a jade inlay strip along the upper arm, a shorter one down the lower arm
+        c.put(c.pts([(9, 5), (10, 5), (11, 5), (12, 5), (13, 5), (14, 6), (15, 6), (16, 6), (17, 7), (18, 8)]) & pick,
+              T['inlay'], 'flat', base=3)
+        c.put(c.pts([(24, 13), (25, 14), (25, 15), (26, 16), (26, 17), (27, 18), (27, 19)]) & pick, T['inlay'],
+              'flat', base=2)
+    if T.get('bolt'):  # a jagged lightning streak along the upper arm; the rest of the head stays dark
+        top = S.bez_line(c, (19, 7), (13, 4), (6, 5))
+        c.put(top & pick, T['metal'][3], 'flat', out=T['metal'].out)
+        c.put(c.pts([(7, 5), (8, 5), (9, 4), (10, 4), (11, 5), (12, 6), (13, 5), (14, 5), (15, 6), (16, 7),
+                     (17, 6), (18, 7), (19, 8)]) & pick, TL_BOLT[0], 'flat', out=T['metal'].out)
+        c.put(c.pts([(12, 5), (16, 6), (10, 5)]) & pick, TL_BOLT[1], 'flat', out=T['metal'].out)
+    if T.get('glass'):
+        c.put(c.pts([(24, 12), (25, 13), (26, 14), (27, 16)]) & pick, T['metal'][4], 'flat', out=T['metal'].out)
+    if t >= 5:  # precious tips: trim-metal caps on both points
+        c.put((c.circle(4.5, 6.2, 1.8) | c.circle(28.8, 23.5, 1.8)) & pick, T['trim'], 'flat', base=3)
+    ring = c.circle(21, 10, 3.6) & ~c.circle(21, 10, 2.4)
+    if t >= 3:
+        c.put(ring, T['trim'], 'flat', base=3, only_on=True)
+    if T['gem'] is not None:
+        _tl_gem(c, 21, 10, T)
+    _tl_finish(c, T, glint=(26, 4))
+    return c
+
+
+# ---------------------------------------------------------------------------- Foraging: sickles
+def _tier_sickle(t):
+    T = TOOL_TIERS[t]
+    c = Canvas(32)
+    handle(c, (5, 28), (12, 19), T['shaft'], 3.2, [(0.0, 0.62)], T['wrap'])
+    blade = c.sector(18, 15, 11, 15, 215) & ~c.ellipse(20.5, 17.5, 9.5, 8.5)
+    c.put(blade, T['metal'], 'ray', base=T.get('blade_base', 3), sep=True)
+    edge = S.outline_only(dilate4(c.ellipse(20.5, 17.5, 9.5, 8.5))) & blade
+    c.put(edge, T['metal'][4], 'flat', out=T['metal'].out)
+    if T.get('inlay'):
+        c.put(S.bez_line(c, (10, 13), (12, 7), (19, 6)) & erode4(blade), T['inlay'], 'flat', base=4)
+    if t >= 5:  # a trim-metal spine along the back of the blade
+        spine = S.outline_only(blade) & ~dilate4(c.ellipse(20.5, 17.5, 9.5, 8.5)) & (c.Y < 12)
+        c.put(spine, T['trim'], 'flat', base=3, out=T['metal'].out)
+    if T.get('bolt'):
+        bolt = c.bres_path([(17, 5), (13, 8), (15, 8), (10, 13)])
+        c.put(move(bolt, 1, 0) & ~bolt & erode4(blade), TL_BOLT[1], 'flat', out=T['metal'].out)
+        c.put(bolt & blade, TL_BOLT[0], 'flat', out=T['metal'].out)
+    if T.get('glass'):
+        c.put(c.pts([(10, 13), (10, 12), (11, 10), (12, 9)]) & blade, T['metal'][4], 'flat', out=T['metal'].out)
+    ferrule = c.circle(12.5, 18.5, 2.4)
+    c.put(ferrule, T['trim'], 'sphere', sep=True)
+    if T['gem'] is not None:
+        pom = c.circle(4.6, 28.4, 2.0)
+        c.put(pom, T['trim'], 'sphere', sep=True)
+        _tl_gem(c, 12.5, 18.5, T, 1.3)
+    _tl_finish(c, T, glint=(26, 5))
+    return c
+
+
+# ---------------------------------------------------------------------------- Angling: rods
+# rod body, rod marks (bamboo-like nodes or trim rings), line colour, float ramp and float band colour
+ROD_TIERS = {
+    1: dict(rod=R['straw'], marks='nodes', grip=R['hemp'], line=R['hemp'][3], flt=R['copper'],
+            band=R['paper'][4], reel=R['wood']),
+    2: dict(rod=R['darkwood'], marks='rings', grip=R['leather'], line=R['paper'][3], flt=R['iron'],
+            band=R['red'][3], reel=R['iron']),
+    3: dict(rod=R['jadeiron'], marks='rings', grip=R['deepjade'], line=R['jade'][3], flt=R['jade'],
+            band=R['paper'][4], reel=R['bronze']),
+    4: dict(rod=R['cloud'], marks='rings', grip=R['silk_navy'], line=R['sky'][3], flt=R['cloud'],
+            band=R['qi'][2], reel=R['silver']),
+    5: dict(rod=R['mistjade_m'], marks='rings', grip=R['violetsilk'], line=R['violet'][3], flt=R['gold'],
+            band=R['violet'][2], reel=R['gold']),
+    6: dict(rod=TL_STORMSTEEL, marks='bolt', grip=R['navy'], line=R['cyan'][3], flt=R['storm'],
+            band=TL_BOLT[0], reel=R['silver']),
+    7: dict(rod=TL_SUNGLASS, marks='rings', grip=TL_LACQUER, line=R['gold'][3], flt=R['fire'],
+            band=R['gold'][4], reel=R['gold']),
+    8: dict(rod=TL_DRIFTGLASS, marks='rings', grip=R['navy'], line=R['starlight'][4], flt='star',
+            band=None, reel=R['starlight']),
+}
+
+
+def _tier_rod(t):
+    T, Rt = TOOL_TIERS[t], ROD_TIERS[t]
+    c = Canvas(32)
+    rod = c.seg(3, 29, 26, 4, 2.4)
+    c.put(rod, Rt['rod'], 'across', base=2)
+    for k, f in enumerate((0.2, 0.42, 0.64, 0.84)):
+        x, y = 3 + 23 * f, 29 - 25 * f
+        mark = c.seg(x - 1, y - 1, x + 1, y + 1, 1.2) & rod
+        if Rt['marks'] == 'nodes':
+            c.put(mark, Rt['rod'][0], 'flat', only_on=True)
+        elif Rt['marks'] == 'rings' and k > 0:
+            c.put(mark, T['trim'], 'flat', base=3, only_on=True)
+    if Rt['marks'] == 'bolt':
+        c.put(c.pts([(13, 17), (14, 16), (14, 15), (15, 14), (16, 14), (17, 12), (18, 11), (19, 11), (20, 9)]) & rod,
+              TL_BOLT[0], 'flat', out=Rt['rod'].out)
+    if T.get('glass'):
+        c.put(c.pts([(16, 14), (17, 13), (20, 9), (21, 8), (22, 7)]) & rod, Rt['rod'][4], 'flat', out=Rt['rod'].out)
+    grip = c.seg(3, 29, 8, 23.5, 3.2)
+    c.put(grip, Rt['grip'], 'across', base=2, sep=True)
+    if t >= 4:
+        c.put(c.seg(7.6, 24, 9, 22.4, 3.4), T['trim'], 'across', base=3, sep=True)
+    line = S.bez_line(c, (26, 4), (29, 12), (27, 20))
+    c.put(line & ~rod, Rt['line'], 'flat', out=R['ink'][1])
+    if Rt['flt'] == 'star':
+        flt = S.diamond(c, 27, 22, 2.6, 3.2) | c.rect(25, 21, 28, 22)
+        c.put(flt, R['starlight'], 'sphere', base=3, sep=True)
+        c.put(c.rect(26, 21, 27, 22), '#FFFDF4', 'flat', out=R['starlight'].out)
+    else:
+        flt = c.ellipse(27, 21.5, 1.8, 2.5)
+        c.put(flt, Rt['flt'], 'flat', base=2 if t != 4 else 3, sep=True)
+        c.put(c.rect(26, 21, 28, 21) & flt, Rt['band'], 'flat', out=Rt['flt'].out)
+    hook = c.arc(27, 26, 1.8, 1, 180, 360) | c.rect(28, 24, 28, 26)
+    c.put(hook, T['trim'] if t >= 5 else R['iron'], 'flat', base=3)
+    reel = c.circle(10.5, 21.5, 2.6)
+    c.put(reel, Rt['reel'], 'sphere', sep=True)
+    if T['gem'] is not None:
+        _tl_gem(c, 10.5, 21.5, T, 1.3)
+    c.outline()
+    if T['glow']:
+        c.glow(T['glow'], (70,))
+    if T['gem'] == 'star':
+        S.sparkle(c, 22, 3, '#FFFFFF', R['starlight'][3], 2)
+    return c
+
+
+# ---------------------------------------------------------------------------- Netting: hoop nets
+# hoop material, mesh material, mesh pitch (smaller = finer), handle, wrap, collar
+NET_TIERS = {
+    0: dict(hoop=R['straw'], mesh=R['hemp'], pitch=5, shaft=R['bamboo'], wrap=None, collar=R['hemp'],
+            gem=None, glow=None, size=(19.0, 11.5, 7.5, 6.5)),
+    1: dict(hoop=R['wood'], mesh=R['hemp'], pitch=4, shaft=R['wood'], wrap=R['hemp'], collar=R['hemp'],
+            gem=None, glow=None),
+    2: dict(hoop=R['iron'], mesh=R['clay'], pitch=4, shaft=R['darkwood'], wrap=R['leather'], collar=R['bronze'],
+            gem=None, glow=None, knots=True),
+    3: dict(hoop=R['jadeiron'], mesh=R['paper'], pitch=3, shaft=R['darkwood'], wrap=R['deepjade'],
+            collar=R['bronze'], gem=None, glow=None, inlay=R['jade']),
+    4: dict(hoop=R['cloudsteel'], mesh=R['cloud'], pitch=3, shaft=R['darkwood'], wrap=R['silk_navy'],
+            collar=R['silver'], gem=R['qi'], glow=None),
+    5: dict(hoop=R['mistjade_m'], mesh=R['violet'], pitch=3, shaft=R['plum'], wrap=R['violetsilk'],
+            collar=R['gold'], gem=R['violet'], glow=None, studs=R['gold'], rim=R['gold'][3]),
+    6: dict(hoop=TL_STORMSTEEL, mesh=R['storm'], pitch=2, shaft=R['navy'], wrap=R['navy'], collar=R['silver'],
+            gem=R['cyan'], glow=None, bolt=True),
+    7: dict(hoop=TL_SUNGLASS, mesh=R['gold'], pitch=2, shaft=TL_LACQUER, wrap=R['gold'], collar=R['gold'],
+            gem=R['ember'], glow='#FFC870', glass=True),
+    8: dict(hoop=TL_DRIFTGLASS, mesh=R['pearl'], pitch=2, shaft=R['navy'], wrap=R['starlight'],
+            collar=R['starlight'], gem='star', glow='#BFEFFF', glass=True),
+}
+
+
+def _tier_net(t):
+    N = NET_TIERS[t]
+    c = Canvas(32)
+    hx, hy, rx, ry = N.get('size', (19.5, 10.5, 9.0, 7.5))
+    cx, cy = hx - 0.69 * rx, hy + 0.83 * ry   # where the handle meets the hoop
+    # the handle runs up to the hoop's lower-left rim (a short bare bamboo stick for the reed net)
+    a0 = (6.5, 25.5) if t == 0 else (3, 29)
+    handle(c, a0, (cx, cy), N['shaft'], 2.6, [(0.0, 0.34)] if N['wrap'] else None, N['wrap'])
+    if t == 0:
+        for f in (0.35, 0.7):
+            x, y = a0[0] + (cx - a0[0]) * f, a0[1] + (cy - a0[1]) * f
+            c.put(c.seg(x - 1, y - 1, x + 1, y + 1, 1.2) & c.a, R['bamboo'][0], 'flat', only_on=True)
+    # the bag hangs behind the hoop and droops to a rounded tip at the lower right
+    inner = c.ellipse(hx, hy, rx - 0.6, ry - 0.6)
+    tip = (hx + 0.55 * rx, hy + 2.4 * ry)
+    left = S.curve_pts((hx - 0.78 * rx, hy + 0.55 * ry), (hx - 0.35 * rx, hy + 1.95 * ry), tip, 12)
+    right = S.curve_pts(tip, (hx + 1.08 * rx, hy + 1.95 * ry), (hx + 0.97 * rx, hy + 0.27 * ry), 12)
+    bag = c.poly(left + right) | inner
+    droop = bag & ~c.ellipse(hx, hy, rx, ry)
+    p = N['pitch']
+    grid = (((c.xi + c.yi) % p) == 0) | (((c.xi - c.yi) % p) == 0)
+    c.put(droop & grid, N['mesh'], 'ray', base=3 if p > 2 else 2)
+    c.put(inner & grid, N['mesh'], 'flat', base=1)
+    rim = S.outline_only(droop | inner) & droop
+    c.put(rim, N['mesh'], 'flat', base=2)
+    if N.get('knots'):
+        c.put(droop & (((c.xi + c.yi) % p) == 0) & (((c.xi - c.yi) % p) == 0), N['mesh'], 'flat', base=4)
+    if N['gem'] == 'star':  # star-dust glints caught in the starsilk
+        c.pxs([(21, 21), (25, 25), (19, 7), (24, 12)], '#FFFDF4', out=R['starlight'].out)
+    # the hoop
+    hoop = c.ring(hx, hy, rx, 1.8, ry)
+    c.put(hoop, N['hoop'], 'ray', base=2)
+    c.put(S.outline_only(c.ellipse(hx, hy, rx, ry)) & c.sector(hx, hy, rx + 1, 95, 200),
+          N.get('rim', N['hoop'][4]), 'flat', out=N['hoop'].out)
+    if N.get('inlay'):
+        c.pxs([(19, 3), (26, 5), (28, 11), (12, 8)], N['inlay'][3], out=N['hoop'].out)
+    if N.get('studs'):
+        c.pxs([(19, 3), (26, 5), (28, 11), (25, 16), (12, 8)], N['studs'][3], out=N['hoop'].out)
+    if N.get('bolt'):
+        c.put(c.pts([(12, 9), (13, 7), (14, 6), (15, 5), (16, 4), (17, 4), (18, 3), (22, 3), (23, 4), (24, 4)]) & hoop,
+              TL_BOLT[0], 'flat', out=N['hoop'].out)
+    if N.get('glass'):
+        c.put(c.pts([(26, 16), (27, 15), (28, 13)]) & hoop, N['hoop'][4], 'flat', out=N['hoop'].out)
+    collar = c.circle(cx, cy, 2.2)
+    c.put(collar, N['collar'], 'sphere', sep=True)
+    if N['gem'] is not None:
+        _tl_gem(c, cx, cy, N, 1.2)
+    c.outline()
+    if N['glow']:
+        c.glow(N['glow'], (70,))
+    if N['gem'] == 'star':
+        S.sparkle(c, 29, 3, '#FFFFFF', R['starlight'][3], 2)
+    return c
+
+
+for _tl_t, _tl_mat in enumerate(('', 'copper', 'iron', 'jadeiron', 'cloudsteel', 'mystic', 'stormsteel',
+                                 'sunglass', 'driftglass')):
+    if _tl_t in (1, 3, 4, 5, 6, 7, 8):
+        register(FAM, _tl_mat + '_pick', (lambda tt: lambda: _tier_pick(tt))(_tl_t), 'tools')
+    if _tl_t >= 1:
+        register(FAM, _tl_mat + '_sickle', (lambda tt: lambda: _tier_sickle(tt))(_tl_t), 'tools')
+for _tl_t, _tl_id in enumerate(('', 'reedline_rod', 'ironwood_rod', 'jadeline_rod', 'cloud_rod', 'mystic_rod',
+                                'storm_rod', 'sunglass_rod', 'starline_rod')):
+    if _tl_t >= 1:
+        register(FAM, _tl_id, (lambda tt: lambda: _tier_rod(tt))(_tl_t), 'tools')
+for _tl_t, _tl_id in enumerate(('reed_net', 'hemp_net', 'cord_net', 'silk_net', 'cloudsilk_net', 'mystic_net',
+                                'storm_net', 'sunglass_net', 'starsilk_net')):
+    register(FAM, _tl_id, (lambda tt: lambda: _tier_net(tt))(_tl_t), 'tools')

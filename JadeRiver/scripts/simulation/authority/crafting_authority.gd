@@ -9,7 +9,8 @@ var pending: Dictionary = {}   # actor -> {object, kind, started, channel}
 var steps: Dictionary = {}     # actor -> {recipe, craft, scores}: the mini-game in progress
 var refines: Dictionary = {}   # actor -> the five-screen refine in progress (V9e2): see start_refine
 
-const NODE_CRAFT := {"herb_patch": "herb_gathering", "ore_vein": "mining", "fishing_spot": "fishing", "star_sight": "star_charting"}
+const NODE_CRAFT := {"herb_patch": "herb_gathering", "ore_vein": "mining", "fishing_spot": "fishing", "star_sight": "star_charting",
+	"insect_swarm": "insect_netting"}
 const RANK_CAPS := {
 	"herb_gathering": [["qi_kindling_1", "adept"], ["cloud_stride_1", "expert"], ["sage_1", "master"], ["sage_sovereign_1", "grandmaster"]],
 	"mining": [["qi_unfurling_1", "adept"], ["spirit_awakening_1", "expert"], ["sage_sovereign_1", "master"]],
@@ -145,11 +146,11 @@ func gather(c, o: Dictionary) -> Dictionary:
 	# S45: a ripe rare herb may have a keeper.
 	var guard: String = game.world.herb_guard_text(c, o) if o.type == "herb_patch" else ""
 	if guard != "": return fail("guarded", {"text": guard})
-	var channel = {"herb_patch": 1.5, "ore_vein": 2.4, "fishing_spot": 0.0, "star_sight": 3.0}[str(o.type)]
+	var channel = {"herb_patch": 1.5, "ore_vein": 2.4, "fishing_spot": 0.0, "star_sight": 3.0, "insect_swarm": 1.2}[str(o.type)]
 	pending[c.id] = {"object": str(o.id), "kind": str(o.type), "started": game.sim_time, "channel": channel}
 	emit("node_action_started", {"actor": c.id, "object": o.id, "kind": o.type, "channel": channel})
 	var out := {"channel": channel, "minigame": "fishing" if o.type == "fishing_spot" else "",
-		"action": {"herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish", "star_sight": "gather"}[str(o.type)]}
+		"action": {"herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish", "star_sight": "gather", "insect_swarm": "gather"}[str(o.type)]}
 	# S45 harvest tap: the hold ends in a shrinking ring; the window widens with gathering rank.
 	if o.type == "herb_patch":
 		var h: Dictionary = ContentDB.config("garden").get("harvest", {})
@@ -171,16 +172,18 @@ func complete_node(c, object_id: String, timing := -1.0) -> Dictionary:
 	if craft == "herb_gathering": return _harvest(c, o, timing)
 	var rng := Rng.stream(c.id, "crafting")
 	var y: Array = o.get("yield", [1, 2])
-	var power := 1.0 if craft == "star_charting" else maxf(1.0, tool_power(c, "gathering" if craft == "herb_gathering" else "mining"))
+	var power := 1.0 if craft == "star_charting" else maxf(1.0, tool_power(c, {"herb_gathering": "gathering", "insect_netting": "insect_netting"}.get(craft, "mining")))
 	var count := rng.randi_range(int(y[0]), int(y[1]))
 	if rng.randf() < (power - 1.0) * 0.5: count += 1
 	if craft != "star_charting" and game.pets.gatherer_active(c.id) and rng.randf() < 0.25: count += 1
 	var herb_bonus: float = game.pets.trait_bonus(c, "herb_yield") if craft == "herb_gathering" else 0.0
 	if herb_bonus > 0.0 and rng.randf() < herb_bonus * count: count += 1
 	var item := str(o.get("item", ""))
+	if o.has("outputs"): item = str(Rng.weighted(rng, o.outputs).get("item", item))   # V10: a swarm's insects by weight
 	game.inventory.apply_add(c.id, item, count, craft)
 	game.world.apply_node_depleted(c, object_id, float(o.get("regrow_s", 300)))
 	add_xp(c, craft, float(ContentDB.curve("profession_xp.%s" % {"mining": "mine", "star_charting": "observe"}.get(craft, "gather"), 5)))
+	game.posts.apply_hand_harvest(c.id, item, count)   # S50: the hand trains the post craft too
 	emit("node_gathered", {"actor": c.id, "object": object_id, "item": item, "count": count, "craft": craft})
 	return ok({"item": item, "count": count})
 
@@ -214,6 +217,7 @@ func _harvest(c, o: Dictionary, timing: float) -> Dictionary:
 	if o.has("ripen"): regrow = maxf(60.0, HerbRules.regrow_at(o, now) - now)
 	game.world.apply_node_depleted(c, object_id, regrow)
 	add_xp(c, "herb_gathering", float(ContentDB.curve("profession_xp.gather", 5)) * (1.5 if perfect else 1.0))
+	game.posts.apply_hand_harvest(c.id, item, count)
 	emit("node_gathered", {"actor": c.id, "object": object_id, "item": item, "count": count, "craft": "herb_gathering"})
 	emit("herb_harvested", {"actor": c.id, "object": object_id, "item": item, "age": HerbRules.item_age(item), "perfect": perfect, "early": early})
 	if seed != "": emit("seed_found", {"actor": c.id, "seed": seed, "object": object_id})
@@ -569,6 +573,7 @@ func catch_fish(c, object_id: String, result: Dictionary) -> Dictionary:
 	var fish := Rng.weighted(rng, table)
 	game.inventory.apply_add(c.id, str(fish.item), 1, "fishing")
 	add_xp(c, "fishing", float(ContentDB.curve("profession_xp.fish", 8)))
+	game.posts.apply_hand_harvest(c.id, str(fish.item), 1)
 	emit("fish_caught", {"actor": c.id, "fish": fish.item, "item": fish.item, "room": game.room_rt.room_id})
 	return ok({"caught": true, "item": fish.item})
 

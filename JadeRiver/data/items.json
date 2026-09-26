@@ -4101,6 +4101,14 @@
    "tool": {
     "craft": "mining",
     "power": 1.0
+   },
+   "post": {
+    "craft": "delving",
+    "tier": 0,
+    "power": 2,
+    "speed": 3,
+    "level_req": 1,
+    "finesse_pct": 0
    }
   },
   {
@@ -4115,6 +4123,14 @@
    "tool": {
     "craft": "mining",
     "power": 1.3
+   },
+   "post": {
+    "craft": "delving",
+    "tier": 2,
+    "power": 10,
+    "speed": 4,
+    "level_req": 8,
+    "finesse_pct": 0
    }
   },
   {
@@ -4129,6 +4145,14 @@
    "tool": {
     "craft": "gathering",
     "power": 1.3
+   },
+   "post": {
+    "craft": "foraging",
+    "tier": 0,
+    "power": 3,
+    "speed": 3,
+    "level_req": 1,
+    "finesse_pct": 0
    }
   },
   {
@@ -4143,6 +4167,14 @@
    "tool": {
     "craft": "fishing",
     "power": 1.0
+   },
+   "post": {
+    "craft": "angling",
+    "tier": 0,
+    "power": 3,
+    "speed": 3,
+    "level_req": 1,
+    "finesse_pct": 0
    }
   },
   {
@@ -4255,6 +4287,882 @@
    "tool": {
     "craft": "garden_dew",
     "power": 1.0
+   }
+  },
+  {
+   "id": "reed_net",
+   "name": "Reed Net",
+   "type": "tool",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 1,
+   "icon": "reed_net",
+   "desc": "Nets spirit insects from a swarm. Post power 4, speed 4; Level 1 in the craft to use it at a post.",
+   "tool": {
+    "craft": "insect_netting",
+    "power": 1.0
+   },
+   "post": {
+    "craft": "netting",
+    "tier": 0,
+    "power": 4,
+    "speed": 4,
+    "level_req": 1,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "copper_pick",
+   "name": "Copper Pick",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "copper_pick",
+   "desc": "Breaks spirit ore at a post. Post power 6, speed 3; Level 3 in the craft to use it at a post.",
+   "tool": {
+    "craft": "mining",
+    "power": 1.15
+   },
+   "post": {
+    "craft": "delving",
+    "tier": 1,
+    "power": 6,
+    "speed": 3,
+    "level_req": 3,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "copper_sickle",
+   "name": "Copper Sickle",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "copper_sickle",
+   "desc": "Cuts herbs at a post. Post power 7, speed 3; Level 4 in the craft to use it at a post.",
+   "tool": {
+    "craft": "gathering",
+    "power": 1.15
+   },
+   "post": {
+    "craft": "foraging",
+    "tier": 1,
+    "power": 7,
+    "speed": 3,
+    "level_req": 4,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "reedline_rod",
+   "name": "Reedline Rod",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "reedline_rod",
+   "desc": "Fishes a spot through the day. Post power 8, speed 3; Level 4 in the craft to use it at a post.",
+   "tool": {
+    "craft": "fishing",
+    "power": 1.15
+   },
+   "post": {
+    "craft": "angling",
+    "tier": 1,
+    "power": 8,
+    "speed": 3,
+    "level_req": 4,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "hemp_net",
+   "name": "Hemp Net",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "hemp_net",
+   "desc": "Nets spirit insects from a swarm. Post power 9, speed 4; Level 4 in the craft to use it at a post.",
+   "tool": {
+    "craft": "insect_netting",
+    "power": 1.15
+   },
+   "post": {
+    "craft": "netting",
+    "tier": 1,
+    "power": 9,
+    "speed": 4,
+    "level_req": 4,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "iron_sickle",
+   "name": "Iron Sickle",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "iron_sickle",
+   "desc": "Cuts herbs at a post. Post power 10, speed 3; Level 8 in the craft to use it at a post.",
+   "tool": {
+    "craft": "gathering",
+    "power": 1.3
+   },
+   "post": {
+    "craft": "foraging",
+    "tier": 2,
+    "power": 10,
+    "speed": 3,
+    "level_req": 8,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "ironwood_rod",
+   "name": "Ironwood Rod",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "ironwood_rod",
+   "desc": "Fishes a spot through the day. Post power 13, speed 4; Level 9 in the craft to use it at a post.",
+   "tool": {
+    "craft": "fishing",
+    "power": 1.3
+   },
+   "post": {
+    "craft": "angling",
+    "tier": 2,
+    "power": 13,
+    "speed": 4,
+    "level_req": 9,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "cord_net",
+   "name": "Cord Net",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "cord_net",
+   "desc": "Nets spirit insects from a swarm. Post power 14, speed 4; Level 10 in the craft to use it at a post.",
+   "tool": {
+    "craft": "insect_netting",
+    "power": 1.3
+   },
+   "post": {
+    "craft": "netting",
+    "tier": 2,
+    "power": 14,
+    "speed": 4,
+    "level_req": 10,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "jadeiron_pick",
+   "name": "Jadeiron Pick",
+   "type": "tool",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "jadeiron_pick",
+   "desc": "Breaks spirit ore at a post. Post power 13, speed 4; Level 15 in the craft to use it at a post.",
+   "tool": {
+    "craft": "mining",
+    "power": 1.45
+   },
+   "post": {
+    "craft": "delving",
+    "tier": 3,
+    "power": 13,
+    "speed": 4,
+    "level_req": 15,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "jadeiron_sickle",
+   "name": "Jadeiron Sickle",
+   "type": "tool",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "jadeiron_sickle",
+   "desc": "Cuts herbs at a post. Post power 14, speed 4; Level 15 in the craft to use it at a post.",
+   "tool": {
+    "craft": "gathering",
+    "power": 1.45
+   },
+   "post": {
+    "craft": "foraging",
+    "tier": 3,
+    "power": 14,
+    "speed": 4,
+    "level_req": 15,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "jadeline_rod",
+   "name": "Jadeline Rod",
+   "type": "tool",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "jadeline_rod",
+   "desc": "Fishes a spot through the day. Post power 19, speed 4; Level 15 in the craft to use it at a post.",
+   "tool": {
+    "craft": "fishing",
+    "power": 1.45
+   },
+   "post": {
+    "craft": "angling",
+    "tier": 3,
+    "power": 19,
+    "speed": 4,
+    "level_req": 15,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "silk_net",
+   "name": "Silk Net",
+   "type": "tool",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "silk_net",
+   "desc": "Nets spirit insects from a swarm. Post power 20, speed 5; Level 15 in the craft to use it at a post.",
+   "tool": {
+    "craft": "insect_netting",
+    "power": 1.45
+   },
+   "post": {
+    "craft": "netting",
+    "tier": 3,
+    "power": 20,
+    "speed": 5,
+    "level_req": 15,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "cloudsteel_pick",
+   "name": "Cloudsteel Pick",
+   "type": "tool",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "cloudsteel_pick",
+   "desc": "Breaks spirit ore at a post. Post power 16, speed 4; Level 25 in the craft to use it at a post.",
+   "tool": {
+    "craft": "mining",
+    "power": 1.6
+   },
+   "post": {
+    "craft": "delving",
+    "tier": 4,
+    "power": 16,
+    "speed": 4,
+    "level_req": 25,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "cloudsteel_sickle",
+   "name": "Cloudsteel Sickle",
+   "type": "tool",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "cloudsteel_sickle",
+   "desc": "Cuts herbs at a post. Post power 18, speed 4; Level 20 in the craft to use it at a post.",
+   "tool": {
+    "craft": "gathering",
+    "power": 1.6
+   },
+   "post": {
+    "craft": "foraging",
+    "tier": 4,
+    "power": 18,
+    "speed": 4,
+    "level_req": 20,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "cloud_rod",
+   "name": "Cloud Rod",
+   "type": "tool",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "cloud_rod",
+   "desc": "Fishes a spot through the day. Post power 25, speed 5; Level 25 in the craft to use it at a post.",
+   "tool": {
+    "craft": "fishing",
+    "power": 1.6
+   },
+   "post": {
+    "craft": "angling",
+    "tier": 4,
+    "power": 25,
+    "speed": 5,
+    "level_req": 25,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "cloudsilk_net",
+   "name": "Cloudsilk Net",
+   "type": "tool",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 1,
+   "icon": "cloudsilk_net",
+   "desc": "Nets spirit insects from a swarm. Post power 26, speed 5; Level 20 in the craft to use it at a post.",
+   "tool": {
+    "craft": "insect_netting",
+    "power": 1.6
+   },
+   "post": {
+    "craft": "netting",
+    "tier": 4,
+    "power": 26,
+    "speed": 5,
+    "level_req": 20,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "mystic_pick",
+   "name": "Mystic Pick",
+   "type": "tool",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 1,
+   "icon": "mystic_pick",
+   "desc": "Breaks spirit ore at a post. Post power 19, speed 5; Level 32 in the craft to use it at a post. +2% Finesse.",
+   "tool": {
+    "craft": "mining",
+    "power": 1.75
+   },
+   "post": {
+    "craft": "delving",
+    "tier": 5,
+    "power": 19,
+    "speed": 5,
+    "level_req": 32,
+    "finesse_pct": 2
+   }
+  },
+  {
+   "id": "mystic_sickle",
+   "name": "Mystic Sickle",
+   "type": "tool",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 1,
+   "icon": "mystic_sickle",
+   "desc": "Cuts herbs at a post. Post power 23, speed 5; Level 25 in the craft to use it at a post.",
+   "tool": {
+    "craft": "gathering",
+    "power": 1.75
+   },
+   "post": {
+    "craft": "foraging",
+    "tier": 5,
+    "power": 23,
+    "speed": 5,
+    "level_req": 25,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "mystic_rod",
+   "name": "Mystic Rod",
+   "type": "tool",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 1,
+   "icon": "mystic_rod",
+   "desc": "Fishes a spot through the day. Post power 30, speed 5; Level 32 in the craft to use it at a post.",
+   "tool": {
+    "craft": "fishing",
+    "power": 1.75
+   },
+   "post": {
+    "craft": "angling",
+    "tier": 5,
+    "power": 30,
+    "speed": 5,
+    "level_req": 32,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "mystic_net",
+   "name": "Mystic Net",
+   "type": "tool",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 1,
+   "icon": "mystic_net",
+   "desc": "Nets spirit insects from a swarm. Post power 31, speed 5; Level 25 in the craft to use it at a post.",
+   "tool": {
+    "craft": "insect_netting",
+    "power": 1.75
+   },
+   "post": {
+    "craft": "netting",
+    "tier": 5,
+    "power": 31,
+    "speed": 5,
+    "level_req": 25,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "stormsteel_pick",
+   "name": "Stormsteel Pick",
+   "type": "tool",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 1,
+   "icon": "stormsteel_pick",
+   "desc": "Breaks spirit ore at a post. Post power 24, speed 5; Level 40 in the craft to use it at a post. +8% Finesse.",
+   "tool": {
+    "craft": "mining",
+    "power": 1.9
+   },
+   "post": {
+    "craft": "delving",
+    "tier": 6,
+    "power": 24,
+    "speed": 5,
+    "level_req": 40,
+    "finesse_pct": 8
+   }
+  },
+  {
+   "id": "stormsteel_sickle",
+   "name": "Stormsteel Sickle",
+   "type": "tool",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 1,
+   "icon": "stormsteel_sickle",
+   "desc": "Cuts herbs at a post. Post power 26, speed 5; Level 30 in the craft to use it at a post. +4% Finesse.",
+   "tool": {
+    "craft": "gathering",
+    "power": 1.9
+   },
+   "post": {
+    "craft": "foraging",
+    "tier": 6,
+    "power": 26,
+    "speed": 5,
+    "level_req": 30,
+    "finesse_pct": 4
+   }
+  },
+  {
+   "id": "storm_rod",
+   "name": "Storm Rod",
+   "type": "tool",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 1,
+   "icon": "storm_rod",
+   "desc": "Fishes a spot through the day. Post power 36, speed 5; Level 40 in the craft to use it at a post. +4% Finesse.",
+   "tool": {
+    "craft": "fishing",
+    "power": 1.9
+   },
+   "post": {
+    "craft": "angling",
+    "tier": 6,
+    "power": 36,
+    "speed": 5,
+    "level_req": 40,
+    "finesse_pct": 4
+   }
+  },
+  {
+   "id": "storm_net",
+   "name": "Storm Net",
+   "type": "tool",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 1,
+   "icon": "storm_net",
+   "desc": "Nets spirit insects from a swarm. Post power 37, speed 5; Level 30 in the craft to use it at a post. +4% Finesse.",
+   "tool": {
+    "craft": "insect_netting",
+    "power": 1.9
+   },
+   "post": {
+    "craft": "netting",
+    "tier": 6,
+    "power": 37,
+    "speed": 5,
+    "level_req": 30,
+    "finesse_pct": 4
+   }
+  },
+  {
+   "id": "sunglass_pick",
+   "name": "Sunglass Pick",
+   "type": "tool",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 1,
+   "icon": "sunglass_pick",
+   "desc": "Breaks spirit ore at a post. Post power 30, speed 6; Level 45 in the craft to use it at a post. +12% Finesse.",
+   "tool": {
+    "craft": "mining",
+    "power": 2.05
+   },
+   "post": {
+    "craft": "delving",
+    "tier": 7,
+    "power": 30,
+    "speed": 6,
+    "level_req": 45,
+    "finesse_pct": 12
+   }
+  },
+  {
+   "id": "sunglass_sickle",
+   "name": "Sunglass Sickle",
+   "type": "tool",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 1,
+   "icon": "sunglass_sickle",
+   "desc": "Cuts herbs at a post. Post power 29, speed 6; Level 40 in the craft to use it at a post. +8% Finesse.",
+   "tool": {
+    "craft": "gathering",
+    "power": 2.05
+   },
+   "post": {
+    "craft": "foraging",
+    "tier": 7,
+    "power": 29,
+    "speed": 6,
+    "level_req": 40,
+    "finesse_pct": 8
+   }
+  },
+  {
+   "id": "sunglass_rod",
+   "name": "Sunglass Rod",
+   "type": "tool",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 1,
+   "icon": "sunglass_rod",
+   "desc": "Fishes a spot through the day. Post power 43, speed 6; Level 45 in the craft to use it at a post. +8% Finesse.",
+   "tool": {
+    "craft": "fishing",
+    "power": 2.05
+   },
+   "post": {
+    "craft": "angling",
+    "tier": 7,
+    "power": 43,
+    "speed": 6,
+    "level_req": 45,
+    "finesse_pct": 8
+   }
+  },
+  {
+   "id": "sunglass_net",
+   "name": "Sunglass Net",
+   "type": "tool",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 1,
+   "icon": "sunglass_net",
+   "desc": "Nets spirit insects from a swarm. Post power 45, speed 6; Level 40 in the craft to use it at a post. +8% Finesse.",
+   "tool": {
+    "craft": "insect_netting",
+    "power": 2.05
+   },
+   "post": {
+    "craft": "netting",
+    "tier": 7,
+    "power": 45,
+    "speed": 6,
+    "level_req": 40,
+    "finesse_pct": 8
+   }
+  },
+  {
+   "id": "driftglass_pick",
+   "name": "Driftglass Pick",
+   "type": "tool",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 1,
+   "icon": "driftglass_pick",
+   "desc": "Breaks spirit ore at a post. Post power 35, speed 6; Level 50 in the craft to use it at a post. +16% Finesse.",
+   "tool": {
+    "craft": "mining",
+    "power": 2.2
+   },
+   "post": {
+    "craft": "delving",
+    "tier": 8,
+    "power": 35,
+    "speed": 6,
+    "level_req": 50,
+    "finesse_pct": 16
+   }
+  },
+  {
+   "id": "driftglass_sickle",
+   "name": "Driftglass Sickle",
+   "type": "tool",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 1,
+   "icon": "driftglass_sickle",
+   "desc": "Cuts herbs at a post. Post power 35, speed 6; Level 50 in the craft to use it at a post. +12% Finesse.",
+   "tool": {
+    "craft": "gathering",
+    "power": 2.2
+   },
+   "post": {
+    "craft": "foraging",
+    "tier": 8,
+    "power": 35,
+    "speed": 6,
+    "level_req": 50,
+    "finesse_pct": 12
+   }
+  },
+  {
+   "id": "starline_rod",
+   "name": "Starline Rod",
+   "type": "tool",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 1,
+   "icon": "starline_rod",
+   "desc": "Fishes a spot through the day. Post power 50, speed 6; Level 50 in the craft to use it at a post. +12% Finesse.",
+   "tool": {
+    "craft": "fishing",
+    "power": 2.2
+   },
+   "post": {
+    "craft": "angling",
+    "tier": 8,
+    "power": 50,
+    "speed": 6,
+    "level_req": 50,
+    "finesse_pct": 12
+   }
+  },
+  {
+   "id": "starsilk_net",
+   "name": "Starsilk Net",
+   "type": "tool",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 1,
+   "icon": "starsilk_net",
+   "desc": "Nets spirit insects from a swarm. Post power 55, speed 6; Level 50 in the craft to use it at a post. +12% Finesse.",
+   "tool": {
+    "craft": "insect_netting",
+    "power": 2.2
+   },
+   "post": {
+    "craft": "netting",
+    "tier": 8,
+    "power": 55,
+    "speed": 6,
+    "level_req": 50,
+    "finesse_pct": 12
+   }
+  },
+  {
+   "id": "glowfly",
+   "name": "Glowfly",
+   "type": "insect",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "glowfly",
+   "desc": "A firefly whose tail holds a bead of Qi-light. Lamp-makers and night alchemists buy them by the jar."
+  },
+  {
+   "id": "reed_cicada",
+   "name": "Reed Cicada",
+   "type": "insect",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "reed_cicada",
+   "desc": "A reed cicada. Its dried shell calms fevers; its song carries Qi a long way."
+  },
+  {
+   "id": "jade_scarab",
+   "name": "Jade Scarab",
+   "type": "insect",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "jade_scarab",
+   "desc": "A green scarab whose shell is half jade. Ground, it binds a pill's ingredients."
+  },
+  {
+   "id": "silk_moth",
+   "name": "Silk Moth",
+   "type": "insect",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "silk_moth",
+   "desc": "A pale moth of the Mist Peak mulberries. Its cocoons spin spirit silk."
+  },
+  {
+   "id": "thunder_mantis",
+   "name": "Thunder Mantis",
+   "type": "insect",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "thunder_mantis",
+   "desc": "A storm-grass mantis that stores a spark in its claws. Handle it by the wings."
+  },
+  {
+   "id": "frost_cricket",
+   "name": "Frost Cricket",
+   "type": "insect",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "frost_cricket",
+   "desc": "An ice-blue cricket from the Rimefrost. It chirps colder than the wind."
+  },
+  {
+   "id": "ember_locust",
+   "name": "Ember Locust",
+   "type": "insect",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 99,
+   "icon": "ember_locust",
+   "desc": "A Sunscar locust with ember-bright wings. A swarm can strip a dune garden bare."
+  },
+  {
+   "id": "starwing_mote",
+   "name": "Starwing Mote",
+   "type": "insect",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "starwing_mote",
+   "desc": "A fly no bigger than a grain of rice, its wings dusted with starlight from the lanterns."
+  },
+  {
+   "id": "hour_incense_1",
+   "name": "Hour Incense (1 h)",
+   "type": "other",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "hour_incense_1",
+   "desc": "Burned at a character's post from the Roll-Call: 1 hour of that post's work at once.",
+   "hour_incense": {
+    "hours": 1
+   }
+  },
+  {
+   "id": "hour_incense_2",
+   "name": "Hour Incense (2 h)",
+   "type": "other",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "hour_incense_2",
+   "desc": "Burned at a character's post from the Roll-Call: 2 hours of that post's work at once.",
+   "hour_incense": {
+    "hours": 2
+   }
+  },
+  {
+   "id": "hour_incense_4",
+   "name": "Hour Incense (4 h)",
+   "type": "other",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "hour_incense_4",
+   "desc": "Burned at a character's post from the Roll-Call: 4 hours of that post's work at once.",
+   "hour_incense": {
+    "hours": 4
+   }
+  },
+  {
+   "id": "hour_incense_12",
+   "name": "Hour Incense (12 h)",
+   "type": "other",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "hour_incense_12",
+   "desc": "Burned at a character's post from the Roll-Call: 12 hours of that post's work at once.",
+   "hour_incense": {
+    "hours": 12
+   }
+  },
+  {
+   "id": "hour_incense_24",
+   "name": "Hour Incense (24 h)",
+   "type": "other",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "hour_incense_24",
+   "desc": "Burned at a character's post from the Roll-Call: 24 hours of that post's work at once.",
+   "hour_incense": {
+    "hours": 24
+   }
+  },
+  {
+   "id": "hour_incense_72",
+   "name": "Hour Incense (72 h)",
+   "type": "other",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "hour_incense_72",
+   "desc": "Burned at a character's post from the Roll-Call: 72 hours of that post's work at once.",
+   "hour_incense": {
+    "hours": 72
+   }
+  },
+  {
+   "id": "wandering_incense",
+   "name": "Wandering Incense",
+   "type": "other",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "wandering_incense",
+   "desc": "Its smoke wanders. Burned at a post it grants anywhere from 5 to 500 hours of that post's work, most often about a day.",
+   "hour_incense": {
+    "min": 5,
+    "max": 500
    }
   },
   {

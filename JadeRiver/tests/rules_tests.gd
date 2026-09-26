@@ -57,6 +57,7 @@ func _main() -> void:
 	ice_mount_suite()
 	field_suite()
 	hollow_tide_suite()
+	post_suite()
 	body_path_suite()
 	heaven_suite()
 	arts_suite()
@@ -5160,6 +5161,126 @@ func hollow_tide_suite() -> void:
 	c.pools.hollowing = 0.0
 	c.cultivator.physiques.erase("hollow_touched")
 	Game.combat.refresh_stats(c.id)
+	Game.world.apply_teleport(c.id, back)
+
+## S50 Keeping Post (V10a, docs/idle_gathering_design.md): the formulas with their worked examples, then a post
+## taken, settled, filled to capacity, sent to the Storehouse; incense, sewing, migration and the save.
+func post_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	check(PostRules.xp_to_next(1) == 7.0 and PostRules.xp_to_next(10) == 1645.0 and PostRules.xp_to_next(30) == 169535.0,
+		"craft EXP to the next level: 7 at 1, 1,645 at 10, 169,535 at 30")
+	check(PostRules.level_for(0.0) == 1 and PostRules.level_for(7.0) == 2 and PostRules.level_for(3663.0) == 10 and PostRules.level_for(3662.0) == 9,
+		"levels come from total EXP (level 10 at 3,663)")
+	var f := PostRules.finesse(6.0, 10.0, 1)
+	check(near(f, 81.1, 0.005), "the worked example: a power-6 pick, attribute 10, level 1 gives Finesse %.1f (about 81)" % f)
+	var y := PostRules.yield_of(81.1, 25.0)
+	check(near(float(y.chance), pow(81.1 / 250.0, 0.4), 0.001) and near(float(y.abundance), 1.0), "Chance = (Finesse / (10 x Toughness))^0.4: %.0f%% on copper" % (100.0 * float(y.chance)))
+	check(near(float(PostRules.yield_of(4.9, 25.0).chance), 0.0) and near(float(PostRules.yield_of(250.0, 25.0).chance), 1.0),
+		"no chance below 2.5% of the full mark; full at ten times the Toughness")
+	var ab := PostRules.yield_of(16.0 * 250.0, 25.0)
+	check(near(float(ab.abundance), 2.0) and near(float(PostRules.yield_of(81.0 * 250.0, 25.0).abundance), 3.0)
+		and near(float(PostRules.yield_of(81.0 * 250.0, 25.0, 0.1).abundance), 4.0),
+		"past full, Abundance = floor(r^(0.25 + Flow)): 2 at sixteen times the mark, 3 at 81 times, 4 there with the most Flow")
+	check(near(float(PostRules.yield_of(81.0, 25.0, 0.0, 0.5).windfall), 1.9375), "Windfall chains up to four extra: 1 + w + w^2 + w^3 + w^4")
+	check(near(PostRules.swing_seconds(3.0), 14.4) and near(PostRules.swing_seconds(10.0), 6.0) and near(PostRules.swing_seconds(3.0, 100.0), 7.2),
+		"a swing takes 6 x (1 + (10 - speed) / 5) s, less with speed bonuses")
+	check(near(PostRules.diligence("craft"), 0.52) and near(PostRules.diligence("martial"), 0.40) and near(PostRules.diligence("craft", -90.0), 0.01),
+		"Diligence: 52% for crafts, 40% for the Vigil, never below 1%")
+	check(near(PostRules.capacity(PostRules.compartment_cap(0)), 40.0) and near(PostRules.capacity(PostRules.compartment_cap(1)), 100.0)
+		and near(PostRules.capacity(PostRules.compartment_cap(13)), 140000.0), "a pouch holds four compartments: 10 each unsewn, 25 at the first tier, 35,000 at the last")
+	var sa := PostRules.settle_amounts(5.0, {"copper_ore": 10.0, "willow_moss": 4.0}, {"copper_ore": "ore", "willow_moss": "herb"}, {"ore": 30.0, "herb": 0.0}, {"ore": 40.0, "herb": 40.0})
+	check(near(float(sa.items.copper_ore), 10.0) and near(float(sa.items.willow_moss), 20.0) and near(float(sa.full.get("ore", -1.0)), 1.0) and not sa.full.has("herb"),
+		"a settle stops each category when its pouch fills (ore after an hour) and not the others")
+	var r1 := RandomNumberGenerator.new()
+	r1.seed = 7
+	var r2 := RandomNumberGenerator.new()
+	r2.seed = 7
+	check(PostRules.draw(12.4, r1) == PostRules.draw(12.4, r2) and PostRules.draw(3.0, null) == 3, "whole numbers are drawn from the seed")
+	var r := PostRules.rates(81.1, [{"item": "copper_ore", "toughness": 25.0, "exp": 12.0, "weight": 1.0}], 3.0, 0.52)
+	check(float(r.items.copper_ore) >= 70.0 and float(r.items.copper_ore) <= 100.0, "a new delver's copper post: %.0f ore an hour (70-100)" % float(r.items.copper_ore))
+	check(3663.0 / float(r.exp_h) >= 3.0 and 3663.0 / float(r.exp_h) <= 6.0, "and craft level 10 in %.1f hours of posts (3-6)" % (3663.0 / float(r.exp_h)))
+	# In a room: the Reed Shallows' glowfly swarm.
+	var back := str(c.position.get("room", "lf_village"))
+	var posts0: Dictionary = c.posts.duplicate(true)
+	var store0: Dictionary = Game.account.storehouse.duplicate()
+	for u in ["keeping_post", "insect_netting", "herb_gathering", "pouch_sewing"]: Unlocks.force_unlock(c.id, u)
+	Game.world.apply_teleport(c.id, "lf_reed_shallows")
+	var swarm: Dictionary = Game.room_rt.object_def("swarm_glowfly")
+	check(not swarm.is_empty() and Game.posts.craft_of_object(swarm) == "netting", "the Reed Shallows have a glowfly swarm to net")
+	var far := Game.submit({"type": "take_post", "object": "swarm_glowfly"})
+	Game.actor_state(c.id).plane = Vector2(float(swarm.at[0]), float(swarm.at[1]))
+	var took := Game.submit({"type": "take_post", "object": "swarm_glowfly"})
+	check(took.get("ok", false) and Game.posts.at_post(c) and bool(Game.posts.post_of(c).get("paused", false)),
+		"keep post at the swarm (paused while this character is played)")
+	var gated := Game.posts.rates_at(c, {"type": "insect_swarm", "outputs": [{"item": "jade_scarab", "weight": 1.0}]})
+	check((gated.get("outputs", []) as Array).is_empty(), "a jade scarab swarm yields nothing below Netting 12")
+	# Switched away for two hours.
+	Game.posts.post_of(c)["paused"] = false
+	Game.posts.post_of(c)["since"] = Clock.now_utc() - 7200.0
+	var xp0: float = Game.posts.xp(c, "netting")
+	var led: Dictionary = Game.posts.settle_post(c).get("ledger", {})
+	check(near(float(led.get("hours", 0.0)), 2.0, 0.01) and int(led.get("items", {}).get("glowfly", 0)) > 0 and Game.posts.xp(c, "netting") > xp0,
+		"two hours away: %d glowflies and %.0f Netting EXP" % [int(led.get("items", {}).get("glowfly", 0)), Game.posts.xp(c, "netting") - xp0])
+	Game.posts.post_of(c)["since"] = Clock.now_utc() - 3600.0 * 200.0
+	var xp1: float = Game.posts.xp(c, "netting")
+	var led2: Dictionary = Game.posts.settle_post(c).get("ledger", {})
+	check(led2.get("full", {}).has("insect") and Game.posts.held(c, "insect") <= Game.posts.capacity(c, "insect") + 1.0 and Game.posts.xp(c, "netting") > xp1,
+		"two hundred hours: the insect pouch filled (%d of %d) and stopped; the EXP went on" % [int(Game.posts.held(c, "insect")), int(Game.posts.capacity(c, "insect"))])
+	Game.posts.post_of(c)["since"] = Clock.now_utc() + 50000.0
+	var back_clock := Game.posts.settle_post(c)
+	check(back_clock.get("clock_moved_back", false), "a clock moved back settles nothing")
+	var held_n := int(Game.posts.held(c, "insect"))
+	Game.submit({"type": "send_to_storehouse", "character": c.id})
+	check(int(Game.account.storehouse.get("glowfly", 0)) >= held_n and int(Game.posts.held(c, "insect")) == 0, "the pouch empties into the Storehouse")
+	var w := Game.submit({"type": "withdraw_storehouse", "item": "glowfly", "count": 3})
+	check(not w.get("ok", true), "the Storehouse opens only in a town or a safe room")
+	# Hand harvesting trains the craft.
+	var dx0: float = Game.posts.xp(c, "delving")
+	Unlocks.force_unlock(c.id, "mining")
+	Game.posts.apply_hand_harvest(c.id, "copper_ore", 1)
+	check(near(Game.posts.xp(c, "delving") - dx0, 12.0), "a copper ore dug by hand gives 12 Delving EXP")
+	# Hour Incense burned at another character's post.
+	var other := GameCharacter.new()
+	other.id = "c12"
+	other.slot = 12
+	other.name = "Post Tester"
+	other.position.room = "lf_reed_shallows"
+	Game.characters["c12"] = other
+	other.posts = {"post": {"kind": "craft", "craft": "netting", "room": "lf_reed_shallows", "object": "swarm_glowfly", "since": Clock.now_utc(), "paused": false},
+		"crafts": {"netting": {"xp": 0.0}}, "pouch": {}}
+	Unlocks.force_unlock("c12", "insect_netting")
+	Game.inventory.apply_add(c.id, "hour_incense_2", 1, "test")
+	var inc := Game.submit({"type": "burn_incense", "character": "c12", "item": "hour_incense_2"})
+	check(inc.get("ok", false) and near(float(inc.get("hours", 0.0)), 2.0) and Game.posts.xp(other, "netting") > 0.0,
+		"Hour Incense gives a post two hours of work at once")
+	var rows: Array = Game.posts.roll_call()
+	check(rows.any(func(x): return str(x.id) == "c12" and not (x.post as Dictionary).is_empty()), "the Roll-Call lists every character and its post")
+	Game.posts.post_of(other)["since"] = Clock.now_utc() - 3600.0
+	var all := Game.submit({"type": "settle_all"})
+	check(all.get("ok", false) and int(Game.posts.held(other, "insect")) == 0, "Settle all sends every other post's haul to the Storehouse")
+	# Migration: an old idle Gather task becomes a post.
+	other.posts = {}
+	other.idle_task = {"task": "gather", "room": "lf_reed_shallows", "item": "willow_moss", "started_utc": Clock.now_utc() - 600.0}
+	Game.posts.migrate_idle(other)
+	check(str(Game.posts.post_of(other).get("craft", "")) == "foraging" and other.idle_task.is_empty(), "an old idle Gather task becomes a Foraging post")
+	Game.characters.erase("c12")
+	# Sewing.
+	Game.economy.apply_currency("silver_tael", 500, "test")
+	Game.inventory.apply_add(c.id, "cloth", 2, "test")
+	var tier0 := int(Game.posts.pouch(c, "ore").get("tier", 0))
+	var sew := Game.submit({"type": "sew_pouch", "category": "ore"})
+	check(sew.get("ok", false) and int(Game.posts.pouch(c, "ore").tier) == tier0 + 1, "Tailor Xun sews the ore pouch a tier deeper")
+	# The save keeps posts and the Storehouse.
+	var snap: Dictionary = c.snapshot()
+	var twin := GameCharacter.new()
+	twin.restore(snap)
+	check(twin.posts.get("crafts", {}).get("netting", {}).get("xp", -1.0) == c.posts.crafts.netting.xp, "a save keeps craft EXP and posts")
+	var acc := AccountState.new()
+	acc.restore(Game.account.snapshot())
+	check(int(acc.storehouse.get("glowfly", 0)) == int(Game.account.storehouse.get("glowfly", 0)), "and the account keeps its Storehouse")
+	c.posts = posts0
+	Game.account.storehouse = store0
 	Game.world.apply_teleport(c.id, back)
 
 func ice_mount_suite() -> void:

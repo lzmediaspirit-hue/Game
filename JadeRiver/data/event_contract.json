@@ -1876,6 +1876,56 @@
     "field_authority",
     "field_rules"
    ]
+  },
+  "post_taken": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ]
+  },
+  "post_left": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ]
+  },
+  "post_settled": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ]
+  },
+  "craft_leveled": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ]
+  },
+  "pouch_sewn": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ]
+  },
+  "storehouse_changed": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ],
+   "polled": "The Roll-Call's Storehouse tab reads the account's store."
+  },
+  "incense_burned": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ]
   }
  }
 }

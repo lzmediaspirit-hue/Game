@@ -26,6 +26,8 @@ const PAGES := {
 	"settings": "res://scripts/ui/pages/settings_page.gd",
 	"dialogue": "res://scripts/ui/pages/dialogue_page.gd",
 	"welcome": "res://scripts/ui/pages/welcome_page.gd",
+	"posts": "res://scripts/ui/pages/posts_page.gd",
+	"pouches": "res://scripts/ui/pages/pouches_page.gd",
 	"revival": "res://scripts/ui/pages/revival_page.gd",
 	"teleport": "res://scripts/ui/pages/teleport_page.gd",
 	"emotes": "res://scripts/ui/pages/emotes_page.gd",
@@ -395,6 +397,19 @@ func _handle_preview_args(user_args: Array) -> void:
 			await get_tree().create_timer(0.8).timeout
 			Game.submit({"type": "interact", "object": str(a).trim_prefix("--interact=")})
 		if str(a).begins_with("--shot="): shot = str(a).trim_prefix("--shot=")
+		if str(a) == "--posts-demo" and Game.active() != null and Game.room_rt != null:
+			# Debug tools (S38): two more characters keeping post at this room's nodes, hours in, for Roll-Call previews (S50).
+			var nodes: Array = Game.room_rt.def.get("objects", []).filter(func(o): return Game.posts.craft_of_object(o) != "")
+			for k in mini(2, nodes.size()):
+				var slot := 2 + k
+				Game.account.slots_unlocked = maxi(Game.account.slots_unlocked, slot)
+				if not Game.characters.has("c%d" % slot): Game.submit({"type": "create_character", "slot": slot, "name": [Tx.t("main.wen_ruo"), Tx.t("main.bai_lin")][k], "skip_prologue": true})
+				var oc = Game.character("c%d" % slot)
+				if oc == null: continue
+				for u in ["keeping_post", "insect_netting", "herb_gathering", "mining", "fishing"]: Unlocks.force_unlock(oc.id, u)
+				oc.posts = {"post": {"kind": "craft", "craft": Game.posts.craft_of_object(nodes[k]), "room": Game.room_rt.room_id,
+					"object": str(nodes[k].id), "since": Clock.now_utc() - 3600.0 * (2.5 + 9.0 * k), "paused": false}, "crafts": {}, "pouch": {}}
+				oc.position.room = Game.room_rt.room_id
 		if str(a) == "--offer-fates" and Game.active() != null:
 			# Debug tools (S38): a fate offer for previews of the picker (S48).
 			Game.active().cultivator.fate_offer = ["thunder_tempered", "lucky_star", "scar_of_failure"]

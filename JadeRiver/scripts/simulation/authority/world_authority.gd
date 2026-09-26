@@ -436,7 +436,7 @@ func _restore_object_states(c, rt: RoomRuntime) -> void:
 	for o in rt.def.get("objects", []):
 		var id := str(o.get("id", ""))
 		var st := {"state": "ready", "timer": 0.0, "hits": 0}
-		if o.type in ["herb_patch", "ore_vein", "star_sight"] and float(mem.nodes.get(id, 0.0)) > now:
+		if o.type in ["herb_patch", "ore_vein", "star_sight", "insect_swarm"] and float(mem.nodes.get(id, 0.0)) > now:
 			st.state = "depleted"
 			st.timer = float(mem.nodes[id]) - now
 		if o.type in ["chest"] and mem.opened.has(open_key(o)): st.state = "open"
@@ -545,7 +545,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			if c.pools.max_qi > 0: game.combat.apply_resource_change(c.id, "qi", c.pools.max_qi, "shrine")
 			GameEvents.save_pending = true
 			result.text = Tx.t("sim.world.the_shrine_remembers_you_wounds")
-		"herb_patch", "ore_vein", "fishing_spot", "star_sight":
+		"herb_patch", "ore_vein", "fishing_spot", "star_sight", "insect_swarm":
 			# S45: with a Spirit Spade and Expert gathering, a rare herb can be dug up whole instead of picked.
 			if o.type == "herb_patch" and o.has("ripen") and not pick and game.crafting.can_transplant(c):
 				return ok({"dialogue": {"npc": "", "speaker": ContentDB.item_name(str(o.item)), "portrait": {}, "lines": [Tx.t("sim.world.rare_herb_choice")],
@@ -668,7 +668,7 @@ func query_context(c) -> Dictionary:
 		var priority := 3.0
 		if o.type == "npc":
 			priority = 1.0 if game.quest.npc_marker(c, str(o.npc)) != "" else 2.0
-		elif o.type in ["herb_patch", "ore_vein", "fishing_spot", "star_sight"]: priority = 4.0
+		elif o.type in ["herb_patch", "ore_vein", "fishing_spot", "star_sight", "insect_swarm"]: priority = 4.0
 		elif o.type == "pickup": priority = 0.5
 		var score: float = priority * 1000.0 + d
 		if score < best_score:
@@ -692,6 +692,7 @@ func _verb(o: Dictionary) -> String:
 		"herb_patch": return Tx.t("sim.world.gather")
 		"ore_vein": return Tx.t("sim.world.mine")
 		"fishing_spot": return Tx.t("sim.world.fish")
+		"insect_swarm": return Tx.t("sim.world.net")
 		"chest", "storage_chest": return Tx.t("sim.world.open")
 		"shrine": return Tx.t("sim.world.pray")
 		"pickup": return Tx.t("sim.world.take")

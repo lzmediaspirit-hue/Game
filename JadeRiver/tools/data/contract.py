@@ -97,6 +97,8 @@ DEPTH = {
               "chase_started", "thief_caught", "thief_escaped", "route_started", "route_finished"],
     # S28 v1.2 field powers: Presence (Will Manifest) and, later, the Sphere (Sphere Lord).
     "Field": ["presence_toggled", "presence_leveled", "presence_clash", "presence_clash_ended"],
+    # S50 V10 Keeping Post: posts, craft levels, pouches, the Storehouse and Hour Incense.
+    "Posts": ["post_taken", "post_left", "post_settled", "craft_leveled", "pouch_sewn", "storehouse_changed", "incense_burned"],
     # S48 sect role variants: the signature line's variant and the contribution tree.
     "TrainingSect": ["sect_role_chosen", "sect_node_bought"],
     # S49 territory: the spirit-stone mines your sect takes, holds, loses and collects from (account level).
@@ -115,6 +117,7 @@ SYSTEMS = {
     "Mail": ["mail_authority"], "Companion": ["companion_authority"], "Notifier": ["notifier"],
     "Movement": ["local_authority", "movement_solver"], "Relations": ["relations_authority"],
     "Calendar": ["calendar_authority"], "Field": ["field_authority", "field_rules"],
+    "Posts": ["post_authority", "post_rules"],
 }
 
 # A second system that may also announce the event, and why.
@@ -155,6 +158,7 @@ POLLED = {
     "mover_boarded": "The player node reads rider_of; movers carry their riders in the solver.",
     "volume_left": "The player node reads the water state and volumes each frame.",
     "enemy_leashed": "Enemy views read the return state; the out-of-reach rule is the brain's own business.",
+    "storehouse_changed": "The Roll-Call's Storehouse tab reads the account's store.",
 }
 
 

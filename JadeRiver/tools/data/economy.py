@@ -9,6 +9,7 @@ import os
 
 from common import DATA, write, entries
 from legends import CHAINS as LEGENDS, RESTORE as LEGEND_RESTORE
+import posts
 
 
 def realm(r):
@@ -364,6 +365,9 @@ def recipes():
     r("iron_needles", "smithing", [("riverstone", 1), ("beetle_shell", 1)], [("iron_needles", 20)], "common", default=True)
     r("flying_knives", "smithing", [("jadeiron", 1)], [("flying_knives", 10)], "earth", default=True)
     r("thunderclap_pellet", "smithing", [("ore_dust", 2), ("ember_pepper", 1), ("lantern_wick", 1)], [("thunderclap_pellet", 3)], "common", default=True)
+    # V10 Keeping Post: the post tools from tier 1 up, known to every smith; the forge's grade cap gates them by realm.
+    for rid, craft, inputs, outputs, grade in posts.tool_recipes():
+        r(rid, craft, inputs, outputs, grade, default=True)
     # The Bright Mirror: a forge blueprint learned at Heart Tempering 1 (S47, Part 8).
     r("bright_mirror", "smithing", [("jadeiron", 6), ("pearl", 2)], [("bright_mirror", 1)], "earth")
     # S47 the sword swarm: the Nine Swords Array, a heaven-grade blueprint sold by the Ironroot Clan.

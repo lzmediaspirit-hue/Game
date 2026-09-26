@@ -15,6 +15,7 @@ import catalogue_rows_towns
 import catalogue_rows_fields
 import catalogue_rows_dungeons
 import lantern
+import posts
 import random
 
 from common import DATA, write, entries, req, c
@@ -701,6 +702,7 @@ def stoneford():
     r.npc("auntie_rong", [1280, 730], facing=1)
     r.npc("keeper_shi", [1560, 860], facing=-1)
     r.npc("courier_lin", [1900, 900], facing=1)
+    r.npc("tailor_xun", [1060, 900], facing=1)   # V10: sews Qiankun pouches
     r.npc("adventurer_su", [300, 900], facing=1)
     r.npc("old_pan", [2200, 900], facing=-1, visible_if=all_of(unlock("appraisal")))
     r.edge("east", "east", "sf_gate", "west", y=850)
@@ -2867,6 +2869,24 @@ def _dry_x(r, x, y):
     return x
 
 
+def insect_swarms():
+    """V10 Insect Netting: a swarm in the rooms posts.SWARMS names, on dry ground clear of the room's other nodes.
+    A swarm is netted by hand like a herb patch and kept at a post like any node; its outputs have weights."""
+    for rid, (share, outs) in posts.SWARMS.items():
+        r = ROOMS[rid]
+        taken = [float(o["at"][0]) for o in r.d["objects"] if o["type"] in ("herb_patch", "ore_vein", "fishing_spot", "treasure_birth", "rift_tear", "npc")]
+        x = int(r.w * share)
+        for step in range(0, 14):
+            cand = _dry_x(r, x + (step // 2) * 150 * (1 if step % 2 == 0 else -1), 860)
+            if all(abs(cand - t) >= 170 for t in taken):
+                x = cand
+                break
+        main = outs[0][0]
+        r.obj("swarm_" + main, "insect_swarm", [x, 860], item=main, outputs=[{"item": i, "weight": w} for i, w in outs],
+              prop=posts.SWARM_PROP[main], rank="apprentice", regrow_s=240, radius=110, **{"yield": [1, 2]},
+              requires=all_of(unlock("insect_netting")), locked_text="You have no net, and they are too quick for bare hands.")
+
+
 def fruit_trees():
     """S49 treasure births: every candidate room has a Spirit Fruit tree that shows only while the fruit is ripe there
     (calendar "treasure_birth"; living_world.py lists the same rooms)."""
@@ -2954,6 +2974,7 @@ def build():
     ice_sheets()       # v1.1 traction: glazed ground in the Frozen Shrine and on Rimefrost
     rift_tears()   # S49: after every volume is in place, so tears and fruit trees stand on dry ground
     fruit_trees()
+    insect_swarms()
     spirit_mines()
     check_links()
     reachability()

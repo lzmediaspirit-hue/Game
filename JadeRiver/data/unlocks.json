@@ -949,6 +949,70 @@
    "same_stage_ok": true
   },
   {
+   "id": "keeping_post",
+   "label": "Keeping post",
+   "trigger": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "bone_forging_6"
+     }
+    ]
+   },
+   "reveals": [
+    "page:posts"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "keeping_post"
+  },
+  {
+   "id": "insect_netting",
+   "label": "Insect netting",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_6"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "reed_net",
+     "count": 1
+    }
+   ],
+   "scope": "character",
+   "quest": "glowflies",
+   "same_stage_ok": true
+  },
+  {
+   "id": "pouch_sewing",
+   "label": "Pouch sewing",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "keeping_post"
+     }
+    ]
+   },
+   "reveals": [
+    "page:pouches"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "a_pouch_for_the_road",
+   "same_stage_ok": true
+  },
+  {
    "id": "bottleneck_panel",
    "label": "Bottlenecks",
    "trigger": {

@@ -42,6 +42,7 @@ var workshop: WorkshopAuthority
 var relations: RelationsAuthority
 var calendar: CalendarAuthority
 var field: FieldAuthority
+var posts: PostAuthority
 
 func _ready() -> void:
 	build_authorities()
@@ -68,8 +69,9 @@ func build_authorities() -> void:
 	relations = RelationsAuthority.new(self)
 	calendar = CalendarAuthority.new(self)
 	field = FieldAuthority.new(self)
+	posts = PostAuthority.new(self)
 	authorities = [combat, progression, enemies, world, inventory, quest, economy, accounts, crafting, training, mail,
-		achievements, pets, companions, sect, workshop, relations, calendar, field]
+		achievements, pets, companions, sect, workshop, relations, calendar, field, posts]
 	for a in authorities:
 		for type in a.intents():
 			assert(not handlers.has(type), "Intent registered twice: " + type)
