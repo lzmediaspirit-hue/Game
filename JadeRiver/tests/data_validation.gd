@@ -136,9 +136,14 @@ func data_suite() -> void:
 		for key4 in ["guaranteed", "rare", "quest_drops"]:
 			for r in t.get(key4, []): check(item_ok(str(r.item)), "loot %s: %s" % [t.id, r.item])
 		for qd in t.get("quest_drops", []): check(ContentDB.has_entry("quests", str(qd.quest)), "loot %s: quest %s" % [t.id, qd.quest])
+		# P1: every loot table rolls equipment, or says why it does not (a spar opponent, a fixed story reward).
+		check(float(t.get("equipment", {}).get("chance", 0.0)) > 0.0 or str(t.get("no_equipment", "")) in ["spar", "set_reward"],
+			"loot %s rolls equipment or gives a reason" % t.id)
 	for e in ContentDB.all("enemies"):
 		check(ContentDB.has_entry("loot_tables", str(e.get("loot", e.id))), "enemy %s has a loot table" % e.id)
 		check(not e.get("attacks", []).is_empty() or e.get("passive", false), "enemy %s can attack" % e.id)
+		if str(e.get("role", "")) in ["story_boss", "dungeon_boss", "field_boss"]:
+			check(not (e.get("phases", []) as Array).is_empty(), "boss %s has phases" % e.id)
 	for sh in ContentDB.all("shops"):
 		var seen := {}
 		for st in sh.get("stock", []) + sh.get("rotation", {}).get("pool", []):

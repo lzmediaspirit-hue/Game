@@ -286,7 +286,9 @@ func _check_phases(e: EnemyState) -> void:
 	for i in phases.size():
 		if i <= int(e.ai.get("phase", -1)): continue
 		var ph: Dictionary = phases[i]
-		if e.pools.hp <= e.pools.max_hp * float(ph.get("below", 0)):
+		# A phase opens below its share of HP, or (for a boss that cannot be beaten yet) after its seconds in the fight.
+		var timed := ph.has("after_s") and float(e.ai.get("engaged_t", 0.0)) >= float(ph.after_s)
+		if timed or e.pools.hp <= e.pools.max_hp * float(ph.get("below", 0)):
 			e.ai.phase = i
 			match str(ph.get("action", "")):
 				"dig_in":

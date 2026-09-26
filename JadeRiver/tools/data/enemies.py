@@ -417,16 +417,25 @@ def build():
             race="human", energy="primal_qi", width=22, height=96, weak_to="fire",
             phases=[{"below": 0.66, "action": "flood"}, {"below": 0.33, "action": "summon"}], first_defeat=["bronze_bell", "shattered_moon_blade"]),
         mob("the_reflection", 36, "story_boss", "none", None, [], [atk("mirror_strike", 0.45, 70, 1.0)], ai="reflection",
-            art={"avatar": "player"}, race="human", energy="primal_qi", width=18, height=90),
+            art={"avatar": "player"}, race="human", energy="primal_qi", width=18, height=90,
+            # P1: at half health the Reflection calls up a heart demon; at a quarter it fights as you would, desperately.
+            phases=[{"below": 0.5, "action": "summon", "summon": "heart_demon", "summon_level": 36},
+                    {"below": 0.25, "action": "enrage", "cooldown": 0.75, "damage": 1.2}]),
         # Gap report G1: every 25 on the heart-demon meter brings one of these into the Trial of Reflections.
         mob("heart_demon", 36, "normal", "none", None, [], [atk("whisper_of_doubt", 0.5, 70, 0.8, damage_type="soul")],
             ai="duelist", art={"avatar": "player", "tint": "#b0283c"}, race="human", energy="primal_qi", width=18, height=90,
             name="Heart Demon", hp_mult=0.5),
         mob("elder_gu", 53, "story_boss", "water", None, [d("smuggler_ledger", 1.0)], [atk("tide_palm", 0.5, 90, 1.2, damage_type="qi")],
-            ai="humanoid", art=human("elder_gu"), race="human", energy="true_qi", width=18, height=90, flees_after_s=60, invulnerable=True),
+            ai="humanoid", art=human("elder_gu"), race="human", energy="true_qi", width=18, height=90, flees_after_s=60, invulnerable=True,
+            # P1: Gu cannot be beaten here, so his phases run on the clock: hired blades at 20 s, a cornered rat at 40 s.
+            phases=[{"after_s": 20, "action": "summon", "summon": "gorge_bandit_adept", "summon_level": 50},
+                    {"after_s": 40, "action": "enrage", "cooldown": 0.7, "damage": 1.25}]),
         mob("hollow_behemoth", 58, "story_boss", "hollow_earth", None, [d("siege_medal", 1.0), d("mistjade_robe", 1.0)],
             [atk("stampede", 0.7, 90, 1.4, dash=240, knockback=120, shatter=True), atk("drone_burst", 1.0, 200, 1.0, both_sides=True, depth=70)],
-            ai="boss_behemoth", width=80, height=140, hollowing=8),
+            ai="boss_behemoth", width=80, height=140, hollowing=8,
+            # P1: the Behemoth sheds Hollowed boarlets at 60% and stampedes without pause below 30%.
+            phases=[{"below": 0.6, "action": "summon", "summon": "hollowed_boarlet", "summon_level": 56},
+                    {"below": 0.3, "action": "enrage", "cooldown": 0.65, "damage": 1.3}]),
         mob("gate_guardian", 63, "story_boss", "earth", None, [], [atk("ring_sweep", 0.7, 180, 1.3, both_sides=True, depth=70, knockback=100),
                                                                    atk("soul_gaze", 0.9, 320, 1.1, damage_type="soul", projectile={"speed": 500, "art": "soul_bolt"})],
             ai="boss_guardian", width=60, height=180, phases=[{"below": 0.66, "action": "soul_phase"}, {"below": 0.33, "action": "flight_phase"}]),
@@ -575,42 +584,47 @@ def build():
         elif role in ("dungeon_boss", "field_boss", "story_boss"):
             table["guaranteed"] = [dict(x) for x in drops]
             table["coins"] = {"chance": 1.0, "mult": 40}
-            table["equipment"] = {"chance": 1.0, "min_quality": "superior"} if role != "story_boss" else {}
+            table["equipment"] = {"chance": 1.0, "min_quality": "superior"}
+        elif role == "event":
+            table["guaranteed"] = [dict(x) for x in drops if x["chance"] >= 1.0]
+            table["equipment"] = {"chance": 0.03, "min_quality": "flawed"}
         else:
             table["guaranteed"] = [dict(x) for x in drops if x["chance"] >= 1.0]
+            # P1: every loot table rolls equipment or says why not. A spar or trial opponent is not looted.
+            table["no_equipment"] = "spar"
         if m["id"] in QUEST_DROPS:
             table["quest_drops"] = QUEST_DROPS[m["id"]]
         tables.append(table)
     tables.append({"id": "jar_valley_low", "groups": [{"chance": 0.5, "pick": [{"item": "rice", "weight": 2, "count": [1, 1]},
                    {"item": "willow_moss", "weight": 2, "count": [1, 2]}, {"item": "herbal_tea", "weight": 1, "count": [1, 1]}]}],
-                   "coins": {"chance": 0.5, "mult": 1}, "rare": [], "equipment": {}})
+                   "coins": {"chance": 0.5, "mult": 1}, "rare": [], "equipment": {"chance": 0.02, "min_quality": "flawed"}})
     tables.append({"id": "jar_valley_mid", "groups": [{"chance": 0.6, "pick": [{"item": "rice_ball", "weight": 2, "count": [1, 1]},
                    {"item": "spirit_stone_shard", "weight": 1, "count": [1, 1]}, {"item": "healing_pill", "weight": 1, "count": [1, 1]}]}],
-                   "coins": {"chance": 0.6, "mult": 2}, "rare": [], "equipment": {}})
+                   "coins": {"chance": 0.6, "mult": 2}, "rare": [], "equipment": {"chance": 0.02, "min_quality": "flawed"}})
     tables.append({"id": "chest_valley", "guaranteed": [{"item": "spirit_stone_shard", "count": [1, 3], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "healing_pill", "weight": 2, "count": [1, 2]}, {"item": "manual_page", "weight": 1, "count": [1, 1]},
                                                          {"item": "qi_gathering_pill", "weight": 1, "count": [1, 1]}]}],
                    "coins": {"chance": 1.0, "mult": 5}, "rare": [], "equipment": {"chance": 0.3, "min_quality": "fine"}})
     # Gu's Warehouse vault (S47): the Little Pagoda he hoarded, and his silver.
     tables.append({"id": "gus_vault", "guaranteed": [{"item": "little_pagoda", "count": [1, 1], "chance": 1.0}],
-                   "groups": [], "coins": {"chance": 1.0, "mult": 12}, "rare": [], "equipment": {}})
+                   "groups": [], "coins": {"chance": 1.0, "mult": 12}, "rare": [], "equipment": {}, "no_equipment": "set_reward"})
     # The Drowned Abbot's sealed vault (SA3, S44): the Nine-Dragon Cauldron he kept, and a dungeon chest's worth besides.
     tables.append({"id": "abbots_vault", "guaranteed": [{"item": "nine_dragon_cauldron", "count": [1, 1], "chance": 1.0},
                                                         {"item": "spirit_soil", "count": [1, 1], "chance": 1.0},
                                                         {"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "foundation_guard_pill", "weight": 1, "count": [1, 1]}]}],
-                   "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {}})
+                   "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {}, "no_equipment": "set_reward"})
     # S46: the chest on the ledge beside Crane Falls keeps the Herb Whisper skill book.
     tables.append({"id": "falls_pool_chest", "guaranteed": [{"item": "pet_book_herb_whisper", "count": [1, 1], "chance": 1.0},
                                                              {"item": "mist_lotus", "count": [1, 2], "chance": 1.0}],
-                   "groups": [], "coins": {"chance": 1.0, "mult": 6}, "rare": [], "equipment": {}})
+                   "groups": [], "coins": {"chance": 1.0, "mult": 6}, "rare": [], "equipment": {}, "no_equipment": "set_reward"})
     tables.append({"id": "chest_dungeon", "guaranteed": [{"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "foundation_guard_pill", "weight": 1, "count": [1, 1]}]}],
                    "coins": {"chance": 1.0, "mult": 10}, "rare": [], "equipment": {"chance": 0.6, "min_quality": "fine"}})
     # Act II (S32): jars and chests of the Azure Expanse. Coins here are paid in Spirit Stones (zone coin_scale).
     tables.append({"id": "jar_expanse", "groups": [{"chance": 0.6, "pick": [{"item": "storm_shard", "weight": 2, "count": [1, 2]},
                    {"item": "spirit_stone_shard", "weight": 2, "count": [1, 2]}, {"item": "qi_restoration_pill", "weight": 1, "count": [1, 1]}]}],
-                   "coins": {"chance": 0.6, "mult": 2}, "rare": [], "equipment": {}})
+                   "coins": {"chance": 0.6, "mult": 2}, "rare": [], "equipment": {"chance": 0.02, "min_quality": "flawed"}})
     tables.append({"id": "chest_expanse", "guaranteed": [{"item": "storm_shard", "count": [3, 6], "chance": 1.0},
                                                          {"item": "spirit_stone_shard", "count": [2, 4], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [1, 2]}, {"item": "stormsteel_ore", "weight": 2, "count": [1, 2]}]}],
@@ -631,7 +645,7 @@ def build():
     # v1.2 (S32): jars and chests of the Lantern Star Field. Coins are paid in Sage Crystals (zone coin_scale).
     tables.append({"id": "jar_lantern", "groups": [{"chance": 0.6, "pick": [{"item": "star_shard", "weight": 2, "count": [1, 2]},
                    {"item": "spirit_stone_shard", "weight": 1, "count": [2, 3]}, {"item": "qi_restoration_pill", "weight": 1, "count": [1, 1]}]}],
-                   "coins": {"chance": 0.6, "mult": 2}, "rare": [], "equipment": {}})
+                   "coins": {"chance": 0.6, "mult": 2}, "rare": [], "equipment": {"chance": 0.02, "min_quality": "flawed"}})
     tables.append({"id": "chest_lantern", "guaranteed": [{"item": "star_shard", "count": [4, 8], "chance": 1.0},
                                                          {"item": "spirit_stone_shard", "count": [3, 5], "chance": 1.0}],
                    "groups": [{"chance": 1.0, "pick": [{"item": "manual_page", "weight": 1, "count": [2, 3]}, {"item": "driftglass", "weight": 2, "count": [1, 2]},

@@ -5,6 +5,31 @@
 The idle gathering milestone (docs/idle_gathering_design.md), after IdleOn's AFK model in Jade River's own names. It
 runs between v1.2 Phase B and Phase C.
 
+### P1 · Guidance and gaps (docs/roadmap_master_ui.md)
+- **Quest direction.**
+  - The tracker names where a tracked quest leads ("➤ Reed Shallows · Lotus Ferry").
+  - The minimap's exit toward it pulses gold, with a gold chevron on the frame's edge pointing the way.
+  - The world map marks the destination's region with a pulsing gold quest mark and lists the room with a ◆.
+  - The main story's quest leads when several are tracked.
+- **Head markers, all four.** Gold ! for the main story. Blue ! for a new side quest. The new **jade-ringed gold !**
+  marks a new quest from someone you have already helped. Gold ? means ready to hand in. The new **grey bubble of
+  three dots** marks a quest of theirs under way. The minimap mirrors the jade ring. The grey bubble does not pull
+  the context button to the NPC.
+- **Every loot table rolls equipment or says why not.**
+  - The five story bosses now drop superior gear like the other bosses.
+  - Event foes roll gear like normal foes (3%); jars roll 2%.
+  - Spar and trial opponents carry `no_equipment: "spar"`, and the three story vaults `"set_reward"`.
+  - A new data-validation rule enforces both.
+- **Boss phases.**
+  - The Reflection calls up a heart demon at half health and enrages at a quarter.
+  - The Hollow Behemoth sheds Hollowed boarlets at 60% and enrages at 30%.
+  - Elder Gu cannot be hurt yet, so his phases run on the fight's clock (`after_s`): hired blades at 20 s, a
+    cornered rat at 40 s.
+  - A validation rule requires phases on every boss.
+- Tests: `guidance_suite` walks one NPC through side, again, progress and ready, and checks the route mark and the
+  destination's name. The valley run stands beside Uncle Guo's dummy (a blow opens no conversation; beside Guo the
+  button talks). A `--guide-demo` debug flag shows every marker in Lotus Ferry.
+
 ### V10d3 · The first month
 - `balance_sim` plays 30 days of twelve characters: three to each gathering craft on successive rungs, 20 hours a day
   at their posts, and a day's silver from active play. It buys the account web greedily: Post Arts, craft seals,

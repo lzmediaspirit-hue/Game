@@ -61,6 +61,7 @@ func _main() -> void:
 	vigil_suite()
 	station_suite()
 	works_suite()
+	guidance_suite()
 	body_path_suite()
 	heaven_suite()
 	arts_suite()
@@ -5518,6 +5519,43 @@ func works_suite() -> void:
 	c.posts = posts0
 	Game.account.works = works0
 	Game.account.storehouse = store0
+
+## P1 (docs/roadmap_master_ui.md): the four head markers through one NPC's quests, and the way to a quest's room.
+func guidance_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var q0: Dictionary = c.quests.snapshot()
+	var back := str(c.position.get("room", "lf_village"))
+	c.quests.active = {}
+	c.quests.done = {}
+	c.quests.tracked = []
+	c.quests.offered = {"the_ancestors_regard": true}
+	check(Game.quest.npc_marker(c, "magistrate_qian") == "side", "a first quest on offer: the blue side mark (%s)" % Game.quest.npc_marker(c, "magistrate_qian"))
+	c.quests.done = {"the_ancestors_regard": 1}
+	c.quests.offered = {"the_county_tribute": true}
+	check(Game.quest.npc_marker(c, "magistrate_qian") == "again", "another quest from someone you have helped: the jade-ringed mark")
+	c.quests.offered = {}
+	c.quests.active = {"the_county_tribute": {"state": "active", "progress": [0], "accepted_tick": 0}}
+	check(Game.quest.npc_marker(c, "magistrate_qian") == "progress", "their quest under way: the grey bubble")
+	check(not QuestAuthority.marker_calls("progress") and QuestAuthority.marker_calls("again"), "the grey bubble does not call the player over")
+	c.quests.active["the_county_tribute"]["state"] = "ready"
+	check(Game.quest.npc_marker(c, "magistrate_qian") == "ready", "done and ready to hand in: the question mark")
+	# The way there: the tracker names the room, the minimap marks this room's exit on the route.
+	c.quests.active = {"glowflies": {"state": "active", "progress": [0], "accepted_tick": 0}}
+	c.quests.done = {"fists_first": 1}   # the village's east gate opens after Fists First
+	c.quests.tracked = ["glowflies"]
+	Game.world.apply_teleport(c.id, "lf_village")
+	check(Game.world.guide_target(c) == "lf_reed_shallows", "the tracked quest leads to the Reed Shallows")
+	var gs: Dictionary = Game.world.guide_step(c)
+	var r: Array = Game.world.route(c, "lf_village", "lf_reed_shallows")
+	check(not gs.is_empty() and not r.is_empty() and str(gs.next) == str(r[0].to) and str(gs.portal) == str(r[0].portal),
+		"the minimap marks the exit toward %s (%s; route %s; room %s)" % [str(gs.get("next", "")), str(gs.get("portal", "")), str(r.slice(0, 2)), str(Game.room_rt.room_id)])
+	check(WorldAuthority.place_name("sf_county_hall").begins_with(str(ContentDB.room("sf_county_hall").name)) and " · " in WorldAuthority.place_name("sf_county_hall"),
+		"the tracker names it: %s" % WorldAuthority.place_name("sf_county_hall"))
+	Game.world.apply_teleport(c.id, "lf_reed_shallows")
+	check(Game.world.guide_step(c).is_empty(), "no mark once there")
+	c.quests.restore(q0)
+	Game.world.apply_teleport(c.id, back)
 
 func ice_mount_suite() -> void:
 	var z := ZoneGeometry.new()

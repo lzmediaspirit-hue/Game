@@ -411,6 +411,15 @@ func _handle_preview_args(user_args: Array) -> void:
 				oc.posts = {"post": {"kind": "craft", "craft": Game.posts.craft_of_object(nodes[k]), "room": Game.room_rt.room_id,
 					"object": str(nodes[k].id), "since": Clock.now_utc() - 3600.0 * (2.5 + 9.0 * k), "paused": false}, "crafts": {}, "pouch": {}}
 				oc.position.room = Game.room_rt.room_id
+		if str(a) == "--guide-demo" and Game.active() != null:
+			# Debug tools (S38): quest states that show every head marker in Lotus Ferry and a tracked quest leading out (P1).
+			var gq = Game.active().quests
+			gq.done["fists_first"] = 1
+			gq.done["crab_trouble"] = 1
+			gq.active["guos_old_wound"] = {"state": "active", "progress": [0], "accepted_tick": 0}
+			gq.offered["the_muddy_wash"] = true
+			gq.active["glowflies"] = {"state": "active", "progress": [0], "accepted_tick": 0}
+			gq.tracked = ["glowflies"]
 		if str(a) == "--offer-fates" and Game.active() != null:
 			# Debug tools (S38): a fate offer for previews of the picker (S48).
 			Game.active().cultivator.fate_offer = ["thunder_tempered", "lucky_star", "scar_of_failure"]

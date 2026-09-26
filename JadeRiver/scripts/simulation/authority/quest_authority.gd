@@ -143,8 +143,24 @@ func npc_marker(c, npc: String) -> String:
 	for q in c.quests.offered:
 		var def3 := ContentDB.entry("quests", q)
 		if is_giver(def3, npc) and can_offer(c, def3):
-			return "main" if def3.get("marker", "blue") == "gold" else "side"
+			if def3.get("marker", "blue") == "gold": return "main"
+			return "again" if helped(c, npc) else "side"   # a new quest from someone you have already helped
+	# A quest of theirs under way: the grey bubble of three dots.
+	for q in c.quests.active:
+		var def4 := quest_def(c, q)
+		if is_hand_in(def4, npc) or is_giver(def4, npc): return "progress"
 	return ""
+
+## Has this character finished a quest given by this NPC?
+func helped(c, npc: String) -> bool:
+	for q in c.quests.done:
+		var d := ContentDB.entry("quests", str(q))
+		if not d.is_empty() and str(d.get("kind", "")) != "daily" and is_giver(d, npc): return true
+	return false
+
+## Markers that ask the player to come over (the grey "in progress" bubble does not).
+static func marker_calls(marker: String) -> bool:
+	return marker in ["main", "side", "again", "ready", "talk"]
 
 ## Objectives with an "after" index open only once the earlier objective is done.
 func _objective_open(_c, def: Dictionary, st: Dictionary, i: int) -> bool:

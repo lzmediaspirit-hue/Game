@@ -1525,6 +1525,7 @@ func _draw_tracker(c) -> void:
 	for q in entries:
 		if y + h > 290: break
 		h += UiKit.line_height(17) * 0.9 + q.lines.size() * UiKit.line_height(16) * 0.88 + 4
+		if str(q.get("target_room", "")) not in ["", here]: h += UiKit.line_height(15) * 0.88
 	var panel := Rect2(14, y - 20 * UiKit.text_scale(), 312, h + 8)
 	draw_rect(panel, Color(0.02, 0.06, 0.075, 0.55))
 	draw_rect(Rect2(panel.position, Vector2(2, panel.size.y)), Color(UiKit.GOLD, 0.5))
@@ -1542,6 +1543,10 @@ func _draw_tracker(c) -> void:
 			UiKit.draw_text(self, "➤", br.position + Vector2(0, 17), 15, UiKit.INK if going else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, br.size.x)
 			tracker_paths.append({"rect": br, "target": goal})
 		y += UiKit.line_height(17) * 0.9
+		# P1: the tracker names where the quest leads.
+		if goal != "" and goal != here:
+			UiKit.draw_text(self, "➤ " + WorldAuthority.place_name(goal), Vector2(30, y), 15, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 290)
+			y += UiKit.line_height(15) * 0.88
 		for line in q.lines:
 			var txt := str(line.text)
 			if int(line.need) > 1: txt += "  %d/%d" % [int(line.have), int(line.need)]
@@ -1616,14 +1621,30 @@ func _draw_minimap(c) -> void:
 		var st: Dictionary = Game.world.portal_state(c, p)
 		if st.get("hidden", false): continue
 		draw_circle(to_map.call(Vector2(float(at[0]), float(at[1])), 0.0), 4, Color("67d67a") if st.open else Color("7a8a8a"))
+	# P1 quest direction: the exit toward the tracked quest pulses gold, and a chevron on the frame's edge points
+	# the way from where you stand.
+	var gs: Dictionary = Game.world.guide_step(c)
+	if not gs.is_empty():
+		var gp: Vector2 = to_map.call(Vector2(float(gs.x), float(gs.y)), 0.0)
+		draw_arc(gp, 7.0 + sin(t * 5.0) * 1.5, 0, TAU, 14, UiKit.GOLD, 2.0)
+		var me: ActorState = Game.actor_state(c.id)
+		var dir := signf(float(gs.x) - (me.plane.x if me != null else 0.0))
+		if dir == 0.0: dir = 1.0
+		var ex := r.end.x - 7.0 if dir > 0.0 else r.position.x + 7.0
+		var ey := clampf(gp.y, inner.position.y + 8.0, inner.end.y - 8.0)
+		var bob := sin(t * 4.0) * 2.0 * dir
+		var tip := Vector2(ex + bob, ey)
+		var chev := PackedVector2Array([tip, tip + Vector2(-9.0 * dir, -7.0), tip + Vector2(-9.0 * dir, 7.0)])
+		draw_colored_polygon(chev, UiKit.GOLD)
+		draw_polyline(chev + PackedVector2Array([chev[0]]), UiKit.INK, 1.5)
 	for o in room.get("objects", []):
 		if not Game.world.object_visible(c, o): continue
 		var at2: Array = o.at
 		var mp: Vector2 = to_map.call(Vector2(float(at2[0]), float(at2[1])), float(o.get("alt", 0)))
 		if o.type == "npc":
 			var mk: String = Game.quest.npc_marker(c, str(o.npc))
-			draw_circle(mp, 3, UiKit.GOLD if mk in ["main", "ready"] else Color("f0e070"))
-			if mk != "": draw_arc(mp, 6 + sin(t * 4.0) * 1.5, 0, TAU, 12, UiKit.GOLD, 1)
+			draw_circle(mp, 3, UiKit.GOLD if mk in ["main", "ready"] else (UiKit.BRIGHT_JADE if mk == "again" else Color("f0e070")))
+			if QuestAuthority.marker_calls(mk): draw_arc(mp, 6 + sin(t * 4.0) * 1.5, 0, TAU, 12, UiKit.BRIGHT_JADE if mk == "again" else UiKit.GOLD, 1)
 		elif o.type in ["shrine", "qi_spring", "teleport_stone"]:
 			draw_rect(Rect2(mp - Vector2(3, 3), Vector2(6, 6)), UiKit.BRIGHT_JADE)
 		elif o.type == "treasure_birth":

@@ -80,6 +80,9 @@ func draw_page() -> void:
 				if to_region != "" and to_region != str(r.id) and pts.has(to_region) and str(r.id) < to_region:
 					draw_line(pts[str(r.id)], pts[to_region], Color(0.35, 0.25, 0.12, 0.55), 3)
 	var here := str(ContentDB.room(str(ch.position.get("room", ""))).get("region", ""))
+	# P1: the region the tracked quest leads to carries a pulsing gold quest mark.
+	var goal_room: String = Game.world.guide_target(ch)
+	var goal_region := str(ContentDB.room(goal_room).get("region", "")) if goal_room != "" else ""
 	# S49: the calendar's world events, live or coming, marked on their region (gold when under way).
 	var now := Clock.now_utc()
 	var events_at := {}
@@ -99,6 +102,12 @@ func draw_page() -> void:
 		if rid == here:
 			draw_colored_polygon(PackedVector2Array([p + Vector2(0, -34), p + Vector2(10, -20), p + Vector2(-10, -20)]), UiKit.RED)
 		if seen and _open_paths(ch, rid) > 0: _wind_glyph(p + Vector2(20, -26))
+		if rid == goal_region:
+			var gq := p + Vector2(26, 2)
+			draw_circle(gq, 13.0 + 2.0 * sin(t * 4.0), Color(1.0, 0.85, 0.4, 0.3))
+			draw_colored_polygon(PackedVector2Array([gq + Vector2(0, -10), gq + Vector2(8, 0), gq + Vector2(0, 10), gq + Vector2(-8, 0)]), UiKit.GOLD)
+			draw_polyline(PackedVector2Array([gq + Vector2(0, -10), gq + Vector2(8, 0), gq + Vector2(0, 10), gq + Vector2(-8, 0), gq + Vector2(0, -10)]), UiKit.INK, 1.5)
+			UiKit.draw_text(self, "!", gq + Vector2(-3, 5), 13, UiKit.INK, HORIZONTAL_ALIGNMENT_LEFT, -1, false)
 		if events_at.has(rid):
 			var live: bool = (events_at[rid] as Array).any(func(o): return now >= float(o.start))
 			var mk := p + Vector2(-24, -24)
@@ -141,8 +150,11 @@ func draw_page() -> void:
 		var seen2: bool = Game.account.visited_rooms.has(id)
 		var room := ContentDB.room(id)
 		var here_room: bool = id == str(ch.position.get("room", ""))
-		text(Vector2(right.position.x + 24, y + 22), ("▶ " if here_room else ("· " if seen2 else "? ")) + (str(room.get("name", id)) if seen2 else Tx.t("ui.map.unknown")), 18,
-			UiKit.GOLD if here_room else (UiKit.PAPER if seen2 else UiKit.HOLLOW))
+		var goal_here: bool = id == goal_room
+		var mark := "▶ " if here_room else ("◆ " if goal_here else ("· " if seen2 else "? "))
+		var rname := str(room.get("name", id)) if seen2 or goal_here else Tx.t("ui.map.unknown")
+		text(Vector2(right.position.x + 24, y + 22), mark + rname, 18,
+			UiKit.GOLD if here_room or goal_here else (UiKit.PAPER if seen2 else UiKit.HOLLOW))
 		if seen2:
 			for e in ContentDB.all("paths_above"):
 				if str(e.room) == id and not Game.account.paths_above.has(str(e.id)) and _art_known(ch, str(e.art)):

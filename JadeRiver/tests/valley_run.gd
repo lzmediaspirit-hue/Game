@@ -535,6 +535,7 @@ func _spar_service(npc: String) -> Dictionary:
 # ------------------------------------------------------------------ Bone Forging 5-7
 func sec_bf5() -> void:
 	check(reach("bone_forging_5"), "Bone Forging 5")
+	_dummy_beside_npc()
 	check(start("stone_and_sweat"), "Stone and Sweat accepted")
 	check(unlocked("mining"), "mining unlocks with Stone and Sweat")
 	check(travel("sq_quarry_rim"), "reach the Quarry Rim")
@@ -734,6 +735,28 @@ func _furnace() -> void:
 	var pf := submit({"type": "plant_flag", "kind": "plain"})
 	check(pf.get("ok", false) and Game.posts.flag_sum("lf_reed_shallows", "craft_diligence") > 0.0, "plant a plain flag over the Reed Shallows %s" % str(pf.get("text", "")))
 	check(finish("flags_over_the_posts"), "Flags over the Posts done")
+
+## P1 (M17): Uncle Guo's training dummy stands a stride from him. Beside the dummy the context button does not talk
+## (the attack button strikes it); beside Guo it talks; a blow at the dummy never opens a conversation.
+func _dummy_beside_npc() -> void:
+	check(travel("lf_village"), "back to the village square")
+	var dummies := objects_of("training_dummy")
+	var guo := objects_of("npc", "npc", "uncle_guo")
+	check(not dummies.is_empty() and not guo.is_empty(), "Uncle Guo and his dummy")
+	if dummies.is_empty() or guo.is_empty(): return
+	place(Vector2(float(dummies[0].at[0]), float(dummies[0].at[1]) + 10))
+	var at_dummy: Dictionary = Game.world.query_context(c())
+	check(str(at_dummy.get("type", "")) != "npc", "at the dummy the context button does not talk to Guo (%s)" % str(at_dummy.get("npc", "none")))
+	var opened := {"n": 0}
+	var heard := func(n, _p): if n == "npc_talked": opened.n += 1
+	GameEvents.event.connect(heard)
+	var hit := submit({"type": "basic_attack"})
+	GameEvents.event.disconnect(heard)
+	check(hit.get("ok", false), "strike the dummy %s" % str(hit.get("reason", "")))
+	check(int(opened.n) == 0, "a blow at the dummy opens no conversation")
+	place(Vector2(float(guo[0].at[0]), float(guo[0].at[1]) + 10))
+	var at_guo: Dictionary = Game.world.query_context(c())
+	check(str(at_guo.get("type", "")) == "npc" and str(at_guo.get("npc", "")) == "uncle_guo", "beside Guo it talks (%s)" % str(at_guo.get("npc", "")))
 
 ## Do one daily mission objective (kill or gather) in a room that has it.
 func _do_mission(qid: String) -> bool:

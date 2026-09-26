@@ -97,6 +97,19 @@ func _draw() -> void:
 			draw_circle(Vector2(0, top - 4), 11, UiKit.INK)
 			draw_circle(Vector2(0, top - 4), 9, Color("5aa7e8"))
 			UiKit.draw_text(self, "!", Vector2(-3, top + 3), 16, UiKit.INK, HORIZONTAL_ALIGNMENT_LEFT, -1, false)
+		"again":
+			# A new quest from someone you have helped before: the gold diamond inside a jade ring.
+			draw_circle(Vector2(0, top - 4), 17, UiKit.INK)
+			draw_arc(Vector2(0, top - 4), 14.5, 0, TAU, 28, UiKit.BRIGHT_JADE, 3.0)
+			draw_colored_polygon(PackedVector2Array([Vector2(0, top - 16), Vector2(10, top - 4), Vector2(0, top + 8), Vector2(-10, top - 4)]), UiKit.GOLD)
+			UiKit.draw_text(self, "!", Vector2(-3, top + 3), 16, UiKit.INK, HORIZONTAL_ALIGNMENT_LEFT, -1, false)
+		"progress":
+			# A quest of theirs under way: three dots in a grey speech bubble.
+			var bub := Rect2(-18, top - 16, 36, 22)
+			draw_colored_polygon(PackedVector2Array([Vector2(-5, bub.end.y - 1), Vector2(3, bub.end.y - 1), Vector2(-7, bub.end.y + 7)]), Color("8d969a"))
+			draw_rect(bub.grow(1.5), UiKit.INK)
+			draw_rect(bub, Color("b7c0c3"))
+			for k in 3: draw_circle(Vector2(-8 + k * 8, top - 5), 2.6, UiKit.INK)
 		"ready":
 			UiKit.draw_outlined(self, "?", Vector2(-20, top + 8), 30, UiKit.GOLD, HORIZONTAL_ALIGNMENT_CENTER, 40)
 		"talk":

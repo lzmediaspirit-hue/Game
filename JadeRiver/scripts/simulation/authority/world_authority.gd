@@ -671,7 +671,7 @@ func query_context(c) -> Dictionary:
 		if avail.get("spent", false): continue
 		var priority := 3.0
 		if o.type == "npc":
-			priority = 1.0 if game.quest.npc_marker(c, str(o.npc)) != "" else 2.0
+			priority = 1.0 if QuestAuthority.marker_calls(game.quest.npc_marker(c, str(o.npc))) else 2.0
 		elif o.type in ["herb_patch", "ore_vein", "fishing_spot", "star_sight", "insect_swarm"]: priority = 4.0
 		elif o.type == "pickup": priority = 0.5
 		var score: float = priority * 1000.0 + d
@@ -1740,6 +1740,59 @@ func auto_path_step(c) -> Dictionary:
 		return {"portal": str(s.portal), "x": float(p.at[0]), "y": float(p.at[1]), "press_up": bool(p.get("press_up", false)),
 			"surface": str(p.get("surface", ""))}
 	return {}
+
+## P1 quest direction: where the tracked quest leads from this room, the main story's first:
+## {target, next, portal, x, y} (the exit to take here) or {} when nothing tracked leads elsewhere.
+var _guide_cache := {}
+func guide_step(c) -> Dictionary:
+	if c == null or game.room_rt == null: return {}
+	var here := str(game.room_rt.room_id)
+	var goal := guide_target(c)
+	if goal == "": return {}
+	var key := here + ">" + goal
+	if str(_guide_cache.get("key", "")) == key and Clock.now_utc() - float(_guide_cache.get("at", 0.0)) < 5.0: return _guide_cache.step
+	var step := {}
+	var r := route(c, here, goal)
+	if not r.is_empty() and str(r[0].room) == here:
+		var x := 0.0
+		var y := 0.0
+		var found := false
+		if r[0].get("dock", false):
+			for o in game.room_rt.def.get("objects", []):
+				if str(o.id) == str(r[0].portal):
+					x = float(o.at[0])
+					y = float(o.at[1])
+					found = true
+		else:
+			var p = game.room_rt.portal_def(str(r[0].portal))
+			if not p.is_empty():
+				x = float(p.at[0])
+				y = float(p.at[1])
+				found = true
+		if found: step = {"target": goal, "next": str(r[0].to), "portal": str(r[0].portal), "x": x, "y": y}
+	_guide_cache = {"key": key, "at": Clock.now_utc(), "step": step}
+	return step
+
+## The room the tracked quests lead to (the main story's first), other than where the character stands.
+func guide_target(c) -> String:
+	if c == null: return ""
+	var here := str(c.position.get("room", ""))
+	var goal := ""
+	for q in game.quest.tracker(c):
+		var t := str(q.get("target_room", ""))
+		if t == "" or t == here: continue
+		if goal == "" or str(q.kind) in ["main", "prologue"]: goal = t
+		if str(q.kind) in ["main", "prologue"]: break
+	return goal
+
+## "Room · Region" for a room id, as the tracker and the map name a destination.
+static func place_name(room_id: String) -> String:
+	var rd := ContentDB.room(room_id)
+	var nm := str(rd.get("name", room_id))
+	var zone := ContentDB.entry("zones", str(rd.get("zone", "")))
+	for rg in zone.get("regions", []):
+		if str(rg.get("id", "")) == str(rd.get("region", "")) and str(rg.get("name", "")) != nm: return "%s · %s" % [nm, str(rg.name)]
+	return nm
 
 func auto_path_target(c) -> String:
 	return str(auto_paths.get(c.id, {}).get("target", "")) if c != null else ""
