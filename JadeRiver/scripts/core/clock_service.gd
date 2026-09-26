@@ -40,17 +40,23 @@ func reset_day(utc: float) -> int:
 func reset_week(utc: float) -> int:
 	return int(floor((reset_day(utc) + 3) / 7.0))
 
-## S37 · In-game time of day: a day lasts 48 real minutes, four 12-minute phases.
-func time_of_day(utc: float = -1.0) -> String:
+## Seconds in one in-game day (S37: 48 real minutes).
+func game_day_s() -> float:
+	return float(ContentDB.curve("time_of_day.day_minutes", 48)) * 60.0
+
+## The in-game day index of a moment.
+func game_day(utc: float) -> int:
+	return int(floor(utc / game_day_s()))
+
+## How far through its in-game day a moment is, 0..1.
+func day_fraction(utc: float = -1.0) -> float:
 	if utc < 0: utc = now_utc()
-	var length := float(ContentDB.curve("time_of_day.day_minutes", 48)) * 60.0
-	var t := fmod(utc, length) / length
+	return fmod(utc, game_day_s()) / game_day_s()
+
+## S37 · In-game time of day: four 12-minute phases.
+func time_of_day(utc: float = -1.0) -> String:
+	var t := day_fraction(utc)
 	if t < 0.25: return "morning"
 	if t < 0.5: return "day"
 	if t < 0.75: return "evening"
 	return "night"
-
-func day_fraction(utc: float = -1.0) -> float:
-	if utc < 0: utc = now_utc()
-	var length := float(ContentDB.curve("time_of_day.day_minutes", 48)) * 60.0
-	return fmod(utc, length) / length

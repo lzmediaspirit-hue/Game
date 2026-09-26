@@ -1094,7 +1094,7 @@ func add_lifetime(c, key: String, amount: float) -> void:
 ## Yin Vessel: a night counts once the character has sat through a minute of it at the Falls Pool.
 func _falls_pool_second(c) -> void:
 	var ls: Dictionary = c.cultivator.lifetime_stats
-	var night := int(Clock.now_utc() / (float(ContentDB.curve("time_of_day.day_minutes", 48)) * 60.0))
+	var night := Clock.game_day(Clock.now_utc())
 	if int(ls.get("falls_pool_night", -1)) != night:
 		ls["falls_pool_night"] = night
 		ls["falls_pool_s"] = 0.0

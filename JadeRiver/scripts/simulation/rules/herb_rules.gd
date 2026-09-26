@@ -5,7 +5,7 @@ extends RefCounted
 
 ## Seconds in one in-game day (48 real minutes).
 static func day_s() -> float:
-	return float(ContentDB.curve("time_of_day.day_minutes", 48)) * 60.0
+	return Clock.game_day_s()
 
 # ------------------------------------------------------------------ seasons
 ## The season turns with the weekly reset: four seasons of one real week each, spring first from the account's
