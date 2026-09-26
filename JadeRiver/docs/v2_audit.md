@@ -209,11 +209,13 @@ Progress is recorded in `docs/CHANGELOG.md`.
   build (11 Present, 44 Partial, 25 Missing) and grouped into eleven phases: **P1** guidance and gaps (a short code
   phase after V10d3, before v1.2 Phase C); **P2** the review pass, beside v1.2 C–E; **P3** the mockup approval gate,
   **P4** the style guide and kit, **P5** the themed screens, **P6** the on-screen moments and **P9** the bosses, after
-  v1.2 E; **P7** the wikis and item volume, **P10** the world plan and terminology and **P8a** the Beast Bands design
+  v1.2 E; **P7** the wikis and item volume, **P10** the world plan and terminology and **P8a** the Soul Bands design
   before v1.3, with **P8b** built inside v1.3; **P11** the second QA pass and the Full Review after v1.3. Where the
   prompts disagree with v2 or the design pages (realm names, the four-stage ladder, pixel fonts, Control trees and
-  Theme resources, the soul-ring source), that page's §5 lists the conflict and the recommended resolution; none is
-  settled yet.
+  Theme resources, the soul-ring source), that page's §5 lists the conflict and the recommended resolution; the user
+  accepted the recommendations (§6): the realm names stay, the soul-ring adaptation is **Soul Bands** from Spirit
+  Awakening 1, the restyle follows Act III, the user approves the mockups as PNGs, and the item target is named gear
+  per archetype and zone.
 
 ### Deviations (presentation)
 
