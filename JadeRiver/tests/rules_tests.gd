@@ -7633,6 +7633,15 @@ func legacy_suite() -> void:
 	var bonus_three: float = Game.progression.accumulation_bonus(c)
 	acc.legacy.clear()
 	check(near(bonus_three - Game.progression.accumulation_bonus(c), 0.06), "three records add 6% to accumulation")
+	# The old scrolls' names open with the realms the account has reached, and no further.
+	var codex_was: Dictionary = acc.codex.duplicate()
+	for k in acc.codex.keys(): if str(k).begins_with("old_scrolls"): acc.codex.erase(k)
+	Game.accounts._grant_old_scrolls()
+	GameEvents.flush()
+	check(acc.codex.has("old_scrolls") and acc.codex.has("old_scrolls_mortal") and acc.codex.has("old_scrolls_heart_tempering"),
+		"the old scrolls' entries open up to the account's highest realm")
+	check(not acc.codex.has("old_scrolls_cloud_stride") and not acc.codex.has("old_scrolls_world_genesis"), "and later realms stay hidden")
+	acc.codex = codex_was
 	acc.legacy = legacy_was
 	acc.highest_realm = top_was
 	check(near(Game.progression.accumulation_bonus(c), bonus_before), "state restored")

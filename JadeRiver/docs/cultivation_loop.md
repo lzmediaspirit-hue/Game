@@ -596,3 +596,13 @@ One pure function, for example `ProgressionRules.stage_band(key, level) -> Strin
 `late` or `peak` from the realm row's `sub`, `levels` and the great realm's first Level; four strings
 (`realm.band.early` … `realm.band.peak`) in `data/strings/en.json`; and a `realm_label` variant that takes the Level
 (F8). A rules test walks every key at progress 0, 0.34, 0.67 and 1.0 against the table above.
+
+## 15. Decisions taken on the findings
+
+| Finding | Decision |
+|---|---|
+| The Account Legacy never recorded (F1) | Fixed: the `account_legacy` unlock opens account-wide at Bone Forging 1 and backfills the great realms a save already reached (`legacy_suite`) |
+| Pills on minor breakthroughs (conflict C4) | Keep the free tap at a minor step. A stage pill, if wanted later, needs a `stage_requirements` field read only for minor steps |
+| Solid stability cannot be reached | A consolidation pill that sets Solid until the next major breakthrough, added with v1.3's content (recipe and source in `docs/item_plan.md`) |
+| The old name for the step into Inner Heaven | "Ascension" alone, not the name one serial uses for its sixth realm |
+| Pill quality and breakthrough odds (M48) | The roadmap overstated it: quality changes a pill's Qi and, through the Core Forging grade, stats, not the odds. M48 is marked Partial; the breakthrough pill's quality becomes a term of the risk index with v1.3 |

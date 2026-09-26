@@ -6,6 +6,9 @@
 - **The Account Legacy records again.** It waited on an `account_legacy` unlock that was never defined, so its +2%
   accumulation per recorded great realm was always 0. The unlock now opens for the whole account at Bone Forging 1, and
   a save that reached great realms before this has them recorded once when it opens (`legacy_suite` in `rules_tests`).
+- **The old scrolls' names.** Twenty Codex entries set the common xianxia ladder's names beside Jade River's realms
+  (Heart Tempering beside Foundation Establishment, Cloud Stride beside Core Formation, and so on); each opens the
+  first time the account reaches that great realm (`docs/realm_old_names.md`).
 
 ### P4a · Touch targets
 - **Every tap target is at least 48 px on a side.** `Page._register` gives smaller art a margin of hit area round its
