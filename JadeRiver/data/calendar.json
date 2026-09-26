@@ -107,6 +107,10 @@
    "weekday": 2,
    "duration_h": 24,
    "room": "ja_herb_terraces",
+   "sect_rooms": {
+    "jade_sect": "ja_herb_terraces",
+    "cloud_sect": "cm_herb_terraces"
+   },
    "rivals": [
     "Herb-girl Yan",
     "Apprentice Tao",
@@ -114,6 +118,15 @@
     "Sister Wen of the Cloud Sect",
     "Farmer Gu"
    ],
+   "room_rivals": {
+    "cm_herb_terraces": [
+     "Brother Lin of the Jade Sect",
+     "Herb-girl Yan",
+     "Sister Hua of the Jade Sect",
+     "Farmer Gu",
+     "Old Scribe Bai"
+    ]
+   },
    "rival_score": [
     6,
     22
@@ -137,7 +150,7 @@
      "count": 2
     }
    },
-   "desc": "Every Wednesday the Jade Sect weighs what each gatherer brings in from the Terraces. The top three learn the Foundation Guard Pill."
+   "desc": "Every Wednesday each sect weighs what its gatherers bring in from its own Herb Terraces, against the other sect's. The top three learn the Foundation Guard Pill."
   },
   {
    "id": "waterfall_reopening",

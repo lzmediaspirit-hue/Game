@@ -171,24 +171,33 @@ func apply_treasure_claim(actor_id: String, k: int) -> void:
 	emit("treasure_claimed", {"actor": c.id, "item": item, "room": game.room_rt.room_id if game.room_rt else ""})
 
 # ------------------------------------------------------------------ the gathering trial (Part 8)
-## Every herb gathered on the Terraces while the trial runs counts; the Jade Sect weighs it against the valley's
-## other gatherers (seeded scores) when the day ends.
+## Every herb gathered on your sect's Herb Terraces while the trial runs counts: the Jade Sect's for its disciples,
+## the Cloud Sect's for theirs. The sect weighs it against the other sect's gatherers (seeded scores) when the day ends.
 func _on_gathered(p: Dictionary) -> void:
 	var c = game.character(str(p.get("actor", "")))
 	var occ: Dictionary = active_of("gathering_trial")
-	if c == null or occ.is_empty() or game.room_rt == null or game.room_rt.room_id != str(occ.room): return
+	if c == null or occ.is_empty() or game.room_rt == null or game.room_rt.room_id != trial_room(c): return
 	var gt: Dictionary = c.cooldowns.get("gtrial", {})
-	if int(gt.get("k", -1)) != int(occ.k): gt = {"k": int(occ.k), "pts": 0, "paid": false}
+	if int(gt.get("k", -1)) != int(occ.k): gt = {"k": int(occ.k), "pts": 0, "paid": false, "room": trial_room(c)}
 	gt.pts = int(gt.pts) + int(p.get("count", 1))
 	c.cooldowns["gtrial"] = gt
 
-## The other gatherers' scores for one trial: the same for every device (seeded by the account and the trial).
-func trial_rivals(k: int) -> Array:
+## The terraces a character's trial is held on: its sect's own (a disciple of neither gathers on the event's room).
+func trial_room(c) -> String:
+	var ev := CalendarRules.event("gathering_trial")
+	var sid := str(c.training_sect.get("id", "")) if c != null else ""
+	return str(ev.get("sect_rooms", {}).get(sid, ev.get("room", "")))
+
+## The other gatherers' scores for one trial on one terraces: the same for every device (seeded by the account, the
+## trial and the terraces). The Jade terraces keep the draw they always had.
+func trial_rivals(k: int, room := "") -> Array:
 	var ev := CalendarRules.event("gathering_trial")
 	var sc: Array = ev.get("rival_score", [6, 22])
-	var r := CalendarRules.draw(cal_seed(), "gathering_trial:rivals", k)
+	var own := room != "" and room != str(ev.get("room", ""))
+	var r := CalendarRules.draw(cal_seed(), "gathering_trial:rivals" + (":" + room if own else ""), k)
 	var out: Array = []
-	for name in ev.get("rivals", []): out.append({"name": str(name), "pts": r.randi_range(int(sc[0]), int(sc[1]))})
+	for name in (ev.get("room_rivals", {}).get(room, ev.get("rivals", [])) if own else ev.get("rivals", [])):
+		out.append({"name": str(name), "pts": r.randi_range(int(sc[0]), int(sc[1]))})
 	return out
 
 ## Your place: 1 + how many rivals gathered more than you.
@@ -196,7 +205,7 @@ func trial_rank(c) -> int:
 	var gt: Dictionary = c.cooldowns.get("gtrial", {})
 	if gt.is_empty(): return 0
 	var rank := 1
-	for rv in trial_rivals(int(gt.k)):
+	for rv in trial_rivals(int(gt.k), str(gt.get("room", ""))):
 		if int(rv.pts) > int(gt.pts): rank += 1
 	return rank
 
@@ -213,7 +222,8 @@ func _pay_trial(c) -> void:
 	if str(rw.get("learn", "")) != "": fx.append({"kind": "learn_recipe", "recipe": str(rw.learn)})
 	if str(rw.get("item", "")) != "": fx.append({"kind": "grant_item", "item": str(rw.item), "count": int(rw.get("count", 1))})
 	game.apply_effects(c.id, fx, "gathering_trial")
-	emit("gathering_trial_ranked", {"actor": c.id, "rank": rank, "points": int(gt.pts), "of": trial_rivals(int(gt.k)).size() + 1})
+	emit("gathering_trial_ranked", {"actor": c.id, "rank": rank, "points": int(gt.pts), "of": trial_rivals(int(gt.k), str(gt.get("room", ""))).size() + 1,
+		"room": str(gt.get("room", ""))})
 
 # ------------------------------------------------------------------ heavenly phenomena (S49 v1.0)
 ## A major breakthrough gathers auspicious clouds over the room; a tribulation darkens it with lightning. Everyone in

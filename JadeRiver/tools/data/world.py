@@ -84,13 +84,15 @@ HERBS["ember_cactus"] = ("ember_cactus_patch", [1, 1])
 ORES["sunglass_ore"] = ("sunglass_vein", [1, 2])
 # S45 aged herbs grow on the base plant's patch art; a ripe one shimmers gold in the room.
 for _aged, _base in (("riverreed_ginseng_100", "riverreed_ginseng_10"), ("riverreed_ginseng_1000", "riverreed_ginseng_10"),
+                     ("riverreed_ginseng_10000", "riverreed_ginseng_10"),
                      ("ember_pepper_100", "ember_pepper"), ("mist_lotus_100", "mist_lotus"), ("cloudtop_orchid_100", "cloudtop_orchid"),
                      ("soulbell_flower_100", "soulbell_flower")):
     HERBS[_aged] = (HERBS[_base][0], [1, 1])
 HERB_RANK = {"willow_moss": "apprentice", "riverreed_ginseng_10": "apprentice", "ember_pepper": "apprentice",
              "mist_lotus": "adept", "cloudtop_orchid": "expert", "soulbell_flower": "expert", "frost_lotus": "master",
              "ember_cactus": "master", "riverreed_ginseng_100": "adept", "ember_pepper_100": "adept", "mist_lotus_100": "adept",
-             "riverreed_ginseng_1000": "expert", "cloudtop_orchid_100": "expert", "soulbell_flower_100": "expert"}
+             "riverreed_ginseng_1000": "expert", "cloudtop_orchid_100": "expert", "soulbell_flower_100": "expert",
+             "riverreed_ginseng_10000": "master"}
 ORE_RANK = {"copper_ore": "apprentice", "riverstone": "apprentice", "jadeiron": "adept", "spirit_stone_shard": "adept",
             "cloudsteel_ore": "expert", "mystic_ore": "expert", "stormsteel_ore": "master", "sunglass_ore": "master"}
 
@@ -1048,7 +1050,23 @@ def sects():
               locked_text="Garden beds belong to inner disciples.")
     r.npc("cloud_gardener", [760, 880], facing=-1)
     r.edge("west", "west", "cm_sword_court", "east", y=850)
+    r.edge("east", "east", "cm_herb_terraces", "west", y=850)
     r.portal("peak_path", "door", [2400, 700], "cm_elder_sung_peak", "path", press_up=True, label="Elder Sung's Peak")
+
+    # v2 Part 8: the Cloud Sect's own Herb Terraces, cut into the cliff past the Array Court. The weekly gathering
+    # trial is held here for Cloud Sect disciples (and on the Jade Sect's terraces for theirs).
+    r = Room("cm_herb_terraces", "Cloud Herb Terraces", "sect", "cloud_sect", 2, backdrop="sect_cloud", material="moss", music="sect",
+             sect="cloud_sect", town=True, spawn_point=[200, 820], gather_tier="valley_low")
+    r.surface("terrace_1", [560, 660, 460, 90], 60, kind="rock_ledge")
+    r.surface("terrace_2", [1240, 640, 460, 90], 120, kind="rock_ledge")
+    r.surface("terrace_3", [1900, 630, 380, 80], 180, kind="rock_ledge")
+    r.herb("willow_moss", [420, 900])
+    r.herb("ember_pepper", [1100, 910])
+    r.herb("riverreed_ginseng_10", [1470, 685], alt=120)
+    r.herb("mist_lotus", [2090, 670], alt=180)
+    r.decor("pagoda", [2420, 660])
+    r.edge("west", "west", "cm_array_court", "east", y=850)
+    back_trees(r, ("pine_tree", "bamboo_cluster"))
 
     r = Room("cm_elder_sung_peak", "Elder Sung's Peak", "sect", "cloud_sect", 1, backdrop="mist_peak", material="stone", music="meditation",
              sect="cloud_sect", qi=1.6, spawn_point=[200, 820], town=True)
@@ -1730,6 +1748,11 @@ def azure_expanse():
     r.obj("shrine_tp_camp", "shrine", [900, 700])
     r.npc("herder_suo", [1600, 780], facing=-1)
     r.npc("herder_a_lan", [2000, 900], facing=-1)
+    # v1.1: the herders let two plots inside the fence. The Expanse's Qi is rich enough that a Verdant Dew Vial ages a
+    # herb here past the valley's thousand years, to ten thousand.
+    for i, x in enumerate([1120, 1280]):
+        r.obj("bed_tp_%d" % i, "garden_bed", [x, 900], field_grade="high", requires=all_of(unlock("herb_garden")),
+              locked_text="The herders' plots. Beds are for those who keep a garden.")
     r.edge("west", "west", "tp_stormgrass_verge", "east", y=850)
     r.edge("east", "east", "tp_thunderhorn_flats", "west", y=850)
 
@@ -2495,7 +2518,7 @@ def bandit_ambushes():
 
 def rare_herbs():
     """S45 and Part 8 rare herb nodes. Optional herb_patch fields:
-    - age: 10 / 100 / 1,000 years (the item carries it too);
+    - age: 10 / 100 / 1,000 / 10,000 years (the item carries it too; 10,000 only in the Azure Expanse);
     - guardian {enemy, level, elite | boss}: an elite that wakes when you climb toward the ripe node, or a field boss
       that must be gone. Kill it, lure it past its leash, or pick the herb unseen under Concealment;
     - ripen {phase, every_days, minutes, offset}: ripe for `minutes` around the phase every Nth in-game day. Picking
@@ -2542,6 +2565,11 @@ def rare_herbs():
          {"enemy": "mirror_wisp", "level": 63, "elite": True}, season="autumn")
     rare("bg_thicket_heart", "rare_pepper_th", "ember_pepper_100", "route_2", "day", 2,
          {"enemy": "thornback_boar", "level": 15, "elite": True}, season="summer")
+    # v1.1: ten-thousand-year ginseng on the Expanse's high ledges, guarded by the ledge's elite.
+    rare("rf_snow_ape_ledges", "rare_ginseng_sa", "riverreed_ginseng_10000", "ledge_1", "dawn", 5,
+         {"enemy": "snow_ape", "level": 74, "elite": True})
+    rare("gc_harpy_roosts", "rare_ginseng_hr", "riverreed_ginseng_10000", "ledge_2", "night", 5,
+         {"enemy": "canyon_harpy", "level": 80, "elite": True})
     # The Sky Ledges' second orchid moves up from the valley floor to the east ledge (S43 rule 14).
     for o in ROOMS["cc_sky_ledges"].d["objects"]:
         if o["id"] == "herb_2":

@@ -303,6 +303,46 @@
    "level": 72,
    "alt": 300,
    "surface": "cloud_mv"
+  },
+  {
+   "id": "rare_ginseng_sa",
+   "type": "herb_patch",
+   "at": [
+    2250,
+    675
+   ],
+   "item": "riverreed_ginseng_10000",
+   "prop": "riverreed_ginseng_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "master",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 200,
+   "surface": "ledge_1",
+   "age": 10000,
+   "ripen": {
+    "phase": "dawn",
+    "every_days": 5,
+    "minutes": 20,
+    "offset": 4
+   },
+   "rare": true,
+   "guardian": {
+    "enemy": "snow_ape",
+    "level": 74,
+    "elite": true
+   }
   }
  ],
  "spawns": [

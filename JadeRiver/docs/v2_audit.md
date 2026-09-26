@@ -107,7 +107,7 @@ Progress is recorded in `docs/CHANGELOG.md`.
 - **V6a**: done (herb ages, rare nodes with ripening, guardians and seasons, the harvest tap, seeds, the Codex
   calendar).
 - **V6b**: done (garden beds and the Garden page, field grades, Spirit Soil, spring water, transplanting, the
-  Verdant Dew Vial; Cloud Sect beds). The 10,000-year herbs of the Azure Expanse wait for their nodes (v1.1).
+  Verdant Dew Vial; Cloud Sect beds). The 10,000-year tier (v1.1) is done in V9e3.
 - **V6c**: done (steaming and wine racks with prep carried into pills, sealed and fake merchant herbs with
   appraisal, garden raids with Guard pets and formations). Treasure births and gathering trials move to V8 with the
   S49 world calendar.
@@ -164,7 +164,9 @@ Progress is recorded in `docs/CHANGELOG.md`.
   Expert and Master exams, badges, a gated shop and its own commission board; the Alchemist Master rank; Master exams
   at Cloudgate Port. V9e2 is done: the five-screen furnace (Ingredients with Spirit Sense, Furnace with fire and
   array, Extraction, Fusion, Condensation; the tribulation as a sixth), through `start_refine` and `refine_input`.
-  V9e3 (the Cloud Herb Terraces trial and the Dew Vial's 10,000-year tier) is next.
+  V9e3 is done: the Cloud Herb Terraces (the weekly trial on each sect's own terraces, against the other sect's
+  gatherers), ten-thousand-year ginseng on the Expanse's high ledges, and Expanse beds where the Verdant Dew Vial ages
+  a herb past a thousand years. V9e is complete; V9f (traversal content) is next.
 - Next (V9): everything v2 makes due by v1.1 that is still open. A sweep of every audit row against the build
   after V8g3 found these, in six phases:
   - **V9a**, hooks and small gaps:

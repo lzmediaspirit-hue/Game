@@ -302,9 +302,16 @@ register(FAM, 'soulbell_flower', soulbell_flower, GROUP)
 
 # ----------------------------------------------------------------------------- S45 aged herbs and seeds
 def _aged(base, years):
-    """An aged herb: the plant it grew from, wreathed in the gold of its years (a wider halo at a thousand)."""
+    """An aged herb: the plant it grew from, wreathed in the gold of its years (a wider halo at a thousand; at ten
+    thousand, the Expanse's pale jade over the gold)."""
     c = base()
-    if years >= 1000:
+    if years >= 10000:
+        c.glow('#CFF2E2', (170, 110, 60))
+        S.sparkle(c, 26, 4, '#FFFFFF', R['gold'][3], 2)
+        S.sparkle(c, 4, 6, '#FFFFFF', R['gold'][3], 2)
+        S.sparkle(c, 27, 25, '#FFFFFF', R['gold'][3], 1)
+        S.sparkle(c, 5, 26, '#FFFFFF', R['gold'][3], 1)
+    elif years >= 1000:
         c.glow('#F2C85B', (150, 90, 40))
         S.sparkle(c, 26, 4, '#FFFFFF', R['gold'][3], 2)
         S.sparkle(c, 5, 7, '#FFFFFF', R['gold'][3], 1)
@@ -334,6 +341,7 @@ def _seed_pouch(ramp, rx=2.4, ry=3.2):
 
 
 register(FAM, 'riverreed_ginseng_1000', lambda: _aged(lambda: _ginseng(True), 1000), GROUP)
+register(FAM, 'riverreed_ginseng_10000', lambda: _aged(lambda: _ginseng(True), 10000), GROUP)
 register(FAM, 'ember_pepper_100', lambda: _aged(ember_pepper, 100), GROUP)
 register(FAM, 'mist_lotus_100', lambda: _aged(mist_lotus, 100), GROUP)
 register(FAM, 'cloudtop_orchid_100', lambda: _aged(cloudtop_orchid, 100), GROUP)

@@ -278,6 +278,25 @@
    }
   },
   {
+   "id": "riverreed_ginseng_10000",
+   "name": "Riverreed Ginseng (10,000 yr)",
+   "type": "herb",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "riverreed_ginseng_10000",
+   "desc": "A ten-thousand-year root, pale as jade and warm as a hand. The valley's Qi is too thin to grow one: it ripens only on the Expanse's high ledges, or in an Expanse garden bed. A hot herb: it drives the Extraction band up.",
+   "nature": "hot",
+   "roles": [
+    "principal",
+    "minister"
+   ],
+   "herb": {
+    "family": "riverreed_ginseng",
+    "age": 10000
+   }
+  },
+  {
    "id": "ember_pepper_100",
    "name": "Ember Pepper (100 yr)",
    "type": "herb",

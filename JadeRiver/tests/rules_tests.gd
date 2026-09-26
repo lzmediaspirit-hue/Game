@@ -52,6 +52,7 @@ func _main() -> void:
 	guild_suite()
 	tribulation_suite()
 	furnace_game_suite()
+	expanse_herbs_suite()
 	body_path_suite()
 	heaven_suite()
 	arts_suite()
@@ -4783,6 +4784,104 @@ func furnace_game_suite() -> void:
 	page.free()
 	c.inventory.furnace = furnace_was
 	c.inventory.bag.fill(null)
+
+## V9e3 · the Cloud Herb Terraces and the ten-thousand-year tier (S45, Part 8, v1.1): each sect's disciples gather for
+## the weekly trial on their own terraces, against the other sect's gatherers; the Verdant Dew Vial ages a herb past a
+## thousand years only in an Azure Expanse bed; the Expanse's high ledges grow ten-thousand-year ginseng.
+func expanse_herbs_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var sect_was: Dictionary = c.training_sect.duplicate(true)
+	var cd_was: Dictionary = c.cooldowns.duplicate(true)
+	var created_was: float = Game.account.created_utc
+	var seed_was: int = Game.account.rng_seed
+	var over_was: float = Clock.override_utc
+	# The Cloud Sect's terraces lie east of the Array Court, herbs on the ground and up the terraces.
+	var cm := ContentDB.room("cm_herb_terraces")
+	var herbs := 0
+	var raised := 0
+	for o in cm.get("objects", []):
+		if str(o.type) == "herb_patch":
+			herbs += 1
+			if float(o.get("alt", 0)) > 0.0: raised += 1
+	var linked := false
+	for e in ContentDB.room("cm_array_court").get("portals", []):
+		if str(e.get("type", "")) == "edge" and str(e.get("to", "")) == "cm_herb_terraces": linked = true
+	check(str(cm.get("sect", "")) == "cloud_sect" and herbs >= 3 and raised >= 2 and linked, "the Cloud Herb Terraces: east of the Array Court, herbs up the terraces")
+	# Each sect's trial on its own terraces; a disciple of neither gathers on the Jade Sect's.
+	c.training_sect["id"] = "cloud_sect"
+	check(Game.calendar.trial_room(c) == "cm_herb_terraces", "a Cloud Sect disciple's trial is on the Cloud Herb Terraces")
+	c.training_sect["id"] = "jade_sect"
+	check(Game.calendar.trial_room(c) == "ja_herb_terraces", "a Jade Sect disciple's, on the Jade Sect's")
+	c.training_sect["id"] = ""
+	check(Game.calendar.trial_room(c) == "ja_herb_terraces", "no sect: the Jade Sect's terraces, open to the valley")
+	var origin := 1_700_000_000.0
+	Game.account.created_utc = origin
+	Game.account.rng_seed = 777
+	var gtr := CalendarRules.occurrence(CalendarRules.event("gathering_trial"), 1, 777, origin)
+	var jade: Array = Game.calendar.trial_rivals(int(gtr.k), "ja_herb_terraces")
+	var cloud: Array = Game.calendar.trial_rivals(int(gtr.k), "cm_herb_terraces")
+	check(jade == Game.calendar.trial_rivals(int(gtr.k)) and cloud == Game.calendar.trial_rivals(int(gtr.k), "cm_herb_terraces")
+		and cloud.any(func(rv): return "Jade Sect" in str(rv.name)) and jade.any(func(rv): return "Cloud Sect" in str(rv.name)),
+		"each terraces has the other sect's gatherers, fixed for the trial (the Jade draw unchanged)")
+	# Herbs count only on your own sect's terraces.
+	Clock.override_utc = float(gtr.start) + 3600.0
+	c.training_sect["id"] = "cloud_sect"
+	c.cooldowns.erase("gtrial")
+	Game.world.load_room(c, "ja_herb_terraces", "")
+	GameEvents.flush()
+	Game.calendar._on_gathered({"actor": c.id, "item": "willow_moss", "count": 5})
+	check(not c.cooldowns.has("gtrial"), "a Cloud disciple's herbs from the Jade terraces do not count")
+	Game.world.load_room(c, "cm_herb_terraces", "")
+	GameEvents.flush()
+	Game.calendar._on_gathered({"actor": c.id, "item": "willow_moss", "count": 30})
+	check(int(c.cooldowns.get("gtrial", {}).get("pts", 0)) == 30 and str(c.cooldowns.gtrial.room) == "cm_herb_terraces" and Game.calendar.trial_rank(c) == 1,
+		"on the Cloud terraces they do: thirty herbs lead the Jade Sect's gatherers")
+	# The Verdant Dew Vial: past a thousand years only in an Azure Expanse bed.
+	check(Game.crafting.dew_age_cap("ja_herb_terraces:bed_0") == 1000 and Game.crafting.dew_age_cap("tp_herders_camp:bed_tp_0") == 10000,
+		"the valley holds a herb at a thousand years; the Expanse at ten thousand")
+	check(HerbRules.ages().back() == 10000 and HerbRules.older_than("riverreed_ginseng_1000") == ["riverreed_ginseng_10000"],
+		"the ginseng line runs to ten thousand years")
+	var bed := "tp_herders_camp:bed_tp_0"
+	Game.world.load_room(c, "tp_herders_camp", "")
+	GameEvents.flush()
+	Unlocks.force_unlock(c.id, "herb_garden")
+	Game.inventory.apply_add(c.id, "verdant_dew_vial", 1, "test")
+	c.crafting["dew"] = {"count": 3, "last": Clock.now_utc()}
+	var rec := Game.crafting.bed_record(c, bed)
+	rec.herb = "riverreed_ginseng_1000"
+	rec.progress = 0.5
+	rec.updated = Clock.now_utc()
+	rec.grow_s = 3600.0
+	var d1 := Game.submit({"type": "use_dew", "bed": bed})
+	var d2 := Game.submit({"type": "use_dew", "bed": bed})
+	check(str(d1.get("herb", "")) == "riverreed_ginseng_10000" and not d2.get("ok", true) and str(d2.get("reason", "")) == "age_cap"
+		and str(Game.crafting.bed_view(c, bed).grade) == "high", "in the herders' high bed the dew ages a thousand-year root to ten thousand, and no further")
+	check(Game.crafting.bed_holds(c, bed, "riverreed_ginseng_10000"), "a high bed holds a Mystic-grade root")
+	Game.crafting.beds(c).erase(bed)
+	Game.inventory.apply_remove(c.id, "verdant_dew_vial", 1, "test")
+	# Ten-thousand-year ginseng ripens on the Expanse's high ledges, a Master's pick, guarded.
+	var nodes := 0
+	for rid in ["rf_snow_ape_ledges", "gc_harpy_roosts"]:
+		for o in ContentDB.room(rid).get("objects", []):
+			if str(o.get("item", "")) == "riverreed_ginseng_10000" and str(o.get("rank", "")) == "master" and float(o.get("alt", 0)) >= 150.0 \
+					and o.has("guardian") and int(o.get("age", 0)) == 10000:
+				nodes += 1
+	check(nodes == 2, "two ten-thousand-year ginseng nodes on the Expanse's high ledges, each guarded (%d)" % nodes)
+	var valley := 0
+	for r in ContentDB.all("rooms"):
+		if str(r.get("zone", "")) == "azure_expanse": continue
+		for o in r.get("objects", []):
+			if str(o.get("item", "")) == "riverreed_ginseng_10000": valley += 1
+	check(valley == 0, "none grows in the valley")
+	c.training_sect = sect_was
+	c.cooldowns = cd_was
+	Game.account.created_utc = created_was
+	Game.account.rng_seed = seed_was
+	Clock.override_utc = over_was
+	if room_was != "": Game.world.load_room(c, room_was, "")
+	GameEvents.flush()
 
 # ------------------------------------------------------------------ formulas
 func rules_suite() -> void:

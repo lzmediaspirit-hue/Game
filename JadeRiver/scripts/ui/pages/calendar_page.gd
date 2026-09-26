@@ -38,15 +38,16 @@ func draw_page() -> void:
 	var due: bool = Game.world.tide_due(ch)
 	y += para(Rect2(x, y - 16, left.size.x - 44, 70), Tx.t("ui.calendar.tide_due") if due else Tx.t("ui.calendar.tide_done") % maxi(1, Game.world.tide_days_left(ch)), 17,
 		UiKit.BRIGHT_JADE if due else UiKit.MIST, 3)
-	# The Herb Terraces trial: your herbs against the valley's gatherers, while it runs.
+	# The Herb Terraces trial: your herbs against the other sect's gatherers, on your own sect's terraces, while it runs.
 	var gt: Dictionary = ch.cooldowns.get("gtrial", {})
 	var trial: Dictionary = Game.calendar.active_of("gathering_trial")
 	if not trial.is_empty():
 		heading(Vector2(x, y + 20), Tx.t("ui.calendar.trial"), left.size.x - 44)
 		var pts := int(gt.get("pts", 0)) if int(gt.get("k", -1)) == int(trial.k) else 0
 		var place := Game.calendar.trial_rank(ch) if pts > 0 else 0
-		para(Rect2(x, y + 34, left.size.x - 44, 60), Tx.t("ui.calendar.trial_standing") % [pts, place, Game.calendar.trial_rivals(int(trial.k)).size() + 1] if pts > 0
-			else Tx.t("ui.calendar.trial_none"), 16, UiKit.PAPER, 3)
+		var troom: String = Game.calendar.trial_room(ch)
+		para(Rect2(x, y + 34, left.size.x - 44, 60), Tx.t("ui.calendar.trial_standing") % [pts, place, Game.calendar.trial_rivals(int(trial.k), troom).size() + 1]
+			if pts > 0 else Tx.t("ui.calendar.trial_none") % ContentDB.name_of("rooms", troom), 16, UiKit.PAPER, 3)
 	# Right: every world event, soonest first.
 	x = right.position.x + 22
 	heading(Vector2(x, right.position.y + 40), Tx.t("ui.calendar.events"), right.size.x - 44)
@@ -59,7 +60,8 @@ func draw_page() -> void:
 		text(rr.position + Vector2(16, 30), fit(str(ev.get("name", o.id)), 20, rr.size.x - 260), 20, UiKit.PALE_GOLD if live else UiKit.PAPER)
 		var when := Tx.t("ui.calendar.live") % _span(float(o.end) - now) if live else Tx.t("ui.calendar.in") % _span(float(o.start) - now)
 		text(Vector2(rr.end.x - 16 - 240, rr.position.y + 30), when, 17, UiKit.BRIGHT_JADE if live else UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 240)
-		text(rr.position + Vector2(16, 54), ContentDB.name_of("rooms", str(o.room)) if str(o.room) != "" else "", 15, UiKit.MIST)
+		var where := Game.calendar.trial_room(ch) if str(o.id) == "gathering_trial" else str(o.room)   # each sect's own terraces
+		text(rr.position + Vector2(16, 54), ContentDB.name_of("rooms", where) if where != "" else "", 15, UiKit.MIST)
 		para(Rect2(rr.position.x + 16, rr.position.y + 62, rr.size.x - 32, 44), str(ev.get("desc", "")), 15, UiKit.PAPER, 2)
 		if str(ev.get("cap_below", "")) != "":
 			var ok := not ProgressionRules.at_least(ch.cultivator.realm_key, str(ev.cap_below))

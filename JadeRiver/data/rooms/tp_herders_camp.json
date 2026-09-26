@@ -125,6 +125,42 @@
    ],
    "npc": "herder_a_lan",
    "facing": -1
+  },
+  {
+   "id": "bed_tp_0",
+   "type": "garden_bed",
+   "at": [
+    1120,
+    900
+   ],
+   "field_grade": "high",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_garden"
+     }
+    ]
+   },
+   "locked_text": "The herders' plots. Beds are for those who keep a garden."
+  },
+  {
+   "id": "bed_tp_1",
+   "type": "garden_bed",
+   "at": [
+    1280,
+    900
+   ],
+   "field_grade": "high",
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_garden"
+     }
+    ]
+   },
+   "locked_text": "The herders' plots. Beds are for those who keep a garden."
   }
  ],
  "spawns": [],

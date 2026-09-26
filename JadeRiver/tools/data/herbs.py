@@ -22,9 +22,9 @@ def build():
     seeds = {fam: sid for sid, fam, _, _ in SEEDS}
     write("garden.json", {
         "schema_version": 1,
-        # family -> {age: item}; ages step 10 -> 100 -> 1,000.
+        # family -> {age: item}; ages step 10 -> 100 -> 1,000 -> 10,000 (the last only in the Azure Expanse, v1.1).
         "families": families,
-        "ages": [10, 100, 1000],
+        "ages": [10, 100, 1000, 10000],
         "seeds": seeds,
         # A perfect harvest can drop the family's seed (default 10%). Cloudtop Orchid and Soulbell seeds come only
         # from inheritances and secret realms, so their nodes drop none.
@@ -61,8 +61,8 @@ def build():
         # Transplanting a rare herb with a Spirit Spade, from Expert: 25% it dies, 5% less per rank above Expert.
         "transplant": {"rank": "expert", "death": 0.25, "per_rank": 0.05},
         # The Verdant Dew Vial: one dew per 24 h (offline too), holding 3; a dew ages a bed's herb one tier. The
-        # valley's Qi holds a herb at 1,000 years; 10,000-year herbs are the Azure Expanse's (v1.1 extension).
-        "dew": {"every_s": 86400, "cap": 3, "valley_age_cap": 1000},
+        # valley's Qi holds a herb at 1,000 years; a bed in the Azure Expanse ages it to 10,000 (v1.1 extension).
+        "dew": {"every_s": 86400, "cap": 3, "valley_age_cap": 1000, "expanse_age_cap": 10000, "expanse_zones": ["azure_expanse"]},
         # Spirit Soil: 1% from beasts of rank 3 and above (Level 19+), and one in the Drowned Abbot's vault.
         "spirit_soil": {"chance": 0.01, "min_level": 19},
         # Processing racks (V6c), on the drying rack: steaming takes 1 h and cuts the toxicity of pills made from the

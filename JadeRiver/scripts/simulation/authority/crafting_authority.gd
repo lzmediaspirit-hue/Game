@@ -371,7 +371,13 @@ func dew_state(c) -> Dictionary:
 	if int(d.count) >= cap: d.last = now   # a full vial doesn't bank time toward the next drop
 	return {"dew": int(d.count), "cap": cap, "next_s": maxf(0.0, float(d.last) + every - now), "has": true}
 
-## A drop of dew ages the herb in a bed one tier, as far as the land's Qi allows (a thousand years in the valley).
+## How old the land's Qi lets a bed's herb grow: a thousand years in the valley, ten thousand in the Azure Expanse.
+func dew_age_cap(key: String) -> int:
+	var k: Dictionary = ContentDB.config("garden").get("dew", {})
+	var zone := str(ContentDB.room(key.get_slice(":", 0)).get("zone", ""))
+	return int(k.get("expanse_age_cap", 10000)) if zone in k.get("expanse_zones", ["azure_expanse"]) else int(k.get("valley_age_cap", 1000))
+
+## A drop of dew ages the herb in a bed one tier, as far as the land's Qi allows (dew_age_cap).
 func use_dew(c, key: String) -> Dictionary:
 	var why := _bed_check(c, key)
 	if why != "": return fail("bed", {"text": why})
@@ -380,8 +386,10 @@ func use_dew(c, key: String) -> Dictionary:
 	var rec := settle_bed(c, key)
 	if str(rec.herb) == "": return fail("empty")
 	var older: Array = HerbRules.older_than(str(rec.herb))
-	var cap_age := int(ContentDB.config("garden").get("dew", {}).get("valley_age_cap", 1000))
-	if older.is_empty() or HerbRules.item_age(str(older[0])) > cap_age: return fail("age_cap", {"text": Tx.t("sim.crafting.dew_age_cap")})
+	var cap_age := dew_age_cap(key)
+	if older.is_empty() or HerbRules.item_age(str(older[0])) > cap_age:
+		return fail("age_cap", {"text": Tx.t("sim.crafting.dew_age_top" if older.is_empty() or cap_age > int(ContentDB.config("garden").get("dew", {}).get("valley_age_cap", 1000))
+			else "sim.crafting.dew_age_cap")})
 	if not bed_holds(c, key, str(older[0])): return fail("soil", {"text": Tx.t("sim.crafting.soil_too_poor") % ContentDB.item_name(str(older[0]))})
 	c.crafting.dew.count = int(c.crafting.dew.count) - 1
 	var was := str(rec.herb)

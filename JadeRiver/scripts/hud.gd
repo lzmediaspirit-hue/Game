@@ -807,8 +807,9 @@ func _on_event(name: String, p: Dictionary) -> void:
 		# S49 world calendar: what is under way, what is coming (a notification a day ahead), season and weather.
 		"world_event_started":
 			var ev := CalendarRules.event(str(p.event))
-			toast(Tx.t("hud.world_event_started") % str(ev.get("name", p.event)), "gold",
-				ContentDB.name_of("rooms", str(p.room)) if str(p.get("room", "")) != "" else "")
+			var where := str(p.get("room", ""))
+			if str(p.event) == "gathering_trial" and Game.active() != null: where = Game.calendar.trial_room(Game.active())   # your sect's terraces
+			toast(Tx.t("hud.world_event_started") % str(ev.get("name", p.event)), "gold", ContentDB.name_of("rooms", where) if where != "" else "")
 		"world_event_ended":
 			add_log(Tx.t("hud.world_event_ended") % str(CalendarRules.event(str(p.event)).get("name", p.event)), UiKit.MIST)
 		"world_event_scheduled":

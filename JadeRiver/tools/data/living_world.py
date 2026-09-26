@@ -46,13 +46,18 @@ def events():
          "hours": [8, 10, 12, 14, 16], "rooms": [r for r in rift_rooms() if r not in ("lf_reed_shallows", "wp_west")],
          "rivals": "rogue_cultivator", "guardian": "fruit_guardian", "level_bonus": 2, "item": "spirit_fruit",
          "desc": "Every fourth day a Spirit Fruit ripens somewhere in the valley. Rival cultivators come for it, and its guardian wakes."},
-        # Part 8: the weekly gathering trial on the Jade Herb Terraces; the ranking pays Foundation-pill recipes.
+        # Part 8: the weekly gathering trial on the Jade or Cloud Herb Terraces: each sect holds it on its own terraces,
+        # against gatherers of the other sect (and the valley's). `room` is where a disciple of neither sect gathers.
+        # The ranking pays Foundation-pill recipes.
         {"id": "gathering_trial", "name": "The Herb Terraces Trial", "weekday": 2, "duration_h": 24, "room": "ja_herb_terraces",
+         "sect_rooms": {"jade_sect": "ja_herb_terraces", "cloud_sect": "cm_herb_terraces"},
          "rivals": ["Herb-girl Yan", "Apprentice Tao", "Old Scribe Bai", "Sister Wen of the Cloud Sect", "Farmer Gu"],
+         "room_rivals": {"cm_herb_terraces": ["Brother Lin of the Jade Sect", "Herb-girl Yan", "Sister Hua of the Jade Sect", "Farmer Gu",
+                                              "Old Scribe Bai"]},
          "rival_score": [6, 22], "rewards": {"1": {"learn": "foundation_guard_pill", "item": "foundation_guard_pill", "count": 3},
                                               "2": {"learn": "foundation_guard_pill", "item": "foundation_guard_pill", "count": 1},
                                               "3": {"learn": "foundation_guard_pill"}, "rest": {"item": "mist_lotus", "count": 2}},
-         "desc": "Every Wednesday the Jade Sect weighs what each gatherer brings in from the Terraces. The top three learn the Foundation Guard Pill."},
+         "desc": "Every Wednesday each sect weighs what its gatherers bring in from its own Herb Terraces, against the other sect's. The top three learn the Foundation Guard Pill."},
         {"id": "waterfall_reopening", "name": "The Waterfall Cave Opens", "every_days": 5, "offset_days": 2, "duration_h": 24,
          "room": "wg_waterfall_cave", "cap_below": "cloud_stride_1",
          "desc": "Every fifth day the falls thin and the cave's inner cache can be reached again. Repeat visits at Heart Tempering 9 and below."},

@@ -5,6 +5,39 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V9e3 · The Cloud Herb Terraces and the ten-thousand-year tier (S45, Part 8, v1.1)
+- **Cloud Herb Terraces:** a new room east of the Cloud Sect's Array Court, with three terraces cut into the cliff.
+  Willow moss and ember pepper grow at the foot, ginseng on the middle terrace and mist lotus on the high one.
+- **The weekly Herb Terraces Trial** is now held on each sect's own terraces, as Part 8 says ("Jade or Cloud Herb
+  Terraces"):
+  - Cloud Sect disciples gather on the Cloud terraces and Jade Sect disciples on the Jade terraces; a disciple of
+    neither sect uses the Jade terraces.
+  - Each terraces is ranked against the other sect's gatherers (a fixed, seeded draw per trial). The Jade draw is
+    unchanged.
+  - Herbs gathered on the other sect's terraces do not count.
+  - The Calendar page, the event toast and the ranking name your own terraces. The rewards are unchanged
+    (Foundation Guard Pill recipes for the top three).
+- **Ten-thousand-year ginseng** (Riverreed Ginseng 10,000 yr, Mystic grade, hot, Principal or Minister):
+  - The herb ages now run 10, 100, 1,000 and 10,000 years.
+  - It ripens on two high Expanse ledges, a Master's pick, every fifth in-game day:
+    - Snow Ape Ledges at dawn, guarded by a Snow Ape elite;
+    - Harpy Roosts at night, guarded by a Canyon Harpy elite.
+  - None grows in the valley.
+  - Its icon wears the Expanse's pale jade over the thousand-year gold.
+- **The Verdant Dew Vial's v1.1 tier:**
+  - A bed in the valley still holds a herb at 1,000 years.
+  - A bed in the Azure Expanse ages it to 10,000. The Herders' Camp on the Thunderhorn Plains lets two High-grade
+    plots inside its fence.
+  - A herb already as old as it grows says so.
+- **Page headings** step their size down to fit instead of being cut off (the World map's "Cloud Sect Monastery").
+- Tests: `rules_tests` `expanse_herbs_suite`:
+  - the room and its link;
+  - each sect's trial room;
+  - the rivals by sect;
+  - herbs counting only on your own terraces;
+  - the dew cap by zone and the ten-thousand-year age;
+  - the two guarded Expanse nodes, and none in the valley.
+
 ### V9e2 · The five-screen furnace (S15, S44)
 - **Alchemy is now played in five screens** (the forge keeps its three strikes). A step tracker shows where you are.
   1. **Ingredients:** the recipe, the batch, each herb's role and nature, and stand-ins. With Spirit Sense, the

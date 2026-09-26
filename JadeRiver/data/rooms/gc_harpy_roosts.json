@@ -259,6 +259,46 @@
     300,
     700
    ]
+  },
+  {
+   "id": "rare_ginseng_hr",
+   "type": "herb_patch",
+   "at": [
+    2640,
+    655
+   ],
+   "item": "riverreed_ginseng_10000",
+   "prop": "riverreed_ginseng_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "master",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet.",
+   "alt": 300,
+   "surface": "ledge_2",
+   "age": 10000,
+   "ripen": {
+    "phase": "night",
+    "every_days": 5,
+    "minutes": 20,
+    "offset": 3
+   },
+   "rare": true,
+   "guardian": {
+    "enemy": "canyon_harpy",
+    "level": 80,
+    "elite": true
+   }
   }
  ],
  "spawns": [

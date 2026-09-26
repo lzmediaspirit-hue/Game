@@ -119,6 +119,16 @@
    "to_portal": "east"
   },
   {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "cm_herb_terraces",
+   "to_portal": "west"
+  },
+  {
    "id": "peak_path",
    "type": "door",
    "at": [

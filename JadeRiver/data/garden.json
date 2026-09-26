@@ -7,7 +7,8 @@
   "riverreed_ginseng": {
    "10": "riverreed_ginseng_10",
    "100": "riverreed_ginseng_100",
-   "1000": "riverreed_ginseng_1000"
+   "1000": "riverreed_ginseng_1000",
+   "10000": "riverreed_ginseng_10000"
   },
   "ember_pepper": {
    "10": "ember_pepper",
@@ -35,7 +36,8 @@
  "ages": [
   10,
   100,
-  1000
+  1000,
+  10000
  ],
  "seeds": {
   "willow_moss": "willow_moss_seed",
@@ -129,7 +131,11 @@
  "dew": {
   "every_s": 86400,
   "cap": 3,
-  "valley_age_cap": 1000
+  "valley_age_cap": 1000,
+  "expanse_age_cap": 10000,
+  "expanse_zones": [
+   "azure_expanse"
+  ]
  },
  "spirit_soil": {
   "chance": 0.01,

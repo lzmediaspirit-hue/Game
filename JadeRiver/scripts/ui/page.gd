@@ -200,8 +200,11 @@ func fit(s: String, size: int, width: float) -> String:
 	return s.left(n).strip_edges() + "…"
 
 func heading(pos: Vector2, s: String, width := 400.0) -> void:
-	UiKit.draw_text(self, s, pos, 26, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, width, true, true)
-	draw_line(pos + Vector2(0, 8), pos + Vector2(minf(width, UiKit.text_width(s, 26, true) + 30), 8), UiKit.BRONZE, 2)
+	# A long heading steps its size down to fit its width rather than being cut off at the edge.
+	var size := 26
+	while size > 20 and UiKit.text_width(s, size, true) > width: size -= 1
+	UiKit.draw_text(self, s, pos, size, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, width, true, true)
+	draw_line(pos + Vector2(0, 8), pos + Vector2(minf(width, UiKit.text_width(s, size, true) + 30), 8), UiKit.BRONZE, 2)
 
 ## Word-wrapped paragraph. Returns the height used.
 func para(rect: Rect2, s: String, size := 19, col := UiKit.PAPER, max_lines := -1) -> float:

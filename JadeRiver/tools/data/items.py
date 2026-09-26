@@ -33,6 +33,9 @@ HERBS = [
     # S45 aged herbs: rare nodes ripen them, and a garden bed can age a planted herb.
     ("riverreed_ginseng_1000", "heaven", "A thousand-year root, gold to the tip. It grows on the rock the Riverbed Serpent sleeps around.",
      "Riverreed Ginseng (1,000 yr)"),
+    # v1.1: the valley's Qi holds a herb at a thousand years; ten-thousand-year roots are the Azure Expanse's.
+    ("riverreed_ginseng_10000", "mystic", "A ten-thousand-year root, pale as jade and warm as a hand. The valley's Qi is too thin to grow one: "
+     "it ripens only on the Expanse's high ledges, or in an Expanse garden bed.", "Riverreed Ginseng (10,000 yr)"),
     ("ember_pepper_100", "earth", "A century-old ember pepper, dark red and hot enough to blister the hand that picks it.", "Ember Pepper (100 yr)"),
     ("mist_lotus_100", "heaven", "A century-old mist lotus. Its petals never quite dry.", "Mist Lotus (100 yr)"),
     ("cloudtop_orchid_100", "mystic", "A century-old orchid from the highest ledge. It smells of thin air.", "Cloudtop Orchid (100 yr)"),
@@ -50,16 +53,18 @@ HERB_NATURE = {"willow_moss": ("neutral", ["assistant", "envoy"]),
                "soulbell_flower": ("neutral", ["principal", "assistant", "envoy"]),
                "frost_lotus": ("cold", ["principal", "minister"]),
                "riverreed_ginseng_1000": ("hot", ["principal", "minister"]),
+               "riverreed_ginseng_10000": ("hot", ["principal", "minister"]),
                "ember_pepper_100": ("hot", ["minister", "assistant", "envoy"]),
                "mist_lotus_100": ("cold", ["principal", "minister", "assistant"]),
                "cloudtop_orchid_100": ("cold", ["principal", "minister"]),
                "soulbell_flower_100": ("neutral", ["principal", "assistant", "envoy"]),
                "ember_cactus": ("hot", ["principal", "minister"])}
-# S45 herb ages: every herb belongs to a family and has an age (10, 100 or 1,000 years). A perfect harvest keeps the
+# S45 herb ages: every herb belongs to a family and has an age (10, 100, 1,000 or, in the Azure Expanse, 10,000 years). A perfect harvest keeps the
 # age; a miss or an early pick drops one tier. An older herb stands in for a younger one of its family in a recipe.
 CORE_ELEMENTS = ["fire", "water", "wood", "earth", "wind", "thunder", "soul"]
 HERB_AGE = {"willow_moss": ("willow_moss", 10), "riverreed_ginseng_10": ("riverreed_ginseng", 10),
             "riverreed_ginseng_100": ("riverreed_ginseng", 100), "riverreed_ginseng_1000": ("riverreed_ginseng", 1000),
+            "riverreed_ginseng_10000": ("riverreed_ginseng", 10000),
             "ember_pepper": ("ember_pepper", 10), "ember_pepper_100": ("ember_pepper", 100),
             "mist_lotus": ("mist_lotus", 10), "mist_lotus_100": ("mist_lotus", 100),
             "cloudtop_orchid": ("cloudtop_orchid", 10), "cloudtop_orchid_100": ("cloudtop_orchid", 100),
