@@ -917,7 +917,11 @@ func tick(delta: float) -> void:
 		l.age = float(l.age) + delta
 		if st != null and not game.combat.is_wounded(c.id) and float(l.age) > 0.45:
 			if Vector2(float(l.x), float(l.y)).distance_to(st.plane) <= PICKUP_RADIUS * (1.6 if game.pets.gatherer_active(c.id) else 1.0) and absf(float(l.alt) - st.altitude) < 60:
-				if _collect(c, l).ok: continue
+				# A stack the bag refused is tried again once the bag changes, not every tick (each try says the bag is full).
+				var bag_now := "%d|%d" % [c.inventory.free_slots(), c.inventory.count(str(l.item))]
+				if str(l.get("refused", "")) != bag_now:
+					if _collect(c, l).ok: continue
+					l.refused = bag_now
 		if float(l.age) >= float(l.ttl):
 			rt.loot.erase(l)
 			if int(l.coins) == 0 and (ContentDB.item(str(l.item)).get("quest_item", false) or l.get("quality", "common") in ["fine", "superior", "perfect", "relic"]):

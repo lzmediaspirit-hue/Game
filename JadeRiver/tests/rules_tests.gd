@@ -7640,6 +7640,7 @@ func fixes_suite() -> void:
 	_fix_ticks(c)
 	_fix_buyback(c)
 	_fix_uids(c)
+	_fix_full_bag(c)
 	Clock.override_utc = utc0
 	Clock.override_tz_offset_s = tz0
 	HerbRules.origin_week = 0
@@ -7710,4 +7711,24 @@ func _fix_uids(c) -> void:
 	check(Game.submit({"type": "split_stack", "index": 0, "count": 4}).get("ok", false), "a locked stack splits")
 	var part = c.inventory.bag[1]
 	check(part != null and not part.has("uid") and _uids_unique(c), "the new part carries no copy of the lock's uid (%s)" % str(part))
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+
+## B4: standing by loot with a full bag says so once, not every tick.
+func _fix_full_bag(c) -> void:
+	var st: ActorState = Game.actor_state(c.id)
+	var rt: RoomRuntime = Game.room_rt
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = {"id": "healing_pill", "count": 99, "quality": "flawed"}
+	rt.loot.append({"uid": rt.uid(), "item": "rice_ball", "count": 1, "coins": 0, "instance": {}, "x": st.plane.x, "y": st.plane.y, "alt": st.altitude,
+		"ttl": 60.0, "age": 1.0, "quality": "common"})
+	var seen := [0]
+	var count_full := func(name: String, _p: Dictionary) -> void:
+		if name == "bag_full": seen[0] += 1
+	GameEvents.event.connect(count_full)
+	for i in 30: Game.tick(0.05)
+	GameEvents.event.disconnect(count_full)
+	check(seen[0] == 1, "a full bag beside loot is announced once, not every tick (%d)" % seen[0])
+	c.inventory.bag[0] = null
+	for i in 3: Game.tick(0.05)
+	check(c.inventory.count("rice_ball") == 1, "and the loot is picked up as soon as there is room")
+	rt.loot.clear()
 	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
