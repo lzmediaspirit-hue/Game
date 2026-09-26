@@ -5,7 +5,7 @@ extends Page
 
 var CRAFTS := [["cooking", Tx.t("ui.crafts.cooking")], ["alchemy", Tx.t("ui.crafts.alchemy")], ["smithing", Tx.t("ui.crafts.forge")], ["formations", Tx.t("ui.crafts.arrays")],
 	["talisman", Tx.t("ui.crafts.talismans")], ["guild", Tx.t("ui.crafts.guild")], ["star_charting", Tx.t("ui.crafts.charts")], ["shipwright", Tx.t("ui.crafts.vessels")]]
-## The unlock behind a tab when it is not the craft's own id (S44: the Alchemist Guild).
+## The unlock behind a tab when it is not the craft's own id (S44: the Alchemist Guild; the Guild tab opens with any guild).
 const TAB_UNLOCK := {"guild": "alchemist_guild"}
 ## Page ids that open the Crafts page on one tab.
 const PAGE_TAB := {"cooking": "cooking", "alchemy": "alchemy", "forge": "smithing", "arrays": "formations", "talisman": "talisman", "guild": "guild",
@@ -17,6 +17,7 @@ var exp_herbs: Array = []          # the herbs chosen for an experiment
 const DIRECT := {"cooking": "cook", "formations": "inscribe", "star_charting": "chart_route", "shipwright": "build_vessel"}
 
 var sel := ""
+var guild_craft := ""   # the guild shown on the Guild tab (its craft id)
 var count := 1
 var game_on := false
 ## S44 pill tribulation and the Pill Soul's flight: {stage: "bolts"|"soul", times[], window, t0 (ms), next, results[], catch_at}.
@@ -52,12 +53,17 @@ func setup() -> void:
 		# The Starsea tabs stay hidden until Sage 3 opens them, so the valley page is unchanged.
 		if cr[0] in ["star_charting", "shipwright"] and not Unlocks.is_unlocked(ch.id, "star_charting"): continue
 		var key := str(TAB_UNLOCK.get(cr[0], cr[0]))
-		tabs.append({"id": cr[0], "label": cr[1], "locked": "" if Unlocks.is_unlocked(ch.id, key) else Unlocks.locked_text(key)})
+		var open: bool = Unlocks.is_unlocked(ch.id, key) or (cr[0] == "guild" and not Game.crafting.guilds_open(ch).is_empty())
+		tabs.append({"id": cr[0], "label": cr[1], "locked": "" if open else Unlocks.locked_text(key)})
 	var want := -1
 	for i in tabs.size():
 		if str(tabs[i].id) == str(PAGE_TAB.get(page_id, "")): want = i
 	# A page opened for one recipe (a quest link, or a preview: --open-page=alchemy:healing_pill).
 	var pick := str(args.get("tab", ""))
+	# The Guild tab shows the guild of the master who opened it (Smith Bao: the Forge Guild), or one named by a preview
+	# (--open-page=guild:guild_smithing).
+	for g in Game.crafting.guilds_open(ch):
+		if str(g.get("master", "")) == str(args.get("npc", "")) or "guild_" + str(g.craft) == pick: guild_craft = str(g.craft)
 	if ContentDB.has_entry("recipes", pick) or pick == EXPERIMENT: sel = pick
 	if pick == "__tribulation":   # a preview of the tribulation screen (--open-page=alchemy:__tribulation); nothing is refined
 		sel = "soul_soothing_pill"
@@ -614,66 +620,103 @@ func _deduce(ch, r: Rect2) -> void:
 	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.crafts.deduce"), "deduce", null, true, why == "", why)
 
 func _guild(ch, content_r: Rect2) -> void:
-	var left := Rect2(content_r.position.x, content_r.position.y, 520, content_r.size.y)
-	var right := Rect2(left.end.x + 20, left.position.y, content_r.end.x - left.end.x - 20, left.size.y)
+	var open: Array = Game.crafting.guilds_open(ch)
+	if open.is_empty(): return
+	if not open.any(func(g): return str(g.craft) == guild_craft): guild_craft = str(open[0].craft)
+	var craft := guild_craft
+	var g: Dictionary = Game.crafting.guild_def(craft)
+	# One button per open guild across the top.
+	var bw := minf(260.0, (content_r.size.x - 12.0 * (open.size() - 1)) / open.size())
+	for i in open.size():
+		btn(Rect2(content_r.position.x + i * (bw + 12), content_r.position.y, bw, 46), str(open[i].name), "guild_pick", str(open[i].craft),
+			str(open[i].craft) == craft, true, "", 18)
+	var top := content_r.position.y + 58
+	var left := Rect2(content_r.position.x, top, 540, content_r.end.y - top)
+	var right := Rect2(left.end.x + 20, top, content_r.end.x - left.end.x - 20, left.size.y)
 	panel(left)
 	panel(right)
-	var rank: String = Game.crafting.guild_rank(ch, "alchemy")
-	text(left.position + Vector2(24, 44), Tx.t("ui.guild.title"), 24, UiKit.PAPER)
-	text(left.position + Vector2(24, 72), Tx.t("ui.guild.rank_" + rank) if rank != "" else Tx.t("ui.guild.no_rank"), 17, UiKit.GOLD if rank != "" else UiKit.MIST)
-	var y := left.position.y + 96
-	for rk in Game.crafting.guild_def("alchemy").get("ranks", []):
-		var card := Rect2(left.position.x + 16, y, left.size.x - 32, 156)
-		var passed: bool = _rank_at_least(rank, str(rk.id))
+	var rank: String = Game.crafting.guild_rank(ch, craft)
+	var ranks: Array = g.get("ranks", [])
+	text(left.position + Vector2(20, 34), str(g.name), 22, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, -1.0, true)
+	text(left.position + Vector2(20, 34), _rank_name(craft, rank) if rank != "" else Tx.t("ui.guild.no_rank"), 16,
+		UiKit.GOLD if rank != "" else UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, left.size.x - 40)
+	var nxt: Dictionary = Game.crafting.next_guild_rank(ch, craft)
+	var ex: Dictionary = ch.crafting.get("guild_exam", {})
+	var ch_h := (left.size.y - 52.0) / maxf(1.0, ranks.size()) - 6.0
+	var y := left.position.y + 48
+	for rk in ranks:
+		var card := Rect2(left.position.x + 12, y, left.size.x - 24, ch_h)
+		var passed: bool = _rank_at_least(craft, rank, str(rk.id))
 		panel(card, "minor_panel", "selected" if passed else "normal")
-		text(card.position + Vector2(16, 30), Tx.t("ui.guild.rank_" + str(rk.id)), 20, UiKit.PALE_GOLD if passed else UiKit.PAPER)
-		para(Rect2(card.position.x + 16, card.position.y + 40, card.size.x - 32, 40), Tx.t("ui.guild.exam_task") % [ContentDB.item_name(str(ContentDB.entry("recipes", str(rk.recipe)).outputs[0].item)),
-			int(rk.count), str(rk.quality).capitalize(), int(float(rk.time_s) / 60.0)], 15, UiKit.MIST, 2)
-		var rew := Tx.t("ui.guild.reward_title") % Tx.t("ui.guild.rank_" + str(rk.id))
+		text(card.position + Vector2(14, 26), _rank_name(craft, str(rk.id)), 19, UiKit.PALE_GOLD if passed else UiKit.PAPER)
+		text(card.position + Vector2(14, 48), fit(_exam_task(rk), 15, card.size.x - 28), 15, UiKit.MIST)
+		var rew := Tx.t("ui.guild.reward_title") % str(ContentDB.entry("titles", str(rk.get("title", ""))).get("name", ""))
 		for e in rk.get("rewards", []):
 			if str(e.get("kind", "")) == "learn_recipe": rew += " · " + ContentDB.name_of("recipes", str(e.recipe))
-		text(card.position + Vector2(16, 104), fit(rew, 15, card.size.x - 32), 15, UiKit.PALE_GOLD)
-		var nxt: Dictionary = Game.crafting.next_guild_rank(ch, "alchemy")
-		var ex: Dictionary = ch.crafting.get("guild_exam", {})
+			elif str(e.get("kind", "")) == "grant_item": rew += " · %s ×%d" % [ContentDB.item_name(str(e.item)), int(e.get("count", 1))]
+		text(card.position + Vector2(14, 70), fit(rew, 14, card.size.x - 28), 14, UiKit.PALE_GOLD)
+		var status_y := card.end.y - 14
 		if passed:
-			text(card.position + Vector2(16, 138), Tx.t("ui.guild.passed"), 16, UiKit.BRIGHT_JADE)
-		elif not ex.is_empty() and str(ex.rank) == str(rk.id):
+			text(Vector2(card.position.x, status_y), Tx.t("ui.guild.passed"), 16, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_RIGHT, card.size.x - 16)
+		elif not ex.is_empty() and str(ex.craft) == craft and str(ex.rank) == str(rk.id):
 			var left_s: float = Game.crafting.exam_left(ch)
-			text(card.position + Vector2(16, 138), Tx.t("ui.guild.exam_running") % [int(ex.made), int(rk.count), int(left_s / 60.0), int(left_s) % 60], 16, UiKit.GOLD)
+			text(Vector2(card.position.x, status_y), Tx.t("ui.guild.exam_running") % [int(ex.made), int(rk.count), int(left_s / 60.0), int(left_s) % 60], 15,
+				UiKit.GOLD, HORIZONTAL_ALIGNMENT_RIGHT, card.size.x - 16)
 		elif str(nxt.get("id", "")) == str(rk.id):
-			btn(Rect2(card.end.x - 186, card.end.y - 54, 170, 44), Tx.t("ui.guild.start_exam"), "exam", str(rk.id), true, ex.is_empty(), Tx.t("sim.crafting.exam_running"), 17)
-		y += 166
+			var why: String = Game.crafting.exam_block(ch, rk)
+			if why == "" and not ex.is_empty(): why = Tx.t("sim.crafting.exam_running")
+			btn(Rect2(card.end.x - 176, card.end.y - 48, 164, 40), Tx.t("ui.guild.start_exam"), "exam", str(rk.id), true, why == "", why, 16)
+			if str(rk.get("hall", "")) != "" and why != "":
+				text(card.position + Vector2(14, card.size.y - 12), fit(why, 14, card.size.x - 210), 14, UiKit.MIST)
+		y += ch_h + 6
 	# The commission board.
-	text(right.position + Vector2(24, 44), Tx.t("ui.guild.commissions"), 22, UiKit.PAPER)
+	text(right.position + Vector2(20, 34), Tx.t("ui.guild.commissions"), 20, UiKit.PAPER)
 	if rank == "":
-		para(Rect2(right.position + Vector2(24, 64), Vector2(right.size.x - 48, 80)), Tx.t("ui.guild.commissions_locked"), 17, UiKit.MIST)
+		para(Rect2(right.position + Vector2(20, 52), Vector2(right.size.x - 40, 80)), Tx.t("ui.guild.commissions_locked"), 16, UiKit.MIST)
 		return
-	var paid: int = Game.crafting.commission_paid_today(ch)
-	var cap: int = Game.crafting.commission_cap(ch)
-	text(right.position + Vector2(24, 72), Tx.t("ui.guild.cap_line") % [paid, cap], 15, UiKit.MIST)
-	var oy := right.position.y + 90
-	for o in Game.crafting.commissions(ch):
-		var card2 := Rect2(right.position.x + 16, oy, right.size.x - 32, 110)
+	var paid: int = Game.crafting.commission_paid_today(ch, craft)
+	var cap: int = Game.crafting.commission_cap(ch, craft)
+	text(right.position + Vector2(20, 58), Tx.t("ui.guild.cap_line") % [paid, cap], 15, UiKit.MIST)
+	var oy := right.position.y + 72
+	var orders: Array = Game.crafting.commissions(ch, craft)
+	var oh := minf(110.0, (right.end.y - oy - 8.0) / maxf(1.0, orders.size()) - 8.0)
+	for o in orders:
+		var card2 := Rect2(right.position.x + 12, oy, right.size.x - 24, oh)
 		panel(card2, "minor_panel", "disabled" if o.get("done", false) else ("selected" if o.get("accepted", false) else "normal"))
 		slot_box(Rect2(card2.position + Vector2(10, 10), Vector2(50, 50)), str(o.item))
-		text(card2.position + Vector2(72, 30), "%s ×%d" % [ContentDB.item_name(str(o.item)), int(o.count)], 18, UiKit.PAPER)
-		text(card2.position + Vector2(72, 54), Tx.t("ui.guild.pay") % int(o.pay), 15, UiKit.GOLD)
+		text(card2.position + Vector2(72, 28), fit("%s ×%d" % [ContentDB.item_name(str(o.item)), int(o.count)], 17, card2.size.x - 84), 17, UiKit.PAPER)
+		text(card2.position + Vector2(72, 50), Tx.t("ui.guild.pay") % int(o.pay), 15, UiKit.GOLD)
 		if o.get("done", false):
-			text(card2.position + Vector2(72, 92), Tx.t("ui.guild.delivered"), 15, UiKit.BRIGHT_JADE)
+			text(card2.position + Vector2(72, card2.size.y - 14), Tx.t("ui.guild.delivered"), 15, UiKit.BRIGHT_JADE)
 		elif not o.get("accepted", false):
-			btn(Rect2(card2.end.x - 150, card2.end.y - 50, 138, 42), Tx.t("ui.guild.accept"), "c_accept", str(o.id), false, true, "", 16)
+			btn(Rect2(card2.end.x - 148, card2.end.y - 46, 136, 38), Tx.t("ui.guild.accept"), "c_accept", str(o.id), false, true, "", 15)
 		else:
 			var have := 0
 			for s2 in ch.inventory.bag:
-				if s2 != null and str(s2.id) == str(o.item): have += int(s2.count)
+				if s2 != null and str(s2.id) == str(o.item): have += int(s2.get("count", 1))
 			var ok2 := have >= int(o.count)
-			btn(Rect2(card2.end.x - 300, card2.end.y - 50, 138, 42), Tx.t("ui.guild.deliver_taels"), "c_taels", str(o.id), true, ok2, Tx.t("sim.crafting.missing") % ContentDB.item_name(str(o.item)), 15)
-			btn(Rect2(card2.end.x - 150, card2.end.y - 50, 138, 42), Tx.t("ui.guild.deliver_contribution"), "c_contrib", str(o.id), false, ok2, Tx.t("sim.crafting.missing") % ContentDB.item_name(str(o.item)), 15)
-		oy += 120
+			var missing := Tx.t("sim.crafting.missing") % ContentDB.item_name(str(o.item))
+			btn(Rect2(card2.end.x - 296, card2.end.y - 46, 136, 38), Tx.t("ui.guild.deliver_taels"), "c_taels", str(o.id), true, ok2, missing, 14)
+			btn(Rect2(card2.end.x - 148, card2.end.y - 46, 136, 38), Tx.t("ui.guild.deliver_contribution"), "c_contrib", str(o.id), false, ok2, missing, 14)
+		oy += oh + 8
 
-func _rank_at_least(have: String, want: String) -> bool:
+## A rank's name in its guild ("Forge Adept"): the badge's own name.
+func _rank_name(craft: String, rank: String) -> String:
+	var rk: Dictionary = Game.crafting.guild_rank_def(craft, rank)
+	return str(ContentDB.entry("titles", str(rk.get("title", ""))).get("name", Tx.t("ui.guild.rank_" + rank)))
+
+## What an exam asks for, in one line.
+func _exam_task(rk: Dictionary) -> String:
+	var mins := int(float(rk.time_s) / 60.0)
+	if rk.has("recipe"):
+		var item := ContentDB.item_name(str(ContentDB.entry("recipes", str(rk.recipe)).outputs[0].item))
+		if str(rk.get("quality", "common")) == "common": return Tx.t("ui.guild.exam_task_count") % [item, int(rk.count), mins]
+		return Tx.t("ui.guild.exam_task") % [item, int(rk.count), str(rk.quality).capitalize(), mins]
+	return Tx.t("ui.guild.exam_task_grade") % [int(rk.count), str(rk.get("grade", "")).capitalize(), str(rk.quality).capitalize(), mins]
+
+func _rank_at_least(craft: String, have: String, want: String) -> bool:
 	var ids: Array = []
-	for rk in Game.crafting.guild_def("alchemy").get("ranks", []): ids.append(str(rk.id))
+	for rk in Game.crafting.guild_def(craft).get("ranks", []): ids.append(str(rk.id))
 	return have != "" and ids.find(have) >= ids.find(want)
 
 func _trib_elapsed() -> float:
@@ -798,8 +841,9 @@ func on_action(id: String, data) -> void:
 			if rd.get("ok", false) and rd.get("success", false): sel = ""
 			elif str(rd.get("text", "")) != "": flash(str(rd.text))
 		"exam":
-			var re := submit({"type": "take_guild_exam", "craft": "alchemy", "rank": str(data)})
+			var re := submit({"type": "take_guild_exam", "craft": guild_craft, "rank": str(data)})
 			if not re.get("ok", false) and str(re.get("text", "")) != "": flash(str(re.text))
+		"guild_pick": guild_craft = str(data)
 		"c_accept": submit({"type": "accept_commission", "id": str(data)})
 		"c_taels", "c_contrib":
 			var rc := submit({"type": "deliver_commission", "id": str(data), "pay": "taels" if id == "c_taels" else "contribution"})

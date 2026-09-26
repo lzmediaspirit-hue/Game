@@ -504,6 +504,192 @@
        }
       ]
      }
+    },
+    {
+     "item": "soulbell_flower",
+     "price": 180,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_alchemy_master"
+       }
+      ]
+     }
+    },
+    {
+     "item": "frost_lotus",
+     "price": 320,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_alchemy_master"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "forge_guild",
+   "name": "Forge Guild",
+   "currency": "silver_tael",
+   "stock": [
+    {
+     "item": "jadeiron",
+     "price": 40,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_smithing_adept"
+       }
+      ]
+     }
+    },
+    {
+     "item": "riverstone",
+     "price": 12,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_smithing_adept"
+       }
+      ]
+     }
+    },
+    {
+     "item": "refining_essence",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_smithing_adept"
+       }
+      ]
+     }
+    },
+    {
+     "item": "cloudsteel_ore",
+     "price": 120,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_smithing_expert"
+       }
+      ]
+     }
+    },
+    {
+     "item": "mystic_ore",
+     "price": 260,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_smithing_expert"
+       },
+       {
+        "kind": "realm_at_least",
+        "realm": "heaven_glimpse_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "stormsteel_ore",
+     "price": 480,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_smithing_master"
+       }
+      ]
+     }
+    },
+    {
+     "item": "weapon_soul_crystal",
+     "price": 9000,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_smithing_master"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "formation_guild",
+   "name": "Formation Guild",
+   "currency": "silver_tael",
+   "stock": [
+    {
+     "item": "blank_plate",
+     "price": 45,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_formations_adept"
+       }
+      ]
+     }
+    },
+    {
+     "item": "formation_stone",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_formations_adept"
+       }
+      ]
+     }
+    },
+    {
+     "item": "ore_dust",
+     "price": 8,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_formations_adept"
+       }
+      ]
+     }
+    },
+    {
+     "item": "killing_array_plate",
+     "price": 260,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_formations_expert"
+       }
+      ]
+     }
+    },
+    {
+     "item": "binding_array_plate",
+     "price": 260,
+     "requires": {
+      "all": [
+       {
+        "kind": "flag_set",
+        "flag": "guild_formations_expert"
+       }
+      ]
+     }
     }
    ]
   },

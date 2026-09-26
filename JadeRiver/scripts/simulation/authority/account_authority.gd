@@ -183,9 +183,13 @@ func create_max_character(slot: int, name: String) -> Dictionary:
 		if craft == "" or ranks.is_empty(): continue
 		var cap: int = game.crafting.rank_cap(c, craft)
 		c.professions[craft] = {"rank": str(ranks[cap][0]), "xp": float(ranks[cap][1])}
+	var guild_ranks := {}
 	for g in ContentDB.all("guilds"):
 		for rk in g.get("ranks", []):
 			if str(rk.get("flag", "")) != "": c.quests.flags[str(rk.flag)] = true
+			if str(rk.get("title", "")) != "" and not c.cultivator.titles.has(str(rk.title)): c.cultivator.titles.append(str(rk.title))
+			guild_ranks[str(g.craft)] = str(rk.id)   # every guild at its top rank
+	c.crafting["guild"] = guild_ranks
 	_max_gear(c)
 	# Animals (each at the highest stage this realm reaches), a mount, the companions and both sects.
 	var stage := {"id": "hatchling", "level": 1}

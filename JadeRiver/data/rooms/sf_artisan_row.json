@@ -294,6 +294,24 @@
    "facing": -1
   },
   {
+   "id": "npc_array_master_ren",
+   "type": "npc",
+   "at": [
+    1380,
+    800
+   ],
+   "npc": "array_master_ren",
+   "facing": 1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_5"
+     }
+    ]
+   }
+  },
+  {
    "id": "npc_guildmaster_tang",
    "type": "npc",
    "at": [
@@ -319,17 +337,25 @@
     760
    ],
    "prop": "notice_board",
-   "text": "The Alchemist Guild's board: exams, commissions, and a list of badges.",
+   "text": "The guilds' board: exams, commissions, and a list of badges.",
    "open_page": "guild",
    "requires": {
-    "all": [
+    "any": [
      {
       "kind": "unlock",
       "system": "alchemist_guild"
+     },
+     {
+      "kind": "unlock",
+      "system": "forge_guild"
+     },
+     {
+      "kind": "unlock",
+      "system": "formation_guild"
      }
     ]
    },
-   "locked_text": "The Alchemist Guild's board. Its exams open at Qi Kindling 8.",
+   "locked_text": "The guilds' board. The Alchemist Guild's exams open at Qi Kindling 8.",
    "label": "Guild Board"
   },
   {

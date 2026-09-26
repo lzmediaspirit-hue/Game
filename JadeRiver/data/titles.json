@@ -344,7 +344,7 @@
   },
   {
    "id": "guild_adept",
-   "name": "Guild Adept",
+   "name": "Alchemist Adept",
    "modifiers": [
     {
      "stat": "crafting_control",
@@ -355,12 +355,89 @@
   },
   {
    "id": "guild_expert",
-   "name": "Guild Expert",
+   "name": "Alchemist Expert",
    "modifiers": [
     {
      "stat": "crafting_control",
      "op": "flat",
      "value": 0.04
+    }
+   ]
+  },
+  {
+   "id": "alchemist_master",
+   "name": "Alchemist Master",
+   "modifiers": [
+    {
+     "stat": "crafting_control",
+     "op": "flat",
+     "value": 0.06
+    }
+   ]
+  },
+  {
+   "id": "forge_adept",
+   "name": "Forge Adept",
+   "modifiers": [
+    {
+     "stat": "crafting_control",
+     "op": "flat",
+     "value": 0.02
+    }
+   ]
+  },
+  {
+   "id": "forge_expert",
+   "name": "Forge Expert",
+   "modifiers": [
+    {
+     "stat": "crafting_control",
+     "op": "flat",
+     "value": 0.04
+    }
+   ]
+  },
+  {
+   "id": "forge_master",
+   "name": "Forge Master",
+   "modifiers": [
+    {
+     "stat": "crafting_control",
+     "op": "flat",
+     "value": 0.06
+    }
+   ]
+  },
+  {
+   "id": "formation_adept",
+   "name": "Formation Adept",
+   "modifiers": [
+    {
+     "stat": "crafting_perception",
+     "op": "flat",
+     "value": 0.02
+    }
+   ]
+  },
+  {
+   "id": "formation_expert",
+   "name": "Formation Expert",
+   "modifiers": [
+    {
+     "stat": "crafting_perception",
+     "op": "flat",
+     "value": 0.04
+    }
+   ]
+  },
+  {
+   "id": "formation_master",
+   "name": "Formation Master",
+   "modifiers": [
+    {
+     "stat": "crafting_perception",
+     "op": "flat",
+     "value": 0.06
     }
    ]
   }

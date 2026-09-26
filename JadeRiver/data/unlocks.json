@@ -1242,6 +1242,60 @@
    "same_stage_ok": true
   },
   {
+   "id": "forge_guild",
+   "label": "Forge Guild",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_3"
+     },
+     {
+      "kind": "unlock",
+      "system": "smithing"
+     }
+    ]
+   },
+   "reveals": [
+    "page:guild"
+   ],
+   "effects": [
+    {
+     "kind": "codex",
+     "entry": "forge_guild"
+    }
+   ],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
+   "id": "formation_guild",
+   "label": "Formation Guild",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_5"
+     },
+     {
+      "kind": "unlock",
+      "system": "array_plates"
+     }
+    ]
+   },
+   "reveals": [
+    "page:guild"
+   ],
+   "effects": [
+    {
+     "kind": "codex",
+     "entry": "formation_guild"
+    }
+   ],
+   "scope": "character",
+   "same_stage_ok": true
+  },
+  {
    "id": "experiments",
    "label": "Experiments",
    "trigger": {

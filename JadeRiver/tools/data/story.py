@@ -135,7 +135,13 @@ def npcs():
     npc("old_pan", "Old Pan", "Wandering merchant", outfit("topknot", 1, "vneck", "loose", "folded", hat="straw", cape="tattered", shirt_dye="ochre"),
         ["Rare wares for rare coin. Spirit Stones only.", "I'm here today. Tomorrow? Who knows."], ["Rare wares!"], services=["shop:old_pan"])
     npc("smith_bao", "Smith Bao", "Blacksmith", outfit("short_knot", 0, "sleeveless", "martial", "boots", shirt_dye="ink"),
-        ["Iron remembers every hammer blow.", "Bring me Jadeiron and I'll make you something that sings."], ["*clang*"], services=["shop:stoneford_smith"])
+        ["Iron remembers every hammer blow.", "Bring me Jadeiron and I'll make you something that sings."], ["*clang*"],
+        services=["shop:stoneford_smith", "page:guild", "shop:forge_guild"], service_labels={"page:guild": "Forge Guild"},
+        service_unlocks={"page:guild": "forge_guild", "shop:forge_guild": "forge_guild"})
+    npc("array_master_ren", "Array Master Ren", "Formation Guild", outfit("long_tied", 2, "scholar", "scholar", "slippers", hat="guan", shirt_dye="cloud", pants_dye="ink"),
+        ["A plate is a formation you can carry. Etch it true and it will hold a wall.", "The guild asks for speed, not luck. Stone does not roll dice."],
+        ["Line, line, circle.", "Mind the stone dust."], services=["page:guild", "shop:formation_guild"], service_labels={"page:guild": "Formation Guild"},
+        service_unlocks={"page:guild": "formation_guild", "shop:formation_guild": "formation_guild"})
     npc("tinkerer_yu", "Tinkerer Yu", "Tinkerer", outfit("ponytail", 3, "scholar", "cuffed", "folded", shirt_dye="grey"),
         ["Tools are just patience you can hold.", "A better pickaxe means more ore and fewer blisters."], ["Where's my small spanner?"], services=["shop:tinkerer", "page:workshop"],
         service_labels={"page:workshop": "Puppet bench"}, service_unlocks={"page:workshop": "puppetry"})
@@ -258,10 +264,10 @@ def npcs():
         ["Traveller's goods!"], services=["shop:port_peddler"])
     npc("smith_hong", "Smith Hong", "Stormsteel smith", outfit("short_knot", 0, "sleeveless", "martial", "boots", shirt_dye="crimson"),
         ["Stormsteel wants a Sage's hands. Before that, it bites.", "Lightning Scar ore, spark pelt for the grip. That's the recipe."],
-        ["*crackle* *clang*"], services=["shop:stormsteel_smith"])
+        ["*crackle* *clang*"], services=["shop:stormsteel_smith", "page:guild"], service_labels={"page:guild": "Guild Master exams"})
     npc("apothecary_wu", "Apothecary Wu", "Port apothecary", outfit("ponytail", 3, "cardigan", "scholar", "slippers", shirt_dye="jade"),
         ["Storm blood is real. Newcomers bleed Qi into the wind until they attune.", "A Storm Blood Pill buys you half an hour of patience."],
-        ["Remedies!"], services=["shop:port_apothecary"])
+        ["Remedies!"], services=["shop:port_apothecary", "page:guild"], service_labels={"page:guild": "Guild Master exams"})
     npc("sky_sailor_pei", "Sailor Pei", "Sky-ship hand", outfit("short_knot", 0, "vneck", "cuffed", "boots", hat="headband", shirt_dye="cloud"),
         ["Never look down from a sky-ship. Look at the sails.", "The Alliance ships run to Nine Peaks. When they feel like it."], ["Heave!"])
     npc("sky_sailor_ning", "Sailor Ning", "Sky-ship hand", outfit("ponytail", 0, "vneck", "cuffed", "boots", hat="headband", shirt_dye="indigo"),
@@ -512,6 +518,11 @@ def unlocks():
     # S44 / Part 7: the Alchemist Guild's Adept exam and commission board open with Batch Work (Qi Kindling 8).
     u("alchemist_guild", "Alchemist Guild", all_of(realm("qi_kindling_8")), "batch_work", ["page:guild"], same_stage_ok=True,
       effects=[{"kind": "codex", "entry": "alchemist_guild"}])
+    # S49 associations: the Forge Guild (v1.0) opens once you forge; the Formation Guild (v1.1) once you carry plates.
+    u("forge_guild", "Forge Guild", all_of(realm("qi_unfurling_3"), unlocked("smithing")), "", ["page:guild"], same_stage_ok=True,
+      effects=[{"kind": "codex", "entry": "forge_guild"}])
+    u("formation_guild", "Formation Guild", all_of(realm("heart_tempering_5"), unlocked("array_plates")), "", ["page:guild"], same_stage_ok=True,
+      effects=[{"kind": "codex", "entry": "formation_guild"}])
     # S44: ancient recipes come in pages; a page is enough to begin deducing, a full set teaches it outright.
     u("experiments", "Experiments", all_of(realm("qi_unfurling_1"), unlocked("alchemy")), "", [], same_stage_ok=True, toast=False,
       effects=[{"kind": "codex", "entry": "experiments"}])
@@ -2066,7 +2077,11 @@ def codex():
         {"id": "furnaces_and_fire", "title": "Furnace and fire",
          "body": "The furnace you set in the furnace slot decides the batch, how steady the heat is, how many impurities it strains out, and sometimes one pill more. Better ones are forged at the forge, and enhancing one steadies its heat. Charcoal takes a pill as far as Perfect. Earth Fire at a vent, or a beast core of rank 2 or more burnt as Beast Fire, can reach Pill Grain. Only a Heavenly Flame, or the Nine-Dragon Cauldron, reaches Halo and Soul."},
         {"id": "alchemist_guild", "title": "The Alchemist Guild",
-         "body": "Guildmaster Tang keeps the guild's hall in Stoneford's Artisan Row. Each rank is one exam against the candle: five Fine Healing Pills in three minutes for Adept, three Superior Foundation Guard Pills in five for Expert. A badge opens the guild shop and the commission board, three orders a morning, paid in taels or contribution up to a fifth of what a day's work would earn you."},
+         "body": "Guildmaster Tang keeps the guild's hall in Stoneford's Artisan Row. Each rank is one exam against the candle: five Fine Healing Pills in three minutes for Adept, three Superior Foundation Guard Pills in five for Expert. The Master exam, three Superior Storm Blood Pills in eight minutes, is sat at Cloudgate Port once you reach the Sage realm. A badge opens the guild shop and the commission board, three orders a morning, paid in taels or contribution up to a fifth of what a day's work would earn you."},
+        {"id": "forge_guild", "title": "The Forge Guild",
+         "body": "Smith Bao keeps the Forge Guild's anvil on the Artisan Row. Its exams ask for weapons of any family against the candle: two Earth-grade weapons at Fine or better for Adept, two Heaven-grade at Superior for Expert, and two Spirit-grade at Superior for Master, sat at Cloudgate Port. Members buy ore at the guild counter and take the morning's forging orders."},
+        {"id": "formation_guild", "title": "The Formation Guild",
+         "body": "Array Master Ren keeps the Formation Guild on the Artisan Row. Plates are etched, not rolled, so its exams ask only for speed: four Array Plates in three minutes for Adept, three Killing Array Plates in four for Expert, five Binding Array Plates in five for Master, sat at Cloudgate Port. Members buy plates and stones at the guild counter and etch the morning's orders."},
         {"id": "rare_herbs", "title": "Rare herbs",
          "body": "Most herbs are ten years old when you find them. A few patches, always on high ground, grow for a hundred years or a thousand. They ripen only for twenty minutes around their hour, every second, third or fifth day, and some flower in one season only. Pick one early and it is a tier younger. The hold ends in a ring: tap inside the gold band for a perfect harvest, which keeps the herb's full age and may shake a seed loose. Miss, and it drops a tier. Guardians wake when you climb toward a ripe one: kill them, draw them off past their leash, or pick the herb unseen under Concealment. A Spirit Sense pulse reads each patch's time. In a recipe an older herb can stand in for a younger one of its family, and it refines better."},
         {"id": "herb_garden", "title": "The herb garden",

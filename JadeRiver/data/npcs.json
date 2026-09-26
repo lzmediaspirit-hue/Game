@@ -709,11 +709,57 @@
     "*clang*"
    ],
    "services": [
-    "shop:stoneford_smith"
+    "shop:stoneford_smith",
+    "page:guild",
+    "shop:forge_guild"
    ],
+   "service_labels": {
+    "page:guild": "Forge Guild"
+   },
+   "service_unlocks": {
+    "page:guild": "forge_guild",
+    "shop:forge_guild": "forge_guild"
+   },
    "concealed_lines": [
     "Soft hands for a blade like that. I'll sharpen it anyway. Maybe it will teach you."
    ]
+  },
+  {
+   "id": "array_master_ren",
+   "name": "Array Master Ren",
+   "title": "Formation Guild",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 2,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "slippers",
+    "hat": "guan",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "cloud",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "A plate is a formation you can carry. Etch it true and it will hold a wall.",
+    "The guild asks for speed, not luck. Stone does not roll dice."
+   ],
+   "barks": [
+    "Line, line, circle.",
+    "Mind the stone dust."
+   ],
+   "services": [
+    "page:guild",
+    "shop:formation_guild"
+   ],
+   "service_labels": {
+    "page:guild": "Formation Guild"
+   },
+   "service_unlocks": {
+    "page:guild": "formation_guild",
+    "shop:formation_guild": "formation_guild"
+   }
   },
   {
    "id": "tinkerer_yu",
@@ -2242,8 +2288,12 @@
     "*crackle* *clang*"
    ],
    "services": [
-    "shop:stormsteel_smith"
-   ]
+    "shop:stormsteel_smith",
+    "page:guild"
+   ],
+   "service_labels": {
+    "page:guild": "Guild Master exams"
+   }
   },
   {
    "id": "apothecary_wu",
@@ -2269,8 +2319,12 @@
     "Remedies!"
    ],
    "services": [
-    "shop:port_apothecary"
-   ]
+    "shop:port_apothecary",
+    "page:guild"
+   ],
+   "service_labels": {
+    "page:guild": "Guild Master exams"
+   }
   },
   {
    "id": "sky_sailor_pei",

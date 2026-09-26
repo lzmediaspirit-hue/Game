@@ -1791,7 +1791,60 @@ func guild_suite() -> void:
 	GameEvents.emit_event("craft_completed", {"actor": c.id, "recipe": "foundation_guard_pill", "craft": "alchemy", "quality": "superior", "count": 3})
 	GameEvents.flush()
 	check(Game.crafting.guild_rank(c, "alchemy") == "expert" and Game.crafting.knows(c, "qi_flow_pill"), "Guild Expert, and the Qi Flow Pill recipe")
+	# The Master exam (v1.1) needs a Sage's hands and is sat at Cloudgate Port.
+	var realm0: String = c.cultivator.realm_key
+	c.cultivator.realm_key = "heaven_glimpse_9"
+	var tm := Game.submit({"type": "take_guild_exam", "craft": "alchemy", "rank": "master"})
+	check(not tm.get("ok", false) and str(tm.get("reason", "")) == "not_here", "the Master exam waits for the Sage realm")
+	c.cultivator.realm_key = "sage_1"
+	tm = Game.submit({"type": "take_guild_exam", "craft": "alchemy", "rank": "master"})
+	check(not tm.get("ok", false) and str(tm.get("text", "")).contains(ContentDB.name_of("rooms", "ae_port_market")), "and is sat at Cloudgate Port (%s)" % str(tm.get("text", "")))
+	Game.world.apply_teleport(c.id, "ae_port_market")
+	tm = Game.submit({"type": "take_guild_exam", "craft": "alchemy", "rank": "master"})
+	GameEvents.emit_event("craft_completed", {"actor": c.id, "recipe": "storm_blood_pill", "craft": "alchemy", "quality": "superior", "count": 3, "auto": true})
+	GameEvents.flush()
+	check(tm.get("ok", false) and int(c.crafting.guild_exam.get("made", 0)) == 0, "at the port the candle is lit; the auto-refine queue never counts")
+	GameEvents.emit_event("craft_completed", {"actor": c.id, "recipe": "storm_blood_pill", "craft": "alchemy", "quality": "superior", "count": 3})
+	GameEvents.flush()
+	check(Game.crafting.guild_rank(c, "alchemy") == "master" and Game.crafting.knows(c, "sage_condensing_pill") and c.cultivator.titles.has("alchemist_master"),
+		"three Superior Storm Blood Pills: Alchemist Master, and the Sage Condensing Pill recipe")
+	# The Forge Guild (S49): any family of weapon at the rank's grade or above counts; armour and lower grades do not.
+	Unlocks.force_unlock(c.id, "forge_guild")
+	c.crafting["guild_exam"] = {}
+	Game.world.apply_teleport(c.id, "sf_artisan_row")
+	check(Game.crafting.guilds_open(c).size() >= 2, "each guild opens with its own gate")
+	check(Game.submit({"type": "take_guild_exam", "craft": "smithing", "rank": "adept"}).get("ok", false), "the Forge Guild's Adept exam begins at Smith Bao's")
+	for row in [["iron_jian", "fine"], ["bp_jadeiron_hat", "perfect"], ["jadeiron_spear", "common"], ["jadeiron_jian", "fine"]]:
+		GameEvents.emit_event("craft_completed", {"actor": c.id, "recipe": row[0], "craft": "smithing", "quality": row[1], "count": 1})
+	GameEvents.flush()
+	check(int(c.crafting.get("guild_exam", {}).get("made", 0)) == 1 and Game.crafting.guild_rank(c, "smithing") == "",
+		"a common-grade blade, a hat and a Common spear do not count; a Fine Jadeiron Jian does")
+	GameEvents.emit_event("craft_completed", {"actor": c.id, "recipe": "cloudsteel_fan", "craft": "smithing", "quality": "superior", "count": 1})
+	GameEvents.flush()
+	check(Game.crafting.guild_rank(c, "smithing") == "adept" and c.quests.has_flag("guild_smithing_adept") and c.cultivator.titles.has("forge_adept"),
+		"two Earth-grade (or better) weapons at Fine: Forge Adept")
+	c.crafting.recipes.append("jadeiron_jian")
+	var forders: Array = Game.crafting.commissions(c, "smithing")
+	check(not forders.is_empty() and forders.all(func(fo2): return ContentDB.is_equipment(str(fo2.item))) and Game.crafting.commissions(c, "alchemy") != forders,
+		"the Forge Guild's board orders pieces, on a board of its own")
+	var fo1: Dictionary = forders[0]
+	Game.submit({"type": "accept_commission", "id": str(fo1.id)})
+	for i in int(fo1.count): Game.inventory.apply_add_equipment(c.id, str(fo1.item), 0, "fine", "test")
+	var ft0: int = Game.economy.balance("silver_tael")
+	var fdl := Game.submit({"type": "deliver_commission", "id": str(fo1.id), "pay": "taels"})
+	check(fdl.get("ok", false) and c.inventory.count(str(fo1.item)) == 0 and Game.economy.balance("silver_tael") - ft0 == mini(int(fo1.pay), Game.crafting.commission_cap(c, "smithing")),
+		"forged pieces fill a forge order, paid within the Forge Guild's own cap")
+	# The Formation Guild: plates are etched, not rolled, so its exams count plates against the candle.
+	Unlocks.force_unlock(c.id, "formation_guild")
+	c.crafting["guild_exam"] = {}
+	check(Game.submit({"type": "take_guild_exam", "craft": "formations", "rank": "adept"}).get("ok", false), "the Formation Guild's Adept exam begins")
+	GameEvents.emit_event("craft_completed", {"actor": c.id, "recipe": "killing_array_plate", "craft": "formations", "quality": "common", "count": 2})
+	GameEvents.emit_event("craft_completed", {"actor": c.id, "recipe": "array_plate", "craft": "formations", "quality": "common", "count": 4})
+	GameEvents.flush()
+	check(Game.crafting.guild_rank(c, "formations") == "adept" and c.inventory.count("formation_stone") >= 5, "four Array Plates: Formation Adept, and five formation stones")
+	c.cultivator.realm_key = realm0
 	c.crafting["guild"] = {}
+	c.crafting["guild_exam"] = {}
 	c.inventory.bag.fill(null)
 
 # ------------------------------------------------------------------ S44 pill tribulation and the Pill Soul's flight

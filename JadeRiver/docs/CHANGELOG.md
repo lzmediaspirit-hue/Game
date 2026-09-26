@@ -5,6 +5,45 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V9e1 · The Forge and Formation guilds, and the Alchemist Master (S44, S49)
+- **Three profession guilds** share one Guild tab in Crafts, with a button for each guild you have opened.
+  - Each has three ranks, and each rank is an exam against the candle.
+  - Passing gives a badge title (a small crafting bonus), opens more of the guild shop, and raises what the
+    commission board pays.
+  - Only one candle burns at a time, and the auto-refine queue never counts toward an exam.
+- **Alchemist Guild** (Guildmaster Tang): Adept and Expert as before. New **Master** exam: three Superior Storm
+  Blood Pills in eight minutes.
+  - The reward is the Sage Condensing Pill recipe; the shop adds Soulbell Flower and Frost Lotus.
+  - Its badges are now named Alchemist Adept and Alchemist Expert (same ids).
+- **Forge Guild** (v1.0; Smith Bao, Artisan Row) opens at Qi Unfurling 3 once you forge. Its exams ask for weapons
+  of any family at a grade or better:
+  - two Earth-grade at Fine in five minutes (Adept);
+  - two Heaven-grade at Superior in seven (Expert; ten Refining Essence);
+  - two Spirit-grade at Superior in ten (Master; a Weapon Soul Crystal).
+
+  Its counter sells ore by rank, and its board orders forged pieces.
+- **Formation Guild** (v1.1; the new Array Master Ren, Artisan Row) opens at Heart Tempering 5 once you carry array
+  plates. Plates are etched, not rolled, so its exams ask only for speed:
+  - four Array Plates in three minutes (Adept);
+  - three Killing Array Plates in four (Expert);
+  - five Binding Array Plates in five (Master).
+
+  Its counter sells plates and stones.
+- **Master exams** are sat at Cloudgate Port and need the Sage realm. Smith Hong and Apothecary Wu open the Guild tab
+  there; elsewhere the Start button says where to go.
+- **Commission boards:** each guild keeps its own, with three orders a day from what you can make, each board
+  capped at a fifth of the day's income target. Old saves keep the Alchemist Guild's board.
+- The Guild Board on the Artisan Row covers all three guilds. A guild master opens the tab on their own guild.
+- The Max Test character holds every guild at Master.
+- Tests:
+  - `rules_tests`:
+    - the Master exam's realm and hall;
+    - auto-refines not counting;
+    - Forge exams by grade and slot;
+    - a forge commission on its own board and cap;
+    - the Formation Adept exam.
+  - `data_validation` checks every guild's hall, master, shop, gate, ranks, titles and rewards.
+
 ### Old Snapper and crowding
 - **Old Snapper** (the first elite, *Crab Trouble*) was tuned for a perfect player. A Mortal with bare fists has
   83 HP and no defence. Against them it had 235 HP and a 20-point claw, and two Reedtail Rats spawned beside

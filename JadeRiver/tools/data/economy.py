@@ -97,7 +97,25 @@ def shops():
                    s("recipe_scroll", learn="jadeiron_furnace", price=900, requires=all_of(flag("guild_alchemy_adept"))),
                    s("mist_lotus", price=35, requires=all_of(flag("guild_alchemy_adept"))),
                    s("jade_scale", price=30, requires=all_of(flag("guild_alchemy_adept"))),
-                   s("recipe_scroll", learn="storm_blood_pill", price=2400, requires=all_of(flag("guild_alchemy_expert"), realm("heaven_glimpse_1")))]},
+                   s("recipe_scroll", learn="storm_blood_pill", price=2400, requires=all_of(flag("guild_alchemy_expert"), realm("heaven_glimpse_1"))),
+                   s("soulbell_flower", price=180, requires=all_of(flag("guild_alchemy_master"))),
+                   s("frost_lotus", price=320, requires=all_of(flag("guild_alchemy_master")))]},
+        # S49: the Forge Guild's counter at Smith Bao's: ores for members, finer ores as the badge rises.
+        {"id": "forge_guild", "name": "Forge Guild", "currency": "silver_tael",
+         "stock": [s("jadeiron", price=40, requires=all_of(flag("guild_smithing_adept"))),
+                   s("riverstone", price=12, requires=all_of(flag("guild_smithing_adept"))),
+                   s("refining_essence", price=60, requires=all_of(flag("guild_smithing_adept"))),
+                   s("cloudsteel_ore", price=120, requires=all_of(flag("guild_smithing_expert"))),
+                   s("mystic_ore", price=260, requires=all_of(flag("guild_smithing_expert"), realm("heaven_glimpse_1"))),
+                   s("stormsteel_ore", price=480, requires=all_of(flag("guild_smithing_master"))),
+                   s("weapon_soul_crystal", price=9000, requires=all_of(flag("guild_smithing_master")))]},
+        # S49: the Formation Guild's counter at Array Master Ren's: plates and stones for members.
+        {"id": "formation_guild", "name": "Formation Guild", "currency": "silver_tael",
+         "stock": [s("blank_plate", price=45, requires=all_of(flag("guild_formations_adept"))),
+                   s("formation_stone", price=60, requires=all_of(flag("guild_formations_adept"))),
+                   s("ore_dust", price=8, requires=all_of(flag("guild_formations_adept"))),
+                   s("killing_array_plate", price=260, requires=all_of(flag("guild_formations_expert"))),
+                   s("binding_array_plate", price=260, requires=all_of(flag("guild_formations_expert")))]},
         {"id": "stoneford_smith", "name": "Stoneford Smith", "currency": "silver_tael", "buys_all": True,
          "stock": [s("training_jian"), s("training_spear"), s("training_gauntlets"), s("training_short_blade"), s("training_staff"), s("training_bow"),
                    s("iron_jian", requires=all_of(realm("qi_kindling_1"))), s("iron_spear", requires=all_of(realm("qi_kindling_1"))),
@@ -903,9 +921,16 @@ def achievements():
         {"id": "benefactor_of_stoneford", "name": "Benefactor of Stoneford", "modifiers": [{"stat": "coin_find", "op": "pct_add", "value": 0.04}]},
         # S49: sworn siblings share a title.
         {"id": "sworn_sibling", "name": "Sworn Sibling", "modifiers": [{"stat": "max_hp", "op": "pct_add", "value": 0.02}]},
-        # S44 Alchemist Guild badges.
-        {"id": "guild_adept", "name": "Guild Adept", "modifiers": [{"stat": "crafting_control", "op": "flat", "value": 0.02}]},
-        {"id": "guild_expert", "name": "Guild Expert", "modifiers": [{"stat": "crafting_control", "op": "flat", "value": 0.04}]},
+        # S44/S49 guild badges (the Alchemist Guild's keep their first ids).
+        {"id": "guild_adept", "name": "Alchemist Adept", "modifiers": [{"stat": "crafting_control", "op": "flat", "value": 0.02}]},
+        {"id": "guild_expert", "name": "Alchemist Expert", "modifiers": [{"stat": "crafting_control", "op": "flat", "value": 0.04}]},
+        {"id": "alchemist_master", "name": "Alchemist Master", "modifiers": [{"stat": "crafting_control", "op": "flat", "value": 0.06}]},
+        {"id": "forge_adept", "name": "Forge Adept", "modifiers": [{"stat": "crafting_control", "op": "flat", "value": 0.02}]},
+        {"id": "forge_expert", "name": "Forge Expert", "modifiers": [{"stat": "crafting_control", "op": "flat", "value": 0.04}]},
+        {"id": "forge_master", "name": "Forge Master", "modifiers": [{"stat": "crafting_control", "op": "flat", "value": 0.06}]},
+        {"id": "formation_adept", "name": "Formation Adept", "modifiers": [{"stat": "crafting_perception", "op": "flat", "value": 0.02}]},
+        {"id": "formation_expert", "name": "Formation Expert", "modifiers": [{"stat": "crafting_perception", "op": "flat", "value": 0.04}]},
+        {"id": "formation_master", "name": "Formation Master", "modifiers": [{"stat": "crafting_perception", "op": "flat", "value": 0.06}]},
     ]
     entries("titles", T)
     # S34: six emotes from the start and more from achievements, played from the Menu wheel. `pose` is an
@@ -1037,18 +1062,52 @@ def strings():
 
 
 def guilds():
-    """S44 guilds.json: the Alchemist Guild's rank exams, commissions and shop (the Formation and Artifact guilds follow
-    in S49). A zone's daily income target is Level x 60 taels an hour for three hours of play (S39's worked example:
-    about 850 an hour at Level 15, 1,700 at Level 25); commissions pay at most a fifth of it a day."""
-    rows = [{"id": "alchemist", "craft": "alchemy", "name": "Alchemist Guild", "hall": "sf_artisan_row", "master": "guildmaster_tang",
-             "shop": "alchemist_guild",
-             "ranks": [{"id": "adept", "recipe": "healing_pill", "count": 5, "quality": "fine", "time_s": 180, "title": "guild_adept",
-                        "flag": "guild_alchemy_adept", "rewards": [], "pay_mult": 1.2},
-                       {"id": "expert", "recipe": "foundation_guard_pill", "count": 3, "quality": "superior", "time_s": 300,
-                        "title": "guild_expert", "flag": "guild_alchemy_expert", "rewards": [{"kind": "learn_recipe", "recipe": "qi_flow_pill"}],
-                        "pay_mult": 1.5}],
-             "commissions": {"per_day": 3, "count": [1, 3], "contribution_per_tael": 0.1, "income_per_level_hour": 60, "play_hours": 3,
-                             "cap_share": 0.2}}]
+    """S44/S49 guilds.json: the three profession associations. Each has rank exams, a badge title, an exam-gated shop and a
+    commission board.
+    - An exam asks for so many of one recipe, or so many weapons of a grade, at a quality before the candle burns out.
+    - A zone's daily income target is Level x 60 taels an hour for three hours of play (S39: about 850 an hour at Level
+      15, 1,700 at Level 25). A guild's commissions pay at most a fifth of it a day.
+    - The Master exams are sat at Cloudgate Port in the Azure Expanse (v1.1) and need a Sage's hands.
+    - Formation plates are etched, not rolled for quality, so their exams ask only for count and time."""
+    board = {"per_day": 3, "count": [1, 3], "contribution_per_tael": 0.1, "income_per_level_hour": 60, "play_hours": 3, "cap_share": 0.2}
+    sage = all_of(realm("sage_1"))
+    rows = [
+        {"id": "alchemist", "craft": "alchemy", "name": "Alchemist Guild", "hall": "sf_artisan_row", "master": "guildmaster_tang",
+         "shop": "alchemist_guild", "unlock": "alchemist_guild",
+         "ranks": [{"id": "adept", "recipe": "healing_pill", "count": 5, "quality": "fine", "time_s": 180, "title": "guild_adept",
+                    "flag": "guild_alchemy_adept", "rewards": [], "pay_mult": 1.2},
+                   {"id": "expert", "recipe": "foundation_guard_pill", "count": 3, "quality": "superior", "time_s": 300,
+                    "title": "guild_expert", "flag": "guild_alchemy_expert", "rewards": [{"kind": "learn_recipe", "recipe": "qi_flow_pill"}],
+                    "pay_mult": 1.5},
+                   {"id": "master", "recipe": "storm_blood_pill", "count": 3, "quality": "superior", "time_s": 480, "hall": "ae_port_market",
+                    "requires": sage, "title": "alchemist_master", "flag": "guild_alchemy_master",
+                    "rewards": [{"kind": "learn_recipe", "recipe": "sage_condensing_pill"}], "pay_mult": 2.0}],
+         "commissions": board},
+        # v1.0: the Forge Guild at Smith Bao's anvil. Its exams ask for weapons of a grade, any family.
+        {"id": "forge", "craft": "smithing", "name": "Forge Guild", "hall": "sf_artisan_row", "master": "smith_bao",
+         "shop": "forge_guild", "unlock": "forge_guild",
+         "ranks": [{"id": "adept", "grade": "earth", "slot": "weapon", "count": 2, "quality": "fine", "time_s": 300, "title": "forge_adept",
+                    "flag": "guild_smithing_adept", "rewards": [], "pay_mult": 1.2},
+                   {"id": "expert", "grade": "heaven", "slot": "weapon", "count": 2, "quality": "superior", "time_s": 420,
+                    "title": "forge_expert", "flag": "guild_smithing_expert", "rewards": [{"kind": "grant_item", "item": "refining_essence", "count": 10}],
+                    "pay_mult": 1.5},
+                   {"id": "master", "grade": "spirit", "slot": "weapon", "count": 2, "quality": "superior", "time_s": 600, "hall": "ae_port_market",
+                    "requires": sage, "title": "forge_master", "flag": "guild_smithing_master",
+                    "rewards": [{"kind": "grant_item", "item": "weapon_soul_crystal", "count": 1}], "pay_mult": 2.0}],
+         "commissions": board},
+        # v1.1: the Formation Guild under Array Master Ren on the Row. Plates are etched, not rolled, so any plate counts.
+        {"id": "formation", "craft": "formations", "name": "Formation Guild", "hall": "sf_artisan_row", "master": "array_master_ren",
+         "shop": "formation_guild", "unlock": "formation_guild",
+         "ranks": [{"id": "adept", "recipe": "array_plate", "count": 4, "quality": "common", "time_s": 180, "title": "formation_adept",
+                    "flag": "guild_formations_adept", "rewards": [{"kind": "grant_item", "item": "formation_stone", "count": 5}], "pay_mult": 1.2},
+                   {"id": "expert", "recipe": "killing_array_plate", "count": 3, "quality": "common", "time_s": 240,
+                    "title": "formation_expert", "flag": "guild_formations_expert", "rewards": [{"kind": "grant_item", "item": "blank_plate", "count": 5}],
+                    "pay_mult": 1.5},
+                   {"id": "master", "recipe": "binding_array_plate", "count": 5, "quality": "common", "time_s": 300, "hall": "ae_port_market",
+                    "requires": sage, "title": "formation_master", "flag": "guild_formations_master",
+                    "rewards": [{"kind": "grant_item", "item": "formation_stone", "count": 10}], "pay_mult": 2.0}],
+         "commissions": board},
+    ]
     entries("guilds", rows)
 
 

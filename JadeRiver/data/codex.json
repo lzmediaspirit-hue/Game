@@ -334,7 +334,17 @@
   {
    "id": "alchemist_guild",
    "title": "The Alchemist Guild",
-   "body": "Guildmaster Tang keeps the guild's hall in Stoneford's Artisan Row. Each rank is one exam against the candle: five Fine Healing Pills in three minutes for Adept, three Superior Foundation Guard Pills in five for Expert. A badge opens the guild shop and the commission board, three orders a morning, paid in taels or contribution up to a fifth of what a day's work would earn you."
+   "body": "Guildmaster Tang keeps the guild's hall in Stoneford's Artisan Row. Each rank is one exam against the candle: five Fine Healing Pills in three minutes for Adept, three Superior Foundation Guard Pills in five for Expert. The Master exam, three Superior Storm Blood Pills in eight minutes, is sat at Cloudgate Port once you reach the Sage realm. A badge opens the guild shop and the commission board, three orders a morning, paid in taels or contribution up to a fifth of what a day's work would earn you."
+  },
+  {
+   "id": "forge_guild",
+   "title": "The Forge Guild",
+   "body": "Smith Bao keeps the Forge Guild's anvil on the Artisan Row. Its exams ask for weapons of any family against the candle: two Earth-grade weapons at Fine or better for Adept, two Heaven-grade at Superior for Expert, and two Spirit-grade at Superior for Master, sat at Cloudgate Port. Members buy ore at the guild counter and take the morning's forging orders."
+  },
+  {
+   "id": "formation_guild",
+   "title": "The Formation Guild",
+   "body": "Array Master Ren keeps the Formation Guild on the Artisan Row. Plates are etched, not rolled, so its exams ask only for speed: four Array Plates in three minutes for Adept, three Killing Array Plates in four for Expert, five Binding Array Plates in five for Master, sat at Cloudgate Port. Members buy plates and stones at the guild counter and etch the morning's orders."
   },
   {
    "id": "rare_herbs",

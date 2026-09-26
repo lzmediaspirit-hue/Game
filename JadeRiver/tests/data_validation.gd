@@ -376,6 +376,21 @@ func data_suite() -> void:
 	for m in ContentDB.entry("bonds", "master").get("legacy", {}):
 		check(ContentDB.has_entry("inner_arts", str(ContentDB.entry("bonds", "master").legacy[m])), "legacy art of %s" % m)
 	check(ContentDB.has_entry("titles", str(ContentDB.entry("bonds", "sworn").get("title", ""))), "the sworn title")
+	# S44/S49 guilds: every rank names a real recipe (or a grade), a title and a flag; halls, masters, shops and gates exist.
+	for g in ContentDB.all("guilds"):
+		var gid := "guild " + str(g.id)
+		check(ContentDB.room(str(g.get("hall", ""))).size() > 0 and ContentDB.has_entry("npcs", str(g.get("master", ""))), gid + " has a hall and a master")
+		check(ContentDB.has_entry("shops", str(g.get("shop", ""))) and ContentDB.has_entry("unlocks", str(g.get("unlock", ""))), gid + " has a shop and a gate")
+		for rk in g.get("ranks", []):
+			var rid := gid + " rank " + str(rk.id)
+			if rk.has("recipe"):
+				check(str(ContentDB.entry("recipes", str(rk.recipe)).get("craft", "")) == str(g.craft), rid + ": its recipe is of the guild's craft")
+			else:
+				check(StatRules.grade_index(str(rk.get("grade", ""))) >= 0 and str(rk.get("grade", "")) != "", rid + ": a recipe or a grade")
+			check(ContentDB.has_entry("titles", str(rk.get("title", ""))) and str(rk.get("flag", "")) != "", rid + ": a title and a flag")
+			if rk.has("hall"): check(ContentDB.room(str(rk.hall)).size() > 0, rid + ": its hall exists")
+			if rk.has("requires"): check_req(rk.requires, rid)
+			check_effects(rk.get("rewards", []), rid)
 	# S49 calendar: every event names real rooms and realms; every rift room has its tear.
 	for ev in ContentDB.all("calendar"):
 		check(str(ev.get("name", "")) != "" and str(ev.get("desc", "")) != "", "calendar %s has a name and a line" % ev.id)

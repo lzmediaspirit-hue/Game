@@ -159,7 +159,10 @@ Progress is recorded in `docs/CHANGELOG.md`.
   construct in a pet slot, repaired at the tinkerer). V9d2 is done: Artifact Spirit depth (affinity from use and
   gifts, barks, an awakening quest per relic, a skill, the control demand, devour) and imitation relics. V9d3 is done:
   weapon awakening (+10, Heaven grade or better, a crystal and Dao tier 4: a glow and a skill) and nine legendary
-  chains (shards, restore, awaken; the later reforgings are data for v1.4-1.5). V9d is complete; V9e is next.
+  chains (shards, restore, awaken; the later reforgings are data for v1.4-1.5). V9d is complete.
+- V9e1 is done: the Forge Guild (v1.0) and the Formation Guild (v1.1) beside the Alchemist Guild, each with Adept,
+  Expert and Master exams, badges, a gated shop and its own commission board; the Alchemist Master rank; Master exams
+  at Cloudgate Port. V9e2 (the five-screen furnace) is next.
 - Next (V9): everything v2 makes due by v1.1 that is still open. A sweep of every audit row against the build
   after V8g3 found these, in six phases:
   - **V9a**, hooks and small gaps:

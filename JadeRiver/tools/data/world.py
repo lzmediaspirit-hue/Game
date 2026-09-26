@@ -713,12 +713,14 @@ def stoneford():
     r.npc("madam_hua", [1120, 760], oid="npc_madam_hua", visible_if=all_of(flag("gu_fled")), facing=1)
     r.npc("mei_qing", [1960, 760], facing=-1)
     r.npc("apprentice_tao", [1500, 900], facing=-1)
+    r.npc("array_master_ren", [1380, 800], facing=1, visible_if=all_of(realm("heart_tempering_5")))   # S49 the Formation Guild
     # S44: the Alchemist Guild's corner of the Row: Guildmaster Tang, his stall and the commission board.
     r.decor("market_stall", [2440, 700])
     r.decor("hanging_lantern", [2330, 600], layer="back")
     r.npc("guildmaster_tang", [2440, 800], facing=-1, visible_if=all_of(realm("qi_kindling_8")))
-    r.obj("guild_board", "inspect", [2520, 760], prop="notice_board", text="The Alchemist Guild's board: exams, commissions, and a list of badges.",
-          open_page="guild", requires=all_of(unlock("alchemist_guild")), locked_text="The Alchemist Guild's board. Its exams open at Qi Kindling 8.",
+    r.obj("guild_board", "inspect", [2520, 760], prop="notice_board", text="The guilds' board: exams, commissions, and a list of badges.",
+          open_page="guild", requires=any_of(unlock("alchemist_guild"), unlock("forge_guild"), unlock("formation_guild")),
+          locked_text="The guilds' board. The Alchemist Guild's exams open at Qi Kindling 8.",
           label="Guild Board")
     r.edge("east", "east", "sf_market", "west", y=850)
     r.edge("west", "west", "sf_fairground", "east", y=850)
