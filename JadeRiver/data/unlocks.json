@@ -1180,6 +1180,83 @@
    "same_stage_ok": true
   },
   {
+   "id": "calcination",
+   "label": "Calcination furnace",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_6"
+     },
+     {
+      "kind": "unlock",
+      "system": "formation_guild"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "keeping_post"
+     }
+    ]
+   },
+   "reveals": [
+    "page:works"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "fire_and_salt",
+   "same_stage_ok": true
+  },
+  {
+   "id": "formation_flags",
+   "label": "Formation flags",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_8"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "fire_and_salt"
+     }
+    ]
+   },
+   "reveals": [
+    "page:works"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "flags_over_the_posts",
+   "same_stage_ok": true
+  },
+  {
+   "id": "mirror_of_echoes",
+   "label": "Mirror of Echoes",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_6"
+     },
+     {
+      "kind": "unlock",
+      "system": "your_sect"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "an_idle_art"
+     }
+    ]
+   },
+   "reveals": [
+    "page:works"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "echoes_in_bronze",
+   "same_stage_ok": true
+  },
+  {
    "id": "bottleneck_panel",
    "label": "Bottlenecks",
    "trigger": {

@@ -146,6 +146,22 @@
     "zone": "azure_expanse",
     "requires_realm": "sage_1"
    }
+  },
+  {
+   "id": "mirror_of_echoes",
+   "name": "Mirror of Echoes",
+   "base_cost": 1400,
+   "material": "jadeiron",
+   "material_count": 25,
+   "sect_level": 4,
+   "max_level": 10,
+   "output": {
+    "slot_levels": [
+     1,
+     5
+    ],
+    "per_level": 0.05
+   }
   }
  ]
 }

@@ -575,6 +575,12 @@ def unlocks():
       same_stage_ok=True)
     u("magistrates_favours", "Magistrate's favours", all_of(realm("heart_tempering_2"), qdone("the_ancestors_regard")), "the_county_tribute",
       ["page:works"], same_stage_ok=True)
+    u("calcination", "Calcination furnace", all_of(realm("heart_tempering_6"), unlocked("formation_guild"), qdone("keeping_post")), "fire_and_salt",
+      ["page:works"], same_stage_ok=True)
+    u("formation_flags", "Formation flags", all_of(realm("heart_tempering_8"), qdone("fire_and_salt")), "flags_over_the_posts", ["page:works"],
+      same_stage_ok=True)
+    u("mirror_of_echoes", "Mirror of Echoes", all_of(realm("heart_tempering_6"), unlocked("your_sect"), qdone("an_idle_art")), "echoes_in_bronze",
+      ["page:works"], same_stage_ok=True)
     u("bottleneck_panel", "Bottlenecks", all_of(realm("bone_forging_9")), "the_wall", ["page:breakthrough"])
     u("stored_qi", "Stored Qi", all_of(realm("bone_forging_9")), "the_wall", [], same_stage_ok=True, toast=False)
 
@@ -1002,6 +1008,24 @@ def guided_quests():
         offer=["Your people work half the county's veins and pools. The county notices. Pay tribute to the granary and the county will return the courtesy.",
                "The watch, the guilds, my own seal on your ledgers: each favour is granted once, and each is for good."],
         complete=["Granted. Show that token at any post in the county and doors will open."])
+    quest("fire_and_salt", "Fire and Salt", "side", "array_master_ren", [
+        o("use_system", "Light a salt line in the Calcination Furnace (the Works page's Furnace)", system="calcine"),
+    ], [taels(300), item("copper_ore", 30)], offered_by_unlock=True, chapter="ht6", target_room="sf_artisan_row",
+        offer=["Your Storehouse is heavy with ore and moss. The guild's furnace will burn it down to Essence Salt, if you feed it.",
+               "Each line eats more as it ranks up, and gives more fire. Refine the fire and you have salt: deep seals, flags and the finest tools all want it."],
+        complete=["Smell that? Cinnabar. Keep the line fed and it will keep giving."])
+    quest("flags_over_the_posts", "Flags over the Posts", "side", "jade_formation_elder", [
+        o("use_system", "Plant a Formation Flag in a room where your people keep post", system="flag"),
+    ], [taels(400)], offered_by_unlock=True, chapter="ht7", target_room="ja_east_terrace",
+        offer=["A flag planted over a vein is a small array: every disciple working under it works harder, or truer.",
+               "A plain flag for diligence, a deep flag for finesse. Two at most; salts raise them."],
+        complete=["It flies. Your people will feel it before they see it."])
+    quest("echoes_in_bronze", "Echoes in Bronze", "side", "elder_hu", [
+        o("use_system", "Inscribe a post's echo into the Mirror of Echoes", system="mirror"),
+    ], [taels(300)], offered_by_unlock=True, chapter="ht6", target_room="ja_elder_hu_peak",
+        offer=["Build a Mirror of Echoes in your sect's hall. A disciple who knows the art of Echo Sampling can leave a share of their post in it.",
+               "Then the mirror keeps working that vein in echo, whatever the disciple does next."],
+        complete=["The bronze remembers. Your Storehouse will fill a little faster from now on."])
     quest("earning_your_keep", "Earning Your Keep", "guided", "jade_deacon", [
         o("use_system", "Finish daily missions", 2, system="daily_mission_done"),
     ], [fx("add_contribution", amount=40)], offered_by_unlock=True, chapter="bf6", giver_any=DEACONS, hand_in_any=DEACONS,

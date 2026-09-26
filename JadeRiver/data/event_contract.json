@@ -2018,6 +2018,46 @@
     "post_rules"
    ],
    "polled": "The Works page's Favours tab reads the favours held."
+  },
+  "salt_line_set": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ],
+   "polled": "The Works page's Furnace tab reads the lines."
+  },
+  "salt_refined": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ],
+   "polled": "The Works page's Furnace tab reads the lines and the Storehouse."
+  },
+  "flag_changed": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ],
+   "polled": "The Works page's Flags tab reads the flags; Diligence and Finesse are computed on demand."
+  },
+  "mirror_inscribed": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ],
+   "polled": "The Works page's Mirror tab reads the mirror's slots."
+  },
+  "post_option_set": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ],
+   "polled": "The Roll-Call and the Works page read the options."
   }
  }
 }

@@ -5506,6 +5506,66 @@
    "desc": "Amber glue boiled from spirit resin. It holds what nails cannot."
   },
   {
+   "id": "cinnabar_salt",
+   "name": "Cinnabar Salt",
+   "type": "material",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 999,
+   "icon": "cinnabar_salt",
+   "desc": "A red Essence Salt calcined from copper and moss. Seals, flags and fine tools want it."
+  },
+  {
+   "id": "verdigris_salt",
+   "name": "Verdigris Salt",
+   "type": "material",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 999,
+   "icon": "verdigris_salt",
+   "desc": "A green Essence Salt, bitter as old bronze."
+  },
+  {
+   "id": "azurite_salt",
+   "name": "Azurite Salt",
+   "type": "material",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 999,
+   "icon": "azurite_salt",
+   "desc": "A deep blue Essence Salt that hums faintly in the hand."
+  },
+  {
+   "id": "pearl_salt",
+   "name": "Pearl Salt",
+   "type": "material",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 999,
+   "icon": "pearl_salt",
+   "desc": "A pale, lustrous Essence Salt, calcined from spirit stone and river carp."
+  },
+  {
+   "id": "amethyst_salt",
+   "name": "Amethyst Salt",
+   "type": "material",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 999,
+   "icon": "amethyst_salt",
+   "desc": "A violet Essence Salt that holds a little of the high clouds' chill."
+  },
+  {
+   "id": "star_salt",
+   "name": "Star Salt",
+   "type": "material",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 999,
+   "icon": "star_salt",
+   "desc": "A glittering Essence Salt. A pinch of it seals a formation for a generation."
+  },
+  {
    "id": "practice_bell",
    "name": "Practice Bell",
    "type": "treasure_art",

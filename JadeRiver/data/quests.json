@@ -1602,6 +1602,110 @@
    "target_room": "sf_county_hall"
   },
   {
+   "id": "fire_and_salt",
+   "name": "Fire and Salt",
+   "kind": "side",
+   "giver": "array_master_ren",
+   "hand_in": "array_master_ren",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Light a salt line in the Calcination Furnace (the Works page's Furnace)",
+     "count": 1,
+     "system": "calcine"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 300
+    },
+    {
+     "kind": "grant_item",
+     "item": "copper_ore",
+     "count": 30
+    }
+   ],
+   "offer_text": [
+    "Your Storehouse is heavy with ore and moss. The guild's furnace will burn it down to Essence Salt, if you feed it.",
+    "Each line eats more as it ranks up, and gives more fire. Refine the fire and you have salt: deep seals, flags and the finest tools all want it."
+   ],
+   "complete_text": [
+    "Smell that? Cinnabar. Keep the line fed and it will keep giving."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "ht6",
+   "target_room": "sf_artisan_row"
+  },
+  {
+   "id": "flags_over_the_posts",
+   "name": "Flags over the Posts",
+   "kind": "side",
+   "giver": "jade_formation_elder",
+   "hand_in": "jade_formation_elder",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Plant a Formation Flag in a room where your people keep post",
+     "count": 1,
+     "system": "flag"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 400
+    }
+   ],
+   "offer_text": [
+    "A flag planted over a vein is a small array: every disciple working under it works harder, or truer.",
+    "A plain flag for diligence, a deep flag for finesse. Two at most; salts raise them."
+   ],
+   "complete_text": [
+    "It flies. Your people will feel it before they see it."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "ht7",
+   "target_room": "ja_east_terrace"
+  },
+  {
+   "id": "echoes_in_bronze",
+   "name": "Echoes in Bronze",
+   "kind": "side",
+   "giver": "elder_hu",
+   "hand_in": "elder_hu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Inscribe a post's echo into the Mirror of Echoes",
+     "count": 1,
+     "system": "mirror"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 300
+    }
+   ],
+   "offer_text": [
+    "Build a Mirror of Echoes in your sect's hall. A disciple who knows the art of Echo Sampling can leave a share of their post in it.",
+    "Then the mirror keeps working that vein in echo, whatever the disciple does next."
+   ],
+   "complete_text": [
+    "The bronze remembers. Your Storehouse will fill a little faster from now on."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "ht6",
+   "target_room": "ja_elder_hu_peak"
+  },
+  {
    "id": "earning_your_keep",
    "name": "Earning Your Keep",
    "kind": "guided",

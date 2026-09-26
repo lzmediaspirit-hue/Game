@@ -1037,12 +1037,15 @@ def sect_tables():
          ("beast_pavilion", "Beast Pavilion", 700, "tough_meat", 15, 4), ("library", "Library", 1000, "talisman_paper", 10, 5),
          ("formation_array", "Formation Array", 1200, "formation_stone", 10, 6), ("ancestral_shrine", "Ancestral Shrine", 1500, "jade_core", 1, 7),
          # S18/S25 zone outpost (v1.1): a waystation in the Azure Expanse that lends every member its Storm Ward.
-         ("expanse_outpost", "Expanse Outpost", 2500, "stormsteel_ore", 6, 8)]
+         ("expanse_outpost", "Expanse Outpost", 2500, "stormsteel_ore", 6, 8),
+         # S50 V10d: the Mirror of Echoes keeps echoing a post's haul into the Storehouse.
+         ("mirror_of_echoes", "Mirror of Echoes", 1400, "jadeiron", 25, 4)]
     # What each level gives. A building damaged in a lost raid gives defence.damaged_output of it until repaired.
     OUTPUT = {"treasury": {"taels_per_level": 20},
               "meditation_pavilion": {"idle_rate_per_level": 0.1, "idle_cap_hours": [[2, 4], [4, 8], [5, 12]]},
               "guest_house": {"disciples_base": 2, "disciples_per_level": 1},
-              "expanse_outpost": {"attunement_per_level": 1.0, "zone": "azure_expanse", "requires_realm": "sage_1"}}
+              "expanse_outpost": {"attunement_per_level": 1.0, "zone": "azure_expanse", "requires_realm": "sage_1"},
+              "mirror_of_echoes": {"slot_levels": [1, 5], "per_level": 0.05}}
     MAX = {"expanse_outpost": 5}
     entries("sect_buildings", [dict({"id": b, "name": n, "base_cost": c, "material": m, "material_count": k, "sect_level": lv, "max_level": MAX.get(b, 10)},
                                     **({"output": OUTPUT[b]} if b in OUTPUT else {}))

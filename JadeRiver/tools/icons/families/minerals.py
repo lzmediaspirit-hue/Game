@@ -624,3 +624,106 @@ register(FAM, 'star_shard', star_shard, GROUP)
 register(FAM, 'driftglass', driftglass, GROUP)
 register(FAM, 'sage_crystal', sage_crystal, GROUP)
 register(FAM, 'star_jade', star_jade, GROUP)
+
+
+# ============================================================================ V10d · essence salts
+# Essence Salts from the Calcination Furnace: a stepped heap of crystalline salt in a shallow footed dish. The six
+# share the dish and the heap so they read as one family (and apart from ores, gems and pill jars); each tier
+# changes the salt's colour and makes the dish richer: grey earthenware, earthenware with a bronze rim, bronze,
+# black lacquer with a silver rim, black lacquer with a gold rim, gold. The crystal salts (azurite, pearl,
+# amethyst) push faceted points up out of the heap; from the fourth tier the salt glows faintly.
+ES_VERMILION = Ramp(['#4E1210', '#8E2416', '#D2402A', '#F2744A', '#FFB48A'], '#220806')
+ES_VERDIGRIS = Ramp(['#123429', '#1F5A45', '#398A68', '#6CBC8E', '#BCE8C8'], '#07170F')
+ES_AZURITE = Ramp(['#0E1A48', '#1A307E', '#2A50B6', '#5886E0', '#B4D0FF'], '#060A22')
+ES_PEARL = Ramp(['#7A6478', '#B49AB2', '#E6D6E2', '#F8EEF3', '#FFFFFF'], '#2C2230')
+ES_AMETHYST = Ramp(['#2A1450', '#4C2690', '#7C48C8', '#B084EE', '#EAD8FF'], '#120828')
+ES_STARSALT = Ramp(['#07081A', '#10133A', '#1C225E', '#303C8C', '#5A6CBC'], '#030410')
+ES_LACQUER = Ramp(['#07080B', '#121419', '#22262F', '#3C4250', '#7D879C'], '#020203')
+
+ES_TIERS = {
+    'cinnabar': dict(salt=ES_VERMILION, dish=R['warmstone'], rim=None, crystals=0, glow=None),
+    'verdigris': dict(salt=ES_VERDIGRIS, dish=R['warmstone'], rim=R['bronze'], crystals=0, glow=None),
+    'azurite': dict(salt=ES_AZURITE, dish=R['bronze'], rim=None, crystals=2, glow=None),
+    'pearl': dict(salt=ES_PEARL, dish=ES_LACQUER, rim=R['silver'], crystals=2, glow=('#F8D2E0', (55,))),
+    'amethyst': dict(salt=ES_AMETHYST, dish=ES_LACQUER, rim=R['gold'], crystals=3, glow=('#B18DE2', (80,))),
+    'star': dict(salt=ES_STARSALT, dish=R['gold'], rim=None, crystals=0, glow=('#F3E3A6', (100, 40))),
+}
+
+
+def _es_dish(c, T):
+    """The shallow footed dish: foot, outer wall, rim and the dark well the salt sits in."""
+    dish, rim = T['dish'], T['rim'] or T['dish']
+    foot = c.ellipse(16, 27.6, 6.5, 1.8)
+    c.put(foot, dish, 'ray', base=1)
+    wall = c.ellipse(16, 22.5, 13, 5.2) & (c.Y > 22)
+    c.put(wall, dish, 'ray', base=2, sep=True)
+    lip = c.ellipse(16, 22, 13, 3.4)
+    c.put(lip, rim, 'ray', base=3, sep=True)
+    well = c.ellipse(16, 22, 11, 2.3)
+    c.put(well, dish, 'flat', base=1 if dish is not ES_LACQUER else 0)
+    c.put(well & (c.Y > 22.5), dish, 'flat', base=0)
+    return well
+
+
+ES_OY = 2   # grain rows start here (rows of 3 px, every other row offset by one pixel)
+
+
+def _es_cells(c):
+    row = (c.yi - ES_OY) // 3
+    ly = (c.yi - ES_OY) % 3
+    lx = (c.xi + (row % 2)) % 3
+    return row, lx, ly
+
+
+def _es_heap_mask(c, well, top=7.0):
+    """A cone of salt with a rounded crown, its edge nicked and bumped by single grains."""
+    half = 0.8 + (c.Y - top) * 0.7
+    cone = (np.abs(c.X - 16) <= half) & (c.Y >= top) & (np.abs(c.X - 16) <= 11.2)
+    cone &= c.ellipse(16, top + 5.5, 6.5, 5.5) | (c.Y > top + 4)
+    edge = cone & ~erode4(cone) & (c.Y < 21)
+    cone &= ~(edge & ((c.xi * 7 + c.yi * 3) % 5 == 0))
+    bump = dilate4(cone) & ~cone & (c.Y < 20.5) & (c.Y > top + 2) & ((c.xi * 5 + c.yi * 11) % 6 == 0)
+    return (cone | bump) & (well | (c.Y < 22.5))
+
+
+def _es_grains(c, heap, salt):
+    """Shade the heap round, then break it into grains: each grain a step lighter or darker than its neighbours,
+    a bright facet at its top-left corner and a dark one at its lower right."""
+    idx = c.shade_index(heap, 5, 'sphere', 2, cx=14, cy=15, rx=12, ry=12)
+    row, lx, ly = _es_cells(c)
+    col = (c.xi + (row % 2)) // 3
+    jitter = np.array([0, 1, 0, -1, 0, -1, 1])[(col * 3 + row * 5 + (col * row) % 4) % 7]
+    idx = idx + jitter
+    idx = np.where((ly == 0) & (lx == 0), idx + 1, idx)
+    idx = np.where((ly == 2) & (lx == 2), idx - 1, idx)
+    idx = np.clip(idx, 0, 4)
+    for lvl in range(5):
+        c.put(heap & (idx == lvl), salt, 'flat', base=lvl)
+
+
+def _es_salt(tier):
+    T = ES_TIERS[tier]
+    salt = T['salt']
+    c = Canvas(32)
+    well = _es_dish(c, T)
+    heap = _es_heap_mask(c, well)
+    _es_grains(c, heap, salt)
+    lit = heap.copy()
+    spec = [(15.5, 12, 94, 10, 2.4), (21, 15, 60, 7, 2.0), (10, 16, 124, 7, 1.9)][:T['crystals']]
+    for (bx, by, ang, L, w) in spec:
+        lit |= crystal(c, bx, by, ang, L, w, salt)
+    c.pxs([(13, 15), (18, 14), (10, 19), (21, 18)], salt[4], out=salt.out)
+    if tier == 'star':
+        c.pxs([(12, 16), (17, 13), (20, 18), (9, 20), (15, 19), (23, 21)], R['gold'][3], out=salt.out)
+        c.pxs([(16, 12), (18, 20)], '#FFF8E2', out=salt.out)
+    c.outline()
+    if T['glow']:
+        from families.beast_parts import halo
+        halo(c, lit, T['glow'][0], T['glow'][1])
+    if tier == 'star':
+        S.sparkle(c, 25, 7, '#FFFFFF', R['gold'][3], 2)
+    return c
+
+
+for _es_tier in ES_TIERS:
+    register(FAM, _es_tier + '_salt', (lambda tt: lambda: _es_salt(tt))(_es_tier), GROUP)

@@ -3568,6 +3568,10 @@
     {
      "item": "whetstone",
      "count": 2
+    },
+    {
+     "item": "cinnabar_salt",
+     "count": 6
     }
    ],
    "outputs": [
@@ -3598,6 +3602,10 @@
     {
      "item": "whetstone",
      "count": 2
+    },
+    {
+     "item": "cinnabar_salt",
+     "count": 6
     }
    ],
    "outputs": [
@@ -3628,6 +3636,10 @@
     {
      "item": "whetstone",
      "count": 2
+    },
+    {
+     "item": "cinnabar_salt",
+     "count": 6
     }
    ],
    "outputs": [
@@ -3658,6 +3670,10 @@
     {
      "item": "whetstone",
      "count": 2
+    },
+    {
+     "item": "cinnabar_salt",
+     "count": 6
     }
    ],
    "outputs": [
@@ -3688,6 +3704,10 @@
     {
      "item": "whetstone",
      "count": 3
+    },
+    {
+     "item": "verdigris_salt",
+     "count": 6
     }
    ],
    "outputs": [
@@ -3718,6 +3738,10 @@
     {
      "item": "whetstone",
      "count": 3
+    },
+    {
+     "item": "verdigris_salt",
+     "count": 6
     }
    ],
    "outputs": [
@@ -3748,6 +3772,10 @@
     {
      "item": "whetstone",
      "count": 3
+    },
+    {
+     "item": "verdigris_salt",
+     "count": 6
     }
    ],
    "outputs": [
@@ -3778,6 +3806,10 @@
     {
      "item": "whetstone",
      "count": 3
+    },
+    {
+     "item": "verdigris_salt",
+     "count": 6
     }
    ],
    "outputs": [
@@ -3808,6 +3840,10 @@
     {
      "item": "spirit_glue",
      "count": 2
+    },
+    {
+     "item": "azurite_salt",
+     "count": 6
     }
    ],
    "outputs": [
@@ -3838,6 +3874,10 @@
     {
      "item": "spirit_glue",
      "count": 2
+    },
+    {
+     "item": "azurite_salt",
+     "count": 6
     }
    ],
    "outputs": [
@@ -3868,6 +3908,10 @@
     {
      "item": "spirit_glue",
      "count": 2
+    },
+    {
+     "item": "azurite_salt",
+     "count": 6
     }
    ],
    "outputs": [
@@ -3898,6 +3942,10 @@
     {
      "item": "spirit_glue",
      "count": 2
+    },
+    {
+     "item": "azurite_salt",
+     "count": 6
     }
    ],
    "outputs": [

@@ -167,6 +167,9 @@ def tool_recipes():
         # V10c: from tier 4 the smith wants the Apprentice Bench's components too.
         if tier >= 4:
             inputs.append({4: ("bronze_rivet", 3), 5: ("bronze_rivet", 4), 6: ("whetstone", 2), 7: ("whetstone", 3), 8: ("spirit_glue", 2)}[tier])
+        # V10d: from tier 6, Essence Salts from the Calcination Furnace.
+        if tier >= 6:
+            inputs.append({6: ("cinnabar_salt", 6), 7: ("verdigris_salt", 6), 8: ("azurite_salt", 6)}[tier])
         out.append((tid, "smithing", inputs, [(tid, 1)], grade))
     return out
 
@@ -354,6 +357,8 @@ POST_ARTS = [
      "text": "Windfall chance %s (each success may bring another)."},
     {"id": "flowing_hand", "name": "Flowing Hand", "max": 100, "curve": "decay", "x1": 0.1, "x2": 100, "gives": ["flow"],
      "text": "Flow +%s: Abundance grows faster past a full Chance bar."},
+    {"id": "echo_sampling", "name": "Echo Sampling", "max": 100, "curve": "add", "base": 10, "x1": 0.075, "x2": 0, "gives": ["echo_share"],
+     "text": "Inscribe %s%% of this post's haul an hour into the Mirror of Echoes."},
     {"id": "hunters_recall", "name": "Hunter's Recall", "max": 1, "curve": "add", "x1": 1, "x2": 0, "gives": ["remote_snare"],
      "text": "Take up finished snares from anywhere, at half the catch."},
 ]
@@ -361,18 +366,18 @@ ARTS = {"points_per_levels": 2, "reset_taels": 1000}
 
 # Seal Scripts: account-wide, inscribed by Old Scribe Bai's art and paid from the Storehouse. A craft seal gives flat
 # Finesse to that craft; a character uses a seal only up to its own craft level (its highest craft for the others).
-SEAL_COST = {"base": 25, "growth": 1.12, "step": 4}
+SEAL_COST = {"base": 25, "growth": 1.12, "step": 4, "salt_from": 10, "salt_base": 4, "salt_growth": 1.18, "salt_step": 4}
 SEALS = [
-    {"id": "seal_open_vein", "name": "Seal of the Open Vein", "craft": "delving", "max": 10, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
-    {"id": "seal_green_stem", "name": "Seal of the Green Stem", "craft": "foraging", "max": 10, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
-    {"id": "seal_still_line", "name": "Seal of the Still Line", "craft": "angling", "max": 10, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
-    {"id": "seal_light_net", "name": "Seal of the Light Net", "craft": "netting", "max": 10, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
-    {"id": "seal_patient_snare", "name": "Seal of the Patient Snare", "craft": "snaring", "max": 10, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
-    {"id": "seal_ancestors_name", "name": "Seal of the Ancestor's Name", "craft": "rites", "max": 10, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"],
+    {"id": "seal_open_vein", "name": "Seal of the Open Vein", "craft": "delving", "max": 30, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
+    {"id": "seal_green_stem", "name": "Seal of the Green Stem", "craft": "foraging", "max": 30, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
+    {"id": "seal_still_line", "name": "Seal of the Still Line", "craft": "angling", "max": 30, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
+    {"id": "seal_light_net", "name": "Seal of the Light Net", "craft": "netting", "max": 30, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
+    {"id": "seal_patient_snare", "name": "Seal of the Patient Snare", "craft": "snaring", "max": 30, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"]},
+    {"id": "seal_ancestors_name", "name": "Seal of the Ancestor's Name", "craft": "rites", "max": 30, "curve": "add", "x1": 3, "x2": 0, "gives": ["finesse_flat"],
      "ladder": ["spirit_wisp"]},
-    {"id": "seal_deep_pouch", "name": "Seal of the Deep Pouch", "craft": "", "max": 10, "curve": "decay", "x1": 40, "x2": 40, "gives": ["capacity_pct"],
+    {"id": "seal_deep_pouch", "name": "Seal of the Deep Pouch", "craft": "", "max": 30, "curve": "decay", "x1": 40, "x2": 40, "gives": ["capacity_pct"],
      "ladder": ["hemp_cord", "bronze_rivet", "kiln_brick", "lacquer_pot", "whetstone", "spirit_glue"]},
-    {"id": "seal_unsleeping_hand", "name": "Seal of the Unsleeping Hand", "craft": "", "max": 10, "curve": "decay", "x1": 15, "x2": 50,
+    {"id": "seal_unsleeping_hand", "name": "Seal of the Unsleeping Hand", "craft": "", "max": 30, "curve": "decay", "x1": 15, "x2": 50,
      "gives": ["craft_diligence", "martial_diligence"], "ladder": ["spirit_wisp"], "cost_mult": 2},
 ]
 
@@ -389,10 +394,48 @@ FAVOURS = [
     {"id": "favour_of_the_guilds", "name": "Favour of the Guilds", "gives": {"craft_diligence": 3}, "taels": 6000,
      "items": [{"item": "jadeiron", "count": 300}, {"item": "reed_cicada", "count": 200}],
      "text": "The guilds let your people work their grounds. Craft Diligence +3%."},
+    {"id": "favour_of_the_granary_seal", "name": "Favour of the Granary Seal", "gives": {"granary_seal": 1}, "taels": 20000,
+     "items": [{"item": "cinnabar_salt", "count": 300}, {"item": "azurite_salt", "count": 60}],
+     "text": "The county granary's seal on your pouches: any post you choose sends its haul straight to the Storehouse."},
     {"id": "favour_of_the_red_seal", "name": "Favour of the Red Seal", "gives": {"double_exp": 2.2}, "taels": 9000,
      "items": [{"item": "spirit_wisp", "count": 120}, {"item": "mist_lotus", "count": 150}],
      "text": "The magistrate's own seal on your ledgers: a 2.2% chance a settle's craft EXP counts twice."},
 ]
+
+# Calcination Furnace (the Formation Guild): salt lines burn Storehouse goods every cycle, cost floor(rank^1.5) × qty
+# of each input, and bank floor(rank^1.3) fire; Refine turns the fire into Essence Salts and ranks the line up at
+# floor(20 × rank^1.8) refined. Each line from the second burns a little of the salt before it; a line opens when
+# the one before it reaches rank 3.
+SALTS = [
+    ("cinnabar_salt", "Cinnabar Salt", "common", [("copper_ore", 3), ("willow_moss", 2)], 900,
+     "A red Essence Salt calcined from copper and moss. Seals, flags and fine tools want it."),
+    ("verdigris_salt", "Verdigris Salt", "earth", [("riverstone", 3), ("reed_perch", 2), ("cinnabar_salt", 1)], 900,
+     "A green Essence Salt, bitter as old bronze."),
+    ("azurite_salt", "Azurite Salt", "heaven", [("jadeiron", 3), ("jade_scarab", 2), ("verdigris_salt", 1)], 900,
+     "A deep blue Essence Salt that hums faintly in the hand."),
+    ("pearl_salt", "Pearl Salt", "mystic", [("spirit_stone_shard", 3), ("jade_carp_fish", 2), ("azurite_salt", 1)], 3600,
+     "A pale, lustrous Essence Salt, calcined from spirit stone and river carp."),
+    ("amethyst_salt", "Amethyst Salt", "spirit", [("cloudsteel_ore", 3), ("cloudtop_orchid", 2), ("pearl_salt", 1)], 3600,
+     "A violet Essence Salt that holds a little of the high clouds' chill."),
+    ("star_salt", "Star Salt", "sage", [("stormsteel_ore", 3), ("frost_lotus", 2), ("amethyst_salt", 1)], 3600,
+     "A glittering Essence Salt. A pinch of it seals a formation for a generation."),
+]
+SALT_IDS = [x[0] for x in SALTS]
+CALCINATION = {"cost_exp": 1.5, "fire_exp": 1.3, "rank_base": 20, "rank_exp": 1.8, "open_rank": 3, "max_days": 90}
+
+# Formation Flags: planted in a room, they serve every post in it. A plain flag gives Craft Diligence, a deep flag
+# multiplies Finesse; each raised with Essence Salts.
+FLAGS = {"max": 2, "plant_taels": 500, "max_level": 20, "salt_base": 5, "salt_growth": 1.2, "salt_step": 4,
+         "kinds": {"plain": {"gives": "craft_diligence", "base": 1.0, "per_level": 0.1},
+                   "deep": {"gives": "finesse_pct", "base": 2.0, "per_level": 0.2}}}
+
+# The Mirror of Echoes (a sect building): a slot at level 1 and a second at level 5; each level adds 5% to what the
+# mirror echoes.
+MIRROR = {"slot_levels": [1, 5], "per_level": 0.05, "max_days": 90}
+
+
+def salt_items(item):
+    return [item(sid, "material", grade, 999, desc, name=name) for sid, name, grade, _in, _cyc, desc in SALTS]
 
 
 def seal_ladder(seal):
@@ -430,4 +473,8 @@ def build():
         "seal_cost": SEAL_COST,
         "steles": STELES,
         "favours": FAVOURS,
+        "salts": [{"id": sid, "inputs": [{"item": i, "qty": q} for i, q in ins], "cycle_s": cyc} for sid, _n, _g, ins, cyc, _d in SALTS],
+        "calcination": CALCINATION,
+        "flags": FLAGS,
+        "mirror": MIRROR,
     })

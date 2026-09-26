@@ -255,7 +255,17 @@ func _draw_vows() -> void:
 func _draw_store() -> void:
 	var ids: Array = Game.account.storehouse.keys()
 	ids.sort()
-	para(Rect2(content.position, Vector2(content.size.x, 50)), Tx.t("ui.posts.store_note"), 17, UiKit.MIST, 2)
+	var ch = c()
+	para(Rect2(content.position, Vector2(content.size.x - 520, 50)), Tx.t("ui.posts.store_note"), 17, UiKit.MIST, 2)
+	# V10d: Auto-Settle for the account; the Granary Seal for this character's post.
+	if ch != null and Unlocks.is_unlocked(ch.id, "seal_scripts"):
+		var auto := bool(Game.posts.works().get("auto_settle", false))
+		btn(Rect2(content.end.x - 500, content.position.y, 240, 48), Tx.t("ui.posts.auto_settle_on") if auto else Tx.t("ui.posts.auto_settle_off"),
+			"option", ["auto_settle", not auto], auto, true, "", 15)
+	if ch != null and Game.posts.favour_sum("granary_seal") > 0.0:
+		var gran := bool(Game.posts.post_of(ch).get("granary", false))
+		btn(Rect2(content.end.x - 250, content.position.y, 250, 48), Tx.t("ui.posts.granary_on") if gran else Tx.t("ui.posts.granary_off"),
+			"option", ["granary", not gran], gran, Game.posts.has_post(ch), Tx.t("sim.posts.mirror_needs_post"), 15)
 	if ids.is_empty():
 		text(content.position + Vector2(0, 110), Tx.t("ui.posts.store_empty"), 19, UiKit.HOLLOW)
 		return
@@ -298,6 +308,7 @@ func on_action(id: String, data) -> void:
 		"vow_learn": submit({"type": "learn_post_vow", "vow": str(data)})
 		"vow_on": submit({"type": "pledge_post_vow", "vow": str(data), "on": true})
 		"vow_off": submit({"type": "pledge_post_vow", "vow": str(data), "on": false})
+		"option": submit({"type": "set_post_option", "key": str(data[0]), "on": bool(data[1])})
 		"vigil":
 			var r := submit({"type": "take_vigil"})
 			if r.get("ok", false): flash(Tx.t("ui.posts.vigil_taken"))

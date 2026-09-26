@@ -1252,6 +1252,19 @@
    "text": "Flow +%s: Abundance grows faster past a full Chance bar."
   },
   {
+   "id": "echo_sampling",
+   "name": "Echo Sampling",
+   "max": 100,
+   "curve": "add",
+   "base": 10,
+   "x1": 0.075,
+   "x2": 0,
+   "gives": [
+    "echo_share"
+   ],
+   "text": "Inscribe %s%% of this post's haul an hour into the Mirror of Echoes."
+  },
+  {
    "id": "hunters_recall",
    "name": "Hunter's Recall",
    "max": 1,
@@ -1273,7 +1286,7 @@
    "id": "seal_open_vein",
    "name": "Seal of the Open Vein",
    "craft": "delving",
-   "max": 10,
+   "max": 30,
    "curve": "add",
    "x1": 3,
    "x2": 0,
@@ -1296,7 +1309,7 @@
    "id": "seal_green_stem",
    "name": "Seal of the Green Stem",
    "craft": "foraging",
-   "max": 10,
+   "max": 30,
    "curve": "add",
    "x1": 3,
    "x2": 0,
@@ -1319,7 +1332,7 @@
    "id": "seal_still_line",
    "name": "Seal of the Still Line",
    "craft": "angling",
-   "max": 10,
+   "max": 30,
    "curve": "add",
    "x1": 3,
    "x2": 0,
@@ -1340,7 +1353,7 @@
    "id": "seal_light_net",
    "name": "Seal of the Light Net",
    "craft": "netting",
-   "max": 10,
+   "max": 30,
    "curve": "add",
    "x1": 3,
    "x2": 0,
@@ -1362,7 +1375,7 @@
    "id": "seal_patient_snare",
    "name": "Seal of the Patient Snare",
    "craft": "snaring",
-   "max": 10,
+   "max": 30,
    "curve": "add",
    "x1": 3,
    "x2": 0,
@@ -1384,7 +1397,7 @@
    "id": "seal_ancestors_name",
    "name": "Seal of the Ancestor's Name",
    "craft": "rites",
-   "max": 10,
+   "max": 30,
    "curve": "add",
    "x1": 3,
    "x2": 0,
@@ -1399,7 +1412,7 @@
    "id": "seal_deep_pouch",
    "name": "Seal of the Deep Pouch",
    "craft": "",
-   "max": 10,
+   "max": 30,
    "curve": "decay",
    "x1": 40,
    "x2": 40,
@@ -1419,7 +1432,7 @@
    "id": "seal_unsleeping_hand",
    "name": "Seal of the Unsleeping Hand",
    "craft": "",
-   "max": 10,
+   "max": 30,
    "curve": "decay",
    "x1": 15,
    "x2": 50,
@@ -1436,7 +1449,11 @@
  "seal_cost": {
   "base": 25,
   "growth": 1.12,
-  "step": 4
+  "step": 4,
+  "salt_from": 10,
+  "salt_base": 4,
+  "salt_growth": 1.18,
+  "salt_step": 4
  },
  "steles": {
   "power_per_level": 0.3,
@@ -1498,6 +1515,25 @@
    "text": "The guilds let your people work their grounds. Craft Diligence +3%."
   },
   {
+   "id": "favour_of_the_granary_seal",
+   "name": "Favour of the Granary Seal",
+   "gives": {
+    "granary_seal": 1
+   },
+   "taels": 20000,
+   "items": [
+    {
+     "item": "cinnabar_salt",
+     "count": 300
+    },
+    {
+     "item": "azurite_salt",
+     "count": 60
+    }
+   ],
+   "text": "The county granary's seal on your pouches: any post you choose sends its haul straight to the Storehouse."
+  },
+  {
    "id": "favour_of_the_red_seal",
    "name": "Favour of the Red Seal",
    "gives": {
@@ -1516,5 +1552,147 @@
    ],
    "text": "The magistrate's own seal on your ledgers: a 2.2% chance a settle's craft EXP counts twice."
   }
- ]
+ ],
+ "salts": [
+  {
+   "id": "cinnabar_salt",
+   "inputs": [
+    {
+     "item": "copper_ore",
+     "qty": 3
+    },
+    {
+     "item": "willow_moss",
+     "qty": 2
+    }
+   ],
+   "cycle_s": 900
+  },
+  {
+   "id": "verdigris_salt",
+   "inputs": [
+    {
+     "item": "riverstone",
+     "qty": 3
+    },
+    {
+     "item": "reed_perch",
+     "qty": 2
+    },
+    {
+     "item": "cinnabar_salt",
+     "qty": 1
+    }
+   ],
+   "cycle_s": 900
+  },
+  {
+   "id": "azurite_salt",
+   "inputs": [
+    {
+     "item": "jadeiron",
+     "qty": 3
+    },
+    {
+     "item": "jade_scarab",
+     "qty": 2
+    },
+    {
+     "item": "verdigris_salt",
+     "qty": 1
+    }
+   ],
+   "cycle_s": 900
+  },
+  {
+   "id": "pearl_salt",
+   "inputs": [
+    {
+     "item": "spirit_stone_shard",
+     "qty": 3
+    },
+    {
+     "item": "jade_carp_fish",
+     "qty": 2
+    },
+    {
+     "item": "azurite_salt",
+     "qty": 1
+    }
+   ],
+   "cycle_s": 3600
+  },
+  {
+   "id": "amethyst_salt",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "qty": 3
+    },
+    {
+     "item": "cloudtop_orchid",
+     "qty": 2
+    },
+    {
+     "item": "pearl_salt",
+     "qty": 1
+    }
+   ],
+   "cycle_s": 3600
+  },
+  {
+   "id": "star_salt",
+   "inputs": [
+    {
+     "item": "stormsteel_ore",
+     "qty": 3
+    },
+    {
+     "item": "frost_lotus",
+     "qty": 2
+    },
+    {
+     "item": "amethyst_salt",
+     "qty": 1
+    }
+   ],
+   "cycle_s": 3600
+  }
+ ],
+ "calcination": {
+  "cost_exp": 1.5,
+  "fire_exp": 1.3,
+  "rank_base": 20,
+  "rank_exp": 1.8,
+  "open_rank": 3,
+  "max_days": 90
+ },
+ "flags": {
+  "max": 2,
+  "plant_taels": 500,
+  "max_level": 20,
+  "salt_base": 5,
+  "salt_growth": 1.2,
+  "salt_step": 4,
+  "kinds": {
+   "plain": {
+    "gives": "craft_diligence",
+    "base": 1.0,
+    "per_level": 0.1
+   },
+   "deep": {
+    "gives": "finesse_pct",
+    "base": 2.0,
+    "per_level": 0.2
+   }
+  }
+ },
+ "mirror": {
+  "slot_levels": [
+   1,
+   5
+  ],
+  "per_level": 0.05,
+  "max_days": 90
+ }
 }

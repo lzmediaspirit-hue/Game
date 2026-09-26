@@ -100,7 +100,8 @@ DEPTH = {
     # S50 V10 Keeping Post: posts, craft levels, pouches, the Storehouse and Hour Incense.
     "Posts": ["post_taken", "post_left", "post_settled", "craft_leveled", "pouch_sewn", "storehouse_changed", "incense_burned",
               "leaf_found", "snare_set", "snare_collected", "rite_held", "post_vow_learned", "post_vow_pledged",
-              "bench_assigned", "bench_collected", "post_art_learned", "seal_inscribed", "stele_raised", "favour_granted"],
+              "bench_assigned", "bench_collected", "post_art_learned", "seal_inscribed", "stele_raised", "favour_granted",
+              "salt_line_set", "salt_refined", "flag_changed", "mirror_inscribed", "post_option_set"],
     # S48 sect role variants: the signature line's variant and the contribution tree.
     "TrainingSect": ["sect_role_chosen", "sect_node_bought"],
     # S49 territory: the spirit-stone mines your sect takes, holds, loses and collects from (account level).
@@ -169,6 +170,11 @@ POLLED = {
     "seal_inscribed": "The Works page's Seals tab reads the seals; post rates are computed on demand.",
     "stele_raised": "The Works page's Steles tab reads the steles; Finesse is computed on demand.",
     "favour_granted": "The Works page's Favours tab reads the favours held.",
+    "salt_line_set": "The Works page's Furnace tab reads the lines.",
+    "salt_refined": "The Works page's Furnace tab reads the lines and the Storehouse.",
+    "flag_changed": "The Works page's Flags tab reads the flags; Diligence and Finesse are computed on demand.",
+    "mirror_inscribed": "The Works page's Mirror tab reads the mirror's slots.",
+    "post_option_set": "The Roll-Call and the Works page read the options.",
 }
 
 

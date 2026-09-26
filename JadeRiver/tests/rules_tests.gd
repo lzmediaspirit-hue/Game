@@ -5407,6 +5407,7 @@ func works_suite() -> void:
 	check(int(PostRules.stele_cost(0).taels) == 150 and int(t5.taels) == int(floor(150.0 * pow(1.22, 5))) and str(t5.item) == "riverstone" and int(t5.count) == 17,
 		"a stele costs floor(150 x 1.22^L) taels and ceil(10 x 1.1^L) ore")
 	check(near(PostRules.finesse(6.0, 10.0, 1, 0.0, [], 1.5), PostRules.finesse(7.5, 10.0, 1)), "stele power adds to the tool's power")
+	var back := str(c.position.get("room", "lf_village"))
 	var posts0: Dictionary = c.posts.duplicate(true)
 	var works0: Dictionary = Game.account.works.duplicate(true)
 	var store0: Dictionary = Game.account.storehouse.duplicate()
@@ -5454,6 +5455,66 @@ func works_suite() -> void:
 	check(int(snap.get("works", {}).get("seals", {}).get("seal_open_vein", 0)) == Game.posts.seal_level("seal_open_vein") and snap.works.favours.has("favour_of_the_guilds"),
 		"the works are saved with the account")
 	check(Game.submit({"type": "reset_post_arts"}).get("ok", false) and Game.posts.arts(c).is_empty(), "forget every art for taels")
+	# V10d2 · the Calcination Furnace.
+	check(PostRules.calcination_cost(1, 3) == 3 and PostRules.calcination_cost(4, 3) == 24 and PostRules.calcination_fire(4) == 6
+		and PostRules.calcination_rank_need(1) == 20 and PostRules.calcination_rank_need(2) == int(floor(20.0 * pow(2.0, 1.8))),
+		"a line burns floor(rank^1.5) x qty, banks floor(rank^1.3) fire, ranks up at floor(20 x rank^1.8) refined")
+	var sc10 := PostRules.seal_cost(10, ladder)
+	var sc14 := PostRules.seal_cost(14, ladder)
+	check(str(sc10.get("salt", "")) == "cinnabar_salt" and int(sc10.salt_count) == 4 and str(sc14.get("salt", "")) == "verdigris_salt"
+		and int(sc14.salt_count) == int(ceil(4.0 * pow(1.18, 4))) and not PostRules.seal_cost(9, ladder).has("salt"), "seals past level 10 want Essence Salts too")
+	for u in ["calcination", "formation_flags", "mirror_of_echoes"]: Unlocks.force_unlock(c.id, u)
+	Game.account.works = {}
+	Game.account.storehouse["copper_ore"] = 300
+	Game.account.storehouse["willow_moss"] = 200
+	check(Game.submit({"type": "calcine_line", "line": "cinnabar_salt", "on": true}).get("ok", false) and not Game.posts.line_open("verdigris_salt"),
+		"light the Cinnabar line; the Verdigris line waits for rank 3")
+	Game.posts.salt_line("cinnabar_salt")["since"] = Clock.now_utc() - 3600.0 - 60.0
+	Game.posts.calcination_settle()
+	check(int(Game.posts.salt_line("cinnabar_salt").fire) == 4 and int(Game.account.storehouse.get("copper_ore", 0)) == 288
+		and int(Game.account.storehouse.get("willow_moss", 0)) == 192, "an hour: four cycles, 12 copper and 8 moss burned, 4 fire banked")
+	Game.account.storehouse["willow_moss"] = 3
+	Game.posts.salt_line("cinnabar_salt")["since"] = Clock.now_utc() - 3600.0
+	Game.posts.calcination_settle()
+	check(int(Game.posts.salt_line("cinnabar_salt").fire) == 5, "a line burns only what the Storehouse can feed (one more cycle on 3 moss)")
+	Game.posts.salt_line("cinnabar_salt")["refined"] = 16
+	var rf := Game.submit({"type": "refine_line", "line": "cinnabar_salt"})
+	check(rf.get("ok", false) and int(Game.account.storehouse.get("cinnabar_salt", 0)) == 5 and int(rf.rank) == 2,
+		"refine: 5 Cinnabar Salt into the Storehouse, the line ranks up to 2")
+	# Formation Flags.
+	Game.world.apply_teleport(c.id, "lf_reed_shallows")
+	var dl0 := Game.posts.diligence_of(c)
+	check(Game.submit({"type": "plant_flag", "kind": "plain"}).get("ok", false) and near(Game.posts.flag_sum("lf_reed_shallows", "craft_diligence"), 1.0)
+		and near(Game.posts.diligence_of(c) - dl0, 0.01), "a plain flag over the Reed Shallows: Craft Diligence +1% for its posts")
+	check(not Game.submit({"type": "plant_flag", "kind": "deep"}).get("ok", true), "one flag to a room")
+	check(Game.submit({"type": "raise_flag", "index": 0}).get("ok", false) and near(Game.posts.flag_sum("lf_reed_shallows", "craft_diligence"), 1.1)
+		and int(Game.account.storehouse.get("cinnabar_salt", 0)) == 0, "raise it with 5 Cinnabar Salt: +1.1%")
+	# The Mirror of Echoes.
+	var sect0: Dictionary = Game.account.sect.duplicate(true)
+	if not Game.account.sect.has("buildings"): Game.account.sect["buildings"] = {}
+	Game.account.sect.buildings["mirror_of_echoes"] = 5
+	c.posts["arts"] = {"echo_sampling": 10}
+	var moss: Dictionary = {}
+	for o in Game.room_rt.def.get("objects", []):
+		if str(o.get("type", "")) == "herb_patch" and str(o.get("item", "")) == "willow_moss": moss = o
+	Game.actor_state(c.id).plane = Vector2(float(moss.at[0]), float(moss.at[1]))
+	check(Game.submit({"type": "take_post", "object": str(moss.id)}).get("ok", false), "keep post at the willow moss")
+	check(Game.posts.mirror_slot_count() == 2, "a level 5 Mirror has two slots")
+	var ec := Game.submit({"type": "echo_inscribe", "slot": 0})
+	var want := 10.75 / 100.0 * 1.25
+	check(ec.get("ok", false) and near(float(ec.share), want, 0.0001), "Echo Sampling 10 in a level 5 Mirror echoes %.2f%% of the post" % (100.0 * float(ec.get("share", 0.0))))
+	var per_h := float(ec.get("items", {}).get("willow_moss", 0.0))
+	Game.account.storehouse.erase("willow_moss")
+	Game.posts.works().mirror["since"] = Clock.now_utc() - 10.0 * 3600.0
+	Game.posts.mirror_settle()
+	check(per_h > 0.0 and int(Game.account.storehouse.get("willow_moss", 0)) == int(floor(per_h * 10.0)),
+		"ten hours of echo: %d willow moss into the Storehouse" % int(Game.account.storehouse.get("willow_moss", 0)))
+	# Auto-Settle.
+	check(Game.submit({"type": "set_post_option", "key": "auto_settle", "on": true}).get("ok", false) and Game.posts.works().auto_settle, "turn Auto-Settle on")
+	check(not Game.submit({"type": "set_post_option", "key": "granary", "on": true}).get("ok", true), "the Granary Seal needs its favour")
+	Game.submit({"type": "leave_post"})
+	Game.account.sect = sect0
+	Game.world.apply_teleport(c.id, back)
 	c.posts = posts0
 	Game.account.works = works0
 	Game.account.storehouse = store0

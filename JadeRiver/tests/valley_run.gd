@@ -699,6 +699,42 @@ func _works() -> void:
 	check(stele.get("ok", false) and Game.posts.stele_power("delving") > 0.0, "raise the Stele of Vein Delving %s" % str(stele.get("text", "")))
 	check(finish("the_guardian_stones"), "The Guardian Stones done")
 
+## S50 V10d: three more hours at the copper post, an hour of the Cinnabar line (Array Master Ren) and a flag over the
+## Reed Shallows (Elder Bian).
+func _post_hours(item: String, hours: float) -> void:
+	var rid := _room_with_node(item)
+	if rid == "" or not travel(rid): return
+	var nodes := objects_of("ore_vein", "item", item) + objects_of("herb_patch", "item", item)
+	if nodes.is_empty(): return
+	place(Vector2(float(nodes[0].at[0]), float(nodes[0].at[1]) + 10))
+	submit({"type": "take_post", "object": str(nodes[0].id)})
+	submit({"type": "switch_character", "slot": 2})
+	Clock.debug_offset_s += hours * 3600.0
+	submit({"type": "switch_character", "slot": 1})
+	submit({"type": "enter_world"})
+	place(Vector2(float(c().position.x), float(c().position.y)))
+	submit({"type": "send_to_storehouse", "character": c().id})
+	submit({"type": "leave_post"})
+
+func _furnace() -> void:
+	check(start("fire_and_salt"), "Fire and Salt accepted")
+	check(unlocked("calcination"), "the Calcination Furnace opens")
+	_post_hours("copper_ore", 3.0)
+	_post_hours("willow_moss", 3.0)
+	var cu := int(Game.account.storehouse.get("copper_ore", 0))
+	check(submit({"type": "calcine_line", "line": "cinnabar_salt", "on": true}).get("ok", false), "light the Cinnabar line (%d copper, %d moss stored)" % [cu, int(Game.account.storehouse.get("willow_moss", 0))])
+	check(finish("fire_and_salt"), "Fire and Salt done")
+	Clock.debug_offset_s += 3600.0
+	var rf := submit({"type": "refine_line", "line": "cinnabar_salt"})
+	check(rf.get("ok", false) and int(Game.account.storehouse.get("cinnabar_salt", 0)) >= 1, "an hour later, refine %d Cinnabar Salt" % int(rf.get("salts", 0)))
+	check(int(Game.account.storehouse.get("copper_ore", 0)) < cu, "the line burned stored copper")
+	check(start("flags_over_the_posts"), "Flags over the Posts accepted")
+	check(unlocked("formation_flags"), "Formation Flags unlock")
+	check(travel("lf_reed_shallows"), "to the Reed Shallows")
+	var pf := submit({"type": "plant_flag", "kind": "plain"})
+	check(pf.get("ok", false) and Game.posts.flag_sum("lf_reed_shallows", "craft_diligence") > 0.0, "plant a plain flag over the Reed Shallows %s" % str(pf.get("text", "")))
+	check(finish("flags_over_the_posts"), "Flags over the Posts done")
+
 ## Do one daily mission objective (kill or gather) in a room that has it.
 func _do_mission(qid: String) -> bool:
 	var q: Dictionary = c().quests.daily.get(qid, {})
@@ -1342,6 +1378,7 @@ func sec_ht5() -> void:
 	check(gf.get("ok", false), "place a guard formation %s" % str(gf))
 	check(reach("heart_tempering_8"), "break through inside the guard formation")
 	check(finish("keep_watch"), "Keep Watch done")
+	_furnace()
 	# Jade Current ends at Heart Tempering 9: learn a library method while progress is low.
 	check(upgrade_method("manual_willow_breath_art", "willow_breath_art"), "switch to a library method")
 	check(reach("heart_tempering_9"), "Heart Tempering 9")

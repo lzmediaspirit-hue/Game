@@ -5,6 +5,27 @@
 The idle gathering milestone (docs/idle_gathering_design.md), after IdleOn's AFK model in Jade River's own names. It
 runs between v1.2 Phase B and Phase C.
 
+### V10d2 · Furnace, Flags and the Mirror
+- **Calcination Furnace** (Array Master Ren's Fire and Salt, Heart Tempering 6 with the Formation Guild): six salt
+  lines on the Works page. A lit line burns floor(rank^1.5) × qty of each input from the Storehouse every cycle (15
+  min for the first three salts, 1 h after) and banks floor(rank^1.3) fire; Refine turns the fire into **Essence
+  Salts** (Cinnabar, Verdigris, Azurite, Pearl, Amethyst, Star) and ranks the line up at floor(20 × rank^1.8)
+  refined. Each line from the second also burns the salt before it and opens when that line reaches rank 3; a
+  starved line waits. Lines keep burning while the game is closed (up to 90 days).
+- Essence Salts pay for Seal Scripts past level 10 (seals now go to 30) and for the pick, sickle, rod and net tiers
+  6–8 (Cinnabar, Verdigris, Azurite).
+- **Formation Flags** (Elder Bian's Flags over the Posts, Heart Tempering 8): two flags, each planted for 500 taels
+  in a room with posts; a plain flag gives its posts +1% Craft Diligence (+0.1% a level), a deep flag +2% Finesse
+  (+0.2% a level); salts raise them to level 20.
+- **Mirror of Echoes** (a sect building, Elder Hu's Echoes in Bronze): a slot at level 1, a second at level 5. A
+  disciple with the new **Echo Sampling** art (10% + 0.075% a level) inscribes that share of its post's hourly haul,
+  +5% a Mirror level; the Mirror keeps adding it to the Storehouse whatever the disciple does next.
+- **Auto-Settle** (with the Seal Scripts): a returning disciple's haul goes straight to the Storehouse without the
+  Return Ledger. **Favour of the Granary Seal** (a fourth Magistrate's Favour): a chosen post fills the Storehouse
+  directly, past its pouch. Both toggles are on the Roll-Call's Storehouse tab.
+- Tests: `works_suite` covers the furnace (cycles, starvation, refining, rank-up), seal salts, flags, the Mirror and
+  the options; the valley run lights the Cinnabar line, refines it and plants a flag over the Reed Shallows.
+
 ### V10d1 · Arts, Seals, Steles and Favours
 The account web's multipliers (docs/idle_gathering_design.md §6), on a new **Works of the Post** page (the menu's
 Works). Every source uses one of two curves: add (x1·L) or decay (x1·L/(L + x2)).

@@ -10,7 +10,8 @@ const NODE_CRAFT := {"ore_vein": "delving", "herb_patch": "foraging", "fishing_s
 func intents() -> Array:
 	return ["take_post", "take_vigil", "leave_post", "settle_post", "settle_all", "send_to_storehouse", "withdraw_storehouse", "sew_pouch", "burn_incense",
 		"set_snare", "collect_snare", "cancel_snare", "hold_rite", "learn_post_vow", "pledge_post_vow", "bench_assign", "bench_point", "bench_collect",
-		"learn_post_art", "reset_post_arts", "inscribe_seal", "raise_stele", "seek_favour"]
+		"learn_post_art", "reset_post_arts", "inscribe_seal", "raise_stele", "seek_favour", "calcine_line", "refine_line", "plant_flag", "raise_flag",
+		"uproot_flag", "echo_inscribe", "set_post_option"]
 
 func handle(intent: Dictionary) -> Dictionary:
 	match str(intent.type):
@@ -37,6 +38,13 @@ func handle(intent: Dictionary) -> Dictionary:
 		"inscribe_seal": return inscribe_seal(char_of(intent), str(intent.get("seal", "")))
 		"raise_stele": return raise_stele(char_of(intent), str(intent.get("craft", "")))
 		"seek_favour": return seek_favour(char_of(intent), str(intent.get("favour", "")))
+		"calcine_line": return calcine_line(char_of(intent), str(intent.get("line", "")), bool(intent.get("on", true)))
+		"refine_line": return refine_line(char_of(intent), str(intent.get("line", "")))
+		"plant_flag": return plant_flag(char_of(intent), str(intent.get("kind", "plain")))
+		"raise_flag": return raise_flag(char_of(intent), int(intent.get("index", 0)))
+		"uproot_flag": return uproot_flag(char_of(intent), int(intent.get("index", 0)))
+		"echo_inscribe": return echo_inscribe(game.character(str(intent.get("character", game.active_id))), int(intent.get("slot", 0)))
+		"set_post_option": return set_post_option(game.character(str(intent.get("character", game.active_id))), str(intent.get("key", "")), bool(intent.get("on", true)))
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ state
@@ -120,14 +128,21 @@ func finesse_of(c, craft: String) -> float:
 	if leaf_bonus("finesse") > 0.0: groups.append(leaf_bonus("finesse"))
 	if vow_sum(c, "finesse_pct") != 0.0: groups.append(vow_sum(c, "finesse_pct"))
 	if art_sum(c, "finesse_pct") > 0.0: groups.append(art_sum(c, "finesse_pct"))
+	if flag_sum(work_room(c), "finesse_pct") > 0.0: groups.append(flag_sum(work_room(c), "finesse_pct"))
 	return PostRules.finesse(float(tool.get("power", 0.0)), float(c.stats.value(attr)), level(c, craft), seal_sum(c, "finesse_flat", craft), groups,
 		stele_power(craft))
 
 func diligence_of(c, kind := "craft") -> float:
 	var key := ("martial" if kind == "martial" else "craft") + "_diligence"
 	var sources := 100.0 * float(game.sect.idle_rate_bonus("posts")) + leaf_bonus(key) + vow_sum(c, key) + art_sum(c, key) + seal_sum(c, key) \
-		+ favour_sum(key)
+		+ favour_sum(key) + flag_sum(work_room(c), key)
 	return PostRules.diligence(kind, sources)
+
+## The room a character works in: its post's, or where it stands.
+func work_room(c) -> String:
+	if c == null: return ""
+	var p := post_of(c)
+	return str(p.get("room", "")) if not p.is_empty() else str(c.position.get("room", ""))
 
 # ------------------------------------------------------------------ nodes and outputs
 func craft_of_object(o: Dictionary) -> String:
@@ -283,6 +298,10 @@ func on_entered(c) -> Dictionary:
 	if not has_post(c): return {}
 	var r := settle_post(c)
 	post_of(c)["paused"] = true
+	settle_account()
+	if bool(works().get("auto_settle", false)):   # Auto-Settle: straight to the Storehouse, no ledger to read
+		send_to_storehouse(c)
+		return {}
 	return r.get("ledger", {})
 
 ## The character is switched out: at its post it resumes work from now; anywhere else it has walked away.
@@ -328,13 +347,19 @@ func _work(c, hours: float, source: String) -> Dictionary:
 		cat_of[id] = cat
 		held_by[cat] = held(c, cat)
 		caps[cat] = capacity(c, cat)
+	var granary := bool(post_of(c).get("granary", false)) and favour_sum("granary_seal") > 0.0   # straight to the Storehouse
+	if granary:
+		for cat in caps:
+			held_by[cat] = 0.0
+			caps[cat] = INF
 	var amt := PostRules.settle_amounts(hours, r.items, cat_of, held_by, caps)
 	var rng := Rng.stream(c.id, "posts")
 	var got := {}
 	for id in amt.items:
 		var n := PostRules.draw(float(amt.items[id]), rng)
 		if n > 0: got[id] = n
-	_add_to_pouch(c, got)
+	if granary: _to_storehouse(c, got, "granary")
+	else: _add_to_pouch(c, got)
 	var lv_before := level(c, craft)
 	var exp := float(r.exp_h) * hours * maxf(0.0, 1.0 + vow_sum(c, "craft_exp_pct") / 100.0)
 	var doubled := favour_sum("double_exp") > 0.0 and rng.randf() * 100.0 < favour_sum("double_exp")   # the Red Seal
@@ -348,6 +373,7 @@ func _work(c, hours: float, source: String) -> Dictionary:
 
 ## Every posted character that is not being played, settled and sent to the Storehouse (the Roll-Call).
 func settle_all() -> Dictionary:
+	settle_account()
 	var ledgers: Array = []
 	for id in game.characters:
 		var c = game.character(str(id))
@@ -1001,12 +1027,28 @@ func bench_collect(c) -> Dictionary:
 # ------------------------------------------------------------------ the account web (V10d, §6)
 func works() -> Dictionary:
 	var w: Dictionary = game.account.works
-	for k in ["seals", "steles", "favours"]:
+	for k in ["seals", "steles", "favours", "furnace", "mirror"]:
 		if not (w.get(k) is Dictionary): w[k] = {}
+	if not (w.get("flags") is Array): w["flags"] = []
 	return w
 
+func _to_storehouse(c, items: Dictionary, source: String) -> void:
+	var cap := int(PostRules.rule("pouch.hard_cap", 2050000000))
+	var moved := {}
+	for id in items:
+		var n := int(items[id])
+		if n <= 0: continue
+		game.account.storehouse[id] = mini(cap, int(game.account.storehouse.get(id, 0)) + n)
+		moved[id] = n
+	if not moved.is_empty(): emit("storehouse_changed", {"actor": c.id if c != null else "", "items": moved, "source": source})
+
+## The account's clockwork (the Calcination Furnace and the Mirror of Echoes) caught up to now.
+func settle_account() -> void:
+	calcination_settle()
+	mirror_settle()
+
 func _curve_of(def: Dictionary, lv: float) -> float:
-	return PostRules.curve(str(def.get("curve", "add")), float(def.get("x1", 0.0)), float(def.get("x2", 0.0)), lv)
+	return PostRules.curve(str(def.get("curve", "add")), float(def.get("x1", 0.0)), float(def.get("x2", 0.0)), lv, float(def.get("base", 0.0)))
 
 func _pay_storehouse(c, item_id: String, count: int, source: String) -> bool:
 	if int(game.account.storehouse.get(item_id, 0)) < count: return false
@@ -1109,7 +1151,11 @@ func inscribe_seal(c, id: String) -> Dictionary:
 	var lv := seal_level(id)
 	if lv >= int(sd.get("max", 10)): return fail("max", {"text": t("sim.posts.seal_max")})
 	var cost := seal_next_cost(id)
-	if not _pay_storehouse(c, str(cost.item), int(cost.count), "seal"): return fail("materials", {"text": _need_text(int(cost.count), str(cost.item))})
+	if int(game.account.storehouse.get(str(cost.item), 0)) < int(cost.count): return fail("materials", {"text": _need_text(int(cost.count), str(cost.item))})
+	if cost.has("salt") and int(game.account.storehouse.get(str(cost.salt), 0)) < int(cost.salt_count):
+		return fail("salts", {"text": _need_text(int(cost.salt_count), str(cost.salt))})
+	_pay_storehouse(c, str(cost.item), int(cost.count), "seal")
+	if cost.has("salt"): _pay_storehouse(c, str(cost.salt), int(cost.salt_count), "seal")
 	works().seals[id] = lv + 1
 	emit("seal_inscribed", {"actor": c.id, "seal": id, "level": lv + 1})
 	emit("system_used", {"actor": c.id, "system": "seal"})
@@ -1166,4 +1212,207 @@ func seek_favour(c, id: String) -> Dictionary:
 	works().favours[id] = true
 	emit("favour_granted", {"actor": c.id, "favour": id})
 	emit("system_used", {"actor": c.id, "system": "favour"})
+	return ok()
+
+# ------------------------------------------------------------------ the Calcination Furnace (V10d, §7.4)
+func salt_def(id: String) -> Dictionary:
+	for sd in ContentDB.config("posts").get("salts", []):
+		if str(sd.id) == id: return sd
+	return {}
+
+func salt_line(id: String) -> Dictionary:
+	var f: Dictionary = works().furnace
+	if not f.has(id): f[id] = {"rank": 1, "fire": 0, "refined": 0, "on": false, "since": Clock.now_utc()}
+	return f[id]
+
+## The first line is always open; each later one when the line before it reaches the open rank.
+func line_open(id: String) -> bool:
+	var salts: Array = ContentDB.config("posts").get("salts", [])
+	for i in salts.size():
+		if str(salts[i].id) != id: continue
+		if i == 0: return true
+		return int(salt_line(str(salts[i - 1].id)).rank) >= int(PostRules.rule_calc("open_rank", 3))
+	return false
+
+## Every burning line's cycles since it was last settled, as many as the Storehouse can feed.
+func calcination_settle() -> void:
+	var burned := {}
+	for sd in ContentDB.config("posts").get("salts", []):
+		var ln := salt_line(str(sd.id))
+		if not ln.get("on", false): continue
+		var el := Clock.elapsed_since(float(ln.get("since", 0.0)))
+		if not el.valid:
+			ln["since"] = Clock.now_utc()
+			continue
+		var cyc := float(sd.get("cycle_s", 900))
+		var secs := minf(float(el.elapsed), 86400.0 * float(PostRules.rule_calc("max_days", 90)))
+		var cycles := int(floor(secs / cyc))
+		if cycles <= 0: continue
+		var rank := int(ln.rank)
+		var can := cycles
+		for inp in sd.get("inputs", []):
+			var per := PostRules.calcination_cost(rank, int(inp.qty))
+			if per > 0: can = mini(can, int(game.account.storehouse.get(str(inp.item), 0)) / per)
+		for inp in sd.get("inputs", []):
+			var take := PostRules.calcination_cost(rank, int(inp.qty)) * can
+			if take <= 0: continue
+			game.account.storehouse[str(inp.item)] = int(game.account.storehouse.get(str(inp.item), 0)) - take
+			if int(game.account.storehouse[str(inp.item)]) <= 0: game.account.storehouse.erase(str(inp.item))
+			burned[str(inp.item)] = int(burned.get(str(inp.item), 0)) - take
+		ln["fire"] = int(ln.get("fire", 0)) + can * PostRules.calcination_fire(rank)
+		# A starved line waits from now; a fed one keeps its part-cycle.
+		ln["since"] = Clock.now_utc() if can < cycles else float(ln.since) + float(cycles) * cyc
+	if not burned.is_empty(): emit("storehouse_changed", {"actor": game.active_id, "items": burned, "source": "calcination"})
+
+func calcine_line(c, id: String, on: bool) -> Dictionary:
+	if c == null: return fail("no_character")
+	if not Unlocks.is_unlocked(c.id, "calcination"): return fail("locked", {"text": Unlocks.locked_text("calcination")})
+	if salt_def(id).is_empty(): return fail("unknown_line")
+	if not line_open(id): return fail("closed", {"text": t("sim.posts.line_closed") % int(PostRules.rule_calc("open_rank", 3))})
+	calcination_settle()
+	var ln := salt_line(id)
+	ln["on"] = on
+	ln["since"] = Clock.now_utc()
+	emit("salt_line_set", {"actor": c.id, "line": id, "on": on})
+	if on: emit("system_used", {"actor": c.id, "system": "calcine"})
+	return ok()
+
+## Refine a line's fire into its Essence Salt (one for one, into the Storehouse); refining ranks the line up.
+func refine_line(c, id: String) -> Dictionary:
+	if c == null: return fail("no_character")
+	if not Unlocks.is_unlocked(c.id, "calcination"): return fail("locked", {"text": Unlocks.locked_text("calcination")})
+	if salt_def(id).is_empty(): return fail("unknown_line")
+	calcination_settle()
+	var ln := salt_line(id)
+	var n := int(ln.get("fire", 0))
+	if n <= 0: return fail("no_fire", {"text": t("sim.posts.no_fire")})
+	ln["fire"] = 0
+	_to_storehouse(c, {id: n}, "refine")
+	ln["refined"] = int(ln.get("refined", 0)) + n
+	while int(ln.refined) >= PostRules.calcination_rank_need(int(ln.rank)):
+		ln["refined"] = int(ln.refined) - PostRules.calcination_rank_need(int(ln.rank))
+		ln["rank"] = int(ln.rank) + 1
+	emit("salt_refined", {"actor": c.id, "line": id, "salts": n, "rank": int(ln.rank)})
+	return ok({"salts": n, "rank": int(ln.rank)})
+
+# ------------------------------------------------------------------ Formation Flags
+func flags() -> Array:
+	return works().flags
+
+func flag_sum(room_id: String, key: String) -> float:
+	if room_id == "": return 0.0
+	var n := 0.0
+	var kinds: Dictionary = ContentDB.config("posts").get("flags", {}).get("kinds", {})
+	for f in flags():
+		if str(f.get("room", "")) != room_id: continue
+		if str(kinds.get(str(f.kind), {}).get("gives", "")) == key: n += PostRules.flag_value(str(f.kind), int(f.get("level", 0)))
+	return n
+
+func _room_has_posts(room_id: String) -> bool:
+	for o in ContentDB.room(room_id).get("objects", []):
+		if craft_of_object(o) != "": return true
+	return false
+
+## Plant a flag in the room the character stands in (one with a post to serve).
+func plant_flag(c, kind: String) -> Dictionary:
+	if c == null: return fail("no_character")
+	if not Unlocks.is_unlocked(c.id, "formation_flags"): return fail("locked", {"text": Unlocks.locked_text("formation_flags")})
+	var fl: Dictionary = ContentDB.config("posts").get("flags", {})
+	if not fl.get("kinds", {}).has(kind): return fail("unknown_kind")
+	var room := str(c.position.get("room", ""))
+	if not _room_has_posts(room): return fail("no_posts", {"text": t("sim.posts.flag_needs_posts")})
+	for f in flags():
+		if str(f.room) == room: return fail("planted", {"text": t("sim.posts.flag_here")})
+	if flags().size() >= int(fl.get("max", 2)): return fail("full", {"text": t("sim.posts.flags_full") % int(fl.get("max", 2))})
+	var cost := int(fl.get("plant_taels", 500))
+	if game.economy.balance("silver_tael", c) < cost: return fail("funds", {"text": Tx.t("sim.economy.not_enough") % ContentDB.text("currency.silver_tael")})
+	game.economy.apply_currency("silver_tael", -cost, "plant_flag")
+	flags().append({"room": room, "kind": kind, "level": 0})
+	emit("flag_changed", {"actor": c.id, "room": room, "kind": kind, "level": 0})
+	emit("system_used", {"actor": c.id, "system": "flag"})
+	return ok({"index": flags().size() - 1})
+
+func raise_flag(c, index: int) -> Dictionary:
+	if c == null: return fail("no_character")
+	if index < 0 or index >= flags().size(): return fail("no_flag")
+	var f: Dictionary = flags()[index]
+	if int(f.get("level", 0)) >= int(ContentDB.config("posts").get("flags", {}).get("max_level", 20)): return fail("max", {"text": t("sim.posts.flag_max")})
+	var cost := PostRules.flag_cost(int(f.get("level", 0)))
+	if not _pay_storehouse(c, str(cost.salt), int(cost.salt_count), "flag"): return fail("salts", {"text": _need_text(int(cost.salt_count), str(cost.salt))})
+	f["level"] = int(f.get("level", 0)) + 1
+	emit("flag_changed", {"actor": c.id, "room": str(f.room), "kind": str(f.kind), "level": int(f.level)})
+	return ok({"level": int(f.level)})
+
+func uproot_flag(c, index: int) -> Dictionary:
+	if c == null: return fail("no_character")
+	if index < 0 or index >= flags().size(): return fail("no_flag")
+	var f: Dictionary = flags()[index]
+	flags().remove_at(index)
+	emit("flag_changed", {"actor": c.id, "room": str(f.room), "kind": str(f.kind), "level": -1})
+	return ok()
+
+# ------------------------------------------------------------------ the Mirror of Echoes
+func mirror_level() -> int:
+	return int(game.sect.level_building("mirror_of_echoes"))
+
+func mirror_slot_count() -> int:
+	var n := 0
+	for lv in ContentDB.config("posts").get("mirror", {}).get("slot_levels", [1, 5]):
+		if mirror_level() >= int(lv): n += 1
+	return n
+
+func mirror_slots() -> Array:
+	var m: Dictionary = works().mirror
+	if not (m.get("slots") is Array): m["slots"] = []
+	return m.slots
+
+## Echoes into the Storehouse since the last settle; whole items, the fractions carried.
+func mirror_settle() -> void:
+	var m: Dictionary = works().mirror
+	var el := Clock.elapsed_since(float(m.get("since", Clock.now_utc())))
+	m["since"] = Clock.now_utc()
+	if not el.valid or mirror_slots().is_empty(): return
+	var hours := minf(float(el.elapsed) / 3600.0, 24.0 * float(ContentDB.config("posts").get("mirror", {}).get("max_days", 90)))
+	var got := {}
+	for i in mini(mirror_slots().size(), mirror_slot_count()):
+		var sl: Dictionary = mirror_slots()[i]
+		if not (sl.get("carry") is Dictionary): sl["carry"] = {}
+		for id in sl.get("items", {}):
+			var x := float(sl.carry.get(id, 0.0)) + float(sl.items[id]) * hours
+			var n := int(floor(x))
+			sl.carry[id] = x - float(n)
+			if n > 0: got[id] = int(got.get(id, 0)) + n
+	if not got.is_empty(): _to_storehouse(null, got, "mirror")
+
+## A character with Echo Sampling inscribes a share of its post's hourly haul into a mirror slot.
+func echo_inscribe(c, slot: int) -> Dictionary:
+	if c == null: return fail("no_character")
+	if not Unlocks.is_unlocked(c.id, "mirror_of_echoes"): return fail("locked", {"text": Unlocks.locked_text("mirror_of_echoes")})
+	if slot < 0 or slot >= mirror_slot_count(): return fail("no_slot", {"text": t("sim.posts.mirror_slot")})
+	if art_level(c, "echo_sampling") <= 0: return fail("no_art", {"text": t("sim.posts.needs_echo")})
+	var p := post_of(c)
+	if p.is_empty() or str(p.get("kind", "")) != "craft": return fail("no_post", {"text": t("sim.posts.mirror_needs_post")})
+	mirror_settle()
+	var share := art_sum(c, "echo_share") / 100.0 * (1.0 + float(ContentDB.config("posts").get("mirror", {}).get("per_level", 0.05)) * float(mirror_level()))
+	var items := {}
+	var r := post_rates(c)
+	for id in r.get("items", {}): items[id] = float(r.items[id]) * share
+	while mirror_slots().size() <= slot: mirror_slots().append({})
+	mirror_slots()[slot] = {"character": c.id, "name": c.name, "craft": str(p.get("craft", "")), "items": items, "carry": {}}
+	emit("mirror_inscribed", {"actor": c.id, "slot": slot, "items": items})
+	emit("system_used", {"actor": c.id, "system": "mirror"})
+	return ok({"items": items, "share": share})
+
+# ------------------------------------------------------------------ options: Auto-Settle and the Granary Seal
+func set_post_option(c, key: String, on: bool) -> Dictionary:
+	match key:
+		"auto_settle":
+			if c == null or not Unlocks.is_unlocked(c.id, "seal_scripts"): return fail("locked", {"text": Unlocks.locked_text("seal_scripts")})
+			works()["auto_settle"] = on
+		"granary":
+			if favour_sum("granary_seal") <= 0.0: return fail("locked", {"text": t("sim.posts.needs_granary")})
+			if not has_post(c): return fail("no_post")
+			post_of(c)["granary"] = on
+		_: return fail("unknown_option")
+	emit("post_option_set", {"actor": c.id if c != null else "", "key": key, "on": on})
 	return ok()

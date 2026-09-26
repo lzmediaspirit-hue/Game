@@ -217,22 +217,60 @@ static func bench_rate(progress: float, speed := 1.0) -> float:
 	return 3600.0 * maxf(0.0, speed) / maxf(1.0, progress)
 
 # ------------------------------------------------------------------ the account web (V10d, §6)
-## The two curves every account source uses: add = x1·L; decay = x1·L/(L + x2).
-static func curve(kind: String, x1: float, x2: float, level: float) -> float:
+## The two curves every account source uses: add = x1·L; decay = x1·L/(L + x2) (plus a base once learned).
+static func curve(kind: String, x1: float, x2: float, level: float, base := 0.0) -> float:
 	if level <= 0.0: return 0.0
-	if kind == "decay": return x1 * level / (level + x2)
-	return x1 * level
+	if kind == "decay": return base + x1 * level / (level + x2)
+	return base + x1 * level
 
 ## Post Art points a character has for its summed craft levels.
 static func art_points(total_levels: int) -> int:
 	return int(total_levels / maxi(1, int(ContentDB.config("posts").get("arts", {}).get("points_per_levels", 2))))
 
-## {item, count} to raise a seal from `level` to the next: the ladder's item for the level band, ceil(base × growth^L).
+## {item, count[, salt, salt_count]} to raise a seal from `level` to the next: the ladder's item for the level band,
+## ceil(base × growth^L); past level 10 Essence Salts too, a richer salt every four levels.
 static func seal_cost(level: int, ladder: Array, mult := 1.0) -> Dictionary:
 	if ladder.is_empty(): return {}
 	var sc: Dictionary = ContentDB.config("posts").get("seal_cost", {})
 	var i := mini(level / maxi(1, int(sc.get("step", 4))), ladder.size() - 1)
-	return {"item": str(ladder[i]), "count": int(ceil(float(sc.get("base", 25)) * pow(float(sc.get("growth", 1.12)), level) * mult))}
+	var out := {"item": str(ladder[i]), "count": int(ceil(float(sc.get("base", 25)) * pow(float(sc.get("growth", 1.12)), level) * mult))}
+	var from := int(sc.get("salt_from", 10))
+	if level >= from:
+		out.merge(_salt_cost(level - from, float(sc.get("salt_base", 4)), float(sc.get("salt_growth", 1.18)), int(sc.get("salt_step", 4))))
+	return out
+
+## {salt, salt_count}: the salt for the band (step levels a salt) and ceil(base × growth^n).
+static func _salt_cost(n: int, base: float, growth: float, step: int) -> Dictionary:
+	var salts: Array = ContentDB.config("posts").get("salts", [])
+	if salts.is_empty(): return {}
+	var i := mini(n / maxi(1, step), salts.size() - 1)
+	return {"salt": str(salts[i].id), "salt_count": int(ceil(base * pow(growth, n)))}
+
+## {salt, salt_count} to raise a Formation Flag from `level`.
+static func flag_cost(level: int) -> Dictionary:
+	var f: Dictionary = ContentDB.config("posts").get("flags", {})
+	return _salt_cost(level, float(f.get("salt_base", 5)), float(f.get("salt_growth", 1.2)), int(f.get("salt_step", 4)))
+
+## A formation flag's bonus: base + per_level × level.
+static func flag_value(kind: String, level: int) -> float:
+	var k: Dictionary = ContentDB.config("posts").get("flags", {}).get("kinds", {}).get(kind, {})
+	return float(k.get("base", 0.0)) + float(k.get("per_level", 0.0)) * float(level)
+
+# ------------------------------------------------------------------ the Calcination Furnace (V10d, §7.4)
+## Each input a cycle burns: floor(rank^1.5) × its quantity.
+static func calcination_cost(rank: int, qty: int) -> int:
+	return int(floor(pow(float(rank), float(rule_calc("cost_exp", 1.5))))) * qty
+
+## Fire a cycle banks: floor(rank^1.3).
+static func calcination_fire(rank: int) -> int:
+	return int(floor(pow(float(rank), float(rule_calc("fire_exp", 1.3)))))
+
+## Salts refined at `rank` to reach the next: floor(20 × rank^1.8).
+static func calcination_rank_need(rank: int) -> int:
+	return int(floor(float(rule_calc("rank_base", 20)) * pow(float(rank), float(rule_calc("rank_exp", 1.8)))))
+
+static func rule_calc(key: String, fallback):
+	return ContentDB.config("posts").get("calcination", {}).get(key, fallback)
 
 ## {taels, item, count} to raise a Guardian Stele from `level` to the next.
 static func stele_cost(level: int) -> Dictionary:

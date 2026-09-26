@@ -972,3 +972,28 @@ G_V10C['bench'] = """
 
 for _v10c_id, _v10c_rows in G_V10C.items():
     register(FAM, _v10c_id, (lambda rr=[r for r in _v10c_rows.strip('\n').split('\n')]: glyph_canvas(rr)), GROUP)
+
+
+# ============================================================================ V10d · works of the post
+# works: the "Works of the Post" menu entry and page, a square seal stamp (chop): a knobbed handle over the
+# square block, its face carved in relief with the character for work.
+G_V10D = {}
+G_V10D['works'] = """
+.....####.....
+....######....
+....######....
+.....####.....
+.....####.....
+...########...
+.++++++++++++.
+.#oooooooooo#.
+.#oo######oo#.
+.#oooo##oooo#.
+.#oooo##oooo#.
+.#o########o#.
+.#oooooooooo#.
+.############.
+"""
+
+for _v10d_id, _v10d_rows in G_V10D.items():
+    register(FAM, _v10d_id, (lambda rr=[r for r in _v10d_rows.strip('\n').split('\n')]: glyph_canvas(rr)), GROUP)

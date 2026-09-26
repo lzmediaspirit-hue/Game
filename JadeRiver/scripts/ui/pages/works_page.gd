@@ -1,12 +1,15 @@
 extends Page
 ## S50 Keeping Post (V10d): the account web behind the posts. Arts: the active character's Post Arts, bought with
 ## points from its craft levels. Seals: Seal Scripts inscribed with Storehouse goods. Steles: Guardian Steles raised
-## with silver and ore. Favours: the Magistrate's Favours, earned once each with silver and tribute.
+## with silver and ore. Favours: the Magistrate's Favours, earned once each with silver and tribute. Furnace: the
+## Calcination Furnace's salt lines. Flags: Formation Flags over posts. Mirror: the Mirror of Echoes' slots.
 
 func _init() -> void:
 	title = Tx.t("ui.works.title")
 	tabs = [{"id": "arts", "label": Tx.t("ui.works.tab_arts")}, {"id": "seals", "label": Tx.t("ui.works.tab_seals")},
-		{"id": "steles", "label": Tx.t("ui.works.tab_steles")}, {"id": "favours", "label": Tx.t("ui.works.tab_favours")}]
+		{"id": "steles", "label": Tx.t("ui.works.tab_steles")}, {"id": "favours", "label": Tx.t("ui.works.tab_favours")},
+		{"id": "furnace", "label": Tx.t("ui.works.tab_furnace")}, {"id": "flags", "label": Tx.t("ui.works.tab_flags")},
+		{"id": "mirror", "label": Tx.t("ui.works.tab_mirror")}]
 
 func setup() -> void:
 	var want := str(args.get("tab", ""))
@@ -19,6 +22,9 @@ func draw_page() -> void:
 		1: _draw_seals()
 		2: _draw_steles()
 		3: _draw_favours()
+		4: _draw_furnace()
+		5: _draw_flags()
+		6: _draw_mirror()
 
 ## A locked tab's reason; true when the tab is open.
 func _gate(unlock_id: String) -> bool:
@@ -155,6 +161,112 @@ func _draw_favours() -> void:
 			btn(Rect2(r.end.x - 190, r.position.y + 28, 174, 54), Tx.t("ui.works.seek"), "favour", id, true, can, Tx.t("ui.works.cannot_pay"), 17)
 		y += 122
 
+# ------------------------------------------------------------------ the Calcination Furnace
+func _draw_furnace() -> void:
+	if not _gate("calcination"): return
+	Game.posts.calcination_settle()
+	para(Rect2(content.position, Vector2(content.size.x, 50)), Tx.t("ui.works.furnace_note"), 16, UiKit.MIST, 2)
+	var salts: Array = ContentDB.config("posts").get("salts", [])
+	var area := Rect2(content.position + Vector2(0, 60), Vector2(content.size.x, content.size.y - 60))
+	list("furnace", area, salts.size(), 96, func(i: int, rr: Rect2):
+		var sd: Dictionary = salts[i]
+		var id := str(sd.id)
+		var ln: Dictionary = Game.posts.salt_line(id)
+		var open := Game.posts.line_open(id)
+		var rank := int(ln.rank)
+		panel(rr, "minor_panel", "selected" if ln.get("on", false) else "normal")
+		icon_at(Rect2(rr.position + Vector2(12, 18), Vector2(56, 56)), id)
+		text(rr.position + Vector2(82, 30), "%s · %s" % [ContentDB.item_name(id), Tx.t("ui.works.rank") % rank], 18, UiKit.PALE_GOLD if ln.get("on", false) else UiKit.PAPER)
+		if not open:
+			text(rr.position + Vector2(82, 62), Tx.t("sim.posts.line_closed") % int(PostRules.rule_calc("open_rank", 3)), 15, UiKit.HOLLOW)
+			return
+		var parts: Array = []
+		for inp in sd.get("inputs", []):
+			parts.append("%d %s (%s)" % [PostRules.calcination_cost(rank, int(inp.qty)), ContentDB.item_name(str(inp.item)), UiKit.fmt(int(Game.account.storehouse.get(str(inp.item), 0)))])
+		var every := Tx.t("ui.works.every") % _dur_s(float(sd.get("cycle_s", 900)))
+		text(rr.position + Vector2(82, 58), fit(every + ": " + ", ".join(parts), 14, rr.size.x - 440), 14, UiKit.MIST)
+		text(rr.position + Vector2(82, 82), Tx.t("ui.works.fire") % [UiKit.fmt(int(ln.get("fire", 0))), PostRules.calcination_fire(rank),
+			UiKit.fmt(int(ln.get("refined", 0))), UiKit.fmt(PostRules.calcination_rank_need(rank))], 14, UiKit.BRIGHT_JADE)
+		var on: bool = ln.get("on", false)
+		btn(Rect2(rr.end.x - 340, rr.position.y + 22, 160, 50), Tx.t("ui.works.bank_line") if on else Tx.t("ui.works.light_line"), "line", [id, not on], not on, true, "", 16)
+		btn(Rect2(rr.end.x - 170, rr.position.y + 22, 154, 50), Tx.t("ui.works.refine"), "refine", id, false, int(ln.get("fire", 0)) > 0, Tx.t("sim.posts.no_fire"), 16)
+	)
+
+# ------------------------------------------------------------------ Formation Flags
+func _draw_flags() -> void:
+	if not _gate("formation_flags"): return
+	var ch = c()
+	var fl: Dictionary = ContentDB.config("posts").get("flags", {})
+	var x := content.position.x
+	var y := content.position.y
+	para(Rect2(Vector2(x, y), Vector2(content.size.x - 460, 60)), Tx.t("ui.works.flags_note") % int(fl.get("max", 2)), 16, UiKit.MIST, 3)
+	var here := str(ch.position.get("room", ""))
+	var cost := UiKit.fmt(int(fl.get("plant_taels", 500)))
+	btn(Rect2(content.end.x - 450, y, 220, 52), Tx.t("ui.works.plant_plain") % cost, "plant", "plain", true, true, "", 15)
+	btn(Rect2(content.end.x - 220, y, 220, 52), Tx.t("ui.works.plant_deep") % cost, "plant", "deep", false, true, "", 15)
+	y += 76
+	var list_flags: Array = Game.posts.flags()
+	if list_flags.is_empty():
+		text(Vector2(x, y + 30), Tx.t("ui.works.no_flags") % str(ContentDB.room(here).get("name", here)), 18, UiKit.HOLLOW)
+		return
+	for i in list_flags.size():
+		var f: Dictionary = list_flags[i]
+		var r := Rect2(x, y, content.size.x, 88)
+		panel(r, "minor_panel", "selected" if str(f.room) == here else "normal")
+		var kind := str(f.kind)
+		var lv := int(f.get("level", 0))
+		text(r.position + Vector2(16, 32), "%s · %s" % [Tx.t("ui.works.flag_" + kind), str(ContentDB.room(str(f.room)).get("name", ""))], 18, UiKit.PALE_GOLD)
+		var eff := Tx.t("ui.works.flag_eff_" + kind) % str(snappedf(PostRules.flag_value(kind, lv), 0.1))
+		text(r.position + Vector2(16, 62), Tx.t("ui.works.level_of") % [lv, int(fl.get("max_level", 20))] + " · " + eff, 15, UiKit.MIST)
+		var nc := PostRules.flag_cost(lv)
+		if not nc.is_empty() and lv < int(fl.get("max_level", 20)):
+			var have := int(Game.account.storehouse.get(str(nc.salt), 0))
+			icon_at(Rect2(r.end.x - 470, r.position.y + 22, 40, 40), str(nc.salt))
+			text(Vector2(r.end.x - 422, r.position.y + 48), "%s / %s" % [UiKit.fmt(have), UiKit.fmt(int(nc.salt_count))], 15, UiKit.PAPER if have >= int(nc.salt_count) else UiKit.RED)
+			btn(Rect2(r.end.x - 330, r.position.y + 18, 150, 50), Tx.t("ui.works.raise"), "flag_raise", i, true, have >= int(nc.salt_count), Tx.t("ui.works.cannot_pay"), 16)
+		btn(Rect2(r.end.x - 170, r.position.y + 18, 154, 50), Tx.t("ui.works.uproot"), "flag_uproot", i, false, true, "", 16)
+		y += 96
+
+# ------------------------------------------------------------------ the Mirror of Echoes
+func _draw_mirror() -> void:
+	if not _gate("mirror_of_echoes"): return
+	var ch = c()
+	Game.posts.mirror_settle()
+	var x := content.position.x
+	var y := content.position.y
+	para(Rect2(Vector2(x, y), Vector2(content.size.x, 60)), Tx.t("ui.works.mirror_note"), 16, UiKit.MIST, 3)
+	y += 70
+	var lv := Game.posts.mirror_level()
+	if lv <= 0:
+		text(Vector2(x, y + 30), Tx.t("ui.works.mirror_unbuilt"), 18, UiKit.HOLLOW)
+		return
+	var share := Game.posts.art_sum(ch, "echo_share") * (1.0 + float(ContentDB.config("posts").get("mirror", {}).get("per_level", 0.05)) * lv)
+	text(Vector2(x, y + 24), Tx.t("ui.works.mirror_level") % [lv, str(snappedf(share, 0.1))], 17, UiKit.PALE_GOLD)
+	y += 44
+	var slots: Array = Game.posts.mirror_slots()
+	for i in Game.posts.mirror_slot_count():
+		var sl: Dictionary = slots[i] if i < slots.size() else {}
+		var r := Rect2(x, y, content.size.x, 96)
+		panel(r, "minor_panel", "selected" if not sl.is_empty() else "normal")
+		text(r.position + Vector2(16, 32), Tx.t("ui.works.mirror_slot") % (i + 1), 18, UiKit.PAPER)
+		if sl.is_empty():
+			text(r.position + Vector2(16, 64), Tx.t("ui.works.mirror_empty"), 15, UiKit.HOLLOW)
+		else:
+			text(r.position + Vector2(200, 32), fit(str(sl.get("name", "")), 16, 300), 16, UiKit.PALE_GOLD)
+			var k := 0
+			for id in sl.get("items", {}):
+				if k >= 3: break
+				icon_at(Rect2(r.position.x + 16 + k * 190, r.position.y + 50, 32, 32), str(id))
+				text(Vector2(r.position.x + 54 + k * 190, r.position.y + 72), Tx.t("ui.posts.per_hour") % UiKit.fmt(snappedf(float(sl.items[id]), 0.1)), 15, UiKit.PAPER)
+				k += 1
+		btn(Rect2(r.end.x - 250, r.position.y + 22, 234, 52), Tx.t("ui.works.mirror_inscribe") % str(ch.name), "echo", i, true,
+			Game.posts.art_level(ch, "echo_sampling") > 0 and Game.posts.has_post(ch), Tx.t("sim.posts.needs_echo"), 15)
+		y += 104
+
+func _dur_s(secs: float) -> String:
+	if secs >= 3600.0: return Tx.t("ui.posts.hours_minutes") % [int(secs / 3600.0), int(fmod(secs / 60.0, 60.0))]
+	return Tx.t("ui.posts.minutes") % int(secs / 60.0)
+
 # ------------------------------------------------------------------ actions
 func on_action(id: String, data) -> void:
 	match id:
@@ -173,3 +285,15 @@ func on_action(id: String, data) -> void:
 		"favour":
 			var r := submit({"type": "seek_favour", "favour": str(data)})
 			if r.get("ok", false): flash(Tx.t("ui.works.favour_granted"))
+		"line": submit({"type": "calcine_line", "line": str(data[0]), "on": bool(data[1])})
+		"refine":
+			var r := submit({"type": "refine_line", "line": str(data)})
+			if r.get("ok", false): flash(Tx.t("ui.works.refined") % [int(r.salts), ContentDB.item_name(str(data)), int(r.rank)])
+		"plant":
+			var r := submit({"type": "plant_flag", "kind": str(data)})
+			if r.get("ok", false): flash(Tx.t("ui.works.planted"))
+		"flag_raise": submit({"type": "raise_flag", "index": int(data)})
+		"flag_uproot": submit({"type": "uproot_flag", "index": int(data)})
+		"echo":
+			var r := submit({"type": "echo_inscribe", "slot": int(data)})
+			if r.get("ok", false): flash(Tx.t("ui.works.echoed"))
