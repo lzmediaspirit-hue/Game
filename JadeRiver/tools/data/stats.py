@@ -594,11 +594,16 @@ def build():
         {"id": "interruption", "cause": "interruption", "loss": [0.0, 0.0], "injury": {"kind": "body", "severity": 1}, "items_lost": True, "recovery": "Retreat room, guard formation"},
     ])
 
+    # B10: each origin has its name and a line for the creator (the id showed as "Fishers Child", no description).
     entries("origins.json", [
-        {"id": "fishers_child", "bonus": {"body": 3, "essence": 2}, "element_nudge": "water"},
-        {"id": "scholars_heir", "bonus": {"insight": 5}, "element_nudge": ""},
-        {"id": "temple_foundling", "bonus": {"spirit": 5}, "element_nudge": ""},
-        {"id": "smiths_apprentice", "bonus": {"body": 3, "insight": 2}, "element_nudge": "metal"},
+        {"id": "fishers_child", "name": "Fisher's Child", "bonus": {"body": 3, "essence": 2}, "element_nudge": "water",
+         "desc": "Raised among the river's fishing boats: +3 Body and +2 Essence, and a leaning toward water."},
+        {"id": "scholars_heir", "name": "Scholar's Heir", "bonus": {"insight": 5}, "element_nudge": "",
+         "desc": "Heir to a house of books and ink: +5 Insight."},
+        {"id": "temple_foundling", "name": "Temple Foundling", "bonus": {"spirit": 5}, "element_nudge": "",
+         "desc": "Left at a temple gate and raised on its chants: +5 Spirit."},
+        {"id": "smiths_apprentice", "name": "Smith's Apprentice", "bonus": {"body": 3, "insight": 2}, "element_nudge": "metal",
+         "desc": "Raised at the forge's bellows: +3 Body and +2 Insight, and a leaning toward metal."},
     ])
 
     methods = [

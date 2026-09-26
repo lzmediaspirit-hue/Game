@@ -3,33 +3,41 @@
  "entries": [
   {
    "id": "fishers_child",
+   "name": "Fisher's Child",
    "bonus": {
     "body": 3,
     "essence": 2
    },
-   "element_nudge": "water"
+   "element_nudge": "water",
+   "desc": "Raised among the river's fishing boats: +3 Body and +2 Essence, and a leaning toward water."
   },
   {
    "id": "scholars_heir",
+   "name": "Scholar's Heir",
    "bonus": {
     "insight": 5
    },
-   "element_nudge": ""
+   "element_nudge": "",
+   "desc": "Heir to a house of books and ink: +5 Insight."
   },
   {
    "id": "temple_foundling",
+   "name": "Temple Foundling",
    "bonus": {
     "spirit": 5
    },
-   "element_nudge": ""
+   "element_nudge": "",
+   "desc": "Left at a temple gate and raised on its chants: +5 Spirit."
   },
   {
    "id": "smiths_apprentice",
+   "name": "Smith's Apprentice",
    "bonus": {
     "body": 3,
     "insight": 2
    },
-   "element_nudge": "metal"
+   "element_nudge": "metal",
+   "desc": "Raised at the forge's bellows: +3 Body and +2 Insight, and a leaning toward metal."
   }
  ]
 }

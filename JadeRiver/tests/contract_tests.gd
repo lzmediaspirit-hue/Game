@@ -55,6 +55,8 @@ func _main() -> void:
 	_forbidden_patterns()
 	_scripts_compile()
 	_export_filters()
+	_version_one_place()
+	_controls_line()
 	print("contract_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -215,6 +217,42 @@ func _scripts_compile() -> void:
 		var sc = load(str(path))
 		if sc == null or not (sc as GDScript).can_instantiate(): broken.append(str(path))
 	check(broken.is_empty(), "every script compiles %s" % str(broken))
+
+## B23: Settings > Controls names every letter key the HUD answers in play, and no hold that the keyboard does not do
+## (it promised "C … hold for the Cultivation page" and left out E, P, V, G, H, O and R).
+func _controls_line() -> void:
+	var line := Tx.t("ui.settings.keyboard_arrows_wasd_move_space")
+	var src := FileAccess.get_file_as_string("res://scripts/hud.gd").split("\n")
+	var start := -1
+	for i in src.size():
+		if src[i].contains("var kc: int = event.physical_keycode"): start = i
+	var keys := {}
+	var branch := RegEx.create_from_string("^\\t+(KEY_[A-Z](, KEY_[A-Z])*):")
+	for i in range(start + 1, src.size()):
+		if src[i].begins_with("func "): break
+		var m := branch.search(src[i])
+		if m:
+			for k in m.get_string(1).split(","): keys[k.strip_edges().trim_prefix("KEY_")] = true
+	var missing: Array = keys.keys().filter(func(k): return RegEx.create_from_string("(^|[ ·(])%s( |\u00a0|$)" % k).search(line) == null)
+	check(start >= 0 and keys.size() >= 15 and missing.is_empty() and not line.contains("hold for"), "the controls line names every key the HUD answers (missing %s)" % str(missing))
+
+## B9: the version lives in one place, project.godot's application/config/version: the title screen reads it, every
+## export preset leaves version/name empty so the build takes it too, and no string spells a version (the title said
+## "v1.0" on the 1.2 build).
+func _version_one_place() -> void:
+	var v := str(ProjectSettings.get_setting("application/config/version", ""))
+	check(RegEx.create_from_string("^\\d+\\.\\d+").search(v) != null, "project.godot names the version (%s)" % v)
+	var cfg := ConfigFile.new()
+	var named: Array = []
+	if cfg.load("res://export_presets.cfg") == OK:
+		for sec in cfg.get_sections():
+			if cfg.has_section_key(sec, "version/name") and str(cfg.get_value(sec, "version/name", "")) != "": named.append(sec)
+	check(named.is_empty(), "every export preset takes its version name from project.godot %s" % str(named))
+	var spelled: Array = []
+	var ver := RegEx.create_from_string("\\bv\\d+\\.\\d+")
+	for key in ContentDB.strings:
+		if ver.search(str(ContentDB.strings[key])) != null: spelled.append(key)
+	check(spelled.is_empty(), "no string spells a version %s" % str(spelled))
 
 ## No export preset leaves out a file the scripts load: an excluded resource ships only as a missing
 ## path, and every draw that needs it fails on the phone (Pixelify Sans was left out this way until 1.0.2).

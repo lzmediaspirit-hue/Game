@@ -369,6 +369,8 @@ func data_suite() -> void:
 		for dk in ["spare_debt", "kill_debt"]:
 			if str(en.get(dk, "")) != "": debt_ids.append(str(en[dk]))
 	for did in debt_ids: check(ContentDB.strings.has("ui.cultivation.debt_" + str(did)), "debt %s has a label (B24)" % did)
+	# B10: an origin has its name and a line for the creator (it showed its id, "Fishers Child", and no description).
+	for og in ContentDB.all("origins"): check(str(og.get("name", "")) != "" and str(og.get("desc", "")) != "", "origin %s has a name and a description (B10)" % og.id)
 	# B8: a shop's prices name their currency from the strings (the page spelled "taels" and "stones" in code).
 	for sh in ContentDB.all("shops"): check(ContentDB.strings.has("ui.shop.price_" + str(sh.get("currency", "silver_tael"))), "shop %s currency has a price word (B8)" % sh.id)
 	for key in ["fame_tiers", "alignment_words"]:
