@@ -188,7 +188,7 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"clear_flag": quest.apply_clear_flag(actor_id, str(e.flag))
 			"start_quest": quest.apply_start(actor_id, str(e.quest))
 			"offer_quest": quest.apply_offer(actor_id, str(e.quest))
-			"unlock_system": Unlocks.force_unlock(actor_id, str(e.system)) if OS.is_debug_build() else null
+			"unlock_system": Unlocks.force_unlock(actor_id, str(e.system)) if Unlocks.debug_tools() else null
 			"add_contribution": training.apply_contribution(actor_id, int(e.amount), source)
 			"add_reputation": training.apply_reputation(actor_id, str(e.get("faction", "")), int(e.amount))
 			"add_prestige": sect.apply_prestige(int(e.amount), source)

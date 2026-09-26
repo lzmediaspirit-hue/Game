@@ -112,6 +112,25 @@ godot --path . -- --preview-world --room=lf_village --talk=washer_mei --shot=nam
 `--preview-world` enters with a preview character, `--room=` starts in a room, `--unlock-all` opens
 every system, `--debug-sect` gives a founded sect with all buildings, `--fly` takes off, `--ride` mounts a crane, `--give=item[:count[:quality]]` fills the bag, `--at=x,y` starts at a point in the room, `--open-page=<id>[:tab]` and
 `--talk=<npc>` open UI, `--hazard=<phase>:<k>` forces the room's hazards into a phase at answer ratio k, `--log-events` prints the event stream, `--capture` saves `../<shot>-preview.png`.
+`--max-character` makes the Max Test character (below) in an empty save and opens every way; add `--load-slot` to enter as them.
+
+## Android builds
+
+`export_presets.cfg` has two Android presets, and both APKs are in `../builds/`:
+
+- **Android** (`JadeRiver-android-arm64.apk`, package `com.jaderiver.cleanengine`) is the game as a new player gets
+  it.
+- **Android Max Test** (`JadeRiver-MaxTest-android-arm64.apk`, package `com.jaderiver.cleanengine.maxtest`) carries
+  the custom feature `max_test`. On first launch it makes **Max Tester** in slot 1. Every system is unlocked in this
+  build and every way is open. Max Tester has:
+  - the highest realm this build's zones allow (Sage Sovereign 3, Level 79);
+  - every method, technique, Inner Art, movement art, recipe and Dao;
+  - the best gear at Perfect +10, one best weapon of each family, all flight vessels, and pills, talismans and
+    throwables in storage;
+  - every animal, a mount, the companions, Elder rank in the Jade Sect, and a founded sect at level 20;
+  - every teleport stone and room known, 10,000,000 silver and 1,000,000 spirit stones.
+
+  It has its own package, so it installs beside the normal game.
 
 ## Art and credits
 

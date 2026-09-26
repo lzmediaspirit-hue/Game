@@ -7,6 +7,11 @@ extends Node
 
 var debug_force_all := false
 
+## Debug tools (S38) run in debug builds and in the Max Test APK, whose export preset carries the custom
+## feature "max_test". A plain release build has none of them.
+func debug_tools() -> bool:
+	return OS.is_debug_build() or OS.has_feature("max_test")
+
 func _char(actor_id: String):
 	return Game.character(actor_id) if Game else null
 
@@ -82,7 +87,7 @@ func grant_prologue(actor_id: String) -> void:
 			_apply_unlock(c, entry, false)
 
 func force_unlock(actor_id: String, system: String) -> bool:
-	if not OS.is_debug_build(): return false
+	if not debug_tools(): return false
 	var c = _char(actor_id)
 	var entry := ContentDB.entry("unlocks", system)
 	if c == null or entry.is_empty(): return false

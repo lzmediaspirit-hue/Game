@@ -5,6 +5,39 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### Two Android builds; no Credits button
+- **Max Test APK.** A second Android preset, *Android Max Test* (custom feature `max_test`, package
+  `com.jaderiver.cleanengine.maxtest`), installs beside the normal game.
+  - On first launch it makes **Max Tester** (`AccountAuthority.create_max_character`): the Prologue behind them, at
+    the highest realm this build's zones allow (Sage Sovereign 3, Level 79).
+  - Every system is unlocked. Every method, technique (top mastery), Inner Art (worn), movement art, recipe, Dao
+    tier and craft rank is theirs.
+  - Gear: the best piece for every slot and the best furnace at Perfect +10, one best weapon of each family, every
+    flight vessel and a Beast Bag. Ten of every pill, talisman and throwable wait in storage.
+  - Every animal at the highest stage the realm reaches, a mount, the companions, Elder of the Jade Sect, and a
+    founded sect at level 20 with every building at 10.
+  - Every teleport stone and room is known, with 10,000,000 silver, 1,000,000 spirit stones and shards for fees.
+  - The build opens every way (`WorldAuthority.debug_open_ways`: portals, hidden ways and climbs, except rooms not
+    built yet).
+  - Debug tools (`Unlocks.debug_tools()`) now run in debug builds and in this APK; a plain release build still has
+    none. `--max-character` does the same in the editor.
+- **Credits removed.** The Credits buttons on the title screen and in Settings > Data, and the Credits page, are
+  gone. The title's Settings button spans the row. Attribution still ships inside the game (`data/LPC-CREDITS.txt`
+  and the font licences) and in the README.
+- **HUD money.** The silver and spirit stone pill widens for large balances, and spirit stones show thousands
+  separators. Before, 10,000,000 silver ran into the stones.
+- Tests: `rules_tests` `max_character_suite` checks the Max Test character:
+  - the top realm;
+  - every unlock;
+  - every technique and movement art;
+  - Perfect +10 gear;
+  - a bag with room;
+  - every stone and room;
+  - animals, mount and companions;
+  - both sects and the start room;
+  - with ways open, every built room reachable.
+- Both APKs are version 1.0.2 (code 102).
+
 ### Readability pass and the Fisher's Hut
 - **Heavier, clearer type.** Every word in the game was drawn in Cormorant Garamond **Light**: the font's weight was
   set with a plain `"wght"` key, which Godot ignores, so it stayed at its thinnest default. Weights now use OpenType

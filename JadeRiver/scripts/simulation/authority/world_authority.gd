@@ -10,6 +10,9 @@ const BREAKABLES := ["jar", "crate", "wine_jar"]
 const TRAINING := ["training_stump", "training_dummy"]
 
 var pending_transfer: Dictionary = {}   # presentation performs the fade, then calls complete_transfer
+## Debug tools (S38, the Max Test APK): every portal, hidden way and climb is open, whatever its quest, flag or rank.
+## A way to a room not built yet stays "Coming soon".
+var debug_open_ways := false
 
 func intents() -> Array:
 	return ["use_portal", "interact", "teleport", "pick_up", "enter_world", "sense_pulse", "set_sail", "climb_tower", "sweep_floor",
@@ -306,6 +309,7 @@ func portal_state(c, portal: Dictionary) -> Dictionary:
 	var target := str(portal.get("to", ""))
 	if ContentDB.room(target).is_empty():
 		return {"open": false, "text": Tx.t("sim.world.coming_soon")}
+	if debug_open_ways: return {"open": true, "text": ContentDB.name_of("rooms", target)}
 	if portal.has("requires") and not RequirementRules.passes(portal.requires, game.ctx(c)):
 		return {"open": false, "text": str(portal.get("locked_text", RequirementRules.first_failure_text(portal.requires, game.ctx(c))))}
 	if portal.get("type", "") == "hidden" and not c.quests.has_flag("seen_" + game.room_rt.room_id + "_" + str(portal.id)):
@@ -449,7 +453,7 @@ func object_visible(c, o: Dictionary) -> bool:
 
 ## A sealed climbable (S43: library floors, lofts) opens when its requirement is met.
 func climbable_open(c, climbable: Dictionary) -> Dictionary:
-	if climbable.has("requires") and not RequirementRules.passes(climbable.requires, game.ctx(c)):
+	if climbable.has("requires") and not debug_open_ways and not RequirementRules.passes(climbable.requires, game.ctx(c)):
 		return {"ok": false, "text": str(climbable.get("locked_text", RequirementRules.first_failure_text(climbable.requires, game.ctx(c))))}
 	return {"ok": true}
 

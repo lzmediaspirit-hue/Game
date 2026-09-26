@@ -55,7 +55,6 @@ func draw_page() -> void:
 			btn(Rect2(x, y + 96, 240, 54), Tx.t("ui.settings.save_now"), "save", null, true)
 			btn(Rect2(x + 256, y + 96, 240, 54), Tx.t("ui.settings.export_save"), "export")
 			btn(Rect2(x + 512, y + 96, 240, 54), Tx.t("ui.settings.export_log"), "export_log")
-			btn(Rect2(x + 768, y + 96, 200, 54), Tx.t("ui.settings.credits"), "credits")
 			para(Rect2(x, y + 164, 960, 60), Tx.t("ui.settings.saves_are_written_every_few"), 17, UiKit.MIST, 2)
 			# Moving phones: restore one of the exports found on this device.
 			text(Vector2(x, y + 250), Tx.t("ui.settings.restore_an_export"), 20, UiKit.GOLD)
@@ -103,7 +102,6 @@ func on_action(id: String, data) -> void:
 		"export_log":
 			var lp := Saves.export_log()
 			flash(Tx.t("ui.settings.log_copied_to") % ProjectSettings.globalize_path(lp) if lp != "" else Tx.t("ui.settings.no_log_yet"))
-		"credits": navigate.emit("credits", {})
 		"restore": ask(Tx.t("ui.settings.replace_your_saves_with_this"), "restore_yes", data, true)
 		"restore_yes": navigate.emit("_import", {"path": str(data)})
 		"text_size": set_setting("text_size", int(data))

@@ -29,7 +29,6 @@ const PAGES := {
 	"revival": "res://scripts/ui/pages/revival_page.gd",
 	"teleport": "res://scripts/ui/pages/teleport_page.gd",
 	"emotes": "res://scripts/ui/pages/emotes_page.gd",
-	"credits": "res://scripts/ui/pages/credits_page.gd",
 	"notice_board": "res://scripts/ui/pages/notice_page.gd",
 	"training_sect": "res://scripts/ui/pages/training_sect_page.gd",
 	"your_sect": "res://scripts/ui/pages/your_sect_page.gd",
@@ -137,6 +136,12 @@ func _ready() -> void:
 	if "--log-events" in user_args:
 		GameEvents.event.connect(func(n: String, p: Dictionary): if n not in ["resource_changed", "meditation_tick"]: print("[event] ", n, " ", p))
 	boot_report = Game.boot()
+	# The Max Test APK (custom feature "max_test"; --max-character in the editor): every way open, every system
+	# unlocked, and on first launch a ready-made character at the top of this build.
+	if OS.has_feature("max_test") or "--max-character" in user_args:
+		Unlocks.debug_force_all = true
+		Game.world.debug_open_ways = true
+		if Game.characters.is_empty(): Game.accounts.create_max_character(1, Tx.t("main.max_tester"))
 	Audio.music("title")
 	show_title()
 	if not boot_report.get("recovered", []).is_empty():
@@ -525,7 +530,6 @@ func _on_title(action: String) -> void:
 			if Game.characters.is_empty(): show_creation(1)
 			else: show_selection()
 		"settings": open_page("settings", {})
-		"credits": open_page("credits", {})
 		"quit": save_and_quit()
 
 func show_selection() -> void:

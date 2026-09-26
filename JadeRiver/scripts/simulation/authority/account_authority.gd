@@ -115,6 +115,162 @@ func _apply_skip_prologue(c, start: Dictionary) -> void:
 	StatRules.rebuild(c)
 	c.pools.hp = c.pools.max_hp
 
+# ------------------------------------------------------------------ Max Test character (debug tools, S38)
+## A character for checking everything, built only where debug tools run (debug builds and the Max Test APK).
+## It stands at the highest realm this build's zones allow. It has:
+## - every system unlocked;
+## - every method, technique (top mastery), Inner Art, movement art, recipe and Dao tier;
+## - the Prologue behind it;
+## - the best gear at Perfect +10, and one best weapon of each family;
+## - every animal, the companions, a training sect at Elder and a founded sect at its top level;
+## - every teleport stone and room known, and money and shards to spend.
+func create_max_character(slot: int, name: String) -> Dictionary:
+	if not Unlocks.debug_tools(): return fail("locked")
+	var made := create_character({"slot": slot, "name": name, "appearance": {"hair": "topknot", "shirt": "disciple", "pants": "loose", "shoes": "boots"}})
+	if not made.get("ok", false): return made
+	var c = game.character("c%d" % slot)
+	c.skip_prologue = true
+	var start: Dictionary = ContentDB.config("account_rules").get("skip_start", {})
+	_apply_skip_prologue(c, start)
+	c.position = {"room": str(start.get("room", "sf_fairground")), "portal": "", "x": float(start.get("x", 0)), "y": float(start.get("y", 0)), "surface": "", "facing": 1}
+	for entry in ContentDB.all("unlocks"): Unlocks.force_unlock(c.id, str(entry.id))
+	# The realm: the highest zone ceiling (Sage Sovereign 3 in v1.1); realms above it have no zone to stand in yet.
+	var cu: CultivatorState = c.cultivator
+	var top := "mortal"
+	for z in ContentDB.all("zones"):
+		if ContentDB.realm_position(str(z.get("ceiling", ""))) > ContentDB.realm_position(top): top = str(z.ceiling)
+	cu.realm_key = top
+	cu.energy_type = str(ContentDB.entry("realms", top).get("energy", cu.energy_type))
+	cu.state = "accumulating"
+	cu.qp = 0.0
+	cu.purity = 1
+	cu.core_grade = 1
+	for k in cu.aptitude: cu.aptitude[k].revealed = true
+	var level := ProgressionRules.level(c)
+	cu.meridian_levels_granted = level
+	cu.unspent_meridian_points = 0
+	for lv in range(1, level + 1): cu.unspent_meridian_points += ProgressionRules.meridian_points_for_level(lv)
+	var tiers: Array = ContentDB.all("body_tiers")
+	for t in tiers:
+		cu.body_trials.append(str(t.id))
+		cu.body_baths.append(str(t.id))
+	if not tiers.is_empty():
+		cu.body_tier = str(tiers.back().id)
+		cu.body_level = maxi(int(tiers.back().get("need", 1)), level)
+	# Methods (the one reaching highest in use), techniques, Inner Arts (worn), movement arts, Daos, recipes and crafts.
+	var method := ""
+	for m in ContentDB.all("methods"):
+		game.progression.apply_learn_method(c.id, str(m.id))
+		if not m.get("fragment", false) and (method == "" or ContentDB.realm_position(str(m.get("ceiling", ""))) > ContentDB.realm_position(str(ContentDB.entry("methods", method).get("ceiling", "")))):
+			method = str(m.id)
+	if method != "": cu.method_id = method
+	for t in ContentDB.all("techniques"):
+		game.progression.apply_learn_technique(c.id, str(t.id))
+		cu.mastery[str(t.id)] = {"tier": 6, "points": 0.0}
+	for ia in ContentDB.all("inner_arts"): game.progression.apply_learn_inner_art(c.id, str(ia.id))
+	for i in mini(ProgressionRules.inner_art_slot_count(cu.realm_key), cu.inner_arts_known.size()):
+		game.progression.equip_inner_art(c, i, str(cu.inner_arts_known[i]))
+	for art in ContentDB.all("secret_arts"): game.progression.apply_learn_secret_art(c.id, str(art.id))
+	for d in ContentDB.all("daos"): cu.daos[str(d.id)] = {"tier": maxi(1, (d.get("tiers", []) as Array).size()), "insight": 0.0}
+	var learn: Array = []
+	var crafts := {}
+	for r in ContentDB.all("recipes"):
+		learn.append({"kind": "learn_recipe", "recipe": str(r.id)})
+		crafts[str(r.get("craft", ""))] = true
+	game.apply_effects(c.id, learn, "debug")
+	var ranks: Array = ContentDB.curve("profession_ranks", [])
+	for craft in crafts:
+		if craft == "" or ranks.is_empty(): continue
+		var cap: int = game.crafting.rank_cap(c, craft)
+		c.professions[craft] = {"rank": str(ranks[cap][0]), "xp": float(ranks[cap][1])}
+	for g in ContentDB.all("guilds"):
+		for rk in g.get("ranks", []):
+			if str(rk.get("flag", "")) != "": c.quests.flags[str(rk.flag)] = true
+	_max_gear(c)
+	# Animals (each at the highest stage this realm reaches), a mount, the companions and both sects.
+	var stage := {"id": "hatchling", "level": 1}
+	for st in ContentDB.config("pet_growth").get("stages", []):
+		if ProgressionRules.at_least(cu.realm_key, str(st.get("realm", "mortal"))): stage = st
+	for sp in ContentDB.all("pets"):
+		game.pets.apply_grant(c.id, str(sp.id))
+	for pet in c.pets:
+		if pet.get("construct", false): continue
+		pet.stage = str(stage.id)
+		pet.level = maxi(int(pet.level), int(stage.get("level", 1)))
+		pet.bond = 10.0
+		pet.revealed = (pet.get("traits", []) as Array).size()
+	for pet in c.pets:
+		if ContentDB.entry("pets", str(pet.species)).get("mount_only", false):
+			game.pets.set_mount(c, str(pet.uid), null)
+			break
+	for comp in ContentDB.all("companions"): game.companions.apply_add(c.id, str(comp.id))
+	var sects: Array = ContentDB.all("sects")
+	if not sects.is_empty():
+		game.training.apply_join(c.id, str(sects[0].id))
+		for rk in ContentDB.config("sect_ranks").get("order", []): game.training.apply_rank(c.id, str(rk))
+		game.training.apply_contribution(c.id, 100000, "debug")
+	if game.account.sect.is_empty():
+		var levels: Array = ContentDB.config("sect_levels").get("levels", [])
+		var b := {}
+		for row in ContentDB.all("sect_buildings"): b[str(row.id)] = int(row.get("max_level", 1))
+		game.account.sect = {"name": name, "emblem": [0, 0], "level": int(levels.back().level) if not levels.is_empty() else 1,
+			"prestige": int(levels.back().prestige) if not levels.is_empty() else 0, "buildings": b, "queue": [], "disciples": [],
+			"candidates": [], "expeditions": [], "candidate_day": -1}
+	# The map: every teleport stone found, every room walked; silver, stones and shards for fees and shops.
+	for stone in ContentDB.all("teleport_stones"): game.account.teleports[str(stone.id)] = true
+	for rid in ContentDB.rooms: game.account.visited_rooms[rid] = true
+	game.economy.apply_currency("silver_tael", 10000000, "debug")
+	game.economy.apply_currency("spirit_stone", 1000000, "debug")
+	StatRules.rebuild(c)
+	c.pools.hp = c.pools.max_hp
+	c.pools.qi = c.pools.max_qi
+	c.pools.soul = c.pools.max_soul
+	game.account.characters[str(slot)] = summary(c)
+	game.save_all()
+	return ok({"actor": c.id})
+
+## The Max Test character's gear: the best piece for every slot at Perfect +10, the best furnace, one best weapon of
+## each family in the bag (a jian in hand), every flight vessel (the last ridden), a Beast Bag, and ten of every pill,
+## talisman and throwable in the account storage chest (the bag stays free for what you find).
+func _max_gear(c) -> void:
+	var rng := Rng.stream(c.id, "affix")
+	var best := {}
+	var by_family := {}
+	for a in ContentDB.all("artifacts"):
+		if a.get("relic", false) or a.get("legend", false) or a.get("imitation", false): continue
+		var slot := str(a.get("slot", ""))
+		var key := slot
+		if slot == "weapon":
+			var fam := str(a.get("family", ""))
+			if not by_family.has(fam) or int(a.get("ilv", 0)) > int(by_family[fam].get("ilv", 0)): by_family[fam] = a
+			continue
+		if not best.has(key) or int(a.get("ilv", 0)) > int(best[key].get("ilv", 0)): best[key] = a
+	if by_family.has("jian"): best["weapon"] = by_family.jian
+	for slot in best:
+		var def: Dictionary = best[slot]
+		var inst := LootRules.make_instance(str(def.id), int(def.get("ilv", 1)), "perfect", rng, c.inventory.next_uid)
+		c.inventory.next_uid += 1
+		inst.enhance = 10
+		if slot == "tool_furnace": c.inventory.furnace = inst
+		elif c.inventory.equipped.has(slot): c.inventory.equipped[slot] = inst
+	c.inventory.resize(c.inventory.capacity())
+	for fam in by_family:
+		if fam != "jian": game.inventory.apply_add_equipment(c.id, str(by_family[fam].id), int(by_family[fam].get("ilv", 1)), "perfect", "debug")
+	var gifts := {"spirit_stone_shard": 99, "beast_bag_star": 1, "weapon_soul_crystal": 3}
+	var stored: Array = game.account.storage.get("items", [])
+	for it in ContentDB.all("items"):
+		match str(it.get("type", "")):
+			"vessel":
+				gifts[str(it.id)] = 1
+				c.inventory.vessel = str(it.id)
+			"pill", "talisman", "throwable":
+				var e := InventoryAuthority.pill_entry(str(it.id), {})
+				e.count = 10
+				stored.append(e)
+	game.account.storage["items"] = stored
+	for id in gifts:
+		if not ContentDB.item(str(id)).is_empty(): game.inventory.apply_add(c.id, str(id), int(gifts[id]), "debug")
+
 ## Enter the world as this slot's character: claim offline/idle time first (S35 boot).
 func enter_character(slot: int) -> Dictionary:
 	var c = game.character("c%d" % slot)

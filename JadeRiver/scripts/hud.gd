@@ -1268,13 +1268,21 @@ func _draw():
 		glyph("jian", auto_center + Vector2(0, -4), 26)
 		UiKit.draw_outlined(self, Tx.t("hud.auto_hunt"), auto_center + Vector2(-40, 23), 14, UiKit.GOLD if on else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 80)
 	if shown("currency"):
-		var cr := Rect2(1062, 222, 200, 34)
+		# The pill grows leftward to fit large balances; the spirit stones follow the silver instead of a fixed spot.
+		var silver := UiKit.fmt(Game.economy.balance("silver_tael"))
+		var stones := int(Game.account.currencies.get("spirit_stone", 0))
+		var sw := UiKit.text_width(silver, 18)
+		var w := 38.0 + sw + 16.0
+		if stones > 0: w += 30.0 + UiKit.text_width(UiKit.fmt(stones), 18)
+		w = maxf(200.0, w)
+		var cr := Rect2(1262 - w, 222, w, 34)
 		draw_style_box(UiKit.style("currency_pill"), cr)
 		glyph("coin", cr.position + Vector2(20, 17), 24)
-		UiKit.draw_text(self, UiKit.fmt(Game.economy.balance("silver_tael")), cr.position + Vector2(38, 24), 18, UiKit.PALE_GOLD)
-		if int(Game.account.currencies.get("spirit_stone", 0)) > 0:
-			glyph("spirit_stone", cr.position + Vector2(128, 17), 22)
-			UiKit.draw_text(self, str(Game.account.currencies.spirit_stone), cr.position + Vector2(144, 24), 18, UiKit.BRIGHT_JADE)
+		UiKit.draw_text(self, silver, cr.position + Vector2(38, 24), 18, UiKit.PALE_GOLD)
+		if stones > 0:
+			var sx := 38.0 + sw + 26.0
+			glyph("spirit_stone", cr.position + Vector2(sx, 17), 22)
+			UiKit.draw_text(self, UiKit.fmt(stones), cr.position + Vector2(sx + 16, 24), 18, UiKit.BRIGHT_JADE)
 	_draw_controls(c)
 	if shown("progress_bar"): _draw_progress(c)
 	if shown("system_log"): _draw_log()

@@ -23,11 +23,11 @@ class TitleScreen extends Page:
 			draw_rect(Rect2(626 + i * 12, 320, 6, 6), UiKit.GOLD)
 		var has_chars := not Game.characters.is_empty()
 		btn(Rect2(490, 420, 300, 64), Tx.t("shell.continue") if has_chars else Tx.t("shell.begin"), "start", null, true, true, "", 26)
-		btn(Rect2(490, 500, 145, 56), Tx.t("shell.settings"), "settings")
-		btn(Rect2(645, 500, 145, 56), Tx.t("ui.settings.credits"), "credits")
+		btn(Rect2(490, 500, 300, 56), Tx.t("shell.settings"), "settings")
 		if OS.get_name() not in ["Android", "iOS", "Web"]:
 			btn(Rect2(490, 570, 300, 56), Tx.t("shell.quit"), "quit")
 		text(Vector2(0, 700), Tx.t("shell.v1_0_jade_river_valley"), 16, Color(UiKit.MIST, 0.6 + 0.2 * pulse), HORIZONTAL_ALIGNMENT_CENTER, 1280)
+		if OS.has_feature("max_test"): text(Vector2(0, 672), Tx.t("shell.max_test_build"), 18, UiKit.GOLD, HORIZONTAL_ALIGNMENT_CENTER, 1280)
 
 	func on_action(id: String, _data) -> void:
 		chosen.emit(id)

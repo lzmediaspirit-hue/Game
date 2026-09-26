@@ -84,6 +84,7 @@ func _main() -> void:
 	awaken_legend_suite()
 	emotes_suite()
 	text_suite()
+	max_character_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
@@ -109,6 +110,48 @@ func text_suite() -> void:
 	Game.account.settings["text_size"] = 2
 	check(UiKit.text_width(probe, 18) > normal * 1.08 and UiKit.line_height(18) > 18 * 1.3 * 1.08, "Large text size widens words and lines")
 	Game.account.settings["text_size"] = keep
+
+# ------------------------------------------------------------------ Max Test character (debug tools)
+## The Max Test APK's ready-made character: top realm, every system, art and technique, best gear, the whole map,
+## animals and both sects; with its ways open, no built room is out of reach.
+func max_character_suite() -> void:
+	var folder := "user://max_character_suite/"
+	DirAccess.make_dir_recursive_absolute(folder)
+	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
+	Saves.use_folder(folder)
+	Game.boot()
+	Game.autosave_enabled = false
+	check(Game.accounts.create_max_character(1, "Max").get("ok", false), "the Max Test character is made where debug tools run")
+	var c = Game.character("c1")
+	if c == null: return
+	var top := "mortal"
+	for z in ContentDB.all("zones"):
+		if ContentDB.realm_position(str(z.get("ceiling", ""))) > ContentDB.realm_position(top): top = str(z.ceiling)
+	check(c.cultivator.realm_key == top, "stands at the top of this build's zones (%s)" % c.cultivator.realm_key)
+	var locked: Array = []
+	for e in ContentDB.all("unlocks"):
+		if not c.cultivator.unlocked.has(str(e.id)): locked.append(str(e.id))
+	check(locked.is_empty(), "every system unlocked (still locked: %s)" % str(locked))
+	check(c.cultivator.techniques_known.size() == ContentDB.all("techniques").size() and c.cultivator.secret_arts.size() == ContentDB.all("secret_arts").size(),
+		"every technique and movement art known")
+	check(c.inventory.equipped.weapon != null and str(c.inventory.equipped.weapon.quality) == "perfect" and int(c.inventory.equipped.weapon.enhance) == 10,
+		"the best gear worn at Perfect +10")
+	check(c.inventory.bag.count(null) > 20 and not (Game.account.storage.get("items", []) as Array).is_empty(), "the bag has room; spare stacks wait in storage")
+	check(Game.account.teleports.size() == ContentDB.all("teleport_stones").size() and Game.account.visited_rooms.size() == ContentDB.rooms.size(),
+		"every teleport stone found and every room on the map")
+	check(not c.pets.is_empty() and c.mount_pet != "" and not c.companions.roster.is_empty(), "animals, a mount and companions")
+	var ranks: Array = ContentDB.config("sect_ranks").get("order", [])
+	check(Game.sect.founded() and str(c.training_sect.get("rank", "")) == str(ranks.back()), "a founded sect and Elder of a training sect")
+	check(str(c.position.room) == str(ContentDB.config("account_rules").get("skip_start", {}).get("room", "")), "starts where a skipped Prologue does")
+	check(Game.economy.balance("silver_tael") >= 10000000, "silver to spend")
+	Game.world.debug_open_ways = true
+	var shut: Array = []
+	for rid in ContentDB.rooms:
+		for p in ContentDB.room(rid).get("portals", []):
+			if ContentDB.room(str(p.get("to", ""))).is_empty(): continue
+			if not Game.world.portal_state(c, p).get("open", false): shut.append("%s:%s" % [rid, p.id])
+	check(shut.is_empty(), "with ways open no built room is out of reach (shut: %s)" % str(shut))
+	Game.world.debug_open_ways = false
 
 # ------------------------------------------------------------------ S43 Paths Above and the room catalogue
 func paths_above_suite() -> void:
