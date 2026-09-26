@@ -179,6 +179,8 @@ func ui_suite() -> void:
 	var under: Array = []
 	var labels: Array = []
 	var crossing: Array = []
+	var cut: Array = []   # B18: views whose words were cut short; these now have the room to say everything
+	var whole := ["cultivation:body", "cultivation:vows", "beast_arena:-", "training_sect:role"]
 	var views := 0
 	for id in main_script.PAGES:
 		for a in contexts.get(str(id), [{}]):
@@ -217,6 +219,7 @@ func ui_suite() -> void:
 						var both: Rect2 = (buttons[i].rect as Rect2).intersection(buttons[j].rect)
 						if both.size.x > 0.5 and both.size.y > 0.5: overlaps.append("%s %s/%s" % [where, buttons[i].id, buttons[j].id])
 				for tx in pg.text_log:
+					if where in whole and str(tx.s).ends_with("…"): cut.append("%s \"%s\"" % [where, tx.s])
 					var tr: Rect2 = tx.rect
 					if tx.get("panel", false):
 						if not inside.grow(4).encloses(tr): outside.append("%s panel at %s" % [where, str(tr)])
@@ -254,6 +257,22 @@ func ui_suite() -> void:
 	await get_tree().process_frame
 	check(ip._regions.any(func(r): return r.id == "use_key" and r.enabled), "B2: the guqin in the key-item pouch has a Play button")
 	ip.queue_free()
+	# B18: a paragraph cut short by its lines, and a line longer than its width, end with an ellipsis and keep to the width.
+	var probe := GDScript.new()
+	probe.source_code = "extends Page\nvar words := \"\"\nfunc draw_page() -> void:\n\tpara(Rect2(100, 100, 220, 400), words, 16, UiKit.PAPER, 2)\n" \
+		+ "\ttext(Vector2(100, 400), words, 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 220)\n\tpara(Rect2(100, 500, 220, 400), \"A short one.\", 16)\n"
+	probe.reload()
+	var pp = probe.new()
+	pp.frameless = true
+	pp.text_log = []
+	pp.words = Tx.t("ui.cultivation.body_hint")
+	add_child(pp)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var said: Array = pp.text_log.map(func(tx): return str(tx.s))
+	check(said.size() == 4 and not said[0].ends_with("…") and said[1].ends_with("…") and said[2].ends_with("…") and said[3] == "A short one."
+		and pp.text_log.all(func(tx): return tx.rect.size.x <= 221.0), "B18: cut words end with an ellipsis inside their width (%s)" % str(said))
+	pp.queue_free()
 	# B15: the Menu names the same Level as the Cultivation badge (ProgressionRules.level), not the stage's first.
 	var realm_was: String = c.cultivator.realm_key
 	var qp_was: float = c.cultivator.qp
@@ -287,6 +306,7 @@ func ui_suite() -> void:
 	check(under.is_empty(), "B16: no words run under a button (%d: %s)" % [under.size(), str(under.slice(0, 8))])
 	check(labels.is_empty(), "B21: every button label fits its button (%d: %s)" % [labels.size(), str(labels.slice(0, 8))])
 	check(crossing.is_empty(), "B17, B22: no words run over the edge of a card (%d: %s)" % [crossing.size(), str(crossing.slice(0, 8))])
+	check(cut.is_empty(), "B18: the Body hint and trials, the path cards, the arena help and the sect tree say all they have to (%s)" % str(cut))
 	check(UiKit.size_for("text", 8) >= UiKit.size_for("text", UiKit.MIN_SIZE), "text asked for under the minimum size is drawn at the minimum")
 
 ## The arguments the ui_suite opens a page with, when one needs a context: page id -> [args, ...].

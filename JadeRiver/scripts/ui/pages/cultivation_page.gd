@@ -126,8 +126,8 @@ func _body(ch) -> void:
 	text(Vector2(x, y + 30), Tx.t("ui.cultivation.mortal_body") if here == 0 else ContentDB.name_of("body_tiers", cu.body_tier), 28, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 300, true)
 	var need := ProgressionRules.body_xp_needed(cu.body_level)
 	bar(Rect2(x + 320, y + 8, 440, 32), cu.body_xp / maxf(1.0, need), UiKit.JADE, Tx.t("ui.cultivation.body_level_bar") % [cu.body_level, int(100.0 * cu.body_xp / maxf(1.0, need))])
-	text(Vector2(x, y + 64), Tx.t("ui.cultivation.body_hint"), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 48)
-	y += 84
+	# B18: the hint wraps to a second line (one line lost "and a full soak in its bath.").
+	y += 52 + para(Rect2(x, y + 46, r.size.x - 48, 44), Tx.t("ui.cultivation.body_hint"), 15, UiKit.MIST, 2)
 	var tiers := ContentDB.all("body_tiers")
 	var gap := 14.0
 	var cw := (r.size.x - 48 - gap * (tiers.size() - 1)) / float(tiers.size())
@@ -151,7 +151,7 @@ func _body(ch) -> void:
 			text(Vector2(cx + 22, cy + 18), str(chk[0]), 16, UiKit.PAPER if done else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, cw - 46)
 			cy += 26
 		cy += 6
-		cy += para(Rect2(cx, cy, cw - 32, 110), str(t.get("trial_text", "")), 15, UiKit.MIST, 5) + 8
+		cy += para(Rect2(cx, cy, cw - 32, 120), str(t.get("trial_text", "")), 15, UiKit.MIST, 6) + 8   # B18: six lines (the Jade trial stopped at "and it is")
 		para(Rect2(cx, cy, cw - 32, cr.end.y - cy - 10), str(t.get("gift_text", "")), 16, UiKit.BRIGHT_JADE if reached else UiKit.PAPER, 4)
 
 ## Vows (S48): each forbids one thing while held and gives a steady gift; letting one go breaks it.

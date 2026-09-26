@@ -85,7 +85,7 @@ func _week_line(cfg: Dictionary, rank: int) -> String:
 func _replay(_ch, a: Dictionary, r: Rect2) -> void:
 	var last: Dictionary = a.get("last", {})
 	if last.is_empty() or r.size.y < 80:
-		para(r, Tx.t("ui.arena.help"), 15, UiKit.MIST, 4)
+		para(r, Tx.t("ui.arena.help"), 15, UiKit.MIST)   # B18: the room there is, not four lines
 		return
 	if replay_start < 0.0: replay_start = t
 	var rt := (t - replay_start) * 8.0

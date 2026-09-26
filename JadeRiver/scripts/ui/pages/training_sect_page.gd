@@ -99,9 +99,12 @@ func _role(ch) -> void:
 			var nr := Rect2(x, right.position.y + 90 + ni * nh, colw, nh - 8)
 			var owned := ni < lvl
 			panel(nr, "minor_panel", "selected" if owned else "normal")
-			para(Rect2(nr.position + Vector2(10, 4), Vector2(nr.size.x - 20, nr.size.y - 30)), str(nd.get("desc", "")), 14, UiKit.PAPER if owned else UiKit.MIST, 2)
+			# B18: three lines where no Buy button takes the foot (the owned mark sits in the top corner), else two.
+			var buy := not owned and ni == lvl
+			para(Rect2(nr.position + Vector2(10, 4), Vector2(nr.size.x - (38 if owned else 20), nr.size.y - (30 if buy else 8))), str(nd.get("desc", "")), 14,
+				UiKit.PAPER if owned else UiKit.MIST, 2 if buy else 3)
 			if owned:
-				text(nr.position + Vector2(10, nr.size.y - 12), "✓", 18, UiKit.BRIGHT_JADE)
+				text(Vector2(nr.end.x - 24, nr.position.y + 20), "✓", 18, UiKit.BRIGHT_JADE)
 			elif ni == lvl:
 				var why := ""
 				if nd.has("rank") and not RequirementRules.passes({"all": [{"kind": "sect_rank_at_least", "rank": str(nd.rank)}]}, Game.ctx(ch)):
