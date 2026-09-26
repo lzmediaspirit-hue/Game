@@ -100,6 +100,7 @@ func submit(intent: Dictionary) -> Dictionary:
 func _draw() -> void:
 	_regions.clear()
 	_areas.clear()
+	if text_log != null: text_log.clear()
 	_layout()
 	if frameless:
 		draw_page()
@@ -166,8 +167,11 @@ func btn(rect: Rect2, label: String, id: String, data = null, primary := false, 
 	# A long label steps its size down to sit inside the button (and clear the lock icon) rather than touch the frame.
 	var room := rect.size.x - (44.0 if not enabled and reason != "" else 20.0)
 	if label.length() * size * 0.6 > room:   # only a label that could overflow is measured
-		while size > 13 and UiKit.text_width(label, size) > room: size -= 1
+		# B21: words are never drawn under UiKit.MIN_SIZE, so the steps stop there and a label still too long is shortened.
+		while size > UiKit.MIN_SIZE and UiKit.text_width(label, size) > room: size -= 1
+		label = fit(label, size, room)
 	UiKit.draw_text(self, label, rect.position + off + Vector2(0, rect.size.y * 0.5 + size * 0.35), size, col, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+	if text_log != null: _log_text(rect.position + Vector2(0, rect.size.y * 0.5 + size * 0.35), label, size, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, false, rect)
 	if not enabled and reason != "": _lock_icon(rect.position + Vector2(rect.size.x - 20, 6))
 	_register(rect, id, data, enabled, reason, "button")
 
@@ -177,7 +181,8 @@ func region(rect: Rect2, id: String, data = null, enabled := true, reason := "")
 
 func _register(rect: Rect2, id: String, data, enabled: bool, reason: String, kind: String) -> void:
 	# P4: every tap target is at least MIN_TAP on each side. Smaller art keeps its look and gains a margin of hit
-	# area round its centre; `full` keeps that rect before any scroll clipping, for the ui_suite.
+	# area round its centre; `full` keeps that rect before any scroll clipping, and `art` the drawn one, for the ui_suite.
+	var art := rect
 	if rect.size.x < MIN_TAP or rect.size.y < MIN_TAP:
 		var grown := Vector2(maxf(rect.size.x, MIN_TAP), maxf(rect.size.y, MIN_TAP))
 		rect = Rect2(rect.get_center() - grown * 0.5, grown)
@@ -188,7 +193,7 @@ func _register(rect: Rect2, id: String, data, enabled: bool, reason: String, kin
 		if a.get("active", false):
 			rect = rect.intersection(a.rect)
 			if rect.size.x <= 0 or rect.size.y <= 0: return
-	_regions.append({"rect": rect, "full": full, "id": id, "data": data, "enabled": enabled, "reason": reason, "kind": kind})
+	_regions.append({"rect": rect, "full": full, "art": art, "id": id, "data": data, "enabled": enabled, "reason": reason, "kind": kind})
 
 func _is_pressed(id: String, data = null) -> bool:
 	if _pressed < 0 or _pressed >= _prev_regions.size(): return false
@@ -197,15 +202,35 @@ func _is_pressed(id: String, data = null) -> bool:
 
 var _prev_regions: Array = []
 
+## A line of text. Given a width, it never runs past it: a longer line ends in an ellipsis (B18).
 func text(pos: Vector2, s: String, size := 20, col := UiKit.PAPER, align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0, display := false) -> void:
+	if width > 0.0: s = fit(s, size, width, display)
 	UiKit.draw_text(self, s, pos, size, col, align, width, true, display)
+	if text_log != null: _log_text(pos, s, size, align, width, display)
 
-## `s` shortened with an ellipsis so it fits `width` at `size`.
-func fit(s: String, size: int, width: float) -> String:
-	if UiKit.text_width(s, size) <= width: return s
+## The ui_suite's record of the words a page drew, [{rect, s}]; null (off) in play.
+var text_log = null
+
+func _log_text(pos: Vector2, s: String, size: int, align: int, width: float, display: bool, button := Rect2()) -> void:
+	var w := UiKit.text_width(s, size, display)
+	var px := float(UiKit.size_for(s, size, display))
+	var x := pos.x
+	if width > 0.0 and align == HORIZONTAL_ALIGNMENT_CENTER: x += (width - w) * 0.5
+	elif width > 0.0 and align == HORIZONTAL_ALIGNMENT_RIGHT: x += width - w
+	text_log.append({"rect": Rect2(x, pos.y - px * 0.7, w, px * 0.9), "s": s, "button": button})
+
+## `s` shortened with an ellipsis so it fits `width` at `size` (measured at the size it is drawn, never under MIN_SIZE).
+func fit(s: String, size: int, width: float, display := false) -> String:
+	if UiKit.text_width(s, size, display) <= width: return s
+	var key := "%d|%s|%d|%.2f|%s" % [size, display, int(width), UiKit.text_scale(), s]
+	if _fitted.has(key): return _fitted[key]
 	var n := s.length()
-	while n > 1 and UiKit.text_width(s.left(n) + "…", size) > width: n -= 1
-	return s.left(n).strip_edges() + "…"
+	while n > 1 and UiKit.text_width(s.left(n) + "…", size, display) > width: n -= 1
+	if _fitted.size() > 2000: _fitted.clear()
+	_fitted[key] = s.left(n).strip_edges() + "…"
+	return _fitted[key]
+
+static var _fitted: Dictionary = {}   # fitted lines drawn every frame are shortened once
 
 func heading(pos: Vector2, s: String, width := 400.0) -> void:
 	# A long heading steps its size down to fit its width rather than being cut off at the edge.
@@ -220,10 +245,15 @@ func para(rect: Rect2, s: String, size := 19, col := UiKit.PAPER, max_lines := -
 	var lh := UiKit.line_height(size)
 	var y := rect.position.y + size * UiKit.text_scale()
 	var n := 0
-	for ln in lines:
+	for i in lines.size():
 		if max_lines > 0 and n >= max_lines: break
 		if y > rect.end.y + 2: break
+		var ln := str(lines[i])
+		# B18: a paragraph cut short by its line count or its height ends its last line with an ellipsis.
+		var cut := (max_lines > 0 and n + 1 >= max_lines) or y + lh > rect.end.y + 2
+		if cut and lines.slice(i + 1).any(func(rest): return str(rest).strip_edges() != ""): ln = fit(ln + "…", size, rect.size.x)
 		UiKit.draw_text(self, ln, Vector2(rect.position.x, y), size, col)
+		if text_log != null: _log_text(Vector2(rect.position.x, y), ln, size, HORIZONTAL_ALIGNMENT_LEFT, -1.0, false)
 		y += lh
 		n += 1
 	return n * lh
@@ -252,6 +282,7 @@ func bar(rect: Rect2, frac: float, col: Color, label := "") -> void:
 
 func panel(rect: Rect2, asset := "minor_panel", state := "normal") -> void:
 	draw_style_box(UiKit.style(asset, state), rect)
+	if text_log != null: text_log.append({"rect": rect, "s": "", "button": Rect2(), "panel": true})
 
 ## Item slot with icon, count, quality edge and state overlays.
 func slot_box(rect: Rect2, item_id: String, count := 0, quality := "", id := "", data = null, selected := false, locked := false) -> void:

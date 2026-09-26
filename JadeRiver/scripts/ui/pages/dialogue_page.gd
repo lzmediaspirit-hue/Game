@@ -76,12 +76,13 @@ func draw_page() -> void:
 		if choices.is_empty():
 			text(Vector2(1160, 690), "▼", 18, UiKit.GOLD)
 		else:
-			var y := 520.0
-			var h := minf(52.0, 170.0 / maxf(1.0, choices.size()))
+			# Every choice a full 48 px high (I7): four of them rise above the box's top rather than shrink.
+			var h := 52.0
+			var y := minf(520.0, 698.0 - h * choices.size())
 			for i in choices.size():
 				var ch: Dictionary = choices[i]
 				var primary := ch.has("accept") or ch.has("hand_in")
-				btn(Rect2(846, y, 370, h - 6), str(ch.get("text", "...")), "choose", i, primary, true, "", 19 if h < 46 else 21)
+				btn(Rect2(846, y, 370, h - 4), str(ch.get("text", "...")), "choose", i, primary, true, "", 20)
 				y += h
 	elif shown_chars < s.length():
 		pass

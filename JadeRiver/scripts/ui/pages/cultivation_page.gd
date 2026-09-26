@@ -160,10 +160,12 @@ func _vows(ch) -> void:
 	var cu: CultivatorState = ch.cultivator
 	var r := content
 	panel(r)
-	para(Rect2(r.position.x + 24, r.position.y + 14, r.size.x - 48, 50), Tx.t("ui.cultivation.vows_intro") % int(ContentDB.config("vows").get("break_heart_demon", 15)), 17, UiKit.MIST, 2)
+	var intro := para(Rect2(r.position.x + 24, r.position.y + 14, r.size.x - 48, 50), Tx.t("ui.cultivation.vows_intro") % int(ContentDB.config("vows").get("break_heart_demon", 15)), 17, UiKit.MIST, 2)
 	var vows := ContentDB.all("vows")
-	_path_cards(ch, Rect2(r.position.x + 20, r.position.y + 66, r.size.x - 40, 150))
-	var top := r.position.y + 228
+	# B17: the path cards take the room the intro leaves, tall enough for five lines of description.
+	var cards_y := r.position.y + 22 + intro
+	_path_cards(ch, Rect2(r.position.x + 20, cards_y, r.size.x - 40, 196))
+	var top := cards_y + 206
 	var h := (r.end.y - top - 12) / float(maxi(1, vows.size()))
 	for i in vows.size():
 		var v: Dictionary = vows[i]
@@ -189,22 +191,24 @@ func _path_cards(ch, area: Rect2) -> void:
 	var walking := ProgressionAuthority.walks(ch, "blood")
 	panel(cards[0], "minor_panel", "selected" if walking else "normal")
 	text(cards[0].position + Vector2(16, 30), Tx.t("ui.cultivation.blood_path"), 21, UiKit.RED if walking else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-	para(Rect2(cards[0].position + Vector2(16, 40), Vector2(w - 32, 58)), Tx.t("ui.cultivation.blood_path_desc"), 14, UiKit.MIST, 3)
+	para(Rect2(cards[0].position + Vector2(16, 40), Vector2(w - 32, 92)), Tx.t("ui.cultivation.blood_path_desc"), 14, UiKit.MIST, 5)
 	if walking:
-		text(cards[0].position + Vector2(16, 116), Tx.t("ui.cultivation.blood_on") % [int(round(Game.combat.blood_lifesteal(ch) * 100.0)), int(Game.combat.essence_of(ch.id))], 15, UiKit.PAPER)
-		btn(Rect2(cards[0].end.x - 142, cards[0].end.y - 56, 128, 48), Tx.t("ui.cultivation.leave_blood"), "path_leave", "blood", false, true, "", 16)
+		text(cards[0].position + Vector2(16, 140), Tx.t("ui.cultivation.blood_on") % [int(round(Game.combat.blood_lifesteal(ch) * 100.0)), int(Game.combat.essence_of(ch.id))], 15, UiKit.PAPER,
+			HORIZONTAL_ALIGNMENT_LEFT, w - 32)
+		btn(Rect2(cards[0].end.x - 142, cards[0].end.y - 52, 128, 48), Tx.t("ui.cultivation.leave_blood"), "path_leave", "blood", false, true, "", 16)
 	else:
 		var cfg: Dictionary = ContentDB.stat_const("paths", {}).get("blood", {})
 		var why := ""
 		if ProgressionRules.realm_index(ch.cultivator.realm_key) < ProgressionRules.realm_index(str(cfg.get("min_realm", "heart_tempering_1"))): why = Tx.t("sim.progression.path_realm")
 		elif ch.relations.alignment > int(cfg.get("alignment_at_most", -20)): why = Tx.t("sim.progression.path_alignment")
-		btn(Rect2(cards[0].end.x - 142, cards[0].end.y - 56, 128, 48), Tx.t("ui.cultivation.walk_blood"), "path_take", "blood", true, why == "", why, 16)
+		btn(Rect2(cards[0].end.x - 142, cards[0].end.y - 52, 128, 48), Tx.t("ui.cultivation.walk_blood"), "path_take", "blood", true, why == "", why, 16)
 	var bud: Dictionary = ContentDB.stat_const("paths", {}).get("buddhist", {})
 	var step := int(bud.get("merit_milestone", 100))
 	panel(cards[1], "minor_panel", "selected" if not ch.cultivator.vows.is_empty() else "normal")
 	text(cards[1].position + Vector2(16, 30), Tx.t("ui.cultivation.golden_body"), 21, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-	para(Rect2(cards[1].position + Vector2(16, 40), Vector2(w - 32, 58)), Tx.t("ui.cultivation.golden_body_desc"), 14, UiKit.MIST, 3)
-	text(cards[1].position + Vector2(16, 132), Tx.t("ui.cultivation.merit_line") % [ch.relations.merit, (int(ch.relations.merit / step) + 1) * step, ch.cultivator.vows.size()], 15, UiKit.PAPER)
+	para(Rect2(cards[1].position + Vector2(16, 40), Vector2(w - 32, 92)), Tx.t("ui.cultivation.golden_body_desc"), 14, UiKit.MIST, 5)
+	# B17: the merit line keeps to its card (it ran on under the Poison Body card).
+	para(Rect2(cards[1].position + Vector2(16, 134), Vector2(w - 32, 60)), Tx.t("ui.cultivation.merit_line") % [ch.relations.merit, (int(ch.relations.merit / step) + 1) * step, ch.cultivator.vows.size()], 15, UiKit.PAPER, 3)
 	var open: bool = Game.combat.poison_body_active(ch)
 	var has_art := false
 	for tid in ch.cultivator.techniques_known:
@@ -212,24 +216,24 @@ func _path_cards(ch, area: Rect2) -> void:
 	var tol: float = ch.stats.value("toxicity_tolerance")
 	panel(cards[2], "minor_panel", "selected" if open else "normal")
 	text(cards[2].position + Vector2(16, 30), Tx.t("ui.cultivation.poison_body"), 21, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-	para(Rect2(cards[2].position + Vector2(16, 40), Vector2(w - 32, 58)), Tx.t("ui.cultivation.poison_body_desc"), 14, UiKit.MIST, 3)
+	para(Rect2(cards[2].position + Vector2(16, 40), Vector2(w - 32, 92)), Tx.t("ui.cultivation.poison_body_desc"), 14, UiKit.MIST, 5)
 	var pline := Tx.t("ui.cultivation.poison_no_art")
 	if has_art: pline = Tx.t("ui.cultivation.poison_open") % [int(ch.cultivator.toxicity), int(tol)] if open else Tx.t("ui.cultivation.poison_closed") % [int(ch.cultivator.toxicity), int(tol * 0.5)]
-	para(Rect2(cards[2].position + Vector2(16, 110), Vector2(w - 32, 36)), pline, 15, UiKit.PAPER, 2)
+	para(Rect2(cards[2].position + Vector2(16, 134), Vector2(w - 32, 60)), pline, 15, UiKit.PAPER, 3)
 	if n < 4: return
 	var upright := ProgressionAuthority.walks(ch, "confucian")
 	var cc: Dictionary = ContentDB.stat_const("paths", {}).get("confucian", {})
 	panel(cards[3], "minor_panel", "selected" if upright else "normal")
 	text(cards[3].position + Vector2(16, 30), Tx.t("ui.cultivation.confucian_path"), 21, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-	para(Rect2(cards[3].position + Vector2(16, 40), Vector2(w - 32, 58)), Tx.t("ui.cultivation.confucian_desc") % int(round(float(cc.get("righteous", 0.25)) * 100.0)), 14, UiKit.MIST, 3)
+	para(Rect2(cards[3].position + Vector2(16, 40), Vector2(w - 32, 92)), Tx.t("ui.cultivation.confucian_desc") % int(round(float(cc.get("righteous", 0.25)) * 100.0)), 14, UiKit.MIST, 5)
 	if upright:
-		btn(Rect2(cards[3].end.x - 142, cards[3].end.y - 56, 128, 48), Tx.t("ui.cultivation.leave_path"), "path_leave", "confucian", false, true, "", 16)
+		btn(Rect2(cards[3].end.x - 142, cards[3].end.y - 52, 128, 48), Tx.t("ui.cultivation.leave_path"), "path_leave", "confucian", false, true, "", 16)
 	else:
 		var why2 := ""
 		if ProgressionRules.realm_index(ch.cultivator.realm_key) < ProgressionRules.realm_index(str(cc.get("min_realm", "will_manifest_2"))): why2 = Tx.t("sim.progression.path_realm")
 		elif ch.relations.alignment < int(cc.get("alignment_at_least", 20)): why2 = Tx.t("sim.progression.path_upright")
 		elif walking: why2 = Tx.t("sim.progression.path_exclusive")
-		btn(Rect2(cards[3].end.x - 142, cards[3].end.y - 56, 128, 48), Tx.t("ui.cultivation.walk_confucian"), "path_take", "confucian", true, why2 == "", why2, 16)
+		btn(Rect2(cards[3].end.x - 142, cards[3].end.y - 52, 128, 48), Tx.t("ui.cultivation.walk_confucian"), "path_take", "confucian", true, why2 == "", why2, 16)
 
 ## Heart (G1): the meter, the ledger, the foundation and what the pills have left behind.
 func _heart(ch) -> void:
@@ -372,14 +376,15 @@ func _seclusion(ch) -> void:
 	var cur := str(ch.seclusion.get("focus", ""))
 	for i in foci.size():
 		var f: Array = foci[i]
-		var rr := Rect2(r.position.x + 24 + (i % 3) * 330, r.position.y + 120 + (i / 3) * 130, 310, 112)
+		var rr := Rect2(r.position.x + 24 + (i % 3) * 330, r.position.y + 116 + (i / 3) * 118, 310, 104)   # B22: three rows clear of the status line
 		var ok := Unlocks.is_unlocked(ch.id, f[3])
 		panel(rr, "minor_panel", "selected" if cur == f[0] else ("disabled" if not ok else "normal"))
 		text(rr.position + Vector2(20, 40), f[1], 24, UiKit.PAPER if ok else UiKit.HOLLOW)
-		text(rr.position + Vector2(20, 72), f[2], 17, UiKit.MIST)
+		text(rr.position + Vector2(20, 72), f[2], 17, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 40)
 		region(rr, "focus", f[0], ok, Unlocks.locked_text(f[3]))
 	if cur != "":
-		text(Vector2(r.position.x + 24, r.end.y - 30), Tx.t("ui.cultivation.set_close_the_game_and") % cur.replace("_", " ").capitalize(), 19, UiKit.BRIGHT_JADE)
+		text(Vector2(r.position.x + 24, r.end.y - 14), Tx.t("ui.cultivation.set_close_the_game_and") % cur.replace("_", " ").capitalize(), 19, UiKit.BRIGHT_JADE,
+			HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 48)
 
 ## The strongest bath in the bag, or "".
 func _bath_item(ch) -> String:

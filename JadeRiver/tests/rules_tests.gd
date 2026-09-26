@@ -152,44 +152,158 @@ func aggro_cap_suite() -> void:
 ## its Light default), no word is set below the floor, and the text size setting scales every word and line.
 ## P4 (`docs/ui_style_guide.md`): on every page and tab, every tap target is at least 48 px on a side and no two
 ## buttons share a point, and no text is drawn under the minimum size.
+## The P2 inventory's bugs add: pages that need a context open with a real one (an NPC's words, every shop, a fishing
+## spot, every teleport stone known, a welcome with a post ledger), on a full character (every title and secret art,
+## a Dao at every tier), and every view is also checked for buttons and words past the window (B4), words under a
+## button (B16) and button labels wider than their button (B21).
 func ui_suite() -> void:
 	var main_script = load("res://scripts/main.gd")
 	var force_was: bool = Unlocks.debug_force_all
 	Unlocks.debug_force_all = true
+	var c = Game.active()
+	var keep := {"titles": c.cultivator.titles.duplicate(), "arts": c.cultivator.secret_arts.duplicate(), "daos": c.cultivator.daos.duplicate(true),
+		"stones": Game.account.teleports.duplicate()}
+	c.cultivator.titles = ContentDB.all("titles").map(func(e): return str(e.id))
+	c.cultivator.secret_arts = ContentDB.all("secret_arts").map(func(e): return str(e.id))
+	var dao_ids: Array = ContentDB.all("daos").map(func(e): return str(e.id))
+	c.cultivator.daos = {}
+	for tier in 7: c.cultivator.daos[dao_ids[tier]] = {"tier": tier, "insight": ProgressionRules.dao_next_need(tier - 1) if tier > 0 else 12.0}
+	for s in ContentDB.all("teleport_stones"): Game.account.teleports[str(s.id)] = true
+	var sect_was: Dictionary = Game.account.sect.duplicate(true)
+	var ts_was: Dictionary = c.training_sect.duplicate(true)
+	var seclusion_was: Dictionary = c.seclusion.duplicate(true)
+	var contexts := _ui_contexts(c)
 	var small: Array = []
 	var overlaps: Array = []
+	var outside: Array = []
+	var under: Array = []
+	var labels: Array = []
+	var crossing: Array = []
 	var views := 0
 	for id in main_script.PAGES:
-		if str(id) in ["dialogue", "revival", "welcome", "shop", "fishing", "teleport"]: continue   # need a context
-		var pg: Page = load(str(main_script.PAGES[id])).new()
-		pg.page_id = str(id)
-		add_child(pg)
-		pg.open({})
-		for ti in maxi(1, pg.tabs.size()):
-			if not pg.tabs.is_empty(): pg.tab = ti
-			pg.queue_redraw()
-			await get_tree().process_frame
-			await get_tree().process_frame
-			views += 1
-			var where := "%s:%s" % [id, str(pg.tabs[ti].get("id", ti)) if not pg.tabs.is_empty() else "-"]
-			var buttons: Array = []
-			for r in pg._regions:
-				if r.kind == "scroll": continue
-				var full: Rect2 = r.get("full", r.rect)
-				if full.size.x < Page.MIN_TAP or full.size.y < Page.MIN_TAP:
-					small.append("%s %s %dx%d" % [where, r.id, int(full.size.x), int(full.size.y)])
-				if r.kind == "button": buttons.append(r)
-			for i in buttons.size():
-				for j in range(i + 1, buttons.size()):
-					var both: Rect2 = (buttons[i].rect as Rect2).intersection(buttons[j].rect)
-					if both.size.x > 0.5 and both.size.y > 0.5: overlaps.append("%s %s/%s" % [where, buttons[i].id, buttons[j].id])
-		pg.queue_free()
+		for a in contexts.get(str(id), [{}]):
+			if a.has("_setup"): (a._setup as Callable).call()
+			a = a.duplicate()
+			a.erase("_setup")
+			var pg: Page = load(str(main_script.PAGES[id])).new()
+			pg.page_id = str(id)
+			pg.text_log = []
+			add_child(pg)
+			pg.open(a)
+			if str(id) == "dialogue":   # the last line, typed out: the choices show
+				var dp = pg
+				dp.line = maxi(0, dp.lines().size() - 1)
+				dp.shown_chars = 9999.0
+			for ti in maxi(1, pg.tabs.size()):
+				if not pg.tabs.is_empty(): pg.tab = ti
+				pg.text_log.clear()
+				pg.queue_redraw()
+				await get_tree().process_frame
+				await get_tree().process_frame
+				views += 1
+				var where := "%s%s:%s" % [id, "(%s)" % str(a.values()[0]).left(24) if not a.is_empty() else "", str(pg.tabs[ti].get("id", ti)) if not pg.tabs.is_empty() else "-"]
+				var inside := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.content
+				var window := Rect2(Vector2.ZERO, Vector2(1280, 720)) if pg.frameless else pg.frame_rect
+				var buttons: Array = []
+				for r in pg._regions:
+					if r.kind == "scroll": continue
+					var full: Rect2 = r.get("full", r.rect)
+					if full.size.x < Page.MIN_TAP or full.size.y < Page.MIN_TAP:
+						small.append("%s %s %dx%d" % [where, r.id, int(full.size.x), int(full.size.y)])
+					if r.kind == "button": buttons.append(r)
+					if not window.grow(4).encloses(r.art): outside.append("%s %s at %s" % [where, r.id, str(r.art)])
+				for i in buttons.size():
+					for j in range(i + 1, buttons.size()):
+						var both: Rect2 = (buttons[i].rect as Rect2).intersection(buttons[j].rect)
+						if both.size.x > 0.5 and both.size.y > 0.5: overlaps.append("%s %s/%s" % [where, buttons[i].id, buttons[j].id])
+				for tx in pg.text_log:
+					var tr: Rect2 = tx.rect
+					if tx.get("panel", false):
+						if not inside.grow(4).encloses(tr): outside.append("%s panel at %s" % [where, str(tr)])
+						continue
+					if tx.button != Rect2():
+						if tr.size.x > (tx.button as Rect2).size.x - 6: labels.append("%s \"%s\" %d in %d" % [where, tx.s, int(tr.size.x), int(tx.button.size.x)])
+						continue
+					if not window.grow(4).encloses(tr): outside.append("%s \"%s\"" % [where, str(tx.s).left(30)])
+					for b in buttons:
+						var hit: Rect2 = tr.intersection(b.art)
+						if hit.size.x > 3 and hit.size.y > 3 and not (b.art as Rect2).encloses(tr): under.append("%s \"%s\" under %s" % [where, str(tx.s).left(30), b.id])
+					# Words that start in one card and run on into another, or over its edge (B17, B22).
+					for pn in pg.text_log:
+						if not pn.get("panel", false): continue
+						var over: Rect2 = tr.intersection(pn.rect)
+						if over.size.x > 3 and over.size.y > 3 and not (pn.rect as Rect2).grow(2).encloses(tr): crossing.append("%s \"%s\" over a card's edge" % [where, str(tx.s).left(30)])
+			pg.queue_free()
 	await get_tree().process_frame
+	# B1: every Dao row, from Unaware to the top tier, draws its bar and its Contemplate button.
+	var cp: Page = load(str(main_script.PAGES.cultivation)).new()
+	add_child(cp)
+	cp.open({"tab": "dao"})
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var rows: int = cp._regions.filter(func(r): return r.id == "contemplate").size()
+	check(rows == mini(7, int((cp.content.size.y - 28.0) / 76.0)), "B1: every Dao row draws, up to the top tier (%d rows)" % rows)
+	cp.queue_free()
+	# B2: the Key Items tab offers the guqin's Play.
+	var ip = load(str(main_script.PAGES.inventory)).new()
+	add_child(ip)
+	ip.open({"tab": "key"})
+	for i in c.inventory.key_items.size():
+		if str(c.inventory.key_items[i].id) == "guqin": ip.sel = {"key": i}
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(ip._regions.any(func(r): return r.id == "use_key" and r.enabled), "B2: the guqin in the key-item pouch has a Play button")
+	ip.queue_free()
+	await get_tree().process_frame
+	c.cultivator.titles = keep.titles
+	c.cultivator.secret_arts = keep.arts
+	c.cultivator.daos = keep.daos
+	Game.account.teleports = keep.stones
+	Game.account.sect = sect_was
+	c.training_sect = ts_was
+	c.seclusion = seclusion_was
 	Unlocks.debug_force_all = force_was
-	check(views >= 100, "the ui_suite opened every page and tab (%d views)" % views)
+	for o in overlaps + outside + under + labels + crossing: print("  ui_suite: ", o)
+	check(views >= 200, "the ui_suite opened every page and tab, in every context (%d views)" % views)
 	check(small.is_empty(), "every tap target is at least 48 px on a side (%s)" % str(small.slice(0, 6)))
 	check(overlaps.is_empty(), "no two buttons share a point (%s)" % str(overlaps.slice(0, 6)))
+	check(outside.is_empty(), "B4: no button or word runs past the window (%d: %s)" % [outside.size(), str(outside.slice(0, 8))])
+	check(under.is_empty(), "B16: no words run under a button (%d: %s)" % [under.size(), str(under.slice(0, 8))])
+	check(labels.is_empty(), "B21: every button label fits its button (%d: %s)" % [labels.size(), str(labels.slice(0, 8))])
+	check(crossing.is_empty(), "B17, B22: no words run over the edge of a card (%d: %s)" % [crossing.size(), str(crossing.slice(0, 8))])
 	check(UiKit.size_for("text", 8) >= UiKit.size_for("text", UiKit.MIN_SIZE), "text asked for under the minimum size is drawn at the minimum")
+
+## The arguments the ui_suite opens a page with, when one needs a context: page id -> [args, ...].
+func _ui_contexts(c) -> Dictionary:
+	var talk := Game.submit({"type": "talk", "npc": "warden_commander_yao"})
+	var convo: Dictionary = talk.get("dialogue", {})
+	# A giver with three quests to offer: three Accepts and Not now, the most choices a conversation shows.
+	var offers := convo.duplicate(true)
+	offers.choices = []
+	for q in ContentDB.all("quests").slice(0, 3): offers.choices.append({"text": Tx.t("sim.quest.accept") % str(q.get("name", q.id)), "accept": str(q.id)})
+	offers.choices.append({"text": Tx.t("sim.quest.not_now"), "close": true})
+	var items := {}
+	for it in ContentDB.all("items").slice(0, 8): items[str(it.id)] = 12
+	var welcome := {"gains": {"qp": 5200.0, "insight": 40.0, "coins": 380, "coin_currency": "silver_tael", "post": true}, "hours": 7.5, "capped": true,
+		"post": {"kind": "post", "craft": "delving", "room": "wp_west", "hours": 7.5, "diligence": 0.6, "exp": 420.0, "level": 5, "level_before": 4,
+			"items": items, "full": {"ore": 6.0}}}
+	var ranks: Array = ContentDB.config("sect_ranks").get("order", [])
+	# Your own sect, before founding and then founded with disciples, candidates and expeditions out (one back).
+	var now := Clock.now_utc()
+	var ds: Array = []
+	for n in ["Wei", "Lan", "Qiu", "Hua", "Bo", "Mei"]: ds.append({"name": n, "level": 4, "trait": "green_thumb"})
+	var ex: Array = ContentDB.all("expeditions").slice(0, 3).map(func(e): return {"region": str(e.id), "hours": 2, "disciples": [0], "done_utc": now + 3600.0})
+	ex[0].done_utc = now - 60.0
+	var sect := {"name": "Test", "emblem": [0, 0], "level": 3, "prestige": 120, "buildings": {"sect_hall": 1}, "queue": [], "disciples": ds,
+		"candidates": ds.slice(0, 3).map(func(d): return {"name": d.name, "strength": 3, "spirit": 2, "craft": 4, "trait": "green_thumb"}),
+		"expeditions": ex, "candidate_day": Clock.reset_day(now)}
+	return {"dialogue": [{"convo": convo}, {"convo": offers}], "revival": [{"actor": c.id}], "welcome": [welcome],
+		"shop": ContentDB.all("shops").map(func(sh): return {"shop": str(sh.id)}), "fishing": [{"object": "fish_9"}], "teleport": [{}],
+		"your_sect": [{"_setup": func(): Game.account.sect = {}}, {"_setup": func(): Game.account.sect = sect.duplicate(true)}],
+		# An Elder of the Jade Sect: the next rank, Sect Master, is at the foot of the list (B5).
+		"training_sect": [{"_setup": func(): c.training_sect.merge({"id": "jade_sect", "rank": str(ranks[maxi(0, ranks.size() - 2)])}, true)}],
+		# In seclusion: the line that says so sits under the focus cards (B22).
+		"seclusion": [{"_setup": func(): c.seclusion["focus"] = "accumulate"}]}
 
 ## The P2 UI inventory's bugs (docs/ui_inventory.md, "Found while inventorying"), each at its rule.
 func ui_fixes_suite() -> void:

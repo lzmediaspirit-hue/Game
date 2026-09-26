@@ -24,7 +24,7 @@ func draw_page() -> void:
 		para(Rect2(r.position + Vector2(30, 30), r.size - Vector2(60, 60)), Tx.t("ui.training_sect.you_are_unaffiliated_the_jade"), 22, UiKit.PAPER)
 		return
 	var sect := ContentDB.entry("sects", str(ts.id))
-	text(r.position + Vector2(30, 50), str(sect.get("full_name", sect.get("name", ""))), 32, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+	text(r.position + Vector2(30, 50), str(sect.get("full_name", sect.get("name", ""))), 32, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 566, true)
 	var ranks: Dictionary = ContentDB.config("sect_ranks")
 	var rank_name := str(ts.get("rank", "")).replace("_", " ").capitalize()
 	text(r.position + Vector2(30, 90), Tx.t("ui.training_sect.rank") % rank_name, 22)
@@ -44,8 +44,9 @@ func draw_page() -> void:
 			text(Vector2(r.position.x + 300, y), RequirementRules.first_failure_text(rk.get("requires", {}), Game.ctx(ch)) if not ok else Tx.t("ui.training_sect.ready"), 17, UiKit.PAPER if ok else UiKit.MIST)
 			btn(Rect2(r.position.x + 640, y - 30, 220, 46), Tx.t("ui.training_sect.promotion_trial"), "promote", null, true, ok, Tx.t("ui.training_sect.not_yet"))
 		y += 40
-	btn(Rect2(r.end.x - 260, r.end.y - 76, 230, 56), Tx.t("ui.training_sect.sect_shop"), "shop", null, false, Unlocks.is_unlocked(ch.id, "contribution_shop"), Unlocks.locked_text("contribution_shop"))
-	btn(Rect2(r.end.x - 520, r.end.y - 76, 230, 56), Tx.t("ui.training_sect.missions"), "missions")
+	# B5: the ranks fill the panel's height, so these sit at its top right, clear of the Promotion trial on any rank's row.
+	btn(Rect2(r.end.x - 260, r.position.y + 24, 230, 56), Tx.t("ui.training_sect.sect_shop"), "shop", null, false, Unlocks.is_unlocked(ch.id, "contribution_shop"), Unlocks.locked_text("contribution_shop"))
+	btn(Rect2(r.end.x - 520, r.position.y + 24, 230, 56), Tx.t("ui.training_sect.missions"), "missions")
 
 ## S48 sect role variants: the signature line's damage or support variant, and the sect tree bought with contribution.
 func _role(ch) -> void:

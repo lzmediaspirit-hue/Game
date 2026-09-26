@@ -70,13 +70,15 @@ func draw_page() -> void:
 		"titles":
 			var titles: Array = ch.cultivator.titles
 			if titles.is_empty(): text(r.position + Vector2(0, 80), Tx.t("ui.character.earn_titles_from_achievements_and"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
-			for i in titles.size():
+			# B4: a scrolling list, so every title stays in reach however many are earned.
+			list("titles", r.grow(-14), titles.size(), 64, func(i: int, rr: Rect2):
 				var tid := str(titles[i])
-				var tr := Rect2(r.position.x + 30, r.position.y + 20 + i * 64, 600, 56)
+				var tr := Rect2(rr.position.x + 16, rr.position.y + 2, 600, 56)
 				btn(tr, ContentDB.name_of("titles", tid), "title", tid, ch.cultivator.active_title == tid)
 				var bonus: Array = []
 				for m in ContentDB.entry("titles", tid).get("modifiers", []): bonus.append(UiKit.affix_text(m))
-				text(Vector2(tr.end.x + 24, tr.position.y + 36), ", ".join(bonus), 18, UiKit.BRIGHT_JADE if ch.cultivator.active_title == tid else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.end.x - tr.end.x - 48)
+				text(Vector2(tr.end.x + 24, tr.position.y + 36), ", ".join(bonus), 18, UiKit.BRIGHT_JADE if ch.cultivator.active_title == tid else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, rr.end.x - tr.end.x - 40)
+			)
 		"attunement": _attunement(ch, r)
 		"wardrobe": _wardrobe(ch, r)
 
