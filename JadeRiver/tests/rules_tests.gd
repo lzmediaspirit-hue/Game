@@ -324,6 +324,15 @@ func ui_fixes_suite() -> void:
 	var gr := Game.submit({"type": "use_item", "key": gi})
 	check(gi >= 0 and gr.get("ok", false) and str(gr.get("open_page", "")) == "guqin", "B2: the guqin in the key-item pouch opens its page")
 	check(not Game.submit({"type": "use_item", "key": c.inventory.key_items.size()}).get("ok", false), "B2: an empty key slot uses nothing")
+	# B3: a state neither kit drew is made from the normal art (it fell back to it silently): a selected row wears the
+	# kit's glow, a disabled one is dimmed; a state the kit has keeps its own art.
+	var plain := UiKit.style("minor_panel")
+	var chosen := UiKit.style("minor_panel", "selected")
+	var off := UiKit.style("minor_panel", "disabled")
+	var tint: Color = off.modulate if off is HdStyleBox else (off.modulate_color if off is StyleBoxTexture else Color.WHITE)
+	check(chosen is UiKit.LayeredBox and chosen != plain and off != plain and tint.v < 0.8, "B3: a selected panel glows and a disabled one is dimmed")
+	check(not (UiKit.style("slot", "selected") is UiKit.LayeredBox) and not (UiKit.style("tab", "selected") is UiKit.LayeredBox), "B3: drawn states keep their art")
+	check((plain.modulate if plain is HdStyleBox else Color.WHITE) == Color.WHITE, "B3: the normal panel stays untinted")
 
 func text_suite() -> void:
 	var probe := "Pick up Herbal Tea"

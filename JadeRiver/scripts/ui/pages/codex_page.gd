@@ -37,6 +37,7 @@ func _codex() -> void:
 	list("codex", left.grow(-10), entries.size(), 48, func(i: int, rr: Rect2):
 		var e: Dictionary = entries[i]
 		var known: bool = Game.account.codex.has(str(e.id))
+		if known and sel == str(e.id): panel(rr, "minor_panel", "selected")   # I4: the kit's selection, not the text colour alone
 		text(rr.position + Vector2(14, 30), str(e.title) if known else "? ? ?", 19, (UiKit.PALE_GOLD if sel == str(e.id) else UiKit.PAPER) if known else UiKit.HOLLOW)
 		region(rr, "sel", str(e.id), known, Tx.t("ui.codex.not_yet_discovered"))
 	)

@@ -263,7 +263,6 @@ func _draw_ranking(ch) -> void:
 		var me: bool = o.get("player", false)
 		var rr := Rect2(x, y, r.size.x - 56, 48)
 		panel(rr, "minor_panel", "selected" if me else "normal")
-		if me: draw_rect(rr.grow(-3), Color(UiKit.BRIGHT_JADE, 0.7), false, 2.0)
 		text(Vector2(cols[0], y + 32), "%d" % (i + 1), 22, UiKit.GOLD if i < 3 else UiKit.PAPER)
 		text(Vector2(cols[1], y + 22), fit(str(o.name), 19, cols[2] - cols[1] - 20), 19, UiKit.BRIGHT_JADE if me else UiKit.PALE_GOLD)
 		if str(o.get("title", "")) != "": text(Vector2(cols[1], y + 40), fit(str(o.title), 13, cols[2] - cols[1] - 20), 13, UiKit.MIST)

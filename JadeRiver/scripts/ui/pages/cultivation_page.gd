@@ -136,7 +136,6 @@ func _body(ch) -> void:
 		var cr := Rect2(x + i * (cw + gap), y, cw, r.end.y - y - 20)
 		var reached := i < here
 		panel(cr, "minor_panel", "selected" if i == here else ("normal" if reached else "disabled"))
-		if i == here: draw_rect(cr.grow(-3), Color(UiKit.GOLD, 0.8), false, 2.0)   # the next rung
 		var cx := cr.position.x + 16
 		var cy := cr.position.y + 36
 		text(Vector2(cx, cy), str(t.get("name", "")), 22, UiKit.PALE_GOLD if reached or i == here else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, cw - 110, true)

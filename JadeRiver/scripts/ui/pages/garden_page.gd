@@ -55,7 +55,6 @@ func _supplies(ch, r: Rect2) -> void:
 func _bed_card(ch, key: String, r: Rect2, i: int) -> void:
 	var v: Dictionary = Game.crafting.bed_view(ch, key)
 	panel(r, "minor_panel", "selected" if key == sel else "normal")
-	if key == sel: draw_rect(r.grow(-4), Color(UiKit.GOLD, 0.8), false, 2.0)
 	region(r, "sel", key)
 	text(r.position + Vector2(18, 32), Tx.t("ui.garden.bed") % (i + 1), 21, UiKit.PALE_GOLD)
 	var grade := Tx.t("ui.garden.grade_" + str(v.grade))
