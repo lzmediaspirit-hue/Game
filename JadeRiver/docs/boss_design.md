@@ -1095,3 +1095,20 @@ breaks the three jars before Tan's drink and checks that he does not heal.
 | 7 | Do the longer wind-up settings still earn seals and Swift? | Yes. Accessibility should not gate rewards; par is loose enough |
 | 8 | The Ninth Presence (12× HP, the Presence Trial's finale) is a boss in all but role | Leave it out of P9; give it the story-boss role and a design of its own in v1.3's pass, when the Presence Trial is revisited |
 | 9 | The Reflection takes the player's level on the weekly rite, not its fixed 36? | Yes. It is the one boss whose lore says it should, and it keeps the rite worth doing |
+
+## Decisions taken
+
+The nine questions this page left open take the recommended answer, which the user can overturn before each part is
+built:
+
+| Question | Decision |
+|---|---|
+| Re-fighting story bosses | Yes: Recollection, a weekly replay at the cave-abode meditation mat (P9c) |
+| Where mastery seals stop counting | At more than 8 Levels above the boss |
+| Existing hazards hit what they draw | Yes: ground fire, room hazards and Rao's detonation hit exactly their drawn shape |
+| Marker damage past defence | A share of max HP that ignores defence, as tribulations and hazards already do |
+| The long v1.2 fights | Target 4–5 minutes; lower the HP multiplier once `boss_suite` measures real times |
+| Kharn's re-run | Follows the spare-or-slay choice (a weekly spar, or a daily cinder shade) |
+| The longer wind-up setting | Still earns seals |
+| The Ninth Presence | Left for v1.3 |
+| The Reflection's weekly rite | Matches the player's Level |
