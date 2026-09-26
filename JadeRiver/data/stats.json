@@ -438,6 +438,8 @@
   "flinch_s": 0.4,
   "leash": 600,
   "shrine_sanctuary": 240,
+  "sight_depth": 100,
+  "sight_aggro_cap": 2,
   "threat_heal": 1.5,
   "spawn_protection_s": 1.5,
   "depth_band": 26,

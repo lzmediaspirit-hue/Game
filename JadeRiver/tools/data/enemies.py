@@ -170,7 +170,9 @@ def build():
         mob("old_snapper", 3, "elite", "water", "valley_shore", [d("snapper_claw", 1.0)],
             [atk("claw_slam", 0.6, 74, 1.4, depth=34, knockback=40)], ai="snapper", speed=45, width=40, height=56,
             phases=[{"below": 0.5, "action": "dig_in", "duration": 3.0, "invulnerable": True}], appears_after={"item": "crab_shell", "count": 5},
-            hp_mult=0.42, attack_mult=0.7),
+            # Tuned for a Mortal with bare fists (83 HP, no defence): about 135 HP and a 9-point claw, so a player who
+            # never steps out of the slam still wins with a tea or two, and one who reads the tell barely gets touched.
+            hp_mult=0.24, attack_mult=0.33),
         mob("hollow_minnow", 1, "event", "hollow", None, [], [atk("nibble", 0.45, 30, 0.8)], ai="flyer", speed=80,
             hp_override=5, width=14, height=18, flying=True, hollowing=1),
         mob("hollowed_eel", 10, "event", "hollow", None, [], [atk("lunge", 1.0, 120, 0.5, depth=60, knockback=80)],

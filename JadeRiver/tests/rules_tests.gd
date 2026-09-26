@@ -82,12 +82,54 @@ func _main() -> void:
 	swarm_array_puppet_suite()
 	artifact_spirit_suite()
 	awaken_legend_suite()
+	aggro_cap_suite()
 	emotes_suite()
 	text_suite()
 	max_character_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
+
+# ------------------------------------------------------------------ crowd cap on sight aggro
+## Sight aggro stops at a crowd: with two ordinary foes on the player the rest hold back, and with an elite on the
+## player every ordinary one does. A foe that is struck, an elite, or a summoned add always comes.
+func aggro_cap_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var st: ActorState = Game.actor_state(c.id)
+	Game.world.apply_teleport(c.id, "wp_west")
+	for i in 3: Game.tick(0.05)   # the arrival (and its spawn protection) lands first
+	for sid in ["stun", "slow", "spawn_protection"]: Game.combat.cure_status(c.id, sid)
+	var engaged := func(list: Array) -> int:
+		return list.filter(func(f): return str(f.ai.state) in ["aggro", "windup", "attack", "recover"]).size()
+	var own := func(def_id: String, at: Vector2, elite := false) -> EnemyState:
+		var f: EnemyState = Game.enemies.spawn_at(def_id, at, 2, {"elite": elite})
+		f.summoned = false   # the room's own monsters, not a boss's adds
+		return f
+	for e0 in Game.room_rt.living_enemies(): e0.alive = false
+	c.pools.hp = c.pools.max_hp
+	var pack: Array = []
+	for i in 4: pack.append(own.call("wild_boarlet", st.plane + Vector2(90 + i * 20, (i % 2) * 16)))
+	for i in 6:
+		Game.tick(0.05)
+		c.pools.hp = c.pools.max_hp
+	check(engaged.call(pack) == 2, "two ordinary foes come on sight; the others hold back (%d came)" % engaged.call(pack))
+	var waiting: Array = pack.filter(func(f): return not str(f.ai.state) in ["aggro", "windup", "attack", "recover"])
+	if not waiting.is_empty():
+		waiting[0].threat[c.id] = 1.0   # struck
+		for i in 4: Game.tick(0.05)
+		check(str(waiting[0].ai.state) in ["aggro", "windup", "attack", "recover"], "a foe that is struck always joins (%s)" % str(waiting[0].ai.state))
+	for e0 in Game.room_rt.living_enemies(): e0.alive = false
+	var boss: EnemyState = own.call("wild_boarlet", st.plane + Vector2(80, 0), true)
+	var near: Array = [own.call("wild_boarlet", st.plane + Vector2(120, 10)), own.call("wild_boarlet", st.plane + Vector2(-110, 0))]
+	for i in 6:
+		Game.tick(0.05)
+		c.pools.hp = c.pools.max_hp
+	check(str(boss.ai.state) != "idle" and engaged.call(near) == 0, "an elite on the player holds the ordinary foes back (%d came)" % engaged.call(near))
+	var add: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(100, -10), 2)
+	for i in 4: Game.tick(0.05)
+	check(str(add.ai.state) in ["aggro", "windup", "attack", "recover"], "a summoned add joins the elite's fight")
+	for e0 in Game.room_rt.living_enemies(): e0.alive = false
 
 # ------------------------------------------------------------------ readable text
 ## The word fonts really are at their set weights (a "wght" string key is silently ignored and left Cormorant at

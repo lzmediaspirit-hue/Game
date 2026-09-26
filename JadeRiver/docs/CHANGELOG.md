@@ -5,6 +5,28 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### Old Snapper and crowding
+- **Old Snapper** (the first elite, *Crab Trouble*) was tuned for a perfect player. A Mortal with bare fists has
+  83 HP and no defence. Against them it had 235 HP and a 20-point claw, and two Reedtail Rats spawned beside
+  it. A player who did not step out of every slam died in about 7 s with the Snapper at three quarters health.
+  - It now has about 135 HP and a 9-point claw (`hp_mult` 0.24, `attack_mult` 0.33).
+  - A player who arrives hurt from the crabs, never rests and never dodges wins in about 18 s. Reading the tell
+    makes it easy.
+- **Reed Shallows.** The rats keep to the west and middle of the shallows, away from the Snapper's bank, and
+  come back after 20 s instead of 8.
+- **Crowd cap on sight aggro.** An ordinary monster that sees the player stays put, and joins only when struck,
+  in two cases (`combat.sight_aggro_cap`):
+  - an elite or boss is already fighting the player;
+  - two ordinary foes already are.
+
+  Elites, bosses and summoned monsters (a boss's adds, an event's waves) always come. Monsters notice the player
+  within 100 px of depth (`combat.sight_depth`, was 140), so foes in other lanes stay out of it.
+- Tests:
+  - `prologue_run` beats Old Snapper as a new player would, without resting or reading the tell (it fails with the
+    old numbers);
+  - `rules_tests` `aggro_cap_suite` covers the cap, being struck, elites and summoned adds.
+- Both APKs are version 1.0.3 (code 103).
+
 ### Two Android builds; no Credits button
 - **Max Test APK.** A second Android preset, *Android Max Test* (custom feature `max_test`, package
   `com.jaderiver.cleanengine.maxtest`), installs beside the normal game.

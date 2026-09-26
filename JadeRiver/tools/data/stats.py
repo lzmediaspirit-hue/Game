@@ -122,7 +122,7 @@ def build():
                   "xp_per_kill_level": 1.0, "xp_per_technique": 2.0, "demand_base": 10, "demand_per_level": 5,
                   "overcharge_chance": 0.05},
         "combat": {"hitstop": 0.05, "hitstop_crit": 0.1, "knockback_light": 20, "knockback_heavy": 80, "flinch_pct": 0.2,
-                   "flinch_s": 0.4, "leash": 600, "shrine_sanctuary": 240, "threat_heal": 1.5, "spawn_protection_s": 1.5, "depth_band": 26,
+                   "flinch_s": 0.4, "leash": 600, "shrine_sanctuary": 240, "sight_depth": 100, "sight_aggro_cap": 2, "threat_heal": 1.5, "spawn_protection_s": 1.5, "depth_band": 26,
                    "auto_turn_range": 160, "backlash_stun_s": 1.0, "backlash_qi_pct": 0.05, "dodge_distance": 140, "wind_blink_distance": 120, "wind_blink_cooldown_s": 10,
                    "dodge_invuln_s": 0.25, "dodge_cooldown_s": 2.5, "parry_stagger_s": 0.8, "parry_stagger_boss_s": 0.3,
                    "combo_window_s": 0.5, "steadfast_s": 8, "vulnerable": 0.2, "shock": 0.2, "status_duration_tenacity": 0.5},

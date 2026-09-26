@@ -536,7 +536,8 @@ def lotus_ferry():
     r.surface("driftwood_b", [1260, 780, 230, 46], 90, kind="branch", art="driftwood")
     r.surface("driftwood_c", [1880, 700, 200, 46], 70, kind="branch", art="driftwood")
     r.spawn("mudshell_crab", [[520, 760], [900, 880], [1140, 820], [1480, 900], [1700, 760], [2000, 880]], 6, respawn=8, level=[1, 1])
-    r.spawn("reedtail_rat", [[1300, 700], [1650, 700], [2100, 760], [2300, 820]], 4, respawn=8, level=[2, 2])
+    # The rats keep to the west and middle of the shallows, well clear of Old Snapper's bank (x 2200), and come back slowly.
+    r.spawn("reedtail_rat", [[1050, 700], [1300, 700], [1550, 720], [1720, 690]], 4, respawn=20, level=[2, 2])
     r.spawn("old_snapper", [[2200, 860]], 1, respawn=180, level=[3, 3], elite=True, mini_boss=True,
             requires=all_of(qactive("crab_trouble"), {"kind": "item_owned", "item": "crab_shell", "count": 5}))
     for p in [[400, 720], [980, 930], [1560, 700], [2240, 720], [2420, 900]]:

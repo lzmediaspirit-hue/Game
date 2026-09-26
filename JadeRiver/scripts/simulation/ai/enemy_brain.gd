@@ -31,6 +31,20 @@ static func in_sanctuary(auth, p: Vector2) -> bool:
 			if p.distance_to(Vector2(float(at[0]), float(at[1]))) <= r: return true
 	return false
 
+## Sight aggro stops at a crowd: a phone screen cannot read a pile of foes at once. While an elite or boss is
+## fighting the player, or `combat.sight_aggro_cap` ordinary foes already are, another ordinary monster that
+## sees the player stays put and joins only when struck. Elites, bosses and anything summoned (a boss's adds,
+## an event's waves) always come: those crowds are the fight.
+static func may_join(auth, e: EnemyState) -> bool:
+	if e.elite or e.is_boss() or e.summoned or e.team != "enemy" or auth.game.room_rt == null: return true
+	var cap := int(ContentDB.stat_const("combat.sight_aggro_cap", 2))
+	var n := 0
+	for o in auth.game.room_rt.living_enemies():
+		if o == e or o.team != "enemy" or not str(o.ai.get("state", "")) in ["aggro", "windup", "attack", "recover"]: continue
+		if o.elite or o.is_boss(): return false
+		n += 1
+	return n < cap
+
 const ATTACK_CD := {"slow_melee": 1.8, "melee": 1.1, "charger": 1.5, "ranged": 1.6, "ranged_melee": 1.4, "leaper": 1.5, "flyer": 1.4,
 	"flyer_ranged": 1.6, "burrower": 1.6, "caster": 1.8, "guard_counter": 1.4, "humanoid": 1.0, "duelist": 0.9, "snapper": 1.6}
 
@@ -79,7 +93,8 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 		"idle", "patrol":
 			if not tgt.is_empty():
 				var d: Vector2 = tgt.pos - e.plane
-				if (absf(d.x) <= aggro_r and absf(d.y) <= 140.0) or e.threat.size() > 0:
+				var sees := absf(d.x) <= aggro_r and absf(d.y) <= float(ContentDB.stat_const("combat.sight_depth", 100))
+				if (sees and may_join(auth, e)) or e.threat.size() > 0:
 					_set_state(auth, e, "aggro", 0.0)
 					auth.emit("enemy_aggro", {"enemy": e.uid, "target": tgt.id, "def": e.def_id})
 					return

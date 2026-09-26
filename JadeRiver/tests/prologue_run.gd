@@ -147,7 +147,8 @@ func hit_object(id: String, times: int) -> void:
 	GameEvents.flush()
 
 ## Fight `count` enemies of one kind with the basic combo, standing beside each.
-func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, allow_elite := false) -> int:
+## `careful` = false plays like a new player: no resting before a fight and no stepping out of wind-ups.
+func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, allow_elite := false, careful := true) -> int:
 	var tally := {"killed": 0, "attacker": 0}
 	var t := 0.0
 	var heard := func(n: String, p: Dictionary):
@@ -185,7 +186,7 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, a
 			t += 0.5
 			continue
 		# Rest before engaging a new target when hurt, like a careful player.
-		if c().pools.hp < c().pools.max_hp * 0.8 and target.pools.hp >= target.pools.max_hp and str(target.ai.get("state", "")) in ["idle", "patrol", "return"]:
+		if careful and c().pools.hp < c().pools.max_hp * 0.8 and target.pools.hp >= target.pools.max_hp and str(target.ai.get("state", "")) in ["idle", "patrol", "return"]:
 			var rt := 0.0
 			place(target.spawn_point + Vector2(-420, 0) if target.spawn_point.x > 500 else target.spawn_point + Vector2(420, 0))
 			while c().pools.hp < c().pools.max_hp * 0.95 and rt < 90.0:
@@ -201,7 +202,7 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, a
 			t += 0.05
 			continue
 		# Read the tell: step out of the lane during a wind-up, as the Snapper lesson teaches.
-		if str(target.ai.get("state", "")) == "windup" and (target.role != "normal" or target.elite):
+		if careful and str(target.ai.get("state", "")) == "windup" and (target.role != "normal" or target.elite):
 			place(target.plane + Vector2(-34, 70 if target.plane.y < 860 else -70))
 			step(0.7)
 			t += 0.7
@@ -375,7 +376,8 @@ func run() -> void:
 		guard += 1
 	check(c().inventory.count("crab_shell") >= 5, "five crab shells (have %d)" % c().inventory.count("crab_shell"))
 	step(1.5)
-	check(fight("old_snapper", 1, 120.0) == 1, "Old Snapper defeated")
+	# The first elite is beaten by a player who neither rests first nor reads its claw; reading it only makes it easy.
+	check(fight("old_snapper", 1, 120.0, 0.0, false, false) == 1, "Old Snapper defeated without resting or dodging (hp %d/%d)" % [int(c().pools.hp), int(c().pools.max_hp)])
 	for l in Game.room_rt.loot.duplicate(): submit({"type": "pick_up", "uid": int(l.uid)})
 	var weapons_seen := false
 	for s in c().inventory.bag:

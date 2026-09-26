@@ -221,8 +221,8 @@
     "item": "crab_shell",
     "count": 5
    },
-   "hp_mult": 0.42,
-   "attack_mult": 0.7,
+   "hp_mult": 0.24,
+   "attack_mult": 0.33,
    "movement": {
     "jump": 0,
     "climb": false,
