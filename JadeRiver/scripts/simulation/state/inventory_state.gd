@@ -71,6 +71,30 @@ func find_uid(uid: int) -> int:
 		if bag[i] != null and int(bag[i].get("uid", -1)) == uid: return i
 	return -1
 
+## An instance by uid, worn or carried: {inst, slot ("" in the bag, a worn slot, "tool_furnace", or "spare" when `spare`
+## is asked for), index (in the bag, else -1)}; {} when it is not here.
+func locate(uid: int, spare := false) -> Dictionary:
+	if uid < 0: return {}
+	for sl in equipped:
+		var e = equipped[sl]
+		if e is Dictionary and int(e.get("uid", -2)) == uid: return {"inst": e, "slot": str(sl), "index": -1}
+	if furnace is Dictionary and int(furnace.get("uid", -2)) == uid: return {"inst": furnace, "slot": "tool_furnace", "index": -1}
+	var sp = loadout.get("spare")
+	if spare and sp is Dictionary and int(sp.get("uid", -2)) == uid: return {"inst": sp, "slot": "spare", "index": -1}
+	var i := find_uid(uid)
+	return {"inst": bag[i], "slot": "", "index": i} if i >= 0 else {}
+
+## A fresh instance uid: every uid minted for this inventory comes from here.
+func take_uid() -> int:
+	next_uid += 1
+	return next_uid - 1
+
+## An instance arriving from elsewhere (another character's chest deposit, a letter, a buyback) keeps its uid while
+## nothing here holds it, and takes a fresh one otherwise; later uids start past it.
+func claim_uid(inst: Dictionary) -> void:
+	if not inst.has("uid") or not locate(int(inst.uid), true).is_empty(): inst.uid = take_uid()
+	next_uid = maxi(next_uid, int(inst.uid) + 1)
+
 func first_index(id: String) -> int:
 	for i in bag.size():
 		if bag[i] != null and bag[i].id == id: return i
@@ -133,6 +157,7 @@ func restore(d: Dictionary) -> void:
 		if s != null and s.has("uid"): next_uid = maxi(next_uid, int(s.uid) + 1)
 	for s in SLOTS:
 		if equipped[s] != null and equipped[s].has("uid"): next_uid = maxi(next_uid, int(equipped[s].uid) + 1)
+	if loadout.spare != null: next_uid = maxi(next_uid, int(loadout.spare.get("uid", 0)) + 1)
 	var fu = d.get("furnace")
 	furnace = fu.duplicate(true) if fu is Dictionary and str(ContentDB.item(str(fu.get("id", ""))).get("slot", "")) == "tool_furnace" else null
 	if furnace != null: next_uid = maxi(next_uid, int(furnace.get("uid", 0)) + 1)

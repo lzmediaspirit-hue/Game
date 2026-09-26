@@ -473,9 +473,7 @@ func apply_add_instance(actor_id: String, inst: Dictionary, source: String, over
 	# The first furnace goes straight into the empty furnace slot (S44), so Mei Qing's gift works at once.
 	if c.inventory.furnace == null and str(ContentDB.item(str(inst.id)).get("slot", "")) == "tool_furnace":
 		var f := inst.duplicate(true)
-		if not f.has("uid"):
-			f.uid = c.inventory.next_uid
-			c.inventory.next_uid += 1
+		c.inventory.claim_uid(f)
 		c.inventory.furnace = f
 		emit("item_added", {"actor": c.id, "item": str(inst.id), "count": 1, "source": source, "quality": str(inst.get("quality", "common"))})
 		emit("equipment_changed", {"actor": c.id, "slot": "tool_furnace", "old": "", "new": str(inst.id)})
@@ -484,9 +482,7 @@ func apply_add_instance(actor_id: String, inst: Dictionary, source: String, over
 	for i in bag.size():
 		if bag[i] == null:
 			var copy := inst.duplicate(true)
-			if not copy.has("uid"):
-				copy.uid = c.inventory.next_uid
-				c.inventory.next_uid += 1
+			c.inventory.claim_uid(copy)   # an instance from another bag may carry a uid already used here
 			bag[i] = copy
 			c.inventory.new_items[str(inst.id)] = true
 			emit("item_added", {"actor": c.id, "item": str(inst.id), "count": 1, "source": source, "quality": str(inst.get("quality", "common"))})
@@ -983,6 +979,7 @@ func split(c, index: int, count: int) -> Dictionary:
 	for i in bag.size():
 		if bag[i] == null:
 			var part: Dictionary = s.duplicate()
+			part.erase("uid")   # a new stack, not a second holder of the first one's lock
 			part.count = count
 			bag[i] = part
 			s.count = int(s.count) - count

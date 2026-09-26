@@ -7639,6 +7639,7 @@ func fixes_suite() -> void:
 		return
 	_fix_ticks(c)
 	_fix_buyback(c)
+	_fix_uids(c)
 	Clock.override_utc = utc0
 	Clock.override_tz_offset_s = tz0
 	HerbRules.origin_week = 0
@@ -7674,3 +7675,39 @@ func _fix_buyback(c) -> void:
 		and int(left[0].entry.count) == 2 and int(left[0].price) == 200, "one comes back for a third of the price; two wait on the list (%s)" % str(left))
 	for j in c.inventory.bag.size(): c.inventory.bag[j] = null
 	Game.account.economy.buyback = []
+
+## B3: every instance in a bag has its own uid (a withdrawal from the shared chest, a split of a locked stack).
+func _uids_unique(ch) -> bool:
+	var seen := {}
+	for inst in ch.inventory.bag + ch.inventory.equipped.values() + [ch.inventory.furnace]:
+		if not (inst is Dictionary) or not inst.has("uid"): continue
+		if seen.has(int(inst.uid)): return false
+		seen[int(inst.uid)] = true
+	return true
+
+func _fix_uids(c) -> void:
+	Unlocks.force_unlock(c.id, "storage")
+	Game.submit({"type": "create_character", "slot": 2, "name": "Second"})
+	var c2 = Game.character("c2")
+	check(c2 != null, "a second character for the shared chest")
+	if c2 == null: return
+	Game.inventory.apply_add_equipment(c.id, "training_jian", 1, "common", "test")
+	var n_store: int = Game.account.storage.get("items", []).size()
+	check(Game.accounts.deposit(c, _bag_index(c, "training_jian"), 1).get("ok", false), "the first character stores a jian")
+	Game.inventory.apply_add_equipment(c2.id, "hemp_robe", 1, "common", "test")
+	var robe: Dictionary = c2.inventory.bag[_bag_index(c2, "hemp_robe")]
+	c2.inventory.locked[int(robe.uid)] = true
+	check(Game.accounts.withdraw(c2, n_store).get("ok", false), "the second character takes it out")
+	var jian: Dictionary = c2.inventory.bag[_bag_index(c2, "training_jian")]
+	check(_uids_unique(c2) and not c2.inventory.locked.has(int(jian.uid)), "the jian gets a uid of its own in the new bag (%d, robe %d)" % [int(jian.uid), int(robe.uid)])
+	var fresh := LootRules.make_instance("training_spear", 1, "common", null, c2.inventory.next_uid)
+	Game.inventory.apply_add_instance(c2.id, fresh, "test")
+	check(_uids_unique(c2), "and the next piece minted there does not collide with it")
+	# A split of a locked stack is a new, unlocked stack.
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	Game.inventory.apply_add(c.id, "healing_pill", 10, "test")
+	Game.submit({"type": "lock_item", "index": 0})
+	check(Game.submit({"type": "split_stack", "index": 0, "count": 4}).get("ok", false), "a locked stack splits")
+	var part = c.inventory.bag[1]
+	check(part != null and not part.has("uid") and _uids_unique(c), "the new part carries no copy of the lock's uid (%s)" % str(part))
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
