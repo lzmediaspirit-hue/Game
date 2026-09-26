@@ -273,7 +273,7 @@ func tick(delta: float) -> void:
 	progression.tick(delta)
 	enemies.tick(delta)
 	world.tick(delta)
-	for a in [crafting, companions, pets, quest, economy, accounts, sect, training, achievements, mail, inventory]:
+	for a in [crafting, companions, pets, quest, economy, accounts, sect, training, achievements, mail, inventory, relations, calendar]:
 		a.tick(delta)
 	_after_pass()
 	if autosave_enabled:

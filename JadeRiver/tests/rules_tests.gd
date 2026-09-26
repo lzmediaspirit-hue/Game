@@ -99,6 +99,7 @@ func _main() -> void:
 	aggro_cap_suite()
 	emotes_suite()
 	text_suite()
+	fixes_suite()
 	max_character_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -7606,3 +7607,45 @@ func save_suite() -> void:
 	Saves.repo = saved_repo
 	var old: Dictionary = Saves.migrate_character({"name": "Old", "version": 2})
 	check(int(old.get("version", 0)) == Saves.VERSION, "an older character file is brought to the current version")
+
+# ------------------------------------------------------------------ regression tests for the code review (docs/review-code.md)
+## A fresh account in its own folder, one character standing in its first room (the suites after this one boot their own).
+func _fix_world() -> Object:
+	var folder := "user://fixes_suite/"
+	DirAccess.make_dir_recursive_absolute(folder)
+	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
+	Saves.use_folder(folder)
+	Game.boot()
+	Game.autosave_enabled = false
+	Game.account.slots_unlocked = 2
+	Game.submit({"type": "create_character", "slot": 1, "name": "Fixes"})
+	Game.submit({"type": "enter_character", "slot": 1})
+	var c = Game.active()
+	Game.submit({"type": "enter_world"})
+	var st := ActorState.new()
+	Game.bind_movement(c.id, st)
+	st.surface = Game.room_rt.geometry.surfaces[0]
+	st.plane = Vector2(float(c.position.x), float(c.position.y))
+	for sid in ["spawn_protection"]: Game.combat.cure_status(c.id, sid)
+	return c
+
+func fixes_suite() -> void:
+	var utc0 := Clock.override_utc
+	var tz0 := Clock.override_tz_offset_s
+	Clock.override_utc = 1767225600.0
+	var c = _fix_world()
+	if c == null:
+		check(false, "the fixes suite needs a character")
+		return
+	_fix_ticks(c)
+	Clock.override_utc = utc0
+	Clock.override_tz_offset_s = tz0
+	HerbRules.origin_week = 0
+
+## B1: the Relations and Calendar authorities run with the game clock.
+func _fix_ticks(c) -> void:
+	var meter := Game.relations.fortune_meter(c)
+	for i in 20: Game.tick(0.25)
+	check(Game.relations.fortune_meter(c) > meter, "playing fills the Fortune meter (Game.tick runs Relations)")
+	check(Game.account.calendar.has("season"), "the calendar keeps the season as the game runs (Game.tick runs the Calendar)")
+	check(HerbRules.origin_week == Clock.reset_week(Game.account.created_utc), "and counts the seasons from the account's first week")
