@@ -2399,6 +2399,12 @@ def set_pieces():
         # story battle it can be fought again once a day.
         {"id": "hollow_tide_battle", "name": "The Tide Breaks", "room": "si_tide_battle", "portal": "exit",
          "requires": all_of(realm("sphere_lord_1")), "repeatable": {"cooldown_h": 20}},
+        # v1.2 Phase E · the Greyfall stand (chapter 22): the Tide comes all at once to the Breach Shen Lian holds.
+        {"id": "greyfall_stand", "name": "The Greyfall Stand", "room_event": {"id": "greyfall_stand", "duration": 90, "clear_room": True,
+         "waves": [{"enemy": "hollow_drone", "every_s": 4, "max": 5, "points": [[2600, 800], [3000, 880], [3400, 760]], "level": 96},
+                   {"enemy": "hollowed_wyrmling", "every_s": 9, "max": 3, "first_s": 15, "points": [[2800, 880], [3300, 820]], "level": 97}],
+         "on_complete": [{"kind": "event_passed", "event": "greyfall_stand"}, {"kind": "set_flag", "flag": "shen_lian_taken"}]},
+         "requires": all_of(realm("sphere_lord_3"))},
     ]
     entries("set_pieces", rows)
 

@@ -10,7 +10,7 @@ extends "res://tests/prologue_run.gd"
 ##   godot --headless --path . res://tests/valley_run.tscn -- [--from=<section>] [--verbose]
 
 const SECTIONS := ["bf2", "bf5", "bf8", "qk1", "qk5", "qu1", "qu5", "ht1", "ht5", "cs1", "cs5", "sa1", "sa5", "hg1", "ae1", "ae2", "ae3", "ae4",
-	"ae5", "ae6", "ls1", "ls2", "ls3", "ls4", "ls5"]
+	"ae5", "ae6", "ls1", "ls2", "ls3", "ls4", "ls5", "ls6"]
 const CP_ROOT := "user://valley_cp/"
 const WORK := "user://valley_work/"
 
@@ -2673,6 +2673,78 @@ func sec_ls5() -> void:
 	check(finish("star_warden"), "Star Warden done: chapter 21 complete")
 	check("star_warden" in c().cultivator.titles, "Star Warden")
 	checkpoint("ls5_end")
+
+## A boss that takes a long fight: real blows first, then the test shortcut brings it near the end (the careful chipping a
+## player does over minutes), then the real blows again. Returns the kills of `def_id`.
+func long_boss_fight(def_id: String, shortcut_to := 0.25) -> int:
+	var boss: EnemyState = null
+	var waited := 0.0
+	while boss == null and waited < 5.0:
+		step(0.5)
+		waited += 0.5
+		for e in Game.room_rt.living_enemies():
+			if e.def_id == def_id: boss = e
+	if boss == null: return 0
+	var killed := 0
+	var tries := 0
+	while boss.alive and killed == 0 and tries < 30:
+		killed = fight(def_id, 1, 15.0, 0.3, true)
+		revive_if_needed()
+		if tries >= 4 and boss.alive and boss.pools.hp > boss.pools.max_hp * shortcut_to: boss.pools.hp = boss.pools.max_hp * shortcut_to
+		tries += 1
+	return killed
+
+## v1.2 Phase E · chapter 22 (The Lantern Heart): Lu's star notes in the Nebula Deep, the stair above the harbour to the
+## Flame Heart and its flame, the Nebula Leviathan (optional), Sphere Lord 3 and the Law recipes, and the Greyfall stand.
+func sec_ls6() -> void:
+	tidy_bag(12)
+	var zone := "lantern_star_field"
+	check(start("lus_lantern"), "Lu's Lantern accepted")
+	attune_to(zone, 84.0)
+	check(travel("nd_nebula_verge"), "through the Drone Hive into the Nebula Deep")
+	check(travel("nd_crab_grottoes"), "on to the Crab Grottoes")
+	place(obj_at("lus_star_notes") + Vector2(0, 30))
+	interact("lus_star_notes")
+	check(c().quests.flags.has("lus_notes_found"), "Lu's star notes")
+	attune_to(zone, 90.0)
+	check(travel("lt_flame_heart"), "up the stair above the harbour to the Flame Heart")
+	place(obj_at("heart_flame") + Vector2(0, 30))
+	interact("heart_flame")
+	check(c().quests.flags.has("heart_flame_taken"), "a spark of the first lantern's flame")
+	check(finish("lus_lantern"), "Lu's Lantern done")
+	var fi: int = c().inventory.first_index("lantern_heart_flame")
+	check(fi >= 0, "the Lantern Heart's flame")
+	if fi >= 0:
+		var ab := submit({"type": "use_item", "index": fi})
+		check(ab.get("ok", false) and "lantern_heart_flame" in c().crafting.get("flames", []), "absorbed: it burns under every furnace now")
+	# The Leviathan's Maw (optional): the field boss of the Nebula Deep.
+	check(start("the_leviathans_maw"), "The Leviathan's Maw accepted")
+	check(travel("nd_leviathans_maw"), "into the Leviathan's Maw")
+	var lev := long_boss_fight("nebula_leviathan")
+	check(lev >= 1 or c().quests.is_done("the_leviathans_maw") or _objective("the_leviathans_maw", 0) >= 1, "bring down the Nebula Leviathan")
+	check(finish("the_leviathans_maw"), "The Leviathan's Maw done")
+	# Greyfall: Sphere Lord 3, the Law recipes, and the stand beside Shen Lian.
+	check(start("greyfall"), "Greyfall accepted")
+	check(reach("sphere_lord_3"), "Sphere Lord 3")
+	if Game.economy.balance("sage_crystal") < 400: Game.economy.apply_currency("sage_crystal", 400, "test_shortcut")
+	talk(go_to_npc(["stargazer_ming"]))
+	check(buy("observatory", "recipe_scroll", 1, "law_condensing_pill") and buy("observatory", "recipe_scroll", 1, "law_touching_pill"),
+		"Stargazer Ming's Law recipes, for the step past the Field")
+	check(travel("tf_greyfall_breach"), "to the Greyfall Breach")
+	talk(go_to_npc(["shen_lian_breach"]))
+	check(_objective("greyfall", 2) >= 1, "Shen Lian on the Breach")
+	place(obj_at("greyfall_stand") + Vector2(0, 20))
+	var began := interact("greyfall_stand")
+	check(Game.room_rt.event.get("active", false), "ring the Breach's bell: the Tide comes all at once %s" % str(began.get("reason", "")))
+	var t := 0.0
+	while Game.room_rt.event.get("active", false) and t < 140.0:
+		fight("hollow_drone", 1, 6.0, 0.3)
+		revive_if_needed()
+		t += 6.0
+	check("greyfall_stand" in c().cultivator.events_passed and c().quests.flags.has("shen_lian_taken"), "hold the Breach; Shen Lian stays on the far side")
+	check(finish("greyfall"), "Greyfall done: chapter 22 and Act III complete")
+	check(c().quests.flags.has("act3_complete"), "the Lantern Star Field's story is told")
+	checkpoint("ls6_end")
 
 ## Walk to a teleport stone and take it to another (a cross-zone jump costs five times the fee).
 func teleport_from(stone_room: String, stone_obj: String, to_stone: String) -> bool:

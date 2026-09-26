@@ -1,17 +1,17 @@
 {
  "schema_version": 1,
- "id": "tf_greyfall_breach",
+ "id": "nd_nebula_verge",
  "zone": "lantern_star_field",
- "region": "tidebreak_front",
- "name": "Greyfall Breach",
+ "region": "nebula_deep",
+ "name": "Nebula Verge",
  "type": "field",
  "level_range": [
-  90,
-  94
+  94,
+  96
  ],
- "recommended_cp": 1640,
- "element": "none",
- "qi_density": 2.2,
+ "recommended_cp": 1712,
+ "element": "water",
+ "qi_density": 2.4,
  "hazards": [],
  "gather_tier": "lantern_high",
  "idle": [
@@ -26,13 +26,13 @@
   3840,
   480
  ],
- "backdrop": "tidebreak_front",
+ "backdrop": "nebula_deep",
  "ground": {
   "material": "stone",
-  "tint": "#a8acb4"
+  "tint": "#b8b0d8"
  },
  "spawn_point": [
-  200,
+  400,
   820
  ],
  "surfaces": [
@@ -91,7 +91,7 @@
   {
    "id": "route_1",
    "rect": [
-    520,
+    640,
     636,
     240,
     70
@@ -136,7 +136,7 @@
     40,
     850
    ],
-   "to": "tf_tidebreak_bastion",
+   "to": "tf_drone_hive",
    "to_portal": "east"
   },
   {
@@ -146,166 +146,150 @@
     3800,
     850
    ],
-   "to": "tf_hollow_wake",
+   "to": "nd_eel_currents",
    "to_portal": "west"
   }
  ],
  "objects": [
   {
-   "id": "jar_1",
+   "id": "herb_1",
+   "type": "herb_patch",
+   "at": [
+    1978,
+    690
+   ],
+   "item": "star_lotus",
+   "prop": "star_lotus_patch",
+   "yield": [
+    1,
+    1
+   ],
+   "rank": "master",
+   "regrow_s": 240,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "herb_gathering"
+     }
+    ]
+   },
+   "locked_text": "You don't know which leaves are worth picking yet."
+  },
+  {
+   "id": "jar_2",
    "type": "jar",
    "at": [
     1030,
     665
    ],
    "loot": "jar_lantern",
-   "level": 92,
+   "level": 95,
    "hp": 1,
    "respawn_s": 300,
    "alt": 100
   },
   {
-   "id": "crate_2",
+   "id": "crate_3",
    "type": "crate",
    "at": [
     2230,
     655
    ],
    "loot": "jar_lantern",
-   "level": 92,
+   "level": 95,
    "hp": 1,
    "respawn_s": 300,
    "alt": 200
   },
   {
-   "id": "jar_3",
+   "id": "jar_4",
    "type": "jar",
    "at": [
-    2447,
-    930
+    2392,
+    700
    ],
    "loot": "jar_lantern",
-   "level": 92,
+   "level": 95,
    "hp": 1,
    "respawn_s": 300
   },
   {
-   "id": "crate_4",
+   "id": "crate_5",
    "type": "crate",
    "at": [
-    3321,
+    3298,
     930
    ],
    "loot": "jar_lantern",
-   "level": 92,
+   "level": 95,
    "hp": 1,
    "respawn_s": 300
   },
   {
-   "id": "npc_shen_lian_breach",
-   "type": "npc",
+   "id": "shrine_nd_verge",
+   "type": "shrine",
    "at": [
-    1700,
-    790
-   ],
-   "npc": "shen_lian_breach",
-   "facing": 1,
-   "visible_if": {
-    "all": [
-     {
-      "kind": "quest_active",
-      "quest": "greyfall"
-     },
-     {
-      "kind": "flag_not_set",
-      "flag": "shen_lian_taken"
-     }
-    ]
-   }
-  },
-  {
-   "id": "greyfall_stand",
-   "type": "rite_circle",
-   "at": [
-    1500,
-    880
-   ],
-   "event": "greyfall_stand",
-   "prop": "small_bell",
-   "visible_if": {
-    "all": [
-     {
-      "kind": "quest_active",
-      "quest": "greyfall"
-     },
-     {
-      "kind": "flag_not_set",
-      "flag": "shen_lian_taken"
-     }
-    ]
-   },
-   "text": "The Breach's warning bell. Ring it and the Tide comes all at once."
+    600,
+    700
+   ]
   }
  ],
  "spawns": [
   {
-   "enemy": "hollow_drone",
+   "enemy": "nebula_eel",
    "surface": "ground",
    "points": [
     [
-     617,
-     903
+     1130,
+     902
     ],
     [
-     1285,
-     804
+     1460,
+     854
     ],
     [
-     1972,
-     763
+     2391,
+     798
     ],
     [
-     2613,
-     735
-    ],
-    [
-     3310,
-     728
+     3228,
+     860
     ]
    ],
-   "max": 4,
+   "max": 3,
    "respawn_s": 14,
    "level": [
-    90,
-    93
+    94,
+    95
    ]
   },
   {
-   "enemy": "hollowed_wyrmling",
+   "enemy": "void_crab",
    "surface": "ground",
    "points": [
     [
-     808,
-     716
+     1234,
+     916
     ],
     [
-     1900,
-     872
+     1954,
+     896
     ],
     [
-     3059,
-     856
+     3021,
+     806
     ]
    ],
    "max": 2,
-   "respawn_s": 20,
+   "respawn_s": 18,
    "level": [
-    91,
-    94
+    94,
+    96
    ]
   },
   {
-   "enemy": "hollow_drone",
+   "enemy": "nebula_eel",
    "surface": "ground",
    "points": [
     [
@@ -316,8 +300,8 @@
    "max": 1,
    "respawn_s": 180,
    "level": [
-    93,
-    93
+    95,
+    95
    ],
    "elite": true
   }
@@ -325,81 +309,72 @@
  "scenery": [],
  "decor": [
   {
-   "prop": "rock_large",
+   "prop": "nebula_coral",
    "at": [
-    200,
-    633
-   ],
-   "layer": "play",
-   "flip": false
-  },
-  {
-   "prop": "drone_hive",
-   "at": [
-    809,
-    628
-   ],
-   "layer": "play",
-   "flip": true
-  },
-  {
-   "prop": "rock_large",
-   "at": [
-    1191,
+    120,
     632
    ],
    "layer": "play",
    "flip": false
   },
   {
-   "prop": "drone_hive",
+   "prop": "star_crystal",
    "at": [
-    1753,
-    639
+    672,
+    630
    ],
    "layer": "play",
    "flip": true
   },
   {
-   "prop": "rock_large",
+   "prop": "nebula_coral",
    "at": [
-    2157,
+    1236,
     633
    ],
    "layer": "play",
    "flip": false
   },
   {
-   "prop": "drone_hive",
+   "prop": "star_crystal",
    "at": [
-    2622,
+    1755,
     638
    ],
    "layer": "play",
    "flip": true
   },
   {
-   "prop": "rock_large",
+   "prop": "nebula_coral",
    "at": [
-    3104,
-    636
+    2267,
+    629
    ],
    "layer": "play",
    "flip": false
   },
   {
-   "prop": "drone_hive",
+   "prop": "star_crystal",
    "at": [
-    3586,
-    639
+    2861,
+    638
    ],
    "layer": "play",
    "flip": true
   },
   {
+   "prop": "nebula_coral",
+   "at": [
+    3457,
+    629
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
    "prop": "tall_grass",
    "at": [
-    84,
+    148,
     988
    ],
    "layer": "front",
@@ -408,7 +383,7 @@
   {
    "prop": "reeds",
    "at": [
-    432,
+    397,
     988
    ],
    "layer": "front",
@@ -417,7 +392,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    733,
+    718,
     988
    ],
    "layer": "front",
@@ -426,7 +401,7 @@
   {
    "prop": "reeds",
    "at": [
-    1087,
+    1016,
     988
    ],
    "layer": "front",
@@ -435,7 +410,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    1339,
+    1369,
     988
    ],
    "layer": "front",
@@ -444,7 +419,7 @@
   {
    "prop": "reeds",
    "at": [
-    1706,
+    1687,
     988
    ],
    "layer": "front",
@@ -453,7 +428,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    2017,
+    2059,
     988
    ],
    "layer": "front",
@@ -462,7 +437,7 @@
   {
    "prop": "reeds",
    "at": [
-    2257,
+    2384,
     988
    ],
    "layer": "front",
@@ -471,7 +446,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    2484,
+    2771,
     988
    ],
    "layer": "front",
@@ -480,7 +455,7 @@
   {
    "prop": "reeds",
    "at": [
-    2862,
+    3053,
     988
    ],
    "layer": "front",
@@ -489,7 +464,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    3159,
+    3416,
     988
    ],
    "layer": "front",
@@ -498,26 +473,41 @@
   {
    "prop": "reeds",
    "at": [
-    3499,
+    3801,
     988
    ],
    "layer": "front",
    "flip": true
   },
   {
-   "prop": "tall_grass",
+   "prop": "nebula_coral",
    "at": [
-    3776,
-    988
+    800,
+    690
    ],
-   "layer": "front",
-   "flip": false
+   "layer": "back"
+  },
+  {
+   "prop": "nebula_coral",
+   "at": [
+    1900,
+    690
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "nebula_coral",
+   "at": [
+    3000,
+    690
+   ],
+   "layer": "back"
   }
  ],
  "areas": [],
- "music": "hollow_tide",
+ "music": "star_field",
  "ambience": "wind_ambience",
- "attunement_required": 72,
+ "attunement_required": 80,
  "climbables": [
   {
    "id": "ledge_0_rope_1",
@@ -585,6 +575,7 @@
   }
  ],
  "terrain": [
-  "stone"
+  "stone",
+  "water"
  ]
 }

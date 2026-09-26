@@ -64,6 +64,7 @@ func _main() -> void:
 	guidance_suite()
 	sphere_suite()
 	ash_tide_suite()
+	lantern_heart_suite()
 	body_path_suite()
 	heaven_suite()
 	arts_suite()
@@ -5862,6 +5863,30 @@ func ash_tide_suite() -> void:
 	Game.combat.refresh_stats(c.id)
 	c.pools.hp = c.pools.max_hp
 	Game.world.apply_teleport(c.id, back)
+
+## v1.2 Phase E: the Void Crab's shell, the Leviathan as a field boss with a Presence and a Sphere, the Law recipes, the
+## Lantern Heart's flame, and the Greyfall stand.
+func lantern_heart_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var crab := StatRules.mob_stats(ContentDB.entry("enemies", "void_crab"), 96)
+	var eel := StatRules.mob_stats(ContentDB.entry("enemies", "nebula_eel"), 96)
+	check(near(float(crab.physical_defense), float(eel.physical_defense) * 1.6), "a Void Crab's shell holds 60% more defence than an eel at its level")
+	var lev: Dictionary = ContentDB.entry("enemies", "nebula_leviathan")
+	check(str(lev.role) == "field_boss" and int(lev.get("presence", 0)) == 5 and str(lev.sphere.element) == "space" and lev.phases.size() == 2,
+		"the Nebula Leviathan: a field boss with Presence 5, a Sphere of Space and two phases")
+	check(ContentDB.entry("pets", "void_crab").get("tame", false), "the Void Crab can be tamed (a star-tier beast)")
+	for pid in ["law_condensing_pill", "law_touching_pill"]:
+		var rc := ContentDB.entry("recipes", pid)
+		check(not rc.is_empty() and str(rc.outputs[0].item) == pid, "the %s has a recipe (Sphere Lord 3, Stargazer Ming)" % pid)
+	var flames0: Array = c.crafting.get("flames", []).duplicate()
+	c.crafting["flames"] = flames0.filter(func(f): return f != "lantern_heart_flame")
+	Game.crafting.apply_absorb_flame(c.id, "lantern_heart_flame")
+	check("lantern_heart_flame" in c.crafting.get("flames", []), "the Lantern Heart's flame is absorbed like any Heavenly Flame")
+	c.crafting["flames"] = flames0
+	var sp: Dictionary = ContentDB.entry("set_pieces", "greyfall_stand")
+	check(not sp.is_empty() and sp.room_event.on_complete.any(func(e): return str(e.get("flag", "")) == "shen_lian_taken"),
+		"the Greyfall stand ends with Shen Lian on the far side of the Tide")
 
 func ice_mount_suite() -> void:
 	var z := ZoneGeometry.new()

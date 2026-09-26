@@ -2964,6 +2964,32 @@
     {
      "item": "will_tempering_pill",
      "price": 6
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "law_condensing_pill",
+     "price": 150,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_3"
+       }
+      ]
+     }
+    },
+    {
+     "item": "recipe_scroll",
+     "learn": "law_touching_pill",
+     "price": 200,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_3"
+       }
+      ]
+     }
     }
    ]
   },

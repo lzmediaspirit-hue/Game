@@ -1826,6 +1826,36 @@
    "desc": "A bronze plate from a Nest Guardian's shell, set with a crystal that still glows."
   },
   {
+   "id": "eel_essence",
+   "name": "Eel Essence",
+   "type": "beast_part",
+   "grade": "will",
+   "ilv": 95,
+   "stack": 99,
+   "icon": "eel_essence",
+   "desc": "The bright thread of a Nebula Eel's life, coiled in a drop. It bends the space around it a hair's width."
+  },
+  {
+   "id": "void_carapace",
+   "name": "Void Carapace",
+   "type": "beast_part",
+   "grade": "will",
+   "ilv": 95,
+   "stack": 99,
+   "icon": "void_carapace",
+   "desc": "A plate of Void Crab shell. Look into it and it is deeper than it is thick."
+  },
+  {
+   "id": "leviathan_scale",
+   "name": "Leviathan Scale",
+   "type": "beast_part",
+   "grade": "will",
+   "ilv": 95,
+   "stack": 99,
+   "icon": "leviathan_scale",
+   "desc": "A scale from the Nebula Leviathan, as broad as a shield. Stars move in it, slowly."
+  },
+  {
    "id": "cinder_ash",
    "name": "Cinder Ash",
    "type": "material",
@@ -6132,6 +6162,19 @@
    "stack": 1,
    "icon": "comet_tail_flame",
    "desc": "A white flame torn from a comet's tail, kept in Comet Captain Rao's lamp. Absorb it: a Heavenly Flame burns under any furnace you use, for good. Never sold.",
+   "sell": false,
+   "use": [],
+   "use_action": "absorb_flame"
+  },
+  {
+   "id": "lantern_heart_flame",
+   "name": "Lantern Heart Flame",
+   "type": "treasure",
+   "grade": "will",
+   "ilv": 95,
+   "stack": 1,
+   "icon": "lantern_heart_flame",
+   "desc": "The flame at the heart of the Lantern Star Field, burning in a cage older than the Wardens. Lu once carried a spark of it home. Absorb it: a Heavenly Flame burns under any furnace you use, for good. Never sold.",
    "sell": false,
    "use": [],
    "use_action": "absorb_flame"

@@ -211,6 +211,33 @@ Throughout the zone:
   - Side: Brush and Bell.
   - The unlock's quest: The Copperjaw Box.
 
+## Phase E in detail (chapter 22, The Lantern Heart, Sphere Lord 2–3)
+
+- **Nebula Deep** (behind the Drone Hive's sealed east edge, open with Lu's Lantern):
+  - Nebula Verge (94–96, Endurance 80).
+  - Eel Currents (95–97, 82).
+  - Crab Grottoes (96–98, 84; Lu's star notes).
+  - Leviathan's Maw (99, the field boss, 45-minute respawn).
+- **Nebula Eel:** a space bite with a dash, and a current coil that pulls from both sides.
+- **Void Crab:** a shell of 1.6× defence and a 320-unit blink claw; tameable (star tier, family river).
+- **Nebula Leviathan** (99), Presence 5, a Sphere of Space at tier 5:
+  - current swallow (pull 220, both sides), void breath (460 ahead) and a gravity crash (a 40% stun);
+  - eels at 60%, rage at 30%.
+- **The Lantern Heart** (secret realm, Endurance 90), up the stair at the east end of the Harbor Market:
+  - Wick Gate (97–98).
+  - Hall of Burning Stars (98–99).
+  - Flame Heart (safe), where the flame answers one carrying Lu's notes.
+- **Law pills:**
+  - Law Condensing (star lotus 2, void carapace, eel essence).
+  - Law Touching (star lotus, a Leviathan scale, eel essence 2).
+  - Both are will-grade recipes from Stargazer Ming at Sphere Lord 3. Sphere Lord 3 is the Field's ceiling; the pills
+    open Law Touching in Act IV.
+- **Chapter 22:**
+  - Lu's Lantern (Harbormaster Lin): the notes, the stair, the flame.
+  - The Leviathan's Maw (optional, Captain Duan).
+  - Greyfall (Commander Yao): Sphere Lord 3, the Breach, Shen Lian, then the 90-second Greyfall stand of drones and
+    wyrmlings. It ends with the flag `shen_lian_taken`, the codex entry the Frontier and the flag `act3_complete`.
+
 ## Attunement numbers
 
 Starsea Endurance uses the Storm Ward rules with four new jades (Tide, Comet, Wick and Void Jade) and

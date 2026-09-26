@@ -1,0 +1,223 @@
+{
+ "schema_version": 1,
+ "id": "lt_flame_heart",
+ "zone": "lantern_star_field",
+ "region": "lantern_heart",
+ "name": "Flame Heart",
+ "type": "secret",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 3.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "lantern_heart",
+ "ground": {
+  "material": "stone",
+  "tint": "#f0d8a8"
+ },
+ "spawn_point": [
+  300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    260,
+    620,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    840,
+    620,
+    280,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1_step_ledge_3",
+   "rect": [
+    620,
+    620,
+    160,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "lt_hall_of_burning_stars",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "heart_flame",
+   "type": "inspect",
+   "at": [
+    1280,
+    760
+   ],
+   "prop": "flame_basin",
+   "set_flag": "heart_flame_taken",
+   "visible_if": {
+    "any": [
+     {
+      "kind": "quest_active",
+      "quest": "lus_lantern"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "lus_lantern"
+     }
+    ]
+   },
+   "text": "The first lantern's flame. A spark of it leans toward you, the way it must once have leaned toward Lu."
+  },
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    980,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 1,
+   "alt": 200,
+   "surface": "ledge_mv_1"
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "lantern_cage",
+   "at": [
+    1280,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "flame_basin",
+   "at": [
+    900,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "flame_basin",
+   "at": [
+    1660,
+    700
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "lantern_heart",
+ "attunement_required": 90,
+ "lantern": true,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    400,
+    725
+   ],
+   "top_at": [
+    400,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    980,
+    725
+   ],
+   "top_at": [
+    980,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  },
+  {
+   "id": "ledge_mv_1_step_ledge_3_rope_101",
+   "kind": "rope",
+   "at": [
+    700,
+    725
+   ],
+   "top_at": [
+    700,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_1_step_ledge_3"
+  }
+ ],
+ "terrain": [
+  "stone"
+ ]
+}

@@ -190,6 +190,29 @@
    ],
    "to": "tf_hollow_wake",
    "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "sealed",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "nd_nebula_verge",
+   "to_portal": "west",
+   "requires": {
+    "any": [
+     {
+      "kind": "quest_active",
+      "quest": "lus_lantern"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "lus_lantern"
+     }
+    ]
+   },
+   "locked_text": "Beyond the hive the dark thins into a nebula that runs like a sea. You have no reason to swim it yet."
   }
  ],
  "objects": [

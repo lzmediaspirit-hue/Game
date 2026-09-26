@@ -3675,6 +3675,33 @@
    "services": []
   },
   {
+   "id": "shen_lian_breach",
+   "name": "Shen Lian",
+   "title": "Warden of the Greyfall Breach",
+   "outfit": {
+    "body": "light",
+    "hair": "high_pony",
+    "hair_color": 0,
+    "shirt": "vneck",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "solid",
+    "weapon": "sword",
+    "shirt_dye": "indigo",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "Someone has to hold the Breach while the Wardens relight the line. I asked for it. Don't look at me like that.",
+    "Two fisher boys from Lotus Ferry. One of us gets the title, the other gets the wall. It's fair."
+   ],
+   "barks": [
+    "Go on. I've got this.",
+    "Tell Aunt Ping I ate properly."
+   ],
+   "services": []
+  },
+  {
    "id": "lanternwright_han",
    "name": "Lanternwright Han",
    "title": "Scholar-lanternwright",

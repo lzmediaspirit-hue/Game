@@ -717,6 +717,13 @@
     "lh_harbor_market",
     "lh_star_chandlery",
     "lh_tidelight_inn",
+    "lt_flame_heart",
+    "lt_hall_of_burning_stars",
+    "lt_wick_gate",
+    "nd_crab_grottoes",
+    "nd_eel_currents",
+    "nd_leviathans_maw",
+    "nd_nebula_verge",
     "or_golem_foundry",
     "or_inverted_hall",
     "or_orbit_garden",
@@ -850,8 +857,7 @@
      "map": [
       0.3,
       0.1
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "lantern_heart",
@@ -864,8 +870,7 @@
      "map": [
       0.52,
       0.14
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "lantern_crossing",

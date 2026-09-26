@@ -4,6 +4,8 @@ world.py read ZONE, STONES and VOYAGES from here.
 
 Phase A: the Lantern Run from the Starsea Launch, Lanternfall Harbor and the Drifting Shoals.
 Phase B: Blackmast Haven (Admiral Voss) and the Wyrmnest Isles (the Hollowed brood, the last star-wyrm egg).
+Phase D: the Ashen Reach (General Kharn) and the Tidebreak Front (the Hollow Tide battle).
+Phase E: the Nebula Deep (the Leviathan) and the Lantern Heart (the first lantern's flame).
 Phase C: the Star Warden Citadel (the Wardens, the Observatory, the Presence Court) and the Orbit Ruins (gravity switches,
 Gravity Golems and Orbit Moths, the Orbit Hermit who teaches the Space Dao).
 """
@@ -40,8 +42,8 @@ REGIONS = [
     {"id": "orbit_ruins", "name": "Orbit Ruins", "levels": [88, 93], "attunement": 50, "map": [0.34, 0.30]},
     {"id": "ashen_reach", "name": "Ashen Reach", "levels": [88, 96], "attunement": 60, "map": [0.22, 0.66]},
     {"id": "tidebreak_front", "name": "Tidebreak Front", "levels": [90, 99], "attunement": 70, "map": [0.12, 0.40]},
-    {"id": "nebula_deep", "name": "Nebula Deep", "levels": [94, 99], "attunement": 80, "map": [0.30, 0.10], "planned": True},
-    {"id": "lantern_heart", "name": "The Lantern Heart", "levels": [97, 99], "attunement": 90, "map": [0.52, 0.14], "planned": True},
+    {"id": "nebula_deep", "name": "Nebula Deep", "levels": [94, 99], "attunement": 80, "map": [0.30, 0.10]},
+    {"id": "lantern_heart", "name": "The Lantern Heart", "levels": [97, 99], "attunement": 90, "map": [0.52, 0.14]},
     {"id": "lantern_crossing", "name": "The Lantern Run", "levels": [81, 83], "map": [0.94, 0.86], "hidden": True},
 ]
 
@@ -120,6 +122,10 @@ def lanternfall():
     r.edge("east", "east", "dr_jellyfish_shallows", "west", y=850, ptype="sealed",
            requires=w.any_of(w.qactive("salt_of_the_stars"), w.qdone("salt_of_the_stars")),
            locked_text="A Star Warden at the gate: \"The Shoals thin the blood of anyone the stars don't know yet. See Warden Xiao first.\"")
+    # v1.2 · Phase E: the stair to the Lantern Heart, where Lu's notes point (chapter 22).
+    r.portal("lantern_stair", "door", [3600, 704], "lt_wick_gate", "stair", press_up=True, label="The stair to the Lantern Heart",
+             requires=w.all_of(w.any_of(w.qactive("lus_lantern"), w.qdone("lus_lantern")), {"kind": "flag_set", "flag": "lus_notes_found"}),
+             locked_text="A stair climbing into the light of the great lantern. It is not for anyone who does not know the way.")
 
     r = w.interior("lh_star_chandlery", "Star Chandlery", "lanternfall_harbor", wall="wall_wood", music="lantern_harbor", qi=1.8,
                    rtype="insight", lantern=True, **LS)
@@ -522,6 +528,11 @@ def tidebreak():
     r = w.field("tf_greyfall_breach", "Greyfall Breach", "tidebreak_front", 3, [90, 94],
                 spawns=[("hollow_drone", 4, [90, 93], 14), ("hollowed_wyrmling", 2, [91, 94], 20)], jars=4, attunement_required=72,
                 platforms=[(1000, 650, 300, 100), (2200, 640, 320, 200)], **grey)
+    # Chapter 22: Shen Lian holds the Breach; the Greyfall stand is fought here.
+    r.npc("shen_lian_breach", [1700, 790], facing=1, visible_if=w.all_of(w.qactive("greyfall"), {"kind": "flag_not_set", "flag": "shen_lian_taken"}))
+    r.obj("greyfall_stand", "rite_circle", [1500, 880], event="greyfall_stand", prop="small_bell",
+          visible_if=w.all_of(w.qactive("greyfall"), {"kind": "flag_not_set", "flag": "shen_lian_taken"}),
+          text="The Breach's warning bell. Ring it and the Tide comes all at once.")
     r.edge("west", "west", "tf_tidebreak_bastion", "east", y=850)
     r.edge("east", "east", "tf_hollow_wake", "west", y=850)
 
@@ -537,6 +548,9 @@ def tidebreak():
     for x in (900, 1900, 2900):
         r.decor("drone_hive", [x, 690], layer="back")
     r.edge("west", "west", "tf_hollow_wake", "east", y=850)
+    r.edge("east", "east", "nd_nebula_verge", "west", y=850, ptype="sealed",
+           requires=w.any_of(w.qactive("lus_lantern"), w.qdone("lus_lantern")),
+           locked_text="Beyond the hive the dark thins into a nebula that runs like a sea. You have no reason to swim it yet.")
 
     # The Tide battle (instanced): waves of drones and wyrmlings from both sides; the great lantern must stay lit.
     r = w.Room("si_tide_battle", "The Tide Breaks", "story", "tidebreak_front", 3, backdrop="tidebreak_front", material="stone", tint="#b8bcc4",
@@ -553,6 +567,84 @@ def tidebreak():
     r.obj("great_lantern", "inspect", [1900, 760], prop="lantern_cage",
           text="The Bastion's great lantern. While it burns, the Tide cannot cross the wall.")
     r.portal("exit", "door", [140, 700], "tf_tidebreak_bastion", "skiff", press_up=True, label="Leave")
+
+
+def nebula_deep():
+    """Phase E · the Nebula Deep: the drowned sky past the Drone Hive, where the nebula runs like a sea (Endurance 80-84).
+    The Nebula Leviathan swims in its Maw."""
+    w = _w()
+    neb = dict(backdrop="nebula_deep", material="stone", tint="#b8b0d8", music="star_field", ambience="wind_ambience", element="water",
+               gather_tier="lantern_high", qi=2.4, loot="jar_lantern", trees=("nebula_coral", "star_crystal"), ledge="rock_ledge", **LS)
+    r = w.field("nd_nebula_verge", "Nebula Verge", "nebula_deep", 3, [94, 96],
+                spawns=[("nebula_eel", 3, [94, 95], 14), ("void_crab", 2, [94, 96], 18)], herbs=("star_lotus",), jars=4, attunement_required=80,
+                platforms=[(1000, 650, 300, 100), (2200, 640, 320, 200)], spawn_point=[400, 820], **neb)
+    for x in (800, 1900, 3000):
+        r.decor("nebula_coral", [x, 690], layer="back")
+    r.obj("shrine_nd_verge", "shrine", [600, 700])
+    r.edge("west", "west", "tf_drone_hive", "east", y=850)
+    r.edge("east", "east", "nd_eel_currents", "west", y=850)
+
+    r = w.field("nd_eel_currents", "Eel Currents", "nebula_deep", 3, [95, 97],
+                spawns=[("nebula_eel", 5, [95, 97], 14)], jars=4, attunement_required=82,
+                platforms=[(900, 650, 300, 100), (2100, 640, 320, 200), (3000, 650, 280, 100)], **neb)
+    r.edge("west", "west", "nd_nebula_verge", "east", y=850)
+    r.edge("east", "east", "nd_crab_grottoes", "west", y=850)
+
+    r = w.field("nd_crab_grottoes", "Crab Grottoes", "nebula_deep", 3, [96, 98],
+                spawns=[("void_crab", 4, [96, 98], 18), ("nebula_eel", 1, [96, 97], 20)], ores=("driftglass",), jars=4, chest="chest_lantern",
+                attunement_required=84, platforms=[(1100, 650, 300, 100), (2300, 640, 320, 200)], **neb)
+    # Lu's star notes, wedged in a crab-shell where he left them (chapter 22).
+    r.obj("lus_star_notes", "inspect", [2600, 740], prop="scroll_rack", set_flag="lus_notes_found",
+          visible_if=w.any_of(w.qactive("lus_lantern"), w.qdone("lus_lantern")),
+          text="A bundle of star notes in Lu's hand, wrapped in oilcloth: 'The lanterns were all lit from one. Follow the stair above the harbour.'")
+    r.edge("west", "west", "nd_eel_currents", "east", y=850)
+    r.edge("east", "east", "nd_leviathans_maw", "west", y=850)
+
+    # The Maw: the Leviathan's hunting ground (a field boss, back every 45 minutes).
+    r = w.Room("nd_leviathans_maw", "Leviathan's Maw", "field", "nebula_deep", 3, backdrop="nebula_deep", material="stone", tint="#a8a0cc",
+               music="boss", levels=[97, 99], safe=False, qi=2.5, spawn_point=[300, 820], attunement_required=84, element="water",
+               no_flight=True, **LS)
+    r.spawn("nebula_leviathan", [[2200, 800]], 1, respawn=2700, level=[99, 99], field_boss=True, boss=True)
+    r.decor("nebula_coral", [1200, 690], layer="back")
+    r.decor("nebula_coral", [3200, 690], layer="back")
+    r.edge("west", "west", "nd_crab_grottoes", "east", y=850)
+
+
+def lantern_heart():
+    """Phase E · the Lantern Heart: the secret realm above Lanternfall Harbor, where the first lantern still burns
+    (Endurance 90). Reached by the stair Lu's notes point to."""
+    w = _w()
+    heart = dict(backdrop="lantern_heart", material="stone", tint="#e0c8a0", music="lantern_heart", ambience="wind_ambience", element="fire",
+                 gather_tier="lantern_high", qi=2.6, loot="jar_lantern", trees=("wick_pillar", "star_crystal"), ledge="rock_ledge",
+                 rtype="secret", **LS)
+    r = w.field("lt_wick_gate", "Wick Gate", "lantern_heart", 2, [97, 98],
+                spawns=[("hollow_drone", 3, [97, 98], 14), ("hollowed_wyrmling", 2, [97, 98], 20)], jars=3, attunement_required=90,
+                platforms=[(900, 650, 300, 100), (1800, 640, 320, 200)], spawn_point=[300, 820], **heart)
+    r.decor("wick_pillar", [600, 660], layer="back")
+    r.decor("wick_pillar", [2200, 660], layer="back")
+    r.portal("stair", "door", [180, 704], "lh_harbor_market", "lantern_stair", press_up=True, label="Harbor Market")
+    r.obj("shrine_lt_gate", "shrine", [420, 700])
+    r.edge("east", "east", "lt_hall_of_burning_stars", "west", y=850)
+
+    r = w.field("lt_hall_of_burning_stars", "Hall of Burning Stars", "lantern_heart", 3, [98, 99],
+                spawns=[("hollow_drone", 4, [98, 99], 14), ("hollowed_wyrmling", 2, [98, 99], 20)], jars=3, chest="chest_lantern",
+                attunement_required=90, platforms=[(1000, 650, 300, 100), (2200, 640, 320, 200), (3000, 650, 280, 100)], **heart)
+    for x in (700, 1700, 2700):
+        r.decor("wick_pillar", [x, 660], layer="back")
+    r.decor("flame_basin", [1400, 700])
+    r.edge("west", "west", "lt_wick_gate", "east", y=850)
+    r.edge("east", "east", "lt_flame_heart", "west", y=850)
+
+    # The Flame Heart: the cage of the first lantern. Safe; the flame answers one who carries Lu's notes.
+    r = w.Room("lt_flame_heart", "Flame Heart", "secret", "lantern_heart", 2, backdrop="lantern_heart", material="stone", tint="#f0d8a8",
+               music="lantern_heart", levels=[0, 0], safe=True, qi=3.0, spawn_point=[300, 820], attunement_required=90, lantern=True, **LS)
+    r.decor("lantern_cage", [1280, 640], layer="back")
+    r.decor("flame_basin", [900, 700])
+    r.decor("flame_basin", [1660, 700])
+    r.obj("heart_flame", "inspect", [1280, 760], prop="flame_basin", set_flag="heart_flame_taken",
+          visible_if=w.any_of(w.qactive("lus_lantern"), w.qdone("lus_lantern")),
+          text="The first lantern's flame. A spark of it leans toward you, the way it must once have leaned toward Lu.")
+    r.edge("west", "west", "lt_hall_of_burning_stars", "east", y=850)
 
 
 def crossing():
@@ -582,5 +674,7 @@ def build():
     citadel()
     ashen_reach()
     tidebreak()
+    nebula_deep()
+    lantern_heart()
     orbit_ruins()
     crossing()

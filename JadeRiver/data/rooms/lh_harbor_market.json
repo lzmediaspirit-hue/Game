@@ -228,6 +228,39 @@
     ]
    },
    "locked_text": "A Star Warden at the gate: \"The Shoals thin the blood of anyone the stars don't know yet. See Warden Xiao first.\""
+  },
+  {
+   "id": "lantern_stair",
+   "type": "door",
+   "at": [
+    3600,
+    704
+   ],
+   "to": "lt_wick_gate",
+   "to_portal": "stair",
+   "press_up": true,
+   "label": "The stair to the Lantern Heart",
+   "requires": {
+    "all": [
+     {
+      "any": [
+       {
+        "kind": "quest_active",
+        "quest": "lus_lantern"
+       },
+       {
+        "kind": "quest_done",
+        "quest": "lus_lantern"
+       }
+      ]
+     },
+     {
+      "kind": "flag_set",
+      "flag": "lus_notes_found"
+     }
+    ]
+   },
+   "locked_text": "A stair climbing into the light of the great lantern. It is not for anyone who does not know the way."
   }
  ],
  "objects": [

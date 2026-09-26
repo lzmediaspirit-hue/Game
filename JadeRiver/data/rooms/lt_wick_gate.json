@@ -1,0 +1,412 @@
+{
+ "schema_version": 1,
+ "id": "lt_wick_gate",
+ "zone": "lantern_star_field",
+ "region": "lantern_heart",
+ "name": "Wick Gate",
+ "type": "secret",
+ "level_range": [
+  97,
+  98
+ ],
+ "recommended_cp": 1766,
+ "element": "fire",
+ "qi_density": 2.6,
+ "hazards": [],
+ "gather_tier": "lantern_high",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "lantern_heart",
+ "ground": {
+  "material": "stone",
+  "tint": "#e0c8a0"
+ },
+ "spawn_point": [
+  300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    900,
+    630,
+    300,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    1800,
+    620,
+    320,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "stair",
+   "type": "door",
+   "at": [
+    180,
+    704
+   ],
+   "to": "lh_harbor_market",
+   "to_portal": "lantern_stair",
+   "press_up": true,
+   "label": "Harbor Market"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    2520,
+    850
+   ],
+   "to": "lt_hall_of_burning_stars",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    930,
+    665
+   ],
+   "loot": "jar_lantern",
+   "level": 97,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 100
+  },
+  {
+   "id": "crate_2",
+   "type": "crate",
+   "at": [
+    1277,
+    720
+   ],
+   "loot": "jar_lantern",
+   "level": 97,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    2160,
+    930
+   ],
+   "loot": "jar_lantern",
+   "level": 97,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "shrine_lt_gate",
+   "type": "shrine",
+   "at": [
+    420,
+    700
+   ]
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "hollow_drone",
+   "surface": "ground",
+   "points": [
+    [
+     869,
+     763
+    ],
+    [
+     970,
+     715
+    ],
+    [
+     1599,
+     758
+    ],
+    [
+     2049,
+     813
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 14,
+   "level": [
+    97,
+    98
+   ]
+  },
+  {
+   "enemy": "hollowed_wyrmling",
+   "surface": "ground",
+   "points": [
+    [
+     1011,
+     818
+    ],
+    [
+     1332,
+     863
+    ],
+    [
+     1901,
+     755
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 20,
+   "level": [
+    97,
+    98
+   ]
+  },
+  {
+   "enemy": "hollow_drone",
+   "surface": "ground",
+   "points": [
+    [
+     1480,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    98,
+    98
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "wick_pillar",
+   "at": [
+    212,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    711,
+    629
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "wick_pillar",
+   "at": [
+    1183,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    1792,
+    640
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "wick_pillar",
+   "at": [
+    2283,
+    634
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    109,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    343,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    698,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1031,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1394,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1741,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2047,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2389,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "wick_pillar",
+   "at": [
+    600,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "wick_pillar",
+   "at": [
+    2200,
+    660
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "lantern_heart",
+ "ambience": "wind_ambience",
+ "attunement_required": 90,
+ "climbables": [
+  {
+   "id": "ledge_0_rope_1",
+   "kind": "rope",
+   "at": [
+    1050,
+    735
+   ],
+   "top_at": [
+    1050,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_0"
+  },
+  {
+   "id": "ledge_1_rope_2",
+   "kind": "rope",
+   "at": [
+    1960,
+    725
+   ],
+   "top_at": [
+    1960,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_1"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "ledge_1_step_3",
+   "rect": [
+    2050,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  }
+ ],
+ "terrain": [
+  "stone"
+ ]
+}

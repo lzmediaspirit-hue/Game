@@ -577,6 +577,70 @@
    ]
   },
   {
+   "id": "law_condensing_pill",
+   "craft": "alchemy",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "star_lotus",
+     "count": 2
+    },
+    {
+     "item": "void_carapace",
+     "count": 1
+    },
+    {
+     "item": "eel_essence",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "law_condensing_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 1800,
+   "element": "metal",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
+  },
+  {
+   "id": "law_touching_pill",
+   "craft": "alchemy",
+   "grade": "will",
+   "inputs": [
+    {
+     "item": "star_lotus",
+     "count": 1
+    },
+    {
+     "item": "leviathan_scale",
+     "count": 1
+    },
+    {
+     "item": "eel_essence",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "law_touching_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 2400,
+   "element": "water",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
+  },
+  {
    "id": "herbal_tea",
    "craft": "cooking",
    "grade": "plain",

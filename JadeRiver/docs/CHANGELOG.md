@@ -172,6 +172,36 @@ Works). Every source uses one of two curves: add (x1·L) or decay (x1·L/(L + x2
 
 Built in phases (docs/act3_design.md): zone tier 3, levels 82-99, ceiling Sphere Lord 3, Starsea Endurance 20 -> 90.
 
+### Phase E · The Nebula Deep and the Lantern Heart (chapter 22)
+- **The Nebula Deep** (94-99, Endurance 80-84), past the Drone Hive: Nebula Verge, Eel Currents, Crab Grottoes, and the
+  Leviathan's Maw.
+- **Monsters:**
+  - Nebula Eel (94-99): a space bite that dashes in, and a current coil that drags you close.
+  - Void Crab (94-99, shelled: 60% more defence): a blinking claw that closes 320 at once. It can be tamed as a
+    star-tier beast.
+- **The Nebula Leviathan** (field boss, 99, back every 45 minutes): Presence 5 and a Sphere of Space. It swallows
+  the current (a pull from both sides), breathes the void (460 ahead) and crashes down (a stun). Eels answer its
+  call at 60%, and it rages at 30%.
+- **The Lantern Heart**, a secret realm (97-99, Endurance 90), reached by the stair above Lanternfall's market once
+  Lu's notes are found: Wick Gate, Hall of Burning Stars, and the Flame Heart.
+  - **The Lantern Heart's flame**, the first lantern's, is a Heavenly Flame like the others: absorbed, it burns
+    under every furnace.
+- **The Law pills' recipes** (Law Condensing, Law Touching), sold by Stargazer Ming to a Sphere Lord 3, for the step
+  past the Field's ceiling. They are made from star lotus and the Deep's drops: eel essence, void carapace and the
+  Leviathan's scales.
+- **Chapter 22:**
+  - Lu's Lantern: the star notes in the Crab Grottoes, the stair, the flame.
+  - The Leviathan's Maw (optional).
+  - Greyfall: Sphere Lord 3, and a 90-second stand at the Greyfall Breach. When the Tide closes over the Breach,
+    Shen Lian is on the far side, and the Frontier waits past the Field.
+  - Four codex entries; the flag `act3_complete`.
+- Monster stats take a `defence_mult` for shelled foes.
+- Tests:
+  - `rules_tests` `lantern_heart_suite`: the crab's shell, the Leviathan's Presence, Sphere and phases, the tameable
+    crab, the two Law recipes, the flame absorbed, and the Greyfall stand's outcome.
+  - `valley_run` `ls6` plays chapter 22: the notes, the flame absorbed, the Leviathan brought down, Sphere Lord 3
+    and the Law recipes, the stand held. Act III now plays from the Lantern Run to Greyfall.
+
 ### Phase D · Ash and Tide (chapter 21)
 - **The brush and the bell**, two new weapon families (docs/act3_design.md, Phase D in detail).
   - The brush (the new Brush Dao): quick Qi strikes. Every technique used with it writes a talisman on each foe it

@@ -470,6 +470,11 @@ def npcs():
         ["My beetles eat metal. The drones are metal that forgot it was metal. You see where this is going.",
          "Feed them ore and they multiply while you sleep. Open the box and they will chew anything near you."],
         ["Click, click.", "Don't shake the box."])
+    npc("shen_lian_breach", "Shen Lian", "Warden of the Greyfall Breach", outfit("high_pony", 0, "vneck", "martial", "boots", cape="solid", weapon="sword",
+        shirt_dye="indigo", pants_dye="ink"),
+        ["Someone has to hold the Breach while the Wardens relight the line. I asked for it. Don't look at me like that.",
+         "Two fisher boys from Lotus Ferry. One of us gets the title, the other gets the wall. It's fair."],
+        ["Go on. I've got this.", "Tell Aunt Ping I ate properly."])
     npc("lanternwright_han", "Lanternwright Han", "Scholar-lanternwright", outfit("flowing", 1, "scholar", "scholar", "folded", hat="guan",
         shirt_dye="white", pants_dye="indigo"),
         ["The first Wardens wrote 'stay' on every cage and the stars stayed. Words are not weak. They are only rarely meant.",
@@ -2082,6 +2087,42 @@ def act3_ash_and_tide_quests():
                   "The bell is on the shelf when you want it. Swords are for the young."])
 
 
+def act3_lantern_heart_quests():
+    """v1.2 · Phase E, chapter 22 (The Lantern Heart): the Leviathan's Maw (optional), Lu's Lantern (the Lantern Heavenly
+    Flame), Greyfall (Shen Lian stays behind; the Frontier hook)."""
+    quest("the_leviathans_maw", "The Leviathan's Maw", "side", "warden_captain_duan", [
+        o("kill", "Bring down the Nebula Leviathan in its Maw", enemy="nebula_leviathan"),
+    ], [sage_crystals(200), item("leviathan_scale", 2), fx("codex", entry="nebula_leviathan")], requires=all_of(qdone("star_warden")),
+        chapter="22", target_room="nd_leviathans_maw",
+        offer=["Something in the Nebula Deep swallows the lantern ships whole. The old Wardens called it the Leviathan.",
+               "It has a Presence like a storm and a Sphere as wide as a harbour. Go if you are ready. Nobody will think less of you if you are not."],
+        complete=["You brought it down. The ships will run the Deep again. Take its scales; the alchemists will want them for the Law pills."])
+    quest("lus_lantern", "Lu's Lantern", "main", "harbormaster_lin", [
+        o("reach_room", "Cross the Drone Hive into the Nebula Deep", room="nd_nebula_verge"),
+        o("set_flag", "Find Lu's star notes in the Crab Grottoes", flag="lus_notes_found"),
+        o("reach_room", "Climb the stair above the harbour to the Flame Heart", room="lt_flame_heart"),
+        o("set_flag", "Take a spark of the first lantern's flame", flag="heart_flame_taken"),
+    ], [item("lantern_heart_flame", 1), sage_crystals(150), fx("codex", entry="lus_lantern")], hand_in="harbormaster_lin",
+        requires=all_of(qdone("star_warden")), chapter="22", target_room="nd_crab_grottoes",
+        offer=["My mother kept this quay when a man from the river came through. He relit a lantern with his own fire and would not say how.",
+               "He left notes, she said, somewhere out past the hive where the crabs are. If anyone can read them, it is someone from his river."],
+        complete=["The first lantern. Every light on the Run was lit from it, and he found the way up. And now so have you.",
+                  "Keep that spark. My mother always said he carried one home. I think she was right."],
+        next="greyfall")
+    quest("greyfall", "Greyfall", "main", "warden_commander_yao", [
+        o("reach_realm", "Break through to Sphere Lord 3", realm="sphere_lord_3"),
+        o("reach_room", "Go to the Greyfall Breach", room="tf_greyfall_breach"),
+        o("talk_to", "Find Shen Lian on the Breach", npc="shen_lian_breach"),
+        o("pass_event", "Ring the Breach's bell and hold beside him", event="greyfall_stand"),
+        o("talk_to", "Report to Warden-Commander Yao", npc="warden_commander_yao"),
+    ], [sage_crystals(250), item("will_tempering_pill", 3), fx("codex", entry="the_frontier"), fx("set_flag", flag="act3_complete")],
+        hand_in="warden_commander_yao", requires=all_of(qdone("lus_lantern")), chapter="22", target_room="tf_greyfall_breach",
+        offer=["The lanterns are coming back on, one by one. The Tide knows it. It will come to the Greyfall Breach all at once.",
+               "Shen Lian is holding it. Go to him. Whatever happens there, remember that he asked for that wall."],
+        complete=["He held. And when it was over the grey closed over the Breach, and he was on the other side of it.",
+                  "He is not dead. The Tide takes; it does not always kill. Past the Field is the Frontier, and the Tide goes there. So will you, one day."])
+
+
 def act2_starsea_side_quests():
     """Phase E side stories and guided quests: the Yard's two crafts, paired cultivation, deserters, comet iron, three rare Daos."""
     quest("a_chart_of_ones_own", "A Chart of One's Own", "guided", "navigator_sun", [
@@ -2466,7 +2507,7 @@ def dialogue():
                        "Keep that egg warm. It is the last of a very old family."]),
     ]:
         # A tree entry outranks quest offers, so each speaks only after its last quest of the act so far.
-        done_q = {"warden_xiao": "the_citadel", "deckhand_mo": "the_admiral", "gu_the_purser": "the_admiral",
+        done_q = {"warden_xiao": "the_citadel", "deckhand_mo": "the_admiral", "gu_the_purser": "the_admiral", "harbormaster_lin": "lus_lantern",
                   "tamer_qiu": "the_last_egg"}.get(tid, "crystal_and_jade")
         tree(tid, [{"requires": all_of(qdone(done_q)), "node": "talk"}],
              {"talk": {"lines": lines, "choices": [{"text": "Thank you.", "close": True}]}})
@@ -2582,6 +2623,11 @@ def codex():
         {"id": "star_warden_title", "title": "Star Warden", "body": "A Sphere Lord of the second order with a star-wyrm at their side, sworn to keep the lanterns lit. The title steadies the body against the Starsea and the Hollow."},
         {"id": "copperjaw_swarm", "title": "The Copperjaw swarm", "body": "Beetles that eat metal, kept in a lacquered box. Fed ore, they multiply by the hour even while you are away; opened, they chew every foe near you, harder the more of them there are. Wood shrugs them off. Sometimes a Queen rises."},
         {"id": "brush_and_bell", "title": "The brush and the bell", "body": "Two Warden weapons. A scribe's brush strikes with Qi, and every technique written with it leaves a talisman on the foe by its element. A hand-bell rings out on both sides, stilling, sealing and calling allies."},
+        # v1.2 Phase E, chapter 22: the Lantern Heart.
+        {"id": "nebula_leviathan", "title": "The Nebula Leviathan", "body": "The beast of the Nebula Deep: it swallows the current and whatever swims in it, breathes the void and holds a Sphere of Space. Its scales go into the Law pills."},
+        {"id": "lus_lantern", "title": "Lu's Lantern", "body": "Lu found the stair above Lanternfall to the first lantern, and relit one of the Run's lanterns from it with his own fire. His notes led you the same way."},
+        {"id": "lantern_heart_flame", "title": "Heavenly Flame: the Lantern Heart", "body": "The flame of the first lantern, the fallen star every lantern of the Field was lit from. A spark of it burns under your furnace now."},
+        {"id": "the_frontier", "title": "The Frontier", "body": "Past the Lantern Star Field the Tide runs out into the dark, and it takes what it takes with it. Shen Lian went with it from the Greyfall Breach. The road goes on."},
         # Gap report G1: what pills cost, the heart, the ledger, fire and furnace.
         {"id": "pills_and_the_body", "title": "What pills cost",
          "body": "Pills never spoil, but the body remembers them. Each dose of one kind works less than the last, until a great breakthrough lets it forget one. Qi that came mostly from pills makes a hollow foundation, and 5% of every pill's poison stays behind as residue. Settle foundation in seclusion, or pass through Heaven's Cleansing untouched, to make it your own again."},
@@ -2730,6 +2776,7 @@ def build():
     act3_chapters_18_19()
     act3_citadel_quests()
     act3_ash_and_tide_quests()
+    act3_lantern_heart_quests()
     for q in Q[n1:]:
         q.setdefault("qp", "act2_side")
     entries("quests", Q)

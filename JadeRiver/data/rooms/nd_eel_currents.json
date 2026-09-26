@@ -1,17 +1,17 @@
 {
  "schema_version": 1,
- "id": "tf_greyfall_breach",
+ "id": "nd_eel_currents",
  "zone": "lantern_star_field",
- "region": "tidebreak_front",
- "name": "Greyfall Breach",
+ "region": "nebula_deep",
+ "name": "Eel Currents",
  "type": "field",
  "level_range": [
-  90,
-  94
+  95,
+  97
  ],
- "recommended_cp": 1640,
- "element": "none",
- "qi_density": 2.2,
+ "recommended_cp": 1730,
+ "element": "water",
+ "qi_density": 2.4,
  "hazards": [],
  "gather_tier": "lantern_high",
  "idle": [
@@ -26,10 +26,10 @@
   3840,
   480
  ],
- "backdrop": "tidebreak_front",
+ "backdrop": "nebula_deep",
  "ground": {
   "material": "stone",
-  "tint": "#a8acb4"
+  "tint": "#b8b0d8"
  },
  "spawn_point": [
   200,
@@ -52,7 +52,7 @@
   {
    "id": "ledge_0",
    "rect": [
-    1000,
+    900,
     630,
     300,
     70
@@ -65,13 +65,39 @@
   {
    "id": "ledge_1",
    "rect": [
-    2200,
+    2100,
     620,
     320,
     70
    ],
    "height": 200,
    "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_2",
+   "rect": [
+    3000,
+    630,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    1706,
+    610,
+    240,
+    70
+   ],
+   "height": 300,
+   "kind": "cloud",
    "stratum": "platform",
    "open_edges": true
   },
@@ -104,7 +130,7 @@
   {
    "id": "route_2",
    "rect": [
-    1340,
+    1280,
     636,
     240,
     70
@@ -115,15 +141,15 @@
    "open_edges": true
   },
   {
-   "id": "route_3",
+   "id": "ledge_1_step_ledge_3",
    "rect": [
-    1680,
-    636,
-    240,
+    2480,
+    620,
+    160,
     70
    ],
    "height": 100,
-   "kind": "tree_branch",
+   "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
   }
@@ -136,7 +162,7 @@
     40,
     850
    ],
-   "to": "tf_tidebreak_bastion",
+   "to": "nd_nebula_verge",
    "to_portal": "east"
   },
   {
@@ -146,7 +172,7 @@
     3800,
     850
    ],
-   "to": "tf_hollow_wake",
+   "to": "nd_crab_grottoes",
    "to_portal": "west"
   }
  ],
@@ -155,11 +181,11 @@
    "id": "jar_1",
    "type": "jar",
    "at": [
-    1030,
+    930,
     665
    ],
    "loot": "jar_lantern",
-   "level": 92,
+   "level": 96,
    "hp": 1,
    "respawn_s": 300,
    "alt": 100
@@ -168,11 +194,11 @@
    "id": "crate_2",
    "type": "crate",
    "at": [
-    2230,
+    2130,
     655
    ],
    "loot": "jar_lantern",
-   "level": 92,
+   "level": 96,
    "hp": 1,
    "respawn_s": 300,
    "alt": 200
@@ -181,11 +207,11 @@
    "id": "jar_3",
    "type": "jar",
    "at": [
-    2447,
-    930
+    2420,
+    720
    ],
    "loot": "jar_lantern",
-   "level": 92,
+   "level": 96,
    "hp": 1,
    "respawn_s": 300
   },
@@ -193,119 +219,66 @@
    "id": "crate_4",
    "type": "crate",
    "at": [
-    3321,
-    930
+    3438,
+    700
    ],
    "loot": "jar_lantern",
-   "level": 92,
+   "level": 96,
    "hp": 1,
    "respawn_s": 300
   },
   {
-   "id": "npc_shen_lian_breach",
-   "type": "npc",
+   "id": "chest_cloud_mv",
+   "type": "chest",
    "at": [
-    1700,
-    790
+    1826,
+    665
    ],
-   "npc": "shen_lian_breach",
-   "facing": 1,
-   "visible_if": {
-    "all": [
-     {
-      "kind": "quest_active",
-      "quest": "greyfall"
-     },
-     {
-      "kind": "flag_not_set",
-      "flag": "shen_lian_taken"
-     }
-    ]
-   }
-  },
-  {
-   "id": "greyfall_stand",
-   "type": "rite_circle",
-   "at": [
-    1500,
-    880
-   ],
-   "event": "greyfall_stand",
-   "prop": "small_bell",
-   "visible_if": {
-    "all": [
-     {
-      "kind": "quest_active",
-      "quest": "greyfall"
-     },
-     {
-      "kind": "flag_not_set",
-      "flag": "shen_lian_taken"
-     }
-    ]
-   },
-   "text": "The Breach's warning bell. Ring it and the Tide comes all at once."
+   "loot": "chest_dungeon",
+   "level": 97,
+   "alt": 300,
+   "surface": "cloud_mv"
   }
  ],
  "spawns": [
   {
-   "enemy": "hollow_drone",
+   "enemy": "nebula_eel",
    "surface": "ground",
    "points": [
     [
-     617,
-     903
+     555,
+     729
     ],
     [
-     1285,
-     804
+     1099,
+     904
     ],
     [
-     1972,
-     763
+     1651,
+     754
     ],
     [
-     2613,
-     735
+     2207,
+     724
     ],
     [
-     3310,
-     728
+     2751,
+     852
+    ],
+    [
+     3280,
+     805
     ]
    ],
-   "max": 4,
+   "max": 5,
    "respawn_s": 14,
    "level": [
-    90,
-    93
+    95,
+    97
    ]
   },
   {
-   "enemy": "hollowed_wyrmling",
-   "surface": "ground",
-   "points": [
-    [
-     808,
-     716
-    ],
-    [
-     1900,
-     872
-    ],
-    [
-     3059,
-     856
-    ]
-   ],
-   "max": 2,
-   "respawn_s": 20,
-   "level": [
-    91,
-    94
-   ]
-  },
-  {
-   "enemy": "hollow_drone",
+   "enemy": "nebula_eel",
    "surface": "ground",
    "points": [
     [
@@ -316,8 +289,8 @@
    "max": 1,
    "respawn_s": 180,
    "level": [
-    93,
-    93
+    97,
+    97
    ],
    "elite": true
   }
@@ -325,81 +298,72 @@
  "scenery": [],
  "decor": [
   {
-   "prop": "rock_large",
+   "prop": "nebula_coral",
    "at": [
-    200,
-    633
-   ],
-   "layer": "play",
-   "flip": false
-  },
-  {
-   "prop": "drone_hive",
-   "at": [
-    809,
-    628
-   ],
-   "layer": "play",
-   "flip": true
-  },
-  {
-   "prop": "rock_large",
-   "at": [
-    1191,
-    632
-   ],
-   "layer": "play",
-   "flip": false
-  },
-  {
-   "prop": "drone_hive",
-   "at": [
-    1753,
-    639
-   ],
-   "layer": "play",
-   "flip": true
-  },
-  {
-   "prop": "rock_large",
-   "at": [
-    2157,
-    633
-   ],
-   "layer": "play",
-   "flip": false
-  },
-  {
-   "prop": "drone_hive",
-   "at": [
-    2622,
-    638
-   ],
-   "layer": "play",
-   "flip": true
-  },
-  {
-   "prop": "rock_large",
-   "at": [
-    3104,
+    196,
     636
    ],
    "layer": "play",
    "flip": false
   },
   {
-   "prop": "drone_hive",
+   "prop": "star_crystal",
    "at": [
-    3586,
+    706,
+    631
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "nebula_coral",
+   "at": [
+    1228,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    1892,
+    636
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "nebula_coral",
+   "at": [
+    2468,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "star_crystal",
+   "at": [
+    2983,
     639
    ],
    "layer": "play",
    "flip": true
   },
   {
+   "prop": "nebula_coral",
+   "at": [
+    3540,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
    "prop": "tall_grass",
    "at": [
-    84,
+    142,
     988
    ],
    "layer": "front",
@@ -408,7 +372,7 @@
   {
    "prop": "reeds",
    "at": [
-    432,
+    380,
     988
    ],
    "layer": "front",
@@ -417,7 +381,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    733,
+    655,
     988
    ],
    "layer": "front",
@@ -426,7 +390,7 @@
   {
    "prop": "reeds",
    "at": [
-    1087,
+    943,
     988
    ],
    "layer": "front",
@@ -435,7 +399,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    1339,
+    1163,
     988
    ],
    "layer": "front",
@@ -444,7 +408,7 @@
   {
    "prop": "reeds",
    "at": [
-    1706,
+    1480,
     988
    ],
    "layer": "front",
@@ -453,7 +417,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    2017,
+    1707,
     988
    ],
    "layer": "front",
@@ -462,7 +426,7 @@
   {
    "prop": "reeds",
    "at": [
-    2257,
+    2112,
     988
    ],
    "layer": "front",
@@ -471,7 +435,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    2484,
+    2330,
     988
    ],
    "layer": "front",
@@ -480,7 +444,7 @@
   {
    "prop": "reeds",
    "at": [
-    2862,
+    2703,
     988
    ],
    "layer": "front",
@@ -489,7 +453,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    3159,
+    3107,
     988
    ],
    "layer": "front",
@@ -498,7 +462,7 @@
   {
    "prop": "reeds",
    "at": [
-    3499,
+    3409,
     988
    ],
    "layer": "front",
@@ -507,7 +471,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    3776,
+    3623,
     988
    ],
    "layer": "front",
@@ -515,19 +479,19 @@
   }
  ],
  "areas": [],
- "music": "hollow_tide",
+ "music": "star_field",
  "ambience": "wind_ambience",
- "attunement_required": 72,
+ "attunement_required": 82,
  "climbables": [
   {
    "id": "ledge_0_rope_1",
    "kind": "rope",
    "at": [
-    1150,
+    1050,
     735
    ],
    "top_at": [
-    1150,
+    1050,
     692
    ],
    "bottom_alt": 0,
@@ -539,11 +503,11 @@
    "id": "ledge_1_rope_2",
    "kind": "rope",
    "at": [
-    2360,
+    2260,
     725
    ],
    "top_at": [
-    2360,
+    2260,
     682
    ],
    "bottom_alt": 0,
@@ -552,7 +516,23 @@
    "top": "ledge_1"
   },
   {
-   "id": "route_0_vine_3",
+   "id": "ledge_2_rope_4",
+   "kind": "rope",
+   "at": [
+    3140,
+    735
+   ],
+   "top_at": [
+    3140,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_2"
+  },
+  {
+   "id": "route_0_vine_5",
    "kind": "vine",
    "at": [
     300,
@@ -568,23 +548,40 @@
    "top": "route_0"
   },
   {
-   "id": "route_3_vine_4",
+   "id": "route_2_vine_6",
    "kind": "vine",
    "at": [
-    1800,
+    1400,
     741
    ],
    "top_at": [
-    1800,
+    1400,
     698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_2"
+  },
+  {
+   "id": "ledge_1_step_ledge_3_rope_101",
+   "kind": "rope",
+   "at": [
+    2560,
+    725
+   ],
+   "top_at": [
+    2560,
+    682
    ],
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
-   "top": "route_3"
+   "top": "ledge_1_step_ledge_3"
   }
  ],
  "terrain": [
-  "stone"
+  "stone",
+  "water"
  ]
 }

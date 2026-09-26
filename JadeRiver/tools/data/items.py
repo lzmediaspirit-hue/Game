@@ -209,6 +209,8 @@ FLAMES = [
     ("cold_lamp_flame", "spirit", "A cold blue flame the Thousand-Eye Toad swallowed from a sunken lamp. It kept burning in its belly under Mirrorwater Lake."),
     ("sunscar_throne_ember", "sage", "An ember from under the Tomb King's throne. It remembers three thousand years of sun."),
     ("comet_tail_flame", "sage", "A white flame torn from a comet's tail, kept in Comet Captain Rao's lamp."),
+    # v1.2 Phase E: the flame at the Lantern Heart, the fallen star every lantern of the Field was lit from.
+    ("lantern_heart_flame", "will", "The flame at the heart of the Lantern Star Field, burning in a cage older than the Wardens. Lu once carried a spark of it home."),
 ]
 
 
@@ -490,6 +492,10 @@ def build_items():
     rows.append(item("guardian_scale", "beast_part", "sovereign", 99, "A bronze plate from a Nest Guardian's shell, set with a crystal that still glows."))
     # v1.2 · Phase C: the Orbit Ruins.
     # v1.2 Phase D · the Ashen Reach and the Tidebreak Front.
+    # v1.2 Phase E · the Nebula Deep.
+    rows.append(item("eel_essence", "beast_part", "will", 99, "The bright thread of a Nebula Eel's life, coiled in a drop. It bends the space around it a hair's width."))
+    rows.append(item("void_carapace", "beast_part", "will", 99, "A plate of Void Crab shell. Look into it and it is deeper than it is thick."))
+    rows.append(item("leviathan_scale", "beast_part", "will", 99, "A scale from the Nebula Leviathan, as broad as a shield. Stars move in it, slowly."))
     rows.append(item("cinder_ash", "material", "will", 99, "Ash from an Ashborn's cinder Qi. It stays warm for days. Smiths temper blades in it."))
     rows.append(item("pyre_ember", "material", "will", 99, "An ember from an Ashborn pyre that will not go out. Alchemists use it to keep a furnace steady."))
     rows.append(item("drone_shell", "material", "will", 99, "The grey carapace of a Hollow Drone: metal that forgot it was metal. Copperjaw beetles love it."))

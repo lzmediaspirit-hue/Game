@@ -1,0 +1,237 @@
+{
+ "schema_version": 1,
+ "id": "nd_leviathans_maw",
+ "zone": "lantern_star_field",
+ "region": "nebula_deep",
+ "name": "Leviathan's Maw",
+ "type": "field",
+ "level_range": [
+  97,
+  99
+ ],
+ "recommended_cp": 0,
+ "element": "water",
+ "qi_density": 2.5,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": true,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "nebula_deep",
+ "ground": {
+  "material": "stone",
+  "tint": "#a8a0cc"
+ },
+ "spawn_point": [
+  300,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    260,
+    620,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    840,
+    620,
+    280,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    1200,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    1540,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1880,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "nd_crab_grottoes",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [
+  {
+   "id": "chest_ledge_mv_1",
+   "type": "chest",
+   "at": [
+    980,
+    665
+   ],
+   "loot": "chest_valley",
+   "level": 99,
+   "alt": 200,
+   "surface": "ledge_mv_1"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "nebula_leviathan",
+   "surface": "ground",
+   "points": [
+    [
+     2200,
+     800
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 2700,
+   "level": [
+    99,
+    99
+   ],
+   "field_boss": true,
+   "boss": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "nebula_coral",
+   "at": [
+    1200,
+    690
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "nebula_coral",
+   "at": [
+    3200,
+    690
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "boss",
+ "attunement_required": 84,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    400,
+    725
+   ],
+   "top_at": [
+    400,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "route_0_vine_2",
+   "kind": "vine",
+   "at": [
+    1320,
+    741
+   ],
+   "top_at": [
+    1320,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_vine_3",
+   "kind": "vine",
+   "at": [
+    2000,
+    741
+   ],
+   "top_at": [
+    2000,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_2"
+  }
+ ],
+ "terrain": [
+  "stone",
+  "water"
+ ]
+}

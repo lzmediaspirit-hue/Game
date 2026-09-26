@@ -1,17 +1,17 @@
 {
  "schema_version": 1,
- "id": "tf_greyfall_breach",
+ "id": "lt_hall_of_burning_stars",
  "zone": "lantern_star_field",
- "region": "tidebreak_front",
- "name": "Greyfall Breach",
- "type": "field",
+ "region": "lantern_heart",
+ "name": "Hall of Burning Stars",
+ "type": "secret",
  "level_range": [
-  90,
-  94
+  98,
+  99
  ],
- "recommended_cp": 1640,
- "element": "none",
- "qi_density": 2.2,
+ "recommended_cp": 1784,
+ "element": "fire",
+ "qi_density": 2.6,
  "hazards": [],
  "gather_tier": "lantern_high",
  "idle": [
@@ -26,10 +26,10 @@
   3840,
   480
  ],
- "backdrop": "tidebreak_front",
+ "backdrop": "lantern_heart",
  "ground": {
   "material": "stone",
-  "tint": "#a8acb4"
+  "tint": "#e0c8a0"
  },
  "spawn_point": [
   200,
@@ -76,54 +76,15 @@
    "open_edges": true
   },
   {
-   "id": "route_0",
+   "id": "ledge_2",
    "rect": [
-    180,
-    636,
-    240,
+    3000,
+    630,
+    280,
     70
    ],
    "height": 100,
-   "kind": "tree_branch",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "route_1",
-   "rect": [
-    520,
-    636,
-    240,
-    70
-   ],
-   "height": 200,
-   "kind": "tree_branch",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "route_2",
-   "rect": [
-    1340,
-    636,
-    240,
-    70
-   ],
-   "height": 200,
-   "kind": "tree_branch",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
-   "id": "route_3",
-   "rect": [
-    1680,
-    636,
-    240,
-    70
-   ],
-   "height": 100,
-   "kind": "tree_branch",
+   "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
   }
@@ -136,7 +97,7 @@
     40,
     850
    ],
-   "to": "tf_tidebreak_bastion",
+   "to": "lt_wick_gate",
    "to_portal": "east"
   },
   {
@@ -146,7 +107,7 @@
     3800,
     850
    ],
-   "to": "tf_hollow_wake",
+   "to": "lt_flame_heart",
    "to_portal": "west"
   }
  ],
@@ -159,7 +120,7 @@
     665
    ],
    "loot": "jar_lantern",
-   "level": 92,
+   "level": 98,
    "hp": 1,
    "respawn_s": 300,
    "alt": 100
@@ -168,83 +129,36 @@
    "id": "crate_2",
    "type": "crate",
    "at": [
-    2230,
-    655
+    1847,
+    930
    ],
    "loot": "jar_lantern",
-   "level": 92,
+   "level": 98,
    "hp": 1,
-   "respawn_s": 300,
-   "alt": 200
+   "respawn_s": 300
   },
   {
    "id": "jar_3",
    "type": "jar",
    "at": [
-    2447,
-    930
+    3125,
+    700
    ],
    "loot": "jar_lantern",
-   "level": 92,
+   "level": 98,
    "hp": 1,
    "respawn_s": 300
   },
   {
-   "id": "crate_4",
-   "type": "crate",
+   "id": "chest_4",
+   "type": "chest",
    "at": [
-    3321,
-    930
+    2230,
+    655
    ],
-   "loot": "jar_lantern",
-   "level": 92,
-   "hp": 1,
-   "respawn_s": 300
-  },
-  {
-   "id": "npc_shen_lian_breach",
-   "type": "npc",
-   "at": [
-    1700,
-    790
-   ],
-   "npc": "shen_lian_breach",
-   "facing": 1,
-   "visible_if": {
-    "all": [
-     {
-      "kind": "quest_active",
-      "quest": "greyfall"
-     },
-     {
-      "kind": "flag_not_set",
-      "flag": "shen_lian_taken"
-     }
-    ]
-   }
-  },
-  {
-   "id": "greyfall_stand",
-   "type": "rite_circle",
-   "at": [
-    1500,
-    880
-   ],
-   "event": "greyfall_stand",
-   "prop": "small_bell",
-   "visible_if": {
-    "all": [
-     {
-      "kind": "quest_active",
-      "quest": "greyfall"
-     },
-     {
-      "kind": "flag_not_set",
-      "flag": "shen_lian_taken"
-     }
-    ]
-   },
-   "text": "The Breach's warning bell. Ring it and the Tide comes all at once."
+   "loot": "chest_lantern",
+   "level": 99,
+   "alt": 200
   }
  ],
  "spawns": [
@@ -253,31 +167,31 @@
    "surface": "ground",
    "points": [
     [
-     617,
-     903
+     624,
+     893
     ],
     [
-     1285,
-     804
+     1273,
+     715
     ],
     [
-     1972,
-     763
+     1922,
+     817
     ],
     [
-     2613,
-     735
+     2641,
+     830
     ],
     [
-     3310,
-     728
+     3297,
+     747
     ]
    ],
    "max": 4,
    "respawn_s": 14,
    "level": [
-    90,
-    93
+    98,
+    99
    ]
   },
   {
@@ -285,23 +199,23 @@
    "surface": "ground",
    "points": [
     [
-     808,
-     716
+     890,
+     809
     ],
     [
-     1900,
-     872
+     1985,
+     831
     ],
     [
-     3059,
-     856
+     2956,
+     735
     ]
    ],
    "max": 2,
    "respawn_s": 20,
    "level": [
-    91,
-    94
+    98,
+    99
    ]
   },
   {
@@ -316,8 +230,8 @@
    "max": 1,
    "respawn_s": 180,
    "level": [
-    93,
-    93
+    99,
+    99
    ],
    "elite": true
   }
@@ -325,81 +239,72 @@
  "scenery": [],
  "decor": [
   {
-   "prop": "rock_large",
+   "prop": "wick_pillar",
    "at": [
-    200,
-    633
+    222,
+    630
    ],
    "layer": "play",
    "flip": false
   },
   {
-   "prop": "drone_hive",
+   "prop": "star_crystal",
    "at": [
-    809,
-    628
+    729,
+    635
    ],
    "layer": "play",
    "flip": true
   },
   {
-   "prop": "rock_large",
+   "prop": "wick_pillar",
    "at": [
-    1191,
-    632
+    1199,
+    640
    ],
    "layer": "play",
    "flip": false
   },
   {
-   "prop": "drone_hive",
+   "prop": "star_crystal",
    "at": [
-    1753,
+    1748,
     639
    ],
    "layer": "play",
    "flip": true
   },
   {
-   "prop": "rock_large",
+   "prop": "wick_pillar",
    "at": [
-    2157,
-    633
-   ],
-   "layer": "play",
-   "flip": false
-  },
-  {
-   "prop": "drone_hive",
-   "at": [
-    2622,
+    2295,
     638
    ],
    "layer": "play",
-   "flip": true
-  },
-  {
-   "prop": "rock_large",
-   "at": [
-    3104,
-    636
-   ],
-   "layer": "play",
    "flip": false
   },
   {
-   "prop": "drone_hive",
+   "prop": "star_crystal",
    "at": [
-    3586,
-    639
+    2758,
+    634
    ],
    "layer": "play",
    "flip": true
   },
   {
+   "prop": "wick_pillar",
+   "at": [
+    3389,
+    640
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
    "prop": "tall_grass",
    "at": [
-    84,
+    145,
     988
    ],
    "layer": "front",
@@ -408,7 +313,7 @@
   {
    "prop": "reeds",
    "at": [
-    432,
+    471,
     988
    ],
    "layer": "front",
@@ -417,7 +322,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    733,
+    851,
     988
    ],
    "layer": "front",
@@ -426,7 +331,7 @@
   {
    "prop": "reeds",
    "at": [
-    1087,
+    1134,
     988
    ],
    "layer": "front",
@@ -435,7 +340,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    1339,
+    1496,
     988
    ],
    "layer": "front",
@@ -444,7 +349,7 @@
   {
    "prop": "reeds",
    "at": [
-    1706,
+    1817,
     988
    ],
    "layer": "front",
@@ -453,7 +358,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    2017,
+    2228,
     988
    ],
    "layer": "front",
@@ -462,7 +367,7 @@
   {
    "prop": "reeds",
    "at": [
-    2257,
+    2536,
     988
    ],
    "layer": "front",
@@ -471,7 +376,7 @@
   {
    "prop": "tall_grass",
    "at": [
-    2484,
+    2931,
     988
    ],
    "layer": "front",
@@ -480,7 +385,7 @@
   {
    "prop": "reeds",
    "at": [
-    2862,
+    3295,
     988
    ],
    "layer": "front",
@@ -489,35 +394,49 @@
   {
    "prop": "tall_grass",
    "at": [
-    3159,
+    3617,
     988
    ],
    "layer": "front",
    "flip": false
   },
   {
-   "prop": "reeds",
+   "prop": "wick_pillar",
    "at": [
-    3499,
-    988
+    700,
+    660
    ],
-   "layer": "front",
-   "flip": true
+   "layer": "back"
   },
   {
-   "prop": "tall_grass",
+   "prop": "wick_pillar",
    "at": [
-    3776,
-    988
+    1700,
+    660
    ],
-   "layer": "front",
-   "flip": false
+   "layer": "back"
+  },
+  {
+   "prop": "wick_pillar",
+   "at": [
+    2700,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "flame_basin",
+   "at": [
+    1400,
+    700
+   ],
+   "layer": "play"
   }
  ],
  "areas": [],
- "music": "hollow_tide",
+ "music": "lantern_heart",
  "ambience": "wind_ambience",
- "attunement_required": 72,
+ "attunement_required": 90,
  "climbables": [
   {
    "id": "ledge_0_rope_1",
@@ -552,36 +471,34 @@
    "top": "ledge_1"
   },
   {
-   "id": "route_0_vine_3",
-   "kind": "vine",
+   "id": "ledge_2_rope_4",
+   "kind": "rope",
    "at": [
-    300,
-    741
+    3100,
+    735
    ],
    "top_at": [
-    300,
-    698
+    3100,
+    692
    ],
    "bottom_alt": 0,
    "top_alt": 100,
    "bottom": "ground",
-   "top": "route_0"
-  },
+   "top": "ledge_2"
+  }
+ ],
+ "blocks": [
   {
-   "id": "route_3_vine_4",
-   "kind": "vine",
-   "at": [
-    1800,
-    741
+   "id": "ledge_1_step_3",
+   "rect": [
+    2450,
+    702,
+    60,
+    50
    ],
-   "top_at": [
-    1800,
-    698
-   ],
-   "bottom_alt": 0,
-   "top_alt": 100,
-   "bottom": "ground",
-   "top": "route_3"
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
   }
  ],
  "terrain": [

@@ -6660,6 +6660,371 @@
    }
   },
   {
+   "id": "nebula_eel",
+   "name": "Nebula Eel",
+   "level": [
+    94,
+    99
+   ],
+   "role": "normal",
+   "element": "water",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "flyer_ranged",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 150,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "space_bite",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       80
+      ],
+      "depth": 40,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.3,
+     "dash": 180
+    },
+    {
+     "id": "current_coil",
+     "windup_s": 0.9,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       160
+      ],
+      "depth": 60,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.0,
+     "damage_type": "qi",
+     "pull": 110,
+     "both_sides": true
+    }
+   ],
+   "loot": "nebula_eel",
+   "drops": [
+    {
+     "item": "eel_essence",
+     "chance": 0.45,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "star_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      3
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "lantern",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "nebula_eel"
+   },
+   "half_width": 40,
+   "height": 28,
+   "flying": true,
+   "movement": {
+    "jump": 0,
+    "climb": false,
+    "fly": true,
+    "drop": false
+   },
+   "beast_rank": 9,
+   "nature": "spirit"
+  },
+  {
+   "id": "void_crab",
+   "name": "Void Crab",
+   "level": [
+    94,
+    99
+   ],
+   "role": "normal",
+   "element": "space",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "melee",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 100,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "void_pinch",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       70
+      ],
+      "depth": 36,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.35
+    },
+    {
+     "id": "blink_claw",
+     "windup_s": 0.8,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       240
+      ],
+      "depth": 40,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.2,
+     "dash": 320
+    }
+   ],
+   "loot": "void_crab",
+   "drops": [
+    {
+     "item": "void_carapace",
+     "chance": 0.45,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "star_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      3
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": true,
+   "collection": {
+    "page": "lantern",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "void_crab"
+   },
+   "half_width": 40,
+   "height": 34,
+   "defence_mult": 1.6,
+   "movement": {
+    "jump": 430,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   },
+   "beast_rank": 9,
+   "nature": "spirit"
+  },
+  {
+   "id": "nebula_leviathan",
+   "name": "Nebula Leviathan",
+   "level": [
+    99,
+    99
+   ],
+   "role": "field_boss",
+   "element": "space",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "current_swallow",
+     "windup_s": 1.2,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       300
+      ],
+      "depth": 110,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 0.9,
+     "damage_type": "qi",
+     "pull": 220,
+     "both_sides": true
+    },
+    {
+     "id": "void_breath",
+     "windup_s": 1.3,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       460
+      ],
+      "depth": 100,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.8,
+     "damage_type": "qi"
+    },
+    {
+     "id": "gravity_crash",
+     "windup_s": 1.0,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       160
+      ],
+      "depth": 90,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.6,
+     "knockback": 140,
+     "status": {
+      "id": "stun",
+      "chance": 0.4,
+      "power": 1.0,
+      "duration_s": 1.0
+     }
+    }
+   ],
+   "loot": "nebula_leviathan",
+   "drops": [
+    {
+     "item": "leviathan_scale",
+     "chance": 1.0,
+     "count": [
+      2,
+      3
+     ],
+     "weight": 1
+    },
+    {
+     "item": "star_shard",
+     "chance": 1.0,
+     "count": [
+      20,
+      30
+     ],
+     "weight": 1
+    },
+    {
+     "item": "eel_essence",
+     "chance": 1.0,
+     "count": [
+      2,
+      4
+     ],
+     "weight": 1
+    },
+    {
+     "item": "will_tempering_pill",
+     "chance": 1.0,
+     "count": [
+      2,
+      3
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "lantern",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "nebula_leviathan"
+   },
+   "half_width": 160,
+   "height": 90,
+   "flying": true,
+   "hp_mult": 2.2,
+   "attack_mult": 0.9,
+   "presence": 5,
+   "sphere": {
+    "element": "space",
+    "tier": 5
+   },
+   "knockback_immune": true,
+   "phases": [
+    {
+     "below": 0.6,
+     "action": "summon",
+     "summon": "nebula_eel",
+     "summon_level": 97
+    },
+    {
+     "below": 0.3,
+     "action": "enrage",
+     "cooldown": 0.7,
+     "damage": 1.3
+    }
+   ],
+   "movement": {
+    "jump": 0,
+    "climb": false,
+    "fly": true,
+    "drop": false
+   },
+   "beast_rank": 9,
+   "nature": "spirit"
+  },
+  {
    "id": "shen_lian_aspirant",
    "name": "Shen Lian",
    "level": [

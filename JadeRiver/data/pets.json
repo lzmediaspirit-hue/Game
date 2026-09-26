@@ -651,6 +651,46 @@
    }
   },
   {
+   "id": "void_crab",
+   "name": "Void Crab",
+   "art": "void_crab",
+   "element": "space",
+   "strength_role": "combat",
+   "tame": true,
+   "tier": "star",
+   "tame_unlock": "star_beasts",
+   "skills": [
+    "Void Pinch",
+    "Blink Claw",
+    "Shell Fold",
+    "Deep Shell"
+   ],
+   "favourite_foods": [
+    "roast_fish",
+    "jade_carp_congee"
+   ],
+   "branches": [
+    "Rift Crab",
+    "Abyss Crab"
+   ],
+   "bloodline_skill": {
+    "name": "Folding Deep",
+    "mult": 2.5
+   },
+   "form_change": {
+    "name": "Star-Swallowing Crab",
+    "scale": 1.15,
+    "tint": "#c8b8ff"
+   },
+   "family": "river",
+   "movement": {
+    "jump": 430,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
    "id": "hatchling_wyrm",
    "name": "Hatchling Wyrm",
    "art": "hatchling_wyrm",

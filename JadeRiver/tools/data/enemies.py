@@ -425,6 +425,23 @@ def build():
             surrenders=True, spare_debt="kharn_spared", kill_debt="kharn_slain",
             phases=[{"below": 0.6, "action": "summon", "summon": "ashborn_pyre_keeper", "summon_level": 91},
                     {"below": 0.3, "action": "enrage", "cooldown": 0.7, "damage": 1.3}]),
+        # v1.2 · Phase E: the Nebula Deep. Eels swim the nebula (flyers); Void Crabs blink through their shells.
+        mob("nebula_eel", (94, 99), "normal", "water", "lantern", [d("eel_essence", 0.45), d("star_shard", 0.5, (1, 3))],
+            [atk("space_bite", 0.45, 80, 1.3, dash=180, depth=40), atk("current_coil", 0.9, 160, 1.0, damage_type="qi", pull=110, both_sides=True, depth=60)],
+            ai="flyer_ranged", speed=150, flying=True, width=40, height=28),
+        mob("void_crab", (94, 99), "normal", "space", "lantern", [d("void_carapace", 0.45), d("star_shard", 0.5, (1, 3))],
+            [atk("void_pinch", 0.45, 70, 1.35, depth=36), atk("blink_claw", 0.8, 240, 1.2, dash=320, depth=40)],
+            ai="melee", speed=100, width=40, height=34, defence_mult=1.6, tameable=True),
+        # The Nebula Leviathan (field boss, 99): it swallows the current, breathes the void, and holds a Sphere of Space.
+        mob("nebula_leviathan", 99, "field_boss", "space", "lantern", [d("leviathan_scale", 1.0, (2, 3)), d("star_shard", 1.0, (20, 30)),
+                                                                     d("eel_essence", 1.0, (2, 4)), d("will_tempering_pill", 1.0, (2, 3))],
+            [atk("current_swallow", 1.2, 300, 0.9, depth=110, damage_type="qi", pull=220, both_sides=True),
+             atk("void_breath", 1.3, 460, 1.8, depth=100, damage_type="qi"),
+             atk("gravity_crash", 1.0, 160, 1.6, depth=90, knockback=140, status={"id": "stun", "chance": 0.4, "power": 1.0, "duration_s": 1.0})],
+            ai="duelist", speed=90, flying=True, width=160, height=90, hp_mult=2.2, attack_mult=0.9, presence=5, sphere={"element": "space", "tier": 5},
+            knockback_immune=True, name="Nebula Leviathan",
+            phases=[{"below": 0.6, "action": "summon", "summon": "nebula_eel", "summon_level": 97},
+                    {"below": 0.3, "action": "enrage", "cooldown": 0.7, "damage": 1.3}]),
         # The Presence Court's aspirant duel (chapter 20): Shen Lian, a Star Warden aspirant with a Sword Domain.
         mob("shen_lian_aspirant", 91, "trial", "metal", None, [], [atk("starfall_thrust", 0.45, 120, 1.25, depth=36),
                                                                     atk("domain_cut", 0.8, 200, 1.1, depth=70, both_sides=True)],

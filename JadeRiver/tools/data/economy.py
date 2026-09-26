@@ -235,7 +235,10 @@ def shops():
         # broke it on a failed breakthrough (a failed major breakthrough consumes its materials).
         {"id": "observatory", "name": "Stargazer Ming's Star-stones", "currency": "sage_crystal",
          "stock": [s("sphere_comprehension_stone", price=80, requires=all_of({"kind": "quest_done", "quest": "the_observatory"})),
-                   s("clear_mind_pill"), s("will_tempering_pill", price=6)]},
+                   s("clear_mind_pill"), s("will_tempering_pill", price=6),
+                   # v1.2 Phase E: the Law pills' recipes, for a Sphere Lord 3 who looks past the Field.
+                   s("recipe_scroll", learn="law_condensing_pill", price=150, requires=all_of(realm("sphere_lord_3"))),
+                   s("recipe_scroll", learn="law_touching_pill", price=200, requires=all_of(realm("sphere_lord_3")))]},
         # v1.2 Phase C · Lanternwright Han keeps the first Wardens' glyphs for those who walk the written word.
         {"id": "lanternwright", "name": "Lanternwright Han's Shelf", "currency": "sage_crystal",
          "stock": [s("lantern_incense", price=4), s("clear_mind_pill"), s("will_tempering_pill", price=6),
@@ -345,7 +348,10 @@ def recipes():
          ("sage_condensing_pill", "mystic", [("roc_feather", 2), ("jade_core", 1), ("soulbell_flower", 2)], 1200),
          ("storm_blood_pill", "mystic", [("spark_pelt", 1), ("storm_shard", 2), ("soulbell_flower", 1)], 900),
          ("sovereign_settling_pill", "sage", [("ember_cactus", 2), ("worm_glass_tooth", 1), ("frost_lotus", 1)], 1500),
-         ("tide_cleansing_pill", "sovereign", [("star_lotus", 2), ("wyrm_ash", 1), ("jelly_silk", 1)], 1200)]
+         ("tide_cleansing_pill", "sovereign", [("star_lotus", 2), ("wyrm_ash", 1), ("jelly_silk", 1)], 1200),
+         # v1.2 Phase E: the Law pills, for the step past the Lantern Star Field's ceiling (Sphere Lord 3 -> Law Touching).
+         ("law_condensing_pill", "will", [("star_lotus", 2), ("void_carapace", 1), ("eel_essence", 1)], 1800),
+         ("law_touching_pill", "will", [("star_lotus", 1), ("leviathan_scale", 1), ("eel_essence", 2)], 2400)]
     for pid, grade, inputs, t in A:
         r(pid, "alchemy", inputs, [(pid, 1)], grade, time_s=t)
     # Cooking (Part 8) incl. pet foods and bonding offerings
@@ -469,7 +475,7 @@ def recipes():
                     "mind_lake_opening_pill": "water", "sage_condensing_pill": "metal", "storm_blood_pill": "wood",
                     "sovereign_settling_pill": "fire", "qi_flow_pill": "earth", "viper_smoke_pill": "wood", "viper_oil": "wood",
                     "ember_oil": "fire", "riverreed_draught": "water", "copper_body_bath": "earth", "marrow_washing_bath": "water",
-                    "calm_heart_incense": "wood", "jade_marrow_bath": "water", "golden_body_bath": "metal", "heavenly_flame_pill": "fire", "sunfire_pill": "fire", "stillwater_pill": "water", "cloudstep_pill": "wood", "tide_cleansing_pill": "water"}
+                    "calm_heart_incense": "wood", "jade_marrow_bath": "water", "golden_body_bath": "metal", "heavenly_flame_pill": "fire", "sunfire_pill": "fire", "stillwater_pill": "water", "cloudstep_pill": "wood", "tide_cleansing_pill": "water", "law_condensing_pill": "metal", "law_touching_pill": "water"}
     # S44 ancient recipes: split into pages across dungeons and secret realms (the pages are placed in world.py).
     ANCIENT = {"method_conversion_pill": 3, "sovereign_settling_pill": 4}
     ROLES = ["principal", "minister", "assistant", "envoy"]
@@ -759,6 +765,11 @@ def pets():
          "tier": "star", "tame_unlock": "star_beasts",
          "skills": ["Mote Ring", "Dust Veil", "Orbit Guard", "Starlit Wings"], "favourite_foods": ["lotus_root_tea", "cloudtop_orchid_broth"],
          "branches": ["Comet Moth", "Moon Moth"]},
+        # v1.2 · Phase E: the Void Crab of the Nebula Deep, a star-tier crab that blinks behind what it pinches.
+        {"id": "void_crab", "name": "Void Crab", "art": "void_crab", "element": "space", "strength_role": "combat", "tame": True,
+         "tier": "star", "tame_unlock": "star_beasts",
+         "skills": ["Void Pinch", "Blink Claw", "Shell Fold", "Deep Shell"], "favourite_foods": ["roast_fish", "jade_carp_congee"],
+         "branches": ["Rift Crab", "Abyss Crab"]},
         {"id": "hatchling_wyrm", "name": "Hatchling Wyrm", "art": "hatchling_wyrm", "element": "space", "strength_role": "combat", "tier": "primordial",
          "primordial": True, "skills": ["Star Breath", "Coil Guard", "Blink Pounce", "Wyrm Roar"], "favourite_foods": ["jade_carp_congee", "cloudtop_orchid_broth"],
          "branches": ["Star Wyrm", "Void Wyrm"]},
@@ -770,11 +781,11 @@ def pets():
     family = {"reed_otter": "river", "mossback_toad": "river", "ember_fox": "hound", "mist_wolf": "hound",
               "ironclaw_mole": "burrow", "bamboo_monkey": "burrow", "jade_crane": "wing",
               "green_viper": "river", "mud_hound": "hound", "mist_vulture": "wing", "cleansed_boarlet": "burrow", "pale_stag": "hound",
-              "riverstone_ox": "hoof", "cloud_stag": "hoof", "comet_sparrow": "wing", "hatchling_wyrm": "wyrm", "orbit_moth": "wing"}
+              "riverstone_ox": "hoof", "cloud_stag": "hoof", "comet_sparrow": "wing", "hatchling_wyrm": "wyrm", "orbit_moth": "wing", "void_crab": "river"}
     # S43 rule 12: how each animal follows along the navigation graph (ground mounts jump at 530; none climb).
     jumps = {"reed_otter": 430, "ember_fox": 530, "jade_crane": 530, "mossback_toad": 600, "ironclaw_mole": 0, "bamboo_monkey": 600, "mist_wolf": 530,
              "green_viper": 0, "mud_hound": 530, "mist_vulture": 530, "cleansed_boarlet": 430, "pale_stag": 600,
-             "riverstone_ox": 530, "cloud_stag": 600, "comet_sparrow": 530, "hatchling_wyrm": 430, "orbit_moth": 530}
+             "riverstone_ox": 530, "cloud_stag": 600, "comet_sparrow": 530, "hatchling_wyrm": 430, "orbit_moth": 530, "void_crab": 430}
     # S46 bloodline: at 50 purity an ancestral skill awakens (a heavy strike every 12 s in a fight; the free cast
     # of an Equal Contract); at 90 the animal changes form (+10% to every stat, a larger, tinted body).
     ancestry = {
@@ -795,6 +806,7 @@ def pets():
         "comet_sparrow": ("Thousand Comet Rain", "Great Comet Roc", "#ffd0a0"),
         "hatchling_wyrm": ("Starfall Breath", "Star-Crowned Wyrm", "#e8e0ff"),
         "orbit_moth": ("Thousand Orbit Veil", "Heaven-Circling Moth", "#e0e8ff"),
+        "void_crab": ("Folding Deep", "Star-Swallowing Crab", "#c8b8ff"),
     }
     for r in rows:
         if r.get("construct"):
@@ -1128,7 +1140,7 @@ def strings():
         "event.gold_body_trial": "Gold Body Trial", "event.trial_of_reflections": "The Trial of Reflections",
         "event.siege_of_two_sects": "Siege of Two Sects", "event.sect_war": "Sect War: the Alliance Gate", "event.presence_trial": "The Presence Trial",
         "event.mine_assault": "Taking the Mine", "event.mine_defence": "Holding the Mine",
-        "event.starsea_crossing": "The Starsea Crossing", "event.hollow_tide_battle": "The Tide Breaks: the Tidebreak Bastion",
+        "event.starsea_crossing": "The Starsea Crossing", "event.hollow_tide_battle": "The Tide Breaks: the Tidebreak Bastion", "event.greyfall_stand": "The Greyfall Stand",
         "flag.night_survived": "Survived the night",
         "ui.begin": "Begin", "ui.continue": "Continue", "ui.new_game": "New Game", "ui.settings": "Settings", "ui.back": "Back",
         "ui.unaffiliated": "Unaffiliated", "ui.locked": "Locked",

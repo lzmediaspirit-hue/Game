@@ -399,7 +399,7 @@ static func mob_stats(def: Dictionary, lv: int, elite := false) -> Dictionary:
 	var attack := poly(mob.attack, lv) * float(r.attack) * float(def.get("attack_mult", 1.0))
 	var acc := poly(mob.accuracy, lv)
 	var eva := acc * float(mob.get("agile_evasion_pct" if def.get("agile", false) else "evasion_pct", 0.3))
-	var defence := armour_defence(lv) * float(r.defence)
+	var defence := armour_defence(lv) * float(r.defence) * float(def.get("defence_mult", 1.0))   # v1.2: a shelled foe (the Void Crab)
 	return {"max_hp": hp, "attack": attack, "accuracy": acc, "evasion": eva, "physical_defense": defence,
 		"qi_resistance": defence * 0.6, "soul_defense": defence * 0.5, "crit_chance": 0.05, "crit_damage": 1.5,
 		"tenacity": 0.3 if role in ["field_boss", "dungeon_boss", "story_boss"] else 0.0, "role": role}

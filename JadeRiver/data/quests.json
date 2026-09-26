@@ -11148,6 +11148,205 @@
    "chapter": "21",
    "target_room": "tf_tidebreak_bastion",
    "qp": "act2_side"
+  },
+  {
+   "id": "the_leviathans_maw",
+   "name": "The Leviathan's Maw",
+   "kind": "side",
+   "giver": "warden_captain_duan",
+   "hand_in": "warden_captain_duan",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Bring down the Nebula Leviathan in its Maw",
+     "count": 1,
+     "enemy": "nebula_leviathan"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 200
+    },
+    {
+     "kind": "grant_item",
+     "item": "leviathan_scale",
+     "count": 2
+    },
+    {
+     "kind": "codex",
+     "entry": "nebula_leviathan"
+    }
+   ],
+   "offer_text": [
+    "Something in the Nebula Deep swallows the lantern ships whole. The old Wardens called it the Leviathan.",
+    "It has a Presence like a storm and a Sphere as wide as a harbour. Go if you are ready. Nobody will think less of you if you are not."
+   ],
+   "complete_text": [
+    "You brought it down. The ships will run the Deep again. Take its scales; the alchemists will want them for the Law pills."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "star_warden"
+     }
+    ]
+   },
+   "chapter": "22",
+   "target_room": "nd_leviathans_maw",
+   "qp": "act2_side"
+  },
+  {
+   "id": "lus_lantern",
+   "name": "Lu's Lantern",
+   "kind": "main",
+   "giver": "harbormaster_lin",
+   "hand_in": "harbormaster_lin",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_room",
+     "text": "Cross the Drone Hive into the Nebula Deep",
+     "count": 1,
+     "room": "nd_nebula_verge"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Find Lu's star notes in the Crab Grottoes",
+     "count": 1,
+     "flag": "lus_notes_found"
+    },
+    {
+     "kind": "reach_room",
+     "text": "Climb the stair above the harbour to the Flame Heart",
+     "count": 1,
+     "room": "lt_flame_heart"
+    },
+    {
+     "kind": "set_flag",
+     "text": "Take a spark of the first lantern's flame",
+     "count": 1,
+     "flag": "heart_flame_taken"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_item",
+     "item": "lantern_heart_flame",
+     "count": 1
+    },
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 150
+    },
+    {
+     "kind": "codex",
+     "entry": "lus_lantern"
+    }
+   ],
+   "offer_text": [
+    "My mother kept this quay when a man from the river came through. He relit a lantern with his own fire and would not say how.",
+    "He left notes, she said, somewhere out past the hive where the crabs are. If anyone can read them, it is someone from his river."
+   ],
+   "complete_text": [
+    "The first lantern. Every light on the Run was lit from it, and he found the way up. And now so have you.",
+    "Keep that spark. My mother always said he carried one home. I think she was right."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "star_warden"
+     }
+    ]
+   },
+   "chapter": "22",
+   "target_room": "nd_crab_grottoes",
+   "next": "greyfall",
+   "qp": "act2_side"
+  },
+  {
+   "id": "greyfall",
+   "name": "Greyfall",
+   "kind": "main",
+   "giver": "warden_commander_yao",
+   "hand_in": "warden_commander_yao",
+   "marker": "gold",
+   "objectives": [
+    {
+     "kind": "reach_realm",
+     "text": "Break through to Sphere Lord 3",
+     "count": 1,
+     "realm": "sphere_lord_3"
+    },
+    {
+     "kind": "reach_room",
+     "text": "Go to the Greyfall Breach",
+     "count": 1,
+     "room": "tf_greyfall_breach"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Find Shen Lian on the Breach",
+     "count": 1,
+     "npc": "shen_lian_breach"
+    },
+    {
+     "kind": "pass_event",
+     "text": "Ring the Breach's bell and hold beside him",
+     "count": 1,
+     "event": "greyfall_stand"
+    },
+    {
+     "kind": "talk_to",
+     "text": "Report to Warden-Commander Yao",
+     "count": 1,
+     "npc": "warden_commander_yao"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "sage_crystal",
+     "amount": 250
+    },
+    {
+     "kind": "grant_item",
+     "item": "will_tempering_pill",
+     "count": 3
+    },
+    {
+     "kind": "codex",
+     "entry": "the_frontier"
+    },
+    {
+     "kind": "set_flag",
+     "flag": "act3_complete"
+    }
+   ],
+   "offer_text": [
+    "The lanterns are coming back on, one by one. The Tide knows it. It will come to the Greyfall Breach all at once.",
+    "Shen Lian is holding it. Go to him. Whatever happens there, remember that he asked for that wall."
+   ],
+   "complete_text": [
+    "He held. And when it was over the grey closed over the Breach, and he was on the other side of it.",
+    "He is not dead. The Tide takes; it does not always kill. Past the Field is the Frontier, and the Tide goes there. So will you, one day."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "lus_lantern"
+     }
+    ]
+   },
+   "chapter": "22",
+   "target_room": "tf_greyfall_breach",
+   "qp": "act2_side"
   }
  ]
 }
