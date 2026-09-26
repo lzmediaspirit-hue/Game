@@ -479,6 +479,18 @@
     "combat_authority"
    ]
   },
+  "array_deployed": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
+  "array_faded": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ]
+  },
   "loot_dropped": {
    "system": "World",
    "files": [

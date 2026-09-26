@@ -2675,6 +2675,14 @@
      "recipe": "array_plate"
     },
     {
+     "kind": "learn_recipe",
+     "recipe": "killing_array_plate"
+    },
+    {
+     "kind": "learn_recipe",
+     "recipe": "binding_array_plate"
+    },
+    {
      "kind": "grant_item",
      "item": "blank_plate",
      "count": 1

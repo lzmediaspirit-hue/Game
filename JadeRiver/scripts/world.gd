@@ -484,6 +484,12 @@ func _on_event(name: String, p: Dictionary) -> void:
 			fx.add("flash", player.position + Vector2(0, -50), {"color": Color("ff6a5a"), "radius": 70.0, "dur": 0.4})
 			shake = 0.3
 			Audio.play("break")
+		"array_deployed":
+			var ac: Color = FxLayer.ARRAY_COLOURS.get(str(p.get("kind", "")), FxLayer.ARRAY_COLOURS.guard)
+			fx.add("wave", Vector2(float(p.x), float(p.y)), {"color": ac, "radius": float(p.radius), "dur": 0.5})
+			Audio.play("forge")
+		"array_faded":
+			if str(p.get("actor", "")) == Game.active_id: Audio.play("ui_close")
 		"illusion_cast":
 			if str(p.get("actor", "")) == Game.active_id and player:
 				if is_instance_valid(illusion_view): illusion_view.queue_free()

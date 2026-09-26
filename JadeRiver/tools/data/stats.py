@@ -102,6 +102,10 @@ def build():
                 "own_element_resistance": 0.3, "overcome_element_resistance": 0.15},
         # S47: the flying sword's palms, Sword Intent and self-detonation.
         "sword_release": {"palm_mult": 0.8},
+        # S47 the sword swarm (v1.1): 3 swords at Sword Dao 5, 9 with the Nine Swords Array, 36 at Original Application
+        # with it; one sword for each 10 Spirit (control demand). They strike in turn; each hits softer the more there are.
+        "sword_swarm": {"counts": [3, 9, 36], "spirit_per_sword": 10, "duration_s": 12.0, "strike_every_s": 1.2, "mult_total": 0.9,
+                        "seek_radius": 420, "orbit": 46},
         "sword_intent": {"max": 10, "fade_s": 3.0, "pen_per_stack": 0.01, "fear_chance": 0.1},
         "detonation": {"base": 1.5, "per_grade": 0.75, "radius": 180},
         "natal": {"per_level": 0.02, "xp_levels": [50, 200, 450, 800, 1250, 1800, 2450, 3200, 4050, 5000], "xp_per_ore": 20,

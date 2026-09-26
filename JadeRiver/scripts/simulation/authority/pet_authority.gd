@@ -50,6 +50,7 @@ func handle(intent: Dictionary) -> Dictionary:
 			var role := str(intent.get("role", "combat"))
 			if not role in ["combat", "gatherer", "cultivation", "mount", "guard"]: return fail("bad_role")
 			if mount_only(p) and role != "mount": return fail("mount_only", {"text": Tx.t("sim.pet.mount_only") % str(p.name)})
+			if is_construct(p) and role != "combat": return fail("construct", {"text": Tx.t("sim.pet.construct")})
 			if role == "mount":
 				if not mountable(p): return fail("not_mountable", {"text": Tx.t("sim.pet.too_small_to_carry_you")})
 				if not Unlocks.is_unlocked(c.id, str(growth().get("mount_unlock", "mounts"))): return fail("locked", {"text": Unlocks.locked_text("mounts")})
@@ -72,6 +73,7 @@ func handle(intent: Dictionary) -> Dictionary:
 			var p2 := _pet(c, str(intent.get("pet", c.active_pet)))
 			var item := str(intent.get("item", ""))
 			if p2.is_empty(): return fail("unknown_pet")
+			if is_construct(p2): return fail("construct", {"text": Tx.t("sim.pet.construct")})
 			if c.inventory.count(item) <= 0: return fail("no_food")
 			if not ContentDB.item(item).get("food", {}).get("pet_food", false) and not item in ContentDB.entry("pets", str(p2.species)).get("favourite_foods", []):
 				return fail("not_pet_food")
@@ -178,18 +180,25 @@ func apply_grant(actor_id: String, species: String, born: Dictionary = {}) -> vo
 	if c == null or sp.is_empty(): return
 	var uid := "%s_%d" % [species, c.pets.size() + 1]
 	while not _pet(c, uid).is_empty(): uid += "b"
+	var construct := bool(sp.get("construct", false))
+	if construct and c.pets.any(func(o): return str(o.species) == species): return   # one combat puppet only (S48)
 	var pet := {"uid": uid, "species": species, "name": str(sp.get("name", species)), "level": 1, "xp": 0.0, "bond": 1.0,
-		"role": str(sp.get("strength_role", "combat")), "stage": "hatchling", "hunger_day": Clock.reset_day(Clock.now_utc()),
-		"rarity": str(born.get("rarity", "common")), "branch": "", "traits": born.get("traits", _roll_traits(c)), "revealed": 0}
-	_roll_bloodline(c, pet)
+		"role": str(sp.get("strength_role", "combat")), "stage": "adult" if construct else "hatchling", "hunger_day": Clock.reset_day(Clock.now_utc()),
+		"rarity": str(born.get("rarity", "common")), "branch": "", "traits": [] if construct else born.get("traits", _roll_traits(c)), "revealed": 0}
+	if construct: pet.construct = true   # S48 a combat puppet: no bloodline, no hunger, no bond
+	else: _roll_bloodline(c, pet)
 	# An egg you warmed yourself: its hatchling knows you (3 hearts) and keeps what you dripped into it.
 	if born.has("hearts"): pet.bond = float(born.hearts)
 	if float(born.get("purity_bonus", 0.0)) != 0.0: pet.purity = clampi(int(pet.purity) + int(born.purity_bonus), 0, 100)
 	c.pets.append(pet)
 	if c.active_pet == "": c.active_pet = uid
 	emit("pet_bonded", {"actor": actor_id, "pet": uid, "species": species})
-	_check_awakening(c, pet)
+	if not construct: _check_awakening(c, pet)
 	_spawn(c)
+
+## S48 a combat puppet is a construct: it takes a pet slot but does not eat, bond, breed, fuse or grow.
+static func is_construct(p: Dictionary) -> bool:
+	return bool(p.get("construct", false)) or bool(ContentDB.entry("pets", str(p.get("species", ""))).get("construct", false))
 
 ## S49 fortune: bond with the first animal of a species you keep (the wounded crane's own kind).
 func apply_bond_species(actor_id: String, species: String, amount: float) -> void:
@@ -203,7 +212,7 @@ func apply_bond_species(actor_id: String, species: String, amount: float) -> voi
 func apply_bond(actor_id: String, amount: float, uid := "") -> void:
 	var c = game.character(actor_id)
 	var p := active_pet(c) if uid == "" else _pet(c, uid)
-	if p.is_empty(): return
+	if p.is_empty() or is_construct(p): return
 	if amount > 0.0: amount *= 1.0 + _trait_sum(p, "bond_gain")
 	var before := int(float(p.bond))
 	p.bond = clampf(float(p.bond) + amount, 0.0, 10.0)
@@ -240,8 +249,8 @@ func breeding_blocked(c) -> String:
 ## Adults of the same family as `p` (never itself).
 func breed_partners(c, p: Dictionary) -> Array:
 	var stage := str(growth().get("breeding", {}).get("stage", "adult"))
-	if stage_index(str(p.get("stage", ""))) < stage_index(stage): return []
-	return c.pets.filter(func(o): return str(o.uid) != str(p.uid) and family_of(o) == family_of(p) and stage_index(str(o.get("stage", ""))) >= stage_index(stage))
+	if is_construct(p) or stage_index(str(p.get("stage", ""))) < stage_index(stage): return []
+	return c.pets.filter(func(o): return str(o.uid) != str(p.uid) and not is_construct(o) and family_of(o) == family_of(p) and stage_index(str(o.get("stage", ""))) >= stage_index(stage))
 
 ## Two Adults of one family make an egg (24 h, then it hatches in 2-24 h): the higher rarity,
 ## sometimes one step more; traits drawn from both parents, sometimes a new one.
@@ -482,12 +491,14 @@ func _knocked_out(c, p: Dictionary) -> void:
 		p.knockouts = []
 		emit("pet_wounded", {"actor": c.id, "pet": str(p.uid)})
 
-## A Beast Revival Pill (or a rest at the Beast Hall) mends a Grievous Wound.
-func heal_wound(actor_id: String, uid := "") -> bool:
+## A Beast Revival Pill (or a rest at the Beast Hall) mends a Grievous Wound. A combat puppet is not healed:
+## it is repaired at the tinkerer's bench (`repair`).
+func heal_wound(actor_id: String, uid := "", repair := false) -> bool:
 	var c = game.character(actor_id)
 	if c == null: return false
 	var healed := false
 	for p in c.pets:
+		if is_construct(p) != repair: continue
 		if (uid == "" or str(p.uid) == uid) and ensure_fields(p).get("wounded", false):
 			p.wounded = false
 			p.knockouts = []
@@ -510,6 +521,7 @@ func _at_beast_hall(c) -> bool:
 func devour_core(c, uid: String, item: String) -> Dictionary:
 	var p := _pet(c, uid)
 	if p.is_empty(): return fail("unknown_pet")
+	if is_construct(p): return fail("construct", {"text": Tx.t("sim.pet.construct")})
 	var core: Dictionary = ContentDB.item(item).get("core", {})
 	if not core.has("tier"): return fail("not_a_core")
 	if c.inventory.count(item) <= 0: return fail("no_core")
@@ -612,6 +624,7 @@ func role_match(p: Dictionary) -> float:
 
 ## Fed today: full effect; hungry: 70%.
 func care_mult(p: Dictionary) -> float:
+	if is_construct(p): return 1.0
 	var hungry := Clock.reset_day(Clock.now_utc()) - int(p.get("hunger_day", 0)) >= 1
 	return float(growth().get("hungry_mult", 0.7)) if hungry else 1.0
 
@@ -628,6 +641,7 @@ func evolve_gates(c, p: Dictionary) -> Array:
 	return out
 
 func can_evolve(c, p: Dictionary) -> bool:
+	if is_construct(p): return false
 	var gates := evolve_gates(c, p)
 	return not gates.is_empty() and gates.all(func(g): return g.ok)
 
@@ -1229,6 +1243,7 @@ func unequip_pet(c, uid: String, slot: String) -> Dictionary:
 ## Why these two cannot be fused ("" when they can): at the Beast Hall, two animals, the sacrifice unlocked.
 func fusion_blocked(c, keep: Dictionary, sacrifice: Dictionary) -> String:
 	if keep.is_empty() or sacrifice.is_empty() or str(keep.uid) == str(sacrifice.uid): return Tx.t("sim.pet.fuse_two")
+	if is_construct(keep) or is_construct(sacrifice): return Tx.t("sim.pet.construct")
 	if sacrifice.get("locked", false): return Tx.t("sim.pet.fuse_locked") % str(sacrifice.name)
 	if not _at_beast_hall(c): return Tx.t("sim.pet.fuse_where")
 	return ""
@@ -1301,6 +1316,7 @@ func breakthrough_chance(c, p: Dictionary, support: Array) -> float:
 func pet_breakthrough(c, uid: String, support: Array, branch: String) -> Dictionary:
 	var p := _pet(c, uid)
 	if p.is_empty(): return fail("unknown_pet")
+	if is_construct(p): return fail("construct", {"text": Tx.t("sim.pet.construct")})
 	var nx := next_stage(p)
 	if nx.is_empty(): return fail("final_stage", {"text": Tx.t("sim.pet.it_has_grown_as_far")})
 	var cfg: Dictionary = growth().get("breakthrough", {})
@@ -1440,7 +1456,7 @@ func _trough(c) -> void:
 	if not game.sect.founded() or game.sect.level_building(str(cfg.get("pavilion", "beast_pavilion"))) < int(cfg.get("level", 1)): return
 	c.cooldowns["trough_day"] = today
 	for p in c.pets:
-		if today - int(p.get("hunger_day", 0)) < 1: continue
+		if today - int(p.get("hunger_day", 0)) < 1 or is_construct(p): continue
 		var foods: Array = ContentDB.entry("pets", str(p.species)).get("favourite_foods", []).duplicate()
 		for st in game.account.storage.get("items", []):
 			var fid := str(st.get("id", ""))

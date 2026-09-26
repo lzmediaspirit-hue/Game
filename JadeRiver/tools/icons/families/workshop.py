@@ -233,26 +233,51 @@ def puppet_core():
     return c
 
 
-def array_plate():
-    c = Canvas(32)
-    m = S.rounded_rect(c, 4, 6, 27, 27, 3)
-    side = move(m, 0, 2) & ~m
-    c.put(side | m, R['bronze'], 'flat', base=1)
-    c.put(m, R['bronze'], 'ray', base=3)
-    c.put(S.outline_only(S.rounded_rect(c, 6, 8, 25, 25, 2)), R['bronze'][1], 'flat', out=R['bronze'].out)
-    # an engraved, lit protection array: ring, eight trigram bars, the centre point
-    c.put(c.ring(15.5, 16.5, 7, 1), R['qi'], 'flat', base=3)
-    for k in range(8):
-        a = k * math.pi / 4
-        x, y = 15.5 + 4.6 * math.cos(a), 16.5 + 4.6 * math.sin(a)
-        c.put(c.seg(x - 1.2 * math.sin(a), y + 1.2 * math.cos(a), x + 1.2 * math.sin(a), y - 1.2 * math.cos(a), 0.9),
-              R['qi'], 'flat', base=4 if k % 2 else 3)
-    c.put(c.circle(15.5, 16.5, 1.2), R['gold'], 'flat', base=4)
-    for (x, y) in ((8, 10), (23, 10), (8, 23), (23, 23)):
-        c.put(c.rect(x, y, x, y), R['gold'], 'flat', base=3)
-    c.outline()
-    c.glow('#8AEBEE', (80,))
-    return c
+def _array_plate(kind='guard'):
+    """A bronze plate with a lit array engraved in it: the guarding array (cyan trigram ring), the killing array
+    (red, four blades pointing in) and the binding array (violet, a chain spiral)."""
+    ink, glow = {'guard': (R['qi'], '#8AEBEE'), 'killing': (R['red'], '#FF8A7A'), 'binding': (R['violet'], '#C7A6FF')}[kind]
+
+    def build():
+        c = Canvas(32)
+        m = S.rounded_rect(c, 4, 6, 27, 27, 3)
+        side = move(m, 0, 2) & ~m
+        c.put(side | m, R['bronze'], 'flat', base=1)
+        c.put(m, R['bronze'], 'ray', base=3)
+        c.put(S.outline_only(S.rounded_rect(c, 6, 8, 25, 25, 2)), R['bronze'][1], 'flat', out=R['bronze'].out)
+        c.put(c.ring(15.5, 16.5, 7, 1), ink, 'flat', base=2 if kind == 'killing' else 3)
+        if kind == 'guard':
+            # eight trigram bars and the centre point
+            for k in range(8):
+                a = k * math.pi / 4
+                x, y = 15.5 + 4.6 * math.cos(a), 16.5 + 4.6 * math.sin(a)
+                c.put(c.seg(x - 1.2 * math.sin(a), y + 1.2 * math.cos(a), x + 1.2 * math.sin(a), y - 1.2 * math.cos(a), 0.9),
+                      ink, 'flat', base=4 if k % 2 else 3)
+            c.put(c.circle(15.5, 16.5, 1.2), R['gold'], 'flat', base=4)
+        elif kind == 'killing':
+            # four blades from the ring pointing at the heart of the array
+            for k in range(4):
+                a = k * math.pi / 2 + math.pi / 4
+                ox, oy = 15.5 + 6.6 * math.cos(a), 16.5 + 6.6 * math.sin(a)
+                ix, iy = 15.5 + 1.2 * math.cos(a), 16.5 + 1.2 * math.sin(a)
+                px, py = -math.sin(a), math.cos(a)
+                c.put(c.poly([(ox + px * 1.8, oy + py * 1.8), (ox - px * 1.8, oy - py * 1.8), (ix, iy)]), ink, 'flat', base=2)
+            c.put(c.circle(15.5, 16.5, 1.0), R['gold'], 'flat', base=4)
+        else:
+            # a chain of links spiralling in
+            for k in range(7):
+                a = k * 0.95
+                r = 5.4 - k * 0.62
+                c.put(c.ring(15.5 + r * math.cos(a), 16.5 + r * math.sin(a), 1.25, 0.6), ink, 'flat', base=4 if k % 2 else 3)
+        for (x, y) in ((8, 10), (23, 10), (8, 23), (23, 23)):
+            c.put(c.rect(x, y, x, y), R['gold'], 'flat', base=3)
+        c.outline()
+        c.glow(glow, (80,))
+        return c
+    return build
+
+
+array_plate = _array_plate('guard')
 
 
 def sphere_comprehension_stone():
@@ -309,5 +334,6 @@ for _id, _fn in (('manual_stonebody_canon', _method_manual('earth')),
                  ('dusty_curio', dusty_curio), ('jade_trinket', jade_trinket), ('fake_jade', fake_jade),
                  ('string_of_old_coins', string_of_old_coins), ('spirit_wood', spirit_wood),
                  ('puppet_core', puppet_core), ('array_plate', array_plate),
+                 ('killing_array_plate', _array_plate('killing')), ('binding_array_plate', _array_plate('binding')),
                  ('sphere_comprehension_stone', sphere_comprehension_stone)):
     register(FAM, _id, _fn, GROUP)

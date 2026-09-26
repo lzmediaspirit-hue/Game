@@ -2986,6 +2986,34 @@
    ]
   },
   {
+   "id": "nine_sword_array",
+   "craft": "smithing",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudsteel_ore",
+     "count": 9
+    },
+    {
+     "item": "jadeiron",
+     "count": 9
+    },
+    {
+     "item": "refining_essence",
+     "count": 6
+    }
+   ],
+   "outputs": [
+    {
+     "item": "nine_sword_array",
+     "count": 1
+    }
+   ],
+   "requires_ranks": {
+    "smithing": "expert"
+   }
+  },
+  {
    "id": "jadeiron_furnace",
    "craft": "smithing",
    "grade": "earth",
@@ -3088,6 +3116,56 @@
    "outputs": [
     {
      "item": "array_plate",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "killing_array_plate",
+   "craft": "formations",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "blank_plate",
+     "count": 1
+    },
+    {
+     "item": "formation_stone",
+     "count": 1
+    },
+    {
+     "item": "ore_dust",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "killing_array_plate",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "id": "binding_array_plate",
+   "craft": "formations",
+   "grade": "earth",
+   "inputs": [
+    {
+     "item": "blank_plate",
+     "count": 1
+    },
+    {
+     "item": "formation_stone",
+     "count": 1
+    },
+    {
+     "item": "willow_moss",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "binding_array_plate",
      "count": 1
     }
    ]

@@ -202,6 +202,9 @@ func data_suite() -> void:
 	# S46 bloodline: every species has an ancestral skill and a form; contracts, capacity and incubation read real items.
 	var pg := ContentDB.config("pet_growth")
 	for pe in ContentDB.all("pets"):
+		if pe.get("construct", false):
+			check(not pe.has("bloodline_skill") and not pe.has("form_change") and (pe.favourite_foods as Array).is_empty(), "construct %s has no blood, form or food" % pe.id)
+			continue
 		check(str(pe.get("bloodline_skill", {}).get("name", "")) != "" and float(pe.get("bloodline_skill", {}).get("mult", 0)) > 1.0, "pet %s has a bloodline skill" % pe.id)
 		check(str(pe.get("form_change", {}).get("name", "")) != "" and Color.html_is_valid(str(pe.get("form_change", {}).get("tint", ""))), "pet %s has a form change" % pe.id)
 	check(int(pg.get("awakening", {}).get("skill_at", 0)) == 50 and int(pg.get("awakening", {}).get("form_at", 0)) == 90, "awakenings at purity 50 and 90")

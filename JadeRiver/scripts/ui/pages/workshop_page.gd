@@ -125,17 +125,17 @@ func _puppets(ch) -> void:
 	var here: bool = Game.workshop.npc_here(ch, p.get("npcs", []))
 	var y := left.position.y + 70
 	for b in p.get("blueprints", []):
-		var r := Rect2(left.position.x + 14, y, left.size.x - 28, 130)
+		var r := Rect2(left.position.x + 14, y, left.size.x - 28, 112)
 		panel(r, "minor_panel")
-		text(r.position + Vector2(16, 32), str(b.name), 21)
+		text(r.position + Vector2(16, 30), str(b.name), 21)
 		var need := ""
 		for inp in b.inputs: need += "%d %s  " % [int(inp.count), ContentDB.item_name(str(inp.item))]
-		text(r.position + Vector2(16, 60), need, 15, UiKit.PALE_GOLD)
+		text(r.position + Vector2(16, 56), need, 15, UiKit.PALE_GOLD)
 		var yl := ""
 		for yy in b.get("yield", []): yl += "%d %s/h  " % [int(yy.per_hour), ContentDB.item_name(str(yy.item))]
-		text(r.position + Vector2(16, 88), Tx.t("ui.workshop.gathers") + yl, 15, UiKit.MIST)
-		btn(Rect2(r.end.x - 160, r.position.y + 40, 144, 50), Tx.t("ui.workshop.build"), "build", str(b.id), true, here, Tx.t("ui.workshop.build_at_tinkerer_yu_bench"))
-		y += 140
+		text(r.position + Vector2(16, 82), (Tx.t("ui.workshop.gathers") + yl) if b.get("pet", "") == "" else Tx.t("ui.workshop.fights_beside_you"), 15, UiKit.MIST)
+		btn(Rect2(r.end.x - 160, r.position.y + 32, 144, 48), Tx.t("ui.workshop.build"), "build", str(b.id), true, here, Tx.t("ui.workshop.build_at_tinkerer_yu_bench"))
+		y += 120
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
 	panel(right)
 	heading(right.position + Vector2(20, 44), Tx.t("ui.workshop.your_puppets"), right.size.x - 40)
@@ -144,6 +144,13 @@ func _puppets(ch) -> void:
 	for pu in ps:
 		text(Vector2(right.position.x + 24, yy2 + 20), str(Game.workshop.blueprint(str(pu.blueprint)).get("name", pu.blueprint)), 19)
 		yy2 += 34
+	# S48 the combat puppet: it fights beside you; three knockouts leave it broken until repaired here.
+	for pp in ch.pets:
+		if not PetAuthority.is_construct(pp): continue
+		var broken: bool = pp.get("wounded", false)
+		text(Vector2(right.position.x + 24, yy2 + 20), str(pp.name) + "  ·  " + (Tx.t("ui.workshop.puppet_wounded") if broken else Tx.t("ui.workshop.puppet_ready")), 19, UiKit.RED if broken else UiKit.BRIGHT_JADE)
+		if broken: btn(Rect2(right.end.x - 170, yy2 - 6, 150, 44), Tx.t("ui.workshop.repair"), "repair_puppet", null, true, here, Tx.t("ui.workshop.build_at_tinkerer_yu_bench"))
+		yy2 += 48
 	var got: Array = Game.workshop.puppet_yield(ch)
 	var summary := ""
 	for g in got: summary += "%d %s  " % [int(g.count), ContentDB.item_name(str(g.item))]
@@ -199,6 +206,7 @@ func on_action(id: String, data) -> void:
 		"build":
 			if submit({"type": "build_puppet", "blueprint": str(data)}).get("ok", false): flash(Tx.t("ui.workshop.the_puppet_stirs_and_sets"))
 		"collect": submit({"type": "collect_puppets"})
+		"repair_puppet": submit({"type": "repair_puppet"})
 		"restore":
 			var r4 := submit({"type": "restore_manual"})
 			if r4.get("ok", false): flash(str(r4.get("text", "")))

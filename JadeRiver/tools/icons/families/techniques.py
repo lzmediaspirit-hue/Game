@@ -805,6 +805,20 @@ def golden_body():
     return done(c)
 
 
+def sword_swarm():
+    """A ring of slim swords orbiting a bright heart, every point turned outward."""
+    c, mk, d = emblem('metal')
+    inner = c.circle(16, 16, 12.8)
+    c.put(c.ring(16, 16, 7.6, 0.7) & inner, mk, 'flat', base=2)
+    for k in range(6):
+        a = k * math.pi / 3 - math.pi / 2 + 0.35
+        x0, y0 = 16 + 4.2 * math.cos(a), 16 + 4.2 * math.sin(a)
+        x1, y1 = 16 + 11.6 * math.cos(a + 0.45), 16 + 11.6 * math.sin(a + 0.45)
+        mark(c, blade(c, x0, y0, x1, y1, 2.0, guard=False) & inner, mk)
+    c.put(c.circle(16, 16, 1.6), R['gold'], 'flat', base=4)
+    return done(c)
+
+
 TECHS = [
     ('flowing_palm', flowing_palm), ('jade_thrust', jade_thrust), ('cloudpiercing_stroke', cloudpiercing_stroke),
     ('reedcutter_slash', reedcutter_slash), ('riverstone_sweep', riverstone_sweep),
@@ -826,7 +840,7 @@ TECHS = [
     ('sense_lock', sense_lock), ('phantom_double', phantom_double), ('soul_search', soul_search),
     ('venom_needles', venom_needles), ('miasma_palm', miasma_palm),
     ('crimson_palm', crimson_palm), ('blood_river_slash', blood_river_slash), ('sanguine_lotus', sanguine_lotus),
-    ('golden_body', golden_body),
+    ('golden_body', golden_body), ('sword_swarm', sword_swarm),
 ]
 for _id, _fn in TECHS:
     register(FAM, _id, _fn, GROUP)

@@ -677,9 +677,10 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"loadout_swapped":
 			add_log(Tx.t("hud.loadout_swapped") % ContentDB.item_name(str(p.get("weapon", ""))), UiKit.PALE_GOLD)
 		"sword_released":
-			add_log(Tx.t("hud.sword_released"), UiKit.PALE_GOLD)
+			if int(p.get("swarm", 0)) > 0: add_log(Tx.t("hud.sword_swarm") % int(p.swarm), UiKit.PALE_GOLD)
+			else: add_log(Tx.t("hud.sword_released"), UiKit.PALE_GOLD)
 		"sword_returned":
-			if str(p.get("reason", "")) != "recalled": add_log(Tx.t("hud.sword_returned"), UiKit.MIST)
+			if str(p.get("reason", "")) != "recalled": add_log(Tx.t("hud.swarm_returned" if p.get("swarm", false) else "hud.sword_returned"), UiKit.MIST)
 		"sect_role_chosen":
 			if str(p.get("actor", "")) == Game.active_id:
 				add_log(Tx.t("hud.sect_role_chosen") % str(ContentDB.entry("sect_roles", str(p.sect)).get("variants", {}).get(str(p.role), {}).get("name", "")), UiKit.PALE_GOLD)

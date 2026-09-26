@@ -1061,6 +1061,47 @@
    "grade": "earth"
   },
   {
+   "id": "sword_swarm",
+   "name": "Sword Swarm",
+   "family": "jian",
+   "element": "metal",
+   "damage_type": "sword_swarm",
+   "mult": [
+    0.3,
+    0.3
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     100
+    ],
+    "depth": 30,
+    "alt": [
+     -30,
+     60
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 30,
+   "qi_cost": 30,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "sword",
+   "unlock": "heart_tempering_1",
+   "source": "sword_dao_5",
+   "desc": "Three swords of Qi (nine with the Nine Swords Array) orbit you for 12 s and strike the nearest foes in turn. One sword for each 10 Spirit. Use again to call them back.",
+   "action": "swing_3",
+   "icon": "sword_swarm",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "grade": "earth"
+  },
+  {
    "id": "flying_blades",
    "name": "Flying Blades",
    "family": "short_blade",

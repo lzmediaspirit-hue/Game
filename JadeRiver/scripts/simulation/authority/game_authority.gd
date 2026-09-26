@@ -171,6 +171,7 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"set_stability": progression.apply_stability(actor_id, str(e.get("word", "unstable")))
 			"add_purity_grade": progression.apply_purity_grade(actor_id, int(e.get("amount", 1)))
 			"throw": combat.apply_throw(actor_id, e)
+			"deploy_array": combat.deploy_array(actor_id, e)
 			"add_body_xp": progression.apply_body_xp(actor_id, float(e.amount), source)
 			"add_soul": progression.apply_soul(actor_id, float(e.amount))
 			"add_insight": progression.apply_insight(actor_id, str(e.dao), float(e.amount), source)

@@ -239,6 +239,24 @@ def flying_sword_vessel():
     return c
 
 
+def nine_sword_array():
+    """Nine slim swords fanned up out of a red lacquered case."""
+    c = Canvas(32)
+    for k in range(5):
+        x = 8.5 + k * 3.8
+        tip = (x + (k - 2) * 1.6, 3.5 + abs(k - 2) * 1.6)
+        b = c.poly([(x - 0.9, 20), (tip[0] - 0.9, tip[1] + 2.2), tip, (tip[0] + 0.9, tip[1] + 2.2), (x + 0.9, 20)])
+        c.put(b, R['cloudsteel'], 'ray', base=3, sep=True)
+        c.put(c.seg(x - 1.8, 19.5, x + 1.8, 19.5, 1.2), R['gold'], 'flat', base=3)
+    case = S.rounded_rect(c, 5, 20, 26, 28, 2)
+    c.put(case, R['red'], 'ray', base=2)
+    c.put(c.seg(6, 21.2, 25, 21.2, 0.8), R['gold'], 'flat', base=4)
+    c.put(S.diamond(c, 15.5, 24.8, 1.8, 1.8), R['gold'], 'flat', base=4)
+    c.outline()
+    c.glow('#9FE8FF', (110, 45))
+    return c
+
+
 def cloud_puff_vessel():
     c = Canvas(32)
     puff = c.circle(10, 19, 6) | c.circle(17, 15, 7.5) | c.circle(24, 19, 5.5) | c.rect(6, 19, 28, 24)
@@ -339,7 +357,7 @@ FURNACES = {
 
 for _id, _fn in (('practice_bell', practice_bell), ('bronze_bell', bronze_bell), ('little_pagoda', little_pagoda), ('bright_mirror', bright_mirror),
                  ('mountain_seal', mountain_seal), ('taming_cauldron', taming_cauldron), ('wisp_banner', wisp_banner),
-                 ('sealing_gourd', sealing_gourd)):
+                 ('sealing_gourd', sealing_gourd), ('nine_sword_array', nine_sword_array)):
     register(FAM, _id, _fn, 'treasures')
 for _id, _fn in (('iron_needles', iron_needles), ('flying_knives', flying_knives), ('thunderclap_pellet', thunderclap_pellet)):
     register(FAM, _id, _fn, 'throwables')

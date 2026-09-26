@@ -2838,6 +2838,11 @@
      "item": "bone_strengthening_pill"
     },
     {
+     "item": "recipe_scroll",
+     "learn": "nine_sword_array",
+     "price": 60
+    },
+    {
      "item": "thunderhorn_stew",
      "requires": {
       "all": [

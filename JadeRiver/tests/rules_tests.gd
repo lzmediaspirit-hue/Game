@@ -79,6 +79,7 @@ func _main() -> void:
 	soul_poison_suite()
 	blood_buddhist_suite()
 	sect_roles_suite()
+	swarm_array_puppet_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -878,6 +879,174 @@ func sect_roles_suite() -> void:
 	c.professions = prof_before
 	c.cultivator.techniques_known = known_before
 	c.cultivator.technique_slots[0] = slot_before
+	Game.combat.refresh_stats(c.id)
+
+
+# ------------------------------------------------------------------ S47/S48 v1.1: the sword swarm, Array Plates in a fight, the combat puppet
+func swarm_array_puppet_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var st: ActorState = Game.actor_state(c.id)
+	Game.world.apply_teleport(c.id, "wp_west")
+	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear"]: Game.combat.cure_status(c.id, sid)
+	var daos_before: Dictionary = c.cultivator.daos.duplicate(true)
+	var known_before: Array = c.cultivator.techniques_known.duplicate()
+	var meridians_before: Dictionary = c.cultivator.meridians.duplicate()
+	var treasures_before: Array = c.inventory.treasures.duplicate()
+	var lv := ProgressionRules.level(c) + 12
+	var heard := {"released": 0, "returned": "", "deployed": 0, "faded": 0}
+	var listen := func(n: String, p: Dictionary):
+		if n == "sword_released" and int(p.get("swarm", 0)) > 0: heard.released = int(p.swarm)
+		if n == "sword_returned" and p.get("swarm", false): heard.returned = str(p.get("reason", ""))
+		if n == "array_deployed": heard.deployed = int(heard.deployed) + 1
+		if n == "array_faded": heard.faded = int(heard.faded) + 1
+	GameEvents.event.connect(listen)
+	# The swarm: 3 swords at Sword Dao 5, 9 with the Nine Swords Array, 36 with it at tier 6; one sword per 10 Spirit.
+	c.cultivator.meridians["spirit"] = 100
+	Game.combat.refresh_stats(c.id)
+	var cap := int(floor(c.stats.value("spirit") / 10.0))
+	c.cultivator.daos["sword"] = {"tier": 4, "insight": 0.0}
+	check(Game.combat.swarm_count(c, false) == 0, "no swarm below Sword Dao 5")
+	c.cultivator.daos["sword"] = {"tier": 5, "insight": 0.0}
+	check(Game.combat.swarm_count(c, false) == mini(3, cap), "Sword Dao 5: three swords (%d)" % Game.combat.swarm_count(c, false))
+	check(Game.combat.swarm_count(c, true) == mini(9, cap), "released from the Nine Swords Array: nine (%d)" % Game.combat.swarm_count(c, true))
+	c.inventory.treasures[0] = "nine_sword_array"
+	check(Game.combat.swarm_count(c, false) == mini(9, cap), "the Array set in a Treasure slot lifts the Dao swarm to nine")
+	c.cultivator.daos["sword"] = {"tier": 6, "insight": 0.0}
+	check(Game.combat.swarm_count(c, false) == mini(36, cap) and cap < 36, "Original Application: 36, held to what Spirit can steer (%d of %d)" % [Game.combat.swarm_count(c, false), cap])
+	c.inventory.treasures = treasures_before.duplicate()
+	c.cultivator.meridians["spirit"] = 0
+	Game.combat.refresh_stats(c.id)
+	var low := maxi(1, int(floor(c.stats.value("spirit") / 10.0)))
+	check(low < cap and Game.combat.swarm_count(c, true) == mini(36, low), "less Spirit steers fewer swords (%d)" % Game.combat.swarm_count(c, true))
+	c.cultivator.meridians["spirit"] = 100
+	Game.combat.refresh_stats(c.id)
+	# Sword Dao tier 5 teaches the Sword Swarm.
+	c.cultivator.techniques_known.erase("sword_swarm")
+	c.cultivator.daos["sword"] = {"tier": 0, "insight": 0.0}
+	var need := 0.0
+	for t in 400:
+		if ProgressionRules.dao_tier_for(need) >= 5: break
+		need += 50.0
+	Game.progression.apply_insight(c.id, "sword", need + 1.0, "teacher:test")
+	check(c.cultivator.techniques_known.has("sword_swarm"), "Sword Dao tier 5 teaches the Sword Swarm (tier %d)" % int(c.cultivator.daos.sword.tier))
+	# The technique toggles the swarm, pays QI, and the swords strike a foe nearby on their own.
+	c.cultivator.daos["sword"] = {"tier": 5, "insight": 0.0}
+	var foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(160, 0), lv)
+	foe.pools.max_hp = 999999.0
+	foe.pools.hp = 999999.0
+	foe.stats["evasion"] = 0.0
+	c.pools.qi = c.pools.max_qi
+	c.pools.cooldowns.erase("tech:sword_swarm")
+	var qi0: float = c.pools.qi
+	var sw := Game.combat.toggle_sword_swarm(c, ContentDB.entry("techniques", "sword_swarm"))
+	GameEvents.flush()
+	check(sw.get("ok", false) and Game.combat.swarm_of(c.id) == mini(3, cap) and heard.released == Game.combat.swarm_of(c.id) and c.pools.qi < qi0,
+		"the Sword Swarm rises for QI (%s)" % str(sw))
+	for i in 50:
+		Game.tick(0.05)
+		foe.plane = st.plane + Vector2(160, 0)
+	check(foe.pools.hp < 999999.0, "the swarm strikes a foe nearby without a button (%.0f lost)" % (999999.0 - foe.pools.hp))
+	var off := Game.combat.toggle_sword_swarm(c, ContentDB.entry("techniques", "sword_swarm"))
+	GameEvents.flush()
+	check(off.get("ok", false) and Game.combat.swarm_of(c.id) == 0 and heard.returned == "recalled", "pressed again, the swords come home")
+	Game.combat.start_swarm(c, true, 0.5)
+	for i in 14: Game.tick(0.05)
+	GameEvents.flush()
+	check(Game.combat.swarm_of(c.id) == 0 and heard.returned == "time", "the swarm returns when its time is up")
+	Game.inventory.apply_add(c.id, "nine_sword_array", 1, "test")
+	Unlocks.force_unlock(c.id, "treasures")
+	c.inventory.treasures[0] = "nine_sword_array"
+	c.pools.qi = c.pools.max_qi
+	c.pools.cooldowns.clear()
+	var tr := Game.submit({"type": "use_treasure", "slot": 0})
+	check(tr.get("ok", false) and Game.combat.swarm_of(c.id) == mini(9, cap), "the Nine Swords Array, released, orbits nine swords (%s)" % str(tr))
+	Game.combat._end_swarm(c, "recalled")
+	c.inventory.treasures = treasures_before.duplicate()
+	Game.inventory.apply_remove(c.id, "nine_sword_array", 1, "test")
+	c.cultivator.daos["sword"] = daos_before.get("sword", {"tier": 0, "insight": 0.0})
+	# Array Plates: each lays an array at your feet; the Formation Dao lengthens them and sharpens the killing array.
+	c.cultivator.daos["formation"] = {"tier": 0, "insight": 0.0}
+	Game.combat.arrays.clear()
+	var def0: float = c.stats.value("physical_defense")
+	Game.inventory.apply_add(c.id, "array_plate", 1, "test")
+	var ins0 := float(c.cultivator.daos.formation.get("insight", 0.0))
+	var u := Game.submit({"type": "use_item", "index": c.inventory.first_index("array_plate")})
+	GameEvents.flush()
+	check(u.get("ok", false) and Game.combat.arrays.size() == 1 and str(Game.combat.arrays[0].kind) == "guard" and near(float(Game.combat.arrays[0].t), 12.0, 0.01)
+		and int(heard.deployed) == 1, "an Array Plate lays a guarding array for 12 s (%s)" % str(u))
+	check(float(c.cultivator.daos.formation.get("insight", 0.0)) > ins0, "each plate teaches the Formation Dao a little")
+	for i in 3: Game.tick(0.05)
+	check(c.stats.value("physical_defense") > def0 * 1.1, "inside its ring, Physical Defense rises (%.0f -> %.0f)" % [def0, c.stats.value("physical_defense")])
+	Game.combat.arrays[0].t = 0.05
+	for i in 3: Game.tick(0.05)
+	GameEvents.flush()
+	check(Game.combat.arrays.is_empty() and int(heard.faded) == 1, "the array fades when its time is up")
+	var k: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(60, 0), lv)
+	k.pools.max_hp = 999999.0
+	k.pools.hp = 999999.0
+	k.stats["evasion"] = 0.0
+	Game.combat.deploy_array(c.id, {"array": "killing", "radius": 160, "duration": 10, "mult": 0.5})
+	var m0 := float(Game.combat.arrays[-1].mult)
+	for i in 25:
+		Game.tick(0.05)
+		k.plane = st.plane + Vector2(60, 0)
+	check(k.pools.hp < 999999.0, "a killing array wounds every foe inside it (%.0f lost)" % (999999.0 - k.pools.hp))
+	Game.combat.deploy_array(c.id, {"array": "binding", "radius": 160, "duration": 10, "slow": 0.4})
+	for i in 12:
+		Game.tick(0.05)
+		k.plane = st.plane + Vector2(60, 0)
+	check(k.pools.has_status("slow"), "a binding array slows every foe inside it")
+	k.alive = false
+	Game.combat.arrays.clear()
+	c.cultivator.daos["formation"] = {"tier": 2, "insight": 0.0}
+	Game.combat.deploy_array(c.id, {"array": "killing", "radius": 160, "duration": 10, "mult": 0.5})
+	check(near(float(Game.combat.arrays[-1].mult), m0 * 1.4, 0.001) and near(float(Game.combat.arrays[-1].t), 11.0, 0.01),
+		"Formation Dao 2: the killing array hits 40% harder and holds a tenth longer")
+	Game.world.apply_teleport(c.id, "sf_artisan_row")
+	GameEvents.flush()
+	check(Game.combat.arrays.is_empty(), "arrays stay in the room they were laid in")
+	c.cultivator.daos["formation"] = daos_before.get("formation", {"tier": 0, "insight": 0.0})
+	# The combat puppet: built at the tinkerer's bench, takes a pet slot, one only; a construct that is repaired, not healed.
+	var pets_before: Array = c.pets.duplicate(true)
+	var active_before: String = c.active_pet
+	var party_before: Array = c.party_pets.duplicate()
+	c.pets = c.pets.filter(func(p): return str(p.species) != "combat_puppet")
+	Unlocks.force_unlock(c.id, "puppetry")
+	Game.world.apply_teleport(c.id, "sf_artisan_row")
+	for it in [["spirit_wood", 8], ["puppet_core", 2], ["jadeiron", 4]]: Game.inventory.apply_add(c.id, str(it[0]), int(it[1]), "test")
+	var wood0: int = c.inventory.count("spirit_wood")
+	var b := Game.submit({"type": "build_puppet", "blueprint": "combat_puppet"})
+	var pup := {}
+	for p in c.pets:
+		if str(p.species) == "combat_puppet": pup = p
+	check(b.get("ok", false) and not pup.is_empty() and PetAuthority.is_construct(pup) and str(pup.stage) == "adult" and (pup.traits as Array).is_empty()
+		and c.inventory.count("spirit_wood") == wood0 - 8, "the tinkerer builds a combat puppet into a pet slot (%s)" % str(b))
+	for it in [["spirit_wood", 8], ["puppet_core", 2], ["jadeiron", 4]]: Game.inventory.apply_add(c.id, str(it[0]), int(it[1]), "test")
+	check(str(Game.submit({"type": "build_puppet", "blueprint": "combat_puppet"}).get("reason", "")) == "one_puppet", "only one combat puppet")
+	Game.inventory.apply_add(c.id, "roast_fish", 1, "test")
+	check(str(Game.submit({"type": "feed_pet", "pet": str(pup.uid), "item": "roast_fish"}).get("reason", "")) == "construct", "a puppet does not eat")
+	check(str(Game.submit({"type": "set_pet_role", "pet": str(pup.uid), "role": "gatherer"}).get("reason", "")) == "construct", "a puppet only fights")
+	check(Game.pets.breed_partners(c, pup).is_empty() and not Game.pets.can_evolve(c, pup), "a puppet neither breeds nor grows")
+	pup.wounded = true
+	Game.pets.heal_wound(c.id)
+	check(pup.wounded, "a Beast Revival Pill or rest does not mend a puppet")
+	for it in [["spirit_wood", c.inventory.count("spirit_wood")]]: Game.inventory.apply_remove(c.id, str(it[0]), int(it[1]), "test")
+	check(str(Game.submit({"type": "repair_puppet"}).get("reason", "")) == "materials", "a repair needs spirit wood")
+	Game.inventory.apply_add(c.id, "spirit_wood", 2, "test")
+	var rp := Game.submit({"type": "repair_puppet"})
+	check(rp.get("ok", false) and not pup.wounded and c.inventory.count("spirit_wood") == 0, "the tinkerer repairs it for two spirit wood (%s)" % str(rp))
+	check(str(Game.submit({"type": "repair_puppet"}).get("reason", "")) == "whole", "a whole puppet needs no repair")
+	for it in ["puppet_core", "jadeiron", "roast_fish"]: Game.inventory.apply_remove(c.id, it, c.inventory.count(it), "test")
+	c.pets = pets_before
+	c.active_pet = active_before
+	c.party_pets = party_before
+	Game.world.apply_teleport(c.id, "wp_west")
+	GameEvents.event.disconnect(listen)
+	c.cultivator.daos = daos_before
+	c.cultivator.techniques_known = known_before
+	c.cultivator.meridians = meridians_before
+	c.inventory.treasures = treasures_before
 	Game.combat.refresh_stats(c.id)
 
 # ------------------------------------------------------------------ S47 natal treasure, wardrobe, blood-drop, rogue cultivators

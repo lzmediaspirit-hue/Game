@@ -86,6 +86,9 @@ def build():
         tech("sword_release", "heart_tempering_1", "sword_dao_3", "jian", "metal", "sword_release", (0.60, 0.60), 1, 1, 12, 20,
              "The jian leaves your hand and strikes on its own for 8 s (60% a strike, 1.5 a second); your hands fight with Qi palms. Use again to call it back.",
              release_s=8.0, strikes_per_s=1.5, seek_radius=420),
+        # S47 the sword swarm: the Sword Dao's fifth tier. Qi-formed swords orbit you and strike in turn (a toggle).
+        tech("sword_swarm", "heart_tempering_1", "sword_dao_5", "jian", "metal", "sword_swarm", (0.30, 0.30), 1, 1, 30, 30,
+             "Three swords of Qi (nine with the Nine Swords Array) orbit you for 12 s and strike the nearest foes in turn. One sword for each 10 Spirit. Use again to call them back."),
         tech("flying_blades", "qi_unfurling_1", "after_the_cleansing", "short_blade", "metal", "qi", (0.50, 0.70), 3, 3, 5, 12,
              "Three seeking blades.", projectile={"speed": 600, "range": 360, "count": 3, "seek": True}),
         tech("earthshaker_wave", "qi_unfurling_1", "after_the_cleansing", "staff", "earth", "qi", (1.10, 1.40), 1, 8, 6, 14,
@@ -186,6 +189,8 @@ def build():
             row["tiers"][2] = "Linked techniques gain their tier-3 effect; learn Sword Release"
             row["effects"] = [dict(e) for e in row["effects"]]
             row["effects"][2]["learn_technique"] = "sword_release"
+            row["tiers"][4] = "Tier-5 forms of linked techniques; learn Sword Swarm"
+            row["effects"][4]["learn_technique"] = "sword_swarm"
         daos.append(row)
     for d in ["water", "wood", "earth", "wind", "fire", "metal", "thunder"]:
         daos.append(dict({"id": d, "family": "element", "valley_cap": 5 if d in ("water", "wood", "earth", "wind") else 2}, **element_dao))

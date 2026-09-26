@@ -9,7 +9,7 @@ extends Authority
 ## puppets [{blueprint, collected_utc}], healing {day, treated}, teaching {until_utc}.
 
 func intents() -> Array:
-	return ["appraise_item", "place_formation", "remove_formation", "treat_patient", "build_puppet", "collect_puppets",
+	return ["appraise_item", "place_formation", "remove_formation", "treat_patient", "build_puppet", "repair_puppet", "collect_puppets",
 		"restore_manual", "teach_disciple", "inscribe"]
 
 func subscribe() -> void:
@@ -24,6 +24,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"remove_formation": return remove_formation(c, int(intent.get("index", -1)))
 		"treat_patient": return treat_patient(c)
 		"build_puppet": return build_puppet(c, str(intent.get("blueprint", "")))
+		"repair_puppet": return repair_puppet(c)
 		"collect_puppets": return collect_puppets(c)
 		"restore_manual": return restore_manual(c)
 		"teach_disciple": return teach(c, int(intent.get("index", -1)), str(intent.get("dao", "")))
@@ -120,6 +121,7 @@ func place_formation(c, type: String) -> Dictionary:
 	if game.room_rt == null or game.room_rt.def.get("type", "") == "interior": return fail("bad_room", {"text": Tx.t("sim.workshop.formations_need_open_ground")})
 	var fuel := str(bp.get("fuel", "fuel_crystal_low"))
 	var need := int(bp.get("nodes", 3)) * int(bp.get("fuel_per_node", 1))
+	var ftier := int(c.cultivator.daos.get("formation", {}).get("tier", 0))
 	if c.inventory.count(fuel) < need: return fail("no_fuel", {"text": Tx.t("sim.workshop.needs") % [need, ContentDB.item_name(fuel)]})
 	var room := str(c.position.get("room", ""))
 	var live := active_formations(c)
@@ -127,7 +129,9 @@ func place_formation(c, type: String) -> Dictionary:
 		if str(f.type) == type and str(f.room) == room: return fail("already_placed", {"text": Tx.t("sim.workshop.that_formation_already_stands_here")})
 	if live.size() >= int(prof("formations").get("max_active", 2)): return fail("too_many", {"text": Tx.t("sim.workshop.you_can_keep_formations_at") % int(prof("formations").get("max_active", 2))})
 	game.inventory.apply_remove(c.id, fuel, need, "formation")
-	var hours := minf(float(bp.get("max_hours", 24)), float(need) * float(bp.get("hours_per_crystal", 1.0)))
+	# S48 the Formation Dao: from tier 1 a formation holds a tenth longer.
+	var hours := minf(float(bp.get("max_hours", 24)), float(need) * float(bp.get("hours_per_crystal", 1.0))) * (1.1 if ftier >= 1 else 1.0)
+	game.progression.apply_insight(c.id, "formation", 5.0, "formation_placed")
 	live.append({"type": type, "room": room, "until_utc": Clock.now_utc() + hours * 3600.0})
 	c.crafting.formations = live
 	_apply_room_buffs(c)
@@ -188,12 +192,40 @@ func blueprint(id: String) -> Dictionary:
 		if str(b.id) == id: return b
 	return {}
 
+## A combat puppet's Grievous Wound (three knockouts) is mended at the tinkerer with spirit wood, not pills.
+func repair_puppet(c) -> Dictionary:
+	var p := prof("puppetry")
+	if not npc_here(c, p.get("npcs", [])): return fail("not_here", {"text": Tx.t("sim.workshop.build_puppets_at_the_tinkerer")})
+	var b := blueprint("combat_puppet")
+	var pup := {}
+	for pp in c.pets:
+		if PetAuthority.is_construct(pp): pup = pp
+	if pup.is_empty(): return fail("no_puppet")
+	if not pup.get("wounded", false): return fail("whole", {"text": Tx.t("sim.workshop.puppet_whole")})
+	for inp in b.get("repair", []):
+		if c.inventory.count(str(inp.item)) < int(inp.count): return fail("materials", {"text": Tx.t("sim.workshop.needs") % [int(inp.count), ContentDB.item_name(str(inp.item))]})
+	for inp in b.get("repair", []): game.inventory.apply_remove(c.id, str(inp.item), int(inp.count), "puppet_repair")
+	game.pets.heal_wound(c.id, str(pup.uid), true)
+	return ok()
+
 func build_puppet(c, id: String) -> Dictionary:
 	var p := prof("puppetry")
 	if not Unlocks.is_unlocked(c.id, "puppetry"): return fail("locked", {"text": Unlocks.locked_text("puppetry")})
 	if not npc_here(c, p.get("npcs", [])): return fail("not_here", {"text": Tx.t("sim.workshop.build_puppets_at_the_tinkerer")})
 	var b := blueprint(id)
 	if b.is_empty(): return fail("unknown_blueprint")
+	# S48: the combat puppet joins your animals (it takes a pet slot); only one, from Cloud Stride 5.
+	if b.has("pet"):
+		for pp in c.pets:
+			if str(pp.species) == str(b.pet): return fail("one_puppet", {"text": Tx.t("sim.workshop.one_combat_puppet")})
+		for inp in b.get("inputs", []):
+			if c.inventory.count(str(inp.item)) < int(inp.count): return fail("materials", {"text": Tx.t("sim.workshop.needs") % [int(inp.count), ContentDB.item_name(str(inp.item))]})
+		for inp in b.get("inputs", []): game.inventory.apply_remove(c.id, str(inp.item), int(inp.count), "puppet")
+		game.pets.apply_grant(c.id, str(b.pet))
+		game.progression.apply_insight(c.id, "puppetry", 5.0, "puppet")
+		_used(c, "puppet_built", "puppetry", float(p.get("xp_per_use", 0)))
+		log_line(c.id, Tx.t("sim.workshop.built_it_sets_to_work") % str(b.get("name", id)), "craft")
+		return ok({"pet": str(b.pet)})
 	var puppets: Array = _state(c, "puppets", [])
 	if puppets.size() >= int(p.get("max_puppets", 2)): return fail("too_many", {"text": Tx.t("sim.workshop.you_can_run_puppets") % int(p.get("max_puppets", 2))})
 	for inp in b.get("inputs", []):

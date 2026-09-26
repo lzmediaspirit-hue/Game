@@ -3536,6 +3536,17 @@
    "treasure": "sealing_gourd"
   },
   {
+   "id": "nine_sword_array",
+   "name": "Nine Sword Array",
+   "type": "treasure_art",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 1,
+   "icon": "nine_sword_array",
+   "desc": "Nine slim swords in a lacquered case. Released, they orbit you for 12 s and strike on their own; set in a Treasure slot it also lets a Sword Dao swarm number nine. One sword for each 10 Spirit.",
+   "treasure": "nine_sword_array"
+  },
+  {
    "id": "elder_hus_talisman",
    "name": "Elder Hus Talisman",
    "type": "treasure_art",
@@ -4251,15 +4262,52 @@
    "ilv": 27,
    "stack": 20,
    "icon": "array_plate",
-   "desc": "A portable one-use protection formation: +15% defence for two minutes.",
+   "desc": "A guarding array for 12 s: while you stand inside its ring, +15% Physical Defense.",
    "use": [
     {
-     "kind": "add_modifier",
-     "stat": "physical_defense",
-     "op": "pct_add",
-     "value": 0.15,
-     "duration": 120,
-     "source": "array_plate"
+     "kind": "deploy_array",
+     "array": "guard",
+     "radius": 150,
+     "duration": 12,
+     "defense": 0.15
+    }
+   ]
+  },
+  {
+   "id": "killing_array_plate",
+   "name": "Killing Array Plate",
+   "type": "formation",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 20,
+   "icon": "killing_array_plate",
+   "desc": "A killing array for 10 s: every foe inside its ring takes 50% of your Qi Attack each second.",
+   "use": [
+    {
+     "kind": "deploy_array",
+     "array": "killing",
+     "radius": 160,
+     "duration": 10,
+     "mult": 0.5
+    }
+   ]
+  },
+  {
+   "id": "binding_array_plate",
+   "name": "Binding Array Plate",
+   "type": "formation",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 20,
+   "icon": "binding_array_plate",
+   "desc": "A binding array for 10 s: every foe inside its ring is slowed by 40%.",
+   "use": [
+    {
+     "kind": "deploy_array",
+     "array": "binding",
+     "radius": 160,
+     "duration": 10,
+     "slow": 0.4
     }
    ]
   },

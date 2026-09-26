@@ -5,6 +5,54 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V9d1 · The sword swarm, Array Plates in a fight, and the combat puppet (S47, S48, v1.1)
+- **The Sword Swarm** is the Sword Dao's fifth tier. It is a toggle technique (30 QI, 30 s cooldown).
+  - Swords of Qi orbit you for 12 s and take turns striking the nearest foe within 420. There is one strike every
+    1.2 s divided by the number of swords, each at 0.9 ÷ √n of your attack, so more swords add damage but not in
+    proportion.
+  - **How many swords:** 3 at Sword Dao 5; 9 with the **Nine Swords Array** (released, or set in a Treasure slot);
+    36 with the Array at Original Application (tier 6).
+  - **Spirit is the control demand:** you can steer one sword for each 10 Spirit.
+  - The **Nine Swords Array** is a new treasure (60 QI, 45 s cooldown; the swarm lasts 12 s). Its recipe is a
+    heaven-grade smithing recipe for an expert smith. The scroll is sold at the Ironroot Clan Forge for 60 spirit
+    stones.
+  - The swords orbit your chest, riding or on foot. The near half of the ring is drawn over the body.
+  - **Deviation:** the swarm's swords are the flying sword's seeking projectiles, not one pet-style actor per
+    sword. This keeps 36 swords cheap and uses the Sword Release rules already tested.
+- **Array Plates in a fight.** A plate from the bag lays an array at your feet for a few seconds. Arrays stay in
+  the room they were laid in.
+  - **Guarding array** (the old Array Plate): +15% Physical Defense while you stand inside its ring, for 12 s.
+  - **Killing array** (new): every foe inside takes 50% of your Qi Attack each second, for 10 s.
+  - **Binding array** (new): every foe inside is slowed by 40%, for 10 s.
+  - **The Formation Dao scales them.** From tier 1 an array lasts 10% longer, and each tier makes the killing array
+    20% sharper. Each plate laid teaches the Formation Dao 3 insight.
+  - The two new plates are formations recipes: a blank plate and a formation stone, plus two ore dust (killing) or
+    two willow moss (binding). *Carry a Wall* teaches all three plates.
+  - Each array is drawn in its plate's colour with its own centre: trigram bars (guarding), four blades pointing
+    inward (killing) or a turning chain (binding).
+  - New events: `array_deployed` and `array_faded` (world FX and sound).
+- **Formations placed in the world:** from Formation Dao tier 1 they hold 10% longer, and each placement teaches the
+  Dao 5 insight.
+- **The combat puppet** (S48; from Cloud Stride 5, when puppetry opens).
+  - Tinkerer Yu builds it at the Stoneford bench from 8 spirit wood, 2 puppet cores and 4 jadeiron. You can own only
+    one.
+  - It takes a pet slot and fights beside you. It is a construct: it is built full-grown, and it has no traits,
+    bloodline, hunger or bond. It cannot breed, fuse, evolve, break through or devour cores, and it only takes the
+    combat role.
+  - Three knockouts break it, as they wound an animal. A Beast Revival Pill or a rest does not mend it; the
+    tinkerer repairs it for 2 spirit wood (the new Repair button on the Puppets tab).
+  - The Spirit Animals page shows it as a Construct, with what it can and cannot do, in place of food, traits and
+    growth.
+- Four new icons: the killing and binding plates, the Nine Swords Array and the Sword Swarm.
+- The new rules suite covers:
+  - the swarm: its counts, the Spirit cap, Sword Dao 5 teaching it, the toggle and its QI, strikes without a
+    button, recall, the time running out, and the treasure release;
+  - the arrays: the guarding defence, the killing damage, the binding slow, the Formation Dao scaling, fading, and
+    leaving the room;
+  - the puppet: the build, one only, no food, only the combat role, no breeding or growth, not mended by pills,
+    and the paid repair.
+- Debug flags: `--swarm` and `--arrays`.
+
 ### V9c3 · Sect role variants and the sect tree (S48, v0.9)
 - The Sect page has a new **Role** tab, open from Outer Disciple.
 - **Signature lines.** Each sect has one, and each line has a damage and a support variant. The first choice is

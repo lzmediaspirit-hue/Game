@@ -32,6 +32,8 @@ var ally_hots: Dictionary = {}       # ally uid -> [{per_s, left}]: heals over t
 var decoys: Dictionary = {}          # actor -> {x, y, alt, t, hits, max_hits, radius}: Phantom Double's illusion (S48 Soul line; not saved)
 var searched: Dictionary = {}        # enemy uid (text) -> {actor, t}: a Soul Search mark; its death gives up memories and a hidden drop (S48)
 var poison_touch: Dictionary = {}    # enemy uid -> sim time the Poison Body last touched it (S48 Poison path)
+var arrays: Array = []               # quick-deployed Array Plates in this room: {actor, kind, x, y, radius, t, tick, ...} (S48)
+var sword_swarm: Dictionary = {}     # actor -> {t, n, next, i}: the sword swarm orbiting you (S47 v1.1; not saved)
 var blood_essence: Dictionary = {}   # actor -> {v, t}: the Blood path's meter, fed by kills (S48; transient, not saved)
 
 func subscribe() -> void:
@@ -503,6 +505,7 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	if tid == null or str(tid) == "": return fail("empty_slot")
 	var t := ContentDB.entry("techniques", str(tid))
 	if str(t.get("damage_type", "")) == "sword_release": return toggle_sword_release(c)
+	if str(t.get("damage_type", "")) == "sword_swarm": return toggle_sword_swarm(c, t)
 	var tl := timeline(c.id)
 	if is_busy(c.id): return fail("busy")
 	if climbing(c.id) and not t.get("on_climb", false): return fail("climbing")
@@ -671,6 +674,7 @@ func tick(delta: float) -> void:
 		_tick_glide(c, delta)
 		_tick_treasures(c, delta)
 		_tick_sword(c, delta)
+		_tick_swarm(c, delta)
 		_tick_hots(c, delta)
 		_tick_melody(c, delta)
 		_tick_blood(c, delta)
@@ -679,6 +683,7 @@ func tick(delta: float) -> void:
 	_tick_projectiles(delta)
 	_tick_ally_hots(delta)
 	_tick_decoys(delta)
+	_tick_arrays(delta)
 	for uid in searched.keys():
 		searched[uid].t = float(searched[uid].t) - delta
 		if float(searched[uid].t) <= -2.0: searched.erase(uid)   # a little grace: the death is judged after the blow
@@ -1073,6 +1078,7 @@ func _poison_body(c, e: EnemyState) -> void:
 	_apply_status_to_enemy(e, {"id": "poison", "power": float(cfg.get("power", 0.02)), "remaining": float(cfg.get("duration_s", 4.0)), "source": c.id})
 
 func _clear_room_marks() -> void:
+	arrays.clear()
 	searched.clear()
 	poison_touch.clear()
 	for aid in decoys.keys():
@@ -1675,6 +1681,138 @@ func _tick_ally_hots(delta: float) -> void:
 		if list.is_empty(): ally_hots.erase(uid)
 		else: ally_hots[uid] = list
 
+# ------------------------------------------------------------------ Array Plates in a fight (S48)
+## An Array Plate laid at your feet: a guarding array (defence while you stand in it), a killing array (Qi damage to
+## every foe inside each second) or a binding array (foes inside slowed). The Formation Dao lengthens them (+10% from
+## tier 1) and sharpens the killing array (+20% a tier); each plate laid teaches it a little.
+func deploy_array(actor_id: String, e: Dictionary) -> void:
+	var c = game.character(actor_id)
+	if c == null or game.room_rt == null: return
+	var pv := player_view(c)
+	var tier := _dao_tier(c, "formation")
+	var secs := float(e.get("duration", 10)) * (1.1 if tier >= 1 else 1.0)
+	var a := {"actor": c.id, "kind": str(e.get("array", "guard")), "x": float(pv.x), "y": float(pv.y), "radius": float(e.get("radius", 150)),
+		"t": secs, "tick": 0.0, "mult": float(e.get("mult", 0.5)) * (1.0 + 0.2 * tier), "slow": float(e.get("slow", 0.4)),
+		"defense": float(e.get("defense", 0.15))}
+	arrays.append(a)
+	game.progression.apply_insight(c.id, "formation", 3.0, "array_plate")
+	emit("array_deployed", {"actor": c.id, "kind": a.kind, "x": a.x, "y": a.y, "radius": a.radius, "duration": secs})
+
+func arrays_inside(pos: Vector2, kind: String) -> Array:
+	return arrays.filter(func(a): return str(a.kind) == kind and pos.distance_to(Vector2(float(a.x), float(a.y))) <= float(a.radius))
+
+func _tick_arrays(delta: float) -> void:
+	if arrays.is_empty(): return
+	for a in arrays.duplicate():
+		a.t = float(a.t) - delta
+		if float(a.t) <= 0.0:
+			arrays.erase(a)
+			emit("array_faded", {"actor": str(a.actor), "kind": str(a.kind)})
+			continue
+		a.tick = float(a.tick) - delta
+		if float(a.tick) > 0.0: continue
+		var c = game.character(str(a.actor))
+		if c == null or game.room_rt == null: continue
+		var here := Vector2(float(a.x), float(a.y))
+		match str(a.kind):
+			"killing":
+				a.tick = 1.0
+				var pv := player_view(c)
+				var atk := {"damage_type": "qi", "element": "none", "mult": [float(a.mult), float(a.mult)], "range": [0.95, 1.05], "source": "array:killing",
+					"dao_tier": _dao_tier(c, "formation")}
+				for e in _enemies_within(here, float(a.radius)):
+					_player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
+			"binding":
+				a.tick = 0.5
+				for e in _enemies_within(here, float(a.radius)):
+					if not e.pools.steadfast.has("slow"): _apply_status_to_enemy(e, {"id": "slow", "power": float(a.slow), "remaining": 1.0, "source": c.id})
+			_:
+				a.tick = 0.5
+				var st: ActorState = game.actor_state(c.id)
+				if st != null and st.plane.distance_to(here) <= float(a.radius):
+					c.stats.add_modifier({"stat": "physical_defense", "op": "pct_add", "value": float(a.defense), "duration": 0.8, "source": "array:guard"})
+					refresh_stats(c.id)
+
+# ------------------------------------------------------------------ the sword swarm (S47 v1.1)
+## How many swords would answer: 3 at Sword Dao 5, 9 with the Nine Swords Array (released, or set in a Treasure
+## slot), 36 with it at Original Application (tier 6). Spirit is the control demand: one sword for each 10 Spirit.
+func swarm_count(c, with_treasure: bool) -> int:
+	var cfg: Dictionary = ContentDB.stat_const("sword_swarm", {})
+	var counts: Array = cfg.get("counts", [3, 9, 36])
+	var tier := _dao_tier(c, "sword")
+	var has_set: bool = with_treasure or "nine_sword_array" in c.inventory.treasures
+	var n := 0
+	if tier >= 5: n = int(counts[0])
+	if has_set: n = int(counts[1])
+	if has_set and tier >= 6: n = int(counts[2])
+	if n <= 0: return 0
+	var cap := maxi(1, int(floor(c.stats.value("spirit") / float(cfg.get("spirit_per_sword", 10)))))
+	return mini(n, cap)
+
+## The Sword Swarm technique: a toggle like Sword Release, paid in QI.
+func toggle_sword_swarm(c, t: Dictionary) -> Dictionary:
+	if sword_swarm.has(c.id):
+		_end_swarm(c, "recalled")
+		return ok({"swarm": 0})
+	var reason := can_act(c)
+	if reason != "": return fail(reason)
+	if c.pools.cooldown("tech:sword_swarm") > 0.0: return fail("cooldown")
+	var cost := technique_cost(c, t)
+	if c.pools.max_qi <= 0.0 or c.pools.qi < cost: return fail("no_qi")
+	var r := start_swarm(c, false, float(ContentDB.stat_const("sword_swarm", {}).get("duration_s", 12.0)))
+	if not r.get("ok", false): return r
+	apply_resource_change(c.id, "qi", -cost, "technique")
+	c.pools.cooldowns["tech:sword_swarm"] = float(t.get("cooldown_s", 30))
+	emit("technique_used", {"actor": c.id, "technique": "sword_swarm", "hits": 0, "targets": 0})
+	return r
+
+func start_swarm(c, from_treasure: bool, secs: float) -> Dictionary:
+	var n := swarm_count(c, from_treasure)
+	if n <= 0: return fail("locked", {"text": Tx.t("sim.combat.swarm_locked")})
+	if sword_released.has(c.id): _return_sword(c, "swarm")
+	sword_swarm[c.id] = {"t": secs, "n": n, "next": 0.2, "i": 0}
+	emit("sword_released", {"actor": c.id, "weapon": "swarm", "swarm": n})
+	return ok({"swarm": n})
+
+func swarm_of(actor_id: String) -> int:
+	return int(sword_swarm.get(actor_id, {}).get("n", 0))
+
+func _end_swarm(c, why: String) -> void:
+	if not sword_swarm.has(c.id): return
+	sword_swarm.erase(c.id)
+	emit("sword_returned", {"actor": c.id, "reason": why, "swarm": true})
+
+## Each sword strikes in turn: one strike every 1.2 s / n, at 0.9 / sqrt(n) of the jian's attack (so more swords
+## add damage, but not in proportion).
+func _tick_swarm(c, delta: float) -> void:
+	if not sword_swarm.has(c.id): return
+	if wounded.has(c.id):
+		_end_swarm(c, "lost")
+		return
+	var s: Dictionary = sword_swarm[c.id]
+	s.t = float(s.t) - delta
+	if float(s.t) <= 0.0:
+		_end_swarm(c, "time")
+		return
+	s.next = float(s.next) - delta
+	if float(s.next) > 0.0 or game.room_rt == null: return
+	var cfg: Dictionary = ContentDB.stat_const("sword_swarm", {})
+	var n := maxi(1, int(s.n))
+	s.next = float(cfg.get("strike_every_s", 1.2)) / n
+	var pv := player_view(c)
+	var foe := _nearest_enemy(Vector2(float(pv.x), float(pv.y)), float(cfg.get("seek_radius", 420)))
+	if foe == null: return
+	s.i = (int(s.i) + 1) % n
+	var ang := TAU * float(s.i) / n
+	var orbit := float(cfg.get("orbit", 46))
+	var from := Vector2(float(pv.x) + cos(ang) * orbit, float(pv.y) + sin(ang) * orbit * 0.3)
+	var dir := 1 if foe.plane.x >= from.x else -1
+	var m := float(cfg.get("mult_total", 0.9)) / sqrt(float(n))
+	_spawn_projectile({"team": "player", "owner": c.id, "x": from.x, "y": from.y, "alt": float(pv.alt) + 70.0 + sin(ang) * 16.0, "dir": dir,
+		"speed": 900.0, "range": absf(foe.plane.x - from.x) + 90.0, "pierce": 0, "seek": true, "art": "flying_sword",
+		"attack": {"damage_type": "physical", "element": "metal", "mult": [m, m], "range": [0.95, 1.05], "source": "flying_sword",
+			"dao_tier": _dao_tier(c, "sword")}})
+
 ## Sword Intent: consecutive jian hits stack (max 10, +1% penetration each); at 10 a weaker foe may fear (10%).
 ## It fades 3 s after the last jian hit.
 func _feed_intent(c, e: EnemyState, attack: Dictionary) -> void:
@@ -1957,6 +2095,10 @@ func use_treasure(c, slot: int) -> Dictionary:
 		"banner":
 			fxs.wisps = {"left": float(t.get("duration", 10)), "tick": 1.0, "n": int(t.get("wisps", 3)), "mult": float(t.get("mult", 0.6)),
 				"range": float(t.get("range", 280))}
+		"swarm":
+			var sw := start_swarm(c, true, float(t.get("duration", 12)))
+			if not sw.get("ok", false): return sw
+			out.targets = int(sw.get("swarm", 0))
 		"gourd":
 			fxs.gourd = float(t.get("absorb_s", 3.0))
 			fxs.gourd_r = float(t.get("radius", 240.0))

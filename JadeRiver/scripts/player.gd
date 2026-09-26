@@ -54,6 +54,7 @@ var hp: float:
 	set(value): _hp = value
 var facing = 1
 var avatar: Node2D
+var front: Node2D                   # an overlay above the avatar
 var outfit: Dictionary
 var joystick_engaged = false
 var drag_seconds = 0.0
@@ -84,6 +85,10 @@ func _ready():
 		if not avatar.outfit.has(k): avatar.outfit[k] = "none"
 	avatar.scale = Vector2.ONE
 	add_child(avatar)
+	# Drawn over the body (and any mount): the near half of the sword swarm's ring.
+	front = Node2D.new()
+	add_child(front)
+	front.draw.connect(_draw_front)
 	if bound(): set_physics_process(false)
 
 # ------------------------------------------------------------------ actions
@@ -491,6 +496,7 @@ func sync_visual():
 	position = Vector2(plane.x, plane.y - altitude + state.sink_depth).snapped(Vector2(2, 2))
 	z_index = world.geometry.render_depth(state)
 	queue_redraw()
+	if front: front.queue_redraw()
 
 func _draw():
 	if meditating: draw_arc(Vector2(0, -4), 28, 0, TAU, 24, Color(0.4, 0.85, 0.76, 0.4), 2, false)
@@ -499,6 +505,7 @@ func _draw():
 	if state.sink_depth > 0.0 or state.water.get("skimming", false): _draw_water_ring()
 	if bound():
 		if Game.combat.sword_released.has(actor_id): _draw_hover_sword()
+		if Game.combat.swarm_of(actor_id) > 0: _draw_swarm(self, Game.combat.swarm_of(actor_id), false)
 		var tl: Dictionary = Game.combat.timeline(actor_id)
 		if tl.guard:
 			draw_arc(Vector2(facing * 18, -48), 30, -1.2 if facing > 0 else PI - 1.2 + 0.4, 1.2 if facing > 0 else PI + 1.2 - 0.4, 12, Color(UiKit.PALE_GOLD, 0.7), 3)
@@ -515,6 +522,29 @@ func _draw_hover_sword() -> void:
 	draw_line(base + Vector2(-7, 12), base + Vector2(7, 12), Color("b5892f"), 3)   # guard
 	draw_line(base + Vector2(0, 13), base + Vector2(0, 22), Color("5a3a22"), 3)    # grip
 	draw_circle(base + Vector2(0, 24), 2.5, Color("d9b25a"))
+
+func _draw_front() -> void:
+	if bound() and Game.combat.swarm_of(actor_id) > 0: _draw_swarm(front, Game.combat.swarm_of(actor_id), true)
+
+## S47 the sword swarm: slim swords of Qi circle the body, point outward; the far half of the ring is drawn
+## behind the body (dimmer) and the near half over it.
+func _draw_swarm(on: CanvasItem, n: int, near_side: bool) -> void:
+	var t := Time.get_ticks_msec() / 1000.0
+	var rx := 46.0 + minf(40.0, n * 1.2)
+	var blade := 22.0 if n <= 9 else 14.0
+	for i in n:
+		var a := t * 1.6 + TAU * float(i) / n
+		if (sin(a) >= 0.0) != near_side: continue
+		var c := Vector2(cos(a) * rx, avatar.position.y - 64.0 + sin(a) * rx * 0.28)   # round the chest, riding or not
+		var out := Vector2(cos(a), sin(a) * 0.28).normalized()
+		var side := Vector2(-out.y, out.x)
+		var alpha := 0.95 if near_side else 0.6
+		on.draw_circle(c, 9.0, Color(0.75, 0.95, 1.0, 0.14 * alpha))
+		on.draw_line(c - out * blade * 0.5, c + out * blade * 0.5, Color(0.17, 0.18, 0.2, alpha), 5)
+		on.draw_line(c - out * blade * 0.45, c + out * blade * 0.48, Color(0.87, 0.93, 0.96, alpha), 3)
+		on.draw_colored_polygon(PackedVector2Array([c + out * blade * 0.48 + side * 1.5, c + out * blade * 0.48 - side * 1.5, c + out * blade * 0.62]),
+			Color(0.96, 0.99, 1.0, alpha))
+		on.draw_line(c - out * blade * 0.5 + side * 4.0, c - out * blade * 0.5 - side * 4.0, Color(0.71, 0.54, 0.18, alpha), 3)
 
 ## Falling Leaf Glide: two pale leaves of Qi either side of the body and a faint trail.
 func _draw_glide() -> void:

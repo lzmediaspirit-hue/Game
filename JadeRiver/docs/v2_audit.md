@@ -86,11 +86,11 @@ Progress is recorded in `docs/CHANGELOG.md`.
 
 - **V1** and **V2**: done.
 - **V3**: done (V3a–V3c), except these v1.1+ items, left for a later pass:
-  - the sword swarm;
+  - the sword swarm (done in V9d1);
   - weapon awakening and legendary chains;
   - imitation relics;
   - Artifact Spirit depth (affinity, barks, devour);
-  - the heavy sabre, flute and fan weapon families;
+  - the heavy sabre, flute and fan weapon families (done in V9b);
   - the rooftop thief chase (S43 rule 15).
 - **V4**: done, in five parts (V4a–V4e: furnaces; herb natures and conflicts; new forms; fragments, experiments and
   the guild; pill tribulation), except these, which wait on later phases:
@@ -153,7 +153,11 @@ Progress is recorded in `docs/CHANGELOG.md`.
   arts and the Poison Body), and the S10 meridian gates completed. V9c2 is done: the Blood path (opt-in by alignment,
   Blood arts, lifesteal, blood essence, doubled heart demon, sect regard) and the Buddhist path (Golden Body, merit
   milestones, healing merit). V9c3 is done: sect role variants (a damage and a support variant for each sect's
-  signature line) and the three-branch sect tree bought with contribution. V9c is complete; V9d is next.
+  signature line) and the three-branch sect tree bought with contribution. V9c is complete.
+- V9d1 is done: the sword swarm (Sword Dao 5, the Nine Swords Array, one sword per 10 Spirit), Array Plates as
+  combat quick-deploys (guarding, killing and binding arrays, scaled by the Formation Dao) and the combat puppet (a
+  construct in a pet slot, repaired at the tinkerer). V9d2 (Artifact Spirit depth, imitation relics, weapon
+  awakening and legendary chains) is next.
 - Next (V9): everything v2 makes due by v1.1 that is still open. A sweep of every audit row against the build
   after V8g3 found these, in six phases:
   - **V9a**, hooks and small gaps:
@@ -192,4 +196,5 @@ written neutral from the start and round-trips through a save.
 | Flute and guqin (one family) | The `flute` family; the guqin is played at the teahouse (the V8g2 rhythm page) | A held guqin needs its own seated attack poses in every garment before it can be a weapon (AGENTS.md); the flute carries the family's melody aura |
 | (none: v2 names no field for walking a path) | `cultivator.paths {blood: true}` (saved); blood essence is transient in Combat | The Blood path is an opt-in that must survive a save; the meter is transient as v2 says |
 | orthodox-sect reputation | `training_sect.reputation[sect]`, shown as "Regard" | The field existed from S20; the Blood path is the first thing to move it |
+| One sword actor per swarm sword | Swarm swords are the flying sword's seeking projectiles, fired in turn from points on the orbit | Keeps 36 swords cheap and reuses the tested Sword Release strike rules |
 | `flames.json` | Heavenly Flames are items with `use_action: absorb_flame`; absorbed ones are in `crafting.flames` | Flames drop and trade as items |

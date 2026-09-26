@@ -119,6 +119,32 @@
       }
      ],
      "cap_hours": 8
+    },
+    {
+     "id": "combat_puppet",
+     "name": "Combat Puppet",
+     "job": "combat",
+     "pet": "combat_puppet",
+     "inputs": [
+      {
+       "item": "spirit_wood",
+       "count": 8
+      },
+      {
+       "item": "puppet_core",
+       "count": 2
+      },
+      {
+       "item": "jadeiron",
+       "count": 4
+      }
+     ],
+     "repair": [
+      {
+       "item": "spirit_wood",
+       "count": 2
+      }
+     ]
     }
    ],
    "xp_per_use": 20

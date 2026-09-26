@@ -223,6 +223,7 @@ def shops():
          "discount": {"flag": "clan_ironroot", "pct": 0.15},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_staff"), s("stormsilk_robe"),
                    s("stormsilk_boots"), s("stormsteel_ore"), s("bone_strengthening_pill"),
+                   s("recipe_scroll", learn="nine_sword_array", price=60),
                    s("thunderhorn_stew", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"})),
                    # Sage grade for kin who have become Sovereigns: sunsteel and sunsilk, worked with Sunscar glass.
                    s("sunsteel_jian", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
@@ -321,6 +322,9 @@ def recipes():
     r("thunderclap_pellet", "smithing", [("ore_dust", 2), ("ember_pepper", 1), ("lantern_wick", 1)], [("thunderclap_pellet", 3)], "common", default=True)
     # The Bright Mirror: a forge blueprint learned at Heart Tempering 1 (S47, Part 8).
     r("bright_mirror", "smithing", [("jadeiron", 6), ("pearl", 2)], [("bright_mirror", 1)], "earth")
+    # S47 the sword swarm: the Nine Swords Array, a heaven-grade blueprint sold by the Ironroot Clan.
+    r("nine_sword_array", "smithing", [("cloudsteel_ore", 9), ("jadeiron", 9), ("refining_essence", 6)], [("nine_sword_array", 1)], "heaven",
+      requires_ranks={"smithing": "expert"})
     # Furnaces (S44, Part 8): forged whole at the forge, worn in the furnace slot.
     r("jadeiron_furnace", "smithing", [("jadeiron", 8), ("riverstone", 6), ("crab_shell", 4)], [("jadeiron_furnace", 1)], "earth",
       requires_ranks={"smithing": "adept"})   # the blueprint is sold by the Alchemist Guild (Part 8)
@@ -329,6 +333,8 @@ def recipes():
     r("mistjade_furnace", "smithing", [("mystic_ore", 6), ("roc_feather", 4), ("vulture_plume", 4)], [("mistjade_furnace", 1)], "mystic",
       default=True, requires_ranks={"smithing": "master"})
     r("array_plate", "formations", [("blank_plate", 1), ("formation_stone", 1)], [("array_plate", 1)], "earth")
+    r("killing_array_plate", "formations", [("blank_plate", 1), ("formation_stone", 1), ("ore_dust", 2)], [("killing_array_plate", 1)], "earth")
+    r("binding_array_plate", "formations", [("blank_plate", 1), ("formation_stone", 1), ("willow_moss", 2)], [("binding_array_plate", 1)], "earth")
     # S47: the Revival Talisman moves to the talisman craft (Part 8), with the rest of Old Scribe Bai's recipes.
     T = [("flame_talisman", "common", [("talisman_paper", 1), ("cinnabar", 1), ("ember_pepper", 1)]),
          ("thunder_talisman", "earth", [("spirit_paper", 1), ("beast_blood_ink", 1), ("storm_feather", 1)]),
@@ -618,6 +624,12 @@ BEAST_ARENA = {
 
 def pets():
     rows = [
+        # S48 the puppet caster: one combat puppet from Cloud Stride 5, built at the tinkerer's bench. A construct: it
+        # takes a pet slot and fights beside you, but it neither eats, bonds, breeds, fuses nor grows; it is repaired.
+        {"id": "combat_puppet", "name": "Combat Puppet", "art": "trial_puppet", "element": "none", "strength_role": "combat", "construct": True,
+         "skills": ["Iron Palm", "Guard Frame", "Counterweight", "Overdrive"], "favourite_foods": [], "branches": [],
+         "inherit_owner": {"hatchling": 0.35, "juvenile": 0.35, "adult": 0.35}, "family": "construct",
+         "movement": {"jump": 300, "climb": False, "fly": False, "drop": True}},
         {"id": "reed_otter", "name": "Reed Otter", "art": "reed_otter", "element": "water", "strength_role": "gatherer", "starter": True,
          "skills": ["Splash", "Reed Dive", "Otter Current", "River Gift"], "favourite_foods": ["roast_fish", "riverfish_soup"],
          "branches": ["River Otter Sage", "Tide Otter"], "inherit_owner": {"hatchling": 0.2, "juvenile": 0.3, "adult": 0.35}},
@@ -686,10 +698,11 @@ def pets():
         "cloud_stag": ("Sky-Treading Leap", "Heavenly Cloud Stag", "#e8f4ff"),
     }
     for r in rows:
+        if r.get("construct"):
+            continue  # A construct has no blood to awaken and keeps its own family and movement.
         sk, form, tint = ancestry[r["id"]]
         r["bloodline_skill"] = {"name": sk, "mult": 2.5}
         r["form_change"] = {"name": form, "scale": 1.15, "tint": tint}
-    for r in rows:
         r["family"] = family[r["id"]]
         r["movement"] = {"jump": jumps[r["id"]], "climb": r["id"] == "bamboo_monkey", "fly": False, "drop": True}
     entries("pets", rows)

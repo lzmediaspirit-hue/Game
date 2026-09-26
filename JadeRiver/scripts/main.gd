@@ -422,6 +422,20 @@ func _handle_preview_args(user_args: Array) -> void:
 			Game.combat._cast_illusion(Game.active(), ContentDB.entry("techniques", "phantom_double"))
 			if is_instance_valid(world) and world.player: world.player.state.plane += Vector2(-150, 30)
 		else: Game.combat._start_step(Game.active(), ContentDB.entry("weapon_families", "fan"), 2, 1)
+	if ("--swarm" in user_args or "--arrays" in user_args) and Game.active() != null:
+		# Debug tools (S38): --swarm raises a nine-sword swarm; --arrays lays a guarding, a killing and a binding
+		# array side by side (S47/S48 v1.1 previews).
+		await get_tree().create_timer(1.0).timeout
+		var dc = Game.active()
+		if "--swarm" in user_args:
+			dc.cultivator.daos["sword"] = {"tier": 5, "insight": 0.0}
+			Game.combat.start_swarm(dc, true, 60.0)
+		if "--arrays" in user_args and is_instance_valid(world) and world.player:
+			var home: Vector2 = world.player.state.plane
+			for k in [["guard", 0], ["killing", 340], ["binding", 680]]:
+				world.player.state.plane = home + Vector2(float(k[1]), 0)
+				Game.combat.deploy_array(dc.id, {"array": str(k[0]), "radius": 150, "duration": 60})
+			world.player.state.plane = home
 	if "--pet-wheel" in user_args and is_instance_valid(hud):
 		# Debug tools (S38): hold the Pet button's command wheel open, Stay picked (v2 HUD previews).
 		await get_tree().create_timer(1.0).timeout

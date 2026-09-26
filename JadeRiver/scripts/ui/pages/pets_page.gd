@@ -50,9 +50,12 @@ func draw_page() -> void:
 	var stage_name := str(Game.pets.stage_def(str(pet.get("stage", "hatchling"))).get("name", Tx.t("ui.pets.hatchling")))
 	var branch := str(pet.get("branch", ""))
 	var rarity: Dictionary = Game.pets.rarity_def(str(pet.get("rarity", "common")))
-	text(right.position + Vector2(24, 80), fit("%s · %s · %s · %s" % [str(sp.get("name", "")), str(sp.get("element", "")).capitalize(), branch if branch != "" else stage_name,
-		str(rarity.get("name", ""))], 18, colw), 18, UiKit.MIST)
-	bar(Rect2(px, right.position.y + 96, colw, 28), float(pet.get("bond", 0.0)) / 10.0, UiKit.RED, Tx.t("ui.pets.bond_1f_10") % float(pet.get("bond", 0.0)))
+	var construct: bool = PetAuthority.is_construct(pet)
+	var kind_line := "%s · %s" % [str(sp.get("name", "")), Tx.t("ui.pets.construct_kind")] if construct else "%s · %s · %s · %s" % [str(sp.get("name", "")),
+		str(sp.get("element", "")).capitalize(), branch if branch != "" else stage_name, str(rarity.get("name", ""))]
+	text(right.position + Vector2(24, 80), fit(kind_line, 18, colw), 18, UiKit.MIST)
+	if construct: text(Vector2(px, right.position.y + 116), fit(Tx.t("ui.pets.construct_line"), 16, colw), 16, UiKit.PALE_GOLD)   # S48 no bond to grow
+	else: bar(Rect2(px, right.position.y + 96, colw, 28), float(pet.get("bond", 0.0)) / 10.0, UiKit.RED, Tx.t("ui.pets.bond_1f_10") % float(pet.get("bond", 0.0)))
 	var need := float(ContentDB.curve("pet_xp.base", 20)) * pow(int(pet.level), float(ContentDB.curve("pet_xp.per_level_pow", 1.5)))
 	bar(Rect2(px, right.position.y + 130, colw, 24), float(pet.get("xp", 0.0)) / need, UiKit.GOLD, Tx.t("ui.pets.level") % [int(pet.level), int(pet.get("xp", 0.0)), int(need)])
 	Game.pets.ensure_fields(pet)
@@ -65,10 +68,33 @@ func draw_page() -> void:
 		btn(Rect2(stage.position.x + hw + 8, stage.end.y + 8, hw, 38), Tx.t("ui.pets.save_name"), "rename_ok", null, true, true, "", 16)
 	else:
 		btn(Rect2(stage.position.x + hw + 8, stage.end.y + 8, hw, 38), Tx.t("ui.pets.rename"), "rename", null, false, true, "", 16)
-	_growth(ch, pet, Rect2(stage.position.x, stage.end.y + 56, stage.size.x, right.end.y - stage.end.y - 70))
 	var body := Rect2(px, right.position.y + 164, colw, right.end.y - right.position.y - 176)
+	if construct:
+		para(Rect2(stage.position.x, stage.end.y + 60, stage.size.x, 120), Tx.t("ui.pets.construct_repair"), 15, UiKit.MIST)
+		_construct_tab(ch, pet, sp, body)
+		return
+	_growth(ch, pet, Rect2(stage.position.x, stage.end.y + 56, stage.size.x, right.end.y - stage.end.y - 70))
 	if str(tabs[tab].id) == "growth": _growth_tab(ch, pet, sp, body)
 	else: _care_tab(ch, pet, sp, body)
+
+## S48 a combat puppet: its strikes, whether it is whole, and whether it walks beside you. Nothing to feed or grow.
+func _construct_tab(ch, pet: Dictionary, sp: Dictionary, r: Rect2) -> void:
+	var px := r.position.x
+	var colw := r.size.x
+	text(Vector2(px, r.position.y + 16), fit(Tx.t("ui.pets.skills") + ", ".join(sp.get("skills", [])), 16, colw), 16)
+	para(Rect2(px, r.position.y + 30, colw, 70), Tx.t("ui.pets.construct_care"), 16, UiKit.MIST)
+	var y := r.position.y + 104
+	if pet.get("wounded", false):
+		text(Vector2(px, y), fit(Tx.t("ui.workshop.puppet_wounded"), 15, colw), 15, UiKit.RED)
+		y += 16
+	var aw := (colw - 16.0) / 3.0
+	btn(Rect2(px, y, aw, 50), fit(Tx.t("ui.pets.set_active") if ch.active_pet != sel else Tx.t("ui.pets.rest"), 17, aw - 12), "active", sel, ch.active_pet != sel, true, "", 17)
+	var cap: int = Game.pets.command_capacity(ch)
+	if cap > 1 and ch.active_pet != sel:
+		var beside: bool = ch.party_pets.has(sel)
+		var room_left: bool = beside or Game.pets.party(ch).size() < cap
+		btn(Rect2(px + aw + 8, y, aw, 50), fit(Tx.t("ui.pets.send_home") if beside else Tx.t("ui.pets.beside"), 17, aw - 12), "party", not beside, beside, room_left,
+			Tx.t("ui.pets.capacity_full") % cap, 17)
 
 ## Care: what it is, its role, whether it walks beside you, and food, cores and breeding.
 func _care_tab(ch, pet: Dictionary, sp: Dictionary, r: Rect2) -> void:

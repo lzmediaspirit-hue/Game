@@ -220,6 +220,9 @@ TREASURES = [
      {"action": "banner", "cooldown_s": 45, "qi": 50, "wisps": 3, "duration": 10, "mult": 0.6, "range": 280, "source": "Bai Ling's quest line"}),
     ("sealing_gourd", "heaven", "A violet gourd with a paper seal. Unstoppered, it drinks every missile that comes near for 3 s.",
      {"action": "gourd", "cooldown_s": 20, "qi": 30, "absorb_s": 3, "radius": 240, "source": "Old Ma (after Spirit Awakening 1)"}),
+    # S47 the sword swarm (v1.1): nine swords in a lacquered case; set in a Treasure slot they orbit and strike.
+    ("nine_sword_array", "spirit", "Nine slim swords in a lacquered case. Released, they orbit you for 12 s and strike on their own; set in a Treasure slot it also lets a Sword Dao swarm number nine. One sword for each 10 Spirit.",
+     {"action": "swarm", "cooldown_s": 45, "qi": 60, "duration": 12, "source": "Forge (Ironroot Clan blueprint)"}),
     # A talisman treasure: three charges of an art far above the realm, spent from a Treasure button (no cooldown).
     ("elder_hus_talisman", "mystic", "Elder Hu's Heaven-Splitting Palm folded into paper: three charges of 600% Qi Attack in a line before you. Never sold.",
      {"action": "palm", "cooldown_s": 0, "qi": 0, "charges": 3, "mult": 6.0, "reach": 540, "depth": 70, "source": "Elder Hu, before the Heart Trial"}),
@@ -666,8 +669,14 @@ def build_items():
     rows.append(item("torn_manual", "scroll", "earth", 99, "A water-stained manual, half its characters gone. A librarian's bench can restore it.", value_override=30))
     rows.append(item("spirit_wood", "material", "common", 99, "Pale wood that holds a trace of Qi. Puppet frames are cut from it."))
     rows.append(item("puppet_core", "material", "earth", 99, "A carved jade heart that lets a puppet follow simple orders."))
-    rows.append(item("array_plate", "formation", "earth", 20, "A portable one-use protection formation: +15% defence for two minutes.",
-                     use=[{"kind": "add_modifier", "stat": "physical_defense", "op": "pct_add", "value": 0.15, "duration": 120, "source": "array_plate"}]))
+    # S48 Array Plates, quick-deployed in a fight: each lays a small array at your feet for a few seconds. The
+    # Formation Dao lengthens them (+10% at tier 1) and sharpens the killing array (+20% a tier).
+    rows.append(item("array_plate", "formation", "earth", 20, "A guarding array for 12 s: while you stand inside its ring, +15% Physical Defense.",
+                     use=[{"kind": "deploy_array", "array": "guard", "radius": 150, "duration": 12, "defense": 0.15}]))
+    rows.append(item("killing_array_plate", "formation", "earth", 20, "A killing array for 10 s: every foe inside its ring takes 50% of your Qi Attack each second.",
+                     use=[{"kind": "deploy_array", "array": "killing", "radius": 160, "duration": 10, "mult": 0.5}]))
+    rows.append(item("binding_array_plate", "formation", "earth", 20, "A binding array for 10 s: every foe inside its ring is slowed by 40%.",
+                     use=[{"kind": "deploy_array", "array": "binding", "radius": 160, "duration": 10, "slow": 0.4}]))
     rows.extend(pills())
     rows.extend(foods())
     rows.append(item("sphere_comprehension_stone", "treasure", "will", 1, "A stone that holds a folded world. (Later zones.)", sell=False, ilv=95))

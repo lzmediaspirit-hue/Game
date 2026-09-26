@@ -87,6 +87,15 @@
    "id": "sealing_gourd"
   },
   {
+   "action": "swarm",
+   "cooldown_s": 45,
+   "qi": 60,
+   "duration": 12,
+   "source": "Forge (Ironroot Clan blueprint)",
+   "soul": 20,
+   "id": "nine_sword_array"
+  },
+  {
    "action": "palm",
    "cooldown_s": 0,
    "qi": 0,

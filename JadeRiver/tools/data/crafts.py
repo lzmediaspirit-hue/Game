@@ -27,7 +27,11 @@ def build():
                          "yield": [{"item": "copper_ore", "per_hour": 3}, {"item": "riverstone", "per_hour": 1}], "cap_hours": 8},
                         {"id": "carrier_puppet", "name": "Carrier Puppet", "job": "herbs",
                          "inputs": [{"item": "spirit_wood", "count": 6}, {"item": "puppet_core", "count": 1}],
-                         "yield": [{"item": "willow_moss", "per_hour": 3}, {"item": "ember_pepper", "per_hour": 1}], "cap_hours": 8}],
+                         "yield": [{"item": "willow_moss", "per_hour": 3}, {"item": "ember_pepper", "per_hour": 1}], "cap_hours": 8},
+                        # S48: one combat puppet, which takes a pet slot and fights beside you (repaired, never healed).
+                        {"id": "combat_puppet", "name": "Combat Puppet", "job": "combat", "pet": "combat_puppet",
+                         "inputs": [{"item": "spirit_wood", "count": 8}, {"item": "puppet_core", "count": 2}, {"item": "jadeiron", "count": 4}],
+                         "repair": [{"item": "spirit_wood", "count": 2}]}],
          "xp_per_use": 20},
         {"id": "research", "name": "Research", "unlock": "research", "teacher": "jade_librarian",
          "npcs": ["jade_librarian", "cloud_librarian"], "inputs": [{"item": "torn_manual", "count": 1}, {"item": "restoration_ink", "count": 1}],

@@ -2,6 +2,34 @@
  "schema_version": 1,
  "entries": [
   {
+   "id": "combat_puppet",
+   "name": "Combat Puppet",
+   "art": "trial_puppet",
+   "element": "none",
+   "strength_role": "combat",
+   "construct": true,
+   "skills": [
+    "Iron Palm",
+    "Guard Frame",
+    "Counterweight",
+    "Overdrive"
+   ],
+   "favourite_foods": [],
+   "branches": [],
+   "inherit_owner": {
+    "hatchling": 0.35,
+    "juvenile": 0.35,
+    "adult": 0.35
+   },
+   "family": "construct",
+   "movement": {
+    "jump": 300,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
    "id": "reed_otter",
    "name": "Reed Otter",
    "art": "reed_otter",

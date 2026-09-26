@@ -5,6 +5,8 @@ extends Node2D
 ## slash arcs, dust, rings, breakthrough spirals, meditation motes, projectiles.
 ## Presentation only: nothing here changes game state.
 
+const ARRAY_COLOURS := {"guard": Color("8aebee"), "killing": Color("e45858"), "binding": Color("b18de2")}   # as their plates are engraved
+
 var fx: Array = []          # {kind, pos, t, dur, color, facing, text, size, vel, z}
 var numbers_enabled := true
 
@@ -33,6 +35,9 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
+	# S48 Array Plates laid in a fight are drawn from Combat's state, on the ground under everything else.
+	if Game.combat:
+		for a in Game.combat.arrays: _draw_array(a)
 	# Projectiles live in the RoomRuntime and are drawn from state.
 	if Game.room_rt:
 		for p in Game.room_rt.projectiles:
@@ -180,6 +185,46 @@ func _cloud_bank(center: Vector2, width: float, height: float, base: Color, lit:
 				rx *= 0.7
 			draw_set_transform(at, 0.0, Vector2(1.0, 0.46))
 			draw_circle(Vector2.ZERO, rx, Color(base if layer == 0 else lit, (0.3 if layer == 0 else 0.16) * alpha))
+	draw_set_transform(Vector2.ZERO)
+
+## An array on the ground: two rings of the array's colour, eight trigram strokes between them and a slow turn.
+func _draw_array(a: Dictionary) -> void:
+	var kind := str(a.kind)
+	var col: Color = ARRAY_COLOURS.get(kind, ARRAY_COLOURS.guard)
+	var at := Vector2(float(a.x), float(a.y))
+	var r := float(a.radius)
+	var fade := clampf(float(a.t), 0.0, 1.0)
+	var spin := float(Time.get_ticks_msec()) / 1000.0 * (1.4 if kind == "killing" else 0.6)
+	draw_set_transform(at, 0.0, Vector2(1, 0.35))
+	draw_circle(Vector2.ZERO, r, Color(col, 0.08 * fade))
+	draw_arc(Vector2.ZERO, r, 0, TAU, 64, Color(col, 0.75 * fade), 3.0)
+	draw_arc(Vector2.ZERO, r * 0.72, 0, TAU, 48, Color(col, 0.5 * fade), 2.0)
+	for i in 8:
+		var ang := spin + TAU * i / 8.0
+		var p0 := Vector2(cos(ang), sin(ang)) * r * 0.76
+		var p1 := Vector2(cos(ang), sin(ang)) * r * 0.94
+		var side := Vector2(-sin(ang), cos(ang)) * 6.0
+		draw_line(p0 + side, p1 + side, Color(col, 0.85 * fade), 2.0)
+		if i % 2 == 0: draw_line(p0 - side, p1 - side, Color(col, 0.85 * fade), 2.0)
+	# The heart of each array: trigram bars (guarding), four blades pointing in (killing), a chain turning (binding).
+	match kind:
+		"killing":
+			for i in 4:
+				var ang := -spin * 0.5 + TAU * i / 4.0 + PI / 4.0
+				var u := Vector2(cos(ang), sin(ang))
+				var w := Vector2(-u.y, u.x) * r * 0.08
+				draw_colored_polygon(PackedVector2Array([u * r * 0.6 + w, u * r * 0.6 - w, u * r * 0.12]), Color(col, 0.7 * fade))
+		"binding":
+			for i in 12:
+				var ang := -spin + TAU * i / 12.0
+				draw_arc(Vector2(cos(ang), sin(ang)) * r * 0.45, r * 0.06, 0, TAU, 12, Color(col, 0.8 * fade), 2.0)
+		_:
+			for i in 8:
+				var ang := spin * 0.5 + TAU * i / 8.0
+				var u := Vector2(cos(ang), sin(ang)) * r * 0.42
+				var w := Vector2(-sin(ang), cos(ang)) * r * 0.09
+				draw_line(u + w, u - w, Color(col, 0.8 * fade), 3.0)
+			draw_circle(Vector2.ZERO, r * 0.06, Color(UiKit.PALE_GOLD, 0.9 * fade))
 	draw_set_transform(Vector2.ZERO)
 
 ## A quaver: an ink-edged oval head, a stem and a flag, drawn on the 2-pixel grid.

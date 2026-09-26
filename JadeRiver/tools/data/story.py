@@ -1048,7 +1048,8 @@ def guided_quests():
     quest("carry_a_wall", "Carry a Wall", "guided", "jade_formation_elder", [
         o("craft", "Craft an Array Plate", recipe="array_plate"),
     ], [item("blank_plate", 3)], offered_by_unlock=True, chapter="ht5", same_stage_ok=True, giver_any=FORMATION_ELDERS, hand_in_any=FORMATION_ELDERS,
-        on_accept=[fx("learn_recipe", recipe="array_plate"), item("blank_plate", 1), item("formation_stone", 1)],
+        on_accept=[fx("learn_recipe", recipe="array_plate"), fx("learn_recipe", recipe="killing_array_plate"),
+                   fx("learn_recipe", recipe="binding_array_plate"), item("blank_plate", 1), item("formation_stone", 1)],
         offer=["A formation you can carry. Etch one plate."], complete=["Take these blanks."])
     quest("skipping_stones", "Skipping Stones", "side", "hermit_yao", [
         o("use_system", "Sprint across the pond under the stilt house", 1, system="water_skimming"),

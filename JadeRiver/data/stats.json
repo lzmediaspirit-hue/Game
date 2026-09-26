@@ -352,6 +352,19 @@
  "sword_release": {
   "palm_mult": 0.8
  },
+ "sword_swarm": {
+  "counts": [
+   3,
+   9,
+   36
+  ],
+  "spirit_per_sword": 10,
+  "duration_s": 12.0,
+  "strike_every_s": 1.2,
+  "mult_total": 0.9,
+  "seek_radius": 420,
+  "orbit": 46
+ },
  "sword_intent": {
   "max": 10,
   "fade_s": 3.0,
