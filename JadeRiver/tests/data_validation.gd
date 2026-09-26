@@ -559,7 +559,7 @@ func room_suite() -> void:
 		check(ContentDB.rooms.has(str(v.get("to", ""))) and ContentDB.room(str(v.get("crossing", ""))).get("crossing", false)
 			and ContentDB.has_entry("items", str(v.get("chart", ""))), "voyage %s: destination, crossing and chart exist" % v.id)
 # ------------------------------------------------------------------ S43 movement data
-const VOLUME_KINDS := ["water_shallow", "water_deep", "current", "updraft", "wind", "bounce", "crumble", "rising_water", "hazard", "no_flight"]
+const VOLUME_KINDS := ["water_shallow", "water_deep", "current", "updraft", "wind", "bounce", "crumble", "rising_water", "hazard", "no_flight", "ice"]
 
 func movement_suite() -> void:
 	# movement.json is the one table of traversal numbers: the solver's constants must match it.

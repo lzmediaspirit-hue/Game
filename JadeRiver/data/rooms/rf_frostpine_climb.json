@@ -580,5 +580,22 @@
    "bottom": "ground",
    "top": "route_2"
   }
+ ],
+ "volumes": [
+  {
+   "id": "frostpine_ice",
+   "kind": "ice",
+   "rect": [
+    2500,
+    720,
+    700,
+    220
+   ],
+   "alt": [
+    -10,
+    20
+   ],
+   "traction": 420
+  }
  ]
 }

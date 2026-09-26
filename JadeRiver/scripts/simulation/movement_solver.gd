@@ -29,6 +29,7 @@ const UPDRAFT_SPEED=220.0
 const UPDRAFT_EASE=3.0
 const BOUNCE_SPEED=700.0
 const WIND_EDGE=48.0                 # wind is 1.5x within this of an open edge
+const ICE_TRACTION=380.0             # ice (v1.1): underfoot the body gains or sheds at most this much speed a second
 ## Jump: from a surface, within coyote time after walking off one, or (with Cloud Ladder Step)
 ## once more in the air. A press that cannot jump is buffered for 0.12 s and fires on landing.
 static func jump(state: ActorState) -> bool:
@@ -44,7 +45,7 @@ static func jump(state: ActorState) -> bool:
 		state.wall_step_used=false
 		state.wall_kicks=0
 		state.coyote_left=0.0
-		state.vertical_speed=JUMP_IMPULSE
+		state.vertical_speed=float(state.jump_impulse)
 	elif state.jumps_used<2 and state.arts.get("double_jump",false):
 		state.jumps_used=2
 		state.vertical_speed=DOUBLE_JUMP_IMPULSE
@@ -188,10 +189,13 @@ static func _track_volumes(state: ActorState,zone: ZoneGeometry,vols: Array):
 		if id not in ids: state.events.append({"name":"volume_left","volume":id})
 	state.volumes_in=ids
 ## How the volumes around the body change the velocity it asks for (S43 volume table).
-static func _volume_velocity(state: ActorState,zone: ZoneGeometry,vols: Array,velocity: Vector2) -> Vector2:
+static func _volume_velocity(state: ActorState,zone: ZoneGeometry,vols: Array,velocity: Vector2,dt:=0.0) -> Vector2:
 	var v=velocity
+	var ice: Dictionary={}
 	for vol in vols:
 		match str(vol.kind):
+			"ice":
+				ice=vol
 			"water_shallow":
 				if state.surface: v*=float(vol.get("speed",SHALLOW_FACTOR))
 			"current":
@@ -203,6 +207,10 @@ static func _volume_velocity(state: ActorState,zone: ZoneGeometry,vols: Array,ve
 				var k=zone.wind_strength(vol)
 				if state.surface and zone.open_edge_distance(state.surface,state.plane)<WIND_EDGE: k*=float(vol.get("edge_factor",1.5))
 				v+=Vector2(float(wp[0]),float(wp[1]))*k
+	# Ice (the v1.1 traction rule): on it, the body's speed only eases toward what it asks for, so it slides on and
+	# slides to a stop. Air control stays total.
+	if not ice.is_empty() and state.surface and dt>0.0:
+		v=state.velocity.move_toward(v,float(ice.get("traction",ICE_TRACTION))*dt)
 	return v
 ## Deep water underfoot (S43): Water Skimming runs across it while sprinting; Breath Control swims for 30 s;
 ## otherwise the body sinks 40 over 1 s and is returned to a safe spot.
@@ -282,7 +290,7 @@ static func integrate(state: ActorState,zone: ZoneGeometry,dt: float,velocity: V
 		return
 	var vols: Array=zone.volumes_at(state.plane,state.altitude) if not zone.volumes.is_empty() else []
 	if not zone.volumes.is_empty(): _track_volumes(state,zone,vols)
-	velocity=_volume_velocity(state,zone,vols,velocity)
+	velocity=_volume_velocity(state,zone,vols,velocity,dt)
 	if state.surface:
 		if state.surface.disabled:
 			# A crumbled or broken floor drops everyone on it.

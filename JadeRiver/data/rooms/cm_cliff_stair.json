@@ -87,6 +87,19 @@
    "open_edges": true
   },
   {
+   "id": "ledge_top",
+   "rect": [
+    1900,
+    610,
+    300,
+    70
+   ],
+   "height": 300,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
    "id": "ledge_hi_step_ledge_2",
    "rect": [
     1280,
@@ -285,6 +298,100 @@
      }
     ]
    }
+  },
+  {
+   "id": "cloud_steps_bell",
+   "type": "route_finish",
+   "at": [
+    2080,
+    645
+   ],
+   "alt": 300,
+   "prop": "small_bell"
+  },
+  {
+   "id": "cloud_steps_stone",
+   "type": "route_stone",
+   "at": [
+    250,
+    830
+   ],
+   "prop": "flag_pole_cloud",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_3"
+     }
+    ]
+   },
+   "locked_text": "The Cloud Steps are run by disciples from Bone Forging 3.",
+   "route": {
+    "id": "cloud_steps",
+    "name": "Cloud Steps",
+    "finish": {
+     "at": [
+      2080,
+      645
+     ],
+     "alt": 300,
+     "radius": 90
+    },
+    "limit_s": 60,
+    "pars": {
+     "gold": 10.0,
+     "silver": 13.0,
+     "bronze": 18.0
+    },
+    "rivals": [
+     "Senior Brother Qiao",
+     "Sister Lan of the Sword Court",
+     "Disciple Mo",
+     "Little Tang",
+     "Brother Kang",
+     "Sister Wen of the Cloud Sect"
+    ],
+    "rival_s": [
+     9.5,
+     20.0
+    ],
+    "medal_rewards": {
+     "bronze": [
+      {
+       "kind": "add_contribution",
+       "amount": 20
+      }
+     ],
+     "silver": [
+      {
+       "kind": "add_contribution",
+       "amount": 40
+      },
+      {
+       "kind": "grant_item",
+       "item": "cloud_feather",
+       "count": 2
+      }
+     ],
+     "gold": [
+      {
+       "kind": "add_contribution",
+       "amount": 60
+      }
+     ]
+    },
+    "week_rewards": [
+     {
+      "kind": "add_contribution",
+      "amount": 30
+     },
+     {
+      "kind": "grant_currency",
+      "currency": "silver_tael",
+      "amount": 100
+     }
+    ]
+   }
   }
  ],
  "spawns": [],
@@ -327,6 +434,22 @@
    "top_alt": 200,
    "bottom": "ground",
    "top": "ledge_hi"
+  },
+  {
+   "id": "ledge_top_rope_3",
+   "kind": "rope",
+   "at": [
+    2050,
+    715
+   ],
+   "top_at": [
+    2050,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "ledge_top"
   },
   {
    "id": "ledge_hi_step_ledge_2_rope_101",

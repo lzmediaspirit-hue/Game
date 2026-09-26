@@ -142,6 +142,9 @@ def npcs():
         ["A plate is a formation you can carry. Etch it true and it will hold a wall.", "The guild asks for speed, not luck. Stone does not roll dice."],
         ["Line, line, circle.", "Mind the stone dust."], services=["page:guild", "shop:formation_guild"], service_labels={"page:guild": "Formation Guild"},
         service_unlocks={"page:guild": "formation_guild", "shop:formation_guild": "formation_guild"})
+    # S43 rule 15: the daily rooftop thief of Market Street and Gate Street (speak to him and he bolts over the roofs).
+    npc("rooftop_thief", "Quick-Fingered Hou", "Rooftop thief", outfit("ponytail", 0, "sleeveless", "cuffed", "folded", hat="headband", weapon="dagger",
+        shirt_dye="ink", pants_dye="ink"), ["Nothing to see here."], ["Too slow, cultivator!", "Catch me if you can!", "Whose purse? Mine now."])
     npc("tinkerer_yu", "Tinkerer Yu", "Tinkerer", outfit("ponytail", 3, "scholar", "cuffed", "folded", shirt_dye="grey"),
         ["Tools are just patience you can hold.", "A better pickaxe means more ore and fewer blisters."], ["Where's my small spanner?"], services=["shop:tinkerer", "page:workshop"],
         service_labels={"page:workshop": "Puppet bench"}, service_unlocks={"page:workshop": "puppetry"})

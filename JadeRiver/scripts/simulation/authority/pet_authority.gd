@@ -24,6 +24,10 @@ func subscribe() -> void:
 	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 75)
 	GameEvents.subscribe("meditation_tick", _on_meditation_tick, 75)
 	GameEvents.subscribe("hit_landed", _on_player_hit, 75)
+	# S43 rules 5 and 12: no mount climbs; the rider steps down for a ladder or rope and back on at the landing.
+	GameEvents.subscribe("climb_started", _on_climb_started, 75)
+	GameEvents.subscribe("climb_finished", _on_landed_remount, 75)
+	GameEvents.subscribe("landed", _on_landed_remount, 75)
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -297,7 +301,7 @@ func mountable(p: Dictionary) -> bool:
 
 ## The mount spec of the animal carrying this character, or {} when on foot (S46: the Mount slot, while riding).
 func mount_of(c) -> Dictionary:
-	if c == null or dismounted.has(c.id): return {}
+	if c == null or dismounted.has(c.id) or climb_off.has(c.id): return {}
 	_migrate_mount(c)
 	if not c.riding or c.mount_pet == "": return {}
 	var p := _pet(c, c.mount_pet)
@@ -336,6 +340,37 @@ func set_mount(c, uid: String, on) -> Dictionary:
 	emit("pet_changed", {"actor": c.id, "pet": c.mount_pet})
 	_spawn(c)
 	return ok({"riding": c.riding})
+
+## The jump a rider makes (S43 rule 12): a ground mount's own impulse (default 530, the body's); a flying mount's
+## rider jumps as on foot (it flies instead).
+func mount_jump(c) -> float:
+	var m := mount_of(c)
+	if m.is_empty() or m.get("flying", false): return MovementSolver.JUMP_IMPULSE
+	var p := mount_pet_of(c)
+	return float(ContentDB.entry("pets", str(p.get("species", ""))).get("movement", {}).get("jump", MovementSolver.JUMP_IMPULSE))
+
+## Riding a ground mount (not a flyer)?
+func ground_mounted(c) -> bool:
+	var m := mount_of(c)
+	return not m.is_empty() and not m.get("flying", false)
+
+var climb_off: Dictionary = {}   # actor -> true: stepped down off a ground mount to climb (not saved)
+
+func _on_climb_started(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c == null or mount_of(c).is_empty(): return
+	climb_off[c.id] = true
+	emit("dismounted", {"actor": c.id, "reason": "climb"})
+	_spawn(c)   # it waits below and follows
+
+func _on_landed_remount(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c == null or not climb_off.has(c.id): return
+	var st: ActorState = game.actor_state(c.id)
+	if st != null and (not st.climbing.is_empty() or st.surface == null): return
+	climb_off.erase(c.id)
+	emit("pet_changed", {"actor": c.id, "pet": c.mount_pet})
+	_spawn(c)
 
 func mount_speed(c) -> float:
 	if mount_of(c).is_empty(): return 1.0

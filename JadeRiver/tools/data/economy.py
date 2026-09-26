@@ -854,6 +854,9 @@ def pets():
 def achievements():
     A = [
         {"id": "fleet_footed", "name": "Fleet-Footed", "desc": "Win the race to the tower", "event": "quest_completed", "match": {"quest": "race_to_the_tower"}, "title": "fleet_footed"},
+        {"id": "thief_catcher", "name": "Thief-Catcher", "desc": "Catch 10 rooftop thieves", "event": "thief_caught", "count": 10, "title": "thief_catcher"},
+        {"id": "cloud_stepper", "name": "Cloud Stepper", "desc": "Run the Cloud Steps inside the gold par", "event": "route_finished",
+         "match": {"route": "cloud_steps", "medal": "gold"}, "title": "cloud_stepper"},
         {"id": "crab_catcher", "name": "Crab Catcher", "desc": "Defeat 100 Mudshell Crabs", "event": "actor_defeated", "match": {"def": "mudshell_crab"}, "count": 100, "title": "shore_warden"},
         {"id": "first_current", "name": "First Current", "desc": "Reach Bone Forging 7", "event": "realm_changed", "match": {"realm_at_least": "bone_forging_7"},
          "rewards": [{"kind": "grant_item", "item": "qi_gathering_pill", "count": 1}]},
@@ -889,6 +892,9 @@ def achievements():
     entries("achievements", A)
     T = [
         {"id": "fleet_footed", "name": "Fleet-Footed", "modifiers": [{"stat": "move_speed", "op": "pct_add", "value": 0.01}]},
+        # S43 rule 15: the rooftop thieves and the Cloud Steps.
+        {"id": "thief_catcher", "name": "Thief-Catcher", "modifiers": [{"stat": "coin_find", "op": "flat", "value": 0.02}]},
+        {"id": "cloud_stepper", "name": "Cloud Stepper", "modifiers": [{"stat": "move_speed", "op": "pct_add", "value": 0.01}]},
         {"id": "sage_born", "name": "Sage-Born", "modifiers": [{"stat": "accumulation_rate", "op": "flat", "value": 0.01}]},
         {"id": "storm_herder", "name": "Storm Herder", "modifiers": [{"stat": "attunement_bonus", "op": "flat", "value": 1}]},
         {"id": "alliance_envoy", "name": "Alliance Envoy", "modifiers": [{"stat": "attunement_bonus", "op": "flat", "value": 2}]},

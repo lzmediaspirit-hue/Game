@@ -13,6 +13,28 @@
    ]
   },
   {
+   "id": "thief_catcher",
+   "name": "Thief-Catcher",
+   "modifiers": [
+    {
+     "stat": "coin_find",
+     "op": "flat",
+     "value": 0.02
+    }
+   ]
+  },
+  {
+   "id": "cloud_stepper",
+   "name": "Cloud Stepper",
+   "modifiers": [
+    {
+     "stat": "move_speed",
+     "op": "pct_add",
+     "value": 0.01
+    }
+   ]
+  },
+  {
    "id": "sage_born",
    "name": "Sage-Born",
    "modifiers": [

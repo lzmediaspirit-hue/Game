@@ -1000,6 +1000,8 @@ def sects():
     r.stairs("stair_a", [700, 640, 240, 150], 100)
     r.surface("landing", [700, 560, 560, 80], 100, kind="rock_ledge", stratum="ground", open_edges=False)
     r.surface("ledge_hi", [1500, 640, 300, 60], 200, kind="rock_ledge")
+    # The top of the stair (Part 8: 0 · 100 · 200 · 300): the Cloud Steps finish.
+    r.surface("ledge_top", [1900, 610, 300, 70], 300, kind="rock_ledge")
     r.obj("shrine_cm", "shrine", [1300, 880])
     r.obj("stone_cm", "teleport_stone", [460, 880], stone="cloud_monastery")
     r.obj("board_cm", "notice_board", [1800, 880])
@@ -2576,6 +2578,57 @@ def rare_herbs():
             o["at"], o["alt"] = spot("cc_sky_ledges", "ledge_2")
 
 
+def rooftop_routes():
+    """S43 rule 15, traversal content on the final tiers (every waypoint stands on a named surface at its height).
+    - The daily "catch the thief" chases on Market Street and Gate Street. Speak to Quick-Fingered Hou and he bolts over
+      the roofs: waypoints [x, y, alt, wait_s], run at `speed`; reach him at his height (within catch_px on the plane and
+      catch_alt of his altitude) before he is over the far wall. One chase a street a day, caught or not.
+    - The Cloud Steps: the Cloud Sect's timed climb up the Cliff Stair to the bell on the 300 ledge, with a weekly board
+      of sect disciples (seeded), medal pars (a reward the first time each is beaten) and a weekly reward for the top
+      three."""
+    def on(rid, sid, frac, wait=0.0):
+        sd = next(x for x in ROOMS[rid].d["surfaces"] if x["id"] == sid)
+        x0, y0, w, dep = sd["rect"]
+        return [int(x0 + w * frac), int(y0 + dep / 2), int(float(sd["height"])), wait]
+
+    purse = [{"kind": "grant_currency", "currency": "silver_tael", "amount": 150}, {"kind": "grant_item", "item": "spirit_stone_shard", "count": 1}]
+    sf = [[380, 800, 0, 0.0], on("sf_market", "general_store", 0.4, 0.6), on("sf_market", "general_store", 0.95, 0.8),
+          on("sf_market", "awning_west", 0.5, 0.7), on("sf_market", "tea_house", 0.4, 0.8), on("sf_market", "tea_house", 0.95, 0.5),
+          on("sf_market", "awning_east", 0.5, 0.7), on("sf_market", "warehouse_sf", 0.4, 0.8), on("sf_market", "warehouse_sf", 0.97, 0.6),
+          on("sf_market", "bell_tower", 0.5, 2.5), on("sf_market", "bell_tower", 0.98, 0.0)]
+    ROOMS["sf_market"].npc("rooftop_thief", [380, 800], oid="thief_sf", facing=1, visible_if=all_of(realm("qi_kindling_1")),
+                           chase={"route": sf, "speed": 260, "catch_px": 80, "catch_alt": 40, "grace_s": 0.8, "rewards": purse})
+    gs = [[960, 790, 0, 0.0], on("ja_gate_street", "jade_roof", 0.2, 0.6), on("ja_gate_street", "jade_roof", 0.95, 0.8),
+          on("ja_gate_street", "bridge_roof", 0.5, 0.8), on("ja_gate_street", "bridge_roof", 0.95, 0.5),
+          on("ja_gate_street", "cloud_roof", 0.5, 0.8), on("ja_gate_street", "cloud_roof", 0.97, 2.0)]
+    ROOMS["ja_gate_street"].npc("rooftop_thief", [960, 790], oid="thief_ja", facing=1, visible_if=all_of(realm("qi_kindling_3")),
+                                chase={"route": gs, "speed": 270, "catch_px": 80, "catch_alt": 40, "grace_s": 0.8,
+                                       "rewards": [{"kind": "grant_currency", "currency": "silver_tael", "amount": 120},
+                                                   {"kind": "add_contribution", "amount": 15}]})
+    top = on("cm_cliff_stair", "ledge_top", 0.6)
+    cs = ROOMS["cm_cliff_stair"]
+    cs.obj("cloud_steps_bell", "route_finish", top[:2], alt=top[2], prop="small_bell")
+    cs.obj("cloud_steps_stone", "route_stone", [250, 830], prop="flag_pole_cloud", requires=all_of(realm("bone_forging_3")),
+           locked_text="The Cloud Steps are run by disciples from Bone Forging 3.",
+           route={"id": "cloud_steps", "name": "Cloud Steps", "finish": {"at": top[:2], "alt": top[2], "radius": 90}, "limit_s": 60,
+                  "pars": {"gold": 10.0, "silver": 13.0, "bronze": 18.0},
+                  "rivals": ["Senior Brother Qiao", "Sister Lan of the Sword Court", "Disciple Mo", "Little Tang", "Brother Kang",
+                             "Sister Wen of the Cloud Sect"], "rival_s": [9.5, 20.0],
+                  "medal_rewards": {"bronze": [{"kind": "add_contribution", "amount": 20}],
+                                    "silver": [{"kind": "add_contribution", "amount": 40}, {"kind": "grant_item", "item": "cloud_feather", "count": 2}],
+                                    "gold": [{"kind": "add_contribution", "amount": 60}]},
+                  "week_rewards": [{"kind": "add_contribution", "amount": 30}, {"kind": "grant_currency", "currency": "silver_tael", "amount": 100}]})
+
+
+def ice_sheets():
+    """The v1.1 ice traction rule (Part 8: the Frozen Shrine, "Ice (traction, v1.1 rule)"; Rimefrost Heights). On an
+    ice volume a body's speed only eases toward what it asks for (380 a second), so it slides on and slides to a stop."""
+    ROOMS["sr_frozen_shrine"].volume("ice", [620, 700, 1080, 250], alt=[-10, 20], traction=380, vid="shrine_ice")
+    ROOMS["sr_frozen_shrine"].volume("ice", [1900, 720, 300, 200], alt=[-10, 20], traction=380, vid="shrine_ice_2")
+    ROOMS["rf_rimefrost_summit"].volume("ice", [640, 720, 760, 220], alt=[-10, 20], traction=420, vid="summit_ice")
+    ROOMS["rf_frostpine_climb"].volume("ice", [2500, 720, 700, 220], alt=[-10, 20], traction=420, vid="frostpine_ice")
+
+
 def movement_extras():
     """Hand-placed climbing where the automatic pass finds no clear back row."""
     def deck(rid, sid, rect, h, kind="balcony"):
@@ -2881,6 +2934,8 @@ def build():
     verticality.run(ROOMS)
     tier_natives_pass()
     rare_herbs()   # after the tiers are final: rare nodes go on named raised surfaces
+    rooftop_routes()   # the thief chases and the Cloud Steps: waypoints on the final tiers
+    ice_sheets()       # v1.1 traction: glazed ground in the Frozen Shrine and on Rimefrost
     rift_tears()   # S49: after every volume is in place, so tears and fruit trees stand on dry ground
     fruit_trees()
     spirit_mines()

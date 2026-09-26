@@ -17,6 +17,7 @@ var title := ""
 var focus := false
 var t := 0.0
 var def: Dictionary = {}
+var pose_now := ""
 
 func setup(o: Dictionary) -> void:
 	def = o
@@ -39,6 +40,7 @@ func setup(o: Dictionary) -> void:
 	add_child(avatar)
 	var pose := str(o.get("pose", n.get("pose", "idle")))
 	avatar.play(pose)
+	pose_now = pose
 	if n.has("tint"): avatar.modulate = Color(str(n.tint))
 	bark_timer = randf_range(4.0, 12.0)
 
@@ -47,6 +49,7 @@ func _process(delta: float) -> void:
 	var c = Game.active()
 	visible = c == null or Game.world.object_visible(c, def)
 	if not visible: return
+	if def.has("chase"): _follow_chase(c)
 	marker = Game.quest.npc_marker(c, npc_id) if c else ""
 	bark_timer -= delta
 	if bark_timer <= 0.0:
@@ -57,6 +60,23 @@ func _process(delta: float) -> void:
 			bark_time = 4.0
 	bark_time = maxf(0.0, bark_time - delta)
 	queue_redraw()
+
+## S43 rule 15: a rooftop thief on the run is wherever his route puts him (the authority's clock), running, leaping
+## between tiers, or waiting to jeer.
+func _follow_chase(c) -> void:
+	var p: Dictionary = Game.world.chase_view(c) if c != null else {}
+	var at: Array = def.get("at", [0, 0])
+	var pose := "idle"
+	if p.is_empty() or str(p.get("object", "")) != object_id:
+		position = Vector2(float(at[0]), float(at[1]))
+	else:
+		position = Vector2(float(p.x), float(p.y) - float(p.alt))
+		z_index = 1500 + int(float(p.y)) + int(float(p.alt))
+		avatar.facing = int(p.facing)
+		if p.moving: pose = "walk"
+	if pose != pose_now:
+		pose_now = pose
+		avatar.play(pose)
 
 func face(x: float) -> void:
 	avatar.facing = 1 if x >= position.x else -1

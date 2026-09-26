@@ -484,5 +484,22 @@
    "bottom": "ground",
    "top": "upper_route_1"
   }
+ ],
+ "volumes": [
+  {
+   "id": "summit_ice",
+   "kind": "ice",
+   "rect": [
+    640,
+    720,
+    760,
+    220
+   ],
+   "alt": [
+    -10,
+    20
+   ],
+   "traction": 420
+  }
  ]
 }

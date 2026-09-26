@@ -383,6 +383,9 @@ func _sync_arts(c) -> void:
 	for sa in c.cultivator.secret_arts:
 		var art := str(ContentDB.entry("secret_arts", str(sa)).get("movement_art", ""))
 		if art != "": state.arts[art] = true
+	# S43 rule 12: a ground mount jumps with its own impulse and cannot Wall-Step (a climb steps you down off it).
+	state.jump_impulse = Game.pets.mount_jump(c)
+	if Game.pets.ground_mounted(c): state.arts.erase("wall_step")
 
 ## A hit knocks the body off a ladder, rope or vine (S43 rule 5).
 func knock_off_climb() -> void:

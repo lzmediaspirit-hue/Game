@@ -824,6 +824,22 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.treasure_birth") % [ContentDB.item_name(str(p.item)), ContentDB.name_of("rooms", str(p.room))], UiKit.PALE_GOLD)
 		"treasure_claimed":
 			toast(Tx.t("hud.treasure_claimed") % ContentDB.item_name(str(p.item)), "gold")
+		# S43 rule 15: the rooftop thief and the Cloud Steps.
+		"chase_started":
+			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.chase_started"), "quest", Tx.t("hud.chase_hint"))
+		"thief_caught":
+			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.thief_caught") % float(p.get("seconds", 0.0)), "gold")
+		"thief_escaped":
+			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.thief_escaped"), "quest")
+		"route_started":
+			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.route_started"), "quest", Tx.t("hud.route_hint") % int(p.get("limit", 60)))
+		"route_finished":
+			if str(p.get("actor", "")) != Game.active_id: pass
+			elif not p.get("finished", false): toast(Tx.t("hud.route_failed"), "quest")
+			else:
+				var medal := str(p.get("medal", ""))
+				toast(Tx.t("hud.route_finished") % [float(p.seconds), int(p.rank), int(p.of)], "gold" if medal != "" else "quest",
+					Tx.t("hud.route_medal_" + medal) if medal != "" else Tx.t("hud.route_best") % float(p.best))
 		"gathering_trial_ranked":
 			toast(Tx.t("hud.trial_ranked") % [int(p.rank), int(p.of), int(p.points)], "gold" if int(p.rank) <= 3 else "quest")
 		"rift_opened":
@@ -1111,7 +1127,8 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"reputation_changed":
 			add_log(Tx.t("hud.reputation") % [str(p.faction).replace("_", " ").capitalize(), int(p.value)], UiKit.MIST)
 		"dismounted":
-			add_log(Tx.t("hud.dismounted"), UiKit.RED)
+			if str(p.get("reason", "")) == "climb": add_log(Tx.t("hud.dismount_climb"), UiKit.MIST)
+			else: add_log(Tx.t("hud.dismounted"), UiKit.RED)
 		"item_bound":
 			toast(Tx.t("hud.item_bound") % ContentDB.item_name(str(p.item)), "gold")
 		"binding_interrupted":
@@ -1254,6 +1271,7 @@ func _draw():
 	var c = Game.active()
 	_draw_player_panel(c)
 	if shown("quest_tracker"): _draw_tracker(c)
+	_draw_run_banner(c)
 	if shown("minimap") and Game.account.settings.get("minimap", true): _draw_minimap(c)
 	for ic in icon_row:
 		if shown(ic[0]):
@@ -1449,6 +1467,30 @@ func _draw_tracker(c) -> void:
 			y += UiKit.line_height(16) * 0.88
 		y += 4
 		if y > 290: break
+
+## S43 rule 15: while a thief runs or a timed route is on, the seconds sit at the top of the screen.
+func _draw_run_banner(c) -> void:
+	if c == null: return
+	var label := ""
+	var secs := 0.0
+	var ch: Dictionary = Game.world.chases.get(c.id, {})
+	var run: Dictionary = Game.world.runs.get(c.id, {})
+	if not ch.is_empty():
+		label = Tx.t("hud.chase_banner")
+		secs = Game.sim_time - float(ch.start)
+	elif not run.is_empty():
+		var o: Dictionary = Game.room_rt.object_def(str(run.object)) if Game.room_rt else {}
+		if o.is_empty(): return
+		label = str(o.route.get("name", ""))
+		secs = Game.sim_time - float(run.start)
+	else:
+		return
+	var text := "%s   %.1f s" % [label, secs]
+	var w := UiKit.text_width(text, 22) + 40
+	var r := Rect2(640 - w * 0.5, 14, w, 40)
+	draw_rect(r, Color(0.02, 0.06, 0.075, 0.7))
+	draw_rect(r, Color(UiKit.GOLD, 0.7), false, 1.5)
+	UiKit.draw_text(self, text, r.position + Vector2(0, 28), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 
 func _draw_minimap(c) -> void:
 	var r := minimap_rect

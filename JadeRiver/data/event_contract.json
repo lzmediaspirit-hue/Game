@@ -649,6 +649,36 @@
     "world_authority"
    ]
   },
+  "chase_started": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "thief_caught": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "thief_escaped": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "route_started": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "route_finished": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
   "enemy_aggro": {
    "system": "Enemies",
    "files": [

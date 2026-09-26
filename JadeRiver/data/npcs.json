@@ -762,6 +762,33 @@
    }
   },
   {
+   "id": "rooftop_thief",
+   "name": "Quick-Fingered Hou",
+   "title": "Rooftop thief",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 0,
+    "shirt": "sleeveless",
+    "pants": "cuffed",
+    "shoes": "folded",
+    "hat": "headband",
+    "cape": "none",
+    "weapon": "dagger",
+    "shirt_dye": "ink",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "Nothing to see here."
+   ],
+   "barks": [
+    "Too slow, cultivator!",
+    "Catch me if you can!",
+    "Whose purse? Mine now."
+   ],
+   "services": []
+  },
+  {
    "id": "tinkerer_yu",
    "name": "Tinkerer Yu",
    "title": "Tinkerer",

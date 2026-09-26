@@ -8,6 +8,7 @@ var altitude=0.0
 var air_base=0.0
 var vertical_speed=0.0
 var velocity=Vector2.ZERO
+var jump_impulse=530.0               # S43 rule 12: a ground mount jumps with its species impulse (530 on foot)
 var surface: WalkSurface
 var air_stratum="ground"
 var jumps_used=0

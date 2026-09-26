@@ -1,7 +1,7 @@
 class_name VolumeView
 extends Node2D
 ## S43 volumes made visible: an updraft's rising streaks, wind lines that pulse with the gusts, a current's
-## ripples, rising water's surface and a bounce pad's skin. Still deep and shallow water are drawn by the
+## ripples, rising water's surface, a bounce pad's skin and an ice sheet's glaze. Still deep and shallow water are drawn by the
 ## room's water areas; crumble and no_flight have no look of their own (the boards and the room show them).
 var zone: ZoneGeometry
 var volume: Dictionary = {}
@@ -11,7 +11,7 @@ static func make(z: ZoneGeometry, v: Dictionary) -> VolumeView:
 	view.zone = z
 	view.volume = v
 	var r: Rect2 = v.rect
-	view.z_index = -1980 if str(v.kind) in ["current", "rising_water"] else 1500 + int(r.end.y)
+	view.z_index = -1980 if str(v.kind) in ["current", "rising_water", "ice"] else 1500 + int(r.end.y)
 	return view
 
 func _process(_delta: float) -> void:
@@ -26,6 +26,20 @@ func _draw() -> void:
 		"current": _current(r, t)
 		"rising_water": _rising(r, t)
 		"bounce": _bounce(r, t)
+		"ice": _ice(r, t)
+
+## A pale glaze on the ground where the footing slides (the v1.1 traction rule), with slow glints across it.
+func _ice(r: Rect2, t: float) -> void:
+	var lo := maxf(0.0, float(volume.get("lo", 0.0)))
+	var sheet := Rect2(r.position.x, r.position.y - lo, r.size.x, r.size.y)
+	draw_rect(sheet, Color(0.5, 0.75, 0.95, 0.34))
+	draw_rect(Rect2(sheet.position, Vector2(sheet.size.x, 3)), Color(0.88, 0.96, 1.0, 0.75))
+	draw_rect(Rect2(sheet.position + Vector2(0, sheet.size.y - 3), Vector2(sheet.size.x, 3)), Color(0.32, 0.52, 0.72, 0.6))
+	for i in 7:
+		var k := fposmod(t * 0.06 + i * 0.143, 1.0)
+		var x := sheet.position.x + sheet.size.x * k
+		var y := sheet.position.y + sheet.size.y * fposmod(i * 0.41, 1.0)
+		draw_line(Vector2(x - 26, y + 8), Vector2(x + 26, y - 8), Color(1, 1, 1, 0.6), 2.0)
 
 ## Pale streaks climbing from the ground to the updraft's top, drifting at different speeds.
 func _updraft(r: Rect2, t: float) -> void:

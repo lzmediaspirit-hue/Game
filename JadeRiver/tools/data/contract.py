@@ -91,7 +91,9 @@ DEPTH = {
              "arena_battle", "arena_rewarded", "pet_fed", "pet_commanded"],
     "World": ["ambush_sprung", "herb_ripening", "guardian_spawned", "beast_tide_started", "beast_tide_result", "beast_trial_result",
               "tower_floor_cleared", "tower_swept", "auto_hunt_changed", "auto_path_started", "auto_path_ended",
-              "treasure_birth_announced", "soul_searched"],
+              "treasure_birth_announced", "soul_searched",
+              # S43 rule 15: the rooftop thief chases and timed routes (the Cloud Steps).
+              "chase_started", "thief_caught", "thief_escaped", "route_started", "route_finished"],
     # S48 sect role variants: the signature line's variant and the contribution tree.
     "TrainingSect": ["sect_role_chosen", "sect_node_bought"],
     # S49 territory: the spirit-stone mines your sect takes, holds, loses and collects from (account level).

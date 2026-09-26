@@ -322,6 +322,85 @@
      }
     ]
    }
+  },
+  {
+   "id": "thief_ja",
+   "type": "npc",
+   "at": [
+    960,
+    790
+   ],
+   "npc": "rooftop_thief",
+   "facing": 1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_3"
+     }
+    ]
+   },
+   "chase": {
+    "route": [
+     [
+      960,
+      790,
+      0,
+      0.0
+     ],
+     [
+      1012,
+      635,
+      88,
+      0.6
+     ],
+     [
+      1507,
+      635,
+      88,
+      0.8
+     ],
+     [
+      1810,
+      635,
+      176,
+      0.8
+     ],
+     [
+      2008,
+      635,
+      176,
+      0.5
+     ],
+     [
+      2410,
+      635,
+      264,
+      0.8
+     ],
+     [
+      2720,
+      635,
+      264,
+      2.0
+     ]
+    ],
+    "speed": 270,
+    "catch_px": 80,
+    "catch_alt": 40,
+    "grace_s": 0.8,
+    "rewards": [
+     {
+      "kind": "grant_currency",
+      "currency": "silver_tael",
+      "amount": 120
+     },
+     {
+      "kind": "add_contribution",
+      "amount": 15
+     }
+    ]
+   }
   }
  ],
  "spawns": [],

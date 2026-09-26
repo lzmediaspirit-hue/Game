@@ -12,6 +12,25 @@
    "title": "fleet_footed"
   },
   {
+   "id": "thief_catcher",
+   "name": "Thief-Catcher",
+   "desc": "Catch 10 rooftop thieves",
+   "event": "thief_caught",
+   "count": 10,
+   "title": "thief_catcher"
+  },
+  {
+   "id": "cloud_stepper",
+   "name": "Cloud Stepper",
+   "desc": "Run the Cloud Steps inside the gold par",
+   "event": "route_finished",
+   "match": {
+    "route": "cloud_steps",
+    "medal": "gold"
+   },
+   "title": "cloud_stepper"
+  },
+  {
    "id": "crab_catcher",
    "name": "Crab Catcher",
    "desc": "Defeat 100 Mudshell Crabs",

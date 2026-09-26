@@ -378,6 +378,110 @@
     ]
    },
    "set_flag": "gutter_shard"
+  },
+  {
+   "id": "thief_sf",
+   "type": "npc",
+   "at": [
+    380,
+    800
+   ],
+   "npc": "rooftop_thief",
+   "facing": 1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_1"
+     }
+    ]
+   },
+   "chase": {
+    "route": [
+     [
+      380,
+      800,
+      0,
+      0.0
+     ],
+     [
+      480,
+      644,
+      168,
+      0.6
+     ],
+     [
+      700,
+      644,
+      168,
+      0.8
+     ],
+     [
+      900,
+      675,
+      88,
+      0.7
+     ],
+     [
+      1242,
+      644,
+      158,
+      0.8
+     ],
+     [
+      1451,
+      644,
+      158,
+      0.5
+     ],
+     [
+      1630,
+      675,
+      88,
+      0.7
+     ],
+     [
+      1976,
+      644,
+      168,
+      0.8
+     ],
+     [
+      2226,
+      644,
+      168,
+      0.6
+     ],
+     [
+      2380,
+      656,
+      312,
+      2.5
+     ],
+     [
+      2466,
+      656,
+      312,
+      0.0
+     ]
+    ],
+    "speed": 260,
+    "catch_px": 80,
+    "catch_alt": 40,
+    "grace_s": 0.8,
+    "rewards": [
+     {
+      "kind": "grant_currency",
+      "currency": "silver_tael",
+      "amount": 150
+     },
+     {
+      "kind": "grant_item",
+      "item": "spirit_stone_shard",
+      "count": 1
+     }
+    ]
+   }
   }
  ],
  "spawns": [],

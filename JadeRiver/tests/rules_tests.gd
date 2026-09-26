@@ -53,6 +53,8 @@ func _main() -> void:
 	tribulation_suite()
 	furnace_game_suite()
 	expanse_herbs_suite()
+	rooftop_routes_suite()
+	ice_mount_suite()
 	body_path_suite()
 	heaven_suite()
 	arts_suite()
@@ -4882,6 +4884,208 @@ func expanse_herbs_suite() -> void:
 	Clock.override_utc = over_was
 	if room_was != "": Game.world.load_room(c, room_was, "")
 	GameEvents.flush()
+
+## V9f1 · S43 rule 15 traversal content: the daily rooftop thief of Market Street and Gate Street, and the Cloud Sect's
+## timed Cloud Steps with its weekly board.
+func rooftop_routes_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var cd_was: Dictionary = c.cooldowns.duplicate(true)
+	var over_was: float = Clock.override_utc
+	var realm_was: String = c.cultivator.realm_key
+	if ProgressionRules.realm_index(realm_was) < ProgressionRules.realm_index("qi_kindling_3"): c.cultivator.realm_key = "qi_kindling_3"
+	# The route: he waits, runs at his speed (a climb counts half its height), and is gone after the last wait.
+	var route := [[0, 700, 0, 1.0], [200, 700, 0, 0.5], [200, 700, 100, 0.0]]
+	var p0 := WorldAuthority.chase_point(route, 200.0, 0.5)
+	var p1 := WorldAuthority.chase_point(route, 200.0, 1.5)
+	var len := WorldAuthority.chase_length(route, 200.0)
+	check(near(float(p0.x), 0.0) and not p0.moving and near(float(p1.x), 100.0) and p1.moving and near(len, 1.0 + 1.0 + 0.5 + 0.25),
+		"the thief waits, then runs at his pace (%.2f s in all)" % len)
+	check(WorldAuthority.chase_point(route, 200.0, len + 0.1).done and not WorldAuthority.chase_point(route, 200.0, len - 0.1).done, "past his last wait he is gone")
+	# Every waypoint stands on the street or a named roof at that roof's height.
+	for pair in [["sf_market", "thief_sf"], ["ja_gate_street", "thief_ja"]]:
+		var rdef := ContentDB.room(str(pair[0]))
+		var th: Dictionary = {}
+		for o in rdef.get("objects", []):
+			if str(o.id) == str(pair[1]): th = o
+		var standing := true
+		var roofs := 0
+		for w in th.get("chase", {}).get("route", []):
+			if float(w[2]) <= 0.0: continue
+			var on := false
+			for sd in rdef.get("surfaces", []):
+				var rr: Array = sd.rect
+				if near(float(sd.height), float(w[2]), 0.5) and float(w[0]) >= float(rr[0]) and float(w[0]) <= float(rr[0]) + float(rr[2]) \
+						and float(w[1]) >= float(rr[1]) and float(w[1]) <= float(rr[1]) + float(rr[3]): on = true
+			if on: roofs += 1
+			else: standing = false
+		check(not th.is_empty() and str(th.get("npc", "")) == "rooftop_thief" and standing and roofs >= 5, "%s: the thief's route runs over %d roof stops, each on a roof" % [pair[0], roofs])
+	# Catch him: speak and he bolts; not in the first moment; reach him at his height and the purse is yours.
+	Game.world.load_room(c, "sf_market", "")
+	GameEvents.flush()
+	var st: ActorState = Game.actor_state(c.id)
+	var th2: Dictionary = Game.room_rt.object_def("thief_sf")
+	c.cooldowns.erase("chase_thief_sf")
+	st.plane = Vector2(390, 800)
+	st.altitude = 0.0
+	check(Game.world.object_visible(c, th2) and str(Game.world.query_context(c).get("label", "")) == Tx.t("sim.world.chase"),
+		"the thief loiters in the street: Chase! (%s, %s)" % [str(Game.world.object_visible(c, th2)), str(Game.world.query_context(c))])
+	var t0 := Game.economy.balance("silver_tael")
+	var go := Game.submit({"type": "interact", "object": "thief_sf"})
+	check(go.get("ok", false) and Game.world.chases.has(c.id), "speak to him and he bolts")
+	Game.world._tick_chase(c, Game.room_rt, st)
+	check(Game.world.chases.has(c.id), "standing beside him as he goes does not catch him")
+	Game.sim_time += 3.0
+	var at3: Dictionary = Game.world.chase_view(c)
+	st.plane = Vector2(float(at3.x), float(at3.y))
+	st.altitude = 0.0
+	Game.world._tick_chase(c, Game.room_rt, st)
+	check(Game.world.chases.has(c.id) or float(at3.alt) <= 40.0, "from the street below you cannot lay a hand on him (he is at %d)" % int(at3.alt))
+	st.altitude = float(at3.alt)
+	Game.world._tick_chase(c, Game.room_rt, st)
+	GameEvents.flush()
+	check(not Game.world.chases.has(c.id) and Game.economy.balance("silver_tael") == t0 + 150 and Game.world.chase_done_today(c, "thief_sf")
+		and not Game.world.object_visible(c, th2), "on his roof at his height: caught, 150 taels, and he is gone for the day")
+	var again := Game.submit({"type": "interact", "object": "thief_sf"})
+	check(not again.get("ok", false) and not Game.world.chases.has(c.id), "one chase a street a day (%s)" % str(again))
+	# The next day he runs again; left alone, he is over the wall and away with nothing paid.
+	Clock.override_utc = Clock.now_utc() + 86400.0
+	st.plane = Vector2(390, 800)
+	st.altitude = 0.0
+	var t1 := Game.economy.balance("silver_tael")
+	Game.submit({"type": "interact", "object": "thief_sf"})
+	Game.sim_time += WorldAuthority.chase_length(th2.chase.route, float(th2.chase.speed)) + 1.0
+	st.plane = Vector2(100, 900)
+	Game.world._tick_chase(c, Game.room_rt, st)
+	check(not Game.world.chases.has(c.id) and Game.economy.balance("silver_tael") == t1 and Game.world.chase_done_today(c, "thief_sf"),
+		"too slow: he is over the far wall, nothing paid")
+	# The Cloud Steps: a timed climb; the week's board, medals once each, and the top three paid once a week.
+	var cs := ContentDB.room("cm_cliff_stair")
+	var stone: Dictionary = {}
+	for o in cs.get("objects", []):
+		if str(o.type) == "route_stone": stone = o
+	var rt: Dictionary = stone.get("route", {})
+	var tops := 0
+	for sd in cs.get("surfaces", []):
+		if near(float(sd.height), 300.0, 0.5): tops += 1
+	check(not rt.is_empty() and tops >= 1 and near(float(rt.finish.alt), 300.0, 0.5), "the Cliff Stair climbs to a 300 ledge, the Cloud Steps' bell at the top")
+	var wk: int = Game.calendar.rank_week()
+	check(Game.world.route_board(rt, wk) == Game.world.route_board(rt, wk) and Game.world.route_board(rt, wk).size() == (rt.rivals as Array).size(),
+		"the week's board is the same on every device")
+	c.cooldowns.erase("route_cloud_steps")
+	var contrib0 := int(c.training_sect.get("contribution", 0))
+	var slow := Game.world.finish_route(c, rt, 30.0)
+	check(str(slow.medal) == "" and int(slow.rank) >= 1, "a slow run: no medal")
+	var fast := Game.world.finish_route(c, rt, 10.0)
+	check(str(fast.medal) == "gold" and int(fast.rank) == 1 and near(float(fast.best), 10.0)
+		and (Game.world.route_record(c, "cloud_steps").medals as Array).size() == 3, "inside the gold par: first place, and all three medals' rewards")
+	var contrib1 := int(c.training_sect.get("contribution", 0))
+	Game.world.finish_route(c, rt, 9.0)
+	check(int(c.training_sect.get("contribution", 0)) == contrib1, "medals and the week's reward pay once")
+	# Run it for real: touch the stone, stand at the bell.
+	c.cultivator.realm_key = "bone_forging_3" if ProgressionRules.realm_index(c.cultivator.realm_key) < ProgressionRules.realm_index("bone_forging_3") else c.cultivator.realm_key
+	Game.world.load_room(c, "cm_cliff_stair", "")
+	GameEvents.flush()
+	st = Game.actor_state(c.id)
+	st.plane = Vector2(260, 830)
+	st.altitude = 0.0
+	var begun := Game.submit({"type": "interact", "object": "cloud_steps_stone"})
+	var t_start: float = Game.sim_time
+	Game.sim_time += 11.5
+	st.plane = Vector2(float(rt.finish.at[0]), float(rt.finish.at[1]))
+	st.altitude = 300.0
+	var got: Array = []
+	GameEvents.subscribe("route_finished", func(pp): got.append(pp), 200)
+	Game.world._tick_run(c, Game.room_rt, st)
+	GameEvents.flush()
+	check(begun.get("ok", false) and got.size() == 1 and near(float(got[0].seconds), 11.5, 0.11) and got[0].finished, "at the bell: the run is timed (%s)" % str(got))
+	st.plane = Vector2(260, 830)
+	st.altitude = 0.0
+	Game.submit({"type": "interact", "object": "cloud_steps_stone"})
+	Game.sim_time += float(rt.limit_s) + 1.0
+	got.clear()
+	Game.world._tick_run(c, Game.room_rt, st)
+	GameEvents.flush()
+	check(got.size() == 1 and not got[0].finished and not Game.world.runs.has(c.id), "the incense burns down: the run does not count")
+	c.cooldowns = cd_was
+	c.cultivator.realm_key = realm_was
+	Clock.override_utc = over_was
+	if room_was != "": Game.world.load_room(c, room_was, "")
+	GameEvents.flush()
+
+## V9f2 · the v1.1 ice traction rule, and mounts in a vertical world (S43 rule 12): a ground mount jumps with its
+## species impulse and cannot Wall-Step; any mount puts you down for a ladder or rope and takes you back at the landing.
+func ice_mount_suite() -> void:
+	var z := ZoneGeometry.new()
+	z.configure({"bounds": [0, 480, 3000, 480], "surfaces": [
+		{"id": "ground", "rect": [0, 560, 3000, 400], "height": 0, "kind": "ground", "stratum": "ground", "open_edges": false}],
+		"volumes": [{"id": "glaze", "kind": "ice", "rect": [1000, 560, 1000, 400], "alt": [-10, 20], "traction": 380}]})
+	var dt := 1.0 / 120.0
+	# Off the ice the body answers at once; on it, speed only eases toward what it asks for.
+	var dry := _trav_actor(z, "ground", Vector2(300, 800))
+	MovementSolver.advance(dry, z, dt, Vector2(205, 0))
+	var ice := _trav_actor(z, "ground", Vector2(1200, 800))
+	_trav_run(ice, z, 0.1, Vector2(205, 0))
+	check(near(dry.velocity.x, 205.0, 1.0) and ice.velocity.x > 30.0 and ice.velocity.x < 45.0, "on ice a body gains speed slowly (%.0f after 0.1 s)" % ice.velocity.x)
+	_trav_run(ice, z, 1.0, Vector2(205, 0))
+	var x0: float = ice.plane.x
+	_trav_run(ice, z, 0.25, Vector2.ZERO)
+	check(ice.velocity.x > 80.0 and ice.plane.x - x0 > 25.0, "let go and it slides on (%.0f further, still %.0f a second)" % [ice.plane.x - x0, ice.velocity.x])
+	_trav_run(ice, z, 1.0, Vector2.ZERO)
+	check(ice.velocity.length() < 1.0, "and slides to a stop")
+	dry.plane = Vector2(300, 800)
+	_trav_run(dry, z, 0.5, Vector2(205, 0))
+	_trav_run(dry, z, dt, Vector2.ZERO)
+	check(dry.velocity.length() < 1.0, "off the ice it stops dead")
+	var air := _trav_actor(z, "ground", Vector2(1500, 800))
+	MovementSolver.jump(air)
+	MovementSolver.advance(air, z, dt, Vector2(205, 0))
+	check(near(air.velocity.x, 205.0, 1.0), "in the air over ice, control stays total")
+	# A ground mount's jump: the Cloud Stag's 600 reaches about 156 where a foot jump reaches 122.
+	var stag := _trav_actor(z, "ground", Vector2(300, 800))
+	stag.jump_impulse = 600.0
+	MovementSolver.jump(stag)
+	var peak := 0.0
+	while stag.surface == null or stag.vertical_speed > 0.0:
+		MovementSolver.advance(stag, z, dt, Vector2.ZERO)
+		peak = maxf(peak, stag.altitude)
+		if stag.surface != null: break
+	check(near(peak, 600.0 * 600.0 / 2300.0, 3.0), "a 600 impulse jumps to about 156 (%.0f)" % peak)
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var mount_was := str(c.mount_pet)
+	var riding_was: bool = c.riding
+	check(near(Game.pets.mount_jump(c), 530.0) or not Game.pets.mount_of(c).is_empty(), "on foot a rider jumps 530")
+	Game.pets.apply_grant(c.id, "cloud_stag")
+	var sg: Dictionary = c.pets.back()
+	Unlocks.force_unlock(c.id, "mounts")
+	Game.pets.dismounted.erase(c.id)
+	Game.submit({"type": "set_mount", "pet": sg.uid})
+	Game.submit({"type": "set_mount", "on": true})
+	check(Game.pets.ground_mounted(c) and near(Game.pets.mount_jump(c), 600.0), "on the Cloud Stag: its own 600 jump")
+	Game.pets.apply_grant(c.id, "jade_crane")
+	var cr: Dictionary = c.pets.back()
+	Game.submit({"type": "set_mount", "pet": cr.uid})
+	Game.submit({"type": "set_mount", "on": true})
+	check(not Game.pets.ground_mounted(c) and near(Game.pets.mount_jump(c), 530.0), "a flying mount's rider jumps as on foot (the crane flies instead)")
+	Game.submit({"type": "set_mount", "pet": sg.uid})
+	Game.submit({"type": "set_mount", "on": true})
+	# A ladder puts you down; stepping off at the top puts you back up.
+	var st: ActorState = Game.actor_state(c.id)
+	GameEvents.emit_event("climb_started", {"actor": c.id, "climbable": "test_ladder"})
+	GameEvents.flush()
+	check(Game.pets.mount_of(c).is_empty() and Game.pets.climb_off.has(c.id), "a climb puts the rider down off the stag")
+	st.climbing = {"id": "test_ladder"}
+	GameEvents.emit_event("landed", {"actor": c.id, "surface": "x", "fall_height": 0.0})
+	GameEvents.flush()
+	check(Game.pets.climb_off.has(c.id), "still on the ladder: still on foot")
+	st.climbing = {}
+	GameEvents.emit_event("climb_finished", {"actor": c.id, "climbable": "test_ladder", "end": "top"})
+	GameEvents.flush()
+	check(not Game.pets.climb_off.has(c.id) and Game.pets.ground_mounted(c), "off the ladder at the top: back on the stag")
+	c.mount_pet = mount_was
+	c.riding = riding_was
 
 # ------------------------------------------------------------------ formulas
 func rules_suite() -> void:

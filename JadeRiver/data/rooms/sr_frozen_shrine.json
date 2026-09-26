@@ -568,5 +568,37 @@
    "bottom": "ground",
    "top": "route_2"
   }
+ ],
+ "volumes": [
+  {
+   "id": "shrine_ice",
+   "kind": "ice",
+   "rect": [
+    620,
+    700,
+    1080,
+    250
+   ],
+   "alt": [
+    -10,
+    20
+   ],
+   "traction": 380
+  },
+  {
+   "id": "shrine_ice_2",
+   "kind": "ice",
+   "rect": [
+    1900,
+    720,
+    300,
+    200
+   ],
+   "alt": [
+    -10,
+    20
+   ],
+   "traction": 380
+  }
  ]
 }

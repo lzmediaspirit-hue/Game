@@ -128,7 +128,7 @@ func _build_room() -> void:
 		room_layer.add_child(ClimbableView.make(cdef))
 	# S43 volumes that have a look of their own, and the surfaces that move, crumble or break.
 	for v in geometry.volumes:
-		if str(v.kind) in ["updraft", "wind", "current", "rising_water", "bounce"]: room_layer.add_child(VolumeView.make(geometry, v))
+		if str(v.kind) in ["updraft", "wind", "current", "rising_water", "bounce", "ice"]: room_layer.add_child(VolumeView.make(geometry, v))
 	dynamic_terrain.clear()
 	for tv in terrain_visuals:
 		var ts: WalkSurface = tv.surface

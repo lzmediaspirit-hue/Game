@@ -5,6 +5,51 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V9f2 · Ice, and mounts in a vertical world (S43 rules 5 and 12, v1.1)
+- **Ice (the v1.1 traction rule):** a new `ice` volume.
+  - On ice, your speed only eases toward what you ask for, at 380 to 420 a second. You slide on when you let go and
+    slide to a stop. In the air, control stays total.
+  - Glazed ground in the Frozen Shrine (two sheets), on the Rimefrost Summit and on the Frostpine Climb, drawn as a
+    pale blue glaze with slow glints.
+- **Mount jumps:** a ground mount jumps with its species' impulse. The Cloud Stag's 600 reaches about 156, where a
+  jump on foot reaches 122. A flying mount's rider jumps as on foot, because the animal flies instead.
+- **No Wall-Step on a ground mount.**
+- **Climbing:** a ladder or rope puts the rider down off any mount; it waits below. You are back in the saddle when
+  you step off at the top or land. The log says so calmly, not in red.
+- Tests: `rules_tests` `ice_mount_suite`:
+  - slow speed gain on ice, sliding on and stopping, a dead stop off the ice, air control over it;
+  - the 600 jump's height;
+  - mount jumps by kind;
+  - dismounting for a ladder and remounting at the top.
+
+### V9f1 · The rooftop thief and the Cloud Steps (S43 rule 15)
+- **"Catch the thief"**, daily on Market Street (from Qi Kindling 1) and Gate Street (from Qi Kindling 3).
+  - Quick-Fingered Hou loiters in the street. Speak to him (the action reads Chase!) and he bolts over the roofs.
+  - Market Street: store, awning, tea house, awning, warehouse, then the bell tower. Gate Street: the three-roof
+    chain.
+  - He pauses at each roof to jeer. A timer runs at the top of the screen.
+  - Reach him on his roof, at his height, to catch him. From the street below you cannot lay a hand on him.
+  - Market Street pays 150 taels and a Spirit Stone shard; Gate Street pays 120 taels and sect contribution.
+  - If he gets over the far wall, nothing is paid. Leaving the street lets him get away too.
+  - One chase a street a day, caught or not.
+  - Catching ten earns the Thief-Catcher title (+2% coin find).
+- **The Cloud Steps**, the Cloud Sect's timed climb:
+  - The Cliff Stair now reaches its catalogue's 300 ledge. Touch the flag at the foot (from Bone Forging 3) and reach
+    the bell at the top before the incense burns down (60 s).
+  - Each week has a board of six sect disciples with fixed, seeded times.
+  - A place in the top three pays contribution and taels once a week.
+  - Medal pars: bronze 18 s, silver 13 s, gold 10 s. Each medal's reward is paid the first time you beat its par.
+    Gold also earns the Cloud Stepper title (+1% move speed).
+- New World events `chase_started`, `thief_caught`, `thief_escaped`, `route_started` and `route_finished`, with HUD
+  toasts.
+- Debug tools: `--interact=<object>` presses a room object in a preview (a thief, a route stone).
+- Tests: `rules_tests` `rooftop_routes_suite`:
+  - the route clock;
+  - every waypoint standing on a roof;
+  - the grace moment, the height rule, the catch and its pay, one chase a day, the escape;
+  - the Cliff Stair's 300 ledge;
+  - the week's board, medals once, a timed finish, the burned-out incense.
+
 ### V9e3 · The Cloud Herb Terraces and the ten-thousand-year tier (S45, Part 8, v1.1)
 - **Cloud Herb Terraces:** a new room east of the Cloud Sect's Array Court, with three terraces cut into the cliff.
   Willow moss and ember pepper grow at the foot, ginseng on the middle terrace and mist lotus on the high one.

@@ -390,6 +390,10 @@ func _handle_preview_args(user_args: Array) -> void:
 			await get_tree().create_timer(0.8).timeout
 			var r := Game.submit({"type": "talk", "npc": str(a).trim_prefix("--talk=")})
 			if r.get("ok", false) and r.has("dialogue"): open_page("dialogue", {"convo": r.dialogue})
+		if str(a).begins_with("--interact="):
+			# Debug tools (S38): use a room object as if pressed (a thief to chase, a route stone), for previews.
+			await get_tree().create_timer(0.8).timeout
+			Game.submit({"type": "interact", "object": str(a).trim_prefix("--interact=")})
 		if str(a).begins_with("--shot="): shot = str(a).trim_prefix("--shot=")
 		if str(a) == "--offer-fates" and Game.active() != null:
 			# Debug tools (S38): a fate offer for previews of the picker (S48).
