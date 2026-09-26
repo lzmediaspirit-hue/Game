@@ -413,10 +413,8 @@ func withdraw_storehouse(c, item_id: String, count: int) -> Dictionary:
 	if c == null: return fail("no_character")
 	var have := int(game.account.storehouse.get(item_id, 0))
 	if have <= 0 or count <= 0: return fail("empty")
-	if game.room_rt != null:
-		var ty := str(game.room_rt.def.get("type", ""))
-		if not (ty in ["town", "sect", "home", "interior"] or game.room_rt.def.get("safe", false)):
-			return fail("not_here", {"text": t("sim.posts.withdraw_in_town")})
+	if game.room_rt != null and not WorldRules.safe_room(game.room_rt.def):
+		return fail("not_here", {"text": t("sim.posts.withdraw_in_town")})
 	var n := mini(count, have)
 	var added := int(game.inventory.apply_add(c.id, item_id, n, "storehouse", {}, false))
 	if added <= 0: return fail("bag_full", {"text": Tx.t("sim.economy.your_gourd_is_full")})

@@ -44,7 +44,7 @@ func _on_room_entered_fates(p: Dictionary) -> void:
 	if c == null or game.room_rt == null or not game.progression.fate_flag(c, "reveal_hidden"): return
 	for pt in game.room_rt.def.get("portals", []):
 		if str(pt.get("type", "")) != "hidden": continue
-		var f: String = "seen_" + game.room_rt.room_id + "_" + str(pt.id)
+		var f := seen_flag(game.room_rt.room_id, str(pt.id))
 		if c.quests.has_flag(f): continue
 		game.quest.apply_flag(c.id, f)
 		emit("hidden_portal_revealed", {"actor": c.id, "portal": str(pt.id), "room": game.room_rt.room_id, "source": "wandering_eye"})
@@ -304,6 +304,10 @@ func portal_near(c, portal: Dictionary) -> bool:
 	var r: Vector2 = PORTAL_RADIUS * float(portal.get("radius_scale", 1.0))
 	return absf(st.plane.x - float(at[0])) <= r.x and absf(st.plane.y - float(at[1])) <= r.y
 
+## The flag a character carries once a hidden way in a room has shown itself to them.
+static func seen_flag(room_id: String, portal_id: String) -> String:
+	return "seen_" + room_id + "_" + portal_id
+
 func portal_state(c, portal: Dictionary) -> Dictionary:
 	var target := str(portal.get("to", ""))
 	if ContentDB.room(target).is_empty():
@@ -311,7 +315,7 @@ func portal_state(c, portal: Dictionary) -> Dictionary:
 	if debug_open_ways: return {"open": true, "text": ContentDB.name_of("rooms", target)}
 	if portal.has("requires") and not RequirementRules.passes(portal.requires, game.ctx(c)):
 		return {"open": false, "text": str(portal.get("locked_text", RequirementRules.first_failure_text(portal.requires, game.ctx(c))))}
-	if portal.get("type", "") == "hidden" and not c.quests.has_flag("seen_" + game.room_rt.room_id + "_" + str(portal.id)):
+	if portal.get("type", "") == "hidden" and not c.quests.has_flag(seen_flag(game.room_rt.room_id, str(portal.id))):
 		return {"open": false, "text": "", "hidden": true}
 	return {"open": true, "text": ContentDB.name_of("rooms", target)}
 
@@ -400,7 +404,7 @@ func sense_pulse(c) -> Dictionary:
 		for p in game.room_rt.def.get("portals", []):
 			if p.get("type", "") != "hidden" or not Unlocks.is_unlocked(c.id, "hidden_portals"): continue
 			var at: Array = p.get("at", [0, 0])
-			var f = "seen_" + game.room_rt.room_id + "_" + str(p.id)
+			var f := seen_flag(game.room_rt.room_id, str(p.id))
 			if here.distance_to(Vector2(float(at[0]), float(at[1]))) <= radius and not c.quests.has_flag(f):
 				game.quest.apply_flag(c.id, f)
 				emit("hidden_portal_revealed", {"actor": c.id, "portal": str(p.id), "room": game.room_rt.room_id})
@@ -1739,7 +1743,7 @@ func _tick_auto_hunt(c, delta: float) -> void:
 func portal_open(c, room_id: String, p: Dictionary) -> bool:
 	if ContentDB.room(str(p.get("to", ""))).is_empty(): return false
 	if p.has("requires") and not RequirementRules.passes(p.requires, game.ctx(c)): return false
-	if str(p.get("type", "")) == "hidden" and not c.quests.has_flag("seen_" + room_id + "_" + str(p.id)): return false
+	if str(p.get("type", "")) == "hidden" and not c.quests.has_flag(seen_flag(room_id, str(p.id))): return false
 	return true
 
 ## The shortest way between two rooms through the portals open to this character (its realm, quests and arts):
@@ -1766,15 +1770,20 @@ func auto_path_step(c) -> Dictionary:
 	if ap.is_empty() or game.room_rt == null: return {}
 	for s in ap.route:
 		if str(s.room) != game.room_rt.room_id: continue
-		if s.get("dock", false):
-			for o in game.room_rt.def.get("objects", []):
-				if str(o.id) == str(s.portal): return {"dock": str(o.id), "x": float(o.at[0]), "y": float(o.at[1]), "press_up": false, "surface": ""}
-			return {}
-		var p = game.room_rt.portal_def(str(s.portal))
-		if p.is_empty(): return {}
-		return {"portal": str(s.portal), "x": float(p.at[0]), "y": float(p.at[1]), "press_up": bool(p.get("press_up", false)),
-			"surface": str(p.get("surface", ""))}
+		var at := _step_point(s)
+		if at.is_empty(): return {}
+		if s.get("dock", false): return {"dock": str(s.portal), "x": float(at.x), "y": float(at.y), "press_up": false, "surface": ""}
+		return {"portal": str(s.portal), "x": float(at.x), "y": float(at.y), "press_up": bool(at.p.get("press_up", false)), "surface": str(at.p.get("surface", ""))}
 	return {}
+
+## Where a route step starts in this room: its dock object or its portal ({x, y, p: the portal}), {} when it is not here.
+func _step_point(s: Dictionary) -> Dictionary:
+	if s.get("dock", false):
+		for o in game.room_rt.def.get("objects", []):
+			if str(o.id) == str(s.portal): return {"x": float(o.at[0]), "y": float(o.at[1]), "p": {}}
+		return {}
+	var p = game.room_rt.portal_def(str(s.portal))
+	return {} if p.is_empty() else {"x": float(p.at[0]), "y": float(p.at[1]), "p": p}
 
 ## v1.2 gravity switches: a jade switch turns its room's low-gravity volumes on or off (every volume tied to it).
 func toggle_gravity(c, object_id: String) -> Dictionary:
@@ -1801,22 +1810,8 @@ func guide_step(c) -> Dictionary:
 	var step := {}
 	var r := route(c, here, goal)
 	if not r.is_empty() and str(r[0].room) == here:
-		var x := 0.0
-		var y := 0.0
-		var found := false
-		if r[0].get("dock", false):
-			for o in game.room_rt.def.get("objects", []):
-				if str(o.id) == str(r[0].portal):
-					x = float(o.at[0])
-					y = float(o.at[1])
-					found = true
-		else:
-			var p = game.room_rt.portal_def(str(r[0].portal))
-			if not p.is_empty():
-				x = float(p.at[0])
-				y = float(p.at[1])
-				found = true
-		if found: step = {"target": goal, "next": str(r[0].to), "portal": str(r[0].portal), "x": x, "y": y}
+		var at := _step_point(r[0])
+		if not at.is_empty(): step = {"target": goal, "next": str(r[0].to), "portal": str(r[0].portal), "x": float(at.x), "y": float(at.y)}
 	_guide_cache = {"key": key, "at": Clock.now_utc(), "step": step}
 	return step
 

@@ -667,7 +667,7 @@ func craft_step(c, recipe_id: String, craft_kind: String, offset: float, fire :=
 	var score := clampf(1.0 - absf(offset) / tolerance, 0.0, 1.0)
 	session.scores.append(score)
 	steps[c.id] = session
-	var grade := "perfect" if score >= float(k.get("perfect", 0.85)) else ("good" if score >= float(k.get("good", 0.5)) else "miss")
+	var grade := _step_grade(score)
 	emit("craft_step_result", {"actor": c.id, "recipe": recipe_id, "step": session.scores.size(), "score": score, "grade": grade})
 	return ok({"score": score, "grade": grade, "step": session.scores.size()})
 

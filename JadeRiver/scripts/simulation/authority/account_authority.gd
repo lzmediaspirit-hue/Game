@@ -291,12 +291,7 @@ func enter_character(slot: int) -> Dictionary:
 		welcome = collect_idle(c.id)
 		c.idle_task = {}
 	# S50 Keeping Post: a character coming in from its post settles it (the Return Ledger) and pauses it while played.
-	var ledger: Dictionary = game.posts.on_entered(c)
-	if not ledger.is_empty():
-		if not welcome.has("gains"): welcome["gains"] = {}
-		welcome["post"] = ledger
-		welcome.gains["post"] = true
-		if not welcome.has("hours"): welcome["hours"] = float(ledger.get("hours", 0.0))
+	_with_ledger(welcome, game.posts.on_entered(c))
 	c.cultivator.meditating = false
 	if previous != "" and previous != c.id: emit("character_switched", {"from": previous, "to": c.id})
 	emit("character_entered", {"actor": c.id, "slot": slot})
@@ -305,16 +300,23 @@ func enter_character(slot: int) -> Dictionary:
 	GameEvents.unlock_pending = true
 	return ok({"welcome": welcome})
 
+## A post's Return Ledger joins the welcome report (its hours stand in when nothing else was away).
+static func _with_ledger(welcome: Dictionary, ledger: Dictionary) -> void:
+	if ledger.is_empty(): return
+	if not welcome.has("gains"): welcome["gains"] = {}
+	welcome["post"] = ledger
+	welcome.gains["post"] = true
+	if not welcome.has("hours"): welcome["hours"] = float(ledger.get("hours", 0.0))
+
 ## Switching only at a shrine, town or your sect; the character left starts its idle task.
 func switch_character(slot: int) -> Dictionary:
 	var current = game.active()
 	var target = game.character("c%d" % slot)
 	if target == null: return fail("empty_slot")
 	if current != null and game.room_rt != null:
-		var t := str(game.room_rt.def.get("type", ""))
 		# S50: a character standing at its post may be switched out there; it goes on working.
 		var posted: bool = game.posts.at_post(current)
-		if not (t in ["town", "sect", "home", "interior"] or game.room_rt.def.get("safe", false) or posted):
+		if not (WorldRules.safe_room(game.room_rt.def) or posted):
 			return fail("not_here", {"text": Tx.t("sim.account.switch_characters_at_a_shrine")})
 		game.posts.on_left(current)
 		if posted: current.idle_task = {}
@@ -604,12 +606,7 @@ func app_resumed() -> Dictionary:
 	if not c.seclusion.is_empty() and float(el.elapsed) > 0.0:
 		result = game.progression.claim_offline(c, float(el.elapsed))
 	# S50: a character left at its post when the game was put away worked there meanwhile.
-	var ledger: Dictionary = game.posts.on_entered(c)
-	if not ledger.is_empty():
-		if not result.has("gains"): result["gains"] = {}
-		result["post"] = ledger
-		result.gains["post"] = true
-		if not result.has("hours"): result["hours"] = float(ledger.get("hours", 0.0))
+	_with_ledger(result, game.posts.on_entered(c))
 	c.last_active_utc = Clock.now_utc()
 	check_resets()
 	emit("app_resumed", {"elapsed": el.elapsed, "welcome": float(el.elapsed) > 300.0})

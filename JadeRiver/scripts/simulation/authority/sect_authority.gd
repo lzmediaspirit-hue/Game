@@ -156,10 +156,8 @@ func send_expedition(region: String, hours: int, disciples: Array) -> Dictionary
 		return fail("needs_building", {"text": Tx.t("sim.sect.needs_building") % ContentDB.name_of("sect_buildings", str(ex.requires_building))})
 	if disciples.is_empty() or disciples.size() > 4: return fail("bad_party")
 	var busy := guarding()
-	for e in sect().expeditions:
-		for d in e.disciples: busy[int(d)] = true
 	for d in disciples:
-		if busy.has(int(d)) or int(d) >= sect().disciples.size(): return fail("busy")
+		if busy.has(int(d)) or _on_expedition(int(d)) or int(d) >= sect().disciples.size(): return fail("busy")
 	sect().expeditions.append({"region": region, "hours": hours, "disciples": disciples.duplicate(), "done_utc": Clock.now_utc() + hours * 3600.0})
 	emit("expedition_sent", {"region": region})
 	return ok()
@@ -291,7 +289,7 @@ func holds(id: String) -> bool:
 
 ## Who flies their banner over a mine: your sect's name, or the rival that holds it.
 func mine_holder(id: String) -> String:
-	return str(sect().name) if holds(id) else str(rival(str(mine_def(id).get("sect", ""))).get("name", ""))
+	return str(sect().name) if holds(id) else mine_holder_rival(id)
 
 ## How many mines your sect can hold: one, and one more at every third sect level.
 func mine_cap() -> int:

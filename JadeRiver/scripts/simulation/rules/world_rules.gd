@@ -40,6 +40,10 @@ static func ways_out(room_id: String) -> Array:
 		out.append(way)
 	return out
 
+## A town, sect, home, interior or safe room: where a character may be switched out, or take from the Storehouse.
+static func safe_room(def: Dictionary) -> bool:
+	return str(def.get("type", "")) in ["town", "sect", "home", "interior"] or bool(def.get("safe", false))
+
 static var _npc_rooms: Dictionary = {}
 
 ## The room a named NPC stands in (the first one that places them), "" when none does.
