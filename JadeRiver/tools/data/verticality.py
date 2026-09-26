@@ -105,12 +105,20 @@ def _climbable_near(r, x, y, radius=50):
 # ------------------------------------------------------------------ 1. standard heights and landings
 def normalize(r):
     by = r.d["bounds"][1]
+    # A tier reached by an authored ladder or rope keeps the height its catalogue row gives it (the library floors at
+    # 120 and 240, the Caravan Road ledge at 120), and a moving surface keeps its own: snapping either would leave the
+    # climbable's top or the mover's path at the old height.
+    climb_tops = {c.get("top") for c in r.d.get("climbables", [])} | {c.get("bottom") for c in r.d.get("climbables", [])}
+    moving = {m.get("surface") for m in r.d.get("movers", [])}
     for s in r.d["surfaces"]:
         if s.get("stratum") != "platform" or s.get("kind") in ("ladder", "support", "roof") or s.get("later"):
             continue
+        keep = s["id"] in climb_tops or s["id"] in moving
         old = float(s["height"])
         new = old
-        if s["kind"] in NATURAL and (old < 300 or s["kind"] != "cloud"):
+        if keep:
+            pass
+        elif s["kind"] in NATURAL and (old < 300 or s["kind"] != "cloud"):
             new = max(100, int(round(old / 100.0)) * 100)
         elif s["kind"] in BUILT:
             new = max(88, int(round(old / 88.0)) * 88)

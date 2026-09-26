@@ -53,7 +53,7 @@
     420,
     70
    ],
-   "height": 88,
+   "height": 120,
    "kind": "balcony",
    "stratum": "platform",
    "open_edges": true,
@@ -67,7 +67,7 @@
     420,
     70
    ],
-   "height": 264,
+   "height": 240,
    "kind": "balcony",
    "stratum": "platform",
    "open_edges": true,
@@ -105,7 +105,7 @@
     320,
     655
    ],
-   "alt": 88,
+   "alt": 120,
    "prop": "none",
    "text": "Manuals of the middle grade, catalogued by element. Ask the librarian to borrow one.",
    "open_page": "library"
@@ -117,7 +117,7 @@
     320,
     585
    ],
-   "alt": 264,
+   "alt": 240,
    "prop": "none",
    "text": "The sect's deeper arts. Even the dust here feels expensive.",
    "open_page": "library"

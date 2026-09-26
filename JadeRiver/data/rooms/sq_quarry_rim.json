@@ -123,7 +123,7 @@
     90,
     60
    ],
-   "height": 88,
+   "height": 4,
    "kind": "deck",
    "stratum": "platform",
    "open_edges": true
@@ -615,7 +615,23 @@
    "top": "scaffold_b"
   },
   {
-   "id": "scaffold_e_ladder_1",
+   "id": "scaffold_c_ladder_1",
+   "kind": "ladder",
+   "at": [
+    970,
+    725
+   ],
+   "top_at": [
+    970,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 180,
+   "bottom": "ground",
+   "top": "scaffold_c"
+  },
+  {
+   "id": "scaffold_e_ladder_2",
    "kind": "ladder",
    "at": [
     1670,

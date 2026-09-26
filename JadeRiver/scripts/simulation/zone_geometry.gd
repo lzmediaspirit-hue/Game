@@ -295,8 +295,18 @@ func advance(dt: float) -> void:
 				water_goals.erase(vid)
 				# A flood that holds, then drains back to its old level.
 				if g.has("back"): water_goals[vid]={"from":float(g.to),"to":float(g.back),"t0":time+float(g.get("hold",0.0)),"over":float(g.over)}
-## A mover's offset at room time t: loop, pingpong, or trigger (one trip out and back once stood on).
+## A mover's offset at room time t: loop, pingpong, trigger (one trip out and back once stood on), swing (a pendulum
+## on a `length` rope through `amp_deg` either side, every `period_s`) or circle (round a `radius` every `period_s`).
 func mover_offset(m: Dictionary,t: float) -> Vector3:
+	var mode0=str(m.get("mode","pingpong"))
+	if mode0=="swing" or mode0=="circle":
+		var a=TAU*t/maxf(0.5,float(m.get("period_s",3.0)))+deg_to_rad(float(m.get("phase_deg",0.0)))
+		if mode0=="swing":
+			var th=deg_to_rad(float(m.get("amp_deg",30.0)))*sin(a)
+			var ln=float(m.get("length",120.0))
+			return Vector3(ln*sin(th),0.0,-ln*(1.0-cos(th)))
+		var r=float(m.get("radius",60.0))
+		return Vector3(r*sin(a),0.0,r*(1.0-cos(a)))
 	var pts: Array=[Vector3.ZERO]
 	for p in m.get("path",[]):
 		pts.append(Vector3(float(p[0]),float(p[1]),float(p[2]) if p.size()>2 else 0.0))

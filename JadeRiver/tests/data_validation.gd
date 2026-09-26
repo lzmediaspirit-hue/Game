@@ -611,8 +611,10 @@ func movement_suite() -> void:
 			var spawn: Array = room.get("spawn_point", [0, 0])
 			check(not area.has_point(Vector2(float(spawn[0]), float(spawn[1]))), "%s: the spawn point is dry" % rid)
 		for m in room.get("movers", []):
-			check(ids.has(str(m.surface)) and str(m.get("mode", "pingpong")) in ["loop", "pingpong", "trigger"] and not m.get("path", []).is_empty(),
-				"%s: mover %s moves a real surface along a path" % [rid, m.surface])
+			var swings := str(m.get("mode", "")) in ["swing", "circle"]
+			check(ids.has(str(m.surface)) and str(m.get("mode", "pingpong")) in ["loop", "pingpong", "trigger", "swing", "circle"]
+				and (swings and float(m.get("period_s", 0)) > 0.0 or not m.get("path", []).is_empty()),
+				"%s: mover %s moves a real surface along a path (or swings round)" % [rid, m.surface])
 		for cb in room.get("climbables", []):
 			check(str(cb.get("kind", "")) in ["ladder", "rope", "vine", "chain"] and (str(cb.get("top", "")) == "" or ids.has(str(cb.top))), "%s: climbable %s" % [rid, cb.id])
 

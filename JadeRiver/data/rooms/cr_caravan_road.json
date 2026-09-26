@@ -56,7 +56,7 @@
     400,
     80
    ],
-   "height": 100,
+   "height": 120,
    "kind": "rock_ledge",
    "stratum": "platform",
    "open_edges": true
@@ -192,7 +192,7 @@
     ]
    },
    "locked_text": "You don't know which leaves are worth picking yet.",
-   "alt": 100
+   "alt": 120
   },
   {
    "id": "ore_2",

@@ -5052,6 +5052,13 @@ func ice_mount_suite() -> void:
 		peak = maxf(peak, stag.altitude)
 		if stag.surface != null: break
 	check(near(peak, 600.0 * 600.0 / 2300.0, 3.0), "a 600 impulse jumps to about 156 (%.0f)" % peak)
+	# The Hall of Lanterns' movers (Part 8): a swing on its rope and a circle, pure functions of the room clock.
+	var sw := {"mode": "swing", "length": 100, "amp_deg": 30, "period_s": 4.0}
+	var o0: Vector3 = z.mover_offset(sw, 0.0)
+	var o1: Vector3 = z.mover_offset(sw, 1.0)
+	var ci: Vector3 = z.mover_offset({"mode": "circle", "radius": 50, "period_s": 4.0}, 1.0)
+	check(o0.length() < 0.01 and near(o1.x, 50.0, 0.1) and near(o1.z, -13.4, 0.1) and near(ci.x, 50.0, 0.1) and near(ci.z, 50.0, 0.1),
+		"a swinging lantern sways on its rope (%s); a circling one goes round (%s)" % [str(o1), str(ci)])
 	var c = Game.active()
 	if c == null or Game.actor_state(c.id) == null: return
 	var mount_was := str(c.mount_pet)
