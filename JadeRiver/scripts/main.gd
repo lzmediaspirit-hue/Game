@@ -365,6 +365,12 @@ func _handle_preview_args(user_args: Array) -> void:
 	if "--capture" in user_args:
 		await get_tree().create_timer(2.5).timeout
 		for a in user_args:
+			# Debug tools (S38): --auto-path=room walks there and --auto-hunt fights (S49); --wait=s lets them run.
+			if str(a).begins_with("--auto-path=") and Game.active() != null: Game.submit({"type": "auto_path", "target": str(a).trim_prefix("--auto-path=")})
+			if str(a) == "--auto-hunt" and Game.active() != null: Game.submit({"type": "set_auto_hunt", "on": true})
+		for a in user_args:
+			if str(a).begins_with("--wait="): await get_tree().create_timer(float(str(a).trim_prefix("--wait="))).timeout
+		for a in user_args:
 			# Debug tools (S38): --hazard=phase[:fraction] holds the room's hazards in one state.
 			if str(a).begins_with("--hazard="):
 				var hz := str(a).trim_prefix("--hazard=").split(":")

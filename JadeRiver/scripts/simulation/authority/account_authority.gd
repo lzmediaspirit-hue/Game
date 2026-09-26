@@ -166,8 +166,11 @@ func set_idle_task(c, task: Dictionary) -> Dictionary:
 	var def := ContentDB.entry("idle_tasks", kind)
 	if def.is_empty(): return fail("unknown_task")
 	if def.has("requires") and not RequirementRules.passes(def.requires, game.ctx(c)): return fail("locked", {"text": RequirementRules.first_failure_text(def.requires, game.ctx(c))})
+	# S49: idle Hunt and Gather only in rooms that allow them (room.idle).
+	var idle_room := str(task.get("room", c.position.get("room", "")))
+	if not game.world.idle_allowed(idle_room, kind): return fail("room", {"text": Tx.t("sim.account.idle_room_" + kind)})
 	emit("system_used", {"actor": c.id, "system": "second_path"})
-	c.idle_task = {"task": kind, "room": str(task.get("room", c.position.get("room", ""))), "started_utc": Clock.now_utc(),
+	c.idle_task = {"task": kind, "room": idle_room, "started_utc": Clock.now_utc(),
 		"focus": str(task.get("focus", "accumulate")), "item": str(task.get("item", ""))}
 	emit("idle_task_set", {"actor": c.id, "task": kind})
 	return ok()
@@ -197,6 +200,7 @@ func collect_idle(char_id: String) -> Dictionary:
 			gains.body_xp = float(ContentDB.curve("training_body_xp_per_min", 20)) * mat * minutes
 			game.progression.apply_body_xp(c.id, gains.body_xp, "idle")
 		"hunt":
+			if not game.world.idle_allowed(str(c.idle_task.get("room", "")), "hunt"): minutes = 0.0   # S49: nothing to hunt here
 			var cp := StatRules.combat_power(c)
 			var rec := maxf(1.0, float(room.get("recommended_cp", 50)))
 			var kills_per_min := 6.0 * clampf(cp / rec, 0.2, 1.5) * mat
@@ -210,6 +214,7 @@ func collect_idle(char_id: String) -> Dictionary:
 			gains.coins = int(pay.amount)
 			gains.coin_currency = str(pay.currency)
 		"gather":
+			if not game.world.idle_allowed(str(c.idle_task.get("room", "")), "gather"): minutes = 0.0   # S49: nothing grows here
 			var item := str(c.idle_task.get("item", ""))
 			if item != "":
 				var n := int(minutes / 6.0 * mat * 2.0)

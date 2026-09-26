@@ -25,6 +25,7 @@ func _main() -> void:
 	data_suite()
 	room_suite()
 	movement_suite()
+	auto_path_suite()
 	print("data_validation: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
 
@@ -560,3 +561,24 @@ func movement_suite() -> void:
 				"%s: mover %s moves a real surface along a path" % [rid, m.surface])
 		for cb in room.get("climbables", []):
 			check(str(cb.get("kind", "")) in ["ladder", "rope", "vine", "chain"] and (str(cb.get("top", "")) == "" or ids.has(str(cb.top))), "%s: climbable %s" % [rid, cb.id])
+
+## S49 test: auto-path reaches every quest target using only known arts. From the quest giver's room (or the zone's
+## first room), a route of portals and Starsea voyages reaches the target without any movement art the character
+## has not been taught by then (the one art-gated way, Breath Control's grotto, is closed to it). Story instances
+## entered by an event, not a door, are left out.
+func auto_path_suite() -> void:
+	var no_arts := func(_room_id: String, p: Dictionary) -> bool:
+		var r: Dictionary = p.get("requires", {})
+		for cond in r.get("all", []) + r.get("any", []):
+			if cond is Dictionary and str(cond.get("kind", "")) == "secret_art": return false
+		return true
+	var checked := 0
+	for q in ContentDB.all("quests"):
+		var target := str(q.get("target_room", ""))
+		if target == "" or ContentDB.room(target).get("instanced", false): continue
+		var from := WorldRules.npc_room(str(q.get("giver", "")))
+		if from == "": from = str(ContentDB.zone(str(ContentDB.room(target).get("zone", ""))).get("start_room", ""))
+		if from == target: continue
+		checked += 1
+		check(not WorldRules.route(from, target, no_arts).is_empty(), "auto-path: %s reaches %s from %s without new arts" % [q.id, target, from])
+	check(checked >= 60, "auto-path covered %d quest targets" % checked)

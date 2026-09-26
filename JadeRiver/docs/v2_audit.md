@@ -138,5 +138,6 @@ Progress is recorded in `docs/CHANGELOG.md`.
     play) and the Hidden Grotto, heavenly phenomena with NPC reactions and a jealous challenger, and lifespan as a
     display with ageing people and longevity treasures. V8f is done: the Heaven Ranking with its seeded cultivators,
     entry by CP or the finals and rank challenges; the 30-floor Trial Tower with four floor rules and a daily sweep;
-    the four daily activity chests on the Quests page. Next: V8g (auto-path, auto-hunt and idle-room eligibility, the
-    mortal kingdom, leisure arts, territory).
+    the four daily activity chests on the Quests page. V8g1 is done: idle Hunt and Gather only in eligible rooms,
+    the auto-hunt toggle with its cut-offs, and quest auto-path over the room graph with the tracker button and a
+    validation sweep. Next: V8g2 (the mortal kingdom, leisure arts) and V8g3 (territory and spirit mines).

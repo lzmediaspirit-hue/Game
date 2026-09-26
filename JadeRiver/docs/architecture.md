@@ -46,7 +46,7 @@ each physics frame; the tests call it directly without any scene.
 | `CombatAuthority` | Pools (HP, QI, Soul, Composure, Hollowing), hits, techniques, guard and dodge, statuses, death and revival |
 | `ProgressionAuthority` | Realm, progress, breakthroughs, methods, meridians, body level, Daos and mastery, purity, stability, injuries, seclusion |
 | `EnemyAuthority` + `EnemyBrain` | Spawning, monster AI, boss phases, fleeing story bosses |
-| `WorldAuthority` | Rooms, portals, objects, loot on the ground, room events, shrines, Spirit Sense, the Trial Tower (floors cleared and swept, S49) |
+| `WorldAuthority` | Rooms, portals, objects, loot on the ground, room events, shrines, Spirit Sense, the Trial Tower (floors cleared and swept, S49), idle-room eligibility, auto-hunt and quest auto-path routes (`WorldRules.route`; the presentation `Autopilot` drives the joystick) |
 | `InventoryAuthority` | Bag, key items and tools, equipment, quick-use; routes system items (appraise, incubate, tame) to their owners |
 | `QuestAuthority` | Quests, flags, dialogue trees, daily missions, set pieces, quest drops |
 | `EconomyAuthority` | Currencies, shops, buyback, exchange |

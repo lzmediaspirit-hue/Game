@@ -69,6 +69,7 @@ var kick_dir := 0
 var climb_hold := 0.0               # S43: seconds the joystick has been held toward a ladder
 var jump_held := false              # S43: the Jump button is down (touch); Space on the keyboard
 var hold_spent := false             # this press already started a glide or a flight
+var autopilot: Autopilot = null     # S49: auto-path and auto-hunt drive the joystick
 signal attack_started(family: String, plane_position: Vector2, elevation: float, direction: int)
 signal arrow_released(plane_position: Vector2, elevation: float, direction: int)
 
@@ -260,6 +261,13 @@ func _physics_process(delta):
 func physics_step(delta: float) -> void:
 	var axis: Vector2 = (keyboard_axis() + movement).limit_length()
 	var c = Game.character(actor_id)
+	# S49 auto-path and auto-hunt hold the joystick until you take it: a push cancels auto-path, and auto-hunt waits.
+	if c != null and bound() and Game.room_rt != null:
+		if axis.length() > 0.2:
+			if Game.world.auto_path_target(c) != "": Game.submit({"type": "auto_path", "target": ""})
+		else:
+			if autopilot == null: autopilot = Autopilot.new(self)
+			axis = autopilot.drive(c, delta)
 	if c != null and c.pools.has_status("confusion"): axis = -axis
 	if Input.is_physical_key_pressed(KEY_SHIFT) and absf(axis.x) > 0.12: drag_seconds = maxf(drag_seconds, 2.01)
 	step(delta, axis)

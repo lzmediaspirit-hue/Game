@@ -34,6 +34,8 @@ var context_center := Vector2(1165, 500)   # S24/S43: Climb or Enter while an en
 ## S24/S47: the Treasure buttons above Quick-use and Guard (the second opens at Spirit Awakening 1).
 var treasure_centers := [Vector2(887, 470), Vector2(799, 470)]
 var swap_center := Vector2(1240, 515)   # S24/S47: weapon swap (dual loadout), from Heart Tempering 1
+var auto_center := Vector2(1232, 292)    # S49: the auto-hunt toggle, under the icon row (only where allowed)
+var tracker_paths: Array = []            # S49: [{rect, target}] the tracker's auto-path buttons this frame
 var draught_center := Vector2(843, 512)  # S44: the Draught slot, shown while a liquid medicine is fresh (key V)
 var minimap_rect := Rect2(1032, 16, 232, 140)
 var icon_row := [["menu", Vector2(1058, 188)], ["bag", Vector2(1116, 188)], ["map", Vector2(1174, 188)], ["mail", Vector2(1232, 188)]]
@@ -206,6 +208,9 @@ func role_at(p: Vector2) -> String:
 	for pc in _pet_strip(Game.active()):
 		if p.distance_to(pc.center) < float(pc.r) + 4: return "pets:" + str(pc.kind) + ":" + str(pc.uid)
 	if Rect2(16, 16, 360, 104).has_point(p) and shown("player_panel"): return "portrait"
+	for tp in tracker_paths:
+		if (tp.rect as Rect2).grow(6).has_point(p) and shown("quest_tracker"): return "path:" + str(tp.target)
+	if p.distance_to(auto_center) < 27 and _auto_hunt_shown(Game.active()): return "auto_hunt"
 	if Rect2(16, 128, 300, 150).has_point(p) and shown("quest_tracker"): return "tracker"
 	if Rect2(0, 704, 1280, 16).has_point(p) and shown("progress_bar"): return "progress"
 	if (p.x < 640) != left_handed: return "joystick"
@@ -253,6 +258,10 @@ func press(id: int, p: Vector2):
 		"minimap": open_page.emit("world_map", {})
 		"portrait": open_page.emit("character", {})
 		"tracker": open_page.emit("quests", {})
+		"auto_hunt":
+			var ac = Game.active()
+			var ah := Game.submit({"type": "set_auto_hunt", "on": not Game.world.auto_hunting(ac.id)})
+			if not ah.get("ok", false) and ah.has("text"): add_log(str(ah.text), UiKit.MIST)
 		"progress": open_page.emit("cultivation", {})
 		_:
 			if role.begins_with("pets:") and bound():
@@ -263,6 +272,11 @@ func press(id: int, p: Vector2):
 					"bag": res = Game.submit({"type": "swap_pet_from_bag", "pet": parts[2]})
 					"mount": res = Game.submit({"type": "set_mount"})
 				if not res.is_empty() and not res.get("ok", false) and res.has("text"): add_log(str(res.text), UiKit.MIST)
+			if role.begins_with("path:") and bound():
+				var target := role.trim_prefix("path:")
+				var pc = Game.active()
+				var ap := Game.submit({"type": "auto_path", "target": "" if Game.world.auto_path_target(pc) == target else target})
+				if not ap.get("ok", false) and ap.has("text"): add_log(str(ap.text), UiKit.MIST)
 			if role.begins_with("icon:"):
 				var which := role.trim_prefix("icon:")
 				open_page.emit({"menu": "menu", "bag": "inventory", "map": "world_map", "mail": "mail"}[which], {})
@@ -692,6 +706,17 @@ func _on_event(name: String, p: Dictionary) -> void:
 				toast(Tx.t("hud.rank_climbed") % str(ContentDB.entry("rankings", str(p.beaten)).get("name", "")), "gold")
 			elif str(p.get("actor", "")) == "":
 				add_log(Tx.t("hud.ranking_shifts"), UiKit.MIST)
+		"auto_hunt_changed":
+			if str(p.get("actor", "")) == Game.active_id:
+				var why := str(p.get("reason", ""))
+				if p.get("on", false): add_log(Tx.t("hud.auto_hunt_on"), UiKit.BRIGHT_JADE)
+				elif why not in ["off", "path"]: add_log(Tx.t("sim.world.auto_hunt_" + why), UiKit.MIST)
+				else: add_log(Tx.t("hud.auto_hunt_off"), UiKit.MIST)
+		"auto_path_started":
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.auto_path_to") % ContentDB.name_of("rooms", str(p.target)), UiKit.PALE_GOLD)
+		"auto_path_ended":
+			if str(p.get("actor", "")) == Game.active_id and str(p.get("reason", "")) != "cancelled":
+				add_log(Tx.t("hud.auto_path_" + str(p.get("reason", "arrived"))), UiKit.PALE_GOLD if str(p.get("reason", "")) == "arrived" else UiKit.MIST)
 		"fortune_encounter":
 			if str(p.get("actor", "")) == Game.active_id:
 				var card := ContentDB.entry("fortune_deck", str(p.card))
@@ -1053,6 +1078,13 @@ func _draw():
 			glyph(ic[0], ic[1], 32)
 			if ic[0] == "mail" and Game.mail.unread(c) > 0:
 				draw_circle(ic[1] + Vector2(16, -16), 7, UiKit.RED)
+	# S49 auto-hunt: a small toggle, only in rooms where idle Hunt is allowed.
+	if _auto_hunt_shown(c):
+		var on: bool = Game.world.auto_hunting(c.id)
+		ring(auto_center, 26, on)
+		if on: draw_arc(auto_center, 29, fmod(t * 3.0, TAU), fmod(t * 3.0, TAU) + PI * 1.2, 24, UiKit.GOLD, 3.0)
+		glyph("jian", auto_center + Vector2(0, -4), 26)
+		UiKit.draw_outlined(self, Tx.t("hud.auto_hunt"), auto_center + Vector2(-40, 22), 12, UiKit.GOLD if on else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 80)
 	if shown("currency"):
 		var cr := Rect2(1062, 222, 200, 34)
 		draw_style_box(UiKit.style("currency_pill"), cr)
@@ -1179,16 +1211,30 @@ func _draw_player_panel(c) -> void:
 			if i < stacks: draw_colored_polygon(dia, UiKit.GOLD if stacks >= 10 else Color("cfe6f0"))
 			draw_polyline(dia + PackedVector2Array([dia[0]]), UiKit.INK, 1.5)
 
+func _auto_hunt_shown(c) -> bool:
+	return c != null and bound() and Unlocks.is_unlocked(c.id, "idle_tasks") and (Game.world.auto_hunting(c.id) or Game.world.auto_hunt_block(c) == "")
+
 func _draw_tracker(c) -> void:
 	var entries: Array = Game.quest.tracker(c)
 	if entries.is_empty(): return
 	if Game.room_rt and Game.room_rt.def.get("type", "") == "boss_arena": return
 	# Below the player panel, which grows a row once the Soul bar shows.
 	var y := 162.0 if c.pools.max_soul > 0.0 and shown("soul_bar") else 146.0
+	tracker_paths = []
+	var here := Game.room_rt.room_id if Game.room_rt else ""
 	for q in entries:
 		var col = UiKit.GOLD if q.kind in ["main", "prologue"] else Color("8fc8ff")
 		if q.kind == "guided": col = Color("8fc8ff")
-		UiKit.draw_text(self, ("◆ " if q.kind in ["main", "prologue"] else "● ") + str(q.name), Vector2(22, y), 17, col)
+		UiKit.draw_text(self, ("◆ " if q.kind in ["main", "prologue"] else "● ") + str(q.name), Vector2(22, y), 17, col, HORIZONTAL_ALIGNMENT_LEFT, 258)
+		# S49 auto-path: a button that walks you to where the quest leads (lit while it is walking you there).
+		var goal := str(q.get("target_room", ""))
+		if goal != "" and goal != here:
+			var br := Rect2(286, y - 17, 30, 22)
+			var going: bool = Game.world.auto_path_target(Game.active()) == goal
+			draw_rect(br, Color(UiKit.GOLD, 0.85) if going else Color(0, 0, 0, 0.45))
+			draw_rect(br, Color(UiKit.PALE_GOLD, 0.9), false, 1.5)
+			UiKit.draw_text(self, "➤", br.position + Vector2(0, 17), 15, UiKit.INK if going else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, br.size.x)
+			tracker_paths.append({"rect": br, "target": goal})
 		y += 20
 		for line in q.lines:
 			var txt := str(line.text)

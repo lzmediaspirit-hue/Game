@@ -70,6 +70,7 @@ func _main() -> void:
 	world_events_suite()
 	fortune_suite()
 	tower_activity_ranking_suite()
+	mobile_conventions_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -3006,6 +3007,76 @@ func tower_activity_ranking_suite() -> void:
 	Game.account.created_utc = created_was
 	Game.account.rng_seed = seed_was
 	c.inventory.bag.fill(null)
+	if room_was != "": Game.world.load_room(c, room_was, "")
+	GameEvents.flush()
+
+## S49 mobile conventions: idle rooms, auto-hunt only where allowed, and quest auto-path over the room graph.
+func mobile_conventions_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var idle_was: Dictionary = c.idle_task.duplicate(true)
+	var hp_was: float = c.pools.hp
+	# Idle Hunt and Gather only where the room allows them.
+	check(Game.world.idle_allowed("rm_marsh_edge", "hunt") and not Game.world.idle_allowed("sf_market", "hunt") and Game.world.idle_allowed("sf_market", "rest"),
+		"idle Hunt runs in the marsh, not on Market Street (rest goes anywhere)")
+	if Unlocks.is_unlocked(c.id, "idle_tasks"):
+		check(str(Game.accounts.set_idle_task(c, {"task": "hunt", "room": "sf_market"}).get("reason", "")) == "room", "idle hunting in a town is refused")
+		check(Game.accounts.set_idle_task(c, {"task": "hunt", "room": "rm_marsh_edge"}).get("ok", false), "idle hunting in the marsh is accepted")
+	# Auto-hunt: refused outside eligible rooms, on in a hunting room, off when a room event starts or health runs low.
+	Game.world.load_room(c, "sf_market", "")
+	GameEvents.flush()
+	check(str(Game.submit({"type": "set_auto_hunt", "on": true}).get("reason", "")) == "room" and not Game.world.auto_hunting(c.id), "auto-hunt is refused in a town")
+	Game.world.load_room(c, "sf_trial_tower", "")
+	GameEvents.flush()
+	check(str(Game.submit({"type": "set_auto_hunt", "on": true}).get("reason", "")) == "room", "and in a trial")
+	Game.world.load_room(c, "rm_marsh_edge", "")
+	GameEvents.flush()
+	for e in Game.room_rt.living_enemies():
+		if e.is_boss(): Game.enemies.release(e)
+	c.pools.hp = c.pools.max_hp
+	check(Game.submit({"type": "set_auto_hunt", "on": true}).get("ok", false) and Game.world.auto_hunting(c.id), "auto-hunt turns on in the marsh")
+	Game.world.start_room_event(c, {"id": "test_event", "duration": 30.0})
+	Game.world._tick_auto_hunt(c, 1.0)
+	GameEvents.flush()
+	check(not Game.world.auto_hunting(c.id), "a room event turns it off")
+	Game.world._end_event(c, Game.room_rt, true)
+	GameEvents.flush()
+	check(Game.submit({"type": "set_auto_hunt", "on": true}).get("ok", false), "and it can go on again after")
+	c.pools.hp = c.pools.max_hp * 0.1
+	Game.world._tick_auto_hunt(c, 1.0)
+	check(not Game.world.auto_hunting(c.id), "low health turns it off")
+	c.pools.hp = c.pools.max_hp
+	# Auto-path: the fewest rooms through open portals, the portal to take here, arriving, and stopping at danger.
+	var r1: Array = Game.world.route(c, "wp_west", "sf_market")
+	check(not r1.is_empty() and str(r1[0].room) == "wp_west" and str(r1.back().to) == "sf_market", "a route from the Willow Path to Market Street (%d rooms)" % r1.size())
+	var linked := true
+	for i in range(1, r1.size()): linked = linked and str(r1[i].room) == str(r1[i - 1].to)
+	check(linked, "each step leaves from where the last one arrived")
+	check(r1 == Game.world.route(c, "wp_west", "sf_market"), "the same route every time")
+	var shut: Dictionary = {"to": "wp_east", "requires": {"all": [{"kind": "flag_set", "flag": "never_set_flag"}]}}
+	check(not Game.world.portal_open(c, "lf_village", shut), "a portal whose requirement is unmet is not on any route")
+	Game.world.load_room(c, "wp_west", "")
+	GameEvents.flush()
+	check(Game.submit({"type": "auto_path", "target": "sf_market"}).get("ok", false) and str(Game.world.auto_path_step(c).get("portal", "")) == str(r1[0].portal),
+		"auto-path shows the portal to take in this room")
+	check(not Game.world.auto_hunting(c.id), "auto-path and auto-hunt never run together")
+	GameEvents.emit_event("hit_landed", {"attacker": "x", "target": c.id, "target_kind": "player", "amount": 1})
+	GameEvents.flush()
+	check(Game.world.auto_path_target(c) == "", "a blow stops auto-path")
+	Game.submit({"type": "auto_path", "target": "sf_market"})
+	Game.world.load_room(c, "sf_market", "")
+	GameEvents.flush()
+	check(Game.world.auto_path_target(c) == "", "arriving ends it")
+	check(str(Game.submit({"type": "auto_path", "target": "sf_market"}).get("reason", "")) == "here", "nothing to do where you already are")
+	# Across the Starsea: the route sails from the shipyard's dock.
+	var sea: Array = WorldRules.route("ae_shipyard", "sw_broken_pier", func(_r, _p): return true)
+	check(sea.size() == 1 and sea[0].get("dock", false), "the Skyport Wreck is a voyage from the shipyard's dock")
+	# Restore.
+	Game.world.auto_hunt.clear()
+	Game.world.auto_paths.clear()
+	c.idle_task = idle_was
+	c.pools.hp = hp_was
 	if room_was != "": Game.world.load_room(c, room_was, "")
 	GameEvents.flush()
 

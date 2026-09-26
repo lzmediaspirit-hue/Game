@@ -12,9 +12,13 @@ const TRAINING := ["training_stump", "training_dummy"]
 var pending_transfer: Dictionary = {}   # presentation performs the fade, then calls complete_transfer
 
 func intents() -> Array:
-	return ["use_portal", "interact", "teleport", "pick_up", "enter_world", "sense_pulse", "set_sail", "climb_tower", "sweep_floor"]
+	return ["use_portal", "interact", "teleport", "pick_up", "enter_world", "sense_pulse", "set_sail", "climb_tower", "sweep_floor",
+		"set_auto_hunt", "auto_path"]
 
 func subscribe() -> void:
+	# S49 mobile conventions: auto-path follows the character room to room and stops at danger.
+	GameEvents.subscribe("room_entered", _auto_path_room, 60)
+	GameEvents.subscribe("hit_landed", _auto_path_danger, 60)
 	# S43 rising water: a boss phase or a boss's fall moves the water in the room.
 	for ev in ["boss_phase", "field_boss_defeated"]:
 		GameEvents.subscribe(ev, _on_room_script.bind(ev), 50)
@@ -200,6 +204,8 @@ func handle(intent: Dictionary) -> Dictionary:
 		"sense_pulse": return sense_pulse(c)
 		"climb_tower": return climb_tower(c, int(intent.get("floor", 0)))
 		"sweep_floor": return sweep_tower(c, int(intent.get("floor", -1)))
+		"set_auto_hunt": return set_auto_hunt(c, bool(intent.get("on", false)))
+		"auto_path": return start_auto_path(c, str(intent.get("target", "")))
 		"set_sail": return set_sail(c, str(intent.get("route", "")))
 	return fail("unknown_intent")
 
@@ -820,6 +826,7 @@ func tick(delta: float) -> void:
 	var c = game.active()
 	if rt == null or c == null: return
 	rt.elapsed += delta
+	_tick_auto_hunt(c, delta)
 	if float(ambush_cd.get(c.id, 0.0)) > 0.0: ambush_cd[c.id] = float(ambush_cd[c.id]) - delta
 	_tick_rare_herbs(c, rt, delta)
 	# S43: the room clock moves movers, drops crumbled floors and raises water.
@@ -1410,3 +1417,130 @@ func sweep_tower(c, f := -1) -> Dictionary:
 	if done == 0: return fail("nothing", {"text": Tx.t("sim.world.tower_nothing")})
 	emit("tower_swept", {"actor": c.id, "floors": done})
 	return ok({"floors": done})
+
+# ------------------------------------------------------------------ S49 mobile conventions: idle rooms, auto-hunt, auto-path
+## Rooms where auto-hunt is always off (S49): bosses, trials, dungeons, story instances, secret places.
+const AUTO_HUNT_OFF := ["boss_arena", "trial", "dungeon", "story", "secret", "prologue"]
+var auto_hunt: Dictionary = {}    # actor -> true while the toggle is on (the session only)
+var auto_paths: Dictionary = {}   # actor -> {target, route: [{room, portal, to}]}
+var _auto_check := 0.0
+
+## The idle Hunt and Gather tasks (S23) run only in rooms that list them (room.idle); rest, seclusion and
+## training go anywhere.
+func idle_allowed(room_id: String, kind: String) -> bool:
+	if not kind in ["hunt", "gather"]: return true
+	return (ContentDB.room(room_id).get("idle", []) as Array).has(kind)
+
+## Why this character may not auto-hunt here now ("" when it may): the room must allow idle Hunt, and it is off in
+## bosses, trials, dungeons, room events and tribulations. It never uses treasures, pills or breakthroughs.
+func auto_hunt_block(c) -> String:
+	var rt: RoomRuntime = game.room_rt
+	if c == null or rt == null: return "room"
+	if str(rt.def.get("type", "")) in AUTO_HUNT_OFF or not idle_allowed(rt.room_id, "hunt"): return "room"
+	if rt.event.get("active", false): return "event"
+	if not game.progression.tribulation_view(c.id).is_empty(): return "tribulation"
+	if c.pools.hp < c.pools.max_hp * 0.2: return "low_hp"
+	for e in rt.living_enemies():
+		if e.is_boss(): return "boss"
+	return ""
+
+func auto_hunting(actor_id: String) -> bool:
+	return auto_hunt.has(actor_id)
+
+func set_auto_hunt(c, on: bool) -> Dictionary:
+	if not on:
+		_end_auto_hunt(c.id, "off")
+		return ok({"on": false})
+	var why := auto_hunt_block(c)
+	if why != "": return fail(why, {"text": Tx.t("sim.world.auto_hunt_" + why)})
+	auto_paths.erase(c.id)
+	auto_hunt[c.id] = true
+	emit("auto_hunt_changed", {"actor": c.id, "on": true, "reason": ""})
+	return ok({"on": true})
+
+func _end_auto_hunt(actor_id: String, reason: String) -> void:
+	if not auto_hunt.has(actor_id): return
+	auto_hunt.erase(actor_id)
+	emit("auto_hunt_changed", {"actor": actor_id, "on": false, "reason": reason})
+
+func _tick_auto_hunt(c, delta: float) -> void:
+	if not auto_hunt.has(c.id): return
+	_auto_check -= delta
+	if _auto_check > 0.0: return
+	_auto_check = 0.5
+	var why := auto_hunt_block(c)
+	if why != "": _end_auto_hunt(c.id, why)
+
+## Is this portal open to this character, seen from its own room (requirements, hidden ways found)?
+func portal_open(c, room_id: String, p: Dictionary) -> bool:
+	if ContentDB.room(str(p.get("to", ""))).is_empty(): return false
+	if p.has("requires") and not RequirementRules.passes(p.requires, game.ctx(c)): return false
+	if str(p.get("type", "")) == "hidden" and not c.quests.has_flag("seen_" + room_id + "_" + str(p.id)): return false
+	return true
+
+## The shortest way between two rooms through the portals open to this character (its realm, quests and arts):
+## [{room, portal, to}], [] when there is none or it is already there.
+func route(c, from_room: String, to_room: String) -> Array:
+	return WorldRules.route(from_room, to_room, func(room_id: String, p: Dictionary) -> bool: return portal_open(c, room_id, p))
+
+func start_auto_path(c, target: String) -> Dictionary:
+	if target == "":
+		_end_auto_path(c.id, "cancelled")
+		return ok()
+	if game.room_rt == null: return fail("no_room")
+	if target == game.room_rt.room_id: return fail("here", {"text": Tx.t("sim.world.auto_path_here")})
+	var r := route(c, game.room_rt.room_id, target)
+	if r.is_empty(): return fail("no_route", {"text": Tx.t("sim.world.auto_path_none")})
+	_end_auto_hunt(c.id, "path")
+	auto_paths[c.id] = {"target": target, "route": r}
+	emit("auto_path_started", {"actor": c.id, "target": target, "rooms": r.size()})
+	return ok({"route": r})
+
+## Where auto-path is heading in this room: the portal to take ({portal, x, y, press_up}), or {}.
+func auto_path_step(c) -> Dictionary:
+	var ap: Dictionary = auto_paths.get(c.id, {}) if c != null else {}
+	if ap.is_empty() or game.room_rt == null: return {}
+	for s in ap.route:
+		if str(s.room) != game.room_rt.room_id: continue
+		if s.get("dock", false):
+			for o in game.room_rt.def.get("objects", []):
+				if str(o.id) == str(s.portal): return {"dock": str(o.id), "x": float(o.at[0]), "y": float(o.at[1]), "press_up": false, "surface": ""}
+			return {}
+		var p = game.room_rt.portal_def(str(s.portal))
+		if p.is_empty(): return {}
+		return {"portal": str(s.portal), "x": float(p.at[0]), "y": float(p.at[1]), "press_up": bool(p.get("press_up", false)),
+			"surface": str(p.get("surface", ""))}
+	return {}
+
+func auto_path_target(c) -> String:
+	return str(auto_paths.get(c.id, {}).get("target", "")) if c != null else ""
+
+func _end_auto_path(actor_id: String, reason: String) -> void:
+	if not auto_paths.has(actor_id): return
+	var target := str(auto_paths[actor_id].target)
+	auto_paths.erase(actor_id)
+	emit("auto_path_ended", {"actor": actor_id, "target": target, "reason": reason})
+
+## Each room reached: arrived, still on the way, or off the route (it finds a new one from here).
+func _auto_path_room(_p: Dictionary) -> void:
+	var c = game.active()
+	if c == null or not auto_paths.has(c.id) or game.room_rt == null: return
+	var ap: Dictionary = auto_paths[c.id]
+	if game.room_rt.room_id == str(ap.target):
+		_end_auto_path(c.id, "arrived")
+		return
+	if (ap.route as Array).any(func(s): return str(s.room) == game.room_rt.room_id): return
+	if game.room_rt.def.get("crossing", false): return   # under sail: the route goes on at the far pier
+	var r := route(c, game.room_rt.room_id, str(ap.target))
+	if r.is_empty(): _end_auto_path(c.id, "lost")
+	else: ap.route = r
+
+## At a Starsea dock the route boards a vessel; without one (or a chart) it stops there and says why.
+func auto_path_board(c, dock_id: String) -> Dictionary:
+	var r := interact(c, dock_id)
+	if not r.get("ok", false): _end_auto_path(c.id, "dock")
+	return r
+
+## It stops at danger: the moment something strikes you, the controls are yours again.
+func _auto_path_danger(p: Dictionary) -> void:
+	if str(p.get("target_kind", "")) == "player" and auto_paths.has(str(p.get("target", ""))): _end_auto_path(str(p.target), "danger")

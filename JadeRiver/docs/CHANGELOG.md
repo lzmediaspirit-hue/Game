@@ -5,6 +5,33 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V8g1 · Mobile conventions: idle-room eligibility, auto-hunt and quest auto-path (S49)
+- **Idle rooms.** Idle Hunt and Gather now run only in rooms that list them (`room.idle`, the S23 Hunt rule). A
+  town or a dungeon refuses them, with the reason, and the Characters page greys those buttons out there. Saves that
+  set an idle hunt somewhere else gain nothing from it. Rest, seclusion and training still go anywhere.
+- **Auto-hunt** (`set_auto_hunt`). A small **AUTO** toggle sits under the icon row, shown only where idle Hunt is
+  allowed.
+  - It is off in towns, trials, dungeons, boss dens and story instances. It switches itself off when a room event
+    starts, a boss appears, a tribulation begins or health falls below a fifth.
+  - Your character closes on the nearest foe along the room's navigation graph (walking, jumping, climbing,
+    dropping). It fights with basic attacks and the equipped techniques, and picks up the drops between fights.
+  - It never uses treasures, pills or breakthroughs. Touching the joystick takes over.
+- **Quest auto-path** (`auto_path`). A small ➤ button beside each tracked quest walks you to where it leads, or to
+  the hand-in NPC's room once it is ready.
+  - `WorldRules.route` finds the fewest rooms through the portals open to this character (realm, quests, arts,
+    hidden ways found). It also crosses the Starsea by boarding from a dock, and stops there, saying why, if you
+    have no vessel or chart.
+  - Within a room, the autopilot follows the navigation graph, then presses up at a door or walks out through an
+    edge.
+  - It stops at danger (the first blow), when you touch the joystick, or on arrival. Verified live: Willow Path West
+    to Market Street through Stoneford Gate.
+- New tests:
+  - Data validation checks that every quest target is reachable from its giver without movement arts the
+    character has not been taught (the Breath Control grotto stays closed to it).
+  - Rules tests cover the idle-room rule, auto-hunt refusals and cut-offs, routes, the portal to take, stopping at
+    danger, arriving, and the Starsea dock.
+- Debug flags: `--auto-path=room`, `--auto-hunt` and `--wait=s` (let them run before the capture).
+
 ### V8f · The living world: the Heaven Ranking, the Trial Tower and daily activity chests (S49)
 - **The Heaven Ranking** (`rankings.json`, Part 8's valley seeds). It is a tab on the World map. The seven ranked
   cultivators are:

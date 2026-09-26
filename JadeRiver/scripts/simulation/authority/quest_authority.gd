@@ -493,8 +493,10 @@ func tracker(c) -> Array:
 		if st.state == "ready":
 			var npc_name := ContentDB.name_of("npcs", hand_in_npc(c, def))
 			lines = [{"text": Tx.t("sim.quest.return_to") % npc_name, "have": 0, "need": 1, "done": false}]
+		# S49 auto-path: where the quest leads now (the hand-in NPC's room once it is ready).
+		var target := WorldRules.npc_room(hand_in_npc(c, def)) if st.state == "ready" else str(def.get("target_room", ""))
 		out.append({"quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side")), "ready": st.state == "ready", "lines": lines,
-			"target_room": str(def.get("target_room", ""))})
+			"target_room": target})
 	return out
 
 # ------------------------------------------------------------------ set pieces, spars, dailies

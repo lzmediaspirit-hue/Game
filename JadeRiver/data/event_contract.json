@@ -559,6 +559,24 @@
     "world_authority"
    ]
   },
+  "auto_hunt_changed": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "auto_path_started": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
+  "auto_path_ended": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
   "enemy_aggro": {
    "system": "Enemies",
    "files": [

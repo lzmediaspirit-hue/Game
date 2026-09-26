@@ -36,7 +36,12 @@ func draw_page() -> void:
 	for tk in TASKS:
 		var def := ContentDB.entry("idle_tasks", tk[0])
 		var ok := not def.has("requires") or RequirementRules.passes(def.requires, Game.ctx(ch))
-		btn(Rect2(right.position.x + 20, y, right.size.x - 40, 50), tk[1], "task", tk[0], cur == tk[0], ok, RequirementRules.first_failure_text(def.get("requires", {}), Game.ctx(ch)))
+		var why := RequirementRules.first_failure_text(def.get("requires", {}), Game.ctx(ch))
+		# S49: idle Hunt and Gather only where the room allows them.
+		if ok and not Game.world.idle_allowed(str(ch.position.get("room", "")), str(tk[0])):
+			ok = false
+			why = Tx.t("sim.account.idle_room_" + str(tk[0]))
+		btn(Rect2(right.position.x + 20, y, right.size.x - 40, 50), tk[1], "task", tk[0], cur == tk[0], ok, why)
 		y += 58
 
 func on_action(id: String, data) -> void:
