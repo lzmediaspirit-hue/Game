@@ -135,7 +135,7 @@ func next_realm(key: String) -> String:
 func realm_label(key: String) -> String:
 	var r := realm(key)
 	if r.is_empty(): return key
-	return "%s · Lv %d" % [text("realm." + key), int(r.level)]
+	return text("ui.realm_label") % [text("realm." + key), int(r.level)]
 
 func item(id: String) -> Dictionary:
 	var e := entry("items", id)

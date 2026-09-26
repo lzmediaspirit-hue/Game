@@ -2063,6 +2063,7 @@
  "ui.quest.the_river_will_call_when": "\nThe river will call when it is time.",
  "ui.quest.track": "Track",
  "ui.quest.untrack": "Untrack",
+ "ui.realm_label": "%s · Lv %d",
  "ui.relations.accept": "Accept",
  "ui.relations.align_balanced": "Balanced",
  "ui.relations.align_demonic": "Demonic",
