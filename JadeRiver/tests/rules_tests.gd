@@ -7638,6 +7638,7 @@ func fixes_suite() -> void:
 		check(false, "the fixes suite needs a character")
 		return
 	_fix_ticks(c)
+	_fix_buyback(c)
 	Clock.override_utc = utc0
 	Clock.override_tz_offset_s = tz0
 	HerbRules.origin_week = 0
@@ -7649,3 +7650,27 @@ func _fix_ticks(c) -> void:
 	check(Game.relations.fortune_meter(c) > meter, "playing fills the Fortune meter (Game.tick runs Relations)")
 	check(Game.account.calendar.has("season"), "the calendar keeps the season as the game runs (Game.tick runs the Calendar)")
 	check(HerbRules.origin_week == Clock.reset_week(Game.account.created_utc), "and counts the seasons from the account's first week")
+
+## B2: buyback gives back the stack that was sold, and only charges for what fits.
+func _fix_buyback(c) -> void:
+	for i in c.inventory.bag.size(): c.inventory.bag[i] = null
+	Game.economy.apply_currency("silver_tael", 100000, "test")
+	Game.inventory.apply_add(c.id, "healing_pill", 3, "test", {"quality": "superior", "marks": 2})
+	check(Game.economy.sell(c, _bag_index(c, "healing_pill"), 3).get("ok", false), "three Superior pills sell")
+	check(Game.economy.buyback(c, 0).get("ok", false), "and are bought back")
+	var i := _bag_index(c, "healing_pill")
+	check(i >= 0 and str(c.inventory.bag[i].get("quality", "")) == "superior" and int(c.inventory.bag[i].get("marks", 0)) == 2
+		and int(c.inventory.bag[i].count) == 3, "a bought-back stack keeps its quality and marks (%s)" % str(c.inventory.bag[i] if i >= 0 else {}))
+	# Room for one of three: one comes back, two stay on the list, and one is paid for.
+	var stack := int(ContentDB.item("healing_pill").get("stack", 99))
+	c.inventory.bag[i] = {"id": "healing_pill", "count": stack - 1, "quality": "superior", "marks": 2}
+	for j in c.inventory.bag.size():
+		if c.inventory.bag[j] == null: c.inventory.bag[j] = {"id": "healing_pill", "count": stack, "quality": "flawed"}
+	Game.account.economy.buyback = [{"entry": {"id": "healing_pill", "count": 3, "quality": "superior", "marks": 2}, "price": 300, "day": 0}]
+	var silver := Game.economy.balance("silver_tael")
+	check(Game.economy.buyback(c, 0).get("ok", false), "a buyback with room for one of three goes through")
+	var left: Array = Game.account.economy.buyback
+	check(int(c.inventory.bag[i].count) == stack and silver - Game.economy.balance("silver_tael") == 100 and left.size() == 1
+		and int(left[0].entry.count) == 2 and int(left[0].price) == 200, "one comes back for a third of the price; two wait on the list (%s)" % str(left))
+	for j in c.inventory.bag.size(): c.inventory.bag[j] = null
+	Game.account.economy.buyback = []

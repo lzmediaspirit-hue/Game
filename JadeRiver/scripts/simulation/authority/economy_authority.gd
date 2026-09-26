@@ -165,12 +165,19 @@ func buyback(c, index: int) -> Dictionary:
 	var e: Dictionary = bb[index]
 	if balance("silver_tael") < int(e.price): return fail("insufficient_funds")
 	var entry: Dictionary = e.entry
+	var n := int(entry.get("count", 1))
 	var added := 0
+	# The stack comes back as it was sold (quality, Halo, marks, prep, seal).
 	if ContentDB.is_equipment(str(entry.id)): added = game.inventory.apply_add_instance(c.id, entry, "buyback", false)
-	else: added = game.inventory.apply_add(c.id, str(entry.id), int(entry.get("count", 1)), "buyback", {}, false)
+	else: added = game.inventory.apply_add(c.id, str(entry.id), n, "buyback", entry, false)
 	if added <= 0: return fail("bag_full")
-	apply_currency("silver_tael", -int(e.price), "buyback")
-	bb.remove_at(index)
+	# What does not fit stays on the list at its share of the price.
+	var paid := int(e.price) if added >= n else int(round(float(e.price) * added / n))
+	apply_currency("silver_tael", -paid, "buyback")
+	if added >= n: bb.remove_at(index)
+	else:
+		entry.count = n - added
+		e.price = int(e.price) - paid
 	emit("buyback_changed", {})
 	return ok()
 
