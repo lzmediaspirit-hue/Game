@@ -171,11 +171,8 @@ func complete_node(c, object_id: String, timing := -1.0) -> Dictionary:
 	var craft: String = NODE_CRAFT[str(o.type)]
 	if craft == "herb_gathering": return _harvest(c, o, timing)
 	var rng := Rng.stream(c.id, "crafting")
-	var y: Array = o.get("yield", [1, 2])
 	var power := 1.0 if craft == "star_charting" else maxf(1.0, tool_power(c, {"herb_gathering": "gathering", "insect_netting": "insect_netting"}.get(craft, "mining")))
-	var count := rng.randi_range(int(y[0]), int(y[1]))
-	if rng.randf() < (power - 1.0) * 0.5: count += 1
-	if craft != "star_charting" and game.pets.gatherer_active(c.id) and rng.randf() < 0.25: count += 1
+	var count := _node_yield(c, o, rng, power, craft != "star_charting")
 	var item := str(o.get("item", ""))
 	if o.has("outputs"): item = str(Rng.weighted(rng, o.outputs).get("item", item))   # V10: a swarm's insects by weight
 	game.inventory.apply_add(c.id, item, count, craft)
@@ -184,6 +181,15 @@ func complete_node(c, object_id: String, timing := -1.0) -> Dictionary:
 	game.posts.apply_hand_harvest(c.id, item, count)   # S50: the hand trains the post craft too
 	emit("node_gathered", {"actor": c.id, "object": object_id, "item": item, "count": count, "craft": craft})
 	return ok({"item": item, "count": count})
+
+## A node's haul: its yield roll, one more on a better tool's chance, and one more on a gathering animal's (none under
+## the stars).
+func _node_yield(c, o: Dictionary, rng: RandomNumberGenerator, power: float, animal: bool) -> int:
+	var y: Array = o.get("yield", [1, 2])
+	var count := rng.randi_range(int(y[0]), int(y[1]))
+	if rng.randf() < (power - 1.0) * 0.5: count += 1
+	if animal and game.pets.gatherer_active(c.id) and rng.randf() < 0.25: count += 1
+	return count
 
 ## S45 harvest: a perfect tap keeps the herb's full age and may find a seed; a miss drops one age tier, and so does
 ## picking a rare herb before it ripens (never below ten years). A rare node grows back with its next ripening.
@@ -196,11 +202,7 @@ func _harvest(c, o: Dictionary, timing: float) -> Dictionary:
 	var early: bool = o.has("ripen") and not bool(HerbRules.ripen_state(o, now).ripe)
 	var perfect := HerbRules.tap_perfect(timing, rank_of(c, "herb_gathering"))
 	var item := HerbRules.aged_down(str(o.get("item", "")), (1 if early else 0) + (0 if perfect else 1))
-	var y: Array = o.get("yield", [1, 2])
-	var power := maxf(1.0, tool_power(c, "gathering"))
-	var count := rng.randi_range(int(y[0]), int(y[1]))
-	if rng.randf() < (power - 1.0) * 0.5: count += 1
-	if game.pets.gatherer_active(c.id) and rng.randf() < 0.25: count += 1
+	var count := _node_yield(c, o, rng, maxf(1.0, tool_power(c, "gathering")), true)
 	var herb_bonus: float = game.pets.trait_bonus(c, "herb_yield")
 	if herb_bonus > 0.0 and rng.randf() < herb_bonus * count: count += 1
 	game.inventory.apply_add(c.id, item, count, "herb_gathering")
