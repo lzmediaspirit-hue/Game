@@ -146,6 +146,39 @@ Progress is recorded in `docs/CHANGELOG.md`.
     five spirit-stone mines held by three rival sects, taken by a room event (their guards and warden), carts that
     fill by the hour, contests every two to four days with a twelve-hour window, disciples posted as guards, and the
     Territory tab. S49 is complete.
-- Next (V9): the v1.0-v1.1 items the earlier phases left for a later pass. These are the sword swarm, weapon
-  awakening, imitation relics, Artifact Spirit depth, the heavy sabre, flute and fan families, the rooftop thief
-  chase, the Forge and Formation guilds and the five-screen furnace mini-game.
+- Next (V9): everything v2 makes due by v1.1 that is still open. A sweep of every audit row against the build
+  after V8g3 found these, in six phases:
+  - **V9a**, hooks and small gaps:
+    - requirement and effect kinds, `treasure_birth_announced`, the Settle 20% gate;
+    - the pet command wheel, the treasure-birth light pillar and World map markers;
+    - the depth-hooks suite and save and data aliases.
+  - **V9b**, weapon families: the heavy sabre, the flute and guqin (the Music path) and the fan.
+  - **V9c**, paths as layers:
+    - the Soul line;
+    - the Blood path with alignment gates;
+    - the Buddhist Golden Body and merit drains;
+    - Poison techniques and the Poison Body;
+    - sect role variants.
+  - **V9d**, treasures and summons: the sword swarm, the combat puppet, Array Plate quick-deploy, Artifact Spirit
+    depth, imitation relics, and weapon awakening with legendary chains.
+  - **V9e**, crafts: the five-screen furnace mini-game, the Forge and Formation guilds, the Alchemist Master rank, a
+    Cloud-side gathering trial, and the Dew Vial's 10,000-year tier with Expanse nodes.
+  - **V9f**, traversal content: the rooftop thief chase, the Cloud Steps trial, ice traction, mount jumps and
+    dismounts, and the remaining room catalogue rows.
+  - The Azure Heavenly Flame needs nothing more: the Cold Lamp Flame from the Thousand-Eye Toad fills the slot.
+
+### Deviations (names)
+
+The build keeps some of its own names for v2's fields. The depth-hooks rules test checks that each one is
+written neutral from the start and round-trips through a save.
+
+| v2 | Build | Why |
+|---|---|---|
+| `movement.arts` | `cultivator.secret_arts` (requirement `art_known` = `secret_art`, effect `grant_art` = `learn_secret_art`) | The movement arts were built on the S09 secret-art list, which the unlock and portal code already read |
+| `movement.last_safe` | the player state's `last_safe` (session), with `position` and `last_shrine` saved | The fall recovery needs only the session point; the saved position covers a reload |
+| `inventory.treasure_slots` | `inventory.treasures` | Same two slots |
+| `inventory.loadout {a, b, active}` | `inventory.loadout {spare, active}` | Loadout A is the equipped weapon itself; only the spare is stored |
+| `mount` | `mount_pet` (+ `riding`) | The Mount slot holds a pet uid, and riding is a separate switch |
+| `crafting.garden_beds`, `placed_formations` | `crafting.garden`, `crafting.formations` | Named before S45 |
+| pet `bloodline_purity`, `colour_variant`, `wounded_until` | `purity`, `variant`, `wounded` | `wounded` is a flag: the Grievous Wound lasts until it is treated, not on a timer |
+| `flames.json` | Heavenly Flames are items with `use_action: absorb_flame`; absorbed ones are in `crafting.flames` | Flames drop and trade as items |

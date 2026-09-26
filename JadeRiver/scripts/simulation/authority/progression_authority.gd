@@ -743,6 +743,15 @@ func choose_fate(c, card: String) -> Dictionary:
 	emit("fate_chosen", {"actor": c.id, "card": card})
 	return ok({"card": card})
 
+## A fate given outright (a quest, a relic, a fortune): as if chosen from an offer, without one.
+func apply_grant_fate(actor_id: String, card: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or not ContentDB.has_entry("fates", card): return
+	var saved: Array = c.cultivator.fate_offer.duplicate()
+	c.cultivator.fate_offer = [card]
+	choose_fate(c, card)
+	c.cultivator.fate_offer = saved
+
 ## Another authority spends a fate's `next` (Fox Spirit's Favour: the next egg's purity).
 func spend_fate_next(c, key: String) -> float:
 	return _spend_fate_next(c, key)

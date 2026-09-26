@@ -96,6 +96,13 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 		"merit_at_least":
 			ok = c != null and c.relations.merit >= int(cond.value)
 			text = Tx.t("req.merit_at_least") % int(cond.value)
+		# S48 the heart: a calm enough heart, and a foundation not mostly built of pills (S44).
+		"heart_demon_at_most":
+			ok = c != null and c.cultivator.heart_demon <= float(cond.value)
+			text = Tx.t("req.heart_demon_at_most") % int(cond.value)
+		"foundation_share_at_most":
+			ok = c != null and ProgressionRules.foundation_share(c.cultivator) <= float(cond.value)
+			text = Tx.t("req.foundation_share_at_most") % int(round(float(cond.value) * 100.0))
 		# S49 world calendar: an event under way (anywhere, or in this room).
 		"world_event_active", "world_event_here":
 			var ev := CalendarRules.event(str(cond.event))
@@ -201,8 +208,8 @@ static func evaluate(cond: Dictionary, ctx: Dictionary) -> Dictionary:
 		"event_passed":
 			ok = c != null and str(cond.event) in c.cultivator.events_passed
 			text = Tx.t("req.pass") % ContentDB.text("event." + str(cond.event))
-		"secret_art":
-			# A secret art learned (Breath Control opens flooded ways, S09).
+		"secret_art", "art_known":
+			# A secret art learned (Breath Control opens flooded ways, S09); v2 names it art_known for the S43 movement arts.
 			ok = c != null and str(cond.art) in c.cultivator.secret_arts
 			text = str(cond.get("text", Tx.t("req.learn_the_secret_art") % ContentDB.name_of("secret_arts", str(cond.art))))
 		"method_learned":

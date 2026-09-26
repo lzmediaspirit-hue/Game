@@ -80,6 +80,14 @@ func draw_page() -> void:
 				if to_region != "" and to_region != str(r.id) and pts.has(to_region) and str(r.id) < to_region:
 					draw_line(pts[str(r.id)], pts[to_region], Color(0.35, 0.25, 0.12, 0.55), 3)
 	var here := str(ContentDB.room(str(ch.position.get("room", ""))).get("region", ""))
+	# S49: the calendar's world events, live or coming, marked on their region (gold when under way).
+	var now := Clock.now_utc()
+	var events_at := {}
+	for o in Game.calendar.schedule():
+		var reg_id := str(ContentDB.room(str(o.room)).get("region", "")) if str(o.room) != "" else ""
+		if reg_id == "": continue
+		if not events_at.has(reg_id): events_at[reg_id] = []
+		events_at[reg_id].append(o)
 	for r in regions():
 		var rid := str(r.id)
 		var p: Vector2 = pts[rid]
@@ -91,6 +99,13 @@ func draw_page() -> void:
 		if rid == here:
 			draw_colored_polygon(PackedVector2Array([p + Vector2(0, -34), p + Vector2(10, -20), p + Vector2(-10, -20)]), UiKit.RED)
 		if seen and _open_paths(ch, rid) > 0: _wind_glyph(p + Vector2(20, -26))
+		if events_at.has(rid):
+			var live: bool = (events_at[rid] as Array).any(func(o): return now >= float(o.start))
+			var mk := p + Vector2(-24, -24)
+			var mc := UiKit.GOLD if live else Color(0.55, 0.45, 0.7)
+			if live: draw_circle(mk, 11.0 + 2.0 * sin(t * 4.0), Color(1.0, 0.85, 0.4, 0.3))
+			draw_colored_polygon(PackedVector2Array([mk + Vector2(0, -8), mk + Vector2(6, 0), mk + Vector2(0, 8), mk + Vector2(-6, 0)]), mc)
+			draw_polyline(PackedVector2Array([mk + Vector2(0, -8), mk + Vector2(6, 0), mk + Vector2(0, 8), mk + Vector2(-6, 0), mk + Vector2(0, -8)]), UiKit.INK, 1.5)
 		var name_ := str(r.name) if seen else "?"
 		UiKit.draw_outlined(self, name_, p + Vector2(-90, 36), 15, UiKit.PAPER if seen else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, 180)
 		region(Rect2(p - Vector2(30, 30), Vector2(60, 60)), "sel", rid)
@@ -116,6 +131,12 @@ func draw_page() -> void:
 	if reg.get("planned", false):
 		para(Rect2(right.position.x + 20, y + 4, right.size.x - 40, 80), Tx.t("ui.map.way_not_open"), 17, UiKit.HOLLOW)
 		return
+	for o in events_at.get(sel, []):
+		var ev := CalendarRules.event(str(o.id))
+		var live2: bool = now >= float(o.start)
+		text(Vector2(right.position.x + 24, y + 22), Tx.t("ui.map.event_live") % [str(ev.get("name", o.id)), ContentDB.name_of("rooms", str(o.room))] if live2
+			else Tx.t("ui.map.event_soon") % [str(ev.get("name", o.id)), ContentDB.name_of("rooms", str(o.room))], 16, UiKit.GOLD if live2 else Color(0.7, 0.62, 0.86))
+		y += 24
 	for id in region_rooms(sel):
 		var seen2: bool = Game.account.visited_rooms.has(id)
 		var room := ContentDB.room(id)

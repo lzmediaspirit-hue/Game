@@ -589,6 +589,12 @@
     "world_authority"
    ]
   },
+  "treasure_birth_announced": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
+  },
   "enemy_aggro": {
    "system": "Enemies",
    "files": [
@@ -1086,6 +1092,12 @@
    ]
   },
   "pet_fed": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "pet_commanded": {
    "system": "Pets",
    "files": [
     "pet_authority"

@@ -381,6 +381,11 @@ func _handle_preview_args(user_args: Array) -> void:
 		# Debug tools (S38): hold the harvest ring part-way through its shrink (S45).
 		await get_tree().create_timer(1.0).timeout
 		hud.tapping = {"object": "preview", "t": 660.0, "ring": 1000.0, "target": 0.7, "window": 0.16}
+	if "--pet-wheel" in user_args and is_instance_valid(hud):
+		# Debug tools (S38): hold the Pet button's command wheel open, Stay picked (v2 HUD previews).
+		await get_tree().create_timer(1.0).timeout
+		hud.pet_wheel = true
+		hud.pet_pick = 1
 	if "--capture" in user_args:
 		await get_tree().create_timer(2.5).timeout
 		for a in user_args:

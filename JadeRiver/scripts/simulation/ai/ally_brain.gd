@@ -55,16 +55,24 @@ static func think(game, a: EnemyState, delta: float, attack_power: float, reach:
 		return
 	var side := -1 if int(game.combat.timeline(c.id).facing) > 0 else 1
 	var home = st.plane + Vector2(side * float(a.ai.get("offset", 60)), float(a.ai.get("depth_offset", 10)))
+	# The pet command wheel (v2 HUD): stay holds a spot, attack reaches wider, passive never fights.
+	var cmd := str(a.ai.get("command", "follow"))
+	var staying := cmd == "stay"
+	if staying: home = a.ai.get("stay_at", a.plane)
 	var target: EnemyState = null
-	var best := 260.0
+	var best := 600.0 if cmd == "attack" else 260.0
+	var from: Vector2 = home if staying else st.plane
 	for e in game.room_rt.living_enemies():
+		if cmd == "passive": break
 		if e.team != "enemy" or e.hidden or e.def.get("passive", false): continue
-		var d = e.plane.distance_to(st.plane)
+		var d = e.plane.distance_to(a.plane if cmd == "attack" else from)
+		if staying and d > reach + e.half_width() + 60.0: continue
 		if d < best:
 			best = d
 			target = e
-	# Left far behind (another screen, a portal jump): blink back at once, whatever it was doing (S43).
-	if a.plane.distance_to(st.plane) > 480.0:
+	# Left far behind (another screen, a portal jump): blink back at once, whatever it was doing (S43). A pet told to
+	# stay keeps its post unless you leave it very far behind.
+	if a.plane.distance_to(st.plane) > (1400.0 if staying else 480.0):
 		blink_to(a, st, -1 if int(game.combat.timeline(c.id).facing) > 0 else 1)
 		a.ai.state = "follow"
 		return
@@ -88,7 +96,7 @@ static func think(game, a: EnemyState, delta: float, attack_power: float, reach:
 	# Follow the owner onto another surface along the graph; blink when it cannot be reached (S43).
 	var geo: ZoneGeometry = game.room_rt.geometry
 	var owner_surf: WalkSurface = st.surface if st.surface != null else geo.surface_under(st.plane, st.altitude)
-	if a.surface_id != "" and owner_surf != null and owner_surf.id != a.surface_id and (target == null or a.plane.distance_to(st.plane) > 200.0):
+	if not staying and a.surface_id != "" and owner_surf != null and owner_surf.id != a.surface_id and (target == null or a.plane.distance_to(st.plane) > 200.0):
 		var path: Array = geo.nav_path(a.surface_id, owner_surf.id, EnemyBrain.movement_of(a))
 		if path.is_empty():
 			a.ai.stuck = float(a.ai.get("stuck", 0.0)) + delta
@@ -99,7 +107,7 @@ static func think(game, a: EnemyState, delta: float, attack_power: float, reach:
 			return
 	else:
 		a.ai.stuck = 0.0
-	if a.plane.distance_to(st.plane) > 480.0 or float(a.ai.get("stuck", 0.0)) >= 2.0:
+	if not staying and (a.plane.distance_to(st.plane) > 480.0 or float(a.ai.get("stuck", 0.0)) >= 2.0):
 		blink_to(a, st, side)
 		return
 	if target != null:

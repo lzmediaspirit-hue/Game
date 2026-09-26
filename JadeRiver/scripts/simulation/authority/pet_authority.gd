@@ -10,6 +10,8 @@ var essence_check := 0.0
 var guardian_cd: Dictionary = {}   # actor -> seconds before Guardian Spirit can take another blow (transient)
 var rally_until: Dictionary = {}   # actor -> sim time the keeper's rally lasts until (Beast Trial Grove, transient)
 var rally_ready: Dictionary = {}   # actor -> sim time the keeper can rally again
+var commands: Dictionary = {}      # actor -> the command wheel's last order: follow, stay, attack or passive (transient)
+const COMMANDS := ["follow", "stay", "attack", "passive"]
 
 func intents() -> Array:
 	return ["set_active_pet", "set_pet_role", "feed_pet", "pet_command", "rename_pet", "choose_starter", "attempt_tame", "incubate_egg", "hatch_egg", "evolve_pet", "breed",
@@ -78,9 +80,7 @@ func handle(intent: Dictionary) -> Dictionary:
 			apply_bond(c.id, 0.5 if item in ContentDB.entry("pets", str(p2.species)).get("favourite_foods", []) else 0.2, str(p2.uid))
 			emit("pet_fed", {"actor": c.id, "pet": p2.uid})
 			return ok()
-		"pet_command":
-			emit("pet_commanded", {"actor": c.id, "command": str(intent.get("command", "follow"))})
-			return ok()
+		"pet_command": return command(c, str(intent.get("command", "follow")))
 		"choose_starter": return choose_starter(c, str(intent.get("species", "")))
 		"attempt_tame": return attempt_tame(c, str(intent.get("offering", "")), float(intent.get("result", -1.0)))
 		"incubate_egg": return incubate_egg(c, int(intent.get("index", -1)))
@@ -399,11 +399,25 @@ func _make_ally(c, p: Dictionary, i: int) -> EnemyState:
 	a.plane = (st.plane if st else Vector2(c.position.x, c.position.y)) + Vector2(-50 - i * 40, 12 + i * 14)
 	AllyBrain.settle(game, a, st)
 	a.ai = {"state": "follow", "timer": 0.0, "offset": 56 + i * 40, "depth_offset": 14 + i * 14, "speed": 200, "pet": str(p.uid),
-		"free_cast": true, "skill_cd": 0.0, "calm": 0.0, "sup_t": 0.0}
+		"free_cast": true, "skill_cd": 0.0, "calm": 0.0, "sup_t": 0.0, "command": str(commands.get(c.id, "follow")), "stay_at": a.plane}
 	a.stats = {"attack": 0.0}
 	game.room_rt.enemies[a.uid] = a
 	emit("ally_spawned", {"uid": a.uid, "kind": "pet"})
 	return a
+
+## The command wheel (hold the Pet button): every animal out with you follows (and fights near you), stays where it
+## stands, attacks whatever is nearest within a wide reach, or holds back from every fight.
+func command(c, cmd: String) -> Dictionary:
+	if not cmd in COMMANDS: return fail("unknown_command")
+	commands[c.id] = cmd
+	if game.room_rt != null:
+		for puid in allies:
+			var a: EnemyState = game.room_rt.enemies.get(allies[puid])
+			if a == null or a.pet_owner != c.id: continue
+			a.ai.command = cmd
+			a.ai.stay_at = a.plane
+	emit("pet_commanded", {"actor": c.id, "command": cmd})
+	return ok({"command": cmd})
 
 func tick(delta: float) -> void:
 	for actor in dismounted.keys():

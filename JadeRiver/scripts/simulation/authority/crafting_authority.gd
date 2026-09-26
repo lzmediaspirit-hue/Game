@@ -1000,8 +1000,16 @@ func absorb_flame(c, index: int) -> Dictionary:
 	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
 	var id := str(c.inventory.bag[index].id)
 	if str(ContentDB.item(id).get("use_action", "")) != "absorb_flame": return fail("not_a_flame")
-	var flames: Array = c.crafting.get("flames", [])
 	game.inventory.apply_remove_index(c.id, index, 1, "absorb_flame")
+	return _absorb(c, id)
+
+## A flame given outright (an effect: a boss's heart-fire, a secret realm's reward) is absorbed the same way.
+func apply_absorb_flame(actor_id: String, id: String) -> void:
+	var c = game.character(actor_id)
+	if c != null and str(ContentDB.item(id).get("use_action", "")) == "absorb_flame": _absorb(c, id)
+
+func _absorb(c, id: String) -> Dictionary:
+	var flames: Array = c.crafting.get("flames", [])
 	if flames.has(id):
 		game.economy.apply_currency("spirit_stone", 20, "flame_gutters")
 		return ok({"text": Tx.t("sim.crafting.flame_gutters") % ContentDB.item_name(id), "duplicate": true})

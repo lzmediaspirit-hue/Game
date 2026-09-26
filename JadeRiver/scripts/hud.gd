@@ -62,6 +62,12 @@ var cultivate_hold := 0.0
 var cultivate_pressed := false
 var guard_hold := 0.0
 var guard_pressed := false
+# v2 HUD: hold the Pet button for the command wheel (follow, stay, attack, passive, ride, the Pet Bag).
+var pet_pressed := false
+var pet_hold := 0.0
+var pet_wheel := false
+var pet_pick := -1
+const PET_WHEEL := ["follow", "stay", "attack", "passive", "ride", "bag"]
 var pulses: Dictionary = {}        # element -> seconds of reveal pulse
 var boss_uid := 0
 var t := 0.0
@@ -126,6 +132,11 @@ func _process(delta: float) -> void:
 			cultivate_pressed = false
 			cultivate_hold = -99.0
 			open_page.emit("cultivation", {})
+	if pet_pressed and not pet_wheel:
+		pet_hold += delta
+		if pet_hold >= 0.45:
+			pet_wheel = true
+			pet_pick = -1
 	if guard_pressed:
 		guard_hold += delta
 		if guard_hold > 0.18 and bound() and not player.state.flying and not Game.combat.timeline(Game.active_id).guard:
@@ -251,7 +262,11 @@ func press(id: int, p: Vector2):
 			if bound():
 				var sr := Game.submit({"type": "sense_pulse"})
 				if not sr.ok and sr.has("text"): add_log(str(sr.text), UiKit.MIST)
-		"pet": if bound(): open_page.emit("spirit_animals", {})
+		"pet":
+			if bound():
+				pet_pressed = true
+				pet_hold = 0.0
+				pet_wheel = false
 		"context": use_context()
 		"treasure:0", "treasure:1": use_treasure(int(role.get_slice(":", 1)))
 		"swap": swap_weapon()
@@ -288,6 +303,8 @@ func drag(id: int, p: Vector2):
 		var delta = p - joystick_origin
 		joystick_pos = p
 		player.movement = delta.limit_length(76) / 76 if delta.length() > 9 else Vector2.ZERO
+	elif touches[id].role == "pet" and pet_wheel:
+		pet_pick = _wheel_pick(p)
 	elif touches[id].role == "skill" and not touches[id].swiped:
 		var delta = p - touches[id].start
 		if absf(delta.y) > 40 and absf(delta.y) > absf(delta.x):
@@ -311,6 +328,13 @@ func release(id: int):
 		var r: Dictionary = player.use_technique(int(info.slot))
 		if not r.ok and r.get("reason", "") in ["no_qi", "cooldown", "wrong_weapon", "sealed", "needs_flight"]:
 			add_log({"no_qi": Tx.t("hud.not_enough_qi"), "cooldown": Tx.t("hud.not_ready"), "wrong_weapon": str(r.get("text", Tx.t("hud.wrong_weapon"))), "sealed": Tx.t("hud.your_qi_is_sealed"), "needs_flight": Tx.t("hud.only_in_flight")}[r.reason], UiKit.MIST)
+	if info.get("role", "") == "pet" and bound() and pet_pressed:
+		pet_pressed = false
+		if pet_wheel:
+			pet_wheel = false
+			if pet_pick >= 0: _pet_wheel_do(str(PET_WHEEL[pet_pick]))
+		else:
+			open_page.emit("spirit_animals", {})
 	if info.get("role", "") == "jump":
 		player.fly_up = false
 		player.jump_held = false
@@ -320,6 +344,47 @@ func release(id: int):
 		if guard_hold <= 0.18:
 			Game.submit({"type": "dodge", "direction": player.last_axis, "facing": player.facing})
 		Game.submit({"type": "guard_end"})
+
+## Where each choice of the pet command wheel sits around the Pet button.
+func _wheel_pos(i: int) -> Vector2:
+	var a := -PI / 2.0 + TAU * float(i) / float(PET_WHEEL.size())
+	return pet_center + Vector2(cos(a), sin(a)) * 104.0
+
+func _wheel_pick(p: Vector2) -> int:
+	if p.distance_to(pet_center) < 40.0: return -1
+	var best := -1
+	var bd := 70.0
+	for i in PET_WHEEL.size():
+		var d := p.distance_to(_wheel_pos(i))
+		if d < bd:
+			bd = d
+			best = i
+	return best
+
+func _pet_wheel_do(choice: String) -> void:
+	var res := {}
+	match choice:
+		"ride": res = Game.submit({"type": "set_mount"})
+		"bag": open_page.emit("spirit_animals", {})
+		_: res = Game.submit({"type": "pet_command", "command": choice})
+	if not res.is_empty() and not res.get("ok", false) and res.has("text"): add_log(str(res.text), UiKit.MIST)
+
+func _draw_pet_wheel(c) -> void:
+	if not pet_wheel: return
+	draw_circle(pet_center, 152.0, Color(0.02, 0.07, 0.08, 0.86))
+	draw_arc(pet_center, 152.0, 0, TAU, 64, Color(0.78, 0.62, 0.3, 0.6), 2.0)
+	var cur := str(Game.pets.commands.get(c.id, "follow"))
+	for i in PET_WHEEL.size():
+		var id := str(PET_WHEEL[i])
+		var pos := _wheel_pos(i)
+		var on := i == pet_pick
+		var active := id == cur
+		ring(pos, 34, on)
+		if active: draw_arc(pos, 38, 0, TAU, 32, UiKit.GOLD, 2.0)
+		var label := Tx.t("hud.pet_cmd_" + id)
+		if id == "ride": label = Tx.t("hud.pet_cmd_dismount") if c.mount_pet != "" and c.riding else Tx.t("hud.pet_cmd_ride")
+		UiKit.draw_outlined(self, label, pos + Vector2(-44, 6), 15, UiKit.GOLD if on else (UiKit.PALE_GOLD if active else UiKit.PAPER), HORIZONTAL_ALIGNMENT_CENTER, 88)
+	UiKit.draw_outlined(self, Tx.t("hud.pet_cmd_title"), pet_center + Vector2(-150, -162), 17, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 300)
 
 func tap_cultivate() -> void:
 	var c = Game.active()
@@ -682,6 +747,8 @@ func _on_event(name: String, p: Dictionary) -> void:
 		"weather_changed":
 			if Game.room_rt != null and str(Game.room_rt.def.get("weather", "")) == str(p.region):
 				add_log(Tx.t("hud.weather_" + str(p.weather)), UiKit.MIST)
+		"treasure_birth_announced":
+			add_log(Tx.t("hud.treasure_birth") % [ContentDB.item_name(str(p.item)), ContentDB.name_of("rooms", str(p.room))], UiKit.PALE_GOLD)
 		"treasure_claimed":
 			toast(Tx.t("hud.treasure_claimed") % ContentDB.item_name(str(p.item)), "gold")
 		"gathering_trial_ranked":
@@ -729,6 +796,8 @@ func _on_event(name: String, p: Dictionary) -> void:
 				Tx.t("hud.mine_lost_sub") % int(p.stones) if int(p.get("stones", 0)) > 0 else "")
 		"mine_collected":
 			add_log(Tx.t("hud.mine_collected") % [int(p.stones), ContentDB.name_of("territory", str(p.mine))], UiKit.PALE_GOLD)
+		"pet_commanded":
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.pet_commanded") % Tx.t("hud.pet_cmd_" + str(p.command)), UiKit.PALE_GOLD)
 		"guqin_played":
 			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.guqin_calm") % int(round(float(p.bonus) * 100.0)), UiKit.BRIGHT_JADE)
 		"chess_solved":
@@ -1130,6 +1199,7 @@ func _draw():
 	_draw_boss()
 	_draw_event(c)
 	_draw_tribulation(c)
+	_draw_pet_wheel(c)
 	# The harvest ring (S45) sits over every other control while it runs.
 	if tapping.object != "": _draw_tap_ring()
 	for k in ["tap:perfect", "tap:miss"]:
@@ -1323,6 +1393,17 @@ func _draw_minimap(c) -> void:
 			if mk != "": draw_arc(mp, 6 + sin(t * 4.0) * 1.5, 0, TAU, 12, UiKit.GOLD, 1)
 		elif o.type in ["shrine", "qi_spring", "teleport_stone"]:
 			draw_rect(Rect2(mp - Vector2(3, 3), Vector2(6, 6)), UiKit.BRIGHT_JADE)
+		elif o.type == "treasure_birth":
+			# S45: a Spirit Fruit ripening here stands up as a pillar of light on the minimap.
+			var pa := 0.55 + 0.25 * sin(t * 3.0)
+			draw_rect(Rect2(Vector2(mp.x - 3.0, inner.position.y + 2.0), Vector2(6.0, mp.y - inner.position.y - 2.0)), Color(1.0, 0.86, 0.45, pa * 0.35))
+			draw_line(Vector2(mp.x, inner.position.y + 2.0), mp, Color(1.0, 0.93, 0.7, pa), 1.5)
+			draw_circle(mp, 3.5, UiKit.GOLD)
+		elif o.type == "spirit_mine":
+			# S49 territory: a mine shows in its holder's colour; yours glints jade.
+			var mid := str(o.get("mine", ""))
+			var mc := UiKit.BRIGHT_JADE if Game.sect.holds(mid) else Color(str(Game.sect.rival(str(ContentDB.entry("territory", mid).get("sect", ""))).get("color", "#AFC9D1"))).lightened(0.3)
+			draw_colored_polygon(PackedVector2Array([mp + Vector2(0, -4), mp + Vector2(4, 0), mp + Vector2(0, 4), mp + Vector2(-4, 0)]), mc)
 		elif o.type == "herb_patch" and o.has("ripen"):
 			# S45: a rare herb shows as a leaf, gold while ripe, with the time left (or until it ripens).
 			var hs: Dictionary = Game.world.herb_state(o)

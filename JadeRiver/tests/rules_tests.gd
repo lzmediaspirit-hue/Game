@@ -73,6 +73,8 @@ func _main() -> void:
 	mobile_conventions_suite()
 	mortal_leisure_suite()
 	territory_suite()
+	depth_hooks_suite()
+	v2_hooks_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -3081,6 +3083,136 @@ func mobile_conventions_suite() -> void:
 	c.pools.hp = hp_was
 	if room_was != "": Game.world.load_room(c, room_was, "")
 	GameEvents.flush()
+
+## V9a: v2's remaining requirement and effect kinds, the treasure-birth announcement and the pet command wheel.
+func v2_hooks_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var req := func(cond: Dictionary) -> bool: return RequirementRules.passes({"all": [cond]}, Game.ctx(c))
+	# heart_demon_at_most and foundation_share_at_most (S48, S44).
+	var hd_was: float = c.cultivator.heart_demon
+	c.cultivator.heart_demon = 40.0
+	check(req.call({"kind": "heart_demon_at_most", "value": 50}) and not req.call({"kind": "heart_demon_at_most", "value": 30}), "heart_demon_at_most")
+	c.cultivator.heart_demon = hd_was
+	var f_was: Dictionary = c.cultivator.foundation.duplicate()
+	c.cultivator.foundation = {"realm": ProgressionRules.great_realm(c.cultivator.realm_key), "pill_qp": 40.0, "total_qp": 100.0}
+	check(req.call({"kind": "foundation_share_at_most", "value": 0.5}) and not req.call({"kind": "foundation_share_at_most", "value": 0.3}), "foundation_share_at_most")
+	c.cultivator.foundation = f_was
+	# art_known and grant_art: v2's names for the secret (movement) arts.
+	var arts_was: Array = c.cultivator.secret_arts.duplicate()
+	c.cultivator.secret_arts.erase("breath_control")
+	check(not req.call({"kind": "art_known", "art": "breath_control"}), "art_known: not yet")
+	Game.apply_effects(c.id, [{"kind": "grant_art", "art": "breath_control"}], "test")
+	GameEvents.flush()
+	check(req.call({"kind": "art_known", "art": "breath_control"}), "grant_art teaches it")
+	c.cultivator.secret_arts = arts_was
+	# grant_fate: a fate given outright, as if chosen.
+	var fates_was: Array = c.cultivator.fates.duplicate(true)
+	var offer_was: Array = c.cultivator.fate_offer.duplicate()
+	Game.apply_effects(c.id, [{"kind": "grant_fate", "fate": "lucky_star"}], "test")
+	GameEvents.flush()
+	check(c.cultivator.fates.any(func(f): return str(f.id) == "lucky_star") and c.cultivator.fate_offer == offer_was, "grant_fate adds the fate and leaves any offer alone")
+	c.cultivator.fates = fates_was
+	# absorb_flame as an effect: a flame given outright burns under every furnace.
+	var flames_was: Array = (c.crafting.get("flames", []) as Array).duplicate()
+	var fl: Array = flames_was.duplicate()
+	fl.erase("comet_tail_flame")
+	c.crafting["flames"] = fl
+	Game.apply_effects(c.id, [{"kind": "absorb_flame", "flame": "comet_tail_flame"}], "test")
+	GameEvents.flush()
+	check((c.crafting.get("flames", []) as Array).has("comet_tail_flame"), "absorb_flame as an effect")
+	c.crafting["flames"] = flames_was
+	# treasure_birth_announced: World names the fruit and the room when the calendar starts a birth.
+	var heard: Array = []
+	GameEvents.subscribe("treasure_birth_announced", func(p): heard.append(p), 200)
+	GameEvents.emit_event("world_event_started", {"event": "treasure_birth", "k": 1, "room": "wp_east", "ends": 0.0})
+	GameEvents.flush()
+	check(heard.size() == 1 and str(heard[0].room) == "wp_east" and str(heard[0].item) != "", "a treasure birth is announced with its room and fruit")
+	GameEvents.unsubscribe_object(self)
+	# The pet command wheel: a known order is kept for every animal out; an unknown one is refused.
+	check(Game.submit({"type": "pet_command", "command": "stay"}).get("ok", false) and str(Game.pets.commands.get(c.id, "")) == "stay", "stay")
+	check(not Game.submit({"type": "pet_command", "command": "dance"}).get("ok", true), "an unknown order is refused")
+	Game.submit({"type": "pet_command", "command": "follow"})
+	GameEvents.flush()
+
+## v2 "Depth hooks": every S44-S49 field is written with a neutral value from the start, and round-trips through a
+## save (as JSON) and a restore. The build's names for v2's fields are listed in docs/v2_audit.md (Deviations).
+func depth_hooks_suite() -> void:
+	var c = Game.active()
+	if c == null: return
+	var norm := func(v): return JSON.parse_string(JSON.stringify(v))
+	# A new character carries every depth field, neutral.
+	var fresh := GameCharacter.new()
+	var fs: Dictionary = fresh.snapshot()
+	var cu_keys := ["pill_resistance", "foundation", "residue", "heart_demon", "support_failures", "body_tier", "core_grade", "fates", "physiques",
+		"vows", "inner_arts", "stances", "false_realm", "longevity", "epiphany_cooldown"]
+	var rel_keys := ["merit", "sin", "debts", "alignment", "fame", "affinity", "bonds", "grudges", "bounties", "mortal", "fortune"]
+	var inv_keys := ["treasures", "loadout", "furnace", "draught", "vessel"]
+	var missing: Array = []
+	for k in cu_keys:
+		if not (fs.cultivator as Dictionary).has(k): missing.append("cultivator." + k)
+	for k in rel_keys:
+		if not (fs.relations as Dictionary).has(k): missing.append("relations." + k)
+	for k in inv_keys:
+		if not (fs.inventory as Dictionary).has(k): missing.append("inventory." + k)
+	for k in ["pets", "pet_bag", "mount_pet", "party_pets", "tower", "beast_arena", "crafting"]:
+		if not fs.has(k): missing.append(k)
+	check(missing.is_empty(), "a new character carries every S44-S49 field (%s)" % ", ".join(missing))
+	check(float(fs.cultivator.heart_demon) == 0.0 and float(fs.cultivator.residue) == 0.0 and (fs.cultivator.fates as Array).is_empty()
+		and (fs.cultivator.vows as Array).is_empty() and int(fs.relations.merit) == 0 and int(fs.relations.sin) == 0 and int(fs.relations.alignment) == 0
+		and int(fs.relations.fame) == 0, "and every one starts neutral")
+	var acc_snap: Dictionary = AccountState.new().snapshot()
+	check(acc_snap.has("calendar") and acc_snap.has("activity") and acc_snap.has("sect"), "the account carries the calendar, activity and sect blocks")
+	# Non-neutral values survive a save and a restore.
+	var ch := GameCharacter.new()
+	ch.restore(c.snapshot())
+	var cu: CultivatorState = ch.cultivator
+	cu.heart_demon = 37.0
+	cu.residue = 12
+	cu.foundation = {"realm": ProgressionRules.great_realm(cu.realm_key), "pill_qp": 50.0, "total_qp": 200.0}
+	cu.pill_resistance = {"accumulation": {"count": 1, "doses": 3}}
+	cu.support_failures = {"bone_forging": 1}
+	cu.fates = [{"id": "hungry_dantian", "realm": ProgressionRules.great_realm(cu.realm_key)}]
+	cu.vows = ["no_burst_pills"]
+	cu.stances = {"sword": "sword_flowing"}
+	cu.epiphany_cooldown = 1234.0
+	var rel: RelationsState = ch.relations
+	rel.merit = 42
+	rel.sin = 7
+	rel.alignment = -25
+	rel.fame = 88
+	rel.grudges = {"mudwater": 30}
+	rel.mortal = {"favour": 60, "day": 3}
+	rel.affinity = {"mei_qing": {"points": 40, "gift_day": 5}}
+	ch.tower = {"cleared": 3, "swept": {"1": 2}}
+	ch.beast_arena = {"rank": 4}
+	ch.inventory.treasures = ["bright_mirror", ""]
+	var s1: Dictionary = ch.snapshot()
+	var ch2 := GameCharacter.new()
+	ch2.restore(norm.call(s1))
+	var s2: Dictionary = ch2.snapshot()
+	var lost: Array = []
+	for k in cu_keys:
+		if norm.call(s1.cultivator[k]) != norm.call(s2.cultivator[k]): lost.append("cultivator." + k)
+	for k in rel_keys:
+		if norm.call(s1.relations[k]) != norm.call(s2.relations[k]): lost.append("relations." + k)
+	for k in inv_keys:
+		if norm.call(s1.inventory[k]) != norm.call(s2.inventory[k]): lost.append("inventory." + k)
+	for k in ["pets", "tower", "beast_arena", "crafting", "mount_pet", "pet_bag"]:
+		if norm.call(s1[k]) != norm.call(s2[k]): lost.append(k)
+	check(lost.is_empty(), "every depth field round-trips through save and restore (%s)" % ", ".join(lost))
+	# The account's depth blocks too: the calendar, the activity chests, the sect's mines.
+	var acc := AccountState.new()
+	acc.restore(Game.account.snapshot())
+	acc.calendar = {"active": {"spatial_rift": 3}, "told": {}, "weather": {"marsh": "rain"}, "season": "autumn"}
+	acc.activity = {"day": 9, "points": 40, "claimed": [20]}
+	acc.sect = {"name": "Test", "level": 3, "mines": {"lower_pit_seam": {"collected": 100.0, "contest": 200.0, "contested": false, "until": 0.0, "guards": [0], "n": 1}}}
+	var a1: Dictionary = acc.snapshot()
+	var acc2 := AccountState.new()
+	acc2.restore(norm.call(a1))
+	var a2: Dictionary = acc2.snapshot()
+	check(norm.call(a1.calendar) == norm.call(a2.calendar) and norm.call(a1.activity) == norm.call(a2.activity) and norm.call(a1.sect) == norm.call(a2.sect),
+		"the account's calendar, activity and sect (with its mines) round-trip")
 
 ## S49 territory: spirit mines taken from rival sects, their carts, the old holders' timers, the guards.
 func territory_suite() -> void:

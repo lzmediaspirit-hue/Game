@@ -28,6 +28,13 @@ func subscribe() -> void:
 	GameEvents.subscribe("hit_landed", _on_hit_during_event, 50)
 	GameEvents.subscribe("room_entered", _on_room_entered_fates, 51)
 	GameEvents.subscribe("room_entered", _on_room_entered_ambush, 52)
+	GameEvents.subscribe("world_event_started", _on_world_event_started, 50)
+
+## S45 treasure births (on the S49 calendar): World announces the fruit ripening in its room.
+func _on_world_event_started(p: Dictionary) -> void:
+	if str(p.get("event", "")) != "treasure_birth": return
+	emit("treasure_birth_announced", {"room": str(p.get("room", "")), "item": str(CalendarRules.event("treasure_birth").get("item", "spirit_fruit")),
+		"ends": float(p.get("ends", 0.0))})
 
 ## S48 Wandering Eye (a fate): one hidden way in each room entered shows itself.
 func _on_room_entered_fates(p: Dictionary) -> void:

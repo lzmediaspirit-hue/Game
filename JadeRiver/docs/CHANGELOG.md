@@ -5,6 +5,38 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V9a · v2 hooks: rule kinds, the treasure-birth pillar, world-event markers and the pet command wheel
+A sweep of every v2 audit row against the build after V8g3 lists what v2 makes due by v1.1 and is still open. It
+is planned as V9a–V9f in `docs/v2_audit.md`. V9a covers the small hooks:
+- **Rule kinds.**
+  - New requirements: `heart_demon_at_most` and `foundation_share_at_most`.
+  - New effects: `grant_fate` (a fate given as if chosen, leaving any offer alone) and `absorb_flame` (a Heavenly
+    Flame given outright).
+  - Aliases for v2's names: `art_known` for the secret-art requirement, `grant_art` for learning one.
+  - Data validation now reads every alias on a rule line.
+- **Treasure births.** World announces each Spirit Fruit ripening (`treasure_birth_announced`, with its room and
+  fruit) and the HUD logs it. On the minimap the tree stands up as a pulsing pillar of light while it is ripe.
+- **Other minimap markers.** Spirit mines show as a diamond: jade when yours, the holder's colour when not.
+- **World map markers.** Each region with a world event gets a diamond: gold and glowing while the event is under
+  way, violet while it is coming. The region's panel names each event and its room.
+- **The pet command wheel** (v2 HUD). Hold the Pet button (0.45 s) and drag to a choice; a tap still opens the page.
+  The choices are:
+  - Follow;
+  - Stay, which holds its spot and only fights what comes close;
+  - Attack, which reaches to 600 instead of 260;
+  - Hold back, which never fights;
+  - Ride or Dismount;
+  - the Pet Bag.
+
+  The order is kept for every animal out with you and for new ones called (`pet_commanded`, now in the contract).
+  The active order has a gold ring.
+- **Settle foundation** shows as a seclusion focus only once pills make up more than 20% of this realm's foundation
+  (the v2 unlock timeline), or while it is the focus.
+- **The depth-hooks suite** (v2's test list). A new character carries every S44–S49 field, neutral. Non-neutral
+  values of every one survive a save as JSON and a restore. The account's calendar, activity and sect (with its
+  mines) round-trip too. `docs/v2_audit.md` records where the build's names differ from v2's.
+- New rules tests cover the rule kinds, the announcement and the wheel. Debug flag: `--pet-wheel`.
+
 ### V8g3 · The living world: territory and spirit mines (S49)
 - **Spirit-stone mines** (`territory.json`). There are five, each a vein in a field room with sacks, a barrel and
   the holder's banner beside it:

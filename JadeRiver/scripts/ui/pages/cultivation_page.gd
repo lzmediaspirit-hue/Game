@@ -298,8 +298,11 @@ func _seclusion(ch) -> void:
 	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 90)), Tx.t("ui.cultivation.choose_what_to_cultivate_while") % int(cap), 19, UiKit.PAPER)
 	var foci := [["accumulate", Tx.t("ui.cultivation.accumulate"), Tx.t("ui.cultivation.realm_progress"), "seclusion"], ["temper_body", Tx.t("ui.cultivation.temper_body"), Tx.t("ui.cultivation.body_training"), "seclusion"],
 		["heal", Tx.t("ui.cultivation.heal"), Tx.t("ui.cultivation.treat_injuries"), "seclusion"], ["contemplate", Tx.t("ui.cultivation.contemplate"), Tx.t("ui.cultivation.dao_insight"), "insight_sites"],
-		["refine_qi", Tx.t("ui.cultivation.refine_qi"), Tx.t("ui.cultivation.purity"), "refine_qi"], ["nourish_soul", Tx.t("ui.cultivation.nourish_soul"), Tx.t("ui.cultivation.soul"), "nourish_soul"],
-		["settle_foundation", Tx.t("ui.cultivation.settle_foundation"), Tx.t("ui.cultivation.settle_foundation_desc"), "seclusion"]]
+		["refine_qi", Tx.t("ui.cultivation.refine_qi"), Tx.t("ui.cultivation.purity"), "refine_qi"], ["nourish_soul", Tx.t("ui.cultivation.nourish_soul"), Tx.t("ui.cultivation.soul"), "nourish_soul"]]
+	# v2 unlock timeline: Settle foundation shows once pills pass a fifth of this realm's foundation (or while it is the focus).
+	if ProgressionRules.foundation_share(ch.cultivator) > float(ContentDB.stat_const("pill_life", {}).get("settle_show_share", 0.2)) \
+		or str(ch.seclusion.get("focus", "")) == "settle_foundation":
+		foci.append(["settle_foundation", Tx.t("ui.cultivation.settle_foundation"), Tx.t("ui.cultivation.settle_foundation_desc"), "seclusion"])
 	# S44: a medicinal bath takes the seclusion slot at a Bath station.
 	var bath_item := _bath_item(ch)
 	foci.append(["bath", Tx.t("ui.cultivation.bath"), Tx.t("ui.cultivation.bath_desc") % [ContentDB.item_name(bath_item), ch.inventory.count(bath_item)]

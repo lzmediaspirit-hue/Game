@@ -120,7 +120,7 @@ def build():
         # family); every major breakthrough forgets one dose. A support pill stops helping a breakthrough after
         # two failed attempts at it. Above 30% of a great realm's QP from pills the foundation is hollow; 5% of
         # toxicity stays as residue (-1% accumulation per 10, at most -10%). Settle foundation drains both.
-        "pill_life": {"resistance_step": 0.25, "support_fail_limit": 2, "hollow_share": 0.30, "residue_share": 0.05,
+        "pill_life": {"resistance_step": 0.25, "support_fail_limit": 2, "hollow_share": 0.30, "settle_show_share": 0.20, "residue_share": 0.05,
                       "residue_step": 10, "residue_step_pct": 0.01, "residue_cap_pct": 0.10,
                       "settle_share_per_h": 0.05, "settle_residue_per_h": 5, "doses_per_count": 5},
         # The heart-demon meter (S48): 25 points are one risk step at a major breakthrough and one more Heart Demon

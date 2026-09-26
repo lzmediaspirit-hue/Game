@@ -39,7 +39,9 @@ func _learn_kinds() -> void:
 		elif line.begins_with("func ") and in_effects: in_effects = false
 		if not in_effects: continue
 		var m := re.search(line)
-		if m: effect_kinds[m.get_string(1)] = true
+		if m:
+			for part in m.get_string(0).strip_edges().trim_suffix(":").split(","):
+				effect_kinds[part.strip_edges().trim_prefix("\"").trim_suffix("\"")] = true
 	for line in FileAccess.get_file_as_string("res://scripts/core/requirement_rules.gd").split("\n"):
 		var m2 := re.search(line)
 		if m2:

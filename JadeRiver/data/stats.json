@@ -435,6 +435,7 @@
   "resistance_step": 0.25,
   "support_fail_limit": 2,
   "hollow_share": 0.3,
+  "settle_show_share": 0.2,
   "residue_share": 0.05,
   "residue_step": 10,
   "residue_step_pct": 0.01,
