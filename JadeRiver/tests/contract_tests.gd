@@ -52,6 +52,7 @@ func _main() -> void:
 		check(consumed or by_data or row.has("polled"), "%s has a reactor" % ev)
 	_strings_gate()
 	_forbidden_patterns()
+	_pages_read_only()
 	_scripts_compile()
 	_export_filters()
 	print("contract_tests: %d checks, %d failures" % [checks, failures])
@@ -149,6 +150,21 @@ func _forbidden_patterns() -> void:
 			if clock.search(line) != null and path.get_file() != "clock_service.gd": bad_clock.append("%s:%d" % [path.get_file(), i + 1])
 	check(bad_rng.is_empty(), "gameplay randomness comes from named Rng streams %s" % str(bad_rng))
 	check(bad_clock.is_empty(), "gameplay time comes from Clock %s" % str(bad_clock))
+
+# ------------------------------------------------------------------ pages draw, authorities write (page.gd)
+## The pages, the HUD and the shell send intents: they never write a character's or the account's state, call an
+## authority's apply_* command, settle a record or fill one in. A write found here belongs in its authority, behind an intent.
+func _pages_read_only() -> void:
+	var state := "\\.(inventory|cultivator|pools|quests|relations|crafting|posts|pets|companions|cooldowns|training_sect|professions|swarm|tower|rooms)\\b"
+	var write := "[\\w.\\[\\]\"]*\\s*([-+*/]?=(?!=)|\\.(append|erase|clear|merge|push_back|push_front|remove_at|pop_back|pop_front|resize|sort)\\()"
+	var re := RegEx.create_from_string("(" + state + write + ")|(Game\\.account" + write + ")|(Game\\.[a-z_]+\\.(apply_\\w+|\\w*settle\\w*|ensure_fields)\\()")
+	var found: Array = []
+	for path in _walk("res://scripts/ui/") + ["res://scripts/hud.gd"] + _walk("res://scripts/shell/"):
+		var lines := FileAccess.get_file_as_string(path).split("\n")
+		for i in lines.size():
+			if lines[i].strip_edges().begins_with("#"): continue
+			if re.search(lines[i]) != null: found.append("%s:%d" % [path.get_file(), i + 1])
+	check(found.is_empty(), "pages, the HUD and the shell never write game state %s" % str(found))
 
 ## Every script under scripts/ parses and compiles (a page with a type error only fails when
 ## the player opens it, so load them all here).

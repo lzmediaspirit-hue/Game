@@ -352,7 +352,7 @@ func on_action(id: String, data) -> void:
 		"bag":
 			sel = {"bag": int(data)}
 			var s = ch.inventory.bag[int(data)]
-			if s != null: ch.inventory.new_items.erase(str(s.id))
+			if s != null: submit({"type": "mark_item_seen", "item": str(s.id)})
 		"slot": sel = {"slot": str(data)}
 		"key": sel = {"key": int(data)}
 		"sort": submit({"type": "sort_bag", "by": sort_by})

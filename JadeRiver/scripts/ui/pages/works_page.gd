@@ -164,7 +164,7 @@ func _draw_favours() -> void:
 # ------------------------------------------------------------------ the Calcination Furnace
 func _draw_furnace() -> void:
 	if not _gate("calcination"): return
-	Game.posts.calcination_settle()
+	Game.submit({"type": "settle_works", "part": "furnace"})
 	para(Rect2(content.position, Vector2(content.size.x, 50)), Tx.t("ui.works.furnace_note"), 16, UiKit.MIST, 2)
 	var salts: Array = ContentDB.config("posts").get("salts", [])
 	var area := Rect2(content.position + Vector2(0, 60), Vector2(content.size.x, content.size.y - 60))
@@ -231,7 +231,7 @@ func _draw_flags() -> void:
 func _draw_mirror() -> void:
 	if not _gate("mirror_of_echoes"): return
 	var ch = c()
-	Game.posts.mirror_settle()
+	Game.submit({"type": "settle_works", "part": "mirror"})
 	var x := content.position.x
 	var y := content.position.y
 	para(Rect2(Vector2(x, y), Vector2(content.size.x, 60)), Tx.t("ui.works.mirror_note"), 16, UiKit.MIST, 3)

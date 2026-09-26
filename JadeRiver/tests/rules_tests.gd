@@ -7739,6 +7739,7 @@ func fixes_suite() -> void:
 	_fix_wind_step(c)
 	_fix_strongest_dao(c)
 	_fix_fall(c)
+	_fix_page_writes(c)
 	Clock.override_utc = utc0
 	Clock.override_tz_offset_s = tz0
 	HerbRules.origin_week = 0
@@ -7895,3 +7896,33 @@ func _fix_fall(c) -> void:
 	check(near(c.pools.hp, c.pools.max_hp * (1.0 - float(ContentDB.stat_const("move.fall_cost_pct", 0.05)))),
 		"a fall on the Willow Path costs 5%% of max HP (%.1f of %.1f)" % [c.pools.hp, c.pools.max_hp])
 	c.pools.hp = c.pools.max_hp
+
+## B19: what the Bag, Works, Roll-Call's Bench and Spirit Animals pages wrote themselves, their authorities now write
+## behind intents (and contract_tests checks the pages write nothing).
+func _fix_page_writes(c) -> void:
+	Game.inventory.apply_add(c.id, "spirit_stone_shard", 1, "test")
+	check(c.inventory.new_items.has("spirit_stone_shard"), "a piece just picked up is new in the Bag")
+	check(Game.submit({"type": "mark_item_seen", "item": "spirit_stone_shard"}).get("ok", false) and not c.inventory.new_items.has("spirit_stone_shard"),
+		"looking at it takes the dot away (mark_item_seen)")
+	var now := Clock.now_utc()
+	var posts: Dictionary = ContentDB.config("posts")
+	Unlocks.force_unlock(c.id, "apprentice_bench")
+	var b: Dictionary = Game.posts.bench(c)
+	var part := str(posts.bench.components[0].item)
+	b.slots = [part]
+	b.updated = now - 3600.0
+	check(Game.submit({"type": "settle_works", "part": "bench"}).get("ok", false) and near(float(b.updated), now) and float(b.stock.get(part, 0.0)) > 0.0,
+		"the Apprentice Bench settles an hour's work when its page asks")
+	var sd: Dictionary = posts.salts[0]
+	var ln: Dictionary = Game.posts.salt_line(str(sd.id))
+	ln.on = true
+	ln.since = now - 7200.0
+	check(Game.submit({"type": "settle_works", "part": "furnace"}).get("ok", false) and float(ln.since) > now - float(sd.get("cycle_s", 900)),
+		"the Calcination Furnace catches up when its page asks")
+	var m: Dictionary = Game.posts.works().mirror
+	m.since = now - 3600.0
+	check(Game.submit({"type": "settle_works", "part": "mirror"}).get("ok", false) and near(float(m.since), now), "so does the Mirror of Echoes")
+	check(not Game.submit({"type": "settle_works", "part": "garden"}).get("ok", true), "an unknown work is refused")
+	var legacy := {"uid": "old_2", "species": "reed_otter", "rarity": "rare"}
+	check(int(Game.pets.filled(legacy).get("purity", 0)) == 38 and not legacy.has("purity"),
+		"Spirit Animals reads an older animal with its neutral fields and does not write them")

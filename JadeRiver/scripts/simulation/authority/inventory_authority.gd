@@ -9,7 +9,7 @@ const COOLDOWN_GROUPS := {"restoration": 15.0, "healing": 15.0, "buff": 30.0, "u
 func intents() -> Array:
 	return ["move_item", "equip", "unequip", "use_item", "use_quick", "set_quick_use", "lock_item", "discard", "split_stack", "sort_bag", "drink_draught",
 		"bind_item", "subdue_spirit", "set_treasure", "choose_vessel", "swap_loadout", "set_spare_weapon", "set_appearance", "flag_natal", "feed_natal",
-		"reforge_natal", "gift_spirit", "devour_gear"]
+		"reforge_natal", "gift_spirit", "devour_gear", "mark_item_seen"]
 
 var binding: Dictionary = {}   # actor -> {uid, left, total}: a relic being bound (S14)
 var spirit_cd: Dictionary = {} # actor -> seconds before another soul contest
@@ -273,6 +273,9 @@ func handle(intent: Dictionary) -> Dictionary:
 		"discard": return discard(c, int(intent.get("index", -1)), int(intent.get("count", 1)))
 		"split_stack": return split(c, int(intent.get("index", -1)), int(intent.get("count", 1)))
 		"sort_bag": return sort_bag(c, str(intent.get("by", "type")))
+		"mark_item_seen":   # the Bag's "new" dot goes once the piece has been looked at
+			c.inventory.new_items.erase(str(intent.get("item", "")))
+			return ok()
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ apply commands

@@ -64,7 +64,7 @@ func draw_page() -> void:
 	else: bar(Rect2(px, right.position.y + 96, colw, 28), float(pet.get("bond", 0.0)) / 10.0, UiKit.RED, Tx.t("ui.pets.bond_1f_10") % float(pet.get("bond", 0.0)))
 	var need := float(ContentDB.curve("pet_xp.base", 20)) * pow(int(pet.level), float(ContentDB.curve("pet_xp.per_level_pow", 1.5)))
 	bar(Rect2(px, right.position.y + 130, colw, 24), float(pet.get("xp", 0.0)) / need, UiKit.GOLD, Tx.t("ui.pets.level") % [int(pet.level), int(pet.get("xp", 0.0)), int(need)])
-	Game.pets.ensure_fields(pet)
+	pet = Game.pets.filled(pet)
 	var hw := (stage.size.x - 8) / 2.0
 	btn(Rect2(stage.position.x, stage.end.y + 8, hw, 38), Tx.t("ui.pets.unlock") if pet.get("locked", false) else Tx.t("ui.pets.lock"),
 		"lock", sel, false, true, "", 16)

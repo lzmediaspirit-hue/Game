@@ -187,7 +187,7 @@ func _draw_bench() -> void:
 	if not Unlocks.is_unlocked(ch.id, "apprentice_bench"):
 		para(Rect2(content.position + Vector2(0, 20), Vector2(content.size.x, 80)), Unlocks.locked_text("apprentice_bench"), 18, UiKit.HOLLOW)
 		return
-	Game.posts._bench_settle(ch)
+	Game.submit({"type": "settle_works", "part": "bench"})
 	var b: Dictionary = Game.posts.bench(ch)
 	var x := content.position.x
 	var y := content.position.y
