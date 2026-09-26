@@ -580,6 +580,35 @@
    1900
   ]
  },
+ "swarm": {
+  "start_pop": 50,
+  "min_pop": 50,
+  "max_pop": 5000,
+  "growth_per_h": 0.08,
+  "shrink_per_h": 0.02,
+  "food_per_h": 1,
+  "queen_chance_per_h": 0.01,
+  "queen_growth": 1.5,
+  "queen_bite": 1.25,
+  "bite_k": 0.12,
+  "radius": 220,
+  "duration_s": 8,
+  "tick_s": 1.0,
+  "cooldown_s": 30,
+  "wood_factor": 0.5,
+  "max_settle_h": 720,
+  "ore_food": {
+   "copper_ore": 1,
+   "riverstone": 2,
+   "jadeiron": 3,
+   "cloudsteel_ore": 4,
+   "mystic_ore": 5,
+   "stormsteel_ore": 6,
+   "sunglass_ore": 7,
+   "driftglass": 8,
+   "drone_shell": 10
+  }
+ },
  "sphere": {
   "qi_per_s_pct": 0.004,
   "radius_base": 160,

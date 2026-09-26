@@ -1,0 +1,593 @@
+{
+ "schema_version": 1,
+ "id": "ar_ashborn_palisade",
+ "zone": "lantern_star_field",
+ "region": "ashen_reach",
+ "name": "Ashborn Palisade",
+ "type": "field",
+ "level_range": [
+  90,
+  93
+ ],
+ "recommended_cp": 1640,
+ "element": "fire",
+ "qi_density": 2.1,
+ "hazards": [],
+ "gather_tier": "lantern_high",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "ashen_reach",
+ "ground": {
+  "material": "stone",
+  "tint": "#c4a894"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    900,
+    630,
+    300,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    2100,
+    620,
+    320,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_2",
+   "rect": [
+    3000,
+    630,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    1706,
+    610,
+    240,
+    70
+   ],
+   "height": 300,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    520,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1280,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ar_cinder_fields",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "ar_war_camp",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    930,
+    665
+   ],
+   "loot": "jar_lantern",
+   "level": 91,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 100
+  },
+  {
+   "id": "crate_2",
+   "type": "crate",
+   "at": [
+    2130,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 91,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    2359,
+    900
+   ],
+   "loot": "jar_lantern",
+   "level": 91,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_4",
+   "type": "crate",
+   "at": [
+    3396,
+    700
+   ],
+   "loot": "jar_lantern",
+   "level": 91,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    1826,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 93,
+   "alt": 300,
+   "surface": "cloud_mv"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "ashborn_raider",
+   "surface": "ground",
+   "points": [
+    [
+     594,
+     785
+    ],
+    [
+     1194,
+     898
+    ],
+    [
+     1876,
+     835
+    ],
+    [
+     2628,
+     750
+    ],
+    [
+     3318,
+     722
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 16,
+   "level": [
+    90,
+    92
+   ]
+  },
+  {
+   "enemy": "ashborn_pyre_keeper",
+   "surface": "ground",
+   "points": [
+    [
+     1114,
+     859
+    ],
+    [
+     2718,
+     775
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 40,
+   "level": [
+    91,
+    93
+   ]
+  },
+  {
+   "enemy": "ashborn_raider",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    92,
+    92
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "rock_large",
+   "at": [
+    124,
+    630
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "ash_pyre",
+   "at": [
+    726,
+    634
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1253,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "ash_pyre",
+   "at": [
+    1748,
+    639
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2350,
+    628
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "ash_pyre",
+   "at": [
+    2940,
+    629
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    3508,
+    632
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    107,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    457,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    842,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1233,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1536,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1916,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2315,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2686,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2976,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3274,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3601,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "stockade_wall",
+   "at": [
+    1500,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "ashborn_banner",
+   "at": [
+    1200,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "ashborn_banner",
+   "at": [
+    2700,
+    662
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "ashen_war",
+ "ambience": "wind_ambience",
+ "attunement_required": 62,
+ "climbables": [
+  {
+   "id": "ledge_0_rope_1",
+   "kind": "rope",
+   "at": [
+    1050,
+    735
+   ],
+   "top_at": [
+    1050,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_0"
+  },
+  {
+   "id": "ledge_1_rope_2",
+   "kind": "rope",
+   "at": [
+    2260,
+    725
+   ],
+   "top_at": [
+    2260,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_1"
+  },
+  {
+   "id": "ledge_2_rope_4",
+   "kind": "rope",
+   "at": [
+    3140,
+    735
+   ],
+   "top_at": [
+    3140,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_2"
+  },
+  {
+   "id": "route_0_vine_5",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_vine_6",
+   "kind": "vine",
+   "at": [
+    1400,
+    741
+   ],
+   "top_at": [
+    1400,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_2"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "ledge_1_step_3",
+   "rect": [
+    2350,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  }
+ ],
+ "terrain": [
+  "stone"
+ ]
+}

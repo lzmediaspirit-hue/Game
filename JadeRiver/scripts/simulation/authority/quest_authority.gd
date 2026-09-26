@@ -8,7 +8,7 @@ extends Authority
 const EVENT_KINDS := {
 	"npc_talked": ["talk_to"], "room_entered": ["reach_room"], "actor_defeated": ["kill"], "item_added": ["collect", "deliver"],
 	"item_removed": ["collect", "deliver"], "item_used": ["use_item"], "realm_changed": ["reach_realm"], "spar_ended": ["win_spar"],
-	"room_event_completed": ["survive_timer"], "flag_set": ["set_flag"], "object_interacted": ["interact_object"],
+	"room_event_completed": ["survive_timer"], "flag_set": ["set_flag"], "object_interacted": ["interact_object"], "foe_judged": ["judge_foe"],
 	"object_hit": ["hit_object"], "node_gathered": ["gather_node"], "fish_caught": ["catch_fish"], "craft_completed": ["craft"],
 	"meditation_tick": ["meditate_seconds"], "technique_used": ["use_technique"], "body_level_changed": ["reach_body_level"],
 	"equipment_changed": ["equip_slot"], "hit_dodged": ["dodge_attacks"], "technique_learned": ["learn_technique"],
@@ -21,6 +21,7 @@ const EVENT_KINDS := {
 	"art_used": ["use_system"],   # S43 movement arts (double jump, Wall-Step, glide...) count as the system of that name
 	"presence_leveled": ["reach_presence"],   # S28 v1.2: a Presence trained to a level
 	"post_settled": ["settle_post"],   # S50 V10: a character's post settled on its return
+	"egg_hatched": ["hatch_egg"],   # v1.2 Phase D: the star-wyrm egg hatched
 }
 
 func intents() -> Array:
@@ -423,6 +424,8 @@ func _match(c, o: Dictionary, p: Dictionary, ev: String) -> int:
 		"settle_post": return 1 if str(p.get("source", "post")) == "post" else 0
 		"win_spar": return 1 if p.get("winner", "") == "player" and str(o.get("opponent", "any")) in ["any", str(p.get("opponent", ""))] else 0
 		"survive_timer": return 1 if str(p.get("event", "")) == str(o.event) else 0
+		"judge_foe": return 1 if str(p.get("def", "")) == str(o.enemy) else 0
+		"hatch_egg": return 1 if str(o.get("species", "any")) in ["any", str(p.get("species", ""))] else 0   # v1.2: spared or finished, the choice is made
 		"interact_object":
 			if o.has("object") and str(p.get("object", "")) != str(o.object): return 0
 			if o.has("type") and str(p.get("type", "")) != str(o.type): return 0

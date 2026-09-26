@@ -503,6 +503,13 @@
     "combat_authority"
    ]
   },
+  "ground_fire": {
+   "system": "Combat",
+   "files": [
+    "combat_authority"
+   ],
+   "polled": "The FX layer draws Combat's burning patches each frame; Combat burns whoever stands in one."
+  },
   "loot_dropped": {
    "system": "World",
    "files": [
@@ -691,6 +698,12 @@
     "world_authority"
    ],
    "polled": "The switch's ObjectView and the VolumeView read the room's switch state and volumes each frame."
+  },
+  "lantern_light": {
+   "system": "World",
+   "files": [
+    "world_authority"
+   ]
   },
   "enemy_aggro": {
    "system": "Enemies",
@@ -1202,6 +1215,31 @@
    ]
   },
   "pet_commanded": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "swarm_fed": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ],
+   "polled": "The HUD logs the food; the Pets page's Swarm tab reads the swarm."
+  },
+  "swarm_released": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "swarm_returned": {
+   "system": "Pets",
+   "files": [
+    "pet_authority"
+   ]
+  },
+  "swarm_queen": {
    "system": "Pets",
    "files": [
     "pet_authority"

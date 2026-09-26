@@ -27,7 +27,8 @@
   "hollow_water": "water",
   "hollow_earth": "earth",
   "hollow_wood": "wood",
-  "hollow_fire": "fire"
+  "hollow_fire": "fire",
+  "hollow_metal": "metal"
  },
  "neutral": [
   "space",

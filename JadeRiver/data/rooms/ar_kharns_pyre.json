@@ -1,0 +1,176 @@
+{
+ "schema_version": 1,
+ "id": "ar_kharns_pyre",
+ "zone": "lantern_star_field",
+ "region": "ashen_reach",
+ "name": "Kharn's Pyre",
+ "type": "boss_arena",
+ "level_range": [
+  92,
+  92
+ ],
+ "recommended_cp": 0,
+ "element": "fire",
+ "qi_density": 2.3,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  2560,
+  480
+ ],
+ "backdrop": "ashen_reach",
+ "ground": {
+  "material": "stone",
+  "tint": "#b89480"
+ },
+ "spawn_point": [
+  260,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    2560,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_mv_0",
+   "rect": [
+    260,
+    620,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_mv_1",
+   "rect": [
+    840,
+    620,
+    280,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ar_war_camp",
+   "to_portal": "east"
+  }
+ ],
+ "objects": [],
+ "spawns": [
+  {
+   "enemy": "general_kharn",
+   "surface": "ground",
+   "points": [
+    [
+     1500,
+     840
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 86400,
+   "level": [
+    92,
+    92
+   ],
+   "boss": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "ash_pyre",
+   "at": [
+    1800,
+    700
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "ashborn_banner",
+   "at": [
+    900,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "ashborn_banner",
+   "at": [
+    2200,
+    662
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "boss",
+ "dungeon_exit": "ar_war_camp",
+ "attunement_required": 66,
+ "climbables": [
+  {
+   "id": "ledge_mv_0_rope_1",
+   "kind": "rope",
+   "at": [
+    400,
+    725
+   ],
+   "top_at": [
+    400,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_mv_0"
+  },
+  {
+   "id": "ledge_mv_1_rope_2",
+   "kind": "rope",
+   "at": [
+    980,
+    725
+   ],
+   "top_at": [
+    980,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_mv_1"
+  }
+ ],
+ "terrain": [
+  "stone"
+ ]
+}

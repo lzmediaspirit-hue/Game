@@ -925,6 +925,18 @@ func _on_event(name: String, p: Dictionary) -> void:
 				toast(Tx.t("hud.sphere_clash_won") % str(p.get("name", "")), "gold", Tx.t("hud.sphere_clash_won_sub"))
 		"presence_clash_ended":
 			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.presence_clash_end"), UiKit.MIST)
+		# v1.2 Phase D: the Copperjaw swarm and the lantern defence.
+		"swarm_released":
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.swarm_released") % int(p.get("pop", 0)), UiKit.PALE_GOLD)
+		"swarm_returned":
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.swarm_returned"), UiKit.MIST)
+		"swarm_queen":
+			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.swarm_queen"), "gold", Tx.t("hud.swarm_queen_sub"))
+		"swarm_fed":
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.swarm_fed") % int(p.get("food", 0)), UiKit.MIST)
+		"lantern_light":
+			if str(p.get("actor", "")) == Game.active_id and float(p.get("light", 100.0)) <= 30.0 and int(p.get("near", 0)) > 0:
+				add_log(Tx.t("hud.lantern_guttering"), UiKit.RED)
 		# S43 rule 15: the rooftop thief and the Cloud Steps.
 		"chase_started":
 			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.chase_started"), "quest", Tx.t("hud.chase_hint"))
@@ -1929,6 +1941,11 @@ func _draw_event(c) -> void:
 	if ev.has("ground_grace_s"):
 		rule = Tx.t("hud.event_rule.ground")
 		danger = float(ev.get("ground_s", 0.0)) > 0.0
+	# v1.2 the lantern defence: the lantern's light, and a warning when it gutters.
+	if ev.get("lantern") is Dictionary and not ev.lantern.is_empty():
+		var light := float(ev.get("light", 100.0))
+		rule = Tx.t("hud.event_rule.lantern") % int(ceil(light))
+		danger = light < 35.0
 	var r := Rect2(470, 142, 340, 52 if rule != "" else 34)
 	draw_style_box(UiKit.style("toast"), r)
 	var left := maxf(0.0, float(ev.get("remaining", 0.0)))

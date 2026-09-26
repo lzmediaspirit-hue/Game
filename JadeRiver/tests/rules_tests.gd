@@ -63,6 +63,7 @@ func _main() -> void:
 	works_suite()
 	guidance_suite()
 	sphere_suite()
+	ash_tide_suite()
 	body_path_suite()
 	heaven_suite()
 	arts_suite()
@@ -5698,6 +5699,168 @@ func sphere_suite() -> void:
 	c.cultivator.injuries = inj0
 	Game.combat.refresh_stats(c.id)
 	c.pools.qi = c.pools.max_qi
+	Game.world.apply_teleport(c.id, back)
+
+## v1.2 Phase D: the brush's talismans, the bell's ring, the Copperjaw swarm, the lantern defence, ground fire, Dao caps
+## carried from zone to zone, and the judge_foe objective (Kharn spared or slain).
+func ash_tide_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var st: ActorState = Game.actor_state(c.id)
+	var back := str(c.position.get("room", "lf_village"))
+	var realm0: String = c.cultivator.realm_key
+	c.cultivator.realm_key = "sphere_lord_1"
+	Game.combat.refresh_stats(c.id)
+	Game.world.apply_teleport(c.id, "ar_cinder_fields")
+	Game.room_rt.enemies.clear()
+	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear"]: Game.combat.cure_status(c.id, sid)
+	c.pools.invulnerable = 0.0
+	Unlocks.force_unlock(c.id, "attack")
+	var lv := ProgressionRules.level(c)
+	var heard := {"hits": {}, "failed": "", "judged": ""}
+	var listen := func(n: String, p: Dictionary):
+		if n == "hit_landed" and str(p.get("target_kind", "")) == "enemy": heard.hits[str(p.target)] = int(heard.hits.get(str(p.target), 0)) + 1
+		if n == "room_event_failed": heard.failed = str(p.get("reason", ""))
+		if n == "foe_judged": heard.judged = "%s:%s" % [str(p.get("def", "")), str(p.get("spared", ""))]
+	GameEvents.event.connect(listen)
+	# -- Dao caps carry forward: what the Expanse allowed, the Field allows.
+	var bt: Dictionary = ContentDB.entry("daos", "beast_taming")
+	check(int(bt.zone_caps.get("lantern_star_field", 0)) >= int(bt.zone_caps.get("azure_expanse", 0)) and int(bt.zone_caps.get("lantern_star_field", 0)) == 4,
+		"Beast Taming keeps its Expanse cap (4) in the Lantern Star Field")
+	check(int(ContentDB.entry("daos", "blood").zone_caps.get("lantern_star_field", 0)) == 4, "and so do the rare Daos")
+	# -- The brush: each technique writes a talisman by its element, one on a foe at a time.
+	var held = _wield(c, "ink_warden_brush")
+	check(str(StatRules.family(c).id) == "brush" and str(StatRules.family(c).get("damage_type", "")) == "qi", "the Ink-Warden's Brush puts the brush in hand (Qi strikes)")
+	var foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(60, 0), lv)
+	Game.combat._weapon_after_hit(c, foe, {"talisman": {"id": "burn", "power": 0.006, "remaining": 4.0}})
+	check(foe.pools.has_status("burn"), "a Fire talisman sets the foe burning")
+	Game.combat._weapon_after_hit(c, foe, {"talisman": {"id": "slow", "power": 0.3, "remaining": 4.0}})
+	check(not foe.pools.has_status("slow"), "one talisman on a foe at a time")
+	foe.alive = false
+	var known0: Array = c.cultivator.techniques_known.duplicate()
+	var slot0 = c.cultivator.technique_slots[0]
+	Unlocks.force_unlock(c.id, "technique_slots_2")
+	if not c.cultivator.techniques_known.has("splashed_ink"): c.cultivator.techniques_known.append("splashed_ink")
+	c.cultivator.technique_slots[0] = "splashed_ink"
+	c.pools.qi = c.pools.max_qi
+	c.pools.cooldowns.erase("tech:splashed_ink")
+	var foe2: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(80, 0), lv)
+	_idle_hands(c)
+	var used := Game.submit({"type": "use_technique", "slot": 0, "facing": 1})
+	for i in 20: Game.tick(0.05)
+	GameEvents.flush()
+	check(used.get("ok", false) and foe2.pools.has_status("qi_seal"), "Splashed Ink (no element) writes a sealing talisman: the foe's Qi is sealed (%s)" % str(used))
+	foe2.alive = false
+	c.cultivator.technique_slots[0] = slot0
+	c.cultivator.techniques_known = known0
+	# -- The bell rings out on both sides of its bearer.
+	_wield(c, "wardens_handbell")
+	var ahead: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(90, 0), lv)
+	var behind: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(-90, 0), lv)
+	_idle_hands(c)
+	heard.hits = {}
+	Game.combat.basic_attack(c, 1)
+	for i in 20: Game.tick(0.05)
+	GameEvents.flush()
+	check(heard.hits.has(str(ahead.uid)) and heard.hits.has(str(behind.uid)), "a bell's strike rings out ahead and behind (%s)" % str(heard.hits))
+	ahead.alive = false
+	behind.alive = false
+	c.inventory.equipped["weapon"] = held
+	Game.combat.refresh_stats(c.id)
+	# -- The Copperjaw swarm: rules.
+	var k: Dictionary = Game.pets.swarm_cfg()
+	var s1 := PetRules.swarm_settle({"pop": 100.0, "food": 5, "queen": false, "rolled_h": 0}, 10, k, func(_h): return 0.99)
+	check(near(float(s1.pop), 100.0 * pow(1.08, 5) * pow(0.98, 5), 0.001) and int(s1.food) == 0 and not s1.queen,
+		"five fed hours grow it 8%% an hour, five unfed shrink it 2%% (%.1f)" % float(s1.pop))
+	var s2 := PetRules.swarm_settle({"pop": 100.0, "food": 3, "queen": false, "rolled_h": 0}, 3, k, func(_h): return 0.0)
+	check(s2.queen and near(float(s2.pop), 100.0 * 1.08 * pow(1.12, 2), 0.001), "a Queen rises on a lucky hour and the swarm grows half again as fast after")
+	check(near(PetRules.swarm_bite(1000.0, false, false, k), 0.12 * log(1001.0)) and near(PetRules.swarm_bite(1000.0, false, true, k), 0.06 * log(1001.0))
+		and near(PetRules.swarm_bite(1000.0, true, false, k), 0.15 * log(1001.0)), "its bite is 0.12 × ln(1 + population), half on Wood, a quarter more with a Queen")
+	var capped := PetRules.swarm_settle({"pop": 4900.0, "food": 50, "queen": false, "rolled_h": 0}, 50, k, func(_h): return 0.99)
+	check(near(float(capped.pop), 5000.0), "and never grows past 5,000")
+	# -- The swarm: the box, feeding, time and release.
+	var swarm0: Dictionary = c.swarm.duplicate(true)
+	c.swarm = {}
+	c.cultivator.unlocked.erase("beetle_swarm")
+	check(not Game.submit({"type": "feed_swarm", "item": "driftglass", "count": 1}).get("ok", true), "no swarm before its unlock")
+	Unlocks.force_unlock(c.id, "beetle_swarm")
+	Game.inventory.apply_add(c.id, "copperjaw_box", 1, "test")
+	Game.inventory.apply_add(c.id, "driftglass", 3, "test")
+	check(not Game.submit({"type": "feed_swarm", "item": "herbal_tea", "count": 1}).get("ok", true), "the beetles eat ore, and nothing else")
+	var fed := Game.submit({"type": "feed_swarm", "item": "driftglass", "count": 3})
+	check(fed.get("ok", false) and int(c.swarm.food) == 24 and c.inventory.count("driftglass") == 0, "three driftglass is 24 hours of food (%s)" % str(fed))
+	c.swarm["since_utc"] = float(c.swarm.since_utc) - 3.0 * 3600.0
+	var now_sw: Dictionary = Game.pets.swarm_of(c)
+	check(near(float(now_sw.pop), 50.0 * pow(1.08, 3), 0.01) or bool(now_sw.get("queen", false)), "three hours away and it has grown (%.1f)" % float(now_sw.pop))
+	var bite_foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(120, 0), lv)
+	heard.hits = {}
+	var rel := Game.submit({"type": "use_item", "index": c.inventory.first_index("copperjaw_box")})
+	check(rel.get("ok", false) and c.inventory.count("copperjaw_box") == 1 and Game.pets.swarming.has(c.id), "open the box: the swarm goes out and the box stays (%s)" % str(rel))
+	for i in 24: Game.tick(0.05)
+	GameEvents.flush()
+	check(int(heard.hits.get(str(bite_foe.uid), 0)) >= 1, "it chews a foe near you")
+	check(not Game.submit({"type": "use_item", "index": c.inventory.first_index("copperjaw_box")}).get("ok", true), "and it cannot be opened again while it is out")
+	for i in 180: Game.tick(0.05)
+	check(not Game.pets.swarming.has(c.id), "after 8 s it comes home")
+	bite_foe.alive = false
+	c.cooldowns.erase("swarm")
+	c.swarm = swarm0
+	# -- Ground fire: standing in it burns; standing clear does not.
+	Game.combat.cure_status(c.id, "spawn_protection")
+	c.pools.invulnerable = 0.0
+	c.pools.hp = c.pools.max_hp
+	Game.combat.ground_fires.append({"x": st.plane.x, "y": st.plane.y, "r": 80.0, "t": 3.0, "tick": 0.0, "pct": 0.1, "source": "test"})
+	var hp0: float = c.pools.hp
+	Game.tick(0.05)
+	check(c.pools.hp < hp0 and near(hp0 - c.pools.hp, c.pools.max_hp * 0.05, 0.05), "a burning patch underfoot takes a twentieth of max HP each half second (%.0f)" % (hp0 - c.pools.hp))
+	st.plane.x += 300.0
+	var hp1: float = c.pools.hp
+	for i in 12: Game.tick(0.05)
+	check(near(c.pools.hp, hp1, 0.001) or c.pools.hp >= hp1, "step out of it and it burns no more")
+	Game.combat.ground_fires.clear()
+	# -- The judge_foe objective: Kharn kneels, and the choice completes the quest step.
+	Game.quest.apply_start(c.id, "kharns_pyre")
+	var kharn: EnemyState = Game.enemies.spawn_at("general_kharn", st.plane + Vector2(120, 0), 92)
+	Game.relations.apply_surrender(c, kharn)
+	var j := Game.submit({"type": "judge_foe", "enemy": kharn.uid, "spare": true})
+	GameEvents.flush()
+	check(j.get("ok", false) and heard.judged == "general_kharn:true", "spare Kharn (%s)" % str(j))
+	check(int(c.quests.active.get("kharns_pyre", {}).get("progress", [0, 0])[1]) == 1, "and the judgement counts for Kharn's Pyre")
+	c.quests.active.erase("kharns_pyre")
+	c.quests.offered.erase("kharns_pyre")
+	# -- The lantern defence (the Tide battle's room).
+	Game.world.apply_teleport(c.id, "si_tide_battle")
+	check(Game.room_rt.event.get("active", false) and near(float(Game.room_rt.event.get("light", 0.0)), 100.0), "the Tide battle begins with the great lantern at full light")
+	Game.room_rt.enemies.clear()
+	Game.room_rt.event.wave_timers = [999.0, 999.0]
+	var lantern_at: Array = Game.room_rt.object_def("great_lantern").at
+	var la := Vector2(float(lantern_at[0]), float(lantern_at[1]))
+	st.plane = la + Vector2(600, 0)
+	var d1: EnemyState = Game.enemies.spawn_at("hollow_drone", la + Vector2(40, 0), 92)
+	d1.ai["state"] = "stagger"
+	d1.ai["timer"] = 99.0
+	var l0 := float(Game.room_rt.event.light)
+	for i in 20: Game.tick(0.05)
+	check(float(Game.room_rt.event.light) < l0 and near(l0 - float(Game.room_rt.event.light), 3.0, 0.2), "a foe beside the lantern dims it 3 a second (%.1f)" % float(Game.room_rt.event.light))
+	d1.alive = false
+	st.plane = la + Vector2(30, 0)
+	var l1 := float(Game.room_rt.event.light)
+	for i in 20: Game.tick(0.05)
+	check(float(Game.room_rt.event.light) > l1, "standing beside it without striking relights it")
+	Game.room_rt.event.light = 0.5
+	var d2: EnemyState = Game.enemies.spawn_at("hollow_drone", la + Vector2(20, 0), 92)
+	d2.ai["state"] = "stagger"
+	d2.ai["timer"] = 99.0
+	st.plane = la + Vector2(600, 0)
+	for i in 10: Game.tick(0.05)
+	GameEvents.flush()
+	check(not Game.room_rt.event.get("active", true) and heard.failed == "lantern", "when the lantern goes out the battle is lost")
+	GameEvents.event.disconnect(listen)
+	Game.room_rt.enemies.clear()
+	c.cultivator.unlocked.erase("beetle_swarm")
+	c.cultivator.realm_key = realm0
+	Game.combat.refresh_stats(c.id)
+	c.pools.hp = c.pools.max_hp
 	Game.world.apply_teleport(c.id, back)
 
 func ice_mount_suite() -> void:

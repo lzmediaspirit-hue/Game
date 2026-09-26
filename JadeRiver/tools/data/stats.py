@@ -170,6 +170,13 @@ def build():
         # S28 v1.2 the Sphere (Sphere Lord 1): a circle of the strongest combat Dao's element. It costs Qi while held,
         # works on the foes inside once a second, feeds techniques of its element (or the element it generates) by a
         # tenth, and meets a foe's Sphere where they overlap: the weaker one breaks (a meridian injury for the player).
+        # v1.2 Phase D · the Copperjaw Beetle swarm (the Copperjaw Box): fed ore, it grows by the hour online or off;
+        # released, it chews every foe near you for 8 s, harder the bigger it is (log of the population). Wood resists.
+        "swarm": {"start_pop": 50, "min_pop": 50, "max_pop": 5000, "growth_per_h": 0.08, "shrink_per_h": 0.02, "food_per_h": 1,
+                  "queen_chance_per_h": 0.01, "queen_growth": 1.5, "queen_bite": 1.25, "bite_k": 0.12, "radius": 220,
+                  "duration_s": 8, "tick_s": 1.0, "cooldown_s": 30, "wood_factor": 0.5, "max_settle_h": 720,
+                  "ore_food": {"copper_ore": 1, "riverstone": 2, "jadeiron": 3, "cloudsteel_ore": 4, "mystic_ore": 5,
+                               "stormsteel_ore": 6, "sunglass_ore": 7, "driftglass": 8, "drone_shell": 10}},
         "sphere": {"qi_per_s_pct": 0.004, "radius_base": 160, "radius_per_tier": 20, "tier6_radius": 40, "power_per_tier": 0.08,
                    "tier6_power": 0.1, "fed_bonus": 0.1, "break_cooldown_s": 30, "injury_severity": 1, "pet_bonus": 0.1, "tick_s": 1.0,
                    "foe_loss": 0.1,
@@ -347,7 +354,7 @@ def build():
         "overcomes": {"wood": "earth", "earth": "water", "water": "fire", "fire": "metal", "metal": "wood"},
         "parent": {"ice": "water", "tide": "water", "thunder": "wood", "wind": "wood", "lava": "fire", "crystal": "earth",
                    "sand": "earth", "star": "metal", "blade": "metal", "hollow_water": "water", "hollow_earth": "earth",
-                   "hollow_wood": "wood", "hollow_fire": "fire"},
+                   "hollow_wood": "wood", "hollow_fire": "fire", "hollow_metal": "metal"},
         "neutral": ["space", "time", "soul", "life_death", "hollow", "none"],
         "cycle_advantage": 1.3, "cycle_disadvantage": 0.75, "yin_yang": 1.3, "fed_bonus": 0.1, "method_affinity_bonus": 0.1,
         "colors": {"water": "#32bed1", "wood": "#67d67a", "fire": "#f08a3c", "earth": "#c9a060", "metal": "#d8dde0",
@@ -453,6 +460,26 @@ def build():
                      "confusion_chance": 0.08, "confusion_s": 1.5, "ally_heal_pct": 0.02, "self_heal_pct": 0.01,
                      "move_factor": 0.5, "min_composure": 5},
          "combo": [{"action": "attack", "duration": 0.6, "hit_at": 0.3, "mult": 0.9, "projectile": "note"}]},
+        # v1.2 the brush (the Brush Dao): a scholar's writing brush, quick and short, striking with Qi. Each technique
+        # used with it writes a talisman onto what it strikes, by the technique's element (one per foe, 4 s).
+        {"id": "brush", "appearance": ["brush"], "range": [0.9, 1.1], "hits_per_s": 1.2, "reach": 110, "crit": 0.06,
+         "scales": ["insight", "agility"], "guard": 0.3, "parry_s": 0.2, "dao": "brush", "hud_glyph": "brush", "depth": 32,
+         "altitude": [-30, 70], "damage_type": "qi",
+         "talisman": {"duration_s": 4.0, "by_element": {
+             "fire": {"id": "burn", "power": 0.006}, "water": {"id": "slow", "power": 0.3}, "wood": {"id": "root", "power": 1, "duration_s": 1.5},
+             "metal": {"id": "sundered", "power": 1}, "earth": {"id": "vulnerable", "power": 1}, "thunder": {"id": "shock", "power": 1, "duration_s": 0.6},
+             "wind": {"id": "slow", "power": 0.2}, "none": {"id": "qi_seal", "power": 1, "duration_s": 2.0}}},
+         "combo": [{"action": "swing_1", "duration": 0.46, "hit_at": 0.22, "mult": 0.95},
+                   {"action": "swing_2", "duration": 0.5, "hit_at": 0.24, "mult": 1.0},
+                   {"action": "swing_3", "duration": 0.62, "hit_at": 0.3, "mult": 1.25}]},
+        # v1.2 the bell (the Music Dao): a Warden's hand-bell. Its strikes ring out on both sides; it supports more than
+        # it harms (soul damage, a light touch).
+        {"id": "bell", "appearance": ["bell"], "range": [0.9, 1.1], "hits_per_s": 0.9, "reach": 160, "crit": 0.02,
+         "scales": ["essence", "insight"], "guard": 0.35, "parry_s": 0.2, "dao": "music", "hud_glyph": "bell", "depth": 60,
+         "altitude": [-30, 90], "damage_type": "soul", "ring": True, "line_targets": 6,
+         "combo": [{"action": "swing_1", "duration": 0.6, "hit_at": 0.3, "mult": 0.7},
+                   {"action": "swing_2", "duration": 0.6, "hit_at": 0.3, "mult": 0.7},
+                   {"action": "swing_3", "duration": 0.75, "hit_at": 0.38, "mult": 0.95}]},
         {"id": "bow", "appearance": ["bow"], "range": [0.75, 1.25], "hits_per_s": 0.9, "reach": 480, "crit": 0.05,
          "scales": ["agility", "insight"], "guard": 0.0, "parry_s": 0.0, "dao": "bow", "hud_glyph": "bow", "depth": 26,
          "altitude": [20, 110], "ranged": True, "projectile_speed": 620,
@@ -469,6 +496,8 @@ def build():
         "heavy_sabre": {"name": "Cleaving Wave", "every_hits": 14, "mult": 2.4, "damage_type": "physical", "element": "metal", "art": "sand_crescent", "reach": 300},
         "fan": {"name": "Gale Leaf", "every_hits": 12, "mult": 1.8, "damage_type": "qi", "element": "wind", "art": "sand_crescent", "reach": 320},
         "flute": {"name": "Echoing Note", "every_hits": 12, "mult": 1.6, "damage_type": "soul", "element": "none", "art": "note", "reach": 320},
+        "brush": {"name": "Flying Script", "every_hits": 12, "mult": 1.7, "damage_type": "qi", "element": "none", "art": "sand_crescent", "reach": 300},
+        "bell": {"name": "Resounding Peal", "every_hits": 12, "mult": 1.3, "damage_type": "soul", "element": "none", "shape": "ring", "reach": 220},
         "bow": {"name": "Twin Arrow", "every_hits": 10, "mult": 1.2, "damage_type": "physical", "element": "none", "art": "arrow", "reach": 420, "count": 2},
     }
     for f in families:

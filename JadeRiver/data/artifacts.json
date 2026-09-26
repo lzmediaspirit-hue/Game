@@ -2060,6 +2060,90 @@
    "set": "crane"
   },
   {
+   "id": "ink_warden_brush",
+   "name": "Ink-Warden's Brush",
+   "slot": "weapon",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "brush",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "ink_warden_brush",
+   "type": "equipment",
+   "stack": 1,
+   "family": "brush",
+   "desc": "A Warden scribe's brush, its hairs set in black lacquer. Every technique written with it leaves a talisman on the foe.",
+   "source": [
+    "bastion_armoury"
+   ],
+   "attribute_req": {
+    "insight": 92
+   }
+  },
+  {
+   "id": "starwrit_brush",
+   "name": "Starwrit Brush",
+   "slot": "weapon",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "brush",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "starwrit_brush",
+   "type": "equipment",
+   "stack": 1,
+   "family": "brush",
+   "desc": "Its tip was dipped in lantern ash. The characters it writes glow for a breath after.",
+   "source": [
+    "bastion_armoury"
+   ],
+   "attribute_req": {
+    "insight": 110
+   }
+  },
+  {
+   "id": "wardens_handbell",
+   "name": "Warden's Hand-bell",
+   "slot": "weapon",
+   "grade": "sage",
+   "ilv": 77,
+   "appearance": "bell",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "wardens_handbell",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bell",
+   "desc": "A bronze bell rung on the Tidebreak walls at every change of watch. Its strikes ring out on both sides.",
+   "source": [
+    "bastion_armoury"
+   ],
+   "attribute_req": {
+    "essence": 92
+   }
+  },
+  {
+   "id": "tidebreak_bell",
+   "name": "Tidebreak Bell",
+   "slot": "weapon",
+   "grade": "will",
+   "ilv": 95,
+   "appearance": "bell",
+   "energy_type": "sage_qi",
+   "sockets": 3,
+   "icon": "tidebreak_bell",
+   "type": "equipment",
+   "stack": 1,
+   "family": "bell",
+   "desc": "Cast from a lantern cage that fell in the Breach. The Hollow does not like its note.",
+   "source": [
+    "bastion_armoury"
+   ],
+   "attribute_req": {
+    "essence": 110
+   }
+  },
+  {
    "id": "serpent_tongue_jian",
    "name": "Serpent-Tongue Jian",
    "slot": "weapon",

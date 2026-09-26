@@ -17,7 +17,7 @@ func intents() -> Array:
 	return ["set_active_pet", "set_pet_role", "feed_pet", "pet_command", "rename_pet", "choose_starter", "attempt_tame", "incubate_egg", "hatch_egg", "evolve_pet", "breed",
 		"lock_pet", "devour_core", "sell_cores", "rest_pets", "offer_contract", "incubate_input", "set_party",
 		"learn_skill_book", "equip_pet", "unequip_pet", "fuse_pets", "pet_breakthrough",
-		"set_pet_bag", "swap_pet_from_bag", "set_mount", "arena_challenge"]
+		"set_pet_bag", "swap_pet_from_bag", "set_mount", "arena_challenge", "feed_swarm"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("room_entered", _on_room_entered, 45)
@@ -33,6 +33,7 @@ func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
 	if c == null: return fail("no_character")
 	match str(intent.type):
+		"feed_swarm": return feed_swarm(c, str(intent.get("item", "")), int(intent.get("count", 1)))
 		"set_active_pet":
 			var uid := str(intent.get("pet", ""))
 			if uid != "" and _pet(c, uid).is_empty(): return fail("unknown_pet")
@@ -471,6 +472,7 @@ func tick(delta: float) -> void:
 			_spawn(game.character(actor))
 	var c = game.active()
 	if c == null: return
+	_tick_swarm(c, delta)
 	_tick_essence_blood(c, delta)
 	if guardian_cd.has(c.id): guardian_cd[c.id] = maxf(0.0, float(guardian_cd[c.id]) - delta)
 	if game.room_rt == null or allies.is_empty(): return
@@ -1599,3 +1601,77 @@ func rally(c) -> void:
 	rally_until[c.id] = game.sim_time + float(r.get("seconds", 5.0))
 	rally_ready[c.id] = game.sim_time + float(r.get("cd", 8.0))
 	emit("pet_skill_cast", {"actor": c.id, "pet": c.active_pet, "skill": Tx.t("sim.pet.rally"), "free": false})
+
+# ------------------------------------------------------------------ v1.2 the Copperjaw Beetle swarm
+var swarming: Dictionary = {}   # actor -> {t, tick}: a released swarm chewing the foes around its bearer
+
+func swarm_cfg() -> Dictionary:
+	return ContentDB.stat_const("swarm", {})
+
+## The swarm now, settled up to the last whole hour since it was last looked at (online or offline). Each hour's
+## Queen roll is keyed to the character's seed and the hour, so the same box raises the same Queen.
+func swarm_of(c) -> Dictionary:
+	if c == null: return {}
+	var k := swarm_cfg()
+	var now := Clock.now_utc()
+	if c.swarm.is_empty():
+		c.swarm = {"pop": float(k.get("start_pop", 50)), "food": 0, "queen": false, "rolled_h": 0, "since_utc": now}
+	var hours := int(floor((now - float(c.swarm.get("since_utc", now))) / 3600.0))
+	if hours > 0:
+		var seed := int(c.rng_seed)
+		var was_queen := bool(c.swarm.get("queen", false))
+		var settled := PetRules.swarm_settle(c.swarm, hours, k, func(h): return Rng.keyed(seed, "swarm:%d" % int(h)).randf())
+		settled["since_utc"] = float(c.swarm.get("since_utc", now)) + float(hours) * 3600.0
+		c.swarm = settled
+		if bool(settled.get("queen", false)) and not was_queen: emit("swarm_queen", {"actor": c.id})
+	return c.swarm
+
+## Feed the box ore: each ore gives food by its grade (stats.swarm.ore_food); the swarm eats one an hour.
+func feed_swarm(c, item: String, count: int) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "beetle_swarm"): return fail("locked", {"text": Unlocks.locked_text("beetle_swarm")})
+	if c.inventory.count("copperjaw_box") < 1: return fail("no_box")
+	var food := int(swarm_cfg().get("ore_food", {}).get(item, 0))
+	if food <= 0: return fail("not_ore", {"text": t("sim.pets.swarm_not_ore")})
+	var n := mini(maxi(1, count), c.inventory.count(item))
+	if n <= 0: return fail("none")
+	swarm_of(c)
+	game.inventory.apply_remove(c.id, item, n, "swarm")
+	c.swarm["food"] = int(c.swarm.get("food", 0)) + food * n
+	emit("swarm_fed", {"actor": c.id, "item": item, "count": n, "food": int(c.swarm.food)})
+	emit("system_used", {"actor": c.id, "system": "beetle_swarm"})
+	return ok({"food": int(c.swarm.food)})
+
+## Open the box: for 8 s the swarm chews every foe within its reach of you, then comes home (30 s to rest).
+func release_swarm(c) -> Dictionary:
+	if not Unlocks.is_unlocked(c.id, "beetle_swarm"): return fail("locked", {"text": Unlocks.locked_text("beetle_swarm")})
+	if game.room_rt == null: return fail("no_room")
+	if swarming.has(c.id): return fail("out")
+	var k := swarm_cfg()
+	var left := float(c.cooldowns.get("swarm", 0.0)) - Clock.now_utc()
+	if left > 0.0: return fail("cooldown", {"remaining": left})
+	var sw := swarm_of(c)
+	swarming[c.id] = {"t": float(k.get("duration_s", 8)), "tick": 0.0}
+	c.cooldowns["swarm"] = Clock.now_utc() + float(k.get("cooldown_s", 30))
+	emit("swarm_released", {"actor": c.id, "pop": int(sw.pop), "queen": bool(sw.get("queen", false)), "radius": float(k.get("radius", 220))})
+	emit("system_used", {"actor": c.id, "system": "beetle_swarm"})
+	return ok({"pop": int(sw.pop)})
+
+func _tick_swarm(c, delta: float) -> void:
+	if not swarming.has(c.id): return
+	var k := swarm_cfg()
+	var run: Dictionary = swarming[c.id]
+	run.t = float(run.t) - delta
+	run.tick = float(run.tick) - delta
+	if float(run.t) <= 0.0 or game.room_rt == null:
+		swarming.erase(c.id)
+		emit("swarm_returned", {"actor": c.id})
+		return
+	if float(run.tick) > 0.0: return
+	run.tick = float(k.get("tick_s", 1.0))
+	var st: ActorState = game.actor_state(c.id)
+	if st == null: return
+	var sw: Dictionary = c.swarm
+	for e in game.room_rt.living_enemies():
+		if e.team != "enemy" or e.hidden or e.plane.distance_to(st.plane) > float(k.get("radius", 220)): continue
+		var wood := CombatRules.parent_element(str(e.def.get("element", "none"))) == "wood"
+		game.combat.swarm_strike(c, e, PetRules.swarm_bite(float(sw.get("pop", 50)), bool(sw.get("queen", false)), wood, k))

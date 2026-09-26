@@ -308,6 +308,44 @@
    "name": "Music Dao"
   },
   {
+   "id": "brush",
+   "family": "weapon",
+   "valley_cap": 5,
+   "tiers": [
+    "+3% attack with the family",
+    "Linked techniques -10% QI",
+    "Linked techniques gain their tier-3 effect",
+    "+5% crit with the family; can teach it",
+    "Tier-5 forms of linked techniques",
+    "Original Application: your own variant of the Dao. A Sphere drawn on it reaches 40 further and presses a tenth harder."
+   ],
+   "effects": [
+    {
+     "attack_pct": 0.03
+    },
+    {
+     "cost_pct": -0.1
+    },
+    {
+     "tier3": true
+    },
+    {
+     "crit": 0.05,
+     "teach": true
+    },
+    {
+     "tier5": true
+    },
+    {
+     "original": true
+    }
+   ],
+   "zone_caps": {
+    "lantern_star_field": 6
+   },
+   "name": "Brush Dao"
+  },
+  {
    "id": "water",
    "family": "element",
    "valley_cap": 5,
@@ -715,7 +753,8 @@
    "family": "craft",
    "valley_cap": 2,
    "zone_caps": {
-    "azure_expanse": 4
+    "azure_expanse": 4,
+    "lantern_star_field": 4
    },
    "teach_tier": 4,
    "tiers": [
@@ -822,7 +861,8 @@
    "family": "rare",
    "valley_cap": 0,
    "zone_caps": {
-    "azure_expanse": 4
+    "azure_expanse": 4,
+    "lantern_star_field": 4
    },
    "tiers": [
     "+5% max Soul",
@@ -872,7 +912,8 @@
    "family": "rare",
    "valley_cap": 0,
    "zone_caps": {
-    "azure_expanse": 4
+    "azure_expanse": 4,
+    "lantern_star_field": 4
    },
    "tiers": [
     "+5% max HP",
@@ -933,7 +974,8 @@
    "family": "rare",
    "valley_cap": 0,
    "zone_caps": {
-    "azure_expanse": 4
+    "azure_expanse": 4,
+    "lantern_star_field": 4
    },
    "tiers": [
     "+10% Will",

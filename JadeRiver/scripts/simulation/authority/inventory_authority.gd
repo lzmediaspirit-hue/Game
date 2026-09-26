@@ -858,6 +858,7 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 		"absorb_flame": return game.crafting.absorb_flame(c, index)
 		"bath": return game.progression.start_bath(c, str(s.id))
 		"guqin": return ok({"open_page": "guqin"})   # S49 leisure arts: the page plays it
+		"swarm": return game.pets.release_swarm(c)   # v1.2 the Copperjaw Box: the swarm goes out, the box stays
 	# S48 vows block what they forbid: Plain Fare the burst pills, Fasting the food that lends a buff.
 	var vow := ""
 	if def.get("burst", false): vow = game.progression.vow_forbids(c, "burst_pill")

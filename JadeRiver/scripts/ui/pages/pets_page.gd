@@ -13,6 +13,12 @@ func _init() -> void:
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
+	# v1.2 Phase D: the Copperjaw swarm gets its own tab once its box is in hand.
+	if Unlocks.is_unlocked(ch.id, "beetle_swarm") and not tabs.any(func(t): return str(t.id) == "swarm"):
+		tabs.append({"id": "swarm", "label": Tx.t("ui.pets.tab_swarm")})
+	if str(tabs[tab].id) == "swarm":
+		_swarm_tab(ch, content)
+		return
 	var left := Rect2(content.position.x, content.position.y, 330, content.size.y)
 	panel(left)
 	if ch.pets.is_empty():
@@ -367,8 +373,40 @@ func _sel_name() -> String:
 func _art(p: Dictionary) -> String:
 	return str(ContentDB.entry("pets", str(p.species)).get("art", p.species))
 
+## v1.2 Phase D: the Copperjaw swarm: its population, food and Queen, and the ores you carry to feed it.
+func _swarm_tab(ch, r: Rect2) -> void:
+	panel(r)
+	var sw: Dictionary = Game.pets.swarm_of(ch)
+	var k: Dictionary = Game.pets.swarm_cfg()
+	heading(r.position + Vector2(24, 44), Tx.t("ui.pets.swarm_title"), r.size.x - 48)
+	var pop := float(sw.get("pop", 0.0))
+	bar(Rect2(r.position.x + 24, r.position.y + 70, r.size.x - 48, 28), log(1.0 + pop) / log(1.0 + float(k.get("max_pop", 5000))), UiKit.GOLD,
+		Tx.t("ui.pets.swarm_pop") % [int(pop), int(k.get("max_pop", 5000))])
+	var lines: Array = [Tx.t("ui.pets.swarm_food") % int(sw.get("food", 0)),
+		Tx.t("ui.pets.swarm_bite") % int(round(100.0 * PetRules.swarm_bite(pop, bool(sw.get("queen", false)), false, k)))]
+	if bool(sw.get("queen", false)): lines.append(Tx.t("ui.pets.swarm_queen"))
+	for i in lines.size():
+		text(r.position + Vector2(24, 128 + i * 26), lines[i], 17, UiKit.PALE_GOLD if i == 2 else UiKit.PAPER)
+	para(Rect2(r.position.x + 24, r.position.y + 210, r.size.x - 48, 60), Tx.t("ui.pets.swarm_help"), 15, UiKit.MIST)
+	var ores: Array = []
+	for id in k.get("ore_food", {}):
+		if ch.inventory.count(str(id)) > 0: ores.append(str(id))
+	if ores.is_empty():
+		text(r.position + Vector2(24, 300), Tx.t("ui.pets.swarm_no_ore"), 17, UiKit.MIST)
+		return
+	list("swarm_ore", Rect2(r.position.x + 20, r.position.y + 280, r.size.x - 40, r.size.y - 300), ores.size(), 56, func(i: int, rr: Rect2):
+		var id: String = ores[i]
+		panel(rr, "minor_panel")
+		icon_at(Rect2(rr.position + Vector2(8, 6), Vector2(44, 44)), id)
+		text(rr.position + Vector2(64, 34), fit("%s ×%d · %s" % [ContentDB.item_name(id), ch.inventory.count(id),
+			Tx.t("ui.pets.swarm_food_each") % int(k.ore_food[id])], 17, rr.size.x - 300), 17)
+		btn(Rect2(rr.end.x - 226, rr.position.y + 8, 104, 40), Tx.t("ui.pets.swarm_feed_one"), "swarm_feed", [id, 1], false, true, "", 15)
+		btn(Rect2(rr.end.x - 114, rr.position.y + 8, 104, 40), Tx.t("ui.pets.swarm_feed_all"), "swarm_feed", [id, ch.inventory.count(id)], false, true, "", 15)
+	)
+
 func on_action(id: String, data) -> void:
 	match id:
+		"swarm_feed": submit({"type": "feed_swarm", "item": str(data[0]), "count": int(data[1])})
 		"sel":
 			sel = str(data)
 			if name_edit != null: name_edit.visible = false

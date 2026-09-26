@@ -2121,6 +2121,239 @@
    "grade": "earth"
   },
   {
+   "id": "splashed_ink",
+   "name": "Splashed Ink",
+   "family": "brush",
+   "element": "none",
+   "damage_type": "qi",
+   "mult": [
+    1.2,
+    1.45
+   ],
+   "hits": 1,
+   "max_targets": 3,
+   "hitbox": {
+    "x": [
+     -10,
+     150
+    ],
+    "depth": 40,
+    "alt": [
+     -10,
+     80
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 5,
+   "qi_cost": 14,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "brush",
+   "unlock": "sphere_lord_1",
+   "source": "bastion_armoury",
+   "desc": "A flick of ink 150 ahead that strikes three foes and seals their Qi for 2 s (the brush's talisman).",
+   "action": "swing_2",
+   "icon": "splashed_ink",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "grade": "heaven"
+  },
+  {
+   "id": "cursive_storm",
+   "name": "Cursive Storm",
+   "family": "brush",
+   "element": "fire",
+   "damage_type": "qi",
+   "mult": [
+    0.55,
+    0.7
+   ],
+   "hits": 4,
+   "max_targets": 4,
+   "hitbox": {
+    "x": [
+     -10,
+     180
+    ],
+    "depth": 50,
+    "alt": [
+     -10,
+     80
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 8,
+   "qi_cost": 22,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "brush",
+   "unlock": "sphere_lord_2",
+   "source": "bastion_armoury",
+   "desc": "Four running strokes of fire script; every foe they touch is written with a burning talisman.",
+   "action": "swing_2",
+   "icon": "cursive_storm",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "grade": "heaven"
+  },
+  {
+   "id": "stilling_peal",
+   "name": "Stilling Peal",
+   "family": "bell",
+   "element": "none",
+   "damage_type": "soul",
+   "mult": [
+    0.4,
+    0.5
+   ],
+   "hits": 1,
+   "max_targets": 8,
+   "hitbox": {
+    "x": [
+     -10,
+     200
+    ],
+    "depth": 80,
+    "alt": [
+     -10,
+     80
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 10,
+   "qi_cost": 18,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "music",
+   "unlock": "sphere_lord_1",
+   "source": "bastion_armoury",
+   "desc": "A peal on both sides: every foe within 200 is stunned for 0.8 s.",
+   "action": "swing_1",
+   "icon": "stilling_peal",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "both_sides": true,
+   "status": {
+    "id": "stun",
+    "chance": 1.0,
+    "power": 1,
+    "duration_s": 0.8
+   },
+   "grade": "heaven"
+  },
+  {
+   "id": "qi_seal_toll",
+   "name": "Qi Seal Toll",
+   "family": "bell",
+   "element": "metal",
+   "damage_type": "soul",
+   "mult": [
+    0.7,
+    0.85
+   ],
+   "hits": 1,
+   "max_targets": 1,
+   "hitbox": {
+    "x": [
+     -10,
+     240
+    ],
+    "depth": 30,
+    "alt": [
+     -10,
+     80
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 8,
+   "qi_cost": 16,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "music",
+   "unlock": "sphere_lord_1",
+   "source": "bastion_armoury",
+   "desc": "One low toll at a foe 240 ahead: its techniques are sealed for 3 s.",
+   "action": "swing_1",
+   "icon": "qi_seal_toll",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "status": {
+    "id": "qi_seal",
+    "chance": 1.0,
+    "power": 1,
+    "duration_s": 3.0
+   },
+   "grade": "heaven"
+  },
+  {
+   "id": "wardens_call",
+   "name": "Wardens Call",
+   "family": "bell",
+   "element": "wood",
+   "damage_type": "buff",
+   "mult": [
+    0,
+    0
+   ],
+   "hits": 0,
+   "max_targets": 0,
+   "hitbox": {
+    "x": [
+     -10,
+     200
+    ],
+    "depth": 30,
+    "alt": [
+     -30,
+     60
+    ]
+   },
+   "windup_s": 0.2,
+   "active_s": 0.2,
+   "cooldown_s": 24,
+   "qi_cost": 24,
+   "soul_cost": 0,
+   "composure_cost": 0,
+   "dao": "music",
+   "unlock": "sphere_lord_2",
+   "source": "bastion_armoury",
+   "desc": "The Wardens' call: you and every ally within 300 heal 6% of your health over 8 s and gain 10% defence.",
+   "action": "swing_1",
+   "icon": "wardens_call",
+   "mastery": {
+    "dmg_per_tier": 0.08,
+    "cost_per_tier": -0.05
+   },
+   "allies_heal_pct": 0.06,
+   "allies_heal_s": 8,
+   "heal_radius": 300,
+   "buffs": [
+    {
+     "stat": "physical_defense",
+     "value": 0.1,
+     "duration": 8
+    },
+    {
+     "stat": "qi_defense",
+     "value": 0.1,
+     "duration": 8
+    }
+   ],
+   "grade": "heaven"
+  },
+  {
    "id": "upright_glyph",
    "name": "Upright Glyph",
    "family": "any",

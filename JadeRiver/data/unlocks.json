@@ -2972,6 +2972,27 @@
    "same_stage_ok": true
   },
   {
+   "id": "beetle_swarm",
+   "label": "The Copperjaw swarm",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sphere_lord_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "kharns_pyre"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_copperjaw_box",
+   "same_stage_ok": true
+  },
+  {
    "id": "confucian_path",
    "label": "The Confucian path",
    "trigger": {

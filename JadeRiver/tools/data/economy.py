@@ -220,6 +220,17 @@ def shops():
         {"id": "lanternfall_apothecary", "name": "Apothecary Sang's Jars", "currency": "sage_crystal",
          "stock": [s("star_lotus", price=5), s("ember_cactus", price=3), s("frost_lotus", price=3), s("clear_mind_pill"), s("soul_soothing_pill"),
                    s("calm_incense"), s("lantern_incense", price=4), s("recipe_scroll", learn="tide_cleansing_pill", price=40)]},
+        # v1.2 Phase D · the Tidebreak Bastion's armoury: the brush and the bell, their manuals, and the Copperjaw Box.
+        {"id": "bastion_armoury", "name": "Tidebreak Armoury", "currency": "sage_crystal",
+         "stock": [s("ink_warden_brush", price=120), s("wardens_handbell", price=120),
+                   s("starwrit_brush", price=320, requires=all_of(realm("sphere_lord_2"))),
+                   s("tidebreak_bell", price=320, requires=all_of(realm("sphere_lord_2"))),
+                   s("technique_manual", learn="splashed_ink", price=60, requires=all_of(realm("sphere_lord_1"))),
+                   s("technique_manual", learn="stilling_peal", price=60, requires=all_of(realm("sphere_lord_1"))),
+                   s("technique_manual", learn="qi_seal_toll", price=70, requires=all_of(realm("sphere_lord_1"))),
+                   s("technique_manual", learn="cursive_storm", price=120, requires=all_of(realm("sphere_lord_2"))),
+                   s("technique_manual", learn="wardens_call", price=120, requires=all_of(realm("sphere_lord_2"))),
+                   s("lantern_incense", price=4), s("driftglass", price=6)]},
         # v1.2 Phase C · Stargazer Ming cuts another Sphere Comprehension Stone for one who has seen their Sphere and
         # broke it on a failed breakthrough (a failed major breakthrough consumes its materials).
         {"id": "observatory", "name": "Stargazer Ming's Star-stones", "currency": "sage_crystal",
@@ -966,6 +977,10 @@ def achievements():
         {"id": "starsea_voyager", "name": "Voyager of the Starsea", "modifiers": [{"stat": "attunement_bonus", "op": "flat", "value": 2}]},
         # v1.2 · Act III.
         {"id": "admiral_breaker", "name": "Breaker of the Blackmast", "modifiers": [{"stat": "pressure", "op": "flat", "value": 5}]},
+        # v1.2 Phase D: the Wardens' own title (chapter 21, Sphere Lord 2), and the Tide battle's.
+        {"id": "star_warden", "name": "Star Warden", "modifiers": [{"stat": "attunement_bonus", "op": "flat", "value": 10},
+                                                                  {"stat": "hollow_ward", "op": "flat", "value": 0.08}]},
+        {"id": "tidebreaker", "name": "Tidebreaker", "modifiers": [{"stat": "max_hp", "op": "pct_add", "value": 0.03}]},
         {"id": "sect_master", "name": "Sect Master", "modifiers": [{"stat": "will", "op": "pct_add", "value": 0.01}]},
         {"id": "shore_warden", "name": "Shore Warden", "modifiers": [{"stat": "physical_defense", "op": "pct_add", "value": 0.01}]},
         {"id": "iron_fist", "name": "Iron Fist", "modifiers": [{"stat": "fist_attack", "op": "pct_add", "value": 0.01}]},
@@ -1113,7 +1128,7 @@ def strings():
         "event.gold_body_trial": "Gold Body Trial", "event.trial_of_reflections": "The Trial of Reflections",
         "event.siege_of_two_sects": "Siege of Two Sects", "event.sect_war": "Sect War: the Alliance Gate", "event.presence_trial": "The Presence Trial",
         "event.mine_assault": "Taking the Mine", "event.mine_defence": "Holding the Mine",
-        "event.starsea_crossing": "The Starsea Crossing",
+        "event.starsea_crossing": "The Starsea Crossing", "event.hollow_tide_battle": "The Tide Breaks: the Tidebreak Bastion",
         "flag.night_survived": "Survived the night",
         "ui.begin": "Begin", "ui.continue": "Continue", "ui.new_game": "New Game", "ui.settings": "Settings", "ui.back": "Back",
         "ui.unaffiliated": "Unaffiliated", "ui.locked": "Locked",

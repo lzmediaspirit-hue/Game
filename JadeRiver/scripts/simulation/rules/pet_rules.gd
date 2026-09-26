@@ -75,3 +75,34 @@ static func _health_share(team: Array) -> float:
 		hp += float(m.hp)
 		mx += float(m.max_hp)
 	return hp / maxf(1.0, mx)
+
+# ------------------------------------------------------------------ v1.2 the Copperjaw Beetle swarm
+## Settle `hours` of a swarm {pop, food, queen, rolled_h}: each whole hour eats food_per_h and grows, or shrinks unfed.
+## `queen_roll` is called with the hour index and returns a number in [0, 1) (seeded by the caller, never raw).
+static func swarm_settle(sw: Dictionary, hours: int, k: Dictionary, queen_roll: Callable) -> Dictionary:
+	var out := sw.duplicate(true)
+	var pop := float(out.get("pop", k.get("start_pop", 50)))
+	var food := int(out.get("food", 0))
+	var hour := int(out.get("rolled_h", 0))
+	for i in mini(hours, int(k.get("max_settle_h", 720))):
+		hour += 1
+		if food >= int(k.get("food_per_h", 1)):
+			food -= int(k.get("food_per_h", 1))
+			var g := float(k.get("growth_per_h", 0.08)) * (float(k.get("queen_growth", 1.5)) if out.get("queen", false) else 1.0)
+			pop = minf(float(k.get("max_pop", 5000)), pop * (1.0 + g))
+			if not out.get("queen", false) and float(queen_roll.call(hour)) < float(k.get("queen_chance_per_h", 0.01)):
+				out.queen = true
+		else:
+			pop = maxf(float(k.get("min_pop", 50)), pop * (1.0 - float(k.get("shrink_per_h", 0.02))))
+	out.pop = pop
+	out.food = food
+	out.rolled_h = hour
+	return out
+
+## One second of the swarm's bite, as a share of the bearer's Qi attack: bite_k × ln(1 + population), a Queen's
+## quarter more, and half against Wood.
+static func swarm_bite(pop: float, queen: bool, wood: bool, k: Dictionary) -> float:
+	var m := float(k.get("bite_k", 0.12)) * log(1.0 + maxf(0.0, pop))
+	if queen: m *= float(k.get("queen_bite", 1.25))
+	if wood: m *= float(k.get("wood_factor", 0.5))
+	return m

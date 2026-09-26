@@ -1375,6 +1375,7 @@ func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 	rt.event.timed_done = []
 	rt.event.hits_taken = 0
 	rt.event.kills = 0         # kill_count events (S48 Iron Body trial)
+	if ev.get("lantern") is Dictionary: rt.event.light = float(ev.lantern.get("light", 100.0))   # v1.2 the lantern defence
 	rt.event.ground_s = 0.0    # the pole trial: seconds on the ground in a row
 	emit("room_event_started", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "duration": rt.event.remaining})
 	# A Temper trial clears the ground: the room's own foes withdraw and wait for it to end (S48).
@@ -1415,6 +1416,12 @@ func _tick_event(c, rt: RoomRuntime, delta: float) -> void:
 		game.enemies.spawn_at(str(timed[i].enemy), Vector2(float(timed[i].at[0]), float(timed[i].at[1])), int(timed[i].get("level", -1)))
 		emit("room_event_wave", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "enemy": str(timed[i].enemy),
 			"text": str(timed[i].get("text", ""))})
+	# v1.2 the lantern defence (the Hollow Tide battle): every foe near the lantern drains its light; standing beside it
+	# without striking relights it. At no light the battle is lost; alive when the timer ends, it is won.
+	if ev.get("lantern") is Dictionary and not ev.lantern.is_empty():
+		if _tick_lantern(c, rt, ev, delta):
+			_end_event(c, rt, false, "lantern")
+			return
 	# S48 Temper trials: fall below the HP floor, or stand on the ground too long in the pole trial, and it is over.
 	if float(ev.get("hp_floor", 0.0)) > 0.0 and c.pools.hp < c.pools.max_hp * float(ev.hp_floor):
 		_end_event(c, rt, false, "hp_floor")
@@ -1432,6 +1439,28 @@ func _tick_event(c, rt: RoomRuntime, delta: float) -> void:
 			_end_event(c, rt, false, "time")
 		else:
 			_end_event(c, rt, true)
+
+## One step of the lantern's light (0-100): true when it has gone out.
+func _tick_lantern(c, rt: RoomRuntime, ev: Dictionary, delta: float) -> bool:
+	var ln: Dictionary = ev.lantern
+	var o := rt.object_def(str(ln.get("object", "")))
+	if o.is_empty(): return false
+	var at_arr: Array = o.get("at", [0, 0])
+	var at := Vector2(float(at_arr[0]), float(at_arr[1]))
+	var near := 0
+	for e in rt.living_enemies():
+		if e.team == "enemy" and not e.hidden and e.plane.distance_to(at) <= float(ln.get("drain_radius", 180)): near += 1
+	var light := float(ev.get("light", ln.get("light", 100.0)))
+	light -= float(ln.get("drain_per_foe", 3.0)) * near * delta
+	var st: ActorState = game.actor_state(c.id)
+	var striking: bool = game.combat.is_busy(c.id)
+	if st != null and near == 0 and not striking and st.plane.distance_to(at) <= float(ln.get("relight_radius", 120)):
+		light += float(ln.get("relight", 4.0)) * delta
+	light = clampf(light, 0.0, float(ln.get("light", 100.0)))
+	var was := int(ceil(float(ev.get("light", 100.0)) / 10.0))
+	ev.light = light
+	if int(ceil(light / 10.0)) != was: emit("lantern_light", {"actor": c.id, "room": rt.room_id, "light": light, "near": near})
+	return light <= 0.0
 
 ## The level a wave's foes come at: a number, or "player" for the character's own Level (the Temper trials).
 func event_level(c, w: Dictionary) -> int:

@@ -380,6 +380,23 @@
      }
     ]
    }
+  },
+  {
+   "id": "hollow_tide_battle",
+   "name": "The Tide Breaks",
+   "room": "si_tide_battle",
+   "portal": "exit",
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "sphere_lord_1"
+     }
+    ]
+   },
+   "repeatable": {
+    "cooldown_h": 20
+   }
   }
  ]
 }

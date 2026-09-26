@@ -46,6 +46,7 @@ var rng_state: Dictionary = {}
 var loadouts: Array = []
 var collection_first_kills: Dictionary = {}
 var dungeon_lockouts: Dictionary = {} # boss -> reset day
+var swarm: Dictionary = {}           # v1.2 the Copperjaw Beetle swarm: {pop, food, queen, rolled_h, since_utc} (Pet authority)
 
 func level() -> int:
 	return ProgressionRules.level(self)
@@ -69,7 +70,7 @@ func snapshot() -> Dictionary:
 		"skip_prologue": skip_prologue, "created_utc": created_utc, "last_active_utc": last_active_utc,
 		"statuses": pools.statuses.duplicate(true), "loadouts": loadouts.duplicate(true),
 		"collection_first_kills": collection_first_kills.duplicate(), "dungeon_lockouts": dungeon_lockouts.duplicate(),
-		"rng": {"seed": str(rng_seed), "streams": rng_state.get("streams", {})}}
+		"swarm": swarm.duplicate(true), "rng": {"seed": str(rng_seed), "streams": rng_state.get("streams", {})}}
 
 func restore(d: Dictionary) -> void:
 	slot = int(d.get("slot", slot))
@@ -114,6 +115,7 @@ func restore(d: Dictionary) -> void:
 	loadouts = d.get("loadouts", []).duplicate(true)
 	collection_first_kills = d.get("collection_first_kills", {}).duplicate()
 	dungeon_lockouts = d.get("dungeon_lockouts", {}).duplicate()
+	swarm = d.get("swarm", {}).duplicate(true) if d.get("swarm") is Dictionary else {}
 	var r: Dictionary = d.get("rng", {})
 	rng_seed = int(str(r.get("seed", "0")))
 	rng_state = r.duplicate(true)

@@ -327,6 +327,36 @@
    "body": "A path beside the Dao of the sword and the Dao of blood: righteous glyphs written in the air. Their strength follows Insight rather than the arm, and Righteous Qi strikes the Hollow and the demonic a quarter harder. Only an upright heart may walk it, and never beside the blood path."
   },
   {
+   "id": "ashborn",
+   "title": "The Ashborn",
+   "body": "A people of the Ashen Reach under Ash Queen Seralet. They burn their dead in lantern fire so the grey cannot take them, and there is not enough fire for all of them."
+  },
+  {
+   "id": "general_kharn",
+   "title": "General Kharn",
+   "body": "The Ashborn's general. He raided the Cinder Fields for lantern fire for his people's pyres. An enemy, not a villain; he kneels when beaten, and the one who beat him decides."
+  },
+  {
+   "id": "hollow_tide_battle",
+   "title": "The Tide Breaks",
+   "body": "When the Tide comes to the Tidebreak Bastion it goes for the great lantern first. Every foe near it dims it; a Warden standing beside it, not striking, can relight it. The bell can be rung again once a day."
+  },
+  {
+   "id": "star_warden_title",
+   "title": "Star Warden",
+   "body": "A Sphere Lord of the second order with a star-wyrm at their side, sworn to keep the lanterns lit. The title steadies the body against the Starsea and the Hollow."
+  },
+  {
+   "id": "copperjaw_swarm",
+   "title": "The Copperjaw swarm",
+   "body": "Beetles that eat metal, kept in a lacquered box. Fed ore, they multiply by the hour even while you are away; opened, they chew every foe near you, harder the more of them there are. Wood shrugs them off. Sometimes a Queen rises."
+  },
+  {
+   "id": "brush_and_bell",
+   "title": "The brush and the bell",
+   "body": "Two Warden weapons. A scribe's brush strikes with Qi, and every technique written with it leaves a talisman on the foe by its element. A hand-bell rings out on both sides, stilling, sealing and calling allies."
+  },
+  {
    "id": "pills_and_the_body",
    "title": "What pills cost",
    "body": "Pills never spoil, but the body remembers them. Each dose of one kind works less than the last, until a great breakthrough lets it forget one. Qi that came mostly from pills makes a hollow foundation, and 5% of every pill's poison stays behind as residue. Settle foundation in seclusion, or pass through Heaven's Cleansing untouched, to make it your own again."

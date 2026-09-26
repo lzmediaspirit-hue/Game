@@ -1,0 +1,571 @@
+{
+ "schema_version": 1,
+ "id": "tf_greyfall_breach",
+ "zone": "lantern_star_field",
+ "region": "tidebreak_front",
+ "name": "Greyfall Breach",
+ "type": "field",
+ "level_range": [
+  90,
+  94
+ ],
+ "recommended_cp": 1640,
+ "element": "none",
+ "qi_density": 2.2,
+ "hazards": [],
+ "gather_tier": "lantern_high",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "tidebreak_front",
+ "ground": {
+  "material": "stone",
+  "tint": "#a8acb4"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    1000,
+    630,
+    300,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    2200,
+    620,
+    320,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    1706,
+    610,
+    240,
+    70
+   ],
+   "height": 300,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    520,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1340,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "tf_tidebreak_bastion",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "tf_hollow_wake",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    1030,
+    665
+   ],
+   "loot": "jar_lantern",
+   "level": 92,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 100
+  },
+  {
+   "id": "crate_2",
+   "type": "crate",
+   "at": [
+    2230,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 92,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    2447,
+    930
+   ],
+   "loot": "jar_lantern",
+   "level": 92,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_4",
+   "type": "crate",
+   "at": [
+    3321,
+    930
+   ],
+   "loot": "jar_lantern",
+   "level": 92,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    1826,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 94,
+   "alt": 300,
+   "surface": "cloud_mv"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "hollow_drone",
+   "surface": "ground",
+   "points": [
+    [
+     617,
+     903
+    ],
+    [
+     1285,
+     804
+    ],
+    [
+     1972,
+     763
+    ],
+    [
+     2613,
+     735
+    ],
+    [
+     3310,
+     728
+    ]
+   ],
+   "max": 4,
+   "respawn_s": 14,
+   "level": [
+    90,
+    93
+   ]
+  },
+  {
+   "enemy": "hollowed_wyrmling",
+   "surface": "ground",
+   "points": [
+    [
+     808,
+     716
+    ],
+    [
+     1900,
+     872
+    ],
+    [
+     3059,
+     856
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 20,
+   "level": [
+    91,
+    94
+   ]
+  },
+  {
+   "enemy": "hollow_drone",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    93,
+    93
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "rock_large",
+   "at": [
+    200,
+    633
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "drone_hive",
+   "at": [
+    809,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1191,
+    632
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "drone_hive",
+   "at": [
+    1753,
+    639
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2157,
+    633
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "drone_hive",
+   "at": [
+    2622,
+    638
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    3104,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "drone_hive",
+   "at": [
+    3586,
+    639
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    84,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    432,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    733,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1087,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1339,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1706,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2017,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2257,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2484,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2862,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3159,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3499,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3776,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  }
+ ],
+ "areas": [],
+ "music": "hollow_tide",
+ "ambience": "wind_ambience",
+ "attunement_required": 72,
+ "climbables": [
+  {
+   "id": "ledge_0_rope_1",
+   "kind": "rope",
+   "at": [
+    1150,
+    735
+   ],
+   "top_at": [
+    1150,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_0"
+  },
+  {
+   "id": "ledge_1_rope_2",
+   "kind": "rope",
+   "at": [
+    2360,
+    725
+   ],
+   "top_at": [
+    2360,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "ledge_1"
+  },
+  {
+   "id": "route_0_vine_4",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_vine_5",
+   "kind": "vine",
+   "at": [
+    1460,
+    741
+   ],
+   "top_at": [
+    1460,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_2"
+  }
+ ],
+ "blocks": [
+  {
+   "id": "ledge_1_step_3",
+   "rect": [
+    2450,
+    702,
+    60,
+    50
+   ],
+   "base": 0,
+   "top": 40,
+   "kind": "rock"
+  }
+ ],
+ "terrain": [
+  "stone"
+ ]
+}

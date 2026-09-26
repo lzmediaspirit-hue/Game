@@ -172,6 +172,60 @@ Works). Every source uses one of two curves: add (x1·L) or decay (x1·L/(L + x2
 
 Built in phases (docs/act3_design.md): zone tier 3, levels 82-99, ceiling Sphere Lord 3, Starsea Endurance 20 -> 90.
 
+### Phase D · Ash and Tide (chapter 21)
+- **The brush and the bell**, two new weapon families (docs/act3_design.md, Phase D in detail).
+  - The brush (the new Brush Dao): quick Qi strikes. Every technique used with it writes a talisman on each foe it
+    strikes, by the technique's element (Fire burns, Water slows, Wood roots, Metal sunders, Earth leaves the foe
+    open, Thunder shocks, none seals its Qi); one talisman on a foe at a time.
+  - The bell (the Music Dao): its strikes ring out on both sides for soul damage.
+  - Five manuals: Splashed Ink and Cursive Storm for the brush; Stilling Peal (a stun ring), Qi Seal Toll and
+    Warden's Call (a group heal and defence) for the bell.
+  - Four weapons at the Tidebreak Bastion's armoury, the Lantern Star Field's first: the Ink-Warden's Brush and the
+    Warden's Hand-bell (Sage grade), the Starwrit Brush and the Tidebreak Bell (Will grade).
+- **The Copperjaw Beetle swarm.** A box of beetles from Tinker Mei.
+  - Fed ore, the swarm grows 8% an hour while its food lasts, even while you are away, up to 5,000. Unfed, it
+    dwindles.
+  - Opened in a fight, it chews every foe within 220 for 8 s at 0.12 × ln(1 + population) of your Qi attack a
+    second. Wood foes take half.
+  - A Queen can rise (1% a fed hour): after that the swarm grows faster and bites harder.
+  - The Pets page gains a Swarm tab to feed it and see it.
+- **The Hollow Tide battle** (the Tidebreak Bastion's great bell), 150 s.
+  - Every foe near the great lantern dims it; standing by it without striking relights it. If it goes out, the Tide
+    breaks through.
+  - The battle can be fought again once a day.
+- **Ground fire**: Ashborn blows leave the ground burning where they land; standing in it burns.
+- **Titles**: Star Warden (+10 Starsea Endurance, 8% Hollow Ward) and Tidebreaker (+3% max HP).
+- **Rooms** (9):
+  - The Ashen Reach, by the Wardens' second skiff: Cinder Fields, Ashborn Palisade, War Camp and Kharn's Pyre.
+  - The Tidebreak Front, by the third: the Tidebreak Bastion (safe), Greyfall Breach, Hollow Wake and Drone Hive.
+  - The Tide battle's own instance.
+- **Monsters:**
+  - Ashborn Raider (88-96).
+  - Ashborn Pyre-Keeper (elite, rings of fire, Presence 2).
+  - Hollow Drone (88-99, a flying pack that spreads the Hollowing).
+  - **General Kharn** (92): Presence 4 and a Sphere of Cinders; a leaping cleave and pyre rings that leave fire;
+    a Pyre-Keeper at 60%, rage at 30%. At a fifth of his health he kneels, and you decide whether he lives.
+- **Chapter 21:**
+  - Main quests: Cinder Fields, Kharn's Pyre, The Tide Breaks, Star Warden. Star Warden asks for Sphere Lord 2 and
+    the hatched star-wyrm.
+  - Side: Brush and Bell. The Copperjaw swarm's quest comes with its unlock.
+  - Five NPCs and six codex entries.
+- **New quest objectives**: `judge_foe` (a kneeling foe spared or finished) and `hatch_egg`.
+- **Fix: Dao caps carry forward.**
+  - A zone now keeps at least the cap the zone before it allowed.
+  - Before this, Beast Taming fell back to its valley cap of 2 in the Lantern Star Field, and the rare Daos to 0.
+- Tests:
+  - `rules_tests` `ash_tide_suite`:
+    - the brush's talismans (one at a time; Splashed Ink seals) and the bell ringing out both ways;
+    - the swarm's growth, shrinking, Queen, bite and cap, then feeding, time away and release (the box stays);
+    - ground fire, and Kharn spared counting for his quest;
+    - the lantern dimming, relit and going out.
+  - `valley_run` `ls5` plays chapter 21, from the Cinder Fields to Star Warden:
+    - Kharn spared;
+    - the swarm fed and the brush bought;
+    - the Tide battle won with the lantern lit;
+    - the star-wyrm hatched.
+
 ### Phase C · The Citadel, the Sphere and the Orbit Ruins (chapter 20)
 - **The Sphere (Sphere Lord 1).** A small world of your own, raised with the Sphere button (H) and drawn from your
   strongest combat Dao.

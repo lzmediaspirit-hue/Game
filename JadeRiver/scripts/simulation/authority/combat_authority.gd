@@ -689,6 +689,7 @@ func tick(delta: float) -> void:
 	_tick_ally_hots(delta)
 	_tick_decoys(delta)
 	_tick_arrays(delta)
+	_tick_ground_fires(delta)
 	for uid in searched.keys():
 		searched[uid].t = float(searched[uid].t) - delta
 		if float(searched[uid].t) <= -2.0: searched.erase(uid)   # a little grace: the death is judged after the blow
@@ -826,12 +827,13 @@ func _resolve_basic(c) -> void:
 	var mult := float(step.get("mult", 1.0))
 	var max_targets := int(fam.get("line_targets", 1))
 	var hit_any := false
-	var targets := _enemies_in(pv, facing, hitbox, false)
+	# v1.2 the bell rings out on both sides of its bearer; its strikes (and the brush's) carry the family's damage type.
+	var targets := _enemies_in(pv, facing, hitbox, fam.get("ring", false))
 	targets.sort_custom(func(a, b): return absf(a.plane.x - float(pv.x)) < absf(b.plane.x - float(pv.x)))
 	var n := 0
 	for e in targets:
 		if n >= max_targets: break
-		var attack := {"damage_type": "physical", "element": "none", "mult": [mult, mult], "range": fam.get("range", [0.9, 1.1]),
+		var attack := {"damage_type": str(fam.get("damage_type", "physical")), "element": "none", "mult": [mult, mult], "range": fam.get("range", [0.9, 1.1]),
 			"dao_tier": _dao_tier(c, str(fam.get("dao", ""))), "room_element": str(game.room_rt.def.get("element", "")) if game.room_rt else "",
 			"sphere_element": game.field.sphere_element(c),
 			"knockback": float(step.get("knockback", fam.get("knockback_every_hit", 0))), "source": "basic"}
@@ -894,6 +896,14 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		"ignore_resistance": float(t.get("ignore_resistance", 0.0)), "penetration_bonus": float(t.get("penetration", 0.0)),
 		"status": t.get("status", {}), "source": "tech:" + str(t.id), "technique": str(t.id)}
 	if t.has("armour_break"): attack.armour_break = t.armour_break
+	# v1.2 the brush writes a talisman with every technique: its element's rider (weapon_families.brush.talisman).
+	var tal_def: Dictionary = fam.get("talisman", {})
+	if not tal_def.is_empty():
+		var by: Dictionary = tal_def.get("by_element", {})
+		var row: Dictionary = by.get(CombatRules.parent_element(str(attack.element)), by.get("none", {}))
+		if not row.is_empty():
+			attack.talisman = {"id": str(row.id), "power": float(row.get("power", 1.0)),
+				"remaining": float(row.get("duration_s", tal_def.get("duration_s", 4.0)))}
 	# v1.2 the Confucian path: a written word is as strong as the mind that writes it (Insight against 5 + Level).
 	if float(t.get("insight_scale", 0.0)) > 0.0:
 		var ratio := clampf(c.stats.value("insight") / (5.0 + float(ProgressionRules.level(c))), 0.5, 3.0)
@@ -1077,6 +1087,11 @@ func _weapon_after_hit(c, e: EnemyState, attack: Dictionary) -> void:
 	if up > 0.0 and not e.is_boss() and not e.def.get("knockback_immune", false) and not e.def.get("flying", false) \
 			and not e.pools.steadfast.has("launched") and not e.pools.has_status("launched"):
 		_apply_status_to_enemy(e, {"id": "launched", "power": 1.0, "remaining": up, "duration": up, "source": c.id})
+	# v1.2 the brush's talisman: one on a foe at a time, written by a technique.
+	var tal: Dictionary = attack.get("talisman", {})
+	if not tal.is_empty() and float(e.ai.get("talisman_until", 0.0)) <= game.sim_time and not e.pools.steadfast.has(str(tal.id)):
+		e.ai["talisman_until"] = game.sim_time + float(tal.remaining)
+		_apply_status_to_enemy(e, {"id": str(tal.id), "power": float(tal.power), "remaining": float(tal.remaining), "source": c.id})
 	# S48 the Soul line: Sense Lock fixes the soul's eye on the foe; Soul Search marks an elite for its memories.
 	var lock := float(attack.get("sense_lock_s", 0.0))
 	if lock > 0.0:
@@ -1153,6 +1168,7 @@ func _poison_body(c, e: EnemyState) -> void:
 
 func _clear_room_marks() -> void:
 	arrays.clear()
+	ground_fires.clear()
 	searched.clear()
 	poison_touch.clear()
 	for aid in decoys.keys():
@@ -1309,6 +1325,35 @@ func enemy_strike(e: EnemyState, attack: Dictionary) -> void:
 		_enemy_hits_player(e, c, ev, pv, attack)
 	_strike_decoy(e, ev, hitbox, attack)
 	_enemy_hits_allies(e, attack, ev)
+	# v1.2 Phase D: some blows leave the ground burning where they land (the Ashborn's cinders, Kharn's pyre).
+	var gf: Dictionary = attack.get("ground_fire", {})
+	if not gf.is_empty():
+		var reach := float(gf.get("at", (hitbox.get("x", [0, 40]) as Array)[1]))
+		var spots: Array = gf.get("ring", [])
+		if spots.is_empty(): spots = [reach * e.facing]
+		for dx in spots:
+			ground_fires.append({"x": e.plane.x + float(dx), "y": e.plane.y, "r": float(gf.get("radius", 70)), "t": float(gf.get("duration_s", 5.0)),
+				"tick": 0.5, "pct": float(gf.get("pct_per_s", 0.03)), "source": str(e.uid)})
+		emit("ground_fire", {"x": e.plane.x, "y": e.plane.y, "count": spots.size(), "duration": float(gf.get("duration_s", 5.0))})
+
+## v1.2 Phase D: burning patches on the ground. Standing in one (not flying, not high above it) burns a share of max HP
+## each half second; a dodge or invulnerability passes through it.
+var ground_fires: Array = []
+func _tick_ground_fires(delta: float) -> void:
+	if ground_fires.is_empty(): return
+	var c = game.active()
+	var st: ActorState = game.actor_state(c.id) if c != null else null
+	for f in ground_fires.duplicate():
+		f.t = float(f.t) - delta
+		if float(f.t) <= 0.0:
+			ground_fires.erase(f)
+			continue
+		f.tick = float(f.tick) - delta
+		if float(f.tick) > 0.0: continue
+		f.tick = 0.5
+		if st == null or st.flying or st.altitude > 40.0: continue
+		if Vector2(float(f.x), float(f.y)).distance_to(st.plane) > float(f.r): continue
+		apply_hazard_damage(c, c.pools.max_hp * float(f.pct) * 0.5, "dot", "fire", "ground_fire")
 
 ## The same strike lands on companions and spirit animals inside its hitbox.
 func _enemy_hits_allies(e: EnemyState, attack: Dictionary, ev: Dictionary) -> void:
@@ -2391,6 +2436,13 @@ func sphere_strike(c, e: EnemyState, element: String, mult: float, kind: String)
 	var attack := {"damage_type": "qi", "element": element, "mult": [mult, mult], "range": [0.95, 1.05], "never_miss": true,
 		"source": "sphere:" + kind, "sphere_kind": kind}
 	_player_hits_enemy(c, pv, e, attack, 1 if e.plane.x >= pv.get("x", e.plane.x) else -1)
+
+## v1.2 the Copperjaw swarm's bite: `mult` times the bearer's Qi attack as Metal, which cannot miss.
+func swarm_strike(c, e: EnemyState, mult: float) -> void:
+	if c == null or not e.alive or e.invulnerable: return
+	var pv := player_view(c)
+	_player_hits_enemy(c, pv, e, {"damage_type": "qi", "element": "metal", "mult": [mult, mult], "range": [0.95, 1.05], "never_miss": true,
+		"source": "swarm"}, 1 if e.plane.x >= float(pv.get("x", e.plane.x)) else -1)
 
 ## A pet or companion strike (AllyBrain) credits its owner.
 func ally_hits_enemy(a: EnemyState, e: EnemyState, attack_power: float) -> void:

@@ -1,0 +1,159 @@
+{
+ "schema_version": 1,
+ "id": "si_tide_battle",
+ "zone": "lantern_star_field",
+ "region": "tidebreak_front",
+ "name": "The Tide Breaks",
+ "type": "story",
+ "level_range": [
+  92,
+  94
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": false,
+ "no_flight": true,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "tidebreak_front",
+ "ground": {
+  "material": "stone",
+  "tint": "#b8bcc4"
+ },
+ "spawn_point": [
+  1900,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  }
+ ],
+ "portals": [
+  {
+   "id": "exit",
+   "type": "door",
+   "at": [
+    140,
+    700
+   ],
+   "to": "tf_tidebreak_bastion",
+   "to_portal": "skiff",
+   "press_up": true,
+   "label": "Leave"
+  }
+ ],
+ "objects": [
+  {
+   "id": "great_lantern",
+   "type": "inspect",
+   "at": [
+    1900,
+    760
+   ],
+   "prop": "lantern_cage",
+   "text": "The Bastion's great lantern. While it burns, the Tide cannot cross the wall."
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "bastion_wall",
+   "at": [
+    1900,
+    650
+   ],
+   "layer": "back"
+  }
+ ],
+ "areas": [],
+ "music": "hollow_tide",
+ "instanced": true,
+ "dungeon_exit": "",
+ "event": {
+  "id": "hollow_tide_battle",
+  "duration": 150,
+  "lantern": {
+   "object": "great_lantern",
+   "light": 100,
+   "drain_per_foe": 3.0,
+   "drain_radius": 180,
+   "relight": 4.0,
+   "relight_radius": 120
+  },
+  "waves": [
+   {
+    "enemy": "hollow_drone",
+    "every_s": 5,
+    "max": 4,
+    "points": [
+     [
+      300,
+      800
+     ],
+     [
+      3500,
+      800
+     ]
+    ],
+    "level": 92
+   },
+   {
+    "enemy": "hollowed_wyrmling",
+    "every_s": 11,
+    "max": 2,
+    "first_s": 20,
+    "points": [
+     [
+      400,
+      880
+     ],
+     [
+      3400,
+      880
+     ]
+    ],
+    "level": 93
+   }
+  ],
+  "on_complete": [
+   {
+    "kind": "event_passed",
+    "event": "hollow_tide_battle"
+   },
+   {
+    "kind": "grant_item",
+    "item": "star_shard",
+    "count": 12
+   },
+   {
+    "kind": "grant_item",
+    "item": "drone_shell",
+    "count": 3
+   }
+  ],
+  "on_timeout": []
+ },
+ "terrain": [
+  "stone"
+ ]
+}

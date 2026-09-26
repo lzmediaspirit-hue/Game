@@ -1826,6 +1826,47 @@
    "desc": "A bronze plate from a Nest Guardian's shell, set with a crystal that still glows."
   },
   {
+   "id": "cinder_ash",
+   "name": "Cinder Ash",
+   "type": "material",
+   "grade": "will",
+   "ilv": 95,
+   "stack": 99,
+   "icon": "cinder_ash",
+   "desc": "Ash from an Ashborn's cinder Qi. It stays warm for days. Smiths temper blades in it."
+  },
+  {
+   "id": "pyre_ember",
+   "name": "Pyre Ember",
+   "type": "material",
+   "grade": "will",
+   "ilv": 95,
+   "stack": 99,
+   "icon": "pyre_ember",
+   "desc": "An ember from an Ashborn pyre that will not go out. Alchemists use it to keep a furnace steady."
+  },
+  {
+   "id": "drone_shell",
+   "name": "Drone Shell",
+   "type": "material",
+   "grade": "will",
+   "ilv": 95,
+   "stack": 99,
+   "icon": "drone_shell",
+   "desc": "The grey carapace of a Hollow Drone: metal that forgot it was metal. Copperjaw beetles love it."
+  },
+  {
+   "id": "kharns_glaive_shard",
+   "name": "Kharns Glaive Shard",
+   "type": "valuable",
+   "grade": "will",
+   "ilv": 95,
+   "stack": 1,
+   "icon": "kharns_glaive_shard",
+   "desc": "A shard of General Kharn's cinder glaive. Whether he lived or not, the Ashborn will know this piece.",
+   "sell": false
+  },
+  {
    "id": "gravity_core",
    "name": "Gravity Core",
    "type": "beast_part",
@@ -7504,6 +7545,19 @@
    "food": {
     "group": "healing"
    }
+  },
+  {
+   "id": "copperjaw_box",
+   "name": "Copperjaw Box",
+   "type": "other",
+   "grade": "will",
+   "ilv": 92,
+   "stack": 1,
+   "icon": "copperjaw_box",
+   "desc": "A lacquered box of Copperjaw beetles. Feed it ore and the swarm grows, an hour at a time, even while you are away. Open it and for 8 s the swarm chews every foe near you, the bigger it is the harder (Wood foes shrug off half). It comes home after, and rests 30 s.",
+   "use": [],
+   "use_action": "swarm",
+   "sell": false
   },
   {
    "id": "sphere_comprehension_stone",

@@ -2830,6 +2830,118 @@
    ]
   },
   {
+   "id": "bastion_armoury",
+   "name": "Tidebreak Armoury",
+   "currency": "sage_crystal",
+   "stock": [
+    {
+     "item": "ink_warden_brush",
+     "price": 120
+    },
+    {
+     "item": "wardens_handbell",
+     "price": 120
+    },
+    {
+     "item": "starwrit_brush",
+     "price": 320,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "tidebreak_bell",
+     "price": 320,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "splashed_ink",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "stilling_peal",
+     "price": 60,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "qi_seal_toll",
+     "price": 70,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "cursive_storm",
+     "price": 120,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "technique_manual",
+     "learn": "wardens_call",
+     "price": 120,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "sphere_lord_2"
+       }
+      ]
+     }
+    },
+    {
+     "item": "lantern_incense",
+     "price": 4
+    },
+    {
+     "item": "driftglass",
+     "price": 6
+    }
+   ]
+  },
+  {
    "id": "observatory",
    "name": "Stargazer Ming's Star-stones",
    "currency": "sage_crystal",

@@ -444,6 +444,32 @@ def npcs():
         ["The first Wardens built a temple to watch the stars turn. Then the island began to turn with them. I stayed.",
          "Space is not empty. It is folded. Learn where the folds are and a step is as long as you like."],
         ["Mind the floor. It moves.", "Hm? Oh. Hello."])
+    # v1.2 · Phase D: the Ashen Reach and the Tidebreak Front (chapter 21).
+    npc("warden_hu_jin", "Warden Hu Jin", "Warden scout of the Ashen Reach", outfit("ponytail", 1, "vneck", "martial", "boots", hat="headband",
+        shirt_dye="indigo", pants_dye="ink"),
+        ["The Ashborn do not raid for gold. They raid for fire. Their dead are burned in lantern flame or they do not rest.",
+         "Kharn is no bandit. He is a general with a queen and a people behind him, and not enough fire for either."],
+        ["Keep low. The cinders carry.", "Eyes east."])
+    npc("ashborn_envoy_veyla", "Envoy Veyla", "Ashborn envoy", outfit("long_tied", 0, "scholar", "martial", "folded", hat="guan", cape="tattered",
+        shirt_dye="ochre", pants_dye="ink"),
+        ["I came to speak for the General. No one on your side has wanted to listen yet.",
+         "We burn our dead so they are not taken by the grey. Without lantern fire our dead walk. Would you not raid, for that?"],
+        ["Ash to ash.", "I will wait."])
+    npc("warden_captain_duan", "Captain Duan", "Warden-Captain of the Tidebreak Bastion", outfit("topknot", 0, "cardigan", "martial", "boots",
+        cape="solid", weapon="spear", shirt_dye="indigo", pants_dye="ink"),
+        ["Every lantern on this wall is a Warden who did not go home. We keep them lit.",
+         "When the bell rings, the Tide comes. It always comes to the great lantern first."],
+        ["Hold.", "The wall stands."])
+    npc("quartermaster_bai", "Quartermaster Bai", "Keeper of the Bastion's armoury", outfit("short_knot", 4, "disciple", "loose", "boots",
+        shirt_dye="grey", pants_dye="ink"),
+        ["Brushes and bells. A Warden scribe writes seals on the Hollow; a bellringer stills it. Swords are for the young.",
+         "Pay in crystals. The Tide does not take IOUs."],
+        ["Mind the stock.", "Next."], services=["shop:bastion_armoury"], service_labels={"shop:bastion_armoury": "The armoury"})
+    npc("tinker_mei", "Tinker Mei", "Keeper of the Copperjaw beetles", outfit("ponytail", 2, "sleeveless", "cuffed", "boots", hat="straw",
+        shirt_dye="earth", pants_dye="ink"),
+        ["My beetles eat metal. The drones are metal that forgot it was metal. You see where this is going.",
+         "Feed them ore and they multiply while you sleep. Open the box and they will chew anything near you."],
+        ["Click, click.", "Don't shake the box."])
     npc("lanternwright_han", "Lanternwright Han", "Scholar-lanternwright", outfit("flowing", 1, "scholar", "scholar", "folded", hat="guan",
         shirt_dye="white", pants_dye="indigo"),
         ["The first Wardens wrote 'stay' on every cage and the stars stayed. Words are not weak. They are only rarely meant.",
@@ -745,6 +771,7 @@ def unlocks():
     u("star_beasts", "Star-tier spirit beasts", all_of(realm("will_manifest_2"), unlocked("taming")), "star_tier_beasts", [], same_stage_ok=True)
     # v1.2 · Phase C: the Sphere at Sphere Lord 1 (the Observatory's lesson), the Confucian path (Lanternwright Han).
     u("sphere", "Sphere", all_of(realm("sphere_lord_1"), qdone("sphere_lord")), "a_sphere_of_ones_own", ["hud:sphere"], same_stage_ok=True)
+    u("beetle_swarm", "The Copperjaw swarm", all_of(realm("sphere_lord_1"), qdone("kharns_pyre")), "the_copperjaw_box", [], same_stage_ok=True)
     u("confucian_path", "The Confucian path", all_of(realm("will_manifest_2"), qdone("crystal_and_jade")), "the_written_word", [],
       same_stage_ok=True)
     entries("unlocks", U)
@@ -1993,6 +2020,68 @@ def act3_citadel_quests():
                   "The other glyphs are on my shelf, when you have the realm to hold them."])
 
 
+def act3_ash_and_tide_quests():
+    """v1.2 · Phase D, chapter 21 (Ash and Tide): the Cinder Fields, Kharn's Pyre (spare or slay), the Hollow Tide battle,
+    the Star Warden title; the Copperjaw swarm and the brush and the bell."""
+    quest("cinder_fields", "Cinder Fields", "main", "warden_commander_yao", [
+        o("reach_room", "Take the Wardens' skiff to the Cinder Fields", room="ar_cinder_fields"),
+        o("kill", "Drive back the Ashborn raiders", 6, enemy="ashborn_raider"),
+        o("talk_to", "Report to Warden Hu Jin", npc="warden_hu_jin"),
+    ], [sage_crystals(60), fx("codex", entry="ashborn")], hand_in="warden_hu_jin",
+        requires=all_of(qdone("the_orbit_ruins")), chapter="21", target_room="ar_cinder_fields",
+        offer=["The Ashborn have crossed the Cinder Fields. They take lanterns, cage and all, and carry them east.",
+               "Hu Jin is watching them. Take the skiff. Push them back, and learn what they want the fire for."],
+        complete=["You fought them like a Warden. Good. Now listen: they are burning their dead in stolen lantern fire.",
+                  "Their general is Kharn. He is at his pyre beyond the war camp. His envoy asked to speak with us. I said no. You might say yes."],
+        next="kharns_pyre")
+    quest("kharns_pyre", "Kharn's Pyre", "main", "warden_hu_jin", [
+        o("talk_to", "Hear the Ashborn envoy in the war camp", npc="ashborn_envoy_veyla"),
+        o("judge_foe", "Face General Kharn at his pyre, and decide what he is owed", enemy="general_kharn"),
+    ], [sage_crystals(90), item("will_tempering_pill", 2), fx("codex", entry="general_kharn")], hand_in="warden_hu_jin",
+        requires=all_of(qdone("cinder_fields")), chapter="21", target_room="ar_kharns_pyre",
+        offer=["Kharn will not stop while his dead walk. He will not listen while he is standing.",
+               "Beat him. What you do when he kneels is yours to answer for. Not mine."],
+        complete=["It is done, one way or the other. The Ashborn will remember which.",
+                  "And now the Tide. With the lanterns taken from the Reach it is pressing the Bastion. The Captain asked for you."],
+        next="the_tide_breaks")
+    quest("the_tide_breaks", "The Tide Breaks", "main", "warden_commander_yao", [
+        o("reach_room", "Take the skiff to the Tidebreak Bastion", room="tf_tidebreak_bastion"),
+        o("pass_event", "Ring the Bastion's bell and keep the great lantern lit through the Tide", event="hollow_tide_battle"),
+    ], [sage_crystals(120), fx("grant_title", title="tidebreaker"), fx("codex", entry="hollow_tide_battle")], hand_in="warden_captain_duan",
+        requires=all_of(qdone("kharns_pyre")), chapter="21", target_room="tf_tidebreak_bastion",
+        offer=["The Tide is coming to the Bastion. Captain Duan will ring the great bell when it does.",
+               "The great lantern is the whole wall. If it goes out, the Tide walks through. Keep it lit."],
+        complete=["The lantern held. You held it. I have watched Wardens of forty years fail at that.",
+                  "The Commander will want to see you. There is a title waiting that you have already earned."],
+        next="star_warden")
+    quest("star_warden", "Star Warden", "main", "warden_captain_duan", [
+        o("reach_realm", "Break through to Sphere Lord 2", realm="sphere_lord_2"),
+        o("hatch_egg", "Hatch the star-wyrm egg", species="hatchling_wyrm"),
+        o("talk_to", "Stand before Warden-Commander Yao", npc="warden_commander_yao"),
+    ], [sage_crystals(150), fx("grant_title", title="star_warden"), fx("codex", entry="star_warden_title")], hand_in="warden_commander_yao",
+        requires=all_of(qdone("the_tide_breaks")), chapter="21", target_room="wc_wardens_hall",
+        offer=["A Sphere Lord of the second order, with a star-wyrm at their side. That is what a Star Warden has always been.",
+               "Go and become it. Then come to the Commander."],
+        complete=["Kneel. Rise a Star Warden. The lanterns are yours to keep lit now, as much as anyone's.",
+                  "Shen Lian has asked to be posted to the Greyfall Breach. I have said yes. I think you should know."])
+    quest("the_copperjaw_box", "The Copperjaw Box", "guided", "tinker_mei", [
+        o("use_system", "Feed the Copperjaw swarm some ore (the box, in your bag)", system="beetle_swarm"),
+    ], [item("drone_shell", 4), sage_crystals(20)], offered_by_unlock=True, chapter="21", target_room="tf_tidebreak_bastion",
+        on_accept=[item("copperjaw_box", 1), item("driftglass", 4)],
+        offer=["Here. One box of Copperjaw beetles, a starting colony. Feed them ore; better ore, more food.",
+               "They eat an hour's food an hour and grow while they eat, even while you are gone. Unfed, they dwindle."],
+        complete=["Good. Now open the box when the drones come and watch. Wood-things they don't like much. Everything else, they do.",
+                  "If you are lucky a Queen will rise one day. Then they grow faster and bite harder. I have seen it twice."])
+    quest("brush_and_bell", "Brush and Bell", "side", "quartermaster_bai", [
+        o("buy_item", "Buy the Ink-Warden's Brush from the Bastion's armoury", item="ink_warden_brush"),
+    ], [sage_crystals(30), fx("learn_technique", technique="splashed_ink")], requires=all_of(qdone("kharns_pyre")),
+        chapter="21", target_room="tf_tidebreak_bastion",
+        offer=["A scribe's brush writes a talisman on whatever it strikes. A Warden's bell rings out on both sides.",
+               "Buy one of each if you have the crystals. Swords are for the young."],
+        complete=["There. A brush wants writing: here is Splashed Ink, the first stroke every Warden scribe learns.",
+                  "The bell is on the shelf when you want it. Swords are for the young."])
+
+
 def act2_starsea_side_quests():
     """Phase E side stories and guided quests: the Yard's two crafts, paired cultivation, deserters, comet iron, three rare Daos."""
     quest("a_chart_of_ones_own", "A Chart of One's Own", "guided", "navigator_sun", [
@@ -2486,6 +2575,13 @@ def codex():
         {"id": "sphere_lord", "title": "Sphere Lord", "body": "The realm after Will Manifest. A Presence of the fifth level, a quiet heart and a Sphere Comprehension Stone open it. The Sphere is its gift; a room of an element that feeds the Sphere's makes it strike a tenth harder."},
         {"id": "space_dao", "title": "The Space Dao", "body": "The Orbit Hermit's Dao: distance, folding, the way things fall. Its six tiers pierce defences and quicken the step. The Orbit Ruins teach its first lesson: in the Inverted Hall, a jade switch lightens the world and the high galleries come within reach."},
         {"id": "confucian_path", "title": "The written word", "body": "A path beside the Dao of the sword and the Dao of blood: righteous glyphs written in the air. Their strength follows Insight rather than the arm, and Righteous Qi strikes the Hollow and the demonic a quarter harder. Only an upright heart may walk it, and never beside the blood path."},
+        # v1.2 Phase D, chapter 21: Ash and Tide.
+        {"id": "ashborn", "title": "The Ashborn", "body": "A people of the Ashen Reach under Ash Queen Seralet. They burn their dead in lantern fire so the grey cannot take them, and there is not enough fire for all of them."},
+        {"id": "general_kharn", "title": "General Kharn", "body": "The Ashborn's general. He raided the Cinder Fields for lantern fire for his people's pyres. An enemy, not a villain; he kneels when beaten, and the one who beat him decides."},
+        {"id": "hollow_tide_battle", "title": "The Tide Breaks", "body": "When the Tide comes to the Tidebreak Bastion it goes for the great lantern first. Every foe near it dims it; a Warden standing beside it, not striking, can relight it. The bell can be rung again once a day."},
+        {"id": "star_warden_title", "title": "Star Warden", "body": "A Sphere Lord of the second order with a star-wyrm at their side, sworn to keep the lanterns lit. The title steadies the body against the Starsea and the Hollow."},
+        {"id": "copperjaw_swarm", "title": "The Copperjaw swarm", "body": "Beetles that eat metal, kept in a lacquered box. Fed ore, they multiply by the hour even while you are away; opened, they chew every foe near you, harder the more of them there are. Wood shrugs them off. Sometimes a Queen rises."},
+        {"id": "brush_and_bell", "title": "The brush and the bell", "body": "Two Warden weapons. A scribe's brush strikes with Qi, and every technique written with it leaves a talisman on the foe by its element. A hand-bell rings out on both sides, stilling, sealing and calling allies."},
         # Gap report G1: what pills cost, the heart, the ledger, fire and furnace.
         {"id": "pills_and_the_body", "title": "What pills cost",
          "body": "Pills never spoil, but the body remembers them. Each dose of one kind works less than the last, until a great breakthrough lets it forget one. Qi that came mostly from pills makes a hollow foundation, and 5% of every pill's poison stays behind as residue. Settle foundation in seclusion, or pass through Heaven's Cleansing untouched, to make it your own again."},
@@ -2633,6 +2729,7 @@ def build():
     act3_chapter17()
     act3_chapters_18_19()
     act3_citadel_quests()
+    act3_ash_and_tide_quests()
     for q in Q[n1:]:
         q.setdefault("qp", "act2_side")
     entries("quests", Q)

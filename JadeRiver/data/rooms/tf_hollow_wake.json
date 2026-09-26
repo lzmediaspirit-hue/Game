@@ -1,0 +1,618 @@
+{
+ "schema_version": 1,
+ "id": "tf_hollow_wake",
+ "zone": "lantern_star_field",
+ "region": "tidebreak_front",
+ "name": "Hollow Wake",
+ "type": "field",
+ "level_range": [
+  93,
+  97
+ ],
+ "recommended_cp": 1694,
+ "element": "none",
+ "qi_density": 2.2,
+ "hazards": [],
+ "gather_tier": "lantern_high",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "tidebreak_front",
+ "ground": {
+  "material": "stone",
+  "tint": "#a8acb4"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    900,
+    630,
+    300,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    2000,
+    620,
+    320,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_2",
+   "rect": [
+    3000,
+    630,
+    280,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    1280,
+    610,
+    240,
+    70
+   ],
+   "height": 300,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    180,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    520,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1580,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    2400,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_4",
+   "rect": [
+    3340,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "bridge_0",
+   "rect": [
+    2640,
+    636,
+    360,
+    64
+   ],
+   "height": 100.0,
+   "kind": "rope_bridge",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "tf_greyfall_breach",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "tf_drone_hive",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    930,
+    665
+   ],
+   "loot": "jar_lantern",
+   "level": 95,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 100
+  },
+  {
+   "id": "crate_2",
+   "type": "crate",
+   "at": [
+    2030,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 95,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    2436,
+    900
+   ],
+   "loot": "jar_lantern",
+   "level": 95,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_4",
+   "type": "crate",
+   "at": [
+    3288,
+    720
+   ],
+   "loot": "jar_lantern",
+   "level": 95,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    1400,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 97,
+   "alt": 300,
+   "surface": "cloud_mv"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "hollow_drone",
+   "surface": "ground",
+   "points": [
+    [
+     479,
+     760
+    ],
+    [
+     1086,
+     856
+    ],
+    [
+     1656,
+     827
+    ],
+    [
+     2193,
+     843
+    ],
+    [
+     2733,
+     893
+    ],
+    [
+     3318,
+     799
+    ]
+   ],
+   "max": 5,
+   "respawn_s": 14,
+   "level": [
+    93,
+    96
+   ]
+  },
+  {
+   "enemy": "hollowed_wyrmling",
+   "surface": "ground",
+   "points": [
+    [
+     803,
+     804
+    ],
+    [
+     1951,
+     727
+    ],
+    [
+     3016,
+     825
+    ]
+   ],
+   "max": 2,
+   "respawn_s": 20,
+   "level": [
+    94,
+    97
+   ]
+  },
+  {
+   "enemy": "hollow_drone",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    96,
+    96
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "rock_large",
+   "at": [
+    204,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "drone_hive",
+   "at": [
+    772,
+    630
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1274,
+    631
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "drone_hive",
+   "at": [
+    1735,
+    633
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2252,
+    630
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "drone_hive",
+   "at": [
+    2708,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    3169,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    154,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    434,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    843,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1184,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1502,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1873,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2172,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2526,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2914,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3271,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3561,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  }
+ ],
+ "areas": [],
+ "music": "hollow_tide",
+ "ambience": "wind_ambience",
+ "attunement_required": 74,
+ "climbables": [
+  {
+   "id": "ledge_0_rope_1",
+   "kind": "rope",
+   "at": [
+    1050,
+    735
+   ],
+   "top_at": [
+    1050,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_0"
+  },
+  {
+   "id": "cloud_mv_rope_2",
+   "kind": "rope",
+   "at": [
+    1400,
+    715
+   ],
+   "top_at": [
+    1400,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "cloud_mv"
+  },
+  {
+   "id": "cloud_mv_rope_103",
+   "kind": "rope",
+   "at": [
+    1320,
+    715
+   ],
+   "top_at": [
+    1320,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "cloud_mv"
+  },
+  {
+   "id": "route_0_vine_4",
+   "kind": "vine",
+   "at": [
+    300,
+    741
+   ],
+   "top_at": [
+    300,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_vine_5",
+   "kind": "vine",
+   "at": [
+    1700,
+    741
+   ],
+   "top_at": [
+    1700,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_2"
+  },
+  {
+   "id": "route_4_vine_6",
+   "kind": "vine",
+   "at": [
+    3460,
+    741
+   ],
+   "top_at": [
+    3460,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "route_4"
+  }
+ ],
+ "terrain": [
+  "stone"
+ ]
+}

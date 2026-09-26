@@ -70,7 +70,8 @@ DEPTH = {
     "Combat": ["hollow_seizure",   # S28 v1.2: the Hollow Tide at 100% (Combat owns the Hollowing pool)
                "treasure_used", "sword_released", "sword_returned", "sword_intent_changed", "artifact_detonated", "talisman_used", "combo_landed", "killing_intent_changed",
                "beast_subdued", "melody_changed", "melody_pulse", "illusion_cast", "illusion_broken",
-               "array_deployed", "array_faded", "artifact_skill_used"],
+               "array_deployed", "array_faded", "artifact_skill_used",
+               "ground_fire"],   # v1.2 Phase D: burning ground
     "Inventory": ["loadout_swapped", "natal_grew", "natal_broken", "item_blooded",
                   # S47 Artifact Spirit depth: affinity, barks and devouring.
                   "spirit_affinity_changed", "artifact_spirit_spoke", "artifact_spirit_grew"],
@@ -89,14 +90,16 @@ DEPTH = {
     "Pets": ["pet_wounded", "pet_healed", "core_devoured", "cores_sold", "beast_cleansed", "bloodline_awakened",
              "contract_formed", "contract_offered", "pet_skill_cast", "beast_suppressed", "egg_infused", "party_changed",
              "pet_skill_learned", "pets_fused", "pet_core_formed", "pet_breakthrough", "pet_gear_changed", "pet_swapped",
-             "arena_battle", "arena_rewarded", "pet_fed", "pet_commanded"],
+             "arena_battle", "arena_rewarded", "pet_fed", "pet_commanded",
+             # v1.2 Phase D: the Copperjaw Beetle swarm.
+             "swarm_fed", "swarm_released", "swarm_returned", "swarm_queen"],
     "World": ["ambush_sprung", "herb_ripening", "guardian_spawned", "beast_tide_started", "beast_tide_result", "beast_trial_result",
               "tower_floor_cleared", "tower_swept", "auto_hunt_changed", "auto_path_started", "auto_path_ended",
               "treasure_birth_announced", "soul_searched",
               # S43 rule 15: the rooftop thief chases and timed routes (the Cloud Steps).
               "chase_started", "thief_caught", "thief_escaped", "route_started", "route_finished",
-              # v1.2 the Orbit Ruins' jade switches.
-              "gravity_switched"],
+              # v1.2 the Orbit Ruins' jade switches; the lantern defence (the Hollow Tide battle).
+              "gravity_switched", "lantern_light"],
     # S28 v1.2 field powers: Presence (Will Manifest) and, later, the Sphere (Sphere Lord).
     "Field": ["presence_toggled", "presence_leveled", "presence_clash", "presence_clash_ended", "sphere_toggled", "sphere_clash", "sphere_pulse"],
     # S50 V10 Keeping Post: posts, craft levels, pouches, the Storehouse and Hour Incense.
@@ -172,6 +175,8 @@ POLLED = {
     "seal_inscribed": "The Works page's Seals tab reads the seals; post rates are computed on demand.",
     "stele_raised": "The Works page's Steles tab reads the steles; Finesse is computed on demand.",
     "favour_granted": "The Works page's Favours tab reads the favours held.",
+    "ground_fire": "The FX layer draws Combat's burning patches each frame; Combat burns whoever stands in one.",
+    "swarm_fed": "The HUD logs the food; the Pets page's Swarm tab reads the swarm.",
     "gravity_switched": "The switch's ObjectView and the VolumeView read the room's switch state and volumes each frame.",
     "sphere_pulse": "The FX layer draws the held Sphere each frame from FieldAuthority.sphere_of.",
     "salt_line_set": "The Works page's Furnace tab reads the lines.",

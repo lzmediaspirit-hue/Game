@@ -1,0 +1,723 @@
+{
+ "schema_version": 1,
+ "id": "ar_war_camp",
+ "zone": "lantern_star_field",
+ "region": "ashen_reach",
+ "name": "War Camp",
+ "type": "field",
+ "level_range": [
+  91,
+  94
+ ],
+ "recommended_cp": 1658,
+ "element": "fire",
+ "qi_density": 2.1,
+ "hazards": [],
+ "gather_tier": "lantern_high",
+ "idle": [
+  "hunt",
+  "gather"
+ ],
+ "safe": false,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "ashen_reach",
+ "ground": {
+  "material": "stone",
+  "tint": "#c4a894"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "ledge_0",
+   "rect": [
+    1100,
+    630,
+    300,
+    70
+   ],
+   "height": 100,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "ledge_1",
+   "rect": [
+    2300,
+    620,
+    320,
+    70
+   ],
+   "height": 200,
+   "kind": "rock_ledge",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cloud_mv",
+   "rect": [
+    1706,
+    610,
+    240,
+    70
+   ],
+   "height": 300,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    480,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    820,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    2000,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    2700,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_4",
+   "rect": [
+    3040,
+    636,
+    240,
+    70
+   ],
+   "height": 200,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_5",
+   "rect": [
+    3380,
+    636,
+    240,
+    70
+   ],
+   "height": 100,
+   "kind": "tree_branch",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "cloud_mv_step_ledge_3",
+   "rect": [
+    1486,
+    610,
+    160,
+    70
+   ],
+   "height": 200,
+   "kind": "cloud",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "west",
+   "type": "edge",
+   "at": [
+    40,
+    850
+   ],
+   "to": "ar_ashborn_palisade",
+   "to_portal": "east"
+  },
+  {
+   "id": "east",
+   "type": "sealed",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "ar_kharns_pyre",
+   "to_portal": "west",
+   "requires": {
+    "any": [
+     {
+      "kind": "quest_active",
+      "quest": "kharns_pyre"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "kharns_pyre"
+     }
+    ]
+   },
+   "locked_text": "Ashborn guards cross their glaives: \"The General receives no one. Not yet.\""
+  }
+ ],
+ "objects": [
+  {
+   "id": "jar_1",
+   "type": "jar",
+   "at": [
+    1130,
+    665
+   ],
+   "loot": "jar_lantern",
+   "level": 92,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 100
+  },
+  {
+   "id": "crate_2",
+   "type": "crate",
+   "at": [
+    2330,
+    655
+   ],
+   "loot": "jar_lantern",
+   "level": 92,
+   "hp": 1,
+   "respawn_s": 300,
+   "alt": 200
+  },
+  {
+   "id": "jar_3",
+   "type": "jar",
+   "at": [
+    2414,
+    720
+   ],
+   "loot": "jar_lantern",
+   "level": 92,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "crate_4",
+   "type": "crate",
+   "at": [
+    3419,
+    700
+   ],
+   "loot": "jar_lantern",
+   "level": 92,
+   "hp": 1,
+   "respawn_s": 300
+  },
+  {
+   "id": "chest_5",
+   "type": "chest",
+   "at": [
+    1736,
+    645
+   ],
+   "loot": "chest_lantern",
+   "level": 94,
+   "alt": 300
+  },
+  {
+   "id": "shrine_ar_camp",
+   "type": "shrine",
+   "at": [
+    400,
+    700
+   ]
+  },
+  {
+   "id": "npc_ashborn_envoy_veyla",
+   "type": "npc",
+   "at": [
+    1500,
+    790
+   ],
+   "npc": "ashborn_envoy_veyla",
+   "facing": -1
+  },
+  {
+   "id": "chest_cloud_mv",
+   "type": "chest",
+   "at": [
+    1826,
+    665
+   ],
+   "loot": "chest_dungeon",
+   "level": 94,
+   "alt": 300,
+   "surface": "cloud_mv"
+  }
+ ],
+ "spawns": [
+  {
+   "enemy": "ashborn_raider",
+   "surface": "ground",
+   "points": [
+    [
+     1054,
+     838
+    ],
+    [
+     1444,
+     832
+    ],
+    [
+     2336,
+     754
+    ],
+    [
+     3210,
+     759
+    ]
+   ],
+   "max": 3,
+   "respawn_s": 16,
+   "level": [
+    91,
+    93
+   ]
+  },
+  {
+   "enemy": "ashborn_pyre_keeper",
+   "surface": "ground",
+   "points": [
+    [
+     1140,
+     823
+    ],
+    [
+     2778,
+     875
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 40,
+   "level": [
+    92,
+    94
+   ]
+  },
+  {
+   "enemy": "ashborn_raider",
+   "surface": "ground",
+   "points": [
+    [
+     2120,
+     820
+    ]
+   ],
+   "max": 1,
+   "respawn_s": 180,
+   "level": [
+    93,
+    93
+   ],
+   "elite": true
+  }
+ ],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "rock_large",
+   "at": [
+    144,
+    637
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "ash_pyre",
+   "at": [
+    661,
+    637
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    1227,
+    636
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "ash_pyre",
+   "at": [
+    1800,
+    628
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    2255,
+    629
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "ash_pyre",
+   "at": [
+    2777,
+    630
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "rock_large",
+   "at": [
+    3212,
+    635
+   ],
+   "layer": "play",
+   "flip": false
+  },
+  {
+   "prop": "ash_pyre",
+   "at": [
+    3714,
+    633
+   ],
+   "layer": "play",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    136,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    387,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    705,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    941,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1217,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    1542,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    1875,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2167,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    2550,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    2824,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3050,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "reeds",
+   "at": [
+    3374,
+    988
+   ],
+   "layer": "front",
+   "flip": true
+  },
+  {
+   "prop": "tall_grass",
+   "at": [
+    3587,
+    988
+   ],
+   "layer": "front",
+   "flip": false
+  },
+  {
+   "prop": "cinder_tent",
+   "at": [
+    700,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "cinder_tent",
+   "at": [
+    1900,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "cinder_tent",
+   "at": [
+    3000,
+    660
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "ash_pyre",
+   "at": [
+    2500,
+    700
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "ashen_war",
+ "ambience": "wind_ambience",
+ "attunement_required": 64,
+ "climbables": [
+  {
+   "id": "ledge_0_rope_1",
+   "kind": "rope",
+   "at": [
+    1250,
+    735
+   ],
+   "top_at": [
+    1250,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "ledge_0"
+  },
+  {
+   "id": "cloud_mv_rope_2",
+   "kind": "rope",
+   "at": [
+    1826,
+    715
+   ],
+   "top_at": [
+    1826,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 300,
+   "bottom": "ground",
+   "top": "cloud_mv"
+  },
+  {
+   "id": "route_0_vine_4",
+   "kind": "vine",
+   "at": [
+    600,
+    741
+   ],
+   "top_at": [
+    600,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_vine_5",
+   "kind": "vine",
+   "at": [
+    2120,
+    741
+   ],
+   "top_at": [
+    2120,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_2"
+  },
+  {
+   "id": "route_3_vine_6",
+   "kind": "vine",
+   "at": [
+    2820,
+    741
+   ],
+   "top_at": [
+    2820,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_3"
+  },
+  {
+   "id": "route_5_vine_7",
+   "kind": "vine",
+   "at": [
+    3500,
+    741
+   ],
+   "top_at": [
+    3500,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 100,
+   "bottom": "ground",
+   "top": "route_5"
+  },
+  {
+   "id": "cloud_mv_step_ledge_3_rope_101",
+   "kind": "rope",
+   "at": [
+    1566,
+    715
+   ],
+   "top_at": [
+    1566,
+    672
+   ],
+   "bottom_alt": 0,
+   "top_alt": 200,
+   "bottom": "ground",
+   "top": "cloud_mv_step_ledge_3"
+  }
+ ],
+ "terrain": [
+  "stone"
+ ]
+}

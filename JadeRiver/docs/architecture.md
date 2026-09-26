@@ -43,10 +43,10 @@ each physics frame; the tests call it directly without any scene.
 
 | Authority | Owns |
 |---|---|
-| `CombatAuthority` | Pools (HP, QI, Soul, Composure, Hollowing), hits, techniques, guard and dodge, statuses, death and revival |
+| `CombatAuthority` | Pools (HP, QI, Soul, Composure, Hollowing), hits, techniques, guard and dodge, statuses, death and revival; the brush's talismans and ground fire left by enemy blows (v1.2 Phase D) |
 | `ProgressionAuthority` | Realm, progress, breakthroughs, methods, meridians, body level, Daos and mastery, purity, stability, injuries, seclusion; the leisure arts (the guqin's meditation bonus, chess problems at insight sites, chess.json) |
 | `EnemyAuthority` + `EnemyBrain` | Spawning, monster AI, boss phases, fleeing story bosses |
-| `WorldAuthority` | Rooms, portals, objects, loot on the ground, room events, shrines, Spirit Sense, the Trial Tower (floors cleared and swept, S49), idle-room eligibility, auto-hunt and quest auto-path routes (`WorldRules.route`; the presentation `Autopilot` drives the joystick) |
+| `WorldAuthority` | Rooms, portals, objects, loot on the ground, room events, shrines, Spirit Sense, the Trial Tower (floors cleared and swept, S49), the lantern defence's light (v1.2 Phase D), idle-room eligibility, auto-hunt and quest auto-path routes (`WorldRules.route`; the presentation `Autopilot` drives the joystick) |
 | `InventoryAuthority` | Bag, key items and tools, equipment, quick-use; routes system items (appraise, incubate, tame) to their owners |
 | `QuestAuthority` | Quests, flags, dialogue trees, daily missions, set pieces, quest drops |
 | `EconomyAuthority` | Currencies, shops, buyback, exchange |
@@ -54,7 +54,7 @@ each physics frame; the tests call it directly without any scene.
 | `WorkshopAuthority` | Appraisal, formations, infirmary healing, puppets, manual restoration, teaching |
 | `TrainingSectAuthority` | Training sect membership, rank, contribution |
 | `SectAuthority` | Your own sect: buildings, disciples, expeditions, defence raids; territory (S49): the spirit-stone mines it takes from rival sects (territory.json), their carts, the rivals' contest timers and the disciples on guard |
-| `PetAuthority`, `CompanionAuthority` | Spirit animals (starter, taming, eggs, bloodline, contracts, the party up to the command capacity) and AI companions fighting beside you |
+| `PetAuthority`, `CompanionAuthority` | Spirit animals (starter, taming, eggs, bloodline, contracts, the party up to the command capacity), the Copperjaw swarm (fed, settled by the hour online or off with `PetRules.swarm_settle`, released from its box; v1.2 Phase D) and AI companions fighting beside you |
 | `AccountAuthority`, `MailAuthority`, `AchievementAuthority` | Slots and idle tasks, daily activity points and chests (S49), letters with attachments, achievements and titles |
 | `FieldAuthority` | S28 field powers (v1.2): Presence from Will Manifest (held with `toggle_presence`, Soul upkeep, the Pressure contest on weaker foes, clashes with a foe's Presence resolved by the pure `FieldRules`, levels 1-10 from use); the Sphere from Sphere Lord (`toggle_sphere`: drawn from the strongest combat Dao, Qi upkeep, a pulse each second whose effect follows the element and the room's terrain, Sphere clashes that break the weaker; radius, power, effects and feeding are `FieldRules`) |
 | `PostAuthority` | S50 Keeping Post (V10): every character not being played works at its post (an ore vein, herb patch, fishing spot or insect swarm). Owns `GameCharacter.posts` (the post, craft EXP, the Qiankun pouch) and `AccountState.storehouse`; settles hours away with the pure `PostRules` (Finesse against Toughness, the Chance and Abundance bars, Windfall, Diligence, pouch capacity) on entering a character or from the Roll-Call. The Vigil (V10b) hunts a room at kills an hour from seeded S12 blows, with provisions, Sweep and Bestiary Leaves (`AccountState.leaves`). V10c adds timed snares, rites, Post Vows and the Apprentice Bench; V10d the account web in `AccountState.works` (seals, steles, favours) and each character's Post Arts |

@@ -701,6 +701,10 @@
    "panorama": "lantern_harbor",
    "start_room": "lh_arrival_quay",
    "rooms": [
+    "ar_ashborn_palisade",
+    "ar_cinder_fields",
+    "ar_kharns_pyre",
+    "ar_war_camp",
     "bm_blackmast_docks",
     "bm_flagship_deck",
     "bm_gunners_battery",
@@ -717,7 +721,12 @@
     "or_inverted_hall",
     "or_orbit_garden",
     "or_tumbling_stair",
+    "si_tide_battle",
     "ss_lantern_crossing",
+    "tf_drone_hive",
+    "tf_greyfall_breach",
+    "tf_hollow_wake",
+    "tf_tidebreak_bastion",
     "wc_citadel_gate",
     "wc_observatory",
     "wc_presence_court",
@@ -815,8 +824,7 @@
      "map": [
       0.22,
       0.66
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "tidebreak_front",
@@ -829,8 +837,7 @@
      "map": [
       0.12,
       0.4
-     ],
-     "planned": true
+     ]
     },
     {
      "id": "nebula_deep",

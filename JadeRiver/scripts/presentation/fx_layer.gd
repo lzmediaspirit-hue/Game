@@ -38,6 +38,7 @@ func _draw() -> void:
 	# S48 Array Plates laid in a fight are drawn from Combat's state, on the ground under everything else.
 	if Game.combat:
 		for a in Game.combat.arrays: _draw_array(a)
+		for f in Game.combat.ground_fires: _draw_ground_fire(f)   # v1.2 Phase D: cinders and pyre rings
 	# S28 v1.2: a held Presence is a pale ring on the ground; where it meets a foe's, the boundary shimmers.
 	if Game.field and Game.active() != null and Game.field.is_on(Game.active_id): _draw_presence(Game.active())
 	if Game.field and Game.active() != null and Game.field.sphere_on(Game.active_id): _draw_sphere(Game.active())
@@ -243,6 +244,23 @@ func _draw_presence(c) -> void:
 		var h := 30.0 + 20.0 * i
 		var wob2 := sin(t * 5.0 + i * 0.8) * 5.0
 		draw_line(at + Vector2(wob2 - 4, -h), at + Vector2(wob2 + 4, -h - 14), Color(wcol, 0.55 - i * 0.06), 2.0)
+
+## v1.2 Phase D: a burning patch on the ground: an ember glow with flickering tongues, fading in its last second.
+func _draw_ground_fire(f: Dictionary) -> void:
+	var at := Vector2(float(f.x), float(f.y))
+	var r := float(f.r)
+	var fade := clampf(float(f.t), 0.0, 1.0)
+	var t := float(Time.get_ticks_msec()) / 1000.0
+	draw_set_transform(at, 0.0, Vector2(1, 0.35))
+	draw_circle(Vector2.ZERO, r, Color(0.9, 0.35, 0.1, 0.18 * fade))
+	draw_circle(Vector2.ZERO, r * 0.6, Color(1.0, 0.55, 0.15, 0.22 * fade))
+	draw_arc(Vector2.ZERO, r, 0, TAU, 48, Color(1.0, 0.45, 0.12, 0.6 * fade), 2.0)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	for i in 6:
+		var x := at.x + (float(i) - 2.5) / 2.5 * r * 0.8
+		var h := 14.0 + 10.0 * absf(sin(t * 7.0 + float(i) * 1.7))
+		var base := Vector2(x, at.y - 2)
+		draw_colored_polygon(PackedVector2Array([base + Vector2(-5, 0), base + Vector2(5, 0), base + Vector2(0, -h)]), Color(1.0, 0.62, 0.2, 0.75 * fade))
 
 func _draw_array(a: Dictionary) -> void:
 	var kind := str(a.kind)

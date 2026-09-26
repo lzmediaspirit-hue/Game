@@ -2,7 +2,7 @@
 from common import entries, titled
 
 FAMILY_ACTION = {"fists": "punch_2", "jian": "swing_3", "spear": "thrust_3", "short_blade": "thrust_1", "staff": "thrust_3",
-                 "bow": "bow", "heavy_sabre": "swing_3", "fan": "swing_2", "flute": "attack", "any": None}
+                 "bow": "bow", "heavy_sabre": "swing_3", "fan": "swing_2", "flute": "attack", "brush": "swing_2", "bell": "swing_1", "any": None}
 
 
 def tech(id, unlock, source, family, element, dtype, mult, hits, targets, cd, qi, extra="", **f):
@@ -11,13 +11,13 @@ def tech(id, unlock, source, family, element, dtype, mult, hits, targets, cd, qi
     row = {"id": id, "name": titled(id), "family": family, "element": element, "damage_type": dtype,
            "mult": list(mult), "hits": hits, "max_targets": targets,
            "hitbox": {"x": [-10, x_reach or {"fists": 70, "jian": 100, "spear": 150, "short_blade": 70, "staff": 120, "bow": 480, "any": 110,
-                                             "heavy_sabre": 110, "fan": 180, "flute": 240}[family]],
+                                             "heavy_sabre": 110, "fan": 180, "flute": 240, "brush": 150, "bell": 200}[family]],
                       # S43 rule 10: Qi and Soul arcs reach -10..+80 of the user's height; physical techniques the melee band.
                       "depth": f.pop("depth", 30), "alt": [-10, 80] if dtype in ("qi", "soul") else [-30, 60]},
            "windup_s": f.pop("windup", 0.2), "active_s": f.pop("active", 0.2), "cooldown_s": cd, "qi_cost": qi,
            "soul_cost": f.pop("soul", 0), "composure_cost": f.pop("composure", 0), "dao": f.pop("dao", {
                "fists": "fist", "jian": "sword", "spear": "spear", "short_blade": "blade", "staff": "staff", "bow": "bow",
-               "heavy_sabre": "blade", "fan": "fan", "flute": "music"}.get(family, element)),
+               "heavy_sabre": "blade", "fan": "fan", "flute": "music", "brush": "brush", "bell": "music"}.get(family, element)),
            "unlock": unlock, "source": source, "desc": extra, "action": action, "icon": id,
            "mastery": {"dmg_per_tier": 0.08, "cost_per_tier": -0.05}}
     row.update(f)
@@ -159,6 +159,22 @@ def build():
              poison_path=True, action="punch", dao="wood"),
         # v1.2 the Confucian path (S48): written-word arts drawn in the air as a glyph. Their strength follows Insight
         # (insight_scale: half the multiplier rides on Insight against 5 + Level). Usable only while walking the path.
+        # v1.2 Phase D · the brush and the bell (the Tidebreak Bastion's armoury). A brush technique writes a talisman
+        # onto each foe it strikes (weapon_families.brush.talisman); the bell's tolls still and seal.
+        tech("splashed_ink", "sphere_lord_1", "bastion_armoury", "brush", "none", "qi", (1.20, 1.45), 1, 3, 5, 14,
+             "A flick of ink 150 ahead that strikes three foes and seals their Qi for 2 s (the brush's talisman).", depth=40),
+        tech("cursive_storm", "sphere_lord_2", "bastion_armoury", "brush", "fire", "qi", (0.55, 0.70), 4, 4, 8, 22,
+             "Four running strokes of fire script; every foe they touch is written with a burning talisman.", reach=180, depth=50),
+        tech("stilling_peal", "sphere_lord_1", "bastion_armoury", "bell", "none", "soul", (0.40, 0.50), 1, 8, 10, 18,
+             "A peal on both sides: every foe within 200 is stunned for 0.8 s.", both_sides=True, reach=200, depth=80,
+             status={"id": "stun", "chance": 1.0, "power": 1, "duration_s": 0.8}),
+        tech("qi_seal_toll", "sphere_lord_1", "bastion_armoury", "bell", "metal", "soul", (0.70, 0.85), 1, 1, 8, 16,
+             "One low toll at a foe 240 ahead: its techniques are sealed for 3 s.", reach=240,
+             status={"id": "qi_seal", "chance": 1.0, "power": 1, "duration_s": 3.0}),
+        tech("wardens_call", "sphere_lord_2", "bastion_armoury", "bell", "wood", "buff", (0, 0), 0, 0, 24, 24,
+             "The Wardens' call: you and every ally within 300 heal 6% of your health over 8 s and gain 10% defence.",
+             allies_heal_pct=0.06, allies_heal_s=8, heal_radius=300,
+             buffs=[{"stat": "physical_defense", "value": 0.1, "duration": 8}, {"stat": "qi_defense", "value": 0.1, "duration": 8}]),
         tech("upright_glyph", "will_manifest_2", "lanternwright_han", "any", "metal", "qi", (1.80, 2.20), 1, 4, 8, 22,
              "Write the glyph for Upright in the air: it strikes every foe within 220 ahead. Its strength follows your Insight. Confucian path only.",
              reach=220, depth=60, insight_scale=0.5, confucian_path=True, dao="metal", action="meditate_burst"),
@@ -194,7 +210,7 @@ def build():
                              "+5% resistance to the element; can teach it", "Element techniques gain area or pierce"],
                    "effects": [{"elemental_power": 0.05}, {"cost_pct": -0.1}, {"status_chance": 0.1}, {"resistance": 0.05, "teach": True}, {"area": True}]}
     daos = []
-    for d in ["fist", "sword", "spear", "blade", "staff", "bow", "fan", "music"]:   # fan and music: the v1.1 families
+    for d in ["fist", "sword", "spear", "blade", "staff", "bow", "fan", "music", "brush"]:   # fan and music: v1.1; brush: v1.2
         row = dict({"id": d, "family": "weapon", "valley_cap": 5}, **weapon_dao)
         if d == "sword":   # S47: tier 3 also teaches Sword Release
             row["tiers"] = list(row["tiers"])
@@ -269,6 +285,18 @@ def build():
                       "mods": [[{"stat": "penetration", "op": "flat", "value": 0.05}], [{"stat": "move_speed", "value": 0.05}],
                                [{"stat": "evasion", "value": 0.1}], [{"stat": "qi_attack", "value": 0.1}],
                                [{"stat": "crit_damage", "op": "flat", "value": 0.1}], [{"stat": "penetration", "op": "flat", "value": 0.1}]]})
+    # v1.2 Phase D: a later zone's Laws hold at least what an earlier zone's allowed, so a Dao that deepened in the Azure
+    # Expanse (Beast Taming to tier 4, the rare Daos to 4) keeps growing to that tier in the Lantern Star Field.
+    ZONE_ORDER = ["azure_expanse", "lantern_star_field"]
+    for d in daos:
+        caps = d.get("zone_caps", {})
+        best = 0
+        for z in ZONE_ORDER:
+            best = max(best, int(caps.get(z, 0)))
+            if best > 0:
+                caps[z] = max(int(caps.get(z, 0)), best)
+        if caps:
+            d["zone_caps"] = caps
     for d in daos:
         d["name"] = "%s Dao" % titled(d["id"])
     entries("daos.json", daos)

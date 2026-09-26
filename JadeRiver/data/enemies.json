@@ -6101,6 +6101,565 @@
    "nature": "spirit"
   },
   {
+   "id": "ashborn_raider",
+   "name": "Ashborn Raider",
+   "level": [
+    88,
+    96
+   ],
+   "role": "normal",
+   "element": "fire",
+   "race": "ashborn",
+   "energy": "sage_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "cinder_slash",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 36,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.25
+    },
+    {
+     "id": "ember_sweep",
+     "windup_s": 0.8,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       120
+      ],
+      "depth": 50,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.1,
+     "damage_type": "qi",
+     "ground_fire": {
+      "radius": 60,
+      "duration_s": 4,
+      "pct_per_s": 0.02
+     }
+    }
+   ],
+   "loot": "ashborn_raider",
+   "drops": [
+    {
+     "item": "cinder_ash",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "star_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      3
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "lantern",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "avatar": {
+     "hair": "short_knot",
+     "hair_color": 5,
+     "shirt": "sleeveless",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "spear",
+     "hat": "headband",
+     "shirt_dye": "crimson",
+     "pants_dye": "ink",
+     "tint": "#d4b2a4",
+     "name": "Ashborn Raider",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "faction": "ashborn",
+   "movement": {
+    "jump": 530,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "ashborn_pyre_keeper",
+   "name": "Ashborn Pyre Keeper",
+   "level": [
+    91,
+    96
+   ],
+   "role": "elite",
+   "element": "fire",
+   "race": "ashborn",
+   "energy": "sage_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "pyre_staff",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       110
+      ],
+      "depth": 40,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.3,
+     "knockback": 80
+    },
+    {
+     "id": "kindle_ring",
+     "windup_s": 1.1,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 80,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 0.8,
+     "both_sides": true,
+     "damage_type": "qi",
+     "ground_fire": {
+      "radius": 70,
+      "duration_s": 6,
+      "pct_per_s": 0.025,
+      "ring": [
+       -160,
+       160
+      ]
+     }
+    }
+   ],
+   "loot": "ashborn_pyre_keeper",
+   "drops": [
+    {
+     "item": "cinder_ash",
+     "chance": 1.0,
+     "count": [
+      2,
+      3
+     ],
+     "weight": 1
+    },
+    {
+     "item": "pyre_ember",
+     "chance": 0.35,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "star_shard",
+     "chance": 1.0,
+     "count": [
+      2,
+      4
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "lantern",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "avatar": {
+     "hair": "topknot",
+     "hair_color": 0,
+     "shirt": "vneck",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "staff",
+     "hat": "none",
+     "shirt_dye": "ochre",
+     "pants_dye": "ink",
+     "cape": "tattered",
+     "tint": "#d4b2a4",
+     "name": "Ashborn Pyre Keeper",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 92,
+   "faction": "ashborn",
+   "hp_mult": 1.4,
+   "presence": 2,
+   "movement": {
+    "jump": 530,
+    "climb": false,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "hollow_drone",
+   "name": "Hollow Drone",
+   "level": [
+    88,
+    99
+   ],
+   "role": "normal",
+   "element": "hollow_metal",
+   "race": "beast",
+   "energy": "none",
+   "ai": {
+    "profile": "flyer_ranged",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 130,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "needle_dive",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       70
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.15,
+     "dash": 160
+    },
+    {
+     "id": "grey_sting",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       200
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.0,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 380,
+      "art": "qi_arc"
+     }
+    }
+   ],
+   "loot": "hollow_drone",
+   "drops": [
+    {
+     "item": "drone_shell",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "hollow_shard",
+     "chance": 0.3,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "star_shard",
+     "chance": 0.4,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "lantern",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "creature": "hollow_drone"
+   },
+   "half_width": 26,
+   "height": 26,
+   "flying": true,
+   "hollowing": 4,
+   "movement": {
+    "jump": 0,
+    "climb": false,
+    "fly": true,
+    "drop": false
+   },
+   "beast_rank": 9,
+   "nature": "spirit"
+  },
+  {
+   "id": "general_kharn",
+   "name": "General Kharn",
+   "level": [
+    92,
+    92
+   ],
+   "role": "dungeon_boss",
+   "element": "fire",
+   "race": "ashborn",
+   "energy": "sage_qi",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "cinder_glaive",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       130
+      ],
+      "depth": 50,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.4,
+     "knockback": 90
+    },
+    {
+     "id": "leaping_cleave",
+     "windup_s": 1.0,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       200
+      ],
+      "depth": 60,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.6,
+     "dash": 240,
+     "knockback": 120,
+     "ground_fire": {
+      "radius": 80,
+      "duration_s": 5,
+      "pct_per_s": 0.03
+     }
+    },
+    {
+     "id": "pyre_rings",
+     "windup_s": 1.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 90,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 0.6,
+     "both_sides": true,
+     "damage_type": "qi",
+     "ground_fire": {
+      "radius": 70,
+      "duration_s": 7,
+      "pct_per_s": 0.03,
+      "ring": [
+       -300,
+       -150,
+       150,
+       300
+      ]
+     }
+    }
+   ],
+   "loot": "general_kharn",
+   "drops": [
+    {
+     "item": "kharns_glaive_shard",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "pyre_ember",
+     "chance": 1.0,
+     "count": [
+      2,
+      3
+     ],
+     "weight": 1
+    },
+    {
+     "item": "star_shard",
+     "chance": 1.0,
+     "count": [
+      14,
+      20
+     ],
+     "weight": 1
+    },
+    {
+     "item": "cinder_ash",
+     "chance": 1.0,
+     "count": [
+      4,
+      6
+     ],
+     "weight": 1
+    },
+    {
+     "item": "will_tempering_pill",
+     "chance": 1.0,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": {
+    "page": "lantern",
+    "kills_to_fill": 50
+   },
+   "art": {
+    "avatar": {
+     "hair": "long_tied",
+     "hair_color": 0,
+     "shirt": "cardigan",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "spear",
+     "hat": "guan",
+     "shirt_dye": "crimson",
+     "pants_dye": "ink",
+     "cape": "solid",
+     "tint": "#caa294",
+     "name": "General Kharn",
+     "body": "light"
+    }
+   },
+   "half_width": 20,
+   "height": 98,
+   "hp_mult": 1.7,
+   "attack_mult": 0.9,
+   "presence": 4,
+   "sphere": {
+    "element": "fire",
+    "tier": 4
+   },
+   "faction": "ashborn",
+   "named": true,
+   "surrenders": true,
+   "spare_debt": "kharn_spared",
+   "kill_debt": "kharn_slain",
+   "phases": [
+    {
+     "below": 0.6,
+     "action": "summon",
+     "summon": "ashborn_pyre_keeper",
+     "summon_level": 91
+    },
+    {
+     "below": 0.3,
+     "action": "enrage",
+     "cooldown": 0.7,
+     "damage": 1.3
+    }
+   ],
+   "movement": {
+    "jump": 0,
+    "climb": false,
+    "fly": false,
+    "drop": false
+   }
+  },
+  {
    "id": "shen_lian_aspirant",
    "name": "Shen Lian",
    "level": [

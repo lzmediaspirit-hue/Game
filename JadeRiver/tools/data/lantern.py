@@ -38,8 +38,8 @@ REGIONS = [
     {"id": "wyrmnest_isles", "name": "Wyrmnest Isles", "levels": [85, 93], "attunement": 40, "map": [0.70, 0.30]},
     {"id": "warden_citadel", "name": "Star Warden Citadel", "levels": [0, 0], "map": [0.50, 0.48]},
     {"id": "orbit_ruins", "name": "Orbit Ruins", "levels": [88, 93], "attunement": 50, "map": [0.34, 0.30]},
-    {"id": "ashen_reach", "name": "Ashen Reach", "levels": [88, 96], "attunement": 60, "map": [0.22, 0.66], "planned": True},
-    {"id": "tidebreak_front", "name": "Tidebreak Front", "levels": [90, 99], "attunement": 70, "map": [0.12, 0.40], "planned": True},
+    {"id": "ashen_reach", "name": "Ashen Reach", "levels": [88, 96], "attunement": 60, "map": [0.22, 0.66]},
+    {"id": "tidebreak_front", "name": "Tidebreak Front", "levels": [90, 99], "attunement": 70, "map": [0.12, 0.40]},
     {"id": "nebula_deep", "name": "Nebula Deep", "levels": [94, 99], "attunement": 80, "map": [0.30, 0.10], "planned": True},
     {"id": "lantern_heart", "name": "The Lantern Heart", "levels": [97, 99], "attunement": 90, "map": [0.52, 0.14], "planned": True},
     {"id": "lantern_crossing", "name": "The Lantern Run", "levels": [81, 83], "map": [0.94, 0.86], "hidden": True},
@@ -341,6 +341,13 @@ def citadel():
     r.decor("pagoda", [2400, 690], layer="back")
     r.portal("observatory_door", "door", [2400, 704], "wc_observatory", "entry", press_up=True, label="Observatory")
     r.portal("skiff", "door", [560, 704], "lh_arrival_quay", "warden_skiff", press_up=True, label="Skiff to Lanternfall Harbor")
+    # v1.2 · Phase D: the Wardens' skiffs to the fronts (chapter 21).
+    r.portal("ash_skiff", "door", [1680, 704], "ar_cinder_fields", "skiff", press_up=True, label="Warden skiff to the Ashen Reach",
+             requires=w.any_of(w.qactive("cinder_fields"), w.qdone("cinder_fields")),
+             locked_text="The skiff to the Ashen Reach. It sails with orders, and you have none yet.")
+    r.portal("tide_skiff", "door", [1790, 704], "tf_tidebreak_bastion", "skiff", press_up=True, label="Warden skiff to the Tidebreak Bastion",
+             requires=w.any_of(w.qactive("the_tide_breaks"), w.qdone("the_tide_breaks")),
+             locked_text="The skiff to the Tidebreak Bastion. The Commander has not sent you to the wall. Yet.")
     r.obj("shrine_wc_gate", "shrine", [1900, 700])
     r.obj("stone_star_citadel", "teleport_stone", [2900, 880], stone="star_citadel")
     r.obj("sign_wc", "signpost", [760, 860],
@@ -441,6 +448,113 @@ def orbit_ruins():
     r.portal("entry", "door", [140, 700], "or_golem_foundry", "hall", press_up=True, label="Golem Foundry")
 
 
+def ashen_reach():
+    """Phase D · the Ashen Reach: cinder plains where the Ashborn legions of Ash Queen Seralet camp under General Kharn
+    (Endurance 60-66). Reached by the Wardens' second skiff from the Citadel Gate."""
+    w = _w()
+    ash = dict(backdrop="ashen_reach", material="stone", tint="#c4a894", music="ashen_war", ambience="wind_ambience", element="fire",
+               gather_tier="lantern_high", qi=2.1, loot="jar_lantern", trees=("rock_large", "ash_pyre"), ledge="rock_ledge", **LS)
+    r = w.field("ar_cinder_fields", "Cinder Fields", "ashen_reach", 3, [88, 91],
+                spawns=[("ashborn_raider", 4, [88, 90], 16), ("hollow_drone", 1, [88, 90], 20)], ores=("driftglass",), jars=4,
+                attunement_required=60, platforms=[(1000, 650, 300, 100), (2200, 640, 320, 200)], spawn_point=[400, 820], **ash)
+    r.decor("cinder_tent", [2800, 660], layer="back")
+    r.decor("ashborn_banner", [2500, 662])
+    r.decor("ash_pyre", [1700, 700])
+    r.portal("skiff", "door", [260, 704], "wc_citadel_gate", "ash_skiff", press_up=True, label="Warden skiff to the Citadel")
+    r.obj("shrine_ar_fields", "shrine", [620, 700])
+    r.npc("warden_hu_jin", [820, 790], facing=1)
+    r.edge("east", "east", "ar_ashborn_palisade", "west", y=850)
+
+    r = w.field("ar_ashborn_palisade", "Ashborn Palisade", "ashen_reach", 3, [90, 93],
+                spawns=[("ashborn_raider", 4, [90, 92], 16), ("ashborn_pyre_keeper", 1, [91, 93], 40)], jars=4, attunement_required=62,
+                platforms=[(900, 650, 300, 100), (2100, 640, 320, 200), (3000, 650, 280, 100)], **ash)
+    r.decor("stockade_wall", [1500, 660], layer="back")
+    r.decor("ashborn_banner", [1200, 662])
+    r.decor("ashborn_banner", [2700, 662])
+    r.edge("west", "west", "ar_cinder_fields", "east", y=850)
+    r.edge("east", "east", "ar_war_camp", "west", y=850)
+
+    r = w.field("ar_war_camp", "War Camp", "ashen_reach", 3, [91, 94],
+                spawns=[("ashborn_raider", 3, [91, 93], 16), ("ashborn_pyre_keeper", 1, [92, 94], 40)], jars=4, chest="chest_lantern",
+                attunement_required=64, platforms=[(1100, 650, 300, 100), (2300, 640, 320, 200)], **ash)
+    for x in (700, 1900, 3000):
+        r.decor("cinder_tent", [x, 660], layer="back")
+    r.decor("ash_pyre", [2500, 700])
+    r.obj("shrine_ar_camp", "shrine", [400, 700])
+    r.npc("ashborn_envoy_veyla", [1500, 790], facing=-1)
+    r.edge("west", "west", "ar_ashborn_palisade", "east", y=850)
+    r.edge("east", "east", "ar_kharns_pyre", "west", y=850, ptype="sealed",
+           requires=w.any_of(w.qactive("kharns_pyre"), w.qdone("kharns_pyre")),
+           locked_text="Ashborn guards cross their glaives: \"The General receives no one. Not yet.\"")
+
+    # Kharn's Pyre: the General's own fire, where the Ashborn burn their dead. He fights here, and kneels here.
+    r = w.Room("ar_kharns_pyre", "Kharn's Pyre", "boss_arena", "ashen_reach", 2, backdrop="ashen_reach", material="stone", tint="#b89480",
+               music="boss", levels=[92, 92], safe=False, qi=2.3, spawn_point=[260, 820], dungeon_exit="ar_war_camp", attunement_required=66,
+               element="fire", **LS)
+    r.spawn("general_kharn", [[1500, 840]], 1, respawn=86400, level=[92, 92], boss=True)
+    r.decor("ash_pyre", [1800, 700], layer="back")
+    r.decor("ashborn_banner", [900, 662])
+    r.decor("ashborn_banner", [2200, 662])
+    r.edge("west", "west", "ar_war_camp", "east", y=850)
+
+
+def tidebreak():
+    """Phase D · the Tidebreak Front: the Wardens' last fortress against the Hollow Tide, and the grey beyond it
+    (Endurance 70-76). Reached by the Wardens' third skiff from the Citadel Gate."""
+    w = _w()
+    r = w.town("tf_tidebreak_bastion", "Tidebreak Bastion", "tidebreak_front", 3, backdrop="tidebreak_front", material="stone", tint="#c0c4cc",
+               music="hollow_tide", ambience="wind_ambience", spawn_point=[400, 820], qi=2.1, lantern=True, attunement_required=70, **LS)
+    r.decor("bastion_wall", [1900, 650], layer="back")
+    r.decor("lantern_cage", [1300, 640], layer="back")
+    lantern_posts(r, [800, 1700, 2600])
+    r.portal("skiff", "door", [240, 704], "wc_citadel_gate", "tide_skiff", press_up=True, label="Warden skiff to the Citadel")
+    r.obj("shrine_tf_bastion", "shrine", [560, 700])
+    r.obj("tide_horn", "rite_circle", [2200, 880], event="hollow_tide_battle", prop="small_bell",
+          visible_if=w.any_of(w.qactive("the_tide_breaks"), w.qdone("the_tide_breaks")),
+          text="The Bastion's great bell. Ring it and the Wardens take the wall: the Tide comes, and the lantern must not go out.")
+    r.npc("warden_captain_duan", [1500, 790], facing=-1)
+    r.npc("quartermaster_bai", [1000, 790], facing=1)
+    r.npc("tinker_mei", [2800, 790], facing=-1)
+    r.edge("east", "east", "tf_greyfall_breach", "west", y=850)
+
+    grey = dict(backdrop="tidebreak_front", material="stone", tint="#a8acb4", music="hollow_tide", ambience="wind_ambience", element="none",
+                gather_tier="lantern_high", qi=2.2, loot="jar_lantern", trees=("rock_large", "drone_hive"), ledge="rock_ledge", **LS)
+    r = w.field("tf_greyfall_breach", "Greyfall Breach", "tidebreak_front", 3, [90, 94],
+                spawns=[("hollow_drone", 4, [90, 93], 14), ("hollowed_wyrmling", 2, [91, 94], 20)], jars=4, attunement_required=72,
+                platforms=[(1000, 650, 300, 100), (2200, 640, 320, 200)], **grey)
+    r.edge("west", "west", "tf_tidebreak_bastion", "east", y=850)
+    r.edge("east", "east", "tf_hollow_wake", "west", y=850)
+
+    r = w.field("tf_hollow_wake", "Hollow Wake", "tidebreak_front", 3, [93, 97],
+                spawns=[("hollow_drone", 5, [93, 96], 14), ("hollowed_wyrmling", 2, [94, 97], 20)], jars=4, attunement_required=74,
+                platforms=[(900, 650, 300, 100), (2000, 640, 320, 200), (3000, 650, 280, 100)], **grey)
+    r.edge("west", "west", "tf_greyfall_breach", "east", y=850)
+    r.edge("east", "east", "tf_drone_hive", "west", y=850)
+
+    r = w.field("tf_drone_hive", "Drone Hive", "tidebreak_front", 3, [95, 99],
+                spawns=[("hollow_drone", 6, [95, 99], 12)], jars=4, chest="chest_lantern", attunement_required=76,
+                platforms=[(1100, 650, 300, 100), (2300, 640, 320, 200)], **grey)
+    for x in (900, 1900, 2900):
+        r.decor("drone_hive", [x, 690], layer="back")
+    r.edge("west", "west", "tf_hollow_wake", "east", y=850)
+
+    # The Tide battle (instanced): waves of drones and wyrmlings from both sides; the great lantern must stay lit.
+    r = w.Room("si_tide_battle", "The Tide Breaks", "story", "tidebreak_front", 3, backdrop="tidebreak_front", material="stone", tint="#b8bcc4",
+               music="hollow_tide", instanced=True, safe=False, spawn_point=[1900, 820], levels=[92, 94], dungeon_exit="", no_flight=True,
+               event={"id": "hollow_tide_battle", "duration": 150,
+                      "lantern": {"object": "great_lantern", "light": 100, "drain_per_foe": 3.0, "drain_radius": 180, "relight": 4.0,
+                                  "relight_radius": 120},
+                      "waves": [{"enemy": "hollow_drone", "every_s": 5, "max": 4, "points": [[300, 800], [3500, 800]], "level": 92},
+                                {"enemy": "hollowed_wyrmling", "every_s": 11, "max": 2, "first_s": 20, "points": [[400, 880], [3400, 880]], "level": 93}],
+                      "on_complete": [{"kind": "event_passed", "event": "hollow_tide_battle"}, {"kind": "grant_item", "item": "star_shard", "count": 12},
+                                      {"kind": "grant_item", "item": "drone_shell", "count": 3}],
+                      "on_timeout": []}, **LS)
+    r.decor("bastion_wall", [1900, 650], layer="back")
+    r.obj("great_lantern", "inspect", [1900, 760], prop="lantern_cage",
+          text="The Bastion's great lantern. While it burns, the Tide cannot cross the wall.")
+    r.portal("exit", "door", [140, 700], "tf_tidebreak_bastion", "skiff", press_up=True, label="Leave")
+
+
 def crossing():
     """The Lantern Run's deck under the open Starsea (instanced): the voyage lasts as long as the vessel takes to cross."""
     w = _w()
@@ -466,5 +580,7 @@ def build():
     blackmast()
     wyrmnest()
     citadel()
+    ashen_reach()
+    tidebreak()
     orbit_ruins()
     crossing()

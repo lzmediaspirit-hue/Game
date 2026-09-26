@@ -10,7 +10,7 @@ extends "res://tests/prologue_run.gd"
 ##   godot --headless --path . res://tests/valley_run.tscn -- [--from=<section>] [--verbose]
 
 const SECTIONS := ["bf2", "bf5", "bf8", "qk1", "qk5", "qu1", "qu5", "ht1", "ht5", "cs1", "cs5", "sa1", "sa5", "hg1", "ae1", "ae2", "ae3", "ae4",
-	"ae5", "ae6", "ls1", "ls2", "ls3", "ls4"]
+	"ae5", "ae6", "ls1", "ls2", "ls3", "ls4", "ls5"]
 const CP_ROOT := "user://valley_cp/"
 const WORK := "user://valley_work/"
 
@@ -2576,6 +2576,103 @@ func sec_ls4() -> void:
 	check(finish("the_written_word"), "The Written Word done")
 	check("upright_glyph" in c().cultivator.techniques_known, "Lanternwright Han teaches the Upright Glyph")
 	checkpoint("ls4_end")
+
+## v1.2 Phase D · chapter 21 (Ash and Tide): the Cinder Fields, Kharn's Pyre (spared), the Copperjaw swarm, the brush,
+## the Hollow Tide battle at the Tidebreak Bastion, and the Star Warden title with the star-wyrm hatched.
+func sec_ls5() -> void:
+	tidy_bag(12)
+	var zone := "lantern_star_field"
+	check(start("cinder_fields"), "Cinder Fields accepted")
+	attune_to(zone, 62.0)
+	check(travel("ar_cinder_fields"), "the Wardens' skiff to the Cinder Fields")
+	var raiders := fight("ashborn_raider", 6, 900.0, 0.3)
+	check(raiders >= 6 or _objective("cinder_fields", 1) >= 6, "drive back six Ashborn raiders (%d)" % raiders)
+	check(finish("cinder_fields"), "Cinder Fields done")
+	check(start("kharns_pyre"), "Kharn's Pyre accepted")
+	talk(go_to_npc(["ashborn_envoy_veyla"]))
+	check(_objective("kharns_pyre", 0) >= 1, "hear the Ashborn envoy")
+	attune_to(zone, 66.0)
+	check(travel("ar_kharns_pyre"), "on to Kharn's Pyre")
+	var kharn: EnemyState = null
+	var waited := 0.0
+	while kharn == null and waited < 5.0:
+		step(0.5)
+		waited += 0.5
+		for e in Game.room_rt.living_enemies():
+			if e.def_id == "general_kharn": kharn = e
+	check(kharn != null, "General Kharn waits at his pyre")
+	var tries := 0
+	while kharn != null and kharn.alive and not kharn.ai.get("surrendered", false) and tries < 24:
+		fight("general_kharn", 1, 15.0, 0.3, true)
+		revive_if_needed()
+		# The careful chipping a long boss fight takes (test shortcut): bring him near the edge, then the real blows.
+		if tries >= 4 and kharn.alive and kharn.pools.hp > kharn.pools.max_hp * 0.25: kharn.pools.hp = kharn.pools.max_hp * 0.25
+		tries += 1
+	check(kharn != null and kharn.ai.get("surrendered", false), "Kharn kneels at a fifth of his health")
+	var judged := submit({"type": "judge_foe", "enemy": kharn.uid if kharn != null else 0, "spare": true})
+	check(judged.get("ok", false) and judged.get("spared", false), "spare him")
+	check(finish("kharns_pyre"), "Kharn's Pyre done")
+	check(start("the_tide_breaks"), "The Tide Breaks accepted")
+	attune_to(zone, 70.0)
+	check(travel("tf_tidebreak_bastion"), "the skiff to the Tidebreak Bastion")
+	# The Copperjaw swarm (the unlock's quest, from Tinker Mei).
+	check(start("the_copperjaw_box"), "Tinker Mei offers The Copperjaw Box")
+	check(unlocked("beetle_swarm") and c().inventory.count("copperjaw_box") == 1, "a box of Copperjaw beetles")
+	var fed := submit({"type": "feed_swarm", "item": "driftglass", "count": c().inventory.count("driftglass")})
+	check(fed.get("ok", false) and int(c().swarm.get("food", 0)) >= 8, "feed the swarm driftglass (%s)" % str(fed))
+	check(finish("the_copperjaw_box"), "The Copperjaw Box done")
+	# The brush and the bell (the Bastion's armoury).
+	check(start("brush_and_bell"), "Brush and Bell accepted")
+	if Game.economy.balance("sage_crystal") < 150: Game.economy.apply_currency("sage_crystal", 150, "test_shortcut")
+	talk(go_to_npc(["quartermaster_bai"]))
+	check(buy("bastion_armoury", "ink_warden_brush"), "buy the Ink-Warden's Brush")
+	check(finish("brush_and_bell"), "Brush and Bell done: Splashed Ink learned")
+	check("splashed_ink" in c().cultivator.techniques_known, "the brush's first stroke")
+	# The Hollow Tide battle: ring the bell, keep the great lantern lit.
+	place(obj_at("tide_horn") + Vector2(0, 20))
+	interact("tide_horn")
+	check(room() == "si_tide_battle" and Game.room_rt.event.get("active", false), "ring the great bell: the Tide comes")
+	var t := 0.0
+	var passed := {"won": false}
+	var on_done := func(n: String, p: Dictionary):
+		if n == "room_event_completed" and str(p.get("event", "")) == "hollow_tide_battle": passed.won = true
+	GameEvents.event.connect(on_done)
+	while room() == "si_tide_battle" and Game.room_rt.event.get("active", false) and t < 220.0:
+		var la := obj_at("great_lantern")
+		var threat: EnemyState = null
+		for e in Game.room_rt.living_enemies():
+			if e.team != "enemy" or e.hidden: continue
+			if e.plane.distance_to(la) < 320.0 and (threat == null or e.plane.distance_to(la) < threat.plane.distance_to(la)): threat = e
+		if threat != null:
+			place(threat.plane + Vector2(-40 if threat.plane.x >= la.x else 40, 0))
+			submit({"type": "basic_attack", "facing": 1 if threat.plane.x >= la.x else -1})
+			step(0.25)
+			t += 0.25
+		else:
+			place(la + Vector2(30, 60))
+			step(0.5)
+			t += 0.5
+		revive_if_needed()
+	GameEvents.event.disconnect(on_done)
+	check(passed.won and "hollow_tide_battle" in c().cultivator.events_passed, "the lantern holds through the Tide (light %.0f)" % float(Game.room_rt.event.get("light", 0.0)))
+	check(travel("tf_tidebreak_bastion"), "back to the Bastion")
+	check(finish("the_tide_breaks"), "The Tide Breaks done")
+	check("tidebreaker" in c().cultivator.titles, "Tidebreaker")
+	# Star Warden: Sphere Lord 2 and the star-wyrm hatched.
+	check(start("star_warden"), "Star Warden accepted")
+	check(reach("sphere_lord_2"), "Sphere Lord 2")
+	var egg_i := -1
+	for i in c().eggs.size():
+		if str(c().eggs[i].get("species", "")) == "hatchling_wyrm": egg_i = i
+	check(egg_i >= 0, "the star-wyrm egg is still warm")
+	if egg_i >= 0:
+		Clock.debug_offset_s += 2.0 * 86400.0
+		var h := submit({"type": "hatch_egg", "index": egg_i})
+		check(h.get("ok", false), "the Hatchling Wyrm hatches for a Sphere Lord 2 (%s)" % str(h))
+	check(_objective("star_warden", 1) >= 1, "hatch the star-wyrm egg")
+	check(finish("star_warden"), "Star Warden done: chapter 21 complete")
+	check("star_warden" in c().cultivator.titles, "Star Warden")
+	checkpoint("ls5_end")
 
 ## Walk to a teleport stone and take it to another (a cross-zone jump costs five times the fee).
 func teleport_from(stone_room: String, stone_obj: String, to_stone: String) -> bool:

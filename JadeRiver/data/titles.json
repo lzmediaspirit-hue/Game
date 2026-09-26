@@ -200,6 +200,33 @@
    ]
   },
   {
+   "id": "star_warden",
+   "name": "Star Warden",
+   "modifiers": [
+    {
+     "stat": "attunement_bonus",
+     "op": "flat",
+     "value": 10
+    },
+    {
+     "stat": "hollow_ward",
+     "op": "flat",
+     "value": 0.08
+    }
+   ]
+  },
+  {
+   "id": "tidebreaker",
+   "name": "Tidebreaker",
+   "modifiers": [
+    {
+     "stat": "max_hp",
+     "op": "pct_add",
+     "value": 0.03
+    }
+   ]
+  },
+  {
    "id": "sect_master",
    "name": "Sect Master",
    "modifiers": [

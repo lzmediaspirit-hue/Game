@@ -489,6 +489,12 @@ def build_items():
     rows.append(item("star_powder", "material", "sovereign", 99, "Pirate gunpowder cut with star-dust. It burns blue and bangs gold."))
     rows.append(item("guardian_scale", "beast_part", "sovereign", 99, "A bronze plate from a Nest Guardian's shell, set with a crystal that still glows."))
     # v1.2 · Phase C: the Orbit Ruins.
+    # v1.2 Phase D · the Ashen Reach and the Tidebreak Front.
+    rows.append(item("cinder_ash", "material", "will", 99, "Ash from an Ashborn's cinder Qi. It stays warm for days. Smiths temper blades in it."))
+    rows.append(item("pyre_ember", "material", "will", 99, "An ember from an Ashborn pyre that will not go out. Alchemists use it to keep a furnace steady."))
+    rows.append(item("drone_shell", "material", "will", 99, "The grey carapace of a Hollow Drone: metal that forgot it was metal. Copperjaw beetles love it."))
+    rows.append(item("kharns_glaive_shard", "valuable", "will", 1, "A shard of General Kharn's cinder glaive. Whether he lived or not, the Ashborn will know this piece.",
+                     sell=False))
     rows.append(item("gravity_core", "beast_part", "will", 99, "The heavy heart of a Gravity Golem. Set it down and small things roll toward it."))
     rows.append(item("orbit_stone_chip", "material", "sovereign", 99, "A chip of an orbit stone. It turns slowly in the palm, by itself."))
     rows.append(item("moth_dust", "beast_part", "sovereign", 99, "Silver dust from an Orbit Moth's wings. It hangs in the air a long while."))
@@ -731,6 +737,10 @@ def build_items():
                      use=[{"kind": "deploy_array", "array": "binding", "radius": 160, "duration": 10, "slow": 0.4}]))
     rows.extend(pills())
     rows.extend(foods())
+    # v1.2 Phase D · the Copperjaw Beetle swarm: a box of beetles that grows on ore, online or off.
+    rows.append(item("copperjaw_box", "other", "will", 1, "A lacquered box of Copperjaw beetles. Feed it ore and the swarm grows, an hour at a time, "
+                     "even while you are away. Open it and for 8 s the swarm chews every foe near you, the bigger it is the harder "
+                     "(Wood foes shrug off half). It comes home after, and rests 30 s.", use=[], use_action="swarm", sell=False, ilv=92))
     rows.append(item("sphere_comprehension_stone", "treasure", "will", 1, "A stone that holds a folded world. The Observatory's keeper gives it to those who have seen their own Sphere in the stars; a Will Manifest 3 needs it to become a Sphere Lord.", sell=False, ilv=95))
     rows.append(item("law_condensing_pill", "pill", "law", 99, "Converts Sage Qi toward Law Qi. (Later zones.)", ilv=105, pill={"mark": "arrows", "toxicity": 20, "group": "utility"}, use=[]))
     rows.append(item("law_touching_pill", "pill", "law", 99, "Supports the attempt to touch a World Law. (Later zones.)", ilv=106, pill={"mark": "gate", "toxicity": 20, "group": "utility"}, use=[]))
@@ -774,8 +784,8 @@ ARMOUR = {
 def artifact(id, slot, grade, name, appearance, family=None, ilv=None, icon=None, **extra):
     row = {"id": id, "name": name, "slot": slot, "grade": grade, "ilv": ilv or MID_ILV[grade], "appearance": appearance,
            "energy_type": {"plain": "none", "common": "primal_qi", "earth": "primal_qi", "heaven": "true_qi", "mystic": "true_qi", "spirit": "sage_qi",
-                           "sage": "sage_qi"}[grade],
-           "sockets": {"plain": 0, "common": 0, "earth": 1, "heaven": 1, "mystic": 2, "spirit": 2, "sage": 3}[grade], "icon": icon or id, "type": "equipment",
+                           "sage": "sage_qi", "sovereign": "sage_qi", "will": "sage_qi"}[grade],
+           "sockets": {"plain": 0, "common": 0, "earth": 1, "heaven": 1, "mystic": 2, "spirit": 2, "sage": 3, "sovereign": 3, "will": 3}[grade], "icon": icon or id, "type": "equipment",
            "stack": 1}
     if family:
         row["family"] = family
@@ -839,6 +849,19 @@ def build_artifacts():
     for slot, app in [("robe", "vneck"), ("trousers", "cuffed"), ("boots", "boots")]:
         rows.append(artifact("crane_%s" % slot, slot, "heaven", "Crane %s" % slot.capitalize(), app, icon="cloudsilk_%s" % slot, set="crane", ilv=45,
                              **({"dye": "white" if slot == "robe" else "cloud"} if slot in ("robe", "trousers") else {})))
+    # v1.2 Phase D · the brush and the bell, from the Tidebreak Bastion's armoury (the Lantern Star Field's first weapons
+    # of their families): a Sage-grade pair and a Will-grade pair.
+    for wid, fam, grade, name, look, attr, desc in [
+            ("ink_warden_brush", "brush", "sage", "Ink-Warden's Brush", "brush", "insight",
+             "A Warden scribe's brush, its hairs set in black lacquer. Every technique written with it leaves a talisman on the foe."),
+            ("starwrit_brush", "brush", "will", "Starwrit Brush", "brush", "insight",
+             "Its tip was dipped in lantern ash. The characters it writes glow for a breath after."),
+            ("wardens_handbell", "bell", "sage", "Warden's Hand-bell", "bell", "essence",
+             "A bronze bell rung on the Tidebreak walls at every change of watch. Its strikes ring out on both sides."),
+            ("tidebreak_bell", "bell", "will", "Tidebreak Bell", "bell", "essence",
+             "Cast from a lantern cage that fell in the Breach. The Hollow does not like its note.")]:
+        rows.append(artifact(wid, "weapon", grade, name, look, fam, desc=desc, source=["bastion_armoury"],
+                             attribute_req={attr: {"sage": 92, "will": 110}[grade]}))
     # S47 rogue cultivators drop what they carry in the open.
     rows.append(artifact("serpent_tongue_jian", "weapon", "earth", "Serpent-Tongue Jian", "sword", "jian", icon="jadeiron_jian", ilv=30,
                          desc="A rogue cultivator's jian, its blade forked at the tip. Whoever it belonged to, it is yours now."))

@@ -2395,6 +2395,10 @@ def set_pieces():
          "requires": all_of(realm("sage_sovereign_2")), "repeatable": {"cooldown_h": 20}},
         {"id": "presence_trial", "name": "The Presence Trial", "room": "si_presence_trial", "portal": "exit",
          "requires": all_of(realm("sage_sovereign_3"))},
+        # v1.2 Phase D · the Hollow Tide battle at the Tidebreak Bastion (chapter 21): keep the great lantern lit. After the
+        # story battle it can be fought again once a day.
+        {"id": "hollow_tide_battle", "name": "The Tide Breaks", "room": "si_tide_battle", "portal": "exit",
+         "requires": all_of(realm("sphere_lord_1")), "repeatable": {"cooldown_h": 20}},
     ]
     entries("set_pieces", rows)
 

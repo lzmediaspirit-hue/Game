@@ -2629,6 +2629,200 @@
    "rare": []
   },
   {
+   "id": "ashborn_raider",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "cinder_ash",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "star_shard",
+       "chance": 0.5,
+       "count": [
+        1,
+        3
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "ashborn_pyre_keeper",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 6
+   },
+   "equipment": {
+    "chance": 0.25,
+    "min_quality": "fine"
+   },
+   "rare": [
+    {
+     "item": "manual_page",
+     "chance": 0.05,
+     "count": [
+      1,
+      1
+     ]
+    }
+   ],
+   "guaranteed": [
+    {
+     "item": "cinder_ash",
+     "chance": 1.0,
+     "count": [
+      2,
+      3
+     ],
+     "weight": 1
+    },
+    {
+     "item": "pyre_ember",
+     "chance": 0.35,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "star_shard",
+     "chance": 1.0,
+     "count": [
+      2,
+      4
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "id": "hollow_drone",
+   "groups": [
+    {
+     "chance": 0.6,
+     "pick": [
+      {
+       "item": "drone_shell",
+       "chance": 0.5,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "hollow_shard",
+       "chance": 0.3,
+       "count": [
+        1,
+        1
+       ],
+       "weight": 1
+      },
+      {
+       "item": "star_shard",
+       "chance": 0.4,
+       "count": [
+        1,
+        2
+       ],
+       "weight": 1
+      }
+     ]
+    }
+   ],
+   "coins": {
+    "chance": 0.2,
+    "mult": 1
+   },
+   "equipment": {
+    "chance": 0.03,
+    "min_quality": "flawed"
+   },
+   "rare": []
+  },
+  {
+   "id": "general_kharn",
+   "groups": [],
+   "coins": {
+    "chance": 1.0,
+    "mult": 40
+   },
+   "equipment": {
+    "chance": 1.0,
+    "min_quality": "superior"
+   },
+   "rare": [],
+   "guaranteed": [
+    {
+     "item": "kharns_glaive_shard",
+     "chance": 1.0,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "pyre_ember",
+     "chance": 1.0,
+     "count": [
+      2,
+      3
+     ],
+     "weight": 1
+    },
+    {
+     "item": "star_shard",
+     "chance": 1.0,
+     "count": [
+      14,
+      20
+     ],
+     "weight": 1
+    },
+    {
+     "item": "cinder_ash",
+     "chance": 1.0,
+     "count": [
+      4,
+      6
+     ],
+     "weight": 1
+    },
+    {
+     "item": "will_tempering_pill",
+     "chance": 1.0,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ]
+  },
+  {
    "id": "shen_lian_aspirant",
    "groups": [],
    "coins": {},

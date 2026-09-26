@@ -1,0 +1,334 @@
+{
+ "schema_version": 1,
+ "id": "tf_tidebreak_bastion",
+ "zone": "lantern_star_field",
+ "region": "tidebreak_front",
+ "name": "Tidebreak Bastion",
+ "type": "town",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 2.1,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  3840,
+  480
+ ],
+ "backdrop": "tidebreak_front",
+ "ground": {
+  "material": "stone",
+  "tint": "#c0c4cc"
+ },
+ "spawn_point": [
+  400,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    620,
+    3840,
+    340
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "route_0",
+   "rect": [
+    600,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_1",
+   "rect": [
+    910,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_2",
+   "rect": [
+    1220,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_3",
+   "rect": [
+    1530,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_4",
+   "rect": [
+    1840,
+    636,
+    220,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  },
+  {
+   "id": "route_5",
+   "rect": [
+    2150,
+    636,
+    220,
+    70
+   ],
+   "height": 176,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "skiff",
+   "type": "door",
+   "at": [
+    240,
+    704
+   ],
+   "to": "wc_citadel_gate",
+   "to_portal": "tide_skiff",
+   "press_up": true,
+   "label": "Warden skiff to the Citadel"
+  },
+  {
+   "id": "east",
+   "type": "edge",
+   "at": [
+    3800,
+    850
+   ],
+   "to": "tf_greyfall_breach",
+   "to_portal": "west"
+  }
+ ],
+ "objects": [
+  {
+   "id": "shrine_tf_bastion",
+   "type": "shrine",
+   "at": [
+    560,
+    700
+   ]
+  },
+  {
+   "id": "tide_horn",
+   "type": "rite_circle",
+   "at": [
+    2200,
+    880
+   ],
+   "event": "hollow_tide_battle",
+   "prop": "small_bell",
+   "visible_if": {
+    "any": [
+     {
+      "kind": "quest_active",
+      "quest": "the_tide_breaks"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "the_tide_breaks"
+     }
+    ]
+   },
+   "text": "The Bastion's great bell. Ring it and the Wardens take the wall: the Tide comes, and the lantern must not go out."
+  },
+  {
+   "id": "npc_warden_captain_duan",
+   "type": "npc",
+   "at": [
+    1500,
+    790
+   ],
+   "npc": "warden_captain_duan",
+   "facing": -1
+  },
+  {
+   "id": "npc_quartermaster_bai",
+   "type": "npc",
+   "at": [
+    1000,
+    790
+   ],
+   "npc": "quartermaster_bai",
+   "facing": 1
+  },
+  {
+   "id": "npc_tinker_mei",
+   "type": "npc",
+   "at": [
+    2800,
+    790
+   ],
+   "npc": "tinker_mei",
+   "facing": -1
+  }
+ ],
+ "spawns": [],
+ "scenery": [],
+ "decor": [
+  {
+   "prop": "bastion_wall",
+   "at": [
+    1900,
+    650
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "lantern_cage",
+   "at": [
+    1300,
+    640
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    800,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    1700,
+    662
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "star_lantern_post",
+   "at": [
+    2600,
+    662
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "music": "hollow_tide",
+ "ambience": "wind_ambience",
+ "town": true,
+ "lantern": true,
+ "attunement_required": 70,
+ "climbables": [
+  {
+   "id": "route_0_ladder_1",
+   "kind": "ladder",
+   "at": [
+    710,
+    741
+   ],
+   "top_at": [
+    710,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_0"
+  },
+  {
+   "id": "route_2_ladder_2",
+   "kind": "ladder",
+   "at": [
+    1330,
+    741
+   ],
+   "top_at": [
+    1330,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_2"
+  },
+  {
+   "id": "route_4_ladder_3",
+   "kind": "ladder",
+   "at": [
+    1950,
+    741
+   ],
+   "top_at": [
+    1950,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "route_4"
+  },
+  {
+   "id": "route_5_ladder_4",
+   "kind": "ladder",
+   "at": [
+    2260,
+    741
+   ],
+   "top_at": [
+    2260,
+    698
+   ],
+   "bottom_alt": 0,
+   "top_alt": 176,
+   "bottom": "ground",
+   "top": "route_5"
+  }
+ ],
+ "terrain": [
+  "stone"
+ ]
+}

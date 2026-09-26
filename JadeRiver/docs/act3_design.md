@@ -141,6 +141,76 @@ Throughout the zone:
   P9 to the boss standard; the breakthrough, boss-intro and phenomenon animations of P6 replace nothing this page
   specifies.
 
+## Phase D in detail (chapter 21, Ash and Tide, Sphere Lord 1–2)
+
+### Systems
+
+- **The brush** (`brush`, the Brush Dao, six tiers). Quick and short (reach 110), striking with Qi and scaling with
+  Insight and Agility. Every technique used with it writes a talisman on each foe it strikes, by the technique's
+  element, one on a foe at a time:
+
+  | Element | Talisman |
+  |---|---|
+  | Fire | burns (0.6% of max HP a second, 4 s) |
+  | Water | slows 30% (4 s) |
+  | Wood | roots (1.5 s) |
+  | Metal | sunders |
+  | Earth | leaves the foe vulnerable |
+  | Thunder | shocks (0.6 s) |
+  | Wind | slows 20% |
+  | none | seals the foe's Qi (2 s) |
+
+- **The bell** (`bell`, the Music Dao). Its strikes ring out on both sides (reach 160, up to six foes), dealing soul
+  damage. Its techniques:
+  - Stilling Peal: a 0.8 s stun to every foe within 200.
+  - Qi Seal Toll: a foe's techniques are sealed for 3 s.
+  - Warden's Call: allies within 300 heal 6% over 8 s and gain 10% defence.
+- **The Copperjaw Beetle swarm** (the Copperjaw Box, from Tinker Mei at the Bastion).
+  - Feeding: ore gives food by grade (copper ore 1 hour up to driftglass 8, a Hollow Drone's shell 10). The swarm
+    eats one an hour.
+  - Growth: while fed it grows 8% an hour, online or off, up to 5,000 beetles. Unfed, it shrinks 2% an hour, never
+    below 50.
+  - Release: opening the box sends the swarm out for 8 s. Each second it chews every foe within 220 for
+    0.12 × ln(1 + population) × the bearer's Qi attack, as Metal. Wood foes take half. It rests 30 s after.
+  - The Queen: each fed hour has a 1% chance, keyed to the character's seed and the hour, of raising one. With a
+    Queen the swarm grows half again as fast and bites a quarter harder.
+- **Ground fire.** An enemy attack can leave burning patches where it lands. Each patch burns 2–3% of max HP a second
+  while the player stands in it, and lasts 4–7 s. Kharn's pyre rings set four patches around him at once.
+- **The lantern defence** (the Tide battle, `si_tide_battle`, 150 s).
+  - The great lantern starts at 100 light. Each foe within 180 of it drains 3 a second.
+  - Standing within 120 of it with no foe near and not striking relights it 4 a second.
+  - At 0 the battle is lost. If the timer ends with light left, it is won.
+  - The Bastion's bell rings it again once a day.
+- **Star Warden** (title): +10 Starsea Endurance and 8% Hollow Ward. **Tidebreaker** (title): +3% max HP.
+- **Dao caps carry forward.** A zone keeps at least the cap the zone before it allowed. Beast Taming and the rare
+  Daos hold 4 in the Lantern Star Field, as in the Expanse; without this they fell back to their valley caps.
+
+### World and story
+
+- **Ashen Reach** (the second skiff from the Citadel Gate):
+  - Cinder Fields (88–91, Endurance 60; Warden Hu Jin).
+  - Ashborn Palisade (90–93, 62).
+  - War Camp (91–94, 64; Envoy Veyla).
+  - Kharn's Pyre (92, 66).
+- **Tidebreak Front** (the third skiff):
+  - Tidebreak Bastion (safe; Captain Duan, Quartermaster Bai's armoury, Tinker Mei, the great bell).
+  - Greyfall Breach (90–94, 72).
+  - Hollow Wake (93–97, 74).
+  - Drone Hive (95–99, 76).
+- **Monsters:**
+  - Ashborn Raider (88–96, Fire): cinder slash; an ember sweep that leaves fire.
+  - Ashborn Pyre-Keeper (elite, 91–96): a kindle ring of fire on both sides, Presence 2.
+  - Hollow Drone (88–99, Hollow Metal, flying pack): dives and grey stings, adds Hollowing.
+- **General Kharn** (92, Fire, Ashborn), Presence 4 and a Sphere of Cinders (Fire, tier 4).
+  - Moves: the cinder glaive, a leaping cleave that leaves fire, and pyre rings.
+  - Phases: a Pyre-Keeper answers his call at 60%; he rages at 30%.
+  - At a fifth of his health he kneels. Spare him (the debt `kharn_spared`) or finish him (`kharn_slain`); the new
+    `judge_foe` objective counts either.
+- **Chapter 21:** Cinder Fields · Kharn's Pyre · The Tide Breaks · Star Warden.
+  - Star Warden asks for Sphere Lord 2 and the hatched star-wyrm (the new `hatch_egg` objective).
+  - Side: Brush and Bell.
+  - The unlock's quest: The Copperjaw Box.
+
 ## Attunement numbers
 
 Starsea Endurance uses the Storm Ward rules with four new jades (Tide, Comet, Wick and Void Jade) and

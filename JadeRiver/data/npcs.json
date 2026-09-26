@@ -3535,6 +3535,146 @@
    "services": []
   },
   {
+   "id": "warden_hu_jin",
+   "name": "Warden Hu Jin",
+   "title": "Warden scout of the Ashen Reach",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 1,
+    "shirt": "vneck",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "headband",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "indigo",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "The Ashborn do not raid for gold. They raid for fire. Their dead are burned in lantern flame or they do not rest.",
+    "Kharn is no bandit. He is a general with a queen and a people behind him, and not enough fire for either."
+   ],
+   "barks": [
+    "Keep low. The cinders carry.",
+    "Eyes east."
+   ],
+   "services": []
+  },
+  {
+   "id": "ashborn_envoy_veyla",
+   "name": "Envoy Veyla",
+   "title": "Ashborn envoy",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 0,
+    "shirt": "scholar",
+    "pants": "martial",
+    "shoes": "folded",
+    "hat": "guan",
+    "cape": "tattered",
+    "weapon": "none",
+    "shirt_dye": "ochre",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "I came to speak for the General. No one on your side has wanted to listen yet.",
+    "We burn our dead so they are not taken by the grey. Without lantern fire our dead walk. Would you not raid, for that?"
+   ],
+   "barks": [
+    "Ash to ash.",
+    "I will wait."
+   ],
+   "services": []
+  },
+  {
+   "id": "warden_captain_duan",
+   "name": "Captain Duan",
+   "title": "Warden-Captain of the Tidebreak Bastion",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 0,
+    "shirt": "cardigan",
+    "pants": "martial",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "solid",
+    "weapon": "spear",
+    "shirt_dye": "indigo",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "Every lantern on this wall is a Warden who did not go home. We keep them lit.",
+    "When the bell rings, the Tide comes. It always comes to the great lantern first."
+   ],
+   "barks": [
+    "Hold.",
+    "The wall stands."
+   ],
+   "services": []
+  },
+  {
+   "id": "quartermaster_bai",
+   "name": "Quartermaster Bai",
+   "title": "Keeper of the Bastion's armoury",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 4,
+    "shirt": "disciple",
+    "pants": "loose",
+    "shoes": "boots",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "grey",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "Brushes and bells. A Warden scribe writes seals on the Hollow; a bellringer stills it. Swords are for the young.",
+    "Pay in crystals. The Tide does not take IOUs."
+   ],
+   "barks": [
+    "Mind the stock.",
+    "Next."
+   ],
+   "services": [
+    "shop:bastion_armoury"
+   ],
+   "service_labels": {
+    "shop:bastion_armoury": "The armoury"
+   }
+  },
+  {
+   "id": "tinker_mei",
+   "name": "Tinker Mei",
+   "title": "Keeper of the Copperjaw beetles",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 2,
+    "shirt": "sleeveless",
+    "pants": "cuffed",
+    "shoes": "boots",
+    "hat": "straw",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "earth",
+    "pants_dye": "ink"
+   },
+   "lines": [
+    "My beetles eat metal. The drones are metal that forgot it was metal. You see where this is going.",
+    "Feed them ore and they multiply while you sleep. Open the box and they will chew anything near you."
+   ],
+   "barks": [
+    "Click, click.",
+    "Don't shake the box."
+   ],
+   "services": []
+  },
+  {
    "id": "lanternwright_han",
    "name": "Lanternwright Han",
    "title": "Scholar-lanternwright",
