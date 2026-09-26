@@ -5,6 +5,16 @@
 The idle gathering milestone (docs/idle_gathering_design.md), after IdleOn's AFK model in Jade River's own names. It
 runs between v1.2 Phase B and Phase C.
 
+### V10d3 · The first month
+- `balance_sim` plays 30 days of twelve characters: three to each gathering craft on successive rungs, 20 hours a day
+  at their posts, and a day's silver from active play. It buys the account web greedily: Post Arts, craft seals,
+  steles, the Favour of the Guilds, the Cinnabar line and two plain flags.
+- By day 30: craft level about 35, seals at 14 and steles about 18. Craft Diligence is about 62% from arts, the
+  Guilds and flags alone. The web multiplies Finesse by about ×1.9.
+- The checks hold Craft Diligence between 60% and 80%, the Finesse multiplier between ×1.5 and ×2.5 and still
+  growing, and the Cinnabar line at rank 3 or higher. The design doc's §8 records the month.
+- Found on the way: GDScript lambdas capture locals by value, so the simulator keeps shared state in a Dictionary.
+
 ### V10d2 · Furnace, Flags and the Mirror
 - **Calcination Furnace** (Array Master Ren's Fire and Salt, Heart Tempering 6 with the Formation Guild): six salt
   lines on the Works page. A lit line burns floor(rank^1.5) × qty of each input from the Storehouse every cycle (15

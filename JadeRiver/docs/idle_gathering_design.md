@@ -481,6 +481,13 @@ sweep        = max(1, tier × 0.5)          tier = floor(log2(max_hit / hp)), fr
 | Vigil | a valley character one-shotting its room: 100–200 kills/h at 40% (active hunting is about 360) |
 | Economy | a day of twelve valley posts sells for no more than a day of active hunting |
 
+**The first month (V10d3, `balance_sim`):** twelve characters, three to a craft on successive rungs, 20 hours a
+day at their posts, the web bought greedily. By day 30: craft level about 35, craft seals at 14 (Verdigris salts
+gate the rest), steles about 18, the Cinnabar line at rank 8, the Favour of the Guilds from day 10. Craft Diligence
+reaches about 62% from arts, the Guilds and flags alone (vows, Bestiary Leaves, the Unsleeping Hand seal and the
+sect's Mirror come on top), and the web multiplies Finesse by about ×1.9. The 80–120% and ×2–4 figures above are
+where the second and third months land once the later salt lines and seals open.
+
 The ladder is steeper than IdleOn's early tiers would suggest per step but spans fewer tiers per zone: at base Finesse a
 character works its home zone's nodes at 30–50%, and the V10d account web (×2–4) is what fills the bars.
 
