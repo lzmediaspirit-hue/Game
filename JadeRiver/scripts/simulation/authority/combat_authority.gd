@@ -613,14 +613,14 @@ func dodge(c, direction, facing: int) -> Dictionary:
 	if wounded.has(c.id) or c.pools.blocked("move"): return fail("stunned")
 	# S10 Agility 50: a second dodge charge, on its own cooldown.
 	var charge := "dodge"
+	var free := false
 	if c.pools.cooldown("dodge") > 0.0:
 		if StatRules.gate_flag(c, "dodge_second_charge") and c.pools.cooldown("dodge_2") <= 0.0:
 			charge = "dodge_2"
 		else:
 			# A Wind Step Talisman's charge (S47) spends itself on a dodge the cooldown would refuse.
-			var fx0: Dictionary = treasure_fx.get(c.id, {})
-			if float(fx0.get("free_dodge", 0.0)) <= 0.0: return fail("cooldown")
-			fx0.erase("free_dodge")
+			if float(treasure_fx.get(c.id, {}).get("free_dodge", 0.0)) <= 0.0: return fail("cooldown")
+			free = true
 	var dir: Vector2 = direction if direction is Vector2 and direction.length() > 0.2 else Vector2(1 if facing >= 0 else -1, 0)
 	dir = dir.normalized()
 	var conf: Dictionary = ContentDB.stat_const("combat", {})
@@ -631,6 +631,7 @@ func dodge(c, direction, facing: int) -> Dictionary:
 	# Shallow water drags at the feet: no dodging in it (S43 volumes).
 	if st != null and st.surface != null and game.room_rt and not game.room_rt.geometry.volume_at(st.plane, st.altitude, "water_shallow").is_empty():
 		return fail("in_water")
+	if free: treasure_fx[c.id].erase("free_dodge")   # spent only by a dodge that happens
 	# Swallow Dart (Qi Kindling 7): an Evade tap in the air darts 140 and holds the height for 0.25 s,
 	# once per airtime. It shares the dodge's cooldown.
 	if st != null and st.surface == null and not st.flying and st.climbing.is_empty() and knows_art(c, "air_dash") and not st.air_dash_used \

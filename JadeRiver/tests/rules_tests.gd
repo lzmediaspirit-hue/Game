@@ -7642,6 +7642,7 @@ func fixes_suite() -> void:
 	_fix_uids(c)
 	_fix_full_bag(c)
 	_fix_commissions(c)
+	_fix_wind_step(c)
 	Clock.override_utc = utc0
 	Clock.override_tz_offset_s = tz0
 	HerbRules.origin_week = 0
@@ -7754,3 +7755,21 @@ func _fix_commissions(c) -> void:
 	check(CraftingAuthority.commission_day() == a, "the guild boards turn over with the daily reset, not at midnight UTC")
 	Clock.override_utc = 1767225600.0
 	Clock.override_tz_offset_s = -99999
+
+## B7: a Wind Step charge is spent only by a dodge that happens.
+func _fix_wind_step(c) -> void:
+	var st: ActorState = Game.actor_state(c.id)
+	Unlocks.force_unlock(c.id, "dodge_dash")
+	c.pools.cooldowns["dodge"] = 5.0
+	Game.combat.treasure_fx[c.id] = {"free_dodge": 1.0}
+	var geo: ZoneGeometry = Game.room_rt.geometry
+	geo.volumes.append({"id": "test_shallows", "kind": "water_shallow", "rect": Rect2(st.plane - Vector2(50, 50), Vector2(100, 100)), "lo": -20.0, "hi": 20.0})
+	var r := Game.submit({"type": "dodge", "direction": Vector2(1, 0), "facing": 1})
+	check(str(r.get("reason", "")) == "in_water" and float(Game.combat.treasure_fx[c.id].get("free_dodge", 0.0)) > 0.0,
+		"a dodge refused in shallow water keeps the Wind Step charge (%s)" % str(r))
+	geo.volumes.pop_back()
+	check(Game.submit({"type": "dodge", "direction": Vector2(1, 0), "facing": 1}).get("ok", false) and not Game.combat.treasure_fx[c.id].has("free_dodge"),
+		"on dry ground the charge is spent on the dodge")
+	c.pools.cooldowns.clear()
+	Game.combat.treasure_fx.erase(c.id)
+	Game.combat.timeline(c.id).forced_t = 0.0
