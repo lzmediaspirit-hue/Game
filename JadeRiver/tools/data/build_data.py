@@ -1,6 +1,7 @@
 """Build every data/*.json file from the authoring modules. Run from JadeRiver/: python3 tools/data/build_data.py"""
 import importlib
 import os
+import runpy
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -16,3 +17,5 @@ if __name__ == "__main__":
             if hasattr(mod, fn):
                 getattr(mod, fn)()
         print("built", name)
+    if not only:   # P7a: the item and monster wikis follow a full build
+        runpy.run_path(os.path.join(os.path.dirname(__file__), "..", "dev", "wiki.py"), run_name="__main__")
