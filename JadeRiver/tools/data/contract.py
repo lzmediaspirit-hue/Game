@@ -89,6 +89,8 @@ DEPTH = {
     "World": ["ambush_sprung", "herb_ripening", "guardian_spawned", "beast_tide_started", "beast_tide_result", "beast_trial_result",
               "tower_floor_cleared", "tower_swept", "auto_hunt_changed", "auto_path_started", "auto_path_ended",
               "treasure_birth_announced", "soul_searched"],
+    # S48 sect role variants: the signature line's variant and the contribution tree.
+    "TrainingSect": ["sect_role_chosen", "sect_node_bought"],
     # S49 territory: the spirit-stone mines your sect takes, holds, loses and collects from (account level).
     "Sect": ["mine_claimed", "mine_contested", "mine_defended", "mine_lost", "mine_collected"],
 }

@@ -121,6 +121,25 @@ static func active_inner_arts(c) -> Array:
 		out.append(art)
 	return out
 
+## S48 sect role variants: what the bought nodes of the sect tree add up to for one flag (signature_mult, ...).
+static func sect_tree_flag(c, key: String) -> float:
+	var total := 0.0
+	var tree: Dictionary = c.training_sect.get("tree", {}) if c.training_sect is Dictionary else {}
+	for b in ContentDB.config("sect_roles").get("tree", {}).get("branches", []):
+		var nodes: Array = b.get("nodes", [])
+		for i in mini(int(tree.get(str(b.id), 0)), nodes.size()):
+			total += float(nodes[i].get("flags", {}).get(key, 0.0))
+	return total
+
+## S48 sect role variants: the variant of the sect's signature line this technique belongs to ({} when it is not one;
+## {"none": true} when it is one but no role is chosen yet).
+static func signature_variant(c, tid: String) -> Dictionary:
+	var sid := str(c.training_sect.get("id", "")) if c.training_sect is Dictionary else ""
+	var roles := ContentDB.entry("sect_roles", sid)
+	if roles.is_empty() or not tid in roles.get("signature", []): return {}
+	var role := str(c.training_sect.get("role", ""))
+	return roles.get("variants", {}).get(role, {"none": true})
+
 ## S10 Insight 100: a Dao at Explanation (tier 4) or beyond gives one more tier's effect than it has reached.
 static func effective_dao_tier(c, dao: String) -> int:
 	var tier := int(c.cultivator.daos.get(dao, {}).get("tier", 0))

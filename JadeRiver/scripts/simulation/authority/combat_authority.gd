@@ -12,7 +12,7 @@ var hitstop := 0.0
 const STAT_EVENTS := ["realm_changed", "level_changed", "equipment_changed", "injury_added", "injury_healed", "title_changed",
 	"attributes_changed", "method_changed", "dao_tier_up", "body_level_changed", "purity_changed", "soul_changed",
 	"legacy_recorded", "consolidation_finished", "aptitude_revealed", "collection_page_completed", "body_tier_reached", "physique_awakened",
-	"inner_art_equipped", "stance_changed", "loadout_swapped", "fate_chosen"]
+	"inner_art_equipped", "stance_changed", "loadout_swapped", "fate_chosen", "sect_node_bought"]
 
 func intents() -> Array:
 	return ["basic_attack", "use_technique", "guard_start", "guard_end", "dodge", "choose_revival", "start_flight", "stop_flight", "use_treasure",
@@ -518,6 +518,9 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 		var st: ActorState = game.actor_state(c.id)
 		if st == null or st.surface != null: return fail("needs_flight")
 	var cost := technique_cost(c, t)
+	# S48 sect tree: the Lotus branch's last node makes the signature arts cheaper.
+	var sig := ProgressionRules.signature_variant(c, str(tid))
+	if not sig.is_empty(): cost *= maxf(0.0, 1.0 + ProgressionRules.sect_tree_flag(c, "signature_cost"))
 	# S10 Essence 25: the first technique of each fight costs no QI.
 	var free_first: bool = StatRules.gate_flag(c, "first_technique_free") and game.sim_time - float(tl.get("fight_t", -999.0)) > float(ContentDB.stat_const("gates", {}).get("fight_gap_s", 8.0))
 	if free_first: cost = 0.0
@@ -546,7 +549,8 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 	if float(t.get("composure_cost", 0)) > 0:
 		apply_resource_change(c.id, "composure", -float(t.composure_cost), "technique")
 		c.pools.since_composure_use = 0.0
-	c.pools.cooldowns["tech:" + str(tid)] = float(t.get("cooldown_s", 5))
+	c.pools.cooldowns["tech:" + str(tid)] = maxf(0.5, float(t.get("cooldown_s", 5)) + (ProgressionRules.sect_tree_flag(c, "signature_cooldown") if not sig.is_empty() else 0.0))
+	if sig.has("heal_pct") or sig.has("shield_pct"): _sect_support(c, sig)
 	var aim := target_for(c, float(t.hitbox.x[1]), float(t.hitbox.get("depth", 30)), 1 if facing >= 0 else -1)
 	var action := str(t.get("action", ""))
 	if action == "" or action == "null": action = str(fam.combo[mini(2, fam.combo.size() - 1)].action)
@@ -873,6 +877,15 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		var t3: Dictionary = t.tier3
 		if t3.has("status"): attack.status = t3.status
 		if t3.has("crit"): attack.crit_bonus = float(t3.crit)
+	# S48 sect role variants: the damage variant and the Edge branch strike harder; the Jade support variant slows.
+	var sigv := ProgressionRules.signature_variant(c, str(t.id))
+	var sig_extra := 0
+	if not sigv.is_empty():
+		var sm := 1.0 + float(sigv.get("mult", 0.0)) + ProgressionRules.sect_tree_flag(c, "signature_mult")
+		attack.mult = [float(attack.mult[0]) * sm, float(attack.mult[1]) * sm]
+		attack.penetration_bonus = float(attack.get("penetration_bonus", 0.0)) + float(sigv.get("penetration", 0.0))
+		sig_extra = int(sigv.get("extra_targets", 0))
+		if sigv.has("slow") and (attack.get("status", {}) as Dictionary).is_empty(): attack.status = sigv.slow
 	# S48: the technique's grade (+0 / 10 / 20%).
 	var gm := 1.0 + ProgressionRules.technique_grade_bonus(t)
 	attack.mult = [float(attack.mult[0]) * gm, float(attack.mult[1]) * gm]
@@ -881,7 +894,7 @@ func _resolve_technique(c, t: Dictionary) -> void:
 	tl.last_tech = str(t.id)
 	tl.last_tech_t = game.sim_time
 	var cfx: Dictionary = combo.get("effect", {})
-	var extra_targets := 0
+	var extra_targets := sig_extra
 	var reach_mult := float(ProgressionRules.path_flag(c, "reach_mult", 1.0))
 	match str(cfx.get("kind", "")):
 		"extra_target":
@@ -1570,6 +1583,32 @@ func heal_circle(c, pct: float, seconds: float, radius: float, source: String) -
 	# S48 the Buddhist path: healing an ally is merit (a few times a day).
 	if n > 0: game.relations.apply_daily_deed(c.id, "heal_ally", int(ContentDB.stat_const("paths", {}).get("buddhist", {}).get("heal_ally_daily", 5)))
 	return n
+
+# ------------------------------------------------------------------ sect role variants (S48)
+## The support variant: a heal for you and your allies near you (Mending Current) or a shield for you and a heal for
+## your allies (Guarding Cloud). It grows with the crafts you have ranked up and the Lotus branch.
+func sect_support_mult(c) -> float:
+	var cfg: Dictionary = ContentDB.config("sect_roles")
+	var ranks := 0
+	for craft in c.professions: ranks += game.crafting.rank_index(str(c.professions[craft].get("rank", "apprentice")))
+	var craft_bonus := minf(float(cfg.get("profession_cap", 0.5)), float(cfg.get("profession_scaling", 0.05)) * ranks)
+	return (1.0 + craft_bonus) * (1.0 + ProgressionRules.sect_tree_flag(c, "support_heal_mult"))
+
+func _sect_support(c, v: Dictionary) -> void:
+	var mult := sect_support_mult(c)
+	var pct := float(v.get("heal_pct", 0.0)) * mult
+	if pct > 0.0 and not v.get("allies_only", false): apply_heal(c.id, pct, 0.0, 0.0, "sect_support")
+	if float(v.get("shield_pct", 0.0)) > 0.0:
+		c.pools.shield = maxf(c.pools.shield, c.pools.max_hp * float(v.shield_pct) * mult)
+		var sfx: Dictionary = treasure_fx.get(c.id, {})
+		sfx["shield_t"] = float(v.get("shield_s", 4))
+		treasure_fx[c.id] = sfx
+	if pct <= 0.0 or game.room_rt == null: return
+	var pv := player_view(c)
+	var at := Vector2(float(pv.x), float(pv.y))
+	for e in game.room_rt.living_enemies():
+		if e.team == "ally" and e.plane.distance_to(at) <= float(v.get("radius", 220)):
+			e.pools.hp = minf(e.pools.max_hp, e.pools.hp + e.pools.max_hp * pct)
 
 # ------------------------------------------------------------------ the Blood path (S48)
 func _blood_cfg() -> Dictionary:

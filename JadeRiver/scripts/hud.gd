@@ -680,6 +680,15 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.sword_released"), UiKit.PALE_GOLD)
 		"sword_returned":
 			if str(p.get("reason", "")) != "recalled": add_log(Tx.t("hud.sword_returned"), UiKit.MIST)
+		"sect_role_chosen":
+			if str(p.get("actor", "")) == Game.active_id:
+				add_log(Tx.t("hud.sect_role_chosen") % str(ContentDB.entry("sect_roles", str(p.sect)).get("variants", {}).get(str(p.role), {}).get("name", "")), UiKit.PALE_GOLD)
+		"sect_node_bought":
+			if str(p.get("actor", "")) == Game.active_id:
+				var br := TrainingSectAuthority.tree_branch(str(p.branch))
+				var nodes: Array = br.get("nodes", [])
+				var ni := int(p.node) - 1
+				add_log(Tx.t("hud.sect_node_bought") % [str(br.get("name", {}).get(str(p.sect), p.branch)), str(nodes[ni].get("desc", "")) if ni >= 0 and ni < nodes.size() else ""], UiKit.PALE_GOLD)
 		"path_changed":
 			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.path_blood_on" if p.get("on", false) else "hud.path_blood_off"), UiKit.RED)
 		"illusion_cast":

@@ -212,6 +212,17 @@ static func rebuild(c) -> Array:
 			var fm: Dictionary = (fmods[i] as Dictionary).duplicate()
 			fm.source = "fate:%d:%s:%d" % [fi, rec.get("id", ""), i]
 			sb.add_modifier(fm)
+	# S48 sect role tree: the nodes bought with contribution.
+	var tree: Dictionary = c.training_sect.get("tree", {}) if c.training_sect is Dictionary else {}
+	if not tree.is_empty():
+		for b in ContentDB.config("sect_roles").get("tree", {}).get("branches", []):
+			var nodes: Array = b.get("nodes", [])
+			for ni in mini(int(tree.get(str(b.id), 0)), nodes.size()):
+				var nmods: Array = nodes[ni].get("mods", [])
+				for mi in nmods.size():
+					var nm: Dictionary = (nmods[mi] as Dictionary).duplicate()
+					nm.source = "sect_tree:%s:%d:%d" % [b.id, ni, mi]
+					sb.add_modifier(nm)
 	# Rare Daos (taught in the Azure Expanse): each tier reached adds its listed modifiers.
 	for d in c.cultivator.daos:
 		var mods: Array = ContentDB.entry("daos", str(d)).get("mods", [])

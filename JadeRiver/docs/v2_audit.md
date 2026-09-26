@@ -152,7 +152,8 @@ Progress is recorded in `docs/CHANGELOG.md`.
 - V9c1 is done: the Soul line (Sense Lock, Phantom Double, Soul Search, Spirit scaling), the Poison path (two poison
   arts and the Poison Body), and the S10 meridian gates completed. V9c2 is done: the Blood path (opt-in by alignment,
   Blood arts, lifesteal, blood essence, doubled heart demon, sect regard) and the Buddhist path (Golden Body, merit
-  milestones, healing merit). V9c3 (sect role variants) is next.
+  milestones, healing merit). V9c3 is done: sect role variants (a damage and a support variant for each sect's
+  signature line) and the three-branch sect tree bought with contribution. V9c is complete; V9d is next.
 - Next (V9): everything v2 makes due by v1.1 that is still open. A sweep of every audit row against the build
   after V8g3 found these, in six phases:
   - **V9a**, hooks and small gaps:

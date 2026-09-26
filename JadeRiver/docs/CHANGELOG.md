@@ -5,6 +5,30 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V9c3 · Sect role variants and the sect tree (S48, v0.9)
+- The Sect page has a new **Role** tab, open from Outer Disciple.
+- **Signature lines.** Each sect has one, and each line has a damage and a support variant. The first choice is
+  free; changing it costs 50 contribution.
+  - **Jade** (Flowing Palm, Palm Wave, Rising Tide):
+    - Surging Tide: +25% damage.
+    - Mending Current: each use heals you and every ally within 220 by 4%, and slows each foe hit by 20% for two
+      seconds.
+  - **Cloud** (Jade Thrust, Spear Lance, Dragon Tail Sweep):
+    - Piercing Peak: +20% damage, one more target, +10% penetration.
+    - Guarding Cloud: a shield of 8% of your health for 4 s, and allies within 220 healed by 3%.
+  - Support healing grows with the crafts you have ranked up: +5% per rank step, up to +50% (v2's
+    `profession_rank_up` → sect roles).
+- **The sect tree**: three branches of five nodes, bought in order with contribution (60, 120, 200, 320, 480). The
+  third node needs Inner Disciple and the fifth Core Disciple. Each sect names the branches its own way.
+  - Edge: attack, crit damage, signature arts ready 1 s sooner, signature arts +15% damage.
+  - Lotus: healing received, QI recovery, the support variant heals half again as much, signature arts cost 20%
+    less QI.
+  - Root: max HP, Physical Defense, Qi Resistance, Tenacity, guard.
+- New events: `sect_role_chosen` and `sect_node_bought` (HUD; stats refresh when a node is bought).
+- The new rules suite covers the rank gate, the free first choice and the paid switch, the variant limited to the
+  line, the support heal and its craft scaling, buying in order with its rank and contribution gates, the tree's
+  flags, and the Cloud shield. Debug flag: `--join=sect[:rank]`.
+
 ### V9c2 · The Blood path and the Buddhist path (S48, S49 alignment)
 - **The Blood path** (v1.1) is an opt-in for a demonic heart. It never locks anything else.
   - Take it on the Cultivation page's new **Paths** tab (the Vows tab, renamed), from Heart Tempering 1 at alignment

@@ -296,6 +296,17 @@ func _handle_preview_args(user_args: Array) -> void:
 				if is_instance_valid(world) and world.player:
 					world.player.avatar.outfit = InventoryAuthority.outfit_for(wc)
 					world.player.avatar.last_key = ""
+		if str(a).begins_with("--join=") and Game.active() != null:
+			# Debug tools (S38): --join=sect[:rank] joins a training sect at a rank with 2000 contribution (sect role previews).
+			var ja := str(a).trim_prefix("--join=").split(":")
+			var jc = Game.active()
+			jc.training_sect = {}
+			Game.training.apply_join(jc.id, ja[0])
+			if ja.size() > 1:
+				for rk in ContentDB.config("sect_ranks").get("order", []):
+					Game.training.apply_rank(jc.id, str(rk))
+					if str(rk) == ja[1]: break
+			Game.training.apply_contribution(jc.id, 2000, "debug")
 		if str(a).begins_with("--foe=") and Game.active() != null and Game.actor_state(Game.active_id) != null:
 			# Debug tools (S38): --foe=enemy[:count] sets foes in front of the player (combat previews).
 			var fa := str(a).trim_prefix("--foe=").split(":")

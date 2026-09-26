@@ -78,6 +78,7 @@ func _main() -> void:
 	weapon_families_suite()
 	soul_poison_suite()
 	blood_buddhist_suite()
+	sect_roles_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -798,6 +799,85 @@ func blood_buddhist_suite() -> void:
 	c.training_sect = ts_before
 	if not daos_had_blood: c.cultivator.daos.erase("blood")
 	Game.combat.blood_essence.erase(c.id)
+	Game.combat.refresh_stats(c.id)
+
+# ------------------------------------------------------------------ S48 sect role variants and the sect tree (v0.9)
+func sect_roles_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var st: ActorState = Game.actor_state(c.id)
+	Game.world.apply_teleport(c.id, "wp_west")
+	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear"]: Game.combat.cure_status(c.id, sid)
+	var ts_before: Dictionary = c.training_sect.duplicate(true)
+	var prof_before: Dictionary = c.professions.duplicate(true)
+	var known_before: Array = c.cultivator.techniques_known.duplicate()
+	var slot_before = c.cultivator.technique_slots[0]
+	c.training_sect = {"id": "jade_sect", "rank": "service_disciple", "contribution": 2000, "reputation": {"jade_sect": 10}}
+	var heard := {"role": 0, "node": 0}
+	var listen := func(n: String, _p: Dictionary):
+		if n == "sect_role_chosen": heard.role = int(heard.role) + 1
+		if n == "sect_node_bought": heard.node = int(heard.node) + 1
+	GameEvents.event.connect(listen)
+	var r0 := Game.submit({"type": "set_sect_role", "role": "damage"})
+	check(str(r0.get("reason", "")) == "rank", "a service disciple has no sect role yet")
+	c.training_sect.rank = "outer_disciple"
+	var r1 := Game.submit({"type": "set_sect_role", "role": "damage"})
+	GameEvents.flush()
+	check(r1.get("ok", false) and str(c.training_sect.role) == "damage" and int(c.training_sect.contribution) == 2000 and int(heard.role) == 1, "the first role is free")
+	var v := ProgressionRules.signature_variant(c, "flowing_palm")
+	check(near(float(v.get("mult", 0.0)), 0.25, 0.001) and ProgressionRules.signature_variant(c, "tiger_rush").is_empty(), "the damage variant touches only the signature line")
+	var r2 := Game.submit({"type": "set_sect_role", "role": "support"})
+	check(r2.get("ok", false) and int(c.training_sect.contribution) == 1950, "changing it costs 50 contribution")
+	# The support variant heals on use, and grows with the crafts ranked up.
+	c.professions = {}
+	var m0: float = Game.combat.sect_support_mult(c)
+	c.professions = {"healing": {"rank": "adept", "xp": 0.0}}
+	check(near(m0, 1.0, 0.001) and Game.combat.sect_support_mult(c) > m0, "support healing grows with the crafts (%.2f)" % Game.combat.sect_support_mult(c))
+	c.professions = {}
+	if not c.cultivator.techniques_known.has("flowing_palm"): c.cultivator.techniques_known.append("flowing_palm")
+	c.cultivator.technique_slots[0] = "flowing_palm"
+	_idle_hands(c)
+	c.pools.hp = c.pools.max_hp * 0.5
+	c.pools.qi = c.pools.max_qi
+	c.pools.cooldowns.erase("tech:flowing_palm")
+	var h0: float = c.pools.hp
+	var u1 := Game.submit({"type": "use_technique", "slot": 0, "facing": 1})
+	check(u1.get("ok", false) and c.pools.hp >= h0 + c.pools.max_hp * 0.039, "Mending Current heals the user by 4%% (%s)" % str(u1))
+	_idle_hands(c)
+	# The tree: bought in order with contribution; later nodes need a higher rank.
+	var atk0: float = c.stats.value("physical_attack")
+	var b1 := Game.submit({"type": "buy_sect_node", "branch": "edge"})
+	GameEvents.flush()
+	check(b1.get("ok", false) and int(c.training_sect.contribution) == 1890 and c.stats.value("physical_attack") > atk0 * 1.025 and int(heard.node) == 1,
+		"the first Edge node costs 60 and adds 3%% attack (%.0f -> %.0f)" % [atk0, c.stats.value("physical_attack")])
+	Game.submit({"type": "buy_sect_node", "branch": "edge"})
+	var b3 := Game.submit({"type": "buy_sect_node", "branch": "edge"})
+	check(str(b3.get("reason", "")) == "rank", "the third node waits for Inner Disciple")
+	c.training_sect.rank = "core_disciple"
+	for i in 3: Game.submit({"type": "buy_sect_node", "branch": "edge"})
+	var b6 := Game.submit({"type": "buy_sect_node", "branch": "edge"})
+	check(int(c.training_sect.tree.edge) == 5 and str(b6.get("reason", "")) == "complete", "a branch has five nodes")
+	check(near(ProgressionRules.sect_tree_flag(c, "signature_cooldown"), -1.0, 0.001) and near(ProgressionRules.sect_tree_flag(c, "signature_mult"), 0.15, 0.001),
+		"the Edge branch's flags add up")
+	c.pools.cooldowns.erase("tech:flowing_palm")
+	c.pools.qi = c.pools.max_qi
+	Game.submit({"type": "use_technique", "slot": 0, "facing": 1})
+	check(near(c.pools.cooldown("tech:flowing_palm"), float(ContentDB.entry("techniques", "flowing_palm").cooldown_s) - 1.0, 0.05), "signature arts are ready a second sooner")
+	_idle_hands(c)
+	c.training_sect.contribution = 0
+	var b7 := Game.submit({"type": "buy_sect_node", "branch": "root"})
+	check(str(b7.get("reason", "")) == "contribution", "no contribution, no node")
+	# The Cloud support variant is a shield.
+	c.training_sect = {"id": "cloud_sect", "rank": "outer_disciple", "contribution": 100, "reputation": {"cloud_sect": 10}, "role": "support"}
+	c.pools.shield = 0.0
+	Game.combat._sect_support(c, ProgressionRules.signature_variant(c, "jade_thrust"))
+	check(near(c.pools.shield, c.pools.max_hp * 0.08, 1.0), "Guarding Cloud shields 8% of health")
+	GameEvents.event.disconnect(listen)
+	c.pools.shield = 0.0
+	c.training_sect = ts_before
+	c.professions = prof_before
+	c.cultivator.techniques_known = known_before
+	c.cultivator.technique_slots[0] = slot_before
 	Game.combat.refresh_stats(c.id)
 
 # ------------------------------------------------------------------ S47 natal treasure, wardrobe, blood-drop, rogue cultivators

@@ -431,6 +431,48 @@ def sects():
         {"id": "elder", "name": "Elder", "requires": all_of(realm("sage_sovereign_1"))},
     ]
     write("sect_ranks.json", {"order": [x["id"] for x in ranks], "ranks": ranks})
+    sect_roles()
+
+
+def sect_roles():
+    """S48 sect role variants (v0.9): each sect's signature line has a damage and a support variant, and a tree of
+    three branches of five nodes bought with contribution. The support variant's healing grows with the crafts you
+    have ranked up (profession_rank_up: sect roles scale)."""
+    def mod(stat, value, op="pct_add"):
+        return {"stat": stat, "op": op, "value": value}
+    entries("sect_roles", [
+        {"id": "jade_sect", "signature": ["flowing_palm", "palm_wave", "rising_tide"],
+         "variants": {
+             "damage": {"name": "Surging Tide", "desc": "The Jade signature arts strike 25% harder.", "mult": 0.25},
+             "support": {"name": "Mending Current", "desc": "The Jade signature arts heal you and every ally within 220 by 4% of their health, and slow each foe they hit by 20% for two seconds.",
+                         "heal_pct": 0.04, "radius": 220, "slow": {"id": "slow", "chance": 1.0, "power": 0.2, "duration_s": 2}}}},
+        {"id": "cloud_sect", "signature": ["jade_thrust", "spear_lance", "dragon_tail_sweep"],
+         "variants": {
+             "damage": {"name": "Piercing Peak", "desc": "The Cloud signature arts strike 20% harder, reach one more foe and pierce 10% more armour.",
+                        "mult": 0.2, "extra_targets": 1, "penetration": 0.1},
+             "support": {"name": "Guarding Cloud", "desc": "The Cloud signature arts wrap you in a shield of 8% of your health for 4 s and heal allies within 220 by 3%.",
+                         "shield_pct": 0.08, "shield_s": 4, "heal_pct": 0.03, "radius": 220, "allies_only": True}}},
+    ], role_rank="outer_disciple", switch_cost=50, profession_scaling=0.05, profession_cap=0.5,
+        tree={"branches": [
+            {"id": "edge", "name": {"jade_sect": "Rushing Edge", "cloud_sect": "Peak Edge"}, "nodes": [
+                {"cost": 60, "desc": "+3% attack", "mods": [mod("physical_attack", 0.03), mod("qi_attack", 0.03)]},
+                {"cost": 120, "desc": "+3% attack", "mods": [mod("physical_attack", 0.03), mod("qi_attack", 0.03)]},
+                {"cost": 200, "rank": "inner_disciple", "desc": "+10% crit damage", "mods": [mod("crit_damage", 0.1, "flat")]},
+                {"cost": 320, "rank": "inner_disciple", "desc": "Signature arts ready 1 s sooner", "flags": {"signature_cooldown": -1.0}},
+                {"cost": 480, "rank": "core_disciple", "desc": "Signature arts +15% damage", "flags": {"signature_mult": 0.15}}]},
+            {"id": "lotus", "name": {"jade_sect": "Still Lotus", "cloud_sect": "Temple Lotus"}, "nodes": [
+                {"cost": 60, "desc": "+5% healing received", "mods": [mod("healing_received", 0.05, "flat")]},
+                {"cost": 120, "desc": "+10% QI recovery", "mods": [mod("qi_regen", 0.1)]},
+                {"cost": 200, "rank": "inner_disciple", "desc": "+5% healing received", "mods": [mod("healing_received", 0.05, "flat")]},
+                {"cost": 320, "rank": "inner_disciple", "desc": "The support variant heals half again as much", "flags": {"support_heal_mult": 0.5}},
+                {"cost": 480, "rank": "core_disciple", "desc": "Signature arts cost 20% less QI", "flags": {"signature_cost": -0.2}}]},
+            {"id": "root", "name": {"jade_sect": "Deep Root", "cloud_sect": "Mountain Root"}, "nodes": [
+                {"cost": 60, "desc": "+4% max HP", "mods": [mod("max_hp", 0.04)]},
+                {"cost": 120, "desc": "+5% Physical Defense", "mods": [mod("physical_defense", 0.05)]},
+                {"cost": 200, "rank": "inner_disciple", "desc": "+5% Qi Resistance", "mods": [mod("qi_resistance", 0.05)]},
+                {"cost": 320, "rank": "inner_disciple", "desc": "+5% Tenacity", "mods": [mod("tenacity", 0.05, "flat")]},
+                {"cost": 480, "rank": "core_disciple", "desc": "Guard blocks 10% more", "mods": [mod("guard", 0.10)]}]},
+        ]})
 
 
 def auction():

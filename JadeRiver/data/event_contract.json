@@ -1389,6 +1389,18 @@
     "training_sect_authority"
    ]
   },
+  "sect_role_chosen": {
+   "system": "TrainingSect",
+   "files": [
+    "training_sect_authority"
+   ]
+  },
+  "sect_node_bought": {
+   "system": "TrainingSect",
+   "files": [
+    "training_sect_authority"
+   ]
+  },
   "companion_downed": {
    "system": "Companion",
    "files": [
