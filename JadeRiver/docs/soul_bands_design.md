@@ -107,7 +107,7 @@ All constants live in `data/bands.json` under `rules`; the values here are the d
 | Will Manifest 1 | 6 |
 | Sphere Lord 1 | 7 |
 | Law Touching 1 | 8 (v1.3) |
-| Monarch 1 | 9 (v1.4) |
+| Monarch 1 | 9 (v1.3, the Star Frontier) |
 
 `slots_for(realm_key)` is the count of the last row the realm has reached (`ProgressionRules.at_least`), 0 before
 Spirit Awakening 1 or without the `soul_bands` unlock. Slots never close. The first two come close together (about six

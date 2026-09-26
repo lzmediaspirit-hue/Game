@@ -604,6 +604,8 @@ def unlocks():
     u("dodge_dash", "Dodge dash", all_of(realm("bone_forging_5")), "stone_and_sweat", [], same_stage_ok=True)
     u("collection_book", "Collection book", all_of(realm("bone_forging_5")), "stone_and_sweat", ["page:collection"], same_stage_ok=True, toast=False)
     u("idle_tasks", "Idle tasks", all_of({"kind": "account_realm", "realm": "bone_forging_5"}), "a_second_path", ["page:characters"], scope="account")
+    # The Account Legacy (S-v0.8): every great realm the account reaches after this is recorded, +2% accumulation each.
+    u("account_legacy", "Account Legacy", all_of({"kind": "account_realm", "realm": "bone_forging_1"}), "", [], scope="account", toast=False)
     u("daily_missions", "Sect missions", all_of(realm("bone_forging_6"), qdone("entry_trial")), "earning_your_keep", [])
     u("contribution_shop", "Contribution shop", all_of(realm("bone_forging_6"), qdone("entry_trial")), "earning_your_keep", [], same_stage_ok=True, toast=False)
     u("field_boss_timers", "Field-boss timers", all_of(realm("bone_forging_6")), "earning_your_keep", [], same_stage_ok=True, toast=False)

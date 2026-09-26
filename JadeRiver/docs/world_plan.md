@@ -274,11 +274,18 @@ Before the join each chapter can be finished on either road; the main quest neve
   one whose Law is missing deals 0.85. Law affinity is raised at each world's Law steles and by fighting under its Laws.
 - **The Dao Sigil** (S28): seven powers refined in the order Wood → Fire → Earth → Metal → Water → Yin → Yang, the
   tolerance from total Dao tiers and stability, the starting-rank preview; Heaven's Threshold at five of seven.
-- **Soul Bands (P8b)**: built inside v1.3 from the design in `docs/soul_bands_design.md` (P8a; that page is not
-  written yet). The unlock stays Spirit Awakening 1, so a character who arrives in the Frontier can take bands at once
-  from any zone's beasts. Every beast from Sage Sovereign up is already `beast_rank` 9, so the Frontier's beasts
-  (Cinder Hound, Magma Behemoth, Tidal Colossus, Iron Mantis, Sun Roc, Radiant Lion, Moon Moth, Shade Serpent) are rank 9
-  too. P8a must say what sets their bands above an Expanse beast's (an age within rank 9, or a tier above it).
+- **Soul Bands (P8b)**: built inside v1.3 from `docs/soul_bands_design.md` (P8a). The `soul_bands` unlock stays at
+  Spirit Awakening 1, so a character who arrives in the Frontier can take bands at once, and Law Touching 1 opens the
+  eighth band slot (§3.1 of that page). Every beast from Level 73 up is rank 9 (a Gold band), but the beast's realm keeps
+  climbing with its Level (Law Touching 12, Monarch 13), so a Frontier band is judged against the Band Limit by its
+  realm (§3.2, §3.4 there). What this plan adds:
+  - the Frontier's beasts (Cinder Hound, Magma Behemoth, Tidal Colossus, Iron Mantis, Sun Roc, Radiant Lion, Moon Moth,
+    Shade Serpent, and the Bloom Siren if it is made a beast) each need a row in `tools/data/bands.py`, since
+    `data_validation` fails on an eligible beast without one;
+  - the four new field and dungeon bosses (Pyreback, the Bloom Mother, the Forge-Tree Warden, the Barrow Marshal) always
+    leave a Band Light when they are beasts (§3.3 there), so each road offers one sure Frontier band before the join;
+  - the Remnant Will, Rust Wraith and Time-Worn Specter are not beasts and leave none; the Hollowed Legionnaire is
+    Hollowed and leaves none.
 - **Also in v1.3 with no place of their own:** Monarch's Weight; Sovereign pets; sect levels 11–20; the Time Dao; the
   four new weapon families; Beast Taming Dao tiers 5–6.
 
@@ -414,7 +421,7 @@ The ceiling breakers of S28 and where they are:
 | Lu's World | **The river quest line** begins at Boatman's Study (a Genesis requirement) | — |
 | Beast Sovereign Reaches | **The Sky Sovereign's trial** (the Mandate Bloodline); **Primordial Beast transformation** at the Transformation Pool (a compatibility test; failure is survivable, S28); the **Wyrmheart Flame**, this act's Heavenly Flame, at the Crown | — |
 | Duskwall | **The Herald's Breach**: the Herald's first assault; after it, the Tidegate opens | — |
-| Tide Edge | **The Frayed Horizon**: the sight of Yan Heng's loom at the edge of everything; the Genesis requirements quest ends here with the Keeper of the Crossing's ferry | **Hollowed Primordial** (158): a Primordial Beast the Tide took |
+| Tide Edge | **The Frayed Horizon**: the sight of Yan Heng's loom at the edge of everything; the Genesis requirements quest ends here, and the Keeper of the Crossing then waits at Lu's World's ferry | **Hollowed Primordial** (158): a Primordial Beast the Tide took |
 
 ### Realms and systems by stage
 
@@ -422,7 +429,7 @@ The ceiling breakers of S28 and where they are:
 |---|---|---|
 | Inner Heaven 1 | The Inner World, Heavenforce, Heaven Pills; Hollow Ward jades | Heavengate Landing, Inner Gate, Rampart Market |
 | Inner Heaven 2 | Front missions; severing | Marshal's Hall; the Severing Line |
-| Inner Heaven 3 | Relic Worlds | Salvage Moorings |
+| Inner Heaven 3 | Relic Worlds | Salvage Moorings (the alternate road reaches it by the Crossover) |
 | Inner Heaven 4 | Inner World buildings | The Inner World |
 | Inner Heaven 5 | Dao imprints; visitors (survivors on the River road, salvagers on the Front road) | The Inner World |
 | Inner Heaven 6 | Ceiling breakers as world drops | Both roads (table above) |
@@ -439,10 +446,10 @@ Flame); the legendary weapon chains complete; body tiers beyond Gold as data.
 |---|---|
 | 29 The Heavengate (HT → IH1) | The Inner World forming · Dawnwall (Marshal Lei Guang) · A World Inside (the Inner Gate) · Heaven Pills |
 | 30 The Grey March (IH1 → IH3) | Front duty (the Wall-Walk) · The Severing Line · The Standard · Two Roads (Relic-Keeper Cheng Wu at the Moorings, or Refuge Elder Kang Ruyi at the Refuge) |
-| 31 Two Roads (IH3 → IH6) | Main: The Drowned Glass, The Bells, The Lanternless, The Kiln (Relic Drift), then The Wyrmspine (Beastspeaker Du Ansu; the Primordial Den). Alternate: The Grey Refuge, The Chapel, then Lu's World (the Ferry Village, Boatman's Study). Both end at Duskwall with a ceiling breaker in reach |
+| 31 Two Roads (IH3 → IH6) | Main: The Saltglass, The Bells, The Lanternless, The Kiln (Relic Drift), then The Wyrmspine (Beastspeaker Du Ansu; the Primordial Den). Alternate: The Grey Refuge, The Chapel, then Lu's World (the Ferry Village, Boatman's Study). Both end at Duskwall with a ceiling breaker in reach |
 | 32 Duskwall (IH6 → IH7) | The Last Wall (Tide-Watcher Guan Lie) · The Herald's Breach · A Living World |
 | 33 The Sky Sovereign (IH7 → IH8) | The Plateau · The Elder Wyrms · The Sovereign's Trial (Mandate Bloodline, optional) · The Avatar (Tidewatch Tower) |
-| 34 The Tide Edge (IH8 → IH9) | The Unravelling Shore · The Hollowed Primordial · The River Quest (Lu's World, reached by boat from Duskwall on the Front road) · The Frayed Horizon (Genesis requirements; the Keeper's ferry) |
+| 34 The Tide Edge (IH8 → IH9) | The Unravelling Shore · The Hollowed Primordial · The River Quest (Lu's World, reached by boat from Duskwall on the Front road) · The Frayed Horizon (Genesis requirements) · The Ferry (the Keeper of the Crossing at Lu's World; the Epilogue hook) |
 
 ---
 

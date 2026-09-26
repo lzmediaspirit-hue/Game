@@ -2,6 +2,11 @@
 
 ## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
 
+### P10 · Findings fixed
+- **The Account Legacy records again.** It waited on an `account_legacy` unlock that was never defined, so its +2%
+  accumulation per recorded great realm was always 0. The unlock now opens for the whole account at Bone Forging 1, and
+  a save that reached great realms before this has them recorded once when it opens (`legacy_suite` in `rules_tests`).
+
 ### P4a · Touch targets
 - **Every tap target is at least 48 px on a side.** `Page._register` gives smaller art a margin of hit area round its
   centre (`Page.MIN_TAP`); the art keeps its look. Tabs, which are 40 px tall, now answer a tap anywhere in 48.

@@ -15,6 +15,7 @@ func subscribe() -> void:
 	GameEvents.subscribe("realm_changed", _on_realm_changed, 70)
 	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 70)
 	GameEvents.subscribe("sect_level_changed", _on_sect_level, 70)
+	GameEvents.subscribe("system_unlocked", func(p): if str(p.get("system", "")) == "account_legacy": _backfill_legacy(str(p.get("actor", ""))), 70)
 	# S49 daily activity: what counts toward today's chests.
 	GameEvents.subscribe("quest_completed", func(p): if str(p.get("kind", "")) == "daily": apply_activity("mission"), 88)
 	GameEvents.subscribe("actor_defeated", func(p): if str(p.get("role", "")) == "dungeon_boss" and str(p.get("killer", "")).begins_with("c"): apply_activity("dungeon"), 88)
@@ -488,6 +489,18 @@ func _on_realm_changed(p: Dictionary) -> void:
 		game.mail.apply_send(str(p.actor), "aunt_ping_realm", [{"item": "rice_ball", "count": 3}], {"realm": ContentDB.name_of("realms", to)})
 	var c = game.character(str(p.actor))
 	if c: acc.characters[str(c.slot)] = summary(c)
+
+## Saves made before the Account Legacy unlock existed reached great realms it never recorded: record each great realm
+## the account has reached above Bone Forging (the first recorded one), once, when the unlock arrives.
+func _backfill_legacy(actor: String) -> void:
+	var acc: AccountState = game.account
+	var top := ContentDB.realm_position(acc.highest_realm)
+	for r in ContentDB.all("realms"):
+		var great := str(r.get("realm", ""))
+		if great == "" or great in ["mortal", "bone_forging"] or acc.legacy.has(great): continue
+		if ContentDB.realm_position(str(r.id)) > top: continue
+		acc.legacy[great] = true
+		emit("legacy_recorded", {"realm": great, "actor": actor})
 
 func _on_sect_level(_p: Dictionary) -> void:
 	_check_slots()

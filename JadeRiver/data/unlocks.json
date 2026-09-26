@@ -772,6 +772,22 @@
    "quest": "a_second_path"
   },
   {
+   "id": "account_legacy",
+   "label": "Account Legacy",
+   "trigger": {
+    "all": [
+     {
+      "kind": "account_realm",
+      "realm": "bone_forging_1"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "account",
+   "toast": false
+  },
+  {
    "id": "daily_missions",
    "label": "Sect missions",
    "trigger": {

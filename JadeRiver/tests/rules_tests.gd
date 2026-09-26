@@ -98,6 +98,7 @@ func _main() -> void:
 	awaken_legend_suite()
 	aggro_cap_suite()
 	emotes_suite()
+	legacy_suite()
 	text_suite()
 	await ui_suite()
 	max_character_suite()
@@ -7608,6 +7609,34 @@ func nav_suite() -> void:
 	check(pal.plane.distance_to(st.plane) < 120.0, "and at once when more than 480 away")
 
 # ------------------------------------------------------------------ emotes (S34)
+## The Account Legacy (P10 finding F1): the unlock exists at Bone Forging 1 for the whole account, a save that reached
+## great realms before it existed has them recorded once when it arrives, and each record adds 2% to accumulation.
+func legacy_suite() -> void:
+	var entry: Dictionary = ContentDB.entry("unlocks", "account_legacy")
+	check(str(entry.get("scope", "")) == "account", "the Account Legacy is an account-wide unlock")
+	var c = Game.active()
+	if c == null: return
+	var acc: AccountState = Game.account
+	var legacy_was: Dictionary = acc.legacy.duplicate()
+	var top_was: String = acc.highest_realm
+	var bonus_before: float = Game.progression.accumulation_bonus(c)
+	acc.legacy.clear()
+	acc.highest_realm = "heart_tempering_2"
+	Game.accounts._backfill_legacy(c.id)
+	GameEvents.flush()
+	check(acc.legacy.has("qi_kindling") and acc.legacy.has("qi_unfurling") and acc.legacy.has("heart_tempering"),
+		"the backfill records every great realm the account reached (%s)" % str(acc.legacy.keys()))
+	check(not acc.legacy.has("bone_forging") and not acc.legacy.has("cloud_stride"), "but not Bone Forging, and nothing above the highest")
+	var n := acc.legacy.size()
+	Game.accounts._backfill_legacy(c.id)
+	check(acc.legacy.size() == n, "a second backfill records nothing new")
+	var bonus_three: float = Game.progression.accumulation_bonus(c)
+	acc.legacy.clear()
+	check(near(bonus_three - Game.progression.accumulation_bonus(c), 0.06), "three records add 6% to accumulation")
+	acc.legacy = legacy_was
+	acc.highest_realm = top_was
+	check(near(Game.progression.accumulation_bonus(c), bonus_before), "state restored")
+
 func emotes_suite() -> void:
 	var starting := ContentDB.all("emotes").filter(func(e): return str(e.get("achievement", "")) == "")
 	check(starting.size() >= 6, "six emotes from the start (%d)" % starting.size())

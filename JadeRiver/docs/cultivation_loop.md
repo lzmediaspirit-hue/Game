@@ -448,12 +448,12 @@ Accumulate: qp = meditation_rate(room density, the bonus read at claim time) × 
 At a bottleneck the Qi goes to Stored Qi as in §4.5 (×0.25 at the zone ceiling). The paired bonus needs the character
 meditating beside a companion, so it does not count offline.
 
-| Focus | Gain per minute (× the minutes) | Unlock |
+| Focus | Gain over the minutes counted | Unlock |
 |---|---|---|
 | Accumulate | As above | Bone Forging 7 |
-| Temper body | 10 body XP | Bone Forging 7 |
+| Temper body | 10 body XP a minute | Bone Forging 7 |
 | Heal | Injuries heal at 3× | Bone Forging 7 |
-| Contemplate | 5 insight in the chosen Dao | Qi Kindling 4 |
+| Contemplate | 5 insight a minute in the chosen Dao | Qi Kindling 4 |
 | Refine Qi | 25 purity points an hour | Cloud Stride 2 |
 | Nourish soul | 20 Soul cultivation an hour | Spirit Awakening 4 |
 | Settle foundation | The pill share falls 5 points an hour; 5 residue an hour; no Qi | Bone Forging 7 |
