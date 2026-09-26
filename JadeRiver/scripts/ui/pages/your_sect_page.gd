@@ -113,8 +113,8 @@ func _draw_territory(r: Rect2, s: Dictionary) -> void:
 			var cap := int(cap_h * float(m.rate))
 			var stored := Game.sect.mine_stored(id, now)
 			text(Vector2(x0, rr.position.y + 74), Tx.t("ui.your_sect.mine_yours") % [stored, cap], 17, UiKit.BRIGHT_JADE)
-			var when := Tx.t("ui.your_sect.mine_contested") % [str(rv.get("name", "")), _span(float(st.until) - now)] if contested \
-				else Tx.t("ui.your_sect.mine_next") % _span(float(st.get("contest", now)) - now)
+			var when := Tx.t("ui.your_sect.mine_contested") % [str(rv.get("name", "")), UiKit.span(float(st.until) - now)] if contested \
+				else Tx.t("ui.your_sect.mine_next") % UiKit.span(float(st.get("contest", now)) - now)
 			text(Vector2(x0 + 250, rr.position.y + 74), when, 16, UiKit.RED if contested else UiKit.MIST)
 			var gs: Array = st.get("guards", [])
 			var names: Array = gs.map(func(d): return str(s.disciples[int(d)].get("name", "")) if int(d) < s.disciples.size() else "")
@@ -144,12 +144,6 @@ func _free_disciple() -> int:
 		if busy.has(i) or Game.sect._on_expedition(i): continue
 		return i
 	return -1
-
-func _span(sec: float) -> String:
-	var m := int(ceil(maxf(0.0, sec) / 60.0))
-	if m >= 1440: return Tx.t("ui.calendar.span_dh") % [m / 1440, (m % 1440) / 60]
-	if m >= 60: return Tx.t("ui.calendar.span_hm") % [m / 60, m % 60]
-	return Tx.t("ui.calendar.span_m") % maxi(1, m)
 
 ## Disciples carry one trait id (older saves may hold a list).
 func _traits(d: Dictionary) -> String:

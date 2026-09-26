@@ -273,6 +273,13 @@ static func clock(seconds: float) -> String:
 	if s >= 3600: return "%d:%02d:%02d" % [s / 3600, (s % 3600) / 60, s % 60]
 	return "%d:%02d" % [s / 60, s % 60]
 
+## A span of time: "2 d 4 h" (unless `days` is false), "3 h 20 m" or "12 m"; never under a minute.
+static func span(seconds: float, days := true) -> String:
+	var m := int(ceil(maxf(0.0, seconds) / 60.0))
+	if days and m >= 1440: return Tx.t("ui.calendar.span_dh") % [m / 1440, (m % 1440) / 60]
+	if m >= 60: return Tx.t("ui.calendar.span_hm") % [m / 60, m % 60]
+	return Tx.t("ui.calendar.span_m") % maxi(1, m)
+
 static func fmt(n: float) -> String:
 	var v := int(round(n))
 	var s := str(absi(v))
@@ -328,6 +335,3 @@ static func _heart(ci: CanvasItem, c: Vector2, r: float, col: Color) -> void:
 	ci.draw_circle(c + Vector2(-r * 0.48, -r * 0.22), r * 0.56, col)
 	ci.draw_circle(c + Vector2(r * 0.48, -r * 0.22), r * 0.56, col)
 	ci.draw_colored_polygon(PackedVector2Array([c + Vector2(-r * 1.02, -r * 0.08), c + Vector2(r * 1.02, -r * 0.08), c + Vector2(0, r * 0.98)]), col)
-
-static func draw_frame(ci: CanvasItem, rect: Rect2, asset := "minor_panel", state := "normal") -> void:
-	ci.draw_style_box(style(asset, state), rect)

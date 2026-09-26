@@ -9,7 +9,6 @@ extends Control
 signal closed(page: Page)
 signal navigate(page: String, args: Dictionary)
 
-const SAFE := Rect2(48, 24, 1184, 672)
 ## The smallest tap target on a side, in screen px (P4, `docs/ui_style_guide.md`).
 const MIN_TAP := 48.0
 

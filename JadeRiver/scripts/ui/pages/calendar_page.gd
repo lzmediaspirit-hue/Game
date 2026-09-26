@@ -22,7 +22,7 @@ func draw_page() -> void:
 	var season := HerbRules.season(now)
 	y += 50
 	text(Vector2(x, y), ContentDB.name_of("seasons", season), 30, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-	text(Vector2(left.end.x - 22 - 200, y), Tx.t("ui.calendar.left") % _span(HerbRules.season_left_s(now)), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 200)
+	text(Vector2(left.end.x - 22 - 200, y), Tx.t("ui.calendar.left") % UiKit.span(HerbRules.season_left_s(now)), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 200)
 	y += 16
 	y += para(Rect2(x, y, left.size.x - 44, 70), str(ContentDB.entry("seasons", season).get("desc", "")), 16, UiKit.PAPER, 3) + 18
 	heading(Vector2(x, y + 20), Tx.t("ui.calendar.weather"), left.size.x - 44)
@@ -58,7 +58,7 @@ func draw_page() -> void:
 		var live := now >= float(o.start)
 		panel(rr, "minor_panel", "selected" if live else "normal")
 		text(rr.position + Vector2(16, 30), fit(str(ev.get("name", o.id)), 20, rr.size.x - 260), 20, UiKit.PALE_GOLD if live else UiKit.PAPER)
-		var when := Tx.t("ui.calendar.live") % _span(float(o.end) - now) if live else Tx.t("ui.calendar.in") % _span(float(o.start) - now)
+		var when := Tx.t("ui.calendar.live") % UiKit.span(float(o.end) - now) if live else Tx.t("ui.calendar.in") % UiKit.span(float(o.start) - now)
 		text(Vector2(rr.end.x - 16 - 240, rr.position.y + 30), when, 17, UiKit.BRIGHT_JADE if live else UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 240)
 		var where := Game.calendar.trial_room(ch) if str(o.id) == "gathering_trial" else str(o.room)   # each sect's own terraces
 		text(rr.position + Vector2(16, 54), ContentDB.name_of("rooms", where) if where != "" else "", 15, UiKit.MIST)
@@ -68,10 +68,3 @@ func draw_page() -> void:
 			text(Vector2(rr.end.x - 16 - 320, rr.position.y + 54), Tx.t("ui.calendar.cap_ok") if ok else Tx.t("ui.calendar.cap_past"), 14,
 				UiKit.BRIGHT_JADE if ok else UiKit.RED, HORIZONTAL_ALIGNMENT_RIGHT, 320)
 	)
-
-## "2 d 4 h", "3 h 20 m" or "12 m".
-func _span(s: float) -> String:
-	var m := int(ceil(maxf(0.0, s) / 60.0))
-	if m >= 1440: return Tx.t("ui.calendar.span_dh") % [m / 1440, (m % 1440) / 60]
-	if m >= 60: return Tx.t("ui.calendar.span_hm") % [m / 60, m % 60]
-	return Tx.t("ui.calendar.span_m") % maxi(1, m)
