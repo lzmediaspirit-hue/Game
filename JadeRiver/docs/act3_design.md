@@ -132,6 +132,14 @@ Throughout the zone:
   tier 4; chapter 21.
 - **E · Nebula and the Lantern Heart.** Nebula Deep, the Leviathan, the Lantern Heart and its flame,
   Law pills and Sphere Lord 3; chapter 22; art, music and docs wrap-up.
+- **The Master Prompt and the UI Designer Prompt** (`docs/roadmap_master_ui.md`) add phases around Act III: **P1**
+  (quest direction on the minimap and tracker, a repeat-quest head marker, equipment rolls on every loot table,
+  phases for the phaseless bosses) runs after V10d3 and before C; **P2**, the review pass, runs beside C–E and
+  closes after E so its playthrough covers chapters 20–22; the mockup gate, style guide, themed screens, moments
+  and boss redesign (**P3–P6**, **P9**) follow E, so Act III's pages (Presence, the Sphere, the Roll-Call) are drawn
+  once, on the approved kit. Kharn's and the Leviathan's fights are built in D and E as designed here and revisited in
+  P9 to the boss standard; the breakthrough, boss-intro and phenomenon animations of P6 replace nothing this page
+  specifies.
 
 ## Attunement numbers
 

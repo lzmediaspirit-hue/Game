@@ -204,6 +204,17 @@ Progress is recorded in `docs/CHANGELOG.md`.
   - **V10d**, the account web: the Mirror of Echoes, the Calcination Furnace, Seal Scripts, Guardian Steles,
     Formation Flags, Post Arts and Magistrate's Favours, with a thirty-day balance run.
 
+- **The Master Prompt and the UI Designer Prompt** (`docs/roadmap_master_ui.md`, from the two prompts kept in
+  `docs/research/master_prompt.md` and `docs/research/ui_designer_prompt.md`). Eighty work items audited against the
+  build (11 Present, 44 Partial, 25 Missing) and grouped into eleven phases: **P1** guidance and gaps (a short code
+  phase after V10d3, before v1.2 Phase C); **P2** the review pass, beside v1.2 C–E; **P3** the mockup approval gate,
+  **P4** the style guide and kit, **P5** the themed screens, **P6** the on-screen moments and **P9** the bosses, after
+  v1.2 E; **P7** the wikis and item volume, **P10** the world plan and terminology and **P8a** the Beast Bands design
+  before v1.3, with **P8b** built inside v1.3; **P11** the second QA pass and the Full Review after v1.3. Where the
+  prompts disagree with v2 or the design pages (realm names, the four-stage ladder, pixel fonts, Control trees and
+  Theme resources, the soul-ring source), that page's §5 lists the conflict and the recommended resolution; none is
+  settled yet.
+
 ### Deviations (presentation)
 
 - **Type (S24).** The style guide sets words in Cormorant Garamond. The build keeps it for headings of 22 px and up,
