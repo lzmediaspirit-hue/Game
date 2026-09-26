@@ -1,5 +1,23 @@
 # Changelog
 
+## Wikis and volume (docs/roadmap_master_ui.md, P7)
+
+### P7a · The item and monster wikis
+- **`docs/wiki/items.md`**: all 614 items (472 items, 142 pieces of equipment) by type or slot, each with its icon,
+  grade, iLv, stats or effect, requirement, description and every source the data gives, with rates: enemy drops,
+  jars and chests, the Trial Tower, gathering nodes and posts, gardens, recipes and other crafts, shops and auctions,
+  quest and unlock rewards, mail. Banded equipment names the foes and chests whose roll can make it.
+- **`docs/wiki/monsters.md`**: all 121 enemies by zone, each with its sheet, room spawns, other appearances (events,
+  set pieces, the tower, tides, summons), level band, stats, attacks and phases, and its full drop table with rates.
+- Written by `tools/dev/wiki.py` from `data/` alone and byte-identical on every run; `build_data.py` runs it after a
+  full build.
+- **Every item has a source.** A `data_validation` rule scans the same channels; an item nothing hands out carries an
+  explicit mark instead (`"source": "story"`, `"system"` or `"later"`): the starting gourd, the dyed root, the murky
+  pill, the Evergreen Heart fruit and the two Monarch pills. 43 real gaps are listed in the suite's
+  `KNOWN_SOURCE_GAPS` for P7b: 12 beast cores no beast carries, the high Spirit Stone, two beast bags, five Hour
+  Incenses and the Wandering Incense, six snare kits and rite tablets, three gourds, and 13 set pieces (the sect sets'
+  hats, trousers and boots, and the Mudwater, Drowned Abbot and Crane sets but the Abbot's robe).
+
 ## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
 
 ### P10 · Findings fixed
