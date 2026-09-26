@@ -375,6 +375,26 @@
     ]
    },
    "locked_text": "You have no net, and they are too quick for bare hands."
+  },
+  {
+   "id": "trail_frost_stoat",
+   "type": "beast_trail",
+   "at": [
+    1572,
+    860
+   ],
+   "critter": "frost_stoat",
+   "prop": "beast_trail",
+   "radius": 110,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "beast_snaring"
+     }
+    ]
+   },
+   "locked_text": "Tracks in the grass. Someone who knew snares could use them."
   }
  ],
  "spawns": [

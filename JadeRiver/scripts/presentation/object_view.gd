@@ -13,7 +13,8 @@ const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "bath_stati
 	"defence_drum": "small_bell", "treasure_plot": "treasure_plot", "treasure_tree": "nine_bough_jade_tree",
 	"star_sight": "star_sight_stone", "chart_table": "star_chart_table", "shipyard_slip": "shipyard_slip", "starsea_dock": "cloud_skiff",
 	"air_pocket": "qi_spring", "earth_vent": "gas_vent", "egg_nest": "beast_nest", "beast_tide_drum": "small_bell", "beast_trial_stone": "rite_circle",
-	"rift_tear": "portal_swirl", "spirit_mine": "spirit_shard_vein", "insect_swarm": "glowfly_swarm"}
+	"rift_tear": "portal_swirl", "spirit_mine": "spirit_shard_vein", "insect_swarm": "glowfly_swarm",
+	"beast_trail": "beast_trail", "ancestral_altar": "ancestral_altar"}
 ## V10 Insect Netting: the colour of each swarm's drifting motes.
 const SWARM_MOTE := {"glowfly": "d8f06a", "reed_cicada": "b8c47a", "jade_scarab": "6fd8a0", "silk_moth": "f2ead0",
 	"thunder_mantis": "9aa8ff", "frost_cricket": "c8f0ff", "ember_locust": "ff9a4a", "starwing_mote": "ffe08a"}
@@ -55,6 +56,12 @@ func state_name() -> String:
 			return "ready"
 		"star_sight": return "idle" if s == "depleted" else "active"   # the engraved stars glow while a reading waits
 		"insect_swarm": return "depleted" if s == "depleted" else "ready"
+		"beast_trail":
+			# V10c: the active character's snare on this trail: set, or sprung once its time is up.
+			var sn: Dictionary = Game.posts.my_snare(c, object_id) if c else {}
+			if sn.is_empty(): return "idle"
+			return "caught" if Clock.now_utc() >= float(sn.done) else "set"
+		"ancestral_altar": return "lit" if c and Game.posts.rite_charge(c) >= float(PostRules.rule("rites.min_charge", 10.0)) else "idle"
 		"spirit_mine": return "full"
 		"ore_vein": return "depleted" if s == "depleted" else ("cracked" if int(st.get("hits", 0)) > 0 else "full")
 		"jar", "crate", "wine_jar": return "broken" if s == "broken" else "intact"

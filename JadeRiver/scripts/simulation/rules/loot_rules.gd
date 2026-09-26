@@ -130,7 +130,7 @@ static func roll_affix(item_id: String, ilv: int, rng: RandomNumberGenerator, ex
 # ------------------------------------------------------------------ prices (S39)
 const TYPE_MULT := {"material": 0.25, "herb": 0.25, "ore": 0.25, "beast_part": 0.25, "core": 0.5, "hollow": 0.25, "fish": 0.4,
 	"food": 1.0, "pill": 2.0, "talisman": 2.0, "tool": 3.0, "taming": 1.0, "jade": 2.0, "scroll": 1.5, "other": 0.5, "egg": 3.0,
-	"insect": 0.3}
+	"insect": 0.3, "critter": 0.35, "wisp": 0.2}
 
 static func value_of(item_id: String, instance = null) -> int:
 	var def := ContentDB.item(item_id)

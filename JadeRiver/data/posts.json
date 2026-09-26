@@ -48,6 +48,32 @@
    "tool_word": "net",
    "icon": "craft_netting",
    "desc": "Netting spirit insects from their swarms. Agility drives it."
+  },
+  {
+   "id": "snaring",
+   "name": "Beast Snaring",
+   "short": "Snaring",
+   "attribute": "agility",
+   "unlock": "beast_snaring",
+   "node": "beast_trail",
+   "category": "critter",
+   "tool_word": "snare kit",
+   "icon": "craft_snaring",
+   "timed": true,
+   "desc": "Snares set on beast trails for a chosen time. Short snares pay more an hour, long ones more a visit."
+  },
+  {
+   "id": "rites",
+   "name": "Ancestral Rites",
+   "short": "Rites",
+   "attribute": "spirit",
+   "unlock": "ancestral_rites",
+   "node": "ancestral_altar",
+   "category": "wisp",
+   "tool_word": "tablet",
+   "icon": "craft_rites",
+   "timed": true,
+   "desc": "Rite charge builds by itself; spent defending an ancestral altar, it calls down Spirit Wisps."
   }
  ],
  "rules": {
@@ -117,6 +143,25 @@
    "k_per_technique": 0.12,
    "k_max": 2.2,
    "walk_speed": 205
+  },
+  "snaring": {
+   "radiant": 0.02,
+   "recall_share": 0.5
+  },
+  "rites": {
+   "charge_base": 6.0,
+   "charge_floor": 0.57,
+   "charge_top": 5.7,
+   "speed_k": 0.2,
+   "level_div": 40.0,
+   "cap_base": 50.0,
+   "cap_per_tier": 25.0,
+   "min_charge": 10.0,
+   "wisps_base": 5.0,
+   "wave_log": 5.0,
+   "wave_per_charge": 25.0,
+   "wave_max": 60,
+   "exp_per_wave": 12.0
   },
   "leaves": {
    "chance": 0.001,
@@ -382,12 +427,84 @@
    "gate": 50,
    "category": "insect"
   },
+  "jade_frog": {
+   "craft": "snaring",
+   "toughness": 35,
+   "exp": 1.0,
+   "gate": 1,
+   "category": "critter"
+  },
+  "mist_hare": {
+   "craft": "snaring",
+   "toughness": 120,
+   "exp": 1.3,
+   "gate": 5,
+   "category": "critter"
+  },
+  "reed_ferret": {
+   "craft": "snaring",
+   "toughness": 300,
+   "exp": 1.6,
+   "gate": 12,
+   "category": "critter"
+  },
+  "cloud_marmot": {
+   "craft": "snaring",
+   "toughness": 550,
+   "exp": 2.0,
+   "gate": 20,
+   "category": "critter"
+  },
+  "thunder_hedgehog": {
+   "craft": "snaring",
+   "toughness": 900,
+   "exp": 2.5,
+   "gate": 30,
+   "category": "critter"
+  },
+  "frost_stoat": {
+   "craft": "snaring",
+   "toughness": 1400,
+   "exp": 3.0,
+   "gate": 38,
+   "category": "critter"
+  },
+  "sand_fox": {
+   "craft": "snaring",
+   "toughness": 2000,
+   "exp": 3.6,
+   "gate": 45,
+   "category": "critter"
+  },
+  "star_gecko": {
+   "craft": "snaring",
+   "toughness": 2800,
+   "exp": 4.2,
+   "gate": 50,
+   "category": "critter"
+  },
   "spirit_wood": {
    "craft": "foraging",
    "toughness": 10,
    "exp": 0,
    "gate": 1,
    "category": "herb",
+   "side": true
+  },
+  "spirit_wisp": {
+   "craft": "rites",
+   "toughness": 0,
+   "exp": 0,
+   "gate": 1,
+   "category": "wisp",
+   "side": true
+  },
+  "radiant_pelt": {
+   "craft": "snaring",
+   "toughness": 0,
+   "exp": 0,
+   "gate": 1,
+   "category": "critter",
    "side": true
   }
  },
@@ -452,6 +569,10 @@
     {
      "item": "serpent_scale",
      "count": 4
+    },
+    {
+     "item": "hemp_cord",
+     "count": 16
     }
    ]
   },
@@ -464,6 +585,10 @@
     {
      "item": "cloud_feather",
      "count": 4
+    },
+    {
+     "item": "hemp_cord",
+     "count": 20
     }
    ]
   },
@@ -476,6 +601,10 @@
     {
      "item": "mist_pelt",
      "count": 4
+    },
+    {
+     "item": "hemp_cord",
+     "count": 24
     }
    ]
   },
@@ -488,6 +617,10 @@
     {
      "item": "kite_silk",
      "count": 4
+    },
+    {
+     "item": "hemp_cord",
+     "count": 28
     }
    ]
   },
@@ -500,6 +633,10 @@
     {
      "item": "snow_ape_hide",
      "count": 4
+    },
+    {
+     "item": "hemp_cord",
+     "count": 32
     }
    ]
   },
@@ -512,6 +649,10 @@
     {
      "item": "comet_iron",
      "count": 4
+    },
+    {
+     "item": "hemp_cord",
+     "count": 36
     }
    ]
   },
@@ -524,6 +665,10 @@
     {
      "item": "jelly_silk",
      "count": 6
+    },
+    {
+     "item": "hemp_cord",
+     "count": 40
     }
    ]
   },
@@ -536,6 +681,10 @@
     {
      "item": "jelly_silk",
      "count": 10
+    },
+    {
+     "item": "hemp_cord",
+     "count": 44
     }
    ]
   },
@@ -548,6 +697,10 @@
     {
      "item": "guardian_scale",
      "count": 6
+    },
+    {
+     "item": "hemp_cord",
+     "count": 48
     }
    ]
   },
@@ -560,6 +713,10 @@
     {
      "item": "wyrm_ash",
      "count": 4
+    },
+    {
+     "item": "hemp_cord",
+     "count": 52
     }
    ]
   }
@@ -745,5 +902,267 @@
     "weight": 20
    }
   ]
+ },
+ "snares": [
+  {
+   "id": "snare_20m",
+   "kit": 0,
+   "seconds": 1200,
+   "critters": 1,
+   "exp": 1,
+   "kind": ""
+  },
+  {
+   "id": "snare_1h",
+   "kit": 0,
+   "seconds": 3600,
+   "critters": 2,
+   "exp": 2,
+   "kind": ""
+  },
+  {
+   "id": "snare_8h",
+   "kit": 0,
+   "seconds": 28800,
+   "critters": 10,
+   "exp": 8,
+   "kind": ""
+  },
+  {
+   "id": "snare_20h",
+   "kit": 0,
+   "seconds": 72000,
+   "critters": 20,
+   "exp": 15,
+   "kind": ""
+  },
+  {
+   "id": "snare_40h",
+   "kit": 1,
+   "seconds": 144000,
+   "critters": 35,
+   "exp": 50,
+   "kind": ""
+  },
+  {
+   "id": "snare_3h",
+   "kit": 2,
+   "seconds": 10800,
+   "critters": 5,
+   "exp": 5,
+   "kind": ""
+  },
+  {
+   "id": "snare_60h",
+   "kit": 2,
+   "seconds": 216000,
+   "critters": 50,
+   "exp": 40,
+   "kind": ""
+  },
+  {
+   "id": "snare_120h",
+   "kit": 2,
+   "seconds": 432000,
+   "critters": 100,
+   "exp": 80,
+   "kind": ""
+  },
+  {
+   "id": "snare_120h_beasts",
+   "kit": 2,
+   "seconds": 432000,
+   "critters": 200,
+   "exp": 0,
+   "kind": "beasts"
+  },
+  {
+   "id": "snare_120h_insight",
+   "kit": 2,
+   "seconds": 432000,
+   "critters": 0,
+   "exp": 200,
+   "kind": "insight"
+  },
+  {
+   "id": "snare_28d",
+   "kit": 3,
+   "seconds": 2419200,
+   "critters": 550,
+   "exp": 1150,
+   "kind": ""
+  }
+ ],
+ "trails": {
+  "lf_reed_shallows": {
+   "critter": "jade_frog"
+  },
+  "rm_marsh_edge": {
+   "critter": "jade_frog"
+  },
+  "wp_west": {
+   "critter": "mist_hare"
+  },
+  "sq_quarry_rim": {
+   "critter": "mist_hare"
+  },
+  "bg_whispering_bamboo": {
+   "critter": "reed_ferret"
+  },
+  "dw_bend_shore": {
+   "critter": "reed_ferret"
+  },
+  "mp_misty_slopes": {
+   "critter": "cloud_marmot"
+  },
+  "cc_sky_ledges": {
+   "critter": "cloud_marmot"
+  },
+  "tp_stormgrass_verge": {
+   "critter": "thunder_hedgehog"
+  },
+  "tp_thunderhorn_flats": {
+   "critter": "thunder_hedgehog"
+  },
+  "rf_frostpine_climb": {
+   "critter": "frost_stoat"
+  },
+  "rf_snow_ape_ledges": {
+   "critter": "frost_stoat"
+  },
+  "sd_glass_dunes": {
+   "critter": "sand_fox"
+  },
+  "sd_scorpion_flats": {
+   "critter": "sand_fox"
+  },
+  "dr_sparrow_reefs": {
+   "critter": "star_gecko"
+  },
+  "dr_driftglass_bank": {
+   "critter": "star_gecko"
+  }
+ },
+ "altars": {
+  "sf_county_hall": {
+   "toughness": 25
+  },
+  "ja_library": {
+   "toughness": 60
+  },
+  "cm_cloud_library": {
+   "toughness": 60
+  },
+  "np_hall_of_nine": {
+   "toughness": 400
+  },
+  "lh_star_chandlery": {
+   "toughness": 1400
+  }
+ },
+ "post_vows": [
+  {
+   "id": "vow_short_lamp",
+   "name": "Vow of the Short Lamp",
+   "cost": 40,
+   "boon": {
+    "craft_exp_pct": 25
+   },
+   "curse": {
+    "post_hours": 10
+   },
+   "text": "+25% craft EXP. Posts stop working after 10 hours away."
+  },
+  {
+   "id": "vow_quiet_hand",
+   "name": "Vow of the Quiet Hand",
+   "cost": 60,
+   "boon": {
+    "finesse_pct": 15
+   },
+   "curse": {
+    "craft_exp_pct": -30
+   },
+   "text": "+15% Finesse. -30% craft EXP."
+  },
+  {
+   "id": "vow_burdened",
+   "name": "Vow of the Burdened Back",
+   "cost": 90,
+   "boon": {
+    "craft_diligence": 8
+   },
+   "curse": {
+    "capacity_pct": -60
+   },
+   "text": "+8% Craft Diligence. Pouches hold 60% less."
+  },
+  {
+   "id": "vow_iron_fast",
+   "name": "Vow of the Iron Fast",
+   "cost": 120,
+   "boon": {
+    "martial_diligence": 10
+   },
+   "curse": {
+    "food_mult": 2.0
+   },
+   "text": "+10% Martial Diligence. A Vigil eats its provisions twice as fast."
+  },
+  {
+   "id": "vow_open_palm",
+   "name": "Vow of the Open Palm",
+   "cost": 160,
+   "boon": {
+    "drop_rate": 50
+   },
+   "curse": {
+    "kills_pct": -20
+   },
+   "text": "+50% Vigil drop rate. -20% Vigil kills."
+  }
+ ],
+ "bench": {
+  "components": [
+   {
+    "item": "hemp_cord",
+    "progress": 100,
+    "gate": 1
+   },
+   {
+    "item": "bronze_rivet",
+    "progress": 200,
+    "gate": 5
+   },
+   {
+    "item": "kiln_brick",
+    "progress": 350,
+    "gate": 12
+   },
+   {
+    "item": "lacquer_pot",
+    "progress": 700,
+    "gate": 17
+   },
+   {
+    "item": "whetstone",
+    "progress": 1200,
+    "gate": 25
+   },
+   {
+    "item": "spirit_glue",
+    "progress": 2000,
+    "gate": 30
+   }
+  ],
+  "apprentices": [
+   0,
+   60,
+   150
+  ],
+  "points_per_levels": 5,
+  "speed_per_point": 0.02,
+  "exp_per_point": 0.03,
+  "cap_per_point": 0.1
  }
 }

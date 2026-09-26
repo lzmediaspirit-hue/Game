@@ -183,3 +183,35 @@ static func survivability(max_hp: float, dmg_h: float, regen_h: float, heal_each
 	var alive_h := fed_h + (hours - fed_h) * starving
 	return {"alive": alive_h / hours, "food_used": used, "fed_h": fed_h}
 
+
+# ------------------------------------------------------------------ Beast Snaring and Ancestral Rites (V10c, §7.3)
+## A snare's catch: none if Finesse is under the beast's Toughness, else the snare's count x (Finesse / T)^0.25.
+static func snare_catch(fin: float, toughness: float, critters: float) -> float:
+	if toughness <= 0.0 or fin < toughness or critters <= 0.0: return 0.0
+	return critters * pow(fin / toughness, 0.25)
+
+## Rite charge an hour: 6 / max(5.7 - 0.2 x tablet speed^1.3 - level/40, 0.57).
+static func rite_charge_rate(speed: float, level: int) -> float:
+	var r: Dictionary = rule("rites", {})
+	var d := float(r.get("charge_top", 5.7)) - float(r.get("speed_k", 0.2)) * pow(maxf(0.0, speed), 1.3) - float(level) / float(r.get("level_div", 40.0))
+	return float(r.get("charge_base", 6.0)) / maxf(d, float(r.get("charge_floor", 0.57)))
+
+static func rite_charge_cap(tablet_tier: int) -> float:
+	var r: Dictionary = rule("rites", {})
+	return float(r.get("cap_base", 50.0)) + float(r.get("cap_per_tier", 25.0)) * maxf(0.0, float(tablet_tier))
+
+## The altar defence, resolved: the wave held from Finesse against the altar and the charge spent, and the wisps it
+## calls: 5 x (1 + floor(100 x (F / 10T)^0.25) / 100) x ((5 + wave) / 10)^2.6.
+static func rite_result(fin: float, toughness: float, charge: float) -> Dictionary:
+	var r: Dictionary = rule("rites", {})
+	var t := maxf(1.0, toughness)
+	var wave := clampi(int(floorf(float(r.get("wave_log", 5.0)) * log(1.0 + fin / t) / log(2.0) + charge / float(r.get("wave_per_charge", 25.0)))),
+		1, int(r.get("wave_max", 60)))
+	var bonus := floorf(100.0 * pow(fin / (10.0 * t), 0.25)) / 100.0 if fin >= t else 0.0
+	var wisps := float(r.get("wisps_base", 5.0)) * (1.0 + bonus) * pow((5.0 + wave) / 10.0, 2.6)
+	var exp := float(wave) * float(r.get("exp_per_wave", 12.0)) * pow(1.0 + t / 100.0, 0.3)
+	return {"wave": wave, "wisps": wisps, "exp": exp}
+
+## Apprentice Bench: items an hour per apprentice, 3600 x speed / progress.
+static func bench_rate(progress: float, speed := 1.0) -> float:
+	return 3600.0 * maxf(0.0, speed) / maxf(1.0, progress)

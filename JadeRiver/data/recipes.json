@@ -3324,6 +3324,10 @@
     {
      "item": "cloud_feather",
      "count": 1
+    },
+    {
+     "item": "bronze_rivet",
+     "count": 3
     }
    ],
    "outputs": [
@@ -3350,6 +3354,10 @@
     {
      "item": "cloud_feather",
      "count": 1
+    },
+    {
+     "item": "bronze_rivet",
+     "count": 3
     }
    ],
    "outputs": [
@@ -3376,6 +3384,10 @@
     {
      "item": "cloud_feather",
      "count": 1
+    },
+    {
+     "item": "bronze_rivet",
+     "count": 3
     }
    ],
    "outputs": [
@@ -3402,6 +3414,10 @@
     {
      "item": "spirit_wood",
      "count": 1
+    },
+    {
+     "item": "bronze_rivet",
+     "count": 3
     }
    ],
    "outputs": [
@@ -3428,6 +3444,10 @@
     {
      "item": "roc_feather",
      "count": 1
+    },
+    {
+     "item": "bronze_rivet",
+     "count": 4
     }
    ],
    "outputs": [
@@ -3454,6 +3474,10 @@
     {
      "item": "roc_feather",
      "count": 1
+    },
+    {
+     "item": "bronze_rivet",
+     "count": 4
     }
    ],
    "outputs": [
@@ -3480,6 +3504,10 @@
     {
      "item": "roc_feather",
      "count": 1
+    },
+    {
+     "item": "bronze_rivet",
+     "count": 4
     }
    ],
    "outputs": [
@@ -3506,6 +3534,10 @@
     {
      "item": "spirit_wood",
      "count": 1
+    },
+    {
+     "item": "bronze_rivet",
+     "count": 4
     }
    ],
    "outputs": [
@@ -3532,6 +3564,10 @@
     {
      "item": "spark_pelt",
      "count": 1
+    },
+    {
+     "item": "whetstone",
+     "count": 2
     }
    ],
    "outputs": [
@@ -3558,6 +3594,10 @@
     {
      "item": "spark_pelt",
      "count": 1
+    },
+    {
+     "item": "whetstone",
+     "count": 2
     }
    ],
    "outputs": [
@@ -3584,6 +3624,10 @@
     {
      "item": "spark_pelt",
      "count": 1
+    },
+    {
+     "item": "whetstone",
+     "count": 2
     }
    ],
    "outputs": [
@@ -3610,6 +3654,10 @@
     {
      "item": "spirit_wood",
      "count": 1
+    },
+    {
+     "item": "whetstone",
+     "count": 2
     }
    ],
    "outputs": [
@@ -3636,6 +3684,10 @@
     {
      "item": "scorpion_stinger",
      "count": 1
+    },
+    {
+     "item": "whetstone",
+     "count": 3
     }
    ],
    "outputs": [
@@ -3662,6 +3714,10 @@
     {
      "item": "scorpion_stinger",
      "count": 1
+    },
+    {
+     "item": "whetstone",
+     "count": 3
     }
    ],
    "outputs": [
@@ -3688,6 +3744,10 @@
     {
      "item": "scorpion_stinger",
      "count": 1
+    },
+    {
+     "item": "whetstone",
+     "count": 3
     }
    ],
    "outputs": [
@@ -3714,6 +3774,10 @@
     {
      "item": "spirit_wood",
      "count": 1
+    },
+    {
+     "item": "whetstone",
+     "count": 3
     }
    ],
    "outputs": [
@@ -3739,6 +3803,10 @@
     },
     {
      "item": "star_shard",
+     "count": 2
+    },
+    {
+     "item": "spirit_glue",
      "count": 2
     }
    ],
@@ -3766,6 +3834,10 @@
     {
      "item": "star_shard",
      "count": 2
+    },
+    {
+     "item": "spirit_glue",
+     "count": 2
     }
    ],
    "outputs": [
@@ -3791,6 +3863,10 @@
     },
     {
      "item": "star_shard",
+     "count": 2
+    },
+    {
+     "item": "spirit_glue",
      "count": 2
     }
    ],
@@ -3818,6 +3894,10 @@
     {
      "item": "spirit_wood",
      "count": 1
+    },
+    {
+     "item": "spirit_glue",
+     "count": 2
     }
    ],
    "outputs": [

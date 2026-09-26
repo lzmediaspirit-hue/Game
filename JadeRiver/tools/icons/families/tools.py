@@ -724,3 +724,106 @@ for _tl_t, _tl_id in enumerate(('', 'reedline_rod', 'ironwood_rod', 'jadeline_ro
 for _tl_t, _tl_id in enumerate(('reed_net', 'hemp_net', 'cord_net', 'silk_net', 'cloudsilk_net', 'mystic_net',
                                 'storm_net', 'sunglass_net', 'starsilk_net')):
     register(FAM, _tl_id, (lambda tt: lambda: _tier_net(tt))(_tl_t), 'tools')
+
+
+# ============================================================================ V10c · snare kits
+# The snaring craft's kits: a coiled snare cord with a running noose, tied off to its stake(s). Richer with tier:
+# the cord (hemp, iron wire, spirit silk, star silk), the noose fitting (a plain knot, an iron ring, a jade
+# toggle, a driftglass ring) and the stakes (one wooden peg, then two capped stakes). Upright stakes and a coil
+# keep them apart from the diagonal hoop nets.
+SN_SPIRITSILK = Ramp(['#2E6A7A', '#5AA6B6', '#9EDCE4', '#D8F6F6', '#FFFFFF'], '#0E2A32')
+
+SNARE_TIERS = {
+    'hemp': dict(cord=R['hemp'], w=1.8, twist=True, stake=R['wood'], cap=None, stakes=1, fit='knot', glow=None),
+    'iron': dict(cord=R['iron'], w=1.4, twist=False, stake=R['darkwood'], cap=R['iron'], stakes=2, fit='ring',
+                 ring=R['iron'], glow=None),
+    'silk': dict(cord=SN_SPIRITSILK, w=1.6, twist=False, stake=R['bamboo'], cap=R['silver'], stakes=2, fit='toggle',
+                 glow=None),
+    'star': dict(cord=R['starlight'], w=1.6, twist=False, stake=R['navy'], cap=R['starlight'], stakes=2,
+                 fit='ring', ring=TL_DRIFTGLASS, glow='#BFEFFF'),
+}
+
+
+def _sn_stake(c, top, tip, K):
+    """A pointed stake from its head (top) down to its tip, cord lashed under the head, an optional cap."""
+    (x0, y0), (x1, y1) = top, tip
+
+    def at(f):
+        return x0 + (x1 - x0) * f, y0 + (y1 - y0) * f
+
+    # a tent-peg barb on the right, where the snare's line catches
+    bx, by = at(0.3)
+    barb = c.poly([(bx, by - 1.2), (bx + 3.4, by - 3.0), (bx + 3.0, by - 1.4), (bx, by + 1.4)])
+    c.put(barb, K['stake'], 'ray', base=2)
+    px, py = at(0.8)
+    shaft = c.seg(x0, y0, px, py, 3.0)
+    point = c.poly([(px - 1.5, py - 0.5), (px + 1.5, py - 0.5), (x1 + 0.3, y1)])
+    c.put(shaft | point, K['stake'], 'across', base=2, sep=True)
+    c.put(point, K['stake'], 'flat', base=1)
+    c.put(c.ellipse(x0, y0 - 0.2, 1.6, 0.9), K['stake'], 'flat', base=4)
+    if K['cap'] is not None:  # a metal (or jade, or star-gold) ferrule round the head
+        cap = c.seg(x0, y0 - 0.2, *at(0.08), 3.4)
+        c.put(cap, K['cap'], 'across', base=2, sep=True)
+        c.put(c.ellipse(x0, y0 - 0.4, 1.6, 0.8), K['cap'], 'flat', base=4)
+    # the cord lashed round the stake under the head
+    for f in (0.17, 0.23):
+        x, y = at(f)
+        c.put(c.seg(x - 1.8, y, x + 1.8, y, 1.0) & shaft, K['cord'], 'flat', base=3)
+    return shaft | point
+
+
+def _tier_snare(tier):
+    K = SNARE_TIERS[tier]
+    c = Canvas(32)
+    cord = K['cord']
+    # stakes, the back one first
+    stakes = [((23.5, 8.5), (22, 29.5))]
+    if K['stakes'] == 2:
+        stakes = [((26.8, 12.5), (26, 29.5))] + stakes
+    for (top, tip) in stakes:
+        _sn_stake(c, top, tip, K)
+    # the coil: the spare cord wound in a flat spiral, seen at a slant
+    cx, cy = 11.5, 11.5
+    pts = []
+    for i in range(121):
+        f = i / 120.0
+        th = -math.pi * 0.5 + f * 2.25 * 2 * math.pi
+        r = 1.4 + 7.6 * f
+        pts.append((cx + r * math.cos(th), cy + r * 0.78 * math.sin(th)))
+    coil = c.polyline(pts, K['w'])
+    c.put(coil, cord, 'ray', base=2, sep=True)
+    if K['twist']:
+        c.put(coil & ((c.xi + c.yi) % 4 == 0), cord, 'flat', base=1)
+    else:
+        c.put(coil & c.sector(cx, cy, 12, 100, 170, 9), cord, 'flat', base=4)
+    # the running line from the coil's outer end over to the front stake's lashing
+    ex, ey = pts[-1]
+    line = S.bez_line(c, (ex, ey), (ex + 5, ey - 2), (23.5, 13.5), K['w'])
+    c.put(line & ~coil, cord, 'flat', base=3, sep=True)
+    # the noose hanging below the coil, its slip fitting where it closes
+    drop = c.seg(10.5, 18.5, 10.5, 21.5, K['w'])
+    noose = c.ring(10.5, 25.4, 5.2, K['w'], 3.6)
+    c.put(drop | noose, cord, 'ray', base=3, sep=True)
+    if K['twist']:
+        c.put(noose & ((c.xi + c.yi) % 3 == 0), cord, 'flat', base=1)
+    if K['fit'] == 'knot':
+        c.put(c.rect(9, 20, 11, 22), cord, 'ray', base=2, sep=True)
+        c.put(c.rect(10, 20, 10, 20), cord, 'flat', base=4)
+    elif K['fit'] == 'ring':
+        ring = c.ring(10.5, 21.2, 2.4, 1.2)
+        c.put(ring, K['ring'], 'ray', base=3, sep=True)
+        c.put(c.arc(10.5, 21.2, 2.4, 1.2, 100, 190), K['ring'], 'flat', base=4)
+    else:  # jade toggle: a small bar threaded through the loop
+        tog = c.seg(7.2, 21.6, 13.8, 20.2, 2.2)
+        c.put(tog, R['jade'], 'across', base=3, sep=True)
+        c.put(c.rect(8, 20, 9, 20) & tog, R['jade'], 'flat', base=4)
+    c.outline()
+    if K['glow']:
+        c.glow(K['glow'], (70,))
+        S.sparkle(c, 4, 4, '#FFFFFF', R['starlight'][3], 2)
+        c.pxs([(15, 25), (6, 12)], '#FFFDF4', out=R['starlight'].out)
+    return c
+
+
+for _sn_tier in ('hemp', 'iron', 'silk', 'star'):
+    register(FAM, _sn_tier + '_snare_kit', (lambda tt: lambda: _tier_snare(tt))(_sn_tier), 'tools')

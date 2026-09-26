@@ -38,6 +38,29 @@
       }
     }
   },
+  "ancestral_altar": {
+    "anchor": [
+      52,
+      84
+    ],
+    "file": "res://art/props/ancestral_altar.png",
+    "frame": [
+      104,
+      88
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "fps": 4,
+        "frames": 4
+      },
+      "lit": {
+        "col": 4,
+        "fps": 6,
+        "frames": 4
+      }
+    }
+  },
   "armillary_sphere": {
     "anchor": [
       40,
@@ -320,6 +343,31 @@
     "states": {
       "idle": {
         "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "beast_trail": {
+    "anchor": [
+      32,
+      52
+    ],
+    "file": "res://art/props/beast_trail.png",
+    "frame": [
+      64,
+      56
+    ],
+    "states": {
+      "caught": {
+        "col": 2,
+        "frames": 1
+      },
+      "idle": {
+        "col": 0,
+        "frames": 1
+      },
+      "set": {
+        "col": 1,
         "frames": 1
       }
     }

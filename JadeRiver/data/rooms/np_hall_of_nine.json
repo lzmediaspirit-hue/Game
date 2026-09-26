@@ -187,6 +187,26 @@
      }
     ]
    }
+  },
+  {
+   "id": "ancestral_altar",
+   "type": "ancestral_altar",
+   "at": [
+    640,
+    860
+   ],
+   "toughness": 400,
+   "prop": "ancestral_altar",
+   "radius": 120,
+   "requires": {
+    "all": [
+     {
+      "kind": "unlock",
+      "system": "ancestral_rites"
+     }
+    ]
+   },
+   "locked_text": "An old altar to the ancestors. The rites are not yours to hold yet."
   }
  ],
  "spawns": [],

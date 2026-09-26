@@ -1933,6 +1933,59 @@
     "post_authority",
     "post_rules"
    ]
+  },
+  "snare_set": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ],
+   "polled": "The trail's object view reads the active character's snares."
+  },
+  "snare_collected": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ]
+  },
+  "rite_held": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ]
+  },
+  "post_vow_learned": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ]
+  },
+  "post_vow_pledged": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ],
+   "polled": "The Roll-Call's Vows tab reads the vows held."
+  },
+  "bench_assigned": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ],
+   "polled": "The Roll-Call's Bench tab reads the bench."
+  },
+  "bench_collected": {
+   "system": "Posts",
+   "files": [
+    "post_authority",
+    "post_rules"
+   ],
+   "polled": "The Roll-Call's Bench tab reads the bench."
   }
  }
 }

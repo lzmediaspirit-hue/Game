@@ -427,21 +427,32 @@ sweep        = max(1, tier × 0.5)          tier = floor(log2(max_hit / hp)), fr
 
 ### 7.3 Timed stations (V10c)
 
-- **Beast Snaring.** Snares set on beast trails (room objects in hunting rooms). Kit tiers unlock durations:
-  kit 0: 20 min → 1 critter / 1 EXP, 1 h → 2/2, 8 h → 10/8, 20 h → 20/15; kit 1 adds 40 h → 35/50 and a
-  *radiant* chance; kit 2 adds 3 h → 5/5, 60 h → 50/40, 120 h → 100/80 and all-critter or all-EXP variants; the
-  top kit reaches 28 days → 550/1,150. Short snares pay more an hour, long ones more a visit. Critters (jade
-  frog, mist hare, reed ferret, cloud marmot, thunder hedgehog, frost stoat, sand fox, star gecko) need Finesse
-  ≥ their Toughness. *Hunter's Recall* (a Post Art) collects remotely at 50%.
-- **Ancestral Rites.** At a sect's ancestral altar a character builds **rite charge**:
-  `charge/h = 6 / max(5.7 − 0.2 · tablet_speed^1.3 − L/40, 0.57)`, up to a cap (50 + tablet tier × 25). The
-  active character spends charge on an **altar defence** (an auto-resolved wave fight from its stats) for
-  **Spirit Wisps** = `5 × (1 + floor(100 · (F / (10 · T))^0.25) / 100) × ((5 + wave) / 10)^2.6`. Wisps pay for
-  Post Vows.
-- **Apprentice Bench.** Each character's bench has 1–3 apprentices making components with no input:
-  `items/h = 3600 × speed / progress`; capacity = material compartment × (2 + 0.1 × capacity points); points
-  from Snaring/Rites levels split among speed, capacity and EXP. Components (hemp cord 100, bronze rivets 200,
-  kiln brick 350, lacquer 700, whetstone 1,200, spirit glue 2,000) feed tool forging and pouch sewing.
+- **Beast Snaring.** Snares set on beast trails (16 room objects, one critter each). Kit tiers unlock lengths and
+  hold more snares at once (1 to 4):
+  - hemp kit: 20 min → 1 critter / 1 EXP, 1 h → 2/2, 8 h → 10/8, 20 h → 20/15;
+  - iron kit: adds 40 h → 35/50 and the *radiant* chance (2% of the catch as radiant pelts);
+  - silk kit: adds 3 h → 5/5, 60 h → 50/40, 120 h → 100/80, and 120 h variants of all beasts (200/0) or all insight
+    (0/200);
+  - star kit: adds 28 days → 550/1,150.
+
+  Short snares pay more an hour, long ones more a visit. A snare holds nothing if Finesse is under the critter's
+  Toughness (35 to 2,800), and (F / T)^0.25 more above it. EXP is the length's EXP × the critter's weight (1.0 to
+  4.2). Critters are pet food. *Hunter's Recall* (a V10d Post Art) collects remotely at 50%.
+- **Ancestral Rites.** Every character with the Rites builds **rite charge** on the clock:
+  `charge/h = 6 / max(5.7 − 0.2 · tablet_speed^1.3 − L/40, 0.57)`, up to 50 + 25 per tablet tier; the first
+  rite starts with 20. At one of five **ancestral altars** (Toughness 25 to 1,400) the active character spends all of
+  it (at least 10) on an **altar defence**, resolved as
+  `wave = clamp(floor(5 · log2(1 + F/T) + charge/25), 1, 60)` and
+  **Spirit Wisps** = `5 × (1 + floor(100 · (F / (10 · T))^0.25) / 100) × ((5 + wave) / 10)^2.6` (the bonus only once
+  F ≥ T). Rites EXP = wave × 12 × (1 + T/100)^0.3.
+- **Post Vows** (IdleOn's prayers): learned once for the account with Spirit Wisps (40 to 160), two held per
+  character: the Short Lamp, the Quiet Hand, the Burdened Back, the Iron Fast, the Open Palm (the V10c changelog lists
+  their boons and curses).
+- **Apprentice Bench.** Each character's bench has 1 to 3 apprentices (at 0, 60 and 150 total craft levels) making
+  components with no input: `items/h = 3600 × speed / progress` (hemp cord 100 → 36/h, bronze rivets 200, kiln
+  brick 350, lacquer 700, whetstone 1,200, spirit glue 2,000; each gated by Level). Capacity per component = the
+  material compartment × (2 + 0.1 × capacity points); a bench point every 5 total craft levels goes to speed (+2%),
+  capacity or smithing EXP (+3%). Components feed tool forging from tier 4 and pouch folds from the Satchel up.
 
 ### 7.4 Account systems (V10d)
 

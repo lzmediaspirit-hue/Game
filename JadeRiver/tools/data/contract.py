@@ -99,7 +99,8 @@ DEPTH = {
     "Field": ["presence_toggled", "presence_leveled", "presence_clash", "presence_clash_ended"],
     # S50 V10 Keeping Post: posts, craft levels, pouches, the Storehouse and Hour Incense.
     "Posts": ["post_taken", "post_left", "post_settled", "craft_leveled", "pouch_sewn", "storehouse_changed", "incense_burned",
-              "leaf_found"],
+              "leaf_found", "snare_set", "snare_collected", "rite_held", "post_vow_learned", "post_vow_pledged",
+              "bench_assigned", "bench_collected"],
     # S48 sect role variants: the signature line's variant and the contribution tree.
     "TrainingSect": ["sect_role_chosen", "sect_node_bought"],
     # S49 territory: the spirit-stone mines your sect takes, holds, loses and collects from (account level).
@@ -160,6 +161,10 @@ POLLED = {
     "volume_left": "The player node reads the water state and volumes each frame.",
     "enemy_leashed": "Enemy views read the return state; the out-of-reach rule is the brain's own business.",
     "storehouse_changed": "The Roll-Call's Storehouse tab reads the account's store.",
+    "snare_set": "The trail's object view reads the active character's snares.",
+    "post_vow_pledged": "The Roll-Call's Vows tab reads the vows held.",
+    "bench_assigned": "The Roll-Call's Bench tab reads the bench.",
+    "bench_collected": "The Roll-Call's Bench tab reads the bench.",
 }
 
 

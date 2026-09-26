@@ -1013,6 +1013,81 @@
    "same_stage_ok": true
   },
   {
+   "id": "beast_snaring",
+   "label": "Beast snaring",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_2"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "keeping_post"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "hemp_snare_kit",
+     "count": 1
+    }
+   ],
+   "scope": "character",
+   "quest": "snares_before_swords",
+   "same_stage_ok": true
+  },
+  {
+   "id": "ancestral_rites",
+   "label": "Ancestral rites",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_3"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "keeping_post"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [
+    {
+     "kind": "grant_item",
+     "item": "wood_rite_tablet",
+     "count": 1
+    }
+   ],
+   "scope": "character",
+   "quest": "the_ancestors_regard",
+   "same_stage_ok": true
+  },
+  {
+   "id": "apprentice_bench",
+   "label": "Apprentice bench",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_1"
+     },
+     {
+      "kind": "quest_done",
+      "quest": "keeping_post"
+     }
+    ]
+   },
+   "reveals": [],
+   "effects": [],
+   "scope": "character",
+   "quest": "an_apprentices_hands",
+   "same_stage_ok": true
+  },
+  {
    "id": "bottleneck_panel",
    "label": "Bottlenecks",
    "trigger": {

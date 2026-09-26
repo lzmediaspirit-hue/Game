@@ -24,6 +24,11 @@ RULES = {
               "loot_samples": 40, "k_per_technique": 0.12, "k_max": 2.2, "walk_speed": 205},
     # V10b Bestiary Leaves: one leaf in a thousand kills of a species (Vigil or hand); tiers at 1, 5, 25 and 100
     # leaves; each species gives one kind of bonus, by tier.
+    # V10c: snares, rites. A snare catches only beasts its Finesse meets; above that, (Finesse / Toughness)^0.25 more.
+    "snaring": {"radiant": 0.02, "recall_share": 0.5},
+    "rites": {"charge_base": 6.0, "charge_floor": 0.57, "charge_top": 5.7, "speed_k": 0.2, "level_div": 40.0, "cap_base": 50.0,
+              "cap_per_tier": 25.0, "min_charge": 10.0, "wisps_base": 5.0, "wave_log": 5.0, "wave_per_charge": 25.0, "wave_max": 60,
+              "exp_per_wave": 12.0},
     "leaves": {"chance": 0.001, "tiers": [1, 5, 25, 100], "values": [1.0, 2.0, 3.0, 5.0],
                "kinds": ["martial_diligence", "craft_diligence", "finesse", "capacity", "drop_rate"]},
 }
@@ -44,6 +49,13 @@ CRAFTS = [
     {"id": "netting", "name": "Insect Netting", "short": "Netting", "attribute": "agility", "unlock": "insect_netting", "node": "insect_swarm",
      "category": "insect", "tool_word": "net", "icon": "craft_netting",
      "desc": "Netting spirit insects from their swarms. Agility drives it."},
+    # V10c: timed crafts, not posts. Snares run on the clock; rite charge builds for everyone and is spent at an altar.
+    {"id": "snaring", "name": "Beast Snaring", "short": "Snaring", "attribute": "agility", "unlock": "beast_snaring", "node": "beast_trail",
+     "category": "critter", "tool_word": "snare kit", "icon": "craft_snaring", "timed": True,
+     "desc": "Snares set on beast trails for a chosen time. Short snares pay more an hour, long ones more a visit."},
+    {"id": "rites", "name": "Ancestral Rites", "short": "Rites", "attribute": "spirit", "unlock": "ancestral_rites", "node": "ancestral_altar",
+     "category": "wisp", "tool_word": "tablet", "icon": "craft_rites", "timed": True,
+     "desc": "Rite charge builds by itself; spent defending an ancestral altar, it calls down Spirit Wisps."},
 ]
 
 # --------------------------------------------------------------------------- nodes (§4): output -> (craft, toughness, exp, gate)
@@ -65,6 +77,12 @@ NODES = {
     "silk_moth": ("netting", 550, 55, 20), "thunder_mantis": ("netting", 900, 90, 30), "frost_cricket": ("netting", 1400, 150, 40),
     "ember_locust": ("netting", 2000, 210, 45), "starwing_mote": ("netting", 2800, 290, 50),
 }
+# Beast Snaring (V10c): critters by trail, Toughness and EXP weight (the snare table's EXP times this).
+NODES.update({
+    "jade_frog": ("snaring", 35, 1.0, 1), "mist_hare": ("snaring", 120, 1.3, 5), "reed_ferret": ("snaring", 300, 1.6, 12),
+    "cloud_marmot": ("snaring", 550, 2.0, 20), "thunder_hedgehog": ("snaring", 900, 2.5, 30), "frost_stoat": ("snaring", 1400, 3.0, 38),
+    "sand_fox": ("snaring", 2000, 3.6, 45), "star_gecko": ("snaring", 2800, 4.2, 50),
+})
 CRAFT_CATEGORY = {c["id"]: c["category"] for c in CRAFTS}
 
 # --------------------------------------------------------------------------- tools (§7.1)
@@ -146,6 +164,9 @@ def tool_recipes():
             inputs = [(metal, 4), (second, n2), (binder, n3)]
         else:
             inputs = [(metal, n1), (second, n2), (binder, n3)]
+        # V10c: from tier 4 the smith wants the Apprentice Bench's components too.
+        if tier >= 4:
+            inputs.append({4: ("bronze_rivet", 3), 5: ("bronze_rivet", 4), 6: ("whetstone", 2), 7: ("whetstone", 3), 8: ("spirit_glue", 2)}[tier])
         out.append((tid, "smithing", inputs, [(tid, 1)], grade))
     return out
 
@@ -200,6 +221,84 @@ def insect_items(item):
     return rows
 
 
+# --------------------------------------------------------------------------- V10c · Beast Snaring (§7.3)
+CRITTERS = [
+    ("jade_frog", "plain", "A thumb-sized jade frog from the reed pools. Spirit beasts gulp them whole."),
+    ("mist_hare", "common", "A grey hare that fades into morning mist. Its fur lines winter robes."),
+    ("reed_ferret", "earth", "A quick ferret of the bamboo and reeds, sleek and curious."),
+    ("cloud_marmot", "mystic", "A plump marmot of the high ledges with a tail like a puff of cloud."),
+    ("thunder_hedgehog", "spirit", "A hedgehog whose quills crackle before a storm."),
+    ("frost_stoat", "spirit", "A white winter stoat of the Rimefrost, colder than the snow it hides in."),
+    ("sand_fox", "sage", "A small fox of the Sunscar with ears like sails."),
+    ("star_gecko", "sovereign", "A gecko of the drifting islands with gold spots that glow like distant stars."),
+]
+RADIANT = ("radiant_pelt", "heaven", "The pelt of a radiant beast, a snare's rare prize: pearly, warm, and worth a great deal.")
+# room -> (share of width, critter): one beast trail per room.
+TRAILS = {
+    "lf_reed_shallows": (0.28, "jade_frog"), "rm_marsh_edge": (0.25, "jade_frog"), "wp_west": (0.3, "mist_hare"),
+    "sq_quarry_rim": (0.6, "mist_hare"), "bg_whispering_bamboo": (0.7, "reed_ferret"), "dw_bend_shore": (0.3, "reed_ferret"),
+    "mp_misty_slopes": (0.7, "cloud_marmot"), "cc_sky_ledges": (0.75, "cloud_marmot"), "tp_stormgrass_verge": (0.25, "thunder_hedgehog"),
+    "tp_thunderhorn_flats": (0.68, "thunder_hedgehog"), "rf_frostpine_climb": (0.22, "frost_stoat"), "rf_snow_ape_ledges": (0.3, "frost_stoat"),
+    "sd_glass_dunes": (0.25, "sand_fox"), "sd_scorpion_flats": (0.7, "sand_fox"), "dr_sparrow_reefs": (0.25, "star_gecko"),
+    "dr_driftglass_bank": (0.35, "star_gecko"),
+}
+# Snare kits: (item, grade, tier, power, level gate, snares at once)
+KITS = [("hemp_snare_kit", "common", 0, 4, 1, 1), ("iron_snare_kit", "earth", 1, 14, 15, 2),
+        ("silk_snare_kit", "mystic", 2, 26, 30, 3), ("star_snare_kit", "sovereign", 3, 45, 45, 4)]
+# Snare lengths: (id, least kit tier, seconds, critters, EXP, kind). Short snares pay more an hour, long ones a visit.
+SNARES = [
+    ("snare_20m", 0, 1200, 1, 1, ""), ("snare_1h", 0, 3600, 2, 2, ""), ("snare_8h", 0, 28800, 10, 8, ""), ("snare_20h", 0, 72000, 20, 15, ""),
+    ("snare_40h", 1, 144000, 35, 50, ""), ("snare_3h", 2, 10800, 5, 5, ""), ("snare_60h", 2, 216000, 50, 40, ""),
+    ("snare_120h", 2, 432000, 100, 80, ""), ("snare_120h_beasts", 2, 432000, 200, 0, "beasts"), ("snare_120h_insight", 2, 432000, 0, 200, "insight"),
+    ("snare_28d", 3, 2419200, 550, 1150, ""),
+]
+
+# --------------------------------------------------------------------------- V10c · Ancestral Rites (§7.3)
+TABLETS = [("wood_rite_tablet", "common", 0, 4, 4, 1), ("jade_rite_tablet", "earth", 1, 12, 5, 15),
+           ("cloud_rite_tablet", "mystic", 2, 24, 6, 30), ("star_rite_tablet", "sovereign", 3, 40, 7, 45)]   # (item, grade, tier, power, speed, gate)
+# room -> (share of width, Toughness): the ancestral altars.
+ALTARS = {"sf_county_hall": (0.3, 25), "ja_library": (0.7, 60), "cm_cloud_library": (0.7, 60), "np_hall_of_nine": (0.25, 400),
+          "lh_star_chandlery": (0.3, 1400)}
+# Post Vows (V10c): a boon and a curse, learned for the account with Spirit Wisps; two held per character.
+POST_VOWS = [
+    {"id": "vow_short_lamp", "name": "Vow of the Short Lamp", "cost": 40, "boon": {"craft_exp_pct": 25}, "curse": {"post_hours": 10},
+     "text": "+25% craft EXP. Posts stop working after 10 hours away."},
+    {"id": "vow_quiet_hand", "name": "Vow of the Quiet Hand", "cost": 60, "boon": {"finesse_pct": 15}, "curse": {"craft_exp_pct": -30},
+     "text": "+15% Finesse. -30% craft EXP."},
+    {"id": "vow_burdened", "name": "Vow of the Burdened Back", "cost": 90, "boon": {"craft_diligence": 8}, "curse": {"capacity_pct": -60},
+     "text": "+8% Craft Diligence. Pouches hold 60% less."},
+    {"id": "vow_iron_fast", "name": "Vow of the Iron Fast", "cost": 120, "boon": {"martial_diligence": 10}, "curse": {"food_mult": 2.0},
+     "text": "+10% Martial Diligence. A Vigil eats its provisions twice as fast."},
+    {"id": "vow_open_palm", "name": "Vow of the Open Palm", "cost": 160, "boon": {"drop_rate": 50}, "curse": {"kills_pct": -20},
+     "text": "+50% Vigil drop rate. -20% Vigil kills."},
+]
+
+# --------------------------------------------------------------------------- V10c · Apprentice Bench (§7.3)
+COMPONENTS = [("hemp_cord", "common", 100, 1, "A coil of hemp cord, twisted by an apprentice's patient hands."),
+              ("bronze_rivet", "common", 200, 5, "A handful of bronze rivets for binding a tool's head to its haft."),
+              ("kiln_brick", "earth", 350, 12, "A fired brick with the bench's stamp. Furnaces and forges are built of them."),
+              ("lacquer_pot", "earth", 700, 17, "A pot of red lacquer with its brush, to seal wood against the damp."),
+              ("whetstone", "heaven", 1200, 25, "A fine grey whetstone. A blade or a sickle kept on it cuts true."),
+              ("spirit_glue", "mystic", 2000, 30, "Amber glue boiled from spirit resin. It holds what nails cannot.")]   # (item, grade, progress, level gate, desc)
+
+
+def v10c_items(item):
+    rows = []
+    for iid, grade, desc in CRITTERS:
+        rows.append(item(iid, "critter", grade, 99, desc, food={"group": "pet", "pet_food": True}))
+    rows.append(item(RADIANT[0], "beast_part", RADIANT[1], 99, RADIANT[2]))
+    for iid, grade, tier, power, gate, snares in KITS:
+        rows.append(item(iid, "tool", grade, 1, "A snare kit: %d snare%s at once, power %d; Level %d in Beast Snaring to use it." % (snares, "" if snares == 1 else "s", power, gate),
+                         post={"craft": "snaring", "tier": tier, "power": power, "speed": 3, "level_req": gate, "finesse_pct": 0, "snares": snares}))
+    for iid, grade, tier, power, speed, gate in TABLETS:
+        rows.append(item(iid, "tool", grade, 1, "An ancestral tablet for the Rites: power %d, charge speed %d; Level %d in Ancestral Rites to use it." % (power, speed, gate),
+                         post={"craft": "rites", "tier": tier, "power": power, "speed": speed, "level_req": gate, "finesse_pct": 0}))
+    rows.append(item("spirit_wisp", "wisp", "earth", 999, "A wisp of an ancestor's regard, called down at an altar. Post Vows are pledged with them."))
+    for iid, grade, _prog, _gate, desc in COMPONENTS:
+        rows.append(item(iid, "material", grade, 99, desc))
+    return rows
+
+
 # --------------------------------------------------------------------------- pouches (§3.7)
 POUCH_TIERS = [25, 50, 100, 250, 500, 1000, 2000, 5000, 10000, 20000, 25000, 30000, 35000]
 TIER_NAMES = ["Thimble", "Palm", "Sleeve", "Satchel", "Gourd", "Chest-Gourd", "Cavern-Gourd", "Hall-Gourd", "Valley-Gourd",
@@ -213,8 +312,10 @@ def sewing():
     rows = []
     for i, cap in enumerate(POUCH_TIERS):
         mat, n = SEW_MATERIALS[i]
-        rows.append({"tier": i + 1, "name": TIER_NAMES[i], "cap": cap, "taels": int(round(30 * 2.1 ** (i + 1), -1)),
-                     "items": [{"item": mat, "count": n}]})
+        items = [{"item": mat, "count": n}]
+        if i + 1 >= 4:   # V10c: deeper folds are stitched with the Apprentice Bench's hemp cord
+            items.append({"item": "hemp_cord", "count": 4 * (i + 1)})
+        rows.append({"tier": i + 1, "name": TIER_NAMES[i], "cap": cap, "taels": int(round(30 * 2.1 ** (i + 1), -1)), "items": items})
     return rows
 
 
@@ -240,6 +341,8 @@ def build():
     for item_id, (craft, tough, exp, gate) in NODES.items():
         nodes[item_id] = {"craft": craft, "toughness": tough, "exp": exp, "gate": gate, "category": CRAFT_CATEGORY[craft]}
     nodes["spirit_wood"] = {"craft": "foraging", "toughness": 10, "exp": 0, "gate": 1, "category": "herb", "side": True}
+    nodes["spirit_wisp"] = {"craft": "rites", "toughness": 0, "exp": 0, "gate": 1, "category": "wisp", "side": True}
+    nodes[RADIANT[0]] = {"craft": "snaring", "toughness": 0, "exp": 0, "gate": 1, "category": "critter", "side": True}
     swarms = {rid: [{"item": i, "weight": w} for i, w in outs] for rid, (_x, outs) in SWARMS.items()}
     write("posts.json", {
         "entries": CRAFTS,
@@ -250,4 +353,10 @@ def build():
         "sewing": sewing(),
         "incense": {iid: h for iid, h, _g in INCENSE},
         "swarms": swarms,
+        "snares": [{"id": sid, "kit": kt, "seconds": sec, "critters": cr, "exp": ex, "kind": kind} for sid, kt, sec, cr, ex, kind in SNARES],
+        "trails": {rid: {"critter": cr} for rid, (_x, cr) in TRAILS.items()},
+        "altars": {rid: {"toughness": t} for rid, (_x, t) in ALTARS.items()},
+        "post_vows": POST_VOWS,
+        "bench": {"components": [{"item": iid, "progress": prog, "gate": gate} for iid, _g, prog, gate, _d in COMPONENTS],
+                  "apprentices": [0, 60, 150], "points_per_levels": 5, "speed_per_point": 0.02, "exp_per_point": 0.03, "cap_per_point": 0.1},
     })

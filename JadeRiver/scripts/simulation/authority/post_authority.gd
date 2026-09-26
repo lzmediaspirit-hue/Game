@@ -8,7 +8,8 @@ extends Authority
 const NODE_CRAFT := {"ore_vein": "delving", "herb_patch": "foraging", "fishing_spot": "angling", "insect_swarm": "netting"}
 
 func intents() -> Array:
-	return ["take_post", "take_vigil", "leave_post", "settle_post", "settle_all", "send_to_storehouse", "withdraw_storehouse", "sew_pouch", "burn_incense"]
+	return ["take_post", "take_vigil", "leave_post", "settle_post", "settle_all", "send_to_storehouse", "withdraw_storehouse", "sew_pouch", "burn_incense",
+		"set_snare", "collect_snare", "cancel_snare", "hold_rite", "learn_post_vow", "pledge_post_vow", "bench_assign", "bench_point", "bench_collect"]
 
 func handle(intent: Dictionary) -> Dictionary:
 	match str(intent.type):
@@ -21,6 +22,15 @@ func handle(intent: Dictionary) -> Dictionary:
 		"withdraw_storehouse": return withdraw_storehouse(char_of(intent), str(intent.get("item", "")), int(intent.get("count", 1)))
 		"sew_pouch": return sew_pouch(char_of(intent), str(intent.get("category", "")))
 		"burn_incense": return burn_incense(game.character(str(intent.get("character", ""))), str(intent.get("item", "")))
+		"set_snare": return set_snare(char_of(intent), str(intent.get("object", "")), str(intent.get("snare", "")))
+		"collect_snare": return collect_snare(char_of(intent), str(intent.get("object", "")), bool(intent.get("remote", false)))
+		"cancel_snare": return cancel_snare(char_of(intent), str(intent.get("object", "")))
+		"hold_rite": return hold_rite(char_of(intent), str(intent.get("object", "")))
+		"learn_post_vow": return learn_post_vow(char_of(intent), str(intent.get("vow", "")))
+		"pledge_post_vow": return pledge_post_vow(char_of(intent), str(intent.get("vow", "")), bool(intent.get("on", true)))
+		"bench_assign": return bench_assign(char_of(intent), int(intent.get("slot", 0)), str(intent.get("item", "")))
+		"bench_point": return bench_point(char_of(intent), str(intent.get("kind", "")))
+		"bench_collect": return bench_collect(char_of(intent))
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ state
@@ -102,10 +112,12 @@ func finesse_of(c, craft: String) -> float:
 	var groups: Array = []
 	if float(tool.get("finesse_pct", 0.0)) > 0.0: groups.append(float(tool.finesse_pct))
 	if leaf_bonus("finesse") > 0.0: groups.append(leaf_bonus("finesse"))
+	if vow_sum(c, "finesse_pct") != 0.0: groups.append(vow_sum(c, "finesse_pct"))
 	return PostRules.finesse(float(tool.get("power", 0.0)), float(c.stats.value(attr)), level(c, craft), 0.0, groups)
 
-func diligence_of(_c, kind := "craft") -> float:
-	var sources := 100.0 * float(game.sect.idle_rate_bonus("posts")) + leaf_bonus(("martial" if kind == "martial" else "craft") + "_diligence")
+func diligence_of(c, kind := "craft") -> float:
+	var key := ("martial" if kind == "martial" else "craft") + "_diligence"
+	var sources := 100.0 * float(game.sect.idle_rate_bonus("posts")) + leaf_bonus(key) + vow_sum(c, key)
 	return PostRules.diligence(kind, sources)
 
 # ------------------------------------------------------------------ nodes and outputs
@@ -190,7 +202,8 @@ func category_of(item_id: String) -> String:
 	return str(n.get("category", "material"))
 
 func capacity(c, cat: String) -> float:
-	return PostRules.capacity(PostRules.compartment_cap(int(pouch(c, cat).get("tier", 0))), leaf_bonus("capacity"))
+	var cap := PostRules.capacity(PostRules.compartment_cap(int(pouch(c, cat).get("tier", 0))), leaf_bonus("capacity"))
+	return cap * maxf(0.4, 1.0 + vow_sum(c, "capacity_pct") / 100.0)
 
 func held(c, cat: String) -> float:
 	var n := 0.0
@@ -287,6 +300,8 @@ func settle_post(c) -> Dictionary:
 	p["since"] = Clock.now_utc()
 	if not el.valid: return ok({"ledger": {}, "clock_moved_back": true})
 	var hours := minf(float(el.elapsed) / 3600.0, 24.0 * float(PostRules.rule("settle.max_days", 90)))
+	var lamp := vow_sum(c, "post_hours")
+	if lamp > 0.0: hours = minf(hours, lamp)   # the Vow of the Short Lamp: the post stops after its hours
 	return ok({"ledger": _work(c, hours, "post")})
 
 ## `hours` of a post's work at current rates: items into the pouch (each category stops when full), EXP always.
@@ -311,7 +326,7 @@ func _work(c, hours: float, source: String) -> Dictionary:
 		if n > 0: got[id] = n
 	_add_to_pouch(c, got)
 	var lv_before := level(c, craft)
-	var exp := float(r.exp_h) * hours
+	var exp := float(r.exp_h) * hours * maxf(0.0, 1.0 + vow_sum(c, "craft_exp_pct") / 100.0)
 	apply_craft_xp(c.id, craft, exp, source)
 	var ledger := {"character": c.id, "name": c.name, "hours": hours, "craft": craft, "diligence": float(r.diligence),
 		"exp": exp, "level_before": lv_before, "level": level(c, craft), "items": got, "full": amt.full, "source": source,
@@ -324,7 +339,9 @@ func settle_all() -> Dictionary:
 	var ledgers: Array = []
 	for id in game.characters:
 		var c = game.character(str(id))
-		if c != null: migrate_idle(c)
+		if c != null:
+			migrate_idle(c)
+			_bench_settle(c)
 		if c == null or str(id) == game.active_id or not has_post(c): continue
 		var r := settle_post(c)
 		var led: Dictionary = r.get("ledger", {})
@@ -568,11 +585,12 @@ func _work_vigil(c, hours: float, source: String) -> Dictionary:
 	var pr := vigil_profile(c, room)
 	if pr.is_empty() or hours <= 0.0: return {}
 	var v: Dictionary = PostRules.rule("vigil", {})
-	var sv := PostRules.survivability(c.pools.max_hp, float(pr.dmg_h), float(pr.regen_h), float(pr.heal_each), int(pr.food_count), hours, float(v.get("down_s", 600)))
+	var food_mult := maxf(1.0, vow_sum(c, "food_mult"))   # the Vow of the Iron Fast: provisions go twice as fast
+	var sv := PostRules.survivability(c.pools.max_hp, float(pr.dmg_h), float(pr.regen_h), float(pr.heal_each) / food_mult, int(pr.food_count), hours, float(v.get("down_s", 600)))
 	var rng := Rng.stream(c.id, "posts")
-	var kills := PostRules.draw(float(pr.kills_h) * hours * float(sv.alive), rng)
+	var kills := PostRules.draw(float(pr.kills_h) * hours * float(sv.alive) * maxf(0.0, 1.0 + vow_sum(c, "kills_pct") / 100.0), rng)
 	if int(sv.food_used) > 0 and str(pr.food) != "": game.inventory.apply_remove(c.id, str(pr.food), int(sv.food_used), "vigil")
-	var drop_rate: float = c.stats.value("drop_rate") + leaf_bonus("drop_rate") / 100.0
+	var drop_rate: float = c.stats.value("drop_rate") + (leaf_bonus("drop_rate") + vow_sum(c, "drop_rate")) / 100.0
 	var ns := mini(kills, int(v.get("loot_samples", 40)))
 	var per := {}
 	var coin := 0.0
@@ -649,4 +667,320 @@ func apply_leaf(actor_id: String, enemy_id: String, n := 1) -> void:
 	var before := leaf_tier(enemy_id)
 	game.account.leaves[enemy_id] = int(game.account.leaves.get(enemy_id, 0)) + n
 	emit("leaf_found", {"actor": actor_id, "enemy": enemy_id, "count": int(game.account.leaves[enemy_id]), "tier": leaf_tier(enemy_id), "new_tier": leaf_tier(enemy_id) > before})
+
+# ------------------------------------------------------------------ Beast Snaring (V10c, §7.3)
+func snares(c) -> Array:
+	if not state(c).has("snares"): c.posts["snares"] = []
+	return c.posts.snares
+
+func snare_def(id: String) -> Dictionary:
+	for sd in ContentDB.config("posts").get("snares", []):
+		if str(sd.id) == id: return sd
+	return {}
+
+func my_snare(c, object_id: String) -> Dictionary:
+	var room := str(game.room_rt.room_id) if game.room_rt != null else ""
+	for sn in snares(c):
+		if str(sn.object) == object_id and str(sn.room) == room: return sn
+	return {}
+
+## The snare lengths a character's kit allows.
+func snare_options(c) -> Array:
+	var kit := tool_of(c, "snaring")
+	if kit.is_empty(): return []
+	var out: Array = []
+	for sd in ContentDB.config("posts").get("snares", []):
+		if int(sd.kit) <= int(kit.get("tier", 0)): out.append(sd)
+	return out
+
+func _at_object(c, o: Dictionary) -> bool:
+	var st: ActorState = game.actor_state(c.id)
+	var at: Array = o.get("at", [0, 0])
+	return st == null or st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) <= float(o.get("radius", 110)) + 40.0
+
+## Set a snare on a beast trail for one of the kit's lengths. Snares run on the clock whoever is played.
+func set_snare(c, object_id: String, snare_id: String) -> Dictionary:
+	if c == null: return fail("no_character")
+	if not Unlocks.is_unlocked(c.id, "beast_snaring"): return fail("locked", {"text": Unlocks.locked_text("beast_snaring")})
+	if game.room_rt == null: return fail("no_room")
+	var o: Dictionary = game.room_rt.object_def(object_id)
+	if str(o.get("type", "")) != "beast_trail": return fail("not_a_trail")
+	if not _at_object(c, o): return fail("too_far", {"text": t("sim.posts.too_far")})
+	var kit := tool_of(c, "snaring")
+	if kit.is_empty(): return fail("no_kit", {"text": t("sim.posts.no_kit")})
+	var sd := snare_def(snare_id)
+	if sd.is_empty() or int(sd.kit) > int(kit.get("tier", 0)): return fail("kit", {"text": t("sim.posts.kit_too_plain")})
+	if not my_snare(c, object_id).is_empty(): return fail("set", {"text": t("sim.posts.snare_already")})
+	if snares(c).size() >= int(kit.get("snares", 1)): return fail("full", {"text": t("sim.posts.snares_full") % int(kit.get("snares", 1))})
+	var n := node_def(str(o.get("critter", "")))
+	if int(n.get("gate", 1)) > level(c, "snaring"): return fail("level", {"text": t("sim.posts.needs_level") % [str(craft_def("snaring").get("short", "snaring")), int(n.get("gate", 1))]})
+	var now := Clock.now_utc()
+	snares(c).append({"room": str(game.room_rt.room_id), "object": object_id, "critter": str(o.get("critter", "")), "snare": snare_id,
+		"set": now, "done": now + float(sd.seconds), "kit": int(kit.get("tier", 0))})
+	emit("snare_set", {"actor": c.id, "object": object_id, "snare": snare_id, "critter": str(o.get("critter", ""))})
+	emit("system_used", {"actor": c.id, "system": "snare"})
+	return ok({"done": now + float(sd.seconds)})
+
+## Take up a finished snare: its critters (Finesse against the beast's Toughness), a radiant pelt now and then, and
+## Snaring EXP. `remote` (Hunter's Recall) collects from anywhere at half the catch.
+func collect_snare(c, object_id: String, remote := false) -> Dictionary:
+	if c == null: return fail("no_character")
+	var sn := {}
+	for x in snares(c):
+		if str(x.object) == object_id and (remote or (game.room_rt != null and str(x.room) == str(game.room_rt.room_id))): sn = x
+	if sn.is_empty(): return fail("none")
+	if Clock.now_utc() < float(sn.done): return fail("not_ready", {"text": t("sim.posts.snare_not_ready") % _hours_text((float(sn.done) - Clock.now_utc()) / 3600.0)})
+	var sd := snare_def(str(sn.snare))
+	var n := node_def(str(sn.critter))
+	var fin := finesse_of(c, "snaring")
+	var share := float(PostRules.rule("snaring.recall_share", 0.5)) if remote else 1.0
+	var rng := Rng.stream(c.id, "posts")
+	var expect := PostRules.snare_catch(fin, float(n.get("toughness", 1.0)), float(sd.get("critters", 0))) * share
+	var got := {}
+	var caught := PostRules.draw(expect, rng)
+	if caught > 0: got[str(sn.critter)] = caught
+	if int(sn.get("kit", 0)) >= 1:
+		var radiant := PostRules.draw(float(caught) * float(PostRules.rule("snaring.radiant", 0.02)), rng)
+		if radiant > 0: got["radiant_pelt"] = radiant
+	_add_to_pouch(c, got)
+	var exp := float(sd.get("exp", 0)) * float(n.get("exp", 1.0)) * share * maxf(0.0, 1.0 + vow_sum(c, "craft_exp_pct") / 100.0)
+	apply_craft_xp(c.id, "snaring", exp, "snare")
+	snares(c).erase(sn)
+	emit("snare_collected", {"actor": c.id, "object": object_id, "items": got, "exp": exp, "remote": remote})
+	emit("system_used", {"actor": c.id, "system": "snare_catch"})
+	return ok({"items": got, "exp": exp, "escaped": expect <= 0.0})
+
+func cancel_snare(c, object_id: String) -> Dictionary:
+	var sn := my_snare(c, object_id)
+	if sn.is_empty(): return fail("none")
+	snares(c).erase(sn)
+	return ok()
+
+## The trail's choices: your snare's state and taking it up, or the lengths your kit can set.
+func trail_dialogue(c, o: Dictionary) -> Dictionary:
+	var oid := str(o.get("id", ""))
+	var lines: Array = []
+	var choices: Array = []
+	var sn := my_snare(c, oid)
+	var critter := ContentDB.item_name(str(o.get("critter", "")))
+	if not sn.is_empty():
+		var left := (float(sn.done) - Clock.now_utc()) / 3600.0
+		if left <= 0.0:
+			lines.append(t("sim.posts.trail_ready") % critter)
+			choices.append({"text": t("sim.posts.take_up"), "intent": {"type": "collect_snare", "object": oid}})
+		else:
+			lines.append(t("sim.posts.trail_waiting") % [critter, _hours_text(left)])
+			choices.append({"text": t("sim.posts.pull_snare"), "intent": {"type": "cancel_snare", "object": oid}})
+	else:
+		var opts := snare_options(c)
+		if opts.is_empty(): lines.append(t("sim.posts.no_kit"))
+		else:
+			lines.append(t("sim.posts.trail_idle") % critter)
+			for sd in opts.slice(0, 5):
+				choices.append({"text": t("sim.posts.set_for") % [_hours_text(float(sd.seconds) / 3600.0), int(sd.critters)],
+					"intent": {"type": "set_snare", "object": oid, "snare": str(sd.id)}})
+	choices.append({"text": Tx.t("sim.world.leave_it"), "close": true})
+	return {"npc": "", "speaker": t("sim.posts.trail_speaker"), "portrait": {}, "lines": lines, "choices": choices}
+
+func _hours_text(h: float) -> String:
+	if h >= 48.0: return t("ui.posts.days") % int(h / 24.0)
+	if h >= 1.0: return t("ui.posts.hours_minutes") % [int(h), int(fmod(h * 60.0, 60.0))]
+	return t("ui.posts.minutes") % maxi(1, int(ceilf(h * 60.0)))
+
+# ------------------------------------------------------------------ Ancestral Rites (V10c, §7.3)
+## Rite charge builds by itself for every character with the Rites, up to its tablet's cap.
+func rite_charge(c) -> float:
+	if c == null or not Unlocks.is_unlocked(c.id, "ancestral_rites"): return 0.0
+	if not state(c).has("rites"): c.posts["rites"] = {"charge": 20.0, "updated": Clock.now_utc()}   # the first rite needs no waiting
+	var r: Dictionary = c.posts.rites
+	var el := Clock.elapsed_since(float(r.get("updated", Clock.now_utc())))
+	var tab := tool_of(c, "rites")
+	var rate := PostRules.rite_charge_rate(float(tab.get("speed", 3.0)), level(c, "rites"))
+	var cap := PostRules.rite_charge_cap(int(tab.get("tier", -1)) + (1 if not tab.is_empty() else 0))
+	if el.valid: r["charge"] = minf(cap, float(r.get("charge", 0.0)) + rate * float(el.elapsed) / 3600.0)
+	r["updated"] = Clock.now_utc()
+	return float(r.charge)
+
+## Hold the rites at an altar: all the charge spent on the altar's defence; Spirit Wisps into the bag, Rites EXP.
+func hold_rite(c, object_id: String) -> Dictionary:
+	if c == null: return fail("no_character")
+	if not Unlocks.is_unlocked(c.id, "ancestral_rites"): return fail("locked", {"text": Unlocks.locked_text("ancestral_rites")})
+	if game.room_rt == null: return fail("no_room")
+	var o: Dictionary = game.room_rt.object_def(object_id)
+	if str(o.get("type", "")) != "ancestral_altar": return fail("not_an_altar")
+	if not _at_object(c, o): return fail("too_far", {"text": t("sim.posts.too_far")})
+	var charge := rite_charge(c)
+	if charge < float(PostRules.rule("rites.min_charge", 10.0)): return fail("charge", {"text": t("sim.posts.rite_charge_low") % int(charge)})
+	var res := PostRules.rite_result(finesse_of(c, "rites"), float(o.get("toughness", 25)), charge)
+	var wisps := PostRules.draw(float(res.wisps), Rng.stream(c.id, "posts"))
+	c.posts.rites["charge"] = 0.0
+	if wisps > 0: game.inventory.apply_add(c.id, "spirit_wisp", wisps, "rites")
+	apply_craft_xp(c.id, "rites", float(res.exp) * maxf(0.0, 1.0 + vow_sum(c, "craft_exp_pct") / 100.0), "rites")
+	emit("rite_held", {"actor": c.id, "object": object_id, "wave": int(res.wave), "wisps": wisps, "charge": charge})
+	emit("system_used", {"actor": c.id, "system": "rites"})
+	return ok({"wave": int(res.wave), "wisps": wisps, "exp": float(res.exp)})
+
+func altar_dialogue(c, o: Dictionary) -> Dictionary:
+	var charge := rite_charge(c)
+	var res := PostRules.rite_result(finesse_of(c, "rites"), float(o.get("toughness", 25)), charge)
+	var lines := [t("sim.posts.altar_line") % [int(charge), int(res.wave), int(round(float(res.wisps)))]]
+	var choices: Array = []
+	if charge >= float(PostRules.rule("rites.min_charge", 10.0)):
+		choices.append({"text": t("sim.posts.hold_rites"), "intent": {"type": "hold_rite", "object": str(o.get("id", ""))}})
+	choices.append({"text": t("sim.posts.post_vows"), "page": "posts", "args": {"tab": "vows"}})
+	choices.append({"text": Tx.t("sim.world.leave_it"), "close": true})
+	return {"npc": "", "speaker": t("sim.posts.altar_speaker"), "portrait": {}, "lines": lines, "choices": choices}
+
+# ------------------------------------------------------------------ Post Vows (V10c)
+func post_vow(id: String) -> Dictionary:
+	for v in ContentDB.config("posts").get("post_vows", []):
+		if str(v.id) == id: return v
+	return {}
+
+func held_vows(c) -> Array:
+	if c == null: return []
+	if not state(c).has("vows"): c.posts["vows"] = []
+	return c.posts.vows
+
+## The sum of one effect over a character's held Post Vows, boons and curses together.
+func vow_sum(c, key: String) -> float:
+	if c == null or not (c.posts is Dictionary) or not c.posts.has("vows"): return 0.0
+	var total := 0.0
+	for id in c.posts.vows:
+		var v := post_vow(str(id))
+		total += float(v.get("boon", {}).get(key, 0.0)) + float(v.get("curse", {}).get(key, 0.0))
+	return total
+
+## Learn a Post Vow for the account with Spirit Wisps (from the bag, then the Storehouse).
+func learn_post_vow(c, id: String) -> Dictionary:
+	var v := post_vow(id)
+	if c == null or v.is_empty(): return fail("unknown_vow")
+	if not Unlocks.is_unlocked(c.id, "ancestral_rites"): return fail("locked", {"text": Unlocks.locked_text("ancestral_rites")})
+	if game.account.post_vows.has(id): return fail("known")
+	var cost := int(v.get("cost", 0))
+	var bag := int(game.inventory.count(c, "spirit_wisp"))
+	var store := int(game.account.storehouse.get("spirit_wisp", 0))
+	if bag + store < cost: return fail("wisps", {"text": t("sim.posts.need_wisps") % cost})
+	var from_bag := mini(bag, cost)
+	if from_bag > 0: game.inventory.apply_remove(c.id, "spirit_wisp", from_bag, "post_vow")
+	if cost - from_bag > 0:
+		game.account.storehouse["spirit_wisp"] = store - (cost - from_bag)
+		if int(game.account.storehouse.spirit_wisp) <= 0: game.account.storehouse.erase("spirit_wisp")
+		emit("storehouse_changed", {"actor": c.id, "items": {"spirit_wisp": -(cost - from_bag)}, "source": "post_vow"})
+	game.account.post_vows[id] = true
+	emit("post_vow_learned", {"actor": c.id, "vow": id})
+	return ok()
+
+## Hold or put down a learned Post Vow on this character (two at most).
+func pledge_post_vow(c, id: String, on: bool) -> Dictionary:
+	if c == null or post_vow(id).is_empty(): return fail("unknown_vow")
+	var held := held_vows(c)
+	if not on:
+		held.erase(id)
+		emit("post_vow_pledged", {"actor": c.id, "vow": id, "on": false})
+		return ok()
+	if not game.account.post_vows.has(id): return fail("unlearned")
+	if held.has(id): return ok()
+	if held.size() >= 2: return fail("full", {"text": t("sim.posts.vows_full")})
+	held.append(id)
+	emit("post_vow_pledged", {"actor": c.id, "vow": id, "on": true})
+	return ok()
+
+# ------------------------------------------------------------------ Apprentice Bench (V10c, §7.3)
+func total_craft_levels(c) -> int:
+	var n := 0
+	for cd in crafts(): n += level(c, str(cd.id))
+	return n
+
+func bench(c) -> Dictionary:
+	if not state(c).has("bench"): c.posts["bench"] = {"slots": [""], "points": {"speed": 0, "capacity": 0, "exp": 0}, "stock": {}, "updated": Clock.now_utc()}
+	return c.posts.bench
+
+func apprentices(c) -> int:
+	var n := 0
+	for need in ContentDB.config("posts").get("bench", {}).get("apprentices", [0]):
+		if total_craft_levels(c) >= int(need): n += 1
+	return maxi(1, n)
+
+func bench_points_total(c) -> int:
+	return total_craft_levels(c) / int(ContentDB.config("posts").get("bench", {}).get("points_per_levels", 5))
+
+func bench_points_free(c) -> int:
+	var used := 0
+	for k in bench(c).points: used += int(bench(c).points[k])
+	return bench_points_total(c) - used
+
+func component(id: String) -> Dictionary:
+	for cp in ContentDB.config("posts").get("bench", {}).get("components", []):
+		if str(cp.item) == id: return cp
+	return {}
+
+func bench_capacity(c) -> float:
+	var b: Dictionary = ContentDB.config("posts").get("bench", {})
+	return PostRules.compartment_cap(int(pouch(c, "material").get("tier", 0))) * (2.0 + float(b.get("cap_per_point", 0.1)) * int(bench(c).points.get("capacity", 0)))
+
+func bench_rate_of(c, id: String) -> float:
+	var b: Dictionary = ContentDB.config("posts").get("bench", {})
+	return PostRules.bench_rate(float(component(id).get("progress", 100)), 1.0 + float(b.get("speed_per_point", 0.02)) * int(bench(c).points.get("speed", 0)))
+
+## Production since the last look, into the bench's own stock (each component up to the bench's capacity);
+## smithing EXP for what was made.
+func _bench_settle(c) -> void:
+	if c == null or not Unlocks.is_unlocked(c.id, "apprentice_bench"): return
+	var b := bench(c)
+	var el := Clock.elapsed_since(float(b.get("updated", Clock.now_utc())))
+	b["updated"] = Clock.now_utc()
+	if not el.valid: return
+	var h := float(el.elapsed) / 3600.0
+	var cap := bench_capacity(c)
+	var made := 0.0
+	var xp := 0.0
+	for id in b.slots:
+		if str(id) == "": continue
+		var before := float(b.stock.get(id, 0.0))
+		var after := minf(cap, before + bench_rate_of(c, str(id)) * h)
+		b.stock[id] = after
+		made += after - before
+		xp += (after - before) * float(component(str(id)).get("progress", 100)) / 100.0
+	if xp > 0.0:
+		var em := 1.0 + float(ContentDB.config("posts").get("bench", {}).get("exp_per_point", 0.03)) * int(b.points.get("exp", 0))
+		game.crafting.add_xp(c, "smithing", xp * em)
+
+func bench_assign(c, slot: int, id: String) -> Dictionary:
+	if c == null: return fail("no_character")
+	if not Unlocks.is_unlocked(c.id, "apprentice_bench"): return fail("locked", {"text": Unlocks.locked_text("apprentice_bench")})
+	if id != "" and component(id).is_empty(): return fail("unknown_component")
+	if id != "" and ProgressionRules.level(c) < int(component(id).get("gate", 1)): return fail("level", {"text": t("sim.posts.bench_level") % int(component(id).gate)})
+	_bench_settle(c)
+	var b := bench(c)
+	while b.slots.size() < apprentices(c): b.slots.append("")
+	if slot < 0 or slot >= apprentices(c): return fail("slot", {"text": t("sim.posts.no_apprentice")})
+	b.slots[slot] = id
+	emit("bench_assigned", {"actor": c.id, "slot": slot, "item": id})
+	emit("system_used", {"actor": c.id, "system": "bench"})
+	return ok()
+
+func bench_point(c, kind: String) -> Dictionary:
+	if c == null or not kind in ["speed", "capacity", "exp"]: return fail("bad_kind")
+	if bench_points_free(c) <= 0: return fail("points", {"text": t("sim.posts.no_points")})
+	_bench_settle(c)
+	bench(c).points[kind] = int(bench(c).points.get(kind, 0)) + 1
+	return ok()
+
+## Take the bench's whole components into the pouch (the pouch's own capacity applies).
+func bench_collect(c) -> Dictionary:
+	if c == null: return fail("no_character")
+	_bench_settle(c)
+	var b := bench(c)
+	var got := {}
+	for id in b.stock:
+		var n := int(floorf(float(b.stock[id])))
+		var room := int(capacity(c, "material") - held(c, "material"))
+		n = mini(n, maxi(0, room))
+		if n > 0:
+			got[id] = n
+			b.stock[id] = float(b.stock[id]) - n
+	_add_to_pouch(c, got)
+	emit("bench_collected", {"actor": c.id, "items": got})
+	return ok({"items": got})
 

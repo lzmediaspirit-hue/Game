@@ -59,6 +59,7 @@ func _main() -> void:
 	hollow_tide_suite()
 	post_suite()
 	vigil_suite()
+	station_suite()
 	body_path_suite()
 	heaven_suite()
 	arts_suite()
@@ -5329,6 +5330,65 @@ func vigil_suite() -> void:
 	check(not no_hunt.get("ok", true), "with Keeping Post, hunting while away is a Vigil, not an idle task")
 	c.posts = posts0
 	Game.account.leaves = leaves0
+	Game.world.apply_teleport(c.id, back)
+
+## S50 V10c: Beast Snaring, Ancestral Rites with Spirit Wisps and Post Vows, and the Apprentice Bench.
+func station_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	check(near(PostRules.snare_catch(40.0, 35.0, 10.0), 10.0 * pow(40.0 / 35.0, 0.25)) and near(PostRules.snare_catch(30.0, 35.0, 10.0), 0.0),
+		"a snare holds nothing when Finesse is under the beast's Toughness, and (F / T)^0.25 more above it")
+	check(near(PostRules.rite_charge_rate(4.0, 1), 6.0 / (5.7 - 0.2 * pow(4.0, 1.3) - 1.0 / 40.0)) and near(PostRules.rite_charge_cap(1), 75.0),
+		"rite charge: 6 / max(5.7 - 0.2 x speed^1.3 - level/40, 0.57) an hour, up to 50 + 25 a tablet tier")
+	var rr := PostRules.rite_result(100.0, 25.0, 50.0)
+	check(int(rr.wave) >= 1 and float(rr.wisps) > 5.0 and near(PostRules.bench_rate(100.0), 36.0), "an altar defence calls wisps by the wave held; an apprentice makes 36 hemp cord an hour")
+	var back := str(c.position.get("room", "lf_village"))
+	var posts0: Dictionary = c.posts.duplicate(true)
+	var vows0: Dictionary = Game.account.post_vows.duplicate()
+	for u in ["keeping_post", "beast_snaring", "ancestral_rites", "apprentice_bench"]: Unlocks.force_unlock(c.id, u)
+	if c.inventory.count("hemp_snare_kit") <= 0: Game.inventory.apply_add(c.id, "hemp_snare_kit", 1, "test")
+	if c.inventory.count("wood_rite_tablet") <= 0: Game.inventory.apply_add(c.id, "wood_rite_tablet", 1, "test")
+	# Snaring at the Reed Shallows' jade frog trail.
+	Game.world.apply_teleport(c.id, "lf_reed_shallows")
+	var trail: Dictionary = Game.room_rt.object_def("trail_jade_frog")
+	check(not trail.is_empty(), "the Reed Shallows have a jade frog trail")
+	Game.actor_state(c.id).plane = Vector2(float(trail.at[0]), float(trail.at[1]))
+	check(Game.submit({"type": "set_snare", "object": "trail_jade_frog", "snare": "snare_1h"}).get("ok", false), "set an hour's snare on the trail")
+	var early := Game.submit({"type": "collect_snare", "object": "trail_jade_frog"})
+	check(not early.get("ok", true) and str(early.get("reason", "")) == "not_ready", "a snare cannot be taken up before its time")
+	Game.posts.my_snare(c, "trail_jade_frog")["done"] = Clock.now_utc() - 1.0
+	var sx0: float = Game.posts.xp(c, "snaring")
+	var got := Game.submit({"type": "collect_snare", "object": "trail_jade_frog"})
+	check(got.get("ok", false) and int(got.get("items", {}).get("jade_frog", 0)) >= 2 and Game.posts.xp(c, "snaring") > sx0,
+		"an hour's snare holds %d jade frogs and gives Snaring EXP" % int(got.get("items", {}).get("jade_frog", 0)))
+	# The rites at the County Hall altar.
+	Game.world.apply_teleport(c.id, "sf_county_hall")
+	var altar: Dictionary = Game.room_rt.object_def("ancestral_altar")
+	check(not altar.is_empty(), "the County Hall keeps an ancestral altar")
+	Game.actor_state(c.id).plane = Vector2(float(altar.at[0]), float(altar.at[1]))
+	check(Game.posts.rite_charge(c) >= 10.0, "the first rite needs no waiting: %.0f charge" % Game.posts.rite_charge(c))
+	var w0: int = c.inventory.count("spirit_wisp")
+	var rite := Game.submit({"type": "hold_rite", "object": "ancestral_altar"})
+	check(rite.get("ok", false) and c.inventory.count("spirit_wisp") > w0 and near(Game.posts.rite_charge(c), 0.0, 0.5),
+		"hold the rites: wave %d, %d Spirit Wisps, the charge spent" % [int(rite.get("wave", 0)), c.inventory.count("spirit_wisp") - w0])
+	# Post Vows.
+	Game.inventory.apply_add(c.id, "spirit_wisp", 40, "test")
+	Game.account.post_vows.erase("vow_short_lamp")
+	check(Game.submit({"type": "learn_post_vow", "vow": "vow_short_lamp"}).get("ok", false) and Game.account.post_vows.has("vow_short_lamp"),
+		"learn the Vow of the Short Lamp with Spirit Wisps")
+	check(Game.submit({"type": "pledge_post_vow", "vow": "vow_short_lamp", "on": true}).get("ok", false) and near(Game.posts.vow_sum(c, "post_hours"), 10.0)
+		and near(Game.posts.vow_sum(c, "craft_exp_pct"), 25.0), "hold it: +25% craft EXP, posts stop after 10 hours")
+	Game.submit({"type": "pledge_post_vow", "vow": "vow_short_lamp", "on": false})
+	# The Apprentice Bench.
+	check(Game.submit({"type": "bench_assign", "slot": 0, "item": "hemp_cord"}).get("ok", false), "set an apprentice to hemp cord")
+	Game.posts.bench(c)["updated"] = Clock.now_utc() - 3600.0
+	Game.posts._bench_settle(c)
+	var stock := float(Game.posts.bench(c).stock.get("hemp_cord", 0.0))
+	check(stock > 0.0 and stock <= Game.posts.bench_capacity(c) + 0.01, "an hour at the bench: %.0f hemp cord (capacity %.0f)" % [stock, Game.posts.bench_capacity(c)])
+	var col := Game.submit({"type": "bench_collect"})
+	check(col.get("ok", false) and int(col.get("items", {}).get("hemp_cord", 0)) > 0, "the components come off the bench into the pouch")
+	c.posts = posts0
+	Game.account.post_vows = vows0
 	Game.world.apply_teleport(c.id, back)
 
 func ice_mount_suite() -> void:

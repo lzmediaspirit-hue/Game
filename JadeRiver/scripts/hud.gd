@@ -881,6 +881,15 @@ func _on_event(name: String, p: Dictionary) -> void:
 			add_log(Tx.t("hud.pouch_sewn") % UiKit.fmt(int(float(p.get("cap", 0.0)))), UiKit.PALE_GOLD)
 		"leaf_found":
 			if p.get("new_tier", false): toast(Tx.t("hud.leaf_tier") % [ContentDB.name_of("enemies", str(p.enemy)), int(p.tier)], "gold", Tx.t("hud.leaf_sub"))
+		"snare_collected":
+			if str(p.get("actor", "")) == Game.active_id:
+				var n := 0
+				for id in p.get("items", {}): n += int(p.items[id])
+				add_log(Tx.t("hud.snare_caught") % n if n > 0 else Tx.t("hud.snare_empty"), UiKit.PALE_GOLD if n > 0 else UiKit.MIST)
+		"rite_held":
+			if str(p.get("actor", "")) == Game.active_id: toast(Tx.t("hud.rite_held") % int(p.wave), "gold", Tx.t("hud.rite_wisps") % int(p.wisps))
+		"post_vow_learned":
+			add_log(Tx.t("hud.post_vow_learned") % str(Game.posts.post_vow(str(p.vow)).get("name", "")), UiKit.PALE_GOLD)
 		"incense_burned":
 			add_log(Tx.t("hud.incense_burned") % int(round(float(p.get("hours", 0.0)))), UiKit.PALE_GOLD)
 		# S28 v1.2 Presence: held or let go, a new level, and two Presences meeting.
@@ -1670,7 +1679,8 @@ func _draw_controls(c) -> void:
 	if not context.is_empty() and (not _enemy_close() or not Unlocks.is_unlocked(c.id, "attack")):
 		ctx_glyph = {"npc": "talk", "herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish", "chest": "open", "storage_chest": "open",
 			"portal": "enter", "climbable": "enter", "cooking_pot": "cook", "alchemy_furnace": "alchemy", "earth_vent": "alchemy", "forge_anvil": "forge", "star_sight": "gather",
-			"chart_table": "forge", "shipyard_slip": "forge", "starsea_dock": "enter", "mercy": "talk"}.get(str(context.get("type", "")), "open")
+			"chart_table": "forge", "shipyard_slip": "forge", "starsea_dock": "enter", "mercy": "talk", "insect_swarm": "gather",
+			"beast_trail": "gather", "ancestral_altar": "open"}.get(str(context.get("type", "")), "open")
 	if shown("attack") or ctx_glyph != "":
 		ring(attack_center, 66, Game.combat.is_busy(c.id) or channel.object != "" or Game.combat.is_playing(c.id), 1.0, pulses.has("hud:attack"))
 		if ctx_glyph != "":

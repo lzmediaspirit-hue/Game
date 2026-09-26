@@ -1652,3 +1652,286 @@ def lantern_incense():
 
 for _id, _fn in (('admirals_seal', admirals_seal), ('wyrm_egg', wyrm_egg), ('lantern_incense', lantern_incense)):
     register(FAM, _id, _fn, GROUP)
+
+
+# ============================================================================ V10c · rite tablets
+# Ancestral spirit tablets for the rites craft: an upright plaque carved with columns of script, standing in a
+# stepped pedestal. Each tier changes the material and the crest: dark lacquered wood with a red face and a
+# round top; green jade with a hooded crest; white cloud-stone with silver trim and a cloud crest; indigo
+# star-jade with gold trim, a pointed crest holding a star, and a faint glow.
+RT_STARJADE = Ramp(['#0E1030', '#1C2258', '#2E3A86', '#4A5CB4', '#8294DC'], '#060818')
+RT_CLOUDSTONE = Ramp(['#6C7E8A', '#A2B4BE', '#D8E2E6', '#F0F5F6', '#FFFFFF'], '#222C33')
+
+RT_TIERS = {
+    'wood': dict(body=R['darkwood'], face=R['red'], script=R['darkwood'][0], trim=None, base=R['darkwood'],
+                 crest='round', glow=None),
+    'jade': dict(body=R['jade'], face=R['jade'], script=R['jade'][0], trim=None, base=R['deepjade'],
+                 crest='hood', glow=None),
+    'cloud': dict(body=RT_CLOUDSTONE, face=RT_CLOUDSTONE, script=R['sky'][1], trim=R['silver'], base=R['silver'],
+                  crest='cloud', glow=None),
+    'star': dict(body=RT_STARJADE, face=RT_STARJADE, script=R['gold'][3], trim=R['gold'], base=R['gold'],
+                 crest='star', glow='#F3E3A6'),
+}
+
+
+def _rt_crest(c, kind):
+    if kind == 'round':
+        return c.ellipse(15.5, 9, 6, 4)
+    if kind == 'hood':
+        return c.ellipse(15.5, 8.5, 6.4, 4.2) | c.circle(9.6, 8.6, 1.9) | c.circle(21.4, 8.6, 1.9)
+    if kind == 'cloud':
+        return (c.circle(11.4, 8.2, 2.8) | c.circle(15.5, 6.4, 3.4) | c.circle(19.6, 8.2, 2.8) |
+                c.rect(8, 8, 23, 10))
+    return c.poly([(8.5, 11), (9, 8), (12.5, 6.4), (15.5, 2.5), (18.5, 6.4), (22, 8), (22.5, 11)])
+
+
+def _rite_tablet(tier):
+    T = RT_TIERS[tier]
+    c = Canvas(32)
+    body = T['body']
+    # the stepped pedestal
+    foot = S.rounded_rect(c, 6, 26, 25, 29, 1)
+    c.put(foot, T['base'], 'ray', base=2)
+    step = c.rect(8, 23, 23, 25)
+    c.put(step, T['base'], 'ray', base=3 if tier != 'star' else 2, sep=True)
+    c.put(c.rect(9, 23, 22, 23), T['base'], 'flat', base=4)
+    # the plaque and its crest
+    plaque = c.rect(10, 9, 21, 22)
+    crest = _rt_crest(c, T['crest'])
+    c.put(plaque | crest, body, 'ray', base=2, sep=True)
+    if T['trim'] is not None:
+        rim = S.outline_only(plaque | crest)
+        c.put(rim, T['trim'], 'flat', base=3)
+        c.put(rim & ((c.X > 20.5) | (c.Y > 21.5)), T['trim'], 'flat', base=1)
+    else:
+        c.put(S.outline_only(crest) & (c.Y < 8.5) & (c.X < 16), body, 'flat', base=4)
+    # a line where the crest meets the plaque
+    c.put(c.rect(10, 11, 21, 11) & ~erode4(crest & ~plaque), body, 'flat', base=0, only_on=True)
+    # the carved face panel and its columns of script
+    panel = c.rect(12, 13, 19, 21)
+    c.put(panel, T['face'], 'flat', base=3 if T['face'] is body else 2, sep=True, sep_col=body[0])
+    c.put(c.rect(12, 13, 19, 13), T['face'], 'flat', base=4)
+    # two carved columns: the ancestor's name down the middle, a shorter line of honours beside it
+    script = c.empty()
+    for (x, y0, y1) in ((17, 14, 20), (14, 15, 19)):
+        for y in range(y0, y1 + 1):
+            if (y - y0) % 3 != 2:
+                script |= c.rect(x, y, x, y)
+    script |= c.pts([(18, 15), (16, 18), (13, 16)])
+    c.put(script, T['script'], 'flat', out=body.out)
+    if tier == 'star':  # a gold star set in the crest
+        c.put(S.star4(c, 15, 7, 1), R['gold'], 'flat', base=3)
+        c.px(15, 7, '#FFFDF4', out=body.out)
+    if tier == 'cloud':  # silver cloud curls carved into the crest's lobes
+        for (x, y, r) in ((15.5, 7.0, 1.7), (11.6, 8.8, 1.1), (19.4, 8.8, 1.1)):
+            c.put(c.arc(x, y, r + 0.5, 1.0, 20, 250), R['silver'], 'flat', base=1)
+    if tier == 'jade':  # a gold bead in the hood
+        c.put(c.circle(15.5, 7.8, 1.2), R['gold'], 'sphere', base=3)
+    c.outline()
+    if T['glow']:
+        c.glow(T['glow'], (60,))
+        S.sparkle(c, 26, 5, '#FFFFFF', R['starlight'][3], 2)
+    return c
+
+
+for _rt_tier in ('wood', 'jade', 'cloud', 'star'):
+    register(FAM, _rt_tier + '_rite_tablet', (lambda tt: lambda: _rite_tablet(tt))(_rt_tier), GROUP)
+
+
+# ============================================================================ V10c · spirit wisp
+def spirit_wisp():
+    """A small pale-blue soul flame: a teardrop head drifting down-left, its tail trailing up and curling."""
+    c = Canvas(32)
+    head = c.circle(13, 20.5, 6.6)
+    tail = S.taper_curve(c, (13.5, 16), (19, 13), (21, 6), 9.0, 2.4)
+    tail |= S.taper_curve(c, (21, 6), (22.5, 1.8), (26.5, 4.5), 2.4, 1.0, k=10)
+    wisp = head | tail
+    c.put(wisp, QI_MIST, 'ray', base=2)
+    inner = c.circle(12.4, 21, 4.4) | S.taper_curve(c, (12.8, 18), (17.5, 14.5), (19.5, 9), 5.4, 1.2)
+    c.put(inner & erode4(wisp), QI_MIST, 'ray', base=3)
+    core = c.circle(11.8, 21.6, 2.4)
+    c.put(core, '#F2FFFF', 'flat', out=QI_MIST.out)
+    c.put(c.rect(10, 20, 11, 20), '#FFFFFF', 'flat', out=QI_MIST.out)
+    c.outline()
+    c.glow(WARD_GLOW, (110, 45))
+    c.pxs([(5, 14), (22, 24), (6, 27)], QI_MIST[4], out=QI_MIST.out)
+    S.sparkle(c, 27, 13, '#FFFFFF', QI_MIST[3], 1)
+    return c
+
+
+register(FAM, 'spirit_wisp', spirit_wisp, GROUP)
+
+
+# ============================================================================ V10c · components
+# Apprentice components for the Keeping Post bench: rope, rivets, a kiln brick, lacquer, a whetstone, glue.
+CP_AMBER = Ramp(['#5A2E08', '#9A5410', '#DC8E22', '#F6C257', '#FFF0B8'], '#241204')
+CP_REDLACQUER = Ramp(['#3E0A0E', '#761418', '#B82A26', '#E0503E', '#FF9A80'], '#1A0406')
+
+
+def hemp_cord():
+    """A hank of hemp rope: long loops bundled and bound round the middle, a loose end hanging free."""
+    c = Canvas(32)
+    rope = R['hemp']
+    for (dy, base) in ((4.0, 1), (2.0, 2), (0.0, 2)):
+        loop = c.ring(15.5, 13 + dy, 12.4, 2.4, 7.0)
+        c.put(loop, rope, 'ray', base=base, sep=True)
+        c.put(loop & ((c.xi + c.yi) % 3 == 0), rope, 'flat', base=base - 1)
+        c.put(loop & ((c.xi + c.yi) % 3 == 1) & (c.Y < 13 + dy), rope, 'flat', base=base + 1)
+    # the loose end, dropping from the binding
+    end = S.taper_curve(c, (17, 22), (19, 27), (24, 28.5), 2.4, 2.0)
+    c.put(end, rope, 'ray', base=3, sep=True)
+    c.put(end & ((c.xi + c.yi) % 3 == 0), rope, 'flat', base=1)
+    c.put(c.rect(23, 27, 25, 29) & end, rope, 'flat', base=4)
+    # the binding wrapped round the middle of the hank
+    bind = c.rect(13, 4, 18, 23) & c.a
+    c.put(bind, R['straw'], 'hgrad', base=2, sep=True, sep_col=rope[0])
+    c.put(bind & (c.yi % 2 == 0), R['straw'], 'flat', base=1)
+    c.outline()
+    return c
+
+
+def bronze_rivet():
+    """A small pile of bronze rivets: domed heads on short shanks, a few standing, a few tipped over."""
+    c = Canvas(32)
+    brz = R['bronze']
+
+    def upright(x, y):
+        """Standing on its head's rim: a flat dome cap over a slim shank with a flared tail."""
+        shank = c.rect(x, y, x + 1, y + 6)
+        c.put(shank, brz, 'hgrad', base=1, sep=True)
+        c.put(c.rect(x - 1, y + 6, x + 2, y + 6), brz, 'flat', base=1)
+        head = c.ellipse(x + 1, y + 0.4, 3.6, 1.7)
+        c.put(head, brz, 'ray', base=2, sep=True)
+        c.put(c.rect(x - 1, y - 1, x + 1, y - 1) & head, brz, 'flat', base=4)
+
+    def lying(x, y):
+        """Tipped over: the cap seen edge-on at the left, the shank running off to the right."""
+        shank = c.rect(x, y, x + 6, y + 1)
+        c.put(shank, brz, 'vgrad', base=2, sep=True)
+        c.put(c.rect(x + 6, y - 1, x + 6, y + 2), brz, 'flat', base=1)
+        head = c.ellipse(x - 0.2, y + 1, 1.7, 3.6)
+        c.put(head, brz, 'ray', base=2, sep=True)
+        c.put(c.rect(x - 1, y - 1, x - 1, y + 1) & head, brz, 'flat', base=4)
+
+    upright(9, 7)
+    upright(19, 5)
+    lying(17, 15)
+    lying(5, 19)
+    upright(14, 18)
+    upright(23, 20)
+    c.outline()
+    S.sparkle(c, 28, 5, '#FFFFFF', brz[4], 1)
+    return c
+
+
+def kiln_brick():
+    """A fired red-brown kiln brick in three-quarter view, the kiln's square stamp pressed into its top."""
+    c = Canvas(32)
+    top = c.poly([(4, 12), (18, 6), (29, 11), (15, 18)])
+    front = c.poly([(4, 12), (15, 18), (15, 27), (4, 21)])
+    side = c.poly([(15, 18), (29, 11), (29, 20), (15, 27)])
+    c.put(front, R['clay'], 'ray', base=2)
+    c.put(side, R['clay'], 'ray', base=1, sep=True)
+    c.put(top, R['clay'], 'ray', base=3, sep=True)
+    # fired speckles and scorch
+    c.pxs([(7, 16), (11, 20), (9, 22), (20, 19), (25, 16), (22, 22), (12, 11), (22, 9)], R['clay'][0],
+          out=R['clay'].out)
+    c.put((front | side) & (c.Y > 23) & ((c.xi % 2) == 0), R['clay'], 'flat', base=0, only_on=True)
+    # the stamp: a debossed square seal with a small mark
+    st = c.poly([(12, 11.5), (17, 9.2), (21.5, 11.5), (16.5, 13.8)])
+    c.put(st, R['clay'], 'flat', base=1)
+    c.put(st & erode4(st), R['clay'], 'flat', base=2)
+    c.put(c.pts([(16, 11), (15, 11), (17, 11), (16, 10), (16, 12)]), R['clay'][0], 'flat', out=R['clay'].out)
+    c.put(S.outline_only(top) & (c.X < 18.5) & (c.Y < 12.5), R['clay'], 'flat', base=4)
+    c.outline()
+    return c
+
+
+def lacquer_pot():
+    """A small lidded pot of red lacquer, a drip down its side, a brush with a red-dipped tip leaning on it."""
+    c = Canvas(32)
+    pot = c.ellipse(14, 21.5, 9, 7.2) | c.rect(8, 13, 20, 16)
+    c.put(pot, LACQUER, 'sphere', base=3, cx=11, cy=18, rx=11, ry=10)
+    rim = c.ellipse(14, 13.5, 7.4, 2.0)
+    c.put(rim, CP_REDLACQUER, 'ray', base=2, sep=True, sep_col=LACQUER[0])
+    lid = c.ellipse(14, 11.6, 7.6, 2.2)
+    c.put(lid, LACQUER, 'ray', base=3, sep=True)
+    c.put(c.rect(9, 10, 16, 10) & lid, LACQUER, 'flat', base=4)
+    knob = c.ellipse(14, 8.8, 2.0, 1.4)
+    c.put(knob, CP_REDLACQUER, 'sphere', base=2, sep=True, sep_col=LACQUER[0])
+    # red lacquer drip down the belly, a red band round the shoulder
+    drip = c.rect(9, 15, 10, 21) | c.circle(9.8, 21.8, 1.4)
+    c.put(drip & pot, CP_REDLACQUER, 'flat', base=3)
+    c.put(c.rect(9, 15, 9, 18) & pot, CP_REDLACQUER, 'flat', base=4)
+    band = c.ellipse(14, 17, 9, 1.0) & pot & ~drip
+    c.put(band, CP_REDLACQUER, 'flat', base=2)
+    # the brush, leaning against the pot's right shoulder
+    handle = c.seg(28, 4, 20.5, 22, 1.8)
+    c.put(handle, R['bamboo'], 'across', base=3, sep=True)
+    bristle = c.poly([(19.2, 21), (22.2, 22.2), (20.6, 28.6), (19, 27)])
+    c.put(bristle, R['straw'], 'ray', base=3, sep=True)
+    c.put(bristle & (c.Y > 25), CP_REDLACQUER, 'flat', base=2)
+    c.put(c.seg(20, 21, 22.4, 22, 1.4) & handle, R['bronze'], 'flat', base=3, sep=True)
+    c.outline()
+    return c
+
+
+def whetstone():
+    """A grey whetstone on a small wooden stand, its wet top catching a glossy sheen and a bead of water."""
+    c = Canvas(32)
+    stand_top = c.poly([(2, 17), (20, 9), (30, 14), (12, 23)])
+    stand_front = c.poly([(2, 17), (12, 23), (12, 27), (2, 21)])
+    stand_side = c.poly([(12, 23), (30, 14), (30, 18), (12, 27)])
+    c.put(stand_front, R['wood'], 'flat', base=2)
+    c.put(stand_side, R['wood'], 'flat', base=1, sep=True)
+    c.put(stand_top, R['wood'], 'ray', base=3, sep=True)
+    stone_top = c.poly([(5, 14), (19, 7.5), (27, 11.5), (13, 18.2)])
+    stone_front = c.poly([(5, 14), (13, 18.2), (13, 21.5), (5, 17.2)])
+    stone_side = c.poly([(13, 18.2), (27, 11.5), (27, 14.8), (13, 21.5)])
+    c.put(stone_front, R['stone'], 'flat', base=2, sep=True)
+    c.put(stone_side, R['stone'], 'flat', base=1, sep=True)
+    c.put(stone_top, R['stone'], 'ray', base=3, sep=True)
+    # wet sheen: a darker soaked patch, glossy streaks and a bead of water
+    wet = c.poly([(9, 13.5), (19, 8.8), (24, 11.4), (14, 16.2)]) & erode4(stone_top)
+    c.put(wet, R['stone'], 'flat', base=2)
+    c.put(c.bres(11, 13, 17, 10) & wet, R['ice'][4], 'flat', out=R['stone'].out)
+    c.put(c.bres(15, 14, 20, 11.5) & wet, R['ice'][3], 'flat', out=R['stone'].out)
+    c.put(c.circle(21.5, 12.2, 1.2) & stone_top, R['ice'], 'flat', base=3)
+    c.px(21, 11, '#FFFFFF', out=R['stone'].out)
+    c.outline()
+    S.sparkle(c, 7, 6, '#FFFFFF', R['ice'][3], 2)
+    return c
+
+
+def spirit_glue():
+    """A small gourd of amber spirit glue, corked and tied, a glowing amber drip running down its belly."""
+    c = Canvas(32)
+    lower = c.circle(15.5, 21.5, 8.2)
+    upper = c.circle(15.5, 10.5, 4.8)
+    neck = c.rect(13, 12, 18, 15)
+    gourd = lower | upper | neck
+    c.put(gourd, R['straw'], 'sphere', base=2, cx=13, cy=16, rx=10, ry=13)
+    c.put(c.arc(15.5, 21.5, 6.4, 1.0, 110, 160), R['straw'], 'flat', base=4)
+    cork = c.rect(14, 4, 17, 6)
+    c.put(cork, R['wood'], 'ray', base=3, sep=True)
+    tie = c.rect(12, 14, 19, 15) & gourd
+    c.put(tie, R['red'], 'flat', base=2, sep=True)
+    c.put(c.poly([(18, 15), (21.5, 18.5), (20, 19), (17.5, 16)]), R['red'], 'flat', base=3, sep=True)
+    # amber glue welling at the mouth and running down the belly in a glowing drip
+    well = c.ellipse(15.5, 7, 2.6, 1.2) | c.rect(13, 7, 14, 10)
+    drip = c.rect(12, 9, 13, 18) | c.circle(12.6, 19.2, 1.7)
+    glue = (well | drip) & ~cork
+    c.put(glue, CP_AMBER, 'ray', base=3, sep=True, sep_col=R['straw'][0])
+    c.put(c.rect(12, 10, 12, 16) & glue, CP_AMBER, 'flat', base=4)
+    drop = c.circle(12.6, 25.2, 1.2)
+    c.put(drop & ~lower, CP_AMBER, 'flat', base=3)
+    c.outline()
+    from families.beast_parts import halo
+    halo(c, glue, '#FFC870', (110, 45))
+    S.sparkle(c, 7, 6, '#FFFFFF', CP_AMBER[4], 1)
+    return c
+
+
+for _cp_id, _cp_fn in (('hemp_cord', hemp_cord), ('bronze_rivet', bronze_rivet), ('kiln_brick', kiln_brick),
+                       ('lacquer_pot', lacquer_pot), ('whetstone', whetstone), ('spirit_glue', spirit_glue)):
+    register(FAM, _cp_id, _cp_fn, GROUP)

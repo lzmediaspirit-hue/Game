@@ -5,6 +5,34 @@
 The idle gathering milestone (docs/idle_gathering_design.md), after IdleOn's AFK model in Jade River's own names. It
 runs between v1.2 Phase B and Phase C.
 
+### V10c · Snares, Rites and the Bench
+- **Beast Snaring** (Agility; Adventurer Kai's Snares Before Swords, a hemp snare kit): 16 beast trails from the Reed
+  Shallows to the Drifting Shoals, each with its critter (jade frog, mist hare, reed ferret, cloud marmot, thunder
+  hedgehog, frost stoat, sand fox, star gecko).
+  - A snare is set for one of the kit's lengths and runs on the clock, whoever is played: 20 min for 1 critter up to
+    28 days for 550. Short snares pay more an hour, long ones more a visit.
+  - A snare holds nothing if its Finesse is under the beast's Toughness, and (Finesse / Toughness)^0.25 more above
+    it. Kits from iron up hold more snares at once, open longer lengths, and bring a radiant pelt now and then.
+  - Critters are pet food.
+- **Ancestral Rites** (Spirit; Magistrate Qian's The Ancestors' Regard, a wooden rite tablet): rite charge builds by
+  itself for everyone with the Rites, 6 / max(5.7 - 0.2 x tablet speed^1.3 - level/40, 0.57) an hour, up to its
+  tablet's cap. Held at one of five ancestral altars (the County Hall, both sect libraries, the Hall of Nine, the
+  Star Chandlery), it is all spent on the altar's defence; the wave held calls **Spirit Wisps**.
+- **Post Vows:** five boons with curses, learned once for the account with Spirit Wisps, two held per disciple. The
+  Short Lamp: +25% craft EXP, posts stop after 10 h. The Quiet Hand: +15% Finesse, -30% EXP. The Burdened Back: +8%
+  Craft Diligence, pouches hold 60% less. The Iron Fast: +10% Martial Diligence, provisions go twice as fast. The
+  Open Palm: +50% Vigil drops, -20% kills.
+- **The Apprentice Bench** (Tinkerer Yu's An Apprentice's Hands): apprentices make components while you are away,
+  3600 x speed / progress an hour (36 hemp cord at the start), up to the bench's capacity (the material
+  compartment x (2 + 0.1 a point)). They are hemp cord, bronze rivets, kiln bricks, lacquer, whetstones and spirit
+  glue.
+  - More apprentices at 60 and 150 craft levels in all, and a bench point every five for speed, capacity or smithing
+    EXP.
+  - Tools from tier 4 and pouch folds from the Satchel up now ask for components.
+- The Roll-Call gains Bench and Vows tabs; the Crafts tab shows all six crafts, rite charge and snares out; Tailor Xun
+  sews all seven pouch categories.
+- Tests: `rules_tests` `station_suite`; `valley_run` sets an apprentice, a snare and the rites at Qi Kindling 3.
+
 ### V10b · The Vigil
 - **Keep vigil** from the Roll-Call in any room with beasts to hunt: the character hunts the room while you play
   someone else, at IdleOn's kills an hour. That is the lesser of the room's spawn cap (spawns / respawn) and the

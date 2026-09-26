@@ -1361,6 +1361,115 @@
    "target_room": "sf_market"
   },
   {
+   "id": "snares_before_swords",
+   "name": "Snares Before Swords",
+   "kind": "side",
+   "giver": "adventurer_kai",
+   "hand_in": "adventurer_kai",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Set a snare on a beast trail (a Reed Shallows or Willow Path trail will do)",
+     "count": 1,
+     "system": "snare"
+    },
+    {
+     "kind": "use_system",
+     "text": "Take up a snare once its time is done",
+     "count": 1,
+     "system": "snare_catch"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 90
+    },
+    {
+     "kind": "grant_item",
+     "item": "jade_carp_congee",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "A sword chases a hare. A snare waits for it. Set one on a trail, go about your business, come back to supper.",
+    "Short snares pay better by the hour. Long ones let you sleep. Pick by how often you'll come back."
+   ],
+   "complete_text": [
+    "See? It did the work while you did yours. Better kits hold more snares and longer ones."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk2",
+   "target_room": "lf_reed_shallows"
+  },
+  {
+   "id": "the_ancestors_regard",
+   "name": "The Ancestors' Regard",
+   "kind": "side",
+   "giver": "magistrate_qian",
+   "hand_in": "magistrate_qian",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Hold the rites at the County Hall's ancestral altar",
+     "count": 1,
+     "system": "rites"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 120
+    }
+   ],
+   "offer_text": [
+    "The county's altar has gone untended. Rite charge gathers in anyone who keeps the old forms; spend it at the altar and the ancestors answer.",
+    "What they send, the Spirit Wisps, buys the vows that sharpen a disciple kept at their post."
+   ],
+   "complete_text": [
+    "Wisps, drifting like lamp-smoke. Keep them. A vow bought with them binds only those who keep post."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk3",
+   "target_room": "sf_county_hall"
+  },
+  {
+   "id": "an_apprentices_hands",
+   "name": "An Apprentice's Hands",
+   "kind": "side",
+   "giver": "tinkerer_yu",
+   "hand_in": "tinkerer_yu",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "use_system",
+     "text": "Set an apprentice to work at your bench (the Roll-Call's Bench)",
+     "count": 1,
+     "system": "bench"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 80
+    }
+   ],
+   "offer_text": [
+    "An apprentice twisting cord all day makes more than you'd think. Give them a job at your bench; the cord and rivets pile up while you're out."
+   ],
+   "complete_text": [
+    "They'll work whether you watch or not. More crafts, more hands: a second apprentice once you've learned enough."
+   ],
+   "offered_by_unlock": true,
+   "chapter": "qk1",
+   "target_room": "sf_artisan_row"
+  },
+  {
    "id": "earning_your_keep",
    "name": "Earning Your Keep",
    "kind": "guided",

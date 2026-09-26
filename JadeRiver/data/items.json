@@ -5166,6 +5166,346 @@
    }
   },
   {
+   "id": "jade_frog",
+   "name": "Jade Frog",
+   "type": "critter",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "jade_frog",
+   "desc": "A thumb-sized jade frog from the reed pools. Spirit beasts gulp them whole.",
+   "food": {
+    "group": "pet",
+    "pet_food": true
+   }
+  },
+  {
+   "id": "mist_hare",
+   "name": "Mist Hare",
+   "type": "critter",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "mist_hare",
+   "desc": "A grey hare that fades into morning mist. Its fur lines winter robes.",
+   "food": {
+    "group": "pet",
+    "pet_food": true
+   }
+  },
+  {
+   "id": "reed_ferret",
+   "name": "Reed Ferret",
+   "type": "critter",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "reed_ferret",
+   "desc": "A quick ferret of the bamboo and reeds, sleek and curious.",
+   "food": {
+    "group": "pet",
+    "pet_food": true
+   }
+  },
+  {
+   "id": "cloud_marmot",
+   "name": "Cloud Marmot",
+   "type": "critter",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "cloud_marmot",
+   "desc": "A plump marmot of the high ledges with a tail like a puff of cloud.",
+   "food": {
+    "group": "pet",
+    "pet_food": true
+   }
+  },
+  {
+   "id": "thunder_hedgehog",
+   "name": "Thunder Hedgehog",
+   "type": "critter",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "thunder_hedgehog",
+   "desc": "A hedgehog whose quills crackle before a storm.",
+   "food": {
+    "group": "pet",
+    "pet_food": true
+   }
+  },
+  {
+   "id": "frost_stoat",
+   "name": "Frost Stoat",
+   "type": "critter",
+   "grade": "spirit",
+   "ilv": 68,
+   "stack": 99,
+   "icon": "frost_stoat",
+   "desc": "A white winter stoat of the Rimefrost, colder than the snow it hides in.",
+   "food": {
+    "group": "pet",
+    "pet_food": true
+   }
+  },
+  {
+   "id": "sand_fox",
+   "name": "Sand Fox",
+   "type": "critter",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 99,
+   "icon": "sand_fox",
+   "desc": "A small fox of the Sunscar with ears like sails.",
+   "food": {
+    "group": "pet",
+    "pet_food": true
+   }
+  },
+  {
+   "id": "star_gecko",
+   "name": "Star Gecko",
+   "type": "critter",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "star_gecko",
+   "desc": "A gecko of the drifting islands with gold spots that glow like distant stars.",
+   "food": {
+    "group": "pet",
+    "pet_food": true
+   }
+  },
+  {
+   "id": "radiant_pelt",
+   "name": "Radiant Pelt",
+   "type": "beast_part",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "radiant_pelt",
+   "desc": "The pelt of a radiant beast, a snare's rare prize: pearly, warm, and worth a great deal."
+  },
+  {
+   "id": "hemp_snare_kit",
+   "name": "Hemp Snare Kit",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "hemp_snare_kit",
+   "desc": "A snare kit: 1 snare at once, power 4; Level 1 in Beast Snaring to use it.",
+   "post": {
+    "craft": "snaring",
+    "tier": 0,
+    "power": 4,
+    "speed": 3,
+    "level_req": 1,
+    "finesse_pct": 0,
+    "snares": 1
+   }
+  },
+  {
+   "id": "iron_snare_kit",
+   "name": "Iron Snare Kit",
+   "type": "tool",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "iron_snare_kit",
+   "desc": "A snare kit: 2 snares at once, power 14; Level 15 in Beast Snaring to use it.",
+   "post": {
+    "craft": "snaring",
+    "tier": 1,
+    "power": 14,
+    "speed": 3,
+    "level_req": 15,
+    "finesse_pct": 0,
+    "snares": 2
+   }
+  },
+  {
+   "id": "silk_snare_kit",
+   "name": "Silk Snare Kit",
+   "type": "tool",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 1,
+   "icon": "silk_snare_kit",
+   "desc": "A snare kit: 3 snares at once, power 26; Level 30 in Beast Snaring to use it.",
+   "post": {
+    "craft": "snaring",
+    "tier": 2,
+    "power": 26,
+    "speed": 3,
+    "level_req": 30,
+    "finesse_pct": 0,
+    "snares": 3
+   }
+  },
+  {
+   "id": "star_snare_kit",
+   "name": "Star Snare Kit",
+   "type": "tool",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 1,
+   "icon": "star_snare_kit",
+   "desc": "A snare kit: 4 snares at once, power 45; Level 45 in Beast Snaring to use it.",
+   "post": {
+    "craft": "snaring",
+    "tier": 3,
+    "power": 45,
+    "speed": 3,
+    "level_req": 45,
+    "finesse_pct": 0,
+    "snares": 4
+   }
+  },
+  {
+   "id": "wood_rite_tablet",
+   "name": "Wood Rite Tablet",
+   "type": "tool",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 1,
+   "icon": "wood_rite_tablet",
+   "desc": "An ancestral tablet for the Rites: power 4, charge speed 4; Level 1 in Ancestral Rites to use it.",
+   "post": {
+    "craft": "rites",
+    "tier": 0,
+    "power": 4,
+    "speed": 4,
+    "level_req": 1,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "jade_rite_tablet",
+   "name": "Jade Rite Tablet",
+   "type": "tool",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "jade_rite_tablet",
+   "desc": "An ancestral tablet for the Rites: power 12, charge speed 5; Level 15 in Ancestral Rites to use it.",
+   "post": {
+    "craft": "rites",
+    "tier": 1,
+    "power": 12,
+    "speed": 5,
+    "level_req": 15,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "cloud_rite_tablet",
+   "name": "Cloud Rite Tablet",
+   "type": "tool",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 1,
+   "icon": "cloud_rite_tablet",
+   "desc": "An ancestral tablet for the Rites: power 24, charge speed 6; Level 30 in Ancestral Rites to use it.",
+   "post": {
+    "craft": "rites",
+    "tier": 2,
+    "power": 24,
+    "speed": 6,
+    "level_req": 30,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "star_rite_tablet",
+   "name": "Star Rite Tablet",
+   "type": "tool",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 1,
+   "icon": "star_rite_tablet",
+   "desc": "An ancestral tablet for the Rites: power 40, charge speed 7; Level 45 in Ancestral Rites to use it.",
+   "post": {
+    "craft": "rites",
+    "tier": 3,
+    "power": 40,
+    "speed": 7,
+    "level_req": 45,
+    "finesse_pct": 0
+   }
+  },
+  {
+   "id": "spirit_wisp",
+   "name": "Spirit Wisp",
+   "type": "wisp",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 999,
+   "icon": "spirit_wisp",
+   "desc": "A wisp of an ancestor's regard, called down at an altar. Post Vows are pledged with them."
+  },
+  {
+   "id": "hemp_cord",
+   "name": "Hemp Cord",
+   "type": "material",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "hemp_cord",
+   "desc": "A coil of hemp cord, twisted by an apprentice's patient hands."
+  },
+  {
+   "id": "bronze_rivet",
+   "name": "Bronze Rivet",
+   "type": "material",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "bronze_rivet",
+   "desc": "A handful of bronze rivets for binding a tool's head to its haft."
+  },
+  {
+   "id": "kiln_brick",
+   "name": "Kiln Brick",
+   "type": "material",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "kiln_brick",
+   "desc": "A fired brick with the bench's stamp. Furnaces and forges are built of them."
+  },
+  {
+   "id": "lacquer_pot",
+   "name": "Lacquer Pot",
+   "type": "material",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "lacquer_pot",
+   "desc": "A pot of red lacquer with its brush, to seal wood against the damp."
+  },
+  {
+   "id": "whetstone",
+   "name": "Whetstone",
+   "type": "material",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "whetstone",
+   "desc": "A fine grey whetstone. A blade or a sickle kept on it cuts true."
+  },
+  {
+   "id": "spirit_glue",
+   "name": "Spirit Glue",
+   "type": "material",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "spirit_glue",
+   "desc": "Amber glue boiled from spirit resin. It holds what nails cannot."
+  },
+  {
    "id": "practice_bell",
    "name": "Practice Bell",
    "type": "treasure_art",

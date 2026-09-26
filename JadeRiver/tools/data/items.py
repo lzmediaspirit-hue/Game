@@ -646,6 +646,7 @@ def build_items():
     rows += posts.tool_items(item)
     rows += posts.insect_items(item)
     rows += posts.incense_items(item)
+    rows += posts.v10c_items(item)
     # Treasures (gap report G2): set in the HUD's Treasure buttons (one from Heart Tempering 1, a second from
     # Spirit Awakening 1). Each is one action with a cooldown and a QI cost; none is a stat stick.
     for tid, grade, desc, t in TREASURES:

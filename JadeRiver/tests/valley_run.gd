@@ -636,6 +636,36 @@ func _keeping_post() -> void:
 	check(Game.posts.xp(c(), "netting") > 0.0, "netting by hand trains Insect Netting")
 	check(finish("glowflies"), "Little Dou's Glowflies done")
 
+## S50 V10c: an apprentice at the bench (Tinkerer Yu), a snare on the Reed Shallows trail (Adventurer Kai), and the
+## County Hall's rites (Magistrate Qian).
+func _stations() -> void:
+	check(start("an_apprentices_hands"), "An Apprentice's Hands accepted")
+	check(unlocked("apprentice_bench"), "the Apprentice Bench unlocks")
+	check(submit({"type": "bench_assign", "slot": 0, "item": "hemp_cord"}).get("ok", false), "an apprentice twists hemp cord")
+	check(finish("an_apprentices_hands"), "An Apprentice's Hands done")
+	check(start("snares_before_swords"), "Snares Before Swords accepted")
+	check(unlocked("beast_snaring") and c().inventory.count("hemp_snare_kit") > 0, "Beast Snaring unlocks with a hemp snare kit")
+	check(travel("lf_reed_shallows"), "to the Reed Shallows trail")
+	var trails := objects_of("beast_trail")
+	check(not trails.is_empty(), "a beast trail in the Reed Shallows")
+	if trails.is_empty(): return
+	place(Vector2(float(trails[0].at[0]), float(trails[0].at[1]) + 10))
+	check(submit({"type": "set_snare", "object": str(trails[0].id), "snare": "snare_20m"}).get("ok", false), "set a twenty-minute snare")
+	Clock.debug_offset_s += 1300.0
+	var got := submit({"type": "collect_snare", "object": str(trails[0].id)})
+	check(got.get("ok", false) and int(got.get("items", {}).get("jade_frog", 0)) >= 1, "take it up with a jade frog")
+	check(finish("snares_before_swords"), "Snares Before Swords done")
+	check(start("the_ancestors_regard"), "The Ancestors' Regard accepted")
+	check(unlocked("ancestral_rites") and c().inventory.count("wood_rite_tablet") > 0, "the Rites unlock with a wooden tablet")
+	check(travel("sf_county_hall"), "to the County Hall")
+	var altars := objects_of("ancestral_altar")
+	check(not altars.is_empty(), "the County Hall keeps an ancestral altar")
+	if altars.is_empty(): return
+	place(Vector2(float(altars[0].at[0]), float(altars[0].at[1]) + 10))
+	var rite := submit({"type": "hold_rite", "object": str(altars[0].id)})
+	check(rite.get("ok", false) and int(rite.get("wisps", 0)) > 0, "hold the rites: wave %d, %d Spirit Wisps" % [int(rite.get("wave", 0)), int(rite.get("wisps", 0))])
+	check(finish("the_ancestors_regard"), "The Ancestors' Regard done")
+
 ## Do one daily mission objective (kill or gather) in a room that has it.
 func _do_mission(qid: String) -> bool:
 	var q: Dictionary = c().quests.daily.get(qid, {})
@@ -805,6 +835,7 @@ func sec_qk1() -> void:
 	check(travel("cf_falls_pool"), "reach the Falls Pool for the glide")
 	check(glides(2) == 2, "glide twice")
 	check(finish("leaf_on_the_wind"), "Leaf on the Wind done")
+	_stations()
 	# Qi Kindling 4: the waterfall.
 	check(reach("qi_kindling_4"), "Qi Kindling 4")
 	check(start("listening_to_the_waterfall"), "Listening to the Waterfall accepted")

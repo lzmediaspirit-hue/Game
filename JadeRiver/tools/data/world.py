@@ -2887,6 +2887,27 @@ def insect_swarms():
               requires=all_of(unlock("insect_netting")), locked_text="You have no net, and they are too quick for bare hands.")
 
 
+def trails_and_altars():
+    """V10c: a beast trail in the rooms posts.TRAILS names (Beast Snaring) and an ancestral altar in posts.ALTARS
+    (Ancestral Rites), on dry ground clear of the room's other objects."""
+    def free_x(r, share):
+        taken = [float(o["at"][0]) for o in r.d["objects"]]
+        x = int(r.w * share)
+        for step in range(0, 16):
+            cand = _dry_x(r, x + (step // 2) * 140 * (1 if step % 2 == 0 else -1), 860)
+            if all(abs(cand - t) >= 160 for t in taken):
+                return cand
+        return x
+    for rid, (share, critter) in posts.TRAILS.items():
+        r = ROOMS[rid]
+        r.obj("trail_" + critter, "beast_trail", [free_x(r, share), 860], critter=critter, prop="beast_trail", radius=110,
+              requires=all_of(unlock("beast_snaring")), locked_text="Tracks in the grass. Someone who knew snares could use them.")
+    for rid, (share, tough) in posts.ALTARS.items():
+        r = ROOMS[rid]
+        r.obj("ancestral_altar", "ancestral_altar", [free_x(r, share), 860], toughness=tough, prop="ancestral_altar", radius=120,
+              requires=all_of(unlock("ancestral_rites")), locked_text="An old altar to the ancestors. The rites are not yours to hold yet.")
+
+
 def fruit_trees():
     """S49 treasure births: every candidate room has a Spirit Fruit tree that shows only while the fruit is ripe there
     (calendar "treasure_birth"; living_world.py lists the same rooms)."""
@@ -2975,6 +2996,7 @@ def build():
     rift_tears()   # S49: after every volume is in place, so tears and fruit trees stand on dry ground
     fruit_trees()
     insect_swarms()
+    trails_and_altars()
     spirit_mines()
     check_links()
     reachability()

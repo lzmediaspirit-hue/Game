@@ -555,6 +555,10 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			return game.crafting.gather(c, o)
 		"starsea_dock":
 			return set_sail(c, str(o.get("route", "")))
+		"beast_trail":
+			return ok({"dialogue": game.posts.trail_dialogue(c, o)})   # S50 V10c Beast Snaring
+		"ancestral_altar":
+			return ok({"dialogue": game.posts.altar_dialogue(c, o)})   # S50 V10c Ancestral Rites
 		"chest":
 			var s: Dictionary = game.room_rt.objects.get(object_id, {})
 			s.state = "open"
@@ -693,6 +697,8 @@ func _verb(o: Dictionary) -> String:
 		"ore_vein": return Tx.t("sim.world.mine")
 		"fishing_spot": return Tx.t("sim.world.fish")
 		"insect_swarm": return Tx.t("sim.world.net")
+		"beast_trail": return Tx.t("sim.world.snare")
+		"ancestral_altar": return Tx.t("sim.world.rites")
 		"chest", "storage_chest": return Tx.t("sim.world.open")
 		"shrine": return Tx.t("sim.world.pray")
 		"pickup": return Tx.t("sim.world.take")

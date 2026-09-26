@@ -560,6 +560,13 @@ def unlocks():
       same_stage_ok=True)
     u("pouch_sewing", "Pouch sewing", all_of(realm("qi_kindling_1"), qdone("keeping_post")), "a_pouch_for_the_road", ["page:pouches"],
       same_stage_ok=True)
+    # V10c: snares from Adventurer Kai, the ancestral rites with Magistrate Qian, and an apprentice from Tinkerer Yu.
+    u("beast_snaring", "Beast snaring", all_of(realm("qi_kindling_2"), qdone("keeping_post")), "snares_before_swords", [],
+      effects=[{"kind": "grant_item", "item": "hemp_snare_kit", "count": 1}], same_stage_ok=True)
+    u("ancestral_rites", "Ancestral rites", all_of(realm("qi_kindling_3"), qdone("keeping_post")), "the_ancestors_regard", [],
+      effects=[{"kind": "grant_item", "item": "wood_rite_tablet", "count": 1}], same_stage_ok=True)
+    u("apprentice_bench", "Apprentice bench", all_of(realm("qi_kindling_1"), qdone("keeping_post")), "an_apprentices_hands", [],
+      same_stage_ok=True)
     u("bottleneck_panel", "Bottlenecks", all_of(realm("bone_forging_9")), "the_wall", ["page:breakthrough"])
     u("stored_qi", "Stored Qi", all_of(realm("bone_forging_9")), "the_wall", [], same_stage_ok=True, toast=False)
 
@@ -945,6 +952,24 @@ def guided_quests():
     ], [item("cloth", 4), taels(80)], offered_by_unlock=True, chapter="qk1", target_room="sf_market",
         offer=["Your people come back from their posts with half their haul spilled. Ten to a compartment? Ha. Bring cloth and silver and I'll fold you more room."],
         complete=["There. Twenty-five to a compartment, four compartments. Bring better cloth and I'll fold it deeper."])
+    quest("snares_before_swords", "Snares Before Swords", "side", "adventurer_kai", [
+        o("use_system", "Set a snare on a beast trail (a Reed Shallows or Willow Path trail will do)", system="snare"),
+        o("use_system", "Take up a snare once its time is done", system="snare_catch"),
+    ], [taels(90), item("jade_carp_congee", 2)], offered_by_unlock=True, chapter="qk2", target_room="lf_reed_shallows",
+        offer=["A sword chases a hare. A snare waits for it. Set one on a trail, go about your business, come back to supper.",
+               "Short snares pay better by the hour. Long ones let you sleep. Pick by how often you'll come back."],
+        complete=["See? It did the work while you did yours. Better kits hold more snares and longer ones."])
+    quest("the_ancestors_regard", "The Ancestors' Regard", "side", "magistrate_qian", [
+        o("use_system", "Hold the rites at the County Hall's ancestral altar", system="rites"),
+    ], [taels(120)], offered_by_unlock=True, chapter="qk3", target_room="sf_county_hall",
+        offer=["The county's altar has gone untended. Rite charge gathers in anyone who keeps the old forms; spend it at the altar and the ancestors answer.",
+               "What they send, the Spirit Wisps, buys the vows that sharpen a disciple kept at their post."],
+        complete=["Wisps, drifting like lamp-smoke. Keep them. A vow bought with them binds only those who keep post."])
+    quest("an_apprentices_hands", "An Apprentice's Hands", "side", "tinkerer_yu", [
+        o("use_system", "Set an apprentice to work at your bench (the Roll-Call's Bench)", system="bench"),
+    ], [taels(80)], offered_by_unlock=True, chapter="qk1", target_room="sf_artisan_row",
+        offer=["An apprentice twisting cord all day makes more than you'd think. Give them a job at your bench; the cord and rivets pile up while you're out."],
+        complete=["They'll work whether you watch or not. More crafts, more hands: a second apprentice once you've learned enough."])
     quest("earning_your_keep", "Earning Your Keep", "guided", "jade_deacon", [
         o("use_system", "Finish daily missions", 2, system="daily_mission_done"),
     ], [fx("add_contribution", amount=40)], offered_by_unlock=True, chapter="bf6", giver_any=DEACONS, hand_in_any=DEACONS,

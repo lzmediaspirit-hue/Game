@@ -8,17 +8,21 @@ const CAT_ICON := {"ore": "copper_ore", "herb": "willow_moss", "fish": "river_mi
 func _init() -> void:
 	title = Tx.t("ui.posts.title")
 	tabs = [{"id": "roll", "label": Tx.t("ui.posts.tab_roll")}, {"id": "crafts", "label": Tx.t("ui.posts.tab_crafts")},
-		{"id": "store", "label": Tx.t("ui.posts.tab_store")}]
+		{"id": "store", "label": Tx.t("ui.posts.tab_store")}, {"id": "bench", "label": Tx.t("ui.posts.tab_bench")},
+		{"id": "vows", "label": Tx.t("ui.posts.tab_vows")}]
 
 func setup() -> void:
-	if args.get("tab", "") == "store": tab = 2
-	elif args.get("tab", "") == "crafts": tab = 1
+	var want := str(args.get("tab", ""))
+	for i in tabs.size():
+		if str(tabs[i].id) == want: tab = i
 
 func draw_page() -> void:
 	match tab:
 		0: _draw_roll()
 		1: _draw_crafts()
 		2: _draw_store()
+		3: _draw_bench()
+		4: _draw_vows()
 
 # ------------------------------------------------------------------ Roll-Call
 func _draw_roll() -> void:
@@ -87,26 +91,31 @@ func _draw_crafts() -> void:
 	var ch = c()
 	if ch == null: return
 	var left := Rect2(content.position, Vector2(620, content.size.y))
+	var list_crafts: Array = Game.posts.crafts()
+	var step := minf(126.0, (left.size.y + 6.0) / maxf(1.0, float(list_crafts.size())))
 	var y := left.position.y
-	for cd in Game.posts.crafts():
+	for cd in list_crafts:
 		var craft := str(cd.id)
-		var r := Rect2(left.position.x, y, left.size.x, 118)
+		var r := Rect2(left.position.x, y, left.size.x, step - 6.0)
 		panel(r)
-		icon_at(Rect2(r.position + Vector2(14, 14), Vector2(40, 40)), str(cd.get("icon", "")))
+		icon_at(Rect2(r.position + Vector2(12, 10), Vector2(36, 36)), str(cd.get("icon", "")))
 		var known: bool = Game.posts.craft_known(ch, craft)
-		text(r.position + Vector2(66, 36), str(cd.name), 21, UiKit.PAPER if known else UiKit.HOLLOW)
+		text(r.position + Vector2(60, 30), str(cd.name), 19, UiKit.PAPER if known else UiKit.HOLLOW)
 		if not known:
-			text(r.position + Vector2(66, 66), Unlocks.locked_text(str(cd.get("unlock", craft))), 16, UiKit.HOLLOW)
-			y += 126
+			text(r.position + Vector2(60, 56), fit(Unlocks.locked_text(str(cd.get("unlock", craft))), 15, r.size.x - 80), 15, UiKit.HOLLOW)
+			y += step
 			continue
 		var info := PostRules.level_info(Game.posts.xp(ch, craft))
-		text(Vector2(r.end.x - 140, r.position.y + 36), Tx.t("ui.posts.level_short") % int(info.level), 20, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, 120)
-		bar(Rect2(r.position + Vector2(66, 48), Vector2(r.size.x - 86, 26)), float(info.into) / maxf(1.0, float(info.need)), UiKit.JADE,
+		text(Vector2(r.end.x - 140, r.position.y + 30), Tx.t("ui.posts.level_short") % int(info.level), 19, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, 120)
+		bar(Rect2(r.position + Vector2(60, 38), Vector2(r.size.x - 80, 22)), float(info.into) / maxf(1.0, float(info.need)), UiKit.JADE,
 			"%s / %s" % [UiKit.fmt(int(info.into)), UiKit.fmt(int(info.need))])
 		var tool: Dictionary = Game.posts.tool_of(ch, craft)
 		var tool_name := ContentDB.item_name(str(tool.item)) if not tool.is_empty() else Tx.t("ui.posts.bare_hands")
-		text(r.position + Vector2(66, 102), Tx.t("ui.posts.finesse_line") % [UiKit.fmt(int(Game.posts.finesse_of(ch, craft))), fit(tool_name, 16, 260)], 16, UiKit.MIST)
-		y += 126
+		var line := Tx.t("ui.posts.finesse_line") % [UiKit.fmt(int(Game.posts.finesse_of(ch, craft))), fit(tool_name, 15, 220)]
+		if craft == "rites": line += "  ·  " + Tx.t("ui.posts.charge") % int(Game.posts.rite_charge(ch))
+		if craft == "snaring": line += "  ·  " + Tx.t("ui.posts.snares_out") % (Game.posts.snares(ch) as Array).size()
+		text(r.position + Vector2(60, minf(r.size.y - 8.0, 82.0)), line, 14, UiKit.MIST)
+		y += step
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
 	panel(right)
 	_draw_node_info(ch, right.grow(-16))
@@ -171,6 +180,77 @@ func _draw_vigil_info(ch, r: Rect2, room: String) -> void:
 		text(Vector2(r.position.x, y + 18), str(row[1]), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, r.size.x)
 		y += 32
 
+# ------------------------------------------------------------------ Apprentice Bench (V10c)
+func _draw_bench() -> void:
+	var ch = c()
+	if ch == null: return
+	if not Unlocks.is_unlocked(ch.id, "apprentice_bench"):
+		para(Rect2(content.position + Vector2(0, 20), Vector2(content.size.x, 80)), Unlocks.locked_text("apprentice_bench"), 18, UiKit.HOLLOW)
+		return
+	Game.posts._bench_settle(ch)
+	var b: Dictionary = Game.posts.bench(ch)
+	var x := content.position.x
+	var y := content.position.y
+	para(Rect2(Vector2(x, y), Vector2(content.size.x - 260, 50)), Tx.t("ui.posts.bench_note") % UiKit.fmt(int(Game.posts.bench_capacity(ch))), 16, UiKit.MIST, 2)
+	btn(Rect2(content.end.x - 240, y, 240, 52), Tx.t("ui.posts.bench_collect"), "bench_collect", null, true)
+	y += 64
+	text(Vector2(x, y + 22), Tx.t("ui.posts.bench_points") % Game.posts.bench_points_free(ch), 18, UiKit.PALE_GOLD)
+	var bx := x + 300
+	for k in ["speed", "capacity", "exp"]:
+		btn(Rect2(bx, y, 200, 44), Tx.t("ui.posts.bench_" + k) % int(b.points.get(k, 0)), "bench_point", k, false, Game.posts.bench_points_free(ch) > 0, Tx.t("ui.posts.no_points_text"), 16)
+		bx += 212
+	y += 60
+	var comps: Array = ContentDB.config("posts").get("bench", {}).get("components", [])
+	for i in Game.posts.apprentices(ch):
+		var cur := str(b.slots[i]) if i < b.slots.size() else ""
+		var r := Rect2(x, y, content.size.x, 76)
+		panel(r)
+		text(r.position + Vector2(16, 30), Tx.t("ui.posts.apprentice") % (i + 1), 18, UiKit.PAPER)
+		if cur != "":
+			icon_at(Rect2(r.position + Vector2(200, 12), Vector2(48, 48)), cur)
+			text(r.position + Vector2(260, 32), ContentDB.item_name(cur), 18, UiKit.PAPER)
+			text(r.position + Vector2(260, 60), Tx.t("ui.posts.bench_rate") % [snappedf(Game.posts.bench_rate_of(ch, cur), 0.1), UiKit.fmt(int(float(b.stock.get(cur, 0.0))))], 15, UiKit.MIST)
+		else:
+			text(r.position + Vector2(200, 44), Tx.t("ui.posts.bench_idle"), 17, UiKit.HOLLOW)
+		btn(Rect2(r.end.x - 170, r.position.y + 14, 154, 48), Tx.t("ui.posts.bench_change"), "bench_next", [i, cur], false, true, "", 17)
+		y += 84
+	para(Rect2(Vector2(x, y + 6), Vector2(content.size.x, 60)), Tx.t("ui.posts.bench_more") % [Game.posts.total_craft_levels(ch)], 15, UiKit.MIST, 2)
+
+## The next component this character may set an apprentice to (by Level), after `cur` ("" = idle).
+func _next_component(ch, cur: String) -> String:
+	var opts: Array = [""]
+	for cp in ContentDB.config("posts").get("bench", {}).get("components", []):
+		if ProgressionRules.level(ch) >= int(cp.get("gate", 1)): opts.append(str(cp.item))
+	var i := opts.find(cur)
+	return str(opts[(i + 1) % opts.size()])
+
+# ------------------------------------------------------------------ Post Vows (V10c)
+func _draw_vows() -> void:
+	var ch = c()
+	if ch == null: return
+	if not Unlocks.is_unlocked(ch.id, "ancestral_rites"):
+		para(Rect2(content.position + Vector2(0, 20), Vector2(content.size.x, 80)), Unlocks.locked_text("ancestral_rites"), 18, UiKit.HOLLOW)
+		return
+	var wisps := int(ch.inventory.count("spirit_wisp")) + int(Game.account.storehouse.get("spirit_wisp", 0))
+	para(Rect2(content.position, Vector2(content.size.x - 240, 50)), Tx.t("ui.posts.vows_note"), 16, UiKit.MIST, 2)
+	icon_at(Rect2(content.end.x - 220, content.position.y + 4, 36, 36), "spirit_wisp")
+	text(Vector2(content.end.x - 176, content.position.y + 30), UiKit.fmt(wisps), 20, UiKit.PALE_GOLD)
+	var y := content.position.y + 60
+	var held: Array = Game.posts.held_vows(ch)
+	for v in ContentDB.config("posts").get("post_vows", []):
+		var id := str(v.id)
+		var r := Rect2(content.position.x, y, content.size.x, 76)
+		panel(r, "minor_panel", "selected" if held.has(id) else "normal")
+		text(r.position + Vector2(16, 30), str(v.name), 18, UiKit.PALE_GOLD if held.has(id) else UiKit.PAPER)
+		text(r.position + Vector2(16, 58), fit(str(v.text), 15, r.size.x - 230), 15, UiKit.MIST)
+		if not Game.account.post_vows.has(id):
+			btn(Rect2(r.end.x - 196, r.position.y + 14, 180, 48), Tx.t("ui.posts.vow_learn") % int(v.cost), "vow_learn", id, false, wisps >= int(v.cost), Tx.t("ui.posts.vow_need"), 16)
+		elif held.has(id):
+			btn(Rect2(r.end.x - 196, r.position.y + 14, 180, 48), Tx.t("ui.posts.vow_drop"), "vow_off", id, false, true, "", 16)
+		else:
+			btn(Rect2(r.end.x - 196, r.position.y + 14, 180, 48), Tx.t("ui.posts.vow_hold"), "vow_on", id, true, held.size() < 2, Tx.t("sim.posts.vows_full"), 16)
+		y += 82
+
 # ------------------------------------------------------------------ Storehouse
 func _draw_store() -> void:
 	var ids: Array = Game.account.storehouse.keys()
@@ -210,6 +290,14 @@ func on_action(id: String, data) -> void:
 			var r := submit({"type": "burn_incense", "character": str(data), "item": inc})
 			if r.get("ok", false): flash(Tx.t("ui.posts.incense_burned") % _dur(float(r.hours)))
 		"switch": navigate.emit("_switch", {"slot": int(data)})
+		"bench_collect":
+			var r := submit({"type": "bench_collect"})
+			if r.get("ok", false): flash(Tx.t("ui.posts.bench_collected"))
+		"bench_point": submit({"type": "bench_point", "kind": str(data)})
+		"bench_next": submit({"type": "bench_assign", "slot": int(data[0]), "item": _next_component(c(), str(data[1]))})
+		"vow_learn": submit({"type": "learn_post_vow", "vow": str(data)})
+		"vow_on": submit({"type": "pledge_post_vow", "vow": str(data), "on": true})
+		"vow_off": submit({"type": "pledge_post_vow", "vow": str(data), "on": false})
 		"vigil":
 			var r := submit({"type": "take_vigil"})
 			if r.get("ok", false): flash(Tx.t("ui.posts.vigil_taken"))
