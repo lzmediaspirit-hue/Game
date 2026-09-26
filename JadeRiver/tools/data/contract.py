@@ -61,7 +61,7 @@ DEPTH = {
     "Progression": ["pill_resistance_changed", "foundation_changed", "heart_demon_changed", "residue_changed", "body_trial_passed", "body_tier_reached", "physique_awakened", "core_graded",
                     "fate_offered", "fate_chosen", "tribulation_started", "tribulation_bolt", "tribulation_result", "qi_deviation",
                     "inner_art_learned", "inner_art_equipped", "stance_changed", "vow_taken", "vow_broken", "false_realm_changed",
-                    "epiphany", "soul_escaped"],
+                    "epiphany", "soul_escaped", "guqin_played", "chess_solved"],
     "Crafting": ["flame_absorbed", "pill_cloud", "items_salvaged", "enhancement_inherited", "affixes_rerolled", "affix_locked", "talisman_crafted",
                  "relic_restored", "furnace_blast", "recipe_page_found", "recipe_deduced", "experiment_result", "guild_exam_started",
                  "guild_exam_failed", "guild_rank_changed", "commission_completed", "pill_tribulation_result", "pill_soul_flight",
@@ -81,7 +81,7 @@ DEPTH = {
     # S49: the karma ledger, alignment and Fame (per character).
     "Relations": ["merit_changed", "sin_changed", "debt_recorded", "debt_called", "alignment_changed", "fame_changed",
                   "young_master_challenge", "affinity_changed", "bond_formed", "grudge_changed", "hunter_dispatched", "bounty_taken",
-                  "bounty_claimed", "foe_surrendered", "foe_judged"],
+                  "bounty_claimed", "foe_surrendered", "foe_judged", "favour_changed", "relief_donated"],
     "Pets": ["pet_wounded", "pet_healed", "core_devoured", "cores_sold", "beast_cleansed", "bloodline_awakened",
              "contract_formed", "contract_offered", "pet_skill_cast", "beast_suppressed", "egg_infused", "party_changed",
              "pet_skill_learned", "pets_fused", "pet_core_formed", "pet_breakthrough", "pet_gear_changed", "pet_swapped",

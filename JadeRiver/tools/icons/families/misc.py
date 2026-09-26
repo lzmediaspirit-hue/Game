@@ -814,6 +814,24 @@ def thousand_year_lingzhi():
     S.sparkle(c, 26, 6, '#FFFFFF', R['gold'][3], 2)
     return c
 
+def guqin():
+    """S49 leisure arts: a seven-string guqin lying on the diagonal: a broad dark-lacquered board with a waisted end,
+    pale silk strings, a row of jade studs and a red tassel."""
+    c = Canvas(32)
+    body = c.poly([(1, 21), (19, 3), (29, 13), (11, 31)]) & ~c.poly([(20, 25), (25, 20), (29, 24), (24, 29)])
+    c.put(body, R['darkwood'], 'ray', base=2, sep=True)
+    top = c.poly([(4, 21), (19, 6), (26, 13), (11, 28)])
+    c.put(top & body, R['wood'], 'flat', base=2)
+    for k in range(5):
+        o = k * 1.6
+        c.put(c.bres(int(5 + o), int(20 + o), int(18 + o), int(7 + o)), R['rice'], 'flat', base=4)
+    for i in range(5):
+        c.put(c.circle(7 + i * 3, 25 - i * 3, 0.8), R['jade'], 'flat', base=4)
+    c.put(c.bres(21, 4, 24, 1), R['red'], 'flat', base=3)
+    c.put(c.circle(24.5, 1.8, 1.4), R['red'], 'sphere', base=2)
+    c.outline()
+    return c
+
 for _id, _fn in (('manual_page', manual_page), ('riverbreath_scroll', riverbreath_scroll),
                  ('lu_journal_page', lu_journal_page), ('recipe_scroll', recipe_scroll),
                  ('river_token', river_token), ('jade_token', jade_token), ('cloud_token', cloud_token),
@@ -833,7 +851,7 @@ for _id, _fn in (('manual_page', manual_page), ('riverbreath_scroll', riverbreat
                  ('drying_rack', drying_rack), ('mindwell_lotus', mindwell_lotus),
                  ('evergreen_heart_seed', evergreen_heart_seed), ('evergreen_heart_fruit', evergreen_heart_fruit),
                  ('spirit_fruit', spirit_fruit), ('hundred_year_wine', hundred_year_wine),
-                 ('longevity_peach', longevity_peach), ('thousand_year_lingzhi', thousand_year_lingzhi)):
+                 ('longevity_peach', longevity_peach), ('thousand_year_lingzhi', thousand_year_lingzhi), ('guqin', guqin)):
     register(FAM, _id, _fn, GROUP)
 
 

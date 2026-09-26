@@ -310,6 +310,18 @@
     "progression_authority"
    ]
   },
+  "guqin_played": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
+  "chess_solved": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ]
+  },
   "attack_started": {
    "system": "Combat",
    "files": [
@@ -1651,6 +1663,18 @@
    ]
   },
   "foe_judged": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
+  },
+  "favour_changed": {
+   "system": "Relations",
+   "files": [
+    "relations_authority"
+   ]
+  },
+  "relief_donated": {
    "system": "Relations",
    "files": [
     "relations_authority"

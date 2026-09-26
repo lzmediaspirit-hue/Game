@@ -656,6 +656,8 @@ def stoneford():
     # S46 Beast Tide: the gate's gong calls the weekly stand against three waves of beasts.
     r.obj("tide_gong", "beast_tide_drum", [860, 720], requires=all_of(realm("qi_unfurling_1")),
           locked_text="Guard Hou: \"The Beast Tide is no work for anyone below Qi Unfurling.\"")
+    # S49 the mortal kingdom: the County Hall, where the magistrate keeps the county's business.
+    r.building("county_hall", "village_house", 2240, front=690, door=("sf_county_hall", "entry", "county_hall_door", {"label": "County Hall"}))
     r.edge("east", "east", "wp_west", "west", y=850)
     r.edge("west", "west", "sf_market", "east", y=850)
     r.portal("quarry_road", "door", [660, 700], "sq_quarry_rim", "south", press_up=True, label="Quarry Road",
@@ -766,6 +768,26 @@ def stoneford():
         r.decor("banner_" + s, [1100, 660])
         r.decor("stone_lantern", [640, 660])
         r.portal("entry", "door", [120, 700], "sf_fairground", "trial_" + s, press_up=True, label="Fairground")
+
+
+def county_hall():
+    """S49 the mortal kingdom: the county magistrate's hall behind Stoneford Gate. The board lists the day's county
+    jobs; the relief box takes silver for the county's poor."""
+    r = interior("sf_county_hall", "County Hall", "stoneford", wall="wall_plaster", floor="floor_wood", rtype="interior",
+                 spawn_point=[200, 820], music="town")
+    r.decor("window", [640, 330], layer="back")
+    r.decor("bookcase", [1080, 680], layer="back")
+    r.decor("screen_folding", [900, 690])
+    r.decor("table", [520, 700])
+    r.decor("scroll_rack", [300, 690])
+    for x in (140, 1140):
+        r.decor("statue_guardian_lion", [x, 700])
+    r.npc("magistrate_qian", [640, 720], facing=-1)
+    r.obj("county_board", "inspect", [420, 800], prop="notice_board", open_page="county", label="County jobs",
+          text="The county's notices, brushed fresh each morning.")
+    r.obj("relief_box", "inspect", [880, 820], prop="storage_chest", open_page="county", page_args={"tab": "relief"}, label="Relief fund",
+          text="A locked box with a slot in the lid: FOR THE COUNTY'S POOR.")
+    r.portal("entry", "door", [120, 700], "sf_gate", "county_hall_door", press_up=True, label="Stoneford Gate")
 
 
 def trial_tower():
@@ -2791,6 +2813,7 @@ def build():
     beast_grove()
     stoneford()
     trial_tower()
+    county_hall()
     sects()
     valley()
     azure_expanse()

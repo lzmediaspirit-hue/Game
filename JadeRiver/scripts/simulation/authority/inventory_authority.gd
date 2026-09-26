@@ -730,6 +730,7 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 		"pet_item": return game.pets.use_pet_item(c, index)
 		"absorb_flame": return game.crafting.absorb_flame(c, index)
 		"bath": return game.progression.start_bath(c, str(s.id))
+		"guqin": return ok({"open_page": "guqin"})   # S49 leisure arts: the page plays it
 	# S48 vows block what they forbid: Plain Fare the burst pills, Fasting the food that lends a buff.
 	var vow := ""
 	if def.get("burst", false): vow = game.progression.vow_forbids(c, "burst_pill")

@@ -234,6 +234,14 @@
     },
     {
      "item": "rice_ball"
+    },
+    {
+     "item": "jasmine_dew_tea",
+     "price": 30
+    },
+    {
+     "item": "guqin",
+     "price": 450
     }
    ],
    "rotation": {
@@ -1359,6 +1367,10 @@
      "item": "rice_ball"
     },
     {
+     "item": "marsh_mist_tea",
+     "price": 30
+    },
+    {
      "item": "cleansing_pill"
     },
     {
@@ -1597,6 +1609,10 @@
     },
     {
      "item": "revival_talisman"
+    },
+    {
+     "item": "thunderhead_tea",
+     "price": 3
     },
     {
      "item": "fuel_crystal_mid",

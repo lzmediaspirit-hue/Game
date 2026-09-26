@@ -3053,6 +3053,18 @@
    ]
   },
   {
+   "id": "guqin",
+   "name": "Guqin",
+   "type": "tool",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 1,
+   "icon": "guqin",
+   "desc": "A seven-string guqin in a cloth wrap. Play it to calm the Qi: meditation runs up to 15% faster for 30 minutes.",
+   "use": [],
+   "use_action": "guqin"
+  },
+  {
    "id": "hundred_year_wine",
    "name": "Hundred Year Wine",
    "type": "treasure",
@@ -5046,6 +5058,81 @@
     "group": "utility",
     "pet_food": false
    }
+  },
+  {
+   "id": "jasmine_dew_tea",
+   "name": "Jasmine Dew Tea",
+   "type": "food",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "jasmine_dew_tea",
+   "desc": "Stoneford's jasmine, picked with the dew on it. +10% insight for 30 minutes.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "insight_rate",
+     "op": "flat",
+     "value": 0.1,
+     "duration": 1800,
+     "source": "jasmine_tea"
+    }
+   ],
+   "food": {
+    "group": "buff",
+    "pet_food": false
+   },
+   "region": "stoneford"
+  },
+  {
+   "id": "marsh_mist_tea",
+   "name": "Marsh Mist Tea",
+   "type": "food",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "marsh_mist_tea",
+   "desc": "Greyreed's grey-green tea, brewed thin as marsh fog. +8% evasion for 30 minutes.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "evasion",
+     "op": "pct_add",
+     "value": 0.08,
+     "duration": 1800,
+     "source": "marsh_tea"
+    }
+   ],
+   "food": {
+    "group": "buff",
+    "pet_food": false
+   },
+   "region": "greyreed_hamlet"
+  },
+  {
+   "id": "thunderhead_tea",
+   "name": "Thunderhead Tea",
+   "type": "food",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "thunderhead_tea",
+   "desc": "A Cloudgate brew that crackles on the tongue. +2 Storm Ward for 30 minutes.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "attunement_bonus",
+     "op": "flat",
+     "value": 2,
+     "duration": 1800,
+     "source": "thunderhead_tea"
+    }
+   ],
+   "food": {
+    "group": "buff",
+    "pet_food": false
+   },
+   "region": "cloudgate_port"
   },
   {
    "id": "jade_carp_congee",

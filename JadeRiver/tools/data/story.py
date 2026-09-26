@@ -70,7 +70,7 @@ PHYSICIANS = ["jade_physician", "cloud_physician"]
 
 NPC_AGES = {"aunt_ping": 46, "lu_boatman": 61, "little_dou": 9, "old_ma": 72, "granny_liu": 83, "uncle_guo": 54,
             "shen_lian_npc": 16, "shen_lian": 16, "wen_zhao": 17, "mei_qing": 19, "mei_qing_sect": 19, "madam_hua": 41,
-            "old_scribe_bai": 77, "guard_hou": 38, "peddler_shao": 50, "elder_hu": 212, "elder_sung": 187,
+            "old_scribe_bai": 77, "magistrate_qian": 58, "guard_hou": 38, "peddler_shao": 50, "elder_hu": 212, "elder_sung": 187,
             "lan_yue": 18, "tie_niu": 20, "qiu_feng": 22, "bai_ling": 17, "hermit_yao": 340, "elder_gu": 96}
 
 
@@ -110,6 +110,11 @@ def npcs():
         ["Aunt Ping says you're finally awake before noon.", "The river's cold as winter this morning."], ["Scrub, scrub."])
 
     # Stoneford (about 20 people)
+    # S49 the mortal kingdom: the county magistrate keeps the hall behind the gatehouse.
+    npc("magistrate_qian", "Magistrate Qian", "County magistrate", outfit("long_tied", 1, "scholar", "scholar", "folded", hat="guan", shirt_dye="indigo"),
+        ["The county has more trouble than hands. You have hands.", "Cultivators pass through Stoneford like weather. The ones who stop to help are remembered.",
+         "Keep your techniques sheathed in the villages. Ordinary people have long memories and short tempers."],
+        ["Next petition!", "The county thanks you."], services=["page:county"], service_labels={"page:county": "County business"})
     npc("guard_hou", "Captain Hou", "Gate guard", outfit("topknot", 0, "disciple", "martial", "boots", weapon="spear", shirt_dye="earth"),
         ["Stoneford gate. Keep your blades sheathed.", "Recruitment Fair's on the Fairground. West, past Artisan Row."], ["Next!", "Move along."])
     npc("foreman_dong", "Foreman Dong", "Quarry foreman", outfit("short_knot", 5, "sleeveless", "loose", "boots", shirt_dye="earth"),

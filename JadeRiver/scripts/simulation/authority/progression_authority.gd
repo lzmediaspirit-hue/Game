@@ -16,7 +16,8 @@ var last_level: Dictionary = {}
 func intents() -> Array:
 	return ["start_meditation", "stop_meditation", "toggle_meditation", "start_breakthrough", "learn_method", "switch_method",
 		"open_meridian", "reset_meridians", "equip_technique", "unequip_technique", "rank_up_technique", "set_contemplate",
-		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade", "start_bath", "choose_fate", "equip_inner_art", "set_stance", "set_vow", "set_false_realm"]
+		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade", "start_bath", "choose_fate", "equip_inner_art", "set_stance", "set_vow", "set_false_realm",
+		"play_guqin", "solve_chess"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("loadout_swapped", _on_loadout_swapped, 30)
@@ -42,6 +43,8 @@ func handle(intent: Dictionary) -> Dictionary:
 		"start_meditation": return start_meditation(c)
 		"stop_meditation": return stop_meditation(c, str(intent.get("reason", "moved")))
 		"toggle_meditation": return stop_meditation(c, "tapped") if c.cultivator.meditating else start_meditation(c)
+		"play_guqin": return play_guqin(c, float(intent.get("score", 0.0)))
+		"solve_chess": return solve_chess(c, str(intent.get("site", "")), str(intent.get("choice", "")))
 		"start_breakthrough": return start_breakthrough(c, intent.get("support_items", []))
 		"learn_method": return fail("taught_by_npc")
 		"switch_method": return switch_method(c, str(intent.get("id", "")), bool(intent.get("use_conversion_pill", false)))
@@ -1508,3 +1511,54 @@ func claim_offline(c, elapsed_s: float) -> Dictionary:
 	var result := {"gains": gains, "capped": span.capped, "hours": minutes / 60.0, "focus": focus}
 	emit("offline_claimed", {"actor": c.id, "gains": gains, "capped": span.capped, "hours": minutes / 60.0, "focus": focus})
 	return ok(result)
+
+# ------------------------------------------------------------------ S49 leisure arts: the guqin and chess
+## The guqin: a short piece on seven strings (the page scores the playing, 0-1). The steadier the hand, the faster
+## meditation runs for half an hour; then the fingers need as long to rest.
+func play_guqin(c, score: float) -> Dictionary:
+	if c.inventory.count("guqin") <= 0: return fail("no_guqin", {"text": Tx.t("sim.progression.no_guqin")})
+	var g: Dictionary = ContentDB.config("chess").get("guqin", {})
+	var now := Clock.now_utc()
+	if float(c.cooldowns.get("guqin_until", 0.0)) > now: return fail("resting", {"text": Tx.t("sim.progression.guqin_resting") % int(ceil((float(c.cooldowns.guqin_until) - now) / 60.0))})
+	score = clampf(score, 0.0, 1.0) if is_finite(score) else 0.0
+	var bonus := float(g.get("base", 0.05)) + float(g.get("per_score", 0.10)) * score
+	game.combat.apply_buff(c.id, {"stat": "accumulation_rate", "op": "flat", "value": bonus, "duration": float(g.get("duration_s", 1800)), "source": "guqin"}, "guqin")
+	c.cooldowns["guqin_until"] = now + float(g.get("rest_s", 1800))
+	emit("guqin_played", {"actor": c.id, "score": score, "bonus": bonus})
+	return ok({"bonus": bonus})
+
+## An insight site's chess problem today (chess.json), the same on every device.
+func chess_of(site: String) -> Dictionary:
+	var all: Array = ContentDB.all("chess")
+	if all.is_empty(): return {}
+	var r := Rng.keyed(int(game.account.rng_seed), "chess:%s:%d" % [site, Clock.reset_day(Clock.now_utc())])
+	return all[r.randi_range(0, all.size() - 1)]
+
+func chess_open(c, site: String) -> bool:
+	return int(c.cooldowns.get("chess:" + site, -1)) != Clock.reset_day(Clock.now_utc())
+
+## One answer a day at each site: the right point gives insight into your deepest Dao.
+func solve_chess(c, site: String, choice: String) -> Dictionary:
+	var pz := chess_of(site)
+	if pz.is_empty() or site == "": return fail("no_problem")
+	if not chess_open(c, site): return fail("done", {"text": Tx.t("sim.progression.chess_done")})
+	c.cooldowns["chess:" + site] = Clock.reset_day(Clock.now_utc())
+	var right := choice == str(pz.answer)
+	if right: apply_insight_best(c.id, float(ContentDB.config("chess").get("insight", 30)), "chess")
+	emit("chess_solved", {"actor": c.id, "puzzle": str(pz.id), "site": site, "right": right})
+	return ok({"right": right, "answer": str(pz.answer)})
+
+## Insight into the Dao you know best (or, before any Dao, a little realm progress): the hermit's chess problem, and
+## the insight sites' problems.
+func apply_insight_best(actor_id: String, amount: float, context := "fortune") -> void:
+	var c = game.character(actor_id)
+	if c == null: return
+	var best := ""
+	var top := -1.0
+	for dao in c.cultivator.daos:
+		var v := float(c.cultivator.daos[dao].get("insight", 0.0)) + 1000.0 * int(c.cultivator.daos[dao].get("tier", 0))
+		if v > top:
+			top = v
+			best = str(dao)
+	if best != "" and Unlocks.is_unlocked(c.id, "dao_tree"): apply_insight(c.id, best, amount, context + ":chess:" + str(Clock.reset_day(Clock.now_utc())))
+	else: apply_progress(c.id, 0.0, context, 0.02)

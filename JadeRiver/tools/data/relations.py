@@ -84,6 +84,12 @@ def deeds():
         deed("jealous_lost", "Lost to a jealous senior", fame=-5, **on("spar_ended", opponent="jealous_senior", winner="opponent")),
         # The Heaven Ranking: taking a ranked cultivator's place (code, when the spar is won).
         deed("rank_climbed", "Climbed the Heaven Ranking", fame=15),
+        # The mortal kingdom: county jobs, the relief fund, and the non-interference rule.
+        deed("county_service", "Did a job for the county", merit=3, alignment=1),
+        deed("relief_small", "Gave to the county relief fund", merit=1),
+        deed("relief_large", "Gave generously to the county relief fund", merit=8, alignment=1),
+        deed("relief_grand", "Endowed the county relief fund", merit=60, alignment=3, fame=10),
+        deed("mortal_interference", "Used a cultivator's power among mortals", sin=5, alignment=-2),
     ]
     return rows
 
@@ -175,6 +181,54 @@ BOUNTIES = [
 HUNT = {"chance": 0.35, "cooldown_s": 1800}
 
 
+# S49 the mortal kingdom (v1.1): the county magistrate at Stoneford posts three jobs a day for ordinary people; a
+# relief fund takes silver for merit; county favour grows with both and earns the county's titles and a discount in
+# Stoneford's shops. Cultivators who show their power in a mortal town (a technique used in Lotus Ferry's village or
+# Greyreed Hamlet) take sin for it.
+def _kill(enemy, n, text):
+    return {"kind": "kill", "enemy": enemy, "count": n, "text": text}
+
+
+def _deliver(item, n, text):
+    return {"kind": "deliver", "item": item, "count": n, "text": text}
+
+
+def _talk(npc, text):
+    return {"kind": "talk_to", "npc": npc, "count": 1, "text": text}
+
+
+def _job(name, objective, lo=0, hi=999):
+    return {"name": name, "objective": objective, "min_level": lo, "max_level": hi}
+
+
+MORTAL = {
+    "magistrate": "magistrate_qian", "per_day": 3,
+    "jobs": [
+        {"id": "vermin", "options": [_job("Rats in the county granary", _kill("reedtail_rat", 8, "Clear the rats from the granary"), 0, 8),
+                                     _job("Vipers in the rice fields", _kill("green_viper", 6, "Drive the vipers from the fields"), 9, 20),
+                                     _job("Hounds at the hamlet pens", _kill("mud_hound", 6, "Stop the hounds at the pens"), 16, 99)]},
+        {"id": "bandits", "options": [_job("Boarlets in the vegetable plots", _kill("wild_boarlet", 6, "Chase the boarlets out"), 0, 13),
+                                      _job("Raiders on the Caravan Road", _kill("mudwater_bandit", 5, "Stop the Mudwater raiders"), 14, 30),
+                                      _job("Adepts robbing the salt carts", _kill("gorge_bandit_adept", 5, "Stop the Gorge adepts"), 29, 99)]},
+        {"id": "relief", "options": [_job("Rice for Greyreed Hamlet", _deliver("rice", 5, "Bring rice for the hamlet")),
+                                     _job("Tea for the county infirmary", _deliver("herbal_tea", 3, "Bring herbal tea for the infirmary"))]},
+        {"id": "letters", "options": [_job("A letter for Elder Gao", _talk("hamlet_elder_gao", "Carry the magistrate's letter to Elder Gao")),
+                                      _job("A summons for Old Ma", _talk("old_ma", "Carry a summons to Old Ma")),
+                                      _job("A notice for Foreman Dong", _talk("foreman_dong", "Carry a notice to Foreman Dong"))]},
+    ],
+    "reward": {"silver_base": 20, "silver_per_level": 4, "favour": 10, "deed": "county_service"},
+    "favour_tiers": [{"id": "stranger", "min": 0}, {"id": "known", "min": 50},
+                     {"id": "friend", "min": 150, "title": "friend_of_the_county"},
+                     {"id": "benefactor", "min": 400, "title": "benefactor_of_stoneford", "discount": 0.05}],
+    "discount_shops": ["stoneford_general", "stoneford_tea", "mei_qing"],
+    "donations": [{"id": "small", "silver": 100, "favour": 3, "deed": "relief_small"},
+                  {"id": "large", "silver": 1000, "favour": 30, "deed": "relief_large"},
+                  {"id": "grand", "silver": 10000, "favour": 200, "deed": "relief_grand"}],
+    "interference": {"regions": ["lotus_ferry", "greyreed_hamlet"], "room_types": ["town"], "realm": "qi_kindling_1",
+                     "deed": "mortal_interference", "cooldown_s": 60},
+}
+
+
 def factions():
     entries("factions", FACTIONS, bounties=BOUNTIES, hunt=HUNT, max_bounties=2)
 
@@ -203,6 +257,7 @@ def build():
             # S49 heavenly phenomena: after a major breakthrough in a room with people in it, a jealous senior may
             # step out to test you (at your new level), whatever your Fame.
             jealous={"chance": 0.35, "enemy": "jealous_senior", "decline_deed": "challenge_declined"},
+            mortal=MORTAL,
             # Part 8 named debts: when each falls due and what comes of it (a letter, a flag, a hunter).
             debts={"dou_rescue": {"due_quest": "the_heart_trial", "mail": "dou_repays", "attachments": [{"item": "cloudtop_orchid", "count": 1}]},
                    "lieutenant_spared": {"due_quest": "hidden_cargo", "mail": "lieutenant_warning", "flag": "warned_of_ambush",

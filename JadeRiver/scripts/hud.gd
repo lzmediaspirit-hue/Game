@@ -706,6 +706,16 @@ func _on_event(name: String, p: Dictionary) -> void:
 				toast(Tx.t("hud.rank_climbed") % str(ContentDB.entry("rankings", str(p.beaten)).get("name", "")), "gold")
 			elif str(p.get("actor", "")) == "":
 				add_log(Tx.t("hud.ranking_shifts"), UiKit.MIST)
+		"favour_changed":
+			if str(p.get("actor", "")) == Game.active_id:
+				if p.get("tier_up", false): toast(Tx.t("hud.favour_tier") % Tx.t("ui.county.tier_" + str(p.tier)), "gold")
+				elif int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.favour_up") % int(p.delta), UiKit.PALE_GOLD)
+		"relief_donated":
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.relief_given") % UiKit.fmt(int(p.silver)), UiKit.PALE_GOLD)
+		"guqin_played":
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.guqin_calm") % int(round(float(p.bonus) * 100.0)), UiKit.BRIGHT_JADE)
+		"chess_solved":
+			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.chess_right") if p.get("right", false) else Tx.t("hud.chess_wrong"), UiKit.PALE_GOLD if p.get("right", false) else UiKit.MIST)
 		"auto_hunt_changed":
 			if str(p.get("actor", "")) == Game.active_id:
 				var why := str(p.get("reason", ""))

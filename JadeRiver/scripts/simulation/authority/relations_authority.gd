@@ -11,7 +11,7 @@ var debt_clock := 0.0
 var challenges: Dictionary = {}   # actor -> {enemy, level, room}: a young master waiting for an answer (not saved)
 
 func intents() -> Array:
-	return ["answer_challenge", "give_gift", "offer_bond", "companion_duel", "pay_grudge", "take_bounty", "judge_foe"]
+	return ["answer_challenge", "give_gift", "offer_bond", "companion_duel", "pay_grudge", "take_bounty", "judge_foe", "donate_relief", "county_jobs"]
 
 func subscribe() -> void:
 	# Every event a deed listens for (karma.json); the ledger answers before the default subscribers.
@@ -29,6 +29,7 @@ func subscribe() -> void:
 	GameEvents.subscribe("node_gathered", _on_fortune_gathered, 95)
 	GameEvents.subscribe("fell_out", _on_fortune_fell, 95)
 	GameEvents.subscribe("heavenly_phenomenon", _on_phenomenon, 86)
+	GameEvents.subscribe("technique_used", _on_mortal_technique, 86)
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -48,6 +49,8 @@ func handle(intent: Dictionary) -> Dictionary:
 		"pay_grudge": return pay_grudge(c, str(intent.get("faction", "")), str(intent.get("method", "")))
 		"take_bounty": return take_bounty(c, str(intent.get("id", "")))
 		"judge_foe": return judge_foe(c, int(intent.get("enemy", 0)), bool(intent.get("spare", true)))
+		"donate_relief": return donate_relief(c, str(intent.get("tier", "")))
+		"county_jobs": return ok({"jobs": county_jobs(c)})
 		"companion_duel":
 			var cid := str(intent.get("companion", ""))
 			if not (c.companions.get("roster", []) as Array).has(cid): return fail("not_companion")
@@ -352,7 +355,7 @@ func shop_discount(c, shop_id: String) -> float:
 		var h := hearts(c, str(n.id))
 		for step in acfg().get("discount", []):
 			if h >= int(step[0]): best = maxf(best, float(step[1]))
-	return best
+	return maxf(best, county_discount(c, shop_id))   # S49: the county's Benefactor pays less in Stoneford
 
 # ------------------------------------------------------------------ bonds
 ## Dao Companion (5 hearts, one) or sworn sibling (4 hearts, up to three), from the companions who travel with you.
@@ -638,19 +641,9 @@ func apply_fortune_grotto(actor_id: String) -> void:
 	c.relations.fortune["grotto_n"] = int(c.relations.fortune.get("grotto_n", 0)) + 1
 	game.world.load_room(c, "hg_hidden_grotto", "")
 
-## The hermit's chess problem: insight into the Dao you know best (or, before any Dao, a little realm progress).
+## The hermit's chess problem: insight into the Dao you know best (Progression works it out).
 func apply_insight_best(actor_id: String, amount: float) -> void:
-	var c = game.character(actor_id)
-	if c == null: return
-	var best := ""
-	var top := -1.0
-	for dao in c.cultivator.daos:
-		var v := float(c.cultivator.daos[dao].get("insight", 0.0)) + 1000.0 * int(c.cultivator.daos[dao].get("tier", 0))
-		if v > top:
-			top = v
-			best = str(dao)
-	if best != "" and Unlocks.is_unlocked(c.id, "dao_tree"): game.progression.apply_insight(c.id, best, amount, "fortune:chess:" + str(Clock.reset_day(Clock.now_utc())))
-	else: game.apply_effects(c.id, [{"kind": "add_progress", "pct_of_need": 0.02}], "fortune:chess")
+	game.progression.apply_insight_best(actor_id, amount, "fortune")
 
 # ------------------------------------------------------------------ heavenly phenomena (S49 v1.0)
 ## The sky answered your breakthrough where people could see it: sometimes a jealous senior cannot let it pass.
@@ -662,3 +655,106 @@ func _on_phenomenon(p: Dictionary) -> void:
 	var jc: Dictionary = cfg().get("jealous", {})
 	if Rng.stream(c.id, "fortune").randf() >= float(jc.get("chance", 0.35)): return
 	offer_challenge(c, str(jc.get("enemy", "jealous_senior")))
+
+# ------------------------------------------------------------------ the mortal kingdom (S49 v1.1)
+## The county magistrate at Stoneford posts three jobs a day for ordinary people; a relief fund takes silver for the
+## county's poor. Both earn county favour (named tiers, the county's titles, and at the top a discount in Stoneford's
+## shops). Showing a cultivator's power in a mortal town (a technique in Lotus Ferry's village or Greyreed Hamlet)
+## costs sin. State: relations.mortal {favour, day, jobs, donated: {tier: day}, warned_s}.
+func mcfg() -> Dictionary:
+	return cfg().get("mortal", {})
+
+func favour(c) -> int:
+	return int(c.relations.mortal.get("favour", 0))
+
+func favour_tier(c) -> Dictionary:
+	var best := {}
+	for t in mcfg().get("favour_tiers", []):
+		if favour(c) >= int(t.get("min", 0)): best = t
+	return best
+
+func next_favour_tier(c) -> Dictionary:
+	for t in mcfg().get("favour_tiers", []):
+		if favour(c) < int(t.get("min", 0)): return t
+	return {}
+
+func apply_favour(actor_id: String, delta: int, reason: String) -> void:
+	var c = game.character(actor_id)
+	if c == null or delta == 0: return
+	var before := str(favour_tier(c).get("id", ""))
+	c.relations.mortal["favour"] = maxi(0, favour(c) + delta)
+	var after := favour_tier(c)
+	var up: bool = delta > 0 and str(after.get("id", "")) != before
+	if up and str(after.get("title", "")) != "": game.apply_effects(c.id, [{"kind": "grant_title", "title": str(after.title)}], "county")
+	emit("favour_changed", {"actor": c.id, "value": favour(c), "delta": delta, "tier": str(after.get("id", "")), "tier_up": up, "reason": reason})
+
+## The county's discount in Stoneford's shops, from the top favour tier.
+func county_discount(c, shop_id: String) -> float:
+	if not (mcfg().get("discount_shops", []) as Array).has(shop_id): return 0.0
+	return float(favour_tier(c).get("discount", 0.0))
+
+## Today's county jobs: three, drawn for this character and day from the ones that suit its Level, accepted as soon as
+## the magistrate's board is read. Yesterday's unfinished ones are taken down.
+func county_jobs(c) -> Array:
+	var m: Dictionary = c.relations.mortal
+	var day := Clock.reset_day(Clock.now_utc())
+	if int(m.get("day", -1)) == day: return m.get("jobs", [])
+	for qid in m.get("jobs", []):
+		c.quests.active.erase(qid)
+		c.quests.tracked.erase(qid)
+		c.quests.daily.erase(qid)
+	m["day"] = day
+	var made: Array = []
+	var rng := Rng.keyed(int(c.rng_seed), "county:%d" % day)
+	var lv := ProgressionRules.level(c)
+	var jobs: Array = (mcfg().get("jobs", []) as Array).duplicate()
+	for i in range(jobs.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var tmp = jobs[i]
+		jobs[i] = jobs[j]
+		jobs[j] = tmp
+	var rw: Dictionary = mcfg().get("reward", {})
+	for job in jobs:
+		if made.size() >= int(mcfg().get("per_day", 3)): break
+		var fit: Array = (job.get("options", []) as Array).filter(func(op): return lv >= int(op.get("min_level", 0)) and lv <= int(op.get("max_level", 999)))
+		if fit.is_empty(): continue
+		var op: Dictionary = fit[rng.randi_range(0, fit.size() - 1)]
+		var id := "mortal_%d_%d" % [day, made.size()]
+		c.quests.daily[id] = {"id": id, "name": str(op.name), "kind": "mortal", "objectives": [(op.objective as Dictionary).duplicate(true)],
+			"hand_in": "", "auto_complete": true, "qp": "daily",
+			"rewards": [{"kind": "grant_currency", "currency": "silver_tael", "amount": int(rw.get("silver_base", 20)) + lv * int(rw.get("silver_per_level", 4))},
+				{"kind": "deed", "deed": str(rw.get("deed", "county_service"))}, {"kind": "county_favour", "amount": int(rw.get("favour", 10))}]}
+		made.append(id)
+	m["jobs"] = made
+	for qid in made: game.quest.accept(c, qid)
+	return made
+
+## The relief fund: silver for the county's poor, once a day at each size; merit and favour in return.
+func donate_relief(c, tier: String) -> Dictionary:
+	var d: Dictionary = {}
+	for row in mcfg().get("donations", []):
+		if str(row.id) == tier: d = row
+	if d.is_empty(): return fail("no_tier")
+	var day := Clock.reset_day(Clock.now_utc())
+	var given: Dictionary = c.relations.mortal.get("donated", {})
+	if int(given.get(tier, -1)) == day: return fail("today", {"text": Tx.t("sim.relations.relief_today")})
+	if game.economy.balance("silver_tael") < int(d.silver): return fail("silver", {"text": Tx.t("sim.relations.relief_silver") % int(d.silver)})
+	game.economy.apply_currency("silver_tael", -int(d.silver), "relief")
+	given[tier] = day
+	c.relations.mortal["donated"] = given
+	apply_deed(c.id, str(d.get("deed", "relief_small")))
+	apply_favour(c.id, int(d.get("favour", 0)), "relief")
+	emit("relief_donated", {"actor": c.id, "tier": tier, "silver": int(d.silver)})
+	return ok({"tier": tier})
+
+## Non-interference: a technique used in a mortal town by a cultivator from Qi Kindling up is sin (once a minute at most).
+func _on_mortal_technique(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c == null or game.room_rt == null: return
+	var rule: Dictionary = mcfg().get("interference", {})
+	var def: Dictionary = game.room_rt.def
+	if not (rule.get("regions", []) as Array).has(str(def.get("region", ""))) or not (rule.get("room_types", []) as Array).has(str(def.get("type", ""))): return
+	if not ProgressionRules.at_least(c.cultivator.realm_key, str(rule.get("realm", "qi_kindling_1"))): return
+	if game.sim_time < float(c.relations.mortal.get("warned_s", -INF)) + float(rule.get("cooldown_s", 60)): return
+	c.relations.mortal["warned_s"] = game.sim_time
+	apply_deed(c.id, str(rule.get("deed", "mortal_interference")))

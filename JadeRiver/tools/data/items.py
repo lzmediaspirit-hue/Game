@@ -324,6 +324,13 @@ def foods():
     food("lotus_root_tea", "+10% QI regeneration for 20 minutes.", [effect("add_modifier", stat="qi_regen", op="pct_add", value=0.1, duration=1200, source="lotus_tea")], grade="earth")
     food("toad_oil_dumplings", "+5% move speed for 15 minutes.", [effect("add_modifier", stat="move_speed", op="pct_add", value=0.05, duration=900, source="toad_dumplings")])
     food("cloudtop_orchid_broth", "+300 body XP.", [effect("add_body_xp", amount=300)], grade="heaven", group="utility")
+    # S49 leisure arts: each region's tea house pours its own tea (Stoneford, Greyreed Hamlet, Cloudgate Port).
+    food("jasmine_dew_tea", "Stoneford's jasmine, picked with the dew on it. +10% insight for 30 minutes.",
+         [effect("add_modifier", stat="insight_rate", op="flat", value=0.1, duration=1800, source="jasmine_tea")], grade="common", region="stoneford")
+    food("marsh_mist_tea", "Greyreed's grey-green tea, brewed thin as marsh fog. +8% evasion for 30 minutes.",
+         [effect("add_modifier", stat="evasion", op="pct_add", value=0.08, duration=1800, source="marsh_tea")], grade="common", region="greyreed_hamlet")
+    food("thunderhead_tea", "A Cloudgate brew that crackles on the tongue. +2 Storm Ward for 30 minutes.",
+         [effect("add_modifier", stat="attunement_bonus", op="flat", value=2, duration=1800, source="thunderhead_tea")], grade="earth", region="cloudgate_port")
     food("jade_carp_congee", "+5% accumulation for 30 minutes.", [effect("add_modifier", stat="accumulation_rate", op="flat", value=0.05, duration=1800, source="carp_congee")], grade="earth")
     food("thunderhorn_stew", "+8% max HP and +5% physical defence for 30 minutes.",
          [effect("add_modifier", stat="max_hp", op="pct_add", value=0.08, duration=1800, source="thunderhorn_stew"),
@@ -546,6 +553,10 @@ def build_items():
     rows.append(item("spirit_fruit", "treasure", "heaven", 3,
                      "A fruit that ripened on Qi alone: 8% of this realm's progress at once, and heart demons -5. Never sold.", sell=False,
                      use=[effect("add_progress", pct_of_need=0.08), effect("add_heart_demon", amount=-5)]))
+    # S49 leisure arts: a seven-string guqin. Play it (from the bag) and a steady hand calms the Qi: meditation runs
+    # faster for half an hour, more the better you play.
+    rows.append(item("guqin", "tool", "earth", 1, "A seven-string guqin in a cloth wrap. Play it to calm the Qi: meditation runs up to 15% faster for 30 minutes.",
+                     use=[], use_action="guqin"))
     # S49 fortune deck: the wine that makes the next batch in the furnace likelier to come out Grain.
     rows.append(item("hundred_year_wine", "treasure", "earth", 5,
                      "A jar dug out from under old roots. Pour it over the furnace: your next batch of pills is likelier to come out Grain or better. Never sold.",

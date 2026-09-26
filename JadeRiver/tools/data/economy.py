@@ -55,7 +55,7 @@ def shops():
                    s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1")))],
          "rotation": {"count": 1, "pool": [s("bamboo_rod"), s("lantern_wick"), s("clay_pot")]}},
         {"id": "stoneford_tea", "name": "Stoneford Tea House", "currency": "silver_tael",
-         "stock": [s("lotus_root_tea"), s("jade_carp_congee"), s("rice_ball")],
+         "stock": [s("lotus_root_tea"), s("jade_carp_congee"), s("rice_ball"), s("jasmine_dew_tea", price=30), s("guqin", price=450)],
          "rotation": {"count": 1, "pool": [s("ember_pepper_stew"), s("toad_oil_dumplings"), s("riverfish_soup")]}},
         {"id": "mei_qing", "name": "Mei Qing's Stall", "currency": "silver_tael",
          "stock": [s("willow_moss"), s("riverreed_ginseng_10"), s("healing_pill"), s("qi_restoration_pill"), s("qi_gathering_pill"),
@@ -124,7 +124,7 @@ def shops():
          "stock": [s("dusty_curio", price=1)], "rotation": {"count": 3, "pool": [s("torn_manual", price=5, requires=all_of(realm("spirit_awakening_6"))), s("riverreed_ginseng_100", price=4, sealed=True), s("manual_page", price=6), s("spirit_egg", price=12,
                    requires=all_of(realm("heart_tempering_5"))), s("mist_lotus", price=3), s("clear_mind_pill", price=3), s("spirit_jade", price=8)]}},
         {"id": "greyreed", "name": "Greyreed Trade Post", "currency": "silver_tael", "buys_all": True,
-         "stock": [s("rice"), s("rice_ball"), s("cleansing_pill"), s("purging_pill"), s("grey_hide"),
+         "stock": [s("rice"), s("rice_ball"), s("marsh_mist_tea", price=30), s("cleansing_pill"), s("purging_pill"), s("grey_hide"),
                    s("willow_moss_seed", price=6), s("ember_pepper_seed", price=14), s("riverreed_ginseng_seed", price=20)]},
         {"id": "hermit", "name": "Hermit Yao's Beast Hall", "currency": "silver_tael",
          "stock": [s("taming_cauldron", price=200, requires=all_of(realm("heart_tempering_1"))), s("bonding_offering_common"), s("roast_fish"), s("fish_bait"), s("maple_leaf_vessel", price=600, requires=all_of(realm("cloud_stride_1"))),
@@ -142,6 +142,7 @@ def shops():
          "rotation": {"count": 1, "pool": [s("storm_shard", price=4), s("spirit_stone_mid", price=12)]}},
         {"id": "port_peddler", "name": "Peddler Gou's Packs", "currency": "spirit_stone", "buys_all": True,
          "stock": [s("healing_pill"), s("qi_restoration_pill"), s("return_charm"), s("escape_talisman"), s("rice_ball"), s("revival_talisman"),
+                   s("thunderhead_tea", price=3),
                    s("fuel_crystal_mid", requires=all_of(realm("sage_1")))],
          "rotation": {"count": 2, "pool": [s("clear_mind_pill"), s("soul_soothing_pill"), s("manual_page", price=6), s("spirit_egg", price=14)]}},
         {"id": "stormsteel_smith", "name": "Hong's Stormsteel Forge", "currency": "spirit_stone", "buys_all": True,
@@ -794,6 +795,9 @@ def achievements():
         {"id": "guos_student", "name": "Guo's Student", "modifiers": [{"stat": "fist_attack", "op": "pct_add", "value": 0.01}]},
         {"id": "big_sibling", "name": "Big Sibling", "modifiers": [{"stat": "max_hp", "op": "pct_add", "value": 0.01}]},
         {"id": "rivals_respect", "name": "Rival's Respect", "modifiers": [{"stat": "crit_chance", "op": "flat", "value": 0.01}]},
+        # S49 the mortal kingdom: the county's thanks.
+        {"id": "friend_of_the_county", "name": "Friend of the County", "modifiers": [{"stat": "coin_find", "op": "pct_add", "value": 0.02}]},
+        {"id": "benefactor_of_stoneford", "name": "Benefactor of Stoneford", "modifiers": [{"stat": "coin_find", "op": "pct_add", "value": 0.04}]},
         # S49: sworn siblings share a title.
         {"id": "sworn_sibling", "name": "Sworn Sibling", "modifiers": [{"stat": "max_hp", "op": "pct_add", "value": 0.02}]},
         # S44 Alchemist Guild badges.

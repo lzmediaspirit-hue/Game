@@ -310,6 +310,28 @@
    ]
   },
   {
+   "id": "friend_of_the_county",
+   "name": "Friend of the County",
+   "modifiers": [
+    {
+     "stat": "coin_find",
+     "op": "pct_add",
+     "value": 0.02
+    }
+   ]
+  },
+  {
+   "id": "benefactor_of_stoneford",
+   "name": "Benefactor of Stoneford",
+   "modifiers": [
+    {
+     "stat": "coin_find",
+     "op": "pct_add",
+     "value": 0.04
+    }
+   ]
+  },
+  {
    "id": "sworn_sibling",
    "name": "Sworn Sibling",
    "modifiers": [

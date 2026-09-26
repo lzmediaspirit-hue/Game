@@ -92,6 +92,7 @@ func quest_def(c, id: String) -> Dictionary:
 	# Finished generated missions keep no definition: name them by their kind.
 	if d.is_empty() and id.begins_with("weekly_"): d = {"id": id, "kind": "weekly", "name": str(ContentDB.config("weekly_mission").get("name", id))}
 	if d.is_empty() and id.begins_with("daily_"): d = {"id": id, "kind": "daily", "name": Tx.t("sim.quest.daily_sect_mission")}
+	if d.is_empty() and id.begins_with("mortal_"): d = {"id": id, "kind": "mortal", "name": Tx.t("sim.quest.county_job")}
 	return d
 
 # ------------------------------------------------------------------ offers and markers

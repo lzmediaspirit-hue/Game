@@ -435,6 +435,46 @@
    "sin": 0,
    "alignment": 0,
    "fame": 15
+  },
+  {
+   "id": "county_service",
+   "name": "Did a job for the county",
+   "merit": 3,
+   "sin": 0,
+   "alignment": 1,
+   "fame": 0
+  },
+  {
+   "id": "relief_small",
+   "name": "Gave to the county relief fund",
+   "merit": 1,
+   "sin": 0,
+   "alignment": 0,
+   "fame": 0
+  },
+  {
+   "id": "relief_large",
+   "name": "Gave generously to the county relief fund",
+   "merit": 8,
+   "sin": 0,
+   "alignment": 1,
+   "fame": 0
+  },
+  {
+   "id": "relief_grand",
+   "name": "Endowed the county relief fund",
+   "merit": 60,
+   "sin": 0,
+   "alignment": 3,
+   "fame": 10
+  },
+  {
+   "id": "mortal_interference",
+   "name": "Used a cultivator's power among mortals",
+   "merit": 0,
+   "sin": 5,
+   "alignment": -2,
+   "fame": 0
   }
  ],
  "merit_step": 100,
@@ -502,6 +542,217 @@
   "chance": 0.35,
   "enemy": "jealous_senior",
   "decline_deed": "challenge_declined"
+ },
+ "mortal": {
+  "magistrate": "magistrate_qian",
+  "per_day": 3,
+  "jobs": [
+   {
+    "id": "vermin",
+    "options": [
+     {
+      "name": "Rats in the county granary",
+      "objective": {
+       "kind": "kill",
+       "enemy": "reedtail_rat",
+       "count": 8,
+       "text": "Clear the rats from the granary"
+      },
+      "min_level": 0,
+      "max_level": 8
+     },
+     {
+      "name": "Vipers in the rice fields",
+      "objective": {
+       "kind": "kill",
+       "enemy": "green_viper",
+       "count": 6,
+       "text": "Drive the vipers from the fields"
+      },
+      "min_level": 9,
+      "max_level": 20
+     },
+     {
+      "name": "Hounds at the hamlet pens",
+      "objective": {
+       "kind": "kill",
+       "enemy": "mud_hound",
+       "count": 6,
+       "text": "Stop the hounds at the pens"
+      },
+      "min_level": 16,
+      "max_level": 99
+     }
+    ]
+   },
+   {
+    "id": "bandits",
+    "options": [
+     {
+      "name": "Boarlets in the vegetable plots",
+      "objective": {
+       "kind": "kill",
+       "enemy": "wild_boarlet",
+       "count": 6,
+       "text": "Chase the boarlets out"
+      },
+      "min_level": 0,
+      "max_level": 13
+     },
+     {
+      "name": "Raiders on the Caravan Road",
+      "objective": {
+       "kind": "kill",
+       "enemy": "mudwater_bandit",
+       "count": 5,
+       "text": "Stop the Mudwater raiders"
+      },
+      "min_level": 14,
+      "max_level": 30
+     },
+     {
+      "name": "Adepts robbing the salt carts",
+      "objective": {
+       "kind": "kill",
+       "enemy": "gorge_bandit_adept",
+       "count": 5,
+       "text": "Stop the Gorge adepts"
+      },
+      "min_level": 29,
+      "max_level": 99
+     }
+    ]
+   },
+   {
+    "id": "relief",
+    "options": [
+     {
+      "name": "Rice for Greyreed Hamlet",
+      "objective": {
+       "kind": "deliver",
+       "item": "rice",
+       "count": 5,
+       "text": "Bring rice for the hamlet"
+      },
+      "min_level": 0,
+      "max_level": 999
+     },
+     {
+      "name": "Tea for the county infirmary",
+      "objective": {
+       "kind": "deliver",
+       "item": "herbal_tea",
+       "count": 3,
+       "text": "Bring herbal tea for the infirmary"
+      },
+      "min_level": 0,
+      "max_level": 999
+     }
+    ]
+   },
+   {
+    "id": "letters",
+    "options": [
+     {
+      "name": "A letter for Elder Gao",
+      "objective": {
+       "kind": "talk_to",
+       "npc": "hamlet_elder_gao",
+       "count": 1,
+       "text": "Carry the magistrate's letter to Elder Gao"
+      },
+      "min_level": 0,
+      "max_level": 999
+     },
+     {
+      "name": "A summons for Old Ma",
+      "objective": {
+       "kind": "talk_to",
+       "npc": "old_ma",
+       "count": 1,
+       "text": "Carry a summons to Old Ma"
+      },
+      "min_level": 0,
+      "max_level": 999
+     },
+     {
+      "name": "A notice for Foreman Dong",
+      "objective": {
+       "kind": "talk_to",
+       "npc": "foreman_dong",
+       "count": 1,
+       "text": "Carry a notice to Foreman Dong"
+      },
+      "min_level": 0,
+      "max_level": 999
+     }
+    ]
+   }
+  ],
+  "reward": {
+   "silver_base": 20,
+   "silver_per_level": 4,
+   "favour": 10,
+   "deed": "county_service"
+  },
+  "favour_tiers": [
+   {
+    "id": "stranger",
+    "min": 0
+   },
+   {
+    "id": "known",
+    "min": 50
+   },
+   {
+    "id": "friend",
+    "min": 150,
+    "title": "friend_of_the_county"
+   },
+   {
+    "id": "benefactor",
+    "min": 400,
+    "title": "benefactor_of_stoneford",
+    "discount": 0.05
+   }
+  ],
+  "discount_shops": [
+   "stoneford_general",
+   "stoneford_tea",
+   "mei_qing"
+  ],
+  "donations": [
+   {
+    "id": "small",
+    "silver": 100,
+    "favour": 3,
+    "deed": "relief_small"
+   },
+   {
+    "id": "large",
+    "silver": 1000,
+    "favour": 30,
+    "deed": "relief_large"
+   },
+   {
+    "id": "grand",
+    "silver": 10000,
+    "favour": 200,
+    "deed": "relief_grand"
+   }
+  ],
+  "interference": {
+   "regions": [
+    "lotus_ferry",
+    "greyreed_hamlet"
+   ],
+   "room_types": [
+    "town"
+   ],
+   "realm": "qi_kindling_1",
+   "deed": "mortal_interference",
+   "cooldown_s": 60
+  }
  },
  "debts": {
   "dou_rescue": {

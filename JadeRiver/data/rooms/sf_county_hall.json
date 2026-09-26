@@ -1,0 +1,232 @@
+{
+ "schema_version": 1,
+ "id": "sf_county_hall",
+ "zone": "jade_river_valley",
+ "region": "stoneford",
+ "name": "County Hall",
+ "type": "interior",
+ "level_range": [
+  0,
+  0
+ ],
+ "recommended_cp": 0,
+ "element": "none",
+ "qi_density": 1.0,
+ "hazards": [],
+ "gather_tier": "",
+ "idle": [],
+ "safe": true,
+ "no_flight": false,
+ "bounds": [
+  0,
+  480,
+  1280,
+  480
+ ],
+ "backdrop": "interior",
+ "ground": {
+  "material": "floor_wood"
+ },
+ "spawn_point": [
+  200,
+  820
+ ],
+ "surfaces": [
+  {
+   "id": "ground",
+   "rect": [
+    0,
+    650,
+    1280,
+    310
+   ],
+   "height": 0,
+   "kind": "ground",
+   "stratum": "ground",
+   "open_edges": false
+  },
+  {
+   "id": "loft_mv",
+   "rect": [
+    820,
+    630,
+    300,
+    70
+   ],
+   "height": 88,
+   "kind": "balcony",
+   "stratum": "platform",
+   "open_edges": true
+  }
+ ],
+ "portals": [
+  {
+   "id": "entry",
+   "type": "door",
+   "at": [
+    120,
+    700
+   ],
+   "to": "sf_gate",
+   "to_portal": "county_hall_door",
+   "press_up": true,
+   "label": "Stoneford Gate"
+  }
+ ],
+ "objects": [
+  {
+   "id": "npc_magistrate_qian",
+   "type": "npc",
+   "at": [
+    640,
+    720
+   ],
+   "npc": "magistrate_qian",
+   "facing": -1
+  },
+  {
+   "id": "county_board",
+   "type": "inspect",
+   "at": [
+    420,
+    800
+   ],
+   "prop": "notice_board",
+   "open_page": "county",
+   "label": "County jobs",
+   "text": "The county's notices, brushed fresh each morning."
+  },
+  {
+   "id": "relief_box",
+   "type": "inspect",
+   "at": [
+    880,
+    820
+   ],
+   "prop": "storage_chest",
+   "open_page": "county",
+   "page_args": {
+    "tab": "relief"
+   },
+   "label": "Relief fund",
+   "text": "A locked box with a slot in the lid: FOR THE COUNTY'S POOR."
+  }
+ ],
+ "spawns": [],
+ "scenery": [
+  {
+   "id": "table_1",
+   "prop": "table",
+   "position": [
+    520,
+    700
+   ],
+   "front_y": 700,
+   "footprint": [
+    486,
+    674,
+    68,
+    26
+   ],
+   "height": 40,
+   "standable": true,
+   "flip": false
+  }
+ ],
+ "decor": [
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    360,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "hanging_lantern",
+   "at": [
+    920,
+    180
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "window",
+   "at": [
+    640,
+    330
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "bookcase",
+   "at": [
+    1080,
+    680
+   ],
+   "layer": "back"
+  },
+  {
+   "prop": "screen_folding",
+   "at": [
+    900,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "scroll_rack",
+   "at": [
+    300,
+    690
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "statue_guardian_lion",
+   "at": [
+    140,
+    700
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "statue_guardian_lion",
+   "at": [
+    1140,
+    700
+   ],
+   "layer": "play"
+  }
+ ],
+ "areas": [],
+ "custom_ground": true,
+ "wall": {
+  "top": 150,
+  "bottom": 650,
+  "tile": "wall_plaster"
+ },
+ "camera": {
+  "y_min": 520,
+  "y_max": 560
+ },
+ "music": "town",
+ "climbables": [
+  {
+   "id": "loft_mv_ladder_1",
+   "kind": "ladder",
+   "at": [
+    970,
+    735
+   ],
+   "top_at": [
+    970,
+    692
+   ],
+   "bottom_alt": 0,
+   "top_alt": 88,
+   "bottom": "ground",
+   "top": "loft_mv"
+  }
+ ]
+}

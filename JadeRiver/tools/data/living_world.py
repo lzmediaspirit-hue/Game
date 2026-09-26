@@ -181,8 +181,34 @@ def build_extra():
                      "arena": {"points": 5, "cap": 15}, "beast_trial": {"points": 10, "cap": 10}})
 
 
+def chess():
+    """S49 leisure arts: chess problems at insight sites (a 9x9 board of Go; [x, y], y = 0 at the top). Each has one
+    right point among four lettered ones; the others lose. A site offers one problem a day (seeded), and a solved one
+    gives insight into your deepest Dao."""
+    def p(id, name, question, black, white, options, answer):
+        return {"id": id, "name": name, "question": question, "black": black, "white": white, "options": options, "answer": answer}
+    return [
+        p("one_liberty", "The Last Breath", "Black to play. Take the white stone.",
+          [[3, 4], [5, 4], [4, 3]], [[4, 4]], {"A": [2, 6], "B": [4, 5], "C": [5, 5], "D": [3, 3]}, "B"),
+        p("two_stones", "Two in the Net", "Black to play. Take both white stones.",
+          [[3, 4], [4, 3], [5, 3], [6, 4], [4, 5]], [[4, 4], [5, 4]], {"A": [5, 5], "B": [6, 5], "C": [3, 5], "D": [6, 3]}, "A"),
+        p("edge", "Against the Edge", "Black to play. Take the white stone on the edge.",
+          [[0, 2], [1, 3]], [[0, 3]], {"A": [1, 4], "B": [0, 5], "C": [0, 4], "D": [1, 2]}, "C"),
+        p("corner", "The Corner Stone", "Black to play. Take the white stone in the corner.",
+          [[7, 0]], [[8, 0]], {"A": [7, 1], "B": [8, 1], "C": [6, 0], "D": [8, 2]}, "B"),
+        p("save", "One Breath Left", "Black to play. The black stone has one breath left. Save it.",
+          [[4, 4]], [[3, 4], [5, 4], [4, 3]], {"A": [4, 5], "B": [2, 4], "C": [5, 5], "D": [3, 5]}, "A"),
+        p("edge_three", "Three on the Rim", "Black to play. Take the three white stones.",
+          [[0, 3], [1, 4], [1, 5], [1, 6]], [[0, 4], [0, 5], [0, 6]], {"A": [1, 7], "B": [0, 7], "C": [0, 8], "D": [1, 3]}, "B"),
+    ]
+
+
 def build():
     build_extra()
+    entries("chess", chess(), size=9, insight=30,
+            # The guqin (S49 leisure arts): +5% meditation speed, up to +15% for a perfect piece, for 30 minutes; the
+            # hands rest as long before the next piece.
+            guqin={"base": 0.05, "per_score": 0.10, "duration_s": 1800, "rest_s": 1800, "notes": 16, "lanes": 5, "tempo": 0.75})
     entries("fortune_deck", fortune_deck(),
             # One encounter per three hours of play at most: the meter fills while you play and holds one.
             meter_h=3.0,

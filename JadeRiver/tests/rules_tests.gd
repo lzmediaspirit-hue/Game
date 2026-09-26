@@ -71,6 +71,7 @@ func _main() -> void:
 	fortune_suite()
 	tower_activity_ranking_suite()
 	mobile_conventions_suite()
+	mortal_leisure_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -3077,6 +3078,106 @@ func mobile_conventions_suite() -> void:
 	Game.world.auto_paths.clear()
 	c.idle_task = idle_was
 	c.pools.hp = hp_was
+	if room_was != "": Game.world.load_room(c, room_was, "")
+	GameEvents.flush()
+
+## S49 the mortal kingdom (county jobs, favour, the relief fund, non-interference) and the leisure arts (guqin, chess).
+func mortal_leisure_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var mortal_was: Dictionary = c.relations.mortal.duplicate(true)
+	var rel_was := [c.relations.merit, c.relations.sin, c.relations.alignment, c.relations.fame]
+	var titles_was: Array = c.cultivator.titles.duplicate()
+	var active_title_was: String = c.cultivator.active_title
+	var cd_was: Dictionary = c.cooldowns.duplicate(true)
+	var silver0: int = Game.economy.balance("silver_tael")
+	var realm_was: String = c.cultivator.realm_key
+	var qp_was: float = c.cultivator.qp
+	var daos_was: Dictionary = c.cultivator.daos.duplicate(true)
+	c.inventory.bag.fill(null)
+	# County jobs: three a day, fit for your Level, taken as soon as the board is read; the same three all day.
+	c.relations.mortal = {}
+	var jobs: Array = Game.relations.county_jobs(c)
+	check(jobs.size() == 3 and jobs.all(func(q): return c.quests.is_active(str(q)) and str(Game.quest.quest_def(c, str(q)).kind) == "mortal"), "three county jobs are posted and taken")
+	check(Game.relations.county_jobs(c) == jobs, "the same jobs all day")
+	# Favour: a job pays 10; the tiers name you and grant the county's titles; the top one earns a discount.
+	var f0 := Game.relations.favour(c)
+	Game.apply_effects(c.id, Game.quest.quest_def(c, str(jobs[0])).get("rewards", []), "test")
+	GameEvents.flush()
+	check(Game.relations.favour(c) == f0 + 10, "a finished county job earns favour")
+	Game.relations.apply_favour(c.id, 150 - Game.relations.favour(c), "test")
+	check(str(Game.relations.favour_tier(c).id) == "friend" and c.cultivator.titles.has("friend_of_the_county"), "150 favour: Friend of the County, and its title")
+	check(Game.relations.shop_discount(c, "stoneford_tea") < 0.05 or not Game.relations.county_discount(c, "stoneford_tea") > 0.0, "no county discount yet")
+	Game.relations.apply_favour(c.id, 400 - Game.relations.favour(c), "test")
+	check(near(Game.relations.county_discount(c, "stoneford_tea"), 0.05) and Game.relations.shop_discount(c, "stoneford_tea") >= 0.05, "a Benefactor pays 5% less at Stoneford's tea house")
+	check(near(Game.relations.county_discount(c, "alliance_factor"), 0.0), "and nothing off elsewhere")
+	# The relief fund: silver for merit and favour, once a day at each size.
+	Game.economy.apply_currency("silver_tael", 2000 - Game.economy.balance("silver_tael"), "test")
+	var m0: int = c.relations.merit
+	var fv: int = Game.relations.favour(c)
+	check(Game.submit({"type": "donate_relief", "tier": "small"}).get("ok", false) and Game.economy.balance("silver_tael") == 1900
+		and c.relations.merit == m0 + 1 and Game.relations.favour(c) == fv + 3, "100 silver to the relief fund: +1 merit, +3 favour")
+	check(str(Game.submit({"type": "donate_relief", "tier": "small"}).get("reason", "")) == "today", "once a day at each size")
+	check(str(Game.submit({"type": "donate_relief", "tier": "grand"}).get("reason", "")) == "silver", "a grand gift needs 10,000 silver")
+	# Non-interference: a technique in a mortal town from Qi Kindling up is sin, once a minute at most.
+	Game.world.load_room(c, "lf_village", "")
+	GameEvents.flush()
+	c.cultivator.realm_key = "qi_kindling_3"
+	var s0: int = c.relations.sin
+	GameEvents.emit_event("technique_used", {"actor": c.id, "technique": "x", "hits": 1, "targets": 0})
+	GameEvents.emit_event("technique_used", {"actor": c.id, "technique": "x", "hits": 1, "targets": 0})
+	GameEvents.flush()
+	check(c.relations.sin == s0 + 5, "a technique among the villagers of Lotus Ferry: +5 sin, once a minute (%d)" % (c.relations.sin - s0))
+	Game.world.load_room(c, "rm_marsh_edge", "")
+	GameEvents.flush()
+	var s1: int = c.relations.sin
+	c.relations.mortal["warned_s"] = -INF
+	GameEvents.emit_event("technique_used", {"actor": c.id, "technique": "x", "hits": 1, "targets": 0})
+	GameEvents.flush()
+	check(c.relations.sin == s1, "in the wild it is only a technique")
+	c.cultivator.realm_key = realm_was
+	# The guqin: needs the instrument; the better the playing, the faster meditation runs; then the hands rest.
+	c.cooldowns.erase("guqin_until")
+	check(str(Game.submit({"type": "play_guqin", "score": 1.0}).get("reason", "")) == "no_guqin", "no guqin, no music")
+	Game.inventory.apply_add(c.id, "guqin", 1, "test")
+	var acc0: float = c.stats.value("accumulation_rate")
+	var gq := Game.submit({"type": "play_guqin", "score": 1.0})
+	check(gq.get("ok", false) and near(float(gq.bonus), 0.15) and near(c.stats.value("accumulation_rate"), acc0 + 0.15), "a perfect piece: meditation +15% for half an hour")
+	check(str(Game.submit({"type": "play_guqin", "score": 1.0}).get("reason", "")) == "resting", "then the fingers rest")
+	check(near(float(Game.progression.play_guqin(c, 0.0).get("bonus", -1.0)), -1.0), "(still resting)")
+	# Chess at an insight site: today's problem is the same on every device; the right point, once a day.
+	var pz: Dictionary = Game.progression.chess_of("insight_hu")
+	check(not pz.is_empty() and pz == Game.progression.chess_of("insight_hu"), "an insight site's problem for today is fixed")
+	c.cooldowns.erase("chess:insight_hu")
+	var wrong := "A" if str(pz.answer) != "A" else "B"
+	check(not Game.submit({"type": "solve_chess", "site": "insight_hu", "choice": wrong}).get("right", true), "a wrong point is wrong")
+	check(str(Game.submit({"type": "solve_chess", "site": "insight_hu", "choice": str(pz.answer)}).get("reason", "")) == "done", "one answer a day at each stone")
+	c.cooldowns.erase("chess:insight_hu")
+	var q0: float = c.cultivator.qp
+	var ins0: float = 0.0
+	for d in c.cultivator.daos: ins0 += float(c.cultivator.daos[d].get("insight", 0.0))
+	check(Game.submit({"type": "solve_chess", "site": "insight_hu", "choice": str(pz.answer)}).get("right", false), "the right point is right")
+	var ins1: float = 0.0
+	for d in c.cultivator.daos: ins1 += float(c.cultivator.daos[d].get("insight", 0.0))
+	check(ins1 > ins0 or c.cultivator.qp > q0 or c.cultivator.state != "accumulating", "and brings insight (or, before any Dao, a little progress)")
+	# Restore.
+	c.relations.mortal = mortal_was
+	c.relations.merit = int(rel_was[0])
+	c.relations.sin = int(rel_was[1])
+	c.relations.alignment = int(rel_was[2])
+	c.relations.fame = int(rel_was[3])
+	c.cultivator.titles = titles_was
+	c.cultivator.active_title = active_title_was
+	c.cooldowns = cd_was
+	c.cultivator.qp = qp_was
+	c.cultivator.daos = daos_was
+	for q in jobs:
+		c.quests.active.erase(str(q))
+		c.quests.tracked.erase(str(q))
+		c.quests.daily.erase(str(q))
+	Game.economy.apply_currency("silver_tael", silver0 - Game.economy.balance("silver_tael"), "test")
+	c.inventory.bag.fill(null)
 	if room_was != "": Game.world.load_room(c, room_was, "")
 	GameEvents.flush()
 

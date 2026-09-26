@@ -15,7 +15,7 @@ func ids_for(ch, which: String) -> Array:
 		return out
 	for q in ch.quests.active:
 		var k := str(Game.quest.quest_def(ch, q).get("kind", "side"))
-		var group := "main" if k in ["main", "prologue", "guided"] else ("daily" if k == "daily" else "side")
+		var group := "main" if k in ["main", "prologue", "guided"] else ("daily" if k in ["daily", "mortal"] else "side")
 		if group == which: out.append(q)
 	if which in ["main", "side"]:
 		for q in ch.quests.offered:

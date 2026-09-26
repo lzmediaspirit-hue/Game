@@ -75,6 +75,20 @@
    "optional": true
   },
   {
+   "id": "county_hall",
+   "rect": [
+    2050,
+    598,
+    380,
+    92
+   ],
+   "height": 158,
+   "kind": "roof",
+   "stratum": "platform",
+   "open_edges": true,
+   "art": "village_house"
+  },
+  {
    "id": "walltop",
    "rect": [
     530,
@@ -88,33 +102,32 @@
    "open_edges": true
   },
   {
-   "id": "route_0",
-   "rect": [
-    1860,
-    636,
-    220,
-    70
-   ],
-   "height": 88,
-   "kind": "balcony",
-   "stratum": "platform",
-   "open_edges": true
-  },
-  {
    "id": "bridge_0",
    "rect": [
     1540,
-    636,
-    320,
-    60
+    598,
+    510,
+    70
    ],
-   "height": 88.0,
+   "height": 150.0,
    "kind": "rope_bridge",
    "stratum": "platform",
    "open_edges": true
   }
  ],
  "portals": [
+  {
+   "id": "county_hall_door",
+   "type": "door",
+   "at": [
+    2240,
+    704
+   ],
+   "to": "sf_county_hall",
+   "to_portal": "entry",
+   "press_up": true,
+   "label": "County Hall"
+  },
   {
    "id": "east",
    "type": "edge",
@@ -356,6 +369,22 @@
    "top_alt": 150,
    "bottom": "ground",
    "top": "gatehouse"
+  },
+  {
+   "id": "county_hall_ladder_2",
+   "kind": "ladder",
+   "at": [
+    2200,
+    725
+   ],
+   "top_at": [
+    2200,
+    682
+   ],
+   "bottom_alt": 0,
+   "top_alt": 158,
+   "bottom": "ground",
+   "top": "county_hall"
   }
  ]
 }

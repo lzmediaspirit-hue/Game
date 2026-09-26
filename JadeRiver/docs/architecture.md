@@ -44,7 +44,7 @@ each physics frame; the tests call it directly without any scene.
 | Authority | Owns |
 |---|---|
 | `CombatAuthority` | Pools (HP, QI, Soul, Composure, Hollowing), hits, techniques, guard and dodge, statuses, death and revival |
-| `ProgressionAuthority` | Realm, progress, breakthroughs, methods, meridians, body level, Daos and mastery, purity, stability, injuries, seclusion |
+| `ProgressionAuthority` | Realm, progress, breakthroughs, methods, meridians, body level, Daos and mastery, purity, stability, injuries, seclusion; the leisure arts (the guqin's meditation bonus, chess problems at insight sites, chess.json) |
 | `EnemyAuthority` + `EnemyBrain` | Spawning, monster AI, boss phases, fleeing story bosses |
 | `WorldAuthority` | Rooms, portals, objects, loot on the ground, room events, shrines, Spirit Sense, the Trial Tower (floors cleared and swept, S49), idle-room eligibility, auto-hunt and quest auto-path routes (`WorldRules.route`; the presentation `Autopilot` drives the joystick) |
 | `InventoryAuthority` | Bag, key items and tools, equipment, quick-use; routes system items (appraise, incubate, tame) to their owners |
@@ -57,7 +57,7 @@ each physics frame; the tests call it directly without any scene.
 | `PetAuthority`, `CompanionAuthority` | Spirit animals (starter, taming, eggs, bloodline, contracts, the party up to the command capacity) and AI companions fighting beside you |
 | `AccountAuthority`, `MailAuthority`, `AchievementAuthority` | Slots and idle tasks, daily activity points and chests (S49), letters with attachments, achievements and titles |
 | `CalendarAuthority` | The world calendar (S49, account level): world events from the seeded, pure `CalendarRules` schedule, the season, the weather and its effects, the spatial rift, Spirit Fruit births, the Herb Terraces trial, heavenly phenomena and the Heaven Ranking |
-| `RelationsAuthority` | What the world remembers of each character (S49): the karma ledger (merit, sin, named debts), the righteous-demonic alignment, personal Fame and young masters' challenges (deeds come from karma.json); NPC hearts, gifts and keeper discounts; bonds (Dao Companion, sworn siblings, master) from bonds.json; grudges, hunters, bounties and mercy from factions.json; the Fortune meter and its encounters (fortune_deck.json) |
+| `RelationsAuthority` | What the world remembers of each character (S49): the karma ledger (merit, sin, named debts), the righteous-demonic alignment, personal Fame and young masters' challenges (deeds come from karma.json); NPC hearts, gifts and keeper discounts; bonds (Dao Companion, sworn siblings, master) from bonds.json; grudges, hunters, bounties and mercy from factions.json; the Fortune meter and its encounters (fortune_deck.json); the mortal kingdom (county jobs, county favour and its tiers, the relief fund, non-interference in mortal towns) |
 
 ## Unlocks and the HUD
 

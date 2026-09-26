@@ -291,11 +291,46 @@ def cactus_water():
     return c
 
 
+# ============================================================================ S49 regional teas (leisure arts)
+def jasmine_dew_tea():
+    """Stoneford's jasmine in a white-and-blue cup, a white blossom on the saucer's edge."""
+    c = Canvas(32)
+    cup(c, BLUEWARE, R['yellow'], x=14, y0=15, y1=28, w=12)
+    for (dx, dy) in ((0, -2.4), (2.3, -0.7), (1.4, 2.0), (-1.4, 2.0), (-2.3, -0.7)):
+        c.put(c.circle(25 + dx, 10 + dy, 1.7), R['rice'], 'sphere', base=3, sep=True)
+    c.put(c.circle(25, 10, 1.1), R['yellow'], 'flat', base=3)
+    steam(c, (9, 14), 12, 6)
+    c.outline()
+    return c
+
+
+def marsh_mist_tea():
+    """Greyreed's grey-green tea in a plain celadon cup, a reed leaf across it."""
+    c = Canvas(32)
+    cup(c, CELADON, R['moss'], x=15, y0=15, y1=28, w=12)
+    c.put(S.leaf(c, 5, 12, 20, 18, 2.0, 0.08), R['leaf'], 'ray', base=2, sep=True)
+    steam(c, (11, 16, 21), 11, 7)
+    c.outline()
+    return c
+
+
+def thunderhead_tea():
+    """A Cloudgate brew, dark as a storm, a little bolt of light over the cup."""
+    c = Canvas(32)
+    cup(c, BLUEWARE, R['storm'], x=15, y0=16, y1=28, w=12)
+    bolt = c.poly([(19, 3), (14, 10), (17, 10), (13, 15), (21, 8), (18, 8), (21, 3)])
+    c.put(bolt, R['yellow'], 'flat', base=4, sep=True)
+    c.outline()
+    c.glow('#F4E27A', (60,))
+    return c
+
+
 for _id, _fn in (('herbal_tea', herbal_tea), ('rice_ball', rice_ball), ('riverfish_soup', riverfish_soup),
                  ('boar_bone_broth', boar_bone_broth), ('ember_pepper_stew', ember_pepper_stew),
                  ('lotus_root_tea', lotus_root_tea), ('toad_oil_dumplings', toad_oil_dumplings),
                  ('cloudtop_orchid_broth', cloudtop_orchid_broth), ('jade_carp_congee', jade_carp_congee),
                  ('roast_fish', roast_fish), ('ember_pepper_broth', ember_pepper_broth),
                  ('willow_salve', willow_salve), ('thunderhorn_stew', thunderhorn_stew),
-                 ('cactus_water', cactus_water)):
+                 ('cactus_water', cactus_water), ('jasmine_dew_tea', jasmine_dew_tea),
+                 ('marsh_mist_tea', marsh_mist_tea), ('thunderhead_tea', thunderhead_tea)):
     register(FAM, _id, _fn, GROUP)

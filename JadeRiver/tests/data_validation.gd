@@ -368,7 +368,7 @@ func data_suite() -> void:
 		# S44: every herb has a nature and the roles it can fill.
 		if str(it.get("type", "")) == "herb":
 			check(str(it.get("nature", "")) in ["hot", "cold", "neutral"] and not (it.get("roles", []) as Array).is_empty(), "herb %s nature and roles" % it.id)
-		if it.has("use_action"): check(str(it.use_action) in ["appraise", "incubate", "tame", "absorb_flame", "talisman", "bath", "pet_item"], "item %s use_action" % it.id)
+		if it.has("use_action"): check(str(it.use_action) in ["appraise", "incubate", "tame", "absorb_flame", "talisman", "bath", "pet_item", "guqin"], "item %s use_action" % it.id)
 		# S47: a treasure item points at its entry in treasures.json, with a cooldown or charges and a QI cost.
 		if it.has("treasure"):
 			var t := ContentDB.entry("treasures", str(it.treasure))

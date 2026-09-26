@@ -5,6 +5,46 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V8g2 · The living world: the mortal kingdom and leisure arts (S49)
+- **The County Hall** (`sf_county_hall`). It is a new room behind Stoneford Gate. Its door is under a roof that a
+  rope bridge joins to the gatehouse.
+  - Magistrate Qian, a new NPC made only from existing avatar parts, keeps the hall.
+  - The hall has the county job board and the locked relief box. Either one, or the magistrate's "County business"
+    service, opens the new County page.
+- **County jobs** (`relations.json` `mortal`, Relations authority).
+  - Each day, three jobs are drawn for the character from four boards: vermin, raiders, relief deliveries and
+    letters. Each board offers only jobs that suit the character's Level.
+  - Reading the board accepts the jobs. They show on the Quests page's Daily tab, and yesterday's unfinished jobs
+    are taken down.
+  - A job pays silver by Level, 10 county favour and the `county_service` deed (+3 merit).
+- **County favour** has four named tiers: Stranger (0), Known at the Hall (50), Friend of the County (150) and
+  Benefactor (400).
+  - The last two grant the county's titles, *Friend of the County* and *Benefactor of Stoneford* (coin find).
+  - A Benefactor pays 5% less in Stoneford's shops.
+  - The HUD announces a new tier (`favour_changed`).
+- **The relief fund.** You can give 100, 1,000 or 10,000 silver, each size once a day (`donate_relief`,
+  `relief_donated`). The gifts pay 1, 8 or 60 merit and 3, 30 or 200 favour; the largest also adds Fame.
+- **Non-interference.** From Qi Kindling up, using a technique in a mortal town (Lotus Ferry's village or Greyreed
+  Hamlet) is the `mortal_interference` deed: +5 sin and -2 alignment, at most once a minute. The magistrate warns
+  you about it. In the wild, a technique carries no penalty.
+- **Leisure arts: the guqin.** A seven-string guqin is sold at the Stoneford Tea House. Play it from the bag and the
+  new Guqin page opens: a short rhythm piece of 16 notes on five strings.
+  - Tap the strings, or press 1 to 5, as each note reaches the line. PERFECT and GOOD windows score the playing.
+  - A clean piece makes meditation up to 15% faster for 30 minutes, and never less than 5%. Then the hands rest as
+    long (`play_guqin`, `guqin_played`).
+- **Leisure arts: chess** (`chess.json`, six Go problems on a 9×9 board).
+  - Every insight stone offers a chess problem as well as meditation. Each site has its own problem for the day,
+    the same on every device. Each problem has four lettered points, and only one is right.
+  - The new Chess page gives one answer a day at each site. The right point gives insight into your deepest Dao, or
+    a little realm progress before you have one (`solve_chess`, `chess_solved`).
+  - The fortune deck's Hermit's Chess Problem now uses the same rule.
+- **Regional teas.** Each tea house pours its own tea, with a new icon for each:
+  - Jasmine Dew (Stoneford): +10% insight for 30 minutes.
+  - Marsh Mist (Greyreed): +8% evasion.
+  - Thunderhead (Cloudgate Port): +2 Storm Ward.
+- New rules tests cover the jobs, the favour tiers, the titles and discount, the relief fund's limits,
+  non-interference in towns and the wild, the guqin's bonus and rest, and the chess problems.
+
 ### V8g1 · Mobile conventions: idle-room eligibility, auto-hunt and quest auto-path (S49)
 - **Idle rooms.** Idle Hunt and Gather now run only in rooms that list them (`room.idle`, the S23 Hunt rule). A
   town or a dungeon refuses them, with the reason, and the Characters page greys those buttons out there. Saves that

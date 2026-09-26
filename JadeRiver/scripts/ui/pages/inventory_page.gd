@@ -310,6 +310,9 @@ func on_action(id: String, data) -> void:
 			if submit({"type": "unequip", "slot": str(sel.slot)}).get("ok", false): sel = {}
 		"use":
 			var r := submit({"type": "use_item", "index": int(sel.bag)})
+			if r.get("ok", false) and str(r.get("open_page", "")) != "":
+				navigate.emit(str(r.open_page), {})
+				return
 			if not r.get("ok", false) and r.get("reason", "") == "confirm":
 				ask(str(r.get("text", Tx.t("ui.inventory.use_it_anyway"))), "use_confirm", int(sel.bag))
 		"use_confirm": submit({"type": "use_item", "index": int(data), "confirm": true})

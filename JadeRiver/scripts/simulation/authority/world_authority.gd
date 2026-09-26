@@ -586,6 +586,11 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			result.text = str(o.get("text", ""))
 		"insight_stone":
 			result.text = str(o.get("text", Tx.t("sim.world.meditate_here")))
+			# S49 leisure arts: a chess problem is carved beside every insight stone; one answer a day.
+			if game.progression.chess_open(c, object_id):
+				return ok({"dialogue": {"npc": "", "speaker": Tx.t("sim.world.chess_speaker"), "portrait": {}, "lines": [Tx.t("sim.world.chess_line")],
+					"choices": [{"text": Tx.t("sim.world.chess_study"), "page": "chess", "args": {"site": object_id}},
+						{"text": Tx.t("sim.world.chess_meditate"), "close": true}]}})
 		"qi_spring":
 			# S45: a gardener bottles the spring's water, three bottles a day; otherwise it is a place to meditate.
 			var sw: Dictionary = game.crafting.bottle_spring_water(c) if Unlocks.is_unlocked(c.id, "herb_garden") else {}

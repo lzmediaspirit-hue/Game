@@ -408,6 +408,39 @@
    "services": []
   },
   {
+   "id": "magistrate_qian",
+   "name": "Magistrate Qian",
+   "title": "County magistrate",
+   "outfit": {
+    "body": "light",
+    "hair": "long_tied",
+    "hair_color": 1,
+    "shirt": "scholar",
+    "pants": "scholar",
+    "shoes": "folded",
+    "hat": "guan",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "indigo"
+   },
+   "lines": [
+    "The county has more trouble than hands. You have hands.",
+    "Cultivators pass through Stoneford like weather. The ones who stop to help are remembered.",
+    "Keep your techniques sheathed in the villages. Ordinary people have long memories and short tempers."
+   ],
+   "barks": [
+    "Next petition!",
+    "The county thanks you."
+   ],
+   "services": [
+    "page:county"
+   ],
+   "service_labels": {
+    "page:county": "County business"
+   },
+   "age": 58
+  },
+  {
    "id": "guard_hou",
    "name": "Captain Hou",
    "title": "Gate guard",

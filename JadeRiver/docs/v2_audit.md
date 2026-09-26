@@ -140,4 +140,7 @@ Progress is recorded in `docs/CHANGELOG.md`.
     entry by CP or the finals and rank challenges; the 30-floor Trial Tower with four floor rules and a daily sweep;
     the four daily activity chests on the Quests page. V8g1 is done: idle Hunt and Gather only in eligible rooms,
     the auto-hunt toggle with its cut-offs, and quest auto-path over the room graph with the tracker button and a
-    validation sweep. Next: V8g2 (the mortal kingdom, leisure arts) and V8g3 (territory and spirit mines).
+    validation sweep. V8g2 is done: the County Hall with Magistrate Qian, three county jobs a day by Level, county
+    favour with its tiers, titles and Stoneford discount, the relief fund, non-interference sin in mortal towns, the
+    guqin rhythm page (a meditation bonus), chess problems at every insight stone, and regional teas. Next: V8g3
+    (territory and spirit mines).
