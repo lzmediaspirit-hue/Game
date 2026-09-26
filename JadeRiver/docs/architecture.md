@@ -61,6 +61,32 @@ each physics frame; the tests call it directly without any scene.
 | `CalendarAuthority` | The world calendar (S49, account level): world events from the seeded, pure `CalendarRules` schedule, the season, the weather and its effects, the spatial rift, Spirit Fruit births, the Herb Terraces trial, heavenly phenomena and the Heaven Ranking |
 | `RelationsAuthority` | What the world remembers of each character (S49): the karma ledger (merit, sin, named debts), the righteous-demonic alignment, personal Fame and young masters' challenges (deeds come from karma.json); NPC hearts, gifts and keeper discounts; bonds (Dao Companion, sworn siblings, master) from bonds.json; grudges, hunters, bounties and mercy from factions.json; the Fortune meter and its encounters (fortune_deck.json); the mortal kingdom (county jobs, county favour and its tiers, the relief fund, non-interference in mortal towns) |
 
+### Single Player and Online, per system (M51)
+
+Today every authority runs in the one local process and writes the local save. The table says what stays the same in
+Single Player and what a v2.0 server must take over for Online. The client keeps submitting the same intents in both.
+The rule is the extension contract below: in Online play the server owns every write, and the client only predicts
+and draws.
+
+| Authority | Single Player (now) | Online (v2.0) |
+|---|---|---|
+| `CombatAuthority` | Hits, pools, cooldowns, statuses and revival resolved locally at the fixed tick | Server-owned hits, pools and cooldowns. The client predicts animation and hit-stop only and reconciles to the server's snapshot. PvP needs the same rules on both sides |
+| `ProgressionAuthority` | Realm, breakthroughs and seclusion by the local `Clock`; offline gains capped at 12 h | Server time decides offline gains and breakthroughs; the tribulation is simulated on the server, and seeded `Rng` streams stay server-side |
+| `EnemyAuthority` + `EnemyBrain` | Spawns and AI in the loaded room | One simulation per zone instance; clients interpolate enemies; shared field bosses give loot to each player who took part |
+| `WorldAuthority` | Rooms, portals, loot on the ground, room events, the Trial Tower, idle routes | Room instances with interest regions; loot owned per player; the Trial Tower and story instances stay personal |
+| `InventoryAuthority` | Bag, key pouch, equipment, quick-use in the save | Server inventory with database transactions; trading between players is a new intent family on it |
+| `QuestAuthority` | Quests, flags, dialogue trees, daily missions | Per character on the server; kill credit shared in a party; daily resets at server time |
+| `EconomyAuthority` | Shops, buyback, exchange, and the auctions (the valley auction day, the Nine Peaks auction) against NPC bidders | The auction becomes cross-player with server-held escrow; shop stock and prices server-owned |
+| `CraftingAuthority`, `WorkshopAuthority` | Recipes, the furnace, the forge, appraisal, formations, teaching | Every roll on the server's `Rng`; the five-screen furnace sends its inputs as intents and the server scores them |
+| `TrainingSectAuthority` | Training-sect rank and contribution | Unchanged in meaning; stored on the server |
+| `SectAuthority` | Your own sect: buildings, NPC disciples, expeditions, raids, territory | Players can join another player's sect (the sect alliance, the guild loop); raids and territory contests between player sects |
+| `PetAuthority`, `CompanionAuthority` | Spirit animals, the swarm, AI companions | Pets server-owned and visible to others; AI companions stay AI and fill a party's empty places |
+| `AccountAuthority`, `MailAuthority`, `AchievementAuthority` | Slots, idle tasks, activity chests, letters, titles | Account and login on the server; mail between players; titles visible to others |
+| `FieldAuthority` | Presence and the Sphere against monsters | The same clash rules between players (Presence against Presence, Sphere against Sphere) resolved on the server |
+| `PostAuthority` | Keeping Post settled by the local clock on entry or from the Roll-Call | Settled by server time; the Storehouse shared by the account on the server |
+| `CalendarAuthority` | A seeded world calendar per save | One world calendar per server, the same for every player; world events and the Heaven Ranking shared |
+| `RelationsAuthority` | Karma, fame, bonds with NPCs, grudges and bounties from NPC factions | Bonds between players (sworn siblings, Dao Companions); bounties placed by players; the Heaven Ranking of real players |
+
 ## Unlocks and the HUD
 
 `data/unlocks.json` lists every system with its trigger (usually a realm), the guided quest that

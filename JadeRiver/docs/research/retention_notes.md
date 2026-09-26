@@ -350,7 +350,10 @@ Checked against `README.md`, `docs/architecture.md` and the files named.
   at the daily reset", [JR: `account_authority.gd:533`]); only the Dew Vial banks.
 - **A collection that keeps paying once complete**: a finished page emits its completion event, which refreshes the
   character's stats [JR: `scripts/simulation/authority/combat_authority.gd:12-15`], and nothing follows from it later.
-- **Catch-up pacing**: no easing of older daily work and no event that speeds levelling were found.
+- **Catch-up pacing, in part**: a character two great realms or more below the account's highest cultivates at ×1.5
+  (Ancestral Guidance), and every realm in the Account Legacy adds 2% [JR:
+  `scripts/simulation/authority/progression_authority.gd:111-116`]. There is no easing of older daily work and no event
+  that speeds levelling. (Corrected in P2 (e): the first version of this page missed Ancestral Guidance.)
 - **Visible intermediate stops on long bars** (Dao comprehension, collection pages, activity points): a UI matter,
   covered in `ui_reference_notes.md` §12.
 - **Real social loops** (guild, party, trade, shared bosses): out of scope until v2.0 Online (`architecture.md`,

@@ -60,3 +60,53 @@ These are the earlier reviews' findings, all fixed, with their tests:
 - P1 (`CHANGELOG.md`, P1) covers the training dummy beside an NPC and quest direction.
 
 The Act I–II sections of `valley_run` pass unchanged on this commit.
+
+## (e) The engagement plan, the psychology and feel plan, and Single Player / Online
+
+The research behind this part is `docs/research/retention_notes.md` (the loops and the psychology, with sources) and
+`docs/research/ui_reference_notes.md` §10–§12. Its §4 lists what Jade River already has; this part plans only what it
+lacks. Each row names the owning authority, the phase that builds it and the test that proves it. Names are Jade
+River's own.
+
+### The engagement plan (M21)
+
+What already works, and stays:
+
+- **Daily:** sect missions, four activity chests, the Trial Tower sweep, county jobs, the thief chase and Keeping
+  Post's round.
+- **Weekly:** Sect Service, the Saturday auction, the Beast Tide and the Herb Terraces trial.
+- **Offline:** seclusion (capped at 12 h), Keeping Post (capped by the pouch), gardens, racks, the Dew Vial and the
+  Welcome Back page.
+- **Catch-up:** Ancestral Guidance (×1.5 for a character two great realms or more behind the account's highest) and
+  the Account Legacy (+2% per realm recorded), in `progression_authority.gd:111-116`. The first version of the
+  retention notes missed this, and they are corrected.
+
+The gaps, each with its plan:
+
+| # | Gap | The loop it serves | Plan | Owner and phase | Test |
+|---|---|---|---|---|---|
+| E1 | No login reward | A daily reason to open the game, without punishing a missed day (loss aversion, `retention_notes.md` §1.3) | **The Dawn Censer.** The first entry of each day lights one incense stick at the account's censer. Every seventh stick gives a censer reward, from a 28-step track that loops. The track is cumulative, not consecutive, so a missed day costs nothing. Rewards are Spirit Stones, a pouch of herbs, Lantern Incense and, every 28th stick, a cosmetic dye | `AccountAuthority`, a `data/censer.json` track; the Welcome Back page shows the stick lit. P5 (the page), v1.3 (the data) | `rules_tests`: one stick per day however many entries; the seventh stick pays; no reset after a gap of five days |
+| E2 | Dailies do not bank | Returning after a missed day finds nothing waiting (the "wasted day" feeling) | **Carried missions.** Unfinished daily sect missions carry over for one more day, so at most two days' missions stand on the board. Activity chests do not bank, since they reward the same day's play | `QuestAuthority` (`quest_authority.gd:587-615`). v1.3 | `rules_tests`: a day's missions survive one reset, not two; a carried mission counts for the weekly Sect Service |
+| E3 | A complete collection stops giving | Completion drive (§2.4): the last page should open a next goal, not end one | **The second seal.** A completed Collection page can be sealed a second time by ten times the kills, for a second stat line and a Bestiary Leaf. Completion stays a single event per seal | `AccountAuthority` (`account_authority.gd:523-529`). P7b (with the volume plan) | `rules_tests`: the second seal needs ten times the count and pays once |
+| E4 | No stops on long bars | Goal gradient (§1.2): a bar with marked stops feels shorter | Tick marks at every reward threshold on the Dao, collection, activity and Presence bars, and the next reward shown at the bar's end | Presentation only. P5 | Screenshots of the four bars against the P3 mockups |
+| E5 | "One more level" is not shown | The next reward pulls harder when it is visible (§2.5) | The Cultivation page's ascent names what the next stage unlocks (a system, a slot, a technique grade) beside its requirement | Presentation, from `unlocks.json`. P5 | `rules_tests` `ui_suite`: every stage with an unlock names it |
+| E6 | No real social loop | Relatedness (§1.5) | **Single Player:** keep the stand-ins: the AI companions, bonds, your sect's disciples, the Heaven Ranking and the young masters' challenges. **Online (v2.0):** sect alliances between players, trading at the auction, shared field bosses with per-player loot, and mail between players (see the table below) | v2.0 | v2.0's own suites |
+
+### The psychology and feel plan (M22–M26)
+
+| # | Finding | Plan | Owner and phase | Test |
+|---|---|---|---|---|
+| F1 | Techniques do not grow in spectacle with the realm (M22). `techniques.json` has no effect field; every technique uses one of `fx_layer.gd`'s generic kinds | A `vfx` block on each technique: a shape (strike, wave, ring, rain, pillar, domain), a scale tier from its grade, and the element's colour. `fx_layer.gd` draws each tier larger and with more parts: Mortal grade is a flash, Heaven grade fills the screen for 0.4 s | Data in `tools/data/techniques.py`, drawing in `fx_layer.gd`. P6 | `data_validation`: every technique has a `vfx` block; screenshots of one technique per tier |
+| F2 | Numbers and particles are flat (M23): eight sparks, one number per hit | Multi-hit techniques show one number per hit, stacked and fanned; crits keep gold and grow; particles by element (ink drops for the brush, sound rings for the bell) | `fx_layer.gd`. P6 | Screenshots in a fight with a three-hit technique |
+| F3 | Colour has no written rule (M24): grade and quality colours exist, biome palettes do not, and no check that colours read on a phone | Palette roles in the style guide: primary, grade, quality, positive, negative, disabled. One rule per biome (a warm or cool bias, the accent). A contrast check of every text colour against its panel | `docs/ui_style_guide.md`, `UiKit`. P4 | `ui_suite`: every text colour has a contrast of 4.5:1 or more on its panel |
+| F4 | Rewards land quietly (M25): a breakthrough is a flash and a sound; loot bounces but does not burst | **Breakthrough:** a three-beat sequence (the light gathers, the realm's name is written in a brush stroke, the new stats rise). **Boss loot:** it bursts out in a fountain and settles. **Levels:** a short gong | `world.gd`, `fx_layer.gd`, `Audio`. P6 | Screenshots at each beat; `rules_tests`: the sequence never blocks input for more than 1.5 s |
+| F5 | Bosses lack readable danger (M38–M40) | Ground markers before every heavy blow, a phase card at each phase, and an enrage timer | `EnemyBrain`, `fx_layer.gd`. P9 | `boss_suite`: every boss has two phases and a telegraphed mechanic |
+| F6 | Defeat should sting without driving a player away (loss aversion) | Keep today's rule: a grave wound, then revive at a shrine, in place with a Revival Talisman, or with an Evergreen Heart Fruit, and no penalty in the Prologue or in marked rooms (`combat_authority.gd:1481-1536`). Add a line on the wound screen that says what was lost and what was kept | Presentation. P5 | Screenshot of the wound screen |
+
+M26 (a plan for each finding) is met by the two tables above and by part (f).
+
+### Single Player and Online, per system (M51)
+
+The per-system split is a second table under the authority table in `docs/architecture.md`. Each system names what
+runs locally now and what a v2.0 server must own. The rule behind it is the extension contract in the same page: the
+server owns every write, and the client submits the same intents it submits today.
