@@ -844,3 +844,63 @@ TECHS = [
 ]
 for _id, _fn in TECHS:
     register(FAM, _id, _fn, GROUP)
+
+
+# ----------------------------------------------------------------------------- v1.2 the Confucian path
+# Righteous glyphs written in the air in light: each a brush character, so the three read as one family.
+V12C_GOLD_INK = Ramp(EL['heaven'][1], EL['metal'][0][0])     # gold-white strokes on the steel disc
+
+
+def upright_glyph():
+    """The upright character (a strong vertical, its crossbar and a base) written ahead in gold-white light, and
+    the short line of force it sends forward."""
+    c, mk, d = emblem('metal')
+    inner = c.circle(16, 16, 12.8)
+    vert = S.taper_curve(c, (13, 5.5), (12.8, 15), (13, 24), 3.4, 2.2)
+    bar = S.taper_curve(c, (7, 12.5), (13.5, 12), (20.5, 11.5), 2.0, 2.8)
+    base = S.taper_curve(c, (6.5, 24.5), (13, 24.5), (20, 24), 2.2, 2.6)
+    mark(c, (vert | bar | base) & inner, V12C_GOLD_INK, base=3)
+    force = S.taper_curve(c, (22, 17), (25, 17), (28.5, 17), 2.4, 0.8) & inner
+    c.put(force, V12C_GOLD_INK, 'flat', base=4)
+    return done(c)
+
+
+def benevolent_script():
+    """The character for benevolence in soft green light: the person radical and its two strokes, a small circle of
+    warmth round it and a few leaves drifting in it."""
+    c, mk, d = emblem('wood')
+    inner = c.circle(16, 16, 12.8)
+    warm = c.ring(16, 16, 10.2, 1.0) & inner
+    c.put(warm, Ramp(EL['heaven'][1], EL['wood'][0][0]), 'flat', base=1)
+    tick = S.taper_curve(c, (13.5, 8.5), (11.5, 10.5), (9.5, 12.5), 2.2, 1.2)
+    vert = S.taper_curve(c, (12, 10.5), (11.8, 17), (12, 23.5), 3.0, 2.0)
+    top = S.taper_curve(c, (15.5, 13.5), (18.5, 13), (22, 13), 2.0, 2.6)
+    bot = S.taper_curve(c, (15, 20), (18.5, 19.5), (22.5, 19.5), 2.0, 2.8)
+    strokes = (tick | vert | top | bot) & inner
+    mark(c, strokes, mk, base=3)
+    for (x, y, a) in ((22.5, 6.5, 40), (5, 20.5, 230), (19.5, 26, 320)):
+        c.put(S.leaf(c, x, y, a, 4.5, 2.4, 0) & inner & ~strokes, mk, 'flat', base=2)
+    return done(c)
+
+
+def rite_seal_script():
+    """The seal of rite stamped on the ground in violet-white light: a square seal round its character, the lines of
+    the rite going out along the ground to both sides."""
+    c, mk, d = emblem('soul')
+    inner = c.circle(16, 16, 12.8)
+    ground = c.seg(5, 24, 27, 24, 1.4) & inner
+    c.put(ground, mk, 'flat', base=1)
+    for y in (16, 20):
+        for (x0, x1) in ((4.5, 9.5), (22.5, 27.5)):
+            c.put(c.seg(x0, y, x1, y, 1.3) & inner, mk, 'flat', base=2)
+    frame = c.rect(10, 8, 21, 22) & ~c.rect(12, 10, 19, 20)
+    mark(c, frame, mk, base=2)
+    glyph = c.rect(13, 12, 18, 12) | c.rect(14, 15, 17, 15) | c.rect(13, 18, 18, 18) | c.rect(15, 12, 16, 18)
+    c.put(glyph, mk, 'flat', base=4)
+    return done(c)
+
+
+V12C_TECHS = [('upright_glyph', upright_glyph), ('benevolent_script', benevolent_script),
+              ('rite_seal_script', rite_seal_script)]
+for _v12c_id, _v12c_fn in V12C_TECHS:
+    register(FAM, _v12c_id, _v12c_fn, GROUP)

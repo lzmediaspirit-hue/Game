@@ -727,3 +727,38 @@ def _es_salt(tier):
 
 for _es_tier in ES_TIERS:
     register(FAM, _es_tier + '_salt', (lambda tt: lambda: _es_salt(tt))(_es_tier), GROUP)
+
+
+# ----------------------------------------------------------------------------- v1.2 Phase C · the Orbit Ruins
+# orbit_stone_chip: a chip of the Orbit Ruins' pale grey-blue stone. The ruins' wrong gravity still holds in it, so
+# one pebble broken off it keeps circling it on a thin arc.
+V12C_ORBIT_STONE = Ramp(['#3A4658', '#5E6E84', '#94A4B6', '#C4D0DA', '#EEF4F8'], '#151C26')
+
+
+def orbit_stone_chip():
+    """A pale grey-blue stone chip, a tiny pebble orbiting it on a thin arc that passes behind and in front of it."""
+    from families.beast_parts import _v12c_tilted_ring
+    c = Canvas(32)
+    ramp = V12C_ORBIT_STONE
+    A, B, C_, D, E, F, G = (7, 12.5), (13.5, 8.5), (22, 10), (25.5, 15.5), (21.5, 22.5), (13, 24), (5.5, 19.5)
+    m = c.poly([A, B, C_, D, E, F, G])
+    c.put(m, ramp, 'ray', base=2)
+    # the flat top facet, lit, over the broken face; a fracture line down the face
+    top = c.poly([A, B, C_, D, (19.5, 15), (11.5, 16)]) & m
+    c.put(top, ramp, 'flat', base=3)
+    c.put(S.outline_only(top) & ~S.outline_only(m) & (c.Y > 12), ramp[1], 'flat', out=ramp.out)
+    c.put(c.bres_path([(15, 17), (16, 20), (14, 23)]) & erode4(m), ramp[1], 'flat', out=ramp.out)
+    c.put((c.bres(9, 12, 12, 10) | c.rect(14, 9, 15, 9)) & top, ramp[4], 'flat', out=ramp.out)
+    # the orbit: the far arc dim behind the chip, the near arc crossing in front of it
+    ring, v = _v12c_tilted_ring(c, 15.5, 16.5, 13.5, 4.8, 26)
+    c.put(ring & (v < 0) & ~m, R['mist'], 'flat', base=1)
+    c.put(ring & (v >= 0), R['mist'], 'flat', base=3, sep=True)
+    # the pebble, hanging on the arc off the chip's shoulder
+    pebble = c.circle(27.3, 12, 2.3)
+    c.put(pebble, ramp, 'sphere', base=2, sep=True)
+    c.put(c.rect(26, 11, 26, 11), ramp[4], 'flat', out=ramp.out)
+    c.outline()
+    return c
+
+
+register(FAM, 'orbit_stone_chip', orbit_stone_chip, GROUP)

@@ -1072,3 +1072,70 @@ def wyrm_ash():
 register(FAM, 'star_powder', star_powder, GROUP)
 register(FAM, 'guardian_scale', guardian_scale, GROUP)
 register(FAM, 'wyrm_ash', wyrm_ash, GROUP)
+
+
+# ----------------------------------------------------------------------------- v1.2 Phase C · the Citadel and the Orbit Ruins
+# gravity_core: the heart of a Gravity Golem, a dense dark stone sphere with faint violet rings bent round it, as if
+# the light were falling into it. moth_dust: the silver dust an Orbit Moth sheds, its sparkles still hanging in the air.
+V12C_GRAVITY = Ramp(['#100D1C', '#1E1A2C', '#332E44', '#504A64', '#766E90'], '#050410')
+V12C_MOTH_SILVER = Ramp(['#4A5460', '#7C8896', '#B4C0CA', '#E0E8EC', '#FFFFFF'], '#1A2028')
+
+
+def _v12c_tilted_ring(c, cx, cy, rx, ry, angle):
+    """A 1-px ring of the ellipse (rx, ry) about (cx, cy) with its long axis raised `angle` degrees to the right,
+    and the signed distance across it: positive on the near (lower) side, negative on the far side."""
+    a = math.radians(angle)
+    X, Y = c.X - cx, c.Y - cy
+    u = X * math.cos(a) - Y * math.sin(a)
+    v = X * math.sin(a) + Y * math.cos(a)
+    fill = (u / rx) ** 2 + (v / ry) ** 2 <= 1.0
+    return fill & ~erode4(fill), v
+
+
+def gravity_core():
+    """A dense dark sphere of golem stone, violet rings of bent light round it: the far arcs behind, the near in front."""
+    c = Canvas(32)
+    core = c.circle(16, 15.5, 9.2)
+    # two rings on one tilt, the far arcs first (dim, hidden behind the core), the near arcs last (bright, in front)
+    outer, vo = _v12c_tilted_ring(c, 16, 15.5, 14.2, 4.6, 24)
+    inner, vi = _v12c_tilted_ring(c, 16, 15.5, 11.6, 3.2, 24)
+    c.put(inner & (vi < 0) & ~core, R['violet'], 'flat', base=1)
+    c.put(outer & (vo < 0) & ~core, R['violet'], 'flat', base=2)
+    c.put(core, V12C_GRAVITY, 'sphere', base=2, sep=True)
+    # light bent round the far side: a violet rim on the shadow edge; a dull glint is all that escapes the near side
+    c.put(S.outline_only(core) & ((c.X + c.Y) > 37), R['violet'], 'flat', base=1)
+    c.put(c.ellipse(12.5, 11.5, 2.2, 1.4) & core, V12C_GRAVITY, 'flat', base=4)
+    c.put(c.rect(11, 11, 12, 11), '#A8A0C0', 'flat', out=V12C_GRAVITY.out)
+    c.put(inner & (vi >= 0), R['violet'], 'flat', base=2)
+    c.put(outer & (vo >= 0), R['violet'], 'flat', base=3)
+    c.outline()
+    c.glow('#9B78D1', (45,))
+    return c
+
+
+def moth_dust():
+    """A small heap of silver moth dust, a few sparkles hanging in the air above it."""
+    c = Canvas(32)
+    silver = V12C_MOTH_SILVER
+    heap = c.poly([(3.5, 27.5), (7, 24.5), (10.5, 21.5), (13.5, 18.5), (15.5, 17.5), (18, 18.5), (21.5, 22),
+                   (25, 25), (28.5, 27.5)])
+    heap |= c.ellipse(16, 26.5, 12.5, 2.6)
+    heap &= c.Y < 28.5
+    c.put(heap, silver, 'sphere', base=2, cx=13, cy=21, rx=15, ry=10)
+    # powder: a slump down the shadow side, dark and light flecks
+    c.put(c.bres_path([(18, 20), (20, 23.5), (24, 26)]) & erode4(heap), silver[1], 'flat', out=silver.out)
+    for (x, y) in ((9, 25), (13, 26), (17, 25), (21, 27), (7, 27), (15, 22), (24, 27), (11, 23)):
+        c.put(c.rect(x, y, x, y) & erode4(heap), silver[1], 'flat', out=silver.out)
+    for (x, y) in ((10, 22), (14, 19), (8, 24), (17, 21), (6, 26), (12, 24)):
+        c.put(c.rect(x, y, x, y) & erode4(heap), silver[4], 'flat', out=silver.out)
+    c.outline()
+    c.glow('#D5E0E5', (35,))
+    S.sparkle(c, 9, 11, '#FFFFFF', silver[3], 2)
+    S.sparkle(c, 21, 6, '#FFFFFF', silver[3], 2)
+    S.sparkle(c, 24, 14, '#FFFFFF', silver[3], 1)
+    c.pxs([(15, 13), (5, 17), (26, 20)], silver[3])
+    return c
+
+
+register(FAM, 'gravity_core', gravity_core, GROUP)
+register(FAM, 'moth_dust', moth_dust, GROUP)
