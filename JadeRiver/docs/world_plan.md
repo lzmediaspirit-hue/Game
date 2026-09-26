@@ -88,14 +88,15 @@ Every room passes the room lint (`tools/data/room_lint.py`, rules in `docs/movem
 - two ways up to every required tier; landings at least 80 × 60;
 - built tiers on the 88 grid, natural ones on the 100 grid; blocks 40, 60, 80 or 110;
 - everything required reachable with the arts of the room's lowest realm;
-- every later ledge more than 202 above everything reachable, and within its own art's reach.
+- every later ledge out of reach of the arts the band already has, and within its own art's reach.
 
 From Act IV on every character has flight (ceiling 340), the double jump, Wall-Step, the glide and Wind Blink. So:
 
 - a room that allows flight must still pass the lint without it, because no-flight volumes and landings exist;
 - ledges above 340 are reached by updraft columns, as on the Sky Ledges;
-- Act IV's later ledges need the rope dart's Grapple (S43, v1.3). Acts V and the Epilogue add no traversal art, so
-  their later ledges use Grapple and updrafts.
+- a later ledge must sit above what flight reaches (in a room that allows flight) or in a no-flight room;
+- Act IV's later ledges need the rope dart's Grapple (S43, v1.3: a pull to a marked hook within 300 units). Act V and
+  the Epilogue add no traversal art, so their later ledges use Grapple and updrafts.
 
 ### Attunement, Laws and hazards
 
@@ -125,8 +126,8 @@ Five threads carry the act:
    first paid the Grey Pilgrim.
 3. **The Ashborn.** Their world, Emberwane, is going cold as its core fire dies. Kharn spared or slain (`kharn_spared`,
    `kharn_slain`) decides how Ash Queen Seralet's court receives you. The alliance comes at Monarch 3.
-4. **The empty throne.** Kingsgrave's throne has had no Monarch since the Remnant Monarch fell. The throne contest
-   gives the Throne-Sworn title at Monarch 2.
+4. **The empty throne.** Kingsgrave's throne has had no living Monarch since the old war; what remains of the last
+   one, the Remnant Monarch, still guards it. After him, the throne contest gives the Throne-Sworn title at Monarch 2.
 5. **Lu's crossing.** Five journal pages (21–25). The last, in the Unwinding, shows Lu walking into a room that had not
    happened yet: the first hint of walking the River.
 
@@ -156,7 +157,7 @@ Room prefixes: `lk`, `ew`, `rr`, `io`, `kb`, `th`, `tw`, `uw`, `as`, `wl`; the F
 | 7 | Twinlight Marches | Shared | A world under a sun and a moon that never set: a burning day side, a frozen night side, a dusk line between | 110–116 | 80–95 | 2.5–2.8 | Fire by day, Water by night, Space | 6: Noon Steppe · Sunroc Eyrie (tall, updrafts) · Dusk Line · Moonfen · Twinlight Waystation (rest, teleport stone) · The Hour Between (secret) | Sun Roc and Radiant Lion (110–116, day side), Moon Moth and Shade Serpent (110–116, night side) |
 | 8 | The Unwinding | Shared | The world at the Tide's edge, where time frays: rooms loop, rain falls upward, grey tide-fog | 113–118 | 95–110 | 2.6–2.9 | Time, Space | 7: Frayed Verge · Looping Stair · Frontline Bulwark (fortress, safe, teleport stone) · Timekeeper's Cell (insight) · Greyfold Breach · The Ledger Vault (boss arena) · Shen Lian's Stand (boss arena) | Time-Worn Specter (113–114), Ash Legionnaire (113–117), Hollowed Legionnaire (115–118, new, a Hollowed variant as the Hollowed Wyrmling is); **Hollowed Shen Lian** (117), **Hollow Elder Gu** (118) |
 | 9 | Anchor Spire | Shared | A spire of seven-coloured stone at the Frontier's still centre | 118–120 | 110 | 3.0 | All | 3: Anchor Stair (path) · Sigil Sanctum (insight, teleport stone) · Rite Chamber (safe) | — |
-| 10 | The Seven Wells (element dungeons) | Shared | Seven wells, one per power, each a descent into one element | 119 | 120 | 3.0 | One each | 14: two rooms per well (the descent, the Warden's chamber): Greenwood · Ember · Loam · Brightsteel · Coldspring · Shade · Noon | The seven Element Wardens (119), one per well |
+| 10 | The Seven Wells (element dungeons) | Shared | Seven wells, one per power, each a descent into one element | 118–119 | 120 | 3.0 | One each | 14: two rooms per well (the descent, the Warden's chamber): Greenwood · Ember · Loam · Brightsteel · Coldspring · Shade · Noon | The seven Element Wardens (119), one per well |
 | — | The Frontier Run (crossing) | — | The dark past the Starsea | 99–100 | — | 1.0 | — | 1: the crossing instance | Star wind, Hollow drifts |
 
 Room count: 5 + 6 + 6 + 6 + 6 + 4 + 6 + 7 + 3 + 14 + 1 = **64** (49 in the open worlds, 14 in the Wells, 1 crossing).
@@ -190,7 +191,7 @@ affinity 3). They join at the Throne Heart.
 | Dusk Gate | Throne Causeway ↔ Noon Steppe | Gate | Monarch 1 |
 | Grey Fold | Moonfen ↔ Frayed Verge | Edge | Monarch 3 |
 | Seven-Coloured Stair | Frontline Bulwark ↔ Anchor Stair | Sealed gate | Half-Heaven Monarch |
-| Well mouths | Sigil Sanctum → each well | Dungeon gates | Dao Sigil, and the previous well's Warden defeated (the Sigil's order: Wood → Fire → Earth → Metal → Water → Yin → Yang) |
+| Well mouths | Sigil Sanctum → each well | Dungeon gates | The Greenwood Well at Half-Heaven Monarch, because the step to Dao Sigil needs one power refined and Wood comes first; each later well when the previous Warden falls, from Dao Sigil (the Sigil's order: Wood → Fire → Earth → Metal → Water → Yin → Yang) |
 
 ### Travel
 
@@ -246,8 +247,8 @@ affinity 3). They join at the Throne Heart.
 | Monarch 1 | Monarch's Weight; Monarch Qi (×2.8, after conversion) | Throne Heart |
 | Monarch 2 | Throne-Sworn title; Beast Taming Dao tier 6 | Contest Floor |
 | Monarch 3 | Ashborn alliance; the Time Dao (Timekeeper Gong Yi) | Ember Court; Timekeeper's Cell |
-| Half-Heaven Monarch | Dao Sigil screen | Sigil Sanctum |
-| Dao Sigil | The Seven Wells; starting-rank preview | Anchor Spire |
+| Half-Heaven Monarch | Dao Sigil screen; the Greenwood Well (the first power) | Sigil Sanctum |
+| Dao Sigil | The other six wells (element dungeons); starting-rank preview | Anchor Spire |
 | Heaven's Threshold | Sigil Anchor Pill; the Rite Chamber | Anchor Spire |
 
 The Seven Wells' ordinary drops are essences of rank 5 to 7, so an ordinary Inner Heaven start is rank 5 to 7 (S28:
@@ -265,7 +266,7 @@ Before the join each chapter can be finished on either road; the main quest neve
 | 25 The Empty Throne (LT3 → M2) | The Causeway · The Hall of Fallen Thrones · Monarch (the breakthrough, Law Touching 3 → Monarch 1) · Remnant Monarch · The Contest (Throne-Sworn) |
 | 26 Sun and Moon (M2 → M3) | The Dusk Line (the eclipse) · The Hour Between (the Frontier Heavenly Flame) · The Queen's Oath (the Ashborn alliance at the Ember Court, reached through the Gate Ring on either road) |
 | 27 The Unwinding (M3 → HHM) | The Grey Fold · The Timekeeper (Time Dao) · The Frontline (Captain Liang Ke) · The Ledger (Hollow Elder Gu) · Shen Lian's Stand (save or defeat) · A Heavenly Dao insight (Half-Heaven Monarch) |
-| 28 Seven Wells (HHM → HT) | The Sigil (Sigil-Keeper Cen Wu) · the seven wells in order · Heaven's Threshold · The Rite Chamber (Rite-Mother Dai Huan; the Outer Heavens hook) |
+| 28 Seven Wells (HHM → HT) | The Sigil (Sigil-Keeper Cen Wu) · The Greenwood Well (Wood; Dao Sigil) · the Ember, Loam, Brightsteel and Coldspring Wells (five powers; Heaven's Threshold) · the Shade and Noon Wells (all seven, which Inner Heaven asks for) · The Rite Chamber (Rite-Mother Dai Huan; the Outer Heavens hook) |
 
 ### Headline systems
 
