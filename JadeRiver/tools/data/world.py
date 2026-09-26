@@ -207,7 +207,7 @@ class Room:
         if door:
             to, to_portal = door[0], door[1]
             self.portal(door[2] if len(door) > 2 else "door_" + sid, "door", [x + door_dx, front + 14], to, to_portal,
-                        press_up=True, **(door[3] if len(door) > 3 else {}))
+                        press_up=True, facade=True, **(door[3] if len(door) > 3 else {}))
         return (x + door_dx, front + 14)
 
     def painted(self, sid, art, x, width, depth, height, front=690, **kw):
@@ -427,11 +427,13 @@ def lotus_ferry():
     r.decor("table", [640, 770])
     r.decor("shelf", [140, 660])
     r.decor("rug", [640, 820])
-    r.obj("tea_table", "pickup", [640, 752], item="herbal_tea", count=1, prop="jar", alt=0,
+    # The teas show as their own icon over a pool of light (a jar prop read as a clod of earth); the table's cup
+    # stands just in front of the table, raised to its top, so the table does not hide it.
+    r.obj("tea_table", "pickup", [640, 774], item="herbal_tea", count=1, prop="none", alt=30,
           visible_if=all_of(qactive("morning_tide")), label="Herbal Tea")
-    r.obj("tea_shelf", "pickup", [150, 700], item="herbal_tea", count=1, prop="jar",
+    r.obj("tea_shelf", "pickup", [150, 700], item="herbal_tea", count=1, prop="none",
           visible_if=all_of(qactive("morning_tide")), label="Herbal Tea")
-    r.obj("tea_stove", "pickup", [1010, 720], item="herbal_tea", count=1, prop="jar",
+    r.obj("tea_stove", "pickup", [1010, 720], item="herbal_tea", count=1, prop="none",
           visible_if=all_of(qactive("morning_tide")), label="Herbal Tea")
     r.npc("aunt_ping", [520, 720], facing=-1, hidden_if=all_of(flag("night_active")))
     r.obj("net", "inspect", [860, 700], text="Lu's old net. Half the knots are yours, from when you were small.", prop="none")

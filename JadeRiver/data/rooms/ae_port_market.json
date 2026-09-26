@@ -180,6 +180,7 @@
    "to": "ae_wayfarers_inn",
    "to_portal": "entry",
    "press_up": true,
+   "facade": true,
    "label": "Wayfarers' Inn"
   },
   {

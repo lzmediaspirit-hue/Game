@@ -21,6 +21,7 @@ var t := 0.0
 var focus := false
 var hit_flash := 0.0
 var prop_id := ""
+var badge: Node2D   # a pickup's floating item icon, smoothed (icons are 64 px art drawn smaller)
 
 func setup(o: Dictionary) -> void:
 	def = o
@@ -32,6 +33,12 @@ func setup(o: Dictionary) -> void:
 	var decal := bool(SpriteCache.prop(prop_id).get("decal", false)) or str(o.type) in ["fishing_spot", "rite_circle", "inspect"]
 	z_index = (1500 + int(float(at[1])) - 60) if decal else (1500 + int(float(at[1])))
 	if o.get("z_back", false): z_index = -1500
+	if str(o.type) == "pickup":
+		badge = Node2D.new()
+		badge.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		badge.z_index = 1
+		badge.draw.connect(_draw_badge)
+		add_child(badge)
 
 func state_name() -> String:
 	var rt: RoomRuntime = Game.room_rt
@@ -83,16 +90,21 @@ func _process(delta: float) -> void:
 	visible = c == null or Game.world.object_visible(c, def)
 	if def.type == "pickup" and Game.room_rt and Game.room_rt.objects.get(object_id, {}).get("state", "") == "open": visible = false
 	queue_redraw()
+	if badge: badge.queue_redraw()
 
 func _draw() -> void:
 	var st := state_name()
 	var drawn := false
-	if def.type == "pickup" and not def.has("prop"):
-		var ic := SpriteCache.icon(str(def.get("item", "")))
-		if ic:
-			var bob := sin(t * 3.0) * 3.0
-			draw_texture_rect(ic, Rect2(-16, -34 + bob, 32, 32), false)
-			drawn = true
+	if def.type == "pickup":
+		# A warm pool of light on the ground under anything to take; the prop (if any) stands in it.
+		var pulse := 0.5 + 0.5 * sin(t * 3.0)
+		draw_set_transform(Vector2(0, -2), 0.0, Vector2(1.0, 0.34))
+		draw_circle(Vector2.ZERO, 34.0 + 5.0 * pulse, Color(1.0, 0.84, 0.42, 0.14 + 0.08 * pulse))
+		draw_circle(Vector2.ZERO, 20.0, Color(1.0, 0.9, 0.6, 0.20))
+		draw_set_transform(Vector2.ZERO)
+		drawn = true
+		if prop_id != "" and prop_id != "none":
+			SpriteCache.draw_prop(self, current_prop(), st, t, Vector2.ZERO, bool(def.get("flip", false)))
 	elif prop_id != "":
 		var rare: bool = def.type == "herb_patch" and def.has("ripen")
 		var hs: Dictionary = Game.world.herb_state(def) if rare else {}
@@ -129,13 +141,44 @@ func _draw() -> void:
 	if def.type == "earth_vent": _draw_earth_fire()
 	if def.type == "spirit_mine": _draw_mine()
 	if def.type == "garden_bed": _draw_bed_herb()
-	if focus:
+	if focus and def.type != "pickup":
 		var c = Game.active()
 		var avail: Dictionary = Game.world.object_available(c, def) if c else {"ok": true}
 		var label := Game.world._verb(def)
 		var h := SpriteCache.prop_size(current_prop()).y if prop_id != "" else 40.0
-		UiKit.draw_outlined(self, label if avail.ok else str(avail.get("text", "")), Vector2(-120, -h - 8), 16,
-			UiKit.PALE_GOLD if avail.ok else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 240)
+		UiKit.draw_nameplate(self, label if avail.ok else str(avail.get("text", "")), "", -h - 12,
+			UiKit.PALE_GOLD if avail.ok else UiKit.MIST, UiKit.MIST, 18)
+
+## Height of a pickup's prop, so its icon floats clear of it.
+func _pickup_top() -> float:
+	if prop_id == "" or prop_id == "none": return 0.0
+	return SpriteCache.prop_size(current_prop()).y - 8.0
+
+## A pickup's item icon bobbing in a gold ring over the spot, a few glints turning round it, and its name
+## (with the verb when it is the context target) on a plate above: readable from across the room.
+func _draw_badge() -> void:
+	var pulse := 0.5 + 0.5 * sin(t * 3.0)
+	var c := Vector2(0, -_pickup_top() - 34.0 + sin(t * 3.0) * 4.0)
+	badge.draw_circle(c, 29.0 + 3.0 * pulse, Color(1.0, 0.84, 0.42, 0.16 + 0.10 * pulse))
+	badge.draw_circle(c, 23.0, Color(0.03, 0.08, 0.09, 0.72))
+	badge.draw_arc(c, 23.0, 0.0, TAU, 40, Color(UiKit.PALE_GOLD, 0.65 + 0.35 * pulse), 2.5, true)
+	var ic := SpriteCache.icon(str(def.get("item", "")))
+	if ic: badge.draw_texture_rect(ic, Rect2(c - Vector2(19, 19), Vector2(38, 38)), false)
+	for i in 3:
+		var a := t * 1.8 + i * TAU / 3.0
+		var sp := c + Vector2(cos(a) * 32.0, sin(a) * 32.0 * 0.8)
+		var r := 3.0 + 1.5 * sin(t * 5.0 + i)
+		badge.draw_line(sp - Vector2(r, 0), sp + Vector2(r, 0), Color(1.0, 0.95, 0.7, 0.9), 1.5)
+		badge.draw_line(sp - Vector2(0, r), sp + Vector2(0, r), Color(1.0, 0.95, 0.7, 0.9), 1.5)
+	var name_text := str(def.get("label", ContentDB.item_name(str(def.get("item", "")))))
+	var sub := ""
+	var col := UiKit.PALE_GOLD
+	if focus:
+		var who = Game.active()
+		var avail: Dictionary = Game.world.object_available(who, def) if who else {"ok": true}
+		sub = Game.world._verb(def) if avail.ok else str(avail.get("text", ""))
+		if not avail.ok: col = UiKit.MIST
+	UiKit.draw_nameplate(badge, name_text, sub, c.y - 36.0, col, UiKit.BRIGHT_JADE if focus else UiKit.MIST, 18 if focus else 16)
 
 ## S49 territory: the holder's banner beside the vein; stones waiting glint over it, and a contested mine pulses red.
 func _draw_mine() -> void:

@@ -206,8 +206,8 @@ func heading(pos: Vector2, s: String, width := 400.0) -> void:
 ## Word-wrapped paragraph. Returns the height used.
 func para(rect: Rect2, s: String, size := 19, col := UiKit.PAPER, max_lines := -1) -> float:
 	var lines := _wrap(s, size, rect.size.x)
-	var lh := size * 1.3
-	var y := rect.position.y + size
+	var lh := UiKit.line_height(size)
+	var y := rect.position.y + size * UiKit.text_scale()
 	var n := 0
 	for ln in lines:
 		if max_lines > 0 and n >= max_lines: break
@@ -256,7 +256,7 @@ func slot_box(rect: Rect2, item_id: String, count := 0, quality := "", id := "",
 		if quality != "" and quality != "plain" and quality != "common":
 			draw_rect(rect.grow(-3), UiKit.quality_color(quality), false, 2)
 		if count > 1:
-			UiKit.draw_outlined(self, str(count), rect.end - Vector2(rect.size.x, 6), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, rect.size.x - 6)
+			UiKit.draw_outlined(self, str(count), rect.end - Vector2(rect.size.x, 5), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, rect.size.x - 5)
 		if locked: _lock_icon(rect.position + Vector2(4, 4))
 	if selected: draw_style_box(UiKit.style("selected_slot_glow"), rect.grow(4))
 	if id != "": region(rect, id, data)

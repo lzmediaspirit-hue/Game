@@ -479,6 +479,20 @@ func needs_item(c, item: String) -> bool:
 	return false
 
 ## Objectives for the tracker: [{quest, name, lines: [{text, have, need, done}]}].
+## The objectives of an active quest that moved past `since` (progress as last shown): the HUD toasts these while
+## the tracker is still hidden, so the prologue's steps ("Pick up Herbal Tea 2/3") are never silent.
+func steps_forward(c, qid: String, since: Array) -> Array:
+	var st: Dictionary = c.quests.active.get(qid, {})
+	if st.is_empty(): return []
+	var objs: Array = quest_def(c, qid).get("objectives", [])
+	var out: Array = []
+	for i in mini(objs.size(), (st.progress as Array).size()):
+		var v := int(st.progress[i])
+		if v <= (int(since[i]) if i < since.size() else 0): continue
+		var need := int(objs[i].get("count", 1))
+		out.append({"text": str(objs[i].get("text", "")), "have": mini(v, need), "need": need, "done": v >= need})
+	return out
+
 func tracker(c) -> Array:
 	var out: Array = []
 	for qid in c.quests.tracked:

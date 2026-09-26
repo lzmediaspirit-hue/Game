@@ -74,8 +74,9 @@ def lotus_ferry(R):
     r.obj("lu_float", "inspect", [1040, 612], alt=88, prop="driftwood",
           text="Lu's old cork float, painted red and white a long time ago. Someone kept it very carefully.",
           effects=[{"kind": "codex", "entry": "lu_float"}])
-    r.obj("tea_loft", "pickup", [1120, 612], alt=88, item="herbal_tea", count=1, prop="jar", label="Herbal Tea",
-          hidden_if=all_of(flag("tea_loft")), set_flag="tea_loft")
+    # Shown once the ladder holds: a glowing fourth tea in the prologue muddled Aunt Ping's "three teas".
+    r.obj("tea_loft", "pickup", [1120, 612], alt=88, item="herbal_tea", count=1, prop="none", label="Herbal Tea",
+          visible_if=after_kite, hidden_if=all_of(flag("tea_loft")), set_flag="tea_loft")
     authored(r)
 
     # Lotus Ferry Village: Home Lane blocks and roofs, the Village Square roof chain and the Ferry Docks lookout.

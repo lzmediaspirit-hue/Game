@@ -90,11 +90,11 @@ func draw_page() -> void:
 
 ## Dialogue lines are ink on the paper box: dark, no drop shadow.
 func _ink_para(rect: Rect2, s: String, size: int) -> void:
-	var y := rect.position.y + size
+	var y := rect.position.y + size * UiKit.text_scale()
 	for ln in _wrap(s, size, rect.size.x):
 		if y > rect.end.y + 2: break
 		UiKit.draw_text(self, ln, Vector2(rect.position.x, y), size, Color("2b2118"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, false)
-		y += size * 1.35
+		y += UiKit.line_height(size) * 1.04
 
 func on_action(id: String, data) -> void:
 	match id:

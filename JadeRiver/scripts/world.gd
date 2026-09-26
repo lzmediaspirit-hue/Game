@@ -154,7 +154,7 @@ func _build_room() -> void:
 			object_views[str(o.id)] = ov
 	for p in room_def.get("portals", []):
 		var pv = PortalView.new()
-		pv.setup(p)
+		pv.setup(p, room_def)
 		room_layer.add_child(pv)
 		portal_views.append(pv)
 	# Hazards, and the heavenly tribulation's rings and bolts (S48), which can fall in any room.

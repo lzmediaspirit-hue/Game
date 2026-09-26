@@ -66,7 +66,7 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, 16, Color(0.01, 0.035, 0.04, 0.35))
 	draw_set_transform(Vector2.ZERO)
 	var col := UiKit.PALE_GOLD if focus else UiKit.PAPER
-	UiKit.draw_nameplate(self, display_name, title, 24, col, UiKit.MIST, 15)
+	UiKit.draw_nameplate(self, display_name, title, 26, col, UiKit.MIST, 17)
 	var top := -112.0 + sin(t * 3.0) * 3.0
 	match marker:
 		"main":
@@ -82,8 +82,8 @@ func _draw() -> void:
 		"talk":
 			UiKit.draw_outlined(self, "…", Vector2(-20, top + 4), 24, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 40)
 	if bark_time > 0.0 and bark != "":
-		var w := minf(260.0, UiKit.text_width(bark, 16) + 20)
-		var r := Rect2(-w * 0.5, -150, w, 26)
+		var w := minf(300.0, UiKit.text_width(bark, 17) + 22)
+		var r := Rect2(-w * 0.5, -154, w, 30)
 		draw_rect(r, Color(0.9, 0.87, 0.78, minf(1.0, bark_time)))
 		draw_rect(r, Color(UiKit.INK, minf(1.0, bark_time)), false, 2)
-		UiKit.draw_text(self, bark, Vector2(r.position.x + 10, r.position.y + 19), 16, Color(UiKit.INK, minf(1.0, bark_time)), HORIZONTAL_ALIGNMENT_LEFT, w - 20, false)
+		UiKit.draw_text(self, bark, Vector2(r.position.x + 11, r.position.y + 21), 17, Color(UiKit.INK, minf(1.0, bark_time)), HORIZONTAL_ALIGNMENT_LEFT, w - 22, false)

@@ -181,6 +181,12 @@ Progress is recorded in `docs/CHANGELOG.md`.
     dismounts, and the remaining room catalogue rows.
   - The Azure Heavenly Flame needs nothing more: the Cold Lamp Flame from the Thousand-Eye Toad fills the slot.
 
+### Deviations (presentation)
+
+- **Type (S24).** The style guide sets words in Cormorant Garamond. The build keeps it for headings of 22 px and up,
+  and sets smaller words in Source Serif 4. Cormorant's hairlines and small x-height were unreadable on a phone at
+  label sizes, which players reported. Numbers stay in Pixelify Sans.
+
 ### Deviations (names)
 
 The build keeps some of its own names for v2's fields. The depth-hooks rules test checks that each one is

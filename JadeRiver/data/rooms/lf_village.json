@@ -249,6 +249,7 @@
    "to": "lf_fishers_hut",
    "to_portal": "exit",
    "press_up": true,
+   "facade": true,
    "label": "Fisher's Hut"
   },
   {
@@ -261,6 +262,7 @@
    "to": "lf_granny_liu_hut",
    "to_portal": "exit",
    "press_up": true,
+   "facade": true,
    "label": "Granny Liu's Herb Hut"
   },
   {
@@ -292,6 +294,7 @@
    "to": "lf_old_ma_store",
    "to_portal": "exit",
    "press_up": true,
+   "facade": true,
    "label": "Old Ma's Store"
   },
   {

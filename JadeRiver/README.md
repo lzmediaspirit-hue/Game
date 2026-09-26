@@ -118,4 +118,4 @@ every system, `--debug-sect` gives a founded sect with all buildings, `--fly` ta
 Characters use the layered avatar engine (body, hair, garments in ten dyes, shoes, weapons, hats,
 capes) with pose-registered sheets; enemies and NPCs are drawn with the same engine or with the
 creature sheets in `art/creatures/`. Backdrops, props, UI and audio are original to this project.
-Character attribution: `data/LPC-CREDITS.txt`. Font licences: `art/fonts/OFL.txt`, `art/fonts/PixelifySans-OFL.txt` and `art/fonts/JadeRiverSymbols-LICENSE.txt` (a renamed DejaVu Sans symbol subset).
+Character attribution: `data/LPC-CREDITS.txt`. Font licences: `art/fonts/OFL.txt` (Cormorant Garamond), `art/fonts/SourceSerif4-OFL.txt`, `art/fonts/PixelifySans-OFL.txt` and `art/fonts/JadeRiverSymbols-LICENSE.txt` (a renamed DejaVu Sans symbol subset).

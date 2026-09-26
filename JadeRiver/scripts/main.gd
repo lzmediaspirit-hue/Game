@@ -152,6 +152,8 @@ func _handle_preview_args(user_args: Array) -> void:
 	var room := ""
 	for a in user_args:
 		if str(a).begins_with("--room="): room = str(a).trim_prefix("--room=")
+		# Debug tools (S38): preview at a text size (0 small, 1 normal, 2 large).
+		if str(a).begins_with("--text-size="): Game.account.settings["text_size"] = clampi(int(str(a).trim_prefix("--text-size=")), 0, 2)
 	if "--load-slot" in user_args:
 		enter_world(1)
 	elif "--preview-world" in user_args or room != "":

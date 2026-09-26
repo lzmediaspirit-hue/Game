@@ -125,6 +125,7 @@
    "to": "ir_ancestor_hall",
    "to_portal": "entry",
    "press_up": true,
+   "facade": true,
    "label": "Ancestor Hall"
   },
   {

@@ -139,6 +139,7 @@
    "to": "si_gus_warehouse",
    "to_portal": "entry",
    "press_up": true,
+   "facade": true,
    "label": "Gu's Warehouse",
    "requires": {
     "all": [

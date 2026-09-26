@@ -125,6 +125,7 @@
    "to": "np_auction_pavilion",
    "to_portal": "entry",
    "press_up": true,
+   "facade": true,
    "label": "Auction Pavilion"
   },
   {

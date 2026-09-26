@@ -1,11 +1,12 @@
 class_name UiKit
 extends RefCounted
 ## Art tokens (Part 9.2), fonts and nine-slice styles from data/ui_assets.json.
-## Typography (S24 style): pages set words and figures in Cormorant Garamond (semi-bold
-## for text, bold for display headers, lining figures). Numbers drawn over the world
-## (damage numbers, HUD counters, outlined labels) use Pixelify Sans to match the
-## pixel art. Both are anti-aliased and rasterized at the device's resolution
-## (canvas_items stretch), so text stays crisp at any phone scale.
+## Typography (S24 style): words are set in Source Serif 4 (semi-bold for text, bold for
+## world labels, small optical size so strokes hold up on a phone) and headings in
+## Cormorant Garamond Bold. Numbers drawn over the world (damage numbers, HUD counters,
+## outlined labels) use Pixelify Sans to match the pixel art. All are anti-aliased and
+## rasterized at the device's resolution (canvas_items stretch), so text stays crisp at
+## any phone scale. Settings > Accessibility > Text size scales every word.
 
 const INK := Color("071015")
 const RIVER_NIGHT := Color("0a2027")
@@ -25,46 +26,65 @@ const HOLLOW := Color("87949a")
 
 static var _display: Font
 static var _text: Font
+static var _label: Font
 static var _body: Font
 static var _styles: Dictionary = {}
 static var _numeric: Dictionary = {}
 static var _num_re: RegEx
-## Cormorant sits smaller on its body than Pixelify: at 1.2x the requested size it matches
-## the widths the layouts were drawn for, with a taller x-height.
+## Cormorant sits small on its body: headings draw at 1.2x the requested size.
 const WORD_SCALE := 1.2
+## Source Serif at 1.0x spans about the widths the layouts were drawn for (Cormorant at 1.2x),
+## with a taller x-height and twice the stroke weight.
+const TEXT_SCALE := 1.0
+## Headings below this size are set in the bold serif: Cormorant's hairlines fade when small.
+const DISPLAY_MIN := 22
+## Settings text_size 0/1/2.
+const TEXT_SIZES := [0.92, 1.0, 1.12]
+## No word or figure is set smaller than this (before the text size setting): below it a phone blurs it.
+const MIN_SIZE := 14
 
 static var _symbols: FontFile
 
-## Check marks, stars and arrows Cormorant and Pixelify lack (a renamed DejaVu subset).
+## Check marks, stars and arrows the word fonts and Pixelify lack (a renamed DejaVu subset).
 static func symbols_font() -> FontFile:
 	if _symbols == null:
 		_symbols = load("res://art/fonts/JadeRiverSymbols.ttf")
 		_symbols.antialiasing = TextServer.FONT_ANTIALIASING_GRAY
 	return _symbols
 
-static func _cormorant(weight: int, spacing := 0) -> Font:
-	var base: FontFile = load("res://art/fonts/CormorantGaramond.ttf")
+## A variable font pinned to `axes` ({"wght": 600, "opsz": 14}). Axis keys must be OpenType
+## tags: a plain "wght" string key is silently ignored and leaves the font at its default.
+static func _variable(path: String, axes: Dictionary, spacing := 0) -> Font:
+	var base: FontFile = load(path)
 	base.antialiasing = TextServer.FONT_ANTIALIASING_GRAY
 	base.hinting = TextServer.HINTING_LIGHT
 	base.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_AUTO
 	base.fallbacks = [symbols_font()]
+	var ts := TextServerManager.get_primary_interface()
 	var fv := FontVariation.new()
 	fv.base_font = base
-	fv.variation_opentype = {"wght": weight}
-	# Lining figures: Cormorant's default old-style 0 reads as the letter o ("Lv 0").
-	fv.opentype_features = {TextServerManager.get_primary_interface().name_to_tag("lnum"): 1}
+	var tagged := {}
+	for k in axes: tagged[ts.name_to_tag(k)] = axes[k]
+	fv.variation_opentype = tagged
+	# Lining figures: old-style 0 reads as the letter o ("Lv 0").
+	fv.opentype_features = {ts.name_to_tag("lnum"): 1}
 	if spacing != 0: fv.spacing_glyph = spacing
 	return fv
 
 ## Headers, titles and plaques.
 static func display_font() -> Font:
-	if _display == null: _display = _cormorant(700)
+	if _display == null: _display = _variable("res://art/fonts/CormorantGaramond.ttf", {"wght": 700})
 	return _display
 
 ## Labels, names, paragraphs and buttons.
 static func text_font() -> Font:
-	if _text == null: _text = _cormorant(650)
+	if _text == null: _text = _variable("res://art/fonts/SourceSerif4.ttf", {"wght": 600, "opsz": 14})
 	return _text
+
+## World labels, small headings and nameplates: bold, to hold against painted scenes.
+static func label_font() -> Font:
+	if _label == null: _label = _variable("res://art/fonts/SourceSerif4.ttf", {"wght": 700, "opsz": 14})
+	return _label
 
 ## Numbers: Pixelify Sans, smoothed so its pixel strokes scale evenly on any screen.
 static func body_font() -> Font:
@@ -85,16 +105,25 @@ static func is_numeric(s: String) -> bool:
 	_numeric[s] = _num_re.search(s) != null
 	return _numeric[s]
 
-static func font_for(_s: String, display := false) -> Font:
-	return display_font() if display else text_font()
+static func _cormorant_at(size: int, display: bool) -> bool:
+	return display and size >= DISPLAY_MIN
 
-## The size a string is drawn at: Cormorant scales up to match the layout grid.
-static func size_for(_s: String, size: int, _display := false) -> int:
-	return int(round(size * WORD_SCALE))
+static func font_for(_s: String, display := false, size := 99) -> Font:
+	if _cormorant_at(size, display): return display_font()
+	return label_font() if display else text_font()
 
+## The size a string is drawn at: the layout size, scaled to the font and the player's text size.
+static func size_for(_s: String, size: int, display := false) -> int:
+	return int(round(maxi(size, MIN_SIZE) * (WORD_SCALE if _cormorant_at(size, display) else TEXT_SCALE) * text_scale()))
+
+## Settings > Text size as a multiplier.
 static func text_scale() -> float:
-	var s := int(Game.account.settings.get("text_size", 1)) if Game else 1
-	return [0.9, 1.0, 1.15][clampi(s, 0, 2)]
+	if Game == null or Game.account == null: return 1.0
+	return TEXT_SIZES[clampi(int(Game.account.settings.get("text_size", 1)), 0, 2)]
+
+## Line height for `size` in a page layout, following the text size setting.
+static func line_height(size: int) -> float:
+	return size * 1.3 * text_scale()
 
 ## Nine-slice StyleBoxTexture for a kit asset and state.
 static func style(asset: String, state := "normal", content_margin := -1.0) -> StyleBox:
@@ -153,7 +182,7 @@ static func _hd_style(asset: String, state: String, content_margin: float) -> St
 	return sb
 
 static func draw_text(ci: CanvasItem, text: String, pos: Vector2, size: int, color := PAPER, align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0, shadow := true, display := false) -> void:
-	var f := font_for(text, display)
+	var f := font_for(text, display, size)
 	var px := size_for(text, size, display)
 	if shadow:
 		# A soft two-step drop shadow reads on painted backgrounds without a hard black edge.
@@ -165,8 +194,8 @@ static func draw_text(ci: CanvasItem, text: String, pos: Vector2, size: int, col
 ## outline and a soft shadow, so serifs stay sharp instead of drowning in a heavy stroke.
 static func draw_outlined(ci: CanvasItem, text: String, pos: Vector2, size: int, color := PAPER, align := HORIZONTAL_ALIGNMENT_CENTER, width := 200.0) -> void:
 	var numeric := is_numeric(text)
-	var f := body_font() if numeric else display_font()
-	var px := size if numeric else int(round(size * WORD_SCALE))
+	var f := body_font() if numeric else label_font()
+	var px := int(round(maxi(size, MIN_SIZE) * text_scale())) if numeric else size_for(text, size)
 	ci.draw_string_outline(f, pos + Vector2(0, 2), text, align, width, px, 5, Color(0, 0, 0, 0.3 * color.a))
 	ci.draw_string_outline(f, pos, text, align, width, px, 3 if not numeric else 4, Color(INK, 0.92 * color.a))
 	ci.draw_string(f, pos, text, align, width, px, color)
@@ -186,22 +215,24 @@ static func draw_nameplate(ci: CanvasItem, name_text: String, sub: String, y: fl
 	var sub_size := size - 3
 	var w := text_width(name_text, size, true)
 	if sub != "": w = maxf(w, text_width(sub, sub_size))
-	var h := size * WORD_SCALE + (sub_size * WORD_SCALE + 2 if sub != "" else 0.0)
-	var rect := Rect2(-w * 0.5 - 9, y - size * WORD_SCALE * 0.95, w + 18, h + 7)
+	var name_px := float(size_for(name_text, size, true))
+	var sub_px := float(size_for(sub, sub_size)) if sub != "" else 0.0
+	var h := name_px + (sub_px + 2 if sub != "" else 0.0)
+	var rect := Rect2(-w * 0.5 - 10, y - name_px * 0.95, w + 20, h + 8)
 	_plate.bg_color.a = 0.62 * color.a
 	ci.draw_style_box(_plate, rect)
 	draw_text(ci, name_text, Vector2(-w * 0.5 - 20, y), size, color, HORIZONTAL_ALIGNMENT_CENTER, w + 40, true, true)
 	if sub != "":
-		draw_text(ci, sub, Vector2(-w * 0.5 - 20, y + sub_size * WORD_SCALE + 2), sub_size, sub_color, HORIZONTAL_ALIGNMENT_CENTER, w + 40, true)
+		draw_text(ci, sub, Vector2(-w * 0.5 - 20, y + sub_px + 2), sub_size, sub_color, HORIZONTAL_ALIGNMENT_CENTER, w + 40, true)
 	return rect
 
 static var _widths: Dictionary = {}   # measured widths, so labels drawn every frame are measured once
 
 static func text_width(text: String, size: int, display := false) -> float:
-	var key := "%d|%s|%s" % [size, "d" if display else "b", text]
+	var key := "%d|%s|%.2f|%s" % [size, "d" if display else "b", text_scale(), text]
 	if _widths.has(key): return float(_widths[key])
 	if _widths.size() > 4000: _widths.clear()
-	var w: float = font_for(text, display).get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size_for(text, size, display)).x
+	var w: float = font_for(text, display, size).get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size_for(text, size, display)).x
 	_widths[key] = w
 	return w
 

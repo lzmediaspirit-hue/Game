@@ -126,6 +126,7 @@
    "to": "sf_county_hall",
    "to_portal": "entry",
    "press_up": true,
+   "facade": true,
    "label": "County Hall"
   },
   {

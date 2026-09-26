@@ -282,7 +282,28 @@ func run() -> void:
 	# 1 Morning Tide
 	accept("aunt_ping", "morning_tide")
 	check(Game.is_revealed("hud:bag"), "Bag revealed on accepting Morning Tide")
-	for id in ["tea_table", "tea_shelf", "tea_stove"]: check(interact(id).get("ok", false), "pick up " + id)
+	# The hut must show its way out and its three teas plainly (a player stuck in the hut could not see the door,
+	# took the jar props for clods of earth and saw no count while the tracker is hidden).
+	var hut: Dictionary = Game.room_rt.def
+	var exit_view := PortalView.new()
+	exit_view.setup(Game.room_rt.portal_def("exit"), hut)
+	check(exit_view.wall_y != INF and not SpriteCache.prop("door").is_empty(), "the hut's exit draws a door on the back wall")
+	exit_view.free()
+	var teas := 0
+	for o in hut.get("objects", []):
+		if str(o.get("item", "")) == "herbal_tea" and Game.world.object_visible(c(), o):
+			teas += 1
+			check(str(o.get("prop", "")) == "none" and SpriteCache.icon("herbal_tea") != null, "tea %s shows as its icon" % o.id)
+	check(teas == 3, "exactly Aunt Ping's three teas show in the hut (%d)" % teas)
+	var seen: Array = []
+	for id in ["tea_table", "tea_shelf", "tea_stove"]:
+		check(interact(id).get("ok", false), "pick up " + id)
+		var steps: Array = Game.quest.steps_forward(c(), "morning_tide", seen)
+		var have := int(steps[0].have) if not steps.is_empty() else -1
+		check(have == c().inventory.count("herbal_tea"), "each tea shows its count as a step (%d)" % have)
+		seen = (c().quests.active.morning_tide.progress as Array).duplicate()
+	check(c().inventory.count("herbal_tea") == 3, "all three teas are held at once")
+	check(not Game.is_revealed("hud:quest_tracker"), "tracker still hidden: the steps are the only count shown")
 	submit({"type": "report_page_opened", "page": "inventory"})
 	check(go("exit") and room() == "lf_village", "step out to Home Lane")
 	check(c().quests.is_done("morning_tide"), "Morning Tide completes on stepping outside")

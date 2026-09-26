@@ -83,9 +83,32 @@ func _main() -> void:
 	artifact_spirit_suite()
 	awaken_legend_suite()
 	emotes_suite()
+	text_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
+
+# ------------------------------------------------------------------ readable text
+## The word fonts really are at their set weights (a "wght" string key is silently ignored and left Cormorant at
+## its Light default), no word is set below the floor, and the text size setting scales every word and line.
+func text_suite() -> void:
+	var probe := "Pick up Herbal Tea"
+	var light := FontVariation.new()
+	light.base_font = load("res://art/fonts/CormorantGaramond.ttf")
+	var bold_w := UiKit.display_font().get_string_size(probe, HORIZONTAL_ALIGNMENT_LEFT, -1, 40).x
+	check(bold_w > light.get_string_size(probe, HORIZONTAL_ALIGNMENT_LEFT, -1, 40).x, "display font is Cormorant Bold, not its Light default")
+	var plain := FontVariation.new()
+	plain.base_font = load("res://art/fonts/SourceSerif4.ttf")
+	check(UiKit.text_font().get_string_size(probe, HORIZONTAL_ALIGNMENT_LEFT, -1, 40).x != plain.get_string_size(probe, HORIZONTAL_ALIGNMENT_LEFT, -1, 40).x,
+		"text font carries its weight and optical size")
+	check(UiKit.font_for(probe, true, 16) == UiKit.label_font() and UiKit.font_for(probe, true, 26) == UiKit.display_font(), "small headings use the bold serif")
+	check(UiKit.size_for(probe, 10) >= UiKit.MIN_SIZE, "no word below the minimum size")
+	var keep = Game.account.settings.get("text_size", 1)
+	Game.account.settings["text_size"] = 1
+	var normal := UiKit.text_width(probe, 18)
+	Game.account.settings["text_size"] = 2
+	check(UiKit.text_width(probe, 18) > normal * 1.08 and UiKit.line_height(18) > 18 * 1.3 * 1.08, "Large text size widens words and lines")
+	Game.account.settings["text_size"] = keep
 
 # ------------------------------------------------------------------ S43 Paths Above and the room catalogue
 func paths_above_suite() -> void:

@@ -177,7 +177,7 @@ func _draw() -> void:
 	if tell > 0.0 and not ally:
 		UiKit.draw_outlined(self, "!", Vector2(-40, top - 14), 26, Color(UiKit.RED, tell), HORIZONTAL_ALIGNMENT_CENTER, 80)
 	if ally:
-		UiKit.draw_outlined(self, name_text, Vector2(-80, top), 16, Color("8fd3ff"), HORIZONTAL_ALIGNMENT_CENTER, 160)
+		UiKit.draw_outlined(self, name_text, Vector2(-100, top), 17, Color("8fd3ff"), HORIZONTAL_ALIGNMENT_CENTER, 200)
 		# S43 rule 12: a blink to the owner arrives in a puff of mist.
 		var bt := float(e.ai.get("blink_t", 0.0))
 		if bt > 0.0:
@@ -197,8 +197,8 @@ func _draw() -> void:
 	var label := "%s  %s" % [level_text, name_text] if not boss else name_text
 	var col := UiKit.badge_color(badge)
 	if elite: col = UiKit.GOLD
-	UiKit.draw_outlined(self, label, Vector2(-110, top), 16, col, HORIZONTAL_ALIGNMENT_CENTER, 220)
-	if not boss: _danger_marks(UiKit.text_width(label, 16) * 0.5 + 8, top - 6, col)
+	UiKit.draw_outlined(self, label, Vector2(-130, top), 17, col, HORIZONTAL_ALIGNMENT_CENTER, 260)
+	if not boss: _danger_marks(UiKit.text_width(label, 17, true) * 0.5 + 8, top - 6, col)
 	if elite:
 		var cx := -UiKit.text_width(label, 16) * 0.5 - 12
 		draw_colored_polygon(PackedVector2Array([Vector2(cx - 7, top - 4), Vector2(cx - 7, top - 12), Vector2(cx - 3, top - 8),

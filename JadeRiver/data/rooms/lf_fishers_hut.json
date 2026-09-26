@@ -79,12 +79,12 @@
    "type": "pickup",
    "at": [
     640,
-    752
+    774
    ],
    "item": "herbal_tea",
    "count": 1,
-   "prop": "jar",
-   "alt": 0,
+   "prop": "none",
+   "alt": 30,
    "visible_if": {
     "all": [
      {
@@ -104,7 +104,7 @@
    ],
    "item": "herbal_tea",
    "count": 1,
-   "prop": "jar",
+   "prop": "none",
    "visible_if": {
     "all": [
      {
@@ -124,7 +124,7 @@
    ],
    "item": "herbal_tea",
    "count": 1,
-   "prop": "jar",
+   "prop": "none",
    "visible_if": {
     "all": [
      {
@@ -190,8 +190,16 @@
    "alt": 88,
    "item": "herbal_tea",
    "count": 1,
-   "prop": "jar",
+   "prop": "none",
    "label": "Herbal Tea",
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "the_runaway_kite"
+     }
+    ]
+   },
    "hidden_if": {
     "all": [
      {

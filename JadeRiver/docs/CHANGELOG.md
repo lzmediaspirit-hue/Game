@@ -5,6 +5,56 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### Readability pass and the Fisher's Hut
+- **Heavier, clearer type.** Every word in the game was drawn in Cormorant Garamond **Light**: the font's weight was
+  set with a plain `"wght"` key, which Godot ignores, so it stayed at its thinnest default. Weights now use OpenType
+  tags and take effect.
+- **Source Serif 4 for text.** Labels, names, paragraphs, buttons and world labels are now set in Source Serif 4
+  (semi-bold for text, bold for world labels and small headings, small optical size). It has a taller x-height and
+  twice the stroke weight at the same widths the layouts were drawn for. Headings of 22 px and up stay in
+  Cormorant Garamond, now truly bold. Numbers keep Pixelify Sans.
+- **Minimum size.** No word or figure is drawn below 14 px (before the text size setting).
+- **Settings > Accessibility > Text size now works.** Small, Normal and Large scale every word, and paragraphs and
+  dialogue follow with their line height. It was saved before but never applied.
+- **World labels are larger and sit on plates.**
+  - NPC nameplates, enemy and ally names, loot names, NPC barks and the context verb are all larger.
+  - Door and gate names show all the time, not only when you stand at them. They sit on a plate with a bobbing
+    arrow and brighten when you are near.
+  - Names at a room's edge move inward instead of hanging half off-screen.
+- **HUD.**
+  - The quest tracker sits on a soft ink panel, so it reads over sky and foliage. Its lines are a size larger.
+  - The minimap title, bar values, bag item counts, the Ride/Walk and Auto labels, draught counts and the loadout
+    letter are larger.
+  - Toasts are larger.
+- **Interior doors are drawn.** An exit on an interior's back wall showed only a faint arrow. It now shows the
+  carved double door, which swings open as you come to it, with a pool of light at its foot. This covers 19 exits:
+  the Fisher's Hut, Old Ma's store, the sect halls and the retreats.
+- **Pickups glow.** Anything you can take stands in a warm pool of light. Its item icon bobs in a gold ring above
+  it, with turning glints and its name on a plate; the verb shows when you are close.
+- **The Fisher's Hut (the first room).**
+  - Aunt Ping's three teas now show as tea bowls, not brown jars that read as clods of earth.
+  - The tea on the table now sits on the tabletop instead of hidden behind the table.
+  - The loft's bonus tea stays out of sight until the loft ladder can be climbed (after *The Runaway Kite*), so the
+    first quest shows exactly three.
+- **Prologue steps are no longer silent.** The quest tracker is revealed after *Morning Tide*, so until then:
+  - the new-quest toast names the first step ("Pick up Herbal Tea 0/3");
+  - each step forward shows as a toast ("Pick up Herbal Tea 2/3", ticked when done).
+
+  New `QuestAuthority.steps_forward`.
+- **Tests.**
+  - `prologue_run`:
+    - the hut's exit draws a door;
+    - exactly three teas show, each as its icon;
+    - each tea is counted as a step while the tracker is hidden;
+    - all three are held at once.
+  - `rules_tests` `text_suite`:
+    - the fonts carry their weights;
+    - small headings use the bold serif;
+    - the minimum size holds;
+    - Large text widens words and lines.
+- Debug tools: `--text-size=0|1|2` previews at a text size.
+- The Android preset is version 1.0.1 (code 101), so the rebuilt APK installs over 1.0.0.
+
 ### V9d3 · Weapon awakening and legendary chains (S47, v1.1+)
 - **Weapon awakening.** A weapon can be awakened at any forge (the new Awaken section on the Forge's Enhance tab)
   when:
