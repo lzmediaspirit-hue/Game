@@ -90,7 +90,7 @@ func draw_page() -> void:
 					if inv.new_items.has(str(s.id)): draw_circle(r2.position + Vector2(cell - 8, 8), 5, UiKit.BRIGHT_JADE)
 		)
 		text(Vector2(grid.position.x, grid.end.y + 36), "%d / %d" % [inv.bag.size() - inv.free_slots(), inv.capacity()], 18, UiKit.MIST)
-		btn(Rect2(grid.end.x - 140, grid.end.y + 10, 140, 44), Tx.t("ui.inventory.sort"), "sort")
+		btn(Rect2(grid.end.x - 140, grid.end.y + 8, 140, 48), Tx.t("ui.inventory.sort"), "sort")
 	else:
 		var r := Rect2(content.position.x, content.position.y, 800, content.size.y)
 		panel(r)

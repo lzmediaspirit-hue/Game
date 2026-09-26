@@ -99,6 +99,7 @@ func _main() -> void:
 	aggro_cap_suite()
 	emotes_suite()
 	text_suite()
+	await ui_suite()
 	max_character_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -148,6 +149,47 @@ func aggro_cap_suite() -> void:
 # ------------------------------------------------------------------ readable text
 ## The word fonts really are at their set weights (a "wght" string key is silently ignored and left Cormorant at
 ## its Light default), no word is set below the floor, and the text size setting scales every word and line.
+## P4 (`docs/ui_style_guide.md`): on every page and tab, every tap target is at least 48 px on a side and no two
+## buttons share a point, and no text is drawn under the minimum size.
+func ui_suite() -> void:
+	var main_script = load("res://scripts/main.gd")
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var small: Array = []
+	var overlaps: Array = []
+	var views := 0
+	for id in main_script.PAGES:
+		if str(id) in ["dialogue", "revival", "welcome", "shop", "fishing", "teleport"]: continue   # need a context
+		var pg: Page = load(str(main_script.PAGES[id])).new()
+		pg.page_id = str(id)
+		add_child(pg)
+		pg.open({})
+		for ti in maxi(1, pg.tabs.size()):
+			if not pg.tabs.is_empty(): pg.tab = ti
+			pg.queue_redraw()
+			await get_tree().process_frame
+			await get_tree().process_frame
+			views += 1
+			var where := "%s:%s" % [id, str(pg.tabs[ti].get("id", ti)) if not pg.tabs.is_empty() else "-"]
+			var buttons: Array = []
+			for r in pg._regions:
+				if r.kind == "scroll": continue
+				var full: Rect2 = r.get("full", r.rect)
+				if full.size.x < Page.MIN_TAP or full.size.y < Page.MIN_TAP:
+					small.append("%s %s %dx%d" % [where, r.id, int(full.size.x), int(full.size.y)])
+				if r.kind == "button": buttons.append(r)
+			for i in buttons.size():
+				for j in range(i + 1, buttons.size()):
+					var both: Rect2 = (buttons[i].rect as Rect2).intersection(buttons[j].rect)
+					if both.size.x > 0.5 and both.size.y > 0.5: overlaps.append("%s %s/%s" % [where, buttons[i].id, buttons[j].id])
+		pg.queue_free()
+	await get_tree().process_frame
+	Unlocks.debug_force_all = force_was
+	check(views >= 100, "the ui_suite opened every page and tab (%d views)" % views)
+	check(small.is_empty(), "every tap target is at least 48 px on a side (%s)" % str(small.slice(0, 6)))
+	check(overlaps.is_empty(), "no two buttons share a point (%s)" % str(overlaps.slice(0, 6)))
+	check(UiKit.size_for("text", 8) >= UiKit.size_for("text", UiKit.MIN_SIZE), "text asked for under the minimum size is drawn at the minimum")
+
 func text_suite() -> void:
 	var probe := "Pick up Herbal Tea"
 	var light := FontVariation.new()

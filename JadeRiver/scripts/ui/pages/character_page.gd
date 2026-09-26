@@ -100,11 +100,11 @@ func _wardrobe(ch, r: Rect2) -> void:
 		var cur := str(ch.inventory.appearance_override.get(slot, ""))
 		text(Vector2(x, y + 34), Tx.t("ui.character.wardrobe_" + slot), 18, UiKit.PALE_GOLD)
 		var bx := x + 130.0
-		btn(Rect2(bx, y + 8, 120, 40), Tx.t("ui.character.own_look"), "look", [slot, ""], cur == "", true, "", 15)
+		btn(Rect2(bx, y + 4, 120, 48), Tx.t("ui.character.own_look"), "look", [slot, ""], cur == "", true, "", 15)
 		bx += 128
 		for lk in looks:
 			if bx + 120 > r.end.x - 20: break
-			btn(Rect2(bx, y + 8, 120, 40), str(lk).replace("_", " ").capitalize(), "look", [slot, lk], cur == lk, true, "", 15)
+			btn(Rect2(bx, y + 4, 120, 48), str(lk).replace("_", " ").capitalize(), "look", [slot, lk], cur == lk, true, "", 15)
 			bx += 128
 		y += 58
 

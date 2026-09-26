@@ -110,7 +110,7 @@ func _foundation(ch) -> void:
 		text(Vector2(r.position.x + 24, y + 30), names[k], 24, UiKit.PAPER)
 		text(Vector2(r.position.x + 170, y + 30), str(desc[k]), 17, UiKit.MIST)
 		bar(Rect2(r.position.x + 470, y + 8, 360, 30), v / 100.0, UiKit.JADE, "%d" % v)
-		btn(Rect2(r.position.x + 850, y + 2, 120, 44), "+1", "meridian", k, true, cu.unspent_meridian_points > 0, Tx.t("ui.cultivation.no_points_to_spend"))
+		btn(Rect2(r.position.x + 850, y, 120, 48), "+1", "meridian", k, true, cu.unspent_meridian_points > 0, Tx.t("ui.cultivation.no_points_to_spend"))
 		y += 64
 	var free := not ProgressionRules.at_least(cu.realm_key, "qi_unfurling_1")
 	btn(Rect2(r.position.x + 24, r.end.y - 70, 420, 52), Tx.t("ui.cultivation.reset_free") if free else Tx.t("ui.cultivation.reset_meridian_reversal_pill"), "reset_meridians")
@@ -175,9 +175,9 @@ func _vows(ch) -> void:
 		text(vr.position + Vector2(230, mid - 4), str(v.get("desc", "")), 17, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, vr.size.x - 440)
 		text(vr.position + Vector2(230, mid + 20), str(v.get("gift_text", "")), 16, UiKit.BRIGHT_JADE if held else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, vr.size.x - 440)
 		if held:
-			btn(Rect2(vr.end.x - 190, vr.position.y + (vr.size.y - 46) * 0.5, 172, 46), Tx.t("ui.cultivation.break_vow"), "vow_off", str(v.id), false, true, "", 18)
+			btn(Rect2(vr.end.x - 190, vr.position.y + (vr.size.y - 48) * 0.5, 172, 48), Tx.t("ui.cultivation.break_vow"), "vow_off", str(v.id), false, true, "", 18)
 		else:
-			btn(Rect2(vr.end.x - 190, vr.position.y + (vr.size.y - 46) * 0.5, 172, 46), Tx.t("ui.cultivation.take_vow"), "vow_on", str(v.id), true, true, "", 18)
+			btn(Rect2(vr.end.x - 190, vr.position.y + (vr.size.y - 48) * 0.5, 172, 48), Tx.t("ui.cultivation.take_vow"), "vow_on", str(v.id), true, true, "", 18)
 
 ## S48 paths as layers: the Blood path (opt-in), the Buddhist path (vows, merit, the Golden Body) and the Poison Body.
 func _path_cards(ch, area: Rect2) -> void:
@@ -192,13 +192,13 @@ func _path_cards(ch, area: Rect2) -> void:
 	para(Rect2(cards[0].position + Vector2(16, 40), Vector2(w - 32, 58)), Tx.t("ui.cultivation.blood_path_desc"), 14, UiKit.MIST, 3)
 	if walking:
 		text(cards[0].position + Vector2(16, 116), Tx.t("ui.cultivation.blood_on") % [int(round(Game.combat.blood_lifesteal(ch) * 100.0)), int(Game.combat.essence_of(ch.id))], 15, UiKit.PAPER)
-		btn(Rect2(cards[0].end.x - 142, cards[0].end.y - 50, 128, 40), Tx.t("ui.cultivation.leave_blood"), "path_leave", "blood", false, true, "", 16)
+		btn(Rect2(cards[0].end.x - 142, cards[0].end.y - 56, 128, 48), Tx.t("ui.cultivation.leave_blood"), "path_leave", "blood", false, true, "", 16)
 	else:
 		var cfg: Dictionary = ContentDB.stat_const("paths", {}).get("blood", {})
 		var why := ""
 		if ProgressionRules.realm_index(ch.cultivator.realm_key) < ProgressionRules.realm_index(str(cfg.get("min_realm", "heart_tempering_1"))): why = Tx.t("sim.progression.path_realm")
 		elif ch.relations.alignment > int(cfg.get("alignment_at_most", -20)): why = Tx.t("sim.progression.path_alignment")
-		btn(Rect2(cards[0].end.x - 142, cards[0].end.y - 50, 128, 40), Tx.t("ui.cultivation.walk_blood"), "path_take", "blood", true, why == "", why, 16)
+		btn(Rect2(cards[0].end.x - 142, cards[0].end.y - 56, 128, 48), Tx.t("ui.cultivation.walk_blood"), "path_take", "blood", true, why == "", why, 16)
 	var bud: Dictionary = ContentDB.stat_const("paths", {}).get("buddhist", {})
 	var step := int(bud.get("merit_milestone", 100))
 	panel(cards[1], "minor_panel", "selected" if not ch.cultivator.vows.is_empty() else "normal")
@@ -223,13 +223,13 @@ func _path_cards(ch, area: Rect2) -> void:
 	text(cards[3].position + Vector2(16, 30), Tx.t("ui.cultivation.confucian_path"), 21, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
 	para(Rect2(cards[3].position + Vector2(16, 40), Vector2(w - 32, 58)), Tx.t("ui.cultivation.confucian_desc") % int(round(float(cc.get("righteous", 0.25)) * 100.0)), 14, UiKit.MIST, 3)
 	if upright:
-		btn(Rect2(cards[3].end.x - 142, cards[3].end.y - 50, 128, 40), Tx.t("ui.cultivation.leave_path"), "path_leave", "confucian", false, true, "", 16)
+		btn(Rect2(cards[3].end.x - 142, cards[3].end.y - 56, 128, 48), Tx.t("ui.cultivation.leave_path"), "path_leave", "confucian", false, true, "", 16)
 	else:
 		var why2 := ""
 		if ProgressionRules.realm_index(ch.cultivator.realm_key) < ProgressionRules.realm_index(str(cc.get("min_realm", "will_manifest_2"))): why2 = Tx.t("sim.progression.path_realm")
 		elif ch.relations.alignment < int(cc.get("alignment_at_least", 20)): why2 = Tx.t("sim.progression.path_upright")
 		elif walking: why2 = Tx.t("sim.progression.path_exclusive")
-		btn(Rect2(cards[3].end.x - 142, cards[3].end.y - 50, 128, 40), Tx.t("ui.cultivation.walk_confucian"), "path_take", "confucian", true, why2 == "", why2, 16)
+		btn(Rect2(cards[3].end.x - 142, cards[3].end.y - 56, 128, 48), Tx.t("ui.cultivation.walk_confucian"), "path_take", "confucian", true, why2 == "", why2, 16)
 
 ## Heart (G1): the meter, the ledger, the foundation and what the pills have left behind.
 func _heart(ch) -> void:
@@ -255,7 +255,7 @@ func _heart(ch) -> void:
 	y += 70
 	# The karma ledger belongs to Relations (S49); the Heart shows what it does to a breakthrough, and links there.
 	heading(Vector2(x, y), Tx.t("ui.cultivation.karma"), left.size.x - 48)
-	btn(Rect2(left.end.x - 24 - 150, y - 30, 150, 40), Tx.t("ui.cultivation.ledger"), "relations", null, false, true, "", 16)
+	btn(Rect2(left.end.x - 24 - 150, y - 34, 150, 48), Tx.t("ui.cultivation.ledger"), "relations", null, false, true, "", 16)
 	y += 40
 	var rel: RelationsState = ch.relations
 	text(Vector2(x, y), Tx.t("ui.cultivation.merit") % rel.merit, 21, UiKit.PALE_GOLD)

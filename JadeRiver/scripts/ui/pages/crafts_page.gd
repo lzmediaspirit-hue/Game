@@ -139,7 +139,7 @@ func draw_page() -> void:
 		var mw := (content.size.x) / FORGE_MODES.size()
 		for i in FORGE_MODES.size():
 			var m: String = FORGE_MODES[i]
-			btn(Rect2(content.position.x + i * mw + 2, content.position.y, mw - 4, 46), Tx.t("ui.forge." + m), "forge_mode", m, forge_mode == m, true, "", 18)
+			btn(Rect2(content.position.x + i * mw + 2, content.position.y, mw - 4, 48), Tx.t("ui.forge." + m), "forge_mode", m, forge_mode == m, true, "", 18)
 		if forge_mode != "recipes":
 			_forge(ch, Rect2(content.position.x, content.position.y + 56, content.size.x, content.size.y - 56))
 			return
@@ -649,7 +649,7 @@ func _guild(ch, content_r: Rect2) -> void:
 	# One button per open guild across the top.
 	var bw := minf(260.0, (content_r.size.x - 12.0 * (open.size() - 1)) / open.size())
 	for i in open.size():
-		btn(Rect2(content_r.position.x + i * (bw + 12), content_r.position.y, bw, 46), str(open[i].name), "guild_pick", str(open[i].craft),
+		btn(Rect2(content_r.position.x + i * (bw + 12), content_r.position.y, bw, 48), str(open[i].name), "guild_pick", str(open[i].craft),
 			str(open[i].craft) == craft, true, "", 18)
 	var top := content_r.position.y + 58
 	var left := Rect2(content_r.position.x, top, 540, content_r.end.y - top)
@@ -686,7 +686,7 @@ func _guild(ch, content_r: Rect2) -> void:
 		elif str(nxt.get("id", "")) == str(rk.id):
 			var why: String = Game.crafting.exam_block(ch, rk)
 			if why == "" and not ex.is_empty(): why = Tx.t("sim.crafting.exam_running")
-			btn(Rect2(card.end.x - 176, card.end.y - 48, 164, 40), Tx.t("ui.guild.start_exam"), "exam", str(rk.id), true, why == "", why, 16)
+			btn(Rect2(card.end.x - 176, card.end.y - 56, 164, 48), Tx.t("ui.guild.start_exam"), "exam", str(rk.id), true, why == "", why, 16)
 			if str(rk.get("hall", "")) != "" and why != "":
 				text(card.position + Vector2(14, card.size.y - 12), fit(why, 14, card.size.x - 210), 14, UiKit.MIST)
 		y += ch_h + 6

@@ -1,5 +1,21 @@
 # Changelog
 
+## The UI review and restyle (docs/roadmap_master_ui.md, P2–P5)
+
+### P4a · Touch targets
+- **Every tap target is at least 48 px on a side.** `Page._register` gives smaller art a margin of hit area round its
+  centre (`Page.MIN_TAP`); the art keeps its look. Tabs, which are 40 px tall, now answer a tap anywhere in 48.
+- Buttons that were 36–46 px tall are 48: the stance, wardrobe, meridian, path, vow and ledger buttons, the bag's sort,
+  the forge mode and guild pickers, the guild exam, the bench points, the core exchange's rest, the Settings toggles and
+  the volume steps.
+- The stances on the Techniques page's Inner Arts tab are a scrolled list: nine families no longer squeeze nine buttons
+  into the panel's height.
+- The emote wheel lies on an ellipse that fills its dialog: on the old circle the diagonal buttons overlapped their
+  neighbours.
+- Tests: `rules_tests` `ui_suite` opens every page and tab with every system unlocked and checks that every tap target
+  is at least 48 px on a side, that no two buttons share a point, and that text asked for under the minimum size is
+  drawn at the minimum.
+
 ## V10 · Keeping Post (idle gathering)
 
 The idle gathering milestone (docs/idle_gathering_design.md), after IdleOn's AFK model in Jade River's own names. It
