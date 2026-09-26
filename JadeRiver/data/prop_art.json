@@ -108,6 +108,23 @@
       }
     }
   },
+  "banner_blackreed": {
+    "anchor": [
+      24,
+      124
+    ],
+    "file": "res://art/props/banner_blackreed.png",
+    "frame": [
+      48,
+      128
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "banner_cloud": {
     "anchor": [
       24,
@@ -125,12 +142,63 @@
       }
     }
   },
+  "banner_ironpine": {
+    "anchor": [
+      24,
+      124
+    ],
+    "file": "res://art/props/banner_ironpine.png",
+    "frame": [
+      48,
+      128
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
   "banner_jade": {
     "anchor": [
       24,
       124
     ],
     "file": "res://art/props/banner_jade.png",
+    "frame": [
+      48,
+      128
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "banner_scarlet_kiln": {
+    "anchor": [
+      24,
+      124
+    ],
+    "file": "res://art/props/banner_scarlet_kiln.png",
+    "frame": [
+      48,
+      128
+    ],
+    "states": {
+      "idle": {
+        "col": 0,
+        "frames": 1
+      }
+    }
+  },
+  "banner_your_sect": {
+    "anchor": [
+      24,
+      124
+    ],
+    "file": "res://art/props/banner_your_sect.png",
     "frame": [
       48,
       128

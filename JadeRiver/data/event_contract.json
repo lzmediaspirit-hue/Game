@@ -1433,6 +1433,36 @@
     "sect_authority"
    ]
   },
+  "mine_claimed": {
+   "system": "Sect",
+   "files": [
+    "sect_authority"
+   ]
+  },
+  "mine_contested": {
+   "system": "Sect",
+   "files": [
+    "sect_authority"
+   ]
+  },
+  "mine_defended": {
+   "system": "Sect",
+   "files": [
+    "sect_authority"
+   ]
+  },
+  "mine_lost": {
+   "system": "Sect",
+   "files": [
+    "sect_authority"
+   ]
+  },
+  "mine_collected": {
+   "system": "Sect",
+   "files": [
+    "sect_authority"
+   ]
+  },
   "jumped": {
    "system": "Movement",
    "files": [

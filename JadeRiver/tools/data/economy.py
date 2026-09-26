@@ -917,6 +917,7 @@ def strings():
         "event.copper_body_trial": "Copper Body Trial", "event.iron_body_trial": "Iron Body Trial", "event.jade_body_trial": "Jade Body Trial",
         "event.gold_body_trial": "Gold Body Trial", "event.trial_of_reflections": "The Trial of Reflections",
         "event.siege_of_two_sects": "Siege of Two Sects", "event.sect_war": "Sect War: the Alliance Gate", "event.presence_trial": "The Presence Trial",
+        "event.mine_assault": "Taking the Mine", "event.mine_defence": "Holding the Mine",
         "event.starsea_crossing": "The Starsea Crossing",
         "flag.night_survived": "Survived the night",
         "ui.begin": "Begin", "ui.continue": "Continue", "ui.new_game": "New Game", "ui.settings": "Settings", "ui.back": "Back",

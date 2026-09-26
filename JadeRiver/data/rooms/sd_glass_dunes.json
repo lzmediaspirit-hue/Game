@@ -298,6 +298,17 @@
    "level": 76,
    "alt": 200,
    "surface": "ledge_mv_1"
+  },
+  {
+   "id": "mine_glass_dunes_lode",
+   "type": "spirit_mine",
+   "at": [
+    1450,
+    860
+   ],
+   "mine": "glass_dunes_lode",
+   "prop": "spirit_shard_vein",
+   "radius": 130
   }
  ],
  "spawns": [
@@ -535,6 +546,22 @@
     650
    ],
    "layer": "back"
+  },
+  {
+   "prop": "sack_pile",
+   "at": [
+    1354,
+    842
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    1600,
+    838
+   ],
+   "layer": "play"
   }
  ],
  "areas": [],

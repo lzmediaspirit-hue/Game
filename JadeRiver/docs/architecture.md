@@ -53,7 +53,7 @@ each physics frame; the tests call it directly without any scene.
 | `CraftingAuthority` | Recipes, professions, gathering, fishing, cooking, alchemy, the forge, array plates |
 | `WorkshopAuthority` | Appraisal, formations, infirmary healing, puppets, manual restoration, teaching |
 | `TrainingSectAuthority` | Training sect membership, rank, contribution |
-| `SectAuthority` | Your own sect: buildings, disciples, expeditions, defence raids |
+| `SectAuthority` | Your own sect: buildings, disciples, expeditions, defence raids; territory (S49): the spirit-stone mines it takes from rival sects (territory.json), their carts, the rivals' contest timers and the disciples on guard |
 | `PetAuthority`, `CompanionAuthority` | Spirit animals (starter, taming, eggs, bloodline, contracts, the party up to the command capacity) and AI companions fighting beside you |
 | `AccountAuthority`, `MailAuthority`, `AchievementAuthority` | Slots and idle tasks, daily activity points and chests (S49), letters with attachments, achievements and titles |
 | `CalendarAuthority` | The world calendar (S49, account level): world events from the seeded, pure `CalendarRules` schedule, the season, the weather and its effects, the spatial rift, Spirit Fruit births, the Herb Terraces trial, heavenly phenomena and the Heaven Ranking |

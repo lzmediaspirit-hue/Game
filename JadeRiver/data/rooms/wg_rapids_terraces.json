@@ -462,6 +462,17 @@
      }
     ]
    }
+  },
+  {
+   "id": "mine_rapids_terrace_vein",
+   "type": "spirit_mine",
+   "at": [
+    2700,
+    860
+   ],
+   "mine": "rapids_terrace_vein",
+   "prop": "spirit_shard_vein",
+   "radius": 130
   }
  ],
  "spawns": [
@@ -728,6 +739,22 @@
    ],
    "layer": "front",
    "flip": true
+  },
+  {
+   "prop": "sack_pile",
+   "at": [
+    2604,
+    842
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    2850,
+    838
+   ],
+   "layer": "play"
   }
  ],
  "areas": [

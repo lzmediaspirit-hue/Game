@@ -88,6 +88,8 @@ DEPTH = {
              "arena_battle", "arena_rewarded", "pet_fed"],
     "World": ["ambush_sprung", "herb_ripening", "guardian_spawned", "beast_tide_started", "beast_tide_result", "beast_trial_result",
               "tower_floor_cleared", "tower_swept", "auto_hunt_changed", "auto_path_started", "auto_path_ended"],
+    # S49 territory: the spirit-stone mines your sect takes, holds, loses and collects from (account level).
+    "Sect": ["mine_claimed", "mine_contested", "mine_defended", "mine_lost", "mine_collected"],
 }
 for _sys, _names in DEPTH.items():
     CATALOGUE[_sys] = CATALOGUE.get(_sys, []) + _names

@@ -641,6 +641,121 @@ def banner_cloud(state, f):
     return banner("cloud")
 
 
+# ------------------------------------------------------------------ S49 territory: the banners over the spirit mines
+def mine_banner(cloth, trim, pole, cap, emblem, tassel=CLOTH_RED, hem="swallow"):
+    """A sect's banner planted beside a spirit-stone mine: the same frame as the sect banners (stone foot, pole,
+    crossbar, waving cloth), with the holder's own cloth, trim and emblem."""
+    W, H = 24, 64
+    cv = Canvas(W, H)
+    xx, yy = grid(W, H)
+    ground_shadow(cv, 12, 62, 8, 1.3)
+    stone_block(cv, 6, 57, 17, 61, ("mb_base", emblem.__name__), moss=0.15)
+    plank_v(cv, 11, 3, 12, 57, pole, grain=False)
+    cv.fill(m_rect(W, H, 10, 1, 13, 2), cap[4])
+    cv.put(11, 0, cap[5])
+    cv.put(12, 0, cap[5])
+    plank_h(cv, 3, 5, 20, 6, pole, grain=False, base=0.6)
+    cv.fill(m_rect(W, H, 2, 5, 2, 6) | m_rect(W, H, 21, 5, 21, 6), cap[4])
+    pts_l = [(4 + math.sin(y * 0.25) * 0.8, y) for y in range(7, 48)]
+    pts_r = [(19 + math.sin(y * 0.25 + 0.6) * 0.8, y) for y in range(47, 6, -1)]
+    tail = [(4, 50), (11.5, 45), (19, 50)] if hem == "swallow" else [(4, 49), (7.5, 52), (11.5, 48.5), (15.5, 52), (19, 49)]
+    ban = m_poly(W, H, pts_l + tail + pts_r)
+    shade(cv, ban, cloth, contour=True, mode="cyl", base=0.55, gain=0.9, bias=np.sin(yy * 0.25) * 0.12)
+    cv.fill(ban & ((xx == 5) | (xx == 18)) & (yy < 46), trim[3])
+    cv.fill(ban & (yy == 8), trim[4])
+    emblem(cv, ban, xx, yy)
+    for tx in (3, 20):
+        cv.fill(m_rect(W, H, tx, 7, tx, 11), tassel[4])
+        cv.put(tx, 12, cap[4])
+    outline(cv)
+    return cv
+
+
+def _pine_emblem(cv, ban, xx, yy):
+    """Ironpine Gate: a pine of three tiers on a short trunk, over two crossed spear shafts."""
+    W, H = cv.w, cv.h
+    for k, (top, half) in enumerate(((12, 2.5), (16, 4.0), (20, 5.5))):
+        tier = m_poly(W, H, [(11.5, top), (11.5 + half, top + 5), (11.5 - half, top + 5)]) & ban
+        cv.fill(tier, BONE[3])
+        cv.fill(tier & (xx >= 12), BONE[2])
+        cv.fill(tier & (yy == top + 5), BONE[1])
+    cv.fill(m_rect(W, H, 11, 26, 12, 29) & ban, BONE[2])
+    for (x0, x1) in ((7, 16), (16, 7)):
+        cv.fill(m_line(W, H, [(x0, 31), (x1, 40)]) & ban, BONE[3])
+    cv.fill(m_rect(W, H, 9, 43, 14, 43) & ban, BONE[2])
+
+
+def _reed_emblem(cv, ban, xx, yy):
+    """Blackreed Hall: three marsh reeds with seed heads, leaning together, over a still line of water."""
+    W, H = cv.w, cv.h
+    for (bx, tx, head) in ((9, 8, 14), (12, 12, 11), (15, 16, 15)):
+        cv.fill(m_line(W, H, [(bx, 38), (tx, head + 4)]) & ban, HOLLOW[4])
+        cat = m_rect(W, H, tx - 1, head, tx, head + 4) & ban      # a cattail head, brown and velvety
+        cv.fill(cat, WOOD[4])
+        cv.fill(cat & (xx == tx), WOOD[3])
+        cv.put(tx, head - 1, HOLLOW[5])
+    cv.fill(m_line(W, H, [(10, 33), (6, 27)]) & ban, HOLLOW[3])
+    cv.fill(m_line(W, H, [(14, 32), (18, 26)]) & ban, HOLLOW[3])
+    cv.fill(m_rect(W, H, 6, 40, 17, 40) & ban, JADE_R[3])
+    cv.fill(m_rect(W, H, 8, 42, 15, 42) & ban, JADE_R[2])
+
+
+def _kiln_emblem(cv, ban, xx, yy):
+    """Scarlet Kiln Sect: a round kiln with its mouth aglow and a flame rising from the chimney."""
+    W, H = cv.w, cv.h
+    dome = m_ellipse(W, H, 11.5, 30, 6.0, 7.0) & (yy <= 33) & ban
+    cv.fill(dome, GOLD[3])
+    cv.fill(dome & (xx >= 13), GOLD[2])
+    for by in (25, 29):                                          # brick courses
+        cv.fill(dome & (yy == by), GOLD[1])
+    cv.fill(dome & (yy > 25) & (yy < 29) & ((xx == 9) | (xx == 14)), GOLD[1])
+    cv.fill(m_rect(W, H, 5, 33, 18, 35) & ban, GOLD[2])
+    cv.fill(m_rect(W, H, 5, 35, 18, 35) & ban, GOLD[1])
+    mouth = m_ellipse(W, H, 11.5, 31.5, 2.5, 2.2) & (yy <= 33)
+    cv.fill(mouth, FIRE[3])
+    cv.fill(m_rect(W, H, 11, 31, 12, 33), FIRE[4])
+    cv.fill(m_rect(W, H, 10, 20, 13, 23) & ban, GOLD[2])
+    fl = m_poly(W, H, [(11.5, 10), (14, 15), (13, 19), (10, 19), (9, 15)]) & ban
+    cv.fill(fl, FIRE[2])
+    cv.fill(fl & m_ellipse(W, H, 11.5, 16.5, 1.4, 2.4), FIRE[4])
+    cv.put(11, 13, FIRE[5])
+
+
+def _lotus_emblem(cv, ban, xx, yy):
+    """Your own sect: a jade lotus of five petals on a gold ring (the banner your disciples plant)."""
+    W, H = cv.w, cv.h
+    ring = m_ellipse(W, H, 11.5, 22, 6.0, 6.0) & ~m_ellipse(W, H, 11.5, 22, 4.8, 4.8) & ban
+    cv.fill(ring, GOLD[4])
+    for (cx, cy, rx, ry) in ((11.5, 20, 1.6, 3.4), (8.8, 21.5, 1.4, 2.6), (14.2, 21.5, 1.4, 2.6), (7.6, 23.6, 1.8, 1.2), (15.4, 23.6, 1.8, 1.2)):
+        pet = m_ellipse(W, H, cx, cy, rx, ry) & ban
+        cv.fill(pet, JADE_R[4])
+        cv.fill(pet & (yy <= cy - 1), JADE_R[5])
+    cv.fill(m_rect(W, H, 9, 24, 14, 24) & ban, GOLD[3])
+    for k in range(2):
+        cv.fill(m_rect(W, H, 9, 32 + k * 5, 14, 33 + k * 5) & ban, GOLD[3])
+        cv.fill(m_rect(W, H, 9, 32 + k * 5, 14, 32 + k * 5) & ban, GOLD[5])
+
+
+@prop("banner_ironpine", 24, 64)
+def banner_ironpine(state, f):
+    return mine_banner(BRONZE, IRON, WOOD, IRON, _pine_emblem, tassel=STRAW)
+
+
+@prop("banner_blackreed", 24, 64)
+def banner_blackreed(state, f):
+    return mine_banner(STONE_DARK, JADE_R, WOOD_GREY, IRON, _reed_emblem, tassel=HOLLOW, hem="ragged")
+
+
+@prop("banner_scarlet_kiln", 24, 64)
+def banner_scarlet_kiln(state, f):
+    return mine_banner(CLOTH_RED, GOLD, LACQUER, GOLD, _kiln_emblem, tassel=GOLD)
+
+
+@prop("banner_your_sect", 24, 64)
+def banner_your_sect(state, f):
+    return mine_banner(PAPER_R, JADE_R, LACQUER, GOLD, _lotus_emblem, tassel=CLOTH_JADE)
+
+
 # ------------------------------------------------------------------ ladder / rope (vertical tiles)
 def vtile(w, h, draw):
     """Draw on a 3x tall canvas and crop the middle so outlines wrap seamlessly."""

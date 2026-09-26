@@ -5,6 +5,54 @@
 Built in phases (docs/act2_design.md). All five phases (chapters 11 to 16) are playable end to end, from
 the Ascension Gate to the Starsea Launch.
 
+### V8g3 · The living world: territory and spirit mines (S49)
+- **Spirit-stone mines** (`territory.json`). There are five, each a vein in a field room with sacks, a barrel and
+  the holder's banner beside it:
+  - Lower Pit Seam, Stonewall Quarry: Level 9, 1 stone an hour.
+  - Grey Pools Seep, Reed Marsh: Level 14, 2 an hour.
+  - Rapids Terrace Vein, Whitewater Gorge: Level 32, 3 an hour.
+  - Lightning Scar Lode, Thunderhorn Plains: Level 66, 6 an hour.
+  - Glass Dunes Lode, Sunscar: Level 75, 8 an hour.
+- **Three rival sects** hold the mines at first:
+  - Ironpine Gate: spearmen in ochre.
+  - Blackreed Hall: veiled marsh-folk in ink.
+  - Scarlet Kiln Sect: forge-cultivators in crimson.
+
+  Each sect has its own disciples, a named warden and a banner. The six new enemies use existing avatar parts and
+  dyes only. The four banners are new props, one for each rival and one for your own sect.
+- **Taking a mine** (`assault_mine`). This extends the S25 defence waves into offence.
+  - Survey the vein and choose *Take the mine*. Three guards stand at the vein at the mine's Level, more come while
+    they fall, and the warden stands three Levels higher.
+  - Bring the warden down within two minutes and the mine is yours, with +30 Prestige (`mine_claimed`).
+  - Your sect can hold one mine, plus one more at every third sect level. Each mine also needs its own sect level.
+- **Production.** A mine you hold fills its carts with its rate every hour, up to a day's worth. Collect at the vein
+  or on the Territory tab (`collect_mine`) for Spirit Stones and 1 Prestige per stone (`mine_collected`). Only whole
+  stones leave the carts.
+- **Contests on a timer.**
+  - Every two to four days the old holder comes back (`mine_contested`). The timer is seeded by the account and
+    runs offline.
+  - A toast and a phone notification (the Defence category) give you twelve hours. Hold the mine in person: survive
+    a minute of waves, with the warden joining after 20 seconds (`defend_mine`).
+  - If you do not come, the guards you posted decide it when the window closes. The chance is 30%, plus 15% for each
+    guard and 1% for each of the guard's Levels.
+  - A held mine pays +20 Prestige (`mine_defended`). A lost one goes back to its holder with whatever was in the
+    carts (`mine_lost`).
+- **Guards** (`guard_mine`). Post up to three disciples at each mine. A disciple on guard cannot go on an
+  expedition, and one on an expedition cannot stand guard.
+- **The Territory tab** on the Your Sect page lists every mine with:
+  - its banner, room, Level, rate and needed sect level;
+  - its holder, or its carts and when the rivals come;
+  - its guards and their chance to hold it.
+
+  It has Collect, Post guard, Recall and Go buttons. Go walks you there by quest auto-path.
+- Fixes:
+  - An expedition now sends two disciples who are home. Before, every expedition sent disciple 0, because the page
+    passed names where the rule wanted indices.
+  - The "back" label is now a string, not a literal.
+- New rules tests cover the data, the assault and its guards, the cap, the carts and their limit, guards and
+  expeditions, the contest timer, holding the mine in person, and losing it with its carts. Debug flags:
+  `--mine=id[:contested]` and `--assault=id`.
+
 ### V8g2 · The living world: the mortal kingdom and leisure arts (S49)
 - **The County Hall** (`sf_county_hall`). It is a new room behind Stoneford Gate. Its door is under a roof that a
   rope bridge joins to the gatehouse.

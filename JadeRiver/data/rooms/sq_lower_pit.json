@@ -368,6 +368,17 @@
      }
     ]
    }
+  },
+  {
+   "id": "mine_lower_pit_seam",
+   "type": "spirit_mine",
+   "at": [
+    1180,
+    870
+   ],
+   "mine": "lower_pit_seam",
+   "prop": "spirit_shard_vein",
+   "radius": 130
   }
  ],
  "spawns": [
@@ -567,6 +578,22 @@
    ],
    "layer": "front",
    "flip": true
+  },
+  {
+   "prop": "sack_pile",
+   "at": [
+    1084,
+    852
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    1330,
+    848
+   ],
+   "layer": "play"
   }
  ],
  "areas": [],

@@ -347,6 +347,17 @@
      }
     ]
    }
+  },
+  {
+   "id": "mine_grey_pools_seep",
+   "type": "spirit_mine",
+   "at": [
+    1560,
+    860
+   ],
+   "mine": "grey_pools_seep",
+   "prop": "spirit_shard_vein",
+   "radius": 130
   }
  ],
  "spawns": [
@@ -588,6 +599,22 @@
    "at": [
     2150,
     790
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "sack_pile",
+   "at": [
+    1464,
+    842
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    1710,
+    838
    ],
    "layer": "play"
   }

@@ -142,5 +142,10 @@ Progress is recorded in `docs/CHANGELOG.md`.
     the auto-hunt toggle with its cut-offs, and quest auto-path over the room graph with the tracker button and a
     validation sweep. V8g2 is done: the County Hall with Magistrate Qian, three county jobs a day by Level, county
     favour with its tiers, titles and Stoneford discount, the relief fund, non-interference sin in mortal towns, the
-    guqin rhythm page (a meditation bonus), chess problems at every insight stone, and regional teas. Next: V8g3
-    (territory and spirit mines).
+    guqin rhythm page (a meditation bonus), chess problems at every insight stone, and regional teas. V8g3 is done:
+    five spirit-stone mines held by three rival sects, taken by a room event (their guards and warden), carts that
+    fill by the hour, contests every two to four days with a twelve-hour window, disciples posted as guards, and the
+    Territory tab. S49 is complete.
+- Next (V9): the v1.0-v1.1 items the earlier phases left for a later pass. These are the sword swarm, weapon
+  awakening, imitation relics, Artifact Spirit depth, the heavy sabre, flute and fan families, the rooftop thief
+  chase, the Forge and Formation guilds and the five-screen furnace mini-game.

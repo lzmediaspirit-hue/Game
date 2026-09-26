@@ -7073,6 +7073,727 @@
    }
   },
   {
+   "id": "ironpine_disciple",
+   "name": "Ironpine Disciple",
+   "level": [
+    10,
+    10
+   ],
+   "role": "normal",
+   "element": "earth",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "pine_spear",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       96
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.05
+    },
+    {
+     "id": "rooted_lunge",
+     "windup_s": 0.65,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       150
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.2,
+     "dash": 150,
+     "knockback": 60
+    }
+   ],
+   "loot": "ironpine_disciple",
+   "drops": [
+    {
+     "item": "spirit_stone_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "cloth",
+     "chance": 0.4,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "short_knot",
+     "hair_color": 4,
+     "shirt": "vneck",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "spear",
+     "hat": "tied",
+     "shirt_dye": "ochre",
+     "pants_dye": "ink",
+     "name": "Ironpine Disciple",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "ironpine_warden",
+   "name": "Warden Dai Song",
+   "level": [
+    12,
+    12
+   ],
+   "role": "elite",
+   "element": "earth",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "iron_bough_sweep",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       110
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.25,
+     "both_sides": true,
+     "knockback": 90
+    },
+    {
+     "id": "pine_needle_rain",
+     "windup_s": 0.8,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       320
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.1,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 520,
+      "art": "qi_arc"
+     }
+    },
+    {
+     "id": "mountain_brace",
+     "windup_s": 1.0,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       150
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.45,
+     "dash": 180,
+     "knockback": 120
+    }
+   ],
+   "loot": "ironpine_warden",
+   "drops": [
+    {
+     "item": "spirit_stone_shard",
+     "chance": 1.0,
+     "count": [
+      2,
+      4
+     ],
+     "weight": 1
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.25,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "long_tied",
+     "hair_color": 2,
+     "shirt": "cardigan",
+     "pants": "martial",
+     "shoes": "folded",
+     "weapon": "spear",
+     "hat": "guan",
+     "shirt_dye": "ochre",
+     "pants_dye": "earth",
+     "cape": "solid",
+     "name": "Warden Dai Song",
+     "body": "light"
+    }
+   },
+   "half_width": 20,
+   "height": 92,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "blackreed_disciple",
+   "name": "Blackreed Disciple",
+   "level": [
+    14,
+    14
+   ],
+   "role": "normal",
+   "element": "water",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "humanoid",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "reed_knife",
+     "windup_s": 0.35,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       60
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.0
+    },
+    {
+     "id": "marsh_needle",
+     "windup_s": 0.55,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       280
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.0,
+     "projectile": {
+      "speed": 600,
+      "art": "arrow"
+     }
+    }
+   ],
+   "loot": "blackreed_disciple",
+   "drops": [
+    {
+     "item": "spirit_stone_shard",
+     "chance": 0.5,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    },
+    {
+     "item": "leech_oil",
+     "chance": 0.3,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "ponytail",
+     "hair_color": 1,
+     "shirt": "vneck",
+     "pants": "cuffed",
+     "shoes": "boots",
+     "weapon": "dagger",
+     "hat": "weimao",
+     "shirt_dye": "ink",
+     "pants_dye": "ink",
+     "name": "Blackreed Disciple",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "blackreed_warden",
+   "name": "Warden Qu Heng",
+   "level": [
+    16,
+    16
+   ],
+   "role": "elite",
+   "element": "water",
+   "race": "human",
+   "energy": "primal_qi",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "black_tide_cut",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       90
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.2
+    },
+    {
+     "id": "drowning_crescent",
+     "windup_s": 0.75,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       320
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.2,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 520,
+      "art": "qi_arc"
+     }
+    },
+    {
+     "id": "reed_step_thrust",
+     "windup_s": 0.9,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       130
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.4,
+     "dash": 200
+    }
+   ],
+   "loot": "blackreed_warden",
+   "drops": [
+    {
+     "item": "spirit_stone_shard",
+     "chance": 1.0,
+     "count": [
+      2,
+      4
+     ],
+     "weight": 1
+    },
+    {
+     "item": "manual_page",
+     "chance": 0.25,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "flowing",
+     "hair_color": 1,
+     "shirt": "scholar",
+     "pants": "scholar",
+     "shoes": "folded",
+     "weapon": "sword",
+     "hat": "weimao",
+     "shirt_dye": "ink",
+     "pants_dye": "indigo",
+     "cape": "tattered",
+     "name": "Warden Qu Heng",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "scarlet_kiln_disciple",
+   "name": "Scarlet Kiln Disciple",
+   "level": [
+    64,
+    64
+   ],
+   "role": "normal",
+   "element": "fire",
+   "race": "human",
+   "energy": "sage_qi",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "kiln_edge",
+     "windup_s": 0.4,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       84
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.15
+    },
+    {
+     "id": "ember_arc",
+     "windup_s": 0.6,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       300
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.15,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 540,
+      "art": "qi_arc"
+     },
+     "status": {
+      "id": "burn",
+      "chance": 0.3,
+      "power": 0.01,
+      "duration_s": 4
+     }
+    }
+   ],
+   "loot": "scarlet_kiln_disciple",
+   "drops": [
+    {
+     "item": "spirit_stone_shard",
+     "chance": 0.6,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.3,
+     "count": [
+      1,
+      1
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "high_pony",
+     "hair_color": 0,
+     "shirt": "disciple",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "sword",
+     "hat": "none",
+     "shirt_dye": "crimson",
+     "pants_dye": "ink",
+     "name": "Scarlet Kiln Disciple",
+     "body": "light"
+    }
+   },
+   "half_width": 18,
+   "height": 90,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
+   "id": "scarlet_kiln_warden",
+   "name": "Warden Rong Yan",
+   "level": [
+    66,
+    66
+   ],
+   "role": "elite",
+   "element": "fire",
+   "race": "human",
+   "energy": "sage_qi",
+   "ai": {
+    "profile": "duelist",
+    "aggro_range": 200,
+    "flee_below": 0.0,
+    "move_speed": 90,
+    "patrol": 140
+   },
+   "attacks": [
+    {
+     "id": "furnace_staff",
+     "windup_s": 0.5,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       110
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.3,
+     "knockback": 100
+    },
+    {
+     "id": "slag_rain",
+     "windup_s": 0.85,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       340
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.15,
+     "damage_type": "qi",
+     "projectile": {
+      "speed": 480,
+      "art": "qi_arc"
+     },
+     "status": {
+      "id": "burn",
+      "chance": 0.5,
+      "power": 0.012,
+      "duration_s": 4
+     }
+    },
+    {
+     "id": "bellows_rush",
+     "windup_s": 1.0,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       150
+      ],
+      "depth": 26,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.45,
+     "dash": 220,
+     "knockback": 130
+    }
+   ],
+   "loot": "scarlet_kiln_warden",
+   "drops": [
+    {
+     "item": "spirit_stone_shard",
+     "chance": 1.0,
+     "count": [
+      3,
+      5
+     ],
+     "weight": 1
+    },
+    {
+     "item": "storm_shard",
+     "chance": 0.6,
+     "count": [
+      1,
+      2
+     ],
+     "weight": 1
+    }
+   ],
+   "tameable": false,
+   "collection": null,
+   "art": {
+    "avatar": {
+     "hair": "topknot",
+     "hair_color": 5,
+     "shirt": "vneck",
+     "pants": "martial",
+     "shoes": "boots",
+     "weapon": "staff",
+     "hat": "guan",
+     "shirt_dye": "crimson",
+     "pants_dye": "crimson",
+     "cape": "solid",
+     "name": "Warden Rong Yan",
+     "body": "light"
+    }
+   },
+   "half_width": 20,
+   "height": 92,
+   "movement": {
+    "jump": 530,
+    "climb": true,
+    "fly": false,
+    "drop": true
+   }
+  },
+  {
    "id": "fruit_guardian",
    "name": "Fruit-Guardian Boar",
    "level": [

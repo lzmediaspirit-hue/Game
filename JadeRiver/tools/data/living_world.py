@@ -181,6 +181,55 @@ def build_extra():
                      "arena": {"points": 5, "cap": 15}, "beast_trial": {"points": 10, "cap": 10}})
 
 
+# S49 territory and spirit mines (v1.1): spirit-stone mines in field rooms, each held by a rival sect until your sect
+# takes it (a room event at the mine: its guards and warden, the S25 defence waves turned to offence). A held mine fills
+# its carts with Spirit Stones by the hour, up to a day's worth. Every two to four days the old holder comes back for it:
+# defend it at the mine within twelve hours, or the disciples you left as guards hold it (or lose it) for you.
+RIVAL_SECTS = [
+    {"id": "ironpine_gate", "name": "Ironpine Gate", "banner": "banner_ironpine", "color": "#B0812A",
+     "desc": "A mountain sect of spearmen who plant their banners like trees and say they never give ground.",
+     "disciple": "ironpine_disciple", "warden": "ironpine_warden"},
+    {"id": "blackreed_hall", "name": "Blackreed Hall", "banner": "banner_blackreed", "color": "#5F6878",
+     "desc": "Marsh-folk in dark veils who sell what they dig to whoever asks fewest questions.",
+     "disciple": "blackreed_disciple", "warden": "blackreed_warden"},
+    {"id": "scarlet_kiln", "name": "Scarlet Kiln Sect", "banner": "banner_scarlet_kiln", "color": "#DC6A5C",
+     "desc": "Forge-cultivators of the Expanse. They burn spirit stones by the cartload to keep their kilns hot.",
+     "disciple": "scarlet_kiln_disciple", "warden": "scarlet_kiln_warden"},
+]
+
+
+def _mine(id, name, room, at, sect, level, rate, sect_level, desc):
+    return {"id": id, "name": name, "room": room, "at": at, "sect": sect, "level": level, "rate": rate, "sect_level": sect_level, "desc": desc}
+
+
+MINES = [
+    _mine("lower_pit_seam", "Lower Pit Seam", "sq_lower_pit", [1180, 870], "ironpine_gate", 9, 1, 1,
+          "A thin blue seam in the quarry floor. The Ironpine Gate have fenced it with spears."),
+    _mine("grey_pools_seep", "Grey Pools Seep", "rm_grey_pools", [1560, 860], "blackreed_hall", 14, 2, 2,
+          "Spirit stone grows like salt crust where the grey water seeps out of the bank."),
+    _mine("rapids_terrace_vein", "Rapids Terrace Vein", "wg_rapids_terraces", [2700, 860], "ironpine_gate", 32, 3, 3,
+          "The rapids wore the rock back to a vein as thick as an arm."),
+    _mine("lightning_scar_lode", "Lightning Scar Lode", "tp_lightning_scar", [3100, 860], "scarlet_kiln", 66, 6, 5,
+          "Where the lightning strikes most, the ground itself turned to spirit stone."),
+    _mine("glass_dunes_lode", "Glass Dunes Lode", "sd_glass_dunes", [1450, 860], "scarlet_kiln", 75, 8, 6,
+          "A lode under the fused glass. The Scarlet Kiln Sect dig it at night, when the sand is cool."),
+]
+
+
+def territory():
+    entries("territory", MINES, sects=RIVAL_SECTS,
+            # A mine's carts hold a day of its output; collect them from the mine or the Territory tab.
+            cap_hours=24, prestige_per_stone=1,
+            # How many mines your sect can hold: one, and one more at every third sect level.
+            mines_base=1, mines_per_levels=3,
+            # Taking a mine: its guards (and more as they fall) and the warden, who must fall inside the time.
+            assault={"duration": 120, "guards": 3, "every_s": 6, "max": 3, "warden_bonus": 3, "prestige": 30},
+            # The old holder comes back every 2-4 days; you have 12 hours to hold the mine in person (survive the waves,
+            # the warden joins after 20 s), or your guards (up to three disciples) hold it or lose it by chance.
+            contest={"interval_days": [2, 4], "window_h": 12, "duration": 60, "every_s": 5, "max": 4, "warden_after_s": 20,
+                     "base": 0.3, "per_guard": 0.15, "per_guard_level": 0.01, "max_guards": 3, "prestige": 20})
+
+
 def chess():
     """S49 leisure arts: chess problems at insight sites (a 9x9 board of Go; [x, y], y = 0 at the top). Each has one
     right point among four lettered ones; the others lose. A site offers one problem a day (seeded), and a solved one
@@ -205,6 +254,7 @@ def chess():
 
 def build():
     build_extra()
+    territory()
     entries("chess", chess(), size=9, insight=30,
             # The guqin (S49 leisure arts): +5% meditation speed, up to +15% for a perfect piece, for 30 minutes; the
             # hands rest as long before the next piece.

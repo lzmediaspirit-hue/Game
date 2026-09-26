@@ -13,7 +13,7 @@ const DEFAULT_PROP := {"shrine": "shrine", "qi_spring": "qi_spring", "bath_stati
 	"defence_drum": "small_bell", "treasure_plot": "treasure_plot", "treasure_tree": "nine_bough_jade_tree",
 	"star_sight": "star_sight_stone", "chart_table": "star_chart_table", "shipyard_slip": "shipyard_slip", "starsea_dock": "cloud_skiff",
 	"air_pocket": "qi_spring", "earth_vent": "gas_vent", "egg_nest": "beast_nest", "beast_tide_drum": "small_bell", "beast_trial_stone": "rite_circle",
-	"rift_tear": "portal_swirl"}
+	"rift_tear": "portal_swirl", "spirit_mine": "spirit_shard_vein"}
 
 var def: Dictionary = {}
 var object_id := ""
@@ -44,6 +44,7 @@ func state_name() -> String:
 			if s == "depleted" or (def.has("season") and not HerbRules.in_season(def, Clock.now_utc())): return "depleted"
 			return "ready"
 		"star_sight": return "idle" if s == "depleted" else "active"   # the engraved stars glow while a reading waits
+		"spirit_mine": return "full"
 		"ore_vein": return "depleted" if s == "depleted" else ("cracked" if int(st.get("hits", 0)) > 0 else "full")
 		"jar", "crate", "wine_jar": return "broken" if s == "broken" else "intact"
 		"chest": return "open" if s == "open" else "closed"
@@ -126,6 +127,7 @@ func _draw() -> void:
 	if not drawn and def.type != "pickup":
 		draw_rect(Rect2(-12, -24, 24, 24), UiKit.BRONZE)
 	if def.type == "earth_vent": _draw_earth_fire()
+	if def.type == "spirit_mine": _draw_mine()
 	if def.type == "garden_bed": _draw_bed_herb()
 	if focus:
 		var c = Game.active()
@@ -134,6 +136,34 @@ func _draw() -> void:
 		var h := SpriteCache.prop_size(current_prop()).y if prop_id != "" else 40.0
 		UiKit.draw_outlined(self, label if avail.ok else str(avail.get("text", "")), Vector2(-120, -h - 8), 16,
 			UiKit.PALE_GOLD if avail.ok else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 240)
+
+## S49 territory: the holder's banner beside the vein; stones waiting glint over it, and a contested mine pulses red.
+func _draw_mine() -> void:
+	var id := str(def.get("mine", ""))
+	var mine: bool = Game.sect.holds(id)
+	var banner := "banner_your_sect" if mine else str(Game.sect.rival(str(ContentDB.entry("territory", id).get("sect", ""))).get("banner", ""))
+	SpriteCache.draw_prop(self, banner, "idle", t, Vector2(62, 2))
+	if not mine: return
+	var st: Dictionary = Game.sect.mines().get(id, {})
+	if bool(st.get("contested", false)):
+		# A ring of red on the ground around the vein and the banner: someone has come for it.
+		var a := 0.45 + 0.25 * sin(t * 4.0)
+		draw_set_transform(Vector2(30, 0), 0.0, Vector2(1.0, 0.32))
+		draw_arc(Vector2.ZERO, 92.0 + 4.0 * sin(t * 4.0), 0.0, TAU, 48, Color(0.95, 0.32, 0.3, a), 4.0)
+		draw_arc(Vector2.ZERO, 80.0, 0.0, TAU, 48, Color(0.95, 0.32, 0.3, a * 0.4), 2.0)
+		draw_set_transform(Vector2.ZERO)
+	if Game.sect.mine_stored(id) > 0:
+		# Stones waiting in the carts: a cyan shine on the vein and glints rising off it.
+		draw_set_transform(Vector2(0, -10), 0.0, Vector2(1.0, 0.45))
+		draw_circle(Vector2.ZERO, 44.0, Color(0.45, 0.9, 1.0, 0.14 + 0.05 * sin(t * 2.0)))
+		draw_set_transform(Vector2.ZERO)
+		for i in 6:
+			var ph := fmod(t * 0.5 + i / 6.0, 1.0)
+			var sp := Vector2(-28.0 + i * 11.0 + sin(t * 2.0 + i) * 3.0, -28.0 - ph * 46.0)
+			var col := Color(0.6, 0.97, 1.0, 0.95 * (1.0 - ph))
+			var r := 4.0 * (1.0 - ph * 0.5)
+			draw_line(sp - Vector2(r, 0), sp + Vector2(r, 0), col, 2.0)
+			draw_line(sp - Vector2(0, r), sp + Vector2(0, r), col, 2.0)
 
 ## A garden bed (S45) shows its herb's patch art, small as a seedling and full size when ready.
 func _draw_bed_herb() -> void:

@@ -607,6 +607,8 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			result.text = Tx.t("sim.world.nest_egg")
 		"beast_tide_drum":
 			return start_beast_tide(c)
+		"spirit_mine":
+			return game.sect.mine_dialogue(c, str(o.get("mine", "")))
 		"rift_tear":
 			return game.calendar.open_rift(c)
 		"treasure_birth":
@@ -693,6 +695,7 @@ func _verb(o: Dictionary) -> String:
 		"chart_table": return Tx.t("sim.world.chart")
 		"shipyard_slip": return Tx.t("sim.world.build")
 		"starsea_dock": return Tx.t("sim.world.set_sail")
+		"spirit_mine": return Tx.t("sim.world.survey")
 	return Tx.t("sim.world.use")
 
 # ------------------------------------------------------------------ beast ranks and cores (S46)

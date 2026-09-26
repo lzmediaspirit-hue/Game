@@ -106,6 +106,19 @@ HUMAN = {
     "ferryman_lou": {"hair": "long_tied", "hair_color": 0, "shirt": "cardigan", "pants": "loose", "shoes": "folded", "weapon": "staff", "hat": "weimao", "shirt_dye": "earth"},
     "knife_hand_sui": {"hair": "ponytail", "hair_color": 1, "shirt": "vneck", "pants": "martial", "shoes": "boots", "weapon": "dagger", "hat": "none", "shirt_dye": "crimson",
                        "pants_dye": "ink"},
+    # S49 territory: the three rival sects that hold the spirit-stone mines (existing parts and dyes only).
+    "ironpine_disciple": {"hair": "short_knot", "hair_color": 4, "shirt": "vneck", "pants": "martial", "shoes": "boots", "weapon": "spear", "hat": "tied",
+                          "shirt_dye": "ochre", "pants_dye": "ink"},
+    "ironpine_warden": {"hair": "long_tied", "hair_color": 2, "shirt": "cardigan", "pants": "martial", "shoes": "folded", "weapon": "spear", "hat": "guan",
+                        "shirt_dye": "ochre", "pants_dye": "earth", "cape": "solid"},
+    "blackreed_disciple": {"hair": "ponytail", "hair_color": 1, "shirt": "vneck", "pants": "cuffed", "shoes": "boots", "weapon": "dagger", "hat": "weimao",
+                           "shirt_dye": "ink", "pants_dye": "ink"},
+    "blackreed_warden": {"hair": "flowing", "hair_color": 1, "shirt": "scholar", "pants": "scholar", "shoes": "folded", "weapon": "sword", "hat": "weimao",
+                         "shirt_dye": "ink", "pants_dye": "indigo", "cape": "tattered"},
+    "scarlet_kiln_disciple": {"hair": "high_pony", "hair_color": 0, "shirt": "disciple", "pants": "martial", "shoes": "boots", "weapon": "sword", "hat": "none",
+                              "shirt_dye": "crimson", "pants_dye": "ink"},
+    "scarlet_kiln_warden": {"hair": "topknot", "hair_color": 5, "shirt": "vneck", "pants": "martial", "shoes": "boots", "weapon": "staff", "hat": "guan",
+                            "shirt_dye": "crimson", "pants_dye": "crimson", "cape": "solid"},
     "trial_disciple": {"hair": "topknot", "hair_color": 0, "shirt": "disciple", "pants": "loose", "shoes": "slippers", "weapon": "none", "hat": "none"},
     "alliance_champion": {"hair": "topknot", "hair_color": 0, "shirt": "disciple", "pants": "martial", "shoes": "boots", "weapon": "spear", "hat": "guan",
                           "shirt_dye": "indigo", "pants_dye": "ink"},
@@ -131,7 +144,9 @@ NAMES = {"mudwater_lieutenant": "Lieutenant Kuai", "kuai_shan": "Kuai Shan", "ta
          "duel_lan_yue": "Lan Yue", "duel_tie_niu": "Tie Niu", "duel_qiu_feng": "Qiu Feng", "duel_bai_ling": "Bai Ling",
          "young_master": "Young Master Luo Heng", "jealous_senior": "Senior Brother Hao Qian", "cloud_first_disciple": "Yun Zhiqiu", "jade_first_disciple": "Bai Yuheng",
          "iron_crane_guo": "\"Iron Crane\" Guo Ming", "hua_guard_captain": "Captain Lou Chen", "rogue_cultivator": "Rogue Cultivator", "rogue_treasure_adept": "Rogue Mirror Adept", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
-         "ninth_presence": "The Ninth Presence"}
+         "ninth_presence": "The Ninth Presence", "ironpine_disciple": "Ironpine Disciple", "ironpine_warden": "Warden Dai Song",
+         "blackreed_disciple": "Blackreed Disciple", "blackreed_warden": "Warden Qu Heng", "scarlet_kiln_disciple": "Scarlet Kiln Disciple",
+         "scarlet_kiln_warden": "Warden Rong Yan"}
 
 
 def human(id):
@@ -401,6 +416,31 @@ def build():
         # new level, right after the breakthrough.
         mob("jealous_senior", 20, "trial", "metal", None, [], [atk("envy_cut", 0.4, 72, 1.08), atk("thrust_through", 0.55, 110, 1.2, dash=160)],
             ai="duelist", art=human("jealous_senior"), race="human", width=18, height=90, spar=True, name="Senior Brother Hao Qian"),
+        # S49 territory: the rival sects' mine guards and wardens. They come at the mine's own Level (territory.json).
+        mob("ironpine_disciple", 10, "normal", "earth", None, [d("spirit_stone_shard", 0.5), d("cloth", 0.4)],
+            [atk("pine_spear", 0.45, 96, 1.05), atk("rooted_lunge", 0.65, 150, 1.2, dash=150, knockback=60)],
+            ai="humanoid", art=human("ironpine_disciple"), race="human", energy="primal_qi", width=18, height=90, name="Ironpine Disciple"),
+        mob("ironpine_warden", 12, "elite", "earth", None, [d("spirit_stone_shard", 1.0, (2, 4)), d("manual_page", 0.25)],
+            [atk("iron_bough_sweep", 0.55, 110, 1.25, both_sides=True, knockback=90), atk("pine_needle_rain", 0.8, 320, 1.1, damage_type="qi",
+                                                                                         projectile={"speed": 520, "art": "qi_arc"}),
+             atk("mountain_brace", 1.0, 150, 1.45, dash=180, knockback=120)],
+            ai="duelist", art=human("ironpine_warden"), race="human", energy="primal_qi", width=20, height=92, name="Warden Dai Song"),
+        mob("blackreed_disciple", 14, "normal", "water", None, [d("spirit_stone_shard", 0.5), d("leech_oil", 0.3)],
+            [atk("reed_knife", 0.35, 60, 1.0), atk("marsh_needle", 0.55, 280, 1.0, projectile={"speed": 600, "art": "arrow"})],
+            ai="humanoid", art=human("blackreed_disciple"), race="human", energy="primal_qi", width=18, height=90, name="Blackreed Disciple"),
+        mob("blackreed_warden", 16, "elite", "water", None, [d("spirit_stone_shard", 1.0, (2, 4)), d("manual_page", 0.25)],
+            [atk("black_tide_cut", 0.45, 90, 1.2), atk("drowning_crescent", 0.75, 320, 1.2, damage_type="qi", projectile={"speed": 520, "art": "qi_arc"}),
+             atk("reed_step_thrust", 0.9, 130, 1.4, dash=200)],
+            ai="duelist", art=human("blackreed_warden"), race="human", energy="primal_qi", width=18, height=90, name="Warden Qu Heng"),
+        mob("scarlet_kiln_disciple", 64, "normal", "fire", None, [d("spirit_stone_shard", 0.6, (1, 2)), d("storm_shard", 0.3)],
+            [atk("kiln_edge", 0.4, 84, 1.15), atk("ember_arc", 0.6, 300, 1.15, damage_type="qi", projectile={"speed": 540, "art": "qi_arc"},
+                                                  status={"id": "burn", "chance": 0.3, "power": 0.01, "duration_s": 4})],
+            ai="duelist", art=human("scarlet_kiln_disciple"), race="human", energy="sage_qi", width=18, height=90, name="Scarlet Kiln Disciple"),
+        mob("scarlet_kiln_warden", 66, "elite", "fire", None, [d("spirit_stone_shard", 1.0, (3, 5)), d("storm_shard", 0.6, (1, 2))],
+            [atk("furnace_staff", 0.5, 110, 1.3, knockback=100), atk("slag_rain", 0.85, 340, 1.15, damage_type="qi", projectile={"speed": 480, "art": "qi_arc"},
+                                                                      status={"id": "burn", "chance": 0.5, "power": 0.012, "duration_s": 4}),
+             atk("bellows_rush", 1.0, 150, 1.45, dash=220, knockback=130)],
+            ai="duelist", art=human("scarlet_kiln_warden"), race="human", energy="sage_qi", width=20, height=92, name="Warden Rong Yan"),
         # S49 treasure births: the beast that wakes when a Spirit Fruit ripens (the room's level, +2).
         mob("fruit_guardian", 20, "elite", "wood", None, [d("thorn_hide", 1.0, (2, 3))],
             [atk("thorn_charge", 0.55, 60, 1.3, dash=220, knockback=110), atk("root_stamp", 0.8, 120, 1.2, both_sides=True, depth=60)],

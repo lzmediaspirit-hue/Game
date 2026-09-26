@@ -2806,6 +2806,20 @@ def rift_tears():
                   visible_if=all_of({"kind": "world_event_here", "event": "spatial_rift"}))
 
 
+def spirit_mines():
+    """S49 territory: each spirit-stone mine (living_world.MINES) is a vein in its field room, flying its holder's
+    banner. Speak to it to take it, collect from it or hold it (the Your Sect page's Territory tab lists them all)."""
+    from living_world import MINES
+    for m in MINES:
+        r = ROOMS[m["room"]]
+        x, y = m["at"]
+        x = _dry_x(r, x, y)
+        r.obj("mine_" + m["id"], "spirit_mine", [x, y], mine=m["id"], prop="spirit_shard_vein", radius=130)
+        # The diggings: sacks of broken stone and a barrel for the day's haul.
+        r.decor("sack_pile", [x - 96, y - 18])
+        r.decor("barrel", [x + 150, y - 22])
+
+
 def build():
     ROOMS.clear()
     lotus_ferry()
@@ -2836,6 +2850,7 @@ def build():
     rare_herbs()   # after the tiers are final: rare nodes go on named raised surfaces
     rift_tears()   # S49: after every volume is in place, so tears and fruit trees stand on dry ground
     fruit_trees()
+    spirit_mines()
     check_links()
     reachability()
     os.makedirs(ROOMS_DIR, exist_ok=True)

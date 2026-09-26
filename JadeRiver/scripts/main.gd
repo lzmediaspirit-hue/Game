@@ -185,6 +185,22 @@ func _handle_preview_args(user_args: Array) -> void:
 			if pa.size() > 2: Game.pets.add_purity(Game.active(), np, int(pa[2]) - int(np.purity))
 			if pa.size() > 3: np.bond = float(pa[3])
 			Game.active().active_pet = str(np.uid)
+		if str(a).begins_with("--mine=") and Game.sect.founded():
+			# Debug tools (S38): --mine=id[:contested] gives the (debug) sect a spirit mine with ten hours in its carts and
+			# two disciples, one on guard (S49 territory previews); --assault=id starts the fight for one.
+			var ma := str(a).trim_prefix("--mine=").split(":")
+			var now := Clock.now_utc()
+			if Game.sect.sect().disciples.is_empty():
+				var names: Array = ContentDB.config("disciples").get("names", [])
+				for k in 2:
+					Game.sect.sect().disciples.append({"name": str(names[k % names.size()]) if not names.is_empty() else "", "strength": 3 - k, "spirit": 2 + k * 2,
+						"craft": 1 + k, "trait": "green_thumb", "level": 4 - k * 2})
+			var all: Dictionary = Game.sect.sect().get("mines", {})
+			all[ma[0]] = {"collected": now - 36000.0, "contest": now + 180000.0, "contested": ma.size() > 1, "until": now + 5.5 * 3600.0 if ma.size() > 1 else 0.0,
+				"guards": [0], "n": 0}
+			Game.sect.sect().mines = all
+		if str(a).begins_with("--assault=") and Game.active() != null:
+			Game.submit({"type": "assault_mine", "mine": str(a).trim_prefix("--assault=")})
 		if str(a).begins_with("--mount=") and Game.active() != null:
 			# Debug tools (S38): --mount=species grants an animal and puts it in the Mount slot, riding (S46 previews).
 			Game.pets.apply_grant(Game.active().id, str(a).trim_prefix("--mount="))

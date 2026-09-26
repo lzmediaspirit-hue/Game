@@ -1,0 +1,132 @@
+{
+ "schema_version": 1,
+ "entries": [
+  {
+   "id": "lower_pit_seam",
+   "name": "Lower Pit Seam",
+   "room": "sq_lower_pit",
+   "at": [
+    1180,
+    870
+   ],
+   "sect": "ironpine_gate",
+   "level": 9,
+   "rate": 1,
+   "sect_level": 1,
+   "desc": "A thin blue seam in the quarry floor. The Ironpine Gate have fenced it with spears."
+  },
+  {
+   "id": "grey_pools_seep",
+   "name": "Grey Pools Seep",
+   "room": "rm_grey_pools",
+   "at": [
+    1560,
+    860
+   ],
+   "sect": "blackreed_hall",
+   "level": 14,
+   "rate": 2,
+   "sect_level": 2,
+   "desc": "Spirit stone grows like salt crust where the grey water seeps out of the bank."
+  },
+  {
+   "id": "rapids_terrace_vein",
+   "name": "Rapids Terrace Vein",
+   "room": "wg_rapids_terraces",
+   "at": [
+    2700,
+    860
+   ],
+   "sect": "ironpine_gate",
+   "level": 32,
+   "rate": 3,
+   "sect_level": 3,
+   "desc": "The rapids wore the rock back to a vein as thick as an arm."
+  },
+  {
+   "id": "lightning_scar_lode",
+   "name": "Lightning Scar Lode",
+   "room": "tp_lightning_scar",
+   "at": [
+    3100,
+    860
+   ],
+   "sect": "scarlet_kiln",
+   "level": 66,
+   "rate": 6,
+   "sect_level": 5,
+   "desc": "Where the lightning strikes most, the ground itself turned to spirit stone."
+  },
+  {
+   "id": "glass_dunes_lode",
+   "name": "Glass Dunes Lode",
+   "room": "sd_glass_dunes",
+   "at": [
+    1450,
+    860
+   ],
+   "sect": "scarlet_kiln",
+   "level": 75,
+   "rate": 8,
+   "sect_level": 6,
+   "desc": "A lode under the fused glass. The Scarlet Kiln Sect dig it at night, when the sand is cool."
+  }
+ ],
+ "sects": [
+  {
+   "id": "ironpine_gate",
+   "name": "Ironpine Gate",
+   "banner": "banner_ironpine",
+   "color": "#B0812A",
+   "desc": "A mountain sect of spearmen who plant their banners like trees and say they never give ground.",
+   "disciple": "ironpine_disciple",
+   "warden": "ironpine_warden"
+  },
+  {
+   "id": "blackreed_hall",
+   "name": "Blackreed Hall",
+   "banner": "banner_blackreed",
+   "color": "#5F6878",
+   "desc": "Marsh-folk in dark veils who sell what they dig to whoever asks fewest questions.",
+   "disciple": "blackreed_disciple",
+   "warden": "blackreed_warden"
+  },
+  {
+   "id": "scarlet_kiln",
+   "name": "Scarlet Kiln Sect",
+   "banner": "banner_scarlet_kiln",
+   "color": "#DC6A5C",
+   "desc": "Forge-cultivators of the Expanse. They burn spirit stones by the cartload to keep their kilns hot.",
+   "disciple": "scarlet_kiln_disciple",
+   "warden": "scarlet_kiln_warden"
+  }
+ ],
+ "cap_hours": 24,
+ "prestige_per_stone": 1,
+ "mines_base": 1,
+ "mines_per_levels": 3,
+ "assault": {
+  "duration": 120,
+  "guards": 3,
+  "every_s": 6,
+  "max": 3,
+  "warden_bonus": 3,
+  "prestige": 30
+ },
+ "contest": {
+  "interval_days": [
+   2,
+   4
+  ],
+  "window_h": 12,
+  "duration": 60,
+  "every_s": 5,
+  "max": 4,
+  "warden_after_s": 20,
+  "base": 0.3,
+  "per_guard": 0.15,
+  "per_guard_level": 0.01,
+  "max_guards": 3,
+  "prestige": 20
+ }
+}

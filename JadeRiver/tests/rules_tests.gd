@@ -72,6 +72,7 @@ func _main() -> void:
 	tower_activity_ranking_suite()
 	mobile_conventions_suite()
 	mortal_leisure_suite()
+	territory_suite()
 	emotes_suite()
 	save_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
@@ -3078,6 +3079,125 @@ func mobile_conventions_suite() -> void:
 	Game.world.auto_paths.clear()
 	c.idle_task = idle_was
 	c.pools.hp = hp_was
+	if room_was != "": Game.world.load_room(c, room_was, "")
+	GameEvents.flush()
+
+## S49 territory: spirit mines taken from rival sects, their carts, the old holders' timers, the guards.
+func territory_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var room_was: String = Game.room_rt.room_id if Game.room_rt else ""
+	var sect_was: Dictionary = Game.account.sect.duplicate(true)
+	var stones0: int = Game.economy.balance("spirit_stone")
+	var cfg: Dictionary = ContentDB.config("territory")
+	var base_was: float = float(cfg.contest.base)
+	var t0 := Clock.now_utc()
+	var seen := {"claimed": 0, "contested": 0, "defended": [], "lost": [], "collected": 0}
+	GameEvents.subscribe("mine_claimed", func(_p): seen.claimed += 1, 200)
+	GameEvents.subscribe("mine_contested", func(_p): seen.contested += 1, 200)
+	GameEvents.subscribe("mine_defended", func(p): seen.defended.append(str(p.by)), 200)
+	GameEvents.subscribe("mine_lost", func(p): seen.lost.append(int(p.stones)), 200)
+	GameEvents.subscribe("mine_collected", func(p): seen.collected += int(p.stones), 200)
+	# Five mines in field rooms, each held by one of three rival sects with guards and a warden.
+	var ms: Array = ContentDB.all("territory")
+	var placed := 0
+	for m in ms:
+		if Game.sect.rival(str(m.sect)).is_empty(): continue
+		for o in ContentDB.room(str(m.room)).get("objects", []):
+			if str(o.type) == "spirit_mine" and str(o.get("mine", "")) == str(m.id): placed += 1
+	check(ms.size() == 5 and placed == 5, "five mines, each a vein in its room and held by a rival sect")
+	var armed := 0
+	for r in cfg.sects:
+		if not ContentDB.entry("enemies", str(r.disciple)).is_empty() and not ContentDB.entry("enemies", str(r.warden)).is_empty() \
+			and not SpriteCache.prop(str(r.banner)).is_empty(): armed += 1
+	check(armed == (cfg.sects as Array).size() and armed == 3, "every rival has guards, a warden and a banner")
+	# No sect, no mine.
+	Game.account.sect = {}
+	check(Game.sect.assault_block(c, "lower_pit_seam") == Tx.t("sim.sect.mine_no_sect"), "only a sect can hold a mine")
+	Game.account.sect = {"name": "Test", "emblem": [0, 0], "level": 1, "prestige": 0, "buildings": {"sect_hall": 1}, "queue": [], "candidates": [],
+		"candidate_day": Clock.reset_day(t0), "expeditions": [], "disciples": [{"name": "Wei", "level": 5, "trait": "green_thumb"}, {"name": "Lan", "level": 3, "trait": "green_thumb"}]}
+	check(Game.sect.mine_cap() == 1 and Game.sect.assault_block(c, "grey_pools_seep") == Tx.t("sim.sect.needs_sect_level") % 2, "a new sect holds one mine; the Grey Pools needs sect level 2")
+	# Taking the Lower Pit: at the mine, its guards and the warden; the warden falls and the mine is yours.
+	Game.world.load_room(c, "wp_west", "")
+	GameEvents.flush()
+	check(str(Game.submit({"type": "assault_mine", "mine": "lower_pit_seam"}).get("reason", "")) == "wrong_room", "you fight for a mine at the mine")
+	Game.world.load_room(c, "sq_lower_pit", "")
+	GameEvents.flush()
+	Game.actor_state(c.id).plane = Vector2(1100, 870)
+	Game.actor_state(c.id).altitude = 0.0
+	var dlg: Dictionary = Game.world.interact(c, "mine_lower_pit_seam")
+	var offers := false
+	for choice in dlg.get("dialogue", {}).get("choices", []):
+		if str(choice.get("intent", {}).get("type", "")) == "assault_mine": offers = true
+	check(offers, "the vein offers to take the mine (%s)" % str(dlg).left(300))
+	check(Game.submit({"type": "assault_mine", "mine": "lower_pit_seam"}).get("ok", false) and str(Game.room_rt.event.get("id", "")) == "mine_assault",
+		"the fight for the mine starts")
+	GameEvents.flush()
+	var wardens: Array = Game.room_rt.living_enemies().filter(func(e): return e.def_id == "ironpine_warden")
+	var guards: Array = Game.room_rt.living_enemies().filter(func(e): return e.def_id == "ironpine_disciple")
+	check(wardens.size() == 1 and int(wardens[0].level) == 12 and guards.size() == 3 and guards.all(func(e): return int(e.level) == 9),
+		"three Ironpine guards at Level 9 and their warden at 12")
+	var p0: int = int(Game.sect.sect().prestige)
+	Game.combat.apply_execute(wardens[0], c.id)
+	GameEvents.flush()
+	check(Game.sect.holds("lower_pit_seam") and not Game.room_rt.event.get("active", false) and seen.claimed == 1 and int(Game.sect.sect().prestige) == p0 + 30,
+		"the warden falls: the mine is yours (+30 Prestige)")
+	Game.sect.sect().level = 2
+	check(Game.sect.assault_block(c, "grey_pools_seep") == Tx.t("sim.sect.mine_cap") % 1, "one more mine only at sect level 3")
+	# The carts: a stone an hour, a day's worth at most; only whole stones leave.
+	Clock.override_utc = t0 + 5.5 * 3600.0
+	check(Game.sect.mine_stored("lower_pit_seam") == 5, "five and a half hours: five stones")
+	check(Game.submit({"type": "collect_mine", "mine": "lower_pit_seam"}).get("ok", false) and Game.economy.balance("spirit_stone") == stones0 + 5, "collected")
+	Clock.override_utc = t0 + 6.1 * 3600.0
+	check(Game.sect.mine_stored("lower_pit_seam") == 1, "the half hour left behind still counts")
+	Clock.override_utc = t0 + 60.0 * 3600.0
+	check(Game.sect.mine_stored("lower_pit_seam") == 24, "the carts hold a day's worth")
+	# Guards: posted and recalled; a guard cannot go on an expedition; more guards hold better.
+	var ch0: float = Game.sect.guard_chance("lower_pit_seam")
+	check(Game.submit({"type": "guard_mine", "mine": "lower_pit_seam", "index": 0}).get("ok", false) and Game.sect.guard_chance("lower_pit_seam") > ch0,
+		"a guard posted: the mine is likelier to hold")
+	var exr := Game.submit({"type": "send_expedition", "region": "willow_path", "hours": 1, "disciples": [0]})
+	check(str(exr.get("reason", "")) == "busy", "a guard stays at the mine (%s)" % str(exr))
+	# (S25 expeditions: the one who is home goes, and comes back with the region's goods for every hour away.)
+	var silver_ex: int = Game.economy.balance("silver_tael")
+	var moss0: int = c.inventory.count("willow_moss")
+	check(Game.submit({"type": "send_expedition", "region": "willow_path", "hours": 1, "disciples": [1]}).get("ok", false), "a disciple at home can go")
+	check(str(Game.submit({"type": "guard_mine", "mine": "lower_pit_seam", "index": 1}).get("reason", "")) == "busy", "and cannot stand guard while away")
+	Clock.override_utc = t0 + 61.0 * 3600.0
+	var back: Dictionary = Game.submit({"type": "collect_expedition", "index": 0})
+	check(back.get("ok", false) and (not back.success or (Game.economy.balance("silver_tael") >= silver_ex + 60 and c.inventory.count("willow_moss") == moss0 + 3)),
+		"the expedition comes home (%s)" % str(back))
+	Game.submit({"type": "guard_mine", "mine": "lower_pit_seam", "index": 1})
+	Game.submit({"type": "guard_mine", "mine": "lower_pit_seam", "index": 1})
+	check((Game.sect.mines().lower_pit_seam.guards as Array) == [0], "a guard recalled")
+	c.inventory.bag.fill(null)
+	# The old holder comes back on its timer: hold it in person.
+	var st: Dictionary = Game.sect.mines().lower_pit_seam
+	var due: float = float(st.contest)
+	var days := (due - t0) / 86400.0
+	check(days >= 2.0 and days <= 4.0, "the Ironpine Gate come back within two to four days (%.1f)" % days)
+	Clock.override_utc = due + 60.0
+	Game.sect._tick_mines(Clock.now_utc())
+	GameEvents.flush()
+	check(bool(st.contested) and seen.contested == 1 and is_equal_approx(float(st.until), due + 12.0 * 3600.0), "a contest opens with twelve hours to answer it")
+	check(Game.submit({"type": "defend_mine", "mine": "lower_pit_seam"}).get("ok", false) and str(Game.room_rt.event.get("id", "")) == "mine_defence", "holding the mine starts its fight")
+	GameEvents.flush()
+	Game.world._end_event(c, Game.room_rt, true)
+	GameEvents.flush()
+	check(not bool(st.contested) and seen.defended == ["you"] and float(st.contest) > Clock.now_utc() + 2.0 * 86400.0 - 1.0, "held: the next visit is days away")
+	# Away while they come: the guards decide it when the window closes; a lost mine takes its carts with it.
+	cfg.contest.base = -5.0
+	Clock.override_utc = float(st.contest) + 13.0 * 3600.0
+	Game.sect._tick_mines(Clock.now_utc())
+	GameEvents.flush()
+	check(not Game.sect.holds("lower_pit_seam") and seen.lost.size() == 1 and int(seen.lost[0]) == 24, "the guards fall: the mine and its 24 stones are lost")
+	check(Game.sect.guarding().is_empty(), "the guards come home")
+	# Restore.
+	cfg.contest.base = base_was
+	Clock.override_utc = -1.0
+	GameEvents.unsubscribe_object(self)
+	Game.account.sect = sect_was
+	Game.economy.apply_currency("spirit_stone", stones0 - Game.economy.balance("spirit_stone"), "test")
 	if room_was != "": Game.world.load_room(c, room_was, "")
 	GameEvents.flush()
 

@@ -233,6 +233,8 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 				quest.start_weekly(true)
 			"system_used": GameEvents.emit_event("system_used", {"actor": actor_id, "system": str(e.system)})
 			"sect_defence_result": sect.apply_defence_result(actor_id, bool(e.get("won", true)))
+			"mine_assault_result": sect.apply_mine_assault(actor_id, str(e.get("mine", "")), bool(e.get("won", true)))
+			"mine_defence_result": sect.apply_mine_defence(actor_id, str(e.get("mine", "")), bool(e.get("won", true)))
 			"voyage_arrive": world.apply_voyage_arrive(actor_id)
 			"upgrade_sect_token":
 				# Part 4 · Sage Sovereign 1: the training sect's token becomes an Elder's token.

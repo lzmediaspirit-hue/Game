@@ -712,6 +712,23 @@ func _on_event(name: String, p: Dictionary) -> void:
 				elif int(p.get("delta", 0)) > 0: add_log(Tx.t("hud.favour_up") % int(p.delta), UiKit.PALE_GOLD)
 		"relief_donated":
 			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.relief_given") % UiKit.fmt(int(p.silver)), UiKit.PALE_GOLD)
+		# S49 territory: the spirit-stone mines (account level: every character hears of them).
+		"mine_claimed":
+			toast(Tx.t("hud.mine_claimed") % ContentDB.name_of("territory", str(p.mine)), "gold", Tx.t("hud.mine_claimed_sub"))
+		"mine_contested":
+			var mname := ContentDB.name_of("territory", str(p.mine))
+			var rname := str(Game.sect.rival(str(p.sect)).get("name", ""))
+			var hours := maxi(1, int(ceil((float(p.until) - Clock.now_utc()) / 3600.0)))
+			toast(Tx.t("hud.mine_contested") % [rname, mname], "danger", Tx.t("hud.mine_contested_sub") % hours)
+			Notifier.schedule("defence", Tx.t("hud.mine_notify_title"), Tx.t("hud.mine_contested") % [rname, mname], Clock.now_utc())
+		"mine_defended":
+			var dname := ContentDB.name_of("territory", str(p.mine))
+			toast(Tx.t("hud.mine_held_you") % dname if str(p.get("by", "")) == "you" else Tx.t("hud.mine_held_guards") % dname, "gold")
+		"mine_lost":
+			toast(Tx.t("hud.mine_lost") % [str(Game.sect.rival(str(p.sect)).get("name", "")), ContentDB.name_of("territory", str(p.mine))], "danger",
+				Tx.t("hud.mine_lost_sub") % int(p.stones) if int(p.get("stones", 0)) > 0 else "")
+		"mine_collected":
+			add_log(Tx.t("hud.mine_collected") % [int(p.stones), ContentDB.name_of("territory", str(p.mine))], UiKit.PALE_GOLD)
 		"guqin_played":
 			if str(p.get("actor", "")) == Game.active_id: add_log(Tx.t("hud.guqin_calm") % int(round(float(p.bonus) * 100.0)), UiKit.BRIGHT_JADE)
 		"chess_solved":

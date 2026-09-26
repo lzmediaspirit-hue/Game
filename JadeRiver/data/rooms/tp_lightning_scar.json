@@ -444,6 +444,17 @@
    "level": 69,
    "alt": 300,
    "surface": "cloud_mv"
+  },
+  {
+   "id": "mine_lightning_scar_lode",
+   "type": "spirit_mine",
+   "at": [
+    3100,
+    860
+   ],
+   "mine": "lightning_scar_lode",
+   "prop": "spirit_shard_vein",
+   "radius": 130
   }
  ],
  "spawns": [
@@ -918,6 +929,22 @@
    ],
    "layer": "front",
    "flip": true
+  },
+  {
+   "prop": "sack_pile",
+   "at": [
+    3004,
+    842
+   ],
+   "layer": "play"
+  },
+  {
+   "prop": "barrel",
+   "at": [
+    3250,
+    838
+   ],
+   "layer": "play"
   }
  ],
  "areas": [],
