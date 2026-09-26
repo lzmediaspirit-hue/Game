@@ -762,3 +762,68 @@ def orbit_stone_chip():
 
 
 register(FAM, 'orbit_stone_chip', orbit_stone_chip, GROUP)
+
+
+# ----------------------------------------------------------------------------- v1.2 Phase D · the Ashen Reach
+# cinder_ash: the cold grey ash of an Ashborn pyre, a few embers still alive in it. pyre_ember: one coal lifted out
+# of that fire, its heart still yellow, a small flame standing on it.
+V12D_ASH = Ramp(['#1C1E22', '#2F3236', '#484C51', '#686D72', '#8E9398'], '#0A0C0E')
+V12D_CHAR = Ramp(['#16100E', '#2A1E1A', '#443028', '#5E463A', '#7A6050'], '#080504')
+
+
+def cinder_ash():
+    """A small heap of dark grey ash, three orange embers still glowing in it."""
+    c = Canvas(32)
+    ash = V12D_ASH
+    heap = c.poly([(3, 27.5), (6, 24.5), (9.5, 22), (12.5, 19.5), (15, 18), (17.5, 18.5), (20.5, 20.5), (24, 23.5),
+                   (28.5, 27.5)])
+    heap |= c.ellipse(16, 26.5, 13, 2.6)
+    heap &= c.Y < 28.5
+    c.put(heap, ash, 'sphere', base=2, cx=13, cy=21, rx=16, ry=10)
+    # powder: a slump down the shadow side, dark and light flecks
+    c.put(c.bres_path([(19, 21), (22, 24), (25, 26)]) & erode4(heap), ash[1], 'flat', out=ash.out)
+    for (x, y) in ((8, 25), (12, 27), (17, 27), (22, 27), (6, 27), (24, 25), (10, 23), (20, 22)):
+        c.put(c.rect(x, y, x, y) & erode4(heap), ash[1], 'flat', out=ash.out)
+    for (x, y) in ((9, 22), (13, 20), (7, 24), (16, 20), (5, 26), (11, 24), (18, 22)):
+        c.put(c.rect(x, y, x, y) & erode4(heap), ash[4], 'flat', out=ash.out)
+    # the embers: three coals still alive, each a bright heart in a ring of dull red
+    hearts = c.rect(14, 23, 16, 24) | c.rect(20, 25, 21, 25) | c.rect(9, 26, 10, 26)
+    c.put(dilate4(hearts) & heap & ~hearts, R['ember'], 'flat', base=1)
+    c.put(hearts, R['ember'], 'flat', base=3)
+    c.put(c.rect(15, 23, 15, 23) | c.rect(20, 25, 20, 25), R['ember'], 'flat', base=4)
+    c.outline()
+    c.glow('#F58A3A', (45,))
+    return c
+
+
+def pyre_ember():
+    """A single ember: an angular coal in a crust of char, its orange-red core open to a yellow heart, a small flame
+    licking up from the top."""
+    c = Canvas(32)
+    lump = c.poly([(6.5, 20.5), (8.5, 15), (13.5, 12.5), (19.5, 13), (25, 16.5), (26.5, 22), (23, 27.5), (15.5, 29),
+                   (9.5, 26.5)])
+    char = V12D_CHAR
+    c.put(lump, char, 'ray', base=2, bands=((0.3, 1), (0.6, 0), (9, -1)))
+    # the crust is thick on the shadow side and flakes over the top; the fire shows through the rest
+    core = erode4(erode4(lump)) & ~c.poly([(18, 24), (24.5, 18), (27, 27), (16, 31)]) & ~c.poly([(6, 24), (9, 25), (13, 30), (5, 30)])
+    core &= ~(c.ellipse(19.5, 16, 2.6, 1.6) | c.ellipse(10, 21.5, 2.0, 1.4))
+    c.put(core, R['ember'], 'sphere', base=2, cx=13.5, cy=19.5, rx=9, ry=7)
+    c.put(c.ellipse(14, 20, 4.0, 3.0) & core, R['ember'], 'flat', base=3)
+    c.put(c.ellipse(13, 19.5, 2.2, 1.6) & core, R['ember'], 'flat', base=4)
+    c.put(c.rect(12, 19, 13, 19), '#FFF6C0', 'flat', out=R['ember'].out)
+    # cracks running through the char where the heat shows
+    for pts in ([(21, 20), (24, 23), (23, 26)], [(8, 23), (11, 26)], [(19, 15), (21, 17)]):
+        c.put(c.bres_path(pts) & lump & ~core, R['ember'], 'flat', base=3)
+    c.put(c.pts([(23, 24), (10, 25)]) & lump, R['ember'], 'flat', base=4)
+    # a tongue of flame standing on the top, leaning a little to the right
+    fl = S.flame(c, 14.5, 13.5, 6.0, 10.5, 0.7)
+    c.put(fl & ~lump, R['fire'], 'vgrad', base=2, bands=((0.3, 0), (0.62, 1), (9, 2)))
+    inner = S.flame(c, 14.5, 13.5, 2.8, 5.5, 0.3)
+    c.put(inner & ~lump, R['fire'], 'flat', base=4)
+    c.outline()
+    c.glow('#F58A3A', (80, 35))
+    return c
+
+
+register(FAM, 'cinder_ash', cinder_ash, GROUP)
+register(FAM, 'pyre_ember', pyre_ember, GROUP)

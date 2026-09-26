@@ -110,3 +110,23 @@ M26 (a plan for each finding) is met by the two tables above and by part (f).
 The per-system split is a second table under the authority table in `docs/architecture.md`. Each system names what
 runs locally now and what a v2.0 server must own. The rule behind it is the extension contract in the same page: the
 server owns every write, and the client submits the same intents it submits today.
+
+## (d) The UI review (U11–U12)
+
+Severity: **High** blocks or misleads a player; **Medium** slows a player down or reads badly on a phone; **Low** is
+polish. Every row names where the fault is and the phase that fixes it; P3's mockups show each fix before it is built.
+
+Evidence: the page screenshots in `docs/ui_inventory/`, captures from the valley_run character's checkpoints (a
+character who played the story, never the test character with everything unlocked), and a headless audit that opened
+every page and tab and measured each tap target.
+
+### Global issues (U12)
+
+| # | Severity | Issue | Where | Fix and phase |
+|---|---|---|---|---|
+| G1 | Medium | Tap targets under the 48 px minimum. Every page's tabs are 40 px tall. Sixteen other controls are 36–46 px on one side: the stance chips (38), the Settings volume steps (36), the Character page's look button (40), the Cultivation page's meridian, path and vow buttons (40–46), the forge mode and guild pickers (46), the exam buttons (40), the Codex rows (44), the bag's sort (44), the Roll-Call's bench points (44) and the quest chest (46). None is under 32 px | `page.gd:142` (the tab rect), and each page's `btn` call | P4: tabs to 48 px, and a `ui_suite` that fails on any `btn` or `region` under 48 px on a side |
+| G2 | High | Numbers on bars misread. Pixelify Sans draws 5 like an S and 2 like a Z, so at bar size "25,492" reads "ZS,49Z" (the HP, Qi and Soul bars, the enemy and boss bars) | `hud.gd` bar labels, `Page.bar` | P4: bar numbers in a numeral face that keeps 2 and 5 apart (chosen in the style guide), Pixelify kept for large display numbers only; screenshot check |
+| G3 | High | The HUD's lower middle fills up once many systems are unlocked. The technique slots and system toggles cover NPC and enemy name labels, and empty technique slots show as blank circles | `hud.gd` (the technique arc and the toggle row) | P5a from mockup `01_hud_fight`: techniques on a compact arc round the attack button, empty slots hidden, toggles folded into one fan |
+| G4 | Medium | Name labels in the world stack on each other: companions, the puppet and the pet all label at the same height, and a boss's level line runs into the next foe's name | the world's name labels (`world.gd`, `scripts/presentation/`) | P5a: labels offset in rows when they overlap, and hidden for party members out of combat |
+| G5 | Medium | Long bars have no stops. The Dao, collection, activity and Presence bars show a fill and no marks for the rewards along them (E4) | `Page.bar` | P5 from the kit's bar with reward ticks |
+| G6 | Low | Two kits live side by side: the pixel kit (`art/ui/`) and the HD kit (`art/ui/hd/`); `UiKit.style` prefers the HD one, and four assets have no HD version, so they draw from the pixel kit: `slot_empty_motif` and the three HUD circles | `ui_kit.gd:129-165` | P4: the style guide names one kit per asset |

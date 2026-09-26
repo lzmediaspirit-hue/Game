@@ -1935,3 +1935,82 @@ def spirit_glue():
 for _cp_id, _cp_fn in (('hemp_cord', hemp_cord), ('bronze_rivet', bronze_rivet), ('kiln_brick', kiln_brick),
                        ('lacquer_pot', lacquer_pot), ('whetstone', whetstone), ('spirit_glue', spirit_glue)):
     register(FAM, _cp_id, _cp_fn, GROUP)
+
+
+# ============================================================================ v1.2 Phase D · Ash and Tide
+# kharns_glaive_shard: the broken tip of Kharn's glaive, crimson blade on a bronze spine, its edge still ember-hot.
+# copperjaw_box: a small black-red lacquer box, bronze at the corners, its lid ajar and two copperjaw beetles on
+# the rim.
+V12D_CRIMSON = Ramp(['#3A0A10', '#6E141C', '#A8222A', '#D84A44', '#F0907A'], '#1A0407')
+V12D_BLACK_LACQUER = Ramp(['#150609', '#2C0C12', '#4A141C', '#70222A', '#9E3C40'], '#080203')
+
+
+def kharns_glaive_shard():
+    """The broken tip of a glaive: a broad curved blade, crimson on a bronze spine, ember-orange along the edge, the
+    break jagged at the lower left."""
+    c = Canvas(32)
+    spine = S.curve_pts((4.5, 17.5), (13, 8.5), (28.5, 3), 18)      # the back, nearly straight to the point
+    edge = S.curve_pts((10.5, 29), (27.5, 23), (28.5, 3), 18)       # the curved belly of the edge
+    brk = [(10.5, 29), (7.5, 26.5), (9, 23.5), (5.5, 22), (7, 19.5), (4.5, 17.5)]
+    blade = c.poly(spine + edge[::-1][:-1] + brk[:-1])
+    c.put(blade, V12D_CRIMSON, 'ray', base=2, bands=((0.3, 1), (0.58, 0), (0.82, -1), (9, -1)))
+    # the thick bronze back, following the spine
+    back = c.polyline(spine, 3.2) & blade
+    c.put(back, R['bronze'], 'ray', base=2, sep=True, sep_col=V12D_CRIMSON[0])
+    c.put(c.polyline(spine, 1.0) & blade & (c.Y > 3), R['bronze'], 'flat', base=3)
+    # the bevel: a pale ridge where the flat of the blade turns down to the edge
+    inset = [(x - 2.4, y - 2.4) for (x, y) in edge[:-2]]
+    c.put(c.polyline(inset, 1.0) & blade & ~back, V12D_CRIMSON, 'flat', base=4)
+    # the ember edge, hottest near the point
+    hot = c.polyline(edge, 2.0) & blade & ~back
+    c.put(hot, R['ember'], 'flat', base=2)
+    c.put(c.polyline(edge, 1.0) & blade & ~back, R['ember'], 'flat', base=3)
+    c.put(c.polyline(edge, 1.0) & blade & ~back & (c.X - c.Y > 4), R['ember'], 'flat', base=4)
+    # the break: the metal dull and dark along the jagged line, a few bright chips at the snap
+    c.put(c.polyline(brk, 1.4) & blade, V12D_CRIMSON, 'flat', base=0)
+    c.put(c.pts([(8, 21), (9, 25), (6, 23)]) & blade, R['bronze'], 'flat', base=1)
+    c.put(c.pts([(7, 20), (10, 24)]) & blade, R['bronze'], 'flat', base=4)
+    c.outline()
+    from families.beast_parts import halo
+    halo(c, hot, '#F58A3A', (80, 30))
+    return c
+
+
+def copperjaw_box():
+    """A small lacquer box seen from the front, its lid lifted ajar and two copper beetles crawling on the rim."""
+    c = Canvas(32)
+    lac = V12D_BLACK_LACQUER
+    # the box: front face, the right side turned a little away, the open top dark inside
+    front = c.rect(5, 17, 23, 28)
+    side = c.poly([(24, 17), (28, 13.5), (28, 24.5), (24, 28)])
+    top = c.poly([(5, 17), (9, 13.5), (28, 13.5), (24, 17)])
+    c.put(top, R['ink'], 'flat', base=1)
+    c.put(side, lac, 'flat', base=1)
+    c.put(front, lac, 'bevel', base=2, sep=True, sep_col=lac[0])
+    c.put(c.rect(6, 18, 22, 18) | c.rect(6, 18, 6, 27), lac, 'flat', base=3)
+    c.put(c.bres(8, 24, 11, 21), lac[4], 'flat', out=lac.out)
+    # bronze corner caps
+    for (x0, y0, x1, y1) in ((5, 25, 7, 28), (21, 25, 23, 28), (5, 17, 7, 19), (21, 17, 23, 19)):
+        c.put(c.rect(x0, y0, x1, y1), R['bronze'], 'bevel', base=2, sep=True)
+    c.put(c.rect(26, 22, 28, 24), R['bronze'], 'flat', base=1, sep=True)
+    # the lid, lifted off the box and tilted, propped on the far rim: its front edge high on the left
+    lid_top = c.poly([(4, 9.5), (8.5, 6), (28, 8.5), (25, 12.5)])
+    lid_front = c.poly([(4, 9.5), (25, 12.5), (25, 14.5), (4, 11.5)])
+    c.put(lid_front, lac, 'flat', base=1, sep=True)
+    c.put(lid_top, lac, 'ray', base=2, sep=True, sep_col=lac[0])
+    c.put(c.bres_path([(7, 8), (11, 7)]) & lid_top, lac[4], 'flat', out=lac.out)
+    c.put(c.poly([(4, 9.5), (6.5, 7.6), (6.5, 11.9), (4, 11.5)]), R['bronze'], 'flat', base=2, sep=True)
+    c.put(c.poly([(22.5, 12.1), (25, 12.5), (25, 14.5), (22.5, 14.1)]), R['bronze'], 'flat', base=2, sep=True)
+    # two copperjaw beetles: one climbing out over the front rim, one on the lid
+    for (x, y) in ((11, 15), (19, 5)):
+        body = c.ellipse(x + 0.5, y + 0.5, 1.9, 1.3)
+        c.put(body, R['copper'], 'sphere', base=3, sep=True)
+        c.put(c.rect(x - 2, y, x - 2, y), R['copper'], 'flat', base=1)      # the head
+        c.put(c.pts([(x - 1, y + 2), (x + 1, y + 2), (x + 2, y - 1)]), R['copper'][0], 'flat', out=R['copper'].out)
+        c.put(c.rect(x, y, x, y), R['copper'], 'flat', base=4)
+    c.outline()
+    return c
+
+
+for _v12d_id, _v12d_fn in (('kharns_glaive_shard', kharns_glaive_shard), ('copperjaw_box', copperjaw_box)):
+    register(FAM, _v12d_id, _v12d_fn, GROUP)

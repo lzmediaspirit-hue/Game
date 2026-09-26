@@ -370,3 +370,32 @@ for _id, _fn in FLAMES.items():
     register(FAM, _id, _fn, 'flames')
 for _id, _fn in FURNACES.items():
     register(FAM, _id, _fn, 'tools')
+
+
+# ============================================================================ v1.2 Phase E · the Lantern Heart
+# lantern_heart_flame: the brightest of the Heavenly Flames, gold-white, kept in a small cage of lantern bronze.
+def lantern_heart_flame():
+    """The flame of the other Heavenly Flames, gold-white and brighter than any, standing in a small lantern cage:
+    a bronze dish, three thin bars and a capped ring with a loop."""
+    c = Canvas(32)
+    lb = R['lanternbronze']
+    core, mid, outer = '#FFFFFF', ('#FFE28C', '#FFF4CC'), ('#E6A84A', '#F8CC72')
+    dish = c.ellipse(16, 26.5, 8.5, 2.6)
+    c.put(dish, lb, 'ray', base=2)
+    f1 = S.flame(c, 16, 26, 10, 21, 0.1)
+    c.put(f1, Ramp([outer[0], outer[1], mid[0], mid[1], core], outer[0]), 'vgrad', base=2)
+    f2 = S.flame(c, 16, 26, 5.5, 13, -0.1)
+    c.put(f2, Ramp([mid[0], mid[1], core, core, '#FFFFFF'], mid[0]), 'vgrad', base=3)
+    # the cage over the flame: two side bars, the ring at the top with its loop
+    for x in (7.5, 24.5):
+        c.put(c.seg(x, 7.5, x, 26, 1.3), lb, 'flat', base=2 if x < 16 else 1, sep=True)
+    c.put(c.rect(7, 6, 24, 7), lb, 'flat', base=3, sep=True)
+    c.put(c.ellipse(16, 5.5, 5.5, 1.6) & (c.Y < 6), lb, 'flat', base=2, sep=True)
+    c.put(c.ring(16, 3.2, 1.7, 1.0) & (c.Y < 4), lb, 'flat', base=3)
+    c.put(c.rect(7, 25, 24, 25), lb, 'flat', base=3, sep=True)
+    c.outline()
+    c.glow('#FFF0B8', (150, 65))
+    return c
+
+
+register(FAM, 'lantern_heart_flame', lantern_heart_flame, 'flames')

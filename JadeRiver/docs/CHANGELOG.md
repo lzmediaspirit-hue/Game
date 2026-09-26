@@ -172,6 +172,16 @@ Works). Every source uses one of two curves: add (x1·L) or decay (x1·L/(L + x2
 
 Built in phases (docs/act3_design.md): zone tier 3, levels 82-99, ceiling Sphere Lord 3, Starsea Endurance 20 -> 90.
 
+### Phases D and E · art
+- **The brush and the bell in hand**: weapon sheets for both families in every pose the avatar has (idle, walk, jump,
+  meditate, attack, the three swings, thrusts and punches, the bow and punch combos), baked by
+  `tools/art/bake_weapons.py` from the dagger's grips, each in two layers, in front of the body and behind it
+  (`data/parts.json`: `weapon/brush`, `weapon/bell`).
+- **Icons** (20): cinder ash, the pyre ember, the drone shell, Kharn's glaive shard, the Copperjaw box, eel essence,
+  the void carapace, the Leviathan's scale and the Lantern Heart's flame; the four brush and bell weapons; the five
+  brush and bell manuals; the `brush` and `bell` glyphs on the attack button.
+- `data_validation` is clean again: every item, technique and weapon has its icon and its appearance.
+
 ### Phase E · The Nebula Deep and the Lantern Heart (chapter 22)
 - **The Nebula Deep** (94-99, Endurance 80-84), past the Drone Hive: Nebula Verge, Eel Currents, Crab Grottoes, and the
   Leviathan's Maw.
