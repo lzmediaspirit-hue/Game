@@ -51,6 +51,7 @@ func _main() -> void:
 		var by_data := data_text.contains("\"event\": " + q)
 		check(consumed or by_data or row.has("polled"), "%s has a reactor" % ev)
 	_strings_gate()
+	_format_words_gate()
 	_forbidden_patterns()
 	_scripts_compile()
 	_export_filters()
@@ -103,6 +104,61 @@ func _strings_gate() -> void:
 				found.append("%s:%d %s" % [path.get_file(), i + 1, s])
 	for f in found.slice(0, 20): print("  text in code: ", f)
 	check(found.is_empty(), "no player-facing text in the scripts (%d found; move it with tools/dev/extract_strings.py)" % found.size())
+
+## B8: a lone lowercase word reads like an id, so the gate above lets it through. But one chosen as a value inside
+## the arguments of a text format is a word the player reads ("ready" if … else …, {"silver_tael": "taels"}[…]), and
+## so is a number format with a unit ("%dm").
+func _format_words_gate() -> void:
+	var lit := RegEx.create_from_string("(?<![&^\\w])\"((?:[^\"\\\\]|\\\\.)*)\"")
+	var word := RegEx.create_from_string("^[a-z][a-z0-9_.\\-]*$")
+	var unit := RegEx.create_from_string("^%[-+0 #]*\\d*(\\.\\d+)?[dsf] ?[a-z]{1,3}\\.?$")
+	var fmt := RegEx.create_from_string("(Tx\\.t\\([^)]*\\)|\"[^\"]*%[^\"]*\")\\s*%\\s*")
+	var skip := RegEx.create_from_string("^\\s*(#|(static\\s+)?func\\s|const\\s)|\\b(print|prints|printerr|push_warning|push_error|assert)\\(")
+	var found: Array = []
+	for path in _scope_files():
+		var lines := FileAccess.get_file_as_string(path).split("\n")
+		for i in lines.size():
+			var line: String = lines[i]
+			if skip.search(line) != null: continue
+			# The arguments of each format whose pattern is text (a Tx string, or a literal with a space or a word).
+			var spans: Array = []
+			for fm in fmt.search_all(line):
+				var pattern := fm.get_string(1)
+				if pattern.begins_with("\"") and not (pattern.contains(" ") or _reads_as_text(pattern.substr(1, pattern.length() - 2))): continue
+				spans.append([fm.get_end(), _operand_end(line, fm.get_end())])
+			for m in lit.search_all(line):
+				var s := m.get_string(1)
+				if unit.search(s) != null:
+					found.append("%s:%d %s" % [path.get_file(), i + 1, s])
+					continue
+				if word.search(s) == null or not spans.any(func(sp): return m.get_start() >= sp[0] and m.get_start() < sp[1]): continue
+				var after := line.substr(m.get_end()).strip_edges(true, false)
+				var before := line.substr(0, m.get_start()).strip_edges(false, true)
+				if after.begins_with("if ") or before.ends_with("else") or before.ends_with(":"): found.append("%s:%d %s" % [path.get_file(), i + 1, s])
+	for f in found.slice(0, 20): print("  word in a text format: ", f)
+	check(found.is_empty(), "B8: no word the player reads is picked in code inside a text format (%d found)" % found.size())
+
+## Where the operand starting at `i` ends: a bracketed group with its [..] or .name(..) chain, or a term up to a comma.
+func _operand_end(line: String, i: int) -> int:
+	var depth := 0
+	var in_str := false
+	var j := i
+	while j < line.length():
+		var ch := line[j]
+		if in_str:
+			if ch == "\\":
+				j += 2
+				continue
+			if ch == "\"": in_str = false
+		elif ch == "\"": in_str = true
+		elif ch in ["(", "[", "{"]: depth += 1
+		elif ch in [")", "]", "}"]:
+			if depth == 0: return j
+			depth -= 1
+			if depth == 0 and (j + 1 >= line.length() or not line[j + 1] in ["[", "."]): return j + 1
+		elif ch == "," and depth == 0: return j
+		j += 1
+	return j
 
 func _reads_as_text(s: String) -> bool:
 	var raw := s.replace("\\n", "\n").replace("\\\"", "\"")

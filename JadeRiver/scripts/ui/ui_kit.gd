@@ -312,6 +312,15 @@ static func clock(seconds: float) -> String:
 	if s >= 3600: return "%d:%02d:%02d" % [s / 3600, (s % 3600) / 60, s % 60]
 	return "%d:%02d" % [s / 60, s % 60]
 
+## A time left in words: "2 d 5 h", "1 h 6 m", "12 m", "45 s" (the calendar's style; I14 proposes it for every
+## duration but the ticking countdowns, which keep `clock`).
+static func span(seconds: float) -> String:
+	var s := maxi(0, int(ceil(seconds)))
+	if s >= 86400: return Tx.t("ui.span_dh") % [s / 86400, (s % 86400) / 3600]
+	if s >= 3600: return Tx.t("ui.span_hm") % [s / 3600, (s % 3600) / 60]
+	if s >= 60: return Tx.t("ui.span_m") % ceili(s / 60.0)
+	return Tx.t("ui.span_s") % s
+
 static func fmt(n: float) -> String:
 	var v := int(round(n))
 	var s := str(absi(v))

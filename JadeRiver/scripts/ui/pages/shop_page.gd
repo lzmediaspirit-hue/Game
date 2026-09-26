@@ -41,7 +41,7 @@ func _buy(ch) -> void:
 		slot_box(Rect2(rr.position + Vector2(8, 5), Vector2(62, 62)), str(s.item))
 		text(rr.position + Vector2(84, 30), ContentDB.item_name(str(s.item)) + ("  ↻" if s.get("rotating", false) else ""), 20, UiKit.PAPER if str(s.locked) == "" else UiKit.HOLLOW)
 		text(rr.position + Vector2(84, 56), fit(str(s.locked) if str(s.locked) != "" else str(ContentDB.item(str(s.item)).get("desc", "")), 15, rr.size.x - 220), 15, UiKit.MIST)
-		text(rr.position + Vector2(0, 42), "%s %s" % [UiKit.fmt(int(s.price)), {"silver_tael": "taels", "spirit_stone": "stones", "contribution": "contrib."}.get(str(s.currency), "")], 19, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 16)
+		text(rr.position + Vector2(0, 42), "%s %s" % [UiKit.fmt(int(s.price)), Tx.t("ui.shop.price_" + str(s.currency))], 19, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 16)
 		region(rr, "pick", i, str(s.locked) == "", str(s.locked))
 	)
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)

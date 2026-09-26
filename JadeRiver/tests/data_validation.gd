@@ -86,6 +86,7 @@ func check_effects(list, where: String) -> void:
 		if k in ["grant_pet", "choose_starter"]: check(ContentDB.has_entry("pets", str(e.species)), "%s: pet %s" % [where, e.species])
 		if k == "teleport" and not str(e.get("target", "")) in ["last_town", "dungeon_exit", ""]: check(ContentDB.rooms.has(str(e.target)), "%s: teleport room %s" % [where, e.target])
 		if k == "deed": check(ContentDB.has_entry("karma", str(e.deed)), "%s: deed %s" % [where, e.deed])
+		if k == "record_debt": check(ContentDB.strings.has("ui.cultivation.debt_" + str(e.id)), "%s: debt %s has a label (B24)" % [where, e.id])
 		if k == "learn_technique_for_weapon":
 			for fam in e.get("options", {}): check(ContentDB.has_entry("techniques", str(e.options[fam])), "%s: technique %s" % [where, e.options[fam]])
 
@@ -362,6 +363,14 @@ func data_suite() -> void:
 	for dd in ContentDB.all("karma"):
 		check(str(dd.get("name", "")) != "", "deed %s has a name" % dd.id)
 		if str(dd.get("event", "")) != "": check(not (dd.get("match", {}) as Dictionary).is_empty(), "event deed %s matches on something" % dd.id)
+	# B24: Named Debts lists each debt by its label; the ones karma.json defines and the ones foes leave had none.
+	var debt_ids: Array = (ContentDB.config("karma").get("debts", {}) as Dictionary).keys()
+	for en in ContentDB.all("enemies"):
+		for dk in ["spare_debt", "kill_debt"]:
+			if str(en.get(dk, "")) != "": debt_ids.append(str(en[dk]))
+	for did in debt_ids: check(ContentDB.strings.has("ui.cultivation.debt_" + str(did)), "debt %s has a label (B24)" % did)
+	# B8: a shop's prices name their currency from the strings (the page spelled "taels" and "stones" in code).
+	for sh in ContentDB.all("shops"): check(ContentDB.strings.has("ui.shop.price_" + str(sh.get("currency", "silver_tael"))), "shop %s currency has a price word (B8)" % sh.id)
 	for key in ["fame_tiers", "alignment_words"]:
 		for w in ContentDB.config("karma").get(key, []):
 			check(ContentDB.strings.has("ui.relations." + ("fame_" if key == "fame_tiers" else "align_") + str(w.id)), "%s %s has a label" % [key, w.id])

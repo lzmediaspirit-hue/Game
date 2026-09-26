@@ -140,7 +140,7 @@ func tool_power(c, craft: String) -> float:
 func gather(c, o: Dictionary) -> Dictionary:
 	var craft: String = NODE_CRAFT.get(str(o.type), "")
 	if not Unlocks.is_unlocked(c.id, craft): return fail("locked", {"text": Unlocks.locked_text(craft)})
-	if craft in ["mining", "fishing"] and tool_power(c, craft) <= 0.0: return fail("no_tool", {"text": Tx.t("sim.crafting.you_need_a") % {"mining": "pickaxe", "fishing": Tx.t("sim.crafting.fishing_rod")}[craft]})
+	if craft in ["mining", "fishing"] and tool_power(c, craft) <= 0.0: return fail("no_tool", {"text": Tx.t("sim.crafting.you_need_a") % {"mining": Tx.t("sim.crafting.pickaxe"), "fishing": Tx.t("sim.crafting.fishing_rod")}[craft]})
 	var need_rank := str(o.get("rank", "apprentice"))
 	if rank_index(rank_of(c, craft)) < rank_index(need_rank): return fail("rank", {"text": Tx.t("sim.crafting.needs") % [craft.replace("_", " ").capitalize(), need_rank.capitalize()]})
 	# S45: a ripe rare herb may have a keeper.

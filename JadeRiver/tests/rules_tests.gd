@@ -392,6 +392,29 @@ func ui_fixes_suite() -> void:
 	var words: String = hud_script.tracker_objective("· Net glowflies at the Reed Shallows beside the lotus ferry", "0/5", 290.0)
 	check(words.ends_with("…") and UiKit.text_width(words, 16) + 10.0 + UiKit.text_width("0/5", 16) <= 290.0
 		and hud_script.tracker_objective("· Talk to Aunt Ping", "0/5", 290.0) == "· Talk to Aunt Ping", "B11: the count stays whole beside \"%s\"" % words)
+	# B25: with no floor cleared, the Sweep button says why it sweeps none (it said every floor was swept).
+	var tower = load("res://scripts/ui/pages/tower_page.gd")
+	check(tower.sweep_label(0, 0) == Tx.t("ui.tower.sweep_none") and tower.sweep_label(0, 4) == Tx.t("ui.tower.swept_all")
+		and tower.sweep_label(3, 4) == Tx.t("ui.tower.sweep") % 3 and tower.sweep_label(1, 4) == Tx.t("ui.tower.sweep_one"), "B25: the Sweep label follows the floors cleared")
+	# B20: a character keeping a post (S50 clears its idle task) shows its post on Characters, not "Idle: none".
+	var chars = load("res://scripts/ui/pages/characters_page.gd").new()
+	var post_was: Dictionary = Game.posts.state(c).post.duplicate(true)
+	var idle_was: Dictionary = c.idle_task.duplicate(true)
+	Game.posts.state(c).post = {"kind": "craft", "craft": "delving", "room": "wp_west", "object": "", "since": Clock.now_utc(), "paused": false}
+	c.idle_task = {}
+	var at_post: String = chars.task_line(c)
+	Game.posts.state(c).post = {"kind": "vigil", "craft": "vigil", "room": "wp_west", "object": "", "since": Clock.now_utc(), "paused": false}
+	var at_vigil: String = chars.task_line(c)
+	Game.posts.state(c).post = {}
+	check(at_post == Tx.t("ui.characters.post_at") % [str(ContentDB.entry("posts", "delving").get("short", "")), ContentDB.name_of("rooms", "wp_west")]
+		and at_vigil == Tx.t("ui.characters.vigil_at") % ContentDB.name_of("rooms", "wp_west") and chars.task_line(c) == Tx.t("ui.characters.idle_none"),
+		"B20: a post shows as the character's task (%s; %s)" % [at_post, at_vigil])
+	Game.posts.state(c).post = post_was
+	c.idle_task = idle_was
+	chars.free()
+	# B8 / I14: a time left in words, in the one style.
+	check(UiKit.span(45) == Tx.t("ui.span_s") % 45 and UiKit.span(12 * 60) == Tx.t("ui.span_m") % 12 and UiKit.span(3960) == Tx.t("ui.span_hm") % [1, 6]
+		and UiKit.span(2 * 86400 + 5 * 3600) == Tx.t("ui.span_dh") % [2, 5], "B8, I14: UiKit.span writes a duration in words")
 
 func text_suite() -> void:
 	var probe := "Pick up Herbal Tea"

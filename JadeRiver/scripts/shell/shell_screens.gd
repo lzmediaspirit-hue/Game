@@ -4,6 +4,7 @@ extends RefCounted
 ## Each screen is a frameless Page drawn over the river backdrop.
 
 const Avatar = preload("res://scripts/avatar.gd")
+const CharactersPage = preload("res://scripts/ui/pages/characters_page.gd")
 
 
 class TitleScreen extends Page:
@@ -87,6 +88,7 @@ class SelectionScreen extends Page:
 				var status := ""
 				if ch.cultivator.state == "bottleneck": status = Tx.t("shell.at_a_bottleneck")
 				elif not ch.cultivator.injuries.is_empty(): status = Tx.t("shell.injured")
+				elif Game.posts.has_post(ch): status = CharactersPage.post_line(ch)   # B20: a character at its post
 				elif not ch.idle_task.is_empty(): status = Tx.t("shell.idle") % str(ch.idle_task.get("task", "")).capitalize()
 				if status != "": text(r.position + Vector2(0, 396), status, 16, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 				region(r, "select", slot)

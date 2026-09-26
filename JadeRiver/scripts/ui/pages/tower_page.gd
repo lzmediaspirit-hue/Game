@@ -40,8 +40,8 @@ func draw_page() -> void:
 	var sweepable := 0
 	for f in range(1, cleared + 1):
 		if not Game.world.tower_swept_today(ch, f): sweepable += 1
-	btn(Rect2(left.position.x + 16, left.end.y - 74, left.size.x - 32, 58), Tx.t("ui.tower.sweep") % sweepable if sweepable > 0 else Tx.t("ui.tower.swept_all"),
-		"sweep", null, sweepable > 0, sweepable > 0, Tx.t("ui.tower.sweep_none"))
+	btn(Rect2(left.position.x + 16, left.end.y - 74, left.size.x - 32, 58), sweep_label(sweepable, cleared),
+		"sweep", null, sweepable > 0, sweepable > 0, sweep_label(0, cleared))
 	# Right: the chosen floor.
 	var row2 := Game.world.tower_floor(sel)
 	if row2.is_empty(): return
@@ -67,6 +67,12 @@ func draw_page() -> void:
 	var can := sel <= cleared + 1
 	btn(Rect2(right.position.x + 28, right.end.y - 80, right.size.x - 56, 60), Tx.t("ui.tower.climb") % sel if sel > cleared else Tx.t("ui.tower.again") % sel,
 		"climb", sel, true, can, Tx.t("ui.tower.locked") % (cleared + 1))
+
+## The Sweep button's label: the floors it sweeps, or why it sweeps none (B25: with no floor cleared it said
+## "Every floor swept today").
+static func sweep_label(sweepable: int, cleared: int) -> String:
+	if sweepable > 0: return Tx.t("ui.tower.sweep_one") if sweepable == 1 else Tx.t("ui.tower.sweep") % sweepable
+	return Tx.t("ui.tower.sweep_none") if cleared <= 0 else Tx.t("ui.tower.swept_all")
 
 func on_action(id: String, data) -> void:
 	match id:

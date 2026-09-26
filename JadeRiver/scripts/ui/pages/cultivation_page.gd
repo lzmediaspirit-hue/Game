@@ -151,7 +151,7 @@ func _body(ch) -> void:
 			text(Vector2(cx + 22, cy + 18), str(chk[0]), 16, UiKit.PAPER if done else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, cw - 46)
 			cy += 26
 		cy += 6
-		cy += para(Rect2(cx, cy, cw - 32, 120), str(t.get("trial_text", "")), 15, UiKit.MIST, 6) + 8   # B18: six lines (the Jade trial stopped at "and it is")
+		cy += para(Rect2(cx, cy, cw - 32, 120), str(t.get("trial_text", "")), 15, UiKit.MIST, 6) + 8   # B18: six lines (the Jade Body trial was cut at five)
 		para(Rect2(cx, cy, cw - 32, cr.end.y - cy - 10), str(t.get("gift_text", "")), 16, UiKit.BRIGHT_JADE if reached else UiKit.PAPER, 4)
 
 ## Vows (S48): each forbids one thing while held and gives a steady gift; letting one go breaks it.

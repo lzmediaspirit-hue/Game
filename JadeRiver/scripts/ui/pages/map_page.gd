@@ -170,7 +170,7 @@ func draw_page() -> void:
 			if sp.get("field_boss", false) and Unlocks.is_unlocked(ch.id, "field_boss_timers"):
 				var until := float(Game.account.rooms.get("field_boss_timers", {}).get(str(sp.enemy), 0.0))
 				var left_s := int(until - Clock.now_utc())
-				text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.boss") % ("ready" if left_s <= 0 else "%dm" % (left_s / 60 + 1)), 15, UiKit.RED)
+				text(Vector2(right.position.x + 44, y + 44), Tx.t("ui.map.boss") % (Tx.t("ui.map.boss_ready") if left_s <= 0 else UiKit.span(left_s)), 15, UiKit.RED)
 				y += 20
 		y += 28
 		if y > right.end.y - 40: break
