@@ -154,8 +154,8 @@ curve gives roughly 2,500–3,000 at Lv 90–99, so 6–9 minutes for these thre
   15%, rounded to 5%, plus 5% for being avoidable. Tiers: light 15%, medium 20–25%, heavy 30–35%, floor 35–45%.
 - **The burst cap.** Markers that can land within any 3 s window sum to at most 60% of max HP before the enrage. A
   character at full HP never falls to one cycle.
-- **Enrage stage two** multiplies marker shares by 1.5, capped at 68%. Rao's detonation (60%) is the one exception to these
-  caps: it is announced for 3 s and ends the fight.
+- **Enrage stage two** multiplies marker shares by 1.5, capped at 68%. Rao's detonation (60%) is the one exception to
+  these caps: it is announced for 3 s and ends the fight.
 - **Answers** a marker can have: step out; go up (the ground band reaches altitude 40, as ground fire does, so any
   ledge is above it); dodge through (the dash's 0.25 s of invulnerability at the moment of impact slips it); guard
   (halves it, except floors); interact (a bell, a jar, a keg).
@@ -163,7 +163,7 @@ curve gives roughly 2,500–3,000 at Lv 90–99, so 6–9 minutes for these thre
 ### 2.2 Wind-ups
 
 - **Escape time.** From the worst point inside a marker to the nearest safe point: distance ÷ 205 (walk speed,
-  `stats.json` `move.base`), plus 0.45 s for a jump to 122 or less, 0.6 s for a double jump to 202 or less (from Qi
+  `stats.json` `move.base`) for the first 2 s, ÷ 348 after that (the sprint's × 1.7), plus 0.45 s for a jump to 122 or less, 0.6 s for a double jump to 202 or less (from Qi
   Unfurling 6), or height ÷ 160 + 0.3 s for a rope or ladder. Circles, rings and cones are ellipses in depth (§3.1),
   so the quickest way out is often a short step toward or away from the camera.
 - **The rule.** A marker's wind-up is at least its escape time + 0.4 s of reaction, and never under 0.9 s. A floor
@@ -727,7 +727,7 @@ east.
 | Ring Sweep | line both ways, umber | 180 × 70 deep | 0.9 s (from 0.7) | 20% (≈ 2,160) and a knockback | a step in depth |
 | Soul Gaze | thin line, violet | its lane, 320 long | 0.9 s | 12% soul | out of the lane |
 | The Gaze That Follows | circle, column, violet | follows you 2.0 s, locks, r 100 | 2.0 s + 0.8 s locked | 25% soul (≈ 2,700) and slowed 2 s | be elsewhere when it locks |
-| Gate Quake | floor within 900 of the gate, umber, spiral glyph | x 1000–2800 | 3.0 s | 40% (≈ 4,320) and a 1 s stun | a cloud ring, the arch, or beyond 900 |
+| Gate Quake | floor within 900 of the gate, umber, spiral glyph | x 1000–2800 | 3.4 s | 40% (≈ 4,320) and a 1 s stun | a cloud ring, the arch, or beyond 900 (the worst point, under the arch's front, is 3.0 s from safety) |
 
 **Enrage (240 s): "The Gate closes."** Gate Quake every 9 s, and the arch is no longer safe: only the rings.
 
@@ -794,7 +794,7 @@ King at 1700. The west third is far from any ledge (5 s), so the big marker's sa
 |---|---|---|---|---|---|
 | Glaive Sweep | line both ways, umber, cracked-blade glyph | 190 × 70 deep | 0.9 s (from 0.75) | 25% (≈ 3,875), a knockback, a natal weapon broken | a step in depth |
 | Sun Flare | cone, ember | ahead, 300 long, 35° | 1.1 s | 25% Qi and burning | behind or beside him |
-| Noon of Sunscar | floor, column, ember | the whole ground and the air | 3.0 s | 40% Qi (≈ 6,200) and burning 4 s | the shade: an ellipse r 90 at 130 west of the King and of each living Warden, checked at impact |
+| Noon of Sunscar | floor, column, ember | the ground and the air within 700 of him | 3.0 s | 40% Qi (≈ 6,200) and burning 4 s | the shade: an ellipse r 90 at 130 west of the King and of each living Warden, checked at impact; or beyond 700 |
 | Crown of Sand | rows: two of three struck, sand | the depth band in three rows along the whole room | 1.6 s | 25% | the free row |
 
 Killing the Wardens removes their shade. It is a real choice: fewer blades, or more shelter.
@@ -890,7 +890,8 @@ for judgement. He is the first Sphere clash, so his great marker makes the playe
 enrage 480 s.
 
 **Arena.** Kharn's Pyre, 2560 wide, a fire room. Ledges at 100 (x 260–540) and 200 (x 840–1120), far west; Kharn at
-1500. His own fires make the rest of the safety: burnt-out ground cannot burn twice.
+1500. The rest of the safety is his own fire: the eye of the pyre at his feet, and burnt-out ground, which cannot
+burn twice.
 
 | Phase | Opens | What changes |
 |---|---|---|
@@ -904,7 +905,7 @@ enrage 480 s.
 | Cinder Glaive | cone, ember | ahead, 150 long, 40° | 0.8 s | 20% (≈ 5,200) | behind or beside him |
 | Leaping Cleave | circle, ember | on you, r 110; he lands there | 1.2 s (from 1.0) | 30% (≈ 7,800); fire r 80 for 5 s (existing) | out of it |
 | Pyre Rings | four circles, ember | at ±150 and ±300 from him, r 70 | 1.4 s, then burning 7 s (existing) | the existing burn | between them; each turns to ash when it goes out |
-| Pyre of the Fallen | floor, ember | the whole ground; cast 3–10 s after a Pyre Rings burns out | 3.0 s | 40% (≈ 10,400) and burning | the ledges; any ash patch; inside your own Sphere while it holds against his |
+| Pyre of the Fallen | floor, ember | the ground within 900 of him; cast 3–10 s after a Pyre Rings burns out | 3.0 s | 40% (≈ 10,400) and burning | the pyre's eye (r 120 around him: his fire does not touch him); any ash patch; the ledges; inside your own Sphere while it holds against his; beyond 900 |
 | Ember Waves | three rings in turn, ember | from him: 0–150, 250–400, 500–650, 1.2 s apart | 1.2 s each | 20% each | in a gap as a wave passes |
 
 **Enrage (480 s): "The pyre reaches the sky."** Pyre Rings leave no ash; Pyre of the Fallen every 13 s.
@@ -947,7 +948,7 @@ no-flight room, so its reef branches are the high ground.
 | Gravity Crash | circle, violet, spiral glyph | on you, r 160 | 1.2 s (from 1.0) | 30% and a 40% chance of a 1 s stun | out of it |
 | Current Swallow | ring with jade chevrons pointing in, then its maw | pull ring r 300; maw r 90 before it | 1.2 s, then a 2 s pull of 220 | the maw: 25% Qi | beyond 300, or on a branch or ledge |
 | Star-Fall | five circles, violet | one on you, four within 500, r 80 | 1.6 s | 18% each and burning | the gaps |
-| Swallow the Sky | floor within 1100 of it, violet, chevrons in | x ±1100 around it | 3.2 s | 45% Qi (≈ 12,600) and pulled | the branches, the ledges, or beyond 1100 |
+| Swallow the Sky | floor within 700 of it, violet, chevrons in | x ±700 around it | 3.3 s | 45% Qi (≈ 12,600) and pulled | the branches, the ledges, or beyond 700 |
 
 **Enrage (600 s): "The Maw closes."** Swallow the Sky every 12 s; the current drifts toward the maw at 60 px/s the
 whole time.
@@ -1065,7 +1066,8 @@ breaks the three jars before Tan's drink and checks that he does not heal.
 - Every phase action is one EnemyAuthority handles or a room script answers (so `soul_phase` can never pass silently
   again).
 - Every marker: `pct` in (0, 0.45] (0.6 for the detonation); wind-up ≥ 0.9 s and ≥ `escape_s` + 0.4 s in the boss's
-  room at the band's movement (moving safe zones excluded); floors ≤ 3.5 s; every `surface` safe entry exists in the
+  room at the band's movement; floors ≤ 3.5 s. Safe zones tied to the boss (its shade, the pyre's eye) count where the
+  boss stands; zones that may not exist at impact (ash, a Warden's shade, the player's Sphere) do not count; every `surface` safe entry exists in the
   room and is reachable at the band; `every_s` ≥ wind-up + 3 s.
 - The burst cap: the mechanics' schedule never lets markers worth more than 0.6 land within 3 s.
 - Every signature item, set and title exists; every string key exists.
