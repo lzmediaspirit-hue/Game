@@ -7644,6 +7644,7 @@ func fixes_suite() -> void:
 	_fix_commissions(c)
 	_fix_wind_step(c)
 	_fix_strongest_dao(c)
+	_fix_fall(c)
 	Clock.override_utc = utc0
 	Clock.override_tz_offset_s = tz0
 	HerbRules.origin_week = 0
@@ -7784,3 +7785,19 @@ func _fix_strongest_dao(c) -> void:
 	check(float(c.cultivator.daos.sword.insight) > 12500.0 and near(float(c.cultivator.daos.fist.insight), 30000.0),
 		"and the chess problem teaches the same Dao (%s)" % str(c.cultivator.daos))
 	c.cultivator.daos = {}
+
+## The fall's cost is Combat's answer to fell_out (the world scene no longer writes HP): 5% of max HP on the road,
+## nothing in the Prologue's village.
+func _fix_fall(c) -> void:
+	c.pools.hp = c.pools.max_hp
+	GameEvents.emit_event("fell_out", {"actor": c.id, "recovered_to": {}})
+	GameEvents.flush()
+	check(near(c.pools.hp, c.pools.max_hp), "a fall in the Prologue's village costs nothing")
+	Game.world.apply_teleport(c.id, "wp_west")
+	GameEvents.flush()
+	c.pools.hp = c.pools.max_hp
+	GameEvents.emit_event("fell_out", {"actor": c.id, "recovered_to": {}})
+	GameEvents.flush()
+	check(near(c.pools.hp, c.pools.max_hp * (1.0 - float(ContentDB.stat_const("move.fall_cost_pct", 0.05)))),
+		"a fall on the Willow Path costs 5%% of max HP (%.1f of %.1f)" % [c.pools.hp, c.pools.max_hp])
+	c.pools.hp = c.pools.max_hp

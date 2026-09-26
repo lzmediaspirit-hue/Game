@@ -391,7 +391,7 @@ func sense_pulse(c) -> Dictionary:
 	var cost := 10.0
 	if StatRules.gate_flag(c, "sense_cost_25"): cost *= float(ContentDB.stat_const("gates", {}).get("sense_cost_mult", 0.75))   # S10 Spirit 25
 	if c.pools.get_value("soul") < cost: return fail("no_soul", {"text": Tx.t("sim.world.not_enough_soul")})
-	c.pools.set_value("soul", c.pools.get_value("soul") - cost)
+	game.combat.apply_resource_change(c.id, "soul", -cost, "spirit_sense")
 	c.pools.cooldowns["sense"] = 6.0
 	var st: ActorState = game.actor_state(c.id)
 	var here: Vector2 = st.plane if st else Vector2(float(c.position.x), float(c.position.y))
@@ -591,7 +591,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			if o.has("page_args"): result.page_args = o.page_args
 			# Some things teach you something the first time you look (a Codex entry): once per character.
 			if o.has("effects") and not c.quests.has_flag("inspected_" + object_id):
-				c.quests.flags["inspected_" + object_id] = true
+				game.quest.apply_flag(c.id, "inspected_" + object_id)
 				game.apply_effects(c.id, o.effects, "inspect:" + object_id)
 		"rite_circle":
 			return game.quest.start_set_piece(c, str(o.get("event", "")))

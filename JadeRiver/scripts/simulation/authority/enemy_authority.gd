@@ -397,14 +397,15 @@ func release(e: EnemyState) -> void:
 	emit("actor_released", {"uid": e.uid, "def": e.def_id})
 
 func end_spar(e: EnemyState, winner_actor: String) -> void:
-	e.alive = false
 	e.action = "hurt"
+	_finish_spar(e, "player" if winner_actor.begins_with("c") else "opponent")
+
+## A spar ends at 10% HP on either side: the opponent bows out and Combat makes the player whole.
+func _finish_spar(e: EnemyState, winner: String) -> void:
+	e.alive = false
 	e.dead_time = 0.8
 	game.combat.end_spar(game.active_id)
-	var c = game.active()
-	if c: c.pools.hp = maxf(c.pools.hp, c.pools.max_hp)
-	emit("spar_ended", {"actor": game.active_id, "opponent": e.def_id, "winner": "player" if winner_actor.begins_with("c") else "opponent",
-		"room": game.room_rt.room_id})
+	emit("spar_ended", {"actor": game.active_id, "opponent": e.def_id, "winner": winner, "room": game.room_rt.room_id})
 
 func start_spar(def_id: String, point: Vector2, level := -1) -> EnemyState:
 	game.combat.begin_spar(game.active_id)
@@ -420,10 +421,5 @@ func player_lost_spar() -> void:
 	if game.room_rt == null: return
 	for e in game.room_rt.living_enemies():
 		if e.def.get("spar", false):
-			e.alive = false
-			e.dead_time = 0.8
-			game.combat.end_spar(game.active_id)
-			var c = game.active()
-			if c: c.pools.hp = c.pools.max_hp
-			emit("spar_ended", {"actor": game.active_id, "opponent": e.def_id, "winner": "opponent", "room": game.room_rt.room_id})
+			_finish_spar(e, "opponent")
 			return

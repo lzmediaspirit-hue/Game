@@ -721,10 +721,7 @@ func county_jobs(c) -> Array:
 	var m: Dictionary = c.relations.mortal
 	var day := Clock.reset_day(Clock.now_utc())
 	if int(m.get("day", -1)) == day: return m.get("jobs", [])
-	for qid in m.get("jobs", []):
-		c.quests.active.erase(qid)
-		c.quests.tracked.erase(qid)
-		c.quests.daily.erase(qid)
+	for qid in m.get("jobs", []): game.quest.apply_drop(c.id, str(qid))
 	m["day"] = day
 	var made: Array = []
 	var rng := Rng.keyed(int(c.rng_seed), "county:%d" % day)
@@ -742,10 +739,10 @@ func county_jobs(c) -> Array:
 		if fit.is_empty(): continue
 		var op: Dictionary = fit[rng.randi_range(0, fit.size() - 1)]
 		var id := "mortal_%d_%d" % [day, made.size()]
-		c.quests.daily[id] = {"id": id, "name": str(op.name), "kind": "mortal", "objectives": [(op.objective as Dictionary).duplicate(true)],
+		game.quest.apply_generated(c.id, {"id": id, "name": str(op.name), "kind": "mortal", "objectives": [(op.objective as Dictionary).duplicate(true)],
 			"hand_in": "", "auto_complete": true, "qp": "daily",
 			"rewards": [{"kind": "grant_currency", "currency": "silver_tael", "amount": int(rw.get("silver_base", 20)) + lv * int(rw.get("silver_per_level", 4))},
-				{"kind": "deed", "deed": str(rw.get("deed", "county_service"))}, {"kind": "county_favour", "amount": int(rw.get("favour", 10))}]}
+				{"kind": "deed", "deed": str(rw.get("deed", "county_service"))}, {"kind": "county_favour", "amount": int(rw.get("favour", 10))}]})
 		made.append(id)
 	m["jobs"] = made
 	for qid in made: game.quest.accept(c, qid)

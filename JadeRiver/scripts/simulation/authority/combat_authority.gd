@@ -47,9 +47,19 @@ func subscribe() -> void:
 	GameEvents.subscribe("room_entered", func(_p): ally_hots.clear(), 20)
 	GameEvents.subscribe("room_entered", func(_p): _clear_room_marks(), 20)
 	GameEvents.subscribe("actor_defeated", _feed_blood_essence, 20)
+	GameEvents.subscribe("fell_out", _on_fell_out, 20)
 
 func _on_stat_source(p: Dictionary) -> void:
 	refresh_stats(str(p.get("actor", "")))
+
+## S43 rule 6: a fall out of the room costs 5% of max HP (never below 1), except in the Prologue, towns and safe rooms.
+func _on_fell_out(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	var room: Dictionary = game.room_rt.def if game.room_rt != null else {}
+	if c == null or room.is_empty() or room.get("safe", false) or str(room.get("region", "")) == "lotus_ferry" or str(room.get("type", "")) in ["town", "prologue"]:
+		return
+	var cost: float = minf(c.pools.max_hp * float(ContentDB.stat_const("move.fall_cost_pct", 0.05)), c.pools.hp - 1.0)
+	if cost > 0.0: apply_resource_change(c.id, "hp", -cost, "fall")
 
 ## S49 weather (v1.1): the sky over this room lends its modifiers (calendar.json weather_effects); never gating.
 func apply_weather(actor_id: String, weather: String) -> void:
@@ -2463,5 +2473,8 @@ func ally_hits_enemy(a: EnemyState, e: EnemyState, attack_power: float) -> void:
 func begin_spar(actor_id: String) -> void:
 	spar[actor_id] = true
 
+## A spar is over, won or lost: nobody is hurt by it, and the player is made whole.
 func end_spar(actor_id: String) -> void:
 	spar.erase(actor_id)
+	var c = game.character(actor_id)
+	if c != null: apply_resource_change(actor_id, "hp", c.pools.max_hp, "spar")

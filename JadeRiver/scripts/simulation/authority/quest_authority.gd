@@ -57,8 +57,7 @@ func handle(intent: Dictionary) -> Dictionary:
 			var q2 := str(intent.get("quest", ""))
 			var def := quest_def(c, q2)
 			if def.get("kind", "") in ["main", "guided", "prologue"]: return fail("cannot_abandon")
-			c.quests.active.erase(q2)
-			c.quests.tracked.erase(q2)
+			apply_drop(c.id, q2, false)
 			emit("quest_abandoned", {"actor": c.id, "quest": q2})
 			return ok()
 		"report_page_opened":
@@ -477,6 +476,20 @@ func apply_clear_flag(actor_id: String, flag: String) -> void:
 	c.quests.flags.erase(flag)
 	emit("flag_cleared", {"actor": actor_id, "flag": flag})
 
+## Take a quest off a character's lists (active and tracked; `generated` also forgets a generated quest's definition)
+## without completing it: abandoned, timed out, or replaced by the next day's board.
+func apply_drop(actor_id: String, qid: String, generated := true) -> void:
+	var c = game.character(actor_id)
+	if c == null: return
+	c.quests.active.erase(qid)
+	c.quests.tracked.erase(qid)
+	if generated: c.quests.daily.erase(qid)
+
+## A generated quest (a daily mission, the weekly, a county job) is written to the character's list, ready to accept.
+func apply_generated(actor_id: String, def: Dictionary) -> void:
+	var c = game.character(actor_id)
+	if c != null: c.quests.daily[str(def.id)] = def
+
 func apply_start(actor_id: String, qid: String) -> void:
 	var c = game.character(actor_id)
 	if c == null: return
@@ -582,8 +595,7 @@ func tick(_delta: float) -> void:
 		var st: Dictionary = c.quests.active[qid]
 		if st.has("deadline") and st.get("state") != "ready" and game.sim_time > float(st.deadline):
 			var def := quest_def(c, qid)
-			c.quests.active.erase(qid)
-			c.quests.tracked.erase(qid)
+			apply_drop(c.id, qid, false)
 			c.quests.offered[qid] = true
 			emit("quest_failed", {"actor": c.id, "quest": qid, "name": str(def.get("name", qid)), "text": str(def.get("fail_text", Tx.t("sim.quest.time_up")))})
 
@@ -597,18 +609,16 @@ func start_weekly(force: bool) -> void:
 	var week := Clock.reset_week(Clock.now_utc())
 	var id := "weekly_%d" % week
 	for qid in c.quests.daily.keys():
-		if str(qid).begins_with("weekly_") and qid != id:
-			c.quests.active.erase(qid)
-			c.quests.daily.erase(qid)
+		if str(qid).begins_with("weekly_") and qid != id: apply_drop(c.id, qid)
 	if c.quests.daily.has(id) or c.quests.done.has(id): return
 	var cfg := ContentDB.config("weekly_mission")
 	var lv := ProgressionRules.level(c)
-	c.quests.daily[id] = {"id": id, "name": str(cfg.get("name", Tx.t("sim.quest.sect_service"))), "kind": "daily", "complete_on": "any", "hand_in": "", "auto_complete": true,
+	apply_generated(c.id, {"id": id, "name": str(cfg.get("name", Tx.t("sim.quest.sect_service"))), "kind": "daily", "complete_on": "any", "hand_in": "", "auto_complete": true,
 		"objectives": [{"kind": "use_system", "system": "daily_mission_done", "count": int(cfg.get("dailies", 20)), "text": Tx.t("sim.quest.finish_daily_missions")},
 			{"kind": "kill", "enemy": "any", "role": str(cfg.get("role", "field_boss")), "count": 1, "text": Tx.t("sim.quest.or_defeat_a_field_boss")}],
 		"rewards": [{"kind": "add_contribution", "amount": int(cfg.get("contribution", 150))},
 			{"kind": "grant_currency", "currency": "silver_tael", "amount": int(cfg.get("taels_base", 100)) + lv * int(cfg.get("taels_per_level", 10))}],
-		"qp": "weekly"}
+		"qp": "weekly"})
 	accept(c, id)
 
 func start_daily(force: bool) -> void:
@@ -616,9 +626,7 @@ func start_daily(force: bool) -> void:
 	if c == null or (not force and not Unlocks.is_unlocked(c.id, "daily_missions")): return
 	for qid in c.quests.daily.keys():
 		if not str(qid).begins_with("daily_"): continue   # the weekly mission keeps its week
-		c.quests.active.erase(qid)
-		c.quests.tracked.erase(qid)
-		c.quests.daily.erase(qid)
+		apply_drop(c.id, qid)
 	var rng := Rng.stream(c.id, "world")
 	var templates: Array = ContentDB.all("mission_templates")
 	var lv := ProgressionRules.level(c)
@@ -638,9 +646,9 @@ func start_daily(force: bool) -> void:
 		picked[mname] = true
 		var id := "daily_%d_%d" % [Clock.reset_day(Clock.now_utc()), made]
 		var obj: Dictionary = op.objective.duplicate(true)
-		c.quests.daily[id] = {"id": id, "name": mname, "kind": "daily", "objectives": [obj],
+		apply_generated(c.id, {"id": id, "name": mname, "kind": "daily", "objectives": [obj],
 			"hand_in": "", "rewards": [{"kind": "add_contribution", "amount": int(ContentDB.curve("contribution.daily", 20))},
-			{"kind": "grant_currency", "currency": "silver_tael", "amount": 10 + lv * 3}], "qp": "daily", "auto_complete": true}
+			{"kind": "grant_currency", "currency": "silver_tael", "amount": 10 + lv * 3}], "qp": "daily", "auto_complete": true})
 		made += 1
 	for qid in c.quests.daily.keys(): accept(c, qid)   # a copy: accepting can auto-complete and erase
 	emit("missions_refreshed", {"actor": c.id, "count": made})
