@@ -21,13 +21,14 @@ Elements, in row order: water, wood, fire, earth, metal, wind, thunder, soul, fo
 
 `ingame_<form>.png` (22): one technique per form in use today, four moments of its cast side by side (0, 0.15, 0.3
 and 0.5 s after the cast; the hit frame at 0.2 s), cropped round the caster at 2×. Tester from the `valley_run`
-checkpoint `ls6_end` (Sphere Lord 3, Lv 98; a copy, never the Max Tester save) on Willow Path East with two Wild
-Boarlets set in front; under `--capture` the effect and the pose step a sixtieth a frame and the simulation holds
-still from the cast, so the shot lands on the frame named and shows the effect on the pose (`main.gd`, `--cast`):
+checkpoint `ls6_end` (Sphere Lord 3, Lv 98; a copy taken to `user://fxa_ls6_end` before a concurrent `valley_run`
+rewrote `valley_cp`, never the Max Tester save) on Willow Path East with two Wild Boarlets set in front; under
+`--capture` the effect and the pose step a sixtieth a frame and the simulation holds still from the cast, so the
+shot lands on the frame named and shows the effect on the pose (`main.gd`, `--cast`):
 
 ```
 xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . -- \
-  --load=user://valley_cp/ls6_end --load-slot --room=wp_east --at=420,760 --foe=wild_boarlet:2 \
+  --load=user://fxa_ls6_end --load-slot --room=wp_east --at=420,760 --foe=wild_boarlet:2 \
   --cast=<technique>:<t> --capture --shot=<name>
 ```
 

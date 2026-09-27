@@ -133,10 +133,13 @@ func _ready() -> void:
 		if str(a).begins_with("--load="):
 			var src := str(a).trim_prefix("--load=")
 			if not src.ends_with("/"): src += "/"
-			DirAccess.make_dir_recursive_absolute("user://loaded_copy/")
-			for f in DirAccess.get_files_at("user://loaded_copy/"): DirAccess.remove_absolute("user://loaded_copy/" + f)
-			for f in DirAccess.get_files_at(src): DirAccess.copy_absolute(src + f, "user://loaded_copy/" + f)
-			Saves.use_folder("user://loaded_copy/")
+			# The copy is named after its source, so two previews of different checkpoints run at once do not clobber
+			# each other's copy.
+			var dst := "user://loaded_%s/" % src.trim_suffix("/").get_file()
+			DirAccess.make_dir_recursive_absolute(dst)
+			for f in DirAccess.get_files_at(dst): DirAccess.remove_absolute(dst + f)
+			for f in DirAccess.get_files_at(src): DirAccess.copy_absolute(src + f, dst + f)
+			Saves.use_folder(dst)
 	if "--log-events" in user_args:
 		GameEvents.event.connect(func(n: String, p: Dictionary): if n not in ["resource_changed", "meditation_tick"]: print("[event] ", n, " ", p))
 	boot_report = Game.boot()
