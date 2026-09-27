@@ -51,8 +51,12 @@ func draw_page() -> void:
 	if rows.is_empty(): rows.append([Tx.t("ui.welcome.nothing_gathered"), Tx.t("ui.welcome.set_seclusion_or_an_idle")])
 	# A long Return Ledger scrolls above the buttons instead of running under them.
 	list("rows", Rect2(content.position.x, y, content.size.x, content.end.y - 72 - y), rows.size(), 40, func(i: int, rr: Rect2):
-		text(Vector2(rr.position.x + 20, rr.position.y + 24), str(rows[i][0]), 22, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x * 0.62)
-		text(Vector2(rr.position.x, rr.position.y + 24), str(rows[i][1]), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 20)
+		var label := fit(str(rows[i][0]), 22, rr.size.x * 0.62)
+		text(Vector2(rr.position.x + 20, rr.position.y + 24), label, 22, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x * 0.62)
+		# The value keeps 16 px clear of its label: a sentence steps down to 18 (P4 screenshots: they ran together).
+		var room := rr.size.x - 20 - (20 + UiKit.text_width(label, 22) + 16)
+		var vs := 22 if UiKit.text_width(str(rows[i][1]), 22) <= room else 18
+		text(Vector2(rr.end.x - 20 - room, rr.position.y + 24), str(rows[i][1]), vs, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, room)
 	)
 	if not args.get("post", {}).is_empty() and not (args.post.get("items", {}) as Dictionary).is_empty():
 		btn(Rect2(content.get_center().x - 260, content.end.y - 60, 250, 58), Tx.t("ui.welcome.to_storehouse"), "store", null, true)

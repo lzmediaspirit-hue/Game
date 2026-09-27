@@ -243,6 +243,10 @@ func panel_rect(c) -> Rect2:
 	var soul_row: bool = c != null and c.pools.max_soul > 0.0 and shown("soul_bar")
 	return Rect2(16, 16, 360, 120 if soul_row else 104)
 
+## The tracker's first line sits this far under the player panel (clear of the status row), and it stops at the foot.
+const TRACKER_DROP := 58.0
+const TRACKER_FOOT := 306.0
+
 ## A tracker line's go button hit area: 48 x 48 round the drawn button (P4 §7).
 static func go_hit(drawn: Rect2) -> Rect2:
 	return Rect2(drawn.get_center() - Vector2(24, 24), Vector2(48, 48))
@@ -267,7 +271,7 @@ func role_at(p: Vector2) -> String:
 			go = "path:" + str(tp.target)
 			go_d = p.distance_to((tp.rect as Rect2).get_center())
 	if go != "": return go
-	if Rect2(16, panel.end.y + 8, 300, 150).has_point(p) and shown("quest_tracker"): return "tracker"
+	if Rect2(16, panel.end.y + TRACKER_DROP - 24, 300, TRACKER_FOOT - panel.end.y - TRACKER_DROP + 40).has_point(p) and shown("quest_tracker"): return "tracker"
 	if Rect2(0, 704, 1280, 16).has_point(p) and shown("progress_bar"): return "progress"
 	if (p.x < 640) != left_handed: return "joystick"
 	return "none"
@@ -1563,14 +1567,15 @@ func _draw_tracker(c) -> void:
 	var entries: Array = Game.quest.tracker(c)
 	if entries.is_empty(): return
 	if Game.room_rt and Game.room_rt.def.get("type", "") == "boss_arena": return
-	# Below the player panel, which grows a row once the Soul bar shows.
-	var y := 162.0 if c.pools.max_soul > 0.0 and shown("soul_bar") else 146.0
+	# Below the player panel (a row taller once the Soul bar shows) and the status row under it: the plate no longer
+	# hides the statuses (P4 screenshots).
+	var y := panel_rect(c).end.y + TRACKER_DROP
 	tracker_paths = []
 	var here := Game.room_rt.room_id if Game.room_rt else ""
 	# A soft ink panel behind the list, so it reads over bright sky and foliage.
 	var h := 0.0
 	for q in entries:
-		if y + h > 290: break
+		if y + h > TRACKER_FOOT: break
 		h += UiKit.line_height(18) * 0.9 + q.lines.size() * UiKit.line_height(16) * 0.88 + 4
 		if str(q.get("target_room", "")) not in ["", here]: h += UiKit.line_height(16) * 0.88
 	var panel := Rect2(14, y - 20 * UiKit.text_scale(), 312, h + 8)
@@ -1600,7 +1605,7 @@ func _draw_tracker(c) -> void:
 			if count != "": UiKit.draw_text(self, count, Vector2(30, y), 16, lc, HORIZONTAL_ALIGNMENT_RIGHT, 290)
 			y += UiKit.line_height(16) * 0.88
 		y += 4
-		if y > 290: break
+		if y > TRACKER_FOOT: break
 
 ## B11: an objective beside its count on a tracker line `width` wide: the count keeps its place at the right end and
 ## the words give way with an ellipsis (the count was appended and cut: "…Shallows  0" for 0/5).

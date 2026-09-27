@@ -38,8 +38,10 @@ func _draw_roll() -> void:
 	var area := Rect2(content.position + Vector2(0, 70), Vector2(content.size.x, content.size.y - 70))
 	list("roll", area, rows.size(), 104, func(i: int, rr: Rect2):
 		var row: Dictionary = rows[i]
-		panel(rr, "minor_panel", "selected" if row.active else "normal")
-		text(rr.position + Vector2(18, 32), str(row.name), 22, UiKit.PALE_GOLD if row.active else UiKit.PAPER)
+		# P4 (§6): the character you play is a mark, not a selection: the normal panel, a gold ◆ and the name in pale gold.
+		panel(rr, "minor_panel")
+		if row.active: text(rr.position + Vector2(18, 31), "◆", 18, UiKit.GOLD)
+		text(rr.position + Vector2(40 if row.active else 18, 32), str(row.name), 22, UiKit.PALE_GOLD if row.active else UiKit.PAPER)
 		var p: Dictionary = row.post
 		var r: Dictionary = row.rates
 		if p.is_empty():

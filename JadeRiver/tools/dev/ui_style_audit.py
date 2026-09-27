@@ -51,6 +51,9 @@ def set_root(path: str) -> None:
 set_root(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
 BODY, LARGE = 4.5, 3.0
+# Tokens that colour fills, never words (docs/ui_style_guide.md §1.4 rule 2).
+FILL_TOKENS = ("INK", "RIVER_NIGHT", "DEEP_TEAL", "JADE_SHADOW", "JADE", "BRONZE", "RED", "SOUL", "HP", "BLOOD", "HEART",
+               "PAPER_INK", "BAR_TROUGH")
 GRID = 8
 
 # Colours drawn as text that are not UiKit tokens (the hex literals of I5), with what they colour. Empty since the P4
@@ -247,10 +250,13 @@ def sec_contrast(tk, gr, fl):
     print("## Contrast on the page fills (lightest texel; `pass` 4.5:1, `20px+` 3:1 only, `FAIL` under 3:1)\n")
     print("| Colour | " + " | ".join(PAGE_FILLS) + " | on INK (outlined) |")
     print("|---" * (len(PAGE_FILLS) + 2) + "|")
+    fills_only = [n for n in cols if n in FILL_TOKENS]
     for n, h in cols.items():
+        if n in FILL_TOKENS: continue
         c = hex_rgb(h)
         cells = ["%.2f %s" % (ratio(c, fl[f]["light"]), grade(ratio(c, fl[f]["light"]))) for f in PAGE_FILLS]
         print("| %s `#%s` | %s | %.2f |" % (n, h, " | ".join(cells), ratio(c, ink)))
+    print("\nFill tokens, never words (§1.4 rule 2), left out of the table: %s" % ", ".join(fills_only))
     print("\nThe lightest page fill (the reference for every text colour): `%s`\n" % rgb_hex(ref))
     print("### Labels on their own fills, at the size drawn\n")
     print("| Colour | Fill | Size | Lightest | Mean | Needs | Result | Where |\n|---|---|---|---|---|---|---|---|")
@@ -269,8 +275,7 @@ def sec_contrast(tk, gr, fl):
     print("\n### Text colours under 4.5:1 on the reference fill, and variants that pass (hue and saturation kept)\n")
     print("| Colour | Now | Ratio | 4.5:1 variant | Ratio | 4.8:1 variant (proposed) | Ratio |\n|---|---|---|---|---|---|---|")
     for n, h in cols.items():
-        if n in ("INK", "RIVER_NIGHT", "DEEP_TEAL", "JADE_SHADOW", "PAPER_INK", "BAR_TROUGH"): continue   # fills, and ink for paper
-        if n in ("JADE", "BRONZE", "RED", "SOUL", "HP", "BLOOD", "HEART"): continue   # fills only (§1.4 rule 2)
+        if n in FILL_TOKENS: continue   # fills only (§1.4 rule 2), and ink for paper
         c = hex_rgb(h)
         r = ratio(c, ref)
         if r >= BODY: continue
@@ -352,8 +357,14 @@ def sec_windows():
         line = src[:m.start()].count("\n") + 1
         print("| `%s:%d` | %d×%d at %d,%d | %s %d×%d at %d,%d | %+d w, %+d h |" % (os.path.basename(path), line, r[2], r[3], r[0], r[1],
               name, s[2], s[3], s[0], s[1], s[2] - r[2], s[3] - r[3]))
-    full = [p for p in PAGES if "frame_rect = Rect2(" not in read(p)]
-    print("\nThe full window (page.gd's default frame_rect): %d pages.\n" % len(full))
+    named = {}
+    for path in PAGES:
+        m = re.search(r"frame_rect = WINDOW_([A-Z]+)", read(path))
+        if m: named.setdefault(m.group(1).lower(), []).append(os.path.basename(path))
+    for k in sorted(named): print("- `WINDOW_%s` (a standard window): %s" % (k.upper(), ", ".join(named[k])))
+    off = [p for p in PAGES if "frame_rect = Rect2(" in read(p)]
+    full = [p for p in PAGES if "frame_rect = " not in read(p)]
+    print("\nWindows of their own (a literal Rect2): %d. The full window (page.gd's default frame_rect): %d pages.\n" % (len(off), len(full)))
 
 
 # Sizes a pixel icon may be drawn at (the guide's §8, Style A): its file 1:1, a native re-render (items @32, techniques

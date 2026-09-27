@@ -19,7 +19,8 @@ Conventions:
   durations. Re-run it after every change in §11.
 - Contrast is the WCAG 2 ratio. Body text needs 4.5:1. Text drawn at 20 px or larger needs 3:1. Disabled labels are
   exempt in WCAG; this guide sets a 3:1 floor for them anyway, so a player can read the reason.
-- Nothing in `scripts/`, `data/` or `art/` changes with this page. §11 is the list for the second step.
+- Nothing in `scripts/`, `data/` or `art/` changes with this page. §11 is the list for the second step, which has
+  landed: §12 records what each step changed and what the audit measures now.
 
 ## 0. What is still open from the P2 review
 
@@ -807,3 +808,38 @@ re-run. Screenshots are re-taken at the end and compared with the mockups (roadm
     - Re-take every screenshot in `docs/ui_inventory/` and compare with mockups 00–05.
     - A `docs/CHANGELOG.md` entry under "The UI review and restyle".
     - The roadmap rows U22–U29 set to Present.
+
+## 12. Applied
+
+The apply list landed in seven steps, each with its check in `tests/` and the full suite green; decision 10 (option C)
+replaced step 2's darker faces, and the icon pipeline had already done most of steps 6 and 9. What each step changed:
+
+| Step | What landed | Its check |
+|---|---|---|
+| 1 Tokens | The tokens of §10 and `SURFACE` in `UiKit`; every hex and float literal in the pages, `Page` and `hud.gd` a token, `Color(token, a)` or a white modulate; `RED` and `SOUL` words `RED_TEXT` and `SOUL_TEXT`; `hud.gd`'s own `GOLD` gone; the grade colours of §1.5 in `tools/data/stats.py`; the HUD rings drawn from the HD kit's `hud_ring_132`, `_64`, `_52` and `_48` (normal, pressed, active) | `rules_tests` `ui_style_suite`: no off-token colour; every grade has a colour |
+| 2 Contrast | Option C: primary labels in every state, page titles and the dialogue speaker inked (`UiKit.draw_inked`, 2 px); `PLATE` at 0.72 under the tracker, the run banner and nameplates; the HUD log outlined; `UiKit.TEXT_ON` | Every `TEXT_ON` pair, and every grade and quality colour, measured on the kit's own art |
+| 3 Type | Every literal size on the scale of §3; nothing asked for under 14; `Page.btn` and `Page.heading` step down the scale; `Page.para` 18; `Page.bar`'s label 16; the HUD realm 16 and bar labels 14 | Every word every page draws, and every HUD text call, on the scale and at 14 or more |
+| 4 Numbers, durations, plurals | `UiKit.short` ("18.2K") on the damage numbers; "a / b" with spaces; `Tx.span` the one duration writer (`UiKit.span` calls it; a whole hour or day drops its zero); every place of §4 and every string that wrote its own time unit takes a span; 75 new `_one` twins, called through `Tx.plural` | `contract_tests`: no string prints a count before a time unit but the span's own and eight rule lengths in prose; every counted plural has its twin or counts a total |
+| 5 Spacing | The layout constants of §10 in `Page`; content 32 in and 80 under the title, tabs 48 tall and 8 apart, the confirm dialog, toast and list gutter of §2.1; the twelve windows of their own standard, the dialogue strip inside the safe area; the 22 list pitches; the Bag grid 16 px from its detail panel; the HUD icon row on a 56 px pitch. The Character page figure at 3x (from 2.4) with the worn slots round it, drawn by the Bag's own `InventoryPage.draw_worn` | Every window standard and inside the safe area; every list pitch on the grid |
+| 6 States | Settings' on in the selected art, Off in `MIST`; "you" and "now" as a gold ◆ with the name in `PALE_GOLD` on the Heaven Ranking, the Body tab, Roll-Call and Characters | No page draws pressed but under the finger |
+| 7 Touch | `hud.gd` `hit_targets`: every round control at least 24 and its drawn radius + 4 (the Draught, the bag animals, the icon row); where circles overlap the nearest centre wins; the tracker's go button 48 × 48; the player panel's target follows its height | `rules_tests` `hud_suite` |
+
+The audit (`tools/dev/ui_style_audit.py`) before the first step and after the last:
+
+| Measure | Before | After |
+|---|---|---|
+| Hex colour literals in the pages and `hud.gd` | 64 | 0 |
+| Float `Color()` literals there | 55 | 0 |
+| Grades with no colour | 3 (law, monarch, inner_heaven) | 0 |
+| Text colours under 4.5:1 on the lightest page fill | 5 (`JADE`, `BRONZE`, `RED`, `SOUL`, `sphere`) | 0 (the first four colour fills only; words take `BRIGHT_JADE`, `RED_TEXT`, `SOUL_TEXT`) |
+| Label pairs short of their mark (§1.4) | 5 (the primary label twice, the titles twice, the disabled primary) | 0 |
+| `MIST` on a plate over a white sky | 2.47 (tracker, 0.55), 3.15 (nameplate, 0.62) | 4.56 (`PLATE`, 0.72) |
+| Text sizes asked for under 14 | 15 | 0 |
+| Pages with a window of their own | 13 | 0 |
+| `list()` pitches off the 8 px grid | 22 | 0 |
+| Plural keys with a `_one` twin / without | 9 / 105 | 84 / 15 (the reviewed count-of-total list) |
+| Literal icon boxes off the allowed sizes | 11 | 11: boxes that `SpriteCache.draw_icon` fills at a whole-number scale; the `ui_suite` checks every icon as drawn |
+
+What is left stays with its phase: the HUD's ring layout, party chips and boss bar of §9 (P5a); the empty-slot motif and
+the pixel kit's copies of the HD assets (the rest of step 9); and the literal icon boxes above. The re-taken screenshots
+are in `docs/ui_after_p4/`.

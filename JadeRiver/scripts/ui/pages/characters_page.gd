@@ -17,11 +17,12 @@ func draw_page() -> void:
 	list("slots", r.grow(-10), slots.size(), 88, func(i: int, rr: Rect2):
 		var slot := int(slots[i])
 		var other = Game.character("c%d" % slot)
-		panel(rr, "minor_panel", "selected" if other == ch else "normal")
+		panel(rr, "minor_panel")   # the one you play is marked by a gold ◆, not the selection glow (P4 §6)
 		if other == null:
 			text(rr.position + Vector2(20, 48), Tx.t("ui.characters.slot_empty_create_from_the") % slot, 20, UiKit.HOLLOW)
 			return
-		text(rr.position + Vector2(20, 34), str(other.name), 22, UiKit.PALE_GOLD if other == ch else UiKit.PAPER)
+		if other == ch: text(rr.position + Vector2(20, 33), "◆", 18, UiKit.GOLD)
+		text(rr.position + Vector2(42 if other == ch else 20, 34), str(other.name), 22, UiKit.PALE_GOLD if other == ch else UiKit.PAPER)
 		text(rr.position + Vector2(20, 62), ContentDB.realm_label(other.cultivator.realm_key, ProgressionRules.level(other)), 16, UiKit.MIST)
 		text(rr.position + Vector2(300, 48), task_line(other) if other != ch else Tx.t("ui.characters.playing"), 18, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT,
 			rr.size.x - 300 - (170 if other != ch else 20))

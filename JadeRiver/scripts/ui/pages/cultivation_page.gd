@@ -170,7 +170,7 @@ func _vows(ch) -> void:
 	for i in vows.size():
 		var v: Dictionary = vows[i]
 		var held := str(v.id) in cu.vows
-		var vr := Rect2(r.position.x + 20, top + i * h, r.size.x - 40, h - 8)
+		var vr := Rect2(r.position.x + 20, top + i * h, r.size.x - 40, h - ROW_GAP)   # rows 48 tall, as their buttons
 		panel(vr, "minor_panel", "selected" if held else "normal")
 		var mid := vr.size.y * 0.5
 		text(vr.position + Vector2(18, mid + 8), str(v.get("name", "")), 22, UiKit.PALE_GOLD if held else UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 200, true)
