@@ -1,5 +1,16 @@
 # Changelog
 
+## Gauntlets are worn on the hands
+
+- **Every gauntlet draws on both hands, in every pose.** The gauntlet family had no avatar look (its appearance was
+  "none", the bare-fist look), so the ten gauntlets (Training to Lanternsteel, and the Stone Drum Gauntlets) showed
+  only in their icons. `tools/art/bake_gauntlets.py` now draws weapon look `gauntlets` over the body's own hands in
+  all 17 catalog actions, both facings, frame for frame: a steel fist shaded from the hand's tones, a bronze rim at
+  the wrist and a cuff on a bare forearm. Each pixel sits just over the body layer that draws that hand (z 12, and
+  z 92 over the jab and lotus fists), so the torso, sleeves, head and hair hide it where they hide the hand; a
+  gauntlet still punches. `engine_tests` checks every gauntlet is drawn in every frame of every pose on the body;
+  review sheets in `docs/mockups/gauntlets/`.
+
 ## Consumables show what they did
 
 - **Every tea, pill, herb, core, draught and food says what it did.** Drinking the Herbal Tea (Granny's Remedy) showed

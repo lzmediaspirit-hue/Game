@@ -10,6 +10,8 @@ func _initialize():
 		for category in ["body","hair","shirt","pants","shoes","weapon"]:
 			if "--weapons-only" in OS.get_cmdline_user_args() and category!="weapon": continue
 			for item_id in catalog[category]:
+				# Drawn per pose over the body's own hands (tools/art/bake_gauntlets.py), not a held weapon to re-rig.
+				if catalog[category][item_id].has("hand_rig"): continue
 				for layer in catalog[category][item_id].get("layers",[]):
 					var original: Dictionary=layer.animations[recipe.source]
 					if original.get("hidden",false):
