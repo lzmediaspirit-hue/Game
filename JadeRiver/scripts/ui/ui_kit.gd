@@ -105,10 +105,11 @@ const TEXT_ON := [
 	[&"PAPER_INK", ["dialogue_box"], 20],
 	# P5 (docs/page_identity.md §7): words on the pages' own surfaces ("surface:<key>", a flat SURFACE colour) and on
 	# their tags and tablets. The ui_suite also measures every word a page with its own surface draws on what it sits on.
-	[&"PAPER", ["surface:cloth", "surface:cloth_wash"], 14],
+	[&"PAPER", ["surface:cloth", "surface:cloth_wash", "jade_tag", "honour_tablet", "honour_tablet:selected"], 14],
 	[&"MIST", ["surface:cloth"], 14],
-	[&"PALE_GOLD", ["surface:cloth", "surface:cloth_wash"], 14],
-	[&"GOLD", ["surface:cloth"], 14],
+	[&"PALE_GOLD", ["surface:cloth", "surface:cloth_wash", "honour_tablet", "honour_tablet:selected"], 14],
+	[&"PALE_GOLD", ["jade_tag:selected@ink", "jade_label@ink"], 14],
+	[&"GOLD", ["surface:cloth", "honour_tablet", "honour_tablet:selected"], 14],
 	[&"BRIGHT_JADE", ["surface:cloth"], 14],
 	[&"HOLLOW", ["surface:cloth"], 20],
 ]
