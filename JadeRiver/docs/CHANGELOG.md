@@ -78,6 +78,19 @@
   gem, core, dish and heap) are driven from tables: the spirit stones grow and gain gold prongs, the beast cores grow
   by rank tier and gain a band, a swirl of light, then a coil and a glint, the salts a richer dish; a Mystic mineral and
   above carries its aura as stepped glow bands. The legacy 32 px code is gone.
+- **Armour, the gourds, the cape and the soul talisman in Style A** (`tools/icons/families/armour.py`, `ART = 64`;
+  the sheets and in-game shots in `docs/mockups/icon_families/armour/`): the 47 icons (nine hats, robes, trousers and
+  boots, the mistjade cape, the cloud talisman and the nine spirit gourds, the Sovereign and Will rows folded in from
+  `banded.py`) redrawn at 64 px with native `@32` renders. Each piece is shown as it is worn: its row in
+  `data/artifacts.json` gives the cut of the avatar layer (`appearance`) and its garment dye (`dye`, now the
+  `palette.dye_*` ramps), so the straw douli, the jade circlet, the tied silk band, the gold crown with its jade pin
+  and the veiled hat, the vest, the scoop-necked tunic, the sect robe with crossed lapels, the cloud tunic and the
+  scholar's coat, the loose, straight, martial, cuffed and scholar trousers, and the leather boots, folded greaves and
+  cloth shoes match the figure beside them, with cloth folds, riveted plates and lacquer in their own textures. The
+  grade is the kit, Plain to Sphere: the trim of cuffs, hem and collar, the fittings, the plates and greaves in the
+  grade's metal, the gem, and the grade's mark (jadeiron plates and scales, cloud scrolls, gold lines, a lightning
+  stitch, desert-glass beads, driftglass studs, star dots, pearls), with the aura from Mystic up; the gourds carry the
+  same ladder. The legacy 32 px code is gone.
 
 ## Wikis and volume (docs/roadmap_master_ui.md, P7)
 

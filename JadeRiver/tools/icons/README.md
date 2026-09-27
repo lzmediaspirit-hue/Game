@@ -181,7 +181,9 @@ One agent per family module (`families/<name>.py`). Only the manifest is shared,
    - pills: add a row to `PILLS_HD` in `pills.py` with the kind (its vessel), grade, effect mark, pill
      material and mark ink.
    - weapons: `weapons.GRADE_WORDS` × `BUILDERS`.
-   - armour: `CLOTH` grade table.
+   - armour (HD): a piece's row in `data/artifacts.json` (slot, grade, `appearance`, `dye`) picks its template (robe,
+     trousers, boots, `HATS`) and the cloth the figure wears (palette `dye_*`); the grade's trim, fittings, plates, gem,
+     mark and glow are `kit_hd` (`TRIM`, `WORK`) on `palette.kit`; a spirit gourd is a `GOURDS` row.
    - fish: `fish(...)` parameters.
    - beast parts: `feather`, `scale_shape`, `hide`, `fang`, `vial`, `pouch`.
    - techniques (HD): a technique's row is read from `data/techniques.json`; give its id a form in `FORM_OF` (a secret
