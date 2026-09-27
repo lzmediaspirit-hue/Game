@@ -90,6 +90,17 @@ Items 6, 7 and 9 of `docs/research/player_motivation.md`.
   New moments: `fortune_card`, `first_fruit` and `elite_appears`.
 - **A fall costs nothing before Bone Forging 5** (`death.grace_below`, `ProgressionRules.death_grace`): no progress,
   no injury or heart demon, and you wake whole. The revival page explains it in full on the first fall, then in a line.
+## Deterministic playthrough suites
+
+- **valley_run, prologue_run and tutorial_order play the same on any machine, under any load.** The run's clock was the
+  wall clock (the account seed at boot, time of day, weather, herb ripening, respawn timers and cooldowns all moved with
+  how fast the machine ran), and every run on the machine shared `user://test_saves_*`, `valley_cp` and `valley_work`.
+  Now `Clock.simulate` pins "now" to a fixed start and `Game.tick` advances it by the fixed step; the seed is fixed; the
+  enemy authority's fallback dice are seeded; every wait counts simulated seconds; each run keeps its saves and
+  checkpoints in its own `user://test_runs/<suite>_<pid>/`, removed at the end (`--cp=user://valley_cp/` keeps
+  valley_run's checkpoints for previews and `--from`). **The Lantern Run's deck** fought at Level 82 against a party
+  that reaches it at Level 79-80 (chapter 17's floor): a plain blow took 10% of par HP, outside the 4-8% band, and a
+  par party lost the crossing on 1 seed in 12; its foes now come at 79 (deck Lv 79-81), and 18 seeds keep 73%+ HP.
 
 ## Starter gear: a weapon from the start
 
