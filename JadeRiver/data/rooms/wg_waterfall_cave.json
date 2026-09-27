@@ -103,7 +103,7 @@
    "id": "journal_cave",
    "type": "pickup",
    "at": [
-    772,
+    748,
     635
    ],
    "item": "lu_journal_page",
@@ -125,7 +125,7 @@
    "id": "chest_1",
    "type": "chest",
    "at": [
-    880,
+    892,
     635
    ],
    "loot": "chest_dungeon",

@@ -207,7 +207,7 @@
    "id": "herb_1",
    "type": "herb_patch",
    "at": [
-    290,
+    230,
     680
    ],
    "item": "ember_pepper",
@@ -283,7 +283,7 @@
    "id": "jar_4",
    "type": "jar",
    "at": [
-    230,
+    290,
     680
    ],
    "loot": "jar_valley_low",

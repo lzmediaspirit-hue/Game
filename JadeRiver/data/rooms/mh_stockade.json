@@ -99,7 +99,7 @@
    "id": "jar_1",
    "type": "jar",
    "at": [
-    830,
+    755,
     634
    ],
    "loot": "jar_valley_mid",
@@ -175,7 +175,7 @@
    "id": "tower_key",
    "type": "pickup",
    "at": [
-    710,
+    700,
     634
    ],
    "alt": 180,
@@ -203,7 +203,7 @@
    "id": "chest_ledge_mv_1",
    "type": "chest",
    "at": [
-    770,
+    825,
     634
    ],
    "loot": "chest_dungeon",

@@ -195,7 +195,7 @@
    "id": "jar_2",
    "type": "jar",
    "at": [
-    730,
+    950,
     655
    ],
    "loot": "jar_expanse",
@@ -245,7 +245,7 @@
    "id": "chest_6",
    "type": "chest",
    "at": [
-    950,
+    730,
     655
    ],
    "loot": "chest_expanse",

@@ -203,8 +203,8 @@
    "id": "npc_foreman_dong",
    "type": "npc",
    "at": [
-    660,
-    760
+    540,
+    790
    ],
    "npc": "foreman_dong",
    "facing": 1

@@ -469,8 +469,8 @@ def waterfall_cave(R):
     r.herb("mist_lotus", at, oid="cave_lotus", alt=h, surface="cave_ledge_low")
     at, h = on(r, "cave_ledge_east", 0.55)
     r.ore("spirit_stone_shard", at, oid="cave_shard_vein", alt=h, surface="cave_ledge_east")
-    place_on(r, obj(r, "journal_cave"), "cave_ledge_high", 0.3)
-    place_on(r, obj(r, "chest_1"), "cave_ledge_high", 0.75)
+    place_on(r, obj(r, "journal_cave"), "cave_ledge_high", 0.2)
+    place_on(r, obj(r, "chest_1"), "cave_ledge_high", 0.8)
     obj(r, "cave_inner_cache")["at"] = [1160, 760]        # it stood outside the room (x 1700 in a 1280 room)
     authored(r)
 

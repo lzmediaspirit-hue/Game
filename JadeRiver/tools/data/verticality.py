@@ -95,6 +95,23 @@ def _clear(r, x, y, radius, ignore=()):
     return all(math.hypot(x - a[0], y - a[1]) >= radius for a in pts)
 
 
+# M18: an interactable answers the context button within its radius (110 unless it says; WorldAuthority). On one tier two
+# of them stand further apart than the larger reach, and none within reach of a door, or the one that ranks higher hides
+# the other where it stands. Two of the same rank (two chests, two herbs) may stand closer: at its own spot each wins.
+REACH = 110
+NOT_CONTEXT = BREAKABLES | {"training_stump", "training_dummy", "decor", "air_pocket", "route_finish"}
+
+
+def in_reach(r, x, y, alt=0.0, besides=(), ignore=(), radius=REACH):
+    """Is a door, or an interactable on this tier other than the types in `besides`, within reach of (x, y) for a thing
+    that reaches `radius` (with 10 to spare)?"""
+    near = lambda at, reach: math.hypot(x - at[0], y - at[1]) < max(radius, reach) + 10
+    if alt <= 48 and any(p.get("type", "edge") != "edge" and near(p["at"], 0) for p in r.d["portals"] if "at" in p):
+        return True
+    return any(o["id"] not in ignore and o["type"] not in NOT_CONTEXT and o["type"] not in besides
+               and abs(float(o.get("alt", 0)) - alt) <= 48 and near(o["at"], float(o.get("radius", REACH))) for o in r.d["objects"])
+
+
 def _climbable_near(r, x, y, radius=50):
     for c in r.d.get("climbables", []):
         if math.hypot(c["at"][0] - x, c["at"][1] - y) < radius:
@@ -480,11 +497,15 @@ def _two_ways(r, rise, gap, n):
 
 
 # ------------------------------------------------------------------ 5. things worth climbing for
-def _spots(r, t, count, taken):
-    """Up to `count` places on a tier, each at least 40 from anything already there."""
+def _spots(r, t, count, taken, o=None):
+    """Up to `count` places on a tier, each at least 40 from anything already there; an interactable `o` also keeps
+    out of the others' reach (M18)."""
     out = []
     y = int((t.y0 + t.y1) / 2)
     cands = list(range(int(t.x0) + 30, int(t.x1) - 29, 10))
+    if o is not None and o["type"] not in NOT_CONTEXT:
+        same = NODES if o["type"] in NODES else (o["type"],)
+        cands = [x for x in cands if not in_reach(r, x, y, t.h, besides=same, ignore=(o["id"],))]
     while len(out) < count and cands:
         best = max(cands, key=lambda x: min([abs(x - a) for a in taken + out] + [9999]))
         if min([abs(best - a) for a in taken + out] + [9999]) < 40:
@@ -513,7 +534,7 @@ def lift_objects(r):
                 break
             t = req[i % len(req)]
             i += 1
-            spots = _spots(r, t, 1, taken[t.id])
+            spots = _spots(r, t, 1, taken[t.id], o)
             if not spots:
                 continue
             o["at"] = [spots[0][0], spots[0][1]]
@@ -521,7 +542,6 @@ def lift_objects(r):
             taken[t.id].append(spots[0][0])
             need -= 1
 
-    lift(BREAKABLES, 0.3)
     lift(NODES, 1.0 / 3.0)
     tops = [t for t in tiers(r, include_blocks=False) if not t.later() and t.h > 0 and (t.x1 - t.x0) >= 80]
     top = max(tops, key=lambda t: (t.h, t.x1 - t.x0))
@@ -532,13 +552,15 @@ def lift_objects(r):
         on_later = any(t.later() for t in tiers(r, include_blocks=False) if _objects_on(r, t, float(o.get("alt", 0))) and o in _objects_on(r, t, float(o.get("alt", 0))))
         if on_later:
             continue
-        spots = _spots(r, top, 1, taken[top.id])
+        spots = _spots(r, top, 1, taken[top.id], o)
         if spots:
             o["at"] = [spots[0][0], spots[0][1]]
             o["alt"] = int(top.h)
             if "surface" in o:
                 o["surface"] = top.id
             taken[top.id].append(spots[0][0])
+    # Breakables last: a jar only keeps 40 from its neighbours, while a node and a chest keep out of each other's reach.
+    lift(BREAKABLES, 0.3)
 
 
 def run(rooms):

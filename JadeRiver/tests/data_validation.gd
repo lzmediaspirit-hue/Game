@@ -25,6 +25,7 @@ func _main() -> void:
 	data_suite()
 	item_source_suite()
 	room_suite()
+	overlap_suite()
 	movement_suite()
 	auto_path_suite()
 	print("data_validation: %d checks, %d failures" % [checks, failures])
@@ -753,6 +754,34 @@ func room_suite() -> void:
 		if v.get("planned", false): continue
 		check(ContentDB.rooms.has(str(v.get("to", ""))) and ContentDB.room(str(v.get("crossing", ""))).get("crossing", false)
 			and ContentDB.has_entry("items", str(v.get("chart", ""))), "voyage %s: destination, crossing and chart exist" % v.id)
+
+## M18: no interactable hides another. Standing on an object (or at a door) and pressing the context button must reach it,
+## so no other object on the same tier may claim the button there by WorldAuthority's own ranking (context_rank): an
+## NPC on an NPC or on a shrine, a chest on a herb, any object whose reach covers a door. Two objects that are never
+## shown together (one's visible_if is the other's hidden_if: Elder Gu and Madam Hua) do not meet.
+func overlap_suite() -> void:
+	var pairs := 0
+	for rid in ContentDB.rooms:
+		var room: Dictionary = ContentDB.room(rid)
+		var heights := {}
+		for s in room.get("surfaces", []): heights[str(s.id)] = float(s.get("height", 0))
+		var objs: Array = room.get("objects", []).filter(func(o): return WorldAuthority.offers_context(o))
+		for a in objs:
+			var at_a := Vector2(float(a.at[0]), float(a.at[1]))
+			var reach := float(a.get("radius", 110))
+			for b in objs:
+				if a == b or absf(float(a.get("alt", 0)) - float(b.get("alt", 0))) > WorldAuthority.REACH_ALT: continue
+				if a.has("visible_if") and a.visible_if == b.get("hidden_if") or b.has("visible_if") and b.visible_if == a.get("hidden_if"): continue
+				pairs += 1
+				var d := at_a.distance_to(Vector2(float(b.at[0]), float(b.at[1])))
+				check(d > reach or WorldAuthority.context_rank(a, true) * 1000.0 + d > WorldAuthority.context_rank(b) * 1000.0,
+					"%s: %s hides %s (%d apart, reach %d)" % [rid, a.id, b.id, int(d), int(reach)])
+			for p in room.get("portals", []):
+				if not WorldAuthority.context_portal(p) or absf(float(a.get("alt", 0)) - float(heights.get(str(p.get("surface", "")), 0.0))) > WorldAuthority.REACH_ALT: continue
+				pairs += 1
+				var dp := at_a.distance_to(Vector2(float(p.at[0]), float(p.at[1])))
+				check(dp > reach, "%s: %s hides the %s %s (%d apart, reach %d)" % [rid, a.id, str(p.get("type", "edge")), p.id, int(dp), int(reach)])
+	check(pairs > 2000, "overlap_suite looked at %d pairs" % pairs)
 # ------------------------------------------------------------------ S43 movement data
 const VOLUME_KINDS := ["water_shallow", "water_deep", "current", "updraft", "wind", "bounce", "crumble", "rising_water", "hazard", "no_flight", "ice", "low_gravity"]
 

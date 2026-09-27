@@ -71,7 +71,7 @@ def lotus_ferry(R):
     r.surface("loft", [860, 580, 300, 70], 88, kind="balcony")
     r.ladder("loft_ladder", 900, 650, 88, top="loft", requires=after_kite,
              locked_text="The loft ladder wobbles. Aunt Ping says: after you've learned to land on your feet.")
-    r.obj("lu_float", "inspect", [1040, 612], alt=88, prop="driftwood",
+    r.obj("lu_float", "inspect", [990, 612], alt=88, prop="driftwood",
           text="Lu's old cork float, painted red and white a long time ago. Someone kept it very carefully.",
           effects=[{"kind": "codex", "entry": "lu_float"}])
     # Shown once the ladder holds: a glowing fourth tea in the prologue muddled Aunt Ping's "three teas".
