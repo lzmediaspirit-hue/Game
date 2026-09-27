@@ -41,13 +41,72 @@ static func creature(id: String) -> Dictionary:
 	return ContentDB.config("creature_art").get(id, {})
 
 ## An item without its own drawing borrows the one named by its `icon` field.
+static func icon_key(id: String) -> String:
+	return id if ContentDB.config("icon_manifest").has(id) else str(ContentDB.item(id).get("icon", ""))
+
 static func icon_path(id: String) -> String:
-	var manifest: Dictionary = ContentDB.config("icon_manifest")
-	if manifest.has(id): return str(manifest[id])
-	return str(manifest.get(str(ContentDB.item(id).get("icon", "")), ""))
+	return str(ContentDB.config("icon_manifest").get(icon_key(id), ""))
 
 static func icon(id: String) -> Texture2D:
 	return tex(icon_path(id))
+
+# ------------------------------------------------------------------ crisp icons
+## The art sizes an HD icon can be rendered at natively (tools/icons: 64 items, equipment and techniques, 48 and
+## 32 renders of them, 32 HUD glyphs).
+const ICON_PX := [64, 48, 32]
+static var _renders: Dictionary = {}
+## The ui_suite's record of every icon drawn, [{id, rect, art, scale}]; null (off) in play.
+static var draw_log = null
+
+## Every render of an icon: art px -> texture. An HD icon lists its native renders in the manifest as
+## `<id>@<px>`, each drawn 1:1 at that many px (or a whole multiple); a legacy icon has only its PNG, which holds
+## its art at 2 screen px per art px (32 art px in a 64 px PNG, 16 for a HUD glyph, 12 for a status icon).
+static func icon_renders(id: String) -> Dictionary:
+	if _renders.has(id): return _renders[id]
+	var manifest: Dictionary = ContentDB.config("icon_manifest")
+	var key := icon_key(id)
+	var out := {}
+	for px in ICON_PX:
+		var t := tex(str(manifest.get("%s@%d" % [key, px], "")))
+		if t: out[px] = t
+	if out.is_empty():
+		var t := tex(str(manifest.get(key, "")))
+		if t: out[int(t.get_width() * 0.5)] = t
+	_renders[id] = out
+	return out
+
+## True when the icon is drawn in the HD style (its family has been converted).
+static func icon_hd(id: String) -> bool:
+	var manifest: Dictionary = ContentDB.config("icon_manifest")
+	return ICON_PX.any(func(px): return manifest.has("%s@%d" % [icon_key(id), px]))
+
+## How an icon is drawn in a `box` px square: the render and whole-number scale that give the largest size not over
+## the box (the larger native render on a tie), or the smallest render at 1x when none fits.
+## {tex, art, scale, px: the drawn size}; {} when it has no art.
+static func icon_fit(id: String, box: float) -> Dictionary:
+	var renders := icon_renders(id)
+	var best := {}
+	for art in renders:
+		var k := int(floor(box / float(art) + 0.001))
+		if k >= 1 and (best.is_empty() or art * k > int(best["px"]) or (art * k == int(best["px"]) and art > int(best["art"]))):
+			best = {"tex": renders[art], "art": art, "scale": k, "px": art * k}
+	if best.is_empty() and not renders.is_empty():
+		var art: int = renders.keys().min()
+		best = {"tex": renders[art], "art": art, "scale": 1, "px": art}
+	return best
+
+## Draw icon `id` centred in `rect` on whole pixels at a whole-number scale of its art (icon_fit), never a filtered
+## or fractional scale. `box` overrides the size asked for (the HUD's technique ring asks 64 of a legacy icon, its
+## 32 art px at 2x, and 48 of an HD one, its native 48). Returns the drawn rect, Rect2() when there is no art.
+## Every icon on a page, the HUD and the world is drawn through here.
+static func draw_icon(ci: CanvasItem, rect: Rect2, id: String, modulate := Color.WHITE, box := -1.0) -> Rect2:
+	var f := icon_fit(id, box if box > 0.0 else minf(rect.size.x, rect.size.y))
+	if f.is_empty(): return Rect2()
+	var s := float(f["px"])
+	var r := Rect2((rect.get_center() - Vector2(s, s) * 0.5).round(), Vector2(s, s))
+	ci.draw_texture_rect(f["tex"], r, false, modulate)
+	if draw_log != null: draw_log.append({"id": id, "rect": r, "art": int(f["art"]), "scale": s / float(f["art"])})
+	return r
 
 ## Draw one prop frame with its anchor at `pos`. Returns false when the art is missing.
 static func draw_prop(ci: CanvasItem, id: String, state: String, t: float, pos: Vector2, flip := false, modulate := Color.WHITE) -> bool:

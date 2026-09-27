@@ -35,13 +35,13 @@ func _buy(ch) -> void:
 	var stock: Array = Game.economy.stock(ch, shop_id)
 	var left := Rect2(content.position.x, content.position.y, 700, content.size.y)
 	panel(left)
-	list("stock", left.grow(-10), stock.size(), 76, func(i: int, rr: Rect2):
+	list("stock", left.grow(-10), stock.size(), SLOT + 8, func(i: int, rr: Rect2):
 		var s: Dictionary = stock[i]
 		panel(rr, "minor_panel", "selected" if sel_buy == i else ("disabled" if str(s.locked) != "" else "normal"))
-		slot_box(Rect2(rr.position + Vector2(8, 5), Vector2(62, 62)), str(s.item))
-		text(rr.position + Vector2(84, 30), ContentDB.item_name(str(s.item)) + ("  ↻" if s.get("rotating", false) else ""), 20, UiKit.PAPER if str(s.locked) == "" else UiKit.HOLLOW)
-		text(rr.position + Vector2(84, 56), fit(str(s.locked) if str(s.locked) != "" else str(ContentDB.item(str(s.item)).get("desc", "")), 15, rr.size.x - 220), 15, UiKit.MIST)
-		text(rr.position + Vector2(0, 42), "%s %s" % [UiKit.fmt(int(s.price)), Tx.t("ui.shop.price_" + str(s.currency))], 19, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 16)
+		slot_box(Rect2(rr.position + Vector2(4, 2), Vector2(SLOT, SLOT)), str(s.item))
+		text(rr.position + Vector2(94, 34), ContentDB.item_name(str(s.item)) + ("  ↻" if s.get("rotating", false) else ""), 20, UiKit.PAPER if str(s.locked) == "" else UiKit.HOLLOW)
+		text(rr.position + Vector2(94, 60), fit(str(s.locked) if str(s.locked) != "" else str(ContentDB.item(str(s.item)).get("desc", "")), 15, rr.size.x - 230), 15, UiKit.MIST)
+		text(rr.position + Vector2(0, 46), "%s %s" % [UiKit.fmt(int(s.price)), Tx.t("ui.shop.price_" + str(s.currency))], 19, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 16)
 		region(rr, "pick", i, str(s.locked) == "", str(s.locked))
 	)
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
@@ -51,9 +51,9 @@ func _buy(ch) -> void:
 		return
 	var it: Dictionary = stock[sel_buy]
 	var def := ContentDB.item(str(it.item))
-	slot_box(Rect2(right.position + Vector2(24, 24), Vector2(72, 72)), str(it.item))
-	para(Rect2(right.position + Vector2(110, 24), Vector2(right.size.x - 130, 60)), ContentDB.item_name(str(it.item)), 22, UiKit.grade_color(str(def.get("grade", "plain"))), 2)
-	para(Rect2(right.position + Vector2(24, 110), Vector2(right.size.x - 48, 150)), str(def.get("desc", "")), 18)
+	slot_box(Rect2(right.position + Vector2(24, 24), Vector2(SLOT, SLOT)), str(it.item))
+	para(Rect2(right.position + Vector2(112, 24), Vector2(right.size.x - 132, 60)), ContentDB.item_name(str(it.item)), 22, UiKit.grade_color(str(def.get("grade", "plain"))), 2)
+	para(Rect2(right.position + Vector2(24, 114), Vector2(right.size.x - 48, 146)), str(def.get("desc", "")), 18)
 	var stackable := int(def.get("stack", 1)) > 1
 	if stackable:
 		btn(Rect2(right.position.x + 24, right.end.y - 150, 60, 52), "−", "qty", -1)
@@ -72,14 +72,14 @@ func _sell(ch) -> void:
 		if bag[i] != null: idx.append(i)
 	var left := Rect2(content.position.x, content.position.y, 700, content.size.y)
 	panel(left)
-	list("sell", left.grow(-10), idx.size(), 70, func(j: int, rr: Rect2):
+	list("sell", left.grow(-10), idx.size(), SLOT + 8, func(j: int, rr: Rect2):
 		var i := int(idx[j])
 		var s: Dictionary = bag[i]
 		var price := LootRules.sell_price(str(s.id), s if ContentDB.is_equipment(str(s.id)) else null)
 		panel(rr, "minor_panel", "selected" if sel_sell == i else ("disabled" if price <= 0 else "normal"))
-		slot_box(Rect2(rr.position + Vector2(8, 3), Vector2(60, 60)), str(s.id), int(s.get("count", 1)), str(s.get("quality", "")))
-		text(rr.position + Vector2(84, 40), ContentDB.item_name(str(s.id)), 19, UiKit.PAPER if price > 0 else UiKit.HOLLOW)
-		text(rr.position + Vector2(0, 40), (Tx.t("ui.shop.each") % UiKit.fmt(price)) if price > 0 else Tx.t("ui.shop.cannot_sell"), 17, UiKit.PALE_GOLD if price > 0 else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 16)
+		slot_box(Rect2(rr.position + Vector2(4, 2), Vector2(SLOT, SLOT)), str(s.id), int(s.get("count", 1)), str(s.get("quality", "")))
+		text(rr.position + Vector2(94, 46), ContentDB.item_name(str(s.id)), 19, UiKit.PAPER if price > 0 else UiKit.HOLLOW)
+		text(rr.position + Vector2(0, 46), (Tx.t("ui.shop.each") % UiKit.fmt(price)) if price > 0 else Tx.t("ui.shop.cannot_sell"), 17, UiKit.PALE_GOLD if price > 0 else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_RIGHT, rr.size.x - 16)
 		region(rr, "pick_sell", i, price > 0, Tx.t("ui.shop.this_cannot_be_sold"))
 	)
 	var right := Rect2(left.end.x + 20, content.position.y, content.end.x - left.end.x - 20, content.size.y)
@@ -88,8 +88,8 @@ func _sell(ch) -> void:
 		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), Tx.t("ui.shop.sell_for_a_quarter_of"), 19, UiKit.MIST)
 		return
 	var s2: Dictionary = bag[sel_sell]
-	slot_box(Rect2(right.position + Vector2(24, 24), Vector2(72, 72)), str(s2.id), int(s2.get("count", 1)))
-	text(right.position + Vector2(110, 60), ContentDB.item_name(str(s2.id)), 21)
+	slot_box(Rect2(right.position + Vector2(24, 24), Vector2(SLOT, SLOT)), str(s2.id), int(s2.get("count", 1)))
+	text(right.position + Vector2(112, 62), ContentDB.item_name(str(s2.id)), 21)
 	btn(Rect2(right.position.x + 24, right.end.y - 140, right.size.x - 48, 54), Tx.t("ui.shop.sell_one"), "sell", 1)
 	if int(s2.get("count", 1)) > 1: btn(Rect2(right.position.x + 24, right.end.y - 76, right.size.x - 48, 54), Tx.t("ui.shop.sell_all") % int(s2.count), "sell", int(s2.count), true)
 
@@ -98,13 +98,13 @@ func _buyback(ch) -> void:
 	var r := Rect2(content.position, content.size)
 	panel(r)
 	if bb.is_empty(): text(r.position + Vector2(0, 80), Tx.t("ui.shop.nothing_sold_today"), 20, UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
-	list("bb", r.grow(-10), bb.size(), 70, func(i: int, rr: Rect2):
+	list("bb", r.grow(-10), bb.size(), SLOT + 8, func(i: int, rr: Rect2):
 		var e: Dictionary = bb[i]
 		var ent: Dictionary = e.get("entry", {})
 		panel(rr)
-		slot_box(Rect2(rr.position + Vector2(8, 3), Vector2(60, 60)), str(ent.get("id", "")), int(ent.get("count", 1)))
-		text(rr.position + Vector2(84, 40), ContentDB.item_name(str(ent.get("id", ""))), 19)
-		btn(Rect2(rr.end.x - 230, rr.position.y + 8, 210, 48), Tx.t("ui.shop.buy_back_2") % UiKit.fmt(int(e.price)), "buyback", i)
+		slot_box(Rect2(rr.position + Vector2(4, 2), Vector2(SLOT, SLOT)), str(ent.get("id", "")), int(ent.get("count", 1)))
+		text(rr.position + Vector2(94, 46), ContentDB.item_name(str(ent.get("id", ""))), 19)
+		btn(Rect2(rr.end.x - 230, rr.position.y + 16, 210, 48), Tx.t("ui.shop.buy_back_2") % UiKit.fmt(int(e.price)), "buyback", i)
 	)
 
 func on_action(id: String, data) -> void:

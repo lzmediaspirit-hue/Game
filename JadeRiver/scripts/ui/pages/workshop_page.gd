@@ -97,7 +97,7 @@ func _appraisal(ch) -> void:
 	var x := r.position.x + 24
 	for idx in items:
 		var s2: Dictionary = ch.inventory.bag[idx]
-		slot_box(Rect2(x, r.position.y + 140, 84, 84), str(s2.id), int(s2.get("count", 1)))
+		slot_box(Rect2(x + 4, r.position.y + 144, SLOT, SLOT), str(s2.id), int(s2.get("count", 1)))
 		btn(Rect2(x - 6, r.position.y + 234, 96, 46), Tx.t("ui.workshop.appraise"), "appraise", idx, true, has_tool, Tx.t("ui.workshop.needs_a_loupe"))
 		x += 110
 	_rank_line(ch, "appraisal", Vector2(r.position.x + 16, r.end.y - 14))
@@ -166,7 +166,7 @@ func _research(ch) -> void:
 	para(Rect2(r.position + Vector2(24, 64), Vector2(r.size.x - 48, 90)), Tx.t("ui.workshop.water_worms_and_time_eat"), 18, UiKit.MIST)
 	var x := r.position.x + 24
 	for inp in p.get("inputs", []):
-		slot_box(Rect2(x, r.position.y + 150, 84, 84), str(inp.item), ch.inventory.count(str(inp.item)))
+		slot_box(Rect2(x + 4, r.position.y + 154, SLOT, SLOT), str(inp.item), ch.inventory.count(str(inp.item)))
 		text(Vector2(x, r.position.y + 256), Tx.t("ui.workshop.need") % int(inp.count), 15, UiKit.MIST)
 		x += 110
 	var here: bool = Game.workshop.npc_here(ch, p.get("npcs", []))

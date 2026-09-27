@@ -59,7 +59,7 @@ func draw_page() -> void:
 	if slots.is_empty():
 		para(Rect2(right.position.x + 22, right.position.y + 30, right.size.x - 44, 80), Tx.t("ui.gift.nothing"), 18, UiKit.MIST)
 		return
-	var cell := 64.0
+	var cell := SLOT
 	var cols := int((right.size.x - 40) / (cell + 8))
 	var grid := Rect2(right.position.x + 20, right.position.y + 18, right.size.x - 30, right.size.y - 110)
 	list("gifts", grid, int(ceil(slots.size() / float(cols))), cell + 8, func(row: int, rr: Rect2):

@@ -25,7 +25,7 @@ func draw_page() -> void:
 		if not m.get("read", false): draw_circle(rr.position + Vector2(16, 32), 6, UiKit.RED)
 		text(rr.position + Vector2(32, 28), str(m.subject), 18, UiKit.PAPER)
 		text(rr.position + Vector2(32, 50), str(m.from), 15, UiKit.MIST)
-		if not (m.get("attachments", []) as Array).is_empty() and not m.get("claimed", false): icon_at(Rect2(rr.end.x - 40, rr.position.y + 16, 28, 28), "open")
+		if not (m.get("attachments", []) as Array).is_empty() and not m.get("claimed", false): icon_at(Rect2(rr.end.x - 42, rr.position.y + 14, 32, 32), "open")
 		region(rr, "sel", int(m.id))
 	)
 	btn(Rect2(content.position.x, content.end.y - 58, 210, 54), Tx.t("ui.mail.claim_all"), "claim_all", null, true)
@@ -41,8 +41,8 @@ func draw_page() -> void:
 	var x := right.position.x + 24
 	for a in mm.get("attachments", []):
 		if a.has("item"):
-			slot_box(Rect2(x, right.end.y - 150, 60, 60), str(a.item), int(a.get("count", 1)))
-			x += 68
+			slot_box(Rect2(x, right.end.y - 160, SLOT, SLOT), str(a.item), int(a.get("count", 1)))
+			x += SLOT + 8
 		elif a.has("currency"):
 			x += currency_pill(Vector2(x, right.end.y - 138), str(a.currency), int(a.amount)) + 8
 	if not (mm.get("attachments", []) as Array).is_empty() and not mm.get("claimed", false):

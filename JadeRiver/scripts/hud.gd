@@ -1312,10 +1312,11 @@ func _disc(center: Vector2, radius: float, top: Color, bottom: Color, tint := Co
 	draw_polygon(pts, cols)
 	draw_arc(center, radius, 0, TAU, 64, bottom.lerp(top, 0.3) * tint, 1.0, true)
 
+## A HUD glyph or icon centred on `center`, at a whole-number scale of its art in a `size` box (SpriteCache.draw_icon):
+## 32 for a glyph in a button ring (a legacy glyph's 16 art px at 2x, an HD glyph 1:1), 64 in the attack ring,
+## 32 for an item in an item ring (its native 32, or a legacy item's 32 art px at 1x), 24 for a status icon.
 func glyph(id: String, center: Vector2, size := 32.0, color := Color.WHITE) -> void:
-	var tex = SpriteCache.icon(id)
-	if tex:
-		draw_texture_rect(tex, Rect2(center - Vector2(size, size) * 0.5, Vector2(size, size)), false, color)
+	SpriteCache.draw_icon(self, Rect2(center - Vector2(size, size) * 0.5, Vector2(size, size)), id, color)
 
 func skill_position(index: float) -> Vector2:
 	var low := clampi(int(floor(index)), 0, 2)
@@ -1327,19 +1328,20 @@ func draw_skill_slot(center: Vector2, slot: int, opacity: float) -> void:
 	var c = Game.active()
 	var n := ProgressionRules.technique_slot_count(c)
 	if slot >= n:
-		glyph("lock", center, 24, Color(1, 1, 1, 0.35 * opacity))
+		glyph("lock", center, 32, Color(1, 1, 1, 0.35 * opacity))
 		return
 	var tid = c.cultivator.technique_slots[slot]
 	if tid == null or str(tid) == "":
 		# An open slot: a faint cloud seal, so it reads as "waiting for a technique", not as broken.
 		var motif: Texture2D = SpriteCache.tex("res://art/ui/slot_empty_motif__normal.png")
-		if motif: draw_texture_rect(motif, Rect2(center - Vector2(22, 22), Vector2(44, 44)), false, Color(0.7, 1.0, 0.9, 0.35 * opacity))
+		if motif: draw_texture_rect(motif, Rect2(center - Vector2(16, 16), Vector2(32, 32)), false, Color(0.7, 1.0, 0.9, 0.35 * opacity))
 		return
-	var tex = SpriteCache.icon(str(tid))
 	var tdef := ContentDB.entry("techniques", str(tid))
 	var fam := str(StatRules.family(c).get("id", "fists"))
 	var dim = tdef.get("family", "any") != "any" and not (tdef.family == fam or (tdef.family == "fists" and fam == "gauntlets"))
-	if tex: draw_texture_rect(tex, Rect2(center - Vector2(24, 24), Vector2(48, 48)), false, Color(1, 1, 1, opacity * (0.35 if dim else 1.0)))
+	# The technique ring shows an HD icon's native 48, or a legacy icon's 32 art px at 2x (1x is lost in the ring).
+	SpriteCache.draw_icon(self, Rect2(center - Vector2(32, 32), Vector2(64, 64)), str(tid), Color(1, 1, 1, opacity * (0.35 if dim else 1.0)),
+		48.0 if SpriteCache.icon_hd(str(tid)) else 64.0)
 	var cd = c.pools.cooldown("tech:" + str(tid))
 	if cd > 0.0:
 		var total := float(tdef.get("cooldown_s", 5))
@@ -1395,7 +1397,7 @@ func _draw():
 		var on: bool = Game.world.auto_hunting(c.id)
 		ring(auto_center, 26, on)
 		if on: draw_arc(auto_center, 29, fmod(t * 3.0, TAU), fmod(t * 3.0, TAU) + PI * 1.2, 24, UiKit.GOLD, 3.0)
-		glyph("jian", auto_center + Vector2(0, -4), 26)
+		glyph("jian", auto_center + Vector2(0, -4), 32)
 		UiKit.draw_outlined(self, Tx.t("hud.auto_hunt"), auto_center + Vector2(-40, 23), 14, UiKit.GOLD if on else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 80)
 	if shown("currency"):
 		# The pill grows leftward to fit large balances; the spirit stones follow the silver instead of a fixed spot.
@@ -1403,16 +1405,16 @@ func _draw():
 		var stones := int(Game.account.currencies.get("spirit_stone", 0))
 		var sw := UiKit.text_width(silver, 18)
 		var w := 38.0 + sw + 16.0
-		if stones > 0: w += 30.0 + UiKit.text_width(UiKit.fmt(stones), 18)
+		if stones > 0: w += 34.0 + UiKit.text_width(UiKit.fmt(stones), 18)
 		w = maxf(200.0, w)
 		var cr := Rect2(1262 - w, 222, w, 34)
 		draw_style_box(UiKit.style("currency_pill"), cr)
-		glyph("coin", cr.position + Vector2(20, 17), 24)
+		glyph("coin", cr.position + Vector2(20, 17), 32)
 		UiKit.draw_text(self, silver, cr.position + Vector2(38, 24), 18, UiKit.PALE_GOLD)
 		if stones > 0:
-			var sx := 38.0 + sw + 26.0
-			glyph("spirit_stone", cr.position + Vector2(sx, 17), 22)
-			UiKit.draw_text(self, UiKit.fmt(stones), cr.position + Vector2(sx + 16, 24), 18, UiKit.BRIGHT_JADE)
+			var sx := 38.0 + sw + 28.0
+			glyph("spirit_stone", cr.position + Vector2(sx, 17), 32)
+			UiKit.draw_text(self, UiKit.fmt(stones), cr.position + Vector2(sx + 20, 24), 18, UiKit.BRIGHT_JADE)
 	_draw_controls(c)
 	if shown("progress_bar"): _draw_progress(c)
 	if shown("system_log"): _draw_log()
@@ -1764,42 +1766,40 @@ func _draw_controls(c) -> void:
 	if _post_chip():
 		var mine: bool = Game.posts.at_post(c) and str(Game.posts.post_of(c).get("object", "")) == str(context.get("object", ""))
 		ring(context_center, 26, mine, 1.0, pulses.has("hud:post"))
-		glyph("post", context_center, 28, UiKit.BRIGHT_JADE if mine else Color.WHITE)
+		glyph("post", context_center, 32, UiKit.BRIGHT_JADE if mine else Color.WHITE)
 		UiKit.draw_outlined(self, Tx.t("hud.keep_post"), context_center + Vector2(-60, 44), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 120)
 	if shown("presence"):
 		var held: bool = Game.field.is_on(c.id)
 		ring(presence_center, 26, held, 1.0, pulses.has("hud:presence"))
-		glyph("presence", presence_center, 28, UiKit.PALE_GOLD if held else Color.WHITE)
+		glyph("presence", presence_center, 32, UiKit.PALE_GOLD if held else Color.WHITE)
 		UiKit.draw_outlined(self, str(Game.field.presence_level(c)), presence_center + Vector2(10, 22), 13, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 30)
 	if shown("sphere"):
 		var raised: bool = Game.field.sphere_on(c.id)
 		ring(sphere_center, 26, raised, 1.0, pulses.has("hud:sphere"))
-		glyph("sphere", sphere_center, 28, UiKit.PALE_GOLD if raised else Color.WHITE)
+		glyph("sphere", sphere_center, 32, UiKit.PALE_GOLD if raised else Color.WHITE)
 	if shown("quick_use"):
 		ring(quick_center, 26)
 		var qid: String = c.inventory.quick_use
 		if qid != "":
-			var tex = SpriteCache.icon(qid)
-			if tex: draw_texture_rect(tex, Rect2(quick_center - Vector2(18, 18), Vector2(36, 36)), false)
+			glyph(qid, quick_center, 32)
 			UiKit.draw_outlined(self, str(c.inventory.count(qid)), quick_center + Vector2(4, 22), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 40)
 			var cd := 0.0
 			for k in c.pools.cooldowns:
 				if str(k).begins_with("item:"): cd = maxf(cd, float(c.pools.cooldowns[k]))
 			if cd > 0: draw_circle(quick_center, 24, Color(0, 0, 0, 0.5))
 		else:
-			glyph("quick_use", quick_center, 28)
+			glyph("quick_use", quick_center, 32)
 	# S44: the Draught slot, with the minutes left before the liquid goes flat.
 	if _has_draught():
 		var dr: Dictionary = c.inventory.draught
 		ring(draught_center, 20)
-		var dtex = SpriteCache.icon(str(dr.id))
-		if dtex: draw_texture_rect(dtex, Rect2(draught_center - Vector2(14, 14), Vector2(28, 28)), false)
+		glyph(str(dr.id), draught_center, 32)
 		var left: float = Game.inventory.draught_left(c)
 		draw_arc(draught_center, 22, -PI / 2, -PI / 2 + TAU * left / float(ContentDB.item(str(dr.id)).get("draught", {}).get("expires_s", 600)), 32, UiKit.BRIGHT_JADE, 2)
 		UiKit.draw_outlined(self, str(int(dr.count)), draught_center + Vector2(4, 19), 15, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 30)
 	if shown("pet"):
 		ring(pet_center, 26)
-		glyph("pet", pet_center, 28)
+		glyph("pet", pet_center, 32)
 	for ti in 2:
 		if not shown("treasure_%d" % (ti + 1)): continue
 		var tc: Vector2 = treasure_centers[ti]
@@ -1810,10 +1810,9 @@ func _draw_controls(c) -> void:
 			var motif: Texture2D = SpriteCache.tex("res://art/ui/slot_empty_motif__normal.png")
 			if motif: draw_texture_rect(motif, Rect2(tc - Vector2(16, 16), Vector2(32, 32)), false, Color(0.7, 1.0, 0.9, 0.35))
 			continue
-		var ttex = SpriteCache.icon(tid)
 		var tdef: Dictionary = CombatAuthority.treasure_of(tid)
 		var short: bool = c.pools.qi < float(tdef.get("qi", 0)) or c.pools.soul < CombatAuthority.treasure_soul_cost(c, tdef)
-		if ttex: draw_texture_rect(ttex, Rect2(tc - Vector2(18, 18), Vector2(36, 36)), false, Color(1, 1, 1, 0.4 if short else 1.0))
+		glyph(tid, tc, 32, Color(1, 1, 1, 0.4 if short else 1.0))
 		var tcd: float = c.pools.cooldown("treasure:" + tid)
 		if tcd > 0.05:
 			var frac := clampf(tcd / maxf(1.0, float(tdef.get("cooldown_s", 20))), 0.0, 1.0)
@@ -1831,18 +1830,17 @@ func _draw_controls(c) -> void:
 		var spare = c.inventory.loadout.get("spare")
 		ring(swap_center, 26, false, 1.0, pulses.has("hud:weapon_swap"))
 		if spare != null:
-			var stex = SpriteCache.icon(str(spare.id))
-			if stex: draw_texture_rect(stex, Rect2(swap_center - Vector2(16, 16), Vector2(32, 32)), false, Color(1, 1, 1, 0.9))
+			glyph(str(spare.id), swap_center, 32, Color(1, 1, 1, 0.9))
 		for side in [-1.0, 1.0]:
 			draw_arc(swap_center, 21, PI * (0.15 if side > 0 else 1.15), PI * (0.75 if side > 0 else 1.75), 10, Color(UiKit.PALE_GOLD, 0.9 if spare != null else 0.35), 2.0)
 		UiKit.draw_outlined(self, str(c.inventory.loadout.get("active", "a")).to_upper(), swap_center + Vector2(10, 27), 15, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 20)
 	if _fight_context():
 		ring(context_center, 26, false, 1.0, true)
-		glyph("enter", context_center, 28)
+		glyph("enter", context_center, 32)
 		UiKit.draw_outlined(self, str(context.get("label", "")), context_center + Vector2(-50, 40), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 100)
 	if shown("guard"):
 		ring(guard_center, 26, Game.combat.timeline(c.id).guard)
-		glyph("dodge" if Unlocks.is_unlocked(c.id, "dodge_dash") else "guard", guard_center, 28)
+		glyph("dodge" if Unlocks.is_unlocked(c.id, "dodge_dash") else "guard", guard_center, 32)
 		var dcd = c.pools.cooldown("dodge")
 		if dcd > 0: draw_arc(guard_center, 22, -PI / 2, -PI / 2 + TAU * (1.0 - dcd / 2.5), 20, UiKit.MIST, 3)
 
