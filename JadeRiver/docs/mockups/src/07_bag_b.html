@@ -1,0 +1,21 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>07 Bag, concept B: the heaven in the gourd</title>
+<meta name="mockup-check" content=".tok, .worn, .k-pill, .k-btn, .k-btn2, .k-close, .space, .field, .card">
+<link rel="stylesheet" href="../kit/kit.css">
+<link rel="stylesheet" href="bag_b.css">
+<script src="bag_data.js"></script>
+<script src="bag_b.js"></script>
+</head>
+<body><div class="k-screen"></div>
+<!-- Concept B (decision 15): no gourd is drawn. The page is the world inside the Sunsteel Gourd (a gourd that holds a
+     heaven of its own), so the bag reads as open sky; the grid floats in it with no panel, ten across, five rows in
+     view and the sixth fading into the cloud, and it scrolls. The worn slots ride an orbit round the figure's island
+     (decision 8). Checkpoint ls6_end: 41 of 55, a Driftglass Gourd holds 60. Nothing chosen: the page as it opens. -->
+<script>
+buildPageB({cp: "ls6_end", fig: "fig_tester_ls6_idle.png", subtitle: "The heaven inside your Sunsteel Gourd",
+  purses: [["hud/coin", "55,955"], ["hud/spirit_stone", "6,497"], ["items/sage_crystal", "1,231"]],
+  sky: {seed: 11, stars: 460, shafts: true, islands: [[190, 598, 200, 0], [330, 118, 78, 0.65], [58, 668, 88, 0.5],
+    [1086, 708, 96, 0.55], [1206, 664, 120, 0.3], [1258, 330, 60, 0.8]]},
+  locked: 5, rows: 5, spaceLine: 'a Driftglass Gourd holds <span class="t-fig">60</span>: five more spaces, a wider sky'});
+</script>
+</body></html>
