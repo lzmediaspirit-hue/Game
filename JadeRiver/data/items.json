@@ -3740,6 +3740,17 @@
    ]
   },
   {
+   "id": "clear_heart_incense",
+   "name": "Clear Heart Incense",
+   "type": "other",
+   "grade": "earth",
+   "ilv": 27,
+   "stack": 99,
+   "icon": "calm_heart_incense",
+   "desc": "Burnt while you sit, it lets a cultivator unlearn a whole tree of realised arts, to walk it again another way.",
+   "value_override": 60
+  },
+  {
    "id": "old_net",
    "name": "Old Net",
    "type": "other",

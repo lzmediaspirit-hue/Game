@@ -1099,6 +1099,10 @@
      }
     },
     {
+     "item": "clear_heart_incense",
+     "price": 200
+    },
+    {
      "item": "healing_pill"
     },
     {
@@ -1697,6 +1701,10 @@
        }
       ]
      }
+    },
+    {
+     "item": "clear_heart_incense",
+     "price": 200
     },
     {
      "item": "healing_pill"

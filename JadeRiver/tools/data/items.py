@@ -585,6 +585,9 @@ def build_items():
                              ("manual_ember_burst", "ember_burst", "earth")]:
         rows.append(item(mid, "scroll", grade, 99, "A technique manual. Read it to learn %s." % titled(tech),
                          use=[effect("learn_technique", technique=tech)]))
+    # P13a (technique_plan §4.5): a whole element tree let go, after the great realm's one free reset.
+    rows.append(item("clear_heart_incense", "other", "earth", 99, "Burnt while you sit, it lets a cultivator unlearn a whole tree of "
+                     "realised arts, to walk it again another way.", icon="calm_heart_incense", value_override=60))
     rows.append(item("old_net", "other", "plain", 99, "A torn fishing net. Old Ma buys these.", value_override=40))
     rows.append(item("snapper_claw", "other", "common", 99, "Old Snapper's claw. Worth 40 taels to a trader.", value_override=40))
     for oid, grade, desc in [

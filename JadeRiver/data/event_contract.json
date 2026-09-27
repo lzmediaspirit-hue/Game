@@ -395,6 +395,27 @@
     "level"
    ]
   },
+  "tree_node_realised": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "polled": "The Techniques page reads the trees when it draws (P13b builds the chart)."
+  },
+  "tree_node_unrealised": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "polled": "The Techniques page reads the trees when it draws (P13b builds the chart)."
+  },
+  "tree_reset": {
+   "system": "Progression",
+   "files": [
+    "progression_authority"
+   ],
+   "polled": "The Techniques page reads the trees when it draws (P13b builds the chart)."
+  },
   "attack_started": {
    "system": "Combat",
    "files": [

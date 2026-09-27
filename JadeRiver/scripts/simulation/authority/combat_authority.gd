@@ -580,6 +580,10 @@ func use_technique(c, slot: int, facing: int) -> Dictionary:
 		"facing": tl.facing, "element": str(t.get("element", "none"))})
 	return ok({"action": action, "duration": tl.duration, "facing": tl.facing, "technique": tid})
 
+## In a fight: a blow struck or taken within the fight gap (8 s). Tree nodes are realised and let go only out of one.
+func in_combat(c) -> bool:
+	return game.sim_time - float(timeline(c.id).get("fight_t", -999.0)) < float(ContentDB.stat_const("gates", {}).get("fight_gap_s", 8.0))
+
 func technique_cost(c, t: Dictionary) -> float:
 	var st: Dictionary = ContentDB.stat_const("technique_cost", {})
 	var base := float(t.get("qi_cost", 0))

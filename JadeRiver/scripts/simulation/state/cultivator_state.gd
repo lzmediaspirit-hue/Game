@@ -81,6 +81,9 @@ var technique_bars: Dictionary = {}   # S47 dual loadout: "a"/"b" -> the bar kep
 var mastery: Dictionary = {}         # technique -> {tier, points}
 var technique_use: Dictionary = {}   # technique -> uses (Heart Trial reflection)
 var secret_arts: Array = []
+# P13a the element trees (Progression owns them): the nodes realised {id: true}, the great realms whose free reset is
+# spent, the lost manuals' pity counts, and `v` (0 on a save from before the trees, which ProgressionAuthority migrates).
+var tree: Dictionary = {"v": 1, "realised": {}, "resets": {}, "pity": {}}
 # Meditation
 var meditating := false
 var meditation_settle := 0.0
@@ -118,7 +121,7 @@ func snapshot() -> Dictionary:
 		"unlocked": unlocked.keys(), "offered": offered.duplicate(), "revealed": revealed.keys(),
 		"techniques": {"known": techniques_known.duplicate(), "slots": technique_slots.duplicate(),
 			"mastery": mastery.duplicate(true), "use": technique_use.duplicate(), "bars": technique_bars.duplicate(true)},
-		"secret_arts": secret_arts.duplicate(), "titles": titles.duplicate(), "active_title": active_title,
+		"secret_arts": secret_arts.duplicate(), "tree": tree.duplicate(true), "titles": titles.duplicate(), "active_title": active_title,
 		"lifetime_stats": lifetime_stats.duplicate(), "bottleneck_seconds": bottleneck_seconds,
 		"consolidation_penalty": consolidation_penalty}
 
@@ -214,6 +217,9 @@ func restore(d: Dictionary) -> void:
 		for k in ["a", "b"]:
 			if bars.get(k) is Array: technique_bars[k] = (bars[k] as Array).duplicate()
 	secret_arts = _arr(d, "secret_arts")
+	tree = _dict(d, "tree")
+	for k in ["realised", "resets", "pity"]:
+		if not (tree.get(k) is Dictionary): tree[k] = {}
 	titles = _arr(d, "titles")
 	active_title = str(d.get("active_title", ""))
 	lifetime_stats = _dict(d, "lifetime_stats")

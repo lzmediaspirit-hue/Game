@@ -64,7 +64,9 @@ DEPTH = {
                     "fate_offered", "fate_chosen", "tribulation_started", "tribulation_bolt", "tribulation_result", "qi_deviation",
                     "inner_art_learned", "inner_art_equipped", "stance_changed", "vow_taken", "vow_broken", "false_realm_changed",
                     "epiphany", "soul_escaped", "guqin_played", "chess_solved", "path_changed",
-                    "level_changed"],   # P6 finding 5: emitted and read by moments, missing from the contract
+                    "level_changed",   # P6 finding 5: emitted and read by moments, missing from the contract
+                    # P13a the element trees and the Lost Arts.
+                    "tree_node_realised", "tree_node_unrealised", "tree_reset"],
     "Crafting": ["flame_absorbed", "pill_cloud", "items_salvaged", "enhancement_inherited", "affixes_rerolled", "affix_locked", "talisman_crafted",
                  "relic_restored", "furnace_blast", "recipe_page_found", "recipe_deduced", "experiment_result", "guild_exam_started",
                  "guild_exam_failed", "guild_rank_changed", "commission_completed", "pill_tribulation_result", "pill_soul_flight",
@@ -142,6 +144,9 @@ ALSO = {
 # Reactors that read state every frame instead of listening, so no subscriber is required.
 POLLED = {
     "progress_changed": "HUD bars read the cultivator each frame.",
+    "tree_node_realised": "The Techniques page reads the trees when it draws (P13b builds the chart).",
+    "tree_node_unrealised": "The Techniques page reads the trees when it draws (P13b builds the chart).",
+    "tree_reset": "The Techniques page reads the trees when it draws (P13b builds the chart).",
     "stats_changed": "HUD and pages read the StatBlock each frame.",
     "status_applied": "HUD status icons read active statuses each frame.",
     "status_expired": "HUD status icons read active statuses each frame.",

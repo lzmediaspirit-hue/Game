@@ -16,7 +16,7 @@ func intents() -> Array:
 	return ["start_meditation", "stop_meditation", "toggle_meditation", "start_breakthrough", "learn_method", "switch_method",
 		"open_meridian", "reset_meridians", "equip_technique", "unequip_technique", "rank_up_technique", "set_contemplate",
 		"enter_seclusion", "claim_offline", "use_treatment", "train_object", "attune_jade", "start_bath", "choose_fate", "equip_inner_art", "set_stance", "set_vow", "set_path", "set_false_realm",
-		"play_guqin", "solve_chess"]
+		"play_guqin", "solve_chess", "realise_node", "unrealise_node", "reset_tree"]
 
 func subscribe() -> void:
 	GameEvents.subscribe("loadout_swapped", _on_loadout_swapped, 30)
@@ -67,6 +67,9 @@ func handle(intent: Dictionary) -> Dictionary:
 		"set_vow": return set_vow(c, str(intent.get("vow", "")), bool(intent.get("on", true)))
 		"set_path": return set_path(c, str(intent.get("path", "")), bool(intent.get("on", true)))
 		"set_false_realm": return set_false_realm(c, str(intent.get("realm", "")))
+		"realise_node": return realise_node(c, str(intent.get("node", "")))
+		"unrealise_node": return unrealise_node(c, str(intent.get("node", "")))
+		"reset_tree": return reset_tree(c, str(intent.get("tree", "")))
 	return fail("unknown_intent")
 
 # ------------------------------------------------------------------ meditation (S06)
@@ -1295,13 +1298,17 @@ func _on_loadout_swapped(p: Dictionary) -> void:
 func apply_learn_technique(actor_id: String, tid: String) -> void:
 	var c = game.character(actor_id)
 	if c == null or not ContentDB.has_entry("techniques", tid): return
-	if c.cultivator.techniques_known.has(tid): return
+	if c.cultivator.techniques_known.has(tid):
+		# P13a: an art realised on its tree and then taught (a teacher, a quest, a manual) is taught now: its node's
+		# Realisations come back (technique_plan §4.3).
+		if c.cultivator.tree.realised.has(tid): c.cultivator.tree.realised.erase(tid)
+		return
 	c.cultivator.techniques_known.append(tid)
-	c.cultivator.mastery[tid] = {"tier": 1, "points": 0.0}
+	if not c.cultivator.mastery.has(tid): c.cultivator.mastery[tid] = {"tier": 1, "points": 0.0}   # P13a: an art let go and realised again keeps its mastery
 	emit("technique_learned", {"actor": c.id, "technique": tid})
 	var slots := ProgressionRules.technique_slot_count(c)
 	for i in slots:
-		if c.cultivator.technique_slots[i] == null:
+		if c.cultivator.technique_slots[i] == null and TechniqueTreeRules.heavy_fits(c.cultivator.technique_slots, i, tid):
 			c.cultivator.technique_slots[i] = tid
 			emit("technique_equipped", {"actor": c.id, "technique": tid, "slot": i})
 			break
@@ -1378,6 +1385,8 @@ func equip_technique(c, slot: int, tid: String) -> Dictionary:
 	var n := ProgressionRules.technique_slot_count(c)
 	if slot < 0 or slot >= n: return fail("slot_locked")
 	if tid != "" and not c.cultivator.techniques_known.has(tid): return fail("unknown_technique")
+	# P13a (technique_plan §6.3): a heavy art, a keystone or a lost art, is one to a ring of four.
+	if tid != "" and not TechniqueTreeRules.heavy_fits(c.cultivator.technique_slots, slot, tid): return fail("heavy_cap", {"text": Tx.t("sim.tree.heavy_cap")})
 	if tid != "":
 		for i in c.cultivator.technique_slots.size():
 			if c.cultivator.technique_slots[i] == tid: c.cultivator.technique_slots[i] = null
@@ -1597,3 +1606,78 @@ func apply_insight_best(actor_id: String, amount: float, context := "fortune") -
 	var best := ProgressionRules.strongest_dao(c)
 	if best != "" and Unlocks.is_unlocked(c.id, "dao_tree"): apply_insight(c.id, best, amount, context + ":chess:" + str(Clock.reset_day(Clock.now_utc())))
 	else: apply_progress(c.id, 0.0, context, 0.02)
+
+# ------------------------------------------------------------------ P13a the element trees (technique_plan §4)
+## The Realisations pool, spent and free (TechniqueTreeRules.realisations).
+func realisations(c) -> Dictionary:
+	return TechniqueTreeRules.realisations(c)
+
+## Realise a node out of combat: it costs its Realisations, and an art's node teaches its art (§4.3, §4.4).
+func realise_node(c, nid: String) -> Dictionary:
+	if game.combat.in_combat(c): return fail("in_combat", {"text": Tx.t("sim.tree.in_combat")})
+	var why := TechniqueTreeRules.realise_block(c, nid, game.ctx(c))
+	if why != "": return fail(why, {"text": Tx.t("sim.tree." + why)})
+	var n := TechniqueTreeRules.node(nid)
+	c.cultivator.tree.realised[nid] = true
+	if str(n.kind) in ["art", "keystone"]: apply_learn_technique(c.id, nid)
+	emit("tree_node_realised", {"actor": c.id, "node": nid, "tree": str(n.tree), "kind": str(n.kind)})
+	return ok(TechniqueTreeRules.realisations(c))
+
+## Let a node go out of combat, leaves first: its Realisations come back at once; a realised art is unlearned but keeps
+## its mastery, and cannot go while it sits in a slot (§4.5).
+func unrealise_node(c, nid: String) -> Dictionary:
+	if game.combat.in_combat(c): return fail("in_combat", {"text": Tx.t("sim.tree.in_combat")})
+	var why := TechniqueTreeRules.unrealise_block(c, nid)
+	if why != "": return fail(why, {"text": Tx.t("sim.tree." + why)})
+	var n := TechniqueTreeRules.node(nid)
+	c.cultivator.tree.realised.erase(nid)
+	if str(n.kind) in ["art", "keystone"]: c.cultivator.techniques_known.erase(nid)
+	emit("tree_node_unrealised", {"actor": c.id, "node": nid, "tree": str(n.tree), "kind": str(n.kind)})
+	return ok(TechniqueTreeRules.realisations(c))
+
+## Let a whole tree go (§4.5): free once in each great realm, then for a Clear Heart Incense. Realised arts leave
+## their slots; taught arts stay known.
+func reset_tree(c, tree: String) -> Dictionary:
+	if game.combat.in_combat(c): return fail("in_combat", {"text": Tx.t("sim.tree.in_combat")})
+	if not tree in TechniqueTreeRules.trees(): return fail("unknown_tree")
+	var nodes: Array = TechniqueTreeRules.realised(c).keys().filter(func(nid): return str(TechniqueTreeRules.node(str(nid)).get("tree", "")) == tree)
+	if nodes.is_empty(): return fail("nothing", {"text": Tx.t("sim.tree.nothing")})
+	var realm_now := ProgressionRules.great_realm(c.cultivator.realm_key)
+	var free: bool = not c.cultivator.tree.resets.has(realm_now)
+	var incense := str(TechniqueTreeRules.config().get("reset_item", "clear_heart_incense"))
+	if not free:
+		if c.inventory.count(incense) <= 0: return fail("needs_incense", {"text": Tx.t("sim.tree.needs_incense")})
+		game.inventory.apply_remove(c.id, incense, 1, "tree_reset")
+	else: c.cultivator.tree.resets[realm_now] = true
+	var refund := 0
+	for nid in nodes:
+		refund += TechniqueTreeRules.cost(str(nid))
+		c.cultivator.tree.realised.erase(nid)
+		if not str(TechniqueTreeRules.node(str(nid)).get("kind", "")) in ["art", "keystone"]: continue
+		c.cultivator.techniques_known.erase(nid)
+		for i in c.cultivator.technique_slots.size():
+			if c.cultivator.technique_slots[i] == nid:
+				c.cultivator.technique_slots[i] = null
+				emit("technique_equipped", {"actor": c.id, "technique": "", "slot": i})
+		for bar in c.cultivator.technique_bars.values():
+			for i in (bar as Array).size():
+				if bar[i] == nid: bar[i] = null
+	emit("tree_reset", {"actor": c.id, "tree": tree, "free": free, "refund": refund})
+	return ok({"free": free, "refund": refund})
+
+## The page's view of one tree: every node with its state (realised, taught, open, or locked and why) and its cost.
+func tree_view(c, tree: String) -> Dictionary:
+	var ctx: Dictionary = game.ctx(c)
+	var nodes: Array = []
+	for nid in TechniqueTreeRules.nodes_of(tree):
+		var n := TechniqueTreeRules.node(nid)
+		var state := "realised" if TechniqueTreeRules.realised(c).has(nid) else ("taught" if c.cultivator.techniques_known.has(nid) else "")
+		var why := "" if state != "" else TechniqueTreeRules.realise_block(c, nid, ctx)
+		if state == "": state = "open" if why == "" else "locked"
+		nodes.append({"id": nid, "kind": str(n.kind), "family": str(n.get("family", "")), "kin": str(n.get("kin", "")), "ring": int(n.ring),
+			"state": state, "why": why, "cost": TechniqueTreeRules.cost(nid)})
+	return {"tree": tree, "nodes": nodes, "realisations": TechniqueTreeRules.realisations(c)}
+
+## The Lost Arts board (roadmap decision 19): counts per act and the found arts' cards, nothing of an unfound one.
+func lost_arts_view(c) -> Dictionary:
+	return TechniqueTreeRules.lost_view(c)

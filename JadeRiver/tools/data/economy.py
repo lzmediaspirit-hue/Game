@@ -144,6 +144,7 @@ def shops():
         {"id": "jade_sect", "name": "Jade Sect Mission Hall", "currency": "contribution", "discount": {"flag": "succession_named", "pct": 0.2},
          "requires": {"all": [{"kind": "training_sect", "sect": "jade_sect"}]},
          "stock": [s("manual_rain_of_reeds", requires=all_of({"kind": "sect_rank_at_least", "rank": "outer_disciple"})),
+                   s("clear_heart_incense", price=200),   # P13a: a tree let go once the realm's free reset is spent
                    s("healing_pill"), s("qi_restoration_pill"), s("cleansing_pill", requires=all_of(realm("qi_kindling_9"))),
                    s("foundation_guard_pill", requires=all_of(realm("qi_unfurling_1"))), s("clear_mind_pill"), s("revival_talisman"),
                    s("bonding_offering_earth", requires=all_of(realm("qi_unfurling_5"))), s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1"))),
@@ -158,6 +159,7 @@ def shops():
         {"id": "cloud_sect", "name": "Cloud Sect Mission Hall", "currency": "contribution", "discount": {"flag": "succession_named", "pct": 0.2},
          "requires": {"all": [{"kind": "training_sect", "sect": "cloud_sect"}]},
          "stock": [s("manual_ember_burst", requires=all_of({"kind": "sect_rank_at_least", "rank": "outer_disciple"})),
+                   s("clear_heart_incense", price=200),
                    s("healing_pill"), s("qi_restoration_pill"), s("cleansing_pill", requires=all_of(realm("qi_kindling_9"))),
                    s("foundation_guard_pill", requires=all_of(realm("qi_unfurling_1"))), s("clear_mind_pill"), s("revival_talisman"),
                    s("bonding_offering_earth", requires=all_of(realm("qi_unfurling_5"))), s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1"))),
