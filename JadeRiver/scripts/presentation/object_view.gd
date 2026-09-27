@@ -26,6 +26,9 @@ var focus := false
 var hit_flash := 0.0
 var prop_id := ""
 var badge: Node2D   # a pickup's floating item icon, smoothed (icons are 64 px art drawn smaller)
+## P5a (G4): the plate's box (local, at no offset) and the offset in whole rows the world's label pass gives it.
+var label_box := Rect2()
+var label_offset := Vector2.ZERO
 
 func setup(o: Dictionary) -> void:
 	def = o
@@ -155,13 +158,15 @@ func _draw() -> void:
 	if def.type == "earth_vent": _draw_earth_fire()
 	if def.type == "spirit_mine": _draw_mine()
 	if def.type == "garden_bed": _draw_bed_herb()
+	if def.type != "pickup": label_box = Rect2()
 	if focus and def.type != "pickup":
 		var c = Game.active()
 		var avail: Dictionary = Game.world.object_available(c, def) if c else {"ok": true}
 		var label := Game.world._verb(def)
 		var h := SpriteCache.prop_size(current_prop()).y if prop_id != "" else 40.0
-		UiKit.draw_nameplate(self, label if avail.ok else str(avail.get("text", "")), "", -h - 12,
+		var plate := UiKit.draw_nameplate(self, label if avail.ok else str(avail.get("text", "")), "", -h - 12 + label_offset.y,
 			UiKit.PALE_GOLD if avail.ok else UiKit.MIST, UiKit.MIST, 18)
+		label_box = Rect2(plate.position - label_offset, plate.size)
 
 ## Height of a pickup's prop, so its icon floats clear of it.
 func _pickup_top() -> float:
@@ -191,7 +196,8 @@ func _draw_badge() -> void:
 		var avail: Dictionary = Game.world.object_available(who, def) if who else {"ok": true}
 		sub = Game.world._verb(def) if avail.ok else str(avail.get("text", ""))
 		if not avail.ok: col = UiKit.MIST
-	UiKit.draw_nameplate(badge, name_text, sub, c.y - 36.0, col, UiKit.BRIGHT_JADE if focus else UiKit.MIST, 18 if focus else 16)
+	var plate := UiKit.draw_nameplate(badge, name_text, sub, c.y - 36.0 + label_offset.y, col, UiKit.BRIGHT_JADE if focus else UiKit.MIST, 18 if focus else 16)
+	label_box = Rect2(plate.position - label_offset, plate.size)
 
 ## S49 territory: the holder's banner beside the vein; stones waiting glint over it, and a contested mine pulses red.
 func _draw_mine() -> void:

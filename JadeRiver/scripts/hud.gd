@@ -1,13 +1,23 @@
 extends Control
 ## S24 · The play screen. Every element stays hidden until the unlock service
 ## reveals it. Controls send intents (or ask the shell to open a page); nothing
-## here changes game state. Positions follow the S24 table (1280 × 720) and are
-## mirrored for the left-handed option.
+## here changes game state. P5a: laid out to the approved mockups 01 (a fight) and 02 (at rest), at 1280 × 720
+## (docs/ui_style_guide.md §9), and mirrored for the left-handed option.
+##
+## The right thumb holds two rings round the 132 px attack button. Ring 1 (R 132): jump, the four techniques of the
+## page, dodge. Ring 2 (R 214): the fan, which holds the system toggles (Cultivate, Presence, Sphere, Sense, Pet;
+## roadmap decision 20) and opens and closes with a tap, and beside it what the moment needs: a toggle that is on,
+## pinned while the fan is closed, and in a fight the healing slot, the Draught and the treasures, then the context or
+## the post chip and the weapon swap. An empty slot is not drawn (review G3). With no foe near the techniques fold into
+## four beads on the attack ring, the healing slot and the treasures rest, and the fan opens again if the player left
+## it open; a foe near brings the ring out and folds the fan. The lower middle stays clear for the fight (CLEAR_ZONE,
+## checked by the hud_suite).
 ##
 ## The QI bar exists only once the character has a QI pool (Bone Forging 7): a
 ## Mortal or early Bone Forging disciple has no Qi, so no QI bar is drawn.
 
-var font = preload("res://art/fonts/CormorantGaramond.ttf")
+const Avatar = preload("res://scripts/avatar.gd")
+
 var frame_style: StyleBox
 var player: Node2D
 var world: Node2D
@@ -21,26 +31,70 @@ var joystick_pos := Vector2.ZERO
 var mouse_down := false
 var left_handed := false
 
-# S24 positions (right-handed); mirrored when left-handed.
-var slots := [Vector2(1036, 634), Vector2(1030, 536), Vector2(1088, 455), Vector2(1185, 425)]
+# The right-hand cluster (mockups 01 and 02): angles in degrees on screen (0 to the right, 90 down) round the attack
+# button, mirrored when left-handed.
+const RING1_R := 132.0
+const RING2_R := 214.0
+const FAN_R := 150.0          # the open fan's toggles round the fan button
+const PAPER_R := 190.0        # the paper fan behind them
+const BEAD_R := 71.0          # the beads on the attack ring at rest
+const JUMP_DEG := 150.0
+const SKILL_DEG := [180.0, 210.0, 240.0, 270.0]
+const DODGE_DEG := 300.0
+const FAN_DEG := 160.0
+const BEAD_DEG := [190.0, 214.0, 240.0, 264.0]
+## Ring 2 beside the fan. A pinned toggle, the healing slot, the first treasure, the context and the swap have their
+## own places; the rest take the next free one.
+const RING2_DEG := [178.0, 204.0, 226.0, 248.0, 270.0, 292.0]
+const RING2_HOME := {"pin": 178.0, "quick": 204.0, "treasure:0": 226.0, "context": 270.0, "post": 270.0, "swap": 292.0}
+## The fan's toggles in their order round it when open: only the revealed ones, packed from the first place.
+const FAN_DEG_OPEN := [180.0, 202.0, 224.0, 246.0, 268.0]
+const FAN_TOGGLES := ["cultivate", "presence", "sphere", "sense", "pet"]
+const FAN_ROLE := {"cultivate": "meditate", "presence": "presence", "sphere": "sphere", "sense": "sense", "pet": "pet"}
+const FOLD_S := 0.25          # the techniques fold into beads, and out again, over this long
+const FIGHT_HOLD_S := 2.0     # the fight state holds this long after the last foe leaves, so the ring does not flicker
+## The lower middle the mockups keep open for the fight: the player and the party stand here at the common camera
+## positions (the player at x 640 give or take the camera's look-ahead, the feet at y 470 with the camera free and
+## down to about 640 with it at its lowest). No HUD control or panel is drawn in it (the hud_suite checks).
+const CLEAR_ZONE := Rect2(380, 324, 520, 332)
+## The top centre's stack (the room's name, an event, a fortune card, the toasts) starts under the party chips, or
+## under the boss bar in a boss fight, and stops above the clear zone.
+const TOP_STACK := 96.0
+const TOP_STACK_BOSS := 184.0
+## The log sits above the joystick's half, newest at the foot, and keeps left of the clear zone (mockup 01).
+const LOG_FOOT := 451.0
+const LOG_W := 356.0
+## The party chips' face crop: this far above the feet on the idle frame, this big.
+const FACE_AT := Vector2(2, -80)
+const FACE_BOX := 30.0
+
 var attack_center := Vector2(1165, 605)
-var jump_center := Vector2(933, 640)
-var meditate_center := Vector2(841, 640)
-var sense_center := Vector2(749, 640)
-var presence_center := Vector2(711, 555)   # S28 v1.2: the Presence toggle, beside Guard (key G)
-var sphere_center := Vector2(711, 470)     # S28 v1.2: the Sphere toggle, above the Presence (key H)
-var quick_center := Vector2(887, 555)
-var pet_center := Vector2(965, 560)   # moved from (975, 555) so it clears skill slot 2 (v2 S24)
-var guard_center := Vector2(799, 555)
-var context_center := Vector2(1165, 500)   # S24/S43: Climb or Enter while an enemy is aggroed
-## S24/S47: the Treasure buttons above Quick-use and Guard (the second opens at Spirit Awakening 1).
-var treasure_centers := [Vector2(887, 470), Vector2(799, 470)]
-var swap_center := Vector2(1240, 515)   # S24/S47: weapon swap (dual loadout), from Heart Tempering 1
+var jump_center := Vector2(1051, 671)
+var guard_center := Vector2(1231, 491)     # dodge on a tap, guard on a hold (ring 1 at 300°)
+var slots := [Vector2(1033, 605), Vector2(1051, 539), Vector2(1099, 491), Vector2(1165, 473)]
+var fan_center := Vector2(964, 678)
+var page_center := Vector2(1240, 672)      # the technique page tab, "1/2"
+# The fan's toggles where they stand while it is open (set with the fan each frame; the pet wheel opens round Pet).
+var meditate_center := Vector2(814, 678)
+var presence_center := Vector2(825, 622)
+var sphere_center := Vector2(856, 574)
+var sense_center := Vector2(903, 541)
+var pet_center := Vector2(959, 528)
+var context_center := Vector2(1165, 391)   # the in-fight context or the post chip on ring 2
 var auto_center := Vector2(1232, 292)    # S49: the auto-hunt toggle, under the icon row (only where allowed)
 var tracker_paths: Array = []            # S49: [{rect, target}] the tracker's auto-path buttons this frame
-var draught_center := Vector2(843, 512)  # S44: the Draught slot, shown while a liquid medicine is fresh (key V)
+var tracker_rect := Rect2()              # the tracker's plate as last drawn (a tap on it opens Quests)
 var minimap_rect := Rect2(1032, 16, 232, 140)
 var icon_row := [["menu", Vector2(1064, 188)], ["bag", Vector2(1120, 188)], ["map", Vector2(1176, 188)], ["mail", Vector2(1232, 188)]]   # pitch 56 (P4 §2.1)
+
+# Rest and fight (P5a): the techniques fold into beads at rest and the fan opens again as the player left it.
+var fight := true             # a foe is near (or was, within FIGHT_HOLD_S)
+var fight_k := 1.0            # 0 at rest (beads) .. 1 in a fight (the ring)
+var fight_left := 0.0
+var fight_override = null     # tests and previews: true or false stands in for the room
+var fan_open := false
+var fan_rest_open := true     # the player's choice at rest: open, as mockup 02 draws it, until they close it
+var _settled := false
 
 signal page_changed(page: int)
 signal open_page(page: String, args: Dictionary)
@@ -49,6 +103,7 @@ signal fishing_requested(object_id: String)
 
 var log_lines: Array = []          # [{text, t, color}]
 var toasts: Array = []             # [{text, t, kind}]
+var toasts_fit := 3                # how many toasts the top stack had room for last frame (the rest wait)
 var objective_seen: Dictionary = {}   # quest -> progress last toasted, while the tracker is still hidden
 var banner := {"text": "", "sub": "", "t": 0.0}
 var vignette := {"title": "", "text": "", "t": 99.0}   # S49: a fortune encounter's card, read at the top of the screen
@@ -75,6 +130,9 @@ var attack_hold := 0.0
 const PET_WHEEL := ["follow", "stay", "attack", "passive", "ride", "bag"]
 var pulses: Dictionary = {}        # element -> seconds of reveal pulse
 var t := 0.0
+var _faces: Dictionary = {}        # companion id -> its idle frame's layers, for the party chips
+var _hollow_last := -1.0
+var _hollow_dir := 0.0
 
 func _ready() -> void:
 	frame_style = UiKit.style("minor_panel")
@@ -83,20 +141,29 @@ func _ready() -> void:
 	if Game and GameEvents:
 		GameEvents.event.connect(_on_event)
 		left_handed = bool(Game.account.settings.get("left_handed", false))
-	_apply_hand()
+	_layout()
 
 func _exit_tree() -> void:
 	if GameEvents.event.is_connected(_on_event): GameEvents.event.disconnect(_on_event)
+	if bound(): WorldLabels.party_fight = false
 
-func _apply_hand() -> void:
-	if not left_handed: return
-	for i in slots.size(): slots[i] = _mirror(slots[i])
-	for k in ["attack_center", "jump_center", "meditate_center", "sense_center", "presence_center", "sphere_center", "quick_center", "pet_center", "guard_center", "context_center", "swap_center"]:
-		set(k, _mirror(get(k)))
-	treasure_centers = treasure_centers.map(func(tp): return _mirror(tp))
+## Every fixed place of the right-hand cluster from its ring and angle (mockups 01 and 02), mirrored when left-handed.
+func _layout() -> void:
+	attack_center = _mirror_x(Vector2(1165, 605))
+	jump_center = _on(attack_center, RING1_R, JUMP_DEG)
+	guard_center = _on(attack_center, RING1_R, DODGE_DEG)
+	slots = SKILL_DEG.map(func(d): return _on(attack_center, RING1_R, float(d)))
+	fan_center = _on(attack_center, RING2_R, FAN_DEG)
+	page_center = _mirror_x(Vector2(1240, 672))
 
-func _mirror(p: Vector2) -> Vector2:
-	return Vector2(1280.0 - p.x, p.y)
+func _mirror_x(p: Vector2) -> Vector2:
+	return Vector2(1280.0 - p.x, p.y) if left_handed else p
+
+## The point `r` from `center` at `deg` (screen degrees, mirrored when left-handed), on whole pixels unless `exact`.
+func _on(center: Vector2, r: float, deg: float, exact := false) -> Vector2:
+	var v := Vector2.from_angle(deg_to_rad(deg)) * r
+	if left_handed: v.x = -v.x
+	return center + v if exact else (center + v).round()
 
 func bound() -> bool:
 	return is_instance_valid(player) and player.actor_id != "" and Game.active() != null
@@ -121,9 +188,11 @@ func _process(delta: float) -> void:
 	advance_scroll(delta)
 	for l in log_lines: l.t += delta
 	log_lines = log_lines.filter(func(l): return l.t < 6.0)
-	# While a moment holds the screen (P6) the toasts wait under it, so the two never cover each other.
+	# While a moment holds the screen (P6) the toasts wait under it, so the two never cover each other; a toast the top
+	# stack had no room for waits for the one above it to go.
 	if not _moment_on_screen():
-		for tt in toasts: tt.t += delta
+		var n := toasts.size() if not is_visible_in_tree() else maxi(1, toasts_fit)
+		for i in mini(n, toasts.size()): toasts[i].t += delta
 		toasts = toasts.filter(func(tt): return tt.t < float(tt.get("life", 3.2)))
 	banner.t += delta
 	vignette.t = float(vignette.t) + delta
@@ -152,7 +221,41 @@ func _process(delta: float) -> void:
 	_tick_channel(delta)
 	_tick_tap(delta)
 	if bound() and world: context = world.context
+	_tick_fight(delta)
+	# G4: the world's names keep clear of the HUD's controls, and the party's HP lines show only in a fight.
+	WorldLabels.party_fight = bound() and fight
+	if bound() and is_instance_valid(world) and "label_obstacles" in world: world.label_obstacles = obstacle_rects()
 	queue_redraw()
+
+## Rest and fight (P5a): a foe near brings the technique ring out and folds the fan; with none near for FIGHT_HOLD_S
+## the techniques fold into beads over FOLD_S and the fan opens again if the player left it open.
+func _tick_fight(delta: float) -> void:
+	var near := _fight_now()
+	fight_left = FIGHT_HOLD_S if near else maxf(0.0, fight_left - delta)
+	var now := near or fight_left > 0.0
+	if not _settled:
+		_settled = true
+		fight = now
+		fight_k = 1.0 if now else 0.0
+		fan_open = fan_rest_open and not now
+	elif now != fight:
+		fight = now
+		fan_open = false if fight else fan_rest_open
+	fight_k = move_toward(fight_k, 1.0 if fight else 0.0, delta / FOLD_S)
+
+func _fight_now() -> bool:
+	if fight_override != null: return bool(fight_override)
+	if not bound(): return true
+	return WorldLabels.fight_near(Game.active(), player.plane) or _enemy_close()
+
+## Tests and previews: hold the HUD at rest or in a fight, the fan open or closed.
+func set_state(in_fight: bool, open := false) -> void:
+	fight_override = in_fight
+	fight = in_fight
+	fight_k = 1.0 if in_fight else 0.0
+	fight_left = 0.0
+	fan_open = open
+	_settled = true
 
 func _tick_channel(delta: float) -> void:
 	if channel.object == "" or not bound(): return
@@ -206,6 +309,94 @@ func _notification(what):
 			player.joystick_engaged = false
 			player.reset_sprint()
 
+# ------------------------------------------------------------------ the layout now
+## A technique slot that holds a technique (an empty or locked slot is not drawn, review G3).
+func _slot_filled(slot: int) -> bool:
+	if not bound(): return true
+	var c = Game.active()
+	if slot >= ProgressionRules.technique_slot_count(c) or slot >= c.cultivator.technique_slots.size(): return false
+	var tid = c.cultivator.technique_slots[slot]
+	return tid != null and str(tid) != ""
+
+## The techniques are out (a fight), not folded into beads.
+func _skills_live() -> bool:
+	return shown("skills") and fight_k >= 0.5
+
+## The page tab shows in a fight once the second page is open, while the attack button attacks.
+func _page_tab_shown(c) -> bool:
+	return _skills_live() and (not bound() or Unlocks.is_unlocked(c.id, "technique_page_2")) and _ctx_glyph(c) == ""
+
+## The fan's toggles the player has, each with its role and its place while the fan is open.
+func _fan_items() -> Array:
+	var out: Array = []
+	for id in FAN_TOGGLES:
+		if not shown(id): continue
+		var deg: float = FAN_DEG_OPEN[out.size()]
+		var at := _on(fan_center, FAN_R, deg)
+		out.append({"id": id, "role": FAN_ROLE[id], "center": at, "deg": deg})
+		set(str(FAN_ROLE[id]) + "_center", at)
+	return out
+
+## A toggle that is on: Cultivate while meditating, the Presence held, the Sphere raised.
+func toggle_on(c, id: String) -> bool:
+	if c == null: return false
+	match id:
+		"cultivate": return c.cultivator.meditating
+		"presence": return Game.field.is_on(c.id)
+		"sphere": return Game.field.sphere_on(c.id)
+	return false
+
+## The toggles pinned beside the closed fan: the ones that are on (decision 20: the fan shows them while closed).
+func _pins(c) -> Array:
+	if not bound(): return ["presence"] if shown("presence") else []
+	return FAN_TOGGLES.filter(func(id): return shown(id) and toggle_on(c, id))
+
+func _treasure_id(c, slot: int) -> String:
+	var tid := str(c.inventory.treasures[slot])
+	return "" if tid == "" or c.inventory.count(tid) <= 0 else tid   # sold or stored: the slot is empty again
+
+## Ring 2 beside the fan as it stands now: [{role, center, deg, toggle}]. While the fan is closed, a toggle that is on;
+## in a fight, the healing slot, the Draught and the treasures that hold something; the context or the post chip; the
+## weapon swap when there is a spare. An empty slot is not drawn (mockup 01).
+func _ring2(c) -> Array:
+	var items: Array = []
+	var loose := not bound()
+	if not loose and c == null: return items
+	if not fan_open:
+		for id in _pins(c): items.append({"role": FAN_ROLE[id], "home": "pin" if items.is_empty() else "", "toggle": id})
+	if fight and not fan_open:
+		if shown("quick_use") and (loose or str(c.inventory.quick_use) != ""): items.append({"role": "quick", "home": "quick"})
+		if _has_draught(): items.append({"role": "draught", "home": ""})
+		for ti in 2:
+			if shown("treasure_%d" % (ti + 1)) and (loose or _treasure_id(c, ti) != ""): items.append({"role": "treasure:%d" % ti, "home": "treasure:%d" % ti})
+	if _fight_context(): items.append({"role": "context", "home": "context"})
+	elif _post_chip(): items.append({"role": "post", "home": "post"})
+	if shown("weapon_swap") and (loose or c.inventory.loadout.get("spare") != null): items.append({"role": "swap", "home": "swap"})
+	return ring2_places(items)
+
+## Places on ring 2 for `items` ([{role, home}]): each takes its home if it is free, the rest the next free place in
+## order; more than six (a rare load) spread evenly over the same arc.
+func ring2_places(items: Array) -> Array:
+	var out: Array = []
+	var deg := {}
+	if items.size() > RING2_DEG.size():
+		for i in items.size(): deg[i] = lerpf(RING2_DEG[0], 294.0, float(i) / float(items.size() - 1))
+	else:
+		var free: Array = RING2_DEG.duplicate()
+		for i in items.size():
+			var home := str(items[i].get("home", ""))
+			if RING2_HOME.has(home) and free.has(RING2_HOME[home]):
+				deg[i] = RING2_HOME[home]
+				free.erase(RING2_HOME[home])
+		for i in items.size():
+			if not deg.has(i): deg[i] = free.pop_front()
+	for i in items.size():
+		var o: Dictionary = items[i].duplicate()
+		o.deg = float(deg[i])
+		o.center = _on(attack_center, RING2_R, float(deg[i]))
+		out.append(o)
+	return out
+
 # ------------------------------------------------------------------ input
 ## The smallest HUD hit circle's radius (P4, docs/ui_style_guide.md §7): 48 px across, and never less than the drawn
 ## radius + 4.
@@ -217,27 +408,39 @@ func hit_targets() -> Array:
 	var out: Array = []
 	var add := func(role: String, center: Vector2, drawn: float, hit := 0.0) -> void:
 		out.append({"role": role, "center": center, "drawn": drawn, "r": maxf(maxf(HIT_MIN, drawn + 4.0), hit)})
+	var c = Game.active()
 	add.call("attack", attack_center, 66.0, 74.0)
-	if shown("jump"): add.call("jump", jump_center, 32.0, 36.0)
-	if shown("cultivate"): add.call("meditate", meditate_center, 32.0, 36.0)
-	if shown("sense"): add.call("sense", sense_center, 32.0, 36.0)
-	if shown("presence"): add.call("presence", presence_center, 26.0)
-	if shown("sphere"): add.call("sphere", sphere_center, 26.0)
-	if shown("quick_use"): add.call("quick", quick_center, 26.0)
-	if _has_draught(): add.call("draught", draught_center, 20.0)
-	if shown("pet"): add.call("pet", pet_center, 26.0)
+	if shown("jump"): add.call("jump", jump_center, 26.0)
 	if shown("guard"): add.call("guard", guard_center, 26.0)
-	if _fight_context(): add.call("context", context_center, 26.0)
-	elif _post_chip(): add.call("post", context_center, 26.0)
-	for ti in 2:
-		if shown("treasure_%d" % (ti + 1)): add.call("treasure:%d" % ti, treasure_centers[ti], 26.0)
-	if shown("weapon_swap"): add.call("swap", swap_center, 26.0)
-	if shown("skills"):
-		for center in slots: add.call("skill", center, 33.0, 43.0)
+	if _skills_live():
+		for i in slots.size():
+			if _slot_filled(i + skill_page * 4): add.call("skill", slots[i], 32.0, 36.0)
+	if _page_tab_shown(c): add.call("page", page_center, 24.0)
+	var fan := _fan_items()
+	if not fan.is_empty():
+		add.call("fan", fan_center, 26.0)
+		if fan_open:
+			for f in fan: add.call(str(f.role), f.center, 26.0)
+	for it in _ring2(c): add.call(str(it.role), it.center, 26.0)
 	for ic in icon_row:
 		if shown(ic[0]): add.call("icon:" + str(ic[0]), ic[1], 26.0)
-	for pc in _pet_strip(Game.active()): add.call("pets:" + str(pc.kind) + ":" + str(pc.uid), pc.center, float(pc.r))
-	if _auto_hunt_shown(Game.active()): add.call("auto_hunt", auto_center, 26.0)
+	for pc in _party_chips(c): add.call("pets:" + str(pc.kind) + ":" + str(pc.uid), pc.center, float(pc.r))
+	if _auto_hunt_shown(c): add.call("auto_hunt", auto_center, 26.0)
+	return out
+
+## The screen rects the HUD covers now (its round controls as drawn, its panels and plates), which the world's names
+## keep clear of (G4).
+func obstacle_rects() -> Array:
+	var out: Array = []
+	for tg in hit_targets():
+		var d := float(tg.drawn) + 2.0
+		out.append(Rect2(tg.center - Vector2(d, d), Vector2(d, d) * 2.0))
+	var c = Game.active()
+	if shown("player_panel"): out.append(panel_rect(c))
+	if shown("minimap"): out.append(minimap_rect)
+	if tracker_rect.size.x > 0.0: out.append(tracker_rect)
+	if _boss() != null: out.append(Rect2(400, 92, 480, 84))
+	if c != null and _ctx_glyph(c) != "": out.append(Rect2(attack_center.x - 88, 678, 176, 22))
 	return out
 
 ## The player panel, one row taller once the Soul bar shows: it draws there, and the whole of it opens Character.
@@ -245,9 +448,10 @@ func panel_rect(c) -> Rect2:
 	var soul_row: bool = c != null and c.pools.max_soul > 0.0 and shown("soul_bar")
 	return Rect2(16, 16, 360, 120 if soul_row else 104)
 
-## The tracker's first line sits this far under the player panel (clear of the status row), and it stops at the foot.
-const TRACKER_DROP := 58.0
-const TRACKER_FOOT := 306.0
+## The tracker's plate starts this far under the player panel (clear of the status row and the Hollowing meter's
+## stops), and stops at the foot, above the log.
+const TRACKER_DROP := 52.0
+const TRACKER_FOOT := 320.0
 
 ## A tracker line's go button hit area: 48 x 48 round the drawn button (P4 §7).
 static func go_hit(drawn: Rect2) -> Rect2:
@@ -273,7 +477,7 @@ func role_at(p: Vector2) -> String:
 			go = "path:" + str(tp.target)
 			go_d = p.distance_to((tp.rect as Rect2).get_center())
 	if go != "": return go
-	if Rect2(16, panel.end.y + TRACKER_DROP - 24, 300, TRACKER_FOOT - panel.end.y - TRACKER_DROP + 40).has_point(p) and shown("quest_tracker"): return "tracker"
+	if tracker_rect.has_point(p) and shown("quest_tracker"): return "tracker"
 	if Rect2(0, 704, 1280, 16).has_point(p) and shown("progress_bar"): return "progress"
 	if (p.x < 640) != left_handed: return "joystick"
 	return "none"
@@ -300,9 +504,13 @@ func press(id: int, p: Vector2):
 			else:
 				player.meditate()
 		"skill":
+			# The nearest slot of the page (ring 1's circles overlap; the nearest centre wins).
+			var near_i := 0
 			for i in slots.size():
-				if p.distance_to(slots[i]) < 43:
-					touches[id]["slot"] = i + skill_page * 4
+				if p.distance_to(slots[i]) < p.distance_to(slots[near_i]): near_i = i
+			touches[id]["slot"] = near_i + skill_page * 4
+		"page": scroll_skills(-1)
+		"fan": toggle_fan()
 		"guard":
 			if player.state.flying: player.fly_down = true   # held Evade descends while flying; a tap dashes (S43)
 			guard_pressed = true
@@ -337,7 +545,8 @@ func press(id: int, p: Vector2):
 				var parts := role.split(":")
 				var res := {}
 				match parts[1]:
-					"active": open_page.emit("spirit_animals", {})
+					"active", "party": open_page.emit("spirit_animals", {})
+					"companion": open_page.emit("companions", {})
 					"bag": res = Game.submit({"type": "swap_pet_from_bag", "pet": parts[2]})
 					"mount": res = Game.submit({"type": "set_mount"})
 				if not res.is_empty() and not res.get("ok", false) and res.has("text"): add_log(str(res.text), UiKit.MIST)
@@ -350,6 +559,14 @@ func press(id: int, p: Vector2):
 				var which := role.trim_prefix("icon:")
 				open_page.emit({"menu": "menu", "bag": "inventory", "map": "world_map", "mail": "mail"}[which], {})
 				Audio.ui("ui_open")
+	# In a fight the open fan is a quick pick: a toggle taken from it folds it again, out of the ring's way.
+	if fight and fan_open and role in FAN_ROLE.values(): fan_open = false
+
+## The fan opens and closes (decision 20). At rest the choice is kept: it opens again after the next fight if left open.
+func toggle_fan() -> void:
+	fan_open = not fan_open
+	if not fight: fan_rest_open = fan_open
+	Audio.ui("ui_tap")
 
 func drag(id: int, p: Vector2):
 	if not touches.has(id): return
@@ -482,7 +699,7 @@ func _attack_up() -> void:
 
 ## S43 rule 5: the Attack button shows Climb or Enter only while no enemy is aggroed on the player within 400.
 func _enemy_close() -> bool:
-	if Game.room_rt == null: return false
+	if Game.room_rt == null or not is_instance_valid(player): return false
 	for e in Game.room_rt.living_enemies():
 		if e.team != "enemy" or e.def.get("passive", false): continue
 		if str(e.ai.get("state", "")) in ["aggro", "windup", "attack", "recover"] and e.plane.distance_to(player.plane) < 400.0: return true
@@ -707,13 +924,6 @@ func _caption_worthy(name: String, p: Dictionary) -> bool:
 ## Vibration on phones, when the player allows it (S40 haptics toggle).
 func _buzz(ms: int) -> void:
 	if Game.account.settings.get("haptics", true) and OS.has_feature("mobile"): Input.vibrate_handheld(ms)
-
-func _draw_caption() -> void:
-	if caption.text == "" or float(caption.t) > 2.6: return
-	var a := clampf((2.6 - float(caption.t)) / 0.4, 0.0, 1.0)
-	var w := 520.0
-	draw_rect(Rect2(640 - w / 2.0, 604, w, 30), Color(UiKit.INK, 0.55 * a))
-	UiKit.draw_text(self, "[" + str(caption.text) + "]", Vector2(640 - w / 2.0, 625), 18, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_CENTER, w)
 
 func toast(text: String, kind := "unlock", sub := "") -> void:
 	toasts.append({"text": text, "t": 0.0, "kind": kind, "sub": sub, "life": 3.2 if sub == "" else 5.0, "from": _from})
@@ -1332,7 +1542,7 @@ func _handle(name: String, p: Dictionary) -> void:
 # ------------------------------------------------------------------ drawing
 ## A HUD button: the HD kit's hud_ring (tools/ui/build_ui_hd.py: a jade-enamel face with a vertical sheen, a thin gold
 ## bezel, a gloss arc and, when active, a soft gold halo), the nearest of its sizes scaled to `radius`. `pressed` sinks
-## the face while a finger holds the button.
+## the face while a finger holds the button (and while the fan stands open).
 func ring(center: Vector2, radius: float, active := false, opacity := 1.0, gold := false, pressed := false) -> void:
 	var size: int = UiKit.HUD_RINGS[0]
 	for s in UiKit.HUD_RINGS:
@@ -1352,20 +1562,18 @@ func skill_position(index: float) -> Vector2:
 	var low := clampi(int(floor(index)), 0, 2)
 	return slots[low].lerp(slots[low + 1], index - low)
 
-func draw_skill_slot(center: Vector2, slot: int, opacity: float) -> void:
-	ring(center, 33, false, opacity)
-	if not bound(): return
+## A technique in its 64 px ring (mockup 01): the HD icon at its native 48, dim when the weapon in hand cannot use it,
+## the cooldown's sweep and seconds, a Qi ring when there is too little Qi. An empty or locked slot is not drawn (G3).
+## While the ring folds into beads the slot shrinks toward its bead (`radius` under 32) and shows no icon.
+func draw_skill_slot(center: Vector2, slot: int, opacity: float, radius := 32.0) -> void:
+	if not bound():
+		ring(center, radius, false, opacity)
+		return
+	if not _slot_filled(slot): return
+	ring(center, radius, false, opacity)
+	if radius < 24.0: return
 	var c = Game.active()
-	var n := ProgressionRules.technique_slot_count(c)
-	if slot >= n:
-		glyph("lock", center, 32, Color(1, 1, 1, 0.35 * opacity))
-		return
 	var tid = c.cultivator.technique_slots[slot]
-	if tid == null or str(tid) == "":
-		# An open slot: a faint cloud seal, so it reads as "waiting for a technique", not as broken.
-		var motif: Texture2D = SpriteCache.tex("res://art/ui/slot_empty_motif__normal.png")
-		if motif: draw_texture_rect(motif, Rect2(center - Vector2(16, 16), Vector2(32, 32)), false, Color(UiKit.BRIGHT_JADE, 0.35 * opacity))
-		return
 	var tdef := ContentDB.entry("techniques", str(tid))
 	var fam := str(StatRules.family(c).get("id", "fists"))
 	var dim = tdef.get("family", "any") != "any" and not (tdef.family == fam or (tdef.family == "fists" and fam == "gauntlets"))
@@ -1375,28 +1583,49 @@ func draw_skill_slot(center: Vector2, slot: int, opacity: float) -> void:
 	var cd = c.pools.cooldown("tech:" + str(tid))
 	if cd > 0.0:
 		var total := float(tdef.get("cooldown_s", 5))
-		var frac := clampf(cd / total, 0.0, 1.0)
-		var pts := PackedVector2Array([center])
-		for i in 25:
-			var ang := -PI / 2 + TAU * frac * (i / 24.0)
-			pts.append(center + Vector2(cos(ang), sin(ang)) * 30)
-		if frac > 0.02: draw_colored_polygon(pts, Color(UiKit.INK, 0.6 * opacity))
+		_sweep(center, radius - 2.0, clampf(cd / total, 0.0, 1.0), opacity)
 		UiKit.draw_outlined(self, str(int(ceil(cd))), center + Vector2(-20, 7), 18, Color(UiKit.PAPER, opacity), HORIZONTAL_ALIGNMENT_CENTER, 40)
 	elif c.pools.max_qi > 0 and c.pools.qi < Game.combat.technique_cost(c, tdef):
-		draw_arc(center, 30, 0, TAU, 32, Color(UiKit.QI, 0.5 * opacity), 3)
+		draw_arc(center, radius - 2.0, 0, TAU, 32, Color(UiKit.QI, 0.5 * opacity), 3)
 
-func draw_skill_scroll() -> void:
+## A cooldown's dark sweep over a ring's face, `frac` of the way round from the top.
+func _sweep(center: Vector2, r: float, frac: float, opacity := 1.0) -> void:
+	if frac <= 0.02: return
+	var pts := PackedVector2Array([center])
+	for i in 25: pts.append(center + Vector2.from_angle(-PI / 2 + TAU * frac * (i / 24.0)) * r)
+	draw_colored_polygon(pts, Color(UiKit.INK, 0.6 * opacity))
+
+## Where slot `i`'s bead sits on the attack ring at rest (mockup 02).
+func _bead(i: int) -> Vector2:
+	return _on(attack_center, BEAD_R, BEAD_DEG[i])
+
+func _draw_bead(at: Vector2, a: float) -> void:
+	draw_circle(at, 8.5, Color(UiKit.INK, a))
+	draw_circle(at, 6.5, Color(UiKit.JADE, a))
+	draw_circle(at + Vector2(-2, -2), 2.5, Color(UiKit.BRIGHT_JADE, a))
+
+## The techniques of the page: on ring 1 in a fight, folded into beads on the attack ring at rest, and between the two
+## as `k` runs (Reduce motion: they fade in place). A page turn slides both pages along the arc.
+func draw_skill_scroll(k := 1.0) -> void:
+	var still: bool = bound() and Game.account.settings.get("reduce_motion", false)
 	if scroll_progress >= 1:
-		for i in slots.size(): draw_skill_slot(slots[i], i + skill_page * 4, 1.0)
+		for i in slots.size():
+			var slot := i + skill_page * 4
+			if bound() and not _slot_filled(slot): continue
+			if k < 1.0: _draw_bead(_bead(i), 1.0 - k)
+			if k <= 0.02: continue
+			var at: Vector2 = slots[i] if still else _bead(i).lerp(slots[i], k)
+			draw_skill_slot(at, slot, k, 32.0 if still else lerpf(8.0, 32.0, k))
 		return
 	var tt := scroll_progress * scroll_progress * (3 - 2 * scroll_progress)
 	var shift := -scroll_direction * 4.0 * tt
+	var old_page := (skill_page + 1) % 2
 	for page in 2:
 		for i in 4:
 			var index := i + shift + (scroll_direction * 4 if page == 1 else 0)
 			if index < -0.35 or index > 3.35: continue
 			var fade := minf(clampf((index + 0.35) / 0.35, 0, 1), clampf((3.35 - index) / 0.35, 0, 1))
-			ring(skill_position(index), 33, false, fade)
+			draw_skill_slot(skill_position(index), i + (old_page if page == 0 else skill_page) * 4, fade * k)
 
 func bar(r: Rect2, frac: float, fill: Color, label: String, value_text: String) -> void:
 	draw_rect(r.grow(2), UiKit.INK)
@@ -1412,16 +1641,13 @@ func _draw():
 		_draw_legacy()
 		return
 	var c = Game.active()
+	tracker_rect = Rect2()
+	tracker_paths = []
 	_draw_player_panel(c)
+	_draw_party(c)
 	if shown("quest_tracker"): _draw_tracker(c)
-	_draw_run_banner(c)
 	if shown("minimap") and Game.account.settings.get("minimap", true): _draw_minimap(c)
-	for ic in icon_row:
-		if shown(ic[0]):
-			ring(ic[1], 26, pulses.has("hud:" + ic[0]))
-			glyph(ic[0], ic[1], 32)
-			if ic[0] == "mail" and Game.mail.unread(c) > 0:
-				draw_circle(ic[1] + Vector2(16, -16), 7, UiKit.RED)
+	_draw_icon_row(c)
 	# S49 auto-hunt: a small toggle, only in rooms where idle Hunt is allowed.
 	if _auto_hunt_shown(c):
 		var on: bool = Game.world.auto_hunting(c.id)
@@ -1429,32 +1655,12 @@ func _draw():
 		if on: draw_arc(auto_center, 29, fmod(t * 3.0, TAU), fmod(t * 3.0, TAU) + PI * 1.2, 24, UiKit.GOLD, 3.0)
 		glyph("jian", auto_center + Vector2(0, -4), 32)
 		UiKit.draw_outlined(self, Tx.t("hud.auto_hunt"), auto_center + Vector2(-40, 23), 14, UiKit.GOLD if on else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 80)
-	if shown("currency"):
-		# The pill grows leftward to fit large balances; the spirit stones follow the silver instead of a fixed spot.
-		var silver := UiKit.fmt(Game.economy.balance("silver_tael"))
-		var stones := int(Game.account.currencies.get("spirit_stone", 0))
-		var sw := UiKit.text_width(silver, 18)
-		var w := 38.0 + sw + 16.0
-		if stones > 0: w += 34.0 + UiKit.text_width(UiKit.fmt(stones), 18)
-		w = maxf(200.0, w)
-		var cr := Rect2(1262 - w, 222, w, 34)
-		draw_style_box(UiKit.style("currency_pill"), cr)
-		glyph("coin", cr.position + Vector2(20, 17), 32)
-		UiKit.draw_text(self, silver, cr.position + Vector2(38, 24), 18, UiKit.PALE_GOLD)
-		if stones > 0:
-			var sx := 38.0 + sw + 28.0
-			glyph("spirit_stone", cr.position + Vector2(sx, 17), 32)
-			UiKit.draw_text(self, UiKit.fmt(stones), cr.position + Vector2(sx + 20, 24), 18, UiKit.BRIGHT_JADE)
+	if shown("currency") and not _boss_arena(): _draw_purse()
 	_draw_controls(c)
 	if shown("progress_bar"): _draw_progress(c)
 	if shown("system_log"): _draw_log()
-	_draw_banner()
-	_draw_caption()
-	_draw_toasts()
-	_draw_vignette()
 	_draw_boss()
-	_draw_event(c)
-	_draw_tribulation(c)
+	_draw_top_stack(c)
 	_draw_pet_wheel(c)
 	# The harvest ring (S45) sits over every other control while it runs.
 	if tapping.object != "": _draw_tap_ring()
@@ -1467,48 +1673,165 @@ func _draw():
 	if not Game.is_revealed("hud:joystick_hint_done") and Game.active().quests.has_flag("prologue_active") and t < 12.0:
 		UiKit.draw_outlined(self, Tx.t("hud.drag_on_the_left_half"), Vector2(40, 470), 20, Color(UiKit.PAPER, 0.6 + 0.4 * sin(t * 3.0)), HORIZONTAL_ALIGNMENT_CENTER, 560)
 
-## S46 Pet strip beside the portrait: the active animal (tap for the Spirit Animals page), the animals in the Spirit
-## Beast Bag (tap to swap one in, never in a fight) and the Mount slot (tap to ride or walk).
-func _pet_strip(c) -> Array:
-	var out: Array = []
-	if c == null or not shown("pet") or not shown("player_panel"): return out
-	var x := 404.0
-	var act: Dictionary = Game.pets.active_pet(c)
-	if not act.is_empty():
-		out.append({"kind": "active", "uid": str(act.uid), "center": Vector2(x, 48), "r": 24})
-		x += 50.0
-	for uid in c.pet_bag:
-		if Game.pets._pet(c, str(uid)).is_empty() or str(uid) == c.active_pet: continue
-		out.append({"kind": "bag", "uid": str(uid), "center": Vector2(x, 48), "r": 18})
-		x += 42.0
-	if not Game.pets.mount_pet_of(c).is_empty():
-		out.append({"kind": "mount", "uid": c.mount_pet, "center": Vector2(x + 6, 48), "r": 20})
-	return out
+func _boss_arena() -> bool:
+	return Game.room_rt != null and str(Game.room_rt.def.get("type", "")) == "boss_arena"
 
-func _draw_pet_strip(c) -> void:
-	for pc in _pet_strip(c):
-		var p: Dictionary = Game.pets._pet(c, str(pc.uid))
+## The purse (mockup 02): silver and spirit stones on the currency pill under the icon row, growing leftward for large
+## sums; it rests in boss arenas (mockup 01).
+func _draw_purse() -> void:
+	var silver := UiKit.fmt(Game.economy.balance("silver_tael"))
+	var stones := int(Game.account.currencies.get("spirit_stone", 0))
+	var sw := UiKit.text_width(silver, 18)
+	var w := 38.0 + sw + 16.0
+	if stones > 0: w += 34.0 + UiKit.text_width(UiKit.fmt(stones), 18)
+	w = maxf(222.0, w)
+	var cr := Rect2(1262 - w, 222, w, 34)
+	draw_style_box(UiKit.style("currency_pill"), cr)
+	glyph("coin", cr.position + Vector2(20, 17), 32)
+	UiKit.draw_text(self, silver, cr.position + Vector2(38, 24), 18, UiKit.PALE_GOLD)
+	if stones > 0:
+		var sx := 38.0 + sw + 28.0
+		glyph("spirit_stone", cr.position + Vector2(sx, 17), 32)
+		UiKit.draw_text(self, UiKit.fmt(stones), cr.position + Vector2(sx + 20, 24), 18, UiKit.BRIGHT_JADE)
+
+## The icon row (Menu, Bag, Map, Mail at 56 apart): a count on Mail, and a vermilion ready seal on Menu when something
+## waits in the hub (mockup 02).
+func _draw_icon_row(c) -> void:
+	for ic in icon_row:
+		if not shown(ic[0]): continue
+		var at: Vector2 = ic[1]
+		ring(at, 26, pulses.has("hud:" + ic[0]))
+		glyph(ic[0], at, 32)
+		if ic[0] == "mail" and Game.mail.unread(c) > 0: _count_badge(at + Vector2(23, -23), Game.mail.unread(c))
+		if ic[0] == "menu" and hub_ready(c): _ready_seal(at + Vector2(25, -25))
+
+## Something waits in the hub: the bottleneck is reached, or a day's activity chest is full and not yet opened.
+func hub_ready(c) -> bool:
+	if c == null: return false
+	if c.cultivator.state == "bottleneck": return true
+	var act: Dictionary = Game.account.activity
+	if int(act.get("day", -1)) != Clock.reset_day(Clock.now_utc()): return false
+	for row in ContentDB.all("activity"):
+		if int(act.get("points", 0)) >= int(row.points) and not (act.get("claimed", []) as Array).has(str(row.id)): return true
+	return false
+
+## A count on a button: the red pill with its number (the kit's .k-badge).
+func _count_badge(center: Vector2, n: int) -> void:
+	var s := str(mini(99, n))
+	var w := maxf(22.0, UiKit.text_width(s, 14) + 12.0)
+	_pill(Rect2(center - Vector2(w * 0.5, 11), Vector2(w, 22)).grow(2.0), UiKit.INK)
+	_pill(Rect2(center - Vector2(w * 0.5, 11), Vector2(w, 22)), UiKit.RED)
+	UiKit.draw_text(self, s, Vector2(center.x - w * 0.5, center.y + 5), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, w)
+
+## The hub's ready seal: a small vermilion seal pressed on at a tilt, with a tick (the kit's .k-seal).
+func _ready_seal(center: Vector2) -> void:
+	draw_set_transform(center, deg_to_rad(-8.0))
+	draw_rect(Rect2(-12, -12, 24, 24), UiKit.INK)
+	draw_rect(Rect2(-10, -10, 20, 20), UiKit.RED)
+	draw_rect(Rect2(-8, -8, 16, 16), Color(UiKit.PAPER, 0.35), false, 1.0)
+	UiKit.draw_text(self, "✓", Vector2(-10, 5), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 20)
+	draw_set_transform(Vector2.ZERO)
+
+func _pill(r: Rect2, col: Color) -> void:
+	var rad := r.size.y * 0.5
+	draw_circle(r.position + Vector2(rad, rad), rad, col)
+	draw_circle(r.end - Vector2(rad, rad), rad, col)
+	draw_rect(Rect2(r.position + Vector2(rad, 0), Vector2(maxf(0.0, r.size.x - rad * 2.0), r.size.y)), col)
+
+## A number in the corner of a ring (a count, the Presence's level): a dark pill at its lower right (the kit's .k-corner).
+func _corner(at: Vector2, s: String, col := UiKit.PAPER) -> void:
+	var w := maxf(22.0, UiKit.text_width(s, 14) + 10.0)
+	var cen := at + Vector2(21, 21)
+	_pill(Rect2(cen - Vector2(w * 0.5, 11), Vector2(w, 22)), UiKit.INK)
+	UiKit.draw_text(self, s, Vector2(cen.x - w * 0.5, cen.y + 5), 14, col, HORIZONTAL_ALIGNMENT_CENTER, w)
+
+## The party chips beside the player panel (mockup 01): the animals beside you (the active one first) and the fellow
+## disciples, each a 48 px ring with its face, an HP arc and its name under it; then the animals in the Spirit Beast Bag
+## (tap to swap one in, never in a fight) and the mount (tap to ride or walk). An animal opens Spirit Animals, a disciple
+## Companions.
+func _party_chips(c) -> Array:
+	var specs: Array = []
+	if c == null or not shown("player_panel"): return specs
+	var seen := {}
+	if shown("pet"):
+		var act: Dictionary = Game.pets.active_pet(c)
+		if not act.is_empty():
+			specs.append({"kind": "active", "uid": str(act.uid), "name": str(act.get("name", ""))})
+			seen[str(act.uid)] = true
+		for p in Game.pets.party(c):
+			if seen.has(str(p.uid)): continue
+			specs.append({"kind": "party", "uid": str(p.uid), "name": str(p.get("name", ""))})
+			seen[str(p.uid)] = true
+	for cid in c.companions.get("active", []):
+		specs.append({"kind": "companion", "uid": str(cid), "name": ContentDB.name_of("companions", str(cid))})
+	if shown("pet"):
+		for uid in c.pet_bag:
+			var bp: Dictionary = Game.pets._pet(c, str(uid))
+			if bp.is_empty() or seen.has(str(uid)) or str(uid) == c.active_pet: continue
+			specs.append({"kind": "bag", "uid": str(uid), "name": str(bp.get("name", ""))})
+			seen[str(uid)] = true
+		if not Game.pets.mount_pet_of(c).is_empty(): specs.append({"kind": "mount", "uid": str(c.mount_pet), "name": ""})
+	for i in specs.size():
+		specs[i].center = Vector2(408.0 + i * 60.0, 44.0)
+		specs[i].r = 24.0
+	return specs
+
+## The party member's body in this room (a pet's or a disciple's ally), or null when it is not out.
+func _party_ally(pc: Dictionary):
+	if Game.room_rt == null: return null
+	var au = (Game.companions.allies if str(pc.kind) == "companion" else Game.pets.allies).get(str(pc.uid))
+	return Game.room_rt.enemies.get(int(au)) if au != null else null
+
+func _draw_party(c) -> void:
+	for pc in _party_chips(c):
 		var cen: Vector2 = pc.center
-		var r := float(pc.r)
-		draw_circle(cen, r + 2, UiKit.INK)
-		draw_circle(cen, r, UiKit.DEEP_TEAL)
-		var art := str(ContentDB.entry("pets", str(p.get("species", ""))).get("art", p.get("species", "")))
-		UiKit.draw_creature(self, Rect2(cen - Vector2(r - 3, r - 3), Vector2(r - 3, r - 3) * 2.0), art, "idle", t)
-		var ring_col := UiKit.JADE
-		if pc.kind == "active":
-			# The animal's health, from its ally in the room (full when it is not out).
-			var a = Game.room_rt.enemies.get(Game.pets.ally_uid) if Game.room_rt and Game.pets.ally_uid != 0 else null
-			var frac: float = a.pools.hp / maxf(1.0, a.pools.max_hp) if a != null else 1.0
-			draw_arc(cen, r + 1, -PI / 2, -PI / 2 + TAU * frac, 32, UiKit.BRIGHT_JADE if frac > 0.3 else UiKit.RED, 3)
-			if p.get("wounded", false): ring_col = UiKit.RED
-		elif pc.kind == "mount":
-			ring_col = UiKit.GOLD if c.riding else UiKit.MIST
-			UiKit.draw_outlined(self, Tx.t("hud.walk") if c.riding else Tx.t("hud.ride"), cen + Vector2(-34, r + 17), 16, ring_col, HORIZONTAL_ALIGNMENT_CENTER, 60)
-		if pc.kind != "active": draw_arc(cen, r + 1, 0, TAU, 32, ring_col, 2)
+		var kind := str(pc.kind)
+		var a = _party_ally(pc)
+		var frac: float = clampf(a.pools.hp / maxf(1.0, a.pools.max_hp), 0.0, 1.0) if a != null else 1.0
+		var down: bool = a != null and str(a.ai.get("state", "")) == "downed"
+		ring(cen, 24, kind == "mount" and c.riding)
+		if kind == "companion":
+			_draw_face(cen, str(pc.uid), down)
+		else:
+			var p: Dictionary = Game.pets._pet(c, str(pc.uid))
+			var art := str(ContentDB.entry("pets", str(p.get("species", ""))).get("art", p.get("species", "")))
+			UiKit.draw_creature(self, Rect2(cen - Vector2(18, 18), Vector2(36, 36)), art, "idle", t)
+			if p.get("wounded", false): frac = 0.0
+		if kind in ["active", "party", "companion"]:
+			draw_arc(cen, 28, -PI / 2, -PI / 2 + TAU * maxf(frac, 0.001), 32, UiKit.BRIGHT_JADE if frac > 0.3 else UiKit.RED, 3)
+		# A name too long for its chip gives its last word ("Reed Otter" is the otter, mockup 01).
+		var nm := str(pc.name)
+		if UiKit.text_width(nm, 14) > 58.0: nm = nm.get_slice(" ", nm.get_slice_count(" ") - 1)
+		var col := UiKit.SKY
+		if kind == "bag": col = UiKit.MIST
+		elif kind == "mount":
+			col = UiKit.GOLD if c.riding else UiKit.MIST
+			nm = Tx.t("hud.walk") if c.riding else Tx.t("hud.ride")
+		UiKit.draw_outlined(self, UiKit.fit(nm, 14, 58), cen + Vector2(-30, 42), 14, col, HORIZONTAL_ALIGNMENT_CENTER, 60)
+
+## A fellow disciple's face for their chip: the head and shoulders of their idle frame, from their own sprite layers.
+func _draw_face(center: Vector2, cid: String, dim := false) -> void:
+	if not _faces.has(cid):
+		var def := ContentDB.entry("companions", cid)
+		var o: Dictionary = def.get("outfit", {}).duplicate()
+		for k in ["body", "hair", "shirt", "pants", "shoes", "weapon", "hat", "cape"]:
+			if not o.has(k): o[k] = {"body": "light", "hair": "short_knot", "shirt": "disciple", "pants": "loose", "shoes": "boots"}.get(k, "none")
+		if not o.has("hair_color"): o.hair_color = 0
+		o.weapon = "none"
+		var av = Avatar.new()
+		av.outfit = o
+		av.refresh_entries()
+		_faces[cid] = av.entries.duplicate()
+		av.free()
+	var box := Vector2(FACE_BOX, FACE_BOX)
+	for en in _faces[cid]:
+		var cell := int(en.cell)
+		var off := (cell - 256) * 0.5
+		var src := Rect2(Vector2(128.0 + off, cell + 190.0 + off) + FACE_AT - box * 0.5, box)
+		draw_texture_rect_region(en.texture, Rect2(center - box * 0.5, box), src, Color(1, 1, 1, 0.45 if dim else 1.0))
 
 func _draw_player_panel(c) -> void:
 	if not shown("player_panel"): return
-	_draw_pet_strip(c)
 	# The panel grows by one row once the Soul bar exists (Spirit Awakening).
 	var soul_row: bool = c.pools.max_soul > 0.0 and shown("soul_bar")
 	var r := panel_rect(c)
@@ -1538,12 +1861,13 @@ func _draw_player_panel(c) -> void:
 		draw_rect(strip.grow(1), UiKit.INK)
 		draw_rect(Rect2(strip.position, Vector2(strip.size.x * clampf(Game.combat.essence_of(c.id) / 100.0, 0.0, 1.0), strip.size.y)), UiKit.BLOOD)
 	# Status stack (injuries, stability, toxicity, composure, buffs, statuses).
+	var meter: bool = c.pools.hollowing > 0.5
 	var icons: Array = []
 	for kind in c.cultivator.injuries: icons.append("injury_" + kind)
 	if Unlocks.is_unlocked(c.id, "foundation") and c.cultivator.stability != "stable": icons.append("stability_" + c.cultivator.stability)
 	if c.cultivator.state == "consolidating": icons.append("consolidating")
 	if c.cultivator.toxicity > 0.5 * c.stats.value("toxicity_tolerance") and c.cultivator.toxicity > 5: icons.append("toxicity")
-	if c.pools.hollowing > 5: icons.append("hollowing")
+	if c.pools.hollowing > 5 and not meter: icons.append("hollowing")
 	if ProgressionRules.heart_demon_steps(c.cultivator) >= 1: icons.append("heart_demon")   # S48: 25 and more
 	if Game.combat.killing_intent_stacks(c.id) >= 5: icons.append("buff_attack")               # S48 Killing Intent
 	if Game.combat.poison_body_active(c): icons.append("poison_body")                          # S48 the Poison Body
@@ -1554,10 +1878,14 @@ func _draw_player_panel(c) -> void:
 		if float(m.duration) >= 0 and not str(m.source).begins_with("heal:"):
 			var ic := "buff_attack" if str(m.stat) in ["physical_attack", "qi_attack"] else ("buff_defense" if "defense" in str(m.stat) else "buff_speed")
 			if not icons.has(ic): icons.append(ic)
-	var x := r.position.x + 6.0
+	# Under the panel (mockups 01, 02): the Hollowing meter first once it has risen, then 24 px icons 4 apart.
+	var row_y := r.end.y + 8.0
+	var x := r.position.x + 4.0
+	if meter: x = _draw_hollowing(c, Vector2(r.position.x + 2.0, row_y))
 	for ic in icons.slice(0, 12):
-		glyph(ic, Vector2(x + 12, r.end.y + 14), 24)
-		x += 26
+		if x + 24.0 > r.end.x: break
+		glyph(ic, Vector2(x + 12, row_y + 12), 24)
+		x += 28
 	# S47 Sword Intent: ten pips along the panel's foot while a jian is in hand and Intent is building.
 	var stacks := int(Game.combat.sword_intent.get(c.id, {}).get("stacks", 0))
 	if stacks > 0 and str(StatRules.family(c).get("id", "")) == "jian":
@@ -1567,61 +1895,97 @@ func _draw_player_panel(c) -> void:
 			if i < stacks: draw_colored_polygon(dia, UiKit.GOLD if stacks >= 10 else UiKit.MIST)
 			draw_polyline(dia + PackedVector2Array([dia[0]]), UiKit.INK, 1.5)
 
+## The Hollowing meter (mockup 02): its stops at Burden and at Seizure, the value, and which way it runs (falling
+## faster near the lanterns). Returns where the status icons go on.
+func _draw_hollowing(c, at: Vector2) -> float:
+	var h: float = c.pools.hollowing
+	if _hollow_last >= 0.0 and absf(h - _hollow_last) > 0.0001: _hollow_dir = signf(h - _hollow_last)
+	_hollow_last = h
+	var burden := float(ContentDB.stat_const("hollowing.burden_at", 50))
+	var seize := float(ContentDB.stat_const("hollowing.seizure_at", 100))
+	glyph("hollowing", at + Vector2(12, 12), 24)
+	var b := Rect2(at.x + 32, at.y + 8, 170, 10)
+	draw_rect(b.grow(2), UiKit.INK)
+	draw_rect(b, UiKit.BAR_TROUGH)
+	draw_rect(Rect2(b.position, Vector2(b.size.x * clampf(h / seize, 0.0, 1.0), b.size.y)), UiKit.HOLLOW if h < burden else UiKit.WARNING)
+	var bx := b.position.x + b.size.x * burden / seize
+	draw_rect(Rect2(bx - 1, b.position.y - 3, 2, 16), UiKit.PALE_GOLD)
+	draw_rect(Rect2(b.end.x - 1, b.position.y - 3, 2, 16), UiKit.RED)
+	UiKit.draw_outlined(self, Tx.t("hud.hollow_burden") % int(burden), Vector2(bx - 60, at.y + 34), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 120)
+	var x := b.end.x + 8.0
+	var v := str(int(round(h)))
+	UiKit.draw_outlined(self, v, Vector2(x, at.y + 18), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 40)
+	x += UiKit.text_width(v, 16) + 4.0
+	if _hollow_dir != 0.0:
+		var col := UiKit.BRIGHT_JADE if _hollow_dir < 0.0 else UiKit.RED_TEXT
+		UiKit.draw_outlined(self, "▼" if _hollow_dir < 0.0 else "▲", Vector2(x, at.y + 18), 14, col, HORIZONTAL_ALIGNMENT_LEFT, 20)
+		x += 16.0
+		if _hollow_dir < 0.0 and Game.room_rt != null and Game.room_rt.def.get("lantern", false):
+			var lw := Tx.t("hud.hollow_lanterns")
+			UiKit.draw_outlined(self, lw, Vector2(x, at.y + 18), 14, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT, 90)
+			x += UiKit.text_width(lw, 14) + 4.0
+	return x + 12.0
+
 func _auto_hunt_shown(c) -> bool:
 	return c != null and bound() and Unlocks.is_unlocked(c.id, "idle_tasks") and (Game.world.auto_hunting(c.id) or Game.world.auto_hunt_block(c) == "")
 
+## The quest tracker (mockup 02): a plate under the statuses with a gold rule down its left, each quest's title, where
+## it leads with a 48 px go button that walks you there (lit while it does), and its objectives; it rests in boss
+## arenas and stops above the log.
 func _draw_tracker(c) -> void:
 	var entries: Array = Game.quest.tracker(c)
-	if entries.is_empty(): return
-	if Game.room_rt and Game.room_rt.def.get("type", "") == "boss_arena": return
-	# Below the player panel (a row taller once the Soul bar shows) and the status row under it: the plate no longer
-	# hides the statuses (P4 screenshots).
-	var y := panel_rect(c).end.y + TRACKER_DROP
-	tracker_paths = []
+	if entries.is_empty() or _boss_arena(): return
+	var top := panel_rect(c).end.y + TRACKER_DROP
 	var here := Game.room_rt.room_id if Game.room_rt else ""
-	# A soft ink panel behind the list, so it reads over bright sky and foliage.
-	var h := 0.0
+	var rows: Array = []
+	var h := 8.0
 	for q in entries:
-		if y + h > TRACKER_FOOT: break
-		h += UiKit.line_height(18) * 0.9 + q.lines.size() * UiKit.line_height(16) * 0.88 + 4
-		if str(q.get("target_room", "")) not in ["", here]: h += UiKit.line_height(16) * 0.88
-	var panel := Rect2(14, y - 20 * UiKit.text_scale(), 312, h + 8)
-	draw_rect(panel, UiKit.PLATE)
-	draw_rect(Rect2(panel.position, Vector2(2, panel.size.y)), Color(UiKit.GOLD, 0.5))
-	for q in entries:
-		var col = UiKit.GOLD if q.kind in ["main", "prologue"] else UiKit.SKY
-		UiKit.draw_text(self, UiKit.fit(("◆ " if q.kind in ["main", "prologue"] else "● ") + str(q.name), 18, 258), Vector2(22, y), 18, col, HORIZONTAL_ALIGNMENT_LEFT, 258)
-		# S49 auto-path: a button that walks you to where the quest leads (lit while it is walking you there).
 		var goal := str(q.get("target_room", ""))
-		if goal != "" and goal != here:
-			var br := Rect2(286, y - 17, 30, 22)
-			var going: bool = Game.world.auto_path_target(Game.active()) == goal
-			draw_rect(br, Color(UiKit.GOLD, 0.85) if going else Color(UiKit.INK, 0.45))
-			draw_rect(br, Color(UiKit.PALE_GOLD, 0.9), false, 1.5)
-			UiKit.draw_text(self, "➤", br.position + Vector2(0, 17), 16, UiKit.INK if going else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, br.size.x)
-			tracker_paths.append({"rect": go_hit(br), "target": goal})
-		y += UiKit.line_height(18) * 0.9
-		# P1: the tracker names where the quest leads.
-		if goal != "" and goal != here:
-			UiKit.draw_text(self, UiKit.fit("➤ " + WorldAuthority.place_name(goal), 16, 290), Vector2(30, y), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 290)
-			y += UiKit.line_height(16) * 0.88
+		var go := goal != "" and goal != here
+		var eh := 24.0 + (20.0 if go else 0.0) + 20.0 * (q.lines as Array).size()
+		if go: eh = maxf(eh, 52.0)
+		if not rows.is_empty() and top + h + eh > TRACKER_FOOT: break
+		rows.append({"q": q, "goal": goal, "go": go, "h": eh})
+		h += eh + 4.0
+	tracker_rect = Rect2(14, top, 342, h)
+	draw_rect(tracker_rect, UiKit.PLATE)
+	draw_rect(Rect2(tracker_rect.position, Vector2(2, tracker_rect.size.y)), Color(UiKit.GOLD, 0.5))
+	var y := top + 4.0
+	for row in rows:
+		var q: Dictionary = row.q
+		var main: bool = q.kind in ["main", "prologue"]
+		var col = UiKit.GOLD if main else UiKit.SKY
+		var tw := 266.0 if row.go else 318.0
+		UiKit.draw_text(self, UiKit.fit(("◆ " if main else "● ") + str(q.name), 18, tw), Vector2(24, y + 20), 18, col, HORIZONTAL_ALIGNMENT_LEFT, tw)
+		var ly := y + 24.0
+		if row.go:
+			# S49 auto-path: a button that walks you to where the quest leads (lit while it is walking you there).
+			var br := Rect2(300, y + 2, 48, 48)
+			var going: bool = Game.world.auto_path_target(Game.active()) == str(row.goal)
+			draw_style_box(UiKit.style("button_secondary", "selected" if going else "normal"), br)
+			UiKit.draw_text(self, "➤", br.position + Vector2(0, 31), 18, UiKit.GOLD if going else UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, br.size.x)
+			tracker_paths.append({"rect": go_hit(br), "target": str(row.goal)})
+			# P1: the tracker names where the quest leads.
+			UiKit.draw_text(self, UiKit.fit("➤ " + WorldAuthority.place_name(str(row.goal)), 14, 262), Vector2(32, ly + 15), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 262)
+			ly += 20.0
 		for line in q.lines:
+			var lw := 262.0 if row.go and ly < y + 52.0 else 314.0
 			var count := "%d / %d" % [int(line.have), int(line.need)] if int(line.need) > 1 else ""
 			var lc := UiKit.BRIGHT_JADE if line.done else UiKit.PAPER
-			UiKit.draw_text(self, tracker_objective(("✓ " if line.done else "· ") + str(line.text), count, 290.0), Vector2(30, y), 16, lc, HORIZONTAL_ALIGNMENT_LEFT, 290)
-			if count != "": UiKit.draw_text(self, count, Vector2(30, y), 16, lc, HORIZONTAL_ALIGNMENT_RIGHT, 290)
-			y += UiKit.line_height(16) * 0.88
-		y += 4
-		if y > TRACKER_FOOT: break
+			UiKit.draw_text(self, tracker_objective(("✓ " if line.done else "· ") + str(line.text), count, lw), Vector2(32, ly + 16), 16, lc, HORIZONTAL_ALIGNMENT_LEFT, lw)
+			if count != "": UiKit.draw_text(self, count, Vector2(32, ly + 16), 16, lc, HORIZONTAL_ALIGNMENT_RIGHT, lw)
+			ly += 20.0
+		y += float(row.h) + 4.0
 
 ## B11: an objective beside its count on a tracker line `width` wide: the count keeps its place at the right end and
 ## the words give way with an ellipsis (the count was appended and cut: "…Shallows  0" for 0/5).
 static func tracker_objective(words: String, count: String, width: float) -> String:
 	return UiKit.fit(words, 16, width - (UiKit.text_width(count, 16) + 10.0 if count != "" else 0.0))
 
-## S43 rule 15: while a thief runs or a timed route is on, the seconds sit at the top of the screen.
-func _draw_run_banner(c) -> void:
-	if c == null: return
+## S43 rule 15: while a thief runs or a timed route is on, the seconds sit at the top of the screen (first in the top
+## centre's stack).
+func _draw_run_banner(c, y0: float) -> float:
+	if c == null: return y0
 	var label := ""
 	var secs := 0.0
 	var ch: Dictionary = Game.world.chases.get(c.id, {})
@@ -1631,17 +1995,18 @@ func _draw_run_banner(c) -> void:
 		secs = Game.sim_time - float(ch.start)
 	elif not run.is_empty():
 		var o: Dictionary = Game.room_rt.object_def(str(run.object)) if Game.room_rt else {}
-		if o.is_empty(): return
+		if o.is_empty(): return y0
 		label = str(o.route.get("name", ""))
 		secs = Game.sim_time - float(run.start)
 	else:
-		return
+		return y0
 	var text := "%s   %.1f s" % [label, secs]
 	var w := UiKit.text_width(text, 22) + 40
-	var r := Rect2(640 - w * 0.5, 14, w, 40)
+	var r := Rect2(640 - w * 0.5, y0, w, 40)
 	draw_rect(r, UiKit.PLATE)
 	draw_rect(r, Color(UiKit.GOLD, 0.7), false, 1.5)
 	UiKit.draw_text(self, text, r.position + Vector2(0, 28), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+	return r.end.y + 8.0
 
 func _draw_minimap(c) -> void:
 	var r := minimap_rect
@@ -1758,155 +2123,271 @@ func _draw_tap_ring() -> void:
 	draw_arc(attack_center, at_f.call(f), 0, TAU, 64, UiKit.PALE_GOLD if in_band else UiKit.BRIGHT_JADE, 4)
 	UiKit.draw_outlined(self, Tx.t("hud.tap_now"), attack_center + Vector2(-90, -outer - 18), 20, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 180)
 
+## What the attack button does now when it is not an attack: the context's glyph ("" while it attacks).
+func _ctx_glyph(c) -> String:
+	if not bound() or context.is_empty() or (_enemy_close() and Unlocks.is_unlocked(c.id, "attack")): return ""
+	return {"npc": "talk", "herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish", "chest": "open", "storage_chest": "open",
+		"portal": "enter", "climbable": "enter", "cooking_pot": "cook", "alchemy_furnace": "alchemy", "earth_vent": "alchemy", "forge_anvil": "forge", "star_sight": "gather",
+		"chart_table": "forge", "shipyard_slip": "forge", "starsea_dock": "enter", "mercy": "talk", "insect_swarm": "gather",
+		"beast_trail": "gather", "ancestral_altar": "open"}.get(str(context.get("type", "")), "open")
+
+## The verb and its target under the attack button (mockup 02: "Talk · Peddler Ning").
+func _context_line(c) -> String:
+	var verb := str(context.get("label", ""))
+	var who := ""
+	if str(context.get("npc", "")) != "": who = ContentDB.name_of("npcs", str(context.npc))
+	elif context.has("portal") and str(context.get("target", "")) != "": who = ContentDB.name_of("rooms", str(context.target))
+	return (Tx.t("hud.context_target") % [verb, who] if who != "" and verb != "" else verb) + _node_plate(c)
+
 func _draw_controls(c) -> void:
-	# Attack / context button.
-	var ctx_glyph := ""
-	if not context.is_empty() and (not _enemy_close() or not Unlocks.is_unlocked(c.id, "attack")):
-		ctx_glyph = {"npc": "talk", "herb_patch": "gather", "ore_vein": "mine", "fishing_spot": "fish", "chest": "open", "storage_chest": "open",
-			"portal": "enter", "climbable": "enter", "cooking_pot": "cook", "alchemy_furnace": "alchemy", "earth_vent": "alchemy", "forge_anvil": "forge", "star_sight": "gather",
-			"chart_table": "forge", "shipyard_slip": "forge", "starsea_dock": "enter", "mercy": "talk", "insect_swarm": "gather",
-			"beast_trail": "gather", "ancestral_altar": "open"}.get(str(context.get("type", "")), "open")
+	var ctx_glyph := _ctx_glyph(c)
+	_draw_fan(c)
+	_draw_ring2(c)
+	# Ring 1: jump, the techniques (beads at rest), dodge.
+	if shown("jump"):
+		ring(jump_center, 26, false, 1.0, pulses.has("hud:jump"))
+		glyph("jump", jump_center)
+	if shown("guard"):
+		ring(guard_center, 26, Game.combat.timeline(c.id).guard, 1.0, pulses.has("hud:guard"), guard_pressed)
+		glyph("dodge" if Unlocks.is_unlocked(c.id, "dodge_dash") else "guard", guard_center, 32)
+		var dcd = c.pools.cooldown("dodge")
+		if dcd > 0: draw_arc(guard_center, 22, -PI / 2, -PI / 2 + TAU * (1.0 - dcd / 2.5), 20, UiKit.MIST, 3)
+	if shown("skills"): draw_skill_scroll(fight_k)
+	if _page_tab_shown(c): _draw_page_tab()
+	# The attack button, or the context's verb with its target under it (mockup 02).
 	if shown("attack") or ctx_glyph != "":
 		ring(attack_center, 66, Game.combat.is_busy(c.id) or channel.object != "" or Game.combat.is_playing(c.id), 1.0, pulses.has("hud:attack"), attack_pressed)
 		if ctx_glyph != "":
 			glyph(ctx_glyph, attack_center, 64)
-			UiKit.draw_outlined(self, str(context.get("label", "")) + _node_plate(c), attack_center + Vector2(-70, 50), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 140)
+			UiKit.draw_outlined(self, UiKit.fit(_context_line(c), 16, 176), Vector2(attack_center.x - 88, 694), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 176)
 		else:
 			glyph(str(StatRules.family(c).get("hud_glyph", "fist")), attack_center, 64)
 		if channel.object != "":
 			draw_arc(attack_center, 60, -PI / 2, -PI / 2 + TAU * clampf(channel.t / maxf(0.01, channel.dur), 0, 1), 40, UiKit.BRIGHT_JADE, 5)
 
-	if shown("skills"):
-		draw_skill_scroll()
-		if Unlocks.is_unlocked(c.id, "technique_page_2"):
-			for i in 2: draw_circle(Vector2(1113 + i * 16, 501) if not left_handed else Vector2(167 - i * 16, 501), 3, UiKit.HUD_LABEL if i == skill_page else Color(UiKit.HOLLOW, 0.5))
-	if shown("jump"):
-		ring(jump_center, 32, false, 1.0, pulses.has("hud:jump"))
-		glyph("jump", jump_center)
-	if shown("cultivate"):
-		var gold: bool = c.cultivator.state == "bottleneck"
-		ring(meditate_center, 32, c.cultivator.meditating, 1.0, gold or pulses.has("hud:cultivate"), cultivate_pressed)
-		if gold: draw_arc(meditate_center, 38 + sin(t * 4.0) * 2, 0, TAU, 40, Color(UiKit.GOLD, 0.6), 3)
-		glyph("cultivate", meditate_center, 32, UiKit.GOLD if gold else Color.WHITE)
-		if cultivate_pressed and cultivate_hold > 0.1:
-			draw_arc(meditate_center, 36, -PI / 2, -PI / 2 + TAU * cultivate_hold / 0.6, 30, UiKit.PALE_GOLD, 3)
-	if shown("sense"):
-		ring(sense_center, 32)
-		glyph("sense", sense_center)
-	if _post_chip():
-		var mine: bool = Game.posts.at_post(c) and str(Game.posts.post_of(c).get("object", "")) == str(context.get("object", ""))
-		ring(context_center, 26, mine, 1.0, pulses.has("hud:post"))
-		glyph("post", context_center, 32, UiKit.BRIGHT_JADE if mine else Color.WHITE)
-		UiKit.draw_outlined(self, Tx.t("hud.keep_post"), context_center + Vector2(-60, 44), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 120)
-	if shown("presence"):
-		var held: bool = Game.field.is_on(c.id)
-		ring(presence_center, 26, held, 1.0, pulses.has("hud:presence"))
-		glyph("presence", presence_center, 32, UiKit.PALE_GOLD if held else Color.WHITE)
-		UiKit.draw_outlined(self, str(Game.field.presence_level(c)), presence_center + Vector2(10, 22), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 30)
-	if shown("sphere"):
-		var raised: bool = Game.field.sphere_on(c.id)
-		ring(sphere_center, 26, raised, 1.0, pulses.has("hud:sphere"))
-		glyph("sphere", sphere_center, 32, UiKit.PALE_GOLD if raised else Color.WHITE)
-	if shown("quick_use"):
-		ring(quick_center, 26)
-		var qid: String = c.inventory.quick_use
-		if qid != "":
-			glyph(qid, quick_center, 32)
-			UiKit.draw_outlined(self, str(c.inventory.count(qid)), quick_center + Vector2(4, 22), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 40)
-			var cd := 0.0
-			for k in c.pools.cooldowns:
-				if str(k).begins_with("item:"): cd = maxf(cd, float(c.pools.cooldowns[k]))
-			if cd > 0: draw_circle(quick_center, 24, Color(UiKit.INK, 0.5))
-		else:
-			glyph("quick_use", quick_center, 32)
-	# S44: the Draught slot, with the minutes left before the liquid goes flat.
-	if _has_draught():
-		var dr: Dictionary = c.inventory.draught
-		ring(draught_center, 20)
-		glyph(str(dr.id), draught_center, 32)
-		var left: float = Game.inventory.draught_left(c)
-		draw_arc(draught_center, 22, -PI / 2, -PI / 2 + TAU * left / float(ContentDB.item(str(dr.id)).get("draught", {}).get("expires_s", 600)), 32, UiKit.BRIGHT_JADE, 2)
-		UiKit.draw_outlined(self, str(int(dr.count)), draught_center + Vector2(4, 19), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 30)
-	if shown("pet"):
-		ring(pet_center, 26, false, 1.0, false, pet_pressed)
-		glyph("pet", pet_center, 32)
-	for ti in 2:
-		if not shown("treasure_%d" % (ti + 1)): continue
-		var tc: Vector2 = treasure_centers[ti]
-		var tid := str(c.inventory.treasures[ti])
-		if tid != "" and c.inventory.count(tid) <= 0: tid = ""   # sold or stored: the button is empty again
-		ring(tc, 26, false, 1.0, pulses.has("hud:treasure_%d" % (ti + 1)))
-		if tid == "":
-			var motif: Texture2D = SpriteCache.tex("res://art/ui/slot_empty_motif__normal.png")
-			if motif: draw_texture_rect(motif, Rect2(tc - Vector2(16, 16), Vector2(32, 32)), false, Color(UiKit.BRIGHT_JADE, 0.35))
-			continue
-		var tdef: Dictionary = CombatAuthority.treasure_of(tid)
-		var short: bool = c.pools.qi < float(tdef.get("qi", 0)) or c.pools.soul < CombatAuthority.treasure_soul_cost(c, tdef)
-		glyph(tid, tc, 32, Color(1, 1, 1, 0.4 if short else 1.0))
-		var tcd: float = c.pools.cooldown("treasure:" + tid)
-		if tcd > 0.05:
-			var frac := clampf(tcd / maxf(1.0, float(tdef.get("cooldown_s", 20))), 0.0, 1.0)
-			var pts := PackedVector2Array([tc])
-			for k in 25: pts.append(tc + Vector2.from_angle(-PI / 2 + TAU * frac * (k / 24.0)) * 24.0)
-			draw_colored_polygon(pts, Color(UiKit.INK, 0.55))
-			UiKit.draw_outlined(self, str(int(ceil(tcd))), tc + Vector2(-20, 7), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 40)
-		if tdef.has("charges"):
-			# A talisman treasure shows the charges it has left.
-			var ti_bag: int = c.inventory.first_index(tid)
-			var left_n := int(c.inventory.bag[ti_bag].get("charges", int(tdef.charges))) if ti_bag >= 0 else 0
-			UiKit.draw_outlined(self, "×%d" % left_n, tc + Vector2(-4, 26), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 30)
-	if shown("weapon_swap"):
-		# S47: the spare weapon's icon under two turning arrows; dim when there is no spare.
-		var spare = c.inventory.loadout.get("spare")
-		ring(swap_center, 26, false, 1.0, pulses.has("hud:weapon_swap"))
-		if spare != null:
-			glyph(str(spare.id), swap_center, 32, Color(1, 1, 1, 0.9))
-		for side in [-1.0, 1.0]:
-			draw_arc(swap_center, 21, PI * (0.15 if side > 0 else 1.15), PI * (0.75 if side > 0 else 1.75), 10, Color(UiKit.PALE_GOLD, 0.9 if spare != null else 0.35), 2.0)
-		UiKit.draw_outlined(self, str(c.inventory.loadout.get("active", "a")).to_upper(), swap_center + Vector2(10, 27), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 20)
-	if _fight_context():
-		ring(context_center, 26, false, 1.0, true)
-		glyph("enter", context_center, 32)
-		UiKit.draw_outlined(self, str(context.get("label", "")), context_center + Vector2(-50, 40), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 100)
-	if shown("guard"):
-		ring(guard_center, 26, Game.combat.timeline(c.id).guard, 1.0, false, guard_pressed)
-		glyph("dodge" if Unlocks.is_unlocked(c.id, "dodge_dash") else "guard", guard_center, 32)
-		var dcd = c.pools.cooldown("dodge")
-		if dcd > 0: draw_arc(guard_center, 22, -PI / 2, -PI / 2 + TAU * (1.0 - dcd / 2.5), 20, UiKit.MIST, 3)
+## The technique page tab (mockup 01): "1/2" in a small ring; a tap turns the page (so does a swipe on the ring).
+func _draw_page_tab() -> void:
+	ring(page_center, 24, false, 1.0, pulses.has("hud:technique_page"))
+	var one := str(skill_page + 1)
+	var w1 := UiKit.text_width(one, 16)
+	var x0 := page_center.x - (w1 + UiKit.text_width("/2", 14)) * 0.5
+	UiKit.draw_text(self, one, Vector2(x0, page_center.y + 6), 16, UiKit.PALE_GOLD)
+	UiKit.draw_text(self, "/2", Vector2(x0 + w1, page_center.y + 6), 14, UiKit.MIST)
 
+## The fan (decision 20; mockups 01 and 02). Closed: one button with a chevron, lit gold when Cultivate is (the
+## bottleneck) or a toggle inside is new; the toggles that are on stand pinned beside it on ring 2. Open: a paper fan
+## behind the toggles with their names; in a fight a toggle taken from it folds it again.
+func _draw_fan(c) -> void:
+	var items := _fan_items()
+	if items.is_empty(): return
+	var gold: bool = c.cultivator.state == "bottleneck"
+	if fan_open:
+		_draw_paper_fan(items)
+		for f in items:
+			var at: Vector2 = f.center
+			_draw_toggle(c, str(f.id), at)
+			var cap := Tx.t("hud.fan_" + str(f.id))
+			var lit: bool = str(f.id) == "cultivate" and gold
+			var beside: bool = float(f.deg) < 230.0
+			if beside and not left_handed: UiKit.draw_outlined(self, cap, Vector2(at.x - 34 - 160, at.y + 5), 14, UiKit.PALE_GOLD if lit else UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 160)
+			elif beside: UiKit.draw_outlined(self, cap, Vector2(at.x + 34, at.y + 5), 14, UiKit.PALE_GOLD if lit else UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 160)
+			else: UiKit.draw_outlined(self, cap, Vector2(at.x - 80, at.y - 34), 14, UiKit.PALE_GOLD if lit else UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 160)
+		ring(fan_center, 26, false, 1.0, false, true)
+	else:
+		var fresh := FAN_TOGGLES.any(func(id): return pulses.has("hud:" + str(id)))
+		ring(fan_center, 26, false, 1.0, gold or fresh)
+		var tip := fan_center + Vector2(0, -30)
+		var chev := PackedVector2Array([tip + Vector2(-6, 6), tip + Vector2(6, 6), tip + Vector2(0, -1)])
+		draw_colored_polygon(PackedVector2Array([tip + Vector2(-8, 7), tip + Vector2(8, 7), tip + Vector2(0, -3)]), UiKit.INK)
+		draw_colored_polygon(chev, UiKit.GOLD if gold else UiKit.PALE_GOLD)
+	glyph("fan", fan_center, 32, UiKit.GOLD if gold and not fan_open else Color.WHITE)
+
+## The open fan's paper (mockup 02): a sector behind the toggles with its ribs and a pale rim.
+func _draw_paper_fan(items: Array) -> void:
+	var d0: float = float(items[0].deg) - 5.0
+	var d1: float = maxf(float(items[items.size() - 1].deg) + 7.0, d0 + 40.0)   # a fan of one or two still opens like a fan
+	var arc := PackedVector2Array()
+	for i in 25: arc.append(_on(fan_center, PAPER_R, lerpf(d0, d1, i / 24.0), true))
+	var sector := PackedVector2Array([fan_center]) + arc
+	draw_colored_polygon(sector, Color(UiKit.PAPER, 0.13))
+	for i in items.size() + 1: draw_line(fan_center, _on(fan_center, PAPER_R, lerpf(d0, d1, float(i) / items.size()), true), Color(UiKit.BRONZE, 0.55), 1.5)
+	draw_polyline(sector + PackedVector2Array([fan_center]), Color(UiKit.GOLD, 0.55), 2.0)
+	draw_polyline(arc, Color(UiKit.PALE_GOLD, 0.5), 3.0)
+
+## One of the fan's toggles, in the open fan or pinned on ring 2: lit while it is on.
+func _draw_toggle(c, id: String, at: Vector2) -> void:
+	match id:
+		"cultivate":
+			var gold: bool = c.cultivator.state == "bottleneck"
+			ring(at, 26, c.cultivator.meditating, 1.0, gold or pulses.has("hud:cultivate"), cultivate_pressed)
+			if gold: draw_arc(at, 32 + sin(t * 4.0) * 2, 0, TAU, 40, Color(UiKit.GOLD, 0.6), 3)
+			glyph("cultivate", at, 32, UiKit.GOLD if gold else Color.WHITE)
+			if cultivate_pressed and cultivate_hold > 0.1:
+				draw_arc(at, 30, -PI / 2, -PI / 2 + TAU * cultivate_hold / 0.6, 30, UiKit.PALE_GOLD, 3)
+		"presence":
+			# Held, its Soul upkeep runs round it as an arc (mockup 01); its level in the corner.
+			var held: bool = Game.field.is_on(c.id)
+			ring(at, 26, held, 1.0, pulses.has("hud:presence"))
+			if held and c.pools.max_soul > 0.0: draw_arc(at, 31, -PI / 2, -PI / 2 + TAU * clampf(c.pools.soul / c.pools.max_soul, 0.0, 1.0), 32, UiKit.SOUL, 3)
+			glyph("presence", at, 32, UiKit.PALE_GOLD if held else Color.WHITE)
+			_corner(at, str(Game.field.presence_level(c)))
+		"sphere":
+			var raised: bool = Game.field.sphere_on(c.id)
+			ring(at, 26, raised, 1.0, pulses.has("hud:sphere"))
+			glyph("sphere", at, 32, UiKit.PALE_GOLD if raised else Color.WHITE)
+		"sense":
+			ring(at, 26, false, 1.0, pulses.has("hud:sense"))
+			glyph("sense", at, 32)
+		"pet":
+			ring(at, 26, false, 1.0, pulses.has("hud:pet"), pet_pressed)
+			glyph("pet", at, 32)
+
+## Ring 2 beside the fan: the pinned toggles, the healing slot, the Draught, the treasures, the context or the post chip
+## and the weapon swap, each where `_ring2` puts it.
+func _draw_ring2(c) -> void:
+	for it in _ring2(c):
+		var at: Vector2 = it.center
+		match str(it.role):
+			"quick": _draw_quick(c, at)
+			"draught": _draw_draught(c, at)
+			"treasure:0", "treasure:1": _draw_treasure(c, int(str(it.role).get_slice(":", 1)), at)
+			"context":
+				context_center = at
+				ring(at, 26, false, 1.0, true)
+				glyph("enter", at, 32)
+				UiKit.draw_outlined(self, str(context.get("label", "")), at + Vector2(-50, 44), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 100)
+			"post":
+				context_center = at
+				var mine: bool = Game.posts.at_post(c) and str(Game.posts.post_of(c).get("object", "")) == str(context.get("object", ""))
+				ring(at, 26, mine, 1.0, pulses.has("hud:post"))
+				glyph("post", at, 32, UiKit.BRIGHT_JADE if mine else Color.WHITE)
+				UiKit.draw_outlined(self, Tx.t("hud.keep_post"), at + Vector2(-60, 44), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 120)
+			"swap": _draw_swap(c, at)
+			_: _draw_toggle(c, str(it.get("toggle", "")), at)
+
+## The healing slot (mockup 01): the quick-use item at its native 32, how many are left in the corner, the cooldown.
+func _draw_quick(c, at: Vector2) -> void:
+	var qid: String = c.inventory.quick_use
+	var n: int = c.inventory.count(qid)
+	ring(at, 26, false, 1.0, pulses.has("hud:quick_use"))
+	glyph(qid, at, 32, Color(1, 1, 1, 1.0 if n > 0 else 0.4))
+	var cd := 0.0
+	for k in c.pools.cooldowns:
+		if str(k).begins_with("item:"): cd = maxf(cd, float(c.pools.cooldowns[k]))
+	if cd > 0: draw_circle(at, 22, Color(UiKit.INK, 0.5))
+	_corner(at, str(n), UiKit.PAPER if n > 0 else UiKit.RED_TEXT)
+
+## S44: the Draught slot, with the minutes left before the liquid goes flat.
+func _draw_draught(c, at: Vector2) -> void:
+	var dr: Dictionary = c.inventory.draught
+	ring(at, 26)
+	glyph(str(dr.id), at, 32)
+	var left: float = Game.inventory.draught_left(c)
+	draw_arc(at, 29, -PI / 2, -PI / 2 + TAU * left / float(ContentDB.item(str(dr.id)).get("draught", {}).get("expires_s", 600)), 32, UiKit.BRIGHT_JADE, 3)
+	_corner(at, str(int(dr.count)))
+
+func _draw_treasure(c, ti: int, at: Vector2) -> void:
+	var tid := _treasure_id(c, ti)
+	ring(at, 26, false, 1.0, pulses.has("hud:treasure_%d" % (ti + 1)))
+	if tid == "": return
+	var tdef: Dictionary = CombatAuthority.treasure_of(tid)
+	var short: bool = c.pools.qi < float(tdef.get("qi", 0)) or c.pools.soul < CombatAuthority.treasure_soul_cost(c, tdef)
+	glyph(tid, at, 32, Color(1, 1, 1, 0.4 if short else 1.0))
+	var tcd: float = c.pools.cooldown("treasure:" + tid)
+	if tcd > 0.05:
+		_sweep(at, 24.0, clampf(tcd / maxf(1.0, float(tdef.get("cooldown_s", 20))), 0.0, 1.0))
+		UiKit.draw_outlined(self, str(int(ceil(tcd))), at + Vector2(-20, 7), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 40)
+	if tdef.has("charges"):
+		# A talisman treasure shows the charges it has left.
+		var ti_bag: int = c.inventory.first_index(tid)
+		_corner(at, "×%d" % (int(c.inventory.bag[ti_bag].get("charges", int(tdef.charges))) if ti_bag >= 0 else 0), UiKit.PALE_GOLD)
+
+## S47: the spare weapon's icon under two turning arrows, and which loadout is in hand.
+func _draw_swap(c, at: Vector2) -> void:
+	var spare = c.inventory.loadout.get("spare")
+	ring(at, 26, false, 1.0, pulses.has("hud:weapon_swap"))
+	if spare != null: glyph(str(spare.id), at, 32, Color(1, 1, 1, 0.9))
+	for side in [-1.0, 1.0]:
+		draw_arc(at, 21, PI * (0.15 if side > 0 else 1.15), PI * (0.75 if side > 0 else 1.75), 10, Color(UiKit.PALE_GOLD, 0.9 if spare != null else 0.35), 2.0)
+	UiKit.draw_outlined(self, str(c.inventory.loadout.get("active", "a")).to_upper(), at + Vector2(10, 27), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 20)
+
+## The progress edge (mockups 01, 02): the stage's progress along the foot with a stop at each Level; at the
+## bottleneck it glows gold, Stored Qi runs as a bright lane along it and the line above says the breakthrough is ready.
 func _draw_progress(c) -> void:
 	var cu: CultivatorState = c.cultivator
 	var r := Rect2(0, 712, 1280, 8)
+	var frac := cu.progress_fraction()
+	var realm := ContentDB.realm(cu.realm_key)
+	var levels := int(realm.get("levels", 1))
+	var base := int(realm.get("level", 0))
+	var lv := ProgressionRules.level(c)
+	if cu.state == "bottleneck":
+		draw_polygon(PackedVector2Array([Vector2(0, 660), Vector2(1280, 660), Vector2(1280, 712), Vector2(0, 712)]),
+			PackedColorArray([Color(UiKit.GOLD, 0.0), Color(UiKit.GOLD, 0.0), Color(UiKit.PALE_GOLD, 0.3), Color(UiKit.PALE_GOLD, 0.3)]))
+		draw_rect(Rect2(0, 710, 1280, 10), UiKit.GOLD)
+		draw_rect(Rect2(0, 710, 1280, 3), UiKit.PALE_GOLD)
+		if cu.stored_qi > 0: draw_rect(Rect2(0, 710, 1280 * clampf(cu.stored_qi / maxf(1.0, cu.need()), 0, 1), 3), UiKit.PAPER)
+		for k in range(1, levels): draw_rect(Rect2(1280.0 * k / levels - 1, 706, 2, 14), UiKit.INK)
+		var x := 16.0
+		if cu.stored_qi > 0:
+			var sq := Tx.t("hud.stored_qi") % UiKit.fmt(cu.stored_qi)
+			UiKit.draw_outlined(self, sq, Vector2(x, 700), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 200)
+			x += UiKit.text_width(sq, 14) + 24.0
+		var ready := Tx.t("hud.bottleneck_ready")
+		UiKit.draw_outlined(self, ready, Vector2(x, 700), 16, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, 520)
+		UiKit.draw_outlined(self, Tx.t("hud.bottleneck_tap"), Vector2(x + UiKit.text_width(ready, 16) + 6.0, 700), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 240)
+		return
 	draw_rect(r, Color(UiKit.INK, 0.6))
-	var col = UiKit.GOLD if cu.state == "bottleneck" else UiKit.QI if c.pools.max_qi > 0 else UiKit.PALE_GOLD
-	draw_rect(Rect2(r.position, Vector2(r.size.x * cu.progress_fraction(), r.size.y)), col)
+	var col = UiKit.QI if c.pools.max_qi > 0 else UiKit.PALE_GOLD
+	var fx := r.size.x * frac
+	draw_rect(Rect2(r.position, Vector2(fx, r.size.y)), col)
 	if cu.stored_qi > 0:
 		draw_rect(Rect2(0, 710, 1280 * clampf(cu.stored_qi / maxf(1.0, cu.need()), 0, 1), 2), UiKit.PALE_GOLD)
-	var pct := "%d%%" % int(cu.progress_fraction() * 100.0)
-	UiKit.draw_outlined(self, pct, Vector2(560, 706), 14, col, HORIZONTAL_ALIGNMENT_CENTER, 160)
+	for k in range(1, levels):
+		var sx := 1280.0 * k / levels
+		draw_rect(Rect2(sx - 2, 707, 4, 13), UiKit.INK)
+		draw_rect(Rect2(sx - 1, 708, 2, 12), UiKit.PALE_GOLD)
+		UiKit.draw_outlined(self, Tx.t("hud.level_stop") % (base + k), Vector2(sx - 40, 700), 14, UiKit.PALE_GOLD if base + k == lv + 1 else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, 80)
+	var pct := "%d%%" % int(frac * 100.0)
+	if fx >= 56.0: UiKit.draw_outlined(self, pct, Vector2(fx - 86, 700), 14, col, HORIZONTAL_ALIGNMENT_RIGHT, 80)
+	else: UiKit.draw_outlined(self, pct, Vector2(fx + 6, 700), 14, col, HORIZONTAL_ALIGNMENT_LEFT, 80)
 
 func _draw_log() -> void:
-	var y := 596.0 if not left_handed else 596.0
-	var x := 20.0 if not left_handed else 900.0
-	for i in log_lines.size():
+	# Above the joystick's half (mockup 01), newest at the foot, outlined, and kept out of the clear zone.
+	var x := 20.0 if not left_handed else 1280.0 - 20.0 - LOG_W
+	var n := log_lines.size()
+	for i in n:
 		var l: Dictionary = log_lines[i]
 		var a = 1.0 if l.t < 5.0 else 6.0 - l.t
-		# Words over the world are outlined (docs/ui_style_guide.md §1.4 rule 3): the log has no plate under it.
-		UiKit.draw_outlined(self, str(l.text), Vector2(x, y + i * 20 - (log_lines.size() - 1) * 20 + 80), 16, Color(l.color, a), HORIZONTAL_ALIGNMENT_LEFT, 460)
+		UiKit.draw_outlined(self, UiKit.fit(str(l.text), 16, LOG_W), Vector2(x, LOG_FOOT - (n - 1 - i) * 21.0), 16, Color(l.color, a), HORIZONTAL_ALIGNMENT_LEFT, LOG_W)
 
-func _draw_banner() -> void:
-	if banner.text == "" or banner.t > 3.4 or not shown("room_banner"): return
+## The top centre (P5a), one thing under another so none covers another, from under the party chips (or under the boss
+## bar) down to the clear zone: the room's name as you enter, a room event or a tribulation under way, a fortune card,
+## the toasts (408 wide, 8 apart; a toast with no room waits), a caption.
+func _draw_top_stack(c) -> void:
+	var y := TOP_STACK_BOSS if _boss() != null else TOP_STACK
+	y = _draw_run_banner(c, y)
+	y = _draw_banner(y)
+	y = _draw_event(c, y)
+	y = _draw_tribulation(c, y)
+	y = _draw_vignette(y)
+	y = _draw_toasts(y)
+	_draw_caption(y)
+
+func _draw_banner(y: float) -> float:
+	if banner.text == "" or banner.t > 3.4 or not shown("room_banner"): return y
 	var a := clampf(banner.t / 0.3, 0, 1) * clampf((3.4 - banner.t) / 0.5, 0, 1)
-	var slide := (1.0 - clampf(banner.t / 0.3, 0, 1)) * -30.0
-	UiKit.draw_text(self, str(banner.text), Vector2(340, 76 + slide), 34, Color(UiKit.PALE_GOLD, a), HORIZONTAL_ALIGNMENT_CENTER, 600, true, true)
-	if str(banner.sub) != "": UiKit.draw_text(self, str(banner.sub), Vector2(340, 100 + slide), 16, Color(UiKit.MIST, a), HORIZONTAL_ALIGNMENT_CENTER, 600)
+	var slide := (1.0 - clampf(banner.t / 0.3, 0, 1)) * -12.0
+	UiKit.draw_text(self, str(banner.text), Vector2(340, y + 32 + slide), 34, Color(UiKit.PALE_GOLD, a), HORIZONTAL_ALIGNMENT_CENTER, 600, true, true)
+	if str(banner.sub) != "": UiKit.draw_text(self, str(banner.sub), Vector2(340, y + 56 + slide), 16, Color(UiKit.MIST, a), HORIZONTAL_ALIGNMENT_CENTER, 600)
+	return y + 68.0
 
 ## A fortune encounter (S49): a card that fades in under the room banner, long enough to read, then fades away.
 const VIGNETTE_S := 9.0
-func _draw_vignette() -> void:
-	if str(vignette.title) == "" or float(vignette.t) > VIGNETTE_S: return
-	var t := float(vignette.t)
-	var a := clampf(t / 0.4, 0, 1) * clampf((VIGNETTE_S - t) / 0.8, 0, 1)
+func _draw_vignette(y0: float) -> float:
+	if str(vignette.title) == "" or float(vignette.t) > VIGNETTE_S: return y0
+	var tv := float(vignette.t)
+	var a := clampf(tv / 0.4, 0, 1) * clampf((VIGNETTE_S - tv) / 0.8, 0, 1)
 	var w := 560.0
 	var lines: Array = []
 	var cur := ""
@@ -1917,7 +2398,7 @@ func _draw_vignette() -> void:
 			cur = word
 		else: cur = cand
 	lines.append(cur)
-	var r := Rect2(640 - w / 2.0, 132, w, 86 + lines.size() * 23)
+	var r := Rect2(640 - w / 2.0, y0, w, 86 + lines.size() * 23)
 	draw_style_box(UiKit.style("toast"), r)
 	draw_rect(Rect2(r.position + Vector2(0, 0), Vector2(r.size.x, 3)), Color(UiKit.GOLD, 0.8 * a))
 	UiKit.draw_text(self, Tx.t("hud.fortune_label"), r.position + Vector2(24, 30), 14, Color(UiKit.GOLD, a))
@@ -1926,39 +2407,130 @@ func _draw_vignette() -> void:
 	for ln in lines:
 		UiKit.draw_text(self, str(ln), Vector2(r.position.x + 24, y), 18, Color(UiKit.PAPER, a))
 		y += 23
+	return r.end.y + 8.0
 
 func _moment_on_screen() -> bool:
 	return is_instance_valid(moments) and moments.screen_busy()
 
-func _draw_toasts() -> void:
-	if _moment_on_screen(): return
-	var y := 300.0
-	for tt in toasts:
-		var a := clampf(tt.t / 0.2, 0, 1) * clampf((float(tt.get("life", 3.2)) - tt.t) / 0.4, 0, 1)
+## Toasts at the top centre (docs/mockups/20_states: over play, under the chips), 408 wide and 8 apart. The first always
+## shows; the next only while it stays above the clear zone, and the rest wait their turn.
+func _draw_toasts(y: float) -> float:
+	toasts_fit = 0
+	if _moment_on_screen(): return y
+	for r in toast_rects(y):
+		var tt: Dictionary = toasts[toasts_fit]
 		var sub := str(tt.get("sub", ""))
-		var r := Rect2(810, y, 410, 48 if sub == "" else 74)
-		var st = UiKit.style("toast")
-		draw_style_box(st, r)
+		var a := clampf(tt.t / 0.2, 0, 1) * clampf((float(tt.get("life", 3.2)) - tt.t) / 0.4, 0, 1)
+		draw_style_box(UiKit.style("toast"), r)
 		var col = UiKit.PALE_GOLD if tt.kind in ["unlock", "gold"] else (UiKit.RED_TEXT if tt.kind == "danger" else UiKit.BRIGHT_JADE)
-		UiKit.draw_text(self, str(tt.text), r.position + Vector2(16, 31), 20, Color(col, a), HORIZONTAL_ALIGNMENT_LEFT, 380)
-		if sub != "": UiKit.draw_text(self, sub, r.position + Vector2(16, 58), 18, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_LEFT, 380)
-		y += r.size.y + 6
+		UiKit.draw_text(self, UiKit.fit(str(tt.text), 20, 376), r.position + Vector2(16, 31), 20, Color(col, a), HORIZONTAL_ALIGNMENT_LEFT, 376)
+		if sub != "": UiKit.draw_text(self, UiKit.fit(sub, 18, 376), r.position + Vector2(16, 58), 18, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_LEFT, 376)
+		y = r.end.y + 8.0
+		toasts_fit += 1
+	return y
 
-func _draw_boss() -> void:
-	if Game.room_rt == null: return
+## Where the toasts stand from `y` down: the first always, each next only while it ends above the clear zone.
+func toast_rects(y: float) -> Array:
+	var out: Array = []
+	for tt in toasts:
+		var h := 48.0 if str(tt.get("sub", "")) == "" else 74.0
+		if not out.is_empty() and y + h > CLEAR_ZONE.position.y: break
+		out.append(Rect2(436, y, 408, h))
+		y += h + 8.0
+	return out
+
+func _draw_caption(y: float) -> void:
+	if caption.text == "" or float(caption.t) > 2.6: return
+	var a := clampf((2.6 - float(caption.t)) / 0.4, 0.0, 1.0)
+	var w := 520.0
+	draw_rect(Rect2(640 - w / 2.0, y, w, 30), Color(UiKit.INK, 0.55 * a))
+	UiKit.draw_text(self, "[" + str(caption.text) + "]", Vector2(640 - w / 2.0, y + 21), 18, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_CENTER, w)
+
+## The boss in the room, if one lives (with two, the one furthest into the fight: the lowest share of its HP).
+func _boss() -> EnemyState:
+	if Game.room_rt == null: return null
 	var boss: EnemyState = null
 	for e in Game.room_rt.enemies.values():
-		if e.alive and e.is_boss() and e.team == "enemy": boss = e
+		if e.alive and e.is_boss() and e.team == "enemy" and (boss == null or e.pools.hp / maxf(1.0, e.pools.max_hp) < boss.pools.hp / maxf(1.0, boss.pools.max_hp)): boss = e
+	return boss
+
+## The boss bar (mockup 01): the name in the display face with its Level and phase, an ember fill on a dark trough, a
+## notch at each phase's share of HP (gold once passed, the next one lit) with what it brings under it, and the share
+## left on the bar.
+func _draw_boss() -> void:
+	var boss := _boss()
 	if boss == null: return
-	var r := Rect2(340, 118, 600, 14)
+	var r := Rect2(400, 130, 480, 18)
+	var phases: Array = boss.def.get("phases", [])
+	var at := int(boss.ai.get("phase", -1))
+	var frac := clampf(boss.pools.hp / maxf(1.0, boss.pools.max_hp), 0.0, 1.0)
+	var name_s := boss.display_name()
+	var sub := Tx.t("hud.boss_phase") % [boss.level, at + 2, phases.size() + 1] if not phases.is_empty() else Tx.t("hud.level_stop") % boss.level
+	var nw := UiKit.text_width(name_s, 26, true)
+	var x0 := 640.0 - (nw + 10.0 + UiKit.text_width(sub, 16)) * 0.5
+	UiKit.draw_text(self, name_s, Vector2(x0, 118), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true, true)
+	UiKit.draw_outlined(self, sub, Vector2(x0 + nw + 10.0, 117), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 240)
 	draw_rect(r.grow(3), UiKit.INK)
 	draw_rect(r, Color(UiKit.BLOOD, 0.3))
-	draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(boss.pools.hp / boss.pools.max_hp, 0, 1), r.size.y)), UiKit.RED)
-	UiKit.draw_outlined(self, Tx.t("hud.lv") % [boss.display_name(), boss.level], Vector2(340, 112), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 600)
+	var last := 0.0
+	for ph in phases:
+		if ph.has("below"): last = float(ph.below) if last == 0.0 else minf(last, float(ph.below))
+	if last > 0.0: draw_rect(Rect2(r.position, Vector2(r.size.x * last, r.size.y)), Color(UiKit.BLOOD, 0.35))
+	var fw := r.size.x * frac
+	if fw > 0.5:
+		var top := UiKit.WARNING.lerp(UiKit.PALE_GOLD, 0.2)
+		var mid := UiKit.WARNING.lerp(UiKit.RED, 0.5)
+		var low := UiKit.RED.lerp(UiKit.BRONZE, 0.45)
+		var ym := r.position.y + r.size.y * 0.55
+		draw_polygon(PackedVector2Array([r.position, r.position + Vector2(fw, 0), Vector2(r.position.x + fw, ym), Vector2(r.position.x, ym)]), PackedColorArray([top, top, mid, mid]))
+		draw_polygon(PackedVector2Array([Vector2(r.position.x, ym), Vector2(r.position.x + fw, ym), r.end - Vector2(r.size.x - fw, 0), Vector2(r.position.x, r.end.y)]), PackedColorArray([mid, mid, low, low]))
+		draw_line(r.position + Vector2(1, 2), r.position + Vector2(maxf(1.0, fw - 1.0), 2), Color(UiKit.PALE_GOLD, 0.45), 2)
+	UiKit.draw_outlined(self, "%d%%" % int(round(frac * 100.0)), Vector2(r.position.x, r.position.y + 15), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+	# The notches, and under each what the phase brings: the next one's caption always, the others where they fit.
+	var nxt := -1
+	for i in phases.size():
+		if i > at and phases[i].has("below"):
+			nxt = i
+			break
+	var taken: Array = []
+	var order: Array = range(phases.size())
+	if nxt >= 0:
+		order.erase(nxt)
+		order.push_front(nxt)
+	for i in order:
+		var ph: Dictionary = phases[i]
+		if not ph.has("below"): continue
+		var x := r.position.x + r.size.x * float(ph.below)
+		var done: bool = int(i) <= at
+		draw_rect(Rect2(x - 2.5, r.position.y - 9, 5, 36), UiKit.INK)
+		draw_rect(Rect2(x - 1.5, r.position.y - 8, 3, 34), UiKit.PALE_GOLD)
+		var dia := PackedVector2Array([Vector2(x, r.position.y - 16), Vector2(x + 6, r.position.y - 10), Vector2(x, r.position.y - 4), Vector2(x - 6, r.position.y - 10)])
+		if i == nxt: draw_circle(Vector2(x, r.position.y - 10), 9.0, Color(UiKit.RED, 0.35))
+		draw_colored_polygon(dia, UiKit.GOLD if done else (UiKit.RED if i == nxt else UiKit.DEEP_TEAL))
+		draw_polyline(dia + PackedVector2Array([dia[0]]), UiKit.PALE_GOLD, 1.5)
+		var cap := Tx.t("hud.boss_notch") % [int(round(float(ph.below) * 100.0)), _phase_words(ph, done)]
+		var cw := UiKit.text_width(cap, 14)
+		# Centred under its notch, or leaning away from a caption already there (ending at the notch, or starting at it).
+		for left in [x - cw * 0.5, x + 10.0 - cw, x - 10.0]:
+			var cr := Rect2(left - 4.0, 158, cw + 8.0, 18)
+			if taken.any(func(o): return (o as Rect2).intersects(cr)): continue
+			taken.append(cr)
+			UiKit.draw_outlined(self, cap, Vector2(left, 172), 14, UiKit.PALE_GOLD if i == nxt else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, cw + 4.0)
+			break
+
+## What a boss's phase brings, in a few words (a summons names who comes, and is ticked once it has come).
+func _phase_words(ph: Dictionary, done: bool) -> String:
+	var act := str(ph.get("action", ""))
+	if act == "summon":
+		var who := str(ph.get("summon", ""))
+		if who == "": return Tx.t("hud.phase_help")
+		return (Tx.t("hud.phase_summoned") if done else Tx.t("hud.phase_summon")) % ContentDB.name_of("enemies", who)
+	if act in ["enrage", "dig_in", "drink_wine", "self_detonate"]: return Tx.t("hud.phase_" + act)
+	return Tx.t("hud.phase_turn")
 
 ## A room event under way (a survival rite, a Temper trial, a siege): its name, the time left and its rule.
-func _draw_event(c) -> void:
-	if Game.room_rt == null or not Game.room_rt.event.get("active", false): return
+func _draw_event(c, y0: float) -> float:
+	if Game.room_rt == null or not Game.room_rt.event.get("active", false): return y0
 	var ev: Dictionary = Game.room_rt.event
 	var rule := ""
 	var danger := false
@@ -1980,7 +2552,7 @@ func _draw_event(c) -> void:
 		var light := float(ev.get("light", 100.0))
 		rule = Tx.t("hud.event_rule.lantern") % int(ceil(light))
 		danger = light < 35.0
-	var r := Rect2(470, 142, 340, 52 if rule != "" else 34)
+	var r := Rect2(470, y0, 340, 52 if rule != "" else 34)
 	draw_style_box(UiKit.style("toast"), r)
 	var left := maxf(0.0, float(ev.get("remaining", 0.0)))
 	var ev_name := Tx.t("hud.tower_floor") % int(ev.floor) if ev.has("floor") else ContentDB.text("event." + str(ev.get("id", "")))
@@ -1990,12 +2562,13 @@ func _draw_event(c) -> void:
 	draw_rect(Rect2(r.position + Vector2(12, 29), Vector2(r.size.x - 24, 3)), Color(UiKit.INK, 0.8))
 	draw_rect(Rect2(r.position + Vector2(12, 29), Vector2((r.size.x - 24) * clampf(frac, 0, 1), 3)), UiKit.BRIGHT_JADE)
 	if rule != "": UiKit.draw_text(self, rule, r.position + Vector2(14, 46), 14, UiKit.RED_TEXT if danger else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
+	return r.end.y + 8.0
 
 ## S48 heavenly tribulation: bolts struck and to come, and whether a ring is closing now.
-func _draw_tribulation(c) -> void:
+func _draw_tribulation(c, y0: float) -> float:
 	var tv: Dictionary = Game.progression.tribulation_view(c.id)
-	if tv.is_empty(): return
-	var r := Rect2(470, 142, 340, 52)
+	if tv.is_empty(): return y0
+	var r := Rect2(470, y0, 340, 52)
 	draw_style_box(UiKit.style("toast"), r)
 	UiKit.draw_text(self, Tx.t("hud.tribulation_title"), r.position + Vector2(14, 23), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 200)
 	UiKit.draw_text(self, Tx.t("hud.tribulation_count") % [int(tv.index), int(tv.total)], r.position + Vector2(r.size.x - 144, 23), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 130)
@@ -2006,16 +2579,19 @@ func _draw_tribulation(c) -> void:
 		draw_rect(cell, UiKit.SKY if i < int(tv.index) else (UiKit.GOLD if i == int(tv.index) and not (tv.warn as Dictionary).is_empty() else Color(UiKit.INK, 0.8)))
 	if not (tv.warn as Dictionary).is_empty():
 		UiKit.draw_text(self, Tx.t("hud.tribulation_move"), r.position + Vector2(14, 51), 16, UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
+		return r.end.y + 16.0
+	return r.end.y + 8.0
 
+## With no character bound (the engine tests' bare player), a plain panel and the cluster's rings.
 func _draw_legacy() -> void:
 	draw_style_box(frame_style, Rect2(22, 22, 310, 82))
 	for row in 2:
 		var y = 40 + row * 32
 		var amount = player.hp if row == 0 else player.qi
-		draw_string(font, Vector2(38, y + 13), Tx.t("hud.hp") if row == 0 else Tx.t("hud.qi"), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, UiKit.HUD_LABEL)
+		UiKit.draw_text(self, Tx.t("hud.hp") if row == 0 else Tx.t("hud.qi"), Vector2(38, y + 13), 18, UiKit.HUD_LABEL)
 		draw_rect(Rect2(75, y, 237, 16), UiKit.BAR_TROUGH)
 		draw_rect(Rect2(77, y + 2, 233 * amount / 100, 12), UiKit.HP if row == 0 else UiKit.QI)
 	draw_skill_scroll()
 	ring(attack_center, 66, player.attack_time > 0)
-	ring(jump_center, 32)
-	ring(meditate_center, 32, player.meditating)
+	ring(jump_center, 26)
+	ring(fan_center, 26, player.meditating)

@@ -546,6 +546,15 @@ func _handle_preview_args(user_args: Array) -> void:
 		hud.pet_wheel = true
 		hud.pet_pick = 1
 	for a in user_args:
+		# Debug tools (S38): --toggle=presence|sphere holds a field power through its intent, and --fan=open|closed sets the
+		# HUD's fan (P5a previews of the fan and its pinned toggles).
+		if str(a).begins_with("--toggle=") and Game.active() != null:
+			await get_tree().create_timer(0.5).timeout
+			Game.submit({"type": "toggle_" + str(a).trim_prefix("--toggle=")})
+		if str(a).begins_with("--fan=") and is_instance_valid(hud):
+			hud.fan_open = str(a).trim_prefix("--fan=") == "open"
+			hud.fan_rest_open = hud.fan_open
+	for a in user_args:
 		if str(a).begins_with("--moment=") and is_instance_valid(moments):
 			# Debug tools (S38): --moment=id[:t] plays a moments.json row with its sample payload and holds it at t s; with
 			# --capture the shot is taken at t (P6 previews).

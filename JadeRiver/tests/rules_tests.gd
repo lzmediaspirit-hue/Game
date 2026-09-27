@@ -109,6 +109,7 @@ func _main() -> void:
 	icon_draw_suite()
 	ui_style_suite()
 	hud_suite()
+	await labels_suite()
 	await ui_suite()
 	fixes_suite()
 	mockup_fixes_suite()
@@ -514,9 +515,13 @@ func _fill_light(spec: String, cache: Dictionary) -> Color:
 	cache[spec] = [light, mean]
 	return light
 
-## P4 (docs/ui_style_guide.md §7): the HUD's touch targets. Every round control's hit circle is at least 48 across and
-## at least its drawn radius + 4; where two circles overlap a tap goes to the nearer centre; a tracker line's go button
-## is 48 x 48; and the player panel's whole height, the Soul row too, opens Character (it opened the tracker).
+## P4 (docs/ui_style_guide.md §7) and P5a (§9, mockups 01 and 02): the HUD's touch targets and its layout. In a fight
+## and at rest, with the fan open or closed, every round control's hit circle is at least 48 across and at least its
+## drawn radius + 4, and where two circles overlap a tap goes to the nearer centre; a tracker line's go button is
+## 48 x 48; the player panel's whole height opens Character. The right-hand cluster stands where the mockups put it;
+## no control or panel sits in the lower middle the mockups keep clear round the player at the common camera
+## positions; the fan opens and closes, folds in a fight, and shows its toggles that are on while closed (decision 20);
+## the techniques fold into beads at rest; an empty or locked slot is not drawn (review G3).
 func hud_suite() -> void:
 	var c = Game.active()
 	if c == null: return
@@ -526,29 +531,249 @@ func hud_suite() -> void:
 	var soul_was: float = c.pools.max_soul
 	c.inventory.draught = {"id": "healing_pill", "count": 1}
 	c.pools.max_soul = maxf(1.0, soul_was)
-	var targets: Array = hud.hit_targets()
-	var small: Array = targets.filter(func(tg): return float(tg.r) < 24.0 or float(tg.r) < float(tg.drawn) + 4.0).map(func(tg): return "%s r%d" % [tg.role, int(tg.r)])
-	check(targets.size() >= 21 and small.is_empty(), "P4: every HUD control's hit circle is 48 across and its drawn radius + 4 (%d controls; %s)" % [targets.size(), str(small)])
-	var roles: Array = targets.map(func(tg): return str(tg.role))
-	check(roles.has("draught") and roles.has("icon:mail") and roles.has("attack"), "P4: the table holds the Draught, the icon row and Attack")
-	var overlaps := 0
+	# Each state: [in a fight, the fan open].
+	var states := {"fight": [true, false], "fight, the fan open": [true, true], "rest, the fan open": [false, true], "rest, the fan closed": [false, false]}
+	var small: Array = []
+	var roles := {}
 	var wrong: Array = []
-	for x in range(360, 1280, 6):
-		for y in range(0, 720, 6):
-			var p := Vector2(x, y)
-			var inside: Array = targets.filter(func(tg): return p.distance_to(tg.center) < float(tg.r))
-			if inside.is_empty(): continue
-			if inside.size() > 1: overlaps += 1
-			inside.sort_custom(func(a, b): return p.distance_to(a.center) < p.distance_to(b.center))
-			var got: String = hud.role_at(p)
-			if got != str(inside[0].role) and wrong.size() < 6: wrong.append("%s at %s (%s)" % [got, str(p), inside[0].role])
+	var overlaps := 0
+	var in_zone: Array = []
+	var zone: Rect2 = hud.CLEAR_ZONE
+	var tables := {}
+	for sname in states:
+		hud.set_state(states[sname][0], states[sname][1])
+		var targets: Array = hud.hit_targets()
+		tables[sname] = targets
+		for tg in targets:
+			roles[str(tg.role)] = true
+			if float(tg.r) < 24.0 or float(tg.r) < float(tg.drawn) + 4.0: small.append("%s: %s r%d" % [sname, tg.role, int(tg.r)])
+			var d := float(tg.drawn)
+			if not states[sname][1] and Rect2(tg.center - Vector2(d, d), Vector2(d, d) * 2.0).intersects(zone): in_zone.append("%s: %s" % [sname, tg.role])
+		for x in range(360, 1280, 6):
+			for y in range(0, 720, 6):
+				var p := Vector2(x, y)
+				var inside: Array = targets.filter(func(tg): return p.distance_to(tg.center) < float(tg.r))
+				if inside.is_empty(): continue
+				if inside.size() > 1: overlaps += 1
+				inside.sort_custom(func(a, b): return p.distance_to(a.center) < p.distance_to(b.center))
+				var got: String = hud.role_at(p)
+				if got != str(inside[0].role) and wrong.size() < 6: wrong.append("%s: %s at %s (%s)" % [sname, got, str(p), inside[0].role])
+	check(small.is_empty(), "P4: every HUD control's hit circle is 48 across and its drawn radius + 4, in every state (%s)" % str(small))
+	var want := ["attack", "jump", "guard", "skill", "page", "fan", "meditate", "presence", "sphere", "sense", "pet", "quick", "draught", "treasure:0", "treasure:1", "swap", "icon:mail"]
+	check(want.all(func(r): return roles.has(r)) and roles.size() >= 21, "P4, P5a: the tables hold every control of the cluster (%d roles; missing %s)" % [roles.size(), str(want.filter(func(r): return not roles.has(r)))])
 	check(overlaps > 0 and wrong.is_empty(), "P4: where HUD circles overlap, a tap goes to the nearest centre (%d points in overlaps; %s)" % [overlaps, str(wrong)])
-	var go: Rect2 = hud.go_hit(Rect2(286, 100, 30, 22))
-	check(go.size == Vector2(48, 48) and go.encloses(Rect2(286, 100, 30, 22)), "P4: the tracker's go button is a 48 x 48 target")
+	var go: Rect2 = hud.go_hit(Rect2(300, 100, 48, 48))
+	check(go.size == Vector2(48, 48) and go.encloses(Rect2(300, 100, 48, 48)), "P4: the tracker's go button is a 48 x 48 target")
 	check(hud.panel_rect(c).size.y == 120.0 and hud.role_at(Vector2(100, 128)) == "portrait", "P4: the Soul row is part of the player panel's target")
+	# The cluster where mockups 01 and 02 draw it (right-handed): ring 1 at R 132 round the attack button, the fan and ring 2
+	# at R 214, the open fan's toggles at R 150 round the fan, the page tab.
+	var at := func(role: String, table: Array) -> Array: return table.filter(func(tg): return str(tg.role) == role).map(func(tg): return tg.center)
+	var fight: Array = tables["fight"]
+	var near := func(a: Vector2, b: Vector2) -> bool: return a.distance_to(b) <= 1.5
+	var ring1: Array = at.call("skill", fight)
+	var mock1 := [Vector2(1033, 605), Vector2(1051, 539), Vector2(1099, 491), Vector2(1165, 473)]
+	var placed := ring1.size() == 4 and range(4).all(func(i): return near.call(ring1[i], mock1[i]))
+	placed = placed and near.call(at.call("attack", fight)[0], Vector2(1165, 605)) and near.call(at.call("jump", fight)[0], Vector2(1051, 671))
+	placed = placed and near.call(at.call("guard", fight)[0], Vector2(1231, 491)) and near.call(at.call("fan", fight)[0], Vector2(964, 678))
+	placed = placed and near.call(at.call("page", fight)[0], Vector2(1240, 672))
+	check(placed, "P5a: ring 1, the fan and the page tab stand where mockup 01 draws them (%s)" % str(ring1))
+	var r2: Array = hud.ring2_places([{"role": "presence", "home": "pin"}, {"role": "quick", "home": "quick"}, {"role": "treasure:0", "home": "treasure:0"}])
+	check(near.call(r2[0].center, Vector2(951, 612)) and near.call(r2[1].center, Vector2(970, 518)) and near.call(r2[2].center, Vector2(1016, 451)),
+		"P5a: ring 2 as mockup 01: the held Presence pinned beside the fan, the healing slot, the treasure (%s)" % str(r2.map(func(o): return o.center)))
+	var open_fan: Array = ["meditate", "presence", "sphere", "sense", "pet"].map(func(r): return at.call(r, tables["rest, the fan open"])[0])
+	var mock2 := [Vector2(814, 678), Vector2(825, 622), Vector2(856, 574), Vector2(903, 541), Vector2(959, 528)]
+	check(range(5).all(func(i): return near.call(open_fan[i], mock2[i])), "P5a: the open fan's five toggles stand where mockup 02 draws them (%s)" % str(open_fan))
+	# Ring 2 holds more than its six places without two rings touching, and stays on the screen.
+	var many: Array = hud.ring2_places(["presence", "sphere", "quick", "draught", "treasure:0", "treasure:1", "context", "swap"].map(func(r): return {"role": r, "home": r}))
+	var apart := true
+	for i in many.size() - 1: apart = apart and (many[i].center as Vector2).distance_to(many[i + 1].center) >= 60.0
+	check(apart and many.all(func(o): return o.center.x + 26.0 <= 1280.0 and o.center.y - 26.0 >= 0.0), "P5a: eight things on ring 2 keep 60 px apart, on the screen")
+	# Rest and fight: the techniques, the healing slot and the treasures are out only in a fight; the fan folds in a fight
+	# and pins what is on beside it, and opens at rest.
+	var rest_roles: Array = tables["rest, the fan closed"].map(func(tg): return str(tg.role))
+	var fight_roles: Array = fight.map(func(tg): return str(tg.role))
+	check(not rest_roles.has("skill") and not rest_roles.has("quick") and not rest_roles.has("treasure:0") and not rest_roles.has("page")
+		and fight_roles.count("skill") == 4 and fight_roles.has("quick"), "P5a: at rest the techniques fold into beads and the healing slot and treasures rest; in a fight they are out")
+	var pinned: Array = at.call("presence", tables["rest, the fan closed"])
+	check(pinned.size() == 1 and near.call(pinned[0], Vector2(951, 612)) and not rest_roles.has("meditate")
+		and near.call(at.call("presence", tables["rest, the fan open"])[0], Vector2(825, 622)), "P5a: closed, the fan shows its toggle that is on pinned beside it; open, the toggle stands in the fan (decision 20)")
+	hud.set_state(false, false)
+	hud.press(7, hud.fan_center)
+	hud.release(7)
+	var opened: bool = hud.fan_open and hud.fan_rest_open
+	hud.press(7, hud.fan_center)
+	hud.release(7)
+	var closed: bool = not hud.fan_open and not hud.fan_rest_open
+	hud.set_state(true, true)
+	hud.press(7, hud.presence_center)
+	hud.release(7)
+	check(opened and closed and not hud.fan_open, "P5a: a tap opens the fan and a tap closes it, the choice kept at rest; in a fight a toggle taken from it folds it")
+	hud.set_state(false, true)
+	hud.fan_rest_open = true
+	hud.fight_override = true
+	hud._tick_fight(0.1)
+	var folded: bool = hud.fight and not hud.fan_open and hud.fight_k < 1.0
+	hud.fight_override = false
+	hud._tick_fight(hud.FIGHT_HOLD_S + 0.1)
+	check(folded and not hud.fight and hud.fan_open, "P5a: a foe near folds the fan and brings the ring out; with none near it opens again as it was left")
+	# Nothing in the lower middle round the player (the clear zone), in a fight or at rest with the fan closed; the open
+	# fan at rest keeps off the player at the common camera positions (x 640 give or take the look-ahead, feet at 470 to
+	# 640); the panels, the tracker's plate, the log and the top centre's toasts keep out of the zone too.
+	check(in_zone.is_empty(), "P5a: no HUD control stands in the clear zone %s in a fight or at rest (%s)" % [str(zone), str(in_zone)])
+	var bodies: Array = []
+	for px in [560.0, 640.0, 720.0]:
+		for feet in [470.0, 560.0, 640.0]: bodies.append(Rect2(px - 30.0, feet - 130.0, 60.0, 140.0))
+	var on_player: Array = tables["rest, the fan open"].filter(func(tg): return bodies.any(func(b): return (b as Rect2).intersects(Rect2(tg.center - Vector2(tg.drawn, tg.drawn), Vector2(tg.drawn, tg.drawn) * 2.0))))
+	check(on_player.is_empty(), "P5a: the open fan keeps off the player at the common camera positions (%s)" % str(on_player.map(func(tg): return tg.role)))
+	var panels := [hud.panel_rect(c), hud.minimap_rect, Rect2(14, 0, 342, hud.TRACKER_FOOT), Rect2(20, 0, hud.LOG_W, hud.LOG_FOOT), Rect2(400, 92, 480, 84), Rect2(1040, 222, 222, 34)]
+	check(panels.all(func(r): return not (r as Rect2).intersects(zone)), "P5a: the panel, the minimap, the tracker, the log, the boss bar and the purse keep out of the clear zone")
+	var toasts_was: Array = hud.toasts
+	hud.toasts = []
+	for i in 3: hud.toast("probe", "gold", "a second line")
+	var from_top: Array = hud.toast_rects(hud.TOP_STACK)
+	var from_boss: Array = hud.toast_rects(hud.TOP_STACK_BOSS)
+	check(from_top.size() == 2 and from_boss.size() == 1 and (from_top + from_boss).all(func(r): return (r as Rect2).end.y <= zone.position.y and (r as Rect2).size.x == 408.0),
+		"P5a: toasts stand at the top centre, 408 wide, and stop above the clear zone; the rest wait (%d, %d)" % [from_top.size(), from_boss.size()])
+	hud.toasts = toasts_was
+	# Bound to the character: an empty or locked technique slot, an empty healing slot or treasure and a swap with no
+	# spare are not drawn (G3); the techniques that are there keep their places.
+	var stub_src := GDScript.new()
+	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
+	stub_src.reload()
+	var stub = stub_src.new()
+	stub.actor_id = str(Game.active_id)
+	hud.player = stub
+	hud.visible = false
+	var force_was: bool = Unlocks.debug_force_all
+	Unlocks.debug_force_all = true
+	var slots_was: Array = c.cultivator.technique_slots.duplicate()
+	var quick_was: String = c.inventory.quick_use
+	var tre_was: Array = c.inventory.treasures.duplicate()
+	var spare_was = c.inventory.loadout.get("spare")
+	var n: int = ProgressionRules.technique_slot_count(c)
+	var techs: Array = ContentDB.all("techniques").slice(0, 2).map(func(tq): return str(tq.id))
+	c.cultivator.technique_slots = [techs[0], null, techs[1], ""] + [null, null, null, null]
+	c.inventory.quick_use = ""
+	c.inventory.treasures = ["", ""]
+	c.inventory.loadout["spare"] = null
+	c.inventory.draught = null
+	hud.set_state(true, false)
+	var bound_t: Array = hud.hit_targets()
+	var expect: Array = [0, 2].filter(func(i): return i < n)
+	var skills: Array = at.call("skill", bound_t)
+	check(hud.bound() and skills.size() == expect.size() and range(expect.size()).all(func(k): return near.call(skills[k], mock1[expect[k]]))
+		and not bound_t.any(func(tg): return str(tg.role) in ["quick", "treasure:0", "treasure:1", "swap", "draught"]),
+		"G3: an empty or locked slot is not drawn; the techniques there keep their places (%d of %d slots open, %d drawn)" % [expect.size(), n, skills.size()])
+	c.cultivator.technique_slots = slots_was
+	c.inventory.quick_use = quick_was
+	c.inventory.treasures = tre_was
+	c.inventory.loadout["spare"] = spare_was
+	Unlocks.debug_force_all = force_was
+	hud.player = null
+	stub.free()
 	c.inventory.draught = draught_was
 	c.pools.max_soul = soul_was
 	hud.queue_free()
+
+## P5a (review G4): world names never stack. WorldLabels.resolve places a crowd of labels in whole rows so no two
+## touch and none sits under a HUD control; a plate under the feet with no room below goes over the head; labels
+## that touch nothing keep their places; a second pass with last frame's rows gives the same places. Then the real
+## views: two NPCs on the same spot (Elder Gu and Madam Hua in Artisan Row), three foes and a boss in a knot, and the
+## party (a disciple, the puppet and an animal) at one height in a fight, laid out by WorldLabels.place_views as
+## world.gd does each frame.
+func labels_suite() -> void:
+	var mk := func(id: String, kind: String, r: Rect2, flip: Vector2) -> Dictionary:
+		return {"id": id, "kind": kind, "rect": r, "prev": Vector2.ZERO, "near": 0.0, "flip": flip}
+	var no := Vector2.ZERO
+	var items: Array = [
+		mk.call("companion", "ally", Rect2(600, 500, 44, 9), no), mk.call("puppet", "ally", Rect2(604, 502, 44, 9), no), mk.call("pet", "ally", Rect2(606, 501, 34, 9), no),
+		mk.call("boss", "boss", Rect2(700, 420, 150, 22), no), mk.call("foe", "foe", Rect2(720, 432, 190, 22), no),
+		mk.call("npc1", "npc", Rect2(300, 600, 120, 42), Vector2(0, -250)), mk.call("npc2", "npc", Rect2(360, 600, 120, 42), Vector2(0, -250)),
+		mk.call("npc3", "npc", Rect2(420, 600, 120, 42), Vector2(0, -250)), mk.call("alone", "foe", Rect2(100, 300, 120, 22), no)]
+	var offs: Dictionary = WorldLabels.resolve(items, [])
+	# Every offset is whole rows of its own box, from its place or from its place over the head.
+	var whole := func(it: Dictionary) -> bool:
+		var step: float = (it.rect as Rect2).size.y + WorldLabels.ROW_GAP
+		var y: float = offs[it.id].y
+		return absf(y / step - roundf(y / step)) < 0.01 or absf((y - float(it.flip.y)) / step - roundf((y - float(it.flip.y)) / step)) < 0.01
+	check(WorldLabels.touching(items, offs).is_empty() and items.all(whole) and offs["alone"] == Vector2.ZERO,
+		"G4: a crowd of labels (the party at one height, a boss over a foe, plates side by side) is laid out in rows with none touching (%s)" % str(WorldLabels.touching(items, offs)))
+	for it in items: it.prev = offs[it.id]
+	check(WorldLabels.resolve(items, []) == offs, "G4: with last frame's rows the layout holds still")
+	var under := [mk.call("foe", "foe", Rect2(1000, 460, 160, 22), no)]
+	var control := Rect2(1070, 440, 60, 60)   # a ring of the HUD's cluster
+	var o2: Dictionary = WorldLabels.resolve(under, [control])
+	check(not Rect2(under[0].rect.position + o2["foe"], under[0].rect.size).intersects(control) and o2["foe"].y < 0.0, "G4: a label under a HUD control moves up clear of it")
+	var plate := [mk.call("npc", "npc", Rect2(760, 600, 130, 42), Vector2(0, -180))]
+	var o3: Dictionary = WorldLabels.resolve(plate, [Rect2(700, 590, 300, 130)])
+	check(o3["npc"] == Vector2(0, -180), "G4: a plate under the feet with no room below goes over the head (%s)" % str(o3["npc"]))
+	# The real views in the room, laid out as world.gd lays them out.
+	var c = Game.active()
+	if c == null or Game.room_rt == null or Game.actor_state(c.id) == null: return
+	var holder := Node2D.new()
+	add_child(holder)
+	var fight_was := WorldLabels.party_fight
+	WorldLabels.party_fight = true
+	var base: Vector2 = Game.actor_state(c.id).plane
+	var foes: Array = []
+	var views: Array = []
+	for i in 3: foes.append(Game.enemies.spawn_at("wild_boarlet", base + Vector2(160 + i * 18, 4 * i), 5))
+	var boss_def := ""
+	for e0 in ContentDB.all("enemies"):
+		if not (e0.get("phases", []) as Array).is_empty():
+			boss_def = str(e0.id)
+			break
+	var boss_e: EnemyState = Game.enemies.spawn_at(boss_def, base + Vector2(190, -6), 5)
+	if boss_e != null and not boss_e.is_boss(): boss_e.role = "story_boss"   # as its arena's spawn makes it
+	foes.append(boss_e)
+	foes[0].elite = true
+	for i in 3:
+		var a := EnemyState.new()
+		a.uid = Game.room_rt.uid()
+		a.def_id = "probe_ally_%d" % i
+		a.def = {"name": "Probe", "art": {"creature": "wild_boarlet"} if i > 0 else {"avatar": "player"}, "half_width": 14, "height": 60 if i > 0 else 88, "ally": true}
+		a.team = "ally"
+		a.plane = base + Vector2(-80 + i * 6, 0)
+		a.pools.max_hp = 100.0
+		a.pools.hp = 70.0
+		Game.room_rt.enemies[a.uid] = a
+		foes.append(a)
+	for e in foes:
+		if e == null: continue
+		var v := EnemyView.new()
+		v.setup(e)
+		v.set_process(false)
+		holder.add_child(v)
+		views.append({"id": "e%d" % e.uid, "view": v, "kind": v.label_kind, "near": absf(e.plane.x - base.x)})
+	for i in 2:
+		var nv := NpcView.new()
+		nv.setup({"id": "probe_npc_%d" % i, "npc": ["elder_gu", "madam_hua"][i], "at": [base.x - 200.0, base.y]})
+		nv.set_process(false)
+		holder.add_child(nv)
+		views.append({"id": "n%d" % i, "view": nv, "kind": "npc", "near": 200.0})
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var xf := Transform2D(0.0, Vector2(640.0 - base.x, 560.0 - base.y))
+	var laid: Dictionary = WorldLabels.place_views(views, xf, [])
+	var drawn: int = laid.items.size()
+	var kinds := {}
+	for it in laid.items: kinds[str(it.kind)] = true
+	check(drawn == views.size() and kinds.has("ally") and kinds.has("boss") and kinds.has("foe") and kinds.has("npc") and WorldLabels.touching(laid.items, laid.offsets).is_empty(),
+		"G4: the real labels (%d of %d: foes, a boss, the party's HP lines, two NPCs on one spot) are placed with none touching (%s; %s)" % [drawn, views.size(),
+		str(WorldLabels.touching(laid.items, laid.offsets)), str(views.filter(func(v): return not laid.offsets.has(v.id)).map(func(v): return "%s %s %s" % [v.id, v.kind, str(v.view.label_box)]))])
+	WorldLabels.party_fight = false
+	for v in views: v.view.tag.queue_redraw()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var calm: Dictionary = WorldLabels.place_views(views, xf, [])
+	check(not calm.items.any(func(it): return str(it.kind) == "ally"), "G4: out of a fight the party shows no label (their names are on the HUD's chips)")
+	WorldLabels.party_fight = fight_was
+	for e in foes:
+		if e == null: continue
+		e.alive = false
+		Game.room_rt.enemies.erase(e.uid)
+	holder.queue_free()
+	await get_tree().process_frame
 
 ## P4b (docs/mockups/icon_study): an icon is only ever drawn at a whole-number scale of its art, through
 ## SpriteCache.draw_icon. A legacy icon (32 art px in a 64 px PNG, 16 for a HUD glyph, 12 for a status icon) draws at
