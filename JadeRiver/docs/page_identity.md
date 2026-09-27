@@ -26,7 +26,7 @@ Conventions:
 - **Status.** *Approved*: mockups 00–05. *Revised*: redrawn by another agent to decisions 11 and 14 and merged into
   this branch (06 Techniques, 13 Roll-Call, 16 World Map, 17 Shop, 18 Codex and Old Scrolls); their rows record those
   concepts as drawn, and the other rows were chosen to stay clear of them. *Drawn here*: a full mockup made with this
-  page (§8). *Brief*: a row only, for P5.
+  page (§9). *Built*: converted in code by the pattern of §8. *Withdrawn*: overturned by a later decision. *Brief*: a row only, for P5.
 
 ---
 
@@ -87,7 +87,7 @@ uses beyond the five, so the pages still read as one game.
 |---|---|---|---|---|---|---|---|
 | 1 | **HUD** (`hud.gd`) · constant · context · approved (01, 02) | Play, and reach every page in one tap | Jade discs set in gold, worn on the thumbs | The `hud_ring` disc (`DEEP_TEAL` to `INK`) in a `GOLD` rim; `PLATE` under words over the world; the HP, Qi and Soul fills (HD `hud_ring`, P4 §5; Style A glyphs at 32, pixel) | Two arcs of rings round the 132 px attack ring at the lower right; the name and bars at the upper left; the minimap and four rings at the upper right; the progress edge along the foot | A held toggle or a reached bottleneck lights its ring with a halo; techniques fold into four beads at rest. Reduce: the halo is steady, the fold is a 0.2 s fade | The HUD kit (style guide §9) |
 | 2 | **Dialogue** (`dialogue_page.gd`) · many a session · Records · 21, 21_gift | Talk, choose, take a quest, give a gift | Rice paper laid under the scene, a storyteller's caption | `dialogue_box` paper with `PAPER_INK` words; the speaker on a jade plaque; choices on jade tablets (existing kit); the portrait from the speaker's own layers (existing) | Frameless: one full-width paper strip along the foot (48, 464, 1184 × 232), the portrait framed at its left, words in the middle, choices stacked at its right; a quest offer pinned above it as a small scroll; the world stays in view | Words are written in and a tap finishes them; an offer unrolls downward (0.2 s). Reduce: the offer fades; the reveal stays, since a tap ends it | `dialogue_box`, `portrait_frame`, secondary buttons, 76 px slots for gifts |
-| 3 | **Bag** (`inventory_page.gd`) · many a session · The self · **drawn here** (07 v2, 08 v2) | What you carry and wear; equip, use, lock, discard, sort | The spirit gourd, opened: the character's own calabash in section, its inside a jade-dark space | Gourd skin `SURFACE.gourd` with a `GOLD` lip and a `RED` cord; the inside `SURFACE.space` with faint `JADE` ring marks; the figure's dais in `JADE_SHADOW` light with a thin `GOLD` ring through the worn slots; the chosen item on a dark wooden tag `SURFACE.gourd_dark`. Art: the calabash `gourd_well` (HD fixed asset); the dais, ring, ring marks and the space level (page.gd); `wood_tag` (HD nine-slice); the live figure (Avatar, decision 8) | Three parts in a row: the figure on a round dais inside an oval ring of the eight worn slots (left); the calabash (centre): its upper bulb holds the gourd's name and its space as a level of light, a red cord round its waist carries the kind filters as hanging tags, its lower bulb holds the 5-wide grid; the chosen item's tag hung on red string from the rim (right). Key Pouch: the calabash becomes a drawstring pouch | The stopper lifts and the rows rise into the bulb on opening (0.25 s); a new item drops in with one bob; the tag swings once on a new choice (0.3 s); the level rises as space fills. Reduce: grid and tag fade in over 0.2 s; no bob, no swing | 76 px slots with Style A icons and grade rims, primary and secondary buttons, the purse pills |
+| 3 | **Bag** (`inventory_page.gd`) · many a session · The self · **withdrawn** (decision 15; 07 v2, 08 v2 kept as the record) | What you carry and wear; equip, use, lock, discard, sort | The spirit gourd, opened: the character's own calabash in section, its inside a jade-dark space | Gourd skin `SURFACE.gourd` with a `GOLD` lip and a `RED` cord; the inside `SURFACE.space` with faint `JADE` ring marks; the figure's dais in `JADE_SHADOW` light with a thin `GOLD` ring through the worn slots; the chosen item on a dark wooden tag `SURFACE.gourd_dark`. Art: the calabash `gourd_well` (HD fixed asset); the dais, ring, ring marks and the space level (page.gd); `wood_tag` (HD nine-slice); the live figure (Avatar, decision 8) | Three parts in a row: the figure on a round dais inside an oval ring of the eight worn slots (left); the calabash (centre): its upper bulb holds the gourd's name and its space as a level of light, a red cord round its waist carries the kind filters as hanging tags, its lower bulb holds the 5-wide grid; the chosen item's tag hung on red string from the rim (right). Key Pouch: the calabash becomes a drawstring pouch | The stopper lifts and the rows rise into the bulb on opening (0.25 s); a new item drops in with one bob; the tag swings once on a new choice (0.3 s); the level rises as space fills. Reduce: grid and tag fade in over 0.2 s; no bob, no swing | 76 px slots with Style A icons and grade rims, primary and secondary buttons, the purse pills |
 | 4 | **Menu** (`menu_page.gd`, the hub) · many a session · The sect · approved (03) | Reach every system; see what waits in each | The sect's hall of hanging plaques | Teal lacquer tablets (`minor_panel` faces) on `GOLD` cords between red-lacquer pillars (`SURFACE.lacquer`, page.gd); bay plaques (existing) | Five bays under five plaques, tablets hung down each bay on cords; the character line and purses at the foot | Tablets settle with one sway on opening (0.25 s); a ready seal is pressed on (0.15 s). Reduce: fade; the seal simply appears | Badges (count, ready seal, new) |
 | 5 | **Cultivation** (`cultivation_page.gd`) · many a session · The way · approved (04) | See the whole climb and this realm's nine steps; meditate; reach the gate | The mountain ascent | The night mountain (`sky_top` / `sky_bottom`); steps in the band colours (`JADE_SHADOW`, `JADE`, `BRONZE`, `GOLD`); the realm path as ink dots with `GOLD` waystations (page.gd); the figure seated (Avatar `meditate`) | The nine-step stair in the centre, the nineteen realms winding up the left, the next step's unlocks and the gate at the right; eight tabs | At a minor breakthrough the figure climbs one step (0.4 s); the bottleneck riser glows. Reduce: the step lights, no climb | Stage bands, unlock chips, `bar_shell` |
 | 6 | **Quests** (`quest_page.gd`) · many a session · Records · **drawn here** (12 v2) | What now: the story, today's round, what is near, and where the tracked quest leads | The sect's mission board: paper slips pinned to timber | The board `wood_dark` with grain lines every 3 px (page.gd); slips in `scroll` paper with `PAPER_INK` words (HD nine-slice `paper_slip`, torn top); the main quest's slip headed in `SURFACE.cinnabar` with a gold edge; bronze pins (pixel, 32 px Style A glyph); the done stamp in `BLOOD` (pixel) | A timber board filling the left two-thirds with slips pinned in clusters: the story's slip top-left with a red head; the day's missions as a row of small slips; the day's chests on a red cord along the board's foot; side quests stacked under three region nameboards. The chosen slip is taken down and held large at the right, with its route drawn across it and Go | A tapped slip is unpinned and lifts to the reading place (0.2 s); a finished slip is stamped. Reduce: the reading slip fades in; the stamp appears | 76 and 48 px slots for rewards, `bar_shell` with reward stops, purse pills |
@@ -97,7 +97,7 @@ uses beyond the five, so the pages still read as one game.
 | 10 | **Title** (`shell_screens.gd` TitleScreen) · every session · Shell · brief | Continue, begin, settings, quit | The game's name cut into the cliff above the river | The river backdrop (existing); a cliff face (pixel, a backdrop layer); the name carved in `PALE_GOLD` with an `INK` bevel (page.gd) | The name cut large into a cliff face in the upper middle; the three buttons stacked on a stone ledge under it; the river across the foot | Mist drifts over the river; the carving catches the light once at launch (0.6 s). Reduce: still mist, no glint | Primary and secondary buttons |
 | 11 | **Selection** (`shell_screens.gd` selection) · every session · Shell · brief | Pick who enters the world; add or delete | Skiffs moored at the jetty at dusk, one disciple standing in each | The river (existing), the jetty in `wood`, each skiff's prow lantern in `PALE_GOLD` glow; skiffs and jetty (pixel props); figures (Avatar) | Four skiffs side by side along a jetty in the lower half, a disciple standing in each with a name lantern on the prow; empty moorings (a coiled rope, "a new disciple") for open slots; page arrows at the jetty's ends; Enter World at its head | The chosen skiff rocks once and its lantern lights; Enter World casts it off toward the viewer (0.5 s). Reduce: the lantern lights; a fade on entering | Primary and secondary buttons |
 | 12 | **Welcome Back** (`welcome_page.gd`) · every session · The post · brief | What the time away earned; to the Storehouse or kept | The incense coil that burned while you were away, and the haul in a round bamboo winnowing tray | The coil burnt to `HOLLOW` ash with an `ember` tip, the unburnt rest in `BRONZE`, on a bronze stand (page.gd); the tray a woven disc in `SURFACE.bamboo` with a bound rim (page.gd) | A spiral on the left whose burnt length is the time away out of the 12-hour cap, the glowing tip now and the unburnt rest what more the cap would have held; the haul heaped in the round tray at the right; the two choices under the tray | The ember runs to its mark (0.6 s, a tap skips); goods drop into the tray one after another (0.05 s apart). Reduce: the coil is drawn at its mark; goods appear together | 76 px slots, primary and secondary buttons |
-| 13 | **Character** (`character_page.gd`) · every session · The self · **drawn here** (09 v2) | Who the character is: what they wear, their numbers, titles, origin and ties | The jade-slip record: the cultivator's life kept on bound jade slips, as a sect keeps its disciples' records | Slips in dark jade (`SURFACE.cloth` with `JADE_SHADOW` edges) bound by two `GOLD` cords; the figure's slips washed lighter, as if painted; the register written across the rest; title plaques in `SURFACE.lacquer`. Art: the slip mat (page.gd, vertical slats every 40 px with rounded ends); the cords and knots (page.gd); the figure (Avatar at 2.5) | The whole window is one mat of vertical jade slips bound by a gold cord near the top and the foot, the title tag knotted to the upper cord; the figure stands full-length on the first slips with the eight worn slots down the slips on either side; the register (pools, offence and defence in ruled columns) written across the middle slips; the titles as small lacquer plaques at the foot; the tabs are jade tags on the upper cord | The slips fan open from a bundle on opening (0.35 s); equipping re-inks the figure (0.2 s). Reduce: fade in | 76 px slots, `bar_shell` pools, secondary buttons |
+| 13 | **Character** (`character_page.gd`) · every session · The self · **built** (09 v2; titles as honours, decision 16) | Who the character is: what they wear, their numbers, titles, origin and ties | The jade-slip record: the cultivator's life kept on bound jade slips, as a sect keeps its disciples' records | Slips in dark jade (`SURFACE.cloth` with `JADE_SHADOW` edges) bound by two `GOLD` cords; the figure's slips washed lighter, as if painted; the register written across the rest; title plaques in `SURFACE.lacquer`. Art: the slip mat (page.gd, vertical slats every 40 px with rounded ends); the cords and knots (page.gd); the figure (Avatar at 2.5) | The whole window is one mat of vertical jade slips bound by a gold cord near the top and the foot, the title tag knotted to the upper cord; the figure stands full-length on the first slips with the eight worn slots down the slips on either side; the register (pools, offence and defence in ruled columns) written across the middle slips; the titles as small lacquer plaques at the foot; the tabs are jade tags on the upper cord | The slips fan open from a bundle on opening (0.35 s); equipping re-inks the figure (0.2 s). Reduce: fade in | 76 px slots, `bar_shell` pools, secondary buttons |
 | 14 | **Roll-Call** (`posts_page.gd`) · every session · The post · revised (13, 13_first) | Every character's post: yield, pouch, settle; the Storehouse, Bench and Vows | The sect's duty board: a name tablet for each character hung on the peg rail, their catch in a basket beneath | Wooden tablets on hemp cords hung from a peg rail; each tablet's arched window holds the character's own figure posed by state (standing while played, seated when idle, at work while filling) and a state band; beneath each its container (herb basket, net bag, cicada cage); the Storehouse a small cabinet under a tiled roof; the Bench a craft table | A row of four tall hanging tablets across the upper left with their baskets on a shelf below and a Settle under each, soonest full first; Settle all, the Storehouse cabinet and the Bench stacked at the right; Crafts and Vows as two small tags top left; a tapped tablet turns over to show its post's numbers | A tablet turns over on a tap (0.25 s); settling pours the catch toward the Storehouse (0.4 s). Reduce: the tablet cross-fades; counts change without the pour | Primary button, `bar_shell` with stops, 76 px slots |
 | 15 | **Techniques** (`techniques_page.gd`) · every session · The way · revised (06_element, 06_lost) | Learn, realise and slot techniques by element; lost arts; secret arts; the loadout | Each element's art drawn as that element's own chart, one per tab (the Water tab a tide chart on celadon silk; Wood a living tree, Fire a forge-lit sky, Earth a cliff in section, Metal the back of a bronze mirror, Wind kite paper, Thunder a storm sky of drums, Soul a lantern lake, Formless an ensō, Space an armillary sphere, Time a water clock); Lost Arts a board of pinned fragments with red thread; Secret Arts a practice mat of footwork | A dark lacquer rail across the top with the element seals (44 px discs), the tab's surface full-bleed between, the loadout dock across the foot; each surface in its element's colours (`docs/technique_plan.md`, the 06 rows of `docs/mockups/README.md`); Style A emblems | The element seals along the top and the loadout dock along the foot stay put on every tab; between them the tree (families as currents, boughs or streams coming down from a source, rings as depth bands), the path layers at the left, the chosen art's card and the whole-chart map at the right | Changing tab redraws the surface under a fixed rail and dock (0.3 s); a realised art lights along its route (0.4 s). Reduce: the surface cross-fades; the route shows lit | 76 px loadout slots, primary button with inked label |
 | 16 | **Spirit Animals** (`pets_page.gd`) · every session · Beasts · brief (10 exists) | Care for, grow, breed and arm the animals | The beast stable: stalls with half-doors, each animal looking over its door | Stall timber `wood` with `SURFACE.straw` bedding; name boards; the yard in `SURFACE.soil`. Art: stall doors (pixel prop); creatures (existing sheets); straw (page.gd) | A column of stall half-doors down the left, each with its animal's head over the door and a name board; the chosen animal out in the yard at large scale with its growth path as stepping stones and its bond as hearts on its collar; care, gear and the nest on the tack wall at the right | Animals idle in their stalls; choosing one opens its door and it walks out (existing walk frames, 0.4 s). Reduce: the yard figure changes with a fade | 76 px slots for gear, `bar_shell` with stops |
@@ -171,12 +171,12 @@ uses beyond the five, so the pages still read as one game.
    | Vertical stacks: Trial Tower (pagoda), Cultivation (stair) and a first draft of the Beast Arena (a ladder of banners) | The arena became the pit; the stair is diagonal and the pagoda a narrow column with eaves |
    | Painted places: the revised World map (a framed painting), Your Sect, Title | The map fills the window inside its frame with a card at the right and tablets at the foot; Your Sect is the room itself in a strip with cards below; the Title is one cliff face |
    | Figure with the worn slots: Bag and Character (decision 8 asks for both) | The Bag rings the figure with its slots on a dais beside the calabash; the Character stands the figure on the jade slips with the slots down the slips either side, in two straight columns |
-   | **Not settled: the revised Techniques' Lost Arts tab against the Quests board.** Both are paper pinned to dark timber (Lost Arts with red thread between scraps; Quests with a red cord of chest charms), and the Quests board was the brief's own example | Left for the user (§9). The recommendation: Quests keeps the board it was briefed with, and Lost Arts becomes an explorer's album, an accordion book opened out with one leaf per act and the scraps pasted in, which keeps its kinds, hints and Track |
+   | **Not settled: the revised Techniques' Lost Arts tab against the Quests board.** Both are paper pinned to dark timber (Lost Arts with red thread between scraps; Quests with a red cord of chest charms), and the Quests board was the brief's own example | Left for the user (§10). The recommendation: Quests keeps the board it was briefed with, and Lost Arts becomes an explorer's album, an accordion book opened out with one leaf per act and the scraps pasted in, which keeps its kinds, hints and Track |
    | The revised Techniques' tab surfaces against the other pages: Earth's cliff in section against the Title's cliff face; Metal's mirror back and Space's armillary against the Teleport compass; Secret Arts' practice mat against a first draft of Welcome Back (the haul on a woven mat) | Welcome Back's haul moved into a round bamboo tray. The others differ in kind and scale: a strata section filling a tab against a carved face above a river; relief bands and orbiting rings filling a tab against a flat dial with a needle, a stone at each bearing and a card beside it |
    | Paper pages in one family (Records, seven pages) | A strip, a board of slips, a framed painting, an envelope stack, a ruled sheet, a pasted collage and a book: no two share a silhouette |
 
 3. **The contact sheets.** Every row's layout signature is drawn as a thumbnail in `docs/mockups/page_identity_sheet.png`
-   and its two companions (§8). The sheets were looked at at 1x, and again in grey with a Gaussian blur of 6 px (a squint
+   and its two companions (§9). The sheets were looked at at 1x, and again in grey with a Gaussian blur of 6 px (a squint
    test), which leaves only the silhouettes. The first render failed it once (the row of tall columns above); after
    that change no two thumbnails blur to the same shape, apart from the Lost Arts tab and the Quests board (above), which are one thumbnail's tab against another page. The pairs that come closest, and are left for the user's eye,
    are the Menu and the Roll-Call (both hang tablets, in bays against a single row over baskets) and the three pages
@@ -188,9 +188,11 @@ uses beyond the five, so the pages still read as one game.
 
 | Art | For | Kind | Notes |
 |---|---|---|---|
-| `gourd_well` | Bag | HD fixed asset | The calabash: two bulbs and a waist, a lacquer ramp from `SURFACE.gourd`, a `GOLD` lip, the cord; the grid's corners inside the lower bulb (a superellipse); its inside left open for `SURFACE.space` |
-| `wood_tag` | Bag (the item tag), Works (labels) | HD nine-slice | A tag with a clipped top and a cord hole, `SURFACE.gourd_dark` |
-| Jade slips | Character | page.gd | Vertical slats every 40 px with rounded ends in `SURFACE.cloth`, `JADE_SHADOW` edges and a lit rim; two `GOLD` cords with knots; the figure's slips washed lighter |
+| `gourd_well` | Bag | HD fixed asset | Withdrawn by decision 15 (no gourd drawing): the calabash, two bulbs and a waist in `SURFACE.gourd` |
+| `wood_tag` | Bag (the item tag), Works (labels) | HD nine-slice | A tag with a clipped top and a cord hole; the Bag's use withdrawn by decision 15 (a small card instead). On a tag that carries grade colours as words the face must be `wood_dark`, not `SURFACE.gourd_dark`, where the Mystic and Sphere colours fall to 3.1:1 |
+| Jade slips | Character | page.gd, **built** (P5) | Vertical slats every 40 px with rounded ends in `SURFACE.cloth` on an `INK` backing, a lit rim; two `GOLD` cords with knots; the figure's slips washed lighter (`SURFACE.cloth_wash`) on the tabs that show the figure; the slips fan out from a bundle as the page opens |
+| `jade_tag`, `jade_label` | Character (the tabs, the title) | HD nine-slices, **built** (P5) | Jade tags with a square top and a rounder foot, `selected` the lit `JADE`; the title's tag with a `GOLD` inlay |
+| `honour_tablet`, `honour_seal` | Character (the titles, decision 16) | HD nine-slice and fixed asset, **built** (P5) | Each title an honour: a red lacquer tablet (`SURFACE.lacquer`) with cut corners, a gold inlay line and a gloss, the worn one in a gilded frame with a stud at each corner; its motif on a 32 px gilt boss, the sign sunk in lacquer: blade, shield, pearl, cloud, peak, lotus, coin, cauldron or star, by the stat the title's gift raises |
 | `paper_slip` | Quests | HD nine-slice | A slip with a torn top edge and a pin shadow |
 | `envelope`, `letter_sheet` | Mail | HD nine-slices | Crease shading across the letter; the envelope's flap |
 | `poster` | Notice Board | HD nine-slice | Curling and torn corners, paste stains |
@@ -269,15 +271,116 @@ the text colours allowed on it; a surface marked "no words" carries none.
 | `soil` | `wood_dark` + 0.30 `INK` | #2b1e16 | every text token | `PAPER` 12.39 |
 | `water` | `QI` + 0.60 `INK` | #185660 | `PAPER`, `PALE_GOLD`, `MIST` | 6.34, 6.73, 4.77 |
 | `clay` | `BRONZE` + 0.25 `RED` | #ac663e | no words | — |
+| `cloth_wash` (P5) | `JADE_SHADOW` + 0.20 `JADE` | #1a605c | `PAPER`, `PALE_GOLD` (the Character figure's slips) | 5.61, 5.95 |
+
+In code (`UiKit.SURFACE`, P5) every row above is a token. The talisman's red ink and the zither's strings, which held
+the names `cinnabar` and `silk` before this table gave them out, are `cinnabar_ink` and `qin_silk`; their colours did
+not change.
 
 Grade and quality colours were made for the dark fills and fail on paper (Superior #5aa7e8 on `scroll` is 2.4:1).
 On a light surface a grade shows as a small chip in its colour with the word in `INK`, or by the slot's rim, never as
 coloured words. `BLOOD` is the red for words on paper (4.58 on `almanac`, 4.87 on `scroll`); where the paper is tinted (the almanac's live day) red words take `BLOOD` mixed 15% toward `INK`, #991e2a (5.24 on the tint, where `BLOOD` falls to 4.26). The audit
 (`tools/dev/ui_style_audit.py`) measures each new surface before it ships (style guide §1.4 rule 4).
 
+## 8. How a page takes its identity
+
+The pattern P5 built, for converting the pages family by family. A page stays an immediate-mode `Page` (C8); it
+declares what it is, draws its own surface in the standard window rect, and Page keeps everything that stays shared. A
+page that declares nothing keeps the shared window, plaque and tabs exactly as before.
+
+### 8.1 What a page declares
+
+In `_init` (`scripts/ui/page.gd`, `class Identity`):
+
+```gdscript
+identity = Identity.new("cloth", false, "own", "slip_mat_whole_two_cords", OPEN_MOTION_MAX)
+grade_rims = true   # optional: slots ring every item in its grade and mark a rolled quality with a gem
+```
+
+| Field | Means | The Character page |
+|---|---|---|
+| `surface` | The `UiKit.SURFACE` key of the page's material: the ground under any word that names no other | `cloth` |
+| `framed` | `true` keeps the shared `major_window` round the surface; `false` makes the surface the window (Decisions taken, 2) | `false` |
+| `title_mount` | `"plaque"` keeps the shared title plaque; `"own"` draws the page's mount | `"own"`: a jade tag knotted to the cord |
+| `signature` | The layout signature of §3 as an id. No two pages may share one (the `ui_suite` checks) | `slip_mat_whole_two_cords` |
+| `open_s` | The opening's length, at most `Page.OPEN_MOTION_MAX` (0.35 s, §6) | 0.35 |
+
+### 8.2 What a page overrides, and what Page keeps
+
+| Hook | Default (the shared look) | Override it to |
+|---|---|---|
+| `draw_surface(r)` | A flat `SURFACE` fill | Draw the material inside the window rect `r` (a standard window, style guide §2.2) |
+| `content_rect()` | Inside the window, under the title and tabs | Lay the page out on its own surface |
+| `title_rect()`, `draw_title_mount(r)` | The 440 × 60 plaque at the top | Place and draw the mount; Page inks the title on it at 34, stepping down the display scale to fit |
+| `tab_rects()`, `draw_tab(r, i, state)` | A row of kit tabs under the title | Give the tabs the page's form (the Character's jade tags on the cord) |
+
+Page keeps, whatever the page draws: the dimmed world; the close button at the window's top right (frame end − 72,
+y + 16, 52 px), Esc and a tap outside the window; each tab's 48 px target, its lock and its reason; `btn` with inked
+primary labels; `text`, `para`, `rich`, `heading`, `bar` on the type scale; `slot_box`; the confirm dialog and the toast.
+A page never writes state (`contract_tests`): it submits intents in `on_action` as before.
+
+### 8.3 Grounds: every word is measured on what it sits on
+
+A surface is not a kit fill, so the `ui_suite` cannot know what lies under a word unless the page says so. A page with
+its own surface names its grounds as it draws them, and the suite measures every plain word on the last ground drawn
+under its centre (4.5:1, or 3:1 from 20 px); the `identity_suite` proves on a probe page that a word too dim for its
+ground is caught:
+
+- `ground(rect, color)`: the lightest tone of the surface in `rect` (the Character figure's washed slips, a sunk band).
+  Page names the identity's surface itself when `draw_surface` does not.
+- `face(rect, asset, state)`: an HD face that words sit on (a tag, a tablet); measured on the kit's own art.
+- `panel(rect)`: as before; now also a ground.
+- Inked and outlined words (titles, primary labels, the lit tags, bar labels) are measured on `INK`; button labels on
+  their kit faces. Every new fill a colour is drawn on is a row of `UiKit.TEXT_ON` (`"surface:<key>"` for a flat
+  material), which the `ui_style_suite` measures. When a colour fails, change the colour, not the check: the washed
+  slips carry `PAPER`, not `MIST` (4.21 on `cloth_wash`).
+
+### 8.4 Surface art
+
+- **page.gd** from tokens, with the Page helpers `rounded(rect, radius, color)` (anti-aliased corners) and
+  `glow(rect, color)` (a radial fade: a lit centre, a wash, a shadow), and anti-aliased `draw_line`/`draw_circle` for
+  cords, rims and knots. No colour literals: `Color(UiKit.X, a)` and `UiKit.X.lerp(UiKit.Y, t)` only (the
+  `ui_style_suite` scans every page).
+- **HD** through `tools/ui/build_ui_hd.py`: a fixed asset (`margins [0, 0, 0, 0]`, drawn with
+  `draw_texture_rect(UiKit.hd_texture(asset, state), rect)`) or a nine-slice (drawn with `face`). Colours are the tokens
+  and their `mix()`es (the builder's P5 block: `TOKEN`, `mix`, `LACQUER_S`). Keep ornaments inside the corner squares
+  (the builder's edge check). The kit builds byte-identical twice; after adding a PNG run Godot's `--import` and set
+  `mipmaps/generate=true` in its `.import`, as every HD asset has.
+- A new material is a `SURFACE` entry, a mix of two tokens (§7), with its `TEXT_ON` row.
+
+### 8.5 Motion
+
+`unfold(dur)` is the opening's progress, 0 to 1 over the identity's `open_s`, eased out; a page moves its parts by
+`1 - unfold()` (the Character's slips fan out from a bundle). Page fades the page in over the same time. Under Reduce
+motion (`UiKit.reduce_motion()`, the setting of `docs/moments_design.md` §4.6) `unfold()` is 1 from the first frame and
+the page only fades in, over `UiKit.MOTION_FADE_S` (0.2 s). A tap sets the opening to its end. Draw moving parts under
+`draw_set_transform` and register their regions at their final places, so every target is live from the first frame.
+Decoration that only moves does not run under Reduce motion.
+
+### 8.6 Shared pieces of the self family
+
+`CharacterPage.draw_worn(page, ch, at, id, name_col)` draws the eight worn slots wherever a page puts them (the
+Character's two columns): a closed slot shows its lock and answers a tap with what opens it; an empty slot glows jade
+while the bag holds a piece the character may wear there. The figure is the live `Avatar` at 2.5 (5 screen px an art
+px, decision 8). `grade_rims` rings every slot's item in its grade's colour and marks a rolled quality with a gem
+(mockup 09 v2). The Bag keeps its own `draw_worn` until its new concept (decision 15) is built; it should then take
+this one.
+
+### 8.7 Converting a page: the steps
+
+1. Read the page's row in §3, its family in §2 and its mockup if it has one; check the decisions of the roadmap (§6)
+   that came after the catalogue.
+2. Declare the identity; override `draw_surface`, `content_rect`, and the title and tab hooks the row asks for.
+3. Draw the surface from tokens, or add its art to `build_ui_hd.py`; add any new `SURFACE` mix and its `TEXT_ON` row.
+4. Name the grounds; keep every target 48 px or more and every word on the type scale.
+5. Give the opening in `unfold()`; leave decoration off under Reduce motion.
+6. Keep the page's intents; add strings through `tools/data/ui_strings.json` and data through `tools/data/`.
+7. Run the suite (`ui_suite`, `identity_suite`, `ui_style_suite`, `contract_tests`); take screenshots on a valley_run
+   checkpoint copy and compare them with the mockup.
+
 ---
 
-## 8. Mockups made with this page
+## 9. Mockups made with this page
 
 Rendered with `tools/dev/render_mockups.py` from `docs/mockups/src/`; numbers from the valley_run character's
 checkpoints, taken as frozen copies of `user://valley_cp/<section>` at 01:33 UTC on 2026-09-27 and read from the save
@@ -298,7 +401,7 @@ target 48 px or more, nothing clipped.
 
 ---
 
-## 9. For the user to decide
+## 10. For the user to decide
 
 1. The catalogue as a whole: the concept and layout signature of each row, and the families.
 2. Whether a page may give up the shared `major_window` frame for its own surface (as the drawn mockups and the revised
@@ -328,3 +431,12 @@ Taken as recommended (2026-09-27) so P5 can start; the user can overturn any:
 4. "Your bag" is the spirit gourd everywhere, the shop's included.
 5. The Menu's hanging plaques and the Roll-Call's tablets stay as drawn; they read apart.
 6. The `SURFACE` tokens of §7 join the style guide's token table.
+
+The user's later decisions (roadmap §6) that change this page:
+
+7. Decision 15: no gourd drawing in the Bag. The inventory is to feel like a big space, with a small information card
+   for a chosen item instead of a large detail panel; new concepts go to the user as mockups first. Row 3 and its
+   mockups 07 v2 and 08 v2 are withdrawn and kept as the record; the Bag keeps its P4 page until a new concept is
+   approved. So "your bag" is no longer the gourd (4 above) until that concept says what it is.
+8. Decision 16: the Character page's titles look and feel more fancy, each a named honour. Built as red lacquer tablets
+   with the title's motif on a gilt boss and its gift inscribed in gold, the worn one in a gilded frame (§5, §8).

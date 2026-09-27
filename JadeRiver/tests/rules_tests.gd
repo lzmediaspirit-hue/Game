@@ -110,6 +110,7 @@ func _main() -> void:
 	ui_style_suite()
 	hud_suite()
 	await ui_suite()
+	await identity_suite()
 	fixes_suite()
 	mockup_fixes_suite()
 	max_character_suite()
@@ -196,6 +197,11 @@ func ui_suite() -> void:
 	var pitches: Array = []   # P4: list rows off the 8 px grid
 	var whole := ["cultivation:body", "cultivation:vows", "beast_arena:-", "training_sect:role"]
 	var blurred: Array = []   # P4b: icons drawn at a fractional scale of their art, or off the pixel grid
+	var dim_words: Array = []   # P5: words on a page with its own surface that do not read on what they sit on
+	var unshared: Array = []    # P5: a page with its own identity that lost a shared part (the close button, the inked title)
+	var signatures := {}        # P5: layout signature -> the page that declared it
+	var own_views := 0
+	var fills := {}
 	var icons_drawn := 0
 	SpriteCache.draw_log = []
 	var views := 0
@@ -245,7 +251,11 @@ func ui_suite() -> void:
 					for j in range(i + 1, buttons.size()):
 						var both: Rect2 = (buttons[i].rect as Rect2).intersection(buttons[j].rect)
 						if both.size.x > 0.5 and both.size.y > 0.5: overlaps.append("%s %s/%s" % [where, buttons[i].id, buttons[j].id])
+				if pg.identity != null:
+					own_views += 1
+					_identity_view(pg, where, dim_words, unshared, signatures, fills)
 				for tx in pg.text_log:
+					if tx.has("ground") and not tx.get("panel", false): continue   # P5: a surface's ground, not a word
 					if where in whole and str(tx.s).ends_with("…"): cut.append("%s \"%s\"" % [where, tx.s])
 					if tx.has("size") and (int(tx.size) < UiKit.MIN_SIZE or not UiKit.on_scale(int(tx.size), bool(tx.display))):
 						off_scale.append("%s \"%s\" at %d" % [where, str(tx.s).left(24), int(tx.size)])
@@ -342,6 +352,15 @@ func ui_suite() -> void:
 	check(off_scale.is_empty(), "P4: every word on every page is asked for on the type scale, none under %d (%d: %s)" % [UiKit.MIN_SIZE, off_scale.size(), str(off_scale.slice(0, 8))])
 	check(windows.is_empty(), "P4: every window is a standard one, inside the safe area (%s)" % str(windows.slice(0, 6)))
 	check(pitches.is_empty(), "P4: every list's rows are on the 8 px grid (%s)" % str(pitches.slice(0, 6)))
+	for o in dim_words + unshared: print("  ui_suite: ", o)
+	check(dim_words.is_empty(), "P5: every word on a page with its own surface reads on what it sits on (%d: %s)" % [dim_words.size(), str(dim_words.slice(0, 6))])
+	check(unshared.is_empty(), "P5: a page with its own identity keeps the shared close button, its inked title and a known surface (%s)" % str(unshared.slice(0, 6)))
+	var own_pages := 0
+	for id in main_script.PAGES:
+		var p: Page = load(str(main_script.PAGES[id])).new()
+		if p.identity != null: own_pages += 1
+		p.free()
+	check(signatures.size() == own_pages and (own_pages == 0 or own_views > own_pages), "P5: every page with its own identity was drawn, in every tab, with a layout signature no other shares (%d pages, %d views: %s)" % [own_pages, own_views, str(signatures)])
 
 ## The arguments the ui_suite opens a page with, when one needs a context: page id -> [args, ...].
 func _ui_contexts(c) -> Dictionary:
@@ -374,6 +393,111 @@ func _ui_contexts(c) -> Dictionary:
 		"training_sect": [{"_setup": func(): c.training_sect.merge({"id": "jade_sect", "rank": str(ranks[maxi(0, ranks.size() - 2)])}, true)}],
 		# In seclusion: the line that says so sits under the focus cards (B22).
 		"seclusion": [{"_setup": func(): c.seclusion["focus"] = "accumulate"}]}
+
+## P5 (docs/page_identity.md §8): one view of a page with its own identity. Every word it draws in plain colour is
+## measured on the ground it sits on: the last ground or panel drawn under its centre (Page.ground, Page.face, Page.panel),
+## else the identity's surface; 4.5:1, or 3:1 from 20 px. Inked and outlined words and button labels are the kit's,
+## measured by the ui_style_suite. The shared parts stay: the close button at the window's top right, the title inked on
+## its mount, a surface from UiKit.SURFACE, a mount Page knows, an opening no longer than OPEN_MOTION_MAX, and a layout
+## signature of its own.
+func _identity_view(pg: Page, where: String, dim_words: Array, unshared: Array, signatures: Dictionary, fills: Dictionary) -> void:
+	var idn: Page.Identity = pg.identity
+	var sig_owner := str(signatures.get(idn.signature, pg.page_id))
+	if sig_owner != pg.page_id: unshared.append("%s shares the signature %s with %s" % [where, idn.signature, sig_owner])
+	signatures[idn.signature] = pg.page_id
+	if not UiKit.SURFACE.has(idn.surface) or not idn.title_mount in ["plaque", "own"] or idn.open_s > Page.OPEN_MOTION_MAX or idn.signature == "":
+		unshared.append("%s declares %s / %s / %.2f s / %s" % [where, idn.surface, idn.title_mount, idn.open_s, idn.signature])
+	var close := Rect2(pg.frame_rect.end.x - 72, pg.frame_rect.position.y + 16, 52, 52)
+	if not pg._regions.any(func(r): return r.id == "_close" and (r.art as Rect2) == close): unshared.append("%s has no close button at %s" % [where, str(close)])
+	if pg.title != "" and not pg.text_log.any(func(tx): return str(tx.s) == pg.title and tx.get("outlined", false)): unshared.append("%s has no inked title" % where)
+	var grounds: Array = []
+	for tx in pg.text_log:
+		if tx.has("ground"):
+			grounds.append(tx)
+			continue
+		var col: Color = tx.get("col", Color.TRANSPARENT)
+		if str(tx.s).strip_edges() == "" or col.a <= 0.0 or tx.get("outlined", false) or tx.get("button", Rect2()) != Rect2(): continue
+		var at: Vector2 = (tx.rect as Rect2).get_center()
+		var bg: Color = UiKit.SURFACE[idn.surface]
+		var on := "surface " + idn.surface
+		for i in range(grounds.size() - 1, -1, -1):
+			if not (grounds[i].rect as Rect2).has_point(at): continue
+			var gd = grounds[i].ground
+			bg = gd if gd is Color else _fill_light(str(gd), fills)
+			on = str(gd)
+			break
+		var need := 3.0 if int(tx.size) >= 20 else 4.5
+		if _contrast(col, bg) < need: dim_words.append("%s \"%s\" on %s %.2f" % [where, str(tx.s).left(24), on, _contrast(col, bg)])
+
+## P5 (docs/page_identity.md §8): the foundation, on a probe page that declares an identity. It draws its own surface in
+## place of the shared window and keeps the shared parts (the close button at the window's top right, the title inked on
+## its own mount, tabs in its own form with their 48 px targets); its words are measured on the ground they sit on, so a
+## word too dim for its ground is caught. It opens by the reduced-motion rule (§6, docs/moments_design.md §4.6): its
+## regions are live from the first frame, it moves over its opening (0.35 s at most) and a tap finishes it; under Reduce
+## motion nothing moves and it only fades in, over 0.2 s. A page with no identity opens as it always did.
+func identity_suite() -> void:
+	var probe := GDScript.new()
+	probe.source_code = "extends Page\nfunc _init() -> void:\n\ttitle = \"Probe\"\n\ttabs = [{\"id\": \"a\", \"label\": \"One\"}, {\"id\": \"b\", \"label\": \"Two\"}]\n" \
+		+ "\tidentity = Identity.new(\"cloth\", false, \"own\", \"probe_signature\", 0.25)\n" \
+		+ "func draw_page() -> void:\n\ttext(Vector2(300, 300), \"dim on cloth\", 14, UiKit.HOLLOW)\n\tground(Rect2(280, 380, 300, 60), UiKit.INK)\n" \
+		+ "\ttext(Vector2(300, 420), \"clear on ink\", 14, UiKit.HOLLOW)\n\tbtn(Rect2(600, 400, 160, 56), \"Act\", \"act\", null, true)\n"
+	probe.reload()
+	var keep = Game.account.settings.get("reduce_motion", false)
+	var got := {}
+	for motion in [false, true]:
+		Game.account.settings["reduce_motion"] = motion
+		var pp: Page = probe.new()
+		pp.text_log = []
+		pp.page_id = "probe"
+		add_child(pp)
+		pp.open({})
+		pp.opened = 0.0
+		pp.queue_redraw()
+		await get_tree().process_frame
+		pp.opened = 0.0
+		if not motion:
+			var dim: Array = []
+			var lost: Array = []
+			_identity_view(pp, "probe", dim, lost, {}, {})
+			check(dim.size() == 1 and str(dim[0]).contains("dim on cloth") and lost.is_empty(),
+				"P5: a word too dim for the page's surface is caught, the same word on a ground it reads on is not (%s; %s)" % [str(dim), str(lost)])
+			check(pp._regions.filter(func(r): return r.id == "_tab" and (r.rect as Rect2).size.y >= Page.MIN_TAP).size() == 2
+				and pp.text_log.any(func(tx): return str(tx.s) == "Probe" and tx.get("outlined", false)),
+				"P5: a page with its own identity keeps its tabs' targets and its title, inked on its own mount")
+		got[motion] = {"unfold0": pp.unfold(), "alpha0": pp._open_alpha(), "live": pp._regions.filter(func(r): return r.id in ["_close", "_tab", "act"]).size()}
+		pp.opened = 0.1
+		got[motion]["unfold_mid"] = pp.unfold()
+		pp.opened = 0.2
+		got[motion]["alpha_02"] = pp._open_alpha()
+		pp.opened = 0.0
+		var press := InputEventMouseButton.new()
+		press.button_index = MOUSE_BUTTON_LEFT
+		press.pressed = true
+		press.position = Vector2(4, 4)
+		pp._gui_input(press)
+		got[motion]["after_tap"] = pp.unfold()
+		got[motion]["alpha_tap"] = pp._open_alpha()
+		pp.queue_free()
+	Game.account.settings["reduce_motion"] = keep
+	var off: Dictionary = got[false]
+	var on: Dictionary = got[true]
+	check(int(off.live) == 4 and int(on.live) == 4, "P5: a page's regions are live from its first frame, in motion or not (%d, %d)" % [int(off.live), int(on.live)])
+	check(float(off.unfold0) == 0.0 and float(off.unfold_mid) > 0.0 and float(off.unfold_mid) < 1.0 and float(off.after_tap) == 1.0 and float(off.alpha_tap) == 1.0,
+		"P5: a page moves over its opening and a tap finishes it (%s)" % str(off))
+	check(float(on.unfold0) == 1.0 and float(on.alpha0) == 0.0 and float(on.alpha_02) == 1.0, "P5: under Reduce motion nothing moves and the page fades in over 0.2 s (%s)" % str(on))
+	var main_script = load("res://scripts/main.gd")
+	var plain: Page = load(str(main_script.PAGES.menu)).new()
+	add_child(plain)
+	plain.open({})
+	await get_tree().process_frame
+	check(plain.identity == null and plain.unfold() == 1.0 and plain.modulate.a == 1.0, "P5: a page with no identity of its own opens as it did, at once")
+	plain.queue_free()
+	var slow: Array = []
+	for id in main_script.PAGES:
+		var p: Page = load(str(main_script.PAGES[id])).new()
+		if p.identity != null and p.identity.open_s > Page.OPEN_MOTION_MAX: slow.append(id)
+		p.free()
+	check(slow.is_empty(), "P5: no page's opening runs past %.2f s (%s)" % [Page.OPEN_MOTION_MAX, str(slow)])
 
 ## P4 (docs/ui_style_guide.md §11): the style guide applied, checked on the sources. Colours are UiKit tokens (§1): no
 ## page, the HUD or Page itself carries a colour literal, only `Color(UiKit.X, alpha)` or a white modulate, and every
@@ -468,6 +592,7 @@ func _lum(c: Color) -> float:
 func _fill_light(spec: String, cache: Dictionary) -> Color:
 	spec = spec.trim_suffix("@ink")
 	if cache.has(spec): return cache[spec][0]
+	if spec.begins_with("surface:"): return UiKit.SURFACE[spec.trim_prefix("surface:")]   # P5: a page's own flat material
 	var asset := spec.get_slice(":", 0)
 	var state := spec.get_slice(":", 1) if spec.contains(":") else "normal"
 	var kit: Dictionary = ContentDB.config("ui_assets_hd")

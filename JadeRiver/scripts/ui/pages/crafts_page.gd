@@ -511,8 +511,8 @@ func _draw_trace(right: Rect2) -> void:
 	draw_rect(trace_rect, UiKit.SURFACE.talisman_edge, false, 3.0)
 	var tpl := _template(trace_rect)
 	if tpl.size() > 1:
-		draw_polyline(tpl, Color(UiKit.SURFACE.cinnabar, 0.35), 14.0)
-		draw_circle(tpl[0], 9, Color(UiKit.SURFACE.cinnabar, 0.7))
+		draw_polyline(tpl, Color(UiKit.SURFACE.cinnabar_ink, 0.35), 14.0)
+		draw_circle(tpl[0], 9, Color(UiKit.SURFACE.cinnabar_ink, 0.7))
 	if trace_pts.size() > 1: draw_polyline(PackedVector2Array(trace_pts), UiKit.SURFACE.brush_ink, 7.0)
 	text(Vector2(right.position.x + 24, right.end.y - 24), Tx.t("ui.crafts.trace_hint"), 18, UiKit.MIST)
 	btn(Rect2(right.end.x - 164, right.position.y + 40, 140, 46), Tx.t("ui.crafts.stop_tracing"), "trace_cancel", null, false, true, "", 16)

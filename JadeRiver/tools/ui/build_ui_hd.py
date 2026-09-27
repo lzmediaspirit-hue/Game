@@ -458,6 +458,125 @@ def hud_ring(size: int, state: str):
 # item rings. hud.gd picks the nearest and scales it to the radius it draws.
 HUD_RING_SIZES = (132, 64, 52, 48)
 
+
+# ------------------------------------------------------------------ P5 page surfaces (docs/page_identity.md §5, §7)
+# Each colour is a UiKit token or a SURFACE mix of two tokens (page_identity §7), so no new hue enters.
+TOKEN = {k: hexc(v) for k, v in {"INK": "#071015", "JADE_SHADOW": "#15514f", "JADE": "#2c9e8f", "BRIGHT_JADE": "#67d6bd",
+         "BRONZE": "#9a6a35", "GOLD": "#e5b84c", "PALE_GOLD": "#ffe6a1", "BLOOD": "#b3202e"}.items()}
+
+
+def mix(a, b, t):
+    """`a` mixed with `t` of `b` (RGBA arrays), as page_identity §7 writes the SURFACE tokens."""
+    return a * (1.0 - t) + b * t
+
+
+LACQUER_S = mix(TOKEN["BLOOD"], TOKEN["INK"], 0.55)        # SURFACE.lacquer #541720
+
+
+def jade_tag(w, h, faces, gold=False, shadow=True):
+    """A jade slip-tag (the Character page's tabs and title): square-ish top, rounder foot, a lit top edge; the title's
+    tag carries a gold inlay."""
+    c = Canvas(w, h)
+    y1 = h - (3.0 if shadow else 1.0)
+    top = sd_rrect(c.X, c.Y, 1.0, 1.0, w - 1.0, y1, 3.0)
+    foot = sd_rrect(c.X, c.Y, 1.0, 1.0, w - 1.0, y1, 10.0)
+    d = np.where(c.Y < h * 0.5, top, foot)
+    if shadow:
+        c.paint(soft(np.maximum(d, 0), 3.0) * (d > 0) * 0.4 * (c.Y > y1 - 9.0), TOKEN["INK"])
+    c.paint(cov(d), c.vgrad(faces, 1.0, y1))
+    c.paint(band(d, 0.0, 1.4), TOKEN["INK"])
+    if gold:
+        c.paint(band(d, 1.4, 3.4), c.vgrad([(0, TOKEN["PALE_GOLD"]), (0.5, TOKEN["GOLD"]), (1, TOKEN["BRONZE"])], 1.0, y1))
+    else:
+        c.paint(band(d, 1.4, 2.4) * (c.Y < 5.0), TOKEN["BRIGHT_JADE"] * np.array([1, 1, 1, 0.35]))
+    return c
+
+
+def _chamfered(c, x0, y0, x1, y1, cut):
+    """A rectangle with its four corners cut at 45 degrees (a lacquered tablet's outline)."""
+    box = sd_rrect(c.X, c.Y, x0, y0, x1, y1, 1.0)
+    corner = np.minimum(c.X - x0, x1 - c.X) + np.minimum(c.Y - y0, y1 - c.Y) - cut
+    return np.maximum(box, -corner / math.sqrt(2))
+
+
+def honour_tablet(w, h, worn=False):
+    """A title as an honour (decision 16): a red lacquer tablet with cut corners, a gold inlay line and a gloss; the worn
+    title's tablet in a gilded frame with a stud at each corner."""
+    c = Canvas(w, h)
+    y1 = h - 3.0
+    d = _chamfered(c, 1.0, 1.0, w - 1.0, y1, 5.0)
+    c.paint(soft(np.maximum(d, 0), 2.5) * (d > 0) * 0.5 * (c.Y > 4.0), TOKEN["INK"])
+    face = [(0, mix(LACQUER_S, TOKEN["BLOOD"], 0.2 if worn else 0.12)), (0.55, LACQUER_S), (1, mix(LACQUER_S, TOKEN["INK"], 0.3))]
+    c.paint(cov(d), c.vgrad(face, 1.0, y1))
+    c.paint(cov(d + 3.0) * np.clip((h * 0.4 - c.Y) / (h * 0.4), 0, 1) ** 1.6, TOKEN["PALE_GOLD"] * np.array([1, 1, 1, 0.08]))
+    c.paint(band(d, 0.0, 1.0), TOKEN["INK"])
+    if worn:
+        gold_bevel(c, d, 1.0, 4.2)
+        c.paint(band(d, 4.2, 5.0), TOKEN["INK"] * np.array([1, 1, 1, 0.6]))
+        for x, y in ((6.0, 6.0), (w - 6.0, 6.0), (6.0, y1 - 5.0), (w - 6.0, y1 - 5.0)):
+            gem(c, x, y, 2.2, jade=False)
+    else:
+        c.paint(band(d, 3.0, 3.8), TOKEN["GOLD"] * np.array([1, 1, 1, 0.75]))
+    return c
+
+
+# The honours' motifs, one a stat family (character_page.gd MOTIF): each a gilt boss with its sign sunk in lacquer.
+MOTIFS = ("blade", "shield", "pearl", "cloud", "peak", "lotus", "coin", "cauldron", "star")
+
+
+def _motif(X, Y, m):
+    """The sign of motif `m` as a distance field in a 32 px boss centred on (16, 16)."""
+    seg = lambda ax, ay, bx, by, wd: sd_segment(X, Y, ax, ay, bx, by, wd)
+
+    def lens(cx, cy, ang, length, width):
+        # A petal or a flame: the lens where two circles overlap, `length` tall and `width` wide, turned by `ang`.
+        u = (X - cx) * math.cos(ang) + (Y - cy) * math.sin(ang)
+        v = -(X - cx) * math.sin(ang) + (Y - cy) * math.cos(ang)
+        r = (length * length / 4.0 + width * width / 4.0) / width
+        off = r - width / 2.0
+        return np.maximum(np.hypot(u - off, v) - r, np.hypot(u + off, v) - r)
+
+    if m == "blade":
+        return np.minimum.reduce([seg(16, 6, 16, 19, 3.2), seg(11, 19.5, 21, 19.5, 2.4), seg(16, 20, 16, 25, 2.2), sd_circle(X, Y, 16, 26.5, 1.7)])
+    if m == "shield":
+        top = sd_rrect(X, Y, 10, 7, 22, 16, 2.0)
+        point = np.maximum(sd_diamond(X, Y, 16, 16, 10.0), np.abs(X - 16) - 6.0)
+        return np.maximum(np.minimum(top, point), -(np.abs(X - 16) - 0.7))
+    if m == "pearl":
+        # The flaming pearl: a pearl with its lit crescent, and a flame rising from it.
+        return np.minimum(np.maximum(sd_circle(X, Y, 16, 19.5, 5.8), -sd_circle(X, Y, 14.2, 17.6, 2.2)), lens(16, 10.5, 0.0, 9.0, 4.2))
+    if m == "cloud":
+        blob = np.minimum.reduce([sd_circle(X, Y, 11.5, 18, 4.0), sd_circle(X, Y, 16.5, 14.5, 5.0), sd_circle(X, Y, 21, 18.5, 3.6), sd_rrect(X, Y, 9, 18, 23, 22, 2.0)])
+        return np.maximum(blob, -(np.abs(sd_circle(X, Y, 16.5, 15, 2.4)) - 0.7))
+    if m == "peak":
+        return np.minimum.reduce([seg(7, 23, 12, 13, 2.4), seg(12, 13, 15.5, 18, 2.4), seg(15.5, 18, 20, 9, 2.4), seg(20, 9, 25, 23, 2.4), seg(7, 23.5, 25, 23.5, 2.0)])
+    if m == "lotus":
+        return np.minimum.reduce([lens(16, 15.5, 0.0, 13.0, 6.0), lens(11.0, 17.5, -0.75, 11.0, 5.0), lens(21.0, 17.5, 0.75, 11.0, 5.0),
+                                  seg(8.5, 23.5, 23.5, 23.5, 2.0)])
+    if m == "coin":
+        return np.maximum(sd_circle(X, Y, 16, 16, 8.5), -sd_rrect(X, Y, 13, 13, 19, 19, 0.8))
+    if m == "cauldron":
+        return np.minimum.reduce([sd_rrect(X, Y, 9.5, 13, 22.5, 21.5, 3.0), seg(9, 12.5, 23, 12.5, 2.0), seg(11.5, 21, 10.5, 25, 2.0), seg(20.5, 21, 21.5, 25, 2.0),
+                                  np.abs(sd_circle(X, Y, 11, 10, 2.2)) - 0.8, np.abs(sd_circle(X, Y, 21, 10, 2.2)) - 0.8])
+    # star: a four-pointed sparkle and a small one beside it.
+    arm = lambda cx, cy, a, b: (np.abs(X - cx) / a + np.abs(Y - cy) / b - 1.0) * min(a, b) * 0.7
+    return np.minimum.reduce([arm(15, 16, 2.6, 9.0), arm(15, 16, 9.0, 2.6), arm(22.5, 9.5, 1.2, 3.4), arm(22.5, 9.5, 3.4, 1.2)])
+
+
+def honour_seal(motif):
+    """A title's motif on a gilt boss, 32 px: a gold disc lit from above, an ink ring, the sign sunk in dark lacquer."""
+    c = Canvas(32, 32)
+    d = sd_circle(c.X, c.Y, 16, 16.5, 14.5)
+    c.paint(cov(sd_circle(c.X, c.Y, 16, 17.5, 14.5)), TOKEN["INK"] * np.array([1, 1, 1, 0.6]))
+    c.paint(cov(d), c.vgrad([(0, TOKEN["PALE_GOLD"]), (0.45, TOKEN["GOLD"]), (1, TOKEN["BRONZE"])], 2, 31))
+    c.paint(band(d, 0.0, 1.0), TOKEN["INK"])
+    c.paint(cov(np.abs(d + 3.0) - 0.45), TOKEN["BRONZE"] * np.array([1, 1, 1, 0.8]))
+    sign = _motif(c.X, c.Y, motif)
+    c.paint(cov(sign - 0.8), TOKEN["PALE_GOLD"] * np.array([1, 1, 1, 0.55]))
+    c.paint(cov(sign), c.vgrad([(0, mix(LACQUER_S, TOKEN["INK"], 0.2)), (1, LACQUER_S)], 6, 27))
+    return c
+
+
 ASSETS = {
     # name: (margins, {state: builder})
     "minor_panel": ([12, 12, 12, 12], {"normal": lambda: panel(48, 48)}),
@@ -483,6 +602,19 @@ ASSETS = {
 }
 for _size in HUD_RING_SIZES:
     ASSETS["hud_ring_%d" % _size] = ([0, 0, 0, 0], {s: (lambda s=s, z=_size: hud_ring(z, s)) for s in ("normal", "pressed", "active")})
+
+# P5 page surfaces (docs/page_identity.md §5): the Character page's jade tags (its tabs and title), its titles as honour
+# tablets (the worn one in a gilded frame) and each title's motif on a gilt boss.
+ASSETS.update({
+    "jade_tag": ([10, 8, 10, 12], {"normal": lambda: jade_tag(48, 48, [(0, mix(TOKEN["JADE_SHADOW"], TOKEN["JADE"], 0.12)), (0.5, TOKEN["JADE_SHADOW"]),
+                                                                     (1, mix(TOKEN["JADE_SHADOW"], TOKEN["INK"], 0.25))]),
+                                   "selected": lambda: jade_tag(48, 48, [(0, mix(TOKEN["JADE"], TOKEN["BRIGHT_JADE"], 0.15)), (0.45, TOKEN["JADE"]),
+                                                                       (1, mix(TOKEN["JADE"], TOKEN["INK"], 0.3))])}),
+    "jade_label": ([12, 12, 12, 12], {"normal": lambda: jade_tag(56, 52, [(0, TOKEN["JADE"]), (0.6, mix(TOKEN["JADE"], TOKEN["INK"], 0.3)),
+                                                                        (1, TOKEN["JADE_SHADOW"])], gold=True)}),
+    "honour_tablet": ([12, 12, 12, 12], {"normal": lambda: honour_tablet(48, 48), "selected": lambda: honour_tablet(48, 48, worn=True)}),
+    "honour_seal": ([0, 0, 0, 0], {m: (lambda m=m: honour_seal(m)) for m in MOTIFS}),
+})
 
 
 def _check_edges(name, state, img, margins):
