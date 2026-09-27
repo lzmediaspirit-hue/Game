@@ -52,9 +52,18 @@ var trace_pts: Array = []
 var trace_t0 := 0.0
 ## The fires under a furnace (gap report G1), in the order the selector shows them.
 const FIRES := ["charcoal", "earth_fire", "beast_fire", "heavenly_flame"]
+## P5 (docs/page_identity.md row 18, mockup 15): where the step strip, the hearth and the controls stand in the window.
+const STRIP := Rect2(96, 172, 1088, 60)
+const HEARTH := Rect2(96, 244, 568, 428)
+const SIDE := Rect2(680, 244, 504, 428)
+const BLOCK_H := 88.0
+## How hot each trade keeps its fire while nothing is played (the rest bank their embers under a plate, paper or chart).
+const HEAT := {"cooking": 0.55, "alchemy": 0.4, "smithing": 0.8}
+var puff_at := -9.0   # when a craft last came out of its vessel (the puff, 0.4 s)
 
 func _init() -> void:
 	title = Tx.t("ui.crafts.crafts")
+	identity = Identity.new("wood_dark", false, "own", "vessel_over_fire_step_strip", 0.3)
 
 func setup() -> void:
 	var ch = c()
@@ -128,131 +137,331 @@ func _process(delta: float) -> void:
 			needle = 0.0
 			needle_dir = 1.0
 
+## P5 (docs/page_identity.md row 18, mockup 15): the hearth. The trade's vessel stands centred over its fire on a brick
+## hearth, its ingredients on the rim above it; the steps run as a strip across the top; the controls at the right change
+## with the step and nothing else moves. The Forge's upkeep and the Guild lay their lists on the workshop wall instead.
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
 	var craft := str(tabs[tab].id)
+	hot_rects.clear()
 	if str(tabs[tab].get("locked", "")) != "":
 		para(Rect2(content.position + Vector2(30, 30), content.size - Vector2(60, 60)), str(tabs[tab].locked), 22, UiKit.MIST)
 		return
-	if craft == "smithing":
-		var mw := (content.size.x) / FORGE_MODES.size()
-		for i in FORGE_MODES.size():
-			var m: String = FORGE_MODES[i]
-			btn(Rect2(content.position.x + i * mw + 2, content.position.y, mw - 4, 48), Tx.t("ui.forge." + m), "forge_mode", m, forge_mode == m, true, "", 18)
-		if forge_mode != "recipes":
-			_forge(ch, Rect2(content.position.x, content.position.y + 56, content.size.x, content.size.y - 56))
-			return
 	if craft == "guild":
 		_guild(ch, content)
 		return
-	hot_rects.clear()
-	if craft == "alchemy" and (not _session().is_empty() or not trib.is_empty()):
-		_furnace_full(ch)
+	_strip(ch, craft)
+	if craft == "smithing" and forge_mode != "recipes":
+		_forge(ch, content)
 		return
-	var top := 56.0 if craft == "smithing" else 0.0
-	var list_r := Rect2(content.position.x, content.position.y + top, 420, content.size.y - top)
-	panel(list_r)
-	var recipes := recipes_for(ch, craft)
-	# S44: the alchemy list also holds the experiment bench and the ancient recipes you have pages of.
-	var extra: Array = []
-	if craft == "alchemy":
-		if Unlocks.is_unlocked(ch.id, "experiments"): extra.append(EXPERIMENT)
-		extra.append_array(Game.crafting.ancient_in_progress(ch))
-	var prof: Dictionary = ch.professions.get(craft, {"rank": "apprentice", "xp": 0})
-	text(Vector2(list_r.position.x + 16, list_r.end.y - 14), "%s · %s" % [str(prof.rank).capitalize(), UiKit.fmt(float(prof.xp))], 16, UiKit.MIST)
-	list("rec", Rect2(list_r.position + Vector2(8, 8), list_r.size - Vector2(16, 40)), extra.size() + recipes.size(), 64, func(i: int, rr: Rect2):
-		if i < extra.size():
-			var xid: String = extra[i]
-			panel(rr, "minor_panel", "selected" if sel == xid else "normal")
-			if xid == EXPERIMENT:
-				slot_box(Rect2(rr.position + Vector2(6, 7), Vector2(SLOT_SMALL, SLOT_SMALL)),"murky_pill")
-				text(rr.position + Vector2(66, 36), Tx.t("ui.crafts.experiment"), 18, UiKit.PALE_GOLD)
-			else:
-				var xr := ContentDB.entry("recipes", xid)
-				slot_box(Rect2(rr.position + Vector2(6, 7), Vector2(SLOT_SMALL, SLOT_SMALL)),"manual_page")
-				text(rr.position + Vector2(66, 28), ContentDB.item_name(str(xr.outputs[0].item)), 18, UiKit.GOLD)
-				text(rr.position + Vector2(66, 50), Tx.t("ui.crafts.pages_held") % [Game.crafting.pages_held(ch, xid), int(xr.get("fragments", 1))], 14, UiKit.MIST)
-			region(rr, "sel", xid)
-			return
-		var r: Dictionary = recipes[i - extra.size()]
-		var out := str(r.outputs[0].item)
-		var why := Game.crafting.recipe_check(ch, str(r.id), 1, craft)
-		panel(rr, "minor_panel", "selected" if sel == str(r.id) else "normal")
-		slot_box(Rect2(rr.position + Vector2(6, 7), Vector2(SLOT_SMALL, SLOT_SMALL)),out)
-		text(rr.position + Vector2(66, 36), ContentDB.item_name(out), 18, UiKit.PAPER if why == "" else UiKit.MIST)
-		region(rr, "sel", str(r.id))
-	)
-	var right := Rect2(list_r.end.x + 20, list_r.position.y, content.end.x - list_r.end.x - 20, list_r.size.y)
-	panel(right)
-	if craft == "alchemy" and sel == EXPERIMENT:
-		_experiment(ch, right)
-		return
-	if craft == "alchemy" and extra.has(sel):
-		_deduce(ch, right)
-		return
-	if sel == "" or ContentDB.entry("recipes", sel).is_empty() or str(ContentDB.entry("recipes", sel).craft) != craft:
-		para(Rect2(right.position + Vector2(24, 30), right.size - Vector2(48, 60)), (Tx.t("ui.crafts.choose_a_recipe_stand_near") % {"cooking": Tx.t("ui.crafts.cooking_pot"), "alchemy": Tx.t("ui.crafts.furnace_word"), "smithing": Tx.t("ui.crafts.forge_word"),
-			"star_charting": Tx.t("ui.crafts.chart_table"), "shipwright": Tx.t("ui.crafts.slipway")}[craft]) if not craft in ["formations", "talisman"] else Tx.t("ui.crafts.choose_a_plate_to_etch") if craft == "formations" else Tx.t("ui.crafts.choose_a_talisman"), 20, UiKit.MIST)
-		if craft == "alchemy": _auto(ch, right)
-		return
+	var live := craft == "alchemy" and (not _session().is_empty() or not trib.is_empty())
+	_hearth(ch, craft, live)
+	WorkshopKit.board(self, SIDE)
+	if live: _furnace_live()
+	else: _recipe_view(ch, craft)
+
+func content_rect() -> Rect2:
+	return Rect2(STRIP.position.x, HEARTH.position.y, STRIP.size.x, HEARTH.size.y)
+
+## The workshop's back wall of dark planks, and the beam the trades' tags hang from.
+func draw_surface(r: Rect2) -> void:
+	WorkshopKit.wall(self, r)
+	WorkshopKit.beam(self, r.position.x + 20, r.end.x - 20, 102)
+
+func draw_title_mount(r: Rect2) -> void:
+	face(r, "timber_sign")
+
+func draw_tab(r: Rect2, i: int, state: String) -> void:
+	WorkshopKit.tag_tab(self, r, str(tabs[i].label), state)
+
+## The craft button's word for each trade.
+func _verb(craft: String) -> String:
+	return {"cooking": Tx.t("ui.crafts.cook"), "alchemy": Tx.t("ui.crafts.to_furnace"), "smithing": Tx.t("ui.crafts.forge"), "formations": Tx.t("ui.crafts.etch"),
+		"talisman": Tx.t("ui.crafts.write"), "star_charting": Tx.t("ui.crafts.chart"), "shipwright": Tx.t("ui.crafts.build")}.get(craft, "")
+
+## The chosen recipe, when it is this trade's.
+func _chosen(craft: String) -> Dictionary:
 	var rec := ContentDB.entry("recipes", sel)
-	var out2 := str(rec.outputs[0].item)
-	slot_box(Rect2(right.position + Vector2(24, 24), Vector2(SLOT, SLOT)),out2, int(rec.outputs[0].count))
-	text(right.position + Vector2(110, 56), ContentDB.item_name(out2), 22, UiKit.grade_color(str(rec.get("grade", "plain"))))
-	para(Rect2(right.position + Vector2(110, 68), Vector2(right.size.x - 130, 44)), str(ContentDB.item(out2).get("desc", "")), 16, UiKit.MIST, 2)
-	var alch := craft == "alchemy"
-	if alch:
-		var steps_all := _screens(sel)
-		var at := steps_all.find(screen) + 1
-		text(Vector2(right.end.x - 324, right.position.y + 30), Tx.t("ui.crafts.step_of") % [at, steps_all.size(), _screen_label(screen)], 16, UiKit.PALE_GOLD,
-			HORIZONTAL_ALIGNMENT_RIGHT, 300)
-	if alch and screen == "furnace":
-		_furnace_screen(ch, right)
+	return rec if not rec.is_empty() and str(rec.get("craft", "")) == craft else {}
+
+## The steps across the top, [id, name, the one thing it asks]: the furnace's screens, or a recipe, its materials and
+## the making.
+func _steps(ch, craft: String) -> Array:
+	var rec := _chosen(craft)
+	if craft == "alchemy":
+		var rs := _session()
+		var recipe := str(rs.get("recipe", sel))
+		var ids: Array = _screens(recipe) if ContentDB.has_entry("recipes", recipe) else ["ingredients", "furnace", "extraction", "fusion", "condensation"]
+		if not trib.is_empty() and not ids.has("tribulation"): ids.append("tribulation")
+		var out: Array = []
+		for id in ids:
+			var sub := Tx.t("ui.crafts.sub_" + str(id)) if not str(id) in ["ingredients", "furnace"] else ""
+			if str(id) == "furnace": sub = Tx.t("ui.crafts.fire_" + str(rs.get("fire", fire)))
+			elif str(id) == "ingredients":
+				sub = Tx.t("ui.crafts.sub_choose")
+				var roles: Array = rec.get("roles", [])
+				var i := roles.find("principal")
+				if i >= 0: sub = Tx.t("ui.crafts.sub_leads") % ContentDB.item_name(str(rec.inputs[i].item))
+			out.append([str(id), _screen_label(str(id)), sub])
+		return out
+	var met := 0
+	for inp in rec.get("inputs", []):
+		if ch.inventory.count(str(inp.item)) >= int(inp.count) * count: met += 1
+	return [["recipe", Tx.t("ui.crafts.step_recipe"), ContentDB.item_name(str(rec.outputs[0].item)) if not rec.is_empty() else Tx.t("ui.crafts.sub_choose")],
+		["materials", Tx.t("ui.crafts.step_materials"), Tx.t("ui.crafts.sub_at_hand") % [met, (rec.inputs as Array).size()] if not rec.is_empty() else ""],
+		["make", _verb(craft), Tx.t("ui.crafts.sub_make_" + craft)]]
+
+func _step_now(ch, craft: String, steps: Array) -> int:
+	if craft == "alchemy":
+		var rs := _session()
+		var cur := "tribulation" if not trib.is_empty() else (str(rs.get("stage", "")) if not rs.is_empty() else screen)
+		for i in steps.size():
+			if str(steps[i][0]) == cur: return i
+		return 0
+	var rec := _chosen(craft)
+	if rec.is_empty(): return 0
+	if game_on or trace_on: return 2
+	for inp in rec.inputs:
+		if ch.inventory.count(str(inp.item)) < int(inp.count) * count: return 1
+	return 2
+
+## The strip across the top: each step's seal (done, now, to come), its name and what it asks; the Forge keeps its six
+## modes there.
+func _strip(ch, craft: String) -> void:
+	WorkshopKit.board(self, STRIP)
+	if craft == "smithing":
+		var mw := (STRIP.size.x - 16) / FORGE_MODES.size()
+		for i in FORGE_MODES.size():
+			var m: String = FORGE_MODES[i]
+			btn(Rect2(STRIP.position.x + 8 + i * mw + 2, STRIP.position.y + 6, mw - 4, 48), Tx.t("ui.forge." + m), "forge_mode", m, forge_mode == m, true, "", 18)
 		return
-	var y := right.position.y + (118 if alch else 124)
+	var steps := _steps(ch, craft)
+	var at := _step_now(ch, craft, steps)
+	var w := STRIP.size.x / steps.size()
+	for i in steps.size():
+		var x := STRIP.position.x + i * w
+		var dot := Vector2(x + 24, STRIP.position.y + 30)
+		var col: Color = UiKit.JADE if i < at else (UiKit.GOLD if i == at else UiKit.SURFACE.wood_dark)
+		if i == at: glow(Rect2(dot - Vector2(24, 24), Vector2(48, 48)), Color(UiKit.GOLD, 0.45 * _halo()))
+		draw_circle(dot, 13.0, UiKit.INK, true, -1.0, true)
+		draw_circle(dot, 11.0, col, true, -1.0, true)
+		if i > at: draw_arc(dot, 10.0, 0, TAU, 24, Color(UiKit.HOLLOW, 0.7), 2.0, true)
+		ground(Rect2(dot - Vector2(9, 9), Vector2(18, 18)), col)
+		text(dot + Vector2(-12, 5), "✓" if i < at else str(i + 1), 14, UiKit.MIST if i > at else UiKit.INK, HORIZONTAL_ALIGNMENT_CENTER, 24)
+		var name_col: Color = UiKit.BRIGHT_JADE if i < at else (UiKit.PALE_GOLD if i == at else UiKit.PAPER)
+		text(Vector2(x + 44, STRIP.position.y + 26), str(steps[i][1]), 18, name_col, HORIZONTAL_ALIGNMENT_LEFT, w - 56)
+		text(Vector2(x + 44, STRIP.position.y + 46), str(steps[i][2]), 14, UiKit.PAPER if i == at else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, w - 56)
+		if i > 0:
+			var ax := x - 4.0
+			var ay := STRIP.position.y + 30
+			draw_colored_polygon(PackedVector2Array([Vector2(ax - 5, ay - 6), Vector2(ax + 3, ay), Vector2(ax - 5, ay + 6)]), UiKit.JADE if i <= at else Color(UiKit.HOLLOW, 0.6))
+
+## The fire's colour: the furnace's chosen fire, else the hearth's embers.
+func _fire_col(craft: String) -> Color:
+	if craft != "alchemy": return UiKit.SURFACE.ember
+	return {"heavenly_flame": UiKit.SKY, "beast_fire": UiKit.RED, "earth_fire": UiKit.SURFACE.flame}.get(str(_session().get("fire", fire)), UiKit.SURFACE.ember) as Color
+
+## The hearth: a dark recess over a brick hearth with its fire mouth, the vessel standing on the slab over the fire, and
+## on the brick the array (alchemy) or the trade's rank at the left and the fire at the right.
+func _hearth(ch, craft: String, live: bool) -> void:
+	var h := HEARTH
+	var recess: Color = UiKit.SURFACE.wood_dark.lerp(UiKit.INK, 0.45)
+	rounded(h.grow(2), 6.0, UiKit.INK)
+	vshade(h, recess, UiKit.INK)
+	ground(h, recess)
+	var block := Rect2(h.position.x, h.end.y - BLOCK_H, h.size.x, BLOCK_H)
+	var cx := h.get_center().x
+	var heat := float(HEAT.get(craft, 0.12))
+	if live and str(play.get("stage", "")) == "extraction": heat = float(play.get("heat", 0.3))
+	var fcol := _fire_col(craft)
+	glow(Rect2(cx - 240, block.position.y - 170, 480, 280), Color(fcol, (0.12 + 0.2 * heat) * _halo()))
+	WorkshopKit.bricks(self, block)
+	var mouth := Rect2(cx - 96, block.position.y + 22, 192, BLOCK_H - 22)
+	draw_colored_polygon(PostKit.arch(mouth, 30.0), UiKit.SURFACE.furnace_mouth)
+	WorkshopKit.fire(self, Vector2(cx, block.end.y - 4), 164.0, heat, fcol, t)
+	draw_rect(Rect2(h.position.x, block.position.y - 4, h.size.x, 8), UiKit.SURFACE.stone.lerp(UiKit.PAPER, 0.18))
+	draw_rect(Rect2(h.position.x, block.position.y + 4, h.size.x, 2), Color(UiKit.INK, 0.6))
+	var arr := str(_session().get("array", array))
+	if craft == "alchemy" and (live or screen == "furnace"): _array_ring(Vector2(cx, block.position.y), arr)
+	# The vessel settles onto its fire as the page opens; a finished craft lifts out of it in a puff.
+	if not (craft == "talisman" and trace_on): _vessel(ch, craft, Vector2(cx, block.position.y + 2 - 28.0 * (1.0 - unfold())))
+	var pk := (t - puff_at) / 0.4
+	if pk >= 0.0 and pk < 1.0 and not UiKit.reduce_motion():
+		for i in 3: glow(Rect2(Vector2(cx - 60 + i * 40, block.position.y - 200 - 60 * pk) - Vector2(30, 30) * (1.0 + pk), Vector2(60, 60) * (1.0 + pk)), Color(UiKit.PAPER, 0.45 * (1.0 - pk)))
+	var side_w := cx - 96 - h.position.x - 24
+	var prof: Dictionary = ch.professions.get(craft, {"rank": "apprentice", "xp": 0})
+	var left := Tx.t("ui.crafts.array_" + arr) if craft == "alchemy" and (live or screen == "furnace") else "%s · %s" % [str(prof.rank).capitalize(), UiKit.fmt(float(prof.xp))]
+	text(Vector2(h.position.x + 16, block.end.y - 18), left, 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, side_w)
+	if craft == "alchemy": text(Vector2(cx + 104, block.end.y - 18), Tx.t("ui.crafts.fire_" + str(_session().get("fire", fire))), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, side_w)
+
+## The array set under the furnace: three rings seen from the side, water's in Qi blue, flame's in ember.
+func _array_ring(c0: Vector2, arr: String) -> void:
+	var col: Color = UiKit.QI if arr == "water" else UiKit.SURFACE.ember
+	move(c0, 0.0, Vector2(1.0, 0.16))
+	for ring in [[230.0, 0.75], [180.0, 0.45], [128.0, 0.6]]: draw_arc(Vector2.ZERO, float(ring[0]), 0, TAU, 64, Color(col, float(ring[1])), 4.0, true)
+	for a in 8: draw_circle(Vector2.from_angle(a * TAU / 8.0) * 230.0, 18.0, Color(col, 0.85))
+	move()
+
+## A prop from the world standing with its foot at `base`, at a whole scale.
+func _prop(id: String, state: String, base: Vector2, k: float) -> void:
+	move(base, 0.0, Vector2(k, k))
+	SpriteCache.draw_prop(self, id, state, 0.0 if UiKit.reduce_motion() else t, Vector2.ZERO)
+	move()
+
+## Each trade's vessel over the fire: the pot, your furnace, the anvil, the plate, the paper, the chart table, the hull.
+func _vessel(ch, craft: String, base: Vector2) -> void:
+	var box := Rect2(base - Vector2(96, 192), Vector2(192, 192))
+	match craft:
+		"cooking": _prop("cooking_pot", "steam", base, 3.0)
+		"smithing": _prop("forge_anvil", "sparks" if game_on else "idle", base, 2.0)
+		"star_charting": _prop("star_chart_table", "idle", base, 2.0)
+		"alchemy":
+			var fu: Dictionary = Game.crafting.furnace_of(ch)
+			if str(fu.get("id", "")) == "" or SpriteCache.draw_icon(self, box, str(fu.id)) == Rect2(): _prop("alchemy_furnace", "lit", base, 3.0)
+		"talisman":
+			var paper := Rect2(base - Vector2(64, 176), Vector2(128, 172))
+			rounded(paper.grow(3), 3.0, UiKit.SURFACE.talisman_edge)
+			rounded(paper, 2.0, UiKit.SURFACE.talisman)
+			var rec := _chosen(craft)
+			var tpl := _template(paper.grow(-16)) if not rec.is_empty() and rec.get("traced", false) else PackedVector2Array()
+			if tpl.size() > 1: draw_polyline(tpl, UiKit.SURFACE.cinnabar_ink, 5.0, true)
+		_:
+			var rec2 := _chosen(craft)
+			icon_at(box, str(rec2.outputs[0].item) if not rec2.is_empty() else "blank_plate")
+
+## The recipe's ingredients along the rim above the vessel: each in its slot with its name and what you hold of it; in
+## the furnace also its role, its nature, what stands in and what Spirit Sense tells (a tap on a slot that can take a
+## stand-in swaps it).
+func _rim(ch, craft: String) -> void:
+	var rec := _chosen(craft)
+	if rec.is_empty(): return
+	var alch := craft == "alchemy"
 	var inputs: Array = Game.crafting.inputs_with(sel, subst) if alch else rec.inputs
 	var roles: Array = rec.get("roles", [])
 	var can_swap: bool = alch and int(ch.cultivator.daos.get("alchemy", {}).get("tier", 0)) >= int(Game.crafting.upkeep("substitute_tier", 5))
+	var n := maxi(1, inputs.size())
+	var cw := minf(132.0, (HEARTH.size.x - 32) / n)
+	var x0 := HEARTH.get_center().x - cw * n * 0.5
 	for i in inputs.size():
 		var inp: Dictionary = inputs[i]
-		var have = ch.inventory.count(str(inp.item))
+		var cx := x0 + cw * (i + 0.5)
+		var sr := Rect2(cx - SLOT * 0.5, HEARTH.position.y + 12, SLOT, SLOT)
+		var have: int = ch.inventory.count(str(inp.item))
 		var need := int(inp.count) * count
-		slot_box(Rect2(right.position.x + 24, y, SLOT_SMALL, SLOT_SMALL), str(inp.item))
-		var name_y := y + 22 if alch else y + 30
-		text(Vector2(right.position.x + 90, name_y), "%s  %d / %d" % [ContentDB.item_name(str(inp.item)), have, need], 18, UiKit.BRIGHT_JADE if have >= need else UiKit.RED_TEXT)
-		if alch:
-			# S44: each slot's role, the herb's nature, and what stands in for what.
-			var bits: Array = []
-			if i < roles.size(): bits.append(Tx.t("ui.crafts.role_" + str(roles[i])))
-			var nat := str(ContentDB.item(str(inp.item)).get("nature", ""))
-			if nat in ["hot", "cold"]: bits.append(Tx.t("ui.crafts.nature_" + nat))
-			var orig := str(rec.inputs[i].item)
-			if orig != str(inp.item): bits.append(Tx.t("ui.crafts.stands_in") % ContentDB.item_name(orig))
-			bits.append_array(_sense_bits(ch, str(inp.item)))
-			text(Vector2(right.position.x + 90, y + 42), "  ·  ".join(bits), 14, UiKit.PALE_GOLD if orig != str(inp.item) else UiKit.MIST)
-			if can_swap and str(ContentDB.item(orig).get("type", "")) == "herb" and not Game.crafting.substitutes_for(ch, sel, orig).is_empty() \
-					and (subst.is_empty() or str(subst.get("from", "")) == orig):
-				btn(Rect2(right.end.x - 118, y + 4, 94, 40), Tx.t("ui.crafts.swap"), "swap", orig, false, true, "", 16)
-		y += 54 if alch else 60
-	if alch:
-		var clash: Dictionary = Game.crafting.conflict_in(inputs)
+		slot_box(sr, str(inp.item))
+		text(Vector2(cx - cw * 0.5 + 2, sr.end.y + 20), ContentDB.item_name(str(inp.item)), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, cw - 4)
+		text(Vector2(cx - cw * 0.5 + 2, sr.end.y + 40), "%d / %d" % [have, need], 16, UiKit.BRIGHT_JADE if have >= need else UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_CENTER, cw - 4)
+		if not alch: continue
+		var bits: Array = []
+		if i < roles.size(): bits.append(Tx.t("ui.crafts.role_" + str(roles[i])))
+		var nat := str(ContentDB.item(str(inp.item)).get("nature", ""))
+		if nat in ["hot", "cold"]: bits.append(Tx.t("ui.crafts.nature_" + nat))
+		var orig := str(rec.inputs[i].item)
+		if orig != str(inp.item): bits.append(Tx.t("ui.crafts.stands_in") % ContentDB.item_name(orig))
+		bits.append_array(_sense_bits(ch, str(inp.item)))
+		var swappable: bool = can_swap and str(ContentDB.item(orig).get("type", "")) == "herb" and not Game.crafting.substitutes_for(ch, sel, orig).is_empty() \
+				and (subst.is_empty() or str(subst.get("from", "")) == orig)
+		if swappable:
+			bits.append(Tx.t("ui.crafts.swap"))
+			region(sr, "swap", orig)
+		text(Vector2(cx - cw * 0.5 + 2, sr.end.y + 58), " · ".join(bits), 14, UiKit.PALE_GOLD if orig != str(inp.item) or swappable else UiKit.GOLD, HORIZONTAL_ALIGNMENT_CENTER, cw - 4)
+
+## The card's head: what the recipe makes, in its slot, and its name in its grade's colour.
+func _card_head(rec: Dictionary, n := 0) -> void:
+	var out := str(rec.outputs[0].item)
+	slot_box(Rect2(SIDE.position + Vector2(16, 14), Vector2(SLOT, SLOT)), out, n)
+	text(SIDE.position + Vector2(108, 40), ContentDB.item_name(out), 22, UiKit.grade_color(str(rec.get("grade", "plain"))), HORIZONTAL_ALIGNMENT_LEFT, SIDE.size.x - 124)
+
+## The bronze rule under the card.
+func _divider() -> void:
+	draw_line(Vector2(SIDE.position.x + 16, SIDE.position.y + 104), Vector2(SIDE.end.x - 16, SIDE.position.y + 104), Color(UiKit.BRONZE, 0.6), 2.0)
+
+## The card at the top of the controls: what the chosen recipe makes, or where to begin. Returns where the step's
+## controls start.
+func _card(ch, craft: String) -> float:
+	var s := SIDE
+	var rec := _chosen(craft)
+	if rec.is_empty():
+		para(Rect2(s.position + Vector2(20, 16), Vector2(s.size.x - 40, 84)), (Tx.t("ui.crafts.choose_a_recipe_stand_near") % {"cooking": Tx.t("ui.crafts.cooking_pot"), "alchemy": Tx.t("ui.crafts.furnace_word"),
+			"smithing": Tx.t("ui.crafts.forge_word"), "star_charting": Tx.t("ui.crafts.chart_table"), "shipwright": Tx.t("ui.crafts.slipway")}[craft]) if not craft in ["formations", "talisman"] \
+			else Tx.t("ui.crafts.choose_a_plate_to_etch") if craft == "formations" else Tx.t("ui.crafts.choose_a_talisman"), 18, UiKit.MIST, 3)
+	else:
+		var out := str(rec.outputs[0].item)
+		_card_head(rec, int(rec.outputs[0].count))
+		var clash: Dictionary = Game.crafting.conflict_in(Game.crafting.inputs_with(sel, subst)) if craft == "alchemy" else {}
 		if not clash.is_empty() and (ch.crafting.get("known_conflicts", []) as Array).has(str(clash.id)):
-			text(Vector2(right.end.x - 24 - UiKit.text_width(Tx.t("ui.crafts.conflict_warning"), 16), right.position.y + 118 - 6), Tx.t("ui.crafts.conflict_warning"), 16, UiKit.RED_TEXT)
-	if craft in ["cooking", "alchemy", "formations"]:
-		btn(Rect2(right.position.x + 24, right.end.y - 140, 56, 50), "−", "count", -1)
-		text(Vector2(right.position.x + 84, right.end.y - 104), "×%d" % count, 22, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 70)
-		btn(Rect2(right.position.x + 158, right.end.y - 140, 56, 50), "+", "count", 1)
-	var why2 := Game.crafting.recipe_check(ch, sel, count, craft, Game.crafting.inputs_with(sel, subst) if alch else [])
-	if game_on: _draw_minigame(Rect2(right.position.x + 24, right.end.y - 210, right.size.x - 48, 60))
-	if craft == "talisman" and trace_on:
-		_draw_trace(right)
+			para(Rect2(s.position + Vector2(108, 50), Vector2(s.size.x - 124, 44)), Tx.t("ui.crafts.conflict_warning"), 16, UiKit.RED_TEXT, 2)
+		else:
+			para(Rect2(s.position + Vector2(108, 50), Vector2(s.size.x - 124, 44)), str(ContentDB.item(out).get("desc", "")), 16, UiKit.MIST, 2)
+	_divider()
+	return s.position.y + 112
+
+## The recipe views: the rim over the vessel, the card, and at the right the recipe book (or the furnace's fire and
+## array, the strike band, the tracing), the batch and the craft button at its foot.
+func _recipe_view(ch, craft: String) -> void:
+	var s := SIDE
+	var alch := craft == "alchemy"
+	var recipes := recipes_for(ch, craft)
+	# S44: the alchemy list also holds the experiment bench and the ancient recipes you have pages of.
+	var extra: Array = []
+	if alch:
+		if Unlocks.is_unlocked(ch.id, "experiments"): extra.append(EXPERIMENT)
+		extra.append_array(Game.crafting.ancient_in_progress(ch))
+	var special := alch and (sel == EXPERIMENT or extra.has(sel))
+	var rec: Dictionary = {} if special else _chosen(craft)
+	if craft == "talisman" and trace_on: _draw_trace()
+	elif not rec.is_empty(): _rim(ch, craft)
+	elif alch and not special: _auto(ch, Rect2(HEARTH.position, Vector2(HEARTH.size.x, 200)))
+	var y := s.position.y + 112 if special else _card(ch, craft)
+	if alch and screen == "furnace" and not rec.is_empty():
+		_furnace_screen(ch, Rect2(s.position.x, y, s.size.x, s.end.y - y))
 		return
-	var label = {"cooking": Tx.t("ui.crafts.cook"), "alchemy": Tx.t("ui.crafts.to_furnace"), "smithing": Tx.t("ui.crafts.forge"), "formations": Tx.t("ui.crafts.etch"),
-		"talisman": Tx.t("ui.crafts.write"), "star_charting": Tx.t("ui.crafts.chart"), "shipwright": Tx.t("ui.crafts.build")}[craft]
-	btn(Rect2(right.end.x - 244, right.end.y - 76, 220, 58), Tx.t("ui.crafts.strike") if game_on else label, "strike" if game_on else "craft", null, true, why2 == "" or game_on, why2)
-	if craft == "alchemy" and Unlocks.is_unlocked(ch.id, "auto_refine") and not game_on:
-		btn(Rect2(right.end.x - 474, right.end.y - 76, 220, 58), Tx.t("ui.crafts.queue_batch"), "queue", null, false, why2 == "", why2)
+	if trace_on:
+		para(Rect2(s.position.x + 20, y + 12, s.size.x - 40, 90), Tx.t("ui.crafts.trace_hint"), 18, UiKit.MIST, 4)
+		btn(Rect2(s.end.x - 216, s.end.y - 72, 200, 56), Tx.t("ui.crafts.stop_tracing"), "trace_cancel", null, false, true, "", 18)
+		return
+	var foot := s.end.y - 80
+	if game_on:
+		text(Vector2(s.position.x + 24, y + 28), Tx.t("ui.crafts.sub_make_smithing"), 18, UiKit.PALE_GOLD)
+		_draw_minigame(Rect2(s.position.x + 24, y + 48, s.size.x - 48, 60))
+	else:
+		list("rec", Rect2(s.position.x + 12, y, s.size.x - 20, foot - y - 8), extra.size() + recipes.size(), 56, func(i: int, rr: Rect2):
+			if i < extra.size():
+				var xid: String = extra[i]
+				panel(rr, "minor_panel", "selected" if sel == xid else "normal")
+				if xid == EXPERIMENT:
+					slot_box(Rect2(rr.position + Vector2(4, 4), Vector2(SLOT_SMALL, SLOT_SMALL)), "murky_pill")
+					text(rr.position + Vector2(60, 33), Tx.t("ui.crafts.experiment"), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 70)
+				else:
+					var xr := ContentDB.entry("recipes", xid)
+					slot_box(Rect2(rr.position + Vector2(4, 4), Vector2(SLOT_SMALL, SLOT_SMALL)), "manual_page")
+					text(rr.position + Vector2(60, 23), ContentDB.item_name(str(xr.outputs[0].item)), 18, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 70)
+					text(rr.position + Vector2(60, 43), Tx.t("ui.crafts.pages_held") % [Game.crafting.pages_held(ch, xid), int(xr.get("fragments", 1))], 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 70)
+				region(rr, "sel", xid)
+				return
+			var r: Dictionary = recipes[i - extra.size()]
+			var out := str(r.outputs[0].item)
+			var why := Game.crafting.recipe_check(ch, str(r.id), 1, craft)
+			panel(rr, "minor_panel", "selected" if sel == str(r.id) else "normal")
+			slot_box(Rect2(rr.position + Vector2(4, 4), Vector2(SLOT_SMALL, SLOT_SMALL)), out)
+			text(rr.position + Vector2(60, 33), ContentDB.item_name(out), 18, UiKit.PAPER if why == "" else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 70)
+			region(rr, "sel", str(r.id))
+		)
+	if special:
+		if sel == EXPERIMENT: _experiment(ch, foot)
+		else: _deduce(ch, foot)
+		return
+	if rec.is_empty(): return
+	if craft in ["cooking", "alchemy", "formations"] and not game_on:
+		btn(Rect2(s.position.x + 16, foot + 12, 48, 56), "−", "count", -1)
+		text(Vector2(s.position.x + 64, foot + 48), "×%d" % count, 22, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 56)
+		btn(Rect2(s.position.x + 120, foot + 12, 48, 56), "+", "count", 1)
+	var why2 := Game.crafting.recipe_check(ch, sel, count, craft, Game.crafting.inputs_with(sel, subst) if alch else [])
+	var queue := alch and Unlocks.is_unlocked(ch.id, "auto_refine") and not game_on
+	var mw := 172.0 if queue else 220.0
+	btn(Rect2(s.end.x - 16 - mw, foot + 8, mw, BTN_H_MAIN), Tx.t("ui.crafts.strike") if game_on else _verb(craft), "strike" if game_on else "craft", null, true, why2 == "" or game_on, why2)
+	if queue: btn(Rect2(s.end.x - 16 - mw - 136, foot + 12, 128, 56), Tx.t("ui.crafts.queue_batch"), "queue", null, false, why2 == "", why2)
 
 # ------------------------------------------------------------------ the Forge's upkeep (S47)
 ## Every piece of equipment you have: worn first, then the bag.
@@ -504,9 +713,10 @@ func _template(r: Rect2) -> PackedVector2Array:
 	for p in tal.get("strokes", []): out.append(r.position + Vector2(float(p[0]), float(p[1])) * r.size)
 	return out
 
-func _draw_trace(right: Rect2) -> void:
-	var side := minf(right.size.x - 48, right.size.y - 150)
-	trace_rect = Rect2(right.position.x + (right.size.x - side) / 2.0, right.position.y + 110, side, side)
+## The talisman's paper laid over the hearth in the vessel's place, its stroke to trace.
+func _draw_trace() -> void:
+	var side := HEARTH.size.y - BLOCK_H - 40
+	trace_rect = Rect2(HEARTH.get_center().x - side / 2.0, HEARTH.position.y + 20, side, side)
 	draw_rect(trace_rect, UiKit.SURFACE.talisman)
 	draw_rect(trace_rect, UiKit.SURFACE.talisman_edge, false, 3.0)
 	var tpl := _template(trace_rect)
@@ -514,8 +724,6 @@ func _draw_trace(right: Rect2) -> void:
 		draw_polyline(tpl, Color(UiKit.SURFACE.cinnabar_ink, 0.35), 14.0)
 		draw_circle(tpl[0], 9, Color(UiKit.SURFACE.cinnabar_ink, 0.7))
 	if trace_pts.size() > 1: draw_polyline(PackedVector2Array(trace_pts), UiKit.SURFACE.brush_ink, 7.0)
-	text(Vector2(right.position.x + 24, right.end.y - 24), Tx.t("ui.crafts.trace_hint"), 18, UiKit.MIST)
-	btn(Rect2(right.end.x - 164, right.position.y + 40, 140, 46), Tx.t("ui.crafts.stop_tracing"), "trace_cancel", null, false, true, "", 16)
 
 ## How the stroke went: its mean and worst distance from the path (as a share of the paper), whether it began at
 ## the red dot and ran to the end, and its pace. A stroke that strays too far or stops short is broken.
@@ -553,6 +761,7 @@ func _finish_trace() -> void:
 	trace_pts = []
 	if r.get("ok", false):
 		Audio.play("technique", "UI")
+		puff_at = t
 		flash(Tx.t("ui.crafts.quality_made") % [str(r.quality).replace("_", " ").capitalize(), int(r.count)])
 	elif str(r.get("text", "")) != "": flash(str(r.text))
 
@@ -589,7 +798,7 @@ func _gui_input(event: InputEvent) -> void:
 func _auto(ch, right: Rect2) -> void:
 	var q: Array = ch.crafting.get("auto_queue", [])
 	if q.is_empty(): return
-	var y := right.position.y + 120
+	var y := right.position.y + 30
 	text(Vector2(right.position.x + 24, y), Tx.t("ui.crafts.auto_refine_batches"), 20, UiKit.GOLD)
 	for b in q:
 		y += 30
@@ -598,47 +807,57 @@ func _auto(ch, right: Rect2) -> void:
 	btn(Rect2(right.position.x + 24, y + 20, 200, 50), Tx.t("ui.crafts.collect"), "collect", null, true)
 
 # ------------------------------------------------------------------ S44 experiments, Deduce and the guild
-func _experiment(ch, r: Rect2) -> void:
-	para(Rect2(r.position + Vector2(24, 20), Vector2(r.size.x - 48, 70)), Tx.t("ui.crafts.experiment_help"), 18, UiKit.MIST)
+## The experiment bench (S44): the herbs you carry laid along the rim to choose from; what it is and whether the mix was
+## tried at the right, Experiment at the foot.
+func _experiment(ch, foot: float) -> void:
+	var s := SIDE
+	para(Rect2(s.position + Vector2(20, 12), Vector2(s.size.x - 40, 88)), Tx.t("ui.crafts.experiment_help"), 14, UiKit.MIST, 4)
+	_divider()
 	var herbs: Array = []
 	for it in ContentDB.all("items"):
 		if str(it.get("type", "")) == "herb" and ch.inventory.count(str(it.id)) > 0: herbs.append(str(it.id))
+	var area := Rect2(HEARTH.position.x + 12, HEARTH.position.y + 12, HEARTH.size.x - 20, 168)
+	if herbs.is_empty(): para(area.grow(-8), Tx.t("ui.crafts.experiment_no_herbs"), 18, UiKit.HOLLOW)
 	var cols := 5
-	for i in herbs.size():
-		var h: String = herbs[i]
-		var hr := Rect2(r.position.x + 24 + (i % cols) * 108, r.position.y + 96 + (i / cols) * 96, 96, 86)
-		panel(hr, "minor_panel", "selected" if exp_herbs.has(h) else "normal")
-		slot_box(Rect2(hr.position + Vector2(26, 8), Vector2(SLOT_SMALL, SLOT_SMALL)), h, ch.inventory.count(h))
-		text(hr.position + Vector2(0, 76), fit(ContentDB.item_name(h), 14, 94), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 96)
-		region(hr, "exp_herb", h)
-	var y := r.position.y + 96 + ceili(herbs.size() / float(cols)) * 96 + 10
-	if herbs.is_empty(): para(Rect2(r.position.x + 24, r.position.y + 100, r.size.x - 48, 60), Tx.t("ui.crafts.experiment_no_herbs"), 18, UiKit.HOLLOW)
+	var cell := (area.size.x - GUTTER) / cols
+	list("herbs", area, ceili(herbs.size() / float(cols)), 88, func(row: int, rr: Rect2):
+		for k in cols:
+			var i := row * cols + k
+			if i >= herbs.size(): break
+			var h: String = herbs[i]
+			var hr := Rect2(rr.position.x + k * cell, rr.position.y, cell - 6, rr.size.y)
+			panel(hr, "minor_panel", "selected" if exp_herbs.has(h) else "normal")
+			slot_box(Rect2(hr.get_center().x - SLOT_SMALL * 0.5, hr.position.y + 6, SLOT_SMALL, SLOT_SMALL), h, ch.inventory.count(h))
+			text(Vector2(hr.position.x + 2, hr.position.y + 72), ContentDB.item_name(h), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, hr.size.x - 4)
+			region(hr, "exp_herb", h)
+	)
 	var why := ""
 	if exp_herbs.size() < 2: why = Tx.t("sim.crafting.experiment_count")
 	else:
 		var seen: Dictionary = Game.crafting.experiment_logged(CraftingAuthority.experiment_key(exp_herbs))
 		if not seen.is_empty(): why = Tx.t("sim.crafting.experiment_tried") % Game.crafting.experiment_result_text(seen)
-	if why != "" and exp_herbs.size() >= 2: text(Vector2(r.position.x + 24, y + 20), why, 16, UiKit.GOLD)
-	text(Vector2(r.position.x + 24, r.end.y - 96), Tx.plural("ui.crafts.experiment_log", Game.account.experiments.size()) % Game.account.experiments.size(), 16, UiKit.MIST)
-	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.crafts.experiment_go"), "experiment", null, true, why == "", why)
+	var tw := s.size.x - 32 - 236
+	para(Rect2(s.position.x + 16, foot + 6, tw, 40), Tx.plural("ui.crafts.experiment_log", Game.account.experiments.size()) % Game.account.experiments.size(), 14, UiKit.MIST, 2)
+	if why != "" and exp_herbs.size() >= 2: text(Vector2(s.position.x + 16, foot + 64), why, 14, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, tw)
+	btn(Rect2(s.end.x - 16 - 220, foot + 8, 220, BTN_H_MAIN), Tx.t("ui.crafts.experiment_go"), "experiment", null, true, why == "", why)
 
-func _deduce(ch, r: Rect2) -> void:
+## Deduce (S44): an ancient recipe you hold pages of, its ingredients on the rim, the chance and Deduce at the foot.
+func _deduce(ch, foot: float) -> void:
+	var s := SIDE
 	var rec := ContentDB.entry("recipes", sel)
 	var out := str(rec.outputs[0].item)
-	slot_box(Rect2(r.position + Vector2(24, 24), Vector2(SLOT, SLOT)),out)
-	text(r.position + Vector2(110, 56), ContentDB.item_name(out), 22, UiKit.grade_color(str(rec.get("grade", "plain"))))
 	var held: int = Game.crafting.pages_held(ch, sel)
-	text(r.position + Vector2(110, 84), Tx.t("ui.crafts.pages_held") % [held, int(rec.get("fragments", 1))], 16, UiKit.MIST)
-	para(Rect2(r.position + Vector2(24, 116), Vector2(r.size.x - 48, 90)), Tx.t("ui.crafts.deduce_help"), 18, UiKit.MIST)
-	var y := r.position.y + 210
-	for inp in rec.inputs:
-		y = _cost_line(r, y, str(inp.item), int(inp.count))
+	text(s.position + Vector2(20, 34), ContentDB.item_name(out), 22, UiKit.grade_color(str(rec.get("grade", "plain"))), HORIZONTAL_ALIGNMENT_LEFT, s.size.x - 190)
+	text(Vector2(s.end.x - 180, s.position.y + 34), Tx.t("ui.crafts.pages_held") % [held, int(rec.get("fragments", 1))], 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 164)
+	para(Rect2(s.position + Vector2(20, 44), Vector2(s.size.x - 40, 58)), Tx.t("ui.crafts.deduce_help"), 14, UiKit.MIST, 3)
+	_divider()
+	_rim(ch, "alchemy")
 	var chance: float = Game.crafting.deduce_chance(ch, sel)
-	text(Vector2(r.position.x + 24, y + 26), Tx.t("ui.crafts.deduce_chance") % int(round(chance * 100)), 20, UiKit.PAPER)
+	text(Vector2(s.position.x + 16, foot + 46), Tx.t("ui.crafts.deduce_chance") % int(round(chance * 100)), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, s.size.x - 32 - 236)
 	var why := ""
 	for inp in rec.inputs:
 		if ch.inventory.count(str(inp.item)) < int(inp.count): why = Tx.t("sim.crafting.missing") % ContentDB.item_name(str(inp.item))
-	btn(Rect2(r.end.x - 244, r.end.y - 76, 220, 58), Tx.t("ui.crafts.deduce"), "deduce", null, true, why == "", why)
+	btn(Rect2(s.end.x - 16 - 220, foot + 8, 220, BTN_H_MAIN), Tx.t("ui.crafts.deduce"), "deduce", null, true, why == "", why)
 
 func _guild(ch, content_r: Rect2) -> void:
 	var open: Array = Game.crafting.guilds_open(ch)
@@ -646,12 +865,13 @@ func _guild(ch, content_r: Rect2) -> void:
 	if not open.any(func(g): return str(g.craft) == guild_craft): guild_craft = str(open[0].craft)
 	var craft := guild_craft
 	var g: Dictionary = Game.crafting.guild_def(craft)
-	# One button per open guild across the top.
-	var bw := minf(260.0, (content_r.size.x - 12.0 * (open.size() - 1)) / open.size())
+	# One button per open guild along the strip.
+	WorkshopKit.board(self, STRIP)
+	var bw := minf(260.0, (STRIP.size.x - 16.0 - 12.0 * (open.size() - 1)) / open.size())
 	for i in open.size():
-		btn(Rect2(content_r.position.x + i * (bw + 12), content_r.position.y, bw, 48), str(open[i].name), "guild_pick", str(open[i].craft),
+		btn(Rect2(STRIP.position.x + 8 + i * (bw + 12), STRIP.position.y + 6, bw, 48), str(open[i].name), "guild_pick", str(open[i].craft),
 			str(open[i].craft) == craft, true, "", 18)
-	var top := content_r.position.y + 58
+	var top := content_r.position.y
 	var left := Rect2(content_r.position.x, top, 540, content_r.end.y - top)
 	var right := Rect2(left.end.x + 20, top, content_r.end.x - left.end.x - 20, left.size.y)
 	panel(left)
@@ -889,6 +1109,7 @@ func on_action(id: String, data) -> void:
 			if DIRECT.has(craft):
 				var r := submit({"type": DIRECT[craft], "recipe": sel, "count": count if craft in ["cooking", "formations"] else 1})
 				if r.get("ok", false):
+					puff_at = t
 					Audio.play("cook" if craft == "cooking" else "forge", "UI")
 					flash({"cooking": Tx.t("ui.crafts.cooked"), "formations": Tx.t("ui.crafts.etched"), "star_charting": Tx.t("ui.crafts.charted"),
 						"shipwright": Tx.t("ui.crafts.built")}[craft] % int(r.count))
@@ -1063,87 +1284,84 @@ func _sense_bits(ch, item: String) -> Array:
 		else: out.append(Tx.t("ui.crafts.sense_sound") % sealed)
 	return out
 
-## Screen 2 · the Furnace: the furnace you carry, the fire under it (G1) and the array set beneath it.
-func _furnace_screen(ch, right: Rect2) -> void:
-	var x := right.position.x + 24
-	var y := right.position.y + 136
+## Screen 2 · the Furnace, at the right under the card: the furnace you carry, the fire under it (G1) and the array set
+## beneath it (drawn round the furnace's foot on the hearth).
+func _furnace_screen(ch, r: Rect2) -> void:
+	var x := r.position.x + 16
+	var w := r.size.x - 32
+	var y := r.position.y
 	var fu: Dictionary = Game.crafting.furnace_of(ch)
 	if fu.get("cracked", false):
-		text(Vector2(x, y), ContentDB.item_name(str(fu.id)), 18, UiKit.RED_TEXT)
-		text(Vector2(x, y + 24), Tx.t("sim.crafting.furnace_cracked") % ContentDB.item_name(str(fu.id)), 16, UiKit.RED_TEXT)
+		text(Vector2(x, y + 18), ContentDB.item_name(str(fu.id)), 18, UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_LEFT, w)
+		text(Vector2(x, y + 40), Tx.t("sim.crafting.furnace_cracked") % ContentDB.item_name(str(fu.id)), 16, UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_LEFT, w)
 	elif str(fu.get("id", "")) != "":
-		text(Vector2(x, y), ContentDB.item_name(str(fu.id)) + ("" if str(fu.get("element", "")) == "" else "  ·  " + Tx.t("ui.crafts.furnace_element") % str(fu.element).capitalize()), 18, UiKit.PALE_GOLD)
-		text(Vector2(x, y + 24), Tx.t("ui.crafts.furnace_stats") % [int(fu.get("batch", 1)), int(round(float(fu.get("band", 0.0)) * 100)),
-			int(round(float(fu.get("filter", 0.0)) * 100)), int(round(float(fu.get("yield", 0.0)) * 100))], 16, UiKit.MIST)
+		text(Vector2(x, y + 18), ContentDB.item_name(str(fu.id)) + ("" if str(fu.get("element", "")) == "" else "  ·  " + Tx.t("ui.crafts.furnace_element") % str(fu.element).capitalize()), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, w)
+		text(Vector2(x, y + 40), Tx.t("ui.crafts.furnace_stats") % [int(fu.get("batch", 1)), int(round(float(fu.get("band", 0.0)) * 100)),
+			int(round(float(fu.get("filter", 0.0)) * 100)), int(round(float(fu.get("yield", 0.0)) * 100))], 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, w)
 	else:
-		text(Vector2(x, y + 12), Tx.t("ui.crafts.no_furnace"), 16, UiKit.MIST)
+		text(Vector2(x, y + 28), Tx.t("ui.crafts.no_furnace"), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, w)
 	# The fire, and how wide it (with the furnace, your control and the array) makes the heat band.
 	var have: Array = Game.crafting.fires_available(ch)
 	if not fire in have: fire = "charcoal"
 	var need_fire := str(ContentDB.entry("recipes", sel).get("fire", ""))
 	if need_fire != "" and need_fire in have: fire = need_fire   # a pill that takes only one fire (S48)
-	y += 60
+	y += 70
 	text(Vector2(x, y), Tx.t("ui.crafts.fire"), 16, UiKit.GOLD)
 	var band_w: float = Game.crafting.heat_band(ch, fire, sel, array, subst)
-	text(Vector2(right.end.x - 324, y), Tx.t("ui.crafts.heat_band") % int(round(band_w * 100)), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, 300)
-	var fw := (right.size.x - 48 - 24) / 4.0
+	text(Vector2(x + 120, y), Tx.t("ui.crafts.heat_band") % int(round(band_w * 100)), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_RIGHT, w - 120)
+	var fw := (w - 24) / 4.0
 	for i in FIRES.size():
 		var f: String = FIRES[i]
-		btn(Rect2(x + i * (fw + 8), y + 10, fw, 48), Tx.t("ui.crafts.fire_" + f), "fire", f, fire == f, f in have, Tx.t("ui.crafts.fire_" + f + "_locked"), 18)
+		btn(Rect2(x + i * (fw + 8), y + 8, fw, 48), Tx.t("ui.crafts.fire_" + f), "fire", f, fire == f, f in have, Tx.t("ui.crafts.fire_" + f + "_locked"), 16)
 	# The array: the one that answers the principal herb widens every heat band.
-	y += 90
+	y += 76
 	var suits: String = Game.crafting.suited_array(sel, subst)
 	text(Vector2(x, y), Tx.t("ui.crafts.array"), 16, UiKit.GOLD)
-	if suits != "": text(Vector2(right.end.x - 324, y), Tx.t("ui.crafts.array_suits") % Tx.t("ui.crafts.array_" + suits), 16, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_RIGHT, 300)
-	var aw := (right.size.x - 48 - 8) / 2.0
+	if suits != "": text(Vector2(x + 120, y), Tx.t("ui.crafts.array_suits") % Tx.t("ui.crafts.array_" + suits), 16, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_RIGHT, w - 120)
+	var aw := (w - 8) / 2.0
 	for i in 2:
 		var a: String = ["water", "flame"][i]
-		btn(Rect2(x + i * (aw + 8), y + 10, aw, 48), Tx.t("ui.crafts.array_" + a), "arr", a, array == a, true, "", 18)
-	para(Rect2(x, y + 70, right.size.x - 48, 44), Tx.t("ui.crafts.array_hint_" + ({"water": "hot", "flame": "cold"}.get(suits, "neutral") as String)), 16, UiKit.MIST, 2)
-	btn(Rect2(x, right.end.y - 76, 200, 58), Tx.t("ui.crafts.back_ingredients"), "to_ingredients", null, false, true, "", 18)
+		btn(Rect2(x + i * (aw + 8), y + 8, aw, 48), Tx.t("ui.crafts.array_" + a), "arr", a, array == a, true, "", 18)
+	para(Rect2(x, y + 60, w, 40), Tx.t("ui.crafts.array_hint_" + ({"water": "hot", "flame": "cold"}.get(suits, "neutral") as String)), 14, UiKit.MIST, 2)
+	btn(Rect2(x, r.end.y - 64, 200, 56), Tx.t("ui.crafts.back_ingredients"), "to_ingredients", null, false, true, "", 18)
 	var why: String = Game.crafting.refine_block(ch, sel, count, fire, subst)
-	btn(Rect2(right.end.x - 264, right.end.y - 76, 240, 58), Tx.t("ui.crafts.light"), "light", null, true, why == "", why)
+	btn(Rect2(r.end.x - 16 - 240, r.end.y - 72, 240, BTN_H_MAIN), Tx.t("ui.crafts.light"), "light", null, true, why == "", why)
 
-## Screens 3-6, full width: the steps across the top, the batch under them, and the screen being played.
-func _furnace_full(ch) -> void:
+## Screens 3-6, once the furnace is lit: the batch on the card, the step's name and what to do at the right with its
+## timed control at the foot; the screen itself is played on the hearth, over the furnace.
+func _furnace_live() -> void:
 	var rs := _session()
 	var recipe := str(rs.get("recipe", sel))
-	var r := content
-	panel(r)
+	var s := SIDE
 	var stage := "tribulation" if not trib.is_empty() else str(rs.get("stage", "extraction"))
-	var ids := _screens(recipe)
-	if not ids.has("tribulation") and stage == "tribulation": ids.append("tribulation")
-	var at := ids.find(stage)
-	var w := (r.size.x - 40) / ids.size()
-	for i in ids.size():
-		var cx := r.position.x + 20 + w * (i + 0.5)
-		var cy := r.position.y + 24
-		if i > 0: draw_line(Vector2(cx - w + 14, cy), Vector2(cx - 14, cy), UiKit.JADE if i <= at else Color(UiKit.HOLLOW, 0.45), 2.0)
-		draw_circle(Vector2(cx, cy), 10, UiKit.GOLD if i == at else (UiKit.JADE if i < at else Color(UiKit.HOLLOW, 0.6)))
-		if i > at: draw_circle(Vector2(cx, cy), 6, UiKit.INK)
-		text(Vector2(cx - w * 0.5, cy + 30), "%d  %s" % [i + 1, _screen_label(str(ids[i]))], 16, UiKit.PALE_GOLD if i == at else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, w)
-	# The batch in the furnace.
-	var out := str(ContentDB.entry("recipes", recipe).outputs[0].item)
-	slot_box(Rect2(r.position.x + 20, r.position.y + 72, SLOT_SMALL, SLOT_SMALL), out)
-	text(Vector2(r.position.x + 80, r.position.y + 94), ContentDB.item_name(out), 20, UiKit.grade_color(str(ContentDB.entry("recipes", recipe).get("grade", "plain"))))
+	var rec := ContentDB.entry("recipes", recipe)
+	_card_head(rec)
 	if not rs.is_empty():
-		text(Vector2(r.position.x + 80, r.position.y + 116), Tx.t("ui.crafts.batch_line") % [int(rs.count), Tx.t("ui.crafts.fire_" + str(rs.fire)),
-			Tx.t("ui.crafts.array_" + str(rs.array))], 16, UiKit.MIST)
-		btn(Rect2(r.end.x - 214, r.position.y + 70, 194, 46), Tx.t("ui.crafts.put_out"), "put_out", null, false, true, "", 16)
-	var area := Rect2(r.position.x + 20, r.position.y + 130, r.size.x - 40, r.size.y - 146)
-	if not trib.is_empty():
-		_draw_tribulation(Rect2(area.position.x, area.position.y, area.size.x - 280, area.size.y))
-		_hot_btn(Rect2(area.end.x - 250, area.end.y - 76, 250, 72), Tx.t("ui.crafts.shield") if str(trib.stage) == "bolts" else Tx.t("ui.crafts.catch"), "trib")
-		return
+		text(s.position + Vector2(108, 66), Tx.t("ui.crafts.batch_line") % [int(rs.count), Tx.t("ui.crafts.fire_" + str(rs.fire)), Tx.t("ui.crafts.array_" + str(rs.array))],
+			16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, s.size.x - 124)
+	_divider()
+	var ids := _screens(recipe)
+	if not ids.has(stage): ids.append(stage)
+	heading(Vector2(s.position.x + 16, s.position.y + 140), "%d · %s" % [ids.find(stage) + 1, _screen_label(stage)], s.size.x - 32)
+	var body := Rect2(s.position.x + 16, s.position.y + 156, s.size.x - 32, s.size.y - 156 - 96)
+	if not rs.is_empty() and trib.is_empty() and not play.get("scorched", false):
+		btn(Rect2(s.position.x + 16, s.end.y - 76, 180, 60), Tx.t("ui.crafts.put_out"), "put_out", null, false, true, "", 18)
 	match stage:
-		"extraction": _screen_extraction(rs, area)
-		"fusion": _screen_fusion(rs, area)
-		"condensation": _screen_condensation(rs, area)
+		"extraction": _screen_extraction(rs, body)
+		"fusion": _screen_fusion(rs, body)
+		"condensation": _screen_condensation(rs, body)
+		"tribulation":
+			_draw_tribulation(Rect2(HEARTH.position.x + 4, HEARTH.position.y + 4, HEARTH.size.x - 8, 150))
+			para(body, Tx.t("ui.crafts.sub_tribulation"), 18, UiKit.PAPER, 3)
+			_hot_btn(HOT, Tx.t("ui.crafts.shield") if str(trib.stage) == "bolts" else Tx.t("ui.crafts.catch"), "trib")
+
+## Where the step's timed control stands: the foot of the controls, at the right.
+const HOT := Rect2(1184 - 16 - 240, 672 - 92, 240, 76)
 
 ## A control that acts on the press (the fan, the array's turn, Condense, the shield), drawn like a primary button.
 func _hot_btn(rect: Rect2, label: String, id: String, held := false) -> void:
 	draw_style_box(UiKit.style("button_primary", "pressed" if held else "normal"), rect)
-	UiKit.draw_text(self, label, rect.position + Vector2(0, rect.size.y * 0.5 + 8) + (Vector2(1, 2) if held else Vector2.ZERO), 22, UiKit.PALE_GOLD,
+	UiKit.draw_inked(self, label, rect.position + Vector2(0, rect.size.y * 0.5 + 8) + (Vector2(1, 2) if held else Vector2.ZERO), 22, UiKit.PALE_GOLD,
 		HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
 	hot_rects[id] = rect
 
@@ -1151,22 +1369,28 @@ func _hot_btn(rect: Rect2, label: String, id: String, held := false) -> void:
 static func _band_mid(herb: Dictionary, t: float) -> float:
 	return float(herb.centre) + float(herb.sway) * sin(TAU * maxf(0.0, t) / maxf(0.5, float(herb.period)) + float(herb.phase))
 
-## Screen 3 · Extraction: the herbs in order on the left, the heat gauge with its swaying band, the furnace mouth where
-## impurities rise, and the fan to hold.
-func _screen_extraction(rs: Dictionary, area: Rect2) -> void:
+## The furnace's mouth on the hearth, where the screens are played: over the vessel's top.
+func _mouth() -> Vector2:
+	return Vector2(HEARTH.get_center().x, HEARTH.position.y + 206)
+
+## Screen 3 · Extraction: the herbs on the rim in the order they go in, the heat gauge with its swaying band at the
+## hearth's left, the impurities rising from the furnace's mouth; the hint, the herb's time and the fan at the right.
+func _screen_extraction(rs: Dictionary, body: Rect2) -> void:
 	var herbs: Array = rs.herbs
 	var i := mini(int(rs.at), herbs.size() - 1)
 	var herb: Dictionary = herbs[i]
 	var k := _fg("extraction")
 	var secs := float(k.get("seconds", 5.0))
 	var pt := float(play.get("t", -1.0))
-	text(area.position + Vector2(0, 16), Tx.t("ui.crafts.extract_hint"), 16, UiKit.MIST)
-	# The herbs, in the order they go in.
+	var h := HEARTH
+	# The herbs on the rim.
+	var cw := minf(132.0, (h.size.x - 112) / maxf(1.0, herbs.size()))
 	for j in herbs.size():
-		var hy := area.position.y + 40 + j * 64
-		var h: Dictionary = herbs[j]
-		slot_box(Rect2(area.position.x, hy + 4, SLOT_SMALL, SLOT_SMALL), str(h.item))
-		text(Vector2(area.position.x + 56, hy + 22),fit(ContentDB.item_name(str(h.item)), 16, 196), 16, UiKit.PAPER if j <= i else UiKit.MIST)
+		var hb: Dictionary = herbs[j]
+		var cx := h.position.x + 96 + cw * (j + 0.5)
+		var sr := Rect2(cx - SLOT * 0.5, h.position.y + 12, SLOT, SLOT)
+		slot_box(sr, str(hb.item), 0, "", "", null, j == i)
+		text(Vector2(cx - cw * 0.5 + 2, sr.end.y + 20), ContentDB.item_name(str(hb.item)), 14, UiKit.PAPER if j <= i else UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, cw - 4)
 		var st := Tx.t("ui.crafts.herb_waiting")
 		var col := UiKit.HOLLOW
 		if j < (rs.extraction as Array).size():
@@ -1177,27 +1401,26 @@ func _screen_extraction(rs: Dictionary, area: Rect2) -> void:
 			col = UiKit.RED_TEXT
 		elif j == i:
 			# Hot herbs sit their band high on the gauge, cold ones low (S44).
-			st = Tx.t("ui.crafts.herb_in_fire") + ("  ·  " + Tx.t("ui.crafts.nature_" + str(h.nature)) if str(h.nature) in ["hot", "cold"] else "")
+			st = Tx.t("ui.crafts.herb_in_fire") + (" · " + Tx.t("ui.crafts.nature_" + str(hb.nature)) if str(hb.nature) in ["hot", "cold"] else "")
 			col = UiKit.GOLD
-		text(Vector2(area.position.x + 62, hy + 44), st, 14, col)
+		text(Vector2(cx - cw * 0.5 + 2, sr.end.y + 40), st, 14, col, HORIZONTAL_ALIGNMENT_CENTER, cw - 4)
 	# The heat gauge: the gold band sways; the heat rises while the flame is fanned.
-	var g := Rect2(area.position.x + 270, area.position.y + 40, 64, area.size.y - 84)
+	var g := Rect2(h.position.x + 28, h.position.y + 44, 44, h.size.y - BLOCK_H - 84)
+	text(Vector2(g.position.x - 16, g.position.y - 12), Tx.t("ui.crafts.heat"), 16, UiKit.GOLD, HORIZONTAL_ALIGNMENT_CENTER, g.size.x + 32)
+	draw_rect(g.grow(4), UiKit.INK)
 	draw_rect(g, UiKit.BAR_TROUGH)
 	var heat := float(play.get("heat", 0.3))
 	var mid := _band_mid(herb, pt)
 	var half := float(herb.width) * 0.5
 	var inside := absf(heat - mid) <= half
 	draw_rect(Rect2(g.position.x, g.end.y - g.size.y * (mid + half), g.size.x, g.size.y * half * 2.0), Color(UiKit.GOLD, 0.75 if inside else 0.45))
-	draw_rect(Rect2(g.position.x + 18, g.end.y - g.size.y * heat, g.size.x - 36, g.size.y * heat), Color(UiKit.SURFACE.ember, 0.85))
+	draw_rect(Rect2(g.position.x + 12, g.end.y - g.size.y * heat, g.size.x - 24, g.size.y * heat), Color(UiKit.SURFACE.ember, 0.9))
 	draw_rect(Rect2(g.position.x - 6, g.end.y - g.size.y * heat - 2, g.size.x + 12, 4), UiKit.PAPER)
 	draw_rect(g, Color(UiKit.BRONZE, 0.9), false, 2.0)
-	bar(Rect2(g.position.x, area.end.y - 24, area.size.x - 290 - 270, 14), clampf(pt / secs, 0.0, 1.0), UiKit.JADE)
-	# The furnace mouth, glowing with the heat; impurities rise in it to be tapped away.
-	var rad := minf(150.0, (area.size.y - 90) * 0.5)
-	var centre := Vector2(g.end.x + 60 + rad, area.position.y + 40 + rad)
-	draw_circle(centre, rad + 10, Color(UiKit.BRONZE, 0.9))
-	draw_circle(centre, rad, UiKit.SURFACE.furnace_mouth)
-	draw_circle(centre, rad * (0.35 + 0.6 * heat), Color((UiKit.SURFACE.ember as Color).lerp(UiKit.SURFACE.flame, heat), 0.25 + 0.35 * heat))
+	text(Vector2(g.position.x - 16, g.end.y + 22), Tx.t("ui.crafts.cool"), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, g.size.x + 32)
+	# The impurities rising from the furnace's mouth, to be tapped away.
+	var centre := _mouth()
+	var rad := 70.0
 	var gone: Dictionary = play.get("gone", {})
 	var specks: Array = herb.specks
 	for j in specks.size():
@@ -1205,19 +1428,21 @@ func _screen_extraction(rs: Dictionary, area: Rect2) -> void:
 		if gone.has(j) or pt < float(sp.t) or pt > float(sp.t) + float(k.get("speck_s", 1.2)): continue
 		var at := centre + Vector2((float(sp.x) - 0.5) * rad * 1.6, (float(sp.y) - 0.5) * rad * 1.6)
 		var a := 0.3 if sp.get("faint", false) else 1.0
-		draw_circle(at, 17, Color(UiKit.SURFACE.ash, 0.35 * a))
-		draw_circle(at, 11, Color(UiKit.SURFACE.cinder, a))
+		draw_circle(at, 22, Color(UiKit.GOLD, 0.25 * a))
+		draw_circle(at, 18, Color(UiKit.SURFACE.ash, 0.4 * a))
+		draw_circle(at, 13, Color(UiKit.SURFACE.cinder, a))
 		region(Rect2(at - Vector2(26, 26), Vector2(52, 52)), "speck", j)
 	if pt < 0.0 and not play.get("scorched", false):
 		text(Vector2(centre.x - 150, centre.y + 12), Tx.t("ui.crafts.ready"), 30, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 300, true)
+	# At the right: what to do, and the herb's time in the fire.
 	if play.get("scorched", false):
-		var box := Rect2(centre.x - 190, centre.y - 70, 380, 150)
-		panel(box)
-		para(Rect2(box.position + Vector2(18, 16), Vector2(box.size.x - 36, 60)), Tx.t("ui.crafts.scorched_retry") if play.get("retry", false) else Tx.t("ui.crafts.scorched_none"), 16, UiKit.PAPER, 3)
-		if play.get("retry", false): btn(Rect2(box.position.x + 18, box.end.y - 60, 160, 46), Tx.t("ui.crafts.try_again"), "retry_herb", null, true, true, "", 18)
-		btn(Rect2(box.end.x - 178, box.end.y - 60, 160, 46), Tx.t("ui.crafts.put_out"), "put_out", null, false, true, "", 16)
+		para(Rect2(body.position, Vector2(body.size.x, 90)), Tx.t("ui.crafts.scorched_retry") if play.get("retry", false) else Tx.t("ui.crafts.scorched_none"), 16, UiKit.PAPER, 4)
+		if play.get("retry", false): btn(Rect2(body.end.x - 200, SIDE.end.y - 76, 200, 60), Tx.t("ui.crafts.try_again"), "retry_herb", null, true, true, "", 18)
+		btn(Rect2(body.position.x, SIDE.end.y - 76, 180, 60), Tx.t("ui.crafts.put_out"), "put_out", null, false, true, "", 18)
 		return
-	_hot_btn(Rect2(area.end.x - 250, area.end.y - 86, 250, 76), Tx.t("ui.crafts.fan"), "fan", fanning)
+	para(Rect2(body.position, Vector2(body.size.x, 66)), Tx.t("ui.crafts.extract_hint"), 16, UiKit.PAPER, 3)
+	bar(Rect2(body.position.x, body.position.y + 82, body.size.x, 30), clampf(pt / secs, 0.0, 1.0), UiKit.JADE, ContentDB.item_name(str(herb.item)))
+	_hot_btn(HOT, Tx.t("ui.crafts.fan"), "fan", fanning)
 
 ## A herb's place on the Fusion ring: the recipe's order is not the ring's.
 func _ring_slot(rs: Dictionary, j: int) -> int:
@@ -1230,40 +1455,42 @@ func _ring_slot(rs: Dictionary, j: int) -> int:
 static func _nature_color(nature: String) -> Color:
 	return UiKit.WARNING if nature == "hot" else (UiKit.SKY if nature == "cold" else UiKit.BRIGHT_JADE)
 
-## Screen 4 · Fusion: tap the essences into the core in the recipe's order; then turn the array as the needle crosses
-## each mark.
-func _screen_fusion(rs: Dictionary, area: Rect2) -> void:
+## Screen 4 · Fusion: the essences circle the furnace's mouth, placed apart from their order; tap them into the core in
+## the recipe's order, then turn the array as the needle crosses each mark (at the right).
+func _screen_fusion(rs: Dictionary, body: Rect2) -> void:
 	var herbs: Array = rs.herbs
 	var merged: Array = play.get("order", [])
 	var turning := str(play.get("phase", "merge")) == "turn"
-	text(area.position + Vector2(0, 16), Tx.t("ui.crafts.turn_hint") if turning else Tx.t("ui.crafts.fuse_hint"), 16, UiKit.MIST)
-	# The core the essences merge into, brighter with each; the essences around it, placed apart from their order.
-	var orbit := (area.size.y - 44) * 0.5 - 44
-	var core := Vector2(area.position.x + 210, area.position.y + 36 + (area.size.y - 44) * 0.5)
-	var glow := 0.15 + 0.6 * merged.size() / maxf(1.0, herbs.size())
-	for g in 4: draw_circle(core, 60 - g * 12, Color(UiKit.SURFACE.glow, glow * (0.25 + g * 0.2)))
-	draw_arc(core, 60, 0, TAU, 48, Color(UiKit.GOLD, 0.9), 3.0)
+	var core := _mouth() - Vector2(0, 30)
+	var orbit := 128.0
+	var glow_k := 0.15 + 0.6 * merged.size() / maxf(1.0, herbs.size())
+	for gi in 4: draw_circle(core, 56 - gi * 12, Color(UiKit.SURFACE.glow, glow_k * (0.25 + gi * 0.2)))
+	draw_arc(core, 56, 0, TAU, 48, Color(UiKit.GOLD, 0.9), 3.0, true)
 	for j in herbs.size():
 		var h: Dictionary = herbs[j]
 		var ang := -PI * 0.5 + PI / herbs.size() + TAU * _ring_slot(rs, j) / herbs.size()
-		var at := core + Vector2(cos(ang), sin(ang)) * orbit
+		var at := core + Vector2(cos(ang) * orbit * 1.35, sin(ang) * orbit * 0.9)
 		var col := _nature_color(str(h.nature))
 		if merged.has(j):
-			draw_arc(at, 34, 0, TAU, 32, Color(col, 0.35), 2.0)
+			draw_arc(at, 34, 0, TAU, 32, Color(col, 0.35), 2.0, true)
 			continue
+		draw_circle(at, 38, Color(UiKit.INK, 0.55))
 		draw_circle(at, 38, Color(col, 0.28))
-		draw_arc(at, 38, 0, TAU, 32, col, 3.0)
+		draw_arc(at, 38, 0, TAU, 32, col, 3.0, true)
 		icon_at(Rect2(at - Vector2(32, 32), Vector2(64, 64)), str(ContentDB.item(str(h.item)).get("icon", h.item)))
-		text(Vector2(at.x - 90, at.y + 60), fit(ContentDB.item_name(str(h.item)), 14, 180), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 180)
 		region(Rect2(at - Vector2(42, 42), Vector2(84, 84)), "orb", j, not turning)
+	if turning and float(play.get("t", 0.0)) < 0.0:
+		text(Vector2(core.x - 150, core.y + 12), Tx.t("ui.crafts.ready"), 30, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 300, true)
+	para(Rect2(body.position, Vector2(body.size.x, 44)), Tx.t("ui.crafts.turn_hint") if turning else Tx.t("ui.crafts.fuse_hint"), 16, UiKit.PAPER, 2)
 	# The essences merged so far, in the order they went in.
-	var mx := area.position.x + area.size.x * 0.56
-	text(Vector2(mx, area.position.y + 58), Tx.t("ui.crafts.merged"), 16, UiKit.GOLD)
+	text(Vector2(body.position.x, body.position.y + 64), Tx.t("ui.crafts.merged"), 16, UiKit.GOLD)
 	for n in merged.size():
 		var h2: Dictionary = herbs[int(merged[n])]
-		slot_box(Rect2(mx + n * 52, area.position.y + 74, SLOT_SMALL, SLOT_SMALL), str(h2.item))
+		slot_box(Rect2(body.position.x + 110 + n * 52, body.position.y + 44, SLOT_SMALL, SLOT_SMALL), str(h2.item))
 	# The array's turns: a needle crosses the bar; each mark wants a turn as it passes.
-	var bar_r := Rect2(mx, area.position.y + 190, area.end.x - mx, 26)
+	var bar_r := Rect2(body.position.x, body.end.y - 30, body.size.x, 26)
+	var arr := str(play.get("array", rs.array))
+	text(Vector2(body.position.x, bar_r.position.y - 10), Tx.t("ui.crafts.array_" + arr), 16, _nature_color("cold" if arr == "water" else "hot"))
 	draw_rect(bar_r, UiKit.BAR_TROUGH)
 	var offs: Array = play.get("offs", [])
 	var marks: Array = rs.marks
@@ -1273,26 +1500,21 @@ func _screen_fusion(rs: Dictionary, area: Rect2) -> void:
 		var mc := UiKit.GOLD
 		if m < offs.size(): mc = UiKit.BRIGHT_JADE if absf(float(offs[m])) <= win else UiKit.RED
 		draw_rect(Rect2(mxp - bar_r.size.x * win * 0.5, bar_r.position.y, bar_r.size.x * win, bar_r.size.y), Color(mc, 0.3))
-		draw_rect(Rect2(mxp - 2, bar_r.position.y - 8, 4, bar_r.size.y + 16), mc)
-	var arr := str(play.get("array", rs.array))
-	text(Vector2(mx, bar_r.position.y - 14), Tx.t("ui.crafts.array_" + arr), 16, _nature_color("cold" if arr == "water" else "hot"))
+		draw_rect(Rect2(mxp - 2, bar_r.position.y - 6, 4, bar_r.size.y + 12), mc)
 	if turning:
 		var f := clampf(float(play.get("t", 0.0)) / float(_fg("fusion").get("seconds", 3.6)), 0.0, 1.0)
-		draw_rect(Rect2(bar_r.position.x + bar_r.size.x * f - 3, bar_r.position.y - 10, 6, bar_r.size.y + 20), UiKit.PAPER)
-		if float(play.get("t", 0.0)) < 0.0:
-			text(Vector2(mx, bar_r.end.y + 40), Tx.t("ui.crafts.ready"), 26, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-		_hot_btn(Rect2(area.end.x - 250, area.end.y - 86, 250, 76), Tx.t("ui.crafts.turn"), "turn")
+		draw_rect(Rect2(bar_r.position.x + bar_r.size.x * f - 3, bar_r.position.y - 8, 6, bar_r.size.y + 16), UiKit.PAPER)
+		_hot_btn(HOT, Tx.t("ui.crafts.turn"), "turn")
 	draw_rect(bar_r, Color(UiKit.BRONZE, 0.9), false, 2.0)
 
-## Screen 5 · Condensation: the ring closes on the pill; condense as it meets the outline.
-func _screen_condensation(rs: Dictionary, area: Rect2) -> void:
+## Screen 5 · Condensation: over the furnace the ring closes on the pill; condense as it meets the outline.
+func _screen_condensation(rs: Dictionary, body: Rect2) -> void:
 	var k := _fg("condensation")
 	var secs := float(k.get("seconds", 2.4))
 	var pt := float(play.get("t", -1.0))
-	text(area.position + Vector2(0, 16), Tx.t("ui.crafts.condense_hint"), 16, UiKit.MIST)
-	var centre := Vector2(area.position.x + area.size.x * 0.4, area.position.y + 40 + (area.size.y - 40) * 0.5)
+	var centre := _mouth() - Vector2(0, 50)
 	var rp := 46.0
-	var rs0 := minf(180.0, (area.size.y - 60) * 0.5)
+	var rs0 := 118.0
 	var rad := rp + (rs0 - rp) * (1.0 - clampf(pt, 0.0, secs) / secs)
 	if pt > secs: rad = rp - (pt - secs) / maxf(0.05, float(k.get("late", 0.2))) * rp * 0.45
 	var off := pt - secs
@@ -1300,13 +1522,14 @@ func _screen_condensation(rs: Dictionary, area: Rect2) -> void:
 	if absf(off) <= float(k.get("perfect", 0.08)): col = UiKit.GOLD
 	elif off > 0.0: col = UiKit.RED
 	var out := str(ContentDB.entry("recipes", str(rs.recipe)).outputs[0].item)
-	draw_arc(centre, rs0, 0, TAU, 64, Color(UiKit.HOLLOW, 0.3), 1.5)
+	draw_arc(centre, rs0, 0, TAU, 64, Color(UiKit.HOLLOW, 0.4), 1.5, true)
 	for g in 3: draw_circle(centre, rp + 26 - g * 9, Color(UiKit.SURFACE.glow, (0.05 + 0.12 * clampf(pt / secs, 0.0, 1.0)) * (g + 1)))
-	icon_at(Rect2(centre - Vector2(rp, rp) * 0.8, Vector2(rp, rp) * 1.6), str(ContentDB.item(out).get("icon", out)))
-	draw_arc(centre, rp, 0, TAU, 48, Color(UiKit.PALE_GOLD, 0.8), 2.0)
-	if pt >= 0.0: draw_arc(centre, maxf(4.0, rad), 0, TAU, 64, col, 4.0)
+	icon_at(Rect2(centre - Vector2(32, 32), Vector2(64, 64)), str(ContentDB.item(out).get("icon", out)))
+	draw_arc(centre, rp, 0, TAU, 48, Color(UiKit.PALE_GOLD, 0.8), 2.0, true)
+	if pt >= 0.0: draw_arc(centre, maxf(4.0, rad), 0, TAU, 64, col, 4.0, true)
 	else: text(Vector2(centre.x - 150, centre.y - rp - 30), Tx.t("ui.crafts.ready"), 30, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 300, true)
-	_hot_btn(Rect2(area.end.x - 250, area.end.y - 86, 250, 76), Tx.t("ui.crafts.condense"), "condense")
+	para(body, Tx.t("ui.crafts.condense_hint"), 16, UiKit.PAPER, 4)
+	_hot_btn(HOT, Tx.t("ui.crafts.condense"), "condense")
 
 ## A preview's refine: Healing Pill, one herb extracted; nothing is sent, and time stands still.
 func _preview(stage: String) -> void:
@@ -1433,6 +1656,7 @@ func _refine_done(r2: Dictionary) -> void:
 			"quality": str(r2.quality)}
 		flash(Tx.t("ui.crafts.tribulation_begins"))
 	elif r2.get("ok", false):
+		puff_at = t
 		var made := Tx.t("ui.crafts.quality_made") % [str(r2.quality).replace("_", " ").capitalize(), int(r2.count)]
 		if int(r2.get("marks", 0)) > 0: made += " · " + Tx.plural("ui.crafts.marks", int(r2.marks)) % int(r2.marks)
 		flash(made)

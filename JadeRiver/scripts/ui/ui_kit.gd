@@ -161,6 +161,14 @@ const TEXT_ON := [
 	[&"RED_TEXT", ["surface:lacquer_black"], 14],
 	[&"PAPER_INK", ["surface:board", "surface:bamboo", "surface:scroll"], 14],
 	[&"BLOOD", ["surface:scroll"], 14],
+	# The Workshop family (Crafts, Workshop, Garden): the timber sign and tags, the brick hearth and terrace walls, the
+	# garden's soil.
+	[&"PALE_GOLD", ["timber_sign@ink", "timber_tag:selected@ink"], 14],
+	[&"PAPER", ["timber_tag", "surface:soil"], 14],
+	[&"HOLLOW", ["timber_tag"], 20],
+	[&"MIST", ["surface:soil"], 14],
+	[&"PALE_GOLD", ["surface:soil"], 14],
+	[&"GOLD", ["surface:soil"], 14],
 ]
 
 ## Settings > Accessibility > Reduce motion (docs/moments_design.md §4.6): slides, wipes, rises, swings and flips become

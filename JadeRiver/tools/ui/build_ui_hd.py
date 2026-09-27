@@ -834,6 +834,121 @@ def storehouse_lid(w=760, h=184):
     return c
 
 
+# The Workshop family (P5, docs/page_identity.md §2: worked timber and tools on `wood`, `wood_dark`, `ember` and
+# `SURFACE.soil`): the timber sign that carries each page's title, the wooden tags of their tabs, and the six tools hung
+# on the Workshop's wall (row 30: compass, loupe, needle roll, chisel, brush, pointer).
+TOKEN.update({k: hexc(v) for k, v in {"PAPER": "#e8e1cf", "HOLLOW": "#87949a", "RED": "#e45858", "BRIDGE": "#d8c08a",
+                                      "JADE_SHADOW": "#15514f"}.items()})
+STEEL = mix(TOKEN["HOLLOW"], TOKEN["PAPER"], 0.35)
+BAMBOO_S = mix(TOKEN["BRIDGE"], TOKEN["JADE"], 0.18)       # SURFACE.bamboo #b9ba8b
+
+
+def timber_sign():
+    """A worked-timber sign board (the Crafts, Workshop and Garden titles): planed wood lit from above with its grain
+    running across, an ink edge and a bronze bevel, a nail in each corner."""
+    c = Canvas(64, 56)
+    d = sd_rrect(c.X, c.Y, 1.0, 1.0, 63.0, 53.0, 4.0)
+    c.paint(soft(np.maximum(sd_rrect(c.X, c.Y, 1.0, 3.0, 63.0, 55.0, 4.0), 0), 2.0) * 0.5, TOKEN["INK"])
+    face = [(0, mix(TOKEN["WOOD"], TOKEN["BRONZE"], 0.3)), (0.5, TOKEN["WOOD"]), (1, mix(TOKEN["WOOD"], TOKEN["WOOD_DARK"], 0.7))]
+    c.paint(cov(d), c.vgrad(face, 1.0, 53.0))
+    # The grain runs across the board: lines constant along x, kept out of the side edges (the edge check).
+    centre = (c.X > 16.0) & (c.X < 48.0)
+    for y in (12.5, 19.0, 27.5, 34.0, 41.5):
+        c.paint(cov(np.abs(c.Y - y) - 0.35) * centre * 0.35, TOKEN["WOOD_DARK"])
+    c.paint(band(d, 0.0, 1.0), TOKEN["INK"])
+    c.paint(band(d, 1.0, 3.2), c.vgrad([(0, mix(TOKEN["BRONZE"], TOKEN["GOLD"], 0.4)), (1, mix(TOKEN["BRONZE"], TOKEN["INK"], 0.3))], 1.0, 53.0))
+    c.paint(band(d, 3.2, 4.0), TOKEN["INK"] * np.array([1, 1, 1, 0.6]))
+    for x, y in ((8.0, 8.0), (56.0, 8.0), (8.0, 46.0), (56.0, 46.0)):
+        c.paint(cov(sd_circle(c.X, c.Y, x, y + 0.6, 2.4)), TOKEN["INK"] * np.array([1, 1, 1, 0.6]))
+        c.paint(cov(sd_circle(c.X, c.Y, x, y, 2.2)), c.vgrad([(0, STEEL), (1, TOKEN["HOLLOW"] * 0.6 + TOKEN["INK"] * 0.4)], y - 2.2, y + 2.2))
+    return c
+
+
+def timber_tag(selected=False):
+    """A wooden tag hung on a peg (the tabs of the Crafts and the Garden): dark worked timber with a bronze rim; the chosen
+    one warm, lit from the hearth, in a gold rim."""
+    c = Canvas(48, 48)
+    y1 = 45.0
+    d = sd_rrect(c.X, c.Y, 1.0, 1.0, 47.0, y1, 5.0)
+    c.paint(soft(np.maximum(sd_rrect(c.X, c.Y, 1.0, 3.0, 47.0, y1 + 2.0, 5.0), 0), 2.0) * 0.45, TOKEN["INK"])
+    if selected:
+        face = [(0, mix(TOKEN["WOOD"], TOKEN["GOLD"], 0.28)), (0.55, mix(TOKEN["WOOD"], TOKEN["BRONZE"], 0.25)), (1, TOKEN["WOOD"])]
+    else:
+        face = [(0, mix(TOKEN["WOOD_DARK"], TOKEN["WOOD"], 0.45)), (0.5, TOKEN["WOOD_DARK"]), (1, mix(TOKEN["WOOD_DARK"], TOKEN["INK"], 0.3))]
+    c.paint(cov(d), c.vgrad(face, 1.0, y1))
+    c.paint(band(d, 0.0, 1.0), TOKEN["INK"])
+    rim = [(0, TOKEN["PALE_GOLD"]), (0.5, TOKEN["GOLD"]), (1, TOKEN["BRONZE"])] if selected else [(0, TOKEN["BRONZE"]), (1, mix(TOKEN["BRONZE"], TOKEN["INK"], 0.4))]
+    c.paint(band(d, 1.0, 2.6), c.vgrad(rim, 1.0, y1))
+    return c
+
+
+def workshop_tool(tool):
+    """One of the Workshop wall's six tools, 96 px, lying diagonally as it hangs on its hooks."""
+    c = Canvas(96, 96)
+    X, Y = c.X, c.Y
+    seg = lambda ax, ay, bx, by, w: sd_segment(X, Y, ax, ay, bx, by, w)
+
+    def part(d, stops, y0=8.0, y1=88.0, edge=TOKEN["INK"]):
+        c.paint(cov(d - 1.2), edge * np.array([1, 1, 1, 0.85]))
+        c.paint(cov(d), c.vgrad(stops, y0, y1) if isinstance(stops, list) else stops)
+
+    wood = [(0, mix(TOKEN["WOOD"], TOKEN["BRONZE"], 0.45)), (1, TOKEN["WOOD"])]
+    metal = [(0, mix(STEEL, TOKEN["PAPER"], 0.4)), (1, mix(STEEL, TOKEN["INK"], 0.35))]
+    brass = [(0, TOKEN["PALE_GOLD"]), (0.5, TOKEN["GOLD"]), (1, TOKEN["BRONZE"])]
+    if tool == "compass":
+        # The geomancer's compass: a square wooden base, a brass dial ringed twice, the needle in lacquer red.
+        part(sd_rrect(X, Y, 12, 12, 84, 84, 6.0), wood)
+        part(sd_circle(X, Y, 48, 48, 30.0), brass)
+        c.paint(cov(sd_circle(X, Y, 48, 48, 24.0)), mix(TOKEN["WOOD_DARK"], TOKEN["INK"], 0.3))
+        for r in (20.0, 13.0):
+            c.paint(cov(np.abs(sd_circle(X, Y, 48, 48, r)) - 0.6), TOKEN["GOLD"])
+        for a in range(8):
+            ang = a * math.pi / 4
+            c.paint(cov(seg(48 + math.cos(ang) * 14.5, 48 + math.sin(ang) * 14.5, 48 + math.cos(ang) * 19.0, 48 + math.sin(ang) * 19.0, 1.2)), TOKEN["PALE_GOLD"])
+        c.paint(cov(np.maximum(sd_diamond(X, Y, 48, 48, 12.0), np.abs(X - Y) / math.sqrt(2) - 2.4)), TOKEN["RED"])
+        c.paint(cov(sd_circle(X, Y, 48, 48, 2.6)), TOKEN["PALE_GOLD"])
+    elif tool == "loupe":
+        # The appraiser's loupe: a brass-rimmed lens and a turned wooden handle.
+        part(seg(58, 58, 84, 84, 10.0), wood)
+        part(seg(56, 56, 62, 62, 12.0), brass)
+        part(sd_circle(X, Y, 38, 38, 25.0), brass)
+        c.paint(cov(sd_circle(X, Y, 38, 38, 19.5)), c.vgrad([(0, mix(TOKEN["PAPER"], TOKEN["JADE"], 0.35)), (1, mix(TOKEN["JADE_SHADOW"], TOKEN["INK"], 0.2))], 18, 58))
+        c.paint(cov(sd_arc(X, Y, 38, 38, 13.0, math.pi * 1.05, math.pi * 1.45, 3.0)), TOKEN["PAPER"] * np.array([1, 1, 1, 0.8]))
+    elif tool == "needles":
+        # The needle roll: a rolled cloth tied with red cord, the fine needles standing out of it.
+        for i, x in enumerate((30, 40, 50, 60)):
+            part(seg(x, 12 + (i % 2) * 5, x + 6, 44, 2.2), metal, edge=TOKEN["INK"] * 0.7)
+        part(sd_rrect(X, Y, 16, 40, 80, 80, 12.0), [(0, mix(TOKEN["JADE_SHADOW"], TOKEN["JADE"], 0.35)), (1, mix(TOKEN["JADE_SHADOW"], TOKEN["INK"], 0.35))], 40, 80)
+        for x in (32.0, 48.0, 64.0):
+            c.paint(cov(np.abs(X - x) - 0.6) * cov(sd_rrect(X, Y, 16, 40, 80, 80, 12.0) + 2.0), TOKEN["INK"] * np.array([1, 1, 1, 0.35]))
+        c.paint(cov(seg(16, 60, 80, 60, 3.2)), TOKEN["RED"])
+        c.paint(cov(sd_circle(X, Y, 48, 60, 4.0)), TOKEN["RED"])
+    elif tool == "chisel":
+        # The carver's chisel: a wooden handle with a brass ferrule and a steel blade, ground to an edge.
+        part(seg(20, 76, 46, 50, 13.0), wood)
+        part(seg(44, 52, 50, 46, 14.0), brass)
+        part(np.maximum(seg(50, 46, 78, 18, 10.0), (X + Y) - 100.0), metal)
+        c.paint(cov(np.abs((X + Y) - 97.0) / math.sqrt(2) - 0.7) * cov(seg(50, 46, 78, 18, 10.0)), TOKEN["PAPER"])
+    elif tool == "brush":
+        # The restorer's brush: a bamboo shaft with its nodes, a brass collar and an inked tip.
+        part(seg(78, 18, 38, 58, 8.0), [(0, mix(BAMBOO_S, TOKEN["PAPER"], 0.2)), (1, mix(BAMBOO_S, TOKEN["WOOD"], 0.3))])
+        for t in (0.3, 0.62):
+            x, y = 78 - 40 * t, 18 + 40 * t
+            c.paint(cov(seg(x - 3.5, y - 3.5, x + 3.5, y + 3.5, 1.4)), mix(BAMBOO_S, TOKEN["WOOD_DARK"], 0.6))
+        part(seg(38, 58, 32, 64, 11.0), brass)
+        part(np.minimum(sd_circle(X, Y, 27, 69, 8.0), seg(27, 69, 15, 81, 5.0)), [(0, mix(TOKEN["WOOD_DARK"], TOKEN["INK"], 0.3)), (1, TOKEN["INK"])], 60, 84)
+    else:
+        # The teacher's pointer: a long lacquered stick with a brass tip and a red tassel at its grip.
+        part(seg(16, 80, 82, 14, 6.0), [(0, mix(TOKEN["WOOD"], TOKEN["BRONZE"], 0.5)), (1, TOKEN["WOOD_DARK"])])
+        part(seg(76, 20, 84, 12, 7.0), brass)
+        part(seg(16, 80, 26, 70, 9.0), mix(TOKEN["WOOD_DARK"], TOKEN["INK"], 0.2))
+        for dx in (-3.0, 0.0, 3.0):
+            c.paint(cov(seg(14 + dx, 82, 10 + dx * 1.5, 94, 2.2)), TOKEN["RED"])
+    return c
+
+
+WORKSHOP_TOOLS = ("compass", "loupe", "needles", "chisel", "brush", "pointer")
+
 ASSETS = {
     # name: (margins, {state: builder})
     "minor_panel": ([12, 12, 12, 12], {"normal": lambda: panel(48, 48)}),
@@ -887,6 +1002,10 @@ ASSETS.update({
     # The Market family (P5): the trader's sign board and the storehouse chest's raised lid.
     "market_plate": ([16, 16, 16, 16], {"normal": lambda: market_plate()}),
     "storehouse_lid": ([0, 0, 0, 0], {"normal": lambda: storehouse_lid()}),
+    # The Workshop family (P5): the timber sign of each page's title, the wooden tags of the tabs, the wall's six tools.
+    "timber_sign": ([16, 16, 16, 16], {"normal": lambda: timber_sign()}),
+    "timber_tag": ([12, 12, 12, 12], {"normal": lambda: timber_tag(), "selected": lambda: timber_tag(True)}),
+    "workshop_tool": ([0, 0, 0, 0], {t: (lambda t=t: workshop_tool(t)) for t in WORKSHOP_TOOLS}),
 })
 
 

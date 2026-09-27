@@ -338,6 +338,25 @@
     "wind": "res://art/ui/hd/tech_seal__wind.png",
     "wood": "res://art/ui/hd/tech_seal__wood.png"
   },
+  "timber_sign": {
+    "margins": [
+      16,
+      16,
+      16,
+      16
+    ],
+    "normal": "res://art/ui/hd/timber_sign__normal.png"
+  },
+  "timber_tag": {
+    "margins": [
+      12,
+      12,
+      12,
+      12
+    ],
+    "normal": "res://art/ui/hd/timber_tag__normal.png",
+    "selected": "res://art/ui/hd/timber_tag__selected.png"
+  },
   "title_plaque": {
     "margins": [
       48,
@@ -364,5 +383,19 @@
       10
     ],
     "normal": "res://art/ui/hd/tooltip__normal.png"
+  },
+  "workshop_tool": {
+    "brush": "res://art/ui/hd/workshop_tool__brush.png",
+    "chisel": "res://art/ui/hd/workshop_tool__chisel.png",
+    "compass": "res://art/ui/hd/workshop_tool__compass.png",
+    "loupe": "res://art/ui/hd/workshop_tool__loupe.png",
+    "margins": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "needles": "res://art/ui/hd/workshop_tool__needles.png",
+    "pointer": "res://art/ui/hd/workshop_tool__pointer.png"
   }
 }
