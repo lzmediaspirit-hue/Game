@@ -27,6 +27,7 @@ func _ready() -> void:
 
 func _main() -> void:
 	rules_suite()
+	might_suite()
 	replay_suite()
 	offline_suite()
 	pets_suite()
@@ -1087,11 +1088,11 @@ func soul_poison_suite() -> void:
 	for i in 4: Game.tick(0.05)
 	GameEvents.flush()
 	check(heard.search != "" and (heard.search == "?" or Game.account.codex.has(heard.search)), "a searched elite's death gives up a soul memory (%s)" % heard.search)
-	# Soul Lantern Ward: a shield of 20% max Soul for 6 s.
+	# Soul Lantern Ward: a shield of 10% max HP for 6 s (P12: a share of the pool Might scales, as blows scale).
 	c.pools.shield = 0.0
 	if c.pools.max_soul <= 0.0: c.pools.max_soul = 100.0
 	Game.combat._resolve_technique(c, ContentDB.entry("techniques", "soul_lantern_ward"))
-	check(near(c.pools.shield, c.pools.max_soul * 0.2, 0.5), "Soul Lantern Ward shields 20%% of max Soul (%.1f)" % c.pools.shield)
+	check(near(c.pools.shield, c.pools.max_hp * 0.1, 0.5), "Soul Lantern Ward shields 10%% of max HP (%.1f)" % c.pools.shield)
 	for i in 130: Game.tick(0.05)
 	check(c.pools.shield == 0.0, "and fades after 6 s")
 	# The Poison Body: a poison art known and toxicity past half its tolerance turns hits into poison.
@@ -2289,6 +2290,8 @@ func body_path_suite() -> void:
 	c.pools.qi = 0.0
 	c.pools.hp = c.pools.max_hp
 	check(Game.combat.body_hp_cost(c, tiger, 12.0) > 0.0, "Tiger Rush with no QI spends HP at Copper Body")
+	check(near(Game.combat.body_hp_cost(c, tiger, 12.0), c.pools.max_hp * 12.0 / maxf(1.0, c.pools.max_qi)),
+		"it spends the share of max HP that 12 QI is of max QI (P12: Might scales HP, not QI)")
 	c.pools.hp = c.pools.max_hp * 0.2 + 1.0
 	check(Game.combat.body_hp_cost(c, tiger, 12.0) == 0.0, "never below a fifth of HP")
 	check(Game.combat.body_hp_cost(c, ContentDB.entry("techniques", "flowing_palm"), 8.0) == 0.0, "a technique that is not a body technique never spends HP")
@@ -4489,8 +4492,12 @@ func tower_activity_ranking_suite() -> void:
 	for i in range(1, t1.size()): sorted_ok = sorted_ok and int(t1[i - 1].cp) >= int(t1[i].cp)
 	check(sorted_ok, "strongest first")
 	# Entering: by CP (top eight) or the tournament finals.
+	# P12: the rivals' CP is the par character's at their Level, so the rule is read as written: a place in the top
+	# eight (seven seeded rivals leave the eighth open) or a CP at least the eighth's.
 	var entered := Game.calendar.rank_entered(c)
-	check(entered == (StatRules.combat_power(c) >= int(CalendarRules.rank_table(Clock.now_utc(), 4242, origin).back().cp)), "you enter at the top eight by CP")
+	var now_table := CalendarRules.rank_table(Clock.now_utc(), 4242, origin)
+	var top := int(ContentDB.config("rankings").get("top", 8))
+	check(entered == (now_table.size() < top or StatRules.combat_power(c) >= int(now_table[top - 1].cp)), "you enter at the top eight by CP")
 	c.quests.done["the_valley_finals"] = 1
 	check(Game.calendar.rank_entered(c) and Game.calendar.ranking(c).any(func(o): return o.get("player", false)), "or by reaching the tournament finals")
 	var above := Game.calendar.rank_above(c)
@@ -6347,16 +6354,117 @@ func ice_mount_suite() -> void:
 	c.mount_pet = mount_was
 	c.riding = riding_was
 
+# ------------------------------------------------------------------ P12 Might (docs/research/stat_scaling_research.md §6)
+func might_suite() -> void:
+	var t: Array = ContentDB.stat_const("might.table", [])
+	check(t.size() == 201 and near(StatRules.might_at(1), 1.0) and near(StatRules.might_at(9), 1.05) and near(StatRules.might_at(10), 1.3),
+		"Might: 1.00 at Bone Forging 1, 1.05 at its top, 1.30 at Qi Kindling 1")
+	var rising := true
+	for lv in range(2, t.size()): rising = rising and float(t[lv]) > float(t[lv - 1])
+	check(rising, "Might rises at every Level from 1 to 200")
+	var majors := true
+	for lv in [19, 28, 37, 46, 55, 64, 73, 82, 91, 100, 109, 166]: majors = majors and absf(StatRules.might_at(lv) / StatRules.might_at(lv - 1) - 1.1706) < 0.001
+	check(majors, "each great realm's major breakthrough multiplies Might by 1.17 (1.30^0.6)")
+	check(near(StatRules.might_at(118) / StatRules.might_at(117), 1.1, 0.001) and near(StatRules.might_at(120) / StatRules.might_at(119), 1.1, 0.001),
+		"the advanced states are x1.10 each")
+	check(near(StatRules.might_at(99), 15.31, 0.001) and near(StatRules.might_at(165), 152.76, 0.001), "Might 15.31 at Level 99, 152.8 at 165")
+	# Player and monster of a Level share one Might; it scales the attacks, HP and defences, never max Qi or max Soul.
+	var c = Game.active()
+	if c == null: return
+	var cu: CultivatorState = c.cultivator
+	var realm_was := cu.realm_key
+	var qp_was := cu.qp
+	var shared := true
+	var cut_same := true
+	for key in ["qi_kindling_1", "cloud_stride_4", "sage_2", "sphere_lord_3"]:
+		cu.realm_key = key
+		cu.qp = 0.0
+		StatRules.rebuild(c)
+		var lv := ProgressionRules.level(c)
+		shared = shared and near(StatRules.might(c), float(StatRules.mob_stats({"role": "normal"}, lv).might))
+		var d := StatRules.armour_defence(lv) * 0.8
+		cut_same = cut_same and near(CombatRules.defence_reduction(d * StatRules.might_at(lv), lv, 0.0, StatRules.might_at(lv)), CombatRules.defence_reduction(d, lv, 0.0), 0.0001)
+	check(shared, "a player and a monster of the same Level have the same Might")
+	check(cut_same, "a same-Level defence cut is what it was before Might")
+	var sb: StatBlock = c.stats
+	var m := StatRules.might(c)
+	var before := {"max_hp": sb.value("max_hp"), "physical_attack": sb.value("physical_attack"), "max_qi": sb.value("max_qi"), "max_soul": sb.value("max_soul"),
+		"physical_defense": sb.value("physical_defense")}
+	sb.remove_source("might")
+	var mods_ok := near(before.max_hp / sb.value("max_hp"), m) and near(before.physical_attack / sb.value("physical_attack"), m) \
+		and near(before.physical_defense / maxf(0.001, sb.value("physical_defense")), m) and near(before.max_qi, sb.value("max_qi")) and near(before.max_soul, sb.value("max_soul"))
+	check(mods_ok, "Might (x%.2f) multiplies max HP, attack and defence and leaves max Qi and max Soul alone" % m)
+	# Combat Power has no energy term: the same sheet on another energy weighs the same.
+	StatRules.rebuild(c)
+	var cp := StatRules.combat_power(c)
+	var energy_was := cu.energy_type
+	cu.energy_type = "none"
+	check(StatRules.combat_power(c) == cp, "Combat Power does not read the energy type")
+	cu.energy_type = energy_was
+	# The damage formula: one additive bucket, a product of final damage, the Qi edge on Qi and Soul blows only.
+	var rng := RandomNumberGenerator.new()
+	var a := {"physical_attack": 1000.0, "qi_attack": 1000.0, "level": 1, "crit_chance": -10.0}
+	var foe := {"role": "normal"}
+	var flat := {"never_miss": true, "range": [1.0, 1.0]}
+	var hit := func(extra: Dictionary, def: Dictionary, attack: Dictionary) -> int:
+		var at := a.duplicate()
+		at.merge(extra, true)
+		return int(CombatRules.resolve(at, def, attack, rng).amount)
+	check(hit.call({}, foe, flat) == 1000, "a plain blow of 1,000 attack lands 1,000")
+	check(hit.call({"damage_pct": 0.1, "elemental_power": 0.2}, foe, flat) == 1300, "damage% and elemental power add in one bucket (x1.30, not x1.32)")
+	check(hit.call({"boss_damage": 0.5}, foe, flat) == 1000 and hit.call({"boss_damage": 0.5}, {"role": "elite"}, flat) == 1500
+		and hit.call({"boss_damage": 0.5}, {"role": "field_boss"}, flat) == 1500, "boss damage counts against elites and bosses only")
+	check(hit.call({"damage_pct": 0.1, "final_damage": 1.2}, foe, flat) == 1320, "final damage multiplies the bucket (1.1 x 1.2)")
+	var qi_blow := {"never_miss": true, "range": [1.0, 1.0], "damage_type": "qi"}
+	check(hit.call({"qi_edge": 1.15}, foe, qi_blow) == 1150 and hit.call({"qi_edge": 1.15}, foe, flat) == 1000, "the Qi edge lifts Qi blows only")
+	check(near(ProgressionRules.qi_edge("sage_qi", 9), 1.15) and near(ProgressionRules.qi_edge("true_qi", 6), 1.13) and near(ProgressionRules.qi_edge("heavenforce", 9), 1.3),
+		"the Qi edge: Sage 1.15, True Qi 1.10 +1% a purity grade, Heavenforce 1.30")
+	# A share of an elite's or a boss's health a second is capped at 60% of the caster's attack.
+	check(near(CombatRules.hp_share(10000.0, "field_boss", 1000.0), 600.0) and near(CombatRules.hp_share(10000.0, "normal", 1000.0), 10000.0)
+		and near(CombatRules.hp_share(10000.0, "elite", 0.0), 10000.0), "a share of a boss's health is capped at 60% of the caster's attack; normal foes are not")
+	# UiKit.short: five characters or fewer; fmt turns to it from ten million.
+	var shorts := [[9876.0, "9,876"], [10000.0, "10.0K"], [18200.0, "18.2K"], [136000.0, "136K"], [99960.0, "100K"], [999600.0, "1.00M"],
+		[1270000.0, "1.27M"], [191000000.0, "191M"], [1.2e9, "1.20B"], [3.4e12, "3.40T"]]
+	var short_ok := true
+	for s in shorts: short_ok = short_ok and UiKit.short(float(s[0])) == str(s[1])
+	check(short_ok, "UiKit.short: 9,876, 18.2K, 136K, 1.27M, 1.20B")
+	check(UiKit.fmt(12345678.0) == "12.3M" and UiKit.fmt(9999999.0) == "9,999,999", "fmt groups to 9,999,999 and is short above")
+	check(UiKit.pool_values(427000.0, 427000.0) == ["427K", "427K"] and UiKit.pool_values(99000.0, 99999.0) == ["99,000", "99,999"], "bars of 100,000 or more show short")
+	# The save migration: saved health grows with Might so its share holds; it runs once.
+	var saved := Saves.migrate_character({"version": 3, "cultivator": {"realm_key": "sphere_lord_3", "progress": 0.7}, "pools": {"hp": 1000.0, "qi": 50.0}})
+	check(near(float(saved.pools.hp), 1000.0 * StatRules.might_at(99)) and near(float(saved.pools.qi), 50.0) and int(saved.minor) == GameCharacter.MINOR,
+		"an old save's health grows by the Might of its Level (Qi kept)")
+	check(near(float(Saves.migrate_character(saved).pools.hp), 1000.0 * StatRules.might_at(99)), "and only once")
+	# Chapter floors: every main quest of a chapter asks at least its floor; no main quest has a ceiling.
+	var floors: Dictionary = ContentDB.config("quests").get("chapter_floors", {})
+	var floored := true
+	var ceilings := false
+	for q in ContentDB.all("quests"):
+		if str(q.get("kind", "")) != "main": continue
+		var own := "mortal"
+		for r in q.get("requires", {}).get("all", []):
+			if str(r.get("kind", "")) == "realm_at_least": own = str(r.realm)
+			if str(r.get("kind", "")) in ["realm_below", "level_below"]: ceilings = true
+		if floors.has(str(q.get("chapter", ""))): floored = floored and ProgressionRules.at_least(own, str(floors[str(q.chapter)]))
+	check(floors.size() == 21 and floored and not ceilings, "every main quest of chapters 2-22 asks its chapter's floor, and none a ceiling")
+	cu.realm_key = realm_was
+	cu.qp = qp_was
+	Game.combat.refresh_stats(c.id)
+
 # ------------------------------------------------------------------ formulas
 func rules_suite() -> void:
-	# S13: HP_mob = (30 + 15L + 1.1L^2) x role; the spec's own check is 290 HP at Level 10.
+	# S13 / P12: a monster's HP and attack come from the par tables (stats.json mob.hp_table, attack_table). Level 10 keeps
+	# the spec's 290 HP (3.5 par blows, 220, fall below today's polynomial, which the table keeps as its floor); its
+	# attack is the table's 53: a blow of 8% of par HP (589 x 0.08 = 47) before par's armour cut of 11%.
 	var normal := StatRules.mob_stats({"role": "normal"}, 10)
 	check(near(normal.max_hp, 290.0), "normal monster at Level 10 has 290 HP (%.1f)" % normal.max_hp)
-	check(near(normal.attack, 37.0), "normal monster attack at Level 10 is 37 (%.1f)" % normal.attack)
+	check(near(normal.attack, 53.0), "normal monster attack at Level 10 is 53, from the par table (%.1f)" % normal.attack)
 	var elite := StatRules.mob_stats({"role": "normal"}, 10, true)
-	check(near(elite.max_hp, 290.0 * 6.0) and near(elite.attack, 37.0 * 1.5), "elites are 6x HP and 1.5x attack")
+	check(near(elite.max_hp, 290.0 * 6.0) and near(elite.attack, 53.0 * 1.5), "elites are 6x HP and 1.5x attack")
 	var boss := StatRules.mob_stats({"role": "dungeon_boss"}, 18)
-	check(near(boss.max_hp, (30.0 + 15.0 * 18 + 1.1 * 18 * 18) * 80.0), "dungeon bosses are 80x HP")
+	check(near(boss.max_hp, float(ContentDB.stat_const("mob.hp_table", [])[18]) * 80.0), "a dungeon boss without a par time is 80x a normal foe's HP")
+	check(near(StatRules.mob_stats({"role": "dungeon_boss", "par_s": 90}, 18).max_hp, float(StatRules.par(18).dps) * 90.0),
+		"a boss with a par time has the par character's DPS times it (Big Toad Tan's 90 s)")
 	check(near(StatRules.mob_stats({"role": "normal", "hp_mult": 0.5}, 10).max_hp, 145.0), "hp_mult scales one monster")
 	# S13 kill progress gap factors: 5+ above x1.2, within 4 x1.0, 5-9 below x0.5, 10+ below x0.1.
 	check(near(ProgressionRules.gap_factor(6), 1.2), "5+ levels above: x1.2")
@@ -7404,6 +7512,8 @@ func g2_suite() -> void:
 	_g2_ready(c)
 	Game.inventory.apply_add(c.id, "iron_needles", 5, "test")
 	var t1 := _g2_foe("bamboo_monkey", here + Vector2(150, 0))
+	t1.pools.max_hp = 1e7   # P12: under Might the character fells a Level 12 monkey with one needle; this one takes all three
+	t1.pools.hp = t1.pools.max_hp
 	var t_hp := t1.pools.hp
 	r = Game.inventory.use_item(c, _bag_index(c, "iron_needles"), true)
 	check(r.get("ok", false) and Game.room_rt.projectiles.size() == 3 and c.inventory.count("iron_needles") == 4, "one bundle throws three needles")

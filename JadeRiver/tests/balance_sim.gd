@@ -71,7 +71,7 @@ func _main() -> void:
 	_drops(cfg)
 	_posts()
 	_account_month()
-	_par_checks(c, cfg)
+	_par_checks(c, cfg, hours)
 	_finish()
 
 # ------------------------------------------------------------------ P12 the par character (research §6.1, §6.7)
@@ -151,7 +151,7 @@ func _par_hits(c, lv: int, crits := false) -> Dictionary:
 		out.technique += float(CombatRules.resolve(pv, foe, tech, rng).amount) / 800.0
 	return out
 
-func _par_checks(c, cfg: Dictionary) -> void:
+func _par_checks(c, cfg: Dictionary, hours: Dictionary) -> void:
 	var targets: Dictionary = cfg.get("par_targets", {})
 	var tol: Array = cfg.get("par_tolerance", [0.15, 0.20])
 	check(not targets.is_empty() and not StatRules.par(99).is_empty(), "the par table and its targets are present")
@@ -168,6 +168,102 @@ func _par_checks(c, cfg: Dictionary) -> void:
 		check(absf(h.basic / float(want[0]) - 1.0) <= float(tol[0]), "par_hit: Level %d basic %d against %d (±%d%%)" % [lv, int(h.basic), int(want[0]), int(float(tol[0]) * 100)])
 		check(absf(h.technique / float(want[1]) - 1.0) <= float(tol[1]), "par_hit: Level %d technique %d against %d (±%d%%)" % [lv, int(h.technique), int(want[1]), int(float(tol[1]) * 100)])
 		check(absf(h.basic / maxf(1.0, float(row.get("basic", 0))) - 1.0) <= 0.05, "par_hit: Level %d, the rules' basic %d and the par table's %d agree (±5%%)" % [lv, int(h.basic), int(row.get("basic", 0))])
+		# 2 ttk: a normal foe of the Level falls to 3-4.5 par blows (under Level 20 the table keeps today's floor: at most
+		# 5); an elite to 18-27.
+		var foe := StatRules.mob_stats({"role": "normal"}, lv)
+		var hits := float(foe.max_hp) / maxf(1.0, h.basic)
+		var elite_hits := float(StatRules.mob_stats({"role": "normal"}, lv, true).max_hp) / maxf(1.0, h.basic)
+		if lv >= 20: check(hits >= 3.0 and hits <= 4.5 and elite_hits >= 18.0 and elite_hits <= 27.0, "ttk: Level %d, a normal foe in %.1f par blows, an elite in %.1f" % [lv, hits, elite_hits])
+		else: check(hits <= 5.0, "ttk: Level %d, a normal foe in %.1f par blows (today's floor below Level 20)" % [lv, hits])
+		# 3 blow: a normal foe's plain blow takes 4-8% of par HP (6-10% under Level 20), a boss's 12-18% (two to three
+		# normal blows, so 16-24% under Level 20).
+		var normal_share := _blow_share(c, lv, "normal")
+		var boss_share := _blow_share(c, lv, "dungeon_boss")
+		var band: Array = [0.06, 0.10] if lv < 20 else [0.04, 0.08]
+		var boss_band: Array = [0.16, 0.24] if lv < 20 else [0.12, 0.18]
+		if lv >= int(ContentDB.stat_const("par.from_level", 10)):
+			check(normal_share >= float(band[0]) and normal_share <= float(band[1]) and boss_share >= float(boss_band[0]) and boss_share <= float(boss_band[1]),
+				"blow: Level %d, a normal foe's blow takes %.1f%% of par HP, a boss's %.1f%%" % [lv, 100.0 * normal_share, 100.0 * boss_share])
+	# 4 boss_par: every boss with a par time has the par character's DPS times it.
+	var bosses := 0
+	for e in ContentDB.all("enemies"):
+		if not e.has("par_s"): continue
+		var blv := int((e.get("level", [1]) as Array)[0])
+		var secs := float(StatRules.mob_stats(e, blv).max_hp) / maxf(1.0, float(StatRules.par(blv).dps))
+		bosses += 1
+		check(secs >= 0.8 * float(e.par_s) and secs <= 1.25 * float(e.par_s), "boss_par: %s falls in %.0f s of par DPS (par %d s)" % [e.id, secs, int(e.par_s)])
+	check(bosses >= 12, "boss_par: the twelve bosses of the research carry a par time (%d)" % bosses)
+	# 5 smooth and 6 realm_step, from the par table. Bone Forging keeps today's numbers and Qi Kindling 1 its first
+	# x1.30 step, so the Level-by-Level rise is checked from Level 11.
+	var majors := {}
+	for r in ContentDB.all("realms"):
+		if r.get("major", false): majors[int(r.level)] = str(r.realm)
+	var rough: Array = []
+	for lv in range(11, 201):
+		var g := float(StatRules.par(lv).basic) / maxf(1.0, float(StatRules.par(lv - 1).basic))
+		if g < 1.02 or g > (1.30 if majors.has(lv) else 1.25): rough.append("%d x%.3f" % [lv, g])
+	check(rough.is_empty(), "smooth: the par basic hit rises 2-25%% a Level, under 30%% at a major (%s)" % ", ".join(rough))
+	var steps: Array = []
+	for lv in majors:
+		if lv <= 10: continue
+		var advanced := str(majors[lv]) in ["half_heaven_monarch", "dao_sigil", "heavens_threshold", "inner_heaven"]
+		var a := float(StatRules.par(lv).attack) / float(StatRules.par(lv - 1).attack)
+		var ok := (a >= 1.10 and a <= 1.30) if advanced else (a >= 1.15 and a <= 1.30)
+		if not ok: steps.append("%d x%.3f" % [lv, a])
+	var first := StatRules.might_at(10) / StatRules.might_at(9)
+	check(steps.is_empty() and first >= 1.15 and first <= 1.30, "realm_step: each major raises par attack 15-30%% (the advanced states 10-30%%; Qi Kindling 1's Might x%.2f) %s" % [first, ", ".join(steps)])
+	# 7 cp_rec: every room's recommended CP is within ±20% of par CP at its middle Level.
+	var off: Array = []
+	for rid in ContentDB.rooms:
+		var room: Dictionary = ContentDB.rooms[rid]
+		var lr: Array = room.get("level_range", [0, 0])
+		if int(room.get("recommended_cp", 0)) <= 0: continue
+		var par_cp := float(StatRules.par((int(lr[0]) + int(lr[lr.size() - 1])) / 2).cp)
+		if absf(float(room.recommended_cp) / par_cp - 1.0) > 0.2: off.append(str(rid))
+	check(off.is_empty(), "cp_rec: rooms' recommended CP follows the par CP (%s)" % ", ".join(off))
+	# 8 digits: every par figure prints in five characters or fewer.
+	var long: Array = []
+	for lv in range(0, 201):
+		var p := StatRules.par(lv)
+		for k in ["attack", "max_hp", "basic", "technique", "technique_crit", "dps", "cp"]:
+			if UiKit.short(float(p.get(k, 0))).length() > 5: long.append("%d %s %s" % [lv, k, UiKit.short(float(p.get(k, 0)))])
+	check(long.is_empty(), "digits: every par figure prints in five characters or fewer (%s)" % ", ".join(long.slice(0, 5)))
+	# 9 chapter_floor: each chapter's floor sits between 4 Levels under where the previous chapter ends (the floors it
+	# asks and the breakthroughs its quests lead to) and one great realm past it.
+	var floors: Dictionary = ContentDB.config("quests").get("chapter_floors", {})
+	var ends := {}
+	for q in ContentDB.all("quests"):
+		if str(q.get("kind", "")) != "main": continue
+		var at := 0
+		for r in q.get("requires", {}).get("all", []):
+			if str(r.get("kind", "")) == "realm_at_least": at = maxi(at, int(ContentDB.realm(str(r.realm)).get("level", 0)))
+		for o in q.get("objectives", []):
+			if str(o.get("kind", "")) == "reach_realm": at = maxi(at, int(ContentDB.realm(str(o.realm)).get("level", 0)))
+		ends[str(q.get("chapter", ""))] = maxi(int(ends.get(str(q.get("chapter", "")), 0)), at)
+	var gaps: Array = []
+	var bad_floor: Array = []
+	for ch in range(2, 23):
+		var f := int(ContentDB.realm(str(floors.get(str(ch), "mortal"))).get("level", 0))
+		var e := int(ends.get(str(ch - 1), 0))
+		if f > e: gaps.append("%d:+%d" % [ch, f - e])
+		if f < e - int(cfg.get("floor_below", 4)) or f > e + int(cfg.get("floor_wait", 9)): bad_floor.append(str(ch))
+	print("chapter floors past the previous chapter's end (chapter:+Levels): ", ", ".join(gaps))
+	check(floors.size() == 21 and bad_floor.is_empty(), "chapter_floor: every chapter opens within its bounds of where the last one ended (%s)" % ", ".join(bad_floor))
+	# 10 pacing: hours to the end of Act III, against the research's two estimates until the user sets a target.
+	var end_h := float(hours.get(str(cfg.get("sim_end", "")), -1.0))
+	var pace: Array = cfg.get("pacing_band", [140, 235])
+	print("pacing: Sphere Lord 3 at %.0f h (the research's estimates %d-%d h; the user sets the target)" % [end_h, int(pace[0]), int(pace[1])])
+	check(end_h >= float(pace[0]) * 0.85 and end_h <= float(pace[1]) * 1.15, "pacing: Sphere Lord 3 in %.0f h" % end_h)
+
+## A same-Level foe's plain blow on the par character (averaged, crits in), as a share of its max HP.
+func _blow_share(c, lv: int, role: String) -> float:
+	var foe := CombatRules.foe(StatRules.mob_stats({"role": role}, lv), lv, "wood")
+	var pv := CombatRules.fighter(c)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 777 + lv
+	var sum := 0.0
+	for i in 400: sum += float(CombatRules.resolve(foe, pv, {"damage_type": "physical", "element": "none", "mult": [1.0, 1.0], "never_miss": true}, rng).amount)
+	return sum / 400.0 / maxf(1.0, c.stats.value("max_hp"))
 
 ## S39: a player can afford the next upgrade in their grade band after about 1–2 hours.
 func _currency(cfg: Dictionary) -> void:

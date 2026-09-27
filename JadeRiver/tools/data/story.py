@@ -741,7 +741,10 @@ def unlocks():
     u("star_beasts", "Star-tier spirit beasts", all_of(realm("will_manifest_2"), unlocked("taming")), "star_tier_beasts", [], same_stage_ok=True)
     # v1.2 · Phase C: the Sphere at Sphere Lord 1 (the Observatory's lesson), the Confucian path (Lanternwright Han).
     u("sphere", "Sphere", all_of(realm("sphere_lord_1"), qdone("sphere_lord")), "a_sphere_of_ones_own", ["hud:sphere"], same_stage_ok=True)
-    u("beetle_swarm", "The Copperjaw swarm", all_of(realm("sphere_lord_1"), qdone("kharns_pyre")), "the_copperjaw_box", [], same_stage_ok=True)
+    # P12: Chapter 21 opens at Sphere Lord 1, so The Tide Breaks and this box open together; Tinker Mei waits in the
+    # Tidebreak Bastion, which The Tide Breaks opens, so the box follows it.
+    u("beetle_swarm", "The Copperjaw swarm", all_of(realm("sphere_lord_1"), qdone("kharns_pyre"), {"kind": "quest_accepted", "quest": "the_tide_breaks"}),
+      "the_copperjaw_box", [], same_stage_ok=True)
     u("confucian_path", "The Confucian path", all_of(realm("will_manifest_2"), qdone("crystal_and_jade")), "the_written_word", [],
       same_stage_ok=True)
     entries("unlocks", U)

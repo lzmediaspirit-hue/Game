@@ -620,10 +620,13 @@ def build():
         # Where a mixed session sits to cultivate: mostly the field rooms it fights in (1.0), sometimes Lu's
         # boat (1.4), the mentor's peak (1.6) or, later, a hidden spring (2.2).
         "density": {"bone_forging": 1.2, "qi_kindling": 1.25, "qi_unfurling": 1.3, "heart_tempering": 1.4, "cloud_stride": 1.4,
-                    "spirit_awakening": 1.45, "heaven_glimpse": 1.5, "sage": 1.6},
+                    "spirit_awakening": 1.45, "heaven_glimpse": 1.5, "sage": 1.6, "sage_sovereign": 1.6, "will_manifest": 1.7,
+                    "sphere_lord": 1.7},
         "method": {"bone_forging": "riverbreath_fragment", "qi_kindling": "jade_current_scripture", "qi_unfurling": "jade_current_scripture",
                    "heart_tempering": "cloudpiercing_canon", "cloud_stride": "willow_breath_art", "spirit_awakening": "willow_breath_art",
-                   "heaven_glimpse": "tidal_sovereign_scripture", "sage": "tidal_sovereign_scripture"},
+                   "heaven_glimpse": "tidal_sovereign_scripture", "sage": "tidal_sovereign_scripture",
+                   "sage_sovereign": "tidal_sovereign_scripture", "will_manifest": "tidal_sovereign_scripture",
+                   "sphere_lord": "tidal_sovereign_scripture"},
         "tolerance": 0.15,
         # S39 checks: [Level, the next upgrade, the spec's taels per hour there]; affordable within 1-2 h (±25%).
         "upgrades": [[15, "iron_jian", 850], [25, "jadeiron_robe", 1700]], "afford_hours": [0.75, 2.5],
@@ -634,8 +637,13 @@ def build():
         "par_targets": {"1": [12, 12], "10": [68, 63], "30": [832, 1246], "60": [11000, 39500], "80": [41500, 154000],
                         "99": [136000, 527000], "108": [246000, 999000]},
         "par_tolerance": [0.15, 0.20],
-        # Act II so far (v1.1 phases A-B reach Sage 3): the sim plays on to this stage.
-        "sim_end": "sage_sovereign_1",
+        # P12 (research §7 question 9): the sim plays on to the end of Act III; the hours to it are reported against the
+        # research's two estimates (`pacing_band`: 140 h at the sim's Sage income, 235 h at the nominal rate) until the
+        # user sets a target.
+        "sim_end": "sphere_lord_3", "pacing_band": [140, 235],
+        # P12 check 9: a chapter's floor is at least the Level where the previous chapter ends less `floor_below`, and waits
+        # at most `floor_wait` Levels past it (Act I's chapters open on the realm; chapter 8 waits the whole of Cloud Stride).
+        "floor_below": 4, "floor_wait": 10,
         "pacing": [["bone_forging_1", 0.5], ["qi_kindling_1", 5], ["qi_unfurling_1", 13], ["heart_tempering_1", 20],
                    ["cloud_stride_1", 30], ["spirit_awakening_1", 42], ["heaven_glimpse_1", 55], ["sage_1", 70], ["sage_sovereign_1", 110]],
         # P7b (item_plan §4.4): the equipment an hour of hunting drops, by grade (balance_sim `_drops`): each target is
