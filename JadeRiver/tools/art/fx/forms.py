@@ -172,6 +172,7 @@ def draw_thrust(cv, f, n, band, el):
 def draw_lunge(cv, f, n, band, el):
     y = 22.0
     feet = 46.0
+    hit = (104.0, y - 2)   # the blow lands a step ahead of the caster (the anchor is his chest)
     if f <= 3:
         u = f / 3.0
         # afterimages of the dash trail off behind the caster, sliding after him and thinning
@@ -180,7 +181,7 @@ def draw_lunge(cv, f, n, band, el):
             if ax > 64:
                 continue
             tone = (HAZE, DEEP, BASE)[min(2, i + (1 if u > 0.6 else 0))] if i + f < 5 else HAZE
-            cv.figure(ax, feet, 44, tone, lean=0.25, dither=i + f < 4)
+            cv.figure(ax, feet, 44, tone, lean=0.25)
         for i in range(4 + band * 2):
             yy = y - 14 + i * (28 / (3 + band * 2))
             xs = 4 + px_hash(i, 5) * 20 + u * 24
@@ -188,15 +189,16 @@ def draw_lunge(cv, f, n, band, el):
         for i in range(3):
             cv.dot(6 + i * 6 + u * 10, feet - 1 - (i % 2), HAZE, 2)   # the dust of the dash
         if f == 3:
-            star(cv, 80, y - 2, 10 + band * 3, points=8, w=2.5)
-            cv.ring(80, y - 2, 8, 1.5, GLINT)
+            star(cv, hit[0], hit[1], 10 + band * 3, points=8, w=2.5)
+            cv.ring(hit[0], hit[1], 8, 1.5, GLINT)
+            cv.stroke_seg((76, y), (hit[0] - 8, hit[1]), 2.0, 6.0 * W[band])   # the rush into the blow
     else:
         u = (f - 3) / (n - 4)
         if u < 0.5:
             cv.figure(60, feet, 44, HAZE, lean=0.25)
-        star(cv, 80, y - 2, (10 + band * 3) * (1 - u), points=8, w=2.0)
-        cv.ring(80, y - 2, 8 + u * 14, 1.5 if u < 0.5 else 1.0, LIGHT if u < 0.5 else DEEP)
-        fling(cv, el, arc_pts(80, y - 2, 6, -math.pi, math.pi, count=8), f - 3, n - 3, band, 51, count=8, start=0, life=4, speed=2.6)
+        star(cv, hit[0], hit[1], (10 + band * 3) * (1 - u), points=8, w=2.0)
+        cv.ring(hit[0], hit[1], 8 + u * 14, 1.5 if u < 0.5 else 1.0, LIGHT if u < 0.5 else DEEP)
+        fling(cv, el, arc_pts(hit[0], hit[1], 6, -math.pi, math.pi, count=8), f - 3, n - 3, band, 51, count=8, start=0, life=4, speed=2.6)
 
 
 # ------------------------------------------------------------------------------------------ 5 sweep
@@ -950,7 +952,7 @@ FORMS = {
     "strike": dict(fit=True, draw=draw_strike, cell=(64, 64), anchor=(14, 34), frames=8, fps=14, impact=3, span=32, at="chest", size="band"),
     "flurry": dict(fit=True, draw=draw_flurry, cell=(64, 48), anchor=(10, 24), frames=10, fps=16, impact=2, span=50, at="chest", size="band"),
     "thrust": dict(draw=draw_thrust, cell=(96, 32), anchor=(4, 16), frames=8, fps=14, impact=3, span=88, at="chest", size="stretch"),
-    "lunge": dict(fit=True, draw=draw_lunge, cell=(96, 48), anchor=(70, 22), frames=8, fps=14, impact=3, span=24, at="chest", size="band"),
+    "lunge": dict(fit=True, draw=draw_lunge, cell=(120, 48), anchor=(70, 22), frames=8, fps=14, impact=3, span=44, at="chest", size="band"),
     "sweep": dict(draw=draw_sweep, cell=(96, 48), anchor=(48, 36), frames=8, fps=12, impact=3, span=88, at="feet", size="reach"),
     "arc": dict(draw=draw_arc, cell=(96, 64), anchor=(16, 32), frames=8, fps=14, impact=2, span=60, at="chest", size="band",
                 bolt=dict(draw=bolt_arc, cell=(48, 24), anchor=(38, 12), frames=4, fps=12)),

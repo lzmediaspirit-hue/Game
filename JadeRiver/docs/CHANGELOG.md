@@ -31,7 +31,9 @@
   reach. A technique's Qi bolt is drawn from its form's projectile loop. Reduce motion plays the calmest band and
   Battery saver the middle one at most; the sheets never fill the screen, so the flash limiter stays with the tint.
 - **Preview**: `--cast=<technique>[:t]` now also holds the pose the cast would play on the avatar, resolved as the
-  timeline resolves it, so a capture shows the hit frame under the effect.
+  timeline resolves it, and lands its hits at the hit frame; with `--capture` the effect and the pose step a sixtieth
+  a frame and the simulation holds still from the cast (`World.sim_frozen`, `FxLayer.fixed_step`), so a shot lands on
+  the frame `t` names whatever the renderer's pace and shows the effect on the pose, not a boarlet's counter-attack.
 - **Review**: `docs/mockups/fx/`: every form × element at each band's impact frame at 1× and 2×, a strip of every
   frame per form, the projectile loops, and in-game captures of one technique per form at four moments of the cast
   from the `ls6_end` checkpoint (its README lists them).

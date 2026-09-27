@@ -32,7 +32,7 @@ from PIL import Image, ImageDraw, ImageFont  # noqa: E402
 
 import elements as E  # noqa: E402
 from forms import FORMS, ORDER  # noqa: E402
-from fxpix import Canvas, upscale  # noqa: E402
+from fxpix import INK, Canvas, upscale  # noqa: E402
 
 PROJECT = HERE.parents[2]
 ART_DIR = PROJECT / "art" / "fx"
@@ -56,6 +56,7 @@ def render_frames(spec: dict, band: int, el: str) -> list[np.ndarray]:
         spec["draw"](cv, f, n, band, el)
         if el == "time" and f >= 1:
             cv.ghost(canvases[f - 1], dx=-2)   # time: the echo of the frame before, a step behind, half there
+        cv.rim(INK)   # a 1 px ink rim round every stroke, so the effect reads on any ground
         cv.clean()
         canvases.append(cv)
     return [lut[cv.idx] for cv in canvases]

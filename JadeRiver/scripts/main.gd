@@ -381,7 +381,9 @@ func _handle_preview_args(user_args: Array) -> void:
 			await get_tree().create_timer(2.0).timeout   # past the arrival's spawn protection (1.5 s), so the caster is solid
 			# Decision 23: with --capture the cast's effects and pose step a sixtieth a frame, so the shot lands on the frame
 			# t names whatever the renderer's pace (the capture wait below counts frames too).
-			if "--capture" in user_args: world.fx.fixed_step = 1.0 / 60.0
+			if "--capture" in user_args:
+				world.fx.fixed_step = 1.0 / 60.0
+				world.sim_frozen = true   # the foes hold still too: the shot is the effect on the pose
 			world.preview_cast(ca[0])
 			moment_t = float(ca[1]) if ca.size() > 1 else 0.15
 		if str(a).begins_with("--hold=") and is_instance_valid(moments):

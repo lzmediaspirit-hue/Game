@@ -107,14 +107,14 @@ class Canvas:
         a = np.mod(ang - lo, 2 * math.pi) + lo
         inside = a <= hi
         rad = np.hypot(X, Y)
-        d_arc = np.abs(rad - r)
-        # distance to the two end points, in the squashed space
+        # the squashed-space distance to the ring, brought back to screen px by the ellipse's local gradient, so a
+        # ground ring keeps one thickness at its sides and at its near and far edges
+        d_arc = np.abs(rad - r) / np.sqrt(np.cos(ang) ** 2 + (np.sin(ang) / max(sy, 1e-3)) ** 2)
+        # distance to the two end points
         ex0, ey0 = cx + math.cos(a0) * r, cy + math.sin(a0) * r * sy
         ex1, ey1 = cx + math.cos(a1) * r, cy + math.sin(a1) * r * sy
         d_end = np.minimum(np.hypot(self.X - ex0, (self.Y - ey0)), np.hypot(self.X - ex1, (self.Y - ey1)))
         d = np.where(inside, d_arc, d_end)
-        # the y squash makes vertical distances longer than horizontal; scale the arc distance for thin sy
-        d = np.where(inside, d_arc * np.where(np.abs(np.sin(ang)) > 0.7, sy + (1 - sy) * 0.4, 1.0), d_end)
         t = np.clip((a - lo) / max(hi - lo, 1e-6), 0.0, 1.0)
         if a0 > a1:
             t = 1.0 - t
@@ -159,7 +159,9 @@ class Canvas:
     def ring(self, cx, cy, r, w: float, idx: int = LIGHT, sy: float = 1.0, mode="over", a0=0.0, a1=2 * math.pi) -> None:
         """A thin ring (one tone) of radius r, w px thick, y squashed by sy."""
         if a0 == 0.0 and a1 == 2 * math.pi:
-            d = np.abs(np.hypot(self.X - cx, (self.Y - cy) / max(sy, 1e-3)) - r)
+            X, Y = self.X - cx, (self.Y - cy) / max(sy, 1e-3)
+            ang = np.arctan2(Y, X)
+            d = np.abs(np.hypot(X, Y) - r) / np.sqrt(np.cos(ang) ** 2 + (np.sin(ang) / max(sy, 1e-3)) ** 2)
         else:
             d, _ = self.arc(cx, cy, r, a0, a1, sy)
         self.paint(d <= w * 0.5, idx, mode)
@@ -263,9 +265,9 @@ class Canvas:
         self.idx = self.idx[:, ::-1].copy()
 
     def ghost(self, other: "Canvas", idx: int = DEEP, dx: int = 0, dy: int = 0, dither: bool = True) -> None:
-        """Paint the silhouette of another frame, shifted, in one tone under what is drawn (Time's echo); dithered
-        to a checkerboard so it reads as half there."""
-        src = other.idx > 0
+        """Paint the silhouette of another frame's solid tones, shifted, in one tone under what is drawn (Time's
+        echo); dithered to a checkerboard so it reads as half there. Haze and deep pixels leave no echo."""
+        src = np.isin(other.idx, (BASE, LIGHT, GLINT, CORE, ACCENT))
         dst = np.zeros_like(src)
         h, w = src.shape
         xs = slice(max(0, dx), min(w, w + dx))

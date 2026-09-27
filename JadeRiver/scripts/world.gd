@@ -219,7 +219,7 @@ func _add_enemy_view(e: EnemyState) -> void:
 func _physics_process(delta: float) -> void:
 	if not room_mode or Game.paused: return
 	player.physics_step(delta)
-	Game.tick(delta)
+	if not sim_frozen: Game.tick(delta)
 	_check_portals(delta)
 
 func _check_portals(delta: float) -> void:
@@ -365,6 +365,7 @@ func add_shake(s: float, amp := -1.0) -> void:
 ## (§5.4): a slash, a wave along the reach, a ring at it with echo rings inside, a rain of streaks, a pillar on the foe,
 ## or a ring and motes round the caster. A bolt is drawn by its projectile.
 var cast_shake: Dictionary = {}   # "tech:<id>" -> true until the cast's first hit shakes (tiers 3 and up)
+var sim_frozen := false           # debug (--cast --capture): the simulation holds still while the effect plays, so the shot is the effect
 ## Decision 23: with the technique's form animation (`vfx.anim`, data/fx_art.json) the cast plays that sheet instead of
 ## the procedural shape, timed so its impact frame lands on the pose's hit frame (`windup`, the timeline's hit_at),
 ## facing the cast, sized to the hitbox and at its tier's band; an area's edge (a ring at the true reach, §5.4) and

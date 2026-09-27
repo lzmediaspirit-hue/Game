@@ -197,7 +197,7 @@
     "lunge": {
       "file": "res://art/fx/lunge.png",
       "cell": [
-        192,
+        240,
         96
       ],
       "anchor": [
@@ -207,7 +207,7 @@
       "frames": 8,
       "fps": 14,
       "impact": 3,
-      "span": 48,
+      "span": 88,
       "at": "chest",
       "size": "band",
       "fit": true
