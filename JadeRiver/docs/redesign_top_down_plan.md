@@ -488,7 +488,7 @@ The side-view game is unchanged; nothing loads the grid code unless the prototyp
 | Knockback | about 50 units away from the attacker along the plane (60 knockback); hit-stop 0.05 s holds the fight |
 | Roof | a jump from the terrace lands on the roof at z 64; walking off drops 64 to the square |
 | Foes | a boarlet closes 150 → under 110 units in 1 s; past the 600 leash it goes home; under a roof it waits, then goes home at 6 s; a rat hops one level up to the terrace |
-| Frame | perf runner, on a shared machine (load about 15 on 4 cores): the room mounts in 161–213 ms and walks at 6.9–7.3 ms a frame. With 22 foes fighting (15 added round the player, plus the room's 7), blows every 20 frames and a technique every 45 (up to 42 effects at once), a frame takes 7.8–13.5 ms against the 16.6 ms budget |
+| Frame | perf runner, on a shared machine (load about 15 on 4 cores): the room mounts in 161–272 ms and walks at 6.9–7.3 ms a frame. With 22 foes fighting (15 added round the player, plus the room's 7), blows every 20 frames and a technique every 45 (up to 44 effects at once), a frame takes 7.8–13.5 ms against the 16.6 ms budget (10.1 ms in the final run) |
 
 **Tests.** `rules_tests` `topdown_suite` has 35 Phase 1 checks and 27 new ones (62 in all):
 
