@@ -78,6 +78,15 @@
     "normal": "res://art/ui/hd/envelope__normal.png",
     "selected": "res://art/ui/hd/envelope__selected.png"
   },
+  "handscroll": {
+    "margins": [
+      8,
+      24,
+      8,
+      24
+    ],
+    "normal": "res://art/ui/hd/handscroll__normal.png"
+  },
   "honour_seal": {
     "blade": "res://art/ui/hd/honour_seal__blade.png",
     "cauldron": "res://art/ui/hd/honour_seal__cauldron.png",

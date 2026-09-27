@@ -544,7 +544,12 @@ func identity_suite() -> void:
 		"P5: a page moves over its opening and a tap finishes it (%s)" % str(off))
 	check(float(on.unfold0) == 1.0 and float(on.alpha0) == 0.0 and float(on.alpha_02) == 1.0, "P5: under Reduce motion nothing moves and the page fades in over 0.2 s (%s)" % str(on))
 	var main_script = load("res://scripts/main.gd")
-	var plain: Page = load(str(main_script.PAGES.menu)).new()
+	# A page that still keeps the shared window (the Menu took the hall's identity in the sect family).
+	var plain: Page = null
+	for pid in main_script.PAGES:
+		var p0: Page = load(str(main_script.PAGES[pid])).new()
+		if p0.identity == null and not p0.frameless and plain == null: plain = p0
+		else: p0.free()
 	add_child(plain)
 	plain.open({})
 	await get_tree().process_frame
@@ -561,6 +566,7 @@ func identity_suite() -> void:
 	await _records_two_checks()
 	await _post_checks()
 	await _market_checks()
+	await _sect_checks()
 
 ## A page opened as the game opens it, its words logged, drawn twice.
 func _open_page(id: String, a := {}) -> Page:
@@ -882,6 +888,133 @@ func _market_checks() -> void:
 	Game.account.sect = keep.sect
 	Game.account.economy = keep.economy
 	Unlocks.debug_force_all = force_was
+
+## P5 (the sect family; docs/page_identity.md rows 4, 24, 25 and 32, mockups 03 and 11): the Menu hangs every entry as a
+## tablet in its bay, a locked one answering with what opens it and the ones where something waits sealed (the HUD's
+## Menu seal reads the same); Your Sect stands every building where the room places it, tags that never touch, the card
+## the building tapped and Build's lock saying why, Recruit taking the candidate tapped at the gate, the walls' two rows
+## opening their tabs; the Sect Hall seats a row for every rank, you on your seat, the next rank's trial on its board and
+## the two side doors; the Characters' handscroll paints every open slot, the roll as thick as the slots to come with
+## their gates on tags, the one you play setting its task and another offering Switch. Every word reads on its ground.
+func _sect_checks() -> void:
+	var c = Game.active()
+	var main_script = load("res://scripts/main.gd")
+	var force_was: bool = Unlocks.debug_force_all
+	var keep := {"sect": Game.account.sect.duplicate(true), "state": c.cultivator.state, "ts": c.training_sect.duplicate(true), "slots": Game.account.slots_unlocked}
+	var dim: Array = []
+	var lost: Array = []
+	# The Menu: five bays of tablets.
+	Unlocks.debug_force_all = false
+	c.cultivator.state = "bottleneck"
+	var mp: Page = await _open_page("menu")
+	var tabs_at: Array = mp._regions.filter(func(r): return r.id == "open")
+	var entries: Array = mp.ENTRIES.map(func(e): return str(e[0]))
+	var in_bay := true
+	for b in mp.BAYS.size():
+		for id in mp.BAYS[b][1]:
+			var reg: Array = tabs_at.filter(func(r): return str(r.data) == str(id))
+			in_bay = in_bay and reg.size() == 1 and (reg[0].rect as Rect2).position.x >= mp._bay_x(b) - 1.0 and (reg[0].rect as Rect2).end.x <= mp._bay_x(b) + mp.BAY_W + 1.0
+	var bayed: Array = []
+	for bay in mp.BAYS: bayed.append_array(bay[1])
+	check(in_bay and tabs_at.size() == entries.size() and bayed.size() == entries.size() and entries.all(func(id): return bayed.has(id))
+		and tabs_at.all(func(r): return (r.rect as Rect2).size.y >= Page.MIN_TAP), "P5 Menu: every entry hangs once, as a 48 px tablet in its bay (%d)" % tabs_at.size())
+	var locked_ok: bool = tabs_at.all(func(r):
+		var e: Array = mp.ENTRIES[entries.find(str(r.data))]
+		var shut: bool = str(e[3]) != "" and not Unlocks.is_unlocked(c.id, str(e[3]))
+		return bool(r.enabled) != shut and (not shut or str(r.reason) == Unlocks.locked_text(str(e[3]))))
+	check(locked_ok, "P5 Menu: a locked tablet answers a tap with what opens it")
+	Unlocks.debug_force_all = true
+	mp.text_log.clear()
+	mp.queue_redraw()
+	await get_tree().process_frame
+	var hud = load("res://scripts/hud.gd").new()
+	check(mp.ready_seals(c).has("cultivation") and mp.text_log.any(func(tx): return str(tx.get("s", "")) == Tx.t("ui.menu.bottleneck")) and hud.hub_ready(c),
+		"P5 Menu: the bottleneck seals Cultivation and says so, and the HUD's Menu button carries the seal")
+	hud.free()
+	_identity_view(mp, "menu", dim, lost, {}, {})
+	mp.queue_free()
+	c.cultivator.state = keep.state
+	Unlocks.debug_force_all = true
+	# Your Sect: the courtyard.
+	var ds: Array = []
+	for n in ["Wei", "Lan", "Qiu"]: ds.append({"name": n, "level": 2, "trait": "green_thumb", "strength": 2, "spirit": 3, "craft": 4})
+	Game.account.sect = {"name": "Test", "emblem": [0, 0], "level": 2, "prestige": 800, "buildings": {"sect_hall": 1, "treasury": 1}, "queue": [], "disciples": ds,
+		"candidates": [{"name": "Xiu", "strength": 3, "spirit": 2, "craft": 4, "trait": "green_thumb"}, {"name": "Tao", "strength": 1, "spirit": 5, "craft": 2, "trait": "green_thumb"}],
+		"expeditions": [], "candidate_day": Clock.reset_day(Clock.now_utc())}
+	var ys: Page = await _open_page("your_sect")
+	ys.opened = 9.0
+	ys.queue_redraw()
+	await get_tree().process_frame
+	var placed: Dictionary = ys.placements()
+	var picks: Array = ys._regions.filter(func(r): return r.id == "pick").map(func(r): return str(r.data))
+	check(placed.size() == ContentDB.all("sect_buildings").size() and placed.keys().all(func(b): return picks.has(b)),
+		"P5 Your Sect: every building stands where the room places it, each a tap (%d of %d)" % [placed.size(), ContentDB.all("sect_buildings").size()])
+	var tag_rects: Array = ys._regions.filter(func(r): return r.id == "pick" and (r.art as Rect2).size.y == 22.0).map(func(r): return r.art)
+	var touching := 0
+	for i in tag_rects.size():
+		for j in range(i + 1, tag_rects.size()):
+			if (tag_rects[i] as Rect2).intersects(tag_rects[j]): touching += 1
+	check(tag_rects.size() == placed.size() and touching == 0 and tag_rects.all(func(tr): return ys.PANO.encloses(tr)),
+		"P5 Your Sect: a tag over every building, inside the painting, none touching another (%d tags, %d touching)" % [tag_rects.size(), touching])
+	ys.on_action("pick", "guest_house")
+	ys.queue_redraw()
+	await get_tree().process_frame
+	var up: Array = ys._regions.filter(func(r): return r.id == "upgrade")
+	var why: Dictionary = Game.sect.upgrade_check(c, "guest_house")
+	check(up.size() == 1 and str(up[0].data) == "guest_house" and bool(up[0].enabled) == why.is_empty() and (why.is_empty() or str(up[0].reason) != "")
+		and ys.text_log.any(func(tx): return str(tx.get("s", "")) == ContentDB.name_of("sect_buildings", "guest_house")),
+		"P5 Your Sect: the card is the building tapped, and Build says why it waits (%s)" % str(why.get("reason", "")))
+	ys.on_action("cand", 1)
+	ys.queue_redraw()
+	await get_tree().process_frame
+	var rec: Array = ys._regions.filter(func(r): return r.id == "recruit")
+	var cands: Array = ys._regions.filter(func(r): return r.id == "cand")
+	check(rec.size() == 1 and int(rec[0].data) == 1 and cands.size() == 2, "P5 Your Sect: a candidate tapped at the gate is the one Recruit takes")
+	var shown: Array = ys.figs.values().filter(func(f): return (f as Node2D).visible)
+	check(shown.size() == 5 and shown.all(func(f): return (f as Node2D).scale == Vector2(0.5, 0.5) and (f as Node2D).position == (f as Node2D).position.round()),
+		"P5 Your Sect: the three disciples at home in the yard and the two candidates at the gate, at an art pixel a pixel (%d)" % shown.size())
+	_identity_view(ys, "your_sect courtyard", dim, lost, {}, {})
+	ys.on_action("go_tab", "territory")
+	check(str(ys.tabs[ys.tab].id) == "territory", "P5 Your Sect: Territory beyond the walls opens its tab")
+	ys.queue_free()
+	# The Sect Hall.
+	var ranks: Array = ContentDB.config("sect_ranks").get("order", [])
+	c.training_sect.merge({"id": "jade_sect", "rank": str(ranks[2])}, true)
+	var sh: Page = await _open_page("training_sect")
+	sh.opened = 9.0
+	sh.queue_redraw()
+	await get_tree().process_frame
+	var said: Array = sh.text_log.map(func(tx): return str(tx.get("s", "")))
+	var doors: Array = sh._regions.filter(func(r): return r.id in ["missions", "shop"] and (r.rect as Rect2).size.x >= Page.MIN_TAP and (r.rect as Rect2).size.y >= Page.MIN_TAP)
+	var you: Node2D = sh.figs.get("you")
+	check(ranks.all(func(rk): return said.has(ContentDB.rank_name(str(rk)))) and sh._regions.any(func(r): return r.id == "promote") and doors.size() == 2
+		and you != null and you.visible and said.has(Tx.t("ui.training_sect.next_rank") % ContentDB.rank_name(str(ranks[3]))),
+		"P5 Sect: a row of seats for every rank, you on yours, the next rank's trial on its board, Missions and the Sect Shop as doors")
+	_identity_view(sh, "training_sect", dim, lost, {}, {})
+	sh.queue_free()
+	# The Characters' handscroll.
+	var cp: Page = await _open_page("characters")
+	cp.opened = 9.0
+	cp.queue_redraw()
+	await get_tree().process_frame
+	var n: int = Game.account.slots_unlocked
+	var chosen: Array = cp._regions.filter(func(r): return r.id == "choose")
+	var closed: int = AccountState.MAX_SLOTS - n
+	var gates: int = mini(cp.TAGS, (ContentDB.config("account_rules").get("slots", []) as Array).filter(func(rl): return int(rl.slot) > n).size())
+	var tagged: int = cp.text_log.filter(func(tx): return str(tx.get("s", "")).begins_with(Tx.t("ui.characters.slot") % (n + 1))).size()
+	check(chosen.size() == mini(cp.SHOWN, n) and is_equal_approx(cp.roll_w(), 22.0 + 5.0 * closed) and (gates == 0 or tagged == 1),
+		"P5 Characters: a stretch of the scroll for every open slot, the roll as thick as the %d still to come, the next gate on a tag" % closed)
+	var figs: Array = cp.figs.values().filter(func(f): return (f as Node2D).visible)
+	check(figs.size() == Game.characters.size() and figs.all(func(f): return (f as Node2D).scale == Vector2.ONE and (f as Node2D).position == (f as Node2D).position.round()),
+		"P5 Characters: each disciple painted as its live figure at 2 px an art px, on whole pixels")
+	check(cp._regions.filter(func(r): return r.id == "task" and (r.rect as Rect2).size.y >= Page.MIN_TAP).size() == 5, "P5 Characters: the one you play sets its task under the scroll")
+	_identity_view(cp, "characters", dim, lost, {}, {})
+	cp.queue_free()
+	check(dim.is_empty() and lost.is_empty(), "P5 sect family: every word reads on what it sits on (%s; %s)" % [str(dim.slice(0, 6)), str(lost.slice(0, 3))])
+	Game.account.sect = keep.sect
+	c.training_sect = keep.ts
+	Unlocks.debug_force_all = force_was
+	await get_tree().process_frame
 
 func _post_checks() -> void:
 	var c = Game.active()

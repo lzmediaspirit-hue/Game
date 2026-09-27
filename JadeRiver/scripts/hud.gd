@@ -17,6 +17,7 @@ extends Control
 ## Mortal or early Bone Forging disciple has no Qi, so no QI bar is drawn.
 
 const Avatar = preload("res://scripts/avatar.gd")
+const MenuPage = preload("res://scripts/ui/pages/menu_page.gd")
 
 var frame_style: StyleBox
 var player: Node2D
@@ -1835,45 +1836,19 @@ func _draw_icon_row(c) -> void:
 		var at: Vector2 = ic[1]
 		ring(at, 26, pulses.has("hud:" + ic[0]))
 		glyph(ic[0], at, 32)
-		if ic[0] == "mail" and Game.mail.unread(c) > 0: _count_badge(at + Vector2(23, -23), Game.mail.unread(c))
-		if ic[0] == "menu" and hub_ready(c): _ready_seal(at + Vector2(25, -25))
+		if ic[0] == "mail" and Game.mail.unread(c) > 0: UiKit.count_badge(self, at + Vector2(23, -23), Game.mail.unread(c))
+		if ic[0] == "menu" and hub_ready(c): UiKit.ready_seal(self, at + Vector2(25, -25))
 
-## Something waits in the hub: the bottleneck is reached, or a day's activity chest is full and not yet opened.
+## Something waits in the hub: the bottleneck is reached, or a day's activity chest is full and not yet opened (the
+## Menu's tablets that carry a ready seal, MenuPage.ready_seals).
 func hub_ready(c) -> bool:
-	if c == null: return false
-	if c.cultivator.state == "bottleneck": return true
-	for row in ContentDB.all("activity"):
-		if Game.accounts.chest_ready(str(row.id)): return true
-	return false
-
-## A count on a button: the red pill with its number (the kit's .k-badge).
-func _count_badge(center: Vector2, n: int) -> void:
-	var s := str(mini(99, n))
-	var w := maxf(22.0, UiKit.text_width(s, 14) + 12.0)
-	_pill(Rect2(center - Vector2(w * 0.5, 11), Vector2(w, 22)).grow(2.0), UiKit.INK)
-	_pill(Rect2(center - Vector2(w * 0.5, 11), Vector2(w, 22)), UiKit.RED)
-	UiKit.draw_text(self, s, Vector2(center.x - w * 0.5, center.y + 5), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, w)
-
-## The hub's ready seal: a small vermilion seal pressed on at a tilt, with a tick (the kit's .k-seal).
-func _ready_seal(center: Vector2) -> void:
-	draw_set_transform(center, deg_to_rad(-8.0))
-	draw_rect(Rect2(-12, -12, 24, 24), UiKit.INK)
-	draw_rect(Rect2(-10, -10, 20, 20), UiKit.RED)
-	draw_rect(Rect2(-8, -8, 16, 16), Color(UiKit.PAPER, 0.35), false, 1.0)
-	UiKit.draw_text(self, "✓", Vector2(-10, 5), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 20)
-	draw_set_transform(Vector2.ZERO)
-
-func _pill(r: Rect2, col: Color) -> void:
-	var rad := r.size.y * 0.5
-	draw_circle(r.position + Vector2(rad, rad), rad, col)
-	draw_circle(r.end - Vector2(rad, rad), rad, col)
-	draw_rect(Rect2(r.position + Vector2(rad, 0), Vector2(maxf(0.0, r.size.x - rad * 2.0), r.size.y)), col)
+	return not MenuPage.ready_seals(c).is_empty()
 
 ## A number in the corner of a ring (a count, the Presence's level): a dark pill at its lower right (the kit's .k-corner).
 func _corner(at: Vector2, s: String, col := UiKit.PAPER) -> void:
 	var w := maxf(22.0, UiKit.text_width(s, 14) + 10.0)
 	var cen := at + Vector2(21, 21)
-	_pill(Rect2(cen - Vector2(w * 0.5, 11), Vector2(w, 22)), UiKit.INK)
+	UiKit.pill(self, Rect2(cen - Vector2(w * 0.5, 11), Vector2(w, 22)), UiKit.INK)
 	UiKit.draw_text(self, s, Vector2(cen.x - w * 0.5, cen.y + 5), 14, col, HORIZONTAL_ALIGNMENT_CENTER, w)
 
 ## The party chips beside the player panel (mockup 01): the animals beside you (the active one first) and the fellow
