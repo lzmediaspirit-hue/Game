@@ -382,6 +382,14 @@
  ],
  "decor": [
   {
+   "prop": "door",
+   "at": [
+    1900,
+    692
+   ],
+   "layer": "play"
+  },
+  {
    "prop": "cliff_face",
    "at": [
     1260,

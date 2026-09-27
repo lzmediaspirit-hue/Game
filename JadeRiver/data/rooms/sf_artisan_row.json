@@ -133,7 +133,7 @@
    "id": "warehouse_door",
    "type": "door",
    "at": [
-    1240,
+    1272,
     704
    ],
    "to": "si_gus_warehouse",

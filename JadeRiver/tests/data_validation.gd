@@ -1271,6 +1271,11 @@ func room_suite() -> void:
 		check(seen.has(rid2) or room.get("instanced", false), "room %s reachable from Lotus Ferry" % rid2)
 		var surfaces: Array = room.get("surfaces", [])
 		for p2 in room.get("portals", []):
+			# Every way into a building shows a door where it is (Old Ma's store showed a counter and no door): the doorway
+			# its art draws, or a door placed at it (PortalView.entrance).
+			if p2.get("facade", false) or not PortalView.building_front(p2, room).is_empty():
+				check(PortalView.entrance(p2, room) in ["building", "decor"], "%s:%s, a way into a building, stands in a door the player can see (%s, doorway %s)" % [
+					rid2, p2.id, str(p2.get("at", [])), str(PortalView.building_front(p2, room).get("door", "none"))])
 			var to2 := str(p2.get("to", ""))
 			if to2 == "": continue
 			var planned := ["ae_landing"]   # the Azure Expanse arrives with the next zone (v1.1)

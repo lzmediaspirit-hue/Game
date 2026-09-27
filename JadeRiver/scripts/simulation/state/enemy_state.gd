@@ -47,6 +47,11 @@ func height() -> float:
 func is_boss() -> bool:
 	return role in ["field_boss", "dungeon_boss", "story_boss"]
 
+## In a fight: alive and set on a foe, from the moment it notices one until it gives up (idle, patrolling and walking
+## home are the only states out of one).
+func in_fight() -> bool:
+	return alive and not str(ai.get("state", "idle")) in ["idle", "patrol", "return"]
+
 func display_name() -> String:
 	return str(def.get("name", def_id))
 

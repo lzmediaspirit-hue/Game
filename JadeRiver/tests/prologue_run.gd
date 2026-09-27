@@ -30,10 +30,14 @@ func _main() -> void:
 	get_tree().quit(1 if failures > 0 else 0)
 
 # ------------------------------------------------------------------ helpers
+## Called after every tick of the simulation (tests/tutorial_order.gd watches what the HUD shows of each fight).
+var tick_watch := Callable()
+
 func step(seconds: float) -> void:
 	var t := 0.0
 	while t < seconds:
 		Game.tick(0.05)
+		if tick_watch.is_valid(): tick_watch.call()
 		t += 0.05
 
 func submit(i: Dictionary) -> Dictionary:
@@ -71,20 +75,24 @@ func go(portal: String) -> bool:
 	if r.get("ok", false): place(Vector2(float(c().position.x), float(c().position.y)))
 	return r.get("ok", false)
 
-## Walk to a room through open portals (breadth-first over the room graph).
-func travel(target: String) -> bool:
-	if room() == target: return true
+## Every room the character can walk to now through open portals, breadth-first from here: room -> [from room, portal].
+func routes() -> Dictionary:
 	var prev := {room(): ["", ""]}
 	var queue := [room()]
 	while not queue.is_empty():
 		var r: String = queue.pop_front()
-		if r == target: break
 		for p in ContentDB.room(r).get("portals", []):
 			var to := str(p.get("to", ""))
 			if to == "" or prev.has(to) or ContentDB.room(to).is_empty() or ContentDB.room(to).get("instanced", false): continue
 			if p.has("requires") and not RequirementRules.passes(p.requires, Game.ctx()): continue
 			prev[to] = [r, str(p.id)]
 			queue.append(to)
+	return prev
+
+## Walk to a room through open portals (breadth-first over the room graph).
+func travel(target: String) -> bool:
+	if room() == target: return true
+	var prev := routes()
 	if not prev.has(target): return false
 	var path: Array = []
 	var cur := target
@@ -257,9 +265,49 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, a
 	if verbose: print("  fight ", def_id, ": killed ", tally.killed, " in ", snappedf(t, 0.1), "s, hp ", snappedf(c().pools.hp, 0.1))
 	return int(tally.killed)
 
-# ------------------------------------------------------------------ the run
-func run() -> void:
-	var folder := "user://test_saves_prologue/"
+# ------------------------------------------------------------------ the dialogue page
+## Open a conversation on the real dialogue page and tap through it to its last line (or until it closes).
+func _page(convo: Dictionary) -> Dictionary:
+	var out := {"page": load(str(load("res://scripts/main.gd").PAGES.dialogue)).new(), "closed": false}
+	out.page.closed.connect(func(_p): out.closed = true)
+	add_child(out.page)
+	out.page.open({"convo": convo})
+	for i in 20:
+		if out.closed or (out.page.at_end() and out.page.shown_chars >= out.page.current().length() and not (out.page.convo.get("choices", []) as Array).is_empty()): break
+		out.page.on_action("advance", null)
+	return out
+
+## Talk to an NPC by the context button on the real dialogue page, tap to the last line and pick the choice that does
+## `key` (accept or hand_in) for a quest. True when it took, and the page then closed itself or went on to the same
+## person's next quest to take or hand in (M17): after taking a quest nobody has to tap "Farewell", and a trade, a gift
+## or a farewell alone never keeps the conversation open.
+func _choose_on_page(npc: String, key: String, qid: String) -> bool:
+	var talk := interact(str(npc_object(npc).get("id", "")))
+	var on := _page(talk.get("dialogue", {}))
+	var before: Dictionary = on.page.convo
+	var choices: Array = before.get("choices", [])
+	for i in choices.size():
+		if str(choices[i].get(key, "")) == qid and not on.closed: on.page.on_action("choose", i)
+	var now: Dictionary = on.page.convo
+	var went_on: bool = not on.closed and now != before and now.has("quest")
+	on.page.queue_free()
+	var took: bool = (c().quests.is_active(qid) or c().quests.is_done(qid)) if key == "accept" else c().quests.is_done(qid)
+	if verbose: print("  %s %s on the page: %s" % [key, qid, "closed itself" if on.closed else ("went on to %s" % now.get("quest", "") if went_on else "left open")])
+	return took and (on.closed or went_on)
+
+# ------------------------------------------------------------------ the steps
+## A save folder's files copied over another's (the runs' checkpoints).
+func _copy_dir(from: String, to: String) -> void:
+	DirAccess.make_dir_recursive_absolute(to)
+	for f in DirAccess.get_files_at(to): DirAccess.remove_absolute(to + f)
+	for f in DirAccess.get_files_at(from): DirAccess.copy_absolute(from + f, to + f)
+
+## Each step starts where its quest giver stands; a step taken in another order may start elsewhere.
+func back_to(target: String) -> void:
+	if room() != target: travel(target)
+
+## A new character in the Fisher's Hut, on a fixed seed (every run plays the same dice).
+func start_new(folder: String) -> void:
 	DirAccess.make_dir_recursive_absolute(folder)
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
 	Saves.use_folder(folder)
@@ -280,7 +328,8 @@ func run() -> void:
 	check(c().inventory.equipped.get("weapon") == null, "no weapon at start")
 	check(not Game.is_revealed("hud:attack") and not Game.is_revealed("hud:qi_bar"), "attack and QI hidden at start")
 
-	# 1 Morning Tide
+## 1 Morning Tide: three teas, the Bag, out of the door.
+func step_morning_tide() -> void:
 	accept("aunt_ping", "morning_tide")
 	check(Game.is_revealed("hud:bag"), "Bag revealed on accepting Morning Tide")
 	# The hut must show its way out and its three teas plainly (a player stuck in the hut could not see the door,
@@ -311,17 +360,22 @@ func run() -> void:
 	check(c().quests.is_active("a_quiet_river"), "A Quiet River follows automatically")
 	check(Game.is_revealed("hud:minimap") and Game.is_revealed("hud:quest_tracker"), "minimap and tracker revealed")
 
-	# 2 A Quiet River
+## 2 A Quiet River: Lu at the docks sends you round the village.
+func step_quiet_river() -> void:
 	talk("lu_boatman")
 	hand_in("lu_boatman", "a_quiet_river")
 
-	# 3 The Runaway Kite
+## 3 The Runaway Kite: a jump from the hall roof to the inn.
+func step_kite() -> void:
+	back_to("lf_village")
 	accept("little_dou", "the_runaway_kite")
 	check(Game.is_revealed("hud:jump"), "Jump revealed")
 	check(interact("kite").get("ok", false), "take the kite from the inn roof")
 	hand_in("little_dou", "the_runaway_kite")
 
-	# 5 Granny's Remedy (in the herb hut) — before Ma so coins are tested later
+## 5 Granny's Remedy (in the herb hut): the quick-use slot, a tea, the shrine.
+func step_granny() -> void:
+	back_to("lf_village")
 	check(go("granny_door"), "enter Granny Liu's hut")
 	accept("granny_liu", "grannys_remedy")
 	check(Game.is_revealed("hud:hp_bar") and Game.is_revealed("hud:quick_use"), "HP bar and quick-use revealed")
@@ -332,7 +386,9 @@ func run() -> void:
 	hand_in("granny_liu", "grannys_remedy")
 	check(go("exit"), "back to the village")
 
-	# 4 Ma's Delivery
+## 4 Ma's Delivery: sell the old net, buy two rice balls.
+func step_ma() -> void:
+	back_to("lf_village")
 	check(go("store_door"), "enter Old Ma's store")
 	accept("old_ma", "mas_delivery")
 	check(Game.is_revealed("hud:currency"), "currency revealed")
@@ -344,14 +400,20 @@ func run() -> void:
 	hand_in("old_ma", "mas_delivery")
 	check(go("exit"), "leave the store")
 
-	# 7 Fists First
+## 7 Fists First: the stump and the dummy.
+func step_fists() -> void:
+	back_to("lf_village")
 	accept("uncle_guo", "fists_first")
 	check(Game.is_revealed("hud:attack"), "Attack revealed")
 	hit_object("stump_guo", 12)
 	hit_object("dummy_guo", 5)
 	hand_in("uncle_guo", "fists_first")
+	check(not Game.world.portal_state(c(), Game.room_rt.portal_def("east_gate")).open or c().quests.is_done("a_quiet_river_return"),
+		"the East Gate stays shut after Fists First until Guo sends you to the crabs")
 
-	# 6 Race to the Tower (optional; fail once, then win)
+## 6 Race to the Tower (optional; fail once, then win).
+func step_race() -> void:
+	back_to("lf_village")
 	accept("shen_lian_npc", "race_to_the_tower")
 	step(26.0)
 	check(not c().quests.is_active("race_to_the_tower"), "race fails when time runs out")
@@ -360,15 +422,18 @@ func run() -> void:
 	hand_in("shen_lian_npc", "race_to_the_tower")
 	check(c().cultivator.titles.has("fleet_footed"), "title Fleet-Footed earned")
 
-	# 8 Return to Lu
+## 8 Back to Lu once the four lessons are done.
+func step_return() -> void:
+	back_to("lf_village")
 	check(c().quests.is_active("a_quiet_river_return"), "A Quiet River (Return) offered after the four lessons")
 	talk("lu_boatman")
 	hand_in("lu_boatman", "a_quiet_river_return")
 
-	# 9 Crab Trouble
+## 9 Crab Trouble: the East Gate opens, five shells and Old Snapper in the Reed Shallows.
+func step_crabs() -> void:
 	accept("uncle_guo", "crab_trouble")
 	check(Game.is_revealed("hud:enemy_hp_bars") and Game.is_revealed("hud:system_log"), "enemy HP bars and log revealed")
-	check(go("east_gate") and room() == "lf_reed_shallows", "East Gate opens after Fists First")
+	check(go("east_gate") and room() == "lf_reed_shallows", "the East Gate opens with Crab Trouble")
 	var guard := 0
 	while c().inventory.count("crab_shell") < 5 and guard < 30:
 		fight("mudshell_crab", 1, 30.0)
@@ -387,7 +452,8 @@ func run() -> void:
 	hand_in("uncle_guo", "crab_trouble")
 	check(c().inventory.count_including_equipped("plain_straw_hat") >= 1, "Plain Straw Hat received")
 
-	# 10 Evening on the River
+## 10 Evening on the River: dinner, the docks at sunset, and the night falls.
+func step_evening() -> void:
 	accept("lu_boatman", "evening_on_the_river")
 	check(Game.is_revealed("hud:menu"), "Menu revealed")
 	talk("aunt_ping")
@@ -395,7 +461,8 @@ func run() -> void:
 	check(room() == "lf_village_night", "the night falls (room %s)" % room())
 	check(c().quests.is_active("the_hollow_night"), "The Hollow Night begins")
 
-	# P4 The night
+## P4 The night: three villagers to the hut, then hold out until Lu comes.
+func step_night() -> void:
 	for npc in ["little_dou", "granny_liu", "old_ma"]:
 		talk_choose(npc, "effects")
 	check(c().quests.has_flag("dou_safe") and c().quests.has_flag("granny_safe") and c().quests.has_flag("ma_safe"), "villagers guided to the hut")
@@ -404,7 +471,8 @@ func run() -> void:
 	check(c().quests.has_flag("night_survived"), "survived the night")
 	check(room() == "lf_lu_boat", "carried to Lu's boat (room %s)" % room())
 
-	# P5 Lu's Boat: first breakthrough
+## P5 Lu's Boat: the first breakthrough.
+func step_river_token() -> void:
 	check(c().quests.is_active("the_river_token"), "The River Token begins")
 	check(Game.is_revealed("hud:cultivate") and Game.is_revealed("hud:progress_bar"), "Cultivate and progress bar revealed")
 	check(c().cultivator.methods_known.has("riverbreath_fragment"), "Riverbreath method learned")
@@ -425,7 +493,8 @@ func run() -> void:
 	check(c().pools.max_qi == 0.0, "still no QI pool in the body stages")
 	check(not Game.is_revealed("hud:qi_bar"), "QI bar still hidden at Bone Forging 1")
 
-	# P6 Willow Path
+## P6 The Willow Path: the shrine, the stump and five Wild Boarlets.
+func step_willow_path() -> void:
 	check(c().quests.is_active("the_willow_path"), "The Willow Path begins at Bone Forging 1")
 	check(Unlocks.is_unlocked(c().id, "mail") and Unlocks.is_unlocked(c().id, "kill_progress"), "mail and kill progress unlocked")
 	check(go("deck") and go("west_gate") and room() == "wp_east", "West Gate open after the night")
@@ -435,7 +504,8 @@ func run() -> void:
 	check(fight("wild_boarlet", 5, 200.0) >= 5, "five Wild Boarlets")
 	check(c().quests.is_done("the_willow_path"), "The Willow Path complete")
 
-	# P7 Stoneford and the Recruitment Fair
+## P7 Stoneford and the Recruitment Fair: both recruiters, then the Jade Sect.
+func step_fair() -> void:
 	check(go("west") and go("west") and go("west") and go("west") and room() == "sf_fairground", "walk to the Fairground (room %s)" % room())
 	check(c().quests.is_active("the_recruitment_fair") or c().quests.offered.has("the_recruitment_fair"), "Recruitment Fair offered")
 	accept("recruiter_qing_lan", "the_recruitment_fair")
@@ -444,7 +514,8 @@ func run() -> void:
 	check(str(c().training_sect.get("id", "")) == "jade_sect", "member of the Jade Sect")
 	check(c().quests.is_done("the_recruitment_fair"), "Recruitment Fair complete")
 
-	# Grind to Bone Forging 2 on the Willow Path.
+## Grind to Bone Forging 2 on the Willow Path.
+func step_grind_bf2() -> void:
 	check(go("east") and go("east") and go("east") and go("east") and room() == "wp_west", "back to Willow Path West (room %s)" % room())
 	var tries := 0
 	if verbose: GameEvents.event.connect(func(n, p): if n == "progress_changed" and tries < 12: print("    progress ", p.source, " ", snappedf(float(p.amount), 0.1), " -> ", snappedf(c().cultivator.qp, 0.1)))
@@ -472,7 +543,8 @@ func run() -> void:
 		if verbose and tries % 10 == 0: print("  grind ", tries, ": qp ", snappedf(c().cultivator.qp, 0.1), "/", c().cultivator.need(), " state ", c().cultivator.state, " consolidating ", snappedf(c().cultivator.consolidation_left, 0.1))
 	check(c().cultivator.realm_key == "bone_forging_2", "Bone Forging 2 reached after %d fights" % tries)
 
-	# P8 Entry Trial
+## P8 The Entry Trial: the bell, then the Trial Puppet.
+func step_entry_trial() -> void:
 	check(go("west") and go("west") and go("west") and go("west"), "return to the Fairground")
 	check(c().quests.is_active("entry_trial"), "Entry Trial active")
 	check(go("trial_jade") and room() == "sf_trial_jade", "enter the Jade trial")
@@ -483,6 +555,25 @@ func run() -> void:
 	check(str(c().training_sect.get("rank", "")) == "service_disciple", "Service Disciple")
 	check(c().inventory.equipped.get("weapon") == null, "still bare fists after the Prologue")
 
+# ------------------------------------------------------------------ the run
+func run() -> void:
+	start_new("user://test_saves_prologue/")
+	step_morning_tide()
+	step_quiet_river()
+	step_kite()
+	step_granny()   # before Ma, so coins are tested later
+	step_ma()
+	step_fists()
+	step_race()
+	step_return()
+	step_crabs()
+	step_evening()
+	step_night()
+	step_river_token()
+	step_willow_path()
+	step_fair()
+	step_grind_bf2()
+	step_entry_trial()
 	# HUD reveal order (S27): each element appears exactly at its step.
 	var order := ["hud:joystick", "hud:context", "hud:bag", "hud:room_banner", "hud:minimap", "hud:quest_tracker", "hud:jump"]
 	var idx := -1
