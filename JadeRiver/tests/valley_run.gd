@@ -110,6 +110,14 @@ func par_up() -> void:
 		Game.progression.apply_insight(c().id, "sword", short_by * 1.05 / maxf(0.2, 1.0 + c().stats.value("insight_rate")), "test_shortcut:par")
 	Game.combat.refresh_stats(c().id)
 
+## P12 test shortcut: a boss's health is the par character's DPS times its par time, and the scripted fighter strikes
+## well under par DPS in a boss fight (no main art at par, 0.2 s steps, the falls and the walk back), so a boss that
+## outlasts one try is chipped to a tenth for the next (as long_boss_fight chips its bosses to a quarter).
+func par_chip(def_id: String) -> void:
+	if Game.room_rt == null: return
+	for e in Game.room_rt.living_enemies():
+		if e.def_id == def_id and e.def.has("par_s"): e.pools.hp = minf(e.pools.hp, e.pools.max_hp * 0.1)   # test_shortcut
+
 ## Nobody walks while gravely wounded: wake at the shrine and rest first.
 func revive_if_needed() -> void:
 	if not Game.combat.is_wounded(c().id): return
@@ -1044,6 +1052,7 @@ func defeat(def_id: String, room_id: String, tries := 4) -> bool:
 	for i in tries:
 		if not travel(room_id): return false
 		step(1.0)
+		if i > 0: par_chip(def_id)
 		if verbose: print("  in ", room_id, ": ", Game.room_rt.living_enemies().map(func(e): return "%s%s L%d hp%d" % [e.def_id, "*" if e.elite else "", e.level, int(e.pools.hp)]))
 		if fight(def_id, 1, 900.0, 0.0, true) >= 1: return true
 		revive_if_needed()
@@ -2507,6 +2516,7 @@ func sec_ls2() -> void:
 		if not travel("bm_flagship_deck"): break
 		c().pools.soul = c().pools.max_soul
 		if not Game.field.is_on(c().id): submit({"type": "toggle_presence", "on": true})
+		if i > 0: par_chip("admiral_voss")
 		if fight("admiral_voss", 1, 900.0, 0.0, true) >= 1:
 			won = true
 			break
