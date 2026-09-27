@@ -8,7 +8,6 @@ extends Node2D
 ## 30), the dodge is Combat's (its cooldown, i-frames and events) carried by the motor's dash, and Combat's forced motion
 ## (a knockback, a technique's dash) pushes the motor. An ActorState mirrors the motor for the authorities.
 
-const BODY := preload("res://art/topdown/placeholder_body.png")
 
 var world: Node2D
 var motor: TopdownMotor
@@ -34,6 +33,8 @@ var frame := 0
 var anim_t := 0.0
 var screen := Vector2.ZERO   ## the body's feet on the world viewport, whole art px
 var frames: Dictionary = {}
+var cell := Vector2(32, 48)     ## the body sheet's cell and the feet in it (the tile set's manifest)
+var foot := Vector2(16, 46)
 ## The aim the HUD is showing (decision 30): {kind, slot, form, dir, at, reach, half, target (EnemyState or null)}, {}
 ## when no thumb is aiming. The world draws it on the ground.
 var aim: Dictionary = {}
@@ -56,7 +57,10 @@ func bound() -> bool:
 	return actor_id != "" and Game.character(actor_id) != null and Game.room_rt != null and Game.room_rt.topdown == world.room
 
 func _ready() -> void:
-	frames = world.room.tileset.get("body", {}).get("frames", {})
+	var body: Dictionary = world.room.tileset.get("body", {})
+	frames = body.get("frames", {})
+	cell = Vector2(float(body.get("cell", [32, 48])[0]), float(body.get("cell", [32, 48])[1]))
+	foot = Vector2(float(body.get("foot", [16, 46])[0]), float(body.get("foot", [16, 46])[1]))
 	ground = WalkSurface.new({"id": "grid", "rect": [0, 0, world.room.w * TopdownRoom.TILE, world.room.h * TopdownRoom.TILE], "stratum": "ground"})
 	_mirror()
 
@@ -200,14 +204,14 @@ func sync(delta: float) -> void:
 func frame_rect() -> Rect2:
 	var row := "e" if motor.row == "w" else motor.row
 	var at: Array = frames.get(anim, {}).get(row, [[0, 0]])[frame]
-	return Rect2(float(at[0]), float(at[1]), 32, 48)
+	return Rect2(Vector2(float(at[0]), float(at[1])), cell)
 
 ## Draw the current frame with its feet at `feet` on `canvas` (the silhouette overlay draws the same frame).
 func draw_body(canvas: CanvasItem, feet: Vector2, tint := Color.WHITE) -> void:
 	var src := frame_rect()
 	var flip := motor.row == "w"
 	canvas.draw_set_transform(feet, 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
-	canvas.draw_texture_rect_region(BODY, Rect2(-16, -46, 32, 48), src, tint)
+	canvas.draw_texture_rect_region(world.atlas("body"), Rect2(-foot, cell), src, tint)
 	canvas.draw_set_transform(Vector2.ZERO)
 
 func _draw() -> void:

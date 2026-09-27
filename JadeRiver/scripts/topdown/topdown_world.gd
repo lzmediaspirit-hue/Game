@@ -14,9 +14,6 @@ extends Node2D
 ## labels and HP bars (EnemyView in label mode, placed by WorldLabels round the HUD), loot, and the aim (decision 30).
 
 const Player := preload("res://scripts/topdown/topdown_player.gd")
-const TILES := preload("res://art/topdown/proto_tiles.png")
-const PROPS := preload("res://art/topdown/proto_props.png")
-const FOES := preload("res://art/topdown/placeholder_foes.png")
 const VIEW := Vector2i(640, 360)
 const T := 16.0
 
@@ -47,6 +44,7 @@ var foe_views: Dictionary = {}  ## uid -> FoeView (the figure, in the sorted lay
 var label_views: Dictionary = {} ## uid -> EnemyView in label mode (on the overlay)
 var loot_layer: Node2D
 var aim_view: Node2D
+var _atlases: Dictionary = {}
 
 func _ready() -> void:
 	# Phase 2: a character enters the room through the World authority; its RoomRuntime carries the grid.
@@ -107,7 +105,8 @@ func _ready() -> void:
 	overlay.add_child(aim_view)
 	effects = FxLayer.new()
 	overlay.add_child(effects)
-	combat_fx = CombatFx.new(effects, self, float(ContentDB.movement("topdown.combat.chest", 40)))
+	effects.chest = float(ContentDB.movement("topdown.combat.chest", 40))
+	combat_fx = CombatFx.new(effects, self)
 	var caption := CanvasLayer.new()
 	caption.layer = 4
 	add_child(caption)
@@ -259,13 +258,13 @@ func _on_event(name: String, p: Dictionary) -> void:
 				else:
 					# A swing's arc along the aim, so each of the eight directions reads (the placeholder body has one strike pose).
 					var f := 1 if aim.x >= 0.0 else -1
-					effects.add("slash", player_feet() + aim * 26.0 + Vector2(0, -combat_fx.chest + 8.0), {"color": UiKit.PAPER, "facing": f,
+					effects.add("slash", player_feet() + aim * 26.0 + Vector2(0, -effects.chest + 8.0), {"color": UiKit.PAPER, "facing": f,
 						"turn": (aim * f).angle(), "radius": 22.0, "dur": 0.22, "delay": float(p.get("windup", 0.0)) * 0.6})
 					Audio.play("swing")
 			elif p.get("enemy", false):
 				Audio.play("tell")
 		"parried":
-			effects.label(player_feet() + Vector2(0, -110), Tx.t("world_view.parry"), UiKit.GOLD, 22)
+			effects.parry(player_feet(), player.facing)
 			Audio.play("parry")
 		"projectile_ended":
 			effects.add("spark", Vector2(float(p.x), float(p.y) - float(p.alt)), {"color": UiKit.PAPER, "dur": 0.15})
@@ -279,22 +278,21 @@ func tile(name: String) -> Rect2:
 	return Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
 
 ## The top tile a paint mark draws, with a fixed per-cell variant.
+## (The tile set's `paint` table says which tiles each mark draws, decision 31: new art replaces rows, not code.)
 func top_tile(x: int, y: int) -> String:
-	var v := (x * 7 + y * 13) % 5 < 2
-	match room.paint_at(x, y):
-		"g": return "grass_b" if v else "grass_a"
-		"f": return "grass_flowers"
-		"d": return "dirt"
-		"p": return "paving_b" if v else "paving_a"
-		"s": return "stone_top"
-		"w": return "wood"
-		"r": return "rock"
-	return "grass_a"
+	var tops: Array = room.tileset.get("paint", {}).get(room.paint_at(x, y), {}).get("top", ["grass_a"])
+	return str(tops[1 if tops.size() > 1 and (x * 7 + y * 13) % 5 < 2 else 0])
 
 func face_tile(x: int, y: int, first: bool, over_water: bool) -> String:
-	var kind: String = {"g": "earth", "f": "earth", "d": "earth", "p": "stone", "s": "stone", "w": "wood", "r": "rock"}.get(room.paint_at(x, y), "stone")
-	if over_water and kind != "wood": kind = "bank"
+	var p: Dictionary = room.tileset.get("paint", {}).get(room.paint_at(x, y), {})
+	var kind := str(p.get("face", "stone"))
+	if over_water and not p.get("keep_face", false): kind = str(room.tileset.get("bank_face", "bank"))
 	return kind + ("_face_top" if first else "_face")
+
+## An atlas of the tile set (tiles, props, body, foes), loaded once from the file its manifest names.
+func atlas(kind: String) -> Texture2D:
+	if not _atlases.has(kind): _atlases[kind] = load(str(room.tileset.get("atlas", {}).get(kind, "")))
+	return _atlases[kind]
 
 ## The level the cell south of an edge shows at that edge: a stair's height where it meets it, water -1.
 func edge_level(x: int, y: int) -> int:
@@ -326,7 +324,7 @@ class WaterView extends Node2D:
 		var src: Rect2 = world.tile("water_%d" % maxi(0, frame))
 		for y in r.h:
 			for x in r.w:
-				if r.levels[y * r.w + x] == TopdownRoom.WATER: draw_texture_rect_region(TILES, Rect2(x * T, y * T - TopdownRoom.WATER_Z / TopdownRoom.ART, T, T), src)
+				if r.levels[y * r.w + x] == TopdownRoom.WATER: draw_texture_rect_region(world.atlas("tiles"), Rect2(x * T, y * T - TopdownRoom.WATER_Z / TopdownRoom.ART, T, T), src)
 
 ## Ground-level tops and the bank faces over water: under everything that sorts.
 class FloorView extends Node2D:
@@ -337,10 +335,10 @@ class FloorView extends Node2D:
 		for y in r.h:
 			for x in r.w:
 				if r.levels[y * r.w + x] != 0 or not r.stair_at(x, y).is_empty(): continue
-				draw_texture_rect_region(TILES, Rect2(x * T, y * T, T, T), world.tile(world.top_tile(x, y)))
+				draw_texture_rect_region(world.atlas("tiles"), Rect2(x * T, y * T, T, T), world.tile(world.top_tile(x, y)))
 				if world.edge_level(x, y + 1) == TopdownRoom.WATER:
 					var src: Rect2 = world.tile(world.face_tile(x, y, true, true))
-					draw_texture_rect_region(TILES, Rect2(x * T, (y + 1) * T, T, T * 0.5), Rect2(src.position, Vector2(T, T * 0.5)))
+					draw_texture_rect_region(world.atlas("tiles"), Rect2(x * T, (y + 1) * T, T, T * 0.5), Rect2(src.position, Vector2(T, T * 0.5)))
 
 ## One row of raised cells: their tops at their height and their south faces down to the level in front, with a rim
 ## on the sides that drop away. Its key is the row's south edge.
@@ -363,13 +361,13 @@ class StripView extends Sorted:
 			var l := r.levels[row * r.w + x]
 			if l <= 0 or not r.stair_at(x, row).is_empty(): continue
 			var top := Rect2(x * T, (row - l) * T - lift, T, T)
-			draw_texture_rect_region(TILES, top, world.tile(world.top_tile(x, row)))
+			draw_texture_rect_region(world.atlas("tiles"), top, world.tile(world.top_tile(x, row)))
 			var south := mini(l, world.edge_level(x, row + 1))
 			for k in range(l - south):
 				var water: bool = south + k + 1 == 0
 				var src: Rect2 = world.tile(world.face_tile(x, row, k == 0, water))
 				var h := T * 0.5 if water else T
-				draw_texture_rect_region(TILES, Rect2(x * T, (row + 1 - l + k) * T - lift, T, h), Rect2(src.position, Vector2(T, h)))
+				draw_texture_rect_region(world.atlas("tiles"), Rect2(x * T, (row + 1 - l + k) * T - lift, T, h), Rect2(src.position, Vector2(T, h)))
 			for side in [-1, 1]:   # the rim where the neighbour drops away (plan §1.5)
 				if world.edge_level(x + side, row) < l: draw_rect(Rect2(top.position.x + (T - 1 if side > 0 else 0), top.position.y, 1, T), Color(1, 0.95, 0.8, 0.35))
 
@@ -390,7 +388,7 @@ class StairsView extends Sorted:
 		var y := rect.position.y
 		while y < rect.end.y:
 			for x in int(rect.size.x / T):
-				draw_texture_rect_region(TILES, Rect2(rect.position.x + x * T, y - lift, T, minf(8.0, rect.end.y - y)), Rect2(src.position, Vector2(T, minf(8.0, rect.end.y - y))))
+				draw_texture_rect_region(world.atlas("tiles"), Rect2(rect.position.x + x * T, y - lift, T, minf(8.0, rect.end.y - y)), Rect2(src.position, Vector2(T, minf(8.0, rect.end.y - y))))
 			y += 8.0
 		for side in [0.0, rect.size.x - 1.0]:
 			draw_rect(Rect2(rect.position.x + side, rect.position.y - lift, 1, rect.size.y), Color(0.03, 0.06, 0.07, 0.5))
@@ -414,7 +412,7 @@ class PropView extends Sorted:
 		rects.append(Rect2(at, src.size))
 		key(south + 0.5)
 	func _draw() -> void:
-		draw_texture_rect_region(PROPS, Rect2(at - position, src.size), src)
+		draw_texture_rect_region(world.atlas("props"), Rect2(at - position, src.size), src)
 
 ## The blob shadow on the floor under the body; it shrinks and fades with the height above that floor (plan §1.5).
 class ShadowView extends Sorted:
@@ -536,7 +534,7 @@ class FoeView extends Sorted:
 		draw_rect(Rect2(-7, sy - 1, 14, 3), Color(0.01, 0.035, 0.04, 0.45 * tint.a))
 		draw_rect(Rect2(-5, sy - 2, 10, 5), Color(0.01, 0.035, 0.04, 0.45 * tint.a))
 		draw_set_transform(Vector2(0, feet.y - position.y), 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
-		draw_texture_rect_region(TopdownWorld.FOES, Rect2(-foot, cell), src, tint)
+		draw_texture_rect_region(world.atlas("foes"), Rect2(-foot, cell), src, tint)
 		draw_set_transform(Vector2.ZERO)
 
 ## Phase 2 (decision 30): the aim on the ground, on the overlay in world units. While a thumb aims (the player's

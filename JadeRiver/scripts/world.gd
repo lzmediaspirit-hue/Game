@@ -376,9 +376,10 @@ func add_shake(s: float, amp := -1.0) -> void:
 	shake.add(s, amp)
 
 var sim_frozen := false           # debug (--cast --capture): the simulation holds still while the effect plays, so the shot is the effect
-var combat_fx: CombatFx           # a cast's and a blow's effects (shared with the top-down room)
+var combat_fx: CombatFx           # a cast's and a blow's effects around the effects layer (shared with the top-down room)
 
-## P6e a technique cast at its tier (CombatFx.cast), from the player toward the nearest foe in front.
+## P6e / decision 23: a technique cast, drawn by the effects layer (FxLayer.cast through CombatFx) toward the foe in
+## reach; its first hit shakes once from tier 3.
 func _cast(tech: String, facing: int, col: Color, windup := -1.0) -> void:
 	combat_fx.cast(tech, player.position, facing, col, windup, _foe_in_reach(player.position, facing, float(ContentDB.entry("techniques", tech).hitbox.x[1])))
 
@@ -471,7 +472,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 				fx.add("text", player.position + Vector2(0, -130), {"text": Tx.t("hud.fell"), "color": UiKit.MIST, "size": 18, "dur": 1.4})
 		"hit_landed":
 			if str(p.get("target_kind", "")) == "player" and str(p.get("target", "")) == player.actor_id: player.knock_off_climb()
-			combat_fx.hit(p)   # P6e: its number and spark at its tier (CombatFx)
+			combat_fx.hit(p)   # P6e: its number and spark at its tier (FxLayer.hit), the shakes and the sound (CombatFx)
 		"hazard_warned":
 			var sfx := {"falling_rocks": "rumble", "lightning": "charge", "poison_mist": "hiss"}
 			Audio.play(str(sfx.get(str(p.hazard), "tell")))
@@ -483,8 +484,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 				elif int(p.get("amount", 0)) == 0: fx.label(over, hname, UiKit.PALE_GOLD, 17)
 		"hit_missed", "hit_immune", "hit_dodged": combat_fx.word(name, p, player.position)
 		"parried":
-			fx.add("flash", player.position + Vector2(player.facing * 20, -50), {"color": UiKit.PALE_GOLD, "radius": 30, "dur": 0.25})
-			fx.label(player.position + Vector2(0, -110), Tx.t("world_view.parry"), UiKit.GOLD, 22)
+			fx.parry(player.position, player.facing)
 			Audio.play("parry")
 		"attack_started":
 			if str(p.get("actor", "")) == Game.active_id:

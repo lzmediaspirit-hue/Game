@@ -447,4 +447,8 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     domain and ward); dragging back onto the button cancels. It works left-handed and under Reduce motion, adds no new
     button and draws nothing in the HUD's clear zone. **Still open:** extra actions on drag zones of the Attack button;
     the proposal is in the plan's "As built: Phase 2" and waits for the user.
+31. **Top-down art style:** the map, terrain and world are drawn in a style close to Alabaster Dawn's (bright, detailed ¾
+    top-down pixel art with clear height levels, soft shading and lush tiles), but the theme stays xianxia: Jade River's
+    own places, palette and motifs (river towns, terraces, pagodas, lotus, mist, jade). Inspiration only: original art, no
+    copied tiles, sprites or names.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.

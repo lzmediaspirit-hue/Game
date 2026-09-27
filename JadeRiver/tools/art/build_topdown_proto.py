@@ -194,6 +194,18 @@ TILES = ["grass_a", "grass_b", "grass_flowers", "paving_a", "paving_b", "dirt", 
          "earth_face_top", "earth_face", "stone_face_top", "stone_face", "rock_face_top", "rock_face", "wood_face_top", "wood_face",
          "bank_face_top", "bank_face"]
 
+# Each paint mark of a room: its top tiles (a second is a variant picked per cell) and the face kind its raised edge shows
+# (`<kind>_face_top`, `<kind>_face`; over water a face shows the bank's unless `keep_face`).
+PAINT = {
+    "g": {"top": ["grass_a", "grass_b"], "face": "earth"},
+    "f": {"top": ["grass_flowers"], "face": "earth"},
+    "d": {"top": ["dirt"], "face": "earth"},
+    "p": {"top": ["paving_a", "paving_b"], "face": "stone"},
+    "s": {"top": ["stone_top"], "face": "stone"},
+    "w": {"top": ["wood"], "face": "wood", "keep_face": True},
+    "r": {"top": ["rock"], "face": "rock"},
+}
+
 def build_tiles() -> tuple[Sheet, dict]:
     s = Sheet(8 * T, 4 * T)
     at = {}
@@ -570,7 +582,12 @@ def main() -> None:
     props.save(ROOT / "art/topdown/proto_props.png")
     body.save(ROOT / "art/topdown/placeholder_body.png")
     foes.save(ROOT / "art/topdown/placeholder_foes.png")
-    manifest = {"schema_version": 1, "tile": T, "tiles": tile_at, "props": prop_at, "body": body_at, "foes": foes_at}
+    # Decision 31: the room view reads everything from this manifest (the atlases' files, where each tile, prop and
+    # frame sits, and which tiles each paint mark draws), so the Phase 3 art replaces these sheets and rows, not code.
+    manifest = {"schema_version": 1, "tile": T, "tiles": tile_at, "props": prop_at, "body": body_at, "foes": foes_at,
+                "atlas": {"tiles": "res://art/topdown/proto_tiles.png", "props": "res://art/topdown/proto_props.png",
+                          "body": "res://art/topdown/placeholder_body.png", "foes": "res://art/topdown/placeholder_foes.png"},
+                "paint": PAINT, "bank_face": "bank"}
     out = ROOT / "data/topdown/proto_tileset.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(manifest, indent=1, sort_keys=True) + "\n")

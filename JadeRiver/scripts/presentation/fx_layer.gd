@@ -21,6 +21,10 @@ var fx: Array = []          # {kind, pos, t, dur, color, facing, text, size, vel
 var stacks: Dictionary = {} # P6e multi-hit numbers: stack key -> {n, sum, last, top (its highest number's entry), at, size}
 var clock := 0.0            # seconds of this layer's own time (stacks are timed on it)
 var fixed_step := 0.0       # debug (--cast --capture): when > 0, every frame advances this many seconds, not the real delta
+var number_scale := 1.0     # numbers and words at this share of their size (a staged layer drawn larger than the room)
+var world := true           # the room's layer: also draws Combat's arrays and fires, a held Presence and the projectiles
+var chest := 56.0           # a figure's chest over its feet, where a cast's chest-high forms sit (the top-down body is shorter)
+                            # from state; false for a layer staged on a page (the Techniques page's preview)
 
 func _ready() -> void:
 	z_index = 4000
@@ -83,20 +87,121 @@ func play_form(form: String, element: String, tier: int, pos: Vector2, facing: i
 	add("anim", pos, e)
 	return e
 
+## P6e a technique cast at its tier (docs/moments_design.md §5), by the caster at `at` facing `facing` toward `target`
+## (the foe it lands on: the room's nearest in reach, or a page's staged one): a ring at the feet (from tier 2), a wash
+## of its element over the screen (from tier 3, under the flash limiter; only on the room's layer), and its shape, drawn
+## at the reach it really strikes (§5.4, `reach` the hitbox's by default): a slash, a wave along the reach, a ring at it
+## with echo rings inside, a rain of streaks, a pillar on the foe, or a ring and motes round the caster. A bolt is drawn
+## by its projectile.
+## Decision 23: with the technique's form animation (`vfx.anim`, data/fx_art.json) the cast plays that sheet instead of
+## the procedural shape, timed so its impact frame lands on the pose's hit frame (`windup`, the timeline's hit_at),
+## facing the cast, sized to the hitbox and at its tier's band; an area's edge (a ring at the true reach, §5.4) and
+## a heal's radius are still drawn at the reach. The procedural shapes remain for a technique without a sheet.
+## On the top-down plane (redesign Phase 2) the cast follows its `aim`: the sheets and shapes turn to it, mirrored so none
+## draws upside down.
+func cast(t: Dictionary, at: Vector2, facing: int, col: Color, target: Vector2, windup := -1.0, reach := -1.0, aim := Vector2.ZERO) -> void:
+	var n := MomentRules.tier_numbers("tech:" + str(t.get("id", "")))
+	var tier := int(t.get("vfx", {}).get("tier", 1))
+	if reach < 0.0: reach = float(t.hitbox.x[1])
+	var turn := 0.0
+	if aim != Vector2.ZERO:
+		facing = 1 if aim.x >= 0.0 else -1
+		turn = (aim * facing).angle()
+	var up := Vector2(0, -(chest - 6.0))
+	if float(n.cast_ring_r) > 0.0: add("ring", at, {"color": col, "radius": float(n.cast_ring_r), "dur": 0.3})
+	if float(n.tint_alpha) > 0.0 and world: add("tint", at, {"color": Color(col, float(n.tint_alpha)), "dur": 0.4})
+	var shape := str(t.get("vfx", {}).get("shape", "strike"))
+	var form := str(t.get("vfx", {}).get("anim", ""))
+	if not form_spec(form).is_empty():
+		_cast_form(t, form, facing, tier, reach, at, target, windup, turn)
+		if shape == "ring": add("wave", at, {"color": col, "radius": reach, "size": n.wave_width, "dur": 0.45})
+		if shape == "domain" and t.has("heal_radius"): add("ring", at, {"color": Color(col, 0.7), "radius": float(t.heal_radius), "dur": 0.6})
+		return
+	match shape:
+		"strike": add("slash", at + Vector2(facing * 40, 0).rotated(turn) + up, {"color": col, "facing": facing, "turn": turn, "radius": 46.0 + 6.0 * (tier - 1), "dur": 0.3})
+		"wave": add("talisman_wave", at + up, {"color": col, "facing": facing, "radius": reach, "size": 20 + 2 * tier, "dur": 0.4})
+		"ring":
+			for i in int(n.echoes) + 1:
+				add("wave", at, {"color": col, "radius": reach * [1.0, 0.7, 0.4, 0.55][i], "size": n.wave_width, "dur": 0.45, "delay": 0.08 * i})
+		"rain": add("rain", at + Vector2(facing * reach * 0.5, 0).rotated(turn), {"color": col, "radius": reach * 0.5, "height": 240.0, "dur": 0.5,
+			"count": MomentRules.particle_count(3 * int(t.get("hits", 1)) + 2 * tier)})
+		"pillar": add("pillar", target, {"color": col, "radius": 12.0 + 4.0 * tier, "height": 300.0, "dur": 0.35})
+		"domain":
+			add("ring", at, {"color": col, "radius": float(t.get("heal_radius", reach)), "dur": 0.6})
+			add("motes", at + Vector2(0, -10), {"color": col, "dur": 0.8})
+
+## A form's sheet on a cast: anchored by its `at` (the caster's chest or feet, the foe's feet or chest), sized by its
+## `size` rule (band: bigger by tier, never past a strike's reach; reach: snapped down so a ring or a line never
+## passes the hitbox; tile: repeated across the reach; travel: the crest crosses the reach over its life), and
+## started so its impact frame lands on the hit frame: later when the wind-up is long, part-way in when it is short.
+func _cast_form(t: Dictionary, form: String, facing: int, tier: int, reach: float, at: Vector2, target: Vector2, windup: float, turn := 0.0) -> void:
+	var a := form_spec(form)
+	var band := band_of(tier)
+	var span := float(a.span)
+	var extra := {"turn": turn}
+	var s := 1.0
+	match str(a.size):
+		"band":
+			s = float(BAND_SCALE[band])
+			if a.get("fit", false): s = minf(s, maxf(1.0, snap_scale(reach * 1.15 / span, true)))   # never past the reach, never under native
+		"reach": s = maxf(1.0, snap_scale(reach / span, true))
+		"stretch":   # a line along the reach: its exact length, the band's height
+			s = reach / span
+			extra.scale_y = float(BAND_SCALE[band])
+		"tile":
+			s = 1.0 if band < 2 else 1.5
+			extra.tiles = maxi(1, ceili(reach / (float(a.cell[0]) * s)))
+		"travel":
+			s = float(BAND_SCALE[band])
+			extra.travel = Vector2(facing * maxf(0.0, reach - span * s * 0.5), 0).rotated(turn)
+	extra.scale = s
+	var pos := at
+	match str(a.at):
+		"chest": pos = at + Vector2(0, -chest)
+		"target": pos = target
+		"target_chest": pos = target + Vector2(facing * 30, 0).rotated(turn) + Vector2(0, -(chest - 6.0))
+	if windup >= 0.0:
+		var lead := windup - float(a.impact) / float(a.fps)
+		if lead >= 0.0: extra.delay = lead
+		else: extra.start = -lead
+	play_form(form, str(t.get("element", "none")), tier, pos, facing, extra)
+
+## A hit's marks at `pos` (§5.2): its number (when `numbers`; a crit gold, Qi teal, Soul violet, a blow on the player
+## red), sized by the technique's tier and stacked with the cast's other hits on that target (`stack`), and a spark in
+## its element at the tier's count, size, reach and style. `source` is the blow's ("tech:<id>" for a technique).
+func hit(pos: Vector2, amount: float, source: String, element: String, dtype: String, crit: bool, stack := "", numbers := true, on_player := false) -> void:
+	var color = UiKit.PAPER
+	if on_player: color = UiKit.RED
+	elif crit: color = UiKit.GOLD
+	elif dtype == "qi": color = UiKit.QI
+	elif dtype == "soul": color = UiKit.SOUL
+	var n := MomentRules.tier_numbers(source)
+	var tech := ContentDB.entry("techniques", source.trim_prefix("tech:")) if source.begins_with("tech:") else {}
+	if numbers:
+		number(pos, UiKit.short(amount), color, int(n.number_size) if not tech.is_empty() else 22, crit, stack + source if not tech.is_empty() else "", amount)
+	add("spark", pos + Vector2(0, 20), {"color": SpriteCache.element_color(element), "dur": 0.25,
+		"count": MomentRules.particle_count(int(n.spark_count)), "size": n.spark_size, "radius": n.spark_reach, "core": n.core_r,
+		"style": tech.get("vfx", {}).get("particles", MomentRules.particle_style("", element, dtype))})
+
 ## The frame of a form's sheet at `t` seconds in (held on the last frame).
 static func form_frame(a: Dictionary, t: float) -> int:
 	return clampi(int(t * float(a.fps)), 0, int(a.frames) - 1)
 
 ## Draw one frame of a form sheet: `anchor` on `at`, mirrored for a left facing, `scale` whole halves (a stretched line
 ## keeps `scale_y` and takes its exact length along the reach).
+## `turn`: the top-down aim's turn off the facing (redesign Phase 2).
 func draw_form(a: Dictionary, at: Vector2, frame: int, row: int, facing: int, scale: float, alpha := 1.0, scale_y := -1.0, turn := 0.0) -> void:
+	draw_form_on(self, a, at, frame, row, facing, scale, alpha, scale_y, turn)
+
+## The same frame on any canvas (a page's card shows its art's impact frame).
+static func draw_form_on(ci: CanvasItem, a: Dictionary, at: Vector2, frame: int, row: int, facing: int, scale: float, alpha := 1.0, scale_y := -1.0, turn := 0.0) -> void:
 	var tex := SpriteCache.tex(str(a.file))
 	if tex == null: return
 	var cell := Vector2(float(a.cell[0]), float(a.cell[1]))
 	var anchor := Vector2(float(a.anchor[0]), float(a.anchor[1]))
-	draw_set_transform(at.snapped(Vector2(2, 2)), turn, Vector2(float(facing) * scale, scale_y if scale_y > 0.0 else scale))
-	draw_texture_rect_region(tex, Rect2(-anchor, cell), Rect2(Vector2(frame * cell.x, row * cell.y), cell), Color(1, 1, 1, alpha))
-	draw_set_transform(Vector2.ZERO)
+	ci.draw_set_transform(at.snapped(Vector2(2, 2)), turn, Vector2(float(facing) * scale, scale_y if scale_y > 0.0 else scale))
+	ci.draw_texture_rect_region(tex, Rect2(-anchor, cell), Rect2(Vector2(frame * cell.x, row * cell.y), cell), Color(1, 1, 1, alpha))
+	ci.draw_set_transform(Vector2.ZERO)
 
 ## A screen tint (a Heaven-grade technique, §5.2): none with Reduce motion or Battery saver, 0.3 of its alpha with Bright
 ## flashes off, and at most one flash or tint a second from every source (the flash limiter, §5.10).
@@ -111,6 +216,7 @@ func _tint_allowed(e: Dictionary) -> bool:
 ## a total (§5.5).
 func number(pos: Vector2, text: String, color: Color, size := 22, crit := false, stack := "", value := 0.0) -> void:
 	if not Game.account.settings.get("damage_numbers", true): return
+	size = roundi(size * number_scale)
 	if stack == "":
 		label(pos, text, color, size + (8 if crit else 0), crit)
 		return
@@ -129,13 +235,21 @@ func number(pos: Vector2, text: String, color: Color, size := 22, crit := false,
 		"size": size + (8 if crit else 0), "dur": 1.0, "delay": float(cfg.get("step_s", 0.06)) * i, "vel": Vector2(0, -70.0)})   # one speed, so a crit keeps its place
 	st.top = fx.back()
 
+## A parry (the caster's counter meeting a blow): a pale gold flash in front of the chest and the word over the head.
+func parry(feet: Vector2, facing: int) -> void:
+	add("flash", feet + Vector2(facing * 20, -50), {"color": UiKit.PALE_GOLD, "radius": 30, "dur": 0.25})
+	label(feet + Vector2(0, -110), Tx.t("world_view.parry"), UiKit.GOLD, 22)
+
 ## A word that rises like a number (Miss, Evade, Parry, a foe's "!"), whatever the Damage numbers setting.
 func label(pos: Vector2, text: String, color: Color, size := 22, fast := false) -> void:
-	add("number", pos + Vector2(randf_range(-10, 10), 0), {"text": text, "color": color, "size": size, "dur": 1.0,
+	add("number", pos + Vector2(randf_range(-10, 10), 0), {"text": text, "color": color, "size": roundi(size * number_scale), "dur": 1.0,
 		"vel": Vector2(randf_range(-12, 12), -90.0 if fast else -70.0)})
 
 func _process(delta: float) -> void:
-	if fixed_step > 0.0: delta = fixed_step
+	step(fixed_step if fixed_step > 0.0 else delta)
+
+## Advance every effect by `delta` seconds (a staged layer is stepped by its owner's clock instead of its own process).
+func step(delta: float) -> void:
 	clock += delta
 	for e in fx.duplicate():
 		e.t = float(e.t) + delta
@@ -158,6 +272,11 @@ func _totals() -> void:
 		stacks.erase(key)
 
 func _draw() -> void:
+	if world: _draw_state()
+	_draw_fx()
+
+## What the room's state holds, under the transient effects.
+func _draw_state() -> void:
 	# S48 Array Plates laid in a fight are drawn from Combat's state, on the ground under everything else.
 	if Game.combat:
 		for a in Game.combat.arrays: _draw_array(a)
@@ -170,6 +289,8 @@ func _draw() -> void:
 		for p in Game.room_rt.projectiles:
 			if float(p.get("delay", 0.0)) > 0.0: continue
 			_draw_projectile(p)
+
+func _draw_fx() -> void:
 	for e in fx:
 		if float(e.t) < 0.0: continue
 		var k: float = float(e.t) / maxf(0.001, float(e.dur))

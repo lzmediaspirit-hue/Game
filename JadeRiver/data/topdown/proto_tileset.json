@@ -1,4 +1,11 @@
 {
+ "atlas": {
+  "body": "res://art/topdown/placeholder_body.png",
+  "foes": "res://art/topdown/placeholder_foes.png",
+  "props": "res://art/topdown/proto_props.png",
+  "tiles": "res://art/topdown/proto_tiles.png"
+ },
+ "bank_face": "bank",
  "body": {
   "cell": [
    32,
@@ -341,6 +348,53 @@
      ]
     ]
    }
+  }
+ },
+ "paint": {
+  "d": {
+   "face": "earth",
+   "top": [
+    "dirt"
+   ]
+  },
+  "f": {
+   "face": "earth",
+   "top": [
+    "grass_flowers"
+   ]
+  },
+  "g": {
+   "face": "earth",
+   "top": [
+    "grass_a",
+    "grass_b"
+   ]
+  },
+  "p": {
+   "face": "stone",
+   "top": [
+    "paving_a",
+    "paving_b"
+   ]
+  },
+  "r": {
+   "face": "rock",
+   "top": [
+    "rock"
+   ]
+  },
+  "s": {
+   "face": "stone",
+   "top": [
+    "stone_top"
+   ]
+  },
+  "w": {
+   "face": "wood",
+   "keep_face": true,
+   "top": [
+    "wood"
+   ]
   }
  },
  "props": {
